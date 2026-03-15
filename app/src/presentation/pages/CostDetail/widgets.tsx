@@ -90,8 +90,6 @@ export const COST_DETAIL_WIDGETS: readonly WidgetDef[] = [
 ]
 
 export const DEFAULT_COST_DETAIL_WIDGET_IDS = [
-  // 収益概況テーブル
-  'kpi-summary-table',
   // 仕入明細
   'costdetail-purchase',
   'costdetail-transfer',

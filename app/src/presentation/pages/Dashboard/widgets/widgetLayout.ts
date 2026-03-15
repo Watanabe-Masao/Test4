@@ -15,8 +15,6 @@ export const DEFAULT_WIDGET_IDS: string[] = [
   // モニタリング
   'analysis-condition-summary',
   'analysis-alert-panel',
-  // 収益概況テーブル（主1+Sub2, 主2+Sub1）
-  'kpi-summary-table',
   // 日別予算進捗（売上 vs 予算の累計推移）
   'chart-daily-sales',
   // 予実管理
@@ -26,7 +24,7 @@ export const DEFAULT_WIDGET_IDS: string[] = [
   'exec-forecast-tools',
 ]
 
-const STORAGE_KEY = 'dashboard_layout_v13'
+const STORAGE_KEY = 'dashboard_layout_v14'
 
 /**
  * 旧 DuckDB 専用ウィジェット ID → 統合ウィジェット ID へのマイグレーションマップ。
@@ -38,30 +36,32 @@ const WIDGET_ID_MIGRATION: ReadonlyMap<string, string> = new Map([
   ['duckdb-dept-hourly', 'chart-dept-hourly-pattern'],
   ['duckdb-store-hourly', 'chart-store-timeslot-comparison'],
   ['analysis-duckdb-yoy', 'analysis-yoy-variance'],
-  // Daily KPI統合マイグレーション
-  ['daily-kpi-sales', 'kpi-summary-table'],
-  ['daily-kpi-cost', 'kpi-summary-table'],
-  ['daily-kpi-discount', 'kpi-summary-table'],
-  ['daily-kpi-gp-rate', 'kpi-summary-table'],
-  ['daily-kpi-markup', 'kpi-summary-table'],
-  ['daily-kpi-cost-inclusion', 'kpi-summary-table'],
+  // Daily KPI → ConditionSummaryEnhanced に吸収
+  ['daily-kpi-sales', 'widget-budget-achievement'],
+  ['daily-kpi-cost', 'widget-budget-achievement'],
+  ['daily-kpi-discount', 'widget-budget-achievement'],
+  ['daily-kpi-gp-rate', 'widget-budget-achievement'],
+  ['daily-kpi-markup', 'widget-budget-achievement'],
+  ['daily-kpi-cost-inclusion', 'widget-budget-achievement'],
   ['daily-chart-sales', 'chart-daily-sales'],
-  // KPIカード → 統合テーブルへのマイグレーション
-  ['kpi-core-sales', 'kpi-summary-table'],
-  ['kpi-total-cost', 'kpi-summary-table'],
-  ['kpi-inv-gross-profit', 'kpi-summary-table'],
-  ['kpi-est-margin', 'kpi-summary-table'],
-  ['kpi-inventory-cost', 'kpi-summary-table'],
-  ['kpi-delivery-sales', 'kpi-summary-table'],
-  ['kpi-cost-inclusion', 'kpi-summary-table'],
-  ['kpi-discount-loss', 'kpi-summary-table'],
-  ['kpi-core-markup', 'kpi-summary-table'],
+  // KPIカード → ConditionSummaryEnhanced に吸収
+  ['kpi-core-sales', 'widget-budget-achievement'],
+  ['kpi-total-cost', 'widget-budget-achievement'],
+  ['kpi-inv-gross-profit', 'widget-budget-achievement'],
+  ['kpi-est-margin', 'widget-budget-achievement'],
+  ['kpi-inventory-cost', 'widget-budget-achievement'],
+  ['kpi-delivery-sales', 'widget-budget-achievement'],
+  ['kpi-cost-inclusion', 'widget-budget-achievement'],
+  ['kpi-discount-loss', 'widget-budget-achievement'],
+  ['kpi-core-markup', 'widget-budget-achievement'],
   // 前年比較 → ConditionSummaryEnhancedヘッダに吸収
   ['kpi-py-same-dow', 'widget-budget-achievement'],
   ['kpi-py-same-date', 'widget-budget-achievement'],
   ['kpi-dow-gap', 'widget-budget-achievement'],
-  // ExecSummaryBar → 統合テーブル + ConditionSummaryEnhancedに吸収
-  ['exec-summary-bar', 'kpi-summary-table'],
+  // ExecSummaryBar → ConditionSummaryEnhanced に吸収
+  ['exec-summary-bar', 'widget-budget-achievement'],
+  // 収益概況テーブル → ConditionSummaryEnhanced に吸収
+  ['kpi-summary-table', 'widget-budget-achievement'],
 ])
 
 /** 旧 ID を統合 ID に変換し、重複を除去する */

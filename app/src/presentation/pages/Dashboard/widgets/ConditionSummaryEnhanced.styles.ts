@@ -5,9 +5,8 @@ import styled, { css } from 'styled-components'
 export const DashWrapper = styled.div`
   width: 100%;
   background: ${({ theme }) => theme.colors.bg3};
-  border-radius: ${({ theme }) => theme.radii.xl};
+  border-radius: ${({ theme }) => theme.radii.md};
   border: 1px solid ${({ theme }) => theme.colors.border};
-  box-shadow: ${({ theme }) => theme.shadows.lg};
   overflow: hidden;
 `
 
@@ -20,17 +19,17 @@ export const Header = styled.div`
 `
 
 export const HeaderMeta = styled.div`
-  font-size: 9px;
+  font-size: 10px;
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ theme }) => theme.colors.text4};
-  letter-spacing: 3px;
+  letter-spacing: 1px;
   margin-bottom: 2px;
 `
 
 export const HeaderTitle = styled.h2`
-  font-size: ${({ theme }) => theme.typography.fontSize['2xl']};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.extrabold};
-  margin: 0 0 ${({ theme }) => theme.spacing[7]} 0;
+  font-size: ${({ theme }) => theme.typography.fontSize.xl};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  margin: 0 0 ${({ theme }) => theme.spacing[5]} 0;
   color: ${({ theme }) => theme.colors.text};
 `
 
@@ -162,10 +161,6 @@ export const MetricLabel = styled.span<{ $active: boolean; $color: string }>`
 export const TotalSection = styled.div`
   padding: ${({ theme }) => theme.spacing[5]} ${({ theme }) => theme.spacing[10]};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  background: ${({ theme }) =>
-    theme.mode === 'dark'
-      ? 'linear-gradient(135deg, rgba(255,255,255,0.02) 0%, transparent 100%)'
-      : 'linear-gradient(135deg, rgba(59,130,246,0.03) 0%, transparent 100%)'};
 `
 
 export const TotalGrid = styled.div`
@@ -182,12 +177,11 @@ export const TotalCell = styled.div<{ $align?: 'left' | 'center' | 'right' }>`
 export const PeriodBadge = styled.span<{ $color: string }>`
   font-size: 10px;
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ $color }) => $color};
-  background: ${({ $color }) => `${$color}18`};
-  padding: 2px ${({ theme }) => theme.spacing[4]};
+  background: ${({ $color }) => `${$color}14`};
+  padding: 2px ${({ theme }) => theme.spacing[3]};
   border-radius: ${({ theme }) => theme.radii.sm};
-  letter-spacing: 1px;
 `
 
 export const SectionLabel = styled.span`
@@ -197,11 +191,10 @@ export const SectionLabel = styled.span`
 `
 
 export const BigValue = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.extrabold};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
-  letter-spacing: -0.5px;
 `
 
 export const SubValue = styled.div`
@@ -219,11 +212,10 @@ export const MainValue = styled.div`
 `
 
 export const AchValue = styled.div<{ $color: string }>`
-  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.extrabold};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ $color }) => $color};
-  letter-spacing: -0.5px;
 `
 
 export const SmallLabel = styled.div`
@@ -251,8 +243,7 @@ export const ProgressFill = styled.div<{ $width: number; $color: string }>`
   height: 100%;
   border-radius: ${({ theme }) => theme.radii.sm};
   width: ${({ $width }) => Math.min($width, 120) / 1.2}%;
-  background: linear-gradient(90deg, ${({ $color }) => `${$color}66`}, ${({ $color }) => $color});
-  transition: width 0.6s ease;
+  background: ${({ $color }) => $color};
 `
 
 // ─── YoY Row ────────────────────────────────────────────
@@ -448,10 +439,8 @@ export const LegendItem = styled.span`
 
 export const BudgetHeaderRow = styled.div`
   display: flex;
-  gap: ${({ theme }) => theme.spacing[8]};
-  padding: ${({ theme }) => theme.spacing[5]} ${({ theme }) => theme.spacing[10]};
-  background: ${({ theme }) =>
-    theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(59,130,246,0.02)'};
+  gap: ${({ theme }) => theme.spacing[6]};
+  padding: ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[10]};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   flex-wrap: wrap;
   align-items: baseline;
@@ -504,30 +493,26 @@ export const CardGridRow = styled.div`
 export const CondCard = styled.div<{ $borderColor: string }>`
   display: flex;
   align-items: flex-start;
-  gap: ${({ theme }) => theme.spacing[4]};
-  padding: ${({ theme }) => theme.spacing[5]};
+  gap: ${({ theme }) => theme.spacing[3]};
+  padding: ${({ theme }) => theme.spacing[4]};
   background: ${({ theme }) => theme.colors.bg2};
   border: 1px solid ${({ theme }) => theme.colors.border};
-  border-left: 4px solid ${({ $borderColor }) => $borderColor};
-  border-radius: ${({ theme }) => theme.radii.md};
+  border-left: 3px solid ${({ $borderColor }) => $borderColor};
+  border-radius: ${({ theme }) => theme.radii.sm};
   cursor: pointer;
-  transition:
-    box-shadow 0.15s,
-    transform 0.15s;
   &:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transform: translateY(-1px);
+    background: ${({ theme }) =>
+      theme.mode === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'};
   }
 `
 
 export const CondSignal = styled.div<{ $color: string }>`
-  width: 14px;
-  height: 14px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: ${({ $color }) => $color};
-  box-shadow: 0 0 6px ${({ $color }) => `${$color}60`};
   flex-shrink: 0;
-  margin-top: 2px;
+  margin-top: 4px;
 `
 
 export const CondCardContent = styled.div`
@@ -543,10 +528,9 @@ export const CondCardLabel = styled.div`
 
 export const CondCardValue = styled.div<{ $color: string }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.xl};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.extrabold};
+  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ $color }) => $color};
-  letter-spacing: -0.5px;
 `
 
 export const CondCardSub = styled.div`
@@ -566,23 +550,13 @@ export const DrillOverlay = styled.div`
   align-items: center;
   justify-content: center;
   background: ${({ theme }) =>
-    theme.mode === 'dark' ? 'rgba(0, 0, 0, 0.6)' : 'rgba(15, 23, 42, 0.45)'};
-  backdrop-filter: blur(4px);
-  animation: drillFadeIn 0.18s ease-out;
-  @keyframes drillFadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
+    theme.mode === 'dark' ? 'rgba(0, 0, 0, 0.5)' : 'rgba(15, 23, 42, 0.35)'};
 `
 
 export const DrillPanel = styled.div`
   background: ${({ theme }) => theme.colors.bg2};
   border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: 14px;
+  border-radius: ${({ theme }) => theme.radii.md};
   min-width: 420px;
   max-width: 740px;
   width: 90vw;
@@ -590,21 +564,7 @@ export const DrillPanel = styled.div`
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow:
-    0 24px 48px rgba(0, 0, 0, 0.18),
-    0 0 0 1px
-      ${({ theme }) => (theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)')};
-  animation: drillSlideUp 0.22s ease-out;
-  @keyframes drillSlideUp {
-    from {
-      opacity: 0;
-      transform: translateY(12px) scale(0.98);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-  }
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 `
 
 export const DrillHeader = styled.div`
@@ -620,10 +580,9 @@ export const DrillHeader = styled.div`
 `
 
 export const DrillTitle = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.lg};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.extrabold};
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
-  letter-spacing: -0.3px;
 `
 
 export const DrillBody = styled.div`
@@ -681,7 +640,7 @@ export const TableHeaderCell = styled.span<{ $align?: 'left' | 'center' | 'right
 export const DailyModalPanel = styled.div`
   background: ${({ theme }) => theme.colors.bg2};
   border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: 14px;
+  border-radius: ${({ theme }) => theme.radii.md};
   min-width: 500px;
   max-width: 860px;
   width: 92vw;
@@ -689,11 +648,7 @@ export const DailyModalPanel = styled.div`
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow:
-    0 24px 48px rgba(0, 0, 0, 0.18),
-    0 0 0 1px
-      ${({ theme }) => (theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)')};
-  animation: drillSlideUp 0.22s ease-out;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 `
 
 export const DailyTableWrapper = styled.div`

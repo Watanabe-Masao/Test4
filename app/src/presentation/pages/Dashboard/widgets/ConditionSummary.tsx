@@ -3,24 +3,16 @@ import { formatPercent } from '@/domain/formatting'
 import { safeDivide } from '@/domain/calculations/utils'
 import type { MetricId } from '@/domain/models'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
-import {
-  resolveThresholds,
-  evaluateSignal,
-  isMetricEnabled,
-} from '@/domain/calculations/rules/conditionResolver'
+import { isMetricEnabled } from '@/domain/calculations/rules/conditionResolver'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useDataStore } from '@/application/stores/dataStore'
 import type { WidgetContext } from './types'
 import { ConditionMatrixTable } from './ConditionMatrixTable'
 import {
-  type SignalLevel,
   type ConditionItem,
   type DisplayMode,
   SIGNAL_COLORS,
   metricSignal,
-  computeGpBeforeConsumable,
-  computeGpAfterConsumable,
-  computeGpAfterConsumableAmount,
 } from './conditionSummaryUtils'
 import {
   Wrapper,
@@ -41,14 +33,9 @@ import {
   CloseBtn,
 } from './ConditionSummary.styles'
 import { ConditionSettingsPanelWidget } from './ConditionSettingsPanel'
-import { GpRateDetailTable, DiscountRateDetailTable } from './conditionPanelProfitability'
-import { MarkupRateDetailTable, CostInclusionDetailTable } from './conditionPanelMarkupCost'
-import { SalesYoYDetailTable, CustomerYoYDetailTable } from './conditionPanelYoY'
-import {
-  TxValueDetailTable,
-  DailySalesDetailTable,
-  SimpleBreakdown,
-} from './conditionPanelSalesDetail'
+import { CostInclusionDetailTable } from './conditionPanelMarkupCost'
+import { CustomerYoYDetailTable } from './conditionPanelYoY'
+import { TxValueDetailTable, SimpleBreakdown } from './conditionPanelSalesDetail'
 
 // ─── Component ──────────────────────────────────────────
 
@@ -127,116 +114,16 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
   const prevCtsRecords = useDataStore((s) => s.data.prevYearCategoryTimeSales.records)
 
   // ─── Build condition items ───────────────────────────
-
-  const gpBefore = computeGpBeforeConsumable(r)
-  const gpAfter = computeGpAfterConsumable(r)
-  const gpDiff = (gpAfter - r.grossProfitRateBudget) * 100
-
-  const gpSignal = (diffPt: number, storeId?: string): SignalLevel => {
-    const t = resolveThresholds(effectiveConfig, 'gpRate', storeId)
-    return evaluateSignal(diffPt, t, 'higher_better')
-  }
-
-  const markupSignal = (rate: number): SignalLevel => {
-    const t = resolveThresholds(effectiveConfig, 'markupRate')
-    const diff = (rate - r.grossProfitRateBudget) * 100
-    return evaluateSignal(diff, t, 'higher_better')
-  }
+  // NOTE: 粗利率, 粗利率予算比, 売上予算達成率, 値入率, 売変率, 売上前年比 は
+  // ConditionSummaryEnhanced に吸収済みのため、ここでは表示しない
 
   const prevYear = ctx.prevYear
 
   const items: ConditionItem[] = []
 
-  // ── Group 1: Profitability / Budget ──────────────────
+  // ── YoY / Pace ──────────────────────────────────────
 
-  // 1. Gross Profit Rate
-  if (isMetricEnabled(effectiveConfig, 'gpRate')) {
-    items.push({
-      label: '粗利率',
-      value: formatPercent(gpAfter),
-      sub: `予算 ${formatPercent(r.grossProfitRateBudget)} / 原算前 ${formatPercent(gpBefore)} / 原価算入率 ${formatPercent(r.costInclusionRate)} / 差異 ${(gpAfter - r.grossProfitRateBudget >= 0 ? '+' : '') + gpDiff.toFixed(2)}pt`,
-      signal: gpSignal(gpDiff),
-      metricId:
-        r.invMethodGrossProfitRate != null ? 'invMethodGrossProfitRate' : 'estMethodMarginRate',
-      detailBreakdown: 'gpRate',
-    })
-  }
-
-  // 2. GP Amount Budget Ratio (period-prorated)
-  if (isMetricEnabled(effectiveConfig, 'gpAmount') && r.grossProfitBudget > 0) {
-    const gpAmt = computeGpAfterConsumableAmount(r)
-    const effectiveEndDay = ctx.elapsedDays ?? ctx.daysInMonth
-    let periodBudgetSum = 0
-    for (let d = 1; d <= effectiveEndDay; d++) periodBudgetSum += r.budgetDaily.get(d) ?? 0
-    const isPartialPeriod = ctx.elapsedDays != null && ctx.elapsedDays < ctx.daysInMonth
-    const periodBudget = isPartialPeriod ? periodBudgetSum : r.budget
-    const periodGPBudget = r.budget > 0 ? r.grossProfitBudget * (periodBudget / r.budget) : 0
-    const gpBudgetRatio = safeDivide(gpAmt, periodGPBudget, 0)
-    items.push({
-      label: '粗利額予算比',
-      value: formatPercent(gpBudgetRatio, 2),
-      sub: `粗利額 ${fmtCurrency(gpAmt)} / 予算 ${fmtCurrency(periodGPBudget)}`,
-      signal: metricSignal(gpBudgetRatio, 'gpAmount', effectiveConfig),
-    })
-  }
-
-  // 3. Daily Sales Achievement (売上予算達成率)
-  const budgetDailyAvg = ctx.daysInMonth > 0 ? r.budget / ctx.daysInMonth : 0
-  if (isMetricEnabled(effectiveConfig, 'dailySales') && budgetDailyAvg > 0) {
-    const dailyRatio = safeDivide(r.averageDailySales, budgetDailyAvg, 0)
-    items.push({
-      label: '売上予算達成率',
-      value: formatPercent(dailyRatio, 2),
-      sub: `日販 ${fmtCurrency(r.averageDailySales)} / 予算日販 ${fmtCurrency(budgetDailyAvg)}`,
-      signal: metricSignal(dailyRatio, 'dailySales', effectiveConfig),
-      detailBreakdown: 'dailySales',
-    })
-  }
-
-  // 4. Markup Rate
-  if (isMetricEnabled(effectiveConfig, 'markupRate')) {
-    items.push({
-      label: '値入率',
-      value: formatPercent(r.averageMarkupRate),
-      sub: `コア値入率 ${formatPercent(r.coreMarkupRate)}`,
-      signal: markupSignal(r.averageMarkupRate),
-      metricId: 'averageMarkupRate',
-      detailBreakdown: 'markupRate',
-    })
-  }
-
-  // 5. Discount Rate
-  if (isMetricEnabled(effectiveConfig, 'discountRate')) {
-    items.push({
-      label: '売変率',
-      value: formatPercent(r.discountRate),
-      sub: `売変額 ${fmtCurrency(r.totalDiscount)} / 粗売上 ${fmtCurrency(r.grossSales)}`,
-      signal: metricSignal(r.discountRate, 'discountRate', effectiveConfig),
-      metricId: 'discountRate',
-      detailBreakdown: 'discountRate',
-    })
-  }
-
-  // ── Group 2: YoY / Pace ──────────────────────────────
-
-  // 6. Sales YoY
-  if (
-    isMetricEnabled(effectiveConfig, 'salesYoY') &&
-    prevYear.hasPrevYear &&
-    prevYear.totalSales > 0
-  ) {
-    const salesYoY = safeDivide(r.totalSales, prevYear.totalSales, 0)
-    items.push({
-      label: '売上前年比',
-      value: formatPercent(salesYoY, 2),
-      sub: `当年 ${fmtCurrency(r.totalSales)} / 前年 ${fmtCurrency(prevYear.totalSales)}`,
-      signal: metricSignal(salesYoY, 'salesYoY', effectiveConfig),
-      metricId: 'salesTotal',
-      detailBreakdown: 'salesYoY',
-    })
-  }
-
-  // 7. Customer YoY
+  // Customer YoY
   if (
     isMetricEnabled(effectiveConfig, 'customerYoY') &&
     prevYear.hasPrevYear &&
@@ -371,41 +258,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
           }}
         >
           <DetailPanel onClick={(e) => e.stopPropagation()}>
-            {breakdownItem.detailBreakdown === 'gpRate' ? (
-              <GpRateDetailTable
-                sortedStoreEntries={sortedStoreEntries}
-                stores={stores}
-                result={r}
-                effectiveConfig={effectiveConfig}
-                displayMode={displayMode}
-                onDisplayModeChange={setDisplayMode}
-                settings={settings}
-                elapsedDays={ctx.elapsedDays}
-                daysInMonth={ctx.daysInMonth}
-              />
-            ) : breakdownItem.detailBreakdown === 'discountRate' ? (
-              <DiscountRateDetailTable
-                sortedStoreEntries={sortedStoreEntries}
-                stores={stores}
-                result={r}
-                effectiveConfig={effectiveConfig}
-                displayMode={displayMode}
-                onDisplayModeChange={setDisplayMode}
-                settings={settings}
-              />
-            ) : breakdownItem.detailBreakdown === 'markupRate' ? (
-              <MarkupRateDetailTable
-                sortedStoreEntries={sortedStoreEntries}
-                stores={stores}
-                result={r}
-                effectiveConfig={effectiveConfig}
-                displayMode={displayMode}
-                onDisplayModeChange={setDisplayMode}
-                settings={settings}
-                expandedMarkupStore={expandedMarkupStore}
-                onExpandToggle={(id) => setExpandedMarkupStore((prev) => (prev === id ? null : id))}
-              />
-            ) : breakdownItem.detailBreakdown === 'costInclusion' ? (
+            {breakdownItem.detailBreakdown === 'costInclusion' ? (
               <CostInclusionDetailTable
                 sortedStoreEntries={sortedStoreEntries}
                 stores={stores}
@@ -416,21 +269,6 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
                 settings={settings}
                 expandedMarkupStore={expandedMarkupStore}
                 onExpandToggle={(id) => setExpandedMarkupStore((prev) => (prev === id ? null : id))}
-              />
-            ) : breakdownItem.detailBreakdown === 'salesYoY' ? (
-              <SalesYoYDetailTable
-                sortedStoreEntries={sortedStoreEntries}
-                stores={stores}
-                result={r}
-                effectiveConfig={effectiveConfig}
-                displayMode={displayMode}
-                onDisplayModeChange={setDisplayMode}
-                settings={settings}
-                prevYear={ctx.prevYear}
-                prevYearMonthlyKpi={ctx.prevYearMonthlyKpi}
-                expandedStore={expandedMarkupStore}
-                onExpandToggle={(id) => setExpandedMarkupStore((prev) => (prev === id ? null : id))}
-                dataMaxDay={ctx.dataMaxDay}
               />
             ) : breakdownItem.detailBreakdown === 'customerYoY' ? (
               <CustomerYoYDetailTable
@@ -456,19 +294,6 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
                 displayMode={displayMode}
                 onDisplayModeChange={setDisplayMode}
                 settings={settings}
-                expandedStore={expandedMarkupStore}
-                onExpandToggle={(id) => setExpandedMarkupStore((prev) => (prev === id ? null : id))}
-              />
-            ) : breakdownItem.detailBreakdown === 'dailySales' ? (
-              <DailySalesDetailTable
-                sortedStoreEntries={sortedStoreEntries}
-                stores={stores}
-                result={r}
-                effectiveConfig={effectiveConfig}
-                displayMode={displayMode}
-                onDisplayModeChange={setDisplayMode}
-                settings={settings}
-                daysInMonth={ctx.daysInMonth}
                 expandedStore={expandedMarkupStore}
                 onExpandToggle={(id) => setExpandedMarkupStore((prev) => (prev === id ? null : id))}
               />

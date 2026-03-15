@@ -22,7 +22,6 @@ const EXECUTIVE_PRESET: LayoutPreset = {
   widgetIds: [
     'widget-budget-achievement',
     'analysis-condition-summary',
-    'kpi-summary-table',
     'exec-plan-actual-forecast',
     'exec-forecast-tools',
     'exec-store-kpi',
@@ -38,7 +37,6 @@ const FIELD_PRESET: LayoutPreset = {
   widgetIds: [
     'widget-budget-achievement',
     'analysis-condition-summary',
-    'kpi-summary-table',
     'chart-daily-sales',
     'exec-monthly-calendar',
     'exec-dow-average',
@@ -56,7 +54,6 @@ const ANALYST_PRESET: LayoutPreset = {
   widgetIds: [
     'widget-budget-achievement',
     'analysis-condition-summary',
-    'kpi-summary-table',
     'chart-daily-sales',
     'chart-gross-profit-amount',
     'chart-category-pie',
