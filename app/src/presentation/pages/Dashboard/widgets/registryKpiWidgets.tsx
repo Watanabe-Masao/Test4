@@ -31,28 +31,44 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
     group: '収益概況',
     size: 'kpi',
     linkTo: { view: 'reports' },
-    render: ({ result: r, prevYear, onExplain, fmtCurrency }) => (
-      <KpiCard
-        label="コア売上"
-        value={fmtCurrency(r.totalCoreSales)}
-        subText={`総売上: ${fmtCurrency(r.totalSales)} / 花: ${fmtCurrency(r.flowerSalesPrice)} / 産直: ${fmtCurrency(r.directProduceSalesPrice)}`}
-        accent={palette.purpleDark}
-        onClick={() => onExplain('coreSales')}
-        trend={
-          prevYear.hasPrevYear && prevYear.totalSales > 0
-            ? {
-                direction:
-                  r.totalSales > prevYear.totalSales
-                    ? 'up'
-                    : r.totalSales < prevYear.totalSales
-                      ? 'down'
-                      : 'flat',
-                label: `前年比 ${formatPercent(r.totalSales / prevYear.totalSales)}`,
-              }
-            : undefined
-        }
-      />
-    ),
+    render: ({ result: r, prevYearMonthlyKpi: pk, onExplain, fmtCurrency }) => {
+      const prevMonthSales = pk.hasPrevYear ? pk.sameDow.sales : null
+      const hasBudget = r.budget > 0
+      const budgetParts = [
+        hasBudget ? `予算: ${fmtCurrency(r.budget)}` : null,
+        prevMonthSales != null ? `前年月間: ${fmtCurrency(prevMonthSales)}` : null,
+      ]
+        .filter(Boolean)
+        .join(' / ')
+      const sub = [
+        `総売上: ${fmtCurrency(r.totalSales)} / 花: ${fmtCurrency(r.flowerSalesPrice)} / 産直: ${fmtCurrency(r.directProduceSalesPrice)}`,
+        budgetParts || null,
+      ]
+        .filter(Boolean)
+        .join('\n')
+      return (
+        <KpiCard
+          label="コア売上"
+          value={fmtCurrency(r.totalCoreSales)}
+          subText={sub}
+          accent={palette.purpleDark}
+          onClick={() => onExplain('coreSales')}
+          trend={
+            prevMonthSales != null && prevMonthSales > 0
+              ? {
+                  direction:
+                    r.totalSales > prevMonthSales
+                      ? 'up'
+                      : r.totalSales < prevMonthSales
+                        ? 'down'
+                        : 'flat',
+                  label: `前年比 ${formatPercent(r.totalSales / prevMonthSales)}`,
+                }
+              : undefined
+          }
+        />
+      )
+    },
   },
   {
     id: 'kpi-total-cost',
@@ -88,11 +104,17 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
         )
       }
       const afterRate = safeDivide(r.invMethodGrossProfit! - r.totalCostInclusion, r.totalSales, 0)
+      const hasGPBudget = r.grossProfitBudget > 0
+      const rateLine = `実績粗利率: ${formatPercent(r.invMethodGrossProfitRate)} / ${formatPercent(afterRate)} (消耗品: ${fmtCurrency(r.totalCostInclusion)})`
+      const budgetLine = hasGPBudget
+        ? `粗利予算: ${fmtCurrency(r.grossProfitBudget)} / 粗利率予算: ${formatPercent(r.grossProfitRateBudget)}`
+        : null
+      const sub = [rateLine, budgetLine].filter(Boolean).join('\n')
       return (
         <KpiCard
           label="【在庫法】実績粗利益"
           value={fmtCurrency(r.invMethodGrossProfit)}
-          subText={`実績粗利率: ${formatPercent(r.invMethodGrossProfitRate)} / ${formatPercent(afterRate)} (消耗品: ${fmtCurrency(r.totalCostInclusion)})`}
+          subText={sub}
           accent={sc.positive}
           badge="actual"
           formulaSummary="売上 − 売上原価（期首+仕入−期末）"
@@ -110,11 +132,17 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
     render: (ctx) => {
       const { result: r, onExplain, fmtCurrency } = ctx
       const beforeRate = safeDivide(r.estMethodMargin + r.totalCostInclusion, r.totalCoreSales, 0)
+      const hasGPBudget = r.grossProfitBudget > 0
+      const rateLine = `推定マージン率: ${formatPercent(beforeRate)} / ${formatPercent(r.estMethodMarginRate)} (消耗品: ${fmtCurrency(r.totalCostInclusion)})`
+      const budgetLine = hasGPBudget
+        ? `粗利予算: ${fmtCurrency(r.grossProfitBudget)} / 粗利率予算: ${formatPercent(r.grossProfitRateBudget)}`
+        : null
+      const sub = [rateLine, budgetLine].filter(Boolean).join('\n')
       return (
         <KpiCard
           label="【推定法】推定マージン"
           value={fmtCurrency(r.estMethodMargin)}
-          subText={`推定マージン率: ${formatPercent(beforeRate)} / ${formatPercent(r.estMethodMarginRate)} (消耗品: ${fmtCurrency(r.totalCostInclusion)})`}
+          subText={sub}
           accent={palette.warningDark}
           badge="estimated"
           formulaSummary="コア売上 − 推定原価（理論値）"
