@@ -537,7 +537,8 @@ export const DrillPanel = styled.div`
   flex-direction: column;
   box-shadow:
     0 24px 48px rgba(0, 0, 0, 0.18),
-    0 0 0 1px ${({ theme }) => (theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)')};
+    0 0 0 1px
+      ${({ theme }) => (theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)')};
   animation: drillSlideUp 0.22s ease-out;
   @keyframes drillSlideUp {
     from {
