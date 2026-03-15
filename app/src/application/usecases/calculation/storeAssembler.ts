@@ -22,7 +22,7 @@ import {
   calculateBudgetAnalysis,
   calculateGrossProfitBudget,
 } from '@/application/services/budgetAnalysisBridge'
-import { safeDivide } from '@/domain/calculations/utils'
+import { safeDivide, isSettingsForTargetMonth } from '@/domain/calculations/utils'
 import type { MonthlyAccumulator } from './types'
 
 function addToCategory(
@@ -100,7 +100,13 @@ function resolveBudget(
     for (let d = 1; d <= daysInMonth; d++) m.set(d, perDay)
     return m
   })()
-  const gpBudget = invConfig?.grossProfitBudget ?? 0
+  // 設定データの月が対象月と一致する場合のみ粗利額予算を採用
+  const settingsMatchesMonth = isSettingsForTargetMonth(
+    invConfig?.inventoryDate ?? null,
+    settings.targetYear,
+    settings.targetMonth,
+  )
+  const gpBudget = settingsMatchesMonth ? (invConfig?.grossProfitBudget ?? 0) : 0
   return { budget, budgetDaily, gpBudget }
 }
 

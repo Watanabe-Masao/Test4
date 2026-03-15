@@ -64,6 +64,21 @@ export function getEffectiveGrossProfitRate(result: {
   return result.invMethodGrossProfitRate ?? result.estMethodMarginRate
 }
 
+/**
+ * 設定データの inventoryDate が対象年月と一致するか判定する。
+ * 日付なしやパース不能は後方互換のため true を返す。
+ */
+export function isSettingsForTargetMonth(
+  inventoryDate: string | null,
+  targetYear: number,
+  targetMonth: number,
+): boolean {
+  if (!inventoryDate) return true
+  const match = inventoryDate.match(/^(\d{4})\/(\d{1,2})\//)
+  if (!match) return true
+  return Number(match[1]) === targetYear && Number(match[2]) === targetMonth
+}
+
 // ── サブモジュール re-export ──
 
 export { maxDayOfRecord, detectDataMaxDay } from './dataDetection'
