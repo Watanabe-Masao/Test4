@@ -5,6 +5,8 @@ import type {
   StoreResult,
   TransferDetails,
   ImportedData,
+  InventoryConfig,
+  BudgetData,
 } from '@/domain/models'
 import { ZERO_COST_PRICE_PAIR, addCostPricePairs } from '@/domain/models'
 // bridge 経由: 将来の dual-run compare を観測可能にする
@@ -82,16 +84,14 @@ function buildTransferDetails(
   }
 }
 
-/** 予算データを解決する */
+/** 予算データを解決する（invConfig は月フィルタ適用済みを前提とする） */
 function resolveBudget(
-  storeId: string,
-  data: ImportedData,
-  settings: AppSettings,
+  invConfig: InventoryConfig | undefined,
+  budgetData: BudgetData | undefined,
+  defaultBudget: number,
   daysInMonth: number,
 ) {
-  const invConfig = data.settings.get(storeId)
-  const budgetData = data.budget.get(storeId)
-  const budget = budgetData?.total ?? settings.defaultBudget
+  const budget = budgetData?.total ?? defaultBudget
   const budgetDaily: ReadonlyMap<number, number> = (() => {
     if (budgetData?.daily && budgetData.daily.size > 0) return budgetData.daily
     if (budget <= 0 || daysInMonth <= 0) return new Map<number, number>()
@@ -100,13 +100,7 @@ function resolveBudget(
     for (let d = 1; d <= daysInMonth; d++) m.set(d, perDay)
     return m
   })()
-  // 設定データの月が対象月と一致する場合のみ粗利額予算を採用
-  const settingsMatchesMonth = isSettingsForTargetMonth(
-    invConfig?.inventoryDate ?? null,
-    settings.targetYear,
-    settings.targetMonth,
-  )
-  const gpBudget = settingsMatchesMonth ? (invConfig?.grossProfitBudget ?? 0) : 0
+  const gpBudget = invConfig?.grossProfitBudget ?? 0
   return { budget, budgetDaily, gpBudget }
 }
 
@@ -120,7 +114,16 @@ export function assembleStoreResult(
   settings: AppSettings,
   daysInMonth: number,
 ): StoreResult {
-  const invConfig = data.settings.get(storeId)
+  const rawInvConfig = data.settings.get(storeId)
+
+  // 設定データの月が対象月と一致するか判定（在庫・粗利予算すべてに適用）
+  const settingsMatchesMonth = isSettingsForTargetMonth(
+    rawInvConfig?.inventoryDate ?? null,
+    settings.targetYear,
+    settings.targetMonth,
+  )
+  // 月不一致の場合、在庫データを無効化（前月の在庫値を当月計算に使わない）
+  const invConfig = settingsMatchesMonth ? rawInvConfig : undefined
 
   // 売上納品
   const deliverySalesPrice = acc.totalFlowerPrice + acc.totalDirectProducePrice
@@ -217,7 +220,12 @@ export function assembleStoreResult(
   }
 
   // 予算
-  const { budget, budgetDaily, gpBudget } = resolveBudget(storeId, data, settings, daysInMonth)
+  const { budget, budgetDaily, gpBudget } = resolveBudget(
+    invConfig,
+    data.budget.get(storeId),
+    settings.defaultBudget,
+    daysInMonth,
+  )
 
   // 予算分析（domain 関数は Record ベース — Map↔Record 変換）
   const salesDailyRecord: Record<number, number> = {}
@@ -255,7 +263,7 @@ export function assembleStoreResult(
     closingInventory: invConfig?.closingInventory ?? null,
     productInventory: invConfig?.productInventory ?? null,
     costInclusionInventory: invConfig?.costInclusionInventory ?? null,
-    inventoryDate: invConfig?.inventoryDate ?? null,
+    inventoryDate: rawInvConfig?.inventoryDate ?? null,
     closingInventoryDay: invConfig?.closingInventoryDay ?? null,
     purchaseMaxDay: acc.purchaseMaxDay,
     hasDiscountData: acc.hasDiscountData,
