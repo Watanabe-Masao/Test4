@@ -661,9 +661,14 @@ export interface BudgetHeaderData {
   readonly monthlyBudget: number
   readonly grossProfitBudget: number
   readonly grossProfitRateBudget: number
-  readonly prevYearSales: number | null
-  /** 予算前年比（例: 1.0135 = 101.35%） */
-  readonly budgetVsPrevYear: number | null
+  /** 前年同日（カレンダー同月）売上 — 月間フル */
+  readonly prevYearSalesSameDate: number | null
+  /** 前年同曜日売上 — 月間フル */
+  readonly prevYearSalesSameDow: number | null
+  /** 予算前年比（例: 1.0135 = 101.35%） — sameDate ベース */
+  readonly budgetVsPrevYearSameDate: number | null
+  /** 予算前年比 — sameDow ベース */
+  readonly budgetVsPrevYearSameDow: number | null
   /** 曜日ギャップ情報（構成が同じ場合は null） */
   readonly dowGap: DowGapSummary | null
 }
@@ -708,22 +713,30 @@ export function buildBudgetHeader(
   prevYearMonthlyKpi: PrevYearMonthlyKpi,
   dowGap: DowGapAnalysis,
 ): BudgetHeaderData {
-  // 予算対比の前年売上は常に前年同月のカレンダートータル（アライメント非依存）。
-  let prevYearSales: number | null = null
+  let prevYearSalesSameDate: number | null = null
+  let prevYearSalesSameDow: number | null = null
   if (prevYearMonthlyKpi.hasPrevYear) {
-    prevYearSales = prevYearMonthlyKpi.sameDate.sales
+    prevYearSalesSameDate = prevYearMonthlyKpi.sameDate.sales
+    prevYearSalesSameDow = prevYearMonthlyKpi.sameDow.sales
   }
 
-  // 予算前年比: budget / prevYearSales（例: 1.0135 = 101.35%）
-  const budgetVsPrevYear =
-    prevYearSales != null && prevYearSales > 0 ? safeDivide(result.budget, prevYearSales, 0) : null
+  const budgetVsPrevYearSameDate =
+    prevYearSalesSameDate != null && prevYearSalesSameDate > 0
+      ? safeDivide(result.budget, prevYearSalesSameDate, 0)
+      : null
+  const budgetVsPrevYearSameDow =
+    prevYearSalesSameDow != null && prevYearSalesSameDow > 0
+      ? safeDivide(result.budget, prevYearSalesSameDow, 0)
+      : null
 
   return {
     monthlyBudget: result.budget,
     grossProfitBudget: result.grossProfitBudget,
     grossProfitRateBudget: result.grossProfitRateBudget,
-    prevYearSales,
-    budgetVsPrevYear,
+    prevYearSalesSameDate,
+    prevYearSalesSameDow,
+    budgetVsPrevYearSameDate,
+    budgetVsPrevYearSameDow,
     dowGap: buildDowGapSummary(dowGap),
   }
 }
