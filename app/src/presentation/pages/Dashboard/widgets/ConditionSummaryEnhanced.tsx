@@ -52,6 +52,7 @@ import {
   DrillPanel,
   DrillHeader,
   DrillTitle,
+  DrillBody,
   DrillCloseBtn,
 } from './ConditionSummaryEnhanced.styles'
 
@@ -172,55 +173,60 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
                     📅 前年比 {showYoY ? 'ON' : 'OFF'}
                   </YoYBtn>
                 )}
+                <DrillCloseBtn onClick={handleClose} aria-label="閉じる">
+                  ✕
+                </DrillCloseBtn>
               </div>
             </DrillHeader>
 
-            {/* Total Summary */}
-            <TotalSection>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                <PeriodBadge $color={isMonthly ? '#3b82f6' : '#7c3aed'}>
-                  {isMonthly ? `${daysInMonth}日間` : `${effectiveElapsed}日経過`}
-                </PeriodBadge>
-                <SectionLabel>全店合計</SectionLabel>
-              </div>
+            <DrillBody>
+              {/* Total Summary */}
+              <TotalSection>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                  <PeriodBadge $color={isMonthly ? '#3b82f6' : '#7c3aed'}>
+                    {isMonthly ? `${daysInMonth}日間` : `${effectiveElapsed}日経過`}
+                  </PeriodBadge>
+                  <SectionLabel>全店合計</SectionLabel>
+                </div>
 
-              {isMonthly ? (
-                <MonthlyTotalSection
-                  total={total}
-                  isRate={activeDef.isRate}
-                  showYoY={showYoY && hasYoYData}
-                />
-              ) : (
-                <ElapsedTotalSection
-                  total={total}
-                  isRate={activeDef.isRate}
-                  showYoY={showYoY && hasYoYData}
-                />
-              )}
-            </TotalSection>
-
-            {/* Store Rows (店番順) */}
-            <div>
-              {rows.map((row, idx) =>
-                isMonthly ? (
-                  <MonthlyStoreRow
-                    key={row.storeId}
-                    row={row}
-                    idx={idx}
+                {isMonthly ? (
+                  <MonthlyTotalSection
+                    total={total}
                     isRate={activeDef.isRate}
                     showYoY={showYoY && hasYoYData}
                   />
                 ) : (
-                  <ElapsedStoreRow
-                    key={row.storeId}
-                    row={row}
-                    idx={idx}
+                  <ElapsedTotalSection
+                    total={total}
                     isRate={activeDef.isRate}
                     showYoY={showYoY && hasYoYData}
                   />
-                ),
-              )}
-            </div>
+                )}
+              </TotalSection>
+
+              {/* Store Rows (店番順) */}
+              <div>
+                {rows.map((row, idx) =>
+                  isMonthly ? (
+                    <MonthlyStoreRow
+                      key={row.storeId}
+                      row={row}
+                      idx={idx}
+                      isRate={activeDef.isRate}
+                      showYoY={showYoY && hasYoYData}
+                    />
+                  ) : (
+                    <ElapsedStoreRow
+                      key={row.storeId}
+                      row={row}
+                      idx={idx}
+                      isRate={activeDef.isRate}
+                      showYoY={showYoY && hasYoYData}
+                    />
+                  ),
+                )}
+              </div>
+            </DrillBody>
 
             {/* Footer */}
             <Footer>
@@ -251,8 +257,6 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
                 </div>
               )}
             </Footer>
-
-            <DrillCloseBtn onClick={handleClose}>閉じる</DrillCloseBtn>
           </DrillPanel>
         </DrillOverlay>
       )}

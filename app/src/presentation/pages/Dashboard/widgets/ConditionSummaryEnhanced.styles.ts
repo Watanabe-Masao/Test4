@@ -150,6 +150,10 @@ export const MetricLabel = styled.span<{ $active: boolean; $color: string }>`
 export const TotalSection = styled.div`
   padding: ${({ theme }) => theme.spacing[8]} ${({ theme }) => theme.spacing[10]};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  background: ${({ theme }) =>
+    theme.mode === 'dark'
+      ? 'linear-gradient(135deg, rgba(255,255,255,0.02) 0%, transparent 100%)'
+      : 'linear-gradient(135deg, rgba(59,130,246,0.03) 0%, transparent 100%)'};
 `
 
 export const PeriodBadge = styled.span<{ $color: string }>`
@@ -273,9 +277,13 @@ export const StoreRowWrapper = styled.div`
   padding: ${({ theme }) => theme.spacing[7]} ${({ theme }) => theme.spacing[10]};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   transition: background 0.12s;
+  &:nth-child(even) {
+    background: ${({ theme }) =>
+      theme.mode === 'dark' ? 'rgba(255,255,255,0.015)' : 'rgba(0,0,0,0.012)'};
+  }
   &:hover {
     background: ${({ theme }) =>
-      theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)'};
+      theme.mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)'};
   }
 `
 
@@ -346,6 +354,7 @@ export const Footer = styled.div`
   align-items: center;
   flex-wrap: wrap;
   gap: ${({ theme }) => theme.spacing[3]};
+  flex-shrink: 0;
 `
 
 export const FooterNote = styled.div`
@@ -440,50 +449,88 @@ export const DrillOverlay = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.4);
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(0, 0, 0, 0.6)' : 'rgba(15, 23, 42, 0.45)'};
+  backdrop-filter: blur(4px);
+  animation: drillFadeIn 0.18s ease-out;
+  @keyframes drillFadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
 `
 
 export const DrillPanel = styled.div`
   background: ${({ theme }) => theme.colors.bg2};
   border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[6]};
-  min-width: 400px;
-  max-width: 720px;
+  border-radius: 14px;
+  min-width: 420px;
+  max-width: 740px;
   width: 90vw;
-  max-height: 80vh;
-  overflow-y: auto;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  max-height: 82vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow:
+    0 24px 48px rgba(0, 0, 0, 0.18),
+    0 0 0 1px ${({ theme }) => (theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)')};
+  animation: drillSlideUp 0.22s ease-out;
+  @keyframes drillSlideUp {
+    from {
+      opacity: 0;
+      transform: translateY(12px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
 `
 
 export const DrillHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: ${({ theme }) => theme.spacing[6]};
+  padding: ${({ theme }) => theme.spacing[8]} ${({ theme }) => theme.spacing[10]}
+    ${({ theme }) => theme.spacing[6]};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   flex-wrap: wrap;
   gap: ${({ theme }) => theme.spacing[4]};
+  flex-shrink: 0;
 `
 
 export const DrillTitle = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.extrabold};
   color: ${({ theme }) => theme.colors.text};
+  letter-spacing: -0.3px;
+`
+
+export const DrillBody = styled.div`
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 `
 
 export const DrillCloseBtn = styled.button`
   all: unset;
   cursor: pointer;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: ${({ theme }) => theme.radii.md};
   color: ${({ theme }) => theme.colors.text3};
-  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
-  border-radius: ${({ theme }) => theme.radii.sm};
-  margin-top: ${({ theme }) => theme.spacing[4]};
-  display: block;
-  width: 100%;
-  text-align: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  transition: all 0.15s;
   &:hover {
-    background: ${({ theme }) => theme.colors.bg4};
+    background: ${({ theme }) =>
+      theme.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'};
     color: ${({ theme }) => theme.colors.text};
   }
   &:focus-visible {
