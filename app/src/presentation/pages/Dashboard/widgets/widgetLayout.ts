@@ -169,6 +169,10 @@ export function autoInjectDataWidgets(
     if (w.id === 'analysis-yoy-waterfall' || w.id === 'kpi-dow-gap') {
       return ctx.prevYearHasPrevYear
     }
+    // 店別予算達成: 複数店舗時のみ自動注入
+    if (w.id === 'widget-budget-achievement') {
+      return ctx.storeCount > 1
+    }
     if (w.id === 'chart-discount-breakdown') {
       return ctx.hasDiscountData === true
     }
