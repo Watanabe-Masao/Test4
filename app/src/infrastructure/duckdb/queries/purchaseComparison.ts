@@ -58,6 +58,27 @@ export async function queryPurchaseBySupplier(
 }
 
 /**
+ * 指定日付範囲内で実データが存在する最大日付のday部分を取得する。
+ * 取り込み有効期間のキャップに使用。
+ */
+export async function queryEffectiveMaxDay(
+  conn: AsyncDuckDBConnection,
+  dateFrom: string,
+  dateTo: string,
+  storeIds?: readonly string[],
+): Promise<number | null> {
+  const df = validateDateKey(dateFrom)
+  const dt = validateDateKey(dateTo)
+  const where = buildWhereClause([`date_key BETWEEN '${df}' AND '${dt}'`, storeIdFilter(storeIds)])
+  const sql = `
+    SELECT MAX(EXTRACT(DAY FROM date_key::DATE)) AS max_day
+    FROM purchase
+    ${where}`
+  const rows = await queryToObjects<{ maxDay: number | null }>(conn, sql)
+  return rows.length > 0 ? rows[0].maxDay : null
+}
+
+/**
  * 指定日付範囲の仕入合計を取得する
  */
 export async function queryPurchaseTotal(

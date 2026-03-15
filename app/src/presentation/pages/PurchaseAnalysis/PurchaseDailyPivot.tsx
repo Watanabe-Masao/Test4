@@ -126,10 +126,6 @@ export const PurchaseDailyPivotTable = memo(function PurchaseDailyPivotTable({
     return new Map(subs.map((s) => [s.afterDay, s]))
   }, [pivot.rows, columnKeys, subtotalStartDow, showSubtotals])
 
-  if (pivot.columns.length === 0) {
-    return <EmptyState>日別データがありません</EmptyState>
-  }
-
   const isAllTab = activeTab === '__all__'
   const activeCol = pivot.columns.find((c) => c.key === activeTab)
 
@@ -152,6 +148,30 @@ export const PurchaseDailyPivotTable = memo(function PurchaseDailyPivotTable({
   const getSubPrevPrice = (sub: WeekSubtotal) =>
     isAllTab ? sub.prevTotalPrice : (sub.cells[activeTab]?.prevPrice ?? 0)
 
+  // 累計を計算（hooks はすべて early return より前に配置）
+  const cumulativeRows = useMemo(() => {
+    interface CumRow {
+      cumCost: number
+      cumPrice: number
+      cumPrevCost: number
+      cumPrevPrice: number
+    }
+    const result: CumRow[] = []
+    const acc = { cumCost: 0, cumPrice: 0, cumPrevCost: 0, cumPrevPrice: 0 }
+    for (const row of pivot.rows) {
+      acc.cumCost += isAllTab ? row.totalCost : (row.cells[activeTab]?.cost ?? 0)
+      acc.cumPrice += isAllTab ? row.totalPrice : (row.cells[activeTab]?.price ?? 0)
+      acc.cumPrevCost += isAllTab ? row.prevTotalCost : (row.cells[activeTab]?.prevCost ?? 0)
+      acc.cumPrevPrice += isAllTab ? row.prevTotalPrice : (row.cells[activeTab]?.prevPrice ?? 0)
+      result.push({ ...acc })
+    }
+    return result
+  }, [pivot.rows, activeTab, isAllTab])
+
+  if (pivot.columns.length === 0) {
+    return <EmptyState>日別データがありません</EmptyState>
+  }
+
   // 合計
   const totCost = isAllTab ? pivot.totals.grandCost : (pivot.totals.byColumn[activeTab]?.cost ?? 0)
   const totPrice = isAllTab
@@ -165,6 +185,8 @@ export const PurchaseDailyPivotTable = memo(function PurchaseDailyPivotTable({
     : (pivot.totals.byColumn[activeTab]?.prevPrice ?? 0)
 
   const markupRateVal = (cost: number, price: number) => (price > 0 ? 1 - cost / price : 0)
+  const yoyRate = (cur: number, prev: number) =>
+    prev !== 0 ? ((cur / prev) * 100).toFixed(1) + '%' : '-'
 
   return (
     <>
@@ -225,6 +247,9 @@ export const PurchaseDailyPivotTable = memo(function PurchaseDailyPivotTable({
               </PivotGroupTh>
               <PivotGroupTh colSpan={3}>前期</PivotGroupTh>
               <PivotGroupTh colSpan={2}>差異</PivotGroupTh>
+              <PivotGroupTh colSpan={2}>前年比</PivotGroupTh>
+              <PivotGroupTh colSpan={2}>累計（当期）</PivotGroupTh>
+              <PivotGroupTh colSpan={2}>累計（前期）</PivotGroupTh>
             </tr>
             <tr>
               <PivotSubTh className="group-start">原価</PivotSubTh>
@@ -235,15 +260,22 @@ export const PurchaseDailyPivotTable = memo(function PurchaseDailyPivotTable({
               <PivotSubTh>値入率</PivotSubTh>
               <PivotSubTh className="group-start">原価</PivotSubTh>
               <PivotSubTh>売価</PivotSubTh>
+              <PivotSubTh className="group-start">原価</PivotSubTh>
+              <PivotSubTh>売価</PivotSubTh>
+              <PivotSubTh className="group-start">原価</PivotSubTh>
+              <PivotSubTh>売価</PivotSubTh>
+              <PivotSubTh className="group-start">原価</PivotSubTh>
+              <PivotSubTh>売価</PivotSubTh>
             </tr>
           </thead>
           <tbody>
-            {pivot.rows.map((row) => {
+            {pivot.rows.map((row, idx) => {
               const cost = getCost(row)
               const price = getPrice(row)
               const prevCost = getPrevCost(row)
               const prevPrice = getPrevPrice(row)
               const sub = subtotalMap.get(row.day)
+              const cum = cumulativeRows[idx]
 
               return (
                 <Fragment key={row.day}>
@@ -266,6 +298,12 @@ export const PurchaseDailyPivotTable = memo(function PurchaseDailyPivotTable({
                     <DiffCell $positive={diffColor(price - prevPrice)}>
                       {price - prevPrice !== 0 ? fmtOrDash(price - prevPrice) : '-'}
                     </DiffCell>
+                    <PivotTd $groupStart>{yoyRate(cost, prevCost)}</PivotTd>
+                    <PivotTd>{yoyRate(price, prevPrice)}</PivotTd>
+                    <PivotTd $groupStart>{fmtOrDash(cum.cumCost)}</PivotTd>
+                    <PivotTd>{fmtOrDash(cum.cumPrice)}</PivotTd>
+                    <PivotTd $groupStart>{fmtOrDash(cum.cumPrevCost)}</PivotTd>
+                    <PivotTd>{fmtOrDash(cum.cumPrevPrice)}</PivotTd>
                   </tr>
                   {showSubtotals && sub && (
                     <TrSubtotal>
@@ -291,6 +329,10 @@ export const PurchaseDailyPivotTable = memo(function PurchaseDailyPivotTable({
                       <DiffCell $positive={diffColor(getSubPrice(sub) - getSubPrevPrice(sub))}>
                         {fmtCurrency(getSubPrice(sub) - getSubPrevPrice(sub))}
                       </DiffCell>
+                      <PivotTd $groupStart>{yoyRate(getSubCost(sub), getSubPrevCost(sub))}</PivotTd>
+                      <PivotTd>{yoyRate(getSubPrice(sub), getSubPrevPrice(sub))}</PivotTd>
+                      <PivotTd $groupStart colSpan={2} />
+                      <PivotTd $groupStart colSpan={2} />
                     </TrSubtotal>
                   )}
                 </Fragment>
@@ -312,6 +354,12 @@ export const PurchaseDailyPivotTable = memo(function PurchaseDailyPivotTable({
               <DiffCell $positive={diffColor(totPrice - totPrevPrice)}>
                 {fmtCurrency(totPrice - totPrevPrice)}
               </DiffCell>
+              <PivotTd $groupStart>{yoyRate(totCost, totPrevCost)}</PivotTd>
+              <PivotTd>{yoyRate(totPrice, totPrevPrice)}</PivotTd>
+              <PivotTd $groupStart>{fmtCurrency(totCost)}</PivotTd>
+              <PivotTd>{fmtCurrency(totPrice)}</PivotTd>
+              <PivotTd $groupStart>{fmtCurrency(totPrevCost)}</PivotTd>
+              <PivotTd>{fmtCurrency(totPrevPrice)}</PivotTd>
             </TrTotal>
           </tbody>
         </Table>

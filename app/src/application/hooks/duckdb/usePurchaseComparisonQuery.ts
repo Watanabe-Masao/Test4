@@ -22,6 +22,7 @@ import {
   queryTransfersDaily,
   queryTransfersTotal,
   querySalesTotal,
+  queryEffectiveMaxDay,
 } from '@/infrastructure/duckdb/queries/purchaseComparison'
 import type { PurchaseComparisonResult } from '@/domain/models/PurchaseComparison'
 import type { CustomCategoryId } from '@/domain/constants/customCategories'
@@ -75,6 +76,20 @@ export function usePurchaseComparisonQuery(
       try {
         const c = conn
 
+        // ── Phase 0: 取り込み有効期間のキャップ ──
+        // 当期の実データ最終日を取得し、前期の日付範囲を同日数にキャップ
+        const effectiveMaxDay = await queryEffectiveMaxDay(c, curDateFrom, curDateTo, storeIdArr)
+        let cappedPrevDateTo = prevDateTo
+        if (effectiveMaxDay != null) {
+          const prevDay = Number(prevDateTo.split('-')[2])
+          if (prevDay > effectiveMaxDay) {
+            const prevPrefix = prevDateTo.substring(0, 8) // 'YYYY-MM-'
+            cappedPrevDateTo = `${prevPrefix}${String(effectiveMaxDay).padStart(2, '0')}`
+          }
+        }
+
+        if (cancelled || seq !== seqRef.current) return
+
         // ── Phase 1: KPI用の合計クエリ（8件）を先行実行 ──
         const [
           curTotal,
@@ -87,13 +102,13 @@ export function usePurchaseComparisonQuery(
           prevTransfersTotal,
         ] = await Promise.all([
           queryPurchaseTotal(c, curDateFrom, curDateTo, storeIdArr),
-          queryPurchaseTotal(c, prevDateFrom, prevDateTo, storeIdArr),
+          queryPurchaseTotal(c, prevDateFrom, cappedPrevDateTo, storeIdArr),
           querySalesTotal(c, curDateFrom, curDateTo, storeIdArr, false),
-          querySalesTotal(c, prevDateFrom, prevDateTo, storeIdArr, false),
+          querySalesTotal(c, prevDateFrom, cappedPrevDateTo, storeIdArr, false),
           querySpecialSalesTotal(c, curDateFrom, curDateTo, storeIdArr),
-          querySpecialSalesTotal(c, prevDateFrom, prevDateTo, storeIdArr),
+          querySpecialSalesTotal(c, prevDateFrom, cappedPrevDateTo, storeIdArr),
           queryTransfersTotal(c, curDateFrom, curDateTo, storeIdArr),
-          queryTransfersTotal(c, prevDateFrom, prevDateTo, storeIdArr),
+          queryTransfersTotal(c, prevDateFrom, cappedPrevDateTo, storeIdArr),
         ])
 
         if (cancelled || seq !== seqRef.current) return
@@ -150,19 +165,19 @@ export function usePurchaseComparisonQuery(
           prevTransfersDaily,
         ] = await Promise.all([
           queryPurchaseBySupplier(c, curDateFrom, curDateTo, storeIdArr),
-          queryPurchaseBySupplier(c, prevDateFrom, prevDateTo, storeIdArr),
+          queryPurchaseBySupplier(c, prevDateFrom, cappedPrevDateTo, storeIdArr),
           queryPurchaseDaily(c, curDateFrom, curDateTo, storeIdArr),
-          queryPurchaseDaily(c, prevDateFrom, prevDateTo, storeIdArr),
+          queryPurchaseDaily(c, prevDateFrom, cappedPrevDateTo, storeIdArr),
           queryPurchaseByStore(c, curDateFrom, curDateTo, storeIdArr),
-          queryPurchaseByStore(c, prevDateFrom, prevDateTo, storeIdArr),
+          queryPurchaseByStore(c, prevDateFrom, cappedPrevDateTo, storeIdArr),
           querySalesDaily(c, curDateFrom, curDateTo, storeIdArr, false),
-          querySalesDaily(c, prevDateFrom, prevDateTo, storeIdArr, false),
+          querySalesDaily(c, prevDateFrom, cappedPrevDateTo, storeIdArr, false),
           queryPurchaseDailyBySupplier(c, curDateFrom, curDateTo, storeIdArr),
           querySpecialSalesDaily(c, curDateFrom, curDateTo, storeIdArr),
           queryTransfersDaily(c, curDateFrom, curDateTo, storeIdArr),
-          queryPurchaseDailyBySupplier(c, prevDateFrom, prevDateTo, storeIdArr),
-          querySpecialSalesDaily(c, prevDateFrom, prevDateTo, storeIdArr),
-          queryTransfersDaily(c, prevDateFrom, prevDateTo, storeIdArr),
+          queryPurchaseDailyBySupplier(c, prevDateFrom, cappedPrevDateTo, storeIdArr),
+          querySpecialSalesDaily(c, prevDateFrom, cappedPrevDateTo, storeIdArr),
+          queryTransfersDaily(c, prevDateFrom, cappedPrevDateTo, storeIdArr),
         ])
 
         if (cancelled || seq !== seqRef.current) return
