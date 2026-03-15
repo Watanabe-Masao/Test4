@@ -111,7 +111,8 @@ describe('ウィジェット isVisible', () => {
           !w.id.includes('yoy') &&
           !w.id.includes('discount-breakdown') &&
           !w.id.includes('duckdb') &&
-          !w.id.includes('dow-gap'),
+          !w.id.includes('dow-gap') &&
+          !w.id.includes('budget-achievement'),
       )
       for (const w of nonDataWidgets) {
         expect(w.isVisible).toBeUndefined()
