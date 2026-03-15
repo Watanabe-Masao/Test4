@@ -3,6 +3,10 @@ import type { EnhancedRow } from './ConditionSummaryEnhanced.vm'
 import { fmtValue, fmtAchievement, resultColor } from './ConditionSummaryEnhanced.vm'
 import {
   StoreRowWrapper,
+  StoreRowGrid,
+  StoreRowLeft,
+  StoreRowCenter,
+  StoreRowRight,
   RankBadge,
   StoreName,
   StoreAchValue,
@@ -10,11 +14,12 @@ import {
   MonoSm,
   MonoMd,
   MonoLg,
-  Arrow,
   DiffSpan,
   ProgressTrack,
   ProgressFill,
   RateChip,
+  YoYRow,
+  YoYLabel,
 } from './ConditionSummaryEnhanced.styles'
 
 // ─── Monthly Row ────────────────────────────────────────
@@ -32,22 +37,23 @@ export const MonthlyStoreRow = memo(function MonthlyStoreRow({
   isRate,
   showYoY,
 }: MonthlyRowProps) {
+  const c = resultColor(row.achievement, isRate)
   return (
     <StoreRowWrapper>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: showYoY && row.ly != null ? 6 : 0,
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <StoreRowGrid>
+        <StoreRowLeft>
           <RankBadge $color="#3b82f6">{idx + 1}</RankBadge>
           <StoreName>{row.storeName}</StoreName>
-        </div>
-        <StoreBudgetValue>{fmtValue(row.budget, isRate)}</StoreBudgetValue>
-      </div>
+        </StoreRowLeft>
+        <StoreRowCenter>
+          <MonoSm>予算</MonoSm>
+          <StoreBudgetValue>{fmtValue(row.budget, isRate)}</StoreBudgetValue>
+        </StoreRowCenter>
+        <StoreRowRight>
+          <MonoSm>実績</MonoSm>
+          <StoreAchValue $color={c}>{fmtValue(row.actual, isRate)}</StoreAchValue>
+        </StoreRowRight>
+      </StoreRowGrid>
       {showYoY && row.ly != null && <YoYInlineRow row={row} isRate={isRate} />}
     </StoreRowWrapper>
   )
@@ -71,46 +77,36 @@ export const ElapsedStoreRow = memo(function ElapsedStoreRow({
   const c = resultColor(row.achievement, isRate)
   return (
     <StoreRowWrapper>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: 8,
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <StoreRowGrid>
+        <StoreRowLeft>
           <RankBadge $color={c}>{idx + 1}</RankBadge>
           <StoreName>{row.storeName}</StoreName>
-        </div>
-        <StoreAchValue $color={c}>{fmtAchievement(row.achievement, isRate)}</StoreAchValue>
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 200 }}>
+        </StoreRowLeft>
+        <StoreRowCenter>
           <MonoSm>{fmtValue(row.budget, isRate)}</MonoSm>
-          <Arrow>→</Arrow>
           <MonoMd $bold>{fmtValue(row.actual, isRate)}</MonoMd>
           {!isRate && (
             <DiffSpan $positive={row.diff >= 0}>
-              ({row.diff >= 0 ? '+' : ''}
-              {fmtValue(row.diff, false)})
+              {row.diff >= 0 ? '+' : ''}
+              {fmtValue(row.diff, false)}
             </DiffSpan>
           )}
-        </div>
-        {!isRate ? (
-          <div style={{ flex: 1 }}>
-            <ProgressTrack $height={6}>
-              <ProgressFill $width={row.achievement} $color={c} />
-            </ProgressTrack>
-          </div>
-        ) : (
-          <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
+        </StoreRowCenter>
+        <StoreRowRight>
+          {!isRate ? (
+            <>
+              <StoreAchValue $color={c}>{fmtAchievement(row.achievement, isRate)}</StoreAchValue>
+              <ProgressTrack $height={4}>
+                <ProgressFill $width={row.achievement} $color={c} />
+              </ProgressTrack>
+            </>
+          ) : (
             <RateChip $color={c}>
-              {row.achievement >= 0 ? '▲' : '▼'} {Math.abs(row.achievement).toFixed(2)}
+              {row.achievement >= 0 ? '▲' : '▼'} {Math.abs(row.achievement).toFixed(2)}pp
             </RateChip>
-          </div>
-        )}
-      </div>
+          )}
+        </StoreRowRight>
+      </StoreRowGrid>
       {showYoY && row.ly != null && <YoYInlineRow row={row} isRate={isRate} />}
     </StoreRowWrapper>
   )
@@ -122,22 +118,13 @@ function YoYInlineRow({ row, isRate }: { readonly row: EnhancedRow; readonly isR
   if (row.ly == null || row.yoy == null) return null
   const yoyColor = resultColor(row.yoy, isRate)
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'flex-end',
-        gap: 6,
-        marginTop: 6,
-      }}
-    >
-      <span style={{ fontSize: 10, opacity: 0.5 }}>📅</span>
+    <YoYRow>
+      <YoYLabel>前年比</YoYLabel>
       <MonoSm>{fmtValue(row.ly, isRate)}</MonoSm>
-      <Arrow>→</Arrow>
       <MonoMd $bold>{fmtValue(row.actual, isRate)}</MonoMd>
       <MonoLg $color={yoyColor} $bold>
         {fmtAchievement(row.yoy, isRate)}
       </MonoLg>
-    </div>
+    </YoYRow>
   )
 }

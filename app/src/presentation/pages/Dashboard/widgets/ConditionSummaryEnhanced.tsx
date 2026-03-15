@@ -23,14 +23,14 @@ import {
   TabBtn,
   YoYBtn,
   TotalSection,
+  TotalGrid,
+  TotalCell,
   PeriodBadge,
   SectionLabel,
   SmallLabel,
   BigValue,
-  SubValue,
   MainValue,
   AchValue,
-  Arrow,
   ProgressTrack,
   ProgressFill,
   YoYRow,
@@ -41,6 +41,8 @@ import {
   Footer,
   FooterNote,
   LegendDot,
+  LegendGroup,
+  LegendItem,
   CardGridRow,
   CondCard,
   CondSignal,
@@ -52,6 +54,7 @@ import {
   DrillPanel,
   DrillHeader,
   DrillTitle,
+  DrillBody,
   DrillCloseBtn,
 } from './ConditionSummaryEnhanced.styles'
 
@@ -172,55 +175,60 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
                     📅 前年比 {showYoY ? 'ON' : 'OFF'}
                   </YoYBtn>
                 )}
+                <DrillCloseBtn onClick={handleClose} aria-label="閉じる">
+                  ✕
+                </DrillCloseBtn>
               </div>
             </DrillHeader>
 
-            {/* Total Summary */}
-            <TotalSection>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                <PeriodBadge $color={isMonthly ? '#3b82f6' : '#7c3aed'}>
-                  {isMonthly ? `${daysInMonth}日間` : `${effectiveElapsed}日経過`}
-                </PeriodBadge>
-                <SectionLabel>全店合計</SectionLabel>
-              </div>
+            <DrillBody>
+              {/* Total Summary */}
+              <TotalSection>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                  <PeriodBadge $color={isMonthly ? '#3b82f6' : '#7c3aed'}>
+                    {isMonthly ? `${daysInMonth}日間` : `${effectiveElapsed}日経過`}
+                  </PeriodBadge>
+                  <SectionLabel>全店合計</SectionLabel>
+                </div>
 
-              {isMonthly ? (
-                <MonthlyTotalSection
-                  total={total}
-                  isRate={activeDef.isRate}
-                  showYoY={showYoY && hasYoYData}
-                />
-              ) : (
-                <ElapsedTotalSection
-                  total={total}
-                  isRate={activeDef.isRate}
-                  showYoY={showYoY && hasYoYData}
-                />
-              )}
-            </TotalSection>
-
-            {/* Store Rows (店番順) */}
-            <div>
-              {rows.map((row, idx) =>
-                isMonthly ? (
-                  <MonthlyStoreRow
-                    key={row.storeId}
-                    row={row}
-                    idx={idx}
+                {isMonthly ? (
+                  <MonthlyTotalSection
+                    total={total}
                     isRate={activeDef.isRate}
                     showYoY={showYoY && hasYoYData}
                   />
                 ) : (
-                  <ElapsedStoreRow
-                    key={row.storeId}
-                    row={row}
-                    idx={idx}
+                  <ElapsedTotalSection
+                    total={total}
                     isRate={activeDef.isRate}
                     showYoY={showYoY && hasYoYData}
                   />
-                ),
-              )}
-            </div>
+                )}
+              </TotalSection>
+
+              {/* Store Rows (店番順) */}
+              <div>
+                {rows.map((row, idx) =>
+                  isMonthly ? (
+                    <MonthlyStoreRow
+                      key={row.storeId}
+                      row={row}
+                      idx={idx}
+                      isRate={activeDef.isRate}
+                      showYoY={showYoY && hasYoYData}
+                    />
+                  ) : (
+                    <ElapsedStoreRow
+                      key={row.storeId}
+                      row={row}
+                      idx={idx}
+                      isRate={activeDef.isRate}
+                      showYoY={showYoY && hasYoYData}
+                    />
+                  ),
+                )}
+              </div>
+            </DrillBody>
 
             {/* Footer */}
             <Footer>
@@ -234,25 +242,20 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
                   : `単位：${ctx.fmtCurrency(10000).includes('万') ? '万円' : '円'}`}
               </FooterNote>
               {!isMonthly && (
-                <div style={{ display: 'flex', gap: 12, fontSize: 10, color: '#3e4a5e' }}>
+                <LegendGroup>
                   {[
                     { color: '#10b981', label: '達成' },
                     { color: '#eab308', label: '微未達' },
                     { color: '#ef4444', label: '未達' },
                   ].map((item) => (
-                    <span
-                      key={item.label}
-                      style={{ display: 'flex', alignItems: 'center', gap: 3 }}
-                    >
+                    <LegendItem key={item.label}>
                       <LegendDot $color={item.color} />
                       {item.label}
-                    </span>
+                    </LegendItem>
                   ))}
-                </div>
+                </LegendGroup>
               )}
             </Footer>
-
-            <DrillCloseBtn onClick={handleClose}>閉じる</DrillCloseBtn>
           </DrillPanel>
         </DrillOverlay>
       )}
@@ -271,27 +274,32 @@ interface TotalSectionProps {
 function MonthlyTotalSection({ total, isRate, showYoY }: TotalSectionProps) {
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
-        <div>
+      <TotalGrid>
+        <TotalCell>
           <SmallLabel>月間予算</SmallLabel>
           <BigValue>{fmtValue(total.budget, isRate)}</BigValue>
-        </div>
-        {showYoY && total.ly != null && total.yoy != null && (
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: 10, opacity: 0.5, marginBottom: 4, fontWeight: 500 }}>
-              📅 前年比
-            </div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-              <MonoSm>{fmtValue(total.ly, isRate)}</MonoSm>
-              <Arrow>→</Arrow>
-              <MonoMd $bold>{fmtValue(total.actual, isRate)}</MonoMd>
-              <MonoLg $color={resultColor(total.yoy, isRate)} $bold>
-                {fmtAchievement(total.yoy, isRate)}
-              </MonoLg>
-            </div>
-          </div>
-        )}
-      </div>
+        </TotalCell>
+        <TotalCell $align="center">
+          <SmallLabel>実績</SmallLabel>
+          <MainValue>{fmtValue(total.actual, isRate)}</MainValue>
+        </TotalCell>
+        <TotalCell $align="right">
+          <SmallLabel>{isRate ? '差異' : '達成率'}</SmallLabel>
+          <AchValue $color={resultColor(total.achievement, isRate)}>
+            {fmtAchievement(total.achievement, isRate)}
+          </AchValue>
+        </TotalCell>
+      </TotalGrid>
+      {showYoY && total.ly != null && total.yoy != null && (
+        <YoYRow>
+          <YoYLabel>前年比</YoYLabel>
+          <MonoSm>{fmtValue(total.ly, isRate)}</MonoSm>
+          <MonoMd $bold>{fmtValue(total.actual, isRate)}</MonoMd>
+          <MonoLg $color={resultColor(total.yoy, isRate)} $bold>
+            {fmtAchievement(total.yoy, isRate)}
+          </MonoLg>
+        </YoYRow>
+      )}
     </div>
   )
 }
@@ -302,41 +310,33 @@ function ElapsedTotalSection({ total, isRate, showYoY }: TotalSectionProps) {
   const achColor = resultColor(total.achievement, isRate)
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 14 }}>
-          <div>
-            <SmallLabel>経過予算</SmallLabel>
-            <SubValue>{fmtValue(total.budget, isRate)}</SubValue>
-          </div>
-          <Arrow>→</Arrow>
-          <div>
-            <SmallLabel>実績</SmallLabel>
-            <MainValue>{fmtValue(total.actual, isRate)}</MainValue>
-          </div>
-        </div>
-        <div style={{ textAlign: 'right' }}>
+      <TotalGrid>
+        <TotalCell>
+          <SmallLabel>経過予算</SmallLabel>
+          <BigValue>{fmtValue(total.budget, isRate)}</BigValue>
+        </TotalCell>
+        <TotalCell $align="center">
+          <SmallLabel>実績</SmallLabel>
+          <MainValue>{fmtValue(total.actual, isRate)}</MainValue>
+        </TotalCell>
+        <TotalCell $align="right">
           <SmallLabel>{isRate ? '差異' : '達成率'}</SmallLabel>
           <AchValue $color={achColor}>{fmtAchievement(total.achievement, isRate)}</AchValue>
-        </div>
-      </div>
+        </TotalCell>
+      </TotalGrid>
       {!isRate && (
-        <div style={{ marginTop: 10 }}>
-          <ProgressTrack>
-            <ProgressFill $width={total.achievement} $color={achColor} />
-          </ProgressTrack>
-        </div>
+        <ProgressTrack>
+          <ProgressFill $width={total.achievement} $color={achColor} />
+        </ProgressTrack>
       )}
       {showYoY && total.ly != null && total.yoy != null && (
         <YoYRow>
-          <YoYLabel>📅 前年比</YoYLabel>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <MonoSm>{fmtValue(total.ly, isRate)}</MonoSm>
-            <Arrow>→</Arrow>
-            <MonoMd $bold>{fmtValue(total.actual, isRate)}</MonoMd>
-            <MonoLg $color={resultColor(total.yoy, isRate)} $bold>
-              {fmtAchievement(total.yoy, isRate)}
-            </MonoLg>
-          </div>
+          <YoYLabel>前年比</YoYLabel>
+          <MonoSm>{fmtValue(total.ly, isRate)}</MonoSm>
+          <MonoMd $bold>{fmtValue(total.actual, isRate)}</MonoMd>
+          <MonoLg $color={resultColor(total.yoy, isRate)} $bold>
+            {fmtAchievement(total.yoy, isRate)}
+          </MonoLg>
         </YoYRow>
       )}
     </div>

@@ -150,6 +150,21 @@ export const MetricLabel = styled.span<{ $active: boolean; $color: string }>`
 export const TotalSection = styled.div`
   padding: ${({ theme }) => theme.spacing[8]} ${({ theme }) => theme.spacing[10]};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  background: ${({ theme }) =>
+    theme.mode === 'dark'
+      ? 'linear-gradient(135deg, rgba(255,255,255,0.02) 0%, transparent 100%)'
+      : 'linear-gradient(135deg, rgba(59,130,246,0.03) 0%, transparent 100%)'};
+`
+
+export const TotalGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: ${({ theme }) => theme.spacing[6]};
+  align-items: end;
+`
+
+export const TotalCell = styled.div<{ $align?: 'left' | 'center' | 'right' }>`
+  text-align: ${({ $align }) => $align ?? 'left'};
 `
 
 export const PeriodBadge = styled.span<{ $color: string }>`
@@ -214,6 +229,7 @@ export const Arrow = styled.span`
 
 export const ProgressTrack = styled.div<{ $height?: number }>`
   height: ${({ $height }) => $height ?? 8}px;
+  width: 100%;
   background: ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.sm};
   overflow: hidden;
@@ -230,14 +246,15 @@ export const ProgressFill = styled.div<{ $width: number; $color: string }>`
 // ─── YoY Row ────────────────────────────────────────────
 
 export const YoYRow = styled.div`
-  margin-top: ${({ theme }) => theme.spacing[5]};
-  padding: ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[6]};
-  border-radius: ${({ theme }) => theme.radii.lg};
+  margin-top: ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[6]};
+  border-radius: ${({ theme }) => theme.radii.md};
   background: ${({ theme }) => theme.colors.palette.warningDark}08;
   border: 1px solid ${({ theme }) => theme.colors.palette.warningDark}18;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: ${({ theme }) => theme.spacing[4]};
+  justify-content: flex-end;
 `
 
 export const YoYLabel = styled.span`
@@ -270,13 +287,48 @@ export const MonoLg = styled.span<{ $color?: string; $bold?: boolean }>`
 // ─── Store Row ──────────────────────────────────────────
 
 export const StoreRowWrapper = styled.div`
-  padding: ${({ theme }) => theme.spacing[7]} ${({ theme }) => theme.spacing[10]};
+  padding: ${({ theme }) => theme.spacing[5]} ${({ theme }) => theme.spacing[10]};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   transition: background 0.12s;
+  &:nth-child(even) {
+    background: ${({ theme }) =>
+      theme.mode === 'dark' ? 'rgba(255,255,255,0.015)' : 'rgba(0,0,0,0.012)'};
+  }
   &:hover {
     background: ${({ theme }) =>
-      theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)'};
+      theme.mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)'};
   }
+`
+
+/** 店舗行の3カラムグリッド: [順位+名前] [予算→実績] [達成率] */
+export const StoreRowGrid = styled.div`
+  display: grid;
+  grid-template-columns: minmax(100px, 1fr) minmax(140px, 1.2fr) minmax(80px, auto);
+  gap: ${({ theme }) => theme.spacing[4]};
+  align-items: center;
+`
+
+export const StoreRowLeft = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[4]};
+  min-width: 0;
+`
+
+export const StoreRowCenter = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[3]};
+  min-width: 0;
+`
+
+export const StoreRowRight = styled.div`
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  min-width: 80px;
 `
 
 export const RankBadge = styled.span<{ $color: string }>`
@@ -291,25 +343,29 @@ export const RankBadge = styled.span<{ $color: string }>`
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  flex-shrink: 0;
 `
 
 export const StoreName = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `
 
 export const StoreAchValue = styled.span<{ $color: string }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize['2xl']};
+  font-size: ${({ theme }) => theme.typography.fontSize.xl};
   font-weight: ${({ theme }) => theme.typography.fontWeight.extrabold};
   color: ${({ $color }) => $color};
 `
 
 export const StoreBudgetValue = styled.span`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize['2xl']};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.extrabold};
+  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
 `
 
@@ -346,6 +402,7 @@ export const Footer = styled.div`
   align-items: center;
   flex-wrap: wrap;
   gap: ${({ theme }) => theme.spacing[3]};
+  flex-shrink: 0;
 `
 
 export const FooterNote = styled.div`
@@ -360,6 +417,19 @@ export const LegendDot = styled.span<{ $color: string }>`
   border-radius: 2px;
   background: ${({ $color }) => $color};
   display: inline-block;
+`
+
+export const LegendGroup = styled.div`
+  display: flex;
+  gap: ${({ theme }) => theme.spacing[5]};
+  font-size: 10px;
+  color: ${({ theme }) => theme.colors.text4};
+`
+
+export const LegendItem = styled.span`
+  display: flex;
+  align-items: center;
+  gap: 3px;
 `
 
 // ─── Card Grid (横一列カードレイアウト) ─────────────────
@@ -440,50 +510,88 @@ export const DrillOverlay = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.4);
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(0, 0, 0, 0.6)' : 'rgba(15, 23, 42, 0.45)'};
+  backdrop-filter: blur(4px);
+  animation: drillFadeIn 0.18s ease-out;
+  @keyframes drillFadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
 `
 
 export const DrillPanel = styled.div`
   background: ${({ theme }) => theme.colors.bg2};
   border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[6]};
-  min-width: 400px;
-  max-width: 720px;
+  border-radius: 14px;
+  min-width: 420px;
+  max-width: 740px;
   width: 90vw;
-  max-height: 80vh;
-  overflow-y: auto;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  max-height: 82vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow:
+    0 24px 48px rgba(0, 0, 0, 0.18),
+    0 0 0 1px ${({ theme }) => (theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)')};
+  animation: drillSlideUp 0.22s ease-out;
+  @keyframes drillSlideUp {
+    from {
+      opacity: 0;
+      transform: translateY(12px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
 `
 
 export const DrillHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: ${({ theme }) => theme.spacing[6]};
+  padding: ${({ theme }) => theme.spacing[8]} ${({ theme }) => theme.spacing[10]}
+    ${({ theme }) => theme.spacing[6]};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   flex-wrap: wrap;
   gap: ${({ theme }) => theme.spacing[4]};
+  flex-shrink: 0;
 `
 
 export const DrillTitle = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.extrabold};
   color: ${({ theme }) => theme.colors.text};
+  letter-spacing: -0.3px;
+`
+
+export const DrillBody = styled.div`
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 `
 
 export const DrillCloseBtn = styled.button`
   all: unset;
   cursor: pointer;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: ${({ theme }) => theme.radii.md};
   color: ${({ theme }) => theme.colors.text3};
-  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
-  border-radius: ${({ theme }) => theme.radii.sm};
-  margin-top: ${({ theme }) => theme.spacing[4]};
-  display: block;
-  width: 100%;
-  text-align: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  transition: all 0.15s;
   &:hover {
-    background: ${({ theme }) => theme.colors.bg4};
+    background: ${({ theme }) =>
+      theme.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'};
     color: ${({ theme }) => theme.colors.text};
   }
   &:focus-visible {
