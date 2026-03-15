@@ -81,8 +81,8 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
 
   // ─── Budget header (monthly fixed context) ─────────────
   const budgetHeader = useMemo(
-    () => buildBudgetHeader(ctx.result, ctx.prevYearMonthlyKpi),
-    [ctx.result, ctx.prevYearMonthlyKpi],
+    () => buildBudgetHeader(ctx.result, ctx.prevYearMonthlyKpi, ctx.dowGap),
+    [ctx.result, ctx.prevYearMonthlyKpi, ctx.dowGap],
   )
 
   // ─── Card summaries (surface) ─────────────────────────
@@ -142,8 +142,14 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
         <HeaderTitle>店別 予算達成状況</HeaderTitle>
       </Header>
 
-      {/* Budget Header (月間固定の予算コンテキスト) */}
-      <BudgetHeaderRow>
+      {/* Budget Header (月間固定の予算コンテキスト) — クリックで売上の店別詳細を表示 */}
+      <BudgetHeaderRow
+        onClick={() => setActiveMetric('sales')}
+        style={{ cursor: 'pointer' }}
+        role="button"
+        tabIndex={0}
+        aria-label="売上の店別詳細を表示"
+      >
         <BudgetHeaderItem>
           <BudgetHeaderLabel>月間売上予算</BudgetHeaderLabel>
           <BudgetHeaderValue>{ctx.fmtCurrency(budgetHeader.monthlyBudget)}</BudgetHeaderValue>
@@ -162,14 +168,32 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
             <BudgetHeaderValue>{ctx.fmtCurrency(budgetHeader.prevYearSales)}</BudgetHeaderValue>
           </BudgetHeaderItem>
         )}
-        {budgetHeader.budgetGrowthRate != null && (
+        {budgetHeader.budgetVsPrevYear != null && (
           <BudgetHeaderItem>
-            <BudgetHeaderLabel>予算成長率</BudgetHeaderLabel>
-            <BudgetGrowthBadge $positive={budgetHeader.budgetGrowthRate >= 0}>
-              {budgetHeader.budgetGrowthRate >= 0 ? '+' : ''}
-              {formatPercent(budgetHeader.budgetGrowthRate)}
+            <BudgetHeaderLabel>予算前年比</BudgetHeaderLabel>
+            <BudgetGrowthBadge $positive={budgetHeader.budgetVsPrevYear >= 1}>
+              {formatPercent(budgetHeader.budgetVsPrevYear)}
             </BudgetGrowthBadge>
           </BudgetHeaderItem>
+        )}
+        {budgetHeader.dowGap && (
+          <>
+            <BudgetHeaderItem>
+              <BudgetHeaderLabel>曜日GAP({budgetHeader.dowGap.label})</BudgetHeaderLabel>
+              <BudgetHeaderValue>
+                {ctx.fmtCurrency(budgetHeader.dowGap.avgImpact)}
+              </BudgetHeaderValue>
+              <BudgetHeaderLabel>平均</BudgetHeaderLabel>
+            </BudgetHeaderItem>
+            {budgetHeader.dowGap.actualImpact != null && (
+              <BudgetHeaderItem>
+                <BudgetHeaderLabel>曜日GAP(実日)</BudgetHeaderLabel>
+                <BudgetHeaderValue>
+                  {ctx.fmtCurrency(budgetHeader.dowGap.actualImpact)}
+                </BudgetHeaderValue>
+              </BudgetHeaderItem>
+            )}
+          </>
         )}
       </BudgetHeaderRow>
 

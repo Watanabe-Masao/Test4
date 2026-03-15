@@ -8,6 +8,7 @@
 import { safeDivide } from '@/domain/calculations/utils'
 import { computeGpAfterConsumable, computeGpAfterConsumableAmount } from './conditionSummaryUtils'
 import type { StoreResult, Store } from '@/domain/models'
+import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
 import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/hooks'
 
 // ─── Types ──────────────────────────────────────────────
@@ -405,37 +406,82 @@ export function buildCardSummaries(
 
 // ─── Budget Header ──────────────────────────────────────
 
+export interface DowGapSummary {
+  /** 曜日構成ラベル（例: "▲土＋火"） */
+  readonly label: string
+  /** 平均売上ベースの影響額 */
+  readonly avgImpact: number
+  /** 実日ベースの影響額（shiftedIn/Out の実売上差分） */
+  readonly actualImpact: number | null
+}
+
 export interface BudgetHeaderData {
   readonly monthlyBudget: number
   readonly grossProfitBudget: number
   readonly grossProfitRateBudget: number
   readonly prevYearSales: number | null
-  readonly budgetGrowthRate: number | null
+  /** 予算前年比（例: 1.0135 = 101.35%） */
+  readonly budgetVsPrevYear: number | null
+  /** 曜日ギャップ情報（構成が同じ場合は null） */
+  readonly dowGap: DowGapSummary | null
+}
+
+const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土'] as const
+
+/**
+ * 曜日ギャップの要約を構築する。
+ *
+ * dowCounts から日数差がある曜日を抽出し、
+ * "▲土＋火" のようなラベルと、平均売上 / 実日の2種の影響額を返す。
+ * アライメント設定に依存しない固定値。
+ */
+function buildDowGapSummary(dowGap: DowGapAnalysis): DowGapSummary | null {
+  if (dowGap.isSameStructure || !dowGap.isValid) return null
+
+  // ラベル構築: 減った曜日を▲、増えた曜日を＋で表記
+  const parts: string[] = []
+  for (const c of dowGap.dowCounts) {
+    if (c.diff < 0) {
+      // 前年より当年が少ない = 前年に多かった曜日 → 同曜日では消える
+      for (let i = 0; i < Math.abs(c.diff); i++) parts.push(`▲${DOW_LABELS[c.dow]}`)
+    }
+    if (c.diff > 0) {
+      // 前年より当年が多い = 同曜日では新たに加わる
+      for (let i = 0; i < c.diff; i++) parts.push(`＋${DOW_LABELS[c.dow]}`)
+    }
+  }
+
+  const label = parts.join('')
+
+  return {
+    label,
+    avgImpact: dowGap.estimatedImpact,
+    actualImpact: dowGap.actualDayImpact?.isValid ? dowGap.actualDayImpact.estimatedImpact : null,
+  }
 }
 
 /** 月間固定の予算コンテキスト情報を構築する */
 export function buildBudgetHeader(
   result: StoreResult,
   prevYearMonthlyKpi: PrevYearMonthlyKpi,
+  dowGap: DowGapAnalysis,
 ): BudgetHeaderData {
   // 予算対比の前年売上は常に前年同月のカレンダートータル（アライメント非依存）。
-  // 同曜日/同日の選択は経過分析に関わるが、月間予算との比較では
-  // 前年同月のフル売上が正しい基準値となる。
   let prevYearSales: number | null = null
   if (prevYearMonthlyKpi.hasPrevYear) {
     prevYearSales = prevYearMonthlyKpi.sameDate.sales
   }
 
-  const budgetGrowthRate =
-    prevYearSales != null && prevYearSales > 0
-      ? safeDivide(result.budget, prevYearSales, 0) - 1
-      : null
+  // 予算前年比: budget / prevYearSales（例: 1.0135 = 101.35%）
+  const budgetVsPrevYear =
+    prevYearSales != null && prevYearSales > 0 ? safeDivide(result.budget, prevYearSales, 0) : null
 
   return {
     monthlyBudget: result.budget,
     grossProfitBudget: result.grossProfitBudget,
     grossProfitRateBudget: result.grossProfitRateBudget,
     prevYearSales,
-    budgetGrowthRate,
+    budgetVsPrevYear,
+    dowGap: buildDowGapSummary(dowGap),
   }
 }
