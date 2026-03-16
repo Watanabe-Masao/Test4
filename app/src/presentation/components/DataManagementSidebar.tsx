@@ -181,8 +181,10 @@ export function DataManagementSidebar({
   // 長押しでデータ再スキャン
   const handleLongPress = useCallback(() => {
     if (autoImport.folderConfigured) {
-      autoImport.scanNow().catch(() => {})
-      showToast('フォルダを再スキャンしています...', 'info')
+      autoImport
+        .scanNow()
+        .then(() => showToast('フォルダを再スキャンしています...', 'info'))
+        .catch(() => showToast('再スキャンに失敗しました', 'error'))
     }
   }, [autoImport, showToast])
 

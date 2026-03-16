@@ -1,7 +1,7 @@
 # 課題管理
 
 > 管理責任: documentation-steward ロール。
-> 更新日: 2026-03-15
+> 更新日: 2026-03-16
 
 課題を3分類し、不要なアクセスを最小化する。
 
@@ -48,3 +48,8 @@
 | S-18 | サイレントエラー握り潰し | 2026-03-08 | `IndexedDBStore.test.ts` の空 `.catch(() => {})` に `console.warn` を追加。他34箇所は適切にハンドリング済みを確認 |
 | S-19 | api.md の Hook 構成が古い | 2026-03-08 | api.md セクション4は既に12ファイル分割構成を正しく記載。`useDuckDBQuery.ts` の後方互換 re-export も記載済み |
 | S-20 | DashboardPage.styles.ts（1,272行） | 2026-03-08 | 5分割完了（バレル re-export で後方互換維持）。現在19行のバレルファイル |
+| S-21 | P→I 違反: useUnifiedWidgetContext.ts | 2026-03-16 | `useStoreCostPriceQuery` hook を `application/hooks/duckdb/` に抽出。infrastructure 直接 import を除去。architectureGuard allowlist から削除 |
+| S-22 | P→I 違反: ConditionSummaryEnhanced.tsx | 2026-03-16 | `useStoreDailyMarkupRateQuery` hook を `application/hooks/duckdb/` に抽出。60行超のインライン query+useEffect を hook 呼出+useMemo に置換。allowlist から削除 |
+| S-23 | 禁止事項#10: departmentKpi.ts SQL 率計算 | 2026-03-16 | SQL を `SUM(rate * sales)` → weighted sum（分子のみ）に変更。率の算出は `useDeptKpiQueries.ts` の `resolveSummary()` で `safeDivide` を使い domain 層に委譲 |
+| S-24 | ドメインのマジックナンバー定数化 | 2026-03-16 | `calculationConstants.ts` に12定数を集約。forecast.ts, trendAnalysis.ts, correlation.ts, ComparisonScope.ts, PeriodSelection.ts, dowGapAnalysis.ts, advancedForecast.ts, formatting/index.ts の全ハードコード値を名前付き定数に置換 |
+| S-25 | Silent error handler: DataManagementSidebar.tsx | 2026-03-16 | `autoImport.scanNow().catch(() => {})` のエラー握り潰しを修正。成功時/失敗時それぞれトースト表示に変更 |
