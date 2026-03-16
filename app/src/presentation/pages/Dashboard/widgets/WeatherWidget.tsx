@@ -91,7 +91,7 @@ export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetC
   if (daily.length === 0) {
     return (
       <NoLocationText>
-        店舗の位置情報が未設定です。設定画面から緯度・経度を登録してください。
+        店舗の位置情報が未設定です。管理画面の「店舗管理」タブから位置情報を登録してください。
       </NoLocationText>
     )
   }

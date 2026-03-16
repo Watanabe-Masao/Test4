@@ -86,6 +86,8 @@ const APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set([
   'application/hooks/useI18n.ts',
   // 天気データ取得サービス（Open-Meteo API クライアントを使用）
   'application/usecases/weather/WeatherLoadService.ts',
+  // ジオコーディングブリッジ（presentation 層から infrastructure への直接依存を回避）
+  'application/hooks/useGeocode.ts',
 ])
 
 /**
