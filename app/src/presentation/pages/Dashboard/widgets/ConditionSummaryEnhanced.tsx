@@ -1,68 +1,62 @@
+/**
+ * コンディションサマリー（統一版）
+ *
+ * 予算達成メトリクス（売上・粗利額・粗利率・値入率・売変率）と
+ * 前年比メトリクス（客数・販売点数・客単価・必要ベース比）を
+ * 統一カードレジストリで管理。カードの並び替えは CONDITION_CARD_ORDER の変更で即反映。
+ */
 import { useState, useMemo, memo, useCallback } from 'react'
 import type { WidgetContext } from './types'
 import {
   type MetricKey,
-  type EnhancedTotal,
-  METRIC_DEFS,
-  buildRows,
-  buildTotalFromResult,
+  type ConditionCardId,
   buildCardSummaries,
   buildBudgetHeader,
-  buildDailyMarkupRateYoYRows,
-  fmtValue,
-  fmtAchievement,
-  resultColor,
+  buildYoYCards,
+  buildUnifiedCards,
 } from './ConditionSummaryEnhanced.vm'
 import { formatPercent } from '@/domain/formatting'
-import { StoreRow, StoreTableHeader } from './ConditionSummaryEnhancedRows'
-import { ConditionSummaryDailyModal } from './ConditionSummaryDailyModal'
-import { useStoreDailyMarkupRateQuery } from '@/application/hooks/duckdb/useStoreDailyMarkupRateQuery'
+import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
+import { useSettingsStore } from '@/application/stores/settingsStore'
+import { useDataStore } from '@/application/stores/dataStore'
+import { ConditionCardShell } from './ConditionCardShell'
+import { ConditionSummaryBudgetDrill } from './ConditionSummaryBudgetDrill'
+import { ConditionMatrixTable } from './ConditionMatrixTable'
+import { ConditionSettingsPanelWidget } from './ConditionSettingsPanel'
+import { CustomerYoYDetailTable } from './conditionPanelYoY'
+import { TxValueDetailTable } from './conditionPanelSalesDetail'
+import type { DisplayMode } from './conditionSummaryUtils'
 import {
   DashWrapper,
   Header,
   HeaderMeta,
   HeaderTitle,
-  YoYBtn,
-  TotalSection,
-  TotalGrid,
-  TotalCell,
-  PeriodBadge,
-  SectionLabel,
-  SmallLabel,
-  BigValue,
-  MainValue,
-  AchValue,
-  ProgressTrack,
-  ProgressFill,
-  YoYRow,
-  YoYLabel,
-  MonoSm,
-  MonoMd,
-  MonoLg,
-  Footer,
-  FooterNote,
-  LegendDot,
-  LegendGroup,
-  LegendItem,
   CardGridRow,
-  CondCard,
-  CondSignal,
-  CondCardContent,
-  CondCardLabel,
-  CondCardValue,
-  CondCardSub,
-  DrillOverlay,
-  DrillPanel,
-  DrillHeader,
-  DrillTitle,
-  DrillBody,
-  DrillCloseBtn,
   BudgetHeaderRow,
   BudgetHeaderItem,
   BudgetHeaderLabel,
   BudgetHeaderValue,
   BudgetGrowthBadge,
+  CardGroupLabel,
+  SettingsGear,
+  DrillOverlay,
+  DrillPanel,
+  DrillCloseBtn,
+  DrillHeader,
+  DrillTitle,
+  DrillBody,
 } from './ConditionSummaryEnhanced.styles'
+
+// ─── Card click handler type map ────────────────────────
+
+const BUDGET_METRIC_IDS: ReadonlySet<string> = new Set([
+  'sales',
+  'gp',
+  'gpRate',
+  'markupRate',
+  'discountRate',
+])
+const YOY_DRILL_IDS: ReadonlySet<string> = new Set(['customerYoY', 'txValue'])
 
 // ─── Component ──────────────────────────────────────────
 
@@ -72,122 +66,129 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
   readonly ctx: WidgetContext
 }) {
   const [activeMetric, setActiveMetric] = useState<MetricKey | null>(null)
-  const [showYoY, setShowYoY] = useState(false)
-  const [dailyStoreId, setDailyStoreId] = useState<string | null>(null)
+  const [yoyDrill, setYoYDrill] = useState<'customerYoY' | 'txValue' | null>(null)
+  const [showSettings, setShowSettings] = useState(false)
+  const [displayMode, setDisplayMode] = useState<DisplayMode>('rate')
+  const [expandedStore, setExpandedStore] = useState<string | null>(null)
 
   const { daysInMonth, elapsedDays } = ctx
-  const effectiveElapsed = elapsedDays ?? daysInMonth
-
-  // 共通ヘッダの比較プリセットに連動（同曜日 or 同日）
   const prevYearMode = ctx.comparisonFrame.policy === 'sameDayOfWeek' ? 'sameDow' : 'sameDate'
 
-  // ─── Budget header (monthly fixed context) ─────────────
+  const settings = useSettingsStore((s) => s.settings)
+
+  // 旧設定との後方互換
+  const effectiveConfig = useMemo<ConditionSummaryConfig>(() => {
+    const base = settings.conditionConfig ?? { global: {}, storeOverrides: {} }
+    const hasLegacyGp = base.global.gpRate?.thresholds == null
+    const hasLegacyDiscount = base.global.discountRate?.thresholds == null
+    if (!hasLegacyGp && !hasLegacyDiscount) return base
+    const migrated = { ...base, global: { ...base.global } }
+    if (hasLegacyGp) {
+      migrated.global = {
+        ...migrated.global,
+        gpRate: {
+          ...migrated.global.gpRate,
+          thresholds: {
+            blue: settings.gpDiffBlueThreshold,
+            yellow: settings.gpDiffYellowThreshold,
+            red: settings.gpDiffRedThreshold,
+          },
+        },
+      }
+    }
+    if (hasLegacyDiscount) {
+      migrated.global = {
+        ...migrated.global,
+        discountRate: {
+          ...migrated.global.discountRate,
+          thresholds: {
+            blue: settings.discountBlueThreshold,
+            yellow: settings.discountYellowThreshold,
+            red: settings.discountRedThreshold,
+          },
+        },
+      }
+    }
+    return migrated
+  }, [settings])
+
+  // CTS data for items YoY
+  const ctsRecords = useDataStore((s) => s.data.categoryTimeSales.records)
+  const prevCtsRecords = useDataStore((s) => s.data.prevYearCategoryTimeSales.records)
+
+  // Budget header
   const budgetHeader = useMemo(
     () => buildBudgetHeader(ctx.result, ctx.prevYearMonthlyKpi, ctx.dowGap),
     [ctx.result, ctx.prevYearMonthlyKpi, ctx.dowGap],
   )
 
-  // ─── Card summaries (surface) ─────────────────────────
-  const cards = useMemo(
-    () => buildCardSummaries(ctx.result, elapsedDays, daysInMonth, ctx.fmtCurrency),
-    [ctx.result, elapsedDays, daysInMonth, ctx.fmtCurrency],
-  )
+  const hasMultipleStores = ctx.allStoreResults.size > 1
 
-  // ─── Drill-down data (always elapsed mode) ────────────
-  const rowInput = useMemo(
-    () =>
-      activeMetric
-        ? {
-            allStoreResults: ctx.allStoreResults,
-            stores: ctx.stores,
-            metric: activeMetric,
-            tab: 'elapsed' as const,
-            elapsedDays,
-            daysInMonth,
-            prevYear: ctx.prevYear,
-            prevYearMonthlyKpi: ctx.prevYearMonthlyKpi,
-            prevYearStoreCostPrice: ctx.prevYearStoreCostPrice,
-          }
-        : null,
-    [
-      activeMetric,
-      ctx.allStoreResults,
-      ctx.stores,
-      elapsedDays,
-      daysInMonth,
-      ctx.prevYear,
-      ctx.prevYearMonthlyKpi,
-      ctx.prevYearStoreCostPrice,
-    ],
-  )
-
-  const rows = useMemo(() => (rowInput ? buildRows(rowInput) : []), [rowInput])
-
-  const total = useMemo(
-    () => (rowInput ? buildTotalFromResult(ctx.result, rowInput) : null),
-    [ctx.result, rowInput],
-  )
-
-  const activeDef = activeMetric ? METRIC_DEFS[activeMetric] : null
-  const hasYoYData =
-    ((activeMetric === 'sales' || activeMetric === 'discountRate') && ctx.prevYear.hasPrevYear) ||
-    (activeMetric === 'markupRate' &&
-      ctx.prevYearStoreCostPrice != null &&
-      ctx.prevYearStoreCostPrice.size > 0)
-
-  const handleClose = useCallback(() => {
-    setActiveMetric(null)
-    setDailyStoreId(null)
-  }, [])
-
-  const handleStoreClick = useCallback((storeId: string) => {
-    setDailyStoreId(storeId)
-  }, [])
-
-  const handleDailyClose = useCallback(() => {
-    setDailyStoreId(null)
-  }, [])
-
-  // Daily modal store data
-  const dailySr = dailyStoreId ? ctx.allStoreResults.get(dailyStoreId) : null
-  const dailyStoreName = dailyStoreId ? (ctx.stores.get(dailyStoreId)?.name ?? dailyStoreId) : ''
-
-  // ── 値入率日別前年比（application hook 経由、daily modal 用） ──
-  const markupQueryStoreId =
-    dailyStoreId != null && activeMetric === 'markupRate' ? dailyStoreId : null
-  const markupDailyQuery = useStoreDailyMarkupRateQuery(
-    ctx.duckConn,
-    ctx.duckDataVersion ?? 0,
-    ctx.prevYearDateRange ?? null,
-    markupQueryStoreId,
-  )
-
-  const effectiveMarkupYoYRows = useMemo(() => {
-    if (markupDailyQuery.queryStoreId !== dailyStoreId || !dailySr) return []
-    return buildDailyMarkupRateYoYRows(
-      dailySr,
-      markupDailyQuery.data,
-      effectiveElapsed,
-      daysInMonth,
-    )
+  // Unified card array (order controlled by CONDITION_CARD_ORDER)
+  const allCards = useMemo(() => {
+    const budgetCards = buildCardSummaries(ctx.result, elapsedDays, daysInMonth, ctx.fmtCurrency)
+    const yoyCards = buildYoYCards({
+      result: ctx.result,
+      prevYear: ctx.prevYear,
+      config: effectiveConfig,
+      ctsCurrentQty: ctsRecords.reduce((sum, rec) => sum + rec.totalQuantity, 0),
+      ctsPrevQty: prevCtsRecords.reduce((sum, rec) => sum + rec.totalQuantity, 0),
+      fmtCurrency: ctx.fmtCurrency,
+    })
+    return buildUnifiedCards(budgetCards, yoyCards, hasMultipleStores)
   }, [
-    markupDailyQuery.queryStoreId,
-    markupDailyQuery.data,
-    dailyStoreId,
-    dailySr,
-    effectiveElapsed,
+    ctx.result,
+    elapsedDays,
     daysInMonth,
+    ctx.fmtCurrency,
+    ctx.prevYear,
+    effectiveConfig,
+    ctsRecords,
+    prevCtsRecords,
+    hasMultipleStores,
   ])
+
+  // Group cards by section for display
+  const budgetGroup = useMemo(() => allCards.filter((c) => c.group === 'budget'), [allCards])
+  const yoyGroup = useMemo(() => allCards.filter((c) => c.group === 'yoy'), [allCards])
+
+  // Card click dispatch
+  const handleCardClick = useCallback((id: ConditionCardId) => {
+    if (BUDGET_METRIC_IDS.has(id)) {
+      setActiveMetric(id as MetricKey)
+    } else if (YOY_DRILL_IDS.has(id)) {
+      setYoYDrill(id as 'customerYoY' | 'txValue')
+    }
+  }, [])
+
+  const handleBudgetClose = useCallback(() => setActiveMetric(null), [])
+
+  const sortedStoreEntries = useMemo(
+    () =>
+      [...ctx.allStoreResults.entries()].sort(([, a], [, b]) => {
+        const sa = ctx.stores.get(a.storeId)
+        const sb = ctx.stores.get(b.storeId)
+        return (sa?.code ?? a.storeId).localeCompare(sb?.code ?? b.storeId)
+      }),
+    [ctx.allStoreResults, ctx.stores],
+  )
 
   return (
     <DashWrapper>
       {/* Header */}
       <Header>
-        <HeaderMeta>CONDITION SUMMARY</HeaderMeta>
-        <HeaderTitle>店別 予算達成状況</HeaderTitle>
+        <div>
+          <HeaderMeta>CONDITION SUMMARY</HeaderMeta>
+          <HeaderTitle>コンディションサマリー</HeaderTitle>
+        </div>
+        <SettingsGear onClick={() => setShowSettings((p) => !p)} title="閾値設定">
+          ⚙
+        </SettingsGear>
       </Header>
 
-      {/* Budget Header — click items to drill-down */}
+      {showSettings && <ConditionSettingsPanelWidget stores={ctx.stores} />}
+
+      {/* Budget context row */}
       <BudgetHeaderRow>
         <BudgetHeaderItem
           onClick={() => setActiveMetric('sales')}
@@ -217,15 +218,7 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
           <BudgetHeaderValue>{formatPercent(budgetHeader.grossProfitRateBudget)}</BudgetHeaderValue>
         </BudgetHeaderItem>
         {budgetHeader.prevYearMonthlySales != null && (
-          <BudgetHeaderItem
-            onClick={() => {
-              setActiveMetric('sales')
-              setShowYoY(true)
-            }}
-            style={{ cursor: 'pointer' }}
-            role="button"
-            tabIndex={0}
-          >
+          <BudgetHeaderItem>
             <BudgetHeaderLabel>月間前年売上</BudgetHeaderLabel>
             <BudgetHeaderValue>
               {ctx.fmtCurrency(budgetHeader.prevYearMonthlySales)}
@@ -233,22 +226,13 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
           </BudgetHeaderItem>
         )}
         {budgetHeader.budgetVsPrevYear != null && (
-          <BudgetHeaderItem
-            onClick={() => {
-              setActiveMetric('sales')
-              setShowYoY(true)
-            }}
-            style={{ cursor: 'pointer' }}
-            role="button"
-            tabIndex={0}
-          >
+          <BudgetHeaderItem>
             <BudgetHeaderLabel>予算前年比</BudgetHeaderLabel>
             <BudgetGrowthBadge $positive={budgetHeader.budgetVsPrevYear >= 1}>
               {formatPercent(budgetHeader.budgetVsPrevYear)}
             </BudgetGrowthBadge>
           </BudgetHeaderItem>
         )}
-        {/* 曜日GAPは同日比較時のみ表示（同曜日比較では曜日が揃うためGAPなし） */}
         {prevYearMode === 'sameDate' && budgetHeader.dowGap && (
           <>
             <BudgetHeaderItem
@@ -261,7 +245,6 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
               <BudgetHeaderValue>
                 {ctx.fmtCurrency(budgetHeader.dowGap.avgImpact)}
               </BudgetHeaderValue>
-              <BudgetHeaderLabel>平均</BudgetHeaderLabel>
             </BudgetHeaderItem>
             {budgetHeader.dowGap.actualImpact != null && (
               <BudgetHeaderItem
@@ -280,162 +263,106 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
         )}
       </BudgetHeaderRow>
 
-      {/* Card Grid (横一列) */}
-      <CardGridRow>
-        {cards.map((card) => (
-          <CondCard
-            key={card.key}
-            $borderColor={card.signalColor}
-            onClick={() => setActiveMetric(card.key)}
-          >
-            <CondSignal $color={card.signalColor} />
-            <CondCardContent>
-              <CondCardLabel>{card.label}</CondCardLabel>
-              <CondCardValue $color={card.signalColor}>{card.value}</CondCardValue>
-              <CondCardSub>{card.sub}</CondCardSub>
-            </CondCardContent>
-          </CondCard>
-        ))}
-      </CardGridRow>
+      {/* Budget metric cards */}
+      {budgetGroup.length > 0 && (
+        <>
+          <CardGroupLabel>予算達成</CardGroupLabel>
+          <CardGridRow>
+            {budgetGroup.map((card) => (
+              <ConditionCardShell
+                key={card.id}
+                card={card}
+                onClick={() => handleCardClick(card.id)}
+              />
+            ))}
+          </CardGridRow>
+        </>
+      )}
 
-      {/* Drill-down Overlay */}
-      {activeMetric && activeDef && total && (
-        <DrillOverlay onClick={handleClose}>
+      {/* YoY / Pace metric cards */}
+      {yoyGroup.length > 0 && (
+        <>
+          <CardGroupLabel>前年比較</CardGroupLabel>
+          <CardGridRow>
+            {yoyGroup.map((card) => (
+              <ConditionCardShell
+                key={card.id}
+                card={card}
+                onClick={() => handleCardClick(card.id)}
+              />
+            ))}
+          </CardGridRow>
+        </>
+      )}
+
+      {/* Condition Matrix (DuckDB) */}
+      <ConditionMatrixTable ctx={ctx} />
+
+      {/* Budget drill-down overlay */}
+      {activeMetric && (
+        <ConditionSummaryBudgetDrill
+          ctx={ctx}
+          activeMetric={activeMetric}
+          onClose={handleBudgetClose}
+        />
+      )}
+
+      {/* YoY drill-down overlay */}
+      {yoyDrill && (
+        <DrillOverlay
+          onClick={() => {
+            setYoYDrill(null)
+            setExpandedStore(null)
+          }}
+        >
           <DrillPanel onClick={(e) => e.stopPropagation()}>
             <DrillHeader>
               <DrillTitle>
-                {activeDef.icon} {activeDef.label} 店別詳細
+                {yoyDrill === 'customerYoY' ? '客数前年比' : '客単価前年比'} 店別詳細
               </DrillTitle>
-              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                {hasYoYData && (
-                  <YoYBtn $active={showYoY} onClick={() => setShowYoY((p) => !p)}>
-                    前年比 {showYoY ? 'ON' : 'OFF'}
-                  </YoYBtn>
-                )}
-                <DrillCloseBtn onClick={handleClose} aria-label="閉じる">
-                  ✕
-                </DrillCloseBtn>
-              </div>
+              <DrillCloseBtn
+                onClick={() => {
+                  setYoYDrill(null)
+                  setExpandedStore(null)
+                }}
+                aria-label="閉じる"
+              >
+                ✕
+              </DrillCloseBtn>
             </DrillHeader>
-
             <DrillBody>
-              {/* Total Summary */}
-              <TotalSection>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                  <PeriodBadge $color="#7c3aed">{effectiveElapsed}日経過</PeriodBadge>
-                  <SectionLabel>全店合計</SectionLabel>
-                </div>
-                <ElapsedTotalSection
-                  total={total}
-                  isRate={activeDef.isRate}
-                  showYoY={showYoY && hasYoYData}
+              {yoyDrill === 'customerYoY' ? (
+                <CustomerYoYDetailTable
+                  sortedStoreEntries={sortedStoreEntries}
+                  stores={ctx.stores}
+                  result={ctx.result}
+                  effectiveConfig={effectiveConfig}
+                  displayMode={displayMode}
+                  onDisplayModeChange={setDisplayMode}
+                  settings={settings}
+                  prevYear={ctx.prevYear}
+                  prevYearMonthlyKpi={ctx.prevYearMonthlyKpi}
+                  expandedStore={expandedStore}
+                  onExpandToggle={(id) => setExpandedStore((prev) => (prev === id ? null : id))}
+                  dataMaxDay={ctx.dataMaxDay}
                 />
-              </TotalSection>
-
-              {/* Table Header */}
-              <StoreTableHeader metric={activeMetric} showYoY={showYoY && hasYoYData} />
-
-              {/* Store Rows (店番順) */}
-              <div>
-                {rows.map((row) => (
-                  <StoreRow
-                    key={row.storeId}
-                    row={row}
-                    metric={activeMetric}
-                    isRate={activeDef.isRate}
-                    showYoY={showYoY && hasYoYData}
-                    onStoreClick={handleStoreClick}
-                  />
-                ))}
-              </div>
+              ) : (
+                <TxValueDetailTable
+                  sortedStoreEntries={sortedStoreEntries}
+                  stores={ctx.stores}
+                  result={ctx.result}
+                  effectiveConfig={effectiveConfig}
+                  displayMode={displayMode}
+                  onDisplayModeChange={setDisplayMode}
+                  settings={settings}
+                  expandedStore={expandedStore}
+                  onExpandToggle={(id) => setExpandedStore((prev) => (prev === id ? null : id))}
+                />
+              )}
             </DrillBody>
-
-            {/* Footer */}
-            <Footer>
-              <FooterNote>
-                経過予算達成（{effectiveElapsed}/{daysInMonth}日）
-                {showYoY && hasYoYData ? ' + 前年同曜日比' : ''} •{' '}
-                {activeDef.isRate
-                  ? 'ポイント差'
-                  : `単位：${ctx.fmtCurrency(10000).includes('万') ? '万円' : '円'}`}
-              </FooterNote>
-              <LegendGroup>
-                {[
-                  { color: '#10b981', label: '達成' },
-                  { color: '#eab308', label: '微未達' },
-                  { color: '#ef4444', label: '未達' },
-                ].map((item) => (
-                  <LegendItem key={item.label}>
-                    <LegendDot $color={item.color} />
-                    {item.label}
-                  </LegendItem>
-                ))}
-              </LegendGroup>
-            </Footer>
           </DrillPanel>
-
-          {/* Daily Detail Modal (store click) */}
-          {dailyStoreId && dailySr && activeMetric && (
-            <ConditionSummaryDailyModal
-              sr={dailySr}
-              storeName={dailyStoreName}
-              metric={activeMetric}
-              elapsedDays={effectiveElapsed}
-              daysInMonth={daysInMonth}
-              prevYearMonthlyKpi={ctx.prevYearMonthlyKpi}
-              hasPrevYear={ctx.prevYear.hasPrevYear}
-              fmtCurrency={ctx.fmtCurrency}
-              markupRateYoYRows={effectiveMarkupYoYRows}
-              onClose={handleDailyClose}
-            />
-          )}
         </DrillOverlay>
       )}
     </DashWrapper>
   )
 })
-
-// ─── Elapsed Total (sub-component) ─────────────────────
-
-interface TotalSectionProps {
-  readonly total: EnhancedTotal
-  readonly isRate: boolean
-  readonly showYoY: boolean
-}
-
-function ElapsedTotalSection({ total, isRate, showYoY }: TotalSectionProps) {
-  const achColor = resultColor(total.achievement, isRate)
-  return (
-    <div>
-      <TotalGrid>
-        <TotalCell>
-          <SmallLabel>経過予算</SmallLabel>
-          <BigValue>{fmtValue(total.budget, isRate)}</BigValue>
-        </TotalCell>
-        <TotalCell $align="center">
-          <SmallLabel>実績</SmallLabel>
-          <MainValue>{fmtValue(total.actual, isRate)}</MainValue>
-        </TotalCell>
-        <TotalCell $align="right">
-          <SmallLabel>{isRate ? '差異' : '達成率'}</SmallLabel>
-          <AchValue $color={achColor}>{fmtAchievement(total.achievement, isRate)}</AchValue>
-        </TotalCell>
-      </TotalGrid>
-      {!isRate && (
-        <ProgressTrack>
-          <ProgressFill $width={total.achievement} $color={achColor} />
-        </ProgressTrack>
-      )}
-      {showYoY && total.ly != null && total.yoy != null && (
-        <YoYRow>
-          <YoYLabel>前年比</YoYLabel>
-          <MonoSm>{fmtValue(total.ly, isRate)}</MonoSm>
-          <MonoMd $bold>{fmtValue(total.actual, isRate)}</MonoMd>
-          <MonoLg $color={resultColor(total.yoy, isRate)} $bold>
-            {fmtAchievement(total.yoy, isRate)}
-          </MonoLg>
-        </YoYRow>
-      )}
-    </div>
-  )
-}

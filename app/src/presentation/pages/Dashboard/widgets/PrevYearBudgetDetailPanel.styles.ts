@@ -144,3 +144,75 @@ export const DowGapCount = styled.div`
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   color: ${({ theme }) => theme.colors.text4};
 `
+
+export const MethodToggleBar = styled.div`
+  display: inline-flex;
+  gap: 0;
+  margin-bottom: ${({ theme }) => theme.spacing[3]};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.md};
+  overflow: hidden;
+`
+
+export const MethodButton = styled.button<{ $active: boolean }>`
+  padding: ${({ theme }) => `${theme.spacing[1]} ${theme.spacing[3]}`};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-weight: ${({ $active, theme }) =>
+    $active ? theme.typography.fontWeight.semibold : 'normal'};
+  background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
+  color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text2)};
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s;
+  &:not(:last-child) {
+    border-right: 1px solid ${({ theme }) => theme.colors.border};
+  }
+  &:hover:not([disabled]) {
+    background: ${({ $active, theme }) =>
+      $active ? theme.colors.palette.primary : theme.colors.bg3};
+  }
+`
+
+export const ShiftedDayTable = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: ${({ theme }) => theme.spacing[2]};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  th,
+  td {
+    padding: ${({ theme }) => `${theme.spacing[1]} ${theme.spacing[2]}`};
+    border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  }
+  th {
+    text-align: left;
+    font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+    color: ${({ theme }) => theme.colors.text3};
+    background: ${({ theme }) => theme.colors.bg3};
+  }
+`
+
+export const ShiftedDayNumTd = styled.td`
+  text-align: right;
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+`
+
+export const ShiftedDaySummary = styled.div`
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  padding: ${({ theme }) => `${theme.spacing[2]} ${theme.spacing[3]}`};
+  background: ${({ theme }) => theme.colors.bg3};
+  border-radius: ${({ theme }) => theme.radii.md};
+  margin-bottom: ${({ theme }) => theme.spacing[4]};
+  display: flex;
+  gap: ${({ theme }) => theme.spacing[3]};
+  flex-wrap: wrap;
+  align-items: center;
+`
+
+export const ShiftedDayLabel = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-weight: normal;
+  color: ${({ theme }) => theme.colors.text3};
+  margin-right: ${({ theme }) => theme.spacing[1]};
+`

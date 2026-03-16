@@ -7,12 +7,13 @@
  *   - サマリーカード（前年売上・予算・前年比・客数・客単価ギャップ）
  *   - 日別/累計 切り替え
  *   - 週間小計行（月曜〜日曜区切り）
- *   - 同日カード: 曜日ギャップ分析（曜日別の日数差と想定客数・客単価影響）
+ *   - 曜日ギャップ分析（手法切替: 平均/中央値/調整平均、両モード表示）
+ *   - 実日法の証明テーブル（加わった日・失われた日を明示）
  */
 import { useState, useMemo, useCallback } from 'react'
 import { useTheme } from 'styled-components'
 import type { PrevYearMonthlyKpiEntry } from '@/application/comparison/comparisonTypes'
-import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
+import type { DowGapAnalysis, DowGapMethod } from '@/domain/models/ComparisonContext'
 import { formatPercent } from '@/domain/formatting'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { safeDivide, calculateTransactionValue } from '@/domain/calculations/utils'
@@ -50,9 +51,24 @@ import {
   DowGapLabel,
   DowGapDiff,
   DowGapCount,
+  MethodToggleBar,
+  MethodButton,
 } from './PrevYearBudgetDetailPanel.styles'
+import { ActualDayProofTable } from './ActualDayProofTable'
 
 const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土'] as const
+
+const METHOD_LABELS: Record<DowGapMethod, string> = {
+  mean: '平均',
+  median: '中央値',
+  adjustedMean: '調整平均',
+}
+
+const METHOD_FORMULAS: Record<DowGapMethod, string> = {
+  mean: 'Σ(曜日別売上合計÷日数 × 日数差)',
+  median: 'Σ(曜日別売上中央値 × 日数差)',
+  adjustedMean: 'Σ(外れ値除外平均 × 日数差)',
+}
 
 function getDow(year: number, month: number, day: number): number {
   return new Date(year, month - 1, day).getDay()
@@ -114,6 +130,7 @@ export function PrevYearBudgetDetailPanel({
   onClose,
 }: PrevYearBudgetDetailPanelProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('daily')
+  const [gapMethod, setGapMethod] = useState<DowGapMethod>('median')
   const theme = useTheme()
   const { format: fmtCurrency } = useCurrencyFormat()
 
@@ -126,7 +143,6 @@ export function PrevYearBudgetDetailPanel({
       return { prev: `${sourceYear}年${sourceMonth}月`, cur: `${targetYear}年${targetMonth}月` }
     const first = dm[0]
     const last = dm[dm.length - 1]
-    // 同月内なら日だけ省略表記
     const prev =
       first.prevMonth === last.prevMonth && first.prevYear === last.prevYear
         ? `${first.prevYear}年${first.prevMonth}月${first.prevDay}日〜${last.prevDay}日`
@@ -172,25 +188,47 @@ export function PrevYearBudgetDetailPanel({
 
   // サマリー指標
   const prevTransactionValue = calculateTransactionValue(entry.sales, entry.customers)
-  const budgetRatio = safeDivide(entry.sales, budgetTotal, 0)
   const budgetVsPrevYear = safeDivide(budgetTotal, entry.sales, 0)
 
-  // 想定客数ギャップ: 同日の場合、曜日構成差 × 日平均客数
-  const dailyAvgCustomers = safeDivide(entry.customers, entry.dailyMapping.length, 0)
+  // 手法別の影響額を取得
+  const methodResult = dowGap.methodResults?.[gapMethod]
+
+  // 曜日ギャップ影響額（選択手法、フォールバック: mean の estimatedImpact）
+  const salesImpact = methodResult?.salesImpact ?? dowGap.estimatedImpact
+
+  // 想定客数ギャップ: 曜日別平均客数 × 日数差
   const estimatedCustomerGap = useMemo(() => {
-    if (type !== 'sameDate' || !dowGap.isValid) return 0
-    const totalDayDiff = dowGap.dowCounts.reduce((s, d) => s + d.diff, 0)
-    return Math.round(totalDayDiff * dailyAvgCustomers)
-  }, [type, dowGap, dailyAvgCustomers])
+    if (!dowGap.isValid) return 0
+    if (methodResult) {
+      // 手法別: Σ(diff × dowAvgCustomers)
+      return Math.round(
+        dowGap.dowCounts.reduce(
+          (s, d) => s + d.diff * (methodResult.dowAvgCustomers[d.dow] ?? 0),
+          0,
+        ),
+      )
+    }
+    // フォールバック: 曜日別平均客数（mean）
+    return Math.round(
+      dowGap.dowCounts.reduce(
+        (s, d) => s + d.diff * (dowGap.prevDowDailyAvgCustomers[d.dow] ?? 0),
+        0,
+      ),
+    )
+  }, [dowGap, methodResult])
 
   // 想定客単価影響
   const estimatedUnitPriceImpact = useMemo(() => {
-    if (type !== 'sameDate' || !dowGap.isValid || entry.customers === 0) return 0
-    const impactSales = dowGap.estimatedImpact
+    if (!dowGap.isValid || entry.customers === 0) return 0
+    const adjustedSales = entry.sales + salesImpact
     const adjustedCustomers = entry.customers + estimatedCustomerGap
     if (adjustedCustomers <= 0) return 0
-    return safeDivide(entry.sales + impactSales, adjustedCustomers, 0) - prevTransactionValue
-  }, [type, dowGap, entry, estimatedCustomerGap, prevTransactionValue])
+    return safeDivide(adjustedSales, adjustedCustomers, 0) - prevTransactionValue
+  }, [dowGap, entry, salesImpact, estimatedCustomerGap, prevTransactionValue])
+
+  // 実日法
+  const actualDay = dowGap.actualDayImpact
+  const hasActualDay = actualDay != null && actualDay.isValid
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -235,7 +273,6 @@ export function PrevYearBudgetDetailPanel({
     for (let i = 0; i < baseRows.length; i++) {
       const row = baseRows[i]
 
-      // 週の切り替わりで前の週の小計行を挿入（日別モードのみ）
       if (viewMode === 'daily' && row.week !== prevWeek && prevWeek > 0) {
         elements.push(renderWeekSummary(prevWeek))
       }
@@ -274,12 +311,10 @@ export function PrevYearBudgetDetailPanel({
       )
     }
 
-    // 最後の週の小計（日別モードのみ）
     if (viewMode === 'daily' && prevWeek > 0) {
       elements.push(renderWeekSummary(prevWeek))
     }
 
-    // 合計行
     elements.push(
       <TotalRow key="total">
         <MbpTd>合計</MbpTd>
@@ -298,6 +333,109 @@ export function PrevYearBudgetDetailPanel({
     )
 
     return elements
+  }
+
+  // 曜日ギャップ分析セクション（両モード共通、sameDate は平均法+実日法、sameDow は実日法のみ）
+  const renderDowGapSection = () => {
+    if (!dowGap.isValid) return null
+
+    const showAverageMethod = type === 'sameDate'
+
+    return (
+      <>
+        {showAverageMethod && (
+          <>
+            <SectionTitle>曜日構成の差異（同日比較の影響要因）</SectionTitle>
+
+            {/* 手法切替 */}
+            {dowGap.methodResults && (
+              <MethodToggleBar>
+                {(['mean', 'median', 'adjustedMean'] as const).map((m) => (
+                  <MethodButton key={m} $active={gapMethod === m} onClick={() => setGapMethod(m)}>
+                    {METHOD_LABELS[m]}
+                  </MethodButton>
+                ))}
+              </MethodToggleBar>
+            )}
+
+            {/* 曜日別日数グリッド */}
+            <DowGapGrid>
+              {dowGap.dowCounts.map((dc) => (
+                <DowGapCell key={dc.dow} $diff={dc.diff}>
+                  <DowGapLabel>{dc.label}</DowGapLabel>
+                  <DowGapDiff $diff={dc.diff}>
+                    {dc.diff > 0 ? `+${dc.diff}` : dc.diff === 0 ? '±0' : `${dc.diff}`}
+                  </DowGapDiff>
+                  <DowGapCount>
+                    {dc.previousCount}→{dc.currentCount}
+                  </DowGapCount>
+                </DowGapCell>
+              ))}
+            </DowGapGrid>
+
+            {/* 影響額サマリーカード */}
+            <SummaryGrid>
+              <SummaryCard>
+                <SummaryLabel>曜日ギャップ影響額</SummaryLabel>
+                <SummaryValue
+                  style={{
+                    color:
+                      salesImpact >= 0 ? theme.colors.palette.success : theme.colors.palette.danger,
+                  }}
+                >
+                  {salesImpact >= 0 ? '+' : ''}
+                  {fmtCurrency(salesImpact)}
+                </SummaryValue>
+                <SummarySub>{METHOD_FORMULAS[gapMethod]}</SummarySub>
+              </SummaryCard>
+              <SummaryCard>
+                <SummaryLabel>想定客数ギャップ</SummaryLabel>
+                <SummaryValue
+                  style={{
+                    color:
+                      estimatedCustomerGap >= 0
+                        ? theme.colors.palette.success
+                        : theme.colors.palette.danger,
+                  }}
+                >
+                  {estimatedCustomerGap >= 0 ? '+' : ''}
+                  {estimatedCustomerGap.toLocaleString('ja-JP')}人
+                </SummaryValue>
+                <SummarySub>Σ(曜日別日平均客数 × 日数差)</SummarySub>
+              </SummaryCard>
+              <SummaryCard>
+                <SummaryLabel>想定客単価影響</SummaryLabel>
+                <SummaryValue
+                  style={{
+                    color:
+                      estimatedUnitPriceImpact >= 0
+                        ? theme.colors.palette.success
+                        : theme.colors.palette.danger,
+                  }}
+                >
+                  {estimatedUnitPriceImpact >= 0 ? '+' : ''}
+                  {fmtCurrency(Math.round(estimatedUnitPriceImpact))}
+                </SummaryValue>
+                <SummarySub>曜日構成変化による客単価変動</SummarySub>
+              </SummaryCard>
+            </SummaryGrid>
+
+            {/* 曜日別統計（CV 表示） */}
+            {dowGap.dowSalesStats && (
+              <SummarySub style={{ marginBottom: 8 }}>
+                曜日別CV:{' '}
+                {dowGap.dowSalesStats
+                  .map((s, i) => `${DOW_LABELS[i]}=${formatPercent(s.cv)}`)
+                  .join(' ')}
+              </SummarySub>
+            )}
+          </>
+        )}
+
+        {/* 実日法の証明テーブル — 両モード共通 */}
+        {hasActualDay && <ActualDayProofTable type={type} actualDayImpact={actualDay} />}
+      </>
+    )
   }
 
   return (
@@ -346,92 +484,10 @@ export function PrevYearBudgetDetailPanel({
                 ` (${budgetTotal - entry.sales >= 0 ? '+' : ''}${fmtCurrency(budgetTotal - entry.sales)})`}
             </SummarySub>
           </SummaryCard>
-          <SummaryCard>
-            <SummaryLabel>前年 ÷ 予算</SummaryLabel>
-            <SummaryValue
-              style={{
-                color:
-                  budgetRatio >= 1 ? theme.colors.palette.success : theme.colors.palette.danger,
-              }}
-            >
-              {formatPercent(budgetRatio)}
-            </SummaryValue>
-            <SummarySub>
-              {budgetVsPrevYear > 1
-                ? '前年超の予算（強気）'
-                : budgetVsPrevYear < 1
-                  ? '前年割れの予算（保守的）'
-                  : '前年同水準'}
-            </SummarySub>
-          </SummaryCard>
         </SummaryGrid>
 
-        {/* 曜日ギャップ分析（同日カードのみ） */}
-        {type === 'sameDate' && dowGap.isValid && (
-          <>
-            <SectionTitle>曜日構成の差異（同日比較の影響要因）</SectionTitle>
-            <DowGapGrid>
-              {dowGap.dowCounts.map((dc) => (
-                <DowGapCell key={dc.dow} $diff={dc.diff}>
-                  <DowGapLabel>{dc.label}</DowGapLabel>
-                  <DowGapDiff $diff={dc.diff}>
-                    {dc.diff > 0 ? `+${dc.diff}` : dc.diff === 0 ? '±0' : `${dc.diff}`}
-                  </DowGapDiff>
-                  <DowGapCount>
-                    {dc.previousCount}→{dc.currentCount}
-                  </DowGapCount>
-                </DowGapCell>
-              ))}
-            </DowGapGrid>
-            <SummaryGrid>
-              <SummaryCard>
-                <SummaryLabel>曜日ギャップ影響額</SummaryLabel>
-                <SummaryValue
-                  style={{
-                    color:
-                      dowGap.estimatedImpact >= 0
-                        ? theme.colors.palette.success
-                        : theme.colors.palette.danger,
-                  }}
-                >
-                  {dowGap.estimatedImpact >= 0 ? '+' : ''}
-                  {fmtCurrency(dowGap.estimatedImpact)}
-                </SummaryValue>
-                <SummarySub>Σ(前年曜日別日平均 × 日数差)</SummarySub>
-              </SummaryCard>
-              <SummaryCard>
-                <SummaryLabel>想定客数ギャップ</SummaryLabel>
-                <SummaryValue
-                  style={{
-                    color:
-                      estimatedCustomerGap >= 0
-                        ? theme.colors.palette.success
-                        : theme.colors.palette.danger,
-                  }}
-                >
-                  {estimatedCustomerGap >= 0 ? '+' : ''}
-                  {estimatedCustomerGap.toLocaleString('ja-JP')}人
-                </SummaryValue>
-                <SummarySub>日平均客数 × 日数差</SummarySub>
-              </SummaryCard>
-              <SummaryCard>
-                <SummaryLabel>想定客単価影響</SummaryLabel>
-                <SummaryValue
-                  style={{
-                    color:
-                      estimatedUnitPriceImpact >= 0
-                        ? theme.colors.palette.success
-                        : theme.colors.palette.danger,
-                  }}
-                >
-                  {estimatedUnitPriceImpact >= 0 ? '+' : ''}
-                  {fmtCurrency(Math.round(estimatedUnitPriceImpact))}
-                </SummaryValue>
-                <SummarySub>曜日構成変化による客単価変動</SummarySub>
-              </SummaryCard>
-            </SummaryGrid>
-          </>
-        )}
+        {/* 曜日ギャップ分析 — 両モード共通 */}
+        {renderDowGapSection()}
 
         {/* タブ切替 */}
         <SectionTitle>日別対応テーブル</SectionTitle>

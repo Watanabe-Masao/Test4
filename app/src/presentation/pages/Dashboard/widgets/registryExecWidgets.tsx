@@ -2,7 +2,7 @@ import type { WidgetDef } from './types'
 import { renderPlanActualForecast } from './PlanActualForecast'
 import { MonthlyCalendarWidget } from './MonthlyCalendar'
 import { ForecastToolsWidget } from './ForecastTools'
-import { ConditionSummaryWidget } from './ConditionSummary'
+import { ConditionSummaryEnhanced } from './ConditionSummaryEnhanced'
 import { AlertPanelWidget } from './AlertPanel'
 import {
   renderDowAverage,
@@ -15,13 +15,14 @@ import {
 
 // ── 概要・ステータス ──
 // exec-summary-bar は KpiSummaryTable + ConditionSummaryEnhanced ヘッダに吸収済み
+// analysis-condition-summary は ConditionSummaryEnhanced に統合済み
 export const WIDGETS_EXEC: readonly WidgetDef[] = [
   {
     id: 'analysis-condition-summary',
     label: 'コンディションサマリー',
     group: 'モニタリング',
     size: 'full',
-    render: (ctx) => <ConditionSummaryWidget key={ctx.storeKey} ctx={ctx} />,
+    render: (ctx) => <ConditionSummaryEnhanced key={ctx.storeKey} ctx={ctx} />,
   },
   {
     id: 'analysis-alert-panel',
