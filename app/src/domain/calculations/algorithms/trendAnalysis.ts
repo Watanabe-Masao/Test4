@@ -5,6 +5,7 @@
  * 月次 KPI の推移、季節性パターン、前月比/前年同月比を計算する。
  */
 import { safeDivide } from '../utils'
+import { MONTHS_PER_YEAR, SHORT_TERM_MA_MONTHS, MEDIUM_TERM_MA_MONTHS } from '@/domain/constants'
 
 // ─── Types ────────────────────────────────────────────
 
@@ -62,7 +63,7 @@ export function analyzeTrend(dataPoints: readonly MonthlyDataPoint[]): TrendAnal
       yoyChanges: [],
       movingAvg3: [],
       movingAvg6: [],
-      seasonalIndex: Array(12).fill(1),
+      seasonalIndex: Array(MONTHS_PER_YEAR).fill(1),
       overallTrend: 'flat',
       averageMonthlySales: 0,
     }
@@ -90,11 +91,11 @@ export function analyzeTrend(dataPoints: readonly MonthlyDataPoint[]): TrendAnal
   // 移動平均
   const movingAvg3 = calculateMovingAverage(
     sorted.map((d) => d.totalSales),
-    3,
+    SHORT_TERM_MA_MONTHS,
   )
   const movingAvg6 = calculateMovingAverage(
     sorted.map((d) => d.totalSales),
-    6,
+    MEDIUM_TERM_MA_MONTHS,
   )
 
   // 季節性インデックス
@@ -138,7 +139,7 @@ function calculateMovingAverage(
  * index > 1.0 = 繁忙期、index < 1.0 = 閑散期
  */
 function calculateSeasonalIndex(dataPoints: readonly MonthlyDataPoint[]): readonly number[] {
-  const monthlyBuckets = Array.from({ length: 12 }, () => ({ total: 0, count: 0 }))
+  const monthlyBuckets = Array.from({ length: MONTHS_PER_YEAR }, () => ({ total: 0, count: 0 }))
   let grandTotal = 0
   let grandCount = 0
 
@@ -150,7 +151,7 @@ function calculateSeasonalIndex(dataPoints: readonly MonthlyDataPoint[]): readon
   }
 
   const grandAvg = safeDivide(grandTotal, grandCount, 0)
-  if (grandAvg === 0) return Array(12).fill(1)
+  if (grandAvg === 0) return Array(MONTHS_PER_YEAR).fill(1)
 
   return monthlyBuckets.map((b) => {
     if (b.count === 0) return 1
@@ -168,8 +169,8 @@ const TREND_CHANGE_THRESHOLD = 0.03
 function determineOverallTrend(sorted: readonly MonthlyDataPoint[]): 'up' | 'down' | 'flat' {
   if (sorted.length < 4) return 'flat'
 
-  const recent3 = sorted.slice(-3)
-  const previous3 = sorted.slice(-6, -3)
+  const recent3 = sorted.slice(-SHORT_TERM_MA_MONTHS)
+  const previous3 = sorted.slice(-MEDIUM_TERM_MA_MONTHS, -SHORT_TERM_MA_MONTHS)
 
   if (previous3.length === 0) return 'flat'
 

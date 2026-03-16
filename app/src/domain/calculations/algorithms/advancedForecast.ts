@@ -8,6 +8,7 @@
  */
 import { safeDivide } from '../utils'
 import { calculateStdDev } from '../forecast'
+import { DEFAULT_WMA_WINDOW, DAYS_PER_WEEK, CONFIDENCE_95_ZSCORE } from '@/domain/constants'
 
 // ─── Types ────────────────────────────────────────────
 
@@ -55,7 +56,7 @@ export interface LinearRegressionResult {
  */
 export function calculateWMA(
   dailySales: ReadonlyMap<number, number>,
-  window = 5,
+  window = DEFAULT_WMA_WINDOW,
 ): readonly WMAEntry[] {
   const entries = Array.from(dailySales.entries())
     .filter(([, v]) => v > 0)
@@ -149,7 +150,7 @@ export function projectDowAdjusted(
   const daysInMonth = new Date(year, month, 0).getDate()
 
   // 曜日別平均 (0=Sun ... 6=Sat)
-  const dowBuckets = Array.from({ length: 7 }, () => ({ total: 0, count: 0 }))
+  const dowBuckets = Array.from({ length: DAYS_PER_WEEK }, () => ({ total: 0, count: 0 }))
   for (const [day, sales] of dailySales) {
     if (sales > 0) {
       const dow = new Date(year, month - 1, day).getDay()
@@ -227,7 +228,7 @@ export function calculateMonthEndProjection(
   // 5. 信頼区間 (95%, 正規分布近似)
   const { stdDev } = calculateStdDev(values)
   const standardError = stdDev / Math.sqrt(entries.length)
-  const z95 = 1.96
+  const z95 = CONFIDENCE_95_ZSCORE
   const projectionUncertainty = z95 * standardError * remainingDays
   const bestEstimate = (linearProjection + dowAdjustedProjection + wmaProjection) / 3
 

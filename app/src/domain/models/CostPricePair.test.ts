@@ -5,7 +5,6 @@ import {
   costRateOf,
   markupAmountOf,
   aggregateMarkupRate,
-  ZERO_COST_PRICE_PAIR,
   type CostPricePair,
 } from './CostPricePair'
 
@@ -40,26 +39,17 @@ describe('markupRateOf / costRateOf 不変条件', () => {
     { cost: 123, price: 456 },
   ]
 
-  it.each(cases)(
-    'markupRate + costRate === 1 (cost=$cost, price=$price)',
-    (pair) => {
-      expect(markupRateOf(pair) + costRateOf(pair)).toBeCloseTo(1, 10)
-    },
-  )
+  it.each(cases)('markupRate + costRate === 1 (cost=$cost, price=$price)', (pair) => {
+    expect(markupRateOf(pair) + costRateOf(pair)).toBeCloseTo(1, 10)
+  })
 
-  it.each(cases)(
-    'markupRate === (price - cost) / price (cost=$cost, price=$price)',
-    (pair) => {
-      expect(markupRateOf(pair)).toBeCloseTo((pair.price - pair.cost) / pair.price, 10)
-    },
-  )
+  it.each(cases)('markupRate === (price - cost) / price (cost=$cost, price=$price)', (pair) => {
+    expect(markupRateOf(pair)).toBeCloseTo((pair.price - pair.cost) / pair.price, 10)
+  })
 
-  it.each(cases)(
-    'costRate === cost / price (cost=$cost, price=$price)',
-    (pair) => {
-      expect(costRateOf(pair)).toBeCloseTo(pair.cost / pair.price, 10)
-    },
-  )
+  it.each(cases)('costRate === cost / price (cost=$cost, price=$price)', (pair) => {
+    expect(costRateOf(pair)).toBeCloseTo(pair.cost / pair.price, 10)
+  })
 
   it('price=0 の場合 markupRate と costRate は共に 0', () => {
     const pair = { cost: 100, price: 0 }

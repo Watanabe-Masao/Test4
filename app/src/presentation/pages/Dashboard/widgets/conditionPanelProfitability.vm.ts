@@ -6,7 +6,7 @@ import { DISCOUNT_TYPES } from '@/domain/models'
 import { formatPercent, formatPointDiff } from '@/domain/formatting'
 import type { CurrencyFormatter } from '@/presentation/components/charts/chartTheme'
 import { calculateShare } from '@/domain/calculations/utils'
-import { prorateBudget } from '@/domain/calculations/budgetAnalysis'
+import { prorateBudget } from '@/domain/calculations'
 import { resolveThresholds, evaluateSignal } from '@/domain/calculations/rules/conditionResolver'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
 import {

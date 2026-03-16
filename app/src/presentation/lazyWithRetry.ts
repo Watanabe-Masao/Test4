@@ -9,8 +9,7 @@ import { lazy, type ComponentType } from 'react'
 
 const RELOAD_FLAG = 'shiire-arari-chunk-reload'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function lazyWithRetry<T extends ComponentType<any>>(
+export function lazyWithRetry<T extends ComponentType<Record<string, unknown>>>(
   importFn: () => Promise<{ default: T }>,
 ): React.LazyExoticComponent<T> {
   return lazy(() =>

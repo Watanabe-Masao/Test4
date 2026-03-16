@@ -40,6 +40,15 @@ function makeHasPrevYearKpi(
   const entry = {
     sales: totalSales,
     customers: totalCustomers,
+    transactionValue: 0,
+    dailyMapping: [] as {
+      prevDay: number
+      prevMonth: number
+      prevYear: number
+      currentDay: number
+      prevSales: number
+      prevCustomers: number
+    }[],
     storeContributions,
   }
   return {

@@ -5,6 +5,18 @@ export {
   ALL_STORES_ID,
   getDaysInMonth,
 } from './defaults'
+export {
+  DAYS_PER_WEEK,
+  DAYS_PER_YEAR,
+  MILLISECONDS_PER_DAY,
+  MONTHS_PER_YEAR,
+  DOW_ALIGNMENT_WINDOW,
+  DEFAULT_WMA_WINDOW,
+  SHORT_TERM_MA_MONTHS,
+  MEDIUM_TERM_MA_MONTHS,
+  DIVERGENCE_DETECTION_THRESHOLD,
+  CONFIDENCE_95_ZSCORE,
+} from './calculationConstants'
 export { CATEGORY_LABELS, CATEGORY_ORDER } from './categories'
 export { METRIC_DEFS } from './metricDefs'
 export { FORMULA_REGISTRY } from './formulaRegistry'

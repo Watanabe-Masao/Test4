@@ -22,6 +22,7 @@ import type {
   ActualDayImpact,
   ShiftedDay,
 } from '@/domain/models/ComparisonContext'
+import { DAYS_PER_WEEK } from '@/domain/constants'
 
 const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土'] as const
 
@@ -32,7 +33,7 @@ const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土'] as const
  */
 export function countDowsInMonth(year: number, month: number): readonly number[] {
   const daysInMonth = new Date(year, month, 0).getDate()
-  const counts = [0, 0, 0, 0, 0, 0, 0]
+  const counts = Array(DAYS_PER_WEEK).fill(0) as number[]
   for (let day = 1; day <= daysInMonth; day++) {
     const dow = new Date(year, month - 1, day).getDay()
     counts[dow]++
@@ -63,7 +64,7 @@ export function analyzeDowGap(
 
   // 前年の曜日別日平均売上を算出
   const prevDowDailyAvg: number[] = []
-  for (let dow = 0; dow < 7; dow++) {
+  for (let dow = 0; dow < DAYS_PER_WEEK; dow++) {
     if (prevDowSales && previousCounts[dow] > 0) {
       prevDowDailyAvg.push(prevDowSales[dow] / previousCounts[dow])
     } else {
@@ -74,7 +75,7 @@ export function analyzeDowGap(
   const dowCounts: DowDayCount[] = []
   let estimatedImpact = 0
 
-  for (let dow = 0; dow < 7; dow++) {
+  for (let dow = 0; dow < DAYS_PER_WEEK; dow++) {
     const diff = currentCounts[dow] - previousCounts[dow]
     estimatedImpact += diff * prevDowDailyAvg[dow]
     dowCounts.push({
@@ -267,7 +268,7 @@ export const ZERO_DOW_GAP_ANALYSIS: DowGapAnalysis = {
   })),
   estimatedImpact: 0,
   isValid: false,
-  prevDowDailyAvg: [0, 0, 0, 0, 0, 0, 0],
+  prevDowDailyAvg: Array(DAYS_PER_WEEK).fill(0) as number[],
   hasPrevDowSales: false,
   isSameStructure: true,
   missingDataWarnings: ['前年データが読み込まれていません'],

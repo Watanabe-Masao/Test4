@@ -11,6 +11,8 @@
  *   2. 各計算式の数学的等価性をテスト
  *   3. getDailyTotalCost のソース構造を検証（構成要素の漏れ防止）
  */
+import fs from 'fs'
+import path from 'path'
 import { describe, it, expect } from 'vitest'
 import { calculateEstMethod, calculateDiscountRate } from '@/domain/calculations/estMethod'
 import { calculateInvMethod } from '@/domain/calculations/invMethod'
@@ -356,10 +358,6 @@ describe('getDailyTotalCost の構造的検証: consumable を含まないこと
    * getDailyTotalCost (JS) の構成要素を検証する。
    * total_cost に consumable が含まれると在庫法 COGS が乖離するバグが発生する。
    */
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const fs = require('fs')
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const path = require('path')
 
   it('JS getDailyTotalCost のソースに consumable が含まれていない', () => {
     const jsPath = path.resolve(__dirname, '../../../domain/models/DailyRecord.ts')

@@ -36,7 +36,9 @@ export function prorateBudget(
   let periodBudgetSum = 0
   for (let d = 1; d <= elapsedDays; d++) {
     periodBudgetSum +=
-      budgetDaily instanceof Map ? (budgetDaily.get(d) ?? 0) : ((budgetDaily as Record<number, number>)[d] ?? 0)
+      budgetDaily instanceof Map
+        ? (budgetDaily.get(d) ?? 0)
+        : ((budgetDaily as Record<number, number>)[d] ?? 0)
   }
 
   return safeDivide(monthlyTotal * periodBudgetSum, monthlyBudget, 0)

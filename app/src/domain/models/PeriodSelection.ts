@@ -21,6 +21,12 @@
  */
 import type { DateRange, CalendarDate } from './CalendarDate'
 import type { PrevYearScope } from './ComparisonFrame'
+import {
+  DOW_ALIGNMENT_WINDOW,
+  MILLISECONDS_PER_DAY,
+  DAYS_PER_YEAR,
+  DAYS_PER_WEEK,
+} from '@/domain/constants'
 
 /** 比較プリセット — 期間-2 の自動算出方法 */
 export type ComparisonPreset =
@@ -166,7 +172,7 @@ export function applyPreset(
       // V2: period2 は「1:1 比較期間」ではなく「resolver 用の候補取得範囲」。
       // sameDayOfWeek の比較先は resolveComparisonRows が日単位で解決する。
       // ここでは resolver が ±7 日の候補を引けるよう、前年同日 ±7 日の範囲を返す。
-      const candidateWindow = 7
+      const candidateWindow = DOW_ALIGNMENT_WINDOW
       const fromDate = new Date(
         period1.from.year - 1,
         period1.from.month - 1,
@@ -214,8 +220,12 @@ export function applyPreset(
 
     case 'prevWeek': {
       // 前週: period1 を -7日シフト（既存 WoW と統一）
-      const fromDate = new Date(period1.from.year, period1.from.month - 1, period1.from.day - 7)
-      const toDate = new Date(period1.to.year, period1.to.month - 1, period1.to.day - 7)
+      const fromDate = new Date(
+        period1.from.year,
+        period1.from.month - 1,
+        period1.from.day - DAYS_PER_WEEK,
+      )
+      const toDate = new Date(period1.to.year, period1.to.month - 1, period1.to.day - DAYS_PER_WEEK)
       return {
         from: {
           year: fromDate.getFullYear(),
@@ -232,8 +242,16 @@ export function applyPreset(
 
     case 'prevYearNextWeek': {
       // 前年翌週: period1 を -1年 +7日シフト
-      const fromDate = new Date(period1.from.year - 1, period1.from.month - 1, period1.from.day + 7)
-      const toDate = new Date(period1.to.year - 1, period1.to.month - 1, period1.to.day + 7)
+      const fromDate = new Date(
+        period1.from.year - 1,
+        period1.from.month - 1,
+        period1.from.day + DAYS_PER_WEEK,
+      )
+      const toDate = new Date(
+        period1.to.year - 1,
+        period1.to.month - 1,
+        period1.to.day + DAYS_PER_WEEK,
+      )
       return {
         from: {
           year: fromDate.getFullYear(),
@@ -289,7 +307,7 @@ export function deriveDowOffset(period1: DateRange, preset: ComparisonPreset): n
   if (preset !== 'prevYearSameDow') return 0
   const currentDow = new Date(period1.from.year, period1.from.month - 1, 1).getDay()
   const prevDow = new Date(period1.from.year - 1, period1.from.month - 1, 1).getDay()
-  return (((currentDow - prevDow) % 7) + 7) % 7
+  return (((currentDow - prevDow) % DAYS_PER_WEEK) + DAYS_PER_WEEK) % DAYS_PER_WEEK
 }
 
 /**
@@ -306,7 +324,7 @@ export function deriveEffectivePeriod2(selection: PeriodSelection): DateRange {
   if (selection.activePreset !== 'prevYearSameDow' || offset === 0) {
     return selection.period2
   }
-  const offsetMs = offset * 86400000
+  const offsetMs = offset * MILLISECONDS_PER_DAY
   const fromDate = new Date(
     selection.period1.from.year,
     selection.period1.from.month - 1,
@@ -318,8 +336,8 @@ export function deriveEffectivePeriod2(selection: PeriodSelection): DateRange {
     selection.period1.to.day,
   )
   // 前年日付 = 当年日付 - 1年 + dowOffset日
-  const prevFrom = new Date(fromDate.getTime() - 365 * 86400000 + offsetMs)
-  const prevTo = new Date(toDate.getTime() - 365 * 86400000 + offsetMs)
+  const prevFrom = new Date(fromDate.getTime() - DAYS_PER_YEAR * MILLISECONDS_PER_DAY + offsetMs)
+  const prevTo = new Date(toDate.getTime() - DAYS_PER_YEAR * MILLISECONDS_PER_DAY + offsetMs)
   return {
     from: {
       year: prevFrom.getFullYear(),

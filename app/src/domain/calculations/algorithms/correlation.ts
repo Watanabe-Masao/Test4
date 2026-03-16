@@ -5,6 +5,7 @@
  * 統計的な分析の純粋関数群。
  */
 import { safeDivide } from '../utils'
+import { DIVERGENCE_DETECTION_THRESHOLD } from '@/domain/constants'
 
 // ─── Types ────────────────────────────────────────────
 
@@ -174,7 +175,7 @@ export function normalizeMinMax(values: readonly number[]): NormalizedSeries {
 export function detectDivergence(
   seriesA: readonly number[],
   seriesB: readonly number[],
-  threshold = 30,
+  threshold = DIVERGENCE_DETECTION_THRESHOLD,
 ): readonly DivergencePoint[] {
   const normA = normalizeMinMax(seriesA)
   const normB = normalizeMinMax(seriesB)

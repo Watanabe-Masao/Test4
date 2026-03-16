@@ -9,3 +9,4 @@
 export * from './grossProfit'
 export * from './forecast.barrel'
 export * from './decomposition'
+export { prorateBudget, projectLinear } from './budgetAnalysis'
