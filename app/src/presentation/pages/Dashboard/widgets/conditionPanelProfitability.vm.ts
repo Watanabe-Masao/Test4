@@ -6,6 +6,7 @@ import { DISCOUNT_TYPES } from '@/domain/models'
 import { formatPercent, formatPointDiff } from '@/domain/formatting'
 import type { CurrencyFormatter } from '@/presentation/components/charts/chartTheme'
 import { calculateShare } from '@/domain/calculations/utils'
+import { prorateBudget } from '@/domain/calculations/budgetAnalysis'
 import { resolveThresholds, evaluateSignal } from '@/domain/calculations/rules/conditionResolver'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
 import {
@@ -20,19 +21,21 @@ import {
 
 // ─── Helpers ────────────────────────────────────────────
 
-/** Prorate grossProfitBudget to the elapsed period using budgetDaily distribution */
+/**
+ * 粗利予算を経過期間に按分する（domain/calculations/budgetAnalysis.prorateBudget の StoreResult ラッパー）
+ *
+ * 全期間経過の場合は grossProfitBudget をそのまま返す。
+ * 部分期間の場合は日別予算配分に基づいて按分する。
+ */
 export function prorateGpBudget(
   sr: StoreResult,
   elapsedDays: number | undefined,
   daysInMonth: number | undefined,
 ): number {
   const dim = daysInMonth ?? 31
-  const effectiveEndDay = elapsedDays ?? dim
   const isPartial = elapsedDays != null && elapsedDays < dim
   if (!isPartial) return sr.grossProfitBudget
-  let periodBudgetSum = 0
-  for (let d = 1; d <= effectiveEndDay; d++) periodBudgetSum += sr.budgetDaily.get(d) ?? 0
-  return sr.budget > 0 ? sr.grossProfitBudget * (periodBudgetSum / sr.budget) : 0
+  return prorateBudget(sr.grossProfitBudget, sr.budget, sr.budgetDaily, elapsedDays ?? dim)
 }
 
 // ─── GP Rate Detail VM ──────────────────────────────────

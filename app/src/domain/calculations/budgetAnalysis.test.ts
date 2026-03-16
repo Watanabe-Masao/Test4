@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { calculateBudgetAnalysis } from './budgetAnalysis'
+import { calculateBudgetAnalysis, prorateBudget, projectLinear } from './budgetAnalysis'
 
 function makeUniformBudget(totalBudget: number, days: number): Readonly<Record<number, number>> {
   const daily = totalBudget / days
@@ -241,5 +241,82 @@ describe('calculateBudgetAnalysis', () => {
       daysInMonth: 31,
     })
     expect(result.requiredDailySales).toBe(0)
+  })
+})
+
+// ── prorateBudget 不変条件 ──
+
+describe('prorateBudget 不変条件', () => {
+  it('均等配分で半月経過 → monthlyTotal の 50%', () => {
+    const budgetDaily: Record<number, number> = {}
+    for (let d = 1; d <= 30; d++) budgetDaily[d] = 100_000
+    // 月間予算 3,000,000、粗利予算 600,000、15日経過
+    const result = prorateBudget(600_000, 3_000_000, budgetDaily, 15)
+    expect(result).toBeCloseTo(300_000, 0) // 600,000 × (1,500,000 / 3,000,000)
+  })
+
+  it('不均等配分で前半に予算が偏る → 按分結果は 50% より大きい', () => {
+    const budgetDaily: Record<number, number> = {}
+    // 前半15日は20万、後半15日は10万
+    for (let d = 1; d <= 15; d++) budgetDaily[d] = 200_000
+    for (let d = 16; d <= 30; d++) budgetDaily[d] = 100_000
+    const monthlyBudget = 200_000 * 15 + 100_000 * 15 // = 4,500,000
+    const result = prorateBudget(900_000, monthlyBudget, budgetDaily, 15)
+    // 前半15日の予算合計 = 3,000,000
+    // 按分 = 900,000 × (3,000,000 / 4,500,000) = 600,000
+    expect(result).toBeCloseTo(600_000, 0)
+    expect(result).toBeGreaterThan(900_000 * 0.5) // 均等より大きい
+  })
+
+  it('Map でも Record でも同じ結果', () => {
+    const record: Record<number, number> = { 1: 100_000, 2: 200_000, 3: 300_000 }
+    const map = new Map([[1, 100_000], [2, 200_000], [3, 300_000]])
+    const fromRecord = prorateBudget(500_000, 600_000, record, 2)
+    const fromMap = prorateBudget(500_000, 600_000, map, 2)
+    expect(fromRecord).toBeCloseTo(fromMap, 10)
+  })
+
+  it('elapsedDays=0 → 0', () => {
+    expect(prorateBudget(600_000, 3_000_000, {}, 0)).toBe(0)
+  })
+
+  it('monthlyBudget=0 → 0', () => {
+    expect(prorateBudget(600_000, 0, {}, 15)).toBe(0)
+  })
+})
+
+// ── projectLinear 不変条件 ──
+
+describe('projectLinear 不変条件', () => {
+  it('半月経過で日平均が一定 → actual の 2倍', () => {
+    // 15日で 1,500,000 → 日平均 100,000 → 残15日 → 予測 3,000,000
+    expect(projectLinear(1_500_000, 15, 30)).toBeCloseTo(3_000_000, 0)
+  })
+
+  it('月末到達 → actual をそのまま返す', () => {
+    expect(projectLinear(5_000_000, 31, 31)).toBe(5_000_000)
+  })
+
+  it('elapsedDays=0 → 0', () => {
+    expect(projectLinear(0, 0, 30)).toBe(0)
+  })
+
+  it('calculateBudgetAnalysis の projectedSales と一致', () => {
+    const budgetDaily = makeUniformBudget(6_000_000, 28)
+    const salesDaily: Record<number, number> = {}
+    for (let d = 1; d <= 14; d++) salesDaily[d] = 250_000
+
+    const budgetResult = calculateBudgetAnalysis({
+      totalSales: 3_500_000,
+      budget: 6_000_000,
+      budgetDaily,
+      salesDaily,
+      elapsedDays: 14,
+      salesDays: 14,
+      daysInMonth: 28,
+    })
+
+    const projected = projectLinear(3_500_000, 14, 28)
+    expect(projected).toBeCloseTo(budgetResult.projectedSales, 0)
   })
 })
