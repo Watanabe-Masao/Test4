@@ -9,6 +9,7 @@ import {
   safeDivide,
   calculateAchievementRate,
   calculateYoYRatio,
+  calculateTransactionValue,
 } from '@/domain/calculations/utils'
 import { calculateMarkupRates } from '@/domain/calculations/markupRate'
 import { calculateDiscountRate } from '@/domain/calculations/estMethod'
@@ -17,7 +18,11 @@ import {
   computeGpAfterConsumableAmount,
   computeGpBeforeConsumable,
 } from './conditionSummaryUtils'
-import type { StoreResult, Store, DiscountEntry } from '@/domain/models'
+import { formatPercent } from '@/domain/formatting'
+import type { StoreResult, Store, DiscountEntry, MetricId } from '@/domain/models'
+import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
+import { isMetricEnabled } from '@/domain/calculations/rules/conditionResolver'
+import { metricSignal, SIGNAL_COLORS } from './conditionSummaryUtils'
 import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
 import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/hooks'
 
@@ -1101,4 +1106,116 @@ export function buildBudgetHeader(
     budgetVsPrevYear,
     dowGap: buildDowGapSummary(dowGap),
   }
+}
+
+// ─── YoY Card Summary (前年比メトリクス) ───────────────
+
+export type YoYCardKey = 'customerYoY' | 'itemsYoY' | 'txValue' | 'requiredPace'
+
+export interface YoYCardSummary {
+  readonly key: YoYCardKey
+  readonly label: string
+  readonly value: string
+  readonly sub: string
+  readonly signalColor: string
+  readonly metricId: MetricId | null
+  readonly detailBreakdown: 'customerYoY' | 'txValue' | null
+}
+
+export interface BuildYoYCardsInput {
+  readonly result: StoreResult
+  readonly prevYear: PrevYearData
+  readonly config: ConditionSummaryConfig
+  readonly ctsCurrentQty: number
+  readonly ctsPrevQty: number
+  readonly fmtCurrency: (n: number) => string
+}
+
+/** 前年比系のカードデータを構築する */
+export function buildYoYCards(input: BuildYoYCardsInput): readonly YoYCardSummary[] {
+  const { result: r, prevYear, config, ctsCurrentQty, ctsPrevQty, fmtCurrency } = input
+  const cards: YoYCardSummary[] = []
+
+  // 客数前年比
+  if (
+    isMetricEnabled(config, 'customerYoY') &&
+    prevYear.hasPrevYear &&
+    prevYear.totalCustomers > 0 &&
+    r.totalCustomers > 0
+  ) {
+    const custYoY = r.totalCustomers / prevYear.totalCustomers
+    cards.push({
+      key: 'customerYoY',
+      label: '客数前年比',
+      value: formatPercent(custYoY, 2),
+      sub: `${r.totalCustomers.toLocaleString()}人 / 前年${prevYear.totalCustomers.toLocaleString()}人`,
+      signalColor: SIGNAL_COLORS[metricSignal(custYoY, 'customerYoY', config)],
+      metricId: 'totalCustomers',
+      detailBreakdown: 'customerYoY',
+    })
+  }
+
+  // 販売点数前年比
+  if (
+    isMetricEnabled(config, 'itemsYoY') &&
+    prevYear.hasPrevYear &&
+    ctsCurrentQty > 0 &&
+    ctsPrevQty > 0
+  ) {
+    const itemsYoY = ctsCurrentQty / ctsPrevQty
+    cards.push({
+      key: 'itemsYoY',
+      label: '販売点数前年比',
+      value: formatPercent(itemsYoY, 2),
+      sub: `当年 ${ctsCurrentQty.toLocaleString()}点 / 前年 ${ctsPrevQty.toLocaleString()}点`,
+      signalColor: SIGNAL_COLORS[metricSignal(itemsYoY, 'itemsYoY', config)],
+      metricId: null,
+      detailBreakdown: null,
+    })
+  }
+
+  // 客単価前年比
+  if (
+    isMetricEnabled(config, 'txValue') &&
+    prevYear.hasPrevYear &&
+    r.totalCustomers > 0 &&
+    prevYear.totalCustomers > 0
+  ) {
+    const txValue = r.transactionValue
+    const prevTxValue = calculateTransactionValue(prevYear.totalSales, prevYear.totalCustomers)
+    const txYoY = prevTxValue > 0 ? txValue / prevTxValue : null
+    const fmtTx = (v: number) =>
+      `${v.toLocaleString('ja-JP', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}円`
+    if (txYoY != null) {
+      cards.push({
+        key: 'txValue',
+        label: '客単価前年比',
+        value: formatPercent(txYoY, 2),
+        sub: `当年 ${fmtTx(txValue)} / 前年 ${fmtTx(prevTxValue)}`,
+        signalColor: SIGNAL_COLORS[metricSignal(txYoY, 'txValue', config)],
+        metricId: 'totalCustomers',
+        detailBreakdown: 'txValue',
+      })
+    }
+  }
+
+  // 必要ベース比
+  if (
+    isMetricEnabled(config, 'requiredPace') &&
+    r.averageDailySales > 0 &&
+    r.requiredDailySales > 0
+  ) {
+    const paceRatio = safeDivide(r.requiredDailySales, r.averageDailySales, 0)
+    cards.push({
+      key: 'requiredPace',
+      label: '必要ベース比',
+      value: formatPercent(paceRatio, 2),
+      sub: `必要日販 ${fmtCurrency(r.requiredDailySales)} / 実績日販 ${fmtCurrency(r.averageDailySales)}`,
+      signalColor: SIGNAL_COLORS[metricSignal(paceRatio, 'requiredPace', config)],
+      metricId: null,
+      detailBreakdown: null,
+    })
+  }
+
+  return cards
 }

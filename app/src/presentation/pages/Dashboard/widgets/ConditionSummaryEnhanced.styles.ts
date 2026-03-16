@@ -16,6 +16,9 @@ export const Header = styled.div`
   padding: ${({ theme }) => theme.spacing[8]} ${({ theme }) => theme.spacing[10]}
     ${({ theme }) => theme.spacing[6]};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
 `
 
 export const HeaderMeta = styled.div`
@@ -479,40 +482,68 @@ export const BudgetGrowthBadge = styled.span<{ $positive: boolean }>`
 
 export const CardGridRow = styled.div`
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: ${({ theme }) => theme.spacing[5]};
-  padding: ${({ theme }) => theme.spacing[8]} ${({ theme }) => theme.spacing[10]};
-  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
-    grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: ${({ theme }) => theme.spacing[4]};
+  padding: 0 ${({ theme }) => theme.spacing[10]} ${({ theme }) => theme.spacing[6]};
+`
+
+export const CardGroupLabel = styled.div`
+  font-size: 10px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  color: ${({ theme }) => theme.colors.text4};
+  letter-spacing: 0.5px;
+  padding: ${({ theme }) => theme.spacing[5]} ${({ theme }) => theme.spacing[10]}
+    ${({ theme }) => theme.spacing[2]};
+`
+
+export const SettingsGear = styled.button`
+  all: unset;
+  cursor: pointer;
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  color: ${({ theme }) => theme.colors.text4};
+  padding: ${({ theme }) => theme.spacing[2]};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  transition: all 0.15s;
+  &:hover {
+    color: ${({ theme }) => theme.colors.text};
+    background: ${({ theme }) => theme.colors.bg4};
   }
-  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    grid-template-columns: repeat(2, 1fr);
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
   }
 `
 
-export const CondCard = styled.div<{ $borderColor: string }>`
+export const CondCard = styled.div<{ $borderColor: string; $clickable?: boolean }>`
   display: flex;
   align-items: flex-start;
   gap: ${({ theme }) => theme.spacing[3]};
-  padding: ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[5]};
   background: ${({ theme }) => theme.colors.bg2};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-left: 3px solid ${({ $borderColor }) => $borderColor};
-  border-radius: ${({ theme }) => theme.radii.sm};
-  cursor: pointer;
-  &:hover {
-    background: ${({ theme }) =>
-      theme.mode === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'};
-  }
+  border-radius: ${({ theme }) => theme.radii.md};
+  cursor: ${({ $clickable = true }) => ($clickable ? 'pointer' : 'default')};
+  transition:
+    box-shadow 0.15s,
+    transform 0.15s;
+  ${({ $clickable = true }) =>
+    $clickable &&
+    `
+    &:hover {
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      transform: translateY(-1px);
+    }
+  `}
 `
 
 export const CondSignal = styled.div<{ $color: string }>`
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   background: ${({ $color }) => $color};
   flex-shrink: 0;
-  margin-top: 4px;
+  margin-top: 3px;
 `
 
 export const CondCardContent = styled.div`
