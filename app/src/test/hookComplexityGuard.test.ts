@@ -162,7 +162,10 @@ describe('R1/R4: 分割後ファイルの行数制限', () => {
   const fileLimits: [string, number][] = [
     // Phase 1: usePurchaseComparisonQuery 分割
     ['application/hooks/duckdb/usePurchaseComparisonQuery.ts', 300],
-    ['application/hooks/duckdb/purchaseComparisonBuilders.ts', 600],
+    ['application/hooks/duckdb/purchaseComparisonBuilders.ts', 30],
+    ['application/hooks/duckdb/purchaseComparisonKpi.ts', 200],
+    ['application/hooks/duckdb/purchaseComparisonCategory.ts', 250],
+    ['application/hooks/duckdb/purchaseComparisonDaily.ts', 230],
     // Phase 2: useAdvancedQueries 分割
     ['application/hooks/duckdb/useAdvancedQueries.ts', 200],
     ['application/hooks/duckdb/categoryBenchmarkLogic.ts', 450],
@@ -178,6 +181,17 @@ describe('R1/R4: 分割後ファイルの行数制限', () => {
     ['application/hooks/useMonthlyHistory.ts', 200],
     // useComparisonModule facade thin化
     ['application/hooks/useComparisonModule.ts', 210],
+    // Phase A: useJsAggregationQueries 2分割（barrel化）
+    ['application/hooks/duckdb/useJsAggregationQueries.ts', 30],
+    ['application/hooks/duckdb/useJsFeatureQueries.ts', 150],
+    ['application/hooks/duckdb/useJsSalesCompQueries.ts', 160],
+    // Phase A: useCtsQueries 2分割（barrel化）
+    ['application/hooks/duckdb/useCtsQueries.ts', 35],
+    ['application/hooks/duckdb/useCtsHierarchyQueries.ts', 200],
+    ['application/hooks/duckdb/useCtsAggregationQueries.ts', 180],
+    // Phase A: useReducer 化に伴う reducer ファイル
+    ['application/hooks/duckdbReducer.ts', 80],
+    ['application/hooks/autoImportReducer.ts', 90],
   ]
 
   it.each(fileLimits)('%s は %d 行以下', (relPath, maxLines) => {
@@ -196,6 +210,9 @@ describe('R1/R4: 分割後ファイルの行数制限', () => {
 describe('R1: 純粋関数モジュールに React import がない', () => {
   const pureModules = [
     'application/hooks/duckdb/purchaseComparisonBuilders.ts',
+    'application/hooks/duckdb/purchaseComparisonKpi.ts',
+    'application/hooks/duckdb/purchaseComparisonCategory.ts',
+    'application/hooks/duckdb/purchaseComparisonDaily.ts',
     'application/hooks/duckdb/categoryBenchmarkLogic.ts',
     'application/hooks/duckdb/categoryBoxPlotLogic.ts',
     'application/usecases/import/singleMonthImport.ts',
@@ -207,6 +224,9 @@ describe('R1: 純粋関数モジュールに React import がない', () => {
     'application/hooks/monthlyHistoryLogic.ts',
     'application/comparison/comparisonDataPrep.ts',
     'application/comparison/buildComparisonAggregation.ts',
+    // Reducer ファイル（React-free pure function）
+    'application/hooks/duckdbReducer.ts',
+    'application/hooks/autoImportReducer.ts',
     // Presentation 層 Logic ファイル（React-free）
     'presentation/components/charts/useDuckDBTimeSlotDataLogic.ts',
     // Presentation VM ファイル（React-free）
@@ -214,6 +234,7 @@ describe('R1: 純粋関数モジュールに React import がない', () => {
     'presentation/pages/Dashboard/widgets/conditionPanelMarkupCost.vm.ts',
     'presentation/pages/Dashboard/widgets/conditionPanelYoY.vm.ts',
     'presentation/pages/Dashboard/widgets/conditionPanelSalesDetail.vm.ts',
+    'presentation/components/charts/CvTimeSeriesChart.vm.ts',
   ]
 
   it.each(pureModules)('%s に React import がない', (relPath) => {
@@ -291,12 +312,10 @@ describe('R10: hooks/ の export にカバレッジ目的のコメントがな�
 describe('R11: hooks/ の useMemo 呼び出しが上限以下', () => {
   const hooksDir = path.join(SRC_DIR, 'application/hooks')
 
-  // useMemo が多い既存ファイルの許容リスト（現在値で凍結、次回改修時に分割義務）
+  // useMemo が多い既存ファイルの許容リスト
+  // useComparisonModule: 7 useMemo — comparison 層の集約 hook。分割は過剰
   const allowlist: Record<string, number> = {
-    'application/hooks/duckdb/useJsAggregationQueries.ts': 10,
-    'application/hooks/duckdb/useCtsQueries.ts': 10,
     'application/hooks/useComparisonModule.ts': 8,
-    'application/hooks/useMetricBreakdown.ts': 8,
   }
 
   it('useMemo 呼び出し数が上限以下', () => {
@@ -325,13 +344,12 @@ describe('R11: hooks/ の useMemo 呼び出しが上限以下', () => {
 describe('R11: hooks/ の useState 呼び出しが上限以下', () => {
   const hooksDir = path.join(SRC_DIR, 'application/hooks')
 
-  // useState が多い既存ファイルの許容リスト（凍結）
+  // useState が多い既存ファイルの許容リスト
+  // usePersistence: 6 useState — persistence 初期化に必要な状態群。useReducer 化は過剰
+  // useAutoBackup: 6 useState — バックアップ状態管理に必要。useReducer 化は過剰
   const allowlist: Record<string, number> = {
-    'application/hooks/useDuckDB.ts': 10,
-    'application/hooks/useAutoImport.ts': 9,
     'application/hooks/usePersistence.ts': 7,
     'application/hooks/useAutoBackup.ts': 7,
-    'application/hooks/useMetricBreakdown.ts': 6,
   }
 
   it('useState 呼び出し数が上限以下', () => {
@@ -361,13 +379,11 @@ describe('R11: hooks/ の useState 呼び出しが上限以下', () => {
 describe('R11: hooks/ の .ts ファイルが行数上限以下', () => {
   const hooksDir = path.join(SRC_DIR, 'application/hooks')
 
-  // 300行超のファイルのみ個別追跡（凍結。次回改修時に分割義務）
-  // 300行以下のファイルはデフォルト上限（300行）で自動ガード
+  // 300行超のファイルのみ個別追跡
+  // categoryBenchmarkLogic: 純粋計算ロジック集約、分割は過剰
+  // usePeriodAwareKpi: 300行境界、期間KPI集約に必要な凝集度
   const allowlist: Record<string, number> = {
-    'application/hooks/duckdb/purchaseComparisonBuilders.ts': 600,
     'application/hooks/duckdb/categoryBenchmarkLogic.ts': 450,
-    'application/hooks/duckdb/useCtsQueries.ts': 350,
-    'application/hooks/useDuckDB.ts': 310,
     'application/hooks/usePeriodAwareKpi.ts': 310,
   }
 
@@ -400,7 +416,6 @@ describe('R12/禁止#7: Presentation コンポーネントの行数制限', () =
 
   // ── Tier 2: 大型コンポーネント（600行超）— 個別追跡、次回改修時に分割義務 ──
   const largeComponentLimits: [string, number][] = [
-    ['presentation/components/charts/CvTimeSeriesChart.tsx', 720],
     ['presentation/components/charts/TimeSlotChart.tsx', 660],
   ]
 

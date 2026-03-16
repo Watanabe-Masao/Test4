@@ -22,20 +22,20 @@
  * // dataVersion を useMemo の依存配列に入れることでデータ変更時の再クエリをトリガー
  * ```
  */
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useRef, useCallback, useReducer } from 'react'
 import type { AsyncDuckDB, AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { ImportedData } from '@/domain/models'
 import type { DataRepository } from '@/domain/repositories'
 import { getDuckDBEngine } from '@/infrastructure/duckdb/engine'
-import type { DuckDBEngineState } from '@/infrastructure/duckdb/engine'
 import { resetTables, loadMonth } from '@/infrastructure/duckdb/dataLoader'
 import { materializeSummary } from '@/infrastructure/duckdb/queries/storeDaySummary'
+import { duckdbReducer, INITIAL_DUCKDB_STATE } from './duckdbReducer'
 
 export interface DuckDBHookResult {
   /** エンジン初期化済み + データロード完了 + エラーなし */
   readonly isReady: boolean
   /** エンジンの状態 */
-  readonly engineState: DuckDBEngineState
+  readonly engineState: import('@/infrastructure/duckdb/engine').DuckDBEngineState
   /** データロード中 */
   readonly isLoading: boolean
   /** エラーメッセージ */
@@ -88,16 +88,7 @@ export function useDuckDB(
   month: number,
   repo?: DataRepository | null,
 ): DuckDBHookResult {
-  const [engineState, setEngineState] = useState<DuckDBEngineState>('idle')
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [dataVersion, setDataVersion] = useState(0)
-  const [conn, setConn] = useState<AsyncDuckDBConnection | null>(null)
-  const [db, setDb] = useState<AsyncDuckDB | null>(null)
-  const [loadedMonthCount, setLoadedMonthCount] = useState(0)
-
-  // IndexedDB に保存された月一覧のキー（変更検知用）
-  const [storedMonthsKey, setStoredMonthsKey] = useState('')
+  const [state, dispatch] = useReducer(duckdbReducer, INITIAL_DUCKDB_STATE)
 
   const lastFingerprint = useRef<string>('')
   const isMounted = useRef(true)
@@ -119,7 +110,7 @@ export function useDuckDB(
   // IndexedDB の保存月一覧を監視（data/year/month 変更時に再チェック）
   useEffect(() => {
     if (!repo) {
-      setStoredMonthsKey('')
+      dispatch({ type: 'SET_STORED_MONTHS_KEY', key: '' })
       return
     }
 
@@ -130,7 +121,7 @@ export function useDuckDB(
         const months = await repo.listStoredMonths()
         if (cancelled) return
         const key = months.map((m) => `${m.year}-${m.month}`).join(',')
-        setStoredMonthsKey((prev) => (prev === key ? prev : key))
+        dispatch({ type: 'SET_STORED_MONTHS_KEY', key })
       } catch {
         // IndexedDB エラーは無視（マルチ月なしで動作継続）
       }
@@ -146,14 +137,14 @@ export function useDuckDB(
   useEffect(() => {
     const engine = getDuckDBEngine()
 
-    const unsubscribe = engine.onStateChange((state) => {
+    const unsubscribe = engine.onStateChange((engineState) => {
       if (isMounted.current) {
-        setEngineState(state)
+        dispatch({ type: 'SET_ENGINE_STATE', engineState })
       }
     })
 
     // 現在の状態を反映
-    setEngineState(engine.state)
+    dispatch({ type: 'SET_ENGINE_STATE', engineState: engine.state })
 
     if (engine.state === 'idle') {
       engine.initialize().then(
@@ -162,15 +153,14 @@ export function useDuckDB(
           try {
             const c = await engine.getConnection()
             const d = engine.getDB()
-            setConn(c)
-            setDb(d)
+            dispatch({ type: 'SET_CONN_DB', conn: c, db: d })
           } catch (err) {
-            setError(err instanceof Error ? err.message : String(err))
+            dispatch({ type: 'SET_ERROR', error: err instanceof Error ? err.message : String(err) })
           }
         },
         (err: unknown) => {
           if (isMounted.current) {
-            setError(err instanceof Error ? err.message : String(err))
+            dispatch({ type: 'SET_ERROR', error: err instanceof Error ? err.message : String(err) })
           }
         },
       )
@@ -178,13 +168,12 @@ export function useDuckDB(
       engine.getConnection().then(
         (c) => {
           if (isMounted.current) {
-            setConn(c)
-            setDb(engine.getDB())
+            dispatch({ type: 'SET_CONN_DB', conn: c, db: engine.getDB() })
           }
         },
         (err: unknown) => {
           if (isMounted.current) {
-            setError(err instanceof Error ? err.message : String(err))
+            dispatch({ type: 'SET_ERROR', error: err instanceof Error ? err.message : String(err) })
           }
         },
       )
@@ -195,9 +184,9 @@ export function useDuckDB(
 
   // データロード（当月 + 過去月）
   const loadData = useCallback(async () => {
-    if (!conn || !db || !data) return
+    if (!state.conn || !state.db || !data) return
 
-    const fingerprint = computeFingerprint(data, year, month, storedMonthsKey)
+    const fingerprint = computeFingerprint(data, year, month, state.storedMonthsKey)
     if (fingerprint === lastFingerprint.current) return
 
     // 新しい世代番号を発行。先行の loadData は次の await 後にこの値を検出して bail out する。
@@ -224,15 +213,14 @@ export function useDuckDB(
       return
     }
 
-    setIsLoading(true)
-    setError(null)
+    dispatch({ type: 'LOAD_START' })
 
     try {
-      await resetTables(conn)
+      await resetTables(state.conn)
       if (loadSeqRef.current !== seq || !isMounted.current) return
 
       // 1. 当月のインメモリデータをロード
-      await loadMonth(conn, db, data, year, month)
+      await loadMonth(state.conn, state.db, data, year, month)
       if (loadSeqRef.current !== seq || !isMounted.current) return
 
       let monthCount = 1
@@ -249,7 +237,7 @@ export function useDuckDB(
             const historicalData = await repo.loadMonthlyData(y, m)
             if (loadSeqRef.current !== seq || !isMounted.current) return
             if (historicalData) {
-              await loadMonth(conn, db, historicalData, y, m)
+              await loadMonth(state.conn, state.db, historicalData, y, m)
               if (loadSeqRef.current !== seq || !isMounted.current) return
               monthCount += 1
             }
@@ -261,42 +249,42 @@ export function useDuckDB(
       }
 
       // 全月ロード完了後、VIEW を物理テーブルに昇格（全後続クエリが高速化）
-      await materializeSummary(conn)
+      await materializeSummary(state.conn)
       if (loadSeqRef.current !== seq || !isMounted.current) return
 
       if (isMounted.current && loadSeqRef.current === seq) {
         lastFingerprint.current = fingerprint
-        setLoadedMonthCount(monthCount)
-        setDataVersion((v) => v + 1)
+        dispatch({ type: 'LOAD_SUCCESS', monthCount })
       }
     } catch (err) {
       if (isMounted.current && loadSeqRef.current === seq) {
-        setError(err instanceof Error ? err.message : String(err))
+        dispatch({ type: 'LOAD_ERROR', error: err instanceof Error ? err.message : String(err) })
       }
     } finally {
       releaseMutex!()
       if (isMounted.current && loadSeqRef.current === seq) {
-        setIsLoading(false)
+        dispatch({ type: 'LOAD_END' })
       }
     }
-  }, [conn, db, data, year, month, repo, storedMonthsKey])
+  }, [state.conn, state.db, data, year, month, repo, state.storedMonthsKey])
 
   useEffect(() => {
-    if (engineState === 'ready' && conn && db && data) {
+    if (state.engineState === 'ready' && state.conn && state.db && data) {
       loadData()
     }
-  }, [engineState, conn, db, data, loadData])
+  }, [state.engineState, state.conn, state.db, data, loadData])
 
-  const isReady = engineState === 'ready' && !isLoading && !error && dataVersion > 0
+  const isReady =
+    state.engineState === 'ready' && !state.isLoading && !state.error && state.dataVersion > 0
 
   return {
     isReady,
-    engineState,
-    isLoading,
-    error,
-    dataVersion,
-    conn: isReady ? conn : null,
-    db: isReady ? db : null,
-    loadedMonthCount,
+    engineState: state.engineState,
+    isLoading: state.isLoading,
+    error: state.error,
+    dataVersion: state.dataVersion,
+    conn: isReady ? state.conn : null,
+    db: isReady ? state.db : null,
+    loadedMonthCount: state.loadedMonthCount,
   }
 }

@@ -94,6 +94,12 @@ describe('DuckDB クエリフックの責務分割', () => {
     'application/hooks/duckdb/useAdvancedQueries.ts',
   ]
 
+  // useCtsQueries は barrel 化済み — 実体は sub-module にある
+  const subModules = [
+    'application/hooks/duckdb/useCtsHierarchyQueries.ts',
+    'application/hooks/duckdb/useCtsAggregationQueries.ts',
+  ]
+
   it('責務別モジュールが全て存在する', () => {
     for (const mod of hookModules) {
       const fullPath = path.join(SRC_ROOT, mod)
@@ -103,7 +109,7 @@ describe('DuckDB クエリフックの責務分割', () => {
 
   it('useDuckDB で始まるフック関数が全モジュール合計で 14 個以上ある', () => {
     let totalHooks = 0
-    for (const mod of hookModules) {
+    for (const mod of [...hookModules, ...subModules]) {
       const content = readFile(mod)
       const matches = content.match(/export function useDuckDB\w+/g) ?? []
       totalHooks += matches.length
