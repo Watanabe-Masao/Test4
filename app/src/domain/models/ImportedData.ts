@@ -25,6 +25,14 @@ export interface ImportedData {
   readonly categoryTimeSales: CategoryTimeSalesData
   readonly prevYearCategoryTimeSales: CategoryTimeSalesData
   readonly prevYearFlowers: SpecialSalesData
+  /** 前年仕入データ（値入率前年比計算用） */
+  readonly prevYearPurchase: PurchaseData
+  /** 前年産直データ（値入率前年比計算用） */
+  readonly prevYearDirectProduce: SpecialSalesData
+  /** 前年店間移動入データ（値入率前年比計算用） */
+  readonly prevYearInterStoreIn: TransferData
+  /** 前年店間移動出データ（値入率前年比計算用） */
+  readonly prevYearInterStoreOut: TransferData
   readonly departmentKpi: DepartmentKpiData
   readonly settings: ReadonlyMap<string, InventoryConfig>
   readonly budget: ReadonlyMap<string, BudgetData>
@@ -36,6 +44,10 @@ export function getComparisonFields(data: ImportedData) {
     comparisonClassifiedSales: data.prevYearClassifiedSales,
     comparisonCategoryTimeSales: data.prevYearCategoryTimeSales,
     comparisonFlowers: data.prevYearFlowers,
+    comparisonPurchase: data.prevYearPurchase,
+    comparisonDirectProduce: data.prevYearDirectProduce,
+    comparisonInterStoreIn: data.prevYearInterStoreIn,
+    comparisonInterStoreOut: data.prevYearInterStoreOut,
   } as const
 }
 
@@ -55,6 +67,10 @@ export function createEmptyImportedData(): ImportedData {
     categoryTimeSales: { records: [] },
     prevYearCategoryTimeSales: { records: [] },
     prevYearFlowers: { records: [] },
+    prevYearPurchase: { records: [] },
+    prevYearDirectProduce: { records: [] },
+    prevYearInterStoreIn: { records: [] },
+    prevYearInterStoreOut: { records: [] },
     departmentKpi: { records: [] },
     settings: new Map(),
     budget: new Map(),

@@ -131,6 +131,99 @@ export async function queryPurchaseByStore(
   return queryToObjects<PurchaseStoreRow>(conn, sql)
 }
 
+/** 店舗別値入率集計（purchase + special_sales + transfers の UNION） */
+export interface StoreMarkupRateRow {
+  readonly storeId: string
+  readonly totalCost: number
+  readonly totalPrice: number
+  /** 値入率 = (totalPrice - totalCost) / totalPrice */
+  readonly markupRate: number
+}
+
+/**
+ * 指定日付範囲の店舗別値入率を取得する。
+ *
+ * purchase + special_sales + transfers を UNION し、
+ * 全仕入カテゴリを合算した値入率を store_id 別に算出する。
+ */
+export async function queryStoreMarkupRate(
+  conn: AsyncDuckDBConnection,
+  dateFrom: string,
+  dateTo: string,
+  storeIds?: readonly string[],
+): Promise<readonly StoreMarkupRateRow[]> {
+  const df = validateDateKey(dateFrom)
+  const dt = validateDateKey(dateTo)
+  const dateFilter = `date_key BETWEEN '${df}' AND '${dt}'`
+  const storeFilter = storeIdFilter(storeIds)
+  const purchaseWhere = buildWhereClause([dateFilter, storeFilter])
+  const specialWhere = buildWhereClause([dateFilter, storeFilter])
+  const transfersWhere = buildWhereClause([dateFilter, storeFilter])
+
+  const sql = `
+    SELECT
+      store_id,
+      COALESCE(SUM(cost), 0) AS total_cost,
+      COALESCE(SUM(price), 0) AS total_price,
+      CASE
+        WHEN SUM(price) > 0
+        THEN 1.0 - COALESCE(SUM(cost), 0) / SUM(price)
+        ELSE 0
+      END AS markup_rate
+    FROM (
+      SELECT store_id, cost, price FROM purchase ${purchaseWhere}
+      UNION ALL
+      SELECT store_id, cost, price FROM special_sales ${specialWhere}
+      UNION ALL
+      SELECT store_id, cost, price FROM transfers ${transfersWhere}
+    ) combined
+    GROUP BY store_id
+    ORDER BY total_cost DESC`
+  return queryToObjects<StoreMarkupRateRow>(conn, sql)
+}
+
+/** 店舗×日別値入率集計（purchase + special_sales + transfers の UNION） */
+export interface StoreDailyMarkupRateRow {
+  readonly storeId: string
+  readonly day: number
+  readonly totalCost: number
+  readonly totalPrice: number
+}
+
+/**
+ * 指定日付範囲の店舗×日別原価/売価を取得する。
+ * 日別値入率・累計値入率の計算に使用。
+ */
+export async function queryStoreDailyMarkupRate(
+  conn: AsyncDuckDBConnection,
+  dateFrom: string,
+  dateTo: string,
+  storeIds?: readonly string[],
+): Promise<readonly StoreDailyMarkupRateRow[]> {
+  const df = validateDateKey(dateFrom)
+  const dt = validateDateKey(dateTo)
+  const dateFilter = `date_key BETWEEN '${df}' AND '${dt}'`
+  const storeFilter = storeIdFilter(storeIds)
+  const w = buildWhereClause([dateFilter, storeFilter])
+
+  const sql = `
+    SELECT
+      store_id,
+      day,
+      COALESCE(SUM(cost), 0) AS total_cost,
+      COALESCE(SUM(price), 0) AS total_price
+    FROM (
+      SELECT store_id, day, cost, price FROM purchase ${w}
+      UNION ALL
+      SELECT store_id, day, cost, price FROM special_sales ${w}
+      UNION ALL
+      SELECT store_id, day, cost, price FROM transfers ${w}
+    ) combined
+    GROUP BY store_id, day
+    ORDER BY store_id, day`
+  return queryToObjects<StoreDailyMarkupRateRow>(conn, sql)
+}
+
 /** 日別売上集計（チャート用） */
 export interface SalesDailyRow {
   readonly day: number

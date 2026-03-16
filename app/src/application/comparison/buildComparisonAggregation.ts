@@ -233,12 +233,15 @@ export function aggregateKpiByAlignment(
       const customers = flowerEntry?.customers ?? 0
       totalCustomers += customers
 
+      const discount = summary.discount ?? 0
+
       storeContributions.push({
         storeId,
         originalDay: entry.sourceDate.day,
         mappedDay: tgtDay,
         sales,
         customers,
+        discount,
       })
 
       const existing = dayMap.get(tgtDay)

@@ -15,6 +15,8 @@ import type {
   CategoryTimeSalesData,
   CategoryTimeSalesRecord,
   SpecialSalesData,
+  PurchaseData,
+  TransferData,
 } from '@/domain/models'
 
 // バレル re-export（後方互換）
@@ -64,16 +66,31 @@ export function useAutoLoadPrevYear(): void {
     ;(async () => {
       try {
         // 全スライスを並列ロード（逐次 await → Promise.all で I/O 待ち短縮）
-        const [prevCS, prevCTS, prevPrevCS, prevPrevCTS, prevNextCS, prevNextCTS, prevFlowers] =
-          await Promise.all([
-            repo.loadDataSlice<ClassifiedSalesData>(sourceYear, sourceMonth, 'classifiedSales'),
-            repo.loadDataSlice<CategoryTimeSalesData>(sourceYear, sourceMonth, 'categoryTimeSales'),
-            repo.loadDataSlice<ClassifiedSalesData>(prev.year, prev.month, 'classifiedSales'),
-            repo.loadDataSlice<CategoryTimeSalesData>(prev.year, prev.month, 'categoryTimeSales'),
-            repo.loadDataSlice<ClassifiedSalesData>(next.year, next.month, 'classifiedSales'),
-            repo.loadDataSlice<CategoryTimeSalesData>(next.year, next.month, 'categoryTimeSales'),
-            repo.loadDataSlice<SpecialSalesData>(sourceYear, sourceMonth, 'flowers'),
-          ])
+        const [
+          prevCS,
+          prevCTS,
+          prevPrevCS,
+          prevPrevCTS,
+          prevNextCS,
+          prevNextCTS,
+          prevFlowers,
+          prevPurchase,
+          prevDirectProduce,
+          prevInterStoreIn,
+          prevInterStoreOut,
+        ] = await Promise.all([
+          repo.loadDataSlice<ClassifiedSalesData>(sourceYear, sourceMonth, 'classifiedSales'),
+          repo.loadDataSlice<CategoryTimeSalesData>(sourceYear, sourceMonth, 'categoryTimeSales'),
+          repo.loadDataSlice<ClassifiedSalesData>(prev.year, prev.month, 'classifiedSales'),
+          repo.loadDataSlice<CategoryTimeSalesData>(prev.year, prev.month, 'categoryTimeSales'),
+          repo.loadDataSlice<ClassifiedSalesData>(next.year, next.month, 'classifiedSales'),
+          repo.loadDataSlice<CategoryTimeSalesData>(next.year, next.month, 'categoryTimeSales'),
+          repo.loadDataSlice<SpecialSalesData>(sourceYear, sourceMonth, 'flowers'),
+          repo.loadDataSlice<PurchaseData>(sourceYear, sourceMonth, 'purchase'),
+          repo.loadDataSlice<SpecialSalesData>(sourceYear, sourceMonth, 'directProduce'),
+          repo.loadDataSlice<TransferData>(sourceYear, sourceMonth, 'interStoreIn'),
+          repo.loadDataSlice<TransferData>(sourceYear, sourceMonth, 'interStoreOut'),
+        ])
         if (cancelled || !prevCS || prevCS.records.length === 0) return
 
         const daysInSourceMonth = getDaysInMonth(sourceYear, sourceMonth)
@@ -107,6 +124,10 @@ export function useAutoLoadPrevYear(): void {
           prevYearClassifiedSales: { records: mergedCSRecords },
           prevYearCategoryTimeSales: { records: mergedCTSRecords },
           prevYearFlowers: prevFlowers ?? { records: [] },
+          prevYearPurchase: prevPurchase ?? { records: [] },
+          prevYearDirectProduce: prevDirectProduce ?? { records: [] },
+          prevYearInterStoreIn: prevInterStoreIn ?? { records: [] },
+          prevYearInterStoreOut: prevInterStoreOut ?? { records: [] },
         })
         invalidateAfterStateChange()
       } catch {

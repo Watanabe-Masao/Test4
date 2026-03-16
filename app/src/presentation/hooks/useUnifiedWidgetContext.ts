@@ -7,7 +7,7 @@
  *
  * 比較関連は useComparisonModule() 1本に統合済み。
  */
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import type { UnifiedWidgetContext } from '@/presentation/components/widgets'
 import type { MetricId, DateRange } from '@/domain/models'
 import { useCalculation, useStoreSelection, useExplanations } from '@/application/hooks'
@@ -25,6 +25,8 @@ import { detectDataMaxDay } from '@/domain/calculations/utils'
 import { useDeptKpiView } from '@/application/hooks/useDeptKpiView'
 import { usePeriodSelectionStore } from '@/application/stores/periodSelectionStore'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
+import { queryStoreMarkupRate } from '@/infrastructure/duckdb/queries/purchaseComparison'
+import { dateRangeToKeys } from '@/domain/models'
 
 interface UseUnifiedWidgetContextResult {
   /** 統一コンテキスト（currentResult が null の場合は null） */
@@ -102,6 +104,55 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
   // DuckDB エンジン初期化
   const duck = useDuckDB(data, targetYear, targetMonth, repo)
 
+  // ── 前年店舗別値入率（DuckDB query） ──
+  const [prevYearStoreMarkupRates, setPrevYearStoreMarkupRates] = useState<
+    ReadonlyMap<string, number> | undefined
+  >(undefined)
+  const [prevYearTotalMarkupRate, setPrevYearTotalMarkupRate] = useState<number | undefined>(
+    undefined,
+  )
+  const prevYearMarkupQuerySeq = useRef(0)
+
+  useEffect(() => {
+    const conn = duck.conn
+    const prevRange = comparison.prevYearDateRange
+    if (!conn || !prevRange || duck.dataVersion === 0) {
+      ++prevYearMarkupQuerySeq.current
+      return
+    }
+
+    const seq = ++prevYearMarkupQuerySeq.current
+    let cancelled = false
+    const { fromKey, toKey } = dateRangeToKeys(prevRange)
+
+    ;(async () => {
+      try {
+        const rows = await queryStoreMarkupRate(conn, fromKey, toKey)
+        if (!cancelled && seq === prevYearMarkupQuerySeq.current) {
+          const map = new Map<string, number>()
+          let allCost = 0
+          let allPrice = 0
+          for (const r of rows) {
+            map.set(r.storeId, r.markupRate * 100)
+            allCost += r.totalCost
+            allPrice += r.totalPrice
+          }
+          setPrevYearStoreMarkupRates(map)
+          // 全店加重平均値入率 = (allPrice - allCost) / allPrice
+          setPrevYearTotalMarkupRate(
+            allPrice > 0 ? ((allPrice - allCost) / allPrice) * 100 : undefined,
+          )
+        }
+      } catch {
+        // DuckDB エラー時は静かに無視（値入率前年比が表示されないだけ）
+      }
+    })()
+
+    return () => {
+      cancelled = true
+    }
+  }, [duck.conn, duck.dataVersion, comparison.prevYearDateRange])
+
   // Store name map for category comparison
   const storeNames = useMemo(() => {
     const map = new Map<string, string>()
@@ -175,6 +226,10 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
     // Category 固有
     selectedResults,
     storeNames,
+
+    // 前年値入率
+    prevYearStoreMarkupRates,
+    prevYearTotalMarkupRate,
   }
 
   return {

@@ -44,6 +44,8 @@ export interface StoreContribution {
   readonly mappedDay: number
   readonly sales: number
   readonly customers: number
+  /** 前年の売変額（売変率の前年比計算用） */
+  readonly discount: number
 }
 
 /** 月間 KPI エントリ（同曜日 or 同日の1アライメント分） */

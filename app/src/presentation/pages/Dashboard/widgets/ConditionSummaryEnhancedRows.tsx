@@ -42,10 +42,15 @@ export const StoreTableHeader = memo(function StoreTableHeader({
   }
 
   if (metric === 'discountRate') {
+    const discountCols = showYoY
+      ? '1.4fr 0.8fr 0.8fr 0.8fr ' + DISCOUNT_TYPES.map(() => '0.7fr').join(' ')
+      : DISCOUNT_COLS
     return (
-      <TableHeaderRow style={{ gridTemplateColumns: DISCOUNT_COLS }}>
+      <TableHeaderRow style={{ gridTemplateColumns: discountCols }}>
         <TableHeaderCell>店名</TableHeaderCell>
         <TableHeaderCell $align="right">売変率</TableHeaderCell>
+        {showYoY && <TableHeaderCell $align="right">前年</TableHeaderCell>}
+        {showYoY && <TableHeaderCell $align="right">差異</TableHeaderCell>}
         {DISCOUNT_TYPES.map((dt) => (
           <TableHeaderCell key={dt.type} $align="right">
             {dt.label}
@@ -57,11 +62,17 @@ export const StoreTableHeader = memo(function StoreTableHeader({
 
   if (metric === 'markupRate') {
     return (
-      <TableHeaderRow style={{ gridTemplateColumns: '1.2fr 1fr 1fr 1fr' }}>
+      <TableHeaderRow
+        style={{
+          gridTemplateColumns: showYoY ? '1.2fr 1fr 1fr 1fr 1fr 1fr' : '1.2fr 1fr 1fr 1fr',
+        }}
+      >
         <TableHeaderCell>店名</TableHeaderCell>
         <TableHeaderCell $align="right">予算</TableHeaderCell>
         <TableHeaderCell $align="right">実績</TableHeaderCell>
         <TableHeaderCell $align="right">差異</TableHeaderCell>
+        {showYoY && <TableHeaderCell $align="right">前年</TableHeaderCell>}
+        {showYoY && <TableHeaderCell $align="right">前年差</TableHeaderCell>}
       </TableHeaderRow>
     )
   }
@@ -130,16 +141,32 @@ export const StoreRow = memo(function StoreRow({
   if (metric === 'discountRate') {
     // totalDiscount = sum of all entries; each entry rate = (entry / total) * overall rate
     const totalDiscountAmt = row.discountEntries?.reduce((s, e) => s + e.amount, 0) ?? 0
+    const discountGridCols = showYoY
+      ? '1.4fr 0.8fr 0.8fr 0.8fr ' + DISCOUNT_TYPES.map(() => '0.7fr').join(' ')
+      : DISCOUNT_COLS
     return (
       <StoreRowWrapper
         $clickable={!!onStoreClick}
         onClick={onStoreClick ? () => onStoreClick(row.storeId) : undefined}
       >
-        <StoreRowGrid style={{ gridTemplateColumns: DISCOUNT_COLS }}>
+        <StoreRowGrid style={{ gridTemplateColumns: discountGridCols }}>
           <StoreName>{row.storeName}</StoreName>
           <MonoMd $bold $color={c} style={{ textAlign: 'right' }}>
             {fmtValue(row.actual, true)}
           </MonoMd>
+          {showYoY && (
+            <MonoSm style={{ textAlign: 'right' }}>
+              {row.ly != null ? fmtValue(row.ly, true) : '—'}
+            </MonoSm>
+          )}
+          {showYoY && (
+            <DiffSpan
+              $positive={(row.yoy ?? 0) >= 0}
+              style={{ textAlign: 'right', display: 'block' }}
+            >
+              {row.yoy != null ? `${row.yoy >= 0 ? '+' : ''}${row.yoy.toFixed(2)}pp` : '—'}
+            </DiffSpan>
+          )}
           {DISCOUNT_TYPES.map((dt) => {
             const entry = row.discountEntries?.find((e) => e.type === dt.type)
             if (!entry || totalDiscountAmt === 0) {
@@ -168,7 +195,11 @@ export const StoreRow = memo(function StoreRow({
         $clickable={!!onStoreClick}
         onClick={onStoreClick ? () => onStoreClick(row.storeId) : undefined}
       >
-        <StoreRowGrid style={{ gridTemplateColumns: '1.2fr 1fr 1fr 1fr' }}>
+        <StoreRowGrid
+          style={{
+            gridTemplateColumns: showYoY ? '1.2fr 1fr 1fr 1fr 1fr 1fr' : '1.2fr 1fr 1fr 1fr',
+          }}
+        >
           <StoreName>{row.storeName}</StoreName>
           <MonoSm style={{ textAlign: 'right' }}>{fmtValue(row.budget, true)}</MonoSm>
           <MonoMd $bold style={{ textAlign: 'right', color: c }}>
@@ -178,6 +209,19 @@ export const StoreRow = memo(function StoreRow({
             {row.diff >= 0 ? '+' : ''}
             {row.diff.toFixed(2)}pp
           </DiffSpan>
+          {showYoY && (
+            <MonoSm style={{ textAlign: 'right' }}>
+              {row.ly != null ? fmtValue(row.ly, true) : '—'}
+            </MonoSm>
+          )}
+          {showYoY && (
+            <DiffSpan
+              $positive={(row.yoy ?? 0) >= 0}
+              style={{ textAlign: 'right', display: 'block' }}
+            >
+              {row.yoy != null ? `${row.yoy >= 0 ? '+' : ''}${row.yoy.toFixed(2)}pp` : '—'}
+            </DiffSpan>
+          )}
         </StoreRowGrid>
       </StoreRowWrapper>
     )

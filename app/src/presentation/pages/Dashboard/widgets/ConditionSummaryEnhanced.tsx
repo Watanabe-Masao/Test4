@@ -1,13 +1,15 @@
-import { useState, useMemo, memo, useCallback } from 'react'
+import { useState, useMemo, useEffect, useRef, memo, useCallback } from 'react'
 import type { WidgetContext } from './types'
 import {
   type MetricKey,
   type EnhancedTotal,
+  type DailyMarkupRateYoYRow,
   METRIC_DEFS,
   buildRows,
   buildTotalFromResult,
   buildCardSummaries,
   buildBudgetHeader,
+  buildDailyMarkupRateYoYRows,
   fmtValue,
   fmtAchievement,
   resultColor,
@@ -15,6 +17,8 @@ import {
 import { formatPercent } from '@/domain/formatting'
 import { StoreRow, StoreTableHeader } from './ConditionSummaryEnhancedRows'
 import { ConditionSummaryDailyModal } from './ConditionSummaryDailyModal'
+import { queryStoreDailyMarkupRate } from '@/infrastructure/duckdb/queries/purchaseComparison'
+import { dateRangeToKeys } from '@/domain/models'
 import {
   DashWrapper,
   Header,
@@ -104,6 +108,8 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
             daysInMonth,
             prevYear: ctx.prevYear,
             prevYearMonthlyKpi: ctx.prevYearMonthlyKpi,
+            prevYearStoreMarkupRates: ctx.prevYearStoreMarkupRates,
+            prevYearTotalMarkupRate: ctx.prevYearTotalMarkupRate,
           }
         : null,
     [
@@ -114,6 +120,8 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
       daysInMonth,
       ctx.prevYear,
       ctx.prevYearMonthlyKpi,
+      ctx.prevYearStoreMarkupRates,
+      ctx.prevYearTotalMarkupRate,
     ],
   )
 
@@ -125,7 +133,11 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
   )
 
   const activeDef = activeMetric ? METRIC_DEFS[activeMetric] : null
-  const hasYoYData = activeMetric === 'sales' && ctx.prevYear.hasPrevYear
+  const hasYoYData =
+    ((activeMetric === 'sales' || activeMetric === 'discountRate') && ctx.prevYear.hasPrevYear) ||
+    (activeMetric === 'markupRate' &&
+      ctx.prevYearStoreMarkupRates != null &&
+      ctx.prevYearStoreMarkupRates.size > 0)
 
   const handleClose = useCallback(() => {
     setActiveMetric(null)
@@ -143,6 +155,75 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
   // Daily modal store data
   const dailySr = dailyStoreId ? ctx.allStoreResults.get(dailyStoreId) : null
   const dailyStoreName = dailyStoreId ? (ctx.stores.get(dailyStoreId)?.name ?? dailyStoreId) : ''
+
+  // ── 値入率日別前年比（DuckDB query、daily modal 用） ──
+  const [markupRateYoYState, setMarkupRateYoYState] = useState<{
+    storeId: string | null
+    rows: readonly DailyMarkupRateYoYRow[]
+  }>({ storeId: null, rows: [] })
+  const markupQuerySeq = useRef(0)
+
+  useEffect(() => {
+    const wantQuery =
+      dailyStoreId != null &&
+      dailySr != null &&
+      activeMetric === 'markupRate' &&
+      ctx.duckConn != null &&
+      ctx.prevYearDateRange != null &&
+      (ctx.duckDataVersion ?? 0) > 0
+
+    if (!wantQuery) {
+      ++markupQuerySeq.current
+      return
+    }
+
+    const conn = ctx.duckConn!
+    const prevRange = ctx.prevYearDateRange!
+    const seq = ++markupQuerySeq.current
+    let cancelled = false
+    const { fromKey, toKey } = dateRangeToKeys(prevRange)
+
+    ;(async () => {
+      try {
+        const allRows = await queryStoreDailyMarkupRate(conn, fromKey, toKey, [dailyStoreId!])
+        if (cancelled || seq !== markupQuerySeq.current) return
+        // day → { totalCost, totalPrice } のマップを構築
+        const byDay = new Map<number, { totalCost: number; totalPrice: number }>()
+        for (const r of allRows) {
+          const existing = byDay.get(r.day)
+          if (existing) {
+            existing.totalCost += r.totalCost
+            existing.totalPrice += r.totalPrice
+          } else {
+            byDay.set(r.day, { totalCost: r.totalCost, totalPrice: r.totalPrice })
+          }
+        }
+        setMarkupRateYoYState({
+          storeId: dailyStoreId,
+          rows: buildDailyMarkupRateYoYRows(dailySr!, byDay, effectiveElapsed, daysInMonth),
+        })
+      } catch {
+        // DuckDB エラー時は静かに無視
+      }
+    })()
+
+    return () => {
+      cancelled = true
+    }
+  }, [
+    dailyStoreId,
+    dailySr,
+    activeMetric,
+    ctx.duckConn,
+    ctx.duckDataVersion,
+    ctx.prevYearDateRange,
+    effectiveElapsed,
+    daysInMonth,
+  ])
+
+  // store が変わったら古いデータを表示しない
+  const effectiveMarkupYoYRows =
+    markupRateYoYState.storeId === dailyStoreId ? markupRateYoYState.rows : []
 
   return (
     <DashWrapper>
@@ -169,15 +250,28 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
           role="button"
           tabIndex={0}
         >
-          <BudgetHeaderLabel>粗利額予算</BudgetHeaderLabel>
+          <BudgetHeaderLabel>月間粗利額予算</BudgetHeaderLabel>
           <BudgetHeaderValue>{ctx.fmtCurrency(budgetHeader.grossProfitBudget)}</BudgetHeaderValue>
         </BudgetHeaderItem>
-        <BudgetHeaderItem>
-          <BudgetHeaderLabel>粗利率予算</BudgetHeaderLabel>
+        <BudgetHeaderItem
+          onClick={() => setActiveMetric('gpRate')}
+          style={{ cursor: 'pointer' }}
+          role="button"
+          tabIndex={0}
+        >
+          <BudgetHeaderLabel>月間粗利率予算</BudgetHeaderLabel>
           <BudgetHeaderValue>{formatPercent(budgetHeader.grossProfitRateBudget)}</BudgetHeaderValue>
         </BudgetHeaderItem>
         {budgetHeader.prevYearMonthlySales != null && (
-          <BudgetHeaderItem>
+          <BudgetHeaderItem
+            onClick={() => {
+              setActiveMetric('sales')
+              setShowYoY(true)
+            }}
+            style={{ cursor: 'pointer' }}
+            role="button"
+            tabIndex={0}
+          >
             <BudgetHeaderLabel>月間前年売上</BudgetHeaderLabel>
             <BudgetHeaderValue>
               {ctx.fmtCurrency(budgetHeader.prevYearMonthlySales)}
@@ -185,7 +279,15 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
           </BudgetHeaderItem>
         )}
         {budgetHeader.budgetVsPrevYear != null && (
-          <BudgetHeaderItem>
+          <BudgetHeaderItem
+            onClick={() => {
+              setActiveMetric('sales')
+              setShowYoY(true)
+            }}
+            style={{ cursor: 'pointer' }}
+            role="button"
+            tabIndex={0}
+          >
             <BudgetHeaderLabel>予算前年比</BudgetHeaderLabel>
             <BudgetGrowthBadge $positive={budgetHeader.budgetVsPrevYear >= 1}>
               {formatPercent(budgetHeader.budgetVsPrevYear)}
@@ -195,7 +297,12 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
         {/* 曜日GAPは同日比較時のみ表示（同曜日比較では曜日が揃うためGAPなし） */}
         {prevYearMode === 'sameDate' && budgetHeader.dowGap && (
           <>
-            <BudgetHeaderItem>
+            <BudgetHeaderItem
+              onClick={() => ctx.onPrevYearDetail('sameDate')}
+              style={{ cursor: 'pointer' }}
+              role="button"
+              tabIndex={0}
+            >
               <BudgetHeaderLabel>曜日GAP({budgetHeader.dowGap.label})</BudgetHeaderLabel>
               <BudgetHeaderValue>
                 {ctx.fmtCurrency(budgetHeader.dowGap.avgImpact)}
@@ -203,7 +310,12 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
               <BudgetHeaderLabel>平均</BudgetHeaderLabel>
             </BudgetHeaderItem>
             {budgetHeader.dowGap.actualImpact != null && (
-              <BudgetHeaderItem>
+              <BudgetHeaderItem
+                onClick={() => ctx.onPrevYearDetail('sameDate')}
+                style={{ cursor: 'pointer' }}
+                role="button"
+                tabIndex={0}
+              >
                 <BudgetHeaderLabel>曜日GAP(実日)</BudgetHeaderLabel>
                 <BudgetHeaderValue>
                   {ctx.fmtCurrency(budgetHeader.dowGap.actualImpact)}
@@ -319,6 +431,7 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
               prevYearMonthlyKpi={ctx.prevYearMonthlyKpi}
               hasPrevYear={ctx.prevYear.hasPrevYear}
               fmtCurrency={ctx.fmtCurrency}
+              markupRateYoYRows={effectiveMarkupYoYRows}
               onClose={handleDailyClose}
             />
           )}
