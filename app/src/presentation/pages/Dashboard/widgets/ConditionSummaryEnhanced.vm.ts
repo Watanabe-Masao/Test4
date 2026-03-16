@@ -146,20 +146,24 @@ function extractLySales(
   prevYear: PrevYearData,
   prevYearMonthlyKpi: PrevYearMonthlyKpi,
   isElapsed: boolean,
+  elapsedDays?: number,
 ): number | null {
   if (!prevYear.hasPrevYear) return null
+  if (!prevYearMonthlyKpi.hasPrevYear) return null
 
-  if (isElapsed) {
-    // 経過モード: 全店合計の prevYear.totalSales は使えるが、店別は storeContributions
-    // storeContributions は月間ベース → 経過用は未提供のため null
-    // 全店用は aggregate 側で処理するので、ここでは store 別は null
-    return null
+  if (isElapsed && elapsedDays != null) {
+    // 経過モード: storeContributions から mappedDay <= elapsedDays の分だけ合算
+    const contributions = prevYearMonthlyKpi.sameDow.storeContributions.filter(
+      (c) => c.storeId === storeId && c.mappedDay <= elapsedDays,
+    )
+    return contributions.length > 0 ? contributions.reduce((s, c) => s + c.sales, 0) : null
   }
 
-  // 月間モード: storeContributions から取得
-  if (!prevYearMonthlyKpi.hasPrevYear) return null
-  const contrib = prevYearMonthlyKpi.sameDow.storeContributions.find((c) => c.storeId === storeId)
-  return contrib?.sales ?? null
+  // 月間モード: storeContributions の全日合計
+  const contributions = prevYearMonthlyKpi.sameDow.storeContributions.filter(
+    (c) => c.storeId === storeId,
+  )
+  return contributions.length > 0 ? contributions.reduce((s, c) => s + c.sales, 0) : null
 }
 
 // ─── Achievement / YoY Calculation ──────────────────────
@@ -207,7 +211,7 @@ export function buildRows(input: BuildRowsInput): readonly EnhancedRow[] {
     let ly: number | null = null
     let yoy: number | null = null
     if (metric === 'sales') {
-      ly = extractLySales(storeId, input.prevYear, input.prevYearMonthlyKpi, isElapsed)
+      ly = extractLySales(storeId, input.prevYear, input.prevYearMonthlyKpi, isElapsed, elapsedDays)
       yoy = computeYoY(actual, ly, def.isRate)
     }
 

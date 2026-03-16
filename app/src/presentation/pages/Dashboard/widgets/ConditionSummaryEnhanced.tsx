@@ -169,11 +169,11 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
           role="button"
           tabIndex={0}
         >
-          <BudgetHeaderLabel>粗利額予算</BudgetHeaderLabel>
+          <BudgetHeaderLabel>月間粗利額予算</BudgetHeaderLabel>
           <BudgetHeaderValue>{ctx.fmtCurrency(budgetHeader.grossProfitBudget)}</BudgetHeaderValue>
         </BudgetHeaderItem>
         <BudgetHeaderItem>
-          <BudgetHeaderLabel>粗利率予算</BudgetHeaderLabel>
+          <BudgetHeaderLabel>月間粗利率予算</BudgetHeaderLabel>
           <BudgetHeaderValue>{formatPercent(budgetHeader.grossProfitRateBudget)}</BudgetHeaderValue>
         </BudgetHeaderItem>
         {budgetHeader.prevYearMonthlySales != null && (
