@@ -126,8 +126,10 @@ CI 全ゲート通過確認
 
 ## 完了基準
 
-- [ ] hookComplexityGuard.test.ts の全 allowlist から A-1〜A-7 を削除
-- [ ] R12 の Tier 2 から CvTimeSeriesChart を削除
-- [ ] B のコメントを「凍結」→「許容（理由）」に更新
-- [ ] CI 6段階ゲート全通過
-- [ ] 新規ファイルは全て基準値以下（useMemo ≤7, useState ≤6, hook 300行, component 400行）
+- [x] hookComplexityGuard.test.ts の全 allowlist から A-1〜A-7 を削除
+- [x] R12 の Tier 2 から CvTimeSeriesChart を削除
+- [x] B のコメントを「凍結」→「許容（理由）」に更新
+- [x] CI 6段階ゲート全通過（214テスト 4302アサーション全通過、lint/format/tsc clean）
+- [x] 新規ファイルは全て基準値以下（useMemo ≤7, useState ≤6, hook 300行, component 400行）
+
+**完了日:** 2026-03-16

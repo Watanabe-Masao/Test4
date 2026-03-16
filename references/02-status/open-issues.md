@@ -16,7 +16,7 @@
 | # | リスク | 優先度 | 詳細 |
 |---|---|---|---|
 | R-1 | Application→Infrastructure 直接 import（ポート抽象不足） | Medium | 調査完了（2026-03-08）: 25ファイル40箇所の直接importを特定。ExportPort パターンに倣い DuckDBPort / StoragePort拡張 / ImportPort / I18nPort の4ポートを Phase 5 で新設予定 |
-| R-4 | God コンポーネント（300行超）10 ファイル | Low | .vm.ts ViewModel 抽出を10ファイルで実施済み（2026-03-08）。残: チャート500行超17ファイルの .vm.ts 作成は Phase 6 で継続 |
+| R-4 | God コンポーネント（300行超）10 ファイル | Low | .vm.ts ViewModel 抽出を10ファイルで実施済み（2026-03-08）。CvTimeSeriesChart を3ビューに分割（690→261行、Tier 2 解消）。残: TimeSlotChart（660行 Tier 2）+ チャート500行超ファイルの .vm.ts 作成は Phase 6 で継続 |
 | R-6 | FileImportService.ts（632行） | Low | infrastructure/ImportService.ts は227行に分割解決済み。application/usecases/import/FileImportService.ts（632行）は5つの関心事が混在。Phase 1B（UseCase 抽出）で対応予定 |
 | R-7 | 既存コードのサブバレル移行が未完了 | Medium | Phase 1C でサブバレル構造を作成済みだが、既存消費者（数百ファイル）はメインバレル経由のまま。一貫性のため Phase 7（縦スライス）までに全件をサブバレル直接 import に移行する。対象: hooks/(data,calculation,analytics,ui), charts/(core,duckdb,advanced,chartInfra), models/(record,storeTypes,calendar,analysis), calculations/(grossProfit,forecast.barrel,decomposition), common/(layout,forms,tables,feedback) |
 | R-9 | ロールシステムのAI単体セッション最適化 | Medium | 9ロール×2ファイル=18ファイルの読み込みコストが高い。AI単体セッションではロールの切り替えが十分に機能していない。軽量ロール設計（ロール統合 or CLAUDE.md への集約）を検討する |
@@ -53,3 +53,4 @@
 | S-23 | 禁止事項#10: departmentKpi.ts SQL 率計算 | 2026-03-16 | SQL を `SUM(rate * sales)` → weighted sum（分子のみ）に変更。率の算出は `useDeptKpiQueries.ts` の `resolveSummary()` で `safeDivide` を使い domain 層に委譲 |
 | S-24 | ドメインのマジックナンバー定数化 | 2026-03-16 | `calculationConstants.ts` に12定数を集約。forecast.ts, trendAnalysis.ts, correlation.ts, ComparisonScope.ts, PeriodSelection.ts, dowGapAnalysis.ts, advancedForecast.ts, formatting/index.ts の全ハードコード値を名前付き定数に置換 |
 | S-25 | Silent error handler: DataManagementSidebar.tsx | 2026-03-16 | `autoImport.scanNow().catch(() => {})` のエラー握り潰しを修正。成功時/失敗時それぞれトースト表示に変更 |
+| S-26 | 凍結 allowlist 7件解消 | 2026-03-16 | Phase 1: useJsAggregationQueries / useCtsQueries を各2分割（barrel化）。Phase 2: useDuckDB / useAutoImport を useReducer 化（reducer 純粋関数を分離）。Phase 3: purchaseComparisonBuilders を3分割（barrel化）。Phase 4: CvTimeSeriesChart を3ビューに分割（690→261行）、useMetricBreakdown の useMemo 統合（7→6）。結果: useMemo allowlist 4→1、useState allowlist 5→2、行数 allowlist 5→2、R12 Tier 2 から CvTimeSeriesChart 除去 |
