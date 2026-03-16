@@ -27,6 +27,7 @@ export function createDefaultSettings(): Readonly<AppSettings> {
     prevYearDowOffset: null,
     alignmentPolicy: 'sameDayOfWeek',
     conditionConfig: DEFAULT_CONDITION_CONFIG,
+    storeLocations: {},
   }
 }
 

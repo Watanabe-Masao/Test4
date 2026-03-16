@@ -29,6 +29,7 @@ const mockSettings: AppSettings = {
   discountYellowThreshold: 0.025,
   discountRedThreshold: 0.03,
   userCategoryLabels: {},
+  storeLocations: {},
 }
 
 function makeStoreResult(storeId: string): StoreResult {

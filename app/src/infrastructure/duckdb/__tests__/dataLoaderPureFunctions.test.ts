@@ -403,6 +403,7 @@ describe('LoadResult type', () => {
         budget: 0,
         inventory_config: 0,
         app_settings: 0,
+        weather_hourly: 0,
       },
       durationMs: 100,
     }

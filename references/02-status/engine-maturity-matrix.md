@@ -14,24 +14,24 @@
 | **promotion-candidate** | 観測完了、昇格可能 | verdict: clean or tolerance-only |
 | **authoritative** | WASM が authoritative | TS フォールバック削除済み |
 
-## 現在の状態（Phase 10 完了時点）
+## 現在の状態
 
 | Engine | 関数数 | audited | bridge | compare-ready | compare-impl | rust | wasm | obs | promo | auth |
 |---|---|---|---|---|---|---|---|---|---|---|
 | factorDecomposition | 4 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | - | - |
 | grossProfit | 8 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | - | - |
 | budgetAnalysis | 2 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | - | - |
-| forecast | 5+5 | ✅ | ✅ | ✅ | ✅ | - | - | - | - | - |
+| forecast | 5+5 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | - | - |
 
 ### forecast 詳細
 
 | 関数 | compare 対象 | Rust | 備考 |
 |---|---|---|---|
-| calculateStdDev | ✅ | - | Date 非依存 |
-| detectAnomalies | ✅ | - | Date 非依存 |
-| calculateWMA | ✅ | - | Date 非依存 |
-| linearRegression | ✅ | - | Date 非依存 |
-| analyzeTrend | ✅ | - | Date 非依存 |
+| calculateStdDev | ✅ | ✅ | Date 非依存 |
+| detectAnomalies | ✅ | ✅ | Date 非依存 |
+| calculateWMA | ✅ | ✅ | Date 非依存 |
+| linearRegression | ✅ | ✅ | Date 非依存 |
+| analyzeTrend | ✅ | ✅ | Date 非依存 |
 | getWeekRanges | ❌ | - | Date 依存 |
 | calculateDayOfWeekAverages | ❌ | - | Date 依存 |
 | calculateWeeklySummaries | ❌ | - | Date 依存 |
@@ -45,7 +45,7 @@
 | factorDecomposition | promotion-candidate | 観測ログ蓄積 + verdict 確認 |
 | grossProfit | promotion-candidate | 観測ログ蓄積 + verdict 確認 |
 | budgetAnalysis | promotion-candidate | 観測ログ蓄積 + verdict 確認 |
-| forecast | rust-implemented | Rust crate 作成 + 5 pure 関数実装 |
+| forecast | promotion-candidate | 観測ログ蓄積 + verdict 確認 |
 
 ### 昇格判断フレーム（Phase 11 成果物）
 

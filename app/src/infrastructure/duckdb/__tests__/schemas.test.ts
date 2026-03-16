@@ -23,8 +23,8 @@ import {
 } from '../schemas'
 
 describe('TABLE_NAMES', () => {
-  it('11テーブルが定義されている', () => {
-    expect(TABLE_NAMES).toHaveLength(11)
+  it('12テーブルが定義されている', () => {
+    expect(TABLE_NAMES).toHaveLength(12)
   })
 
   it('全てのテーブル名が含まれる', () => {
@@ -39,6 +39,7 @@ describe('TABLE_NAMES', () => {
     expect(TABLE_NAMES).toContain('budget')
     expect(TABLE_NAMES).toContain('inventory_config')
     expect(TABLE_NAMES).toContain('app_settings')
+    expect(TABLE_NAMES).toContain('weather_hourly')
   })
 })
 
