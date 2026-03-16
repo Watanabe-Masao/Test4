@@ -1219,3 +1219,95 @@ export function buildYoYCards(input: BuildYoYCardsInput): readonly YoYCardSummar
 
   return cards
 }
+
+// ─── Unified Card Data ─────────────────────────────────
+
+export type ConditionCardId =
+  | 'sales'
+  | 'gp'
+  | 'gpRate'
+  | 'markupRate'
+  | 'discountRate'
+  | 'customerYoY'
+  | 'itemsYoY'
+  | 'txValue'
+  | 'requiredPace'
+
+/**
+ * カードの表示順序定義。
+ * 並び替えはこの配列の順序を変更するだけで反映される。
+ */
+export const CONDITION_CARD_ORDER: readonly ConditionCardId[] = [
+  'sales',
+  'gp',
+  'gpRate',
+  'markupRate',
+  'discountRate',
+  'customerYoY',
+  'itemsYoY',
+  'txValue',
+  'requiredPace',
+]
+
+/** カードの分類グループ */
+export const CONDITION_CARD_GROUP: Record<ConditionCardId, 'budget' | 'yoy'> = {
+  sales: 'budget',
+  gp: 'budget',
+  gpRate: 'budget',
+  markupRate: 'budget',
+  discountRate: 'budget',
+  customerYoY: 'yoy',
+  itemsYoY: 'yoy',
+  txValue: 'yoy',
+  requiredPace: 'yoy',
+}
+
+export interface UnifiedCardData {
+  readonly id: ConditionCardId
+  readonly group: 'budget' | 'yoy'
+  readonly label: string
+  readonly value: string
+  readonly sub: string
+  readonly signalColor: string
+  readonly clickable: boolean
+}
+
+/** budget + yoY カードを統一配列に変換し、CONDITION_CARD_ORDER 順でソートする */
+export function buildUnifiedCards(
+  budgetCards: readonly CardSummary[],
+  yoyCards: readonly YoYCardSummary[],
+  hasMultipleStores: boolean,
+): readonly UnifiedCardData[] {
+  const map = new Map<string, UnifiedCardData>()
+
+  for (const c of budgetCards) {
+    map.set(c.key, {
+      id: c.key as ConditionCardId,
+      group: 'budget',
+      label: c.label,
+      value: c.value,
+      sub: c.sub,
+      signalColor: c.signalColor,
+      clickable: true,
+    })
+  }
+
+  for (const c of yoyCards) {
+    map.set(c.key, {
+      id: c.key as ConditionCardId,
+      group: 'yoy',
+      label: c.label,
+      value: c.value,
+      sub: c.sub,
+      signalColor: c.signalColor,
+      clickable: hasMultipleStores && c.detailBreakdown != null,
+    })
+  }
+
+  const ordered: UnifiedCardData[] = []
+  for (const id of CONDITION_CARD_ORDER) {
+    const card = map.get(id)
+    if (card) ordered.push(card)
+  }
+  return ordered
+}

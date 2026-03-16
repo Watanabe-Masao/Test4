@@ -3,21 +3,23 @@
  *
  * 予算達成メトリクス（売上・粗利額・粗利率・値入率・売変率）と
  * 前年比メトリクス（客数・販売点数・客単価・必要ベース比）を
- * 1つのウィジェットに統合。コンディションマトリクスも包含する。
+ * 統一カードレジストリで管理。カードの並び替えは CONDITION_CARD_ORDER の変更で即反映。
  */
 import { useState, useMemo, memo, useCallback } from 'react'
 import type { WidgetContext } from './types'
 import {
   type MetricKey,
-  type YoYCardKey,
+  type ConditionCardId,
   buildCardSummaries,
   buildBudgetHeader,
   buildYoYCards,
+  buildUnifiedCards,
 } from './ConditionSummaryEnhanced.vm'
 import { formatPercent } from '@/domain/formatting'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useDataStore } from '@/application/stores/dataStore'
+import { ConditionCardShell } from './ConditionCardShell'
 import { ConditionSummaryBudgetDrill } from './ConditionSummaryBudgetDrill'
 import { ConditionMatrixTable } from './ConditionMatrixTable'
 import { ConditionSettingsPanelWidget } from './ConditionSettingsPanel'
@@ -30,12 +32,6 @@ import {
   HeaderMeta,
   HeaderTitle,
   CardGridRow,
-  CondCard,
-  CondSignal,
-  CondCardContent,
-  CondCardLabel,
-  CondCardValue,
-  CondCardSub,
   BudgetHeaderRow,
   BudgetHeaderItem,
   BudgetHeaderLabel,
@@ -50,6 +46,17 @@ import {
   DrillTitle,
   DrillBody,
 } from './ConditionSummaryEnhanced.styles'
+
+// ─── Card click handler type map ────────────────────────
+
+const BUDGET_METRIC_IDS: ReadonlySet<string> = new Set([
+  'sales',
+  'gp',
+  'gpRate',
+  'markupRate',
+  'discountRate',
+])
+const YOY_DRILL_IDS: ReadonlySet<string> = new Set(['customerYoY', 'txValue'])
 
 // ─── Component ──────────────────────────────────────────
 
@@ -115,39 +122,46 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
     [ctx.result, ctx.prevYearMonthlyKpi, ctx.dowGap],
   )
 
-  // Budget metric cards
-  const budgetCards = useMemo(
-    () => buildCardSummaries(ctx.result, elapsedDays, daysInMonth, ctx.fmtCurrency),
-    [ctx.result, elapsedDays, daysInMonth, ctx.fmtCurrency],
-  )
-
-  // YoY/pace metric cards
-  const yoyCards = useMemo(
-    () =>
-      buildYoYCards({
-        result: ctx.result,
-        prevYear: ctx.prevYear,
-        config: effectiveConfig,
-        ctsCurrentQty: ctsRecords.reduce((sum, rec) => sum + rec.totalQuantity, 0),
-        ctsPrevQty: prevCtsRecords.reduce((sum, rec) => sum + rec.totalQuantity, 0),
-        fmtCurrency: ctx.fmtCurrency,
-      }),
-    [ctx.result, ctx.prevYear, effectiveConfig, ctsRecords, prevCtsRecords, ctx.fmtCurrency],
-  )
-
   const hasMultipleStores = ctx.allStoreResults.size > 1
 
-  const handleBudgetClose = useCallback(() => setActiveMetric(null), [])
+  // Unified card array (order controlled by CONDITION_CARD_ORDER)
+  const allCards = useMemo(() => {
+    const budgetCards = buildCardSummaries(ctx.result, elapsedDays, daysInMonth, ctx.fmtCurrency)
+    const yoyCards = buildYoYCards({
+      result: ctx.result,
+      prevYear: ctx.prevYear,
+      config: effectiveConfig,
+      ctsCurrentQty: ctsRecords.reduce((sum, rec) => sum + rec.totalQuantity, 0),
+      ctsPrevQty: prevCtsRecords.reduce((sum, rec) => sum + rec.totalQuantity, 0),
+      fmtCurrency: ctx.fmtCurrency,
+    })
+    return buildUnifiedCards(budgetCards, yoyCards, hasMultipleStores)
+  }, [
+    ctx.result,
+    elapsedDays,
+    daysInMonth,
+    ctx.fmtCurrency,
+    ctx.prevYear,
+    effectiveConfig,
+    ctsRecords,
+    prevCtsRecords,
+    hasMultipleStores,
+  ])
 
-  const handleYoYCardClick = useCallback(
-    (key: YoYCardKey) => {
-      if (!hasMultipleStores) return
-      if (key === 'customerYoY' || key === 'txValue') {
-        setYoYDrill(key)
-      }
-    },
-    [hasMultipleStores],
-  )
+  // Group cards by section for display
+  const budgetGroup = useMemo(() => allCards.filter((c) => c.group === 'budget'), [allCards])
+  const yoyGroup = useMemo(() => allCards.filter((c) => c.group === 'yoy'), [allCards])
+
+  // Card click dispatch
+  const handleCardClick = useCallback((id: ConditionCardId) => {
+    if (BUDGET_METRIC_IDS.has(id)) {
+      setActiveMetric(id as MetricKey)
+    } else if (YOY_DRILL_IDS.has(id)) {
+      setYoYDrill(id as 'customerYoY' | 'txValue')
+    }
+  }, [])
+
+  const handleBudgetClose = useCallback(() => setActiveMetric(null), [])
 
   const sortedStoreEntries = useMemo(
     () =>
@@ -250,47 +264,33 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
       </BudgetHeaderRow>
 
       {/* Budget metric cards */}
-      <CardGroupLabel>予算達成</CardGroupLabel>
-      <CardGridRow>
-        {budgetCards.map((card) => (
-          <CondCard
-            key={card.key}
-            $borderColor={card.signalColor}
-            onClick={() => setActiveMetric(card.key)}
-          >
-            <CondSignal $color={card.signalColor} />
-            <CondCardContent>
-              <CondCardLabel>{card.label}</CondCardLabel>
-              <CondCardValue $color={card.signalColor}>{card.value}</CondCardValue>
-              <CondCardSub>{card.sub}</CondCardSub>
-            </CondCardContent>
-          </CondCard>
-        ))}
-      </CardGridRow>
+      {budgetGroup.length > 0 && (
+        <>
+          <CardGroupLabel>予算達成</CardGroupLabel>
+          <CardGridRow>
+            {budgetGroup.map((card) => (
+              <ConditionCardShell
+                key={card.id}
+                card={card}
+                onClick={() => handleCardClick(card.id)}
+              />
+            ))}
+          </CardGridRow>
+        </>
+      )}
 
       {/* YoY / Pace metric cards */}
-      {yoyCards.length > 0 && (
+      {yoyGroup.length > 0 && (
         <>
           <CardGroupLabel>前年比較</CardGroupLabel>
           <CardGridRow>
-            {yoyCards.map((card) => {
-              const isClickable = hasMultipleStores && card.detailBreakdown != null
-              return (
-                <CondCard
-                  key={card.key}
-                  $borderColor={card.signalColor}
-                  $clickable={isClickable}
-                  onClick={isClickable ? () => handleYoYCardClick(card.key) : undefined}
-                >
-                  <CondSignal $color={card.signalColor} />
-                  <CondCardContent>
-                    <CondCardLabel>{card.label}</CondCardLabel>
-                    <CondCardValue $color={card.signalColor}>{card.value}</CondCardValue>
-                    <CondCardSub>{card.sub}</CondCardSub>
-                  </CondCardContent>
-                </CondCard>
-              )
-            })}
+            {yoyGroup.map((card) => (
+              <ConditionCardShell
+                key={card.id}
+                card={card}
+                onClick={() => handleCardClick(card.id)}
+              />
+            ))}
           </CardGridRow>
         </>
       )}
