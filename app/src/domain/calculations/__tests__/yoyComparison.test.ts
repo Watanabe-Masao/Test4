@@ -1,10 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import {
-  comparePeriods,
-  hasReferenceData,
-  compareYoY,
-  hasYoYData,
-} from '../yoyComparison'
+import { comparePeriods, hasReferenceData, compareYoY, hasYoYData } from '../yoyComparison'
 
 describe('comparePeriods 不変条件', () => {
   const cases = [

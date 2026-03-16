@@ -16,6 +16,7 @@ import type { CalendarDate, DateRange } from './CalendarDate'
 import { toDateKey } from './CalendarDate'
 import type { ComparisonPreset, PeriodSelection } from './PeriodSelection'
 import { deriveDowOffset } from './PeriodSelection'
+import { MILLISECONDS_PER_DAY, DOW_ALIGNMENT_WINDOW } from '@/domain/constants'
 
 // ── 型定義 ──
 
@@ -92,7 +93,7 @@ function fromDate(d: Date): CalendarDate {
 
 /** 2つの Date 間の日数差（inclusive で使う場合は +1 する側で調整） */
 function daysBetween(from: Date, to: Date): number {
-  return Math.round((to.getTime() - from.getTime()) / (24 * 60 * 60 * 1000))
+  return Math.round((to.getTime() - from.getTime()) / MILLISECONDS_PER_DAY)
 }
 
 /** 月を含む QueryMonth 集合を作る（period の from〜to が含む月 ±1 ヶ月） */
@@ -163,7 +164,7 @@ function resolveSameDowSource(targetDate: Date): Date {
   let bestCandidate = anchor
   let bestDist = Infinity
 
-  for (let diff = -7; diff <= 7; diff++) {
+  for (let diff = -DOW_ALIGNMENT_WINDOW; diff <= DOW_ALIGNMENT_WINDOW; diff++) {
     const d = new Date(anchor.getFullYear(), anchor.getMonth(), anchor.getDate() + diff)
     if (d.getDay() !== targetDow) continue
 

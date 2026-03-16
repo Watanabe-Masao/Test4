@@ -270,7 +270,11 @@ describe('prorateBudget 不変条件', () => {
 
   it('Map でも Record でも同じ結果', () => {
     const record: Record<number, number> = { 1: 100_000, 2: 200_000, 3: 300_000 }
-    const map = new Map([[1, 100_000], [2, 200_000], [3, 300_000]])
+    const map = new Map([
+      [1, 100_000],
+      [2, 200_000],
+      [3, 300_000],
+    ])
     const fromRecord = prorateBudget(500_000, 600_000, record, 2)
     const fromMap = prorateBudget(500_000, 600_000, map, 2)
     expect(fromRecord).toBeCloseTo(fromMap, 10)
