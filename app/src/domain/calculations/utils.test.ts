@@ -4,6 +4,9 @@ import {
   safeNumber,
   safeDivide,
   calculateAchievementRate,
+  calculateYoYRatio,
+  calculateShare,
+  calculateGrossProfitRate,
   calculateTransactionValue,
   calculateMovingAverage,
   calculateItemsPerCustomer,
@@ -90,6 +93,55 @@ describe('calculateAchievementRate (pragmatic)', () => {
   })
 })
 
+/* ── calculateAchievementRate 不変条件 ── */
+
+describe('calculateAchievementRate 不変条件', () => {
+  /**
+   * 証明可能な数学的性質。pragmatic 関数だが、以下は常に成立する。
+   * 違反した場合は実装の破壊を意味する。
+   */
+  const scenarios = [
+    { label: '標準', actual: 800_000, target: 1_000_000 },
+    { label: '超過', actual: 1_200_000, target: 1_000_000 },
+    { label: '微小', actual: 1, target: 3 },
+    { label: '大規模', actual: 50_000_000, target: 45_000_000 },
+    { label: '同値', actual: 999, target: 999 },
+    { label: '低達成', actual: 100, target: 10_000_000 },
+  ]
+
+  // 不変条件 1: 再構成 — result × target = actual
+  for (const s of scenarios) {
+    it(`再構成: f(${s.actual}, ${s.target}) × target = actual [${s.label}]`, () => {
+      const rate = calculateAchievementRate(s.actual, s.target)
+      expect(rate * s.target).toBeCloseTo(s.actual, 5)
+    })
+  }
+
+  // 不変条件 2: 自己同一性 — f(x, x) = 1
+  for (const x of [1, 100, 999_999, 0.001]) {
+    it(`自己同一性: f(${x}, ${x}) = 1`, () => {
+      expect(calculateAchievementRate(x, x)).toBe(1)
+    })
+  }
+
+  // 不変条件 3: 単調性 — a₁ > a₂ ⇒ f(a₁, t) > f(a₂, t)  (t > 0)
+  it('単調性: actual が大きいほど rate が大きい', () => {
+    const t = 1_000_000
+    const r1 = calculateAchievementRate(500_000, t)
+    const r2 = calculateAchievementRate(800_000, t)
+    const r3 = calculateAchievementRate(1_200_000, t)
+    expect(r1).toBeLessThan(r2)
+    expect(r2).toBeLessThan(r3)
+  })
+
+  // 不変条件 4: ゼロ安全性 — target = 0 → 0（発散しない）
+  it('ゼロ安全性: target=0 は常に 0', () => {
+    for (const a of [-100, 0, 100, 1_000_000]) {
+      expect(calculateAchievementRate(a, 0)).toBe(0)
+    }
+  })
+})
+
 /* ── calculateTransactionValue ── */
 
 describe('calculateTransactionValue', () => {
@@ -104,6 +156,268 @@ describe('calculateTransactionValue', () => {
   })
   it('sales=0 は 0 を返す', () => {
     expect(calculateTransactionValue(0, 100)).toBe(0)
+  })
+})
+
+/* ── calculateTransactionValue 不変条件 ── */
+
+describe('calculateTransactionValue 不変条件', () => {
+  /**
+   * Math.round(sales / customers) の数学的性質。
+   * 丸めにより完全再構成はできないが、誤差上限は保証される。
+   */
+  const scenarios = [
+    { label: '割り切れる', sales: 250_000, cust: 100 },
+    { label: '端数あり', sales: 100, cust: 3 },
+    { label: '大規模', sales: 50_000_000, cust: 12_345 },
+    { label: '1客', sales: 4_980, cust: 1 },
+    { label: '低単価', sales: 500, cust: 200 },
+    { label: '高単価', sales: 10_000_000, cust: 3 },
+  ]
+
+  // 不変条件 1: 丸め誤差上限 — |result × c - s| ≤ c × 0.5
+  for (const s of scenarios) {
+    it(`丸め誤差上限: |tv × c - s| ≤ c × 0.5 [${s.label}]`, () => {
+      const tv = calculateTransactionValue(s.sales, s.cust)
+      const error = Math.abs(tv * s.cust - s.sales)
+      expect(error).toBeLessThanOrEqual(s.cust * 0.5)
+    })
+  }
+
+  // 不変条件 2: 整数性 — 結果は常に整数
+  for (const s of scenarios) {
+    it(`整数性: result は整数 [${s.label}]`, () => {
+      const tv = calculateTransactionValue(s.sales, s.cust)
+      expect(Number.isInteger(tv)).toBe(true)
+    })
+  }
+
+  // 不変条件 3: 近似精度 — |result - (sales/customers)| ≤ 0.5
+  for (const s of scenarios) {
+    it(`近似精度: |result - exact| ≤ 0.5 [${s.label}]`, () => {
+      const tv = calculateTransactionValue(s.sales, s.cust)
+      const exact = s.sales / s.cust
+      expect(Math.abs(tv - exact)).toBeLessThanOrEqual(0.5)
+    })
+  }
+
+  // 不変条件 4: 単調性 — s₁ > s₂ ⇒ tv(s₁, c) ≥ tv(s₂, c)  (c > 0)
+  it('単調性: 売上が大きいほど客単価は大きいか同値', () => {
+    const c = 100
+    const tv1 = calculateTransactionValue(100_000, c)
+    const tv2 = calculateTransactionValue(200_000, c)
+    const tv3 = calculateTransactionValue(500_000, c)
+    expect(tv1).toBeLessThanOrEqual(tv2)
+    expect(tv2).toBeLessThanOrEqual(tv3)
+  })
+
+  // 不変条件 5: ゼロ安全性
+  it('ゼロ安全性: customers=0 は常に 0', () => {
+    for (const s of [0, 100, 1_000_000]) {
+      expect(calculateTransactionValue(s, 0)).toBe(0)
+    }
+  })
+})
+
+/* ── calculateYoYRatio（前年比） ── */
+
+describe('calculateYoYRatio (pragmatic)', () => {
+  it('基本計算: current / previous', () => {
+    expect(calculateYoYRatio(1_200_000, 1_000_000)).toBeCloseTo(1.2)
+  })
+  it('同水準は 1.0', () => {
+    expect(calculateYoYRatio(1_000_000, 1_000_000)).toBe(1)
+  })
+  it('前年減は 1.0 未満', () => {
+    expect(calculateYoYRatio(800_000, 1_000_000)).toBeCloseTo(0.8)
+  })
+  it('previous=0 は 0（前年データなし）', () => {
+    expect(calculateYoYRatio(500_000, 0)).toBe(0)
+  })
+  it('current=0 は 0（当期実績なし）', () => {
+    expect(calculateYoYRatio(0, 1_000_000)).toBe(0)
+  })
+  it('both=0 は 0', () => {
+    expect(calculateYoYRatio(0, 0)).toBe(0)
+  })
+})
+
+describe('calculateYoYRatio 不変条件', () => {
+  const scenarios = [
+    { label: '増収', current: 1_200_000, previous: 1_000_000 },
+    { label: '減収', current: 800_000, previous: 1_000_000 },
+    { label: '同値', current: 999, previous: 999 },
+    { label: '大規模', current: 50_000_000, previous: 45_000_000 },
+    { label: '微小', current: 1, previous: 3 },
+  ]
+
+  // 不変条件 1: 再構成 — ratio × previous = current
+  for (const s of scenarios) {
+    it(`再構成: ratio × previous = current [${s.label}]`, () => {
+      const ratio = calculateYoYRatio(s.current, s.previous)
+      expect(ratio * s.previous).toBeCloseTo(s.current, 5)
+    })
+  }
+
+  // 不変条件 2: 自己同一性 — f(x, x) = 1
+  for (const x of [1, 100, 999_999]) {
+    it(`自己同一性: f(${x}, ${x}) = 1`, () => {
+      expect(calculateYoYRatio(x, x)).toBe(1)
+    })
+  }
+
+  // 不変条件 3: 単調性 — current₁ > current₂ ⇒ ratio₁ > ratio₂
+  it('単調性: 当期値が大きいほど前年比が大きい', () => {
+    const prev = 1_000_000
+    const r1 = calculateYoYRatio(500_000, prev)
+    const r2 = calculateYoYRatio(800_000, prev)
+    const r3 = calculateYoYRatio(1_200_000, prev)
+    expect(r1).toBeLessThan(r2)
+    expect(r2).toBeLessThan(r3)
+  })
+
+  // 不変条件 4: ゼロ安全性
+  it('ゼロ安全性: previous=0 は常に 0', () => {
+    for (const c of [0, 100, 1_000_000]) {
+      expect(calculateYoYRatio(c, 0)).toBe(0)
+    }
+  })
+})
+
+/* ── calculateShare（構成比） ── */
+
+describe('calculateShare (pragmatic)', () => {
+  it('基本計算: part / whole', () => {
+    expect(calculateShare(300_000, 1_000_000)).toBeCloseTo(0.3)
+  })
+  it('whole=0 は 0（全体なし）', () => {
+    expect(calculateShare(100, 0)).toBe(0)
+  })
+  it('part=0 は 0', () => {
+    expect(calculateShare(0, 1_000_000)).toBe(0)
+  })
+  it('part=whole は 1.0（100%）', () => {
+    expect(calculateShare(1_000_000, 1_000_000)).toBe(1)
+  })
+})
+
+describe('calculateShare 不変条件', () => {
+  // 不変条件 1: 合計制約 — Σ share(partᵢ, whole) = 1
+  it('合計制約: 全パーツの構成比合計 = 1', () => {
+    const parts = [300_000, 200_000, 150_000, 350_000]
+    const whole = parts.reduce((s, p) => s + p, 0)
+    const shares = parts.map((p) => calculateShare(p, whole))
+    const sum = shares.reduce((s, r) => s + r, 0)
+    expect(sum).toBeCloseTo(1, 10)
+  })
+
+  // 不変条件 2: 値域 [0, 1] — 全パーツが非負なら構成比は [0, 1]
+  it('値域: 非負パーツの構成比は [0, 1]', () => {
+    const cases = [
+      { part: 0, whole: 1_000_000 },
+      { part: 500_000, whole: 1_000_000 },
+      { part: 1_000_000, whole: 1_000_000 },
+      { part: 1, whole: 10_000_000 },
+    ]
+    for (const { part, whole } of cases) {
+      const share = calculateShare(part, whole)
+      expect(share).toBeGreaterThanOrEqual(0)
+      expect(share).toBeLessThanOrEqual(1)
+    }
+  })
+
+  // 不変条件 3: 再構成 — share × whole = part
+  it('再構成: share × whole = part', () => {
+    const cases = [
+      { part: 300_000, whole: 1_000_000 },
+      { part: 1, whole: 3 },
+      { part: 50_000_000, whole: 100_000_000 },
+    ]
+    for (const { part, whole } of cases) {
+      const share = calculateShare(part, whole)
+      expect(share * whole).toBeCloseTo(part, 5)
+    }
+  })
+
+  // 不変条件 4: ゼロ安全性
+  it('ゼロ安全性: whole=0 は常に 0', () => {
+    for (const p of [0, 100, 1_000_000]) {
+      expect(calculateShare(p, 0)).toBe(0)
+    }
+  })
+
+  // 不変条件 5: パラメトリック — ランダム入力で合計制約が保持される
+  it('パラメトリック: ランダム分割の構成比合計 = 1', () => {
+    for (let trial = 0; trial < 50; trial++) {
+      const n = 3 + Math.floor(Math.random() * 8)
+      const parts = Array.from({ length: n }, () => Math.random() * 1_000_000)
+      const whole = parts.reduce((s, p) => s + p, 0)
+      if (whole === 0) continue
+      const shares = parts.map((p) => calculateShare(p, whole))
+      const sum = shares.reduce((s, r) => s + r, 0)
+      expect(sum).toBeCloseTo(1, 8)
+    }
+  })
+})
+
+/* ── calculateGrossProfitRate（粗利率） ── */
+
+describe('calculateGrossProfitRate (pragmatic)', () => {
+  it('基本計算: grossProfit / sales', () => {
+    expect(calculateGrossProfitRate(300_000, 1_000_000)).toBeCloseTo(0.3)
+  })
+  it('sales=0 は 0', () => {
+    expect(calculateGrossProfitRate(100_000, 0)).toBe(0)
+  })
+  it('grossProfit=0 は 0', () => {
+    expect(calculateGrossProfitRate(0, 1_000_000)).toBe(0)
+  })
+  it('赤字（負の粗利）は負の率', () => {
+    expect(calculateGrossProfitRate(-50_000, 1_000_000)).toBeCloseTo(-0.05)
+  })
+})
+
+describe('calculateGrossProfitRate 不変条件', () => {
+  const scenarios = [
+    { label: '標準', gp: 300_000, sales: 1_000_000 },
+    { label: '高利益', gp: 450_000, sales: 1_000_000 },
+    { label: '低利益', gp: 50_000, sales: 1_000_000 },
+    { label: '赤字', gp: -100_000, sales: 1_000_000 },
+    { label: '微小', gp: 1, sales: 3 },
+    { label: '大規模', gp: 15_000_000, sales: 50_000_000 },
+  ]
+
+  // 不変条件 1: 再構成 — rate × sales = grossProfit
+  for (const s of scenarios) {
+    it(`再構成: rate × sales = grossProfit [${s.label}]`, () => {
+      const rate = calculateGrossProfitRate(s.gp, s.sales)
+      expect(rate * s.sales).toBeCloseTo(s.gp, 5)
+    })
+  }
+
+  // 不変条件 2: 値域 — 正常なケースでは rate < 1（粗利 < 売上）
+  it('値域: 粗利 < 売上 なら rate < 1', () => {
+    for (const s of scenarios.filter((s) => s.gp < s.sales)) {
+      const rate = calculateGrossProfitRate(s.gp, s.sales)
+      expect(rate).toBeLessThan(1)
+    }
+  })
+
+  // 不変条件 3: 単調性 — gp₁ > gp₂ ⇒ rate₁ > rate₂
+  it('単調性: 粗利が大きいほど粗利率が大きい', () => {
+    const sales = 1_000_000
+    const r1 = calculateGrossProfitRate(200_000, sales)
+    const r2 = calculateGrossProfitRate(300_000, sales)
+    const r3 = calculateGrossProfitRate(400_000, sales)
+    expect(r1).toBeLessThan(r2)
+    expect(r2).toBeLessThan(r3)
+  })
+
+  // 不変条件 4: ゼロ安全性
+  it('ゼロ安全性: sales=0 は常に 0', () => {
+    for (const gp of [-100_000, 0, 100_000]) {
+      expect(calculateGrossProfitRate(gp, 0)).toBe(0)
+    }
   })
 })
 

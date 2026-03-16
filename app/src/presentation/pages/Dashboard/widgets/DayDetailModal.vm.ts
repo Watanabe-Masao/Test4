@@ -5,7 +5,12 @@
  * DayDetailModal.tsx はこのモジュールから関数・型をインポートして描画のみを行う。
  */
 import { formatCurrency, formatPercent } from '@/domain/formatting'
-import { calculateAchievementRate, calculateTransactionValue } from '@/domain/calculations/utils'
+import {
+  calculateAchievementRate,
+  calculateYoYRatio,
+  calculateShare,
+  calculateTransactionValue,
+} from '@/domain/calculations/utils'
 import type { DailyRecord, DateRange, ComparisonFrame } from '@/domain/models'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import type { PrevYearData } from '@/application/hooks'
@@ -48,7 +53,7 @@ export function computeCoreMetrics(
   const cumDiff = cumSales - cumBudget
   const cumAch_pragmatic = calculateAchievementRate(cumSales, cumBudget)
   const pySales = prevYear.daily.get(toDateKeyFromParts(year, month, day))?.sales ?? 0
-  const pyRatio_pragmatic = calculateAchievementRate(actual, pySales)
+  const pyRatio_pragmatic = calculateYoYRatio(actual, pySales)
   const dayOfWeek = DOW_NAMES[new Date(year, month - 1, day).getDay()]
 
   return {
@@ -95,8 +100,8 @@ export function computeCustomerMetrics(
   const pyTxVal = calculateTransactionValue(pySales, pyCust)
   const cumTxVal = calculateTransactionValue(cumSales, cumCustomers)
   const cumPrevTxVal = calculateTransactionValue(cumPrevYear, cumPrevCustomers)
-  const custRatio_pragmatic = calculateAchievementRate(dayCust, pyCust)
-  const txValRatio_pragmatic = calculateAchievementRate(dayTxVal, pyTxVal)
+  const custRatio_pragmatic = calculateYoYRatio(dayCust, pyCust)
+  const txValRatio_pragmatic = calculateYoYRatio(dayTxVal, pyTxVal)
 
   return {
     dayCust,
@@ -251,7 +256,7 @@ export function computeBreakdown(record: DailyRecord): BreakdownViewModel {
 }
 
 export function computeCostItemRatio(item: CostItem, totalPrice: number): number {
-  return calculateAchievementRate(Math.abs(item.price), totalPrice)
+  return calculateShare(Math.abs(item.price), totalPrice)
 }
 
 // ── Formatting helpers (delegate to domain, keep VM as single import point) ──
