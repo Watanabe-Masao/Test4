@@ -121,4 +121,8 @@ export interface WidgetContext {
   onPrevYearDetail: (type: 'sameDow' | 'sameDate') => void
   /** 通貨単位設定に連動するフォーマッタ（千円/円切替対応） */
   fmtCurrency: CurrencyFormatter
+  /** 前年店舗別値入率（DuckDB UNION query 結果）。date_key 範囲で前年データを集約 */
+  prevYearStoreMarkupRates?: ReadonlyMap<string, number>
+  /** 前年全店値入率（加重平均、×100済み %） */
+  prevYearTotalMarkupRate?: number
 }

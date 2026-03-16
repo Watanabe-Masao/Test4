@@ -88,6 +88,10 @@ export interface UnifiedWidgetContext {
   readonly comparisonFrame?: ComparisonFrame
   readonly dowGap?: DowGapAnalysis
   readonly onPrevYearDetail?: (type: 'sameDow' | 'sameDate') => void
+  /** 前年店舗別値入率（DuckDB UNION query 結果）。date_key 範囲で前年データを集約 */
+  readonly prevYearStoreMarkupRates?: ReadonlyMap<string, number>
+  /** 前年全店値入率（加重平均、×100済み %） */
+  readonly prevYearTotalMarkupRate?: number
 
   // ── Insight 固有 ──
   readonly insightData?: InsightData

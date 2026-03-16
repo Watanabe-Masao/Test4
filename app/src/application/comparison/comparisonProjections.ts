@@ -79,11 +79,7 @@ export function buildKpiProjection(
   // 月間フル集計用に elapsedDays なしで再構築する。
   // activePreset に関わらず常に prevYearSameDow を指定し、
   // sameDayOfWeek alignmentMode を確保する。
-  const sameDowPeriod2 = applyPreset(
-    fullMonthPeriod1,
-    'prevYearSameDow',
-    periodSelection.period2,
-  )
+  const sameDowPeriod2 = applyPreset(fullMonthPeriod1, 'prevYearSameDow', periodSelection.period2)
   const sameDowScope = buildComparisonScope({
     ...periodSelection,
     period1: fullMonthPeriod1,

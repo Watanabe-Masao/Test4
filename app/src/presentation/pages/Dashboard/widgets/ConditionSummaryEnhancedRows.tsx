@@ -62,11 +62,17 @@ export const StoreTableHeader = memo(function StoreTableHeader({
 
   if (metric === 'markupRate') {
     return (
-      <TableHeaderRow style={{ gridTemplateColumns: '1.2fr 1fr 1fr 1fr' }}>
+      <TableHeaderRow
+        style={{
+          gridTemplateColumns: showYoY ? '1.2fr 1fr 1fr 1fr 1fr 1fr' : '1.2fr 1fr 1fr 1fr',
+        }}
+      >
         <TableHeaderCell>店名</TableHeaderCell>
         <TableHeaderCell $align="right">予算</TableHeaderCell>
         <TableHeaderCell $align="right">実績</TableHeaderCell>
         <TableHeaderCell $align="right">差異</TableHeaderCell>
+        {showYoY && <TableHeaderCell $align="right">前年</TableHeaderCell>}
+        {showYoY && <TableHeaderCell $align="right">前年差</TableHeaderCell>}
       </TableHeaderRow>
     )
   }
@@ -154,7 +160,10 @@ export const StoreRow = memo(function StoreRow({
             </MonoSm>
           )}
           {showYoY && (
-            <DiffSpan $positive={(row.yoy ?? 0) >= 0} style={{ textAlign: 'right', display: 'block' }}>
+            <DiffSpan
+              $positive={(row.yoy ?? 0) >= 0}
+              style={{ textAlign: 'right', display: 'block' }}
+            >
               {row.yoy != null ? `${row.yoy >= 0 ? '+' : ''}${row.yoy.toFixed(2)}pp` : '—'}
             </DiffSpan>
           )}
@@ -186,7 +195,11 @@ export const StoreRow = memo(function StoreRow({
         $clickable={!!onStoreClick}
         onClick={onStoreClick ? () => onStoreClick(row.storeId) : undefined}
       >
-        <StoreRowGrid style={{ gridTemplateColumns: '1.2fr 1fr 1fr 1fr' }}>
+        <StoreRowGrid
+          style={{
+            gridTemplateColumns: showYoY ? '1.2fr 1fr 1fr 1fr 1fr 1fr' : '1.2fr 1fr 1fr 1fr',
+          }}
+        >
           <StoreName>{row.storeName}</StoreName>
           <MonoSm style={{ textAlign: 'right' }}>{fmtValue(row.budget, true)}</MonoSm>
           <MonoMd $bold style={{ textAlign: 'right', color: c }}>
@@ -196,6 +209,19 @@ export const StoreRow = memo(function StoreRow({
             {row.diff >= 0 ? '+' : ''}
             {row.diff.toFixed(2)}pp
           </DiffSpan>
+          {showYoY && (
+            <MonoSm style={{ textAlign: 'right' }}>
+              {row.ly != null ? fmtValue(row.ly, true) : '—'}
+            </MonoSm>
+          )}
+          {showYoY && (
+            <DiffSpan
+              $positive={(row.yoy ?? 0) >= 0}
+              style={{ textAlign: 'right', display: 'block' }}
+            >
+              {row.yoy != null ? `${row.yoy >= 0 ? '+' : ''}${row.yoy.toFixed(2)}pp` : '—'}
+            </DiffSpan>
+          )}
         </StoreRowGrid>
       </StoreRowWrapper>
     )

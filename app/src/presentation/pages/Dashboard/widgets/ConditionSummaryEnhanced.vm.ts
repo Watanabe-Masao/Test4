@@ -179,9 +179,11 @@ function extractLyDiscountRate(
 ): number | null {
   if (!prevYearMonthlyKpi.hasPrevYear) return null
 
-  const filter = isElapsed && elapsedDays != null
-    ? (c: { storeId: string; mappedDay: number }) => c.storeId === storeId && c.mappedDay <= elapsedDays
-    : (c: { storeId: string }) => c.storeId === storeId
+  const filter =
+    isElapsed && elapsedDays != null
+      ? (c: { storeId: string; mappedDay: number }) =>
+          c.storeId === storeId && c.mappedDay <= elapsedDays
+      : (c: { storeId: string }) => c.storeId === storeId
 
   const contributions = prevYearMonthlyKpi.sameDow.storeContributions.filter(filter)
   if (contributions.length === 0) return null
@@ -217,6 +219,10 @@ export interface BuildRowsInput {
   readonly daysInMonth: number
   readonly prevYear: PrevYearData
   readonly prevYearMonthlyKpi: PrevYearMonthlyKpi
+  /** 前年店舗別値入率（DuckDB UNION query 結果、×100済み %） */
+  readonly prevYearStoreMarkupRates?: ReadonlyMap<string, number>
+  /** 前年全店値入率（DuckDB 加重平均、×100済み %） */
+  readonly prevYearTotalMarkupRate?: number
 }
 
 export function buildRows(input: BuildRowsInput): readonly EnhancedRow[] {
@@ -242,6 +248,9 @@ export function buildRows(input: BuildRowsInput): readonly EnhancedRow[] {
       yoy = computeYoY(actual, ly, def.isRate)
     } else if (metric === 'discountRate') {
       ly = extractLyDiscountRate(storeId, input.prevYearMonthlyKpi, isElapsed, elapsedDays)
+      yoy = computeYoY(actual, ly, true) // pp diff
+    } else if (metric === 'markupRate' && input.prevYearStoreMarkupRates) {
+      ly = input.prevYearStoreMarkupRates.get(storeId) ?? null
       yoy = computeYoY(actual, ly, true) // pp diff
     }
 
@@ -374,6 +383,9 @@ export function buildTotalFromResult(
         yoy = computeYoY(actual, ly, true) // pp diff
       }
     }
+  } else if (metric === 'markupRate' && input.prevYearTotalMarkupRate != null) {
+    ly = input.prevYearTotalMarkupRate
+    yoy = computeYoY(actual, ly, true) // pp diff
   }
 
   const gpBeforeConsumable = metric === 'gpRate' ? computeGpBeforeConsumable(result) * 100 : null
@@ -732,6 +744,102 @@ export function buildDailyDiscountRateYoYRows(
     const cumCurRate = cumCurGross > 0 ? (cumCurDiscount / cumCurGross) * 100 : 0
     const cumPrevGross = cumPrevSales + cumPrevDiscount
     const cumPrevRate = cumPrevGross > 0 ? (cumPrevDiscount / cumPrevGross) * 100 : 0
+
+    rows.push({
+      day,
+      curRate,
+      prevRate,
+      diff: curRate - prevRate,
+      cumCurRate,
+      cumPrevRate,
+      cumDiff: cumCurRate - cumPrevRate,
+    })
+  }
+  return rows
+}
+
+// ─── Daily Markup Rate YoY ──────────────────────────────
+
+/** 日別値入率前年比行（日別 + 累計） */
+export interface DailyMarkupRateYoYRow {
+  readonly day: number
+  /** 当年日別値入率 (×100済) */
+  readonly curRate: number
+  /** 前年日別値入率 (×100済) */
+  readonly prevRate: number
+  /** 日別差異 (pp) */
+  readonly diff: number
+  /** 当年累計値入率 (×100済) */
+  readonly cumCurRate: number
+  /** 前年累計値入率 (×100済) */
+  readonly cumPrevRate: number
+  /** 累計差異 (pp) */
+  readonly cumDiff: number
+}
+
+/**
+ * 店舗の日別値入率前年比を構築する。
+ *
+ * 当年: StoreResult.daily から日別の purchase/flowers/directProduce/interStore の
+ *       cost/price を合算して値入率を算出。
+ * 前年: DuckDB queryStoreDailyMarkupRate の結果（store × day）を使用。
+ * 累計は cost/price の running total から率を再計算（率の平均ではない）。
+ */
+export function buildDailyMarkupRateYoYRows(
+  sr: StoreResult,
+  prevDailyData: ReadonlyMap<number, { totalCost: number; totalPrice: number }>,
+  elapsedDays: number,
+  daysInMonth: number,
+): readonly DailyMarkupRateYoYRow[] {
+  const effectiveElapsed = elapsedDays ?? daysInMonth
+  const rows: DailyMarkupRateYoYRow[] = []
+
+  let cumCurCost = 0
+  let cumCurPrice = 0
+  let cumPrevCost = 0
+  let cumPrevPrice = 0
+
+  for (let day = 1; day <= effectiveElapsed; day++) {
+    const dailyRecord = sr.daily.get(day)
+
+    // 当年: 全カテゴリの cost/price を合算
+    let curCost = 0
+    let curPrice = 0
+    if (dailyRecord) {
+      curCost =
+        dailyRecord.purchase.cost +
+        dailyRecord.flowers.cost +
+        dailyRecord.directProduce.cost +
+        dailyRecord.interStoreIn.cost +
+        dailyRecord.interStoreOut.cost +
+        dailyRecord.interDepartmentIn.cost +
+        dailyRecord.interDepartmentOut.cost
+      curPrice =
+        dailyRecord.purchase.price +
+        dailyRecord.flowers.price +
+        dailyRecord.directProduce.price +
+        dailyRecord.interStoreIn.price +
+        dailyRecord.interStoreOut.price +
+        dailyRecord.interDepartmentIn.price +
+        dailyRecord.interDepartmentOut.price
+    }
+
+    const curRate = curPrice > 0 ? ((curPrice - curCost) / curPrice) * 100 : 0
+
+    // 前年
+    const prev = prevDailyData.get(day)
+    const prevCost = prev?.totalCost ?? 0
+    const prevPrice = prev?.totalPrice ?? 0
+    const prevRate = prevPrice > 0 ? ((prevPrice - prevCost) / prevPrice) * 100 : 0
+
+    // 累計
+    cumCurCost += curCost
+    cumCurPrice += curPrice
+    cumPrevCost += prevCost
+    cumPrevPrice += prevPrice
+
+    const cumCurRate = cumCurPrice > 0 ? ((cumCurPrice - cumCurCost) / cumCurPrice) * 100 : 0
+    const cumPrevRate = cumPrevPrice > 0 ? ((cumPrevPrice - cumPrevCost) / cumPrevPrice) * 100 : 0
 
     rows.push({
       day,

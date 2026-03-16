@@ -59,9 +59,13 @@ function applyPrevYearData(
       prevYearCategoryTimeSales: payload.prevYearCategoryTimeSales,
       prevYearFlowers: payload.prevYearFlowers,
       ...(payload.prevYearPurchase && { prevYearPurchase: payload.prevYearPurchase }),
-      ...(payload.prevYearDirectProduce && { prevYearDirectProduce: payload.prevYearDirectProduce }),
+      ...(payload.prevYearDirectProduce && {
+        prevYearDirectProduce: payload.prevYearDirectProduce,
+      }),
       ...(payload.prevYearInterStoreIn && { prevYearInterStoreIn: payload.prevYearInterStoreIn }),
-      ...(payload.prevYearInterStoreOut && { prevYearInterStoreOut: payload.prevYearInterStoreOut }),
+      ...(payload.prevYearInterStoreOut && {
+        prevYearInterStoreOut: payload.prevYearInterStoreOut,
+      }),
     },
     // 前年データは補足データのため dataVersion はインクリメントしない
     // (計算エンジンの再起動を防止)
