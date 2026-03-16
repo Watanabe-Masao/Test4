@@ -1,9 +1,8 @@
-import { useState, useMemo, useEffect, useRef, memo, useCallback } from 'react'
+import { useState, useMemo, memo, useCallback } from 'react'
 import type { WidgetContext } from './types'
 import {
   type MetricKey,
   type EnhancedTotal,
-  type DailyMarkupRateYoYRow,
   METRIC_DEFS,
   buildRows,
   buildTotalFromResult,
@@ -17,8 +16,7 @@ import {
 import { formatPercent } from '@/domain/formatting'
 import { StoreRow, StoreTableHeader } from './ConditionSummaryEnhancedRows'
 import { ConditionSummaryDailyModal } from './ConditionSummaryDailyModal'
-import { queryStoreDailyMarkupRate } from '@/infrastructure/duckdb/queries/purchaseComparison'
-import { dateRangeToKeys } from '@/domain/models'
+import { useStoreDailyMarkupRateQuery } from '@/application/hooks/duckdb/useStoreDailyMarkupRateQuery'
 import {
   DashWrapper,
   Header,
@@ -154,74 +152,32 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
   const dailySr = dailyStoreId ? ctx.allStoreResults.get(dailyStoreId) : null
   const dailyStoreName = dailyStoreId ? (ctx.stores.get(dailyStoreId)?.name ?? dailyStoreId) : ''
 
-  // ── 値入率日別前年比（DuckDB query、daily modal 用） ──
-  const [markupRateYoYState, setMarkupRateYoYState] = useState<{
-    storeId: string | null
-    rows: readonly DailyMarkupRateYoYRow[]
-  }>({ storeId: null, rows: [] })
-  const markupQuerySeq = useRef(0)
+  // ── 値入率日別前年比（application hook 経由、daily modal 用） ──
+  const markupQueryStoreId =
+    dailyStoreId != null && activeMetric === 'markupRate' ? dailyStoreId : null
+  const markupDailyQuery = useStoreDailyMarkupRateQuery(
+    ctx.duckConn,
+    ctx.duckDataVersion ?? 0,
+    ctx.prevYearDateRange ?? null,
+    markupQueryStoreId,
+  )
 
-  useEffect(() => {
-    const wantQuery =
-      dailyStoreId != null &&
-      dailySr != null &&
-      activeMetric === 'markupRate' &&
-      ctx.duckConn != null &&
-      ctx.prevYearDateRange != null &&
-      (ctx.duckDataVersion ?? 0) > 0
-
-    if (!wantQuery) {
-      ++markupQuerySeq.current
-      return
-    }
-
-    const conn = ctx.duckConn!
-    const prevRange = ctx.prevYearDateRange!
-    const seq = ++markupQuerySeq.current
-    let cancelled = false
-    const { fromKey, toKey } = dateRangeToKeys(prevRange)
-
-    ;(async () => {
-      try {
-        const allRows = await queryStoreDailyMarkupRate(conn, fromKey, toKey, [dailyStoreId!])
-        if (cancelled || seq !== markupQuerySeq.current) return
-        // day → { totalCost, totalPrice } のマップを構築
-        const byDay = new Map<number, { totalCost: number; totalPrice: number }>()
-        for (const r of allRows) {
-          const existing = byDay.get(r.day)
-          if (existing) {
-            existing.totalCost += r.totalCost
-            existing.totalPrice += r.totalPrice
-          } else {
-            byDay.set(r.day, { totalCost: r.totalCost, totalPrice: r.totalPrice })
-          }
-        }
-        setMarkupRateYoYState({
-          storeId: dailyStoreId,
-          rows: buildDailyMarkupRateYoYRows(dailySr!, byDay, effectiveElapsed, daysInMonth),
-        })
-      } catch {
-        // DuckDB エラー時は静かに無視
-      }
-    })()
-
-    return () => {
-      cancelled = true
-    }
+  const effectiveMarkupYoYRows = useMemo(() => {
+    if (markupDailyQuery.queryStoreId !== dailyStoreId || !dailySr) return []
+    return buildDailyMarkupRateYoYRows(
+      dailySr,
+      markupDailyQuery.data,
+      effectiveElapsed,
+      daysInMonth,
+    )
   }, [
+    markupDailyQuery.queryStoreId,
+    markupDailyQuery.data,
     dailyStoreId,
     dailySr,
-    activeMetric,
-    ctx.duckConn,
-    ctx.duckDataVersion,
-    ctx.prevYearDateRange,
     effectiveElapsed,
     daysInMonth,
   ])
-
-  // store が変わったら古いデータを表示しない
-  const effectiveMarkupYoYRows =
-    markupRateYoYState.storeId === dailyStoreId ? markupRateYoYState.rows : []
 
   return (
     <DashWrapper>

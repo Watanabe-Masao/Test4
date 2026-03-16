@@ -7,7 +7,7 @@
  *
  * 比較関連は useComparisonModule() 1本に統合済み。
  */
-import { useState, useCallback, useMemo, useEffect, useRef } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import type { UnifiedWidgetContext } from '@/presentation/components/widgets'
 import type { MetricId, DateRange } from '@/domain/models'
 import { useCalculation, useStoreSelection, useExplanations } from '@/application/hooks'
@@ -25,8 +25,7 @@ import { detectDataMaxDay } from '@/domain/calculations/utils'
 import { useDeptKpiView } from '@/application/hooks/useDeptKpiView'
 import { usePeriodSelectionStore } from '@/application/stores/periodSelectionStore'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
-import { queryStoreCostPrice } from '@/infrastructure/duckdb/queries/purchaseComparison'
-import { dateRangeToKeys } from '@/domain/models'
+import { useStoreCostPriceQuery } from '@/application/hooks/duckdb/useStoreCostPriceQuery'
 
 interface UseUnifiedWidgetContextResult {
   /** 統一コンテキスト（currentResult が null の場合は null） */
@@ -104,43 +103,12 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
   // DuckDB エンジン初期化
   const duck = useDuckDB(data, targetYear, targetMonth, repo)
 
-  // ── 前年店舗別仕入額（DuckDB query、額で保持 — 禁止事項 #10） ──
-  const [prevYearStoreCostPrice, setPrevYearStoreCostPrice] = useState<
-    ReadonlyMap<string, { cost: number; price: number }> | undefined
-  >(undefined)
-  const prevYearMarkupQuerySeq = useRef(0)
-
-  useEffect(() => {
-    const conn = duck.conn
-    const prevRange = comparison.prevYearDateRange
-    if (!conn || !prevRange || duck.dataVersion === 0) {
-      ++prevYearMarkupQuerySeq.current
-      return
-    }
-
-    const seq = ++prevYearMarkupQuerySeq.current
-    let cancelled = false
-    const { fromKey, toKey } = dateRangeToKeys(prevRange)
-
-    ;(async () => {
-      try {
-        const rows = await queryStoreCostPrice(conn, fromKey, toKey)
-        if (!cancelled && seq === prevYearMarkupQuerySeq.current) {
-          const map = new Map<string, { cost: number; price: number }>()
-          for (const r of rows) {
-            map.set(r.storeId, { cost: r.totalCost, price: r.totalPrice })
-          }
-          setPrevYearStoreCostPrice(map)
-        }
-      } catch {
-        // DuckDB エラー時は静かに無視（値入率前年比が表示されないだけ）
-      }
-    })()
-
-    return () => {
-      cancelled = true
-    }
-  }, [duck.conn, duck.dataVersion, comparison.prevYearDateRange])
+  // ── 前年店舗別仕入額（application hook 経由、額で保持 — 禁止事項 #10） ──
+  const { data: prevYearStoreCostPrice } = useStoreCostPriceQuery(
+    duck.conn,
+    duck.dataVersion,
+    comparison.prevYearDateRange ?? null,
+  )
 
   // Store name map for category comparison
   const storeNames = useMemo(() => {

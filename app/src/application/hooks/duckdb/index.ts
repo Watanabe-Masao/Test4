@@ -36,6 +36,7 @@ export type {
 export { useDuckDBDeptKpi, useDuckDBDeptKpiTrend } from './useDeptKpiQueries'
 export type {
   DuckDBDeptKpiResult,
+  DeptKpiSummaryResolved,
   DeptKpiRankedRow,
   DeptKpiSummaryRow,
   DeptKpiMonthlyTrendRow,
@@ -104,6 +105,17 @@ export {
   useDuckDBAggregatedDailyRecords,
 } from './useDailyRecordQueries'
 export type { DailyRecordRow } from './useDailyRecordQueries'
+
+// 前年店舗別仕入額
+export { useStoreCostPriceQuery } from './useStoreCostPriceQuery'
+export type { StoreCostPriceMap, StoreCostPriceQueryResult } from './useStoreCostPriceQuery'
+
+// 店舗日別仕入額
+export { useStoreDailyMarkupRateQuery } from './useStoreDailyMarkupRateQuery'
+export type {
+  DailyMarkupCostPriceMap,
+  StoreDailyMarkupRateQueryResult,
+} from './useStoreDailyMarkupRateQuery'
 
 // 比較コンテキスト
 export { useComparisonContextQuery } from './useComparisonContextQuery'
