@@ -4,6 +4,66 @@ import { safeDivide } from './utils'
  * 予算分析
  */
 
+// ── 汎用予算ユーティリティ ──
+
+/**
+ * 日別予算配分に基づく期間按分
+ *
+ * 月間予算（売上予算・粗利予算等）を、日別予算の配分比率で経過期間分に按分する。
+ * 均等按分ではなく、日別予算の実際の配分を反映する。
+ *
+ * @param monthlyTotal 月間合計値（予算・粗利予算など）
+ * @param monthlyBudget 月間売上予算（配分比率の分母）
+ * @param budgetDaily 日別売上予算（配分比率の計算元）
+ * @param elapsedDays 経過日数
+ * @returns 按分後の値。monthlyBudget=0 の場合 0
+ *
+ * @invariant elapsedDays >= daysInMonth の場合、monthlyTotal を返す
+ * @invariant elapsedDays === 0 の場合、0 を返す
+ *
+ * @example
+ * // 粗利予算の按分:
+ * const elapsedGpBudget = prorateBudget(gpBudget, salesBudget, budgetDaily, 15)
+ */
+export function prorateBudget(
+  monthlyTotal: number,
+  monthlyBudget: number,
+  budgetDaily: ReadonlyMap<number, number> | Readonly<Record<number, number>>,
+  elapsedDays: number,
+): number {
+  if (elapsedDays <= 0 || monthlyBudget === 0) return 0
+
+  let periodBudgetSum = 0
+  for (let d = 1; d <= elapsedDays; d++) {
+    periodBudgetSum +=
+      budgetDaily instanceof Map ? (budgetDaily.get(d) ?? 0) : ((budgetDaily as Record<number, number>)[d] ?? 0)
+  }
+
+  return safeDivide(monthlyTotal * periodBudgetSum, monthlyBudget, 0)
+}
+
+/**
+ * 線形予測（実績 + 日平均 × 残日数）
+ *
+ * 現在までの実績と日平均から月末の着地を予測する。
+ * 3箇所で重複していた計算を集約。
+ *
+ * @param actual 現在までの累計実績
+ * @param elapsedDays 経過日数
+ * @param daysInMonth 月の日数
+ * @returns 月末予測値
+ *
+ * @invariant elapsedDays >= daysInMonth の場合、actual を返す
+ * @invariant elapsedDays === 0 の場合、0 を返す
+ */
+export function projectLinear(actual: number, elapsedDays: number, daysInMonth: number): number {
+  if (elapsedDays <= 0) return 0
+  if (elapsedDays >= daysInMonth) return actual
+  const avgDaily = actual / elapsedDays
+  const remainingDays = daysInMonth - elapsedDays
+  return actual + avgDaily * remainingDays
+}
+
 /** 予算分析の入力パラメータ */
 export interface BudgetAnalysisInput {
   readonly totalSales: number // 実績売上合計

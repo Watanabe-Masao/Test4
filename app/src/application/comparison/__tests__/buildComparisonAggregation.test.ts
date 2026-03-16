@@ -247,6 +247,7 @@ describe('aggregateKpiByAlignment', () => {
       mappedDay: 1,
       sales: 2000,
       customers: 40,
+      discount: 0,
     })
   })
 

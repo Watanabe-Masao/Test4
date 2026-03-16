@@ -141,3 +141,98 @@ describe('INV-CMP-07: 1:1 プリセットの alignmentMap 長 = effectivePeriod1
     expect(scope.alignmentMap).toHaveLength(15)
   })
 })
+
+// ── INV-CMP-08: 月跨ぎ境界値の安全性 ──
+
+describe('INV-CMP-08: 月跨ぎ境界値', () => {
+  // 2月（28日）→ 3月（31日）: 日数が異なる月の比較
+  const FEB_2026: DateRange = {
+    from: { year: 2026, month: 2, day: 1 },
+    to: { year: 2026, month: 2, day: 28 },
+  }
+
+  // 1月（31日）→ 2月（28日）の prevMonth 比較
+  const JAN_2026: DateRange = {
+    from: { year: 2026, month: 1, day: 1 },
+    to: { year: 2026, month: 1, day: 31 },
+  }
+
+  it('31日月→28日月の prevMonth: alignmentMap が31日分生成される', () => {
+    // 3月(31日) の前月 = 2月(28日)。位置ベースなので day29-31 は3月にはみ出す。
+    // alignmentMap は period1 の日数（31日）分が常に生成される。
+    const selection = makePeriodSelection(MARCH_2026, 'prevMonth')
+    const scope = buildComparisonScope(selection)
+    expect(scope.alignmentMap).toHaveLength(31)
+
+    // 最後のエントリの sourceDate が有効な日付であること（Date正規化が壊れていない）
+    const last = scope.alignmentMap[30]
+    expect(last.sourceDate.day).toBeGreaterThan(0)
+    expect(last.sourceDate.month).toBeGreaterThan(0)
+  })
+
+  it('28日月→31日月の prevMonth: alignmentMap が28日分生成される', () => {
+    const selection = makePeriodSelection(FEB_2026, 'prevMonth')
+    const scope = buildComparisonScope(selection)
+    expect(scope.alignmentMap).toHaveLength(28)
+  })
+
+  it('同曜日比較で月末付近: sourceDate が月跨ぎしても曜日は一致する', () => {
+    // 3月31日の前年同曜日は2月末付近に跨ぐ可能性がある
+    const selection = makePeriodSelection(MARCH_2026, 'prevYearSameDow')
+    const scope = buildComparisonScope(selection)
+
+    // 月末付近（day 28-31）のエントリを検証
+    const lastEntries = scope.alignmentMap.slice(-4)
+    for (const entry of lastEntries) {
+      expect(getDow(entry.sourceDate)).toBe(getDow(entry.targetDate))
+    }
+  })
+
+  it('同曜日比較で月初: sourceDate が前月にずれても曜日は一致する', () => {
+    // 3月1日の前年同曜日候補は2月に含まれる可能性がある
+    const selection = makePeriodSelection(MARCH_2026, 'prevYearSameDow')
+    const scope = buildComparisonScope(selection)
+
+    const firstEntry = scope.alignmentMap[0]
+    expect(getDow(firstEntry.sourceDate)).toBe(getDow(firstEntry.targetDate))
+    // sourceDate が2月であっても問題ない（月跨ぎ許容）
+  })
+
+  it('1月→前月12月: 年跨ぎでも alignmentMap が正しく生成される', () => {
+    const selection = makePeriodSelection(JAN_2026, 'prevMonth')
+    const scope = buildComparisonScope(selection)
+
+    expect(scope.alignmentMap).toHaveLength(31)
+    // sourceDate は12月のはず
+    expect(scope.alignmentMap[0].sourceDate.year).toBe(2025)
+    expect(scope.alignmentMap[0].sourceDate.month).toBe(12)
+  })
+
+  it('閏年2月29日: prevYearSameMonth で前年2月は28日しかない', () => {
+    // 2028年は閏年。2028年2月の前年比較は2027年2月（28日）
+    const FEB_2028_LEAP: DateRange = {
+      from: { year: 2028, month: 2, day: 1 },
+      to: { year: 2028, month: 2, day: 29 },
+    }
+    const selection = makePeriodSelection(FEB_2028_LEAP, 'prevYearSameMonth')
+    const scope = buildComparisonScope(selection)
+
+    // 29日分の alignmentMap が生成される
+    expect(scope.alignmentMap).toHaveLength(29)
+
+    // 29日目の sourceDate は Date 正規化により 3月1日になる（2027年2月は28日まで）
+    const day29 = scope.alignmentMap[28]
+    // sourceDate が有効な日付であること
+    expect(day29.sourceDate.day).toBeGreaterThan(0)
+  })
+
+  it('queryRanges に月跨ぎ分の月が含まれる', () => {
+    // 同曜日で3月を比較する場合、前年2月のデータも必要
+    const selection = makePeriodSelection(MARCH_2026, 'prevYearSameDow')
+    const scope = buildComparisonScope(selection)
+
+    // queryRanges に2025年2月が含まれること（月跨ぎ対応）
+    const hasFeb2025 = scope.queryRanges.some((q) => q.year === 2025 && q.month === 2)
+    expect(hasFeb2025).toBe(true)
+  })
+})

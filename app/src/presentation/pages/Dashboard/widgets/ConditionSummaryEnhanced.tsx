@@ -108,8 +108,7 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
             daysInMonth,
             prevYear: ctx.prevYear,
             prevYearMonthlyKpi: ctx.prevYearMonthlyKpi,
-            prevYearStoreMarkupRates: ctx.prevYearStoreMarkupRates,
-            prevYearTotalMarkupRate: ctx.prevYearTotalMarkupRate,
+            prevYearStoreCostPrice: ctx.prevYearStoreCostPrice,
           }
         : null,
     [
@@ -120,8 +119,7 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
       daysInMonth,
       ctx.prevYear,
       ctx.prevYearMonthlyKpi,
-      ctx.prevYearStoreMarkupRates,
-      ctx.prevYearTotalMarkupRate,
+      ctx.prevYearStoreCostPrice,
     ],
   )
 
@@ -136,8 +134,8 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
   const hasYoYData =
     ((activeMetric === 'sales' || activeMetric === 'discountRate') && ctx.prevYear.hasPrevYear) ||
     (activeMetric === 'markupRate' &&
-      ctx.prevYearStoreMarkupRates != null &&
-      ctx.prevYearStoreMarkupRates.size > 0)
+      ctx.prevYearStoreCostPrice != null &&
+      ctx.prevYearStoreCostPrice.size > 0)
 
   const handleClose = useCallback(() => {
     setActiveMetric(null)
