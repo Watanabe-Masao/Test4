@@ -298,7 +298,8 @@ function StoreLocationEditor({
         {location ? (
           <>
             <Badge $color={palette.successDark}>
-              {location.resolvedName ?? `${location.latitude.toFixed(2)}, ${location.longitude.toFixed(2)}`}
+              {location.resolvedName ??
+                `${location.latitude.toFixed(2)}, ${location.longitude.toFixed(2)}`}
             </Badge>
             <SmallButton onClick={() => setIsEditing(true)}>変更</SmallButton>
             <SmallButton $variant="danger" onClick={() => onClear(storeId)}>
