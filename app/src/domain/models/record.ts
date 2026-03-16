@@ -63,3 +63,10 @@ export type { BudgetData, InventoryConfig } from './BudgetData'
 export { mergeInventoryConfig } from './BudgetData'
 export type { StoreDaySummary, StoreDaySummaryIndex, StoreDaySummaryCache } from './StoreDaySummary'
 export type { ValidationMessage } from './ValidationMessage'
+export type {
+  WeatherCategory,
+  HourlyWeatherRecord,
+  DailyWeatherSummary,
+  StoreLocation,
+  GeocodingResult,
+} from './WeatherData'

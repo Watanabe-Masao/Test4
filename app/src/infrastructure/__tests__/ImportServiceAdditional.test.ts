@@ -43,6 +43,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   alignmentPolicy: 'sameDayOfWeek' as const,
   conditionConfig: { global: {}, storeOverrides: {} },
   userCategoryLabels: {},
+  storeLocations: {},
 }
 
 // ── createEmptyMonthPartitions ────────────────────────────────────

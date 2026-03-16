@@ -2,6 +2,7 @@
 import type { AlignmentPolicy } from './ComparisonFrame'
 import type { ConditionSummaryConfig } from './ConditionConfig'
 import type { CustomCategoryId } from '../constants/customCategories'
+import type { StoreLocation } from './WeatherData'
 export type { CustomCategoryId as CustomCategory } from '../constants/customCategories'
 import { PRESET_CATEGORY_DEFS, UNCATEGORIZED_CATEGORY_ID } from '../constants/customCategories'
 
@@ -37,6 +38,8 @@ export interface AppSettings {
   readonly prevYearDowOffset: number | null // 曜日オフセット手動指定 (null = 自動計算)
   readonly alignmentPolicy: AlignmentPolicy // 比較期間の合わせ方 (default: 'sameDayOfWeek')
   readonly conditionConfig: ConditionSummaryConfig // コンディションサマリー閾値設定
+  // 天気データ — 店舗位置情報（ジオコーディング結果）
+  readonly storeLocations: Readonly<Record<string, StoreLocation>> // storeId → 位置情報
 }
 
 /** ビュー種別 */
@@ -82,3 +85,4 @@ export type StorageDataType =
   | 'budget'
   | 'summaryCache'
   | 'importHistory'
+  | 'weather'

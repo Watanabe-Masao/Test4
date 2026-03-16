@@ -9,7 +9,7 @@
  */
 
 /** スキーマバージョン（マイグレーション時にインクリメント） */
-export const SCHEMA_VERSION = 3
+export const SCHEMA_VERSION = 4
 
 /** スキーマメタテーブル DDL */
 export const SCHEMA_META_DDL = `
@@ -31,6 +31,7 @@ export const TABLE_NAMES = [
   'budget',
   'inventory_config',
   'app_settings',
+  'weather_hourly',
 ] as const
 
 export type TableName = (typeof TABLE_NAMES)[number]
@@ -211,6 +212,25 @@ CREATE TABLE IF NOT EXISTS app_settings (
   value DOUBLE NOT NULL
 )`
 
+// ── weather_hourly ──
+// ソース: Open-Meteo Historical/Forecast API（時間別天気データ）
+// date_key を主キーとし、月跨ぎでも連続的に保持
+export const WEATHER_HOURLY_DDL = `
+CREATE TABLE IF NOT EXISTS weather_hourly (
+  date_key            VARCHAR NOT NULL,
+  year                INTEGER NOT NULL,
+  month               INTEGER NOT NULL,
+  day                 INTEGER NOT NULL,
+  hour                INTEGER NOT NULL,
+  store_id            VARCHAR NOT NULL,
+  temperature         DOUBLE,
+  humidity            DOUBLE,
+  precipitation       DOUBLE,
+  wind_speed          DOUBLE,
+  weather_code        INTEGER,
+  sunshine_duration   DOUBLE
+)`
+
 /** 全テーブルの DDL 配列 */
 export const ALL_TABLE_DDLS: readonly { readonly name: TableName; readonly ddl: string }[] = [
   { name: 'classified_sales', ddl: CLASSIFIED_SALES_DDL },
@@ -224,6 +244,7 @@ export const ALL_TABLE_DDLS: readonly { readonly name: TableName; readonly ddl: 
   { name: 'budget', ddl: BUDGET_DDL },
   { name: 'inventory_config', ddl: INVENTORY_CONFIG_DDL },
   { name: 'app_settings', ddl: APP_SETTINGS_DDL },
+  { name: 'weather_hourly', ddl: WEATHER_HOURLY_DDL },
 ]
 
 // ── VIEW: store_day_summary ──

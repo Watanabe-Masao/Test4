@@ -33,6 +33,7 @@ const defaultSettings: AppSettings = {
   alignmentPolicy: 'sameDayOfWeek' as const,
   conditionConfig: { global: {}, storeOverrides: {} },
   userCategoryLabels: {},
+  storeLocations: {},
 }
 
 describe('processFileData — 店舗抽出', () => {
