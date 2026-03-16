@@ -7,15 +7,18 @@ import type {
   DailyDetailRow,
   DailyYoYRow,
   DailyDiscountRow,
+  DailyDiscountRateYoYRow,
 } from './ConditionSummaryEnhanced.vm'
 import {
   METRIC_DEFS,
   buildDailyDetailRows,
   buildDailyYoYRows,
   buildDailyDiscountRows,
+  buildDailyDiscountRateYoYRows,
   fmtValue,
   fmtAchievement,
   resultColor,
+  rateDiffColor,
 } from './ConditionSummaryEnhanced.vm'
 import {
   DrillOverlay,
@@ -59,7 +62,7 @@ export const ConditionSummaryDailyModal = memo(function ConditionSummaryDailyMod
   const [showYoY, setShowYoY] = useState(false)
   const def = METRIC_DEFS[metric]
   const isRate = def.isRate
-  const hasYoY = metric === 'sales' && hasPrevYear
+  const hasYoY = (metric === 'sales' || metric === 'discountRate') && hasPrevYear
 
   const rows = useMemo(
     () => buildDailyDetailRows(sr, metric, elapsedDays, daysInMonth),
@@ -68,8 +71,24 @@ export const ConditionSummaryDailyModal = memo(function ConditionSummaryDailyMod
 
   const yoyRows = useMemo(
     () =>
-      hasYoY ? buildDailyYoYRows(sr, sr.storeId, prevYearMonthlyKpi, elapsedDays, daysInMonth) : [],
-    [sr, hasYoY, prevYearMonthlyKpi, elapsedDays, daysInMonth],
+      metric === 'sales' && hasPrevYear
+        ? buildDailyYoYRows(sr, sr.storeId, prevYearMonthlyKpi, elapsedDays, daysInMonth)
+        : [],
+    [sr, metric, hasPrevYear, prevYearMonthlyKpi, elapsedDays, daysInMonth],
+  )
+
+  const discountRateYoYRows = useMemo(
+    () =>
+      metric === 'discountRate' && hasPrevYear
+        ? buildDailyDiscountRateYoYRows(
+            sr,
+            sr.storeId,
+            prevYearMonthlyKpi,
+            elapsedDays,
+            daysInMonth,
+          )
+        : [],
+    [sr, metric, hasPrevYear, prevYearMonthlyKpi, elapsedDays, daysInMonth],
   )
 
   const discountRows = useMemo(
@@ -105,8 +124,10 @@ export const ConditionSummaryDailyModal = memo(function ConditionSummaryDailyMod
         </DrillHeader>
 
         <DailyTableWrapper>
-          {showYoY && hasYoY ? (
+          {showYoY && metric === 'sales' ? (
             <YoYTable rows={yoyRows} fmtCurrency={fmtCurrency} />
+          ) : showYoY && metric === 'discountRate' ? (
+            <DiscountRateYoYTable rows={discountRateYoYRows} />
           ) : metric === 'discountRate' ? (
             <DiscountTable rows={discountRows} fmtCurrency={fmtCurrency} />
           ) : isRate ? (
@@ -251,7 +272,7 @@ function DiscountTable({
   )
 }
 
-// ─── YoY table ───────────────────────────────────────────
+// ─── YoY table (sales) ──────────────────────────────────
 
 function YoYTable({
   rows,
@@ -280,6 +301,53 @@ function YoYTable({
               <DailyTd $bold>{fmtCurrency(r.curActual)}</DailyTd>
               <DailyTd $color={yoyColor} $bold>
                 {r.prevActual > 0 ? fmtAchievement(r.yoy, false) : '—'}
+              </DailyTd>
+            </DailyTr>
+          )
+        })}
+      </tbody>
+    </DailyTable>
+  )
+}
+
+// ─── Discount Rate YoY table ────────────────────────────
+
+function DiscountRateYoYTable({
+  rows,
+}: {
+  readonly rows: readonly DailyDiscountRateYoYRow[]
+}) {
+  return (
+    <DailyTable>
+      <thead>
+        <tr>
+          <DailyTh $align="center">日</DailyTh>
+          <DailyTh>前年</DailyTh>
+          <DailyTh>当年</DailyTh>
+          <DailyTh>差異</DailyTh>
+          <DailyTh>累計前年</DailyTh>
+          <DailyTh>累計当年</DailyTh>
+          <DailyTh>累計差</DailyTh>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((r) => {
+          const diffColor = rateDiffColor(r.diff)
+          const cumDiffColor = rateDiffColor(r.cumDiff)
+          return (
+            <DailyTr key={r.day}>
+              <DailyTd style={{ textAlign: 'center' }}>{r.day}</DailyTd>
+              <DailyTd>{fmtValue(r.prevRate, true)}</DailyTd>
+              <DailyTd $bold>{fmtValue(r.curRate, true)}</DailyTd>
+              <DailyTd $color={diffColor} $bold>
+                {r.diff >= 0 ? '+' : ''}
+                {r.diff.toFixed(2)}pp
+              </DailyTd>
+              <DailyTd>{fmtValue(r.cumPrevRate, true)}</DailyTd>
+              <DailyTd $bold>{fmtValue(r.cumCurRate, true)}</DailyTd>
+              <DailyTd $color={cumDiffColor} $bold>
+                {r.cumDiff >= 0 ? '+' : ''}
+                {r.cumDiff.toFixed(2)}pp
               </DailyTd>
             </DailyTr>
           )

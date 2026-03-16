@@ -654,6 +654,98 @@ export function buildDailyDiscountRows(
   return rows
 }
 
+// ─── Daily Discount Rate YoY ────────────────────────────
+
+/** 日別売変率前年比行（日別 + 累計） */
+export interface DailyDiscountRateYoYRow {
+  readonly day: number
+  /** 当年日別売変率 (×100済) */
+  readonly curRate: number
+  /** 前年日別売変率 (×100済) */
+  readonly prevRate: number
+  /** 日別差異 (pp) */
+  readonly diff: number
+  /** 当年累計売変率 (×100済) */
+  readonly cumCurRate: number
+  /** 前年累計売変率 (×100済) */
+  readonly cumPrevRate: number
+  /** 累計差異 (pp) */
+  readonly cumDiff: number
+}
+
+/**
+ * 店舗の日別売変率前年比を構築する（storeContributions ベース）
+ *
+ * storeContributions から前年の sales + discount を日別に集約し、
+ * discount / (sales + discount) × 100 で前年売変率を算出する。
+ * 累計は sales/discount の running total から率を再計算する（率の単純平均ではない）。
+ */
+export function buildDailyDiscountRateYoYRows(
+  sr: StoreResult,
+  storeId: string,
+  prevYearMonthlyKpi: PrevYearMonthlyKpi,
+  elapsedDays: number,
+  daysInMonth: number,
+): readonly DailyDiscountRateYoYRow[] {
+  if (!prevYearMonthlyKpi.hasPrevYear) return []
+  const effectiveElapsed = elapsedDays ?? daysInMonth
+
+  // 前年: storeContributions から mappedDay 別に sales + discount を集約
+  const prevByDay = new Map<number, { sales: number; discount: number }>()
+  for (const c of prevYearMonthlyKpi.sameDow.storeContributions) {
+    if (c.storeId === storeId) {
+      const existing = prevByDay.get(c.mappedDay)
+      if (existing) {
+        existing.sales += c.sales
+        existing.discount += c.discount
+      } else {
+        prevByDay.set(c.mappedDay, { sales: c.sales, discount: c.discount })
+      }
+    }
+  }
+
+  const rows: DailyDiscountRateYoYRow[] = []
+  let cumCurSales = 0
+  let cumCurDiscount = 0
+  let cumPrevSales = 0
+  let cumPrevDiscount = 0
+
+  for (let day = 1; day <= effectiveElapsed; day++) {
+    const dailyRecord = sr.daily.get(day)
+    const curSales = dailyRecord?.sales ?? 0
+    const curDiscount = dailyRecord?.discountAbsolute ?? 0
+    const curGross = curSales + curDiscount
+    const curRate = curGross > 0 ? (curDiscount / curGross) * 100 : 0
+
+    const prev = prevByDay.get(day)
+    const prevSales = prev?.sales ?? 0
+    const prevDiscount = prev?.discount ?? 0
+    const prevGross = prevSales + prevDiscount
+    const prevRate = prevGross > 0 ? (prevDiscount / prevGross) * 100 : 0
+
+    cumCurSales += curSales
+    cumCurDiscount += curDiscount
+    cumPrevSales += prevSales
+    cumPrevDiscount += prevDiscount
+
+    const cumCurGross = cumCurSales + cumCurDiscount
+    const cumCurRate = cumCurGross > 0 ? (cumCurDiscount / cumCurGross) * 100 : 0
+    const cumPrevGross = cumPrevSales + cumPrevDiscount
+    const cumPrevRate = cumPrevGross > 0 ? (cumPrevDiscount / cumPrevGross) * 100 : 0
+
+    rows.push({
+      day,
+      curRate,
+      prevRate,
+      diff: curRate - prevRate,
+      cumCurRate,
+      cumPrevRate,
+      cumDiff: cumCurRate - cumPrevRate,
+    })
+  }
+  return rows
+}
+
 // ─── Signal Colors ──────────────────────────────────────
 
 export function achievementColor(val: number): string {

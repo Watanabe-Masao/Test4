@@ -126,10 +126,23 @@ export async function loadMonth(
     rowCounts.category_time_sales += prevCts.ctsCount
     rowCounts.time_slots += prevCts.tsCount
 
-    // purchase
+    // purchase (当年)
     rowCounts.purchase = await insertPurchase(conn, db, data.purchase, year, month)
 
-    // special_sales (flowers + directProduce)
+    // purchase (前年) — 追記。date_key で区別（is_prev_year 不要）
+    if (data.prevYearPurchase.records.length > 0) {
+      const prevPurchaseYear = data.prevYearPurchase.records[0].year
+      const prevPurchaseMonth = data.prevYearPurchase.records[0].month
+      rowCounts.purchase += await insertPurchase(
+        conn,
+        db,
+        data.prevYearPurchase,
+        prevPurchaseYear,
+        prevPurchaseMonth,
+      )
+    }
+
+    // special_sales (flowers + directProduce 当年)
     const flowersCount = await insertSpecialSales(conn, db, data.flowers, year, month, 'flowers')
     const dpCount = await insertSpecialSales(
       conn,
@@ -141,10 +154,51 @@ export async function loadMonth(
     )
     rowCounts.special_sales = flowersCount + dpCount
 
-    // transfers (interStoreIn + interStoreOut)
+    // special_sales (前年 directProduce) — 追記
+    if (data.prevYearDirectProduce.records.length > 0) {
+      const prevDpYear = data.prevYearDirectProduce.records[0].year
+      const prevDpMonth = data.prevYearDirectProduce.records[0].month
+      rowCounts.special_sales += await insertSpecialSales(
+        conn,
+        db,
+        data.prevYearDirectProduce,
+        prevDpYear,
+        prevDpMonth,
+        'directProduce',
+      )
+    }
+    // prevYearFlowers は既に special_sales にロード済み（comparison module 経由）
+
+    // transfers (interStoreIn + interStoreOut 当年)
     const inCount = await insertTransfers(conn, db, data.interStoreIn, year, month, 'in')
     const outCount = await insertTransfers(conn, db, data.interStoreOut, year, month, 'out')
     rowCounts.transfers = inCount + outCount
+
+    // transfers (前年) — 追記
+    if (data.prevYearInterStoreIn.records.length > 0) {
+      const prevInYear = data.prevYearInterStoreIn.records[0].year
+      const prevInMonth = data.prevYearInterStoreIn.records[0].month
+      rowCounts.transfers += await insertTransfers(
+        conn,
+        db,
+        data.prevYearInterStoreIn,
+        prevInYear,
+        prevInMonth,
+        'in',
+      )
+    }
+    if (data.prevYearInterStoreOut.records.length > 0) {
+      const prevOutYear = data.prevYearInterStoreOut.records[0].year
+      const prevOutMonth = data.prevYearInterStoreOut.records[0].month
+      rowCounts.transfers += await insertTransfers(
+        conn,
+        db,
+        data.prevYearInterStoreOut,
+        prevOutYear,
+        prevOutMonth,
+        'out',
+      )
+    }
 
     // consumables
     rowCounts.consumables = await insertCostInclusions(conn, db, data.consumables, year, month)

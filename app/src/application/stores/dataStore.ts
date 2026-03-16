@@ -7,6 +7,8 @@ import type {
   ClassifiedSalesData,
   CategoryTimeSalesData,
   SpecialSalesData,
+  PurchaseData,
+  TransferData,
   InventoryConfig,
   StoreExplanations,
 } from '@/domain/models'
@@ -31,6 +33,10 @@ export interface DataStore {
     prevYearClassifiedSales: ClassifiedSalesData
     prevYearCategoryTimeSales: CategoryTimeSalesData
     prevYearFlowers: SpecialSalesData
+    prevYearPurchase?: PurchaseData
+    prevYearDirectProduce?: SpecialSalesData
+    prevYearInterStoreIn?: TransferData
+    prevYearInterStoreOut?: TransferData
   }) => void
   updateInventory: (storeId: string, config: Partial<InventoryConfig>) => void
   reset: () => void
@@ -52,6 +58,10 @@ function applyPrevYearData(
       prevYearClassifiedSales: payload.prevYearClassifiedSales,
       prevYearCategoryTimeSales: payload.prevYearCategoryTimeSales,
       prevYearFlowers: payload.prevYearFlowers,
+      ...(payload.prevYearPurchase && { prevYearPurchase: payload.prevYearPurchase }),
+      ...(payload.prevYearDirectProduce && { prevYearDirectProduce: payload.prevYearDirectProduce }),
+      ...(payload.prevYearInterStoreIn && { prevYearInterStoreIn: payload.prevYearInterStoreIn }),
+      ...(payload.prevYearInterStoreOut && { prevYearInterStoreOut: payload.prevYearInterStoreOut }),
     },
     // 前年データは補足データのため dataVersion はインクリメントしない
     // (計算エンジンの再起動を防止)
