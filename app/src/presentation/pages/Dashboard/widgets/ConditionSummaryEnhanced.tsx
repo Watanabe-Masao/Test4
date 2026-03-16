@@ -172,12 +172,25 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
           <BudgetHeaderLabel>月間粗利額予算</BudgetHeaderLabel>
           <BudgetHeaderValue>{ctx.fmtCurrency(budgetHeader.grossProfitBudget)}</BudgetHeaderValue>
         </BudgetHeaderItem>
-        <BudgetHeaderItem>
+        <BudgetHeaderItem
+          onClick={() => setActiveMetric('gpRate')}
+          style={{ cursor: 'pointer' }}
+          role="button"
+          tabIndex={0}
+        >
           <BudgetHeaderLabel>月間粗利率予算</BudgetHeaderLabel>
           <BudgetHeaderValue>{formatPercent(budgetHeader.grossProfitRateBudget)}</BudgetHeaderValue>
         </BudgetHeaderItem>
         {budgetHeader.prevYearMonthlySales != null && (
-          <BudgetHeaderItem>
+          <BudgetHeaderItem
+            onClick={() => {
+              setActiveMetric('sales')
+              setShowYoY(true)
+            }}
+            style={{ cursor: 'pointer' }}
+            role="button"
+            tabIndex={0}
+          >
             <BudgetHeaderLabel>月間前年売上</BudgetHeaderLabel>
             <BudgetHeaderValue>
               {ctx.fmtCurrency(budgetHeader.prevYearMonthlySales)}
@@ -185,7 +198,15 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
           </BudgetHeaderItem>
         )}
         {budgetHeader.budgetVsPrevYear != null && (
-          <BudgetHeaderItem>
+          <BudgetHeaderItem
+            onClick={() => {
+              setActiveMetric('sales')
+              setShowYoY(true)
+            }}
+            style={{ cursor: 'pointer' }}
+            role="button"
+            tabIndex={0}
+          >
             <BudgetHeaderLabel>予算前年比</BudgetHeaderLabel>
             <BudgetGrowthBadge $positive={budgetHeader.budgetVsPrevYear >= 1}>
               {formatPercent(budgetHeader.budgetVsPrevYear)}
@@ -195,7 +216,12 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
         {/* 曜日GAPは同日比較時のみ表示（同曜日比較では曜日が揃うためGAPなし） */}
         {prevYearMode === 'sameDate' && budgetHeader.dowGap && (
           <>
-            <BudgetHeaderItem>
+            <BudgetHeaderItem
+              onClick={() => ctx.onPrevYearDetail('sameDate')}
+              style={{ cursor: 'pointer' }}
+              role="button"
+              tabIndex={0}
+            >
               <BudgetHeaderLabel>曜日GAP({budgetHeader.dowGap.label})</BudgetHeaderLabel>
               <BudgetHeaderValue>
                 {ctx.fmtCurrency(budgetHeader.dowGap.avgImpact)}
@@ -203,7 +229,12 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
               <BudgetHeaderLabel>平均</BudgetHeaderLabel>
             </BudgetHeaderItem>
             {budgetHeader.dowGap.actualImpact != null && (
-              <BudgetHeaderItem>
+              <BudgetHeaderItem
+                onClick={() => ctx.onPrevYearDetail('sameDate')}
+                style={{ cursor: 'pointer' }}
+                role="button"
+                tabIndex={0}
+              >
                 <BudgetHeaderLabel>曜日GAP(実日)</BudgetHeaderLabel>
                 <BudgetHeaderValue>
                   {ctx.fmtCurrency(budgetHeader.dowGap.actualImpact)}
