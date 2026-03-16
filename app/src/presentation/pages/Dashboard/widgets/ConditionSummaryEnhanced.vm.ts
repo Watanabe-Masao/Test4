@@ -5,7 +5,11 @@
  * Presentation 層の描画ロジックからデータ変換を分離する（原則#9: 描画は純粋）。
  */
 
-import { safeDivide } from '@/domain/calculations/utils'
+import {
+  safeDivide,
+  calculateAchievementRate,
+  calculateYoYRatio,
+} from '@/domain/calculations/utils'
 import { calculateMarkupRates } from '@/domain/calculations/markupRate'
 import { calculateDiscountRate } from '@/domain/calculations/estMethod'
 import {
@@ -162,13 +166,13 @@ function extractLySales(
 
 function computeAchievement(actual: number, budget: number, isRate: boolean): number {
   if (isRate) return actual - budget // pp diff
-  return safeDivide(actual, budget, 0) * 100 // %
+  return calculateAchievementRate(actual, budget) * 100 // %
 }
 
 function computeYoY(actual: number, ly: number | null, isRate: boolean): number | null {
   if (ly == null || ly === 0) return null
   if (isRate) return actual - ly // pp diff
-  return safeDivide(actual, ly, 0) * 100 // %
+  return calculateYoYRatio(actual, ly) * 100 // %
 }
 
 // ─── Public: Build Rows ─────────────────────────────────
@@ -441,7 +445,7 @@ export function buildDailyDetailRows(
       metric === 'markupRate'
         ? dailyActual - dailyBudget
         : dailyBudget > 0
-          ? safeDivide(dailyActual, dailyBudget, 0) * 100
+          ? calculateAchievementRate(dailyActual, dailyBudget) * 100
           : 0
     const cumDiff = cumActual - cumBudget
     const cumAchievement =
@@ -451,7 +455,7 @@ export function buildDailyDetailRows(
             sr.grossProfitRateBudget * 100
           : 0
         : cumBudget > 0
-          ? safeDivide(cumActual, cumBudget, 0) * 100
+          ? calculateAchievementRate(cumActual, cumBudget) * 100
           : 0
 
     rows.push({
@@ -512,9 +516,10 @@ function buildGpDailyRows(sr: StoreResult, effectiveElapsed: number): DailyDetai
     cumActual += dailyActual
 
     const diff = dailyActual - dailyBudget
-    const achievement = dailyBudget > 0 ? safeDivide(dailyActual, dailyBudget, 0) * 100 : 0
+    const achievement =
+      dailyBudget > 0 ? calculateAchievementRate(dailyActual, dailyBudget) * 100 : 0
     const cumDiff = cumActual - cumBudget
-    const cumAchievement = cumBudget > 0 ? safeDivide(cumActual, cumBudget, 0) * 100 : 0
+    const cumAchievement = cumBudget > 0 ? calculateAchievementRate(cumActual, cumBudget) * 100 : 0
 
     rows.push({
       day,
@@ -555,7 +560,7 @@ export function buildDailyYoYRows(
   for (let day = 1; day <= effectiveElapsed; day++) {
     const curActual = sr.daily.get(day)?.sales ?? 0
     const prevActual = prevByDay.get(day) ?? 0
-    const yoy = prevActual > 0 ? safeDivide(curActual, prevActual, 0) * 100 : 0
+    const yoy = prevActual > 0 ? calculateYoYRatio(curActual, prevActual) * 100 : 0
     rows.push({ day, prevActual, curActual, yoy })
   }
   return rows
@@ -742,14 +747,13 @@ export interface BudgetHeaderData {
   readonly monthlyBudget: number
   readonly grossProfitBudget: number
   readonly grossProfitRateBudget: number
-  /** 前年同日（カレンダー同月）売上 — 月間フル */
-  readonly prevYearSalesSameDate: number | null
-  /** 前年同曜日売上 — 月間フル */
-  readonly prevYearSalesSameDow: number | null
-  /** 予算前年比（例: 1.0135 = 101.35%） — sameDate ベース */
-  readonly budgetVsPrevYearSameDate: number | null
-  /** 予算前年比 — sameDow ベース */
-  readonly budgetVsPrevYearSameDow: number | null
+  /**
+   * 月間前年売上（alignment不要の固定値）。
+   * 前年ソース月の全日データを単純合計。取り込み期間に影響されない。
+   */
+  readonly prevYearMonthlySales: number | null
+  /** 予算前年比（例: 1.0135 = 101.35%）— 月間トータルベース */
+  readonly budgetVsPrevYear: number | null
   /** 曜日ギャップ情報（構成が同じ場合は null） */
   readonly dowGap: DowGapSummary | null
 }
@@ -788,36 +792,34 @@ function buildDowGapSummary(dowGap: DowGapAnalysis): DowGapSummary | null {
   }
 }
 
-/** 月間固定の予算コンテキスト情報を構築する */
+/**
+ * 月間固定の予算コンテキスト情報を構築する。
+ *
+ * ## 期間スコープの意味論
+ *
+ * 前年売上は monthlyTotal（alignment不要の全日合計）を使用する。
+ * sameDate.sales / sameDow.sales は alignment 経由で当期 period1 に依存するため、
+ * 月間固定値が必要な予算前年比には不適切。
+ */
 export function buildBudgetHeader(
   result: StoreResult,
   prevYearMonthlyKpi: PrevYearMonthlyKpi,
   dowGap: DowGapAnalysis,
 ): BudgetHeaderData {
-  let prevYearSalesSameDate: number | null = null
-  let prevYearSalesSameDow: number | null = null
-  if (prevYearMonthlyKpi.hasPrevYear) {
-    prevYearSalesSameDate = prevYearMonthlyKpi.sameDate.sales
-    prevYearSalesSameDow = prevYearMonthlyKpi.sameDow.sales
-  }
+  const prevYearMonthlySales =
+    prevYearMonthlyKpi.hasPrevYear && prevYearMonthlyKpi.monthlyTotal.sales > 0
+      ? prevYearMonthlyKpi.monthlyTotal.sales
+      : null
 
-  const budgetVsPrevYearSameDate =
-    prevYearSalesSameDate != null && prevYearSalesSameDate > 0
-      ? safeDivide(result.budget, prevYearSalesSameDate, 0)
-      : null
-  const budgetVsPrevYearSameDow =
-    prevYearSalesSameDow != null && prevYearSalesSameDow > 0
-      ? safeDivide(result.budget, prevYearSalesSameDow, 0)
-      : null
+  const budgetVsPrevYear =
+    prevYearMonthlySales != null ? safeDivide(result.budget, prevYearMonthlySales, 0) : null
 
   return {
     monthlyBudget: result.budget,
     grossProfitBudget: result.grossProfitBudget,
     grossProfitRateBudget: result.grossProfitRateBudget,
-    prevYearSalesSameDate,
-    prevYearSalesSameDow,
-    budgetVsPrevYearSameDate,
-    budgetVsPrevYearSameDow,
+    prevYearMonthlySales,
+    budgetVsPrevYear,
     dowGap: buildDowGapSummary(dowGap),
   }
 }

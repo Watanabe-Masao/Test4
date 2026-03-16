@@ -5,7 +5,11 @@
  */
 import type { StoreResult } from '@/domain/models'
 import { calculateDiscountRate } from '@/application/services/grossProfitBridge'
-import { safeDivide } from '@/domain/calculations/utils'
+import {
+  safeDivide,
+  calculateTransactionValue,
+  calculateGrossProfitRate,
+} from '@/domain/calculations/utils'
 // bridge 経由: 将来の dual-run compare を観測可能にする
 import { calculateGrossProfitBudget } from '@/application/services/budgetAnalysisBridge'
 import { accumulateScalars } from './scalarAccumulator'
@@ -95,7 +99,7 @@ export function aggregateStoreResults(
     estMethodMarginRate: est.estMethodMarginRate,
     estMethodClosingInventory: est.estMethodClosingInventory,
     totalCustomers: scalars.totalCustomers,
-    transactionValue: safeDivide(scalars.totalSales, scalars.totalCustomers, 0),
+    transactionValue: calculateTransactionValue(scalars.totalSales, scalars.totalCustomers),
     averageCustomersPerDay: safeDivide(scalars.totalCustomers, scalars.salesDays, 0),
     totalDiscount: scalars.totalDiscount,
     discountRate,
@@ -107,7 +111,7 @@ export function aggregateStoreResults(
     costInclusionRate,
     budget: scalars.budget,
     grossProfitBudget: scalars.gpBudget,
-    grossProfitRateBudget: safeDivide(scalars.gpBudget, scalars.budget, 0),
+    grossProfitRateBudget: calculateGrossProfitRate(scalars.gpBudget, scalars.budget),
     budgetDaily: aggBudgetDaily,
     daily: aggDaily,
     categoryTotals: aggCategory,

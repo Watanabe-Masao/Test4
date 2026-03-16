@@ -8,7 +8,7 @@
  */
 import { useMemo } from 'react'
 import type { DailyRecord, TransferBreakdownEntry } from '@/domain/models'
-import { safeDivide } from '@/domain/calculations/utils'
+import { safeDivide, calculateGrossProfitRate } from '@/domain/calculations/utils'
 
 /* ── 純粋関数 ───────────────────────────────── */
 
@@ -91,7 +91,7 @@ export function useCumulativeRates(
       cumGrossSales += rec.grossSales
 
       map.set(day, {
-        grossProfitRate: safeDivide(cumSales - cumCost, cumSales, 0),
+        grossProfitRate: calculateGrossProfitRate(cumSales - cumCost, cumSales),
         discountRate: safeDivide(cumDiscount, cumGrossSales, 0),
       })
     }

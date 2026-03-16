@@ -7,7 +7,7 @@
  * - generateMetricSummary: 個別指標の一行サマリ
  */
 import type { StoreResult, Explanation } from '@/domain/models'
-import { safeDivide, getEffectiveGrossProfitRate } from '@/domain/calculations/utils'
+import { getEffectiveGrossProfitRate, calculateGrowthRate } from '@/domain/calculations/utils'
 import { formatCurrency, formatPercent } from '@/domain/formatting'
 
 // ─── フォーマッタ（domain/formatting に委譲）─────────────────
@@ -40,7 +40,7 @@ export function generateTextSummary(
   // 1) 売上
   let salesLine = `当月売上 ${fmtYen(result.totalSales)}円`
   if (prev && prev.totalSales > 0) {
-    const yoyRatio = safeDivide(result.totalSales - prev.totalSales, prev.totalSales)
+    const yoyRatio = calculateGrowthRate(result.totalSales, prev.totalSales)
     salesLine += `（前年比 ${yoyRatio >= 0 ? '+' : ''}${fmtRate(yoyRatio)}%）`
   }
   if (result.budget > 0) {
@@ -69,10 +69,10 @@ export function generateTextSummary(
 
   // 3) 客数・客単価（前年比がある場合）
   if (prev && prev.totalCustomers > 0 && result.totalCustomers > 0) {
-    const custRatio = safeDivide(result.totalCustomers - prev.totalCustomers, prev.totalCustomers)
+    const custRatio = calculateGrowthRate(result.totalCustomers, prev.totalCustomers)
     const curTx = result.transactionValue
     const prevTx = prev.transactionValue
-    const txRatio = safeDivide(curTx - prevTx, prevTx)
+    const txRatio = calculateGrowthRate(curTx, prevTx)
     lines.push(
       `主な要因: 客数 ${custRatio >= 0 ? '+' : ''}${fmtRate(custRatio)}%` +
         `、客単価 ${txRatio >= 0 ? '+' : ''}${fmtRate(txRatio)}%`,

@@ -57,13 +57,47 @@ export interface PrevYearMonthlyKpiEntry {
   readonly storeContributions: readonly StoreContribution[]
 }
 
-/** 月間 KPI — 同曜日 + 同日の両アライメントを持つコンテナ */
+/**
+ * 月間トータル — alignment を経由しない前年月間固定値
+ *
+ * ## 設計意図（期間スコープの意味論）
+ *
+ * 「前年売上」には2つの意味がある:
+ *
+ * - **alignment 経由**: 当期の各日を前年日に対応付けて集計。
+ *   当期の取り込み期間（elapsedDays）や period1 の範囲に影響される。
+ *   → 日別比較・曜日効果分析に使用
+ *
+ * - **月間トータル（この型）**: 前年ソース月の全データを単純合計。
+ *   当期の取り込み期間に一切影響されない固定値。
+ *   → 予算前年比・予算成長率など月間固定指標に使用
+ *
+ * この2つを混同すると「取り込み期間フィルターが暗黙適用される」バグが発生する。
+ * monthlyTotal は alignment map を経由せず、sourceIndex の全日データを直接集計する。
+ */
+export interface PrevYearMonthlyTotal {
+  /** 前年月間売上合計（alignment不要、全日合計） */
+  readonly sales: number
+  /** 前年月間客数合計（alignment不要、全日合計） */
+  readonly customers: number
+  /** 前年月間客単価（sales / customers） */
+  readonly transactionValue: number
+}
+
+/** 月間 KPI — 同曜日 + 同日の両アライメント + 月間固定トータルを持つコンテナ */
 export interface PrevYearMonthlyKpi {
   readonly hasPrevYear: boolean
-  /** 前年同曜日: 月間フル集計 */
+  /** 前年同曜日: alignment経由の集計（日別比較用） */
   readonly sameDow: PrevYearMonthlyKpiEntry
-  /** 前年同日: 月間フル集計 */
+  /** 前年同日: alignment経由の集計（日別比較用） */
   readonly sameDate: PrevYearMonthlyKpiEntry
+  /**
+   * 前年月間トータル: alignment不要の固定値（予算前年比等に使用）。
+   *
+   * sameDate.sales と異なり、当期の取り込み期間・elapsedDays に影響されない。
+   * sourceIndex の全日データを直接合計した値。
+   */
+  readonly monthlyTotal: PrevYearMonthlyTotal
   /** 前年データ元の年 */
   readonly sourceYear: number
   /** 前年データ元の月 */

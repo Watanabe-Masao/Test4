@@ -19,7 +19,7 @@ import { createChartTooltip } from './createChartTooltip'
 import { DualPeriodSlider } from './DualPeriodSlider'
 import { useDualPeriodRange } from './useDualPeriodRange'
 import type { DailyRecord } from '@/domain/models'
-import { safeDivide } from '@/domain/calculations/utils'
+import { calculateGrossProfitRate } from '@/domain/calculations/utils'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 
 type GpView = 'amountRate' | 'rateOnly'
@@ -79,7 +79,7 @@ export const GrossProfitAmountChart = memo(function GrossProfitAmountChart({
       cumCost += rec.totalCost
     }
     const grossProfit = cumSales - cumCost
-    const rate = safeDivide(grossProfit, cumSales, 0)
+    const rate = calculateGrossProfitRate(grossProfit, cumSales)
 
     let prevRate: number | null = null
     if (hasPrevGp) {
@@ -87,7 +87,8 @@ export const GrossProfitAmountChart = memo(function GrossProfitAmountChart({
       const prevCostVal = prevYearCostMap!.get(d) ?? 0
       prevCumSales += prevSales
       prevCumCost += prevCostVal
-      prevRate = prevCumSales > 0 ? safeDivide(prevCumSales - prevCumCost, prevCumSales, 0) : null
+      prevRate =
+        prevCumSales > 0 ? calculateGrossProfitRate(prevCumSales - prevCumCost, prevCumSales) : null
     }
 
     allData.push({

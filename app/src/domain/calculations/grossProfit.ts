@@ -9,6 +9,8 @@ export {
   calculateYoYRatio,
   calculateShare,
   calculateGrossProfitRate,
+  calculateMarkupRate,
+  calculateGrowthRate,
   calculateTransactionValue,
   calculateItemsPerCustomer,
   calculateAveragePricePerItem,

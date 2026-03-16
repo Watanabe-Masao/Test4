@@ -67,6 +67,7 @@ function toDashboardContext(ctx: UnifiedWidgetContext): DashboardWidgetContext {
         dailyMapping: [],
         storeContributions: [],
       },
+      monthlyTotal: { sales: 0, customers: 0, transactionValue: 0 },
     },
     comparisonFrame: ctx.comparisonFrame ?? {
       current: ctx.currentDateRange ?? {

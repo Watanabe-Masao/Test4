@@ -4,7 +4,7 @@
 import type { StoreResult, Store } from '@/domain/models'
 import { formatPercent } from '@/domain/formatting'
 import type { CurrencyFormatter } from '@/presentation/components/charts/chartTheme'
-import { safeDivide } from '@/domain/calculations/utils'
+import { calculateYoYRatio } from '@/domain/calculations/utils'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
 import {
   type PrevYearData,
@@ -101,7 +101,7 @@ export function buildSalesYoYDetailVm(
   fmtCurrency: CurrencyFormatter,
 ): SalesYoYDetailVm {
   const prevTotal = prevYear.totalSales
-  const yoyTotal = safeDivide(result.totalSales, prevTotal, 0)
+  const yoyTotal = calculateYoYRatio(result.totalSales, prevTotal)
   const totalSig = metricSignal(yoyTotal, 'salesYoY', effectiveConfig)
   const totalColor = SIGNAL_COLORS[totalSig]
 
@@ -111,7 +111,7 @@ export function buildSalesYoYDetailVm(
     const store = stores.get(storeId)
     const storeName = store?.name ?? storeId
     const prevStoreSales = computeStorePrevSales(prevYearMonthlyKpi, storeId, dataMaxDay)
-    const storeYoY = safeDivide(sr.totalSales, prevStoreSales, 0)
+    const storeYoY = calculateYoYRatio(sr.totalSales, prevStoreSales)
     const sig =
       prevStoreSales > 0 ? metricSignal(storeYoY, 'salesYoY', effectiveConfig, sr.storeId) : 'blue'
     const sigColor = SIGNAL_COLORS[sig]
@@ -170,7 +170,7 @@ export function buildCustomerYoYDetailVm(
   dataMaxDay: number | undefined,
 ): CustomerYoYDetailVm {
   const prevTotal = prevYear.totalCustomers
-  const yoyTotal = safeDivide(result.totalCustomers, prevTotal, 0)
+  const yoyTotal = calculateYoYRatio(result.totalCustomers, prevTotal)
   const totalSig = metricSignal(yoyTotal, 'customerYoY', effectiveConfig)
   const totalColor = SIGNAL_COLORS[totalSig]
 
@@ -180,7 +180,7 @@ export function buildCustomerYoYDetailVm(
     const store = stores.get(storeId)
     const storeName = store?.name ?? storeId
     const prevStoreCustomers = computeStorePrevCustomers(prevYearMonthlyKpi, storeId, dataMaxDay)
-    const storeYoY = safeDivide(sr.totalCustomers, prevStoreCustomers, 0)
+    const storeYoY = calculateYoYRatio(sr.totalCustomers, prevStoreCustomers)
     const sig =
       prevStoreCustomers > 0
         ? metricSignal(storeYoY, 'customerYoY', effectiveConfig, sr.storeId)

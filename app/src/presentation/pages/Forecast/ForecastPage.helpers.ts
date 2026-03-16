@@ -1,6 +1,6 @@
 import { decompose2 } from '@/application/hooks/calculation'
 import type { ForecastInput, WeeklySummary } from '@/application/hooks/calculation'
-import { calculateTransactionValue, safeDivide } from '@/domain/calculations'
+import { calculateTransactionValue, safeDivide, calculateShare } from '@/domain/calculations'
 import type { DailyRecord } from '@/domain/models'
 import type { PrevYearData } from '@/application/hooks'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
@@ -204,9 +204,9 @@ export function buildRelationshipData(entries: DailyCustomerEntry[]): Relationsh
     sales: e.sales,
     customers: e.customers,
     txValue: e.txValue,
-    salesIndex: safeDivide(e.sales, avgSales),
-    customersIndex: safeDivide(e.customers, avgCust),
-    txValueIndex: safeDivide(e.txValue, avgTxVal),
+    salesIndex: calculateShare(e.sales, avgSales),
+    customersIndex: calculateShare(e.customers, avgCust),
+    txValueIndex: calculateShare(e.txValue, avgTxVal),
   }))
 }
 
@@ -222,9 +222,9 @@ export function buildRelationshipDataFromPrev(entries: DailyCustomerEntry[]): Re
     sales: e.prevSales,
     customers: e.prevCustomers,
     txValue: e.prevTxValue,
-    salesIndex: safeDivide(e.prevSales, avgSales),
-    customersIndex: safeDivide(e.prevCustomers, avgCust),
-    txValueIndex: safeDivide(e.prevTxValue, avgTxVal),
+    salesIndex: calculateShare(e.prevSales, avgSales),
+    customersIndex: calculateShare(e.prevCustomers, avgCust),
+    txValueIndex: calculateShare(e.prevTxValue, avgTxVal),
   }))
 }
 

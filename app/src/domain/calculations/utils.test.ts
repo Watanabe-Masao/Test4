@@ -7,6 +7,8 @@ import {
   calculateYoYRatio,
   calculateShare,
   calculateGrossProfitRate,
+  calculateMarkupRate,
+  calculateGrowthRate,
   calculateTransactionValue,
   calculateMovingAverage,
   calculateItemsPerCustomer,
@@ -417,6 +419,152 @@ describe('calculateGrossProfitRate 不変条件', () => {
   it('ゼロ安全性: sales=0 は常に 0', () => {
     for (const gp of [-100_000, 0, 100_000]) {
       expect(calculateGrossProfitRate(gp, 0)).toBe(0)
+    }
+  })
+})
+
+/* ── calculateMarkupRate（値入率） ── */
+
+describe('calculateMarkupRate (pragmatic)', () => {
+  it('基本計算: grossProfit / salesPrice', () => {
+    expect(calculateMarkupRate(300, 1000)).toBeCloseTo(0.3)
+  })
+  it('salesPrice=0 は 0', () => {
+    expect(calculateMarkupRate(100, 0)).toBe(0)
+  })
+  it('grossProfit=0 は 0（原価 = 売価）', () => {
+    expect(calculateMarkupRate(0, 1000)).toBe(0)
+  })
+  it('100%値入（原価ゼロ）', () => {
+    expect(calculateMarkupRate(1000, 1000)).toBe(1)
+  })
+})
+
+describe('calculateMarkupRate 不変条件', () => {
+  const scenarios = [
+    { label: '標準30%', gp: 300, price: 1000 },
+    { label: '高値入50%', gp: 500, price: 1000 },
+    { label: '低値入5%', gp: 50, price: 1000 },
+    { label: '微小', gp: 1, price: 3 },
+    { label: '大規模', gp: 3_000_000, price: 10_000_000 },
+  ]
+
+  // 不変条件 1: 相補性 — markupRate + costRate = 1
+  for (const s of scenarios) {
+    it(`相補性: markupRate + costRate = 1 [${s.label}]`, () => {
+      const cost = s.price - s.gp
+      const markupRate = calculateMarkupRate(s.gp, s.price)
+      const costRate = calculateMarkupRate(cost, s.price)
+      expect(markupRate + costRate).toBeCloseTo(1, 10)
+    })
+  }
+
+  // 不変条件 2: 再構成 — rate × price = grossProfit
+  for (const s of scenarios) {
+    it(`再構成: rate × price = grossProfit [${s.label}]`, () => {
+      const rate = calculateMarkupRate(s.gp, s.price)
+      expect(rate * s.price).toBeCloseTo(s.gp, 5)
+    })
+  }
+
+  // 不変条件 3: 値域 [0, 1] — 非負入力なら
+  it('値域: 非負入力の値入率は [0, 1]', () => {
+    for (const s of scenarios) {
+      const rate = calculateMarkupRate(s.gp, s.price)
+      expect(rate).toBeGreaterThanOrEqual(0)
+      expect(rate).toBeLessThanOrEqual(1)
+    }
+  })
+
+  // 不変条件 4: 単調性
+  it('単調性: 粗利が大きいほど値入率が大きい', () => {
+    const price = 1000
+    const r1 = calculateMarkupRate(100, price)
+    const r2 = calculateMarkupRate(300, price)
+    const r3 = calculateMarkupRate(500, price)
+    expect(r1).toBeLessThan(r2)
+    expect(r2).toBeLessThan(r3)
+  })
+
+  // 不変条件 5: ゼロ安全性
+  it('ゼロ安全性: salesPrice=0 は常に 0', () => {
+    for (const gp of [0, 100, 1000]) {
+      expect(calculateMarkupRate(gp, 0)).toBe(0)
+    }
+  })
+})
+
+/* ── calculateGrowthRate（成長率） ── */
+
+describe('calculateGrowthRate (pragmatic)', () => {
+  it('20%増収', () => {
+    expect(calculateGrowthRate(1_200_000, 1_000_000)).toBeCloseTo(0.2)
+  })
+  it('10%減収', () => {
+    expect(calculateGrowthRate(900_000, 1_000_000)).toBeCloseTo(-0.1)
+  })
+  it('同水準は 0', () => {
+    expect(calculateGrowthRate(1_000_000, 1_000_000)).toBe(0)
+  })
+  it('previous=0 は 0', () => {
+    expect(calculateGrowthRate(500_000, 0)).toBe(0)
+  })
+  it('current=0 は -1（全減）', () => {
+    expect(calculateGrowthRate(0, 1_000_000)).toBe(-1)
+  })
+  it('both=0 は 0', () => {
+    expect(calculateGrowthRate(0, 0)).toBe(0)
+  })
+})
+
+describe('calculateGrowthRate 不変条件', () => {
+  const scenarios = [
+    { label: '増収20%', current: 1_200_000, previous: 1_000_000 },
+    { label: '減収10%', current: 900_000, previous: 1_000_000 },
+    { label: '同値', current: 999, previous: 999 },
+    { label: '倍増', current: 2_000_000, previous: 1_000_000 },
+    { label: '大幅減', current: 100_000, previous: 1_000_000 },
+    { label: '微小', current: 4, previous: 3 },
+  ]
+
+  // 不変条件 1: 再構成 — previous × (1 + growthRate) = current
+  for (const s of scenarios) {
+    it(`再構成: previous × (1 + rate) = current [${s.label}]`, () => {
+      const rate = calculateGrowthRate(s.current, s.previous)
+      expect(s.previous * (1 + rate)).toBeCloseTo(s.current, 5)
+    })
+  }
+
+  // 不変条件 2: YoY比との関係 — growthRate = yoyRatio - 1
+  for (const s of scenarios) {
+    it(`YoY比との関係: growthRate = yoyRatio - 1 [${s.label}]`, () => {
+      const growth = calculateGrowthRate(s.current, s.previous)
+      const yoy = calculateYoYRatio(s.current, s.previous)
+      expect(growth).toBeCloseTo(yoy - 1, 10)
+    })
+  }
+
+  // 不変条件 3: 自己同一性 — f(x, x) = 0
+  for (const x of [1, 100, 999_999]) {
+    it(`自己同一性: f(${x}, ${x}) = 0`, () => {
+      expect(calculateGrowthRate(x, x)).toBe(0)
+    })
+  }
+
+  // 不変条件 4: 単調性
+  it('単調性: 当期値が大きいほど成長率が大きい', () => {
+    const prev = 1_000_000
+    const r1 = calculateGrowthRate(800_000, prev)
+    const r2 = calculateGrowthRate(1_000_000, prev)
+    const r3 = calculateGrowthRate(1_200_000, prev)
+    expect(r1).toBeLessThan(r2)
+    expect(r2).toBeLessThan(r3)
+  })
+
+  // 不変条件 5: ゼロ安全性
+  it('ゼロ安全性: previous=0 は常に 0', () => {
+    for (const c of [0, 100, 1_000_000]) {
+      expect(calculateGrowthRate(c, 0)).toBe(0)
     }
   })
 })

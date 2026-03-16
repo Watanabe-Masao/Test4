@@ -24,7 +24,13 @@ import {
   calculateBudgetAnalysis,
   calculateGrossProfitBudget,
 } from '@/application/services/budgetAnalysisBridge'
-import { safeDivide, isSettingsForTargetMonth } from '@/domain/calculations/utils'
+import {
+  safeDivide,
+  isSettingsForTargetMonth,
+  calculateMarkupRate,
+  calculateTransactionValue,
+  calculateGrossProfitRate,
+} from '@/domain/calculations/utils'
 import type { MonthlyAccumulator } from './types'
 
 function addToCategory(
@@ -215,7 +221,7 @@ export function assembleStoreResult(
   for (const [code, st] of acc.supplierTotals) {
     acc.supplierTotals.set(code, {
       ...st,
-      markupRate: safeDivide(st.price - st.cost, st.price, 0),
+      markupRate: calculateMarkupRate(st.price - st.cost, st.price),
     })
   }
 
@@ -285,7 +291,7 @@ export function assembleStoreResult(
     estMethodClosingInventory: estResult.closingInventory,
     totalCustomers: acc.totalCustomers,
     averageCustomersPerDay: safeDivide(acc.totalCustomers, acc.salesDays, 0),
-    transactionValue: safeDivide(acc.totalSales, acc.totalCustomers, 0),
+    transactionValue: calculateTransactionValue(acc.totalSales, acc.totalCustomers),
     totalDiscount: acc.totalDiscount,
     discountRate,
     discountLossCost,
@@ -296,7 +302,7 @@ export function assembleStoreResult(
     costInclusionRate,
     budget,
     grossProfitBudget: gpBudget,
-    grossProfitRateBudget: safeDivide(gpBudget, budget, 0),
+    grossProfitRateBudget: calculateGrossProfitRate(gpBudget, budget),
     budgetDaily,
     daily: acc.daily,
     categoryTotals: acc.categoryTotals,

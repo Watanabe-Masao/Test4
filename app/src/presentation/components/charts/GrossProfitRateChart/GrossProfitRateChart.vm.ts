@@ -5,7 +5,7 @@
  * Recharts に渡すデータ構造と閾値判定ロジックを分離する。
  */
 import type { DailyRecord } from '@/domain/models'
-import { safeDivide } from '@/domain/calculations/utils'
+import { calculateGrossProfitRate } from '@/domain/calculations/utils'
 
 // ─── 出力型 ──────────────────────────────────────────
 
@@ -46,7 +46,7 @@ export function buildGrossProfitRateViewModel(
       cumSales += rec.sales
       cumCost += rec.totalCost
     }
-    const rate = safeDivide(cumSales - cumCost, cumSales, 0)
+    const rate = calculateGrossProfitRate(cumSales - cumCost, cumSales)
     allData.push({
       day: d,
       rate,

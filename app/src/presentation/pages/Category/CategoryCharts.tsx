@@ -1,6 +1,6 @@
 import { memo, useState } from 'react'
 import { Chip } from '@/presentation/components/common'
-import { safeDivide } from '@/domain/calculations/utils'
+import { calculateShare } from '@/domain/calculations/utils'
 import {
   PieChart,
   Pie,
@@ -80,7 +80,7 @@ export const CompositionChart = memo(function CompositionChart({
       } else if (mode === 'price') {
         value = Math.abs(d.price)
       } else {
-        value = Math.abs(safeDivide(d.price - d.cost, totalPrice, 0))
+        value = Math.abs(calculateShare(d.price - d.cost, totalPrice))
       }
       return { name: d.label, value, color: d.color }
     })

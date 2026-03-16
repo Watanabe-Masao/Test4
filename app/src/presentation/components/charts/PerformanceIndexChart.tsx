@@ -23,6 +23,8 @@ import {
   safeDivide,
   calculateTransactionValue,
   calculateMovingAverage,
+  calculateShare,
+  calculateGrossProfitRate,
 } from '@/domain/calculations/utils'
 import { calculateStdDev } from '@/application/hooks/useStatistics'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
@@ -105,8 +107,8 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
       const cost = rec ? rec.totalCost : 0
       const costInclusion = rec?.costInclusion.cost ?? 0
       const txValue = customers > 0 ? calculateTransactionValue(sales, customers) : null
-      const discountRate = grossSales > 0 ? safeDivide(discount, grossSales, 0) : 0
-      const gpRate = sales > 0 ? safeDivide(sales - cost - costInclusion, sales, 0) : 0
+      const discountRate = grossSales > 0 ? calculateShare(discount, grossSales) : 0
+      const gpRate = sales > 0 ? calculateGrossProfitRate(sales - cost - costInclusion, sales) : 0
 
       // PI値 = 売上 / 客数 × 1000
       const pi = customers > 0 ? safeDivide(sales, customers, 0) * 1000 : null

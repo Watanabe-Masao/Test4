@@ -16,7 +16,10 @@ import {
   analyzeDowGapActualDay,
   ZERO_DOW_GAP_ANALYSIS,
 } from '@/domain/calculations/dowGapAnalysis'
-import { aggregateKpiByAlignment } from '@/application/comparison/buildComparisonAggregation'
+import {
+  aggregateKpiByAlignment,
+  aggregateMonthlyTotal,
+} from '@/application/comparison/buildComparisonAggregation'
 import type { SourceDataIndex } from '@/application/comparison/sourceDataIndex'
 import type { SourceMonthContext } from '@/application/comparison/sourceDataIndex'
 
@@ -30,10 +33,13 @@ const ZERO_KPI_ENTRY: PrevYearMonthlyKpiEntry = {
   storeContributions: [],
 }
 
+const ZERO_MONTHLY_TOTAL = { sales: 0, customers: 0, transactionValue: 0 }
+
 const EMPTY_KPI: PrevYearMonthlyKpi = {
   hasPrevYear: false,
   sameDow: ZERO_KPI_ENTRY,
   sameDate: ZERO_KPI_ENTRY,
+  monthlyTotal: ZERO_MONTHLY_TOTAL,
   sourceYear: 0,
   sourceMonth: 0,
   dowOffset: 0,
@@ -96,10 +102,15 @@ export function buildKpiProjection(
     srcMonth,
   )
 
+  // 月間トータル: alignment不要、ソース月全日の単純合計。
+  // 当期の取り込み期間に影響されない固定値。予算前年比等に使用。
+  const monthlyTotal = aggregateMonthlyTotal(sourceIndex, targetIds, sourceMonthCtx)
+
   return {
     hasPrevYear: true,
     sameDow,
     sameDate,
+    monthlyTotal,
     sourceYear: srcYear,
     sourceMonth: srcMonth,
     dowOffset,

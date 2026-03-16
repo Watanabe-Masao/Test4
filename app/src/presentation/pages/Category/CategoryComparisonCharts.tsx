@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import type { StoreResult } from '@/domain/models'
-import { safeDivide } from '@/domain/calculations/utils'
+import { calculateMarkupRate } from '@/domain/calculations/utils'
 import { CATEGORY_LABELS, CATEGORY_ORDER } from '@/domain/constants/categories'
 import {
   BarChart,
@@ -109,7 +109,7 @@ export const StoreComparisonMarkupRadarChart = memo(function StoreComparisonMark
     selectedResults.forEach((sr) => {
       const name = storeNames.get(sr.storeId) ?? sr.storeId
       const pair = sr.categoryTotals.get(cat)
-      const markup = pair ? safeDivide(pair.price - pair.cost, pair.price, 0) * 100 : 0
+      const markup = pair ? calculateMarkupRate(pair.price - pair.cost, pair.price) * 100 : 0
       entry[name] = markup
     })
     return entry

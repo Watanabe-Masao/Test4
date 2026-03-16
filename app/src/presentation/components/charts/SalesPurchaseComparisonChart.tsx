@@ -7,7 +7,7 @@ import { createChartTooltip } from './createChartTooltip'
 import { DualPeriodSlider } from './DualPeriodSlider'
 import { useDualPeriodRange } from './useDualPeriodRange'
 import { computeEstimatedInventory } from '@/application/hooks/calculation'
-import { safeDivide } from '@/domain/calculations/utils'
+import { calculateGrossProfitRate } from '@/domain/calculations/utils'
 import type { Store, StoreResult } from '@/domain/models'
 import {
   Wrapper,
@@ -333,7 +333,7 @@ export const SalesPurchaseComparisonChart = memo(function SalesPurchaseCompariso
                 const diff = s.result.totalSales - s.result.inventoryCost
                 const gpRate =
                   s.result.invMethodGrossProfitRate ??
-                  safeDivide(s.result.estMethodMargin, s.result.totalCoreSales, 0)
+                  calculateGrossProfitRate(s.result.estMethodMargin, s.result.totalCoreSales)
                 return { s, i, diff, gpRate, discountRate: s.result.discountRate }
               })
               const getVal = (row: (typeof rows)[0]): number => {

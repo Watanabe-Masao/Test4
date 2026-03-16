@@ -5,9 +5,10 @@ import type { StoreResult, Store } from '@/domain/models'
 import { formatPercent } from '@/domain/formatting'
 import type { CurrencyFormatter } from '@/presentation/components/charts/chartTheme'
 import {
+  safeDivide,
   calculateAchievementRate,
   calculateTransactionValue,
-  safeDivide,
+  calculateYoYRatio,
 } from '@/domain/calculations/utils'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
 import { SIGNAL_COLORS, metricSignal } from './conditionSummaryUtils'
@@ -220,7 +221,7 @@ export function buildDailyYoYRenderRows(
 
     const displayCurrent = mode === 'cumulative' ? cumCurrent : currentVal
     const displayPrev = mode === 'cumulative' ? cumPrev : prevVal
-    const yoy = safeDivide(displayCurrent, displayPrev, 0)
+    const yoy = calculateYoYRatio(displayCurrent, displayPrev)
 
     const fmtVal =
       metric === 'sales' ? (v: number) => fmtCurrency(v) : (v: number) => `${v.toLocaleString()}人`

@@ -6,7 +6,11 @@
  */
 import type { MonthlyDataPoint } from '@/application/services/forecastBridge'
 import type { StoreDaySummaryIndex } from '@/domain/models'
-import { safeDivide, getEffectiveGrossProfitRate } from '@/domain/calculations/utils'
+import {
+  safeDivide,
+  getEffectiveGrossProfitRate,
+  calculateGrossProfitRate,
+} from '@/domain/calculations/utils'
 
 /**
  * 現在の StoreResult を MonthlyDataPoint に変換するヘルパー。
@@ -98,7 +102,7 @@ export function aggregateSummaryRates(summaries: StoreDaySummaryIndex): {
   const allPrice = totalPurchasePrice
 
   const grossProfit = totalSales - allCost
-  const grossProfitRate = safeDivide(grossProfit, totalSales)
+  const grossProfitRate = calculateGrossProfitRate(grossProfit, totalSales)
 
   return {
     discountRate: safeDivide(totalDiscount, totalSales),

@@ -8,7 +8,7 @@ import {
 } from '@/domain/constants/customCategories'
 import { CATEGORY_ORDER, CATEGORY_LABELS } from '@/domain/constants/categories'
 import type { CategoryType } from '@/domain/models'
-import { safeDivide } from '@/domain/calculations/utils'
+import { calculateMarkupRate, calculateShare } from '@/domain/calculations/utils'
 
 // ─── Types ───────────────────────────────────────────────
 
@@ -73,10 +73,10 @@ export function buildCategoryData(result: StoreResult) {
   return CATEGORY_ORDER.flatMap((cat) => {
     const pair = result.categoryTotals.get(cat)
     if (!pair) return []
-    const markupRate = safeDivide(pair.price - pair.cost, pair.price, 0)
-    const priceShare = safeDivide(Math.abs(pair.price), totalAbsPrice, 0)
+    const markupRate = calculateMarkupRate(pair.price - pair.cost, pair.price)
+    const priceShare = calculateShare(Math.abs(pair.price), totalAbsPrice)
     // 相乗積 = (売価 - 原価) / 総売価 で直接計算（price=0の消耗品でも正確）
-    const crossMultiplication = safeDivide(pair.price - pair.cost, totalPrice, 0)
+    const crossMultiplication = calculateShare(pair.price - pair.cost, totalPrice)
     return [
       {
         category: cat,
@@ -138,9 +138,9 @@ export function buildCustomCategoryData(
       label: cc.label,
       cost: pair.cost,
       price: pair.price,
-      markup: safeDivide(pair.price - pair.cost, pair.price, 0),
-      priceShare: safeDivide(Math.abs(pair.price), totalAbsPrice, 0),
-      crossMultiplication: safeDivide(pair.price - pair.cost, totalPrice, 0),
+      markup: calculateMarkupRate(pair.price - pair.cost, pair.price),
+      priceShare: calculateShare(Math.abs(pair.price), totalAbsPrice),
+      crossMultiplication: calculateShare(pair.price - pair.cost, totalPrice),
       color: CUSTOM_CATEGORY_COLORS[cc.id] ?? '#64748b',
     })
   }
@@ -153,9 +153,9 @@ export function buildCustomCategoryData(
       label: userCategoryLabels[id] ?? id.replace('user:', ''),
       cost: pair.cost,
       price: pair.price,
-      markup: safeDivide(pair.price - pair.cost, pair.price, 0),
-      priceShare: safeDivide(Math.abs(pair.price), totalAbsPrice, 0),
-      crossMultiplication: safeDivide(pair.price - pair.cost, totalPrice, 0),
+      markup: calculateMarkupRate(pair.price - pair.cost, pair.price),
+      priceShare: calculateShare(Math.abs(pair.price), totalAbsPrice),
+      crossMultiplication: calculateShare(pair.price - pair.cost, totalPrice),
       color: USER_CATEGORY_DEFAULT_COLOR,
     })
   }
@@ -255,9 +255,9 @@ export function buildUnifiedCategoryData(
     label: d.label,
     cost: d.cost,
     price: d.price,
-    markup: safeDivide(d.price - d.cost, d.price, 0),
-    priceShare: safeDivide(Math.abs(d.price), totalAbsPrice, 0),
-    crossMultiplication: safeDivide(d.price - d.cost, totalPrice, 0),
+    markup: calculateMarkupRate(d.price - d.cost, d.price),
+    priceShare: calculateShare(Math.abs(d.price), totalAbsPrice),
+    crossMultiplication: calculateShare(d.price - d.cost, totalPrice),
     color: d.color,
     isCustom: d.isCustom,
   }))
@@ -272,7 +272,7 @@ export function buildParetoData(items: { name: string; value: number; color: str
     cumulative += d.value
     return {
       ...d,
-      cumPct: safeDivide(cumulative, total, 0),
+      cumPct: calculateShare(cumulative, total),
     }
   })
 }

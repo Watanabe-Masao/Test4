@@ -80,6 +80,7 @@ function makePk(
     sourceYear: 2025,
     sourceMonth: 3,
     dowOffset: 1,
+    monthlyTotal: { sales: 0, customers: 0, transactionValue: 0 },
   }
 }
 

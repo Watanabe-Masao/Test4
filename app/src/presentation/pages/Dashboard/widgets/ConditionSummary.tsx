@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo, memo } from 'react'
 import { formatPercent } from '@/domain/formatting'
-import { safeDivide } from '@/domain/calculations/utils'
+import { safeDivide, calculateTransactionValue } from '@/domain/calculations/utils'
 import type { MetricId } from '@/domain/models'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
 import { isMetricEnabled } from '@/domain/calculations/rules/conditionResolver'
@@ -164,7 +164,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
     prevYear.totalCustomers > 0
   ) {
     const txValue = r.transactionValue
-    const prevTxValue = safeDivide(prevYear.totalSales, prevYear.totalCustomers, 0)
+    const prevTxValue = calculateTransactionValue(prevYear.totalSales, prevYear.totalCustomers)
     const txYoY = prevTxValue > 0 ? txValue / prevTxValue : null
     const fmtTx = (v: number) =>
       `${v.toLocaleString('ja-JP', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}円`

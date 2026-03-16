@@ -4,7 +4,7 @@ import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import { ChartHelpButton } from './ChartHeader'
 import { CHART_GUIDES } from './chartGuides'
-import { safeDivide } from '@/domain/calculations/utils'
+import { safeDivide, calculateShare } from '@/domain/calculations/utils'
 import {
   useSensitivityBase,
   useSensitivityAnalysis,
@@ -145,7 +145,7 @@ export const SensitivityDashboard = memo(function SensitivityDashboard({ result 
   // ベース値
   const baseValues: BaseValues = useMemo(
     () => ({
-      discountRate: safeDivide(base.totalDiscount, base.grossSales, 0),
+      discountRate: calculateShare(base.totalDiscount, base.grossSales),
       customers: base.totalCustomers,
       txValue: safeDivide(base.totalSales, base.totalCustomers, 0),
       costRate: safeDivide(base.totalCost, base.grossSales, 0),
@@ -204,7 +204,7 @@ export const SensitivityDashboard = memo(function SensitivityDashboard({ result 
     const simTxValue =
       safeDivide(base.totalSales, base.totalCustomers, 0) * (1 + deltas.transactionValueDelta)
     const simSales = simCustomers * simTxValue
-    const baseDiscountRate = safeDivide(base.totalDiscount, base.grossSales, 0)
+    const baseDiscountRate = calculateShare(base.totalDiscount, base.grossSales)
     const simDiscountRate = baseDiscountRate + deltas.discountRateDelta
     const simGrossSales = safeDivide(simSales, 1 - simDiscountRate, simSales)
     const baseCostRate = safeDivide(base.totalCost, base.grossSales, 0)

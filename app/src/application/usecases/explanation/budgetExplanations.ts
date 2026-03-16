@@ -5,7 +5,7 @@
  * ExplanationService から分離し、ファイルサイズを抑える。
  */
 import type { StoreResult, MetricId, Explanation } from '@/domain/models'
-import { safeDivide } from '@/domain/calculations/utils'
+import { calculateAchievementRate } from '@/domain/calculations/utils'
 import { inp } from './explanationHelpers'
 
 /**
@@ -198,7 +198,7 @@ export function registerBudgetExplanations(
 
   if (result.grossProfitBudget > 0) {
     const gpActual = result.invMethodGrossProfit ?? result.estMethodMargin
-    const gpBudgetAchievement = safeDivide(gpActual, result.grossProfitBudget, 0)
+    const gpBudgetAchievement = calculateAchievementRate(gpActual, result.grossProfitBudget)
 
     map.set('grossProfitBudgetAchievement', {
       metric: 'grossProfitBudgetAchievement',

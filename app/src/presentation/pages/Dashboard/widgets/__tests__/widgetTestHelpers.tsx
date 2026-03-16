@@ -217,6 +217,7 @@ export function makeWidgetContext(overrides: Partial<WidgetContext> = {}): Widge
       sourceYear: 0,
       sourceMonth: 0,
       dowOffset: 0,
+      monthlyTotal: { sales: 0, customers: 0, transactionValue: 0 },
     },
     dowGap: {
       dowCounts: Array.from({ length: 7 }, (_, i) => ({

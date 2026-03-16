@@ -6,6 +6,8 @@ import {
   safeDivide,
   calculateTransactionValue,
   getEffectiveGrossProfitRate,
+  calculateAchievementRate,
+  calculateGrossProfitRate,
 } from '@/domain/calculations/utils'
 import type { WidgetContext } from './types'
 import {
@@ -36,7 +38,7 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
   const remainingDays = daysInMonth - r.elapsedDays
   const dailyAvgGP = r.salesDays > 0 ? actualGP / r.salesDays : 0
 
-  const salesAchievement = safeDivide(r.totalSales, elapsedBudget)
+  const salesAchievement = calculateAchievementRate(r.totalSales, elapsedBudget)
   const progressRatio = safeDivide(
     safeDivide(r.totalSales, r.budget),
     safeDivide(r.elapsedDays, daysInMonth),
@@ -175,9 +177,15 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
               const isInvMethod = r.invMethodGrossProfitRate != null
               const beforeRate = isInvMethod
                 ? r.invMethodGrossProfitRate!
-                : safeDivide(r.estMethodMargin + r.totalCostInclusion, r.totalCoreSales, 0)
+                : calculateGrossProfitRate(
+                    r.estMethodMargin + r.totalCostInclusion,
+                    r.totalCoreSales,
+                  )
               const afterRate = isInvMethod
-                ? safeDivide(r.invMethodGrossProfit! - r.totalCostInclusion, r.totalSales, 0)
+                ? calculateGrossProfitRate(
+                    r.invMethodGrossProfit! - r.totalCostInclusion,
+                    r.totalSales,
+                  )
                 : r.estMethodMarginRate
               return (
                 <>

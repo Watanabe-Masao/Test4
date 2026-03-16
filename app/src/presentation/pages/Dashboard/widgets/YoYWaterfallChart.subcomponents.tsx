@@ -23,7 +23,7 @@ import { useChartTheme, useCurrencyFormatter, toAxisYen } from '@/presentation/c
 import { createChartTooltip } from '@/presentation/components/charts/createChartTooltip'
 import { formatPercent } from '@/domain/formatting'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
-import { safeDivide } from '@/domain/calculations/utils'
+import { calculateYoYRatio } from '@/domain/calculations/utils'
 import { sc } from '@/presentation/theme/semanticColors'
 import {
   SummaryRow,
@@ -93,7 +93,7 @@ export const SalesSummaryRow = memo(function SalesSummaryRow({
 }: SalesSummaryRowProps) {
   const { format: fmtCurrency } = useCurrencyFormat()
   const yoyDiff = curSales - prevSales
-  const yoyRatio = safeDivide(curSales, prevSales, 0)
+  const yoyRatio = calculateYoYRatio(curSales, prevSales)
 
   return (
     <SummaryRow>
