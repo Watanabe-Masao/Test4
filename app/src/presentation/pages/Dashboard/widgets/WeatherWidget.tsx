@@ -8,6 +8,7 @@ import { memo, useMemo } from 'react'
 import styled from 'styled-components'
 import { sc } from '@/presentation/theme/semanticColors'
 import { useWeatherData } from '@/application/hooks/useWeather'
+import { useSettingsStore } from '@/application/stores/settingsStore'
 import type { DailySalesForCorrelation } from '@/application/hooks/useWeatherCorrelation'
 import { WeatherBadge } from '@/presentation/components/common/WeatherBadge'
 import { WeatherCorrelationChart } from '@/presentation/components/charts/WeatherCorrelationChart'
@@ -63,7 +64,23 @@ const NoLocationText = styled.div`
 `
 
 export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetContext }) {
-  const storeId = ctx.result.storeId
+  const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
+
+  // ctx.result.storeId は集計時 'aggregate' になるため、
+  // selectedStoreIds / stores から位置情報が登録済みの実店舗IDを解決する
+  const storeId = useMemo(() => {
+    // 単一店舗選択時
+    if (ctx.selectedStoreIds.size === 1) {
+      return Array.from(ctx.selectedStoreIds)[0]
+    }
+    // 全店 or 複数店舗: 位置情報が登録済みの最初の店舗を使う
+    const candidates =
+      ctx.selectedStoreIds.size > 0
+        ? Array.from(ctx.selectedStoreIds)
+        : Array.from(ctx.stores.keys())
+    return candidates.find((id) => storeLocations[id]) ?? candidates[0] ?? ''
+  }, [ctx.selectedStoreIds, ctx.stores, storeLocations])
+
   const { daily, isLoading, error } = useWeatherData(ctx.year, ctx.month, storeId)
 
   const salesDaily = useMemo<readonly DailySalesForCorrelation[]>(() => {
