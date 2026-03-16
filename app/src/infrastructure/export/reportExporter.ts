@@ -9,6 +9,7 @@ import type { Store } from '@/domain/models/Store'
 import type { Explanation } from '@/domain/models/Explanation'
 import { exportToCsv } from './csvExporter'
 import { formatCurrency, formatPercent } from '@/domain/formatting'
+import { calculateTransactionValue } from '@/domain/calculations/utils'
 
 type Row = (string | number | null)[]
 
@@ -36,7 +37,9 @@ export function exportDailySalesReport(
 
   for (const [day, record] of result.daily) {
     const txValue =
-      record.customers && record.customers > 0 ? Math.round(record.sales / record.customers) : null
+      record.customers && record.customers > 0
+        ? calculateTransactionValue(record.sales, record.customers)
+        : null
     rows.push([
       day,
       record.sales,
@@ -96,7 +99,7 @@ export function exportStoreKpiReport(
     const store = stores.get(storeId)
     const txValue =
       result.totalCustomers && result.totalCustomers > 0
-        ? Math.round(result.totalSales / result.totalCustomers)
+        ? calculateTransactionValue(result.totalSales, result.totalCustomers)
         : null
 
     rows.push([

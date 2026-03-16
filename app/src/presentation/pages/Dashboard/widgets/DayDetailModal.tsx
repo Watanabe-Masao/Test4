@@ -16,7 +16,12 @@ import { palette } from '@/presentation/theme/tokens'
 import { formatPercent } from '@/domain/formatting'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { CurrencyUnitToggle } from '@/presentation/components/charts'
-import { calculateAchievementRate, calculateTransactionValue } from '@/domain/calculations/utils'
+import {
+  calculateAchievementRate,
+  calculateYoYRatio,
+  calculateShare,
+  calculateTransactionValue,
+} from '@/domain/calculations/utils'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type {
   DailyRecord,
@@ -126,7 +131,7 @@ export function DayDetailModal({
   const cumDiff = cumSales - cumBudget
   const cumAch = calculateAchievementRate(cumSales, cumBudget)
   const pySales = prevYear.daily.get(toDateKeyFromParts(year, month, day))?.sales ?? 0
-  const pyRatio = calculateAchievementRate(actual, pySales)
+  const pyRatio = calculateYoYRatio(actual, pySales)
   const dayOfWeek = DOW_NAMES[new Date(year, month - 1, day).getDay()]
 
   // ── Customer metrics ──
@@ -136,8 +141,8 @@ export function DayDetailModal({
   const pyTxVal = calculateTransactionValue(pySales, pyCust)
   const cumTxVal = calculateTransactionValue(cumSales, cumCustomers)
   const cumPrevTxVal = calculateTransactionValue(cumPrevYear, cumPrevCustomers)
-  const custRatio = calculateAchievementRate(dayCust, pyCust)
-  const txValRatio = calculateAchievementRate(dayTxVal, pyTxVal)
+  const custRatio = calculateYoYRatio(dayCust, pyCust)
+  const txValRatio = calculateYoYRatio(dayTxVal, pyTxVal)
 
   // ── WoW metrics (前週比) ──
   const wowDailyRecord = canWoW && dailyMap ? dailyMap.get(wowPrevDay) : undefined
@@ -511,7 +516,7 @@ export function DayDetailModal({
                 return (
                   <>
                     {costItems.map((item) => {
-                      const ratio = calculateAchievementRate(Math.abs(item.price), totalPrice)
+                      const ratio = calculateShare(Math.abs(item.price), totalPrice)
                       return (
                         <DetailRow key={item.label}>
                           <DetailLabel>{item.label}</DetailLabel>

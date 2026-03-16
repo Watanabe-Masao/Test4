@@ -4,7 +4,11 @@ import { palette } from '@/presentation/theme/tokens'
 import { Button } from '@/presentation/components/common'
 import { formatPercent } from '@/domain/formatting'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
-import { calculateAchievementRate } from '@/domain/calculations/utils'
+import {
+  calculateAchievementRate,
+  calculateYoYRatio,
+  safeDivide,
+} from '@/domain/calculations/utils'
 import { calculatePinIntervals } from '@/application/hooks/calculation'
 import { buildClipBundle } from '@/application/usecases/clipExport/buildClipBundle'
 import { downloadClipHtml } from '@/application/usecases/clipExport/downloadClipHtml'
@@ -204,8 +208,8 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
     }
     const diff = sales - budget
     const ach = calculateAchievementRate(sales, budget)
-    const pyRatio = calculateAchievementRate(sales, pySales)
-    const avgDaily = calculateAchievementRate(sales, salesDaysCount)
+    const pyRatio = calculateYoYRatio(sales, pySales)
+    const avgDaily = safeDivide(sales, salesDaysCount, 0)
     return { start, end, budget, sales, diff, ach, pySales, pyRatio, salesDaysCount, avgDaily }
   }
   const rangeAData = calcRange(rangeA.start, rangeA.end)

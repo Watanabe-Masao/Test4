@@ -164,7 +164,18 @@ export function calculateCoreSales(
 /**
  * 売変率を算出する
  *
- * 売変率 = 売変額 / (売上 + 売変額)
+ * @category DSC — 売変額の粗売上（売上+売変額）に対する割合
+ * @param salesAmount — 売上額（売変後）
+ * @param discountAmount — 売変額
+ * @returns 売変率（0.0〜1.0未満）
+ * @range [0, 1) — 売変率が1以上は定義域外
+ * @zero (salesAmount + discountAmount)=0 → 0
+ * @invariant salesRate + discountRate = 1（salesRate = sales / grossSales）
+ * @invariant rate × (sales + discount) = discount（再構成性）
+ *
+ * NOTE(pragmatic): 数式 discount / (sales + discount) は定義上正しいが、
+ * 入力データの品質（負値、異常値）に対する厳密な検証は呼び出し元に依存する。
+ * 参照: references/01-principles/domain-ratio-primitives.md
  */
 export function calculateDiscountRate(salesAmount: number, discountAmount: number): number {
   return safeDivide(discountAmount, salesAmount + discountAmount, 0)
