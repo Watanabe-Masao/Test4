@@ -318,3 +318,66 @@ describe('calculateDiscountRate', () => {
     expect(calculateDiscountRate(0, 100)).toBe(1) // 100/100
   })
 })
+
+/* ── calculateDiscountRate 不変条件 ── */
+
+describe('calculateDiscountRate 不変条件', () => {
+  /**
+   * 売変率 = d / (s + d)  の数学的性質。
+   * s = 売上（値引き後）, d = 売変額, s + d = 原売上（値引き前）。
+   *
+   * NOTE(pragmatic): 現在の実装は数学的に正しい定義だが、
+   * シャープリー恒等式のような体系的な不変条件群を持たない。
+   * ここで証明する性質は、実装が壊れた場合の検出用。
+   */
+  const scenarios = [
+    { label: '標準2%', sales: 980_000, discount: 20_000 },
+    { label: '高売変10%', sales: 900_000, discount: 100_000 },
+    { label: '微小', sales: 999, discount: 1 },
+    { label: '大規模', sales: 45_000_000, discount: 5_000_000 },
+    { label: '等額', sales: 500_000, discount: 500_000 },
+  ]
+
+  // 不変条件 1: 再構成 — result × (s + d) = d
+  for (const sc of scenarios) {
+    it(`再構成: rate × (s + d) = d [${sc.label}]`, () => {
+      const rate = calculateDiscountRate(sc.sales, sc.discount)
+      const reconstructed = rate * (sc.sales + sc.discount)
+      expect(reconstructed).toBeCloseTo(sc.discount, 5)
+    })
+  }
+
+  // 不変条件 2: 値域 — 0 ≤ result ≤ 1  (s ≥ 0, d ≥ 0)
+  for (const sc of scenarios) {
+    it(`値域: 0 ≤ rate ≤ 1 [${sc.label}]`, () => {
+      const rate = calculateDiscountRate(sc.sales, sc.discount)
+      expect(rate).toBeGreaterThanOrEqual(0)
+      expect(rate).toBeLessThanOrEqual(1)
+    })
+  }
+
+  // 不変条件 3: 相補性 — coreSalesRate + discountRate = 1
+  // s/(s+d) + d/(s+d) = 1
+  for (const sc of scenarios) {
+    it(`相補性: salesRate + discountRate = 1 [${sc.label}]`, () => {
+      const discountRate = calculateDiscountRate(sc.sales, sc.discount)
+      const salesRate = sc.sales / (sc.sales + sc.discount)
+      expect(salesRate + discountRate).toBeCloseTo(1, 10)
+    })
+  }
+
+  // 不変条件 4: 単調性 — d₁ > d₂ ⇒ rate₁ > rate₂  (s 固定, s > 0)
+  it('単調性: 売変額が大きいほど売変率が大きい', () => {
+    const s = 1_000_000
+    const r1 = calculateDiscountRate(s, 10_000)
+    const r2 = calculateDiscountRate(s, 50_000)
+    const r3 = calculateDiscountRate(s, 200_000)
+    expect(r1).toBeLessThan(r2)
+    expect(r2).toBeLessThan(r3)
+  })
+
+  // 不変条件 5: ゼロ安全性
+  it('ゼロ安全性: both=0 は 0（発散しない）', () => {
+    expect(calculateDiscountRate(0, 0)).toBe(0)
+  })
+})

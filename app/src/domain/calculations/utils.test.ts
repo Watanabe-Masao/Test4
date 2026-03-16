@@ -90,6 +90,55 @@ describe('calculateAchievementRate (pragmatic)', () => {
   })
 })
 
+/* ── calculateAchievementRate 不変条件 ── */
+
+describe('calculateAchievementRate 不変条件', () => {
+  /**
+   * 証明可能な数学的性質。pragmatic 関数だが、以下は常に成立する。
+   * 違反した場合は実装の破壊を意味する。
+   */
+  const scenarios = [
+    { label: '標準', actual: 800_000, target: 1_000_000 },
+    { label: '超過', actual: 1_200_000, target: 1_000_000 },
+    { label: '微小', actual: 1, target: 3 },
+    { label: '大規模', actual: 50_000_000, target: 45_000_000 },
+    { label: '同値', actual: 999, target: 999 },
+    { label: '低達成', actual: 100, target: 10_000_000 },
+  ]
+
+  // 不変条件 1: 再構成 — result × target = actual
+  for (const s of scenarios) {
+    it(`再構成: f(${s.actual}, ${s.target}) × target = actual [${s.label}]`, () => {
+      const rate = calculateAchievementRate(s.actual, s.target)
+      expect(rate * s.target).toBeCloseTo(s.actual, 5)
+    })
+  }
+
+  // 不変条件 2: 自己同一性 — f(x, x) = 1
+  for (const x of [1, 100, 999_999, 0.001]) {
+    it(`自己同一性: f(${x}, ${x}) = 1`, () => {
+      expect(calculateAchievementRate(x, x)).toBe(1)
+    })
+  }
+
+  // 不変条件 3: 単調性 — a₁ > a₂ ⇒ f(a₁, t) > f(a₂, t)  (t > 0)
+  it('単調性: actual が大きいほど rate が大きい', () => {
+    const t = 1_000_000
+    const r1 = calculateAchievementRate(500_000, t)
+    const r2 = calculateAchievementRate(800_000, t)
+    const r3 = calculateAchievementRate(1_200_000, t)
+    expect(r1).toBeLessThan(r2)
+    expect(r2).toBeLessThan(r3)
+  })
+
+  // 不変条件 4: ゼロ安全性 — target = 0 → 0（発散しない）
+  it('ゼロ安全性: target=0 は常に 0', () => {
+    for (const a of [-100, 0, 100, 1_000_000]) {
+      expect(calculateAchievementRate(a, 0)).toBe(0)
+    }
+  })
+})
+
 /* ── calculateTransactionValue ── */
 
 describe('calculateTransactionValue', () => {
@@ -104,6 +153,66 @@ describe('calculateTransactionValue', () => {
   })
   it('sales=0 は 0 を返す', () => {
     expect(calculateTransactionValue(0, 100)).toBe(0)
+  })
+})
+
+/* ── calculateTransactionValue 不変条件 ── */
+
+describe('calculateTransactionValue 不変条件', () => {
+  /**
+   * Math.round(sales / customers) の数学的性質。
+   * 丸めにより完全再構成はできないが、誤差上限は保証される。
+   */
+  const scenarios = [
+    { label: '割り切れる', sales: 250_000, cust: 100 },
+    { label: '端数あり', sales: 100, cust: 3 },
+    { label: '大規模', sales: 50_000_000, cust: 12_345 },
+    { label: '1客', sales: 4_980, cust: 1 },
+    { label: '低単価', sales: 500, cust: 200 },
+    { label: '高単価', sales: 10_000_000, cust: 3 },
+  ]
+
+  // 不変条件 1: 丸め誤差上限 — |result × c - s| ≤ c × 0.5
+  for (const s of scenarios) {
+    it(`丸め誤差上限: |tv × c - s| ≤ c × 0.5 [${s.label}]`, () => {
+      const tv = calculateTransactionValue(s.sales, s.cust)
+      const error = Math.abs(tv * s.cust - s.sales)
+      expect(error).toBeLessThanOrEqual(s.cust * 0.5)
+    })
+  }
+
+  // 不変条件 2: 整数性 — 結果は常に整数
+  for (const s of scenarios) {
+    it(`整数性: result は整数 [${s.label}]`, () => {
+      const tv = calculateTransactionValue(s.sales, s.cust)
+      expect(Number.isInteger(tv)).toBe(true)
+    })
+  }
+
+  // 不変条件 3: 近似精度 — |result - (sales/customers)| ≤ 0.5
+  for (const s of scenarios) {
+    it(`近似精度: |result - exact| ≤ 0.5 [${s.label}]`, () => {
+      const tv = calculateTransactionValue(s.sales, s.cust)
+      const exact = s.sales / s.cust
+      expect(Math.abs(tv - exact)).toBeLessThanOrEqual(0.5)
+    })
+  }
+
+  // 不変条件 4: 単調性 — s₁ > s₂ ⇒ tv(s₁, c) ≥ tv(s₂, c)  (c > 0)
+  it('単調性: 売上が大きいほど客単価は大きいか同値', () => {
+    const c = 100
+    const tv1 = calculateTransactionValue(100_000, c)
+    const tv2 = calculateTransactionValue(200_000, c)
+    const tv3 = calculateTransactionValue(500_000, c)
+    expect(tv1).toBeLessThanOrEqual(tv2)
+    expect(tv2).toBeLessThanOrEqual(tv3)
+  })
+
+  // 不変条件 5: ゼロ安全性
+  it('ゼロ安全性: customers=0 は常に 0', () => {
+    for (const s of [0, 100, 1_000_000]) {
+      expect(calculateTransactionValue(s, 0)).toBe(0)
+    }
   })
 })
 
