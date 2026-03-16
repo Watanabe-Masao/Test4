@@ -28,7 +28,7 @@
 | ロール | 位置づけ | 品質責任 |
 |---|---|---|
 | pm-business | **指示者** 兼 要件の入口。タスク分解→作業者決定→完了判定 | 要件の正確さ・受入基準の測定可能性 |
-| review-gate | 品質の出口。成果物を受けて PASS/FAIL を自律判定 | 7禁止事項・ガードテスト・CI 6段階ゲート |
+| review-gate | 品質の出口。成果物を受けて PASS/FAIL を自律判定 | 9禁止事項・ガードテスト・CI 6段階ゲート |
 | documentation-steward | 記録の出口。pm-business の報告を受けて更新要否を自律判断 | CLAUDE.md・roles/・references/ とコードの整合性 |
 
 **実務部門（line/）** — 設計→実装→専門検証
@@ -354,6 +354,8 @@ CQRS + 契約ハイブリッド設計により、既存4層モデルの内側に
 ## データフロー（要約）
 
 データは4段階を経てUIに到達する。詳細は `references/01-principles/data-flow.md` を参照。
+パイプライン整合性の設計思想は `references/01-principles/data-pipeline-integrity.md`、
+期間スコープの分離ルールは `references/01-principles/temporal-scope-semantics.md` を参照。
 
 | 段階 | 責務 | 層 |
 |---|---|---|

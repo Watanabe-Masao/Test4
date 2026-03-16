@@ -270,7 +270,7 @@ DuckDB → IndexedDB の書き戻しは禁止。
 
 **成果物:**
 
-- `references/audits/ts-calculation-audit.md`
+- TS 側監査（完了済み、監査結果は本ドキュメントに統合）
 
 **目的:**
 
@@ -348,7 +348,7 @@ DuckDB → IndexedDB の書き戻しは禁止。
 - pure 判定は必要条件
 - FFI 適合判定は移管容易性の条件
 - この二つは分けて扱う
-- 詳細は `references/audits/ts-calculation-audit.md` を参照
+- 詳細は本ドキュメントの Step 2 を参照
 
 ### Step 5. 小規模試験導入
 

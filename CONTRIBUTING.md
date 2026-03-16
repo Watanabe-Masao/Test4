@@ -99,10 +99,12 @@ fix(calculations): decompose5 のシャープリー恒等式不整合を修正
 PR を作成すると、以下の CI パイプラインが自動実行されます。
 **全てのチェックが通過しないとマージできません。**
 
-1. `npm run lint` -- ESLint（エラー 0 必須、warning は許容）
+1. `npm run lint` -- ESLint（エラー 0 必須）
 2. `npm run format:check` -- Prettier フォーマットチェック
 3. `npm run build` -- tsc -b + vite build（TypeScript strict mode）
-4. `npm test` -- vitest（全テスト合格必須）
+4. `npm run build-storybook` -- Storybook ビルド（型・import 健全性）
+5. `npx vitest run --coverage` -- テスト + カバレッジ（lines 55%）
+6. `npm run test:e2e` -- Playwright E2E テスト
 
 ### 2. PR 作成前のローカル確認
 
@@ -121,7 +123,7 @@ npm run lint && npm run format:check && npm run build && npm test
 
 ## 設計原則
 
-本プロジェクトは 10 の設計原則に基づいています。`CLAUDE.md` の「設計思想」セクションに詳細があります。
+本プロジェクトは 16 の設計原則に基づいています。`CLAUDE.md` の「設計思想」セクションに詳細があります。
 
 主要な原則:
 - **機械的アーキテクチャ検証**: `architectureGuard.test.ts` がレイヤー間依存を自動検証
@@ -188,6 +190,6 @@ npm run test:coverage
 
 ## 参考ドキュメント
 
-- **`CLAUDE.md`**: 設計思想 10 原則・コーディング規約・禁止事項・アーキテクチャルールの詳細
+- **`CLAUDE.md`**: 設計思想 16 原則・9 禁止事項・コーディング規約・アーキテクチャルールの詳細
 - **`roles/`**: ロール定義（マルチロール開発体制の責務・スキル・連携）
 - **`references/`**: 共有参照資料（計算エンジン・データモデル・セキュリティ等）
