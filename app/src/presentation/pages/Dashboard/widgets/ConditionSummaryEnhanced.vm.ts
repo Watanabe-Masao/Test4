@@ -283,6 +283,7 @@ export function buildTotal(input: BuildRowsInput): EnhancedTotal {
     if (isElapsed) {
       ly = prevYear.totalSales
     } else {
+      // YoY: alignment経由が正しい（曜日調整済み前年比。monthlyTotal ではない）
       ly = input.prevYearMonthlyKpi.hasPrevYear ? input.prevYearMonthlyKpi.sameDow.sales : null
     }
     yoy = computeYoY(actual, ly, false)
@@ -321,6 +322,7 @@ export function buildTotalFromResult(
     if (isElapsed) {
       ly = prevYear.totalSales
     } else {
+      // YoY: alignment経由が正しい（曜日調整済み前年比。monthlyTotal ではない）
       ly = prevYearMonthlyKpi.hasPrevYear ? prevYearMonthlyKpi.sameDow.sales : null
     }
     yoy = computeYoY(actual, ly, false)

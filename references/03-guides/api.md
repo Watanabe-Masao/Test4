@@ -49,10 +49,11 @@ SQL の WHERE 句を生成するヘルパー。`null` でない条件のみを A
 
 ## 2. DuckDB スキーマ (`schemas.ts`)
 
-### テーブル一覧（8 テーブル）
+### テーブル一覧（12 テーブル）
 
 | テーブル名 | ソース | 主要カラム |
 |---|---|---|
+| `schema_meta` | 内部管理 | version, created_at |
 | `classified_sales` | 分類別売上 CSV | year, month, day, store_id, sales_amount, discount_71-74, is_prev_year |
 | `category_time_sales` | 分類別時間帯 CSV | year, month, day, store_id, dept_code/name, line_code/name, klass_code/name, total_quantity, total_amount, dow |
 | `time_slots` | 時間帯展開 | year, month, day, store_id, dept_code, line_code, klass_code, hour, quantity, amount |
@@ -61,12 +62,16 @@ SQL の WHERE 句を生成するヘルパー。`null` でない条件のみを A
 | `transfers` | 移動 Excel | year, month, store_id, day, direction, cost, price |
 | `consumables` | 消耗品データ | year, month, store_id, day, cost |
 | `department_kpi` | 部門 KPI | year, month, dept_code/name, 各種 KPI 指標 |
+| `budget` | 予算データ | year, month, store_id, budget_amount |
+| `inventory_config` | 棚卸設定 | year, month, store_id, 棚卸関連設定 |
+| `app_settings` | アプリ設定 | key, value |
 
-### VIEW
+### VIEW / マテリアライズドテーブル
 
-| VIEW 名 | 説明 |
+| 名前 | 説明 |
 |---|---|
 | `store_day_summary` | classified_sales を基準に 6 テーブルを LEFT JOIN で結合した店舗 x 日サマリー |
+| `store_day_summary_mat` | store_day_summary のマテリアライズド版（クエリ高速化用） |
 
 全テーブル共通で `year`, `month`, `day`, `date_key` カラムを持ち、
 `date_key BETWEEN` による月跨ぎクエリに対応する。

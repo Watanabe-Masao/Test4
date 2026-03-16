@@ -5,7 +5,7 @@
 
 ## クイックリファレンス表
 
-全8件。全ロールが遵守必須。
+全9件（正本: CLAUDE.md §禁止事項）。全ロールが遵守必須。
 
 | # | 禁止事項 | 壊れるもの | 検出手段 |
 |---|---|---|---|
@@ -17,6 +17,7 @@
 | 6 | UI が生データソースを直接参照する | データソース混同、計算ロジック分散、テスト困難 | review-gate チェック |
 | 7 | UI に変換・副作用・状態管理を混在させる（God Component） | 717行の MetricBreakdownPanel 事件。Storybook 不可、テスト不可 | 300行閾値 + review-gate |
 | 8 | 比較データの sourceDate を落とす変換を行う | 月跨ぎ時の出典追跡不能、前年比0表示（buildPrevSameDowMap 事件） | comparisonMigrationGuard.test.ts (INV-CMP-08) + sameDowPoint.test.ts |
+| 9 | pure かつ authoritative な処理を TypeScript の制御層に新規実装する | 正式値の定義元が分散し、責務境界が崩壊する | review-gate チェック + engine-boundary-policy.md |
 
 ## チェック手順（review-gate 用）
 
@@ -28,6 +29,7 @@
 6. 新規 UI コンポーネントが生データ（records[]）を直接触っていないか確認
 7. 新規/変更ファイルが 300行を超えていないか確認
 8. `dailyMapping` を直接ループする独自変換がないか確認（`buildSameDowPoints()` を経由すること）
+9. pure かつ authoritative な処理が hooks/stores/usecases に新規実装されていないか確認（`domain/calculations/` に配置すべき）
 
 ---
 

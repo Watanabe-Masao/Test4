@@ -9,7 +9,7 @@ MetricId の説明責任（Explanation / Evidence）の守護者。
 ## 前提（所与の事実）
 
 - 経営判断に使われる数値は「なぜこの値か」が追跡可能でなければならない
-- 50 MetricId が型定義済み。うち 37 指標に3段階 UX（L1: 一言 → L2: 式と入力 → L3: ドリルダウン）を提供済み
+- 50 MetricId が型定義済み。うち 42 指標に3段階 UX（L1: 一言 → L2: 式と入力 → L3: ドリルダウン）を提供済み（正本: metric-id-registry.md）
 - ExplanationService は StoreResult の値をそのまま使う（計算を再実行しない）
 - Domain 層の `Explanation.ts` は型定義のみ。生成ロジックは Application 層
 

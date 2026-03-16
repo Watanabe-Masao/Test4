@@ -158,6 +158,7 @@ export function generatePrevYearBudgetExplanations(
   const scope = { storeId, year, month }
 
   // ── 前年同曜日予算比 ──
+  // Explanation: alignment経由が分析対象（曜日調整済み比較値。monthlyTotal ではない）
   const sameDowRatio = safeDivide(pk.sameDow.sales, budget, 0)
   map.set('prevYearSameDowBudgetRatio', {
     metric: 'prevYearSameDowBudgetRatio',
@@ -178,6 +179,7 @@ export function generatePrevYearBudgetExplanations(
   })
 
   // ── 前年同日予算比 ──
+  // Explanation: alignment経由が分析対象（日付対応の比較値。monthlyTotal ではない）
   const sameDateRatio = safeDivide(pk.sameDate.sales, budget, 0)
   map.set('prevYearSameDateBudgetRatio', {
     metric: 'prevYearSameDateBudgetRatio',
