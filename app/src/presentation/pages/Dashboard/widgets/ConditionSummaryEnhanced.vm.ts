@@ -1061,9 +1061,12 @@ function buildDowGapSummary(dowGap: DowGapAnalysis): DowGapSummary | null {
 
   const label = parts.join('')
 
+  // 中央値があればそちらを優先（外れ値に対してロバスト）
+  const avgImpact = dowGap.methodResults?.median?.salesImpact ?? dowGap.estimatedImpact
+
   return {
     label,
-    avgImpact: dowGap.estimatedImpact,
+    avgImpact,
     actualImpact: dowGap.actualDayImpact?.isValid ? dowGap.actualDayImpact.estimatedImpact : null,
   }
 }

@@ -35,8 +35,12 @@ export function DowGapKpiCard({
   if (isActualView) {
     const impact = actualDay.estimatedImpact
     const details = [
-      ...actualDay.shiftedIn.map((d) => `${d.label}: +${fmtCurrency(d.prevSales)}`),
-      ...actualDay.shiftedOut.map((d) => `${d.label}: -${fmtCurrency(d.prevSales)}`),
+      ...actualDay.shiftedIn.map(
+        (d) => `${d.prevMonth}/${d.prevDay}(${d.label}): +${fmtCurrency(d.prevSales)}`,
+      ),
+      ...actualDay.shiftedOut.map(
+        (d) => `${d.prevMonth}/${d.prevDay}(${d.label}): -${fmtCurrency(d.prevSales)}`,
+      ),
     ].join(' / ')
     const subText = details || `日数差: ${totalDiff >= 0 ? '+' : ''}${totalDiff}日 / ${gapSummary}`
 
@@ -57,8 +61,10 @@ export function DowGapKpiCard({
     )
   }
 
-  // 平均法（デフォルト）
-  const impact = dowGap.estimatedImpact
+  // 平均法（デフォルト） — median がある場合はそちらを使用
+  const medianResult = dowGap.methodResults?.median
+  const impact = medianResult?.salesImpact ?? dowGap.estimatedImpact
+  const methodLabel = medianResult ? '中央値' : '平均'
   const warnings = dowGap.missingDataWarnings ?? []
   const hasWarnings = warnings.length > 0
   const subParts: string[] = []
@@ -74,7 +80,7 @@ export function DowGapKpiCard({
 
   return (
     <KpiCard
-      label="曜日ギャップ（平均）"
+      label={`曜日ギャップ（${methodLabel}）`}
       value={`${impact >= 0 ? '+' : ''}${fmtCurrency(impact)}`}
       subText={subParts.join(' / ')}
       accent={
@@ -88,11 +94,11 @@ export function DowGapKpiCard({
       formulaSummary={
         hasActualDay ? (
           <>
-            {'Σ(曜日別日平均 × 日数差) '}
+            {`Σ(曜日別${methodLabel} × 日数差) `}
             <ToggleLink onClick={toggle}>実日に切替</ToggleLink>
           </>
         ) : (
-          'Σ(曜日別日平均 × 日数差)'
+          `Σ(曜日別${methodLabel} × 日数差)`
         )
       }
     />

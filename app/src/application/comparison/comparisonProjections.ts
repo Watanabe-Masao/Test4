@@ -16,6 +16,8 @@ import {
   analyzeDowGapActualDay,
   ZERO_DOW_GAP_ANALYSIS,
 } from '@/domain/calculations/dowGapAnalysis'
+import type { DowGapDailyData } from '@/domain/calculations/dowGapAnalysis'
+import { DAYS_PER_WEEK } from '@/domain/constants'
 import {
   aggregateKpiByAlignment,
   aggregateMonthlyTotal,
@@ -141,11 +143,27 @@ export function buildDowGapProjection(
 ): DowGapAnalysis {
   if (!kpi.hasPrevYear || kpi.sourceYear === 0) return ZERO_DOW_GAP_ANALYSIS
 
-  // 前年曜日別売上を構築
+  // 前年曜日別の合計売上 + 日次データ配列を構築
   const prevDowSales = [0, 0, 0, 0, 0, 0, 0]
+  const salesByDow: number[][] = Array.from({ length: DAYS_PER_WEEK }, () => [])
+  const customersByDow: number[][] = Array.from({ length: DAYS_PER_WEEK }, () => [])
+  let totalCustomers = 0
+
   for (const row of kpi.sameDate.dailyMapping) {
     const dow = new Date(row.prevYear, row.prevMonth - 1, row.prevDay).getDay()
     prevDowSales[dow] += row.prevSales
+    salesByDow[dow].push(row.prevSales)
+    customersByDow[dow].push(row.prevCustomers)
+    totalCustomers += row.prevCustomers
+  }
+
+  const dailyAverageCustomers =
+    kpi.sameDate.dailyMapping.length > 0 ? totalCustomers / kpi.sameDate.dailyMapping.length : 0
+
+  const dailyData: DowGapDailyData = {
+    salesByDow,
+    customersByDow,
+    dailyAverageCustomers,
   }
 
   const base = analyzeDowGap(
@@ -155,6 +173,7 @@ export function buildDowGapProjection(
     kpi.sourceMonth,
     currentAverageDailySales,
     prevDowSales,
+    dailyData,
   )
 
   if (kpi.sameDate.dailyMapping.length > 0 && kpi.sameDow.dailyMapping.length > 0) {

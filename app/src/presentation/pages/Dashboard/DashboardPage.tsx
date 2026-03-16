@@ -420,6 +420,7 @@ export function DashboardPage() {
                 estimatedImpact: 0,
                 isValid: false,
                 prevDowDailyAvg: [0, 0, 0, 0, 0, 0, 0],
+                prevDowDailyAvgCustomers: [0, 0, 0, 0, 0, 0, 0],
                 hasPrevDowSales: false,
                 isSameStructure: true,
                 missingDataWarnings: [],

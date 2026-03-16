@@ -1,28 +1,33 @@
 /**
  * 曜日ギャップ分析
  *
- * 2つの月の曜日構成差から、売上への推定影響額を算出する。
+ * 2つの月の曜日構成差から、売上・客数への推定影響額を算出する。
  *
- * ## ロジック
+ * ## 3つの手法
  *
- * 月ごとに曜日別の日数が異なる（例: 2026年3月は月曜5日、2025年3月は月曜4日）。
- * 前年同曜日比較と前年同日比較の差は、この曜日構成の違いに起因する。
+ * - **mean（平均）**: 曜日別日平均 = 合計 / 日数。従来方式
+ * - **median（中央値）**: 曜日別の日次値を並べ替えて中央値を採用。外れ値に強い
+ * - **adjustedMean（調整平均）**: MADベースで外れ値を除外して平均。
+ *   データ件数4-5の小標本では外れ値1件で平均が大きくずれるため有効
  *
  * ## 計算式
  *
- * estimatedImpact = Σ(前年の曜日i日平均売上 × 曜日iの日数差)
- *
- * 前年の曜日別日平均売上を使って重み付けすることで、
- * 売上の高い曜日（土日）と低い曜日（平日）の入れ替わりを正確に反映する。
+ * estimatedImpact = Σ(前年の曜日i日平均 × 曜日iの日数差)
  */
 
 import type {
   DowDayCount,
   DowGapAnalysis,
-  ActualDayImpact,
-  ShiftedDay,
+  DowGapMethod,
+  DowMethodResult,
 } from '@/domain/models/ComparisonContext'
 import { DAYS_PER_WEEK } from '@/domain/constants'
+import { safeDivide } from './utils'
+import { computeDowStatistics, pickStatValue } from './dowGapStatistics'
+
+// re-export for backward compat
+export { calcMedian, calcAdjustedMean } from './dowGapStatistics'
+export { analyzeDowGapActualDay, ZERO_ACTUAL_DAY_IMPACT } from './dowGapActualDay'
 
 const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土'] as const
 
@@ -41,15 +46,15 @@ export function countDowsInMonth(year: number, month: number): readonly number[]
   return counts
 }
 
+/** 日次データから手法別結果を生成するオプション */
+export interface DowGapDailyData {
+  readonly salesByDow: readonly (readonly number[])[]
+  readonly customersByDow: readonly (readonly number[])[]
+  readonly dailyAverageCustomers: number
+}
+
 /**
  * 曜日ギャップ分析を実行する
- *
- * @param currentYear  当年
- * @param currentMonth 当月
- * @param previousYear 前年
- * @param previousMonth 前年月
- * @param dailyAverageSales 全体の日平均売上（曜日別データなし時のフォールバック）
- * @param prevDowSales 前年の曜日別合計売上（長さ7: 日〜土）。undefinedなら全体平均で代替
  */
 export function analyzeDowGap(
   currentYear: number,
@@ -58,15 +63,15 @@ export function analyzeDowGap(
   previousMonth: number,
   dailyAverageSales: number,
   prevDowSales?: readonly number[],
+  dailyData?: DowGapDailyData,
 ): DowGapAnalysis {
   const currentCounts = countDowsInMonth(currentYear, currentMonth)
   const previousCounts = countDowsInMonth(previousYear, previousMonth)
 
-  // 前年の曜日別日平均売上を算出
   const prevDowDailyAvg: number[] = []
   for (let dow = 0; dow < DAYS_PER_WEEK; dow++) {
     if (prevDowSales && previousCounts[dow] > 0) {
-      prevDowDailyAvg.push(prevDowSales[dow] / previousCounts[dow])
+      prevDowDailyAvg.push(safeDivide(prevDowSales[dow], previousCounts[dow], dailyAverageSales))
     } else {
       prevDowDailyAvg.push(dailyAverageSales)
     }
@@ -103,158 +108,82 @@ export function analyzeDowGap(
     )
   }
 
+  // 曜日別日平均客数（mean 手法 = 従来互換）
+  const prevDowDailyAvgCustomers: number[] = []
+  if (dailyData) {
+    for (let dow = 0; dow < DAYS_PER_WEEK; dow++) {
+      const custValues = dailyData.customersByDow[dow]
+      if (custValues && custValues.length > 0) {
+        prevDowDailyAvgCustomers.push(
+          safeDivide(
+            custValues.reduce((s, v) => s + v, 0),
+            custValues.length,
+            dailyData.dailyAverageCustomers,
+          ),
+        )
+      } else {
+        prevDowDailyAvgCustomers.push(dailyData.dailyAverageCustomers)
+      }
+    }
+  } else {
+    for (let dow = 0; dow < DAYS_PER_WEEK; dow++) {
+      prevDowDailyAvgCustomers.push(0)
+    }
+  }
+
+  // 手法別結果
+  const result = buildMethodResults(dailyData, dowCounts)
+
   return {
     dowCounts,
     estimatedImpact,
     isValid: dailyAverageSales > 0,
     prevDowDailyAvg,
+    prevDowDailyAvgCustomers,
+    ...result,
     hasPrevDowSales: hasPrevDowSalesFlag,
     isSameStructure,
     missingDataWarnings,
   }
 }
 
-/**
- * 実日法による曜日ギャップ分析
- *
- * 同日マッピング (offset=0) と同曜日マッピング (offset=N) を **当年日 (currentDay)** で
- * 突き合わせ、同じ当年日に対して前年の対応日が異なる箇所を「境界シフト」として検出する。
- *
- * ## なぜ currentDay で比較するか
- *
- * prevDay（前年日番号）で比較すると、同曜日マッピングが月境界を跨ぐ場合に
- * 翌月の日番号が同月の日番号と衝突する（例: 2月28日→3月1日 で prevDay=1 が 2月1日と衝突）。
- * currentDay は常に当年の1ヶ月内に収まるため衝突しない。
- *
- * ## 計算式
- *
- * estimatedImpact = Σ(shiftedIn の prevSales) - Σ(shiftedOut の prevSales)
- *
- * @param sameDateMapping 同日マッピングの日別データ（currentDay + prevDay + prevSales）
- * @param sameDowMapping  同曜日マッピングの日別データ（currentDay + prevDay + prevSales）
- * @param prevYear  前年
- * @param prevMonth 前年月
- * @param currentYear  当年（shiftedIn の曜日算出用）
- * @param currentMonth 当月（shiftedIn の曜日算出用）
- */
-export function analyzeDowGapActualDay(
-  sameDateMapping: readonly {
-    readonly currentDay: number
-    readonly prevDay: number
-    readonly prevMonth: number
-    readonly prevYear: number
-    readonly prevSales: number
-  }[],
-  sameDowMapping: readonly {
-    readonly currentDay: number
-    readonly prevDay: number
-    readonly prevMonth: number
-    readonly prevYear: number
-    readonly prevSales: number
-  }[],
-  _prevYear: number,
-  _prevMonth: number,
-  currentYear: number,
-  currentMonth: number,
-): ActualDayImpact {
-  if (sameDateMapping.length === 0 || sameDowMapping.length === 0) {
-    return ZERO_ACTUAL_DAY_IMPACT
-  }
+function buildMethodResults(
+  dailyData: DowGapDailyData | undefined,
+  dowCounts: readonly DowDayCount[],
+) {
+  if (!dailyData) return {}
 
-  // 境界値計算: 全日を列挙するのではなく、
-  // 2つのマッピングの前年日付の集合差分（境界日のみ）で影響額を算出する。
-  //
-  // sameDate の前年日付集合 A と sameDow の前年日付集合 B の差分:
-  //   shiftedIn  = B \ A (DOW alignment で加わった境界日)
-  //   shiftedOut = A \ B (DOW alignment で失われた境界日)
+  const dowSalesStats = Array.from({ length: DAYS_PER_WEEK }, (_, dow) =>
+    computeDowStatistics(dailyData.salesByDow[dow] ?? []),
+  )
+  const dowCustomerStats = Array.from({ length: DAYS_PER_WEEK }, (_, dow) =>
+    computeDowStatistics(dailyData.customersByDow[dow] ?? []),
+  )
 
-  // 前年日付をキーとして集合を構築（年月日で一意化）
-  type PrevDateKey = string
-  const makePrevKey = (y: number, m: number, d: number): PrevDateKey => `${y}-${m}-${d}`
-
-  const sameDatePrevDates = new Map<
-    PrevDateKey,
-    { prevDay: number; prevMonth: number; prevYear: number; prevSales: number }
-  >()
-  for (const r of sameDateMapping) {
-    sameDatePrevDates.set(makePrevKey(r.prevYear, r.prevMonth, r.prevDay), {
-      prevDay: r.prevDay,
-      prevMonth: r.prevMonth,
-      prevYear: r.prevYear,
-      prevSales: r.prevSales,
-    })
-  }
-
-  const sameDowPrevDates = new Map<
-    PrevDateKey,
-    {
-      prevDay: number
-      prevMonth: number
-      prevYear: number
-      prevSales: number
-      currentDay: number
+  const methods: DowGapMethod[] = ['mean', 'median', 'adjustedMean']
+  const methodResults = {} as Record<DowGapMethod, DowMethodResult>
+  for (const method of methods) {
+    const dowAvgSales: number[] = []
+    const dowAvgCustomers: number[] = []
+    let salesImp = 0
+    let custImp = 0
+    for (let dow = 0; dow < DAYS_PER_WEEK; dow++) {
+      const sVal = pickStatValue(dowSalesStats[dow], method)
+      const cVal = pickStatValue(dowCustomerStats[dow], method)
+      dowAvgSales.push(sVal)
+      dowAvgCustomers.push(cVal)
+      salesImp += dowCounts[dow].diff * sVal
+      custImp += dowCounts[dow].diff * cVal
     }
-  >()
-  for (const r of sameDowMapping) {
-    sameDowPrevDates.set(makePrevKey(r.prevYear, r.prevMonth, r.prevDay), {
-      prevDay: r.prevDay,
-      prevMonth: r.prevMonth,
-      prevYear: r.prevYear,
-      prevSales: r.prevSales,
-      currentDay: r.currentDay,
-    })
-  }
-
-  const shiftedIn: ShiftedDay[] = []
-  const shiftedOut: ShiftedDay[] = []
-
-  // B \ A: sameDow にあるが sameDate にない前年日 → DOW alignment で加わった境界日
-  for (const [key, entry] of sameDowPrevDates) {
-    if (!sameDatePrevDates.has(key)) {
-      const inDow = new Date(currentYear, currentMonth - 1, entry.currentDay).getDay()
-      shiftedIn.push({
-        prevDay: entry.prevDay,
-        dow: inDow,
-        label: DOW_LABELS[inDow],
-        prevSales: entry.prevSales,
-      })
+    methodResults[method] = {
+      salesImpact: salesImp,
+      customerImpact: custImp,
+      dowAvgSales,
+      dowAvgCustomers,
     }
   }
 
-  // A \ B: sameDate にあるが sameDow にない前年日 → DOW alignment で失われた境界日
-  for (const [key, entry] of sameDatePrevDates) {
-    if (!sameDowPrevDates.has(key)) {
-      const outDow = new Date(entry.prevYear, entry.prevMonth - 1, entry.prevDay).getDay()
-      shiftedOut.push({
-        prevDay: entry.prevDay,
-        dow: outDow,
-        label: DOW_LABELS[outDow],
-        prevSales: entry.prevSales,
-      })
-    }
-  }
-
-  // 日付順にソート
-  shiftedIn.sort((a, b) => a.prevDay - b.prevDay)
-  shiftedOut.sort((a, b) => a.prevDay - b.prevDay)
-
-  const gainedTotal = shiftedIn.reduce((s, d) => s + d.prevSales, 0)
-  const lostTotal = shiftedOut.reduce((s, d) => s + d.prevSales, 0)
-
-  return {
-    estimatedImpact: gainedTotal - lostTotal,
-    shiftedIn,
-    shiftedOut,
-    isValid: shiftedIn.length > 0 || shiftedOut.length > 0,
-  }
-}
-
-/** ゼロ値の ActualDayImpact */
-export const ZERO_ACTUAL_DAY_IMPACT: ActualDayImpact = {
-  estimatedImpact: 0,
-  shiftedIn: [],
-  shiftedOut: [],
-  isValid: false,
+  return { methodResults, dowSalesStats, dowCustomerStats }
 }
 
 /** ゼロ値の DowGapAnalysis（データ不足時のフォールバック） */
@@ -269,6 +198,7 @@ export const ZERO_DOW_GAP_ANALYSIS: DowGapAnalysis = {
   estimatedImpact: 0,
   isValid: false,
   prevDowDailyAvg: Array(DAYS_PER_WEEK).fill(0) as number[],
+  prevDowDailyAvgCustomers: Array(DAYS_PER_WEEK).fill(0) as number[],
   hasPrevDowSales: false,
   isSameStructure: true,
   missingDataWarnings: ['前年データが読み込まれていません'],
