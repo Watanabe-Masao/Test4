@@ -26,4 +26,5 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   ...WIDGETS_EXEC.slice(8),
   ...WIDGETS_ANALYSIS,
   ...WIDGETS_DUCKDB,
+  ...WIDGETS_CHART.slice(10), // chart-weather-correlation
 ]

@@ -15,6 +15,7 @@ import {
   UnifiedStoreHourlyWidget,
 } from './UnifiedAnalyticsWidgets'
 import { isTimeSeriesVisible, isStoreComparisonVisible } from './widgetVisibility'
+import { WeatherWidget } from './WeatherWidget'
 
 // ── トレンド分析: 日次 ──
 export const WIDGETS_CHART: readonly WidgetDef[] = [
@@ -174,5 +175,13 @@ export const WIDGETS_CHART: readonly WidgetDef[] = [
         />
       )
     },
+  },
+  // ── 天気 ──
+  {
+    id: 'chart-weather-correlation',
+    label: '天気-売上 相関分析',
+    group: '外部データ',
+    size: 'full',
+    render: (ctx) => <WeatherWidget ctx={ctx} />,
   },
 ]
