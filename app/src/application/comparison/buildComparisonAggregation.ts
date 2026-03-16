@@ -17,10 +17,11 @@ import { safeDivide, calculateTransactionValue } from '@/domain/calculations/uti
 import type {
   PrevYearDailyEntry,
   PrevYearMonthlyKpiEntry,
+  PrevYearMonthlyTotal,
   StoreContribution,
   DayMappingRow,
 } from '@/application/comparison/comparisonTypes'
-import type { SourceDataIndex } from '@/application/comparison/sourceDataIndex'
+import type { SourceDataIndex, SourceMonthContext } from '@/application/comparison/sourceDataIndex'
 
 // ── re-export（後方互換） ──
 
@@ -273,5 +274,49 @@ export function aggregateKpiByAlignment(
     transactionValue: calculateTransactionValue(totalSales, totalCustomers),
     dailyMapping,
     storeContributions,
+  }
+}
+
+/**
+ * 前年月間トータルを集計する（alignment不要）。
+ *
+ * alignmentMap を経由せず、sourceIndex のソース月全日データを直接合計する。
+ * 当期の取り込み期間（elapsedDays）や period1 の範囲に一切影響されない。
+ *
+ * ## 使用場面
+ *
+ * - 予算前年比（budget / monthlyTotal.sales）
+ * - 予算成長率（(budget - monthlyTotal.sales) / monthlyTotal.sales）
+ * - 月間固定の参考値表示
+ *
+ * ## alignment経由との違い
+ *
+ * - aggregateKpiByAlignment: 当期の各日→前年対応日→合計（period1依存）
+ * - aggregateMonthlyTotal: ソース月の1日〜末日→合計（period1非依存）
+ */
+export function aggregateMonthlyTotal(
+  sourceIndex: SourceDataIndex,
+  targetIds: readonly string[],
+  sourceMonthCtx: SourceMonthContext,
+): PrevYearMonthlyTotal {
+  let totalSales = 0
+  let totalCustomers = 0
+
+  for (let day = 1; day <= sourceMonthCtx.daysInMonth; day++) {
+    const date = { year: sourceMonthCtx.year, month: sourceMonthCtx.month, day }
+    for (const storeId of targetIds) {
+      const summary = sourceIndex.getSummary(storeId, date)
+      if (!summary) continue
+      totalSales += summary.sales ?? 0
+
+      const flowerEntry = sourceIndex.getFlowers(storeId, date)
+      totalCustomers += flowerEntry?.customers ?? 0
+    }
+  }
+
+  return {
+    sales: totalSales,
+    customers: totalCustomers,
+    transactionValue: calculateTransactionValue(totalSales, totalCustomers),
   }
 }

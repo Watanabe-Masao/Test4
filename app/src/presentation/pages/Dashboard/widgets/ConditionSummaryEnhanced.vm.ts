@@ -747,14 +747,13 @@ export interface BudgetHeaderData {
   readonly monthlyBudget: number
   readonly grossProfitBudget: number
   readonly grossProfitRateBudget: number
-  /** 前年同日（カレンダー同月）売上 — 月間フル */
-  readonly prevYearSalesSameDate: number | null
-  /** 前年同曜日売上 — 月間フル */
-  readonly prevYearSalesSameDow: number | null
-  /** 予算前年比（例: 1.0135 = 101.35%） — sameDate ベース */
-  readonly budgetVsPrevYearSameDate: number | null
-  /** 予算前年比 — sameDow ベース */
-  readonly budgetVsPrevYearSameDow: number | null
+  /**
+   * 月間前年売上（alignment不要の固定値）。
+   * 前年ソース月の全日データを単純合計。取り込み期間に影響されない。
+   */
+  readonly prevYearMonthlySales: number | null
+  /** 予算前年比（例: 1.0135 = 101.35%）— 月間トータルベース */
+  readonly budgetVsPrevYear: number | null
   /** 曜日ギャップ情報（構成が同じ場合は null） */
   readonly dowGap: DowGapSummary | null
 }
@@ -793,36 +792,34 @@ function buildDowGapSummary(dowGap: DowGapAnalysis): DowGapSummary | null {
   }
 }
 
-/** 月間固定の予算コンテキスト情報を構築する */
+/**
+ * 月間固定の予算コンテキスト情報を構築する。
+ *
+ * ## 期間スコープの意味論
+ *
+ * 前年売上は monthlyTotal（alignment不要の全日合計）を使用する。
+ * sameDate.sales / sameDow.sales は alignment 経由で当期 period1 に依存するため、
+ * 月間固定値が必要な予算前年比には不適切。
+ */
 export function buildBudgetHeader(
   result: StoreResult,
   prevYearMonthlyKpi: PrevYearMonthlyKpi,
   dowGap: DowGapAnalysis,
 ): BudgetHeaderData {
-  let prevYearSalesSameDate: number | null = null
-  let prevYearSalesSameDow: number | null = null
-  if (prevYearMonthlyKpi.hasPrevYear) {
-    prevYearSalesSameDate = prevYearMonthlyKpi.sameDate.sales
-    prevYearSalesSameDow = prevYearMonthlyKpi.sameDow.sales
-  }
+  const prevYearMonthlySales =
+    prevYearMonthlyKpi.hasPrevYear && prevYearMonthlyKpi.monthlyTotal.sales > 0
+      ? prevYearMonthlyKpi.monthlyTotal.sales
+      : null
 
-  const budgetVsPrevYearSameDate =
-    prevYearSalesSameDate != null && prevYearSalesSameDate > 0
-      ? safeDivide(result.budget, prevYearSalesSameDate, 0)
-      : null
-  const budgetVsPrevYearSameDow =
-    prevYearSalesSameDow != null && prevYearSalesSameDow > 0
-      ? safeDivide(result.budget, prevYearSalesSameDow, 0)
-      : null
+  const budgetVsPrevYear =
+    prevYearMonthlySales != null ? safeDivide(result.budget, prevYearMonthlySales, 0) : null
 
   return {
     monthlyBudget: result.budget,
     grossProfitBudget: result.grossProfitBudget,
     grossProfitRateBudget: result.grossProfitRateBudget,
-    prevYearSalesSameDate,
-    prevYearSalesSameDow,
-    budgetVsPrevYearSameDate,
-    budgetVsPrevYearSameDow,
+    prevYearMonthlySales,
+    budgetVsPrevYear,
     dowGap: buildDowGapSummary(dowGap),
   }
 }

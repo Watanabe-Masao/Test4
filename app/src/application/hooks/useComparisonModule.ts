@@ -75,6 +75,7 @@ const EMPTY_KPI: PrevYearMonthlyKpi = {
   hasPrevYear: false,
   sameDow: ZERO_KPI_ENTRY,
   sameDate: ZERO_KPI_ENTRY,
+  monthlyTotal: { sales: 0, customers: 0, transactionValue: 0 },
   sourceYear: 0,
   sourceMonth: 0,
   dowOffset: 0,

@@ -176,35 +176,22 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
           <BudgetHeaderLabel>粗利率予算</BudgetHeaderLabel>
           <BudgetHeaderValue>{formatPercent(budgetHeader.grossProfitRateBudget)}</BudgetHeaderValue>
         </BudgetHeaderItem>
-        {(budgetHeader.prevYearSalesSameDate != null ||
-          budgetHeader.prevYearSalesSameDow != null) && (
+        {budgetHeader.prevYearMonthlySales != null && (
           <BudgetHeaderItem>
-            <BudgetHeaderLabel>
-              前年売上({prevYearMode === 'sameDate' ? '同日' : '同曜日'})
-            </BudgetHeaderLabel>
+            <BudgetHeaderLabel>月間前年売上</BudgetHeaderLabel>
             <BudgetHeaderValue>
-              {ctx.fmtCurrency(
-                (prevYearMode === 'sameDate'
-                  ? budgetHeader.prevYearSalesSameDate
-                  : budgetHeader.prevYearSalesSameDow) ?? 0,
-              )}
+              {ctx.fmtCurrency(budgetHeader.prevYearMonthlySales)}
             </BudgetHeaderValue>
           </BudgetHeaderItem>
         )}
-        {(() => {
-          const ratio =
-            prevYearMode === 'sameDate'
-              ? budgetHeader.budgetVsPrevYearSameDate
-              : budgetHeader.budgetVsPrevYearSameDow
-          return (
-            ratio != null && (
-              <BudgetHeaderItem>
-                <BudgetHeaderLabel>予算前年比</BudgetHeaderLabel>
-                <BudgetGrowthBadge $positive={ratio >= 1}>{formatPercent(ratio)}</BudgetGrowthBadge>
-              </BudgetHeaderItem>
-            )
-          )
-        })()}
+        {budgetHeader.budgetVsPrevYear != null && (
+          <BudgetHeaderItem>
+            <BudgetHeaderLabel>予算前年比</BudgetHeaderLabel>
+            <BudgetGrowthBadge $positive={budgetHeader.budgetVsPrevYear >= 1}>
+              {formatPercent(budgetHeader.budgetVsPrevYear)}
+            </BudgetGrowthBadge>
+          </BudgetHeaderItem>
+        )}
         {/* 曜日GAPは同日比較時のみ表示（同曜日比較では曜日が揃うためGAPなし） */}
         {prevYearMode === 'sameDate' && budgetHeader.dowGap && (
           <>
