@@ -6,7 +6,7 @@
  *
  * File System Access API (Chromium 86+) 前提。非対応ブラウザでは無効。
  */
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useReducer } from 'react'
 import {
   isFileSystemAccessSupported,
   pickDirectory,
@@ -14,6 +14,7 @@ import {
   removeHandle,
   listFiles,
 } from '@/infrastructure/storage/folderAccess'
+import { autoImportReducer, createInitialAutoImportState } from './autoImportReducer'
 
 /** インポート対象の拡張子 */
 const IMPORTABLE_EXTENSIONS = ['.xlsx', '.xls', '.csv'] as const
@@ -82,23 +83,23 @@ export interface AutoImportActions {
   setAutoSync: (enabled: boolean) => void
 }
 
+function loadInitialAutoSync(): boolean {
+  try {
+    return localStorage.getItem(AUTO_SYNC_ENABLED_KEY) === 'true'
+  } catch {
+    return false
+  }
+}
+
 export function useAutoImport(
   onFilesFound: (files: File[]) => Promise<void>,
 ): AutoImportState & AutoImportActions {
   const supported = isFileSystemAccessSupported()
-  const [dirHandle, setDirHandle] = useState<FileSystemDirectoryHandle | null>(null)
-  const [folderName, setFolderName] = useState<string | null>(null)
-  const [lastScanAt, setLastScanAt] = useState<string | null>(null)
-  const [isScanning, setIsScanning] = useState(false)
-  const [lastImportCount, setLastImportCount] = useState(0)
-  const [error, setError] = useState<string | null>(null)
-  const [autoSyncEnabled, setAutoSyncEnabled] = useState(() => {
-    try {
-      return localStorage.getItem(AUTO_SYNC_ENABLED_KEY) === 'true'
-    } catch {
-      return false
-    }
-  })
+  const [state, dispatch] = useReducer(
+    autoImportReducer,
+    loadInitialAutoSync(),
+    createInitialAutoImportState,
+  )
 
   /** 処理済みファイルの指紋セット（localStorage から復元） */
   const processedRef = useRef(loadProcessedFingerprints())
@@ -110,8 +111,7 @@ export function useAutoImport(
     initRef.current = true
     getStoredHandle('import').then((h) => {
       if (h) {
-        setDirHandle(h)
-        setFolderName(h.name)
+        dispatch({ type: 'RESTORE_HANDLE', handle: h })
       }
     })
   }, [supported])
@@ -119,9 +119,7 @@ export function useAutoImport(
   const selectFolder = useCallback(async () => {
     const handle = await pickDirectory('import')
     if (handle) {
-      setDirHandle(handle)
-      setFolderName(handle.name)
-      setError(null)
+      dispatch({ type: 'SELECT_FOLDER', handle })
       processedRef.current = new Set()
       saveProcessedFingerprints(processedRef.current)
       return true
@@ -131,21 +129,16 @@ export function useAutoImport(
 
   const clearFolder = useCallback(async () => {
     await removeHandle('import')
-    setDirHandle(null)
-    setFolderName(null)
-    setLastScanAt(null)
-    setLastImportCount(0)
-    setError(null)
+    dispatch({ type: 'CLEAR_FOLDER' })
     processedRef.current = new Set()
     saveProcessedFingerprints(processedRef.current)
   }, [])
 
   const scanNow = useCallback(async (): Promise<File[]> => {
-    if (!dirHandle) return []
-    setIsScanning(true)
-    setError(null)
+    if (!state.dirHandle) return []
+    dispatch({ type: 'SCAN_START' })
     try {
-      const entries = await listFiles(dirHandle, [...IMPORTABLE_EXTENSIONS])
+      const entries = await listFiles(state.dirHandle, [...IMPORTABLE_EXTENSIONS])
       const newFiles: File[] = []
 
       for (const entry of entries) {
@@ -162,8 +155,11 @@ export function useAutoImport(
         saveProcessedFingerprints(processedRef.current)
       }
 
-      setLastScanAt(new Date().toISOString())
-      setLastImportCount(newFiles.length)
+      dispatch({
+        type: 'SCAN_SUCCESS',
+        importCount: newFiles.length,
+        scanAt: new Date().toISOString(),
+      })
 
       if (newFiles.length > 0) {
         await onFilesFound(newFiles)
@@ -172,23 +168,23 @@ export function useAutoImport(
       return newFiles
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
-      setError(msg)
+      dispatch({ type: 'SCAN_ERROR', error: msg })
       return []
     } finally {
-      setIsScanning(false)
+      dispatch({ type: 'SCAN_END' })
     }
-  }, [dirHandle, onFilesFound])
+  }, [state.dirHandle, onFilesFound])
 
   // 起動時にフォルダが設定されていれば自動スキャン（1回）
   const autoScanRef = useRef(false)
   useEffect(() => {
-    if (!dirHandle || autoScanRef.current) return
+    if (!state.dirHandle || autoScanRef.current) return
     autoScanRef.current = true
     scanNow()
-  }, [dirHandle, scanNow])
+  }, [state.dirHandle, scanNow])
 
   const setAutoSync = useCallback((enabled: boolean) => {
-    setAutoSyncEnabled(enabled)
+    dispatch({ type: 'SET_AUTO_SYNC', enabled })
     try {
       localStorage.setItem(AUTO_SYNC_ENABLED_KEY, String(enabled))
     } catch {
@@ -200,22 +196,22 @@ export function useAutoImport(
   const scanNowRef = useRef(scanNow)
   scanNowRef.current = scanNow
   useEffect(() => {
-    if (!dirHandle || !autoSyncEnabled) return
+    if (!state.dirHandle || !state.autoSyncEnabled) return
     const id = setInterval(() => {
       scanNowRef.current()
     }, AUTO_SYNC_INTERVAL_MS)
     return () => clearInterval(id)
-  }, [dirHandle, autoSyncEnabled])
+  }, [state.dirHandle, state.autoSyncEnabled])
 
   return {
     supported,
-    folderConfigured: dirHandle !== null,
-    folderName,
-    lastScanAt,
-    isScanning,
-    lastImportCount,
-    error,
-    autoSyncEnabled,
+    folderConfigured: state.dirHandle !== null,
+    folderName: state.folderName,
+    lastScanAt: state.lastScanAt,
+    isScanning: state.isScanning,
+    lastImportCount: state.lastImportCount,
+    error: state.error,
+    autoSyncEnabled: state.autoSyncEnabled,
     selectFolder,
     clearFolder,
     scanNow,

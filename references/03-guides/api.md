@@ -185,7 +185,9 @@ interface CtsFilterParams {
 | ファイル | 担当 |
 |---|---|
 | `useAsyncQuery.ts` | 汎用非同期クエリフック（ベース） |
-| `useCtsQueries.ts` | カテゴリ時間帯売上クエリ |
+| `useCtsQueries.ts` | カテゴリ時間帯売上クエリ（バレル re-export） |
+| `useCtsHierarchyQueries.ts` | カテゴリ階層・日次トレンド・CTS レコード |
+| `useCtsAggregationQueries.ts` | 時間帯集約・店舗集約・マトリクス・日数 |
 | `useDeptKpiQueries.ts` | 部門 KPI クエリ |
 | `useSummaryQueries.ts` | 日別サマリークエリ |
 | `useYoyQueries.ts` | 前年比較クエリ |

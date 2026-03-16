@@ -213,19 +213,17 @@ export function useMetricBreakdown({
   const hasDrilldown = !!(current.breakdown && current.breakdown.length > 0)
   const hasEvidence = current.evidenceRefs.length > 0
 
-  const evidenceSummary = useMemo(
-    () => buildEvidenceSummary(current.evidenceRefs),
-    [current.evidenceRefs],
+  const { evidenceSummary, evidenceRefsByType } = useMemo(
+    () => ({
+      evidenceSummary: buildEvidenceSummary(current.evidenceRefs),
+      evidenceRefsByType: buildEvidenceRefsByType(current.evidenceRefs, stores),
+    }),
+    [current.evidenceRefs, stores],
   )
 
   const breakdownRows = useMemo(
     () => buildBreakdownRows(current.breakdown, current.unit),
     [current.breakdown, current.unit],
-  )
-
-  const evidenceRefsByType = useMemo(
-    () => buildEvidenceRefsByType(current.evidenceRefs, stores),
-    [current.evidenceRefs, stores],
   )
 
   const breadcrumb = useMemo(
