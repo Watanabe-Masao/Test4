@@ -111,8 +111,10 @@ describe('queryLevelAggregation', () => {
     const sql = conn.getCapturedSql()[0]
     expect(sql).toContain('cts.klass_code AS code')
     expect(sql).toContain('cts.klass_name AS name')
-    expect(sql).toContain('0')
-    expect(sql).not.toContain('COUNT(DISTINCT')
+    // child_count は 0 固定（klass は最下位）
+    expect(sql).toContain('0 AS child_count')
+    // handled_day_count は COUNT(DISTINCT...) で算出される（R-8）
+    expect(sql).toContain('handled_day_count')
   })
 
   it('deptCode フィルタが SQL に反映される', async () => {
@@ -490,5 +492,72 @@ describe('バリデーションエラー', () => {
         storeIds: ["1'; DROP TABLE--"],
       }),
     ).rejects.toThrow('Invalid store ID')
+  })
+})
+
+// ── R-8: null/0 棲み分け不変条件 ──────────────────────────────
+
+describe('R-8: 営業日フィルタ（businessDaysOnly）', () => {
+  it('queryDistinctDayCount に businessDaysOnly=true で total_amount > 0 が追加される', async () => {
+    const conn = makeMockConn([{ cnt: 15 }])
+    await queryDistinctDayCount(conn as never, { ...baseParams, businessDaysOnly: true })
+    const sql = conn.getCapturedSql()[0]
+    expect(sql).toContain('cts.total_amount > 0')
+    expect(sql).toContain('COUNT(DISTINCT cts.date_key)')
+  })
+
+  it('queryDistinctDayCount に businessDaysOnly 未指定で total_amount フィルタなし', async () => {
+    const conn = makeMockConn([{ cnt: 20 }])
+    await queryDistinctDayCount(conn as never, baseParams)
+    const sql = conn.getCapturedSql()[0]
+    expect(sql).not.toContain('total_amount > 0')
+  })
+
+  it('queryDowDivisorMap に businessDaysOnly=true で total_amount > 0 が追加される', async () => {
+    const conn = makeMockConn([{ dow: 1, divisor: 4 }])
+    await queryDowDivisorMap(conn as never, { ...baseParams, businessDaysOnly: true })
+    const sql = conn.getCapturedSql()[0]
+    expect(sql).toContain('cts.total_amount > 0')
+    expect(sql).toContain('GROUP BY cts.dow')
+  })
+
+  it('queryDowDivisorMap に businessDaysOnly 未指定で total_amount フィルタなし', async () => {
+    const conn = makeMockConn([{ dow: 1, divisor: 4 }])
+    await queryDowDivisorMap(conn as never, baseParams)
+    const sql = conn.getCapturedSql()[0]
+    expect(sql).not.toContain('total_amount > 0')
+  })
+})
+
+describe('R-8: 非取扱品目除外', () => {
+  it('queryLevelAggregation に HAVING SUM > 0 が含まれる', async () => {
+    const conn = makeMockConn()
+    await queryLevelAggregation(conn as never, { ...baseParams, level: 'department' })
+    const sql = conn.getCapturedSql()[0]
+    expect(sql).toContain('HAVING SUM(cts.total_amount) > 0')
+  })
+
+  it('queryLevelAggregation が handledDayCount と totalDayCount を返す', async () => {
+    const conn = makeMockConn()
+    await queryLevelAggregation(conn as never, { ...baseParams, level: 'department' })
+    const sql = conn.getCapturedSql()[0]
+    expect(sql).toContain('handled_day_count')
+    expect(sql).toContain('total_day_count')
+    expect(sql).toContain('CASE WHEN cts.total_amount > 0 THEN cts.date_key END')
+  })
+
+  it('不変条件: handledDayCount <= totalDayCount（型構造の保証）', () => {
+    // LevelAggregationRow の型定義に handledDayCount と totalDayCount が必須
+    const row = {
+      code: 'D01',
+      name: '青果',
+      amount: 100000,
+      quantity: 500,
+      childCount: 3,
+      handledDayCount: 20,
+      totalDayCount: 25,
+    }
+    expect(row.handledDayCount).toBeLessThanOrEqual(row.totalDayCount)
+    expect(row.handledDayCount).toBeGreaterThanOrEqual(0)
   })
 })

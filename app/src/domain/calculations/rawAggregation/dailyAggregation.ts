@@ -143,6 +143,8 @@ export function dowAggregate(
   const dowMap = new Map<number, number[]>()
 
   for (const d of dailyData) {
+    // 非営業日（totalSales = 0）は曜日パターンから除外
+    if (d.totalSales <= 0) continue
     const parts = d.dateKey.split('-')
     const dow = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2])).getDay()
     const arr = dowMap.get(dow) ?? []

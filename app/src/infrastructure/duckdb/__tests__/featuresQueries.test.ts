@@ -187,6 +187,13 @@ describe('queryDowPattern', () => {
     const sql = conn.getCapturedSql()[0]
     expect(sql).toContain("store_id IN ('5', '6')")
   })
+
+  it('R-8: CTE 内で非営業日（SUM(sales) = 0）が除外される', async () => {
+    const conn = makeMockConn()
+    await queryDowPattern(conn as never, baseParams)
+    const sql = conn.getCapturedSql()[0]
+    expect(sql).toContain('HAVING SUM(sales) > 0')
+  })
 })
 
 describe('queryDeptDailyTrend', () => {
@@ -242,5 +249,12 @@ describe('queryDeptDailyTrend', () => {
     await queryDeptDailyTrend(conn as never, { ...baseParams, storeIds: ['1'] })
     const sql = conn.getCapturedSql()[0]
     expect(sql).toContain("store_id IN ('1')")
+  })
+
+  it('R-8: 非取扱日（SUM(total_amount) = 0）が除外される', async () => {
+    const conn = makeMockConn()
+    await queryDeptDailyTrend(conn as never, baseParams)
+    const sql = conn.getCapturedSql()[0]
+    expect(sql).toContain('HAVING SUM(total_amount) > 0')
   })
 })

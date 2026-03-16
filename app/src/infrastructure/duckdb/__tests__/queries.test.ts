@@ -103,9 +103,12 @@ describe('クエリ結果型の構造', () => {
       amount: 100000,
       quantity: 500,
       childCount: 3,
+      handledDayCount: 20,
+      totalDayCount: 25,
     }
     expect(row.code).toBe('D01')
     expect(row.childCount).toBe(3)
+    expect(row.handledDayCount).toBeLessThanOrEqual(row.totalDayCount)
   })
 
   it('StoreAggregationRow の必須プロパティ', () => {

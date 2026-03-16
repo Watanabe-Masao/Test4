@@ -135,6 +135,9 @@ export async function queryHourlyProfile(
 
 /**
  * 曜日パターン（季節性分析）
+ *
+ * 非営業日（daily_sales = 0）は平均・標準偏差の計算から除外する。
+ * 非営業日を含めると曜日別平均が実態より低くなるため。
  */
 export async function queryDowPattern(
   conn: AsyncDuckDBConnection,
@@ -151,6 +154,7 @@ export async function queryDowPattern(
       FROM store_day_summary
       ${where}
       GROUP BY store_id, date_key, year, month, day
+      HAVING SUM(sales) > 0
     )
     SELECT
       store_id,
@@ -166,6 +170,9 @@ export async function queryDowPattern(
 
 /**
  * 部門×日の売上トレンド
+ *
+ * 非取扱日（日次売上合計 = 0）は除外する。
+ * 移動平均の窓に 0 が混入すると MA が実態より低くなるため。
  */
 export async function queryDeptDailyTrend(
   conn: AsyncDuckDBConnection,
@@ -197,6 +204,7 @@ export async function queryDeptDailyTrend(
     ${where}
     ${deptFilter}
     GROUP BY store_id, dept_code, dept_name, date_key
+    HAVING SUM(total_amount) > 0
     ORDER BY store_id, dept_code, date_key`
   return queryToObjects<DeptDailyTrendRow>(conn, sql)
 }
