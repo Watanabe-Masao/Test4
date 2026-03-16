@@ -197,10 +197,10 @@ describe('クエリ結果型の構造', () => {
       totalSalesBudget: 5000000,
       totalSalesActual: 4800000,
       overallSalesAchievement: 0.96,
-      weightedGpRateBudget: 0.25,
-      weightedGpRateActual: 0.24,
-      weightedDiscountRate: 0.02,
-      weightedMarkupRate: 0.28,
+      gpBudgetWeightedSum: 1200000,
+      gpActualWeightedSum: 1152000,
+      discountWeightedSum: 96000,
+      markupWeightedSum: 1344000,
     }
     expect(row.deptCount).toBe(5)
   })

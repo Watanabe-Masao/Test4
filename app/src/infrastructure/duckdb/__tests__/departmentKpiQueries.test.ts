@@ -116,10 +116,10 @@ describe('queryDeptKpiSummary', () => {
     expect(sql).toContain('COUNT(*) AS dept_count')
     expect(sql).toContain('SUM(sales_budget)')
     expect(sql).toContain('SUM(sales_actual)')
-    expect(sql).toContain('weighted_gp_rate_budget')
-    expect(sql).toContain('weighted_gp_rate_actual')
-    expect(sql).toContain('weighted_discount_rate')
-    expect(sql).toContain('weighted_markup_rate')
+    expect(sql).toContain('gp_budget_weighted_sum')
+    expect(sql).toContain('gp_actual_weighted_sum')
+    expect(sql).toContain('discount_weighted_sum')
+    expect(sql).toContain('markup_weighted_sum')
   })
 
   it('年月フィルタが SQL に反映される', async () => {
@@ -142,10 +142,10 @@ describe('queryDeptKpiSummary', () => {
         totalSalesBudget: 5000000,
         totalSalesActual: 4800000,
         overallSalesAchievement: 0.96,
-        weightedGpRateBudget: 0.25,
-        weightedGpRateActual: 0.24,
-        weightedDiscountRate: 0.02,
-        weightedMarkupRate: 0.28,
+        gpBudgetWeightedSum: 1200000,
+        gpActualWeightedSum: 1152000,
+        discountWeightedSum: 96000,
+        markupWeightedSum: 1344000,
       },
     ]
     const conn = makeMockConn(rows)
@@ -161,12 +161,14 @@ describe('queryDeptKpiSummary', () => {
     )
   })
 
-  it('CASE WHEN SUM(sales_budget) > 0 で safe divide する', async () => {
+  it('売上予算 safe divide と加重合計の COALESCE を含む', async () => {
     const conn = makeMockConn([{}])
     await queryDeptKpiSummary(conn as never, { year: 2026, month: 2 })
     const sql = conn.getCapturedSql()[0]
     expect(sql).toContain('CASE WHEN SUM(sales_budget) > 0')
-    expect(sql).toContain('CASE WHEN SUM(sales_actual) > 0')
+    // 率の加重合計は COALESCE で 0 フォールバック（除算は TS 側で行う）
+    expect(sql).toContain('COALESCE(SUM(gp_rate_budget * sales_actual), 0)')
+    expect(sql).toContain('COALESCE(SUM(discount_rate * sales_actual), 0)')
   })
 })
 

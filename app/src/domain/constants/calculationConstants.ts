@@ -42,3 +42,14 @@ export const DIVERGENCE_DETECTION_THRESHOLD = 30
 
 /** 95%信頼区間の Z スコア（正規分布近似） */
 export const CONFIDENCE_95_ZSCORE = 1.96
+
+/** 異常値検出の Z スコア閾値（平均 ± N 標準偏差） */
+export const ANOMALY_ZSCORE_THRESHOLD = 2.0
+
+/** トレンド判定の変化率閾値（±3%以上で上昇/下降と判定） */
+export const TREND_CHANGE_THRESHOLD = 0.03
+
+// ── 表示・書式 ──
+
+/** 万円変換の除数 */
+export const MANYEN_DIVISOR = 10_000

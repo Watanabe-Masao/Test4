@@ -56,16 +56,25 @@ export interface DepartmentAggregationRow {
   readonly salesLanding: number
 }
 
-/** 部門別集約サマリー行（売上加重平均） */
+/**
+ * 部門別集約サマリー行
+ *
+ * 率の加重平均は SQL 内で完結させず、加重合計（numerator）のみ返す。
+ * 最終的な率の算出は TS 側で domain/calculations を経由する（禁止事項 #10）。
+ */
 export interface DepartmentAggregationSummaryRow {
   readonly deptCount: number
   readonly totalSalesBudget: number
   readonly totalSalesActual: number
   readonly overallSalesAchievement: number
-  readonly weightedGpRateBudget: number
-  readonly weightedGpRateActual: number
-  readonly weightedDiscountRate: number
-  readonly weightedMarkupRate: number
+  /** SUM(gp_rate_budget × sales_actual) — 率算出は TS 側で行う */
+  readonly gpBudgetWeightedSum: number
+  /** SUM(gp_rate_actual × sales_actual) — 率算出は TS 側で行う */
+  readonly gpActualWeightedSum: number
+  /** SUM(discount_rate × sales_actual) — 率算出は TS 側で行う */
+  readonly discountWeightedSum: number
+  /** SUM(markup_rate × sales_actual) — 率算出は TS 側で行う */
+  readonly markupWeightedSum: number
 }
 
 // ── フィルタ条件 ──
@@ -137,18 +146,10 @@ export async function queryDepartmentAggregationSummary(
       CASE WHEN SUM(sales_budget) > 0
         THEN SUM(sales_actual) / SUM(sales_budget)
         ELSE 0 END AS overall_sales_achievement,
-      CASE WHEN SUM(sales_actual) > 0
-        THEN SUM(gp_rate_budget * sales_actual) / SUM(sales_actual)
-        ELSE 0 END AS weighted_gp_rate_budget,
-      CASE WHEN SUM(sales_actual) > 0
-        THEN SUM(gp_rate_actual * sales_actual) / SUM(sales_actual)
-        ELSE 0 END AS weighted_gp_rate_actual,
-      CASE WHEN SUM(sales_actual) > 0
-        THEN SUM(discount_rate * sales_actual) / SUM(sales_actual)
-        ELSE 0 END AS weighted_discount_rate,
-      CASE WHEN SUM(sales_actual) > 0
-        THEN SUM(markup_rate * sales_actual) / SUM(sales_actual)
-        ELSE 0 END AS weighted_markup_rate
+      COALESCE(SUM(gp_rate_budget * sales_actual), 0) AS gp_budget_weighted_sum,
+      COALESCE(SUM(gp_rate_actual * sales_actual), 0) AS gp_actual_weighted_sum,
+      COALESCE(SUM(discount_rate * sales_actual), 0) AS discount_weighted_sum,
+      COALESCE(SUM(markup_rate * sales_actual), 0) AS markup_weighted_sum
     FROM department_kpi
     WHERE year = ${params.year} AND month = ${params.month}`
 

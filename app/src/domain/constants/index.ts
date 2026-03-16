@@ -16,6 +16,9 @@ export {
   MEDIUM_TERM_MA_MONTHS,
   DIVERGENCE_DETECTION_THRESHOLD,
   CONFIDENCE_95_ZSCORE,
+  ANOMALY_ZSCORE_THRESHOLD,
+  TREND_CHANGE_THRESHOLD,
+  MANYEN_DIVISOR,
 } from './calculationConstants'
 export { CATEGORY_LABELS, CATEGORY_ORDER } from './categories'
 export { METRIC_DEFS } from './metricDefs'

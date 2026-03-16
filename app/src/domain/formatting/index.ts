@@ -4,6 +4,7 @@
  * 小売業の指標表示に特化した整形ロジック。
  * 純粋関数のみ（副作用なし、外部依存なし）。
  */
+import { MANYEN_DIVISOR } from '@/domain/constants'
 
 /**
  * 金額フォーマット（四捨五入 → カンマ区切り）
@@ -18,7 +19,7 @@ export function formatCurrency(n: number | null): string {
  */
 export function formatManYen(n: number | null): string {
   if (n == null || isNaN(n)) return '-'
-  const manYen = Math.round(n / 10_000)
+  const manYen = Math.round(n / MANYEN_DIVISOR)
   return `${manYen > 0 ? '+' : ''}${manYen}万円`
 }
 
