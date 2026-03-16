@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import { formatPercent, formatPointDiff } from '@/domain/formatting'
-import { safeDivide, calculateTransactionValue } from '@/domain/calculations/utils'
+import { calculateTransactionValue, calculateGrossProfitRate } from '@/domain/calculations/utils'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useUiStore } from '@/application/stores/uiStore'
 import { calculationCache } from '@/application/services/calculationCache'
@@ -181,16 +181,14 @@ export function ExecSummaryBarWidget(ctx: WidgetContext) {
               <ExecSummaryLabel>原算前粗利率/原算後粗利率</ExecSummaryLabel>
               {r.invMethodGrossProfitRate != null
                 ? (() => {
-                    const invAfterRate = safeDivide(
+                    const invAfterRate = calculateGrossProfitRate(
                       r.invMethodGrossProfit! - r.totalCostInclusion,
                       r.totalSales,
-                      0,
                     )
                     const invDiff = r.invMethodGrossProfitRate - invAfterRate
-                    const estBeforeRate = safeDivide(
+                    const estBeforeRate = calculateGrossProfitRate(
                       r.estMethodMargin + r.totalCostInclusion,
                       r.totalCoreSales,
-                      0,
                     )
                     const estDiff = estBeforeRate - r.estMethodMarginRate
                     return (
@@ -212,10 +210,9 @@ export function ExecSummaryBarWidget(ctx: WidgetContext) {
                     )
                   })()
                 : (() => {
-                    const estBeforeRate = safeDivide(
+                    const estBeforeRate = calculateGrossProfitRate(
                       r.estMethodMargin + r.totalCostInclusion,
                       r.totalCoreSales,
-                      0,
                     )
                     const estDiff = estBeforeRate - r.estMethodMarginRate
                     return (

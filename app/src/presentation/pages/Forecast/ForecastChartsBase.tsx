@@ -5,7 +5,7 @@ import { memo } from 'react'
 import { calculateForecast } from '@/application/hooks/calculation'
 import type { DayOfWeekAverage } from '@/application/hooks/calculation'
 import { formatPercent } from '@/domain/formatting'
-import { safeDivide } from '@/domain/calculations/utils'
+import { calculateShare } from '@/domain/calculations/utils'
 import {
   useChartTheme,
   toAxisYen,
@@ -99,7 +99,7 @@ export const DayOfWeekChart = memo(function DayOfWeekChart({
   const data = averages.map((a, i) => ({
     name: DOW_LABELS[i],
     average: a.averageSales,
-    index: safeDivide(a.averageSales, totalAvg, 0),
+    index: calculateShare(a.averageSales, totalAvg),
     count: a.count,
     color: dowColors[i],
   }))

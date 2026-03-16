@@ -21,7 +21,7 @@ import { useDualPeriodRange } from './useDualPeriodRange'
 import type { DailyRecord, DiscountEntry } from '@/domain/models'
 import { DISCOUNT_TYPES } from '@/domain/models'
 import { formatPercent } from '@/domain/formatting'
-import { safeDivide } from '@/domain/calculations/utils'
+import { calculateShare } from '@/domain/calculations/utils'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 
 /** 売変種別ごとのカラーパレット（DISCOUNT_TYPES の順序に対応） */
@@ -83,7 +83,7 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
       cumDiscount += dayDiscount
       cumGrossSales += dayGross
 
-      const cumRate = safeDivide(cumDiscount, cumGrossSales, 0)
+      const cumRate = calculateShare(cumDiscount, cumGrossSales)
 
       // 前年売変比較
       const prevEntry = prevYearDaily?.get(toDateKeyFromParts(year, month, d))
@@ -92,7 +92,7 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
       // 前年粗売上は不明なので売上で近似（データソースの制約）
       prevCumGrossSales += prevEntry?.sales ?? 0
       const prevCumRate =
-        prevCumGrossSales > 0 ? safeDivide(prevCumDiscount, prevCumGrossSales, 0) : null
+        prevCumGrossSales > 0 ? calculateShare(prevCumDiscount, prevCumGrossSales) : null
 
       const entry: Record<string, number | boolean | null> = {
         day: d,
@@ -198,7 +198,7 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
             const amt = entry?.amount ?? 0
             const pct = totalDiscount > 0 ? amt / totalDiscount : 0
             const rate =
-              totalGrossSales && totalGrossSales > 0 ? safeDivide(amt, totalGrossSales, 0) : 0
+              totalGrossSales && totalGrossSales > 0 ? calculateShare(amt, totalGrossSales) : 0
             return (
               <KpiCard key={dt.type} $color={DISCOUNT_COLORS[i]}>
                 <KpiLabel>

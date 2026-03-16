@@ -10,7 +10,11 @@
  * - フィルタ・集約ロジックをアプリケーション層に集約
  */
 import type { DepartmentKpiRecord, DepartmentKpiData } from '@/domain/models'
-import { safeDivide } from '@/domain/calculations/utils'
+import {
+  safeDivide,
+  calculateAchievementRate,
+  calculateGrossProfitRate,
+} from '@/domain/calculations/utils'
 
 /** 部門KPIサマリー（全部門の集約値） */
 export interface DepartmentKpiSummary {
@@ -100,9 +104,9 @@ export function buildDepartmentKpiIndex(data: DepartmentKpiData): DepartmentKpiI
     deptCount: records.length,
     totalSalesBudget,
     totalSalesActual,
-    overallSalesAchievement: safeDivide(totalSalesActual, totalSalesBudget),
-    weightedGpRateBudget: safeDivide(gpBudgetWeightedSum, totalSalesActual),
-    weightedGpRateActual: safeDivide(gpActualWeightedSum, totalSalesActual),
+    overallSalesAchievement: calculateAchievementRate(totalSalesActual, totalSalesBudget),
+    weightedGpRateBudget: calculateGrossProfitRate(gpBudgetWeightedSum, totalSalesActual),
+    weightedGpRateActual: calculateGrossProfitRate(gpActualWeightedSum, totalSalesActual),
     weightedDiscountRate: safeDivide(discountWeightedSum, totalSalesActual),
     weightedMarkupRate: safeDivide(markupWeightedSum, totalSalesActual),
   }

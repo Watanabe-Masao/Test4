@@ -33,9 +33,9 @@ import {
 import type { DailyRecord } from '@/domain/models'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import {
-  safeDivide,
   calculateTransactionValue,
   calculateMovingAverage,
+  calculateGrowthRate,
 } from '@/domain/calculations/utils'
 
 type ViewType = 'salesGap' | 'multiGap' | 'growthRate'
@@ -148,12 +148,12 @@ export const YoYVarianceChart = memo(function YoYVarianceChart({
       totalCustomerDiff += customerDiff
 
       // Daily growth rates
-      const salesGrowth = prevSales > 0 ? safeDivide(curSales - prevSales, prevSales, 0) : null
+      const salesGrowth = prevSales > 0 ? calculateGrowthRate(curSales, prevSales) : null
       const customerGrowth =
-        prevCustomers > 0 ? safeDivide(curCustomers - prevCustomers, prevCustomers, 0) : null
+        prevCustomers > 0 ? calculateGrowthRate(curCustomers, prevCustomers) : null
       const txValueGrowth =
         curTxValue != null && prevTxValue != null && prevTxValue > 0
-          ? safeDivide(curTxValue - prevTxValue, prevTxValue, 0)
+          ? calculateGrowthRate(curTxValue, prevTxValue)
           : null
 
       // Cumulative growth rates
@@ -171,14 +171,12 @@ export const YoYVarianceChart = memo(function YoYVarianceChart({
       }
 
       const cumSalesGrowth =
-        cumPrevSales > 0 ? safeDivide(cumCurSales - cumPrevSales, cumPrevSales, 0) : null
+        cumPrevSales > 0 ? calculateGrowthRate(cumCurSales, cumPrevSales) : null
       const cumCustomerGrowth =
-        cumPrevCustomers > 0
-          ? safeDivide(cumCurCustomers - cumPrevCustomers, cumPrevCustomers, 0)
-          : null
+        cumPrevCustomers > 0 ? calculateGrowthRate(cumCurCustomers, cumPrevCustomers) : null
       const avgCurTx = cumCurTxDays > 0 ? cumCurTxValueSum / cumCurTxDays : 0
       const avgPrevTx = cumPrevTxDays > 0 ? cumPrevTxValueSum / cumPrevTxDays : 0
-      const cumTxValueGrowth = avgPrevTx > 0 ? safeDivide(avgCurTx - avgPrevTx, avgPrevTx, 0) : null
+      const cumTxValueGrowth = avgPrevTx > 0 ? calculateGrowthRate(avgCurTx, avgPrevTx) : null
 
       // For moving average (use 0 for null)
       rawSalesGrowth.push(salesGrowth ?? 0)

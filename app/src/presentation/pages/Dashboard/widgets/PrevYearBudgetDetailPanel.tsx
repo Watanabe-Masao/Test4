@@ -15,7 +15,7 @@ import type { PrevYearMonthlyKpiEntry } from '@/application/comparison/compariso
 import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
 import { formatPercent } from '@/domain/formatting'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
-import { safeDivide } from '@/domain/calculations/utils'
+import { safeDivide, calculateTransactionValue } from '@/domain/calculations/utils'
 import {
   Overlay,
   Panel,
@@ -171,7 +171,7 @@ export function PrevYearBudgetDetailPanel({
   }, [baseRows])
 
   // サマリー指標
-  const prevTransactionValue = safeDivide(entry.sales, entry.customers, 0)
+  const prevTransactionValue = calculateTransactionValue(entry.sales, entry.customers)
   const budgetRatio = safeDivide(entry.sales, budgetTotal, 0)
   const budgetVsPrevYear = safeDivide(budgetTotal, entry.sales, 0)
 
@@ -204,7 +204,7 @@ export function PrevYearBudgetDetailPanel({
     const wt = weeklyTotals.get(weekNum)
     if (!wt) return null
     const wRatio = safeDivide(wt.budget, wt.sales, 0)
-    const wCustUnit = safeDivide(wt.sales, wt.customers, 0)
+    const wCustUnit = calculateTransactionValue(wt.sales, wt.customers)
     return (
       <WeekRow key={`week-${weekNum}`}>
         <MbpTd colSpan={2}>
@@ -250,7 +250,7 @@ export function PrevYearBudgetDetailPanel({
       const displayBudget = viewMode === 'cumulative' ? cumBudget : row.budget
       const diff = displayBudget - displaySales
       const ratio = safeDivide(displayBudget, displaySales, 0)
-      const custUnitPrice = safeDivide(displaySales, displayCustomers, 0)
+      const custUnitPrice = calculateTransactionValue(displaySales, displayCustomers)
 
       elements.push(
         <MbpTr key={i}>

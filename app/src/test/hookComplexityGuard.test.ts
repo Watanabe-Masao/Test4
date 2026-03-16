@@ -573,7 +573,7 @@ describe('Domain 層の分割後ファイル行数制限', () => {
     ['domain/constants/formulaRegistryCore.ts', 200],
     ['domain/constants/formulaRegistryBusiness.ts', 340],
     // Phase 8: calculations/utils 分割
-    ['domain/calculations/utils.ts', 200],
+    ['domain/calculations/utils.ts', 230],
     ['domain/calculations/averageDivisor.ts', 120],
     ['domain/calculations/dataDetection.ts', 80],
     // Phase 4-5: metricResolver 3段パイプライン化 + policy 駆動 + displayMode

@@ -89,6 +89,44 @@ export function calculateGrossProfitRate(grossProfit: number, sales: number): nu
 }
 
 /**
+ * 値入率（粗利益 / 売価）を計算する
+ *
+ * @category MKP — 売価に対する粗利益の割合
+ * @param grossProfit — 粗利益額（売価 - 原価）
+ * @param salesPrice — 売価
+ * @returns 値入率（0.3 = 30%）
+ * @range [0, 1] — 原価が売価を超えることは通常ない
+ * @zero salesPrice=0 → 0（売価ゼロは値入率なし）
+ * @invariant costRate + markupRate = 1（costRate = cost / salesPrice）
+ *
+ * NOTE(pragmatic): 単品レベルの計算。カテゴリ集計の値入率は
+ * calculateMarkupRates() を使用する。
+ * 参照: references/01-principles/domain-ratio-primitives.md
+ */
+export function calculateMarkupRate(grossProfit: number, salesPrice: number): number {
+  return safeDivide(grossProfit, salesPrice, 0)
+}
+
+/**
+ * 成長率（(当期 - 前期) / 前期）を計算する
+ *
+ * @category GRW — 前期からの変化率
+ * @param current — 当期の値
+ * @param previous — 前期の値
+ * @returns 成長率（0.2 = 20%増、-0.1 = 10%減）
+ * @range (-∞, ∞) — 負は減少、正は増加
+ * @zero previous=0 → 0（前期データなしは成長率なし）
+ * @invariant current = previous × (1 + growthRate)
+ *
+ * NOTE(pragmatic): calculateYoYRatio (current/previous) とは異なる。
+ * YoY比=1.2 は成長率=0.2（20%増）に対応する。
+ * 参照: references/01-principles/domain-ratio-primitives.md
+ */
+export function calculateGrowthRate(current: number, previous: number): number {
+  return safeDivide(current - previous, previous, 0)
+}
+
+/**
  * 客単価（1客あたり売上）を計算する
  *
  * @category TXV — 1客あたりの売上金額（単位値）

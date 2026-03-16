@@ -3,7 +3,7 @@ import type { AppSettings } from '@/domain/models/Settings'
 import type { MetricId } from '@/domain/models'
 import { Card, CardTitle, KpiCard, KpiGrid } from '@/presentation/components/common'
 import { formatPercent } from '@/domain/formatting'
-import { safeDivide } from '@/domain/calculations/utils'
+import { calculateMarkupRate, calculateShare } from '@/domain/calculations/utils'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { CATEGORY_LABELS, CATEGORY_ORDER } from '@/domain/constants/categories'
 import { sc } from '@/presentation/theme/semanticColors'
@@ -54,7 +54,7 @@ export function ReportSummaryGrid({
         label: CATEGORY_LABELS[cat],
         cost: pair.cost,
         price: pair.price,
-        markup: safeDivide(pair.price - pair.cost, pair.price, 0),
+        markup: calculateMarkupRate(pair.price - pair.cost, pair.price),
       },
     ]
   })
@@ -428,7 +428,7 @@ export function ReportSummaryGrid({
               </thead>
               <tbody>
                 {categoryData.map((d) => {
-                  const share = safeDivide(Math.abs(d.cost), totalCategoryCost, 0)
+                  const share = calculateShare(Math.abs(d.cost), totalCategoryCost)
                   return (
                     <Tr key={d.category}>
                       <Td>{d.label}</Td>
@@ -445,11 +445,10 @@ export function ReportSummaryGrid({
                   <Td $accent>{fmtCurrency(categoryData.reduce((s, d) => s + d.price, 0))}</Td>
                   <Td $accent>
                     {formatPercent(
-                      safeDivide(
+                      calculateMarkupRate(
                         categoryData.reduce((s, d) => s + d.price, 0) -
                           categoryData.reduce((s, d) => s + d.cost, 0),
                         categoryData.reduce((s, d) => s + d.price, 0),
-                        0,
                       ),
                     )}
                   </Td>

@@ -1,5 +1,10 @@
 import { palette } from '@/presentation/theme/tokens'
-import { safeDivide, getEffectiveGrossProfitRate } from '@/domain/calculations/utils'
+import {
+  safeDivide,
+  getEffectiveGrossProfitRate,
+  calculateMarkupRate,
+  calculateShare,
+} from '@/domain/calculations/utils'
 import type { MetricId, StoreResult, CustomCategory } from '@/domain/models'
 import type { ConditionMetricId } from '@/domain/models'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
@@ -205,9 +210,9 @@ export function buildCrossMult(
     label: d.label,
     cost: d.cost,
     price: d.price,
-    markupRate: safeDivide(d.price - d.cost, d.price, 0),
-    priceShare: safeDivide(Math.abs(d.price), totalAbsPrice, 0),
-    crossMultiplication: safeDivide(d.price - d.cost, totalPrice, 0),
+    markupRate: calculateMarkupRate(d.price - d.cost, d.price),
+    priceShare: calculateShare(Math.abs(d.price), totalAbsPrice),
+    crossMultiplication: calculateShare(d.price - d.cost, totalPrice),
     color: d.color,
   }))
 }

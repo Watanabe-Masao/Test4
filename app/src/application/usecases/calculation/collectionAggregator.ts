@@ -13,7 +13,12 @@ import type {
   TransferDetails,
 } from '@/domain/models'
 import { ZERO_COST_PRICE_PAIR, addCostPricePairs } from '@/domain/models'
-import { safeDivide } from '@/domain/calculations/utils'
+import {
+  safeDivide,
+  calculateMarkupRate,
+  calculateGrossProfitRate,
+  calculateAchievementRate,
+} from '@/domain/calculations/utils'
 // bridge 経由: 将来の dual-run compare を観測可能にする
 import { calculateMarkupRates as calcMarkupRatesDomain } from '@/application/services/grossProfitBridge'
 import { calculateTransferTotals as calcTransferTotalsDomain } from '@/application/services/grossProfitBridge'
@@ -67,7 +72,10 @@ export function aggregateCollections(results: readonly StoreResult[]) {
           ...ex,
           cost: ex.cost + st.cost,
           price: ex.price + st.price,
-          markupRate: safeDivide(ex.price + st.price - ex.cost - st.cost, ex.price + st.price, 0),
+          markupRate: calculateMarkupRate(
+            ex.price + st.price - ex.cost - st.cost,
+            ex.price + st.price,
+          ),
         })
       }
     }
@@ -153,7 +161,7 @@ export function calculateAggregateInventory(
   if (openingInventory != null && closingInventory != null) {
     invMethodCogs = openingInventory + totalCost - closingInventory
     invMethodGrossProfit = totalSales - invMethodCogs
-    invMethodGrossProfitRate = safeDivide(invMethodGrossProfit, totalSales, 0)
+    invMethodGrossProfitRate = calculateGrossProfitRate(invMethodGrossProfit, totalSales)
   }
   return { invMethodCogs, invMethodGrossProfit, invMethodGrossProfitRate }
 }
@@ -165,7 +173,7 @@ export function calculateAggregateEstMethod(
 ) {
   const estMethodCogs = results.reduce((s, r) => s + r.estMethodCogs, 0)
   const estMethodMargin = results.reduce((s, r) => s + r.estMethodMargin, 0)
-  const estMethodMarginRate = safeDivide(estMethodMargin, totalCoreSales, 0)
+  const estMethodMarginRate = calculateGrossProfitRate(estMethodMargin, totalCoreSales)
   const hasEstClosing = results.some((r) => r.estMethodClosingInventory != null)
   const estMethodClosingInventory = hasEstClosing
     ? results.reduce((s, r) => s + (r.estMethodClosingInventory ?? 0), 0)
@@ -185,8 +193,8 @@ export function calculateAggregateBudget(
 ) {
   const remainingDays = daysInMonth - elapsedDays
   const projectedSales = totalSales + averageDailySales * remainingDays
-  const projectedAchievement = safeDivide(projectedSales, budget, 0)
-  const budgetAchievementRate = safeDivide(totalSales, budget, 0)
+  const projectedAchievement = calculateAchievementRate(projectedSales, budget)
+  const budgetAchievementRate = calculateAchievementRate(totalSales, budget)
 
   let aggCumulativeBudget = 0
   for (let d = 1; d <= elapsedDays; d++) {

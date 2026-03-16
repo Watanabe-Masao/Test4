@@ -5,7 +5,7 @@ import type { StoreResult, Store } from '@/domain/models'
 import { DISCOUNT_TYPES } from '@/domain/models'
 import { formatPercent, formatPointDiff } from '@/domain/formatting'
 import type { CurrencyFormatter } from '@/presentation/components/charts/chartTheme'
-import { safeDivide } from '@/domain/calculations/utils'
+import { calculateShare } from '@/domain/calculations/utils'
 import { resolveThresholds, evaluateSignal } from '@/domain/calculations/rules/conditionResolver'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
 import {
@@ -195,7 +195,7 @@ export function buildDiscountRateDetailVm(
     const entries = DISCOUNT_TYPES.map((dt) => {
       const entry = sr.discountEntries.find((e) => e.type === dt.type)
       const amt = entry?.amount ?? 0
-      const rate = sr.grossSales > 0 ? safeDivide(amt, sr.grossSales, 0) : 0
+      const rate = sr.grossSales > 0 ? calculateShare(amt, sr.grossSales) : 0
       return { type: dt.type, rateStr: formatPercent(rate), amtStr: fmtCurrency(amt) }
     })
 
@@ -214,7 +214,7 @@ export function buildDiscountRateDetailVm(
   const totalEntries = DISCOUNT_TYPES.map((dt) => {
     const entry = result.discountEntries.find((e) => e.type === dt.type)
     const amt = entry?.amount ?? 0
-    const rate = result.grossSales > 0 ? safeDivide(amt, result.grossSales, 0) : 0
+    const rate = result.grossSales > 0 ? calculateShare(amt, result.grossSales) : 0
     return { type: dt.type, rateStr: formatPercent(rate), amtStr: fmtCurrency(amt) }
   })
 

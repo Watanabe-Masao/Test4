@@ -26,7 +26,7 @@ import {
   useDuckDBStorePeriodMetrics,
   type PeriodMetrics,
 } from '@/application/hooks/duckdb/useMetricsQueries'
-import { safeDivide } from '@/domain/calculations/utils'
+import { safeDivide, calculateGrossProfitRate } from '@/domain/calculations/utils'
 
 // ── 型定義 ──
 
@@ -171,7 +171,7 @@ function mergePeriodMetrics(metrics: readonly PeriodMetrics[]): MergedPeriodMetr
   const invCogs = hasInv ? openingInv + totalCost - closingInv : null
   const invGrossProfit = invCogs != null ? totalSales - invCogs : null
   const invGrossProfitRate =
-    invGrossProfit != null ? safeDivide(invGrossProfit, totalSales, 0) : null
+    invGrossProfit != null ? calculateGrossProfitRate(invGrossProfit, totalSales) : null
 
   return {
     storeId: 'MERGED',
@@ -215,7 +215,7 @@ function mergePeriodMetrics(metrics: readonly PeriodMetrics[]): MergedPeriodMetr
     invMethodGrossProfitRate: invGrossProfitRate,
     estMethodCogs: estCogs,
     estMethodMargin: estMargin,
-    estMethodMarginRate: safeDivide(estMargin, totalSales, 0),
+    estMethodMarginRate: calculateGrossProfitRate(estMargin, totalSales),
     estMethodClosingInventory: hasEstClosing ? estClosingInv : null,
     grossProfitBudget,
     salesDays,

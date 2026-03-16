@@ -29,6 +29,7 @@
 |---|---|---|---|---|---|---|
 | **ACH** | 達成率 | 実績の目標に対する割合 | actual / target | [0, ∞) | target=0 → 0 | — |
 | **YOY** | 前年比 | 当期の前年同期に対する割合 | current / previous | [0, ∞) | previous=0 → 0 | — |
+| **GRW** | 成長率 | 前期からの変化率 | (current - previous) / previous | (-∞, ∞) | previous=0 → 0 | current = previous × (1 + rate) |
 | **WOW** | 前週比 | 当日の前週同曜日に対する割合 | current / previous | [0, ∞) | previous=0 → 0 | — |
 | **SHR** | 構成比 | 部分の全体に対する割合 | part / whole | [0, 1] | whole=0 → 0 | Σ parts = whole → Σ ratios = 1 |
 | **GPR** | 粗利率 | 粗利の売上に対する割合 | grossProfit / sales | (-∞, 1] | sales=0 → 0 | GP = sales × GPR |
@@ -37,6 +38,21 @@
 | **TXV** | 客単価 | 1客あたり売上（単位値） | sales / customers | [0, ∞) 整数 | customers=0 → 0 | TV × C ≈ S (丸め誤差内) |
 | **PIC** | PI値 | 1客あたり点数 | totalQty / customers | [0, ∞) | customers=0 → 0 | — |
 | **PPU** | 点単価 | 1点あたり売上 | sales / totalQty | [0, ∞) | totalQty=0 → 0 | S = C × Q × P̄ |
+
+### YOY と GRW の違い
+
+**重要:** 前年比（YOY）と成長率（GRW）は異なる指標である。
+
+| 指標 | 数式 | 例: 当期120万/前年100万 | 意味 |
+|---|---|---|---|
+| 前年比 (YOY) | current / previous | 1.2（120%） | 前年を1とした倍率 |
+| 成長率 (GRW) | (current - previous) / previous | 0.2（20%増） | 前年からの変化割合 |
+
+**関係式:** `growthRate = yoyRatio - 1`
+
+使い分け:
+- 表で「前年比 120%」と表示する場合 → `calculateYoYRatio` (1.2)
+- チャートで「+20%」と表示する場合 → `calculateGrowthRate` (0.2)
 
 ### 意味の違いが実装に影響する例
 
@@ -55,23 +71,29 @@
 
 | 関数名 | カテゴリ | 定義ファイル | 数学的厳密性 | 不変条件テスト |
 |---|---|---|---|---|
-| `calculateAchievementRate(actual, target)` | ACH（汎用） | utils.ts | pragmatic | ✅ reconstruction, identity, monotonicity, zero-safety |
+| `calculateAchievementRate(actual, target)` | ACH | utils.ts | pragmatic | ✅ reconstruction, identity, monotonicity, zero-safety |
+| `calculateYoYRatio(current, previous)` | YOY | utils.ts | pragmatic | ✅ reconstruction, identity, monotonicity, zero-safety |
+| `calculateGrowthRate(current, previous)` | GRW | utils.ts | pragmatic | ✅ reconstruction, YoY関係式, identity, monotonicity, zero-safety |
+| `calculateShare(part, whole)` | SHR | utils.ts | pragmatic | ✅ sum constraint, range, reconstruction, parametric |
+| `calculateGrossProfitRate(grossProfit, sales)` | GPR | utils.ts | pragmatic | ✅ reconstruction, range, monotonicity, zero-safety |
+| `calculateMarkupRate(grossProfit, salesPrice)` | MKP（単品） | utils.ts | pragmatic | ✅ complementarity, reconstruction, range, monotonicity, zero-safety |
 | `calculateTransactionValue(sales, customers)` | TXV | utils.ts | pragmatic | ✅ rounding bound, integrality, zero-safety |
-| `calculateItemsPerCustomer(totalQty, customers)` | PIC | utils.ts | 正式 | — |
-| `calculateAveragePricePerItem(sales, totalQty)` | PPU | utils.ts | 正式 | — |
+| `calculateItemsPerCustomer(totalQty, customers)` | PIC | utils.ts | 正式 | ✅ C×Q×P̄=S (cross-validation) |
+| `calculateAveragePricePerItem(sales, totalQty)` | PPU | utils.ts | 正式 | ✅ C×Q×P̄=S (cross-validation) |
 | `calculateDiscountRate(salesAmount, discountAmount)` | DSC | estMethod.ts | pragmatic | ✅ reconstruction, range, complementarity, monotonicity, zero-safety |
-| `calculateMarkupRates(input)` | MKP | markupRate.ts | 正式 | ✅ (markupRate.test.ts) |
+| `calculateMarkupRates(input)` | MKP（複合） | markupRate.ts | 正式 | ✅ (markupRate.test.ts) |
 | `calculateBudgetAnalysis(input)` | ACH（複合） | budgetAnalysis.ts | 正式 | ✅ (Rust invariants B-INV-1〜8) |
 
-### 未登録（inline `safeDivide` / `calculateAchievementRate` で代用中）
+### safeDivide の残存が適切な場合
 
-| 意味的カテゴリ | 現行の実装 | 使用箇所数 | 状態 |
-|---|---|---|---|
-| **YOY（前年比）** | `calculateAchievementRate(current, previous)` | 11箇所 | ⚠️ 達成率と混同 |
-| **WOW（前週比）** | `calculateAchievementRate(current, previous)` | 1箇所 | ⚠️ 達成率と混同 |
-| **SHR（構成比）** | `calculateAchievementRate(part, total)` | 4箇所 | ⚠️ 達成率と混同 |
-| **GPR（粗利率）** | `safeDivide(gp, sales, 0)` / `calculateAchievementRate` | 2+箇所 | ⚠️ 意味不明瞭 |
-| **日商平均** | `safeDivide(budget, daysInMonth, 0)` | 2箇所 | ✅ 適切（比率ではない） |
+| 用途 | 例 | 理由 |
+|---|---|---|
+| 日商平均 | `safeDivide(budget, daysInMonth, 0)` | 比率ではなく単位値の算出 |
+| 原価算入率 | `safeDivide(costInclusion, sales, 0)` | 専用プリミティブ未定義（将来検討） |
+| 予算進捗率 | `safeDivide(sales, cumulativeBudget, 0)` | 達成率とは異なる（消化ペース） |
+| 予算経過率 | `safeDivide(cumulativeBudget, budget, 0)` | 時間経過の割合 |
+| ペース比率 | `safeDivide(requiredDaily, actualDaily, 0)` | 必要ペースの比率 |
+| 標準誤差 | `safeDivide(stdDev, sqrt(n), stdDev)` | 統計計算 |
 
 ---
 

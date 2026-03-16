@@ -9,6 +9,7 @@ import {
   safeDivide,
   calculateTransactionValue,
   getEffectiveGrossProfitRate,
+  calculateYoYRatio,
 } from '@/domain/calculations/utils'
 import { calculateForecast } from '@/application/hooks/calculation'
 import {
@@ -146,9 +147,10 @@ export function useInsightData() {
   const avgDailyCustomers = r?.averageCustomersPerDay ?? 0
   const avgTxValue = r ? calculateTransactionValue(r.totalSales, totalCustomers) : 0
   const prevTotalCustomers = prevYear.totalCustomers
-  const customerYoY = prevTotalCustomers > 0 ? safeDivide(totalCustomers, prevTotalCustomers) : 0
+  const customerYoY =
+    prevTotalCustomers > 0 ? calculateYoYRatio(totalCustomers, prevTotalCustomers) : 0
   const prevAvgTxValue = calculateTransactionValue(prevYear.totalSales, prevTotalCustomers)
-  const txValueYoY = prevAvgTxValue > 0 ? safeDivide(avgTxValue, prevAvgTxValue) : 0
+  const txValueYoY = prevAvgTxValue > 0 ? calculateYoYRatio(avgTxValue, prevAvgTxValue) : 0
 
   const handleDowColorChange = (index: number, color: string) => {
     setDowColors((prev) => {

@@ -6,7 +6,7 @@
  */
 import { useState, useMemo } from 'react'
 import { formatPercent } from '@/domain/formatting'
-import { safeDivide } from '@/domain/calculations/utils'
+import { calculateYoYRatio } from '@/domain/calculations/utils'
 import {
   useCurrencyFormat,
   type CurrencyFormatter,
@@ -48,7 +48,7 @@ function renderDailyYoYRows(
 
     const displayCurrent = mode === 'cumulative' ? cumCurrent : currentVal
     const displayPrev = mode === 'cumulative' ? cumPrev : prevVal
-    const yoy = safeDivide(displayCurrent, displayPrev, 0)
+    const yoy = calculateYoYRatio(displayCurrent, displayPrev)
 
     const fmtVal =
       metric === 'sales' ? (v: number) => fmtCurrency(v) : (v: number) => `${v.toLocaleString()}人`

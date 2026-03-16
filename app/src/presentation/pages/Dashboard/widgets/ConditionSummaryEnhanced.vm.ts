@@ -5,7 +5,11 @@
  * Presentation 層の描画ロジックからデータ変換を分離する（原則#9: 描画は純粋）。
  */
 
-import { safeDivide } from '@/domain/calculations/utils'
+import {
+  safeDivide,
+  calculateAchievementRate,
+  calculateYoYRatio,
+} from '@/domain/calculations/utils'
 import { calculateMarkupRates } from '@/domain/calculations/markupRate'
 import { calculateDiscountRate } from '@/domain/calculations/estMethod'
 import {
@@ -162,13 +166,13 @@ function extractLySales(
 
 function computeAchievement(actual: number, budget: number, isRate: boolean): number {
   if (isRate) return actual - budget // pp diff
-  return safeDivide(actual, budget, 0) * 100 // %
+  return calculateAchievementRate(actual, budget) * 100 // %
 }
 
 function computeYoY(actual: number, ly: number | null, isRate: boolean): number | null {
   if (ly == null || ly === 0) return null
   if (isRate) return actual - ly // pp diff
-  return safeDivide(actual, ly, 0) * 100 // %
+  return calculateYoYRatio(actual, ly) * 100 // %
 }
 
 // ─── Public: Build Rows ─────────────────────────────────
@@ -441,7 +445,7 @@ export function buildDailyDetailRows(
       metric === 'markupRate'
         ? dailyActual - dailyBudget
         : dailyBudget > 0
-          ? safeDivide(dailyActual, dailyBudget, 0) * 100
+          ? calculateAchievementRate(dailyActual, dailyBudget) * 100
           : 0
     const cumDiff = cumActual - cumBudget
     const cumAchievement =
@@ -451,7 +455,7 @@ export function buildDailyDetailRows(
             sr.grossProfitRateBudget * 100
           : 0
         : cumBudget > 0
-          ? safeDivide(cumActual, cumBudget, 0) * 100
+          ? calculateAchievementRate(cumActual, cumBudget) * 100
           : 0
 
     rows.push({
@@ -512,9 +516,10 @@ function buildGpDailyRows(sr: StoreResult, effectiveElapsed: number): DailyDetai
     cumActual += dailyActual
 
     const diff = dailyActual - dailyBudget
-    const achievement = dailyBudget > 0 ? safeDivide(dailyActual, dailyBudget, 0) * 100 : 0
+    const achievement =
+      dailyBudget > 0 ? calculateAchievementRate(dailyActual, dailyBudget) * 100 : 0
     const cumDiff = cumActual - cumBudget
-    const cumAchievement = cumBudget > 0 ? safeDivide(cumActual, cumBudget, 0) * 100 : 0
+    const cumAchievement = cumBudget > 0 ? calculateAchievementRate(cumActual, cumBudget) * 100 : 0
 
     rows.push({
       day,
@@ -555,7 +560,7 @@ export function buildDailyYoYRows(
   for (let day = 1; day <= effectiveElapsed; day++) {
     const curActual = sr.daily.get(day)?.sales ?? 0
     const prevActual = prevByDay.get(day) ?? 0
-    const yoy = prevActual > 0 ? safeDivide(curActual, prevActual, 0) * 100 : 0
+    const yoy = prevActual > 0 ? calculateYoYRatio(curActual, prevActual) * 100 : 0
     rows.push({ day, prevActual, curActual, yoy })
   }
   return rows
