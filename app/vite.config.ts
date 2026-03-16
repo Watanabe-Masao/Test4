@@ -51,7 +51,6 @@ export default defineConfig({
           'vendor-table': ['@tanstack/react-table'],
           'vendor-router': ['react-router-dom'],
           'vendor-state': ['zustand'],
-          'vendor-duckdb': ['@duckdb/duckdb-wasm'],
         },
       },
     },
