@@ -860,6 +860,19 @@ describe('aggregateStoreResults', () => {
       expect(result.requiredDailySales).toBe(10000)
     })
 
+    it('returns storeId "aggregate" regardless of input storeIds', () => {
+      // WeatherWidget など外部が storeId で設定を参照する場合、
+      // 'aggregate' であることを前提にした実装が必要（storeLocations[storeId] 等）
+      const storeA = makeStoreResult({ storeId: 'store-001' })
+      const storeB = makeStoreResult({ storeId: 'store-002' })
+
+      const single = aggregateStoreResults([storeA], 30)
+      expect(single.storeId).toBe('aggregate')
+
+      const multi = aggregateStoreResults([storeA, storeB], 30)
+      expect(multi.storeId).toBe('aggregate')
+    })
+
     it('computes estMethodMarginRate from aggregated values', () => {
       const storeA = makeStoreResult({
         totalCoreSales: 80000,
