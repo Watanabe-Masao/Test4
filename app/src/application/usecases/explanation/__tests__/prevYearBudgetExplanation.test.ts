@@ -58,11 +58,11 @@ function makeEntry(overrides?: Partial<PrevYearMonthlyKpiEntry>): PrevYearMonthl
       },
     ],
     storeContributions: [
-      { storeId: 'S1', originalDay: 1, mappedDay: 1, sales: 60000, customers: 30 },
-      { storeId: 'S2', originalDay: 1, mappedDay: 1, sales: 40000, customers: 20 },
-      { storeId: 'S1', originalDay: 2, mappedDay: 2, sales: 120000, customers: 60 },
-      { storeId: 'S1', originalDay: 3, mappedDay: 3, sales: 80000, customers: 40 },
-      { storeId: 'S1', originalDay: 15, mappedDay: 15, sales: 200000, customers: 100 },
+      { storeId: 'S1', originalDay: 1, mappedDay: 1, sales: 60000, customers: 30, discount: 0 },
+      { storeId: 'S2', originalDay: 1, mappedDay: 1, sales: 40000, customers: 20, discount: 0 },
+      { storeId: 'S1', originalDay: 2, mappedDay: 2, sales: 120000, customers: 60, discount: 0 },
+      { storeId: 'S1', originalDay: 3, mappedDay: 3, sales: 80000, customers: 40, discount: 0 },
+      { storeId: 'S1', originalDay: 15, mappedDay: 15, sales: 200000, customers: 100, discount: 0 },
     ],
     ...overrides,
   }

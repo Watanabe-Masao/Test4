@@ -25,7 +25,7 @@ import { detectDataMaxDay } from '@/domain/calculations/utils'
 import { useDeptKpiView } from '@/application/hooks/useDeptKpiView'
 import { usePeriodSelectionStore } from '@/application/stores/periodSelectionStore'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
-import { queryStoreMarkupRate } from '@/infrastructure/duckdb/queries/purchaseComparison'
+import { queryStoreCostPrice } from '@/infrastructure/duckdb/queries/purchaseComparison'
 import { dateRangeToKeys } from '@/domain/models'
 
 interface UseUnifiedWidgetContextResult {
@@ -104,13 +104,10 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
   // DuckDB エンジン初期化
   const duck = useDuckDB(data, targetYear, targetMonth, repo)
 
-  // ── 前年店舗別値入率（DuckDB query） ──
-  const [prevYearStoreMarkupRates, setPrevYearStoreMarkupRates] = useState<
-    ReadonlyMap<string, number> | undefined
+  // ── 前年店舗別仕入額（DuckDB query、額で保持 — 禁止事項 #10） ──
+  const [prevYearStoreCostPrice, setPrevYearStoreCostPrice] = useState<
+    ReadonlyMap<string, { cost: number; price: number }> | undefined
   >(undefined)
-  const [prevYearTotalMarkupRate, setPrevYearTotalMarkupRate] = useState<number | undefined>(
-    undefined,
-  )
   const prevYearMarkupQuerySeq = useRef(0)
 
   useEffect(() => {
@@ -127,21 +124,13 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
 
     ;(async () => {
       try {
-        const rows = await queryStoreMarkupRate(conn, fromKey, toKey)
+        const rows = await queryStoreCostPrice(conn, fromKey, toKey)
         if (!cancelled && seq === prevYearMarkupQuerySeq.current) {
-          const map = new Map<string, number>()
-          let allCost = 0
-          let allPrice = 0
+          const map = new Map<string, { cost: number; price: number }>()
           for (const r of rows) {
-            map.set(r.storeId, r.markupRate * 100)
-            allCost += r.totalCost
-            allPrice += r.totalPrice
+            map.set(r.storeId, { cost: r.totalCost, price: r.totalPrice })
           }
-          setPrevYearStoreMarkupRates(map)
-          // 全店加重平均値入率 = (allPrice - allCost) / allPrice
-          setPrevYearTotalMarkupRate(
-            allPrice > 0 ? ((allPrice - allCost) / allPrice) * 100 : undefined,
-          )
+          setPrevYearStoreCostPrice(map)
         }
       } catch {
         // DuckDB エラー時は静かに無視（値入率前年比が表示されないだけ）
@@ -227,9 +216,8 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
     selectedResults,
     storeNames,
 
-    // 前年値入率
-    prevYearStoreMarkupRates,
-    prevYearTotalMarkupRate,
+    // 前年仕入額（額で持つ、率は domain/calculations で算出）
+    prevYearStoreCostPrice,
   }
 
   return {

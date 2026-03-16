@@ -21,6 +21,26 @@ import type { StoreResult, Store, DiscountEntry } from '@/domain/models'
 import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
 import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/hooks'
 
+// ─── Domain Calculation Wrappers ─────────────────────────
+
+/**
+ * 合算済み cost/price から値入率を算出する（domain/calculations 経由）。
+ * DuckDB UNION query の結果は全カテゴリ合算済みなので purchasePrice/Cost に集約して渡す。
+ */
+function markupRateFromAmounts(totalCost: number, totalPrice: number): number {
+  if (totalPrice <= 0) return 0
+  const { averageMarkupRate } = calculateMarkupRates({
+    purchasePrice: totalPrice,
+    purchaseCost: totalCost,
+    deliveryPrice: 0,
+    deliveryCost: 0,
+    transferPrice: 0,
+    transferCost: 0,
+    defaultMarkupRate: 0,
+  })
+  return averageMarkupRate
+}
+
 // ─── Types ──────────────────────────────────────────────
 
 export type MetricKey = 'sales' | 'gp' | 'gpRate' | 'markupRate' | 'discountRate'
@@ -190,9 +210,7 @@ function extractLyDiscountRate(
 
   const totalSales = contributions.reduce((s, c) => s + c.sales, 0)
   const totalDiscount = contributions.reduce((s, c) => s + c.discount, 0)
-  const grossSales = totalSales + totalDiscount
-  if (grossSales <= 0) return null
-  return (totalDiscount / grossSales) * 100
+  return calculateDiscountRate(totalSales, totalDiscount) * 100
 }
 
 // ─── Achievement / YoY Calculation ──────────────────────
@@ -219,10 +237,8 @@ export interface BuildRowsInput {
   readonly daysInMonth: number
   readonly prevYear: PrevYearData
   readonly prevYearMonthlyKpi: PrevYearMonthlyKpi
-  /** 前年店舗別値入率（DuckDB UNION query 結果、×100済み %） */
-  readonly prevYearStoreMarkupRates?: ReadonlyMap<string, number>
-  /** 前年全店値入率（DuckDB 加重平均、×100済み %） */
-  readonly prevYearTotalMarkupRate?: number
+  /** 前年店舗別仕入額（DuckDB UNION query 結果、額で持つ — 禁止事項 #10） */
+  readonly prevYearStoreCostPrice?: ReadonlyMap<string, { cost: number; price: number }>
 }
 
 export function buildRows(input: BuildRowsInput): readonly EnhancedRow[] {
@@ -249,9 +265,12 @@ export function buildRows(input: BuildRowsInput): readonly EnhancedRow[] {
     } else if (metric === 'discountRate') {
       ly = extractLyDiscountRate(storeId, input.prevYearMonthlyKpi, isElapsed, elapsedDays)
       yoy = computeYoY(actual, ly, true) // pp diff
-    } else if (metric === 'markupRate' && input.prevYearStoreMarkupRates) {
-      ly = input.prevYearStoreMarkupRates.get(storeId) ?? null
-      yoy = computeYoY(actual, ly, true) // pp diff
+    } else if (metric === 'markupRate' && input.prevYearStoreCostPrice) {
+      const cp = input.prevYearStoreCostPrice.get(storeId)
+      if (cp && cp.price > 0) {
+        ly = markupRateFromAmounts(cp.cost, cp.price) * 100
+        yoy = computeYoY(actual, ly, true) // pp diff
+      }
     }
 
     // 粗利率メトリクス: 原算前粗利率
@@ -377,15 +396,27 @@ export function buildTotalFromResult(
     if (contributions.length > 0) {
       const totalSales = contributions.reduce((s, c) => s + c.sales, 0)
       const totalDiscount = contributions.reduce((s, c) => s + c.discount, 0)
-      const grossSales = totalSales + totalDiscount
-      if (grossSales > 0) {
-        ly = (totalDiscount / grossSales) * 100
+      ly = calculateDiscountRate(totalSales, totalDiscount) * 100
+      if (ly > 0) {
         yoy = computeYoY(actual, ly, true) // pp diff
       }
     }
-  } else if (metric === 'markupRate' && input.prevYearTotalMarkupRate != null) {
-    ly = input.prevYearTotalMarkupRate
-    yoy = computeYoY(actual, ly, true) // pp diff
+  } else if (
+    metric === 'markupRate' &&
+    input.prevYearStoreCostPrice &&
+    input.prevYearStoreCostPrice.size > 0
+  ) {
+    // 全店合計: 額を合算してから率を1回計算（加重平均が自然に得られる）
+    let allCost = 0
+    let allPrice = 0
+    for (const cp of input.prevYearStoreCostPrice.values()) {
+      allCost += cp.cost
+      allPrice += cp.price
+    }
+    if (allPrice > 0) {
+      ly = markupRateFromAmounts(allCost, allPrice) * 100
+      yoy = computeYoY(actual, ly, true) // pp diff
+    }
   }
 
   const gpBeforeConsumable = metric === 'gpRate' ? computeGpBeforeConsumable(result) * 100 : null
@@ -653,8 +684,7 @@ export function buildDailyDiscountRows(
       continue
     }
 
-    const grossSales = dailyRecord.sales + dailyRecord.discountAbsolute
-    const totalRate = grossSales > 0 ? (dailyRecord.discountAbsolute / grossSales) * 100 : 0
+    const totalRate = calculateDiscountRate(dailyRecord.sales, dailyRecord.discountAbsolute) * 100
 
     const entries = dailyRecord.discountEntries.map((e) => ({
       type: e.type,
@@ -726,24 +756,20 @@ export function buildDailyDiscountRateYoYRows(
     const dailyRecord = sr.daily.get(day)
     const curSales = dailyRecord?.sales ?? 0
     const curDiscount = dailyRecord?.discountAbsolute ?? 0
-    const curGross = curSales + curDiscount
-    const curRate = curGross > 0 ? (curDiscount / curGross) * 100 : 0
+    const curRate = calculateDiscountRate(curSales, curDiscount) * 100
 
     const prev = prevByDay.get(day)
     const prevSales = prev?.sales ?? 0
     const prevDiscount = prev?.discount ?? 0
-    const prevGross = prevSales + prevDiscount
-    const prevRate = prevGross > 0 ? (prevDiscount / prevGross) * 100 : 0
+    const prevRate = calculateDiscountRate(prevSales, prevDiscount) * 100
 
     cumCurSales += curSales
     cumCurDiscount += curDiscount
     cumPrevSales += prevSales
     cumPrevDiscount += prevDiscount
 
-    const cumCurGross = cumCurSales + cumCurDiscount
-    const cumCurRate = cumCurGross > 0 ? (cumCurDiscount / cumCurGross) * 100 : 0
-    const cumPrevGross = cumPrevSales + cumPrevDiscount
-    const cumPrevRate = cumPrevGross > 0 ? (cumPrevDiscount / cumPrevGross) * 100 : 0
+    const cumCurRate = calculateDiscountRate(cumCurSales, cumCurDiscount) * 100
+    const cumPrevRate = calculateDiscountRate(cumPrevSales, cumPrevDiscount) * 100
 
     rows.push({
       day,
@@ -824,13 +850,13 @@ export function buildDailyMarkupRateYoYRows(
         dailyRecord.interDepartmentOut.price
     }
 
-    const curRate = curPrice > 0 ? ((curPrice - curCost) / curPrice) * 100 : 0
+    const curRate = markupRateFromAmounts(curCost, curPrice) * 100
 
     // 前年
     const prev = prevDailyData.get(day)
     const prevCost = prev?.totalCost ?? 0
     const prevPrice = prev?.totalPrice ?? 0
-    const prevRate = prevPrice > 0 ? ((prevPrice - prevCost) / prevPrice) * 100 : 0
+    const prevRate = markupRateFromAmounts(prevCost, prevPrice) * 100
 
     // 累計
     cumCurCost += curCost
@@ -838,8 +864,8 @@ export function buildDailyMarkupRateYoYRows(
     cumPrevCost += prevCost
     cumPrevPrice += prevPrice
 
-    const cumCurRate = cumCurPrice > 0 ? ((cumCurPrice - cumCurCost) / cumCurPrice) * 100 : 0
-    const cumPrevRate = cumPrevPrice > 0 ? ((cumPrevPrice - cumPrevCost) / cumPrevPrice) * 100 : 0
+    const cumCurRate = markupRateFromAmounts(cumCurCost, cumCurPrice) * 100
+    const cumPrevRate = markupRateFromAmounts(cumPrevCost, cumPrevPrice) * 100
 
     rows.push({
       day,

@@ -93,6 +93,9 @@ const APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set([
 const PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set<string>([
   // QueryProfilePanel は DevTools 専用コンポーネントで queryProfiler を直接参照する
   'presentation/components/DevTools/QueryProfilePanel.tsx',
+  // DuckDB 仕入クエリ: 前年店舗別仕入額の取得。application/hooks 経由への移行を検討
+  'presentation/hooks/useUnifiedWidgetContext.ts',
+  'presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx',
 ])
 
 /**

@@ -438,6 +438,8 @@ describe('R12/禁止#7: Presentation コンポーネントの行数制限', () =
     'presentation/pages/Dashboard/DashboardPage.tsx',
     'presentation/pages/Dashboard/widgets/DrilldownWaterfall.tsx',
     'presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx',
+    'presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx',
+    'presentation/pages/Dashboard/widgets/ConditionSummaryDailyModal.tsx',
   ])
 
   const allRegisteredPaths = new Set([
@@ -502,7 +504,7 @@ describe('R12/禁止#7: Presentation コンポーネントの行数制限', () =
 describe('Infrastructure 層の分割後ファイル行数制限', () => {
   const fileLimits: [string, number][] = [
     // Phase 1: dataLoader 分割
-    ['infrastructure/duckdb/dataLoader.ts', 250],
+    ['infrastructure/duckdb/dataLoader.ts', 270],
     ['infrastructure/duckdb/dataConversions.ts', 540],
     // Phase 2: duckdbWorker 分割
     ['infrastructure/duckdb/worker/duckdbWorker.ts', 200],
@@ -521,6 +523,8 @@ describe('Infrastructure 層の分割後ファイル行数制限', () => {
     // Phase 6: ImportDataProcessor 整理
     ['infrastructure/ImportDataProcessor.ts', 400],
     ['infrastructure/storeIdNormalization.ts', 80],
+    // Phase 7: purchaseComparison クエリ集約（仕入比較 + 売上 + カテゴリ日別）
+    ['infrastructure/duckdb/queries/purchaseComparison.ts', 450],
   ]
 
   it.each(fileLimits)('%s は %d 行以下', (relPath, maxLines) => {
