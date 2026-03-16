@@ -1,4 +1,5 @@
 import { safeDivide } from './utils'
+import { DAYS_PER_WEEK, ANOMALY_ZSCORE_THRESHOLD } from '@/domain/constants'
 
 /**
  * 予測・異常値検出
@@ -81,10 +82,10 @@ export function getWeekRanges(
     const startDay = day
     const date = new Date(year, month - 1, day)
     // 0=Sun → 6, 1=Mon → 0, ... 6=Sat → 5
-    const dayOfWeek = (date.getDay() + 6) % 7 // Monday=0
+    const dayOfWeek = (date.getDay() + DAYS_PER_WEEK - 1) % DAYS_PER_WEEK // Monday=0
 
     // 週末（日曜）までか月末まで進める
-    const daysUntilSunday = 6 - dayOfWeek
+    const daysUntilSunday = DAYS_PER_WEEK - 1 - dayOfWeek
     const endDay = Math.min(day + daysUntilSunday, daysInMonth)
 
     weeks.push({ weekNumber: weekNum, startDay, endDay })
@@ -132,7 +133,7 @@ export function calculateWeeklySummaries(input: ForecastInput): readonly WeeklyS
 export function calculateDayOfWeekAverages(input: ForecastInput): readonly DayOfWeekAverage[] {
   const { year, month, dailySales } = input
   const daysInMonth = new Date(year, month, 0).getDate()
-  const buckets: { total: number; count: number }[] = Array.from({ length: 7 }, () => ({
+  const buckets: { total: number; count: number }[] = Array.from({ length: DAYS_PER_WEEK }, () => ({
     total: 0,
     count: 0,
   }))
@@ -158,7 +159,7 @@ export function calculateDayOfWeekAverages(input: ForecastInput): readonly DayOf
  */
 export function detectAnomalies(
   dailySales: ReadonlyMap<number, number>,
-  threshold = 2.0,
+  threshold = ANOMALY_ZSCORE_THRESHOLD,
 ): readonly AnomalyDetectionResult[] {
   const entries = Array.from(dailySales.entries()).filter(([, v]) => v > 0)
   if (entries.length < 3) return []

@@ -5,7 +5,12 @@
  * 月次 KPI の推移、季節性パターン、前月比/前年同月比を計算する。
  */
 import { safeDivide } from '../utils'
-import { MONTHS_PER_YEAR, SHORT_TERM_MA_MONTHS, MEDIUM_TERM_MA_MONTHS } from '@/domain/constants'
+import {
+  MONTHS_PER_YEAR,
+  SHORT_TERM_MA_MONTHS,
+  MEDIUM_TERM_MA_MONTHS,
+  TREND_CHANGE_THRESHOLD,
+} from '@/domain/constants'
 
 // ─── Types ────────────────────────────────────────────
 
@@ -159,8 +164,7 @@ function calculateSeasonalIndex(dataPoints: readonly MonthlyDataPoint[]): readon
   })
 }
 
-/** トレンド判定の変化率閾値（±3%以上で上昇/下降と判定） */
-const TREND_CHANGE_THRESHOLD = 0.03
+// TREND_CHANGE_THRESHOLD は @/domain/constants から import
 
 /**
  * 直近3ヶ月と、その前の3ヶ月の売上平均を比較して
