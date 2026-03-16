@@ -166,6 +166,33 @@ function extractLySales(
   return contributions.length > 0 ? contributions.reduce((s, c) => s + c.sales, 0) : null
 }
 
+/**
+ * 店舗の前年売変率を取得する（storeContributions から算出）
+ *
+ * discount / (sales + discount) × 100 で前年売変率（%表示済み）を返す。
+ */
+function extractLyDiscountRate(
+  storeId: string,
+  prevYearMonthlyKpi: PrevYearMonthlyKpi,
+  isElapsed: boolean,
+  elapsedDays?: number,
+): number | null {
+  if (!prevYearMonthlyKpi.hasPrevYear) return null
+
+  const filter = isElapsed && elapsedDays != null
+    ? (c: { storeId: string; mappedDay: number }) => c.storeId === storeId && c.mappedDay <= elapsedDays
+    : (c: { storeId: string }) => c.storeId === storeId
+
+  const contributions = prevYearMonthlyKpi.sameDow.storeContributions.filter(filter)
+  if (contributions.length === 0) return null
+
+  const totalSales = contributions.reduce((s, c) => s + c.sales, 0)
+  const totalDiscount = contributions.reduce((s, c) => s + c.discount, 0)
+  const grossSales = totalSales + totalDiscount
+  if (grossSales <= 0) return null
+  return (totalDiscount / grossSales) * 100
+}
+
 // ─── Achievement / YoY Calculation ──────────────────────
 
 function computeAchievement(actual: number, budget: number, isRate: boolean): number {
@@ -207,12 +234,15 @@ export function buildRows(input: BuildRowsInput): readonly EnhancedRow[] {
     const achievement = computeAchievement(actual, budget, def.isRate)
     const diff = actual - budget
 
-    // YoY: 売上のみ（GP の前年データは未提供）
+    // YoY: メトリクスに応じた前年比計算
     let ly: number | null = null
     let yoy: number | null = null
     if (metric === 'sales') {
       ly = extractLySales(storeId, input.prevYear, input.prevYearMonthlyKpi, isElapsed, elapsedDays)
       yoy = computeYoY(actual, ly, def.isRate)
+    } else if (metric === 'discountRate') {
+      ly = extractLyDiscountRate(storeId, input.prevYearMonthlyKpi, isElapsed, elapsedDays)
+      yoy = computeYoY(actual, ly, true) // pp diff
     }
 
     // 粗利率メトリクス: 原算前粗利率
@@ -321,8 +351,8 @@ export function buildTotalFromResult(
 
   let ly: number | null = null
   let yoy: number | null = null
+  const isElapsed = tab === 'elapsed' && elapsedDays != null && elapsedDays < daysInMonth
   if (metric === 'sales' && prevYear.hasPrevYear) {
-    const isElapsed = tab === 'elapsed' && elapsedDays != null && elapsedDays < daysInMonth
     if (isElapsed) {
       ly = prevYear.totalSales
     } else {
@@ -330,6 +360,20 @@ export function buildTotalFromResult(
       ly = prevYearMonthlyKpi.hasPrevYear ? prevYearMonthlyKpi.sameDow.sales : null
     }
     yoy = computeYoY(actual, ly, false)
+  } else if (metric === 'discountRate' && prevYearMonthlyKpi.hasPrevYear) {
+    // 全店の前年売変率を storeContributions 全体から算出
+    const contributions = prevYearMonthlyKpi.sameDow.storeContributions.filter(
+      isElapsed && elapsedDays != null ? (c) => c.mappedDay <= elapsedDays : () => true,
+    )
+    if (contributions.length > 0) {
+      const totalSales = contributions.reduce((s, c) => s + c.sales, 0)
+      const totalDiscount = contributions.reduce((s, c) => s + c.discount, 0)
+      const grossSales = totalSales + totalDiscount
+      if (grossSales > 0) {
+        ly = (totalDiscount / grossSales) * 100
+        yoy = computeYoY(actual, ly, true) // pp diff
+      }
+    }
   }
 
   const gpBeforeConsumable = metric === 'gpRate' ? computeGpBeforeConsumable(result) * 100 : null

@@ -125,7 +125,8 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
   )
 
   const activeDef = activeMetric ? METRIC_DEFS[activeMetric] : null
-  const hasYoYData = activeMetric === 'sales' && ctx.prevYear.hasPrevYear
+  const hasYoYData =
+    (activeMetric === 'sales' || activeMetric === 'discountRate') && ctx.prevYear.hasPrevYear
 
   const handleClose = useCallback(() => {
     setActiveMetric(null)

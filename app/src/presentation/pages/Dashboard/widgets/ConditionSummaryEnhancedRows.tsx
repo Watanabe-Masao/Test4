@@ -42,10 +42,15 @@ export const StoreTableHeader = memo(function StoreTableHeader({
   }
 
   if (metric === 'discountRate') {
+    const discountCols = showYoY
+      ? '1.4fr 0.8fr 0.8fr 0.8fr ' + DISCOUNT_TYPES.map(() => '0.7fr').join(' ')
+      : DISCOUNT_COLS
     return (
-      <TableHeaderRow style={{ gridTemplateColumns: DISCOUNT_COLS }}>
+      <TableHeaderRow style={{ gridTemplateColumns: discountCols }}>
         <TableHeaderCell>店名</TableHeaderCell>
         <TableHeaderCell $align="right">売変率</TableHeaderCell>
+        {showYoY && <TableHeaderCell $align="right">前年</TableHeaderCell>}
+        {showYoY && <TableHeaderCell $align="right">差異</TableHeaderCell>}
         {DISCOUNT_TYPES.map((dt) => (
           <TableHeaderCell key={dt.type} $align="right">
             {dt.label}
@@ -130,16 +135,29 @@ export const StoreRow = memo(function StoreRow({
   if (metric === 'discountRate') {
     // totalDiscount = sum of all entries; each entry rate = (entry / total) * overall rate
     const totalDiscountAmt = row.discountEntries?.reduce((s, e) => s + e.amount, 0) ?? 0
+    const discountGridCols = showYoY
+      ? '1.4fr 0.8fr 0.8fr 0.8fr ' + DISCOUNT_TYPES.map(() => '0.7fr').join(' ')
+      : DISCOUNT_COLS
     return (
       <StoreRowWrapper
         $clickable={!!onStoreClick}
         onClick={onStoreClick ? () => onStoreClick(row.storeId) : undefined}
       >
-        <StoreRowGrid style={{ gridTemplateColumns: DISCOUNT_COLS }}>
+        <StoreRowGrid style={{ gridTemplateColumns: discountGridCols }}>
           <StoreName>{row.storeName}</StoreName>
           <MonoMd $bold $color={c} style={{ textAlign: 'right' }}>
             {fmtValue(row.actual, true)}
           </MonoMd>
+          {showYoY && (
+            <MonoSm style={{ textAlign: 'right' }}>
+              {row.ly != null ? fmtValue(row.ly, true) : '—'}
+            </MonoSm>
+          )}
+          {showYoY && (
+            <DiffSpan $positive={(row.yoy ?? 0) >= 0} style={{ textAlign: 'right', display: 'block' }}>
+              {row.yoy != null ? `${row.yoy >= 0 ? '+' : ''}${row.yoy.toFixed(2)}pp` : '—'}
+            </DiffSpan>
+          )}
           {DISCOUNT_TYPES.map((dt) => {
             const entry = row.discountEntries?.find((e) => e.type === dt.type)
             if (!entry || totalDiscountAmt === 0) {
