@@ -100,6 +100,27 @@ const WARNING_ENTRIES: readonly WarningEntry[] = [
     label: '観測期間不足',
     message: '観測期間が不完全です。集計値は部分的な実績に基づいています。',
   },
+  {
+    code: 'obs_no_sales_data',
+    category: 'obs',
+    severity: 'critical',
+    label: '販売実績なし',
+    message: '対象期間に販売実績がありません。予測系指標は算出できません。',
+  },
+  {
+    code: 'obs_stale_sales_data',
+    category: 'obs',
+    severity: 'critical',
+    label: '販売データ停滞',
+    message: '一定期間、販売実績が記録されていません。予測値の信頼性が低下しています。',
+  },
+  {
+    code: 'obs_insufficient_sales_days',
+    category: 'obs',
+    severity: 'warning',
+    label: '営業日数不足',
+    message: '営業日数が最低必要日数に満たないため、集計値の信頼性が低い可能性があります。',
+  },
 
   // ── cmp_* : 比較期間不足/比較異常 ──
   {
