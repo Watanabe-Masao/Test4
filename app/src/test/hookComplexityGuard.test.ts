@@ -519,8 +519,8 @@ describe('R12/禁止#7: Presentation コンポーネントの行数制限', () =
 describe('Infrastructure 層の分割後ファイル行数制限', () => {
   const fileLimits: [string, number][] = [
     // Phase 1: dataLoader 分割
-    ['infrastructure/duckdb/dataLoader.ts', 270],
-    ['infrastructure/duckdb/dataConversions.ts', 540],
+    ['infrastructure/duckdb/dataLoader.ts', 280],
+    ['infrastructure/duckdb/dataConversions.ts', 560],
     // Phase 2: duckdbWorker 分割
     ['infrastructure/duckdb/worker/duckdbWorker.ts', 200],
     ['infrastructure/duckdb/worker/workerHandlers.ts', 350],

@@ -15,6 +15,7 @@ import type {
   DepartmentKpiRecord,
   BudgetData,
   InventoryConfig,
+  HourlyWeatherRecord,
 } from '@/domain/models'
 import { toDateKeyFromParts } from '@/domain/models'
 
@@ -150,6 +151,20 @@ export const TABLE_COLUMNS: Record<string, Record<string, string>> = {
     opening_inventory: 'DOUBLE',
     closing_inventory: 'DOUBLE',
     gross_profit_budget: 'DOUBLE',
+  },
+  weather_hourly: {
+    date_key: 'VARCHAR',
+    year: 'INTEGER',
+    month: 'INTEGER',
+    day: 'INTEGER',
+    hour: 'INTEGER',
+    store_id: 'VARCHAR',
+    temperature: 'DOUBLE',
+    humidity: 'DOUBLE',
+    precipitation: 'DOUBLE',
+    wind_speed: 'DOUBLE',
+    weather_code: 'INTEGER',
+    sunshine_duration: 'DOUBLE',
   },
 }
 
@@ -506,4 +521,39 @@ export async function insertInventoryConfig(
   }
 
   return bulkInsert(conn, db, 'inventory_config', rows)
+}
+
+/**
+ * HourlyWeatherRecord[] → weather_hourly テーブル
+ *
+ * 店舗IDごとの天気レコードをバルクINSERTする。
+ * dateKey (YYYY-MM-DD) から year/month/day を分解して投入する。
+ */
+export async function insertWeatherHourly(
+  conn: AsyncDuckDBConnection,
+  db: AsyncDuckDB,
+  records: readonly HourlyWeatherRecord[],
+  storeId: string,
+): Promise<number> {
+  if (records.length === 0) return 0
+
+  const rows = records.map((rec) => {
+    const [y, m, d] = rec.dateKey.split('-').map(Number)
+    return {
+      date_key: rec.dateKey,
+      year: y,
+      month: m,
+      day: d,
+      hour: rec.hour,
+      store_id: storeId,
+      temperature: rec.temperature,
+      humidity: rec.humidity,
+      precipitation: rec.precipitation,
+      wind_speed: rec.windSpeed,
+      weather_code: rec.weatherCode,
+      sunshine_duration: rec.sunshineDuration,
+    }
+  })
+
+  return bulkInsert(conn, db, 'weather_hourly', rows)
 }

@@ -5,7 +5,7 @@
  * UnifiedWidgetContext は全ウィジェットが必要とするデータの上位集合。
  */
 import type { ReactNode } from 'react'
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import type { AsyncDuckDB, AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type {
   StoreResult,
   StoreExplanations,
@@ -82,6 +82,7 @@ export interface UnifiedWidgetContext {
   readonly elapsedDays?: number | undefined
   readonly monthlyHistory?: readonly MonthlyDataPoint[]
   readonly duckConn?: AsyncDuckDBConnection | null
+  readonly duckDb?: AsyncDuckDB | null
   readonly duckDataVersion?: number
   readonly duckLoadedMonthCount?: number
   readonly prevYearMonthlyKpi?: PrevYearMonthlyKpi

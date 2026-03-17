@@ -46,6 +46,7 @@ function toDashboardContext(ctx: UnifiedWidgetContext): DashboardWidgetContext {
     onExplain: ctx.onExplain,
     monthlyHistory: ctx.monthlyHistory ?? [],
     duckConn: ctx.duckConn ?? null,
+    duckDb: ctx.duckDb ?? null,
     duckDataVersion: ctx.duckDataVersion ?? 0,
     duckLoadedMonthCount: ctx.duckLoadedMonthCount ?? 0,
     prevYearMonthlyKpi: ctx.prevYearMonthlyKpi ?? {

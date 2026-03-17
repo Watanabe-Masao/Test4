@@ -81,7 +81,13 @@ export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetC
     return candidates.find((id) => storeLocations[id]) ?? candidates[0] ?? ''
   }, [ctx.selectedStoreIds, ctx.stores, storeLocations])
 
-  const { daily, isLoading, error } = useWeatherData(ctx.year, ctx.month, storeId)
+  const { daily, isLoading, error } = useWeatherData(
+    ctx.year,
+    ctx.month,
+    storeId,
+    ctx.duckConn,
+    ctx.duckDb,
+  )
 
   const salesDaily = useMemo<readonly DailySalesForCorrelation[]>(() => {
     const entries: DailySalesForCorrelation[] = []

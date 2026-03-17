@@ -205,6 +205,7 @@ export function makeWidgetContext(overrides: Partial<WidgetContext> = {}): Widge
     onExplain: () => {},
     monthlyHistory: [],
     duckConn: null,
+    duckDb: null,
     duckDataVersion: 0,
     duckLoadedMonthCount: 0,
     prevYearMonthlyKpi: {
