@@ -1206,11 +1206,18 @@ export function buildYoYCards(input: BuildYoYCardsInput): readonly YoYCardSummar
     r.requiredDailySales > 0
   ) {
     const paceRatio = safeDivide(r.requiredDailySales, r.averageDailySales, 0)
+    const obsStatus = r.observationPeriod.status
+    const obsSuffix =
+      obsStatus === 'partial'
+        ? '（⚠ 観測日数少）'
+        : obsStatus === 'invalid' || obsStatus === 'undefined'
+          ? '（⚠ 観測不十分）'
+          : ''
     cards.push({
       key: 'requiredPace',
       label: '必要ベース比',
       value: formatPercent(paceRatio, 2),
-      sub: `必要日販 ${fmtCurrency(r.requiredDailySales)} / 実績日販 ${fmtCurrency(r.averageDailySales)}`,
+      sub: `必要日販 ${fmtCurrency(r.requiredDailySales)} / 実績日販 ${fmtCurrency(r.averageDailySales)}${obsSuffix}`,
       signalColor: SIGNAL_COLORS[metricSignal(paceRatio, 'requiredPace', config)],
       metricId: null,
       detailBreakdown: null,

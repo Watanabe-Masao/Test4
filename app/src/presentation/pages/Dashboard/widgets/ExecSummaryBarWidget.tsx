@@ -38,6 +38,13 @@ export function ExecSummaryBarWidget(ctx: WidgetContext) {
   const elapsedBudget = r.dailyCumulative.get(r.elapsedDays)?.budget ?? 0
   const elapsedDiff = r.totalSales - elapsedBudget
 
+  // 観測品質の検出
+  const observationWarning =
+    ctx.observationStatus === 'partial'
+      ? '観測日数が少ないため、日販・達成率の精度が低下しています'
+      : ctx.observationStatus === 'invalid' || ctx.observationStatus === 'undefined'
+        ? '観測期間が不十分なため、集計値は参考値です'
+        : null
   // 仕入データ不足の検出
   const purchaseShort = r.purchaseMaxDay > 0 && r.purchaseMaxDay < r.elapsedDays
   // 売変データ欠損の検出
@@ -89,6 +96,7 @@ export function ExecSummaryBarWidget(ctx: WidgetContext) {
                   前年同曜日比: {formatPercent(pyRatio)}
                 </ExecSummarySub>
               )}
+              {observationWarning && <WarningBanner>{observationWarning}</WarningBanner>}
             </ExecSummaryItem>
             <ExecSummaryItem
               $accent={palette.primary}

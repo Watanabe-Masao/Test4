@@ -21,6 +21,21 @@ import {
   ExecDividerLine,
 } from '../DashboardPage.styles'
 import { ExecMetric } from './ExecMetric'
+import { WarningBanner } from './ExecSummaryBarWidget.styles'
+
+/** 観測品質が不十分な場合の FORECAST 列ヘッダー警告メッセージ */
+function forecastWarningMessage(status: WidgetContext['observationStatus']): string | null {
+  switch (status) {
+    case 'ok':
+      return null
+    case 'partial':
+      return '観測日数が少ないため、着地予測の精度が低下しています'
+    case 'invalid':
+      return '観測期間が極端に短く、着地予測は参考値です'
+    case 'undefined':
+      return '売上データがないため、着地予測は算出できません'
+  }
+}
 
 export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
   const r = ctx.result
@@ -212,6 +227,9 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
           <ExecColSub>営業日ベース予測</ExecColSub>
         </ExecColHeader>
         <ExecBody>
+          {forecastWarningMessage(ctx.observationStatus) && (
+            <WarningBanner>{forecastWarningMessage(ctx.observationStatus)}</WarningBanner>
+          )}
           <ExecMetric
             label="月末売上着地"
             value={fmtCurrency(r.projectedSales)}
