@@ -1048,8 +1048,8 @@ const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土'] as const
  * "▲土＋火" のようなラベルと、平均売上 / 実日の2種の影響額を返す。
  * アライメント設定に依存しない固定値。
  */
-function buildDowGapSummary(dowGap: DowGapAnalysis): DowGapSummary | null {
-  if (dowGap.isSameStructure || !dowGap.isValid) return null
+function buildDowGapSummary(dowGap: DowGapAnalysis | undefined): DowGapSummary | null {
+  if (!dowGap || dowGap.isSameStructure || !dowGap.isValid) return null
 
   // ラベル構築: 減った曜日を▲、増えた曜日を＋で表記
   const parts: string[] = []
@@ -1088,7 +1088,7 @@ function buildDowGapSummary(dowGap: DowGapAnalysis): DowGapSummary | null {
 export function buildBudgetHeader(
   result: StoreResult,
   prevYearMonthlyKpi: PrevYearMonthlyKpi,
-  dowGap: DowGapAnalysis,
+  dowGap: DowGapAnalysis | undefined,
 ): BudgetHeaderData {
   const prevYearMonthlySales =
     prevYearMonthlyKpi.hasPrevYear && prevYearMonthlyKpi.monthlyTotal.sales > 0
