@@ -227,9 +227,10 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
           <ExecColSub>営業日ベース予測</ExecColSub>
         </ExecColHeader>
         <ExecBody>
-          {forecastWarningMessage(ctx.observationStatus) && (
-            <WarningBanner>{forecastWarningMessage(ctx.observationStatus)}</WarningBanner>
-          )}
+          {(() => {
+            const warning = forecastWarningMessage(ctx.observationStatus)
+            return warning && <WarningBanner>{warning}</WarningBanner>
+          })()}
           <ExecMetric
             label="月末売上着地"
             value={fmtCurrency(r.projectedSales)}

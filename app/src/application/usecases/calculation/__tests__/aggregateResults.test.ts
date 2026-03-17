@@ -762,6 +762,137 @@ describe('aggregateStoreResults', () => {
   })
 
   // ───────────────────────────────────────────────────────
+  // 6. 観測品質マスキング検出
+  // ───────────────────────────────────────────────────────
+  describe('observation quality masking', () => {
+    it('個別店舗の invalid が集約の ok に吸収される場合、マスキング警告が追加される', () => {
+      // 店舗A: salesDays=2, elapsedDays=2 → invalid（minDaysForValid=5 未満）
+      const dailyA = new Map<number, DailyRecord>()
+      dailyA.set(1, makeDailyRecord(1, { sales: 1000 }))
+      dailyA.set(2, makeDailyRecord(2, { sales: 1000 }))
+      const storeA = makeStoreResult({
+        storeId: 'A',
+        daily: dailyA,
+        elapsedDays: 2,
+        salesDays: 2,
+        totalSales: 2000,
+        observationPeriod: {
+          lastRecordedSalesDay: 2,
+          elapsedDays: 2,
+          salesDays: 2,
+          daysInMonth: 30,
+          remainingDays: 28,
+          status: 'invalid',
+          warnings: ['obs_window_incomplete'],
+        },
+      })
+
+      // 店舗B: salesDays=15, elapsedDays=15 → ok
+      const dailyB = new Map<number, DailyRecord>()
+      for (let d = 1; d <= 15; d++) {
+        dailyB.set(d, makeDailyRecord(d, { sales: 5000 }))
+      }
+      const storeB = makeStoreResult({
+        storeId: 'B',
+        daily: dailyB,
+        elapsedDays: 15,
+        salesDays: 15,
+        totalSales: 75000,
+        observationPeriod: {
+          lastRecordedSalesDay: 15,
+          elapsedDays: 15,
+          salesDays: 15,
+          daysInMonth: 30,
+          remainingDays: 15,
+          status: 'ok',
+          warnings: [],
+        },
+      })
+
+      const result = aggregateStoreResults([storeA, storeB], 30)
+
+      // 集約日別データでは15日分の売上があるので status は ok
+      expect(result.observationPeriod.status).toBe('ok')
+      // しかし店舗Aの invalid が吸収されたのでマスキング警告が付く
+      expect(result.observationPeriod.warnings).toContain('obs_store_quality_masked')
+    })
+
+    it('全店舗が ok の場合、マスキング警告は付かない', () => {
+      const dailyA = new Map<number, DailyRecord>()
+      for (let d = 1; d <= 12; d++) {
+        dailyA.set(d, makeDailyRecord(d, { sales: 3000 }))
+      }
+      const storeA = makeStoreResult({
+        storeId: 'A',
+        daily: dailyA,
+        elapsedDays: 12,
+        salesDays: 12,
+        totalSales: 36000,
+        observationPeriod: {
+          lastRecordedSalesDay: 12,
+          elapsedDays: 12,
+          salesDays: 12,
+          daysInMonth: 30,
+          remainingDays: 18,
+          status: 'ok',
+          warnings: [],
+        },
+      })
+      const dailyB = new Map<number, DailyRecord>()
+      for (let d = 1; d <= 15; d++) {
+        dailyB.set(d, makeDailyRecord(d, { sales: 5000 }))
+      }
+      const storeB = makeStoreResult({
+        storeId: 'B',
+        daily: dailyB,
+        elapsedDays: 15,
+        salesDays: 15,
+        totalSales: 75000,
+        observationPeriod: {
+          lastRecordedSalesDay: 15,
+          elapsedDays: 15,
+          salesDays: 15,
+          daysInMonth: 30,
+          remainingDays: 15,
+          status: 'ok',
+          warnings: [],
+        },
+      })
+
+      const result = aggregateStoreResults([storeA, storeB], 30)
+
+      expect(result.observationPeriod.status).toBe('ok')
+      expect(result.observationPeriod.warnings).not.toContain('obs_store_quality_masked')
+    })
+
+    it('単一店舗の場合はマスキング警告は付かない', () => {
+      const dailyA = new Map<number, DailyRecord>()
+      dailyA.set(1, makeDailyRecord(1, { sales: 1000 }))
+      const storeA = makeStoreResult({
+        storeId: 'A',
+        daily: dailyA,
+        elapsedDays: 1,
+        salesDays: 1,
+        totalSales: 1000,
+        observationPeriod: {
+          lastRecordedSalesDay: 1,
+          elapsedDays: 1,
+          salesDays: 1,
+          daysInMonth: 30,
+          remainingDays: 29,
+          status: 'invalid',
+          warnings: ['obs_window_incomplete'],
+        },
+      })
+
+      const result = aggregateStoreResults([storeA], 30)
+
+      // 単一店舗なのでマスキングは発生しない
+      expect(result.observationPeriod.warnings).not.toContain('obs_store_quality_masked')
+    })
+  })
+
+  // ───────────────────────────────────────────────────────
   // Derived field computations
   // ───────────────────────────────────────────────────────
   describe('derived fields', () => {

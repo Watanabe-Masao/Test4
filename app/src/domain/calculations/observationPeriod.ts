@@ -100,6 +100,28 @@ export function evaluateObservationPeriod(
   }
 }
 
+// ── ステータス比較 ──
+
+/** ObservationStatus の重篤度順序（大きいほど悪い） */
+const STATUS_SEVERITY: Record<ObservationStatus, number> = {
+  ok: 0,
+  partial: 1,
+  invalid: 2,
+  undefined: 3,
+}
+
+/**
+ * 2つの ObservationStatus のうちより悪い方を返す
+ *
+ * 集約時に個別店舗の最悪ステータスを求めるために使用。
+ */
+export function worseObservationStatus(
+  a: ObservationStatus,
+  b: ObservationStatus,
+): ObservationStatus {
+  return STATUS_SEVERITY[a] >= STATUS_SEVERITY[b] ? a : b
+}
+
 // ── 内部関数 ──
 
 /**

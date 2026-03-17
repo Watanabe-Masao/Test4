@@ -1,16 +1,25 @@
 import { describe, it, expect } from 'vitest'
 import { buildCausalSteps, storeResultToCausalPrev, type CausalChainPrevInput } from './causalChain'
-import type { StoreResult, DiscountEntry } from '@/domain/models'
+import type { StoreResult, DiscountEntry, DiscountType } from '@/domain/models'
+
+/** 型安全な DiscountEntry ファクトリ */
+function makeDiscountEntry(type: DiscountType, label: string, amount: number): DiscountEntry {
+  return { type, label, amount }
+}
 
 /**
  * テスト用の最小限 StoreResult。
- * テストに必要なフィールドのみ設定し、それ以外はゼロ / 空値。
+ * 全フィールドを網羅し、overrides で上書き可能。
  */
 function makeResult(overrides: Partial<StoreResult> = {}): StoreResult {
   return {
     storeId: 'test',
     openingInventory: null,
     closingInventory: null,
+    productInventory: null,
+    costInclusionInventory: null,
+    inventoryDate: null,
+    closingInventoryDay: null,
     totalSales: 10_000_000,
     totalCoreSales: 9_000_000,
     deliverySalesPrice: 500_000,
@@ -28,15 +37,16 @@ function makeResult(overrides: Partial<StoreResult> = {}): StoreResult {
     estMethodMarginRate: 0.2,
     estMethodClosingInventory: null,
     totalCustomers: 5_000,
+    transactionValue: 2_000,
     averageCustomersPerDay: 250,
     totalDiscount: 500_000,
     discountRate: 0.048,
     discountLossCost: 100_000,
     discountEntries: [
-      { type: '71', label: '見切', amount: 300_000 },
-      { type: '72', label: '値引', amount: 150_000 },
-      { type: '73', label: '廃棄', amount: 50_000 },
-    ] as readonly DiscountEntry[],
+      makeDiscountEntry('71', '見切', 300_000),
+      makeDiscountEntry('72', '値引', 150_000),
+      makeDiscountEntry('73', '廃棄', 50_000),
+    ],
     averageMarkupRate: 0.3,
     coreMarkupRate: 0.28,
     totalCostInclusion: 100_000,
@@ -53,6 +63,7 @@ function makeResult(overrides: Partial<StoreResult> = {}): StoreResult {
       interStoreOut: { cost: 0, price: 0 },
       interDepartmentIn: { cost: 0, price: 0 },
       interDepartmentOut: { cost: 0, price: 0 },
+      netTransfer: { cost: 0, price: 0 },
     },
     purchaseMaxDay: 20,
     hasDiscountData: true,
@@ -64,10 +75,28 @@ function makeResult(overrides: Partial<StoreResult> = {}): StoreResult {
     budgetAchievementRate: 0.83,
     budgetProgressRate: 1.0,
     budgetElapsedRate: 0.67,
+    budgetProgressGap: 0.33,
+    budgetVariance: 0,
+    requiredDailySales: 0,
     remainingBudget: 2_000_000,
     dailyCumulative: new Map(),
+    grossProfitBudgetVariance: 0,
+    grossProfitProgressGap: 0,
+    requiredDailyGrossProfit: 0,
+    projectedGrossProfit: 0,
+    projectedGPAchievement: 0,
+    observationPeriod: {
+      lastRecordedSalesDay: 20,
+      elapsedDays: 20,
+      salesDays: 30,
+      daysInMonth: 31,
+      remainingDays: 11,
+      status: 'ok',
+      warnings: [],
+    },
+    metricWarnings: new Map(),
     ...overrides,
-  } as StoreResult
+  }
 }
 
 describe('causalChain', () => {
@@ -154,16 +183,16 @@ describe('causalChain', () => {
     it('売変種別内訳で前年比の差分が計算される', () => {
       const current = makeResult({
         discountEntries: [
-          { type: '71', label: '見切', amount: 500_000 },
-          { type: '72', label: '値引', amount: 100_000 },
-        ] as readonly DiscountEntry[],
+          makeDiscountEntry('71', '見切', 500_000),
+          makeDiscountEntry('72', '値引', 100_000),
+        ],
       })
       const prevYear = storeResultToCausalPrev(
         makeResult({
           discountEntries: [
-            { type: '71', label: '見切', amount: 300_000 },
-            { type: '72', label: '値引', amount: 150_000 },
-          ] as readonly DiscountEntry[],
+            makeDiscountEntry('71', '見切', 300_000),
+            makeDiscountEntry('72', '値引', 150_000),
+          ],
         }),
       )
 
@@ -176,7 +205,7 @@ describe('causalChain', () => {
     })
 
     it('売変データなしで売変種別内訳ステップがスキップされる', () => {
-      const result = makeResult({ discountEntries: [] as readonly DiscountEntry[] })
+      const result = makeResult({ discountEntries: [] })
 
       const steps = buildCausalSteps(result, undefined)
 
@@ -323,9 +352,7 @@ describe('causalChain', () => {
         costInclusionRate: 0.01,
         totalSales: 10_000_000,
         totalCustomers: 5_000,
-        discountEntries: [
-          { type: '71', label: '見切', amount: 300_000 },
-        ] as readonly DiscountEntry[],
+        discountEntries: [makeDiscountEntry('71', '見切', 300_000)],
       })
 
       const prev = storeResultToCausalPrev(result)

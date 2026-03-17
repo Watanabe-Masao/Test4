@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { evaluateObservationPeriod } from './observationPeriod'
+import { evaluateObservationPeriod, worseObservationStatus } from './observationPeriod'
 import type { ObservationThresholds } from './observationPeriod'
+import type { ObservationStatus } from '@/domain/models/ObservationPeriod'
 
 /**
  * 観測期間 不変条件テスト
@@ -262,6 +263,35 @@ describe('observationPeriod invariants', () => {
       const result = evaluateObservationPeriod(daily, 28, 28, DEFAULT_THRESHOLDS)
       expect(result.elapsedDays).toBe(28)
       expect(result.remainingDays).toBe(0)
+    })
+  })
+
+  // ── OP-INV-9: worseObservationStatus は重篤度順序を守る ──
+  describe('OP-INV-9: worseObservationStatus severity ordering', () => {
+    const statuses: ObservationStatus[] = ['ok', 'partial', 'invalid', 'undefined']
+
+    it('同一ステータス同士は自身を返す', () => {
+      for (const s of statuses) {
+        expect(worseObservationStatus(s, s)).toBe(s)
+      }
+    })
+
+    it('ok は全てに対して劣る（相手を返す）', () => {
+      for (const s of statuses) {
+        expect(worseObservationStatus('ok', s)).toBe(s)
+      }
+    })
+
+    it('undefined は最も悪い', () => {
+      for (const s of statuses) {
+        expect(worseObservationStatus('undefined', s)).toBe('undefined')
+      }
+    })
+
+    it('重篤度順序: ok < partial < invalid < undefined', () => {
+      expect(worseObservationStatus('ok', 'partial')).toBe('partial')
+      expect(worseObservationStatus('partial', 'invalid')).toBe('invalid')
+      expect(worseObservationStatus('invalid', 'undefined')).toBe('undefined')
     })
   })
 

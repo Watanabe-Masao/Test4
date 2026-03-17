@@ -520,7 +520,7 @@ describe('assembleStoreResult', () => {
       expect(result.metricWarnings.has('observationPeriod')).toBe(false)
     })
 
-    it('elapsedDays と observationPeriod.elapsedDays は一致する', () => {
+    it('全日が売上ありの場合、elapsedDays と observationPeriod.elapsedDays は一致する', () => {
       const daily = new Map([
         [1, makeDailyRecord(1, 100000)],
         [5, makeDailyRecord(5, 80000)],
@@ -539,6 +539,35 @@ describe('assembleStoreResult', () => {
       expect(result.observationPeriod.lastRecordedSalesDay).toBe(10)
       expect(result.observationPeriod.elapsedDays).toBe(10)
       expect(result.elapsedDays).toBe(result.observationPeriod.elapsedDays)
+    })
+
+    it('非売上取引のみの日がある場合、elapsedDays と observationPeriod.elapsedDays が乖離する', () => {
+      // dailyBuilder は仕入・振替・返品のみの日も elapsedDays に含めるが、
+      // observationPeriod は sales > 0 の日だけを lastRecordedSalesDay とする。
+      // 予算分析には広い定義（営業活動日）が適切、
+      // 観測品質には狭い定義（売上実績日）が適切 → 意図的な使い分け。
+      const daily = new Map([
+        [1, makeDailyRecord(1, 100000)], // 売上あり
+        [5, makeDailyRecord(5, 80000)], // 売上あり
+        [7, makeDailyRecord(7, 0, 50000)], // 仕入のみ（非売上取引）
+      ])
+      const acc = makeAccumulator({
+        totalSales: 180000,
+        salesDays: 2,
+        elapsedDays: 7, // dailyBuilder: 仕入のみの日を含む
+        daily,
+      })
+      const data = createEmptyImportedData()
+
+      const result = assembleStoreResult('1', acc, data, DEFAULT_SETTINGS, 31)
+
+      // StoreResult.elapsedDays は dailyBuilder の広い定義（予算分析用）
+      expect(result.elapsedDays).toBe(7)
+      // observationPeriod.elapsedDays は sales > 0 のみ（観測品質用）
+      expect(result.observationPeriod.elapsedDays).toBe(5)
+      expect(result.observationPeriod.lastRecordedSalesDay).toBe(5)
+      // 乖離は意図的: 予算経過と観測品質で異なる定義を使う
+      expect(result.elapsedDays).toBeGreaterThan(result.observationPeriod.elapsedDays)
     })
   })
 })

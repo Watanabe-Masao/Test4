@@ -254,6 +254,10 @@ export function assembleStoreResult(
   })
 
   // 観測期間の評価
+  // 注意: acc.elapsedDays（非売上取引含む）と observationPeriod.elapsedDays（sales > 0 のみ）は
+  // 非売上取引のみの日がある場合に乖離する。これは意図的な使い分け:
+  // - StoreResult.elapsedDays: 予算分析用（営業活動全般）
+  // - observationPeriod.elapsedDays: 観測品質用（売上実績日）
   const observationPeriod = evaluateObservationPeriod(acc.daily, daysInMonth, acc.elapsedDays)
   if (observationPeriod.warnings.length > 0) {
     metricWarnings.set('observationPeriod', observationPeriod.warnings)
