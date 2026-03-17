@@ -4,13 +4,24 @@
  * アメダス観測所の実測値を取得する。
  * API キー不要・認証不要。
  *
+ * 注意: JMA サーバーはクロスオリジンリクエストを拒否するため、
+ * プロキシ経由でアクセスする必要がある（jmaApiConfig.ts 参照）。
+ *
  * @see https://www.jma.go.jp/bosai/amedas/
  */
 import type { HourlyWeatherRecord } from '@/domain/models'
 import { deriveWeatherCode } from '@/domain/calculations/weatherAggregation'
+import { getJmaBaseUrl } from './jmaApiConfig'
 
-const AMEDAS_TABLE_URL = 'https://www.jma.go.jp/bosai/amedas/const/amedastable.json'
-const AMEDAS_POINT_URL = 'https://www.jma.go.jp/bosai/amedas/data/point'
+/** AMEDAS 観測所テーブル URL（動的解決） */
+function getAmedasTableUrl(): string {
+  return `${getJmaBaseUrl()}/bosai/amedas/const/amedastable.json`
+}
+
+/** AMEDAS ポイントデータ URL ベース（動的解決） */
+function getAmedasPointUrl(): string {
+  return `${getJmaBaseUrl()}/bosai/amedas/data/point`
+}
 
 /** 3時間ブロックの開始時刻 */
 const H3_BLOCKS = ['00', '03', '06', '09', '12', '15', '18', '21'] as const
@@ -66,7 +77,7 @@ let cachedStationTable: readonly AmedasStation[] | null = null
 export async function fetchStationTable(): Promise<readonly AmedasStation[]> {
   if (cachedStationTable) return cachedStationTable
 
-  const response = await fetchWithRetry(AMEDAS_TABLE_URL)
+  const response = await fetchWithRetry(getAmedasTableUrl())
   const data = response as Record<
     string,
     {
@@ -171,9 +182,7 @@ export async function fetchAmedasWeather(
   onProgress?: (progress: number) => void,
 ): Promise<readonly HourlyWeatherRecord[]> {
   // 境界検証: AMEDAS は過去の実測データのみ。未来日付はクランプする。
-  const yesterday = formatDateStr(
-    new Date(Date.now() - 24 * 60 * 60 * 1000),
-  )
+  const yesterday = formatDateStr(new Date(Date.now() - 24 * 60 * 60 * 1000))
   const clampedEnd = endDate > yesterday ? yesterday : endDate
 
   if (startDate > clampedEnd) {
@@ -188,17 +197,14 @@ export async function fetchAmedasWeather(
     return []
   }
 
+  const pointUrl = getAmedasPointUrl()
   const totalBlocks = dates.length * H3_BLOCKS.length
   let completedBlocks = 0
   const allRecords: HourlyWeatherRecord[] = []
 
-  // 古い日付から順にフェッチする。連続で全ブロック 404 の日が続いたら
-  // API にデータが存在しないと判断して残りの古い日付をスキップする。
-  // → 新しい日付から逆順にフェッチし、404 連続で打ち切る。
-  // ただし日付範囲は古い→新しいで生成されているため、逆順に処理する。
+  // 新しい日付から逆順にフェッチし、連続 404 で古い日付を打ち切る
   let consecutiveNotFoundDays = 0
 
-  // 新しい日付から処理して、データが存在する範囲を効率的に特定する
   for (let dayIdx = dates.length - 1; dayIdx >= 0; dayIdx--) {
     const dateStr = dates[dayIdx]
     const yyyymmdd = dateStr.replace(/-/g, '')
@@ -206,7 +212,7 @@ export async function fetchAmedasWeather(
 
     for (const h3 of H3_BLOCKS) {
       try {
-        const url = `${AMEDAS_POINT_URL}/${stationId}/${yyyymmdd}_${h3}.json`
+        const url = `${pointUrl}/${stationId}/${yyyymmdd}_${h3}.json`
         const data = (await fetchWithRetry(url)) as AmedasPointResponse
 
         const hourlyRecords = parsePointBlock(dateStr, data)
@@ -218,7 +224,11 @@ export async function fetchAmedasWeather(
           completedBlocks += H3_BLOCKS.length - H3_BLOCKS.indexOf(h3)
           break
         }
-        // その他のエラー（ネットワーク障害等）はスキップして次へ
+        // CORS/ネットワークエラーの場合は即座に全体を中断
+        if (e instanceof JmaAccessError) {
+          throw e
+        }
+        // その他のエラー（一時的な障害等）はスキップして次へ
       }
 
       completedBlocks++
@@ -236,7 +246,6 @@ export async function fetchAmedasWeather(
       consecutiveNotFoundDays++
       // 連続して N日分データが無い場合、それ以前の日付もデータなしと判断
       if (consecutiveNotFoundDays >= MAX_CONSECUTIVE_NOT_FOUND_DAYS) {
-        // 残りの古い日付のブロック数を完了済みとして加算
         completedBlocks = totalBlocks
         onProgress?.(1)
         break
@@ -340,17 +349,29 @@ async function fetchWithRetry(url: string): Promise<unknown> {
     try {
       const response = await fetch(url)
       if (!response.ok) {
-        // 404 はデータ未公開（期間切れ等）を示す — リトライしても回復しない
+        // 404 はデータ未公開を示す — リトライしても回復しない
         if (response.status === 404) {
           throw new AmedasNotFoundError(url)
+        }
+        // 403 はホスト制限（CORS プロキシ未設定）— リトライしても回復しない
+        if (response.status === 403) {
+          throw new JmaAccessError(
+            `JMA API がリクエストを拒否しました (403)。CORS プロキシの設定を確認してください。URL: ${url}`,
+          )
         }
         throw new Error(`AMEDAS API error: ${response.status} ${response.statusText}`)
       }
       return await response.json()
     } catch (e) {
-      // 404 はリトライ不要 — 即座に伝播する
-      if (e instanceof AmedasNotFoundError) {
+      // 回復不能なエラーはリトライせず即座に伝播
+      if (e instanceof AmedasNotFoundError || e instanceof JmaAccessError) {
         throw e
+      }
+      // TypeError は fetch 自体の失敗 = CORS ブロックまたはネットワーク障害
+      if (e instanceof TypeError && attempt === 0) {
+        throw new JmaAccessError(
+          `JMA API にアクセスできません。CORS プロキシが設定されていない可能性があります。詳細: ${e.message}`,
+        )
       }
       lastError = e instanceof Error ? e : new Error(String(e))
       if (attempt < MAX_RETRIES) {
@@ -366,6 +387,14 @@ class AmedasNotFoundError extends Error {
   constructor(url: string) {
     super(`AMEDAS data not found: ${url}`)
     this.name = 'AmedasNotFoundError'
+  }
+}
+
+/** JMA API へのアクセスが拒否された (CORS/403) ことを示すエラー */
+export class JmaAccessError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'JmaAccessError'
   }
 }
 

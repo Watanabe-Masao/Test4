@@ -12,13 +12,22 @@
  * @see https://www.jma.go.jp/bosai/forecast/
  */
 import type { DailyForecast, ForecastAreaResolution } from '@/domain/models'
+import { getJmaBaseUrl } from './jmaApiConfig'
 
-// ─── URLs ────────────────────────────────────────────
+// ─── URLs（プロキシ経由で動的解決） ─────────────────────
 
-const AREA_JSON_URL = 'https://www.jma.go.jp/bosai/common/const/area.json'
-const WEEK_AREA_URL = 'https://www.jma.go.jp/bosai/forecast/const/week_area.json'
-const WEEK_AREA_NAME_URL = 'https://www.jma.go.jp/bosai/forecast/const/week_area_name.json'
-const FORECAST_URL = 'https://www.jma.go.jp/bosai/forecast/data/forecast'
+function getAreaJsonUrl(): string {
+  return `${getJmaBaseUrl()}/bosai/common/const/area.json`
+}
+function getWeekAreaUrl(): string {
+  return `${getJmaBaseUrl()}/bosai/forecast/const/week_area.json`
+}
+function getWeekAreaNameUrl(): string {
+  return `${getJmaBaseUrl()}/bosai/forecast/const/week_area_name.json`
+}
+function getForecastUrl(): string {
+  return `${getJmaBaseUrl()}/bosai/forecast/data/forecast`
+}
 
 /** リトライ設定 */
 const MAX_RETRIES = 2
@@ -73,21 +82,21 @@ let cachedWeekAreaName: WeekAreaNameJson | null = null
 
 async function fetchAreaJson(): Promise<AreaJson> {
   if (cachedAreaJson) return cachedAreaJson
-  const data = (await fetchWithRetry(AREA_JSON_URL)) as AreaJson
+  const data = (await fetchWithRetry(getAreaJsonUrl())) as AreaJson
   cachedAreaJson = data
   return data
 }
 
 async function fetchWeekArea(): Promise<WeekAreaJson> {
   if (cachedWeekArea) return cachedWeekArea
-  const data = (await fetchWithRetry(WEEK_AREA_URL)) as WeekAreaJson
+  const data = (await fetchWithRetry(getWeekAreaUrl())) as WeekAreaJson
   cachedWeekArea = data
   return data
 }
 
 async function fetchWeekAreaName(): Promise<WeekAreaNameJson> {
   if (cachedWeekAreaName) return cachedWeekAreaName
-  const data = (await fetchWithRetry(WEEK_AREA_NAME_URL)) as WeekAreaNameJson
+  const data = (await fetchWithRetry(getWeekAreaNameUrl())) as WeekAreaNameJson
   cachedWeekAreaName = data
   return data
 }
@@ -197,7 +206,7 @@ export async function fetchWeeklyForecast(
   weekAreaCode: string,
   amedasStationId: string,
 ): Promise<readonly DailyForecast[]> {
-  const url = `${FORECAST_URL}/${officeCode}.json`
+  const url = `${getForecastUrl()}/${officeCode}.json`
   const data = (await fetchWithRetry(url)) as readonly [unknown, ForecastWeeklyRaw]
 
   const weekly = data[1]
