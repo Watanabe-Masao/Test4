@@ -7,7 +7,14 @@
 import { WIDGET_REGISTRY } from './registry'
 import type { WidgetDef } from './types'
 
-export const WIDGET_MAP = new Map<string, WidgetDef>(WIDGET_REGISTRY.map((w) => [w.id, w]))
+/** Lazy-initialized widget map (avoids TLA race with WIDGET_REGISTRY) */
+let _widgetMap: Map<string, WidgetDef> | null = null
+export function getWidgetMap(): Map<string, WidgetDef> {
+  if (!_widgetMap) {
+    _widgetMap = new Map(WIDGET_REGISTRY.map((w) => [w.id, w]))
+  }
+  return _widgetMap
+}
 
 export const DEFAULT_WIDGET_IDS: string[] = [
   // 予算進捗ハブ（最上位: 予算達成 + 店別ドリルダウン + 予算ヘッダ）
@@ -85,7 +92,7 @@ export function loadLayout(): string[] {
     const parsed = JSON.parse(raw) as string[]
     if (!Array.isArray(parsed)) return DEFAULT_WIDGET_IDS
     const migrated = migrateWidgetIds(parsed)
-    const valid = migrated.filter((id) => WIDGET_MAP.has(id))
+    const valid = migrated.filter((id) => getWidgetMap().has(id))
     return valid.length > 0 ? valid : DEFAULT_WIDGET_IDS
   } catch {
     return DEFAULT_WIDGET_IDS

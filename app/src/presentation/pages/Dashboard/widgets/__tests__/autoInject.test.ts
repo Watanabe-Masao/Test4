@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { autoInjectDataWidgets, WIDGET_MAP } from '../widgetLayout'
+import { autoInjectDataWidgets, getWidgetMap } from '../widgetLayout'
 
 // localStorage モック
 const storage = new Map<string, string>()
@@ -120,7 +120,7 @@ describe('autoInjectDataWidgets', () => {
     const result = autoInjectDataWidgets([], WITH_DUCKDB_PREV)
     expect(result).not.toBeNull()
     for (const id of result!) {
-      expect(WIDGET_MAP.has(id)).toBe(true)
+      expect(getWidgetMap().has(id)).toBe(true)
     }
   })
 
