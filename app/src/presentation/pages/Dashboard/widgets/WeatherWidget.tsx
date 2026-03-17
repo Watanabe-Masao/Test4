@@ -1,7 +1,7 @@
 /**
  * 天気ウィジェット — 日別天気サマリ + 売上相関チャート
  *
- * Open-Meteo API から天気データを取得し、WeatherBadge と
+ * 気象庁 AMEDAS API から天気データを取得し、WeatherBadge と
  * WeatherCorrelationChart を組み合わせてダッシュボードに表示する。
  */
 import { memo, useMemo } from 'react'

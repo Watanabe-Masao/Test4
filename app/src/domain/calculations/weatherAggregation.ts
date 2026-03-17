@@ -97,7 +97,7 @@ function aggregateOneDay(
 /**
  * WMO Weather Interpretation Code を天気カテゴリに分類する。
  *
- * @see https://open-meteo.com/en/docs → WMO Weather interpretation codes
+ * @see WMO Weather interpretation codes (WMO-4677)
  *
  * 0: Clear sky
  * 1-3: Mainly clear, partly cloudy, overcast

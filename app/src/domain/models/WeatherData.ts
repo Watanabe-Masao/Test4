@@ -47,7 +47,7 @@ export interface StoreLocation {
   readonly amedasStationName?: string // 観測所名（表示用）
 }
 
-/** Open-Meteo Geocoding API の検索結果 */
+/** 国土地理院 住所検索API の検索結果 */
 export interface GeocodingResult {
   readonly name: string
   readonly latitude: number
