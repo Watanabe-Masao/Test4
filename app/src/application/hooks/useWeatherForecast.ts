@@ -67,10 +67,7 @@ export function useWeatherForecast(storeId: string): UseWeatherForecastResult {
         })
 
         // 解決した予報区域コードを StoreLocation にキャッシュ
-        if (
-          result.resolution &&
-          (!location.forecastOfficeCode || !location.weekAreaCode)
-        ) {
+        if (result.resolution && (!location.forecastOfficeCode || !location.weekAreaCode)) {
           const updatedLocation = {
             ...location,
             forecastOfficeCode: result.resolution.officeCode,
@@ -105,5 +102,11 @@ export function useWeatherForecast(storeId: string): UseWeatherForecastResult {
     setReloadKey((k) => k + 1)
   }, [])
 
-  return { forecasts: state.forecasts, resolution: state.resolution, isLoading: state.isLoading, error: state.error, reload }
+  return {
+    forecasts: state.forecasts,
+    resolution: state.resolution,
+    isLoading: state.isLoading,
+    error: state.error,
+    reload,
+  }
 }

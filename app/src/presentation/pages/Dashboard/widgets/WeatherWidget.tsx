@@ -112,10 +112,7 @@ export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetC
   } = useWeatherForecast(storeId)
 
   // 実測日の dateKey セット（予報と重複しないようフィルタ用）
-  const observedDateKeys = useMemo(
-    () => new Set(daily.map((d) => d.dateKey)),
-    [daily],
-  )
+  const observedDateKeys = useMemo(() => new Set(daily.map((d) => d.dateKey)), [daily])
 
   // 予報データから実測済み日を除外
   const futureForecasts = useMemo(

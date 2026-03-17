@@ -1,14 +1,6 @@
 /**
- * 日別詳細モーダル（DayDetailModal）
- *
- * カレンダー/テーブルから日を選択した際に表示するモーダル。
+ * 日別詳細モーダル — カレンダー/テーブルから日を選択した際に表示。
  * 売上分析・時間帯分析・仕入内訳の3タブ構成。
- *
- * 分割構成:
- *   - DayDetailModal.styles.ts  … styled-components
- *   - drilldownUtils.ts         … 集計ロジック・型定義
- *   - HourlyChart.tsx           … 時間帯別チャート
- *   - CategoryDrilldown.tsx     … カテゴリドリルダウン
  */
 import { useState, useMemo } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
@@ -468,7 +460,11 @@ export function DayDetailModal({
         {/* ── Tab: 時間帯分析 ── */}
         {tab === 'hourly' && (
           <>
-            <HourlyChart dayRecords={dayRecords} prevDayRecords={prevDayRecords} weatherHourly={weatherResult.data ?? undefined} />
+            <HourlyChart
+              dayRecords={dayRecords}
+              prevDayRecords={prevDayRecords}
+              weatherHourly={weatherResult.data ?? undefined}
+            />
             {dayRecords.length === 0 && (
               <DetailSection>
                 <DetailSectionTitle>時間帯別売上</DetailSectionTitle>

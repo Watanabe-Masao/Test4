@@ -25,7 +25,11 @@ import {
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
-import { useDuckDBHourlyProfile, useDuckDBWeatherHourlyAvg, type HourlyProfileRow } from '@/application/hooks/useDuckDBQuery'
+import {
+  useDuckDBHourlyProfile,
+  useDuckDBWeatherHourlyAvg,
+  type HourlyProfileRow,
+} from '@/application/hooks/useDuckDBQuery'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useChartTheme, toPct } from './chartTheme'
 import { createChartTooltip } from './createChartTooltip'
@@ -129,11 +133,15 @@ export const HourlyProfileChart = memo(function HourlyProfileChart({
   // ── 天気データ（時間帯別平均気温） ──
   const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
   const weatherStoreId = useMemo(() => {
-    const ids = selectedStoreIds.size > 0 ? Array.from(selectedStoreIds) : Object.keys(storeLocations)
+    const ids =
+      selectedStoreIds.size > 0 ? Array.from(selectedStoreIds) : Object.keys(storeLocations)
     return ids.find((id) => storeLocations[id]) ?? ''
   }, [selectedStoreIds, storeLocations])
   const { data: weatherAvg } = useDuckDBWeatherHourlyAvg(
-    duckConn, duckDataVersion, weatherStoreId, currentDateRange,
+    duckConn,
+    duckDataVersion,
+    weatherStoreId,
+    currentDateRange,
   )
 
   const { chartData, peakHours, top3Concentration, activeHoursCount } = useMemo(() => {
@@ -146,7 +154,8 @@ export const HourlyProfileChart = memo(function HourlyProfileChart({
         ...result,
         chartData: result.chartData.map((d) => ({
           ...d,
-          avgTemp: tempMap.get(d.hour) != null ? Math.round(tempMap.get(d.hour)! * 10) / 10 : undefined,
+          avgTemp:
+            tempMap.get(d.hour) != null ? Math.round(tempMap.get(d.hour)! * 10) / 10 : undefined,
         })),
       }
     }

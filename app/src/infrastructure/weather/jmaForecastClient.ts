@@ -54,9 +54,7 @@ interface AreaJson {
  *
  * 例: { "130000": { "130010": ["44132", "44263"], "130020": ["44301"] } }
  */
-type WeekAreaJson = Readonly<
-  Record<string, Readonly<Record<string, readonly string[]>>>
->
+type WeekAreaJson = Readonly<Record<string, Readonly<Record<string, readonly string[]>>>>
 
 /**
  * week_area_name.json: weekAreaCode → areaName
@@ -146,10 +144,18 @@ interface ForecastWeeklyRaw {
   readonly reportDatetime: string
   readonly timeSeries: readonly [WeeklyTimeSeries0, WeeklyTimeSeries1]
   readonly tempAverage?: {
-    readonly areas: readonly { readonly area: { readonly code: string }; readonly min: string; readonly max: string }[]
+    readonly areas: readonly {
+      readonly area: { readonly code: string }
+      readonly min: string
+      readonly max: string
+    }[]
   }
   readonly precipAverage?: {
-    readonly areas: readonly { readonly area: { readonly code: string }; readonly min: string; readonly max: string }[]
+    readonly areas: readonly {
+      readonly area: { readonly code: string }
+      readonly min: string
+      readonly max: string
+    }[]
   }
 }
 
