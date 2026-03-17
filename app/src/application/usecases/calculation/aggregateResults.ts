@@ -4,6 +4,7 @@
  * スカラー合算は scalarAccumulator.ts、コレクション集約は collectionAggregator.ts に委譲。
  */
 import type { StoreResult } from '@/domain/models'
+import { evaluateObservationPeriod } from '@/domain/calculations/observationPeriod'
 import { calculateDiscountRate } from '@/application/services/grossProfitBridge'
 import {
   safeDivide,
@@ -72,6 +73,9 @@ export function aggregateStoreResults(
 
   const transferDetails = buildTransferDetails(aggTransfer)
 
+  // 観測期間の評価（集約済み日別データから導出）
+  const observationPeriod = evaluateObservationPeriod(aggDaily, daysInMonth, scalars.elapsedDays)
+
   return {
     storeId: 'aggregate',
     openingInventory,
@@ -129,6 +133,10 @@ export function aggregateStoreResults(
       salesDays: scalars.salesDays,
       daysInMonth,
     }),
-    metricWarnings: new Map(),
+    observationPeriod,
+    metricWarnings:
+      observationPeriod.warnings.length > 0
+        ? new Map([['observationPeriod', observationPeriod.warnings]])
+        : new Map(),
   }
 }

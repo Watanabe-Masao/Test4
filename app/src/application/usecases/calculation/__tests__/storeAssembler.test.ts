@@ -437,4 +437,108 @@ describe('assembleStoreResult', () => {
       expect(result.grossProfitBudget).toBe(1500000)
     })
   })
+
+  // ─── 観測期間の統合テスト（Phase 2） ────────────────────
+  describe('observationPeriod integration', () => {
+    it('ゼロデータ → status: undefined, warnings に obs_no_sales_data', () => {
+      const acc = makeAccumulator()
+      const data = createEmptyImportedData()
+
+      const result = assembleStoreResult('1', acc, data, DEFAULT_SETTINGS, 30)
+
+      expect(result.observationPeriod.status).toBe('undefined')
+      expect(result.observationPeriod.lastRecordedSalesDay).toBe(0)
+      expect(result.observationPeriod.salesDays).toBe(0)
+      expect(result.observationPeriod.warnings).toContain('obs_no_sales_data')
+      expect(result.metricWarnings.has('observationPeriod')).toBe(true)
+    })
+
+    it('少ない日数（< minDaysForValid=5） → status: invalid', () => {
+      const daily = new Map([
+        [1, makeDailyRecord(1, 100000)],
+        [2, makeDailyRecord(2, 80000)],
+        [3, makeDailyRecord(3, 90000)],
+      ])
+      const acc = makeAccumulator({
+        totalSales: 270000,
+        salesDays: 3,
+        elapsedDays: 3,
+        daily,
+      })
+      const data = createEmptyImportedData()
+
+      const result = assembleStoreResult('1', acc, data, DEFAULT_SETTINGS, 31)
+
+      expect(result.observationPeriod.status).toBe('invalid')
+      expect(result.observationPeriod.lastRecordedSalesDay).toBe(3)
+      expect(result.observationPeriod.elapsedDays).toBe(3)
+      expect(result.observationPeriod.salesDays).toBe(3)
+      expect(result.observationPeriod.daysInMonth).toBe(31)
+      expect(result.observationPeriod.remainingDays).toBe(28)
+      expect(result.observationPeriod.warnings).toContain('obs_window_incomplete')
+    })
+
+    it('中程度の日数（5-9日） → status: partial', () => {
+      const daily = new Map<number, DailyRecord>()
+      for (let d = 1; d <= 7; d++) {
+        daily.set(d, makeDailyRecord(d, 50000))
+      }
+      const acc = makeAccumulator({
+        totalSales: 350000,
+        salesDays: 7,
+        elapsedDays: 7,
+        daily,
+      })
+      const data = createEmptyImportedData()
+
+      const result = assembleStoreResult('1', acc, data, DEFAULT_SETTINGS, 30)
+
+      expect(result.observationPeriod.status).toBe('partial')
+      expect(result.observationPeriod.lastRecordedSalesDay).toBe(7)
+      expect(result.observationPeriod.warnings).toContain('obs_window_incomplete')
+    })
+
+    it('十分な日数（≥10日） → status: ok, warnings なし', () => {
+      const daily = new Map<number, DailyRecord>()
+      for (let d = 1; d <= 15; d++) {
+        daily.set(d, makeDailyRecord(d, 40000))
+      }
+      const acc = makeAccumulator({
+        totalSales: 600000,
+        salesDays: 15,
+        elapsedDays: 15,
+        daily,
+      })
+      const data = createEmptyImportedData()
+
+      const result = assembleStoreResult('1', acc, data, DEFAULT_SETTINGS, 30)
+
+      expect(result.observationPeriod.status).toBe('ok')
+      expect(result.observationPeriod.lastRecordedSalesDay).toBe(15)
+      expect(result.observationPeriod.remainingDays).toBe(15)
+      expect(result.observationPeriod.warnings).toHaveLength(0)
+      expect(result.metricWarnings.has('observationPeriod')).toBe(false)
+    })
+
+    it('elapsedDays と observationPeriod.elapsedDays は一致する', () => {
+      const daily = new Map([
+        [1, makeDailyRecord(1, 100000)],
+        [5, makeDailyRecord(5, 80000)],
+        [10, makeDailyRecord(10, 90000)],
+      ])
+      const acc = makeAccumulator({
+        totalSales: 270000,
+        salesDays: 3,
+        elapsedDays: 10,
+        daily,
+      })
+      const data = createEmptyImportedData()
+
+      const result = assembleStoreResult('1', acc, data, DEFAULT_SETTINGS, 31)
+
+      expect(result.observationPeriod.lastRecordedSalesDay).toBe(10)
+      expect(result.observationPeriod.elapsedDays).toBe(10)
+      expect(result.elapsedDays).toBe(result.observationPeriod.elapsedDays)
+    })
+  })
 })

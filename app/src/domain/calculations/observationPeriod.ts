@@ -105,9 +105,10 @@ export function evaluateObservationPeriod(
 /**
  * daily Map から lastRecordedSalesDay と salesDays を導出する
  */
-function deriveSalesMetrics(
-  daily: ReadonlyMap<number, { readonly sales: number }>,
-): { lastRecordedSalesDay: number; salesDays: number } {
+function deriveSalesMetrics(daily: ReadonlyMap<number, { readonly sales: number }>): {
+  lastRecordedSalesDay: number
+  salesDays: number
+} {
   let lastRecordedSalesDay = 0
   let salesDays = 0
 

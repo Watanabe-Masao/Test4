@@ -24,6 +24,7 @@ import {
   calculateBudgetAnalysis,
   calculateGrossProfitBudget,
 } from '@/application/services/budgetAnalysisBridge'
+import { evaluateObservationPeriod } from '@/domain/calculations/observationPeriod'
 import {
   safeDivide,
   isSettingsForTargetMonth,
@@ -252,6 +253,12 @@ export function assembleStoreResult(
     daysInMonth,
   })
 
+  // 観測期間の評価
+  const observationPeriod = evaluateObservationPeriod(acc.daily, daysInMonth, acc.elapsedDays)
+  if (observationPeriod.warnings.length > 0) {
+    metricWarnings.set('observationPeriod', observationPeriod.warnings)
+  }
+
   // 粗利予算分析（在庫法粗利 → 推定法マージンの順でフォールバック）
   const effectiveGrossProfit = invResult.grossProfit ?? estResult.margin
   const gpBudgetAnalysis = calculateGrossProfitBudget({
@@ -328,6 +335,7 @@ export function assembleStoreResult(
     requiredDailyGrossProfit: gpBudgetAnalysis.requiredDailyGrossProfit,
     projectedGrossProfit: gpBudgetAnalysis.projectedGrossProfit,
     projectedGPAchievement: gpBudgetAnalysis.projectedGPAchievement,
+    observationPeriod,
     metricWarnings,
   }
 }

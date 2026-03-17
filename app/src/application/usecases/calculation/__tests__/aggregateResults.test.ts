@@ -119,6 +119,15 @@ function makeStoreResult(overrides: Partial<StoreResult> = {}): StoreResult {
     requiredDailyGrossProfit: 0,
     projectedGrossProfit: 0,
     projectedGPAchievement: 0,
+    observationPeriod: {
+      lastRecordedSalesDay: 0,
+      elapsedDays: 0,
+      salesDays: 0,
+      daysInMonth: 30,
+      remainingDays: 30,
+      status: 'undefined' as const,
+      warnings: ['obs_no_sales_data'],
+    },
     metricWarnings: new Map(),
     ...overrides,
   }
