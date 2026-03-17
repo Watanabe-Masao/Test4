@@ -1,14 +1,4 @@
-/**
- * 気象庁 AMEDAS JSON API クライアント
- *
- * アメダス観測所の実測値を取得する。
- * API キー不要・認証不要。
- *
- * 注意: JMA サーバーはクロスオリジンリクエストを拒否するため、
- * プロキシ経由でアクセスする必要がある（jmaApiConfig.ts 参照）。
- *
- * @see https://www.jma.go.jp/bosai/amedas/
- */
+/** 気象庁 AMEDAS JSON API クライアント — プロキシ経由でアクセス（jmaApiConfig.ts 参照） */
 import type { HourlyWeatherRecord } from '@/domain/models'
 import { deriveWeatherCode } from '@/domain/calculations/weatherAggregation'
 import { getJmaBaseUrl } from './jmaApiConfig'
@@ -33,10 +23,7 @@ const REQUEST_DELAY_MS = 100
 const MAX_RETRIES = 2
 const INITIAL_RETRY_DELAY_MS = 1000
 
-/**
- * 1日の全ブロック 404 が連続した場合に打ち切る日数。
- * API がデータを保持していない古い日付を延々とリクエストするのを防ぐ。
- */
+/** 全ブロック 404 連続時の打ち切り日数 */
 const MAX_CONSECUTIVE_NOT_FOUND_DAYS = 2
 
 // ─── Station Table ───────────────────────────────────
@@ -111,13 +98,7 @@ export async function fetchStationTable(): Promise<readonly AmedasStation[]> {
   return stations
 }
 
-/**
- * 指定した緯度経度に最も近い AMEDAS 観測所を見つける。
- *
- * @param latitude 緯度
- * @param longitude 経度
- * @returns 最寄りの観測所（気温・降水量の観測がある局のみ）
- */
+/** 指定した緯度経度に最も近い AMEDAS 観測所を見つける */
 export async function findNearestStation(
   latitude: number,
   longitude: number,
@@ -166,15 +147,7 @@ interface AmedasPointRecord {
 /** AMEDAS 3時間ブロックのレスポンス: timestamp → record */
 type AmedasPointResponse = Record<string, AmedasPointRecord>
 
-/**
- * 指定した AMEDAS 観測所・日付範囲の天気データを時間別レコードとして取得する。
- *
- * @param stationId AMEDAS 観測所番号
- * @param startDate 開始日 (YYYY-MM-DD)
- * @param endDate 終了日 (YYYY-MM-DD)
- * @param onProgress 進捗コールバック (0.0-1.0)
- * @returns HourlyWeatherRecord の配列
- */
+/** 指定した AMEDAS 観測所・日付範囲の天気データを時間別レコードとして取得する */
 export async function fetchAmedasWeather(
   stationId: string,
   startDate: string,
@@ -256,11 +229,7 @@ export async function fetchAmedasWeather(
   return allRecords
 }
 
-/**
- * 3時間ブロックの AMEDAS レスポンスを HourlyWeatherRecord に変換する。
- *
- * 10分間隔のデータから正時 (:00) のレコードを抽出し、時間別に集約する。
- */
+/** 3時間ブロックのレスポンスを HourlyWeatherRecord に変換（正時のみ抽出） */
 function parsePointBlock(dateKey: string, data: AmedasPointResponse): HourlyWeatherRecord[] {
   const records: HourlyWeatherRecord[] = []
 
