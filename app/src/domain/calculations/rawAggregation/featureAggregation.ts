@@ -81,6 +81,8 @@ export function computeDowPattern(rows: readonly DowPatternInput[]): DowPatternR
   for (const [storeId, dateMap] of storeMap) {
     const dowSales = new Map<number, number[]>()
     for (const [dateKey, sales] of dateMap) {
+      // 非営業日（sales = 0）は曜日パターンから除外
+      if (sales <= 0) continue
       const parts = dateKey.split('-')
       const dow = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2])).getDay()
       const arr = dowSales.get(dow) ?? []

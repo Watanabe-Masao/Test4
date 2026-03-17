@@ -8,6 +8,7 @@ import type {
   ViewType,
   ComparisonFrame,
   PrevYearScope,
+  ObservationStatus,
 } from '@/domain/models'
 import type { Store } from '@/domain/models'
 import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/hooks'
@@ -97,6 +98,8 @@ export interface WidgetContext {
   dataMaxDay: number
   /** 取込データ有効期間から算出された経過日数 */
   elapsedDays: number | undefined
+  /** 観測品質ステータス（observationPeriod.status の便利アクセサ） */
+  observationStatus: ObservationStatus
   /** 部門別KPIインデックス（buildDepartmentKpiIndex経由） */
   departmentKpi: DepartmentKpiIndex
   /** 指標説明マップ（MetricBreakdownPanel 用） */

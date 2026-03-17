@@ -121,6 +121,15 @@ export function makeStoreResult(overrides: Partial<StoreResult> = {}): StoreResu
     requiredDailyGrossProfit: 0,
     projectedGrossProfit: 0,
     projectedGPAchievement: 0,
+    observationPeriod: {
+      lastRecordedSalesDay: 15,
+      elapsedDays: 15,
+      salesDays: 10,
+      daysInMonth: 30,
+      remainingDays: 15,
+      status: 'ok' as const,
+      warnings: [],
+    },
     metricWarnings: new Map(),
   }
   return { ...defaults, ...overrides }
@@ -237,6 +246,7 @@ export function makeWidgetContext(overrides: Partial<WidgetContext> = {}): Widge
     },
     onPrevYearDetail: () => {},
     fmtCurrency: formatCurrency,
+    observationStatus: 'ok' as const,
     comparisonFrame: {
       current: { from: { year: 2026, month: 2, day: 1 }, to: { year: 2026, month: 2, day: 28 } },
       previous: { from: { year: 2025, month: 2, day: 1 }, to: { year: 2025, month: 2, day: 28 } },

@@ -4,6 +4,11 @@
  * スカラー合算は scalarAccumulator.ts、コレクション集約は collectionAggregator.ts に委譲。
  */
 import type { StoreResult } from '@/domain/models'
+import {
+  evaluateObservationPeriod,
+  worseObservationStatus,
+} from '@/domain/calculations/observationPeriod'
+import type { ObservationStatus } from '@/domain/models/ObservationPeriod'
 import { calculateDiscountRate } from '@/application/services/grossProfitBridge'
 import {
   safeDivide,
@@ -72,6 +77,22 @@ export function aggregateStoreResults(
 
   const transferDetails = buildTransferDetails(aggTransfer)
 
+  // 観測期間の評価（集約済み日別データから導出）
+  const observationPeriod = evaluateObservationPeriod(aggDaily, daysInMonth, scalars.elapsedDays)
+
+  // 個別店舗の最悪ステータスが集約後より悪い場合、マスキング警告を追加
+  const worstStoreStatus = results.reduce<ObservationStatus>(
+    (worst, r) => worseObservationStatus(worst, r.observationPeriod.status),
+    'ok',
+  )
+  const maskedObservationPeriod =
+    worstStoreStatus !== observationPeriod.status && worstStoreStatus !== 'ok' && results.length > 1
+      ? {
+          ...observationPeriod,
+          warnings: [...observationPeriod.warnings, 'obs_store_quality_masked'],
+        }
+      : observationPeriod
+
   return {
     storeId: 'aggregate',
     openingInventory,
@@ -129,6 +150,10 @@ export function aggregateStoreResults(
       salesDays: scalars.salesDays,
       daysInMonth,
     }),
-    metricWarnings: new Map(),
+    observationPeriod: maskedObservationPeriod,
+    metricWarnings:
+      maskedObservationPeriod.warnings.length > 0
+        ? new Map([['observationPeriod', maskedObservationPeriod.warnings]])
+        : new Map(),
   }
 }

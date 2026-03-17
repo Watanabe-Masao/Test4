@@ -53,3 +53,17 @@ export const TREND_CHANGE_THRESHOLD = 0.03
 
 /** 万円変換の除数 */
 export const MANYEN_DIVISOR = 10_000
+
+// ── 観測期間閾値 ──
+
+/** 観測期間: 最低必要日数（これ未満は invalid） */
+export const DEFAULT_MIN_DAYS_FOR_VALID = 5
+
+/** 観測期間: partial 判定日数（これ未満は partial） */
+export const DEFAULT_MIN_DAYS_FOR_OK = 10
+
+/** 観測期間: 販売停滞閾値（lastRecordedSalesDay からこの日数以上経過で停滞警告） */
+export const DEFAULT_STALE_DAYS_THRESHOLD = 7
+
+/** 観測期間: 最低営業日数（これ未満は invalid） */
+export const DEFAULT_MIN_SALES_DAYS = 3

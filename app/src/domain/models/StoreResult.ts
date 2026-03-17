@@ -4,6 +4,7 @@ import type { SupplierTotal } from './Supplier'
 import type { DailyRecord } from './DailyRecord'
 import type { TransferDetails } from './TransferDetail'
 import type { DiscountEntry } from './ClassifiedSales'
+import type { ObservationPeriod } from './ObservationPeriod'
 
 // ────────────────────────────────────────────────────────
 // StoreResult のフィールド分類
@@ -127,6 +128,9 @@ export interface StoreDerivedData {
   readonly requiredDailyGrossProfit: number // 必要日次粗利 = (粗利予算 − 粗利実績) / 残日数
   readonly projectedGrossProfit: number // 粗利着地予測 = 粗利実績 + 日平均粗利 × 残日数
   readonly projectedGPAchievement: number // 粗利着地予測達成率 = 粗利着地予測 / 粗利予算
+
+  // ─── 観測期間 ──────────────────────────────────────────
+  readonly observationPeriod: ObservationPeriod // 観測品質の構造化評価
 
   // ─── 計算ステータス ──────────────────────────────────
   readonly metricWarnings: ReadonlyMap<string, readonly string[]> // MetricId → warnings

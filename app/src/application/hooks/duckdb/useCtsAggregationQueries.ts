@@ -122,7 +122,7 @@ export function useDuckDBHourDowMatrix(
   return useAsyncQuery(conn, dataVersion, queryFn)
 }
 
-/** distinct 日数 */
+/** distinct 日数（営業日のみ: total_amount > 0 の日のみカウント） */
 export function useDuckDBDistinctDayCount(
   conn: AsyncDuckDBConnection | null,
   dataVersion: number,
@@ -133,11 +133,12 @@ export function useDuckDBDistinctDayCount(
   const queryFn = useMemo(() => {
     if (!dateRange) return null
     const { dateFrom, dateTo } = toDateKeys(dateRange)
-    const params: CtsFilterParams = {
+    const params: CtsFilterParams & { readonly businessDaysOnly: boolean } = {
       dateFrom,
       dateTo,
       storeIds: storeIdsToArray(storeIds),
       isPrevYear,
+      businessDaysOnly: true,
     }
     return (c: AsyncDuckDBConnection) => queryDistinctDayCount(c, params)
   }, [dateRange, storeIds, isPrevYear])
@@ -145,7 +146,7 @@ export function useDuckDBDistinctDayCount(
   return useAsyncQuery(conn, dataVersion, queryFn)
 }
 
-/** 曜日別除数マップ */
+/** 曜日別除数マップ（営業日のみ: total_amount > 0 の日のみカウント） */
 export function useDuckDBDowDivisorMap(
   conn: AsyncDuckDBConnection | null,
   dataVersion: number,
@@ -156,11 +157,12 @@ export function useDuckDBDowDivisorMap(
   const queryFn = useMemo(() => {
     if (!dateRange) return null
     const { dateFrom, dateTo } = toDateKeys(dateRange)
-    const params: CtsFilterParams = {
+    const params: CtsFilterParams & { readonly businessDaysOnly: boolean } = {
       dateFrom,
       dateTo,
       storeIds: storeIdsToArray(storeIds),
       isPrevYear,
+      businessDaysOnly: true,
     }
     return (c: AsyncDuckDBConnection) => queryDowDivisorMap(c, params)
   }, [dateRange, storeIds, isPrevYear])

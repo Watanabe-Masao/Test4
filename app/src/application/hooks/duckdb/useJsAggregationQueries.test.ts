@@ -221,6 +221,27 @@ describe('computeDowPattern', () => {
   it('空配列を渡すと空配列を返す', () => {
     expect(computeDowPattern([])).toEqual([])
   })
+
+  it('R-8: 非営業日（sales=0）は曜日パターンから除外される', () => {
+    const rows = [
+      mkRow({ dateKey: '2026-01-01', day: 1, month: 1, storeId: 'S1', sales: 100 }),
+      mkRow({ dateKey: '2026-01-08', day: 8, month: 1, storeId: 'S1', sales: 0 }), // 非営業日
+    ]
+    const result = computeDowPattern(rows)
+    // 2026-01-01 = 木曜(4), 2026-01-08 = 木曜(4) — 0 は除外されるので1日分のみ
+    expect(result).toHaveLength(1)
+    expect(result[0].avgSales).toBe(100)
+    expect(result[0].dayCount).toBe(1)
+  })
+
+  it('R-8: 全日0の店舗はパターンに現れない', () => {
+    const rows = [
+      mkRow({ dateKey: '2026-01-01', day: 1, month: 1, storeId: 'S1', sales: 0 }),
+      mkRow({ dateKey: '2026-01-02', day: 2, month: 1, storeId: 'S1', sales: 0 }),
+    ]
+    const result = computeDowPattern(rows)
+    expect(result).toHaveLength(0)
+  })
 })
 
 // ─── computeDailyFeatures ─────────────────────────────

@@ -70,33 +70,40 @@ export function tsWhereClause(params: CtsFilterParams): string {
 
 /**
  * 期間内の distinct 日数（countDistinctDays 相当）
+ *
+ * businessDaysOnly=true の場合、total_amount > 0 の日のみカウントする。
+ * これにより非営業日や非取扱品目の 0 レコードが除数を膨らませるのを防ぐ。
  */
 export async function queryDistinctDayCount(
   conn: AsyncDuckDBConnection,
-  params: CtsFilterParams,
+  params: CtsFilterParams & { readonly businessDaysOnly?: boolean },
 ): Promise<number> {
   const where = ctsWhereClause(params, 'cts')
+  const businessFilter = params.businessDaysOnly ? ' AND cts.total_amount > 0' : ''
   const sql = `
     SELECT COUNT(DISTINCT cts.date_key) AS cnt
     FROM category_time_sales cts
-    ${where}`
+    ${where}${businessFilter}`
   return (await queryScalar<number>(conn, sql)) ?? 0
 }
 
 /**
  * 曜日別除数マップ（computeDowDivisorMap 相当）
+ *
+ * businessDaysOnly=true の場合、total_amount > 0 の日のみカウントする。
  */
 export async function queryDowDivisorMap(
   conn: AsyncDuckDBConnection,
-  params: CtsFilterParams,
+  params: CtsFilterParams & { readonly businessDaysOnly?: boolean },
 ): Promise<ReadonlyMap<number, number>> {
   const where = ctsWhereClause(params, 'cts')
+  const businessFilter = params.businessDaysOnly ? ' AND cts.total_amount > 0' : ''
   const sql = `
     SELECT
       cts.dow,
       COUNT(DISTINCT cts.date_key) AS divisor
     FROM category_time_sales cts
-    ${where}
+    ${where}${businessFilter}
     GROUP BY cts.dow`
   const rows = await queryToObjects<{ dow: number; divisor: number }>(conn, sql)
   return new Map(rows.map((r) => [r.dow, r.divisor]))

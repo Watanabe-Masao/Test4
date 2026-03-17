@@ -12,7 +12,9 @@ import {
   buildDailyMarkupRateYoYRows,
   buildDailyDiscountRateYoYRows,
   buildDailyDiscountRows,
+  buildYoYCards,
   type BuildRowsInput,
+  type BuildYoYCardsInput,
 } from '../ConditionSummaryEnhanced.vm'
 import { makeStoreResult, makeEmptyPrevYear, makeDailyRecord } from './widgetTestHelpers'
 import type { PrevYearMonthlyKpi } from '@/application/hooks'
@@ -329,6 +331,57 @@ describe('ConditionSummaryEnhanced.vm 不変条件', () => {
       // Day 2: sales=60000, discount=1200
       const expectedRate2 = calculateDiscountRate(60000, 1200) * 100
       expect(rows[1].totalRate).toBeCloseTo(expectedRate2, 10)
+    })
+  })
+
+  describe('buildYoYCards — 観測品質による必要ベース比サフィックス', () => {
+    const defaultConfig = { global: {}, storeOverrides: {} }
+    const fmtCurrency = (n: number) => Math.round(n).toLocaleString('ja-JP')
+
+    function makeYoYInput(
+      observationStatus: 'ok' | 'partial' | 'invalid' | 'undefined',
+    ): BuildYoYCardsInput {
+      return {
+        result: makeStoreResult({
+          averageDailySales: 100000,
+          requiredDailySales: 120000,
+          observationPeriod: {
+            lastRecordedSalesDay: 15,
+            elapsedDays: 15,
+            salesDays: observationStatus === 'ok' ? 12 : observationStatus === 'partial' ? 7 : 2,
+            daysInMonth: 30,
+            remainingDays: 15,
+            status: observationStatus,
+            warnings: [],
+          },
+        }),
+        prevYear: makeEmptyPrevYear(),
+        config: defaultConfig,
+        ctsCurrentQty: 0,
+        ctsPrevQty: 0,
+        fmtCurrency,
+      }
+    }
+
+    it('observationStatus = ok ではサフィックスなし', () => {
+      const cards = buildYoYCards(makeYoYInput('ok'))
+      const pace = cards.find((c) => c.key === 'requiredPace')
+      expect(pace).toBeDefined()
+      expect(pace!.sub).not.toContain('観測')
+    })
+
+    it('observationStatus = partial では「観測日数少」サフィックス', () => {
+      const cards = buildYoYCards(makeYoYInput('partial'))
+      const pace = cards.find((c) => c.key === 'requiredPace')
+      expect(pace).toBeDefined()
+      expect(pace!.sub).toContain('観測日数少')
+    })
+
+    it('observationStatus = invalid では「観測不十分」サフィックス', () => {
+      const cards = buildYoYCards(makeYoYInput('invalid'))
+      const pace = cards.find((c) => c.key === 'requiredPace')
+      expect(pace).toBeDefined()
+      expect(pace!.sub).toContain('観測不十分')
     })
   })
 })

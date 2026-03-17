@@ -142,6 +142,37 @@ describe('dowAggregate', () => {
       expect(r.stddev).toBe(0)
     }
   })
+
+  it('R-8: 非営業日（totalSales=0）は曜日パターンから除外される', () => {
+    // 2026-01-01 = 木曜(4), 2026-01-02 = 金曜(5)
+    // 2026-01-08 = 木曜(4) — 非営業日
+    const daily = [
+      { dateKey: '2026-01-01', totalSales: 300 },
+      { dateKey: '2026-01-02', totalSales: 400 },
+      { dateKey: '2026-01-08', totalSales: 0 }, // 非営業日
+    ]
+    const result = dowAggregate(daily)
+
+    // 木曜は1日のみ（0の日は除外）
+    const thu = result.find((r) => r.dow === 4)
+    expect(thu).toBeDefined()
+    expect(thu!.dayCount).toBe(1)
+    expect(thu!.avgSales).toBe(300)
+
+    // 金曜は変わらず
+    const fri = result.find((r) => r.dow === 5)
+    expect(fri).toBeDefined()
+    expect(fri!.avgSales).toBe(400)
+  })
+
+  it('R-8: 全日非営業の場合は空配列を返す', () => {
+    const daily = [
+      { dateKey: '2026-01-01', totalSales: 0 },
+      { dateKey: '2026-01-02', totalSales: 0 },
+    ]
+    const result = dowAggregate(daily)
+    expect(result).toHaveLength(0)
+  })
 })
 
 // ─── hourlyAggregate ──────────────────────────────────

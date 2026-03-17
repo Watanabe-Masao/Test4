@@ -123,11 +123,23 @@ export const ForecastToolsWidget = memo(function ForecastToolsWidget({
   // Tool 2 新規: 前年比
   const tool2YoyRate = calculateYoYRatio(targetTotalSales2, prevYearTotalSales)
 
+  // 観測品質による精度警告
+  const obsStatus = ctx.observationStatus
+  const obsWarning =
+    obsStatus === 'partial'
+      ? '観測日数が少ないため、シミュレーションの初期値（日販ベース着地予測）の精度が低下しています'
+      : obsStatus === 'invalid' || obsStatus === 'undefined'
+        ? '観測期間が不十分なため、シミュレーションの初期値は参考値です'
+        : null
+
   return (
     <ForecastToolsGrid>
       {/* ═══ Tool 1: 着地見込みシミュレーション ═══ */}
       <ToolCard $accent={palette.primary}>
         <ToolCardTitle>着地見込みシミュレーション</ToolCardTitle>
+
+        {/* バリデーション: 観測品質 */}
+        {obsWarning && <ValidationBanner>{obsWarning}</ValidationBanner>}
 
         {/* バリデーション: 残予算がない場合 */}
         {hasBudget && !hasRemainingBudget && (
@@ -320,6 +332,9 @@ export const ForecastToolsWidget = memo(function ForecastToolsWidget({
       {/* ═══ Tool 2: ゴールシーク ═══ */}
       <ToolCard $accent={palette.warningDark}>
         <ToolCardTitle>ゴールシーク（必要粗利率逆算）</ToolCardTitle>
+
+        {/* バリデーション: 観測品質 */}
+        {obsWarning && <ValidationBanner>{obsWarning}</ValidationBanner>}
 
         {/* バリデーション: 残予算がない場合 */}
         {hasBudget && !hasRemainingBudget && (

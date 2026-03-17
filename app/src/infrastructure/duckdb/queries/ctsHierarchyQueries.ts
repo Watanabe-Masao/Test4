@@ -18,6 +18,10 @@ export interface LevelAggregationRow {
   readonly amount: number
   readonly quantity: number
   readonly childCount: number
+  /** 取扱日数: total_amount > 0 の distinct 日数 */
+  readonly handledDayCount: number
+  /** 全日数: 期間内の distinct 日数 */
+  readonly totalDayCount: number
 }
 
 /**
@@ -57,10 +61,13 @@ export async function queryLevelAggregation(
       ${nameCol} AS name,
       SUM(cts.total_amount) AS amount,
       SUM(cts.total_quantity) AS quantity,
-      ${childExpr} AS child_count
+      ${childExpr} AS child_count,
+      COUNT(DISTINCT CASE WHEN cts.total_amount > 0 THEN cts.date_key END) AS handled_day_count,
+      COUNT(DISTINCT cts.date_key) AS total_day_count
     FROM category_time_sales cts
     ${where}
     GROUP BY ${codeCol}, ${nameCol}
+    HAVING SUM(cts.total_amount) > 0
     ORDER BY amount DESC`
   return queryToObjects<LevelAggregationRow>(conn, sql)
 }
