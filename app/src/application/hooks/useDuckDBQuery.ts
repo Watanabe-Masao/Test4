@@ -51,6 +51,9 @@ export {
   useDuckDBDailyRecords,
   useDuckDBPrevYearDailyRecords,
   useDuckDBAggregatedDailyRecords,
+  // 天気時間帯
+  useDuckDBWeatherHourly,
+  useDuckDBWeatherHourlyAvg,
 } from './duckdb'
 
 export type {
@@ -87,4 +90,5 @@ export type {
   DailyCumulativeBudgetRow,
   BudgetAnalysisSummaryRow,
   DailyRecordRow,
+  HourlyWeatherAvgRow,
 } from './duckdb'

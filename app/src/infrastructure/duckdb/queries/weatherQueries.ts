@@ -73,6 +73,47 @@ export async function queryWeatherHourly(
   }))
 }
 
+/** 時間帯別天気平均の1行 */
+export interface HourlyWeatherAvgRow {
+  readonly hour: number
+  readonly avgTemperature: number
+  readonly avgHumidity: number
+  readonly totalPrecipitation: number
+  readonly avgSunshineDuration: number
+  readonly dayCount: number
+}
+
+/**
+ * 指定店舗・日付範囲の時間帯別天気平均を取得する（月間プロファイル用）。
+ */
+export async function queryWeatherHourlyAvg(
+  conn: AsyncDuckDBConnection,
+  storeId: string,
+  startDate: string,
+  endDate: string,
+): Promise<readonly HourlyWeatherAvgRow[]> {
+  const where = buildWhereClause([
+    storeIdFilter([storeId]),
+    `date_key >= '${startDate}'`,
+    `date_key <= '${endDate}'`,
+  ])
+
+  const sql = `
+    SELECT
+      hour,
+      AVG(temperature) AS avg_temperature,
+      AVG(humidity) AS avg_humidity,
+      SUM(precipitation) AS total_precipitation,
+      AVG(sunshine_duration) AS avg_sunshine_duration,
+      COUNT(DISTINCT date_key) AS day_count
+    FROM weather_hourly
+    ${where}
+    GROUP BY hour
+    ORDER BY hour`
+
+  return queryToObjects<HourlyWeatherAvgRow>(conn, sql)
+}
+
 /**
  * 指定店舗・日付範囲のキャッシュ済みレコード数を返す。
  * 0 ならキャッシュなし → API フェッチが必要。

@@ -92,6 +92,8 @@ const APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set([
   'application/usecases/weather/ForecastLoadService.ts',
   // 週間天気予報ブリッジ（presentation 層から infrastructure への直接依存を回避）
   'application/hooks/useWeatherForecast.ts',
+  // 天気時間帯クエリフック（DuckDB weather_hourly テーブルを使用）
+  'application/hooks/duckdb/useWeatherHourlyQuery.ts',
 ])
 
 /**

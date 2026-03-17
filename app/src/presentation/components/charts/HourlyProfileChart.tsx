@@ -14,6 +14,7 @@ import {
   ComposedChart,
   Area,
   Bar,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -24,7 +25,8 @@ import {
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
-import { useDuckDBHourlyProfile, type HourlyProfileRow } from '@/application/hooks/useDuckDBQuery'
+import { useDuckDBHourlyProfile, useDuckDBWeatherHourlyAvg, type HourlyProfileRow } from '@/application/hooks/useDuckDBQuery'
+import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useChartTheme, toPct } from './chartTheme'
 import { createChartTooltip } from './createChartTooltip'
 import { palette } from '@/presentation/theme/tokens'
@@ -52,6 +54,7 @@ interface ChartDataPoint {
   readonly share: number
   readonly isPeak: boolean
   readonly peakMarker: number
+  readonly avgTemp?: number
 }
 
 interface HourlySummary {
@@ -123,13 +126,34 @@ export const HourlyProfileChart = memo(function HourlyProfileChart({
     isLoading,
   } = useDuckDBHourlyProfile(duckConn, duckDataVersion, currentDateRange, selectedStoreIds)
 
-  const { chartData, peakHours, top3Concentration, activeHoursCount } = useMemo(
-    () =>
-      rows
-        ? buildChartData(rows)
-        : { chartData: [], peakHours: '', top3Concentration: 0, activeHoursCount: 0 },
-    [rows],
+  // ── 天気データ（時間帯別平均気温） ──
+  const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
+  const weatherStoreId = useMemo(() => {
+    const ids = selectedStoreIds.size > 0 ? Array.from(selectedStoreIds) : Object.keys(storeLocations)
+    return ids.find((id) => storeLocations[id]) ?? ''
+  }, [selectedStoreIds, storeLocations])
+  const { data: weatherAvg } = useDuckDBWeatherHourlyAvg(
+    duckConn, duckDataVersion, weatherStoreId, currentDateRange,
   )
+
+  const { chartData, peakHours, top3Concentration, activeHoursCount } = useMemo(() => {
+    if (!rows) return { chartData: [], peakHours: '', top3Concentration: 0, activeHoursCount: 0 }
+    const result = buildChartData(rows)
+    // 天気平均気温をマージ
+    if (weatherAvg && weatherAvg.length > 0) {
+      const tempMap = new Map(weatherAvg.map((w) => [w.hour, w.avgTemperature]))
+      return {
+        ...result,
+        chartData: result.chartData.map((d) => ({
+          ...d,
+          avgTemp: tempMap.get(d.hour) != null ? Math.round(tempMap.get(d.hour)! * 10) / 10 : undefined,
+        })),
+      }
+    }
+    return result
+  }, [rows, weatherAvg])
+
+  const hasWeatherData = chartData.some((d) => d.avgTemp != null)
 
   if (error) {
     return (
@@ -171,16 +195,27 @@ export const HourlyProfileChart = memo(function HourlyProfileChart({
             stroke={ct.grid}
           />
           <YAxis
+            yAxisId="left"
             tick={{ fontSize: ct.fontSize.xs, fill: ct.textMuted }}
             stroke={ct.grid}
             tickFormatter={(v: number) => toPct(v, 0)}
           />
+          {hasWeatherData && (
+            <YAxis
+              yAxisId="right"
+              orientation="right"
+              tick={{ fontSize: ct.fontSize.xs, fill: '#f97316' }}
+              stroke="#f97316"
+              tickFormatter={(v: number) => `${v}°`}
+            />
+          )}
           <Tooltip
             content={createChartTooltip({
               ct,
               formatter: (value: unknown, name: string) => {
                 if (value == null) return ['-', null]
                 const v = value as number
+                if (name === '平均気温') return [`${v.toFixed(1)}°C`, null]
                 if (name === 'ピーク') return [toPct(v, 1), null]
                 return [toPct(v, 1), null]
               },
@@ -191,6 +226,7 @@ export const HourlyProfileChart = memo(function HourlyProfileChart({
 
           {/* 売上構成比エリア（グラデーション） */}
           <Area
+            yAxisId="left"
             dataKey="share"
             name="構成比"
             fill="url(#hourlyShareGradient)"
@@ -200,7 +236,7 @@ export const HourlyProfileChart = memo(function HourlyProfileChart({
           />
 
           {/* ピーク時間帯ハイライト（棒） */}
-          <Bar dataKey="peakMarker" name="ピーク" barSize={16}>
+          <Bar yAxisId="left" dataKey="peakMarker" name="ピーク" barSize={16}>
             {chartData.map((entry) => (
               <Cell
                 key={entry.hour}
@@ -209,6 +245,20 @@ export const HourlyProfileChart = memo(function HourlyProfileChart({
               />
             ))}
           </Bar>
+
+          {/* 平均気温ライン（第2軸: オレンジ） */}
+          {hasWeatherData && (
+            <Line
+              yAxisId="right"
+              dataKey="avgTemp"
+              name="平均気温"
+              stroke="#f97316"
+              strokeWidth={1.5}
+              strokeDasharray="4 2"
+              dot={{ r: 2, fill: '#f97316' }}
+              connectNulls
+            />
+          )}
         </ComposedChart>
       </ResponsiveContainer>
 
