@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import { aggregateHourlyToDaily, categorizeWeatherCode } from '../weatherAggregation'
+import {
+  aggregateHourlyToDaily,
+  categorizeWeatherCode,
+  deriveWeatherCode,
+} from '../weatherAggregation'
 import type { HourlyWeatherRecord } from '@/domain/models'
 
 // ─── Helper ──────────────────────────────────────────
@@ -157,5 +161,51 @@ describe('categorizeWeatherCode', () => {
   it('100+ = other', () => {
     expect(categorizeWeatherCode(100)).toBe('other')
     expect(categorizeWeatherCode(255)).toBe('other')
+  })
+})
+
+// ─── deriveWeatherCode ──────────────────────────────
+
+describe('deriveWeatherCode', () => {
+  it('降水なし・日照多 → 0 (clear sky)', () => {
+    expect(deriveWeatherCode(0, 0.8)).toBe(0)
+    expect(deriveWeatherCode(0, 1.0)).toBe(0)
+  })
+
+  it('降水なし・日照中 → 2 (partly cloudy)', () => {
+    expect(deriveWeatherCode(0, 0.3)).toBe(2)
+    expect(deriveWeatherCode(0, 0.5)).toBe(2)
+  })
+
+  it('降水なし・日照なし → 3 (overcast)', () => {
+    expect(deriveWeatherCode(0, 0)).toBe(3)
+    expect(deriveWeatherCode(0, 0.1)).toBe(3)
+  })
+
+  it('微量降水 → 51 (drizzle)', () => {
+    expect(deriveWeatherCode(0.5, 0)).toBe(51)
+  })
+
+  it('中程度降水 → 61 (rain)', () => {
+    expect(deriveWeatherCode(2, 0)).toBe(61)
+  })
+
+  it('大量降水 → 65 (heavy rain)', () => {
+    expect(deriveWeatherCode(10, 0)).toBe(65)
+  })
+
+  it('降水あり・気温低 → 雪 (71/75)', () => {
+    expect(deriveWeatherCode(0.5, 0, 0)).toBe(71)
+    expect(deriveWeatherCode(2, 0, -3)).toBe(71)
+    expect(deriveWeatherCode(10, 0, -5)).toBe(75)
+  })
+
+  it('降水あり・気温1°C以上 → 雨', () => {
+    expect(deriveWeatherCode(2, 0, 5)).toBe(61)
+    expect(deriveWeatherCode(2, 0, 1)).toBe(61)
+  })
+
+  it('気温省略時は雪判定しない', () => {
+    expect(deriveWeatherCode(2, 0)).toBe(61)
   })
 })
