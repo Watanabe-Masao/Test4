@@ -23,11 +23,10 @@ const MAX_RETRIES = 2
 const INITIAL_RETRY_DELAY_MS = 1000
 
 /**
- * AMEDAS データの公開保持期間（日数）。
- * JMA は直近数週間〜数ヶ月分のみ公開しており、古いデータは 404 になる。
- * 安全マージンを含めて過去60日までをフェッチ対象とする。
+ * 1日の全ブロック 404 が連続した場合に打ち切る日数。
+ * API がデータを保持していない古い日付を延々とリクエストするのを防ぐ。
  */
-const AMEDAS_DATA_RETENTION_DAYS = 60
+const MAX_CONSECUTIVE_NOT_FOUND_DAYS = 2
 
 // ─── Station Table ───────────────────────────────────
 
@@ -171,13 +170,18 @@ export async function fetchAmedasWeather(
   endDate: string,
   onProgress?: (progress: number) => void,
 ): Promise<readonly HourlyWeatherRecord[]> {
-  const allDates = generateDateRange(startDate, endDate)
+  // 境界検証: AMEDAS は過去の実測データのみ。未来日付はクランプする。
+  const yesterday = formatDateStr(
+    new Date(Date.now() - 24 * 60 * 60 * 1000),
+  )
+  const clampedEnd = endDate > yesterday ? yesterday : endDate
 
-  // AMEDAS は古いデータを公開停止するため、保持期間外の日付を除外する
-  const cutoff = new Date()
-  cutoff.setDate(cutoff.getDate() - AMEDAS_DATA_RETENTION_DAYS)
-  const cutoffStr = formatDateStr(cutoff)
-  const dates = allDates.filter((d) => d >= cutoffStr)
+  if (startDate > clampedEnd) {
+    onProgress?.(1)
+    return []
+  }
+
+  const dates = generateDateRange(startDate, clampedEnd)
 
   if (dates.length === 0) {
     onProgress?.(1)
@@ -188,8 +192,17 @@ export async function fetchAmedasWeather(
   let completedBlocks = 0
   const allRecords: HourlyWeatherRecord[] = []
 
-  for (const dateStr of dates) {
+  // 古い日付から順にフェッチする。連続で全ブロック 404 の日が続いたら
+  // API にデータが存在しないと判断して残りの古い日付をスキップする。
+  // → 新しい日付から逆順にフェッチし、404 連続で打ち切る。
+  // ただし日付範囲は古い→新しいで生成されているため、逆順に処理する。
+  let consecutiveNotFoundDays = 0
+
+  // 新しい日付から処理して、データが存在する範囲を効率的に特定する
+  for (let dayIdx = dates.length - 1; dayIdx >= 0; dayIdx--) {
+    const dateStr = dates[dayIdx]
     const yyyymmdd = dateStr.replace(/-/g, '')
+    let dayHasData = false
 
     for (const h3 of H3_BLOCKS) {
       try {
@@ -198,8 +211,14 @@ export async function fetchAmedasWeather(
 
         const hourlyRecords = parsePointBlock(dateStr, data)
         allRecords.push(...hourlyRecords)
-      } catch {
-        // 個別ブロックの取得失敗はスキップ（データ欠損として扱う）
+        dayHasData = true
+      } catch (e) {
+        // 404（データ未公開）の場合はその日の残りブロックもスキップ
+        if (e instanceof AmedasNotFoundError) {
+          completedBlocks += H3_BLOCKS.length - H3_BLOCKS.indexOf(h3)
+          break
+        }
+        // その他のエラー（ネットワーク障害等）はスキップして次へ
       }
 
       completedBlocks++
@@ -208,6 +227,19 @@ export async function fetchAmedasWeather(
       // JMA サーバーへの配慮
       if (completedBlocks < totalBlocks) {
         await delay(REQUEST_DELAY_MS)
+      }
+    }
+
+    if (dayHasData) {
+      consecutiveNotFoundDays = 0
+    } else {
+      consecutiveNotFoundDays++
+      // 連続して N日分データが無い場合、それ以前の日付もデータなしと判断
+      if (consecutiveNotFoundDays >= MAX_CONSECUTIVE_NOT_FOUND_DAYS) {
+        // 残りの古い日付のブロック数を完了済みとして加算
+        completedBlocks = totalBlocks
+        onProgress?.(1)
+        break
       }
     }
   }
