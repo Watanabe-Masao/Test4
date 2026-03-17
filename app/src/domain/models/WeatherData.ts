@@ -45,6 +45,32 @@ export interface StoreLocation {
   readonly resolvedName?: string // ジオコーディングで解決された地名（確認用）
   readonly amedasStationId?: string // 最寄り AMEDAS 観測所番号（解決済みキャッシュ）
   readonly amedasStationName?: string // 観測所名（表示用）
+  readonly forecastOfficeCode?: string // 府県予報区コード（解決済みキャッシュ）
+  readonly weekAreaCode?: string // 週間予報区域コード（解決済みキャッシュ）
+}
+
+/**
+ * 週間天気予報の1日分
+ *
+ * 気象庁 forecast API の [1] (週間予報) から抽出。
+ * weatherCode は気象庁独自コード（100系=晴、200系=曇、300系=雨、400系=雪）。
+ */
+export interface DailyForecast {
+  readonly dateKey: string // YYYY-MM-DD
+  readonly weatherCode: string // 気象庁天気コード ("100", "201" 等)
+  readonly pop: number | null // 降水確率 (%)
+  readonly tempMin: number | null // 最低気温 °C
+  readonly tempMax: number | null // 最高気温 °C
+  readonly reliability: 'A' | 'B' | 'C' | null // 予報信頼度
+}
+
+/** 予報区域の解決結果 */
+export interface ForecastAreaResolution {
+  readonly officeCode: string // 府県予報区コード (例: "130000")
+  readonly officeName: string // 府県名 (例: "東京都")
+  readonly weekAreaCode: string // 週間予報区域コード
+  readonly weekAreaName: string // 週間予報区域名
+  readonly amedasStationId: string // 気温データ用 AMEDAS 観測所番号
 }
 
 /** 国土地理院 住所検索API の検索結果 */

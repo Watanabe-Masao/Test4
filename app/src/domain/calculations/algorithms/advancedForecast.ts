@@ -9,6 +9,7 @@
 import { safeDivide } from '../utils'
 import { calculateStdDev } from '../forecast'
 import { DEFAULT_WMA_WINDOW, DAYS_PER_WEEK, CONFIDENCE_95_ZSCORE } from '@/domain/constants'
+import type { DailyForecast } from '@/domain/models'
 
 // ─── Types ────────────────────────────────────────────
 
@@ -242,5 +243,103 @@ export function calculateMonthEndProjection(
     },
     dailyTrend: Math.round(reg.slope),
     regressionProjection: Math.round(regressionProjection),
+  }
+}
+
+// ─── Weather-Adjusted Projection ─────────────────────
+
+/** 天候補正済み予測の入力 */
+export interface WeatherAdjustmentInput {
+  /** 基準予測値（補正対象） */
+  readonly baseProjection: number
+  /** 予報データ（未来日のみ） */
+  readonly forecasts: readonly DailyForecast[]
+  /** 売上と気温の相関係数 (Pearson r) */
+  readonly salesTempCorrelation: number
+  /** 売上と降水量の相関係数 (Pearson r) */
+  readonly salesPrecipCorrelation: number
+  /** 平年気温 (°C) */
+  readonly normalTemp: number
+  /** 日平均売上（補正のベース単位） */
+  readonly dailyAvgSales: number
+}
+
+/** 天候補正済み予測の出力 */
+export interface WeatherAdjustedProjection {
+  /** 天候補正済み予測値 */
+  readonly adjustedProjection: number
+  /** 補正量（正=上方、負=下方） */
+  readonly adjustmentAmount: number
+  /** 各予報日の補正内訳 */
+  readonly dailyAdjustments: readonly {
+    readonly dateKey: string
+    readonly tempEffect: number
+    readonly precipEffect: number
+  }[]
+}
+
+/**
+ * 天気予報と売上-天気相関を使い、月末予測を天候補正する。
+ *
+ * 補正ロジック:
+ *   1. 各予報日の気温偏差 = 予報気温 - 平年気温
+ *   2. 気温効果 = 相関係数 × (気温偏差 / 平年気温) × 日平均売上
+ *   3. 降水効果 = 降水確率が高い場合、降水相関係数に基づく補正
+ *   4. 合計補正量を baseProjection に加算
+ *
+ * @param input 天候補正入力パラメータ
+ * @returns 天候補正済み予測
+ */
+export function weatherAdjustedProjection(
+  input: WeatherAdjustmentInput,
+): WeatherAdjustedProjection {
+  const {
+    baseProjection,
+    forecasts,
+    salesTempCorrelation,
+    salesPrecipCorrelation,
+    normalTemp,
+    dailyAvgSales,
+  } = input
+
+  if (forecasts.length === 0 || dailyAvgSales === 0) {
+    return { adjustedProjection: baseProjection, adjustmentAmount: 0, dailyAdjustments: [] }
+  }
+
+  const dailyAdjustments: {
+    readonly dateKey: string
+    readonly tempEffect: number
+    readonly precipEffect: number
+  }[] = []
+
+  let totalAdjustment = 0
+
+  for (const f of forecasts) {
+    let tempEffect = 0
+    let precipEffect = 0
+
+    // 気温効果: 予報気温と平年値の偏差 × 相関係数
+    if (f.tempMax != null && normalTemp !== 0) {
+      const tempDeviation = (f.tempMax - normalTemp) / Math.abs(normalTemp)
+      tempEffect = salesTempCorrelation * tempDeviation * dailyAvgSales
+    }
+
+    // 降水効果: 降水確率ベースの補正
+    // 降水確率が50%以上の場合、相関係数に基づいて売上への影響を推定
+    if (f.pop != null && f.pop >= 50) {
+      const precipIntensity = f.pop / 100
+      precipEffect = salesPrecipCorrelation * precipIntensity * dailyAvgSales * 0.5
+    }
+
+    const dayTotal = tempEffect + precipEffect
+    totalAdjustment += dayTotal
+
+    dailyAdjustments.push({ dateKey: f.dateKey, tempEffect, precipEffect })
+  }
+
+  return {
+    adjustedProjection: Math.round(baseProjection + totalAdjustment),
+    adjustmentAmount: Math.round(totalAdjustment),
+    dailyAdjustments,
   }
 }

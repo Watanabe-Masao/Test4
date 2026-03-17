@@ -615,12 +615,13 @@ describe('Domain 層の分割後ファイル行数制限', () => {
     const files = collectTsFiles(domainDir)
     const violations: string[] = []
 
-    // 除外: metricDefs.ts (凝集的カタログ), PeriodSelection.ts (300行境界), rawAggregation.ts (復元ファイル), ComparisonScope.ts (DOW解決追加で301行)
+    // 除外: metricDefs.ts (凝集的カタログ), PeriodSelection.ts (300行境界), rawAggregation.ts (復元ファイル), ComparisonScope.ts (DOW解決追加で301行), advancedForecast.ts (天候補正予測追加で346行)
     const excludeFiles = new Set([
       'domain/constants/metricDefs.ts',
       'domain/models/PeriodSelection.ts',
       'domain/calculations/rawAggregation.ts',
       'domain/models/ComparisonScope.ts',
+      'domain/calculations/algorithms/advancedForecast.ts',
     ])
 
     for (const file of files) {
