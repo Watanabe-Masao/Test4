@@ -22,6 +22,12 @@ const REQUEST_DELAY_MS = 100
 const MAX_RETRIES = 2
 const INITIAL_RETRY_DELAY_MS = 1000
 
+/**
+ * 1日の全ブロック 404 が連続した場合に打ち切る日数。
+ * API がデータを保持していない古い日付を延々とリクエストするのを防ぐ。
+ */
+const MAX_CONSECUTIVE_NOT_FOUND_DAYS = 2
+
 // ─── Station Table ───────────────────────────────────
 
 /** AMEDAS 観測所テーブルのエントリ */
@@ -164,13 +170,39 @@ export async function fetchAmedasWeather(
   endDate: string,
   onProgress?: (progress: number) => void,
 ): Promise<readonly HourlyWeatherRecord[]> {
-  const dates = generateDateRange(startDate, endDate)
+  // 境界検証: AMEDAS は過去の実測データのみ。未来日付はクランプする。
+  const yesterday = formatDateStr(
+    new Date(Date.now() - 24 * 60 * 60 * 1000),
+  )
+  const clampedEnd = endDate > yesterday ? yesterday : endDate
+
+  if (startDate > clampedEnd) {
+    onProgress?.(1)
+    return []
+  }
+
+  const dates = generateDateRange(startDate, clampedEnd)
+
+  if (dates.length === 0) {
+    onProgress?.(1)
+    return []
+  }
+
   const totalBlocks = dates.length * H3_BLOCKS.length
   let completedBlocks = 0
   const allRecords: HourlyWeatherRecord[] = []
 
-  for (const dateStr of dates) {
+  // 古い日付から順にフェッチする。連続で全ブロック 404 の日が続いたら
+  // API にデータが存在しないと判断して残りの古い日付をスキップする。
+  // → 新しい日付から逆順にフェッチし、404 連続で打ち切る。
+  // ただし日付範囲は古い→新しいで生成されているため、逆順に処理する。
+  let consecutiveNotFoundDays = 0
+
+  // 新しい日付から処理して、データが存在する範囲を効率的に特定する
+  for (let dayIdx = dates.length - 1; dayIdx >= 0; dayIdx--) {
+    const dateStr = dates[dayIdx]
     const yyyymmdd = dateStr.replace(/-/g, '')
+    let dayHasData = false
 
     for (const h3 of H3_BLOCKS) {
       try {
@@ -179,8 +211,14 @@ export async function fetchAmedasWeather(
 
         const hourlyRecords = parsePointBlock(dateStr, data)
         allRecords.push(...hourlyRecords)
-      } catch {
-        // 個別ブロックの取得失敗はスキップ（データ欠損として扱う）
+        dayHasData = true
+      } catch (e) {
+        // 404（データ未公開）の場合はその日の残りブロックもスキップ
+        if (e instanceof AmedasNotFoundError) {
+          completedBlocks += H3_BLOCKS.length - H3_BLOCKS.indexOf(h3)
+          break
+        }
+        // その他のエラー（ネットワーク障害等）はスキップして次へ
       }
 
       completedBlocks++
@@ -189,6 +227,19 @@ export async function fetchAmedasWeather(
       // JMA サーバーへの配慮
       if (completedBlocks < totalBlocks) {
         await delay(REQUEST_DELAY_MS)
+      }
+    }
+
+    if (dayHasData) {
+      consecutiveNotFoundDays = 0
+    } else {
+      consecutiveNotFoundDays++
+      // 連続して N日分データが無い場合、それ以前の日付もデータなしと判断
+      if (consecutiveNotFoundDays >= MAX_CONSECUTIVE_NOT_FOUND_DAYS) {
+        // 残りの古い日付のブロック数を完了済みとして加算
+        completedBlocks = totalBlocks
+        onProgress?.(1)
+        break
       }
     }
   }
@@ -256,6 +307,14 @@ function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 }
 
+/** Date を YYYY-MM-DD 文字列に変換 */
+function formatDateStr(date: Date): string {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
 /** YYYY-MM-DD 形式の日付範囲を生成 */
 function generateDateRange(startDate: string, endDate: string): string[] {
   const dates: string[] = []
@@ -264,10 +323,7 @@ function generateDateRange(startDate: string, endDate: string): string[] {
 
   const current = new Date(start)
   while (current <= end) {
-    const y = current.getFullYear()
-    const m = String(current.getMonth() + 1).padStart(2, '0')
-    const d = String(current.getDate()).padStart(2, '0')
-    dates.push(`${y}-${m}-${d}`)
+    dates.push(formatDateStr(current))
     current.setDate(current.getDate() + 1)
   }
 
@@ -284,10 +340,18 @@ async function fetchWithRetry(url: string): Promise<unknown> {
     try {
       const response = await fetch(url)
       if (!response.ok) {
+        // 404 はデータ未公開（期間切れ等）を示す — リトライしても回復しない
+        if (response.status === 404) {
+          throw new AmedasNotFoundError(url)
+        }
         throw new Error(`AMEDAS API error: ${response.status} ${response.statusText}`)
       }
       return await response.json()
     } catch (e) {
+      // 404 はリトライ不要 — 即座に伝播する
+      if (e instanceof AmedasNotFoundError) {
+        throw e
+      }
       lastError = e instanceof Error ? e : new Error(String(e))
       if (attempt < MAX_RETRIES) {
         await delay(INITIAL_RETRY_DELAY_MS * 2 ** attempt)
@@ -295,6 +359,14 @@ async function fetchWithRetry(url: string): Promise<unknown> {
     }
   }
   throw lastError ?? new Error('AMEDAS API request failed')
+}
+
+/** AMEDAS データが存在しない (404) ことを示すエラー */
+class AmedasNotFoundError extends Error {
+  constructor(url: string) {
+    super(`AMEDAS data not found: ${url}`)
+    this.name = 'AmedasNotFoundError'
+  }
 }
 
 /** テスト用: 観測所テーブルキャッシュをクリアする */
