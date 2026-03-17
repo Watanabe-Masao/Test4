@@ -29,6 +29,15 @@ export default defineConfig({
       '@': resolve(__dirname, 'src'),
     },
   },
+  server: {
+    proxy: {
+      '/jma-api': {
+        target: 'https://www.jma.go.jp',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/jma-api/, ''),
+      },
+    },
+  },
   optimizeDeps: {
     exclude: [
       '@duckdb/duckdb-wasm',

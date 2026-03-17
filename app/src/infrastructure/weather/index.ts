@@ -1,3 +1,4 @@
+export { getJmaBaseUrl } from './jmaApiConfig'
 export { searchLocation } from './geocodingClient'
 export {
   findNearestStation,
@@ -6,4 +7,5 @@ export {
   clearStationTableCache,
 } from './jmaAmedasClient'
 export type { AmedasStation } from './jmaAmedasClient'
+export { JmaAccessError } from './jmaAmedasClient'
 export { resolveForcastArea, fetchWeeklyForecast, clearForecastCache } from './jmaForecastClient'
