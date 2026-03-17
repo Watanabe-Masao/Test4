@@ -112,6 +112,13 @@ export function StoreKpiTableInner({ ctx }: { ctx: WidgetContext }) {
     useUiStore.getState().invalidateCalculation()
   }, [])
 
+  // 観測品質チェック
+  const observationWarning =
+    ctx.observationStatus === 'partial'
+      ? '観測日数が少ないため、着地予測列の精度が低下しています'
+      : ctx.observationStatus === 'invalid' || ctx.observationStatus === 'undefined'
+        ? '観測期間が不十分なため、着地予測列は参考値です'
+        : null
   // 仕入/売変データの完全性チェック（集約結果から判定）
   const purchaseShort = agg.purchaseMaxDay > 0 && agg.purchaseMaxDay < agg.elapsedDays
   const missingDiscount = !agg.hasDiscountData && agg.totalSales > 0
@@ -402,6 +409,7 @@ export function StoreKpiTableInner({ ctx }: { ctx: WidgetContext }) {
           CSV出力
         </Button>
       </TableHeader>
+      {observationWarning && <KpiWarningBar>{observationWarning}</KpiWarningBar>}
       {purchaseShort && (
         <KpiWarningBar $clickable onClick={handleFilterToPurchase}>
           仕入データ: {agg.purchaseMaxDay}日まで（売上: {agg.elapsedDays}日まで） —{' '}

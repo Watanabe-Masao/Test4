@@ -122,4 +122,39 @@ describe('renderPlanActualForecast', () => {
 
     expect(screen.queryByText('月末客数着地')).not.toBeInTheDocument()
   })
+
+  // ─── 観測品質による FORECAST 列警告 ─────────────────────
+
+  it('observationStatus = ok では警告バナーが非表示', () => {
+    const ctx = makeWidgetContext({ observationStatus: 'ok' })
+    const el = renderPlanActualForecast(ctx)
+    renderWithTheme(<>{el}</>)
+
+    expect(screen.queryByText(/観測日数が少ない/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/観測期間が極端に短く/)).not.toBeInTheDocument()
+  })
+
+  it('observationStatus = partial では精度低下警告が表示される', () => {
+    const ctx = makeWidgetContext({ observationStatus: 'partial' })
+    const el = renderPlanActualForecast(ctx)
+    renderWithTheme(<>{el}</>)
+
+    expect(screen.getByText(/観測日数が少ないため、着地予測の精度が低下/)).toBeInTheDocument()
+  })
+
+  it('observationStatus = invalid では参考値警告が表示される', () => {
+    const ctx = makeWidgetContext({ observationStatus: 'invalid' })
+    const el = renderPlanActualForecast(ctx)
+    renderWithTheme(<>{el}</>)
+
+    expect(screen.getByText(/観測期間が極端に短く、着地予測は参考値/)).toBeInTheDocument()
+  })
+
+  it('observationStatus = undefined では算出不可警告が表示される', () => {
+    const ctx = makeWidgetContext({ observationStatus: 'undefined' })
+    const el = renderPlanActualForecast(ctx)
+    renderWithTheme(<>{el}</>)
+
+    expect(screen.getByText(/売上データがないため、着地予測は算出できません/)).toBeInTheDocument()
+  })
 })
