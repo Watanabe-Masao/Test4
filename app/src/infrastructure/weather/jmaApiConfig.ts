@@ -14,7 +14,7 @@ export function getJmaBaseUrl(): string {
   if (import.meta.env.DEV) {
     return '/jma-api'
   }
-  const proxyUrl = import.meta.env.VITE_JMA_PROXY_URL as string | undefined
+  const proxyUrl = import.meta.env.VITE_JMA_PROXY_URL
   if (proxyUrl) {
     return proxyUrl.replace(/\/$/, '') // 末尾スラッシュ除去
   }
