@@ -22,6 +22,13 @@ const REQUEST_DELAY_MS = 100
 const MAX_RETRIES = 2
 const INITIAL_RETRY_DELAY_MS = 1000
 
+/**
+ * AMEDAS データの公開保持期間（日数）。
+ * JMA は直近数週間〜数ヶ月分のみ公開しており、古いデータは 404 になる。
+ * 安全マージンを含めて過去60日までをフェッチ対象とする。
+ */
+const AMEDAS_DATA_RETENTION_DAYS = 60
+
 // ─── Station Table ───────────────────────────────────
 
 /** AMEDAS 観測所テーブルのエントリ */
@@ -164,7 +171,19 @@ export async function fetchAmedasWeather(
   endDate: string,
   onProgress?: (progress: number) => void,
 ): Promise<readonly HourlyWeatherRecord[]> {
-  const dates = generateDateRange(startDate, endDate)
+  const allDates = generateDateRange(startDate, endDate)
+
+  // AMEDAS は古いデータを公開停止するため、保持期間外の日付を除外する
+  const cutoff = new Date()
+  cutoff.setDate(cutoff.getDate() - AMEDAS_DATA_RETENTION_DAYS)
+  const cutoffStr = formatDateStr(cutoff)
+  const dates = allDates.filter((d) => d >= cutoffStr)
+
+  if (dates.length === 0) {
+    onProgress?.(1)
+    return []
+  }
+
   const totalBlocks = dates.length * H3_BLOCKS.length
   let completedBlocks = 0
   const allRecords: HourlyWeatherRecord[] = []
@@ -256,6 +275,14 @@ function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 }
 
+/** Date を YYYY-MM-DD 文字列に変換 */
+function formatDateStr(date: Date): string {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
 /** YYYY-MM-DD 形式の日付範囲を生成 */
 function generateDateRange(startDate: string, endDate: string): string[] {
   const dates: string[] = []
@@ -264,10 +291,7 @@ function generateDateRange(startDate: string, endDate: string): string[] {
 
   const current = new Date(start)
   while (current <= end) {
-    const y = current.getFullYear()
-    const m = String(current.getMonth() + 1).padStart(2, '0')
-    const d = String(current.getDate()).padStart(2, '0')
-    dates.push(`${y}-${m}-${d}`)
+    dates.push(formatDateStr(current))
     current.setDate(current.getDate() + 1)
   }
 
@@ -284,10 +308,18 @@ async function fetchWithRetry(url: string): Promise<unknown> {
     try {
       const response = await fetch(url)
       if (!response.ok) {
+        // 404 はデータ未公開（期間切れ等）を示す — リトライしても回復しない
+        if (response.status === 404) {
+          throw new AmedasNotFoundError(url)
+        }
         throw new Error(`AMEDAS API error: ${response.status} ${response.statusText}`)
       }
       return await response.json()
     } catch (e) {
+      // 404 はリトライ不要 — 即座に伝播する
+      if (e instanceof AmedasNotFoundError) {
+        throw e
+      }
       lastError = e instanceof Error ? e : new Error(String(e))
       if (attempt < MAX_RETRIES) {
         await delay(INITIAL_RETRY_DELAY_MS * 2 ** attempt)
@@ -295,6 +327,14 @@ async function fetchWithRetry(url: string): Promise<unknown> {
     }
   }
   throw lastError ?? new Error('AMEDAS API request failed')
+}
+
+/** AMEDAS データが存在しない (404) ことを示すエラー */
+class AmedasNotFoundError extends Error {
+  constructor(url: string) {
+    super(`AMEDAS data not found: ${url}`)
+    this.name = 'AmedasNotFoundError'
+  }
 }
 
 /** テスト用: 観測所テーブルキャッシュをクリアする */

@@ -178,13 +178,23 @@ export function getDateRange(
   // AMEDAS データは前日分まで利用可能 — endDate を昨日にクランプ
   const today = new Date()
   const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1)
-  const yy = yesterday.getFullYear()
-  const mm = String(yesterday.getMonth() + 1).padStart(2, '0')
-  const dd = String(yesterday.getDate()).padStart(2, '0')
-  const yesterdayStr = `${yy}-${mm}-${dd}`
+  const formatDate = (d: Date) => {
+    const y = d.getFullYear()
+    const m = String(d.getMonth() + 1).padStart(2, '0')
+    const day = String(d.getDate()).padStart(2, '0')
+    return `${y}-${m}-${day}`
+  }
+  const yesterdayStr = formatDate(yesterday)
 
   const endDate = monthEndDate <= yesterdayStr ? monthEndDate : yesterdayStr
 
-  // If entire range is in the future, startDate > endDate — caller should skip fetch
-  return { startDate, endDate }
+  // AMEDAS は古いデータを公開停止する — startDate を保持期間の下限にクランプ
+  // (jmaAmedasClient 側でもフィルタするが、呼び出し元でも不要なリクエストを防ぐ)
+  const retentionLimit = new Date(today)
+  retentionLimit.setDate(retentionLimit.getDate() - 60)
+  const retentionStr = formatDate(retentionLimit)
+  const clampedStartDate = startDate < retentionStr ? retentionStr : startDate
+
+  // If entire range is in the future or past retention, clampedStartDate > endDate — caller should skip fetch
+  return { startDate: clampedStartDate, endDate }
 }
