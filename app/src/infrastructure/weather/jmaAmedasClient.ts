@@ -50,10 +50,7 @@ const ELEM_INDEX = {
 } as const
 
 /** 天気データに必要な最低限の観測要素 */
-const REQUIRED_ELEMS = [
-  ELEM_INDEX.temp,
-  ELEM_INDEX.precipitation,
-] as const
+const REQUIRED_ELEMS = [ELEM_INDEX.temp, ELEM_INDEX.precipitation] as const
 
 let cachedStationTable: readonly AmedasStation[] | null = null
 
@@ -115,9 +112,7 @@ export async function findNearestStation(
 
   for (const station of stations) {
     // 必須観測要素のチェック
-    const hasRequired = REQUIRED_ELEMS.every(
-      (idx) => station.elems[idx] === '1',
-    )
+    const hasRequired = REQUIRED_ELEMS.every((idx) => station.elems[idx] === '1')
     if (!hasRequired) continue
 
     const dist = haversineDistance(latitude, longitude, station.latitude, station.longitude)
@@ -206,10 +201,7 @@ export async function fetchAmedasWeather(
  *
  * 10分間隔のデータから正時 (:00) のレコードを抽出し、時間別に集約する。
  */
-function parsePointBlock(
-  dateKey: string,
-  data: AmedasPointResponse,
-): HourlyWeatherRecord[] {
+function parsePointBlock(dateKey: string, data: AmedasPointResponse): HourlyWeatherRecord[] {
   const records: HourlyWeatherRecord[] = []
 
   // タイムスタンプをソートして処理
@@ -252,12 +244,7 @@ function extractValue(v: AmedasValue | undefined): number {
 // ─── Utilities ───────────────────────────────────────
 
 /** 2地点間のハバーサイン距離 (km) */
-function haversineDistance(
-  lat1: number,
-  lon1: number,
-  lat2: number,
-  lon2: number,
-): number {
+function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371 // 地球半径 (km)
   const toRad = (deg: number) => (deg * Math.PI) / 180
 

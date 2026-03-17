@@ -6,8 +6,4 @@ export {
   clearStationTableCache,
 } from './jmaAmedasClient'
 export type { AmedasStation } from './jmaAmedasClient'
-export {
-  resolveForcastArea,
-  fetchWeeklyForecast,
-  clearForecastCache,
-} from './jmaForecastClient'
+export { resolveForcastArea, fetchWeeklyForecast, clearForecastCache } from './jmaForecastClient'

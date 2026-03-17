@@ -55,10 +55,7 @@ const ReliabilityDot = styled.span<{ $level: 'A' | 'B' | 'C' }>`
     $level === 'A' ? '#22c55e' : $level === 'B' ? '#f59e0b' : '#ef4444'};
 `
 
-export const ForecastBadge = memo(function ForecastBadge({
-  forecast,
-  compact = false,
-}: Props) {
+export const ForecastBadge = memo(function ForecastBadge({ forecast, compact = false }: Props) {
   const category = mapJmaWeatherCodeToCategory(forecast.weatherCode)
   const icon = WEATHER_ICONS[category]
 

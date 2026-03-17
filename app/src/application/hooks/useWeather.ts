@@ -100,9 +100,8 @@ export function useWeatherData(
           } else {
             // DuckDB 未準備: フォールバックとして API 直接取得
             // （初期化完了後に DuckDB 経由に切り替わる）
-            const { findNearestStation, fetchAmedasWeather } = await import(
-              '@/infrastructure/weather'
-            )
+            const { findNearestStation, fetchAmedasWeather } =
+              await import('@/infrastructure/weather')
             let stationId = location.amedasStationId
             if (!stationId) {
               const station = await findNearestStation(location.latitude, location.longitude)

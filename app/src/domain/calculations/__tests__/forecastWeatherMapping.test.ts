@@ -1,8 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import {
-  mapJmaWeatherCodeToWmo,
-  mapJmaWeatherCodeToCategory,
-} from '../forecastWeatherMapping'
+import { mapJmaWeatherCodeToWmo, mapJmaWeatherCodeToCategory } from '../forecastWeatherMapping'
 
 describe('forecastWeatherMapping', () => {
   describe('mapJmaWeatherCodeToWmo', () => {
