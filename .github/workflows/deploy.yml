@@ -61,7 +61,10 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run format:check
-      - run: npm run build
+      - name: Build
+        run: npm run build
+        env:
+          VITE_JMA_PROXY_URL: ${{ secrets.VITE_JMA_PROXY_URL }}
       - name: Test with coverage
         run: npx vitest run --coverage
 

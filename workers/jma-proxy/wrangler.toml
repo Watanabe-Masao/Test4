@@ -1,0 +1,11 @@
+name = "jma-proxy"
+main = "src/index.ts"
+compatibility_date = "2024-12-01"
+
+# デプロイ後、Worker の URL が発行される:
+# https://jma-proxy.<your-subdomain>.workers.dev
+#
+# この URL を GitHub リポジトリの Secrets に登録:
+#   Settings → Secrets → Actions → New repository secret
+#   Name:  VITE_JMA_PROXY_URL
+#   Value: https://jma-proxy.<your-subdomain>.workers.dev
