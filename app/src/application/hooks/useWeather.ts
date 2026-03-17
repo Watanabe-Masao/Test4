@@ -58,6 +58,14 @@ export function useWeatherData(year: number, month: number, storeId: string): Us
       setError(null)
 
       const { startDate, endDate } = getDateRange(year, month)
+
+      // Skip fetch if entire range is in the future (no archive data available)
+      if (startDate > endDate) {
+        setHourly([])
+        setIsLoading(false)
+        return
+      }
+
       const locations = { [storeId]: location }
 
       const run = async () => {

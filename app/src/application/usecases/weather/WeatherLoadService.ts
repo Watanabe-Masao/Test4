@@ -70,6 +70,18 @@ export function getDateRange(
 ): { readonly startDate: string; readonly endDate: string } {
   const startDate = `${year}-${String(month).padStart(2, '0')}-01`
   const lastDay = new Date(year, month, 0).getDate()
-  const endDate = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`
+  const monthEndDate = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`
+
+  // Archive API only serves historical data — clamp endDate to yesterday
+  const today = new Date()
+  const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1)
+  const yy = yesterday.getFullYear()
+  const mm = String(yesterday.getMonth() + 1).padStart(2, '0')
+  const dd = String(yesterday.getDate()).padStart(2, '0')
+  const yesterdayStr = `${yy}-${mm}-${dd}`
+
+  const endDate = monthEndDate <= yesterdayStr ? monthEndDate : yesterdayStr
+
+  // If entire range is in the future, startDate > endDate — caller should skip fetch
   return { startDate, endDate }
 }
