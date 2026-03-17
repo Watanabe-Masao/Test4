@@ -173,6 +173,7 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
     elapsedDays: r.elapsedDays,
     monthlyHistory,
     duckConn: duck.conn,
+    duckDb: duck.db,
     duckDataVersion: duck.dataVersion,
     duckLoadedMonthCount: duck.loadedMonthCount,
     prevYearMonthlyKpi: comparison.kpi,

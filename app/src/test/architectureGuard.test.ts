@@ -84,10 +84,16 @@ const APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set([
   'application/usecases/export/ExportService.ts',
   // i18n ブリッジ（Phase 10-3a: presentation 層から infrastructure/i18n への直接依存を回避）
   'application/hooks/useI18n.ts',
-  // 天気データ取得サービス（Open-Meteo API クライアントを使用）
+  // 天気データ取得サービス（気象庁 AMEDAS API クライアントを使用）
   'application/usecases/weather/WeatherLoadService.ts',
   // ジオコーディングブリッジ（presentation 層から infrastructure への直接依存を回避）
   'application/hooks/useGeocode.ts',
+  // 週間天気予報取得サービス（気象庁 Forecast API を使用）
+  'application/usecases/weather/ForecastLoadService.ts',
+  // 週間天気予報ブリッジ（presentation 層から infrastructure への直接依存を回避）
+  'application/hooks/useWeatherForecast.ts',
+  // 天気時間帯クエリフック（DuckDB weather_hourly テーブルを使用）
+  'application/hooks/duckdb/useWeatherHourlyQuery.ts',
 ])
 
 /**

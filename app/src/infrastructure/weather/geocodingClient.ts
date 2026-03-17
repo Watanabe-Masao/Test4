@@ -1,16 +1,28 @@
 /**
- * Open-Meteo Geocoding API クライアント
+ * 国土地理院 住所検索API クライアント
  *
- * 店舗名から緯度経度を検索する。
- * API キー不要・CORS 対応・無料。
+ * 店舗名・地名から緯度経度を検索する。
+ * API キー不要。日本国内の住所・地名に特化。
  *
- * @see https://open-meteo.com/en/docs/geocoding-api
+ * @see https://msearch.gsi.go.jp/address-search/AddressSearch
  */
 import type { GeocodingResult } from '@/domain/models'
 
-const GEOCODING_API_BASE = 'https://geocoding-api.open-meteo.com/v1/search'
+const GSI_API_BASE = 'https://msearch.gsi.go.jp/address-search/AddressSearch'
 const MAX_RESULTS = 5
-const LANGUAGE = 'ja'
+
+/** 国土地理院 住所検索API の GeoJSON レスポンス要素 */
+interface GsiFeature {
+  readonly geometry: {
+    readonly coordinates: readonly [number, number] // [longitude, latitude]
+    readonly type: string
+  }
+  readonly type: string
+  readonly properties: {
+    readonly title: string
+    readonly addressCode?: string
+  }
+}
 
 /**
  * 地名で位置情報を検索する。
@@ -21,39 +33,22 @@ const LANGUAGE = 'ja'
 export async function searchLocation(name: string): Promise<readonly GeocodingResult[]> {
   if (!name.trim()) return []
 
-  const params = new URLSearchParams({
-    name: name.trim(),
-    count: String(MAX_RESULTS),
-    language: LANGUAGE,
-    format: 'json',
-  })
+  const params = new URLSearchParams({ q: name.trim() })
 
-  const response = await fetch(`${GEOCODING_API_BASE}?${params}`)
+  const response = await fetch(`${GSI_API_BASE}?${params}`)
   if (!response.ok) {
-    throw new Error(`Geocoding API error: ${response.status} ${response.statusText}`)
+    throw new Error(`国土地理院 住所検索API error: ${response.status} ${response.statusText}`)
   }
 
-  const data: { results?: RawGeocodingResult[] } = await response.json()
-  if (!data.results) return []
+  const data: GsiFeature[] = await response.json()
+  if (!Array.isArray(data) || data.length === 0) return []
 
-  return data.results.map(
-    (r): GeocodingResult => ({
-      name: r.name,
-      latitude: r.latitude,
-      longitude: r.longitude,
-      country: r.country ?? '',
-      admin1: r.admin1,
-      admin2: r.admin2,
+  return data.slice(0, MAX_RESULTS).map(
+    (f): GeocodingResult => ({
+      name: f.properties.title,
+      latitude: f.geometry.coordinates[1], // GeoJSON: [lon, lat]
+      longitude: f.geometry.coordinates[0],
+      country: '日本',
     }),
   )
-}
-
-/** Open-Meteo Geocoding API のレスポンス型（内部用） */
-interface RawGeocodingResult {
-  readonly name: string
-  readonly latitude: number
-  readonly longitude: number
-  readonly country?: string
-  readonly admin1?: string
-  readonly admin2?: string
 }

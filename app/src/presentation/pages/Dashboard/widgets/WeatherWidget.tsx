@@ -1,16 +1,20 @@
 /**
- * 天気ウィジェット — 日別天気サマリ + 売上相関チャート
+ * 天気ウィジェット — 日別天気サマリ + 週間予報 + 売上相関チャート
  *
- * Open-Meteo API から天気データを取得し、WeatherBadge と
- * WeatherCorrelationChart を組み合わせてダッシュボードに表示する。
+ * 気象庁 AMEDAS API から実測天気データを、Forecast API から
+ * 週間予報を取得し、カレンダーグリッドに実績と予報を並べて表示する。
+ *
+ * UI/UX原則#1: 実績（緑系）と推定（オレンジ系）は別世界として視覚的に分離。
  */
 import { memo, useMemo } from 'react'
 import styled from 'styled-components'
 import { sc } from '@/presentation/theme/semanticColors'
 import { useWeatherData } from '@/application/hooks/useWeather'
+import { useWeatherForecast } from '@/application/hooks/useWeatherForecast'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import type { DailySalesForCorrelation } from '@/application/hooks/useWeatherCorrelation'
 import { WeatherBadge } from '@/presentation/components/common/WeatherBadge'
+import { ForecastBadge } from '@/presentation/components/common/ForecastBadge'
 import { WeatherCorrelationChart } from '@/presentation/components/charts/WeatherCorrelationChart'
 import type { WidgetContext } from './types'
 
@@ -18,6 +22,13 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing[4]};
+`
+
+const SectionLabel = styled.div`
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.text3};
+  margin-bottom: ${({ theme }) => theme.spacing[1]};
 `
 
 const DailySummaryGrid = styled.div`
@@ -34,6 +45,11 @@ const DayCell = styled.div`
   padding: ${({ theme }) => theme.spacing[1]};
   border-radius: ${({ theme }) => theme.radii.sm};
   background: ${({ theme }) => theme.colors.bg2};
+`
+
+const ForecastDayCell = styled(DayCell)`
+  background: rgba(249, 115, 22, 0.06);
+  border: 1px dashed rgba(249, 115, 22, 0.3);
 `
 
 const DayLabel = styled.span`
@@ -81,7 +97,31 @@ export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetC
     return candidates.find((id) => storeLocations[id]) ?? candidates[0] ?? ''
   }, [ctx.selectedStoreIds, ctx.stores, storeLocations])
 
-  const { daily, isLoading, error } = useWeatherData(ctx.year, ctx.month, storeId)
+  const { daily, isLoading, error } = useWeatherData(
+    ctx.year,
+    ctx.month,
+    storeId,
+    ctx.duckConn,
+    ctx.duckDb,
+  )
+
+  const {
+    forecasts,
+    isLoading: isForecastLoading,
+    error: forecastError,
+  } = useWeatherForecast(storeId)
+
+  // 実測日の dateKey セット（予報と重複しないようフィルタ用）
+  const observedDateKeys = useMemo(
+    () => new Set(daily.map((d) => d.dateKey)),
+    [daily],
+  )
+
+  // 予報データから実測済み日を除外
+  const futureForecasts = useMemo(
+    () => forecasts.filter((f) => !observedDateKeys.has(f.dateKey)),
+    [forecasts, observedDateKeys],
+  )
 
   const salesDaily = useMemo<readonly DailySalesForCorrelation[]>(() => {
     const entries: DailySalesForCorrelation[] = []
@@ -97,15 +137,15 @@ export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetC
     return entries
   }, [ctx.result.daily, ctx.year, ctx.month])
 
-  if (isLoading) {
+  if (isLoading && isForecastLoading) {
     return <LoadingText>天気データを取得中...</LoadingText>
   }
 
-  if (error) {
+  if (error && !daily.length && !forecasts.length) {
     return <ErrorText>天気データ取得エラー: {error}</ErrorText>
   }
 
-  if (daily.length === 0) {
+  if (daily.length === 0 && forecasts.length === 0) {
     return (
       <NoLocationText>
         店舗の位置情報が未設定です。管理画面の「店舗管理」タブから位置情報を登録してください。
@@ -115,21 +155,50 @@ export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetC
 
   return (
     <Wrapper>
-      <DailySummaryGrid>
-        {daily.map((d) => {
-          const dayNum = Number(d.dateKey.split('-')[2])
-          return (
-            <DayCell key={d.dateKey}>
-              <DayLabel>{dayNum}日</DayLabel>
-              <WeatherBadge
-                weatherCode={d.dominantWeatherCode}
-                temperature={d.temperatureAvg}
-                compact
-              />
-            </DayCell>
-          )
-        })}
-      </DailySummaryGrid>
+      {/* 実測値グリッド */}
+      {daily.length > 0 && (
+        <div>
+          <SectionLabel>実測</SectionLabel>
+          <DailySummaryGrid>
+            {daily.map((d) => {
+              const dayNum = Number(d.dateKey.split('-')[2])
+              return (
+                <DayCell key={d.dateKey}>
+                  <DayLabel>{dayNum}日</DayLabel>
+                  <WeatherBadge
+                    weatherCode={d.dominantWeatherCode}
+                    temperature={d.temperatureAvg}
+                    compact
+                  />
+                </DayCell>
+              )
+            })}
+          </DailySummaryGrid>
+        </div>
+      )}
+
+      {/* 予報グリッド */}
+      {futureForecasts.length > 0 && (
+        <div>
+          <SectionLabel>予報</SectionLabel>
+          <DailySummaryGrid>
+            {futureForecasts.map((f) => {
+              const dayNum = Number(f.dateKey.split('-')[2])
+              return (
+                <ForecastDayCell key={f.dateKey}>
+                  <DayLabel>{dayNum}日</DayLabel>
+                  <ForecastBadge forecast={f} compact />
+                </ForecastDayCell>
+              )
+            })}
+          </DailySummaryGrid>
+          {forecastError && (
+            <ErrorText style={{ fontSize: '0.65rem', padding: '4px' }}>
+              予報取得エラー: {forecastError}
+            </ErrorText>
+          )}
+        </div>
+      )}
 
       <WeatherCorrelationChart weatherDaily={daily} salesDaily={salesDaily} />
     </Wrapper>

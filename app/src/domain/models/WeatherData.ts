@@ -1,23 +1,23 @@
 /**
  * 天気データ型定義
  *
- * Open-Meteo API から取得した天気データのドメイン型。
+ * 気象庁 AMEDAS の実測値をドメイン型として定義する。
  * date_key (YYYY-MM-DD) を主キーとし、月跨ぎでも連続的に保持する。
  */
 
 /** WMO Weather Code を天気カテゴリに分類 */
 export type WeatherCategory = 'sunny' | 'cloudy' | 'rainy' | 'snowy' | 'other'
 
-/** 時間別天気レコード（Open-Meteo Historical/Forecast API の1時間分） */
+/** 時間別天気レコード（気象庁 AMEDAS 実測値の1時間分） */
 export interface HourlyWeatherRecord {
   readonly dateKey: string // YYYY-MM-DD
   readonly hour: number // 0-23
-  readonly temperature: number // °C (temperature_2m)
-  readonly humidity: number // % (relative_humidity_2m)
-  readonly precipitation: number // mm (precipitation)
-  readonly windSpeed: number // km/h (wind_speed_10m)
-  readonly weatherCode: number // WMO weather interpretation code
-  readonly sunshineDuration: number // seconds (sunshine_duration)
+  readonly temperature: number // °C
+  readonly humidity: number // %
+  readonly precipitation: number // mm (1時間降水量)
+  readonly windSpeed: number // km/h
+  readonly weatherCode: number // WMO 互換コード（AMEDAS 実測値から導出）
+  readonly sunshineDuration: number // seconds (日照時間)
 }
 
 /**
@@ -43,9 +43,37 @@ export interface StoreLocation {
   readonly latitude: number
   readonly longitude: number
   readonly resolvedName?: string // ジオコーディングで解決された地名（確認用）
+  readonly amedasStationId?: string // 最寄り AMEDAS 観測所番号（解決済みキャッシュ）
+  readonly amedasStationName?: string // 観測所名（表示用）
+  readonly forecastOfficeCode?: string // 府県予報区コード（解決済みキャッシュ）
+  readonly weekAreaCode?: string // 週間予報区域コード（解決済みキャッシュ）
 }
 
-/** Open-Meteo Geocoding API の検索結果 */
+/**
+ * 週間天気予報の1日分
+ *
+ * 気象庁 forecast API の [1] (週間予報) から抽出。
+ * weatherCode は気象庁独自コード（100系=晴、200系=曇、300系=雨、400系=雪）。
+ */
+export interface DailyForecast {
+  readonly dateKey: string // YYYY-MM-DD
+  readonly weatherCode: string // 気象庁天気コード ("100", "201" 等)
+  readonly pop: number | null // 降水確率 (%)
+  readonly tempMin: number | null // 最低気温 °C
+  readonly tempMax: number | null // 最高気温 °C
+  readonly reliability: 'A' | 'B' | 'C' | null // 予報信頼度
+}
+
+/** 予報区域の解決結果 */
+export interface ForecastAreaResolution {
+  readonly officeCode: string // 府県予報区コード (例: "130000")
+  readonly officeName: string // 府県名 (例: "東京都")
+  readonly weekAreaCode: string // 週間予報区域コード
+  readonly weekAreaName: string // 週間予報区域名
+  readonly amedasStationId: string // 気温データ用 AMEDAS 観測所番号
+}
+
+/** 国土地理院 住所検索API の検索結果 */
 export interface GeocodingResult {
   readonly name: string
   readonly latitude: number

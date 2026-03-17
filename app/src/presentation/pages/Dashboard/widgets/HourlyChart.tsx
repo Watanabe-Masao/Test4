@@ -6,7 +6,7 @@
  * 複数時間帯を選択して分類別内訳を表示可能。
  */
 import { memo, useState, useMemo, useCallback, useRef, useEffect } from 'react'
-import type { CategoryTimeSalesRecord } from '@/domain/models'
+import type { CategoryTimeSalesRecord, HourlyWeatherRecord } from '@/domain/models'
 import { toComma } from '@/presentation/components/charts/chartTheme'
 import { formatPercent } from '@/domain/formatting'
 import { calculateShare } from '@/domain/calculations/utils'
@@ -57,15 +57,18 @@ import {
   AmtFill,
   AmtVal,
 } from './DayDetailModal.styles'
+import { WeatherTempLine, WeatherIconRow, WeatherTooltipInfo } from './HourlyWeatherOverlay'
 
 type HourlyMode = 'actual' | 'prev'
 
 export const HourlyChart = memo(function HourlyChart({
   dayRecords,
   prevDayRecords,
+  weatherHourly,
 }: {
   dayRecords: readonly CategoryTimeSalesRecord[]
   prevDayRecords: readonly CategoryTimeSalesRecord[]
+  weatherHourly?: readonly HourlyWeatherRecord[]
 }) {
   const [hoveredHour, setHoveredHour] = useState<number | null>(null)
   const [selectedHours, setSelectedHours] = useState<Set<number>>(new Set())
@@ -224,6 +227,14 @@ export const HourlyChart = memo(function HourlyChart({
     [n, chartW],
   )
   const pxY = useCallback((pct: number) => chartH * (1 - pct / 100), [chartH])
+
+  // ── 天気データマップ（ツールチップ用） ──
+  const weatherMap = useMemo(() => {
+    if (!weatherHourly || weatherHourly.length === 0) return null
+    const m = new Map<number, HourlyWeatherRecord>()
+    for (const w of weatherHourly) m.set(w.hour, w)
+    return m
+  }, [weatherHourly])
 
   if (paddedData.length === 0 && prevHourlyData.length === 0) return null
   if (paddedData.length === 0) return null
@@ -387,6 +398,9 @@ export const HourlyChart = memo(function HourlyChart({
                         </div>
                       )}
                       <div>累積率 {cumEntry ? cumEntry.cumPct.toFixed(1) : '0.0'}%</div>
+                      {weatherMap?.get(d.hour) && (
+                        <WeatherTooltipInfo weather={weatherMap.get(d.hour)!} />
+                      )}
                       <span style={{ fontSize: '0.42rem', opacity: 0.6 }}>
                         クリックで選択（複数可）
                       </span>
@@ -422,6 +436,15 @@ export const HourlyChart = memo(function HourlyChart({
               {cumData.map((d, i) => (
                 <circle key={d.hour} cx={pxX(i)} cy={pxY(d.cumPct)} r="3.5" fill={sc.negative} />
               ))}
+              {weatherHourly && weatherHourly.length > 0 && (
+                <WeatherTempLine
+                  hours={paddedData}
+                  weatherHourly={weatherHourly}
+                  chartW={chartW}
+                  chartH={chartH}
+                  pxX={pxX}
+                />
+              )}
             </HourlyCumOverlay>
           )}
         </HourlyChartWrap>
@@ -446,6 +469,10 @@ export const HourlyChart = memo(function HourlyChart({
           </HourlyTick>
         ))}
       </HourlyAxis>
+      {/* 天気アイコン行 */}
+      {weatherHourly && weatherHourly.length > 0 && (
+        <WeatherIconRow hours={paddedData} weatherHourly={weatherHourly} />
+      )}
 
       {selectedHours.size > 0 && selectedData && (
         <HourlyDetailPanel>

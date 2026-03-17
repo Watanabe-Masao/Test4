@@ -97,7 +97,7 @@ function aggregateOneDay(
 /**
  * WMO Weather Interpretation Code を天気カテゴリに分類する。
  *
- * @see https://open-meteo.com/en/docs → WMO Weather interpretation codes
+ * @see WMO Weather interpretation codes (WMO-4677)
  *
  * 0: Clear sky
  * 1-3: Mainly clear, partly cloudy, overcast
@@ -120,4 +120,34 @@ export function categorizeWeatherCode(code: number): WeatherCategory {
   if (code <= 86) return 'snowy' // snow showers
   if (code <= 99) return 'rainy' // thunderstorm
   return 'other'
+}
+
+/**
+ * AMEDAS 実測値から WMO 互換の天気コードを導出する。
+ *
+ * AMEDAS には天気コードがないため、降水量と日照時間から推定する。
+ * WMO Weather Interpretation Code に準拠した値を返す。
+ *
+ * @param precipitationMm 時間降水量 (mm)
+ * @param sunshineHours 時間日照時間 (hours, 0.0-1.0)
+ * @param temperatureCelsius 気温 (°C)。省略時は雪判定しない
+ * @returns WMO 互換天気コード
+ */
+export function deriveWeatherCode(
+  precipitationMm: number,
+  sunshineHours: number,
+  temperatureCelsius?: number,
+): number {
+  // 降水あり
+  if (precipitationMm > 0) {
+    const isSnow = temperatureCelsius != null && temperatureCelsius < 1
+    if (precipitationMm >= 5) return isSnow ? 75 : 65 // heavy snow/rain
+    if (precipitationMm >= 1) return isSnow ? 71 : 61 // moderate snow/rain
+    return isSnow ? 71 : 51 // light snow/drizzle
+  }
+
+  // 降水なし — 日照時間で判定
+  if (sunshineHours >= 0.6) return 0 // clear sky (晴れ)
+  if (sunshineHours >= 0.2) return 2 // partly cloudy (晴れ時々曇り)
+  return 3 // overcast (曇り)
 }

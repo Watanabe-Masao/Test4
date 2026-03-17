@@ -30,8 +30,9 @@ import type {
   CategoryTimeSalesRecord,
 } from '@/domain/models'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
-import { useDuckDBCategoryTimeRecords } from '@/application/hooks/duckdb'
+import { useDuckDBCategoryTimeRecords, useDuckDBWeatherHourly } from '@/application/hooks/duckdb'
 import type { PrevYearData } from '@/application/hooks'
+import { useSettingsStore } from '@/application/stores/settingsStore'
 import {
   PinModalOverlay,
   DetailModalContent,
@@ -150,6 +151,15 @@ export function DayDetailModal({
   const wowPrevCust = wowDailyRecord?.customers ?? 0
   // ── Category records（DuckDB から取得） ──
   const storeIdsSet = selectedStoreIds ?? EMPTY_STORE_IDS
+
+  // ── 天気データ（DuckDB weather_hourly から取得） ──
+  const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
+  const weatherStoreId = useMemo(() => {
+    const ids = storeIdsSet.size > 0 ? Array.from(storeIdsSet) : Object.keys(storeLocations)
+    return ids.find((id) => storeLocations[id]) ?? ''
+  }, [storeIdsSet, storeLocations])
+  const dateKey = useMemo(() => toDateKeyFromParts(year, month, day), [year, month, day])
+  const weatherResult = useDuckDBWeatherHourly(duckConn, duckDataVersion, weatherStoreId, dateKey)
 
   const singleDayRange: DateRange = useMemo(
     () => ({
@@ -458,7 +468,7 @@ export function DayDetailModal({
         {/* ── Tab: 時間帯分析 ── */}
         {tab === 'hourly' && (
           <>
-            <HourlyChart dayRecords={dayRecords} prevDayRecords={prevDayRecords} />
+            <HourlyChart dayRecords={dayRecords} prevDayRecords={prevDayRecords} weatherHourly={weatherResult.data ?? undefined} />
             {dayRecords.length === 0 && (
               <DetailSection>
                 <DetailSectionTitle>時間帯別売上</DetailSectionTitle>

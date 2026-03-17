@@ -69,4 +69,6 @@ export type {
   DailyWeatherSummary,
   StoreLocation,
   GeocodingResult,
+  DailyForecast,
+  ForecastAreaResolution,
 } from './WeatherData'

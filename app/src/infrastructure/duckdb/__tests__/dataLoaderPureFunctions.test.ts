@@ -37,9 +37,14 @@ describe('resetTables', () => {
     expect(calls[0]).toBe('DROP VIEW IF EXISTS store_day_summary')
     expect(calls[1]).toBe('DROP TABLE IF EXISTS store_day_summary')
 
-    // Verify all tables are dropped
+    // Verify all tables are dropped (except persistent cache tables like weather_hourly)
+    const persistentTables = new Set(['weather_hourly'])
     for (const name of TABLE_NAMES) {
-      expect(calls).toContainEqual(`DROP TABLE IF EXISTS ${name}`)
+      if (persistentTables.has(name)) {
+        expect(calls).not.toContainEqual(`DROP TABLE IF EXISTS ${name}`)
+      } else {
+        expect(calls).toContainEqual(`DROP TABLE IF EXISTS ${name}`)
+      }
     }
 
     // Verify CREATE calls exist (at least one)
@@ -63,8 +68,15 @@ describe('deleteMonth', () => {
     const appSettingsDelete = calls.filter((c) => c.includes('app_settings'))
     expect(appSettingsDelete).toHaveLength(0)
 
-    // All other tables should have DELETE statements
-    const tablesWithYearMonth = TABLE_NAMES.filter((n) => n !== 'app_settings')
+    // weather_hourly should NOT be in delete calls (persistent cache)
+    const weatherDelete = calls.filter((c) => c.includes('weather_hourly'))
+    expect(weatherDelete).toHaveLength(0)
+
+    // All other tables (except app_settings and persistent caches) should have DELETE statements
+    const persistentCaches = new Set(['weather_hourly'])
+    const tablesWithYearMonth = TABLE_NAMES.filter(
+      (n) => n !== 'app_settings' && !persistentCaches.has(n),
+    )
     for (const name of tablesWithYearMonth) {
       const deleteCall = calls.find((c) => c.includes(name) && c.includes('DELETE'))
       expect(deleteCall).toBeDefined()

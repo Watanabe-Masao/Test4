@@ -117,6 +117,10 @@ export type {
   StoreDailyMarkupRateQueryResult,
 } from './useStoreDailyMarkupRateQuery'
 
+// 天気時間帯
+export { useDuckDBWeatherHourly, useDuckDBWeatherHourlyAvg } from './useWeatherHourlyQuery'
+export type { HourlyWeatherAvgRow } from '@/infrastructure/duckdb/queries/weatherQueries'
+
 // 比較コンテキスト
 export { useComparisonContextQuery } from './useComparisonContextQuery'
 

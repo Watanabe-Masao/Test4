@@ -213,7 +213,7 @@ CREATE TABLE IF NOT EXISTS app_settings (
 )`
 
 // ── weather_hourly ──
-// ソース: Open-Meteo Historical/Forecast API（時間別天気データ）
+// ソース: 気象庁 AMEDAS API（時間別天気データ）
 // date_key を主キーとし、月跨ぎでも連続的に保持
 export const WEATHER_HOURLY_DDL = `
 CREATE TABLE IF NOT EXISTS weather_hourly (

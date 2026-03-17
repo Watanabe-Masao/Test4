@@ -32,7 +32,13 @@ export interface LoadResult {
 
 /**
  * 全テーブルを DROP + CREATE し、VIEW を再作成する。
+ *
+ * weather_hourly は外部 API キャッシュのため DROP 対象から除外する。
+ * ImportedData の再ロードで天気キャッシュを消す必要はない。
  */
+/** ImportedData 再ロード時に DROP しないテーブル（外部 API キャッシュ） */
+const PERSISTENT_TABLES: ReadonlySet<string> = new Set(['weather_hourly'])
+
 export async function resetTables(conn: AsyncDuckDBConnection): Promise<void> {
   // DROP all tables (including materialized summary if exists)
   // DuckDB は DROP VIEW/TABLE IF EXISTS でも型不一致でエラーになるため try-catch で吸収
@@ -44,6 +50,7 @@ export async function resetTables(conn: AsyncDuckDBConnection): Promise<void> {
     }
   }
   for (const name of TABLE_NAMES) {
+    if (PERSISTENT_TABLES.has(name)) continue
     await conn.query(`DROP TABLE IF EXISTS ${name}`)
   }
 
@@ -60,8 +67,10 @@ export async function resetTables(conn: AsyncDuckDBConnection): Promise<void> {
  * 指定年月のデータを全テーブルから削除する。
  * 増分ロード時に使用: deleteMonth → loadMonth で特定月のみ差し替え。
  */
-/** app_settings は year/month を持たないため deleteMonth 対象外 */
-const TABLES_WITH_YEAR_MONTH = TABLE_NAMES.filter((n) => n !== 'app_settings')
+/** app_settings は year/month を持たない、weather_hourly は外部キャッシュのため deleteMonth 対象外 */
+const TABLES_WITH_YEAR_MONTH = TABLE_NAMES.filter(
+  (n) => n !== 'app_settings' && !PERSISTENT_TABLES.has(n),
+)
 
 export async function deleteMonth(
   conn: AsyncDuckDBConnection,
@@ -220,6 +229,10 @@ export async function loadMonth(
 
     // app_settings は loadMonth ではなく loadAppSettings() で別途投入
     rowCounts.app_settings = 0
+
+    // weather_hourly は外部 API キャッシュのため loadMonth では投入しない
+    // WeatherLoadService が DuckDB に直接投入する
+    rowCounts.weather_hourly = 0
   } catch (err) {
     // INSERT失敗時は該当月のデータのみ削除して部分データの残存を防ぐ。
     // resetTables() は全テーブルを DROP → CREATE するため、他の月のデータも消失し、
