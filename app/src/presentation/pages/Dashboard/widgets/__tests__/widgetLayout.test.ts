@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { loadLayout, saveLayout, DEFAULT_WIDGET_IDS, WIDGET_MAP } from '../widgetLayout'
+import { loadLayout, saveLayout, DEFAULT_WIDGET_IDS, getWidgetMap } from '../widgetLayout'
 import { UNIFIED_WIDGET_MAP } from '@/presentation/components/widgets'
 
 // localStorage モック
@@ -22,8 +22,8 @@ describe('loadLayout', () => {
   })
 
   it('有効な保存済みレイアウトを読み込む', () => {
-    // WIDGET_MAP に存在する ID を使う
-    const validIds = Array.from(WIDGET_MAP.keys()).slice(0, 3)
+    // getWidgetMap() に存在する ID を使う
+    const validIds = Array.from(getWidgetMap().keys()).slice(0, 3)
     storage.set(STORAGE_KEY, JSON.stringify(validIds))
     const result = loadLayout()
     expect(result).toEqual(validIds)
@@ -48,7 +48,7 @@ describe('loadLayout', () => {
   })
 
   it('無効な ID を除外し、有効な ID のみ返す', () => {
-    const validIds = Array.from(WIDGET_MAP.keys()).slice(0, 2)
+    const validIds = Array.from(getWidgetMap().keys()).slice(0, 2)
     const mixedIds = [...validIds, 'nonexistent-widget']
     storage.set(STORAGE_KEY, JSON.stringify(mixedIds))
     const result = loadLayout()
@@ -58,7 +58,7 @@ describe('loadLayout', () => {
   it('旧 DuckDB ID が統合 ID にマイグレーションされる', () => {
     // duckdb-timeslot → chart-timeslot-sales
     const validNewId = 'chart-timeslot-sales'
-    if (WIDGET_MAP.has(validNewId)) {
+    if (getWidgetMap().has(validNewId)) {
       storage.set(STORAGE_KEY, JSON.stringify(['duckdb-timeslot']))
       const result = loadLayout()
       expect(result).toContain(validNewId)
@@ -68,7 +68,7 @@ describe('loadLayout', () => {
 
   it('マイグレーション後に重複が除去される', () => {
     const validNewId = 'chart-timeslot-sales'
-    if (WIDGET_MAP.has(validNewId)) {
+    if (getWidgetMap().has(validNewId)) {
       // 旧 ID と新 ID の両方が存在する場合、重複除去される
       storage.set(STORAGE_KEY, JSON.stringify(['duckdb-timeslot', validNewId]))
       const result = loadLayout()
