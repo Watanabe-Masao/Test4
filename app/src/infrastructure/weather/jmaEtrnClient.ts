@@ -44,10 +44,14 @@ const cachedStationLists = new Map<number, readonly EtrnStation[]>()
 // ─── Prefecture Resolution ──────────────────────────
 
 async function fetchPrefectureMap(): Promise<ReadonlyMap<string, number>> {
-  if (cachedPrefMap) return cachedPrefMap
+  if (cachedPrefMap) {
+    console.debug('[Weather:ETRN] 府県マップ: キャッシュヒット (%d件)', cachedPrefMap.size)
+    return cachedPrefMap
+  }
 
   const baseUrl = getJmaDataBaseUrl()
   const url = `${baseUrl}/obd/stats/etrn/select/prefecture00.php`
+  console.debug('[Weather:ETRN] 府県一覧を取得: %s', url)
   const html = await fetchHtmlWithRetry(url)
   const doc = new DOMParser().parseFromString(html, 'text/html')
 
@@ -64,6 +68,7 @@ async function fetchPrefectureMap(): Promise<ReadonlyMap<string, number>> {
     }
   }
 
+  console.debug('[Weather:ETRN] 府県マップ取得完了: %d件', map.size)
   cachedPrefMap = map
   return map
 }
@@ -72,10 +77,14 @@ async function fetchPrefectureMap(): Promise<ReadonlyMap<string, number>> {
 
 async function fetchStationList(precNo: number): Promise<readonly EtrnStation[]> {
   const cached = cachedStationLists.get(precNo)
-  if (cached) return cached
+  if (cached) {
+    console.debug('[Weather:ETRN] 観測所一覧: キャッシュヒット (precNo=%d, %d件)', precNo, cached.length)
+    return cached
+  }
 
   const baseUrl = getJmaDataBaseUrl()
   const url = `${baseUrl}/obd/stats/etrn/select/prefecture.php?prec_no=${precNo}`
+  console.debug('[Weather:ETRN] 観測所一覧を取得: %s', url)
   const html = await fetchHtmlWithRetry(url)
   const doc = new DOMParser().parseFromString(html, 'text/html')
 
@@ -96,6 +105,7 @@ async function fetchStationList(precNo: number): Promise<readonly EtrnStation[]>
     }
   }
 
+  console.debug('[Weather:ETRN] 観測所一覧取得完了: precNo=%d → %d件', precNo, stations.length)
   cachedStationLists.set(precNo, stations)
   return stations
 }
@@ -110,24 +120,40 @@ export async function resolveEtrnStation(
   amedasStationName: string,
   officeName: string,
 ): Promise<EtrnStation | null> {
+  console.debug('[Weather:ETRN] 観測所解決開始: name=%s, office=%s', amedasStationName, officeName)
   const prefMap = await fetchPrefectureMap()
 
   const precNo = findPrecNo(prefMap, officeName)
-  if (precNo == null) return null
+  if (precNo == null) {
+    console.warn('[Weather:ETRN] 府県が見つかりません: office=%s', officeName)
+    return null
+  }
+  console.debug('[Weather:ETRN] 府県解決: %s → precNo=%d', officeName, precNo)
 
   await delay(REQUEST_DELAY_MS)
   const stations = await fetchStationList(precNo)
-  if (stations.length === 0) return null
+  if (stations.length === 0) {
+    console.warn('[Weather:ETRN] 観測所が0件: precNo=%d', precNo)
+    return null
+  }
 
   const exactMatch = stations.find((s) => s.stationName === amedasStationName)
-  if (exactMatch) return exactMatch
+  if (exactMatch) {
+    console.debug('[Weather:ETRN] 完全一致: %s → block=%s type=%s', exactMatch.stationName, exactMatch.blockNo, exactMatch.stationType)
+    return exactMatch
+  }
 
   const partialMatch = stations.find(
     (s) => s.stationName.includes(amedasStationName) || amedasStationName.includes(s.stationName),
   )
-  if (partialMatch) return partialMatch
+  if (partialMatch) {
+    console.debug('[Weather:ETRN] 部分一致: %s → block=%s type=%s', partialMatch.stationName, partialMatch.blockNo, partialMatch.stationType)
+    return partialMatch
+  }
 
-  return stations.find((s) => s.stationType === 's1') ?? stations[0] ?? null
+  const fallback = stations.find((s) => s.stationType === 's1') ?? stations[0] ?? null
+  console.debug('[Weather:ETRN] フォールバック: %s', fallback?.stationName ?? 'null')
+  return fallback
 }
 
 function findPrecNo(prefMap: ReadonlyMap<string, number>, officeName: string): number | null {
@@ -161,16 +187,24 @@ export async function fetchEtrnDailyWeather(
     `${baseUrl}/obd/stats/etrn/view/daily_${stationType}.php` +
     `?prec_no=${precNo}&block_no=${blockNo}&year=${year}&month=${month}&day=&view=`
 
+  console.debug('[Weather:ETRN] 日別データ取得: %d/%d precNo=%d block=%s type=%s', year, month, precNo, blockNo, stationType)
+  console.debug('[Weather:ETRN] URL: %s', url)
+
   let html: string
   try {
     html = await fetchHtmlWithRetry(url)
   } catch (e) {
-    if (e instanceof EtrnNotFoundError) return []
+    if (e instanceof EtrnNotFoundError) {
+      console.warn('[Weather:ETRN] 日別データ 404: %d/%d', year, month)
+      return []
+    }
     throw e
   }
   const doc = new DOMParser().parseFromString(html, 'text/html')
 
-  return parseDailyTable(doc, year, month)
+  const results = parseDailyTable(doc, year, month)
+  console.debug('[Weather:ETRN] 日別データ取得完了: %d/%d → %d日分', year, month, results.length)
+  return results
 }
 
 /**
@@ -305,7 +339,11 @@ async function fetchHtmlWithRetry(url: string): Promise<string> {
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
+      if (attempt > 0) {
+        console.debug('[Weather:ETRN] リトライ %d/%d: %s', attempt, MAX_RETRIES, url)
+      }
       const response = await fetch(url)
+      console.debug('[Weather:ETRN] HTTP %d %s ← %s', response.status, response.statusText, url)
       if (!response.ok) {
         if (response.status === 404) {
           throw new EtrnNotFoundError(url)
@@ -326,6 +364,7 @@ async function fetchHtmlWithRetry(url: string): Promise<string> {
     } catch (e) {
       if (e instanceof EtrnNotFoundError) throw e
       lastError = e instanceof Error ? e : new Error(String(e))
+      console.warn('[Weather:ETRN] リクエスト失敗 (attempt=%d): %s — %s', attempt, url, lastError.message)
       if (attempt < MAX_RETRIES) {
         await delay(INITIAL_RETRY_DELAY_MS * 2 ** attempt)
       }

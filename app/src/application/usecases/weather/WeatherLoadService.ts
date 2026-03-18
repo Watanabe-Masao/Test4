@@ -100,6 +100,11 @@ export async function loadEtrnDailyForStore(
   month: number,
   onProgress?: (progress: WeatherLoadProgress) => void,
 ): Promise<EtrnLoadResult> {
+  console.debug(
+    '[Weather:Load] ETRN日別取得開始: store=%s %d/%d lat=%f lon=%f',
+    storeId, year, month, location.latitude, location.longitude,
+  )
+
   let precNo = location.etrnPrecNo
   let blockNo = location.etrnBlockNo
   let stationType = location.etrnStationType
@@ -109,14 +114,17 @@ export async function loadEtrnDailyForStore(
 
   // ETRN 観測所が未解決の場合は自動解決
   if (precNo == null || !blockNo || !stationType) {
+    console.debug('[Weather:Load] ETRN観測所未解決 → 自動解決開始')
     onProgress?.({ storeId, status: 'resolving', recordCount: 0 })
 
     // Step 1: AMeDAS 観測所テーブルから観測所名を取得
     let stationName = location.amedasStationName ?? ''
     let stationId = location.amedasStationId
     if (!stationName) {
+      console.debug('[Weather:Load] Step1: AMeDAS最寄り観測所を検索')
       const station = await findNearestStation(location.latitude, location.longitude)
       if (!station) {
+        console.warn('[Weather:Load] Step1 失敗: 最寄りの観測所なし')
         onProgress?.({
           storeId,
           status: 'error',
@@ -128,20 +136,26 @@ export async function loadEtrnDailyForStore(
       stationName = station.kjName
       stationId = station.stationId
       resolvedAmedas = { stationId: station.stationId, stationName: station.kjName }
+      console.debug('[Weather:Load] Step1 完了: %s (id=%s)', stationName, stationId)
+    } else {
+      console.debug('[Weather:Load] Step1 スキップ: キャッシュ済み name=%s id=%s', stationName, stationId)
     }
 
     // Step 2: 予報区名を取得（ETRN の府県名マッチングに使用）
     let officeName = ''
     const amedasId = stationId ?? resolvedAmedas?.stationId
     if (amedasId) {
+      console.debug('[Weather:Load] Step2: 予報区域を解決 (amedasId=%s)', amedasId)
       const areaResult = await resolveForcastArea(amedasId)
       officeName = areaResult?.officeName ?? ''
       if (!location.forecastOfficeCode && areaResult) {
         resolvedOfficeCode = areaResult.officeCode
       }
+      console.debug('[Weather:Load] Step2 完了: officeName=%s officeCode=%s', officeName, resolvedOfficeCode ?? location.forecastOfficeCode)
     }
 
     if (!officeName) {
+      console.warn('[Weather:Load] Step2 失敗: 予報区名を取得できず')
       onProgress?.({
         storeId,
         status: 'error',
@@ -152,8 +166,10 @@ export async function loadEtrnDailyForStore(
     }
 
     // Step 3: ETRN 観測所を解決
+    console.debug('[Weather:Load] Step3: ETRN観測所を解決 (name=%s, office=%s)', stationName, officeName)
     const etrnResult = await resolveEtrnStation(stationName, officeName)
     if (!etrnResult) {
+      console.warn('[Weather:Load] Step3 失敗: ETRN観測所が見つかりません')
       onProgress?.({
         storeId,
         status: 'error',
@@ -167,13 +183,18 @@ export async function loadEtrnDailyForStore(
     blockNo = etrnResult.blockNo
     stationType = etrnResult.stationType
     resolvedStation = etrnResult
+    console.debug('[Weather:Load] Step3 完了: precNo=%d block=%s type=%s', precNo, blockNo, stationType)
+  } else {
+    console.debug('[Weather:Load] ETRN観測所キャッシュ済み: precNo=%d block=%s type=%s', precNo, blockNo, stationType)
   }
 
   // ETRN 日別データを取得
+  console.debug('[Weather:Load] Step4: ETRN日別データ取得 %d/%d', year, month)
   onProgress?.({ storeId, status: 'loading', recordCount: 0 })
 
   const daily = await fetchEtrnDailyWeather(precNo, blockNo, stationType, year, month)
 
+  console.debug('[Weather:Load] ETRN日別取得完了: %d日分', daily.length)
   onProgress?.({ storeId, status: 'done', recordCount: daily.length })
 
   return { daily, resolvedStation, resolvedAmedas, resolvedOfficeCode }
