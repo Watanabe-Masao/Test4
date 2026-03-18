@@ -57,11 +57,13 @@ interface AreaJson {
 }
 
 /**
- * week_area.json: officeCode → { weekAreaCode → { amedasStationIds: [...] } }
+ * week_area.json: officeCode → { weekAreaCode → stationIds }
  *
- * 例: { "130000": { "130010": ["44132", "44263"], "130020": ["44301"] } }
+ * 実際の構造は JMA 側で変わりうるため、内側の値は unknown で受ける。
+ * extractStationIds() で配列・オブジェクト両対応で station ID を抽出する。
  */
-type WeekAreaJson = Readonly<Record<string, Readonly<Record<string, readonly string[]>>>>
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type WeekAreaJson = Readonly<Record<string, Readonly<Record<string, any>>>>
 
 /**
  * week_area_name.json: weekAreaCode → areaName
@@ -97,6 +99,47 @@ async function fetchWeekAreaName(): Promise<WeekAreaNameJson> {
   const data = (await fetchJsonWithRetry(getWeekAreaNameUrl(), 'Forecast')) as WeekAreaNameJson
   cachedWeekAreaName = data
   return data
+}
+
+// ─── week_area.json Station ID Extraction ────────
+
+/**
+ * week_area.json の値から station ID 配列を抽出する。
+ *
+ * JMA の week_area.json は構造が変わりうるため、以下のパターンに対応:
+ * - 直接配列: ["44132", "44263"]
+ * - オブジェクト内の station フィールド: { station: ["44132"], ... }
+ * - オブジェクト内の配列値を再帰的に探索
+ */
+function extractStationIds(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.filter((v): v is string => typeof v === 'string')
+  }
+  if (value != null && typeof value === 'object') {
+    const obj = value as Record<string, unknown>
+    // "station" フィールドを優先
+    if (Array.isArray(obj['station'])) {
+      return (obj['station'] as unknown[]).filter((v): v is string => typeof v === 'string')
+    }
+    // 全フィールドから文字列配列を探索
+    for (const v of Object.values(obj)) {
+      if (Array.isArray(v) && v.length > 0 && typeof v[0] === 'string') {
+        return v.filter((item): item is string => typeof item === 'string')
+      }
+    }
+  }
+  return []
+}
+
+/** week_area.json から全代表観測所 ID を収集する */
+function collectRepresentativeIds(weekArea: WeekAreaJson): Set<string> {
+  const ids = new Set<string>()
+  for (const weekAreas of Object.values(weekArea)) {
+    for (const value of Object.values(weekAreas)) {
+      for (const id of extractStationIds(value)) ids.add(id)
+    }
+  }
+  return ids
 }
 
 // ─── Area Resolution ─────────────────────────────────
@@ -175,13 +218,21 @@ export async function resolveForcastAreaByLocation(
   ])
   const stationTable = await fetchStationTable()
 
-  // 代表観測所 ID を収集
-  const representativeIds = new Set<string>()
-  for (const weekAreas of Object.values(weekArea)) {
-    for (const stationIds of Object.values(weekAreas)) {
-      if (Array.isArray(stationIds)) {
-        for (const id of stationIds) representativeIds.add(id)
-      }
+  const representativeIds = collectRepresentativeIds(weekArea)
+  console.debug('[Weather:Forecast] 代表観測所ID数=%d', representativeIds.size)
+  if (representativeIds.size === 0) {
+    // 診断: week_area.json の実際の構造をログ出力
+    const sampleKey = Object.keys(weekArea)[0]
+    if (sampleKey) {
+      const inner = weekArea[sampleKey]
+      const innerKey = Object.keys(inner)[0]
+      console.warn(
+        '[Weather:Forecast] week_area構造診断: key=%s innerKey=%s type=%s value=%s',
+        sampleKey,
+        innerKey,
+        typeof inner[innerKey],
+        JSON.stringify(inner[innerKey]).slice(0, 200),
+      )
     }
   }
 
@@ -222,8 +273,9 @@ function findStationInWeekArea(
   stationId: string,
 ): ForecastAreaResolution | null {
   for (const [officeCode, weekAreas] of Object.entries(weekArea)) {
-    for (const [weekAreaCode, stationIds] of Object.entries(weekAreas)) {
-      if (Array.isArray(stationIds) && stationIds.includes(stationId)) {
+    for (const [weekAreaCode, value] of Object.entries(weekAreas)) {
+      const ids = extractStationIds(value)
+      if (ids.includes(stationId)) {
         return {
           officeCode,
           officeName: area.offices[officeCode]?.name ?? officeCode,
@@ -251,15 +303,7 @@ async function resolveByNearestRepresentativeStation(
   const targetStation = stationTable.find((s) => s.stationId === targetStationId)
   if (!targetStation) return null
 
-  // week_area.json 内の全代表観測所 ID を収集
-  const representativeIds = new Set<string>()
-  for (const weekAreas of Object.values(weekArea)) {
-    for (const stationIds of Object.values(weekAreas)) {
-      if (Array.isArray(stationIds)) {
-        for (const id of stationIds) representativeIds.add(id)
-      }
-    }
-  }
+  const representativeIds = collectRepresentativeIds(weekArea)
 
   // 代表観測所の座標を AMEDAS テーブルから引き、最近傍を探す
   let nearestId: string | null = null
