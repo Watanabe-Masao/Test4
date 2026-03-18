@@ -1,7 +1,7 @@
 /**
  * 天気ウィジェット — 日別天気サマリ + 週間予報 + 売上相関チャート
  *
- * 気象庁 AMEDAS API から実測天気データを、Forecast API から
+ * 気象庁 ETRN から実測天気データを、Forecast API から
  * 週間予報を取得し、カレンダーグリッドに実績と予報を並べて表示する。
  *
  * UI/UX原則#1: 実績（緑系）と推定（オレンジ系）は別世界として視覚的に分離。
@@ -97,13 +97,7 @@ export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetC
     return candidates.find((id) => storeLocations[id]) ?? candidates[0] ?? ''
   }, [ctx.selectedStoreIds, ctx.stores, storeLocations])
 
-  const { daily, isLoading, error } = useWeatherData(
-    ctx.year,
-    ctx.month,
-    storeId,
-    ctx.duckConn,
-    ctx.duckDb,
-  )
+  const { daily, isLoading, error } = useWeatherData(ctx.year, ctx.month, storeId)
 
   const {
     forecasts,

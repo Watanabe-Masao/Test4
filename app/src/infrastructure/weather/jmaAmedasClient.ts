@@ -1,6 +1,12 @@
-/** 気象庁 AMEDAS JSON API クライアント — プロキシ経由でアクセス（jmaApiConfig.ts 参照） */
-import type { HourlyWeatherRecord } from '@/domain/models'
-import { deriveWeatherCode } from '@/domain/calculations/weatherAggregation'
+/**
+ * 気象庁 AMEDAS 観測所テーブルクライアント
+ *
+ * AMEDAS 観測所テーブル（amedastable.json）から観測所メタデータを取得する。
+ * 天気予報の区域解決、ETRN 観測所名マッチングに使用。
+ *
+ * 注: AMEDAS 天気データ（bosai/amedas/data/point）の取得は廃止済み。
+ *     天気実測データは ETRN から取得する。
+ */
 import { getJmaBaseUrl } from './jmaApiConfig'
 
 /** AMEDAS 観測所テーブル URL（動的解決） */
@@ -8,23 +14,9 @@ function getAmedasTableUrl(): string {
   return `${getJmaBaseUrl()}/bosai/amedas/const/amedastable.json`
 }
 
-/** AMEDAS ポイントデータ URL ベース（動的解決） */
-function getAmedasPointUrl(): string {
-  return `${getJmaBaseUrl()}/bosai/amedas/data/point`
-}
-
-/** 3時間ブロックの開始時刻 */
-const H3_BLOCKS = ['00', '03', '06', '09', '12', '15', '18', '21'] as const
-
-/** リクエスト間の遅延 (ms) — JMA サーバーへの配慮 */
-const REQUEST_DELAY_MS = 100
-
 /** リトライ設定 */
 const MAX_RETRIES = 2
 const INITIAL_RETRY_DELAY_MS = 1000
-
-/** 全ブロック 404 連続時の打ち切り日数 */
-const MAX_CONSECUTIVE_NOT_FOUND_DAYS = 2
 
 // ─── Station Table ───────────────────────────────────
 
@@ -64,7 +56,7 @@ let cachedStationTable: readonly AmedasStation[] | null = null
 export async function fetchStationTable(): Promise<readonly AmedasStation[]> {
   if (cachedStationTable) return cachedStationTable
 
-  const response = await fetchWithRetry(getAmedasTableUrl())
+  const response = await fetchJsonWithRetry(getAmedasTableUrl())
   const data = response as Record<
     string,
     {
@@ -123,152 +115,6 @@ export async function findNearestStation(
   return nearest
 }
 
-// ─── Point Data ──────────────────────────────────────
-
-/** AMEDAS 観測値: [値, 品質フラグ] */
-type AmedasValue = readonly [number, number]
-
-/** AMEDAS ポイントデータの1レコード */
-interface AmedasPointRecord {
-  readonly temp?: AmedasValue
-  readonly humidity?: AmedasValue
-  readonly precipitation10m?: AmedasValue
-  readonly precipitation1h?: AmedasValue
-  readonly wind?: AmedasValue // m/s
-  readonly windDirection?: AmedasValue
-  readonly sun10m?: AmedasValue // minutes (0-10)
-  readonly sun1h?: AmedasValue // hours (0.0-1.0)
-  readonly pressure?: AmedasValue
-  readonly normalPressure?: AmedasValue
-  readonly snow?: AmedasValue
-  readonly weather?: AmedasValue
-}
-
-/** AMEDAS 3時間ブロックのレスポンス: timestamp → record */
-type AmedasPointResponse = Record<string, AmedasPointRecord>
-
-/** 指定した AMEDAS 観測所・日付範囲の天気データを時間別レコードとして取得する */
-export async function fetchAmedasWeather(
-  stationId: string,
-  startDate: string,
-  endDate: string,
-  onProgress?: (progress: number) => void,
-): Promise<readonly HourlyWeatherRecord[]> {
-  // 境界検証: AMEDAS は過去の実測データのみ。未来日付はクランプする。
-  const yesterday = formatDateStr(new Date(Date.now() - 24 * 60 * 60 * 1000))
-  const clampedEnd = endDate > yesterday ? yesterday : endDate
-
-  if (startDate > clampedEnd) {
-    onProgress?.(1)
-    return []
-  }
-
-  const dates = generateDateRange(startDate, clampedEnd)
-
-  if (dates.length === 0) {
-    onProgress?.(1)
-    return []
-  }
-
-  const pointUrl = getAmedasPointUrl()
-  const totalBlocks = dates.length * H3_BLOCKS.length
-  let completedBlocks = 0
-  const allRecords: HourlyWeatherRecord[] = []
-
-  // 新しい日付から逆順にフェッチし、連続 404 で古い日付を打ち切る
-  let consecutiveNotFoundDays = 0
-
-  for (let dayIdx = dates.length - 1; dayIdx >= 0; dayIdx--) {
-    const dateStr = dates[dayIdx]
-    const yyyymmdd = dateStr.replace(/-/g, '')
-    let dayHasData = false
-
-    for (const h3 of H3_BLOCKS) {
-      try {
-        const url = `${pointUrl}/${stationId}/${yyyymmdd}_${h3}.json`
-        const data = (await fetchWithRetry(url)) as AmedasPointResponse
-
-        const hourlyRecords = parsePointBlock(dateStr, data)
-        allRecords.push(...hourlyRecords)
-        dayHasData = true
-      } catch (e) {
-        // 404（データ未公開）の場合はその日の残りブロックもスキップ
-        if (e instanceof AmedasNotFoundError) {
-          completedBlocks += H3_BLOCKS.length - H3_BLOCKS.indexOf(h3)
-          break
-        }
-        // CORS/ネットワークエラーの場合は即座に全体を中断
-        if (e instanceof JmaAccessError) {
-          throw e
-        }
-        // その他のエラー（一時的な障害等）はスキップして次へ
-      }
-
-      completedBlocks++
-      onProgress?.(completedBlocks / totalBlocks)
-
-      // JMA サーバーへの配慮
-      if (completedBlocks < totalBlocks) {
-        await delay(REQUEST_DELAY_MS)
-      }
-    }
-
-    if (dayHasData) {
-      consecutiveNotFoundDays = 0
-    } else {
-      consecutiveNotFoundDays++
-      // 連続して N日分データが無い場合、それ以前の日付もデータなしと判断
-      if (consecutiveNotFoundDays >= MAX_CONSECUTIVE_NOT_FOUND_DAYS) {
-        completedBlocks = totalBlocks
-        onProgress?.(1)
-        break
-      }
-    }
-  }
-
-  return allRecords
-}
-
-/** 3時間ブロックのレスポンスを HourlyWeatherRecord に変換（正時のみ抽出） */
-function parsePointBlock(dateKey: string, data: AmedasPointResponse): HourlyWeatherRecord[] {
-  const records: HourlyWeatherRecord[] = []
-
-  // タイムスタンプをソートして処理
-  const timestamps = Object.keys(data).sort()
-
-  // 正時 (:00) のタイムスタンプを抽出 — "YYYYMMDDHHmmss" の mm が "00"
-  const hourlyTimestamps = timestamps.filter((ts) => ts.slice(10, 12) === '00')
-
-  for (const ts of hourlyTimestamps) {
-    const record = data[ts]
-    if (!record) continue
-
-    const hour = parseInt(ts.slice(8, 10), 10)
-    const temp = extractValue(record.temp)
-    const precipitation = extractValue(record.precipitation1h)
-    const sunHours = extractValue(record.sun1h)
-
-    records.push({
-      dateKey,
-      hour,
-      temperature: temp,
-      humidity: extractValue(record.humidity),
-      precipitation,
-      windSpeed: extractValue(record.wind) * 3.6, // m/s → km/h
-      weatherCode: deriveWeatherCode(precipitation, sunHours),
-      sunshineDuration: sunHours * 3600, // hours → seconds
-    })
-  }
-
-  return records
-}
-
-/** AMEDAS [値, 品質フラグ] から値を抽出。null/undefined → 0 */
-function extractValue(v: AmedasValue | undefined): number {
-  if (!v) return 0
-  const val = v[0]
-  return val != null && Number.isFinite(val) ? val : 0
-}
 
 // ─── Utilities ───────────────────────────────────────
 
@@ -285,58 +131,26 @@ function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 }
 
-/** Date を YYYY-MM-DD 文字列に変換 */
-function formatDateStr(date: Date): string {
-  const y = date.getFullYear()
-  const m = String(date.getMonth() + 1).padStart(2, '0')
-  const d = String(date.getDate()).padStart(2, '0')
-  return `${y}-${m}-${d}`
-}
-
-/** YYYY-MM-DD 形式の日付範囲を生成 */
-function generateDateRange(startDate: string, endDate: string): string[] {
-  const dates: string[] = []
-  const start = new Date(startDate + 'T00:00:00')
-  const end = new Date(endDate + 'T00:00:00')
-
-  const current = new Date(start)
-  while (current <= end) {
-    dates.push(formatDateStr(current))
-    current.setDate(current.getDate() + 1)
-  }
-
-  return dates
-}
-
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-async function fetchWithRetry(url: string): Promise<unknown> {
+async function fetchJsonWithRetry(url: string): Promise<unknown> {
   let lastError: Error | undefined
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
       const response = await fetch(url)
       if (!response.ok) {
-        // 404 はデータ未公開を示す — リトライしても回復しない
-        if (response.status === 404) {
-          throw new AmedasNotFoundError(url)
-        }
-        // 403 はホスト制限（CORS プロキシ未設定）— リトライしても回復しない
         if (response.status === 403) {
           throw new JmaAccessError(
             `JMA API がリクエストを拒否しました (403)。CORS プロキシの設定を確認してください。URL: ${url}`,
           )
         }
-        throw new Error(`AMEDAS API error: ${response.status} ${response.statusText}`)
+        throw new Error(`JMA API error: ${response.status} ${response.statusText}`)
       }
       return await response.json()
     } catch (e) {
-      // 回復不能なエラーはリトライせず即座に伝播
-      if (e instanceof AmedasNotFoundError || e instanceof JmaAccessError) {
-        throw e
-      }
-      // TypeError は fetch 自体の失敗 = CORS ブロックまたはネットワーク障害
+      if (e instanceof JmaAccessError) throw e
       if (e instanceof TypeError && attempt === 0) {
         throw new JmaAccessError(
           `JMA API にアクセスできません。CORS プロキシが設定されていない可能性があります。詳細: ${e.message}`,
@@ -348,15 +162,7 @@ async function fetchWithRetry(url: string): Promise<unknown> {
       }
     }
   }
-  throw lastError ?? new Error('AMEDAS API request failed')
-}
-
-/** AMEDAS データが存在しない (404) ことを示すエラー */
-class AmedasNotFoundError extends Error {
-  constructor(url: string) {
-    super(`AMEDAS data not found: ${url}`)
-    this.name = 'AmedasNotFoundError'
-  }
+  throw lastError ?? new Error('JMA API request failed')
 }
 
 /** JMA API へのアクセスが拒否された (CORS/403) ことを示すエラー */
