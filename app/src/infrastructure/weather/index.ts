@@ -8,6 +8,8 @@ export {
   resolveEtrnStation,
   fetchEtrnDailyWeather,
   fetchEtrnDailyRange,
+  fetchEtrnHourlyWeather,
+  fetchEtrnHourlyRange,
   clearEtrnCache,
 } from './jmaEtrnClient'
 export type { EtrnStation } from './jmaEtrnClient'
