@@ -81,18 +81,39 @@ async function fetchStationList(precNo: number): Promise<readonly EtrnStation[]>
   const url = `${baseUrl}/obd/stats/etrn/select/prefecture.php?prec_no=${precNo}`
   console.debug('[Weather:ETRN] 観測所一覧を取得: %s', url)
   const html = await fetchHtmlWithRetry(url)
+  console.debug(
+    '[Weather:ETRN] prefecture page length=%d head=%s',
+    html.length,
+    html.slice(0, 1200),
+  )
   const doc = new DOMParser().parseFromString(html, 'text/html')
 
+  // 診断: href 付き要素を確認（パーサが空振りした場合の原因特定用）
+  const allHref = doc.querySelectorAll('area[href], a[href]')
+  if (allHref.length > 0) {
+    const sample = Array.from(allHref)
+      .slice(0, 10)
+      .map((el) => `<${el.tagName.toLowerCase()}> ${el.getAttribute('href')}`)
+      .join(' | ')
+    console.debug('[Weather:ETRN] prefecture href要素=%d sample: %s', allHref.length, sample)
+  }
+
   const stations: EtrnStation[] = []
-  // <area> タグ（画像マップ）と <a> タグの両方を検索
-  const links = doc.querySelectorAll('area[href*="daily_"], a[href*="daily_"]')
+  let links = doc.querySelectorAll('area[href*="daily_"], a[href*="daily_"]')
+  if (links.length === 0) {
+    // daily_ が見つからない場合、block_no を含む要素で代替
+    links = doc.querySelectorAll('area[href*="block_no"], a[href*="block_no"]')
+    if (links.length > 0)
+      console.debug('[Weather:ETRN] daily_ 空振り → block_no fallback: %d件', links.length)
+  }
   for (const link of links) {
     const href = link.getAttribute('href') ?? ''
-    const typeMatch = href.match(/daily_(a1|s1)\.php/)
+    // daily_a1.php / daily_s1.php を探す。見つからなければ hourly_ や view/ も許容
+    const typeMatch = href.match(/(?:daily|hourly)_(a1|s1)\.php/) ?? href.match(/_(a1|s1)\.php/)
     const blockMatch = href.match(/block_no=(\d+)/)
-    if (!typeMatch || !blockMatch) continue
+    if (!blockMatch) continue
 
-    const stationType = typeMatch[1] as 'a1' | 's1'
+    const stationType = (typeMatch?.[1] as 'a1' | 's1') ?? 'a1'
     const blockNo = blockMatch[1]
     // <area> は void 要素なので alt/title 属性から名前を取得
     const stationName = (
