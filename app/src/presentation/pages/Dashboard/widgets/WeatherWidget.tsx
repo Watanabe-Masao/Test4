@@ -128,18 +128,21 @@ export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetC
     return entries
   }, [ctx.result.daily, ctx.year, ctx.month])
 
-  if (isLoading && isForecastLoading) {
+  if ((isLoading || isForecastLoading) && !daily.length && !forecasts.length) {
     return <LoadingText>天気データを取得中...</LoadingText>
   }
 
-  if (error && !daily.length && !forecasts.length) {
-    return <ErrorText>天気データ取得エラー: {error}</ErrorText>
+  if ((error || forecastError) && !daily.length && !forecasts.length) {
+    return <ErrorText>天気データ取得エラー: {error ?? forecastError}</ErrorText>
   }
 
   if (daily.length === 0 && forecasts.length === 0) {
+    const hasLocation = !!storeLocations[storeId]
     return (
       <NoLocationText>
-        店舗の位置情報が未設定です。管理画面の「店舗管理」タブから位置情報を登録してください。
+        {hasLocation
+          ? '天気データを取得できませんでした。しばらく時間をおいて再度お試しください。'
+          : '店舗の位置情報が未設定です。管理画面の「店舗管理」タブから位置情報を登録してください。'}
       </NoLocationText>
     )
   }
