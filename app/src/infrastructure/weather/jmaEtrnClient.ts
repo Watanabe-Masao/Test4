@@ -1,19 +1,4 @@
-/**
- * 気象庁 ETRN（過去の気象データ検索）クライアント
- *
- * 長期の過去気象データを日別で取得する。
- * ETRN は HTML テーブルで提供されるため、DOMParser でパースする。
- *
- * データフロー:
- *   1. ETRN 府県一覧ページから prec_no を解決
- *   2. 府県内の観測所一覧から block_no + stationType を解決
- *   3. daily_{stationType}.php で月単位の日別データを取得
- *   4. HTML テーブルをパースして DailyWeatherSummary に変換
- *
- * 効率: 1リクエスト = 1ヶ月分（AMeDAS API の 240リクエスト/月 と比較）
- *
- * @see https://www.data.jma.go.jp/obd/stats/etrn/index.php
- */
+/** 気象庁 ETRN（過去の気象データ検索）クライアント */
 import type { DailyWeatherSummary, HourlyWeatherRecord } from '@/domain/models'
 import { getJmaDataBaseUrl } from './jmaApiConfig'
 import { parseDailyTable } from './etrnTableParser'
@@ -48,22 +33,33 @@ async function fetchPrefectureMap(): Promise<ReadonlyMap<string, number>> {
   const url = `${baseUrl}/obd/stats/etrn/select/prefecture00.php`
   console.debug('[Weather:ETRN] 府県一覧を取得: %s', url)
   const html = await fetchHtmlWithRetry(url)
+  console.debug(
+    '[Weather:ETRN] prefecture00 HTML length=%d head=%s',
+    html.length,
+    html.slice(0, 300),
+  )
   const doc = new DOMParser().parseFromString(html, 'text/html')
 
   const map = new Map<string, number>()
-  const links = doc.querySelectorAll('a[href*="prec_no="]')
+  // <area> タグ（画像マップ）と <a> タグの両方を検索
+  const links = doc.querySelectorAll('area[href*="prec_no="], a[href*="prec_no="]')
   for (const link of links) {
     const href = link.getAttribute('href') ?? ''
     const match = href.match(/prec_no=(\d+)/)
     if (!match) continue
     const precNo = parseInt(match[1], 10)
-    const name = (link.textContent ?? '').trim()
+    // <area> は void 要素なので alt/title 属性から名前を取得
+    const rawName = link.getAttribute('alt') || link.getAttribute('title') || link.textContent || ''
+    const name = rawName.replace(/\s+/g, ' ').trim()
     if (name && !isNaN(precNo)) {
+      if (map.has(name) && map.get(name) !== precNo) {
+        console.debug('[Weather:ETRN] 重複府県エントリ: %s → %d/%d', name, map.get(name), precNo)
+      }
       map.set(name, precNo)
     }
   }
 
-  console.debug('[Weather:ETRN] 府県マップ取得完了: %d件', map.size)
+  console.debug('[Weather:ETRN] 府県マップ: nodes=%d parsed=%d', links.length, map.size)
   cachedPrefMap = map
   return map
 }
@@ -88,7 +84,8 @@ async function fetchStationList(precNo: number): Promise<readonly EtrnStation[]>
   const doc = new DOMParser().parseFromString(html, 'text/html')
 
   const stations: EtrnStation[] = []
-  const links = doc.querySelectorAll('a[href*="daily_"]')
+  // <area> タグ（画像マップ）と <a> タグの両方を検索
+  const links = doc.querySelectorAll('area[href*="daily_"], a[href*="daily_"]')
   for (const link of links) {
     const href = link.getAttribute('href') ?? ''
     const typeMatch = href.match(/daily_(a1|s1)\.php/)
@@ -97,14 +94,27 @@ async function fetchStationList(precNo: number): Promise<readonly EtrnStation[]>
 
     const stationType = typeMatch[1] as 'a1' | 's1'
     const blockNo = blockMatch[1]
-    const stationName = (link.textContent ?? '').trim()
+    // <area> は void 要素なので alt/title 属性から名前を取得
+    const stationName = (
+      link.getAttribute('alt') ||
+      link.getAttribute('title') ||
+      link.textContent ||
+      ''
+    )
+      .replace(/\s+/g, ' ')
+      .trim()
 
     if (stationName && blockNo) {
       stations.push({ precNo, blockNo, stationType, stationName })
     }
   }
 
-  console.debug('[Weather:ETRN] 観測所一覧取得完了: precNo=%d → %d件', precNo, stations.length)
+  console.debug(
+    '[Weather:ETRN] 観測所一覧: precNo=%d nodes=%d parsed=%d',
+    precNo,
+    links.length,
+    stations.length,
+  )
   cachedStationLists.set(precNo, stations)
   return stations
 }
@@ -236,7 +246,6 @@ export async function fetchEtrnDailyWeather(
     blockNo,
     stationType,
   )
-  console.debug('[Weather:ETRN] URL: %s', url)
 
   let html: string
   try {
