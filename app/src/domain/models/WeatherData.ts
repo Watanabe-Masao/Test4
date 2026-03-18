@@ -1,14 +1,14 @@
 /**
  * 天気データ型定義
  *
- * 気象庁 AMEDAS の実測値をドメイン型として定義する。
+ * 気象庁の実測値をドメイン型として定義する。
  * date_key (YYYY-MM-DD) を主キーとし、月跨ぎでも連続的に保持する。
  */
 
 /** WMO Weather Code を天気カテゴリに分類 */
 export type WeatherCategory = 'sunny' | 'cloudy' | 'rainy' | 'snowy' | 'other'
 
-/** 時間別天気レコード（気象庁 AMEDAS 実測値の1時間分） */
+/** 時間別天気レコード（気象庁実測値の1時間分） */
 export interface HourlyWeatherRecord {
   readonly dateKey: string // YYYY-MM-DD
   readonly hour: number // 0-23
@@ -16,7 +16,7 @@ export interface HourlyWeatherRecord {
   readonly humidity: number // %
   readonly precipitation: number // mm (1時間降水量)
   readonly windSpeed: number // km/h
-  readonly weatherCode: number // WMO 互換コード（AMEDAS 実測値から導出）
+  readonly weatherCode: number // WMO 互換コード（実測値から導出）
   readonly sunshineDuration: number // seconds (日照時間)
 }
 
@@ -43,8 +43,8 @@ export interface StoreLocation {
   readonly latitude: number
   readonly longitude: number
   readonly resolvedName?: string // ジオコーディングで解決された地名（確認用）
-  readonly amedasStationId?: string // 最寄り AMEDAS 観測所番号（解決済みキャッシュ）
-  readonly amedasStationName?: string // 観測所名（表示用）
+  readonly amedasStationId?: string // JMA 観測所番号（予報区解決・ETRN 名称マッチング用）
+  readonly amedasStationName?: string // 観測所名（ETRN 名称マッチング・表示用）
   readonly forecastOfficeCode?: string // 府県予報区コード（解決済みキャッシュ）
   readonly weekAreaCode?: string // 週間予報区域コード（解決済みキャッシュ）
   readonly etrnPrecNo?: number // ETRN 府県コード（解決済みキャッシュ）
@@ -73,7 +73,7 @@ export interface ForecastAreaResolution {
   readonly officeName: string // 府県名 (例: "東京都")
   readonly weekAreaCode: string // 週間予報区域コード
   readonly weekAreaName: string // 週間予報区域名
-  readonly amedasStationId: string // 気温データ用 AMEDAS 観測所番号
+  readonly amedasStationId: string // 気温データ用 JMA 観測所番号
 }
 
 /** 国土地理院 住所検索API の検索結果 */

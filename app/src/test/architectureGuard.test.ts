@@ -84,7 +84,7 @@ const APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set([
   'application/usecases/export/ExportService.ts',
   // i18n ブリッジ（Phase 10-3a: presentation 層から infrastructure/i18n への直接依存を回避）
   'application/hooks/useI18n.ts',
-  // 天気データ取得サービス（気象庁 AMEDAS API クライアントを使用）
+  // 天気データ取得サービス（気象庁 ETRN クライアントを使用）
   'application/usecases/weather/WeatherLoadService.ts',
   // ジオコーディングブリッジ（presentation 層から infrastructure への直接依存を回避）
   'application/hooks/useGeocode.ts',

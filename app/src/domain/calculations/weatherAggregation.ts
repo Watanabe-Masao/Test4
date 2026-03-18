@@ -123,9 +123,9 @@ export function categorizeWeatherCode(code: number): WeatherCategory {
 }
 
 /**
- * AMEDAS 実測値から WMO 互換の天気コードを導出する。
+ * 気象実測値から WMO 互換の天気コードを導出する。
  *
- * AMEDAS には天気コードがないため、降水量と日照時間から推定する。
+ * 実測データには天気コードがないため、降水量と日照時間から推定する。
  * WMO Weather Interpretation Code に準拠した値を返す。
  *
  * @param precipitationMm 時間降水量 (mm)

@@ -3,7 +3,7 @@
  *
  * ETRN（過去の気象データ）の取得が正しく動作しているか確認するためのデバッグ用。
  * - 解決された ETRN 観測所情報（prec_no, block_no, stationType）
- * - AMeDAS 観測所情報（station_id, name）
+ * - JMA 観測所情報（station_id, name）
  * - 取得した日別データのサンプル表示
  */
 import { memo, useState, useEffect } from 'react'
@@ -93,8 +93,8 @@ interface ResolvedInfo {
   readonly etrnPrecNo?: number
   readonly etrnBlockNo?: string
   readonly etrnStationType?: string
-  readonly amedasStationId?: string
-  readonly amedasStationName?: string
+  readonly stationId?: string
+  readonly stationName?: string
   readonly forecastOfficeCode?: string
 }
 
@@ -121,8 +121,8 @@ export const EtrnTestWidget = memo(function EtrnTestWidget({ ctx }: { ctx: Widge
             etrnPrecNo: result.resolvedStation?.precNo ?? location.etrnPrecNo,
             etrnBlockNo: result.resolvedStation?.blockNo ?? location.etrnBlockNo,
             etrnStationType: result.resolvedStation?.stationType ?? location.etrnStationType,
-            amedasStationId: result.resolvedAmedas?.stationId ?? location.amedasStationId,
-            amedasStationName: result.resolvedAmedas?.stationName ?? location.amedasStationName,
+            stationId: result.resolvedAmedas?.stationId ?? location.amedasStationId,
+            stationName: result.resolvedAmedas?.stationName ?? location.amedasStationName,
             forecastOfficeCode: result.resolvedOfficeCode ?? location.forecastOfficeCode,
           },
         })
@@ -175,12 +175,12 @@ export const EtrnTestWidget = memo(function EtrnTestWidget({ ctx }: { ctx: Widge
           </Val>
         </Row>
         <Row>
-          <Label>AMeDAS ID:</Label>
-          <Val>{info.amedasStationId ?? '未解決'}</Val>
+          <Label>観測所 ID:</Label>
+          <Val>{info.stationId ?? '未解決'}</Val>
         </Row>
         <Row>
-          <Label>AMeDAS 名:</Label>
-          <Val>{info.amedasStationName ?? '未解決'}</Val>
+          <Label>観測所名:</Label>
+          <Val>{info.stationName ?? '未解決'}</Val>
         </Row>
         <Row>
           <Label>予報区コード:</Label>
@@ -247,8 +247,8 @@ function infoFromLocation(location: StoreLocation): ResolvedInfo {
     etrnPrecNo: location.etrnPrecNo,
     etrnBlockNo: location.etrnBlockNo,
     etrnStationType: location.etrnStationType,
-    amedasStationId: location.amedasStationId,
-    amedasStationName: location.amedasStationName,
+    stationId: location.amedasStationId,
+    stationName: location.amedasStationName,
     forecastOfficeCode: location.forecastOfficeCode,
   }
 }

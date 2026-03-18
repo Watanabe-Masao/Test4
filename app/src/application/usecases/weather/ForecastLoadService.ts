@@ -1,7 +1,7 @@
 /**
  * 週間天気予報データ取得オーケストレーション
  *
- * AMEDAS 観測所 ID → 予報区域コード解決 → Forecast API 取得
+ * JMA 観測所 ID → 予報区域コード解決 → Forecast API 取得
  * の一連の流れを調停する。
  *
  * 予報データはキャッシュしない（毎回最新を取得する）。
@@ -17,7 +17,7 @@ import {
 /**
  * 店舗の位置情報から週間天気予報を取得する。
  *
- * 1. AMEDAS 観測所を解決（StoreLocation にキャッシュ済みなら skip）
+ * 1. JMA 観測所を解決（StoreLocation にキャッシュ済みなら skip）
  * 2. 予報区域コードを解決（StoreLocation にキャッシュ済みなら skip）
  * 3. Forecast API で週間予報を取得
  *
@@ -28,7 +28,7 @@ export async function loadForecastForStore(location: StoreLocation): Promise<{
   readonly forecasts: readonly DailyForecast[]
   readonly resolution: ForecastAreaResolution | null
 }> {
-  // 1. AMEDAS 観測所 ID を確保
+  // 1. JMA 観測所 ID を確保
   let stationId = location.amedasStationId
   if (!stationId) {
     const station = await findNearestStation(location.latitude, location.longitude)
