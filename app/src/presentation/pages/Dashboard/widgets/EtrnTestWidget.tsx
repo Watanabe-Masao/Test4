@@ -93,9 +93,7 @@ interface ResolvedInfo {
   readonly etrnPrecNo?: number
   readonly etrnBlockNo?: string
   readonly etrnStationType?: string
-  readonly stationId?: string
-  readonly stationName?: string
-  readonly forecastOfficeCode?: string
+  readonly etrnStationName?: string
 }
 
 export const EtrnTestWidget = memo(function EtrnTestWidget({ ctx }: { ctx: WidgetContext }) {
@@ -121,9 +119,7 @@ export const EtrnTestWidget = memo(function EtrnTestWidget({ ctx }: { ctx: Widge
             etrnPrecNo: result.resolvedStation?.precNo ?? location.etrnPrecNo,
             etrnBlockNo: result.resolvedStation?.blockNo ?? location.etrnBlockNo,
             etrnStationType: result.resolvedStation?.stationType ?? location.etrnStationType,
-            stationId: result.resolvedAmedas?.stationId ?? location.amedasStationId,
-            stationName: result.resolvedAmedas?.stationName ?? location.amedasStationName,
-            forecastOfficeCode: result.resolvedOfficeCode ?? location.forecastOfficeCode,
+            etrnStationName: result.resolvedStation?.stationName,
           },
         })
       } catch (err) {
@@ -175,16 +171,8 @@ export const EtrnTestWidget = memo(function EtrnTestWidget({ ctx }: { ctx: Widge
           </Val>
         </Row>
         <Row>
-          <Label>観測所 ID:</Label>
-          <Val>{info.stationId ?? '未解決'}</Val>
-        </Row>
-        <Row>
-          <Label>観測所名:</Label>
-          <Val>{info.stationName ?? '未解決'}</Val>
-        </Row>
-        <Row>
-          <Label>予報区コード:</Label>
-          <Val>{info.forecastOfficeCode ?? '未解決'}</Val>
+          <Label>ETRN 観測所名:</Label>
+          <Val>{info.etrnStationName ?? '(キャッシュ済み)'}</Val>
         </Row>
         <Row>
           <Label>ETRN prec_no:</Label>
@@ -247,8 +235,5 @@ function infoFromLocation(location: StoreLocation): ResolvedInfo {
     etrnPrecNo: location.etrnPrecNo,
     etrnBlockNo: location.etrnBlockNo,
     etrnStationType: location.etrnStationType,
-    stationId: location.amedasStationId,
-    stationName: location.amedasStationName,
-    forecastOfficeCode: location.forecastOfficeCode,
   }
 }

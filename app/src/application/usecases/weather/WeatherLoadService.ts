@@ -5,16 +5,17 @@
  *
  * データフロー:
  *   1. ETRN 観測所を解決（初回のみ、以降キャッシュ）
+ *      - 逆ジオコーディングで都道府県名を取得
+ *      - ETRN 府県マップから観測所を解決
+ *      - AMeDAS・予報区域に依存しない
  *   2. ETRN 日別 HTML テーブルをフェッチ・パース → DailyWeatherSummary
  */
 import type { StoreLocation, DailyWeatherSummary, HourlyWeatherRecord } from '@/domain/models'
 import type { EtrnStation } from '@/infrastructure/weather'
 import {
-  findNearestStation,
-  resolveEtrnStation,
+  resolveEtrnStationByLocation,
   fetchEtrnDailyWeather,
   fetchEtrnHourlyRange,
-  resolveForcastArea,
 } from '@/infrastructure/weather'
 
 /** 天気データ取得の進捗状態 */
@@ -24,12 +25,6 @@ export interface WeatherLoadProgress {
   readonly recordCount: number
   readonly error?: string
   readonly stationName?: string
-}
-
-/** 観測所解決結果（キャッシュ用） */
-export interface ResolvedStation {
-  readonly stationId: string
-  readonly stationName: string
 }
 
 /**
@@ -68,28 +63,21 @@ export interface EtrnLoadResult {
   readonly daily: readonly DailyWeatherSummary[]
   /** 初回解決した ETRN 観測所情報（StoreLocation キャッシュ用） */
   readonly resolvedStation?: EtrnStation
-  /** 初回解決した AMeDAS 観測所情報（StoreLocation キャッシュ用） */
-  readonly resolvedAmedas?: ResolvedStation
-  /** 初回解決した予報区コード（StoreLocation キャッシュ用） */
-  readonly resolvedOfficeCode?: string
 }
 
 /** ETRN 時間別データの取得結果 */
 export interface EtrnHourlyLoadResult {
   readonly hourly: readonly HourlyWeatherRecord[]
   readonly resolvedStation?: EtrnStation
-  readonly resolvedAmedas?: ResolvedStation
-  readonly resolvedOfficeCode?: string
 }
 
 /**
  * ETRN から月単位の日別天気データを取得する。
  *
  * ETRN 観測所情報が未解決の場合は自動解決する:
- *   1. AMeDAS 観測所テーブルから観測所名を取得
- *   2. 予報区域を解決（office name 取得のため）
- *   3. ETRN 観測所を解決（name マッチング）
- *   4. ETRN 日別データを取得
+ *   1. 逆ジオコーディングで都道府県名を取得
+ *   2. ETRN 府県マップから観測所を解決（s1 優先）
+ *   3. ETRN 日別データを取得
  *
  * 解決結果は EtrnLoadResult に含まれるため、呼び出し側で StoreLocation にキャッシュすべき。
  */
@@ -113,86 +101,22 @@ export async function loadEtrnDailyForStore(
   let blockNo = location.etrnBlockNo
   let stationType = location.etrnStationType
   let resolvedStation: EtrnStation | undefined
-  let resolvedAmedas: ResolvedStation | undefined
-  let resolvedOfficeCode: string | undefined
 
   // ETRN 観測所が未解決の場合は自動解決
   if (precNo == null || !blockNo || !stationType) {
     console.debug('[Weather:Load] ETRN観測所未解決 → 自動解決開始')
     onProgress?.({ storeId, status: 'resolving', recordCount: 0 })
 
-    // Step 1: AMeDAS 観測所テーブルから観測所名を取得
-    let stationName = location.amedasStationName ?? ''
-    let stationId = location.amedasStationId
-    if (!stationName) {
-      console.debug('[Weather:Load] Step1: AMeDAS最寄り観測所を検索')
-      const station = await findNearestStation(location.latitude, location.longitude)
-      if (!station) {
-        console.warn('[Weather:Load] Step1 失敗: 最寄りの観測所なし')
-        onProgress?.({
-          storeId,
-          status: 'error',
-          recordCount: 0,
-          error: '最寄りの観測所が見つかりません',
-        })
-        return { daily: [] }
-      }
-      stationName = station.kjName
-      stationId = station.stationId
-      resolvedAmedas = { stationId: station.stationId, stationName: station.kjName }
-      console.debug('[Weather:Load] Step1 完了: %s (id=%s)', stationName, stationId)
-    } else {
-      console.debug(
-        '[Weather:Load] Step1 スキップ: キャッシュ済み name=%s id=%s',
-        stationName,
-        stationId,
-      )
-    }
-
-    // Step 2: 予報区名を取得（ETRN の府県名マッチングに使用）
-    let officeName = ''
-    const amedasId = stationId ?? resolvedAmedas?.stationId
-    if (amedasId) {
-      console.debug('[Weather:Load] Step2: 予報区域を解決 (amedasId=%s)', amedasId)
-      const areaResult = await resolveForcastArea(amedasId)
-      officeName = areaResult?.officeName ?? ''
-      if (!location.forecastOfficeCode && areaResult) {
-        resolvedOfficeCode = areaResult.officeCode
-      }
-      console.debug(
-        '[Weather:Load] Step2 完了: officeName=%s officeCode=%s',
-        officeName,
-        resolvedOfficeCode ?? location.forecastOfficeCode,
-      )
-    }
-
-    if (!officeName) {
-      console.warn('[Weather:Load] Step2 失敗: 予報区名を取得できず')
-      onProgress?.({
-        storeId,
-        status: 'error',
-        recordCount: 0,
-        error: 'ETRN 観測所の解決に必要な予報区名を取得できません',
-      })
-      return { daily: [], resolvedAmedas, resolvedOfficeCode }
-    }
-
-    // Step 3: ETRN 観測所を解決
-    console.debug(
-      '[Weather:Load] Step3: ETRN観測所を解決 (name=%s, office=%s)',
-      stationName,
-      officeName,
-    )
-    const etrnResult = await resolveEtrnStation(stationName, officeName)
+    const etrnResult = await resolveEtrnStationByLocation(location.latitude, location.longitude)
     if (!etrnResult) {
-      console.warn('[Weather:Load] Step3 失敗: ETRN観測所が見つかりません')
+      console.warn('[Weather:Load] ETRN観測所解決失敗')
       onProgress?.({
         storeId,
         status: 'error',
         recordCount: 0,
-        error: `ETRN 観測所が見つかりません: ${stationName} (${officeName})`,
+        error: 'ETRN 観測所が見つかりません',
       })
-      return { daily: [], resolvedAmedas, resolvedOfficeCode }
+      return { daily: [] }
     }
 
     precNo = etrnResult.precNo
@@ -200,10 +124,11 @@ export async function loadEtrnDailyForStore(
     stationType = etrnResult.stationType
     resolvedStation = etrnResult
     console.debug(
-      '[Weather:Load] Step3 完了: precNo=%d block=%s type=%s',
+      '[Weather:Load] ETRN観測所解決完了: precNo=%d block=%s type=%s (%s)',
       precNo,
       blockNo,
       stationType,
+      etrnResult.stationName,
     )
   } else {
     console.debug(
@@ -215,7 +140,7 @@ export async function loadEtrnDailyForStore(
   }
 
   // ETRN 日別データを取得
-  console.debug('[Weather:Load] Step4: ETRN日別データ取得 %d/%d', year, month)
+  console.debug('[Weather:Load] ETRN日別データ取得 %d/%d', year, month)
   onProgress?.({ storeId, status: 'loading', recordCount: 0 })
 
   const daily = await fetchEtrnDailyWeather(precNo, blockNo, stationType, year, month)
@@ -223,7 +148,7 @@ export async function loadEtrnDailyForStore(
   console.debug('[Weather:Load] ETRN日別取得完了: %d日分', daily.length)
   onProgress?.({ storeId, status: 'done', recordCount: daily.length })
 
-  return { daily, resolvedStation, resolvedAmedas, resolvedOfficeCode }
+  return { daily, resolvedStation }
 }
 
 /**
@@ -232,7 +157,7 @@ export async function loadEtrnDailyForStore(
  * 1日 = 1リクエストのため、日別取得より負荷が高い。
  * 対象日リスト（days）を指定して必要な日のみ取得する。
  *
- * ETRN 観測所が未解決の場合は loadEtrnDailyForStore と同じ手順で解決する。
+ * ETRN 観測所が未解決の場合は逆ジオコーディング経由で解決する。
  */
 export async function loadEtrnHourlyForStore(
   storeId: string,
@@ -246,24 +171,26 @@ export async function loadEtrnHourlyForStore(
   let blockNo = location.etrnBlockNo
   let stationType = location.etrnStationType
   let resolvedStation: EtrnStation | undefined
-  let resolvedAmedas: ResolvedStation | undefined
-  let resolvedOfficeCode: string | undefined
 
   // ETRN 観測所が未解決の場合は自動解決
   if (precNo == null || !blockNo || !stationType) {
     onProgress?.({ storeId, status: 'resolving', recordCount: 0 })
 
-    const resolution = await resolveEtrnStationForLocation(storeId, location, onProgress)
-    if (!resolution) {
-      return { hourly: [], resolvedAmedas, resolvedOfficeCode }
+    const etrnResult = await resolveEtrnStationByLocation(location.latitude, location.longitude)
+    if (!etrnResult) {
+      onProgress?.({
+        storeId,
+        status: 'error',
+        recordCount: 0,
+        error: 'ETRN 観測所が見つかりません',
+      })
+      return { hourly: [] }
     }
 
-    precNo = resolution.precNo
-    blockNo = resolution.blockNo
-    stationType = resolution.stationType
-    resolvedStation = resolution.etrnStation
-    resolvedAmedas = resolution.amedas
-    resolvedOfficeCode = resolution.officeCode
+    precNo = etrnResult.precNo
+    blockNo = etrnResult.blockNo
+    stationType = etrnResult.stationType
+    resolvedStation = etrnResult
   }
 
   // ETRN 時間別データを取得
@@ -288,83 +215,5 @@ export async function loadEtrnHourlyForStore(
 
   onProgress?.({ storeId, status: 'done', recordCount: hourly.length })
 
-  return { hourly, resolvedStation, resolvedAmedas, resolvedOfficeCode }
-}
-
-// ─── Shared: ETRN 観測所解決 ────────────────────────
-
-interface EtrnStationResolution {
-  readonly precNo: number
-  readonly blockNo: string
-  readonly stationType: 'a1' | 's1'
-  readonly etrnStation: EtrnStation
-  readonly amedas?: ResolvedStation
-  readonly officeCode?: string
-}
-
-async function resolveEtrnStationForLocation(
-  storeId: string,
-  location: StoreLocation,
-  onProgress?: (progress: WeatherLoadProgress) => void,
-): Promise<EtrnStationResolution | null> {
-  let stationName = location.amedasStationName ?? ''
-  let stationId = location.amedasStationId
-  let resolvedAmedas: ResolvedStation | undefined
-
-  if (!stationName) {
-    const station = await findNearestStation(location.latitude, location.longitude)
-    if (!station) {
-      onProgress?.({
-        storeId,
-        status: 'error',
-        recordCount: 0,
-        error: '最寄りの観測所が見つかりません',
-      })
-      return null
-    }
-    stationName = station.kjName
-    stationId = station.stationId
-    resolvedAmedas = { stationId: station.stationId, stationName: station.kjName }
-  }
-
-  let officeName = ''
-  let resolvedOfficeCode: string | undefined
-  const amedasId = stationId ?? resolvedAmedas?.stationId
-  if (amedasId) {
-    const areaResult = await resolveForcastArea(amedasId)
-    officeName = areaResult?.officeName ?? ''
-    if (!location.forecastOfficeCode && areaResult) {
-      resolvedOfficeCode = areaResult.officeCode
-    }
-  }
-
-  if (!officeName) {
-    onProgress?.({
-      storeId,
-      status: 'error',
-      recordCount: 0,
-      error: 'ETRN 観測所の解決に必要な予報区名を取得できません',
-    })
-    return null
-  }
-
-  const etrnStation = await resolveEtrnStation(stationName, officeName)
-  if (!etrnStation) {
-    onProgress?.({
-      storeId,
-      status: 'error',
-      recordCount: 0,
-      error: `ETRN 観測所が見つかりません: ${stationName} (${officeName})`,
-    })
-    return null
-  }
-
-  return {
-    precNo: etrnStation.precNo,
-    blockNo: etrnStation.blockNo,
-    stationType: etrnStation.stationType,
-    etrnStation,
-    amedas: resolvedAmedas,
-    officeCode: resolvedOfficeCode,
-  }
+  return { hourly, resolvedStation }
 }

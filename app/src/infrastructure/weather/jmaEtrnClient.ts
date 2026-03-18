@@ -19,6 +19,7 @@ import { getJmaDataBaseUrl } from './jmaApiConfig'
 import { parseDailyTable } from './etrnTableParser'
 import { parseHourlyTable } from './etrnHourlyParser'
 import { REQUEST_DELAY_MS, EtrnNotFoundError, delay, fetchHtmlWithRetry } from './etrnHttpClient'
+import { reverseGeocode } from './geocodingClient'
 
 // ─── Types ──────────────────────────────────────────
 
@@ -176,6 +177,38 @@ function findPrecNo(prefMap: ReadonlyMap<string, number>, officeName: string): n
   }
 
   return null
+}
+
+/** 緯度経度から ETRN 観測所を解決する（逆ジオコーディング経由、AMeDAS・予報区域に非依存） */
+export async function resolveEtrnStationByLocation(
+  latitude: number,
+  longitude: number,
+): Promise<EtrnStation | null> {
+  console.debug('[Weather:ETRN] 位置ベース観測所解決: lat=%f lon=%f', latitude, longitude)
+
+  const geocodeResult = await reverseGeocode(latitude, longitude)
+  if (!geocodeResult) {
+    console.warn('[Weather:ETRN] 逆ジオコーディング失敗')
+    return null
+  }
+
+  const prefMap = await fetchPrefectureMap()
+  const precNo = findPrecNo(prefMap, geocodeResult.prefectureName)
+  if (precNo == null) {
+    console.warn('[Weather:ETRN] 府県が見つかりません: %s', geocodeResult.prefectureName)
+    return null
+  }
+
+  await delay(REQUEST_DELAY_MS)
+  const stations = await fetchStationList(precNo)
+  if (stations.length === 0) {
+    console.warn('[Weather:ETRN] 観測所が0件: precNo=%d', precNo)
+    return null
+  }
+
+  const selected = stations.find((s) => s.stationType === 's1') ?? stations[0]
+  console.debug('[Weather:ETRN] 観測所選択: %s (block=%s)', selected.stationName, selected.blockNo)
+  return selected
 }
 
 // ─── Daily Weather Data ─────────────────────────────

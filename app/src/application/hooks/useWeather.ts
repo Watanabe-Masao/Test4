@@ -64,8 +64,8 @@ export function useWeatherData(year: number, month: number, storeId: string): Us
           const result = await loadEtrnDailyForStore(storeId, location, year, month)
           if (cancelled || seq !== seqRef.current) return
 
-          // 解決された観測所情報を StoreLocation にキャッシュ
-          if (result.resolvedStation || result.resolvedAmedas || result.resolvedOfficeCode) {
+          // 解決された ETRN 観測所情報を StoreLocation にキャッシュ
+          if (result.resolvedStation) {
             cacheResolvedStation(location, storeId, storeLocations, updateSettings, result)
           }
 
@@ -107,20 +107,12 @@ function cacheResolvedStation(
   updateSettings: (patch: Record<string, unknown>) => void,
   result: Awaited<ReturnType<typeof loadEtrnDailyForStore>>,
 ): void {
+  if (!result.resolvedStation) return
   const updatedLocation = {
     ...location,
-    ...(result.resolvedStation && {
-      etrnPrecNo: result.resolvedStation.precNo,
-      etrnBlockNo: result.resolvedStation.blockNo,
-      etrnStationType: result.resolvedStation.stationType,
-    }),
-    ...(result.resolvedAmedas && {
-      amedasStationId: result.resolvedAmedas.stationId,
-      amedasStationName: result.resolvedAmedas.stationName,
-    }),
-    ...(result.resolvedOfficeCode && {
-      forecastOfficeCode: result.resolvedOfficeCode,
-    }),
+    etrnPrecNo: result.resolvedStation.precNo,
+    etrnBlockNo: result.resolvedStation.blockNo,
+    etrnStationType: result.resolvedStation.stationType,
   }
   updateSettings({
     storeLocations: { ...storeLocations, [storeId]: updatedLocation },
