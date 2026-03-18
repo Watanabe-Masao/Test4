@@ -5,13 +5,17 @@
  * - 解決された ETRN 観測所情報（prec_no, block_no, stationType）
  * - JMA 観測所情報（station_id, name）
  * - 取得した日別データのサンプル表示
+ * - 日付クリックで時間別天気データを展開表示
  */
-import { memo, useState, useEffect } from 'react'
+import { Fragment, memo, useState, useEffect, useCallback } from 'react'
 import styled from 'styled-components'
 import { useSettingsStore } from '@/application/stores/settingsStore'
-import type { DailyWeatherSummary, StoreLocation } from '@/domain/models'
+import type { DailyWeatherSummary, HourlyWeatherRecord, StoreLocation } from '@/domain/models'
 import { categorizeWeatherCode } from '@/domain/calculations/weatherAggregation'
-import { loadEtrnDailyForStore } from '@/application/usecases/weather/WeatherLoadService'
+import {
+  loadEtrnDailyForStore,
+  loadEtrnHourlyForStore,
+} from '@/application/usecases/weather/WeatherLoadService'
 import type { WidgetContext } from './types'
 
 const Wrapper = styled.div`
@@ -74,6 +78,39 @@ const DataTable = styled.table`
   }
 `
 
+const ClickableDate = styled.td`
+  cursor: pointer;
+  text-align: left;
+  color: ${({ theme }) => theme.colors.palette.primary};
+  &:hover {
+    text-decoration: underline;
+  }
+`
+
+const HourlyRow = styled.tr`
+  background: ${({ theme }) => theme.colors.bg};
+`
+
+const HourlyCell = styled.td`
+  padding: 4px 8px !important;
+  text-align: left !important;
+`
+
+const HourlyGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 2px;
+  font-size: 0.6rem;
+`
+
+const HourlyItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding: 1px 4px;
+  border-radius: 2px;
+  background: ${({ theme }) => theme.colors.bg2};
+`
+
 const WEATHER_ICONS: Record<string, string> = {
   sunny: '☀',
   cloudy: '☁',
@@ -103,12 +140,21 @@ interface FlowStep {
   readonly ok: boolean
 }
 
+/** 時間別データの取得状態 */
+interface HourlyState {
+  readonly status: 'idle' | 'loading' | 'done' | 'error'
+  readonly records: readonly HourlyWeatherRecord[]
+  readonly error?: string
+}
+
 export const EtrnTestWidget = memo(function EtrnTestWidget({ ctx }: { ctx: WidgetContext }) {
   const { year, month, storeKey } = ctx
   const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
   const location = storeLocations[storeKey]
 
   const [state, setState] = useState<TestState>({ status: 'loading', daily: [] })
+  const [expandedDate, setExpandedDate] = useState<string | null>(null)
+  const [hourlyCache, setHourlyCache] = useState<Record<string, HourlyState>>({})
 
   useEffect(() => {
     if (!location) return
@@ -145,6 +191,50 @@ export const EtrnTestWidget = memo(function EtrnTestWidget({ ctx }: { ctx: Widge
       cancelled = true
     }
   }, [storeKey, location, year, month])
+
+  // 日付クリックで時間別データを展開/折り畳み
+  const handleDateClick = useCallback(
+    (dateKey: string) => {
+      if (expandedDate === dateKey) {
+        setExpandedDate(null)
+        return
+      }
+      setExpandedDate(dateKey)
+
+      // キャッシュ済みなら再取得しない
+      if (hourlyCache[dateKey]?.status === 'done' || hourlyCache[dateKey]?.status === 'loading') {
+        return
+      }
+
+      if (!location) return
+
+      const day = parseInt(dateKey.slice(8), 10)
+
+      setHourlyCache((prev) => ({
+        ...prev,
+        [dateKey]: { status: 'loading', records: [] },
+      }))
+
+      loadEtrnHourlyForStore(storeKey, location, year, month, [day])
+        .then((result) => {
+          setHourlyCache((prev) => ({
+            ...prev,
+            [dateKey]: { status: 'done', records: result.hourly },
+          }))
+        })
+        .catch((err) => {
+          setHourlyCache((prev) => ({
+            ...prev,
+            [dateKey]: {
+              status: 'error',
+              records: [],
+              error: err instanceof Error ? err.message : String(err),
+            },
+          }))
+        })
+    },
+    [expandedDate, hourlyCache, location, storeKey, year, month],
+  )
 
   if (!location) {
     return <Wrapper>店舗の位置情報が未設定です。管理画面で設定してください。</Wrapper>
@@ -219,7 +309,9 @@ export const EtrnTestWidget = memo(function EtrnTestWidget({ ctx }: { ctx: Widge
 
       {state.daily.length > 0 && (
         <Section>
-          <SectionTitle>日別データ（{state.daily.length}日）</SectionTitle>
+          <SectionTitle>
+            日別データ（{state.daily.length}日）— 日付クリックで時間別表示
+          </SectionTitle>
           <DataTable>
             <thead>
               <tr>
@@ -237,18 +329,48 @@ export const EtrnTestWidget = memo(function EtrnTestWidget({ ctx }: { ctx: Widge
             <tbody>
               {state.daily.map((d) => {
                 const cat = categorizeWeatherCode(d.dominantWeatherCode)
+                const isExpanded = expandedDate === d.dateKey
+                const hourly = hourlyCache[d.dateKey]
                 return (
-                  <tr key={d.dateKey}>
-                    <td>{d.dateKey.slice(5)}</td>
-                    <td>{WEATHER_ICONS[cat] ?? '?'}</td>
-                    <td>{d.temperatureAvg.toFixed(1)}</td>
-                    <td>{d.temperatureMax.toFixed(1)}</td>
-                    <td>{d.temperatureMin.toFixed(1)}</td>
-                    <td>{d.precipitationTotal.toFixed(1)}</td>
-                    <td>{d.sunshineTotalHours.toFixed(1)}</td>
-                    <td>{d.windSpeedMax.toFixed(1)}</td>
-                    <td>{d.humidityAvg.toFixed(0)}</td>
-                  </tr>
+                  <Fragment key={d.dateKey}>
+                    <tr>
+                      <ClickableDate onClick={() => handleDateClick(d.dateKey)}>
+                        {isExpanded ? '▼' : '▶'} {d.dateKey.slice(5)}
+                      </ClickableDate>
+                      <td>{WEATHER_ICONS[cat] ?? '?'}</td>
+                      <td>{d.temperatureAvg.toFixed(1)}</td>
+                      <td>{d.temperatureMax.toFixed(1)}</td>
+                      <td>{d.temperatureMin.toFixed(1)}</td>
+                      <td>{d.precipitationTotal.toFixed(1)}</td>
+                      <td>{d.sunshineTotalHours.toFixed(1)}</td>
+                      <td>{d.windSpeedMax.toFixed(1)}</td>
+                      <td>{d.humidityAvg.toFixed(0)}</td>
+                    </tr>
+                    {isExpanded && (
+                      <HourlyRow>
+                        <HourlyCell colSpan={9}>
+                          {hourly?.status === 'loading' && '時間別データ取得中...'}
+                          {hourly?.status === 'error' && `エラー: ${hourly.error}`}
+                          {hourly?.status === 'done' && hourly.records.length === 0 && 'データなし'}
+                          {hourly?.status === 'done' && hourly.records.length > 0 && (
+                            <HourlyGrid>
+                              {hourly.records.map((h) => {
+                                const hCat = categorizeWeatherCode(h.weatherCode)
+                                return (
+                                  <HourlyItem key={h.hour}>
+                                    <span>
+                                      {String(h.hour).padStart(2, '0')}時 {WEATHER_ICONS[hCat] ?? '?'}
+                                    </span>
+                                    <span>{h.temperature.toFixed(1)}℃</span>
+                                  </HourlyItem>
+                                )
+                              })}
+                            </HourlyGrid>
+                          )}
+                        </HourlyCell>
+                      </HourlyRow>
+                    )}
+                  </Fragment>
                 )
               })}
             </tbody>
