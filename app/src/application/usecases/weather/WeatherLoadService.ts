@@ -102,7 +102,11 @@ export async function loadEtrnDailyForStore(
 ): Promise<EtrnLoadResult> {
   console.debug(
     '[Weather:Load] ETRN日別取得開始: store=%s %d/%d lat=%f lon=%f',
-    storeId, year, month, location.latitude, location.longitude,
+    storeId,
+    year,
+    month,
+    location.latitude,
+    location.longitude,
   )
 
   let precNo = location.etrnPrecNo
@@ -138,7 +142,11 @@ export async function loadEtrnDailyForStore(
       resolvedAmedas = { stationId: station.stationId, stationName: station.kjName }
       console.debug('[Weather:Load] Step1 完了: %s (id=%s)', stationName, stationId)
     } else {
-      console.debug('[Weather:Load] Step1 スキップ: キャッシュ済み name=%s id=%s', stationName, stationId)
+      console.debug(
+        '[Weather:Load] Step1 スキップ: キャッシュ済み name=%s id=%s',
+        stationName,
+        stationId,
+      )
     }
 
     // Step 2: 予報区名を取得（ETRN の府県名マッチングに使用）
@@ -151,7 +159,11 @@ export async function loadEtrnDailyForStore(
       if (!location.forecastOfficeCode && areaResult) {
         resolvedOfficeCode = areaResult.officeCode
       }
-      console.debug('[Weather:Load] Step2 完了: officeName=%s officeCode=%s', officeName, resolvedOfficeCode ?? location.forecastOfficeCode)
+      console.debug(
+        '[Weather:Load] Step2 完了: officeName=%s officeCode=%s',
+        officeName,
+        resolvedOfficeCode ?? location.forecastOfficeCode,
+      )
     }
 
     if (!officeName) {
@@ -166,7 +178,11 @@ export async function loadEtrnDailyForStore(
     }
 
     // Step 3: ETRN 観測所を解決
-    console.debug('[Weather:Load] Step3: ETRN観測所を解決 (name=%s, office=%s)', stationName, officeName)
+    console.debug(
+      '[Weather:Load] Step3: ETRN観測所を解決 (name=%s, office=%s)',
+      stationName,
+      officeName,
+    )
     const etrnResult = await resolveEtrnStation(stationName, officeName)
     if (!etrnResult) {
       console.warn('[Weather:Load] Step3 失敗: ETRN観測所が見つかりません')
@@ -183,9 +199,19 @@ export async function loadEtrnDailyForStore(
     blockNo = etrnResult.blockNo
     stationType = etrnResult.stationType
     resolvedStation = etrnResult
-    console.debug('[Weather:Load] Step3 完了: precNo=%d block=%s type=%s', precNo, blockNo, stationType)
+    console.debug(
+      '[Weather:Load] Step3 完了: precNo=%d block=%s type=%s',
+      precNo,
+      blockNo,
+      stationType,
+    )
   } else {
-    console.debug('[Weather:Load] ETRN観測所キャッシュ済み: precNo=%d block=%s type=%s', precNo, blockNo, stationType)
+    console.debug(
+      '[Weather:Load] ETRN観測所キャッシュ済み: precNo=%d block=%s type=%s',
+      precNo,
+      blockNo,
+      stationType,
+    )
   }
 
   // ETRN 日別データを取得

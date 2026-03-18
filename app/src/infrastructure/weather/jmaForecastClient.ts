@@ -134,7 +134,11 @@ export async function resolveForcastArea(
 
         console.debug(
           '[Weather:Forecast] 予報区域解決完了: stationId=%s → office=%s(%s) weekArea=%s(%s)',
-          amedasStationId, officeCode, officeName, weekAreaCode, areaName,
+          amedasStationId,
+          officeCode,
+          officeName,
+          weekAreaCode,
+          areaName,
         )
         return {
           officeCode,
@@ -213,7 +217,12 @@ export async function fetchWeeklyForecast(
   amedasStationId: string,
 ): Promise<readonly DailyForecast[]> {
   const url = `${getForecastUrl()}/${officeCode}.json`
-  console.debug('[Weather:Forecast] 週間予報取得: office=%s weekArea=%s station=%s', officeCode, weekAreaCode, amedasStationId)
+  console.debug(
+    '[Weather:Forecast] 週間予報取得: office=%s weekArea=%s station=%s',
+    officeCode,
+    weekAreaCode,
+    amedasStationId,
+  )
   console.debug('[Weather:Forecast] URL: %s', url)
   const data = (await fetchWithRetry(url)) as readonly [unknown, ForecastWeeklyRaw]
 
@@ -231,7 +240,8 @@ export async function fetchWeeklyForecast(
   if (!weatherArea) {
     console.warn(
       '[Weather:Forecast] weekAreaCode=%s に該当するデータなし。利用可能: %s',
-      weekAreaCode, ts0.areas.map((a) => `${a.area.code}(${a.area.name})`).join(', '),
+      weekAreaCode,
+      ts0.areas.map((a) => `${a.area.code}(${a.area.name})`).join(', '),
     )
     return []
   }
@@ -303,7 +313,12 @@ async function fetchWithRetry(url: string): Promise<unknown> {
       return await response.json()
     } catch (e) {
       lastError = e instanceof Error ? e : new Error(String(e))
-      console.warn('[Weather:Forecast] リクエスト失敗 (attempt=%d): %s — %s', attempt, url, lastError.message)
+      console.warn(
+        '[Weather:Forecast] リクエスト失敗 (attempt=%d): %s — %s',
+        attempt,
+        url,
+        lastError.message,
+      )
       if (attempt < MAX_RETRIES) {
         await delay(INITIAL_RETRY_DELAY_MS * 2 ** attempt)
       }
