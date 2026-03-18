@@ -1,11 +1,13 @@
 export { getJmaBaseUrl, getJmaDataBaseUrl } from './jmaApiConfig'
-export { searchLocation } from './geocodingClient'
+export { searchLocation, reverseGeocode } from './geocodingClient'
+export type { ReverseGeocodeResult } from './geocodingClient'
 export { findNearestStation, fetchStationTable, clearStationTableCache } from './jmaAmedasClient'
 export type { AmedasStation } from './jmaAmedasClient'
 export { JmaAccessError } from './jmaAmedasClient'
 export { resolveForcastArea, fetchWeeklyForecast, clearForecastCache } from './jmaForecastClient'
 export {
   resolveEtrnStation,
+  resolveEtrnStationByLocation,
   fetchEtrnDailyWeather,
   fetchEtrnDailyRange,
   fetchEtrnHourlyWeather,
