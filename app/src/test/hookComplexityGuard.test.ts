@@ -542,6 +542,8 @@ describe('Infrastructure 層の分割後ファイル行数制限', () => {
     ['infrastructure/duckdb/queries/purchaseComparison.ts', 450],
     // Weather: jmaForecastClient（resolveForcastAreaByLocation 追加）
     ['infrastructure/weather/jmaForecastClient.ts', 460],
+    // Weather: jmaEtrnClient（<area> タグ対応 + 診断ログ）
+    ['infrastructure/weather/jmaEtrnClient.ts', 420],
   ]
 
   it.each(fileLimits)('%s は %d 行以下', (relPath, maxLines) => {
