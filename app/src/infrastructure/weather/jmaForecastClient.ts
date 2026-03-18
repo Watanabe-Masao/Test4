@@ -319,10 +319,7 @@ export async function fetchWeeklyForecast(
     amedasStationId,
   )
   console.debug('[Weather:Forecast] URL: %s', url)
-  const data = (await fetchJsonWithRetry(url, 'Forecast')) as readonly [
-    unknown,
-    ForecastWeeklyRaw,
-  ]
+  const data = (await fetchJsonWithRetry(url, 'Forecast')) as readonly [unknown, ForecastWeeklyRaw]
 
   const weekly = data[1]
   if (!weekly?.timeSeries) {
