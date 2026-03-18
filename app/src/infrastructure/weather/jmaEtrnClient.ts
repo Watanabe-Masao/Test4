@@ -122,19 +122,14 @@ export async function resolveEtrnStation(
   if (exactMatch) return exactMatch
 
   const partialMatch = stations.find(
-    (s) =>
-      s.stationName.includes(amedasStationName) ||
-      amedasStationName.includes(s.stationName),
+    (s) => s.stationName.includes(amedasStationName) || amedasStationName.includes(s.stationName),
   )
   if (partialMatch) return partialMatch
 
   return stations.find((s) => s.stationType === 's1') ?? stations[0] ?? null
 }
 
-function findPrecNo(
-  prefMap: ReadonlyMap<string, number>,
-  officeName: string,
-): number | null {
+function findPrecNo(prefMap: ReadonlyMap<string, number>, officeName: string): number | null {
   const exact = prefMap.get(officeName)
   if (exact != null) return exact
 

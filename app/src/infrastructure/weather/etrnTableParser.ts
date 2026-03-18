@@ -31,11 +31,7 @@ interface ColumnMap {
 /**
  * ETRN の日別データテーブルをパースする。
  */
-export function parseDailyTable(
-  doc: Document,
-  year: number,
-  month: number,
-): DailyWeatherSummary[] {
+export function parseDailyTable(doc: Document, year: number, month: number): DailyWeatherSummary[] {
   const table = doc.querySelector('#tablefix1') ?? doc.querySelector('table.data2_s')
   if (!table) return []
 
@@ -131,9 +127,7 @@ function detectColumnPositions(table: Element): ColumnMap {
 /** マルチレベルヘッダーの rowspan/colspan を解決し、2D グリッドに展開する。 */
 function buildHeaderGrid(headerRows: Element[]): string[][] {
   const maxRows = headerRows.length
-  const grid: string[][] = Array.from({ length: maxRows }, () =>
-    Array(MAX_GRID_COLS).fill(''),
-  )
+  const grid: string[][] = Array.from({ length: maxRows }, () => Array(MAX_GRID_COLS).fill(''))
   const filled: boolean[][] = Array.from({ length: maxRows }, () =>
     Array(MAX_GRID_COLS).fill(false),
   )
