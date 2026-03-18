@@ -40,11 +40,7 @@ const INITIAL_STATE: WeatherState = {
  *
  * ETRN から月単位の日別天気データを取得する。
  */
-export function useWeatherData(
-  year: number,
-  month: number,
-  storeId: string,
-): UseWeatherResult {
+export function useWeatherData(year: number, month: number, storeId: string): UseWeatherResult {
   const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
   const updateSettings = useSettingsStore((s) => s.updateSettings)
   const [state, setState] = useState<WeatherState>(INITIAL_STATE)
