@@ -58,13 +58,20 @@ export async function loadForecastForStore(location: StoreLocation): Promise<{
     }
     // stationId が無い or stationId ベース解決が失敗 → lat/lon フォールバック
     if (!resolution) {
+      console.debug('[Weather:Forecast] stationId解決失敗 → lat/lon fallback開始')
       resolution = await resolveForcastAreaByLocation(location.latitude, location.longitude)
     }
     if (!resolution) {
+      console.warn('[Weather:Forecast] area解決失敗: stationId/lat/lon 両方不可')
       return { forecasts: [], resolution: null }
     }
     officeCode = resolution.officeCode
     weekAreaCode = resolution.weekAreaCode
+    console.debug(
+      '[Weather:Forecast] area resolved: office=%s weekArea=%s',
+      officeCode,
+      weekAreaCode,
+    )
   }
 
   // 3. 週間天気予報を取得
