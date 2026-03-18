@@ -55,7 +55,10 @@ let cachedStationTable: readonly AmedasStation[] | null = null
  */
 export async function fetchStationTable(): Promise<readonly AmedasStation[]> {
   if (cachedStationTable) {
-    console.debug('[Weather:AMeDAS] 観測所テーブル: キャッシュヒット (%d件)', cachedStationTable.length)
+    console.debug(
+      '[Weather:AMeDAS] 観測所テーブル: キャッシュヒット (%d件)',
+      cachedStationTable.length,
+    )
     return cachedStationTable
   }
 
@@ -122,10 +125,17 @@ export async function findNearestStation(
   if (nearest) {
     console.debug(
       '[Weather:AMeDAS] 最寄り観測所: %s(%s) id=%s 距離=%.1fkm',
-      nearest.kjName, nearest.enName, nearest.stationId, minDist,
+      nearest.kjName,
+      nearest.enName,
+      nearest.stationId,
+      minDist,
     )
   } else {
-    console.warn('[Weather:AMeDAS] 最寄り観測所が見つかりません: lat=%f lon=%f', latitude, longitude)
+    console.warn(
+      '[Weather:AMeDAS] 最寄り観測所が見つかりません: lat=%f lon=%f',
+      latitude,
+      longitude,
+    )
   }
   return nearest
 }
@@ -175,7 +185,12 @@ async function fetchJsonWithRetry(url: string): Promise<unknown> {
         )
       }
       lastError = e instanceof Error ? e : new Error(String(e))
-      console.warn('[Weather:AMeDAS] リクエスト失敗 (attempt=%d): %s — %s', attempt, url, lastError.message)
+      console.warn(
+        '[Weather:AMeDAS] リクエスト失敗 (attempt=%d): %s — %s',
+        attempt,
+        url,
+        lastError.message,
+      )
       if (attempt < MAX_RETRIES) {
         await delay(INITIAL_RETRY_DELAY_MS * 2 ** attempt)
       }
