@@ -1,24 +1,29 @@
 /**
  * 天気データ Hook
  *
- * DuckDB weather_hourly テーブルをキャッシュとして使用し、
- * 未取得分のみ AMEDAS API からフェッチする。
+ * 2層のデータソースを使い分ける:
+ *   - ETRN（メイン）: 長期の過去日別データ（1977年〜昨日）
+ *   - AMEDAS（サブ）: 直近10日の時間別データ（HourlyWeatherOverlay 用）
  *
  * データフロー:
- *   DuckDB キャッシュ確認 → (miss) → API フェッチ → DuckDB INSERT → DuckDB SELECT
- *                        → (hit)  → DuckDB SELECT
+ *   ETRN → DailyWeatherSummary（月単位で1リクエスト）
+ *   AMEDAS → DuckDB キャッシュ → HourlyWeatherRecord（直近のみ）
  */
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import type { AsyncDuckDB, AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { HourlyWeatherRecord, DailyWeatherSummary } from '@/domain/models'
 import { aggregateHourlyToDaily } from '@/domain/calculations/weatherAggregation'
-import { loadWeatherForStore, getDateRange } from '../usecases/weather/WeatherLoadService'
+import {
+  loadWeatherForStore,
+  loadEtrnDailyForStore,
+  getDateRange,
+} from '../usecases/weather/WeatherLoadService'
 import { useSettingsStore } from '../stores/settingsStore'
 
 export interface UseWeatherResult {
-  /** 時間別天気レコード */
+  /** 時間別天気レコード（AMEDAS 由来、直近のみ） */
   readonly hourly: readonly HourlyWeatherRecord[]
-  /** 日別天気サマリ（domain 純粋関数で集約済み） */
+  /** 日別天気サマリ（ETRN 由来 or AMEDAS 集約） */
   readonly daily: readonly DailyWeatherSummary[]
   /** 取得中フラグ */
   readonly isLoading: boolean
@@ -28,17 +33,26 @@ export interface UseWeatherResult {
   readonly reload: () => void
 }
 
+/** 天気データの内部状態（useState 統合用） */
+interface WeatherState {
+  readonly hourly: readonly HourlyWeatherRecord[]
+  readonly etrnDaily: readonly DailyWeatherSummary[]
+  readonly isLoading: boolean
+  readonly error: string | null
+}
+
+const INITIAL_STATE: WeatherState = {
+  hourly: [],
+  etrnDaily: [],
+  isLoading: false,
+  error: null,
+}
+
 /**
- * 天気データを DuckDB 経由で取得・集約する Hook。
+ * 天気データを取得・集約する Hook。
  *
- * DuckDB にキャッシュ済みデータがあれば API を叩かずに返す。
- * キャッシュミス時のみ AMEDAS API にフェッチし、DuckDB に投入する。
- *
- * @param year 対象年
- * @param month 対象月 (1-12)
- * @param storeId 店舗ID
- * @param duckConn DuckDB コネクション（null なら DuckDB 未準備）
- * @param duckDb DuckDB インスタンス（null なら DuckDB 未準備）
+ * ETRN を優先的に使用し、日別データを直接取得する。
+ * ETRN が失敗した場合は AMEDAS にフォールバックする。
  */
 export function useWeatherData(
   year: number,
@@ -48,9 +62,8 @@ export function useWeatherData(
   duckDb?: AsyncDuckDB | null,
 ): UseWeatherResult {
   const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
-  const [hourly, setHourly] = useState<readonly HourlyWeatherRecord[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const updateSettings = useSettingsStore((s) => s.updateSettings)
+  const [state, setState] = useState<WeatherState>(INITIAL_STATE)
   const [reloadKey, setReloadKey] = useState(0)
   const seqRef = useRef(0)
 
@@ -58,73 +71,55 @@ export function useWeatherData(
 
   useEffect(() => {
     const seq = ++seqRef.current
-
-    if (!location) {
-      return
-    }
+    if (!location) return
 
     let cancelled = false
 
     const timerId = setTimeout(() => {
       if (cancelled) return
-      setIsLoading(true)
-      setError(null)
-
-      const { startDate, endDate } = getDateRange(year, month)
-
-      // Skip fetch if entire range is in the future (no archive data available)
-      if (startDate > endDate) {
-        setHourly([])
-        setIsLoading(false)
-        return
-      }
+      setState((s) => ({ ...s, isLoading: true, error: null }))
 
       const run = async () => {
         try {
-          // DuckDB コネクション + インスタンスが利用可能な場合はキャッシュ経由で取得
-          if (duckConn && duckDb) {
-            const forceRefresh = reloadKey > 0
-            const records = await loadWeatherForStore(
-              duckConn,
-              duckDb,
-              storeId,
-              location,
-              startDate,
-              endDate,
-              undefined,
-              forceRefresh && seq === seqRef.current,
+          const result = await loadEtrnDailyForStore(storeId, location, year, month)
+          if (cancelled || seq !== seqRef.current) return
+
+          // 解決された観測所情報を StoreLocation にキャッシュ
+          if (result.resolvedStation || result.resolvedAmedas || result.resolvedOfficeCode) {
+            cacheResolvedStation(
+              location, storeId, storeLocations, updateSettings, result,
+            )
+          }
+
+          if (result.daily.length > 0) {
+            setState({ hourly: [], etrnDaily: result.daily, isLoading: false, error: null })
+            return
+          }
+
+          // ETRN が空 → AMEDAS フォールバック
+          const hourly = await fetchAmedasFallback(
+            location, year, month, storeId, duckConn, duckDb, reloadKey,
+          )
+          if (!cancelled && seq === seqRef.current) {
+            setState({ hourly, etrnDaily: [], isLoading: false, error: null })
+          }
+        } catch {
+          if (cancelled || seq !== seqRef.current) return
+          try {
+            const hourly = await fetchAmedasFallback(
+              location, year, month, storeId, duckConn, duckDb, reloadKey,
             )
             if (!cancelled && seq === seqRef.current) {
-              setHourly(records)
+              setState({ hourly, etrnDaily: [], isLoading: false, error: null })
             }
-          } else {
-            // DuckDB 未準備: フォールバックとして API 直接取得
-            // （初期化完了後に DuckDB 経由に切り替わる）
-            const { findNearestStation, fetchAmedasWeather } =
-              await import('@/infrastructure/weather')
-            let stationId = location.amedasStationId
-            if (!stationId) {
-              const station = await findNearestStation(location.latitude, location.longitude)
-              if (!station) {
-                if (!cancelled && seq === seqRef.current) {
-                  setError('最寄りの AMEDAS 観測所が見つかりません')
-                }
-                return
-              }
-              stationId = station.stationId
-            }
-            const records = await fetchAmedasWeather(stationId, startDate, endDate)
+          } catch (e2: unknown) {
             if (!cancelled && seq === seqRef.current) {
-              setHourly(records)
+              setState((s) => ({
+                ...s,
+                isLoading: false,
+                error: e2 instanceof Error ? e2.message : String(e2),
+              }))
             }
-          }
-        } catch (e: unknown) {
-          if (!cancelled && seq === seqRef.current) {
-            setError(e instanceof Error ? e.message : String(e))
-          }
-        } finally {
-          if (!cancelled && seq === seqRef.current) {
-            setIsLoading(false)
           }
         }
       }
@@ -135,19 +130,76 @@ export function useWeatherData(
       cancelled = true
       clearTimeout(timerId)
     }
-  }, [year, month, storeId, location, reloadKey, duckConn, duckDb])
+  }, [year, month, storeId, location, reloadKey, duckConn, duckDb, storeLocations, updateSettings])
 
-  const daily = useMemo(() => aggregateHourlyToDaily(hourly), [hourly])
+  const daily = useMemo(() => {
+    if (state.etrnDaily.length > 0) return state.etrnDaily
+    return aggregateHourlyToDaily(state.hourly)
+  }, [state.etrnDaily, state.hourly])
 
   const reload = useCallback(() => {
+    setState(INITIAL_STATE)
     setReloadKey((k) => k + 1)
   }, [])
 
-  return {
-    hourly,
-    daily,
-    isLoading,
-    error,
-    reload,
+  return { hourly: state.hourly, daily, isLoading: state.isLoading, error: state.error, reload }
+}
+
+// ─── Helpers ────────────────────────────────────────
+
+function cacheResolvedStation(
+  location: Parameters<typeof loadEtrnDailyForStore>[1],
+  storeId: string,
+  storeLocations: Readonly<Record<string, typeof location>>,
+  updateSettings: (patch: Record<string, unknown>) => void,
+  result: Awaited<ReturnType<typeof loadEtrnDailyForStore>>,
+): void {
+  const updatedLocation = {
+    ...location,
+    ...(result.resolvedStation && {
+      etrnPrecNo: result.resolvedStation.precNo,
+      etrnBlockNo: result.resolvedStation.blockNo,
+      etrnStationType: result.resolvedStation.stationType,
+    }),
+    ...(result.resolvedAmedas && {
+      amedasStationId: result.resolvedAmedas.stationId,
+      amedasStationName: result.resolvedAmedas.stationName,
+    }),
+    ...(result.resolvedOfficeCode && {
+      forecastOfficeCode: result.resolvedOfficeCode,
+    }),
   }
+  updateSettings({
+    storeLocations: { ...storeLocations, [storeId]: updatedLocation },
+  })
+}
+
+async function fetchAmedasFallback(
+  location: { readonly latitude: number; readonly longitude: number; readonly amedasStationId?: string },
+  year: number,
+  month: number,
+  storeId: string,
+  duckConn: AsyncDuckDBConnection | null | undefined,
+  duckDb: AsyncDuckDB | null | undefined,
+  reloadKey: number,
+): Promise<readonly HourlyWeatherRecord[]> {
+  const { startDate, endDate } = getDateRange(year, month)
+  if (startDate > endDate) return []
+
+  if (duckConn && duckDb) {
+    return loadWeatherForStore(
+      duckConn, duckDb, storeId,
+      location as Parameters<typeof loadWeatherForStore>[3],
+      startDate, endDate, undefined, reloadKey > 0,
+    )
+  }
+
+  const { findNearestStation, fetchAmedasWeather } = await import('@/infrastructure/weather')
+  let stationId = location.amedasStationId
+  if (!stationId) {
+    const station = await findNearestStation(location.latitude, location.longitude)
+    if (!station) return []
+    stationId = station.stationId
+  }
+  return fetchAmedasWeather(stationId, startDate, endDate)
 }

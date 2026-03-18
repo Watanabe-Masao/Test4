@@ -1,20 +1,29 @@
 /**
  * 天気データ取得オーケストレーション
  *
- * DuckDB テーブル (weather_hourly) をキャッシュとして使用し、
- * 未取得分のみ AMEDAS API からフェッチする。
+ * 2つのデータソースを使い分ける:
+ *   - ETRN（過去の気象データ検索）: 長期の過去データ（1977年〜昨日）— メイン
+ *   - AMEDAS リアルタイム API: 直近10日の時間別データ — サブ
  *
- * データフロー:
+ * データフロー (ETRN):
+ *   1. ETRN 観測所を解決（初回のみ、以降キャッシュ）
+ *   2. ETRN 日別 HTML テーブルをフェッチ・パース → DailyWeatherSummary
+ *
+ * データフロー (AMEDAS):
  *   1. DuckDB にキャッシュ済みか確認
  *   2. キャッシュなし → AMEDAS API フェッチ → DuckDB に INSERT
  *   3. DuckDB から SELECT して返却
- *
- * 下層（hooks, presentation）は DuckDB テーブルのみを参照し、
- * 生 API データに直接アクセスしない。
  */
 import type { AsyncDuckDB, AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { StoreLocation, HourlyWeatherRecord } from '@/domain/models'
-import { findNearestStation, fetchAmedasWeather } from '@/infrastructure/weather'
+import type { StoreLocation, HourlyWeatherRecord, DailyWeatherSummary } from '@/domain/models'
+import type { EtrnStation } from '@/infrastructure/weather'
+import {
+  findNearestStation,
+  fetchAmedasWeather,
+  resolveEtrnStation,
+  fetchEtrnDailyWeather,
+  resolveForcastArea,
+} from '@/infrastructure/weather'
 import { insertWeatherHourly } from '@/infrastructure/duckdb/dataConversions'
 import {
   queryWeatherHourly,
@@ -187,4 +196,130 @@ export function getDateRange(
 
   // If entire range is in the future, startDate > endDate — caller should skip fetch
   return { startDate, endDate }
+}
+
+// ─── ETRN (過去データ) ──────────────────────────────
+
+/** ETRN 日別データの取得結果 */
+export interface EtrnLoadResult {
+  readonly daily: readonly DailyWeatherSummary[]
+  /** 初回解決した ETRN 観測所情報（StoreLocation キャッシュ用） */
+  readonly resolvedStation?: EtrnStation
+  /** 初回解決した AMeDAS 観測所情報（StoreLocation キャッシュ用） */
+  readonly resolvedAmedas?: ResolvedStation
+  /** 初回解決した予報区コード（StoreLocation キャッシュ用） */
+  readonly resolvedOfficeCode?: string
+}
+
+/**
+ * ETRN から月単位の日別天気データを取得する。
+ *
+ * ETRN 観測所情報が未解決の場合は自動解決する:
+ *   1. AMeDAS 観測所を解決（station name 取得のため）
+ *   2. 予報区域を解決（office name 取得のため）
+ *   3. ETRN 観測所を解決（name マッチング）
+ *   4. ETRN 日別データを取得
+ *
+ * 解決結果は EtrnLoadResult に含まれるため、呼び出し側で StoreLocation にキャッシュすべき。
+ *
+ * @param storeId 店舗ID（進捗表示用）
+ * @param location 店舗の位置情報
+ * @param year 対象年
+ * @param month 対象月 (1-12)
+ * @param onProgress 進捗コールバック
+ */
+export async function loadEtrnDailyForStore(
+  storeId: string,
+  location: StoreLocation,
+  year: number,
+  month: number,
+  onProgress?: (progress: WeatherLoadProgress) => void,
+): Promise<EtrnLoadResult> {
+  let precNo = location.etrnPrecNo
+  let blockNo = location.etrnBlockNo
+  let stationType = location.etrnStationType
+  let resolvedStation: EtrnStation | undefined
+  let resolvedAmedas: ResolvedStation | undefined
+  let resolvedOfficeCode: string | undefined
+
+  // ETRN 観測所が未解決の場合は自動解決
+  if (precNo == null || !blockNo || !stationType) {
+    onProgress?.({ storeId, status: 'resolving', recordCount: 0 })
+
+    // Step 1: AMeDAS 観測所名を取得
+    let amedasStationName = location.amedasStationName ?? ''
+    if (!amedasStationName) {
+      const station = await findNearestStation(location.latitude, location.longitude)
+      if (!station) {
+        onProgress?.({
+          storeId,
+          status: 'error',
+          recordCount: 0,
+          error: '最寄りの AMEDAS 観測所が見つかりません',
+        })
+        return { daily: [] }
+      }
+      amedasStationName = station.kjName
+      resolvedAmedas = { stationId: station.stationId, stationName: station.kjName }
+    }
+
+    // Step 2: 予報区名を取得（ETRN の府県名マッチングに使用）
+    let officeName = ''
+    const officeCode = location.forecastOfficeCode
+    if (officeCode) {
+      // area.json から officeName を取得するために resolveForcastArea を利用
+      const amedasId = location.amedasStationId ?? resolvedAmedas?.stationId
+      if (amedasId) {
+        const areaResult = await resolveForcastArea(amedasId)
+        officeName = areaResult?.officeName ?? ''
+        if (!location.forecastOfficeCode && areaResult) {
+          resolvedOfficeCode = areaResult.officeCode
+        }
+      }
+    } else {
+      // forecastOfficeCode が未設定の場合も解決を試みる
+      const amedasId = location.amedasStationId ?? resolvedAmedas?.stationId
+      if (amedasId) {
+        const areaResult = await resolveForcastArea(amedasId)
+        officeName = areaResult?.officeName ?? ''
+        resolvedOfficeCode = areaResult?.officeCode
+      }
+    }
+
+    if (!officeName) {
+      onProgress?.({
+        storeId,
+        status: 'error',
+        recordCount: 0,
+        error: 'ETRN 観測所の解決に必要な予報区名を取得できません',
+      })
+      return { daily: [], resolvedAmedas, resolvedOfficeCode }
+    }
+
+    // Step 3: ETRN 観測所を解決
+    const etrnResult = await resolveEtrnStation(amedasStationName, officeName)
+    if (!etrnResult) {
+      onProgress?.({
+        storeId,
+        status: 'error',
+        recordCount: 0,
+        error: `ETRN 観測所が見つかりません: ${amedasStationName} (${officeName})`,
+      })
+      return { daily: [], resolvedAmedas, resolvedOfficeCode }
+    }
+
+    precNo = etrnResult.precNo
+    blockNo = etrnResult.blockNo
+    stationType = etrnResult.stationType
+    resolvedStation = etrnResult
+  }
+
+  // ETRN 日別データを取得
+  onProgress?.({ storeId, status: 'loading', recordCount: 0 })
+
+  const daily = await fetchEtrnDailyWeather(precNo, blockNo, stationType, year, month)
+
+  onProgress?.({ storeId, status: 'done', recordCount: daily.length })
+
+  return { daily, resolvedStation, resolvedAmedas, resolvedOfficeCode }
 }

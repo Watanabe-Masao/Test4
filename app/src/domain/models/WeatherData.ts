@@ -47,6 +47,9 @@ export interface StoreLocation {
   readonly amedasStationName?: string // 観測所名（表示用）
   readonly forecastOfficeCode?: string // 府県予報区コード（解決済みキャッシュ）
   readonly weekAreaCode?: string // 週間予報区域コード（解決済みキャッシュ）
+  readonly etrnPrecNo?: number // ETRN 府県コード（解決済みキャッシュ）
+  readonly etrnBlockNo?: string // ETRN 観測所コード（解決済みキャッシュ）
+  readonly etrnStationType?: 'a1' | 's1' // ETRN 観測所種別: a1=AMeDAS, s1=気象台
 }
 
 /**

@@ -16,6 +16,7 @@ import {
 } from './UnifiedAnalyticsWidgets'
 import { isTimeSeriesVisible, isStoreComparisonVisible } from './widgetVisibility'
 import { WeatherWidget } from './WeatherWidget'
+import { EtrnTestWidget } from './EtrnTestWidget'
 
 // ── トレンド分析: 日次 ──
 export const WIDGETS_CHART: readonly WidgetDef[] = [
@@ -183,5 +184,12 @@ export const WIDGETS_CHART: readonly WidgetDef[] = [
     group: '外部データ',
     size: 'full',
     render: (ctx) => <WeatherWidget ctx={ctx} />,
+  },
+  {
+    id: 'chart-etrn-test',
+    label: 'ETRN 取得テスト',
+    group: '外部データ',
+    size: 'full',
+    render: (ctx) => <EtrnTestWidget ctx={ctx} />,
   },
 ]
