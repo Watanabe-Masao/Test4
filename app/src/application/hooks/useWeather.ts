@@ -86,9 +86,7 @@ export function useWeatherData(
 
           // 解決された観測所情報を StoreLocation にキャッシュ
           if (result.resolvedStation || result.resolvedAmedas || result.resolvedOfficeCode) {
-            cacheResolvedStation(
-              location, storeId, storeLocations, updateSettings, result,
-            )
+            cacheResolvedStation(location, storeId, storeLocations, updateSettings, result)
           }
 
           if (result.daily.length > 0) {
@@ -98,7 +96,13 @@ export function useWeatherData(
 
           // ETRN が空 → AMEDAS フォールバック
           const hourly = await fetchAmedasFallback(
-            location, year, month, storeId, duckConn, duckDb, reloadKey,
+            location,
+            year,
+            month,
+            storeId,
+            duckConn,
+            duckDb,
+            reloadKey,
           )
           if (!cancelled && seq === seqRef.current) {
             setState({ hourly, etrnDaily: [], isLoading: false, error: null })
@@ -107,7 +111,13 @@ export function useWeatherData(
           if (cancelled || seq !== seqRef.current) return
           try {
             const hourly = await fetchAmedasFallback(
-              location, year, month, storeId, duckConn, duckDb, reloadKey,
+              location,
+              year,
+              month,
+              storeId,
+              duckConn,
+              duckDb,
+              reloadKey,
             )
             if (!cancelled && seq === seqRef.current) {
               setState({ hourly, etrnDaily: [], isLoading: false, error: null })
@@ -175,7 +185,11 @@ function cacheResolvedStation(
 }
 
 async function fetchAmedasFallback(
-  location: { readonly latitude: number; readonly longitude: number; readonly amedasStationId?: string },
+  location: {
+    readonly latitude: number
+    readonly longitude: number
+    readonly amedasStationId?: string
+  },
   year: number,
   month: number,
   storeId: string,
@@ -188,9 +202,14 @@ async function fetchAmedasFallback(
 
   if (duckConn && duckDb) {
     return loadWeatherForStore(
-      duckConn, duckDb, storeId,
+      duckConn,
+      duckDb,
+      storeId,
       location as Parameters<typeof loadWeatherForStore>[3],
-      startDate, endDate, undefined, reloadKey > 0,
+      startDate,
+      endDate,
+      undefined,
+      reloadKey > 0,
     )
   }
 

@@ -152,12 +152,15 @@ export const EtrnTestWidget = memo(function EtrnTestWidget({ ctx }: { ctx: Widge
   return (
     <Wrapper>
       <Section>
-        <SectionTitle>ETRN 取得テスト — {year}年{month}月</SectionTitle>
+        <SectionTitle>
+          ETRN 取得テスト — {year}年{month}月
+        </SectionTitle>
         <Row>
           <Label>ステータス:</Label>
           <Val>
             {state.status === 'loading' && '取得中...'}
-            {state.status === 'done' && (state.daily.length > 0 ? `${state.daily.length}日分取得 ✓` : 'データなし')}
+            {state.status === 'done' &&
+              (state.daily.length > 0 ? `${state.daily.length}日分取得 ✓` : 'データなし')}
             {state.status === 'error' && `エラー: ${state.error}`}
           </Val>
         </Row>
@@ -165,13 +168,36 @@ export const EtrnTestWidget = memo(function EtrnTestWidget({ ctx }: { ctx: Widge
 
       <Section>
         <SectionTitle>観測所情報</SectionTitle>
-        <Row><Label>緯度/経度:</Label><Val>{location.latitude.toFixed(4)}, {location.longitude.toFixed(4)}</Val></Row>
-        <Row><Label>AMeDAS ID:</Label><Val>{info.amedasStationId ?? '未解決'}</Val></Row>
-        <Row><Label>AMeDAS 名:</Label><Val>{info.amedasStationName ?? '未解決'}</Val></Row>
-        <Row><Label>予報区コード:</Label><Val>{info.forecastOfficeCode ?? '未解決'}</Val></Row>
-        <Row><Label>ETRN prec_no:</Label><Val>{info.etrnPrecNo ?? '未解決'}</Val></Row>
-        <Row><Label>ETRN block_no:</Label><Val>{info.etrnBlockNo ?? '未解決'}</Val></Row>
-        <Row><Label>ETRN type:</Label><Val>{info.etrnStationType ?? '未解決'}</Val></Row>
+        <Row>
+          <Label>緯度/経度:</Label>
+          <Val>
+            {location.latitude.toFixed(4)}, {location.longitude.toFixed(4)}
+          </Val>
+        </Row>
+        <Row>
+          <Label>AMeDAS ID:</Label>
+          <Val>{info.amedasStationId ?? '未解決'}</Val>
+        </Row>
+        <Row>
+          <Label>AMeDAS 名:</Label>
+          <Val>{info.amedasStationName ?? '未解決'}</Val>
+        </Row>
+        <Row>
+          <Label>予報区コード:</Label>
+          <Val>{info.forecastOfficeCode ?? '未解決'}</Val>
+        </Row>
+        <Row>
+          <Label>ETRN prec_no:</Label>
+          <Val>{info.etrnPrecNo ?? '未解決'}</Val>
+        </Row>
+        <Row>
+          <Label>ETRN block_no:</Label>
+          <Val>{info.etrnBlockNo ?? '未解決'}</Val>
+        </Row>
+        <Row>
+          <Label>ETRN type:</Label>
+          <Val>{info.etrnStationType ?? '未解決'}</Val>
+        </Row>
       </Section>
 
       {state.daily.length > 0 && (
