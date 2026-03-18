@@ -24,7 +24,10 @@ const MAX_RETRIES = 2
 const INITIAL_RETRY_DELAY_MS = 1000
 
 /** 全ブロック 404 連続時の打ち切り日数 */
-const MAX_CONSECUTIVE_NOT_FOUND_DAYS = 2
+const MAX_CONSECUTIVE_NOT_FOUND_DAYS = 1
+
+/** AMEDAS bosai API のデータ保持期間（日数）— これより古いデータは 404 になる */
+const AMEDAS_DATA_RETENTION_DAYS = 10
 
 // ─── Station Table ───────────────────────────────────
 
@@ -154,16 +157,22 @@ export async function fetchAmedasWeather(
   endDate: string,
   onProgress?: (progress: number) => void,
 ): Promise<readonly HourlyWeatherRecord[]> {
-  // 境界検証: AMEDAS は過去の実測データのみ。未来日付はクランプする。
-  const yesterday = formatDateStr(new Date(Date.now() - 24 * 60 * 60 * 1000))
+  // 境界検証: AMEDAS bosai API は直近約2週間分のみ提供する。
+  // 未来日付は昨日にクランプし、古すぎる日付は保持期間の始点にクランプする。
+  const now = Date.now()
+  const yesterday = formatDateStr(new Date(now - 24 * 60 * 60 * 1000))
+  const oldestAvailable = formatDateStr(
+    new Date(now - AMEDAS_DATA_RETENTION_DAYS * 24 * 60 * 60 * 1000),
+  )
+  const clampedStart = startDate < oldestAvailable ? oldestAvailable : startDate
   const clampedEnd = endDate > yesterday ? yesterday : endDate
 
-  if (startDate > clampedEnd) {
+  if (clampedStart > clampedEnd) {
     onProgress?.(1)
     return []
   }
 
-  const dates = generateDateRange(startDate, clampedEnd)
+  const dates = generateDateRange(clampedStart, clampedEnd)
 
   if (dates.length === 0) {
     onProgress?.(1)
