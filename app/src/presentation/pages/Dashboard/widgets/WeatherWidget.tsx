@@ -3,16 +3,20 @@
  *
  * 気象庁 ETRN から実測天気データを、Forecast API から
  * 週間予報を取得し、カレンダーグリッドに実績と予報を並べて表示する。
+ * 日付クリックで時間別天気データを展開表示する。
  *
  * UI/UX原則#1: 実績（緑系）と推定（オレンジ系）は別世界として視覚的に分離。
  */
-import { memo, useMemo } from 'react'
+import { Fragment, memo, useMemo, useState, useCallback } from 'react'
 import styled from 'styled-components'
 import { sc } from '@/presentation/theme/semanticColors'
 import { useWeatherData } from '@/application/hooks/useWeather'
 import { useWeatherForecast } from '@/application/hooks/useWeatherForecast'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import type { DailySalesForCorrelation } from '@/application/hooks/useWeatherCorrelation'
+import type { HourlyWeatherRecord } from '@/domain/models'
+import { categorizeWeatherCode } from '@/domain/calculations/weatherAggregation'
+import { loadEtrnHourlyForStore } from '@/application/usecases/weather/WeatherLoadService'
 import { WeatherBadge } from '@/presentation/components/common/WeatherBadge'
 import { ForecastBadge } from '@/presentation/components/common/ForecastBadge'
 import { WeatherCorrelationChart } from '@/presentation/components/charts/WeatherCorrelationChart'
@@ -37,7 +41,7 @@ const DailySummaryGrid = styled.div`
   gap: ${({ theme }) => theme.spacing[1]};
 `
 
-const DayCell = styled.div`
+const DayCell = styled.div<{ $clickable?: boolean }>`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -45,6 +49,15 @@ const DayCell = styled.div`
   padding: ${({ theme }) => theme.spacing[1]};
   border-radius: ${({ theme }) => theme.radii.sm};
   background: ${({ theme }) => theme.colors.bg2};
+  ${({ $clickable }) =>
+    $clickable &&
+    `
+    cursor: pointer;
+    &:hover {
+      opacity: 0.8;
+      outline: 1px solid currentColor;
+    }
+  `}
 `
 
 const ForecastDayCell = styled(DayCell)`
@@ -79,6 +92,52 @@ const NoLocationText = styled.div`
   font-size: ${({ theme }) => theme.typography.fontSize.sm};
 `
 
+const HourlyPanel = styled.div`
+  grid-column: 1 / -1;
+  background: ${({ theme }) => theme.colors.bg2};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  padding: ${({ theme }) => theme.spacing[2]};
+`
+
+const HourlyTitle = styled.div`
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.text3};
+  margin-bottom: 4px;
+`
+
+const HourlyGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  gap: 2px;
+`
+
+const HourlyItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1px 4px;
+  border-radius: 2px;
+  background: ${({ theme }) => theme.colors.bg};
+  font-size: 0.6rem;
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+`
+
+const WEATHER_ICONS: Record<string, string> = {
+  sunny: '\u2600\uFE0F',
+  cloudy: '\u2601\uFE0F',
+  rainy: '\uD83C\uDF27\uFE0F',
+  snowy: '\u2744\uFE0F',
+  other: '\uD83C\uDF00',
+}
+
+/** 時間別データの取得状態 */
+interface HourlyState {
+  readonly status: 'idle' | 'loading' | 'done' | 'error'
+  readonly records: readonly HourlyWeatherRecord[]
+  readonly error?: string
+}
+
 export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetContext }) {
   const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
 
@@ -97,6 +156,7 @@ export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetC
     return candidates.find((id) => storeLocations[id]) ?? candidates[0] ?? ''
   }, [ctx.selectedStoreIds, ctx.stores, storeLocations])
 
+  const location = storeLocations[storeId]
   const { daily, isLoading, error } = useWeatherData(ctx.year, ctx.month, storeId)
 
   const {
@@ -104,6 +164,52 @@ export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetC
     isLoading: isForecastLoading,
     error: forecastError,
   } = useWeatherForecast(storeId)
+
+  // 時間別データの状態管理
+  const [expandedDate, setExpandedDate] = useState<string | null>(null)
+  const [hourlyCache, setHourlyCache] = useState<Record<string, HourlyState>>({})
+
+  const handleDayClick = useCallback(
+    (dateKey: string) => {
+      if (expandedDate === dateKey) {
+        setExpandedDate(null)
+        return
+      }
+      setExpandedDate(dateKey)
+
+      if (hourlyCache[dateKey]?.status === 'done' || hourlyCache[dateKey]?.status === 'loading') {
+        return
+      }
+
+      if (!location) return
+
+      const day = parseInt(dateKey.slice(8), 10)
+
+      setHourlyCache((prev) => ({
+        ...prev,
+        [dateKey]: { status: 'loading', records: [] },
+      }))
+
+      loadEtrnHourlyForStore(storeId, location, ctx.year, ctx.month, [day])
+        .then((result) => {
+          setHourlyCache((prev) => ({
+            ...prev,
+            [dateKey]: { status: 'done', records: result.hourly },
+          }))
+        })
+        .catch((err) => {
+          setHourlyCache((prev) => ({
+            ...prev,
+            [dateKey]: {
+              status: 'error',
+              records: [],
+              error: err instanceof Error ? err.message : String(err),
+            },
+          }))
+        })
+    },
+    [expandedDate, hourlyCache, location, storeId, ctx.year, ctx.month],
+  )
 
   // 実測日の dateKey セット（予報と重複しないようフィルタ用）
   const observedDateKeys = useMemo(() => new Set(daily.map((d) => d.dateKey)), [daily])
@@ -152,19 +258,61 @@ export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetC
       {/* 実測値グリッド */}
       {daily.length > 0 && (
         <div>
-          <SectionLabel>実測</SectionLabel>
+          <SectionLabel>実測（日付タップで時間別表示）</SectionLabel>
           <DailySummaryGrid>
             {daily.map((d) => {
               const dayNum = Number(d.dateKey.split('-')[2])
+              const isExpanded = expandedDate === d.dateKey
+              const hourly = hourlyCache[d.dateKey]
               return (
-                <DayCell key={d.dateKey}>
-                  <DayLabel>{dayNum}日</DayLabel>
-                  <WeatherBadge
-                    weatherCode={d.dominantWeatherCode}
-                    temperature={d.temperatureAvg}
-                    compact
-                  />
-                </DayCell>
+                <Fragment key={d.dateKey}>
+                  <DayCell
+                    $clickable
+                    onClick={() => handleDayClick(d.dateKey)}
+                    style={isExpanded ? { outline: '1px solid currentColor' } : undefined}
+                  >
+                    <DayLabel>{dayNum}日</DayLabel>
+                    <WeatherBadge
+                      weatherCode={d.dominantWeatherCode}
+                      temperature={d.temperatureAvg}
+                      temperatureMax={d.temperatureMax}
+                      temperatureMin={d.temperatureMin}
+                      compact
+                    />
+                  </DayCell>
+                  {isExpanded && (
+                    <HourlyPanel>
+                      <HourlyTitle>
+                        {dayNum}日の時間別天気
+                        {hourly?.status === 'loading' && ' — 取得中...'}
+                      </HourlyTitle>
+                      {hourly?.status === 'error' && (
+                        <ErrorText style={{ fontSize: '0.6rem', padding: '2px' }}>
+                          エラー: {hourly.error}
+                        </ErrorText>
+                      )}
+                      {hourly?.status === 'done' && hourly.records.length === 0 && (
+                        <span style={{ fontSize: '0.6rem' }}>データなし</span>
+                      )}
+                      {hourly?.status === 'done' && hourly.records.length > 0 && (
+                        <HourlyGrid>
+                          {hourly.records.map((h) => {
+                            const hCat = categorizeWeatherCode(h.weatherCode)
+                            return (
+                              <HourlyItem key={h.hour}>
+                                <span>
+                                  {String(h.hour).padStart(2, '0')}時{' '}
+                                  {WEATHER_ICONS[hCat] ?? '?'}
+                                </span>
+                                <span>{h.temperature.toFixed(1)}°</span>
+                              </HourlyItem>
+                            )
+                          })}
+                        </HourlyGrid>
+                      )}
+                    </HourlyPanel>
+                  )}
+                </Fragment>
               )
             })}
           </DailySummaryGrid>

@@ -11,6 +11,10 @@ interface Props {
   readonly weatherCode: number
   /** 気温 (°C)。省略時は非表示 */
   readonly temperature?: number
+  /** 最高気温 (°C)。省略時は非表示 */
+  readonly temperatureMax?: number
+  /** 最低気温 (°C)。省略時は非表示 */
+  readonly temperatureMin?: number
   /** コンパクト表示（アイコンのみ） */
   readonly compact?: boolean
 }
@@ -45,9 +49,27 @@ const TempText = styled.span`
   font-size: 0.65rem;
 `
 
+const TempRangeText = styled.span`
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  color: ${({ theme }) => theme.colors.text3};
+  font-size: 0.55rem;
+  display: flex;
+  gap: 2px;
+`
+
+const HighTemp = styled.span`
+  color: #e74c3c;
+`
+
+const LowTemp = styled.span`
+  color: #3498db;
+`
+
 export const WeatherBadge = memo(function WeatherBadge({
   weatherCode,
   temperature,
+  temperatureMax,
+  temperatureMin,
   compact = false,
 }: Props) {
   const category = categorizeWeatherCode(weatherCode)
@@ -58,6 +80,12 @@ export const WeatherBadge = memo(function WeatherBadge({
       <BadgeWrapper title={WEATHER_LABELS[category]}>
         {icon}
         {temperature != null && <TempText>{Math.round(temperature)}°</TempText>}
+        {temperatureMax != null && temperatureMin != null && (
+          <TempRangeText>
+            <HighTemp>{Math.round(temperatureMax)}°</HighTemp>
+            <LowTemp>{Math.round(temperatureMin)}°</LowTemp>
+          </TempRangeText>
+        )}
       </BadgeWrapper>
     )
   }
@@ -66,6 +94,12 @@ export const WeatherBadge = memo(function WeatherBadge({
     <BadgeWrapper>
       {icon} {WEATHER_LABELS[category]}
       {temperature != null && <TempText> {temperature.toFixed(1)}°C</TempText>}
+      {temperatureMax != null && temperatureMin != null && (
+        <TempRangeText>
+          <HighTemp>{temperatureMax.toFixed(1)}°</HighTemp>
+          <LowTemp>{temperatureMin.toFixed(1)}°</LowTemp>
+        </TempRangeText>
+      )}
     </BadgeWrapper>
   )
 })
