@@ -26,7 +26,7 @@ export function getJmaBaseUrl(): string {
  * JMA Data のベース URL を返す (www.data.jma.go.jp — ETRN 過去データ用)
  *
  * 本番環境では VITE_JMA_PROXY_URL と同じ Worker を使用する。
- * Worker がパスプレフィックス (/stats/etrn/) で data.jma.go.jp に振り分ける。
+ * Worker がパスプレフィックス (/obd/stats/etrn/) で data.jma.go.jp に振り分ける。
  */
 export function getJmaDataBaseUrl(): string {
   if (import.meta.env.DEV) {

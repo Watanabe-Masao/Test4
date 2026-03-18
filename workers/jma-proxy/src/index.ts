@@ -5,7 +5,7 @@
  *
  * ルーティング:
  *   /bosai/*          → www.jma.go.jp    (予報・AMeDAS・マスタデータ)
- *   /stats/etrn/*     → www.data.jma.go.jp (過去の気象データ ETRN)
+ *   /obd/stats/etrn/*     → www.data.jma.go.jp (過去の気象データ ETRN)
  */
 
 /** ホスト別のルーティング定義 */
@@ -15,7 +15,7 @@ const ROUTES: readonly { readonly prefix: string; readonly origin: string }[] = 
   { prefix: '/bosai/forecast/', origin: 'https://www.jma.go.jp' },
   { prefix: '/bosai/common/', origin: 'https://www.jma.go.jp' },
   // www.data.jma.go.jp — ETRN 過去データ
-  { prefix: '/stats/etrn/', origin: 'https://www.data.jma.go.jp' },
+  { prefix: '/obd/stats/etrn/', origin: 'https://www.data.jma.go.jp' },
 ]
 
 function corsHeaders(origin: string | null): Record<string, string> {

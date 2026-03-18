@@ -12,7 +12,7 @@
  *
  * 効率: 1リクエスト = 1ヶ月分（AMeDAS API の 240リクエスト/月 と比較）
  *
- * @see https://www.data.jma.go.jp/stats/etrn/index.php
+ * @see https://www.data.jma.go.jp/obd/stats/etrn/index.php
  */
 import type { DailyWeatherSummary, HourlyWeatherRecord } from '@/domain/models'
 import { getJmaDataBaseUrl } from './jmaApiConfig'
@@ -47,7 +47,7 @@ async function fetchPrefectureMap(): Promise<ReadonlyMap<string, number>> {
   if (cachedPrefMap) return cachedPrefMap
 
   const baseUrl = getJmaDataBaseUrl()
-  const url = `${baseUrl}/stats/etrn/select/prefecture00.php`
+  const url = `${baseUrl}/obd/stats/etrn/select/prefecture00.php`
   const html = await fetchHtmlWithRetry(url)
   const doc = new DOMParser().parseFromString(html, 'text/html')
 
@@ -75,7 +75,7 @@ async function fetchStationList(precNo: number): Promise<readonly EtrnStation[]>
   if (cached) return cached
 
   const baseUrl = getJmaDataBaseUrl()
-  const url = `${baseUrl}/stats/etrn/select/prefecture.php?prec_no=${precNo}`
+  const url = `${baseUrl}/obd/stats/etrn/select/prefecture.php?prec_no=${precNo}`
   const html = await fetchHtmlWithRetry(url)
   const doc = new DOMParser().parseFromString(html, 'text/html')
 
@@ -158,7 +158,7 @@ export async function fetchEtrnDailyWeather(
 ): Promise<readonly DailyWeatherSummary[]> {
   const baseUrl = getJmaDataBaseUrl()
   const url =
-    `${baseUrl}/stats/etrn/view/daily_${stationType}.php` +
+    `${baseUrl}/obd/stats/etrn/view/daily_${stationType}.php` +
     `?prec_no=${precNo}&block_no=${blockNo}&year=${year}&month=${month}&day=&view=`
 
   let html: string
@@ -237,7 +237,7 @@ export async function fetchEtrnHourlyWeather(
 ): Promise<readonly HourlyWeatherRecord[]> {
   const baseUrl = getJmaDataBaseUrl()
   const url =
-    `${baseUrl}/stats/etrn/view/hourly_${stationType}.php` +
+    `${baseUrl}/obd/stats/etrn/view/hourly_${stationType}.php` +
     `?prec_no=${precNo}&block_no=${blockNo}&year=${year}&month=${month}&day=${day}&view=`
 
   let html: string
