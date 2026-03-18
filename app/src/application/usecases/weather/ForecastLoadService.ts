@@ -11,6 +11,7 @@ import type { StoreLocation, DailyForecast, ForecastAreaResolution } from '@/dom
 import {
   findNearestStation,
   resolveForcastArea,
+  resolveForcastAreaByLocation,
   fetchWeeklyForecast,
 } from '@/infrastructure/weather'
 
@@ -28,14 +29,11 @@ export async function loadForecastForStore(location: StoreLocation): Promise<{
   readonly forecasts: readonly DailyForecast[]
   readonly resolution: ForecastAreaResolution | null
 }> {
-  // 1. JMA 観測所 ID を確保
+  // 1. JMA 観測所 ID を確保（失敗しても続行可能）
   let stationId = location.amedasStationId
   if (!stationId) {
     const station = await findNearestStation(location.latitude, location.longitude)
-    if (!station) {
-      return { forecasts: [], resolution: null }
-    }
-    stationId = station.stationId
+    stationId = station?.stationId
   }
 
   // 2. 予報区域コードを解決
@@ -51,11 +49,17 @@ export async function loadForecastForStore(location: StoreLocation): Promise<{
       officeName: '',
       weekAreaCode,
       weekAreaName: '',
-      amedasStationId: stationId,
+      amedasStationId: stationId ?? '',
     }
   } else {
-    // 3つの JMA JSON マスタから自動解決
-    resolution = await resolveForcastArea(stationId)
+    // stationId ベースで解決を試みる
+    if (stationId) {
+      resolution = await resolveForcastArea(stationId)
+    }
+    // stationId が無い or stationId ベース解決が失敗 → lat/lon フォールバック
+    if (!resolution) {
+      resolution = await resolveForcastAreaByLocation(location.latitude, location.longitude)
+    }
     if (!resolution) {
       return { forecasts: [], resolution: null }
     }
@@ -64,7 +68,9 @@ export async function loadForecastForStore(location: StoreLocation): Promise<{
   }
 
   // 3. 週間天気予報を取得
-  const forecasts = await fetchWeeklyForecast(officeCode, weekAreaCode, stationId)
+  // 気温データ抽出用の stationId: resolution から取得するか、元の stationId を使う
+  const tempStationId = resolution.amedasStationId || stationId || ''
+  const forecasts = await fetchWeeklyForecast(officeCode, weekAreaCode, tempStationId)
 
   return { forecasts, resolution }
 }
