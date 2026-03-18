@@ -36,6 +36,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/jma-api/, ''),
       },
+      '/jma-data': {
+        target: 'https://www.data.jma.go.jp',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/jma-data/, ''),
+      },
     },
   },
   optimizeDeps: {

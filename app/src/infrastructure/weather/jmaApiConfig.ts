@@ -9,7 +9,7 @@
  * - フォールバック: 直接アクセス（CORS でブロックされる可能性あり）
  */
 
-/** JMA API のベース URL を返す */
+/** JMA API のベース URL を返す (www.jma.go.jp — 予報・AMeDAS 用) */
 export function getJmaBaseUrl(): string {
   if (import.meta.env.DEV) {
     return '/jma-api'
@@ -20,4 +20,16 @@ export function getJmaBaseUrl(): string {
   }
   // フォールバック: 直接アクセス（CORS で失敗する可能性がある）
   return 'https://www.jma.go.jp'
+}
+
+/** JMA Data のベース URL を返す (www.data.jma.go.jp — ETRN 過去データ用) */
+export function getJmaDataBaseUrl(): string {
+  if (import.meta.env.DEV) {
+    return '/jma-data'
+  }
+  const proxyUrl = import.meta.env.VITE_JMA_DATA_PROXY_URL
+  if (proxyUrl) {
+    return proxyUrl.replace(/\/$/, '')
+  }
+  return 'https://www.data.jma.go.jp'
 }
