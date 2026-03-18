@@ -22,12 +22,18 @@ export function getJmaBaseUrl(): string {
   return 'https://www.jma.go.jp'
 }
 
-/** JMA Data のベース URL を返す (www.data.jma.go.jp — ETRN 過去データ用) */
+/**
+ * JMA Data のベース URL を返す (www.data.jma.go.jp — ETRN 過去データ用)
+ *
+ * 本番環境では VITE_JMA_PROXY_URL と同じ Worker を使用する。
+ * Worker がパスプレフィックス (/stats/etrn/) で data.jma.go.jp に振り分ける。
+ */
 export function getJmaDataBaseUrl(): string {
   if (import.meta.env.DEV) {
     return '/jma-data'
   }
-  const proxyUrl = import.meta.env.VITE_JMA_DATA_PROXY_URL
+  // 本番: 同じ Worker がパスベースで www.jma.go.jp / data.jma.go.jp を振り分け
+  const proxyUrl = import.meta.env.VITE_JMA_PROXY_URL
   if (proxyUrl) {
     return proxyUrl.replace(/\/$/, '')
   }
