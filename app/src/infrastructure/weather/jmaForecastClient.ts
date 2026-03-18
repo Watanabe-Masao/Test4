@@ -13,6 +13,8 @@
  */
 import type { DailyForecast, ForecastAreaResolution } from '@/domain/models'
 import { getJmaBaseUrl } from './jmaApiConfig'
+import { fetchStationTable } from './jmaAmedasClient'
+import { fetchJsonWithRetry } from './jmaJsonClient'
 
 // ─── URLs（プロキシ経由で動的解決） ─────────────────────
 
@@ -28,10 +30,6 @@ function getWeekAreaNameUrl(): string {
 function getForecastUrl(): string {
   return `${getJmaBaseUrl()}/bosai/forecast/data/forecast`
 }
-
-/** リトライ設定 */
-const MAX_RETRIES = 2
-const INITIAL_RETRY_DELAY_MS = 1000
 
 // ─── Raw JSON Types ──────────────────────────────────
 
@@ -82,21 +80,21 @@ let cachedWeekAreaName: WeekAreaNameJson | null = null
 
 async function fetchAreaJson(): Promise<AreaJson> {
   if (cachedAreaJson) return cachedAreaJson
-  const data = (await fetchWithRetry(getAreaJsonUrl())) as AreaJson
+  const data = (await fetchJsonWithRetry(getAreaJsonUrl(), 'Forecast')) as AreaJson
   cachedAreaJson = data
   return data
 }
 
 async function fetchWeekArea(): Promise<WeekAreaJson> {
   if (cachedWeekArea) return cachedWeekArea
-  const data = (await fetchWithRetry(getWeekAreaUrl())) as WeekAreaJson
+  const data = (await fetchJsonWithRetry(getWeekAreaUrl(), 'Forecast')) as WeekAreaJson
   cachedWeekArea = data
   return data
 }
 
 async function fetchWeekAreaName(): Promise<WeekAreaNameJson> {
   if (cachedWeekAreaName) return cachedWeekAreaName
-  const data = (await fetchWithRetry(getWeekAreaNameUrl())) as WeekAreaNameJson
+  const data = (await fetchJsonWithRetry(getWeekAreaNameUrl(), 'Forecast')) as WeekAreaNameJson
   cachedWeekAreaName = data
   return data
 }
@@ -111,6 +109,7 @@ async function fetchWeekAreaName(): Promise<WeekAreaNameJson> {
  *   2. その weekAreaCode が所属する officeCode を同時に特定
  *   3. area.json から officeName を取得
  *   4. week_area_name.json から weekAreaName を取得
+ *   5. 直接一致しない場合、AMEDAS テーブルから地理的に最も近い代表観測所にフォールバック
  *
  * @param amedasStationId AMEDAS 観測所番号 (例: "44132")
  * @returns 予報区域の解決結果。見つからない場合は null
@@ -126,33 +125,129 @@ export async function resolveForcastArea(
   ])
 
   // week_area.json を走査: officeCode → weekAreaCode → stationIds
-  for (const [officeCode, weekAreas] of Object.entries(weekArea)) {
-    for (const [weekAreaCode, stationIds] of Object.entries(weekAreas)) {
-      if (Array.isArray(stationIds) && stationIds.includes(amedasStationId)) {
-        const officeName = area.offices[officeCode]?.name ?? officeCode
-        const areaName = weekAreaName[weekAreaCode] ?? weekAreaCode
+  const directResult = findStationInWeekArea(weekArea, weekAreaName, area, amedasStationId)
+  if (directResult) {
+    console.debug(
+      '[Weather:Forecast] 予報区域解決完了: stationId=%s → office=%s(%s) weekArea=%s(%s)',
+      amedasStationId,
+      directResult.officeCode,
+      directResult.officeName,
+      directResult.weekAreaCode,
+      directResult.weekAreaName,
+    )
+    return directResult
+  }
 
-        console.debug(
-          '[Weather:Forecast] 予報区域解決完了: stationId=%s → office=%s(%s) weekArea=%s(%s)',
-          amedasStationId,
-          officeCode,
-          officeName,
-          weekAreaCode,
-          areaName,
-        )
-        return {
-          officeCode,
-          officeName,
-          weekAreaCode,
-          weekAreaName: areaName,
-          amedasStationId,
-        }
-      }
-    }
+  // フォールバック: AMEDAS テーブルから地理的に最も近い代表観測所を探す
+  console.debug(
+    '[Weather:Forecast] 直接一致なし → 地理的フォールバック: stationId=%s',
+    amedasStationId,
+  )
+  const fallbackResult = await resolveByNearestRepresentativeStation(
+    amedasStationId,
+    weekArea,
+    weekAreaName,
+    area,
+  )
+  if (fallbackResult) {
+    return fallbackResult
   }
 
   console.warn('[Weather:Forecast] 予報区域が見つかりません: stationId=%s', amedasStationId)
   return null
+}
+
+function findStationInWeekArea(
+  weekArea: WeekAreaJson,
+  weekAreaName: WeekAreaNameJson,
+  area: AreaJson,
+  stationId: string,
+): ForecastAreaResolution | null {
+  for (const [officeCode, weekAreas] of Object.entries(weekArea)) {
+    for (const [weekAreaCode, stationIds] of Object.entries(weekAreas)) {
+      if (Array.isArray(stationIds) && stationIds.includes(stationId)) {
+        return {
+          officeCode,
+          officeName: area.offices[officeCode]?.name ?? officeCode,
+          weekAreaCode,
+          weekAreaName: weekAreaName[weekAreaCode] ?? weekAreaCode,
+          amedasStationId: stationId,
+        }
+      }
+    }
+  }
+  return null
+}
+
+/**
+ * week_area.json に登録されている全代表観測所から、
+ * 対象観測所に地理的に最も近いものを探してフォールバックする。
+ */
+async function resolveByNearestRepresentativeStation(
+  targetStationId: string,
+  weekArea: WeekAreaJson,
+  weekAreaName: WeekAreaNameJson,
+  area: AreaJson,
+): Promise<ForecastAreaResolution | null> {
+  const stationTable = await fetchStationTable()
+  const targetStation = stationTable.find((s) => s.stationId === targetStationId)
+  if (!targetStation) return null
+
+  // week_area.json 内の全代表観測所 ID を収集
+  const representativeIds = new Set<string>()
+  for (const weekAreas of Object.values(weekArea)) {
+    for (const stationIds of Object.values(weekAreas)) {
+      if (Array.isArray(stationIds)) {
+        for (const id of stationIds) representativeIds.add(id)
+      }
+    }
+  }
+
+  // 代表観測所の座標を AMEDAS テーブルから引き、最近傍を探す
+  let nearestId: string | null = null
+  let minDist = Infinity
+  for (const station of stationTable) {
+    if (!representativeIds.has(station.stationId)) continue
+    const dist = haversineDistance(
+      targetStation.latitude,
+      targetStation.longitude,
+      station.latitude,
+      station.longitude,
+    )
+    if (dist < minDist) {
+      minDist = dist
+      nearestId = station.stationId
+    }
+  }
+
+  if (!nearestId) return null
+
+  const result = findStationInWeekArea(weekArea, weekAreaName, area, nearestId)
+  if (result) {
+    console.debug(
+      '[Weather:Forecast] 地理的フォールバック成功: %s → 代表観測所 %s (%.1fkm) → office=%s(%s)',
+      targetStationId,
+      nearestId,
+      minDist,
+      result.officeCode,
+      result.officeName,
+    )
+    // 元の stationId を保持する
+    return { ...result, amedasStationId: targetStationId }
+  }
+  return null
+}
+
+/** 2地点間のハバーサイン距離 (km) */
+function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371
+  const toRad = (deg: number) => (deg * Math.PI) / 180
+  const dLat = toRad(lat2 - lat1)
+  const dLon = toRad(lon2 - lon1)
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 }
 
 // ─── Forecast Fetch ──────────────────────────────────
@@ -224,7 +319,10 @@ export async function fetchWeeklyForecast(
     amedasStationId,
   )
   console.debug('[Weather:Forecast] URL: %s', url)
-  const data = (await fetchWithRetry(url)) as readonly [unknown, ForecastWeeklyRaw]
+  const data = (await fetchJsonWithRetry(url, 'Forecast')) as readonly [
+    unknown,
+    ForecastWeeklyRaw,
+  ]
 
   const weekly = data[1]
   if (!weekly?.timeSeries) {
@@ -290,41 +388,6 @@ export async function fetchWeeklyForecast(
 
   console.debug('[Weather:Forecast] 週間予報取得完了: %d日分', forecasts.length)
   return forecasts
-}
-
-// ─── Utilities ───────────────────────────────────────
-
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
-async function fetchWithRetry(url: string): Promise<unknown> {
-  let lastError: Error | undefined
-  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-    try {
-      if (attempt > 0) {
-        console.debug('[Weather:Forecast] リトライ %d/%d: %s', attempt, MAX_RETRIES, url)
-      }
-      const response = await fetch(url)
-      console.debug('[Weather:Forecast] HTTP %d %s ← %s', response.status, response.statusText, url)
-      if (!response.ok) {
-        throw new Error(`JMA Forecast API error: ${response.status} ${response.statusText}`)
-      }
-      return await response.json()
-    } catch (e) {
-      lastError = e instanceof Error ? e : new Error(String(e))
-      console.warn(
-        '[Weather:Forecast] リクエスト失敗 (attempt=%d): %s — %s',
-        attempt,
-        url,
-        lastError.message,
-      )
-      if (attempt < MAX_RETRIES) {
-        await delay(INITIAL_RETRY_DELAY_MS * 2 ** attempt)
-      }
-    }
-  }
-  throw lastError ?? new Error('JMA Forecast API request failed')
 }
 
 /** テスト用: マスタデータキャッシュをクリアする */
