@@ -540,8 +540,8 @@ describe('Infrastructure 層の分割後ファイル行数制限', () => {
     ['infrastructure/storeIdNormalization.ts', 80],
     // Phase 7: purchaseComparison クエリ集約（仕入比較 + 売上 + カテゴリ日別）
     ['infrastructure/duckdb/queries/purchaseComparison.ts', 450],
-    // Weather: jmaForecastClient（resolveForcastAreaByLocation + extractStationIds）
-    ['infrastructure/weather/jmaForecastClient.ts', 500],
+    // Weather: jmaForecastClient（AMeDAS非依存版、officeCode直接解決）
+    ['infrastructure/weather/jmaForecastClient.ts', 260],
     // Weather: jmaEtrnClient（<area> タグ対応 + 診断ログ）
     ['infrastructure/weather/jmaEtrnClient.ts', 420],
   ]

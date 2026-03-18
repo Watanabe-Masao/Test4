@@ -5,8 +5,7 @@ export { findNearestStation, fetchStationTable, clearStationTableCache } from '.
 export type { AmedasStation } from './jmaAmedasClient'
 export { JmaAccessError } from './jmaAmedasClient'
 export {
-  resolveForcastArea,
-  resolveForcastAreaByLocation,
+  resolveForecastOfficeByLocation,
   fetchWeeklyForecast,
   clearForecastCache,
 } from './jmaForecastClient'
