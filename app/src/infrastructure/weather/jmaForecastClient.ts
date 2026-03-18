@@ -127,7 +127,7 @@ export async function resolveForcastArea(
   // week_area.json を走査: officeCode → weekAreaCode → stationIds
   for (const [officeCode, weekAreas] of Object.entries(weekArea)) {
     for (const [weekAreaCode, stationIds] of Object.entries(weekAreas)) {
-      if (stationIds.includes(amedasStationId)) {
+      if (Array.isArray(stationIds) && stationIds.includes(amedasStationId)) {
         const officeName = area.offices[officeCode]?.name ?? officeCode
         const areaName = weekAreaName[weekAreaCode] ?? weekAreaCode
 

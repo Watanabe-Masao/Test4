@@ -161,7 +161,13 @@ export async function fetchEtrnDailyWeather(
     `${baseUrl}/stats/etrn/view/daily_${stationType}.php` +
     `?prec_no=${precNo}&block_no=${blockNo}&year=${year}&month=${month}&day=&view=`
 
-  const html = await fetchHtmlWithRetry(url)
+  let html: string
+  try {
+    html = await fetchHtmlWithRetry(url)
+  } catch (e) {
+    if (e instanceof EtrnNotFoundError) return []
+    throw e
+  }
   const doc = new DOMParser().parseFromString(html, 'text/html')
 
   return parseDailyTable(doc, year, month)
@@ -234,7 +240,13 @@ export async function fetchEtrnHourlyWeather(
     `${baseUrl}/stats/etrn/view/hourly_${stationType}.php` +
     `?prec_no=${precNo}&block_no=${blockNo}&year=${year}&month=${month}&day=${day}&view=`
 
-  const html = await fetchHtmlWithRetry(url)
+  let html: string
+  try {
+    html = await fetchHtmlWithRetry(url)
+  } catch (e) {
+    if (e instanceof EtrnNotFoundError) return []
+    throw e
+  }
   const doc = new DOMParser().parseFromString(html, 'text/html')
 
   const dateKey = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
