@@ -54,9 +54,14 @@ let cachedStationTable: readonly AmedasStation[] | null = null
  * AMEDAS 観測所テーブルを取得する（キャッシュ付き）。
  */
 export async function fetchStationTable(): Promise<readonly AmedasStation[]> {
-  if (cachedStationTable) return cachedStationTable
+  if (cachedStationTable) {
+    console.debug('[Weather:AMeDAS] 観測所テーブル: キャッシュヒット (%d件)', cachedStationTable.length)
+    return cachedStationTable
+  }
 
-  const response = await fetchJsonWithRetry(getAmedasTableUrl())
+  const tableUrl = getAmedasTableUrl()
+  console.debug('[Weather:AMeDAS] 観測所テーブル取得: %s', tableUrl)
+  const response = await fetchJsonWithRetry(tableUrl)
   const data = response as Record<
     string,
     {
@@ -86,6 +91,7 @@ export async function fetchStationTable(): Promise<readonly AmedasStation[]> {
     })
   }
 
+  console.debug('[Weather:AMeDAS] 観測所テーブル取得完了: %d件', stations.length)
   cachedStationTable = stations
   return stations
 }
@@ -95,6 +101,7 @@ export async function findNearestStation(
   latitude: number,
   longitude: number,
 ): Promise<AmedasStation | null> {
+  console.debug('[Weather:AMeDAS] 最寄り観測所検索: lat=%f lon=%f', latitude, longitude)
   const stations = await fetchStationTable()
 
   let nearest: AmedasStation | null = null
@@ -112,6 +119,14 @@ export async function findNearestStation(
     }
   }
 
+  if (nearest) {
+    console.debug(
+      '[Weather:AMeDAS] 最寄り観測所: %s(%s) id=%s 距離=%.1fkm',
+      nearest.kjName, nearest.enName, nearest.stationId, minDist,
+    )
+  } else {
+    console.warn('[Weather:AMeDAS] 最寄り観測所が見つかりません: lat=%f lon=%f', latitude, longitude)
+  }
   return nearest
 }
 
@@ -138,7 +153,11 @@ async function fetchJsonWithRetry(url: string): Promise<unknown> {
   let lastError: Error | undefined
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
+      if (attempt > 0) {
+        console.debug('[Weather:AMeDAS] リトライ %d/%d: %s', attempt, MAX_RETRIES, url)
+      }
       const response = await fetch(url)
+      console.debug('[Weather:AMeDAS] HTTP %d %s ← %s', response.status, response.statusText, url)
       if (!response.ok) {
         if (response.status === 403) {
           throw new JmaAccessError(
@@ -156,6 +175,7 @@ async function fetchJsonWithRetry(url: string): Promise<unknown> {
         )
       }
       lastError = e instanceof Error ? e : new Error(String(e))
+      console.warn('[Weather:AMeDAS] リクエスト失敗 (attempt=%d): %s — %s', attempt, url, lastError.message)
       if (attempt < MAX_RETRIES) {
         await delay(INITIAL_RETRY_DELAY_MS * 2 ** attempt)
       }

@@ -118,6 +118,7 @@ async function fetchWeekAreaName(): Promise<WeekAreaNameJson> {
 export async function resolveForcastArea(
   amedasStationId: string,
 ): Promise<ForecastAreaResolution | null> {
+  console.debug('[Weather:Forecast] 予報区域解決開始: stationId=%s', amedasStationId)
   const [weekArea, weekAreaName, area] = await Promise.all([
     fetchWeekArea(),
     fetchWeekAreaName(),
@@ -131,6 +132,10 @@ export async function resolveForcastArea(
         const officeName = area.offices[officeCode]?.name ?? officeCode
         const areaName = weekAreaName[weekAreaCode] ?? weekAreaCode
 
+        console.debug(
+          '[Weather:Forecast] 予報区域解決完了: stationId=%s → office=%s(%s) weekArea=%s(%s)',
+          amedasStationId, officeCode, officeName, weekAreaCode, areaName,
+        )
         return {
           officeCode,
           officeName,
@@ -142,6 +147,7 @@ export async function resolveForcastArea(
     }
   }
 
+  console.warn('[Weather:Forecast] 予報区域が見つかりません: stationId=%s', amedasStationId)
   return null
 }
 
@@ -207,17 +213,28 @@ export async function fetchWeeklyForecast(
   amedasStationId: string,
 ): Promise<readonly DailyForecast[]> {
   const url = `${getForecastUrl()}/${officeCode}.json`
+  console.debug('[Weather:Forecast] 週間予報取得: office=%s weekArea=%s station=%s', officeCode, weekAreaCode, amedasStationId)
+  console.debug('[Weather:Forecast] URL: %s', url)
   const data = (await fetchWithRetry(url)) as readonly [unknown, ForecastWeeklyRaw]
 
   const weekly = data[1]
-  if (!weekly?.timeSeries) return []
+  if (!weekly?.timeSeries) {
+    console.warn('[Weather:Forecast] 週間予報データなし (timeSeries が存在しない)')
+    return []
+  }
 
   const ts0 = weekly.timeSeries[0]
   const ts1 = weekly.timeSeries[1]
 
   // 該当する週間予報区域のデータを抽出
   const weatherArea = ts0.areas.find((a) => a.area.code === weekAreaCode)
-  if (!weatherArea) return []
+  if (!weatherArea) {
+    console.warn(
+      '[Weather:Forecast] weekAreaCode=%s に該当するデータなし。利用可能: %s',
+      weekAreaCode, ts0.areas.map((a) => `${a.area.code}(${a.area.name})`).join(', '),
+    )
+    return []
+  }
 
   // 該当する AMEDAS 観測所の気温データを抽出
   const tempArea = ts1?.areas.find((a) => a.area.code === amedasStationId)
@@ -261,6 +278,7 @@ export async function fetchWeeklyForecast(
     })
   }
 
+  console.debug('[Weather:Forecast] 週間予報取得完了: %d日分', forecasts.length)
   return forecasts
 }
 
@@ -274,13 +292,18 @@ async function fetchWithRetry(url: string): Promise<unknown> {
   let lastError: Error | undefined
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
+      if (attempt > 0) {
+        console.debug('[Weather:Forecast] リトライ %d/%d: %s', attempt, MAX_RETRIES, url)
+      }
       const response = await fetch(url)
+      console.debug('[Weather:Forecast] HTTP %d %s ← %s', response.status, response.statusText, url)
       if (!response.ok) {
         throw new Error(`JMA Forecast API error: ${response.status} ${response.statusText}`)
       }
       return await response.json()
     } catch (e) {
       lastError = e instanceof Error ? e : new Error(String(e))
+      console.warn('[Weather:Forecast] リクエスト失敗 (attempt=%d): %s — %s', attempt, url, lastError.message)
       if (attempt < MAX_RETRIES) {
         await delay(INITIAL_RETRY_DELAY_MS * 2 ** attempt)
       }

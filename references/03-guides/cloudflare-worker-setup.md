@@ -99,7 +99,7 @@ GitHub Secrets = リポジトリに安全に保存される秘密の値。コー
 | `/bosai/amedas/*`   | `www.jma.go.jp`      | AMeDAS（気温・降水量など） |
 | `/bosai/forecast/*` | `www.jma.go.jp`      | 天気予報                   |
 | `/bosai/common/*`   | `www.jma.go.jp`      | マスタデータ               |
-| `/stats/etrn/*`     | `www.data.jma.go.jp` | 過去の気象データ           |
+| `/obd/stats/etrn/*` | `www.data.jma.go.jp` | 過去の気象データ           |
 
 ### 処理フロー
 
@@ -123,7 +123,7 @@ GitHub Secrets = リポジトリに安全に保存される秘密の値。コー
 | -------------------------------- | --------------------------- | ------------------------------------------------------------ |
 | Actions でデプロイ失敗           | Secrets の値が間違っている  | `CLOUDFLARE_API_TOKEN` と `CLOUDFLARE_ACCOUNT_ID` を再確認   |
 | アプリで気象データが取得できない | `VITE_JMA_PROXY_URL` 未設定 | ステップ6を実行                                              |
-| Worker URL にアクセスすると 403  | パスが許可リストにない      | `/bosai/` または `/stats/etrn/` から始まるパスでアクセス     |
+| Worker URL にアクセスすると 403  | パスが許可リストにない      | `/bosai/` または `/obd/stats/etrn/` から始まるパスでアクセス |
 | API トークンを紛失した           | 表示は一度きり              | Cloudflare で新しいトークンを再発行し、GitHub Secrets を更新 |
 
 ## 費用
