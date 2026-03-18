@@ -4,7 +4,12 @@ export type { ReverseGeocodeResult } from './geocodingClient'
 export { findNearestStation, fetchStationTable, clearStationTableCache } from './jmaAmedasClient'
 export type { AmedasStation } from './jmaAmedasClient'
 export { JmaAccessError } from './jmaAmedasClient'
-export { resolveForcastArea, fetchWeeklyForecast, clearForecastCache } from './jmaForecastClient'
+export {
+  resolveForcastArea,
+  resolveForcastAreaByLocation,
+  fetchWeeklyForecast,
+  clearForecastCache,
+} from './jmaForecastClient'
 export {
   resolveEtrnStation,
   resolveEtrnStationByLocation,

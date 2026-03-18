@@ -157,6 +157,64 @@ export async function resolveForcastArea(
   return null
 }
 
+/**
+ * 緯度経度から予報区域を解決する（stationId 不要）。
+ *
+ * week_area.json 内の全代表観測所の座標を AMEDAS テーブルから取得し、
+ * 指定座標に最も近い代表観測所の予報区域を返す。
+ */
+export async function resolveForcastAreaByLocation(
+  latitude: number,
+  longitude: number,
+): Promise<ForecastAreaResolution | null> {
+  console.debug('[Weather:Forecast] 位置ベース予報区域解決: lat=%f lon=%f', latitude, longitude)
+  const [weekArea, weekAreaName, area] = await Promise.all([
+    fetchWeekArea(),
+    fetchWeekAreaName(),
+    fetchAreaJson(),
+  ])
+  const stationTable = await fetchStationTable()
+
+  // 代表観測所 ID を収集
+  const representativeIds = new Set<string>()
+  for (const weekAreas of Object.values(weekArea)) {
+    for (const stationIds of Object.values(weekAreas)) {
+      if (Array.isArray(stationIds)) {
+        for (const id of stationIds) representativeIds.add(id)
+      }
+    }
+  }
+
+  // 位置座標から最近傍の代表観測所を探す
+  let nearestId: string | null = null
+  let minDist = Infinity
+  for (const station of stationTable) {
+    if (!representativeIds.has(station.stationId)) continue
+    const dist = haversineDistance(latitude, longitude, station.latitude, station.longitude)
+    if (dist < minDist) {
+      minDist = dist
+      nearestId = station.stationId
+    }
+  }
+
+  if (!nearestId) {
+    console.warn('[Weather:Forecast] 位置ベース解決失敗: 代表観測所なし')
+    return null
+  }
+
+  const result = findStationInWeekArea(weekArea, weekAreaName, area, nearestId)
+  if (result) {
+    console.debug(
+      '[Weather:Forecast] 位置ベース解決成功: 代表観測所 %s (%.1fkm) → office=%s(%s)',
+      nearestId,
+      minDist,
+      result.officeCode,
+      result.officeName,
+    )
+  }
+  return result
+}
+
 function findStationInWeekArea(
   weekArea: WeekAreaJson,
   weekAreaName: WeekAreaNameJson,
