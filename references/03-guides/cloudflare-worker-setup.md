@@ -15,12 +15,12 @@
 
 ## 全体像
 
-| 要素 | 役割 |
-|---|---|
-| `workers/jma-proxy/` | プロキシのソースコード |
-| `.github/workflows/deploy-worker.yml` | main にマージされたら自動デプロイ |
-| GitHub Secrets | Cloudflare の認証情報（トークン・アカウントID） |
-| `VITE_JMA_PROXY_URL` | アプリがプロキシの URL を知るための環境変数 |
+| 要素                                  | 役割                                            |
+| ------------------------------------- | ----------------------------------------------- |
+| `workers/jma-proxy/`                  | プロキシのソースコード                          |
+| `.github/workflows/deploy-worker.yml` | main にマージされたら自動デプロイ               |
+| GitHub Secrets                        | Cloudflare の認証情報（トークン・アカウントID） |
+| `VITE_JMA_PROXY_URL`                  | アプリがプロキシの URL を知るための環境変数     |
 
 ## セットアップ手順
 
@@ -62,9 +62,9 @@ GitHub Secrets = リポジトリに安全に保存される秘密の値。コー
 1. GitHub リポジトリの **Settings** → **Secrets and variables** → **Actions** を開く
 2. 「New repository secret」で以下を登録:
 
-| Name | Value | 説明 |
-|---|---|---|
-| `CLOUDFLARE_API_TOKEN` | ステップ2のトークン | デプロイ認証用 |
+| Name                    | Value                 | 説明             |
+| ----------------------- | --------------------- | ---------------- |
+| `CLOUDFLARE_API_TOKEN`  | ステップ2のトークン   | デプロイ認証用   |
 | `CLOUDFLARE_ACCOUNT_ID` | ステップ3のAccount ID | アカウント識別用 |
 
 ### ステップ 5: PR をマージしてデプロイ
@@ -81,8 +81,8 @@ GitHub Secrets = リポジトリに安全に保存される秘密の値。コー
 2. Worker の URL を確認（例: `https://jma-proxy.xxxxx.workers.dev`）
 3. GitHub Secrets に追加:
 
-| Name | Value |
-|---|---|
+| Name                 | Value                                 |
+| -------------------- | ------------------------------------- |
 | `VITE_JMA_PROXY_URL` | `https://jma-proxy.xxxxx.workers.dev` |
 
 > この URL はアプリのビルド時に埋め込まれ、気象庁APIへのリクエストが
@@ -94,12 +94,12 @@ GitHub Secrets = リポジトリに安全に保存される秘密の値。コー
 
 ### ルーティング
 
-| リクエストパス | 転送先 | 用途 |
-|---|---|---|
-| `/bosai/amedas/*` | `www.jma.go.jp` | AMeDAS（気温・降水量など） |
-| `/bosai/forecast/*` | `www.jma.go.jp` | 天気予報 |
-| `/bosai/common/*` | `www.jma.go.jp` | マスタデータ |
-| `/stats/etrn/*` | `www.data.jma.go.jp` | 過去の気象データ |
+| リクエストパス      | 転送先               | 用途                       |
+| ------------------- | -------------------- | -------------------------- |
+| `/bosai/amedas/*`   | `www.jma.go.jp`      | AMeDAS（気温・降水量など） |
+| `/bosai/forecast/*` | `www.jma.go.jp`      | 天気予報                   |
+| `/bosai/common/*`   | `www.jma.go.jp`      | マスタデータ               |
+| `/stats/etrn/*`     | `www.data.jma.go.jp` | 過去の気象データ           |
 
 ### 処理フロー
 
@@ -119,15 +119,16 @@ GitHub Secrets = リポジトリに安全に保存される秘密の値。コー
 
 ## トラブルシューティング
 
-| 症状 | 原因 | 対処 |
-|---|---|---|
-| Actions でデプロイ失敗 | Secrets の値が間違っている | `CLOUDFLARE_API_TOKEN` と `CLOUDFLARE_ACCOUNT_ID` を再確認 |
-| アプリで気象データが取得できない | `VITE_JMA_PROXY_URL` 未設定 | ステップ6を実行 |
-| Worker URL にアクセスすると 403 | パスが許可リストにない | `/bosai/` または `/stats/etrn/` から始まるパスでアクセス |
-| API トークンを紛失した | 表示は一度きり | Cloudflare で新しいトークンを再発行し、GitHub Secrets を更新 |
+| 症状                             | 原因                        | 対処                                                         |
+| -------------------------------- | --------------------------- | ------------------------------------------------------------ |
+| Actions でデプロイ失敗           | Secrets の値が間違っている  | `CLOUDFLARE_API_TOKEN` と `CLOUDFLARE_ACCOUNT_ID` を再確認   |
+| アプリで気象データが取得できない | `VITE_JMA_PROXY_URL` 未設定 | ステップ6を実行                                              |
+| Worker URL にアクセスすると 403  | パスが許可リストにない      | `/bosai/` または `/stats/etrn/` から始まるパスでアクセス     |
+| API トークンを紛失した           | 表示は一度きり              | Cloudflare で新しいトークンを再発行し、GitHub Secrets を更新 |
 
 ## 費用
 
 Cloudflare Workers の無料プラン:
+
 - **10万リクエスト/日** まで無料
 - このアプリの用途では十分（気象データの取得は1日数十〜数百リクエスト程度）
