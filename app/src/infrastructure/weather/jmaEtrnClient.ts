@@ -14,9 +14,10 @@
  *
  * @see https://www.data.jma.go.jp/stats/etrn/index.php
  */
-import type { DailyWeatherSummary } from '@/domain/models'
+import type { DailyWeatherSummary, HourlyWeatherRecord } from '@/domain/models'
 import { getJmaDataBaseUrl } from './jmaApiConfig'
 import { parseDailyTable } from './etrnTableParser'
+import { parseHourlyTable } from './etrnHourlyParser'
 
 /** JMA サーバーへの配慮 — リクエスト間隔 (ms) */
 const REQUEST_DELAY_MS = 300
@@ -204,6 +205,76 @@ export async function fetchEtrnDailyRange(
     onProgress?.(i + 1, months.length)
 
     if (i < months.length - 1) {
+      await delay(REQUEST_DELAY_MS)
+    }
+  }
+
+  return allResults
+}
+
+// ─── Hourly Weather Data ─────────────────────────────
+
+/**
+ * ETRN から1日分の時間別天気データを取得する。
+ *
+ * 1リクエスト = 1日分（最大24レコード）。
+ * 日別データ（1リクエスト = 1月分）と比べてリクエスト数が多いため、
+ * 必要な日付範囲のみ取得すること。
+ */
+export async function fetchEtrnHourlyWeather(
+  precNo: number,
+  blockNo: string,
+  stationType: 'a1' | 's1',
+  year: number,
+  month: number,
+  day: number,
+): Promise<readonly HourlyWeatherRecord[]> {
+  const baseUrl = getJmaDataBaseUrl()
+  const url =
+    `${baseUrl}/stats/etrn/view/hourly_${stationType}.php` +
+    `?prec_no=${precNo}&block_no=${blockNo}&year=${year}&month=${month}&day=${day}&view=`
+
+  const html = await fetchHtmlWithRetry(url)
+  const doc = new DOMParser().parseFromString(html, 'text/html')
+
+  const dateKey = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+  return parseHourlyTable(doc, dateKey)
+}
+
+/**
+ * ETRN から月単位の時間別天気データを一括取得する。
+ *
+ * 1日ごとにリクエストを送るため、30日分 ≈ 30リクエスト。
+ * JMA サーバーへの配慮として REQUEST_DELAY_MS 間隔で取得する。
+ */
+export async function fetchEtrnHourlyRange(
+  precNo: number,
+  blockNo: string,
+  stationType: 'a1' | 's1',
+  year: number,
+  month: number,
+  days: readonly number[],
+  onProgress?: (completed: number, total: number) => void,
+): Promise<readonly HourlyWeatherRecord[]> {
+  const allResults: HourlyWeatherRecord[] = []
+
+  for (let i = 0; i < days.length; i++) {
+    try {
+      const hourlyData = await fetchEtrnHourlyWeather(
+        precNo,
+        blockNo,
+        stationType,
+        year,
+        month,
+        days[i],
+      )
+      allResults.push(...hourlyData)
+    } catch {
+      // 該当日のデータがない場合はスキップ
+    }
+    onProgress?.(i + 1, days.length)
+
+    if (i < days.length - 1) {
       await delay(REQUEST_DELAY_MS)
     }
   }

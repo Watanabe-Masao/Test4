@@ -115,7 +115,6 @@ export async function findNearestStation(
   return nearest
 }
 
-
 // ─── Utilities ───────────────────────────────────────
 
 /** 2地点間のハバーサイン距離 (km) */
