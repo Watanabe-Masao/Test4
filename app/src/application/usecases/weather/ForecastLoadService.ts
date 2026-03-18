@@ -1,83 +1,64 @@
 /**
  * 週間天気予報データ取得オーケストレーション
  *
- * JMA 観測所 ID → 予報区域コード解決 → Forecast API 取得
- * の一連の流れを調停する。
- *
- * 予報データはキャッシュしない（毎回最新を取得する）。
- * 予報区域コード（officeCode, weekAreaCode）のみ StoreLocation にキャッシュ可能。
+ * lat/lon → 逆ジオコーディング → officeCode → forecast API
+ * の流れで週間天気予報を取得する。AMeDAS に非依存。
  */
 import type { StoreLocation, DailyForecast, ForecastAreaResolution } from '@/domain/models'
-import {
-  findNearestStation,
-  resolveForcastArea,
-  resolveForcastAreaByLocation,
-  fetchWeeklyForecast,
-} from '@/infrastructure/weather'
+import { resolveForecastOfficeByLocation, fetchWeeklyForecast } from '@/infrastructure/weather'
 
 /**
  * 店舗の位置情報から週間天気予報を取得する。
  *
- * 1. JMA 観測所を解決（StoreLocation にキャッシュ済みなら skip）
- * 2. 予報区域コードを解決（StoreLocation にキャッシュ済みなら skip）
- * 3. Forecast API で週間予報を取得
- *
- * @param location 店舗の位置情報
- * @returns { forecasts, resolution } — 予報データと解決結果
+ * 1. officeCode を解決（StoreLocation にキャッシュ済みなら skip）
+ * 2. forecast API で週間予報を取得
  */
 export async function loadForecastForStore(location: StoreLocation): Promise<{
   readonly forecasts: readonly DailyForecast[]
   readonly resolution: ForecastAreaResolution | null
 }> {
-  // 1. JMA 観測所 ID を確保（失敗しても続行可能）
-  let stationId = location.amedasStationId
-  if (!stationId) {
-    const station = await findNearestStation(location.latitude, location.longitude)
-    stationId = station?.stationId
-  }
-
-  // 2. 予報区域コードを解決
   let officeCode = location.forecastOfficeCode
+  let officeName = ''
   let weekAreaCode = location.weekAreaCode
 
-  let resolution: ForecastAreaResolution | null = null
-
-  if (officeCode && weekAreaCode) {
-    // キャッシュ済み — resolution は簡易構築
-    resolution = {
-      officeCode,
-      officeName: '',
-      weekAreaCode,
-      weekAreaName: '',
-      amedasStationId: stationId ?? '',
-    }
-  } else {
-    // stationId ベースで解決を試みる
-    if (stationId) {
-      resolution = await resolveForcastArea(stationId)
-    }
-    // stationId が無い or stationId ベース解決が失敗 → lat/lon フォールバック
-    if (!resolution) {
-      console.debug('[Weather:Forecast] stationId解決失敗 → lat/lon fallback開始')
-      resolution = await resolveForcastAreaByLocation(location.latitude, location.longitude)
-    }
-    if (!resolution) {
-      console.warn('[Weather:Forecast] area解決失敗: stationId/lat/lon 両方不可')
+  // 1. officeCode を解決
+  if (!officeCode) {
+    const resolved = await resolveForecastOfficeByLocation(location.latitude, location.longitude)
+    if (!resolved) {
+      console.warn('[Weather:Forecast] officeCode 解決失敗')
       return { forecasts: [], resolution: null }
     }
-    officeCode = resolution.officeCode
-    weekAreaCode = resolution.weekAreaCode
-    console.debug(
-      '[Weather:Forecast] area resolved: office=%s weekArea=%s',
-      officeCode,
-      weekAreaCode,
-    )
+    officeCode = resolved.officeCode
+    officeName = resolved.officeName
   }
 
-  // 3. 週間天気予報を取得
-  // 気温データ抽出用の stationId: resolution から取得するか、元の stationId を使う
-  const tempStationId = resolution.amedasStationId || stationId || ''
-  const forecasts = await fetchWeeklyForecast(officeCode, weekAreaCode, tempStationId)
+  // 2. 週間天気予報を取得
+  console.debug(
+    '[Weather:Forecast] forecast fetch: office=%s weekArea=%s',
+    officeCode,
+    weekAreaCode ?? '(auto)',
+  )
+  const result = await fetchWeeklyForecast(officeCode, weekAreaCode ?? undefined)
 
-  return { forecasts, resolution }
+  // weekAreaCode が未キャッシュの場合、レスポンスから取得した値を使う
+  if (!weekAreaCode && result.resolvedWeekAreaCode) {
+    weekAreaCode = result.resolvedWeekAreaCode
+  }
+
+  const resolution: ForecastAreaResolution = {
+    officeCode,
+    officeName,
+    weekAreaCode: weekAreaCode ?? '',
+    weekAreaName: '',
+    amedasStationId: '',
+  }
+
+  console.debug(
+    '[Weather:Forecast] forecast done: office=%s weekArea=%s days=%d',
+    officeCode,
+    weekAreaCode,
+    result.forecasts.length,
+  )
+
+  return { forecasts: result.forecasts, resolution }
 }

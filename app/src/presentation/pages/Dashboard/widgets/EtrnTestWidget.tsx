@@ -96,6 +96,13 @@ interface ResolvedInfo {
   readonly etrnStationName?: string
 }
 
+/** 取得フローの各ステップ情報 */
+interface FlowStep {
+  readonly label: string
+  readonly value: string
+  readonly ok: boolean
+}
+
 export const EtrnTestWidget = memo(function EtrnTestWidget({ ctx }: { ctx: WidgetContext }) {
   const { year, month, storeKey } = ctx
   const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
@@ -188,6 +195,28 @@ export const EtrnTestWidget = memo(function EtrnTestWidget({ ctx }: { ctx: Widge
         </Row>
       </Section>
 
+      <Section>
+        <SectionTitle>取得フロー詳細</SectionTitle>
+        <DataTable>
+          <thead>
+            <tr>
+              <th>ステップ</th>
+              <th>値</th>
+              <th>状態</th>
+            </tr>
+          </thead>
+          <tbody>
+            {buildFlowSteps(location, info, state).map((step, i) => (
+              <tr key={i}>
+                <td>{step.label}</td>
+                <td>{step.value}</td>
+                <td>{step.ok ? 'OK' : 'NG'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </DataTable>
+      </Section>
+
       {state.daily.length > 0 && (
         <Section>
           <SectionTitle>日別データ（{state.daily.length}日）</SectionTitle>
@@ -229,6 +258,61 @@ export const EtrnTestWidget = memo(function EtrnTestWidget({ ctx }: { ctx: Widge
     </Wrapper>
   )
 })
+
+function buildFlowSteps(location: StoreLocation, info: ResolvedInfo, state: TestState): FlowStep[] {
+  const steps: FlowStep[] = [
+    {
+      label: '1. 緯度/経度',
+      value: `${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}`,
+      ok: true,
+    },
+    {
+      label: '2. ETRN prec_no',
+      value: info.etrnPrecNo != null ? String(info.etrnPrecNo) : '未解決',
+      ok: info.etrnPrecNo != null,
+    },
+    {
+      label: '3. ETRN block_no',
+      value: info.etrnBlockNo ?? '未解決',
+      ok: !!info.etrnBlockNo,
+    },
+    {
+      label: '4. ETRN type',
+      value: info.etrnStationType ?? '未解決',
+      ok: !!info.etrnStationType,
+    },
+    {
+      label: '5. 観測所名',
+      value: info.etrnStationName ?? '(キャッシュ)',
+      ok: !!info.etrnStationName || !!info.etrnBlockNo,
+    },
+    {
+      label: '6. 日別データ件数',
+      value: state.status === 'done' ? `${state.daily.length}日` : state.status,
+      ok: state.status === 'done' && state.daily.length > 0,
+    },
+  ]
+
+  // 気温範囲サマリ
+  if (state.daily.length > 0) {
+    const temps = state.daily.map((d) => d.temperatureAvg)
+    const minT = Math.min(...temps).toFixed(1)
+    const maxT = Math.max(...temps).toFixed(1)
+    steps.push({
+      label: '7. 平均気温範囲',
+      value: `${minT}~${maxT} °C`,
+      ok: true,
+    })
+    const totalPrecip = state.daily.reduce((s, d) => s + d.precipitationTotal, 0)
+    steps.push({
+      label: '8. 月間降水量合計',
+      value: `${totalPrecip.toFixed(1)} mm`,
+      ok: true,
+    })
+  }
+
+  return steps
+}
 
 function infoFromLocation(location: StoreLocation): ResolvedInfo {
   return {

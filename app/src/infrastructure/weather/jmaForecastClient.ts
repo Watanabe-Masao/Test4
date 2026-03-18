@@ -1,31 +1,20 @@
 /**
  * 気象庁 週間天気予報 API クライアント
  *
- * 3つの JMA JSON マスタデータを使い、AMEDAS 観測所 ID から
- * 府県予報区・週間予報区域を自動解決し、週間天気予報を取得する。
- *
- * マスタデータ:
- *   - area.json: 府県予報区 (offices) → 一次細分区域 (class10s) の階層
- *   - week_area.json: 週間予報区域 → AMEDAS 観測所のマッピング
- *   - week_area_name.json: 週間予報区域コード → 地域名
+ * 緯度経度 → 逆ジオコーディング → area.json → officeCode → forecast API
+ * の流れで週間天気予報を取得する。AMeDAS/week_area.json に非依存。
  *
  * @see https://www.jma.go.jp/bosai/forecast/
  */
-import type { DailyForecast, ForecastAreaResolution } from '@/domain/models'
+import type { DailyForecast } from '@/domain/models'
 import { getJmaBaseUrl } from './jmaApiConfig'
-import { fetchStationTable } from './jmaAmedasClient'
+import { reverseGeocode } from './geocodingClient'
 import { fetchJsonWithRetry } from './jmaJsonClient'
 
-// ─── URLs（プロキシ経由で動的解決） ─────────────────────
+// ─── URLs ────────────────────────────────────────────
 
 function getAreaJsonUrl(): string {
   return `${getJmaBaseUrl()}/bosai/common/const/area.json`
-}
-function getWeekAreaUrl(): string {
-  return `${getJmaBaseUrl()}/bosai/forecast/const/week_area.json`
-}
-function getWeekAreaNameUrl(): string {
-  return `${getJmaBaseUrl()}/bosai/forecast/const/week_area_name.json`
 }
 function getForecastUrl(): string {
   return `${getJmaBaseUrl()}/bosai/forecast/data/forecast`
@@ -33,7 +22,6 @@ function getForecastUrl(): string {
 
 // ─── Raw JSON Types ──────────────────────────────────
 
-/** area.json の offices エントリ */
 interface AreaOffice {
   readonly name: string
   readonly enName: string
@@ -42,7 +30,6 @@ interface AreaOffice {
   readonly children: readonly string[]
 }
 
-/** area.json の class10s エントリ */
 interface AreaClass10 {
   readonly name: string
   readonly enName: string
@@ -50,35 +37,14 @@ interface AreaClass10 {
   readonly children: readonly string[]
 }
 
-/** area.json 全体 */
 interface AreaJson {
   readonly offices: Readonly<Record<string, AreaOffice>>
   readonly class10s: Readonly<Record<string, AreaClass10>>
 }
 
-/**
- * week_area.json: officeCode → { weekAreaCode → stationIds }
- *
- * 実際の構造は JMA 側で変わりうるため、内側の値は unknown で受ける。
- * extractStationIds() で配列・オブジェクト両対応で station ID を抽出する。
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type WeekAreaJson = Readonly<Record<string, Readonly<Record<string, any>>>>
-
-/**
- * week_area_name.json: weekAreaCode → areaName
- *
- * 例: { "130010": "東京地方", "130020": "伊豆諸島北部" }
- */
-type WeekAreaNameJson = Readonly<Record<string, string>>
-
 // ─── Cache ───────────────────────────────────────────
 
 let cachedAreaJson: AreaJson | null = null
-let cachedWeekArea: WeekAreaJson | null = null
-let cachedWeekAreaName: WeekAreaNameJson | null = null
-
-// ─── Master Data Fetch ───────────────────────────────
 
 async function fetchAreaJson(): Promise<AreaJson> {
   if (cachedAreaJson) return cachedAreaJson
@@ -87,269 +53,55 @@ async function fetchAreaJson(): Promise<AreaJson> {
   return data
 }
 
-async function fetchWeekArea(): Promise<WeekAreaJson> {
-  if (cachedWeekArea) return cachedWeekArea
-  const data = (await fetchJsonWithRetry(getWeekAreaUrl(), 'Forecast')) as WeekAreaJson
-  cachedWeekArea = data
-  return data
-}
-
-async function fetchWeekAreaName(): Promise<WeekAreaNameJson> {
-  if (cachedWeekAreaName) return cachedWeekAreaName
-  const data = (await fetchJsonWithRetry(getWeekAreaNameUrl(), 'Forecast')) as WeekAreaNameJson
-  cachedWeekAreaName = data
-  return data
-}
-
-// ─── week_area.json Station ID Extraction ────────
+// ─── Office Resolution ──────────────────────────────
 
 /**
- * week_area.json の値から station ID 配列を抽出する。
+ * 緯度経度から府県予報区の officeCode を解決する。
  *
- * JMA の week_area.json は構造が変わりうるため、以下のパターンに対応:
- * - 直接配列: ["44132", "44263"]
- * - オブジェクト内の station フィールド: { station: ["44132"], ... }
- * - オブジェクト内の配列値を再帰的に探索
+ * 1. reverseGeocode(lat, lon) で都道府県名を取得
+ * 2. area.json の offices を走査し、名前一致する officeCode を返す
  */
-function extractStationIds(value: unknown): string[] {
-  if (Array.isArray(value)) {
-    return value.filter((v): v is string => typeof v === 'string')
-  }
-  if (value != null && typeof value === 'object') {
-    const obj = value as Record<string, unknown>
-    // "station" フィールドを優先
-    if (Array.isArray(obj['station'])) {
-      return (obj['station'] as unknown[]).filter((v): v is string => typeof v === 'string')
-    }
-    // 全フィールドから文字列配列を探索
-    for (const v of Object.values(obj)) {
-      if (Array.isArray(v) && v.length > 0 && typeof v[0] === 'string') {
-        return v.filter((item): item is string => typeof item === 'string')
-      }
-    }
-  }
-  return []
-}
-
-/** week_area.json から全代表観測所 ID を収集する */
-function collectRepresentativeIds(weekArea: WeekAreaJson): Set<string> {
-  const ids = new Set<string>()
-  for (const weekAreas of Object.values(weekArea)) {
-    for (const value of Object.values(weekAreas)) {
-      for (const id of extractStationIds(value)) ids.add(id)
-    }
-  }
-  return ids
-}
-
-// ─── Area Resolution ─────────────────────────────────
-
-/**
- * AMEDAS 観測所 ID から予報区域を解決する。
- *
- * 解決フロー:
- *   1. week_area.json を走査し、指定 stationId を含む weekAreaCode を特定
- *   2. その weekAreaCode が所属する officeCode を同時に特定
- *   3. area.json から officeName を取得
- *   4. week_area_name.json から weekAreaName を取得
- *   5. 直接一致しない場合、AMEDAS テーブルから地理的に最も近い代表観測所にフォールバック
- *
- * @param amedasStationId AMEDAS 観測所番号 (例: "44132")
- * @returns 予報区域の解決結果。見つからない場合は null
- */
-export async function resolveForcastArea(
-  amedasStationId: string,
-): Promise<ForecastAreaResolution | null> {
-  console.debug('[Weather:Forecast] 予報区域解決開始: stationId=%s', amedasStationId)
-  const [weekArea, weekAreaName, area] = await Promise.all([
-    fetchWeekArea(),
-    fetchWeekAreaName(),
-    fetchAreaJson(),
-  ])
-
-  // week_area.json を走査: officeCode → weekAreaCode → stationIds
-  const directResult = findStationInWeekArea(weekArea, weekAreaName, area, amedasStationId)
-  if (directResult) {
-    console.debug(
-      '[Weather:Forecast] 予報区域解決完了: stationId=%s → office=%s(%s) weekArea=%s(%s)',
-      amedasStationId,
-      directResult.officeCode,
-      directResult.officeName,
-      directResult.weekAreaCode,
-      directResult.weekAreaName,
-    )
-    return directResult
-  }
-
-  // フォールバック: AMEDAS テーブルから地理的に最も近い代表観測所を探す
-  console.debug(
-    '[Weather:Forecast] 直接一致なし → 地理的フォールバック: stationId=%s',
-    amedasStationId,
-  )
-  const fallbackResult = await resolveByNearestRepresentativeStation(
-    amedasStationId,
-    weekArea,
-    weekAreaName,
-    area,
-  )
-  if (fallbackResult) {
-    return fallbackResult
-  }
-
-  console.warn('[Weather:Forecast] 予報区域が見つかりません: stationId=%s', amedasStationId)
-  return null
-}
-
-/**
- * 緯度経度から予報区域を解決する（stationId 不要）。
- *
- * week_area.json 内の全代表観測所の座標を AMEDAS テーブルから取得し、
- * 指定座標に最も近い代表観測所の予報区域を返す。
- */
-export async function resolveForcastAreaByLocation(
+export async function resolveForecastOfficeByLocation(
   latitude: number,
   longitude: number,
-): Promise<ForecastAreaResolution | null> {
-  console.debug('[Weather:Forecast] 位置ベース予報区域解決: lat=%f lon=%f', latitude, longitude)
-  const [weekArea, weekAreaName, area] = await Promise.all([
-    fetchWeekArea(),
-    fetchWeekAreaName(),
-    fetchAreaJson(),
-  ])
-  const stationTable = await fetchStationTable()
+): Promise<{ officeCode: string; officeName: string } | null> {
+  console.debug('[Weather:Forecast] office resolve start: lat=%f lon=%f', latitude, longitude)
 
-  const representativeIds = collectRepresentativeIds(weekArea)
-  console.debug('[Weather:Forecast] 代表観測所ID数=%d', representativeIds.size)
-  if (representativeIds.size === 0) {
-    // 診断: week_area.json の実際の構造をログ出力
-    const sampleKey = Object.keys(weekArea)[0]
-    if (sampleKey) {
-      const inner = weekArea[sampleKey]
-      const innerKey = Object.keys(inner)[0]
-      console.warn(
-        '[Weather:Forecast] week_area構造診断: key=%s innerKey=%s type=%s value=%s',
-        sampleKey,
-        innerKey,
-        typeof inner[innerKey],
-        JSON.stringify(inner[innerKey]).slice(0, 200),
-      )
-    }
-  }
-
-  // 位置座標から最近傍の代表観測所を探す
-  let nearestId: string | null = null
-  let minDist = Infinity
-  for (const station of stationTable) {
-    if (!representativeIds.has(station.stationId)) continue
-    const dist = haversineDistance(latitude, longitude, station.latitude, station.longitude)
-    if (dist < minDist) {
-      minDist = dist
-      nearestId = station.stationId
-    }
-  }
-
-  if (!nearestId) {
-    console.warn('[Weather:Forecast] 位置ベース解決失敗: 代表観測所なし')
+  const geocodeResult = await reverseGeocode(latitude, longitude)
+  if (!geocodeResult) {
+    console.warn('[Weather:Forecast] 逆ジオコーディング失敗')
     return null
   }
+  const prefName = geocodeResult.prefectureName
+  console.debug('[Weather:Forecast] 都道府県: %s', prefName)
 
-  const result = findStationInWeekArea(weekArea, weekAreaName, area, nearestId)
-  if (result) {
-    console.debug(
-      '[Weather:Forecast] 位置ベース解決成功: 代表観測所 %s (%.1fkm) → office=%s(%s)',
-      nearestId,
-      minDist,
-      result.officeCode,
-      result.officeName,
-    )
-  }
-  return result
-}
+  const area = await fetchAreaJson()
 
-function findStationInWeekArea(
-  weekArea: WeekAreaJson,
-  weekAreaName: WeekAreaNameJson,
-  area: AreaJson,
-  stationId: string,
-): ForecastAreaResolution | null {
-  for (const [officeCode, weekAreas] of Object.entries(weekArea)) {
-    for (const [weekAreaCode, value] of Object.entries(weekAreas)) {
-      const ids = extractStationIds(value)
-      if (ids.includes(stationId)) {
-        return {
-          officeCode,
-          officeName: area.offices[officeCode]?.name ?? officeCode,
-          weekAreaCode,
-          weekAreaName: weekAreaName[weekAreaCode] ?? weekAreaCode,
-          amedasStationId: stationId,
-        }
-      }
-    }
-  }
-  return null
-}
-
-/**
- * week_area.json に登録されている全代表観測所から、
- * 対象観測所に地理的に最も近いものを探してフォールバックする。
- */
-async function resolveByNearestRepresentativeStation(
-  targetStationId: string,
-  weekArea: WeekAreaJson,
-  weekAreaName: WeekAreaNameJson,
-  area: AreaJson,
-): Promise<ForecastAreaResolution | null> {
-  const stationTable = await fetchStationTable()
-  const targetStation = stationTable.find((s) => s.stationId === targetStationId)
-  if (!targetStation) return null
-
-  const representativeIds = collectRepresentativeIds(weekArea)
-
-  // 代表観測所の座標を AMEDAS テーブルから引き、最近傍を探す
-  let nearestId: string | null = null
-  let minDist = Infinity
-  for (const station of stationTable) {
-    if (!representativeIds.has(station.stationId)) continue
-    const dist = haversineDistance(
-      targetStation.latitude,
-      targetStation.longitude,
-      station.latitude,
-      station.longitude,
-    )
-    if (dist < minDist) {
-      minDist = dist
-      nearestId = station.stationId
+  // 完全一致
+  for (const [code, office] of Object.entries(area.offices)) {
+    if (office.name === prefName) {
+      console.debug('[Weather:Forecast] office resolved: %s %s', code, office.name)
+      return { officeCode: code, officeName: office.name }
     }
   }
 
-  if (!nearestId) return null
-
-  const result = findStationInWeekArea(weekArea, weekAreaName, area, nearestId)
-  if (result) {
-    console.debug(
-      '[Weather:Forecast] 地理的フォールバック成功: %s → 代表観測所 %s (%.1fkm) → office=%s(%s)',
-      targetStationId,
-      nearestId,
-      minDist,
-      result.officeCode,
-      result.officeName,
-    )
-    // 元の stationId を保持する
-    return { ...result, amedasStationId: targetStationId }
+  // 部分一致（「県」「都」「府」「道」を除いたコア名で比較）
+  const coreName = prefName.replace(/[県都府道]$/u, '')
+  for (const [code, office] of Object.entries(area.offices)) {
+    const officeCore = office.name.replace(/[県都府道地方]$/u, '')
+    if (officeCore.includes(coreName) || coreName.includes(officeCore)) {
+      console.debug('[Weather:Forecast] office resolved (fuzzy): %s %s', code, office.name)
+      return { officeCode: code, officeName: office.name }
+    }
   }
-  return null
-}
 
-/** 2地点間のハバーサイン距離 (km) */
-function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
-  const R = 6371
-  const toRad = (deg: number) => (deg * Math.PI) / 180
-  const dLat = toRad(lat2 - lat1)
-  const dLon = toRad(lon2 - lon1)
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  console.warn('[Weather:Forecast] officeCode解決失敗: prefecture=%s', prefName)
+  // 診断: area.json の全 office 名を出力
+  const names = Object.values(area.offices)
+    .map((o) => o.name)
+    .join(', ')
+  console.debug('[Weather:Forecast] 利用可能な offices: %s', names)
+  return null
 }
 
 // ─── Forecast Fetch ──────────────────────────────────
@@ -386,7 +138,7 @@ interface WeeklyTimeSeries0 {
   }[]
 }
 
-/** timeSeries[1]: 気温（AMEDAS 観測所別） */
+/** timeSeries[1]: 気温 */
 interface WeeklyTimeSeries1 {
   readonly timeDefines: readonly string[]
   readonly areas: readonly {
@@ -401,68 +153,62 @@ interface WeeklyTimeSeries1 {
 }
 
 /**
- * 週間天気予報を取得し、DailyForecast 配列に変換する。
+ * 週間天気予報を取得する。
  *
- * @param officeCode 府県予報区コード (例: "130000")
- * @param weekAreaCode 週間予報区域コード (例: "130010")
- * @param amedasStationId 気温データ抽出用 AMEDAS 観測所番号
- * @returns DailyForecast の配列 (最大7日分)
+ * weekAreaCode を指定すると該当区域のデータを返す。
+ * 省略時はレスポンスの最初の区域を使用する。
+ * 気温データは利用可能な最初の区域から取得する（null 許容）。
  */
 export async function fetchWeeklyForecast(
   officeCode: string,
-  weekAreaCode: string,
-  amedasStationId: string,
-): Promise<readonly DailyForecast[]> {
+  weekAreaCode?: string,
+): Promise<{ forecasts: readonly DailyForecast[]; resolvedWeekAreaCode: string }> {
   const url = `${getForecastUrl()}/${officeCode}.json`
   console.debug(
-    '[Weather:Forecast] 週間予報取得: office=%s weekArea=%s station=%s',
+    '[Weather:Forecast] forecast fetch start: office=%s weekArea=%s',
     officeCode,
-    weekAreaCode,
-    amedasStationId,
+    weekAreaCode ?? '(auto)',
   )
-  console.debug('[Weather:Forecast] URL: %s', url)
   const data = (await fetchJsonWithRetry(url, 'Forecast')) as readonly [unknown, ForecastWeeklyRaw]
 
   const weekly = data[1]
   if (!weekly?.timeSeries) {
     console.warn('[Weather:Forecast] 週間予報データなし (timeSeries が存在しない)')
-    return []
+    return { forecasts: [], resolvedWeekAreaCode: '' }
   }
 
   const ts0 = weekly.timeSeries[0]
   const ts1 = weekly.timeSeries[1]
 
-  // 該当する週間予報区域のデータを抽出
-  const weatherArea = ts0.areas.find((a) => a.area.code === weekAreaCode)
+  // 該当する週間予報区域のデータを抽出（指定 or 最初の区域）
+  const weatherArea = weekAreaCode
+    ? ts0.areas.find((a) => a.area.code === weekAreaCode)
+    : ts0.areas[0]
   if (!weatherArea) {
     console.warn(
-      '[Weather:Forecast] weekAreaCode=%s に該当するデータなし。利用可能: %s',
-      weekAreaCode,
+      '[Weather:Forecast] 予報データなし。利用可能: %s',
       ts0.areas.map((a) => `${a.area.code}(${a.area.name})`).join(', '),
     )
-    return []
+    return { forecasts: [], resolvedWeekAreaCode: '' }
   }
+  const resolvedWeekAreaCode = weatherArea.area.code
 
-  // 該当する AMEDAS 観測所の気温データを抽出
-  const tempArea = ts1?.areas.find((a) => a.area.code === amedasStationId)
+  // 気温データ: 最初の利用可能な区域
+  const tempArea = ts1?.areas[0]
 
   const forecasts: DailyForecast[] = []
   const timeDefines = ts0.timeDefines
 
   for (let i = 0; i < timeDefines.length; i++) {
-    const dateKey = timeDefines[i].slice(0, 10) // "2026-03-17T00:00:00+09:00" → "2026-03-17"
-
+    const dateKey = timeDefines[i].slice(0, 10)
     const popStr = weatherArea.pops[i]
     const pop = popStr !== '' && popStr != null ? parseInt(popStr, 10) : null
-
     const reliabilityStr = weatherArea.reliabilities?.[i]
     const reliability =
       reliabilityStr === 'A' || reliabilityStr === 'B' || reliabilityStr === 'C'
         ? reliabilityStr
         : null
 
-    // 気温: timeSeries[1] の timeDefines と [0] の timeDefines はずれることがある
-    // tempArea の対応する日付を探す
     let tempMin: number | null = null
     let tempMax: number | null = null
     if (tempArea && ts1) {
@@ -485,13 +231,16 @@ export async function fetchWeeklyForecast(
     })
   }
 
-  console.debug('[Weather:Forecast] 週間予報取得完了: %d日分', forecasts.length)
-  return forecasts
+  console.debug(
+    '[Weather:Forecast] forecast fetch done: days=%d weekArea=%s(%s)',
+    forecasts.length,
+    resolvedWeekAreaCode,
+    weatherArea.area.name,
+  )
+  return { forecasts, resolvedWeekAreaCode }
 }
 
 /** テスト用: マスタデータキャッシュをクリアする */
 export function clearForecastCache(): void {
   cachedAreaJson = null
-  cachedWeekArea = null
-  cachedWeekAreaName = null
 }
