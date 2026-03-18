@@ -8,7 +8,6 @@
  * - 日付クリックで時間別天気データを展開表示
  */
 import { Fragment, memo, useState, useEffect, useCallback } from 'react'
-import styled from 'styled-components'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import type { DailyWeatherSummary, HourlyWeatherRecord, StoreLocation } from '@/domain/models'
 import { categorizeWeatherCode } from '@/domain/calculations/weatherAggregation'
@@ -17,99 +16,20 @@ import {
   loadEtrnHourlyForStore,
 } from '@/application/usecases/weather/WeatherLoadService'
 import type { WidgetContext } from './types'
-
-const Wrapper = styled.div`
-  font-size: 0.75rem;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-`
-
-const Section = styled.div`
-  background: ${({ theme }) => theme.colors.bg2};
-  border-radius: ${({ theme }) => theme.radii.md};
-  padding: 8px;
-`
-
-const SectionTitle = styled.div`
-  font-weight: 600;
-  font-size: 0.7rem;
-  color: ${({ theme }) => theme.colors.text3};
-  margin-bottom: 4px;
-`
-
-const Row = styled.div`
-  display: flex;
-  gap: 8px;
-  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  line-height: 1.6;
-`
-
-const Label = styled.span`
-  color: ${({ theme }) => theme.colors.text3};
-  min-width: 100px;
-`
-
-const Val = styled.span`
-  color: ${({ theme }) => theme.colors.text};
-`
-
-const DataTable = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: 0.65rem;
-
-  th,
-  td {
-    padding: 2px 4px;
-    text-align: right;
-    border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  }
-
-  th {
-    color: ${({ theme }) => theme.colors.text3};
-    font-weight: 500;
-  }
-
-  td:first-child,
-  th:first-child {
-    text-align: left;
-  }
-`
-
-const ClickableDate = styled.td`
-  cursor: pointer;
-  text-align: left;
-  color: ${({ theme }) => theme.colors.palette.primary};
-  &:hover {
-    text-decoration: underline;
-  }
-`
-
-const HourlyRow = styled.tr`
-  background: ${({ theme }) => theme.colors.bg};
-`
-
-const HourlyCell = styled.td`
-  padding: 4px 8px !important;
-  text-align: left !important;
-`
-
-const HourlyGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-  gap: 2px;
-  font-size: 0.6rem;
-`
-
-const HourlyItem = styled.div`
-  display: flex;
-  justify-content: space-between;
-  padding: 1px 4px;
-  border-radius: 2px;
-  background: ${({ theme }) => theme.colors.bg2};
-`
+import {
+  Wrapper,
+  Section,
+  SectionTitle,
+  Row,
+  Label,
+  Val,
+  DataTable,
+  ClickableDate,
+  HourlyRow,
+  HourlyCell,
+  HourlyGrid,
+  HourlyItem,
+} from './EtrnTestWidget.styles'
 
 const WEATHER_ICONS: Record<string, string> = {
   sunny: '☀',
@@ -133,14 +53,12 @@ interface ResolvedInfo {
   readonly etrnStationName?: string
 }
 
-/** 取得フローの各ステップ情報 */
 interface FlowStep {
   readonly label: string
   readonly value: string
   readonly ok: boolean
 }
 
-/** 時間別データの取得状態 */
 interface HourlyState {
   readonly status: 'idle' | 'loading' | 'done' | 'error'
   readonly records: readonly HourlyWeatherRecord[]
@@ -192,7 +110,6 @@ export const EtrnTestWidget = memo(function EtrnTestWidget({ ctx }: { ctx: Widge
     }
   }, [storeKey, location, year, month])
 
-  // 日付クリックで時間別データを展開/折り畳み
   const handleDateClick = useCallback(
     (dateKey: string) => {
       if (expandedDate === dateKey) {
@@ -201,7 +118,6 @@ export const EtrnTestWidget = memo(function EtrnTestWidget({ ctx }: { ctx: Widge
       }
       setExpandedDate(dateKey)
 
-      // キャッシュ済みなら再取得しない
       if (hourlyCache[dateKey]?.status === 'done' || hourlyCache[dateKey]?.status === 'loading') {
         return
       }
@@ -285,100 +201,133 @@ export const EtrnTestWidget = memo(function EtrnTestWidget({ ctx }: { ctx: Widge
         </Row>
       </Section>
 
-      <Section>
-        <SectionTitle>取得フロー詳細</SectionTitle>
-        <DataTable>
-          <thead>
-            <tr>
-              <th>ステップ</th>
-              <th>値</th>
-              <th>状態</th>
-            </tr>
-          </thead>
-          <tbody>
-            {buildFlowSteps(location, info, state).map((step, i) => (
-              <tr key={i}>
-                <td>{step.label}</td>
-                <td>{step.value}</td>
-                <td>{step.ok ? 'OK' : 'NG'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </DataTable>
-      </Section>
+      <FlowStepsSection location={location} info={info} state={state} />
 
       {state.daily.length > 0 && (
-        <Section>
-          <SectionTitle>
-            日別データ（{state.daily.length}日）— 日付クリックで時間別表示
-          </SectionTitle>
-          <DataTable>
-            <thead>
-              <tr>
-                <th>日付</th>
-                <th>天気</th>
-                <th>平均℃</th>
-                <th>最高℃</th>
-                <th>最低℃</th>
-                <th>降水mm</th>
-                <th>日照h</th>
-                <th>風速km/h</th>
-                <th>湿度%</th>
-              </tr>
-            </thead>
-            <tbody>
-              {state.daily.map((d) => {
-                const cat = categorizeWeatherCode(d.dominantWeatherCode)
-                const isExpanded = expandedDate === d.dateKey
-                const hourly = hourlyCache[d.dateKey]
-                return (
-                  <Fragment key={d.dateKey}>
-                    <tr>
-                      <ClickableDate onClick={() => handleDateClick(d.dateKey)}>
-                        {isExpanded ? '▼' : '▶'} {d.dateKey.slice(5)}
-                      </ClickableDate>
-                      <td>{WEATHER_ICONS[cat] ?? '?'}</td>
-                      <td>{d.temperatureAvg.toFixed(1)}</td>
-                      <td>{d.temperatureMax.toFixed(1)}</td>
-                      <td>{d.temperatureMin.toFixed(1)}</td>
-                      <td>{d.precipitationTotal.toFixed(1)}</td>
-                      <td>{d.sunshineTotalHours.toFixed(1)}</td>
-                      <td>{d.windSpeedMax.toFixed(1)}</td>
-                      <td>{d.humidityAvg.toFixed(0)}</td>
-                    </tr>
-                    {isExpanded && (
-                      <HourlyRow>
-                        <HourlyCell colSpan={9}>
-                          {hourly?.status === 'loading' && '時間別データ取得中...'}
-                          {hourly?.status === 'error' && `エラー: ${hourly.error}`}
-                          {hourly?.status === 'done' && hourly.records.length === 0 && 'データなし'}
-                          {hourly?.status === 'done' && hourly.records.length > 0 && (
-                            <HourlyGrid>
-                              {hourly.records.map((h) => {
-                                const hCat = categorizeWeatherCode(h.weatherCode)
-                                return (
-                                  <HourlyItem key={h.hour}>
-                                    <span>
-                                      {String(h.hour).padStart(2, '0')}時{' '}
-                                      {WEATHER_ICONS[hCat] ?? '?'}
-                                    </span>
-                                    <span>{h.temperature.toFixed(1)}℃</span>
-                                  </HourlyItem>
-                                )
-                              })}
-                            </HourlyGrid>
-                          )}
-                        </HourlyCell>
-                      </HourlyRow>
-                    )}
-                  </Fragment>
-                )
-              })}
-            </tbody>
-          </DataTable>
-        </Section>
+        <DailyDataSection
+          daily={state.daily}
+          expandedDate={expandedDate}
+          hourlyCache={hourlyCache}
+          onDateClick={handleDateClick}
+        />
       )}
     </Wrapper>
+  )
+})
+
+const FlowStepsSection = memo(function FlowStepsSection({
+  location,
+  info,
+  state,
+}: {
+  readonly location: StoreLocation
+  readonly info: ResolvedInfo
+  readonly state: TestState
+}) {
+  return (
+    <Section>
+      <SectionTitle>取得フロー詳細</SectionTitle>
+      <DataTable>
+        <thead>
+          <tr>
+            <th>ステップ</th>
+            <th>値</th>
+            <th>状態</th>
+          </tr>
+        </thead>
+        <tbody>
+          {buildFlowSteps(location, info, state).map((step, i) => (
+            <tr key={i}>
+              <td>{step.label}</td>
+              <td>{step.value}</td>
+              <td>{step.ok ? 'OK' : 'NG'}</td>
+            </tr>
+          ))}
+        </tbody>
+      </DataTable>
+    </Section>
+  )
+})
+
+const DailyDataSection = memo(function DailyDataSection({
+  daily,
+  expandedDate,
+  hourlyCache,
+  onDateClick,
+}: {
+  readonly daily: readonly DailyWeatherSummary[]
+  readonly expandedDate: string | null
+  readonly hourlyCache: Record<string, HourlyState>
+  readonly onDateClick: (dateKey: string) => void
+}) {
+  return (
+    <Section>
+      <SectionTitle>日別データ（{daily.length}日）— 日付クリックで時間別表示</SectionTitle>
+      <DataTable>
+        <thead>
+          <tr>
+            <th>日付</th>
+            <th>天気</th>
+            <th>平均℃</th>
+            <th>最高℃</th>
+            <th>最低℃</th>
+            <th>降水mm</th>
+            <th>日照h</th>
+            <th>風速km/h</th>
+            <th>湿度%</th>
+          </tr>
+        </thead>
+        <tbody>
+          {daily.map((d) => {
+            const cat = categorizeWeatherCode(d.dominantWeatherCode)
+            const isExpanded = expandedDate === d.dateKey
+            const hourly = hourlyCache[d.dateKey]
+            return (
+              <Fragment key={d.dateKey}>
+                <tr>
+                  <ClickableDate onClick={() => onDateClick(d.dateKey)}>
+                    {isExpanded ? '▼' : '▶'} {d.dateKey.slice(5)}
+                  </ClickableDate>
+                  <td>{WEATHER_ICONS[cat] ?? '?'}</td>
+                  <td>{d.temperatureAvg.toFixed(1)}</td>
+                  <td>{d.temperatureMax.toFixed(1)}</td>
+                  <td>{d.temperatureMin.toFixed(1)}</td>
+                  <td>{d.precipitationTotal.toFixed(1)}</td>
+                  <td>{d.sunshineTotalHours.toFixed(1)}</td>
+                  <td>{d.windSpeedMax.toFixed(1)}</td>
+                  <td>{d.humidityAvg.toFixed(0)}</td>
+                </tr>
+                {isExpanded && (
+                  <HourlyRow>
+                    <HourlyCell colSpan={9}>
+                      {hourly?.status === 'loading' && '時間別データ取得中...'}
+                      {hourly?.status === 'error' && `エラー: ${hourly.error}`}
+                      {hourly?.status === 'done' && hourly.records.length === 0 && 'データなし'}
+                      {hourly?.status === 'done' && hourly.records.length > 0 && (
+                        <HourlyGrid>
+                          {hourly.records.map((h) => {
+                            const hCat = categorizeWeatherCode(h.weatherCode)
+                            return (
+                              <HourlyItem key={h.hour}>
+                                <span>
+                                  {String(h.hour).padStart(2, '0')}時{' '}
+                                  {WEATHER_ICONS[hCat] ?? '?'}
+                                </span>
+                                <span>{h.temperature.toFixed(1)}℃</span>
+                              </HourlyItem>
+                            )
+                          })}
+                        </HourlyGrid>
+                      )}
+                    </HourlyCell>
+                  </HourlyRow>
+                )}
+              </Fragment>
+            )
+          })}
+        </tbody>
+      </DataTable>
+    </Section>
   )
 })
 
@@ -416,7 +365,6 @@ function buildFlowSteps(location: StoreLocation, info: ResolvedInfo, state: Test
     },
   ]
 
-  // 気温範囲サマリ
   if (state.daily.length > 0) {
     const temps = state.daily.map((d) => d.temperatureAvg)
     const minT = Math.min(...temps).toFixed(1)
