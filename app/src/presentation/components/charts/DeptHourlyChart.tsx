@@ -1,41 +1,31 @@
 /**
- * 部門別時間帯パターンチャート
+ * 部門別時間帯パターンチャート (ECharts)
  *
- * CategoryHourly クエリを使い、上位N部門の時間帯別売上を
- * 積み上げ面グラフまたは独立面グラフで表示する。
- *
- * 表示項目:
- * - 上位N部門の時間帯別売上（積み上げ / 独立 面グラフ）
- * - 部門チップ（色凡例兼フィルタ）
- * - 上位N件セレクタ
- * - ピアソン相関によるカニバリゼーション検出
+ * パイプライン:
+ *   DuckDB Hook → DeptHourlyChartLogic.ts → ECharts option → EChart
  */
 import React, { useState, useMemo, useCallback } from 'react'
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
-import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
+import { useTheme } from 'styled-components'
 import { HOUR_MIN, HOUR_MAX } from './HeatmapChart.helpers'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
+import type { AppTheme } from '@/presentation/theme/theme'
 import { useDuckDBCategoryHourly } from '@/application/hooks/useDuckDBQuery'
-import { useChartTheme, useCurrencyFormatter, toAxisYen } from './chartTheme'
+import { useCurrencyFormatter } from './chartTheme'
 import {
   buildDeptHourlyData,
   detectCannibalization,
   TOP_N_OPTIONS,
 } from './DeptHourlyChartLogic'
-import { createChartTooltip } from './createChartTooltip'
 import { useI18n } from '@/application/hooks/useI18n'
-import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
+import { SegmentedControl } from '@/presentation/components/common'
+import { ChartCard } from './ChartCard'
+import { ChartLoading, ChartError, ChartEmpty } from './ChartState'
+import { EChart, type EChartsOption } from './EChart'
+import { yenYAxis, standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
 import {
-  Wrapper,
-  Title,
-  Subtitle,
-  HeaderRow,
-  Controls,
   TopNSelector,
   TopNSelect,
-  TabGroup,
-  Tab,
   ChipContainer,
   DeptChip,
   ColorDot,
@@ -45,12 +35,14 @@ import {
   InsightBar,
   InsightItem,
   InsightTitle,
-  ErrorMsg,
 } from './DeptHourlyChart.styles'
 
-// ── Types ──
-
 type ViewMode = 'stacked' | 'separate'
+
+const VIEW_OPTIONS: readonly { value: ViewMode; label: string }[] = [
+  { value: 'stacked', label: '積み上げ' },
+  { value: 'separate', label: '独立' },
+]
 
 interface Props {
   readonly duckConn: AsyncDuckDBConnection | null
@@ -59,7 +51,37 @@ interface Props {
   readonly selectedStoreIds: ReadonlySet<string>
 }
 
-// ── Component ──
+function buildOption(
+  chartData: readonly { hour: string; [k: string]: string | number }[],
+  departments: readonly { code: string; name: string; color: string }[],
+  viewMode: ViewMode,
+  theme: AppTheme,
+): EChartsOption {
+  const hours = chartData.map((d) => d.hour)
+  return {
+    grid: standardGrid(),
+    tooltip: standardTooltip(theme),
+    legend: { ...standardLegend(theme), type: 'scroll' },
+    xAxis: {
+      type: 'category',
+      data: hours,
+      axisLabel: { color: theme.colors.text3, fontSize: 10, fontFamily: theme.typography.fontFamily.mono },
+      axisLine: { lineStyle: { color: theme.colors.border } },
+    },
+    yAxis: yenYAxis(theme),
+    series: [...departments].reverse().map((dept) => ({
+      name: dept.name,
+      type: 'line' as const,
+      stack: viewMode === 'stacked' ? 'depts' : undefined,
+      areaStyle: { opacity: viewMode === 'stacked' ? 0.4 : 0.15 },
+      data: chartData.map((d) => (d[`dept_${dept.code}`] as number) ?? 0),
+      lineStyle: { color: dept.color, width: viewMode === 'stacked' ? 1.5 : 2 },
+      itemStyle: { color: dept.color },
+      symbol: 'none',
+      smooth: true,
+    })),
+  }
+}
 
 export const DeptHourlyChart = React.memo(function DeptHourlyChart({
   duckConn,
@@ -67,25 +89,18 @@ export const DeptHourlyChart = React.memo(function DeptHourlyChart({
   currentDateRange,
   selectedStoreIds,
 }: Props) {
-  const ct = useChartTheme()
+  const theme = useTheme() as AppTheme
   const fmt = useCurrencyFormatter()
   const { messages } = useI18n()
   const [topN, setTopN] = useState(5)
   const [activeDepts, setActiveDepts] = useState<ReadonlySet<string>>(new Set())
   const [viewMode, setViewMode] = useState<ViewMode>('stacked')
 
-  // 部門レベルで時間帯別集約
   const {
     data: categoryHourlyRows,
     error,
     isLoading,
-  } = useDuckDBCategoryHourly(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-    'department',
-  )
+  } = useDuckDBCategoryHourly(duckConn, duckDataVersion, currentDateRange, selectedStoreIds, 'department')
 
   const { chartData, departments, hourlyPatterns } = useMemo(
     () =>
@@ -95,11 +110,12 @@ export const DeptHourlyChart = React.memo(function DeptHourlyChart({
     [categoryHourlyRows, topN, activeDepts],
   )
 
-  // ピアソン相関によるカニバリゼーション検出
   const cannibalization = useMemo(
     () => detectCannibalization(departments, hourlyPatterns),
     [departments, hourlyPatterns],
   )
+
+  const option = useMemo(() => buildOption(chartData, departments, viewMode, theme), [chartData, departments, viewMode, theme])
 
   const handleTopNChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     setTopN(Number(e.target.value))
@@ -109,66 +125,37 @@ export const DeptHourlyChart = React.memo(function DeptHourlyChart({
   const handleChipClick = useCallback((code: string) => {
     setActiveDepts((prev) => {
       const next = new Set(prev)
-      if (next.has(code)) {
-        next.delete(code)
-      } else {
-        next.add(code)
-      }
+      if (next.has(code)) next.delete(code)
+      else next.add(code)
       return next
     })
   }, [])
 
   if (error) {
-    return (
-      <Wrapper aria-label="部門別時間帯パターン">
-        <Title>部門別時間帯パターン</Title>
-        <ErrorMsg>
-          {messages.errors.dataFetchFailed}: {error}
-        </ErrorMsg>
-      </Wrapper>
-    )
+    return <ChartCard title="部門別時間帯パターン"><ChartError message={`${messages.errors.dataFetchFailed}: ${error}`} /></ChartCard>
   }
-
   if (isLoading && !categoryHourlyRows) {
-    return <ChartSkeleton />
+    return <ChartCard title="部門別時間帯パターン"><ChartLoading /></ChartCard>
+  }
+  if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
+    return <ChartCard title="部門別時間帯パターン"><ChartEmpty message="データをインポートしてください" /></ChartCard>
   }
 
-  if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
-    return <EmptyState>データをインポートしてください</EmptyState>
-  }
+  const subtitle = `上位${topN}部門の時間帯別売上 | ${viewMode === 'stacked' ? '積み上げ面グラフ' : '独立面グラフ'}`
+  const toolbar = (
+    <>
+      <SegmentedControl options={VIEW_OPTIONS} value={viewMode} onChange={setViewMode} ariaLabel="表示モード" />
+      <TopNSelector>
+        <span>上位</span>
+        <TopNSelect value={topN} onChange={handleTopNChange}>
+          {TOP_N_OPTIONS.map((n) => <option key={n} value={n}>{n}部門</option>)}
+        </TopNSelect>
+      </TopNSelector>
+    </>
+  )
 
   return (
-    <Wrapper aria-label="部門別時間帯パターン">
-      <HeaderRow>
-        <div>
-          <Title>部門別時間帯パターン</Title>
-          <Subtitle>
-            上位{topN}部門の時間帯別売上 |{' '}
-            {viewMode === 'stacked' ? '積み上げ面グラフ' : '独立面グラフ'}
-          </Subtitle>
-        </div>
-        <Controls>
-          <TabGroup>
-            <Tab $active={viewMode === 'stacked'} onClick={() => setViewMode('stacked')}>
-              積み上げ
-            </Tab>
-            <Tab $active={viewMode === 'separate'} onClick={() => setViewMode('separate')}>
-              独立
-            </Tab>
-          </TabGroup>
-          <TopNSelector>
-            <span>上位</span>
-            <TopNSelect value={topN} onChange={handleTopNChange}>
-              {TOP_N_OPTIONS.map((n) => (
-                <option key={n} value={n}>
-                  {n}部門
-                </option>
-              ))}
-            </TopNSelect>
-          </TopNSelector>
-        </Controls>
-      </HeaderRow>
-
+    <ChartCard title="部門別時間帯パターン" subtitle={subtitle} toolbar={toolbar}>
       <ChipContainer>
         {departments.map((dept) => (
           <DeptChip
@@ -183,43 +170,7 @@ export const DeptHourlyChart = React.memo(function DeptHourlyChart({
         ))}
       </ChipContainer>
 
-      <ResponsiveContainer width="100%" height={300}>
-        <AreaChart data={chartData} margin={{ top: 4, right: 20, left: 10, bottom: 4 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
-          <XAxis
-            dataKey="hour"
-            tick={{ fontSize: ct.fontSize.xs, fill: ct.textMuted }}
-            stroke={ct.grid}
-          />
-          <YAxis
-            tick={{ fontSize: ct.fontSize.xs, fill: ct.textMuted }}
-            stroke={ct.grid}
-            tickFormatter={toAxisYen}
-          />
-          <Tooltip
-            content={createChartTooltip({
-              ct,
-              formatter: (value, name) => [value != null ? fmt(value as number) : '-', name ?? ''],
-            })}
-          />
-          <Legend wrapperStyle={{ fontSize: '0.6rem' }} />
-
-          {/* 下位から描画（積み上げ順） */}
-          {[...departments].reverse().map((dept) => (
-            <Area
-              key={`dept_${dept.code}`}
-              type="monotone"
-              dataKey={`dept_${dept.code}`}
-              name={dept.name}
-              stackId={viewMode === 'stacked' ? 'depts' : undefined}
-              fill={dept.color}
-              fillOpacity={viewMode === 'stacked' ? 0.4 : 0.15}
-              stroke={dept.color}
-              strokeWidth={viewMode === 'stacked' ? 1.5 : 2}
-            />
-          ))}
-        </AreaChart>
-      </ResponsiveContainer>
+      <EChart option={option} height={300} ariaLabel="部門別時間帯パターンチャート" />
 
       <SummaryRow>
         {departments.slice(0, 5).map((dept) => (
@@ -240,6 +191,6 @@ export const DeptHourlyChart = React.memo(function DeptHourlyChart({
           ))}
         </InsightBar>
       )}
-    </Wrapper>
+    </ChartCard>
   )
 })
