@@ -99,25 +99,37 @@ interface HourlyState {
   readonly error?: string
 }
 
-/** 当年 dateKey から前年の対応日を算出する */
+/**
+ * 当年 dateKey から前年の対応日を算出する
+ *
+ * sameDayOfWeek: ComparisonScope.resolveSameDowSource と同一アルゴリズム。
+ *   anchor = 前年同日 → ±7日の候補から同じ曜日の最近傍を選択。
+ *   独自の dowOffset 補正は使用しない（禁止事項 #2: 別ソースから再計算しない）。
+ */
 function resolvePrevYearDate(
   dateKey: string,
   policy: AlignmentPolicy,
-  dowOffset: number,
 ): { year: number; month: number; day: number; dateKey: string } {
   const d = new Date(dateKey + 'T00:00:00')
   if (policy === 'sameDayOfWeek') {
-    // 同曜日: 前年同日を基準に dowOffset 分ずらして同じ曜日に合わせる
-    const prevYearSameDate = new Date(d)
-    prevYearSameDate.setFullYear(d.getFullYear() - 1)
-    // dowOffset = (当年月初曜日 - 前年月初曜日 + 7) % 7 相当
-    // 前年の対応日 = 前年同日 - dowOffset
-    prevYearSameDate.setDate(prevYearSameDate.getDate() - dowOffset)
+    const anchor = new Date(d.getFullYear() - 1, d.getMonth(), d.getDate())
+    const targetDow = d.getDay()
+    let best = anchor
+    let bestDist = Infinity
+    for (let diff = -7; diff <= 7; diff++) {
+      const c = new Date(anchor.getFullYear(), anchor.getMonth(), anchor.getDate() + diff)
+      if (c.getDay() !== targetDow) continue
+      const dist = Math.abs(c.getTime() - anchor.getTime())
+      if (dist < bestDist || (dist === bestDist && c.getTime() >= anchor.getTime())) {
+        bestDist = dist
+        best = c
+      }
+    }
     return {
-      year: prevYearSameDate.getFullYear(),
-      month: prevYearSameDate.getMonth() + 1,
-      day: prevYearSameDate.getDate(),
-      dateKey: prevYearSameDate.toISOString().slice(0, 10),
+      year: best.getFullYear(),
+      month: best.getMonth() + 1,
+      day: best.getDate(),
+      dateKey: best.toISOString().slice(0, 10),
     }
   }
   // sameDate: 単純に前年同月同日
@@ -165,7 +177,7 @@ export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetC
 
   // ヘッダの比較モード（同日 / 同曜日）に従う
   const weatherPolicy: AlignmentPolicy = ctx.comparisonFrame.policy
-  const weatherDowOffset = ctx.comparisonFrame.dowOffset
+  // dowOffset は resolvePrevYearDate 内で使用しない（コアの同曜日アルゴリズムに従う）
 
   /** 前年データ取得（実測日・予報日共通） */
   const fetchPrevYear = useCallback(
@@ -176,7 +188,7 @@ export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetC
       )
         return
       if (!location) return
-      const prev = resolvePrevYearDate(dateKey, weatherPolicy, weatherDowOffset)
+      const prev = resolvePrevYearDate(dateKey, weatherPolicy)
       setPrevHourlyCache((c) => ({
         ...c,
         [dateKey]: { status: 'loading', records: [] },
@@ -199,7 +211,7 @@ export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetC
           }))
         })
     },
-    [prevHourlyCache, location, storeId, weatherPolicy, weatherDowOffset],
+    [prevHourlyCache, location, storeId, weatherPolicy],
   )
 
   /** 実測日クリック */
@@ -300,9 +312,7 @@ export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetC
 
   const modalHourly = modalDate ? hourlyCache[modalDate] : undefined
   const modalPrevHourly = modalDate ? prevHourlyCache[modalDate] : undefined
-  const modalPrevDate = modalDate
-    ? resolvePrevYearDate(modalDate, weatherPolicy, weatherDowOffset)
-    : null
+  const modalPrevDate = modalDate ? resolvePrevYearDate(modalDate, weatherPolicy) : null
   // 実測日: 当年データがある場合。予報日: 前年データがあるか予報がある場合
   const modalCanShowModal =
     modalDate &&

@@ -19,10 +19,13 @@ export const SummaryItem = styled.div`
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding: ${({ theme }) => theme.spacing[2]};
+  padding: ${({ theme }) => theme.spacing[3]};
   background: ${({ theme }) => theme.colors.bg3};
-  border-radius: ${({ theme }) => theme.radii.sm};
+  border-radius: ${({ theme }) => theme.radii.md};
   border: 1px solid ${({ theme }) => theme.colors.border};
+  box-shadow: ${({ theme }) => theme.shadows.sm};
+  transition: box-shadow ${({ theme }) => theme.transitions.fast}
+    ${({ theme }) => theme.transitions.ease};
 `
 
 export const SummaryLabel = styled.span`
