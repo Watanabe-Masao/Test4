@@ -60,40 +60,56 @@ export const CategoryRankingCard = memo(function CategoryRankingCard({
     [categoryTotals, mode],
   )
 
-  const option = useMemo<EChartsOption>(() => ({
-    grid: { left: 80, right: 60, top: 4, bottom: 4, containLabel: false },
-    tooltip: {
-      ...standardTooltip(theme),
-      formatter: (params: unknown) => {
-        const p = params as { name: string; value: number }
-        return `${p.name}: ${toCommaYen(p.value)}`
+  const option = useMemo<EChartsOption>(
+    () => ({
+      grid: { left: 80, right: 60, top: 4, bottom: 4, containLabel: false },
+      tooltip: {
+        ...standardTooltip(theme),
+        formatter: (params: unknown) => {
+          const p = params as { name: string; value: number }
+          return `${p.name}: ${toCommaYen(p.value)}`
+        },
       },
-    },
-    xAxis: {
-      type: 'value',
-      axisLabel: { formatter: (v: number) => toAxisManYen(v), color: theme.colors.text3, fontSize: 10 },
-      splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
-    },
-    yAxis: {
-      type: 'category',
-      data: items.map((d) => d.name),
-      inverse: true,
-      axisLabel: { color: theme.colors.text3, fontSize: 10, width: 70, overflow: 'truncate' },
-    },
-    series: [{
-      type: 'bar',
-      data: items.map((d, i) => ({
-        value: d.value,
-        itemStyle: { color: theme.colors.palette.primary, opacity: i < topNCount ? 1 : 0.45 },
-      })),
-      barWidth: 20,
-    }],
-  }), [items, topNCount, theme])
+      xAxis: {
+        type: 'value',
+        axisLabel: {
+          formatter: (v: number) => toAxisManYen(v),
+          color: theme.colors.text3,
+          fontSize: 10,
+        },
+        splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
+      },
+      yAxis: {
+        type: 'category',
+        data: items.map((d) => d.name),
+        inverse: true,
+        axisLabel: { color: theme.colors.text3, fontSize: 10, width: 70, overflow: 'truncate' },
+      },
+      series: [
+        {
+          type: 'bar',
+          data: items.map((d, i) => ({
+            value: d.value,
+            itemStyle: { color: theme.colors.palette.primary, opacity: i < topNCount ? 1 : 0.45 },
+          })),
+          barWidth: 20,
+        },
+      ],
+    }),
+    [items, topNCount, theme],
+  )
 
   if (items.length === 0) return null
 
   const subtitle = `上位${topNCount}分類で${mode === 'cost' ? '原価' : '売価'}の${toPct(topNShare, 0)}を占めています`
-  const toolbar = <SegmentedControl options={MODE_OPTIONS} value={mode} onChange={setMode} ariaLabel="表示モード" />
+  const toolbar = (
+    <SegmentedControl
+      options={MODE_OPTIONS}
+      value={mode}
+      onChange={setMode}
+      ariaLabel="表示モード"
+    />
+  )
   const chartHeight = Math.max(200, items.length * 32 + 40)
 
   return (

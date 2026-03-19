@@ -20,8 +20,13 @@ type AxisMode = 'absolute' | 'yoyChange'
 
 const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土'] as const
 const DOW_COLORS: Record<number, string> = {
-  0: '#ef4444', 1: '#6366f1', 2: '#f59e0b', 3: '#10b981',
-  4: '#f97316', 5: '#3b82f6', 6: '#8b5cf6',
+  0: '#ef4444',
+  1: '#6366f1',
+  2: '#f59e0b',
+  3: '#10b981',
+  4: '#f97316',
+  5: '#3b82f6',
+  6: '#8b5cf6',
 }
 
 const MODE_OPTIONS: readonly { value: AxisMode; label: string }[] = [
@@ -38,16 +43,28 @@ interface Props {
 }
 
 export const CustomerScatterChart = memo(function CustomerScatterChart({
-  daily, daysInMonth, year, month, prevYearDaily,
+  daily,
+  daysInMonth,
+  year,
+  month,
+  prevYearDaily,
 }: Props) {
   const theme = useTheme() as AppTheme
   const [axisMode, setAxisMode] = useState<AxisMode>('absolute')
   const hasPrev = !!prevYearDaily
 
   const { scatterData, prevScatter, avgCustomers, avgTxValue, quadrantCounts } = useMemo(() => {
-    const points: { day: number; customers: number; txValue: number; sales: number; dow: number }[] = []
+    const points: {
+      day: number
+      customers: number
+      txValue: number
+      sales: number
+      dow: number
+    }[] = []
     const prevPoints: { day: number; customers: number; txValue: number; sales: number }[] = []
-    let totalC = 0, totalT = 0, count = 0
+    let totalC = 0,
+      totalT = 0,
+      count = 0
 
     for (let d = 1; d <= daysInMonth; d++) {
       const rec = daily.get(d)
@@ -57,20 +74,30 @@ export const CustomerScatterChart = memo(function CustomerScatterChart({
       const txValue = calculateTransactionValue(sales, customers)
       const dow = new Date(year, month - 1, d).getDay()
       points.push({ day: d, customers, txValue, sales, dow })
-      totalC += customers; totalT += txValue; count++
+      totalC += customers
+      totalT += txValue
+      count++
     }
 
     if (prevYearDaily) {
       for (let d = 1; d <= daysInMonth; d++) {
         const prev = prevYearDaily.get(toDateKeyFromParts(year, month, d))
         if (!prev?.customers || prev.customers <= 0) continue
-        prevPoints.push({ day: d, customers: prev.customers, txValue: calculateTransactionValue(prev.sales, prev.customers), sales: prev.sales })
+        prevPoints.push({
+          day: d,
+          customers: prev.customers,
+          txValue: calculateTransactionValue(prev.sales, prev.customers),
+          sales: prev.sales,
+        })
       }
     }
 
     const avgC = count > 0 ? totalC / count : 0
     const avgT = count > 0 ? totalT / count : 0
-    let q1 = 0, q2 = 0, q3 = 0, q4 = 0
+    let q1 = 0,
+      q2 = 0,
+      q3 = 0,
+      q4 = 0
     for (const p of points) {
       if (p.customers >= avgC && p.txValue >= avgT) q1++
       else if (p.customers < avgC && p.txValue >= avgT) q2++
@@ -78,12 +105,19 @@ export const CustomerScatterChart = memo(function CustomerScatterChart({
       else q4++
     }
 
-    return { scatterData: points, prevScatter: prevPoints, avgCustomers: avgC, avgTxValue: avgT, quadrantCounts: { q1, q2, q3, q4 } }
+    return {
+      scatterData: points,
+      prevScatter: prevPoints,
+      avgCustomers: avgC,
+      avgTxValue: avgT,
+      quadrantCounts: { q1, q2, q3, q4 },
+    }
   }, [daily, daysInMonth, year, month, prevYearDaily])
 
   const { yoyData, yoyQuadrants } = useMemo(() => {
     if (!prevYearDaily) return { yoyData: [], yoyQuadrants: { q1: 0, q2: 0, q3: 0, q4: 0 } }
-    const pts: { day: number; custChange: number; txChange: number; sales: number; dow: number }[] = []
+    const pts: { day: number; custChange: number; txChange: number; sales: number; dow: number }[] =
+      []
     for (let d = 1; d <= daysInMonth; d++) {
       const rec = daily.get(d)
       const customers = rec?.customers ?? 0
@@ -100,7 +134,10 @@ export const CustomerScatterChart = memo(function CustomerScatterChart({
         dow: new Date(year, month - 1, d).getDay(),
       })
     }
-    let q1 = 0, q2 = 0, q3 = 0, q4 = 0
+    let q1 = 0,
+      q2 = 0,
+      q3 = 0,
+      q4 = 0
     for (const p of pts) {
       if (p.custChange >= 0 && p.txChange >= 0) q1++
       else if (p.custChange < 0 && p.txChange >= 0) q2++
@@ -119,7 +156,7 @@ export const CustomerScatterChart = memo(function CustomerScatterChart({
     const yKey = isYoy ? 'txChange' : 'txValue'
 
     // Group by DOW
-    const dowMap = new Map<number, typeof dataSource[number][]>()
+    const dowMap = new Map<number, (typeof dataSource)[number][]>()
     for (const p of dataSource) {
       const existing = dowMap.get(p.dow)
       if (existing) existing.push(p)
@@ -133,7 +170,10 @@ export const CustomerScatterChart = memo(function CustomerScatterChart({
       series.push({
         name: '前年',
         type: 'scatter',
-        data: prevScatter.map((p) => ({ value: [p.customers, p.txValue], symbolSize: Math.max(4, Math.sqrt(p.sales / 5000)) })),
+        data: prevScatter.map((p) => ({
+          value: [p.customers, p.txValue],
+          symbolSize: Math.max(4, Math.sqrt(p.sales / 5000)),
+        })),
         itemStyle: { color: theme.colors.palette.slate, opacity: 0.25 },
         symbolSize: 6,
       })
@@ -154,16 +194,32 @@ export const CustomerScatterChart = memo(function CustomerScatterChart({
 
     const refLines = isYoy
       ? [
-          { xAxis: 0, lineStyle: { color: theme.colors.palette.slate, type: 'dashed' as const, opacity: 0.8 } },
-          { yAxis: 0, lineStyle: { color: theme.colors.palette.slate, type: 'dashed' as const, opacity: 0.8 } },
+          {
+            xAxis: 0,
+            lineStyle: { color: theme.colors.palette.slate, type: 'dashed' as const, opacity: 0.8 },
+          },
+          {
+            yAxis: 0,
+            lineStyle: { color: theme.colors.palette.slate, type: 'dashed' as const, opacity: 0.8 },
+          },
         ]
       : [
-          { xAxis: avgCustomers, lineStyle: { color: theme.colors.palette.slate, type: 'dashed' as const, opacity: 0.6 } },
-          { yAxis: avgTxValue, lineStyle: { color: theme.colors.palette.slate, type: 'dashed' as const, opacity: 0.6 } },
+          {
+            xAxis: avgCustomers,
+            lineStyle: { color: theme.colors.palette.slate, type: 'dashed' as const, opacity: 0.6 },
+          },
+          {
+            yAxis: avgTxValue,
+            lineStyle: { color: theme.colors.palette.slate, type: 'dashed' as const, opacity: 0.6 },
+          },
         ]
 
     if (series.length > 0) {
-      (series[series.length - 1] as Record<string, unknown>).markLine = { data: refLines, symbol: 'none', label: { show: false } }
+      ;(series[series.length - 1] as Record<string, unknown>).markLine = {
+        data: refLines,
+        symbol: 'none',
+        label: { show: false },
+      }
     }
 
     return {
@@ -183,7 +239,11 @@ export const CustomerScatterChart = memo(function CustomerScatterChart({
         name: isYoy ? '客数 前年比変化率' : '客数（人）',
         nameLocation: 'center',
         nameGap: 25,
-        axisLabel: { color: theme.colors.text3, fontSize: 10, formatter: isYoy ? (v: number) => toPct(v, 0) : undefined },
+        axisLabel: {
+          color: theme.colors.text3,
+          fontSize: 10,
+          formatter: isYoy ? (v: number) => toPct(v, 0) : undefined,
+        },
         splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
       },
       yAxis: {
@@ -204,22 +264,57 @@ export const CustomerScatterChart = memo(function CustomerScatterChart({
   }, [isYoy, scatterData, yoyData, prevScatter, avgCustomers, avgTxValue, theme])
 
   if (scatterData.length === 0) {
-    return <ChartCard title="客数×客単価 効率分析" guide={CHART_GUIDES['customer-scatter']}><ChartEmpty message="客数データがありません" /></ChartCard>
+    return (
+      <ChartCard title="客数×客単価 効率分析" guide={CHART_GUIDES['customer-scatter']}>
+        <ChartEmpty message="客数データがありません" />
+      </ChartCard>
+    )
   }
 
   const qc = isYoy ? yoyQuadrants : quadrantCounts
   const qLabels = isYoy
-    ? [`客数↑単価↑: ${qc.q1}日`, `客数↓単価↑: ${qc.q2}日`, `客数↑単価↓: ${qc.q4}日`, `客数↓単価↓: ${qc.q3}日`]
-    : [`高客数+高単価: ${qc.q1}日`, `低客数+高単価: ${qc.q2}日`, `高客数+低単価: ${qc.q4}日`, `低客数+低単価: ${qc.q3}日`]
-  const qColors = [theme.chart.barPositive, theme.colors.palette.infoDark, theme.colors.palette.warningDark, theme.chart.barNegative]
+    ? [
+        `客数↑単価↑: ${qc.q1}日`,
+        `客数↓単価↑: ${qc.q2}日`,
+        `客数↑単価↓: ${qc.q4}日`,
+        `客数↓単価↓: ${qc.q3}日`,
+      ]
+    : [
+        `高客数+高単価: ${qc.q1}日`,
+        `低客数+高単価: ${qc.q2}日`,
+        `高客数+低単価: ${qc.q4}日`,
+        `低客数+低単価: ${qc.q3}日`,
+      ]
+  const qColors = [
+    theme.chart.barPositive,
+    theme.colors.palette.infoDark,
+    theme.colors.palette.warningDark,
+    theme.chart.barNegative,
+  ]
 
   const title = isYoy ? '前年比 客数変化率×客単価変化率' : '客数×客単価 効率分析'
-  const toolbar = hasPrev ? <SegmentedControl options={MODE_OPTIONS} value={axisMode} onChange={setAxisMode} ariaLabel="軸モード" /> : undefined
+  const toolbar = hasPrev ? (
+    <SegmentedControl
+      options={MODE_OPTIONS}
+      value={axisMode}
+      onChange={setAxisMode}
+      ariaLabel="軸モード"
+    />
+  ) : undefined
 
   return (
-    <ChartCard title={title} subtitle="バブルサイズ = 売上額 / 色 = 曜日" guide={CHART_GUIDES['customer-scatter']} toolbar={toolbar}>
+    <ChartCard
+      title={title}
+      subtitle="バブルサイズ = 売上額 / 色 = 曜日"
+      guide={CHART_GUIDES['customer-scatter']}
+      toolbar={toolbar}
+    >
       <QuadrantGrid>
-        {qLabels.map((label, i) => <QuadrantTag key={i} $color={qColors[i]}>{label}</QuadrantTag>)}
+        {qLabels.map((label, i) => (
+          <QuadrantTag key={i} $color={qColors[i]}>
+            {label}
+          </QuadrantTag>
+        ))}
       </QuadrantGrid>
       <EChart option={option} height={320} ariaLabel="客数散布図チャート" />
     </ChartCard>

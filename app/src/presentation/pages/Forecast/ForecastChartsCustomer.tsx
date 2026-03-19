@@ -6,7 +6,11 @@ import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { toAxisYen, toComma } from '@/presentation/components/charts/chartTheme'
 import { EChart, type EChartsOption } from '@/presentation/components/charts/EChart'
-import { standardGrid, standardTooltip, standardLegend } from '@/presentation/components/charts/echartsOptionBuilders'
+import {
+  standardGrid,
+  standardTooltip,
+  standardLegend,
+} from '@/presentation/components/charts/echartsOptionBuilders'
 import { ChartWrapper, ChartTitle } from './ForecastPage.styles'
 import {
   DOW_LABELS,
@@ -18,7 +22,10 @@ import {
 
 // ─── 共通ヘルパー ───────────────────────────────────────
 
-function yenValueAxis(theme: AppTheme, opts?: { position?: 'left' | 'right'; label?: string; width?: number }) {
+function yenValueAxis(
+  theme: AppTheme,
+  opts?: { position?: 'left' | 'right'; label?: string; width?: number },
+) {
   const pos = opts?.position ?? ('left' as const)
   return {
     type: 'value' as const,
@@ -31,9 +38,10 @@ function yenValueAxis(theme: AppTheme, opts?: { position?: 'left' | 'right'; lab
     },
     axisLine: { show: false },
     axisTick: { show: false },
-    splitLine: pos === 'left'
-      ? { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' as const } }
-      : { show: false },
+    splitLine:
+      pos === 'left'
+        ? { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' as const } }
+        : { show: false },
     name: opts?.label,
     nameLocation: 'end' as const,
     nameTextStyle: {
@@ -43,7 +51,9 @@ function yenValueAxis(theme: AppTheme, opts?: { position?: 'left' | 'right'; lab
   }
 }
 
-function tooltipFormatter(items: { seriesName: string; value: number; color: string; name: string }[]) {
+function tooltipFormatter(
+  items: { seriesName: string; value: number; color: string; name: string }[],
+) {
   if (!Array.isArray(items) || items.length === 0) return ''
   const header = `<div style="font-weight:600;margin-bottom:4px">${items[0].name}</div>`
   const rows = items
@@ -167,10 +177,7 @@ export const DowCustomerChart = memo(function DowCustomerChart({
     color: dowColors[i],
   }))
 
-  const option = useMemo(
-    () => buildDowCustomerOption(data, hasPrev, theme),
-    [data, hasPrev, theme],
-  )
+  const option = useMemo(() => buildDowCustomerOption(data, hasPrev, theme), [data, hasPrev, theme])
 
   return (
     <ChartWrapper>
@@ -288,7 +295,10 @@ export const MovingAverageChart = memo(function MovingAverageChart({
     ...(hasPrev ? { 比較期客数MA: e.prevCustomersMA, 比較期客単価MA: e.prevTxValueMA } : {}),
   }))
 
-  const option = useMemo(() => buildMovingAvgOption(chartData, hasPrev, theme), [chartData, hasPrev, theme])
+  const option = useMemo(
+    () => buildMovingAvgOption(chartData, hasPrev, theme),
+    [chartData, hasPrev, theme],
+  )
 
   return (
     <ChartWrapper>
@@ -417,7 +427,9 @@ function buildRelationshipOption(
       },
       axisLine: { show: false },
       axisTick: { show: false },
-      splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' as const } },
+      splitLine: {
+        lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' as const },
+      },
     },
     series,
   }
@@ -524,7 +536,9 @@ function buildCustomerSalesOption(
         },
         axisLine: { show: false },
         axisTick: { show: false },
-        splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' as const } },
+        splitLine: {
+          lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' as const },
+        },
       },
       {
         type: 'value' as const,
@@ -639,7 +653,9 @@ function buildSameDowOption(
         },
         axisLine: { show: false },
         axisTick: { show: false },
-        splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' as const } },
+        splitLine: {
+          lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' as const },
+        },
       },
       {
         type: 'value' as const,

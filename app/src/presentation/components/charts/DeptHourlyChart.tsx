@@ -12,11 +12,7 @@ import type { DateRange } from '@/domain/models'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { useDuckDBCategoryHourly } from '@/application/hooks/useDuckDBQuery'
 import { useCurrencyFormatter } from './chartTheme'
-import {
-  buildDeptHourlyData,
-  detectCannibalization,
-  TOP_N_OPTIONS,
-} from './DeptHourlyChartLogic'
+import { buildDeptHourlyData, detectCannibalization, TOP_N_OPTIONS } from './DeptHourlyChartLogic'
 import { useI18n } from '@/application/hooks/useI18n'
 import { SegmentedControl } from '@/presentation/components/common'
 import { ChartCard } from './ChartCard'
@@ -65,7 +61,11 @@ function buildOption(
     xAxis: {
       type: 'category',
       data: hours,
-      axisLabel: { color: theme.colors.text3, fontSize: 10, fontFamily: theme.typography.fontFamily.mono },
+      axisLabel: {
+        color: theme.colors.text3,
+        fontSize: 10,
+        fontFamily: theme.typography.fontFamily.mono,
+      },
       axisLine: { lineStyle: { color: theme.colors.border } },
     },
     yAxis: yenYAxis(theme),
@@ -100,7 +100,13 @@ export const DeptHourlyChart = React.memo(function DeptHourlyChart({
     data: categoryHourlyRows,
     error,
     isLoading,
-  } = useDuckDBCategoryHourly(duckConn, duckDataVersion, currentDateRange, selectedStoreIds, 'department')
+  } = useDuckDBCategoryHourly(
+    duckConn,
+    duckDataVersion,
+    currentDateRange,
+    selectedStoreIds,
+    'department',
+  )
 
   const { chartData, departments, hourlyPatterns } = useMemo(
     () =>
@@ -115,7 +121,10 @@ export const DeptHourlyChart = React.memo(function DeptHourlyChart({
     [departments, hourlyPatterns],
   )
 
-  const option = useMemo(() => buildOption(chartData, departments, viewMode, theme), [chartData, departments, viewMode, theme])
+  const option = useMemo(
+    () => buildOption(chartData, departments, viewMode, theme),
+    [chartData, departments, viewMode, theme],
+  )
 
   const handleTopNChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     setTopN(Number(e.target.value))
@@ -132,23 +141,44 @@ export const DeptHourlyChart = React.memo(function DeptHourlyChart({
   }, [])
 
   if (error) {
-    return <ChartCard title="部門別時間帯パターン"><ChartError message={`${messages.errors.dataFetchFailed}: ${error}`} /></ChartCard>
+    return (
+      <ChartCard title="部門別時間帯パターン">
+        <ChartError message={`${messages.errors.dataFetchFailed}: ${error}`} />
+      </ChartCard>
+    )
   }
   if (isLoading && !categoryHourlyRows) {
-    return <ChartCard title="部門別時間帯パターン"><ChartLoading /></ChartCard>
+    return (
+      <ChartCard title="部門別時間帯パターン">
+        <ChartLoading />
+      </ChartCard>
+    )
   }
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
-    return <ChartCard title="部門別時間帯パターン"><ChartEmpty message="データをインポートしてください" /></ChartCard>
+    return (
+      <ChartCard title="部門別時間帯パターン">
+        <ChartEmpty message="データをインポートしてください" />
+      </ChartCard>
+    )
   }
 
   const subtitle = `上位${topN}部門の時間帯別売上 | ${viewMode === 'stacked' ? '積み上げ面グラフ' : '独立面グラフ'}`
   const toolbar = (
     <>
-      <SegmentedControl options={VIEW_OPTIONS} value={viewMode} onChange={setViewMode} ariaLabel="表示モード" />
+      <SegmentedControl
+        options={VIEW_OPTIONS}
+        value={viewMode}
+        onChange={setViewMode}
+        ariaLabel="表示モード"
+      />
       <TopNSelector>
         <span>上位</span>
         <TopNSelect value={topN} onChange={handleTopNChange}>
-          {TOP_N_OPTIONS.map((n) => <option key={n} value={n}>{n}部門</option>)}
+          {TOP_N_OPTIONS.map((n) => (
+            <option key={n} value={n}>
+              {n}部門
+            </option>
+          ))}
         </TopNSelect>
       </TopNSelector>
     </>

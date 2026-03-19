@@ -53,10 +53,7 @@ interface Props {
   readonly prevYearScope?: PrevYearScope
 }
 
-function buildLineOption(
-  chartData: readonly YoYChartDataPoint[],
-  theme: AppTheme,
-): EChartsOption {
+function buildLineOption(chartData: readonly YoYChartDataPoint[], theme: AppTheme): EChartsOption {
   const dates = chartData.map((d) => d.date)
   return {
     grid: standardGrid(),
@@ -205,7 +202,12 @@ export const YoYChart = memo(function YoYChart({
       : '前年→当年の累積差分 | 青 = 開始/終了 | 水色 = プラス | 橙 = マイナス'
 
   const toolbar = (
-    <SegmentedControl options={VIEW_OPTIONS} value={viewMode} onChange={setViewMode} ariaLabel="ビュー切替" />
+    <SegmentedControl
+      options={VIEW_OPTIONS}
+      value={viewMode}
+      onChange={setViewMode}
+      ariaLabel="ビュー切替"
+    />
   )
 
   return (

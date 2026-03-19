@@ -98,13 +98,22 @@ export const TimeSlotChart = memo(function TimeSlotChart({
 
     const series: EChartsOption['series'] = [
       {
-        name: isAmount ? (showPrev ? `${d.curLabel}売上` : '売上金額') : (showPrev ? `${d.curLabel}数量` : '数量'),
+        name: isAmount
+          ? showPrev
+            ? `${d.curLabel}売上`
+            : '売上金額'
+          : showPrev
+            ? `${d.curLabel}数量`
+            : '数量',
         type: 'bar',
         data: d.chartData.map((r) => (r as Record<string, unknown>)[dataKey] as number),
         itemStyle: {
           color: {
             type: 'linear',
-            x: 0, y: 0, x2: 0, y2: 1,
+            x: 0,
+            y: 0,
+            x2: 0,
+            y2: 1,
             colorStops: [
               { offset: 0, color: `${barColor}d9` },
               { offset: 1, color: `${barColor}66` },
@@ -121,7 +130,7 @@ export const TimeSlotChart = memo(function TimeSlotChart({
       series.push({
         name: isAmount ? `${d.compLabel}売上` : `${d.compLabel}数量`,
         type: 'line',
-        data: d.chartData.map((r) => (r as Record<string, unknown>)[prevKey] as number ?? null),
+        data: d.chartData.map((r) => ((r as Record<string, unknown>)[prevKey] as number) ?? null),
         lineStyle: { color: theme.colors.palette.slate, width: 2.5, type: 'dashed' },
         itemStyle: { color: theme.colors.palette.slate },
         symbol: 'none',
@@ -136,14 +145,22 @@ export const TimeSlotChart = memo(function TimeSlotChart({
       xAxis: {
         type: 'category',
         data: hours,
-        axisLabel: { color: theme.colors.text3, fontSize: 10, fontFamily: theme.typography.fontFamily.mono },
+        axisLabel: {
+          color: theme.colors.text3,
+          fontSize: 10,
+          fontFamily: theme.typography.fontFamily.mono,
+        },
         axisLine: { lineStyle: { color: theme.colors.border } },
       },
       yAxis: isAmount
         ? yenYAxis(theme)
         : {
             type: 'value',
-            axisLabel: { formatter: (v: number) => toComma(v), color: theme.colors.text3, fontSize: 10 },
+            axisLabel: {
+              formatter: (v: number) => toComma(v),
+              color: theme.colors.text3,
+              fontSize: 10,
+            },
             axisLine: { show: false },
             splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
           },
@@ -174,9 +191,7 @@ export const TimeSlotChart = memo(function TimeSlotChart({
           const lines = items.map((item) => {
             const v = item.value ?? 0
             const formatted =
-              item.seriesName === '差分'
-                ? `${v >= 0 ? '+' : ''}${toComma(v)}円`
-                : `${toComma(v)}円`
+              item.seriesName === '差分' ? `${v >= 0 ? '+' : ''}${toComma(v)}円` : `${toComma(v)}円`
             return `${item.marker} ${item.seriesName}: ${formatted}`
           })
           return `${String((items[0] as { axisValue?: string }).axisValue ?? '')}<br/>${lines.join('<br/>')}`

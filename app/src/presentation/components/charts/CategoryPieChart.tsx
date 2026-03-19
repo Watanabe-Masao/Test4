@@ -93,7 +93,14 @@ export const CategoryPieChart = memo(function CategoryPieChart({
 
   if (data.length === 0) return null
 
-  const toolbar = <SegmentedControl options={MODE_OPTIONS} value={mode} onChange={setMode} ariaLabel="表示モード" />
+  const toolbar = (
+    <SegmentedControl
+      options={MODE_OPTIONS}
+      value={mode}
+      onChange={setMode}
+      ariaLabel="表示モード"
+    />
+  )
 
   return (
     <ChartCard title={`カテゴリ別${mode === 'cost' ? '原価' : '売価'}構成`} toolbar={toolbar}>

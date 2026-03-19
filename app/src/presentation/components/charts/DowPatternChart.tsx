@@ -93,7 +93,10 @@ export const DowPatternChart = memo(function DowPatternChart({
     [rows],
   )
 
-  const option = useMemo(() => buildOption(chartData, overallAvg, theme), [chartData, overallAvg, theme])
+  const option = useMemo(
+    () => buildOption(chartData, overallAvg, theme),
+    [chartData, overallAvg, theme],
+  )
 
   if (error) {
     return (

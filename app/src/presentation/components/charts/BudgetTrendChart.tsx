@@ -9,7 +9,13 @@ import { useDualPeriodRange } from './useDualPeriodRange'
 import { SegmentedControl } from '@/presentation/components/common'
 import { ChartCard } from './ChartCard'
 import { EChart, type EChartsOption } from './EChart'
-import { yenYAxis, standardGrid, standardTooltip, standardLegend, toCommaYen } from './echartsOptionBuilders'
+import {
+  yenYAxis,
+  standardGrid,
+  standardTooltip,
+  standardLegend,
+  toCommaYen,
+} from './echartsOptionBuilders'
 
 type ViewType = 'line' | 'diff' | 'rate'
 
@@ -71,7 +77,7 @@ function buildOption(
     ]
     if (budget > 0) {
       // 月間予算ライン (markLine on 実績系列)
-      (series[0] as Record<string, unknown>).markLine = {
+      ;(series[0] as Record<string, unknown>).markLine = {
         data: [{ yAxis: budget, label: { formatter: `月間予算`, position: 'end', fontSize: 10 } }],
         lineStyle: { color: theme.colors.palette.warningDark, type: 'dashed', width: 1.5 },
         symbol: 'none',
@@ -92,7 +98,15 @@ function buildOption(
       grid: standardGrid(),
       tooltip: standardTooltip(theme),
       legend: standardLegend(theme),
-      xAxis: { type: 'category', data: days, axisLabel: { color: theme.colors.text3, fontSize: 10, fontFamily: theme.typography.fontFamily.mono } },
+      xAxis: {
+        type: 'category',
+        data: days,
+        axisLabel: {
+          color: theme.colors.text3,
+          fontSize: 10,
+          fontFamily: theme.typography.fontFamily.mono,
+        },
+      },
       yAxis: yenYAxis(theme),
       series,
     }
@@ -101,57 +115,88 @@ function buildOption(
   if (view === 'diff') {
     return {
       grid: standardGrid(),
-      tooltip: { ...standardTooltip(theme), formatter: (params: unknown) => {
-        const p = params as { name: string; value: number }[]
-        if (!Array.isArray(p) || !p[0]) return ''
-        return `${p[0].name}日<br/>予算差異: ${toCommaYen(p[0].value)}`
-      }},
-      xAxis: { type: 'category', data: days, axisLabel: { color: theme.colors.text3, fontSize: 10, fontFamily: theme.typography.fontFamily.mono } },
+      tooltip: {
+        ...standardTooltip(theme),
+        formatter: (params: unknown) => {
+          const p = params as { name: string; value: number }[]
+          if (!Array.isArray(p) || !p[0]) return ''
+          return `${p[0].name}日<br/>予算差異: ${toCommaYen(p[0].value)}`
+        },
+      },
+      xAxis: {
+        type: 'category',
+        data: days,
+        axisLabel: {
+          color: theme.colors.text3,
+          fontSize: 10,
+          fontFamily: theme.typography.fontFamily.mono,
+        },
+      },
       yAxis: yenYAxis(theme),
-      series: [{
-        type: 'bar',
-        data: chartData.map((d) => ({
-          value: d.diff,
-          itemStyle: {
-            color: d.diff == null ? 'transparent' : d.diff >= 0 ? theme.chart.barPositive : theme.chart.barNegative,
-            opacity: 0.7,
-            borderRadius: [2, 2, 0, 0],
-          },
-        })),
-        barMaxWidth: 16,
-      }],
+      series: [
+        {
+          type: 'bar',
+          data: chartData.map((d) => ({
+            value: d.diff,
+            itemStyle: {
+              color:
+                d.diff == null
+                  ? 'transparent'
+                  : d.diff >= 0
+                    ? theme.chart.barPositive
+                    : theme.chart.barNegative,
+              opacity: 0.7,
+              borderRadius: [2, 2, 0, 0],
+            },
+          })),
+          barMaxWidth: 16,
+        },
+      ],
     }
   }
 
   // rate view
   return {
     grid: standardGrid(),
-    tooltip: { ...standardTooltip(theme), formatter: (params: unknown) => {
-      const p = params as { name: string; value: number }[]
-      if (!Array.isArray(p) || !p[0]) return ''
-      return `${p[0].name}日<br/>達成率: ${p[0].value?.toFixed(1)}%`
-    }},
-    xAxis: { type: 'category', data: days, axisLabel: { color: theme.colors.text3, fontSize: 10, fontFamily: theme.typography.fontFamily.mono } },
+    tooltip: {
+      ...standardTooltip(theme),
+      formatter: (params: unknown) => {
+        const p = params as { name: string; value: number }[]
+        if (!Array.isArray(p) || !p[0]) return ''
+        return `${p[0].name}日<br/>達成率: ${p[0].value?.toFixed(1)}%`
+      },
+    },
+    xAxis: {
+      type: 'category',
+      data: days,
+      axisLabel: {
+        color: theme.colors.text3,
+        fontSize: 10,
+        fontFamily: theme.typography.fontFamily.mono,
+      },
+    },
     yAxis: {
       type: 'value',
       axisLabel: { formatter: (v: number) => `${v}%`, color: theme.colors.text3, fontSize: 10 },
       axisLine: { show: false },
       splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
     },
-    series: [{
-      name: '達成率',
-      type: 'line',
-      data: chartData.map((d) => d.achieveRate),
-      lineStyle: { color: theme.colors.palette.primary, width: 2.5 },
-      itemStyle: { color: theme.colors.palette.primary },
-      symbol: 'none',
-      connectNulls: true,
-      markLine: {
-        data: [{ yAxis: 100, label: { formatter: '100%', position: 'end' } }],
-        lineStyle: { color: theme.chart.barPositive, type: 'dashed', width: 1.5 },
+    series: [
+      {
+        name: '達成率',
+        type: 'line',
+        data: chartData.map((d) => d.achieveRate),
+        lineStyle: { color: theme.colors.palette.primary, width: 2.5 },
+        itemStyle: { color: theme.colors.palette.primary },
         symbol: 'none',
+        connectNulls: true,
+        markLine: {
+          data: [{ yAxis: 100, label: { formatter: '100%', position: 'end' } }],
+          lineStyle: { color: theme.chart.barPositive, type: 'dashed', width: 1.5 },
+          symbol: 'none',
+        },
       },
-    }],
+    ],
   }
 }
 
@@ -183,7 +228,8 @@ export const BudgetTrendChart = memo(function BudgetTrendChart({
         .map((d) => ({
           ...d,
           diff: d.actualCum > 0 ? d.actualCum - d.budgetCum : null,
-          achieveRate: d.budgetCum > 0 && d.actualCum > 0 ? (d.actualCum / d.budgetCum) * 100 : null,
+          achieveRate:
+            d.budgetCum > 0 && d.actualCum > 0 ? (d.actualCum / d.budgetCum) * 100 : null,
         }))
         .filter((d) => d.day >= rangeStart && d.day <= rangeEnd),
     [data, rangeStart, rangeEnd],
@@ -194,7 +240,14 @@ export const BudgetTrendChart = memo(function BudgetTrendChart({
     [chartData, view, hasPrevYear, budget, theme],
   )
 
-  const toolbar = <SegmentedControl options={VIEW_OPTIONS} value={view} onChange={setView} ariaLabel="ビュー切替" />
+  const toolbar = (
+    <SegmentedControl
+      options={VIEW_OPTIONS}
+      value={view}
+      onChange={setView}
+      ariaLabel="ビュー切替"
+    />
+  )
 
   return (
     <ChartCard title={VIEW_TITLES[view]} toolbar={toolbar} ariaLabel="予算トレンド">

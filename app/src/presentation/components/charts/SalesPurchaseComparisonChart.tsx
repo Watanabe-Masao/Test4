@@ -40,19 +40,35 @@ interface Props {
 }
 
 /** ECharts sub-component for chart rendering */
-function SalesCompChart({ chartData, visibleEntries, storeEntries, showSales, showPurchase, showInventory, seriesMode, theme }: {
+function SalesCompChart({
+  chartData,
+  visibleEntries,
+  storeEntries,
+  showSales,
+  showPurchase,
+  showInventory,
+  seriesMode,
+  theme,
+}: {
   chartData: readonly Record<string, number | null>[]
   visibleEntries: readonly { storeId: string; name: string; hasInventory: boolean }[]
   storeEntries: readonly { storeId: string; name: string; hasInventory: boolean }[]
-  showSales: boolean; showPurchase: boolean; showInventory: boolean
-  seriesMode: string; theme: AppTheme
+  showSales: boolean
+  showPurchase: boolean
+  showInventory: boolean
+  seriesMode: string
+  theme: AppTheme
 }) {
   const option = useMemo<EChartsOption>(() => {
     const days = chartData.map((d) => String(d.day))
     const series: EChartsOption['series'] = []
     const yAxes: Record<string, unknown>[] = [yenYAxis(theme) as Record<string, unknown>]
     if (showInventory) {
-      yAxes.push({ ...yenYAxis(theme) as Record<string, unknown>, position: 'right', splitLine: { show: false } })
+      yAxes.push({
+        ...(yenYAxis(theme) as Record<string, unknown>),
+        position: 'right',
+        splitLine: { show: false },
+      })
     }
 
     for (const s of visibleEntries) {
@@ -93,11 +109,28 @@ function SalesCompChart({ chartData, visibleEntries, storeEntries, showSales, sh
       grid: standardGrid(),
       tooltip: standardTooltip(theme),
       legend: seriesMode === 'all' ? { ...standardLegend(theme), type: 'scroll' } : undefined,
-      xAxis: { type: 'category', data: days, axisLabel: { color: theme.colors.text3, fontSize: 10, fontFamily: theme.typography.fontFamily.mono } },
+      xAxis: {
+        type: 'category',
+        data: days,
+        axisLabel: {
+          color: theme.colors.text3,
+          fontSize: 10,
+          fontFamily: theme.typography.fontFamily.mono,
+        },
+      },
       yAxis: yAxes as EChartsOption['yAxis'],
       series,
     }
-  }, [chartData, visibleEntries, storeEntries, showSales, showPurchase, showInventory, seriesMode, theme])
+  }, [
+    chartData,
+    visibleEntries,
+    storeEntries,
+    showSales,
+    showPurchase,
+    showInventory,
+    seriesMode,
+    theme,
+  ])
 
   return <EChart option={option} height={300} ariaLabel="売仕比較チャート" />
 }

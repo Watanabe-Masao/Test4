@@ -20,7 +20,14 @@ import { SegmentedControl } from '@/presentation/components/common'
 import { ChartCard } from './ChartCard'
 import { ChartLoading, ChartError, ChartEmpty } from './ChartState'
 import { EChart, type EChartsOption } from './EChart'
-import { yenYAxis, categoryXAxis, standardGrid, standardTooltip, standardLegend, toCommaYen } from './echartsOptionBuilders'
+import {
+  yenYAxis,
+  categoryXAxis,
+  standardGrid,
+  standardTooltip,
+  standardLegend,
+  toCommaYen,
+} from './echartsOptionBuilders'
 import {
   ControlRow,
   ChipGroup,
@@ -157,18 +164,30 @@ export const CategoryTrendChart = memo(function CategoryTrendChart({
     error,
     isLoading,
   } = useDuckDBCategoryDailyTrend(
-    duckConn, duckDataVersion, currentDateRange, selectedStoreIds,
-    level, hierarchy, topN, dowParam,
+    duckConn,
+    duckDataVersion,
+    currentDateRange,
+    selectedStoreIds,
+    level,
+    hierarchy,
+    topN,
+    dowParam,
   )
 
   // ECharts の legend toggle で除外を管理するため、excludedCodes は不要に
   const emptyExcluded = useMemo(() => new Set<string>(), [])
   const { chartData, categories } = useMemo(
-    () => trendRows ? buildCategoryTrendData(trendRows, emptyExcluded) : { chartData: [], categories: [] },
+    () =>
+      trendRows
+        ? buildCategoryTrendData(trendRows, emptyExcluded)
+        : { chartData: [], categories: [] },
     [trendRows, emptyExcluded],
   )
 
-  const option = useMemo(() => buildOption(chartData, categories, theme), [chartData, categories, theme])
+  const option = useMemo(
+    () => buildOption(chartData, categories, theme),
+    [chartData, categories, theme],
+  )
 
   // ECharts クリックでドリルダウン
   const canDrill = level !== 'klass'
@@ -190,13 +209,25 @@ export const CategoryTrendChart = memo(function CategoryTrendChart({
   )
 
   if (error) {
-    return <ChartCard title="カテゴリ別売上推移"><ChartError message={`${messages.errors.dataFetchFailed}: ${error}`} /></ChartCard>
+    return (
+      <ChartCard title="カテゴリ別売上推移">
+        <ChartError message={`${messages.errors.dataFetchFailed}: ${error}`} />
+      </ChartCard>
+    )
   }
   if (isLoading && !trendRows) {
-    return <ChartCard title="カテゴリ別売上推移"><ChartLoading /></ChartCard>
+    return (
+      <ChartCard title="カテゴリ別売上推移">
+        <ChartLoading />
+      </ChartCard>
+    )
   }
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
-    return <ChartCard title="カテゴリ別売上推移"><ChartEmpty message="データをインポートしてください" /></ChartCard>
+    return (
+      <ChartCard title="カテゴリ別売上推移">
+        <ChartEmpty message="データをインポートしてください" />
+      </ChartCard>
+    )
   }
 
   const hasDrill = drill.deptCode != null
@@ -207,17 +238,24 @@ export const CategoryTrendChart = memo(function CategoryTrendChart({
     <ChartCard title="カテゴリ別売上推移" subtitle={subtitle}>
       {hasDrill && (
         <BreadcrumbBar>
-          <BreadcrumbItem $active={false} onClick={() => handleBreadcrumbClick('root')}>全体</BreadcrumbItem>
+          <BreadcrumbItem $active={false} onClick={() => handleBreadcrumbClick('root')}>
+            全体
+          </BreadcrumbItem>
           <BreadcrumbSep>▸</BreadcrumbSep>
           {drill.deptCode && (
             <>
-              <BreadcrumbItem $active={level === 'line' && !drill.lineCode} onClick={() => handleBreadcrumbClick('department')}>
+              <BreadcrumbItem
+                $active={level === 'line' && !drill.lineCode}
+                onClick={() => handleBreadcrumbClick('department')}
+              >
                 {drill.deptName ?? drill.deptCode}
               </BreadcrumbItem>
               {drill.lineCode && (
                 <>
                   <BreadcrumbSep>▸</BreadcrumbSep>
-                  <BreadcrumbItem $active onClick={() => {}}>{drill.lineName ?? drill.lineCode}</BreadcrumbItem>
+                  <BreadcrumbItem $active onClick={() => {}}>
+                    {drill.lineName ?? drill.lineCode}
+                  </BreadcrumbItem>
                 </>
               )}
             </>
@@ -229,20 +267,39 @@ export const CategoryTrendChart = memo(function CategoryTrendChart({
         {!hasDrill && (
           <ChipGroup>
             <ChipLabel>階層:</ChipLabel>
-            <SegmentedControl options={LEVEL_SEGMENT_OPTIONS} value={level} onChange={handleLevelChange} ariaLabel="階層レベル" />
+            <SegmentedControl
+              options={LEVEL_SEGMENT_OPTIONS}
+              value={level}
+              onChange={handleLevelChange}
+              ariaLabel="階層レベル"
+            />
           </ChipGroup>
         )}
         <ChipGroup>
           <ChipLabel>上位:</ChipLabel>
-          <SegmentedControl options={TOP_N_SEGMENT_OPTIONS} value={String(topN)} onChange={(v) => setTopN(Number(v))} ariaLabel="表示件数" />
+          <SegmentedControl
+            options={TOP_N_SEGMENT_OPTIONS}
+            value={String(topN)}
+            onChange={(v) => setTopN(Number(v))}
+            ariaLabel="表示件数"
+          />
         </ChipGroup>
         <DowPresetSelector selectedDows={selectedDows} onChange={handleDowChange} />
       </ControlRow>
 
-      <EChart option={option} height={320} onClick={handleChartClick} ariaLabel="カテゴリ別売上推移チャート" />
+      <EChart
+        option={option}
+        height={320}
+        onClick={handleChartClick}
+        ariaLabel="カテゴリ別売上推移チャート"
+      />
 
       <SummaryRow>
-        {topCategory && <SummaryItem>最大: {topCategory.name} ({fmt(topCategory.totalAmount)})</SummaryItem>}
+        {topCategory && (
+          <SummaryItem>
+            最大: {topCategory.name} ({fmt(topCategory.totalAmount)})
+          </SummaryItem>
+        )}
         <SummaryItem>対象日数: {chartData.length}日</SummaryItem>
         <SummaryItem>カテゴリ数: {categories.length}</SummaryItem>
         {canDrill && <SummaryItem>ドリルダウン: チャート上のカテゴリをクリック</SummaryItem>}

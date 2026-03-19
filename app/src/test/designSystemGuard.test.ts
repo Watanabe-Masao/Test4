@@ -89,10 +89,7 @@ function isThemeContextLine(line: string): boolean {
 }
 
 /** ファイル内にパターン違反があるかチェックし、違反行リストを返す */
-function scanFile(
-  filePath: string,
-  pattern: RegExp,
-): { relPath: string; violations: string[] } {
+function scanFile(filePath: string, pattern: RegExp): { relPath: string; violations: string[] } {
   const relPath = rel(filePath)
   const content = fs.readFileSync(filePath, 'utf-8')
   const stripped = stripComments(content)

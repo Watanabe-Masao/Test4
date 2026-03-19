@@ -37,10 +37,7 @@ interface Props {
   readonly selectedStoreIds: ReadonlySet<string>
 }
 
-function buildOption(
-  chartData: readonly FeatureChartDataPoint[],
-  theme: AppTheme,
-): EChartsOption {
+function buildOption(chartData: readonly FeatureChartDataPoint[], theme: AppTheme): EChartsOption {
   const dates = chartData.map((d) => d.date)
 
   return {

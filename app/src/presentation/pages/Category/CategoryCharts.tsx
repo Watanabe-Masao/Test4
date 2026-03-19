@@ -54,7 +54,8 @@ export const CompositionChart = memo(function CompositionChart({
 
   const tooltipLabel = MODE_LABELS[mode]
   const tooltipFormatter = useMemo(
-    () => (isCrossMult ? (value: number) => toPct(value, 2) : (value: number) => fmtCurrency(value)),
+    () =>
+      isCrossMult ? (value: number) => toPct(value, 2) : (value: number) => fmtCurrency(value),
     [isCrossMult, fmtCurrency],
   )
 

@@ -9,9 +9,16 @@ import { useTheme } from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
 import type { AppTheme } from '@/presentation/theme/theme'
-import { useDuckDBHourlyProfile, useDuckDBWeatherHourlyAvg } from '@/application/hooks/useDuckDBQuery'
+import {
+  useDuckDBHourlyProfile,
+  useDuckDBWeatherHourlyAvg,
+} from '@/application/hooks/useDuckDBQuery'
 import { useSettingsStore } from '@/application/stores/settingsStore'
-import { buildHourlyProfileData, mergeWeatherData, type HourlyProfileDataPoint } from './HourlyProfileChartLogic'
+import {
+  buildHourlyProfileData,
+  mergeWeatherData,
+  type HourlyProfileDataPoint,
+} from './HourlyProfileChartLogic'
 import { toPct } from './chartTheme'
 import { useI18n } from '@/application/hooks/useI18n'
 import { ChartCard } from './ChartCard'
@@ -50,7 +57,7 @@ function buildOption(
   ]
 
   if (hasWeatherData) {
-    (yAxes as unknown[]).push({
+    ;(yAxes as unknown[]).push({
       type: 'value',
       position: 'right',
       axisLabel: {
@@ -71,7 +78,10 @@ function buildOption(
       areaStyle: {
         color: {
           type: 'linear',
-          x: 0, y: 0, x2: 0, y2: 1,
+          x: 0,
+          y: 0,
+          x2: 0,
+          y2: 1,
           colorStops: [
             { offset: 0, color: `${theme.colors.palette.primary}66` },
             { offset: 1, color: `${theme.colors.palette.primary}0d` },
@@ -123,9 +133,10 @@ function buildOption(
         const rows = items
           .filter((item) => item.value != null && item.value !== 0)
           .map((item) => {
-            const val = item.seriesName === '平均気温'
-              ? `${(item.value as number).toFixed(1)}°C`
-              : toPct(item.value as number, 1)
+            const val =
+              item.seriesName === '平均気温'
+                ? `${(item.value as number).toFixed(1)}°C`
+                : toPct(item.value as number, 1)
             return `<div>${item.seriesName}: ${val}</div>`
           })
           .join('')
@@ -136,7 +147,11 @@ function buildOption(
     xAxis: {
       type: 'category',
       data: hours,
-      axisLabel: { color: theme.colors.text3, fontSize: 10, fontFamily: theme.typography.fontFamily.mono },
+      axisLabel: {
+        color: theme.colors.text3,
+        fontSize: 10,
+        fontFamily: theme.typography.fontFamily.mono,
+      },
       axisLine: { lineStyle: { color: theme.colors.border } },
     },
     yAxis: yAxes,
@@ -161,10 +176,16 @@ export const HourlyProfileChart = memo(function HourlyProfileChart({
 
   const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
   const weatherStoreId = useMemo(() => {
-    const ids = selectedStoreIds.size > 0 ? Array.from(selectedStoreIds) : Object.keys(storeLocations)
+    const ids =
+      selectedStoreIds.size > 0 ? Array.from(selectedStoreIds) : Object.keys(storeLocations)
     return ids.find((id) => storeLocations[id]) ?? ''
   }, [selectedStoreIds, storeLocations])
-  const { data: weatherAvg } = useDuckDBWeatherHourlyAvg(duckConn, duckDataVersion, weatherStoreId, currentDateRange)
+  const { data: weatherAvg } = useDuckDBWeatherHourlyAvg(
+    duckConn,
+    duckDataVersion,
+    weatherStoreId,
+    currentDateRange,
+  )
 
   const { chartData, peakHours, top3Concentration, activeHoursCount } = useMemo(() => {
     if (!rows) return { chartData: [], peakHours: '', top3Concentration: 0, activeHoursCount: 0 }
@@ -173,16 +194,31 @@ export const HourlyProfileChart = memo(function HourlyProfileChart({
   }, [rows, weatherAvg])
 
   const hasWeatherData = chartData.some((d) => d.avgTemp != null)
-  const option = useMemo(() => buildOption(chartData, hasWeatherData, theme), [chartData, hasWeatherData, theme])
+  const option = useMemo(
+    () => buildOption(chartData, hasWeatherData, theme),
+    [chartData, hasWeatherData, theme],
+  )
 
   if (error) {
-    return <ChartCard title="時間帯別売上プロファイル"><ChartError message={`${messages.errors.dataFetchFailed}: ${error}`} /></ChartCard>
+    return (
+      <ChartCard title="時間帯別売上プロファイル">
+        <ChartError message={`${messages.errors.dataFetchFailed}: ${error}`} />
+      </ChartCard>
+    )
   }
   if (isLoading && !rows) {
-    return <ChartCard title="時間帯別売上プロファイル"><ChartLoading /></ChartCard>
+    return (
+      <ChartCard title="時間帯別売上プロファイル">
+        <ChartLoading />
+      </ChartCard>
+    )
   }
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
-    return <ChartCard title="時間帯別売上プロファイル"><ChartEmpty message="データをインポートしてください" /></ChartCard>
+    return (
+      <ChartCard title="時間帯別売上プロファイル">
+        <ChartEmpty message="データをインポートしてください" />
+      </ChartCard>
+    )
   }
 
   return (

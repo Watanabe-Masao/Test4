@@ -8,7 +8,10 @@ import { memo, useMemo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { EChart, type EChartsOption } from '@/presentation/components/charts/EChart'
-import { standardGrid, standardTooltip } from '@/presentation/components/charts/echartsOptionBuilders'
+import {
+  standardGrid,
+  standardTooltip,
+} from '@/presentation/components/charts/echartsOptionBuilders'
 import { categorizeWeatherCode } from '@/domain/calculations/weatherAggregation'
 import { mapJmaWeatherCodeToCategory } from '@/domain/calculations/forecastWeatherMapping'
 import type {
@@ -213,8 +216,9 @@ export const HourlyWeatherModal = memo(function HourlyWeatherModal({
           }
           for (const p of items) {
             if (p.value == null) continue
-            const unit =
-              p.seriesName.includes('気温') ? `${(p.value as number).toFixed(1)}\u00B0C` : `${(p.value as number).toFixed(1)}mm`
+            const unit = p.seriesName.includes('気温')
+              ? `${(p.value as number).toFixed(1)}\u00B0C`
+              : `${(p.value as number).toFixed(1)}mm`
             html += `${p.marker} ${p.seriesName}: ${unit}<br/>`
           }
           return html

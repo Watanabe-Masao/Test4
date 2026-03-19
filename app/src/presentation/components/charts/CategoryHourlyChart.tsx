@@ -44,7 +44,12 @@ interface Props {
 }
 
 function buildOption(
-  categories: readonly { code: string; name: string; hourlyAmounts: ReadonlyMap<number, number>; peakHour: number }[],
+  categories: readonly {
+    code: string
+    name: string
+    hourlyAmounts: ReadonlyMap<number, number>
+    peakHour: number
+  }[],
   maxAmount: number,
   theme: AppTheme,
 ): EChartsOption {
@@ -77,7 +82,11 @@ function buildOption(
       type: 'category',
       data: hourLabels,
       splitArea: { show: true },
-      axisLabel: { color: theme.colors.text3, fontSize: 10, fontFamily: theme.typography.fontFamily.mono },
+      axisLabel: {
+        color: theme.colors.text3,
+        fontSize: 10,
+        fontFamily: theme.typography.fontFamily.mono,
+      },
     },
     yAxis: {
       type: 'category',
@@ -97,30 +106,29 @@ function buildOption(
       left: 'center',
       bottom: 0,
       inRange: {
-        color: [
-          theme.mode === 'dark' ? theme.colors.bg3 : '#f1f5f9',
-          theme.colors.palette.primary,
-        ],
+        color: [theme.mode === 'dark' ? theme.colors.bg3 : '#f1f5f9', theme.colors.palette.primary],
       },
       textStyle: { color: theme.colors.text3, fontSize: 9 },
       show: false,
     },
-    series: [{
-      type: 'heatmap',
-      data: heatmapData,
-      label: {
-        show: true,
-        formatter: (params: unknown) => {
-          const val = (params as { value: [number, number, number] }).value[2]
-          return val > 0 ? toCommaYen(val) : ''
+    series: [
+      {
+        type: 'heatmap',
+        data: heatmapData,
+        label: {
+          show: true,
+          formatter: (params: unknown) => {
+            const val = (params as { value: [number, number, number] }).value[2]
+            return val > 0 ? toCommaYen(val) : ''
+          },
+          fontSize: 8,
+          color: theme.colors.text3,
         },
-        fontSize: 8,
-        color: theme.colors.text3,
+        emphasis: {
+          itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0,0,0,0.3)' },
+        },
       },
-      emphasis: {
-        itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0,0,0,0.3)' },
-      },
-    }],
+    ],
   }
 }
 
@@ -145,9 +153,10 @@ export const CategoryHourlyChart = memo(function CategoryHourlyChart({
   } = useDuckDBCategoryHourly(duckConn, duckDataVersion, currentDateRange, selectedStoreIds, level)
 
   const heatmapData = useMemo(
-    () => hourlyRows
-      ? buildCategoryHeatmapData(hourlyRows, HOUR_MIN)
-      : { categories: [], maxAmount: 0, globalPeakHour: HOUR_MIN },
+    () =>
+      hourlyRows
+        ? buildCategoryHeatmapData(hourlyRows, HOUR_MIN)
+        : { categories: [], maxAmount: 0, globalPeakHour: HOUR_MIN },
     [hourlyRows],
   )
 
@@ -159,13 +168,25 @@ export const CategoryHourlyChart = memo(function CategoryHourlyChart({
   const chartHeight = Math.max(200, heatmapData.categories.length * 30 + 60)
 
   if (error) {
-    return <ChartCard title="カテゴリ×時間帯分析"><ChartError message={`${messages.errors.dataFetchFailed}: ${error}`} /></ChartCard>
+    return (
+      <ChartCard title="カテゴリ×時間帯分析">
+        <ChartError message={`${messages.errors.dataFetchFailed}: ${error}`} />
+      </ChartCard>
+    )
   }
   if (isLoading && !hourlyRows) {
-    return <ChartCard title="カテゴリ×時間帯分析"><ChartLoading /></ChartCard>
+    return (
+      <ChartCard title="カテゴリ×時間帯分析">
+        <ChartLoading />
+      </ChartCard>
+    )
   }
   if (!duckConn || duckDataVersion === 0 || heatmapData.categories.length === 0) {
-    return <ChartCard title="カテゴリ×時間帯分析"><ChartEmpty message="データをインポートしてください" /></ChartCard>
+    return (
+      <ChartCard title="カテゴリ×時間帯分析">
+        <ChartEmpty message="データをインポートしてください" />
+      </ChartCard>
+    )
   }
 
   return (
@@ -173,7 +194,12 @@ export const CategoryHourlyChart = memo(function CategoryHourlyChart({
       <ControlRow>
         <ChipGroup>
           <ChipLabel>階層:</ChipLabel>
-          <SegmentedControl options={LEVEL_SEGMENT_OPTIONS} value={level} onChange={handleLevelChange} ariaLabel="階層レベル" />
+          <SegmentedControl
+            options={LEVEL_SEGMENT_OPTIONS}
+            value={level}
+            onChange={handleLevelChange}
+            ariaLabel="階層レベル"
+          />
         </ChipGroup>
       </ControlRow>
 
@@ -183,7 +209,9 @@ export const CategoryHourlyChart = memo(function CategoryHourlyChart({
         <SummaryItem>全体ピーク: {heatmapData.globalPeakHour}時</SummaryItem>
         <SummaryItem>表示カテゴリ: {heatmapData.categories.length}件</SummaryItem>
         {heatmapData.categories[0] && (
-          <SummaryItem>最大: {heatmapData.categories[0].name} (ピーク {heatmapData.categories[0].peakHour}時)</SummaryItem>
+          <SummaryItem>
+            最大: {heatmapData.categories[0].name} (ピーク {heatmapData.categories[0].peakHour}時)
+          </SummaryItem>
         )}
       </SummaryRow>
     </ChartCard>

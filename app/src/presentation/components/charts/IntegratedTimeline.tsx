@@ -72,10 +72,16 @@ export const IntegratedTimeline = memo(function IntegratedTimeline({ result, day
 
     const data = days.map((d, i) => ({
       day: d,
-      sales: salesArr[i], cost: costArr[i], grossProfit: gpArr[i], discount: discountArr[i],
-      normSales: normSales.values[i], normCost: normCost.values[i],
-      normGrossProfit: normGP.values[i], normDiscount: normDiscount.values[i],
-      maSales: maSales[i], maCost: maCost[i],
+      sales: salesArr[i],
+      cost: costArr[i],
+      grossProfit: gpArr[i],
+      discount: discountArr[i],
+      normSales: normSales.values[i],
+      normCost: normCost.values[i],
+      normGrossProfit: normGP.values[i],
+      normDiscount: normDiscount.values[i],
+      maSales: maSales[i],
+      maCost: maCost[i],
     }))
 
     const series = [
@@ -126,14 +132,28 @@ export const IntegratedTimeline = memo(function IntegratedTimeline({ result, day
 
     if (!isNorm) {
       series.push(
-        { name: '売上 7日MA', type: 'line', data: chartData.map((d) => d.maSales), lineStyle: { color: palette.primary, width: 2, type: 'dashed' }, itemStyle: { color: palette.primary }, symbol: 'none' },
-        { name: '仕入 7日MA', type: 'line', data: chartData.map((d) => d.maCost), lineStyle: { color: sc.negative, width: 2, type: 'dashed' }, itemStyle: { color: sc.negative }, symbol: 'none' },
+        {
+          name: '売上 7日MA',
+          type: 'line',
+          data: chartData.map((d) => d.maSales),
+          lineStyle: { color: palette.primary, width: 2, type: 'dashed' },
+          itemStyle: { color: palette.primary },
+          symbol: 'none',
+        },
+        {
+          name: '仕入 7日MA',
+          type: 'line',
+          data: chartData.map((d) => d.maCost),
+          lineStyle: { color: sc.negative, width: 2, type: 'dashed' },
+          itemStyle: { color: sc.negative },
+          symbol: 'none',
+        },
       )
     }
 
     // 乖離ゾーン markArea
     if (divergentRanges.length > 0) {
-      (series[0] as Record<string, unknown>).markArea = {
+      ;(series[0] as Record<string, unknown>).markArea = {
         data: divergentRanges.map((r) => [
           { xAxis: String(r.start), itemStyle: { color: `${sc.negative}0f` } },
           { xAxis: String(r.end) },
@@ -143,20 +163,40 @@ export const IntegratedTimeline = memo(function IntegratedTimeline({ result, day
 
     return {
       grid: standardGrid(),
-      tooltip: { ...standardTooltip(theme), formatter: (params: unknown) => {
-        const items = params as { seriesName: string; value: number | null; name: string }[]
-        if (!Array.isArray(items)) return ''
-        const header = `<div style="font-weight:600">${items[0]?.name}日</div>`
-        const rows = items.filter((i) => i.value != null).map((i) =>
-          `<div>${i.seriesName}: ${isNorm ? (i.value as number).toFixed(1) : toComma(i.value as number)}</div>`
-        ).join('')
-        return header + rows
-      }},
+      tooltip: {
+        ...standardTooltip(theme),
+        formatter: (params: unknown) => {
+          const items = params as { seriesName: string; value: number | null; name: string }[]
+          if (!Array.isArray(items)) return ''
+          const header = `<div style="font-weight:600">${items[0]?.name}日</div>`
+          const rows = items
+            .filter((i) => i.value != null)
+            .map(
+              (i) =>
+                `<div>${i.seriesName}: ${isNorm ? (i.value as number).toFixed(1) : toComma(i.value as number)}</div>`,
+            )
+            .join('')
+          return header + rows
+        },
+      },
       legend: { ...standardLegend(theme), type: 'scroll' },
-      xAxis: { type: 'category', data: days, axisLabel: { color: theme.colors.text3, fontSize: 10, fontFamily: theme.typography.fontFamily.mono, formatter: (v: string) => `${v}日` } },
+      xAxis: {
+        type: 'category',
+        data: days,
+        axisLabel: {
+          color: theme.colors.text3,
+          fontSize: 10,
+          fontFamily: theme.typography.fontFamily.mono,
+          formatter: (v: string) => `${v}日`,
+        },
+      },
       yAxis: {
         type: 'value',
-        axisLabel: { formatter: (v: number) => isNorm ? String(Math.round(v)) : toComma(v), color: theme.colors.text3, fontSize: 10 },
+        axisLabel: {
+          formatter: (v: number) => (isNorm ? String(Math.round(v)) : toComma(v)),
+          color: theme.colors.text3,
+          fontSize: 10,
+        },
         axisLine: { show: false },
         splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
       },
@@ -170,16 +210,29 @@ export const IntegratedTimeline = memo(function IntegratedTimeline({ result, day
   }
 
   if (chartData.every((d) => d.sales === 0)) {
-    return <ChartCard title="統合タイムライン"><ChartEmpty message="データがありません" /></ChartCard>
+    return (
+      <ChartCard title="統合タイムライン">
+        <ChartEmpty message="データがありません" />
+      </ChartCard>
+    )
   }
 
-  const toolbar = <SegmentedControl options={VIEW_OPTIONS} value={viewMode} onChange={setViewMode} ariaLabel="表示モード" />
+  const toolbar = (
+    <SegmentedControl
+      options={VIEW_OPTIONS}
+      value={viewMode}
+      onChange={setViewMode}
+      ariaLabel="表示モード"
+    />
+  )
 
   return (
     <ChartCard title="統合タイムライン — 売上・仕入・粗利・売変の連動分析" toolbar={toolbar}>
       <CorrelationRow>
         {correlations.map((c) => (
-          <CorrBadge key={c.pair} $strength={corrStrength(c.r)}>{c.pair}: r={c.r.toFixed(2)}</CorrBadge>
+          <CorrBadge key={c.pair} $strength={corrStrength(c.r)}>
+            {c.pair}: r={c.r.toFixed(2)}
+          </CorrBadge>
         ))}
       </CorrelationRow>
       <EChart option={option} height={300} ariaLabel="統合タイムラインチャート" />

@@ -61,7 +61,11 @@ function buildOption(
     xAxis: {
       type: 'category',
       data: weeks,
-      axisLabel: { color: theme.colors.text3, fontSize: 10, fontFamily: theme.typography.fontFamily.mono },
+      axisLabel: {
+        color: theme.colors.text3,
+        fontSize: 10,
+        fontFamily: theme.typography.fontFamily.mono,
+      },
       axisLine: { lineStyle: { color: theme.colors.border } },
     },
     yAxis: {
@@ -106,23 +110,47 @@ export const CategoryMixChart = memo(function CategoryMixChart({
     data: mixRows,
     error,
     isLoading,
-  } = useDuckDBCategoryMixWeekly(duckConn, duckDataVersion, currentDateRange, selectedStoreIds, level)
+  } = useDuckDBCategoryMixWeekly(
+    duckConn,
+    duckDataVersion,
+    currentDateRange,
+    selectedStoreIds,
+    level,
+  )
 
   const { chartData, categories, topGainer, topLoser } = useMemo(
-    () => (mixRows ? buildMixChartData(mixRows) : { chartData: [], categories: [], topGainer: null, topLoser: null }),
+    () =>
+      mixRows
+        ? buildMixChartData(mixRows)
+        : { chartData: [], categories: [], topGainer: null, topLoser: null },
     [mixRows],
   )
 
-  const option = useMemo(() => buildOption(chartData, categories, theme), [chartData, categories, theme])
+  const option = useMemo(
+    () => buildOption(chartData, categories, theme),
+    [chartData, categories, theme],
+  )
 
   if (error) {
-    return <ChartCard title="カテゴリ構成比推移"><ChartError message={`${messages.errors.dataFetchFailed}: ${error}`} /></ChartCard>
+    return (
+      <ChartCard title="カテゴリ構成比推移">
+        <ChartError message={`${messages.errors.dataFetchFailed}: ${error}`} />
+      </ChartCard>
+    )
   }
   if (isLoading && !mixRows) {
-    return <ChartCard title="カテゴリ構成比推移"><ChartLoading /></ChartCard>
+    return (
+      <ChartCard title="カテゴリ構成比推移">
+        <ChartLoading />
+      </ChartCard>
+    )
   }
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
-    return <ChartCard title="カテゴリ構成比推移"><ChartEmpty message="データをインポートしてください" /></ChartCard>
+    return (
+      <ChartCard title="カテゴリ構成比推移">
+        <ChartEmpty message="データをインポートしてください" />
+      </ChartCard>
+    )
   }
 
   return (
@@ -130,7 +158,12 @@ export const CategoryMixChart = memo(function CategoryMixChart({
       <ControlRow>
         <ChipGroup>
           <ChipLabel>階層:</ChipLabel>
-          <SegmentedControl options={LEVEL_SEGMENT_OPTIONS} value={level} onChange={handleLevelChange} ariaLabel="階層レベル" />
+          <SegmentedControl
+            options={LEVEL_SEGMENT_OPTIONS}
+            value={level}
+            onChange={handleLevelChange}
+            ariaLabel="階層レベル"
+          />
         </ChipGroup>
       </ControlRow>
 

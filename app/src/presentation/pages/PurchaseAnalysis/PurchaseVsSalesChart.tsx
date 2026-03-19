@@ -77,9 +77,7 @@ export const PurchaseVsSalesChart = memo(function PurchaseVsSalesChart({
             value: number
             marker: string
           }[]
-          return ps
-            .map((p) => `${p.marker} ${p.seriesName}: ${toCommaYen(p.value)}`)
-            .join('<br/>')
+          return ps.map((p) => `${p.marker} ${p.seriesName}: ${toCommaYen(p.value)}`).join('<br/>')
         },
       },
       legend: standardLegend(theme),

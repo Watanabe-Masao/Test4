@@ -43,14 +43,23 @@ interface Props {
 }
 
 export const PiCvBubbleChart = memo(function PiCvBubbleChart({
-  duckConn, duckDataVersion, currentDateRange, selectedStoreIds,
+  duckConn,
+  duckDataVersion,
+  currentDateRange,
+  selectedStoreIds,
 }: Props) {
   const theme = useTheme() as AppTheme
   const [piMetric, setPiMetric] = useState<PiMetric>('salesPi')
   const [bubbleSize, setBubbleSize] = useState<BubbleSizeMetric>('sales')
   const [level, setLevel] = useState<HierarchyLevel>('department')
 
-  const benchmarkResult = useDuckDBCategoryBenchmark(duckConn, duckDataVersion, currentDateRange, selectedStoreIds, level)
+  const benchmarkResult = useDuckDBCategoryBenchmark(
+    duckConn,
+    duckDataVersion,
+    currentDateRange,
+    selectedStoreIds,
+    level,
+  )
   const storeCount = selectedStoreIds.size || 0
 
   const scores = useMemo(() => {
@@ -58,35 +67,44 @@ export const PiCvBubbleChart = memo(function PiCvBubbleChart({
     return buildCategoryBenchmarkScores(benchmarkResult.data, 1, storeCount, piMetric)
   }, [benchmarkResult.data, storeCount, piMetric])
 
-  const scatterData = useMemo(() =>
-    scores.map((s) => ({
-      ...s,
-      x: s.avgShare,
-      y: s.variance,
-      bubbleValue: bubbleSize === 'sales' ? s.totalSales : bubbleSize === 'quantity' ? s.scoreSum : 1,
-    })),
+  const scatterData = useMemo(
+    () =>
+      scores.map((s) => ({
+        ...s,
+        x: s.avgShare,
+        y: s.variance,
+        bubbleValue:
+          bubbleSize === 'sales' ? s.totalSales : bubbleSize === 'quantity' ? s.scoreSum : 1,
+      })),
     [scores, bubbleSize],
   )
 
-  const medians = useMemo(() => ({
-    piMedian: computeMedian(scatterData.map((d) => d.x)),
-    cvMedian: computeMedian(scatterData.map((d) => d.y)),
-  }), [scatterData])
+  const medians = useMemo(
+    () => ({
+      piMedian: computeMedian(scatterData.map((d) => d.x)),
+      cvMedian: computeMedian(scatterData.map((d) => d.y)),
+    }),
+    [scatterData],
+  )
 
   const option = useMemo<EChartsOption>(() => {
-    let maxPi = 0, maxCv = 0
+    let maxPi = 0,
+      maxCv = 0
     for (const d of scatterData) {
       if (d.x > maxPi) maxPi = d.x
       if (d.y > maxCv) maxCv = d.y
     }
-    maxPi *= 1.15; maxCv *= 1.15
+    maxPi *= 1.15
+    maxCv *= 1.15
 
     return {
       grid: { left: 50, right: 30, top: 20, bottom: 40 },
       tooltip: {
         ...standardTooltip(theme),
         formatter: (params: unknown) => {
-          const p = params as { data: { value: [number, number]; name: string; productType: string } }
+          const p = params as {
+            data: { value: [number, number]; name: string; productType: string }
+          }
           const [x, y] = p.data.value
           return `<strong>${p.data.name}</strong><br/>PI: ${x.toFixed(2)}<br/>CV: ${y.toFixed(2)}`
         },
@@ -111,35 +129,58 @@ export const PiCvBubbleChart = memo(function PiCvBubbleChart({
         axisLabel: { color: theme.colors.text3, fontSize: 10 },
         splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
       },
-      series: [{
-        type: 'scatter',
-        data: scatterData.map((s) => ({
-          value: [s.x, s.y],
-          name: s.name,
-          productType: s.productType,
-          symbolSize: bubbleSize === 'none' ? 10 : Math.max(6, Math.min(30, Math.sqrt(s.bubbleValue / 5000))),
-          itemStyle: { color: TYPE_COLORS[s.productType], opacity: 0.75 },
-        })),
-        markLine: {
-          data: [
-            { xAxis: medians.piMedian, lineStyle: { color: theme.colors.text4, type: 'dashed', opacity: 0.5 } },
-            { yAxis: medians.cvMedian, lineStyle: { color: theme.colors.text4, type: 'dashed', opacity: 0.5 } },
-          ],
-          symbol: 'none',
-          label: { show: false },
+      series: [
+        {
+          type: 'scatter',
+          data: scatterData.map((s) => ({
+            value: [s.x, s.y],
+            name: s.name,
+            productType: s.productType,
+            symbolSize:
+              bubbleSize === 'none'
+                ? 10
+                : Math.max(6, Math.min(30, Math.sqrt(s.bubbleValue / 5000))),
+            itemStyle: { color: TYPE_COLORS[s.productType], opacity: 0.75 },
+          })),
+          markLine: {
+            data: [
+              {
+                xAxis: medians.piMedian,
+                lineStyle: { color: theme.colors.text4, type: 'dashed', opacity: 0.5 },
+              },
+              {
+                yAxis: medians.cvMedian,
+                lineStyle: { color: theme.colors.text4, type: 'dashed', opacity: 0.5 },
+              },
+            ],
+            symbol: 'none',
+            label: { show: false },
+          },
         },
-      }],
+      ],
     }
   }, [scatterData, medians, piMetric, bubbleSize, theme])
 
   if (benchmarkResult.isLoading) {
-    return <ChartCard title="PI-CV マップ"><ChartLoading /></ChartCard>
+    return (
+      <ChartCard title="PI-CV マップ">
+        <ChartLoading />
+      </ChartCard>
+    )
   }
   if (benchmarkResult.error) {
-    return <ChartCard title="PI-CV マップ"><ChartError message="データの取得に失敗しました" /></ChartCard>
+    return (
+      <ChartCard title="PI-CV マップ">
+        <ChartError message="データの取得に失敗しました" />
+      </ChartCard>
+    )
   }
   if (scatterData.length === 0) {
-    return <ChartCard title="PI-CV マップ"><ChartEmpty message="データがありません" /></ChartCard>
+    return (
+      <ChartCard title="PI-CV マップ">
+        <ChartEmpty message="データがありません" />
+      </ChartCard>
+    )
   }
 
   const piLabel = piMetric === 'salesPi' ? '金額PI' : '数量PI'
@@ -149,17 +190,50 @@ export const PiCvBubbleChart = memo(function PiCvBubbleChart({
   const toolbar = (
     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', fontSize: '0.6rem' }}>
       {(['salesPi', 'quantityPi'] as PiMetric[]).map((m) => (
-        <button key={m} onClick={() => setPiMetric(m)} style={{ padding: '2px 8px', border: `1px solid ${piMetric === m ? theme.colors.palette.primary : theme.colors.border}`, borderRadius: theme.radii.sm, background: piMetric === m ? theme.interactive.activeBg : 'transparent', color: piMetric === m ? theme.colors.palette.primary : theme.colors.text3, cursor: 'pointer' }}>
+        <button
+          key={m}
+          onClick={() => setPiMetric(m)}
+          style={{
+            padding: '2px 8px',
+            border: `1px solid ${piMetric === m ? theme.colors.palette.primary : theme.colors.border}`,
+            borderRadius: theme.radii.sm,
+            background: piMetric === m ? theme.interactive.activeBg : 'transparent',
+            color: piMetric === m ? theme.colors.palette.primary : theme.colors.text3,
+            cursor: 'pointer',
+          }}
+        >
           {m === 'salesPi' ? '金額PI' : '数量PI'}
         </button>
       ))}
       {(['sales', 'quantity', 'none'] as BubbleSizeMetric[]).map((m) => (
-        <button key={m} onClick={() => setBubbleSize(m)} style={{ padding: '2px 8px', border: `1px solid ${bubbleSize === m ? theme.colors.palette.primary : theme.colors.border}`, borderRadius: theme.radii.sm, background: bubbleSize === m ? theme.interactive.activeBg : 'transparent', color: bubbleSize === m ? theme.colors.palette.primary : theme.colors.text3, cursor: 'pointer' }}>
+        <button
+          key={m}
+          onClick={() => setBubbleSize(m)}
+          style={{
+            padding: '2px 8px',
+            border: `1px solid ${bubbleSize === m ? theme.colors.palette.primary : theme.colors.border}`,
+            borderRadius: theme.radii.sm,
+            background: bubbleSize === m ? theme.interactive.activeBg : 'transparent',
+            color: bubbleSize === m ? theme.colors.palette.primary : theme.colors.text3,
+            cursor: 'pointer',
+          }}
+        >
           {m === 'sales' ? '販売金額' : m === 'quantity' ? '販売点数' : 'なし'}
         </button>
       ))}
       {(Object.keys(HIERARCHY_LABELS) as HierarchyLevel[]).map((l) => (
-        <button key={l} onClick={() => setLevel(l)} style={{ padding: '2px 8px', border: `1px solid ${level === l ? theme.colors.palette.primary : theme.colors.border}`, borderRadius: theme.radii.sm, background: level === l ? theme.interactive.activeBg : 'transparent', color: level === l ? theme.colors.palette.primary : theme.colors.text3, cursor: 'pointer' }}>
+        <button
+          key={l}
+          onClick={() => setLevel(l)}
+          style={{
+            padding: '2px 8px',
+            border: `1px solid ${level === l ? theme.colors.palette.primary : theme.colors.border}`,
+            borderRadius: theme.radii.sm,
+            background: level === l ? theme.interactive.activeBg : 'transparent',
+            color: level === l ? theme.colors.palette.primary : theme.colors.text3,
+            cursor: 'pointer',
+          }}
+        >
           {HIERARCHY_LABELS[l]}
         </button>
       ))}

@@ -6,7 +6,11 @@ import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { toAxisYen, toComma } from '@/presentation/components/charts/chartTheme'
 import { EChart, type EChartsOption } from '@/presentation/components/charts/EChart'
-import { standardGrid, standardTooltip, standardLegend } from '@/presentation/components/charts/echartsOptionBuilders'
+import {
+  standardGrid,
+  standardTooltip,
+  standardLegend,
+} from '@/presentation/components/charts/echartsOptionBuilders'
 import { ChartWrapper, ChartTitle } from './ForecastPage.styles'
 import { type DailyDecompEntry, type DowDecompAvg } from './ForecastPage.helpers'
 
@@ -299,7 +303,10 @@ export const DecompDowChart = memo(function DecompDowChart({
   dowColors: string[]
 }) {
   const theme = useTheme() as AppTheme
-  const option = useMemo(() => buildDecompDowOption(data, dowColors, theme), [data, dowColors, theme])
+  const option = useMemo(
+    () => buildDecompDowOption(data, dowColors, theme),
+    [data, dowColors, theme],
+  )
 
   return (
     <ChartWrapper>

@@ -68,7 +68,11 @@ export function CvLineView({ data, topCodes, categoryNames, showCv, showPi }: Pr
           type: 'line',
           yAxisIndex: piAxisIdx,
           data: data.map((d) => (d[`pi_${code}`] as number) ?? null),
-          lineStyle: { color: CATEGORY_COLORS[i % CATEGORY_COLORS.length], width: 1.5, type: 'dashed' },
+          lineStyle: {
+            color: CATEGORY_COLORS[i % CATEGORY_COLORS.length],
+            width: 1.5,
+            type: 'dashed',
+          },
           itemStyle: { color: CATEGORY_COLORS[i % CATEGORY_COLORS.length] },
           symbol: 'none',
           connectNulls: true,
@@ -83,7 +87,11 @@ export function CvLineView({ data, topCodes, categoryNames, showCv, showPi }: Pr
       xAxis: {
         type: 'category',
         data: dates,
-        axisLabel: { color: theme.colors.text3, fontSize: 10, fontFamily: theme.typography.fontFamily.mono },
+        axisLabel: {
+          color: theme.colors.text3,
+          fontSize: 10,
+          fontFamily: theme.typography.fontFamily.mono,
+        },
         axisLine: { lineStyle: { color: theme.colors.border } },
       },
       yAxis: yAxes.length > 0 ? (yAxes as EChartsOption['yAxis']) : { type: 'value' },

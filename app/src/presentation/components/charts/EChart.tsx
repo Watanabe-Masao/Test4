@@ -12,7 +12,14 @@
  */
 import { useRef, useEffect, memo } from 'react'
 import * as echarts from 'echarts/core'
-import { BarChart, LineChart, PieChart, RadarChart, ScatterChart, HeatmapChart } from 'echarts/charts'
+import {
+  BarChart,
+  LineChart,
+  PieChart,
+  RadarChart,
+  ScatterChart,
+  HeatmapChart,
+} from 'echarts/charts'
 import {
   GridComponent,
   TooltipComponent,
@@ -214,13 +221,7 @@ export const EChart = memo(function EChart({
     }
   }, [])
 
-  return (
-    <div
-      ref={containerRef}
-      style={{ width: '100%', height }}
-      aria-label={ariaLabel}
-    />
-  )
+  return <div ref={containerRef} style={{ width: '100%', height }} aria-label={ariaLabel} />
 })
 
 export type { EChartsOption }

@@ -1,12 +1,7 @@
 import { useMemo, useState, memo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
-import {
-  useCurrencyFormatter,
-  useCurrencyFormat,
-  toPct,
-  STORE_COLORS,
-} from './chartTheme'
+import { useCurrencyFormatter, useCurrencyFormat, toPct, STORE_COLORS } from './chartTheme'
 import { EChart } from './EChart'
 import { yenYAxis, standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
 import { DualPeriodSlider } from './DualPeriodSlider'
@@ -219,16 +214,28 @@ export const EstimatedInventoryDetailChart = memo(function EstimatedInventoryDet
             grid: standardGrid(),
             tooltip: standardTooltip(theme),
             legend: standardLegend(theme),
-            xAxis: { type: 'category', data: compChartData.map((d: unknown) => String((d as Record<string, unknown>).day)), axisLabel: { color: theme.colors.text3, fontSize: 10, fontFamily: theme.typography.fontFamily.mono } },
+            xAxis: {
+              type: 'category',
+              data: compChartData.map((d: unknown) => String((d as Record<string, unknown>).day)),
+              axisLabel: {
+                color: theme.colors.text3,
+                fontSize: 10,
+                fontFamily: theme.typography.fontFamily.mono,
+              },
+            },
             yAxis: anyHasInventory ? yenYAxis(theme) : { type: 'value' },
-            series: storeEntries.filter((s) => s.hasInventory).map((s, i) => ({
-              name: `${s.name}_推定在庫`,
-              type: 'line' as const,
-              data: compChartData.map((d: unknown) => (d as Record<string, unknown>)[`${s.name}_推定在庫`] ?? null),
-              lineStyle: { color: STORE_COLORS[i % STORE_COLORS.length], width: 2.5 },
-              itemStyle: { color: STORE_COLORS[i % STORE_COLORS.length] },
-              symbol: 'none',
-            })),
+            series: storeEntries
+              .filter((s) => s.hasInventory)
+              .map((s, i) => ({
+                name: `${s.name}_推定在庫`,
+                type: 'line' as const,
+                data: compChartData.map(
+                  (d: unknown) => (d as Record<string, unknown>)[`${s.name}_推定在庫`] ?? null,
+                ),
+                lineStyle: { color: STORE_COLORS[i % STORE_COLORS.length], width: 2.5 },
+                itemStyle: { color: STORE_COLORS[i % STORE_COLORS.length] },
+                symbol: 'none',
+              })),
           }}
           height={300}
           ariaLabel="店舗別推定在庫チャート"
@@ -305,25 +312,80 @@ export const EstimatedInventoryDetailChart = memo(function EstimatedInventoryDet
         option={{
           grid: standardGrid(),
           tooltip: standardTooltip(theme),
-          legend: { ...standardLegend(theme), formatter: (name: string) => AGG_LABELS[name] ?? name },
-          xAxis: { type: 'category', data: (aggChartData as unknown as Record<string, unknown>[]).map((d) => String(d.day)), axisLabel: { color: theme.colors.text3, fontSize: 10, fontFamily: theme.typography.fontFamily.mono } },
+          legend: {
+            ...standardLegend(theme),
+            formatter: (name: string) => AGG_LABELS[name] ?? name,
+          },
+          xAxis: {
+            type: 'category',
+            data: (aggChartData as unknown as Record<string, unknown>[]).map((d) => String(d.day)),
+            axisLabel: {
+              color: theme.colors.text3,
+              fontSize: 10,
+              fontFamily: theme.typography.fontFamily.mono,
+            },
+          },
           yAxis: [
             yenYAxis(theme) as Record<string, unknown>,
-            { ...yenYAxis(theme) as Record<string, unknown>, position: 'right', splitLine: { show: false } },
+            {
+              ...(yenYAxis(theme) as Record<string, unknown>),
+              position: 'right',
+              splitLine: { show: false },
+            },
           ],
           series: [
-            { name: 'inventoryCost', type: 'bar' as const, yAxisIndex: 1, data: (aggChartData as unknown as Record<string, unknown>[]).map((d) => d.inventoryCost ?? 0), itemStyle: { color: theme.colors.palette.infoDark, opacity: 0.45 } },
-            { name: 'estCogs', type: 'bar' as const, yAxisIndex: 1, data: (aggChartData as unknown as Record<string, unknown>[]).map((d) => d.estCogs ?? 0), itemStyle: { color: theme.colors.palette.warningDark, opacity: 0.45 } },
             {
-              name: 'estimated', type: 'line' as const, yAxisIndex: 0,
-              data: (aggChartData as unknown as Record<string, unknown>[]).map((d) => d.estimated ?? null),
+              name: 'inventoryCost',
+              type: 'bar' as const,
+              yAxisIndex: 1,
+              data: (aggChartData as unknown as Record<string, unknown>[]).map(
+                (d) => d.inventoryCost ?? 0,
+              ),
+              itemStyle: { color: theme.colors.palette.infoDark, opacity: 0.45 },
+            },
+            {
+              name: 'estCogs',
+              type: 'bar' as const,
+              yAxisIndex: 1,
+              data: (aggChartData as unknown as Record<string, unknown>[]).map(
+                (d) => d.estCogs ?? 0,
+              ),
+              itemStyle: { color: theme.colors.palette.warningDark, opacity: 0.45 },
+            },
+            {
+              name: 'estimated',
+              type: 'line' as const,
+              yAxisIndex: 0,
+              data: (aggChartData as unknown as Record<string, unknown>[]).map(
+                (d) => d.estimated ?? null,
+              ),
               lineStyle: { color: theme.colors.palette.cyanDark, width: 2.5 },
               itemStyle: { color: theme.colors.palette.cyanDark },
               symbol: 'none',
               markLine: {
                 data: [
-                  { yAxis: openingInventory!, label: { formatter: `期首 ${currFmt(openingInventory!)}`, position: 'start' as const, fontSize: 9 }, lineStyle: { color: theme.colors.palette.infoDark, type: 'dashed' as const } },
-                  ...(closingInventory != null ? [{ yAxis: closingInventory, label: { formatter: `実在庫 ${currFmt(closingInventory)}`, position: 'end' as const, fontSize: 9 }, lineStyle: { color: theme.chart.barPositive, type: 'dashed' as const } }] : []),
+                  {
+                    yAxis: openingInventory!,
+                    label: {
+                      formatter: `期首 ${currFmt(openingInventory!)}`,
+                      position: 'start' as const,
+                      fontSize: 9,
+                    },
+                    lineStyle: { color: theme.colors.palette.infoDark, type: 'dashed' as const },
+                  },
+                  ...(closingInventory != null
+                    ? [
+                        {
+                          yAxis: closingInventory,
+                          label: {
+                            formatter: `実在庫 ${currFmt(closingInventory)}`,
+                            position: 'end' as const,
+                            fontSize: 9,
+                          },
+                          lineStyle: { color: theme.chart.barPositive, type: 'dashed' as const },
+                        },
+                      ]
+                    : []),
                 ],
                 symbol: 'none',
               },

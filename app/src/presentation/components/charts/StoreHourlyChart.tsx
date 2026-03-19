@@ -65,17 +65,26 @@ function buildOption(
     xAxis: {
       type: 'category',
       data: hours,
-      axisLabel: { color: theme.colors.text3, fontSize: 10, fontFamily: theme.typography.fontFamily.mono },
+      axisLabel: {
+        color: theme.colors.text3,
+        fontSize: 10,
+        fontFamily: theme.typography.fontFamily.mono,
+      },
       axisLine: { lineStyle: { color: theme.colors.border } },
     },
-    yAxis: mode === 'ratio'
-      ? {
-          type: 'value',
-          axisLabel: { formatter: (v: number) => `${v}%`, color: theme.colors.text3, fontSize: 10 },
-          axisLine: { show: false },
-          splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
-        }
-      : yenYAxis(theme),
+    yAxis:
+      mode === 'ratio'
+        ? {
+            type: 'value',
+            axisLabel: {
+              formatter: (v: number) => `${v}%`,
+              color: theme.colors.text3,
+              fontSize: 10,
+            },
+            axisLine: { show: false },
+            splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
+          }
+        : yenYAxis(theme),
     series: storeInfos.map((store) => ({
       name: store.name,
       type: 'bar' as const,
@@ -115,22 +124,48 @@ export const StoreHourlyChart = memo(function StoreHourlyChart({
     [storeRows, stores, mode],
   )
 
-  const option = useMemo(() => buildOption(chartData, storeInfos, mode, theme), [chartData, storeInfos, mode, theme])
+  const option = useMemo(
+    () => buildOption(chartData, storeInfos, mode, theme),
+    [chartData, storeInfos, mode, theme],
+  )
 
   if (error) {
-    return <ChartCard title="店舗×時間帯比較"><ChartError message={`${messages.errors.dataFetchFailed}: ${error}`} /></ChartCard>
+    return (
+      <ChartCard title="店舗×時間帯比較">
+        <ChartError message={`${messages.errors.dataFetchFailed}: ${error}`} />
+      </ChartCard>
+    )
   }
   if (isLoading && !storeRows) {
-    return <ChartCard title="店舗×時間帯比較"><ChartLoading /></ChartCard>
+    return (
+      <ChartCard title="店舗×時間帯比較">
+        <ChartLoading />
+      </ChartCard>
+    )
   }
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
-    return <ChartCard title="店舗×時間帯比較"><ChartEmpty message="データをインポートしてください" /></ChartCard>
+    return (
+      <ChartCard title="店舗×時間帯比較">
+        <ChartEmpty message="データをインポートしてください" />
+      </ChartCard>
+    )
   }
 
-  const toolbar = <SegmentedControl options={MODE_OPTIONS} value={mode} onChange={setMode} ariaLabel="表示モード" />
+  const toolbar = (
+    <SegmentedControl
+      options={MODE_OPTIONS}
+      value={mode}
+      onChange={setMode}
+      ariaLabel="表示モード"
+    />
+  )
 
   return (
-    <ChartCard title="店舗×時間帯比較" subtitle="店舗別の時間帯売上パターン | ピーク・コアタイム・類似度分析" toolbar={toolbar}>
+    <ChartCard
+      title="店舗×時間帯比較"
+      subtitle="店舗別の時間帯売上パターン | ピーク・コアタイム・類似度分析"
+      toolbar={toolbar}
+    >
       <EChart option={option} height={300} ariaLabel="店舗×時間帯比較チャート" />
 
       <SummaryGrid>
@@ -142,8 +177,12 @@ export const StoreHourlyChart = memo(function StoreHourlyChart({
             title="クリックで類似度分析を表示"
           >
             <StoreName>{store.name}</StoreName>
-            <PeakInfo>ピーク: {store.peakHour}時 ({fmt(store.peakAmount)})</PeakInfo>
-            <PeakInfo>コアタイム: {store.coreTimeStart}〜{store.coreTimeEnd}時</PeakInfo>
+            <PeakInfo>
+              ピーク: {store.peakHour}時 ({fmt(store.peakAmount)})
+            </PeakInfo>
+            <PeakInfo>
+              コアタイム: {store.coreTimeStart}〜{store.coreTimeEnd}時
+            </PeakInfo>
             <PeakInfo>折り返し: {store.turnoverHour}時</PeakInfo>
           </StoreCard>
         ))}
@@ -152,9 +191,17 @@ export const StoreHourlyChart = memo(function StoreHourlyChart({
       {selectedStoreInfo && (
         <Modal title={`${selectedStoreInfo.name} — 時間帯分析`} onClose={handleCloseModal}>
           <ModalStoreDetail>
-            <div><strong>ピーク時間帯:</strong> {selectedStoreInfo.peakHour}時（{fmt(selectedStoreInfo.peakAmount)}）</div>
-            <div><strong>コアタイム:</strong> {selectedStoreInfo.coreTimeStart}〜{selectedStoreInfo.coreTimeEnd}時</div>
-            <div><strong>折り返し:</strong> {selectedStoreInfo.turnoverHour}時</div>
+            <div>
+              <strong>ピーク時間帯:</strong> {selectedStoreInfo.peakHour}時（
+              {fmt(selectedStoreInfo.peakAmount)}）
+            </div>
+            <div>
+              <strong>コアタイム:</strong> {selectedStoreInfo.coreTimeStart}〜
+              {selectedStoreInfo.coreTimeEnd}時
+            </div>
+            <div>
+              <strong>折り返し:</strong> {selectedStoreInfo.turnoverHour}時
+            </div>
           </ModalStoreDetail>
 
           {similarities.length > 0 && (
@@ -162,12 +209,21 @@ export const StoreHourlyChart = memo(function StoreHourlyChart({
               <ModalSectionTitle>店舗間パターン類似度（コサイン類似度）</ModalSectionTitle>
               <ModalSimilarityList>
                 {similarities
-                  .filter((p) => p.storeA === selectedStoreInfo.name || p.storeB === selectedStoreInfo.name)
+                  .filter(
+                    (p) =>
+                      p.storeA === selectedStoreInfo.name || p.storeB === selectedStoreInfo.name,
+                  )
                   .map((pair) => (
-                    <ModalSimilarityRow key={`${pair.storeA}-${pair.storeB}`} $high={pair.similarity >= SIMILARITY_HIGH}>
-                      <ModalPairLabel>{pair.storeA === selectedStoreInfo.name ? pair.storeB : pair.storeA}</ModalPairLabel>
+                    <ModalSimilarityRow
+                      key={`${pair.storeA}-${pair.storeB}`}
+                      $high={pair.similarity >= SIMILARITY_HIGH}
+                    >
+                      <ModalPairLabel>
+                        {pair.storeA === selectedStoreInfo.name ? pair.storeB : pair.storeA}
+                      </ModalPairLabel>
                       <ModalSimValue $high={pair.similarity >= SIMILARITY_HIGH}>
-                        {toPct(pair.similarity)}{pair.similarity >= SIMILARITY_HIGH && ' (高相似度)'}
+                        {toPct(pair.similarity)}
+                        {pair.similarity >= SIMILARITY_HIGH && ' (高相似度)'}
                       </ModalSimValue>
                     </ModalSimilarityRow>
                   ))}

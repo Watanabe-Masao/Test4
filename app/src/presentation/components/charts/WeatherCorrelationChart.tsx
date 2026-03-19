@@ -5,7 +5,10 @@ import { useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import type { DailyWeatherSummary } from '@/domain/models'
-import type { DailySalesForCorrelation, CorrelationResult } from '@/application/hooks/useWeatherCorrelation'
+import type {
+  DailySalesForCorrelation,
+  CorrelationResult,
+} from '@/application/hooks/useWeatherCorrelation'
 import { useWeatherCorrelation } from '@/application/hooks/useWeatherCorrelation'
 import { buildTimelineData, getCorrelationStrength } from './WeatherCorrelationChart.vm'
 import { ChartCard } from './ChartCard'
@@ -30,7 +33,10 @@ function CorrelationSummaryCard({ label, result }: { label: string; result: Corr
   return (
     <CorrelationCard $strength={strength}>
       <CorrelationLabel>{label}</CorrelationLabel>
-      <CorrelationValue $strength={strength}>{sign}{result.r.toFixed(3)}</CorrelationValue>
+      <CorrelationValue $strength={strength}>
+        {sign}
+        {result.r.toFixed(3)}
+      </CorrelationValue>
     </CorrelationCard>
   )
 }
@@ -110,7 +116,10 @@ export const WeatherCorrelationChart = memo(function WeatherCorrelationChart({
         <CorrelationSummaryCard label="売上 × 気温" result={correlation.salesVsTemperature} />
         <CorrelationSummaryCard label="売上 × 降水量" result={correlation.salesVsPrecipitation} />
         <CorrelationSummaryCard label="客数 × 気温" result={correlation.customersVsTemperature} />
-        <CorrelationSummaryCard label="客数 × 降水量" result={correlation.customersVsPrecipitation} />
+        <CorrelationSummaryCard
+          label="客数 × 降水量"
+          result={correlation.customersVsPrecipitation}
+        />
       </CorrelationGrid>
 
       <EChart option={option} height={220} ariaLabel="天気-売上相関タイムライン" />

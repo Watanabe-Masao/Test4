@@ -8,7 +8,12 @@ import { calculateForecast } from '@/application/hooks/calculation'
 import type { DayOfWeekAverage } from '@/application/hooks/calculation'
 import { formatPercent } from '@/domain/formatting'
 import { calculateShare } from '@/domain/calculations/utils'
-import { STORE_COLORS, toAxisYen, toComma, toPct } from '@/presentation/components/charts/chartTheme'
+import {
+  STORE_COLORS,
+  toAxisYen,
+  toComma,
+  toPct,
+} from '@/presentation/components/charts/chartTheme'
 import { EChart, type EChartsOption } from '@/presentation/components/charts/EChart'
 import {
   standardGrid,
@@ -71,7 +76,9 @@ function buildWeeklyOption(
       },
       axisLine: { show: false },
       axisTick: { show: false },
-      splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' as const } },
+      splitLine: {
+        lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' as const },
+      },
     },
     series: DOW_LABELS.map((label, i) => ({
       name: label,
@@ -147,7 +154,9 @@ function buildDayOfWeekOption(
       },
       axisLine: { show: false },
       axisTick: { show: false },
-      splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' as const } },
+      splitLine: {
+        lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' as const },
+      },
     },
     series: [
       {
@@ -248,9 +257,7 @@ function buildRadarOption(
         type: 'radar' as const,
         data: storeForecasts.map((sf, i) => ({
           name: sf.storeName,
-          value: DOW_LABELS.map(
-            (_, di) => sf.forecast.dayOfWeekAverages[di]?.averageSales ?? 0,
-          ),
+          value: DOW_LABELS.map((_, di) => sf.forecast.dayOfWeekAverages[di]?.averageSales ?? 0),
           lineStyle: {
             color: STORE_COLORS[i % STORE_COLORS.length],
             width: 2,
@@ -352,7 +359,9 @@ function buildStoreBarOption(
       },
       axisLine: { show: false },
       axisTick: { show: false },
-      splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' as const } },
+      splitLine: {
+        lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' as const },
+      },
     },
     series: storeForecasts.map((sf, i) => ({
       name: sf.storeName,

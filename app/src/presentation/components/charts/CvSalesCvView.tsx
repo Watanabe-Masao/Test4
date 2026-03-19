@@ -53,7 +53,11 @@ export function CvSalesCvView({ data, topCodes, categoryNames, fmtCurrency }: Pr
       xAxis: {
         type: 'category',
         data: dates,
-        axisLabel: { color: theme.colors.text3, fontSize: 10, fontFamily: theme.typography.fontFamily.mono },
+        axisLabel: {
+          color: theme.colors.text3,
+          fontSize: 10,
+          fontFamily: theme.typography.fontFamily.mono,
+        },
         axisLine: { lineStyle: { color: theme.colors.border } },
       },
       yAxis: [

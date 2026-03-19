@@ -28,14 +28,26 @@ interface Props {
   totalGrossSales?: number
   year: number
   month: number
-  prevYearDaily?: ReadonlyMap<string, { sales: number; discount: number; discountEntries?: Record<string, number> }>
+  prevYearDaily?: ReadonlyMap<
+    string,
+    { sales: number; discount: number; discountEntries?: Record<string, number> }
+  >
 }
 
 function buildDiscountData(
-  daily: ReadonlyMap<number, DailyRecord>, daysInMonth: number, year: number, month: number,
-  prevYearDaily?: ReadonlyMap<string, { sales: number; discount: number; discountEntries?: Record<string, number> }>,
+  daily: ReadonlyMap<number, DailyRecord>,
+  daysInMonth: number,
+  year: number,
+  month: number,
+  prevYearDaily?: ReadonlyMap<
+    string,
+    { sales: number; discount: number; discountEntries?: Record<string, number> }
+  >,
 ) {
-  let cumDiscount = 0, cumGrossSales = 0, prevCumDiscount = 0, prevCumGrossSales = 0
+  let cumDiscount = 0,
+    cumGrossSales = 0,
+    prevCumDiscount = 0,
+    prevCumGrossSales = 0
   const result: Record<string, number | boolean | null>[] = []
   for (let d = 1; d <= daysInMonth; d++) {
     const rec = daily.get(d)
@@ -45,10 +57,14 @@ function buildDiscountData(
     const prevEntry = prevYearDaily?.get(toDateKeyFromParts(year, month, d))
     prevCumDiscount += prevEntry?.discount ?? 0
     prevCumGrossSales += prevEntry?.sales ?? 0
-    const prevCumRate = prevCumGrossSales > 0 ? calculateShare(prevCumDiscount, prevCumGrossSales) : null
+    const prevCumRate =
+      prevCumGrossSales > 0 ? calculateShare(prevCumDiscount, prevCumGrossSales) : null
 
     const entry: Record<string, number | boolean | null> = {
-      day: d, discount: rec?.discountAbsolute ?? 0, cumRate, prevCumRate,
+      day: d,
+      discount: rec?.discountAbsolute ?? 0,
+      cumRate,
+      prevCumRate,
       hasSales: rec ? rec.sales > 0 : false,
     }
     for (const dt of DISCOUNT_TYPES) {
@@ -63,11 +79,25 @@ function buildDiscountData(
 }
 
 export const DiscountTrendChart = memo(function DiscountTrendChart({
-  daily, daysInMonth, discountEntries, totalGrossSales, year, month, prevYearDaily,
+  daily,
+  daysInMonth,
+  discountEntries,
+  totalGrossSales,
+  year,
+  month,
+  prevYearDaily,
 }: Props) {
   const theme = useTheme() as AppTheme
   const { format: fmtCurrency } = useCurrencyFormat()
-  const { p1Start: rangeStart, p1End: rangeEnd, onP1Change: setRange, p2Start, p2End, onP2Change, p2Enabled } = useDualPeriodRange(daysInMonth)
+  const {
+    p1Start: rangeStart,
+    p1End: rangeEnd,
+    onP1Change: setRange,
+    p2Start,
+    p2End,
+    onP2Change,
+    p2Enabled,
+  } = useDualPeriodRange(daysInMonth)
   const [viewMode, setViewMode] = useState<ViewMode>('stacked')
   const [activeCode, setActiveCode] = useState<string>('71')
 
@@ -109,7 +139,11 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
           type: 'bar',
           yAxisIndex: 0,
           data: data.map((d) => (d[`prevD${activeCode}`] as number) ?? 0),
-          itemStyle: { color: DISCOUNT_COLORS[activeColorIdx] ?? '#ef4444', opacity: 0.3, borderRadius: [3, 3, 0, 0] },
+          itemStyle: {
+            color: DISCOUNT_COLORS[activeColorIdx] ?? '#ef4444',
+            opacity: 0.3,
+            borderRadius: [3, 3, 0, 0],
+          },
           barMaxWidth: 20,
         })
       }
@@ -118,7 +152,10 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
         type: 'bar',
         yAxisIndex: 0,
         data: data.map((d) => (d[`d${activeCode}`] as number) ?? 0),
-        itemStyle: { color: DISCOUNT_COLORS[activeColorIdx] ?? '#ef4444', borderRadius: [3, 3, 0, 0] },
+        itemStyle: {
+          color: DISCOUNT_COLORS[activeColorIdx] ?? '#ef4444',
+          borderRadius: [3, 3, 0, 0],
+        },
         barMaxWidth: 20,
       })
     }
@@ -150,10 +187,28 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
       grid: standardGrid(),
       tooltip: standardTooltip(theme),
       legend: { ...standardLegend(theme), type: 'scroll' },
-      xAxis: { type: 'category', data: days, axisLabel: { color: theme.colors.text3, fontSize: 10, fontFamily: theme.typography.fontFamily.mono } },
+      xAxis: {
+        type: 'category',
+        data: days,
+        axisLabel: {
+          color: theme.colors.text3,
+          fontSize: 10,
+          fontFamily: theme.typography.fontFamily.mono,
+        },
+      },
       yAxis: [
         yenYAxis(theme) as Record<string, unknown>,
-        { type: 'value', position: 'right', axisLabel: { formatter: (v: number) => toPct(v), color: theme.colors.text3, fontSize: 10 }, axisLine: { show: false }, splitLine: { show: false } },
+        {
+          type: 'value',
+          position: 'right',
+          axisLabel: {
+            formatter: (v: number) => toPct(v),
+            color: theme.colors.text3,
+            fontSize: 10,
+          },
+          axisLine: { show: false },
+          splitLine: { show: false },
+        },
       ],
       series,
     }
@@ -164,20 +219,50 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
 
   if (!hasData) return null
 
-  const titleText = viewMode === 'stacked' ? '売変内訳分析（種別積上 / 累計売変率）' : `${activeLbl} 日別推移`
+  const titleText =
+    viewMode === 'stacked' ? '売変内訳分析（種別積上 / 累計売変率）' : `${activeLbl} 日別推移`
 
   const toolbar = (
     <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
       <button
-        style={{ padding: '2px 8px', fontSize: '0.6rem', border: `1px solid ${viewMode === 'stacked' ? theme.colors.palette.primary : theme.colors.border}`, borderRadius: theme.radii.sm, background: viewMode === 'stacked' ? theme.interactive.activeBg : 'transparent', color: viewMode === 'stacked' ? theme.colors.palette.primary : theme.colors.text3, cursor: 'pointer' }}
+        style={{
+          padding: '2px 8px',
+          fontSize: '0.6rem',
+          border: `1px solid ${viewMode === 'stacked' ? theme.colors.palette.primary : theme.colors.border}`,
+          borderRadius: theme.radii.sm,
+          background: viewMode === 'stacked' ? theme.interactive.activeBg : 'transparent',
+          color: viewMode === 'stacked' ? theme.colors.palette.primary : theme.colors.text3,
+          cursor: 'pointer',
+        }}
         onClick={() => setViewMode('stacked')}
-      >全種別</button>
+      >
+        全種別
+      </button>
       {DISCOUNT_TYPES.map((dt, i) => (
         <button
           key={dt.type}
-          style={{ padding: '2px 8px', fontSize: '0.6rem', border: `1px solid ${viewMode === 'individual' && activeCode === dt.type ? DISCOUNT_COLORS[i] : theme.colors.border}`, borderRadius: theme.radii.sm, background: viewMode === 'individual' && activeCode === dt.type ? `${DISCOUNT_COLORS[i]}1f` : 'transparent', color: viewMode === 'individual' && activeCode === dt.type ? DISCOUNT_COLORS[i] : theme.colors.text3, cursor: 'pointer' }}
-          onClick={() => { setViewMode('individual'); setActiveCode(dt.type) }}
-        >{dt.label}</button>
+          style={{
+            padding: '2px 8px',
+            fontSize: '0.6rem',
+            border: `1px solid ${viewMode === 'individual' && activeCode === dt.type ? DISCOUNT_COLORS[i] : theme.colors.border}`,
+            borderRadius: theme.radii.sm,
+            background:
+              viewMode === 'individual' && activeCode === dt.type
+                ? `${DISCOUNT_COLORS[i]}1f`
+                : 'transparent',
+            color:
+              viewMode === 'individual' && activeCode === dt.type
+                ? DISCOUNT_COLORS[i]
+                : theme.colors.text3,
+            cursor: 'pointer',
+          }}
+          onClick={() => {
+            setViewMode('individual')
+            setActiveCode(dt.type)
+          }}
+        >
+          {dt.label}
+        </button>
       ))}
     </div>
   )
@@ -190,12 +275,17 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
             const entry = kpiEntries.find((e) => e.type === dt.type)
             const amt = entry?.amount ?? 0
             const pct = totalDiscount > 0 ? amt / totalDiscount : 0
-            const rate = totalGrossSales && totalGrossSales > 0 ? calculateShare(amt, totalGrossSales) : 0
+            const rate =
+              totalGrossSales && totalGrossSales > 0 ? calculateShare(amt, totalGrossSales) : 0
             return (
               <KpiCard key={dt.type} $color={DISCOUNT_COLORS[i]}>
-                <KpiLabel>{dt.label}（{dt.type}）</KpiLabel>
+                <KpiLabel>
+                  {dt.label}（{dt.type}）
+                </KpiLabel>
                 <KpiValue>{fmtCurrency(amt)}</KpiValue>
-                <KpiSub>構成比: {formatPercent(pct)} / 売変率: {formatPercent(rate)}</KpiSub>
+                <KpiSub>
+                  構成比: {formatPercent(pct)} / 売変率: {formatPercent(rate)}
+                </KpiSub>
               </KpiCard>
             )
           })}
@@ -204,7 +294,17 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
 
       <EChart option={option} height={280} ariaLabel="売変推移チャート" />
 
-      <DualPeriodSlider min={1} max={daysInMonth} p1Start={rangeStart} p1End={rangeEnd} onP1Change={setRange} p2Start={p2Start} p2End={p2End} onP2Change={onP2Change} p2Enabled={p2Enabled} />
+      <DualPeriodSlider
+        min={1}
+        max={daysInMonth}
+        p1Start={rangeStart}
+        p1End={rangeEnd}
+        onP1Change={setRange}
+        p2Start={p2Start}
+        p2End={p2End}
+        onP2Change={onP2Change}
+        p2Enabled={p2Enabled}
+      />
     </ChartCard>
   )
 })

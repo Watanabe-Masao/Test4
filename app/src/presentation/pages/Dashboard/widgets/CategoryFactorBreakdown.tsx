@@ -9,7 +9,10 @@ import { useState, useMemo, useCallback, Fragment, memo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { EChart, type EChartsOption } from '@/presentation/components/charts/EChart'
-import { standardGrid, standardTooltip } from '@/presentation/components/charts/echartsOptionBuilders'
+import {
+  standardGrid,
+  standardTooltip,
+} from '@/presentation/components/charts/echartsOptionBuilders'
 import { useCurrencyFormatter } from '@/presentation/components/charts/chartTheme'
 import {
   decompose2,

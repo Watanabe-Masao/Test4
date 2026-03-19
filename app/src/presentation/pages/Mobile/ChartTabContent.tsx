@@ -2,7 +2,10 @@ import { useMemo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { EChart, type EChartsOption } from '@/presentation/components/charts/EChart'
-import { standardGrid, standardTooltip } from '@/presentation/components/charts/echartsOptionBuilders'
+import {
+  standardGrid,
+  standardTooltip,
+} from '@/presentation/components/charts/echartsOptionBuilders'
 import { toCommaYen } from '@/presentation/components/charts/echartsOptionBuilders'
 import { ChartCard, ChartTitle } from './MobileDashboardPage.styles'
 

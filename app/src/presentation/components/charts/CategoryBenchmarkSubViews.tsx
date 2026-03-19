@@ -46,41 +46,48 @@ export function ChartView({
   const theme = useTheme() as AppTheme
   const chartHeight = computeChartHeight(scores.length)
 
-  const option = useMemo<EChartsOption>(() => ({
-    grid: { left: 80, right: 40, top: 4, bottom: 4, containLabel: false },
-    tooltip: {
-      ...standardTooltip(theme),
-      formatter: (params: unknown) => {
-        const p = params as { data: { value: number; name: string } }
-        const s = scores.find((sc) => sc.name === p.data.name)
-        if (!s) return ''
-        return `<strong>${s.name}</strong><br/>` +
-          `Index: ${s.index.toFixed(1)}<br/>` +
-          `安定度: ${toPct(s.stability)}<br/>` +
-          `売上: ${fmt(s.totalSales)}<br/>` +
-          `タイプ: ${TYPE_LABELS[s.productType]}`
+  const option = useMemo<EChartsOption>(
+    () => ({
+      grid: { left: 80, right: 40, top: 4, bottom: 4, containLabel: false },
+      tooltip: {
+        ...standardTooltip(theme),
+        formatter: (params: unknown) => {
+          const p = params as { data: { value: number; name: string } }
+          const s = scores.find((sc) => sc.name === p.data.name)
+          if (!s) return ''
+          return (
+            `<strong>${s.name}</strong><br/>` +
+            `Index: ${s.index.toFixed(1)}<br/>` +
+            `安定度: ${toPct(s.stability)}<br/>` +
+            `売上: ${fmt(s.totalSales)}<br/>` +
+            `タイプ: ${TYPE_LABELS[s.productType]}`
+          )
+        },
       },
-    },
-    xAxis: {
-      type: 'value',
-      max: 100,
-      axisLabel: { color: theme.colors.text3, fontSize: 10 },
-      splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
-    },
-    yAxis: {
-      type: 'category',
-      data: scores.map((s) => s.name),
-      axisLabel: { color: theme.colors.text3, fontSize: 10, width: 70, overflow: 'truncate' },
-    },
-    series: [{
-      type: 'bar',
-      data: scores.map((s) => ({
-        value: s.index,
-        name: s.name,
-        itemStyle: { color: indexColor(s.index), borderRadius: [0, 4, 4, 0] },
-      })),
-    }],
-  }), [scores, fmt, theme])
+      xAxis: {
+        type: 'value',
+        max: 100,
+        axisLabel: { color: theme.colors.text3, fontSize: 10 },
+        splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
+      },
+      yAxis: {
+        type: 'category',
+        data: scores.map((s) => s.name),
+        axisLabel: { color: theme.colors.text3, fontSize: 10, width: 70, overflow: 'truncate' },
+      },
+      series: [
+        {
+          type: 'bar',
+          data: scores.map((s) => ({
+            value: s.index,
+            name: s.name,
+            itemStyle: { color: indexColor(s.index), borderRadius: [0, 4, 4, 0] },
+          })),
+        },
+      ],
+    }),
+    [scores, fmt, theme],
+  )
 
   return <EChart option={option} height={chartHeight} ariaLabel="カテゴリベンチマーク棒グラフ" />
 }
@@ -111,9 +118,7 @@ export function TableView({
         {scores.map((s) => (
           <tr key={s.code}>
             <Td>{s.name}</Td>
-            <Td style={{ color: indexColor(s.index), fontWeight: 600 }}>
-              {s.index.toFixed(1)}
-            </Td>
+            <Td style={{ color: indexColor(s.index), fontWeight: 600 }}>{s.index.toFixed(1)}</Td>
             <Td>{toPct(s.stability)}</Td>
             <Td>{fmt(s.totalSales)}</Td>
             <Td>
@@ -128,59 +133,64 @@ export function TableView({
 
 // ── MapView (散布図) ──
 
-export function MapView({
-  scores,
-}: {
-  scores: readonly CategoryBenchmarkScore[]
-}) {
+export function MapView({ scores }: { scores: readonly CategoryBenchmarkScore[] }) {
   const theme = useTheme() as AppTheme
   const scatterData = buildScatterData(scores)
 
-  const option = useMemo<EChartsOption>(() => ({
-    grid: { left: 50, right: 30, top: 20, bottom: 40, containLabel: false },
-    tooltip: {
-      ...standardTooltip(theme),
-      formatter: (params: unknown) => {
-        const p = params as { data: { value: [number, number, number]; name: string; productType: string } }
-        const [x, y, sales] = p.data.value
-        return `<strong>${p.data.name}</strong><br/>` +
-          `Index: ${x.toFixed(1)}<br/>` +
-          `安定度: ${y.toFixed(1)}%<br/>` +
-          `売上: ${toCommaYen(sales)}<br/>` +
-          `タイプ: ${TYPE_LABELS[p.data.productType as keyof typeof TYPE_LABELS]}`
+  const option = useMemo<EChartsOption>(
+    () => ({
+      grid: { left: 50, right: 30, top: 20, bottom: 40, containLabel: false },
+      tooltip: {
+        ...standardTooltip(theme),
+        formatter: (params: unknown) => {
+          const p = params as {
+            data: { value: [number, number, number]; name: string; productType: string }
+          }
+          const [x, y, sales] = p.data.value
+          return (
+            `<strong>${p.data.name}</strong><br/>` +
+            `Index: ${x.toFixed(1)}<br/>` +
+            `安定度: ${y.toFixed(1)}%<br/>` +
+            `売上: ${toCommaYen(sales)}<br/>` +
+            `タイプ: ${TYPE_LABELS[p.data.productType as keyof typeof TYPE_LABELS]}`
+          )
+        },
       },
-    },
-    xAxis: {
-      type: 'value',
-      name: 'Index (構成比)',
-      nameLocation: 'center',
-      nameGap: 25,
-      max: 100,
-      min: 0,
-      axisLabel: { color: theme.colors.text3, fontSize: 10 },
-      splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
-    },
-    yAxis: {
-      type: 'value',
-      name: '安定度 (%)',
-      nameLocation: 'center',
-      nameGap: 35,
-      max: 100,
-      min: 0,
-      axisLabel: { color: theme.colors.text3, fontSize: 10 },
-      splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
-    },
-    series: [{
-      type: 'scatter',
-      data: scatterData.map((s) => ({
-        value: [s.x, s.y, s.totalSales],
-        name: s.name,
-        productType: s.productType,
-        symbolSize: Math.max(8, Math.min(30, Math.sqrt(s.totalSales / 10000))),
-        itemStyle: { color: TYPE_COLORS[s.productType], opacity: 0.8 },
-      })),
-    }],
-  }), [scatterData, theme])
+      xAxis: {
+        type: 'value',
+        name: 'Index (構成比)',
+        nameLocation: 'center',
+        nameGap: 25,
+        max: 100,
+        min: 0,
+        axisLabel: { color: theme.colors.text3, fontSize: 10 },
+        splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
+      },
+      yAxis: {
+        type: 'value',
+        name: '安定度 (%)',
+        nameLocation: 'center',
+        nameGap: 35,
+        max: 100,
+        min: 0,
+        axisLabel: { color: theme.colors.text3, fontSize: 10 },
+        splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
+      },
+      series: [
+        {
+          type: 'scatter',
+          data: scatterData.map((s) => ({
+            value: [s.x, s.y, s.totalSales],
+            name: s.name,
+            productType: s.productType,
+            symbolSize: Math.max(8, Math.min(30, Math.sqrt(s.totalSales / 10000))),
+            itemStyle: { color: TYPE_COLORS[s.productType], opacity: 0.8 },
+          })),
+        },
+      ],
+    }),
+    [scatterData, theme],
+  )
 
   return (
     <MapSection>
@@ -225,7 +235,11 @@ export function TrendView({
       xAxis: {
         type: 'category',
         data: dates,
-        axisLabel: { color: theme.colors.text3, fontSize: 10, fontFamily: theme.typography.fontFamily.mono },
+        axisLabel: {
+          color: theme.colors.text3,
+          fontSize: 10,
+          fontFamily: theme.typography.fontFamily.mono,
+        },
         axisLine: { lineStyle: { color: theme.colors.border } },
       },
       yAxis: {

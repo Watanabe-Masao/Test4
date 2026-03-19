@@ -14,7 +14,13 @@ import { useI18n } from '@/application/hooks/useI18n'
 import { ChartCard } from './ChartCard'
 import { ChartLoading, ChartError, ChartEmpty } from './ChartState'
 import { EChart, type EChartsOption } from './EChart'
-import { yenYAxis, standardGrid, standardTooltip, standardLegend, toCommaYen } from './echartsOptionBuilders'
+import {
+  yenYAxis,
+  standardGrid,
+  standardTooltip,
+  standardLegend,
+  toCommaYen,
+} from './echartsOptionBuilders'
 import { DeptSelector, DeptChip } from './DeptTrendChart.styles'
 
 interface Props {
@@ -61,13 +67,20 @@ function buildOption(
       ...standardTooltip(theme),
       trigger: 'axis',
       formatter: (params: unknown) => {
-        const items = params as { seriesName: string; value: number | null; color: string; name: string }[]
+        const items = params as {
+          seriesName: string
+          value: number | null
+          color: string
+          name: string
+        }[]
         if (!Array.isArray(items)) return ''
         const header = `<div style="font-weight:600;margin-bottom:4px">${items[0]?.name ?? ''}</div>`
         const rows = items
           .filter((item) => item.value != null)
           .map((item) => {
-            const val = item.seriesName.includes('粗利率') ? `${item.value}%` : toCommaYen(item.value!)
+            const val = item.seriesName.includes('粗利率')
+              ? `${item.value}%`
+              : toCommaYen(item.value!)
             return `<div><span style="color:${item.color}">${item.seriesName}</span>: ${val}</div>`
           })
           .join('')
@@ -78,7 +91,11 @@ function buildOption(
     xAxis: {
       type: 'category',
       data: labels,
-      axisLabel: { color: theme.colors.text3, fontSize: 10, fontFamily: theme.typography.fontFamily.mono },
+      axisLabel: {
+        color: theme.colors.text3,
+        fontSize: 10,
+        fontFamily: theme.typography.fontFamily.mono,
+      },
       axisLine: { lineStyle: { color: theme.colors.border } },
     },
     yAxis: [
@@ -111,16 +128,26 @@ export const DeptTrendChart = memo(function DeptTrendChart({
     for (let i = 11; i >= 0; i--) {
       let m = month - i
       let y = year
-      while (m <= 0) { m += 12; y -= 1 }
+      while (m <= 0) {
+        m += 12
+        y -= 1
+      }
       months.push({ year: y, month: m })
     }
     return months
   }, [year, month])
 
-  const { data: trendData, isLoading, error } = useDuckDBDeptKpiTrend(duckConn, duckDataVersion, yearMonths)
+  const {
+    data: trendData,
+    isLoading,
+    error,
+  } = useDuckDBDeptKpiTrend(duckConn, duckDataVersion, yearMonths)
 
   const { chartData, deptNames } = useMemo(
-    () => trendData ? buildDeptTrendData(trendData, selectedDept) : { chartData: [], deptNames: new Map<string, string>() },
+    () =>
+      trendData
+        ? buildDeptTrendData(trendData, selectedDept)
+        : { chartData: [], deptNames: new Map<string, string>() },
     [trendData, selectedDept],
   )
 
@@ -130,16 +157,31 @@ export const DeptTrendChart = memo(function DeptTrendChart({
     [selectedDept, deptEntries],
   )
 
-  const option = useMemo(() => buildOption(chartData, visibleDepts, theme), [chartData, visibleDepts, theme])
+  const option = useMemo(
+    () => buildOption(chartData, visibleDepts, theme),
+    [chartData, visibleDepts, theme],
+  )
 
   if (error) {
-    return <ChartCard title="部門別KPIトレンド"><ChartError message={`${messages.errors.dataFetchFailed}: ${error}`} /></ChartCard>
+    return (
+      <ChartCard title="部門別KPIトレンド">
+        <ChartError message={`${messages.errors.dataFetchFailed}: ${error}`} />
+      </ChartCard>
+    )
   }
   if (isLoading && !trendData) {
-    return <ChartCard title="部門別KPIトレンド"><ChartLoading /></ChartCard>
+    return (
+      <ChartCard title="部門別KPIトレンド">
+        <ChartLoading />
+      </ChartCard>
+    )
   }
   if (!duckConn || duckDataVersion === 0 || loadedMonthCount < 2 || chartData.length === 0) {
-    return <ChartCard title="部門別KPIトレンド"><ChartEmpty message="データをインポートしてください" /></ChartCard>
+    return (
+      <ChartCard title="部門別KPIトレンド">
+        <ChartEmpty message="データをインポートしてください" />
+      </ChartCard>
+    )
   }
 
   return (
@@ -149,9 +191,15 @@ export const DeptTrendChart = memo(function DeptTrendChart({
     >
       {deptEntries.length > 1 && (
         <DeptSelector>
-          <DeptChip $active={selectedDept === null} onClick={() => setSelectedDept(null)}>全部門</DeptChip>
+          <DeptChip $active={selectedDept === null} onClick={() => setSelectedDept(null)}>
+            全部門
+          </DeptChip>
           {deptEntries.map(([code, name]) => (
-            <DeptChip key={code} $active={selectedDept === code} onClick={() => setSelectedDept((prev) => (prev === code ? null : code))}>
+            <DeptChip
+              key={code}
+              $active={selectedDept === code}
+              onClick={() => setSelectedDept((prev) => (prev === code ? null : code))}
+            >
               {name}
             </DeptChip>
           ))}

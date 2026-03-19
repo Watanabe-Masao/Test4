@@ -10,7 +10,13 @@ import { useDualPeriodRange } from './useDualPeriodRange'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import { ChartCard } from './ChartCard'
 import { EChart, type EChartsOption } from './EChart'
-import { yenYAxis, standardGrid, standardTooltip, standardLegend, toCommaYen } from './echartsOptionBuilders'
+import {
+  yenYAxis,
+  standardGrid,
+  standardTooltip,
+  standardLegend,
+  toCommaYen,
+} from './echartsOptionBuilders'
 import {
   SummaryRow,
   Metric,
@@ -48,16 +54,18 @@ function buildCumulativeData(
     allData.push({ day: d, currentCum, prevYearCum: prevCum > 0 ? prevCum : null })
   }
 
-  const latestDay = [...currentDaily.keys()]
-    .filter((d) => (currentDaily.get(d)?.sales ?? 0) > 0)
-    .sort((a, b) => b - a)[0] ?? 0
+  const latestDay =
+    [...currentDaily.keys()]
+      .filter((d) => (currentDaily.get(d)?.sales ?? 0) > 0)
+      .sort((a, b) => b - a)[0] ?? 0
 
   let prevCumAtLatest = 0
   for (let d = 1; d <= latestDay; d++) {
     prevCumAtLatest += prevYearDaily.get(toDateKeyFromParts(year, month, d))?.sales ?? 0
   }
 
-  const latestCurrentCum = latestDay > 0 ? (allData.find((d) => d.day === latestDay)?.currentCum ?? 0) : 0
+  const latestCurrentCum =
+    latestDay > 0 ? (allData.find((d) => d.day === latestDay)?.currentCum ?? 0) : 0
   const yoyRatio = prevCumAtLatest > 0 ? latestCurrentCum / prevCumAtLatest : 0
   const yoyDiff = latestCurrentCum - prevCumAtLatest
 
@@ -73,7 +81,15 @@ export const PrevYearComparisonChart = memo(function PrevYearComparisonChart({
 }: Props) {
   const theme = useTheme() as AppTheme
   const fmt = useCurrencyFormatter()
-  const { p1Start: rangeStart, p1End: rangeEnd, onP1Change: setRange, p2Start, p2End, onP2Change, p2Enabled } = useDualPeriodRange(daysInMonth)
+  const {
+    p1Start: rangeStart,
+    p1End: rangeEnd,
+    onP1Change: setRange,
+    p2Start,
+    p2End,
+    onP2Change,
+    p2Enabled,
+  } = useDualPeriodRange(daysInMonth)
 
   const { allData, prevTotal, latestCurrentCum, prevCumAtLatest, yoyRatio, yoyDiff } = useMemo(
     () => buildCumulativeData(currentDaily, prevYearDaily, year, month, daysInMonth),
@@ -109,23 +125,42 @@ export const PrevYearComparisonChart = memo(function PrevYearComparisonChart({
       },
     ]
     if (prevTotal > 0) {
-      (series[1] as Record<string, unknown>).markLine = {
-        data: [{ yAxis: prevTotal, label: { formatter: `比較期月間 ${fmt(prevTotal)}`, position: 'end', fontSize: 10 } }],
+      ;(series[1] as Record<string, unknown>).markLine = {
+        data: [
+          {
+            yAxis: prevTotal,
+            label: { formatter: `比較期月間 ${fmt(prevTotal)}`, position: 'end', fontSize: 10 },
+          },
+        ],
         lineStyle: { color: theme.chart.previousYear, type: 'dashed', width: 1.5 },
         symbol: 'none',
       }
     }
     return {
       grid: standardGrid(),
-      tooltip: { ...standardTooltip(theme), formatter: (params: unknown) => {
-        const items = params as { name: string; seriesName: string; value: number | null }[]
-        if (!Array.isArray(items)) return ''
-        const header = `<div style="font-weight:600">${items[0]?.name}日</div>`
-        const rows = items.filter((i) => i.value != null).map((i) => `<div>${i.seriesName}: ${toCommaYen(i.value!)}</div>`).join('')
-        return header + rows
-      }},
+      tooltip: {
+        ...standardTooltip(theme),
+        formatter: (params: unknown) => {
+          const items = params as { name: string; seriesName: string; value: number | null }[]
+          if (!Array.isArray(items)) return ''
+          const header = `<div style="font-weight:600">${items[0]?.name}日</div>`
+          const rows = items
+            .filter((i) => i.value != null)
+            .map((i) => `<div>${i.seriesName}: ${toCommaYen(i.value!)}</div>`)
+            .join('')
+          return header + rows
+        },
+      },
       legend: standardLegend(theme),
-      xAxis: { type: 'category', data: days, axisLabel: { color: theme.colors.text3, fontSize: 10, fontFamily: theme.typography.fontFamily.mono } },
+      xAxis: {
+        type: 'category',
+        data: days,
+        axisLabel: {
+          color: theme.colors.text3,
+          fontSize: 10,
+          fontFamily: theme.typography.fontFamily.mono,
+        },
+      },
       yAxis: yenYAxis(theme),
       series,
     }
@@ -145,7 +180,10 @@ export const PrevYearComparisonChart = memo(function PrevYearComparisonChart({
           <ProgressBarWrap>
             <ProgressLabel>
               <span>比較期比 {toPct(yoyRatio)}</span>
-              <span>{yoyDiff >= 0 ? '+' : ''}{fmt(yoyDiff)}円</span>
+              <span>
+                {yoyDiff >= 0 ? '+' : ''}
+                {fmt(yoyDiff)}円
+              </span>
             </ProgressLabel>
             <ProgressTrack>
               <ProgressFill $pct={yoyRatio * 100} $color={yoyColor} />
@@ -160,7 +198,17 @@ export const PrevYearComparisonChart = memo(function PrevYearComparisonChart({
 
       <EChart option={option} height={280} ariaLabel="期間比較チャート" />
 
-      <DualPeriodSlider min={1} max={daysInMonth} p1Start={rangeStart} p1End={rangeEnd} onP1Change={setRange} p2Start={p2Start} p2End={p2End} onP2Change={onP2Change} p2Enabled={p2Enabled} />
+      <DualPeriodSlider
+        min={1}
+        max={daysInMonth}
+        p1Start={rangeStart}
+        p1End={rangeEnd}
+        onP1Change={setRange}
+        p2Start={p2Start}
+        p2End={p2End}
+        onP2Change={onP2Change}
+        p2Enabled={p2Enabled}
+      />
     </ChartCard>
   )
 })

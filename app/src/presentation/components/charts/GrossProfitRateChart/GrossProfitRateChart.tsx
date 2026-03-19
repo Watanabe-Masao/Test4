@@ -86,7 +86,9 @@ function buildOption(
           return {
             value: d.rate,
             itemStyle: {
-              color: d.hasSales ? getBarColor(d.rate, targetRate, warningRate, colors) : 'transparent',
+              color: d.hasSales
+                ? getBarColor(d.rate, targetRate, warningRate, colors)
+                : 'transparent',
               opacity: d.hasSales ? 0.8 : 0,
               borderRadius: [3, 3, 0, 0],
             },
