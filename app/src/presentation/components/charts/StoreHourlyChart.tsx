@@ -75,9 +75,7 @@ function buildOption(
       axisLine: { lineStyle: { color: theme.colors.border } },
     },
     yAxis:
-      mode === 'ratio'
-        ? valueYAxis(theme, { formatter: (v: number) => `${v}%` })
-        : yenYAxis(theme),
+      mode === 'ratio' ? valueYAxis(theme, { formatter: (v: number) => `${v}%` }) : yenYAxis(theme),
     series: storeInfos.map((store) => ({
       name: store.name,
       type: 'bar' as const,
