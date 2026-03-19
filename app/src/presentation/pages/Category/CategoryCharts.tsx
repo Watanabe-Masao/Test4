@@ -1,56 +1,18 @@
-import { memo, useState } from 'react'
+import { memo, useState, useMemo } from 'react'
+import { useTheme } from 'styled-components'
+import type { AppTheme } from '@/presentation/theme/theme'
 import { Chip } from '@/presentation/components/common'
 import { calculateShare } from '@/domain/calculations/utils'
+import { EChart, type EChartsOption } from '@/presentation/components/charts/EChart'
 import {
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  ComposedChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Line,
-  type PieLabelRenderProps,
-} from 'recharts'
-import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
-import {
-  useChartTheme,
-  useCurrencyFormat,
-  toAxisYen,
-  toPct,
-} from '@/presentation/components/charts/chartTheme'
-import { createChartTooltip } from '@/presentation/components/charts/createChartTooltip'
+  standardTooltip,
+  standardGrid,
+  toCommaYen,
+} from '@/presentation/components/charts/echartsOptionBuilders'
+import { toPct, useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { PieWrapper, PieTitle, PieToggle } from './CategoryPage.styles'
 import type { CategoryChartItem, PieMode, ChartView } from './categoryData'
 import { buildParetoData } from './categoryData'
-
-/** 共通ラベルレンダラー */
-function makePieLabel(ct: ReturnType<typeof useChartTheme>) {
-  return (props: PieLabelRenderProps) => {
-    const { cx, cy, midAngle, innerRadius, outerRadius, percent, name } = props
-    const pct = Number(percent)
-    if (pct < 0.03) return null
-    const RADIAN = Math.PI / 180
-    const radius = Number(innerRadius) + (Number(outerRadius) - Number(innerRadius)) * 1.25
-    const x = Number(cx) + radius * Math.cos(-Number(midAngle) * RADIAN)
-    const y = Number(cy) + radius * Math.sin(-Number(midAngle) * RADIAN)
-    return (
-      <text
-        x={x}
-        y={y}
-        fill={ct.textSecondary}
-        textAnchor={x > Number(cx) ? 'start' : 'end'}
-        dominantBaseline="central"
-        fontSize={ct.fontSize.xs}
-        fontFamily={ct.fontFamily}
-      >
-        {String(name)} {toPct(pct)}
-      </text>
-    )
-  }
-}
 
 const MODE_LABELS: Record<PieMode, string> = {
   cost: '原価',
@@ -64,7 +26,7 @@ export const CompositionChart = memo(function CompositionChart({
 }: {
   items: CategoryChartItem[]
 }) {
-  const ct = useChartTheme()
+  const theme = useTheme() as AppTheme
   const { format: fmtCurrency } = useCurrencyFormat()
   const [mode, setMode] = useState<PieMode>('cost')
   const [view, setView] = useState<ChartView>('pie')
@@ -72,29 +34,159 @@ export const CompositionChart = memo(function CompositionChart({
   const totalPrice = items.reduce((s, d) => s + d.price, 0)
   const isCrossMult = mode === 'crossMult'
 
-  const data = items
-    .map((d) => {
-      let value: number
-      if (mode === 'cost') {
-        value = Math.abs(d.cost)
-      } else if (mode === 'price') {
-        value = Math.abs(d.price)
-      } else {
-        value = Math.abs(calculateShare(d.price - d.cost, totalPrice))
-      }
-      return { name: d.label, value, color: d.color }
-    })
-    .filter((d) => d.value > 0)
-
-  if (data.length === 0) return null
-
-  const renderLabel = makePieLabel(ct)
-  const paretoData = buildParetoData(data)
+  const data = useMemo(
+    () =>
+      items
+        .map((d) => {
+          let value: number
+          if (mode === 'cost') {
+            value = Math.abs(d.cost)
+          } else if (mode === 'price') {
+            value = Math.abs(d.price)
+          } else {
+            value = Math.abs(calculateShare(d.price - d.cost, totalPrice))
+          }
+          return { name: d.label, value, color: d.color }
+        })
+        .filter((d) => d.value > 0),
+    [items, mode, totalPrice],
+  )
 
   const tooltipLabel = MODE_LABELS[mode]
   const tooltipFormatter = isCrossMult
     ? (value: number) => toPct(value, 2)
     : (value: number) => fmtCurrency(value)
+
+  const pieOption = useMemo<EChartsOption>(
+    () => ({
+      tooltip: {
+        ...standardTooltip(theme),
+        trigger: 'item' as const,
+        formatter: (params: unknown) => {
+          const p = params as { name: string; value: number; percent: number }
+          return `${p.name}<br/>${tooltipLabel}: ${tooltipFormatter(p.value)}`
+        },
+      },
+      series: [
+        {
+          type: 'pie' as const,
+          radius: ['40%', '70%'],
+          center: ['50%', '48%'],
+          data: data.map((d) => ({
+            name: d.name,
+            value: d.value,
+            itemStyle: { color: d.color, opacity: 0.85 },
+          })),
+          label: {
+            formatter: (params: unknown) => {
+              const p = params as { name: string; percent: number }
+              return p.percent >= 3 ? `${p.name} ${toPct(p.percent / 100)}` : ''
+            },
+            color: theme.colors.text3,
+            fontSize: 10,
+            fontFamily: theme.typography.fontFamily.primary,
+          },
+          itemStyle: { borderWidth: 2, borderColor: theme.colors.bg3 },
+          emphasis: { itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0,0,0,0.2)' } },
+        },
+      ],
+    }),
+    [data, theme, tooltipLabel, tooltipFormatter],
+  )
+
+  const paretoData = useMemo(() => buildParetoData(data), [data])
+
+  const paretoOption = useMemo<EChartsOption>(
+    () => ({
+      grid: { ...standardGrid(), right: 50 },
+      tooltip: {
+        ...standardTooltip(theme),
+        trigger: 'axis' as const,
+        formatter: (params: unknown) => {
+          const list = params as { seriesName: string; value: number; marker: string }[]
+          const title = (list[0] as { axisValueLabel?: string }).axisValueLabel ?? ''
+          const rows = list
+            .map((p) => {
+              if (p.seriesName === 'cumPct') {
+                return `${p.marker} 累計: ${toPct(p.value)}`
+              }
+              return `${p.marker} ${tooltipLabel}: ${tooltipFormatter(p.value)}`
+            })
+            .join('<br/>')
+          return `${title}<br/>${rows}`
+        },
+      },
+      xAxis: {
+        type: 'category' as const,
+        data: paretoData.map((d) => d.name),
+        axisLabel: {
+          color: theme.colors.text3,
+          fontSize: 10,
+          fontFamily: theme.typography.fontFamily.primary,
+          rotate: 30,
+        },
+        axisLine: { lineStyle: { color: theme.colors.border } },
+        axisTick: { show: false },
+      },
+      yAxis: [
+        {
+          type: 'value' as const,
+          position: 'left' as const,
+          axisLabel: {
+            formatter: isCrossMult ? (v: number) => toPct(v, 0) : (v: number) => toCommaYen(v),
+            color: theme.colors.text3,
+            fontSize: 10,
+            fontFamily: theme.typography.fontFamily.mono,
+          },
+          axisLine: { show: false },
+          axisTick: { show: false },
+          splitLine: {
+            lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' as const },
+          },
+        },
+        {
+          type: 'value' as const,
+          position: 'right' as const,
+          min: 0,
+          max: 1,
+          axisLabel: {
+            formatter: (v: number) => toPct(v, 0),
+            color: theme.colors.text3,
+            fontSize: 10,
+            fontFamily: theme.typography.fontFamily.mono,
+          },
+          axisLine: { show: false },
+          axisTick: { show: false },
+          splitLine: { show: false },
+        },
+      ],
+      series: [
+        {
+          type: 'bar' as const,
+          yAxisIndex: 0,
+          data: paretoData.map((d) => ({
+            value: d.value,
+            itemStyle: { color: d.color, opacity: 0.8 },
+          })),
+          barMaxWidth: 32,
+        },
+        {
+          type: 'line' as const,
+          name: 'cumPct',
+          yAxisIndex: 1,
+          data: paretoData.map((d) => d.cumPct),
+          smooth: true,
+          lineStyle: { width: 2, color: theme.colors.palette.dangerDark },
+          itemStyle: { color: theme.colors.palette.dangerDark },
+          symbol: 'circle' as const,
+          symbolSize: 6,
+        },
+      ],
+    }),
+    [paretoData, theme, isCrossMult, tooltipLabel, tooltipFormatter],
+  )
+
+  if (data.length === 0) return null
 
   return (
     <PieWrapper>
@@ -114,88 +206,9 @@ export const CompositionChart = memo(function CompositionChart({
         </Chip>
       </PieToggle>
       {view === 'pie' ? (
-        <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="75%">
-          <PieChart>
-            <Pie
-              data={data}
-              cx="50%"
-              cy="48%"
-              outerRadius="70%"
-              innerRadius="40%"
-              dataKey="value"
-              label={renderLabel}
-              strokeWidth={2}
-              stroke={ct.bg3}
-            >
-              {data.map((entry, index) => (
-                <Cell key={index} fill={entry.color} fillOpacity={0.85} />
-              ))}
-            </Pie>
-            <Tooltip
-              content={createChartTooltip({
-                ct,
-                formatter: (value) => [tooltipFormatter(value as number), tooltipLabel],
-              })}
-            />
-          </PieChart>
-        </ResponsiveContainer>
+        <EChart option={pieOption} height={260} ariaLabel="カテゴリ別構成比円グラフ" />
       ) : (
-        <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="75%">
-          <ComposedChart data={paretoData} margin={{ top: 8, right: 40, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
-            <XAxis
-              dataKey="name"
-              tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
-              axisLine={{ stroke: ct.grid }}
-              tickLine={false}
-              interval={0}
-              angle={-30}
-              textAnchor="end"
-              height={50}
-            />
-            <YAxis
-              yAxisId="left"
-              tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-              axisLine={false}
-              tickLine={false}
-              tickFormatter={isCrossMult ? (v) => toPct(v, 0) : toAxisYen}
-              width={50}
-            />
-            <YAxis
-              yAxisId="right"
-              orientation="right"
-              tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-              axisLine={false}
-              tickLine={false}
-              domain={[0, 1]}
-              tickFormatter={(v) => toPct(v, 0)}
-              width={45}
-            />
-            <Tooltip
-              content={createChartTooltip({
-                ct,
-                formatter: (value, name) => {
-                  const v = Number(value)
-                  if (name === 'cumPct') return [toPct(v), '累計']
-                  return [tooltipFormatter(v), tooltipLabel]
-                },
-              })}
-            />
-            <Bar yAxisId="left" dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={32}>
-              {paretoData.map((entry, i) => (
-                <Cell key={i} fill={entry.color} fillOpacity={0.8} />
-              ))}
-            </Bar>
-            <Line
-              yAxisId="right"
-              type="monotone"
-              dataKey="cumPct"
-              stroke={ct.colors.danger}
-              strokeWidth={2}
-              dot={{ r: 3, fill: ct.colors.danger }}
-            />
-          </ComposedChart>
-        </ResponsiveContainer>
+        <EChart option={paretoOption} height={260} ariaLabel="カテゴリ別パレート図" />
       )}
     </PieWrapper>
   )

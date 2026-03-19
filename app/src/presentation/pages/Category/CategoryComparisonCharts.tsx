@@ -1,29 +1,17 @@
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
+import { useTheme } from 'styled-components'
+import type { AppTheme } from '@/presentation/theme/theme'
 import type { StoreResult } from '@/domain/models'
 import { calculateMarkupRate } from '@/domain/calculations/utils'
 import { CATEGORY_LABELS, CATEGORY_ORDER } from '@/domain/constants/categories'
+import { STORE_COLORS } from '@/presentation/components/charts/chartTheme'
+import { EChart, type EChartsOption } from '@/presentation/components/charts/EChart'
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Radar,
-} from 'recharts'
-import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
-import {
-  useChartTheme,
-  toComma,
-  toAxisYen,
-  STORE_COLORS,
-} from '@/presentation/components/charts/chartTheme'
-import { createChartTooltip } from '@/presentation/components/charts/createChartTooltip'
+  standardGrid,
+  standardTooltip,
+  standardLegend,
+  toCommaYen,
+} from '@/presentation/components/charts/echartsOptionBuilders'
 import { ChartWrapper, ChartTitle } from './CategoryPage.styles'
 
 /** 店舗間カテゴリ比較バーチャート */
@@ -34,60 +22,89 @@ export const StoreComparisonCategoryBarChart = memo(function StoreComparisonCate
   selectedResults: StoreResult[]
   storeNames: Map<string, string>
 }) {
-  const ct = useChartTheme()
-  const data = CATEGORY_ORDER.filter((cat) =>
-    selectedResults.some((sr) => sr.categoryTotals.has(cat)),
-  ).map((cat) => {
-    const entry: Record<string, string | number> = { name: CATEGORY_LABELS[cat] }
-    selectedResults.forEach((sr) => {
+  const theme = useTheme() as AppTheme
+
+  const { categories, series } = useMemo(() => {
+    const cats = CATEGORY_ORDER.filter((cat) =>
+      selectedResults.some((sr) => sr.categoryTotals.has(cat)),
+    )
+    const categoryLabels = cats.map((cat) => CATEGORY_LABELS[cat])
+
+    const seriesData = selectedResults.map((sr, i) => {
       const name = storeNames.get(sr.storeId) ?? sr.storeId
-      const pair = sr.categoryTotals.get(cat)
-      entry[name] = pair ? Math.abs(pair.price) : 0
+      const data = cats.map((cat) => {
+        const pair = sr.categoryTotals.get(cat)
+        return pair ? Math.abs(pair.price) : 0
+      })
+      return {
+        type: 'bar' as const,
+        name,
+        data,
+        itemStyle: { color: STORE_COLORS[i % STORE_COLORS.length], opacity: 0.8 },
+        barMaxWidth: 30,
+        itemStyle2: undefined,
+      }
     })
-    return entry
-  })
+
+    return { categories: categoryLabels, series: seriesData }
+  }, [selectedResults, storeNames])
+
+  const option = useMemo<EChartsOption>(
+    () => ({
+      grid: standardGrid(),
+      tooltip: {
+        ...standardTooltip(theme),
+        trigger: 'axis' as const,
+        formatter: (params: unknown) => {
+          const list = params as { seriesName: string; value: number; marker: string }[]
+          const title = (list[0] as { axisValueLabel?: string }).axisValueLabel ?? ''
+          const rows = list
+            .map((p) => `${p.marker} ${p.seriesName}: ${toCommaYen(p.value)}`)
+            .join('<br/>')
+          return `${title}<br/>${rows}`
+        },
+      },
+      legend: standardLegend(theme),
+      xAxis: {
+        type: 'category' as const,
+        data: categories,
+        axisLabel: {
+          color: theme.colors.text3,
+          fontSize: 10,
+          fontFamily: theme.typography.fontFamily.primary,
+        },
+        axisLine: { lineStyle: { color: theme.colors.border } },
+        axisTick: { show: false },
+      },
+      yAxis: {
+        type: 'value' as const,
+        axisLabel: {
+          formatter: (v: number) => toCommaYen(v),
+          color: theme.colors.text3,
+          fontSize: 10,
+          fontFamily: theme.typography.fontFamily.mono,
+        },
+        axisLine: { show: false },
+        axisTick: { show: false },
+        splitLine: {
+          lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' as const },
+        },
+      },
+      series: series.map((s) => ({
+        type: 'bar' as const,
+        name: s.name,
+        data: s.data,
+        itemStyle: s.itemStyle,
+        barMaxWidth: s.barMaxWidth,
+      })),
+    }),
+    [categories, series, theme],
+  )
 
   return (
     <ChartWrapper>
       <ChartTitle>店舗間 カテゴリ別売価比較</ChartTitle>
-      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="85%">
-        <BarChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
-          <XAxis
-            dataKey="name"
-            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
-            axisLine={{ stroke: ct.grid }}
-            tickLine={false}
-          />
-          <YAxis
-            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-            axisLine={false}
-            tickLine={false}
-            tickFormatter={toAxisYen}
-            width={50}
-          />
-          <Tooltip
-            content={createChartTooltip({
-              ct,
-              formatter: (value, name) => [toComma((value as number) ?? 0), name ?? ''],
-            })}
-          />
-          <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
-          {selectedResults.map((sr, i) => {
-            const name = storeNames.get(sr.storeId) ?? sr.storeId
-            return (
-              <Bar
-                key={sr.storeId}
-                dataKey={name}
-                fill={STORE_COLORS[i % STORE_COLORS.length]}
-                fillOpacity={0.8}
-                radius={[4, 4, 0, 0]}
-                maxBarSize={30}
-              />
-            )
-          })}
-        </BarChart>
-      </ResponsiveContainer>
+      <EChart option={option} height={280} ariaLabel="店舗間カテゴリ別売価比較チャート" />
     </ChartWrapper>
   )
 })
@@ -100,58 +117,82 @@ export const StoreComparisonMarkupRadarChart = memo(function StoreComparisonMark
   selectedResults: StoreResult[]
   storeNames: Map<string, string>
 }) {
-  const ct = useChartTheme()
+  const theme = useTheme() as AppTheme
 
-  const radarData = CATEGORY_ORDER.filter((cat) =>
-    selectedResults.some((sr) => sr.categoryTotals.has(cat)),
-  ).map((cat) => {
-    const entry: Record<string, string | number> = { subject: CATEGORY_LABELS[cat] }
-    selectedResults.forEach((sr) => {
+  const { indicators, series } = useMemo(() => {
+    const cats = CATEGORY_ORDER.filter((cat) =>
+      selectedResults.some((sr) => sr.categoryTotals.has(cat)),
+    )
+
+    // Build markup matrix per store x category
+    const markupMatrix = selectedResults.map((sr) =>
+      cats.map((cat) => {
+        const pair = sr.categoryTotals.get(cat)
+        return pair ? calculateMarkupRate(pair.price - pair.cost, pair.price) * 100 : 0
+      }),
+    )
+
+    const maxMarkup = Math.max(0, ...markupMatrix.flat())
+    const radarMax = Math.ceil(maxMarkup / 10) * 10 || 100
+
+    const seriesData = selectedResults.map((sr, i) => {
       const name = storeNames.get(sr.storeId) ?? sr.storeId
-      const pair = sr.categoryTotals.get(cat)
-      const markup = pair ? calculateMarkupRate(pair.price - pair.cost, pair.price) * 100 : 0
-      entry[name] = markup
+      return {
+        name,
+        value: markupMatrix[i],
+        lineStyle: { width: 2 },
+        areaStyle: { opacity: 0.15 },
+        itemStyle: { color: STORE_COLORS[i % STORE_COLORS.length] },
+      }
     })
-    return entry
-  })
+    const indicatorData = cats.map((cat) => ({
+      name: CATEGORY_LABELS[cat],
+      max: radarMax,
+    }))
+
+    return { indicators: indicatorData, series: seriesData }
+  }, [selectedResults, storeNames])
+
+  const option = useMemo<EChartsOption>(
+    () => ({
+      tooltip: {
+        ...standardTooltip(theme),
+        trigger: 'item' as const,
+        formatter: (params: unknown) => {
+          const p = params as { name: string; value: number[] }
+          const rows = indicators
+            .map((ind, i) => `${ind.name}: ${(p.value[i] ?? 0).toFixed(1)}%`)
+            .join('<br/>')
+          return `${p.name}<br/>${rows}`
+        },
+      },
+      legend: standardLegend(theme),
+      radar: {
+        indicator: indicators,
+        shape: 'polygon' as const,
+        axisName: {
+          color: theme.colors.text3,
+          fontSize: 10,
+          fontFamily: theme.typography.fontFamily.primary,
+        },
+        splitArea: { show: false },
+        splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.4 } },
+        axisLine: { lineStyle: { color: theme.colors.border, opacity: 0.4 } },
+      },
+      series: [
+        {
+          type: 'radar' as const,
+          data: series,
+        },
+      ],
+    }),
+    [indicators, series, theme],
+  )
 
   return (
     <ChartWrapper>
       <ChartTitle>店舗間 カテゴリ別値入率レーダー</ChartTitle>
-      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="85%">
-        <RadarChart data={radarData} margin={{ top: 4, right: 30, left: 30, bottom: 4 }}>
-          <PolarGrid stroke={ct.grid} strokeOpacity={0.4} />
-          <PolarAngleAxis
-            dataKey="subject"
-            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
-          />
-          <PolarRadiusAxis
-            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-            tickFormatter={(v) => `${v}%`}
-          />
-          {selectedResults.map((sr, i) => {
-            const name = storeNames.get(sr.storeId) ?? sr.storeId
-            return (
-              <Radar
-                key={sr.storeId}
-                name={name}
-                dataKey={name}
-                stroke={STORE_COLORS[i % STORE_COLORS.length]}
-                fill={STORE_COLORS[i % STORE_COLORS.length]}
-                fillOpacity={0.15}
-                strokeWidth={2}
-              />
-            )
-          })}
-          <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
-          <Tooltip
-            content={createChartTooltip({
-              ct,
-              formatter: (value) => [`${((value as number) ?? 0).toFixed(1)}%`, ''],
-            })}
-          />
-        </RadarChart>
-      </ResponsiveContainer>
+      <EChart option={option} height={280} ariaLabel="店舗間カテゴリ別値入率レーダーチャート" />
     </ChartWrapper>
   )
 })
