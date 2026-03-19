@@ -10,6 +10,7 @@ import type { AppTheme } from '@/presentation/theme/theme'
 import type { CategoryBenchmarkScore, CategoryTrendPoint } from '@/application/hooks/useDuckDBQuery'
 import { toPct } from './chartTheme'
 import { EmptyState } from '@/presentation/components/common'
+import { chartFontSize } from '@/presentation/theme/tokens'
 import { EChart, type EChartsOption } from './EChart'
 import { standardGrid, standardTooltip, standardLegend, toCommaYen } from './echartsOptionBuilders'
 import {
@@ -67,13 +68,13 @@ export function ChartView({
       xAxis: {
         type: 'value',
         max: 100,
-        axisLabel: { color: theme.colors.text3, fontSize: 10 },
+        axisLabel: { color: theme.colors.text3, fontSize: chartFontSize.axis },
         splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
       },
       yAxis: {
         type: 'category',
         data: scores.map((s) => s.name),
-        axisLabel: { color: theme.colors.text3, fontSize: 10, width: 70, overflow: 'truncate' },
+        axisLabel: { color: theme.colors.text3, fontSize: chartFontSize.axis, width: 70, overflow: 'truncate' },
       },
       series: [
         {
@@ -163,7 +164,7 @@ export function MapView({ scores }: { scores: readonly CategoryBenchmarkScore[] 
         nameGap: 25,
         max: 100,
         min: 0,
-        axisLabel: { color: theme.colors.text3, fontSize: 10 },
+        axisLabel: { color: theme.colors.text3, fontSize: chartFontSize.axis },
         splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
       },
       yAxis: {
@@ -173,7 +174,7 @@ export function MapView({ scores }: { scores: readonly CategoryBenchmarkScore[] 
         nameGap: 35,
         max: 100,
         min: 0,
-        axisLabel: { color: theme.colors.text3, fontSize: 10 },
+        axisLabel: { color: theme.colors.text3, fontSize: chartFontSize.axis },
         splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
       },
       series: [
@@ -237,7 +238,7 @@ export function TrendView({
         data: dates,
         axisLabel: {
           color: theme.colors.text3,
-          fontSize: 10,
+          fontSize: chartFontSize.axis,
           fontFamily: theme.typography.fontFamily.mono,
         },
         axisLine: { lineStyle: { color: theme.colors.border } },
@@ -247,7 +248,7 @@ export function TrendView({
         name: 'Index × 安定度',
         nameLocation: 'middle',
         nameGap: 40,
-        axisLabel: { color: theme.colors.text3, fontSize: 10 },
+        axisLabel: { color: theme.colors.text3, fontSize: chartFontSize.axis },
         axisLine: { show: false },
         splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
       },

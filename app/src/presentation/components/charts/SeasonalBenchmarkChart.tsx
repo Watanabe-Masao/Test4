@@ -7,6 +7,7 @@ import type { AppTheme } from '@/presentation/theme/theme'
 import { sc } from '@/presentation/theme/semanticColors'
 import { analyzeTrend } from '@/application/hooks/useStatistics'
 import type { MonthlyDataPoint } from '@/application/hooks/useStatistics'
+import { chartFontSize } from '@/presentation/theme/tokens'
 import { CHART_GUIDES } from './chartGuides'
 import { ChartCard } from './ChartCard'
 import { ChartEmpty } from './ChartState'
@@ -86,7 +87,7 @@ export const SeasonalBenchmarkChart = memo(function SeasonalBenchmarkChart({
         data: months,
         axisLabel: {
           color: theme.colors.text3,
-          fontSize: 10,
+          fontSize: chartFontSize.axis,
           fontFamily: theme.typography.fontFamily.mono,
         },
       },
@@ -98,7 +99,7 @@ export const SeasonalBenchmarkChart = memo(function SeasonalBenchmarkChart({
         axisLabel: {
           formatter: (v: number) => String(Math.round(v * 100)),
           color: theme.colors.text3,
-          fontSize: 10,
+          fontSize: chartFontSize.axis,
         },
         axisLine: { show: false },
         splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },

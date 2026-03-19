@@ -10,6 +10,7 @@ import type {
   CorrelationResult,
 } from '@/application/hooks/useWeatherCorrelation'
 import { useWeatherCorrelation } from '@/application/hooks/useWeatherCorrelation'
+import { chartFontSize } from '@/presentation/theme/tokens'
 import { buildTimelineData, getCorrelationStrength } from './WeatherCorrelationChart.vm'
 import { ChartCard } from './ChartCard'
 import { ChartEmpty } from './ChartState'
@@ -58,7 +59,7 @@ export const WeatherCorrelationChart = memo(function WeatherCorrelationChart({
       xAxis: {
         type: 'category',
         data: days,
-        axisLabel: { color: theme.colors.text3, fontSize: 10 },
+        axisLabel: { color: theme.colors.text3, fontSize: chartFontSize.axis },
         axisLine: { lineStyle: { color: theme.colors.border } },
       },
       yAxis: {
@@ -68,7 +69,7 @@ export const WeatherCorrelationChart = memo(function WeatherCorrelationChart({
         name: '正規化 (0-100)',
         nameLocation: 'middle',
         nameGap: 40,
-        axisLabel: { color: theme.colors.text3, fontSize: 10 },
+        axisLabel: { color: theme.colors.text3, fontSize: chartFontSize.axis },
         axisLine: { show: false },
         splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
       },

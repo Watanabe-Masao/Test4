@@ -6,7 +6,7 @@ import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { toComma, toManYen, toPct } from './chartTheme'
 import { sc } from '@/presentation/theme/semanticColors'
-import { palette } from '@/presentation/theme/tokens'
+import { chartFontSize, palette } from '@/presentation/theme/tokens'
 import {
   linearRegression,
   calculateWMA,
@@ -134,7 +134,7 @@ export const RegressionInsightChart = memo(function RegressionInsightChart({
           data: days,
           axisLabel: {
             color: theme.colors.text3,
-            fontSize: 10,
+            fontSize: chartFontSize.axis,
             fontFamily: theme.typography.fontFamily.mono,
             formatter: (v: string) => `${v}日`,
           },
@@ -144,7 +144,7 @@ export const RegressionInsightChart = memo(function RegressionInsightChart({
           axisLabel: {
             formatter: (v: number) => toManYen(v),
             color: theme.colors.text3,
-            fontSize: 10,
+            fontSize: chartFontSize.axis,
           },
           axisLine: { show: false },
           splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
@@ -205,7 +205,7 @@ export const RegressionInsightChart = memo(function RegressionInsightChart({
         data: days,
         axisLabel: {
           color: theme.colors.text3,
-          fontSize: 10,
+          fontSize: chartFontSize.axis,
           fontFamily: theme.typography.fontFamily.mono,
           formatter: (v: string) => `${v}日`,
         },
@@ -218,7 +218,7 @@ export const RegressionInsightChart = memo(function RegressionInsightChart({
         axisLabel: {
           formatter: (v: number) => toManYen(v),
           color: theme.colors.text3,
-          fontSize: 10,
+          fontSize: chartFontSize.axis,
         },
         axisLine: { show: false },
         splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },

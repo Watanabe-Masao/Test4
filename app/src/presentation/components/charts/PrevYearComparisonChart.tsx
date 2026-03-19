@@ -4,6 +4,7 @@
 import { useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
+import { chartFontSize } from '@/presentation/theme/tokens'
 import { useCurrencyFormatter, toPct } from './chartTheme'
 import { DualPeriodSlider } from './DualPeriodSlider'
 import { useDualPeriodRange } from './useDualPeriodRange'
@@ -129,7 +130,7 @@ export const PrevYearComparisonChart = memo(function PrevYearComparisonChart({
         data: [
           {
             yAxis: prevTotal,
-            label: { formatter: `比較期月間 ${fmt(prevTotal)}`, position: 'end', fontSize: 10 },
+            label: { formatter: `比較期月間 ${fmt(prevTotal)}`, position: 'end', fontSize: chartFontSize.annotation },
           },
         ],
         lineStyle: { color: theme.chart.previousYear, type: 'dashed', width: 1.5 },
@@ -157,7 +158,7 @@ export const PrevYearComparisonChart = memo(function PrevYearComparisonChart({
         data: days,
         axisLabel: {
           color: theme.colors.text3,
-          fontSize: 10,
+          fontSize: chartFontSize.axis,
           fontFamily: theme.typography.fontFamily.mono,
         },
       },
