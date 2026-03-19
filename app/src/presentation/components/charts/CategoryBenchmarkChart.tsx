@@ -210,22 +210,20 @@ export const CategoryBenchmarkChart = memo(function CategoryBenchmarkChart(
       )}
 
       <div style={{ marginTop: 16 }}>
-        {vm.view === 'chart' && <ChartView scores={vm.scores} ct={vm.ct} fmt={vm.fmt} />}
+        {vm.view === 'chart' && <ChartView scores={vm.scores} fmt={vm.fmt} />}
         {vm.view === 'table' && (
           <TableView
             scores={vm.scores}
             fmt={vm.fmt}
             metricLabel={vm.tableMetricLabel}
-            isDateAxis={vm.effectiveAxis === 'date'}
           />
         )}
-        {vm.view === 'map' && <MapView scores={vm.scores} ct={vm.ct} fmt={vm.fmt} />}
+        {vm.view === 'map' && <MapView scores={vm.scores} />}
         {vm.view === 'trend' && (
           <TrendView
             trendData={vm.trendData}
             topCodes={vm.topCodes}
             scores={vm.scores}
-            ct={vm.ct}
           />
         )}
       </div>

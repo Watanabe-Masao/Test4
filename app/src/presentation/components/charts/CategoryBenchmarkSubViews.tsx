@@ -1,30 +1,17 @@
 /**
- * カテゴリベンチマーク — サブビュー & ツールチップ
+ * カテゴリベンチマーク — サブビュー (ECharts)
  *
- * ChartView / TableView / MapView / TrendView と
- * BenchmarkChartTooltip / MapTooltip を集約。
+ * ChartView / TableView / MapView / TrendView
+ * 各ビューは1コンポーネント = 1チャートでシンプルにつなぎ合わせ。
  */
 import { useMemo } from 'react'
-import {
-  BarChart,
-  Bar,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  Cell,
-  ScatterChart,
-  Scatter,
-  ZAxis,
-} from 'recharts'
-import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
+import { useTheme } from 'styled-components'
+import type { AppTheme } from '@/presentation/theme/theme'
 import type { CategoryBenchmarkScore, CategoryTrendPoint } from '@/application/hooks/useDuckDBQuery'
 import { toPct } from './chartTheme'
-import type { useChartTheme } from './chartTheme'
 import { EmptyState } from '@/presentation/components/common'
+import { EChart, type EChartsOption } from './EChart'
+import { standardGrid, standardTooltip, standardLegend, toCommaYen } from './echartsOptionBuilders'
 import {
   DataTable,
   Th,
@@ -47,203 +34,153 @@ import {
   getMetricDisplayName,
 } from './CategoryBenchmarkChart.vm'
 
-// ── Types ──
-
-type ChartTheme = ReturnType<typeof useChartTheme>
-
-// ── Chart Tooltip ──
-
-interface ChartTooltipPayload {
-  readonly payload: CategoryBenchmarkScore
-  readonly value: number
-}
-
-interface ChartTooltipProps {
-  readonly active?: boolean
-  readonly payload?: readonly ChartTooltipPayload[]
-  readonly ct: ChartTheme
-  readonly fmt: (v: number) => string
-}
-
-export function BenchmarkChartTooltip({ active, payload, ct, fmt }: ChartTooltipProps) {
-  if (!active || !payload || payload.length === 0) return null
-  const item = payload[0].payload
-
-  return (
-    <div
-      style={{
-        background: ct.bg2,
-        border: `1px solid ${ct.grid}`,
-        borderRadius: 8,
-        padding: '6px 10px',
-        fontSize: ct.fontSize.sm,
-        fontFamily: ct.fontFamily,
-        color: ct.text,
-      }}
-    >
-      <div style={{ fontWeight: 600, marginBottom: 4 }}>
-        {item.name} ({item.code})
-      </div>
-      <div>Index: {item.index.toFixed(1)}</div>
-      <div>
-        {getMetricDisplayName(item.metric)}:{' '}
-        {item.metric === 'share' ? toPct(item.avgShare, 1) : item.avgShare.toFixed(1)}
-      </div>
-      <div>バラツキ(CV): {item.variance.toFixed(2)}</div>
-      <div>安定度: {toPct(item.stability, 0)}</div>
-      <div>
-        カバー率: {item.activeStoreCount}/{item.storeCount} ({toPct(item.dominance, 0)})
-      </div>
-      <div>売上: {fmt(item.totalSales)}</div>
-      <div>
-        タイプ: <TypeBadge $type={item.productType}>{TYPE_LABELS[item.productType]}</TypeBadge>
-      </div>
-    </div>
-  )
-}
-
-// ── Scatter Tooltip ──
-
-interface ScatterTooltipPayload {
-  readonly payload: CategoryBenchmarkScore & { x: number; y: number }
-}
-
-interface ScatterTooltipProps {
-  readonly active?: boolean
-  readonly payload?: readonly ScatterTooltipPayload[]
-  readonly ct: ChartTheme
-  readonly fmt: (v: number) => string
-}
-
-export function MapTooltip({ active, payload, ct, fmt }: ScatterTooltipProps) {
-  if (!active || !payload || payload.length === 0) return null
-  const item = payload[0].payload
-
-  return (
-    <div
-      style={{
-        background: ct.bg2,
-        border: `1px solid ${ct.grid}`,
-        borderRadius: 8,
-        padding: '6px 10px',
-        fontSize: ct.fontSize.sm,
-        fontFamily: ct.fontFamily,
-        color: ct.text,
-      }}
-    >
-      <div style={{ fontWeight: 600 }}>{item.name}</div>
-      <div>Index: {item.index.toFixed(1)}</div>
-      <div>バラツキ: {item.variance.toFixed(3)}</div>
-      <div>売上: {fmt(item.totalSales)}</div>
-      <div>
-        <TypeBadge $type={item.productType}>{TYPE_LABELS[item.productType]}</TypeBadge>
-      </div>
-    </div>
-  )
-}
-
-// ── Sub-views ──
+// ── ChartView (横棒グラフ) ──
 
 export function ChartView({
   scores,
-  ct,
   fmt,
 }: {
   scores: readonly CategoryBenchmarkScore[]
-  ct: ChartTheme
   fmt: (v: number) => string
 }) {
+  const theme = useTheme() as AppTheme
   const chartHeight = computeChartHeight(scores.length)
 
-  return (
-    <ResponsiveContainer width="100%" height={chartHeight}>
-      <BarChart data={scores} layout="vertical" margin={{ top: 4, right: 40, left: 80, bottom: 4 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
-        <XAxis
-          type="number"
-          domain={[0, 100]}
-          tick={{ fontSize: ct.fontSize.xs, fill: ct.textMuted }}
-          stroke={ct.grid}
-        />
-        <YAxis
-          type="category"
-          dataKey="name"
-          tick={{ fontSize: ct.fontSize.xs, fill: ct.textMuted }}
-          stroke={ct.grid}
-          width={75}
-        />
-        <Tooltip content={<BenchmarkChartTooltip ct={ct} fmt={fmt} />} />
-        <Bar dataKey="index" name="Index" radius={[0, 4, 4, 0]}>
-          {scores.map((s) => (
-            <Cell key={s.code} fill={indexColor(s.index)} />
-          ))}
-        </Bar>
-      </BarChart>
-    </ResponsiveContainer>
-  )
+  const option = useMemo<EChartsOption>(() => ({
+    grid: { left: 80, right: 40, top: 4, bottom: 4, containLabel: false },
+    tooltip: {
+      ...standardTooltip(theme),
+      formatter: (params: unknown) => {
+        const p = params as { data: { value: number; name: string } }
+        const s = scores.find((sc) => sc.name === p.data.name)
+        if (!s) return ''
+        return `<strong>${s.name}</strong><br/>` +
+          `Index: ${s.index.toFixed(1)}<br/>` +
+          `安定度: ${toPct(s.stability)}<br/>` +
+          `売上: ${fmt(s.totalSales)}<br/>` +
+          `タイプ: ${TYPE_LABELS[s.productType]}`
+      },
+    },
+    xAxis: {
+      type: 'value',
+      max: 100,
+      axisLabel: { color: theme.colors.text3, fontSize: 10 },
+      splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
+    },
+    yAxis: {
+      type: 'category',
+      data: scores.map((s) => s.name),
+      axisLabel: { color: theme.colors.text3, fontSize: 10, width: 70, overflow: 'truncate' },
+    },
+    series: [{
+      type: 'bar',
+      data: scores.map((s) => ({
+        value: s.index,
+        name: s.name,
+        itemStyle: { color: indexColor(s.index), borderRadius: [0, 4, 4, 0] },
+      })),
+    }],
+  }), [scores, fmt, theme])
+
+  return <EChart option={option} height={chartHeight} ariaLabel="カテゴリベンチマーク棒グラフ" />
 }
+
+// ── TableView (テーブル — Recharts なし) ──
 
 export function TableView({
   scores,
   fmt,
   metricLabel,
-  isDateAxis,
 }: {
   scores: readonly CategoryBenchmarkScore[]
   fmt: (v: number) => string
   metricLabel: string
-  isDateAxis?: boolean
 }) {
-  const isPi = scores.length > 0 && scores[0].metric !== 'share'
-
   return (
-    <div style={{ overflowX: 'auto' }}>
-      <DataTable>
-        <thead>
-          <tr>
-            <Th>カテゴリ</Th>
-            <Th>Index</Th>
-            <Th>{metricLabel}</Th>
-            <Th>バラツキ(CV)</Th>
-            <Th>安定度</Th>
-            <Th>{isDateAxis ? '日数' : 'カバー率'}</Th>
-            <Th>売上合計</Th>
-            <Th>タイプ</Th>
+    <DataTable>
+      <thead>
+        <tr>
+          <Th>カテゴリ</Th>
+          <Th>Index</Th>
+          <Th>安定度</Th>
+          <Th>{getMetricDisplayName(metricLabel as Parameters<typeof getMetricDisplayName>[0])}</Th>
+          <Th>タイプ</Th>
+        </tr>
+      </thead>
+      <tbody>
+        {scores.map((s) => (
+          <tr key={s.code}>
+            <Td>{s.name}</Td>
+            <Td style={{ color: indexColor(s.index), fontWeight: 600 }}>
+              {s.index.toFixed(1)}
+            </Td>
+            <Td>{toPct(s.stability)}</Td>
+            <Td>{fmt(s.totalSales)}</Td>
+            <Td>
+              <TypeBadge $type={s.productType}>{TYPE_LABELS[s.productType]}</TypeBadge>
+            </Td>
           </tr>
-        </thead>
-        <tbody>
-          {scores.map((s) => (
-            <tr key={s.code}>
-              <Td $align="left">{s.name}</Td>
-              <Td $color={indexColor(s.index)} $bold>
-                {s.index.toFixed(1)}
-              </Td>
-              <Td>{isPi ? s.avgShare.toFixed(1) : toPct(s.avgShare, 1)}</Td>
-              <Td>{s.variance.toFixed(2)}</Td>
-              <Td>{toPct(s.stability, 0)}</Td>
-              <Td>{isDateAxis ? `${s.storeCount}日` : `${s.activeStoreCount}/${s.storeCount}`}</Td>
-              <Td>{fmt(s.totalSales)}</Td>
-              <Td>
-                <TypeBadge $type={s.productType}>{TYPE_LABELS[s.productType]}</TypeBadge>
-              </Td>
-            </tr>
-          ))}
-        </tbody>
-      </DataTable>
-    </div>
+        ))}
+      </tbody>
+    </DataTable>
   )
 }
 
+// ── MapView (散布図) ──
+
 export function MapView({
   scores,
-  ct,
-  fmt,
 }: {
   scores: readonly CategoryBenchmarkScore[]
-  ct: ChartTheme
-  fmt: (v: number) => string
 }) {
+  const theme = useTheme() as AppTheme
   const scatterData = buildScatterData(scores)
+
+  const option = useMemo<EChartsOption>(() => ({
+    grid: { left: 50, right: 30, top: 20, bottom: 40, containLabel: false },
+    tooltip: {
+      ...standardTooltip(theme),
+      formatter: (params: unknown) => {
+        const p = params as { data: { value: [number, number, number]; name: string; productType: string } }
+        const [x, y, sales] = p.data.value
+        return `<strong>${p.data.name}</strong><br/>` +
+          `Index: ${x.toFixed(1)}<br/>` +
+          `安定度: ${y.toFixed(1)}%<br/>` +
+          `売上: ${toCommaYen(sales)}<br/>` +
+          `タイプ: ${TYPE_LABELS[p.data.productType as keyof typeof TYPE_LABELS]}`
+      },
+    },
+    xAxis: {
+      type: 'value',
+      name: 'Index (構成比)',
+      nameLocation: 'center',
+      nameGap: 25,
+      max: 100,
+      min: 0,
+      axisLabel: { color: theme.colors.text3, fontSize: 10 },
+      splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
+    },
+    yAxis: {
+      type: 'value',
+      name: '安定度 (%)',
+      nameLocation: 'center',
+      nameGap: 35,
+      max: 100,
+      min: 0,
+      axisLabel: { color: theme.colors.text3, fontSize: 10 },
+      splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
+    },
+    series: [{
+      type: 'scatter',
+      data: scatterData.map((s) => ({
+        value: [s.x, s.y, s.totalSales],
+        name: s.name,
+        productType: s.productType,
+        symbolSize: Math.max(8, Math.min(30, Math.sqrt(s.totalSales / 10000))),
+        itemStyle: { color: TYPE_COLORS[s.productType], opacity: 0.8 },
+      })),
+    }],
+  }), [scatterData, theme])
 
   return (
     <MapSection>
@@ -252,49 +189,7 @@ export function MapView({
         <MapQuadrantLabel style={{ top: 4, right: 30 }}>主力</MapQuadrantLabel>
         <MapQuadrantLabel style={{ bottom: 30, left: 90 }}>不安定</MapQuadrantLabel>
         <MapQuadrantLabel style={{ bottom: 30, right: 30 }}>地域特化</MapQuadrantLabel>
-        <ResponsiveContainer width="100%" height={280}>
-          <ScatterChart margin={{ top: 20, right: 30, left: 10, bottom: 10 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.3} />
-            <XAxis
-              type="number"
-              dataKey="x"
-              name="Index"
-              domain={[0, 100]}
-              tick={{ fontSize: ct.fontSize.xs, fill: ct.textMuted }}
-              stroke={ct.grid}
-              label={{
-                value: 'Index (構成比)',
-                position: 'bottom',
-                offset: -5,
-                fontSize: 10,
-                fill: ct.textMuted,
-              }}
-            />
-            <YAxis
-              type="number"
-              dataKey="y"
-              name="安定度"
-              domain={[0, 100]}
-              tick={{ fontSize: ct.fontSize.xs, fill: ct.textMuted }}
-              stroke={ct.grid}
-              label={{
-                value: '安定度 (%)',
-                angle: -90,
-                position: 'insideLeft',
-                offset: 5,
-                fontSize: 10,
-                fill: ct.textMuted,
-              }}
-            />
-            <ZAxis type="number" dataKey="totalSales" range={[40, 400]} name="売上" />
-            <Tooltip content={<MapTooltip ct={ct} fmt={fmt} />} />
-            <Scatter data={scatterData}>
-              {scatterData.map((s) => (
-                <Cell key={s.code} fill={TYPE_COLORS[s.productType]} fillOpacity={0.8} />
-              ))}
-            </Scatter>
-          </ScatterChart>
-        </ResponsiveContainer>
+        <EChart option={option} height={280} ariaLabel="カテゴリポジショニングマップ" />
       </div>
       <MapLegend>
         <LegendItem $color={TYPE_COLORS.flagship}>主力（高Index・高安定度）</LegendItem>
@@ -306,79 +201,57 @@ export function MapView({
   )
 }
 
+// ── TrendView (折れ線グラフ) ──
+
 export function TrendView({
   trendData,
   topCodes,
   scores,
-  ct,
 }: {
   trendData: readonly CategoryTrendPoint[]
   topCodes: readonly string[]
   scores: readonly CategoryBenchmarkScore[]
-  ct: ChartTheme
 }) {
+  const theme = useTheme() as AppTheme
   const nameMap = useMemo(() => buildNameMap(scores), [scores])
-
   const chartData = useMemo(() => buildTrendPivotData(trendData), [trendData])
+
+  const option = useMemo<EChartsOption>(() => {
+    const dates = chartData.map((d) => (d.dateKey as string).slice(5))
+    return {
+      grid: standardGrid(),
+      tooltip: standardTooltip(theme),
+      legend: { ...standardLegend(theme), type: 'scroll' },
+      xAxis: {
+        type: 'category',
+        data: dates,
+        axisLabel: { color: theme.colors.text3, fontSize: 10, fontFamily: theme.typography.fontFamily.mono },
+        axisLine: { lineStyle: { color: theme.colors.border } },
+      },
+      yAxis: {
+        type: 'value',
+        name: 'Index × 安定度',
+        nameLocation: 'middle',
+        nameGap: 40,
+        axisLabel: { color: theme.colors.text3, fontSize: 10 },
+        axisLine: { show: false },
+        splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
+      },
+      series: topCodes.map((code, i) => ({
+        name: nameMap.get(code) ?? code,
+        type: 'line' as const,
+        data: chartData.map((d) => (d[code] as number) ?? null),
+        lineStyle: { color: TREND_COLORS[i % TREND_COLORS.length], width: 2 },
+        itemStyle: { color: TREND_COLORS[i % TREND_COLORS.length] },
+        symbol: 'none',
+        connectNulls: true,
+      })),
+    }
+  }, [chartData, topCodes, nameMap, theme])
 
   if (chartData.length === 0) {
     return <EmptyState>トレンドデータがありません</EmptyState>
   }
 
-  return (
-    <div>
-      <ResponsiveContainer width="100%" height={320}>
-        <LineChart data={chartData} margin={{ top: 10, right: 30, left: 10, bottom: 10 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.3} />
-          <XAxis
-            dataKey="dateKey"
-            tick={{ fontSize: ct.fontSize.xs, fill: ct.textMuted }}
-            stroke={ct.grid}
-            tickFormatter={(v: string) => v.slice(5)}
-          />
-          <YAxis
-            tick={{ fontSize: ct.fontSize.xs, fill: ct.textMuted }}
-            stroke={ct.grid}
-            label={{
-              value: 'Index × 安定度',
-              angle: -90,
-              position: 'insideLeft',
-              offset: 5,
-              fontSize: 10,
-              fill: ct.textMuted,
-            }}
-          />
-          <Tooltip
-            contentStyle={{
-              background: ct.bg2,
-              border: `1px solid ${ct.grid}`,
-              borderRadius: 8,
-              fontSize: ct.fontSize.sm,
-              fontFamily: ct.fontFamily,
-            }}
-            labelFormatter={(v) => String(v)}
-            formatter={(value, name) => [
-              Number(value).toFixed(2),
-              nameMap.get(String(name)) ?? String(name),
-            ]}
-          />
-          <Legend
-            formatter={(value) => nameMap.get(String(value)) ?? String(value)}
-            wrapperStyle={{ fontSize: '0.6rem' }}
-          />
-          {topCodes.map((code, i) => (
-            <Line
-              key={code}
-              type="monotone"
-              dataKey={code}
-              stroke={TREND_COLORS[i % TREND_COLORS.length]}
-              strokeWidth={2}
-              dot={false}
-              connectNulls
-            />
-          ))}
-        </LineChart>
-      </ResponsiveContainer>
-    </div>
-  )
+  return <EChart option={option} height={320} ariaLabel="カテゴリトレンドチャート" />
 }
