@@ -213,7 +213,7 @@ export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
 
   const names = categoryRows.map((r) => r.name)
 
-  const option = useMemo<EChartsOption>(() => {
+  const option = useMemo(() => {
     const baseGrid = { left: 80, right: 20, top: 30, bottom: 30, containLabel: false }
     const baseYAxis = {
       type: 'category' as const,
@@ -445,7 +445,7 @@ export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
         </ToggleRow>
       </HeaderRow>
 
-      <EChart option={option} height={chartHeight} ariaLabel="カテゴリ実績チャート" />
+      <EChart option={option as EChartsOption} height={chartHeight} ariaLabel="カテゴリ実績チャート" />
     </Wrapper>
   )
 })

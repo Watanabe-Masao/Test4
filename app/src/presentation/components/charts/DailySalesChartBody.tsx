@@ -100,7 +100,7 @@ function buildOption(
   needRightAxis: boolean,
   cumMode: 'cumulative' | 'daily',
   wfLegendPayload: Props['wfLegendPayload'],
-  theme: AppTheme,
+  _theme: AppTheme,
 ): EChartsOption {
   const rows = data as unknown as Record<string, unknown>[]
   const days = rows.map((d) => d.day as string | number)

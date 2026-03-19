@@ -78,7 +78,7 @@ const allLabels: Record<string, string> = {
 /** ECharts tooltip formatter for all views */
 function buildTooltipFormatter(
   view: ViewType,
-  growthKeys: { sales: string; customer: string; txValue: string },
+  _growthKeys?: { sales: string; customer: string; txValue: string },
 ): (params: unknown) => string {
   return (params: unknown) => {
     const items = params as { seriesName: string; value: unknown; marker: string }[]

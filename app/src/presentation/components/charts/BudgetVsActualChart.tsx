@@ -2,7 +2,7 @@ import { useState, useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { EChart, type EChartsOption } from './EChart'
-import { useChartTheme, useCurrencyFormatter, toAxisYen, toComma, toPct } from './chartTheme'
+import { useChartTheme, useCurrencyFormatter, toAxisYen, toPct } from './chartTheme'
 import { DualPeriodSlider } from './DualPeriodSlider'
 import { useDualPeriodRange } from './useDualPeriodRange'
 import {
