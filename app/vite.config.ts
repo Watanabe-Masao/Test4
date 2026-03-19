@@ -59,7 +59,6 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          'vendor-recharts': ['recharts'],
           'vendor-xlsx': ['xlsx'],
           'vendor-styled': ['styled-components'],
           'vendor-table': ['@tanstack/react-table'],
