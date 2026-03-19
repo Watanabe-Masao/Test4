@@ -310,8 +310,7 @@ const DailyDataSection = memo(function DailyDataSection({
                             return (
                               <HourlyItem key={h.hour}>
                                 <span>
-                                  {String(h.hour).padStart(2, '0')}時{' '}
-                                  {WEATHER_ICONS[hCat] ?? '?'}
+                                  {String(h.hour).padStart(2, '0')}時 {WEATHER_ICONS[hCat] ?? '?'}
                                 </span>
                                 <span>{h.temperature.toFixed(1)}℃</span>
                               </HourlyItem>
