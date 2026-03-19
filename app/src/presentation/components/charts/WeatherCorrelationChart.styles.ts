@@ -1,21 +1,6 @@
 import styled from 'styled-components'
 import { sc } from '@/presentation/theme/semanticColors'
 
-export const Wrapper = styled.div`
-  width: 100%;
-  background: ${({ theme }) => theme.colors.bg3};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[4]};
-`
-
-export const Title = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  color: ${({ theme }) => theme.colors.text2};
-  margin-bottom: ${({ theme }) => theme.spacing[3]};
-`
-
 export const CorrelationGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -42,27 +27,15 @@ export const CorrelationCard = styled.div<{ $strength: 'strong' | 'moderate' | '
 `
 
 export const CorrelationLabel = styled.div`
-  font-size: 0.65rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   color: ${({ theme }) => theme.colors.text3};
-  margin-bottom: 2px;
+  margin-bottom: ${({ theme }) => theme.spacing[0]};
 `
 
 export const CorrelationValue = styled.div<{ $strength: 'strong' | 'moderate' | 'weak' }>`
-  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-size: ${({ theme }) => theme.typography.fontSize.title};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ $strength }) =>
-    $strength === 'strong' ? sc.positive : $strength === 'moderate' ? sc.caution : '#94a3b8'};
-`
-
-export const ChartContainer = styled.div`
-  height: 320px;
-  margin-top: ${({ theme }) => theme.spacing[2]};
-`
-
-export const NoDataMessage = styled.div`
-  text-align: center;
-  padding: ${({ theme }) => theme.spacing[8]};
-  color: ${({ theme }) => theme.colors.text3};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+    $strength === 'strong' ? sc.positive : $strength === 'moderate' ? sc.caution : sc.neutral};
 `
