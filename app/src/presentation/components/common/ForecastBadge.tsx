@@ -33,6 +33,21 @@ const BadgeWrapper = styled.span`
   white-space: nowrap;
 `
 
+const TempRangeText = styled.span`
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  font-size: 0.55rem;
+  display: flex;
+  gap: 2px;
+`
+
+const HighTemp = styled.span`
+  color: #e74c3c;
+`
+
+const LowTemp = styled.span`
+  color: #3498db;
+`
+
 const TempText = styled.span`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ theme }) => theme.colors.text3};
@@ -59,18 +74,28 @@ export const ForecastBadge = memo(function ForecastBadge({ forecast, compact = f
   const category = mapJmaWeatherCodeToCategory(forecast.weatherCode)
   const icon = WEATHER_ICONS[category]
 
-  const tempDisplay =
-    forecast.tempMax != null
+  const hasBothTemps = forecast.tempMax != null && forecast.tempMin != null
+  const singleTempDisplay =
+    !hasBothTemps && forecast.tempMax != null
       ? `${Math.round(forecast.tempMax)}°`
-      : forecast.tempMin != null
+      : !hasBothTemps && forecast.tempMin != null
         ? `${Math.round(forecast.tempMin)}°`
         : null
+
+  const tempRange = hasBothTemps ? (
+    <TempRangeText>
+      <HighTemp>{Math.round(forecast.tempMax!)}°</HighTemp>
+      <LowTemp>{Math.round(forecast.tempMin!)}°</LowTemp>
+    </TempRangeText>
+  ) : singleTempDisplay ? (
+    <TempText>{singleTempDisplay}</TempText>
+  ) : null
 
   if (compact) {
     return (
       <BadgeWrapper>
         <span>{icon}</span>
-        {tempDisplay && <TempText>{tempDisplay}</TempText>}
+        {tempRange}
         {forecast.pop != null && <PopText>{forecast.pop}%</PopText>}
         {forecast.reliability && <ReliabilityDot $level={forecast.reliability} />}
       </BadgeWrapper>
@@ -80,7 +105,7 @@ export const ForecastBadge = memo(function ForecastBadge({ forecast, compact = f
   return (
     <BadgeWrapper>
       <span>{icon}</span>
-      {tempDisplay && <TempText>{tempDisplay}</TempText>}
+      {tempRange}
       {forecast.pop != null && <PopText>降水 {forecast.pop}%</PopText>}
       {forecast.reliability && <ReliabilityDot $level={forecast.reliability} />}
     </BadgeWrapper>
