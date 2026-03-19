@@ -47,9 +47,13 @@ export function CategoryBarSection({ sec, d }: CategoryBarSectionProps) {
     : 0
   // 分類別データが無いが実績（DailyRecord）がある場合のフォールバック表示
   const showActualFallback = bActualTotal === 0 && actualVal > 0 && d.isAmountMode
+  const showPrevFallback = bPrevTotal === 0 && pyVal > 0 && d.isAmountMode
+  const showWoWFallback = bWoWTotal === 0 && (wowPyVal ?? 0) > 0 && d.isAmountMode
   const effectiveActual = showActualFallback ? actualVal : bActualTotal
+  const effectivePrev = showPrevFallback ? pyVal : bPrevTotal
+  const effectiveWoW = showWoWFallback ? (wowPyVal ?? 0) : bWoWTotal
   const maxBar = d.isAmountMode
-    ? Math.max(budgetVal, effectiveActual, bPrevTotal, bWoWTotal, 1)
+    ? Math.max(budgetVal, effectiveActual, effectivePrev, effectiveWoW, 1)
     : Math.max(bActualTotal, bPrevTotal, bWoWTotal, 1)
 
   const tooltipFn = (
@@ -186,42 +190,54 @@ export function CategoryBarSection({ sec, d }: CategoryBarSectionProps) {
         <StackRow $active={isPrevActive} onClick={() => d.handleRowSelect(period, 'prev')}>
           <StackLabel>前年</StackLabel>
           <StackTrack>
-            {barItems.map((it) => {
-              const val = d.isAmountMode ? (it.prevAmount ?? 0) : (it.prevQuantity ?? 0)
-              if (val <= 0) return null
-              const pct = bPrevTotal > 0 ? (val / bPrevTotal) * 100 : 0
-              const segKey = `${prefix}p-${it.code}`
-              return (
-                <StackSegment
-                  key={it.code}
-                  $flex={val / maxBar}
-                  $color={it.color}
-                  style={{ opacity: 0.5, cursor: d.canDrill ? 'pointer' : 'default' }}
-                  onMouseEnter={(e) => {
-                    d.setHoveredSeg(segKey)
-                    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-                    d.setSegTooltip({
-                      x: rect.left + rect.width / 2,
-                      y: rect.top,
-                      content: tooltipFn(it, val, bPrevTotal, true, '前年'),
-                    })
-                  }}
-                  onMouseLeave={() => {
-                    d.setHoveredSeg(null)
-                    d.setSegTooltip(null)
-                  }}
-                  onDoubleClick={() => d.canDrill && d.handleDrill(it)}
-                >
-                  {pct >= 10 && (
-                    <SegLabel>
-                      {it.name} {pct.toFixed(2)}%
-                    </SegLabel>
-                  )}
-                </StackSegment>
-              )
-            })}
+            {showPrevFallback ? (
+              <StackSegment $flex={pyVal / maxBar} $color={palette.slate} style={{ opacity: 0.5 }}>
+                <SegLabel>分類未取込</SegLabel>
+              </StackSegment>
+            ) : (
+              barItems.map((it) => {
+                const val = d.isAmountMode ? (it.prevAmount ?? 0) : (it.prevQuantity ?? 0)
+                if (val <= 0) return null
+                const pct = bPrevTotal > 0 ? (val / bPrevTotal) * 100 : 0
+                const segKey = `${prefix}p-${it.code}`
+                return (
+                  <StackSegment
+                    key={it.code}
+                    $flex={val / maxBar}
+                    $color={it.color}
+                    style={{ opacity: 0.5, cursor: d.canDrill ? 'pointer' : 'default' }}
+                    onMouseEnter={(e) => {
+                      d.setHoveredSeg(segKey)
+                      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+                      d.setSegTooltip({
+                        x: rect.left + rect.width / 2,
+                        y: rect.top,
+                        content: tooltipFn(it, val, bPrevTotal, true, '前年'),
+                      })
+                    }}
+                    onMouseLeave={() => {
+                      d.setHoveredSeg(null)
+                      d.setSegTooltip(null)
+                    }}
+                    onDoubleClick={() => d.canDrill && d.handleDrill(it)}
+                  >
+                    {pct >= 10 && (
+                      <SegLabel>
+                        {it.name} {pct.toFixed(2)}%
+                      </SegLabel>
+                    )}
+                  </StackSegment>
+                )
+              })
+            )}
           </StackTrack>
-          <StackTotal>{d.isAmountMode ? d.fmtSen(bPrevTotal) : d.fmtVal(bPrevTotal)}</StackTotal>
+          <StackTotal>
+            {showPrevFallback
+              ? d.fmtSen(pyVal)
+              : d.isAmountMode
+                ? d.fmtSen(bPrevTotal)
+                : d.fmtVal(bPrevTotal)}
+          </StackTotal>
           {isPrevActive && <ActiveBadge>▼ 詳細</ActiveBadge>}
         </StackRow>
       )}
@@ -229,42 +245,58 @@ export function CategoryBarSection({ sec, d }: CategoryBarSectionProps) {
         <StackRow $active={isWoWActive} onClick={() => d.handleRowSelect(period, 'wow')}>
           <StackLabel>前週</StackLabel>
           <StackTrack>
-            {wowBarItems.map((it) => {
-              const val = d.isAmountMode ? (it.prevAmount ?? 0) : (it.prevQuantity ?? 0)
-              if (val <= 0) return null
-              const pct = bWoWTotal > 0 ? (val / bWoWTotal) * 100 : 0
-              const segKey = `${prefix}w-${it.code}`
-              return (
-                <StackSegment
-                  key={it.code}
-                  $flex={val / maxBar}
-                  $color={it.color}
-                  style={{ opacity: 0.5, cursor: d.canDrill ? 'pointer' : 'default' }}
-                  onMouseEnter={(e) => {
-                    d.setHoveredSeg(segKey)
-                    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-                    d.setSegTooltip({
-                      x: rect.left + rect.width / 2,
-                      y: rect.top,
-                      content: tooltipFn(it, val, bWoWTotal, true, '前週'),
-                    })
-                  }}
-                  onMouseLeave={() => {
-                    d.setHoveredSeg(null)
-                    d.setSegTooltip(null)
-                  }}
-                  onDoubleClick={() => d.canDrill && d.handleDrill(it)}
-                >
-                  {pct >= 10 && (
-                    <SegLabel>
-                      {it.name} {pct.toFixed(2)}%
-                    </SegLabel>
-                  )}
-                </StackSegment>
-              )
-            })}
+            {showWoWFallback ? (
+              <StackSegment
+                $flex={(wowPyVal ?? 0) / maxBar}
+                $color={palette.slate}
+                style={{ opacity: 0.5 }}
+              >
+                <SegLabel>分類未取込</SegLabel>
+              </StackSegment>
+            ) : (
+              wowBarItems.map((it) => {
+                const val = d.isAmountMode ? (it.prevAmount ?? 0) : (it.prevQuantity ?? 0)
+                if (val <= 0) return null
+                const pct = bWoWTotal > 0 ? (val / bWoWTotal) * 100 : 0
+                const segKey = `${prefix}w-${it.code}`
+                return (
+                  <StackSegment
+                    key={it.code}
+                    $flex={val / maxBar}
+                    $color={it.color}
+                    style={{ opacity: 0.5, cursor: d.canDrill ? 'pointer' : 'default' }}
+                    onMouseEnter={(e) => {
+                      d.setHoveredSeg(segKey)
+                      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+                      d.setSegTooltip({
+                        x: rect.left + rect.width / 2,
+                        y: rect.top,
+                        content: tooltipFn(it, val, bWoWTotal, true, '前週'),
+                      })
+                    }}
+                    onMouseLeave={() => {
+                      d.setHoveredSeg(null)
+                      d.setSegTooltip(null)
+                    }}
+                    onDoubleClick={() => d.canDrill && d.handleDrill(it)}
+                  >
+                    {pct >= 10 && (
+                      <SegLabel>
+                        {it.name} {pct.toFixed(2)}%
+                      </SegLabel>
+                    )}
+                  </StackSegment>
+                )
+              })
+            )}
           </StackTrack>
-          <StackTotal>{d.isAmountMode ? d.fmtSen(bWoWTotal) : d.fmtVal(bWoWTotal)}</StackTotal>
+          <StackTotal>
+            {showWoWFallback
+              ? d.fmtSen(wowPyVal ?? 0)
+              : d.isAmountMode
+                ? d.fmtSen(bWoWTotal)
+                : d.fmtVal(bWoWTotal)}
+          </StackTotal>
           {isWoWActive && <ActiveBadge>▼ 詳細</ActiveBadge>}
         </StackRow>
       )}
