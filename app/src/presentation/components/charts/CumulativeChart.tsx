@@ -13,10 +13,8 @@ import { ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend 
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
-import {
-  useDuckDBDailyCumulative,
-  type DailyCumulativeRow,
-} from '@/application/hooks/useDuckDBQuery'
+import { useDuckDBDailyCumulative } from '@/application/hooks/useDuckDBQuery'
+import { buildCumulativeChartData, computeCumulativeSummary } from './CumulativeChartLogic'
 import { useChartTheme, useCurrencyFormatter, toAxisYen } from './chartTheme'
 import { createChartTooltip } from './createChartTooltip'
 import { palette } from '@/presentation/theme/tokens'
@@ -30,20 +28,6 @@ interface Props {
   readonly duckDataVersion: number
   readonly currentDateRange: DateRange
   readonly selectedStoreIds: ReadonlySet<string>
-}
-
-interface ChartDataPoint {
-  readonly date: string
-  readonly daily: number
-  readonly cumulative: number
-}
-
-function buildChartData(rows: readonly DailyCumulativeRow[]): ChartDataPoint[] {
-  return rows.map((r) => ({
-    date: r.dateKey.slice(5), // MM-DD
-    daily: Math.round(r.dailySales),
-    cumulative: Math.round(r.cumulativeSales),
-  }))
 }
 
 export const CumulativeChart = memo(function CumulativeChart({
@@ -62,13 +46,12 @@ export const CumulativeChart = memo(function CumulativeChart({
     isLoading,
   } = useDuckDBDailyCumulative(duckConn, duckDataVersion, currentDateRange, selectedStoreIds)
 
-  const chartData = useMemo(() => (rows ? buildChartData(rows) : []), [rows])
-
-  const totalSales = chartData[chartData.length - 1]?.cumulative ?? 0
-  const avgDaily = chartData.length > 0 ? Math.round(totalSales / chartData.length) : 0
-  const subtitle = chartData.length > 0
-    ? `累計 ${fmt(totalSales)} | 日平均 ${fmt(avgDaily)} | ${chartData.length}日経過`
-    : undefined
+  const chartData = useMemo(() => (rows ? buildCumulativeChartData(rows) : []), [rows])
+  const summary = useMemo(() => computeCumulativeSummary(chartData), [chartData])
+  const subtitle =
+    summary.dayCount > 0
+      ? `累計 ${fmt(summary.totalSales)} | 日平均 ${fmt(summary.avgDaily)} | ${summary.dayCount}日経過`
+      : undefined
 
   if (error) {
     return (
@@ -145,9 +128,9 @@ export const CumulativeChart = memo(function CumulativeChart({
       </ResponsiveContainer>
 
       <SummaryRow>
-        <SummaryItem>累計: {fmt(totalSales)}</SummaryItem>
-        <SummaryItem>日平均: {fmt(avgDaily)}</SummaryItem>
-        <SummaryItem>対象日数: {chartData.length}日</SummaryItem>
+        <SummaryItem>累計: {fmt(summary.totalSales)}</SummaryItem>
+        <SummaryItem>日平均: {fmt(summary.avgDaily)}</SummaryItem>
+        <SummaryItem>対象日数: {summary.dayCount}日</SummaryItem>
       </SummaryRow>
     </ChartCard>
   )

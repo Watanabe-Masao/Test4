@@ -26,7 +26,14 @@ import {
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { ComparisonFrame, PrevYearScope } from '@/domain/models'
-import { useDuckDBYoyDaily, type YoyDailyRow } from '@/application/hooks/useDuckDBQuery'
+import { useDuckDBYoyDaily } from '@/application/hooks/useDuckDBQuery'
+import {
+  buildYoYChartData,
+  buildYoYWaterfallData,
+  computeYoYSummary,
+  type YoYChartDataPoint,
+  type WaterfallItem,
+} from './YoYChartLogic'
 import { useChartTheme, useCurrencyFormatter, toPct, toAxisYen } from './chartTheme'
 import { createChartTooltip } from './createChartTooltip'
 import { sc } from '@/presentation/theme/semanticColors'
@@ -57,95 +64,10 @@ interface Props {
   readonly prevYearScope?: PrevYearScope
 }
 
-interface ChartDataPoint {
-  readonly date: string
-  readonly curSales: number
-  readonly prevSales: number | null
-  readonly diff: number
-}
-
-interface WaterfallItem {
-  readonly name: string
-  readonly value: number
-  readonly base: number
-  readonly bar: number
-  readonly isTotal?: boolean
-}
-
-// ─── Data builders ────────────────────────────────────
-
-function buildChartData(rows: readonly YoyDailyRow[]): ChartDataPoint[] {
-  const dailyMap = new Map<string, { curSales: number; prevSales: number; hasPrev: boolean }>()
-
-  for (const row of rows) {
-    if (!row.curDateKey) continue
-    const existing = dailyMap.get(row.curDateKey) ?? {
-      curSales: 0,
-      prevSales: 0,
-      hasPrev: false,
-    }
-    existing.curSales += row.curSales
-    if (row.prevSales != null) {
-      existing.prevSales += row.prevSales
-      existing.hasPrev = true
-    }
-    dailyMap.set(row.curDateKey, existing)
-  }
-
-  return [...dailyMap.entries()]
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([dateKey, d]) => ({
-      date: dateKey.slice(5),
-      curSales: Math.round(d.curSales),
-      prevSales: d.hasPrev ? Math.round(d.prevSales) : null,
-      diff: Math.round(d.curSales - d.prevSales),
-    }))
-}
-
-function buildWaterfallData(chartData: readonly ChartDataPoint[]): WaterfallItem[] {
-  const totalPrev = chartData.reduce((s, d) => s + (d.prevSales ?? 0), 0)
-  const totalCur = chartData.reduce((s, d) => s + d.curSales, 0)
-
-  const items: WaterfallItem[] = []
-
-  // Start bar: previous year total
-  items.push({
-    name: '前年計',
-    value: totalPrev,
-    base: 0,
-    bar: totalPrev,
-    isTotal: true,
-  })
-
-  // Daily diffs as waterfall steps
-  let running = totalPrev
-  for (const day of chartData) {
-    const dayDiff = day.diff
-    items.push({
-      name: day.date,
-      value: dayDiff,
-      base: dayDiff >= 0 ? running : running + dayDiff,
-      bar: Math.abs(dayDiff),
-    })
-    running += dayDiff
-  }
-
-  // End bar: current year total
-  items.push({
-    name: '当年計',
-    value: totalCur,
-    base: 0,
-    bar: totalCur,
-    isTotal: true,
-  })
-
-  return items
-}
-
 // ─── Sub-components ───────────────────────────────────
 
 interface LineChartViewProps {
-  readonly chartData: readonly ChartDataPoint[]
+  readonly chartData: readonly YoYChartDataPoint[]
   readonly ct: ReturnType<typeof useChartTheme>
   readonly fmt: (v: number) => string
 }
@@ -154,7 +76,7 @@ const LineChartView = memo(function LineChartView({ chartData, ct, fmt }: LineCh
   return (
     <ResponsiveContainer width="100%" height={300}>
       <ComposedChart
-        data={chartData as ChartDataPoint[]}
+        data={chartData as YoYChartDataPoint[]}
         margin={{ top: 4, right: 20, left: 10, bottom: 4 }}
       >
         <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
@@ -290,11 +212,14 @@ export const YoYChart = memo(function YoYChart({
     error,
   } = useDuckDBYoyDaily(duckConn, duckDataVersion, frame, selectedStoreIds, prevYearScope)
 
-  const chartData = useMemo(() => (rows ? buildChartData(rows) : []), [rows])
+  const chartData = useMemo(() => (rows ? buildYoYChartData(rows) : []), [rows])
   const waterfallData = useMemo(
-    () => (viewMode === 'waterfall' && chartData.length > 0 ? buildWaterfallData(chartData) : []),
+    () =>
+      viewMode === 'waterfall' && chartData.length > 0 ? buildYoYWaterfallData(chartData) : [],
     [viewMode, chartData],
   )
+  const summary = useMemo(() => computeYoYSummary(chartData), [chartData])
+  const growthRateLabel = summary.growthRate != null ? toPct(summary.growthRate, 1) : '-'
 
   if (error) {
     return (
@@ -314,12 +239,6 @@ export const YoYChart = memo(function YoYChart({
   if (!duckConn || duckDataVersion === 0 || !frame || chartData.length === 0) {
     return <EmptyState>データをインポートしてください</EmptyState>
   }
-
-  // Summary
-  const totalCur = chartData.reduce((s, d) => s + d.curSales, 0)
-  const totalPrev = chartData.reduce((s, d) => s + (d.prevSales ?? 0), 0)
-  const totalDiff = totalCur - totalPrev
-  const growthRate = totalPrev > 0 ? toPct(totalDiff / totalPrev, 1) : '-'
 
   return (
     <Wrapper aria-label="前年比較">
@@ -347,11 +266,11 @@ export const YoYChart = memo(function YoYChart({
       )}
 
       <SummaryRow>
-        <SummaryItem>当年計: {fmt(totalCur)}</SummaryItem>
-        <SummaryItem>前年計: {fmt(totalPrev)}</SummaryItem>
-        <SummaryItem $accent={totalDiff >= 0 ? sc.positive : sc.negative}>
-          差分: {totalDiff >= 0 ? '+' : ''}
-          {fmt(totalDiff)} ({growthRate})
+        <SummaryItem>当年計: {fmt(summary.totalCur)}</SummaryItem>
+        <SummaryItem>前年計: {fmt(summary.totalPrev)}</SummaryItem>
+        <SummaryItem $accent={summary.totalDiff >= 0 ? sc.positive : sc.negative}>
+          差分: {summary.totalDiff >= 0 ? '+' : ''}
+          {fmt(summary.totalDiff)} ({growthRateLabel})
         </SummaryItem>
       </SummaryRow>
     </Wrapper>
