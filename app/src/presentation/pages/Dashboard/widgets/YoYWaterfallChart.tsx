@@ -188,7 +188,17 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
     ctx.selectedStoreIds,
     prevIsPrevYear,
   )
-  const periodPrevCTS = prevCtsResult.data ?? EMPTY_RECORDS
+  // フォールバック: 前年データが is_prev_year=false で格納されている場合
+  const prevCtsFallbackResult = useDuckDBCategoryTimeRecords(
+    ctx.duckConn,
+    ctx.duckDataVersion,
+    prevCtsDateRange,
+    ctx.selectedStoreIds,
+  )
+  const periodPrevCTS =
+    prevIsPrevYear && (prevCtsResult.data ?? []).length === 0
+      ? (prevCtsFallbackResult.data ?? EMPTY_RECORDS)
+      : (prevCtsResult.data ?? EMPTY_RECORDS)
 
   // Aggregate total quantity from filtered CTS records
   const curTotalQty = useMemo(

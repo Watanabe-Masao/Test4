@@ -189,7 +189,17 @@ export function DayDetailModal({
     storeIdsSet,
     true,
   )
-  const prevDayRecords = prevDayResult.data ?? EMPTY_RECORDS
+  // フォールバック: 前年データが is_prev_year=false で格納されている場合（前年運用時にインポート）
+  const prevDayFallbackResult = useDuckDBCategoryTimeRecords(
+    duckConn,
+    duckDataVersion,
+    prevDayRange,
+    storeIdsSet,
+  )
+  const prevDayRecords =
+    (prevDayResult.data ?? []).length > 0
+      ? (prevDayResult.data ?? EMPTY_RECORDS)
+      : (prevDayFallbackResult.data ?? EMPTY_RECORDS)
 
   // WoW用: 前週(day-7)のカテゴリレコード
   const wowPrevDayRange: DateRange | undefined = useMemo(
@@ -260,7 +270,16 @@ export function DayDetailModal({
     storeIdsSet,
     true,
   )
-  const cumPrevCategoryRecords = cumPrevResult.data ?? EMPTY_RECORDS
+  const cumPrevFallbackResult = useDuckDBCategoryTimeRecords(
+    duckConn,
+    duckDataVersion,
+    cumPrevDateRange,
+    storeIdsSet,
+  )
+  const cumPrevCategoryRecords =
+    (cumPrevResult.data ?? []).length > 0
+      ? (cumPrevResult.data ?? EMPTY_RECORDS)
+      : (cumPrevFallbackResult.data ?? EMPTY_RECORDS)
 
   return (
     <PinModalOverlay onClick={onClose}>
