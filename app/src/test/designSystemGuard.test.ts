@@ -198,7 +198,7 @@ describe('デザインシステムガード', () => {
   // ─── Recharts → ECharts 移行ガード ──────────────────
 
   /** Recharts import を持つチャート .tsx ファイル数の上限（凍結） */
-  const MAX_RECHARTS_FILES = 50
+  const MAX_RECHARTS_FILES = 8
 
   it('Recharts 使用チャート数が上限以下（新規チャートは ECharts 必須）', () => {
     const chartDir = path.join(PRESENTATION_DIR, 'components', 'charts')
