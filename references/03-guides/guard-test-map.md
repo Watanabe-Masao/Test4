@@ -6,7 +6,7 @@
 
 | テストファイル | 管理ロール | ルール数 | 保護対象 |
 |---|---|---|---|
-| `app/src/test/architectureGuard.test.ts` | architecture | 9件 | 4層境界、許可リスト、ビジネス関数アクセス |
+| `app/src/test/architectureGuard.test.ts` | architecture | 21件 | 4層境界、許可リスト（増加防止含む）、ビジネス関数アクセス、CQRS境界、Migration Countdown |
 | `app/src/domain/calculations/__tests__/calculationRules.test.ts` | invariant-guardian | 7件 | safeDivide, calculateTransactionValue, overflowDay, fmtSen, formatPercent, toPct |
 | `app/src/presentation/components/charts/__tests__/divisorRules.test.ts` | invariant-guardian | 8件 | computeDivisor, filterByStore, countDistinctDays, 正規ロケーション, 網羅性 |
 | `app/src/domain/calculations/__tests__/factorDecomposition.test.ts` | invariant-guardian | 30件 | シャープリー恒等式（2/3/5要素）、2↔3↔5 一貫性 |
@@ -16,7 +16,8 @@
 | `app/src/domain/calculations/__tests__/dowGapAnalysis.test.ts` | invariant-guardian | — | 曜日ギャップ分析の不変条件 |
 | `app/src/domain/calculations/__tests__/formulaRegistry.test.ts` | invariant-guardian | — | 計算式レジストリの整合性 |
 | `app/src/test/documentConsistency.test.ts` | documentation-steward | 12件 | 不変条件カタログ↔ガードテスト相互参照、エンジン責務↔実コード、CLAUDE.md 参照パス |
-| `app/src/test/hookComplexityGuard.test.ts` | architecture | 4件 | R3(@internal禁止), R3(typeofテスト禁止), R7(store算術式禁止), R10(カバレッジexport禁止) |
+| `app/src/test/hookComplexityGuard.test.ts` | architecture | 17件 | R1-R3,R5,R7,R10-R12: 純粋モジュール自動検出、useMemo/useState上限、行数制限（汎用上限方式）、facade分岐制限、副作用チェーン検出 |
+| `app/src/test/domainPurityGuard.test.ts` | architecture | 10件 | Domain純粋性、Presentation描画専用、Engine境界、率再計算禁止(#10)、facade責務混在検出、許可リスト増加防止 |
 | `app/src/test/comparisonMigrationGuard.test.ts` | architecture | 9件 | 旧 day/offset 比較パターン禁止、ComparisonFrame 新規使用禁止、dailyMapping 独自変換禁止 |
 | `app/src/domain/models/__tests__/ComparisonScopeInvariant.test.ts` | invariant-guardian | 3件 | ComparisonScope 意味論（候補窓、位置ベース、1:1対応） |
 | `app/src/application/comparison/__tests__/sameDowPoint.test.ts` | invariant-guardian | 7件 | SameDowPoint sourceDate 保持、月跨ぎ・年跨ぎ、合計整合性 |
@@ -35,6 +36,17 @@
 | — | 許可リストファイル実在確認 | INV-ARCH-06 |
 | — | presentation → domain/calculations 直接 import 禁止 | INV-ARCH-07 |
 | — | getDailyTotalCost 直接使用禁止 | INV-ARCH-08 |
+| — | 比較コンテキスト内部モジュール直接 import 禁止 | INV-ARCH-09 |
+| — | storage → duckdb/queries 依存禁止（書き戻し禁止） | INV-ARCH-10 |
+| — | presentation → duckdb 直接 import 禁止（DevTools除く） | INV-ARCH-11 |
+| — | CQRS: Query → Command 依存禁止 | INV-CMP-03 |
+| — | CQRS: Command → Query 依存禁止 | INV-CMP-04 |
+| — | features/ 間の直接 import 禁止（shared/ 経由） | INV-ARCH-12 |
+| — | APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST ≤16件 | INV-ALLOW-01 |
+| — | PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST ≤1件 | INV-ALLOW-02 |
+| — | INFRASTRUCTURE_TO_APPLICATION_ALLOWLIST ≤1件 | INV-ALLOW-03 |
+| — | Migration Countdown: DuckDB フック新規使用禁止 | — |
+| — | Migration Countdown: 許可リストサイズ ≤34 | — |
 
 ### calculationRules.test.ts（invariant-guardian ロール管理）
 
@@ -95,12 +107,44 @@
 
 ### hookComplexityGuard.test.ts（architecture ロール管理）
 
+per-file tracking を廃止し、層別汎用上限 + 除外リスト方式に移行済み。
+純粋モジュールチェックはファイル名パターン自動検出（`*Logic.ts`, `*.vm.ts`, `*Reducer.ts`, `*Builders.ts`）。
+Presentation Tier 登録制は廃止し、全 .tsx に 600行上限を適用。
+
 | ルール ID | 検証内容 | 不変条件 ID |
 |---|---|---|
 | R3 | hooks/ に @internal export がない | INV-HOOK-01 |
 | R3 | テストに typeof === 'function' アサーションがない | INV-HOOK-02 |
 | R7 | stores/ の set() コールバック内に算術式がない | INV-STORE-01 |
 | R10 | hooks/ の export にカバレッジ目的のコメントがない | INV-HOOK-03 |
+| R1 | 純粋モジュール（パターン自動検出）に React import がない | — |
+| R1 | domain/ と infrastructure/ の全ファイルは React-free（i18n除外） | — |
+| R1 | 分離先がある hook に build*/compute* 関数がない | — |
+| R11 | hooks/ useMemo ≤7、useState ≤6、行数 ≤300（allowlist あり） | — |
+| R12 | Presentation .tsx ≤600行（Tier 2 除外リストあり） | — |
+| — | Infrastructure .ts ≤400行（汎用上限 + 除外リスト） | — |
+| — | Domain .ts ≤300行（汎用上限 + 除外リスト） | — |
+| — | Application usecases .ts ≤400行（汎用上限 + 除外リスト） | — |
+| R5 | facade ファイルの if/switch ≤5 | — |
+| R2 | useEffect 内の fetch→store→cache 密結合禁止 | — |
+
+### domainPurityGuard.test.ts（architecture ロール管理）
+
+CLAUDE.md の設計原則・禁止事項のうち、import ベースでカバーされない
+コード内容ベースの構造制約を機械化。
+
+| ルール ID | 検証内容 | 不変条件 ID |
+|---|---|---|
+| — | domain/ で副作用 API 使用禁止（fetch, localStorage, window 等） | INV-PURE-01 |
+| — | domain/calculations/ で async/await 禁止 | INV-PURE-02 |
+| — | presentation/ .tsx で SQL 文字列埋め込み禁止 | INV-PURE-03 |
+| — | infrastructure/duckdb/queries/ → domain/calculations/ 依存禁止 | INV-ENGINE-01 |
+| — | *.vm.ts / *Logic.ts に Zustand/immer import 禁止 | INV-ENGINE-02 |
+| — | application/usecases/ に React hook import 禁止 | INV-ENGINE-03 |
+| 禁止#10 | presentation/ で率の直接計算禁止 | INV-RATE-01 |
+| — | facade ファイルで map/filter/reduce ≤5 | — |
+| — | domain/ 300行超ファイル数 ≤7 | — |
+| — | infrastructure/ 400行超ファイル数 ≤5 | — |
 
 ### comparisonMigrationGuard.test.ts（architecture ロール管理）
 
@@ -133,7 +177,7 @@
 
 ## 許可リスト管理
 
-### application → infrastructure 許可リスト（14件）
+### application → infrastructure 許可リスト（15件、上限16件）
 
 変更時は architecture ロールの承認が必要。
 

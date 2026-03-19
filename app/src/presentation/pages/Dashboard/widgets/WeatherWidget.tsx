@@ -163,7 +163,9 @@ export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetC
   // 前年時間別データのキャッシュ（キーは当年の dateKey）
   const [prevHourlyCache, setPrevHourlyCache] = useState<Record<string, HourlyState>>({})
 
-  const { policy, dowOffset } = ctx.comparisonFrame
+  // 天気データの前年比較は常に同月同日を使用する（天気は曜日に依存しない）
+  const weatherPolicy: AlignmentPolicy = 'sameDate'
+  const weatherDowOffset = 0
 
   /** 前年データ取得（実測日・予報日共通） */
   const fetchPrevYear = useCallback(
@@ -174,7 +176,7 @@ export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetC
       )
         return
       if (!location) return
-      const prev = resolvePrevYearDate(dateKey, policy, dowOffset)
+      const prev = resolvePrevYearDate(dateKey, weatherPolicy, weatherDowOffset)
       setPrevHourlyCache((c) => ({
         ...c,
         [dateKey]: { status: 'loading', records: [] },
@@ -197,7 +199,7 @@ export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetC
           }))
         })
     },
-    [prevHourlyCache, location, storeId, policy, dowOffset],
+    [prevHourlyCache, location, storeId],
   )
 
   /** 実測日クリック */
@@ -298,7 +300,9 @@ export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetC
 
   const modalHourly = modalDate ? hourlyCache[modalDate] : undefined
   const modalPrevHourly = modalDate ? prevHourlyCache[modalDate] : undefined
-  const modalPrevDate = modalDate ? resolvePrevYearDate(modalDate, policy, dowOffset) : null
+  const modalPrevDate = modalDate
+    ? resolvePrevYearDate(modalDate, weatherPolicy, weatherDowOffset)
+    : null
   // 実測日: 当年データがある場合。予報日: 前年データがあるか予報がある場合
   const modalCanShowModal =
     modalDate &&
@@ -378,7 +382,7 @@ export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetC
           records={modalHourly?.status === 'done' ? modalHourly.records : undefined}
           prevYearRecords={modalPrevHourly?.status === 'done' ? modalPrevHourly.records : undefined}
           prevYearDateKey={modalPrevDate?.dateKey}
-          comparisonPolicy={policy}
+          comparisonPolicy={weatherPolicy}
           forecast={modalForecast ?? undefined}
           onClose={handleModalClose}
         />

@@ -28,6 +28,9 @@ import {
   SummaryItem,
   SummaryLabel,
   SummaryValue,
+  WeatherIconSection,
+  WeatherIconRowWrapper,
+  WeatherIconRowLabel,
   WeatherIconRow,
   WeatherIconCell,
   WeatherIconEmoji,
@@ -145,9 +148,6 @@ export const HourlyWeatherModal = memo(function HourlyWeatherModal({
     [chartTheme],
   )
 
-  // 天気アイコン行のデータソース（実測日: 当年、予報日: 前年）
-  const iconRecords = hasRecords ? records : hasPrev ? prevYearRecords : []
-
   return (
     <ModalOverlay onClick={onClose}>
       <ModalContent onClick={(e) => e.stopPropagation()}>
@@ -245,20 +245,43 @@ export const HourlyWeatherModal = memo(function HourlyWeatherModal({
               </ResponsiveContainer>
             </ChartContainer>
 
-            {/* 時間帯別の天気アイコン行 */}
-            {iconRecords.length > 0 && (
-              <WeatherIconRow>
-                {iconRecords.map((r) => {
-                  const cat = categorizeWeatherCode(r.weatherCode)
-                  return (
-                    <WeatherIconCell key={r.hour}>
-                      <WeatherIconEmoji>{WEATHER_ICONS[cat]}</WeatherIconEmoji>
-                      <span>{String(r.hour).padStart(2, '0')}</span>
-                    </WeatherIconCell>
-                  )
-                })}
-              </WeatherIconRow>
-            )}
+            {/* 時間帯別の天気アイコン行（当年 + 前年） */}
+            <WeatherIconSection>
+              {hasRecords && (
+                <WeatherIconRowWrapper>
+                  <WeatherIconRowLabel>{dateKey.slice(0, 4)}</WeatherIconRowLabel>
+                  <WeatherIconRow>
+                    {records.map((r) => {
+                      const cat = categorizeWeatherCode(r.weatherCode)
+                      return (
+                        <WeatherIconCell key={r.hour}>
+                          <WeatherIconEmoji>{WEATHER_ICONS[cat]}</WeatherIconEmoji>
+                          <span>{String(r.hour).padStart(2, '0')}</span>
+                        </WeatherIconCell>
+                      )
+                    })}
+                  </WeatherIconRow>
+                </WeatherIconRowWrapper>
+              )}
+              {hasPrev && (
+                <WeatherIconRowWrapper>
+                  <WeatherIconRowLabel>
+                    {prevYearDateKey?.slice(0, 4) ?? '前年'}
+                  </WeatherIconRowLabel>
+                  <WeatherIconRow>
+                    {prevYearRecords.map((r) => {
+                      const cat = categorizeWeatherCode(r.weatherCode)
+                      return (
+                        <WeatherIconCell key={`prev-${r.hour}`}>
+                          <WeatherIconEmoji>{WEATHER_ICONS[cat]}</WeatherIconEmoji>
+                          <span>{String(r.hour).padStart(2, '0')}</span>
+                        </WeatherIconCell>
+                      )
+                    })}
+                  </WeatherIconRow>
+                </WeatherIconRowWrapper>
+              )}
+            </WeatherIconSection>
           </>
         )}
 
