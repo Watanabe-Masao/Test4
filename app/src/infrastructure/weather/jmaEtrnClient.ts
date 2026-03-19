@@ -66,6 +66,22 @@ async function fetchPrefectureMap(): Promise<ReadonlyMap<string, number>> {
 
 // ─── Station Resolution ─────────────────────────────
 
+/** viewPoint('s1','47893','高知',...) の onclick 文字列から観測所情報を抽出 */
+export function parseViewPointArgs(
+  onclick: string,
+): { stationType: 'a1' | 's1'; blockNo: string; stationName: string } | null {
+  const match = onclick.match(/viewPoint\s*\((.+)\)/)
+  if (!match) return null
+  const args = match[1].split(',').map((s) => s.trim().replace(/^'|'$/g, ''))
+  if (args.length < 3) return null
+  const as = args[0]
+  const bkNo = args[1]
+  const ch = args[2]
+  if (as !== 's1' && as !== 'a1') return null
+  if (!bkNo || !/^\d+$/.test(bkNo)) return null
+  return { stationType: as, blockNo: bkNo, stationName: ch.replace(/\s+/g, ' ').trim() }
+}
+
 async function fetchStationList(precNo: number): Promise<readonly EtrnStation[]> {
   const cached = cachedStationLists.get(precNo)
   if (cached) {
@@ -88,56 +104,94 @@ async function fetchStationList(precNo: number): Promise<readonly EtrnStation[]>
   )
   const doc = new DOMParser().parseFromString(html, 'text/html')
 
-  // 診断: href 付き要素を確認（パーサが空振りした場合の原因特定用）
+  // 診断: href/onclick 付き要素を確認（パーサが空振りした場合の原因特定用）
   const allHref = doc.querySelectorAll('area[href], a[href]')
-  if (allHref.length > 0) {
-    const sample = Array.from(allHref)
-      .slice(0, 10)
-      .map((el) => `<${el.tagName.toLowerCase()}> ${el.getAttribute('href')}`)
+  const allOnclick = doc.querySelectorAll('area[onclick], a[onclick]')
+  if (allHref.length > 0 || allOnclick.length > 0) {
+    const hrefSample = Array.from(allHref)
+      .slice(0, 5)
+      .map((el) => `<${el.tagName.toLowerCase()}> href=${el.getAttribute('href')}`)
       .join(' | ')
-    console.debug('[Weather:ETRN] prefecture href要素=%d sample: %s', allHref.length, sample)
+    const onclickSample = Array.from(allOnclick)
+      .slice(0, 3)
+      .map(
+        (el) =>
+          `<${el.tagName.toLowerCase()}> onclick=${el.getAttribute('onclick')?.slice(0, 80)}`,
+      )
+      .join(' | ')
+    console.debug(
+      '[Weather:ETRN] prefecture要素: href=%d onclick=%d hrefSample=[%s] onclickSample=[%s]',
+      allHref.length,
+      allOnclick.length,
+      hrefSample,
+      onclickSample,
+    )
   }
 
   const stations: EtrnStation[] = []
-  let links = doc.querySelectorAll('area[href*="daily_"], a[href*="daily_"]')
-  if (links.length === 0) {
-    // daily_ が見つからない場合、block_no を含む要素で代替
-    links = doc.querySelectorAll('area[href*="block_no"], a[href*="block_no"]')
-    if (links.length > 0)
-      console.debug('[Weather:ETRN] daily_ 空振り → block_no fallback: %d件', links.length)
+  const seen = new Set<string>()
+
+  // === Primary: viewPoint() onclick パース ===
+  const onclickElements = doc.querySelectorAll(
+    'area[onclick*="viewPoint"], a[onclick*="viewPoint"]',
+  )
+  for (const el of onclickElements) {
+    const onclick = el.getAttribute('onclick') ?? ''
+    const parsed = parseViewPointArgs(onclick)
+    if (!parsed) continue
+
+    const stationName =
+      parsed.stationName ||
+      (el.getAttribute('alt') || el.getAttribute('title') || '').replace(/\s+/g, ' ').trim()
+
+    if (stationName && parsed.blockNo && !seen.has(parsed.blockNo)) {
+      seen.add(parsed.blockNo)
+      stations.push({
+        precNo,
+        blockNo: parsed.blockNo,
+        stationType: parsed.stationType,
+        stationName,
+      })
+    }
   }
-  for (const link of links) {
-    const href = link.getAttribute('href') ?? ''
-    // daily_a1.php / daily_s1.php を探す。見つからなければ hourly_ や view/ も許容
-    const typeMatch = href.match(/(?:daily|hourly)_(a1|s1)\.php/) ?? href.match(/_(a1|s1)\.php/)
-    const blockMatch = href.match(/block_no=(\d+)/)
-    if (!blockMatch) continue
 
-    const blockNo = blockMatch[1]
-    // stationType 判定優先順位:
-    // 1. URL パスから検出（daily_s1.php 等）
-    // 2. block_no の桁数で推定（JMA慣例: 5桁=気象台s1, 4桁以下=AMeDAS a1）
-    const stationType: 'a1' | 's1' =
-      (typeMatch?.[1] as 'a1' | 's1') ?? (blockNo.length >= 5 ? 's1' : 'a1')
-    // <area> は void 要素なので alt/title 属性から名前を取得
-    const stationName = (
-      link.getAttribute('alt') ||
-      link.getAttribute('title') ||
-      link.textContent ||
-      ''
-    )
-      .replace(/\s+/g, ' ')
-      .trim()
+  // === Fallback: href ベースパース（JMA が HTML 構造を戻した場合の互換） ===
+  if (stations.length === 0) {
+    let links = doc.querySelectorAll('area[href*="daily_"], a[href*="daily_"]')
+    if (links.length === 0) {
+      links = doc.querySelectorAll('area[href*="block_no"], a[href*="block_no"]')
+      if (links.length > 0)
+        console.debug('[Weather:ETRN] onclick空振り → href block_no fallback: %d件', links.length)
+    }
+    for (const link of links) {
+      const href = link.getAttribute('href') ?? ''
+      const typeMatch =
+        href.match(/(?:daily|hourly)_(a1|s1)\.php/) ?? href.match(/_(a1|s1)\.php/)
+      const blockMatch = href.match(/block_no=(\d+)/)
+      if (!blockMatch) continue
 
-    if (stationName && blockNo) {
-      stations.push({ precNo, blockNo, stationType, stationName })
+      const blockNo = blockMatch[1]
+      const stationType: 'a1' | 's1' = (typeMatch?.[1] as 'a1' | 's1') ?? 'a1'
+      const stationName = (
+        link.getAttribute('alt') ||
+        link.getAttribute('title') ||
+        link.textContent ||
+        ''
+      )
+        .replace(/\s+/g, ' ')
+        .trim()
+
+      if (stationName && blockNo && !seen.has(blockNo)) {
+        seen.add(blockNo)
+        stations.push({ precNo, blockNo, stationType, stationName })
+      }
     }
   }
 
   console.debug(
-    '[Weather:ETRN] 観測所一覧: precNo=%d nodes=%d parsed=%d',
+    '[Weather:ETRN] 観測所一覧: precNo=%d onclick=%d parsed=%d',
     precNo,
-    links.length,
+    onclickElements.length,
     stations.length,
   )
   cachedStationLists.set(precNo, stations)
