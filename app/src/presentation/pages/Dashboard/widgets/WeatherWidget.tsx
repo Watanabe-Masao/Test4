@@ -14,7 +14,7 @@ import { useWeatherData } from '@/application/hooks/useWeather'
 import { useWeatherForecast } from '@/application/hooks/useWeatherForecast'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import type { DailySalesForCorrelation } from '@/application/hooks/useWeatherCorrelation'
-import type { HourlyWeatherRecord } from '@/domain/models'
+import type { HourlyWeatherRecord, AlignmentPolicy } from '@/domain/models'
 import { loadEtrnHourlyForStore } from '@/application/usecases/weather/WeatherLoadService'
 import { WeatherBadge } from '@/presentation/components/common/WeatherBadge'
 import { ForecastBadge } from '@/presentation/components/common/ForecastBadge'
@@ -99,6 +99,36 @@ interface HourlyState {
   readonly error?: string
 }
 
+/** 当年 dateKey から前年の対応日を算出する */
+function resolvePrevYearDate(
+  dateKey: string,
+  policy: AlignmentPolicy,
+  dowOffset: number,
+): { year: number; month: number; day: number; dateKey: string } {
+  const d = new Date(dateKey + 'T00:00:00')
+  if (policy === 'sameDayOfWeek') {
+    // 同曜日: 前年同日を基準に dowOffset 分ずらして同じ曜日に合わせる
+    const prevYearSameDate = new Date(d)
+    prevYearSameDate.setFullYear(d.getFullYear() - 1)
+    // dowOffset = (当年月初曜日 - 前年月初曜日 + 7) % 7 相当
+    // 前年の対応日 = 前年同日 - dowOffset
+    prevYearSameDate.setDate(prevYearSameDate.getDate() - dowOffset)
+    return {
+      year: prevYearSameDate.getFullYear(),
+      month: prevYearSameDate.getMonth() + 1,
+      day: prevYearSameDate.getDate(),
+      dateKey: prevYearSameDate.toISOString().slice(0, 10),
+    }
+  }
+  // sameDate: 単純に前年同月同日
+  const year = d.getFullYear() - 1
+  const month = d.getMonth() + 1
+  const day = d.getDate()
+  const mm = String(month).padStart(2, '0')
+  const dd = String(day).padStart(2, '0')
+  return { year, month, day, dateKey: `${year}-${mm}-${dd}` }
+}
+
 export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetContext }) {
   const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
 
@@ -129,43 +159,73 @@ export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetC
   // 時間別データの状態管理（モーダル表示）
   const [modalDate, setModalDate] = useState<string | null>(null)
   const [hourlyCache, setHourlyCache] = useState<Record<string, HourlyState>>({})
+  // 前年時間別データのキャッシュ（キーは当年の dateKey）
+  const [prevHourlyCache, setPrevHourlyCache] = useState<Record<string, HourlyState>>({})
+
+  const { policy, dowOffset } = ctx.comparisonFrame
 
   const handleDayClick = useCallback(
     (dateKey: string) => {
       setModalDate(dateKey)
 
-      if (hourlyCache[dateKey]?.status === 'done' || hourlyCache[dateKey]?.status === 'loading') {
-        return
-      }
-
       if (!location) return
 
-      const day = parseInt(dateKey.slice(8), 10)
+      // 当年データの取得
+      if (hourlyCache[dateKey]?.status !== 'done' && hourlyCache[dateKey]?.status !== 'loading') {
+        const day = parseInt(dateKey.slice(8), 10)
+        setHourlyCache((prev) => ({
+          ...prev,
+          [dateKey]: { status: 'loading', records: [] },
+        }))
+        loadEtrnHourlyForStore(storeId, location, ctx.year, ctx.month, [day])
+          .then((result) => {
+            setHourlyCache((prev) => ({
+              ...prev,
+              [dateKey]: { status: 'done', records: result.hourly },
+            }))
+          })
+          .catch((err) => {
+            setHourlyCache((prev) => ({
+              ...prev,
+              [dateKey]: {
+                status: 'error',
+                records: [],
+                error: err instanceof Error ? err.message : String(err),
+              },
+            }))
+          })
+      }
 
-      setHourlyCache((prev) => ({
-        ...prev,
-        [dateKey]: { status: 'loading', records: [] },
-      }))
-
-      loadEtrnHourlyForStore(storeId, location, ctx.year, ctx.month, [day])
-        .then((result) => {
-          setHourlyCache((prev) => ({
-            ...prev,
-            [dateKey]: { status: 'done', records: result.hourly },
-          }))
-        })
-        .catch((err) => {
-          setHourlyCache((prev) => ({
-            ...prev,
-            [dateKey]: {
-              status: 'error',
-              records: [],
-              error: err instanceof Error ? err.message : String(err),
-            },
-          }))
-        })
+      // 前年データの取得
+      if (
+        prevHourlyCache[dateKey]?.status !== 'done' &&
+        prevHourlyCache[dateKey]?.status !== 'loading'
+      ) {
+        const prev = resolvePrevYearDate(dateKey, policy, dowOffset)
+        setPrevHourlyCache((c) => ({
+          ...c,
+          [dateKey]: { status: 'loading', records: [] },
+        }))
+        loadEtrnHourlyForStore(storeId, location, prev.year, prev.month, [prev.day])
+          .then((result) => {
+            setPrevHourlyCache((c) => ({
+              ...c,
+              [dateKey]: { status: 'done', records: result.hourly },
+            }))
+          })
+          .catch((err) => {
+            setPrevHourlyCache((c) => ({
+              ...c,
+              [dateKey]: {
+                status: 'error',
+                records: [],
+                error: err instanceof Error ? err.message : String(err),
+              },
+            }))
+          })
+      }
     },
-    [hourlyCache, location, storeId, ctx.year, ctx.month],
+    [hourlyCache, prevHourlyCache, location, storeId, ctx.year, ctx.month, policy, dowOffset],
   )
 
   const handleModalClose = useCallback(() => setModalDate(null), [])
@@ -213,6 +273,8 @@ export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetC
   }
 
   const modalHourly = modalDate ? hourlyCache[modalDate] : undefined
+  const modalPrevHourly = modalDate ? prevHourlyCache[modalDate] : undefined
+  const modalPrevDate = modalDate ? resolvePrevYearDate(modalDate, policy, dowOffset) : null
 
   return (
     <Wrapper>
@@ -277,6 +339,9 @@ export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetC
         <HourlyWeatherModal
           dateKey={modalDate}
           records={modalHourly.records}
+          prevYearRecords={modalPrevHourly?.status === 'done' ? modalPrevHourly.records : undefined}
+          prevYearDateKey={modalPrevDate?.dateKey}
+          comparisonPolicy={policy}
           onClose={handleModalClose}
         />
       )}
