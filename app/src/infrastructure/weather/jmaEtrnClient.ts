@@ -115,8 +115,7 @@ async function fetchStationList(precNo: number): Promise<readonly EtrnStation[]>
     const onclickSample = Array.from(allOnclick)
       .slice(0, 3)
       .map(
-        (el) =>
-          `<${el.tagName.toLowerCase()}> onclick=${el.getAttribute('onclick')?.slice(0, 80)}`,
+        (el) => `<${el.tagName.toLowerCase()}> onclick=${el.getAttribute('onclick')?.slice(0, 80)}`,
       )
       .join(' | ')
     console.debug(
@@ -165,8 +164,7 @@ async function fetchStationList(precNo: number): Promise<readonly EtrnStation[]>
     }
     for (const link of links) {
       const href = link.getAttribute('href') ?? ''
-      const typeMatch =
-        href.match(/(?:daily|hourly)_(a1|s1)\.php/) ?? href.match(/_(a1|s1)\.php/)
+      const typeMatch = href.match(/(?:daily|hourly)_(a1|s1)\.php/) ?? href.match(/_(a1|s1)\.php/)
       const blockMatch = href.match(/block_no=(\d+)/)
       if (!blockMatch) continue
 
