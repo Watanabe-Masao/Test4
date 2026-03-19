@@ -7,10 +7,6 @@
 // ── Styled Components（styles ファイルから re-export） ──
 
 export {
-  ChartPanel,
-  ChartHeaderRow,
-  ChartPanelTitle,
-  ChartPanelSubtitle,
   ControlStrip,
   ControlItem,
   ControlItemLabel,

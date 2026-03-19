@@ -1,44 +1,5 @@
 import styled from 'styled-components'
 
-// ── レイアウト ──
-
-export const ChartPanel = styled.div`
-  width: 100%;
-  background: ${({ theme }) => theme.colors.bg3};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]}
-    ${({ theme }) => theme.spacing[4]};
-  box-shadow: ${({ theme }) => theme.shadows.sm};
-  transition: box-shadow ${({ theme }) => theme.transitions.fast}
-    ${({ theme }) => theme.transitions.ease};
-
-  &:hover {
-    box-shadow: ${({ theme }) => theme.shadows.md};
-  }
-`
-
-export const ChartHeaderRow = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: ${({ theme }) => theme.spacing[4]};
-  flex-wrap: wrap;
-  gap: ${({ theme }) => theme.spacing[2]};
-`
-
-export const ChartPanelTitle = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  color: ${({ theme }) => theme.colors.text2};
-`
-
-export const ChartPanelSubtitle = styled.div`
-  font-size: 0.6rem;
-  color: ${({ theme }) => theme.colors.text4};
-  margin-top: 2px;
-`
-
 // ── コントロール ──
 
 export const ControlStrip = styled.div`

@@ -11,10 +11,8 @@
  */
 import { memo } from 'react'
 import { useChartTheme, useCurrencyFormatter, toPct } from './chartTheme'
+import { ChartCard } from './ChartCard'
 import {
-  Wrapper,
-  Title,
-  Subtitle,
   MetricsRow,
   Metric,
   MetricLabel,
@@ -80,10 +78,7 @@ export const BudgetProgressCard = memo(function BudgetProgressCard({
         : `進捗率${toPct(progressRate)}、着地見込みが予算を大きく下回っています`
 
   return (
-    <Wrapper aria-label="予算進捗">
-      <Title>予算進捗</Title>
-      <Subtitle>{subtitle}</Subtitle>
-
+    <ChartCard title="予算進捗" subtitle={subtitle} ariaLabel="予算進捗">
       <MetricsRow>
         <Metric>
           <MetricLabel>実績累計</MetricLabel>
@@ -107,6 +102,6 @@ export const BudgetProgressCard = memo(function BudgetProgressCard({
           </MetricValue>
         </Metric>
       </MetricsRow>
-    </Wrapper>
+    </ChartCard>
   )
 })

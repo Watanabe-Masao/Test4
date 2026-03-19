@@ -12,7 +12,7 @@ import { toPct } from '../chartTheme'
 import { DualPeriodSlider } from '../DualPeriodSlider'
 import { useDualPeriodRange } from '../useDualPeriodRange'
 import type { DailyRecord } from '@/domain/models'
-import { Wrapper, Title } from './GrossProfitRateChart.styles'
+import { ChartCard } from '../ChartCard'
 import { chartFontSize } from '@/presentation/theme/tokens'
 import {
   buildGrossProfitRateViewModel,
@@ -165,8 +165,7 @@ export const GrossProfitRateChart = memo(function GrossProfitRateChart({
   )
 
   return (
-    <Wrapper aria-label="粗利率チャート">
-      <Title>粗利率推移（累計ベース）</Title>
+    <ChartCard title="粗利率推移（累計ベース）" ariaLabel="粗利率チャート">
       <EChart option={option} height={280} ariaLabel="粗利率チャート" />
       <DualPeriodSlider
         min={1}
@@ -179,6 +178,6 @@ export const GrossProfitRateChart = memo(function GrossProfitRateChart({
         onP2Change={onP2Change}
         p2Enabled={p2Enabled}
       />
-    </Wrapper>
+    </ChartCard>
   )
 })

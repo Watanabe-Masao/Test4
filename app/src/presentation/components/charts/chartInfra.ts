@@ -22,15 +22,7 @@ export {
 } from './chartTheme'
 export type { ChartTheme } from './chartTheme'
 export { ChartAnnotation } from './ChartAnnotation'
-export {
-  ChartTitle,
-  ChartViewToggle,
-  ChartViewBtn,
-  ChartViewSep,
-  ChartWrapper,
-  ChartHelpButton,
-  ChartGuidePanel,
-} from './ChartHeader'
+export { ChartHelpButton } from './ChartHeader'
 export { CHART_GUIDES } from './chartGuides'
 export type { ChartGuide } from './chartGuides'
 export { CrossChartSelectionProvider } from './CrossChartSelectionContext'
