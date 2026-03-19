@@ -1,46 +1,33 @@
+/**
+ * 客数×客単価 効率分析チャート (ECharts)
+ */
 import { useMemo, useState, memo } from 'react'
-import {
-  ScatterChart,
-  Scatter,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ZAxis,
-  ReferenceLine,
-  Legend,
-} from 'recharts'
-import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
-import { useChartTheme, toComma, toPct } from './chartTheme'
-import { createChartTooltip } from './createChartTooltip'
-import { ChartHelpButton } from './ChartHeader'
+import { useTheme } from 'styled-components'
+import type { AppTheme } from '@/presentation/theme/theme'
+import { toComma, toPct } from './chartTheme'
 import { CHART_GUIDES } from './chartGuides'
 import type { DailyRecord } from '@/domain/models'
 import { calculateTransactionValue } from '@/domain/calculations/utils'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
-import {
-  Wrapper,
-  HeaderRow,
-  Title,
-  QuadrantGrid,
-  QuadrantTag,
-  ViewToggle,
-  ViewBtn,
-} from './CustomerScatterChart.styles'
+import { SegmentedControl } from '@/presentation/components/common'
+import { ChartCard } from './ChartCard'
+import { ChartEmpty } from './ChartState'
+import { EChart, type EChartsOption } from './EChart'
+import { standardTooltip } from './echartsOptionBuilders'
+import { QuadrantGrid, QuadrantTag } from './CustomerScatterChart.styles'
 
 type AxisMode = 'absolute' | 'yoyChange'
 
 const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土'] as const
-
 const DOW_COLORS: Record<number, string> = {
-  0: '#ef4444', // 日 - red
-  1: '#6366f1', // 月 - indigo
-  2: '#f59e0b', // 火 - amber
-  3: '#10b981', // 水 - emerald
-  4: '#f97316', // 木 - orange
-  5: '#3b82f6', // 金 - blue
-  6: '#8b5cf6', // 土 - purple
+  0: '#ef4444', 1: '#6366f1', 2: '#f59e0b', 3: '#10b981',
+  4: '#f97316', 5: '#3b82f6', 6: '#8b5cf6',
 }
+
+const MODE_OPTIONS: readonly { value: AxisMode; label: string }[] = [
+  { value: 'absolute', label: '実数' },
+  { value: 'yoyChange', label: '前年比変化率' },
+]
 
 interface Props {
   daily: ReadonlyMap<number, DailyRecord>
@@ -51,410 +38,190 @@ interface Props {
 }
 
 export const CustomerScatterChart = memo(function CustomerScatterChart({
-  daily,
-  daysInMonth,
-  year,
-  month,
-  prevYearDaily,
+  daily, daysInMonth, year, month, prevYearDaily,
 }: Props) {
-  const ct = useChartTheme()
+  const theme = useTheme() as AppTheme
   const [axisMode, setAxisMode] = useState<AxisMode>('absolute')
   const hasPrev = !!prevYearDaily
 
-  const { scatterData, prevScatter, avgCustomers, avgTxValue, quadrantCounts, dowGroups } =
-    useMemo(() => {
-      const points: {
-        day: number
-        customers: number
-        txValue: number
-        sales: number
-        dow: number
-        dowLabel: string
-      }[] = []
-      const prevPoints: { day: number; customers: number; txValue: number; sales: number }[] = []
-      let totalCustomers = 0,
-        totalTxValue = 0,
-        count = 0
+  const { scatterData, prevScatter, avgCustomers, avgTxValue, quadrantCounts } = useMemo(() => {
+    const points: { day: number; customers: number; txValue: number; sales: number; dow: number }[] = []
+    const prevPoints: { day: number; customers: number; txValue: number; sales: number }[] = []
+    let totalC = 0, totalT = 0, count = 0
 
+    for (let d = 1; d <= daysInMonth; d++) {
+      const rec = daily.get(d)
+      const customers = rec?.customers ?? 0
+      if (customers <= 0) continue
+      const sales = rec?.sales ?? 0
+      const txValue = calculateTransactionValue(sales, customers)
+      const dow = new Date(year, month - 1, d).getDay()
+      points.push({ day: d, customers, txValue, sales, dow })
+      totalC += customers; totalT += txValue; count++
+    }
+
+    if (prevYearDaily) {
       for (let d = 1; d <= daysInMonth; d++) {
-        const rec = daily.get(d)
-        const customers = rec?.customers ?? 0
-        if (customers <= 0) continue
-        const sales = rec?.sales ?? 0
-        const txValue = calculateTransactionValue(sales, customers)
-        const date = new Date(year, month - 1, d)
-        const dow = date.getDay()
-        points.push({ day: d, customers, txValue, sales, dow, dowLabel: DOW_LABELS[dow] })
-        totalCustomers += customers
-        totalTxValue += txValue
-        count++
+        const prev = prevYearDaily.get(toDateKeyFromParts(year, month, d))
+        if (!prev?.customers || prev.customers <= 0) continue
+        prevPoints.push({ day: d, customers: prev.customers, txValue: calculateTransactionValue(prev.sales, prev.customers), sales: prev.sales })
       }
+    }
 
-      if (prevYearDaily) {
-        for (let d = 1; d <= daysInMonth; d++) {
-          const prev = prevYearDaily.get(toDateKeyFromParts(year, month, d))
-          if (!prev || !prev.customers || prev.customers <= 0) continue
-          const txVal = calculateTransactionValue(prev.sales, prev.customers)
-          prevPoints.push({ day: d, customers: prev.customers, txValue: txVal, sales: prev.sales })
-        }
-      }
+    const avgC = count > 0 ? totalC / count : 0
+    const avgT = count > 0 ? totalT / count : 0
+    let q1 = 0, q2 = 0, q3 = 0, q4 = 0
+    for (const p of points) {
+      if (p.customers >= avgC && p.txValue >= avgT) q1++
+      else if (p.customers < avgC && p.txValue >= avgT) q2++
+      else if (p.customers < avgC && p.txValue < avgT) q3++
+      else q4++
+    }
 
-      const avgC = count > 0 ? totalCustomers / count : 0
-      const avgT = count > 0 ? totalTxValue / count : 0
+    return { scatterData: points, prevScatter: prevPoints, avgCustomers: avgC, avgTxValue: avgT, quadrantCounts: { q1, q2, q3, q4 } }
+  }, [daily, daysInMonth, year, month, prevYearDaily])
 
-      // Quadrant counts
-      let q1 = 0,
-        q2 = 0,
-        q3 = 0,
-        q4 = 0
-      for (const p of points) {
-        if (p.customers >= avgC && p.txValue >= avgT) q1++
-        else if (p.customers < avgC && p.txValue >= avgT) q2++
-        else if (p.customers < avgC && p.txValue < avgT) q3++
-        else q4++
-      }
-
-      // Group by day-of-week for legend
-      const dowGrp = new Map<number, typeof points>()
-      for (const p of points) {
-        const existing = dowGrp.get(p.dow)
-        if (existing) existing.push(p)
-        else dowGrp.set(p.dow, [p])
-      }
-
-      return {
-        scatterData: points,
-        prevScatter: prevPoints,
-        avgCustomers: avgC,
-        avgTxValue: avgT,
-        quadrantCounts: { q1, q2, q3, q4 },
-        dowGroups: dowGrp,
-      }
-    }, [daily, daysInMonth, year, month, prevYearDaily])
-
-  // 前年比変化率データ（axisMode === 'yoyChange' 用）
-  const { yoyData, avgCustChange, avgTxChange, yoyQuadrants, yoyDowGroups } = useMemo(() => {
-    if (!prevYearDaily)
-      return {
-        yoyData: [],
-        avgCustChange: 0,
-        avgTxChange: 0,
-        yoyQuadrants: { q1: 0, q2: 0, q3: 0, q4: 0 },
-        yoyDowGroups: new Map<number, typeof yoyPts>(),
-      }
-    const yoyPts: {
-      day: number
-      custChange: number
-      txChange: number
-      sales: number
-      dow: number
-      dowLabel: string
-    }[] = []
-    let totalCustC = 0,
-      totalTxC = 0,
-      cnt = 0
+  const { yoyData, yoyQuadrants } = useMemo(() => {
+    if (!prevYearDaily) return { yoyData: [], yoyQuadrants: { q1: 0, q2: 0, q3: 0, q4: 0 } }
+    const pts: { day: number; custChange: number; txChange: number; sales: number; dow: number }[] = []
     for (let d = 1; d <= daysInMonth; d++) {
       const rec = daily.get(d)
       const customers = rec?.customers ?? 0
       if (customers <= 0) continue
       const prevEntry = prevYearDaily.get(toDateKeyFromParts(year, month, d))
-      if (!prevEntry || !prevEntry.customers || prevEntry.customers <= 0) continue
+      if (!prevEntry?.customers || prevEntry.customers <= 0) continue
       const txValue = calculateTransactionValue(rec?.sales ?? 0, customers)
       const prevTxValue = calculateTransactionValue(prevEntry.sales, prevEntry.customers)
-      const custChange = (customers - prevEntry.customers) / prevEntry.customers
-      const txChange = prevTxValue > 0 ? (txValue - prevTxValue) / prevTxValue : 0
-      const date = new Date(year, month - 1, d)
-      const dow = date.getDay()
-      yoyPts.push({
+      pts.push({
         day: d,
-        custChange,
-        txChange,
+        custChange: (customers - prevEntry.customers) / prevEntry.customers,
+        txChange: prevTxValue > 0 ? (txValue - prevTxValue) / prevTxValue : 0,
         sales: rec?.sales ?? 0,
-        dow,
-        dowLabel: DOW_LABELS[dow],
+        dow: new Date(year, month - 1, d).getDay(),
       })
-      totalCustC += custChange
-      totalTxC += txChange
-      cnt++
     }
-    const avgCC = cnt > 0 ? totalCustC / cnt : 0
-    const avgTC = cnt > 0 ? totalTxC / cnt : 0
-    let q1 = 0,
-      q2 = 0,
-      q3 = 0,
-      q4 = 0
-    for (const p of yoyPts) {
+    let q1 = 0, q2 = 0, q3 = 0, q4 = 0
+    for (const p of pts) {
       if (p.custChange >= 0 && p.txChange >= 0) q1++
       else if (p.custChange < 0 && p.txChange >= 0) q2++
       else if (p.custChange < 0 && p.txChange < 0) q3++
       else q4++
     }
-    const grp = new Map<number, typeof yoyPts>()
-    for (const p of yoyPts) {
-      const existing = grp.get(p.dow)
-      if (existing) existing.push(p)
-      else grp.set(p.dow, [p])
-    }
-    return {
-      yoyData: yoyPts,
-      avgCustChange: avgCC,
-      avgTxChange: avgTC,
-      yoyQuadrants: { q1, q2, q3, q4 },
-      yoyDowGroups: grp,
-    }
+    return { yoyData: pts, yoyQuadrants: { q1, q2, q3, q4 } }
   }, [daily, daysInMonth, year, month, prevYearDaily])
 
   const isYoy = axisMode === 'yoyChange' && yoyData.length > 0
 
+  const option = useMemo<EChartsOption>(() => {
+    const dataSource: readonly { day: number; sales: number; dow: number; [k: string]: number }[] =
+      isYoy ? yoyData : scatterData
+    const xKey = isYoy ? 'custChange' : 'customers'
+    const yKey = isYoy ? 'txChange' : 'txValue'
+
+    // Group by DOW
+    const dowMap = new Map<number, typeof dataSource[number][]>()
+    for (const p of dataSource) {
+      const existing = dowMap.get(p.dow)
+      if (existing) existing.push(p)
+      else dowMap.set(p.dow, [p])
+    }
+
+    const series: EChartsOption['series'] = []
+
+    // Prev year scatter (absolute mode only)
+    if (!isYoy && prevScatter.length > 0) {
+      series.push({
+        name: '前年',
+        type: 'scatter',
+        data: prevScatter.map((p) => ({ value: [p.customers, p.txValue], symbolSize: Math.max(4, Math.sqrt(p.sales / 5000)) })),
+        itemStyle: { color: theme.colors.palette.slate, opacity: 0.25 },
+        symbolSize: 6,
+      })
+    }
+
+    // DOW-colored series
+    for (const [dow, points] of dowMap) {
+      series.push({
+        name: DOW_LABELS[dow],
+        type: 'scatter',
+        data: points.map((p) => ({
+          value: [(p as Record<string, number>)[xKey], (p as Record<string, number>)[yKey]],
+          symbolSize: Math.max(6, Math.min(20, Math.sqrt(p.sales / 5000))),
+        })),
+        itemStyle: { color: DOW_COLORS[dow], opacity: 0.75 },
+      })
+    }
+
+    const refLines = isYoy
+      ? [
+          { xAxis: 0, lineStyle: { color: theme.colors.palette.slate, type: 'dashed' as const, opacity: 0.8 } },
+          { yAxis: 0, lineStyle: { color: theme.colors.palette.slate, type: 'dashed' as const, opacity: 0.8 } },
+        ]
+      : [
+          { xAxis: avgCustomers, lineStyle: { color: theme.colors.palette.slate, type: 'dashed' as const, opacity: 0.6 } },
+          { yAxis: avgTxValue, lineStyle: { color: theme.colors.palette.slate, type: 'dashed' as const, opacity: 0.6 } },
+        ]
+
+    if (series.length > 0) {
+      (series[series.length - 1] as Record<string, unknown>).markLine = { data: refLines, symbol: 'none', label: { show: false } }
+    }
+
+    return {
+      grid: { left: 60, right: 30, top: 20, bottom: 40 },
+      tooltip: {
+        ...standardTooltip(theme),
+        formatter: (params: unknown) => {
+          const p = params as { data: { value: [number, number] }; seriesName: string }
+          const [x, y] = p.data.value
+          if (isYoy) return `${p.seriesName}<br/>客数変化: ${toPct(x)}<br/>単価変化: ${toPct(y)}`
+          return `${p.seriesName}<br/>客数: ${toComma(x)}人<br/>客単価: ${toComma(y)}円`
+        },
+      },
+      legend: { textStyle: { color: theme.colors.text3, fontSize: 10 }, bottom: 0 },
+      xAxis: {
+        type: 'value',
+        name: isYoy ? '客数 前年比変化率' : '客数（人）',
+        nameLocation: 'center',
+        nameGap: 25,
+        axisLabel: { color: theme.colors.text3, fontSize: 10, formatter: isYoy ? (v: number) => toPct(v, 0) : undefined },
+        splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
+      },
+      yAxis: {
+        type: 'value',
+        name: isYoy ? '客単価 前年比変化率' : '客単価（円）',
+        nameLocation: 'center',
+        nameGap: 45,
+        axisLabel: {
+          color: theme.colors.text3,
+          fontSize: 10,
+          formatter: isYoy ? (v: number) => toPct(v, 0) : (v: number) => `${toComma(v)}円`,
+        },
+        axisLine: { show: false },
+        splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
+      },
+      series,
+    }
+  }, [isYoy, scatterData, yoyData, prevScatter, avgCustomers, avgTxValue, theme])
+
   if (scatterData.length === 0) {
-    return (
-      <Wrapper aria-label="客数散布図チャート">
-        <HeaderRow>
-          <Title>客数×客単価 効率分析</Title>
-        </HeaderRow>
-        <div
-          style={{
-            padding: '40px',
-            textAlign: 'center',
-            color: ct.textMuted,
-            fontSize: ct.fontSize.sm,
-          }}
-        >
-          客数データがありません
-        </div>
-      </Wrapper>
-    )
+    return <ChartCard title="客数×客単価 効率分析" guide={CHART_GUIDES['customer-scatter']}><ChartEmpty message="客数データがありません" /></ChartCard>
   }
 
+  const qc = isYoy ? yoyQuadrants : quadrantCounts
+  const qLabels = isYoy
+    ? [`客数↑単価↑: ${qc.q1}日`, `客数↓単価↑: ${qc.q2}日`, `客数↑単価↓: ${qc.q4}日`, `客数↓単価↓: ${qc.q3}日`]
+    : [`高客数+高単価: ${qc.q1}日`, `低客数+高単価: ${qc.q2}日`, `高客数+低単価: ${qc.q4}日`, `低客数+低単価: ${qc.q3}日`]
+  const qColors = [theme.chart.barPositive, theme.colors.palette.infoDark, theme.colors.palette.warningDark, theme.chart.barNegative]
+
+  const title = isYoy ? '前年比 客数変化率×客単価変化率' : '客数×客単価 効率分析'
+  const toolbar = hasPrev ? <SegmentedControl options={MODE_OPTIONS} value={axisMode} onChange={setAxisMode} ariaLabel="軸モード" /> : undefined
+
   return (
-    <Wrapper aria-label="客数散布図チャート">
-      <HeaderRow>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <Title>
-            {isYoy
-              ? '前年比 客数変化率×客単価変化率（バブルサイズ = 売上額 / 色 = 曜日）'
-              : '客数×客単価 効率分析（バブルサイズ = 売上額 / 色 = 曜日）'}
-          </Title>
-          <ChartHelpButton guide={CHART_GUIDES['customer-scatter']} />
-        </div>
-        {hasPrev && (
-          <ViewToggle>
-            <ViewBtn $active={axisMode === 'absolute'} onClick={() => setAxisMode('absolute')}>
-              実数
-            </ViewBtn>
-            <ViewBtn $active={axisMode === 'yoyChange'} onClick={() => setAxisMode('yoyChange')}>
-              前年比変化率
-            </ViewBtn>
-          </ViewToggle>
-        )}
-      </HeaderRow>
+    <ChartCard title={title} subtitle="バブルサイズ = 売上額 / 色 = 曜日" guide={CHART_GUIDES['customer-scatter']} toolbar={toolbar}>
       <QuadrantGrid>
-        {isYoy ? (
-          <>
-            <QuadrantTag $color={ct.colors.success}>客数↑単価↑: {yoyQuadrants.q1}日</QuadrantTag>
-            <QuadrantTag $color={ct.colors.info}>客数↓単価↑: {yoyQuadrants.q2}日</QuadrantTag>
-            <QuadrantTag $color={ct.colors.warning}>客数↑単価↓: {yoyQuadrants.q4}日</QuadrantTag>
-            <QuadrantTag $color={ct.colors.danger}>客数↓単価↓: {yoyQuadrants.q3}日</QuadrantTag>
-          </>
-        ) : (
-          <>
-            <QuadrantTag $color={ct.colors.success}>
-              高客数+高単価: {quadrantCounts.q1}日
-            </QuadrantTag>
-            <QuadrantTag $color={ct.colors.info}>低客数+高単価: {quadrantCounts.q2}日</QuadrantTag>
-            <QuadrantTag $color={ct.colors.warning}>
-              高客数+低単価: {quadrantCounts.q4}日
-            </QuadrantTag>
-            <QuadrantTag $color={ct.colors.danger}>
-              低客数+低単価: {quadrantCounts.q3}日
-            </QuadrantTag>
-          </>
-        )}
+        {qLabels.map((label, i) => <QuadrantTag key={i} $color={qColors[i]}>{label}</QuadrantTag>)}
       </QuadrantGrid>
-      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="82%">
-        <ScatterChart margin={{ top: 8, right: 20, left: 8, bottom: 8 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
-          {isYoy ? (
-            <>
-              <XAxis
-                dataKey="custChange"
-                type="number"
-                name="客数変化率"
-                tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-                axisLine={{ stroke: ct.grid }}
-                tickLine={false}
-                tickFormatter={(v: number) => toPct(v, 0)}
-                label={{
-                  value: '客数 前年比変化率',
-                  position: 'insideBottomRight',
-                  offset: -5,
-                  fontSize: ct.fontSize.xs,
-                  fill: ct.textMuted,
-                }}
-              />
-              <YAxis
-                dataKey="txChange"
-                type="number"
-                name="客単価変化率"
-                tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-                axisLine={false}
-                tickLine={false}
-                tickFormatter={(v: number) => toPct(v, 0)}
-                width={55}
-                label={{
-                  value: '客単価 前年比変化率',
-                  angle: -90,
-                  position: 'insideLeft',
-                  offset: 10,
-                  fontSize: ct.fontSize.xs,
-                  fill: ct.textMuted,
-                }}
-              />
-            </>
-          ) : (
-            <>
-              <XAxis
-                dataKey="customers"
-                type="number"
-                name="客数"
-                tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-                axisLine={{ stroke: ct.grid }}
-                tickLine={false}
-                label={{
-                  value: '客数（人）',
-                  position: 'insideBottomRight',
-                  offset: -5,
-                  fontSize: ct.fontSize.xs,
-                  fill: ct.textMuted,
-                }}
-              />
-              <YAxis
-                dataKey="txValue"
-                type="number"
-                name="客単価"
-                tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-                axisLine={false}
-                tickLine={false}
-                tickFormatter={(v: number) => `${toComma(v)}円`}
-                width={60}
-                label={{
-                  value: '客単価（円）',
-                  angle: -90,
-                  position: 'insideLeft',
-                  offset: 10,
-                  fontSize: ct.fontSize.xs,
-                  fill: ct.textMuted,
-                }}
-              />
-            </>
-          )}
-          <ZAxis dataKey="sales" range={[40, 400]} name="売上" />
-          <Tooltip
-            content={createChartTooltip({
-              ct,
-              formatter: (value, name) => {
-                if (name === '客数') return [`${toComma(value as number)}人`, name]
-                if (name === '客単価') return [`${toComma(value as number)}円`, name]
-                if (name === '客数変化率' || name === '客単価変化率')
-                  return [toPct(value as number), name]
-                if (name === '売上') return [toComma(value as number), name]
-                return [String(value), String(name)]
-              },
-              labelFormatter: (_label, payload) => {
-                if (payload && payload.length > 0) {
-                  const p = payload[0] as unknown as {
-                    payload: { day?: number; dowLabel?: string }
-                  }
-                  return p.payload?.day != null
-                    ? `${p.payload.day}日（${p.payload.dowLabel ?? ''}）`
-                    : ''
-                }
-                return ''
-              },
-            })}
-          />
-          {/* Average / zero reference lines */}
-          {isYoy ? (
-            <>
-              <ReferenceLine
-                x={0}
-                stroke={ct.colors.slate}
-                strokeDasharray="6 4"
-                strokeOpacity={0.8}
-              />
-              <ReferenceLine
-                y={0}
-                stroke={ct.colors.slate}
-                strokeDasharray="6 4"
-                strokeOpacity={0.8}
-              />
-              <ReferenceLine
-                x={avgCustChange}
-                stroke={ct.colors.info}
-                strokeDasharray="3 3"
-                strokeOpacity={0.4}
-              />
-              <ReferenceLine
-                y={avgTxChange}
-                stroke={ct.colors.info}
-                strokeDasharray="3 3"
-                strokeOpacity={0.4}
-              />
-            </>
-          ) : (
-            <>
-              <ReferenceLine
-                x={avgCustomers}
-                stroke={ct.colors.slate}
-                strokeDasharray="6 4"
-                strokeOpacity={0.6}
-              />
-              <ReferenceLine
-                y={avgTxValue}
-                stroke={ct.colors.slate}
-                strokeDasharray="6 4"
-                strokeOpacity={0.6}
-              />
-            </>
-          )}
-
-          {/* Previous year scatter (gray, smaller) — only in absolute mode */}
-          {!isYoy && prevScatter.length > 0 && (
-            <Scatter
-              name="前年"
-              data={prevScatter}
-              fill={ct.colors.slate}
-              fillOpacity={0.25}
-              shape="circle"
-            />
-          )}
-
-          {/* Scatter by day-of-week */}
-          {isYoy
-            ? Array.from(yoyDowGroups.entries()).map(([dow, points]) => (
-                <Scatter
-                  key={dow}
-                  name={DOW_LABELS[dow]}
-                  data={points}
-                  fill={DOW_COLORS[dow]}
-                  fillOpacity={0.75}
-                  shape="circle"
-                />
-              ))
-            : Array.from(dowGroups.entries()).map(([dow, points]) => (
-                <Scatter
-                  key={dow}
-                  name={DOW_LABELS[dow]}
-                  data={points}
-                  fill={DOW_COLORS[dow]}
-                  fillOpacity={0.75}
-                  shape="circle"
-                />
-              ))}
-
-          <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
-        </ScatterChart>
-      </ResponsiveContainer>
-    </Wrapper>
+      <EChart option={option} height={320} ariaLabel="客数散布図チャート" />
+    </ChartCard>
   )
 })
