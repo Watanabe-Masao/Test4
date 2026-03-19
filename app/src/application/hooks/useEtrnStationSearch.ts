@@ -54,7 +54,9 @@ export function useEtrnStationSearch(): UseEtrnStationSearchResult {
     }
     setIsSearching(true)
     try {
-      const results = await searchStationsByPrefecture(prefectureName)
+      const all = await searchStationsByPrefecture(prefectureName)
+      // 気象台・測候所（s1）のみ表示。AMeDAS（a1）は観測要素が不十分なため除外
+      const results = all.filter((s) => s.stationType === 's1')
       setStations(results)
     } catch {
       setStations([])
