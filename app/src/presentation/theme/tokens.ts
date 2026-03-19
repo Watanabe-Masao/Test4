@@ -133,18 +133,21 @@ export const spacing = {
 
 // ─── ボーダー ────────────────────────────────────────────
 export const radii = {
-  sm: '4px',
-  md: '7px',
-  lg: '8px',
-  xl: '10px',
+  sm: '6px',
+  md: '10px',
+  lg: '12px',
+  xl: '16px',
   pill: '999px',
 } as const
 
 // ─── シャドウ ──────────────────────────────────────────────
 export const shadows = {
-  sm: '0 1px 2px rgba(0,0,0,0.05)',
-  md: '0 2px 8px rgba(0,0,0,0.08)',
-  lg: '0 4px 16px rgba(0,0,0,0.12)',
+  /** カード静止状態 — ほぼ平面、微かな奥行き */
+  sm: '0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03)',
+  /** カードホバー — 浮き上がり */
+  md: '0 4px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)',
+  /** モーダル・ポップオーバー — 明確な浮遊 */
+  lg: '0 8px 32px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.05)',
 } as const
 
 // ─── z-index 階層 ────────────────────────────────────────
@@ -172,15 +175,31 @@ export const modal = {
   },
   /** モーダル最大高さ */
   maxHeight: '80vh',
-  /** 背景ぼかし */
-  backdropBlur: '4px',
+  /** オーバーレイ背景ぼかし */
+  backdropBlur: '12px',
+  /** モーダルコンテナ自体のフロスト効果 */
+  containerBlur: '20px',
 } as const
 
 // ─── トランジション ──────────────────────────────────────
 export const transitions = {
-  fast: '0.2s',
-  normal: '0.3s',
+  fast: '0.15s',
+  normal: '0.25s',
   slow: '0.35s',
+  /** ホバー/フォーカス用イージング */
+  ease: 'cubic-bezier(0.4, 0, 0.2, 1)',
+  /** 弾む動き（モーダル表示など） */
+  spring: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+} as const
+
+// ─── 操作フィードバック ──────────────────────────────────
+export const interaction = {
+  /** カードホバー時の浮き上がり量 */
+  hoverLift: 'translateY(-1px)',
+  /** プレス時の沈み込み量 */
+  pressScale: 'scale(0.98)',
+  /** フォーカスリング */
+  focusRing: '0 0 0 2px rgba(99,102,241,0.4)',
 } as const
 
 // ─── レイアウト ──────────────────────────────────────────
@@ -208,8 +227,8 @@ export const chartFontSize = {
 // ─── ECharts 用スタイルトークン ───────────────────────────
 export const chartStyles = {
   opacity: {
-    bar: 0.7,
-    area: 0.15,
+    bar: 0.82,
+    area: 0.18,
     areaSubtle: 0.08,
     ghost: 0.3,
   },
@@ -220,10 +239,10 @@ export const chartStyles = {
   },
   barRadius: {
     /** 垂直バー: 上辺のみ丸め */
-    standard: [2, 2, 0, 0] as readonly [number, number, number, number],
-    rounded: [3, 3, 0, 0] as readonly [number, number, number, number],
+    standard: [4, 4, 0, 0] as readonly [number, number, number, number],
+    rounded: [6, 6, 0, 0] as readonly [number, number, number, number],
     /** 水平バー: 右辺のみ丸め */
-    horizontal: [0, 2, 2, 0] as readonly [number, number, number, number],
+    horizontal: [0, 4, 4, 0] as readonly [number, number, number, number],
   },
   barWidth: {
     narrow: 6,

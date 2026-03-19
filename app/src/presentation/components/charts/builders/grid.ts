@@ -12,7 +12,7 @@ export const gridPresets = {
     left: 10,
     right: 20,
     top: 30,
-    bottom: 10,
+    bottom: 20,
     containLabel: true,
   },
   /** コンパクト（小型チャート、ダッシュボードウィジェット向け） */
@@ -20,7 +20,7 @@ export const gridPresets = {
     left: 5,
     right: 10,
     top: 20,
-    bottom: 5,
+    bottom: 14,
     containLabel: true,
   },
   /** 水平バー（左にカテゴリラベルのスペース確保） */
@@ -28,7 +28,7 @@ export const gridPresets = {
     left: 10,
     right: 20,
     top: 10,
-    bottom: 10,
+    bottom: 16,
     containLabel: true,
   },
   /** ヒートマップ（左右にラベル、containLabel 無効） */

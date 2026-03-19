@@ -44,19 +44,29 @@ export const Button = styled.button<{ $variant?: ButtonVariant; $fullWidth?: boo
   font-size: ${({ theme }) => theme.typography.fontSize.sm};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   cursor: pointer;
-  transition: all ${({ theme }) => theme.transitions.fast};
+  transition:
+    opacity ${({ theme }) => theme.transitions.fast} ${({ theme }) => theme.transitions.ease},
+    transform ${({ theme }) => theme.transitions.fast} ${({ theme }) => theme.transitions.ease},
+    box-shadow ${({ theme }) => theme.transitions.fast} ${({ theme }) => theme.transitions.ease};
   width: ${({ $fullWidth }) => ($fullWidth ? '100%' : 'auto')};
 
   ${({ $variant = 'primary' }) => variantStyles[$variant]}
 
   &:hover:not(:disabled) {
     opacity: 0.9;
-    transform: translateY(-1px);
+    transform: ${({ theme }) => theme.interaction.hoverLift};
+    box-shadow: ${({ theme }) => theme.shadows.md};
+  }
+
+  &:active:not(:disabled) {
+    transform: ${({ theme }) => theme.interaction.pressScale};
+    box-shadow: none;
+    opacity: 0.95;
   }
 
   &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
-    outline-offset: 2px;
+    outline: none;
+    box-shadow: ${({ theme }) => theme.interaction.focusRing};
   }
 
   &:disabled {

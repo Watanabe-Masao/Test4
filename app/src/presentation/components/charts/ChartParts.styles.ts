@@ -9,6 +9,13 @@ export const ChartPanel = styled.div`
   border-radius: ${({ theme }) => theme.radii.lg};
   padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]}
     ${({ theme }) => theme.spacing[4]};
+  box-shadow: ${({ theme }) => theme.shadows.sm};
+  transition: box-shadow ${({ theme }) => theme.transitions.fast}
+    ${({ theme }) => theme.transitions.ease};
+
+  &:hover {
+    box-shadow: ${({ theme }) => theme.shadows.md};
+  }
 `
 
 export const ChartHeaderRow = styled.div`
@@ -67,19 +74,28 @@ export const ToggleBtn = styled.button<{ $active: boolean }>`
   border: 1px solid
     ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.border)};
   border-radius: ${({ theme }) => theme.radii.sm};
-  background: ${({ $active, theme }) =>
-    $active
-      ? theme.mode === 'dark'
-        ? 'rgba(99,102,241,0.2)'
-        : 'rgba(99,102,241,0.08)'
-      : 'transparent'};
+  background: ${({ $active, theme }) => ($active ? theme.interactive.activeBg : 'transparent')};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text3)};
   cursor: pointer;
   white-space: nowrap;
-  transition: all 0.15s;
+  transition:
+    border-color ${({ theme }) => theme.transitions.fast} ${({ theme }) => theme.transitions.ease},
+    background ${({ theme }) => theme.transitions.fast} ${({ theme }) => theme.transitions.ease},
+    color ${({ theme }) => theme.transitions.fast} ${({ theme }) => theme.transitions.ease},
+    transform ${({ theme }) => theme.transitions.fast} ${({ theme }) => theme.transitions.ease};
 
   &:hover:not(:disabled) {
     border-color: ${({ theme }) => theme.colors.palette.primary};
+    color: ${({ theme }) => theme.colors.palette.primary};
+  }
+
+  &:active:not(:disabled) {
+    transform: ${({ theme }) => theme.interaction.pressScale};
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: ${({ theme }) => theme.interaction.focusRing};
   }
 `
 

@@ -13,8 +13,12 @@ import { chartFontSize } from '@/presentation/theme/tokens'
 export function tooltipBase(theme: AppTheme): TooltipComponentOption {
   return {
     trigger: 'axis',
-    backgroundColor: theme.colors.bg2,
+    backgroundColor: theme.colors.bg2 + 'e6',
     borderColor: theme.colors.border,
+    borderWidth: 0.5,
+    padding: [8, 12],
+    extraCssText:
+      'backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.08);',
     textStyle: {
       color: theme.colors.text,
       fontSize: chartFontSize.tooltip,

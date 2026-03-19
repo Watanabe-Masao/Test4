@@ -7,19 +7,36 @@
  *   { name: '売上', type: 'bar', data, ...barDefaults({ color: theme.chart.barPositive }) }
  */
 import { chartStyles } from '@/presentation/theme/tokens'
+import type { LinearGradientObject } from 'echarts'
+
+/** ECharts 線形グラデーションを生成（top → bottom） */
+export function verticalGradient(colorTop: string, colorBottom: string): LinearGradientObject {
+  return {
+    type: 'linear',
+    x: 0,
+    y: 0,
+    x2: 0,
+    y2: 1,
+    colorStops: [
+      { offset: 0, color: colorTop },
+      { offset: 1, color: colorBottom },
+    ],
+  } as LinearGradientObject
+}
 
 /** バー系列のデフォルトスタイル */
-export function barDefaults(opts: { color: string; opacity?: number }): {
+export function barDefaults(opts: { color: string; opacity?: number; gradient?: boolean }): {
   itemStyle: {
-    color: string
+    color: string | LinearGradientObject
     opacity: number
     borderRadius: [number, number, number, number]
   }
   barMaxWidth: number
 } {
+  const baseColor = opts.color
   return {
     itemStyle: {
-      color: opts.color,
+      color: opts.gradient !== false ? verticalGradient(baseColor, baseColor + 'b3') : baseColor,
       opacity: opts.opacity ?? chartStyles.opacity.bar,
       borderRadius: [...chartStyles.barRadius.standard] as [number, number, number, number],
     },
@@ -30,15 +47,16 @@ export function barDefaults(opts: { color: string; opacity?: number }): {
 /** 水平バー系列のデフォルトスタイル */
 export function horizontalBarDefaults(opts: { color: string; opacity?: number }): {
   itemStyle: {
-    color: string
+    color: string | LinearGradientObject
     opacity: number
     borderRadius: [number, number, number, number]
   }
   barMaxWidth: number
 } {
+  const baseColor = opts.color
   return {
     itemStyle: {
-      color: opts.color,
+      color: verticalGradient(baseColor, baseColor + 'b3'),
       opacity: opts.opacity ?? chartStyles.opacity.bar,
       borderRadius: [...chartStyles.barRadius.horizontal] as [number, number, number, number],
     },
@@ -47,7 +65,12 @@ export function horizontalBarDefaults(opts: { color: string; opacity?: number })
 }
 
 /** ライン系列のデフォルトスタイル */
-export function lineDefaults(opts: { color: string; dashed?: boolean; width?: number }): {
+export function lineDefaults(opts: {
+  color: string
+  dashed?: boolean
+  width?: number
+  smooth?: boolean
+}): {
   lineStyle: { color: string; width: number; type: 'solid' | 'dashed' }
   itemStyle: { color: string }
   symbol: 'none'
@@ -61,18 +84,19 @@ export function lineDefaults(opts: { color: string; dashed?: boolean; width?: nu
     },
     itemStyle: { color: opts.color },
     symbol: 'none',
-    smooth: false,
+    smooth: opts.smooth ?? true,
   }
 }
 
-/** エリア（塗りつぶし）系列のデフォルトスタイル */
+/** エリア（塗りつぶし）系列のデフォルトスタイル — グラデーション塗り */
 export function areaDefaults(opts: { color: string; subtle?: boolean }): {
   lineStyle: { color: string; width: number }
   itemStyle: { color: string }
-  areaStyle: { color: string; opacity: number }
+  areaStyle: { color: LinearGradientObject }
   symbol: 'none'
   smooth: boolean
 } {
+  const opacity = opts.subtle ? chartStyles.opacity.areaSubtle : chartStyles.opacity.area
   return {
     lineStyle: {
       color: opts.color,
@@ -80,10 +104,15 @@ export function areaDefaults(opts: { color: string; subtle?: boolean }): {
     },
     itemStyle: { color: opts.color },
     areaStyle: {
-      color: opts.color,
-      opacity: opts.subtle ? chartStyles.opacity.areaSubtle : chartStyles.opacity.area,
+      color: verticalGradient(
+        opts.color +
+          Math.round(opacity * 255)
+            .toString(16)
+            .padStart(2, '0'),
+        opts.color + '00',
+      ),
     },
     symbol: 'none',
-    smooth: false,
+    smooth: true,
   }
 }

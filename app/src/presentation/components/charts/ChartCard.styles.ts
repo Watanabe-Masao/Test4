@@ -14,6 +14,13 @@ export const CardShell = styled.div`
   border-radius: ${({ theme }) => theme.radii.lg};
   padding: ${({ theme }) => theme.spacing[5]} ${({ theme }) => theme.spacing[4]}
     ${({ theme }) => theme.spacing[4]};
+  box-shadow: ${({ theme }) => theme.shadows.sm};
+  transition: box-shadow ${({ theme }) => theme.transitions.fast}
+    ${({ theme }) => theme.transitions.ease};
+
+  &:hover {
+    box-shadow: ${({ theme }) => theme.shadows.md};
+  }
 `
 
 export const HeaderRow = styled.div`

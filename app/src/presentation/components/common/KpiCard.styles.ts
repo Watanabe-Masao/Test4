@@ -5,19 +5,32 @@ export const Wrapper = styled.div<{ $accent?: string; $clickable?: boolean }>`
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
   padding: ${({ theme }) => theme.spacing[6]};
+  box-shadow: ${({ theme }) => theme.shadows.sm};
   position: relative;
+  transition:
+    box-shadow ${({ theme }) => theme.transitions.fast} ${({ theme }) => theme.transitions.ease},
+    transform ${({ theme }) => theme.transitions.fast} ${({ theme }) => theme.transitions.ease},
+    border-color ${({ theme }) => theme.transitions.fast} ${({ theme }) => theme.transitions.ease};
   ${({ $accent }) => $accent && `border-top: 2px solid ${$accent};`}
   ${({ $clickable, theme }) =>
     $clickable &&
     `
     cursor: pointer;
-    transition: border-color ${theme.transitions.fast}, box-shadow ${theme.transitions.fast};
     &:hover {
       border-color: ${theme.colors.palette.primary}40;
-      box-shadow: 0 0 0 1px ${theme.colors.palette.primary}20;
+      box-shadow: ${theme.shadows.md}, ${theme.interaction.focusRing};
+      transform: ${theme.interaction.hoverLift};
+    }
+    &:active {
+      transform: ${theme.interaction.pressScale};
+      box-shadow: ${theme.shadows.sm};
     }
     &:hover [data-hint] {
       opacity: 1;
+    }
+    &:focus-visible {
+      outline: none;
+      box-shadow: ${theme.interaction.focusRing};
     }
   `}
 `

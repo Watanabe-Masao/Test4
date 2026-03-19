@@ -6,6 +6,7 @@ import {
   radii,
   shadows,
   transitions,
+  interaction,
   layout,
   breakpoints,
   chartFontSize,
@@ -179,6 +180,7 @@ export interface AppTheme {
   chartStyles: typeof chartStyles
   zIndex: typeof zIndex
   modal: typeof modal
+  interaction: typeof interaction
 }
 
 // ─── テーマ生成 ──────────────────────────────────────────
@@ -206,6 +208,7 @@ function createTheme(mode: ThemeMode): AppTheme {
     chartStyles,
     zIndex,
     modal,
+    interaction,
   }
 }
 
