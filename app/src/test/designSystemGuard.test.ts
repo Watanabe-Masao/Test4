@@ -310,7 +310,7 @@ describe('デザインシステムガード', () => {
   // スタンドアロンチャートは ChartCard を使用すべき。
 
   /** ChartCard 未使用のスタンドアロンチャート数の上限 */
-  const MAX_NO_CHARTCARD_FILES = 11
+  const MAX_NO_CHARTCARD_FILES = 0
 
   /** ChartCard 不要のサブコンポーネント・特殊ケース */
   const CHARTCARD_EXCLUSIONS = new Set([
