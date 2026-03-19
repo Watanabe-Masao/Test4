@@ -22,6 +22,7 @@ import {
   toCommaYen,
 } from './echartsOptionBuilders'
 import { DeptSelector, DeptChip } from './DeptTrendChart.styles'
+import { chartFontSize } from '@/presentation/theme/tokens'
 
 interface Props {
   readonly duckConn: AsyncDuckDBConnection | null
@@ -93,7 +94,7 @@ function buildOption(
       data: labels,
       axisLabel: {
         color: theme.colors.text3,
-        fontSize: 10,
+        fontSize: chartFontSize.axis,
         fontFamily: theme.typography.fontFamily.mono,
       },
       axisLine: { lineStyle: { color: theme.colors.border } },
@@ -103,7 +104,11 @@ function buildOption(
       {
         type: 'value',
         position: 'right',
-        axisLabel: { formatter: (v: number) => `${v}%`, color: theme.colors.text3, fontSize: 10 },
+        axisLabel: {
+          formatter: (v: number) => `${v}%`,
+          color: theme.colors.text3,
+          fontSize: chartFontSize.axis,
+        },
         axisLine: { show: false },
         splitLine: { show: false },
       },

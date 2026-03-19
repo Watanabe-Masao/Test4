@@ -18,9 +18,10 @@ import type { AppTheme } from '@/presentation/theme/theme'
 import { useChartTheme, useCurrencyFormatter, toComma, toPct } from './chartTheme'
 import { EChart, type EChartsOption } from './EChart'
 import { yenYAxis, standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
+import { valueYAxis } from './builders'
 import { formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
 import { sc } from '@/presentation/theme/semanticColors'
-import { palette } from '@/presentation/theme/tokens'
+import { palette, chartFontSize } from '@/presentation/theme/tokens'
 import { useI18n } from '@/application/hooks/useI18n'
 import {
   Wrapper,
@@ -147,23 +148,14 @@ export const TimeSlotChart = memo(function TimeSlotChart({
         data: hours,
         axisLabel: {
           color: theme.colors.text3,
-          fontSize: 10,
+          fontSize: chartFontSize.axis,
           fontFamily: theme.typography.fontFamily.mono,
         },
         axisLine: { lineStyle: { color: theme.colors.border } },
       },
       yAxis: isAmount
         ? yenYAxis(theme)
-        : {
-            type: 'value',
-            axisLabel: {
-              formatter: (v: number) => toComma(v),
-              color: theme.colors.text3,
-              fontSize: 10,
-            },
-            axisLine: { show: false },
-            splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
-          },
+        : valueYAxis(theme, { formatter: (v: number) => toComma(v) }),
       series,
     }
   }, [d.chartData, d.metricMode, d.curLabel, d.compLabel, showPrev, theme])
@@ -206,7 +198,7 @@ export const TimeSlotChart = memo(function TimeSlotChart({
         data: hours,
         axisLabel: {
           color: theme.colors.text3,
-          fontSize: 10,
+          fontSize: chartFontSize.axis,
           fontFamily: theme.typography.fontFamily.mono,
         },
         axisLine: { lineStyle: { color: theme.colors.border } },

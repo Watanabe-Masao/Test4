@@ -17,6 +17,7 @@ import { EChart, type EChartsOption } from './EChart'
 import { standardTooltip } from './echartsOptionBuilders'
 import { LegendRow, LegendItem, QuadrantLabel } from './PiCvBubbleChart.styles'
 import { HIERARCHY_LABELS, type HierarchyLevel } from './ChartParts'
+import { chartFontSize } from '@/presentation/theme/tokens'
 
 const TYPE_COLORS: Record<ProductType, string> = {
   flagship: '#22c55e',
@@ -116,7 +117,7 @@ export const PiCvBubbleChart = memo(function PiCvBubbleChart({
         nameGap: 25,
         max: maxPi,
         min: 0,
-        axisLabel: { color: theme.colors.text3, fontSize: 10 },
+        axisLabel: { color: theme.colors.text3, fontSize: chartFontSize.axis },
         splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
       },
       yAxis: {
@@ -126,7 +127,7 @@ export const PiCvBubbleChart = memo(function PiCvBubbleChart({
         nameGap: 35,
         max: maxCv,
         min: 0,
-        axisLabel: { color: theme.colors.text3, fontSize: 10 },
+        axisLabel: { color: theme.colors.text3, fontSize: chartFontSize.axis },
         splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
       },
       series: [

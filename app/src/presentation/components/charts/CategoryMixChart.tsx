@@ -18,6 +18,8 @@ import { ChartCard } from './ChartCard'
 import { ChartLoading, ChartError, ChartEmpty } from './ChartState'
 import { EChart, type EChartsOption } from './EChart'
 import { standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
+import { valueYAxis } from './builders'
+import { chartFontSize } from '@/presentation/theme/tokens'
 import {
   ControlRow,
   ChipGroup,
@@ -63,22 +65,12 @@ function buildOption(
       data: weeks,
       axisLabel: {
         color: theme.colors.text3,
-        fontSize: 10,
+        fontSize: chartFontSize.axis,
         fontFamily: theme.typography.fontFamily.mono,
       },
       axisLine: { lineStyle: { color: theme.colors.border } },
     },
-    yAxis: {
-      type: 'value',
-      max: 100,
-      axisLabel: {
-        formatter: (v: number) => toPct(v / 100, 0),
-        color: theme.colors.text3,
-        fontSize: 10,
-      },
-      axisLine: { show: false },
-      splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
-    },
+    yAxis: valueYAxis(theme, { formatter: (v: number) => toPct(v / 100, 0), max: 100 }),
     series: categories.map((cat, i) => ({
       name: cat.name,
       type: 'line' as const,

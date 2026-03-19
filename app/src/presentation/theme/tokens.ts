@@ -163,6 +163,46 @@ export const layout = {
   sectionIconSize: '32px',
 } as const
 
+// ─── ECharts 用フォントサイズ（px 整数）───────────────────
+// ECharts は CSS rem ではなく px 整数が必要なため、専用トークンを定義
+export const chartFontSize = {
+  /** 軸ラベル、凡例テキスト（caption 相当） */
+  axis: 10,
+  /** ツールチップ本文（label 相当） */
+  tooltip: 11,
+  /** チャートタイトル（body 相当） */
+  title: 13,
+  /** マークライン注釈、アノテーション */
+  annotation: 10,
+} as const
+
+// ─── ECharts 用スタイルトークン ───────────────────────────
+export const chartStyles = {
+  opacity: {
+    bar: 0.7,
+    area: 0.15,
+    areaSubtle: 0.08,
+    ghost: 0.3,
+  },
+  lineWidth: {
+    thin: 1.5,
+    standard: 2,
+    emphasis: 2.5,
+  },
+  barRadius: {
+    /** 垂直バー: 上辺のみ丸め */
+    standard: [2, 2, 0, 0] as readonly [number, number, number, number],
+    rounded: [3, 3, 0, 0] as readonly [number, number, number, number],
+    /** 水平バー: 右辺のみ丸め */
+    horizontal: [0, 2, 2, 0] as readonly [number, number, number, number],
+  },
+  barWidth: {
+    narrow: 6,
+    standard: 12,
+    wide: 18,
+  },
+} as const
+
 // ─── ブレークポイント ────────────────────────────────────
 export const breakpoints = {
   sm: '700px',

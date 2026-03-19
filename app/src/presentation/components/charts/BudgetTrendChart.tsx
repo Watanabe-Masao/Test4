@@ -16,6 +16,8 @@ import {
   standardLegend,
   toCommaYen,
 } from './echartsOptionBuilders'
+import { valueYAxis } from './builders'
+import { chartFontSize } from '@/presentation/theme/tokens'
 
 type ViewType = 'line' | 'diff' | 'rate'
 
@@ -78,7 +80,12 @@ function buildOption(
     if (budget > 0) {
       // 月間予算ライン (markLine on 実績系列)
       ;(series[0] as Record<string, unknown>).markLine = {
-        data: [{ yAxis: budget, label: { formatter: `月間予算`, position: 'end', fontSize: 10 } }],
+        data: [
+          {
+            yAxis: budget,
+            label: { formatter: `月間予算`, position: 'end', fontSize: chartFontSize.annotation },
+          },
+        ],
         lineStyle: { color: theme.colors.palette.warningDark, type: 'dashed', width: 1.5 },
         symbol: 'none',
       }
@@ -103,7 +110,7 @@ function buildOption(
         data: days,
         axisLabel: {
           color: theme.colors.text3,
-          fontSize: 10,
+          fontSize: chartFontSize.axis,
           fontFamily: theme.typography.fontFamily.mono,
         },
       },
@@ -128,7 +135,7 @@ function buildOption(
         data: days,
         axisLabel: {
           color: theme.colors.text3,
-          fontSize: 10,
+          fontSize: chartFontSize.axis,
           fontFamily: theme.typography.fontFamily.mono,
         },
       },
@@ -171,16 +178,11 @@ function buildOption(
       data: days,
       axisLabel: {
         color: theme.colors.text3,
-        fontSize: 10,
+        fontSize: chartFontSize.axis,
         fontFamily: theme.typography.fontFamily.mono,
       },
     },
-    yAxis: {
-      type: 'value',
-      axisLabel: { formatter: (v: number) => `${v}%`, color: theme.colors.text3, fontSize: 10 },
-      axisLine: { show: false },
-      splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
-    },
+    yAxis: valueYAxis(theme, { formatter: (v: number) => `${v}%` }),
     series: [
       {
         name: '達成率',

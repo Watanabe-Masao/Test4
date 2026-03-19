@@ -13,6 +13,7 @@ import { SegmentedControl } from '@/presentation/components/common'
 import { ChartCard } from './ChartCard'
 import { ChartEmpty } from './ChartState'
 import { EChart, type EChartsOption } from './EChart'
+import { chartFontSize } from '@/presentation/theme/tokens'
 import {
   yenYAxis,
   standardGrid,
@@ -117,7 +118,7 @@ export const ShapleyTimeSeriesChart = memo(function ShapleyTimeSeriesChart({
         data: days,
         axisLabel: {
           color: theme.colors.text3,
-          fontSize: 10,
+          fontSize: chartFontSize.axis,
           fontFamily: theme.typography.fontFamily.mono,
         },
       },

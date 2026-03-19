@@ -12,6 +12,7 @@ import { ChartCard } from './ChartCard'
 import { EChart, type EChartsOption } from './EChart'
 import { standardTooltip, toCommaYen, toAxisManYen } from './echartsOptionBuilders'
 import { SummaryRow, SummaryItem } from './CategoryRankingCard.styles'
+import { chartFontSize } from '@/presentation/theme/tokens'
 
 interface Props {
   categoryTotals: ReadonlyMap<CategoryType, CostPricePair>
@@ -75,7 +76,7 @@ export const CategoryRankingCard = memo(function CategoryRankingCard({
         axisLabel: {
           formatter: (v: number) => toAxisManYen(v),
           color: theme.colors.text3,
-          fontSize: 10,
+          fontSize: chartFontSize.axis,
         },
         splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
       },
@@ -83,7 +84,12 @@ export const CategoryRankingCard = memo(function CategoryRankingCard({
         type: 'category',
         data: items.map((d) => d.name),
         inverse: true,
-        axisLabel: { color: theme.colors.text3, fontSize: 10, width: 70, overflow: 'truncate' },
+        axisLabel: {
+          color: theme.colors.text3,
+          fontSize: chartFontSize.axis,
+          width: 70,
+          overflow: 'truncate',
+        },
       },
       series: [
         {

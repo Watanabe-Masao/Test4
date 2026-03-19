@@ -7,6 +7,7 @@ import type { AppTheme } from '@/presentation/theme/theme'
 import { CATEGORY_COLORS } from './ChartParts'
 import { EChart, type EChartsOption } from './EChart'
 import { standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
+import { chartFontSize } from '@/presentation/theme/tokens'
 
 interface Props {
   readonly data: readonly Record<string, number | string>[]
@@ -31,7 +32,7 @@ export function CvLineView({ data, topCodes, categoryNames, showCv, showPi }: Pr
         nameLocation: 'middle',
         nameGap: 40,
         min: 0,
-        axisLabel: { color: theme.colors.text3, fontSize: 10 },
+        axisLabel: { color: theme.colors.text3, fontSize: chartFontSize.axis },
         axisLine: { show: false },
         splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
       })
@@ -57,7 +58,7 @@ export function CvLineView({ data, topCodes, categoryNames, showCv, showPi }: Pr
         nameGap: 40,
         position: 'right',
         min: 0,
-        axisLabel: { color: theme.colors.text3, fontSize: 10 },
+        axisLabel: { color: theme.colors.text3, fontSize: chartFontSize.axis },
         axisLine: { show: false },
         splitLine: { show: false },
       })
@@ -89,7 +90,7 @@ export function CvLineView({ data, topCodes, categoryNames, showCv, showPi }: Pr
         data: dates,
         axisLabel: {
           color: theme.colors.text3,
-          fontSize: 10,
+          fontSize: chartFontSize.axis,
           fontFamily: theme.typography.fontFamily.mono,
         },
         axisLine: { lineStyle: { color: theme.colors.border } },

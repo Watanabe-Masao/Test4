@@ -74,8 +74,6 @@ const THEME_REF_PATTERNS = [
   'ct.',
   // colorSystem ユーティリティ
   'statusAlpha(',
-  'statusSolid(',
-  'status.',
   // チャート共通
   'STORE_COLORS',
   'CATEGORY_COLORS',
@@ -115,13 +113,13 @@ function scanFile(filePath: string, pattern: RegExp): { relPath: string; violati
 // 既存ファイルを修正したら上限を下げること。
 
 /** hex 色違反を持つファイル数の上限 */
-const MAX_HEX_VIOLATING_FILES = 80
+const MAX_HEX_VIOLATING_FILES = 1
 
 /** rgba() 違反を持つファイル数の上限 */
-const MAX_RGBA_VIOLATING_FILES = 85
+const MAX_RGBA_VIOLATING_FILES = 64
 
 /** font-size 違反を持つファイル数の上限 */
-const MAX_FONT_VIOLATING_FILES = 87
+const MAX_FONT_VIOLATING_FILES = 73
 
 // ─── テスト ────────────────────────────────────────────
 
@@ -190,6 +188,93 @@ describe('デザインシステムガード', () => {
         `上限を超えています。新規ファイルでは theme.typography.fontSize.* を使用してください。\n` +
         `違反ファイル:\n${violatingFiles.join('\n')}`,
     ).toBeLessThanOrEqual(MAX_FONT_VIOLATING_FILES)
+  })
+
+  // ─── ECharts ハードコード fontSize ガード ─────────────
+  // ECharts option 内の fontSize: <数値> を検出。chartFontSize.* トークンを使用すべき。
+
+  /** チャートファイルで fontSize ハードコードを持つファイル数の上限 */
+  const MAX_ECHARTS_FONT_FILES = 7
+
+  it('ECharts チャートの fontSize ハードコードが上限以下', () => {
+    const chartDir = path.join(PRESENTATION_DIR, 'components', 'charts')
+    const chartFiles = [...collectFiles(chartDir, '.tsx'), ...collectFiles(chartDir, '.ts')].filter(
+      (f) =>
+        !f.includes('.test.') &&
+        !f.includes('.stories.') &&
+        !f.includes('.styles.') &&
+        !f.includes('chartTheme') &&
+        !f.includes('echartsOptionBuilders') &&
+        !f.includes('builders/'),
+    )
+
+    const ECHARTS_FONT_PATTERN = /fontSize:\s*\d+/g
+    const TOKEN_REF = /chartFontSize\.|ct\.fontSize\./
+    let violatingCount = 0
+    const violating: string[] = []
+
+    for (const file of chartFiles) {
+      const content = fs.readFileSync(file, 'utf-8')
+      const lines = content.split('\n')
+      let fileHasViolation = false
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i]
+        if (line.trimStart().startsWith('//')) continue
+        if (ECHARTS_FONT_PATTERN.test(line) && !TOKEN_REF.test(line)) {
+          fileHasViolation = true
+          break
+        }
+      }
+      if (fileHasViolation) {
+        violatingCount++
+        violating.push(rel(file))
+      }
+    }
+
+    expect(
+      violatingCount,
+      `ECharts fontSize ハードコード: ${violatingCount}/${MAX_ECHARTS_FONT_FILES}。` +
+        `chartFontSize.* トークンを使用してください。\n` +
+        `違反ファイル:\n${violating.join('\n')}`,
+    ).toBeLessThanOrEqual(MAX_ECHARTS_FONT_FILES)
+  })
+
+  // ─── deprecated fontSize エイリアスガード ─────────────
+  // fontSize.xs/sm/base/lg/xl/2xl/3xl の使用を検出。ロールベース名を使用すべき。
+
+  /** deprecated fontSize エイリアスを使用するファイル数の上限 */
+  const MAX_DEPRECATED_FONT_ALIAS_FILES = 120
+
+  it('deprecated fontSize エイリアス使用が上限以下', () => {
+    const allTsFiles = [
+      ...collectFiles(PRESENTATION_DIR, '.ts'),
+      ...collectFiles(PRESENTATION_DIR, '.tsx'),
+    ].filter(
+      (f) =>
+        !f.includes('.test.') &&
+        !f.includes('.stories.') &&
+        !f.includes('tokens.ts') &&
+        !f.includes('theme.ts'),
+    )
+
+    const DEPRECATED_PATTERN = /fontSize\.(xs|sm|base|lg|xl)\b|fontSize\[['"](?:2xl|3xl)['"]\]/
+    let violatingCount = 0
+    const violating: string[] = []
+
+    for (const file of allTsFiles) {
+      const content = fs.readFileSync(file, 'utf-8')
+      if (DEPRECATED_PATTERN.test(content)) {
+        violatingCount++
+        violating.push(rel(file))
+      }
+    }
+
+    expect(
+      violatingCount,
+      `deprecated fontSize エイリアス使用: ${violatingCount}/${MAX_DEPRECATED_FONT_ALIAS_FILES}。` +
+        `ロールベース名（micro/caption/label/body/title/heading/display）を使用してください。\n` +
+        `違反ファイル:\n${violating.join('\n')}`,
+    ).toBeLessThanOrEqual(MAX_DEPRECATED_FONT_ALIAS_FILES)
   })
 
   // ─── Recharts → ECharts 移行ガード ──────────────────

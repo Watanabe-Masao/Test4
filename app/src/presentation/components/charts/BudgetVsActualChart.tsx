@@ -32,6 +32,8 @@ import {
 import type { BudgetViewType, CompareMode } from './BudgetVsActualChart.styles'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import { standardGrid, standardTooltip, standardLegend, toCommaYen } from './echartsOptionBuilders'
+import { valueYAxis, percentYAxis } from './builders'
+import { chartFontSize } from '@/presentation/theme/tokens'
 
 interface DataPoint {
   day: number
@@ -87,7 +89,7 @@ function buildOption(
     data: days,
     axisLabel: {
       color: theme.colors.text3,
-      fontSize: 10,
+      fontSize: chartFontSize.axis,
       fontFamily: theme.typography.fontFamily.mono,
     },
     axisLine: { lineStyle: { color: theme.colors.border } },
@@ -119,7 +121,7 @@ function buildOption(
                     label: {
                       formatter: `月間予算 ${fmt(budget)}`,
                       position: 'end' as const,
-                      fontSize: 10,
+                      fontSize: chartFontSize.axis,
                       fontFamily: theme.typography.fontFamily.mono,
                       color: theme.colors.palette.warningDark,
                     },
@@ -176,18 +178,7 @@ function buildOption(
         formatter: (name: string) => allLabels[name] ?? name,
       },
       xAxis,
-      yAxis: {
-        type: 'value' as const,
-        axisLabel: {
-          formatter: (v: number) => toAxisYen(v),
-          color: theme.colors.text3,
-          fontSize: 10,
-          fontFamily: theme.typography.fontFamily.mono,
-        },
-        axisLine: { show: false },
-        axisTick: { show: false },
-        splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
-      },
+      yAxis: valueYAxis(theme, { formatter: (v: number) => toAxisYen(v) }),
       series,
     }
   }
@@ -205,18 +196,7 @@ function buildOption(
         },
       },
       xAxis,
-      yAxis: {
-        type: 'value' as const,
-        axisLabel: {
-          formatter: (v: number) => toAxisYen(v),
-          color: theme.colors.text3,
-          fontSize: 10,
-          fontFamily: theme.typography.fontFamily.mono,
-        },
-        axisLine: { show: false },
-        axisTick: { show: false },
-        splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
-      },
+      yAxis: valueYAxis(theme, { formatter: (v: number) => toAxisYen(v) }),
       series: [
         {
           type: 'bar' as const,
@@ -261,13 +241,7 @@ function buildOption(
         },
       },
       xAxis,
-      yAxis: {
-        type: 'value' as const,
-        axisLabel: { formatter: (v: number) => `${v}%`, color: theme.colors.text3, fontSize: 10 },
-        axisLine: { show: false },
-        axisTick: { show: false },
-        splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
-      },
+      yAxis: percentYAxis(theme),
       series: [
         {
           name: 'achieveRate',
@@ -291,7 +265,7 @@ function buildOption(
                 label: {
                   formatter: '100%',
                   position: 'end' as const,
-                  fontSize: 10,
+                  fontSize: chartFontSize.axis,
                   fontFamily: theme.typography.fontFamily.mono,
                   color: theme.chart.barPositive,
                 },
@@ -346,7 +320,7 @@ function buildOption(
                   label: {
                     formatter: `月間予算 ${fmt(budget)}`,
                     position: 'end' as const,
-                    fontSize: 10,
+                    fontSize: chartFontSize.axis,
                     fontFamily: theme.typography.fontFamily.mono,
                     color: theme.colors.palette.warningDark,
                   },
@@ -393,18 +367,7 @@ function buildOption(
         formatter: (name: string) => allLabels[name] ?? name,
       },
       xAxis,
-      yAxis: {
-        type: 'value' as const,
-        axisLabel: {
-          formatter: (v: number) => toAxisYen(v),
-          color: theme.colors.text3,
-          fontSize: 10,
-          fontFamily: theme.typography.fontFamily.mono,
-        },
-        axisLine: { show: false },
-        axisTick: { show: false },
-        splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
-      },
+      yAxis: valueYAxis(theme, { formatter: (v: number) => toAxisYen(v) }),
       series,
     }
   }
@@ -464,18 +427,7 @@ function buildOption(
       formatter: (name: string) => allLabels[name] ?? name,
     },
     xAxis,
-    yAxis: {
-      type: 'value' as const,
-      axisLabel: {
-        formatter: (v: number) => toAxisYen(v),
-        color: theme.colors.text3,
-        fontSize: 10,
-        fontFamily: theme.typography.fontFamily.mono,
-      },
-      axisLine: { show: false },
-      axisTick: { show: false },
-      splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
-    },
+    yAxis: valueYAxis(theme, { formatter: (v: number) => toAxisYen(v) }),
     series: prevYearDiffSeries,
   }
 }

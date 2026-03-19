@@ -15,6 +15,8 @@ import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import { ChartCard } from './ChartCard'
 import { EChart, type EChartsOption } from './EChart'
 import { yenYAxis, standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
+import { valueYAxis } from './builders'
+import { chartFontSize } from '@/presentation/theme/tokens'
 import { KpiGrid, KpiCard, KpiLabel, KpiValue, KpiSub } from './DiscountTrendChart.styles'
 
 const DISCOUNT_COLORS = ['#ef4444', '#f97316', '#eab308', '#a855f7'] as const
@@ -192,23 +194,17 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
         data: days,
         axisLabel: {
           color: theme.colors.text3,
-          fontSize: 10,
+          fontSize: chartFontSize.axis,
           fontFamily: theme.typography.fontFamily.mono,
         },
       },
       yAxis: [
         yenYAxis(theme) as Record<string, unknown>,
-        {
-          type: 'value',
+        valueYAxis(theme, {
+          formatter: (v: number) => toPct(v),
           position: 'right',
-          axisLabel: {
-            formatter: (v: number) => toPct(v),
-            color: theme.colors.text3,
-            fontSize: 10,
-          },
-          axisLine: { show: false },
-          splitLine: { show: false },
-        },
+          showSplitLine: false,
+        }) as Record<string, unknown>,
       ],
       series,
     }

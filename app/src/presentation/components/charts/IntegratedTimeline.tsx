@@ -5,7 +5,7 @@ import { useMemo, useState, memo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { sc } from '@/presentation/theme/semanticColors'
-import { palette } from '@/presentation/theme/tokens'
+import { palette, chartFontSize } from '@/presentation/theme/tokens'
 import { toComma } from './chartTheme'
 import {
   normalizeMinMax,
@@ -19,6 +19,7 @@ import { ChartCard } from './ChartCard'
 import { ChartEmpty } from './ChartState'
 import { EChart, type EChartsOption } from './EChart'
 import { standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
+import { valueYAxis } from './builders'
 import { CorrelationRow, CorrBadge } from './IntegratedTimeline.styles'
 
 type ViewMode = 'normalized' | 'raw'
@@ -185,21 +186,14 @@ export const IntegratedTimeline = memo(function IntegratedTimeline({ result, day
         data: days,
         axisLabel: {
           color: theme.colors.text3,
-          fontSize: 10,
+          fontSize: chartFontSize.axis,
           fontFamily: theme.typography.fontFamily.mono,
           formatter: (v: string) => `${v}日`,
         },
       },
-      yAxis: {
-        type: 'value',
-        axisLabel: {
-          formatter: (v: number) => (isNorm ? String(Math.round(v)) : toComma(v)),
-          color: theme.colors.text3,
-          fontSize: 10,
-        },
-        axisLine: { show: false },
-        splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
-      },
+      yAxis: valueYAxis(theme, {
+        formatter: (v: number) => (isNorm ? String(Math.round(v)) : toComma(v)),
+      }),
       series,
     }
   }, [chartData, isNorm, divergentRanges, theme])

@@ -14,6 +14,8 @@ import { SegmentedControl } from '@/presentation/components/common'
 import { ChartCard } from './ChartCard'
 import { EChart, type EChartsOption } from './EChart'
 import { yenYAxis, standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
+import { valueYAxis } from './builders'
+import { chartFontSize } from '@/presentation/theme/tokens'
 
 type GpView = 'amountRate' | 'rateOnly'
 
@@ -123,7 +125,11 @@ export const GrossProfitAmountChart = memo(function GrossProfitAmountChart({
             data: [
               {
                 yAxis: targetRate,
-                label: { formatter: `目標 ${toPct(targetRate)}`, position: 'end', fontSize: 9 },
+                label: {
+                  formatter: `目標 ${toPct(targetRate)}`,
+                  position: 'end',
+                  fontSize: chartFontSize.annotation,
+                },
                 lineStyle: { color: theme.chart.barPositive, type: 'dashed' },
               },
             ],
@@ -151,20 +157,11 @@ export const GrossProfitAmountChart = memo(function GrossProfitAmountChart({
           data: days,
           axisLabel: {
             color: theme.colors.text3,
-            fontSize: 10,
+            fontSize: chartFontSize.axis,
             fontFamily: theme.typography.fontFamily.mono,
           },
         },
-        yAxis: {
-          type: 'value',
-          axisLabel: {
-            formatter: (v: number) => toPct(v),
-            color: theme.colors.text3,
-            fontSize: 10,
-          },
-          axisLine: { show: false },
-          splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
-        },
+        yAxis: valueYAxis(theme, { formatter: (v: number) => toPct(v) }),
         series,
       }
     }
@@ -213,23 +210,17 @@ export const GrossProfitAmountChart = memo(function GrossProfitAmountChart({
         data: days,
         axisLabel: {
           color: theme.colors.text3,
-          fontSize: 10,
+          fontSize: chartFontSize.axis,
           fontFamily: theme.typography.fontFamily.mono,
         },
       },
       yAxis: [
         yenYAxis(theme) as Record<string, unknown>,
-        {
-          type: 'value',
+        valueYAxis(theme, {
+          formatter: (v: number) => toPct(v),
           position: 'right',
-          axisLabel: {
-            formatter: (v: number) => toPct(v),
-            color: theme.colors.text3,
-            fontSize: 10,
-          },
-          axisLine: { show: false },
-          splitLine: { show: false },
-        },
+          showSplitLine: false,
+        }) as Record<string, unknown>,
       ],
       series,
     }

@@ -15,6 +15,7 @@ import { ChartEmpty } from './ChartState'
 import { EChart, type EChartsOption } from './EChart'
 import { standardTooltip } from './echartsOptionBuilders'
 import { QuadrantGrid, QuadrantTag } from './CustomerScatterChart.styles'
+import { chartFontSize } from '@/presentation/theme/tokens'
 
 type AxisMode = 'absolute' | 'yoyChange'
 
@@ -233,7 +234,7 @@ export const CustomerScatterChart = memo(function CustomerScatterChart({
           return `${p.seriesName}<br/>客数: ${toComma(x)}人<br/>客単価: ${toComma(y)}円`
         },
       },
-      legend: { textStyle: { color: theme.colors.text3, fontSize: 10 }, bottom: 0 },
+      legend: { textStyle: { color: theme.colors.text3, fontSize: chartFontSize.axis }, bottom: 0 },
       xAxis: {
         type: 'value',
         name: isYoy ? '客数 前年比変化率' : '客数（人）',
@@ -241,7 +242,7 @@ export const CustomerScatterChart = memo(function CustomerScatterChart({
         nameGap: 25,
         axisLabel: {
           color: theme.colors.text3,
-          fontSize: 10,
+          fontSize: chartFontSize.axis,
           formatter: isYoy ? (v: number) => toPct(v, 0) : undefined,
         },
         splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
@@ -253,7 +254,7 @@ export const CustomerScatterChart = memo(function CustomerScatterChart({
         nameGap: 45,
         axisLabel: {
           color: theme.colors.text3,
-          fontSize: 10,
+          fontSize: chartFontSize.axis,
           formatter: isYoy ? (v: number) => toPct(v, 0) : (v: number) => `${toComma(v)}円`,
         },
         axisLine: { show: false },

@@ -94,6 +94,8 @@ const APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set([
   'application/hooks/useWeatherForecast.ts',
   // 天気時間帯クエリフック（DuckDB weather_hourly テーブルを使用）
   'application/hooks/duckdb/useWeatherHourlyQuery.ts',
+  // ETRN 観測所検索ブリッジ（infrastructure/weather の ETRN クライアントを application 層経由で公開）
+  'application/hooks/useEtrnStationSearch.ts',
 ])
 
 /**
@@ -451,11 +453,11 @@ describe('Architecture Guard', () => {
 
   // ─── 許可リスト増加防止 ─────────────────────────────
 
-  it('APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST は 16 件以下', () => {
+  it('APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST は 17 件以下', () => {
     expect(
       APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST.size,
-      `APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST が ${APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST.size} 件（上限: 16）`,
-    ).toBeLessThanOrEqual(16)
+      `APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST が ${APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST.size} 件（上限: 17）`,
+    ).toBeLessThanOrEqual(17)
   })
 
   it('PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST は 1 件以下', () => {
