@@ -7,12 +7,6 @@
 import { useState, useCallback } from 'react'
 import type { ChartGuide } from './chartGuides'
 import {
-  ChartHeaderRow,
-  ChartTitle,
-  ChartViewToggle,
-  ChartViewBtn,
-  ChartViewSep,
-  ChartWrapper,
   HelpBtn,
   GuidePanel,
   GuidePurpose,
@@ -22,8 +16,6 @@ import {
   MetricTag,
   MetricSummary,
 } from './ChartHeader.styles'
-
-export { ChartHeaderRow, ChartTitle, ChartViewToggle, ChartViewBtn, ChartViewSep, ChartWrapper }
 
 // ─── チャートヘルプボタン ──────────────────────────────
 

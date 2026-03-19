@@ -6,8 +6,15 @@ export const Card = styled.div<{ $accent?: string }>`
   border-radius: ${({ theme }) => theme.radii.lg};
   padding: ${({ theme }) => theme.spacing[6]};
   box-shadow: ${({ theme }) => theme.shadows.sm};
-  transition: all ${({ theme }) => theme.transitions.fast};
+  transition:
+    box-shadow ${({ theme }) => theme.transitions.fast} ${({ theme }) => theme.transitions.ease},
+    transform ${({ theme }) => theme.transitions.fast} ${({ theme }) => theme.transitions.ease};
   position: relative;
+
+  &:hover {
+    box-shadow: ${({ theme }) => theme.shadows.md};
+    transform: ${({ theme }) => theme.interaction.hoverLift};
+  }
 
   ${({ $accent }) =>
     $accent &&

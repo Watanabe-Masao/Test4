@@ -5,7 +5,8 @@
  * データフック呼び出しを担い、描画は DailySalesChartBody に委譲する。
  */
 import { useState, useCallback, memo } from 'react'
-import { Wrapper, HeaderRow, Title, ViewToggle, ViewBtn, Sep } from './DailySalesChart.styles'
+import { ChartCard } from './ChartCard'
+import { ViewToggle, ViewBtn, Sep } from './DailySalesChart.styles'
 import { useChartTheme } from './chartTheme'
 import { DualPeriodSlider } from './DualPeriodSlider'
 import { DowPresetSelector } from './DowPresetSelector'
@@ -110,37 +111,37 @@ export const DailySalesChart = memo(function DailySalesChart({
   /** 累計/単日切替が有効なビュー */
   const hasCumToggle = view === 'prevYearCum' || view === 'vsLastYear'
 
+  const toolbar = (
+    <ViewToggle>
+      {VIEWS.map((v) => (
+        <ViewBtn key={v} $active={view === v} onClick={() => setView(v)}>
+          {VIEW_LABELS[v]}
+        </ViewBtn>
+      ))}
+      {hasCumToggle && (
+        <>
+          <Sep>|</Sep>
+          <ViewBtn $active={cumMode === 'cumulative'} onClick={() => setCumMode('cumulative')}>
+            累計
+          </ViewBtn>
+          <ViewBtn $active={cumMode === 'daily'} onClick={() => setCumMode('daily')}>
+            単日
+          </ViewBtn>
+        </>
+      )}
+      {WF_VIEWS.includes(view) && (
+        <>
+          <Sep>|</Sep>
+          <ViewBtn $active={waterfall} onClick={() => setWaterfall((v) => !v)}>
+            WF
+          </ViewBtn>
+        </>
+      )}
+    </ViewToggle>
+  )
+
   return (
-    <Wrapper aria-label="日別売上チャート">
-      <HeaderRow>
-        <Title>{titleText}</Title>
-        <ViewToggle>
-          {VIEWS.map((v) => (
-            <ViewBtn key={v} $active={view === v} onClick={() => setView(v)}>
-              {VIEW_LABELS[v]}
-            </ViewBtn>
-          ))}
-          {hasCumToggle && (
-            <>
-              <Sep>|</Sep>
-              <ViewBtn $active={cumMode === 'cumulative'} onClick={() => setCumMode('cumulative')}>
-                累計
-              </ViewBtn>
-              <ViewBtn $active={cumMode === 'daily'} onClick={() => setCumMode('daily')}>
-                単日
-              </ViewBtn>
-            </>
-          )}
-          {WF_VIEWS.includes(view) && (
-            <>
-              <Sep>|</Sep>
-              <ViewBtn $active={waterfall} onClick={() => setWaterfall((v) => !v)}>
-                WF
-              </ViewBtn>
-            </>
-          )}
-        </ViewToggle>
-      </HeaderRow>
+    <ChartCard title={titleText} toolbar={toolbar} ariaLabel="日別売上チャート" height={400}>
       <div style={{ display: 'flex', gap: '12px', marginBottom: '8px', flexWrap: 'wrap' }}>
         <DowPresetSelector selectedDows={selectedDows} onChange={handleDowChange} />
       </div>
@@ -165,6 +166,6 @@ export const DailySalesChart = memo(function DailySalesChart({
         onP2Change={onP2Change}
         p2Enabled={p2Enabled}
       />
-    </Wrapper>
+    </ChartCard>
   )
 })

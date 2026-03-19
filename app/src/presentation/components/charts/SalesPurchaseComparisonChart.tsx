@@ -5,16 +5,14 @@ import type { AppTheme } from '@/presentation/theme/theme'
 import { toComma, toPct, STORE_COLORS } from './chartTheme'
 import { EChart, type EChartsOption } from './EChart'
 import { yenYAxis, standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
+import { categoryXAxis, lineDefaults } from './builders'
 import { DualPeriodSlider } from './DualPeriodSlider'
 import { useDualPeriodRange } from './useDualPeriodRange'
 import { computeEstimatedInventory } from '@/application/hooks/calculation'
 import { calculateGrossProfitRate } from '@/domain/calculations/utils'
 import type { Store, StoreResult } from '@/domain/models'
-import { chartFontSize } from '@/presentation/theme/tokens'
+import { ChartCard } from './ChartCard'
 import {
-  Wrapper,
-  Header,
-  Title,
   Controls,
   ControlGroup,
   ControlLabel,
@@ -99,9 +97,7 @@ function SalesCompChart({
           type: 'line',
           yAxisIndex: yAxes.length > 1 ? 1 : 0,
           data: chartData.map((d) => d[`${s.name}_推定在庫`] ?? null),
-          lineStyle: { color, width: 2.5 },
-          itemStyle: { color },
-          symbol: 'none',
+          ...lineDefaults({ color, width: 2.5 }),
         })
       }
     }
@@ -110,15 +106,7 @@ function SalesCompChart({
       grid: standardGrid(),
       tooltip: standardTooltip(theme),
       legend: seriesMode === 'all' ? { ...standardLegend(theme), type: 'scroll' } : undefined,
-      xAxis: {
-        type: 'category',
-        data: days,
-        axisLabel: {
-          color: theme.colors.text3,
-          fontSize: chartFontSize.axis,
-          fontFamily: theme.typography.fontFamily.mono,
-        },
-      },
+      xAxis: categoryXAxis(days, theme),
       yAxis: yAxes as EChartsOption['yAxis'],
       series,
     }
@@ -249,9 +237,10 @@ export const SalesPurchaseComparisonChart = memo(function SalesPurchaseCompariso
   const visibleEntries = storeEntries.filter((s) => isStoreVisible(s.storeId))
 
   return (
-    <Wrapper aria-label="売仕比較チャート">
-      <Header>
-        <Title>売上・仕入・推定在庫 店舗比較</Title>
+    <ChartCard
+      title="売上・仕入・推定在庫 店舗比較"
+      ariaLabel="売仕比較チャート"
+      toolbar={
         <Controls>
           <ControlGroup>
             <ControlLabel>表示系列</ControlLabel>
@@ -296,8 +285,8 @@ export const SalesPurchaseComparisonChart = memo(function SalesPurchaseCompariso
           </ControlGroup>
           {headerExtra}
         </Controls>
-      </Header>
-
+      }
+    >
       <SalesCompChart
         chartData={chartData}
         visibleEntries={visibleEntries}
@@ -407,6 +396,6 @@ export const SalesPurchaseComparisonChart = memo(function SalesPurchaseCompariso
         onP2Change={onP2Change}
         p2Enabled={p2Enabled}
       />
-    </Wrapper>
+    </ChartCard>
   )
 })

@@ -2,8 +2,8 @@ import { useState, useCallback, useMemo, memo } from 'react'
 import { toPct, toComma, toManYen } from './chartTheme'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
-import { ChartHelpButton } from './ChartHeader'
 import { CHART_GUIDES } from './chartGuides'
+import { ChartCard } from './ChartCard'
 import { safeDivide, calculateShare } from '@/domain/calculations/utils'
 import {
   useSensitivityBase,
@@ -13,8 +13,6 @@ import {
 import type { SensitivityDeltas } from '@/application/hooks/useSensitivity'
 import type { StoreResult } from '@/domain/models'
 import {
-  Wrapper,
-  Title,
   Grid,
   SliderSection,
   SliderCard,
@@ -227,29 +225,20 @@ export const SensitivityDashboard = memo(function SensitivityDashboard({ result 
   }, [base, deltas])
 
   return (
-    <Wrapper>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '12px',
-        }}
-      >
-        <Title style={{ marginBottom: 0 }}>
-          感度分析ダッシュボード — What-if シミュレーション
-          <ChartHelpButton guide={CHART_GUIDES['sensitivity-dashboard']} />
-        </Title>
-        <div style={{ display: 'flex', gap: 6 }}>
-          {!isAllZero && (
+    <ChartCard
+      title="感度分析ダッシュボード — What-if シミュレーション"
+      guide={CHART_GUIDES['sensitivity-dashboard']}
+      toolbar={
+        !isAllZero ? (
+          <div style={{ display: 'flex', gap: 6 }}>
             <ActionBtn $variant="primary" onClick={handleSaveScenario}>
               シナリオ保存
             </ActionBtn>
-          )}
-          {!isAllZero && <ResetBtn onClick={handleReset}>リセット</ResetBtn>}
-        </div>
-      </div>
-
+            <ResetBtn onClick={handleReset}>リセット</ResetBtn>
+          </div>
+        ) : undefined
+      }
+    >
       <Grid>
         <SliderSection>
           {SLIDER_CONFIGS.map((cfg) => {
@@ -459,6 +448,6 @@ export const SensitivityDashboard = memo(function SensitivityDashboard({ result 
           </ScenarioTable>
         </ScenarioSection>
       )}
-    </Wrapper>
+    </ChartCard>
   )
 })

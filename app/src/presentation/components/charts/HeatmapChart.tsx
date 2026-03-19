@@ -20,12 +20,9 @@ import { useChartTheme, useCurrencyFormatter, toPct } from './chartTheme'
 import { palette } from '@/presentation/theme/tokens'
 import { useI18n } from '@/application/hooks/useI18n'
 import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
-import { ChartHelpButton } from './ChartHeader'
 import { CHART_GUIDES } from './chartGuides'
+import { ChartCard } from './ChartCard'
 import {
-  Wrapper,
-  Title,
-  Subtitle,
   GridContainer,
   HeatmapTable,
   HeaderCell,
@@ -37,7 +34,6 @@ import {
   LegendBar,
   GradientBar,
   ErrorMsg,
-  ControlRow,
   TabGroup,
   Tab,
   HierarchyRow,
@@ -165,12 +161,11 @@ export const HeatmapChart = memo(function HeatmapChart({
 
   if (error) {
     return (
-      <Wrapper aria-label="時間帯×曜日ヒートマップ">
-        <Title>時間帯×曜日ヒートマップ</Title>
+      <ChartCard title="時間帯×曜日ヒートマップ" ariaLabel="時間帯×曜日ヒートマップ">
         <ErrorMsg>
           {messages.errors.dataFetchFailed}: {error}
         </ErrorMsg>
-      </Wrapper>
+      </ChartCard>
     )
   }
 
@@ -191,33 +186,28 @@ export const HeatmapChart = memo(function HeatmapChart({
   const isAmountMode = heatmapMode === 'amount'
 
   return (
-    <Wrapper aria-label="時間帯×曜日ヒートマップ">
-      <ControlRow>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <Title style={{ marginBottom: 0 }}>時間帯×曜日ヒートマップ</Title>
-            <ChartHelpButton guide={CHART_GUIDES['heatmap-hour-dow']} />
-          </div>
-          <Subtitle>
-            {isAmountMode
-              ? `セル色 = 売上額（日平均） | 赤枠 = 異常検出 (Z > ${Z_SCORE_THRESHOLD})`
-              : 'セル色 = 前年比増減率（緑:増 / 赤:減）'}
-          </Subtitle>
-        </div>
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          {hasPrevData && (
-            <TabGroup>
-              <Tab $active={isAmountMode} onClick={() => setHeatmapMode('amount')}>
-                売上金額
-              </Tab>
-              <Tab $active={!isAmountMode} onClick={() => setHeatmapMode('yoyDiff')}>
-                比較期増減
-              </Tab>
-            </TabGroup>
-          )}
-        </div>
-      </ControlRow>
-
+    <ChartCard
+      title="時間帯×曜日ヒートマップ"
+      subtitle={
+        isAmountMode
+          ? `セル色 = 売上額（日平均） | 赤枠 = 異常検出 (Z > ${Z_SCORE_THRESHOLD})`
+          : 'セル色 = 前年比増減率（緑:増 / 赤:減）'
+      }
+      guide={CHART_GUIDES['heatmap-hour-dow']}
+      ariaLabel="時間帯×曜日ヒートマップ"
+      toolbar={
+        hasPrevData ? (
+          <TabGroup>
+            <Tab $active={isAmountMode} onClick={() => setHeatmapMode('amount')}>
+              売上金額
+            </Tab>
+            <Tab $active={!isAmountMode} onClick={() => setHeatmapMode('yoyDiff')}>
+              比較期増減
+            </Tab>
+          </TabGroup>
+        ) : undefined
+      }
+    >
       <GridContainer>
         <HeatmapTable aria-label="時間帯×曜日ヒートマップ">
           <thead>
@@ -374,6 +364,6 @@ export const HeatmapChart = memo(function HeatmapChart({
           )}
         </HierarchyRow>
       )}
-    </Wrapper>
+    </ChartCard>
   )
 })

@@ -38,8 +38,12 @@ export const Segment = styled.button<{ $active: boolean; $size: 'sm' | 'md' }>`
     color: ${({ theme }) => theme.colors.text2};
   }
 
+  &:active {
+    transform: ${({ theme }) => theme.interaction.pressScale};
+  }
+
   &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
-    outline-offset: 1px;
+    outline: none;
+    box-shadow: ${({ theme }) => theme.interaction.focusRing};
   }
 `

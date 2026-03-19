@@ -3,11 +3,12 @@ import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { EChart, type EChartsOption } from './EChart'
 import { standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
+import { valueYAxis } from './builders'
 import { useChartTheme, toComma, toPct, toDevScore } from './chartTheme'
 import { DualPeriodSlider } from './DualPeriodSlider'
 import { useDualPeriodRange } from './useDualPeriodRange'
-import { ChartHelpButton } from './ChartHeader'
 import { CHART_GUIDES } from './chartGuides'
+import { ChartCard } from './ChartCard'
 import type { DailyRecord } from '@/domain/models'
 import {
   safeDivide,
@@ -19,9 +20,6 @@ import {
 import { calculateStdDev } from '@/application/hooks/useStatistics'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import {
-  Wrapper,
-  HeaderRow,
-  Title,
   ViewToggle,
   ViewBtn,
   StatsRow,
@@ -308,18 +306,7 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
           axisLine: { lineStyle: { color: ct.grid } },
           axisTick: { show: false },
         },
-        yAxis: {
-          type: 'value' as const,
-          axisLabel: {
-            formatter: (v: number) => toComma(v),
-            color: ct.textMuted,
-            fontSize: ct.fontSize.xs,
-            fontFamily: ct.monoFamily,
-          },
-          axisLine: { show: false },
-          axisTick: { show: false },
-          splitLine: { lineStyle: { color: ct.grid, opacity: 0.3, type: 'dashed' as const } },
-        },
+        yAxis: valueYAxis(theme, { formatter: (v: number) => toComma(v) }),
         series,
       }
     }
@@ -368,19 +355,7 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
           axisLine: { lineStyle: { color: ct.grid } },
           axisTick: { show: false },
         },
-        yAxis: {
-          type: 'value' as const,
-          min: 20,
-          max: 80,
-          axisLabel: {
-            color: ct.textMuted,
-            fontSize: ct.fontSize.xs,
-            fontFamily: ct.monoFamily,
-          },
-          axisLine: { show: false },
-          axisTick: { show: false },
-          splitLine: { lineStyle: { color: ct.grid, opacity: 0.3, type: 'dashed' as const } },
-        },
+        yAxis: valueYAxis(theme, { min: 20, max: 80 }),
         series: [
           ...series,
           // Reference lines as markLines on the first series
@@ -480,17 +455,7 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
         axisLine: { lineStyle: { color: ct.grid } },
         axisTick: { show: false },
       },
-      yAxis: {
-        type: 'value' as const,
-        axisLabel: {
-          color: ct.textMuted,
-          fontSize: ct.fontSize.xs,
-          fontFamily: ct.monoFamily,
-        },
-        axisLine: { show: false },
-        axisTick: { show: false },
-        splitLine: { lineStyle: { color: ct.grid, opacity: 0.3, type: 'dashed' as const } },
-      },
+      yAxis: valueYAxis(theme),
       series: [
         ...series,
         // Reference lines
@@ -548,12 +513,11 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
   }, [data, view, ct, theme])
 
   return (
-    <Wrapper aria-label="業績指数チャート">
-      <HeaderRow>
-        <Title>
-          {titleMap[view]}
-          <ChartHelpButton guide={CHART_GUIDES['performance-index']} />
-        </Title>
+    <ChartCard
+      title={titleMap[view]}
+      guide={CHART_GUIDES['performance-index']}
+      ariaLabel="業績指数チャート"
+      toolbar={
         <ViewToggle>
           {(Object.keys(VIEW_LABELS) as ViewType[]).map((v) => (
             <ViewBtn key={v} $active={view === v} onClick={() => setView(v)}>
@@ -561,8 +525,8 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
             </ViewBtn>
           ))}
         </ViewToggle>
-      </HeaderRow>
-
+      }
+    >
       {view === 'deviation' && (
         <StatsRow>
           <StatChip $color={ct.colors.primary}>
@@ -604,6 +568,6 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
       {view === 'zScore' && hasAnomalies && onDayClick && (
         <AnomalyNote>異常値をクリックすると詳細を表示</AnomalyNote>
       )}
-    </Wrapper>
+    </ChartCard>
   )
 })

@@ -13,7 +13,7 @@ import { SegmentedControl } from '@/presentation/components/common'
 import { ChartCard } from './ChartCard'
 import { ChartEmpty } from './ChartState'
 import { EChart, type EChartsOption } from './EChart'
-import { standardTooltip } from './echartsOptionBuilders'
+import { standardGrid, standardTooltip, standardLegend, valueYAxis } from './builders'
 import { QuadrantGrid, QuadrantTag } from './CustomerScatterChart.styles'
 import { chartFontSize } from '@/presentation/theme/tokens'
 
@@ -224,7 +224,7 @@ export const CustomerScatterChart = memo(function CustomerScatterChart({
     }
 
     return {
-      grid: { left: 60, right: 30, top: 20, bottom: 40 },
+      grid: { ...standardGrid(), left: 60, right: 30, top: 20, bottom: 40 },
       tooltip: {
         ...standardTooltip(theme),
         formatter: (params: unknown) => {
@@ -234,9 +234,9 @@ export const CustomerScatterChart = memo(function CustomerScatterChart({
           return `${p.seriesName}<br/>客数: ${toComma(x)}人<br/>客単価: ${toComma(y)}円`
         },
       },
-      legend: { textStyle: { color: theme.colors.text3, fontSize: chartFontSize.axis }, bottom: 0 },
+      legend: { ...standardLegend(theme) },
       xAxis: {
-        type: 'value',
+        type: 'value' as const,
         name: isYoy ? '客数 前年比変化率' : '客数（人）',
         nameLocation: 'center',
         nameGap: 25,
@@ -245,20 +245,17 @@ export const CustomerScatterChart = memo(function CustomerScatterChart({
           fontSize: chartFontSize.axis,
           formatter: isYoy ? (v: number) => toPct(v, 0) : undefined,
         },
-        splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
+        splitLine: {
+          lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' as const },
+        },
       },
       yAxis: {
-        type: 'value',
+        ...valueYAxis(theme, {
+          formatter: isYoy ? (v: number) => toPct(v, 0) : (v: number) => `${toComma(v)}円`,
+        }),
         name: isYoy ? '客単価 前年比変化率' : '客単価（円）',
         nameLocation: 'center',
         nameGap: 45,
-        axisLabel: {
-          color: theme.colors.text3,
-          fontSize: chartFontSize.axis,
-          formatter: isYoy ? (v: number) => toPct(v, 0) : (v: number) => `${toComma(v)}円`,
-        },
-        axisLine: { show: false },
-        splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
       },
       series,
     }

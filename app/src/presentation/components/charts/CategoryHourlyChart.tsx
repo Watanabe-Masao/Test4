@@ -17,7 +17,7 @@ import { SegmentedControl } from '@/presentation/components/common'
 import { ChartCard } from './ChartCard'
 import { ChartLoading, ChartError, ChartEmpty } from './ChartState'
 import { EChart, type EChartsOption } from './EChart'
-import { standardTooltip, toCommaYen } from './echartsOptionBuilders'
+import { standardGrid, standardTooltip, toCommaYen } from './echartsOptionBuilders'
 import { chartFontSize } from '@/presentation/theme/tokens'
 import {
   ControlRow,
@@ -68,7 +68,7 @@ function buildOption(
   }
 
   return {
-    grid: { left: 100, right: 60, top: 10, bottom: 40, containLabel: false },
+    grid: { ...standardGrid(), left: 100, right: 60, top: 10, bottom: 40, containLabel: false },
     tooltip: {
       ...standardTooltip(theme),
       formatter: (params: unknown) => {
@@ -109,7 +109,7 @@ function buildOption(
       inRange: {
         color: [theme.mode === 'dark' ? theme.colors.bg3 : '#f1f5f9', theme.colors.palette.primary],
       },
-      textStyle: { color: theme.colors.text3, fontSize: 9 },
+      textStyle: { color: theme.colors.text3, fontSize: chartFontSize.annotation },
       show: false,
     },
     series: [
@@ -122,7 +122,7 @@ function buildOption(
             const val = (params as { value: [number, number, number] }).value[2]
             return val > 0 ? toCommaYen(val) : ''
           },
-          fontSize: 8,
+          fontSize: chartFontSize.annotation,
           color: theme.colors.text3,
         },
         emphasis: {

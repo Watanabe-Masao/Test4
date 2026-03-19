@@ -431,9 +431,7 @@ function DiffText({
   const color = value > 0 ? '#ef4444' : value < 0 ? '#3498db' : undefined
   return (
     <span style={{ fontSize: '0.6rem', marginLeft: 4, color, opacity: 0.8 }}>
-      ({sign}
-      {value.toFixed(decimals)}
-      {unit})
+      {`(${sign}${value.toFixed(decimals)}${unit})`}
     </span>
   )
 }

@@ -18,23 +18,50 @@ export const Backdrop = styled.div`
   position: fixed;
   inset: 0;
   background: ${({ theme }) => theme.interactive.backdrop};
-  backdrop-filter: blur(${({ theme }) => theme.modal.backdropBlur});
+  backdrop-filter: blur(${({ theme }) => theme.modal.backdropBlur}) saturate(180%);
+  -webkit-backdrop-filter: blur(${({ theme }) => theme.modal.backdropBlur}) saturate(180%);
   z-index: ${({ theme }) => theme.zIndex.modal};
   display: flex;
   align-items: center;
   justify-content: center;
+  animation: fadeIn ${({ theme }) => theme.transitions.fast}
+    ${({ theme }) => theme.transitions.ease};
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
 `
 
 export const Container = styled.div<{ $size: ModalSize }>`
-  background: ${({ theme }) => theme.colors.bg2};
+  background: ${({ theme }) => theme.colors.bg2}f2;
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.xl};
   box-shadow: ${({ theme }) => theme.shadows.lg};
+  backdrop-filter: blur(${({ theme }) => theme.modal.containerBlur}) saturate(180%);
+  -webkit-backdrop-filter: blur(${({ theme }) => theme.modal.containerBlur}) saturate(180%);
   width: 90%;
   max-height: ${({ theme }) => theme.modal.maxHeight};
   overflow-y: auto;
   position: relative;
+  animation: modalSlideIn ${({ theme }) => theme.transitions.normal}
+    ${({ theme }) => theme.transitions.spring};
   ${({ $size }) => sizeStyles[$size]}
+
+  @keyframes modalSlideIn {
+    from {
+      opacity: 0;
+      transform: scale(0.96) translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
 `
 
 export const Header = styled.div`
@@ -59,15 +86,23 @@ export const CloseButton = styled.button`
   cursor: pointer;
   padding: ${({ theme }) => theme.spacing[2]};
   border-radius: ${({ theme }) => theme.radii.md};
+  transition:
+    background ${({ theme }) => theme.transitions.fast} ${({ theme }) => theme.transitions.ease},
+    color ${({ theme }) => theme.transitions.fast} ${({ theme }) => theme.transitions.ease},
+    transform ${({ theme }) => theme.transitions.fast} ${({ theme }) => theme.transitions.ease};
 
   &:hover {
     background: ${({ theme }) => theme.colors.bg4};
     color: ${({ theme }) => theme.colors.text};
   }
 
+  &:active {
+    transform: ${({ theme }) => theme.interaction.pressScale};
+  }
+
   &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
-    outline-offset: 2px;
+    outline: none;
+    box-shadow: ${({ theme }) => theme.interaction.focusRing};
   }
 `
 

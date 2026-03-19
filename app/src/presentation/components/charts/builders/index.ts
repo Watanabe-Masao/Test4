@@ -27,4 +27,10 @@ export { zeroBaseline, budgetLine, thresholdLine } from './markLine'
 export type { MarkLineOption } from './markLine'
 
 // ─── 系列スタイル ──────────────────────────────────────
-export { barDefaults, horizontalBarDefaults, lineDefaults, areaDefaults } from './series'
+export {
+  barDefaults,
+  horizontalBarDefaults,
+  lineDefaults,
+  areaDefaults,
+  verticalGradient,
+} from './series'

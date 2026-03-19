@@ -14,10 +14,10 @@ import {
 import { ChartCard } from './ChartCard'
 import { ChartLoading, ChartError, ChartEmpty } from './ChartState'
 import { EChart, type EChartsOption } from './EChart'
-import { standardTooltip } from './echartsOptionBuilders'
+import { standardGrid, standardTooltip, valueYAxis } from './builders'
 import { LegendRow, LegendItem, QuadrantLabel } from './PiCvBubbleChart.styles'
-import { HIERARCHY_LABELS, type HierarchyLevel } from './ChartParts'
 import { chartFontSize } from '@/presentation/theme/tokens'
+import { HIERARCHY_LABELS, type HierarchyLevel } from './ChartParts'
 
 const TYPE_COLORS: Record<ProductType, string> = {
   flagship: '#22c55e',
@@ -99,7 +99,7 @@ export const PiCvBubbleChart = memo(function PiCvBubbleChart({
     maxCv *= 1.15
 
     return {
-      grid: { left: 50, right: 30, top: 20, bottom: 40 },
+      grid: { ...standardGrid(), left: 50, right: 30, top: 20, bottom: 40 },
       tooltip: {
         ...standardTooltip(theme),
         formatter: (params: unknown) => {
@@ -111,24 +111,22 @@ export const PiCvBubbleChart = memo(function PiCvBubbleChart({
         },
       },
       xAxis: {
-        type: 'value',
+        type: 'value' as const,
         name: `${piMetric === 'salesPi' ? '金額PI' : '数量PI'} (平均)`,
         nameLocation: 'center',
         nameGap: 25,
         max: maxPi,
         min: 0,
         axisLabel: { color: theme.colors.text3, fontSize: chartFontSize.axis },
-        splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
+        splitLine: {
+          lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' as const },
+        },
       },
       yAxis: {
-        type: 'value',
+        ...valueYAxis(theme, { min: 0, max: maxCv }),
         name: 'CV (変動係数)',
         nameLocation: 'center',
         nameGap: 35,
-        max: maxCv,
-        min: 0,
-        axisLabel: { color: theme.colors.text3, fontSize: chartFontSize.axis },
-        splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
       },
       series: [
         {

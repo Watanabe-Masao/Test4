@@ -18,6 +18,7 @@ import {
   standardLegend,
   toCommaYen,
 } from './echartsOptionBuilders'
+import { categoryXAxis, lineDefaults } from './builders'
 import {
   SummaryRow,
   Metric,
@@ -109,20 +110,16 @@ export const PrevYearComparisonChart = memo(function PrevYearComparisonChart({
         name: '比較期累計',
         type: 'line',
         data: data.map((d) => d.prevYearCum),
-        lineStyle: { color: theme.chart.previousYear, width: 2, type: 'dashed' },
+        ...lineDefaults({ color: theme.chart.previousYear, width: 2, dashed: true }),
         areaStyle: { color: `${theme.chart.previousYear}26` },
-        itemStyle: { color: theme.chart.previousYear },
-        symbol: 'none',
         connectNulls: true,
       },
       {
         name: '当期累計',
         type: 'line',
         data: data.map((d) => d.currentCum),
-        lineStyle: { color: theme.chart.currentYear, width: 2.5 },
+        ...lineDefaults({ color: theme.chart.currentYear, width: 2.5 }),
         areaStyle: { color: `${theme.chart.currentYear}4d` },
-        itemStyle: { color: theme.chart.currentYear },
-        symbol: 'none',
       },
     ]
     if (prevTotal > 0) {
@@ -157,15 +154,7 @@ export const PrevYearComparisonChart = memo(function PrevYearComparisonChart({
         },
       },
       legend: standardLegend(theme),
-      xAxis: {
-        type: 'category',
-        data: days,
-        axisLabel: {
-          color: theme.colors.text3,
-          fontSize: chartFontSize.axis,
-          fontFamily: theme.typography.fontFamily.mono,
-        },
-      },
+      xAxis: categoryXAxis(days, theme),
       yAxis: yenYAxis(theme),
       series,
     }

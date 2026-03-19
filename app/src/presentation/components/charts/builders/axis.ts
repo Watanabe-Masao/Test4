@@ -24,8 +24,9 @@ function splitLineStyle(theme: AppTheme) {
   return {
     lineStyle: {
       color: theme.colors.border,
-      opacity: 0.3,
+      opacity: 0.2,
       type: 'dashed' as const,
+      width: 0.5,
     },
   }
 }

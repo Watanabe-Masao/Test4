@@ -5,10 +5,8 @@ import { EChart, type EChartsOption } from './EChart'
 import { useChartTheme, useCurrencyFormatter, toAxisYen, toPct } from './chartTheme'
 import { DualPeriodSlider } from './DualPeriodSlider'
 import { useDualPeriodRange } from './useDualPeriodRange'
+import { ChartCard } from './ChartCard'
 import {
-  Wrapper,
-  HeaderRow,
-  Title,
   ToggleRow,
   ViewToggle,
   ViewBtn,
@@ -32,7 +30,14 @@ import {
 import type { BudgetViewType, CompareMode } from './BudgetVsActualChart.styles'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import { standardGrid, standardTooltip, standardLegend, toCommaYen } from './echartsOptionBuilders'
-import { valueYAxis, percentYAxis } from './builders'
+import {
+  categoryXAxis,
+  valueYAxis,
+  percentYAxis,
+  lineDefaults,
+  areaDefaults,
+  zeroBaseline,
+} from './builders'
 import { chartFontSize } from '@/presentation/theme/tokens'
 
 interface DataPoint {
@@ -84,17 +89,7 @@ function buildOption(
   theme: AppTheme,
 ): EChartsOption {
   const days = chartData.map((d) => String(d.day))
-  const xAxis = {
-    type: 'category' as const,
-    data: days,
-    axisLabel: {
-      color: theme.colors.text3,
-      fontSize: chartFontSize.axis,
-      fontFamily: theme.typography.fontFamily.mono,
-    },
-    axisLine: { lineStyle: { color: theme.colors.border } },
-    axisTick: { show: false },
-  }
+  const xAxis = categoryXAxis(days, theme)
 
   if (view === 'line') {
     const series: EChartsOption['series'] = [
@@ -102,9 +97,7 @@ function buildOption(
         name: 'actualCum',
         type: 'line' as const,
         data: chartData.map((d) => d.actualCum),
-        lineStyle: { color: theme.chart.barPositive, width: 2.5 },
-        itemStyle: { color: theme.chart.barPositive },
-        symbol: 'none',
+        ...lineDefaults({ color: theme.chart.barPositive, width: 2.5 }),
         emphasis: {
           itemStyle: {
             color: theme.chart.barPositive,
@@ -142,9 +135,7 @@ function buildOption(
         name: 'budgetCum',
         type: 'line' as const,
         data: chartData.map((d) => d.budgetCum),
-        lineStyle: { color: theme.chart.budget, width: 2, type: 'dashed' },
-        itemStyle: { color: theme.chart.budget },
-        symbol: 'none',
+        ...lineDefaults({ color: theme.chart.budget, dashed: true }),
       })
     }
     if (showPrevYearSeries) {
@@ -152,9 +143,7 @@ function buildOption(
         name: 'prevYearCum',
         type: 'line' as const,
         data: chartData.map((d) => d.prevYearCum ?? null),
-        lineStyle: { color: theme.chart.previousYear, width: 1.5, type: 'dashed' },
-        itemStyle: { color: theme.chart.previousYear },
-        symbol: 'none',
+        ...lineDefaults({ color: theme.chart.previousYear, dashed: true, width: 1.5 }),
         connectNulls: true,
       })
     }
@@ -217,12 +206,7 @@ function buildOption(
             }
           }),
           barMaxWidth: 16,
-          markLine: {
-            data: [{ yAxis: 0 }],
-            lineStyle: { color: theme.colors.border, width: 1 },
-            symbol: 'none',
-            label: { show: false },
-          },
+          markLine: zeroBaseline(theme),
         },
       ],
     }
@@ -247,9 +231,7 @@ function buildOption(
           name: 'achieveRate',
           type: 'line' as const,
           data: chartData.map((d) => d.achieveRate),
-          lineStyle: { color: theme.colors.palette.primary, width: 2.5 },
-          itemStyle: { color: theme.colors.palette.primary },
-          symbol: 'none',
+          ...lineDefaults({ color: theme.colors.palette.primary, width: 2.5 }),
           connectNulls: true,
           emphasis: {
             itemStyle: {
@@ -290,20 +272,16 @@ function buildOption(
         name: 'budgetCum',
         type: 'line' as const,
         data: chartData.map((d) => d.budgetCum),
+        ...areaDefaults({ color: theme.chart.budget, subtle: true }),
         lineStyle: { color: theme.chart.budget, width: 2, type: 'dashed' },
-        itemStyle: { color: theme.chart.budget },
-        areaStyle: { color: theme.chart.budget, opacity: 0.1 },
-        symbol: 'none',
       })
     }
     series.push({
       name: 'actualCum',
       type: 'line' as const,
       data: chartData.map((d) => d.actualCum),
+      ...areaDefaults({ color: theme.chart.barPositive }),
       lineStyle: { color: theme.chart.barPositive, width: 2.5 },
-      itemStyle: { color: theme.chart.barPositive },
-      areaStyle: { color: theme.chart.barPositive, opacity: 0.15 },
-      symbol: 'none',
       emphasis: {
         itemStyle: {
           color: theme.chart.barPositive,
@@ -340,10 +318,8 @@ function buildOption(
         name: 'prevYearCum',
         type: 'line' as const,
         data: chartData.map((d) => d.prevYearCum ?? null),
+        ...areaDefaults({ color: theme.chart.previousYear, subtle: true }),
         lineStyle: { color: theme.chart.previousYear, width: 2, type: 'dashed' },
-        itemStyle: { color: theme.chart.previousYear },
-        areaStyle: { color: theme.chart.previousYear, opacity: 0.08 },
-        symbol: 'none',
         connectNulls: true,
       })
     }
@@ -401,9 +377,7 @@ function buildOption(
       name: 'prevYearDiff',
       type: 'line' as const,
       data: chartData.map((d) => d.prevYearDiff),
-      lineStyle: { color: theme.colors.palette.primary, width: 2.5 },
-      itemStyle: { color: theme.colors.palette.primary },
-      symbol: 'none',
+      ...lineDefaults({ color: theme.colors.palette.primary, width: 2.5 }),
       connectNulls: true,
     })
   }
@@ -556,9 +530,10 @@ export const BudgetVsActualChart = memo(function BudgetVsActualChart({
   )
 
   return (
-    <Wrapper aria-label="予算実績比較チャート">
-      <HeaderRow>
-        <Title>{chartTitle}</Title>
+    <ChartCard
+      title={chartTitle}
+      ariaLabel="予算実績比較チャート"
+      toolbar={
         <ToggleRow>
           {hasPrevYear && (
             <CompareChipGroup>
@@ -577,7 +552,8 @@ export const BudgetVsActualChart = memo(function BudgetVsActualChart({
             ))}
           </ViewToggle>
         </ToggleRow>
-      </HeaderRow>
+      }
+    >
       {/* ── 予算サマリー（予算含むモード） ── */}
       {showBudget && budget > 0 && currentActual > 0 && (
         <SummaryRow>
@@ -642,6 +618,6 @@ export const BudgetVsActualChart = memo(function BudgetVsActualChart({
         onP2Change={onP2Change}
         p2Enabled={p2Enabled}
       />
-    </Wrapper>
+    </ChartCard>
   )
 })

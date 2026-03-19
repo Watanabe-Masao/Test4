@@ -23,10 +23,8 @@ import { formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette, chartFontSize } from '@/presentation/theme/tokens'
 import { useI18n } from '@/application/hooks/useI18n'
+import { ChartCard } from './ChartCard'
 import {
-  Wrapper,
-  HeaderRow,
-  Title,
   Controls,
   TabGroup,
   Tab,
@@ -240,12 +238,11 @@ export const TimeSlotChart = memo(function TimeSlotChart({
 
   if (d.error) {
     return (
-      <Wrapper aria-label="時間帯別売上">
-        <Title>時間帯別売上</Title>
+      <ChartCard title="時間帯別売上" ariaLabel="時間帯別売上">
         <ErrorMsg>
           {messages.errors.dataFetchFailed}: {d.error}
         </ErrorMsg>
-      </Wrapper>
+      </ChartCard>
     )
   }
 
@@ -264,12 +261,10 @@ export const TimeSlotChart = memo(function TimeSlotChart({
       : `時間帯別${d.metricMode === 'amount' ? '売上' : '数量'}${d.viewMode === 'kpi' ? ' サマリー' : ''}`
 
   return (
-    <Wrapper aria-label="時間帯別売上">
-      <HeaderRow>
-        <Title>
-          {titleText}
-          {modeLabel}
-        </Title>
+    <ChartCard
+      title={`${titleText}${modeLabel}`}
+      ariaLabel="時間帯別売上"
+      toolbar={
         <Controls>
           {d.viewMode !== 'yoy' && (
             <TabGroup>
@@ -331,8 +326,8 @@ export const TimeSlotChart = memo(function TimeSlotChart({
             )}
           </TabGroup>
         </Controls>
-      </HeaderRow>
-
+      }
+    >
       {/* ── Chart view (ECharts) ── */}
       {d.viewMode === 'chart' && (
         <EChart option={chartOption} height={320} ariaLabel="時間帯別売上チャート" />
@@ -617,6 +612,6 @@ export const TimeSlotChart = memo(function TimeSlotChart({
           )}
         </HierarchyRow>
       )}
-    </Wrapper>
+    </ChartCard>
   )
 })

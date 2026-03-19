@@ -19,7 +19,7 @@ import { ChartCard } from './ChartCard'
 import { ChartLoading, ChartError, ChartEmpty } from './ChartState'
 import { EChart, type EChartsOption } from './EChart'
 import { yenYAxis, standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
-import { chartFontSize } from '@/presentation/theme/tokens'
+import { categoryXAxis } from './builders'
 import {
   TopNSelector,
   TopNSelect,
@@ -59,16 +59,7 @@ function buildOption(
     grid: standardGrid(),
     tooltip: standardTooltip(theme),
     legend: { ...standardLegend(theme), type: 'scroll' },
-    xAxis: {
-      type: 'category',
-      data: hours,
-      axisLabel: {
-        color: theme.colors.text3,
-        fontSize: chartFontSize.axis,
-        fontFamily: theme.typography.fontFamily.mono,
-      },
-      axisLine: { lineStyle: { color: theme.colors.border } },
-    },
+    xAxis: categoryXAxis(hours, theme),
     yAxis: yenYAxis(theme),
     series: [...departments].reverse().map((dept) => ({
       name: dept.name,

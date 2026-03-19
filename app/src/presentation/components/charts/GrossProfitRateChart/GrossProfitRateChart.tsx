@@ -7,12 +7,12 @@ import { memo, useMemo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { EChart, type EChartsOption } from '../EChart'
-import { standardGrid, standardTooltip } from '../echartsOptionBuilders'
+import { standardGrid, standardTooltip, categoryXAxis, valueYAxis } from '../builders'
 import { toPct } from '../chartTheme'
 import { DualPeriodSlider } from '../DualPeriodSlider'
 import { useDualPeriodRange } from '../useDualPeriodRange'
 import type { DailyRecord } from '@/domain/models'
-import { Wrapper, Title } from './GrossProfitRateChart.styles'
+import { ChartCard } from '../ChartCard'
 import { chartFontSize } from '@/presentation/theme/tokens'
 import {
   buildGrossProfitRateViewModel,
@@ -52,32 +52,13 @@ function buildOption(
         return `${p[0].name}日<br/>粗利率: ${toPct(p[0].value)}`
       },
     },
-    xAxis: {
-      type: 'category' as const,
-      data: days,
-      axisLabel: {
-        color: theme.colors.text3,
-        fontSize: chartFontSize.axis,
-        fontFamily: theme.typography.fontFamily.mono,
-      },
-      axisLine: { lineStyle: { color: theme.colors.border } },
-      axisTick: { show: false },
-    },
+    xAxis: categoryXAxis(days, theme),
     yAxis: {
-      type: 'value' as const,
-      min: 0,
-      max: yMax,
-      axisLabel: {
+      ...valueYAxis(theme, {
+        min: 0,
+        max: yMax,
         formatter: (v: number) => toPct(v, 0),
-        color: theme.colors.text3,
-        fontSize: chartFontSize.axis,
-        fontFamily: theme.typography.fontFamily.mono,
-      },
-      axisLine: { show: false },
-      axisTick: { show: false },
-      splitLine: {
-        lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' as const },
-      },
+      }),
     },
     series: [
       {
@@ -165,8 +146,7 @@ export const GrossProfitRateChart = memo(function GrossProfitRateChart({
   )
 
   return (
-    <Wrapper aria-label="粗利率チャート">
-      <Title>粗利率推移（累計ベース）</Title>
+    <ChartCard title="粗利率推移（累計ベース）" ariaLabel="粗利率チャート">
       <EChart option={option} height={280} ariaLabel="粗利率チャート" />
       <DualPeriodSlider
         min={1}
@@ -179,6 +159,6 @@ export const GrossProfitRateChart = memo(function GrossProfitRateChart({
         onP2Change={onP2Change}
         p2Enabled={p2Enabled}
       />
-    </Wrapper>
+    </ChartCard>
   )
 })

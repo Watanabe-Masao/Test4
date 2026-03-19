@@ -15,8 +15,7 @@ import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import { ChartCard } from './ChartCard'
 import { EChart, type EChartsOption } from './EChart'
 import { yenYAxis, standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
-import { valueYAxis } from './builders'
-import { chartFontSize } from '@/presentation/theme/tokens'
+import { categoryXAxis, valueYAxis, lineDefaults } from './builders'
 import { KpiGrid, KpiCard, KpiLabel, KpiValue, KpiSub } from './DiscountTrendChart.styles'
 
 const DISCOUNT_COLORS = ['#ef4444', '#f97316', '#eab308', '#a855f7'] as const
@@ -167,9 +166,7 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
       type: 'line',
       yAxisIndex: 1,
       data: data.map((d) => d.cumRate as number),
-      lineStyle: { color: theme.colors.palette.orange, width: 2 },
-      itemStyle: { color: theme.colors.palette.orange },
-      symbol: 'none',
+      ...lineDefaults({ color: theme.colors.palette.orange }),
       connectNulls: true,
     })
     if (hasPrev) {
@@ -178,9 +175,7 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
         type: 'line',
         yAxisIndex: 1,
         data: data.map((d) => d.prevCumRate as number | null),
-        lineStyle: { color: theme.chart.previousYear, width: 1.5, type: 'dashed' },
-        itemStyle: { color: theme.chart.previousYear },
-        symbol: 'none',
+        ...lineDefaults({ color: theme.chart.previousYear, width: 1.5, dashed: true }),
         connectNulls: true,
       })
     }
@@ -189,15 +184,7 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
       grid: standardGrid(),
       tooltip: standardTooltip(theme),
       legend: { ...standardLegend(theme), type: 'scroll' },
-      xAxis: {
-        type: 'category',
-        data: days,
-        axisLabel: {
-          color: theme.colors.text3,
-          fontSize: chartFontSize.axis,
-          fontFamily: theme.typography.fontFamily.mono,
-        },
-      },
+      xAxis: categoryXAxis(days, theme),
       yAxis: [
         yenYAxis(theme) as Record<string, unknown>,
         valueYAxis(theme, {

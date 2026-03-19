@@ -6,24 +6,52 @@ import styled from 'styled-components'
 export const Overlay = styled.div`
   position: fixed;
   inset: 0;
-  z-index: 200;
-  background: rgba(0, 0, 0, 0.5);
+  z-index: ${({ theme }) => theme.zIndex.modal};
+  background: ${({ theme }) => theme.interactive.backdrop};
+  backdrop-filter: blur(${({ theme }) => theme.modal.backdropBlur}) saturate(180%);
+  -webkit-backdrop-filter: blur(${({ theme }) => theme.modal.backdropBlur}) saturate(180%);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: ${({ theme }) => theme.spacing[4]};
+  animation: mbpFadeIn ${({ theme }) => theme.transitions.fast}
+    ${({ theme }) => theme.transitions.ease};
+
+  @keyframes mbpFadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
 `
 
 export const Panel = styled.div`
-  background: ${({ theme }) => theme.colors.bg2};
+  background: ${({ theme }) => theme.colors.bg2}f2;
   border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.lg};
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+  border-radius: ${({ theme }) => theme.radii.xl};
+  box-shadow: ${({ theme }) => theme.shadows.lg};
+  backdrop-filter: blur(${({ theme }) => theme.modal.containerBlur}) saturate(180%);
+  -webkit-backdrop-filter: blur(${({ theme }) => theme.modal.containerBlur}) saturate(180%);
   max-width: 640px;
   width: 100%;
   max-height: 80vh;
   overflow-y: auto;
   padding: ${({ theme }) => theme.spacing[6]};
+  animation: mbpSlideIn ${({ theme }) => theme.transitions.normal}
+    ${({ theme }) => theme.transitions.spring};
+
+  @keyframes mbpSlideIn {
+    from {
+      opacity: 0;
+      transform: scale(0.96) translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
 `
 
 export const MbpHeader = styled.div`
@@ -59,14 +87,20 @@ export const CloseButton = styled.button`
   border-radius: ${({ theme }) => theme.radii.md};
   color: ${({ theme }) => theme.colors.text4};
   font-size: 18px;
+  transition:
+    background ${({ theme }) => theme.transitions.fast} ${({ theme }) => theme.transitions.ease},
+    color ${({ theme }) => theme.transitions.fast} ${({ theme }) => theme.transitions.ease},
+    transform ${({ theme }) => theme.transitions.fast} ${({ theme }) => theme.transitions.ease};
   &:hover {
     background: ${({ theme }) => theme.colors.bg4};
     color: ${({ theme }) => theme.colors.text};
   }
+  &:active {
+    transform: ${({ theme }) => theme.interaction.pressScale};
+  }
   &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
-    outline-offset: 2px;
-    border-radius: ${({ theme }) => theme.radii.sm};
+    outline: none;
+    box-shadow: ${({ theme }) => theme.interaction.focusRing};
   }
 `
 
@@ -107,6 +141,8 @@ export const InputRow = styled.div<{ $clickable?: boolean }>`
   border-radius: ${({ theme }) => theme.radii.md};
   background: ${({ theme }) => theme.colors.bg3};
   cursor: ${({ $clickable }) => ($clickable ? 'pointer' : 'default')};
+  transition: background ${({ theme }) => theme.transitions.fast}
+    ${({ theme }) => theme.transitions.ease};
 
   ${({ $clickable, theme }) =>
     $clickable &&
@@ -286,13 +322,19 @@ export const TabButton = styled.button<{ $active: boolean }>`
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text4)};
   background: ${({ $active, theme }) =>
     $active ? `${theme.colors.palette.primary}15` : 'transparent'};
+  transition:
+    background ${({ theme }) => theme.transitions.fast} ${({ theme }) => theme.transitions.ease},
+    color ${({ theme }) => theme.transitions.fast} ${({ theme }) => theme.transitions.ease},
+    transform ${({ theme }) => theme.transitions.fast} ${({ theme }) => theme.transitions.ease};
   &:hover {
     background: ${({ theme }) => theme.colors.bg4};
   }
+  &:active {
+    transform: ${({ theme }) => theme.interaction.pressScale};
+  }
   &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
-    outline-offset: 2px;
-    border-radius: ${({ theme }) => theme.radii.sm};
+    outline: none;
+    box-shadow: ${({ theme }) => theme.interaction.focusRing};
   }
 `
 
@@ -325,15 +367,21 @@ export const ActionButton = styled.button`
   background: ${({ theme }) => theme.colors.bg3};
   border: 1px solid ${({ theme }) => theme.colors.border};
   white-space: nowrap;
+  transition:
+    background ${({ theme }) => theme.transitions.fast} ${({ theme }) => theme.transitions.ease},
+    color ${({ theme }) => theme.transitions.fast} ${({ theme }) => theme.transitions.ease},
+    transform ${({ theme }) => theme.transitions.fast} ${({ theme }) => theme.transitions.ease};
 
   &:hover {
     background: ${({ theme }) => theme.colors.bg4};
     color: ${({ theme }) => theme.colors.text};
   }
+  &:active {
+    transform: ${({ theme }) => theme.interaction.pressScale};
+  }
   &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
-    outline-offset: 2px;
-    border-radius: ${({ theme }) => theme.radii.sm};
+    outline: none;
+    box-shadow: ${({ theme }) => theme.interaction.focusRing};
   }
 `
 

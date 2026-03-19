@@ -139,6 +139,8 @@ export const RegressionInsightChart = memo(function RegressionInsightChart({
             fontFamily: theme.typography.fontFamily.mono,
             formatter: (v: string) => `${v}日`,
           },
+          axisLine: { lineStyle: { color: theme.colors.border } },
+          axisTick: { lineStyle: { color: theme.colors.border } },
         },
         yAxis: valueYAxis(theme, { formatter: (v: number) => toManYen(v) }),
         series: [
@@ -201,20 +203,12 @@ export const RegressionInsightChart = memo(function RegressionInsightChart({
           fontFamily: theme.typography.fontFamily.mono,
           formatter: (v: string) => `${v}日`,
         },
+        axisLine: { lineStyle: { color: theme.colors.border } },
+        axisTick: { lineStyle: { color: theme.colors.border } },
       },
-      yAxis: {
-        type: 'value',
-        name: '残差',
-        nameLocation: 'middle',
-        nameGap: 45,
-        axisLabel: {
-          formatter: (v: number) => toManYen(v),
-          color: theme.colors.text3,
-          fontSize: chartFontSize.axis,
-        },
-        axisLine: { show: false },
-        splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
-      },
+      yAxis: valueYAxis(theme, {
+        formatter: (v: number) => toManYen(v),
+      }),
       series: [
         {
           name: '残差',
@@ -227,7 +221,7 @@ export const RegressionInsightChart = memo(function RegressionInsightChart({
               { yAxis: 0, lineStyle: { color: theme.colors.palette.slate, type: 'dashed' } },
               {
                 yAxis: stats.stdDev,
-                label: { formatter: '+1σ', fontSize: 8 },
+                label: { formatter: '+1σ', fontSize: chartFontSize.annotation },
                 lineStyle: {
                   color: theme.colors.palette.warningDark,
                   type: 'dashed',
@@ -236,7 +230,7 @@ export const RegressionInsightChart = memo(function RegressionInsightChart({
               },
               {
                 yAxis: -stats.stdDev,
-                label: { formatter: '-1σ', fontSize: 8 },
+                label: { formatter: '-1σ', fontSize: chartFontSize.annotation },
                 lineStyle: {
                   color: theme.colors.palette.warningDark,
                   type: 'dashed',
@@ -245,12 +239,12 @@ export const RegressionInsightChart = memo(function RegressionInsightChart({
               },
               {
                 yAxis: stats.stdDev * 2,
-                label: { formatter: '+2σ', fontSize: 8 },
+                label: { formatter: '+2σ', fontSize: chartFontSize.annotation },
                 lineStyle: { color: theme.colors.palette.dangerDark, type: 'dashed', opacity: 0.3 },
               },
               {
                 yAxis: -stats.stdDev * 2,
-                label: { formatter: '-2σ', fontSize: 8 },
+                label: { formatter: '-2σ', fontSize: chartFontSize.annotation },
                 lineStyle: { color: theme.colors.palette.dangerDark, type: 'dashed', opacity: 0.3 },
               },
             ],

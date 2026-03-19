@@ -10,7 +10,7 @@ import { CATEGORY_LABELS, CATEGORY_ORDER } from '@/domain/constants/categories'
 import { SegmentedControl } from '@/presentation/components/common'
 import { ChartCard } from './ChartCard'
 import { EChart, type EChartsOption } from './EChart'
-import { standardTooltip, toCommaYen, toAxisManYen } from './echartsOptionBuilders'
+import { standardGrid, standardTooltip, toCommaYen, toAxisManYen } from './echartsOptionBuilders'
 import { SummaryRow, SummaryItem } from './CategoryRankingCard.styles'
 import { chartFontSize } from '@/presentation/theme/tokens'
 
@@ -63,7 +63,7 @@ export const CategoryRankingCard = memo(function CategoryRankingCard({
 
   const option = useMemo<EChartsOption>(
     () => ({
-      grid: { left: 80, right: 60, top: 4, bottom: 4, containLabel: false },
+      grid: { ...standardGrid(), left: 80, right: 60, top: 4, bottom: 4, containLabel: false },
       tooltip: {
         ...standardTooltip(theme),
         formatter: (params: unknown) => {

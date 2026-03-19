@@ -582,4 +582,45 @@ describe('Architecture Guard', () => {
       ).toBe(true)
     }
   })
+
+  // ─── 前年日付の独自計算禁止ガード ─────────────────────
+  // 禁止事項 #2: 引数を無視して別ソースから再計算する
+  // presentation 層で dowOffset を使った前年日付の独自計算を禁止。
+  // 前年同曜日の日付解決は domain/models/ComparisonScope.ts の
+  // resolveSameDowSource アルゴリズムに従うこと。
+
+  /** dowOffset による日付計算パターン（独自の同曜日補正） */
+  const DOW_OFFSET_CALC_PATTERN = /\.setDate\([^)]*-\s*dowOffset/
+
+  /**
+   * 許可リスト: resolveSameDowSource と同一アルゴリズムを使用しているファイル。
+   * これらのファイルは anchor ±7日の最近傍探索を実装しており、
+   * dowOffset による独自補正は含まない。
+   */
+  const DOW_CALC_ALLOWLIST = new Set([
+    // WeatherWidget は resolveSameDowSource 同一アルゴリズムに修正済み
+    'pages/Dashboard/widgets/WeatherWidget.tsx',
+  ])
+
+  it('presentation 層で dowOffset による前年日付の独自計算を禁止', () => {
+    const presDir = path.join(SRC_DIR, 'presentation')
+    const files = collectTsFiles(presDir)
+    const violating: string[] = []
+
+    for (const file of files) {
+      const relPath = path.relative(path.join(SRC_DIR, 'presentation'), file)
+      if (DOW_CALC_ALLOWLIST.has(relPath)) continue
+      const content = fs.readFileSync(file, 'utf-8')
+      if (DOW_OFFSET_CALC_PATTERN.test(content)) {
+        violating.push(relPath)
+      }
+    }
+
+    expect(
+      violating.length,
+      `dowOffset による独自日付計算が検出されました。\n` +
+        `前年同曜日の日付は domain/ComparisonScope の resolveSameDowSource アルゴリズムに従ってください。\n` +
+        `違反ファイル:\n${violating.join('\n')}`,
+    ).toBe(0)
+  })
 })

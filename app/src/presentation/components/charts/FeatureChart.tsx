@@ -26,8 +26,9 @@ import {
   standardGrid,
   standardTooltip,
   standardLegend,
-  toCommaYen,
-} from './echartsOptionBuilders'
+  lineDefaults,
+} from './builders'
+import { toCommaYen } from './echartsOptionBuilders'
 import { AnomalyGrid, AnomalyCard, AnomalyDate, AnomalyValue } from './FeatureChart.styles'
 
 interface Props {
@@ -77,35 +78,28 @@ function buildOption(chartData: readonly FeatureChartDataPoint[], theme: AppThem
         name: '28日MA',
         type: 'line',
         data: chartData.map((d) => d.ma28),
-        lineStyle: { color: theme.colors.palette.slate, width: 2, type: 'dashed' },
-        itemStyle: { color: theme.colors.palette.slate },
-        symbol: 'none',
+        ...lineDefaults({ color: theme.colors.palette.slate, dashed: true }),
         connectNulls: true,
       },
       {
         name: '7日MA',
         type: 'line',
         data: chartData.map((d) => d.ma7),
-        lineStyle: { color: theme.colors.palette.cyan, width: 1.5, type: 'dashed' },
-        itemStyle: { color: theme.colors.palette.cyan },
-        symbol: 'none',
+        ...lineDefaults({ color: theme.colors.palette.cyan, dashed: true, width: 1.5 }),
         connectNulls: true,
       },
       {
         name: '3日MA',
         type: 'line',
         data: chartData.map((d) => d.ma3),
-        lineStyle: { color: theme.colors.palette.primary, width: 1.5 },
-        itemStyle: { color: theme.colors.palette.primary },
-        symbol: 'none',
+        ...lineDefaults({ color: theme.colors.palette.primary, width: 1.5 }),
         connectNulls: true,
       },
       {
         name: '売上実績',
         type: 'line',
         data: chartData.map((d) => d.sales),
-        lineStyle: { color: theme.colors.palette.primary, width: 2 },
-        itemStyle: { color: theme.colors.palette.primary },
+        ...lineDefaults({ color: theme.colors.palette.primary }),
         symbolSize: 4,
       },
     ],

@@ -18,8 +18,7 @@ import { ChartCard } from './ChartCard'
 import { ChartLoading, ChartError, ChartEmpty } from './ChartState'
 import { EChart, type EChartsOption } from './EChart'
 import { standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
-import { valueYAxis } from './builders'
-import { chartFontSize } from '@/presentation/theme/tokens'
+import { categoryXAxis, valueYAxis } from './builders'
 import {
   ControlRow,
   ChipGroup,
@@ -60,16 +59,7 @@ function buildOption(
       trigger: 'axis',
     },
     legend: { ...standardLegend(theme), type: 'scroll' },
-    xAxis: {
-      type: 'category',
-      data: weeks,
-      axisLabel: {
-        color: theme.colors.text3,
-        fontSize: chartFontSize.axis,
-        fontFamily: theme.typography.fontFamily.mono,
-      },
-      axisLine: { lineStyle: { color: theme.colors.border } },
-    },
+    xAxis: categoryXAxis(weeks, theme),
     yAxis: valueYAxis(theme, { formatter: (v: number) => toPct(v / 100, 0), max: 100 }),
     series: categories.map((cat, i) => ({
       name: cat.name,
