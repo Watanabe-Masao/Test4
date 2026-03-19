@@ -4,7 +4,7 @@ export const PanelOverlay = styled.div`
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.4);
-  z-index: 100;
+  z-index: ${({ theme }) => theme.zIndex.dropdown};
   display: flex;
   justify-content: flex-end;
 `

@@ -250,7 +250,7 @@ export const EvidenceChip = styled.button`
 export const Overlay = styled.div`
   position: fixed;
   inset: 0;
-  z-index: 1000;
+  z-index: ${({ theme }) => theme.zIndex.modal};
   display: flex;
   align-items: center;
   justify-content: center;

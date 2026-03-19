@@ -102,7 +102,7 @@ export const EditHint = styled.span`
 `
 export const KpiTooltip = styled.div`
   position: absolute;
-  z-index: 100;
+  z-index: ${({ theme }) => theme.zIndex.dropdown};
   padding: 8px 12px;
   border-radius: 6px;
   font-size: 0.6rem;

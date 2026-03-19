@@ -13,7 +13,7 @@ export const CalendarDropdown = styled.div`
   left: 50%;
   transform: translateX(-50%);
   margin-top: 4px;
-  z-index: 201;
+  z-index: ${({ theme }) => theme.zIndex.sticky + 1};
   background: ${({ theme }) => theme.colors.bg2};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
@@ -28,7 +28,7 @@ export const DualPeriodPanel = styled.div`
   top: 100%;
   left: 0;
   margin-top: 4px;
-  z-index: 201;
+  z-index: ${({ theme }) => theme.zIndex.sticky + 1};
   background: ${({ theme }) => theme.colors.bg2};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};

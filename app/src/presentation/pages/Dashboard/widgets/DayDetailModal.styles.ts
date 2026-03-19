@@ -378,7 +378,7 @@ export const LegendDot = styled.div<{ $color: string }>`
 `
 export const SegmentTooltip = styled.div`
   position: fixed;
-  z-index: 9999;
+  z-index: ${({ theme }) => theme.zIndex.tooltip};
   padding: 6px 10px;
   border-radius: 6px;
   font-size: 0.55rem;
@@ -534,7 +534,7 @@ export const HourlyTooltipBox = styled.div`
   bottom: calc(100% + 4px);
   left: 50%;
   transform: translateX(-50%);
-  z-index: 100;
+  z-index: ${({ theme }) => theme.zIndex.tooltip};
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 0.55rem;

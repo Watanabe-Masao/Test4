@@ -7,6 +7,7 @@
 import { memo, useMemo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
+import { Modal } from '@/presentation/components/common/Modal'
 import { EChart, type EChartsOption } from '@/presentation/components/charts/EChart'
 import {
   standardGrid,
@@ -21,11 +22,6 @@ import type {
   DailyForecast,
 } from '@/domain/models'
 import {
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalTitle,
-  ModalCloseBtn,
   ChartContainer,
   SummaryGrid,
   SummaryItem,
@@ -266,139 +262,126 @@ export const HourlyWeatherModal = memo(function HourlyWeatherModal({
     }
   }, [chartData, hasRecords, hasPrev, isForecastMode, theme])
 
+  const modalTitle = prevDayLabel
+    ? `${dayLabel}${isForecastMode ? ' の予報' : ' の時間別天気'} vs ${prevDayLabel}（${policyLabel}）`
+    : `${dayLabel}${isForecastMode ? ' の予報' : ' の時間別天気'}`
+
   return (
-    <ModalOverlay onClick={onClose}>
-      <ModalContent onClick={(e) => e.stopPropagation()}>
-        <ModalHeader>
-          <ModalTitle>
-            {dayLabel}
-            {isForecastMode ? ' の予報' : ' の時間別天気'}
-            {prevDayLabel && (
-              <span style={{ fontSize: '0.7rem', color: theme.colors.text3, marginLeft: 8 }}>
-                vs {prevDayLabel}（{policyLabel}）
-              </span>
+    <Modal title={modalTitle} onClose={onClose} size="lg">
+      {/* 予報日: 予報サマリカード */}
+      {forecast && <ForecastSummary forecast={forecast} />}
+
+      {chartData.length > 0 && (
+        <>
+          <ChartContainer>
+            <EChart option={option} height={250} ariaLabel="時間別天気チャート" />
+          </ChartContainer>
+
+          {/* 時間帯別の天気アイコン行（当年 + 前年） */}
+          <WeatherIconSection>
+            {hasRecords && (
+              <WeatherIconRowWrapper>
+                <WeatherIconRowLabel>{dateKey.slice(0, 4)}</WeatherIconRowLabel>
+                <WeatherIconRow>
+                  {records.map((r) => {
+                    const cat = categorizeWeatherCode(r.weatherCode)
+                    return (
+                      <WeatherIconCell key={r.hour}>
+                        <WeatherIconEmoji>{WEATHER_ICONS[cat]}</WeatherIconEmoji>
+                        <span>{String(r.hour).padStart(2, '0')}</span>
+                      </WeatherIconCell>
+                    )
+                  })}
+                </WeatherIconRow>
+              </WeatherIconRowWrapper>
             )}
-          </ModalTitle>
-          <ModalCloseBtn onClick={onClose}>&times;</ModalCloseBtn>
-        </ModalHeader>
+            {hasPrev && (
+              <WeatherIconRowWrapper>
+                <WeatherIconRowLabel>{prevYearDateKey?.slice(0, 4) ?? '前年'}</WeatherIconRowLabel>
+                <WeatherIconRow>
+                  {prevYearRecords.map((r) => {
+                    const cat = categorizeWeatherCode(r.weatherCode)
+                    return (
+                      <WeatherIconCell key={`prev-${r.hour}`}>
+                        <WeatherIconEmoji>{WEATHER_ICONS[cat]}</WeatherIconEmoji>
+                        <span>{String(r.hour).padStart(2, '0')}</span>
+                      </WeatherIconCell>
+                    )
+                  })}
+                </WeatherIconRow>
+              </WeatherIconRowWrapper>
+            )}
+          </WeatherIconSection>
+        </>
+      )}
 
-        {/* 予報日: 予報サマリカード */}
-        {forecast && <ForecastSummary forecast={forecast} />}
-
-        {chartData.length > 0 && (
+      <SummaryGrid>
+        {/* 実測日のサマリ */}
+        {summary && (
           <>
-            <ChartContainer>
-              <EChart option={option} height={250} ariaLabel="時間別天気チャート" />
-            </ChartContainer>
-
-            {/* 時間帯別の天気アイコン行（当年 + 前年） */}
-            <WeatherIconSection>
-              {hasRecords && (
-                <WeatherIconRowWrapper>
-                  <WeatherIconRowLabel>{dateKey.slice(0, 4)}</WeatherIconRowLabel>
-                  <WeatherIconRow>
-                    {records.map((r) => {
-                      const cat = categorizeWeatherCode(r.weatherCode)
-                      return (
-                        <WeatherIconCell key={r.hour}>
-                          <WeatherIconEmoji>{WEATHER_ICONS[cat]}</WeatherIconEmoji>
-                          <span>{String(r.hour).padStart(2, '0')}</span>
-                        </WeatherIconCell>
-                      )
-                    })}
-                  </WeatherIconRow>
-                </WeatherIconRowWrapper>
-              )}
-              {hasPrev && (
-                <WeatherIconRowWrapper>
-                  <WeatherIconRowLabel>
-                    {prevYearDateKey?.slice(0, 4) ?? '前年'}
-                  </WeatherIconRowLabel>
-                  <WeatherIconRow>
-                    {prevYearRecords.map((r) => {
-                      const cat = categorizeWeatherCode(r.weatherCode)
-                      return (
-                        <WeatherIconCell key={`prev-${r.hour}`}>
-                          <WeatherIconEmoji>{WEATHER_ICONS[cat]}</WeatherIconEmoji>
-                          <span>{String(r.hour).padStart(2, '0')}</span>
-                        </WeatherIconCell>
-                      )
-                    })}
-                  </WeatherIconRow>
-                </WeatherIconRowWrapper>
-              )}
-            </WeatherIconSection>
+            <SummaryItem>
+              <SummaryLabel>最高気温</SummaryLabel>
+              <SummaryValue style={{ color: '#ef4444' }}>
+                {summary.maxTemp.toFixed(1)}\u00B0C
+                {prevSummary && (
+                  <DiffText value={summary.maxTemp - prevSummary.maxTemp} unit="\u00B0C" />
+                )}
+              </SummaryValue>
+            </SummaryItem>
+            <SummaryItem>
+              <SummaryLabel>最低気温</SummaryLabel>
+              <SummaryValue style={{ color: '#3498db' }}>
+                {summary.minTemp.toFixed(1)}\u00B0C
+                {prevSummary && (
+                  <DiffText value={summary.minTemp - prevSummary.minTemp} unit="\u00B0C" />
+                )}
+              </SummaryValue>
+            </SummaryItem>
+            <SummaryItem>
+              <SummaryLabel>降水量合計</SummaryLabel>
+              <SummaryValue style={{ color: '#3b82f6' }}>
+                {summary.totalPrecip.toFixed(1)}mm
+              </SummaryValue>
+            </SummaryItem>
+            <SummaryItem>
+              <SummaryLabel>平均湿度</SummaryLabel>
+              <SummaryValue style={{ color: '#8b5cf6' }}>
+                {summary.avgHumidity.toFixed(0)}%
+              </SummaryValue>
+            </SummaryItem>
           </>
         )}
-
-        <SummaryGrid>
-          {/* 実測日のサマリ */}
-          {summary && (
-            <>
-              <SummaryItem>
-                <SummaryLabel>最高気温</SummaryLabel>
-                <SummaryValue style={{ color: '#ef4444' }}>
-                  {summary.maxTemp.toFixed(1)}\u00B0C
-                  {prevSummary && (
-                    <DiffText value={summary.maxTemp - prevSummary.maxTemp} unit="\u00B0C" />
-                  )}
-                </SummaryValue>
-              </SummaryItem>
-              <SummaryItem>
-                <SummaryLabel>最低気温</SummaryLabel>
-                <SummaryValue style={{ color: '#3498db' }}>
-                  {summary.minTemp.toFixed(1)}\u00B0C
-                  {prevSummary && (
-                    <DiffText value={summary.minTemp - prevSummary.minTemp} unit="\u00B0C" />
-                  )}
-                </SummaryValue>
-              </SummaryItem>
-              <SummaryItem>
-                <SummaryLabel>降水量合計</SummaryLabel>
-                <SummaryValue style={{ color: '#3b82f6' }}>
-                  {summary.totalPrecip.toFixed(1)}mm
-                </SummaryValue>
-              </SummaryItem>
-              <SummaryItem>
-                <SummaryLabel>平均湿度</SummaryLabel>
-                <SummaryValue style={{ color: '#8b5cf6' }}>
-                  {summary.avgHumidity.toFixed(0)}%
-                </SummaryValue>
-              </SummaryItem>
-            </>
-          )}
-          {/* 予報日で当年実測なし: 前年サマリのみ */}
-          {isForecastMode && prevSummary && (
-            <>
-              <SummaryItem>
-                <SummaryLabel>前年最高気温</SummaryLabel>
-                <SummaryValue style={{ color: '#ef4444' }}>
-                  {prevSummary.maxTemp.toFixed(1)}\u00B0C
-                </SummaryValue>
-              </SummaryItem>
-              <SummaryItem>
-                <SummaryLabel>前年最低気温</SummaryLabel>
-                <SummaryValue style={{ color: '#3498db' }}>
-                  {prevSummary.minTemp.toFixed(1)}\u00B0C
-                </SummaryValue>
-              </SummaryItem>
-              <SummaryItem>
-                <SummaryLabel>前年降水量</SummaryLabel>
-                <SummaryValue style={{ color: '#3b82f6' }}>
-                  {prevSummary.totalPrecip.toFixed(1)}mm
-                </SummaryValue>
-              </SummaryItem>
-              <SummaryItem>
-                <SummaryLabel>前年平均湿度</SummaryLabel>
-                <SummaryValue style={{ color: '#8b5cf6' }}>
-                  {prevSummary.avgHumidity.toFixed(0)}%
-                </SummaryValue>
-              </SummaryItem>
-            </>
-          )}
-        </SummaryGrid>
-      </ModalContent>
-    </ModalOverlay>
+        {/* 予報日で当年実測なし: 前年サマリのみ */}
+        {isForecastMode && prevSummary && (
+          <>
+            <SummaryItem>
+              <SummaryLabel>前年最高気温</SummaryLabel>
+              <SummaryValue style={{ color: '#ef4444' }}>
+                {prevSummary.maxTemp.toFixed(1)}\u00B0C
+              </SummaryValue>
+            </SummaryItem>
+            <SummaryItem>
+              <SummaryLabel>前年最低気温</SummaryLabel>
+              <SummaryValue style={{ color: '#3498db' }}>
+                {prevSummary.minTemp.toFixed(1)}\u00B0C
+              </SummaryValue>
+            </SummaryItem>
+            <SummaryItem>
+              <SummaryLabel>前年降水量</SummaryLabel>
+              <SummaryValue style={{ color: '#3b82f6' }}>
+                {prevSummary.totalPrecip.toFixed(1)}mm
+              </SummaryValue>
+            </SummaryItem>
+            <SummaryItem>
+              <SummaryLabel>前年平均湿度</SummaryLabel>
+              <SummaryValue style={{ color: '#8b5cf6' }}>
+                {prevSummary.avgHumidity.toFixed(0)}%
+              </SummaryValue>
+            </SummaryItem>
+          </>
+        )}
+      </SummaryGrid>
+    </Modal>
   )
 })
 
