@@ -15,7 +15,7 @@ export const ChipGroup = styled.div`
 `
 
 export const ChipLabel = styled.span`
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text4};
   margin-right: ${({ theme }) => theme.spacing[1]};
 `
@@ -25,7 +25,7 @@ export const SummaryRow = styled.div`
   gap: ${({ theme }) => theme.spacing[4]};
   margin-top: ${({ theme }) => theme.spacing[3]};
   padding: 0 ${({ theme }) => theme.spacing[2]};
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   flex-wrap: wrap;
 `
 
@@ -37,16 +37,16 @@ export const SummaryItem = styled.div`
 export const BreadcrumbBar = styled.div`
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 0.6rem;
+  gap: ${({ theme }) => theme.spacing[1]};
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   margin-bottom: ${({ theme }) => theme.spacing[2]};
 `
 
 export const BreadcrumbItem = styled.button<{ $active: boolean }>`
   background: none;
   border: none;
-  padding: 2px 4px;
-  font-size: 0.6rem;
+  padding: ${({ theme }) => theme.spacing[0]} ${({ theme }) => theme.spacing[1]};
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   cursor: ${({ $active }) => ($active ? 'default' : 'pointer')};
   color: ${({ $active, theme }) => ($active ? theme.colors.text : theme.colors.palette.primary)};
   font-weight: ${({ $active, theme }) =>
@@ -60,20 +60,4 @@ export const BreadcrumbItem = styled.button<{ $active: boolean }>`
 
 export const BreadcrumbSep = styled.span`
   color: ${({ theme }) => theme.colors.text4};
-`
-
-export const ExcludeInfo = styled.div`
-  font-size: 0.55rem;
-  color: ${({ theme }) => theme.colors.text4};
-  margin-bottom: 4px;
-`
-
-export const ResetLink = styled.button`
-  background: none;
-  border: none;
-  color: ${({ theme }) => theme.colors.palette.primary};
-  cursor: pointer;
-  font-size: 0.55rem;
-  text-decoration: underline;
-  padding: 0;
 `
