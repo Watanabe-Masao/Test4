@@ -197,12 +197,14 @@ describe('デザインシステムガード', () => {
 
   // ─── Recharts → ECharts 移行ガード ──────────────────
 
-  /** Recharts import を持つチャート .tsx ファイル数の上限（凍結） */
-  const MAX_RECHARTS_FILES = 8
+  /** Recharts import を持つチャート .tsx ファイル数の上限（移行完了: 0） */
+  const MAX_RECHARTS_FILES = 0
 
   it('Recharts 使用チャート数が上限以下（新規チャートは ECharts 必須）', () => {
-    const chartDir = path.join(PRESENTATION_DIR, 'components', 'charts')
-    const chartFiles = collectFiles(chartDir, '.tsx')
+    const chartFiles = [
+      ...collectFiles(path.join(PRESENTATION_DIR, 'components', 'charts'), '.tsx'),
+      ...collectFiles(path.join(PRESENTATION_DIR, 'pages'), '.tsx'),
+    ]
     let rechartsCount = 0
     const rechartsFiles: string[] = []
 
