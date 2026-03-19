@@ -115,7 +115,7 @@ export function StoreLocationEditor({
             </Badge>
             {location.etrnBlockNo && (
               <Badge $color={palette.infoDark}>
-                {location.etrnStationType === 's1' ? '気象台' : 'AMeDAS'}
+                {location.etrnStationType === 's1' ? '気象台' : '観測所'}
               </Badge>
             )}
             <SmallButton onClick={() => setIsEditing(true)}>変更</SmallButton>
@@ -156,10 +156,10 @@ export function StoreLocationEditor({
               onChange={(e) => setSelectedStationKey(e.target.value)}
               style={{ width: 180 }}
             >
-              <option value="">観測所を選択</option>
+              <option value="">気象台・測候所を選択</option>
               {stations.map((s) => (
                 <option key={`${s.precNo}:${s.blockNo}`} value={`${s.precNo}:${s.blockNo}`}>
-                  {s.stationName} ({s.stationType === 's1' ? '気象台' : 'AMeDAS'})
+                  {s.stationName}
                 </option>
               ))}
             </Select>

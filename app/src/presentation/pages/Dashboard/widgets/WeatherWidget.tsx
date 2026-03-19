@@ -125,11 +125,16 @@ function resolvePrevYearDate(
         best = c
       }
     }
+    const bYear = best.getFullYear()
+    const bMonth = best.getMonth() + 1
+    const bDay = best.getDate()
+    const bMm = String(bMonth).padStart(2, '0')
+    const bDd = String(bDay).padStart(2, '0')
     return {
-      year: best.getFullYear(),
-      month: best.getMonth() + 1,
-      day: best.getDate(),
-      dateKey: best.toISOString().slice(0, 10),
+      year: bYear,
+      month: bMonth,
+      day: bDay,
+      dateKey: `${bYear}-${bMm}-${bDd}`,
     }
   }
   // sameDate: 単純に前年同月同日
