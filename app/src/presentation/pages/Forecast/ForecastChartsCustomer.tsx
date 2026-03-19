@@ -1,23 +1,12 @@
 /**
- * 客数・客単価分析チャート群
+ * 客数・客単価分析チャート群 (ECharts)
  */
-import { memo } from 'react'
-import { useChartTheme, toAxisYen, toComma } from '@/presentation/components/charts/chartTheme'
-import { createChartTooltip } from '@/presentation/components/charts/createChartTooltip'
-import {
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Cell,
-  Legend,
-  ComposedChart,
-  Line,
-  Area,
-  LineChart,
-} from 'recharts'
-import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
+import { useMemo, memo } from 'react'
+import { useTheme } from 'styled-components'
+import type { AppTheme } from '@/presentation/theme/theme'
+import { toAxisYen, toComma } from '@/presentation/components/charts/chartTheme'
+import { EChart, type EChartsOption } from '@/presentation/components/charts/EChart'
+import { standardGrid, standardTooltip, standardLegend } from '@/presentation/components/charts/echartsOptionBuilders'
 import { ChartWrapper, ChartTitle } from './ForecastPage.styles'
 import {
   DOW_LABELS,
@@ -27,7 +16,138 @@ import {
   type RelationshipEntry,
 } from './ForecastPage.helpers'
 
-/** 曜日別客数・客単価チャート（前年比較付き） */
+// ─── 共通ヘルパー ───────────────────────────────────────
+
+function yenValueAxis(theme: AppTheme, opts?: { position?: 'left' | 'right'; label?: string; width?: number }) {
+  const pos = opts?.position ?? ('left' as const)
+  return {
+    type: 'value' as const,
+    position: pos,
+    axisLabel: {
+      color: theme.colors.text3,
+      fontSize: 10,
+      fontFamily: theme.typography.fontFamily.mono,
+      ...(pos === 'right' ? { formatter: (v: number) => toComma(v) } : {}),
+    },
+    axisLine: { show: false },
+    axisTick: { show: false },
+    splitLine: pos === 'left'
+      ? { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' as const } }
+      : { show: false },
+    name: opts?.label,
+    nameLocation: 'end' as const,
+    nameTextStyle: {
+      color: theme.colors.text3,
+      fontSize: 10,
+    },
+  }
+}
+
+function tooltipFormatter(items: { seriesName: string; value: number; color: string; name: string }[]) {
+  if (!Array.isArray(items) || items.length === 0) return ''
+  const header = `<div style="font-weight:600;margin-bottom:4px">${items[0].name}</div>`
+  const rows = items
+    .map(
+      (item) =>
+        `<div style="display:flex;justify-content:space-between;gap:12px">` +
+        `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${item.color};margin-right:4px;vertical-align:middle"></span>` +
+        `<span>${item.seriesName}</span>` +
+        `<span style="font-weight:600;font-family:monospace;margin-left:auto">${toComma(item.value)}</span>` +
+        `</div>`,
+    )
+    .join('')
+  return header + rows
+}
+
+// ─── DowCustomerChart ───────────────────────────────────
+
+function buildDowCustomerOption(
+  data: { name: string; color: string; [key: string]: string | number }[],
+  hasPrev: boolean,
+  theme: AppTheme,
+): EChartsOption {
+  const categories = data.map((d) => d.name)
+
+  const series: EChartsOption['series'] = [
+    {
+      name: '今年客数',
+      type: 'bar' as const,
+      yAxisIndex: 0,
+      data: data.map((d) => ({
+        value: d['今年客数'] as number,
+        itemStyle: { color: d.color, opacity: 0.8 },
+      })),
+      barMaxWidth: 30,
+      itemStyle: { borderRadius: [4, 4, 0, 0] },
+    },
+    ...(hasPrev
+      ? [
+          {
+            name: '比較期客数',
+            type: 'bar' as const,
+            yAxisIndex: 0,
+            data: data.map((d) => d['比較期客数'] as number),
+            itemStyle: { color: '#94a3b8', opacity: 0.4, borderRadius: [4, 4, 0, 0] },
+            barMaxWidth: 30,
+          },
+        ]
+      : []),
+    {
+      name: '今年客単価',
+      type: 'line' as const,
+      yAxisIndex: 1,
+      data: data.map((d) => d['今年客単価'] as number),
+      smooth: true,
+      lineStyle: { color: '#8b5cf6', width: 2 },
+      itemStyle: { color: '#8b5cf6' },
+      symbolSize: 6,
+    },
+    ...(hasPrev
+      ? [
+          {
+            name: '比較期客単価',
+            type: 'line' as const,
+            yAxisIndex: 1,
+            data: data.map((d) => d['比較期客単価'] as number),
+            smooth: true,
+            lineStyle: { color: '#8b5cf6', width: 1.5, type: 'dashed' as const },
+            itemStyle: { color: '#8b5cf6' },
+            symbolSize: 4,
+          },
+        ]
+      : []),
+  ]
+
+  return {
+    grid: standardGrid(),
+    tooltip: {
+      ...standardTooltip(theme),
+      trigger: 'axis' as const,
+      formatter: (params: unknown) =>
+        tooltipFormatter(
+          params as { seriesName: string; value: number; color: string; name: string }[],
+        ),
+    },
+    legend: standardLegend(theme),
+    xAxis: {
+      type: 'category' as const,
+      data: categories,
+      axisLabel: {
+        color: theme.colors.text3,
+        fontSize: 10,
+        fontFamily: theme.typography.fontFamily.primary,
+      },
+      axisLine: { lineStyle: { color: theme.colors.border } },
+      axisTick: { show: false },
+    },
+    yAxis: [
+      yenValueAxis(theme, { position: 'left' as const, label: '客数' }),
+      yenValueAxis(theme, { position: 'right' as const, label: '客単価' }),
+    ],
+    series,
+  }
+}
+
 export const DowCustomerChart = memo(function DowCustomerChart({
   averages,
   dowColors,
@@ -35,7 +155,7 @@ export const DowCustomerChart = memo(function DowCustomerChart({
   averages: DowCustomerAvg[]
   dowColors: string[]
 }) {
-  const ct = useChartTheme()
+  const theme = useTheme() as AppTheme
   const hasPrev = averages.some((a) => a.prevAvgCustomers > 0)
 
   const data = averages.map((a, i) => ({
@@ -47,101 +167,111 @@ export const DowCustomerChart = memo(function DowCustomerChart({
     color: dowColors[i],
   }))
 
+  const option = useMemo(
+    () => buildDowCustomerOption(data, hasPrev, theme),
+    [data, hasPrev, theme],
+  )
+
   return (
     <ChartWrapper>
       <ChartTitle>曜日別 平均客数・客単価{hasPrev ? '（比較期比較）' : ''}</ChartTitle>
-      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="85%">
-        <ComposedChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
-          <XAxis
-            dataKey="name"
-            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
-            axisLine={{ stroke: ct.grid }}
-            tickLine={false}
-          />
-          <YAxis
-            yAxisId="left"
-            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-            axisLine={false}
-            tickLine={false}
-            width={45}
-            label={{
-              value: '客数',
-              position: 'insideTopLeft',
-              fill: ct.textMuted,
-              fontSize: ct.fontSize.xs,
-            }}
-          />
-          <YAxis
-            yAxisId="right"
-            orientation="right"
-            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-            axisLine={false}
-            tickLine={false}
-            width={50}
-            tickFormatter={toComma}
-            label={{
-              value: '客単価',
-              position: 'insideTopRight',
-              fill: ct.textMuted,
-              fontSize: ct.fontSize.xs,
-            }}
-          />
-          <Tooltip
-            content={createChartTooltip({
-              ct,
-              formatter: (v, name) => [toComma((v as number) ?? 0), name ?? ''],
-            })}
-          />
-          <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
-          <Bar
-            yAxisId="left"
-            dataKey="今年客数"
-            fill="#06b6d4"
-            fillOpacity={0.8}
-            radius={[4, 4, 0, 0]}
-            maxBarSize={30}
-          >
-            {data.map((_, i) => (
-              <Cell key={i} fill={dowColors[i]} fillOpacity={0.8} />
-            ))}
-          </Bar>
-          {hasPrev && (
-            <Bar
-              yAxisId="left"
-              dataKey="比較期客数"
-              fill="#94a3b8"
-              fillOpacity={0.4}
-              radius={[4, 4, 0, 0]}
-              maxBarSize={30}
-            />
-          )}
-          <Line
-            yAxisId="right"
-            type="monotone"
-            dataKey="今年客単価"
-            stroke="#8b5cf6"
-            strokeWidth={2}
-            dot={{ r: 3 }}
-          />
-          {hasPrev && (
-            <Line
-              yAxisId="right"
-              type="monotone"
-              dataKey="比較期客単価"
-              stroke="#8b5cf6"
-              strokeWidth={1.5}
-              strokeDasharray="4 4"
-              dot={{ r: 2 }}
-            />
-          )}
-        </ComposedChart>
-      </ResponsiveContainer>
+      <EChart option={option} height={250} />
     </ChartWrapper>
   )
 })
 
-/** 客数・客単価 移動平均チャート */
+// ─── MovingAverageChart ─────────────────────────────────
+
+function buildMovingAvgOption(
+  chartData: { day: string; [key: string]: string | number }[],
+  hasPrev: boolean,
+  theme: AppTheme,
+): EChartsOption {
+  const categories = chartData.map((d) => d.day)
+
+  const series: EChartsOption['series'] = [
+    {
+      name: '客数MA',
+      type: 'line' as const,
+      yAxisIndex: 0,
+      data: chartData.map((d) => d['客数MA'] as number),
+      smooth: true,
+      symbol: 'none',
+      lineStyle: { color: '#06b6d4', width: 2 },
+      areaStyle: { color: '#06b6d4', opacity: 0.15 },
+      itemStyle: { color: '#06b6d4' },
+    },
+    ...(hasPrev
+      ? [
+          {
+            name: '比較期客数MA',
+            type: 'line' as const,
+            yAxisIndex: 0,
+            data: chartData.map((d) => (d['比較期客数MA'] as number) ?? null),
+            smooth: true,
+            symbol: 'none',
+            lineStyle: { color: '#94a3b8', width: 1.5, type: 'dashed' as const },
+            areaStyle: { color: '#94a3b8', opacity: 0.08 },
+            itemStyle: { color: '#94a3b8' },
+          },
+        ]
+      : []),
+    {
+      name: '客単価MA',
+      type: 'line' as const,
+      yAxisIndex: 1,
+      data: chartData.map((d) => d['客単価MA'] as number),
+      smooth: true,
+      symbol: 'none',
+      lineStyle: { color: '#8b5cf6', width: 2 },
+      itemStyle: { color: '#8b5cf6' },
+    },
+    ...(hasPrev
+      ? [
+          {
+            name: '比較期客単価MA',
+            type: 'line' as const,
+            yAxisIndex: 1,
+            data: chartData.map((d) => (d['比較期客単価MA'] as number) ?? null),
+            smooth: true,
+            symbol: 'none',
+            lineStyle: { color: '#a78bfa', width: 1.5, type: 'dashed' as const },
+            itemStyle: { color: '#a78bfa' },
+          },
+        ]
+      : []),
+  ]
+
+  return {
+    grid: standardGrid(),
+    tooltip: {
+      ...standardTooltip(theme),
+      trigger: 'axis' as const,
+      formatter: (params: unknown) =>
+        tooltipFormatter(
+          params as { seriesName: string; value: number; color: string; name: string }[],
+        ),
+    },
+    legend: standardLegend(theme),
+    xAxis: {
+      type: 'category' as const,
+      data: categories,
+      axisLabel: {
+        color: theme.colors.text3,
+        fontSize: 10,
+        fontFamily: theme.typography.fontFamily.mono,
+      },
+      axisLine: { lineStyle: { color: theme.colors.border } },
+      axisTick: { show: false },
+    },
+    yAxis: [
+      yenValueAxis(theme, { position: 'left' as const }),
+      yenValueAxis(theme, { position: 'right' as const }),
+    ],
+    series,
+  }
+}
+
 export const MovingAverageChart = memo(function MovingAverageChart({
   data: maData,
   hasPrev,
@@ -149,7 +279,7 @@ export const MovingAverageChart = memo(function MovingAverageChart({
   data: MovingAvgEntry[]
   hasPrev: boolean
 }) {
-  const ct = useChartTheme()
+  const theme = useTheme() as AppTheme
 
   const chartData = maData.map((e) => ({
     day: `${e.day}`,
@@ -158,89 +288,141 @@ export const MovingAverageChart = memo(function MovingAverageChart({
     ...(hasPrev ? { 比較期客数MA: e.prevCustomersMA, 比較期客単価MA: e.prevTxValueMA } : {}),
   }))
 
+  const option = useMemo(() => buildMovingAvgOption(chartData, hasPrev, theme), [chartData, hasPrev, theme])
+
   return (
     <ChartWrapper>
       <ChartTitle>客数・客単価 移動平均（5日窓）{hasPrev ? ' vs 比較期' : ''}</ChartTitle>
-      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="85%">
-        <ComposedChart data={chartData} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
-          <XAxis
-            dataKey="day"
-            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-            axisLine={{ stroke: ct.grid }}
-            tickLine={false}
-            interval="preserveStartEnd"
-          />
-          <YAxis
-            yAxisId="left"
-            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-            axisLine={false}
-            tickLine={false}
-            width={40}
-          />
-          <YAxis
-            yAxisId="right"
-            orientation="right"
-            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-            axisLine={false}
-            tickLine={false}
-            width={50}
-            tickFormatter={toComma}
-          />
-          <Tooltip
-            content={createChartTooltip({
-              ct,
-              formatter: (v, name) => [toComma((v as number) ?? 0), name ?? ''],
-            })}
-          />
-          <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
-          <Area
-            yAxisId="left"
-            type="monotone"
-            dataKey="客数MA"
-            fill="#06b6d4"
-            fillOpacity={0.15}
-            stroke="#06b6d4"
-            strokeWidth={2}
-          />
-          {hasPrev && (
-            <Area
-              yAxisId="left"
-              type="monotone"
-              dataKey="比較期客数MA"
-              fill="#94a3b8"
-              fillOpacity={0.08}
-              stroke="#94a3b8"
-              strokeWidth={1.5}
-              strokeDasharray="4 4"
-            />
-          )}
-          <Line
-            yAxisId="right"
-            type="monotone"
-            dataKey="客単価MA"
-            stroke="#8b5cf6"
-            strokeWidth={2}
-            dot={false}
-          />
-          {hasPrev && (
-            <Line
-              yAxisId="right"
-              type="monotone"
-              dataKey="比較期客単価MA"
-              stroke="#a78bfa"
-              strokeWidth={1.5}
-              strokeDasharray="4 4"
-              dot={false}
-            />
-          )}
-        </ComposedChart>
-      </ResponsiveContainer>
+      <EChart option={option} height={250} />
     </ChartWrapper>
   )
 })
 
-/** 売上・客数・客単価 関係性チャート（指数化） */
+// ─── RelationshipChart ──────────────────────────────────
+
+function buildRelationshipOption(
+  chartData: Record<string, number | string>[],
+  viewMode: 'current' | 'prev' | 'compare',
+  theme: AppTheme,
+): EChartsOption {
+  const showCurrent = viewMode === 'current' || viewMode === 'compare'
+  const showPrev = viewMode === 'prev' || viewMode === 'compare'
+  const categories = chartData.map((d) => d.day as string)
+
+  const series: EChartsOption['series'] = [
+    ...(showCurrent
+      ? [
+          {
+            name: '売上指数',
+            type: 'line' as const,
+            data: chartData.map((d) => d['売上指数'] as number),
+            smooth: true,
+            lineStyle: { color: '#3b82f6', width: 2 },
+            itemStyle: { color: '#3b82f6' },
+            symbolSize: 4,
+          },
+          {
+            name: '客数指数',
+            type: 'line' as const,
+            data: chartData.map((d) => d['客数指数'] as number),
+            smooth: true,
+            lineStyle: { color: '#06b6d4', width: 2 },
+            itemStyle: { color: '#06b6d4' },
+            symbolSize: 4,
+          },
+          {
+            name: '客単価指数',
+            type: 'line' as const,
+            data: chartData.map((d) => d['客単価指数'] as number),
+            smooth: true,
+            lineStyle: { color: '#8b5cf6', width: 2 },
+            itemStyle: { color: '#8b5cf6' },
+            symbolSize: 4,
+          },
+        ]
+      : []),
+    ...(showPrev
+      ? [
+          {
+            name: '比較期売上指数',
+            type: 'line' as const,
+            data: chartData.map((d) => (d['比較期売上指数'] as number) ?? null),
+            smooth: true,
+            lineStyle: { color: '#3b82f6', width: 1.5, type: 'dashed' as const },
+            itemStyle: { color: '#3b82f6' },
+            symbol: 'none',
+          },
+          {
+            name: '比較期客数指数',
+            type: 'line' as const,
+            data: chartData.map((d) => (d['比較期客数指数'] as number) ?? null),
+            smooth: true,
+            lineStyle: { color: '#06b6d4', width: 1.5, type: 'dashed' as const },
+            itemStyle: { color: '#06b6d4' },
+            symbol: 'none',
+          },
+          {
+            name: '比較期客単価指数',
+            type: 'line' as const,
+            data: chartData.map((d) => (d['比較期客単価指数'] as number) ?? null),
+            smooth: true,
+            lineStyle: { color: '#8b5cf6', width: 1.5, type: 'dashed' as const },
+            itemStyle: { color: '#8b5cf6' },
+            symbol: 'none',
+          },
+        ]
+      : []),
+  ]
+
+  return {
+    grid: standardGrid(),
+    tooltip: {
+      ...standardTooltip(theme),
+      trigger: 'axis' as const,
+      formatter: (params: unknown) => {
+        const items = params as { seriesName: string; value: number; color: string; name: string }[]
+        if (!Array.isArray(items) || items.length === 0) return ''
+        const header = `<div style="font-weight:600;margin-bottom:4px">${items[0].name}日</div>`
+        const rows = items
+          .map(
+            (item) =>
+              `<div style="display:flex;justify-content:space-between;gap:12px">` +
+              `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${item.color};margin-right:4px;vertical-align:middle"></span>` +
+              `<span>${item.seriesName}</span>` +
+              `<span style="font-weight:600;font-family:monospace;margin-left:auto">${item.value}%</span>` +
+              `</div>`,
+          )
+          .join('')
+        return header + rows
+      },
+    },
+    legend: standardLegend(theme),
+    xAxis: {
+      type: 'category' as const,
+      data: categories,
+      axisLabel: {
+        color: theme.colors.text3,
+        fontSize: 10,
+        fontFamily: theme.typography.fontFamily.mono,
+      },
+      axisLine: { lineStyle: { color: theme.colors.border } },
+      axisTick: { show: false },
+    },
+    yAxis: {
+      type: 'value' as const,
+      axisLabel: {
+        color: theme.colors.text3,
+        fontSize: 10,
+        fontFamily: theme.typography.fontFamily.mono,
+      },
+      axisLine: { show: false },
+      axisTick: { show: false },
+      splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' as const } },
+    },
+    series,
+  }
+}
+
 export const RelationshipChart = memo(function RelationshipChart({
   data: relData,
   prevData,
@@ -250,7 +432,7 @@ export const RelationshipChart = memo(function RelationshipChart({
   prevData: RelationshipEntry[]
   viewMode: 'current' | 'prev' | 'compare'
 }) {
-  const ct = useChartTheme()
+  const theme = useTheme() as AppTheme
 
   const showCurrent = viewMode === 'current' || viewMode === 'compare'
   const showPrev = (viewMode === 'prev' || viewMode === 'compare') && prevData.length > 0
@@ -287,99 +469,115 @@ export const RelationshipChart = memo(function RelationshipChart({
         ? '売上・客数・客単価 関係性推移（比較期）'
         : '売上・客数・客単価 関係性推移（当期）'
 
+  const option = useMemo(
+    () => buildRelationshipOption(chartData, viewMode, theme),
+    [chartData, viewMode, theme],
+  )
+
   return (
     <ChartWrapper style={{ height: 360 }}>
       <ChartTitle>{title}（平均=100）</ChartTitle>
-      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="85%">
-        <LineChart data={chartData} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
-          <XAxis
-            dataKey="day"
-            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-            axisLine={{ stroke: ct.grid }}
-            tickLine={false}
-            interval="preserveStartEnd"
-          />
-          <YAxis
-            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-            axisLine={false}
-            tickLine={false}
-            width={40}
-            domain={['auto', 'auto']}
-          />
-          <Tooltip
-            content={createChartTooltip({
-              ct,
-              formatter: (v, name) => [`${(v as number) ?? 0}%`, name ?? ''],
-            })}
-          />
-          <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
-          {showCurrent && (
-            <>
-              <Line
-                type="monotone"
-                dataKey="売上指数"
-                stroke="#3b82f6"
-                strokeWidth={2}
-                dot={{ r: 2 }}
-              />
-              <Line
-                type="monotone"
-                dataKey="客数指数"
-                stroke="#06b6d4"
-                strokeWidth={2}
-                dot={{ r: 2 }}
-              />
-              <Line
-                type="monotone"
-                dataKey="客単価指数"
-                stroke="#8b5cf6"
-                strokeWidth={2}
-                dot={{ r: 2 }}
-              />
-            </>
-          )}
-          {showPrev && (
-            <>
-              <Line
-                type="monotone"
-                dataKey="比較期売上指数"
-                stroke="#3b82f6"
-                strokeWidth={1.5}
-                strokeDasharray="4 4"
-                dot={false}
-              />
-              <Line
-                type="monotone"
-                dataKey="比較期客数指数"
-                stroke="#06b6d4"
-                strokeWidth={1.5}
-                strokeDasharray="4 4"
-                dot={false}
-              />
-              <Line
-                type="monotone"
-                dataKey="比較期客単価指数"
-                stroke="#8b5cf6"
-                strokeWidth={1.5}
-                strokeDasharray="4 4"
-                dot={false}
-              />
-            </>
-          )}
-        </LineChart>
-      </ResponsiveContainer>
+      <EChart option={option} height={300} />
     </ChartWrapper>
   )
 })
 
-/** 日別客数・売上散布図的チャート */
+// ─── CustomerSalesScatterChart ──────────────────────────
+
+function buildCustomerSalesOption(
+  chartData: { day: string; 売上: number; 客数: number; 客単価: number }[],
+  theme: AppTheme,
+): EChartsOption {
+  const categories = chartData.map((d) => d.day)
+
+  return {
+    grid: standardGrid(),
+    tooltip: {
+      ...standardTooltip(theme),
+      trigger: 'axis' as const,
+      formatter: (params: unknown) =>
+        tooltipFormatter(
+          params as { seriesName: string; value: number; color: string; name: string }[],
+        ),
+    },
+    legend: standardLegend(theme),
+    xAxis: {
+      type: 'category' as const,
+      data: categories,
+      axisLabel: {
+        color: theme.colors.text3,
+        fontSize: 10,
+        fontFamily: theme.typography.fontFamily.mono,
+      },
+      axisLine: { lineStyle: { color: theme.colors.border } },
+      axisTick: { show: false },
+    },
+    yAxis: [
+      {
+        type: 'value' as const,
+        position: 'left' as const,
+        axisLabel: {
+          color: theme.colors.text3,
+          fontSize: 10,
+          fontFamily: theme.typography.fontFamily.mono,
+          formatter: (v: number) => toAxisYen(v),
+        },
+        axisLine: { show: false },
+        axisTick: { show: false },
+        splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' as const } },
+      },
+      {
+        type: 'value' as const,
+        position: 'right' as const,
+        axisLabel: {
+          color: theme.colors.text3,
+          fontSize: 10,
+          fontFamily: theme.typography.fontFamily.mono,
+        },
+        axisLine: { show: false },
+        axisTick: { show: false },
+        splitLine: { show: false },
+      },
+    ],
+    series: [
+      {
+        name: '売上',
+        type: 'bar' as const,
+        yAxisIndex: 0,
+        data: chartData.map((d) => d['売上']),
+        itemStyle: { color: '#3b82f6', opacity: 0.6, borderRadius: [4, 4, 0, 0] },
+        barMaxWidth: 20,
+      },
+      {
+        name: '客数',
+        type: 'line' as const,
+        yAxisIndex: 1,
+        data: chartData.map((d) => d['客数']),
+        smooth: true,
+        lineStyle: { color: '#06b6d4', width: 2 },
+        itemStyle: { color: '#06b6d4' },
+        symbolSize: 5,
+      },
+      {
+        name: '客単価',
+        type: 'line' as const,
+        yAxisIndex: 1,
+        data: chartData.map((d) => d['客単価']),
+        smooth: true,
+        lineStyle: { color: '#8b5cf6', width: 2 },
+        itemStyle: { color: '#8b5cf6' },
+        symbolSize: 5,
+      },
+    ],
+  }
+}
+
 export const CustomerSalesScatterChart = memo(function CustomerSalesScatterChart({
   data,
 }: {
   data: DailyCustomerEntry[]
 }) {
-  const ct = useChartTheme()
+  const theme = useTheme() as AppTheme
 
   const withCust = data.filter((e) => e.customers > 0)
   const chartData = withCust.map((e) => ({
@@ -389,76 +587,118 @@ export const CustomerSalesScatterChart = memo(function CustomerSalesScatterChart
     客単価: e.txValue,
   }))
 
+  const option = useMemo(() => buildCustomerSalesOption(chartData, theme), [chartData, theme])
+
   return (
     <ChartWrapper>
       <ChartTitle>日別 売上・客数・客単価 推移</ChartTitle>
-      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="85%">
-        <ComposedChart data={chartData} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
-          <XAxis
-            dataKey="day"
-            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-            axisLine={{ stroke: ct.grid }}
-            tickLine={false}
-            interval="preserveStartEnd"
-          />
-          <YAxis
-            yAxisId="sales"
-            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-            axisLine={false}
-            tickLine={false}
-            tickFormatter={toAxisYen}
-            width={50}
-          />
-          <YAxis
-            yAxisId="cust"
-            orientation="right"
-            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-            axisLine={false}
-            tickLine={false}
-            width={45}
-          />
-          <Tooltip
-            content={createChartTooltip({
-              ct,
-              formatter: (v, name) =>
-                name === '売上'
-                  ? [toComma((v as number) ?? 0), name ?? '']
-                  : [toComma((v as number) ?? 0), name ?? ''],
-            })}
-          />
-          <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
-          <Bar
-            yAxisId="sales"
-            dataKey="売上"
-            fill="#3b82f6"
-            fillOpacity={0.6}
-            radius={[4, 4, 0, 0]}
-            maxBarSize={20}
-          />
-          <Line
-            yAxisId="cust"
-            type="monotone"
-            dataKey="客数"
-            stroke="#06b6d4"
-            strokeWidth={2}
-            dot={{ r: 2.5 }}
-          />
-          <Line
-            yAxisId="cust"
-            type="monotone"
-            dataKey="客単価"
-            stroke="#8b5cf6"
-            strokeWidth={2}
-            dot={{ r: 2.5 }}
-          />
-        </ComposedChart>
-      </ResponsiveContainer>
+      <EChart option={option} height={250} />
     </ChartWrapper>
   )
 })
 
-/** 同曜日比較チャート（今年 vs 前年） */
+// ─── SameDowComparisonChart ─────────────────────────────
+
+function buildSameDowOption(
+  chartData: { day: string; color: string; [key: string]: string | number }[],
+  theme: AppTheme,
+): EChartsOption {
+  const categories = chartData.map((d) => d.day)
+
+  return {
+    grid: { ...standardGrid(), bottom: 40 },
+    tooltip: {
+      ...standardTooltip(theme),
+      trigger: 'axis' as const,
+      formatter: (params: unknown) =>
+        tooltipFormatter(
+          params as { seriesName: string; value: number; color: string; name: string }[],
+        ),
+    },
+    legend: standardLegend(theme),
+    xAxis: {
+      type: 'category' as const,
+      data: categories,
+      axisLabel: {
+        color: theme.colors.text3,
+        fontSize: 10,
+        fontFamily: theme.typography.fontFamily.primary,
+        rotate: 45,
+      },
+      axisLine: { lineStyle: { color: theme.colors.border } },
+      axisTick: { show: false },
+    },
+    yAxis: [
+      {
+        type: 'value' as const,
+        position: 'left' as const,
+        axisLabel: {
+          color: theme.colors.text3,
+          fontSize: 10,
+          fontFamily: theme.typography.fontFamily.mono,
+        },
+        axisLine: { show: false },
+        axisTick: { show: false },
+        splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' as const } },
+      },
+      {
+        type: 'value' as const,
+        position: 'right' as const,
+        axisLabel: {
+          color: theme.colors.text3,
+          fontSize: 10,
+          fontFamily: theme.typography.fontFamily.mono,
+          formatter: (v: number) => toComma(v),
+        },
+        axisLine: { show: false },
+        axisTick: { show: false },
+        splitLine: { show: false },
+      },
+    ],
+    series: [
+      {
+        name: '今年客数',
+        type: 'bar' as const,
+        yAxisIndex: 0,
+        data: chartData.map((d) => ({
+          value: d['今年客数'] as number,
+          itemStyle: { color: d.color, opacity: 0.8 },
+        })),
+        barMaxWidth: 16,
+        itemStyle: { borderRadius: [4, 4, 0, 0] },
+      },
+      {
+        name: '前年客数',
+        type: 'bar' as const,
+        yAxisIndex: 0,
+        data: chartData.map((d) => d['前年客数'] as number),
+        itemStyle: { color: '#94a3b8', opacity: 0.4, borderRadius: [4, 4, 0, 0] },
+        barMaxWidth: 16,
+      },
+      {
+        name: '今年客単価',
+        type: 'line' as const,
+        yAxisIndex: 1,
+        data: chartData.map((d) => d['今年客単価'] as number),
+        smooth: true,
+        lineStyle: { color: '#8b5cf6', width: 2 },
+        itemStyle: { color: '#8b5cf6' },
+        symbolSize: 4,
+      },
+      {
+        name: '前年客単価',
+        type: 'line' as const,
+        yAxisIndex: 1,
+        data: chartData.map((d) => d['前年客単価'] as number),
+        smooth: true,
+        lineStyle: { color: '#a78bfa', width: 1.5, type: 'dashed' as const },
+        itemStyle: { color: '#a78bfa' },
+        symbolSize: 4,
+      },
+    ],
+  }
+}
+
 export const SameDowComparisonChart = memo(function SameDowComparisonChart({
   entries,
   year,
@@ -470,9 +710,8 @@ export const SameDowComparisonChart = memo(function SameDowComparisonChart({
   month: number
   dowColors: string[]
 }) {
-  const ct = useChartTheme()
+  const theme = useTheme() as AppTheme
 
-  // Flatten into chart data: one entry per day, colored by DOW
   const chartData = entries
     .filter((e) => e.customers > 0 && e.prevCustomers > 0)
     .map((e) => {
@@ -487,86 +726,14 @@ export const SameDowComparisonChart = memo(function SameDowComparisonChart({
       }
     })
 
+  const option = useMemo(() => buildSameDowOption(chartData, theme), [chartData, theme])
+
   if (chartData.length === 0) return null
 
   return (
     <ChartWrapper>
       <ChartTitle>同曜日 客数・客単価比較（今年 vs 前年）</ChartTitle>
-      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="85%">
-        <ComposedChart data={chartData} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
-          <XAxis
-            dataKey="day"
-            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
-            axisLine={{ stroke: ct.grid }}
-            tickLine={false}
-            interval={0}
-            angle={-45}
-            textAnchor="end"
-            height={50}
-          />
-          <YAxis
-            yAxisId="left"
-            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-            axisLine={false}
-            tickLine={false}
-            width={40}
-          />
-          <YAxis
-            yAxisId="right"
-            orientation="right"
-            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-            axisLine={false}
-            tickLine={false}
-            width={50}
-            tickFormatter={toComma}
-          />
-          <Tooltip
-            content={createChartTooltip({
-              ct,
-              formatter: (v, name) => [toComma((v as number) ?? 0), name ?? ''],
-            })}
-          />
-          <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
-          <Bar
-            yAxisId="left"
-            dataKey="今年客数"
-            fill="#06b6d4"
-            fillOpacity={0.8}
-            radius={[4, 4, 0, 0]}
-            maxBarSize={16}
-          >
-            {chartData.map((e, i) => (
-              <Cell key={i} fill={e.color} fillOpacity={0.8} />
-            ))}
-          </Bar>
-          <Bar
-            yAxisId="left"
-            dataKey="前年客数"
-            fill="#94a3b8"
-            fillOpacity={0.4}
-            radius={[4, 4, 0, 0]}
-            maxBarSize={16}
-          />
-          <Line
-            yAxisId="right"
-            type="monotone"
-            dataKey="今年客単価"
-            stroke="#8b5cf6"
-            strokeWidth={2}
-            dot={{ r: 2 }}
-          />
-          <Line
-            yAxisId="right"
-            type="monotone"
-            dataKey="前年客単価"
-            stroke="#a78bfa"
-            strokeWidth={1.5}
-            strokeDasharray="4 4"
-            dot={{ r: 2 }}
-          />
-        </ComposedChart>
-      </ResponsiveContainer>
+      <EChart option={option} height={250} />
     </ChartWrapper>
   )
 })

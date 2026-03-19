@@ -14,7 +14,6 @@ import {
   standardGrid,
   standardTooltip,
   standardLegend,
-  toCommaYen,
 } from '@/presentation/components/charts/echartsOptionBuilders'
 import { ChartWrapper, ChartTitle } from './ForecastPage.styles'
 import { DOW_LABELS } from './ForecastPage.helpers'

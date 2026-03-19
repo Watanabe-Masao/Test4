@@ -6,18 +6,11 @@
  * 2要素(客数・客単価) / 3要素(客数・点数・単価) / 5要素(+価格・構成比変化) を切替可能。
  */
 import { useState, useMemo, useCallback, Fragment, memo } from 'react'
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ReferenceLine,
-  Legend,
-} from 'recharts'
-import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
-import { useChartTheme, useCurrencyFormatter } from '@/presentation/components/charts'
+import { useTheme } from 'styled-components'
+import type { AppTheme } from '@/presentation/theme/theme'
+import { EChart, type EChartsOption } from '@/presentation/components/charts/EChart'
+import { standardGrid, standardTooltip } from '@/presentation/components/charts/echartsOptionBuilders'
+import { useCurrencyFormatter } from '@/presentation/components/charts/chartTheme'
 import {
   decompose2,
   decompose3,
@@ -42,8 +35,9 @@ import type {
   PathEntry,
   DrillLevel,
 } from './categoryFactorBreakdown.types'
-import { FactorTooltip, FACTOR_COLORS } from './FactorTooltip'
+import { FACTOR_COLORS } from './FactorTooltip'
 import { CategoryFactorTable } from './CategoryFactorTable'
+import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 
 /* ── Component ──────────────────────────────────────── */
 
@@ -65,8 +59,9 @@ export const CategoryFactorBreakdown = memo(function CategoryFactorBreakdown({
   prevLabel?: string
 }) {
   const hasCust = curCustomers > 0 && prevCustomers > 0
-  const ct = useChartTheme()
+  const theme = useTheme() as AppTheme
   const fmt = useCurrencyFormatter()
+  const { format: fmtCurrency } = useCurrencyFormat()
   const [drillPath, setDrillPath] = useState<PathEntry[]>([])
   const [decompLevel, setDecompLevel] = useState<DecompLevel | null>(null)
 
@@ -201,7 +196,7 @@ export const CategoryFactorBreakdown = memo(function CategoryFactorBreakdown({
           qtyEffect = d.qtyEffect
           priceEffect = d.pricePerItemEffect
         } else if (pQty > 0 && cQty > 0) {
-          // No customer data: 2-factor Shapley on qty × price
+          // No customer data: 2-factor Shapley on qty x price
           const d = decompose2(pAmt, cAmt, pQty, cQty)
           qtyEffect = d.custEffect // qty dimension
           priceEffect = d.ticketEffect // price dimension
@@ -366,10 +361,16 @@ export const CategoryFactorBreakdown = memo(function CategoryFactorBreakdown({
   const levelLabel =
     currentLevel === 'dept' ? '部門' : currentLevel === 'line' ? 'ライン' : 'クラス'
   const chartH = Math.max(compact ? 180 : 240, items.length * (compact ? 28 : 34) + 40)
-  const barClick = (data: unknown) => {
-    const item = (data as unknown as { payload?: FactorItem }).payload
-    if (item) handleDrill(item)
-  }
+
+  const handleChartClick = useCallback(
+    (params: Record<string, unknown>) => {
+      const dataIndex = params.dataIndex as number | undefined
+      if (dataIndex == null) return
+      const item = waterfallItems[dataIndex]
+      if (item) handleDrill(item)
+    },
+    [waterfallItems, handleDrill],
+  )
 
   return (
     <div>
@@ -446,106 +447,20 @@ export const CategoryFactorBreakdown = memo(function CategoryFactorBreakdown({
         )}
       </LegendRow>
 
-      {/* Horizontal waterfall × department hybrid chart */}
-      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={chartH}>
-        <BarChart
-          layout="vertical"
-          data={waterfallItems}
-          margin={{ top: 5, right: 20, left: 4, bottom: 5 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} horizontal={false} />
-          <XAxis
-            type="number"
-            tickFormatter={fmt}
-            tick={{ fontSize: ct.fontSize.xs, fill: ct.textMuted, fontFamily: ct.monoFamily }}
-            axisLine={{ stroke: ct.grid }}
-          />
-          <YAxis
-            type="category"
-            dataKey="name"
-            width={compact ? 60 : 80}
-            tick={{ fontSize: ct.fontSize.xs, fill: ct.text, fontFamily: ct.fontFamily }}
-            axisLine={false}
-            tickLine={false}
-          />
-          <Tooltip content={<FactorTooltip prevLabel={prevLabel} curLabel={curLabel} />} />
-          <ReferenceLine x={0} stroke={ct.grid} strokeWidth={1.5} />
-          <Legend content={() => null} />
-
-          {/* Range bars: each effect is [start, end], forming a sub-waterfall per row */}
-          {hasCust && (
-            <Bar
-              dataKey="custRange"
-              name="客数効果"
-              fill={FACTOR_COLORS.cust}
-              barSize={compact ? 16 : 20}
-              opacity={0.85}
-              onClick={barClick}
-              cursor="pointer"
-            />
-          )}
-
-          {activeLevel === 2 && (
-            <Bar
-              dataKey="ticketRange"
-              name="客単価効果"
-              fill={FACTOR_COLORS.ticket}
-              barSize={compact ? 16 : 20}
-              opacity={0.85}
-              onClick={barClick}
-              cursor="pointer"
-            />
-          )}
-
-          {activeLevel >= 3 && (
-            <Bar
-              dataKey="qtyRange"
-              name="点数効果"
-              fill={FACTOR_COLORS.qty}
-              barSize={compact ? 16 : 20}
-              opacity={0.85}
-              onClick={barClick}
-              cursor="pointer"
-            />
-          )}
-
-          {activeLevel === 3 && (
-            <Bar
-              dataKey="priceRange"
-              name="単価効果"
-              fill={FACTOR_COLORS.price}
-              barSize={compact ? 16 : 20}
-              opacity={0.85}
-              onClick={barClick}
-              cursor="pointer"
-            />
-          )}
-
-          {activeLevel === 5 && (
-            <Bar
-              dataKey="pricePureRange"
-              name="価格効果"
-              fill={FACTOR_COLORS.price}
-              barSize={compact ? 16 : 20}
-              opacity={0.85}
-              onClick={barClick}
-              cursor="pointer"
-            />
-          )}
-
-          {activeLevel === 5 && (
-            <Bar
-              dataKey="mixRange"
-              name="構成比変化効果"
-              fill={FACTOR_COLORS.mix}
-              barSize={compact ? 16 : 20}
-              opacity={0.85}
-              onClick={barClick}
-              cursor="pointer"
-            />
-          )}
-        </BarChart>
-      </ResponsiveContainer>
+      {/* Horizontal waterfall x department hybrid chart */}
+      <CategoryFactorEChart
+        waterfallItems={waterfallItems}
+        activeLevel={activeLevel}
+        hasCust={hasCust}
+        compact={compact}
+        chartH={chartH}
+        theme={theme}
+        fmt={fmt}
+        fmtCurrency={fmtCurrency}
+        prevLabel={prevLabel}
+        curLabel={curLabel}
+        onClick={handleChartClick}
+      />
 
       {/* Summary table */}
       <CategoryFactorTable
@@ -559,5 +474,177 @@ export const CategoryFactorBreakdown = memo(function CategoryFactorBreakdown({
         onDrill={handleDrill}
       />
     </div>
+  )
+})
+
+/** Inner EChart component for horizontal factor bar chart */
+const CategoryFactorEChart = memo(function CategoryFactorEChart({
+  waterfallItems,
+  activeLevel,
+  hasCust,
+  compact,
+  chartH,
+  theme,
+  fmt,
+  fmtCurrency,
+  prevLabel,
+  curLabel,
+  onClick,
+}: {
+  waterfallItems: WaterfallFactorItem[]
+  activeLevel: DecompLevel
+  hasCust: boolean
+  compact: boolean
+  chartH: number
+  theme: AppTheme
+  fmt: (v: number) => string
+  fmtCurrency: (v: number | null) => string
+  prevLabel: string
+  curLabel: string
+  onClick: (params: Record<string, unknown>) => void
+}) {
+  const option = useMemo((): EChartsOption => {
+    const names = waterfallItems.map((d) => d.name)
+    const barSize = compact ? 16 : 20
+
+    // Build series for each active factor
+    type BarSeries = {
+      name: string
+      type: 'bar'
+      data: number[][]
+      itemStyle: { color: string; opacity: number }
+      barWidth: number
+      stack: string
+    }
+    const seriesList: BarSeries[] = []
+
+    if (hasCust) {
+      seriesList.push({
+        name: '客数効果',
+        type: 'bar' as const,
+        data: waterfallItems.map((d) => [d.custRange[0], d.custRange[1]]),
+        itemStyle: { color: FACTOR_COLORS.cust, opacity: 0.85 },
+        barWidth: barSize,
+        stack: 'factor',
+      })
+    }
+
+    if (activeLevel === 2) {
+      seriesList.push({
+        name: '客単価効果',
+        type: 'bar' as const,
+        data: waterfallItems.map((d) => [d.ticketRange[0], d.ticketRange[1]]),
+        itemStyle: { color: FACTOR_COLORS.ticket, opacity: 0.85 },
+        barWidth: barSize,
+        stack: 'factor',
+      })
+    }
+
+    if (activeLevel >= 3) {
+      seriesList.push({
+        name: '点数効果',
+        type: 'bar' as const,
+        data: waterfallItems.map((d) => [d.qtyRange[0], d.qtyRange[1]]),
+        itemStyle: { color: FACTOR_COLORS.qty, opacity: 0.85 },
+        barWidth: barSize,
+        stack: 'factor',
+      })
+    }
+
+    if (activeLevel === 3) {
+      seriesList.push({
+        name: '単価効果',
+        type: 'bar' as const,
+        data: waterfallItems.map((d) => [d.priceRange[0], d.priceRange[1]]),
+        itemStyle: { color: FACTOR_COLORS.price, opacity: 0.85 },
+        barWidth: barSize,
+        stack: 'factor',
+      })
+    }
+
+    if (activeLevel === 5) {
+      seriesList.push({
+        name: '価格効果',
+        type: 'bar' as const,
+        data: waterfallItems.map((d) => [d.pricePureRange[0], d.pricePureRange[1]]),
+        itemStyle: { color: FACTOR_COLORS.price, opacity: 0.85 },
+        barWidth: barSize,
+        stack: 'factor',
+      })
+      seriesList.push({
+        name: '構成比変化効果',
+        type: 'bar' as const,
+        data: waterfallItems.map((d) => [d.mixRange[0], d.mixRange[1]]),
+        itemStyle: { color: FACTOR_COLORS.mix, opacity: 0.85 },
+        barWidth: barSize,
+        stack: 'factor',
+      })
+    }
+
+    return {
+      grid: {
+        ...standardGrid(),
+        left: compact ? 60 : 80,
+        top: 5,
+        bottom: 5,
+      },
+      tooltip: {
+        ...standardTooltip(theme),
+        trigger: 'axis' as const,
+        formatter: (params: unknown) => {
+          const arr = Array.isArray(params) ? params : [params]
+          const first = arr[0] as { dataIndex: number } | undefined
+          if (!first) return ''
+          const item = waterfallItems[first.dataIndex]
+          if (!item) return ''
+
+          const pL = prevLabel
+          const cL = curLabel
+          let html = `<strong>${item.name}</strong><br/>`
+          html += `${pL}: ${fmtCurrency(item.prevAmount)}<br/>`
+          html += `${cL}: ${fmtCurrency(item.curAmount)}<br/>`
+          html += `増減: ${item.totalChange >= 0 ? '+' : ''}${fmtCurrency(item.totalChange)}`
+          if (item.hasChildren) html += '<br/><em>クリックでドリルダウン</em>'
+          return html
+        },
+      },
+      xAxis: {
+        type: 'value' as const,
+        axisLabel: {
+          formatter: (v: number) => fmt(v),
+          color: theme.colors.text3,
+          fontSize: 9,
+          fontFamily: theme.typography.fontFamily.mono,
+        },
+        axisLine: { lineStyle: { color: theme.colors.border } },
+        splitLine: {
+          lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' as const },
+        },
+      },
+      yAxis: {
+        type: 'category' as const,
+        data: names,
+        inverse: true,
+        axisLabel: {
+          color: theme.colors.text,
+          fontSize: 9,
+          fontFamily: theme.typography.fontFamily.primary,
+          width: compact ? 55 : 75,
+          overflow: 'truncate' as const,
+        },
+        axisLine: { show: false },
+        axisTick: { show: false },
+      },
+      series: seriesList,
+    }
+  }, [waterfallItems, activeLevel, hasCust, compact, theme, fmt, fmtCurrency, prevLabel, curLabel])
+
+  return (
+    <EChart
+      option={option}
+      height={chartH}
+      onClick={onClick}
+      ariaLabel="カテゴリ別要因分解チャート"
+    />
   )
 })
