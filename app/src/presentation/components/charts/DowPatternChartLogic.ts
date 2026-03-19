@@ -9,6 +9,7 @@
  *   - 全曜日平均、最多/最少曜日、CV を算出
  */
 import type { DowPatternRow } from '@/application/hooks/useDuckDBQuery'
+import { coefficientOfVariation } from '@/domain/calculations/rawAggregation'
 
 // ─── Types ──────────────────────────────────────────
 
@@ -71,12 +72,7 @@ export function buildDowPatternData(rows: readonly DowPatternRow[]): DowSummary 
     }
   }
 
-  const mean = overallAvg
-  const variance =
-    chartData.length > 0
-      ? chartData.reduce((sum, p) => sum + (p.avgSales - mean) ** 2, 0) / chartData.length
-      : 0
-  const cv = mean > 0 ? Math.sqrt(variance) / mean : 0
+  const cv = coefficientOfVariation(chartData.map((p) => p.avgSales))
 
   return { chartData, overallAvg: Math.round(overallAvg), strongestDow, weakestDow, cv }
 }

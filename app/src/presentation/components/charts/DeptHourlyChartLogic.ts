@@ -11,6 +11,7 @@
  *   - ピアソン相関によるカニバリゼーション検出
  */
 import type { CategoryHourlyRow } from '@/application/hooks/useDuckDBQuery'
+import { topNByTotal } from '@/domain/calculations/rawAggregation'
 import { STORE_COLORS } from './chartTheme'
 import { palette } from '@/presentation/theme/tokens'
 import { pearsonCorrelation } from '@/application/hooks/useStatistics'
@@ -66,23 +67,25 @@ export function buildDeptHourlyData(
   hourMin: number,
   hourMax: number,
 ): DeptHourlyResult {
-  const deptTotals = new Map<string, { name: string; total: number }>()
+  const { ranked, topKeys: topCodes } = topNByTotal(
+    rows,
+    (r) => r.code,
+    (r) => r.amount,
+    topN,
+  )
+
+  // 部門名マップ（nameは最初に出現したものを使用）
+  const nameMap = new Map<string, string>()
   for (const row of rows) {
-    const existing = deptTotals.get(row.code) ?? { name: row.name, total: 0 }
-    existing.total += row.amount
-    deptTotals.set(row.code, existing)
+    if (!nameMap.has(row.code)) nameMap.set(row.code, row.name)
   }
 
-  const sorted = [...deptTotals.entries()].sort((a, b) => b[1].total - a[1].total).slice(0, topN)
-
-  const departments: DeptInfo[] = sorted.map(([code, info], i) => ({
-    code,
-    name: info.name || code,
-    totalAmount: Math.round(info.total),
+  const departments: DeptInfo[] = ranked.map((r, i) => ({
+    code: r.key,
+    name: nameMap.get(r.key) || r.key,
+    totalAmount: Math.round(r.total),
     color: DEPT_COLORS[i % DEPT_COLORS.length],
   }))
-
-  const topCodes = new Set(departments.map((d) => d.code))
 
   const hourMap = new Map<number, Record<string, number>>()
   for (const row of rows) {

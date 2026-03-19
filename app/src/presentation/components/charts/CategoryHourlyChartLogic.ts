@@ -11,6 +11,7 @@
  *   - 色スケーリング用の最大値算出
  */
 import type { CategoryHourlyRow } from '@/application/hooks/useDuckDBQuery'
+import { findPeak } from '@/domain/calculations/rawAggregation'
 
 // ─── Types ──────────────────────────────────────────
 
@@ -75,32 +76,19 @@ export function buildCategoryHeatmapData(
     }
   }
 
-  let globalPeakHour = hourMin
-  let globalPeakVal = 0
-  for (const [hour, total] of globalHourTotals) {
-    if (total > globalPeakVal) {
-      globalPeakVal = total
-      globalPeakHour = hour
-    }
-  }
+  const globalPeak = findPeak(globalHourTotals)
+  const globalPeakHour = globalPeak?.key ?? hourMin
 
   const categories: CategoryHeatmapRow[] = sorted.map((cat) => {
-    let peakHour = hourMin
-    let peakAmount = 0
-    for (const [hour, amount] of cat.hourly) {
-      if (amount > peakAmount) {
-        peakAmount = amount
-        peakHour = hour
-      }
-    }
+    const catPeak = findPeak(cat.hourly)
 
     return {
       code: cat.code,
       name: cat.name,
       totalAmount: Math.round(cat.totalAmount),
       hourlyAmounts: cat.hourly,
-      peakHour,
-      peakAmount: Math.round(peakAmount),
+      peakHour: catPeak?.key ?? hourMin,
+      peakAmount: Math.round(catPeak?.value ?? 0),
       shareOfTotal: grandTotal > 0 ? cat.totalAmount / grandTotal : 0,
     }
   })
