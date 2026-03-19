@@ -5,20 +5,16 @@
  * 客数効果 / 客単価効果 / 部門別増減の2ビューを提供。
  */
 import { useState, useMemo } from 'react'
+import { useTheme } from 'styled-components'
+import type { AppTheme } from '@/presentation/theme/theme'
+import { EChart, type EChartsOption } from '@/presentation/components/charts/EChart'
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Cell,
-  ReferenceLine,
-  LabelList,
-} from 'recharts'
-import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
-import { useChartTheme, useCurrencyFormatter, toAxisYen } from '@/presentation/components/charts'
-import { createChartTooltip } from '@/presentation/components/charts/createChartTooltip'
+  yenYAxis,
+  standardGrid,
+  standardTooltip,
+  toCommaYen,
+} from '@/presentation/components/charts/echartsOptionBuilders'
+import { useCurrencyFormatter } from '@/presentation/components/charts/chartTheme'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import {
   calculateItemsPerCustomer,
@@ -70,7 +66,7 @@ export function DrilldownWaterfall({
   curLabel?: string
   prevLabel?: string
 }) {
-  const ct = useChartTheme()
+  const theme = useTheme() as AppTheme
   const fmt = useCurrencyFormatter()
   const { format: fmtCurrency } = useCurrencyFormat()
   const [viewMode, setViewMode] = useState<ViewMode>('factor')
@@ -342,62 +338,99 @@ export function DrilldownWaterfall({
           compact
         />
       ) : (
-        <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={240}>
-          <BarChart data={data} margin={{ top: 16, right: 12, left: 12, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} vertical={false} />
-            <XAxis
-              dataKey="name"
-              tick={{ fontSize: ct.fontSize.xs, fill: ct.text, fontFamily: ct.fontFamily }}
-              axisLine={{ stroke: ct.grid }}
-              tickLine={false}
-              interval={0}
-              angle={data.length > 5 ? -25 : 0}
-              textAnchor={data.length > 5 ? 'end' : 'middle'}
-              height={data.length > 5 ? 50 : 25}
-            />
-            <YAxis
-              tick={{ fontSize: ct.fontSize.xs, fill: ct.textSecondary, fontFamily: ct.monoFamily }}
-              axisLine={false}
-              tickLine={false}
-              tickFormatter={toAxisYen}
-            />
-            <Tooltip
-              content={createChartTooltip({
-                ct,
-                formatter: (_value, name, entry) => {
-                  if (name === 'base') return [null, null]
-                  const item = entry.payload as WaterfallItem | undefined
-                  if (!item) return ['-', '-']
-                  return [fmtCurrency(item.value), item.name]
-                },
-              })}
-            />
-            <ReferenceLine y={0} stroke={ct.grid} />
-            <Bar dataKey="base" stackId="waterfall" fill="transparent" isAnimationActive={false} />
-            <Bar dataKey="bar" stackId="waterfall" radius={[3, 3, 0, 0]}>
-              <LabelList
-                dataKey="value"
-                position="top"
-                formatter={(v: unknown) => fmt(Number(v))}
-                style={{ fontSize: 9, fill: ct.text, fontFamily: ct.monoFamily }}
-              />
-              {data.map((item, idx) => (
-                <Cell
-                  key={idx}
-                  fill={
-                    item.isTotal
-                      ? colors.total
-                      : item.value >= 0
-                        ? colors.positive
-                        : colors.negative
-                  }
-                  opacity={0.85}
-                />
-              ))}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
+        <DrilldownWaterfallEChart
+          data={data}
+          colors={colors}
+          theme={theme}
+          fmt={fmt}
+          fmtCurrency={fmtCurrency}
+        />
       )}
     </Section>
   )
+}
+
+/** Inner EChart component for the waterfall rendering */
+function DrilldownWaterfallEChart({
+  data,
+  colors,
+  theme,
+  fmt,
+  fmtCurrency,
+}: {
+  data: WaterfallItem[]
+  colors: { positive: string; negative: string; total: string }
+  theme: AppTheme
+  fmt: (v: number) => string
+  fmtCurrency: (v: number | null) => string
+}) {
+  const option = useMemo((): EChartsOption => {
+    const names = data.map((d) => d.name)
+    const needsRotation = data.length > 5
+    return {
+      grid: {
+        ...standardGrid(),
+        top: 24,
+        bottom: needsRotation ? 50 : 25,
+        left: 12,
+        right: 12,
+      },
+      tooltip: {
+        ...standardTooltip(theme),
+        trigger: 'axis' as const,
+        formatter: (params: unknown) => {
+          const arr = Array.isArray(params) ? params : [params]
+          const p = arr[0] as { dataIndex: number } | undefined
+          if (!p) return ''
+          const item = data[p.dataIndex]
+          if (!item) return ''
+          return `${item.name}<br/>${fmtCurrency(item.value)}`
+        },
+      },
+      xAxis: {
+        type: 'category' as const,
+        data: names,
+        axisLabel: {
+          color: theme.colors.text3,
+          fontSize: 9,
+          fontFamily: theme.typography.fontFamily.primary,
+          rotate: needsRotation ? -25 : 0,
+        },
+        axisLine: { lineStyle: { color: theme.colors.border } },
+        axisTick: { show: false },
+      },
+      yAxis: yenYAxis(theme),
+      series: [
+        {
+          type: 'bar' as const,
+          data: data.map((d) => {
+            const color = d.isTotal
+              ? colors.total
+              : d.value >= 0
+                ? colors.positive
+                : colors.negative
+            return {
+              value: [d.base, d.base + d.bar],
+              itemStyle: { color, opacity: 0.85 },
+            }
+          }),
+          barWidth: '60%',
+          label: {
+            show: true,
+            position: 'top' as const,
+            formatter: (params: unknown) => {
+              const p = params as { dataIndex: number }
+              const item = data[p.dataIndex]
+              return item ? fmt(item.value) : ''
+            },
+            fontSize: 9,
+            color: theme.colors.text,
+            fontFamily: theme.typography.fontFamily.mono,
+          },
+        },
+      ],
+    }
+  }, [data, theme, colors, fmt, fmtCurrency])
+
+  return <EChart option={option} height={240} ariaLabel="ドリルダウンウォーターフォールチャート" />
 }
