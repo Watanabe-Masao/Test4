@@ -57,6 +57,7 @@ const HARDCODED_FONT_SIZE = /font-size:\s*[\d.]+(?:rem|px)\s*;/g
 
 /** テーマ経由の正当な参照パターン */
 const THEME_REF_PATTERNS = [
+  // theme オブジェクト経由
   'theme.colors.',
   'theme.typography.',
   'theme.spacing[',
@@ -64,19 +65,21 @@ const THEME_REF_PATTERNS = [
   'theme.shadows.',
   'theme.transitions.',
   'theme.mode',
+  'theme.interactive.',
+  'theme.chart.',
+  'theme.elevation.',
+  // トークン直接参照
   'palette.',
   'sc.',
   'ct.',
-  'interactive.',
-  'statusBg.',
+  // colorSystem ユーティリティ
   'statusAlpha(',
   'statusSolid(',
-  'elevation.',
-  'resolveMode(',
-  'chart.',
-  'surface.',
+  'status.',
+  // チャート共通
   'STORE_COLORS',
   'CATEGORY_COLORS',
+  'STATUS_RGB',
   'TRACK_SHADOW',
   'TOOLBAR_LABEL',
 ]

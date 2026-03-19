@@ -1,8 +1,7 @@
 /**
  * ChartCard — 統一チャートカードシェルのスタイル
  *
- * 15+チャートの .styles.ts に複製されていた Wrapper/HeaderRow/Title を統合。
- * Mac品質 = 静かで整理された密度。
+ * 全値はテーマトークン経由。直接色・サイズ指定なし。
  */
 import styled from 'styled-components'
 
@@ -34,13 +33,13 @@ export const TitleArea = styled.div`
 `
 
 export const Title = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text2};
 `
 
 export const Subtitle = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   margin-top: ${({ theme }) => theme.spacing[0]};
 `
