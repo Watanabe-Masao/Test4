@@ -322,7 +322,7 @@ export const HourlyWeatherModal = memo(function HourlyWeatherModal({
             <SummaryItem>
               <SummaryLabel>最高気温</SummaryLabel>
               <SummaryValue style={{ color: '#ef4444' }}>
-                {summary.maxTemp.toFixed(1)}\u00B0C
+                {summary.maxTemp.toFixed(1)}°C
                 {prevSummary && (
                   <DiffText value={summary.maxTemp - prevSummary.maxTemp} unit="\u00B0C" />
                 )}
@@ -331,7 +331,7 @@ export const HourlyWeatherModal = memo(function HourlyWeatherModal({
             <SummaryItem>
               <SummaryLabel>最低気温</SummaryLabel>
               <SummaryValue style={{ color: '#3498db' }}>
-                {summary.minTemp.toFixed(1)}\u00B0C
+                {summary.minTemp.toFixed(1)}°C
                 {prevSummary && (
                   <DiffText value={summary.minTemp - prevSummary.minTemp} unit="\u00B0C" />
                 )}
@@ -357,13 +357,13 @@ export const HourlyWeatherModal = memo(function HourlyWeatherModal({
             <SummaryItem>
               <SummaryLabel>前年最高気温</SummaryLabel>
               <SummaryValue style={{ color: '#ef4444' }}>
-                {prevSummary.maxTemp.toFixed(1)}\u00B0C
+                {prevSummary.maxTemp.toFixed(1)}°C
               </SummaryValue>
             </SummaryItem>
             <SummaryItem>
               <SummaryLabel>前年最低気温</SummaryLabel>
               <SummaryValue style={{ color: '#3498db' }}>
-                {prevSummary.minTemp.toFixed(1)}\u00B0C
+                {prevSummary.minTemp.toFixed(1)}°C
               </SummaryValue>
             </SummaryItem>
             <SummaryItem>
@@ -398,13 +398,13 @@ function ForecastSummary({ forecast }: { readonly forecast: DailyForecast }) {
       {forecast.tempMax != null && (
         <SummaryItem style={{ borderLeft: '3px solid rgba(249, 115, 22, 0.6)' }}>
           <SummaryLabel>予報最高</SummaryLabel>
-          <SummaryValue style={{ color: '#ef4444' }}>{forecast.tempMax}\u00B0C</SummaryValue>
+          <SummaryValue style={{ color: '#ef4444' }}>{forecast.tempMax}°C</SummaryValue>
         </SummaryItem>
       )}
       {forecast.tempMin != null && (
         <SummaryItem style={{ borderLeft: '3px solid rgba(249, 115, 22, 0.6)' }}>
           <SummaryLabel>予報最低</SummaryLabel>
-          <SummaryValue style={{ color: '#3498db' }}>{forecast.tempMin}\u00B0C</SummaryValue>
+          <SummaryValue style={{ color: '#3498db' }}>{forecast.tempMin}°C</SummaryValue>
         </SummaryItem>
       )}
       {forecast.pop != null && (
