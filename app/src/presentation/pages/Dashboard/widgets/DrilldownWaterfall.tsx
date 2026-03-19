@@ -380,8 +380,8 @@ function DrilldownWaterfallEChart({
         formatter: (params: unknown) => {
           const arr = Array.isArray(params) ? params : [params]
           const p =
-            (arr as { dataIndex: number }[]).find(
-              (s: { seriesIndex?: number }) => s.seriesIndex === 1,
+            (arr as { dataIndex: number; seriesIndex?: number }[]).find(
+              (s) => s.seriesIndex === 1,
             ) ?? (arr[0] as { dataIndex: number } | undefined)
           if (!p) return ''
           const item = data[p.dataIndex]
