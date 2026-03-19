@@ -13,7 +13,7 @@ export function barDefaults(opts: { color: string; opacity?: number }): {
   itemStyle: {
     color: string
     opacity: number
-    borderRadius: readonly [number, number, number, number]
+    borderRadius: [number, number, number, number]
   }
   barMaxWidth: number
 } {
@@ -21,7 +21,7 @@ export function barDefaults(opts: { color: string; opacity?: number }): {
     itemStyle: {
       color: opts.color,
       opacity: opts.opacity ?? chartStyles.opacity.bar,
-      borderRadius: chartStyles.barRadius.standard,
+      borderRadius: [...chartStyles.barRadius.standard] as [number, number, number, number],
     },
     barMaxWidth: chartStyles.barWidth.wide,
   }
@@ -32,7 +32,7 @@ export function horizontalBarDefaults(opts: { color: string; opacity?: number })
   itemStyle: {
     color: string
     opacity: number
-    borderRadius: readonly [number, number, number, number]
+    borderRadius: [number, number, number, number]
   }
   barMaxWidth: number
 } {
@@ -40,7 +40,7 @@ export function horizontalBarDefaults(opts: { color: string; opacity?: number })
     itemStyle: {
       color: opts.color,
       opacity: opts.opacity ?? chartStyles.opacity.bar,
-      borderRadius: chartStyles.barRadius.horizontal,
+      borderRadius: [...chartStyles.barRadius.horizontal] as [number, number, number, number],
     },
     barMaxWidth: chartStyles.barWidth.wide,
   }
