@@ -25,7 +25,7 @@ import { ChartCard } from './ChartCard'
 import { ChartLoading, ChartError, ChartEmpty } from './ChartState'
 import { EChart, type EChartsOption } from './EChart'
 import { standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
-import { valueYAxis } from './builders'
+import { categoryXAxis, valueYAxis, lineDefaults } from './builders'
 import { SummaryRow, SummaryItem } from './HourlyProfileChart.styles'
 import { chartFontSize } from '@/presentation/theme/tokens'
 
@@ -104,8 +104,8 @@ function buildOption(
       name: '平均気温',
       type: 'line',
       data: chartData.map((d) => d.avgTemp ?? null),
-      lineStyle: { color: theme.colors.palette.orange, width: 1.5, type: 'dashed' },
-      itemStyle: { color: theme.colors.palette.orange },
+      ...lineDefaults({ color: theme.colors.palette.orange, dashed: true, width: 1.5 }),
+      symbol: 'circle',
       symbolSize: 4,
       yAxisIndex: 1,
       connectNulls: true,
@@ -135,16 +135,7 @@ function buildOption(
       },
     },
     legend: standardLegend(theme),
-    xAxis: {
-      type: 'category',
-      data: hours,
-      axisLabel: {
-        color: theme.colors.text3,
-        fontSize: chartFontSize.axis,
-        fontFamily: theme.typography.fontFamily.mono,
-      },
-      axisLine: { lineStyle: { color: theme.colors.border } },
-    },
+    xAxis: categoryXAxis(hours, theme),
     yAxis: yAxes,
     series,
   }

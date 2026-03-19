@@ -7,7 +7,7 @@ import { memo, useMemo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { EChart, type EChartsOption } from '../EChart'
-import { standardGrid, standardTooltip } from '../echartsOptionBuilders'
+import { standardGrid, standardTooltip, categoryXAxis, valueYAxis } from '../builders'
 import { toPct } from '../chartTheme'
 import { DualPeriodSlider } from '../DualPeriodSlider'
 import { useDualPeriodRange } from '../useDualPeriodRange'
@@ -52,32 +52,13 @@ function buildOption(
         return `${p[0].name}日<br/>粗利率: ${toPct(p[0].value)}`
       },
     },
-    xAxis: {
-      type: 'category' as const,
-      data: days,
-      axisLabel: {
-        color: theme.colors.text3,
-        fontSize: chartFontSize.axis,
-        fontFamily: theme.typography.fontFamily.mono,
-      },
-      axisLine: { lineStyle: { color: theme.colors.border } },
-      axisTick: { show: false },
-    },
+    xAxis: categoryXAxis(days, theme),
     yAxis: {
-      type: 'value' as const,
-      min: 0,
-      max: yMax,
-      axisLabel: {
+      ...valueYAxis(theme, {
+        min: 0,
+        max: yMax,
         formatter: (v: number) => toPct(v, 0),
-        color: theme.colors.text3,
-        fontSize: chartFontSize.axis,
-        fontFamily: theme.typography.fontFamily.mono,
-      },
-      axisLine: { show: false },
-      axisTick: { show: false },
-      splitLine: {
-        lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' as const },
-      },
+      }),
     },
     series: [
       {

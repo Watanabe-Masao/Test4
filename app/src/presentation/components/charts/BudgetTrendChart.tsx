@@ -14,9 +14,11 @@ import {
   standardGrid,
   standardTooltip,
   standardLegend,
-  toCommaYen,
-} from './echartsOptionBuilders'
-import { valueYAxis, lineDefaults } from './builders'
+  valueYAxis,
+  lineDefaults,
+  categoryXAxis,
+} from './builders'
+import { toCommaYen } from './echartsOptionBuilders'
 import { chartFontSize } from '@/presentation/theme/tokens'
 
 type ViewType = 'line' | 'diff' | 'rate'
@@ -64,9 +66,7 @@ function buildOption(
         name: '実績累計',
         type: 'line',
         data: chartData.map((d) => d.actualCum),
-        lineStyle: { color: theme.chart.barPositive, width: 2.5 },
-        itemStyle: { color: theme.chart.barPositive },
-        symbol: 'none',
+        ...lineDefaults({ color: theme.chart.barPositive, width: 2.5 }),
       },
       {
         name: '予算累計',
@@ -93,9 +93,7 @@ function buildOption(
         name: '比較期累計',
         type: 'line',
         data: chartData.map((d) => d.prevYearCum ?? null),
-        lineStyle: { color: theme.chart.previousYear, width: 1.5, type: 'dashed' },
-        itemStyle: { color: theme.chart.previousYear },
-        symbol: 'none',
+        ...lineDefaults({ color: theme.chart.previousYear, dashed: true, width: 1.5 }),
         connectNulls: true,
       })
     }
@@ -103,15 +101,7 @@ function buildOption(
       grid: standardGrid(),
       tooltip: standardTooltip(theme),
       legend: standardLegend(theme),
-      xAxis: {
-        type: 'category',
-        data: days,
-        axisLabel: {
-          color: theme.colors.text3,
-          fontSize: chartFontSize.axis,
-          fontFamily: theme.typography.fontFamily.mono,
-        },
-      },
+      xAxis: categoryXAxis(days, theme),
       yAxis: yenYAxis(theme),
       series,
     }
@@ -128,15 +118,7 @@ function buildOption(
           return `${p[0].name}日<br/>予算差異: ${toCommaYen(p[0].value)}`
         },
       },
-      xAxis: {
-        type: 'category',
-        data: days,
-        axisLabel: {
-          color: theme.colors.text3,
-          fontSize: chartFontSize.axis,
-          fontFamily: theme.typography.fontFamily.mono,
-        },
-      },
+      xAxis: categoryXAxis(days, theme),
       yAxis: yenYAxis(theme),
       series: [
         {
@@ -171,24 +153,14 @@ function buildOption(
         return `${p[0].name}日<br/>達成率: ${p[0].value?.toFixed(1)}%`
       },
     },
-    xAxis: {
-      type: 'category',
-      data: days,
-      axisLabel: {
-        color: theme.colors.text3,
-        fontSize: chartFontSize.axis,
-        fontFamily: theme.typography.fontFamily.mono,
-      },
-    },
+    xAxis: categoryXAxis(days, theme),
     yAxis: valueYAxis(theme, { formatter: (v: number) => `${v}%` }),
     series: [
       {
         name: '達成率',
         type: 'line',
         data: chartData.map((d) => d.achieveRate),
-        lineStyle: { color: theme.colors.palette.primary, width: 2.5 },
-        itemStyle: { color: theme.colors.palette.primary },
-        symbol: 'none',
+        ...lineDefaults({ color: theme.colors.palette.primary, width: 2.5 }),
         connectNulls: true,
         markLine: {
           data: [{ yAxis: 100, label: { formatter: '100%', position: 'end' } }],

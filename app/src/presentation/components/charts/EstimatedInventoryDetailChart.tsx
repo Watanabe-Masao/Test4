@@ -3,7 +3,8 @@ import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { useCurrencyFormatter, useCurrencyFormat, toPct, STORE_COLORS } from './chartTheme'
 import { EChart } from './EChart'
-import { yenYAxis, standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
+import { standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
+import { categoryXAxis, yenYAxis, lineDefaults } from './builders'
 import { DualPeriodSlider } from './DualPeriodSlider'
 import { useDualPeriodRange } from './useDualPeriodRange'
 import { computeEstimatedInventoryDetails } from '@/application/hooks/calculation'
@@ -193,6 +194,7 @@ export const EstimatedInventoryDetailChart = memo(function EstimatedInventoryDet
   /* ================================================================ */
   if (effectiveMode === 'compare') {
     const anyHasInventory = storeEntries.some((s) => s.hasInventory)
+    const compDays = compChartData.map((d: unknown) => String((d as Record<string, unknown>).day))
 
     return (
       <ChartCard
@@ -207,15 +209,7 @@ export const EstimatedInventoryDetailChart = memo(function EstimatedInventoryDet
             grid: standardGrid(),
             tooltip: standardTooltip(theme),
             legend: standardLegend(theme),
-            xAxis: {
-              type: 'category',
-              data: compChartData.map((d: unknown) => String((d as Record<string, unknown>).day)),
-              axisLabel: {
-                color: theme.colors.text3,
-                fontSize: chartFontSize.axis,
-                fontFamily: theme.typography.fontFamily.mono,
-              },
-            },
+            xAxis: categoryXAxis(compDays, theme),
             yAxis: anyHasInventory ? yenYAxis(theme) : { type: 'value' },
             series: storeEntries
               .filter((s) => s.hasInventory)
@@ -225,9 +219,7 @@ export const EstimatedInventoryDetailChart = memo(function EstimatedInventoryDet
                 data: compChartData.map(
                   (d: unknown) => (d as Record<string, unknown>)[`${s.name}_推定在庫`] ?? null,
                 ),
-                lineStyle: { color: STORE_COLORS[i % STORE_COLORS.length], width: 2.5 },
-                itemStyle: { color: STORE_COLORS[i % STORE_COLORS.length] },
-                symbol: 'none',
+                ...lineDefaults({ color: STORE_COLORS[i % STORE_COLORS.length], width: 2.5 }),
               })),
           }}
           height={300}
@@ -296,6 +288,8 @@ export const EstimatedInventoryDetailChart = memo(function EstimatedInventoryDet
   /* ================================================================ */
   /*  明細モード (合計)                                                 */
   /* ================================================================ */
+  const aggDays = (aggChartData as unknown as Record<string, unknown>[]).map((d) => String(d.day))
+
   return (
     <ChartCard
       title="日別推定在庫 計算明細"
@@ -312,15 +306,7 @@ export const EstimatedInventoryDetailChart = memo(function EstimatedInventoryDet
             ...standardLegend(theme),
             formatter: (name: string) => AGG_LABELS[name] ?? name,
           },
-          xAxis: {
-            type: 'category',
-            data: (aggChartData as unknown as Record<string, unknown>[]).map((d) => String(d.day)),
-            axisLabel: {
-              color: theme.colors.text3,
-              fontSize: chartFontSize.axis,
-              fontFamily: theme.typography.fontFamily.mono,
-            },
-          },
+          xAxis: categoryXAxis(aggDays, theme),
           yAxis: [
             yenYAxis(theme) as Record<string, unknown>,
             {
@@ -355,9 +341,7 @@ export const EstimatedInventoryDetailChart = memo(function EstimatedInventoryDet
               data: (aggChartData as unknown as Record<string, unknown>[]).map(
                 (d) => d.estimated ?? null,
               ),
-              lineStyle: { color: theme.colors.palette.cyanDark, width: 2.5 },
-              itemStyle: { color: theme.colors.palette.cyanDark },
-              symbol: 'none',
+              ...lineDefaults({ color: theme.colors.palette.cyanDark, width: 2.5 }),
               markLine: {
                 data: [
                   {
@@ -365,7 +349,7 @@ export const EstimatedInventoryDetailChart = memo(function EstimatedInventoryDet
                     label: {
                       formatter: `期首 ${currFmt(openingInventory!)}`,
                       position: 'start' as const,
-                      fontSize: 9,
+                      fontSize: chartFontSize.annotation,
                     },
                     lineStyle: { color: theme.colors.palette.infoDark, type: 'dashed' as const },
                   },
@@ -376,7 +360,7 @@ export const EstimatedInventoryDetailChart = memo(function EstimatedInventoryDet
                           label: {
                             formatter: `実在庫 ${currFmt(closingInventory)}`,
                             position: 'end' as const,
-                            fontSize: 9,
+                            fontSize: chartFontSize.annotation,
                           },
                           lineStyle: { color: theme.chart.barPositive, type: 'dashed' as const },
                         },

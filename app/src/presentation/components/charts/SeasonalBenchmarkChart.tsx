@@ -12,7 +12,7 @@ import { CHART_GUIDES } from './chartGuides'
 import { ChartCard } from './ChartCard'
 import { ChartEmpty } from './ChartState'
 import { EChart, type EChartsOption } from './EChart'
-import { standardGrid, standardTooltip } from './echartsOptionBuilders'
+import { standardGrid, standardTooltip, categoryXAxis, valueYAxis, barDefaults } from './builders'
 import { InfoRow, InfoBadge, TrendBadge } from './SeasonalBenchmarkChart.styles'
 
 const MONTH_LABELS = [
@@ -82,27 +82,14 @@ export const SeasonalBenchmarkChart = memo(function SeasonalBenchmarkChart({
           return `${p[0].name}<br/>季節性指数: ${Math.round(v * 100)}（${v > 1 ? '繁忙' : v < 1 ? '閑散' : '平常'}）`
         },
       },
-      xAxis: {
-        type: 'category',
-        data: months,
-        axisLabel: {
-          color: theme.colors.text3,
-          fontSize: chartFontSize.axis,
-          fontFamily: theme.typography.fontFamily.mono,
-        },
-      },
+      xAxis: categoryXAxis(months, theme),
       yAxis: {
-        type: 'value',
+        ...valueYAxis(theme, {
+          formatter: (v: number) => String(Math.round(v * 100)),
+        }),
         name: '季節性指数',
         nameLocation: 'middle',
         nameGap: 35,
-        axisLabel: {
-          formatter: (v: number) => String(Math.round(v * 100)),
-          color: theme.colors.text3,
-          fontSize: chartFontSize.axis,
-        },
-        axisLine: { show: false },
-        splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
       },
       series: [
         {
@@ -123,12 +110,13 @@ export const SeasonalBenchmarkChart = memo(function SeasonalBenchmarkChart({
               borderRadius: [4, 4, 0, 0],
             },
           })),
+          ...barDefaults({ color: theme.colors.palette.primary }),
           barMaxWidth: 40,
           markLine: {
             data: [
               {
                 yAxis: 1,
-                label: { formatter: '平均=100', fontSize: 8 },
+                label: { formatter: '平均=100', fontSize: chartFontSize.annotation },
                 lineStyle: { color: theme.colors.palette.slate, type: 'dashed', opacity: 0.8 },
               },
               {

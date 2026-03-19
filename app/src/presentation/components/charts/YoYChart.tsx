@@ -30,14 +30,13 @@ import { ChartLoading, ChartError, ChartEmpty } from './ChartState'
 import { EChart, type EChartsOption } from './EChart'
 import {
   yenYAxis,
-  categoryXAxis,
   standardGrid,
   standardTooltip,
   standardLegend,
   toCommaYen,
 } from './echartsOptionBuilders'
+import { categoryXAxis, lineDefaults } from './builders'
 import { SummaryRow, SummaryItem } from './YoYChart.styles'
-import { chartFontSize } from '@/presentation/theme/tokens'
 
 type ViewMode = 'line' | 'waterfall'
 
@@ -74,17 +73,14 @@ function buildLineOption(chartData: readonly YoYChartDataPoint[], theme: AppThem
         name: '前年売上',
         type: 'line',
         data: chartData.map((d) => d.prevSales),
-        lineStyle: { color: theme.colors.palette.slate, width: 1.5, type: 'dashed' },
-        itemStyle: { color: theme.colors.palette.slate },
-        symbol: 'none',
+        ...lineDefaults({ color: theme.colors.palette.slate, width: 1.5, dashed: true }),
         connectNulls: true,
       },
       {
         name: '当年売上',
         type: 'line',
         data: chartData.map((d) => d.curSales),
-        lineStyle: { color: theme.colors.palette.primary, width: 2 },
-        itemStyle: { color: theme.colors.palette.primary },
+        ...lineDefaults({ color: theme.colors.palette.primary, width: 2 }),
         symbolSize: 4,
       },
     ],
@@ -107,16 +103,12 @@ function buildWaterfallOption(
         return `${p.name}<br/>${toCommaYen(val)}`
       },
     },
-    xAxis: {
-      type: 'category',
-      data: names,
+    xAxis: Object.assign({}, categoryXAxis(names, theme), {
       axisLabel: {
-        color: theme.colors.text3,
-        fontSize: chartFontSize.axis,
-        fontFamily: theme.typography.fontFamily.mono,
+        ...(categoryXAxis(names, theme).axisLabel as object),
         rotate: 45,
       },
-    },
+    }),
     yAxis: yenYAxis(theme),
     series: [
       {

@@ -5,7 +5,7 @@ import { useMemo, useState, memo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { sc } from '@/presentation/theme/semanticColors'
-import { palette, chartFontSize } from '@/presentation/theme/tokens'
+import { palette } from '@/presentation/theme/tokens'
 import { toComma } from './chartTheme'
 import {
   normalizeMinMax,
@@ -19,7 +19,7 @@ import { ChartCard } from './ChartCard'
 import { ChartEmpty } from './ChartState'
 import { EChart, type EChartsOption } from './EChart'
 import { standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
-import { valueYAxis } from './builders'
+import { categoryXAxis, valueYAxis, lineDefaults } from './builders'
 import { CorrelationRow, CorrBadge } from './IntegratedTimeline.styles'
 
 type ViewMode = 'normalized' | 'raw'
@@ -126,9 +126,7 @@ export const IntegratedTimeline = memo(function IntegratedTimeline({ result, day
         const key = isNorm ? `norm${s.key.charAt(0).toUpperCase() + s.key.slice(1)}` : s.key
         return (d as unknown as Record<string, number>)[key] ?? null
       }),
-      lineStyle: { color: s.color, width: 1.5 },
-      itemStyle: { color: s.color },
-      symbol: 'none',
+      ...lineDefaults({ color: s.color, width: 1.5 }),
     }))
 
     if (!isNorm) {
@@ -137,17 +135,13 @@ export const IntegratedTimeline = memo(function IntegratedTimeline({ result, day
           name: '売上 7日MA',
           type: 'line',
           data: chartData.map((d) => d.maSales),
-          lineStyle: { color: palette.primary, width: 2, type: 'dashed' },
-          itemStyle: { color: palette.primary },
-          symbol: 'none',
+          ...lineDefaults({ color: palette.primary, width: 2, dashed: true }),
         },
         {
           name: '仕入 7日MA',
           type: 'line',
           data: chartData.map((d) => d.maCost),
-          lineStyle: { color: sc.negative, width: 2, type: 'dashed' },
-          itemStyle: { color: sc.negative },
-          symbol: 'none',
+          ...lineDefaults({ color: sc.negative, width: 2, dashed: true }),
         },
       )
     }
@@ -181,16 +175,12 @@ export const IntegratedTimeline = memo(function IntegratedTimeline({ result, day
         },
       },
       legend: { ...standardLegend(theme), type: 'scroll' },
-      xAxis: {
-        type: 'category',
-        data: days,
+      xAxis: Object.assign({}, categoryXAxis(days, theme), {
         axisLabel: {
-          color: theme.colors.text3,
-          fontSize: chartFontSize.axis,
-          fontFamily: theme.typography.fontFamily.mono,
+          ...(categoryXAxis(days, theme).axisLabel as object),
           formatter: (v: string) => `${v}日`,
         },
-      },
+      }),
       yAxis: valueYAxis(theme, {
         formatter: (v: number) => (isNorm ? String(Math.round(v)) : toComma(v)),
       }),

@@ -21,8 +21,8 @@ import {
   standardLegend,
   toCommaYen,
 } from './echartsOptionBuilders'
+import { categoryXAxis, valueYAxis } from './builders'
 import { DeptSelector, DeptChip } from './DeptTrendChart.styles'
-import { chartFontSize } from '@/presentation/theme/tokens'
 
 interface Props {
   readonly duckConn: AsyncDuckDBConnection | null
@@ -89,29 +89,14 @@ function buildOption(
       },
     },
     legend: { ...standardLegend(theme), type: 'scroll' },
-    xAxis: {
-      type: 'category',
-      data: labels,
-      axisLabel: {
-        color: theme.colors.text3,
-        fontSize: chartFontSize.axis,
-        fontFamily: theme.typography.fontFamily.mono,
-      },
-      axisLine: { lineStyle: { color: theme.colors.border } },
-    },
+    xAxis: categoryXAxis(labels, theme),
     yAxis: [
       yenYAxis(theme) as Record<string, unknown>,
-      {
-        type: 'value',
+      valueYAxis(theme, {
+        formatter: (v: number) => `${v}%`,
         position: 'right',
-        axisLabel: {
-          formatter: (v: number) => `${v}%`,
-          color: theme.colors.text3,
-          fontSize: chartFontSize.axis,
-        },
-        axisLine: { show: false },
-        splitLine: { show: false },
-      },
+        showSplitLine: false,
+      }) as Record<string, unknown>,
     ],
     series,
   }

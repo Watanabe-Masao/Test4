@@ -12,8 +12,7 @@
 import { memo, useMemo } from 'react'
 import type { EChartsOption } from 'echarts'
 import { EChart } from './EChart'
-import { standardGrid } from './echartsOptionBuilders'
-import { lineDefaults } from './builders'
+import { standardGrid, lineDefaults } from './builders'
 import { type ChartTheme, toAxisYen, toComma } from './chartTheme'
 import type { DailySalesDataResult } from './useDailySalesData'
 
@@ -237,9 +236,7 @@ function buildOption(
         name: 'wfSalesCum',
         type: 'line' as const,
         data: pluck(rows, 'wfSalesCum'),
-        lineStyle: { color: ct.colors.primary, width: 1.5, type: 'dashed' as const },
-        itemStyle: { color: ct.colors.primary },
-        symbol: 'none',
+        ...lineDefaults({ color: ct.colors.primary, dashed: true, width: 1.5 }),
         connectNulls: true,
       },
     )
@@ -277,9 +274,7 @@ function buildOption(
         name: 'wfYoyCum',
         type: 'line' as const,
         data: pluck(rows, 'wfYoyCum'),
-        lineStyle: { color: ct.colors.primary, width: 1.5, type: 'dashed' as const },
-        itemStyle: { color: ct.colors.primary },
-        symbol: 'none',
+        ...lineDefaults({ color: ct.colors.primary, dashed: true, width: 1.5 }),
         connectNulls: true,
       },
     )
@@ -325,9 +320,7 @@ function buildOption(
         type: 'line' as const,
         yAxisIndex: 1,
         data: pluck(rows, 'prevYearDiscount'),
-        lineStyle: { color: ct.colors.orange, width: 1.5, type: 'dashed' as const },
-        itemStyle: { color: ct.colors.orange },
-        symbol: 'none',
+        ...lineDefaults({ color: ct.colors.orange, dashed: true, width: 1.5 }),
         connectNulls: true,
       })
     }
@@ -426,18 +419,14 @@ function buildOption(
         name: 'prevYearCum',
         type: 'line' as const,
         data: pluck(rows, 'prevYearCum'),
-        lineStyle: { color: ct.colors.slate, width: 2.5 },
-        itemStyle: { color: ct.colors.slate },
-        symbol: 'none',
+        ...lineDefaults({ color: ct.colors.slate, width: 2.5 }),
         connectNulls: true,
       })
       series.push({
         name: 'yoyDiffCum',
         type: 'line' as const,
         data: pluck(rows, 'yoyDiffCum'),
-        lineStyle: { color: ct.colors.success, width: 1.5, type: 'dashed' as const },
-        itemStyle: { color: ct.colors.success },
-        symbol: 'none',
+        ...lineDefaults({ color: ct.colors.success, dashed: true, width: 1.5 }),
         connectNulls: true,
       })
     }
@@ -460,9 +449,7 @@ function buildOption(
         name: 'prevYearSales',
         type: 'line' as const,
         data: pluck(rows, 'prevYearSales'),
-        lineStyle: { color: ct.colors.slate, width: 2.5 },
-        itemStyle: { color: ct.colors.slate },
-        symbol: 'none',
+        ...lineDefaults({ color: ct.colors.slate, width: 2.5 }),
         connectNulls: true,
       })
     }

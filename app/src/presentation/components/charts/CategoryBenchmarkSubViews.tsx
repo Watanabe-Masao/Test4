@@ -13,6 +13,7 @@ import { EmptyState } from '@/presentation/components/common'
 import { chartFontSize } from '@/presentation/theme/tokens'
 import { EChart, type EChartsOption } from './EChart'
 import { standardGrid, standardTooltip, standardLegend, toCommaYen } from './echartsOptionBuilders'
+import { categoryXAxis, valueYAxis, lineDefaults } from './builders'
 import {
   DataTable,
   Th,
@@ -172,16 +173,7 @@ export function MapView({ scores }: { scores: readonly CategoryBenchmarkScore[] 
         axisLabel: { color: theme.colors.text3, fontSize: chartFontSize.axis },
         splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
       },
-      yAxis: {
-        type: 'value',
-        name: '安定度 (%)',
-        nameLocation: 'center',
-        nameGap: 35,
-        max: 100,
-        min: 0,
-        axisLabel: { color: theme.colors.text3, fontSize: chartFontSize.axis },
-        splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
-      },
+      yAxis: valueYAxis(theme, { max: 100, min: 0 }),
       series: [
         {
           type: 'scatter',
@@ -238,32 +230,13 @@ export function TrendView({
       grid: standardGrid(),
       tooltip: standardTooltip(theme),
       legend: { ...standardLegend(theme), type: 'scroll' },
-      xAxis: {
-        type: 'category',
-        data: dates,
-        axisLabel: {
-          color: theme.colors.text3,
-          fontSize: chartFontSize.axis,
-          fontFamily: theme.typography.fontFamily.mono,
-        },
-        axisLine: { lineStyle: { color: theme.colors.border } },
-      },
-      yAxis: {
-        type: 'value',
-        name: 'Index × 安定度',
-        nameLocation: 'middle',
-        nameGap: 40,
-        axisLabel: { color: theme.colors.text3, fontSize: chartFontSize.axis },
-        axisLine: { show: false },
-        splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
-      },
+      xAxis: categoryXAxis(dates, theme),
+      yAxis: valueYAxis(theme),
       series: topCodes.map((code, i) => ({
         name: nameMap.get(code) ?? code,
         type: 'line' as const,
         data: chartData.map((d) => (d[code] as number) ?? null),
-        lineStyle: { color: TREND_COLORS[i % TREND_COLORS.length], width: 2 },
-        itemStyle: { color: TREND_COLORS[i % TREND_COLORS.length] },
-        symbol: 'none',
+        ...lineDefaults({ color: TREND_COLORS[i % TREND_COLORS.length], width: 2 }),
         connectNulls: true,
       })),
     }

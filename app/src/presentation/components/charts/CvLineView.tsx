@@ -6,8 +6,14 @@ import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { CATEGORY_COLORS } from './ChartParts'
 import { EChart, type EChartsOption } from './EChart'
-import { standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
-import { chartFontSize } from '@/presentation/theme/tokens'
+import {
+  standardGrid,
+  standardTooltip,
+  standardLegend,
+  categoryXAxis,
+  valueYAxis,
+  lineDefaults,
+} from './builders'
 
 interface Props {
   readonly data: readonly Record<string, number | string>[]
@@ -27,14 +33,10 @@ export function CvLineView({ data, topCodes, categoryNames, showCv, showPi }: Pr
 
     if (showCv) {
       yAxes.push({
-        type: 'value',
+        ...valueYAxis(theme, { min: 0 }),
         name: 'CV',
         nameLocation: 'middle',
         nameGap: 40,
-        min: 0,
-        axisLabel: { color: theme.colors.text3, fontSize: chartFontSize.axis },
-        axisLine: { show: false },
-        splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
       })
       topCodes.forEach((code, i) => {
         series.push({
@@ -42,9 +44,7 @@ export function CvLineView({ data, topCodes, categoryNames, showCv, showPi }: Pr
           type: 'line',
           yAxisIndex: 0,
           data: data.map((d) => (d[`cv_${code}`] as number) ?? null),
-          lineStyle: { color: CATEGORY_COLORS[i % CATEGORY_COLORS.length], width: 2 },
-          itemStyle: { color: CATEGORY_COLORS[i % CATEGORY_COLORS.length] },
-          symbol: 'none',
+          ...lineDefaults({ color: CATEGORY_COLORS[i % CATEGORY_COLORS.length] }),
           connectNulls: true,
         })
       })
@@ -52,15 +52,10 @@ export function CvLineView({ data, topCodes, categoryNames, showCv, showPi }: Pr
 
     if (showPi) {
       yAxes.push({
-        type: 'value',
+        ...valueYAxis(theme, { position: 'right', showSplitLine: false, min: 0 }),
         name: 'PI',
         nameLocation: 'middle',
         nameGap: 40,
-        position: 'right',
-        min: 0,
-        axisLabel: { color: theme.colors.text3, fontSize: chartFontSize.axis },
-        axisLine: { show: false },
-        splitLine: { show: false },
       })
       const piAxisIdx = showCv ? 1 : 0
       topCodes.forEach((code, i) => {
@@ -69,13 +64,11 @@ export function CvLineView({ data, topCodes, categoryNames, showCv, showPi }: Pr
           type: 'line',
           yAxisIndex: piAxisIdx,
           data: data.map((d) => (d[`pi_${code}`] as number) ?? null),
-          lineStyle: {
+          ...lineDefaults({
             color: CATEGORY_COLORS[i % CATEGORY_COLORS.length],
             width: 1.5,
-            type: 'dashed',
-          },
-          itemStyle: { color: CATEGORY_COLORS[i % CATEGORY_COLORS.length] },
-          symbol: 'none',
+            dashed: true,
+          }),
           connectNulls: true,
         })
       })
@@ -85,16 +78,7 @@ export function CvLineView({ data, topCodes, categoryNames, showCv, showPi }: Pr
       grid: standardGrid(),
       tooltip: standardTooltip(theme),
       legend: { ...standardLegend(theme), type: 'scroll' },
-      xAxis: {
-        type: 'category',
-        data: dates,
-        axisLabel: {
-          color: theme.colors.text3,
-          fontSize: chartFontSize.axis,
-          fontFamily: theme.typography.fontFamily.mono,
-        },
-        axisLine: { lineStyle: { color: theme.colors.border } },
-      },
+      xAxis: categoryXAxis(dates, theme),
       yAxis: yAxes.length > 0 ? (yAxes as EChartsOption['yAxis']) : { type: 'value' },
       series,
     }

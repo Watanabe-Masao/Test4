@@ -6,8 +6,14 @@ import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { CATEGORY_COLORS } from './ChartParts'
 import { EChart, type EChartsOption } from './EChart'
-import { standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
-import { chartFontSize } from '@/presentation/theme/tokens'
+import {
+  standardGrid,
+  standardTooltip,
+  standardLegend,
+  categoryXAxis,
+  valueYAxis,
+  lineDefaults,
+} from './builders'
 
 interface Props {
   readonly data: readonly Record<string, number | string>[]
@@ -40,9 +46,7 @@ export function CvSalesCvView({ data, topCodes, categoryNames, fmtCurrency }: Pr
         type: 'line',
         yAxisIndex: 1,
         data: data.map((d) => (d[`cv_${code}`] as number) ?? null),
-        lineStyle: { color: CATEGORY_COLORS[i % CATEGORY_COLORS.length], width: 2 },
-        itemStyle: { color: CATEGORY_COLORS[i % CATEGORY_COLORS.length] },
-        symbol: 'none',
+        ...lineDefaults({ color: CATEGORY_COLORS[i % CATEGORY_COLORS.length] }),
         connectNulls: true,
       })
     })
@@ -51,40 +55,19 @@ export function CvSalesCvView({ data, topCodes, categoryNames, fmtCurrency }: Pr
       grid: standardGrid(),
       tooltip: standardTooltip(theme),
       legend: { ...standardLegend(theme), type: 'scroll' },
-      xAxis: {
-        type: 'category',
-        data: dates,
-        axisLabel: {
-          color: theme.colors.text3,
-          fontSize: chartFontSize.axis,
-          fontFamily: theme.typography.fontFamily.mono,
-        },
-        axisLine: { lineStyle: { color: theme.colors.border } },
-      },
+      xAxis: categoryXAxis(dates, theme),
       yAxis: [
         {
-          type: 'value',
+          ...valueYAxis(theme, { formatter: (v: number) => fmtCurrency(v) }),
           name: '売上',
           nameLocation: 'middle',
           nameGap: 50,
-          axisLabel: {
-            formatter: (v: number) => fmtCurrency(v),
-            color: theme.colors.text3,
-            fontSize: chartFontSize.axis,
-          },
-          axisLine: { show: false },
-          splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
         },
         {
-          type: 'value',
+          ...valueYAxis(theme, { position: 'right', showSplitLine: false, min: 0 }),
           name: 'CV',
           nameLocation: 'middle',
           nameGap: 40,
-          position: 'right',
-          min: 0,
-          axisLabel: { color: theme.colors.text3, fontSize: chartFontSize.axis },
-          axisLine: { show: false },
-          splitLine: { show: false },
         },
       ],
       series,

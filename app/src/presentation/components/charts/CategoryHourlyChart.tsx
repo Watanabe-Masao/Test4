@@ -109,7 +109,7 @@ function buildOption(
       inRange: {
         color: [theme.mode === 'dark' ? theme.colors.bg3 : '#f1f5f9', theme.colors.palette.primary],
       },
-      textStyle: { color: theme.colors.text3, fontSize: 9 },
+      textStyle: { color: theme.colors.text3, fontSize: chartFontSize.annotation },
       show: false,
     },
     series: [
@@ -122,7 +122,7 @@ function buildOption(
             const val = (params as { value: [number, number, number] }).value[2]
             return val > 0 ? toCommaYen(val) : ''
           },
-          fontSize: 8,
+          fontSize: chartFontSize.annotation,
           color: theme.colors.text3,
         },
         emphasis: {

@@ -14,7 +14,7 @@ import { SegmentedControl } from '@/presentation/components/common'
 import { ChartCard } from './ChartCard'
 import { EChart, type EChartsOption } from './EChart'
 import { yenYAxis, standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
-import { valueYAxis } from './builders'
+import { categoryXAxis, valueYAxis, lineDefaults } from './builders'
 import { chartFontSize } from '@/presentation/theme/tokens'
 
 type GpView = 'amountRate' | 'rateOnly'
@@ -118,9 +118,7 @@ export const GrossProfitAmountChart = memo(function GrossProfitAmountChart({
           name: '粗利率',
           type: 'line',
           data: data.map((d) => d.rate),
-          lineStyle: { color: theme.colors.palette.primary, width: 2.5 },
-          itemStyle: { color: theme.colors.palette.primary },
-          symbol: 'none',
+          ...lineDefaults({ color: theme.colors.palette.primary, width: 2.5 }),
           markLine: {
             data: [
               {
@@ -142,9 +140,7 @@ export const GrossProfitAmountChart = memo(function GrossProfitAmountChart({
           name: '前年粗利率',
           type: 'line',
           data: data.map((d) => d.prevRate),
-          lineStyle: { color: theme.chart.previousYear, width: 1.5, type: 'dashed' },
-          itemStyle: { color: theme.chart.previousYear },
-          symbol: 'none',
+          ...lineDefaults({ color: theme.chart.previousYear, width: 1.5, dashed: true }),
           connectNulls: true,
         })
       }
@@ -152,15 +148,7 @@ export const GrossProfitAmountChart = memo(function GrossProfitAmountChart({
         grid: standardGrid(),
         tooltip: standardTooltip(theme),
         legend: standardLegend(theme),
-        xAxis: {
-          type: 'category',
-          data: days,
-          axisLabel: {
-            color: theme.colors.text3,
-            fontSize: chartFontSize.axis,
-            fontFamily: theme.typography.fontFamily.mono,
-          },
-        },
+        xAxis: categoryXAxis(days, theme),
         yAxis: valueYAxis(theme, { formatter: (v: number) => toPct(v) }),
         series,
       }
@@ -183,8 +171,7 @@ export const GrossProfitAmountChart = memo(function GrossProfitAmountChart({
         type: 'line',
         yAxisIndex: 1,
         data: data.map((d) => d.rate),
-        lineStyle: { color: theme.colors.palette.primary, width: 2 },
-        itemStyle: { color: theme.colors.palette.primary },
+        ...lineDefaults({ color: theme.colors.palette.primary, width: 2 }),
         symbolSize: 3,
       },
     ]
@@ -194,9 +181,7 @@ export const GrossProfitAmountChart = memo(function GrossProfitAmountChart({
         type: 'line',
         yAxisIndex: 1,
         data: data.map((d) => d.prevRate),
-        lineStyle: { color: theme.chart.previousYear, width: 1.5, type: 'dashed' },
-        itemStyle: { color: theme.chart.previousYear },
-        symbol: 'none',
+        ...lineDefaults({ color: theme.chart.previousYear, width: 1.5, dashed: true }),
         connectNulls: true,
       })
     }
@@ -205,15 +190,7 @@ export const GrossProfitAmountChart = memo(function GrossProfitAmountChart({
       grid: standardGrid(),
       tooltip: standardTooltip(theme),
       legend: standardLegend(theme),
-      xAxis: {
-        type: 'category',
-        data: days,
-        axisLabel: {
-          color: theme.colors.text3,
-          fontSize: chartFontSize.axis,
-          fontFamily: theme.typography.fontFamily.mono,
-        },
-      },
+      xAxis: categoryXAxis(days, theme),
       yAxis: [
         yenYAxis(theme) as Record<string, unknown>,
         valueYAxis(theme, {

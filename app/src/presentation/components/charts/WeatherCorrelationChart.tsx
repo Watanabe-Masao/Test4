@@ -10,12 +10,12 @@ import type {
   CorrelationResult,
 } from '@/application/hooks/useWeatherCorrelation'
 import { useWeatherCorrelation } from '@/application/hooks/useWeatherCorrelation'
-import { chartFontSize } from '@/presentation/theme/tokens'
 import { buildTimelineData, getCorrelationStrength } from './WeatherCorrelationChart.vm'
 import { ChartCard } from './ChartCard'
 import { ChartEmpty } from './ChartState'
 import { EChart, type EChartsOption } from './EChart'
 import { standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
+import { categoryXAxis, valueYAxis, lineDefaults } from './builders'
 import {
   CorrelationGrid,
   CorrelationCard,
@@ -56,40 +56,26 @@ export const WeatherCorrelationChart = memo(function WeatherCorrelationChart({
       grid: standardGrid(),
       tooltip: standardTooltip(theme),
       legend: standardLegend(theme),
-      xAxis: {
-        type: 'category',
-        data: days,
-        axisLabel: { color: theme.colors.text3, fontSize: chartFontSize.axis },
-        axisLine: { lineStyle: { color: theme.colors.border } },
-      },
+      xAxis: categoryXAxis(days, theme),
       yAxis: {
-        type: 'value',
-        min: 0,
-        max: 100,
+        ...valueYAxis(theme, { min: 0, max: 100 }),
         name: '正規化 (0-100)',
         nameLocation: 'middle',
         nameGap: 40,
-        axisLabel: { color: theme.colors.text3, fontSize: chartFontSize.axis },
-        axisLine: { show: false },
-        splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
       },
       series: [
         {
           name: '売上',
           type: 'line',
           data: timelineData.map((d) => d.salesNorm),
-          lineStyle: { color: theme.colors.palette.primary, width: 2 },
-          itemStyle: { color: theme.colors.palette.primary },
-          symbol: 'none',
+          ...lineDefaults({ color: theme.colors.palette.primary, width: 2 }),
           connectNulls: true,
         },
         {
           name: '気温',
           type: 'line',
           data: timelineData.map((d) => d.tempNorm),
-          lineStyle: { color: theme.colors.palette.dangerDark, width: 1.5, type: 'dashed' },
-          itemStyle: { color: theme.colors.palette.dangerDark },
-          symbol: 'none',
+          ...lineDefaults({ color: theme.colors.palette.dangerDark, width: 1.5, dashed: true }),
           connectNulls: true,
         },
         {
