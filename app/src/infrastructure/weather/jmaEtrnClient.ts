@@ -113,8 +113,12 @@ async function fetchStationList(precNo: number): Promise<readonly EtrnStation[]>
     const blockMatch = href.match(/block_no=(\d+)/)
     if (!blockMatch) continue
 
-    const stationType = (typeMatch?.[1] as 'a1' | 's1') ?? 'a1'
     const blockNo = blockMatch[1]
+    // stationType 判定優先順位:
+    // 1. URL パスから検出（daily_s1.php 等）
+    // 2. block_no の桁数で推定（JMA慣例: 5桁=気象台s1, 4桁以下=AMeDAS a1）
+    const stationType: 'a1' | 's1' =
+      (typeMatch?.[1] as 'a1' | 's1') ?? (blockNo.length >= 5 ? 's1' : 'a1')
     // <area> は void 要素なので alt/title 属性から名前を取得
     const stationName = (
       link.getAttribute('alt') ||
@@ -237,8 +241,16 @@ export async function resolveEtrnStationByLocation(
     return null
   }
 
-  const selected = stations.find((s) => s.stationType === 's1') ?? stations[0]
-  console.debug('[Weather:ETRN] 観測所選択: %s (block=%s)', selected.stationName, selected.blockNo)
+  const s1Stations = stations.filter((s) => s.stationType === 's1')
+  const selected = s1Stations[0] ?? stations[0]
+  console.debug(
+    '[Weather:ETRN] 観測所選択: %s (block=%s, type=%s) — s1候補=%d, 全%d',
+    selected.stationName,
+    selected.blockNo,
+    selected.stationType,
+    s1Stations.length,
+    stations.length,
+  )
   return selected
 }
 
