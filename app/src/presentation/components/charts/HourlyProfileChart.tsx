@@ -25,11 +25,8 @@ import {
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
-import {
-  useDuckDBHourlyProfile,
-  useDuckDBWeatherHourlyAvg,
-  type HourlyProfileRow,
-} from '@/application/hooks/useDuckDBQuery'
+import { useDuckDBHourlyProfile, useDuckDBWeatherHourlyAvg } from '@/application/hooks/useDuckDBQuery'
+import { buildHourlyProfileData, mergeWeatherData } from './HourlyProfileChartLogic'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useChartTheme, toPct } from './chartTheme'
 import { createChartTooltip } from './createChartTooltip'
@@ -50,69 +47,6 @@ interface Props {
   readonly duckDataVersion: number
   readonly currentDateRange: DateRange
   readonly selectedStoreIds: ReadonlySet<string>
-}
-
-interface ChartDataPoint {
-  readonly hour: number
-  readonly hourLabel: string
-  readonly share: number
-  readonly isPeak: boolean
-  readonly peakMarker: number
-  readonly avgTemp?: number
-}
-
-interface HourlySummary {
-  readonly chartData: ChartDataPoint[]
-  readonly peakHours: string
-  readonly top3Concentration: number
-  readonly activeHoursCount: number
-}
-
-function buildChartData(rows: readonly HourlyProfileRow[]): HourlySummary {
-  // Aggregate all stores: sum totalAmount per hour
-  const hourMap = new Map<number, number>()
-  for (const row of rows) {
-    hourMap.set(row.hour, (hourMap.get(row.hour) ?? 0) + row.totalAmount)
-  }
-
-  // Recalculate hourShare from aggregated totals
-  const grandTotal = [...hourMap.values()].reduce((sum, v) => sum + v, 0)
-
-  // Build entries sorted by hour
-  const entries: { hour: number; totalAmount: number; share: number }[] = []
-  for (const [hour, amount] of hourMap) {
-    entries.push({
-      hour,
-      totalAmount: amount,
-      share: grandTotal > 0 ? amount / grandTotal : 0,
-    })
-  }
-  entries.sort((a, b) => a.hour - b.hour)
-
-  // Rank by share descending to determine peaks
-  const ranked = [...entries].sort((a, b) => b.share - a.share)
-  const peakHourSet = new Set(ranked.slice(0, 3).map((e) => e.hour))
-
-  // Build chart data
-  const chartData: ChartDataPoint[] = entries.map((e) => ({
-    hour: e.hour,
-    hourLabel: String(e.hour),
-    share: e.share,
-    isPeak: peakHourSet.has(e.hour),
-    peakMarker: peakHourSet.has(e.hour) ? e.share : 0,
-  }))
-
-  // Peak hours label (sorted chronologically)
-  const peakHoursSorted = [...peakHourSet].sort((a, b) => a - b)
-  const peakHours = peakHoursSorted.map((h) => `${h}時`).join(', ')
-
-  // Top3 concentration
-  const top3Concentration = ranked.slice(0, 3).reduce((sum, e) => sum + e.share, 0)
-
-  // Active hours count (hours with any sales)
-  const activeHoursCount = entries.filter((e) => e.totalAmount > 0).length
-
-  return { chartData, peakHours, top3Concentration, activeHoursCount }
 }
 
 export const HourlyProfileChart = memo(function HourlyProfileChart({
@@ -146,20 +80,8 @@ export const HourlyProfileChart = memo(function HourlyProfileChart({
 
   const { chartData, peakHours, top3Concentration, activeHoursCount } = useMemo(() => {
     if (!rows) return { chartData: [], peakHours: '', top3Concentration: 0, activeHoursCount: 0 }
-    const result = buildChartData(rows)
-    // 天気平均気温をマージ
-    if (weatherAvg && weatherAvg.length > 0) {
-      const tempMap = new Map(weatherAvg.map((w) => [w.hour, w.avgTemperature]))
-      return {
-        ...result,
-        chartData: result.chartData.map((d) => ({
-          ...d,
-          avgTemp:
-            tempMap.get(d.hour) != null ? Math.round(tempMap.get(d.hour)! * 10) / 10 : undefined,
-        })),
-      }
-    }
-    return result
+    const result = buildHourlyProfileData(rows)
+    return mergeWeatherData(result, weatherAvg ?? null)
   }, [rows, weatherAvg])
 
   const hasWeatherData = chartData.some((d) => d.avgTemp != null)

@@ -14,10 +14,8 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'r
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
-import {
-  useDuckDBCategoryMixWeekly,
-  type CategoryMixWeeklyRow,
-} from '@/application/hooks/useDuckDBQuery'
+import { useDuckDBCategoryMixWeekly } from '@/application/hooks/useDuckDBQuery'
+import { buildMixChartData, type CategoryMeta } from './CategoryMixChartLogic'
 import { useChartTheme, toPct } from './chartTheme'
 import { palette } from '@/presentation/theme/tokens'
 import { useI18n } from '@/application/hooks/useI18n'
@@ -70,103 +68,6 @@ interface Props {
   readonly selectedStoreIds: ReadonlySet<string>
 }
 
-interface ChartDataPoint {
-  readonly week: string
-  readonly [categoryCode: string]: string | number
-}
-
-interface CategoryMeta {
-  readonly code: string
-  readonly name: string
-  readonly avgShare: number
-  readonly latestShift: number | null
-}
-
-interface MixChartData {
-  readonly chartData: ChartDataPoint[]
-  readonly categories: CategoryMeta[]
-  readonly topGainer: CategoryMeta | null
-  readonly topLoser: CategoryMeta | null
-}
-
-// ── Data transformation ──
-
-function buildMixChartData(rows: readonly CategoryMixWeeklyRow[]): MixChartData {
-  // Collect unique category codes in order of total share
-  const categoryShareTotals = new Map<string, { name: string; shareSum: number; count: number }>()
-
-  for (const row of rows) {
-    const existing = categoryShareTotals.get(row.code) ?? {
-      name: row.name,
-      shareSum: 0,
-      count: 0,
-    }
-    existing.shareSum += row.sharePct
-    existing.count += 1
-    categoryShareTotals.set(row.code, existing)
-  }
-
-  // Sorted by average share descending
-  const sortedCats = [...categoryShareTotals.entries()]
-    .map(([code, info]) => ({
-      code,
-      name: info.name,
-      avgShare: info.count > 0 ? info.shareSum / info.count : 0,
-    }))
-    .sort((a, b) => b.avgShare - a.avgShare)
-
-  // Build per-week data points
-  const weekMap = new Map<string, Record<string, number>>()
-  const weekOrder: string[] = []
-
-  for (const row of rows) {
-    const weekLabel = row.weekStart.slice(5) // MM-DD
-    if (!weekMap.has(weekLabel)) {
-      weekMap.set(weekLabel, {})
-      weekOrder.push(weekLabel)
-    }
-    const weekData = weekMap.get(weekLabel)!
-    weekData[row.code] = row.sharePct
-  }
-
-  const chartData: ChartDataPoint[] = weekOrder.map((week) => {
-    const data = weekMap.get(week)!
-    const point: Record<string, string | number> = { week }
-    for (const cat of sortedCats) {
-      point[cat.code] = data[cat.code] ?? 0
-    }
-    return point as ChartDataPoint
-  })
-
-  // Find latest week shifts for each category
-  const latestShiftMap = new Map<string, number | null>()
-  for (const row of rows) {
-    const weekLabel = row.weekStart.slice(5)
-    if (weekLabel === weekOrder[weekOrder.length - 1]) {
-      latestShiftMap.set(row.code, row.shareShift)
-    }
-  }
-
-  const categories: CategoryMeta[] = sortedCats.map((cat) => ({
-    code: cat.code,
-    name: cat.name,
-    avgShare: cat.avgShare,
-    latestShift: latestShiftMap.get(cat.code) ?? null,
-  }))
-
-  // Find top gainer and top loser
-  const withShifts = categories.filter((c) => c.latestShift != null)
-  const topGainer = withShifts.reduce<CategoryMeta | null>(
-    (best, c) => (!best || (c.latestShift ?? 0) > (best.latestShift ?? 0) ? c : best),
-    null,
-  )
-  const topLoser = withShifts.reduce<CategoryMeta | null>(
-    (best, c) => (!best || (c.latestShift ?? 0) < (best.latestShift ?? 0) ? c : best),
-    null,
-  )
-
-  return { chartData, categories, topGainer, topLoser }
-}
 
 // ── Tooltip formatter ──
 

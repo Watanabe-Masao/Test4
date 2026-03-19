@@ -14,7 +14,8 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, Cel
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
-import { useDuckDBDowPattern, type DowPatternRow } from '@/application/hooks/useDuckDBQuery'
+import { useDuckDBDowPattern } from '@/application/hooks/useDuckDBQuery'
+import { buildDowPatternData } from './DowPatternChartLogic'
 import { useChartTheme, useCurrencyFormatter, toPct, toAxisYen } from './chartTheme'
 import { createChartTooltip } from './createChartTooltip'
 import { palette } from '@/presentation/theme/tokens'
@@ -36,76 +37,6 @@ interface Props {
   readonly selectedStoreIds: ReadonlySet<string>
 }
 
-const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土'] as const
-
-interface ChartDataPoint {
-  readonly dow: number
-  readonly label: string
-  readonly avgSales: number
-}
-
-interface DowSummary {
-  readonly chartData: ChartDataPoint[]
-  readonly overallAvg: number
-  readonly strongestDow: string
-  readonly weakestDow: string
-  readonly cv: number
-}
-
-function buildChartData(rows: readonly DowPatternRow[]): DowSummary {
-  // Aggregate all stores: sum avgSales per dow
-  const dowMap = new Map<number, number>()
-  for (const row of rows) {
-    dowMap.set(row.dow, (dowMap.get(row.dow) ?? 0) + row.avgSales)
-  }
-
-  // Build sorted array by dow (0=Sun through 6=Sat)
-  const dowEntries: { dow: number; avgSales: number }[] = []
-  for (let d = 0; d < 7; d++) {
-    const sales = dowMap.get(d)
-    if (sales != null) {
-      dowEntries.push({ dow: d, avgSales: Math.round(sales) })
-    }
-  }
-
-  // Calculate overall average across all days of week
-  const totalSales = dowEntries.reduce((sum, e) => sum + e.avgSales, 0)
-  const overallAvg = dowEntries.length > 0 ? totalSales / dowEntries.length : 0
-
-  const chartData: ChartDataPoint[] = dowEntries.map((e) => ({
-    dow: e.dow,
-    label: DOW_LABELS[e.dow],
-    avgSales: e.avgSales,
-  }))
-
-  // Find strongest / weakest
-  let strongestDow = ''
-  let weakestDow = ''
-  let maxSales = -Infinity
-  let minSales = Infinity
-  for (const point of chartData) {
-    if (point.avgSales > maxSales) {
-      maxSales = point.avgSales
-      strongestDow = point.label
-    }
-    if (point.avgSales < minSales) {
-      minSales = point.avgSales
-      weakestDow = point.label
-    }
-  }
-
-  // CV = stddev / mean
-  const mean = overallAvg
-  const variance =
-    chartData.length > 0
-      ? chartData.reduce((sum, p) => sum + (p.avgSales - mean) ** 2, 0) / chartData.length
-      : 0
-  const stddev = Math.sqrt(variance)
-  const cv = mean > 0 ? stddev / mean : 0
-
-  return { chartData, overallAvg: Math.round(overallAvg), strongestDow, weakestDow, cv }
-}
-
 export const DowPatternChart = memo(function DowPatternChart({
   duckConn,
   duckDataVersion,
@@ -125,7 +56,7 @@ export const DowPatternChart = memo(function DowPatternChart({
   const { chartData, overallAvg, strongestDow, weakestDow, cv } = useMemo(
     () =>
       rows
-        ? buildChartData(rows)
+        ? buildDowPatternData(rows)
         : { chartData: [], overallAvg: 0, strongestDow: '', weakestDow: '', cv: 0 },
     [rows],
   )
