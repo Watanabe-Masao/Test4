@@ -16,12 +16,15 @@ import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/c
 import { HOUR_MIN, HOUR_MAX } from './HeatmapChart.helpers'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
-import { useDuckDBCategoryHourly, type CategoryHourlyRow } from '@/application/hooks/useDuckDBQuery'
-import { useChartTheme, useCurrencyFormatter, toAxisYen, STORE_COLORS } from './chartTheme'
+import { useDuckDBCategoryHourly } from '@/application/hooks/useDuckDBQuery'
+import { useChartTheme, useCurrencyFormatter, toAxisYen } from './chartTheme'
+import {
+  buildDeptHourlyData,
+  detectCannibalization,
+  TOP_N_OPTIONS,
+} from './DeptHourlyChartLogic'
 import { createChartTooltip } from './createChartTooltip'
-import { palette } from '@/presentation/theme/tokens'
 import { useI18n } from '@/application/hooks/useI18n'
-import { pearsonCorrelation } from '@/application/hooks/useStatistics'
 import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
 import {
   Wrapper,
@@ -56,152 +59,6 @@ interface Props {
   readonly selectedStoreIds: ReadonlySet<string>
 }
 
-interface DeptInfo {
-  readonly code: string
-  readonly name: string
-  readonly totalAmount: number
-  readonly color: string
-}
-
-interface ChartDataPoint {
-  readonly hour: string
-  readonly hourNum: number
-  readonly [deptKey: string]: string | number
-}
-
-interface CannibalizationResult {
-  readonly deptA: string
-  readonly deptB: string
-  readonly r: number
-}
-
-// ── Constants ──
-
-const TOP_N_OPTIONS = [3, 5, 7, 10] as const
-
-/** 部門別カラーパレット（STORE_COLORS を拡張） */
-const DEPT_COLORS = [
-  ...STORE_COLORS,
-  palette.purple,
-  palette.orange,
-  palette.lime,
-  palette.blue,
-  palette.pink,
-] as const
-
-// ── Helpers ──
-
-/**
- * CategoryHourly行データから上位N部門を抽出し、チャートデータを構築する
- */
-function buildChartData(
-  rows: readonly CategoryHourlyRow[],
-  topN: number,
-  activeDepts: ReadonlySet<string>,
-): {
-  chartData: ChartDataPoint[]
-  departments: DeptInfo[]
-  hourlyPatterns: Map<string, number[]>
-} {
-  // 部門別の合計額を集計してランキング
-  const deptTotals = new Map<string, { name: string; total: number }>()
-  for (const row of rows) {
-    const existing = deptTotals.get(row.code) ?? { name: row.name, total: 0 }
-    existing.total += row.amount
-    deptTotals.set(row.code, existing)
-  }
-
-  // 合計額順にソートして上位N件を取得
-  const sorted = [...deptTotals.entries()].sort((a, b) => b[1].total - a[1].total).slice(0, topN)
-
-  const departments: DeptInfo[] = sorted.map(([code, info], i) => ({
-    code,
-    name: info.name || code,
-    totalAmount: Math.round(info.total),
-    color: DEPT_COLORS[i % DEPT_COLORS.length],
-  }))
-
-  const topCodes = new Set(departments.map((d) => d.code))
-
-  // 時間帯×部門のマトリクスを構築
-  const hourMap = new Map<number, Record<string, number>>()
-  for (const row of rows) {
-    if (!topCodes.has(row.code)) continue
-    if (row.hour < HOUR_MIN || row.hour > HOUR_MAX) continue
-
-    const existing = hourMap.get(row.hour) ?? {}
-    const key = `dept_${row.code}`
-    existing[key] = (existing[key] ?? 0) + row.amount
-    hourMap.set(row.hour, existing)
-  }
-
-  // チャートデータ構築（全時間帯を網羅）
-  const chartData: ChartDataPoint[] = []
-  // 部門別の時間帯パターン（ピアソン相関用）
-  const hourlyPatterns = new Map<string, number[]>()
-  for (const dept of departments) {
-    hourlyPatterns.set(dept.code, [])
-  }
-
-  for (let h = HOUR_MIN; h <= HOUR_MAX; h++) {
-    const hourData = hourMap.get(h) ?? {}
-    const point: Record<string, string | number> = {
-      hour: `${h}時`,
-      hourNum: h,
-    }
-
-    for (const dept of departments) {
-      const key = `dept_${dept.code}`
-      const val = Math.round(hourData[key] ?? 0)
-      hourlyPatterns.get(dept.code)!.push(val)
-
-      // activeDepts が空（全表示）または含まれている場合のみ値を設定
-      if (activeDepts.size === 0 || activeDepts.has(dept.code)) {
-        point[key] = val
-      } else {
-        point[key] = 0
-      }
-    }
-
-    chartData.push(point as ChartDataPoint)
-  }
-
-  return { chartData, departments, hourlyPatterns }
-}
-
-/**
- * 部門間のピアソン相関を計算し、カニバリゼーション（負の相関）を検出する
- */
-function detectCannibalization(
-  departments: readonly DeptInfo[],
-  hourlyPatterns: ReadonlyMap<string, number[]>,
-): CannibalizationResult[] {
-  if (departments.length < 2) return []
-
-  const results: CannibalizationResult[] = []
-  for (let i = 0; i < departments.length; i++) {
-    const patternA = hourlyPatterns.get(departments[i].code)
-    if (!patternA || patternA.length < 3) continue
-
-    for (let j = i + 1; j < departments.length; j++) {
-      const patternB = hourlyPatterns.get(departments[j].code)
-      if (!patternB || patternB.length < 3) continue
-
-      const { r } = pearsonCorrelation(patternA, patternB)
-      // 負の相関（r < -0.3）= カニバリゼーションの可能性
-      if (r < -0.3) {
-        results.push({
-          deptA: departments[i].name,
-          deptB: departments[j].name,
-          r,
-        })
-      }
-    }
-  }
-
-  return results.sort((a, b) => a.r - b.r)
-}
-
 // ── Component ──
 
 export const DeptHourlyChart = React.memo(function DeptHourlyChart({
@@ -233,7 +90,7 @@ export const DeptHourlyChart = React.memo(function DeptHourlyChart({
   const { chartData, departments, hourlyPatterns } = useMemo(
     () =>
       categoryHourlyRows
-        ? buildChartData(categoryHourlyRows, topN, activeDepts)
+        ? buildDeptHourlyData(categoryHourlyRows, topN, activeDepts, HOUR_MIN, HOUR_MAX)
         : { chartData: [], departments: [], hourlyPatterns: new Map<string, number[]>() },
     [categoryHourlyRows, topN, activeDepts],
   )

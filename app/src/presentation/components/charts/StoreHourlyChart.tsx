@@ -16,11 +16,14 @@ import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/c
 import { HOUR_MIN, HOUR_MAX } from './HeatmapChart.helpers'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
+import { useDuckDBStoreAggregation } from '@/application/hooks/useDuckDBQuery'
+import { useChartTheme, useCurrencyFormatter, toPct, toAxisYen } from './chartTheme'
 import {
-  useDuckDBStoreAggregation,
-  type StoreAggregationRow,
-} from '@/application/hooks/useDuckDBQuery'
-import { useChartTheme, useCurrencyFormatter, STORE_COLORS, toPct, toAxisYen } from './chartTheme'
+  buildStoreHourlyData,
+  SIMILARITY_HIGH,
+  type StoreInfo,
+  type StoreHourlyMode,
+} from './StoreHourlyChartLogic'
 import { createChartTooltip } from './createChartTooltip'
 import { useI18n } from '@/application/hooks/useI18n'
 import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
@@ -55,211 +58,6 @@ interface Props {
   readonly stores: ReadonlyMap<string, { name: string }>
 }
 
-type Mode = 'amount' | 'ratio'
-
-interface StoreInfo {
-  readonly storeId: string
-  readonly name: string
-  readonly color: string
-  readonly peakHour: number
-  readonly peakAmount: number
-  readonly totalAmount: number
-  readonly coreTimeStart: number
-  readonly coreTimeEnd: number
-  readonly turnoverHour: number
-  /** Hourly pattern vector for similarity calculation */
-  readonly hourlyPattern: readonly number[]
-}
-
-interface ChartDataPoint {
-  readonly hour: string
-  readonly hourNum: number
-  readonly [storeKey: string]: string | number
-}
-
-interface SimilarityPair {
-  readonly storeA: string
-  readonly storeB: string
-  readonly similarity: number
-}
-
-// ── Constants ──
-
-const CORE_THRESHOLD = 0.8 // top 80% of sales defines core time
-const SIMILARITY_HIGH = 0.95
-
-// ── Helpers ──
-
-/** Cosine similarity between two vectors */
-function cosineSimilarity(a: readonly number[], b: readonly number[]): number {
-  let dotProduct = 0
-  let normA = 0
-  let normB = 0
-  for (let i = 0; i < a.length; i++) {
-    dotProduct += a[i] * b[i]
-    normA += a[i] * a[i]
-    normB += b[i] * b[i]
-  }
-  const denom = Math.sqrt(normA) * Math.sqrt(normB)
-  return denom > 0 ? dotProduct / denom : 0
-}
-
-/** Find core time (hours that account for CORE_THRESHOLD of total sales) */
-function findCoreTime(hourlyAmounts: Map<number, number>): {
-  start: number
-  end: number
-  turnover: number
-} {
-  const total = [...hourlyAmounts.values()].reduce((s, v) => s + v, 0)
-  if (total === 0) return { start: HOUR_MIN, end: HOUR_MAX, turnover: 12 }
-
-  // Sort hours by amount descending
-  const sorted = [...hourlyAmounts.entries()].sort((a, b) => b[1] - a[1])
-
-  // Find hours that make up CORE_THRESHOLD of total
-  let cumulative = 0
-  const coreHours: number[] = []
-  for (const [hour, amount] of sorted) {
-    coreHours.push(hour)
-    cumulative += amount
-    if (cumulative >= total * CORE_THRESHOLD) break
-  }
-
-  coreHours.sort((a, b) => a - b)
-  const start = coreHours[0] ?? HOUR_MIN
-  const end = coreHours[coreHours.length - 1] ?? HOUR_MAX
-
-  // Turnover: hour after peak where sales start declining consistently
-  const peak = sorted[0]?.[0] ?? 12
-  let turnover = peak
-  for (let h = peak + 1; h <= HOUR_MAX; h++) {
-    const cur = hourlyAmounts.get(h) ?? 0
-    const prev = hourlyAmounts.get(h - 1) ?? 0
-    if (cur < prev * 0.7) {
-      turnover = h
-      break
-    }
-    turnover = h
-  }
-
-  return { start, end, turnover }
-}
-
-function buildChartData(
-  rows: readonly StoreAggregationRow[],
-  storesMap: ReadonlyMap<string, { name: string }>,
-  mode: Mode,
-): {
-  chartData: ChartDataPoint[]
-  storeInfos: StoreInfo[]
-  similarities: SimilarityPair[]
-} {
-  // Build store hour maps
-  const storeIds = new Set<string>()
-  const storeHourMap = new Map<string, Map<number, number>>()
-  const storeTotals = new Map<string, number>()
-
-  for (const row of rows) {
-    storeIds.add(row.storeId)
-    if (row.hour < HOUR_MIN || row.hour > HOUR_MAX) continue
-
-    if (!storeHourMap.has(row.storeId)) {
-      storeHourMap.set(row.storeId, new Map())
-    }
-    const hourMap = storeHourMap.get(row.storeId)!
-    hourMap.set(row.hour, (hourMap.get(row.hour) ?? 0) + row.amount)
-
-    storeTotals.set(row.storeId, (storeTotals.get(row.storeId) ?? 0) + row.amount)
-  }
-
-  // Build store infos with analytics
-  const sortedStoreIds = [...storeIds].sort()
-  const storeInfos: StoreInfo[] = sortedStoreIds.map((storeId, i) => {
-    const hourMap = storeHourMap.get(storeId) ?? new Map()
-    const storeName = storesMap.get(storeId)?.name ?? storeId
-
-    let peakHour = HOUR_MIN
-    let peakAmount = 0
-    const hourlyPattern: number[] = []
-
-    for (let h = HOUR_MIN; h <= HOUR_MAX; h++) {
-      const amount = hourMap.get(h) ?? 0
-      hourlyPattern.push(amount)
-      if (amount > peakAmount) {
-        peakHour = h
-        peakAmount = amount
-      }
-    }
-
-    const { start, end, turnover } = findCoreTime(hourMap)
-
-    return {
-      storeId,
-      name: storeName,
-      color: STORE_COLORS[i % STORE_COLORS.length],
-      peakHour,
-      peakAmount: Math.round(peakAmount),
-      totalAmount: Math.round(storeTotals.get(storeId) ?? 0),
-      coreTimeStart: start,
-      coreTimeEnd: end,
-      turnoverHour: turnover,
-      hourlyPattern,
-    }
-  })
-
-  // Calculate pairwise cosine similarity
-  const similarities: SimilarityPair[] = []
-  for (let i = 0; i < storeInfos.length; i++) {
-    for (let j = i + 1; j < storeInfos.length; j++) {
-      const sim = cosineSimilarity(storeInfos[i].hourlyPattern, storeInfos[j].hourlyPattern)
-      similarities.push({
-        storeA: storeInfos[i].name,
-        storeB: storeInfos[j].name,
-        similarity: sim,
-      })
-    }
-  }
-  similarities.sort((a, b) => b.similarity - a.similarity)
-
-  // Ratio mode: compute hour totals
-  const hourTotals = new Map<number, number>()
-  if (mode === 'ratio') {
-    for (let h = HOUR_MIN; h <= HOUR_MAX; h++) {
-      let total = 0
-      for (const [, hourMap] of storeHourMap) {
-        total += hourMap.get(h) ?? 0
-      }
-      hourTotals.set(h, total)
-    }
-  }
-
-  // Build chart data points
-  const chartData: ChartDataPoint[] = []
-  for (let h = HOUR_MIN; h <= HOUR_MAX; h++) {
-    const point: Record<string, string | number> = {
-      hour: `${h}時`,
-      hourNum: h,
-    }
-
-    for (const store of storeInfos) {
-      const hourMap = storeHourMap.get(store.storeId) ?? new Map()
-      const rawAmount = hourMap.get(h) ?? 0
-
-      if (mode === 'ratio') {
-        const hourTotal = hourTotals.get(h) ?? 0
-        point[`store_${store.storeId}`] =
-          hourTotal > 0 ? Math.round((rawAmount / hourTotal) * 10000) / 100 : 0
-      } else {
-        point[`store_${store.storeId}`] = Math.round(rawAmount)
-      }
-    }
-
-    chartData.push(point as ChartDataPoint)
-  }
-
-  return { chartData, storeInfos, similarities }
-}
-
 // ── Component ──
 
 export const StoreHourlyChart = memo(function StoreHourlyChart({
@@ -272,7 +70,7 @@ export const StoreHourlyChart = memo(function StoreHourlyChart({
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
   const { messages } = useI18n()
-  const [mode, setMode] = useState<Mode>('amount')
+  const [mode, setMode] = useState<StoreHourlyMode>('amount')
   const [selectedStoreInfo, setSelectedStoreInfo] = useState<StoreInfo | null>(null)
 
   const handleStoreCardClick = useCallback((store: StoreInfo) => {
@@ -292,7 +90,7 @@ export const StoreHourlyChart = memo(function StoreHourlyChart({
   const { chartData, storeInfos, similarities } = useMemo(
     () =>
       storeRows
-        ? buildChartData(storeRows, stores, mode)
+        ? buildStoreHourlyData(storeRows, stores, mode, HOUR_MIN, HOUR_MAX)
         : { chartData: [], storeInfos: [], similarities: [] },
     [storeRows, stores, mode],
   )
