@@ -21,15 +21,9 @@ import { useChartTheme, useCurrencyFormatter, toAxisYen } from './chartTheme'
 import { createChartTooltip } from './createChartTooltip'
 import { palette } from '@/presentation/theme/tokens'
 import { useI18n } from '@/application/hooks/useI18n'
-import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
-import {
-  Wrapper,
-  Title,
-  Subtitle,
-  SummaryRow,
-  SummaryItem,
-  ErrorMsg,
-} from './CumulativeChart.styles'
+import { ChartCard } from './ChartCard'
+import { ChartLoading, ChartError, ChartEmpty } from './ChartState'
+import { SummaryRow, SummaryItem } from './CumulativeChart.styles'
 
 interface Props {
   readonly duckConn: AsyncDuckDBConnection | null
@@ -70,35 +64,38 @@ export const CumulativeChart = memo(function CumulativeChart({
 
   const chartData = useMemo(() => (rows ? buildChartData(rows) : []), [rows])
 
+  const totalSales = chartData[chartData.length - 1]?.cumulative ?? 0
+  const avgDaily = chartData.length > 0 ? Math.round(totalSales / chartData.length) : 0
+  const subtitle = chartData.length > 0
+    ? `累計 ${fmt(totalSales)} | 日平均 ${fmt(avgDaily)} | ${chartData.length}日経過`
+    : undefined
+
   if (error) {
     return (
-      <Wrapper aria-label="売上進捗">
-        <Title>売上進捗</Title>
-        <ErrorMsg>
-          {messages.errors.dataFetchFailed}: {error}
-        </ErrorMsg>
-      </Wrapper>
+      <ChartCard title="売上進捗">
+        <ChartError message={`${messages.errors.dataFetchFailed}: ${error}`} />
+      </ChartCard>
     )
   }
 
   if (isLoading && !rows) {
-    return <ChartSkeleton />
+    return (
+      <ChartCard title="売上進捗">
+        <ChartLoading />
+      </ChartCard>
+    )
   }
 
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
-    return <EmptyState>データをインポートしてください</EmptyState>
+    return (
+      <ChartCard title="売上進捗">
+        <ChartEmpty message="データをインポートしてください" />
+      </ChartCard>
+    )
   }
 
-  const totalSales = chartData[chartData.length - 1]?.cumulative ?? 0
-  const avgDaily = chartData.length > 0 ? Math.round(totalSales / chartData.length) : 0
-
   return (
-    <Wrapper aria-label="売上進捗">
-      <Title>売上進捗</Title>
-      <Subtitle>
-        累計 {fmt(totalSales)} | 日平均 {fmt(avgDaily)} | {chartData.length}日経過
-      </Subtitle>
-
+    <ChartCard title="売上進捗" subtitle={subtitle}>
       <ResponsiveContainer width="100%" height={300}>
         <ComposedChart data={chartData} margin={{ top: 4, right: 20, left: 10, bottom: 4 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
@@ -152,6 +149,6 @@ export const CumulativeChart = memo(function CumulativeChart({
         <SummaryItem>日平均: {fmt(avgDaily)}</SummaryItem>
         <SummaryItem>対象日数: {chartData.length}日</SummaryItem>
       </SummaryRow>
-    </Wrapper>
+    </ChartCard>
   )
 })

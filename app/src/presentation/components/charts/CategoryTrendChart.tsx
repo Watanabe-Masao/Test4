@@ -27,18 +27,15 @@ import { createChartTooltip } from './createChartTooltip'
 import { DowPresetSelector } from './DowPresetSelector'
 import { palette } from '@/presentation/theme/tokens'
 import { useI18n } from '@/application/hooks/useI18n'
-import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
+import { SegmentedControl } from '@/presentation/components/common'
+import { ChartCard } from './ChartCard'
+import { ChartLoading, ChartError, ChartEmpty } from './ChartState'
 import {
-  Wrapper,
-  Title,
-  Subtitle,
   ControlRow,
   ChipGroup,
   ChipLabel,
-  Chip,
   SummaryRow,
   SummaryItem,
-  ErrorMsg,
   BreadcrumbBar,
   BreadcrumbItem,
   BreadcrumbSep,
@@ -64,13 +61,17 @@ const CATEGORY_COLORS = [
 
 type HierarchyLevel = 'department' | 'line' | 'klass'
 
-const LEVEL_LABELS: Record<HierarchyLevel, string> = {
-  department: '部門',
-  line: 'ライン',
-  klass: 'クラス',
-}
-
 const TOP_N_OPTIONS = [5, 8, 10] as const
+
+const LEVEL_SEGMENT_OPTIONS: readonly { value: HierarchyLevel; label: string }[] = [
+  { value: 'department', label: '部門' },
+  { value: 'line', label: 'ライン' },
+  { value: 'klass', label: 'クラス' },
+]
+
+const TOP_N_SEGMENT_OPTIONS: readonly { value: string; label: string }[] = TOP_N_OPTIONS.map(
+  (n) => ({ value: String(n), label: `${n}件` }),
+)
 
 // ── Types ──
 
@@ -261,21 +262,26 @@ export const CategoryTrendChart = memo(function CategoryTrendChart({
 
   if (error) {
     return (
-      <Wrapper aria-label="カテゴリ別売上推移">
-        <Title>カテゴリ別売上推移</Title>
-        <ErrorMsg>
-          {messages.errors.dataFetchFailed}: {error}
-        </ErrorMsg>
-      </Wrapper>
+      <ChartCard title="カテゴリ別売上推移">
+        <ChartError message={`${messages.errors.dataFetchFailed}: ${error}`} />
+      </ChartCard>
     )
   }
 
   if (isLoading && !trendRows) {
-    return <ChartSkeleton />
+    return (
+      <ChartCard title="カテゴリ別売上推移">
+        <ChartLoading />
+      </ChartCard>
+    )
   }
 
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
-    return <EmptyState>データをインポートしてください</EmptyState>
+    return (
+      <ChartCard title="カテゴリ別売上推移">
+        <ChartEmpty message="データをインポートしてください" />
+      </ChartCard>
+    )
   }
 
   // パンくず
@@ -285,14 +291,10 @@ export const CategoryTrendChart = memo(function CategoryTrendChart({
   // Find top category (highest total)
   const topCategory = visibleCategories[0]
 
-  return (
-    <Wrapper aria-label="カテゴリ別売上推移">
-      <Title>カテゴリ別売上推移</Title>
-      <Subtitle>
-        上位{topN}カテゴリの日次売上トレンド | 月跨ぎ対応
-        {selectedDows.length > 0 && ' | 曜日フィルタ適用中'}
-      </Subtitle>
+  const subtitle = `上位${topN}カテゴリの日次売上トレンド | 月跨ぎ対応${selectedDows.length > 0 ? ' | 曜日フィルタ適用中' : ''}`
 
+  return (
+    <ChartCard title="カテゴリ別売上推移" subtitle={subtitle}>
       {hasDrill && (
         <BreadcrumbBar>
           <BreadcrumbItem $active={false} onClick={() => handleBreadcrumbClick('root')}>
@@ -324,21 +326,23 @@ export const CategoryTrendChart = memo(function CategoryTrendChart({
         {!hasDrill && (
           <ChipGroup>
             <ChipLabel>階層:</ChipLabel>
-            {(Object.keys(LEVEL_LABELS) as HierarchyLevel[]).map((l) => (
-              <Chip key={l} $active={level === l} onClick={() => handleLevelChange(l)}>
-                {LEVEL_LABELS[l]}
-              </Chip>
-            ))}
+            <SegmentedControl
+              options={LEVEL_SEGMENT_OPTIONS}
+              value={level}
+              onChange={handleLevelChange}
+              ariaLabel="階層レベル"
+            />
           </ChipGroup>
         )}
 
         <ChipGroup>
           <ChipLabel>上位:</ChipLabel>
-          {TOP_N_OPTIONS.map((n) => (
-            <Chip key={n} $active={topN === n} onClick={() => handleTopNChange(n)}>
-              {n}件
-            </Chip>
-          ))}
+          <SegmentedControl
+            options={TOP_N_SEGMENT_OPTIONS}
+            value={String(topN)}
+            onChange={(v) => handleTopNChange(Number(v))}
+            ariaLabel="表示件数"
+          />
         </ChipGroup>
 
         <DowPresetSelector selectedDows={selectedDows} onChange={handleDowChange} />
@@ -438,6 +442,6 @@ export const CategoryTrendChart = memo(function CategoryTrendChart({
         </SummaryItem>
         {canDrill && <SummaryItem>ドリルダウン: チャート上のカテゴリをクリック</SummaryItem>}
       </SummaryRow>
-    </Wrapper>
+    </ChartCard>
   )
 })

@@ -9,7 +9,7 @@
  * - 予算差異（棒グラフ）
  * - 達成率推移（折れ線）
  */
-import { useState, memo } from 'react'
+import { useState, useMemo, memo } from 'react'
 import {
   ComposedChart,
   Line,
@@ -27,15 +27,17 @@ import { useChartTheme, useCurrencyFormatter, toAxisYen, toComma } from './chart
 import { createChartTooltip } from './createChartTooltip'
 import { DualPeriodSlider } from './DualPeriodSlider'
 import { useDualPeriodRange } from './useDualPeriodRange'
-import { Wrapper, HeaderRow, Title, TabGroup, Tab, ChartArea } from './BudgetTrendChart.styles'
+import { SegmentedControl } from '@/presentation/components/common'
+import { ChartCard } from './ChartCard'
+import { ChartArea } from './BudgetTrendChart.styles'
 
 type ViewType = 'line' | 'diff' | 'rate'
 
-const VIEW_LABELS: Record<ViewType, string> = {
-  line: '累計推移',
-  diff: '差分',
-  rate: '達成率',
-}
+const VIEW_OPTIONS: readonly { value: ViewType; label: string }[] = [
+  { value: 'line', label: '累計推移' },
+  { value: 'diff', label: '差分' },
+  { value: 'rate', label: '達成率' },
+]
 
 const VIEW_TITLES: Record<ViewType, string> = {
   line: '予算 vs 実績（累計推移）',
@@ -67,8 +69,6 @@ const ALL_LABELS: Record<string, string> = {
   achieveRate: '達成率(%)',
 }
 
-const VIEWS: ViewType[] = ['line', 'diff', 'rate']
-
 export const BudgetTrendChart = memo(function BudgetTrendChart({
   data,
   budget,
@@ -92,27 +92,25 @@ export const BudgetTrendChart = memo(function BudgetTrendChart({
 
   const hasPrevYear = showPrevYear || data.some((d) => d.prevYearCum != null && d.prevYearCum > 0)
 
-  const chartData = [...data]
-    .map((d) => ({
-      ...d,
-      diff: d.actualCum > 0 ? d.actualCum - d.budgetCum : null,
-      achieveRate: d.budgetCum > 0 && d.actualCum > 0 ? (d.actualCum / d.budgetCum) * 100 : null,
-    }))
-    .filter((d) => d.day >= rangeStart && d.day <= rangeEnd)
+  const chartData = useMemo(
+    () =>
+      [...data]
+        .map((d) => ({
+          ...d,
+          diff: d.actualCum > 0 ? d.actualCum - d.budgetCum : null,
+          achieveRate:
+            d.budgetCum > 0 && d.actualCum > 0 ? (d.actualCum / d.budgetCum) * 100 : null,
+        }))
+        .filter((d) => d.day >= rangeStart && d.day <= rangeEnd),
+    [data, rangeStart, rangeEnd],
+  )
+
+  const toolbar = (
+    <SegmentedControl options={VIEW_OPTIONS} value={view} onChange={setView} ariaLabel="ビュー切替" />
+  )
 
   return (
-    <Wrapper aria-label="予算トレンド">
-      <HeaderRow>
-        <Title>{VIEW_TITLES[view]}</Title>
-        <TabGroup>
-          {VIEWS.map((v) => (
-            <Tab key={v} $active={view === v} onClick={() => setView(v)}>
-              {VIEW_LABELS[v]}
-            </Tab>
-          ))}
-        </TabGroup>
-      </HeaderRow>
-
+    <ChartCard title={VIEW_TITLES[view]} toolbar={toolbar} ariaLabel="予算トレンド">
       <ChartArea>
         <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="100%">
           <ComposedChart data={chartData} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
@@ -285,6 +283,6 @@ export const BudgetTrendChart = memo(function BudgetTrendChart({
         onP2Change={onP2Change}
         p2Enabled={p2Enabled}
       />
-    </Wrapper>
+    </ChartCard>
   )
 })
