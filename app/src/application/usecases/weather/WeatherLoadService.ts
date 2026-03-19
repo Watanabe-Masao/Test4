@@ -102,9 +102,13 @@ export async function loadEtrnDailyForStore(
   let stationType = location.etrnStationType
   let resolvedStation: EtrnStation | undefined
 
-  // ETRN 観測所が未解決の場合は自動解決
-  if (precNo == null || !blockNo || !stationType) {
-    console.debug('[Weather:Load] ETRN観測所未解決 → 自動解決開始')
+  // ETRN 観測所が未解決、または AMeDAS(a1) がキャッシュされている場合は気象台(s1)に再解決
+  const needsResolve = precNo == null || !blockNo || !stationType || stationType === 'a1'
+  if (needsResolve) {
+    console.debug(
+      '[Weather:Load] ETRN観測所%s → 自動解決開始',
+      stationType === 'a1' ? '(AMeDAS→気象台に昇格)' : '未解決',
+    )
     onProgress?.({ storeId, status: 'resolving', recordCount: 0 })
 
     const etrnResult = await resolveEtrnStationByLocation(location.latitude, location.longitude)
@@ -172,8 +176,8 @@ export async function loadEtrnHourlyForStore(
   let stationType = location.etrnStationType
   let resolvedStation: EtrnStation | undefined
 
-  // ETRN 観測所が未解決の場合は自動解決
-  if (precNo == null || !blockNo || !stationType) {
+  // ETRN 観測所が未解決、または AMeDAS(a1) がキャッシュされている場合は気象台(s1)に再解決
+  if (precNo == null || !blockNo || !stationType || stationType === 'a1') {
     onProgress?.({ storeId, status: 'resolving', recordCount: 0 })
 
     const etrnResult = await resolveEtrnStationByLocation(location.latitude, location.longitude)
