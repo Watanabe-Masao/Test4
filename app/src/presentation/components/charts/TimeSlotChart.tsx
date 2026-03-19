@@ -10,7 +10,8 @@
  * - コアタイム・折り返し時間帯・ピーク等のKPI
  * - 自動インサイト生成
  */
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
+import { useTheme } from 'styled-components'
 import {
   ComposedChart,
   Bar,
@@ -25,8 +26,11 @@ import {
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange, PrevYearScope } from '@/domain/models'
+import type { AppTheme } from '@/presentation/theme/theme'
 import { useChartTheme, useCurrencyFormatter, toComma, toPct, toAxisYen } from './chartTheme'
 import { createChartTooltip } from './createChartTooltip'
+import { EChart, type EChartsOption } from './EChart'
+import { yenYAxis, standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
 import { formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
@@ -83,6 +87,7 @@ export const TimeSlotChart = memo(function TimeSlotChart({
   selectedStoreIds,
   prevYearScope,
 }: Props) {
+  const theme = useTheme() as AppTheme
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
   const { messages } = useI18n()
@@ -94,6 +99,70 @@ export const TimeSlotChart = memo(function TimeSlotChart({
     selectedStoreIds,
     prevYearScope,
   })
+
+  const showPrev = d.hasPrev && d.showPrev
+
+  // ECharts option for chart view
+  const chartOption = useMemo<EChartsOption>(() => {
+    const hours = d.chartData.map((r) => String(r.hour))
+    const isAmount = d.metricMode === 'amount'
+    const dataKey = isAmount ? 'amount' : 'quantity'
+    const barColor = isAmount ? theme.colors.palette.primary : theme.colors.palette.cyan
+
+    const series: EChartsOption['series'] = [
+      {
+        name: isAmount ? (showPrev ? `${d.curLabel}売上` : '売上金額') : (showPrev ? `${d.curLabel}数量` : '数量'),
+        type: 'bar',
+        data: d.chartData.map((r) => (r as Record<string, unknown>)[dataKey] as number),
+        itemStyle: {
+          color: {
+            type: 'linear',
+            x: 0, y: 0, x2: 0, y2: 1,
+            colorStops: [
+              { offset: 0, color: `${barColor}d9` },
+              { offset: 1, color: `${barColor}66` },
+            ],
+          },
+          borderRadius: [3, 3, 0, 0],
+        },
+        barMaxWidth: 20,
+      },
+    ]
+
+    if (showPrev) {
+      const prevKey = isAmount ? 'prevAmount' : 'prevQuantity'
+      series.push({
+        name: isAmount ? `${d.compLabel}売上` : `${d.compLabel}数量`,
+        type: 'line',
+        data: d.chartData.map((r) => (r as Record<string, unknown>)[prevKey] as number ?? null),
+        lineStyle: { color: theme.colors.palette.slate, width: 2.5, type: 'dashed' },
+        itemStyle: { color: theme.colors.palette.slate },
+        symbol: 'none',
+        connectNulls: true,
+      })
+    }
+
+    return {
+      grid: standardGrid(),
+      tooltip: standardTooltip(theme),
+      legend: standardLegend(theme),
+      xAxis: {
+        type: 'category',
+        data: hours,
+        axisLabel: { color: theme.colors.text3, fontSize: 10, fontFamily: theme.typography.fontFamily.mono },
+        axisLine: { lineStyle: { color: theme.colors.border } },
+      },
+      yAxis: isAmount
+        ? yenYAxis(theme)
+        : {
+            type: 'value',
+            axisLabel: { formatter: (v: number) => toComma(v), color: theme.colors.text3, fontSize: 10 },
+            axisLine: { show: false },
+            splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
+          },
+      series,
+    }
+  }, [d.chartData, d.metricMode, d.curLabel, d.compLabel, showPrev, theme])
 
   if (d.error) {
     return (
@@ -114,7 +183,6 @@ export const TimeSlotChart = memo(function TimeSlotChart({
     return <EmptyState>データをインポートしてください</EmptyState>
   }
 
-  const showPrev = d.hasPrev && d.showPrev
   const modeLabel = d.mode === 'daily' ? '（日平均）' : ''
   const titleText =
     d.viewMode === 'yoy'
@@ -191,87 +259,9 @@ export const TimeSlotChart = memo(function TimeSlotChart({
         </Controls>
       </HeaderRow>
 
-      {/* ── Chart view ── */}
+      {/* ── Chart view (ECharts) ── */}
       {d.viewMode === 'chart' && (
-        <div style={{ width: '100%', height: 320, minHeight: 0 }}>
-          <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="100%">
-            <ComposedChart data={d.chartData} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
-              <defs>
-                <linearGradient id="duckTimeAmtGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor={ct.colors.primary} stopOpacity={0.85} />
-                  <stop offset="100%" stopColor={ct.colors.primary} stopOpacity={0.4} />
-                </linearGradient>
-                <linearGradient id="duckTimeQtyGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor={ct.colors.cyan} stopOpacity={0.85} />
-                  <stop offset="100%" stopColor={ct.colors.cyan} stopOpacity={0.4} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
-              <XAxis
-                dataKey="hour"
-                tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-                axisLine={{ stroke: ct.grid }}
-                tickLine={false}
-              />
-              <YAxis
-                yAxisId="left"
-                tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-                axisLine={false}
-                tickLine={false}
-                tickFormatter={d.metricMode === 'amount' ? toAxisYen : (v: number) => toComma(v)}
-                width={50}
-              />
-              <Tooltip
-                content={createChartTooltip({
-                  ct,
-                  formatter: (value: unknown, name: string) => {
-                    const labels: Record<string, string> = {
-                      amount: showPrev ? `${d.curLabel}売上` : '売上金額',
-                      quantity: showPrev ? `${d.curLabel}数量` : '数量',
-                      prevAmount: `${d.compLabel}売上`,
-                      prevQuantity: `${d.compLabel}数量`,
-                    }
-                    const label = labels[name] ?? String(name)
-                    if (name === 'amount' || name === 'prevAmount')
-                      return [toComma(value as number) + '円', label]
-                    return [toComma(value as number) + '点', label]
-                  },
-                })}
-              />
-              <Legend
-                wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
-                formatter={(value) => {
-                  const labels: Record<string, string> = {
-                    amount: showPrev ? `${d.curLabel}売上` : '売上金額',
-                    quantity: showPrev ? `${d.curLabel}数量` : '数量',
-                    prevAmount: `${d.compLabel}売上`,
-                    prevQuantity: `${d.compLabel}数量`,
-                  }
-                  return labels[value] ?? value
-                }}
-              />
-              <Bar
-                yAxisId="left"
-                dataKey={d.metricMode}
-                fill={d.metricMode === 'amount' ? 'url(#duckTimeAmtGrad)' : 'url(#duckTimeQtyGrad)'}
-                radius={[3, 3, 0, 0]}
-                maxBarSize={20}
-              />
-              {showPrev && (
-                <Line
-                  yAxisId="left"
-                  type="monotone"
-                  dataKey={d.metricMode === 'amount' ? 'prevAmount' : 'prevQuantity'}
-                  stroke={ct.colors.slate}
-                  strokeWidth={2.5}
-                  strokeDasharray="5 3"
-                  dot={false}
-                  connectNulls
-                />
-              )}
-            </ComposedChart>
-          </ResponsiveContainer>
-        </div>
+        <EChart option={chartOption} height={320} ariaLabel="時間帯別売上チャート" />
       )}
 
       {/* ── KPI view ── */}
