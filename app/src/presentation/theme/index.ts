@@ -1,5 +1,12 @@
 export { darkTheme, lightTheme } from './theme'
-export type { AppTheme, ThemeMode, ThemeColors } from './theme'
+export type {
+  AppTheme,
+  ThemeMode,
+  ThemeColors,
+  InteractiveColors,
+  ChartColors,
+  ElevationTokens,
+} from './theme'
 export {
   palette,
   categoryGradients,
@@ -12,3 +19,4 @@ export {
 } from './tokens'
 export { GlobalStyle } from './GlobalStyle'
 export { sc } from './semanticColors'
+export { status, statusAlpha, statusSolid } from './colorSystem'

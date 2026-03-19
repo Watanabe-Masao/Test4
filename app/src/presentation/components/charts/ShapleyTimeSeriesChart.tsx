@@ -1,30 +1,25 @@
 /**
- * シャープリー分解 時系列チャート
- *
- * 日別の2要素分解（客数効果・客単価効果）を累計で時系列表示する。
- * 前年データが必要。前年データがない場合は空状態を表示。
+ * シャープリー分解 時系列チャート (ECharts)
  */
 import { memo, useMemo, useState, useCallback } from 'react'
-import {
-  ComposedChart,
-  Bar,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ReferenceLine,
-} from 'recharts'
-import { SafeResponsiveContainer as ResponsiveContainer } from './SafeResponsiveContainer'
-import { useChartTheme, toComma, toAxisYen } from './chartTheme'
-import { createChartTooltip } from './createChartTooltip'
-import { Wrapper, HeaderRow, Title, ViewToggle, ViewBtn, Sep } from './DailySalesChart.styles'
+import { useTheme } from 'styled-components'
+import type { AppTheme } from '@/presentation/theme/theme'
 import { DualPeriodSlider } from './DualPeriodSlider'
 import { DowPresetSelector } from './DowPresetSelector'
 import { useDualPeriodRange } from './useDualPeriodRange'
 import type { DailyRecord } from '@/domain/models'
 import { useShapleyTimeSeries } from '@/application/hooks'
+import { SegmentedControl } from '@/presentation/components/common'
+import { ChartCard } from './ChartCard'
+import { ChartEmpty } from './ChartState'
+import { EChart, type EChartsOption } from './EChart'
+import {
+  yenYAxis,
+  standardGrid,
+  standardTooltip,
+  standardLegend,
+  toCommaYen,
+} from './echartsOptionBuilders'
 
 interface Props {
   daily: ReadonlyMap<number, DailyRecord>
@@ -35,6 +30,11 @@ interface Props {
 }
 
 type ViewMode = 'cumulative' | 'daily'
+
+const VIEW_OPTIONS: readonly { value: ViewMode; label: string }[] = [
+  { value: 'cumulative', label: '累計' },
+  { value: 'daily', label: '単日' },
+]
 
 const ALL_LABELS: Record<string, string> = {
   custEffect: '客数効果',
@@ -52,7 +52,7 @@ export const ShapleyTimeSeriesChart = memo(function ShapleyTimeSeriesChart({
   month,
   prevYearDaily,
 }: Props) {
-  const ct = useChartTheme()
+  const theme = useTheme() as AppTheme
   const [viewMode, setViewMode] = useState<ViewMode>('cumulative')
   const {
     p1Start: rangeStart,
@@ -75,8 +75,7 @@ export const ShapleyTimeSeriesChart = memo(function ShapleyTimeSeriesChart({
   )
 
   const filteredData = useMemo(() => {
-    const dowSet =
-      selectedDows.length > 0 && year != null && month != null ? new Set(selectedDows) : null
+    const dowSet = selectedDows.length > 0 ? new Set(selectedDows) : null
     return shapleyData.filter((d) => {
       if (d.day < rangeStart || d.day > rangeEnd) return false
       if (dowSet) {
@@ -92,128 +91,101 @@ export const ShapleyTimeSeriesChart = memo(function ShapleyTimeSeriesChart({
   const ticketKey = isCum ? 'ticketEffectCum' : 'ticketEffect'
   const diffKey = isCum ? 'salesDiffCum' : 'salesDiff'
 
+  const option = useMemo<EChartsOption>(() => {
+    const days = filteredData.map((d) => String(d.day))
+    return {
+      grid: standardGrid(),
+      tooltip: {
+        ...standardTooltip(theme),
+        formatter: (params: unknown) => {
+          const items = params as { seriesName: string; value: number | null; name: string }[]
+          if (!Array.isArray(items)) return ''
+          const header = `<div style="font-weight:600">${items[0]?.name}日</div>`
+          const rows = items
+            .filter((i) => i.value != null)
+            .map(
+              (i) =>
+                `<div>${ALL_LABELS[i.seriesName] ?? i.seriesName}: ${toCommaYen(i.value!)}</div>`,
+            )
+            .join('')
+          return header + rows
+        },
+      },
+      legend: standardLegend(theme),
+      xAxis: {
+        type: 'category',
+        data: days,
+        axisLabel: {
+          color: theme.colors.text3,
+          fontSize: 10,
+          fontFamily: theme.typography.fontFamily.mono,
+        },
+      },
+      yAxis: yenYAxis(theme),
+      series: [
+        {
+          name: custKey,
+          type: 'bar',
+          data: filteredData.map(
+            (d) => ((d as unknown as Record<string, unknown>)[custKey] as number) ?? null,
+          ),
+          itemStyle: {
+            color: theme.colors.palette.infoDark,
+            opacity: 0.75,
+            borderRadius: [2, 2, 0, 0],
+          },
+          barMaxWidth: 14,
+        },
+        {
+          name: ticketKey,
+          type: 'bar',
+          data: filteredData.map(
+            (d) => ((d as unknown as Record<string, unknown>)[ticketKey] as number) ?? null,
+          ),
+          itemStyle: {
+            color: theme.colors.palette.purple,
+            opacity: 0.75,
+            borderRadius: [2, 2, 0, 0],
+          },
+          barMaxWidth: 14,
+        },
+        {
+          name: diffKey,
+          type: 'line',
+          data: filteredData.map(
+            (d) => ((d as unknown as Record<string, unknown>)[diffKey] as number) ?? null,
+          ),
+          lineStyle: { color: theme.colors.palette.primary, width: 2 },
+          itemStyle: { color: theme.colors.palette.primary },
+          symbol: 'none',
+          connectNulls: true,
+        },
+      ],
+    }
+  }, [filteredData, custKey, ticketKey, diffKey, theme])
+
   if (!hasPrev) {
     return (
-      <Wrapper aria-label="シャープリー分解チャート">
-        <HeaderRow>
-          <Title>客数・客単価 要因分解（シャープリー）</Title>
-        </HeaderRow>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '300px',
-            color: ct.textMuted,
-            fontSize: ct.fontSize.sm,
-          }}
-        >
-          前年データが必要です
-        </div>
-      </Wrapper>
+      <ChartCard title="客数・客単価 要因分解（シャープリー）">
+        <ChartEmpty message="前年データが必要です" />
+      </ChartCard>
     )
   }
 
-  return (
-    <Wrapper aria-label="シャープリー分解チャート">
-      <HeaderRow>
-        <Title>客数・客単価 要因分解（シャープリー）</Title>
-        <ViewToggle>
-          <ViewBtn $active={viewMode === 'cumulative'} onClick={() => setViewMode('cumulative')}>
-            累計
-          </ViewBtn>
-          <ViewBtn $active={viewMode === 'daily'} onClick={() => setViewMode('daily')}>
-            単日
-          </ViewBtn>
-          <Sep>|</Sep>
-          <span
-            style={{
-              fontSize: '0.55rem',
-              color: ct.textMuted,
-              padding: '3px 4px',
-            }}
-          >
-            {isCum ? '客数効果+客単価効果=売上差' : '日別シャープリー分解'}
-          </span>
-        </ViewToggle>
-      </HeaderRow>
-      <div style={{ display: 'flex', gap: '12px', marginBottom: '8px', flexWrap: 'wrap' }}>
-        <DowPresetSelector selectedDows={selectedDows} onChange={handleDowChange} />
-      </div>
-      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="82%">
-        <ComposedChart
-          data={filteredData as unknown as Record<string, unknown>[]}
-          margin={{ top: 4, right: 12, left: 0, bottom: 0 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
-          <XAxis
-            dataKey="day"
-            tick={{
-              fill: ct.textMuted,
-              fontSize: ct.fontSize.xs,
-              fontFamily: ct.monoFamily,
-            }}
-            axisLine={{ stroke: ct.grid }}
-            tickLine={false}
-          />
-          <YAxis
-            yAxisId="left"
-            tick={{
-              fill: ct.textMuted,
-              fontSize: ct.fontSize.xs,
-              fontFamily: ct.monoFamily,
-            }}
-            axisLine={false}
-            tickLine={false}
-            tickFormatter={toAxisYen}
-            width={50}
-          />
-          <Tooltip
-            content={createChartTooltip({
-              ct,
-              formatter: (value, name) => {
-                if (value == null) return ['-', ALL_LABELS[name] ?? name]
-                return [toComma(value as number), ALL_LABELS[name] ?? name]
-              },
-              labelFormatter: (label) => `${label}日`,
-            })}
-          />
-          <Legend
-            wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
-            formatter={(value) => ALL_LABELS[value] ?? value}
-          />
-          <ReferenceLine yAxisId="left" y={0} stroke={ct.grid} strokeOpacity={0.5} />
+  const toolbar = (
+    <SegmentedControl
+      options={VIEW_OPTIONS}
+      value={viewMode}
+      onChange={setViewMode}
+      ariaLabel="表示モード"
+    />
+  )
+  const subtitle = isCum ? '客数効果+客単価効果=売上差' : '日別シャープリー分解'
 
-          {/* 客数効果: 青系の棒 */}
-          <Bar
-            yAxisId="left"
-            dataKey={custKey}
-            fill={ct.colors.info}
-            radius={[2, 2, 0, 0]}
-            maxBarSize={14}
-            opacity={0.75}
-          />
-          {/* 客単価効果: 紫系の棒 */}
-          <Bar
-            yAxisId="left"
-            dataKey={ticketKey}
-            fill={ct.colors.purple}
-            radius={[2, 2, 0, 0]}
-            maxBarSize={14}
-            opacity={0.75}
-          />
-          {/* 売上差: 線 */}
-          <Line
-            yAxisId="left"
-            type="monotone"
-            dataKey={diffKey}
-            stroke={ct.colors.primary}
-            strokeWidth={2}
-            dot={false}
-            connectNulls
-          />
-        </ComposedChart>
-      </ResponsiveContainer>
+  return (
+    <ChartCard title="客数・客単価 要因分解（シャープリー）" subtitle={subtitle} toolbar={toolbar}>
+      <DowPresetSelector selectedDows={selectedDows} onChange={handleDowChange} />
+      <EChart option={option} height={280} ariaLabel="シャープリー分解チャート" />
       <DualPeriodSlider
         min={1}
         max={daysInMonth}
@@ -225,6 +197,6 @@ export const ShapleyTimeSeriesChart = memo(function ShapleyTimeSeriesChart({
         onP2Change={onP2Change}
         p2Enabled={p2Enabled}
       />
-    </Wrapper>
+    </ChartCard>
   )
 })

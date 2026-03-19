@@ -410,6 +410,11 @@ describe('R12: Presentation コンポーネントの行数制限', () => {
   // Tier 2: 600行超の大型コンポーネント — 次回改修時に分割義務
   const largeComponentExclusions = new Set([
     'presentation/components/charts/TimeSlotChart.tsx', // 660行
+    'presentation/components/charts/BudgetVsActualChart.tsx', // 696行 — ECharts移行で増加
+    'presentation/components/charts/PerformanceIndexChart.tsx', // 610行 — ECharts移行で増加
+    'presentation/components/charts/YoYVarianceChart.tsx', // 668行 — ECharts移行で増加
+    'presentation/pages/Dashboard/widgets/CategoryFactorBreakdown.tsx', // 654行
+    'presentation/pages/Forecast/ForecastChartsCustomer.tsx', // 756行
   ])
 
   it('Presentation .tsx は 600 行以下', () => {

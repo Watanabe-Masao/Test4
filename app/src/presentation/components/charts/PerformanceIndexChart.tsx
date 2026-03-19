@@ -1,19 +1,9 @@
 import { useCallback, useState, useMemo, memo } from 'react'
-import {
-  ComposedChart,
-  Bar,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  Cell,
-  ReferenceLine,
-} from 'recharts'
-import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
+import { useTheme } from 'styled-components'
+import type { AppTheme } from '@/presentation/theme/theme'
+import { EChart, type EChartsOption } from './EChart'
+import { standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
 import { useChartTheme, toComma, toPct, toDevScore } from './chartTheme'
-import { createChartTooltip } from './createChartTooltip'
 import { DualPeriodSlider } from './DualPeriodSlider'
 import { useDualPeriodRange } from './useDualPeriodRange'
 import { ChartHelpButton } from './ChartHeader'
@@ -47,6 +37,23 @@ const VIEW_LABELS: Record<ViewType, string> = {
   zScore: 'Zスコア',
 }
 
+const PERF_LABELS: Record<string, string> = {
+  pi: '金額PI値',
+  prevPi: '前年PI値',
+  piMa7: 'PI値(7日MA)',
+  prevPiMa7: '前年PI値(7日MA)',
+  salesDev: '売上',
+  custDev: '客数',
+  txDev: '客単価',
+  discDev: '売変率',
+  gpDev: '粗利率',
+  salesZ: '売上',
+  custZ: '客数',
+  txZ: '客単価',
+  discZ: '売変率',
+  gpZ: '粗利率',
+}
+
 interface Props {
   daily: ReadonlyMap<number, DailyRecord>
   daysInMonth: number
@@ -66,6 +73,7 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
   onDayClick,
 }: Props) {
   const ct = useChartTheme()
+  const theme = useTheme() as AppTheme
   const [view, setView] = useState<ViewType>('pi')
   const {
     p1Start: rangeStart,
@@ -151,7 +159,7 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
         discStat.stdDev > 0 && r.sales > 0
           ? (r.discountRate - discStat.mean) / discStat.stdDev
           : null
-      const gpZ = gpStat.stdDev > 0 && r.sales > 0 ? (r.gpRate - gpStat.mean) / gpStat.stdDev : null
+      const gpZ = gpStat.stdDev > 0 && r.sales > 0 ? (r.gpRate - gpStat.mean) / gpStat.stdDev : 0
 
       return {
         ...r,
@@ -193,37 +201,351 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
     [data],
   )
 
-  const handleBarClick = useCallback(
-    (entry: (typeof data)[number]) => {
-      if (onDayClick && entry.salesZ != null && Math.abs(entry.salesZ) >= 2) {
-        onDayClick(entry.day)
-      }
-    },
-    [onDayClick],
-  )
-
-  const allLabels: Record<string, string> = {
-    pi: '金額PI値',
-    prevPi: '前年PI値',
-    piMa7: 'PI値(7日MA)',
-    prevPiMa7: '前年PI値(7日MA)',
-    salesDev: '売上',
-    custDev: '客数',
-    txDev: '客単価',
-    discDev: '売変率',
-    gpDev: '粗利率',
-    salesZ: '売上',
-    custZ: '客数',
-    txZ: '客単価',
-    discZ: '売変率',
-    gpZ: '粗利率',
-  }
-
   const titleMap: Record<ViewType, string> = {
     pi: 'PI値分析（金額PI = 売上/客数×1000 / 7日移動平均）',
     deviation: '偏差値分析（各指標の日別偏差値 / 基準=50）',
     zScore: 'Zスコア分析（平均=0からの乖離度 / |Z|≥2 で異常値）',
   }
+
+  const handleClick = useCallback(
+    (params: Record<string, unknown>) => {
+      if (!onDayClick || view !== 'zScore') return
+      const dataIndex = params.dataIndex as number | undefined
+      if (dataIndex == null) return
+      const entry = data[dataIndex]
+      if (entry && entry.salesZ != null && Math.abs(entry.salesZ) >= 2) {
+        onDayClick(entry.day)
+      }
+    },
+    [onDayClick, view, data],
+  )
+
+  const option = useMemo<EChartsOption>(() => {
+    const days = data.map((d) => String(d.day))
+    const series: EChartsOption['series'] = []
+
+    const tooltipFormatter = (params: unknown): string => {
+      const items = params as { seriesName: string; value: number | null; color: string }[]
+      if (!Array.isArray(items) || items.length === 0) return ''
+      const first = items[0] as { axisValue?: string }
+      let html = `<div style="font-size:11px"><strong>${first.axisValue ?? ''}日</strong>`
+      for (const item of items) {
+        const name = PERF_LABELS[item.seriesName] ?? item.seriesName
+        let formatted: string
+        if (item.value == null) {
+          formatted = '-'
+        } else if (
+          item.seriesName.includes('pi') ||
+          item.seriesName.includes('Pi') ||
+          item.seriesName.includes('Ma7') ||
+          item.seriesName.includes('prevPi')
+        ) {
+          formatted = toComma(item.value)
+        } else if (item.seriesName.includes('Dev') || item.seriesName.includes('dev')) {
+          formatted = item.value.toFixed(1)
+        } else if (item.seriesName.includes('Z') || item.seriesName.includes('z')) {
+          formatted = item.value.toFixed(2)
+        } else {
+          formatted = toComma(item.value)
+        }
+        html += `<br/><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${item.color};margin-right:4px"></span>${name}: ${formatted}`
+      }
+      html += '</div>'
+      return html
+    }
+
+    if (view === 'pi') {
+      // Per-bar coloring: build an array of colors
+      const barColors = data.map((entry) =>
+        entry.prevPi != null && entry.pi != null && entry.pi >= entry.prevPi
+          ? ct.colors.primary
+          : ct.colors.slateDark,
+      )
+
+      series.push({
+        name: 'pi',
+        type: 'bar' as const,
+        data: (data as unknown as Record<string, unknown>[]).map((d, i) => ({
+          value: d.pi as number | null,
+          itemStyle: { color: barColors[i] },
+        })),
+        barMaxWidth: 14,
+        itemStyle: { borderRadius: [2, 2, 0, 0], opacity: 0.7 },
+      })
+      series.push({
+        name: 'piMa7',
+        type: 'line' as const,
+        data: data.map((d) => d.piMa7 ?? null),
+        lineStyle: { color: ct.colors.primary, width: 2.5 },
+        itemStyle: { color: ct.colors.primary },
+        symbol: 'none' as const,
+        connectNulls: true,
+      })
+      series.push({
+        name: 'prevPiMa7',
+        type: 'line' as const,
+        data: data.map((d) => d.prevPiMa7 ?? null),
+        lineStyle: { color: ct.colors.slate, width: 1.5, type: 'dashed' as const },
+        itemStyle: { color: ct.colors.slate },
+        symbol: 'none' as const,
+        connectNulls: true,
+      })
+
+      return {
+        grid: standardGrid(),
+        tooltip: {
+          ...standardTooltip(theme),
+          formatter: tooltipFormatter,
+        },
+        legend: {
+          ...standardLegend(theme),
+          formatter: (name: string) => PERF_LABELS[name] ?? name,
+        },
+        xAxis: {
+          type: 'category' as const,
+          data: days,
+          axisLabel: { color: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily },
+          axisLine: { lineStyle: { color: ct.grid } },
+          axisTick: { show: false },
+        },
+        yAxis: {
+          type: 'value' as const,
+          axisLabel: {
+            formatter: (v: number) => toComma(v),
+            color: ct.textMuted,
+            fontSize: ct.fontSize.xs,
+            fontFamily: ct.monoFamily,
+          },
+          axisLine: { show: false },
+          axisTick: { show: false },
+          splitLine: { lineStyle: { color: ct.grid, opacity: 0.3, type: 'dashed' as const } },
+        },
+        series,
+      }
+    }
+
+    if (view === 'deviation') {
+      const lineConfigs = [
+        { key: 'salesDev', color: ct.colors.primary, width: 2 },
+        { key: 'custDev', color: ct.colors.info, width: 2 },
+        { key: 'txDev', color: ct.colors.purple, width: 2, dash: 'dashed' as const },
+        { key: 'gpDev', color: ct.colors.success, width: 1.5 },
+        { key: 'discDev', color: ct.colors.danger, width: 1.5, dash: 'dashed' as const },
+      ]
+
+      for (const cfg of lineConfigs) {
+        series.push({
+          name: cfg.key,
+          type: 'line' as const,
+          data: (data as unknown as Record<string, unknown>[]).map(
+            (d) => (d[cfg.key] as number | null) ?? null,
+          ),
+          lineStyle: {
+            color: cfg.color,
+            width: cfg.width,
+            ...(cfg.dash ? { type: cfg.dash } : {}),
+          },
+          itemStyle: { color: cfg.color },
+          symbol: 'none' as const,
+          connectNulls: true,
+        })
+      }
+
+      return {
+        grid: standardGrid(),
+        tooltip: {
+          ...standardTooltip(theme),
+          formatter: tooltipFormatter,
+        },
+        legend: {
+          ...standardLegend(theme),
+          formatter: (name: string) => PERF_LABELS[name] ?? name,
+        },
+        xAxis: {
+          type: 'category' as const,
+          data: days,
+          axisLabel: { color: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily },
+          axisLine: { lineStyle: { color: ct.grid } },
+          axisTick: { show: false },
+        },
+        yAxis: {
+          type: 'value' as const,
+          min: 20,
+          max: 80,
+          axisLabel: {
+            color: ct.textMuted,
+            fontSize: ct.fontSize.xs,
+            fontFamily: ct.monoFamily,
+          },
+          axisLine: { show: false },
+          axisTick: { show: false },
+          splitLine: { lineStyle: { color: ct.grid, opacity: 0.3, type: 'dashed' as const } },
+        },
+        series: [
+          ...series,
+          // Reference lines as markLines on the first series
+          {
+            name: '__ref__',
+            type: 'line' as const,
+            data: [],
+            symbol: 'none' as const,
+            markLine: {
+              silent: true,
+              symbol: 'none' as const,
+              label: { show: false },
+              data: [
+                {
+                  yAxis: 50,
+                  lineStyle: { color: ct.grid, width: 1.5, opacity: 0.7, type: 'solid' as const },
+                },
+                {
+                  yAxis: 60,
+                  lineStyle: {
+                    color: ct.colors.success,
+                    width: 1,
+                    opacity: 0.3,
+                    type: 'dashed' as const,
+                  },
+                },
+                {
+                  yAxis: 40,
+                  lineStyle: {
+                    color: ct.colors.danger,
+                    width: 1,
+                    opacity: 0.3,
+                    type: 'dashed' as const,
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      }
+    }
+
+    // zScore view
+    const barColors = data.map((entry) => {
+      const z = entry.salesZ ?? 0
+      const isAnomaly = Math.abs(z) >= 2
+      return isAnomaly ? ct.colors.danger : z >= 0 ? ct.colors.primary : ct.colors.slateDark
+    })
+    const barOpacities = data.map((entry) => {
+      const z = entry.salesZ ?? 0
+      return Math.abs(z) >= 2 ? 0.9 : 0.5
+    })
+
+    series.push({
+      name: 'salesZ',
+      type: 'bar' as const,
+      data: (data as unknown as Record<string, unknown>[]).map((d, i) => ({
+        value: d.salesZ as number | null,
+        itemStyle: { color: barColors[i], opacity: barOpacities[i] },
+      })),
+      barMaxWidth: 10,
+      itemStyle: { borderRadius: [2, 2, 0, 0] },
+    })
+    series.push({
+      name: 'custZ',
+      type: 'line' as const,
+      data: data.map((d) => d.custZ ?? null),
+      lineStyle: { color: ct.colors.info, width: 1.5 },
+      itemStyle: { color: ct.colors.info },
+      symbol: 'none' as const,
+      connectNulls: true,
+    })
+    series.push({
+      name: 'txZ',
+      type: 'line' as const,
+      data: data.map((d) => d.txZ ?? null),
+      lineStyle: { color: ct.colors.purple, width: 1.5, type: 'dashed' as const },
+      itemStyle: { color: ct.colors.purple },
+      symbol: 'none' as const,
+      connectNulls: true,
+    })
+
+    return {
+      grid: standardGrid(),
+      tooltip: {
+        ...standardTooltip(theme),
+        formatter: tooltipFormatter,
+      },
+      legend: {
+        ...standardLegend(theme),
+        formatter: (name: string) => PERF_LABELS[name] ?? name,
+      },
+      xAxis: {
+        type: 'category' as const,
+        data: days,
+        axisLabel: { color: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily },
+        axisLine: { lineStyle: { color: ct.grid } },
+        axisTick: { show: false },
+      },
+      yAxis: {
+        type: 'value' as const,
+        axisLabel: {
+          color: ct.textMuted,
+          fontSize: ct.fontSize.xs,
+          fontFamily: ct.monoFamily,
+        },
+        axisLine: { show: false },
+        axisTick: { show: false },
+        splitLine: { lineStyle: { color: ct.grid, opacity: 0.3, type: 'dashed' as const } },
+      },
+      series: [
+        ...series,
+        // Reference lines
+        {
+          name: '__ref__',
+          type: 'line' as const,
+          data: [],
+          symbol: 'none' as const,
+          markLine: {
+            silent: true,
+            symbol: 'none' as const,
+            label: { show: false },
+            data: [
+              {
+                yAxis: 0,
+                lineStyle: { color: ct.grid, width: 1.5, opacity: 0.7, type: 'solid' as const },
+              },
+              {
+                yAxis: 2,
+                lineStyle: {
+                  color: ct.colors.danger,
+                  width: 1,
+                  opacity: 0.4,
+                  type: 'dashed' as const,
+                },
+                label: {
+                  show: true,
+                  formatter: '+2\u03c3',
+                  color: ct.colors.danger,
+                  fontSize: 8,
+                  position: 'end' as const,
+                },
+              },
+              {
+                yAxis: -2,
+                lineStyle: {
+                  color: ct.colors.danger,
+                  width: 1,
+                  opacity: 0.4,
+                  type: 'dashed' as const,
+                },
+                label: {
+                  show: true,
+                  formatter: '-2\u03c3',
+                  color: ct.colors.danger,
+                  fontSize: 8,
+                  position: 'end' as const,
+                },
+              },
+            ],
+          },
+        },
+      ],
+    }
+  }, [data, view, ct, theme])
 
   return (
     <Wrapper aria-label="業績指数チャート">
@@ -261,261 +583,13 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
         </StatsRow>
       )}
 
-      <ResponsiveContainer
-        minWidth={0}
-        minHeight={0}
-        width="100%"
-        height={view === 'deviation' ? '72%' : '80%'}
-      >
-        <ComposedChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
-          <XAxis
-            dataKey="day"
-            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-            axisLine={{ stroke: ct.grid }}
-            tickLine={false}
-          />
+      <EChart
+        option={option}
+        height={view === 'deviation' ? 280 : 320}
+        onClick={view === 'zScore' && onDayClick ? handleClick : undefined}
+        ariaLabel="業績指数チャート"
+      />
 
-          {/* PI値 view */}
-          {view === 'pi' && (
-            <>
-              <YAxis
-                yAxisId="left"
-                tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-                axisLine={false}
-                tickLine={false}
-                tickFormatter={(v: number) => toComma(v)}
-                width={55}
-              />
-              <Bar yAxisId="left" dataKey="pi" maxBarSize={14} radius={[2, 2, 0, 0]} opacity={0.7}>
-                {data.map((entry, i) => (
-                  <Cell
-                    key={i}
-                    fill={
-                      entry.prevPi != null && entry.pi != null && entry.pi >= entry.prevPi
-                        ? ct.colors.primary
-                        : ct.colors.slateDark
-                    }
-                  />
-                ))}
-              </Bar>
-              <Line
-                yAxisId="left"
-                type="monotone"
-                dataKey="piMa7"
-                stroke={ct.colors.primary}
-                strokeWidth={2.5}
-                dot={false}
-                connectNulls
-              />
-              <Line
-                yAxisId="left"
-                type="monotone"
-                dataKey="prevPiMa7"
-                stroke={ct.colors.slate}
-                strokeWidth={1.5}
-                strokeDasharray="6 3"
-                dot={false}
-                connectNulls
-              />
-            </>
-          )}
-
-          {/* 偏差値 view */}
-          {view === 'deviation' && (
-            <>
-              <YAxis
-                yAxisId="left"
-                tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-                axisLine={false}
-                tickLine={false}
-                width={35}
-                domain={[20, 80]}
-              />
-              <ReferenceLine
-                yAxisId="left"
-                y={50}
-                stroke={ct.grid}
-                strokeWidth={1.5}
-                strokeOpacity={0.7}
-              />
-              <ReferenceLine
-                yAxisId="left"
-                y={60}
-                stroke={ct.colors.success}
-                strokeDasharray="4 4"
-                strokeOpacity={0.3}
-              />
-              <ReferenceLine
-                yAxisId="left"
-                y={40}
-                stroke={ct.colors.danger}
-                strokeDasharray="4 4"
-                strokeOpacity={0.3}
-              />
-              <Line
-                yAxisId="left"
-                type="monotone"
-                dataKey="salesDev"
-                stroke={ct.colors.primary}
-                strokeWidth={2}
-                dot={false}
-                connectNulls
-              />
-              <Line
-                yAxisId="left"
-                type="monotone"
-                dataKey="custDev"
-                stroke={ct.colors.info}
-                strokeWidth={2}
-                dot={false}
-                connectNulls
-              />
-              <Line
-                yAxisId="left"
-                type="monotone"
-                dataKey="txDev"
-                stroke={ct.colors.purple}
-                strokeWidth={2}
-                strokeDasharray="6 3"
-                dot={false}
-                connectNulls
-              />
-              <Line
-                yAxisId="left"
-                type="monotone"
-                dataKey="gpDev"
-                stroke={ct.colors.success}
-                strokeWidth={1.5}
-                dot={false}
-                connectNulls
-              />
-              <Line
-                yAxisId="left"
-                type="monotone"
-                dataKey="discDev"
-                stroke={ct.colors.danger}
-                strokeWidth={1.5}
-                strokeDasharray="4 2"
-                dot={false}
-                connectNulls
-              />
-            </>
-          )}
-
-          {/* Zスコア view */}
-          {view === 'zScore' && (
-            <>
-              <YAxis
-                yAxisId="left"
-                tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-                axisLine={false}
-                tickLine={false}
-                width={35}
-              />
-              <ReferenceLine
-                yAxisId="left"
-                y={0}
-                stroke={ct.grid}
-                strokeWidth={1.5}
-                strokeOpacity={0.7}
-              />
-              <ReferenceLine
-                yAxisId="left"
-                y={2}
-                stroke={ct.colors.danger}
-                strokeDasharray="6 3"
-                strokeOpacity={0.4}
-                label={{ value: '+2σ', fill: ct.colors.danger, fontSize: 8, position: 'right' }}
-              />
-              <ReferenceLine
-                yAxisId="left"
-                y={-2}
-                stroke={ct.colors.danger}
-                strokeDasharray="6 3"
-                strokeOpacity={0.4}
-                label={{ value: '-2σ', fill: ct.colors.danger, fontSize: 8, position: 'right' }}
-              />
-              <Bar
-                yAxisId="left"
-                dataKey="salesZ"
-                maxBarSize={10}
-                radius={[2, 2, 0, 0]}
-                onClick={(_barData: unknown, index: number) => {
-                  const entry = data[index]
-                  if (entry) handleBarClick(entry)
-                }}
-              >
-                {data.map((entry, i) => {
-                  const z = entry.salesZ ?? 0
-                  const isAnomaly = Math.abs(z) >= 2
-                  return (
-                    <Cell
-                      key={i}
-                      fill={
-                        isAnomaly
-                          ? ct.colors.danger
-                          : z >= 0
-                            ? ct.colors.primary
-                            : ct.colors.slateDark
-                      }
-                      fillOpacity={isAnomaly ? 0.9 : 0.5}
-                      cursor={isAnomaly && onDayClick ? 'pointer' : 'default'}
-                    />
-                  )
-                })}
-              </Bar>
-              <Line
-                yAxisId="left"
-                type="monotone"
-                dataKey="custZ"
-                stroke={ct.colors.info}
-                strokeWidth={1.5}
-                dot={false}
-                connectNulls
-              />
-              <Line
-                yAxisId="left"
-                type="monotone"
-                dataKey="txZ"
-                stroke={ct.colors.purple}
-                strokeWidth={1.5}
-                strokeDasharray="6 3"
-                dot={false}
-                connectNulls
-              />
-            </>
-          )}
-
-          <Tooltip
-            content={createChartTooltip({
-              ct,
-              formatter: (value, name) => {
-                if (value == null) return ['-', allLabels[name] ?? name]
-                const v = value as number
-                if (
-                  name.includes('pi') ||
-                  name.includes('Pi') ||
-                  name.includes('Ma7') ||
-                  name.includes('prevPi')
-                ) {
-                  return [toComma(v), allLabels[name] ?? name]
-                }
-                if (name.includes('Dev') || name.includes('dev'))
-                  return [v.toFixed(1), allLabels[name] ?? name]
-                if (name.includes('Z') || name.includes('z'))
-                  return [v.toFixed(2), allLabels[name] ?? name]
-                return [toComma(v), allLabels[name] ?? name]
-              },
-              labelFormatter: (label) => `${label}日`,
-            })}
-          />
-          <Legend
-            wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
-            formatter={(value) => allLabels[value] ?? value}
-          />
-        </ComposedChart>
-      </ResponsiveContainer>
       <DualPeriodSlider
         min={1}
         max={daysInMonth}

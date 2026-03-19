@@ -81,6 +81,23 @@ export const typography = {
     mono: "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace",
   },
   fontSize: {
+    // ── ロールベーススケール（新規コードはこちらを使用）──
+    /** バッジカウント、タイムスタンプ、極小メタデータ */
+    micro: '0.55rem',
+    /** チャート軸ラベル、コントロールラベル、サブタイトル（最多使用） */
+    caption: '0.6rem',
+    /** テーブルセル、セカンダリテキスト、タブ */
+    label: '0.68rem',
+    /** 本文、入力フィールド */
+    body: '0.78rem',
+    /** セクションタイトル、カード見出し */
+    title: '0.9rem',
+    /** ページタイトル */
+    heading: '1.1rem',
+    /** ヒーロー数値、KPI大表示 */
+    display: '1.4rem',
+
+    // ── 後方互換エイリアス（deprecated: 新規コードでの使用禁止）──
     xs: '0.55rem',
     sm: '0.68rem',
     base: '0.78rem',

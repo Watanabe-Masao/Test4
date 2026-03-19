@@ -6,21 +6,16 @@
  * - PISummaryRow: PI値・点単価サマリー行
  * - WaterfallBarChart: ウォーターフォールバーチャート描画
  */
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
+import { useTheme } from 'styled-components'
+import type { AppTheme } from '@/presentation/theme/theme'
+import { EChart, type EChartsOption } from '@/presentation/components/charts/EChart'
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Cell,
-  ReferenceLine,
-  LabelList,
-} from 'recharts'
-import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
-import { useChartTheme, useCurrencyFormatter, toAxisYen } from '@/presentation/components/charts'
-import { createChartTooltip } from '@/presentation/components/charts/createChartTooltip'
+  yenYAxis,
+  standardGrid,
+  standardTooltip,
+} from '@/presentation/components/charts/echartsOptionBuilders'
+import { useCurrencyFormatter } from '@/presentation/components/charts/chartTheme'
 import { formatPercent } from '@/domain/formatting'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { calculateYoYRatio } from '@/domain/calculations/utils'
@@ -55,7 +50,7 @@ export const DecompHelpSection = memo(function DecompHelpSection({
   const help = DECOMP_HELP[activeLevel]
   return (
     <>
-      <HelpToggle onClick={onToggle}>{showHelp ? '▼' : '▶'} 計算式の説明</HelpToggle>
+      <HelpToggle onClick={onToggle}>{showHelp ? '\u25BC' : '\u25B6'} 計算式の説明</HelpToggle>
       {showHelp && help && (
         <HelpBox>
           <strong>{help.title}</strong>
@@ -175,67 +170,75 @@ interface WaterfallBarChartProps {
 }
 
 export const WaterfallBarChart = memo(function WaterfallBarChart({ data }: WaterfallBarChartProps) {
-  const ct = useChartTheme()
+  const theme = useTheme() as AppTheme
   const fmt = useCurrencyFormatter()
   const { format: fmtCurrency } = useCurrencyFormat()
 
-  const colors = {
-    positive: sc.positive,
-    negative: sc.negative,
-    total: ct.colors.primary,
-  }
-
-  return (
-    <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={360}>
-      <BarChart data={data} margin={{ top: 20, right: 20, left: 20, bottom: 5 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} vertical={false} />
-        <XAxis
-          dataKey="name"
-          tick={{ fontSize: ct.fontSize.sm, fill: ct.text, fontFamily: ct.fontFamily }}
-          axisLine={{ stroke: ct.grid }}
-          tickLine={false}
-          interval={0}
-          angle={data.length > 6 ? -30 : 0}
-          textAnchor={data.length > 6 ? 'end' : 'middle'}
-          height={data.length > 6 ? 60 : 30}
-        />
-        <YAxis
-          tick={{ fontSize: ct.fontSize.xs, fill: ct.textSecondary, fontFamily: ct.monoFamily }}
-          axisLine={false}
-          tickLine={false}
-          tickFormatter={toAxisYen}
-        />
-        <Tooltip
-          content={createChartTooltip({
-            ct,
-            formatter: (_value, name, entry) => {
-              if (name === 'base') return [null, null]
-              const item = entry.payload as WaterfallItem | undefined
-              if (!item) return ['-', '-']
-              return [fmtCurrency(item.value), item.name]
+  const option = useMemo((): EChartsOption => {
+    const names = data.map((d) => d.name)
+    const needsRotation = data.length > 6
+    return {
+      grid: {
+        ...standardGrid(),
+        top: 30,
+        bottom: needsRotation ? 60 : 30,
+      },
+      tooltip: {
+        ...standardTooltip(theme),
+        trigger: 'axis' as const,
+        formatter: (params: unknown) => {
+          const arr = Array.isArray(params) ? params : [params]
+          const p = arr[0] as { dataIndex: number } | undefined
+          if (!p) return ''
+          const item = data[p.dataIndex]
+          if (!item) return ''
+          return `${item.name}<br/>${fmtCurrency(item.value)}`
+        },
+      },
+      xAxis: {
+        type: 'category' as const,
+        data: names,
+        axisLabel: {
+          color: theme.colors.text3,
+          fontSize: 10,
+          fontFamily: theme.typography.fontFamily.primary,
+          rotate: needsRotation ? -30 : 0,
+        },
+        axisLine: { lineStyle: { color: theme.colors.border } },
+        axisTick: { show: false },
+      },
+      yAxis: yenYAxis(theme),
+      series: [
+        {
+          type: 'bar' as const,
+          data: data.map((d) => {
+            const color = d.isTotal
+              ? theme.colors.palette.primary
+              : d.value >= 0
+                ? sc.positive
+                : sc.negative
+            return {
+              value: [d.base, d.base + d.bar],
+              itemStyle: { color, opacity: 0.85 },
+            }
+          }),
+          barWidth: '60%',
+          label: {
+            show: true,
+            position: 'top' as const,
+            formatter: (params: unknown) => {
+              const p = params as { dataIndex: number }
+              const item = data[p.dataIndex]
+              return item ? fmt(item.value) : ''
             },
-          })}
-        />
-        <ReferenceLine y={0} stroke={ct.grid} />
-        <Bar dataKey="base" stackId="waterfall" fill="transparent" isAnimationActive={false} />
-        <Bar dataKey="bar" stackId="waterfall" radius={[3, 3, 0, 0]}>
-          <LabelList
-            dataKey="value"
-            position="top"
-            formatter={(v: unknown) => fmt(Number(v))}
-            style={{ fontSize: ct.fontSize.xs, fill: ct.text, fontFamily: ct.monoFamily }}
-          />
-          {data.map((item, idx) => (
-            <Cell
-              key={idx}
-              fill={
-                item.isTotal ? colors.total : item.value >= 0 ? colors.positive : colors.negative
-              }
-              opacity={0.85}
-            />
-          ))}
-        </Bar>
-      </BarChart>
-    </ResponsiveContainer>
-  )
+            fontSize: 9,
+            color: theme.colors.text,
+            fontFamily: theme.typography.fontFamily.mono,
+          },
+        },
+      ],
+    }
+  }, [data, theme, fmt, fmtCurrency])
+
+  return <EChart option={option} height={360} ariaLabel="前年比較ウォーターフォールチャート" />
 })

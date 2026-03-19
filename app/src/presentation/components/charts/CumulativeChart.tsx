@@ -1,35 +1,36 @@
 /**
- * 月跨ぎ累積売上チャート
+ * 月跨ぎ累積売上チャート (ECharts)
  *
  * 日別累積クエリを使い、複数月にわたる累積売上の推移を表示する。
- * 単月ではなく、IndexedDB に保存されている全月のデータを横断表示できる。
  *
- * 表示項目:
- * - 日別売上（棒グラフ）
- * - 累積売上（線グラフ）
+ * パイプライン:
+ *   DuckDB Hook → CumulativeChartLogic.ts → ECharts option → EChart
  */
 import { useMemo, memo } from 'react'
-import { ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
-import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
+import { useTheme } from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
+import type { AppTheme } from '@/presentation/theme/theme'
+import { useDuckDBDailyCumulative } from '@/application/hooks/useDuckDBQuery'
 import {
-  useDuckDBDailyCumulative,
-  type DailyCumulativeRow,
-} from '@/application/hooks/useDuckDBQuery'
-import { useChartTheme, useCurrencyFormatter, toAxisYen } from './chartTheme'
-import { createChartTooltip } from './createChartTooltip'
-import { palette } from '@/presentation/theme/tokens'
+  buildCumulativeChartData,
+  computeCumulativeSummary,
+  type CumulativeChartDataPoint,
+} from './CumulativeChartLogic'
+import { useCurrencyFormatter } from './chartTheme'
 import { useI18n } from '@/application/hooks/useI18n'
-import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
+import { ChartCard } from './ChartCard'
+import { ChartLoading, ChartError, ChartEmpty } from './ChartState'
+import { EChart, type EChartsOption } from './EChart'
 import {
-  Wrapper,
-  Title,
-  Subtitle,
-  SummaryRow,
-  SummaryItem,
-  ErrorMsg,
-} from './CumulativeChart.styles'
+  yenYAxis,
+  categoryXAxis,
+  standardGrid,
+  standardTooltip,
+  standardLegend,
+  toCommaYen,
+} from './echartsOptionBuilders'
+import { SummaryRow, SummaryItem } from './CumulativeChart.styles'
 
 interface Props {
   readonly duckConn: AsyncDuckDBConnection | null
@@ -38,18 +39,68 @@ interface Props {
   readonly selectedStoreIds: ReadonlySet<string>
 }
 
-interface ChartDataPoint {
-  readonly date: string
-  readonly daily: number
-  readonly cumulative: number
-}
+/** Logic 出力 → ECharts option */
+function buildOption(
+  chartData: readonly CumulativeChartDataPoint[],
+  theme: AppTheme,
+): EChartsOption {
+  const dates = chartData.map((d) => d.date)
+  const dailyValues = chartData.map((d) => d.daily)
+  const cumulativeValues = chartData.map((d) => d.cumulative)
 
-function buildChartData(rows: readonly DailyCumulativeRow[]): ChartDataPoint[] {
-  return rows.map((r) => ({
-    date: r.dateKey.slice(5), // MM-DD
-    daily: Math.round(r.dailySales),
-    cumulative: Math.round(r.cumulativeSales),
-  }))
+  return {
+    grid: standardGrid(),
+    tooltip: {
+      ...standardTooltip(theme),
+      trigger: 'axis',
+      formatter: (params: unknown) => {
+        const items = params as { name: string; seriesName: string; value: number; color: string }[]
+        if (!Array.isArray(items) || items.length === 0) return ''
+        const header = `<div style="font-weight:600;margin-bottom:4px">${items[0].name}</div>`
+        const rows = items
+          .map(
+            (item) =>
+              `<div style="display:flex;justify-content:space-between;gap:12px">` +
+              `<span>${item.seriesName}</span>` +
+              `<span style="font-weight:600;font-family:monospace">${toCommaYen(item.value)}</span>` +
+              `</div>`,
+          )
+          .join('')
+        return header + rows
+      },
+    },
+    legend: standardLegend(theme),
+    xAxis: categoryXAxis(dates, theme),
+    yAxis: [
+      { ...yenYAxis(theme), id: 'daily' },
+      {
+        ...yenYAxis(theme),
+        id: 'cumulative',
+        position: 'right' as const,
+        splitLine: { show: false },
+      },
+    ],
+    series: [
+      {
+        name: '日別売上',
+        type: 'bar',
+        yAxisIndex: 0,
+        data: dailyValues,
+        itemStyle: { color: theme.colors.palette.cyan, opacity: 0.6 },
+        barWidth: 6,
+      },
+      {
+        name: '累積売上',
+        type: 'line',
+        yAxisIndex: 1,
+        data: cumulativeValues,
+        lineStyle: { color: theme.colors.palette.primary, width: 2 },
+        itemStyle: { color: theme.colors.palette.primary },
+        symbol: 'none',
+        smooth: false,
+      },
+    ],
+  }
 }
 
 export const CumulativeChart = memo(function CumulativeChart({
@@ -58,7 +109,7 @@ export const CumulativeChart = memo(function CumulativeChart({
   currentDateRange,
   selectedStoreIds,
 }: Props) {
-  const ct = useChartTheme()
+  const theme = useTheme() as AppTheme
   const fmt = useCurrencyFormatter()
   const { messages } = useI18n()
 
@@ -68,90 +119,48 @@ export const CumulativeChart = memo(function CumulativeChart({
     isLoading,
   } = useDuckDBDailyCumulative(duckConn, duckDataVersion, currentDateRange, selectedStoreIds)
 
-  const chartData = useMemo(() => (rows ? buildChartData(rows) : []), [rows])
+  const chartData = useMemo(() => (rows ? buildCumulativeChartData(rows) : []), [rows])
+  const summary = useMemo(() => computeCumulativeSummary(chartData), [chartData])
+  const option = useMemo(() => buildOption(chartData, theme), [chartData, theme])
+
+  const subtitle =
+    summary.dayCount > 0
+      ? `累計 ${fmt(summary.totalSales)} | 日平均 ${fmt(summary.avgDaily)} | ${summary.dayCount}日経過`
+      : undefined
 
   if (error) {
     return (
-      <Wrapper aria-label="売上進捗">
-        <Title>売上進捗</Title>
-        <ErrorMsg>
-          {messages.errors.dataFetchFailed}: {error}
-        </ErrorMsg>
-      </Wrapper>
+      <ChartCard title="売上進捗">
+        <ChartError message={`${messages.errors.dataFetchFailed}: ${error}`} />
+      </ChartCard>
     )
   }
 
   if (isLoading && !rows) {
-    return <ChartSkeleton />
+    return (
+      <ChartCard title="売上進捗">
+        <ChartLoading />
+      </ChartCard>
+    )
   }
 
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
-    return <EmptyState>データをインポートしてください</EmptyState>
+    return (
+      <ChartCard title="売上進捗">
+        <ChartEmpty message="データをインポートしてください" />
+      </ChartCard>
+    )
   }
 
-  const totalSales = chartData[chartData.length - 1]?.cumulative ?? 0
-  const avgDaily = chartData.length > 0 ? Math.round(totalSales / chartData.length) : 0
-
   return (
-    <Wrapper aria-label="売上進捗">
-      <Title>売上進捗</Title>
-      <Subtitle>
-        累計 {fmt(totalSales)} | 日平均 {fmt(avgDaily)} | {chartData.length}日経過
-      </Subtitle>
-
-      <ResponsiveContainer width="100%" height={300}>
-        <ComposedChart data={chartData} margin={{ top: 4, right: 20, left: 10, bottom: 4 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
-          <XAxis
-            dataKey="date"
-            tick={{ fontSize: ct.fontSize.xs, fill: ct.textMuted }}
-            stroke={ct.grid}
-          />
-          <YAxis
-            yAxisId="daily"
-            tick={{ fontSize: ct.fontSize.xs, fill: ct.textMuted }}
-            stroke={ct.grid}
-            tickFormatter={toAxisYen}
-          />
-          <YAxis
-            yAxisId="cumulative"
-            orientation="right"
-            tick={{ fontSize: ct.fontSize.xs, fill: ct.textMuted }}
-            stroke={ct.grid}
-            tickFormatter={toAxisYen}
-          />
-          <Tooltip
-            content={createChartTooltip({
-              ct,
-              formatter: (value: unknown) => [value != null ? fmt(Number(value)) : '-', null],
-            })}
-          />
-          <Legend wrapperStyle={{ fontSize: '0.6rem' }} />
-
-          <Line
-            yAxisId="cumulative"
-            dataKey="cumulative"
-            name="累積売上"
-            stroke={palette.primary}
-            strokeWidth={2}
-            dot={false}
-          />
-          <Bar
-            yAxisId="daily"
-            dataKey="daily"
-            name="日別売上"
-            fill={palette.cyan}
-            opacity={0.6}
-            barSize={6}
-          />
-        </ComposedChart>
-      </ResponsiveContainer>
+    <ChartCard title="売上進捗" subtitle={subtitle}>
+      <EChart option={option} height={300} ariaLabel="売上進捗チャート" />
 
       <SummaryRow>
-        <SummaryItem>累計: {fmt(totalSales)}</SummaryItem>
-        <SummaryItem>日平均: {fmt(avgDaily)}</SummaryItem>
-        <SummaryItem>対象日数: {chartData.length}日</SummaryItem>
+        <SummaryItem>累計: {fmt(summary.totalSales)}</SummaryItem>
+        <SummaryItem>日平均: {fmt(summary.avgDaily)}</SummaryItem>
+        <SummaryItem>対象日数: {summary.dayCount}日</SummaryItem>
       </SummaryRow>
-    </Wrapper>
+    </ChartCard>
   )
 })

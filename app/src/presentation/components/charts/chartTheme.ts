@@ -6,7 +6,7 @@ import { palette } from '@/presentation/theme/tokens'
 import { useUiStore } from '@/application/stores/uiStore'
 import { formatPercent, formatCurrency } from '@/domain/formatting'
 
-/** recharts用のテーマカラーを取得するフック */
+/** チャート用のテーマカラーを取得するフック */
 export function useChartTheme() {
   const theme = useTheme() as AppTheme
 
@@ -51,18 +51,6 @@ export function useChartTheme() {
 
 export type ChartTheme = ReturnType<typeof useChartTheme>
 
-/** Tooltip共通スタイルを生成 */
-export function tooltipStyle(ct: ChartTheme) {
-  return {
-    background: ct.bg2,
-    border: `1px solid ${ct.grid}`,
-    borderRadius: 8,
-    fontSize: ct.fontSize.sm,
-    fontFamily: ct.fontFamily,
-    color: ct.text,
-  } as const
-}
-
 /** 店舗間比較用の共通カラーパレット */
 export const STORE_COLORS = [
   palette.primary,
@@ -94,7 +82,6 @@ export const toPct = (v: number, decimals = 2): string => formatPercent(v, decim
 
 // ── d3-format ベースの軸フォーマッタ ──
 
-const fmtSi = d3format(',.3~s')
 const fmtCommaInt = d3format(',.0f')
 
 /**
@@ -109,23 +96,6 @@ export function toAxisYen(v: number): string {
   if (abs >= 1e4) return `${(v / 1e4).toLocaleString('ja-JP', { maximumFractionDigits: 1 })}万`
   if (abs >= 1e3) return `${(v / 1e3).toLocaleString('ja-JP', { maximumFractionDigits: 1 })}千`
   return fmtCommaInt(v)
-}
-
-/**
- * 軸ラベル用のコンパクト数値フォーマッタ（単位なし）。
- * 例: 1500 → "1.5K", 1500000 → "1.5M"
- */
-export function toAxisCompact(v: number): string {
-  if (v === 0) return '0'
-  return fmtSi(v)
-}
-
-/**
- * Tooltip 用の金額フォーマッタ。カンマ区切り + 円。
- * toYen のエイリアスだが、Tooltip 専用であることを明示する。
- */
-export function toTooltipYen(v: number): string {
-  return toYen(v)
 }
 
 // ── 偏差値計算 ──

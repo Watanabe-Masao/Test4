@@ -1,49 +1,33 @@
 /**
- * 天気-売上 相関チャート
- *
- * 売上・気温・降水量の正規化タイムラインと、
- * ペアワイズ相関係数のサマリカードを表示する。
+ * 天気-売上 相関チャート (ECharts)
  */
-import { memo } from 'react'
-import { ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
-import { SafeResponsiveContainer as ResponsiveContainer } from './SafeResponsiveContainer'
+import { useMemo, memo } from 'react'
+import { useTheme } from 'styled-components'
+import type { AppTheme } from '@/presentation/theme/theme'
 import type { DailyWeatherSummary } from '@/domain/models'
-import type { DailySalesForCorrelation } from '@/application/hooks/useWeatherCorrelation'
+import type {
+  DailySalesForCorrelation,
+  CorrelationResult,
+} from '@/application/hooks/useWeatherCorrelation'
 import { useWeatherCorrelation } from '@/application/hooks/useWeatherCorrelation'
 import { buildTimelineData, getCorrelationStrength } from './WeatherCorrelationChart.vm'
+import { ChartCard } from './ChartCard'
+import { ChartEmpty } from './ChartState'
+import { EChart, type EChartsOption } from './EChart'
+import { standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
 import {
-  Wrapper,
-  Title,
   CorrelationGrid,
   CorrelationCard,
   CorrelationLabel,
   CorrelationValue,
-  ChartContainer,
-  NoDataMessage,
 } from './WeatherCorrelationChart.styles'
-import { useChartTheme } from './chartTheme'
-import { createChartTooltip } from './createChartTooltip'
-import { palette } from '@/presentation/theme/tokens'
-import type { CorrelationResult } from '@/application/hooks/useWeatherCorrelation'
 
 interface Props {
   readonly weatherDaily: readonly DailyWeatherSummary[]
   readonly salesDaily: readonly DailySalesForCorrelation[]
 }
 
-const COLORS = {
-  sales: palette.primary,
-  temperature: '#ef4444', // red
-  precipitation: '#3b82f6', // blue
-} as const
-
-function CorrelationSummaryCard({
-  label,
-  result,
-}: {
-  readonly label: string
-  readonly result: CorrelationResult
-}) {
+function CorrelationSummaryCard({ label, result }: { label: string; result: CorrelationResult }) {
   const strength = getCorrelationStrength(result.r)
   const sign = result.r >= 0 ? '+' : ''
   return (
@@ -61,24 +45,73 @@ export const WeatherCorrelationChart = memo(function WeatherCorrelationChart({
   weatherDaily,
   salesDaily,
 }: Props) {
+  const theme = useTheme() as AppTheme
   const correlation = useWeatherCorrelation(weatherDaily, salesDaily)
   const timelineData = buildTimelineData(weatherDaily, salesDaily)
-  const ct = useChartTheme()
-  const chartMargin = { top: 20, right: 20, left: 20, bottom: 5 }
+
+  const option = useMemo<EChartsOption>(() => {
+    const days = timelineData.map((d) => String(d.day))
+    return {
+      grid: standardGrid(),
+      tooltip: standardTooltip(theme),
+      legend: standardLegend(theme),
+      xAxis: {
+        type: 'category',
+        data: days,
+        axisLabel: { color: theme.colors.text3, fontSize: 10 },
+        axisLine: { lineStyle: { color: theme.colors.border } },
+      },
+      yAxis: {
+        type: 'value',
+        min: 0,
+        max: 100,
+        name: '正規化 (0-100)',
+        nameLocation: 'middle',
+        nameGap: 40,
+        axisLabel: { color: theme.colors.text3, fontSize: 10 },
+        axisLine: { show: false },
+        splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
+      },
+      series: [
+        {
+          name: '売上',
+          type: 'line',
+          data: timelineData.map((d) => d.salesNorm),
+          lineStyle: { color: theme.colors.palette.primary, width: 2 },
+          itemStyle: { color: theme.colors.palette.primary },
+          symbol: 'none',
+          connectNulls: true,
+        },
+        {
+          name: '気温',
+          type: 'line',
+          data: timelineData.map((d) => d.tempNorm),
+          lineStyle: { color: theme.colors.palette.dangerDark, width: 1.5, type: 'dashed' },
+          itemStyle: { color: theme.colors.palette.dangerDark },
+          symbol: 'none',
+          connectNulls: true,
+        },
+        {
+          name: '降水量',
+          type: 'bar',
+          data: timelineData.map((d) => d.precipNorm),
+          itemStyle: { color: theme.colors.palette.blueDark, opacity: 0.3 },
+          barWidth: 8,
+        },
+      ],
+    }
+  }, [timelineData, theme])
 
   if (!correlation) {
     return (
-      <Wrapper>
-        <Title>天気-売上 相関分析</Title>
-        <NoDataMessage>天気データまたは売上データが不足しています</NoDataMessage>
-      </Wrapper>
+      <ChartCard title="天気-売上 相関分析">
+        <ChartEmpty message="天気データまたは売上データが不足しています" />
+      </ChartCard>
     )
   }
 
   return (
-    <Wrapper>
-      <Title>天気-売上 相関分析（n={correlation.dataPoints}）</Title>
-
+    <ChartCard title={`天気-売上 相関分析（n=${correlation.dataPoints}）`}>
       <CorrelationGrid>
         <CorrelationSummaryCard label="売上 × 気温" result={correlation.salesVsTemperature} />
         <CorrelationSummaryCard label="売上 × 降水量" result={correlation.salesVsPrecipitation} />
@@ -89,66 +122,7 @@ export const WeatherCorrelationChart = memo(function WeatherCorrelationChart({
         />
       </CorrelationGrid>
 
-      <ChartContainer>
-        <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={timelineData as unknown[]} margin={chartMargin}>
-            <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} />
-            <XAxis
-              dataKey="day"
-              tick={{ fontSize: 10, fill: ct.text }}
-              tickLine={false}
-              axisLine={{ stroke: ct.grid }}
-            />
-            <YAxis
-              domain={[0, 100]}
-              tick={{ fontSize: 10, fill: ct.text }}
-              tickLine={false}
-              axisLine={false}
-              label={{
-                value: '正規化 (0-100)',
-                angle: -90,
-                position: 'insideLeft',
-                style: { fontSize: 10, fill: ct.text },
-              }}
-            />
-            <Tooltip content={createChartTooltip({ ct, formatter: tooltipFormatter })} />
-            <Legend
-              wrapperStyle={{ fontSize: 11 }}
-              formatter={(value: string) => <span style={{ color: ct.text }}>{value}</span>}
-            />
-            <Line
-              type="monotone"
-              dataKey="salesNorm"
-              name="売上"
-              stroke={COLORS.sales}
-              strokeWidth={2}
-              dot={false}
-              connectNulls
-            />
-            <Line
-              type="monotone"
-              dataKey="tempNorm"
-              name="気温"
-              stroke={COLORS.temperature}
-              strokeWidth={1.5}
-              dot={false}
-              strokeDasharray="4 2"
-              connectNulls
-            />
-            <Bar
-              dataKey="precipNorm"
-              name="降水量"
-              fill={COLORS.precipitation}
-              opacity={0.3}
-              barSize={8}
-            />
-          </ComposedChart>
-        </ResponsiveContainer>
-      </ChartContainer>
-    </Wrapper>
+      <EChart option={option} height={220} ariaLabel="天気-売上相関タイムライン" />
+    </ChartCard>
   )
 })
-
-function tooltipFormatter(value: unknown, name: string): readonly [string, string] {
-  return [`${Math.round(Number(value))}`, name]
-}

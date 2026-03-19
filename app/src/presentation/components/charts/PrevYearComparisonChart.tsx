@@ -1,21 +1,23 @@
-import { memo } from 'react'
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ReferenceLine,
-} from 'recharts'
-import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
-import { useChartTheme, useCurrencyFormatter, toComma, toPct, toAxisYen } from './chartTheme'
-import { createChartTooltip } from './createChartTooltip'
+/**
+ * 期間比較チャート (ECharts)
+ */
+import { useMemo, memo } from 'react'
+import { useTheme } from 'styled-components'
+import type { AppTheme } from '@/presentation/theme/theme'
+import { useCurrencyFormatter, toPct } from './chartTheme'
 import { DualPeriodSlider } from './DualPeriodSlider'
+import { useDualPeriodRange } from './useDualPeriodRange'
+import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
+import { ChartCard } from './ChartCard'
+import { EChart, type EChartsOption } from './EChart'
 import {
-  Wrapper,
-  Title,
+  yenYAxis,
+  standardGrid,
+  standardTooltip,
+  standardLegend,
+  toCommaYen,
+} from './echartsOptionBuilders'
+import {
   SummaryRow,
   Metric,
   MetricLabel,
@@ -24,10 +26,7 @@ import {
   ProgressTrack,
   ProgressFill,
   ProgressLabel,
-  ChartArea,
 } from './PrevYearComparisonChart.styles'
-import { useDualPeriodRange } from './useDualPeriodRange'
-import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 
 interface Props {
   currentDaily: ReadonlyMap<number, { sales: number }>
@@ -37,6 +36,42 @@ interface Props {
   month: number
 }
 
+/** 累計データ構築（純粋関数） */
+function buildCumulativeData(
+  currentDaily: ReadonlyMap<number, { sales: number }>,
+  prevYearDaily: ReadonlyMap<string, { sales: number }>,
+  year: number,
+  month: number,
+  daysInMonth: number,
+) {
+  let currentCum = 0
+  let prevCum = 0
+  const allData: { day: number; currentCum: number; prevYearCum: number | null }[] = []
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    currentCum += currentDaily.get(d)?.sales ?? 0
+    prevCum += prevYearDaily.get(toDateKeyFromParts(year, month, d))?.sales ?? 0
+    allData.push({ day: d, currentCum, prevYearCum: prevCum > 0 ? prevCum : null })
+  }
+
+  const latestDay =
+    [...currentDaily.keys()]
+      .filter((d) => (currentDaily.get(d)?.sales ?? 0) > 0)
+      .sort((a, b) => b - a)[0] ?? 0
+
+  let prevCumAtLatest = 0
+  for (let d = 1; d <= latestDay; d++) {
+    prevCumAtLatest += prevYearDaily.get(toDateKeyFromParts(year, month, d))?.sales ?? 0
+  }
+
+  const latestCurrentCum =
+    latestDay > 0 ? (allData.find((d) => d.day === latestDay)?.currentCum ?? 0) : 0
+  const yoyRatio = prevCumAtLatest > 0 ? latestCurrentCum / prevCumAtLatest : 0
+  const yoyDiff = latestCurrentCum - prevCumAtLatest
+
+  return { allData, prevTotal: prevCum, latestCurrentCum, prevCumAtLatest, yoyRatio, yoyDiff }
+}
+
 export const PrevYearComparisonChart = memo(function PrevYearComparisonChart({
   currentDaily,
   prevYearDaily,
@@ -44,7 +79,7 @@ export const PrevYearComparisonChart = memo(function PrevYearComparisonChart({
   year,
   month,
 }: Props) {
-  const ct = useChartTheme()
+  const theme = useTheme() as AppTheme
   const fmt = useCurrencyFormatter()
   const {
     p1Start: rangeStart,
@@ -56,49 +91,86 @@ export const PrevYearComparisonChart = memo(function PrevYearComparisonChart({
     p2Enabled,
   } = useDualPeriodRange(daysInMonth)
 
-  // 累計データ構築
-  let currentCum = 0
-  let prevCum = 0
+  const { allData, prevTotal, latestCurrentCum, prevCumAtLatest, yoyRatio, yoyDiff } = useMemo(
+    () => buildCumulativeData(currentDaily, prevYearDaily, year, month, daysInMonth),
+    [currentDaily, prevYearDaily, year, month, daysInMonth],
+  )
 
-  const allData = []
-  for (let d = 1; d <= daysInMonth; d++) {
-    currentCum += currentDaily.get(d)?.sales ?? 0
-    prevCum += prevYearDaily.get(toDateKeyFromParts(year, month, d))?.sales ?? 0
-    allData.push({
-      day: d,
-      currentCum,
-      prevYearCum: prevCum > 0 ? prevCum : null,
-    })
-  }
+  const data = useMemo(
+    () => allData.filter((d) => d.day >= rangeStart && d.day <= rangeEnd),
+    [allData, rangeStart, rangeEnd],
+  )
 
-  const data = allData.filter((d) => d.day >= rangeStart && d.day <= rangeEnd)
-
-  // 前年の同時点累計（実績のある最終日まで）
-  const latestDay =
-    [...currentDaily.keys()]
-      .filter((d) => (currentDaily.get(d)?.sales ?? 0) > 0)
-      .sort((a, b) => b - a)[0] ?? 0
-  let prevCumAtLatest = 0
-  for (let d = 1; d <= latestDay; d++) {
-    prevCumAtLatest += prevYearDaily.get(toDateKeyFromParts(year, month, d))?.sales ?? 0
-  }
-
-  // ループ後の prevCum が前年月間合計
-  const prevTotal = prevCum
-  const latestCurrentCum =
-    latestDay > 0 ? (data.find((d) => d.day === latestDay)?.currentCum ?? 0) : 0
-
-  // 前年比（同時点比較）
-  const yoyRatio = prevCumAtLatest > 0 ? latestCurrentCum / prevCumAtLatest : 0
-  const yoyDiff = latestCurrentCum - prevCumAtLatest
-
-  const yoyColor = yoyRatio >= 1.0 ? ct.colors.success : ct.colors.danger
+  const option = useMemo<EChartsOption>(() => {
+    const days = data.map((d) => String(d.day))
+    const series: EChartsOption['series'] = [
+      {
+        name: '比較期累計',
+        type: 'line',
+        data: data.map((d) => d.prevYearCum),
+        lineStyle: { color: theme.chart.previousYear, width: 2, type: 'dashed' },
+        areaStyle: { color: `${theme.chart.previousYear}26` },
+        itemStyle: { color: theme.chart.previousYear },
+        symbol: 'none',
+        connectNulls: true,
+      },
+      {
+        name: '当期累計',
+        type: 'line',
+        data: data.map((d) => d.currentCum),
+        lineStyle: { color: theme.chart.currentYear, width: 2.5 },
+        areaStyle: { color: `${theme.chart.currentYear}4d` },
+        itemStyle: { color: theme.chart.currentYear },
+        symbol: 'none',
+      },
+    ]
+    if (prevTotal > 0) {
+      ;(series[1] as Record<string, unknown>).markLine = {
+        data: [
+          {
+            yAxis: prevTotal,
+            label: { formatter: `比較期月間 ${fmt(prevTotal)}`, position: 'end', fontSize: 10 },
+          },
+        ],
+        lineStyle: { color: theme.chart.previousYear, type: 'dashed', width: 1.5 },
+        symbol: 'none',
+      }
+    }
+    return {
+      grid: standardGrid(),
+      tooltip: {
+        ...standardTooltip(theme),
+        formatter: (params: unknown) => {
+          const items = params as { name: string; seriesName: string; value: number | null }[]
+          if (!Array.isArray(items)) return ''
+          const header = `<div style="font-weight:600">${items[0]?.name}日</div>`
+          const rows = items
+            .filter((i) => i.value != null)
+            .map((i) => `<div>${i.seriesName}: ${toCommaYen(i.value!)}</div>`)
+            .join('')
+          return header + rows
+        },
+      },
+      legend: standardLegend(theme),
+      xAxis: {
+        type: 'category',
+        data: days,
+        axisLabel: {
+          color: theme.colors.text3,
+          fontSize: 10,
+          fontFamily: theme.typography.fontFamily.mono,
+        },
+      },
+      yAxis: yenYAxis(theme),
+      series,
+    }
+  }, [data, prevTotal, fmt, theme])
 
   const hasSummary = latestCurrentCum > 0 && prevCumAtLatest > 0
+  const yoyColor = yoyRatio >= 1.0 ? theme.chart.barPositive : theme.chart.barNegative
 
   return (
-    <Wrapper aria-label="期間比較チャート">
-      <Title>当期 vs 比較期（累計売上推移）</Title>
+    <ChartCard title="当期 vs 比較期（累計売上推移）">
       {hasSummary && (
         <SummaryRow>
           <Metric>
@@ -119,94 +191,13 @@ export const PrevYearComparisonChart = memo(function PrevYearComparisonChart({
           </ProgressBarWrap>
           <Metric>
             <MetricLabel>比較期同時点</MetricLabel>
-            <MetricValue $color={ct.colors.slate}>{fmt(prevCumAtLatest)}円</MetricValue>
+            <MetricValue $color={theme.chart.previousYear}>{fmt(prevCumAtLatest)}円</MetricValue>
           </Metric>
         </SummaryRow>
       )}
-      <ChartArea>
-        <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="100%">
-          <AreaChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
-            <defs>
-              <linearGradient id="currentCumArea" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={ct.colors.primary} stopOpacity={0.3} />
-                <stop offset="100%" stopColor={ct.colors.primary} stopOpacity={0.02} />
-              </linearGradient>
-              <linearGradient id="prevCumArea" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={ct.colors.slate} stopOpacity={0.15} />
-                <stop offset="100%" stopColor={ct.colors.slate} stopOpacity={0.02} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
-            <XAxis
-              dataKey="day"
-              tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-              axisLine={{ stroke: ct.grid }}
-              tickLine={false}
-            />
-            <YAxis
-              tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-              axisLine={false}
-              tickLine={false}
-              tickFormatter={toAxisYen}
-              width={55}
-            />
-            <Tooltip
-              content={createChartTooltip({
-                ct,
-                formatter: (value, name) => {
-                  const label = name === 'currentCum' ? '当期累計' : '比較期累計'
-                  return [value != null ? toComma(value as number) : '-', label]
-                },
-                labelFormatter: (label) => `${label}日`,
-              })}
-            />
-            <Legend
-              wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
-              formatter={(value) => {
-                const labels: Record<string, string> = {
-                  currentCum: '当期累計',
-                  prevYearCum: '比較期累計',
-                }
-                return labels[value] ?? value
-              }}
-            />
-            <Area
-              type="monotone"
-              dataKey="prevYearCum"
-              stroke={ct.colors.slate}
-              strokeWidth={2}
-              strokeDasharray="4 3"
-              fill="url(#prevCumArea)"
-              dot={false}
-              connectNulls
-            />
-            <Area
-              type="monotone"
-              dataKey="currentCum"
-              stroke={ct.colors.primary}
-              strokeWidth={2.5}
-              fill="url(#currentCumArea)"
-              dot={false}
-              activeDot={{ r: 4, fill: ct.colors.primary, stroke: ct.bg2, strokeWidth: 2 }}
-            />
-            {prevTotal > 0 && (
-              <ReferenceLine
-                y={prevTotal}
-                stroke={ct.colors.slate}
-                strokeDasharray="4 4"
-                strokeWidth={1.5}
-                label={{
-                  value: `比較期月間 ${fmt(prevTotal)}`,
-                  position: 'right',
-                  fill: ct.colors.slate,
-                  fontSize: ct.fontSize.xs,
-                  fontFamily: ct.monoFamily,
-                }}
-              />
-            )}
-          </AreaChart>
-        </ResponsiveContainer>
-      </ChartArea>
+
+      <EChart option={option} height={280} ariaLabel="期間比較チャート" />
+
       <DualPeriodSlider
         min={1}
         max={daysInMonth}
@@ -218,6 +209,6 @@ export const PrevYearComparisonChart = memo(function PrevYearComparisonChart({
         onP2Change={onP2Change}
         p2Enabled={p2Enabled}
       />
-    </Wrapper>
+    </ChartCard>
   )
 })

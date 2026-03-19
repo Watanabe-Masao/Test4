@@ -424,6 +424,67 @@ export function categoryShare(
   }))
 }
 
+// ─── チャート共通集計ユーティリティ ──────────────────────
+
+/**
+ * 行配列をキー別に金額合算する汎用関数。
+ *
+ * チャート Logic.ts で最も頻出するパターン:
+ *   rows → Map<key, { total, ... }> → sorted entries
+ *
+ * @param rows 入力行配列
+ * @param getKey 行からグループキーを抽出
+ * @param getValue 行から合算対象の金額を抽出
+ * @returns キー別合計の配列（合計降順ソート済み）
+ */
+export function groupAndSum<T>(
+  rows: readonly T[],
+  getKey: (row: T) => string,
+  getValue: (row: T) => number,
+): { key: string; total: number }[] {
+  const map = new Map<string, number>()
+  for (const row of rows) {
+    const k = getKey(row)
+    map.set(k, (map.get(k) ?? 0) + getValue(row))
+  }
+  return [...map.entries()]
+    .map(([key, total]) => ({ key, total }))
+    .sort((a, b) => b.total - a.total)
+}
+
+/**
+ * 合計額で上位N件を抽出する。
+ *
+ * groupAndSum の結果を受け取り、上位N件のキーセットを返す。
+ */
+export function topNByTotal<T>(
+  rows: readonly T[],
+  getKey: (row: T) => string,
+  getValue: (row: T) => number,
+  n: number,
+): { ranked: { key: string; total: number }[]; topKeys: ReadonlySet<string> } {
+  const ranked = groupAndSum(rows, getKey, getValue).slice(0, n)
+  const topKeys = new Set(ranked.map((r) => r.key))
+  return { ranked, topKeys }
+}
+
+/**
+ * Map からピーク（最大値）のキーと値を返す。
+ *
+ * 時間帯別ピーク、曜日別ピーク等に使用。
+ */
+export function findPeak<K>(map: ReadonlyMap<K, number>): { key: K; value: number } | null {
+  let peakKey: K | null = null
+  let peakValue = -Infinity
+  for (const [key, value] of map) {
+    if (value > peakValue) {
+      peakKey = key
+      peakValue = value
+    }
+  }
+  return peakKey != null ? { key: peakKey, value: peakValue } : null
+}
+
 // ─── 特徴量集約（rawAggregation/ から re-export）──────────
 
 export {

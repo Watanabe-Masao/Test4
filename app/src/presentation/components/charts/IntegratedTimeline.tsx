@@ -1,28 +1,12 @@
+/**
+ * 統合タイムライン (ECharts) — 売上・仕入・粗利・売変の連動分析
+ */
 import { useMemo, useState, memo } from 'react'
-import {
-  ComposedChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ReferenceArea,
-} from 'recharts'
-import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
-import {
-  Wrapper,
-  HeaderRow,
-  Title,
-  CorrelationRow,
-  CorrBadge,
-  ViewToggle,
-  ViewBtn,
-} from './IntegratedTimeline.styles'
-import { useChartTheme, toComma } from './chartTheme'
-import { createChartTooltip } from './createChartTooltip'
+import { useTheme } from 'styled-components'
+import type { AppTheme } from '@/presentation/theme/theme'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
+import { toComma } from './chartTheme'
 import {
   normalizeMinMax,
   pearsonCorrelation,
@@ -30,8 +14,19 @@ import {
   movingAverage,
 } from '@/application/hooks/useStatistics'
 import type { StoreResult } from '@/domain/models'
+import { SegmentedControl } from '@/presentation/components/common'
+import { ChartCard } from './ChartCard'
+import { ChartEmpty } from './ChartState'
+import { EChart, type EChartsOption } from './EChart'
+import { standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
+import { CorrelationRow, CorrBadge } from './IntegratedTimeline.styles'
 
 type ViewMode = 'normalized' | 'raw'
+
+const VIEW_OPTIONS: readonly { value: ViewMode; label: string }[] = [
+  { value: 'normalized', label: '正規化' },
+  { value: 'raw', label: '実数' },
+]
 
 const SERIES_CONFIG = [
   { key: 'sales', label: '売上', color: palette.primary },
@@ -46,10 +41,10 @@ interface Props {
 }
 
 export const IntegratedTimeline = memo(function IntegratedTimeline({ result, daysInMonth }: Props) {
-  const ct = useChartTheme()
+  const theme = useTheme() as AppTheme
   const [viewMode, setViewMode] = useState<ViewMode>('normalized')
 
-  const { chartData, correlations, divergences } = useMemo(() => {
+  const { chartData, correlations, divergentRanges } = useMemo(() => {
     const salesArr: number[] = []
     const costArr: number[] = []
     const gpArr: number[] = []
@@ -68,17 +63,13 @@ export const IntegratedTimeline = memo(function IntegratedTimeline({ result, day
       discountArr.push(discount)
     }
 
-    // 正規化
     const normSales = normalizeMinMax(salesArr)
     const normCost = normalizeMinMax(costArr)
     const normGP = normalizeMinMax(gpArr)
     const normDiscount = normalizeMinMax(discountArr)
-
-    // 移動平均（7日）
     const maSales = movingAverage(salesArr, 7)
     const maCost = movingAverage(costArr, 7)
 
-    // チャートデータ
     const data = days.map((d, i) => ({
       day: d,
       sales: salesArr[i],
@@ -93,7 +84,6 @@ export const IntegratedTimeline = memo(function IntegratedTimeline({ result, day
       maCost: maCost[i],
     }))
 
-    // 相関計算
     const series = [
       { name: '売上', values: salesArr },
       { name: '仕入', values: costArr },
@@ -108,73 +98,136 @@ export const IntegratedTimeline = memo(function IntegratedTimeline({ result, day
       }
     }
 
-    // 乖離検出（売上 vs 仕入）
     const divPts = detectDivergence(salesArr, costArr, 30)
-
-    return { chartData: data, correlations: corrs, divergences: divPts }
-  }, [result, daysInMonth])
-
-  const divergentRanges = useMemo(() => {
     const ranges: { start: number; end: number }[] = []
     let rangeStart: number | null = null
-    for (const pt of divergences) {
+    for (const pt of divPts) {
       if (pt.isSignificant) {
         if (rangeStart == null) rangeStart = pt.index + 1
-      } else {
-        if (rangeStart != null) {
-          ranges.push({ start: rangeStart, end: pt.index })
-          rangeStart = null
-        }
+      } else if (rangeStart != null) {
+        ranges.push({ start: rangeStart, end: pt.index })
+        rangeStart = null
       }
     }
-    if (rangeStart != null) {
-      ranges.push({ start: rangeStart, end: divergences.length })
-    }
-    return ranges
-  }, [divergences])
+    if (rangeStart != null) ranges.push({ start: rangeStart, end: divPts.length })
+
+    return { chartData: data, correlations: corrs, divergentRanges: ranges }
+  }, [result, daysInMonth])
 
   const isNorm = viewMode === 'normalized'
 
-  if (chartData.every((d) => d.sales === 0)) {
-    return (
-      <Wrapper>
-        <HeaderRow>
-          <Title>統合タイムライン</Title>
-        </HeaderRow>
-        <div
-          style={{
-            padding: '40px',
-            textAlign: 'center',
-            color: ct.textMuted,
-            fontSize: ct.fontSize.sm,
-          }}
-        >
-          データがありません
-        </div>
-      </Wrapper>
-    )
-  }
+  const option = useMemo<EChartsOption>(() => {
+    const days = chartData.map((d) => String(d.day))
+    const series: EChartsOption['series'] = SERIES_CONFIG.map((s) => ({
+      name: s.label,
+      type: 'line' as const,
+      data: chartData.map((d) => {
+        const key = isNorm ? `norm${s.key.charAt(0).toUpperCase() + s.key.slice(1)}` : s.key
+        return (d as unknown as Record<string, number>)[key] ?? null
+      }),
+      lineStyle: { color: s.color, width: 1.5 },
+      itemStyle: { color: s.color },
+      symbol: 'none',
+    }))
+
+    if (!isNorm) {
+      series.push(
+        {
+          name: '売上 7日MA',
+          type: 'line',
+          data: chartData.map((d) => d.maSales),
+          lineStyle: { color: palette.primary, width: 2, type: 'dashed' },
+          itemStyle: { color: palette.primary },
+          symbol: 'none',
+        },
+        {
+          name: '仕入 7日MA',
+          type: 'line',
+          data: chartData.map((d) => d.maCost),
+          lineStyle: { color: sc.negative, width: 2, type: 'dashed' },
+          itemStyle: { color: sc.negative },
+          symbol: 'none',
+        },
+      )
+    }
+
+    // 乖離ゾーン markArea
+    if (divergentRanges.length > 0) {
+      ;(series[0] as Record<string, unknown>).markArea = {
+        data: divergentRanges.map((r) => [
+          { xAxis: String(r.start), itemStyle: { color: `${sc.negative}0f` } },
+          { xAxis: String(r.end) },
+        ]),
+      }
+    }
+
+    return {
+      grid: standardGrid(),
+      tooltip: {
+        ...standardTooltip(theme),
+        formatter: (params: unknown) => {
+          const items = params as { seriesName: string; value: number | null; name: string }[]
+          if (!Array.isArray(items)) return ''
+          const header = `<div style="font-weight:600">${items[0]?.name}日</div>`
+          const rows = items
+            .filter((i) => i.value != null)
+            .map(
+              (i) =>
+                `<div>${i.seriesName}: ${isNorm ? (i.value as number).toFixed(1) : toComma(i.value as number)}</div>`,
+            )
+            .join('')
+          return header + rows
+        },
+      },
+      legend: { ...standardLegend(theme), type: 'scroll' },
+      xAxis: {
+        type: 'category',
+        data: days,
+        axisLabel: {
+          color: theme.colors.text3,
+          fontSize: 10,
+          fontFamily: theme.typography.fontFamily.mono,
+          formatter: (v: string) => `${v}日`,
+        },
+      },
+      yAxis: {
+        type: 'value',
+        axisLabel: {
+          formatter: (v: number) => (isNorm ? String(Math.round(v)) : toComma(v)),
+          color: theme.colors.text3,
+          fontSize: 10,
+        },
+        axisLine: { show: false },
+        splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
+      },
+      series,
+    }
+  }, [chartData, isNorm, divergentRanges, theme])
 
   const corrStrength = (r: number): 'strong' | 'moderate' | 'weak' => {
     const abs = Math.abs(r)
-    if (abs >= 0.7) return 'strong'
-    if (abs >= 0.4) return 'moderate'
-    return 'weak'
+    return abs >= 0.7 ? 'strong' : abs >= 0.4 ? 'moderate' : 'weak'
   }
 
+  if (chartData.every((d) => d.sales === 0)) {
+    return (
+      <ChartCard title="統合タイムライン">
+        <ChartEmpty message="データがありません" />
+      </ChartCard>
+    )
+  }
+
+  const toolbar = (
+    <SegmentedControl
+      options={VIEW_OPTIONS}
+      value={viewMode}
+      onChange={setViewMode}
+      ariaLabel="表示モード"
+    />
+  )
+
   return (
-    <Wrapper>
-      <HeaderRow>
-        <Title>統合タイムライン — 売上・仕入・粗利・売変の連動分析</Title>
-        <ViewToggle>
-          <ViewBtn $active={viewMode === 'normalized'} onClick={() => setViewMode('normalized')}>
-            正規化
-          </ViewBtn>
-          <ViewBtn $active={viewMode === 'raw'} onClick={() => setViewMode('raw')}>
-            実数
-          </ViewBtn>
-        </ViewToggle>
-      </HeaderRow>
+    <ChartCard title="統合タイムライン — 売上・仕入・粗利・売変の連動分析" toolbar={toolbar}>
       <CorrelationRow>
         {correlations.map((c) => (
           <CorrBadge key={c.pair} $strength={corrStrength(c.r)}>
@@ -182,98 +235,7 @@ export const IntegratedTimeline = memo(function IntegratedTimeline({ result, day
           </CorrBadge>
         ))}
       </CorrelationRow>
-      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="82%">
-        <ComposedChart data={chartData} margin={{ top: 8, right: 20, left: 8, bottom: 8 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
-          <XAxis
-            dataKey="day"
-            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-            axisLine={{ stroke: ct.grid }}
-            tickLine={false}
-            tickFormatter={(v: number) => `${v}日`}
-          />
-          <YAxis
-            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-            axisLine={false}
-            tickLine={false}
-            width={isNorm ? 35 : 60}
-            tickFormatter={(v: number) => (isNorm ? `${Math.round(v)}` : toComma(v))}
-            label={
-              isNorm
-                ? {
-                    value: '正規化値(0-100)',
-                    angle: -90,
-                    position: 'insideLeft',
-                    offset: 10,
-                    fontSize: ct.fontSize.xs,
-                    fill: ct.textMuted,
-                  }
-                : undefined
-            }
-          />
-          <Tooltip
-            content={createChartTooltip({
-              ct,
-              formatter: (value, name) => {
-                const v = value as number
-                if (isNorm) return [`${v.toFixed(1)}`, name]
-                return [toComma(v), name]
-              },
-              labelFormatter: (label) => `${label}日`,
-            })}
-          />
-          <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
-
-          {/* 乖離ゾーンのハイライト */}
-          {divergentRanges.map((range, i) => (
-            <ReferenceArea
-              key={i}
-              x1={range.start}
-              x2={range.end}
-              fill={sc.negative}
-              fillOpacity={0.06}
-              strokeOpacity={0}
-            />
-          ))}
-
-          {SERIES_CONFIG.map((s) => (
-            <Line
-              key={s.key}
-              type="monotone"
-              dataKey={isNorm ? `norm${s.key.charAt(0).toUpperCase() + s.key.slice(1)}` : s.key}
-              name={s.label}
-              stroke={s.color}
-              strokeWidth={1.5}
-              dot={false}
-              activeDot={{ r: 3 }}
-            />
-          ))}
-
-          {/* 移動平均（raw mode のみ） */}
-          {!isNorm && (
-            <>
-              <Line
-                type="monotone"
-                dataKey="maSales"
-                name="売上 7日MA"
-                stroke="#6366f1"
-                strokeWidth={2}
-                strokeDasharray="6 3"
-                dot={false}
-              />
-              <Line
-                type="monotone"
-                dataKey="maCost"
-                name="仕入 7日MA"
-                stroke={sc.negative}
-                strokeWidth={2}
-                strokeDasharray="6 3"
-                dot={false}
-              />
-            </>
-          )}
-        </ComposedChart>
-      </ResponsiveContainer>
-    </Wrapper>
+      <EChart option={option} height={300} ariaLabel="統合タイムラインチャート" />
+    </ChartCard>
   )
 })

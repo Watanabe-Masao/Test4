@@ -1,41 +1,29 @@
 /**
- * 予算トレンドチャート (L2: 説明)
- *
- * 予算 vs 実績の累計推移を3つのビューで表示する。
- * BudgetProgressCard（L1）で判断した内容の根拠を示す。
- *
- * ビュー:
- * - 累計推移（線グラフ）
- * - 予算差異（棒グラフ）
- * - 達成率推移（折れ線）
+ * 予算トレンドチャート (ECharts)
  */
-import { useState, memo } from 'react'
-import {
-  ComposedChart,
-  Line,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ReferenceLine,
-  Cell,
-} from 'recharts'
-import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
-import { useChartTheme, useCurrencyFormatter, toAxisYen, toComma } from './chartTheme'
-import { createChartTooltip } from './createChartTooltip'
+import { useState, useMemo, memo } from 'react'
+import { useTheme } from 'styled-components'
+import type { AppTheme } from '@/presentation/theme/theme'
 import { DualPeriodSlider } from './DualPeriodSlider'
 import { useDualPeriodRange } from './useDualPeriodRange'
-import { Wrapper, HeaderRow, Title, TabGroup, Tab, ChartArea } from './BudgetTrendChart.styles'
+import { SegmentedControl } from '@/presentation/components/common'
+import { ChartCard } from './ChartCard'
+import { EChart, type EChartsOption } from './EChart'
+import {
+  yenYAxis,
+  standardGrid,
+  standardTooltip,
+  standardLegend,
+  toCommaYen,
+} from './echartsOptionBuilders'
 
 type ViewType = 'line' | 'diff' | 'rate'
 
-const VIEW_LABELS: Record<ViewType, string> = {
-  line: '累計推移',
-  diff: '差分',
-  rate: '達成率',
-}
+const VIEW_OPTIONS: readonly { value: ViewType; label: string }[] = [
+  { value: 'line', label: '累計推移' },
+  { value: 'diff', label: '差分' },
+  { value: 'rate', label: '達成率' },
+]
 
 const VIEW_TITLES: Record<ViewType, string> = {
   line: '予算 vs 実績（累計推移）',
@@ -59,15 +47,158 @@ interface Props {
   readonly month: number
 }
 
-const ALL_LABELS: Record<string, string> = {
-  actualCum: '実績累計',
-  budgetCum: '予算累計',
-  prevYearCum: '比較期累計',
-  diff: '予算差異',
-  achieveRate: '達成率(%)',
-}
+function buildOption(
+  chartData: readonly (DataPoint & { diff: number | null; achieveRate: number | null })[],
+  view: ViewType,
+  hasPrevYear: boolean,
+  budget: number,
+  theme: AppTheme,
+): EChartsOption {
+  const days = chartData.map((d) => String(d.day))
 
-const VIEWS: ViewType[] = ['line', 'diff', 'rate']
+  if (view === 'line') {
+    const series: EChartsOption['series'] = [
+      {
+        name: '実績累計',
+        type: 'line',
+        data: chartData.map((d) => d.actualCum),
+        lineStyle: { color: theme.chart.barPositive, width: 2.5 },
+        itemStyle: { color: theme.chart.barPositive },
+        symbol: 'none',
+      },
+      {
+        name: '予算累計',
+        type: 'line',
+        data: chartData.map((d) => d.budgetCum),
+        lineStyle: { color: theme.chart.budget, width: 2, type: 'dashed' },
+        itemStyle: { color: theme.chart.budget },
+        symbol: 'none',
+      },
+    ]
+    if (budget > 0) {
+      // 月間予算ライン (markLine on 実績系列)
+      ;(series[0] as Record<string, unknown>).markLine = {
+        data: [{ yAxis: budget, label: { formatter: `月間予算`, position: 'end', fontSize: 10 } }],
+        lineStyle: { color: theme.colors.palette.warningDark, type: 'dashed', width: 1.5 },
+        symbol: 'none',
+      }
+    }
+    if (hasPrevYear) {
+      series.push({
+        name: '比較期累計',
+        type: 'line',
+        data: chartData.map((d) => d.prevYearCum ?? null),
+        lineStyle: { color: theme.chart.previousYear, width: 1.5, type: 'dashed' },
+        itemStyle: { color: theme.chart.previousYear },
+        symbol: 'none',
+        connectNulls: true,
+      })
+    }
+    return {
+      grid: standardGrid(),
+      tooltip: standardTooltip(theme),
+      legend: standardLegend(theme),
+      xAxis: {
+        type: 'category',
+        data: days,
+        axisLabel: {
+          color: theme.colors.text3,
+          fontSize: 10,
+          fontFamily: theme.typography.fontFamily.mono,
+        },
+      },
+      yAxis: yenYAxis(theme),
+      series,
+    }
+  }
+
+  if (view === 'diff') {
+    return {
+      grid: standardGrid(),
+      tooltip: {
+        ...standardTooltip(theme),
+        formatter: (params: unknown) => {
+          const p = params as { name: string; value: number }[]
+          if (!Array.isArray(p) || !p[0]) return ''
+          return `${p[0].name}日<br/>予算差異: ${toCommaYen(p[0].value)}`
+        },
+      },
+      xAxis: {
+        type: 'category',
+        data: days,
+        axisLabel: {
+          color: theme.colors.text3,
+          fontSize: 10,
+          fontFamily: theme.typography.fontFamily.mono,
+        },
+      },
+      yAxis: yenYAxis(theme),
+      series: [
+        {
+          type: 'bar',
+          data: chartData.map((d) => ({
+            value: d.diff,
+            itemStyle: {
+              color:
+                d.diff == null
+                  ? 'transparent'
+                  : d.diff >= 0
+                    ? theme.chart.barPositive
+                    : theme.chart.barNegative,
+              opacity: 0.7,
+              borderRadius: [2, 2, 0, 0],
+            },
+          })),
+          barMaxWidth: 16,
+        },
+      ],
+    }
+  }
+
+  // rate view
+  return {
+    grid: standardGrid(),
+    tooltip: {
+      ...standardTooltip(theme),
+      formatter: (params: unknown) => {
+        const p = params as { name: string; value: number }[]
+        if (!Array.isArray(p) || !p[0]) return ''
+        return `${p[0].name}日<br/>達成率: ${p[0].value?.toFixed(1)}%`
+      },
+    },
+    xAxis: {
+      type: 'category',
+      data: days,
+      axisLabel: {
+        color: theme.colors.text3,
+        fontSize: 10,
+        fontFamily: theme.typography.fontFamily.mono,
+      },
+    },
+    yAxis: {
+      type: 'value',
+      axisLabel: { formatter: (v: number) => `${v}%`, color: theme.colors.text3, fontSize: 10 },
+      axisLine: { show: false },
+      splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
+    },
+    series: [
+      {
+        name: '達成率',
+        type: 'line',
+        data: chartData.map((d) => d.achieveRate),
+        lineStyle: { color: theme.colors.palette.primary, width: 2.5 },
+        itemStyle: { color: theme.colors.palette.primary },
+        symbol: 'none',
+        connectNulls: true,
+        markLine: {
+          data: [{ yAxis: 100, label: { formatter: '100%', position: 'end' } }],
+          lineStyle: { color: theme.chart.barPositive, type: 'dashed', width: 1.5 },
+          symbol: 'none',
+        },
+      },
+    ],
+  }
+}
 
 export const BudgetTrendChart = memo(function BudgetTrendChart({
   data,
@@ -75,8 +206,7 @@ export const BudgetTrendChart = memo(function BudgetTrendChart({
   showPrevYear,
   daysInMonth,
 }: Props) {
-  const ct = useChartTheme()
-  const fmt = useCurrencyFormatter()
+  const theme = useTheme() as AppTheme
   const [view, setView] = useState<ViewType>('line')
 
   const totalDaysForSlider = daysInMonth ?? data.length
@@ -92,187 +222,36 @@ export const BudgetTrendChart = memo(function BudgetTrendChart({
 
   const hasPrevYear = showPrevYear || data.some((d) => d.prevYearCum != null && d.prevYearCum > 0)
 
-  const chartData = [...data]
-    .map((d) => ({
-      ...d,
-      diff: d.actualCum > 0 ? d.actualCum - d.budgetCum : null,
-      achieveRate: d.budgetCum > 0 && d.actualCum > 0 ? (d.actualCum / d.budgetCum) * 100 : null,
-    }))
-    .filter((d) => d.day >= rangeStart && d.day <= rangeEnd)
+  const chartData = useMemo(
+    () =>
+      [...data]
+        .map((d) => ({
+          ...d,
+          diff: d.actualCum > 0 ? d.actualCum - d.budgetCum : null,
+          achieveRate:
+            d.budgetCum > 0 && d.actualCum > 0 ? (d.actualCum / d.budgetCum) * 100 : null,
+        }))
+        .filter((d) => d.day >= rangeStart && d.day <= rangeEnd),
+    [data, rangeStart, rangeEnd],
+  )
+
+  const option = useMemo(
+    () => buildOption(chartData, view, hasPrevYear, budget, theme),
+    [chartData, view, hasPrevYear, budget, theme],
+  )
+
+  const toolbar = (
+    <SegmentedControl
+      options={VIEW_OPTIONS}
+      value={view}
+      onChange={setView}
+      ariaLabel="ビュー切替"
+    />
+  )
 
   return (
-    <Wrapper aria-label="予算トレンド">
-      <HeaderRow>
-        <Title>{VIEW_TITLES[view]}</Title>
-        <TabGroup>
-          {VIEWS.map((v) => (
-            <Tab key={v} $active={view === v} onClick={() => setView(v)}>
-              {VIEW_LABELS[v]}
-            </Tab>
-          ))}
-        </TabGroup>
-      </HeaderRow>
-
-      <ChartArea>
-        <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="100%">
-          <ComposedChart data={chartData} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
-            <XAxis
-              dataKey="day"
-              tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-              axisLine={{ stroke: ct.grid }}
-              tickLine={false}
-            />
-
-            {view !== 'rate' && (
-              <YAxis
-                yAxisId="left"
-                tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-                axisLine={false}
-                tickLine={false}
-                tickFormatter={toAxisYen}
-                width={55}
-              />
-            )}
-
-            {view === 'rate' && (
-              <YAxis
-                yAxisId="left"
-                tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-                axisLine={false}
-                tickLine={false}
-                tickFormatter={(v) => `${v}%`}
-                width={50}
-                domain={['auto', 'auto']}
-              />
-            )}
-
-            <Tooltip
-              content={createChartTooltip({
-                ct,
-                formatter: (value, name) => {
-                  if (name === 'achieveRate') {
-                    return [
-                      value != null ? `${(value as number).toFixed(1)}%` : '-',
-                      ALL_LABELS[name],
-                    ]
-                  }
-                  return [
-                    value != null ? toComma(value as number) : '-',
-                    ALL_LABELS[name as string] ?? String(name),
-                  ]
-                },
-                labelFormatter: (label) => `${label}日`,
-              })}
-            />
-            <Legend
-              wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
-              formatter={(value) => ALL_LABELS[value] ?? value}
-            />
-
-            {view === 'line' && (
-              <>
-                <Line
-                  yAxisId="left"
-                  type="monotone"
-                  dataKey="actualCum"
-                  stroke={ct.colors.success}
-                  strokeWidth={2.5}
-                  dot={false}
-                  activeDot={{ r: 4, fill: ct.colors.success, stroke: ct.bg2, strokeWidth: 2 }}
-                />
-                <Line
-                  yAxisId="left"
-                  type="monotone"
-                  dataKey="budgetCum"
-                  stroke={ct.colors.info}
-                  strokeWidth={2}
-                  strokeDasharray="8 4"
-                  dot={false}
-                />
-                {hasPrevYear && (
-                  <Line
-                    yAxisId="left"
-                    type="monotone"
-                    dataKey="prevYearCum"
-                    stroke={ct.colors.slate}
-                    strokeWidth={1.5}
-                    strokeDasharray="4 3"
-                    dot={false}
-                    connectNulls
-                  />
-                )}
-                {budget > 0 && (
-                  <ReferenceLine
-                    yAxisId="left"
-                    y={budget}
-                    stroke={ct.colors.warning}
-                    strokeDasharray="4 4"
-                    strokeWidth={1.5}
-                    label={{
-                      value: `月間予算 ${fmt(budget)}`,
-                      position: 'right',
-                      fill: ct.colors.warning,
-                      fontSize: ct.fontSize.xs,
-                      fontFamily: ct.monoFamily,
-                    }}
-                  />
-                )}
-              </>
-            )}
-
-            {view === 'diff' && (
-              <>
-                <Bar yAxisId="left" dataKey="diff" radius={[2, 2, 0, 0]} maxBarSize={16}>
-                  {chartData.map((entry, i) => (
-                    <Cell
-                      key={i}
-                      fill={
-                        entry.diff == null
-                          ? 'transparent'
-                          : entry.diff >= 0
-                            ? ct.colors.success
-                            : ct.colors.danger
-                      }
-                      fillOpacity={0.7}
-                    />
-                  ))}
-                </Bar>
-                <ReferenceLine yAxisId="left" y={0} stroke={ct.grid} strokeWidth={1} />
-              </>
-            )}
-
-            {view === 'rate' && (
-              <>
-                <Line
-                  yAxisId="left"
-                  type="monotone"
-                  dataKey="achieveRate"
-                  stroke={ct.colors.primary}
-                  strokeWidth={2.5}
-                  dot={false}
-                  activeDot={{ r: 4, fill: ct.colors.primary, stroke: ct.bg2, strokeWidth: 2 }}
-                  connectNulls
-                />
-                <ReferenceLine
-                  yAxisId="left"
-                  y={100}
-                  stroke={ct.colors.success}
-                  strokeDasharray="6 3"
-                  strokeWidth={1.5}
-                  label={{
-                    value: '100%',
-                    position: 'right',
-                    fill: ct.colors.success,
-                    fontSize: ct.fontSize.xs,
-                    fontFamily: ct.monoFamily,
-                  }}
-                />
-              </>
-            )}
-          </ComposedChart>
-        </ResponsiveContainer>
-      </ChartArea>
+    <ChartCard title={VIEW_TITLES[view]} toolbar={toolbar} ariaLabel="予算トレンド">
+      <EChart option={option} height={280} ariaLabel="予算トレンドチャート" />
 
       <DualPeriodSlider
         min={1}
@@ -285,6 +264,6 @@ export const BudgetTrendChart = memo(function BudgetTrendChart({
         onP2Change={onP2Change}
         p2Enabled={p2Enabled}
       />
-    </Wrapper>
+    </ChartCard>
   )
 })

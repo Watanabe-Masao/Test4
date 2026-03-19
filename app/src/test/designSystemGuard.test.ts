@@ -1,0 +1,223 @@
+/**
+ * デザインシステムガードテスト
+ *
+ * 配色・フォント・サイズの直接指定を禁止し、
+ * テーマトークンと colorSystem 定数の使用を強制する。
+ *
+ * 設計原則:
+ *   #1 「機械で守る」— ルールはテストに書く
+ *   #8 「文字列はカタログ」— 色・サイズも定数カタログ化
+ *
+ * 移行戦略:
+ *   - 違反ファイル数の上限を凍結（増加禁止）
+ *   - 既存ファイルを修正するたびに上限を下げる
+ *   - 新規 .styles.ts でハードコードすると即座に上限超過で FAIL
+ */
+import { describe, it, expect } from 'vitest'
+import * as fs from 'fs'
+import * as path from 'path'
+
+const SRC_DIR = path.resolve(__dirname, '..')
+const PRESENTATION_DIR = path.join(SRC_DIR, 'presentation')
+
+// ─── ヘルパー ───────────────────────────────────────────
+
+function collectFiles(dir: string, ext: string): string[] {
+  const results: string[] = []
+  if (!fs.existsSync(dir)) return results
+  const entries = fs.readdirSync(dir, { withFileTypes: true })
+  for (const entry of entries) {
+    const fullPath = path.join(dir, entry.name)
+    if (entry.isDirectory()) {
+      if (entry.name === 'node_modules' || entry.name === 'dist') continue
+      results.push(...collectFiles(fullPath, ext))
+    } else if (entry.name.endsWith(ext)) {
+      results.push(fullPath)
+    }
+  }
+  return results
+}
+
+function rel(filePath: string): string {
+  return path.relative(SRC_DIR, filePath)
+}
+
+function stripComments(content: string): string {
+  return content
+    .split('\n')
+    .map((line) => line.replace(/\/\/.*$/, ''))
+    .join('\n')
+}
+
+// ─── 検出パターン ──────────────────────────────────────
+
+const HEX_COLOR_PATTERN = /(?<!palette\.)(?<!')#[0-9a-fA-F]{3,8}\b/g
+const RGBA_PATTERN = /rgba\s*\(\s*\d/g
+const HARDCODED_FONT_SIZE = /font-size:\s*[\d.]+(?:rem|px)\s*;/g
+
+/** テーマ経由の正当な参照パターン */
+const THEME_REF_PATTERNS = [
+  // theme オブジェクト経由
+  'theme.colors.',
+  'theme.typography.',
+  'theme.spacing[',
+  'theme.radii.',
+  'theme.shadows.',
+  'theme.transitions.',
+  'theme.mode',
+  'theme.interactive.',
+  'theme.chart.',
+  'theme.elevation.',
+  // トークン直接参照
+  'palette.',
+  'sc.',
+  'ct.',
+  // colorSystem ユーティリティ
+  'statusAlpha(',
+  'statusSolid(',
+  'status.',
+  // チャート共通
+  'STORE_COLORS',
+  'CATEGORY_COLORS',
+  'STATUS_RGB',
+  'TRACK_SHADOW',
+  'TOOLBAR_LABEL',
+]
+
+function isThemeContextLine(line: string): boolean {
+  return THEME_REF_PATTERNS.some((p) => line.includes(p))
+}
+
+/** ファイル内にパターン違反があるかチェックし、違反行リストを返す */
+function scanFile(filePath: string, pattern: RegExp): { relPath: string; violations: string[] } {
+  const relPath = rel(filePath)
+  const content = fs.readFileSync(filePath, 'utf-8')
+  const stripped = stripComments(content)
+  const lines = stripped.split('\n')
+  const violations: string[] = []
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+    if (isThemeContextLine(line)) continue
+    if (line.trimStart().startsWith('import ')) continue
+
+    const matches = line.match(pattern)
+    if (matches) {
+      violations.push(`${relPath}:${i + 1}`)
+    }
+  }
+
+  return { relPath, violations }
+}
+
+// ─── 違反ファイル数の凍結上限 ──────────────────────────
+// 現在の違反ファイル数を凍結。新規ファイルの追加で増えたら FAIL。
+// 既存ファイルを修正したら上限を下げること。
+
+/** hex 色違反を持つファイル数の上限 */
+const MAX_HEX_VIOLATING_FILES = 80
+
+/** rgba() 違反を持つファイル数の上限 */
+const MAX_RGBA_VIOLATING_FILES = 85
+
+/** font-size 違反を持つファイル数の上限 */
+const MAX_FONT_VIOLATING_FILES = 87
+
+// ─── テスト ────────────────────────────────────────────
+
+describe('デザインシステムガード', () => {
+  const styleFiles = collectFiles(PRESENTATION_DIR, '.styles.ts')
+  // colorSystem.ts と tokens.ts は定義元なので除外
+  const targetFiles = styleFiles.filter(
+    (f) => !f.includes('colorSystem') && !f.includes('tokens.ts'),
+  )
+
+  it('hex 色違反ファイル数が上限以下（新規ファイルでの増加禁止）', () => {
+    let violatingFileCount = 0
+    const violatingFiles: string[] = []
+
+    for (const file of targetFiles) {
+      const { relPath, violations } = scanFile(file, HEX_COLOR_PATTERN)
+      if (violations.length > 0) {
+        violatingFileCount++
+        violatingFiles.push(`${relPath} (${violations.length}箇所)`)
+      }
+    }
+
+    expect(
+      violatingFileCount,
+      `hex 色違反ファイル数: ${violatingFileCount}/${MAX_HEX_VIOLATING_FILES}。` +
+        `上限を超えています。新規ファイルでは theme.colors.* / palette.* / colorSystem を使用してください。\n` +
+        `違反ファイル:\n${violatingFiles.join('\n')}`,
+    ).toBeLessThanOrEqual(MAX_HEX_VIOLATING_FILES)
+  })
+
+  it('rgba() 違反ファイル数が上限以下（新規ファイルでの増加禁止）', () => {
+    let violatingFileCount = 0
+    const violatingFiles: string[] = []
+
+    for (const file of targetFiles) {
+      const { relPath, violations } = scanFile(file, RGBA_PATTERN)
+      if (violations.length > 0) {
+        violatingFileCount++
+        violatingFiles.push(`${relPath} (${violations.length}箇所)`)
+      }
+    }
+
+    expect(
+      violatingFileCount,
+      `rgba() 違反ファイル数: ${violatingFileCount}/${MAX_RGBA_VIOLATING_FILES}。` +
+        `上限を超えています。新規ファイルでは colorSystem の interactive.* / statusBg.* / statusAlpha() を使用してください。\n` +
+        `違反ファイル:\n${violatingFiles.join('\n')}`,
+    ).toBeLessThanOrEqual(MAX_RGBA_VIOLATING_FILES)
+  })
+
+  it('font-size 違反ファイル数が上限以下（新規ファイルでの増加禁止）', () => {
+    let violatingFileCount = 0
+    const violatingFiles: string[] = []
+
+    for (const file of targetFiles) {
+      const { relPath, violations } = scanFile(file, HARDCODED_FONT_SIZE)
+      if (violations.length > 0) {
+        violatingFileCount++
+        violatingFiles.push(`${relPath} (${violations.length}箇所)`)
+      }
+    }
+
+    expect(
+      violatingFileCount,
+      `font-size 違反ファイル数: ${violatingFileCount}/${MAX_FONT_VIOLATING_FILES}。` +
+        `上限を超えています。新規ファイルでは theme.typography.fontSize.* を使用してください。\n` +
+        `違反ファイル:\n${violatingFiles.join('\n')}`,
+    ).toBeLessThanOrEqual(MAX_FONT_VIOLATING_FILES)
+  })
+
+  // ─── Recharts → ECharts 移行ガード ──────────────────
+
+  /** Recharts import を持つチャート .tsx ファイル数の上限（移行完了: 0） */
+  const MAX_RECHARTS_FILES = 0
+
+  it('Recharts 使用チャート数が上限以下（新規チャートは ECharts 必須）', () => {
+    const chartFiles = [
+      ...collectFiles(path.join(PRESENTATION_DIR, 'components', 'charts'), '.tsx'),
+      ...collectFiles(path.join(PRESENTATION_DIR, 'pages'), '.tsx'),
+    ]
+    let rechartsCount = 0
+    const rechartsFiles: string[] = []
+
+    for (const file of chartFiles) {
+      const content = fs.readFileSync(file, 'utf-8')
+      if (content.includes("from 'recharts'")) {
+        rechartsCount++
+        rechartsFiles.push(rel(file))
+      }
+    }
+
+    expect(
+      rechartsCount,
+      `Recharts 使用ファイル数: ${rechartsCount}/${MAX_RECHARTS_FILES}。` +
+        `新規チャートは ECharts (EChart コンポーネント) を使用してください。\n` +
+        `Recharts ファイル:\n${rechartsFiles.join('\n')}`,
+    ).toBeLessThanOrEqual(MAX_RECHARTS_FILES)
+  })
+})

@@ -1,28 +1,26 @@
-import { useState, memo } from 'react'
-import {
-  ComposedChart,
-  BarChart,
-  Bar,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ReferenceLine,
-  Cell,
-} from 'recharts'
-import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
-import { Wrapper, HeaderRow, Title, TabGroup, Tab } from './GrossProfitAmountChart.styles'
-import { useChartTheme, useCurrencyFormatter, toComma, toPct } from './chartTheme'
-import { createChartTooltip } from './createChartTooltip'
+/**
+ * 粗利額累計推移チャート (ECharts)
+ */
+import { useState, useMemo, memo } from 'react'
+import { useTheme } from 'styled-components'
+import type { AppTheme } from '@/presentation/theme/theme'
+import { toPct } from './chartTheme'
 import { DualPeriodSlider } from './DualPeriodSlider'
 import { useDualPeriodRange } from './useDualPeriodRange'
 import type { DailyRecord } from '@/domain/models'
 import { calculateGrossProfitRate } from '@/domain/calculations/utils'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
+import { SegmentedControl } from '@/presentation/components/common'
+import { ChartCard } from './ChartCard'
+import { EChart, type EChartsOption } from './EChart'
+import { yenYAxis, standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
 
 type GpView = 'amountRate' | 'rateOnly'
+
+const VIEW_OPTIONS: readonly { value: GpView; label: string }[] = [
+  { value: 'amountRate', label: '額+率' },
+  { value: 'rateOnly', label: '率のみ' },
+]
 
 interface Props {
   daily: ReadonlyMap<number, DailyRecord>
@@ -32,46 +30,25 @@ interface Props {
   warningRate?: number
   year: number
   month: number
-  /** 前年の日次データ（粗利率の前年比較用） */
   prevYearDaily?: ReadonlyMap<string, { sales: number; discount: number; customers?: number }>
-  /** 前年の仕入コストマップ（日→仕入原価）。省略時は前年粗利率ラインを表示しない */
   prevYearCostMap?: ReadonlyMap<number, number>
 }
 
-/** 粗利推移チャート（額+率 / 率のみ 切替） */
-export const GrossProfitAmountChart = memo(function GrossProfitAmountChart({
-  daily,
-  daysInMonth,
-  grossProfitBudget,
-  targetRate,
-  warningRate,
-  year,
-  month,
-  prevYearDaily,
-  prevYearCostMap,
-}: Props) {
-  const ct = useChartTheme()
-  const fmt = useCurrencyFormatter()
-  const [gpView, setGpView] = useState<GpView>('amountRate')
-  const {
-    p1Start: rangeStart,
-    p1End: rangeEnd,
-    onP1Change: setRange,
-    p2Start,
-    p2End,
-    onP2Change,
-    p2Enabled,
-  } = useDualPeriodRange(daysInMonth)
-
-  let cumSales = 0
-  let cumCost = 0
-
-  // 前年粗利率ラインの計算（prevYearDaily + prevYearCostMap が両方ある場合のみ）
-  let prevCumSales = 0
-  let prevCumCost = 0
+function buildGpData(
+  daily: ReadonlyMap<number, DailyRecord>,
+  daysInMonth: number,
+  year: number,
+  month: number,
+  prevYearDaily?: ReadonlyMap<string, { sales: number }>,
+  prevYearCostMap?: ReadonlyMap<number, number>,
+) {
+  let cumSales = 0,
+    cumCost = 0,
+    prevCumSales = 0,
+    prevCumCost = 0
   const hasPrevGp = !!prevYearDaily && !!prevYearCostMap
+  const allData: { day: number; grossProfit: number; rate: number; prevRate: number | null }[] = []
 
-  const allData = []
   for (let d = 1; d <= daysInMonth; d++) {
     const rec = daily.get(d)
     if (rec) {
@@ -83,237 +60,197 @@ export const GrossProfitAmountChart = memo(function GrossProfitAmountChart({
 
     let prevRate: number | null = null
     if (hasPrevGp) {
-      const prevSales = prevYearDaily!.get(toDateKeyFromParts(year, month, d))?.sales ?? 0
-      const prevCostVal = prevYearCostMap!.get(d) ?? 0
-      prevCumSales += prevSales
-      prevCumCost += prevCostVal
+      prevCumSales += prevYearDaily!.get(toDateKeyFromParts(year, month, d))?.sales ?? 0
+      prevCumCost += prevYearCostMap!.get(d) ?? 0
       prevRate =
         prevCumSales > 0 ? calculateGrossProfitRate(prevCumSales - prevCumCost, prevCumSales) : null
     }
-
-    allData.push({
-      day: d,
-      grossProfit,
-      rate,
-      prevRate,
-      hasSales: rec ? rec.sales > 0 : false,
-    })
+    allData.push({ day: d, grossProfit, rate, prevRate })
   }
+  return allData
+}
 
-  const data = allData.filter((d) => d.day >= rangeStart && d.day <= rangeEnd)
+export const GrossProfitAmountChart = memo(function GrossProfitAmountChart({
+  daily,
+  daysInMonth,
+  targetRate,
+  warningRate,
+  year,
+  month,
+  prevYearDaily,
+  prevYearCostMap,
+}: Props) {
+  const theme = useTheme() as AppTheme
+  const [gpView, setGpView] = useState<GpView>('amountRate')
+  const {
+    p1Start: rangeStart,
+    p1End: rangeEnd,
+    onP1Change: setRange,
+    p2Start,
+    p2End,
+    onP2Change,
+    p2Enabled,
+  } = useDualPeriodRange(daysInMonth)
+
+  const allData = useMemo(
+    () => buildGpData(daily, daysInMonth, year, month, prevYearDaily, prevYearCostMap),
+    [daily, daysInMonth, year, month, prevYearDaily, prevYearCostMap],
+  )
+  const data = useMemo(
+    () => allData.filter((d) => d.day >= rangeStart && d.day <= rangeEnd),
+    [allData, rangeStart, rangeEnd],
+  )
+  const hasPrevGp = allData.some((d) => d.prevRate != null)
+
+  const option = useMemo<EChartsOption>(() => {
+    const days = data.map((d) => String(d.day))
+    const getBarColor = (rate: number) => {
+      if (rate >= targetRate) return theme.chart.barPositive
+      if (warningRate != null && rate >= warningRate) return theme.colors.palette.warningDark
+      return theme.chart.barNegative
+    }
+
+    if (gpView === 'rateOnly') {
+      const series: EChartsOption['series'] = [
+        {
+          name: '粗利率',
+          type: 'line',
+          data: data.map((d) => d.rate),
+          lineStyle: { color: theme.colors.palette.primary, width: 2.5 },
+          itemStyle: { color: theme.colors.palette.primary },
+          symbol: 'none',
+          markLine: {
+            data: [
+              {
+                yAxis: targetRate,
+                label: { formatter: `目標 ${toPct(targetRate)}`, position: 'end', fontSize: 9 },
+                lineStyle: { color: theme.chart.barPositive, type: 'dashed' },
+              },
+            ],
+            symbol: 'none',
+          },
+        },
+      ]
+      if (hasPrevGp) {
+        series.push({
+          name: '前年粗利率',
+          type: 'line',
+          data: data.map((d) => d.prevRate),
+          lineStyle: { color: theme.chart.previousYear, width: 1.5, type: 'dashed' },
+          itemStyle: { color: theme.chart.previousYear },
+          symbol: 'none',
+          connectNulls: true,
+        })
+      }
+      return {
+        grid: standardGrid(),
+        tooltip: standardTooltip(theme),
+        legend: standardLegend(theme),
+        xAxis: {
+          type: 'category',
+          data: days,
+          axisLabel: {
+            color: theme.colors.text3,
+            fontSize: 10,
+            fontFamily: theme.typography.fontFamily.mono,
+          },
+        },
+        yAxis: {
+          type: 'value',
+          axisLabel: {
+            formatter: (v: number) => toPct(v),
+            color: theme.colors.text3,
+            fontSize: 10,
+          },
+          axisLine: { show: false },
+          splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
+        },
+        series,
+      }
+    }
+
+    // amountRate view
+    const series: EChartsOption['series'] = [
+      {
+        name: '粗利額',
+        type: 'bar',
+        yAxisIndex: 0,
+        data: data.map((d) => ({
+          value: d.grossProfit,
+          itemStyle: { color: getBarColor(d.rate), opacity: 0.7, borderRadius: [2, 2, 0, 0] },
+        })),
+        barMaxWidth: 14,
+      },
+      {
+        name: '粗利率',
+        type: 'line',
+        yAxisIndex: 1,
+        data: data.map((d) => d.rate),
+        lineStyle: { color: theme.colors.palette.primary, width: 2 },
+        itemStyle: { color: theme.colors.palette.primary },
+        symbolSize: 3,
+      },
+    ]
+    if (hasPrevGp) {
+      series.push({
+        name: '前年粗利率',
+        type: 'line',
+        yAxisIndex: 1,
+        data: data.map((d) => d.prevRate),
+        lineStyle: { color: theme.chart.previousYear, width: 1.5, type: 'dashed' },
+        itemStyle: { color: theme.chart.previousYear },
+        symbol: 'none',
+        connectNulls: true,
+      })
+    }
+
+    return {
+      grid: standardGrid(),
+      tooltip: standardTooltip(theme),
+      legend: standardLegend(theme),
+      xAxis: {
+        type: 'category',
+        data: days,
+        axisLabel: {
+          color: theme.colors.text3,
+          fontSize: 10,
+          fontFamily: theme.typography.fontFamily.mono,
+        },
+      },
+      yAxis: [
+        yenYAxis(theme) as Record<string, unknown>,
+        {
+          type: 'value',
+          position: 'right',
+          axisLabel: {
+            formatter: (v: number) => toPct(v),
+            color: theme.colors.text3,
+            fontSize: 10,
+          },
+          axisLine: { show: false },
+          splitLine: { show: false },
+        },
+      ],
+      series,
+    }
+  }, [data, gpView, targetRate, warningRate, hasPrevGp, theme])
 
   const titleText =
     gpView === 'rateOnly'
       ? '粗利率推移（累計ベース）'
       : '粗利額累計推移（バー: 粗利額 / ライン: 粗利率）'
-
-  // 率のみビュー用: Y軸上限
-  const maxRate = Math.max(...data.filter((d) => d.hasSales).map((d) => d.rate), 0)
-  const yMax = Math.max(0.5, Math.ceil(maxRate * 10) / 10)
-
-  const getBarColor = (rate: number) => {
-    if (rate >= targetRate) return ct.colors.success
-    if (warningRate != null && rate >= warningRate) return ct.colors.warning
-    return ct.colors.danger
-  }
+  const toolbar = (
+    <SegmentedControl
+      options={VIEW_OPTIONS}
+      value={gpView}
+      onChange={setGpView}
+      ariaLabel="表示モード"
+    />
+  )
 
   return (
-    <Wrapper aria-label="粗利額チャート">
-      <HeaderRow>
-        <Title>{titleText}</Title>
-        <TabGroup>
-          <Tab $active={gpView === 'amountRate'} onClick={() => setGpView('amountRate')}>
-            額+率
-          </Tab>
-          <Tab $active={gpView === 'rateOnly'} onClick={() => setGpView('rateOnly')}>
-            率のみ
-          </Tab>
-        </TabGroup>
-      </HeaderRow>
-
-      {gpView === 'amountRate' ? (
-        <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="84%">
-          <ComposedChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
-            <defs>
-              <linearGradient id="gpGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={ct.colors.success} stopOpacity={0.85} />
-                <stop offset="100%" stopColor={ct.colors.success} stopOpacity={0.4} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
-            <XAxis
-              dataKey="day"
-              tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-              axisLine={{ stroke: ct.grid }}
-              tickLine={false}
-            />
-            <YAxis
-              yAxisId="left"
-              tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-              axisLine={false}
-              tickLine={false}
-              tickFormatter={fmt}
-              width={55}
-            />
-            <YAxis
-              yAxisId="right"
-              orientation="right"
-              tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-              axisLine={false}
-              tickLine={false}
-              tickFormatter={(v) => toPct(v, 0)}
-              width={40}
-            />
-            <Tooltip
-              content={createChartTooltip({
-                ct,
-                formatter: (value: unknown, name: string) => {
-                  if (name === 'rate') return [toPct(value as number), '粗利率']
-                  if (name === 'prevRate')
-                    return [value != null ? toPct(value as number) : '-', '前年粗利率']
-                  return [toComma(value as number), '粗利額累計']
-                },
-                labelFormatter: (label) => `${label}日`,
-              })}
-            />
-            <Legend
-              wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
-              formatter={(value) => {
-                const labels: Record<string, string> = {
-                  grossProfit: '粗利額累計',
-                  rate: '粗利率',
-                  prevRate: '前年粗利率',
-                }
-                return labels[value] ?? value
-              }}
-            />
-            {grossProfitBudget > 0 && (
-              <ReferenceLine
-                yAxisId="left"
-                y={grossProfitBudget}
-                stroke={ct.colors.warning}
-                strokeDasharray="4 4"
-                strokeWidth={1.5}
-                label={{
-                  value: `粗利予算 ${fmt(grossProfitBudget)}`,
-                  position: 'right',
-                  fill: ct.colors.warning,
-                  fontSize: ct.fontSize.xs,
-                  fontFamily: ct.monoFamily,
-                }}
-              />
-            )}
-            {targetRate > 0 && (
-              <ReferenceLine
-                yAxisId="right"
-                y={targetRate}
-                stroke={ct.colors.info}
-                strokeDasharray="6 3"
-                strokeWidth={1}
-                label={{
-                  value: `目標 ${toPct(targetRate)}`,
-                  position: 'left',
-                  fill: ct.colors.info,
-                  fontSize: ct.fontSize.xs,
-                  fontFamily: ct.monoFamily,
-                }}
-              />
-            )}
-            <Bar
-              yAxisId="left"
-              dataKey="grossProfit"
-              fill="url(#gpGrad)"
-              radius={[3, 3, 0, 0]}
-              maxBarSize={16}
-            />
-            <Line
-              yAxisId="right"
-              type="monotone"
-              dataKey="rate"
-              stroke={ct.colors.primary}
-              strokeWidth={2}
-              dot={false}
-              connectNulls
-            />
-            {hasPrevGp && (
-              <Line
-                yAxisId="right"
-                type="monotone"
-                dataKey="prevRate"
-                stroke={ct.colors.slate}
-                strokeWidth={1.5}
-                strokeDasharray="5 3"
-                dot={false}
-                connectNulls
-              />
-            )}
-          </ComposedChart>
-        </ResponsiveContainer>
-      ) : (
-        <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="84%">
-          <BarChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
-            <XAxis
-              dataKey="day"
-              tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-              axisLine={{ stroke: ct.grid }}
-              tickLine={false}
-            />
-            <YAxis
-              domain={[0, yMax]}
-              tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-              axisLine={false}
-              tickLine={false}
-              tickFormatter={(v) => toPct(v, 0)}
-              width={40}
-            />
-            <Tooltip
-              content={createChartTooltip({
-                ct,
-                formatter: (value: unknown) => [toPct(value as number), '粗利率'],
-                labelFormatter: (label) => `${label}日`,
-              })}
-            />
-            <ReferenceLine
-              y={targetRate}
-              stroke={ct.colors.success}
-              strokeDasharray="6 3"
-              strokeWidth={1.5}
-              label={{
-                value: `目標 ${toPct(targetRate)}`,
-                position: 'right',
-                fill: ct.colors.success,
-                fontSize: ct.fontSize.xs,
-                fontFamily: ct.monoFamily,
-              }}
-            />
-            {warningRate != null && warningRate > 0 && (
-              <ReferenceLine
-                y={warningRate}
-                stroke={ct.colors.warning}
-                strokeDasharray="4 4"
-                strokeWidth={1}
-                label={{
-                  value: `警告 ${toPct(warningRate)}`,
-                  position: 'right',
-                  fill: ct.colors.warning,
-                  fontSize: ct.fontSize.xs,
-                  fontFamily: ct.monoFamily,
-                }}
-              />
-            )}
-            <Bar dataKey="rate" radius={[3, 3, 0, 0]} maxBarSize={16}>
-              {data.map((entry, index) => (
-                <Cell
-                  key={index}
-                  fill={entry.hasSales ? getBarColor(entry.rate) : 'transparent'}
-                  fillOpacity={entry.hasSales ? 0.8 : 0}
-                />
-              ))}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
-      )}
+    <ChartCard title={titleText} toolbar={toolbar}>
+      <EChart option={option} height={280} ariaLabel="粗利推移チャート" />
       <DualPeriodSlider
         min={1}
         max={daysInMonth}
@@ -325,6 +262,6 @@ export const GrossProfitAmountChart = memo(function GrossProfitAmountChart({
         onP2Change={onP2Change}
         p2Enabled={p2Enabled}
       />
-    </Wrapper>
+    </ChartCard>
   )
 })

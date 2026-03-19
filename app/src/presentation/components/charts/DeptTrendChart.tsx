@@ -1,29 +1,27 @@
 /**
- * 部門KPI月別トレンドチャート
+ * 部門KPI月別トレンドチャート (ECharts)
  *
- * 複数月の department_kpi データから
- * 部門別の粗利率・売上実績の月次推移を表示する。
- *
- * マルチ月データロードが有効な場合、IndexedDB に保存された
- * 全月分の部門KPIを横断的に比較できる。
- *
- * 表示項目:
- * - 粗利率（実績）折れ線グラフ
- * - 売上実績棒グラフ
+ * パイプライン:
+ *   DuckDB Hook → DeptTrendChartLogic.ts → ECharts option → EChart
  */
-import { useMemo, useState, useCallback, memo } from 'react'
-import { ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
-import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
+import { useMemo, useState, memo } from 'react'
+import { useTheme } from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import {
-  useDuckDBDeptKpiTrend,
-  type DeptKpiMonthlyTrendRow,
-} from '@/application/hooks/useDuckDBQuery'
-import { useChartTheme, useCurrencyFormatter, STORE_COLORS, toAxisYen } from './chartTheme'
-import { createChartTooltip } from './createChartTooltip'
+import type { AppTheme } from '@/presentation/theme/theme'
+import { useDuckDBDeptKpiTrend } from '@/application/hooks/useDuckDBQuery'
+import { buildDeptTrendData, type DeptTrendChartPoint } from './DeptTrendChartLogic'
 import { useI18n } from '@/application/hooks/useI18n'
-import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
-import { Wrapper, Title, Subtitle, DeptSelector, DeptChip, ErrorMsg } from './DeptTrendChart.styles'
+import { ChartCard } from './ChartCard'
+import { ChartLoading, ChartError, ChartEmpty } from './ChartState'
+import { EChart, type EChartsOption } from './EChart'
+import {
+  yenYAxis,
+  standardGrid,
+  standardTooltip,
+  standardLegend,
+  toCommaYen,
+} from './echartsOptionBuilders'
+import { DeptSelector, DeptChip } from './DeptTrendChart.styles'
 
 interface Props {
   readonly duckConn: AsyncDuckDBConnection | null
@@ -33,47 +31,85 @@ interface Props {
   readonly month: number
 }
 
-interface MonthChartPoint {
-  readonly label: string
-  readonly [deptKey: string]: string | number | null
-}
+function buildOption(
+  chartData: readonly DeptTrendChartPoint[],
+  visibleDepts: readonly [string, string][],
+  theme: AppTheme,
+): EChartsOption {
+  const labels = chartData.map((d) => d.label)
+  const colors = theme.chart.series
 
-/**
- * トレンドデータをチャートデータに変換
- *
- * 行: 月 (label: "YYYY/MM")
- * 列: 部門ごとの粗利率 (gpRate_DeptCode) と売上 (sales_DeptCode)
- */
-function buildChartData(
-  rows: readonly DeptKpiMonthlyTrendRow[],
-  selectedDept: string | null,
-): {
-  chartData: MonthChartPoint[]
-  deptNames: Map<string, string>
-} {
-  const deptNames = new Map<string, string>()
-  const monthMap = new Map<string, Record<string, number | null>>()
+  const series: EChartsOption['series'] = []
+  visibleDepts.forEach(([code, name], i) => {
+    series.push({
+      name: `${name} 売上`,
+      type: 'bar',
+      yAxisIndex: 0,
+      data: chartData.map((d) => (d[`sales_${code}`] as number) ?? null),
+      itemStyle: { color: colors[i % colors.length], opacity: 0.4 },
+      barWidth: 8,
+    })
+    series.push({
+      name: `${name} 粗利率`,
+      type: 'line',
+      yAxisIndex: 1,
+      data: chartData.map((d) => (d[`gpRate_${code}`] as number) ?? null),
+      lineStyle: { color: colors[i % colors.length], width: 2 },
+      itemStyle: { color: colors[i % colors.length] },
+      symbolSize: 6,
+      connectNulls: true,
+    })
+  })
 
-  for (const row of rows) {
-    deptNames.set(row.deptCode, row.deptName)
-    const key = `${row.year}/${String(row.month).padStart(2, '0')}`
-    const existing = monthMap.get(key) ?? {}
-
-    if (!selectedDept || selectedDept === row.deptCode) {
-      existing[`gpRate_${row.deptCode}`] = Math.round(row.gpRateActual * 10000) / 100
-      existing[`sales_${row.deptCode}`] = Math.round(row.salesActual)
-    }
-
-    monthMap.set(key, existing)
+  return {
+    grid: standardGrid(),
+    tooltip: {
+      ...standardTooltip(theme),
+      trigger: 'axis',
+      formatter: (params: unknown) => {
+        const items = params as {
+          seriesName: string
+          value: number | null
+          color: string
+          name: string
+        }[]
+        if (!Array.isArray(items)) return ''
+        const header = `<div style="font-weight:600;margin-bottom:4px">${items[0]?.name ?? ''}</div>`
+        const rows = items
+          .filter((item) => item.value != null)
+          .map((item) => {
+            const val = item.seriesName.includes('粗利率')
+              ? `${item.value}%`
+              : toCommaYen(item.value!)
+            return `<div><span style="color:${item.color}">${item.seriesName}</span>: ${val}</div>`
+          })
+          .join('')
+        return header + rows
+      },
+    },
+    legend: { ...standardLegend(theme), type: 'scroll' },
+    xAxis: {
+      type: 'category',
+      data: labels,
+      axisLabel: {
+        color: theme.colors.text3,
+        fontSize: 10,
+        fontFamily: theme.typography.fontFamily.mono,
+      },
+      axisLine: { lineStyle: { color: theme.colors.border } },
+    },
+    yAxis: [
+      yenYAxis(theme) as Record<string, unknown>,
+      {
+        type: 'value',
+        position: 'right',
+        axisLabel: { formatter: (v: number) => `${v}%`, color: theme.colors.text3, fontSize: 10 },
+        axisLine: { show: false },
+        splitLine: { show: false },
+      },
+    ],
+    series,
   }
-
-  const sortedKeys = [...monthMap.keys()].sort()
-  const chartData: MonthChartPoint[] = sortedKeys.map((label) => ({
-    label,
-    ...monthMap.get(label)!,
-  }))
-
-  return { chartData, deptNames }
 }
 
 export const DeptTrendChart = memo(function DeptTrendChart({
@@ -83,12 +119,10 @@ export const DeptTrendChart = memo(function DeptTrendChart({
   year,
   month,
 }: Props) {
-  const ct = useChartTheme()
-  const fmt = useCurrencyFormatter()
+  const theme = useTheme() as AppTheme
   const { messages } = useI18n()
   const [selectedDept, setSelectedDept] = useState<string | null>(null)
 
-  // 過去12ヶ月分の yearMonth を構築
   const yearMonths = useMemo(() => {
     const months: { year: number; month: number }[] = []
     for (let i = 11; i >= 0; i--) {
@@ -112,47 +146,49 @@ export const DeptTrendChart = memo(function DeptTrendChart({
   const { chartData, deptNames } = useMemo(
     () =>
       trendData
-        ? buildChartData(trendData, selectedDept)
+        ? buildDeptTrendData(trendData, selectedDept)
         : { chartData: [], deptNames: new Map<string, string>() },
     [trendData, selectedDept],
   )
 
-  const handleDeptClick = useCallback((deptCode: string) => {
-    setSelectedDept((prev) => (prev === deptCode ? null : deptCode))
-  }, [])
+  const deptEntries = useMemo(() => [...deptNames.entries()], [deptNames])
+  const visibleDepts = useMemo(
+    () => (selectedDept ? deptEntries.filter(([code]) => code === selectedDept) : deptEntries),
+    [selectedDept, deptEntries],
+  )
+
+  const option = useMemo(
+    () => buildOption(chartData, visibleDepts, theme),
+    [chartData, visibleDepts, theme],
+  )
 
   if (error) {
     return (
-      <Wrapper aria-label="部門別KPIトレンド">
-        <Title>部門別KPIトレンド</Title>
-        <ErrorMsg>
-          {messages.errors.dataFetchFailed}: {error}
-        </ErrorMsg>
-      </Wrapper>
+      <ChartCard title="部門別KPIトレンド">
+        <ChartError message={`${messages.errors.dataFetchFailed}: ${error}`} />
+      </ChartCard>
+    )
+  }
+  if (isLoading && !trendData) {
+    return (
+      <ChartCard title="部門別KPIトレンド">
+        <ChartLoading />
+      </ChartCard>
+    )
+  }
+  if (!duckConn || duckDataVersion === 0 || loadedMonthCount < 2 || chartData.length === 0) {
+    return (
+      <ChartCard title="部門別KPIトレンド">
+        <ChartEmpty message="データをインポートしてください" />
+      </ChartCard>
     )
   }
 
-  if (isLoading && !trendData) {
-    return <ChartSkeleton />
-  }
-
-  // DuckDB未準備、またはマルチ月データが2ヶ月未満の場合は非表示
-  if (!duckConn || duckDataVersion === 0 || loadedMonthCount < 2 || chartData.length === 0) {
-    return <EmptyState>データをインポートしてください</EmptyState>
-  }
-
-  const deptEntries = [...deptNames.entries()]
-  const visibleDepts = selectedDept
-    ? deptEntries.filter(([code]) => code === selectedDept)
-    : deptEntries
-
   return (
-    <Wrapper aria-label="部門別KPIトレンド">
-      <Title>部門別KPIトレンド</Title>
-      <Subtitle>
-        粗利率（線）・売上実績（棒）の月次推移 | {loadedMonthCount}ヶ月分ロード済み
-      </Subtitle>
-
+    <ChartCard
+      title="部門別KPIトレンド"
+      subtitle={`粗利率（線）・売上実績（棒）の月次推移 | ${loadedMonthCount}ヶ月分ロード済み`}
+    >
       {deptEntries.length > 1 && (
         <DeptSelector>
           <DeptChip $active={selectedDept === null} onClick={() => setSelectedDept(null)}>
@@ -162,7 +198,7 @@ export const DeptTrendChart = memo(function DeptTrendChart({
             <DeptChip
               key={code}
               $active={selectedDept === code}
-              onClick={() => handleDeptClick(code)}
+              onClick={() => setSelectedDept((prev) => (prev === code ? null : code))}
             >
               {name}
             </DeptChip>
@@ -170,64 +206,7 @@ export const DeptTrendChart = memo(function DeptTrendChart({
         </DeptSelector>
       )}
 
-      <ResponsiveContainer width="100%" height={300}>
-        <ComposedChart data={chartData} margin={{ top: 4, right: 20, left: 10, bottom: 4 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
-          <XAxis
-            dataKey="label"
-            tick={{ fontSize: ct.fontSize.xs, fill: ct.textMuted }}
-            stroke={ct.grid}
-          />
-          <YAxis
-            yAxisId="sales"
-            tick={{ fontSize: ct.fontSize.xs, fill: ct.textMuted }}
-            stroke={ct.grid}
-            tickFormatter={toAxisYen}
-          />
-          <YAxis
-            yAxisId="gpRate"
-            orientation="right"
-            tick={{ fontSize: ct.fontSize.xs, fill: ct.textMuted }}
-            stroke={ct.grid}
-            tickFormatter={(v: number) => `${v}%`}
-          />
-          <Tooltip
-            content={createChartTooltip({
-              ct,
-              formatter: (value: unknown, name: string) => {
-                if (value == null) return ['-', null]
-                if (name?.includes('粗利率')) return [`${Number(value)}%`, null]
-                return [fmt(Number(value)), null]
-              },
-            })}
-          />
-          <Legend wrapperStyle={{ fontSize: '0.6rem' }} />
-
-          {visibleDepts.map(([code, name], i) => (
-            <Bar
-              key={`sales_${code}`}
-              yAxisId="sales"
-              dataKey={`sales_${code}`}
-              name={`${name} 売上`}
-              fill={STORE_COLORS[i % STORE_COLORS.length]}
-              opacity={0.4}
-              barSize={8}
-            />
-          ))}
-          {visibleDepts.map(([code, name], i) => (
-            <Line
-              key={`gpRate_${code}`}
-              yAxisId="gpRate"
-              dataKey={`gpRate_${code}`}
-              name={`${name} 粗利率`}
-              stroke={STORE_COLORS[i % STORE_COLORS.length]}
-              strokeWidth={2}
-              dot={{ r: 3, fill: STORE_COLORS[i % STORE_COLORS.length] }}
-              connectNulls
-            />
-          ))}
-        </ComposedChart>
-      </ResponsiveContainer>
-    </Wrapper>
+      <EChart option={option} height={300} ariaLabel="部門別KPIトレンドチャート" />
+    </ChartCard>
   )
 })

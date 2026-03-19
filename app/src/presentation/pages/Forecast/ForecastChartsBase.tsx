@@ -1,37 +1,95 @@
 /**
- * 基本チャート群 — 週別・曜日・店舗比較
+ * 基本チャート群 — 週別・曜日・店舗比較 (ECharts)
  */
-import { memo } from 'react'
+import { useMemo, memo } from 'react'
+import { useTheme } from 'styled-components'
+import type { AppTheme } from '@/presentation/theme/theme'
 import { calculateForecast } from '@/application/hooks/calculation'
 import type { DayOfWeekAverage } from '@/application/hooks/calculation'
 import { formatPercent } from '@/domain/formatting'
 import { calculateShare } from '@/domain/calculations/utils'
 import {
-  useChartTheme,
+  STORE_COLORS,
   toAxisYen,
   toComma,
   toPct,
-  STORE_COLORS,
 } from '@/presentation/components/charts/chartTheme'
-import { createChartTooltip } from '@/presentation/components/charts/createChartTooltip'
+import { EChart, type EChartsOption } from '@/presentation/components/charts/EChart'
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Cell,
-  Legend,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Radar,
-} from 'recharts'
-import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
+  standardGrid,
+  standardTooltip,
+  standardLegend,
+} from '@/presentation/components/charts/echartsOptionBuilders'
 import { ChartWrapper, ChartTitle } from './ForecastPage.styles'
 import { DOW_LABELS } from './ForecastPage.helpers'
+
+// ─── WeeklyChart ────────────────────────────────────────
+
+function buildWeeklyOption(
+  data: Record<string, string | number>[],
+  dowColors: string[],
+  theme: AppTheme,
+): EChartsOption {
+  const categories = data.map((d) => d.name as string)
+  return {
+    grid: standardGrid(),
+    tooltip: {
+      ...standardTooltip(theme),
+      trigger: 'axis' as const,
+      formatter: (params: unknown) => {
+        const items = params as { seriesName: string; value: number; color: string }[]
+        if (!Array.isArray(items) || items.length === 0) return ''
+        const header = `<div style="font-weight:600;margin-bottom:4px">${(items[0] as { name?: string }).name ?? ''}</div>`
+        const rows = items
+          .filter((item) => item.value > 0)
+          .map(
+            (item) =>
+              `<div style="display:flex;justify-content:space-between;gap:12px">` +
+              `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${item.color};margin-right:4px;vertical-align:middle"></span>` +
+              `<span>${item.seriesName}</span>` +
+              `<span style="font-weight:600;font-family:monospace;margin-left:auto">${toComma(item.value)}</span>` +
+              `</div>`,
+          )
+          .join('')
+        return header + rows
+      },
+    },
+    legend: standardLegend(theme),
+    xAxis: {
+      type: 'category' as const,
+      data: categories,
+      axisLabel: {
+        color: theme.colors.text3,
+        fontSize: 10,
+        fontFamily: theme.typography.fontFamily.primary,
+      },
+      axisLine: { lineStyle: { color: theme.colors.border } },
+      axisTick: { show: false },
+    },
+    yAxis: {
+      type: 'value' as const,
+      axisLabel: {
+        color: theme.colors.text3,
+        fontSize: 10,
+        fontFamily: theme.typography.fontFamily.mono,
+        formatter: (v: number) => toAxisYen(v),
+      },
+      axisLine: { show: false },
+      axisTick: { show: false },
+      splitLine: {
+        lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' as const },
+      },
+    },
+    series: DOW_LABELS.map((label, i) => ({
+      name: label,
+      type: 'bar' as const,
+      stack: 'dow',
+      data: data.map((d) => d[label] as number),
+      itemStyle: { color: dowColors[i], opacity: 0.8 },
+      barMaxWidth: 40,
+    })),
+  }
+}
 
 export const WeeklyChart = memo(function WeeklyChart({
   data,
@@ -40,50 +98,87 @@ export const WeeklyChart = memo(function WeeklyChart({
   data: Record<string, string | number>[]
   dowColors: string[]
 }) {
-  const ct = useChartTheme()
+  const theme = useTheme() as AppTheme
+  const option = useMemo(() => buildWeeklyOption(data, dowColors, theme), [data, dowColors, theme])
 
   return (
     <ChartWrapper>
       <ChartTitle>週別売上推移（曜日別）</ChartTitle>
-      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="85%">
-        <BarChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
-          <XAxis
-            dataKey="name"
-            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
-            axisLine={{ stroke: ct.grid }}
-            tickLine={false}
-          />
-          <YAxis
-            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-            axisLine={false}
-            tickLine={false}
-            tickFormatter={toAxisYen}
-            width={50}
-          />
-          <Tooltip
-            content={createChartTooltip({
-              ct,
-              formatter: (value, name) => [toComma((value as number) ?? 0), name ?? ''],
-            })}
-          />
-          <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
-          {DOW_LABELS.map((label, i) => (
-            <Bar
-              key={label}
-              dataKey={label}
-              stackId="dow"
-              fill={dowColors[i]}
-              fillOpacity={0.8}
-              radius={i === DOW_LABELS.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
-              maxBarSize={40}
-            />
-          ))}
-        </BarChart>
-      </ResponsiveContainer>
+      <EChart option={option} height={250} />
     </ChartWrapper>
   )
 })
+
+// ─── DayOfWeekChart ─────────────────────────────────────
+
+function buildDayOfWeekOption(
+  data: { name: string; average: number; index: number; count: number; color: string }[],
+  theme: AppTheme,
+): EChartsOption {
+  const categories = data.map((d) => d.name)
+  return {
+    grid: standardGrid(),
+    tooltip: {
+      ...standardTooltip(theme),
+      trigger: 'axis' as const,
+      formatter: (params: unknown) => {
+        const items = params as { dataIndex: number; value: number }[]
+        if (!Array.isArray(items) || items.length === 0) return ''
+        const idx = items[0].dataIndex
+        const d = data[idx]
+        return (
+          `<div style="font-weight:600;margin-bottom:4px">${d.name}</div>` +
+          `<div>曜日指数: ${formatPercent(d.index)}</div>` +
+          `<div>平均売上: ${toComma(d.average)}</div>`
+        )
+      },
+    },
+    xAxis: {
+      type: 'category' as const,
+      data: categories,
+      axisLabel: {
+        color: theme.colors.text3,
+        fontSize: 10,
+        fontFamily: theme.typography.fontFamily.primary,
+      },
+      axisLine: { lineStyle: { color: theme.colors.border } },
+      axisTick: { show: false },
+    },
+    yAxis: {
+      type: 'value' as const,
+      axisLabel: {
+        color: theme.colors.text3,
+        fontSize: 10,
+        fontFamily: theme.typography.fontFamily.mono,
+        formatter: (v: number) => toPct(v, 0),
+      },
+      axisLine: { show: false },
+      axisTick: { show: false },
+      splitLine: {
+        lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' as const },
+      },
+    },
+    series: [
+      {
+        type: 'bar' as const,
+        data: data.map((d) => ({
+          value: d.index,
+          itemStyle: { color: d.color, opacity: 0.8 },
+          label: {
+            show: true,
+            position: 'top' as const,
+            color: theme.colors.text2,
+            fontSize: 10,
+            fontFamily: theme.typography.fontFamily.mono,
+            formatter: () => toPct(d.index),
+          },
+        })),
+        barMaxWidth: 40,
+        itemStyle: { borderRadius: [4, 4, 0, 0] },
+      },
+    ],
+  }
+}
 
 export const DayOfWeekChart = memo(function DayOfWeekChart({
   averages,
@@ -92,7 +187,7 @@ export const DayOfWeekChart = memo(function DayOfWeekChart({
   averages: readonly DayOfWeekAverage[]
   dowColors: string[]
 }) {
-  const ct = useChartTheme()
+  const theme = useTheme() as AppTheme
 
   const totalAvg = averages.reduce((s, a) => s + a.averageSales, 0)
 
@@ -104,57 +199,80 @@ export const DayOfWeekChart = memo(function DayOfWeekChart({
     color: dowColors[i],
   }))
 
+  const option = useMemo(() => buildDayOfWeekOption(data, theme), [data, theme])
+
   return (
     <ChartWrapper>
       <ChartTitle>曜日指数（曜日別構成比）</ChartTitle>
-      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="85%">
-        <BarChart data={data} margin={{ top: 20, right: 12, left: 0, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
-          <XAxis
-            dataKey="name"
-            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
-            axisLine={{ stroke: ct.grid }}
-            tickLine={false}
-          />
-          <YAxis
-            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-            axisLine={false}
-            tickLine={false}
-            tickFormatter={(v) => toPct(v, 0)}
-            width={45}
-          />
-          <Tooltip
-            content={createChartTooltip({
-              ct,
-              formatter: (value, name) => {
-                if (name === 'index') return [formatPercent((value as number) ?? 0), '曜日指数']
-                return [toComma((value as number) ?? 0), '平均売上']
-              },
-            })}
-          />
-          <Bar
-            dataKey="index"
-            radius={[4, 4, 0, 0]}
-            maxBarSize={40}
-            label={{
-              position: 'top',
-              fill: ct.textSecondary,
-              fontSize: ct.fontSize.xs,
-              fontFamily: ct.monoFamily,
-              formatter: (v: unknown) => toPct(Number(v)),
-            }}
-          >
-            {data.map((entry, index) => (
-              <Cell key={index} fill={entry.color} fillOpacity={0.8} />
-            ))}
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
+      <EChart option={option} height={250} />
     </ChartWrapper>
   )
 })
 
-/** 店舗間比較レーダーチャート */
+// ─── StoreComparisonRadarChart ──────────────────────────
+
+function buildRadarOption(
+  storeForecasts: {
+    storeId: string
+    storeName: string
+    forecast: ReturnType<typeof calculateForecast>
+  }[],
+  theme: AppTheme,
+): EChartsOption {
+  const maxValues = DOW_LABELS.map((_, i) => {
+    let max = 0
+    for (const sf of storeForecasts) {
+      const v = sf.forecast.dayOfWeekAverages[i]?.averageSales ?? 0
+      if (v > max) max = v
+    }
+    return max
+  })
+  const indicator = DOW_LABELS.map((label, i) => ({
+    name: label,
+    max: Math.ceil(maxValues[i] * 1.2) || 1,
+  }))
+
+  return {
+    tooltip: {
+      ...standardTooltip(theme),
+      trigger: 'item' as const,
+    },
+    legend: {
+      ...standardLegend(theme),
+      data: storeForecasts.map((sf) => sf.storeName),
+    },
+    radar: {
+      indicator,
+      axisName: {
+        color: theme.colors.text3,
+        fontSize: 10,
+        fontFamily: theme.typography.fontFamily.primary,
+      },
+      splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.4 } },
+      splitArea: { show: false },
+      axisLine: { lineStyle: { color: theme.colors.border, opacity: 0.4 } },
+    },
+    series: [
+      {
+        type: 'radar' as const,
+        data: storeForecasts.map((sf, i) => ({
+          name: sf.storeName,
+          value: DOW_LABELS.map((_, di) => sf.forecast.dayOfWeekAverages[di]?.averageSales ?? 0),
+          lineStyle: {
+            color: STORE_COLORS[i % STORE_COLORS.length],
+            width: 2,
+          },
+          areaStyle: {
+            color: STORE_COLORS[i % STORE_COLORS.length],
+            opacity: 0.15,
+          },
+          itemStyle: { color: STORE_COLORS[i % STORE_COLORS.length] },
+        })),
+      },
+    ],
+  }
+}
+
 export const StoreComparisonRadarChart = memo(function StoreComparisonRadarChart({
   storeForecasts,
 }: {
@@ -164,68 +282,27 @@ export const StoreComparisonRadarChart = memo(function StoreComparisonRadarChart
     forecast: ReturnType<typeof calculateForecast>
   }[]
 }) {
-  const ct = useChartTheme()
-
-  // Build radar data from day-of-week averages
-  const radarData = DOW_LABELS.map((label, i) => {
-    const entry: Record<string, string | number> = { subject: label }
-    storeForecasts.forEach((sf) => {
-      entry[sf.storeName] = sf.forecast.dayOfWeekAverages[i]?.averageSales ?? 0
-    })
-    return entry
-  })
+  const theme = useTheme() as AppTheme
+  const option = useMemo(() => buildRadarOption(storeForecasts, theme), [storeForecasts, theme])
 
   return (
     <ChartWrapper>
       <ChartTitle>店舗間 曜日別売上レーダー</ChartTitle>
-      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="85%">
-        <RadarChart data={radarData} margin={{ top: 4, right: 30, left: 30, bottom: 4 }}>
-          <PolarGrid stroke={ct.grid} strokeOpacity={0.4} />
-          <PolarAngleAxis
-            dataKey="subject"
-            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
-          />
-          <PolarRadiusAxis
-            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-            tickFormatter={toAxisYen}
-          />
-          {storeForecasts.map((sf, i) => (
-            <Radar
-              key={sf.storeId}
-              name={sf.storeName}
-              dataKey={sf.storeName}
-              stroke={STORE_COLORS[i % STORE_COLORS.length]}
-              fill={STORE_COLORS[i % STORE_COLORS.length]}
-              fillOpacity={0.15}
-              strokeWidth={2}
-            />
-          ))}
-          <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
-          <Tooltip
-            content={createChartTooltip({
-              ct,
-              formatter: (value) => [toComma((value as number) ?? 0), ''],
-            })}
-          />
-        </RadarChart>
-      </ResponsiveContainer>
+      <EChart option={option} height={250} />
     </ChartWrapper>
   )
 })
 
-/** 店舗間比較バーチャート */
-export const StoreComparisonBarChart = memo(function StoreComparisonBarChart({
-  storeForecasts,
-}: {
+// ─── StoreComparisonBarChart ────────────────────────────
+
+function buildStoreBarOption(
   storeForecasts: {
     storeId: string
     storeName: string
     forecast: ReturnType<typeof calculateForecast>
-  }[]
-}) {
-  const ct = useChartTheme()
-
-  // Build grouped bar data per week
+  }[],
+  theme: AppTheme,
+): EChartsOption {
   const data =
     storeForecasts[0]?.forecast.weeklySummaries.map((w, wi) => {
       const entry: Record<string, string | number> = { name: `第${w.weekNumber}週` }
@@ -236,44 +313,86 @@ export const StoreComparisonBarChart = memo(function StoreComparisonBarChart({
       return entry
     }) ?? []
 
+  const categories = data.map((d) => d.name as string)
+
+  return {
+    grid: standardGrid(),
+    tooltip: {
+      ...standardTooltip(theme),
+      trigger: 'axis' as const,
+      formatter: (params: unknown) => {
+        const items = params as { seriesName: string; value: number; color: string; name: string }[]
+        if (!Array.isArray(items) || items.length === 0) return ''
+        const header = `<div style="font-weight:600;margin-bottom:4px">${items[0].name}</div>`
+        const rows = items
+          .map(
+            (item) =>
+              `<div style="display:flex;justify-content:space-between;gap:12px">` +
+              `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${item.color};margin-right:4px;vertical-align:middle"></span>` +
+              `<span>${item.seriesName}</span>` +
+              `<span style="font-weight:600;font-family:monospace;margin-left:auto">${toComma(item.value)}</span>` +
+              `</div>`,
+          )
+          .join('')
+        return header + rows
+      },
+    },
+    legend: standardLegend(theme),
+    xAxis: {
+      type: 'category' as const,
+      data: categories,
+      axisLabel: {
+        color: theme.colors.text3,
+        fontSize: 10,
+        fontFamily: theme.typography.fontFamily.primary,
+      },
+      axisLine: { lineStyle: { color: theme.colors.border } },
+      axisTick: { show: false },
+    },
+    yAxis: {
+      type: 'value' as const,
+      axisLabel: {
+        color: theme.colors.text3,
+        fontSize: 10,
+        fontFamily: theme.typography.fontFamily.mono,
+        formatter: (v: number) => toAxisYen(v),
+      },
+      axisLine: { show: false },
+      axisTick: { show: false },
+      splitLine: {
+        lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' as const },
+      },
+    },
+    series: storeForecasts.map((sf, i) => ({
+      name: sf.storeName,
+      type: 'bar' as const,
+      data: data.map((d) => d[sf.storeName] as number),
+      itemStyle: {
+        color: STORE_COLORS[i % STORE_COLORS.length],
+        opacity: 0.8,
+        borderRadius: [4, 4, 0, 0],
+      },
+      barMaxWidth: 30,
+    })),
+  }
+}
+
+export const StoreComparisonBarChart = memo(function StoreComparisonBarChart({
+  storeForecasts,
+}: {
+  storeForecasts: {
+    storeId: string
+    storeName: string
+    forecast: ReturnType<typeof calculateForecast>
+  }[]
+}) {
+  const theme = useTheme() as AppTheme
+  const option = useMemo(() => buildStoreBarOption(storeForecasts, theme), [storeForecasts, theme])
+
   return (
     <ChartWrapper>
       <ChartTitle>店舗間 週別売上比較</ChartTitle>
-      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="85%">
-        <BarChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
-          <XAxis
-            dataKey="name"
-            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
-            axisLine={{ stroke: ct.grid }}
-            tickLine={false}
-          />
-          <YAxis
-            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-            axisLine={false}
-            tickLine={false}
-            tickFormatter={toAxisYen}
-            width={50}
-          />
-          <Tooltip
-            content={createChartTooltip({
-              ct,
-              formatter: (value, name) => [toComma((value as number) ?? 0), name ?? ''],
-            })}
-          />
-          <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
-          {storeForecasts.map((sf, i) => (
-            <Bar
-              key={sf.storeId}
-              dataKey={sf.storeName}
-              fill={STORE_COLORS[i % STORE_COLORS.length]}
-              fillOpacity={0.8}
-              radius={[4, 4, 0, 0]}
-              maxBarSize={30}
-            />
-          ))}
-        </BarChart>
-      </ResponsiveContainer>
+      <EChart option={option} height={250} />
     </ChartWrapper>
   )
 })

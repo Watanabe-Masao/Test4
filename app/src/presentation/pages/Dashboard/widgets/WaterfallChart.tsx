@@ -1,18 +1,14 @@
 import { memo, useMemo } from 'react'
+import { useTheme } from 'styled-components'
+import type { AppTheme } from '@/presentation/theme/theme'
+import { EChart, type EChartsOption } from '@/presentation/components/charts/EChart'
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Cell,
-  ReferenceLine,
-  LabelList,
-} from 'recharts'
-import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
-import { useChartTheme, useCurrencyFormatter, toAxisYen } from '@/presentation/components/charts'
-import { createChartTooltip } from '@/presentation/components/charts/createChartTooltip'
+  yenYAxis,
+  standardGrid,
+  standardTooltip,
+  toCommaYen,
+} from '@/presentation/components/charts/echartsOptionBuilders'
+import { useCurrencyFormatter } from '@/presentation/components/charts/chartTheme'
 import type { WidgetContext } from './types'
 import { sc } from '@/presentation/theme/semanticColors'
 import { Wrapper, Title } from './WaterfallChart.styles'
@@ -31,8 +27,8 @@ export const WaterfallChartWidget = memo(function WaterfallChartWidget({
 }: {
   ctx: WidgetContext
 }) {
-  const { result: r, fmtCurrency } = ctx
-  const ct = useChartTheme()
+  const { result: r } = ctx
+  const theme = useTheme() as AppTheme
   const fmt = useCurrencyFormatter()
 
   const data = useMemo(() => {
@@ -93,64 +89,70 @@ export const WaterfallChartWidget = memo(function WaterfallChartWidget({
     return items
   }, [r])
 
-  const colors = {
-    positive: sc.positive,
-    negative: sc.negative,
-    total: ct.colors.primary,
-  }
+  const option = useMemo((): EChartsOption => {
+    const names = data.map((d) => d.name)
+    return {
+      grid: { ...standardGrid(), top: 30 },
+      tooltip: {
+        ...standardTooltip(theme),
+        trigger: 'axis' as const,
+        formatter: (params: unknown) => {
+          const arr = Array.isArray(params) ? params : [params]
+          const p = arr[0] as { dataIndex: number } | undefined
+          if (!p) return ''
+          const item = data[p.dataIndex]
+          if (!item) return ''
+          return `${item.name}<br/>${toCommaYen(item.value)}`
+        },
+      },
+      xAxis: {
+        type: 'category' as const,
+        data: names,
+        axisLabel: {
+          color: theme.colors.text3,
+          fontSize: 10,
+          fontFamily: theme.typography.fontFamily.primary,
+        },
+        axisLine: { lineStyle: { color: theme.colors.border } },
+        axisTick: { show: false },
+      },
+      yAxis: yenYAxis(theme),
+      series: [
+        {
+          type: 'bar' as const,
+          data: data.map((d) => {
+            const color = d.isTotal
+              ? theme.colors.palette.primary
+              : d.value >= 0
+                ? sc.positive
+                : sc.negative
+            return {
+              value: [d.base, d.base + d.bar],
+              itemStyle: { color, opacity: 0.85 },
+            }
+          }),
+          barWidth: '60%',
+          label: {
+            show: true,
+            position: 'top' as const,
+            formatter: (params: unknown) => {
+              const p = params as { dataIndex: number }
+              const item = data[p.dataIndex]
+              return item ? fmt(item.value) : ''
+            },
+            fontSize: 9,
+            color: theme.colors.text,
+            fontFamily: theme.typography.fontFamily.mono,
+          },
+        },
+      ],
+    }
+  }, [data, theme, fmt])
 
   return (
     <Wrapper>
       <Title>粗利益ウォーターフォール（要因分解）</Title>
-      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={340}>
-        <BarChart data={data} margin={{ top: 20, right: 20, left: 20, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} vertical={false} />
-          <XAxis
-            dataKey="name"
-            tick={{ fontSize: ct.fontSize.sm, fill: ct.text, fontFamily: ct.fontFamily }}
-            axisLine={{ stroke: ct.grid }}
-            tickLine={false}
-          />
-          <YAxis
-            tick={{ fontSize: ct.fontSize.xs, fill: ct.textSecondary, fontFamily: ct.monoFamily }}
-            axisLine={false}
-            tickLine={false}
-            tickFormatter={toAxisYen}
-          />
-          <Tooltip
-            content={createChartTooltip({
-              ct,
-              formatter: (_value, name, entry) => {
-                if (name === 'base') return [null, null]
-                const item = entry.payload as WaterfallItem | undefined
-                if (!item) return ['-', '-']
-                return [fmtCurrency(item.value), item.name]
-              },
-            })}
-          />
-          <ReferenceLine y={0} stroke={ct.grid} />
-          {/* Invisible base bar */}
-          <Bar dataKey="base" stackId="waterfall" fill="transparent" isAnimationActive={false} />
-          {/* Visible bar */}
-          <Bar dataKey="bar" stackId="waterfall" radius={[3, 3, 0, 0]}>
-            <LabelList
-              dataKey="value"
-              position="top"
-              formatter={(v: unknown) => fmt(Number(v))}
-              style={{ fontSize: ct.fontSize.xs, fill: ct.text, fontFamily: ct.monoFamily }}
-            />
-            {data.map((item, idx) => (
-              <Cell
-                key={idx}
-                fill={
-                  item.isTotal ? colors.total : item.value >= 0 ? colors.positive : colors.negative
-                }
-                opacity={0.85}
-              />
-            ))}
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
+      <EChart option={option} height={340} ariaLabel="粗利益ウォーターフォールチャート" />
     </Wrapper>
   )
 })

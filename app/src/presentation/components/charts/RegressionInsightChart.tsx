@@ -1,19 +1,10 @@
+/**
+ * 回帰分析インサイトチャート (ECharts)
+ */
 import { useMemo, useState, memo } from 'react'
-import {
-  ComposedChart,
-  Scatter,
-  Line,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ReferenceLine,
-} from 'recharts'
-import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
-import { useChartTheme, toComma, toManYen, toPct } from './chartTheme'
-import { createChartTooltip } from './createChartTooltip'
+import { useTheme } from 'styled-components'
+import type { AppTheme } from '@/presentation/theme/theme'
+import { toComma, toManYen, toPct } from './chartTheme'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import {
@@ -24,21 +15,25 @@ import {
 } from '@/application/hooks/useStatistics'
 import { safeDivide } from '@/domain/calculations/utils'
 import type { StoreResult } from '@/domain/models'
-import { ChartHelpButton } from './ChartHeader'
 import { CHART_GUIDES } from './chartGuides'
+import { SegmentedControl } from '@/presentation/components/common'
+import { ChartCard } from './ChartCard'
+import { ChartEmpty } from './ChartState'
+import { EChart, type EChartsOption } from './EChart'
+import { standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
 import {
-  Wrapper,
-  HeaderRow,
-  Title,
   StatRow,
   StatBadge,
-  ViewToggle,
-  ViewBtn,
   ProjectionTable,
   ProjectionCard,
 } from './RegressionInsightChart.styles'
 
 type ViewMode = 'regression' | 'residual'
+
+const VIEW_OPTIONS: readonly { value: ViewMode; label: string }[] = [
+  { value: 'regression', label: '回帰+信頼区間' },
+  { value: 'residual', label: '残差プロット' },
+]
 
 interface Props {
   result: StoreResult
@@ -51,26 +46,27 @@ export const RegressionInsightChart = memo(function RegressionInsightChart({
   year,
   month,
 }: Props) {
-  const ct = useChartTheme()
+  const theme = useTheme() as AppTheme
   const [viewMode, setViewMode] = useState<ViewMode>('regression')
 
   const { chartData, reg, projection, stats } = useMemo(() => {
     const dailySalesMap = new Map<number, number>()
     const salesValues: number[] = []
-
     for (const [day, rec] of result.daily) {
       if (rec.sales > 0) {
         dailySalesMap.set(day, rec.sales)
         salesValues.push(rec.sales)
       }
     }
-
     const regResult = linearRegression(dailySalesMap)
     const wma = calculateWMA(dailySalesMap)
     const proj = calculateMonthEndProjection(year, month, dailySalesMap)
 
-    // チャートデータ作成
     const wmaMap = new Map(wma.map((w) => [w.day, w.wma]))
+    const { stdDev } = salesValues.length > 0 ? calculateStdDev(salesValues) : { stdDev: 0 }
+    const z95 = 1.96
+    const se = safeDivide(stdDev, Math.sqrt(salesValues.length), stdDev)
+
     const data: {
       day: number
       sales: number
@@ -80,87 +76,224 @@ export const RegressionInsightChart = memo(function RegressionInsightChart({
       ciUpper: number
       ciLower: number
     }[] = []
-
-    const { stdDev } = salesValues.length > 0 ? calculateStdDev(salesValues) : { stdDev: 0 }
-    const z95 = 1.96
-    const se = safeDivide(stdDev, Math.sqrt(salesValues.length), stdDev)
-
     for (const [day, rec] of result.daily) {
-      const sales = rec.sales
-      if (sales <= 0) continue
+      if (rec.sales <= 0) continue
       const regVal = regResult.slope * day + regResult.intercept
-      const wmaVal = wmaMap.get(day) ?? null
-
       data.push({
         day,
-        sales,
+        sales: rec.sales,
         regression: regVal,
-        wma: wmaVal,
-        residual: sales - regVal,
+        wma: wmaMap.get(day) ?? null,
+        residual: rec.sales - regVal,
         ciUpper: regVal + z95 * se,
         ciLower: Math.max(0, regVal - z95 * se),
       })
     }
     data.sort((a, b) => a.day - b.day)
 
-    // 統計情報
-    const rSquaredPct = toPct(regResult.rSquared)
-    const dailyTrend = regResult.slope
-    const avgSales =
-      salesValues.length > 0 ? salesValues.reduce((s, v) => s + v, 0) / salesValues.length : 0
-
     return {
       chartData: data,
       reg: regResult,
-      // wma used via wmaMap above
       projection: proj,
-      stats: { rSquaredPct, dailyTrend, stdDev, avgSales },
+      stats: {
+        rSquaredPct: toPct(regResult.rSquared),
+        dailyTrend: regResult.slope,
+        stdDev,
+        avgSales:
+          salesValues.length > 0 ? salesValues.reduce((s, v) => s + v, 0) / salesValues.length : 0,
+      },
     }
   }, [result, year, month])
 
+  const option = useMemo<EChartsOption>(() => {
+    const days = chartData.map((d) => String(d.day))
+
+    if (viewMode === 'regression') {
+      return {
+        grid: standardGrid(),
+        tooltip: {
+          ...standardTooltip(theme),
+          formatter: (params: unknown) => {
+            const items = params as { seriesName: string; value: number | null; name: string }[]
+            if (!Array.isArray(items)) return ''
+            const header = `<div style="font-weight:600">${items[0]?.name}日</div>`
+            return (
+              header +
+              items
+                .filter((i) => i.value != null)
+                .map(
+                  (i) => `<div>${i.seriesName}: ${toComma(Math.round(i.value as number))}円</div>`,
+                )
+                .join('')
+            )
+          },
+        },
+        legend: standardLegend(theme),
+        xAxis: {
+          type: 'category',
+          data: days,
+          axisLabel: {
+            color: theme.colors.text3,
+            fontSize: 10,
+            fontFamily: theme.typography.fontFamily.mono,
+            formatter: (v: string) => `${v}日`,
+          },
+        },
+        yAxis: {
+          type: 'value',
+          axisLabel: {
+            formatter: (v: number) => toManYen(v),
+            color: theme.colors.text3,
+            fontSize: 10,
+          },
+          axisLine: { show: false },
+          splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
+        },
+        series: [
+          {
+            name: '信頼上限',
+            type: 'line',
+            data: chartData.map((d) => d.ciUpper),
+            lineStyle: { opacity: 0 },
+            areaStyle: { color: `${theme.colors.palette.primary}14` },
+            symbol: 'none',
+            stack: 'ci',
+          },
+          {
+            name: '信頼下限',
+            type: 'line',
+            data: chartData.map((d) => d.ciLower),
+            lineStyle: { opacity: 0 },
+            areaStyle: { color: theme.colors.bg3 },
+            symbol: 'none',
+            stack: 'ci',
+          },
+          {
+            name: '回帰直線',
+            type: 'line',
+            data: chartData.map((d) => d.regression),
+            lineStyle: { color: theme.colors.palette.primary, width: 2, type: 'dashed' },
+            itemStyle: { color: theme.colors.palette.primary },
+            symbol: 'none',
+          },
+          {
+            name: '加重移動平均',
+            type: 'line',
+            data: chartData.map((d) => d.wma),
+            lineStyle: { color: theme.colors.palette.orange, width: 1.5 },
+            itemStyle: { color: theme.colors.palette.orange },
+            symbol: 'none',
+          },
+          {
+            name: '日別売上',
+            type: 'scatter',
+            data: chartData.map((d) => d.sales),
+            itemStyle: { color: theme.chart.barPositive, opacity: 0.7 },
+            symbolSize: 6,
+          },
+        ],
+      }
+    }
+
+    // Residual view
+    return {
+      grid: standardGrid(),
+      tooltip: standardTooltip(theme),
+      legend: standardLegend(theme),
+      xAxis: {
+        type: 'category',
+        data: days,
+        axisLabel: {
+          color: theme.colors.text3,
+          fontSize: 10,
+          fontFamily: theme.typography.fontFamily.mono,
+          formatter: (v: string) => `${v}日`,
+        },
+      },
+      yAxis: {
+        type: 'value',
+        name: '残差',
+        nameLocation: 'middle',
+        nameGap: 45,
+        axisLabel: {
+          formatter: (v: number) => toManYen(v),
+          color: theme.colors.text3,
+          fontSize: 10,
+        },
+        axisLine: { show: false },
+        splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
+      },
+      series: [
+        {
+          name: '残差',
+          type: 'scatter',
+          data: chartData.map((d) => d.residual),
+          itemStyle: { color: theme.colors.palette.infoDark, opacity: 0.7 },
+          symbolSize: 6,
+          markLine: {
+            data: [
+              { yAxis: 0, lineStyle: { color: theme.colors.palette.slate, type: 'dashed' } },
+              {
+                yAxis: stats.stdDev,
+                label: { formatter: '+1σ', fontSize: 8 },
+                lineStyle: {
+                  color: theme.colors.palette.warningDark,
+                  type: 'dashed',
+                  opacity: 0.5,
+                },
+              },
+              {
+                yAxis: -stats.stdDev,
+                label: { formatter: '-1σ', fontSize: 8 },
+                lineStyle: {
+                  color: theme.colors.palette.warningDark,
+                  type: 'dashed',
+                  opacity: 0.5,
+                },
+              },
+              {
+                yAxis: stats.stdDev * 2,
+                label: { formatter: '+2σ', fontSize: 8 },
+                lineStyle: { color: theme.colors.palette.dangerDark, type: 'dashed', opacity: 0.3 },
+              },
+              {
+                yAxis: -stats.stdDev * 2,
+                label: { formatter: '-2σ', fontSize: 8 },
+                lineStyle: { color: theme.colors.palette.dangerDark, type: 'dashed', opacity: 0.3 },
+              },
+            ],
+            symbol: 'none',
+          },
+        },
+      ],
+    }
+  }, [chartData, viewMode, stats, theme])
+
   if (chartData.length < 2) {
     return (
-      <Wrapper aria-label="回帰分析チャート">
-        <HeaderRow>
-          <Title>
-            回帰分析インサイト
-            <ChartHelpButton guide={CHART_GUIDES['regression-insight']} />
-          </Title>
-        </HeaderRow>
-        <div
-          style={{
-            padding: '40px',
-            textAlign: 'center',
-            color: ct.textMuted,
-            fontSize: ct.fontSize.sm,
-          }}
-        >
-          データが不足しています（最低2日分必要）
-        </div>
-      </Wrapper>
+      <ChartCard title="回帰分析インサイト" guide={CHART_GUIDES['regression-insight']}>
+        <ChartEmpty message="データが不足しています（最低2日分必要）" />
+      </ChartCard>
     )
   }
 
   const rColor = reg.rSquared >= 0.7 ? sc.positive : reg.rSquared >= 0.4 ? sc.caution : sc.negative
   const trendLabel = reg.slope > 0 ? '上昇' : reg.slope < 0 ? '下降' : '横ばい'
+  const toolbar = (
+    <SegmentedControl
+      options={VIEW_OPTIONS}
+      value={viewMode}
+      onChange={setViewMode}
+      ariaLabel="表示モード"
+    />
+  )
 
   return (
-    <Wrapper aria-label="回帰分析チャート">
-      <HeaderRow>
-        <Title>
-          回帰分析インサイト — 予測の信頼性と手法比較
-          <ChartHelpButton guide={CHART_GUIDES['regression-insight']} />
-        </Title>
-        <ViewToggle>
-          <ViewBtn $active={viewMode === 'regression'} onClick={() => setViewMode('regression')}>
-            回帰+信頼区間
-          </ViewBtn>
-          <ViewBtn $active={viewMode === 'residual'} onClick={() => setViewMode('residual')}>
-            残差プロット
-          </ViewBtn>
-        </ViewToggle>
-      </HeaderRow>
-
+    <ChartCard
+      title="回帰分析インサイト — 予測の信頼性と手法比較"
+      guide={CHART_GUIDES['regression-insight']}
+      toolbar={toolbar}
+    >
       <StatRow>
         <StatBadge $color={rColor}>R² = {stats.rSquaredPct}（予測の説明力）</StatBadge>
         <StatBadge $color={sc.cond(reg.slope >= 0)}>
@@ -183,154 +316,7 @@ export const RegressionInsightChart = memo(function RegressionInsightChart({
         </ProjectionCard>
       </ProjectionTable>
 
-      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="72%">
-        <ComposedChart data={chartData} margin={{ top: 8, right: 20, left: 8, bottom: 8 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
-          <XAxis
-            dataKey="day"
-            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-            axisLine={{ stroke: ct.grid }}
-            tickLine={false}
-            tickFormatter={(v: number) => `${v}日`}
-          />
-
-          {viewMode === 'regression' ? (
-            <>
-              <YAxis
-                tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-                axisLine={false}
-                tickLine={false}
-                width={55}
-                tickFormatter={(v: number) => toManYen(v)}
-              />
-              <Tooltip
-                content={createChartTooltip({
-                  ct,
-                  formatter: (value, name) => [toComma(Math.round(value as number)) + '円', name],
-                  labelFormatter: (label) => `${label}日`,
-                })}
-              />
-
-              {/* 95% 信頼区間バンド */}
-              <Area
-                type="monotone"
-                dataKey="ciUpper"
-                stroke="none"
-                fill={ct.colors.primary}
-                fillOpacity={0.08}
-                name="信頼上限"
-                legendType="none"
-              />
-              <Area
-                type="monotone"
-                dataKey="ciLower"
-                stroke="none"
-                fill={ct.bg3}
-                fillOpacity={1}
-                name="信頼下限"
-                legendType="none"
-              />
-
-              {/* 回帰直線 */}
-              <Line
-                type="monotone"
-                dataKey="regression"
-                name="回帰直線"
-                stroke={ct.colors.primary}
-                strokeWidth={2}
-                strokeDasharray="6 3"
-                dot={false}
-              />
-
-              {/* WMA */}
-              <Line
-                type="monotone"
-                dataKey="wma"
-                name="加重移動平均"
-                stroke={ct.colors.orange}
-                strokeWidth={1.5}
-                dot={false}
-              />
-
-              {/* 実績散布図 */}
-              <Scatter
-                dataKey="sales"
-                name="日別売上"
-                fill={ct.colors.success}
-                fillOpacity={0.7}
-                shape="circle"
-              />
-
-              <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
-            </>
-          ) : (
-            <>
-              <YAxis
-                tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-                axisLine={false}
-                tickLine={false}
-                width={55}
-                tickFormatter={(v: number) => toManYen(v)}
-                label={{
-                  value: '残差（実績-回帰値）',
-                  angle: -90,
-                  position: 'insideLeft',
-                  offset: 10,
-                  fontSize: ct.fontSize.xs,
-                  fill: ct.textMuted,
-                }}
-              />
-              <Tooltip
-                content={createChartTooltip({
-                  ct,
-                  formatter: (value, name) => [toComma(Math.round(value as number)) + '円', name],
-                  labelFormatter: (label) => `${label}日`,
-                })}
-              />
-
-              <ReferenceLine y={0} stroke={ct.colors.slate} strokeDasharray="6 4" />
-              <ReferenceLine
-                y={stats.stdDev}
-                stroke={ct.colors.warning}
-                strokeDasharray="3 3"
-                strokeOpacity={0.5}
-                label={{ value: '+1σ', fontSize: 8, fill: ct.textMuted }}
-              />
-              <ReferenceLine
-                y={-stats.stdDev}
-                stroke={ct.colors.warning}
-                strokeDasharray="3 3"
-                strokeOpacity={0.5}
-                label={{ value: '-1σ', fontSize: 8, fill: ct.textMuted }}
-              />
-              <ReferenceLine
-                y={stats.stdDev * 2}
-                stroke={ct.colors.danger}
-                strokeDasharray="3 3"
-                strokeOpacity={0.3}
-                label={{ value: '+2σ', fontSize: 8, fill: ct.textMuted }}
-              />
-              <ReferenceLine
-                y={-stats.stdDev * 2}
-                stroke={ct.colors.danger}
-                strokeDasharray="3 3"
-                strokeOpacity={0.3}
-                label={{ value: '-2σ', fontSize: 8, fill: ct.textMuted }}
-              />
-
-              <Scatter
-                dataKey="residual"
-                name="残差"
-                fill={ct.colors.info}
-                fillOpacity={0.7}
-                shape="circle"
-              />
-
-              <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
-            </>
-          )}
-        </ComposedChart>
-      </ResponsiveContainer>
-    </Wrapper>
+      <EChart option={option} height={260} ariaLabel="回帰分析チャート" />
+    </ChartCard>
   )
 })

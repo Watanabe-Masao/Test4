@@ -1,9 +1,10 @@
 import { useMemo, useState, useCallback, memo } from 'react'
 import type { ReactNode } from 'react'
-import { ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
-import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
-import { useChartTheme, toComma, toPct, toAxisYen, STORE_COLORS } from './chartTheme'
-import { createChartTooltip } from './createChartTooltip'
+import { useTheme } from 'styled-components'
+import type { AppTheme } from '@/presentation/theme/theme'
+import { toComma, toPct, STORE_COLORS } from './chartTheme'
+import { EChart, type EChartsOption } from './EChart'
+import { yenYAxis, standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
 import { DualPeriodSlider } from './DualPeriodSlider'
 import { useDualPeriodRange } from './useDualPeriodRange'
 import { computeEstimatedInventory } from '@/application/hooks/calculation'
@@ -38,13 +39,109 @@ interface Props {
   headerExtra?: ReactNode
 }
 
+/** ECharts sub-component for chart rendering */
+function SalesCompChart({
+  chartData,
+  visibleEntries,
+  storeEntries,
+  showSales,
+  showPurchase,
+  showInventory,
+  seriesMode,
+  theme,
+}: {
+  chartData: readonly Record<string, number | null>[]
+  visibleEntries: readonly { storeId: string; name: string; hasInventory: boolean }[]
+  storeEntries: readonly { storeId: string; name: string; hasInventory: boolean }[]
+  showSales: boolean
+  showPurchase: boolean
+  showInventory: boolean
+  seriesMode: string
+  theme: AppTheme
+}) {
+  const option = useMemo<EChartsOption>(() => {
+    const days = chartData.map((d) => String(d.day))
+    const series: EChartsOption['series'] = []
+    const yAxes: Record<string, unknown>[] = [yenYAxis(theme) as Record<string, unknown>]
+    if (showInventory) {
+      yAxes.push({
+        ...(yenYAxis(theme) as Record<string, unknown>),
+        position: 'right',
+        splitLine: { show: false },
+      })
+    }
+
+    for (const s of visibleEntries) {
+      const i = storeEntries.indexOf(s)
+      const color = STORE_COLORS[i % STORE_COLORS.length]
+      if (showSales) {
+        series.push({
+          name: `${s.name}_売上`,
+          type: 'bar',
+          yAxisIndex: 0,
+          data: chartData.map((d) => d[`${s.name}_売上`] ?? 0),
+          itemStyle: { color, opacity: seriesMode === 'all' ? 0.35 : 0.55 },
+        })
+      }
+      if (showPurchase) {
+        series.push({
+          name: `${s.name}_仕入`,
+          type: 'bar',
+          yAxisIndex: 0,
+          data: chartData.map((d) => d[`${s.name}_仕入`] ?? 0),
+          itemStyle: { color, opacity: seriesMode === 'all' ? 0.15 : 0.45 },
+        })
+      }
+      if (showInventory && s.hasInventory) {
+        series.push({
+          name: `${s.name}_推定在庫`,
+          type: 'line',
+          yAxisIndex: yAxes.length > 1 ? 1 : 0,
+          data: chartData.map((d) => d[`${s.name}_推定在庫`] ?? null),
+          lineStyle: { color, width: 2.5 },
+          itemStyle: { color },
+          symbol: 'none',
+        })
+      }
+    }
+
+    return {
+      grid: standardGrid(),
+      tooltip: standardTooltip(theme),
+      legend: seriesMode === 'all' ? { ...standardLegend(theme), type: 'scroll' } : undefined,
+      xAxis: {
+        type: 'category',
+        data: days,
+        axisLabel: {
+          color: theme.colors.text3,
+          fontSize: 10,
+          fontFamily: theme.typography.fontFamily.mono,
+        },
+      },
+      yAxis: yAxes as EChartsOption['yAxis'],
+      series,
+    }
+  }, [
+    chartData,
+    visibleEntries,
+    storeEntries,
+    showSales,
+    showPurchase,
+    showInventory,
+    seriesMode,
+    theme,
+  ])
+
+  return <EChart option={option} height={300} ariaLabel="売仕比較チャート" />
+}
+
 export const SalesPurchaseComparisonChart = memo(function SalesPurchaseComparisonChart({
   comparisonResults,
   stores,
   daysInMonth,
   headerExtra,
 }: Props) {
-  const ct = useChartTheme()
+  const theme = useTheme() as AppTheme
   const {
     p1Start: rangeStart,
     p1End: rangeEnd,
@@ -200,105 +297,16 @@ export const SalesPurchaseComparisonChart = memo(function SalesPurchaseCompariso
         </Controls>
       </Header>
 
-      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={300}>
-        <ComposedChart data={chartData} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
-          <XAxis
-            dataKey="day"
-            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-            axisLine={{ stroke: ct.grid }}
-            tickLine={false}
-          />
-          {showInventory && (
-            <YAxis
-              yAxisId="left"
-              tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-              axisLine={false}
-              tickLine={false}
-              tickFormatter={toAxisYen}
-              width={55}
-            />
-          )}
-          <YAxis
-            yAxisId="right"
-            orientation={showInventory ? 'right' : 'left'}
-            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-            axisLine={false}
-            tickLine={false}
-            tickFormatter={toAxisYen}
-            width={55}
-          />
-          <Tooltip
-            content={createChartTooltip({
-              ct,
-              formatter: (value, name) => [
-                value != null ? toComma(value as number) : '-',
-                (name as string) ?? '',
-              ],
-              labelFormatter: (label) => `${label}日`,
-            })}
-          />
-          {seriesMode === 'all' && (
-            <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
-          )}
-
-          {/* 棒グラフ: 売上 */}
-          {showSales &&
-            visibleEntries.map((s) => {
-              const i = storeEntries.indexOf(s)
-              return (
-                <Bar
-                  key={`${s.storeId}_sales`}
-                  yAxisId="right"
-                  dataKey={`${s.name}_売上`}
-                  fill={STORE_COLORS[i % STORE_COLORS.length]}
-                  fillOpacity={seriesMode === 'all' ? 0.35 : 0.55}
-                  isAnimationActive={false}
-                />
-              )
-            })}
-
-          {/* 棒グラフ: 仕入 */}
-          {showPurchase &&
-            visibleEntries.map((s) => {
-              const i = storeEntries.indexOf(s)
-              return (
-                <Bar
-                  key={`${s.storeId}_purchase`}
-                  yAxisId="right"
-                  dataKey={`${s.name}_仕入`}
-                  fill={STORE_COLORS[i % STORE_COLORS.length]}
-                  fillOpacity={seriesMode === 'all' ? 0.15 : 0.45}
-                  isAnimationActive={false}
-                />
-              )
-            })}
-
-          {/* 折れ線: 推定在庫 */}
-          {showInventory &&
-            visibleEntries.map((s) => {
-              const i = storeEntries.indexOf(s)
-              return s.hasInventory ? (
-                <Line
-                  key={`${s.storeId}_inv`}
-                  yAxisId="left"
-                  type="monotone"
-                  dataKey={`${s.name}_推定在庫`}
-                  stroke={STORE_COLORS[i % STORE_COLORS.length]}
-                  strokeWidth={2.5}
-                  dot={false}
-                  activeDot={{
-                    r: 4,
-                    fill: STORE_COLORS[i % STORE_COLORS.length],
-                    stroke: ct.bg2,
-                    strokeWidth: 2,
-                  }}
-                  isAnimationActive={false}
-                />
-              ) : null
-            })}
-        </ComposedChart>
-      </ResponsiveContainer>
+      <SalesCompChart
+        chartData={chartData}
+        visibleEntries={visibleEntries}
+        storeEntries={storeEntries}
+        showSales={showSales}
+        showPurchase={showPurchase}
+        showInventory={showInventory}
+        seriesMode={seriesMode}
+        theme={theme}
+      />
 
       {/* 店舗サマリーテーブル */}
       <CompTable>

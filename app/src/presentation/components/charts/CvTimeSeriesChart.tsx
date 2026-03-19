@@ -202,8 +202,6 @@ export const CvTimeSeriesChart = memo(function CvTimeSeriesChart({
           data={chartData.cvLineData}
           topCodes={topCodes}
           categoryNames={chartData.categoryNames}
-          ct={ct}
-          overlay={overlay}
           showCv={showCv}
           showPi={showPi}
         />
@@ -214,7 +212,6 @@ export const CvTimeSeriesChart = memo(function CvTimeSeriesChart({
           data={chartData.salesCvData}
           topCodes={topCodes}
           categoryNames={chartData.categoryNames}
-          ct={ct}
           fmtCurrency={fmtCurrency}
         />
       )}
