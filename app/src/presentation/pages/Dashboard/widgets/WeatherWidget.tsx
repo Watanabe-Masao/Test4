@@ -163,9 +163,9 @@ export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetC
   // 前年時間別データのキャッシュ（キーは当年の dateKey）
   const [prevHourlyCache, setPrevHourlyCache] = useState<Record<string, HourlyState>>({})
 
-  // 天気データの前年比較は常に同月同日を使用する（天気は曜日に依存しない）
-  const weatherPolicy: AlignmentPolicy = 'sameDate'
-  const weatherDowOffset = 0
+  // ヘッダの比較モード（同日 / 同曜日）に従う
+  const weatherPolicy: AlignmentPolicy = ctx.comparisonFrame.policy
+  const weatherDowOffset = ctx.comparisonFrame.dowOffset
 
   /** 前年データ取得（実測日・予報日共通） */
   const fetchPrevYear = useCallback(
@@ -199,7 +199,7 @@ export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetC
           }))
         })
     },
-    [prevHourlyCache, location, storeId],
+    [prevHourlyCache, location, storeId, weatherPolicy, weatherDowOffset],
   )
 
   /** 実測日クリック */

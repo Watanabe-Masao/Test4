@@ -5,8 +5,8 @@ import { useUiStore } from '@/application/stores/uiStore'
 import { calculationCache } from '@/application/services/calculationCache'
 import { useSettings } from '@/application/hooks'
 import { CUSTOM_CATEGORIES } from '@/domain/models'
-import type { CustomCategory, Store, StoreLocation, GeocodingResult } from '@/domain/models'
-import { useGeocode } from '@/application/hooks/useGeocode'
+import type { CustomCategory, Store, StoreLocation } from '@/domain/models'
+import { StoreLocationEditor } from './StoreLocationEditor'
 import {
   PRESET_CATEGORY_LABELS,
   isUserCategory,
@@ -243,132 +243,6 @@ function CategoryManagementTab() {
         )}
       </Section>
     </>
-  )
-}
-
-// ─── 位置情報編集コンポーネント ─────────────────────────
-function StoreLocationEditor({
-  storeId,
-  storeName,
-  location,
-  onSave,
-  onClear,
-}: {
-  storeId: string
-  storeName: string
-  location: StoreLocation | undefined
-  onSave: (storeId: string, loc: StoreLocation) => void
-  onClear: (storeId: string) => void
-}) {
-  const [isEditing, setIsEditing] = useState(false)
-  const [query, setQuery] = useState('')
-  const { candidates, isSearching, search, clear: clearCandidates } = useGeocode()
-  const [manualLat, setManualLat] = useState('')
-  const [manualLon, setManualLon] = useState('')
-
-  const handleSearch = useCallback(async () => {
-    const q = query.trim() || storeName
-    await search(q)
-  }, [query, storeName, search])
-
-  const handleSelect = useCallback(
-    (r: GeocodingResult) => {
-      const label = [r.name, r.admin1, r.admin2].filter(Boolean).join(', ')
-      onSave(storeId, { latitude: r.latitude, longitude: r.longitude, resolvedName: label })
-      setIsEditing(false)
-      clearCandidates()
-      setQuery('')
-    },
-    [storeId, onSave, clearCandidates],
-  )
-
-  const handleManualSave = useCallback(() => {
-    const lat = parseFloat(manualLat)
-    const lon = parseFloat(manualLon)
-    if (isNaN(lat) || isNaN(lon)) return
-    onSave(storeId, { latitude: lat, longitude: lon })
-    setIsEditing(false)
-    setManualLat('')
-    setManualLon('')
-  }, [storeId, manualLat, manualLon, onSave])
-
-  if (!isEditing) {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        {location ? (
-          <>
-            <Badge $color={palette.successDark}>
-              {location.resolvedName ??
-                `${location.latitude.toFixed(2)}, ${location.longitude.toFixed(2)}`}
-            </Badge>
-            <SmallButton onClick={() => setIsEditing(true)}>変更</SmallButton>
-            <SmallButton $variant="danger" onClick={() => onClear(storeId)}>
-              削除
-            </SmallButton>
-          </>
-        ) : (
-          <SmallButton $variant="primary" onClick={() => setIsEditing(true)}>
-            設定
-          </SmallButton>
-        )}
-      </div>
-    )
-  }
-
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-      {/* 地名検索 */}
-      <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-        <Input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') handleSearch()
-          }}
-          placeholder={`地名で検索（例: ${storeName}）`}
-          style={{ width: 180 }}
-        />
-        <SmallButton $variant="primary" onClick={handleSearch} disabled={isSearching}>
-          {isSearching ? '...' : '検索'}
-        </SmallButton>
-        <SmallButton onClick={() => setIsEditing(false)}>閉じる</SmallButton>
-      </div>
-      {/* 検索結果 */}
-      {candidates.length > 0 && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {candidates.map((r, i) => {
-            const label = [r.name, r.admin1, r.admin2, r.country].filter(Boolean).join(', ')
-            return (
-              <SmallButton key={i} onClick={() => handleSelect(r)} style={{ textAlign: 'left' }}>
-                {label} ({r.latitude.toFixed(2)}, {r.longitude.toFixed(2)})
-              </SmallButton>
-            )
-          })}
-        </div>
-      )}
-      {/* 手動入力 */}
-      <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-        <Input
-          value={manualLat}
-          onChange={(e) => setManualLat(e.target.value)}
-          placeholder="緯度"
-          style={{ width: 80 }}
-        />
-        <Input
-          value={manualLon}
-          onChange={(e) => setManualLon(e.target.value)}
-          placeholder="経度"
-          style={{ width: 80 }}
-        />
-        <SmallButton
-          $variant="primary"
-          onClick={handleManualSave}
-          disabled={isNaN(parseFloat(manualLat)) || isNaN(parseFloat(manualLon))}
-        >
-          手動設定
-        </SmallButton>
-      </div>
-    </div>
   )
 }
 
