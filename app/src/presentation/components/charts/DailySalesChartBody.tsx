@@ -10,8 +10,6 @@
  * - vsLastYear: 実績=棒、前年=線、前年差累計WF
  */
 import { memo, useMemo } from 'react'
-import { useTheme } from 'styled-components'
-import type { AppTheme } from '@/presentation/theme/theme'
 import type { EChartsOption } from 'echarts'
 import { EChart } from './EChart'
 import { type ChartTheme, toAxisYen, toComma } from './chartTheme'
@@ -49,12 +47,7 @@ const ALL_LABELS: Record<string, string> = {
 }
 
 /** 隠しシリーズ名（ツールチップから除外） */
-const HIDDEN_NAMES = new Set([
-  'wfSalesBase',
-  'wfSalesCum',
-  'wfYoyBase',
-  'wfYoyCum',
-])
+const HIDDEN_NAMES = new Set(['wfSalesBase', 'wfSalesCum', 'wfYoyBase', 'wfYoyCum'])
 
 /** ECharts 用 linearGradient ヘルパー */
 function grad(color: string, o1: number, o2: number): object {
@@ -80,10 +73,7 @@ function withAlpha(hex: string, alpha: number): string {
 }
 
 /** データ配列からキーの値配列を取り出す */
-function pluck(
-  arr: readonly Record<string, unknown>[],
-  key: string,
-): (number | null)[] {
+function pluck(arr: readonly Record<string, unknown>[], key: string): (number | null)[] {
   return arr.map((d) => {
     const v = d[key]
     return v == null ? null : (v as number)
@@ -100,7 +90,6 @@ function buildOption(
   needRightAxis: boolean,
   cumMode: 'cumulative' | 'daily',
   wfLegendPayload: Props['wfLegendPayload'],
-  _theme: AppTheme,
 ): EChartsOption {
   const rows = data as unknown as Record<string, unknown>[]
   const days = rows.map((d) => d.day as string | number)
@@ -521,12 +510,9 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
   cumMode,
   wfLegendPayload,
 }: Props) {
-  const theme = useTheme() as AppTheme
-
   const option = useMemo(
-    () =>
-      buildOption(data, view, isWf, hasPrev, ct, needRightAxis, cumMode, wfLegendPayload, theme),
-    [data, view, isWf, hasPrev, ct, needRightAxis, cumMode, wfLegendPayload, theme],
+    () => buildOption(data, view, isWf, hasPrev, ct, needRightAxis, cumMode, wfLegendPayload),
+    [data, view, isWf, hasPrev, ct, needRightAxis, cumMode, wfLegendPayload],
   )
 
   return <EChart option={option} height={300} ariaLabel="日別売上チャート" />

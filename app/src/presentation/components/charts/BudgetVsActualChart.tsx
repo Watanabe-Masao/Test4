@@ -104,7 +104,11 @@ function buildOption(
         itemStyle: { color: theme.chart.barPositive },
         symbol: 'none',
         emphasis: {
-          itemStyle: { color: theme.chart.barPositive, borderColor: theme.colors.bg2, borderWidth: 2 },
+          itemStyle: {
+            color: theme.chart.barPositive,
+            borderColor: theme.colors.bg2,
+            borderWidth: 2,
+          },
         },
         markLine:
           showBudget && budget > 0
@@ -121,7 +125,11 @@ function buildOption(
                     },
                   },
                 ],
-                lineStyle: { color: theme.colors.palette.warningDark, type: 'dashed' as const, width: 1.5 },
+                lineStyle: {
+                  color: theme.colors.palette.warningDark,
+                  type: 'dashed' as const,
+                  width: 1.5,
+                },
                 symbol: 'none',
               }
             : undefined,
@@ -170,7 +178,12 @@ function buildOption(
       xAxis,
       yAxis: {
         type: 'value' as const,
-        axisLabel: { formatter: (v: number) => toAxisYen(v), color: theme.colors.text3, fontSize: 10, fontFamily: theme.typography.fontFamily.mono },
+        axisLabel: {
+          formatter: (v: number) => toAxisYen(v),
+          color: theme.colors.text3,
+          fontSize: 10,
+          fontFamily: theme.typography.fontFamily.mono,
+        },
         axisLine: { show: false },
         axisTick: { show: false },
         splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
@@ -194,7 +207,12 @@ function buildOption(
       xAxis,
       yAxis: {
         type: 'value' as const,
-        axisLabel: { formatter: (v: number) => toAxisYen(v), color: theme.colors.text3, fontSize: 10, fontFamily: theme.typography.fontFamily.mono },
+        axisLabel: {
+          formatter: (v: number) => toAxisYen(v),
+          color: theme.colors.text3,
+          fontSize: 10,
+          fontFamily: theme.typography.fontFamily.mono,
+        },
         axisLine: { show: false },
         axisTick: { show: false },
         splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
@@ -260,7 +278,11 @@ function buildOption(
           symbol: 'none',
           connectNulls: true,
           emphasis: {
-            itemStyle: { color: theme.colors.palette.primary, borderColor: theme.colors.bg2, borderWidth: 2 },
+            itemStyle: {
+              color: theme.colors.palette.primary,
+              borderColor: theme.colors.bg2,
+              borderWidth: 2,
+            },
           },
           markLine: {
             data: [
@@ -309,7 +331,11 @@ function buildOption(
       areaStyle: { color: theme.chart.barPositive, opacity: 0.15 },
       symbol: 'none',
       emphasis: {
-        itemStyle: { color: theme.chart.barPositive, borderColor: theme.colors.bg2, borderWidth: 2 },
+        itemStyle: {
+          color: theme.chart.barPositive,
+          borderColor: theme.colors.bg2,
+          borderWidth: 2,
+        },
       },
       markLine:
         showBudget && budget > 0
@@ -326,7 +352,11 @@ function buildOption(
                   },
                 },
               ],
-              lineStyle: { color: theme.colors.palette.warningDark, type: 'dashed' as const, width: 1.5 },
+              lineStyle: {
+                color: theme.colors.palette.warningDark,
+                type: 'dashed' as const,
+                width: 1.5,
+              },
               symbol: 'none',
             }
           : undefined,
@@ -365,7 +395,12 @@ function buildOption(
       xAxis,
       yAxis: {
         type: 'value' as const,
-        axisLabel: { formatter: (v: number) => toAxisYen(v), color: theme.colors.text3, fontSize: 10, fontFamily: theme.typography.fontFamily.mono },
+        axisLabel: {
+          formatter: (v: number) => toAxisYen(v),
+          color: theme.colors.text3,
+          fontSize: 10,
+          fontFamily: theme.typography.fontFamily.mono,
+        },
         axisLine: { show: false },
         axisTick: { show: false },
         splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
@@ -431,7 +466,12 @@ function buildOption(
     xAxis,
     yAxis: {
       type: 'value' as const,
-      axisLabel: { formatter: (v: number) => toAxisYen(v), color: theme.colors.text3, fontSize: 10, fontFamily: theme.typography.fontFamily.mono },
+      axisLabel: {
+        formatter: (v: number) => toAxisYen(v),
+        color: theme.colors.text3,
+        fontSize: 10,
+        fontFamily: theme.typography.fontFamily.mono,
+      },
       axisLine: { show: false },
       axisTick: { show: false },
       splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },

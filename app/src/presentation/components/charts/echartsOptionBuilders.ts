@@ -22,11 +22,6 @@ export function toCommaYen(value: number): string {
   return `${Math.round(value).toLocaleString('ja-JP')}円`
 }
 
-/** パーセント表示 */
-export function toPercent(value: number, decimals = 1): string {
-  return `${(value * 100).toFixed(decimals)}%`
-}
-
 // ─── 共通軸設定 ──────────────────────────────────────────
 
 /** 金額 Y 軸（万円ラベル） */
@@ -48,10 +43,7 @@ export function yenYAxis(theme: AppTheme): EChartsOption['yAxis'] {
 }
 
 /** カテゴリ X 軸（日付ラベル等） */
-export function categoryXAxis(
-  data: readonly string[],
-  theme: AppTheme,
-): EChartsOption['xAxis'] {
+export function categoryXAxis(data: readonly string[], theme: AppTheme): EChartsOption['xAxis'] {
   return {
     type: 'category',
     data: data as string[],

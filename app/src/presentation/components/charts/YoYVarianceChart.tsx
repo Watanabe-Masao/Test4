@@ -76,10 +76,7 @@ const allLabels: Record<string, string> = {
 }
 
 /** ECharts tooltip formatter for all views */
-function buildTooltipFormatter(
-  view: ViewType,
-  _growthKeys?: { sales: string; customer: string; txValue: string },
-): (params: unknown) => string {
+function buildTooltipFormatter(view: ViewType): (params: unknown) => string {
   return (params: unknown) => {
     const items = params as { seriesName: string; value: unknown; marker: string }[]
     if (!Array.isArray(items) || items.length === 0) return ''
@@ -96,7 +93,11 @@ function buildTooltipFormatter(
         formatted = toPct(val)
       } else {
         const key = name
-        if (key.includes('customer') || key.includes('Customer') || key === allLabels.customerDiff) {
+        if (
+          key.includes('customer') ||
+          key.includes('Customer') ||
+          key === allLabels.customerDiff
+        ) {
           formatted = `${val >= 0 ? '+' : ''}${toComma(val)}人`
         } else {
           formatted = `${val >= 0 ? '+' : ''}${toComma(val)}`
@@ -126,11 +127,7 @@ function buildSalesGapOption(
     tooltip: {
       ...standardTooltip(theme),
       trigger: 'axis' as const,
-      formatter: buildTooltipFormatter('salesGap', {
-        sales: 'salesDiff',
-        customer: '',
-        txValue: '',
-      }),
+      formatter: buildTooltipFormatter('salesGap'),
     },
     legend: {
       ...standardLegend(theme),
@@ -226,11 +223,7 @@ function buildMultiGapOption(
     tooltip: {
       ...standardTooltip(theme),
       trigger: 'axis' as const,
-      formatter: buildTooltipFormatter('multiGap', {
-        sales: 'salesDiff',
-        customer: 'customerDiff',
-        txValue: '',
-      }),
+      formatter: buildTooltipFormatter('multiGap'),
     },
     legend: {
       ...standardLegend(theme),
@@ -334,7 +327,7 @@ function buildGrowthRateOption(
     tooltip: {
       ...standardTooltip(theme),
       trigger: 'axis' as const,
-      formatter: buildTooltipFormatter('growthRate', growthKeys),
+      formatter: buildTooltipFormatter('growthRate'),
     },
     legend: {
       ...standardLegend(theme),
@@ -572,12 +565,19 @@ export const YoYVarianceChart = memo(function YoYVarianceChart({
     .filter((d) => d.day >= rangeStart && d.day <= rangeEnd)
 
   // DataKeys based on growth sub-mode
-  const growthKeys =
-    growthSub === 'cumulative'
-      ? { sales: 'cumSalesGrowth', customer: 'cumCustomerGrowth', txValue: 'cumTxValueGrowth' }
-      : growthSub === 'ma7'
-        ? { sales: 'salesGrowthMa7', customer: 'customerGrowthMa7', txValue: 'txValueGrowthMa7' }
-        : { sales: 'salesGrowth', customer: 'customerGrowth', txValue: 'txValueGrowth' }
+  const growthKeys = useMemo(
+    () =>
+      growthSub === 'cumulative'
+        ? { sales: 'cumSalesGrowth', customer: 'cumCustomerGrowth', txValue: 'cumTxValueGrowth' }
+        : growthSub === 'ma7'
+          ? {
+              sales: 'salesGrowthMa7',
+              customer: 'customerGrowthMa7',
+              txValue: 'txValueGrowthMa7',
+            }
+          : { sales: 'salesGrowth', customer: 'customerGrowth', txValue: 'txValueGrowth' },
+    [growthSub],
+  )
 
   const growthTitle =
     growthSub === 'cumulative'

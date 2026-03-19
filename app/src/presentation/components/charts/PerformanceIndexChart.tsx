@@ -37,6 +37,23 @@ const VIEW_LABELS: Record<ViewType, string> = {
   zScore: 'Zスコア',
 }
 
+const PERF_LABELS: Record<string, string> = {
+  pi: '金額PI値',
+  prevPi: '前年PI値',
+  piMa7: 'PI値(7日MA)',
+  prevPiMa7: '前年PI値(7日MA)',
+  salesDev: '売上',
+  custDev: '客数',
+  txDev: '客単価',
+  discDev: '売変率',
+  gpDev: '粗利率',
+  salesZ: '売上',
+  custZ: '客数',
+  txZ: '客単価',
+  discZ: '売変率',
+  gpZ: '粗利率',
+}
+
 interface Props {
   daily: ReadonlyMap<number, DailyRecord>
   daysInMonth: number
@@ -184,23 +201,6 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
     [data],
   )
 
-  const allLabels: Record<string, string> = {
-    pi: '金額PI値',
-    prevPi: '前年PI値',
-    piMa7: 'PI値(7日MA)',
-    prevPiMa7: '前年PI値(7日MA)',
-    salesDev: '売上',
-    custDev: '客数',
-    txDev: '客単価',
-    discDev: '売変率',
-    gpDev: '粗利率',
-    salesZ: '売上',
-    custZ: '客数',
-    txZ: '客単価',
-    discZ: '売変率',
-    gpZ: '粗利率',
-  }
-
   const titleMap: Record<ViewType, string> = {
     pi: 'PI値分析（金額PI = 売上/客数×1000 / 7日移動平均）',
     deviation: '偏差値分析（各指標の日別偏差値 / 基準=50）',
@@ -224,15 +224,13 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
     const days = data.map((d) => String(d.day))
     const series: EChartsOption['series'] = []
 
-    const tooltipFormatter = (
-      params: unknown,
-    ): string => {
+    const tooltipFormatter = (params: unknown): string => {
       const items = params as { seriesName: string; value: number | null; color: string }[]
       if (!Array.isArray(items) || items.length === 0) return ''
       const first = items[0] as { axisValue?: string }
       let html = `<div style="font-size:11px"><strong>${first.axisValue ?? ''}日</strong>`
       for (const item of items) {
-        const name = allLabels[item.seriesName] ?? item.seriesName
+        const name = PERF_LABELS[item.seriesName] ?? item.seriesName
         let formatted: string
         if (item.value == null) {
           formatted = '-'
@@ -301,7 +299,7 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
         },
         legend: {
           ...standardLegend(theme),
-          formatter: (name: string) => allLabels[name] ?? name,
+          formatter: (name: string) => PERF_LABELS[name] ?? name,
         },
         xAxis: {
           type: 'category' as const,
@@ -361,7 +359,7 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
         },
         legend: {
           ...standardLegend(theme),
-          formatter: (name: string) => allLabels[name] ?? name,
+          formatter: (name: string) => PERF_LABELS[name] ?? name,
         },
         xAxis: {
           type: 'category' as const,
@@ -473,7 +471,7 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
       },
       legend: {
         ...standardLegend(theme),
-        formatter: (name: string) => allLabels[name] ?? name,
+        formatter: (name: string) => PERF_LABELS[name] ?? name,
       },
       xAxis: {
         type: 'category' as const,
@@ -547,7 +545,7 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
         },
       ],
     }
-  }, [data, view, ct, theme, allLabels])
+  }, [data, view, ct, theme])
 
   return (
     <Wrapper aria-label="業績指数チャート">

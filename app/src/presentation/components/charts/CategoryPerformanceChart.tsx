@@ -50,6 +50,15 @@ interface Props {
   totalCustomers: number
 }
 
+const ALL_LABELS: Record<string, string> = {
+  piAmount: '金額PI値',
+  prevPiAmount: '前年金額PI値',
+  piQty: '点数PI値',
+  prevPiQty: '前年点数PI値',
+  deviation: '金額PI偏差値',
+  qtyDeviation: '点数PI偏差値',
+}
+
 interface CategoryRow {
   code: string
   name: string
@@ -160,48 +169,7 @@ export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
     return rows.slice(0, 20)
   }, [curAgg.data, prevAgg.data, totalCustomers, prevTotalCustomers])
 
-  // Loading state
-  if (curAgg.isLoading) {
-    return (
-      <Wrapper aria-label="カテゴリ実績チャート">
-        <HeaderRow>
-          <Title>カテゴリPI値・偏差値分析</Title>
-        </HeaderRow>
-        <ChartSkeleton height="360px" />
-      </Wrapper>
-    )
-  }
-
-  if (!curAgg.data || curAgg.data.length === 0) {
-    return (
-      <Wrapper aria-label="カテゴリ実績チャート">
-        <HeaderRow>
-          <Title>カテゴリPI値・偏差値分析</Title>
-        </HeaderRow>
-        <EmptyMsg>分類別時間帯売上データがありません</EmptyMsg>
-      </Wrapper>
-    )
-  }
-
-  if (totalCustomers <= 0) {
-    return (
-      <Wrapper aria-label="カテゴリ実績チャート">
-        <HeaderRow>
-          <Title>カテゴリPI値・偏差値分析</Title>
-        </HeaderRow>
-        <EmptyMsg>客数データがありません（PI値の算出に客数が必要です）</EmptyMsg>
-      </Wrapper>
-    )
-  }
-
-  const allLabels: Record<string, string> = {
-    piAmount: '金額PI値',
-    prevPiAmount: '前年金額PI値',
-    piQty: '点数PI値',
-    prevPiQty: '前年点数PI値',
-    deviation: '金額PI偏差値',
-    qtyDeviation: '点数PI偏差値',
-  }
+  const names = categoryRows.map((r) => r.name)
 
   const chartHeight = Math.max(300, categoryRows.length * 28 + 40)
 
@@ -210,8 +178,6 @@ export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
     piQtyRank: `点数PI値ランキング（${LEVEL_LABELS[level]}別 / PI = 点数÷客数×1000）`,
     deviation: `カテゴリ偏差値分析（${LEVEL_LABELS[level]}別 / 基準=50）`,
   }
-
-  const names = categoryRows.map((r) => r.name)
 
   const option = useMemo(() => {
     const baseGrid = { left: 80, right: 20, top: 30, bottom: 30, containLabel: false }
@@ -257,7 +223,7 @@ export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
             const items = params as { seriesName: string; value: number | null; marker: string }[]
             const categoryName = (items[0] as unknown as Record<string, unknown>).name as string
             const lines = items.map((item) => {
-              const label = allLabels[item.seriesName] ?? item.seriesName
+              const label = ALL_LABELS[item.seriesName] ?? item.seriesName
               const val = item.value != null ? (item.value as number).toFixed(1) : '-'
               return `${item.marker} ${label}: ${val}`
             })
@@ -270,7 +236,7 @@ export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
             { name: 'deviation', icon: 'roundRect' },
             { name: 'qtyDeviation', icon: 'circle' },
           ],
-          formatter: (name: string) => allLabels[name] ?? name,
+          formatter: (name: string) => ALL_LABELS[name] ?? name,
         },
         xAxis: {
           type: 'value' as const,
@@ -370,7 +336,7 @@ export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
           const items = params as { seriesName: string; value: number | null; marker: string }[]
           const categoryName = (items[0] as unknown as Record<string, unknown>).name as string
           const lines = items.map((item) => {
-            const label = allLabels[item.seriesName] ?? item.seriesName
+            const label = ALL_LABELS[item.seriesName] ?? item.seriesName
             const val = item.value != null ? toComma(Math.round(item.value as number)) : '-'
             return `${item.marker} ${label}: ${val}`
           })
@@ -383,7 +349,7 @@ export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
           { name: mainKey, icon: 'roundRect' },
           { name: prevKey, icon: 'roundRect' },
         ],
-        formatter: (name: string) => allLabels[name] ?? name,
+        formatter: (name: string) => ALL_LABELS[name] ?? name,
       },
       xAxis: {
         type: 'value' as const,
@@ -420,7 +386,41 @@ export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
         },
       ],
     }
-  }, [categoryRows, names, view, theme, allLabels])
+  }, [categoryRows, names, view, theme])
+
+  // Loading state
+  if (curAgg.isLoading) {
+    return (
+      <Wrapper aria-label="カテゴリ実績チャート">
+        <HeaderRow>
+          <Title>カテゴリPI値・偏差値分析</Title>
+        </HeaderRow>
+        <ChartSkeleton height="360px" />
+      </Wrapper>
+    )
+  }
+
+  if (!curAgg.data || curAgg.data.length === 0) {
+    return (
+      <Wrapper aria-label="カテゴリ実績チャート">
+        <HeaderRow>
+          <Title>カテゴリPI値・偏差値分析</Title>
+        </HeaderRow>
+        <EmptyMsg>分類別時間帯売上データがありません</EmptyMsg>
+      </Wrapper>
+    )
+  }
+
+  if (totalCustomers <= 0) {
+    return (
+      <Wrapper aria-label="カテゴリ実績チャート">
+        <HeaderRow>
+          <Title>カテゴリPI値・偏差値分析</Title>
+        </HeaderRow>
+        <EmptyMsg>客数データがありません（PI値の算出に客数が必要です）</EmptyMsg>
+      </Wrapper>
+    )
+  }
 
   return (
     <Wrapper aria-label="カテゴリ実績チャート">
@@ -445,7 +445,11 @@ export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
         </ToggleRow>
       </HeaderRow>
 
-      <EChart option={option as EChartsOption} height={chartHeight} ariaLabel="カテゴリ実績チャート" />
+      <EChart
+        option={option as EChartsOption}
+        height={chartHeight}
+        ariaLabel="カテゴリ実績チャート"
+      />
     </Wrapper>
   )
 })
