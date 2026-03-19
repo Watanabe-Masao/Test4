@@ -12,7 +12,7 @@
  */
 import { useRef, useEffect, memo } from 'react'
 import * as echarts from 'echarts/core'
-import { BarChart, LineChart, PieChart, ScatterChart } from 'echarts/charts'
+import { BarChart, LineChart, PieChart, ScatterChart, HeatmapChart } from 'echarts/charts'
 import {
   GridComponent,
   TooltipComponent,
@@ -21,6 +21,7 @@ import {
   MarkLineComponent,
   MarkPointComponent,
   ToolboxComponent,
+  VisualMapComponent,
 } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import type { EChartsOption } from 'echarts'
@@ -33,6 +34,7 @@ echarts.use([
   LineChart,
   PieChart,
   ScatterChart,
+  HeatmapChart,
   GridComponent,
   TooltipComponent,
   LegendComponent,
@@ -40,6 +42,7 @@ echarts.use([
   MarkLineComponent,
   MarkPointComponent,
   ToolboxComponent,
+  VisualMapComponent,
   CanvasRenderer,
 ])
 
