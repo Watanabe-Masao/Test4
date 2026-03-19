@@ -25,6 +25,7 @@ import { ChartCard } from './ChartCard'
 import { ChartLoading, ChartError, ChartEmpty } from './ChartState'
 import { EChart, type EChartsOption } from './EChart'
 import { yenYAxis, standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
+import { valueYAxis } from './builders'
 import { chartFontSize } from '@/presentation/theme/tokens'
 import {
   SummaryGrid,
@@ -75,16 +76,7 @@ function buildOption(
     },
     yAxis:
       mode === 'ratio'
-        ? {
-            type: 'value',
-            axisLabel: {
-              formatter: (v: number) => `${v}%`,
-              color: theme.colors.text3,
-              fontSize: chartFontSize.axis,
-            },
-            axisLine: { show: false },
-            splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
-          }
+        ? valueYAxis(theme, { formatter: (v: number) => `${v}%` })
         : yenYAxis(theme),
     series: storeInfos.map((store) => ({
       name: store.name,

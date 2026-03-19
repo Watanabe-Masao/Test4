@@ -18,6 +18,7 @@ import type { AppTheme } from '@/presentation/theme/theme'
 import { useChartTheme, useCurrencyFormatter, toComma, toPct } from './chartTheme'
 import { EChart, type EChartsOption } from './EChart'
 import { yenYAxis, standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
+import { valueYAxis } from './builders'
 import { formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette, chartFontSize } from '@/presentation/theme/tokens'
@@ -154,16 +155,7 @@ export const TimeSlotChart = memo(function TimeSlotChart({
       },
       yAxis: isAmount
         ? yenYAxis(theme)
-        : {
-            type: 'value',
-            axisLabel: {
-              formatter: (v: number) => toComma(v),
-              color: theme.colors.text3,
-              fontSize: chartFontSize.axis,
-            },
-            axisLine: { show: false },
-            splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
-          },
+        : valueYAxis(theme, { formatter: (v: number) => toComma(v) }),
       series,
     }
   }, [d.chartData, d.metricMode, d.curLabel, d.compLabel, showPrev, theme])

@@ -19,6 +19,7 @@ import { ChartCard } from './ChartCard'
 import { ChartEmpty } from './ChartState'
 import { EChart, type EChartsOption } from './EChart'
 import { standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
+import { valueYAxis } from './builders'
 import { CorrelationRow, CorrBadge } from './IntegratedTimeline.styles'
 
 type ViewMode = 'normalized' | 'raw'
@@ -190,16 +191,9 @@ export const IntegratedTimeline = memo(function IntegratedTimeline({ result, day
           formatter: (v: string) => `${v}日`,
         },
       },
-      yAxis: {
-        type: 'value',
-        axisLabel: {
-          formatter: (v: number) => (isNorm ? String(Math.round(v)) : toComma(v)),
-          color: theme.colors.text3,
-          fontSize: chartFontSize.axis,
-        },
-        axisLine: { show: false },
-        splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
-      },
+      yAxis: valueYAxis(theme, {
+        formatter: (v: number) => (isNorm ? String(Math.round(v)) : toComma(v)),
+      }),
       series,
     }
   }, [chartData, isNorm, divergentRanges, theme])
