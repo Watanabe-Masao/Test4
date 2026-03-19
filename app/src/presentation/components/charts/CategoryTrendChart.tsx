@@ -18,10 +18,8 @@ import type { LegendPayload } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
-import {
-  useDuckDBCategoryDailyTrend,
-  type CategoryDailyTrendRow,
-} from '@/application/hooks/useDuckDBQuery'
+import { useDuckDBCategoryDailyTrend } from '@/application/hooks/useDuckDBQuery'
+import { buildCategoryTrendData } from './CategoryTrendChartLogic'
 import { useChartTheme, useCurrencyFormatter, toAxisYen } from './chartTheme'
 import { createChartTooltip } from './createChartTooltip'
 import { DowPresetSelector } from './DowPresetSelector'
@@ -82,68 +80,12 @@ interface Props {
   readonly selectedStoreIds: ReadonlySet<string>
 }
 
-interface ChartDataPoint {
-  readonly date: string
-  readonly [categoryKey: string]: string | number | null
-}
-
-interface CategoryInfo {
-  readonly code: string
-  readonly name: string
-  readonly totalAmount: number
-}
-
 /** 階層ドリルダウン状態 */
 interface DrillState {
   readonly deptCode?: string
   readonly deptName?: string
   readonly lineCode?: string
   readonly lineName?: string
-}
-
-// ── Data transformation ──
-
-function buildChartData(
-  rows: readonly CategoryDailyTrendRow[],
-  excludedCodes: ReadonlySet<string>,
-): {
-  chartData: ChartDataPoint[]
-  categories: CategoryInfo[]
-} {
-  // Collect unique categories with total amounts
-  const categoryTotals = new Map<string, { name: string; total: number }>()
-  for (const row of rows) {
-    const existing = categoryTotals.get(row.code) ?? { name: row.name, total: 0 }
-    existing.total += row.amount
-    categoryTotals.set(row.code, existing)
-  }
-
-  // Sort categories by total amount descending
-  const categories: CategoryInfo[] = [...categoryTotals.entries()]
-    .map(([code, info]) => ({
-      code,
-      name: info.name,
-      totalAmount: Math.round(info.total),
-    }))
-    .sort((a, b) => b.totalAmount - a.totalAmount)
-
-  // Build chart data: one row per date, exclude excluded codes
-  const dateMap = new Map<string, Record<string, number>>()
-  for (const row of rows) {
-    if (excludedCodes.has(row.code)) continue
-    const dateKey = row.dateKey.slice(5) // MM-DD
-    const existing = dateMap.get(dateKey) ?? {}
-    existing[row.code] = (existing[row.code] ?? 0) + Math.round(row.amount)
-    dateMap.set(dateKey, existing)
-  }
-
-  const sortedDates = [...dateMap.keys()].sort()
-  const chartData: ChartDataPoint[] = sortedDates.map((date) => ({
-    date,
-    ...dateMap.get(date)!,
-  }))
-
-  return { chartData, categories }
 }
 
 // ── Component ──
@@ -250,7 +192,9 @@ export const CategoryTrendChart = memo(function CategoryTrendChart({
 
   const { chartData, categories } = useMemo(
     () =>
-      trendRows ? buildChartData(trendRows, excludedCodes) : { chartData: [], categories: [] },
+      trendRows
+        ? buildCategoryTrendData(trendRows, excludedCodes)
+        : { chartData: [], categories: [] },
     [trendRows, excludedCodes],
   )
 

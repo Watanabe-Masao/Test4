@@ -13,7 +13,8 @@ import { useMemo, useState, useCallback, memo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
 import { HOUR_MIN, HOUR_MAX } from './HeatmapChart.helpers'
-import { useDuckDBCategoryHourly, type CategoryHourlyRow } from '@/application/hooks/useDuckDBQuery'
+import { useDuckDBCategoryHourly } from '@/application/hooks/useDuckDBQuery'
+import { buildCategoryHeatmapData } from './CategoryHourlyChartLogic'
 import { useCurrencyFormatter, toPct } from './chartTheme'
 import { useI18n } from '@/application/hooks/useI18n'
 import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
@@ -40,9 +41,6 @@ import {
 
 const HOURS = Array.from({ length: HOUR_MAX - HOUR_MIN + 1 }, (_, i) => i + HOUR_MIN)
 
-/** 上位表示カテゴリ数 */
-const TOP_CATEGORIES = 10
-
 type HierarchyLevel = 'department' | 'line' | 'klass'
 
 const LEVEL_LABELS: Record<HierarchyLevel, string> = {
@@ -60,94 +58,6 @@ interface Props {
   readonly selectedStoreIds: ReadonlySet<string>
 }
 
-interface CategoryHeatmapRow {
-  readonly code: string
-  readonly name: string
-  readonly totalAmount: number
-  readonly hourlyAmounts: ReadonlyMap<number, number>
-  readonly peakHour: number
-  readonly peakAmount: number
-  readonly shareOfTotal: number
-}
-
-interface HeatmapData {
-  readonly categories: CategoryHeatmapRow[]
-  readonly maxAmount: number
-  readonly globalPeakHour: number
-}
-
-// ── Data transformation ──
-
-function buildHeatmapData(rows: readonly CategoryHourlyRow[]): HeatmapData {
-  // Aggregate by category
-  const catMap = new Map<
-    string,
-    { name: string; totalAmount: number; hourly: Map<number, number> }
-  >()
-
-  for (const row of rows) {
-    const existing = catMap.get(row.code) ?? {
-      name: row.name,
-      totalAmount: 0,
-      hourly: new Map<number, number>(),
-    }
-    existing.totalAmount += row.amount
-    existing.hourly.set(row.hour, (existing.hourly.get(row.hour) ?? 0) + row.amount)
-    catMap.set(row.code, existing)
-  }
-
-  // Sort by total amount, take top N
-  const sorted = [...catMap.entries()]
-    .map(([code, info]) => ({ code, ...info }))
-    .sort((a, b) => b.totalAmount - a.totalAmount)
-    .slice(0, TOP_CATEGORIES)
-
-  const grandTotal = sorted.reduce((sum, cat) => sum + cat.totalAmount, 0)
-
-  // Find global max for color scaling
-  let maxAmount = 0
-  const globalHourTotals = new Map<number, number>()
-
-  for (const cat of sorted) {
-    for (const [hour, amount] of cat.hourly) {
-      if (amount > maxAmount) maxAmount = amount
-      globalHourTotals.set(hour, (globalHourTotals.get(hour) ?? 0) + amount)
-    }
-  }
-
-  // Global peak hour
-  let globalPeakHour = HOUR_MIN
-  let globalPeakVal = 0
-  for (const [hour, total] of globalHourTotals) {
-    if (total > globalPeakVal) {
-      globalPeakVal = total
-      globalPeakHour = hour
-    }
-  }
-
-  const categories: CategoryHeatmapRow[] = sorted.map((cat) => {
-    let peakHour = HOUR_MIN
-    let peakAmount = 0
-    for (const [hour, amount] of cat.hourly) {
-      if (amount > peakAmount) {
-        peakAmount = amount
-        peakHour = hour
-      }
-    }
-
-    return {
-      code: cat.code,
-      name: cat.name,
-      totalAmount: Math.round(cat.totalAmount),
-      hourlyAmounts: cat.hourly,
-      peakHour,
-      peakAmount: Math.round(peakAmount),
-      shareOfTotal: grandTotal > 0 ? cat.totalAmount / grandTotal : 0,
-    }
-  })
-
-  return { categories, maxAmount, globalPeakHour }
-}
 
 // ── Component ──
 
@@ -175,7 +85,7 @@ export const CategoryHourlyChart = memo(function CategoryHourlyChart({
   const heatmapData = useMemo(
     () =>
       hourlyRows
-        ? buildHeatmapData(hourlyRows)
+        ? buildCategoryHeatmapData(hourlyRows, HOUR_MIN)
         : { categories: [], maxAmount: 0, globalPeakHour: HOUR_MIN },
     [hourlyRows],
   )

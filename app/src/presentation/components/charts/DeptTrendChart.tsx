@@ -15,10 +15,8 @@ import { useMemo, useState, useCallback, memo } from 'react'
 import { ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import {
-  useDuckDBDeptKpiTrend,
-  type DeptKpiMonthlyTrendRow,
-} from '@/application/hooks/useDuckDBQuery'
+import { useDuckDBDeptKpiTrend } from '@/application/hooks/useDuckDBQuery'
+import { buildDeptTrendData } from './DeptTrendChartLogic'
 import { useChartTheme, useCurrencyFormatter, STORE_COLORS, toAxisYen } from './chartTheme'
 import { createChartTooltip } from './createChartTooltip'
 import { useI18n } from '@/application/hooks/useI18n'
@@ -31,49 +29,6 @@ interface Props {
   readonly loadedMonthCount: number
   readonly year: number
   readonly month: number
-}
-
-interface MonthChartPoint {
-  readonly label: string
-  readonly [deptKey: string]: string | number | null
-}
-
-/**
- * トレンドデータをチャートデータに変換
- *
- * 行: 月 (label: "YYYY/MM")
- * 列: 部門ごとの粗利率 (gpRate_DeptCode) と売上 (sales_DeptCode)
- */
-function buildChartData(
-  rows: readonly DeptKpiMonthlyTrendRow[],
-  selectedDept: string | null,
-): {
-  chartData: MonthChartPoint[]
-  deptNames: Map<string, string>
-} {
-  const deptNames = new Map<string, string>()
-  const monthMap = new Map<string, Record<string, number | null>>()
-
-  for (const row of rows) {
-    deptNames.set(row.deptCode, row.deptName)
-    const key = `${row.year}/${String(row.month).padStart(2, '0')}`
-    const existing = monthMap.get(key) ?? {}
-
-    if (!selectedDept || selectedDept === row.deptCode) {
-      existing[`gpRate_${row.deptCode}`] = Math.round(row.gpRateActual * 10000) / 100
-      existing[`sales_${row.deptCode}`] = Math.round(row.salesActual)
-    }
-
-    monthMap.set(key, existing)
-  }
-
-  const sortedKeys = [...monthMap.keys()].sort()
-  const chartData: MonthChartPoint[] = sortedKeys.map((label) => ({
-    label,
-    ...monthMap.get(label)!,
-  }))
-
-  return { chartData, deptNames }
 }
 
 export const DeptTrendChart = memo(function DeptTrendChart({
@@ -112,7 +67,7 @@ export const DeptTrendChart = memo(function DeptTrendChart({
   const { chartData, deptNames } = useMemo(
     () =>
       trendData
-        ? buildChartData(trendData, selectedDept)
+        ? buildDeptTrendData(trendData, selectedDept)
         : { chartData: [], deptNames: new Map<string, string>() },
     [trendData, selectedDept],
   )
