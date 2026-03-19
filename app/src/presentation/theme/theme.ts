@@ -8,6 +8,8 @@ import {
   transitions,
   layout,
   breakpoints,
+  chartFontSize,
+  chartStyles,
 } from './tokens'
 
 // ─── テーマカラー型 ──────────────────────────────────────
@@ -171,6 +173,8 @@ export interface AppTheme {
   transitions: typeof transitions
   layout: typeof layout
   breakpoints: typeof breakpoints
+  chartFontSize: typeof chartFontSize
+  chartStyles: typeof chartStyles
 }
 
 // ─── テーマ生成 ──────────────────────────────────────────
@@ -194,6 +198,8 @@ function createTheme(mode: ThemeMode): AppTheme {
     transitions,
     layout,
     breakpoints,
+    chartFontSize,
+    chartStyles,
   }
 }
 

@@ -16,7 +16,9 @@ export {
   transitions,
   layout,
   breakpoints,
+  chartFontSize,
+  chartStyles,
 } from './tokens'
 export { GlobalStyle } from './GlobalStyle'
 export { sc } from './semanticColors'
-export { status, statusAlpha, statusSolid } from './colorSystem'
+export { statusAlpha } from './colorSystem'
