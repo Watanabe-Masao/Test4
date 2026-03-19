@@ -8,12 +8,9 @@ import { valueYAxis } from './builders'
 import { useChartTheme, toComma, toPct, toAxisYen } from './chartTheme'
 import { DualPeriodSlider } from './DualPeriodSlider'
 import { useDualPeriodRange } from './useDualPeriodRange'
-import { ChartHelpButton } from './ChartHeader'
 import { CHART_GUIDES } from './chartGuides'
+import { ChartCard } from './ChartCard'
 import {
-  Wrapper,
-  HeaderRow,
-  Title,
   ToggleRow,
   ViewToggle,
   ViewBtn,
@@ -559,12 +556,11 @@ export const YoYVarianceChart = memo(function YoYVarianceChart({
   }, [view, dataAsRecords, growthKeys, ct, theme])
 
   return (
-    <Wrapper aria-label="前年差異チャート">
-      <HeaderRow>
-        <Title>
-          {titleMap[view]}
-          <ChartHelpButton guide={CHART_GUIDES['yoy-waterfall']} />
-        </Title>
+    <ChartCard
+      title={titleMap[view]}
+      guide={CHART_GUIDES['yoy-waterfall']}
+      ariaLabel="前年差異チャート"
+      toolbar={
         <ToggleRow>
           <ViewToggle>
             {(Object.keys(VIEW_LABELS) as ViewType[]).map((v) => (
@@ -586,7 +582,8 @@ export const YoYVarianceChart = memo(function YoYVarianceChart({
             </>
           )}
         </ToggleRow>
-      </HeaderRow>
+      }
+    >
       <SummaryRow>
         <SummaryItem $positive={totals.salesDiff >= 0}>
           <SummaryLabel>売上差:</SummaryLabel>
@@ -616,6 +613,6 @@ export const YoYVarianceChart = memo(function YoYVarianceChart({
         onP2Change={onP2Change}
         p2Enabled={p2Enabled}
       />
-    </Wrapper>
+    </ChartCard>
   )
 })

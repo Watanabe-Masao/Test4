@@ -15,16 +15,8 @@ import type { DateRange, PrevYearScope } from '@/domain/models'
 import { useDuckDBLevelAggregation } from '@/application/hooks/duckdb'
 import { calculateStdDev } from '@/application/hooks/useStatistics'
 import { ChartSkeleton } from '@/presentation/components/common'
-import {
-  Wrapper,
-  HeaderRow,
-  Title,
-  ToggleRow,
-  ViewToggle,
-  ViewBtn,
-  Sep,
-  EmptyMsg,
-} from './CategoryPerformanceChart.styles'
+import { ChartCard } from './ChartCard'
+import { ToggleRow, ViewToggle, ViewBtn, Sep, EmptyMsg } from './CategoryPerformanceChart.styles'
 
 type ViewType = 'piRank' | 'deviation' | 'piQtyRank'
 type LevelType = 'department' | 'line' | 'klass'
@@ -391,41 +383,33 @@ export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
   // Loading state
   if (curAgg.isLoading) {
     return (
-      <Wrapper aria-label="カテゴリ実績チャート">
-        <HeaderRow>
-          <Title>カテゴリPI値・偏差値分析</Title>
-        </HeaderRow>
+      <ChartCard title="カテゴリPI値・偏差値分析" ariaLabel="カテゴリ実績チャート">
         <ChartSkeleton height="360px" />
-      </Wrapper>
+      </ChartCard>
     )
   }
 
   if (!curAgg.data || curAgg.data.length === 0) {
     return (
-      <Wrapper aria-label="カテゴリ実績チャート">
-        <HeaderRow>
-          <Title>カテゴリPI値・偏差値分析</Title>
-        </HeaderRow>
+      <ChartCard title="カテゴリPI値・偏差値分析" ariaLabel="カテゴリ実績チャート">
         <EmptyMsg>分類別時間帯売上データがありません</EmptyMsg>
-      </Wrapper>
+      </ChartCard>
     )
   }
 
   if (totalCustomers <= 0) {
     return (
-      <Wrapper aria-label="カテゴリ実績チャート">
-        <HeaderRow>
-          <Title>カテゴリPI値・偏差値分析</Title>
-        </HeaderRow>
+      <ChartCard title="カテゴリPI値・偏差値分析" ariaLabel="カテゴリ実績チャート">
         <EmptyMsg>客数データがありません（PI値の算出に客数が必要です）</EmptyMsg>
-      </Wrapper>
+      </ChartCard>
     )
   }
 
   return (
-    <Wrapper aria-label="カテゴリ実績チャート">
-      <HeaderRow>
-        <Title>{titleMap[view]}</Title>
+    <ChartCard
+      title={titleMap[view]}
+      ariaLabel="カテゴリ実績チャート"
+      toolbar={
         <ToggleRow>
           <ViewToggle>
             {(Object.keys(VIEW_LABELS) as ViewType[]).map((v) => (
@@ -443,13 +427,13 @@ export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
             ))}
           </ViewToggle>
         </ToggleRow>
-      </HeaderRow>
-
+      }
+    >
       <EChart
         option={option as EChartsOption}
         height={chartHeight}
         ariaLabel="カテゴリ実績チャート"
       />
-    </Wrapper>
+    </ChartCard>
   )
 })

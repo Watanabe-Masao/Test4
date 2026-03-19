@@ -9,12 +9,9 @@ import { useDualPeriodRange } from './useDualPeriodRange'
 import { computeEstimatedInventoryDetails } from '@/application/hooks/calculation'
 import type { InventoryDetailRow } from '@/application/hooks/calculation'
 import type { DailyRecord, Store, StoreResult } from '@/domain/models'
-import { ChartHelpButton } from './ChartHeader'
 import { CHART_GUIDES } from './chartGuides'
+import { ChartCard } from './ChartCard'
 import {
-  Wrapper,
-  Header,
-  Title,
   TabGroup,
   Tab,
   TableWrap,
@@ -176,27 +173,19 @@ export const EstimatedInventoryDetailChart = memo(function EstimatedInventoryDet
 
   const lastRow = details[details.length - 1]
 
-  const tabHeader = (
-    <Header>
-      <Title>
-        日別推定在庫 計算明細
-        <ChartHelpButton guide={CHART_GUIDES['estimated-inventory-detail']} />
-      </Title>
-      {canCompare ? (
-        <TabGroup>
-          <Tab $active={effectiveMode === 'aggregate'} onClick={() => setViewMode('aggregate')}>
-            明細
-          </Tab>
-          <Tab $active={effectiveMode === 'compare'} onClick={() => setViewMode('compare')}>
-            店舗比較
-          </Tab>
-        </TabGroup>
-      ) : (
-        <TabGroup>
-          <Tab $active>明細</Tab>
-        </TabGroup>
-      )}
-    </Header>
+  const tabToolbar = canCompare ? (
+    <TabGroup>
+      <Tab $active={effectiveMode === 'aggregate'} onClick={() => setViewMode('aggregate')}>
+        明細
+      </Tab>
+      <Tab $active={effectiveMode === 'compare'} onClick={() => setViewMode('compare')}>
+        店舗比較
+      </Tab>
+    </TabGroup>
+  ) : (
+    <TabGroup>
+      <Tab $active>明細</Tab>
+    </TabGroup>
   )
 
   /* ================================================================ */
@@ -206,9 +195,12 @@ export const EstimatedInventoryDetailChart = memo(function EstimatedInventoryDet
     const anyHasInventory = storeEntries.some((s) => s.hasInventory)
 
     return (
-      <Wrapper aria-label="推定在庫詳細チャート">
-        {tabHeader}
-
+      <ChartCard
+        title="日別推定在庫 計算明細"
+        guide={CHART_GUIDES['estimated-inventory-detail']}
+        ariaLabel="推定在庫詳細チャート"
+        toolbar={tabToolbar}
+      >
         {/* チャート: 店舗ごとの推定在庫ライン (ECharts) */}
         <EChart
           option={{
@@ -297,7 +289,7 @@ export const EstimatedInventoryDetailChart = memo(function EstimatedInventoryDet
             </tbody>
           </Table>
         </TableWrap>
-      </Wrapper>
+      </ChartCard>
     )
   }
 
@@ -305,9 +297,12 @@ export const EstimatedInventoryDetailChart = memo(function EstimatedInventoryDet
   /*  明細モード (合計)                                                 */
   /* ================================================================ */
   return (
-    <Wrapper aria-label="推定在庫詳細チャート">
-      {tabHeader}
-
+    <ChartCard
+      title="日別推定在庫 計算明細"
+      guide={CHART_GUIDES['estimated-inventory-detail']}
+      ariaLabel="推定在庫詳細チャート"
+      toolbar={tabToolbar}
+    >
       {/* ---- チャート (ECharts) ---- */}
       <EChart
         option={{
@@ -488,6 +483,6 @@ export const EstimatedInventoryDetailChart = memo(function EstimatedInventoryDet
           </tbody>
         </Table>
       </TableWrap>
-    </Wrapper>
+    </ChartCard>
   )
 })

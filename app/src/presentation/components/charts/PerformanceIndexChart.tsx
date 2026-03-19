@@ -7,8 +7,8 @@ import { valueYAxis } from './builders'
 import { useChartTheme, toComma, toPct, toDevScore } from './chartTheme'
 import { DualPeriodSlider } from './DualPeriodSlider'
 import { useDualPeriodRange } from './useDualPeriodRange'
-import { ChartHelpButton } from './ChartHeader'
 import { CHART_GUIDES } from './chartGuides'
+import { ChartCard } from './ChartCard'
 import type { DailyRecord } from '@/domain/models'
 import {
   safeDivide,
@@ -20,9 +20,6 @@ import {
 import { calculateStdDev } from '@/application/hooks/useStatistics'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import {
-  Wrapper,
-  HeaderRow,
-  Title,
   ViewToggle,
   ViewBtn,
   StatsRow,
@@ -516,12 +513,11 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
   }, [data, view, ct, theme])
 
   return (
-    <Wrapper aria-label="業績指数チャート">
-      <HeaderRow>
-        <Title>
-          {titleMap[view]}
-          <ChartHelpButton guide={CHART_GUIDES['performance-index']} />
-        </Title>
+    <ChartCard
+      title={titleMap[view]}
+      guide={CHART_GUIDES['performance-index']}
+      ariaLabel="業績指数チャート"
+      toolbar={
         <ViewToggle>
           {(Object.keys(VIEW_LABELS) as ViewType[]).map((v) => (
             <ViewBtn key={v} $active={view === v} onClick={() => setView(v)}>
@@ -529,8 +525,8 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
             </ViewBtn>
           ))}
         </ViewToggle>
-      </HeaderRow>
-
+      }
+    >
       {view === 'deviation' && (
         <StatsRow>
           <StatChip $color={ct.colors.primary}>
@@ -572,6 +568,6 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
       {view === 'zScore' && hasAnomalies && onDayClick && (
         <AnomalyNote>異常値をクリックすると詳細を表示</AnomalyNote>
       )}
-    </Wrapper>
+    </ChartCard>
   )
 })

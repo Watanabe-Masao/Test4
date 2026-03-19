@@ -5,10 +5,8 @@ import { EChart, type EChartsOption } from './EChart'
 import { useChartTheme, useCurrencyFormatter, toAxisYen, toPct } from './chartTheme'
 import { DualPeriodSlider } from './DualPeriodSlider'
 import { useDualPeriodRange } from './useDualPeriodRange'
+import { ChartCard } from './ChartCard'
 import {
-  Wrapper,
-  HeaderRow,
-  Title,
   ToggleRow,
   ViewToggle,
   ViewBtn,
@@ -554,9 +552,10 @@ export const BudgetVsActualChart = memo(function BudgetVsActualChart({
   )
 
   return (
-    <Wrapper aria-label="予算実績比較チャート">
-      <HeaderRow>
-        <Title>{chartTitle}</Title>
+    <ChartCard
+      title={chartTitle}
+      ariaLabel="予算実績比較チャート"
+      toolbar={
         <ToggleRow>
           {hasPrevYear && (
             <CompareChipGroup>
@@ -575,7 +574,8 @@ export const BudgetVsActualChart = memo(function BudgetVsActualChart({
             ))}
           </ViewToggle>
         </ToggleRow>
-      </HeaderRow>
+      }
+    >
       {/* ── 予算サマリー（予算含むモード） ── */}
       {showBudget && budget > 0 && currentActual > 0 && (
         <SummaryRow>
@@ -640,6 +640,6 @@ export const BudgetVsActualChart = memo(function BudgetVsActualChart({
         onP2Change={onP2Change}
         p2Enabled={p2Enabled}
       />
-    </Wrapper>
+    </ChartCard>
   )
 })

@@ -19,11 +19,8 @@ import {
 } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, useCurrencyFormat } from './chartTheme'
 import { ChartSkeleton } from '@/presentation/components/common'
+import { ChartCard } from './ChartCard'
 import {
-  ChartPanel,
-  ChartHeaderRow,
-  ChartPanelTitle,
-  ChartPanelSubtitle,
   ControlStrip,
   ControlItem,
   ControlItemLabel,
@@ -115,42 +112,35 @@ export const CvTimeSeriesChart = memo(function CvTimeSeriesChart({
 
   if (isLoading) {
     return (
-      <ChartPanel>
-        <ChartPanelTitle>CV時系列分析</ChartPanelTitle>
+      <ChartCard title="CV時系列分析">
         <ChartSkeleton height="280px" />
-      </ChartPanel>
+      </ChartCard>
     )
   }
 
   if (benchmarkResult.error || trendResult.error) {
     return (
-      <ChartPanel>
-        <ChartPanelTitle>CV時系列分析</ChartPanelTitle>
+      <ChartCard title="CV時系列分析">
         <ChartErrorMsg>データの取得に失敗しました</ChartErrorMsg>
-      </ChartPanel>
+      </ChartCard>
     )
   }
 
   if (chartData.cvLineData.length === 0) {
     return (
-      <ChartPanel>
-        <ChartPanelTitle>CV時系列分析</ChartPanelTitle>
+      <ChartCard title="CV時系列分析">
         <ChartErrorMsg>データがありません</ChartErrorMsg>
-      </ChartPanel>
+      </ChartCard>
     )
   }
 
   const { showCv, showPi } = getOverlayFlags(overlay)
 
   return (
-    <ChartPanel>
-      <ChartHeaderRow>
-        <div>
-          <ChartPanelTitle>CV時系列分析</ChartPanelTitle>
-          <ChartPanelSubtitle>
-            {getSubtitleText(viewMode, showPi)} / {HIERARCHY_LABELS[level]}別 / 上位{topN}
-          </ChartPanelSubtitle>
-        </div>
+    <ChartCard
+      title="CV時系列分析"
+      subtitle={`${getSubtitleText(viewMode, showPi)} / ${HIERARCHY_LABELS[level]}別 / 上位${topN}`}
+      toolbar={
         <ControlStrip>
           <ControlItem>
             <ControlItemLabel>ビュー</ControlItemLabel>
@@ -195,8 +185,8 @@ export const CvTimeSeriesChart = memo(function CvTimeSeriesChart({
             </ControlBtnGroup>
           </ControlItem>
         </ControlStrip>
-      </ChartHeaderRow>
-
+      }
+    >
       {viewMode === 'cvLine' && (
         <CvLineView
           data={chartData.cvLineData}
@@ -253,6 +243,6 @@ export const CvTimeSeriesChart = memo(function CvTimeSeriesChart({
           )
         })}
       </StatusTable>
-    </ChartPanel>
+    </ChartCard>
   )
 })

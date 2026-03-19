@@ -11,10 +11,8 @@ import { computeEstimatedInventory } from '@/application/hooks/calculation'
 import { calculateGrossProfitRate } from '@/domain/calculations/utils'
 import type { Store, StoreResult } from '@/domain/models'
 import { chartFontSize } from '@/presentation/theme/tokens'
+import { ChartCard } from './ChartCard'
 import {
-  Wrapper,
-  Header,
-  Title,
   Controls,
   ControlGroup,
   ControlLabel,
@@ -249,9 +247,10 @@ export const SalesPurchaseComparisonChart = memo(function SalesPurchaseCompariso
   const visibleEntries = storeEntries.filter((s) => isStoreVisible(s.storeId))
 
   return (
-    <Wrapper aria-label="売仕比較チャート">
-      <Header>
-        <Title>売上・仕入・推定在庫 店舗比較</Title>
+    <ChartCard
+      title="売上・仕入・推定在庫 店舗比較"
+      ariaLabel="売仕比較チャート"
+      toolbar={
         <Controls>
           <ControlGroup>
             <ControlLabel>表示系列</ControlLabel>
@@ -296,8 +295,8 @@ export const SalesPurchaseComparisonChart = memo(function SalesPurchaseCompariso
           </ControlGroup>
           {headerExtra}
         </Controls>
-      </Header>
-
+      }
+    >
       <SalesCompChart
         chartData={chartData}
         visibleEntries={visibleEntries}
@@ -407,6 +406,6 @@ export const SalesPurchaseComparisonChart = memo(function SalesPurchaseCompariso
         onP2Change={onP2Change}
         p2Enabled={p2Enabled}
       />
-    </Wrapper>
+    </ChartCard>
   )
 })
