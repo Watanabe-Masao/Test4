@@ -1,15 +1,17 @@
 /**
- * 時間別天気モーダル — 折れ線グラフで気温・降水量・湿度を表示
+ * 時間別天気モーダル — 折れ線グラフで気温・降水量を表示
  *
  * 日付セルをクリックすると開き、その日の時間帯ごとの天気データを
  * recharts の折れ線グラフ（気温）+ 棒グラフ（降水量）で可視化する。
+ * グラフ下に天気アイコン行、サマリカードに湿度を表示。
  */
 import { memo, useMemo } from 'react'
 import { ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import { useChartTheme } from '@/presentation/components/charts/chartTheme'
 import { createChartTooltip } from '@/presentation/components/charts/createChartTooltip'
-import type { HourlyWeatherRecord } from '@/domain/models'
+import { categorizeWeatherCode } from '@/domain/calculations/weatherAggregation'
+import type { HourlyWeatherRecord, WeatherCategory } from '@/domain/models'
 import {
   ModalOverlay,
   ModalContent,
@@ -21,7 +23,18 @@ import {
   SummaryItem,
   SummaryLabel,
   SummaryValue,
+  WeatherIconRow,
+  WeatherIconCell,
+  WeatherIconEmoji,
 } from './HourlyWeatherModal.styles'
+
+const WEATHER_ICONS: Record<WeatherCategory, string> = {
+  sunny: '\u2600\uFE0F',
+  cloudy: '\u2601\uFE0F',
+  rainy: '\uD83C\uDF27\uFE0F',
+  snowy: '\u2744\uFE0F',
+  other: '\uD83C\uDF00',
+}
 
 interface Props {
   readonly dateKey: string
@@ -32,7 +45,6 @@ interface Props {
 interface ChartPoint {
   readonly hour: string
   readonly temperature: number
-  readonly humidity: number
   readonly precipitation: number
 }
 
@@ -48,7 +60,6 @@ export const HourlyWeatherModal = memo(function HourlyWeatherModal({
       records.map((r) => ({
         hour: `${String(r.hour).padStart(2, '0')}時`,
         temperature: r.temperature,
-        humidity: r.humidity,
         precipitation: r.precipitation,
       })),
     [records],
@@ -76,7 +87,6 @@ export const HourlyWeatherModal = memo(function HourlyWeatherModal({
         formatter: (value, name) => {
           const v = value as number
           if (name === '気温') return [`${v.toFixed(1)}°C`, name]
-          if (name === '湿度') return [`${v.toFixed(0)}%`, name]
           if (name === '降水量') return [`${v.toFixed(1)}mm`, name]
           return [String(v), name]
         },
@@ -132,19 +142,22 @@ export const HourlyWeatherModal = memo(function HourlyWeatherModal({
                 dot={{ r: 3, fill: '#ef4444' }}
                 name="気温"
               />
-              <Line
-                yAxisId="temp"
-                type="monotone"
-                dataKey="humidity"
-                stroke="#8b5cf6"
-                strokeWidth={1.5}
-                strokeDasharray="4 2"
-                dot={false}
-                name="湿度"
-              />
             </ComposedChart>
           </ResponsiveContainer>
         </ChartContainer>
+
+        {/* 時間帯別の天気アイコン行 */}
+        <WeatherIconRow>
+          {records.map((r) => {
+            const cat = categorizeWeatherCode(r.weatherCode)
+            return (
+              <WeatherIconCell key={r.hour}>
+                <WeatherIconEmoji>{WEATHER_ICONS[cat]}</WeatherIconEmoji>
+                <span>{String(r.hour).padStart(2, '0')}</span>
+              </WeatherIconCell>
+            )
+          })}
+        </WeatherIconRow>
 
         {summary && (
           <SummaryGrid>
