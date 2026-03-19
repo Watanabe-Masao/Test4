@@ -5,10 +5,10 @@
  * 予報日: 前年の時間別データをメイングラフ + 当日の予報サマリをカード表示
  */
 import { memo, useMemo } from 'react'
-import { ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
-import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
-import { useChartTheme } from '@/presentation/components/charts/chartTheme'
-import { createChartTooltip } from '@/presentation/components/charts/createChartTooltip'
+import { useTheme } from 'styled-components'
+import type { AppTheme } from '@/presentation/theme/theme'
+import { EChart, type EChartsOption } from '@/presentation/components/charts/EChart'
+import { standardGrid, standardTooltip } from '@/presentation/components/charts/echartsOptionBuilders'
 import { categorizeWeatherCode } from '@/domain/calculations/weatherAggregation'
 import { mapJmaWeatherCodeToCategory } from '@/domain/calculations/forecastWeatherMapping'
 import type {
@@ -86,7 +86,7 @@ export const HourlyWeatherModal = memo(function HourlyWeatherModal({
   forecast,
   onClose,
 }: Props) {
-  const chartTheme = useChartTheme()
+  const theme = useTheme() as AppTheme
   const isForecastMode = !!forecast && (!records || records.length === 0)
   const hasPrev = prevYearRecords && prevYearRecords.length > 0
   const hasRecords = records && records.length > 0
@@ -134,19 +134,133 @@ export const HourlyWeatherModal = memo(function HourlyWeatherModal({
     : null
   const policyLabel = comparisonPolicy === 'sameDayOfWeek' ? '同曜日' : '同日'
 
-  const tooltipContent = useMemo(
-    () =>
-      createChartTooltip({
-        ct: chartTheme,
-        formatter: (value, name) => {
-          const v = value as number
-          if (name === '気温' || name === '前年気温') return [`${v.toFixed(1)}°C`, name]
-          if (name === '降水量' || name === '前年降水量') return [`${v.toFixed(1)}mm`, name]
-          return [String(v), name]
+  const option = useMemo((): EChartsOption => {
+    const hours = chartData.map((d) => d.hour)
+
+    type SeriesItem = Record<string, unknown>
+    const seriesList: SeriesItem[] = []
+
+    // 当年降水量（実測日のみ）
+    if (hasRecords) {
+      seriesList.push({
+        name: '降水量',
+        type: 'bar',
+        yAxisIndex: 1,
+        data: chartData.map((d) => d.precipitation ?? null),
+        itemStyle: { color: '#3b82f6', opacity: 0.3 },
+      })
+    }
+
+    // 当年気温（実測日のみ）
+    if (hasRecords) {
+      seriesList.push({
+        name: '気温',
+        type: 'line',
+        yAxisIndex: 0,
+        data: chartData.map((d) => d.temperature ?? null),
+        lineStyle: { color: '#ef4444', width: 2 },
+        itemStyle: { color: '#ef4444' },
+        symbolSize: 6,
+        smooth: true,
+      })
+    }
+
+    // 前年気温
+    if (hasPrev || isForecastMode) {
+      seriesList.push({
+        name: isForecastMode ? '前年実績気温' : '前年気温',
+        type: 'line',
+        yAxisIndex: 0,
+        data: chartData.map((d) => d.prevTemperature ?? null),
+        lineStyle: {
+          color: '#ef4444',
+          width: isForecastMode ? 2 : 1.5,
+          type: isForecastMode ? ('solid' as const) : ('dashed' as const),
+          opacity: isForecastMode ? 1 : 0.5,
         },
-      }),
-    [chartTheme],
-  )
+        itemStyle: {
+          color: '#ef4444',
+          opacity: isForecastMode ? 1 : 0.4,
+        },
+        symbolSize: isForecastMode ? 6 : 4,
+        smooth: true,
+      })
+    }
+
+    // 前年降水量
+    if (hasPrev || isForecastMode) {
+      seriesList.push({
+        name: isForecastMode ? '前年実績降水量' : '前年降水量',
+        type: 'bar',
+        yAxisIndex: 1,
+        data: chartData.map((d) => d.prevPrecipitation ?? null),
+        itemStyle: { color: '#3b82f6', opacity: isForecastMode ? 0.3 : 0.15 },
+      })
+    }
+
+    return {
+      grid: { ...standardGrid(), left: 0, right: 8 },
+      tooltip: {
+        ...standardTooltip(theme),
+        trigger: 'axis' as const,
+        formatter: (params: unknown) => {
+          const arr = Array.isArray(params) ? params : [params]
+          let html = ''
+          const items = arr as { seriesName: string; value: number | null; marker: string }[]
+          if (items.length > 0) {
+            const first = items[0] as { axisValue?: string }
+            html += `${first.axisValue ?? ''}<br/>`
+          }
+          for (const p of items) {
+            if (p.value == null) continue
+            const unit =
+              p.seriesName.includes('気温') ? `${(p.value as number).toFixed(1)}\u00B0C` : `${(p.value as number).toFixed(1)}mm`
+            html += `${p.marker} ${p.seriesName}: ${unit}<br/>`
+          }
+          return html
+        },
+      },
+      legend: {
+        textStyle: { color: theme.colors.text3, fontSize: 9 },
+        bottom: 0,
+      },
+      xAxis: {
+        type: 'category' as const,
+        data: hours,
+        axisLabel: { color: theme.colors.text3, fontSize: 10, interval: 2 },
+        axisLine: { lineStyle: { color: theme.colors.border } },
+      },
+      yAxis: [
+        {
+          type: 'value' as const,
+          name: '\u00B0C',
+          axisLabel: {
+            color: theme.colors.text3,
+            fontSize: 10,
+            formatter: (v: number) => `${v}\u00B0`,
+          },
+          axisLine: { show: false },
+          axisTick: { show: false },
+          splitLine: {
+            lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' as const },
+          },
+        },
+        {
+          type: 'value' as const,
+          name: 'mm',
+          axisLabel: {
+            color: theme.colors.text3,
+            fontSize: 10,
+            formatter: (v: number) => `${v}mm`,
+          },
+          axisLine: { show: false },
+          axisTick: { show: false },
+          splitLine: { show: false },
+        },
+      ],
+      series: seriesList,
+    }
+  }, [chartData, hasRecords, hasPrev, isForecastMode, theme])
 
   return (
     <ModalOverlay onClick={onClose}>
@@ -156,7 +270,7 @@ export const HourlyWeatherModal = memo(function HourlyWeatherModal({
             {dayLabel}
             {isForecastMode ? ' の予報' : ' の時間別天気'}
             {prevDayLabel && (
-              <span style={{ fontSize: '0.7rem', color: chartTheme.textMuted, marginLeft: 8 }}>
+              <span style={{ fontSize: '0.7rem', color: theme.colors.text3, marginLeft: 8 }}>
                 vs {prevDayLabel}（{policyLabel}）
               </span>
             )}
@@ -170,79 +284,7 @@ export const HourlyWeatherModal = memo(function HourlyWeatherModal({
         {chartData.length > 0 && (
           <>
             <ChartContainer>
-              <ResponsiveContainer>
-                <ComposedChart data={chartData as ChartPoint[]} margin={{ left: 0, right: 8 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.grid} vertical={false} />
-                  <XAxis
-                    dataKey="hour"
-                    tick={{ fontSize: 10, fill: chartTheme.textMuted }}
-                    interval={2}
-                  />
-                  <YAxis
-                    yAxisId="temp"
-                    tick={{ fontSize: 10, fill: chartTheme.textMuted }}
-                    tickFormatter={(v: number) => `${v}°`}
-                    width={40}
-                  />
-                  <YAxis
-                    yAxisId="precip"
-                    orientation="right"
-                    tick={{ fontSize: 10, fill: chartTheme.textMuted }}
-                    tickFormatter={(v: number) => `${v}mm`}
-                    width={45}
-                  />
-                  <Tooltip content={tooltipContent} />
-                  <Legend wrapperStyle={{ fontSize: '0.65rem' }} />
-                  {/* 当年データ（実測日のみ） */}
-                  {hasRecords && (
-                    <Bar
-                      yAxisId="precip"
-                      dataKey="precipitation"
-                      fill="#3b82f6"
-                      opacity={0.3}
-                      name="降水量"
-                    />
-                  )}
-                  {hasRecords && (
-                    <Line
-                      yAxisId="temp"
-                      type="monotone"
-                      dataKey="temperature"
-                      stroke="#ef4444"
-                      strokeWidth={2}
-                      dot={{ r: 3, fill: '#ef4444' }}
-                      name="気温"
-                    />
-                  )}
-                  {/* 前年データ */}
-                  {(hasPrev || isForecastMode) && (
-                    <Line
-                      yAxisId="temp"
-                      type="monotone"
-                      dataKey="prevTemperature"
-                      stroke={isForecastMode ? '#ef4444' : '#ef4444'}
-                      strokeWidth={isForecastMode ? 2 : 1.5}
-                      strokeDasharray={isForecastMode ? undefined : '6 3'}
-                      strokeOpacity={isForecastMode ? 1 : 0.5}
-                      dot={
-                        isForecastMode
-                          ? { r: 3, fill: '#ef4444' }
-                          : { r: 2, fill: '#ef4444', fillOpacity: 0.4 }
-                      }
-                      name={isForecastMode ? '前年実績気温' : '前年気温'}
-                    />
-                  )}
-                  {(hasPrev || isForecastMode) && (
-                    <Bar
-                      yAxisId="precip"
-                      dataKey="prevPrecipitation"
-                      fill="#3b82f6"
-                      opacity={isForecastMode ? 0.3 : 0.15}
-                      name={isForecastMode ? '前年実績降水量' : '前年降水量'}
-                    />
-                  )}
-                </ComposedChart>
-              </ResponsiveContainer>
+              <EChart option={option} height={250} ariaLabel="時間別天気チャート" />
             </ChartContainer>
 
             {/* 時間帯別の天気アイコン行（当年 + 前年） */}
@@ -292,18 +334,18 @@ export const HourlyWeatherModal = memo(function HourlyWeatherModal({
               <SummaryItem>
                 <SummaryLabel>最高気温</SummaryLabel>
                 <SummaryValue style={{ color: '#ef4444' }}>
-                  {summary.maxTemp.toFixed(1)}°C
+                  {summary.maxTemp.toFixed(1)}\u00B0C
                   {prevSummary && (
-                    <DiffText value={summary.maxTemp - prevSummary.maxTemp} unit="°C" />
+                    <DiffText value={summary.maxTemp - prevSummary.maxTemp} unit="\u00B0C" />
                   )}
                 </SummaryValue>
               </SummaryItem>
               <SummaryItem>
                 <SummaryLabel>最低気温</SummaryLabel>
                 <SummaryValue style={{ color: '#3498db' }}>
-                  {summary.minTemp.toFixed(1)}°C
+                  {summary.minTemp.toFixed(1)}\u00B0C
                   {prevSummary && (
-                    <DiffText value={summary.minTemp - prevSummary.minTemp} unit="°C" />
+                    <DiffText value={summary.minTemp - prevSummary.minTemp} unit="\u00B0C" />
                   )}
                 </SummaryValue>
               </SummaryItem>
@@ -327,13 +369,13 @@ export const HourlyWeatherModal = memo(function HourlyWeatherModal({
               <SummaryItem>
                 <SummaryLabel>前年最高気温</SummaryLabel>
                 <SummaryValue style={{ color: '#ef4444' }}>
-                  {prevSummary.maxTemp.toFixed(1)}°C
+                  {prevSummary.maxTemp.toFixed(1)}\u00B0C
                 </SummaryValue>
               </SummaryItem>
               <SummaryItem>
                 <SummaryLabel>前年最低気温</SummaryLabel>
                 <SummaryValue style={{ color: '#3498db' }}>
-                  {prevSummary.minTemp.toFixed(1)}°C
+                  {prevSummary.minTemp.toFixed(1)}\u00B0C
                 </SummaryValue>
               </SummaryItem>
               <SummaryItem>
@@ -369,13 +411,13 @@ function ForecastSummary({ forecast }: { readonly forecast: DailyForecast }) {
       {forecast.tempMax != null && (
         <SummaryItem style={{ borderLeft: '3px solid rgba(249, 115, 22, 0.6)' }}>
           <SummaryLabel>予報最高</SummaryLabel>
-          <SummaryValue style={{ color: '#ef4444' }}>{forecast.tempMax}°C</SummaryValue>
+          <SummaryValue style={{ color: '#ef4444' }}>{forecast.tempMax}\u00B0C</SummaryValue>
         </SummaryItem>
       )}
       {forecast.tempMin != null && (
         <SummaryItem style={{ borderLeft: '3px solid rgba(249, 115, 22, 0.6)' }}>
           <SummaryLabel>予報最低</SummaryLabel>
-          <SummaryValue style={{ color: '#3498db' }}>{forecast.tempMin}°C</SummaryValue>
+          <SummaryValue style={{ color: '#3498db' }}>{forecast.tempMin}\u00B0C</SummaryValue>
         </SummaryItem>
       )}
       {forecast.pop != null && (

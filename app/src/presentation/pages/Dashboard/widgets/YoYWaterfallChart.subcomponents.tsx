@@ -14,7 +14,6 @@ import {
   yenYAxis,
   standardGrid,
   standardTooltip,
-  toCommaYen,
 } from '@/presentation/components/charts/echartsOptionBuilders'
 import { useCurrencyFormatter } from '@/presentation/components/charts/chartTheme'
 import { formatPercent } from '@/domain/formatting'

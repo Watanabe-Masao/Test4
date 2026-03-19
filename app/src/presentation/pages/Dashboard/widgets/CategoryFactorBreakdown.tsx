@@ -356,12 +356,6 @@ export const CategoryFactorBreakdown = memo(function CategoryFactorBreakdown({
     setDrillPath((prev) => prev.slice(0, idx))
   }, [])
 
-  if (items.length === 0) return null
-
-  const levelLabel =
-    currentLevel === 'dept' ? '部門' : currentLevel === 'line' ? 'ライン' : 'クラス'
-  const chartH = Math.max(compact ? 180 : 240, items.length * (compact ? 28 : 34) + 40)
-
   const handleChartClick = useCallback(
     (params: Record<string, unknown>) => {
       const dataIndex = params.dataIndex as number | undefined
@@ -371,6 +365,12 @@ export const CategoryFactorBreakdown = memo(function CategoryFactorBreakdown({
     },
     [waterfallItems, handleDrill],
   )
+
+  if (items.length === 0) return null
+
+  const levelLabel =
+    currentLevel === 'dept' ? '部門' : currentLevel === 'line' ? 'ライン' : 'クラス'
+  const chartH = Math.max(compact ? 180 : 240, items.length * (compact ? 28 : 34) + 40)
 
   return (
     <div>
