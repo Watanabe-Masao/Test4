@@ -409,6 +409,16 @@ export async function fetchEtrnHourlyRange(
 // ─── Utilities ──────────────────────────────────────
 // delay, fetchHtmlWithRetry, EtrnNotFoundError → etrnHttpClient.ts
 
+/** 都道府県名から ETRN 観測所一覧を検索する */
+export async function searchStationsByPrefecture(
+  prefectureName: string,
+): Promise<readonly EtrnStation[]> {
+  const prefMap = await fetchPrefectureMap()
+  const precNo = findPrecNo(prefMap, prefectureName)
+  if (precNo == null) return []
+  return fetchStationList(precNo)
+}
+
 /** テスト用: キャッシュをクリアする */
 export function clearEtrnCache(): void {
   cachedPrefMap = null
