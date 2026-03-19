@@ -12,23 +12,10 @@
  */
 import { memo, useMemo } from 'react'
 import { useTheme } from 'styled-components'
-import {
-  ComposedChart,
-  Bar,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ReferenceLine,
-} from 'recharts'
-import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange, PrevYearScope } from '@/domain/models'
 import type { AppTheme } from '@/presentation/theme/theme'
-import { useChartTheme, useCurrencyFormatter, toComma, toPct, toAxisYen } from './chartTheme'
-import { createChartTooltip } from './createChartTooltip'
+import { useChartTheme, useCurrencyFormatter, toComma, toPct } from './chartTheme'
 import { EChart, type EChartsOption } from './EChart'
 import { yenYAxis, standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
 import { formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
@@ -163,6 +150,86 @@ export const TimeSlotChart = memo(function TimeSlotChart({
       series,
     }
   }, [d.chartData, d.metricMode, d.curLabel, d.compLabel, showPrev, theme])
+
+  // ECharts option for YoY comparison view
+  const yoyChartOption = useMemo<EChartsOption>(() => {
+    if (!d.yoyData) return {}
+    const hours = (d.yoyData.chartData as unknown as Record<string, unknown>[]).map((r) =>
+      String(r.hour),
+    )
+    const curData = (d.yoyData.chartData as unknown as Record<string, unknown>[]).map(
+      (r) => r.current as number,
+    )
+    const prevData = (d.yoyData.chartData as unknown as Record<string, unknown>[]).map(
+      (r) => (r.prevYear as number) ?? null,
+    )
+
+    return {
+      grid: standardGrid(),
+      tooltip: {
+        ...standardTooltip(theme),
+        formatter: (params: unknown) => {
+          const items = params as { seriesName: string; value: number; marker: string }[]
+          if (!Array.isArray(items) || items.length === 0) return ''
+          const lines = items.map((item) => {
+            const v = item.value ?? 0
+            const formatted =
+              item.seriesName === '差分'
+                ? `${v >= 0 ? '+' : ''}${toComma(v)}円`
+                : `${toComma(v)}円`
+            return `${item.marker} ${item.seriesName}: ${formatted}`
+          })
+          return `${String((items[0] as { axisValue?: string }).axisValue ?? '')}<br/>${lines.join('<br/>')}`
+        },
+      },
+      legend: {
+        ...standardLegend(theme),
+        data: [d.curLabel, d.compLabel],
+      },
+      xAxis: {
+        type: 'category' as const,
+        data: hours,
+        axisLabel: {
+          color: theme.colors.text3,
+          fontSize: 10,
+          fontFamily: theme.typography.fontFamily.mono,
+        },
+        axisLine: { lineStyle: { color: theme.colors.border } },
+      },
+      yAxis: yenYAxis(theme),
+      series: [
+        {
+          name: d.curLabel,
+          type: 'bar' as const,
+          data: curData,
+          itemStyle: {
+            color: {
+              type: 'linear' as const,
+              x: 0,
+              y: 0,
+              x2: 0,
+              y2: 1,
+              colorStops: [
+                { offset: 0, color: `${ct.colors.primary}d9` },
+                { offset: 1, color: `${ct.colors.primary}66` },
+              ],
+            },
+            borderRadius: [3, 3, 0, 0],
+          },
+          barMaxWidth: 20,
+        },
+        {
+          name: d.compLabel,
+          type: 'line' as const,
+          data: prevData,
+          lineStyle: { color: ct.colors.slate, width: 2.5, type: 'dashed' as const },
+          itemStyle: { color: ct.colors.slate },
+          symbol: 'none',
+          connectNulls: true,
+        },
+      ],
+    }
+  }, [d.yoyData, d.curLabel, d.compLabel, theme, ct.colors.primary, ct.colors.slate])
 
   if (d.error) {
     return (
@@ -465,86 +532,7 @@ export const TimeSlotChart = memo(function TimeSlotChart({
                 )}
               </SummaryRow>
 
-              <div style={{ width: '100%', height: 300, minHeight: 0 }}>
-                <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="100%">
-                  <ComposedChart
-                    data={d.yoyData.chartData}
-                    margin={{ top: 4, right: 12, left: 0, bottom: 0 }}
-                  >
-                    <defs>
-                      <linearGradient id="duckYoyCurGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor={ct.colors.primary} stopOpacity={0.85} />
-                        <stop offset="100%" stopColor={ct.colors.primary} stopOpacity={0.4} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
-                    <XAxis
-                      dataKey="hour"
-                      tick={{
-                        fill: ct.textMuted,
-                        fontSize: ct.fontSize.xs,
-                        fontFamily: ct.monoFamily,
-                      }}
-                      axisLine={{ stroke: ct.grid }}
-                      tickLine={false}
-                    />
-                    <YAxis
-                      tick={{
-                        fill: ct.textMuted,
-                        fontSize: ct.fontSize.xs,
-                        fontFamily: ct.monoFamily,
-                      }}
-                      axisLine={false}
-                      tickLine={false}
-                      tickFormatter={toAxisYen}
-                      width={50}
-                    />
-                    <ReferenceLine y={0} stroke={ct.grid} />
-                    <Tooltip
-                      content={createChartTooltip({
-                        ct,
-                        formatter: (value: unknown, name: string) => {
-                          const labels: Record<string, string> = {
-                            current: d.curLabel,
-                            prevYear: d.compLabel,
-                            diff: '差分',
-                          }
-                          const label = labels[name] ?? String(name)
-                          const v = (value as number) ?? 0
-                          if (name === 'diff') return [`${v >= 0 ? '+' : ''}${toComma(v)}円`, label]
-                          return [`${toComma(v)}円`, label]
-                        },
-                      })}
-                    />
-                    <Legend
-                      wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
-                      formatter={(value) => {
-                        const labels: Record<string, string> = {
-                          current: d.curLabel,
-                          prevYear: d.compLabel,
-                          diff: '差分',
-                        }
-                        return labels[value] ?? value
-                      }}
-                    />
-                    <Bar
-                      dataKey="current"
-                      fill="url(#duckYoyCurGrad)"
-                      radius={[3, 3, 0, 0]}
-                      maxBarSize={20}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="prevYear"
-                      stroke={ct.colors.slate}
-                      strokeWidth={2.5}
-                      strokeDasharray="5 3"
-                      dot={false}
-                      connectNulls
-                    />
-                  </ComposedChart>
-                </ResponsiveContainer>
-              </div>
+              <EChart option={yoyChartOption} height={300} ariaLabel="時間帯別前年比較チャート" />
 
               <TableWrapper>
                 <MiniTable>

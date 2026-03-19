@@ -6,22 +6,11 @@
  */
 import { useState, useMemo, memo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  Cell,
-  ReferenceLine,
-  ComposedChart,
-  Line,
-} from 'recharts'
-import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
-import { useChartTheme, toComma, toDevScore } from './chartTheme'
-import { createChartTooltip } from './createChartTooltip'
+import { useTheme } from 'styled-components'
+import type { AppTheme } from '@/presentation/theme/theme'
+import { EChart, type EChartsOption } from './EChart'
+import { standardTooltip, standardLegend } from './echartsOptionBuilders'
+import { toComma, toDevScore } from './chartTheme'
 import type { DateRange, PrevYearScope } from '@/domain/models'
 import { useDuckDBLevelAggregation } from '@/application/hooks/duckdb'
 import { calculateStdDev } from '@/application/hooks/useStatistics'
@@ -84,7 +73,7 @@ export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
 }: Props) {
   const prevYearDateRange = prevYearScope?.dateRange
   const prevTotalCustomers = prevYearScope?.totalCustomers ?? 0
-  const ct = useChartTheme()
+  const theme = useTheme() as AppTheme
   const [view, setView] = useState<ViewType>('piRank')
   const [level, setLevel] = useState<LevelType>('department')
 
@@ -222,6 +211,217 @@ export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
     deviation: `カテゴリ偏差値分析（${LEVEL_LABELS[level]}別 / 基準=50）`,
   }
 
+  const names = categoryRows.map((r) => r.name)
+
+  const option = useMemo<EChartsOption>(() => {
+    const baseGrid = { left: 80, right: 20, top: 30, bottom: 30, containLabel: false }
+    const baseYAxis = {
+      type: 'category' as const,
+      data: names,
+      inverse: true,
+      axisLabel: {
+        color: theme.colors.text3,
+        fontSize: 8,
+        fontFamily: theme.typography.fontFamily.primary,
+        width: 70,
+        overflow: 'truncate' as const,
+      },
+      axisLine: { show: false },
+      axisTick: { show: false },
+    }
+
+    if (view === 'deviation') {
+      const barData = (categoryRows as unknown as Record<string, unknown>[]).map((entry) => {
+        const d = (entry.deviation as number | null) ?? 50
+        const color =
+          d >= 60
+            ? theme.colors.palette.success
+            : d >= 50
+              ? theme.colors.palette.primary
+              : d >= 40
+                ? theme.colors.palette.warning
+                : theme.colors.palette.danger
+        return { value: entry.deviation, itemStyle: { color, opacity: 0.7 } }
+      })
+
+      const lineData = (categoryRows as unknown as Record<string, unknown>[]).map(
+        (entry) => entry.qtyDeviation as number | null,
+      )
+
+      return {
+        grid: baseGrid,
+        tooltip: {
+          ...standardTooltip(theme),
+          trigger: 'axis' as const,
+          formatter: (params: unknown) => {
+            const items = params as { seriesName: string; value: number | null; marker: string }[]
+            const categoryName = (items[0] as unknown as Record<string, unknown>).name as string
+            const lines = items.map((item) => {
+              const label = allLabels[item.seriesName] ?? item.seriesName
+              const val = item.value != null ? (item.value as number).toFixed(1) : '-'
+              return `${item.marker} ${label}: ${val}`
+            })
+            return `<strong>${categoryName}</strong><br/>${lines.join('<br/>')}`
+          },
+        },
+        legend: {
+          ...standardLegend(theme),
+          data: [
+            { name: 'deviation', icon: 'roundRect' },
+            { name: 'qtyDeviation', icon: 'circle' },
+          ],
+          formatter: (name: string) => allLabels[name] ?? name,
+        },
+        xAxis: {
+          type: 'value' as const,
+          min: 20,
+          max: 80,
+          axisLabel: {
+            color: theme.colors.text3,
+            fontSize: 9,
+            fontFamily: theme.typography.fontFamily.mono,
+          },
+          axisLine: { lineStyle: { color: theme.colors.border } },
+          axisTick: { show: false },
+          splitLine: {
+            lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' as const },
+          },
+        },
+        yAxis: baseYAxis,
+        series: [
+          {
+            name: 'deviation',
+            type: 'bar' as const,
+            data: barData,
+            barWidth: 10,
+            itemStyle: { borderRadius: [0, 3, 3, 0] },
+            markLine: {
+              silent: true,
+              symbol: 'none',
+              lineStyle: { type: 'solid' as const },
+              data: [
+                {
+                  xAxis: 50,
+                  lineStyle: {
+                    color: theme.colors.border,
+                    width: 1.5,
+                    opacity: 0.7,
+                    type: 'solid' as const,
+                  },
+                },
+                {
+                  xAxis: 60,
+                  lineStyle: {
+                    color: theme.colors.palette.success,
+                    width: 1,
+                    opacity: 0.3,
+                    type: 'dashed' as const,
+                  },
+                },
+                {
+                  xAxis: 40,
+                  lineStyle: {
+                    color: theme.colors.palette.danger,
+                    width: 1,
+                    opacity: 0.3,
+                    type: 'dashed' as const,
+                  },
+                },
+              ],
+            },
+          },
+          {
+            name: 'qtyDeviation',
+            type: 'line' as const,
+            data: lineData,
+            smooth: true,
+            lineStyle: { color: theme.colors.palette.purple, width: 2 },
+            itemStyle: { color: theme.colors.palette.purple },
+            symbol: 'circle',
+            symbolSize: 6,
+          },
+        ],
+      }
+    }
+
+    // piRank / piQtyRank views
+    const isPiAmount = view === 'piRank'
+    const mainKey = isPiAmount ? 'piAmount' : 'piQty'
+    const prevKey = isPiAmount ? 'prevPiAmount' : 'prevPiQty'
+    const mainColor = isPiAmount ? theme.colors.palette.primary : theme.colors.palette.info
+
+    const mainData = (categoryRows as unknown as Record<string, unknown>[]).map((entry) => {
+      const val = entry[mainKey] as number
+      const prev = entry[prevKey] as number | null
+      const color = prev != null && val >= prev ? mainColor : theme.colors.palette.slateDark
+      return { value: val, itemStyle: { color, opacity: 0.7 } }
+    })
+
+    const prevData = (categoryRows as unknown as Record<string, unknown>[]).map(
+      (entry) => entry[prevKey] as number | null,
+    )
+
+    return {
+      grid: baseGrid,
+      tooltip: {
+        ...standardTooltip(theme),
+        trigger: 'axis' as const,
+        formatter: (params: unknown) => {
+          const items = params as { seriesName: string; value: number | null; marker: string }[]
+          const categoryName = (items[0] as unknown as Record<string, unknown>).name as string
+          const lines = items.map((item) => {
+            const label = allLabels[item.seriesName] ?? item.seriesName
+            const val = item.value != null ? toComma(Math.round(item.value as number)) : '-'
+            return `${item.marker} ${label}: ${val}`
+          })
+          return `<strong>${categoryName}</strong><br/>${lines.join('<br/>')}`
+        },
+      },
+      legend: {
+        ...standardLegend(theme),
+        data: [
+          { name: mainKey, icon: 'roundRect' },
+          { name: prevKey, icon: 'roundRect' },
+        ],
+        formatter: (name: string) => allLabels[name] ?? name,
+      },
+      xAxis: {
+        type: 'value' as const,
+        axisLabel: {
+          color: theme.colors.text3,
+          fontSize: 9,
+          fontFamily: theme.typography.fontFamily.mono,
+        },
+        axisLine: { lineStyle: { color: theme.colors.border } },
+        axisTick: { show: false },
+        splitLine: {
+          lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' as const },
+        },
+      },
+      yAxis: baseYAxis,
+      series: [
+        {
+          name: mainKey,
+          type: 'bar' as const,
+          data: mainData,
+          barWidth: 10,
+          itemStyle: { borderRadius: [0, 3, 3, 0] },
+        },
+        {
+          name: prevKey,
+          type: 'bar' as const,
+          data: prevData,
+          barWidth: 6,
+          itemStyle: {
+            color: theme.colors.palette.slate,
+            opacity: 0.35,
+            borderRadius: [0, 2, 2, 0],
+          },
+        },
+      ],
+    }
+  }, [categoryRows, names, view, theme, allLabels])
+
   return (
     <Wrapper aria-label="カテゴリ実績チャート">
       <HeaderRow>
@@ -245,178 +445,7 @@ export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
         </ToggleRow>
       </HeaderRow>
 
-      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={chartHeight}>
-        {view === 'deviation' ? (
-          <ComposedChart
-            data={categoryRows}
-            layout="vertical"
-            margin={{ top: 4, right: 20, left: 0, bottom: 4 }}
-          >
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke={ct.grid}
-              strokeOpacity={0.3}
-              horizontal={false}
-            />
-            <XAxis
-              type="number"
-              domain={[20, 80]}
-              tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-              axisLine={{ stroke: ct.grid }}
-              tickLine={false}
-            />
-            <YAxis
-              type="category"
-              dataKey="name"
-              width={80}
-              tick={{ fill: ct.textMuted, fontSize: 8, fontFamily: ct.fontFamily }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <ReferenceLine x={50} stroke={ct.grid} strokeWidth={1.5} strokeOpacity={0.7} />
-            <ReferenceLine
-              x={60}
-              stroke={ct.colors.success}
-              strokeDasharray="4 4"
-              strokeOpacity={0.3}
-            />
-            <ReferenceLine
-              x={40}
-              stroke={ct.colors.danger}
-              strokeDasharray="4 4"
-              strokeOpacity={0.3}
-            />
-            <Bar dataKey="deviation" barSize={10} radius={[0, 3, 3, 0]}>
-              {categoryRows.map((entry, i) => {
-                const d = entry.deviation ?? 50
-                return (
-                  <Cell
-                    key={i}
-                    fill={
-                      d >= 60
-                        ? ct.colors.success
-                        : d >= 50
-                          ? ct.colors.primary
-                          : d >= 40
-                            ? ct.colors.warning
-                            : ct.colors.danger
-                    }
-                    fillOpacity={0.7}
-                  />
-                )
-              })}
-            </Bar>
-            <Line
-              type="monotone"
-              dataKey="qtyDeviation"
-              stroke={ct.colors.purple}
-              strokeWidth={2}
-              dot={{ fill: ct.colors.purple, r: 3 }}
-            />
-            <Tooltip
-              content={createChartTooltip({
-                ct,
-                formatter: (value, name) => {
-                  if (value == null) return ['-', allLabels[name] ?? name]
-                  return [(value as number).toFixed(1), allLabels[name] ?? name]
-                },
-              })}
-            />
-            <Legend
-              wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
-              formatter={(value) => allLabels[value] ?? value}
-            />
-          </ComposedChart>
-        ) : (
-          <BarChart
-            data={categoryRows}
-            layout="vertical"
-            margin={{ top: 4, right: 20, left: 0, bottom: 4 }}
-          >
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke={ct.grid}
-              strokeOpacity={0.3}
-              horizontal={false}
-            />
-            <XAxis
-              type="number"
-              tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-              axisLine={{ stroke: ct.grid }}
-              tickLine={false}
-            />
-            <YAxis
-              type="category"
-              dataKey="name"
-              width={80}
-              tick={{ fill: ct.textMuted, fontSize: 8, fontFamily: ct.fontFamily }}
-              axisLine={false}
-              tickLine={false}
-            />
-            {view === 'piRank' && (
-              <>
-                <Bar dataKey="piAmount" barSize={10} radius={[0, 3, 3, 0]}>
-                  {categoryRows.map((entry, i) => (
-                    <Cell
-                      key={i}
-                      fill={
-                        entry.prevPiAmount != null && entry.piAmount >= entry.prevPiAmount
-                          ? ct.colors.primary
-                          : ct.colors.slateDark
-                      }
-                      fillOpacity={0.7}
-                    />
-                  ))}
-                </Bar>
-                <Bar
-                  dataKey="prevPiAmount"
-                  barSize={6}
-                  fill={ct.colors.slate}
-                  fillOpacity={0.35}
-                  radius={[0, 2, 2, 0]}
-                />
-              </>
-            )}
-            {view === 'piQtyRank' && (
-              <>
-                <Bar dataKey="piQty" barSize={10} radius={[0, 3, 3, 0]}>
-                  {categoryRows.map((entry, i) => (
-                    <Cell
-                      key={i}
-                      fill={
-                        entry.prevPiQty != null && entry.piQty >= entry.prevPiQty
-                          ? ct.colors.info
-                          : ct.colors.slateDark
-                      }
-                      fillOpacity={0.7}
-                    />
-                  ))}
-                </Bar>
-                <Bar
-                  dataKey="prevPiQty"
-                  barSize={6}
-                  fill={ct.colors.slate}
-                  fillOpacity={0.35}
-                  radius={[0, 2, 2, 0]}
-                />
-              </>
-            )}
-            <Tooltip
-              content={createChartTooltip({
-                ct,
-                formatter: (value, name) => {
-                  if (value == null) return ['-', allLabels[name] ?? name]
-                  return [toComma(Math.round(value as number)), allLabels[name] ?? name]
-                },
-              })}
-            />
-            <Legend
-              wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
-              formatter={(value) => allLabels[value] ?? value}
-            />
-          </BarChart>
-        )}
-      </ResponsiveContainer>
+      <EChart option={option} height={chartHeight} ariaLabel="カテゴリ実績チャート" />
     </Wrapper>
   )
 })

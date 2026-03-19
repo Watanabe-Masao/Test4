@@ -1,26 +1,14 @@
 import { useMemo, useState, memo } from 'react'
+import { useTheme } from 'styled-components'
+import type { AppTheme } from '@/presentation/theme/theme'
 import {
-  ComposedChart,
-  Line,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ReferenceLine,
-} from 'recharts'
-import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
-import {
-  useChartTheme,
   useCurrencyFormatter,
   useCurrencyFormat,
-  toComma,
   toPct,
-  toAxisYen,
   STORE_COLORS,
 } from './chartTheme'
-import { createChartTooltip } from './createChartTooltip'
+import { EChart } from './EChart'
+import { yenYAxis, standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
 import { DualPeriodSlider } from './DualPeriodSlider'
 import { useDualPeriodRange } from './useDualPeriodRange'
 import { computeEstimatedInventoryDetails } from '@/application/hooks/calculation'
@@ -73,7 +61,7 @@ export const EstimatedInventoryDetailChart = memo(function EstimatedInventoryDet
   comparisonResults,
   stores,
 }: Props) {
-  const ct = useChartTheme()
+  const theme = useTheme() as AppTheme
   const currFmt = useCurrencyFormatter()
   const { format: fmtCurrency } = useCurrencyFormat()
   const fmt = createFmt(fmtCurrency)
@@ -225,57 +213,26 @@ export const EstimatedInventoryDetailChart = memo(function EstimatedInventoryDet
       <Wrapper aria-label="推定在庫詳細チャート">
         {tabHeader}
 
-        {/* チャート: 店舗ごとの推定在庫ライン */}
-        <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={300}>
-          <ComposedChart data={compChartData} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
-            <XAxis
-              dataKey="day"
-              tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-              axisLine={{ stroke: ct.grid }}
-              tickLine={false}
-            />
-            {anyHasInventory && (
-              <YAxis
-                yAxisId="left"
-                tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-                axisLine={false}
-                tickLine={false}
-                tickFormatter={toAxisYen}
-                width={55}
-              />
-            )}
-            <Tooltip
-              content={createChartTooltip({
-                ct,
-                formatter: (value, name) => [value != null ? toComma(value as number) : '-', name],
-                labelFormatter: (label) => `${label}日`,
-              })}
-            />
-            <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
-
-            {storeEntries.map((s, i) =>
-              s.hasInventory ? (
-                <Line
-                  key={s.storeId}
-                  yAxisId="left"
-                  type="monotone"
-                  dataKey={`${s.name}_推定在庫`}
-                  stroke={STORE_COLORS[i % STORE_COLORS.length]}
-                  strokeWidth={2.5}
-                  dot={false}
-                  activeDot={{
-                    r: 4,
-                    fill: STORE_COLORS[i % STORE_COLORS.length],
-                    stroke: ct.bg2,
-                    strokeWidth: 2,
-                  }}
-                  isAnimationActive={false}
-                />
-              ) : null,
-            )}
-          </ComposedChart>
-        </ResponsiveContainer>
+        {/* チャート: 店舗ごとの推定在庫ライン (ECharts) */}
+        <EChart
+          option={{
+            grid: standardGrid(),
+            tooltip: standardTooltip(theme),
+            legend: standardLegend(theme),
+            xAxis: { type: 'category', data: compChartData.map((d: unknown) => String((d as Record<string, unknown>).day)), axisLabel: { color: theme.colors.text3, fontSize: 10, fontFamily: theme.typography.fontFamily.mono } },
+            yAxis: anyHasInventory ? yenYAxis(theme) : { type: 'value' },
+            series: storeEntries.filter((s) => s.hasInventory).map((s, i) => ({
+              name: `${s.name}_推定在庫`,
+              type: 'line' as const,
+              data: compChartData.map((d: unknown) => (d as Record<string, unknown>)[`${s.name}_推定在庫`] ?? null),
+              lineStyle: { color: STORE_COLORS[i % STORE_COLORS.length], width: 2.5 },
+              itemStyle: { color: STORE_COLORS[i % STORE_COLORS.length] },
+              symbol: 'none',
+            })),
+          }}
+          height={300}
+          ariaLabel="店舗別推定在庫チャート"
+        />
 
         <DualPeriodSlider
           min={1}
@@ -343,105 +300,39 @@ export const EstimatedInventoryDetailChart = memo(function EstimatedInventoryDet
     <Wrapper aria-label="推定在庫詳細チャート">
       {tabHeader}
 
-      {/* ---- チャート ---- */}
-      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={280}>
-        <ComposedChart data={aggChartData} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
-          <XAxis
-            dataKey="day"
-            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-            axisLine={{ stroke: ct.grid }}
-            tickLine={false}
-          />
-          <YAxis
-            yAxisId="left"
-            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-            axisLine={false}
-            tickLine={false}
-            tickFormatter={toAxisYen}
-            width={55}
-          />
-          <YAxis
-            yAxisId="right"
-            orientation="right"
-            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-            axisLine={false}
-            tickLine={false}
-            tickFormatter={toAxisYen}
-            width={55}
-          />
-          <Tooltip
-            content={createChartTooltip({
-              ct,
-              formatter: (value, name) => [
-                value != null ? toComma(value as number) : '-',
-                AGG_LABELS[name as string] ?? String(name),
-              ],
-              labelFormatter: (label) => `${label}日`,
-            })}
-          />
-          <Legend
-            wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
-            formatter={(value) => AGG_LABELS[value] ?? value}
-          />
-
-          <Bar
-            yAxisId="right"
-            dataKey="inventoryCost"
-            fill={ct.colors.info}
-            fillOpacity={0.45}
-            isAnimationActive={false}
-          />
-          <Bar
-            yAxisId="right"
-            dataKey="estCogs"
-            fill={ct.colors.warning}
-            fillOpacity={0.45}
-            isAnimationActive={false}
-          />
-          <Line
-            yAxisId="left"
-            type="monotone"
-            dataKey="estimated"
-            stroke={ct.colors.cyan}
-            strokeWidth={2.5}
-            dot={false}
-            activeDot={{ r: 4, fill: ct.colors.cyan, stroke: ct.bg2, strokeWidth: 2 }}
-            isAnimationActive={false}
-          />
-
-          <ReferenceLine
-            yAxisId="left"
-            y={openingInventory!}
-            stroke={ct.colors.info}
-            strokeDasharray="6 3"
-            strokeWidth={1}
-            label={{
-              value: `期首 ${currFmt(openingInventory!)}`,
-              position: 'left',
-              fill: ct.colors.info,
-              fontSize: ct.fontSize.xs,
-              fontFamily: ct.monoFamily,
-            }}
-          />
-          {closingInventory != null && (
-            <ReferenceLine
-              yAxisId="left"
-              y={closingInventory}
-              stroke={ct.colors.success}
-              strokeDasharray="4 4"
-              strokeWidth={1}
-              label={{
-                value: `実在庫 ${currFmt(closingInventory)}`,
-                position: 'right',
-                fill: ct.colors.success,
-                fontSize: ct.fontSize.xs,
-                fontFamily: ct.monoFamily,
-              }}
-            />
-          )}
-        </ComposedChart>
-      </ResponsiveContainer>
+      {/* ---- チャート (ECharts) ---- */}
+      <EChart
+        option={{
+          grid: standardGrid(),
+          tooltip: standardTooltip(theme),
+          legend: { ...standardLegend(theme), formatter: (name: string) => AGG_LABELS[name] ?? name },
+          xAxis: { type: 'category', data: (aggChartData as unknown as Record<string, unknown>[]).map((d) => String(d.day)), axisLabel: { color: theme.colors.text3, fontSize: 10, fontFamily: theme.typography.fontFamily.mono } },
+          yAxis: [
+            yenYAxis(theme) as Record<string, unknown>,
+            { ...yenYAxis(theme) as Record<string, unknown>, position: 'right', splitLine: { show: false } },
+          ],
+          series: [
+            { name: 'inventoryCost', type: 'bar' as const, yAxisIndex: 1, data: (aggChartData as unknown as Record<string, unknown>[]).map((d) => d.inventoryCost ?? 0), itemStyle: { color: theme.colors.palette.infoDark, opacity: 0.45 } },
+            { name: 'estCogs', type: 'bar' as const, yAxisIndex: 1, data: (aggChartData as unknown as Record<string, unknown>[]).map((d) => d.estCogs ?? 0), itemStyle: { color: theme.colors.palette.warningDark, opacity: 0.45 } },
+            {
+              name: 'estimated', type: 'line' as const, yAxisIndex: 0,
+              data: (aggChartData as unknown as Record<string, unknown>[]).map((d) => d.estimated ?? null),
+              lineStyle: { color: theme.colors.palette.cyanDark, width: 2.5 },
+              itemStyle: { color: theme.colors.palette.cyanDark },
+              symbol: 'none',
+              markLine: {
+                data: [
+                  { yAxis: openingInventory!, label: { formatter: `期首 ${currFmt(openingInventory!)}`, position: 'start' as const, fontSize: 9 }, lineStyle: { color: theme.colors.palette.infoDark, type: 'dashed' as const } },
+                  ...(closingInventory != null ? [{ yAxis: closingInventory, label: { formatter: `実在庫 ${currFmt(closingInventory)}`, position: 'end' as const, fontSize: 9 }, lineStyle: { color: theme.chart.barPositive, type: 'dashed' as const } }] : []),
+                ],
+                symbol: 'none',
+              },
+            },
+          ],
+        }}
+        height={280}
+        ariaLabel="推定在庫詳細チャート"
+      />
 
       <DualPeriodSlider
         min={1}
