@@ -97,10 +97,15 @@ function buildWaterfallOption(
     tooltip: {
       ...standardTooltip(theme),
       formatter: (params: unknown) => {
-        const item = Array.isArray(params) ? params[0] : params
-        const p = item as { name: string; value: number[] }
-        const val = p.value?.[1] != null && p.value?.[0] != null ? p.value[1] - p.value[0] : 0
-        return `${p.name}<br/>${toCommaYen(val)}`
+        const arr = Array.isArray(params) ? params : [params]
+        // スタックバー方式: seriesIndex=1 が表示バー
+        const p = (arr as { dataIndex: number; seriesIndex?: number; name: string }[]).find(
+          (s) => s.seriesIndex === 1,
+        ) ?? (arr[0] as { dataIndex: number; name: string } | undefined)
+        if (!p) return ''
+        const item = waterfallData[p.dataIndex]
+        if (!item) return ''
+        return `${p.name}<br/>${toCommaYen(item.value)}`
       },
     },
     xAxis: Object.assign({}, categoryXAxis(names, theme), {
@@ -111,8 +116,19 @@ function buildWaterfallOption(
     }),
     yAxis: yenYAxis(theme),
     series: [
+      // 透明ベース（ウォーターフォールの浮遊バー効果）
       {
         type: 'bar',
+        stack: 'wf',
+        data: waterfallData.map((d) => d.base),
+        itemStyle: { color: 'transparent', borderColor: 'transparent' },
+        emphasis: { disabled: true },
+        barWidth: '60%',
+      },
+      // 表示バー
+      {
+        type: 'bar',
+        stack: 'wf',
         data: waterfallData.map((d) => {
           const color = d.isTotal
             ? theme.colors.palette.primary
@@ -120,7 +136,7 @@ function buildWaterfallOption(
               ? sc.positive
               : sc.negative
           return {
-            value: [d.base, d.base + d.bar],
+            value: d.bar,
             itemStyle: { color, opacity: d.isTotal ? 0.7 : 0.85 },
           }
         }),
