@@ -25,6 +25,7 @@ import { ChartCard } from './ChartCard'
 import { ChartLoading, ChartError, ChartEmpty } from './ChartState'
 import { EChart, type EChartsOption } from './EChart'
 import { yenYAxis, standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
+import { chartFontSize } from '@/presentation/theme/tokens'
 import {
   SummaryGrid,
   StoreCard,
@@ -67,7 +68,7 @@ function buildOption(
       data: hours,
       axisLabel: {
         color: theme.colors.text3,
-        fontSize: 10,
+        fontSize: chartFontSize.axis,
         fontFamily: theme.typography.fontFamily.mono,
       },
       axisLine: { lineStyle: { color: theme.colors.border } },
@@ -79,7 +80,7 @@ function buildOption(
             axisLabel: {
               formatter: (v: number) => `${v}%`,
               color: theme.colors.text3,
-              fontSize: 10,
+              fontSize: chartFontSize.axis,
             },
             axisLine: { show: false },
             splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },

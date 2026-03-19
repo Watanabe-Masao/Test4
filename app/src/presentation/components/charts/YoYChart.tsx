@@ -37,6 +37,7 @@ import {
   toCommaYen,
 } from './echartsOptionBuilders'
 import { SummaryRow, SummaryItem } from './YoYChart.styles'
+import { chartFontSize } from '@/presentation/theme/tokens'
 
 type ViewMode = 'line' | 'waterfall'
 
@@ -111,7 +112,7 @@ function buildWaterfallOption(
       data: names,
       axisLabel: {
         color: theme.colors.text3,
-        fontSize: 10,
+        fontSize: chartFontSize.axis,
         fontFamily: theme.typography.fontFamily.mono,
         rotate: 45,
       },

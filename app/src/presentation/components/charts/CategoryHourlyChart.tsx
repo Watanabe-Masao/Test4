@@ -18,6 +18,7 @@ import { ChartCard } from './ChartCard'
 import { ChartLoading, ChartError, ChartEmpty } from './ChartState'
 import { EChart, type EChartsOption } from './EChart'
 import { standardTooltip, toCommaYen } from './echartsOptionBuilders'
+import { chartFontSize } from '@/presentation/theme/tokens'
 import {
   ControlRow,
   ChipGroup,
@@ -84,7 +85,7 @@ function buildOption(
       splitArea: { show: true },
       axisLabel: {
         color: theme.colors.text3,
-        fontSize: 10,
+        fontSize: chartFontSize.axis,
         fontFamily: theme.typography.fontFamily.mono,
       },
     },
@@ -93,7 +94,7 @@ function buildOption(
       data: catNames,
       axisLabel: {
         color: theme.colors.text2,
-        fontSize: 10,
+        fontSize: chartFontSize.axis,
         width: 90,
         overflow: 'truncate',
       },

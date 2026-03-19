@@ -10,6 +10,7 @@ import { useDualPeriodRange } from './useDualPeriodRange'
 import { computeEstimatedInventory } from '@/application/hooks/calculation'
 import { calculateGrossProfitRate } from '@/domain/calculations/utils'
 import type { Store, StoreResult } from '@/domain/models'
+import { chartFontSize } from '@/presentation/theme/tokens'
 import {
   Wrapper,
   Header,
@@ -114,7 +115,7 @@ function SalesCompChart({
         data: days,
         axisLabel: {
           color: theme.colors.text3,
-          fontSize: 10,
+          fontSize: chartFontSize.axis,
           fontFamily: theme.typography.fontFamily.mono,
         },
       },

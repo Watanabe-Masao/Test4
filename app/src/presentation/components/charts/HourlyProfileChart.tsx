@@ -26,6 +26,7 @@ import { ChartLoading, ChartError, ChartEmpty } from './ChartState'
 import { EChart, type EChartsOption } from './EChart'
 import { standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
 import { SummaryRow, SummaryItem } from './HourlyProfileChart.styles'
+import { chartFontSize } from '@/presentation/theme/tokens'
 
 interface Props {
   readonly duckConn: AsyncDuckDBConnection | null
@@ -47,7 +48,7 @@ function buildOption(
       axisLabel: {
         formatter: (v: number) => toPct(v, 0),
         color: theme.colors.text3,
-        fontSize: 10,
+        fontSize: chartFontSize.axis,
         fontFamily: theme.typography.fontFamily.mono,
       },
       axisLine: { show: false },
@@ -63,7 +64,7 @@ function buildOption(
       axisLabel: {
         formatter: (v: number) => `${v}°`,
         color: theme.colors.palette.orange,
-        fontSize: 10,
+        fontSize: chartFontSize.axis,
       },
       axisLine: { show: false },
       splitLine: { show: false },
@@ -149,7 +150,7 @@ function buildOption(
       data: hours,
       axisLabel: {
         color: theme.colors.text3,
-        fontSize: 10,
+        fontSize: chartFontSize.axis,
         fontFamily: theme.typography.fontFamily.mono,
       },
       axisLine: { lineStyle: { color: theme.colors.border } },

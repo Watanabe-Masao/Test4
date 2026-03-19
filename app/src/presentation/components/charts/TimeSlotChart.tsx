@@ -20,7 +20,7 @@ import { EChart, type EChartsOption } from './EChart'
 import { yenYAxis, standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
 import { formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
 import { sc } from '@/presentation/theme/semanticColors'
-import { palette } from '@/presentation/theme/tokens'
+import { palette, chartFontSize } from '@/presentation/theme/tokens'
 import { useI18n } from '@/application/hooks/useI18n'
 import {
   Wrapper,
@@ -147,7 +147,7 @@ export const TimeSlotChart = memo(function TimeSlotChart({
         data: hours,
         axisLabel: {
           color: theme.colors.text3,
-          fontSize: 10,
+          fontSize: chartFontSize.axis,
           fontFamily: theme.typography.fontFamily.mono,
         },
         axisLine: { lineStyle: { color: theme.colors.border } },
@@ -159,7 +159,7 @@ export const TimeSlotChart = memo(function TimeSlotChart({
             axisLabel: {
               formatter: (v: number) => toComma(v),
               color: theme.colors.text3,
-              fontSize: 10,
+              fontSize: chartFontSize.axis,
             },
             axisLine: { show: false },
             splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },
@@ -206,7 +206,7 @@ export const TimeSlotChart = memo(function TimeSlotChart({
         data: hours,
         axisLabel: {
           color: theme.colors.text3,
-          fontSize: 10,
+          fontSize: chartFontSize.axis,
           fontFamily: theme.typography.fontFamily.mono,
         },
         axisLine: { lineStyle: { color: theme.colors.border } },

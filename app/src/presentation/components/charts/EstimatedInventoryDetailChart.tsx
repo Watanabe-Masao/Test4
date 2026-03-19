@@ -26,6 +26,7 @@ import {
 } from './EstimatedInventoryDetailChart.styles'
 import { createFmt, AGG_LABELS } from './EstimatedInventoryDetailChart.helpers'
 import type { ViewMode } from './EstimatedInventoryDetailChart.helpers'
+import { chartFontSize } from '@/presentation/theme/tokens'
 
 /* ------------------------------------------------------------------ */
 /*  props                                                              */
@@ -219,7 +220,7 @@ export const EstimatedInventoryDetailChart = memo(function EstimatedInventoryDet
               data: compChartData.map((d: unknown) => String((d as Record<string, unknown>).day)),
               axisLabel: {
                 color: theme.colors.text3,
-                fontSize: 10,
+                fontSize: chartFontSize.axis,
                 fontFamily: theme.typography.fontFamily.mono,
               },
             },
@@ -321,7 +322,7 @@ export const EstimatedInventoryDetailChart = memo(function EstimatedInventoryDet
             data: (aggChartData as unknown as Record<string, unknown>[]).map((d) => String(d.day)),
             axisLabel: {
               color: theme.colors.text3,
-              fontSize: 10,
+              fontSize: chartFontSize.axis,
               fontFamily: theme.typography.fontFamily.mono,
             },
           },

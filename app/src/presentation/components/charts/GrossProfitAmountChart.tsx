@@ -125,7 +125,11 @@ export const GrossProfitAmountChart = memo(function GrossProfitAmountChart({
             data: [
               {
                 yAxis: targetRate,
-                label: { formatter: `目標 ${toPct(targetRate)}`, position: 'end', fontSize: chartFontSize.annotation },
+                label: {
+                  formatter: `目標 ${toPct(targetRate)}`,
+                  position: 'end',
+                  fontSize: chartFontSize.annotation,
+                },
                 lineStyle: { color: theme.chart.barPositive, type: 'dashed' },
               },
             ],

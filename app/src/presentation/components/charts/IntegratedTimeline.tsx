@@ -5,7 +5,7 @@ import { useMemo, useState, memo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { sc } from '@/presentation/theme/semanticColors'
-import { palette } from '@/presentation/theme/tokens'
+import { palette, chartFontSize } from '@/presentation/theme/tokens'
 import { toComma } from './chartTheme'
 import {
   normalizeMinMax,
@@ -185,7 +185,7 @@ export const IntegratedTimeline = memo(function IntegratedTimeline({ result, day
         data: days,
         axisLabel: {
           color: theme.colors.text3,
-          fontSize: 10,
+          fontSize: chartFontSize.axis,
           fontFamily: theme.typography.fontFamily.mono,
           formatter: (v: string) => `${v}日`,
         },
@@ -195,7 +195,7 @@ export const IntegratedTimeline = memo(function IntegratedTimeline({ result, day
         axisLabel: {
           formatter: (v: number) => (isNorm ? String(Math.round(v)) : toComma(v)),
           color: theme.colors.text3,
-          fontSize: 10,
+          fontSize: chartFontSize.axis,
         },
         axisLine: { show: false },
         splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },

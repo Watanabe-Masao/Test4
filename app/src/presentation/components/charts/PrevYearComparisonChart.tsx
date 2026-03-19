@@ -130,7 +130,11 @@ export const PrevYearComparisonChart = memo(function PrevYearComparisonChart({
         data: [
           {
             yAxis: prevTotal,
-            label: { formatter: `比較期月間 ${fmt(prevTotal)}`, position: 'end', fontSize: chartFontSize.annotation },
+            label: {
+              formatter: `比較期月間 ${fmt(prevTotal)}`,
+              position: 'end',
+              fontSize: chartFontSize.annotation,
+            },
           },
         ],
         lineStyle: { color: theme.chart.previousYear, type: 'dashed', width: 1.5 },

@@ -194,7 +194,7 @@ describe('デザインシステムガード', () => {
   // ECharts option 内の fontSize: <数値> を検出。chartFontSize.* トークンを使用すべき。
 
   /** チャートファイルで fontSize ハードコードを持つファイル数の上限 */
-  const MAX_ECHARTS_FONT_FILES = 31
+  const MAX_ECHARTS_FONT_FILES = 7
 
   it('ECharts チャートの fontSize ハードコードが上限以下', () => {
     const chartDir = path.join(PRESENTATION_DIR, 'components', 'charts')

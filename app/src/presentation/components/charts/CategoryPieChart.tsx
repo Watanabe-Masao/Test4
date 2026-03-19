@@ -11,6 +11,7 @@ import { SegmentedControl } from '@/presentation/components/common'
 import { ChartCard } from './ChartCard'
 import { EChart, type EChartsOption } from './EChart'
 import { standardTooltip } from './echartsOptionBuilders'
+import { chartFontSize } from '@/presentation/theme/tokens'
 
 const CATEGORY_COLORS: Record<string, string> = {
   market: '#f59e0b',
@@ -81,7 +82,7 @@ export const CategoryPieChart = memo(function CategoryPieChart({
               return p.percent >= 3 ? `${p.name} ${toPct(p.percent / 100, 0)}` : ''
             },
             color: theme.colors.text3,
-            fontSize: 10,
+            fontSize: chartFontSize.axis,
           },
           itemStyle: { borderWidth: 2, borderColor: theme.colors.bg3 },
           emphasis: { itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0,0,0,0.2)' } },

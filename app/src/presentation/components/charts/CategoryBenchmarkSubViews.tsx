@@ -74,7 +74,12 @@ export function ChartView({
       yAxis: {
         type: 'category',
         data: scores.map((s) => s.name),
-        axisLabel: { color: theme.colors.text3, fontSize: chartFontSize.axis, width: 70, overflow: 'truncate' },
+        axisLabel: {
+          color: theme.colors.text3,
+          fontSize: chartFontSize.axis,
+          width: 70,
+          overflow: 'truncate',
+        },
       },
       series: [
         {

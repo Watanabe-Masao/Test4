@@ -13,6 +13,7 @@ import { DualPeriodSlider } from '../DualPeriodSlider'
 import { useDualPeriodRange } from '../useDualPeriodRange'
 import type { DailyRecord } from '@/domain/models'
 import { Wrapper, Title } from './GrossProfitRateChart.styles'
+import { chartFontSize } from '@/presentation/theme/tokens'
 import {
   buildGrossProfitRateViewModel,
   getBarColor,
@@ -56,7 +57,7 @@ function buildOption(
       data: days,
       axisLabel: {
         color: theme.colors.text3,
-        fontSize: 10,
+        fontSize: chartFontSize.axis,
         fontFamily: theme.typography.fontFamily.mono,
       },
       axisLine: { lineStyle: { color: theme.colors.border } },
@@ -69,7 +70,7 @@ function buildOption(
       axisLabel: {
         formatter: (v: number) => toPct(v, 0),
         color: theme.colors.text3,
-        fontSize: 10,
+        fontSize: chartFontSize.axis,
         fontFamily: theme.typography.fontFamily.mono,
       },
       axisLine: { show: false },
@@ -105,7 +106,7 @@ function buildOption(
                 formatter: `目標 ${toPct(targetRate)}`,
                 position: 'end' as const,
                 color: theme.colors.palette.success,
-                fontSize: 10,
+                fontSize: chartFontSize.axis,
                 fontFamily: theme.typography.fontFamily.mono,
               },
               lineStyle: {
@@ -120,7 +121,7 @@ function buildOption(
                 formatter: `警告 ${toPct(warningRate)}`,
                 position: 'end' as const,
                 color: theme.colors.palette.warning,
-                fontSize: 10,
+                fontSize: chartFontSize.axis,
                 fontFamily: theme.typography.fontFamily.mono,
               },
               lineStyle: {

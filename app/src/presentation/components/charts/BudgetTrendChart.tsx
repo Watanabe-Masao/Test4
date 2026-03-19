@@ -80,7 +80,12 @@ function buildOption(
     if (budget > 0) {
       // 月間予算ライン (markLine on 実績系列)
       ;(series[0] as Record<string, unknown>).markLine = {
-        data: [{ yAxis: budget, label: { formatter: `月間予算`, position: 'end', fontSize: chartFontSize.annotation } }],
+        data: [
+          {
+            yAxis: budget,
+            label: { formatter: `月間予算`, position: 'end', fontSize: chartFontSize.annotation },
+          },
+        ],
         lineStyle: { color: theme.colors.palette.warningDark, type: 'dashed', width: 1.5 },
         symbol: 'none',
       }
