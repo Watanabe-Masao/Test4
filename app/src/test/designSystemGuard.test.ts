@@ -194,4 +194,31 @@ describe('デザインシステムガード', () => {
         `違反ファイル:\n${violatingFiles.join('\n')}`,
     ).toBeLessThanOrEqual(MAX_FONT_VIOLATING_FILES)
   })
+
+  // ─── Recharts → ECharts 移行ガード ──────────────────
+
+  /** Recharts import を持つチャート .tsx ファイル数の上限（凍結） */
+  const MAX_RECHARTS_FILES = 50
+
+  it('Recharts 使用チャート数が上限以下（新規チャートは ECharts 必須）', () => {
+    const chartDir = path.join(PRESENTATION_DIR, 'components', 'charts')
+    const chartFiles = collectFiles(chartDir, '.tsx')
+    let rechartsCount = 0
+    const rechartsFiles: string[] = []
+
+    for (const file of chartFiles) {
+      const content = fs.readFileSync(file, 'utf-8')
+      if (content.includes("from 'recharts'")) {
+        rechartsCount++
+        rechartsFiles.push(rel(file))
+      }
+    }
+
+    expect(
+      rechartsCount,
+      `Recharts 使用ファイル数: ${rechartsCount}/${MAX_RECHARTS_FILES}。` +
+        `新規チャートは ECharts (EChart コンポーネント) を使用してください。\n` +
+        `Recharts ファイル:\n${rechartsFiles.join('\n')}`,
+    ).toBeLessThanOrEqual(MAX_RECHARTS_FILES)
+  })
 })
