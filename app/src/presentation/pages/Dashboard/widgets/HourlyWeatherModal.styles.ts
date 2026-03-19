@@ -88,3 +88,32 @@ export const SummaryValue = styled.span`
   font-weight: 600;
   color: ${({ theme }) => theme.colors.text};
 `
+
+export const WeatherIconRow = styled.div`
+  display: flex;
+  margin-bottom: ${({ theme }) => theme.spacing[3]};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  overflow: hidden;
+`
+
+export const WeatherIconCell = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 3px 0;
+  font-size: 0.55rem;
+  color: ${({ theme }) => theme.colors.text3};
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  border-right: 1px solid ${({ theme }) => theme.colors.border};
+  &:last-child {
+    border-right: none;
+  }
+`
+
+export const WeatherIconEmoji = styled.span`
+  font-size: 0.85rem;
+  line-height: 1;
+`
