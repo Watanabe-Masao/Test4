@@ -99,9 +99,10 @@ function buildWaterfallOption(
       formatter: (params: unknown) => {
         const arr = Array.isArray(params) ? params : [params]
         // スタックバー方式: seriesIndex=1 が表示バー
-        const p = (arr as { dataIndex: number; seriesIndex?: number; name: string }[]).find(
-          (s) => s.seriesIndex === 1,
-        ) ?? (arr[0] as { dataIndex: number; name: string } | undefined)
+        const p =
+          (arr as { dataIndex: number; seriesIndex?: number; name: string }[]).find(
+            (s) => s.seriesIndex === 1,
+          ) ?? (arr[0] as { dataIndex: number; name: string } | undefined)
         if (!p) return ''
         const item = waterfallData[p.dataIndex]
         if (!item) return ''
