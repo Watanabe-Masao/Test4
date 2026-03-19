@@ -1,6 +1,2 @@
-import styled from 'styled-components'
-
-export const ChartArea = styled.div`
-  width: 100%;
-  height: 280px;
-`
+// BudgetTrendChart — 全スタイルを ChartCard + EChart に統合済み。
+// チャート固有の styled-components は不要。
