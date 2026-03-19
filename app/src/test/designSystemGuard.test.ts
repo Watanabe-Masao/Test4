@@ -305,4 +305,118 @@ describe('デザインシステムガード', () => {
         `Recharts ファイル:\n${rechartsFiles.join('\n')}`,
     ).toBeLessThanOrEqual(MAX_RECHARTS_FILES)
   })
+
+  // ─── ChartCard ラッパーガード ────────────────────────
+  // スタンドアロンチャートは ChartCard を使用すべき。
+
+  /** ChartCard 未使用のスタンドアロンチャート数の上限 */
+  const MAX_NO_CHARTCARD_FILES = 11
+
+  /** ChartCard 不要のサブコンポーネント・特殊ケース */
+  const CHARTCARD_EXCLUSIONS = new Set([
+    // サブコンポーネント（親が ChartCard を提供）
+    'presentation/components/charts/CategoryBoxPlotView.tsx',
+    'presentation/components/charts/CvHeatmapView.tsx',
+    'presentation/components/charts/CvLineView.tsx',
+    'presentation/components/charts/CvSalesCvView.tsx',
+    // ファサード re-export
+    'presentation/components/charts/GrossProfitRateChart.tsx',
+    // KPI カード（チャートではない）
+    'presentation/components/charts/BudgetProgressCard.tsx',
+    // ダッシュボード（独自レイアウト）
+    'presentation/components/charts/SensitivityDashboard.tsx',
+  ])
+
+  it('スタンドアロンチャートの ChartCard 未使用が上限以下', () => {
+    const chartDir = path.join(PRESENTATION_DIR, 'components', 'charts')
+    const chartFiles = collectFiles(chartDir, '.tsx').filter(
+      (f) =>
+        !f.includes('.styles.') &&
+        !f.includes('.stories.') &&
+        !f.includes('.test.') &&
+        !f.includes('ChartCard') &&
+        !f.includes('ChartHelp') &&
+        !f.includes('ChartHeader') &&
+        !f.includes('ChartState') &&
+        !f.includes('ChartToolbar') &&
+        !f.includes('ChartAnnotation') &&
+        !f.includes('EChart.tsx') &&
+        !f.includes('builders/') &&
+        !f.includes('DualPeriodSlider') &&
+        !f.includes('DowPresetSelector') &&
+        !f.includes('useDailySalesData') &&
+        !f.includes('useDualPeriod') &&
+        !f.includes('chartTheme') &&
+        !f.includes('chartGuides') &&
+        !f.includes('CurrencyUnitToggle') &&
+        !f.includes('PeriodFilter') &&
+        !f.includes('DateRangePicker') &&
+        !f.includes('DayRangeSlider') &&
+        !f.includes('Context') &&
+        !f.includes('Explorer') &&
+        !f.includes('Table') &&
+        !f.includes('Body') &&
+        !f.includes('SubViews') &&
+        !f.includes('Breakdown'),
+    )
+
+    let violatingCount = 0
+    const violating: string[] = []
+
+    for (const file of chartFiles) {
+      const relPath = rel(file)
+      if (CHARTCARD_EXCLUSIONS.has(relPath)) continue
+      const content = fs.readFileSync(file, 'utf-8')
+      if (!content.includes('ChartCard')) {
+        violatingCount++
+        violating.push(relPath)
+      }
+    }
+
+    expect(
+      violatingCount,
+      `ChartCard 未使用チャート: ${violatingCount}/${MAX_NO_CHARTCARD_FILES}。` +
+        `新規チャートは ChartCard ラッパーを使用してください。\n` +
+        `未使用ファイル:\n${violating.join('\n')}`,
+    ).toBeLessThanOrEqual(MAX_NO_CHARTCARD_FILES)
+  })
+
+  // ─── z-index ハードコードガード ──────────────────────
+  // グローバル z-index (100以上) は theme.zIndex トークンを使用すべき。
+
+  /** z-index ハードコード (100以上) を持つ .styles.ts ファイル数の上限 */
+  const MAX_ZINDEX_HARDCODE_FILES = 10
+
+  it('グローバル z-index ハードコードが上限以下', () => {
+    const allStyleFiles = collectFiles(PRESENTATION_DIR, '.styles.ts')
+    const ZINDEX_PATTERN = /z-index:\s*(\d+)/g
+    const TOKEN_REF = /theme\.zIndex\./
+    let violatingCount = 0
+    const violating: string[] = []
+
+    for (const file of allStyleFiles) {
+      const content = fs.readFileSync(file, 'utf-8')
+      const lines = content.split('\n')
+      let fileHasViolation = false
+      for (const line of lines) {
+        const match = ZINDEX_PATTERN.exec(line)
+        if (match && Number(match[1]) >= 100 && !TOKEN_REF.test(line)) {
+          fileHasViolation = true
+          break
+        }
+        ZINDEX_PATTERN.lastIndex = 0
+      }
+      if (fileHasViolation) {
+        violatingCount++
+        violating.push(rel(file))
+      }
+    }
+
+    expect(
+      violatingCount,
+      `z-index ハードコード: ${violatingCount}/${MAX_ZINDEX_HARDCODE_FILES}。` +
+        `theme.zIndex.* トークンを使用してください。\n` +
+        `違反ファイル:\n${violating.join('\n')}`,
+    ).toBeLessThanOrEqual(MAX_ZINDEX_HARDCODE_FILES)
+  })
 })
