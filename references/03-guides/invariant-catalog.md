@@ -105,6 +105,30 @@ domain/ → application/ | infrastructure/ | presentation/ のインポート = 
 - **ロール**: architecture
 - **代替**: `rec.totalCost`（事前計算済みフィールド）を使用
 
+### INV-ARCH-09: presentation は比較コンテキスト内部モジュールを直接 import しない
+
+- **テスト**: `architectureGuard.test.ts`
+- **ロール**: architecture
+- **代替**: `useComparisonContext` 経由
+
+### INV-ARCH-10: storage は duckdb/queries に依存しない（書き戻し禁止）
+
+- **テスト**: `architectureGuard.test.ts`
+- **ロール**: architecture
+- **違反時の影響**: DuckDB（派生キャッシュ）→ IndexedDB（真実源）の書き戻しでデータ整合性崩壊
+
+### INV-ARCH-11: presentation は duckdb を直接 import しない（DevTools 除く）
+
+- **テスト**: `architectureGuard.test.ts`
+- **ロール**: architecture
+- **代替**: application/hooks 経由
+
+### INV-ARCH-12: features/ 間の直接 import 禁止（shared/ 経由のみ）
+
+- **テスト**: `architectureGuard.test.ts`（features/ 存在時のみ有効）
+- **ロール**: architecture
+- **違反時の影響**: 縦スライス間の循環依存が発生
+
 ## フック複雑度不変条件
 
 ### INV-HOOK-01: hooks/ に @internal export が存在しない
@@ -396,3 +420,68 @@ Map<number, { sales, customers }> を構築するコード = 0件
 - **テスト**: `sameDowPoint.test.ts` — 7件
 - **ロール**: invariant-guardian
 - **違反時の影響**: 月跨ぎ同曜日比較（例: 2026/2/28 → 2025/3/1）で sourceDate.month が失われる
+
+## 構造純粋性不変条件（domainPurityGuard.test.ts）
+
+### INV-PURE-01: domain/ で副作用 API を使用しない
+
+- **テスト**: `domainPurityGuard.test.ts` — domain/ 副作用 API 禁止
+- **ロール**: architecture
+- **禁止**: fetch, localStorage, indexedDB, window, document, setTimeout, setInterval, Math.random
+- **違反時の影響**: 純粋関数のテスト不能、Authoritative Engine の信頼性崩壊
+
+### INV-PURE-02: domain/calculations/ で async/await を使用しない
+
+- **テスト**: `domainPurityGuard.test.ts` — async/await 禁止
+- **ロール**: architecture
+- **違反時の影響**: 計算関数が非同期になり、同期的な合成が不可能になる
+
+### INV-PURE-03: presentation/ .tsx で SQL 文字列を埋め込まない
+
+- **テスト**: `domainPurityGuard.test.ts` — SQL 文字列禁止
+- **ロール**: architecture
+- **違反時の影響**: Presentation が Infrastructure に暗黙依存し、Engine 境界が崩壊する
+
+### INV-ENGINE-01: DuckDB queries は domain/calculations に依存しない
+
+- **テスト**: `domainPurityGuard.test.ts` — queries → calculations 禁止
+- **ロール**: architecture
+- **違反時の影響**: Exploration Engine が Authoritative Engine に結合し、二重実装の温床になる
+
+### INV-ENGINE-02: VM/Logic ファイルに Zustand/immer import がない
+
+- **テスト**: `domainPurityGuard.test.ts` — *.vm.ts / *Logic.ts の状態管理依存禁止
+- **ロール**: architecture
+- **違反時の影響**: ViewModel / 純粋ロジックが store に結合し、テスト不能になる
+
+### INV-ENGINE-03: application/usecases/ に React hook import がない
+
+- **テスト**: `domainPurityGuard.test.ts` — usecases React-free
+- **ロール**: architecture
+- **違反時の影響**: usecases が React に結合し、Worker 移行や FFI 化が不可能になる
+
+### INV-RATE-01: presentation/ で率を直接計算しない（禁止事項 #10）
+
+- **テスト**: `domainPurityGuard.test.ts` — 率の直接除算禁止
+- **ロール**: architecture
+- **違反時の影響**: 加重平均が崩壊し、全店合計・経過日集約が不正確になる
+
+## 許可リスト増加防止不変条件
+
+### INV-ALLOW-01: APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST ≤16件
+
+- **テスト**: `architectureGuard.test.ts`
+- **ロール**: architecture
+- **違反時の影響**: Application→Infrastructure の依存が無秩序に拡大する
+
+### INV-ALLOW-02: PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST ≤1件
+
+- **テスト**: `architectureGuard.test.ts`
+- **ロール**: architecture
+- **違反時の影響**: Presentation が Infrastructure に直接依存する箇所が増加する
+
+### INV-ALLOW-03: INFRASTRUCTURE_TO_APPLICATION_ALLOWLIST ≤1件
+
+- **テスト**: `architectureGuard.test.ts`
+- **ロール**: architecture
+- **違反時の影響**: 依存の逆転（Infra→App）が拡大し、アダプターパターンが崩壊する

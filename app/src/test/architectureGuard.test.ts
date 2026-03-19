@@ -449,10 +449,27 @@ describe('Architecture Guard', () => {
     expect(violations).toEqual([])
   })
 
-  // ─── 統一フィルタ層ガード（DuckDB直接参照の段階的廃止）──
+  // ─── 許可リスト増加防止 ─────────────────────────────
+
+  it('APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST は 16 件以下', () => {
+    expect(
+      APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST.size,
+      `APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST が ${APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST.size} 件（上限: 16）`,
+    ).toBeLessThanOrEqual(16)
+  })
+
+  it('PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST は 1 件以下', () => {
+    expect(PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST.size).toBeLessThanOrEqual(1)
+  })
+
+  it('INFRASTRUCTURE_TO_APPLICATION_ALLOWLIST は 1 件以下', () => {
+    expect(INFRASTRUCTURE_TO_APPLICATION_ALLOWLIST.size).toBeLessThanOrEqual(1)
+  })
+
+  // ─── Migration Countdown（DuckDB直接参照の段階的廃止）──
 
   /**
-   * ⚠️ TECH DEBT — filterStore 抽象化完了後に廃止予定
+   * Migration Countdown — filterStore 抽象化完了後に廃止予定
    *
    * presentation/ が DuckDB フックを直接使用するファイルの許可リスト。
    * これは正しいアーキテクチャではなく、filterStore + useFilterSelectors への

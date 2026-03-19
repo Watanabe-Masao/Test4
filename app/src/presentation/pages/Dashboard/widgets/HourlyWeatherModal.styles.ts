@@ -89,11 +89,39 @@ export const SummaryValue = styled.span`
   color: ${({ theme }) => theme.colors.text};
 `
 
+export const WeatherIconSection = styled.div`
+  margin-bottom: ${({ theme }) => theme.spacing[3]};
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+`
+
+export const WeatherIconRowWrapper = styled.div`
+  display: flex;
+  align-items: stretch;
+`
+
+export const WeatherIconRowLabel = styled.div`
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-size: 0.5rem;
+  color: ${({ theme }) => theme.colors.text3};
+  padding: 2px 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-right: none;
+  border-radius: ${({ theme }) => theme.radii.sm} 0 0 ${({ theme }) => theme.radii.sm};
+  background: ${({ theme }) => theme.colors.bg2};
+`
+
 export const WeatherIconRow = styled.div`
   display: flex;
-  margin-bottom: ${({ theme }) => theme.spacing[3]};
+  flex: 1;
   border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.sm};
+  border-radius: 0 ${({ theme }) => theme.radii.sm} ${({ theme }) => theme.radii.sm} 0;
   overflow: hidden;
 `
 
