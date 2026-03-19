@@ -1,47 +1,34 @@
 /**
- * 特徴量分析チャート
+ * 特徴量分析チャート (ECharts)
  *
- * ウィンドウ関数を使い、日別売上の移動平均・Zスコア・スパイク比率を
- * リアルタイムに算出して表示する。データが未準備の場合は非表示。
- *
- * 表示項目:
- * - 日別売上実績線
- * - 3日/7日/28日移動平均線
- * - Zスコアによる異常検出マーカー
- * - スパイク比率のグラデーション背景
+ * パイプライン:
+ *   DuckDB Hook → FeatureChartLogic.ts → ECharts option → EChart
  */
 import { useMemo, memo } from 'react'
-import {
-  ComposedChart,
-  Line,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ReferenceLine,
-} from 'recharts'
-import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
+import { useTheme } from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
+import type { AppTheme } from '@/presentation/theme/theme'
 import { useDuckDBDailyFeatures } from '@/application/hooks/useDuckDBQuery'
-import { useChartTheme, useCurrencyFormatter, toAxisYen } from './chartTheme'
-import { createChartTooltip } from './createChartTooltip'
-import { palette } from '@/presentation/theme/tokens'
-import { useI18n } from '@/application/hooks/useI18n'
-import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
-import { buildFeatureChartData, Z_SCORE_THRESHOLD } from './FeatureChartLogic'
 import {
-  Wrapper,
-  Title,
-  Subtitle,
-  AnomalyGrid,
-  AnomalyCard,
-  AnomalyDate,
-  AnomalyValue,
-  ErrorMsg,
-} from './FeatureChart.styles'
+  buildFeatureChartData,
+  Z_SCORE_THRESHOLD,
+  type FeatureChartDataPoint,
+} from './FeatureChartLogic'
+import { useCurrencyFormatter } from './chartTheme'
+import { useI18n } from '@/application/hooks/useI18n'
+import { ChartCard } from './ChartCard'
+import { ChartLoading, ChartError, ChartEmpty } from './ChartState'
+import { EChart, type EChartsOption } from './EChart'
+import {
+  yenYAxis,
+  categoryXAxis,
+  standardGrid,
+  standardTooltip,
+  standardLegend,
+  toCommaYen,
+} from './echartsOptionBuilders'
+import { AnomalyGrid, AnomalyCard, AnomalyDate, AnomalyValue } from './FeatureChart.styles'
 
 interface Props {
   readonly duckConn: AsyncDuckDBConnection | null
@@ -50,13 +37,91 @@ interface Props {
   readonly selectedStoreIds: ReadonlySet<string>
 }
 
+function buildOption(
+  chartData: readonly FeatureChartDataPoint[],
+  theme: AppTheme,
+): EChartsOption {
+  const dates = chartData.map((d) => d.date)
+
+  return {
+    grid: standardGrid(),
+    tooltip: {
+      ...standardTooltip(theme),
+      trigger: 'axis',
+      formatter: (params: unknown) => {
+        const items = params as { seriesName: string; value: number | null; color: string }[]
+        if (!Array.isArray(items) || items.length === 0) return ''
+        const header = `<div style="font-weight:600;margin-bottom:4px">${(items[0] as { name?: string }).name ?? ''}</div>`
+        const rows = items
+          .filter((item) => item.value != null && item.value !== 0)
+          .map(
+            (item) =>
+              `<div style="display:flex;justify-content:space-between;gap:12px">` +
+              `<span>${item.seriesName}</span>` +
+              `<span style="font-weight:600;font-family:monospace">${toCommaYen(item.value!)}</span>` +
+              `</div>`,
+          )
+          .join('')
+        return header + rows
+      },
+    },
+    legend: standardLegend(theme),
+    xAxis: categoryXAxis(dates, theme),
+    yAxis: yenYAxis(theme),
+    series: [
+      {
+        name: '異常検出',
+        type: 'bar',
+        data: chartData.map((d) => d.anomaly),
+        itemStyle: { color: theme.colors.palette.dangerDark, opacity: 0.3 },
+        barWidth: 8,
+      },
+      {
+        name: '28日MA',
+        type: 'line',
+        data: chartData.map((d) => d.ma28),
+        lineStyle: { color: theme.colors.palette.slate, width: 2, type: 'dashed' },
+        itemStyle: { color: theme.colors.palette.slate },
+        symbol: 'none',
+        connectNulls: true,
+      },
+      {
+        name: '7日MA',
+        type: 'line',
+        data: chartData.map((d) => d.ma7),
+        lineStyle: { color: theme.colors.palette.cyan, width: 1.5, type: 'dashed' },
+        itemStyle: { color: theme.colors.palette.cyan },
+        symbol: 'none',
+        connectNulls: true,
+      },
+      {
+        name: '3日MA',
+        type: 'line',
+        data: chartData.map((d) => d.ma3),
+        lineStyle: { color: theme.colors.palette.primary, width: 1.5 },
+        itemStyle: { color: theme.colors.palette.primary },
+        symbol: 'none',
+        connectNulls: true,
+      },
+      {
+        name: '売上実績',
+        type: 'line',
+        data: chartData.map((d) => d.sales),
+        lineStyle: { color: theme.colors.palette.primary, width: 2 },
+        itemStyle: { color: theme.colors.palette.primary },
+        symbolSize: 4,
+      },
+    ],
+  }
+}
+
 export const FeatureChart = memo(function FeatureChart({
   duckConn,
   duckDataVersion,
   currentDateRange,
   selectedStoreIds,
 }: Props) {
-  const ct = useChartTheme()
+  const theme = useTheme() as AppTheme
   const fmt = useCurrencyFormatter()
   const { messages } = useI18n()
 
@@ -71,109 +136,39 @@ export const FeatureChart = memo(function FeatureChart({
     [features],
   )
 
+  const option = useMemo(() => buildOption(chartData, theme), [chartData, theme])
+
   if (error) {
     return (
-      <Wrapper aria-label="売上トレンド分析">
-        <Title>売上トレンド分析</Title>
-        <ErrorMsg>
-          {messages.errors.dataFetchFailed}: {error}
-        </ErrorMsg>
-      </Wrapper>
+      <ChartCard title="売上トレンド分析">
+        <ChartError message={`${messages.errors.dataFetchFailed}: ${error}`} />
+      </ChartCard>
     )
   }
 
   if (isLoading && !features) {
-    return <ChartSkeleton />
+    return (
+      <ChartCard title="売上トレンド分析">
+        <ChartLoading />
+      </ChartCard>
+    )
   }
 
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
-    return <EmptyState>データをインポートしてください</EmptyState>
+    return (
+      <ChartCard title="売上トレンド分析">
+        <ChartEmpty message="データをインポートしてください" />
+      </ChartCard>
+    )
   }
 
   return (
-    <Wrapper aria-label="売上トレンド分析">
-      <Title>売上トレンド分析</Title>
-      <Subtitle>
-        移動平均（3日/7日/28日）・Zスコア異常検出 | 赤棒 = Z &gt; {Z_SCORE_THRESHOLD} の異常日
-      </Subtitle>
+    <ChartCard
+      title="売上トレンド分析"
+      subtitle={`移動平均（3日/7日/28日）・Zスコア異常検出 | 赤棒 = Z > ${Z_SCORE_THRESHOLD} の異常日`}
+    >
+      <EChart option={option} height={300} ariaLabel="売上トレンド分析チャート" />
 
-      <ResponsiveContainer width="100%" height={300}>
-        <ComposedChart data={chartData} margin={{ top: 4, right: 20, left: 10, bottom: 4 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
-          <XAxis
-            dataKey="date"
-            tick={{ fontSize: ct.fontSize.xs, fill: ct.textMuted }}
-            stroke={ct.grid}
-          />
-          <YAxis
-            tick={{ fontSize: ct.fontSize.xs, fill: ct.textMuted }}
-            stroke={ct.grid}
-            tickFormatter={toAxisYen}
-          />
-          <Tooltip
-            content={createChartTooltip({
-              ct,
-              formatter: (value: unknown) => [value != null ? fmt(Number(value)) : '-', null],
-            })}
-          />
-          <Legend wrapperStyle={{ fontSize: '0.6rem' }} />
-
-          {/* 異常日マーカー（棒グラフ） */}
-          <Bar
-            dataKey="anomaly"
-            name="異常検出"
-            fill={palette.dangerDark}
-            opacity={0.3}
-            barSize={8}
-          />
-
-          {/* 28日移動平均（太い背景線） */}
-          <Line
-            dataKey="ma28"
-            name="28日MA"
-            stroke={palette.slate}
-            strokeWidth={2}
-            strokeDasharray="8 4"
-            dot={false}
-            connectNulls
-          />
-
-          {/* 7日移動平均 */}
-          <Line
-            dataKey="ma7"
-            name="7日MA"
-            stroke={palette.cyan}
-            strokeWidth={1.5}
-            strokeDasharray="4 2"
-            dot={false}
-            connectNulls
-          />
-
-          {/* 3日移動平均 */}
-          <Line
-            dataKey="ma3"
-            name="3日MA"
-            stroke={palette.primary}
-            strokeWidth={1.5}
-            dot={false}
-            connectNulls
-          />
-
-          {/* 実績売上 */}
-          <Line
-            dataKey="sales"
-            name="売上実績"
-            stroke={ct.colors.primary}
-            strokeWidth={2}
-            dot={{ r: 2, fill: ct.colors.primary }}
-          />
-
-          {/* ゼロライン */}
-          <ReferenceLine y={0} stroke={ct.grid} />
-        </ComposedChart>
-      </ResponsiveContainer>
-
-      {/* 異常検出サマリー */}
       {anomalies.length > 0 && (
         <AnomalyGrid>
           {anomalies.map((a) => (
@@ -188,6 +183,6 @@ export const FeatureChart = memo(function FeatureChart({
           ))}
         </AnomalyGrid>
       )}
-    </Wrapper>
+    </ChartCard>
   )
 })
