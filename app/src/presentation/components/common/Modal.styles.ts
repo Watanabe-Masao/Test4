@@ -1,26 +1,40 @@
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
+
+export type ModalSize = 'sm' | 'md' | 'lg'
+
+const sizeStyles = {
+  sm: css`
+    max-width: ${({ theme }) => theme.modal.width.sm};
+  `,
+  md: css`
+    max-width: ${({ theme }) => theme.modal.width.md};
+  `,
+  lg: css`
+    max-width: ${({ theme }) => theme.modal.width.lg};
+  `,
+}
 
 export const Backdrop = styled.div`
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
-  z-index: 2000;
+  background: ${({ theme }) => theme.interactive.backdrop};
+  backdrop-filter: blur(${({ theme }) => theme.modal.backdropBlur});
+  z-index: ${({ theme }) => theme.zIndex.modal};
   display: flex;
   align-items: center;
   justify-content: center;
 `
 
-export const Container = styled.div`
+export const Container = styled.div<{ $size: ModalSize }>`
   background: ${({ theme }) => theme.colors.bg2};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.xl};
   box-shadow: ${({ theme }) => theme.shadows.lg};
-  max-width: 480px;
   width: 90%;
-  max-height: 80vh;
+  max-height: ${({ theme }) => theme.modal.maxHeight};
   overflow-y: auto;
   position: relative;
+  ${({ $size }) => sizeStyles[$size]}
 `
 
 export const Header = styled.div`
@@ -32,7 +46,7 @@ export const Header = styled.div`
 `
 
 export const ModalTitle = styled.h2`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
 `
@@ -41,7 +55,7 @@ export const CloseButton = styled.button`
   background: none;
   border: none;
   color: ${({ theme }) => theme.colors.text3};
-  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-size: ${({ theme }) => theme.typography.fontSize.title};
   cursor: pointer;
   padding: ${({ theme }) => theme.spacing[2]};
   border-radius: ${({ theme }) => theme.radii.md};
@@ -49,6 +63,11 @@ export const CloseButton = styled.button`
   &:hover {
     background: ${({ theme }) => theme.colors.bg4};
     color: ${({ theme }) => theme.colors.text};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
   }
 `
 

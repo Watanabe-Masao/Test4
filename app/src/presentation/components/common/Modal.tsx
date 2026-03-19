@@ -1,16 +1,30 @@
 import { useCallback, useEffect, useId, useRef, type ReactNode } from 'react'
-import { Backdrop, Container, Header, ModalTitle, CloseButton, Body, Footer } from './Modal.styles'
+import {
+  Backdrop,
+  Container,
+  Header,
+  ModalTitle,
+  CloseButton,
+  Body,
+  Footer,
+  type ModalSize,
+} from './Modal.styles'
+
+export type { ModalSize }
 
 export function Modal({
   title,
   children,
   footer,
   onClose,
+  size = 'md',
 }: {
   title: string
   children: ReactNode
   footer?: ReactNode
   onClose: () => void
+  /** モーダル幅: sm(400px) / md(480px) / lg(640px) */
+  size?: ModalSize
 }) {
   const titleId = useId()
   const containerRef = useRef<HTMLDivElement>(null)
@@ -71,7 +85,13 @@ export function Modal({
 
   return (
     <Backdrop data-modal-backdrop onClick={handleBackdropClick}>
-      <Container ref={containerRef} role="dialog" aria-modal="true" aria-labelledby={titleId}>
+      <Container
+        ref={containerRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        $size={size}
+      >
         <Header>
           <ModalTitle id={titleId}>{title}</ModalTitle>
           <CloseButton onClick={onClose} aria-label="閉じる">

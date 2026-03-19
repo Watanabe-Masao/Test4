@@ -147,6 +147,35 @@ export const shadows = {
   lg: '0 4px 16px rgba(0,0,0,0.12)',
 } as const
 
+// ─── z-index 階層 ────────────────────────────────────────
+// 重なり順を一元管理。直接数値を .styles.ts に書かない。
+export const zIndex = {
+  /** ドロップダウン、ポップオーバー */
+  dropdown: 100,
+  /** 固定ヘッダー、ナビゲーション */
+  sticky: 200,
+  /** モーダル背景 + コンテナ */
+  modal: 1000,
+  /** トースト通知 */
+  toast: 1100,
+  /** ツールチップ（最前面） */
+  tooltip: 1200,
+} as const
+
+// ─── モーダル ────────────────────────────────────────────
+export const modal = {
+  /** モーダル幅プリセット */
+  width: {
+    sm: '400px',
+    md: '480px',
+    lg: '640px',
+  },
+  /** モーダル最大高さ */
+  maxHeight: '80vh',
+  /** 背景ぼかし */
+  backdropBlur: '4px',
+} as const
+
 // ─── トランジション ──────────────────────────────────────
 export const transitions = {
   fast: '0.2s',

@@ -18,6 +18,8 @@ export {
   breakpoints,
   chartFontSize,
   chartStyles,
+  zIndex,
+  modal,
 } from './tokens'
 export { GlobalStyle } from './GlobalStyle'
 export { sc } from './semanticColors'

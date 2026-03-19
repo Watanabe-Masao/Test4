@@ -10,6 +10,8 @@ import {
   breakpoints,
   chartFontSize,
   chartStyles,
+  zIndex,
+  modal,
 } from './tokens'
 
 // ─── テーマカラー型 ──────────────────────────────────────
@@ -175,6 +177,8 @@ export interface AppTheme {
   breakpoints: typeof breakpoints
   chartFontSize: typeof chartFontSize
   chartStyles: typeof chartStyles
+  zIndex: typeof zIndex
+  modal: typeof modal
 }
 
 // ─── テーマ生成 ──────────────────────────────────────────
@@ -200,6 +204,8 @@ function createTheme(mode: ThemeMode): AppTheme {
     breakpoints,
     chartFontSize,
     chartStyles,
+    zIndex,
+    modal,
   }
 }
 

@@ -252,7 +252,7 @@ export const PinModalOverlay = styled.div`
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.6);
-  z-index: 200;
+  z-index: ${({ theme }) => theme.zIndex.sticky};
   display: flex;
   align-items: center;
   justify-content: center;
