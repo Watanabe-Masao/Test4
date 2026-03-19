@@ -3,6 +3,7 @@ import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { EChart, type EChartsOption } from './EChart'
 import { standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
+import { valueYAxis } from './builders'
 import { useChartTheme, toComma, toPct, toDevScore } from './chartTheme'
 import { DualPeriodSlider } from './DualPeriodSlider'
 import { useDualPeriodRange } from './useDualPeriodRange'
@@ -308,18 +309,7 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
           axisLine: { lineStyle: { color: ct.grid } },
           axisTick: { show: false },
         },
-        yAxis: {
-          type: 'value' as const,
-          axisLabel: {
-            formatter: (v: number) => toComma(v),
-            color: ct.textMuted,
-            fontSize: ct.fontSize.xs,
-            fontFamily: ct.monoFamily,
-          },
-          axisLine: { show: false },
-          axisTick: { show: false },
-          splitLine: { lineStyle: { color: ct.grid, opacity: 0.3, type: 'dashed' as const } },
-        },
+        yAxis: valueYAxis(theme, { formatter: (v: number) => toComma(v) }),
         series,
       }
     }
@@ -368,19 +358,7 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
           axisLine: { lineStyle: { color: ct.grid } },
           axisTick: { show: false },
         },
-        yAxis: {
-          type: 'value' as const,
-          min: 20,
-          max: 80,
-          axisLabel: {
-            color: ct.textMuted,
-            fontSize: ct.fontSize.xs,
-            fontFamily: ct.monoFamily,
-          },
-          axisLine: { show: false },
-          axisTick: { show: false },
-          splitLine: { lineStyle: { color: ct.grid, opacity: 0.3, type: 'dashed' as const } },
-        },
+        yAxis: valueYAxis(theme, { min: 20, max: 80 }),
         series: [
           ...series,
           // Reference lines as markLines on the first series
@@ -480,17 +458,7 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
         axisLine: { lineStyle: { color: ct.grid } },
         axisTick: { show: false },
       },
-      yAxis: {
-        type: 'value' as const,
-        axisLabel: {
-          color: ct.textMuted,
-          fontSize: ct.fontSize.xs,
-          fontFamily: ct.monoFamily,
-        },
-        axisLine: { show: false },
-        axisTick: { show: false },
-        splitLine: { lineStyle: { color: ct.grid, opacity: 0.3, type: 'dashed' as const } },
-      },
+      yAxis: valueYAxis(theme),
       series: [
         ...series,
         // Reference lines

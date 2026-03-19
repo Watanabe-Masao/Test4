@@ -4,6 +4,7 @@ import type { AppTheme } from '@/presentation/theme/theme'
 import { EChart } from './EChart'
 import type { EChartsOption } from 'echarts'
 import { standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
+import { valueYAxis } from './builders'
 import { useChartTheme, toComma, toPct, toAxisYen } from './chartTheme'
 import { DualPeriodSlider } from './DualPeriodSlider'
 import { useDualPeriodRange } from './useDualPeriodRange'
@@ -145,30 +146,12 @@ function buildSalesGapOption(
       axisTick: { show: false },
     },
     yAxis: [
-      {
-        type: 'value' as const,
-        axisLabel: {
-          formatter: (v: number) => toAxisYen(v),
-          color: ct.textMuted,
-          fontSize: ct.fontSize.xs,
-          fontFamily: ct.monoFamily,
-        },
-        axisLine: { show: false },
-        axisTick: { show: false },
-        splitLine: { lineStyle: { color: ct.grid, opacity: 0.3, type: 'dashed' as const } },
-      },
-      {
-        type: 'value' as const,
-        axisLabel: {
-          formatter: (v: number) => toAxisYen(v),
-          color: ct.textMuted,
-          fontSize: ct.fontSize.xs,
-          fontFamily: ct.monoFamily,
-        },
-        axisLine: { show: false },
-        axisTick: { show: false },
-        splitLine: { show: false },
-      },
+      valueYAxis(theme, { formatter: (v: number) => toAxisYen(v) }),
+      valueYAxis(theme, {
+        formatter: (v: number) => toAxisYen(v),
+        position: 'right',
+        showSplitLine: false,
+      }),
     ],
     series: [
       {
@@ -241,30 +224,12 @@ function buildMultiGapOption(
       axisTick: { show: false },
     },
     yAxis: [
-      {
-        type: 'value' as const,
-        axisLabel: {
-          formatter: (v: number) => toAxisYen(v),
-          color: ct.textMuted,
-          fontSize: ct.fontSize.xs,
-          fontFamily: ct.monoFamily,
-        },
-        axisLine: { show: false },
-        axisTick: { show: false },
-        splitLine: { lineStyle: { color: ct.grid, opacity: 0.3, type: 'dashed' as const } },
-      },
-      {
-        type: 'value' as const,
-        axisLabel: {
-          formatter: (v: number) => `${toComma(v)}人`,
-          color: ct.textMuted,
-          fontSize: ct.fontSize.xs,
-          fontFamily: ct.monoFamily,
-        },
-        axisLine: { show: false },
-        axisTick: { show: false },
-        splitLine: { show: false },
-      },
+      valueYAxis(theme, { formatter: (v: number) => toAxisYen(v) }),
+      valueYAxis(theme, {
+        formatter: (v: number) => `${toComma(v)}人`,
+        position: 'right',
+        showSplitLine: false,
+      }),
     ],
     series: [
       {
@@ -348,18 +313,7 @@ function buildGrowthRateOption(
       axisLine: { lineStyle: { color: ct.grid } },
       axisTick: { show: false },
     },
-    yAxis: {
-      type: 'value' as const,
-      axisLabel: {
-        formatter: (v: number) => toPct(v, 0),
-        color: ct.textMuted,
-        fontSize: ct.fontSize.xs,
-        fontFamily: ct.monoFamily,
-      },
-      axisLine: { show: false },
-      axisTick: { show: false },
-      splitLine: { lineStyle: { color: ct.grid, opacity: 0.3, type: 'dashed' as const } },
-    },
+    yAxis: valueYAxis(theme, { formatter: (v: number) => toPct(v, 0) }),
     series: [
       {
         name: allLabels[growthKeys.sales] ?? growthKeys.sales,

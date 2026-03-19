@@ -16,7 +16,7 @@ import {
   standardLegend,
   toCommaYen,
 } from './echartsOptionBuilders'
-import { valueYAxis } from './builders'
+import { valueYAxis, lineDefaults } from './builders'
 import { chartFontSize } from '@/presentation/theme/tokens'
 
 type ViewType = 'line' | 'diff' | 'rate'
@@ -72,9 +72,7 @@ function buildOption(
         name: '予算累計',
         type: 'line',
         data: chartData.map((d) => d.budgetCum),
-        lineStyle: { color: theme.chart.budget, width: 2, type: 'dashed' },
-        itemStyle: { color: theme.chart.budget },
-        symbol: 'none',
+        ...lineDefaults({ color: theme.chart.budget, dashed: true }),
       },
     ]
     if (budget > 0) {

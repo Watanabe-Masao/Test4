@@ -15,7 +15,7 @@ import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import { ChartCard } from './ChartCard'
 import { EChart, type EChartsOption } from './EChart'
 import { yenYAxis, standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
-import { valueYAxis } from './builders'
+import { valueYAxis, lineDefaults } from './builders'
 import { chartFontSize } from '@/presentation/theme/tokens'
 import { KpiGrid, KpiCard, KpiLabel, KpiValue, KpiSub } from './DiscountTrendChart.styles'
 
@@ -167,9 +167,7 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
       type: 'line',
       yAxisIndex: 1,
       data: data.map((d) => d.cumRate as number),
-      lineStyle: { color: theme.colors.palette.orange, width: 2 },
-      itemStyle: { color: theme.colors.palette.orange },
-      symbol: 'none',
+      ...lineDefaults({ color: theme.colors.palette.orange }),
       connectNulls: true,
     })
     if (hasPrev) {

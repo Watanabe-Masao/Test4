@@ -13,7 +13,7 @@ import { SegmentedControl } from '@/presentation/components/common'
 import { ChartCard } from './ChartCard'
 import { ChartEmpty } from './ChartState'
 import { EChart, type EChartsOption } from './EChart'
-import { standardTooltip } from './echartsOptionBuilders'
+import { standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
 import { QuadrantGrid, QuadrantTag } from './CustomerScatterChart.styles'
 import { chartFontSize } from '@/presentation/theme/tokens'
 
@@ -224,7 +224,7 @@ export const CustomerScatterChart = memo(function CustomerScatterChart({
     }
 
     return {
-      grid: { left: 60, right: 30, top: 20, bottom: 40 },
+      grid: { ...standardGrid(), left: 60, right: 30, top: 20, bottom: 40 },
       tooltip: {
         ...standardTooltip(theme),
         formatter: (params: unknown) => {
@@ -234,7 +234,7 @@ export const CustomerScatterChart = memo(function CustomerScatterChart({
           return `${p.seriesName}<br/>客数: ${toComma(x)}人<br/>客単価: ${toComma(y)}円`
         },
       },
-      legend: { textStyle: { color: theme.colors.text3, fontSize: chartFontSize.axis }, bottom: 0 },
+      legend: { ...standardLegend(theme) },
       xAxis: {
         type: 'value',
         name: isYoy ? '客数 前年比変化率' : '客数（人）',

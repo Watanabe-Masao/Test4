@@ -21,6 +21,7 @@ import {
   standardLegend,
   toCommaYen,
 } from './echartsOptionBuilders'
+import { barDefaults, lineDefaults } from './builders'
 
 interface Props {
   daily: ReadonlyMap<number, DailyRecord>
@@ -130,11 +131,7 @@ export const ShapleyTimeSeriesChart = memo(function ShapleyTimeSeriesChart({
           data: filteredData.map(
             (d) => ((d as unknown as Record<string, unknown>)[custKey] as number) ?? null,
           ),
-          itemStyle: {
-            color: theme.colors.palette.infoDark,
-            opacity: 0.75,
-            borderRadius: [2, 2, 0, 0],
-          },
+          ...barDefaults({ color: theme.colors.palette.infoDark, opacity: 0.75 }),
           barMaxWidth: 14,
         },
         {
@@ -143,11 +140,7 @@ export const ShapleyTimeSeriesChart = memo(function ShapleyTimeSeriesChart({
           data: filteredData.map(
             (d) => ((d as unknown as Record<string, unknown>)[ticketKey] as number) ?? null,
           ),
-          itemStyle: {
-            color: theme.colors.palette.purple,
-            opacity: 0.75,
-            borderRadius: [2, 2, 0, 0],
-          },
+          ...barDefaults({ color: theme.colors.palette.purple, opacity: 0.75 }),
           barMaxWidth: 14,
         },
         {
@@ -156,9 +149,7 @@ export const ShapleyTimeSeriesChart = memo(function ShapleyTimeSeriesChart({
           data: filteredData.map(
             (d) => ((d as unknown as Record<string, unknown>)[diffKey] as number) ?? null,
           ),
-          lineStyle: { color: theme.colors.palette.primary, width: 2 },
-          itemStyle: { color: theme.colors.palette.primary },
-          symbol: 'none',
+          ...lineDefaults({ color: theme.colors.palette.primary }),
           connectNulls: true,
         },
       ],
@@ -186,7 +177,7 @@ export const ShapleyTimeSeriesChart = memo(function ShapleyTimeSeriesChart({
   return (
     <ChartCard title="客数・客単価 要因分解（シャープリー）" subtitle={subtitle} toolbar={toolbar}>
       <DowPresetSelector selectedDows={selectedDows} onChange={handleDowChange} />
-      <EChart option={option} height={280} ariaLabel="シャープリー分解チャート" />
+      <EChart option={option as EChartsOption} height={280} ariaLabel="シャープリー分解チャート" />
       <DualPeriodSlider
         min={1}
         max={daysInMonth}

@@ -32,7 +32,7 @@ import {
 import type { BudgetViewType, CompareMode } from './BudgetVsActualChart.styles'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import { standardGrid, standardTooltip, standardLegend, toCommaYen } from './echartsOptionBuilders'
-import { valueYAxis, percentYAxis } from './builders'
+import { valueYAxis, percentYAxis, lineDefaults } from './builders'
 import { chartFontSize } from '@/presentation/theme/tokens'
 
 interface DataPoint {
@@ -142,9 +142,7 @@ function buildOption(
         name: 'budgetCum',
         type: 'line' as const,
         data: chartData.map((d) => d.budgetCum),
-        lineStyle: { color: theme.chart.budget, width: 2, type: 'dashed' },
-        itemStyle: { color: theme.chart.budget },
-        symbol: 'none',
+        ...lineDefaults({ color: theme.chart.budget, dashed: true }),
       })
     }
     if (showPrevYearSeries) {

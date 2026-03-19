@@ -9,7 +9,7 @@ import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { EChart, type EChartsOption } from './EChart'
-import { standardTooltip, standardLegend } from './echartsOptionBuilders'
+import { standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
 import { toComma, toDevScore } from './chartTheme'
 import type { DateRange, PrevYearScope } from '@/domain/models'
 import { useDuckDBLevelAggregation } from '@/application/hooks/duckdb'
@@ -180,7 +180,7 @@ export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
   }
 
   const option = useMemo(() => {
-    const baseGrid = { left: 80, right: 20, top: 30, bottom: 30, containLabel: false }
+    const baseGrid = { ...standardGrid(), left: 80, bottom: 30, containLabel: false }
     const baseYAxis = {
       type: 'category' as const,
       data: names,

@@ -17,7 +17,7 @@ import { SegmentedControl } from '@/presentation/components/common'
 import { ChartCard } from './ChartCard'
 import { ChartLoading, ChartError, ChartEmpty } from './ChartState'
 import { EChart, type EChartsOption } from './EChart'
-import { standardTooltip, toCommaYen } from './echartsOptionBuilders'
+import { standardGrid, standardTooltip, toCommaYen } from './echartsOptionBuilders'
 import { chartFontSize } from '@/presentation/theme/tokens'
 import {
   ControlRow,
@@ -68,7 +68,7 @@ function buildOption(
   }
 
   return {
-    grid: { left: 100, right: 60, top: 10, bottom: 40, containLabel: false },
+    grid: { ...standardGrid(), left: 100, right: 60, top: 10, bottom: 40, containLabel: false },
     tooltip: {
       ...standardTooltip(theme),
       formatter: (params: unknown) => {

@@ -14,7 +14,7 @@ import {
 import { ChartCard } from './ChartCard'
 import { ChartLoading, ChartError, ChartEmpty } from './ChartState'
 import { EChart, type EChartsOption } from './EChart'
-import { standardTooltip } from './echartsOptionBuilders'
+import { standardGrid, standardTooltip } from './echartsOptionBuilders'
 import { LegendRow, LegendItem, QuadrantLabel } from './PiCvBubbleChart.styles'
 import { HIERARCHY_LABELS, type HierarchyLevel } from './ChartParts'
 import { chartFontSize } from '@/presentation/theme/tokens'
@@ -99,7 +99,7 @@ export const PiCvBubbleChart = memo(function PiCvBubbleChart({
     maxCv *= 1.15
 
     return {
-      grid: { left: 50, right: 30, top: 20, bottom: 40 },
+      grid: { ...standardGrid(), left: 50, right: 30, top: 20, bottom: 40 },
       tooltip: {
         ...standardTooltip(theme),
         formatter: (params: unknown) => {
