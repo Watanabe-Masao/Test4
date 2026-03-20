@@ -223,7 +223,10 @@ export async function resolveEtrnStation(
     return null
   }
 
-  const exactMatch = stations.find((s) => s.stationName === amedasStationName)
+  // s1（気象台）のみを対象とし、a1（AMeDAS）は除外する
+  const s1Stations = stations.filter((s) => s.stationType === 's1')
+
+  const exactMatch = s1Stations.find((s) => s.stationName === amedasStationName)
   if (exactMatch) {
     console.debug(
       '[Weather:ETRN] 完全一致: %s → block=%s type=%s',
@@ -234,7 +237,7 @@ export async function resolveEtrnStation(
     return exactMatch
   }
 
-  const partialMatch = stations.find(
+  const partialMatch = s1Stations.find(
     (s) => s.stationName.includes(amedasStationName) || amedasStationName.includes(s.stationName),
   )
   if (partialMatch) {
@@ -247,7 +250,7 @@ export async function resolveEtrnStation(
     return partialMatch
   }
 
-  const fallback = stations.find((s) => s.stationType === 's1') ?? stations[0] ?? null
+  const fallback = s1Stations[0] ?? null
   console.debug('[Weather:ETRN] フォールバック: %s', fallback?.stationName ?? 'null')
   return fallback
 }
@@ -293,8 +296,17 @@ export async function resolveEtrnStationByLocation(
     return null
   }
 
+  // s1（気象台）のみ選択対象。a1（AMeDAS）は観測要素が不十分なため除外
   const s1Stations = stations.filter((s) => s.stationType === 's1')
-  const selected = s1Stations[0] ?? stations[0]
+  if (s1Stations.length === 0) {
+    console.warn(
+      '[Weather:ETRN] s1観測所なし（a1のみ %d件）: precNo=%d — a1は対象外',
+      stations.length,
+      precNo,
+    )
+    return null
+  }
+  const selected = s1Stations[0]
   console.debug(
     '[Weather:ETRN] 観測所選択: %s (block=%s, type=%s) — s1候補=%d, 全%d',
     selected.stationName,
