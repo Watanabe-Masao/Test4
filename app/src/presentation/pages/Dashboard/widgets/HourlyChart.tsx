@@ -626,8 +626,7 @@ const HourlyYoYSummary = memo(function HourlyYoYSummary({
 
   // Find peak/bottom YoY hours
   const bestHour = yoyRows.length > 0 ? yoyRows.reduce((b, r) => (r.diff > b.diff ? r : b)) : null
-  const worstHour =
-    yoyRows.length > 0 ? yoyRows.reduce((w, r) => (r.diff < w.diff ? r : w)) : null
+  const worstHour = yoyRows.length > 0 ? yoyRows.reduce((w, r) => (r.diff < w.diff ? r : w)) : null
 
   const curYear = curDateKey?.slice(0, 4) ?? ''
   const prevYear = prevDateKey?.slice(0, 4) ?? ''
@@ -646,9 +645,7 @@ const HourlyYoYSummary = memo(function HourlyYoYSummary({
       {weatherSummary && (
         <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 6 }}>
           <div>
-            <SumLabel>
-              {curYear} 気温
-            </SumLabel>
+            <SumLabel>{curYear} 気温</SumLabel>
             <SumValue>
               <span style={{ color: '#e74c3c' }}>{weatherSummary.curMax.toFixed(1)}°</span>
               {' / '}
@@ -657,9 +654,7 @@ const HourlyYoYSummary = memo(function HourlyYoYSummary({
           </div>
           {weatherSummary.prevMax != null && (
             <div>
-              <SumLabel>
-                {prevYear} 気温
-              </SumLabel>
+              <SumLabel>{prevYear} 気温</SumLabel>
               <SumValue>
                 <span style={{ color: '#e74c3c' }}>{weatherSummary.prevMax.toFixed(1)}°</span>
                 {' / '}
@@ -695,8 +690,7 @@ const HourlyYoYSummary = memo(function HourlyYoYSummary({
           <div>
             <SumLabel>前年比 最好調</SumLabel>
             <SumValue style={{ color: sc.positive }}>
-              {bestHour.hour}時 {formatPercent(bestHour.ratio, 0)}（
-              {bestHour.diff >= 0 ? '+' : ''}
+              {bestHour.hour}時 {formatPercent(bestHour.ratio, 0)}（{bestHour.diff >= 0 ? '+' : ''}
               {toComma(bestHour.diff)}円）
             </SumValue>
           </div>
