@@ -53,6 +53,25 @@ function extractImports(filePath: string): string[] {
   return imports
 }
 
+/**
+ * ファイルから値 import（import type を除く）のモジュールパスを抽出する。
+ *
+ * `import type` は実行時依存を生まないため、レイヤー違反の検出対象から除外する。
+ * これにより型のみを参照するファイルが許可リストに載る偽陽性を排除できる。
+ */
+function extractValueImports(filePath: string): string[] {
+  const content = fs.readFileSync(filePath, 'utf-8')
+  const imports: string[] = []
+  // import（type でない） ... from '...' — import type / export type を除外
+  const regex =
+    /(?:import\s+(?!type\s)(?:.*?\s+from\s+)?['"](@\/[^'"]+)['"]|export\s+(?!type\s).*?\s+from\s+['"](@\/[^'"]+)['"])/g
+  let match
+  while ((match = regex.exec(content)) !== null) {
+    imports.push(match[1] ?? match[2])
+  }
+  return imports
+}
+
 /** SRC_DIR からの相対パスを返す */
 function relativePath(filePath: string): string {
   return path.relative(SRC_DIR, filePath)
@@ -179,7 +198,7 @@ describe('Architecture Guard', () => {
     expect(violations).toEqual([])
   })
 
-  it('presentation/ は infrastructure/ に直接依存しない（許可リスト除く）', () => {
+  it('presentation/ は infrastructure/ に直接依存しない（許可リスト除く、import type は許容）', () => {
     const presDir = path.join(SRC_DIR, 'presentation')
     const files = collectTsFiles(presDir)
     const violations: string[] = []
@@ -188,7 +207,7 @@ describe('Architecture Guard', () => {
       const rel = relativePath(file)
       if (PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST.has(rel)) continue
 
-      const imports = extractImports(file)
+      const imports = extractValueImports(file)
       for (const imp of imports) {
         if (imp.startsWith('@/infrastructure/')) {
           violations.push(`${rel}: ${imp}`)
@@ -199,18 +218,14 @@ describe('Architecture Guard', () => {
     expect(violations).toEqual([])
   })
 
-  it('presentation/ は application/usecases/ を直接 import しない（禁止事項 #11、許可リスト除く）', () => {
-    // 既存の違反（凍結）。移行完了時に許可リストから削除する。新規追加は禁止。
+  it('presentation/ は application/usecases/ を直接 import しない（禁止事項 #11、import type は許容）', () => {
+    // 値 import の既存違反（凍結）。移行完了時に許可リストから削除する。新規追加は禁止。
+    // import type は実行時依存を生まないため検出対象外。
     const USECASE_ALLOWLIST = new Set([
-      'presentation/components/common/ImportModal.tsx',
-      'presentation/components/common/ImportWizard.tsx',
-      'presentation/components/widgets/types.ts',
       'presentation/pages/Admin/ClearAllDataSection.tsx',
       'presentation/pages/Dashboard/widgets/MonthlyCalendar.tsx',
-      'presentation/pages/Dashboard/widgets/types.ts',
-      'presentation/pages/Reports/ReportDeptTable.tsx',
     ])
-    const MAX_USECASE_ALLOWLIST = 7
+    const MAX_USECASE_ALLOWLIST = 2
 
     const presDir = path.join(SRC_DIR, 'presentation')
     const files = collectTsFiles(presDir)
@@ -220,7 +235,7 @@ describe('Architecture Guard', () => {
       const rel = relativePath(file)
       if (USECASE_ALLOWLIST.has(rel)) continue
 
-      const imports = extractImports(file)
+      const imports = extractValueImports(file)
       for (const imp of imports) {
         if (imp.startsWith('@/application/usecases/')) {
           violations.push(`${rel}: ${imp}`)
@@ -530,17 +545,14 @@ describe('Architecture Guard', () => {
     // ── DuckDB チャート（Phase C Wave 1-3 で移行） ──
     'components/charts/CategoryHierarchyExplorer.tsx',
     'components/charts/CategoryPerformanceChart.tsx',
-    'components/charts/CategoryBenchmarkChart.styles.ts',
     'components/charts/CategoryHourlyChart.tsx',
     'components/charts/DeptHourlyChart.tsx',
     'components/charts/DowPatternChart.tsx',
     'components/charts/FeatureChart.tsx',
-    'components/charts/HeatmapChart.helpers.ts',
     'components/charts/HourlyProfileChart.tsx',
     'components/charts/YoYChart.tsx',
     // ── ページ・ウィジェット（Phase C で移行） ──
     'pages/Admin/StorageManagementTab.tsx',
-    'pages/Dashboard/widgets/ConditionMatrixTable.styles.ts',
     'pages/Dashboard/widgets/DayDetailModal.tsx',
     'pages/Dashboard/widgets/MonthlyCalendar.tsx',
     'pages/Dashboard/widgets/YoYWaterfallChart.tsx',
@@ -548,16 +560,16 @@ describe('Architecture Guard', () => {
     'pages/PurchaseAnalysis/PurchaseAnalysisPage.tsx',
   ])
 
-  it('presentation/ の新規ファイルは DuckDB フックを直接使用しない（filterStore 経由を使用）', () => {
+  it('presentation/ の新規ファイルは DuckDB フックを直接使用しない（filterStore 経由を使用、import type は許容）', () => {
     const presDir = path.join(SRC_DIR, 'presentation')
     const files = collectTsFiles(presDir)
     const violations: string[] = []
 
-    // DuckDB フックの import パターン
-    const DUCKDB_HOOK_PATTERNS = [
-      /import\s+.*from\s+['"]@\/application\/hooks\/duckdb['"]/,
-      /import\s+.*useDuckDB.*from\s+['"]@\/application\/hooks['"]/,
-      /import\s+.*useDuckDB.*from\s+['"]@\/application\/hooks\/useDuckDB['"]/,
+    // DuckDB フックの値 import パターン（import type は実行時依存を生まないため除外）
+    const DUCKDB_HOOK_VALUE_PATTERNS = [
+      /import\s+(?!type\s).*from\s+['"]@\/application\/hooks\/duckdb['"]/,
+      /import\s+(?!type\s).*useDuckDB.*from\s+['"]@\/application\/hooks['"]/,
+      /import\s+(?!type\s).*useDuckDB.*from\s+['"]@\/application\/hooks\/useDuckDB['"]/,
     ]
 
     for (const file of files) {
@@ -565,7 +577,7 @@ describe('Architecture Guard', () => {
       if (PRESENTATION_DUCKDB_HOOK_ALLOWLIST.has(rel)) continue
 
       const content = fs.readFileSync(file, 'utf-8')
-      for (const pattern of DUCKDB_HOOK_PATTERNS) {
+      for (const pattern of DUCKDB_HOOK_VALUE_PATTERNS) {
         if (pattern.test(content)) {
           violations.push(
             `${relativePath(file)}: DuckDB フックを直接使用。filterStore + useFilterSelectors 経由を使用してください`,
@@ -580,7 +592,7 @@ describe('Architecture Guard', () => {
 
   it('presentation/ の DuckDB フック許可リストは増やさない（移行時に減らすのみ）', () => {
     // 許可リストのサイズ上限。移行が進むにつれてこの数値を減らしていく。
-    const MAX_ALLOWLIST_SIZE = 17
+    const MAX_ALLOWLIST_SIZE = 14
     expect(PRESENTATION_DUCKDB_HOOK_ALLOWLIST.size).toBeLessThanOrEqual(MAX_ALLOWLIST_SIZE)
   })
 

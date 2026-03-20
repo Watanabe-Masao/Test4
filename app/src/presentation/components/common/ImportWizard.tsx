@@ -1,5 +1,5 @@
 import type { ImportProgress } from '@/application/hooks/useImport'
-import type { ImportSummary, FileImportResult } from '@/application/usecases/import'
+import type { ImportSummary, FileImportResult } from '@/domain/models/ImportResult'
 import {
   Container,
   StepTrack,

@@ -13,7 +13,7 @@ import type {
 import type { Store } from '@/domain/models'
 import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/hooks'
 import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
-import type { DepartmentKpiIndex } from '@/application/usecases/departmentKpi/indexBuilder'
+import type { DepartmentKpiIndex } from '@/domain/models/DepartmentKpiIndex'
 import type { MonthlyDataPoint } from '@/application/hooks/useStatistics'
 import type { CurrencyFormatter } from '@/presentation/components/charts/chartTheme'
 
