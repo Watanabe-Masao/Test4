@@ -2,7 +2,7 @@
  * 日別詳細モーダル — カレンダー/テーブルから日を選択した際に表示。
  * 売上分析・時間帯分析・仕入内訳の3タブ構成。
  */
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import { formatPercent } from '@/domain/formatting'
@@ -21,6 +21,7 @@ import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import { useDuckDBCategoryTimeRecords, useDuckDBWeatherHourly } from '@/application/hooks/duckdb'
 import type { PrevYearData } from '@/application/hooks/analytics'
 import { useSettingsStore } from '@/application/stores/settingsStore'
+import { useDataStore } from '@/application/stores/dataStore'
 import {
   PinModalOverlay,
   DetailModalContent,
@@ -142,10 +143,32 @@ export function DayDetailModal({
 
   // ── 天気データ（DuckDB weather_hourly から取得） ──
   const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
-  const weatherStoreId = useMemo(() => {
+  const storeMap = useDataStore((s) => s.data.stores)
+  const [weatherStoreOverride, setWeatherStoreOverride] = useState<string | null>(null)
+
+  // 天気取得可能な店舗リスト（位置情報あり）
+  const weatherCandidates = useMemo(() => {
     const ids = storeIdsSet.size > 0 ? Array.from(storeIdsSet) : Object.keys(storeLocations)
-    return ids.find((id) => storeLocations[id]) ?? ''
-  }, [storeIdsSet, storeLocations])
+    return ids
+      .filter((id) => storeLocations[id])
+      .map((id) => ({ id, name: storeMap.get(id)?.name ?? id }))
+  }, [storeIdsSet, storeLocations, storeMap])
+
+  const weatherStoreId = useMemo(() => {
+    if (weatherStoreOverride && weatherCandidates.some((c) => c.id === weatherStoreOverride)) {
+      return weatherStoreOverride
+    }
+    return weatherCandidates[0]?.id ?? ''
+  }, [weatherStoreOverride, weatherCandidates])
+
+  const weatherStoreName = useMemo(
+    () => weatherCandidates.find((c) => c.id === weatherStoreId)?.name ?? '',
+    [weatherCandidates, weatherStoreId],
+  )
+
+  const handleWeatherStoreChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setWeatherStoreOverride(e.target.value || null)
+  }, [])
   const dateKey = useMemo(() => toDateKeyFromParts(year, month, day), [year, month, day])
   const weatherResult = useDuckDBWeatherHourly(duckConn, duckDataVersion, weatherStoreId, dateKey)
 
@@ -491,6 +514,43 @@ export function DayDetailModal({
         {/* ── Tab: 時間帯分析 ── */}
         {tab === 'hourly' && (
           <>
+            {/* 天気データ用店舗セレクタ */}
+            {weatherCandidates.length > 1 && (
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  marginBottom: 8,
+                  fontSize: '0.65rem',
+                }}
+              >
+                <span style={{ opacity: 0.6 }}>天気データ:</span>
+                <select
+                  value={weatherStoreId}
+                  onChange={handleWeatherStoreChange}
+                  style={{
+                    fontSize: '0.65rem',
+                    padding: '2px 6px',
+                    borderRadius: 4,
+                    border: `1px solid ${palette.slate}`,
+                    background: 'transparent',
+                    color: 'inherit',
+                  }}
+                >
+                  {weatherCandidates.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+            {weatherCandidates.length === 1 && weatherStoreName && (
+              <div style={{ fontSize: '0.6rem', opacity: 0.5, marginBottom: 4 }}>
+                天気データ: {weatherStoreName}
+              </div>
+            )}
             <HourlyChart
               dayRecords={dayRecords}
               prevDayRecords={prevDayRecords}
