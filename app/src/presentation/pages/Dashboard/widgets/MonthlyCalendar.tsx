@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import { Button } from '@/presentation/components/common'
@@ -7,12 +7,17 @@ import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import {
   calculateAchievementRate,
   calculateYoYRatio,
+  calculateTransactionValue,
   safeDivide,
 } from '@/domain/calculations/utils'
 import { calculatePinIntervals } from '@/application/hooks/calculation'
 import { buildClipBundle } from '@/application/usecases/clipExport/buildClipBundle'
 import { downloadClipHtml } from '@/application/usecases/clipExport/downloadClipHtml'
 import { fetchCategoryTimeRecords } from '@/application/hooks/duckdb'
+import { useWeatherData } from '@/application/hooks/useWeather'
+import { useSettingsStore } from '@/application/stores/settingsStore'
+import { categorizeWeatherCode } from '@/domain/calculations/weatherAggregation'
+import type { DailyWeatherSummary, WeatherCategory } from '@/domain/models'
 import type { WidgetContext } from './types'
 import { DayDetailModal } from './DayDetailModal'
 import { RangeComparisonPanel } from './RangeComparison'
@@ -22,7 +27,6 @@ import {
   CalSectionTitle,
   CalTable,
   CalTh,
-  CalTd,
   CalDayNum,
   CalGrid,
   CalCell,
@@ -49,9 +53,31 @@ import {
   RangeToolbar,
   RangeLabel,
   RangeInput,
+  CalWeatherIcon,
+  CalCellWrapper,
+  CalPreview,
+  PreviewTitle,
+  PreviewRow,
+  PreviewLabel,
+  PreviewValue,
+  PreviewHint,
+  CalThWeek,
+  CalTdWeek,
+  WeekSummaryGrid,
+  WeekSummaryLabel,
+  WeekSummaryValue,
 } from '../DashboardPage.styles'
 
 const DOW_LABELS = ['月', '火', '水', '木', '金', '土', '日']
+const DOW_NAMES = ['日', '月', '火', '水', '木', '金', '土']
+
+const WEATHER_ICONS: Record<WeatherCategory, string> = {
+  sunny: '\u2600\uFE0F',
+  cloudy: '\u2601\uFE0F',
+  rainy: '\uD83C\uDF27\uFE0F',
+  snowy: '\u2744\uFE0F',
+  other: '\uD83C\uDF00',
+}
 
 /** 千円表記 (符号付き) */
 function fmtSenDiff(n: number): string {
@@ -70,13 +96,32 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
   const [rangeBStart, setRangeBStart] = useState<string>('')
   const [rangeBEnd, setRangeBEnd] = useState<string>('')
   const [isExporting, setIsExporting] = useState(false)
+  const [hoveredDay, setHoveredDay] = useState<number | null>(null)
+
+  // ── Weather data ──
+  const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
+  const weatherStoreId = useMemo(() => {
+    const candidates =
+      ctx.selectedStoreIds.size > 0
+        ? Array.from(ctx.selectedStoreIds)
+        : Array.from(ctx.stores.keys())
+    return candidates.find((id) => storeLocations[id]) ?? candidates[0] ?? ''
+  }, [ctx.selectedStoreIds, ctx.stores, storeLocations])
+  const { daily: weatherDaily } = useWeatherData(year, month, weatherStoreId)
+  const weatherByDay = useMemo(() => {
+    const m = new Map<number, DailyWeatherSummary>()
+    for (const d of weatherDaily) {
+      const dayNum = Number(d.dateKey.split('-')[2])
+      m.set(dayNum, d)
+    }
+    return m
+  }, [weatherDaily])
 
   const handleClipExport = useCallback(async () => {
     setIsExporting(true)
     try {
       const storeName = ctx.stores.get(ctx.storeKey)?.name ?? ctx.storeKey
       const curRange = { from: { year, month, day: 1 }, to: { year, month, day: daysInMonth } }
-      // dowOffset を使って前年月の正確な開始/終了日を計算
       const startDate = new Date(year, month - 1, 1)
       const endDate = new Date(year, month - 1, daysInMonth)
       const offsetMs = ctx.comparisonFrame.dowOffset * 86400000
@@ -183,8 +228,6 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
     cumPrevCustomers.set(d, runPrevCustomers)
   }
 
-  // (Detailed cumulative/customer/discount/WoW data is displayed in DayDetailModal)
-
   // Range selection
   const parseDay = (v: string) => {
     const n = parseInt(v, 10)
@@ -270,6 +313,29 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
     setPinDay(null)
   }
 
+  // ── Week summary calculator ──
+  const calcWeekSummary = (week: (number | null)[]) => {
+    let wSales = 0,
+      wBudget = 0,
+      wPySales = 0,
+      wCustomers = 0,
+      dayCount = 0
+    for (const day of week) {
+      if (day == null) continue
+      const rec = r.daily.get(day)
+      wSales += rec?.sales ?? 0
+      wBudget += r.budgetDaily.get(day) ?? 0
+      wPySales += prevYear.daily.get(toDateKeyFromParts(year, month, day))?.sales ?? 0
+      wCustomers += rec?.customers ?? 0
+      if ((rec?.sales ?? 0) > 0) dayCount++
+    }
+    const wDiff = wSales - wBudget
+    const wAch = calculateAchievementRate(wSales, wBudget)
+    const wPyRatio = calculateYoYRatio(wSales, wPySales)
+    const wTxVal = calculateTransactionValue(wSales, wCustomers)
+    return { wSales, wBudget, wDiff, wAch, wPySales, wPyRatio, wCustomers, wTxVal, dayCount }
+  }
+
   return (
     <CalWrapper>
       <CalSectionTitle
@@ -337,115 +403,233 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                 {label}
               </CalTh>
             ))}
+            <CalThWeek>週計</CalThWeek>
           </tr>
         </thead>
         <tbody>
-          {weeks.map((week, wi) => (
-            <tr key={wi}>
-              {week.map((day, di) => {
-                if (day == null) return <CalTd key={di} $empty />
-                const rec = r.daily.get(day)
-                const budget = r.budgetDaily.get(day) ?? 0
-                const actual = rec?.sales ?? 0
-                const dayDiff = actual - budget
-                const achievement_pragmatic = calculateAchievementRate(actual, budget)
-                const isWeekend = di >= 5
-                const diffColor = sc.cond(dayDiff >= 0)
-                const hasActual = actual > 0
+          {weeks.map((week, wi) => {
+            const ws = calcWeekSummary(week)
+            return (
+              <tr key={wi}>
+                {week.map((day, di) => {
+                  if (day == null) return <CalCellWrapper key={di} $empty />
+                  const rec = r.daily.get(day)
+                  const budget = r.budgetDaily.get(day) ?? 0
+                  const actual = rec?.sales ?? 0
+                  const dayDiff = actual - budget
+                  const achievement_pragmatic = calculateAchievementRate(actual, budget)
+                  const isWeekend = di >= 5
+                  const diffColor = sc.cond(dayDiff >= 0)
+                  const hasActual = actual > 0
 
-                const cBudget = cumBudget.get(day) ?? 0
-                const cSales = cumSales.get(day) ?? 0
-                const cDiff = cSales - cBudget
-                const cAch = calculateAchievementRate(cSales, cBudget)
-                const cDiffColor = sc.cond(cDiff >= 0)
-                const cAchColor = sc.achievement(cAch)
+                  const cBudget = cumBudget.get(day) ?? 0
+                  const cSales = cumSales.get(day) ?? 0
+                  const cDiff = cSales - cBudget
+                  const cAch = calculateAchievementRate(cSales, cBudget)
+                  const cDiffColor = sc.cond(cDiff >= 0)
+                  const cAchColor = sc.achievement(cAch)
 
-                const isPinned = pins.has(day)
-                const interval = isPinned ? getIntervalForDay(day) : undefined
-                return (
-                  <CalTd key={di} $hasActual={hasActual}>
-                    <CalDayCell
-                      $pinned={isPinned}
-                      $inInterval={!!getIntervalForDay(day)}
-                      $rangeColor={
-                        isDayInRangeA(day)
-                          ? palette.warningDark
-                          : isDayInRangeB(day)
-                            ? palette.primary
-                            : undefined
-                      }
-                      $rangeType={isDayInRangeA(day) ? 'A' : isDayInRangeB(day) ? 'B' : undefined}
+                  const isPinned = pins.has(day)
+                  const interval = isPinned ? getIntervalForDay(day) : undefined
+
+                  // Weather
+                  const weather = weatherByDay.get(day)
+                  const weatherIcon = weather
+                    ? WEATHER_ICONS[categorizeWeatherCode(weather.dominantWeatherCode)]
+                    : null
+
+                  // Hover preview data
+                  const isHovered = hoveredDay === day
+                  const dayCust = rec?.customers ?? 0
+                  const pySales =
+                    prevYear.daily.get(toDateKeyFromParts(year, month, day))?.sales ?? 0
+                  const dayOfWeek = DOW_NAMES[new Date(year, month - 1, day).getDay()]
+
+                  return (
+                    <CalCellWrapper
+                      key={di}
+                      $hasActual={hasActual}
+                      onMouseEnter={() => setHoveredDay(day)}
+                      onMouseLeave={() => setHoveredDay(null)}
                     >
-                      <CalDayHeader>
-                        <CalDayNum $weekend={isWeekend}>{day}</CalDayNum>
-                        <span>
-                          <CalActionBtn
-                            $color={palette.primary}
-                            title="在庫ピン止め"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleOpenPin(day)
-                            }}
-                          >
-                            {isPinned ? '📌' : '📌'}
-                          </CalActionBtn>
-                        </span>
-                      </CalDayHeader>
-                      {(budget > 0 || actual > 0) && (
-                        <CalDataArea onClick={() => setDetailDay(day)}>
-                          <CalGrid>
-                            {/* Hero: 実績売上 */}
-                            <CalHeroValue>{fmtSen(actual)}</CalHeroValue>
-                            {/* 予算差 (符号+色+アイコン) */}
-                            <CalMetricRow>
-                              <CalCell $color={diffColor} $bold>
-                                {dayDiff >= 0 ? '▲' : '▼'} {fmtSenDiff(dayDiff)}
-                              </CalCell>
-                            </CalMetricRow>
-                            {/* 達成率: ミニプログレスバー */}
-                            {budget > 0 && <CalAchBar $pct={achievement_pragmatic} />}
-                            {/* 前年比 (色+アイコン) */}
-                            {prevYear.hasPrevYear &&
-                              (() => {
-                                const pyDaySales =
-                                  prevYear.daily.get(toDateKeyFromParts(year, month, day))?.sales ??
-                                  0
-                                if (pyDaySales <= 0) return null
-                                const pyRatio = actual / pyDaySales
-                                const pyColor = pyRatio >= 1 ? sc.positive : sc.negative
-                                return (
-                                  <CalCell $color={pyColor}>
-                                    {pyRatio >= 1 ? '▲' : '▼'} 前年{formatPercent(pyRatio, 0)}
-                                  </CalCell>
-                                )
-                              })()}
-                            {/* 累計達成率 (コンパクト) */}
-                            {cBudget > 0 && (
-                              <>
-                                <CalDivider />
-                                <CalMetricRow>
-                                  <CalCell $color={cAchColor}>
-                                    累計 {formatPercent(cAch, 0)}
-                                  </CalCell>
-                                  <CalCell $color={cDiffColor}>
-                                    {cDiff >= 0 ? '+' : ''}
-                                    {fmtSen(cDiff)}
-                                  </CalCell>
-                                </CalMetricRow>
-                              </>
-                            )}
-                          </CalGrid>
-                        </CalDataArea>
+                      <CalDayCell
+                        $pinned={isPinned}
+                        $inInterval={!!getIntervalForDay(day)}
+                        $rangeColor={
+                          isDayInRangeA(day)
+                            ? palette.warningDark
+                            : isDayInRangeB(day)
+                              ? palette.primary
+                              : undefined
+                        }
+                        $rangeType={
+                          isDayInRangeA(day) ? 'A' : isDayInRangeB(day) ? 'B' : undefined
+                        }
+                      >
+                        <CalDayHeader>
+                          <CalDayNum $weekend={isWeekend}>
+                            {day}
+                            {weatherIcon && <CalWeatherIcon>{weatherIcon}</CalWeatherIcon>}
+                          </CalDayNum>
+                          <span>
+                            <CalActionBtn
+                              $color={palette.primary}
+                              title="在庫ピン止め"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleOpenPin(day)
+                              }}
+                            >
+                              {isPinned ? '📌' : '📌'}
+                            </CalActionBtn>
+                          </span>
+                        </CalDayHeader>
+                        {(budget > 0 || actual > 0) && (
+                          <CalDataArea onClick={() => setDetailDay(day)}>
+                            <CalGrid>
+                              {/* Hero: 実績売上 */}
+                              <CalHeroValue>{fmtSen(actual)}</CalHeroValue>
+                              {/* 予算差 (符号+色+アイコン) */}
+                              <CalMetricRow>
+                                <CalCell $color={diffColor} $bold>
+                                  {dayDiff >= 0 ? '▲' : '▼'} {fmtSenDiff(dayDiff)}
+                                </CalCell>
+                              </CalMetricRow>
+                              {/* 達成率: ミニプログレスバー */}
+                              {budget > 0 && <CalAchBar $pct={achievement_pragmatic} />}
+                              {/* 前年比 (色+アイコン) */}
+                              {prevYear.hasPrevYear &&
+                                (() => {
+                                  if (pySales <= 0) return null
+                                  const pyRatio = actual / pySales
+                                  const pyColor = pyRatio >= 1 ? sc.positive : sc.negative
+                                  return (
+                                    <CalCell $color={pyColor}>
+                                      {pyRatio >= 1 ? '▲' : '▼'} 前年{formatPercent(pyRatio, 0)}
+                                    </CalCell>
+                                  )
+                                })()}
+                              {/* 累計達成率 (コンパクト) */}
+                              {cBudget > 0 && (
+                                <>
+                                  <CalDivider />
+                                  <CalMetricRow>
+                                    <CalCell $color={cAchColor}>
+                                      累計 {formatPercent(cAch, 0)}
+                                    </CalCell>
+                                    <CalCell $color={cDiffColor}>
+                                      {cDiff >= 0 ? '+' : ''}
+                                      {fmtSen(cDiff)}
+                                    </CalCell>
+                                  </CalMetricRow>
+                                </>
+                              )}
+                            </CalGrid>
+                          </CalDataArea>
+                        )}
+                        {isPinned && interval && (
+                          <PinIndicator>GP {formatPercent(interval.grossProfitRate)}</PinIndicator>
+                        )}
+                      </CalDayCell>
+
+                      {/* Hover Preview */}
+                      {isHovered && (budget > 0 || actual > 0) && (
+                        <CalPreview>
+                          <PreviewTitle>
+                            {month}月{day}日（{dayOfWeek}）
+                            {weatherIcon && ` ${weatherIcon}`}
+                            {weather &&
+                              ` ${Math.round(weather.temperatureMax)}°/${Math.round(weather.temperatureMin)}°`}
+                          </PreviewTitle>
+                          <PreviewRow>
+                            <PreviewLabel>売上</PreviewLabel>
+                            <PreviewValue>{fmtCurrency(actual)}</PreviewValue>
+                          </PreviewRow>
+                          <PreviewRow>
+                            <PreviewLabel>予算</PreviewLabel>
+                            <PreviewValue>{fmtCurrency(budget)}</PreviewValue>
+                          </PreviewRow>
+                          <PreviewRow $color={sc.cond(dayDiff >= 0)}>
+                            <PreviewLabel>予算差</PreviewLabel>
+                            <PreviewValue>
+                              {dayDiff >= 0 ? '+' : ''}
+                              {fmtCurrency(dayDiff)}
+                            </PreviewValue>
+                          </PreviewRow>
+                          {budget > 0 && (
+                            <PreviewRow $color={sc.achievement(achievement_pragmatic)}>
+                              <PreviewLabel>達成率</PreviewLabel>
+                              <PreviewValue>{formatPercent(achievement_pragmatic)}</PreviewValue>
+                            </PreviewRow>
+                          )}
+                          {dayCust > 0 && (
+                            <>
+                              <PreviewRow>
+                                <PreviewLabel>客数</PreviewLabel>
+                                <PreviewValue>{dayCust.toLocaleString()}人</PreviewValue>
+                              </PreviewRow>
+                              <PreviewRow>
+                                <PreviewLabel>客単価</PreviewLabel>
+                                <PreviewValue>
+                                  {fmtCurrency(calculateTransactionValue(actual, dayCust))}
+                                </PreviewValue>
+                              </PreviewRow>
+                            </>
+                          )}
+                          {prevYear.hasPrevYear && pySales > 0 && (
+                            <PreviewRow $color={sc.cond(actual / pySales >= 1)}>
+                              <PreviewLabel>前年比</PreviewLabel>
+                              <PreviewValue>{formatPercent(actual / pySales)}</PreviewValue>
+                            </PreviewRow>
+                          )}
+                          <PreviewHint>クリックで詳細分析</PreviewHint>
+                        </CalPreview>
                       )}
-                      {isPinned && interval && (
-                        <PinIndicator>GP {formatPercent(interval.grossProfitRate)}</PinIndicator>
+                    </CalCellWrapper>
+                  )
+                })}
+                {/* Week summary column */}
+                <CalTdWeek>
+                  {ws.dayCount > 0 && (
+                    <WeekSummaryGrid>
+                      <div>
+                        <WeekSummaryLabel>売上</WeekSummaryLabel>
+                        <WeekSummaryValue>{fmtSen(ws.wSales)}</WeekSummaryValue>
+                      </div>
+                      <div>
+                        <WeekSummaryLabel>予算差</WeekSummaryLabel>
+                        <WeekSummaryValue $color={sc.cond(ws.wDiff >= 0)}>
+                          {fmtSenDiff(ws.wDiff)}
+                        </WeekSummaryValue>
+                      </div>
+                      {ws.wBudget > 0 && (
+                        <div>
+                          <WeekSummaryLabel>達成</WeekSummaryLabel>
+                          <WeekSummaryValue $color={sc.achievement(ws.wAch)}>
+                            {formatPercent(ws.wAch, 0)}
+                          </WeekSummaryValue>
+                        </div>
                       )}
-                    </CalDayCell>
-                  </CalTd>
-                )
-              })}
-            </tr>
-          ))}
+                      {prevYear.hasPrevYear && ws.wPySales > 0 && (
+                        <div>
+                          <WeekSummaryLabel>前年比</WeekSummaryLabel>
+                          <WeekSummaryValue $color={sc.cond(ws.wPyRatio >= 1)}>
+                            {formatPercent(ws.wPyRatio, 0)}
+                          </WeekSummaryValue>
+                        </div>
+                      )}
+                      {ws.wCustomers > 0 && (
+                        <div>
+                          <WeekSummaryLabel>客数</WeekSummaryLabel>
+                          <WeekSummaryValue>{ws.wCustomers.toLocaleString()}</WeekSummaryValue>
+                        </div>
+                      )}
+                    </WeekSummaryGrid>
+                  )}
+                </CalTdWeek>
+              </tr>
+            )
+          })}
         </tbody>
       </CalTable>
 
