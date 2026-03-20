@@ -6,16 +6,17 @@
  * 日付クリックでモーダルを開き、時間別天気データを折れ線グラフで表示する。
  *
  * UI/UX原則#1: 実績（緑系）と推定（オレンジ系）は別世界として視覚的に分離。
+ * 禁止事項#11: presentation/ から外部APIを直接呼ばない → hook経由で取得。
  */
 import { memo, useMemo, useState, useCallback } from 'react'
 import styled from 'styled-components'
 import { sc } from '@/presentation/theme/semanticColors'
 import { useWeatherData } from '@/application/hooks/useWeather'
 import { useWeatherForecast } from '@/application/hooks/useWeatherForecast'
+import { useWeatherHourlyOnDemand } from '@/application/hooks/useWeatherHourlyOnDemand'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import type { DailySalesForCorrelation } from '@/application/hooks/useWeatherCorrelation'
-import type { HourlyWeatherRecord, AlignmentPolicy, DailyForecast } from '@/domain/models'
-import { loadEtrnHourlyForStore } from '@/application/usecases/weather/WeatherLoadService'
+import type { AlignmentPolicy, DailyForecast } from '@/domain/models'
 import { WeatherBadge } from '@/presentation/components/common/WeatherBadge'
 import { ForecastBadge } from '@/presentation/components/common/ForecastBadge'
 import { WeatherCorrelationChart } from '@/presentation/components/charts/WeatherCorrelationChart'
@@ -92,71 +93,13 @@ const NoLocationText = styled.div`
   font-size: ${({ theme }) => theme.typography.fontSize.sm};
 `
 
-/** 時間別データの取得状態 */
-interface HourlyState {
-  readonly status: 'idle' | 'loading' | 'done' | 'error'
-  readonly records: readonly HourlyWeatherRecord[]
-  readonly error?: string
-}
-
-/**
- * 当年 dateKey から前年の対応日を算出する
- *
- * sameDayOfWeek: ComparisonScope.resolveSameDowSource と同一アルゴリズム。
- *   anchor = 前年同日 → ±7日の候補から同じ曜日の最近傍を選択。
- *   独自の dowOffset 補正は使用しない（禁止事項 #2: 別ソースから再計算しない）。
- */
-function resolvePrevYearDate(
-  dateKey: string,
-  policy: AlignmentPolicy,
-): { year: number; month: number; day: number; dateKey: string } {
-  const d = new Date(dateKey + 'T00:00:00')
-  if (policy === 'sameDayOfWeek') {
-    const anchor = new Date(d.getFullYear() - 1, d.getMonth(), d.getDate())
-    const targetDow = d.getDay()
-    let best = anchor
-    let bestDist = Infinity
-    for (let diff = -7; diff <= 7; diff++) {
-      const c = new Date(anchor.getFullYear(), anchor.getMonth(), anchor.getDate() + diff)
-      if (c.getDay() !== targetDow) continue
-      const dist = Math.abs(c.getTime() - anchor.getTime())
-      if (dist < bestDist || (dist === bestDist && c.getTime() >= anchor.getTime())) {
-        bestDist = dist
-        best = c
-      }
-    }
-    const bYear = best.getFullYear()
-    const bMonth = best.getMonth() + 1
-    const bDay = best.getDate()
-    const bMm = String(bMonth).padStart(2, '0')
-    const bDd = String(bDay).padStart(2, '0')
-    return {
-      year: bYear,
-      month: bMonth,
-      day: bDay,
-      dateKey: `${bYear}-${bMm}-${bDd}`,
-    }
-  }
-  // sameDate: 単純に前年同月同日
-  const year = d.getFullYear() - 1
-  const month = d.getMonth() + 1
-  const day = d.getDate()
-  const mm = String(month).padStart(2, '0')
-  const dd = String(day).padStart(2, '0')
-  return { year, month, day, dateKey: `${year}-${mm}-${dd}` }
-}
-
 export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetContext }) {
   const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
 
-  // ctx.result.storeId は集計時 'aggregate' になるため、
-  // selectedStoreIds / stores から位置情報が登録済みの実店舗IDを解決する
   const storeId = useMemo(() => {
-    // 単一店舗選択時
     if (ctx.selectedStoreIds.size === 1) {
       return Array.from(ctx.selectedStoreIds)[0]
     }
-    // 全店 or 複数店舗: 位置情報が登録済みの最初の店舗を使う
     const candidates =
       ctx.selectedStoreIds.size > 0
         ? Array.from(ctx.selectedStoreIds)
@@ -164,7 +107,6 @@ export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetC
     return candidates.find((id) => storeLocations[id]) ?? candidates[0] ?? ''
   }, [ctx.selectedStoreIds, ctx.stores, storeLocations])
 
-  const location = storeLocations[storeId]
   const { daily, isLoading, error } = useWeatherData(ctx.year, ctx.month, storeId)
 
   const {
@@ -173,89 +115,24 @@ export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetC
     error: forecastError,
   } = useWeatherForecast(storeId)
 
-  // 時間別データの状態管理（モーダル表示）
+  const weatherPolicy: AlignmentPolicy = ctx.comparisonFrame.policy
+
+  // 時間別データ取得は Application hook 経由（禁止事項#11 遵守）
+  const { hourlyCache, prevHourlyCache, fetchHourly, fetchPrevHourly, resolvePrevDate } =
+    useWeatherHourlyOnDemand(storeId, weatherPolicy)
+
   const [modalDate, setModalDate] = useState<string | null>(null)
   const [modalForecast, setModalForecast] = useState<DailyForecast | null>(null)
-  const [hourlyCache, setHourlyCache] = useState<Record<string, HourlyState>>({})
-  // 前年時間別データのキャッシュ（キーは当年の dateKey）
-  const [prevHourlyCache, setPrevHourlyCache] = useState<Record<string, HourlyState>>({})
-
-  // ヘッダの比較モード（同日 / 同曜日）に従う
-  const weatherPolicy: AlignmentPolicy = ctx.comparisonFrame.policy
-  // dowOffset は resolvePrevYearDate 内で使用しない（コアの同曜日アルゴリズムに従う）
-
-  /** 前年データ取得（実測日・予報日共通） */
-  const fetchPrevYear = useCallback(
-    (dateKey: string) => {
-      if (
-        prevHourlyCache[dateKey]?.status === 'done' ||
-        prevHourlyCache[dateKey]?.status === 'loading'
-      )
-        return
-      if (!location) return
-      const prev = resolvePrevYearDate(dateKey, weatherPolicy)
-      setPrevHourlyCache((c) => ({
-        ...c,
-        [dateKey]: { status: 'loading', records: [] },
-      }))
-      loadEtrnHourlyForStore(storeId, location, prev.year, prev.month, [prev.day])
-        .then((result) => {
-          setPrevHourlyCache((c) => ({
-            ...c,
-            [dateKey]: { status: 'done', records: result.hourly },
-          }))
-        })
-        .catch((err) => {
-          setPrevHourlyCache((c) => ({
-            ...c,
-            [dateKey]: {
-              status: 'error',
-              records: [],
-              error: err instanceof Error ? err.message : String(err),
-            },
-          }))
-        })
-    },
-    [prevHourlyCache, location, storeId, weatherPolicy],
-  )
 
   /** 実測日クリック */
   const handleDayClick = useCallback(
     (dateKey: string) => {
       setModalDate(dateKey)
       setModalForecast(null)
-
-      if (!location) return
-
-      // 当年データの取得
-      if (hourlyCache[dateKey]?.status !== 'done' && hourlyCache[dateKey]?.status !== 'loading') {
-        const day = parseInt(dateKey.slice(8), 10)
-        setHourlyCache((prev) => ({
-          ...prev,
-          [dateKey]: { status: 'loading', records: [] },
-        }))
-        loadEtrnHourlyForStore(storeId, location, ctx.year, ctx.month, [day])
-          .then((result) => {
-            setHourlyCache((prev) => ({
-              ...prev,
-              [dateKey]: { status: 'done', records: result.hourly },
-            }))
-          })
-          .catch((err) => {
-            setHourlyCache((prev) => ({
-              ...prev,
-              [dateKey]: {
-                status: 'error',
-                records: [],
-                error: err instanceof Error ? err.message : String(err),
-              },
-            }))
-          })
-      }
-
-      fetchPrevYear(dateKey)
+      fetchHourly(dateKey, ctx.year, ctx.month)
+      fetchPrevHourly(dateKey)
     },
-    [hourlyCache, location, storeId, ctx.year, ctx.month, fetchPrevYear],
+    [ctx.year, ctx.month, fetchHourly, fetchPrevHourly],
   )
 
   /** 予報日クリック */
@@ -263,9 +140,9 @@ export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetC
     (forecast: DailyForecast) => {
       setModalDate(forecast.dateKey)
       setModalForecast(forecast)
-      fetchPrevYear(forecast.dateKey)
+      fetchPrevHourly(forecast.dateKey)
     },
-    [fetchPrevYear],
+    [fetchPrevHourly],
   )
 
   const handleModalClose = useCallback(() => {
@@ -273,10 +150,8 @@ export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetC
     setModalForecast(null)
   }, [])
 
-  // 実測日の dateKey セット（予報と重複しないようフィルタ用）
   const observedDateKeys = useMemo(() => new Set(daily.map((d) => d.dateKey)), [daily])
 
-  // 予報データから実測済み日を除外
   const futureForecasts = useMemo(
     () => forecasts.filter((f) => !observedDateKeys.has(f.dateKey)),
     [forecasts, observedDateKeys],
@@ -317,8 +192,7 @@ export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetC
 
   const modalHourly = modalDate ? hourlyCache[modalDate] : undefined
   const modalPrevHourly = modalDate ? prevHourlyCache[modalDate] : undefined
-  const modalPrevDate = modalDate ? resolvePrevYearDate(modalDate, weatherPolicy) : null
-  // 実測日: 当年データがある場合。予報日: 前年データがあるか予報がある場合
+  const modalPrevDate = modalDate ? resolvePrevDate(modalDate) : null
   const modalCanShowModal =
     modalDate &&
     ((modalHourly?.status === 'done' && modalHourly.records.length > 0) ||

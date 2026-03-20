@@ -1,4 +1,4 @@
-import type { DepartmentKpiIndex } from '@/application/usecases/departmentKpi/indexBuilder'
+import type { DepartmentKpiIndex } from '@/domain/models/DepartmentKpiIndex'
 import type { MetricId } from '@/domain/models'
 import { KpiCard, KpiGrid } from '@/presentation/components/common'
 import { formatPercent } from '@/domain/formatting'

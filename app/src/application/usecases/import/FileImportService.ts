@@ -1,4 +1,10 @@
-import type { DataType, AppSettings, ImportedData, BudgetData } from '@/domain/models'
+import type {
+  DataType,
+  AppSettings,
+  ImportedData,
+  BudgetData,
+  ImportSummary,
+} from '@/domain/models'
 import { processDroppedFiles as processDroppedFilesImpl } from '@/infrastructure/ImportService'
 import type { MonthPartitions } from '@/infrastructure/ImportService'
 import { monthKey } from '@/infrastructure/fileImport/dateParser'
@@ -8,29 +14,9 @@ export type { MonthPartitions } from '@/infrastructure/ImportService'
 export { createEmptyMonthPartitions } from '@/infrastructure/ImportService'
 
 // ─── Types ───────────────────────────────────────────────
-
-/** 単一ファイルのインポート結果 */
-export interface FileImportResult {
-  readonly ok: boolean
-  readonly filename: string
-  /** フォルダ選択時の相対パス（webkitRelativePath）。監査・重複判定に使用 */
-  readonly relativePath?: string
-  readonly type: DataType | null
-  readonly typeName: string | null
-  readonly error?: string
-  readonly rowCount?: number
-  readonly skippedRows?: readonly string[]
-  /** プロセッサの警告（ヘッダ形式不正、0件結果など） */
-  readonly warnings?: readonly string[]
-}
-
-/** バッチインポートの全体結果 */
-export interface ImportSummary {
-  readonly results: readonly FileImportResult[]
-  readonly successCount: number
-  readonly failureCount: number
-  readonly skippedFiles?: readonly string[]
-}
+// 型定義は domain/models/ImportResult.ts に移動済み（禁止事項 #12）。
+// 後方互換のため re-export を維持。
+export type { FileImportResult, ImportSummary } from '@/domain/models/ImportResult'
 
 /** 進捗コールバック */
 export type ProgressCallback = (current: number, total: number, filename: string) => void

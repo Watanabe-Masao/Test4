@@ -338,8 +338,8 @@ describe('R11: hooks/ の useState 呼び出しが上限以下', () => {
   const hooksDir = path.join(SRC_DIR, 'application/hooks')
 
   // useState が多い既存ファイルの許容リスト
-  // usePersistence: 6 useState — persistence 初期化に必要な状態群。useReducer 化は過剰
-  // useAutoBackup: 6 useState — バックアップ状態管理に必要。useReducer 化は過剰
+  // usePersistence: 6 useState — >= 6 判定のため個別上限 7 が必要
+  // useAutoBackup: 6 useState — >= 6 判定のため個別上限 7 が必要
   const allowlist: Record<string, number> = {
     'application/hooks/usePersistence.ts': 7,
     'application/hooks/useAutoBackup.ts': 7,
@@ -468,8 +468,6 @@ describe('Infrastructure 層の行数制限', () => {
 
     // 除外: 凝集的カタログ or 構造上400行超が妥当なファイル
     const excludeFiles = new Set([
-      'infrastructure/duckdb/schemas.ts', // DDL定数
-      'infrastructure/export/clipJs.ts', // テンプレートリテラル
       'infrastructure/duckdb/dataConversions.ts', // データ変換集約
       'infrastructure/duckdb/queries/purchaseComparison.ts', // 仕入比較クエリ集約
       'infrastructure/weather/jmaEtrnClient.ts', // ETRN クライアント

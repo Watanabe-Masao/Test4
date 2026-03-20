@@ -25,7 +25,8 @@ function collectTsFiles(dir: string): string[] {
     const fullPath = path.join(dir, entry.name)
     if (entry.isDirectory()) {
       // node_modules, dist, __tests__ のようなディレクトリはスキップ
-      if (entry.name === 'node_modules' || entry.name === 'dist') continue
+      if (entry.name === 'node_modules' || entry.name === 'dist' || entry.name === '__tests__')
+        continue
       results.push(...collectTsFiles(fullPath))
     } else if (
       /\.(ts|tsx)$/.test(entry.name) &&
@@ -45,6 +46,25 @@ function extractImports(filePath: string): string[] {
   // import ... from '...' / import '...'
   const regex =
     /(?:import\s+(?:.*?\s+from\s+)?['"](@\/[^'"]+)['"]|export\s+.*?\s+from\s+['"](@\/[^'"]+)['"])/g
+  let match
+  while ((match = regex.exec(content)) !== null) {
+    imports.push(match[1] ?? match[2])
+  }
+  return imports
+}
+
+/**
+ * ファイルから値 import（import type を除く）のモジュールパスを抽出する。
+ *
+ * `import type` は実行時依存を生まないため、レイヤー違反の検出対象から除外する。
+ * これにより型のみを参照するファイルが許可リストに載る偽陽性を排除できる。
+ */
+function extractValueImports(filePath: string): string[] {
+  const content = fs.readFileSync(filePath, 'utf-8')
+  const imports: string[] = []
+  // import（type でない） ... from '...' — import type / export type を除外
+  const regex =
+    /(?:import\s+(?!type\s)(?:.*?\s+from\s+)?['"](@\/[^'"]+)['"]|export\s+(?!type\s).*?\s+from\s+['"](@\/[^'"]+)['"])/g
   let match
   while ((match = regex.exec(content)) !== null) {
     imports.push(match[1] ?? match[2])
@@ -90,10 +110,10 @@ const APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set([
   'application/hooks/useGeocode.ts',
   // 週間天気予報取得サービス（気象庁 Forecast API を使用）
   'application/usecases/weather/ForecastLoadService.ts',
-  // 週間天気予報ブリッジ（presentation 層から infrastructure への直接依存を回避）
-  'application/hooks/useWeatherForecast.ts',
   // 天気時間帯クエリフック（DuckDB weather_hourly テーブルを使用）
   'application/hooks/duckdb/useWeatherHourlyQuery.ts',
+  // クエリプロファイルサービス（infrastructure/duckdb/queryProfiler の re-export）
+  'application/services/queryProfileService.ts',
   // ETRN 観測所検索ブリッジ（infrastructure/weather の ETRN クライアントを application 層経由で公開）
   'application/hooks/useEtrnStationSearch.ts',
 ])
@@ -103,8 +123,7 @@ const APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set([
  * Phase 3 で全件解消済み。新たな違反の追加は禁止。
  */
 const PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set<string>([
-  // QueryProfilePanel は DevTools 専用コンポーネントで queryProfiler を直接参照する
-  'presentation/components/DevTools/QueryProfilePanel.tsx',
+  // Phase 3 で全件解消済み。新たな追加は禁止事項 #11 違反。
 ])
 
 /**
@@ -179,7 +198,7 @@ describe('Architecture Guard', () => {
     expect(violations).toEqual([])
   })
 
-  it('presentation/ は infrastructure/ に直接依存しない（許可リスト除く）', () => {
+  it('presentation/ は infrastructure/ に直接依存しない（許可リスト除く、import type は許容）', () => {
     const presDir = path.join(SRC_DIR, 'presentation')
     const files = collectTsFiles(presDir)
     const violations: string[] = []
@@ -188,7 +207,7 @@ describe('Architecture Guard', () => {
       const rel = relativePath(file)
       if (PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST.has(rel)) continue
 
-      const imports = extractImports(file)
+      const imports = extractValueImports(file)
       for (const imp of imports) {
         if (imp.startsWith('@/infrastructure/')) {
           violations.push(`${rel}: ${imp}`)
@@ -197,6 +216,44 @@ describe('Architecture Guard', () => {
     }
 
     expect(violations).toEqual([])
+  })
+
+  it('presentation/ は application/usecases/ を直接 import しない（禁止事項 #11、import type は許容）', () => {
+    // 値 import の既存違反（凍結）。移行完了時に許可リストから削除する。新規追加は禁止。
+    // import type は実行時依存を生まないため検出対象外。
+    const USECASE_ALLOWLIST = new Set([
+      'presentation/pages/Admin/ClearAllDataSection.tsx',
+      'presentation/pages/Dashboard/widgets/MonthlyCalendar.tsx',
+    ])
+    const MAX_USECASE_ALLOWLIST = 2
+
+    const presDir = path.join(SRC_DIR, 'presentation')
+    const files = collectTsFiles(presDir)
+    const violations: string[] = []
+
+    for (const file of files) {
+      const rel = relativePath(file)
+      if (USECASE_ALLOWLIST.has(rel)) continue
+
+      const imports = extractValueImports(file)
+      for (const imp of imports) {
+        if (imp.startsWith('@/application/usecases/')) {
+          violations.push(`${rel}: ${imp}`)
+        }
+      }
+    }
+
+    expect(
+      violations,
+      'presentation/ は usecase を直接 import してはいけません。\n' +
+        'Application 層の hook を経由してデータを取得してください。\n' +
+        `違反: \n${violations.join('\n')}`,
+    ).toEqual([])
+
+    expect(
+      USECASE_ALLOWLIST.size,
+      `usecase 許可リストが上限 ${MAX_USECASE_ALLOWLIST} を超えています。新規追加禁止。`,
+    ).toBeLessThanOrEqual(MAX_USECASE_ALLOWLIST)
   })
 
   it('infrastructure/ は application/ に依存しない（後方互換 re-export 除く）', () => {
@@ -460,8 +517,8 @@ describe('Architecture Guard', () => {
     ).toBeLessThanOrEqual(17)
   })
 
-  it('PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST は 1 件以下', () => {
-    expect(PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST.size).toBeLessThanOrEqual(1)
+  it('PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST は 0 件（完全解消済み）', () => {
+    expect(PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST.size).toBeLessThanOrEqual(0)
   })
 
   it('INFRASTRUCTURE_TO_APPLICATION_ALLOWLIST は 1 件以下', () => {
@@ -485,55 +542,34 @@ describe('Architecture Guard', () => {
   const PRESENTATION_DUCKDB_HOOK_ALLOWLIST = new Set([
     // ── ウィジェットコンテキスト（Phase B で移行） ──
     'hooks/useUnifiedWidgetContext.ts',
-    'components/widgets/types.ts',
     // ── DuckDB チャート（Phase C Wave 1-3 で移行） ──
     'components/charts/CategoryHierarchyExplorer.tsx',
     'components/charts/CategoryPerformanceChart.tsx',
-    'components/charts/CategoryBenchmarkChart.styles.ts',
     'components/charts/CategoryHourlyChart.tsx',
     'components/charts/DeptHourlyChart.tsx',
     'components/charts/DowPatternChart.tsx',
     'components/charts/FeatureChart.tsx',
-    'components/charts/HeatmapChart.helpers.ts',
     'components/charts/HourlyProfileChart.tsx',
-    'components/charts/TimeSlotChart.tsx',
     'components/charts/YoYChart.tsx',
-    'components/charts/ShapleyTimeSeriesChart.tsx',
     // ── ページ・ウィジェット（Phase C で移行） ──
-    'pages/Admin/AdminPage.tsx',
-    'pages/Admin/ImportHistoryTab.tsx',
-    'pages/Admin/PrevYearMappingTab.tsx',
     'pages/Admin/StorageManagementTab.tsx',
-    'pages/Category/CategoryPage.tsx',
-    'pages/CostDetail/useCostDetailData.ts',
-    'pages/Daily/DailyPage.tsx',
-    'pages/Dashboard/DashboardPage.tsx',
-    'pages/Dashboard/widgets/ConditionMatrixTable.styles.ts',
     'pages/Dashboard/widgets/DayDetailModal.tsx',
     'pages/Dashboard/widgets/MonthlyCalendar.tsx',
-    'pages/Dashboard/widgets/RangeComparison.tsx',
     'pages/Dashboard/widgets/YoYWaterfallChart.tsx',
-    'pages/Dashboard/widgets/types.ts',
-    'pages/Forecast/ForecastPage.helpers.ts',
-    'pages/Mobile/KpiTabContent.tsx',
-    'pages/Reports/ReportsPage.tsx',
     // ── 仕入分析ページ ──
     'pages/PurchaseAnalysis/PurchaseAnalysisPage.tsx',
-    // ── レイアウト（DuckDB 接続状態表示用） ──
-    'components/Layout/MainContent.tsx',
-    'components/Layout/NavBar.tsx',
   ])
 
-  it('presentation/ の新規ファイルは DuckDB フックを直接使用しない（filterStore 経由を使用）', () => {
+  it('presentation/ の新規ファイルは DuckDB フックを直接使用しない（filterStore 経由を使用、import type は許容）', () => {
     const presDir = path.join(SRC_DIR, 'presentation')
     const files = collectTsFiles(presDir)
     const violations: string[] = []
 
-    // DuckDB フックの import パターン
-    const DUCKDB_HOOK_PATTERNS = [
-      /import\s+.*from\s+['"]@\/application\/hooks\/duckdb['"]/,
-      /import\s+.*useDuckDB.*from\s+['"]@\/application\/hooks['"]/,
-      /import\s+.*useDuckDB.*from\s+['"]@\/application\/hooks\/useDuckDB['"]/,
+    // DuckDB フックの値 import パターン（import type は実行時依存を生まないため除外）
+    const DUCKDB_HOOK_VALUE_PATTERNS = [
+      /import\s+(?!type\s).*from\s+['"]@\/application\/hooks\/duckdb['"]/,
+      /import\s+(?!type\s).*useDuckDB.*from\s+['"]@\/application\/hooks['"]/,
+      /import\s+(?!type\s).*useDuckDB.*from\s+['"]@\/application\/hooks\/useDuckDB['"]/,
     ]
 
     for (const file of files) {
@@ -541,7 +577,7 @@ describe('Architecture Guard', () => {
       if (PRESENTATION_DUCKDB_HOOK_ALLOWLIST.has(rel)) continue
 
       const content = fs.readFileSync(file, 'utf-8')
-      for (const pattern of DUCKDB_HOOK_PATTERNS) {
+      for (const pattern of DUCKDB_HOOK_VALUE_PATTERNS) {
         if (pattern.test(content)) {
           violations.push(
             `${relativePath(file)}: DuckDB フックを直接使用。filterStore + useFilterSelectors 経由を使用してください`,
@@ -556,7 +592,7 @@ describe('Architecture Guard', () => {
 
   it('presentation/ の DuckDB フック許可リストは増やさない（移行時に減らすのみ）', () => {
     // 許可リストのサイズ上限。移行が進むにつれてこの数値を減らしていく。
-    const MAX_ALLOWLIST_SIZE = 34
+    const MAX_ALLOWLIST_SIZE = 14
     expect(PRESENTATION_DUCKDB_HOOK_ALLOWLIST.size).toBeLessThanOrEqual(MAX_ALLOWLIST_SIZE)
   })
 
@@ -583,6 +619,36 @@ describe('Architecture Guard', () => {
     }
   })
 
+  // ─── 仮実装ファイル検出ガード ──────────────────────────
+  // 仮実装（Demo/Prototype）ファイルが _prototypes/ 外の本番パスに残っていないことを検証。
+  // 仮実装は _prototypes/ サブディレクトリに配置し、本番昇格時に正式名へリネームすること。
+
+  it('_prototypes/ 外に Demo/Prototype ファイルが存在しない', () => {
+    const srcDir = SRC_DIR
+    const files = collectTsFiles(srcDir)
+    const violations: string[] = []
+
+    const PROTOTYPE_NAME_PATTERN = /(Demo|Prototype)\.(ts|tsx)$/
+
+    for (const file of files) {
+      const rel = relativePath(file)
+      // _prototypes/ ディレクトリ内は許可
+      if (rel.includes('_prototypes/')) continue
+      // テストファイルは対象外（collectTsFiles で除外済みだが念のため）
+      if (rel.endsWith('.test.ts') || rel.endsWith('.test.tsx')) continue
+      // stories は対象外
+      if (rel.startsWith('stories/')) continue
+
+      if (PROTOTYPE_NAME_PATTERN.test(path.basename(file))) {
+        violations.push(
+          `${rel}: 仮実装ファイルが本番パスにあります。_prototypes/ に配置するか、正式名にリネームしてレイヤー違反を解消してください`,
+        )
+      }
+    }
+
+    expect(violations).toEqual([])
+  })
+
   // ─── 前年日付の独自計算禁止ガード ─────────────────────
   // 禁止事項 #2: 引数を無視して別ソースから再計算する
   // presentation 層で dowOffset を使った前年日付の独自計算を禁止。
@@ -597,9 +663,8 @@ describe('Architecture Guard', () => {
    * これらのファイルは anchor ±7日の最近傍探索を実装しており、
    * dowOffset による独自補正は含まない。
    */
-  const DOW_CALC_ALLOWLIST = new Set([
-    // WeatherWidget は resolveSameDowSource 同一アルゴリズムに修正済み
-    'pages/Dashboard/widgets/WeatherWidget.tsx',
+  const DOW_CALC_ALLOWLIST = new Set<string>([
+    // WeatherWidget は dowOffset パターンを使用しなくなったため許可リストから削除済み
   ])
 
   it('presentation 層で dowOffset による前年日付の独自計算を禁止', () => {
