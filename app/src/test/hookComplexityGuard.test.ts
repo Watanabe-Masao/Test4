@@ -415,6 +415,7 @@ describe('R12: Presentation コンポーネントの行数制限', () => {
     'presentation/components/charts/YoYVarianceChart.tsx', // 668行 — ECharts移行で増加
     'presentation/pages/Dashboard/widgets/CategoryFactorBreakdown.tsx', // 654行
     'presentation/pages/Dashboard/widgets/DayDetailModal.tsx', // 614行 — 前年CTSフォールバッククエリで増加
+    'presentation/pages/Dashboard/widgets/MonthlyCalendar.tsx', // 625行 — 天気統合・ホバープレビュー・週計列で増加
     'presentation/pages/Forecast/ForecastChartsCustomer.tsx', // 756行
   ])
 

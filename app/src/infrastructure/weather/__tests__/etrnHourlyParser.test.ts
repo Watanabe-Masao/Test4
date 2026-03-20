@@ -75,10 +75,10 @@ describe('etrnHourlyParser', () => {
 
       expect(result).toHaveLength(3)
 
-      // 時=1 → hour=0
+      // 時=1 → hour=1
       expect(result[0]).toEqual({
         dateKey: '2025-01-15',
-        hour: 0,
+        hour: 1,
         temperature: 5.2,
         humidity: 72,
         precipitation: 0.0,
@@ -87,13 +87,13 @@ describe('etrnHourlyParser', () => {
         sunshineDuration: 0, // 0h → 0s
       })
 
-      // 時=2 → hour=1（降水あり）
-      expect(result[1].hour).toBe(1)
+      // 時=2 → hour=2（降水あり）
+      expect(result[1].hour).toBe(2)
       expect(result[1].precipitation).toBe(1.5)
       expect(result[1].weatherCode).toBe(61) // 雨（降水>=1mm, 気温>1℃）
 
-      // 時=13 → hour=12（日照あり）
-      expect(result[2].hour).toBe(12)
+      // 時=13 → hour=13（日照あり）
+      expect(result[2].hour).toBe(13)
       expect(result[2].temperature).toBe(12.3)
       expect(result[2].sunshineDuration).toBe(0.8 * 3600) // 0.8h → 2880s
       expect(result[2].weatherCode).toBe(0) // 晴れ（日照>=0.5h）
@@ -108,7 +108,7 @@ describe('etrnHourlyParser', () => {
       const result = parseHourlyTable(createDoc(buildS1Html(rows)), '2025-01-15')
 
       expect(result).toHaveLength(1)
-      expect(result[0].hour).toBe(22) // 時=23 → hour=22
+      expect(result[0].hour).toBe(23) // 時=23 → hour=23
     })
   })
 
@@ -126,7 +126,7 @@ describe('etrnHourlyParser', () => {
 
       expect(result[0]).toEqual({
         dateKey: '2025-07-20',
-        hour: 0,
+        hour: 1,
         temperature: 3.5,
         humidity: 0, // AMeDAS a1 には湿度列がない
         precipitation: 0.0,
@@ -135,7 +135,7 @@ describe('etrnHourlyParser', () => {
         sunshineDuration: 0,
       })
 
-      expect(result[1].hour).toBe(11) // 時=12 → hour=11
+      expect(result[1].hour).toBe(12) // 時=12 → hour=12
       expect(result[1].temperature).toBe(15.2)
       expect(result[1].sunshineDuration).toBe(3600) // 1.0h → 3600s
     })

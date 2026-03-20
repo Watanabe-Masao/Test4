@@ -37,7 +37,8 @@ describe('MonthlyCalendarWidget', () => {
     renderWithTheme(<MonthlyCalendarWidget ctx={ctx} />)
 
     // Simplified cell shows hero sales value (千円表記)
-    expect(screen.getByText('100千')).toBeInTheDocument()
+    // "100千" appears in both the day cell and the week summary column
+    expect(screen.getAllByText('100千')[0]).toBeInTheDocument()
   })
 
   it('予算差がセルに表示される', () => {
@@ -72,7 +73,8 @@ describe('MonthlyCalendarWidget', () => {
 
     renderWithTheme(<MonthlyCalendarWidget ctx={ctx} />)
 
-    expect(screen.getByText('100千')).toBeInTheDocument()
-    expect(screen.getByText('150千')).toBeInTheDocument()
+    // Values appear in both day cells and week summary column
+    expect(screen.getAllByText('100千')[0]).toBeInTheDocument()
+    expect(screen.getAllByText('150千')[0]).toBeInTheDocument()
   })
 })
