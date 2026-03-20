@@ -25,7 +25,8 @@ function collectTsFiles(dir: string): string[] {
     const fullPath = path.join(dir, entry.name)
     if (entry.isDirectory()) {
       // node_modules, dist, __tests__ のようなディレクトリはスキップ
-      if (entry.name === 'node_modules' || entry.name === 'dist') continue
+      if (entry.name === 'node_modules' || entry.name === 'dist' || entry.name === '__tests__')
+        continue
       results.push(...collectTsFiles(fullPath))
     } else if (
       /\.(ts|tsx)$/.test(entry.name) &&
@@ -94,6 +95,8 @@ const APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set([
   'application/hooks/useWeatherForecast.ts',
   // 天気時間帯クエリフック（DuckDB weather_hourly テーブルを使用）
   'application/hooks/duckdb/useWeatherHourlyQuery.ts',
+  // クエリプロファイルサービス（infrastructure/duckdb/queryProfiler の re-export）
+  'application/services/queryProfileService.ts',
   // ETRN 観測所検索ブリッジ（infrastructure/weather の ETRN クライアントを application 層経由で公開）
   'application/hooks/useEtrnStationSearch.ts',
 ])
@@ -103,8 +106,7 @@ const APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set([
  * Phase 3 で全件解消済み。新たな違反の追加は禁止。
  */
 const PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set<string>([
-  // QueryProfilePanel は DevTools 専用コンポーネントで queryProfiler を直接参照する
-  'presentation/components/DevTools/QueryProfilePanel.tsx',
+  // Phase 3 で全件解消済み。新たな追加は禁止事項 #11 違反。
 ])
 
 /**
@@ -197,6 +199,47 @@ describe('Architecture Guard', () => {
     }
 
     expect(violations).toEqual([])
+  })
+
+  it('presentation/ は application/usecases/ を直接 import しない（禁止事項 #11、許可リスト除く）', () => {
+    // 既存の違反（凍結）。移行完了時に許可リストから削除する。新規追加は禁止。
+    const USECASE_ALLOWLIST = new Set([
+      'presentation/components/common/ImportModal.tsx',
+      'presentation/components/common/ImportWizard.tsx',
+      'presentation/components/widgets/types.ts',
+      'presentation/pages/Dashboard/widgets/MonthlyCalendar.tsx',
+      'presentation/pages/Dashboard/widgets/types.ts',
+      'presentation/pages/Reports/ReportDeptTable.tsx',
+    ])
+    const MAX_USECASE_ALLOWLIST = 6
+
+    const presDir = path.join(SRC_DIR, 'presentation')
+    const files = collectTsFiles(presDir)
+    const violations: string[] = []
+
+    for (const file of files) {
+      const rel = relativePath(file)
+      if (USECASE_ALLOWLIST.has(rel)) continue
+
+      const imports = extractImports(file)
+      for (const imp of imports) {
+        if (imp.startsWith('@/application/usecases/')) {
+          violations.push(`${rel}: ${imp}`)
+        }
+      }
+    }
+
+    expect(
+      violations,
+      'presentation/ は usecase を直接 import してはいけません。\n' +
+        'Application 層の hook を経由してデータを取得してください。\n' +
+        `違反: \n${violations.join('\n')}`,
+    ).toEqual([])
+
+    expect(
+      USECASE_ALLOWLIST.size,
+      `usecase 許可リストが上限 ${MAX_USECASE_ALLOWLIST} を超えています。新規追加禁止。`,
+    ).toBeLessThanOrEqual(MAX_USECASE_ALLOWLIST)
   })
 
   it('infrastructure/ は application/ に依存しない（後方互換 re-export 除く）', () => {
@@ -453,15 +496,15 @@ describe('Architecture Guard', () => {
 
   // ─── 許可リスト増加防止 ─────────────────────────────
 
-  it('APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST は 17 件以下', () => {
+  it('APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST は 18 件以下', () => {
     expect(
       APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST.size,
-      `APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST が ${APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST.size} 件（上限: 17）`,
-    ).toBeLessThanOrEqual(17)
+      `APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST が ${APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST.size} 件（上限: 18）`,
+    ).toBeLessThanOrEqual(18)
   })
 
-  it('PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST は 1 件以下', () => {
-    expect(PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST.size).toBeLessThanOrEqual(1)
+  it('PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST は 0 件（完全解消済み）', () => {
+    expect(PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST.size).toBeLessThanOrEqual(0)
   })
 
   it('INFRASTRUCTURE_TO_APPLICATION_ALLOWLIST は 1 件以下', () => {

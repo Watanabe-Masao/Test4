@@ -7,14 +7,15 @@
  * - 取得した日別データのサンプル表示
  * - 日付クリックで時間別天気データを展開表示
  */
-import { Fragment, memo, useState, useEffect, useCallback } from 'react'
+import { Fragment, memo, useState, useCallback } from 'react'
 import { useSettingsStore } from '@/application/stores/settingsStore'
-import type { DailyWeatherSummary, HourlyWeatherRecord, StoreLocation } from '@/domain/models'
+import type { DailyWeatherSummary, StoreLocation } from '@/domain/models'
 import { categorizeWeatherCode } from '@/domain/calculations/weatherAggregation'
+import { useWeatherData } from '@/application/hooks/useWeather'
 import {
-  loadEtrnDailyForStore,
-  loadEtrnHourlyForStore,
-} from '@/application/usecases/weather/WeatherLoadService'
+  useWeatherHourlyOnDemand,
+  type HourlyFetchState,
+} from '@/application/hooks/useWeatherHourlyOnDemand'
 import type { WidgetContext } from './types'
 import {
   Wrapper,
@@ -59,56 +60,23 @@ interface FlowStep {
   readonly ok: boolean
 }
 
-interface HourlyState {
-  readonly status: 'idle' | 'loading' | 'done' | 'error'
-  readonly records: readonly HourlyWeatherRecord[]
-  readonly error?: string
-}
-
 export const EtrnTestWidget = memo(function EtrnTestWidget({ ctx }: { ctx: WidgetContext }) {
   const { year, month, storeKey } = ctx
   const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
   const location = storeLocations[storeKey]
 
-  const [state, setState] = useState<TestState>({ status: 'loading', daily: [] })
+  // Application hook 経由でデータ取得（禁止事項#11 遵守）
+  const { daily, isLoading, error } = useWeatherData(year, month, storeKey)
+  const { hourlyCache, fetchHourly } = useWeatherHourlyOnDemand(storeKey, 'sameDate')
+
+  const state: TestState = {
+    status: isLoading ? 'loading' : error ? 'error' : 'done',
+    daily,
+    error: error ?? undefined,
+    info: location ? infoFromLocation(location) : undefined,
+  }
+
   const [expandedDate, setExpandedDate] = useState<string | null>(null)
-  const [hourlyCache, setHourlyCache] = useState<Record<string, HourlyState>>({})
-
-  useEffect(() => {
-    if (!location) return
-
-    let cancelled = false
-
-    const run = async () => {
-      try {
-        const result = await loadEtrnDailyForStore(storeKey, location, year, month)
-        if (cancelled) return
-        setState({
-          status: 'done',
-          daily: result.daily,
-          info: {
-            etrnPrecNo: result.resolvedStation?.precNo ?? location.etrnPrecNo,
-            etrnBlockNo: result.resolvedStation?.blockNo ?? location.etrnBlockNo,
-            etrnStationType: result.resolvedStation?.stationType ?? location.etrnStationType,
-            etrnStationName: result.resolvedStation?.stationName,
-          },
-        })
-      } catch (err) {
-        if (cancelled) return
-        setState({
-          status: 'error',
-          daily: [],
-          error: err instanceof Error ? err.message : String(err),
-          info: infoFromLocation(location),
-        })
-      }
-    }
-    run()
-
-    return () => {
-      cancelled = true
-    }
-  }, [storeKey, location, year, month])
 
   const handleDateClick = useCallback(
     (dateKey: string) => {
@@ -117,39 +85,9 @@ export const EtrnTestWidget = memo(function EtrnTestWidget({ ctx }: { ctx: Widge
         return
       }
       setExpandedDate(dateKey)
-
-      if (hourlyCache[dateKey]?.status === 'done' || hourlyCache[dateKey]?.status === 'loading') {
-        return
-      }
-
-      if (!location) return
-
-      const day = parseInt(dateKey.slice(8), 10)
-
-      setHourlyCache((prev) => ({
-        ...prev,
-        [dateKey]: { status: 'loading', records: [] },
-      }))
-
-      loadEtrnHourlyForStore(storeKey, location, year, month, [day])
-        .then((result) => {
-          setHourlyCache((prev) => ({
-            ...prev,
-            [dateKey]: { status: 'done', records: result.hourly },
-          }))
-        })
-        .catch((err) => {
-          setHourlyCache((prev) => ({
-            ...prev,
-            [dateKey]: {
-              status: 'error',
-              records: [],
-              error: err instanceof Error ? err.message : String(err),
-            },
-          }))
-        })
+      fetchHourly(dateKey, year, month)
     },
-    [expandedDate, hourlyCache, location, storeKey, year, month],
+    [expandedDate, year, month, fetchHourly],
   )
 
   if (!location) {
@@ -257,7 +195,7 @@ const DailyDataSection = memo(function DailyDataSection({
 }: {
   readonly daily: readonly DailyWeatherSummary[]
   readonly expandedDate: string | null
-  readonly hourlyCache: Record<string, HourlyState>
+  readonly hourlyCache: Readonly<Record<string, HourlyFetchState>>
   readonly onDateClick: (dateKey: string) => void
 }) {
   return (

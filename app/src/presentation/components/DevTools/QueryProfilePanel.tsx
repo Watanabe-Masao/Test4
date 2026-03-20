@@ -5,7 +5,7 @@
  * 直近のクエリ実行ログ、実行時間、成功/失敗を一覧表示する。
  */
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { queryProfiler, type QueryProfileEntry } from '@/infrastructure/duckdb/queryProfiler'
+import { queryProfiler, type QueryProfileEntry } from '@/application/services/queryProfileService'
 import {
   PanelOverlay,
   Header,
