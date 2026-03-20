@@ -324,7 +324,7 @@ export const HourlyWeatherModal = memo(function HourlyWeatherModal({
               <SummaryValue style={{ color: '#ef4444' }}>
                 {summary.maxTemp.toFixed(1)}°C
                 {prevSummary && (
-                  <DiffText value={summary.maxTemp - prevSummary.maxTemp} unit="\u00B0C" />
+                  <DiffText value={summary.maxTemp - prevSummary.maxTemp} unit="°C" />
                 )}
               </SummaryValue>
             </SummaryItem>
@@ -333,7 +333,7 @@ export const HourlyWeatherModal = memo(function HourlyWeatherModal({
               <SummaryValue style={{ color: '#3498db' }}>
                 {summary.minTemp.toFixed(1)}°C
                 {prevSummary && (
-                  <DiffText value={summary.minTemp - prevSummary.minTemp} unit="\u00B0C" />
+                  <DiffText value={summary.minTemp - prevSummary.minTemp} unit="°C" />
                 )}
               </SummaryValue>
             </SummaryItem>

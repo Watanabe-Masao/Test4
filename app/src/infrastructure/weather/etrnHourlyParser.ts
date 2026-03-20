@@ -51,9 +51,9 @@ export function parseHourlyTable(doc: Document, dateKey: string): HourlyWeatherR
     const rawHour = parseInt(hourText, 10)
     if (isNaN(rawHour) || rawHour < 1 || rawHour > 24) continue
 
-    // ETRN は 1-24 表記。24時は翌日0時だが、ここでは同日のデータとして扱わない
+    // ETRN は 1-24 表記。24時は翌日0時なので除外
     if (rawHour === 24) continue
-    const hour = rawHour - 1 // 1-23 → 0-22（ETRN 1時 = 0:00〜1:00 の観測値）
+    const hour = rawHour // ETRN 1時 = 01:00 の観測値。そのまま使用
 
     const precipitation = readCell(cells, columns.precipitation)
     const temperature = readCell(cells, columns.temperature)
