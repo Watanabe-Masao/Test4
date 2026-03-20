@@ -661,9 +661,8 @@ describe('Architecture Guard', () => {
    * これらのファイルは anchor ±7日の最近傍探索を実装しており、
    * dowOffset による独自補正は含まない。
    */
-  const DOW_CALC_ALLOWLIST = new Set([
-    // WeatherWidget は resolveSameDowSource 同一アルゴリズムに修正済み
-    'pages/Dashboard/widgets/WeatherWidget.tsx',
+  const DOW_CALC_ALLOWLIST = new Set<string>([
+    // WeatherWidget は dowOffset パターンを使用しなくなったため許可リストから削除済み
   ])
 
   it('presentation 層で dowOffset による前年日付の独自計算を禁止', () => {

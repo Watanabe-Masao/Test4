@@ -468,8 +468,6 @@ describe('Infrastructure 層の行数制限', () => {
 
     // 除外: 凝集的カタログ or 構造上400行超が妥当なファイル
     const excludeFiles = new Set([
-      'infrastructure/duckdb/schemas.ts', // DDL定数
-      'infrastructure/export/clipJs.ts', // テンプレートリテラル
       'infrastructure/duckdb/dataConversions.ts', // データ変換集約
       'infrastructure/duckdb/queries/purchaseComparison.ts', // 仕入比較クエリ集約
       'infrastructure/weather/jmaEtrnClient.ts', // ETRN クライアント
