@@ -10,13 +10,11 @@ export {
   clearForecastCache,
 } from './jmaForecastClient'
 export {
-  resolveEtrnStation,
   resolveEtrnStationByLocation,
-  searchStationsByPrefecture,
   fetchEtrnDailyWeather,
   fetchEtrnDailyRange,
   fetchEtrnHourlyWeather,
   fetchEtrnHourlyRange,
-  clearEtrnCache,
+  getStaticStationList,
 } from './jmaEtrnClient'
-export type { EtrnStation } from './jmaEtrnClient'
+export type { EtrnStation, EtrnStationEntry } from './jmaEtrnClient'

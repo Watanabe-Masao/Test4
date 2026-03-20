@@ -1,12 +1,12 @@
 /**
  * ETRN 観測所検索フック
  *
- * 都道府県ドロップダウン → 観測所ドロップダウンの2段選択を提供する。
- * infrastructure/weather の ETRN クライアントを application 層経由で公開。
+ * 静的リスト（etrnStations.json）から都道府県→観測所の2段選択を提供する。
+ * HTML スクレイピング不要。ネットワークリクエスト不要で即座に結果を返す。
  */
-import { useState, useCallback, useMemo } from 'react'
+import { useMemo } from 'react'
+import type { EtrnStation, EtrnStationEntry } from '@/application/ports/WeatherPort'
 import { weatherAdapter } from '@/application/adapters/weatherAdapter'
-import type { EtrnStation } from '@/application/ports/WeatherPort'
 
 /** 都道府県選択肢 */
 export interface PrefectureOption {
@@ -15,68 +15,61 @@ export interface PrefectureOption {
 }
 
 export interface UseEtrnStationSearchResult {
-  /** 都道府県選択肢（47件、コード順） */
+  /** 都道府県選択肢（観測所が存在する都道府県のみ） */
   readonly prefectures: readonly PrefectureOption[]
-  /** 検索結果の観測所一覧 */
-  readonly stations: readonly EtrnStation[]
-  /** 観測所検索中 */
-  readonly isSearching: boolean
-  /** 都道府県を選択して観測所を検索する */
-  readonly searchByPrefecture: (prefectureName: string) => Promise<void>
-  /** 都道府県名からジオコーディングで緯度経度を取得する */
-  readonly geocodePrefecture: (
-    prefectureName: string,
-  ) => Promise<{ latitude: number; longitude: number } | null>
-  /** 検索結果をクリアする */
-  readonly clear: () => void
+  /** 指定都道府県の観測所一覧を返す（同期） */
+  readonly getStations: (prefectureName: string) => readonly EtrnStation[]
+  /** 観測所から緯度経度を取得する（同期） */
+  readonly getCoordinates: (blockNo: string) => { latitude: number; longitude: number } | null
 }
 
+/** 度分 → 10進度 変換 */
+function dmsToDecimal(dm: readonly [number, number]): number {
+  return dm[0] + dm[1] / 60
+}
+
+/** 静的リストから都道府県→観測所を検索するフック */
 export function useEtrnStationSearch(): UseEtrnStationSearchResult {
-  const [stations, setStations] = useState<readonly EtrnStation[]>([])
-  const [isSearching, setIsSearching] = useState(false)
-
-  const prefectures = useMemo<readonly PrefectureOption[]>(
-    () =>
-      Object.entries(weatherAdapter.PREFECTURE_NAMES)
-        .map(([code, name]) => ({ code, name }))
-        .sort((a, b) => a.code.localeCompare(b.code)),
+  const stations: readonly EtrnStationEntry[] = useMemo(
+    () => weatherAdapter.getStaticStationList(),
     [],
   )
 
-  const searchByPrefecture = useCallback(async (prefectureName: string) => {
-    if (!prefectureName) {
-      setStations([])
-      return
-    }
-    setIsSearching(true)
-    try {
-      const all = await weatherAdapter.searchStationsByPrefecture(prefectureName)
-      // 気象台・測候所（s1）のみ表示。AMeDAS（a1）は観測要素が不十分なため除外
-      const results = all.filter((s) => s.stationType === 's1')
-      setStations(results)
-    } catch {
-      setStations([])
-    } finally {
-      setIsSearching(false)
-    }
-  }, [])
-
-  const geocodePrefecture = useCallback(
-    async (prefectureName: string): Promise<{ latitude: number; longitude: number } | null> => {
-      try {
-        const results = await weatherAdapter.searchLocation(prefectureName)
-        if (results.length > 0) {
-          return { latitude: results[0].latitude, longitude: results[0].longitude }
-        }
-      } catch {
-        // geocoding failure is non-critical
+  const prefectures = useMemo<readonly PrefectureOption[]>(() => {
+    const seen = new Set<string>()
+    const result: PrefectureOption[] = []
+    for (const s of stations) {
+      if (!seen.has(s.prefecture)) {
+        seen.add(s.prefecture)
+        result.push({ code: String(s.precNo), name: s.prefecture })
       }
-      return null
-    },
-    [],
+    }
+    return result
+  }, [stations])
+
+  const getStations = useMemo(
+    () =>
+      (prefectureName: string): readonly EtrnStation[] =>
+        stations
+          .filter((s) => s.prefecture === prefectureName)
+          .map((s) => ({
+            precNo: s.precNo,
+            blockNo: s.blockNo,
+            stationType: 's1' as const,
+            stationName: s.name,
+          })),
+    [stations],
   )
 
-  const clear = useCallback(() => setStations([]), [])
+  const getCoordinates = useMemo(
+    () =>
+      (blockNo: string): { latitude: number; longitude: number } | null => {
+        const s = stations.find((e) => e.blockNo === blockNo)
+        if (!s) return null
+        return { latitude: dmsToDecimal(s.lat), longitude: dmsToDecimal(s.lon) }
+      },
+    [stations],
+  )
 
-  return { prefectures, stations, isSearching, searchByPrefecture, geocodePrefecture, clear }
+  return { prefectures, getStations, getCoordinates }
 }

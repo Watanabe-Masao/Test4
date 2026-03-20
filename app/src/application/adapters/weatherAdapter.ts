@@ -11,11 +11,11 @@
 import {
   searchLocation,
   resolveEtrnStationByLocation,
-  searchStationsByPrefecture,
   fetchEtrnDailyWeather,
   fetchEtrnHourlyRange,
   resolveForecastOfficeByLocation,
   fetchWeeklyForecast,
+  getStaticStationList,
   PREFECTURE_NAMES,
 } from '@/infrastructure/weather'
 import type {
@@ -27,7 +27,7 @@ import type {
 export const weatherAdapter: WeatherPort = {
   searchLocation,
   resolveEtrnStationByLocation,
-  searchStationsByPrefecture,
+  getStaticStationList,
   PREFECTURE_NAMES,
 
   // EtrnStation → 低レベル引数に展開

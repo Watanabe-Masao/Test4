@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import type { StoreLocation } from '@/domain/models/record'
 import { useEtrnStationSearch } from '@/application/hooks/useEtrnStationSearch'
 import { palette } from '@/presentation/theme/tokens'
@@ -20,65 +20,47 @@ export function StoreLocationEditor({
   const [isEditing, setIsEditing] = useState(false)
   const [selectedPrefecture, setSelectedPrefecture] = useState('')
   const [selectedStationKey, setSelectedStationKey] = useState('')
-  const [isSaving, setIsSaving] = useState(false)
-  const {
-    prefectures,
-    stations,
-    isSearching,
-    searchByPrefecture,
-    geocodePrefecture,
-    clear: clearStations,
-  } = useEtrnStationSearch()
+  const { prefectures, getStations, getCoordinates } = useEtrnStationSearch()
 
-  const handlePrefectureChange = useCallback(
-    async (prefName: string) => {
-      setSelectedPrefecture(prefName)
-      setSelectedStationKey('')
-      if (prefName) {
-        await searchByPrefecture(prefName)
-      } else {
-        clearStations()
-      }
-    },
-    [searchByPrefecture, clearStations],
+  const filteredStations = useMemo(
+    () => (selectedPrefecture ? getStations(selectedPrefecture) : []),
+    [selectedPrefecture, getStations],
   )
 
-  const handleStationSave = useCallback(async () => {
+  const handlePrefectureChange = useCallback((prefName: string) => {
+    setSelectedPrefecture(prefName)
+    setSelectedStationKey('')
+  }, [])
+
+  const handleStationSave = useCallback(() => {
     if (!selectedStationKey || !selectedPrefecture) return
-    const station = stations.find((s) => `${s.precNo}:${s.blockNo}` === selectedStationKey)
+    const station = filteredStations.find((s) => `${s.precNo}:${s.blockNo}` === selectedStationKey)
     if (!station) return
 
-    setIsSaving(true)
-    try {
-      const coords = await geocodePrefecture(selectedPrefecture)
-      const latitude = coords?.latitude ?? location?.latitude ?? 0
-      const longitude = coords?.longitude ?? location?.longitude ?? 0
+    const coords = getCoordinates(station.blockNo)
+    const latitude = coords?.latitude ?? location?.latitude ?? 0
+    const longitude = coords?.longitude ?? location?.longitude ?? 0
 
-      onSave(storeId, {
-        ...location,
-        latitude,
-        longitude,
-        resolvedName: `${selectedPrefecture} ${station.stationName}`,
-        etrnPrecNo: station.precNo,
-        etrnBlockNo: station.blockNo,
-        etrnStationType: station.stationType,
-      })
-      setIsEditing(false)
-      setSelectedPrefecture('')
-      setSelectedStationKey('')
-      clearStations()
-    } finally {
-      setIsSaving(false)
-    }
+    onSave(storeId, {
+      ...location,
+      latitude,
+      longitude,
+      resolvedName: `${selectedPrefecture} ${station.stationName}`,
+      etrnPrecNo: station.precNo,
+      etrnBlockNo: station.blockNo,
+      etrnStationType: station.stationType,
+    })
+    setIsEditing(false)
+    setSelectedPrefecture('')
+    setSelectedStationKey('')
   }, [
     selectedStationKey,
     selectedPrefecture,
-    stations,
-    geocodePrefecture,
+    filteredStations,
+    getCoordinates,
     location,
     onSave,
     storeId,
-    clearStations,
   ])
 
   if (!isEditing) {
@@ -123,8 +105,7 @@ export function StoreLocationEditor({
           </option>
         ))}
       </Select>
-      {isSearching && <span style={{ fontSize: 12, color: palette.slate }}>検索中...</span>}
-      {stations.length > 0 && (
+      {filteredStations.length > 0 && (
         <>
           <Select
             value={selectedStationKey}
@@ -132,7 +113,7 @@ export function StoreLocationEditor({
             style={{ width: 180 }}
           >
             <option value="">観測所を選択</option>
-            {stations.map((s) => (
+            {filteredStations.map((s) => (
               <option key={`${s.precNo}:${s.blockNo}`} value={`${s.precNo}:${s.blockNo}`}>
                 {s.stationName}
               </option>
@@ -141,9 +122,9 @@ export function StoreLocationEditor({
           <SmallButton
             $variant="primary"
             onClick={handleStationSave}
-            disabled={!selectedStationKey || isSaving}
+            disabled={!selectedStationKey}
           >
-            {isSaving ? '保存中...' : '設定'}
+            設定
           </SmallButton>
         </>
       )}
