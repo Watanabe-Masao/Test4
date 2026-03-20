@@ -7,7 +7,7 @@
  */
 import { describe, it, expect } from 'vitest'
 import { processFileData } from '../ImportService'
-import { createEmptyImportedData } from '@/domain/models'
+import { createEmptyImportedData } from '@/domain/models/storeTypes'
 import { calculateAllStores } from '@/application/usecases/calculation'
 import { createDefaultSettings, getDaysInMonth } from '@/domain/constants/defaults'
 

@@ -3,7 +3,7 @@ import { palette } from '@/presentation/theme/tokens'
 import { formatPercent, formatPointDiff } from '@/domain/formatting'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { fmtSen } from './drilldownUtils'
-import type { PrevYearData } from '@/application/hooks'
+import type { PrevYearData } from '@/application/hooks/analytics'
 import {
   RangeSummaryPanel,
   RangeSummaryTitle,

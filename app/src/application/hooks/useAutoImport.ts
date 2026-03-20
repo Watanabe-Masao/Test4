@@ -7,13 +7,7 @@
  * File System Access API (Chromium 86+) 前提。非対応ブラウザでは無効。
  */
 import { useCallback, useEffect, useRef, useReducer } from 'react'
-import {
-  isFileSystemAccessSupported,
-  pickDirectory,
-  getStoredHandle,
-  removeHandle,
-  listFiles,
-} from '@/infrastructure/storage/folderAccess'
+import { fileSystemAdapter } from '@/application/adapters/fileSystemAdapter'
 import { autoImportReducer, createInitialAutoImportState } from './autoImportReducer'
 
 /** インポート対象の拡張子 */
@@ -94,7 +88,7 @@ function loadInitialAutoSync(): boolean {
 export function useAutoImport(
   onFilesFound: (files: File[]) => Promise<void>,
 ): AutoImportState & AutoImportActions {
-  const supported = isFileSystemAccessSupported()
+  const supported = fileSystemAdapter.isFileSystemAccessSupported()
   const [state, dispatch] = useReducer(
     autoImportReducer,
     loadInitialAutoSync(),
@@ -109,7 +103,7 @@ export function useAutoImport(
   useEffect(() => {
     if (!supported || initRef.current) return
     initRef.current = true
-    getStoredHandle('import').then((h) => {
+    fileSystemAdapter.getStoredHandle('import').then((h) => {
       if (h) {
         dispatch({ type: 'RESTORE_HANDLE', handle: h })
       }
@@ -117,7 +111,7 @@ export function useAutoImport(
   }, [supported])
 
   const selectFolder = useCallback(async () => {
-    const handle = await pickDirectory('import')
+    const handle = await fileSystemAdapter.pickDirectory('import')
     if (handle) {
       dispatch({ type: 'SELECT_FOLDER', handle })
       processedRef.current = new Set()
@@ -128,7 +122,7 @@ export function useAutoImport(
   }, [])
 
   const clearFolder = useCallback(async () => {
-    await removeHandle('import')
+    await fileSystemAdapter.removeHandle('import')
     dispatch({ type: 'CLEAR_FOLDER' })
     processedRef.current = new Set()
     saveProcessedFingerprints(processedRef.current)
@@ -138,7 +132,7 @@ export function useAutoImport(
     if (!state.dirHandle) return []
     dispatch({ type: 'SCAN_START' })
     try {
-      const entries = await listFiles(state.dirHandle, [...IMPORTABLE_EXTENSIONS])
+      const entries = await fileSystemAdapter.listFiles(state.dirHandle, [...IMPORTABLE_EXTENSIONS])
       const newFiles: File[] = []
 
       for (const entry of entries) {

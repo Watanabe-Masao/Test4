@@ -4,7 +4,7 @@
 import { useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
-import type { DailyWeatherSummary } from '@/domain/models'
+import type { DailyWeatherSummary } from '@/domain/models/record'
 import type {
   DailySalesForCorrelation,
   CorrelationResult,

@@ -8,7 +8,7 @@ import { describe, it, expect, vi } from 'vitest'
 import { renderHook, waitFor } from '@testing-library/react'
 import { useMonthlyHistory } from '../useMonthlyHistory'
 import type { DataRepository } from '@/domain/repositories/DataRepository'
-import type { StoreDaySummaryIndex } from '@/domain/models'
+import type { StoreDaySummaryIndex } from '@/domain/models/record'
 
 // ── Helpers ───────────────────────────────────────────
 

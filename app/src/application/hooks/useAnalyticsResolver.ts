@@ -25,7 +25,8 @@
  */
 import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { DateRange, Store } from '@/domain/models'
+import type { DateRange } from '@/domain/models/calendar'
+import type { Store } from '@/domain/models/record'
 
 // ── Data Source Resolution ──
 

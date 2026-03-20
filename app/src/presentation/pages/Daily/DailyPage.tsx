@@ -1,18 +1,15 @@
 import { useState, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MainContent } from '@/presentation/components/Layout'
-import {
-  Card,
-  CardTitle,
-  MetricBreakdownPanel,
-  PageSkeleton,
-} from '@/presentation/components/common'
+import { PageSkeleton } from '@/presentation/components/common/feedback'
+import { Card, CardTitle } from '@/presentation/components/common/layout'
+import { MetricBreakdownPanel } from '@/presentation/components/common/tables'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
-import { useStoreSelection } from '@/application/hooks'
+import { useStoreSelection } from '@/application/hooks/ui'
 import type { PrevYearData } from '@/application/comparison/comparisonTypes'
 import { formatPercent } from '@/domain/formatting'
-import type { CostPricePair } from '@/domain/models'
+import type { CostPricePair } from '@/domain/models/record'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import {

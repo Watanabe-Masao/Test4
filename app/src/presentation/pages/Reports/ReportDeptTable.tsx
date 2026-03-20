@@ -1,6 +1,6 @@
 import type { DepartmentKpiIndex } from '@/domain/models/DepartmentKpiIndex'
-import type { MetricId } from '@/domain/models'
-import { KpiCard, KpiGrid } from '@/presentation/components/common'
+import type { MetricId } from '@/domain/models/analysis'
+import { KpiCard, KpiGrid } from '@/presentation/components/common/tables'
 import { formatPercent } from '@/domain/formatting'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { sc } from '@/presentation/theme/semanticColors'

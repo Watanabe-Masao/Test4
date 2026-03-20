@@ -16,7 +16,7 @@
  *   9. 【TR-FIL-001】filterByStore の正確性テスト
  */
 import { describe, it, expect } from 'vitest'
-import type { CategoryTimeSalesRecord } from '@/domain/models'
+import type { CategoryTimeSalesRecord } from '@/domain/models/record'
 import {
   countDowInRange,
   computeDivisor,

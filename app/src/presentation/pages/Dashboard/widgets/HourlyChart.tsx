@@ -6,7 +6,7 @@
  * 複数時間帯を選択して分類別内訳を表示可能。
  */
 import { memo, useState, useMemo, useCallback, useRef, useEffect } from 'react'
-import type { CategoryTimeSalesRecord, HourlyWeatherRecord } from '@/domain/models'
+import type { CategoryTimeSalesRecord, HourlyWeatherRecord } from '@/domain/models/record'
 import { toComma } from '@/presentation/components/charts/chartTheme'
 import { formatPercent } from '@/domain/formatting'
 import { calculateShare } from '@/domain/calculations/utils'

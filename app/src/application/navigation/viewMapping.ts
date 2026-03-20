@@ -3,7 +3,7 @@
  *
  * アプリケーション層で管理し、presentation/routes.tsx と application/hooks から参照する。
  */
-import type { ViewType } from '@/domain/models'
+import type { ViewType } from '@/domain/models/storeTypes'
 
 export const VIEW_TO_PATH: Record<ViewType, string> = {
   dashboard: '/dashboard',

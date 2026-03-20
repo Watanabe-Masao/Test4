@@ -3,7 +3,7 @@
  */
 import { decompose2, decompose3, decompose5 } from '@/application/hooks/calculation'
 import { recordsToCategoryQtyAmt } from './categoryFactorUtils'
-import type { CategoryTimeSalesRecord } from '@/domain/models'
+import type { CategoryTimeSalesRecord } from '@/domain/models/record'
 
 export interface WaterfallItem {
   name: string

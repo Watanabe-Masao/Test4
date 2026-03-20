@@ -1,14 +1,12 @@
 import type {
-  AppSettings,
   CostPricePair,
   CategoryType,
-  StoreResult,
   TransferDetails,
-  ImportedData,
   InventoryConfig,
   BudgetData,
-} from '@/domain/models'
-import { ZERO_COST_PRICE_PAIR, addCostPricePairs } from '@/domain/models'
+} from '@/domain/models/record'
+import type { AppSettings, StoreResult, ImportedData } from '@/domain/models/storeTypes'
+import { ZERO_COST_PRICE_PAIR, addCostPricePairs } from '@/domain/models/record'
 // bridge 経由: 将来の dual-run compare を観測可能にする
 import {
   calculateInvMethod,

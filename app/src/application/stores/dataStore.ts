@@ -1,8 +1,7 @@
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
+import type { StoreExplanations } from '@/domain/models/analysis'
 import type {
-  ImportedData,
-  StoreResult,
   ValidationMessage,
   ClassifiedSalesData,
   CategoryTimeSalesData,
@@ -10,9 +9,10 @@ import type {
   PurchaseData,
   TransferData,
   InventoryConfig,
-  StoreExplanations,
-} from '@/domain/models'
-import { createEmptyImportedData, mergeInventoryConfig } from '@/domain/models'
+} from '@/domain/models/record'
+import type { ImportedData, StoreResult } from '@/domain/models/storeTypes'
+import { mergeInventoryConfig } from '@/domain/models/record'
+import { createEmptyImportedData } from '@/domain/models/storeTypes'
 
 // ─── Types ────────────────────────────────────────────
 export interface DataStore {

@@ -3,7 +3,8 @@
  *
  * ImportOrchestrator から抽出。サマリーキャッシュ保存とインポート履歴保存を担う。
  */
-import type { ImportedData, ImportHistoryEntry } from '@/domain/models'
+import type { ImportHistoryEntry } from '@/domain/models/analysis'
+import type { ImportedData } from '@/domain/models/storeTypes'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import { buildStoreDaySummaryCache } from '@/application/usecases/calculation'
 import type { ImportSummary } from './FileImportService'

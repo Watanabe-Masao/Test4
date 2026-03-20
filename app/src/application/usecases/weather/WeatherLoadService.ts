@@ -10,13 +10,13 @@
  *      - AMeDAS・予報区域に依存しない
  *   2. ETRN 日別 HTML テーブルをフェッチ・パース → DailyWeatherSummary
  */
-import type { StoreLocation, DailyWeatherSummary, HourlyWeatherRecord } from '@/domain/models'
-import type { EtrnStation } from '@/infrastructure/weather'
-import {
-  resolveEtrnStationByLocation,
-  fetchEtrnDailyWeather,
-  fetchEtrnHourlyRange,
-} from '@/infrastructure/weather'
+import type {
+  StoreLocation,
+  DailyWeatherSummary,
+  HourlyWeatherRecord,
+} from '@/domain/models/record'
+import type { EtrnStation } from '@/application/ports/WeatherPort'
+import { weatherAdapter } from '@/application/adapters/weatherAdapter'
 
 /** 天気データ取得の進捗状態 */
 export interface WeatherLoadProgress {
@@ -108,7 +108,10 @@ export async function loadEtrnDailyForStore(
     console.debug('[Weather:Load] ETRN観測所未解決 → 自動解決開始')
     onProgress?.({ storeId, status: 'resolving', recordCount: 0 })
 
-    const etrnResult = await resolveEtrnStationByLocation(location.latitude, location.longitude)
+    const etrnResult = await weatherAdapter.resolveEtrnStationByLocation(
+      location.latitude,
+      location.longitude,
+    )
     if (!etrnResult) {
       console.warn('[Weather:Load] ETRN観測所解決失敗')
       onProgress?.({
@@ -142,21 +145,18 @@ export async function loadEtrnDailyForStore(
 
   // ここに到達した時点で precNo / blockNo / stationType は確定済み
   // （未解決の場合は上で return している）
-  const finalPrecNo = precNo!
-  const finalBlockNo = blockNo!
-  const finalStationType = stationType!
+  const station: EtrnStation = resolvedStation ?? {
+    precNo: precNo!,
+    blockNo: blockNo!,
+    stationType: stationType!,
+    stationName: '',
+  }
 
   // ETRN 日別データを取得
   console.debug('[Weather:Load] ETRN日別データ取得 %d/%d', year, month)
   onProgress?.({ storeId, status: 'loading', recordCount: 0 })
 
-  const daily = await fetchEtrnDailyWeather(
-    finalPrecNo,
-    finalBlockNo,
-    finalStationType,
-    year,
-    month,
-  )
+  const daily = await weatherAdapter.fetchDailyWeather(station, year, month)
 
   console.debug('[Weather:Load] ETRN日別取得完了: %d日分', daily.length)
   onProgress?.({ storeId, status: 'done', recordCount: daily.length })
@@ -189,7 +189,10 @@ export async function loadEtrnHourlyForStore(
   if (precNo == null || !blockNo || !stationType) {
     onProgress?.({ storeId, status: 'resolving', recordCount: 0 })
 
-    const etrnResult = await resolveEtrnStationByLocation(location.latitude, location.longitude)
+    const etrnResult = await weatherAdapter.resolveEtrnStationByLocation(
+      location.latitude,
+      location.longitude,
+    )
     if (!etrnResult) {
       onProgress?.({
         storeId,
@@ -206,17 +209,18 @@ export async function loadEtrnHourlyForStore(
     resolvedStation = etrnResult
   }
 
-  const finalPrecNo = precNo!
-  const finalBlockNo = blockNo!
-  const finalStationType = stationType!
+  const station: EtrnStation = resolvedStation ?? {
+    precNo: precNo!,
+    blockNo: blockNo!,
+    stationType: stationType!,
+    stationName: '',
+  }
 
   // ETRN 時間別データを取得
   onProgress?.({ storeId, status: 'loading', recordCount: 0 })
 
-  const hourly = await fetchEtrnHourlyRange(
-    finalPrecNo,
-    finalBlockNo,
-    finalStationType,
+  const hourly = await weatherAdapter.fetchHourlyRange(
+    station,
     year,
     month,
     days,

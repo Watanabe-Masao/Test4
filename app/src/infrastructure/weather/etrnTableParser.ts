@@ -12,7 +12,7 @@
  * ヘッダーのカラム配置は観測所によって異なるため、
  * ヘッダーテキストからカラム位置を動的に検出する。
  */
-import type { DailyWeatherSummary } from '@/domain/models'
+import type { DailyWeatherSummary } from '@/domain/models/record'
 
 /** ヘッダーグリッド解析の最大列数 */
 const MAX_GRID_COLS = 30

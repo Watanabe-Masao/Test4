@@ -6,7 +6,7 @@
 import type { ReactNode } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
-import type { DepartmentKpiRecord } from '@/domain/models'
+import type { DepartmentKpiRecord } from '@/domain/models/record'
 import type { CurrencyFormatter } from '@/presentation/components/charts/chartTheme'
 import type { WidgetContext } from './types'
 import { STableWrapper, STableTitle, STable, STd, ScrollWrapper } from '../DashboardPage.styles'

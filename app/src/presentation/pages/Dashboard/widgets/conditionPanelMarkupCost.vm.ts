@@ -1,14 +1,15 @@
 /**
  * 値入率・原価算入費の ViewModel
  */
-import type { StoreResult, Store } from '@/domain/models'
+import type { Store } from '@/domain/models/record'
+import type { StoreResult } from '@/domain/models/storeTypes'
 import { formatPercent } from '@/domain/formatting'
 import type { CurrencyFormatter } from '@/presentation/components/charts/chartTheme'
 import { resolveThresholds, evaluateSignal } from '@/domain/calculations/rules/conditionResolver'
 import { calculateShare } from '@/domain/calculations/utils'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
 import { CATEGORY_ORDER } from '@/domain/constants/categories'
-import type { AppSettings } from '@/domain/models'
+import type { AppSettings } from '@/domain/models/storeTypes'
 import {
   type SignalLevel,
   SIGNAL_COLORS,

@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
-import { useCalculation, useStoreSelection } from '@/application/hooks'
+import { useCalculation } from '@/application/hooks/calculation'
+import { useStoreSelection } from '@/application/hooks/ui'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import {
   aggregateFlows,

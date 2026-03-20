@@ -7,7 +7,7 @@
  * dataVersion ベースの軽量キャッシュキーでキャッシュヒット判定を行う。
  */
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { AppSettings, StoreResult, ImportedData } from '@/domain/models'
+import type { AppSettings, StoreResult, ImportedData } from '@/domain/models/storeTypes'
 import type { WorkerResponse } from './calculationWorker'
 import { calculateAllStores } from '@/application/usecases/calculation'
 import { computeCacheKey } from '@/application/services/calculationCache'

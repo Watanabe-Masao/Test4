@@ -5,7 +5,7 @@
  * periodSelectionStore の setPreset / setComparisonEnabled を操作する。
  */
 import { memo } from 'react'
-import { Chip, ChipGroup } from '@/presentation/components/common'
+import { Chip, ChipGroup } from '@/presentation/components/common/forms'
 import { usePeriodSelection } from '@/application/hooks/usePeriodResolver'
 import type { ComparisonPreset } from '@/domain/models/PeriodSelection'
 

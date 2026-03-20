@@ -1,7 +1,7 @@
 /**
  * IndexedDB StoreDaySummaryCache 操作
  */
-import type { StoreDaySummaryCache } from '@/domain/models'
+import type { StoreDaySummaryCache } from '@/domain/models/record'
 import { dbGet, dbBatchPut, STORE_MONTHLY } from './dbHelpers'
 import { summaryKey } from './keys'
 

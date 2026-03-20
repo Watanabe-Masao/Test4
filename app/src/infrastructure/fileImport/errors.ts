@@ -19,4 +19,4 @@ export class ImportError extends Error {
   }
 }
 
-export type { ValidationMessage } from '@/domain/models'
+export type { ValidationMessage } from '@/domain/models/record'

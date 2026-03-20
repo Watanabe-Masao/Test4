@@ -11,9 +11,10 @@ import {
   calculateShare,
   calculateTransactionValue,
 } from '@/domain/calculations/utils'
-import type { DailyRecord, DateRange, ComparisonFrame } from '@/domain/models'
+import type { DateRange, ComparisonFrame } from '@/domain/models/calendar'
+import type { DailyRecord } from '@/domain/models/record'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
-import type { PrevYearData } from '@/application/hooks'
+import type { PrevYearData } from '@/application/hooks/analytics'
 
 // ── Re-exported types ──
 

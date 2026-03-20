@@ -6,19 +6,12 @@
  */
 import type { ReactNode } from 'react'
 import type { AsyncDuckDB, AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type {
-  StoreResult,
-  StoreExplanations,
-  MetricId,
-  DateRange,
-  ViewType,
-  ComparisonFrame,
-  PrevYearScope,
-  Store,
-  AppSettings,
-} from '@/domain/models'
+import type { StoreExplanations, MetricId } from '@/domain/models/analysis'
+import type { DateRange, ComparisonFrame, PrevYearScope } from '@/domain/models/calendar'
+import type { Store } from '@/domain/models/record'
+import type { StoreResult, ViewType, AppSettings } from '@/domain/models/storeTypes'
 import type { PeriodSelection } from '@/domain/models/PeriodSelection'
-import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/hooks'
+import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/hooks/analytics'
 import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
 import type { DepartmentKpiIndex } from '@/domain/models/DepartmentKpiIndex'
 import type { MonthlyDataPoint } from '@/application/hooks/useStatistics'

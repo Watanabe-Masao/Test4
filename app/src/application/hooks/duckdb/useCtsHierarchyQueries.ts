@@ -6,8 +6,8 @@
  */
 import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { DateRange } from '@/domain/models'
-import type { CategoryTimeSalesRecord } from '@/domain/models'
+import type { DateRange } from '@/domain/models/calendar'
+import type { CategoryTimeSalesRecord } from '@/domain/models/record'
 import {
   queryLevelAggregation,
   queryCategoryDailyTrend,

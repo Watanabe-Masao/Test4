@@ -1,9 +1,13 @@
 import { Suspense } from 'react'
 import { useLocation } from 'react-router-dom'
 import { AppShell, NavBar, BottomNav } from '@/presentation/components/Layout'
-import { PageErrorBoundary, PageSkeleton, useToast } from '@/presentation/components/common'
+import {
+  PageErrorBoundary,
+  PageSkeleton,
+  useToast,
+} from '@/presentation/components/common/feedback'
 import { DataManagementSidebar } from '@/presentation/components/DataManagementSidebar'
-import { usePersistence } from '@/application/hooks'
+import { usePersistence } from '@/application/hooks/data'
 import { useRouteSync } from '@/application/hooks/useRouteSync'
 import { useAppShortcuts } from '@/application/hooks/useAppShortcuts'
 import { useThemeToggle, SettingsModalContext } from '@/appContextDefs'

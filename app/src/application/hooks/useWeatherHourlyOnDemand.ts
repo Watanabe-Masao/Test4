@@ -5,7 +5,8 @@
  * Presentation 層が外部 API を直接呼ばないための Application 層フック。
  */
 import { useState, useCallback } from 'react'
-import type { HourlyWeatherRecord, StoreLocation, AlignmentPolicy } from '@/domain/models'
+import type { AlignmentPolicy } from '@/domain/models/calendar'
+import type { HourlyWeatherRecord, StoreLocation } from '@/domain/models/record'
 import { loadEtrnHourlyForStore } from '@/application/usecases/weather/WeatherLoadService'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 

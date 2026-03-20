@@ -9,7 +9,7 @@
  */
 import { Fragment, memo, useState, useCallback } from 'react'
 import { useSettingsStore } from '@/application/stores/settingsStore'
-import type { DailyWeatherSummary, StoreLocation } from '@/domain/models'
+import type { DailyWeatherSummary, StoreLocation } from '@/domain/models/record'
 import { categorizeWeatherCode } from '@/domain/calculations/weatherAggregation'
 import { useWeatherData } from '@/application/hooks/useWeather'
 import {

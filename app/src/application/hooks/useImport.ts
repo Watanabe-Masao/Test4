@@ -6,7 +6,7 @@ import { invalidateAfterStateChange } from '@/application/services/stateInvalida
 import { useRepository } from '../context/useRepository'
 import { validateImportedData } from '@/application/usecases/import'
 import type { ImportSummary } from '@/application/usecases/import'
-import type { AppSettings, DataType, ImportedData } from '@/domain/models'
+import type { AppSettings, DataType, ImportedData } from '@/domain/models/storeTypes'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import { rawFileStore } from '@/infrastructure/storage/rawFileStore'
 import {

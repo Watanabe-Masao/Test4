@@ -8,7 +8,8 @@
  */
 import { useCallback } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
-import { MetricBreakdownPanel, PageSkeleton } from '@/presentation/components/common'
+import { PageSkeleton } from '@/presentation/components/common/feedback'
+import { MetricBreakdownPanel } from '@/presentation/components/common/tables'
 import { PageWidgetContainer, UNIFIED_WIDGET_REGISTRY } from '@/presentation/components/widgets'
 import type { PageWidgetConfig } from '@/presentation/components/widgets'
 import { useDataStore } from '@/application/stores/dataStore'

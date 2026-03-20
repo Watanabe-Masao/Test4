@@ -23,7 +23,7 @@ import type {
   ParquetImportResult,
   ReportGenerateResult,
 } from './types'
-import type { ImportedData } from '@/domain/models'
+import type { ImportedData } from '@/domain/models/storeTypes'
 import type { LoadResult } from '../dataLoader'
 
 export interface DuckDBWorkerClientOptions {

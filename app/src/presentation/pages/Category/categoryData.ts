@@ -1,5 +1,5 @@
-import type { StoreResult, CustomCategory } from '@/domain/models'
-import { CUSTOM_CATEGORIES } from '@/domain/models'
+import type { StoreResult, CustomCategory } from '@/domain/models/storeTypes'
+import { CUSTOM_CATEGORIES } from '@/domain/models/storeTypes'
 import type { PresetCategoryId } from '@/domain/constants/customCategories'
 import {
   UNCATEGORIZED_CATEGORY_ID,
@@ -7,7 +7,7 @@ import {
   isUserCategory,
 } from '@/domain/constants/customCategories'
 import { CATEGORY_ORDER, CATEGORY_LABELS } from '@/domain/constants/categories'
-import type { CategoryType } from '@/domain/models'
+import type { CategoryType } from '@/domain/models/record'
 import { calculateMarkupRate, calculateShare } from '@/domain/calculations/utils'
 
 // ─── Types ───────────────────────────────────────────────

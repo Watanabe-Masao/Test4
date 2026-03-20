@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { buildSourceDataIndex, type SourceMonthContext } from '../sourceDataIndex'
 import type { ClassifiedSalesDaySummary } from '@/domain/models/ClassifiedSales'
 import { ZERO_DISCOUNT_ENTRIES } from '@/domain/models/ClassifiedSales'
-import type { StoreDayIndex, SpecialSalesDayEntry } from '@/domain/models'
+import type { StoreDayIndex, SpecialSalesDayEntry } from '@/domain/models/record'
 
 // ── ヘルパー ──
 

@@ -5,12 +5,8 @@
  * Application 層にブリッジし、UI からストレージ状態の確認・永続化要求を可能にする。
  */
 import { useState, useEffect, useCallback } from 'react'
-import {
-  requestPersistentStorage,
-  isStoragePersisted,
-  isOpfsAvailable,
-} from '@/infrastructure/storage/storagePersistence'
-import { getStorageStatus, type StoragePressureLevel } from '@/infrastructure/storage/storagePolicy'
+import { storagePersistenceAdapter } from '@/application/adapters/storagePersistenceAdapter'
+import type { StoragePressureLevel } from '@/application/ports/StoragePersistencePort'
 
 export interface StorageStatusInfo {
   readonly isPersisted: boolean
@@ -46,9 +42,9 @@ export function useStoragePersistence(): {
   const refresh = useCallback(async () => {
     try {
       const [persisted, opfs, storageStatus] = await Promise.all([
-        isStoragePersisted(),
-        isOpfsAvailable(),
-        getStorageStatus(),
+        storagePersistenceAdapter.isStoragePersisted(),
+        storagePersistenceAdapter.isOpfsAvailable(),
+        storagePersistenceAdapter.getStorageStatus(),
       ])
 
       setStatus({
@@ -73,7 +69,7 @@ export function useStoragePersistence(): {
   }, [refresh])
 
   const handleRequestPersistence = useCallback(async (): Promise<boolean> => {
-    const granted = await requestPersistentStorage()
+    const granted = await storagePersistenceAdapter.requestPersistentStorage()
     // 結果に関わらずステータスを最新化
     await refresh()
     return granted

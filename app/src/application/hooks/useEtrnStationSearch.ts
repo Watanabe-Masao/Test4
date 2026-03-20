@@ -5,12 +5,8 @@
  * infrastructure/weather の ETRN クライアントを application 層経由で公開。
  */
 import { useState, useCallback, useMemo } from 'react'
-import type { EtrnStation } from '@/infrastructure/weather'
-import {
-  searchStationsByPrefecture,
-  searchLocation,
-  PREFECTURE_NAMES,
-} from '@/infrastructure/weather'
+import { weatherAdapter } from '@/application/adapters/weatherAdapter'
+import type { EtrnStation } from '@/application/ports/WeatherPort'
 
 /** 都道府県選択肢 */
 export interface PrefectureOption {
@@ -41,7 +37,7 @@ export function useEtrnStationSearch(): UseEtrnStationSearchResult {
 
   const prefectures = useMemo<readonly PrefectureOption[]>(
     () =>
-      Object.entries(PREFECTURE_NAMES)
+      Object.entries(weatherAdapter.PREFECTURE_NAMES)
         .map(([code, name]) => ({ code, name }))
         .sort((a, b) => a.code.localeCompare(b.code)),
     [],
@@ -54,7 +50,7 @@ export function useEtrnStationSearch(): UseEtrnStationSearchResult {
     }
     setIsSearching(true)
     try {
-      const all = await searchStationsByPrefecture(prefectureName)
+      const all = await weatherAdapter.searchStationsByPrefecture(prefectureName)
       // 気象台・測候所（s1）のみ表示。AMeDAS（a1）は観測要素が不十分なため除外
       const results = all.filter((s) => s.stationType === 's1')
       setStations(results)
@@ -68,7 +64,7 @@ export function useEtrnStationSearch(): UseEtrnStationSearchResult {
   const geocodePrefecture = useCallback(
     async (prefectureName: string): Promise<{ latitude: number; longitude: number } | null> => {
       try {
-        const results = await searchLocation(prefectureName)
+        const results = await weatherAdapter.searchLocation(prefectureName)
         if (results.length > 0) {
           return { latitude: results[0].latitude, longitude: results[0].longitude }
         }

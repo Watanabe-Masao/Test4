@@ -4,8 +4,9 @@
  * 既存 dataSummary.test.ts でカバーされていないエッジケース・境界条件を網羅する。
  */
 import { describe, it, expect } from 'vitest'
-import { createEmptyImportedData } from '@/domain/models'
-import type { ImportedData, Store, TransferDayEntry, CostInclusionRecord } from '@/domain/models'
+import { createEmptyImportedData } from '@/domain/models/storeTypes'
+import type { Store, TransferDayEntry, CostInclusionRecord } from '@/domain/models/record'
+import type { ImportedData } from '@/domain/models/storeTypes'
 import {
   computeHasAnyData,
   computeLoadedTypes,
@@ -17,7 +18,7 @@ import {
   buildDataOverview,
 } from '@/application/services/dataSummary'
 import type { RecordSetStats } from '@/application/services/dataSummary'
-import type { SpecialSalesDayEntry, PurchaseDayEntry } from '@/domain/models'
+import type { SpecialSalesDayEntry, PurchaseDayEntry } from '@/domain/models/record'
 
 // ─── ヘルパー ──────────────────────────────────────────
 

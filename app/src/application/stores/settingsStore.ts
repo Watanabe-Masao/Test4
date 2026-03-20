@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
-import type { AppSettings, CustomCategory } from '@/domain/models'
+import type { AppSettings, CustomCategory } from '@/domain/models/storeTypes'
 import { createDefaultSettings } from '@/domain/constants/defaults'
 import { LEGACY_LABEL_TO_ID } from '@/domain/constants/customCategories'
 

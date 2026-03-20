@@ -5,7 +5,7 @@
  * ChartCard 内で使用する。
  */
 import styled from 'styled-components'
-import { ChartSkeleton } from '@/presentation/components/common'
+import { ChartSkeleton } from '@/presentation/components/common/feedback'
 
 /** 状態表示のデフォルト高さ (px) */
 const DEFAULT_STATE_HEIGHT = 200

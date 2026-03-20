@@ -7,7 +7,7 @@
 import { useMemo } from 'react'
 import { calculatePinIntervals } from '@/domain/calculations/pinIntervals'
 import type { PinInterval } from '@/domain/calculations/pinIntervals'
-import type { DailyRecord } from '@/domain/models'
+import type { DailyRecord } from '@/domain/models/record'
 
 export type { PinInterval }
 

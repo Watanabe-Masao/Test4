@@ -5,7 +5,7 @@
  * 累計と単日の両方のデータを提供する。
  */
 import { useMemo } from 'react'
-import type { DailyRecord } from '@/domain/models'
+import type { DailyRecord } from '@/domain/models/record'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import { decompose2 } from '@/application/services/factorDecompositionBridge'
 import { calculateTransactionValue } from '@/domain/calculations/utils'

@@ -4,7 +4,7 @@
  * メインスレッド ↔ Worker 間の通信プロトコル。
  * 既存の calculationWorker.ts の requestId パターンを踏襲する。
  */
-import type { ImportedData } from '@/domain/models'
+import type { ImportedData } from '@/domain/models/storeTypes'
 
 // ── リクエスト ──
 

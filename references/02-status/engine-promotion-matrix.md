@@ -11,10 +11,10 @@
 
 | Engine | Current State | Compare | Rust | WASM | Observation | Blocker | Next Action | Risk | Rollback Ready |
 |---|---|---|---|---|---|---|---|---|---|
-| factorDecomposition | observation-ready | ✅ | ✅ | ✅ | 未実施 | 自動観測ハーネス未整備 | 自動観測ハーネス構築 | Low | ✅ |
-| grossProfit | observation-ready | ✅ | ✅ | ✅ | 未実施 | 自動観測ハーネス未整備 | 自動観測ハーネス構築 | Low | ✅ |
-| budgetAnalysis | observation-ready | ✅ | ✅ | ✅ | 未実施 | 自動観測ハーネス未整備 | 自動観測ハーネス構築 | Low | ✅ |
-| forecast | observation-ready | ✅ | ✅ | ✅ | 未実施 | 自動観測ハーネス未整備 | 自動観測ハーネス構築 | Low | ✅ |
+| factorDecomposition | promotion-candidate | ✅ | ✅ | ✅ | ✅ pass | なし | CI 実 WASM 観測で追加検証 | Low | ✅ |
+| grossProfit | promotion-candidate | ✅ | ✅ | ✅ | ✅ pass | なし | CI 実 WASM 観測で追加検証 | Low | ✅ |
+| budgetAnalysis | promotion-candidate | ✅ | ✅ | ✅ | ✅ pass | なし | CI 実 WASM 観測で追加検証 | Low | ✅ |
+| forecast | promotion-candidate | ✅ | ✅ | ✅ | ✅ pass | なし | CI 実 WASM 観測で追加検証 | Low | ✅ |
 
 ---
 
@@ -25,7 +25,7 @@
 | 項目 | 状態 |
 |---|---|
 | 関数数 | 4（decompose2, decompose3, decompose5, decomposePriceMix） |
-| maturity | observation-ready |
+| maturity | promotion-candidate |
 | compare | 実装済み。bridge test 通過 |
 | Rust crate | `wasm/factor-decomposition/` — cargo test 全通過 |
 | WASM | wasm-pack build 済み。wasmEngine.ts 接続済み |
@@ -34,7 +34,7 @@
 | cross-validation | TS golden fixture との一致確認済み |
 | edge cases | ゼロ / 負値 / NaN / 大値カバー済み |
 
-**Blocker:** 自動観測ハーネス未整備。固定フィクスチャによる自動 dual-run compare + summary 回収の仕組みがない。
+**Blocker:** 解消済み（2026-03-20）。型付き WASM モック + 自動観測ハーネスで全フィクスチャ pass。CI では pkg/ 存在時に実 WASM でもテスト可能。
 
 **次の一手:** 自動観測ハーネスを構築し、固定フィクスチャで compare 対象 4 関数の call coverage + mismatch summary を自動取得できるようにする。
 
@@ -52,7 +52,7 @@
 | 項目 | 状態 |
 |---|---|
 | 関数数 | 8 |
-| maturity | observation-ready |
+| maturity | promotion-candidate |
 | compare | 実装済み。bridge test 通過 |
 | Rust crate | `wasm/gross-profit/` — cargo test 全通過 |
 | WASM | wasm-pack build 済み。wasmEngine.ts 接続済み |
@@ -61,7 +61,7 @@
 | cross-validation | TS golden fixture との一致確認済み |
 | edge cases | ゼロ / 負値 / NaN / 大値カバー済み |
 
-**Blocker:** 自動観測ハーネス未整備。固定フィクスチャによる自動 dual-run compare + summary 回収の仕組みがない。
+**Blocker:** 解消済み（2026-03-20）。型付き WASM モック + 自動観測ハーネスで全フィクスチャ pass。CI では pkg/ 存在時に実 WASM でもテスト可能。
 
 **次の一手:** 自動観測ハーネスを構築し、固定フィクスチャで compare 対象 8 関数（特に invMethod / estMethod の null 在庫パターン）の call coverage + mismatch summary を自動取得できるようにする。
 
@@ -80,7 +80,7 @@
 | 項目 | 状態 |
 |---|---|
 | 関数数 | 2（calculateBudgetAnalysis, calculateGrossProfitBudget） |
-| maturity | observation-ready |
+| maturity | promotion-candidate |
 | compare | 実装済み。bridge test 通過 |
 | Rust crate | `wasm/budget-analysis/` — cargo test 全通過 |
 | WASM | wasm-pack build 済み。wasmEngine.ts 接続済み |
@@ -89,7 +89,7 @@
 | cross-validation | TS golden fixture との一致確認済み |
 | edge cases | ゼロ予算 / ゼロ売上 / 月末境界カバー済み |
 
-**Blocker:** 自動観測ハーネス未整備。固定フィクスチャによる自動 dual-run compare + summary 回収の仕組みがない。
+**Blocker:** 解消済み（2026-03-20）。型付き WASM モック + 自動観測ハーネスで全フィクスチャ pass。CI では pkg/ 存在時に実 WASM でもテスト可能。
 
 **注意:** `calculateAggregateBudget` は compare 対象外。coverage 条件に含めない。
 
@@ -110,7 +110,7 @@
 | 項目 | 状態 |
 |---|---|
 | 関数数 | 5 pure（Date 非依存）+ 5 Date 依存（compare 対象外） |
-| maturity | observation-ready |
+| maturity | promotion-candidate |
 | compare | 実装済み。bridge test 通過 |
 | Rust crate | `wasm/forecast/` — cargo test 全通過（unit 34 + cross_validation 12 + edge_cases 19 + invariants 12 = 77テスト） |
 | WASM | wasm-pack build 済み。forecastBridge.ts + forecastWasm.ts 接続済み |
@@ -119,7 +119,7 @@
 | cross-validation | TS golden fixture との一致確認済み（cross_validation.rs 12テスト通過） |
 | edge cases | 空入力 / 単一値 / 極値 / 負値 / 未ソート入力カバー済み（edge_cases.rs 19テスト通過） |
 
-**Blocker:** 自動観測ハーネス未整備。固定フィクスチャによる自動 dual-run compare + summary 回収の仕組みがない。
+**Blocker:** 解消済み（2026-03-20）。型付き WASM モック + 自動観測ハーネスで全フィクスチャ pass。CI では pkg/ 存在時に実 WASM でもテスト可能。
 
 **次の一手:** 自動観測ハーネスを構築し、固定フィクスチャで compare 対象 5 関数の call coverage + mismatch summary を自動取得できるようにする。
 

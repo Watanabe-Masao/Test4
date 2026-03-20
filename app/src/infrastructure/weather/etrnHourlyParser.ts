@@ -14,7 +14,7 @@
  *
  * @see etrnTableParser.ts — 日別データパーサー（姉妹モジュール）
  */
-import type { HourlyWeatherRecord } from '@/domain/models'
+import type { HourlyWeatherRecord } from '@/domain/models/record'
 
 /** ヘッダーグリッド解析の最大列数 */
 const MAX_GRID_COLS = 30

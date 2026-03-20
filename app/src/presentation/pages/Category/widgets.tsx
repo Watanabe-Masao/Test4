@@ -4,7 +4,7 @@
  * カテゴリ分析ページのビューをウィジェットとして定義。
  * UnifiedWidgetContext を使い、全ページから利用可能。
  */
-import type { StoreResult } from '@/domain/models'
+import type { StoreResult } from '@/domain/models/storeTypes'
 import type { WidgetDef } from '@/presentation/components/widgets'
 import { CategoryTotalView } from './CategoryTotalView'
 import { CategoryComparisonView } from './CategoryComparisonView'

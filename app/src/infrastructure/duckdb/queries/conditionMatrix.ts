@@ -7,7 +7,7 @@
  * 結果: 店舗ごとに { current, prevYear, prevWeek, trendRecent, trendPrior } の5期間分の集計値。
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { DateRange } from '@/domain/models'
+import type { DateRange } from '@/domain/models/calendar'
 import { dateRangeToKeys } from '@/domain/models/CalendarDate'
 import { queryToObjects, storeIdFilterWithAlias } from '../queryRunner'
 

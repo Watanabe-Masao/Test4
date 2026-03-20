@@ -9,8 +9,9 @@ import {
   isIndexedDBAvailable,
   saveDataSlice,
 } from './IndexedDBStore'
-import { createEmptyImportedData } from '@/domain/models'
-import type { ImportedData, CategoryTimeSalesData, BudgetData } from '@/domain/models'
+import { createEmptyImportedData } from '@/domain/models/storeTypes'
+import type { CategoryTimeSalesData, BudgetData } from '@/domain/models/record'
+import type { ImportedData } from '@/domain/models/storeTypes'
 
 function makeCSRecord(day: number, storeId: string, salesAmount: number, discount = 0) {
   return {

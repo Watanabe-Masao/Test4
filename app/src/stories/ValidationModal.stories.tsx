@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import { useState } from 'react'
 import { ValidationModal } from '@/presentation/components/common/ValidationModal'
-import { Button } from '@/presentation/components/common'
-import type { ValidationMessage } from '@/domain/models'
+import { Button } from '@/presentation/components/common/layout'
+import type { ValidationMessage } from '@/domain/models/record'
 
 const meta: Meta<typeof ValidationModal> = {
   title: 'Common/ValidationModal',

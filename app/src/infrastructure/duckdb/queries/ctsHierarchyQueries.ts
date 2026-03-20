@@ -6,7 +6,7 @@
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import { queryToObjects } from '../queryRunner'
-import type { CategoryTimeSalesRecord, TimeSlotEntry } from '@/domain/models'
+import type { CategoryTimeSalesRecord, TimeSlotEntry } from '@/domain/models/record'
 import type { CtsFilterParams } from './categoryTimeSales'
 import { ctsWhereClause } from './categoryTimeSales'
 

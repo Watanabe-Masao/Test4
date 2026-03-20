@@ -5,16 +5,14 @@
  * 全ファイル処理後の storeId 正規化を担当する。
  */
 import type {
-  DataType,
-  AppSettings,
-  ImportedData,
   PurchaseData,
   SpecialSalesData,
   TransferData,
   CostInclusionData,
   InventoryConfig,
-} from '@/domain/models'
-import { mergeClassifiedSalesData } from '@/domain/models'
+} from '@/domain/models/record'
+import type { DataType, AppSettings, ImportedData } from '@/domain/models/storeTypes'
+import { mergeClassifiedSalesData } from '@/domain/models/record'
 import { detectYearMonth } from './fileImport/dateParser'
 import { validateRawRows, STRUCTURAL_RULES } from './fileImport/importSchemas'
 import {

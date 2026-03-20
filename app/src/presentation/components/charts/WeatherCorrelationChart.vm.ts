@@ -3,7 +3,7 @@
  *
  * 相関分析結果を Recharts 描画データに変換する。
  */
-import type { DailyWeatherSummary } from '@/domain/models'
+import type { DailyWeatherSummary } from '@/domain/models/record'
 import type { DailySalesForCorrelation } from '@/application/hooks/useWeatherCorrelation'
 import type { CorrelationResult } from '@/application/hooks/useWeatherCorrelation'
 import { normalizeMinMax } from '@/application/hooks/useWeatherCorrelation'

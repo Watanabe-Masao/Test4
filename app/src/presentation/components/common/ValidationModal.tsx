@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Modal } from './Modal'
 import { Button } from './Button'
-import type { ValidationMessage } from '@/domain/models'
+import type { ValidationMessage } from '@/domain/models/record'
 import {
   MessageList,
   MessageItem,

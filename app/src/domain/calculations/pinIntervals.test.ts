@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { calculatePinIntervals } from './pinIntervals'
-import type { DailyRecord } from '@/domain/models'
+import type { DailyRecord } from '@/domain/models/record'
 
 function makeDailyRecord(day: number, sales: number, purchaseCost: number): DailyRecord {
   return {

@@ -10,8 +10,8 @@
 import { useMemo, memo } from 'react'
 import { palette } from '@/presentation/theme/tokens'
 import { formatPercent } from '@/domain/formatting'
-import { dateRangeDays } from '@/domain/models'
-import type { DateRange } from '@/domain/models'
+import { dateRangeDays } from '@/domain/models/calendar'
+import type { DateRange } from '@/domain/models/calendar'
 import {
   useDuckDBConditionMatrix,
   buildConditionMatrix,

@@ -1,5 +1,5 @@
 import { useEffect, useCallback } from 'react'
-import type { ViewType } from '@/domain/models'
+import type { ViewType } from '@/domain/models/storeTypes'
 
 /** ビューの順序（数字キー 1-7 対応） */
 const VIEW_ORDER: ViewType[] = [

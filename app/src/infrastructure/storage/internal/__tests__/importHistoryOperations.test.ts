@@ -2,7 +2,7 @@
  * importHistoryOperations.ts のユニットテスト
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import type { ImportHistoryEntry } from '@/domain/models'
+import type { ImportHistoryEntry } from '@/domain/models/analysis'
 
 // ── Mock dbHelpers ──
 vi.mock('../dbHelpers', () => ({

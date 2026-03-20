@@ -1,10 +1,6 @@
-import type {
-  DataType,
-  AppSettings,
-  ImportedData,
-  BudgetData,
-  ImportSummary,
-} from '@/domain/models'
+import type { BudgetData } from '@/domain/models/record'
+import type { DataType, AppSettings, ImportedData } from '@/domain/models/storeTypes'
+import type { ImportSummary } from '@/domain/models/ImportResult'
 import { processDroppedFiles as processDroppedFilesImpl } from '@/infrastructure/ImportService'
 import type { MonthPartitions } from '@/infrastructure/ImportService'
 import { monthKey } from '@/infrastructure/fileImport/dateParser'

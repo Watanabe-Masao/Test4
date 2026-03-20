@@ -4,7 +4,7 @@ import {
   categorizeWeatherCode,
   deriveWeatherCode,
 } from '../weatherAggregation'
-import type { HourlyWeatherRecord } from '@/domain/models'
+import type { HourlyWeatherRecord } from '@/domain/models/record'
 
 // ─── Helper ──────────────────────────────────────────
 

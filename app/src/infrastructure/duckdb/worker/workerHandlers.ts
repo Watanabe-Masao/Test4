@@ -15,7 +15,7 @@ import type {
 import { resetTables, loadMonth, deleteMonth } from '../dataLoader'
 import type { LoadResult } from '../dataLoader'
 import { SCHEMA_VERSION, TABLE_NAMES } from '../schemas'
-import type { ImportedData } from '@/domain/models'
+import type { ImportedData } from '@/domain/models/storeTypes'
 
 // ── 定数・ユーティリティ ──
 

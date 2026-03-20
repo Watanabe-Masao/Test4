@@ -2,7 +2,8 @@ import { useCallback, useRef, useState } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { invalidateAfterStateChange } from '@/application/services/stateInvalidation'
-import type { AppSettings, InventoryConfig } from '@/domain/models'
+import type { InventoryConfig } from '@/domain/models/record'
+import type { AppSettings } from '@/domain/models/storeTypes'
 
 /**
  * Undo/Redo 対象のスナップショット

@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { useSettingsStore } from '@/application/stores'
 import { useUiStore } from '@/application/stores'
-import type { AppSettings } from '@/domain/models'
+import type { AppSettings } from '@/domain/models/storeTypes'
 
 /** 設定管理フック (Zustand ストア版) */
 export function useSettings() {

@@ -12,8 +12,8 @@ import type {
   EvidenceRef,
   BreakdownEntry,
   BreakdownDetail,
-  Store,
-} from '@/domain/models'
+} from '@/domain/models/analysis'
+import type { Store } from '@/domain/models/record'
 import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
 import type {
   PrevYearMonthlyKpi,

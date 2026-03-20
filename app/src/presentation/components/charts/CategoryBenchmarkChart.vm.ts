@@ -6,7 +6,7 @@
  */
 import { useState, useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { DateRange } from '@/domain/models'
+import type { DateRange } from '@/domain/models/calendar'
 import {
   useDuckDBCategoryBenchmark,
   useDuckDBCategoryBenchmarkTrend,

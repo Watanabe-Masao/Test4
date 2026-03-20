@@ -6,7 +6,7 @@
  * - storeAssembler: StoreResult組み立て
  * - aggregateResults: 全店集約
  */
-import type { AppSettings, StoreResult, ImportedData } from '@/domain/models'
+import type { AppSettings, StoreResult, ImportedData } from '@/domain/models/storeTypes'
 import { buildDailyRecords } from './dailyBuilder'
 import { assembleStoreResult } from './storeAssembler'
 export { aggregateStoreResults } from './aggregateResults'

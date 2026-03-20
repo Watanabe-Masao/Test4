@@ -7,7 +7,7 @@
 import { useState } from 'react'
 import { Modal } from './Modal'
 import { Button } from './Button'
-import type { DiffResult, DataTypeDiff, FieldChange } from '@/domain/models'
+import type { DiffResult, DataTypeDiff, FieldChange } from '@/domain/models/analysis'
 import { palette } from '@/presentation/theme/tokens'
 import {
   Summary,

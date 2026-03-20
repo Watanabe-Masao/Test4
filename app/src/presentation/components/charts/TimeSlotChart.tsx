@@ -13,7 +13,7 @@
 import { memo, useMemo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { DateRange, PrevYearScope } from '@/domain/models'
+import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { useChartTheme, useCurrencyFormatter, toComma, toPct } from './chartTheme'
 import { EChart, type EChartsOption } from './EChart'
@@ -52,7 +52,8 @@ import {
 } from './TimeSlotSalesChart.styles'
 import { HierarchyRow, HierarchySelect, ErrorMsg } from './TimeSlotChart.styles'
 import { useDuckDBTimeSlotData } from './useDuckDBTimeSlotData'
-import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
+import { ChartSkeleton } from '@/presentation/components/common/feedback'
+import { EmptyState } from '@/presentation/components/common/layout'
 
 // ── Props ──
 

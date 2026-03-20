@@ -1,6 +1,7 @@
-import type { DailyRecord, TransferBreakdownEntry, CustomCategory } from '@/domain/models'
+import type { DailyRecord, TransferBreakdownEntry } from '@/domain/models/record'
+import type { CustomCategory } from '@/domain/models/storeTypes'
 import { CATEGORY_ORDER, CATEGORY_LABELS } from '@/domain/constants/categories'
-import type { CategoryType } from '@/domain/models'
+import type { CategoryType } from '@/domain/models/record'
 import {
   UNCATEGORIZED_CATEGORY_ID,
   PRESET_CATEGORY_DEFS,

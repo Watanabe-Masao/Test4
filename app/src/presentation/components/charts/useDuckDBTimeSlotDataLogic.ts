@@ -3,7 +3,7 @@
  *
  * R11準拠: hook から pure function を分離し、テスト可能にする。
  */
-import type { DateRange } from '@/domain/models'
+import type { DateRange } from '@/domain/models/calendar'
 import type { HourlyAggregationRow } from '@/application/hooks/useDuckDBQuery'
 import { findCoreTime, findTurnaroundHour } from './timeSlotUtils'
 import { formatPercent as toPct } from '@/domain/formatting'

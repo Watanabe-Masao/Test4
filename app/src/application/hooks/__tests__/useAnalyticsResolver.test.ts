@@ -6,7 +6,7 @@ import {
   resolveDuckDBOnlySource,
 } from '../useAnalyticsResolver'
 import type { SourceContext } from '../useAnalyticsResolver'
-import type { Store } from '@/domain/models'
+import type { Store } from '@/domain/models/record'
 
 // ── Helpers ──────────────────────────────────────────
 

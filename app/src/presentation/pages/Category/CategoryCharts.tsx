@@ -1,7 +1,7 @@
 import { memo, useState, useMemo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
-import { Chip } from '@/presentation/components/common'
+import { Chip } from '@/presentation/components/common/forms'
 import { calculateShare } from '@/domain/calculations/utils'
 import { EChart, type EChartsOption } from '@/presentation/components/charts/EChart'
 import {

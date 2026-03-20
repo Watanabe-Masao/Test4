@@ -1,4 +1,4 @@
-import type { StorageDataType } from '@/domain/models'
+import type { StorageDataType } from '@/domain/models/storeTypes'
 
 export interface MonthEntry {
   year: number

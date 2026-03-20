@@ -6,7 +6,7 @@
  */
 import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { ComparisonFrame, PrevYearScope } from '@/domain/models'
+import type { ComparisonFrame, PrevYearScope } from '@/domain/models/calendar'
 import {
   queryYoyCategoryComparison,
   type YoyDailyRow,

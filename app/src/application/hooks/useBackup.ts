@@ -1,16 +1,13 @@
 /**
  * バックアップフック
  *
- * infrastructure/storage/backupExporter.ts を Application 層にブリッジし、
+ * infrastructure/storage/backupAdapter.ts を Application 層にブリッジし、
  * バックアップの export / import / preview を UI に提供する。
  * v2: AppSettings を含むバックアップ + gzip 圧縮対応。
  */
 import { useState, useCallback } from 'react'
-import {
-  backupExporter,
-  type BackupMeta,
-  type BackupImportResult,
-} from '@/infrastructure/storage/backupExporter'
+import { backupAdapter } from '@/application/adapters/backupAdapter'
+import type { BackupMeta, BackupImportResult } from '@/application/ports/BackupPort'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import type { DataRepository } from '@/domain/repositories'
 
@@ -33,7 +30,7 @@ export function useBackup(repo: DataRepository | null): {
     setIsExporting(true)
     try {
       const appSettings = useSettingsStore.getState().settings
-      const blob = await backupExporter.exportBackup(repo, appSettings)
+      const blob = await backupAdapter.exportBackup(repo, appSettings)
       // ダウンロード（圧縮時は .json.gz 拡張子）
       const isGz = blob.type !== 'application/json'
       const ext = isGz ? '.json.gz' : '.json'
@@ -63,7 +60,7 @@ export function useBackup(repo: DataRepository | null): {
       }
       setIsImporting(true)
       try {
-        const result = await backupExporter.importBackup(file, repo, {
+        const result = await backupAdapter.importBackup(file, repo, {
           overwriteExisting: overwrite,
         })
         // v2: AppSettings が含まれていれば復元する
@@ -80,7 +77,7 @@ export function useBackup(repo: DataRepository | null): {
   )
 
   const previewBackup = useCallback(async (file: File): Promise<BackupMeta | null> => {
-    return backupExporter.readMeta(file)
+    return backupAdapter.readMeta(file)
   }, [])
 
   return {

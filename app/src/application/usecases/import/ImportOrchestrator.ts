@@ -3,7 +3,8 @@
  *
  * 単月処理は singleMonthImport.ts、複数月処理は multiMonthImport.ts に委譲。
  */
-import type { AppSettings, DataType, ImportedData, DiffResult } from '@/domain/models'
+import type { DiffResult } from '@/domain/models/analysis'
+import type { AppSettings, DataType, ImportedData } from '@/domain/models/storeTypes'
 import { processDroppedFiles, validateImportedData, extractRecordMonths } from './FileImportService'
 import type { ImportSummary, MonthPartitions, ProgressCallback } from './FileImportService'
 import type { DataRepository } from '@/domain/repositories'

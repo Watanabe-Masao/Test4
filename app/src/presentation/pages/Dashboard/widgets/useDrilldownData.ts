@@ -5,7 +5,7 @@
  * 導出値の計算ロジックを抽出し、UI は描画のみに専念させる。
  */
 import { useState, useMemo, useCallback } from 'react'
-import type { CategoryTimeSalesRecord } from '@/domain/models'
+import type { CategoryTimeSalesRecord } from '@/domain/models/record'
 import {
   filterByHierarchy,
   getHierarchyLevel,

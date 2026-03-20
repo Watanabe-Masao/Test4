@@ -4,7 +4,7 @@
  * MetricId から FORMULA_REGISTRY を参照し、FormulaDetail を解決する。
  * METRIC_DEFS の formulaRef フィールドをキーにレジストリを引く。
  */
-import type { MetricId, FormulaDetail } from '@/domain/models'
+import type { MetricId, FormulaDetail } from '@/domain/models/analysis'
 import { METRIC_DEFS } from '@/domain/constants/metricDefs'
 import { FORMULA_REGISTRY } from '@/domain/constants/formulaRegistry'
 

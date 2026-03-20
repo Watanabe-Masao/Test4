@@ -9,7 +9,7 @@
  * - 生データ (DepartmentKpiData) を直接UIに渡さない
  * - フィルタ・集約ロジックをアプリケーション層に集約
  */
-import type { DepartmentKpiRecord, DepartmentKpiData } from '@/domain/models'
+import type { DepartmentKpiRecord, DepartmentKpiData } from '@/domain/models/record'
 import {
   safeDivide,
   calculateAchievementRate,

@@ -1,13 +1,8 @@
 import { Fragment } from 'react'
-import {
-  Card,
-  CardTitle,
-  Chip,
-  ChipGroup,
-  KpiCard,
-  KpiGrid,
-  ChartErrorBoundary,
-} from '@/presentation/components/common'
+import { ChartErrorBoundary } from '@/presentation/components/common/feedback'
+import { Chip, ChipGroup } from '@/presentation/components/common/forms'
+import { Card, CardTitle } from '@/presentation/components/common/layout'
+import { KpiCard, KpiGrid } from '@/presentation/components/common/tables'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'

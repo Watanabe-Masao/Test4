@@ -17,8 +17,8 @@ import {
   createEmptyMonthPartitions,
   normalizeRecordStoreIds,
 } from '../ImportService'
-import { createEmptyImportedData } from '@/domain/models'
-import type { AppSettings, ImportedData } from '@/domain/models'
+import { createEmptyImportedData } from '@/domain/models/storeTypes'
+import type { AppSettings, ImportedData } from '@/domain/models/storeTypes'
 
 const DEFAULT_SETTINGS: AppSettings = {
   targetYear: 2026,

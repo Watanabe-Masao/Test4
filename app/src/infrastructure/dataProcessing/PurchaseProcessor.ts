@@ -1,8 +1,8 @@
 import { parseDateComponents, monthKey } from '../fileImport/dateParser'
 import { safeNumber } from '@/domain/calculations/utils'
-import type { PurchaseData, PurchaseDayEntry } from '@/domain/models'
+import type { PurchaseData, PurchaseDayEntry } from '@/domain/models/record'
 
-export type { PurchaseData } from '@/domain/models'
+export type { PurchaseData } from '@/domain/models/record'
 
 /** 既知の店舗IDセット */
 type StoreSet = ReadonlySet<string>

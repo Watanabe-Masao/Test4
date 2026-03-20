@@ -3,9 +3,10 @@ import { usePwaInstall } from '@/presentation/hooks/usePwaInstall'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useUiStore } from '@/application/stores/uiStore'
 import { calculationCache } from '@/application/services/calculationCache'
-import { useSettings } from '@/application/hooks'
-import { CUSTOM_CATEGORIES } from '@/domain/models'
-import type { CustomCategory, Store, StoreLocation } from '@/domain/models'
+import { useSettings } from '@/application/hooks/ui'
+import { CUSTOM_CATEGORIES } from '@/domain/models/storeTypes'
+import type { Store, StoreLocation } from '@/domain/models/record'
+import type { CustomCategory } from '@/domain/models/storeTypes'
 import { StoreLocationEditor } from './StoreLocationEditor'
 import {
   PRESET_CATEGORY_LABELS,
@@ -19,7 +20,7 @@ import { PrevYearMappingTab } from './PrevYearMappingTab'
 import { ImportHistoryTab } from './ImportHistoryTab'
 import { RawDataTab } from './RawDataTab'
 import { QueryProfilePanel } from '@/presentation/components/DevTools/QueryProfilePanel'
-import { Tab as CommonTab, TabBar as CommonTabBar } from '@/presentation/components/common'
+import { Tab as CommonTab, TabBar as CommonTabBar } from '@/presentation/components/common/layout'
 import {
   Section,
   SectionTitle,

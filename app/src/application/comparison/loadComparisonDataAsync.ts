@@ -12,7 +12,7 @@ import type {
   CategoryTimeSalesData,
   CategoryTimeSalesRecord,
   SpecialSalesData,
-} from '@/domain/models'
+} from '@/domain/models/record'
 import type { QueryMonth } from '@/domain/models/ComparisonScope'
 import type { LoadAction } from './comparisonLoadLogic'
 import { mergeAdjacentMonthRecords, adjacentMonth } from './adjacentMonthUtils'

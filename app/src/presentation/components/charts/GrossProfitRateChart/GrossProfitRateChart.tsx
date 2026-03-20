@@ -11,7 +11,7 @@ import { standardGrid, standardTooltip, categoryXAxis, valueYAxis } from '../bui
 import { toPct } from '../chartTheme'
 import { DualPeriodSlider } from '../DualPeriodSlider'
 import { useDualPeriodRange } from '../useDualPeriodRange'
-import type { DailyRecord } from '@/domain/models'
+import type { DailyRecord } from '@/domain/models/record'
 import { ChartCard } from '../ChartCard'
 import { chartFontSize } from '@/presentation/theme/tokens'
 import {

@@ -5,7 +5,8 @@
  */
 import { formatCurrency, formatPercent } from '@/domain/formatting'
 import { calculateAchievementRate, getEffectiveGrossProfitRate } from '@/domain/calculations/utils'
-import type { StoreResult, Store, DepartmentKpiRecord } from '@/domain/models'
+import type { Store, DepartmentKpiRecord } from '@/domain/models/record'
+import type { StoreResult } from '@/domain/models/storeTypes'
 import { fmtPct, fmtPtDiff } from './kpiTableUtils'
 
 /* ── 定数 ──────────────────────────────────────────── */

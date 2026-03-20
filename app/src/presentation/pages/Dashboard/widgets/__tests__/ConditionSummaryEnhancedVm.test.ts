@@ -17,7 +17,7 @@ import {
   type BuildYoYCardsInput,
 } from '../ConditionSummaryEnhanced.vm'
 import { makeStoreResult, makeEmptyPrevYear, makeDailyRecord } from './widgetTestHelpers'
-import type { PrevYearMonthlyKpi } from '@/application/hooks'
+import type { PrevYearMonthlyKpi } from '@/application/hooks/analytics'
 import { calculateMarkupRates } from '@/domain/calculations/markupRate'
 import { calculateDiscountRate } from '@/domain/calculations/estMethod'
 

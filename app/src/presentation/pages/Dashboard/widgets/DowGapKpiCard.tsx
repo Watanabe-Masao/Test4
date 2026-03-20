@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
 import { palette } from '@/presentation/theme/tokens'
-import { KpiCard } from '@/presentation/components/common'
+import { KpiCard } from '@/presentation/components/common/tables'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
 import type { WidgetContext } from './types'

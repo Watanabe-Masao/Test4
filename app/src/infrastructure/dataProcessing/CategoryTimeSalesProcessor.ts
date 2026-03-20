@@ -1,8 +1,12 @@
 import { parseDate } from '../fileImport/dateParser'
 import { safeNumber } from '@/domain/calculations/utils'
 import { detectDaysInTargetMonth, resolveDay } from './overflowDay'
-import type { CategoryTimeSalesData, CategoryTimeSalesRecord, TimeSlotEntry } from '@/domain/models'
-import { mergeCategoryTimeSalesData } from '@/domain/models'
+import type {
+  CategoryTimeSalesData,
+  CategoryTimeSalesRecord,
+  TimeSlotEntry,
+} from '@/domain/models/record'
+import { mergeCategoryTimeSalesData } from '@/domain/models/record'
 
 // Re-export from domain for backward compatibility
 export { mergeCategoryTimeSalesData }

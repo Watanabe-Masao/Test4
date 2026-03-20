@@ -4,14 +4,13 @@
  * ImportService.ts から分割。型定義・パーティション操作・年月検出を担当。
  */
 import type {
-  DataType,
-  ImportedData,
   PurchaseData,
   SpecialSalesData,
   TransferData,
   CostInclusionData,
   BudgetData,
-} from '@/domain/models'
+} from '@/domain/models/record'
+import type { DataType, ImportedData } from '@/domain/models/storeTypes'
 
 // ─── 型定義 ──────────────────────────────────────────
 

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { buildCausalSteps, storeResultToCausalPrev, type CausalChainPrevInput } from './causalChain'
-import type { StoreResult, DiscountEntry, DiscountType } from '@/domain/models'
+import type { DiscountEntry, DiscountType } from '@/domain/models/record'
+import type { StoreResult } from '@/domain/models/storeTypes'
 
 /** 型安全な DiscountEntry ファクトリ */
 function makeDiscountEntry(type: DiscountType, label: string, amount: number): DiscountEntry {

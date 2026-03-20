@@ -6,7 +6,8 @@
  * ドリルダウンで店舗別・日別の内訳を確認できる。
  */
 import { memo } from 'react'
-import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
+import { ChartSkeleton } from '@/presentation/components/common/feedback'
+import { EmptyState } from '@/presentation/components/common/layout'
 import { ChartCard } from './ChartCard'
 import {
   Controls,

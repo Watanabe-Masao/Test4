@@ -9,7 +9,7 @@ import { useDataStore } from '@/application/stores/dataStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { usePeriodSelectionStore } from '@/application/stores/periodSelectionStore'
 import { invalidateAfterStateChange } from './stateInvalidation'
-import { createEmptyImportedData } from '@/domain/models'
+import { createEmptyImportedData } from '@/domain/models/storeTypes'
 
 /** Step 1: 現在のデータを IndexedDB に保存 */
 async function saveCurrentData(repo: DataRepository): Promise<void> {

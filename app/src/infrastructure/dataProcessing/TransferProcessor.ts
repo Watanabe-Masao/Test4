@@ -1,8 +1,8 @@
 import { parseDateComponents, monthKey } from '../fileImport/dateParser'
 import { safeNumber } from '@/domain/calculations/utils'
-import type { TransferRecord, TransferData, TransferDayEntry } from '@/domain/models'
+import type { TransferRecord, TransferData, TransferDayEntry } from '@/domain/models/record'
 
-export type { TransferRecord, TransferData } from '@/domain/models'
+export type { TransferRecord, TransferData } from '@/domain/models/record'
 
 /**
  * 店間入データを処理する（年月パーティション対応）

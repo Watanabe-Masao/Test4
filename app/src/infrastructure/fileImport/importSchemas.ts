@@ -8,7 +8,7 @@
  * FILE_TYPE_REGISTRY に一元管理されている。
  */
 import { z } from 'zod'
-import type { DataType } from '@/domain/models'
+import type { DataType } from '@/domain/models/storeTypes'
 import { getStructuralRules } from './FileTypeDetector'
 
 /** 生の行データ: unknown[][] */

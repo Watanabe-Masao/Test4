@@ -10,7 +10,7 @@
 import { useState, useCallback } from 'react'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useUiStore } from '@/application/stores/uiStore'
-import type { AppSettings } from '@/domain/models'
+import type { AppSettings } from '@/domain/models/storeTypes'
 
 /** 設定コードのプレフィックス（バリデーション用） */
 const SETTINGS_CODE_PREFIX = 'SHIIRE_SETTINGS:'

@@ -5,7 +5,7 @@
  * presentation 層が infrastructure 層に直接依存しないためのファサード。
  */
 import { useCallback } from 'react'
-import type { StorageDataType } from '@/domain/models'
+import type { StorageDataType } from '@/domain/models/storeTypes'
 import { useRepository } from '../context/useRepository'
 
 export interface StoredMonthEntry {

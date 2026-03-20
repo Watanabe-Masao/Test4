@@ -9,13 +9,9 @@ import type {
   PersistedSessionMeta,
   MonthDataSummaryItem,
 } from '@/domain/repositories'
-import type {
-  ImportedData,
-  DataType,
-  StorageDataType,
-  ImportHistoryEntry,
-  StoreDaySummaryCache,
-} from '@/domain/models'
+import type { ImportHistoryEntry } from '@/domain/models/analysis'
+import type { StoreDaySummaryCache } from '@/domain/models/record'
+import type { ImportedData, DataType, StorageDataType } from '@/domain/models/storeTypes'
 import {
   saveImportedData,
   loadImportedData,

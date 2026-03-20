@@ -5,7 +5,7 @@
  * 既存の correlation.ts の純粋関数を再利用。
  */
 import { useMemo } from 'react'
-import type { DailyWeatherSummary } from '@/domain/models'
+import type { DailyWeatherSummary } from '@/domain/models/record'
 import {
   pearsonCorrelation,
   correlationMatrix,

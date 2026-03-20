@@ -6,7 +6,7 @@
  *
  * @see https://msearch.gsi.go.jp/address-search/AddressSearch
  */
-import type { GeocodingResult } from '@/domain/models'
+import type { GeocodingResult } from '@/domain/models/record'
 
 const GSI_API_BASE = 'https://msearch.gsi.go.jp/address-search/AddressSearch'
 const GSI_REVERSE_API_BASE = 'https://mreversegeocoder.gsi.go.jp/reverse-geocoder/LonLatToAddress'

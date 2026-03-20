@@ -1,9 +1,9 @@
 /**
  * IndexedDB シリアライズ / デシリアライズ / バリデーション
  */
-import type { DataOrigin, DataEnvelope } from '@/domain/models'
-import type { BudgetData } from '@/domain/models'
-import { isEnvelope } from '@/domain/models'
+import type { DataOrigin, DataEnvelope } from '@/domain/models/storeTypes'
+import type { BudgetData } from '@/domain/models/record'
+import { isEnvelope } from '@/domain/models/storeTypes'
 import { hashData } from '@/domain/utilities/hash'
 import { STORE_DAY_FIELDS } from './keys'
 

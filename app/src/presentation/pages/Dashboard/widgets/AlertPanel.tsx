@@ -10,7 +10,7 @@ import { evaluateAlerts, DEFAULT_ALERT_RULES } from '@/application/hooks/analyti
 import { formatPercent } from '@/domain/formatting'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import type { Alert, AlertSeverity } from '@/application/hooks/analytics'
-import type { MetricId } from '@/domain/models'
+import type { MetricId } from '@/domain/models/analysis'
 import type { WidgetContext } from './types'
 import {
   Wrapper,

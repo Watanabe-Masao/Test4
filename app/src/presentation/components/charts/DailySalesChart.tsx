@@ -13,7 +13,7 @@ import { DowPresetSelector } from './DowPresetSelector'
 import { useDualPeriodRange } from './useDualPeriodRange'
 import { useDailySalesData } from './useDailySalesData'
 import { DailySalesChartBody, type ViewType } from './DailySalesChartBody'
-import type { DailyRecord } from '@/domain/models'
+import type { DailyRecord } from '@/domain/models/record'
 
 export type DailyChartMode = 'sales' | 'discount' | 'all'
 

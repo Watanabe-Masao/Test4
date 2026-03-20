@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
-import { useCalculation, useStoreSelection, useBudgetChartData } from '@/application/hooks'
+import { useCalculation, useBudgetChartData } from '@/application/hooks/calculation'
+import { useStoreSelection } from '@/application/hooks/ui'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { usePeriodSelectionStore } from '@/application/stores/periodSelectionStore'
 import { useComparisonModule } from '@/application/hooks/useComparisonModule'

@@ -6,7 +6,7 @@
  * することを防ぎ、全てのレコード走査をこのフック経由に集約する。
  */
 import { useMemo } from 'react'
-import type { ImportedData, DataType } from '@/domain/models'
+import type { ImportedData, DataType } from '@/domain/models/storeTypes'
 import {
   computeHasAnyData,
   computeLoadedTypes,

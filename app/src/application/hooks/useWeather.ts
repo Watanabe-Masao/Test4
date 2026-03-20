@@ -7,7 +7,7 @@
  *   ETRN → DailyWeatherSummary（月単位で1リクエスト）
  */
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
-import type { DailyWeatherSummary } from '@/domain/models'
+import type { DailyWeatherSummary } from '@/domain/models/record'
 import { loadEtrnDailyForStore } from '../usecases/weather/WeatherLoadService'
 import { useSettingsStore } from '../stores/settingsStore'
 

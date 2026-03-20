@@ -1,6 +1,6 @@
 import { parseDateComponents, monthKey } from '../fileImport/dateParser'
 import { safeNumber } from '@/domain/calculations/utils'
-import type { BudgetData } from '@/domain/models'
+import type { BudgetData } from '@/domain/models/record'
 
 /**
  * 売上予算データを処理する（年月パーティション対応）

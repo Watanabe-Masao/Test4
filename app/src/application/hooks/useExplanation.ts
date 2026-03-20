@@ -16,7 +16,7 @@ import {
   generateExplanations,
   generatePrevYearBudgetExplanations,
 } from '@/application/usecases/explanation'
-import type { StoreExplanations, MetricId, Explanation } from '@/domain/models'
+import type { StoreExplanations, MetricId, Explanation } from '@/domain/models/analysis'
 
 /**
  * 選択中の店舗に対する全指標の Explanation を返す

@@ -6,7 +6,7 @@
  * ドラッグ&ドロップで並び替えが可能。
  */
 import { useState, useCallback, useRef } from 'react'
-import { Button } from '@/presentation/components/common'
+import { Button } from '@/presentation/components/common/layout'
 import type { WidgetDef } from './types'
 import {
   PanelOverlay,

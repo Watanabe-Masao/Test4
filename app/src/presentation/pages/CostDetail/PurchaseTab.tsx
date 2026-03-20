@@ -1,5 +1,6 @@
 import { Fragment } from 'react'
-import { Card, CardTitle, ChartErrorBoundary } from '@/presentation/components/common'
+import { ChartErrorBoundary } from '@/presentation/components/common/feedback'
+import { Card, CardTitle } from '@/presentation/components/common/layout'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import {
   Section,

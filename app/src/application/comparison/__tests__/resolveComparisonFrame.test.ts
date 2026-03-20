@@ -4,7 +4,7 @@ import {
   calcSameDowOffset,
   buildPrevYearScope,
 } from '../resolveComparisonFrame'
-import type { DateRange, ComparisonFrame } from '@/domain/models'
+import type { DateRange, ComparisonFrame } from '@/domain/models/calendar'
 
 describe('calcSameDowOffset', () => {
   it('同じ月初曜日なら offset=0', () => {

@@ -5,7 +5,7 @@
  * ウォーターフォールデータ・移動平均の算出を担う。
  */
 import { useMemo } from 'react'
-import type { DailyRecord } from '@/domain/models'
+import type { DailyRecord } from '@/domain/models/record'
 import {
   buildBaseDayItems,
   buildWaterfallData,

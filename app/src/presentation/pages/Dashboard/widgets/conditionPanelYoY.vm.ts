@@ -1,7 +1,8 @@
 /**
  * 前年比（売上・客数）の ViewModel
  */
-import type { StoreResult, Store } from '@/domain/models'
+import type { Store } from '@/domain/models/record'
+import type { StoreResult } from '@/domain/models/storeTypes'
 import { formatPercent } from '@/domain/formatting'
 import type { CurrencyFormatter } from '@/presentation/components/charts/chartTheme'
 import { calculateYoYRatio } from '@/domain/calculations/utils'

@@ -4,7 +4,7 @@ import type {
   SupplierTotal,
   DailyRecord,
   DiscountEntry,
-} from '@/domain/models'
+} from '@/domain/models/record'
 
 /** 日別ループで蓄積される月間集計 */
 export interface MonthlyAccumulator {

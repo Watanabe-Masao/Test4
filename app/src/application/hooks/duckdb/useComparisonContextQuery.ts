@@ -9,7 +9,7 @@
  */
 import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { DateRange } from '@/domain/models'
+import type { DateRange } from '@/domain/models/calendar'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import { dateRangeToKeys } from '@/domain/models/CalendarDate'
 import { queryStoreDaySummary } from '@/infrastructure/duckdb/queries/storeDaySummary'

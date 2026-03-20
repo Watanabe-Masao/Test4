@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import { useState } from 'react'
-import { DiffConfirmModal, Button } from '@/presentation/components/common'
-import type { DiffResult } from '@/domain/models'
+import { DiffConfirmModal } from '@/presentation/components/common/feedback'
+import { Button } from '@/presentation/components/common/layout'
+import type { DiffResult } from '@/domain/models/analysis'
 
 const meta: Meta<typeof DiffConfirmModal> = {
   title: 'Common/DiffConfirmModal',

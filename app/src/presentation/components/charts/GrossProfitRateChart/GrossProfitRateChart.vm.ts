@@ -4,7 +4,7 @@
  * WriteModel（StoreResult.daily）→ 描画データ変換。
  * Recharts に渡すデータ構造と閾値判定ロジックを分離する。
  */
-import type { DailyRecord } from '@/domain/models'
+import type { DailyRecord } from '@/domain/models/record'
 import { calculateGrossProfitRate } from '@/domain/calculations/utils'
 
 // ─── 出力型 ──────────────────────────────────────────

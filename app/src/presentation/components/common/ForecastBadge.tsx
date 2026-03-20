@@ -7,9 +7,9 @@
  */
 import { memo } from 'react'
 import styled from 'styled-components'
-import type { DailyForecast } from '@/domain/models'
+import type { DailyForecast } from '@/domain/models/record'
 import { mapJmaWeatherCodeToCategory } from '@/domain/calculations/forecastWeatherMapping'
-import type { WeatherCategory } from '@/domain/models'
+import type { WeatherCategory } from '@/domain/models/record'
 
 interface Props {
   readonly forecast: DailyForecast

@@ -6,7 +6,8 @@
  * - generateTextSummary: 店舗全体の主要指標サマリ
  * - generateMetricSummary: 個別指標の一行サマリ
  */
-import type { StoreResult, Explanation } from '@/domain/models'
+import type { Explanation } from '@/domain/models/analysis'
+import type { StoreResult } from '@/domain/models/storeTypes'
 import { getEffectiveGrossProfitRate, calculateGrowthRate } from '@/domain/calculations/utils'
 import { formatCurrency, formatPercent } from '@/domain/formatting'
 

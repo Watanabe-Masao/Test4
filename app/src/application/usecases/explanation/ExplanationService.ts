@@ -11,14 +11,12 @@
  * - 式の文字列は人間可読な日本語表記
  */
 import type {
-  StoreResult,
-  ImportedData,
-  AppSettings,
   MetricId,
   Explanation,
   BreakdownDetail,
   StoreExplanations,
-} from '@/domain/models'
+} from '@/domain/models/analysis'
+import type { StoreResult, ImportedData, AppSettings } from '@/domain/models/storeTypes'
 import { resolveFormulaDetail } from './formulaResolver'
 import { registerBudgetExplanations } from './budgetExplanations'
 import { registerSalesExplanations } from './salesExplanations'

@@ -1,14 +1,14 @@
 import { useState, useCallback, useMemo } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
-import { aggregateAllStores, indexByStoreDay } from '@/domain/models'
+import { aggregateAllStores, indexByStoreDay } from '@/domain/models/record'
 import type {
   PurchaseDayEntry,
   TransferDayEntry,
   SpecialSalesDayEntry,
   CostInclusionRecord,
   StoreDayIndex,
-} from '@/domain/models'
+} from '@/domain/models/record'
 import { Section, SectionTitle, HelpText, EmptyState } from './AdminShared'
 import {
   RawTableWrapper,

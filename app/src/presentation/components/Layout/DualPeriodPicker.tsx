@@ -22,8 +22,8 @@
 import { useCallback, useMemo, useState } from 'react'
 import { DayPicker } from 'react-day-picker'
 import { ja } from 'date-fns/locale'
-import type { DateRange as AppDateRange } from '@/domain/models'
-import { dateRangeDays, toDateKey } from '@/domain/models'
+import type { DateRange as AppDateRange } from '@/domain/models/calendar'
+import { dateRangeDays, toDateKey } from '@/domain/models/calendar'
 import type { DateRange as RdpDateRange } from 'react-day-picker'
 import type { ComparisonPreset } from '@/domain/models/PeriodSelection'
 import {

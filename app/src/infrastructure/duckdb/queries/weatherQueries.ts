@@ -6,7 +6,7 @@
  * 2回目以降のアクセスは DuckDB から直接読み出す。
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { HourlyWeatherRecord } from '@/domain/models'
+import type { HourlyWeatherRecord } from '@/domain/models/record'
 import { queryToObjects, buildWhereClause, storeIdFilter } from '../queryRunner'
 import { queryScalar } from '../queryRunner'
 

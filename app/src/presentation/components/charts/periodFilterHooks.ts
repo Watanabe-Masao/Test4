@@ -9,7 +9,7 @@
  * @see divisorRules.test.ts — アーキテクチャガードテスト
  */
 import { useState, useMemo, useCallback } from 'react'
-import type { CategoryTimeSalesRecord } from '@/domain/models'
+import type { CategoryTimeSalesRecord } from '@/domain/models/record'
 import type { AggregateMode } from './periodFilterUtils'
 
 export type { AggregateMode } from './periodFilterUtils'

@@ -22,7 +22,7 @@ import {
 import { decompose2, decompose3, decompose5 } from '@/application/hooks/calculation'
 import { CategoryFactorBreakdown } from './CategoryFactorBreakdown'
 import { decomposePriceMix, recordsToCategoryQtyAmt } from './categoryFactorUtils'
-import type { CategoryTimeSalesRecord } from '@/domain/models'
+import type { CategoryTimeSalesRecord } from '@/domain/models/record'
 import { DetailSectionTitle } from '../DashboardPage.styles'
 import { sc } from '@/presentation/theme/semanticColors'
 import {

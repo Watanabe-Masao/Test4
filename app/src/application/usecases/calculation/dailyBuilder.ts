@@ -3,16 +3,16 @@ import type {
   CategoryType,
   SupplierTotal,
   DailyRecord,
-  ImportedData,
-} from '@/domain/models'
+} from '@/domain/models/record'
+import type { ImportedData } from '@/domain/models/storeTypes'
 import {
   ZERO_COST_PRICE_PAIR,
   addCostPricePairs,
   ZERO_COST_INCLUSION_DAILY,
   getDailyTotalCost,
   indexByStoreDay,
-} from '@/domain/models'
-import { aggregateForStore, ZERO_DISCOUNT_ENTRIES } from '@/domain/models'
+} from '@/domain/models/record'
+import { aggregateForStore, ZERO_DISCOUNT_ENTRIES } from '@/domain/models/record'
 import { calculateCoreSales } from '@/application/services/grossProfitBridge'
 import type { MonthlyAccumulator } from './types'
 import {

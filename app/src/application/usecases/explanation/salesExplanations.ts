@@ -5,14 +5,13 @@
  * register パターンで map に Explanation を登録する。
  */
 import type {
-  StoreResult,
-  ImportedData,
   MetricId,
   Explanation,
   BreakdownDetail,
   BreakdownEntry,
-} from '@/domain/models'
-import { aggregateForStore, getDailyTotalCost } from '@/domain/models'
+} from '@/domain/models/analysis'
+import type { StoreResult, ImportedData } from '@/domain/models/storeTypes'
+import { aggregateForStore, getDailyTotalCost } from '@/domain/models/record'
 import {
   inp,
   dailyBreakdown,

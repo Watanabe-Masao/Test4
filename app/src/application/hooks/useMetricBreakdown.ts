@@ -8,10 +8,11 @@
  * @see MetricBreakdownPanel.styles.ts — スタイル定義
  */
 import { useState, useCallback, useMemo } from 'react'
-import type { Explanation, MetricId, Store } from '@/domain/models'
+import type { Explanation, MetricId } from '@/domain/models/analysis'
+import type { Store } from '@/domain/models/record'
 import { useExport } from './useExport'
 import { generateMetricSummary } from '@/application/usecases/explanation/ExplanationService'
-import type { FormulaDetail } from '@/domain/models'
+import type { FormulaDetail } from '@/domain/models/analysis'
 import {
   buildFormattedInputs,
   buildReverseLinks,

@@ -5,7 +5,7 @@
  * DuckDB は生データ取得のみ。統計計算は rawAggregation.ts で実行。
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { DateRange } from '@/domain/models'
+import type { DateRange } from '@/domain/models/calendar'
 import {
   type DailyFeatureRow,
   type HourlyProfileRow,

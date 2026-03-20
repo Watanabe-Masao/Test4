@@ -1,8 +1,12 @@
 import { parseDateComponents, monthKey } from '../fileImport/dateParser'
 import { safeNumber } from '@/domain/calculations/utils'
-import type { CostInclusionItem, CostInclusionData, CostInclusionRecord } from '@/domain/models'
+import type {
+  CostInclusionItem,
+  CostInclusionData,
+  CostInclusionRecord,
+} from '@/domain/models/record'
 
-export type { CostInclusionData } from '@/domain/models'
+export type { CostInclusionData } from '@/domain/models/record'
 
 /** 勘定コードフィルタ */
 const TARGET_ACCOUNT_CODE = '81257'

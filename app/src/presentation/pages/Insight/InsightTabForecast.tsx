@@ -1,13 +1,9 @@
-import {
-  Card,
-  CardTitle,
-  KpiCard,
-  KpiGrid,
-  Chip,
-  ChipGroup,
-  ChartErrorBoundary,
-} from '@/presentation/components/common'
-import type { MetricId, StoreResult } from '@/domain/models'
+import { ChartErrorBoundary } from '@/presentation/components/common/feedback'
+import { Chip, ChipGroup } from '@/presentation/components/common/forms'
+import { Card, CardTitle } from '@/presentation/components/common/layout'
+import { KpiCard, KpiGrid } from '@/presentation/components/common/tables'
+import type { MetricId } from '@/domain/models/analysis'
+import type { StoreResult } from '@/domain/models/storeTypes'
 import { CurrencyUnitToggle } from '@/presentation/components/charts'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { sc } from '@/presentation/theme/semanticColors'

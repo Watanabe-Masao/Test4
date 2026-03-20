@@ -1,5 +1,5 @@
-import type { DailyRecord } from '@/domain/models'
-import { getDailyTotalCost } from '@/domain/models'
+import type { DailyRecord } from '@/domain/models/record'
+import { getDailyTotalCost } from '@/domain/models/record'
 import { safeDivide } from './utils'
 
 export interface InventoryPoint {

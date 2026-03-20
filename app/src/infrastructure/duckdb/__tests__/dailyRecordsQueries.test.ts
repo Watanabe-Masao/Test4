@@ -11,7 +11,7 @@ import {
   queryPrevYearDailyRecords,
   queryAggregatedDailyRecords,
 } from '@/infrastructure/duckdb/queries/dailyRecords'
-import type { DateRange } from '@/domain/models'
+import type { DateRange } from '@/domain/models/calendar'
 
 function makeMockConn(returnRows: Record<string, unknown>[] = []) {
   const capturedSql: string[] = []

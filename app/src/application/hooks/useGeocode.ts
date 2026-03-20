@@ -5,8 +5,8 @@
  * presentation 層から infrastructure への直接依存を回避するためのブリッジ。
  */
 import { useState, useCallback } from 'react'
-import type { GeocodingResult } from '@/domain/models'
-import { searchLocation } from '@/infrastructure/weather/geocodingClient'
+import type { GeocodingResult } from '@/domain/models/record'
+import { weatherAdapter } from '@/application/adapters/weatherAdapter'
 
 export interface UseGeocodeResult {
   readonly candidates: readonly GeocodingResult[]
@@ -23,7 +23,7 @@ export function useGeocode(): UseGeocodeResult {
     if (!query.trim()) return
     setIsSearching(true)
     try {
-      const results = await searchLocation(query.trim())
+      const results = await weatherAdapter.searchLocation(query.trim())
       setCandidates(results)
     } catch {
       setCandidates([])

@@ -9,7 +9,7 @@ import { DualPeriodSlider } from './DualPeriodSlider'
 import { useDualPeriodRange } from './useDualPeriodRange'
 import { CHART_GUIDES } from './chartGuides'
 import { ChartCard } from './ChartCard'
-import type { DailyRecord } from '@/domain/models'
+import type { DailyRecord } from '@/domain/models/record'
 import {
   safeDivide,
   calculateTransactionValue,

@@ -4,7 +4,7 @@
  * useDailySalesData.ts から分離した純粋関数。
  * React に依存せず、単体テスト可能。
  */
-import type { DailyRecord } from '@/domain/models'
+import type { DailyRecord } from '@/domain/models/record'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import {
   safeDivide,

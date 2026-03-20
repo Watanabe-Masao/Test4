@@ -9,7 +9,7 @@ import { useStoreSelection } from '../useStoreSelection'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useUiStore } from '@/application/stores/uiStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
-import { createEmptyImportedData } from '@/domain/models'
+import { createEmptyImportedData } from '@/domain/models/storeTypes'
 
 // ── Setup ──────────────────────────────────────────────
 

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import { useState } from 'react'
-import { TabBar, Tab } from '@/presentation/components/common'
+import { TabBar, Tab } from '@/presentation/components/common/layout'
 
 const meta: Meta<typeof TabBar> = {
   title: 'Common/TabBar',

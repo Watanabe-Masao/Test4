@@ -8,7 +8,7 @@ import { memo } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
 import { formatPercent } from '@/domain/formatting'
 import { calculateTransactionValue } from '@/domain/calculations/utils'
-import type { DailyWeatherSummary } from '@/domain/models'
+import type { DailyWeatherSummary } from '@/domain/models/record'
 import type { CurrencyFormatter } from '@/presentation/components/charts/chartTheme'
 import {
   CalPreview,

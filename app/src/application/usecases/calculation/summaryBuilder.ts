@@ -13,13 +13,17 @@
  */
 
 import type {
-  ImportedData,
   StoreDaySummary,
   StoreDaySummaryIndex,
   StoreDaySummaryCache,
-} from '@/domain/models'
-import { ZERO_COST_PRICE_PAIR, ZERO_COST_INCLUSION_DAILY, indexByStoreDay } from '@/domain/models'
-import { aggregateForStore, ZERO_DISCOUNT_ENTRIES } from '@/domain/models'
+} from '@/domain/models/record'
+import type { ImportedData } from '@/domain/models/storeTypes'
+import {
+  ZERO_COST_PRICE_PAIR,
+  ZERO_COST_INCLUSION_DAILY,
+  indexByStoreDay,
+} from '@/domain/models/record'
+import { aggregateForStore, ZERO_DISCOUNT_ENTRIES } from '@/domain/models/record'
 import { calculateCoreSales } from '@/application/services/grossProfitBridge'
 import { hashData } from '@/domain/utilities/hash'
 

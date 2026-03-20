@@ -9,7 +9,8 @@
  * @see MetricBreakdownPanel.styles.ts — スタイル定義
  */
 import React from 'react'
-import type { Explanation, MetricId, Store } from '@/domain/models'
+import type { Explanation, MetricId } from '@/domain/models/analysis'
+import type { Store } from '@/domain/models/record'
 import { useMetricBreakdown } from '@/application/hooks/useMetricBreakdown'
 import {
   Overlay,

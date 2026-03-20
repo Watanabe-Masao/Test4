@@ -10,7 +10,7 @@ import {
   DataTable,
   DataTh,
   DataTd,
-} from '@/presentation/components/common'
+} from '@/presentation/components/common/tables'
 
 export const ScrollWrapper = styled.div`
   overflow-x: auto;

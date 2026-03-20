@@ -7,7 +7,7 @@
  * 現時点では FileImportService が infrastructure のパーサーを使用しているが、
  * 将来的にはこの Port を通じて DI 可能にする。
  */
-import type { AppSettings, DataType, ImportedData } from '@/domain/models'
+import type { AppSettings, DataType, ImportedData } from '@/domain/models/storeTypes'
 
 /** ファイルパース結果 */
 export interface ParseResult {

@@ -3,8 +3,8 @@
  */
 import { useState, useEffect, useRef } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import { dateRangeToKeys } from '@/domain/models'
-import type { DateRange } from '@/domain/models'
+import { dateRangeToKeys } from '@/domain/models/calendar'
+import type { DateRange } from '@/domain/models/calendar'
 
 // ── 型定義 ──
 

@@ -4,7 +4,8 @@
  * SHA-256 チェックサム計算、gzip 圧縮/展開、JSON → Map 復元など、
  * バックアップファイルのフォーマット処理を担当する純粋ユーティリティ。
  */
-import type { BudgetData, ImportedData } from '@/domain/models'
+import type { BudgetData } from '@/domain/models/record'
+import type { ImportedData } from '@/domain/models/storeTypes'
 import { budgetFromSerializable } from './internal/serialization'
 
 // ─── JSON → Map 復元ヘルパー ─────────────────────────────

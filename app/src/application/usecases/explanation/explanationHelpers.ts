@@ -11,8 +11,8 @@ import type {
   BreakdownEntry,
   BreakdownDetail,
   MetricId,
-  DailyRecord,
-} from '@/domain/models'
+} from '@/domain/models/analysis'
+import type { DailyRecord } from '@/domain/models/record'
 
 /** ExplanationInput を簡潔に構築する */
 export function inp(

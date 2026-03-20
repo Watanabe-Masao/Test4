@@ -6,13 +6,13 @@
 import { describe, it, expect } from 'vitest'
 import { aggregateStoreResults } from '@/application/usecases/calculation/aggregateResults'
 import type {
-  StoreResult,
   DailyRecord,
   CategoryType,
   SupplierTotal,
   TransferDetails,
-} from '@/domain/models'
-import { ZERO_COST_PRICE_PAIR, ZERO_DISCOUNT_ENTRIES } from '@/domain/models'
+} from '@/domain/models/record'
+import type { StoreResult } from '@/domain/models/storeTypes'
+import { ZERO_COST_PRICE_PAIR, ZERO_DISCOUNT_ENTRIES } from '@/domain/models/record'
 
 /** 最小限の DailyRecord を生成 */
 function makeDailyRecord(day: number, overrides: Partial<DailyRecord> = {}): DailyRecord {

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { AppSettings } from '@/domain/models'
+import type { AppSettings } from '@/domain/models/storeTypes'
 import {
   SidebarSection,
   SectionLabel,

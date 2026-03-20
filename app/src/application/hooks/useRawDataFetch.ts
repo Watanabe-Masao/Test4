@@ -31,7 +31,7 @@ import {
   queryCategoryTimeRecords,
   type CtsFilterParams,
 } from '@/infrastructure/duckdb/queries/categoryTimeSales'
-import type { CategoryTimeSalesRecord } from '@/domain/models'
+import type { CategoryTimeSalesRecord } from '@/domain/models/record'
 
 // ─── 内部ヘルパー ─────────────────────────────────────
 

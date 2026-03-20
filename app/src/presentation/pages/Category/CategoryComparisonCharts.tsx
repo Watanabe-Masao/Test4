@@ -1,7 +1,7 @@
 import { memo, useMemo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
-import type { StoreResult } from '@/domain/models'
+import type { StoreResult } from '@/domain/models/storeTypes'
 import { calculateMarkupRate } from '@/domain/calculations/utils'
 import { CATEGORY_LABELS, CATEGORY_ORDER } from '@/domain/constants/categories'
 import { STORE_COLORS } from '@/presentation/components/charts/chartTheme'

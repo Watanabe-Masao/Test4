@@ -11,8 +11,8 @@
  * - 出力は PrevYearData / PrevYearMonthlyKpi と型互換
  */
 import type { AlignmentEntry } from '@/domain/models/ComparisonScope'
-import type { DiscountEntry } from '@/domain/models'
-import { addDiscountEntries, ZERO_DISCOUNT_ENTRIES } from '@/domain/models'
+import type { DiscountEntry } from '@/domain/models/record'
+import { addDiscountEntries, ZERO_DISCOUNT_ENTRIES } from '@/domain/models/record'
 import { safeDivide, calculateTransactionValue } from '@/domain/calculations/utils'
 import type {
   PrevYearDailyEntry,

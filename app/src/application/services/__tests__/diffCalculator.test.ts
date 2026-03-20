@@ -1,14 +1,10 @@
 import { describe, it, expect } from 'vitest'
 import { calculateDiff } from '../diffCalculator'
-import type { DiffResult } from '@/domain/models'
-import { createEmptyImportedData } from '@/domain/models'
-import type {
-  ImportedData,
-  CategoryTimeSalesRecord,
-  ClassifiedSalesRecord,
-  FieldChange,
-  DataTypeDiff,
-} from '@/domain/models'
+import type { DiffResult } from '@/domain/models/analysis'
+import { createEmptyImportedData } from '@/domain/models/storeTypes'
+import type { FieldChange, DataTypeDiff } from '@/domain/models/analysis'
+import type { CategoryTimeSalesRecord, ClassifiedSalesRecord } from '@/domain/models/record'
+import type { ImportedData } from '@/domain/models/storeTypes'
 
 // ─── ヘルパー関数 ────────────────────────────────────────
 

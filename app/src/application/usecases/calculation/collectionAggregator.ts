@@ -9,10 +9,10 @@ import type {
   CategoryType,
   SupplierTotal,
   DailyRecord,
-  StoreResult,
   TransferDetails,
-} from '@/domain/models'
-import { ZERO_COST_PRICE_PAIR, addCostPricePairs } from '@/domain/models'
+} from '@/domain/models/record'
+import type { StoreResult } from '@/domain/models/storeTypes'
+import { ZERO_COST_PRICE_PAIR, addCostPricePairs } from '@/domain/models/record'
 import {
   safeDivide,
   calculateMarkupRate,

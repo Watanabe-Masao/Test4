@@ -6,7 +6,8 @@
  */
 import { useState, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useCalculation, useStoreSelection, useMonthSwitcher } from '@/application/hooks'
+import { useCalculation } from '@/application/hooks/calculation'
+import { useStoreSelection, useMonthSwitcher } from '@/application/hooks/ui'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { usePeriodSelectionStore } from '@/application/stores/periodSelectionStore'
 import { useComparisonModule } from '@/application/hooks/useComparisonModule'

@@ -2,7 +2,8 @@ import { useDataStore } from '@/application/stores/dataStore'
 import { useUiStore } from '@/application/stores/uiStore'
 import { calculationCache } from '@/application/services/calculationCache'
 import { getDaysInMonth } from '@/domain/constants/defaults'
-import type { Store, InventoryConfig, AppSettings } from '@/domain/models'
+import type { Store, InventoryConfig } from '@/domain/models/record'
+import type { AppSettings } from '@/domain/models/storeTypes'
 import { BlurCommitInput } from '@/presentation/components/BlurCommitInput'
 import {
   SidebarSection,

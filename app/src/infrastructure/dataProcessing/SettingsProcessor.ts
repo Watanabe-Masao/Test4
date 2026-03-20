@@ -1,5 +1,5 @@
 import { safeNumber } from '@/domain/calculations/utils'
-import type { InventoryConfig } from '@/domain/models'
+import type { InventoryConfig } from '@/domain/models/record'
 
 /** セルが数値として有効かどうか判定（空欄・null と 0 を区別） */
 function isNumericCell(value: unknown): boolean {

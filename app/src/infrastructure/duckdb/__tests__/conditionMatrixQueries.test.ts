@@ -6,7 +6,7 @@
  */
 import { describe, it, expect, vi } from 'vitest'
 import { queryConditionMatrix } from '@/infrastructure/duckdb/queries/conditionMatrix'
-import type { DateRange } from '@/domain/models'
+import type { DateRange } from '@/domain/models/calendar'
 
 function makeMockConn(returnRows: Record<string, unknown>[] = []) {
   const capturedSql: string[] = []

@@ -4,7 +4,8 @@
  * ImportedData の年月単位での保存・スライス保存を担当する。
  * 全書き込み操作は単一トランザクションで原子的に実行される。
  */
-import type { ImportedData, DataType, PersistedMeta } from '@/domain/models'
+import type { PersistedMeta } from '@/domain/models/analysis'
+import type { ImportedData, DataType } from '@/domain/models/storeTypes'
 import { dbBatchPutWithReadModify, STORE_MONTHLY, STORE_META } from './dbHelpers'
 import { monthKey, STORE_DAY_FIELDS } from './keys'
 import { wrapEnvelope, mapToObj, budgetToSerializable } from './serialization'

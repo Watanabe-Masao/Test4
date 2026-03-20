@@ -9,7 +9,7 @@
 import { safeDivide } from '../utils'
 import { calculateStdDev } from '../forecast'
 import { DEFAULT_WMA_WINDOW, DAYS_PER_WEEK, CONFIDENCE_95_ZSCORE } from '@/domain/constants'
-import type { DailyForecast } from '@/domain/models'
+import type { DailyForecast } from '@/domain/models/record'
 
 // ─── Types ────────────────────────────────────────────
 

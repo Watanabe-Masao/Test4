@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { Button } from '@/presentation/components/common'
+import { Button } from '@/presentation/components/common/layout'
 import { UNIFIED_WIDGET_REGISTRY } from '@/presentation/components/widgets'
 import type { WidgetDef } from '@/presentation/components/widgets'
 import { DEFAULT_WIDGET_IDS } from './widgets/widgetLayout'

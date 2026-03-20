@@ -3,13 +3,14 @@
  *
  * aggregateResults から抽出。複数 StoreResult のスカラーフィールドを合算する。
  */
-import type { CostPricePair, CategoryType, DailyRecord, StoreResult } from '@/domain/models'
+import type { CostPricePair, CategoryType, DailyRecord } from '@/domain/models/record'
+import type { StoreResult } from '@/domain/models/storeTypes'
 import {
   ZERO_COST_PRICE_PAIR,
   addCostPricePairs,
   ZERO_DISCOUNT_ENTRIES,
   addDiscountEntries,
-} from '@/domain/models'
+} from '@/domain/models/record'
 
 export function addToCategory(
   map: Map<CategoryType, CostPricePair>,

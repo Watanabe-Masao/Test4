@@ -6,10 +6,10 @@ import {
   DataTable,
   DataTh,
   DataTd,
-} from '@/presentation/components/common'
-export { TabBar, Tab } from '@/presentation/components/common'
-export { Section } from '@/presentation/components/common'
-export { EmptyState } from '@/presentation/components/common'
+} from '@/presentation/components/common/tables'
+export { TabBar, Tab } from '@/presentation/components/common/layout'
+export { Section } from '@/presentation/components/common/layout'
+export { EmptyState } from '@/presentation/components/common/layout'
 
 /* ─── Common ────────────────────────────────────────── */
 
