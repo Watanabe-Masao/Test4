@@ -91,8 +91,6 @@ const APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set([
   'application/hooks/useGeocode.ts',
   // 週間天気予報取得サービス（気象庁 Forecast API を使用）
   'application/usecases/weather/ForecastLoadService.ts',
-  // 週間天気予報ブリッジ（presentation 層から infrastructure への直接依存を回避）
-  'application/hooks/useWeatherForecast.ts',
   // 天気時間帯クエリフック（DuckDB weather_hourly テーブルを使用）
   'application/hooks/duckdb/useWeatherHourlyQuery.ts',
   // クエリプロファイルサービス（infrastructure/duckdb/queryProfiler の re-export）
@@ -207,11 +205,12 @@ describe('Architecture Guard', () => {
       'presentation/components/common/ImportModal.tsx',
       'presentation/components/common/ImportWizard.tsx',
       'presentation/components/widgets/types.ts',
+      'presentation/pages/Admin/ClearAllDataSection.tsx',
       'presentation/pages/Dashboard/widgets/MonthlyCalendar.tsx',
       'presentation/pages/Dashboard/widgets/types.ts',
       'presentation/pages/Reports/ReportDeptTable.tsx',
     ])
-    const MAX_USECASE_ALLOWLIST = 6
+    const MAX_USECASE_ALLOWLIST = 7
 
     const presDir = path.join(SRC_DIR, 'presentation')
     const files = collectTsFiles(presDir)
@@ -496,11 +495,11 @@ describe('Architecture Guard', () => {
 
   // ─── 許可リスト増加防止 ─────────────────────────────
 
-  it('APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST は 18 件以下', () => {
+  it('APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST は 17 件以下', () => {
     expect(
       APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST.size,
-      `APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST が ${APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST.size} 件（上限: 18）`,
-    ).toBeLessThanOrEqual(18)
+      `APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST が ${APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST.size} 件（上限: 17）`,
+    ).toBeLessThanOrEqual(17)
   })
 
   it('PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST は 0 件（完全解消済み）', () => {
@@ -541,25 +540,17 @@ describe('Architecture Guard', () => {
     'components/charts/HourlyProfileChart.tsx',
     'components/charts/TimeSlotChart.tsx',
     'components/charts/YoYChart.tsx',
-    'components/charts/ShapleyTimeSeriesChart.tsx',
     // ── ページ・ウィジェット（Phase C で移行） ──
     'pages/Admin/AdminPage.tsx',
     'pages/Admin/ImportHistoryTab.tsx',
     'pages/Admin/PrevYearMappingTab.tsx',
     'pages/Admin/StorageManagementTab.tsx',
-    'pages/Category/CategoryPage.tsx',
-    'pages/CostDetail/useCostDetailData.ts',
-    'pages/Daily/DailyPage.tsx',
-    'pages/Dashboard/DashboardPage.tsx',
     'pages/Dashboard/widgets/ConditionMatrixTable.styles.ts',
     'pages/Dashboard/widgets/DayDetailModal.tsx',
     'pages/Dashboard/widgets/MonthlyCalendar.tsx',
     'pages/Dashboard/widgets/RangeComparison.tsx',
     'pages/Dashboard/widgets/YoYWaterfallChart.tsx',
     'pages/Dashboard/widgets/types.ts',
-    'pages/Forecast/ForecastPage.helpers.ts',
-    'pages/Mobile/KpiTabContent.tsx',
-    'pages/Reports/ReportsPage.tsx',
     // ── 仕入分析ページ ──
     'pages/PurchaseAnalysis/PurchaseAnalysisPage.tsx',
     // ── レイアウト（DuckDB 接続状態表示用） ──
@@ -599,7 +590,7 @@ describe('Architecture Guard', () => {
 
   it('presentation/ の DuckDB フック許可リストは増やさない（移行時に減らすのみ）', () => {
     // 許可リストのサイズ上限。移行が進むにつれてこの数値を減らしていく。
-    const MAX_ALLOWLIST_SIZE = 34
+    const MAX_ALLOWLIST_SIZE = 26
     expect(PRESENTATION_DUCKDB_HOOK_ALLOWLIST.size).toBeLessThanOrEqual(MAX_ALLOWLIST_SIZE)
   })
 

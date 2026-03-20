@@ -200,6 +200,7 @@ export const EChart = memo(function EChart({
       renderer: 'canvas',
     })
     chartRef.current.setOption(option, { notMerge: true })
+    // option は別の useEffect で適用。テーマ変更時のみ再初期化するため意図的に除外
   }, [themeName]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // クリックイベント
