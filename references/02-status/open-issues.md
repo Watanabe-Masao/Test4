@@ -15,10 +15,10 @@
 
 | # | リスク | 優先度 | 詳細 |
 |---|---|---|---|
-| R-1 | Application→Infrastructure 直接 import（ポート抽象不足） | Medium | 調査完了（2026-03-08）: 25ファイル40箇所の直接importを特定。ExportPort パターンに倣い DuckDBPort / StoragePort拡張 / ImportPort / I18nPort の4ポートを Phase 5 で新設予定 |
+| R-1 | Application→Infrastructure 直接 import（ポート抽象不足） | Low | 4ポート新設済み（2026-03-20）: WeatherPort, StoragePersistencePort, BackupPort, FileSystemPort。許可リスト 17→16。残: DuckDB（構造的CQRS）, rawFileStore（2件）, Export（完了）, I18n（re-export）, queryProfiler（DevTools） |
 | R-4 | God コンポーネント（300行超）10 ファイル | Low | .vm.ts ViewModel 抽出を10ファイルで実施済み（2026-03-08）。CvTimeSeriesChart を3ビューに分割（690→261行、Tier 2 解消）。残: TimeSlotChart（660行 Tier 2）+ チャート500行超ファイルの .vm.ts 作成は Phase 6 で継続 |
 | R-6 | ~~FileImportService.ts（632行）~~ | **解決済み** | importValidation.ts 分離 + ImportOrchestrator 抽出 + multiMonthImport/singleMonthImport 分離により 632→194行に縮小。300行上限を大幅に下回り、3関心事（delegation/extraction/filter）は全てインポート業務に閉じているため追加分割は不要 |
-| R-7 | 既存コードのサブバレル移行が未完了 | Medium | Phase 1C でサブバレル構造を作成済みだが、既存消費者（数百ファイル）はメインバレル経由のまま。一貫性のため Phase 7（縦スライス）までに全件をサブバレル直接 import に移行する。対象: hooks/(data,calculation,analytics,ui), charts/(core,duckdb,advanced,chartInfra), models/(record,storeTypes,calendar,analysis), calculations/(grossProfit,forecast.barrel,decomposition), common/(layout,forms,tables,feedback) |
+| R-7 | ~~既存コードのサブバレル移行が未完了~~ | **解決済み** | 一括移行完了（2026-03-20）: domain/models（321ファイル）, presentation/components/common（78ファイル）, application/hooks（34ファイル）+ 手動修正19ファイル。3つのガードテスト追加でメインバレル直接 import を禁止（maxViolations: 0） |
 | R-9 | ロールシステムのAI単体セッション最適化 | Medium | 9ロール×2ファイル=18ファイルの読み込みコストが高い。AI単体セッションではロールの切り替えが十分に機能していない。軽量ロール設計（ロール統合 or CLAUDE.md への集約）を検討する |
 | R-8 | ~~null/0 棲み分け（カテゴリ・時間帯データ）~~ | **解決済み** | Phase 1（2026-03-16）: クエリ時フィルタリング完了。Phase 2（2026-03-20）: UI 改善完了。HierarchyItem に handledDayCount/totalDayCount を追加し、CategoryExplorerTable に「取扱日率」列を追加（100%=全日取扱: 通常色、部分取扱: caution 色、未取扱: negative 色）|
 
