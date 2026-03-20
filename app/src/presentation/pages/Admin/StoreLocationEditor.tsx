@@ -1,14 +1,12 @@
 import { useState, useCallback } from 'react'
-import type { StoreLocation, GeocodingResult } from '@/domain/models/record'
-import { useGeocode } from '@/application/hooks/useGeocode'
+import type { StoreLocation } from '@/domain/models/record'
 import { useEtrnStationSearch } from '@/application/hooks/useEtrnStationSearch'
 import { palette } from '@/presentation/theme/tokens'
-import { Select, Input, Badge } from './AdminShared'
+import { Select, Badge } from './AdminShared'
 import { SmallButton } from './AdminPage.styles'
 
 export function StoreLocationEditor({
   storeId,
-  storeName,
   location,
   onSave,
   onClear,
@@ -32,10 +30,6 @@ export function StoreLocationEditor({
     clear: clearStations,
   } = useEtrnStationSearch()
 
-  // Geocoding fallback for location search
-  const [query, setQuery] = useState('')
-  const { candidates, isSearching: isGeoSearching, search, clear: clearCandidates } = useGeocode()
-
   const handlePrefectureChange = useCallback(
     async (prefName: string) => {
       setSelectedPrefecture(prefName)
@@ -56,7 +50,6 @@ export function StoreLocationEditor({
 
     setIsSaving(true)
     try {
-      // Geocode prefecture for approximate lat/lon (needed for forecast resolution)
       const coords = await geocodePrefecture(selectedPrefecture)
       const latitude = coords?.latitude ?? location?.latitude ?? 0
       const longitude = coords?.longitude ?? location?.longitude ?? 0
@@ -88,22 +81,6 @@ export function StoreLocationEditor({
     clearStations,
   ])
 
-  const handleGeoSearch = useCallback(async () => {
-    const q = query.trim() || storeName
-    await search(q)
-  }, [query, storeName, search])
-
-  const handleGeoSelect = useCallback(
-    (r: GeocodingResult) => {
-      const label = [r.name, r.admin1, r.admin2].filter(Boolean).join(', ')
-      onSave(storeId, { latitude: r.latitude, longitude: r.longitude, resolvedName: label })
-      setIsEditing(false)
-      clearCandidates()
-      setQuery('')
-    },
-    [storeId, onSave, clearCandidates],
-  )
-
   if (!isEditing) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -133,74 +110,44 @@ export function StoreLocationEditor({
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-      {/* 観測所選択（都道府県 → 観測所 ドロップダウン） */}
-      <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexWrap: 'wrap' }}>
-        <Select
-          value={selectedPrefecture}
-          onChange={(e) => handlePrefectureChange(e.target.value)}
-          style={{ width: 140 }}
-        >
-          <option value="">都道府県を選択</option>
-          {prefectures.map((p) => (
-            <option key={p.code} value={p.name}>
-              {p.name}
-            </option>
-          ))}
-        </Select>
-        {isSearching && <span style={{ fontSize: 12, color: palette.slate }}>検索中...</span>}
-        {stations.length > 0 && (
-          <>
-            <Select
-              value={selectedStationKey}
-              onChange={(e) => setSelectedStationKey(e.target.value)}
-              style={{ width: 180 }}
-            >
-              <option value="">気象台・測候所を選択</option>
-              {stations.map((s) => (
-                <option key={`${s.precNo}:${s.blockNo}`} value={`${s.precNo}:${s.blockNo}`}>
-                  {s.stationName}
-                </option>
-              ))}
-            </Select>
-            <SmallButton
-              $variant="primary"
-              onClick={handleStationSave}
-              disabled={!selectedStationKey || isSaving}
-            >
-              {isSaving ? '保存中...' : '設定'}
-            </SmallButton>
-          </>
-        )}
-        <SmallButton onClick={() => setIsEditing(false)}>閉じる</SmallButton>
-      </div>
-      {/* 地名検索（フォールバック） */}
-      <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-        <Input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') handleGeoSearch()
-          }}
-          placeholder={`地名で検索（例: ${storeName}）`}
-          style={{ width: 180 }}
-        />
-        <SmallButton $variant="primary" onClick={handleGeoSearch} disabled={isGeoSearching}>
-          {isGeoSearching ? '...' : '検索'}
-        </SmallButton>
-      </div>
-      {candidates.length > 0 && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {candidates.map((r, i) => {
-            const label = [r.name, r.admin1, r.admin2, r.country].filter(Boolean).join(', ')
-            return (
-              <SmallButton key={i} onClick={() => handleGeoSelect(r)} style={{ textAlign: 'left' }}>
-                {label} ({r.latitude.toFixed(2)}, {r.longitude.toFixed(2)})
-              </SmallButton>
-            )
-          })}
-        </div>
+    <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexWrap: 'wrap' }}>
+      <Select
+        value={selectedPrefecture}
+        onChange={(e) => handlePrefectureChange(e.target.value)}
+        style={{ width: 140 }}
+      >
+        <option value="">都道府県を選択</option>
+        {prefectures.map((p) => (
+          <option key={p.code} value={p.name}>
+            {p.name}
+          </option>
+        ))}
+      </Select>
+      {isSearching && <span style={{ fontSize: 12, color: palette.slate }}>検索中...</span>}
+      {stations.length > 0 && (
+        <>
+          <Select
+            value={selectedStationKey}
+            onChange={(e) => setSelectedStationKey(e.target.value)}
+            style={{ width: 180 }}
+          >
+            <option value="">観測所を選択</option>
+            {stations.map((s) => (
+              <option key={`${s.precNo}:${s.blockNo}`} value={`${s.precNo}:${s.blockNo}`}>
+                {s.stationName}
+              </option>
+            ))}
+          </Select>
+          <SmallButton
+            $variant="primary"
+            onClick={handleStationSave}
+            disabled={!selectedStationKey || isSaving}
+          >
+            {isSaving ? '保存中...' : '設定'}
+          </SmallButton>
+        </>
       )}
+      <SmallButton onClick={() => setIsEditing(false)}>閉じる</SmallButton>
     </div>
   )
 }
