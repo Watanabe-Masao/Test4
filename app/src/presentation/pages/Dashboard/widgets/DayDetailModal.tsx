@@ -2,7 +2,7 @@
  * 日別詳細モーダル — カレンダー/テーブルから日を選択した際に表示。
  * 売上分析・時間帯分析・仕入内訳の3タブ構成。
  */
-import React, { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import { formatPercent } from '@/domain/formatting'
@@ -23,8 +23,6 @@ import type {
 } from '@/domain/models'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import { useDuckDBCategoryTimeRecords, useDuckDBWeatherHourly } from '@/application/hooks/duckdb'
-import { loadEtrnHourlyForStore } from '@/application/usecases/weather/WeatherLoadService'
-import type { HourlyWeatherRecord } from '@/domain/models'
 import type { PrevYearData } from '@/application/hooks'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import {
@@ -170,55 +168,6 @@ export function DayDetailModal({
     weatherStoreId,
     prevDateKey,
   )
-
-  // ── ETRN フォールバック: DuckDB に天気データがない場合に直接取得 ──
-  const location = storeLocations[weatherStoreId]
-  const [etrnWeather, setEtrnWeather] = useState<readonly HourlyWeatherRecord[] | null>(null)
-  const [etrnPrevWeather, setEtrnPrevWeather] = useState<readonly HourlyWeatherRecord[] | null>(
-    null,
-  )
-  const etrnFetchedRef = React.useRef(false)
-
-  const duckWeatherData = weatherResult.data ?? []
-  const duckPrevWeatherData = prevWeatherResult.data ?? []
-
-  // DuckDB にデータがない場合、ETRN から非同期取得
-  useEffect(() => {
-    if (duckWeatherData.length > 0 || etrnFetchedRef.current || !location || !weatherStoreId) return
-    etrnFetchedRef.current = true
-    let cancelled = false
-
-    const fetchData = async () => {
-      try {
-        const result = await loadEtrnHourlyForStore(weatherStoreId, location, year, month, [day])
-        if (!cancelled && result.hourly.length > 0) setEtrnWeather(result.hourly)
-      } catch {
-        // ETRN取得失敗は無視
-      }
-      try {
-        const prevParts = prevDateKey.split('-').map(Number)
-        const prevResult = await loadEtrnHourlyForStore(
-          weatherStoreId,
-          location,
-          prevParts[0],
-          prevParts[1],
-          [prevParts[2]],
-        )
-        if (!cancelled && prevResult.hourly.length > 0) setEtrnPrevWeather(prevResult.hourly)
-      } catch {
-        // ETRN取得失敗は無視
-      }
-    }
-    fetchData()
-    return () => {
-      cancelled = true
-    }
-  }, [duckWeatherData.length, location, weatherStoreId, year, month, day, prevDateKey])
-
-  // 最終的な天気データ: DuckDB優先 → ETRNフォールバック
-  const weatherHourly = duckWeatherData.length > 0 ? duckWeatherData : (etrnWeather ?? undefined)
-  const prevWeatherHourly =
-    duckPrevWeatherData.length > 0 ? duckPrevWeatherData : (etrnPrevWeather ?? undefined)
 
   const singleDayRange: DateRange = useMemo(
     () => ({
@@ -549,8 +498,8 @@ export function DayDetailModal({
             <HourlyChart
               dayRecords={dayRecords}
               prevDayRecords={prevDayRecords}
-              weatherHourly={weatherHourly}
-              prevWeatherHourly={prevWeatherHourly}
+              weatherHourly={weatherResult.data ?? undefined}
+              prevWeatherHourly={prevWeatherResult.data ?? undefined}
               prevDateKey={prevDateKey}
               curDateKey={dateKey}
             />
