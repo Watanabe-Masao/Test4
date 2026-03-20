@@ -37,7 +37,6 @@ const RESOLVED_STATION: EtrnStation = {
 const BASE_LOCATION: StoreLocation = {
   latitude: 35.6895,
   longitude: 139.6917,
-  address: '東京都新宿区',
 }
 
 const CACHED_LOCATION: StoreLocation = {
