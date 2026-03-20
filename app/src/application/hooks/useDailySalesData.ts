@@ -29,12 +29,22 @@ export interface WaterfallItem {
   prevYearCum: number | null
   budgetCum: number | null
   cumDiscountRate: number
+  /** 売変累計（当期） */
+  discountCum: number
+  /** 売変累計（前年） */
+  prevYearDiscountCum: number | null
   /** 前年差（当年売上 - 前年売上） */
   yoyDiff: number | null
   /** 前年差累計 */
   yoyDiffCum: number | null
+  /** 予算差（当日: 売上 - 予算） */
+  budgetDiff: number | null
+  /** 予算差累計 */
+  budgetDiffCum: number | null
   /** 予算日割（単日） */
   budgetDaily: number | null
+  /** 売変差累計（差分モード右軸用） */
+  discountDiffCum: number
   wfSalesBase: number
   wfSalesUp: number
   wfSalesDown: number
@@ -72,13 +82,24 @@ export interface BaseDayItem {
   prevYearCum: number | null
   budgetCum: number | null
   cumDiscountRate: number
+  /** 売変累計（当期） */
+  discountCum: number
+  /** 売変累計（前年） */
+  prevYearDiscountCum: number | null
   yoyDiff: number | null
   yoyDiffCum: number | null
+  /** 予算差（当日: 売上 - 予算） */
+  budgetDiff: number | null
+  /** 予算差累計 */
+  budgetDiffCum: number | null
   budgetDaily: number | null
   salesMa7: number | null
   discountMa7: number | null
   prevDiscountMa7: number | null
 }
+
+/** 差分モードの比較対象 */
+export type DiffTarget = 'yoy' | 'budget'
 
 /* ── Hook ───────────────────────────────────── */
 
@@ -102,6 +123,7 @@ export function useDailySalesData(
   month?: number,
   selectedDows?: readonly number[],
   budgetDaily?: ReadonlyMap<number, number>,
+  diffTarget?: DiffTarget,
 ): DailySalesDataResult {
   const { baseData, salesMa7, discountMa7, prevDiscountMa7, wfData } = useMemo(() => {
     const result = buildBaseDayItems(
@@ -118,10 +140,11 @@ export function useDailySalesData(
           result.salesMa7,
           result.discountMa7,
           result.prevDiscountMa7,
+          diffTarget ?? 'yoy',
         )
       : null
     return { ...result, wfData: wf }
-  }, [daily, daysInMonth, prevYearDaily, isWf, budgetDaily, year, month])
+  }, [daily, daysInMonth, prevYearDaily, isWf, budgetDaily, year, month, diffTarget])
 
   /** 曜日フィルタ: 指定曜日に該当する日のみ通す */
   const dowFilter = useMemo(() => {

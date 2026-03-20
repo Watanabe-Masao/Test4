@@ -37,12 +37,15 @@ const ALL_LABELS: Record<string, string> = {
   currentCum: '当期累計',
   prevYearCum: '比較期累計',
   budgetCum: '予算累計',
-  wfYoyUp: '比較期差+',
-  wfYoyDown: '比較期差-',
+  discountCum: '売変累計（当期）',
+  prevYearDiscountCum: '売変累計（前年）',
+  wfYoyUp: '差分+',
+  wfYoyDown: '差分-',
+  discountDiffCum: '売変差累計',
 }
 
 /** 隠しシリーズ名（ツールチップから除外） */
-const HIDDEN_NAMES = new Set(['wfYoyBase', 'wfYoyCum'])
+const HIDDEN_NAMES = new Set(['wfYoyBase'])
 
 /** ECharts 用 linearGradient ヘルパー */
 function grad(color: string, o1: number, o2: number): object {
@@ -251,7 +254,7 @@ function buildOption(
     })
   }
 
-  // ─── Cumulative: 実績・前年・予算の累計Area ───
+  // ─── Cumulative: 実績・前年・予算の累計Area + 売変累計（右軸） ───
   if (view === 'cumulative') {
     if (hasPrev) {
       series.push({
@@ -284,9 +287,28 @@ function buildOption(
       areaStyle: { color: grad(ct.colors.primary, 0.3, 0.02) },
       symbol: 'none',
     })
+    // 売変累計（右軸）
+    series.push({
+      name: 'discountCum',
+      type: 'line' as const,
+      yAxisIndex: 1,
+      data: pluck(rows, 'discountCum'),
+      ...lineDefaults({ color: ct.colors.danger, width: 2 }),
+      connectNulls: true,
+    })
+    if (hasPrev) {
+      series.push({
+        name: 'prevYearDiscountCum',
+        type: 'line' as const,
+        yAxisIndex: 1,
+        data: pluck(rows, 'prevYearDiscountCum'),
+        ...lineDefaults({ color: ct.colors.orange, dashed: true, width: 1.5 }),
+        connectNulls: true,
+      })
+    }
   }
 
-  // ─── Difference: 前年差累計ウォーターフォール ───
+  // ─── Difference: 差分ウォーターフォール + 売変差累計（右軸） ───
   if (view === 'difference' && isWf) {
     series.push(
       {
@@ -319,6 +341,15 @@ function buildOption(
         type: 'line' as const,
         data: pluck(rows, 'wfYoyCum'),
         ...lineDefaults({ color: ct.colors.primary, dashed: true, width: 1.5 }),
+        connectNulls: true,
+      },
+      // 売変差累計（右軸）
+      {
+        name: 'discountDiffCum',
+        type: 'line' as const,
+        yAxisIndex: 1,
+        data: pluck(rows, 'discountDiffCum'),
+        ...lineDefaults({ color: ct.colors.orange, width: 1.5 }),
         connectNulls: true,
       },
     )

@@ -9,4 +9,5 @@ export {
   type WaterfallItem,
   type BaseDayItem,
   type DailySalesDataResult,
+  type DiffTarget,
 } from '@/application/hooks/useDailySalesData'

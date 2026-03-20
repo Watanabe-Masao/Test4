@@ -10,12 +10,12 @@
  */
 import { useState, useCallback, memo } from 'react'
 import { ChartCard } from './ChartCard'
-import { ViewToggle, ViewBtn } from './DailySalesChart.styles'
+import { ViewToggle, ViewBtn, Sep } from './DailySalesChart.styles'
 import { useChartTheme } from './chartTheme'
 import { DualPeriodSlider } from './DualPeriodSlider'
 import { DowPresetSelector } from './DowPresetSelector'
 import { useDualPeriodRange } from './useDualPeriodRange'
-import { useDailySalesData } from './useDailySalesData'
+import { useDailySalesData, type DiffTarget } from './useDailySalesData'
 import { DailySalesChartBody, type ViewType } from './DailySalesChartBody'
 import type { DailyRecord } from '@/domain/models/record'
 
@@ -37,11 +37,21 @@ const VIEW_LABELS: Record<ViewType, string> = {
   difference: '差分',
 }
 
-const VIEW_TITLES: Record<ViewType, string> = {
-  standard: '日別売上・売変推移',
-  cumulative: '累計推移（実績・前年・予算）',
-  difference: '前年差ウォーターフォール',
+const VIEW_TITLES: Record<ViewType, Record<DiffTarget, string>> = {
+  standard: { yoy: '日別売上・売変推移', budget: '日別売上・売変推移' },
+  cumulative: {
+    yoy: '累計推移（実績・前年・予算・売変）',
+    budget: '累計推移（実績・前年・予算・売変）',
+  },
+  difference: { yoy: '前年差ウォーターフォール', budget: '予算差ウォーターフォール' },
 }
+
+const DIFF_LABELS: Record<DiffTarget, string> = {
+  yoy: '前年差',
+  budget: '予算差',
+}
+
+const DIFF_TARGETS: DiffTarget[] = ['yoy', 'budget']
 
 const VIEWS: ViewType[] = ['standard', 'cumulative', 'difference']
 
@@ -55,6 +65,7 @@ export const DailySalesChart = memo(function DailySalesChart({
 }: Props) {
   const ct = useChartTheme()
   const [view, setView] = useState<ViewType>('standard')
+  const [diffTarget, setDiffTarget] = useState<DiffTarget>('yoy')
   const {
     p1Start: rangeStart,
     p1End: rangeEnd,
@@ -79,9 +90,11 @@ export const DailySalesChart = memo(function DailySalesChart({
     month,
     selectedDows,
     budgetDaily,
+    diffTarget,
   )
 
-  const needRightAxis = view === 'standard'
+  // All modes use right axis: standard (売変), cumulative (売変累計), difference (売変差累計)
+  const needRightAxis = true
 
   const wfLegendPayload = isWf
     ? [
@@ -97,11 +110,26 @@ export const DailySalesChart = memo(function DailySalesChart({
           {VIEW_LABELS[v]}
         </ViewBtn>
       ))}
+      {view === 'difference' && (
+        <>
+          <Sep>|</Sep>
+          {DIFF_TARGETS.map((dt) => (
+            <ViewBtn key={dt} $active={diffTarget === dt} onClick={() => setDiffTarget(dt)}>
+              {DIFF_LABELS[dt]}
+            </ViewBtn>
+          ))}
+        </>
+      )}
     </ViewToggle>
   )
 
   return (
-    <ChartCard title={VIEW_TITLES[view]} toolbar={toolbar} ariaLabel="日別売上チャート" height={400}>
+    <ChartCard
+      title={VIEW_TITLES[view][diffTarget]}
+      toolbar={toolbar}
+      ariaLabel="日別売上チャート"
+      height={400}
+    >
       <div style={{ display: 'flex', gap: '12px', marginBottom: '8px', flexWrap: 'wrap' }}>
         <DowPresetSelector selectedDows={selectedDows} onChange={handleDowChange} />
       </div>
