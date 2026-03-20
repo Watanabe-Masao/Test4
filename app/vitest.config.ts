@@ -7,6 +7,11 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
+      // WASM モジュールは未ビルド。テスト時は空モックに解決する
+      'factor-decomposition-wasm': resolve(__dirname, 'src/test/__mocks__/wasmModule.ts'),
+      'gross-profit-wasm': resolve(__dirname, 'src/test/__mocks__/wasmModule.ts'),
+      'budget-analysis-wasm': resolve(__dirname, 'src/test/__mocks__/wasmModule.ts'),
+      'forecast-wasm': resolve(__dirname, 'src/test/__mocks__/wasmModule.ts'),
     },
   },
   test: {
