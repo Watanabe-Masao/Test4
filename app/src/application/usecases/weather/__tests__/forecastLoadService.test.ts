@@ -14,7 +14,7 @@ vi.mock('@/application/adapters/weatherAdapter', () => ({
     fetchDailyWeather: vi.fn(),
     fetchHourlyRange: vi.fn(),
     searchLocation: vi.fn(),
-    searchStationsByPrefecture: vi.fn(),
+    getStaticStationList: vi.fn().mockReturnValue([]),
     resolveForecastOfficeByLocation: vi.fn(),
     fetchWeeklyForecast: vi.fn(),
     PREFECTURE_NAMES: {},

@@ -22,6 +22,16 @@ export interface EtrnStation {
   readonly precNo?: number
 }
 
+/** ETRN 静的観測所エントリ（都道府県・座標付き） */
+export interface EtrnStationEntry {
+  readonly precNo: number
+  readonly blockNo: string
+  readonly name: string
+  readonly prefecture: string
+  readonly lat: readonly [number, number]
+  readonly lon: readonly [number, number]
+}
+
 /** 都道府県名マップ（コード → 名称） */
 export type PrefectureNameMap = Readonly<Record<string, string>>
 
@@ -41,7 +51,8 @@ export interface WeatherPort {
 
   // ── ETRN 観測所 ──
   resolveEtrnStationByLocation(latitude: number, longitude: number): Promise<EtrnStation | null>
-  searchStationsByPrefecture(prefectureName: string): Promise<readonly EtrnStation[]>
+  /** 静的リストから全 s1 観測所を取得する */
+  getStaticStationList(): readonly EtrnStationEntry[]
 
   // ── ETRN 気象データ（EtrnStation 単位の操作） ──
   /** 観測所の月別日次天気データを取得する */

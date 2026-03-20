@@ -5,6 +5,7 @@ import { parseDailyTable } from './etrnTableParser'
 import { parseHourlyTable } from './etrnHourlyParser'
 import { REQUEST_DELAY_MS, EtrnNotFoundError, delay, fetchHtmlWithRetry } from './etrnHttpClient'
 import { reverseGeocode } from './geocodingClient'
+import etrnStationsData from './etrnStations.json'
 
 // ─── Types ──────────────────────────────────────────
 
@@ -16,306 +17,96 @@ export interface EtrnStation {
   readonly stationName: string
 }
 
-// ─── Cache ──────────────────────────────────────────
+// ─── Static Station Data ────────────────────────────
 
-let cachedPrefMap: ReadonlyMap<string, number> | null = null
-const cachedStationLists = new Map<number, readonly EtrnStation[]>()
-
-// ─── Prefecture Resolution ──────────────────────────
-
-async function fetchPrefectureMap(): Promise<ReadonlyMap<string, number>> {
-  if (cachedPrefMap) {
-    console.debug('[Weather:ETRN] 府県マップ: キャッシュヒット (%d件)', cachedPrefMap.size)
-    return cachedPrefMap
-  }
-
-  const baseUrl = getJmaDataBaseUrl()
-  const url = `${baseUrl}/obd/stats/etrn/select/prefecture00.php`
-  console.debug('[Weather:ETRN] 府県一覧を取得: %s', url)
-  const html = await fetchHtmlWithRetry(url)
-  console.debug(
-    '[Weather:ETRN] prefecture00 HTML length=%d head=%s',
-    html.length,
-    html.slice(0, 300),
-  )
-  const doc = new DOMParser().parseFromString(html, 'text/html')
-
-  const map = new Map<string, number>()
-  // <area> タグ（画像マップ）と <a> タグの両方を検索
-  const links = doc.querySelectorAll('area[href*="prec_no="], a[href*="prec_no="]')
-  for (const link of links) {
-    const href = link.getAttribute('href') ?? ''
-    const match = href.match(/prec_no=(\d+)/)
-    if (!match) continue
-    const precNo = parseInt(match[1], 10)
-    // <area> は void 要素なので alt/title 属性から名前を取得
-    const rawName = link.getAttribute('alt') || link.getAttribute('title') || link.textContent || ''
-    const name = rawName.replace(/\s+/g, ' ').trim()
-    if (name && !isNaN(precNo)) {
-      if (map.has(name) && map.get(name) !== precNo) {
-        console.debug('[Weather:ETRN] 重複府県エントリ: %s → %d/%d', name, map.get(name), precNo)
-      }
-      map.set(name, precNo)
-    }
-  }
-
-  console.debug('[Weather:ETRN] 府県マップ: nodes=%d parsed=%d', links.length, map.size)
-  cachedPrefMap = map
-  return map
+interface StationEntry {
+  readonly precNo: number
+  readonly blockNo: string
+  readonly name: string
+  readonly prefecture: string
+  readonly lat: readonly [number, number]
+  readonly lon: readonly [number, number]
 }
 
-// ─── Station Resolution ─────────────────────────────
+const STATIC_STATIONS: readonly StationEntry[] = etrnStationsData as readonly StationEntry[]
 
-/** viewPoint('s1','47893','高知',...) の onclick 文字列から観測所情報を抽出 */
-export function parseViewPointArgs(
-  onclick: string,
-): { stationType: 'a1' | 's1'; blockNo: string; stationName: string } | null {
-  const match = onclick.match(/viewPoint\s*\((.+)\)/)
-  if (!match) return null
-  const args = match[1].split(',').map((s) => s.trim().replace(/^'|'$/g, ''))
-  if (args.length < 3) return null
-  const as = args[0]
-  const bkNo = args[1]
-  const ch = args[2]
-  if (as !== 's1' && as !== 'a1') return null
-  if (!bkNo || !/^\d+$/.test(bkNo)) return null
-  return { stationType: as, blockNo: bkNo, stationName: ch.replace(/\s+/g, ' ').trim() }
+// ─── Station Resolution (Static List Based) ─────────
+
+/** Haversine distance in km (approximate) */
+function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const toRad = (d: number) => (d * Math.PI) / 180
+  const dLat = toRad(lat2 - lat1)
+  const dLon = toRad(lon2 - lon1)
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2
+  return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 }
 
-async function fetchStationList(precNo: number): Promise<readonly EtrnStation[]> {
-  const cached = cachedStationLists.get(precNo)
-  if (cached) {
-    console.debug(
-      '[Weather:ETRN] 観測所一覧: キャッシュヒット (precNo=%d, %d件)',
-      precNo,
-      cached.length,
-    )
-    return cached
-  }
-
-  const baseUrl = getJmaDataBaseUrl()
-  const url = `${baseUrl}/obd/stats/etrn/select/prefecture.php?prec_no=${precNo}`
-  console.debug('[Weather:ETRN] 観測所一覧を取得: %s', url)
-  const html = await fetchHtmlWithRetry(url)
-  console.debug(
-    '[Weather:ETRN] prefecture page length=%d head=%s',
-    html.length,
-    html.slice(0, 1200),
-  )
-  const doc = new DOMParser().parseFromString(html, 'text/html')
-
-  // 診断: href/onclick 付き要素を確認（パーサが空振りした場合の原因特定用）
-  const allHref = doc.querySelectorAll('area[href], a[href]')
-  const allOnclick = doc.querySelectorAll('area[onclick], a[onclick]')
-  if (allHref.length > 0 || allOnclick.length > 0) {
-    const hrefSample = Array.from(allHref)
-      .slice(0, 5)
-      .map((el) => `<${el.tagName.toLowerCase()}> href=${el.getAttribute('href')}`)
-      .join(' | ')
-    const onclickSample = Array.from(allOnclick)
-      .slice(0, 3)
-      .map(
-        (el) => `<${el.tagName.toLowerCase()}> onclick=${el.getAttribute('onclick')?.slice(0, 80)}`,
-      )
-      .join(' | ')
-    console.debug(
-      '[Weather:ETRN] prefecture要素: href=%d onclick=%d hrefSample=[%s] onclickSample=[%s]',
-      allHref.length,
-      allOnclick.length,
-      hrefSample,
-      onclickSample,
-    )
-  }
-
-  const stations: EtrnStation[] = []
-  const seen = new Set<string>()
-
-  // === Primary: viewPoint() onclick パース ===
-  const onclickElements = doc.querySelectorAll(
-    'area[onclick*="viewPoint"], a[onclick*="viewPoint"]',
-  )
-  for (const el of onclickElements) {
-    const onclick = el.getAttribute('onclick') ?? ''
-    const parsed = parseViewPointArgs(onclick)
-    if (!parsed) continue
-
-    const stationName =
-      parsed.stationName ||
-      (el.getAttribute('alt') || el.getAttribute('title') || '').replace(/\s+/g, ' ').trim()
-
-    if (stationName && parsed.blockNo && !seen.has(parsed.blockNo)) {
-      seen.add(parsed.blockNo)
-      stations.push({
-        precNo,
-        blockNo: parsed.blockNo,
-        stationType: parsed.stationType,
-        stationName,
-      })
-    }
-  }
-
-  // === Fallback: href ベースパース（JMA が HTML 構造を戻した場合の互換） ===
-  if (stations.length === 0) {
-    let links = doc.querySelectorAll('area[href*="daily_"], a[href*="daily_"]')
-    if (links.length === 0) {
-      links = doc.querySelectorAll('area[href*="block_no"], a[href*="block_no"]')
-      if (links.length > 0)
-        console.debug('[Weather:ETRN] onclick空振り → href block_no fallback: %d件', links.length)
-    }
-    for (const link of links) {
-      const href = link.getAttribute('href') ?? ''
-      const typeMatch = href.match(/(?:daily|hourly)_(a1|s1)\.php/) ?? href.match(/_(a1|s1)\.php/)
-      const blockMatch = href.match(/block_no=(\d+)/)
-      if (!blockMatch) continue
-
-      const blockNo = blockMatch[1]
-      const stationType: 'a1' | 's1' = (typeMatch?.[1] as 'a1' | 's1') ?? 'a1'
-      const stationName = (
-        link.getAttribute('alt') ||
-        link.getAttribute('title') ||
-        link.textContent ||
-        ''
-      )
-        .replace(/\s+/g, ' ')
-        .trim()
-
-      if (stationName && blockNo && !seen.has(blockNo)) {
-        seen.add(blockNo)
-        stations.push({ precNo, blockNo, stationType, stationName })
-      }
-    }
-  }
-
-  console.debug(
-    '[Weather:ETRN] 観測所一覧: precNo=%d onclick=%d parsed=%d',
-    precNo,
-    onclickElements.length,
-    stations.length,
-  )
-  cachedStationLists.set(precNo, stations)
-  return stations
+function dmsToDecimal(dm: readonly [number, number]): number {
+  return dm[0] + dm[1] / 60
 }
 
 /**
- * AMeDAS 観測所名と府県予報区名から ETRN 観測所を解決する。
+ * 緯度経度から最寄りの ETRN s1 観測所を返す（静的リストベース）。
  *
- * @param amedasStationName AMeDAS 観測所名（漢字、例: "高知"）
- * @param officeName 府県予報区名（例: "高知県"）
+ * 逆ジオコーディングで都道府県を特定し、同一都道府県内の最寄り観測所を返す。
+ * 都道府県特定に失敗した場合は全国から最寄りを返す。
  */
-export async function resolveEtrnStation(
-  amedasStationName: string,
-  officeName: string,
-): Promise<EtrnStation | null> {
-  console.debug('[Weather:ETRN] 観測所解決開始: name=%s, office=%s', amedasStationName, officeName)
-  const prefMap = await fetchPrefectureMap()
-
-  const precNo = findPrecNo(prefMap, officeName)
-  if (precNo == null) {
-    console.warn('[Weather:ETRN] 府県が見つかりません: office=%s', officeName)
-    return null
-  }
-  console.debug('[Weather:ETRN] 府県解決: %s → precNo=%d', officeName, precNo)
-
-  await delay(REQUEST_DELAY_MS)
-  const stations = await fetchStationList(precNo)
-  if (stations.length === 0) {
-    console.warn('[Weather:ETRN] 観測所が0件: precNo=%d', precNo)
-    return null
-  }
-
-  // s1（気象台）のみを対象とし、a1（AMeDAS）は除外する
-  const s1Stations = stations.filter((s) => s.stationType === 's1')
-
-  const exactMatch = s1Stations.find((s) => s.stationName === amedasStationName)
-  if (exactMatch) {
-    console.debug(
-      '[Weather:ETRN] 完全一致: %s → block=%s type=%s',
-      exactMatch.stationName,
-      exactMatch.blockNo,
-      exactMatch.stationType,
-    )
-    return exactMatch
-  }
-
-  const partialMatch = s1Stations.find(
-    (s) => s.stationName.includes(amedasStationName) || amedasStationName.includes(s.stationName),
-  )
-  if (partialMatch) {
-    console.debug(
-      '[Weather:ETRN] 部分一致: %s → block=%s type=%s',
-      partialMatch.stationName,
-      partialMatch.blockNo,
-      partialMatch.stationType,
-    )
-    return partialMatch
-  }
-
-  const fallback = s1Stations[0] ?? null
-  console.debug('[Weather:ETRN] フォールバック: %s', fallback?.stationName ?? 'null')
-  return fallback
-}
-
-function findPrecNo(prefMap: ReadonlyMap<string, number>, officeName: string): number | null {
-  const exact = prefMap.get(officeName)
-  if (exact != null) return exact
-
-  const coreName = officeName.replace(/[県都府道地方]$/u, '')
-  for (const [name, precNo] of prefMap) {
-    if (name.includes(coreName) || coreName.includes(name.replace(/[地方]$/u, ''))) {
-      return precNo
-    }
-  }
-
-  return null
-}
-
-/** 緯度経度から ETRN 観測所を解決する（逆ジオコーディング経由、AMeDAS・予報区域に非依存） */
 export async function resolveEtrnStationByLocation(
   latitude: number,
   longitude: number,
 ): Promise<EtrnStation | null> {
-  console.debug('[Weather:ETRN] 位置ベース観測所解決: lat=%f lon=%f', latitude, longitude)
+  if (STATIC_STATIONS.length === 0) return null
 
-  const geocodeResult = await reverseGeocode(latitude, longitude)
-  if (!geocodeResult) {
-    console.warn('[Weather:ETRN] 逆ジオコーディング失敗')
-    return null
+  // 逆ジオコーディングで都道府県を特定し、同一都道府県の観測所を優先
+  let candidates = STATIC_STATIONS
+  try {
+    const geocodeResult = await reverseGeocode(latitude, longitude)
+    if (geocodeResult) {
+      const prefStations = STATIC_STATIONS.filter(
+        (s) =>
+          s.prefecture === geocodeResult.prefectureName ||
+          s.prefecture === geocodeResult.prefectureName.replace(/[県都府道]$/, '') + '県',
+      )
+      if (prefStations.length > 0) candidates = prefStations
+    }
+  } catch {
+    // 逆ジオコーディング失敗は非致命的 — 全国から最寄りを選択
   }
 
-  const prefMap = await fetchPrefectureMap()
-  const precNo = findPrecNo(prefMap, geocodeResult.prefectureName)
-  if (precNo == null) {
-    console.warn('[Weather:ETRN] 府県が見つかりません: %s', geocodeResult.prefectureName)
-    return null
+  let nearest: StationEntry | null = null
+  let minDist = Infinity
+  for (const s of candidates) {
+    const dist = haversineKm(latitude, longitude, dmsToDecimal(s.lat), dmsToDecimal(s.lon))
+    if (dist < minDist) {
+      minDist = dist
+      nearest = s
+    }
   }
 
-  await delay(REQUEST_DELAY_MS)
-  const stations = await fetchStationList(precNo)
-  if (stations.length === 0) {
-    console.warn('[Weather:ETRN] 観測所が0件: precNo=%d', precNo)
-    return null
+  if (!nearest) return null
+  return {
+    precNo: nearest.precNo,
+    blockNo: nearest.blockNo,
+    stationType: 's1',
+    stationName: nearest.name,
   }
+}
 
-  // s1（気象台）のみ選択対象。a1（AMeDAS）は観測要素が不十分なため除外
-  const s1Stations = stations.filter((s) => s.stationType === 's1')
-  if (s1Stations.length === 0) {
-    console.warn(
-      '[Weather:ETRN] s1観測所なし（a1のみ %d件）: precNo=%d — a1は対象外',
-      stations.length,
-      precNo,
-    )
-    return null
-  }
-  const selected = s1Stations[0]
-  console.debug(
-    '[Weather:ETRN] 観測所選択: %s (block=%s, type=%s) — s1候補=%d, 全%d',
-    selected.stationName,
-    selected.blockNo,
-    selected.stationType,
-    s1Stations.length,
-    stations.length,
-  )
-  return selected
+/** 静的リストの全 s1 観測所エントリ */
+export interface EtrnStationEntry {
+  readonly precNo: number
+  readonly blockNo: string
+  readonly name: string
+  readonly prefecture: string
+  readonly lat: readonly [number, number]
+  readonly lon: readonly [number, number]
+}
+
+/** 静的リストから全観測所を返す */
+export function getStaticStationList(): readonly EtrnStationEntry[] {
+  return STATIC_STATIONS as readonly EtrnStationEntry[]
 }
 
 // ─── Daily Weather Data ─────────────────────────────
@@ -410,10 +201,6 @@ export async function fetchEtrnDailyRange(
 
 /**
  * ETRN から1日分の時間別天気データを取得する。
- *
- * 1リクエスト = 1日分（最大24レコード）。
- * 日別データ（1リクエスト = 1月分）と比べてリクエスト数が多いため、
- * 必要な日付範囲のみ取得すること。
  */
 export async function fetchEtrnHourlyWeather(
   precNo: number,
@@ -443,9 +230,6 @@ export async function fetchEtrnHourlyWeather(
 
 /**
  * ETRN から月単位の時間別天気データを一括取得する。
- *
- * 1日ごとにリクエストを送るため、30日分 ≈ 30リクエスト。
- * JMA サーバーへの配慮として REQUEST_DELAY_MS 間隔で取得する。
  */
 export async function fetchEtrnHourlyRange(
   precNo: number,
@@ -480,23 +264,4 @@ export async function fetchEtrnHourlyRange(
   }
 
   return allResults
-}
-
-// ─── Utilities ──────────────────────────────────────
-// delay, fetchHtmlWithRetry, EtrnNotFoundError → etrnHttpClient.ts
-
-/** 都道府県名から ETRN 観測所一覧を検索する */
-export async function searchStationsByPrefecture(
-  prefectureName: string,
-): Promise<readonly EtrnStation[]> {
-  const prefMap = await fetchPrefectureMap()
-  const precNo = findPrecNo(prefMap, prefectureName)
-  if (precNo == null) return []
-  return fetchStationList(precNo)
-}
-
-/** テスト用: キャッシュをクリアする */
-export function clearEtrnCache(): void {
-  cachedPrefMap = null
-  cachedStationLists.clear()
 }

@@ -11,7 +11,7 @@ import type { EtrnStation } from '@/application/ports/WeatherPort'
 vi.mock('@/infrastructure/weather', () => ({
   searchLocation: vi.fn(),
   resolveEtrnStationByLocation: vi.fn(),
-  searchStationsByPrefecture: vi.fn(),
+  getStaticStationList: vi.fn().mockReturnValue([]),
   fetchEtrnDailyWeather: vi.fn().mockResolvedValue([]),
   fetchEtrnHourlyRange: vi.fn().mockResolvedValue([]),
   resolveForecastOfficeByLocation: vi.fn(),
