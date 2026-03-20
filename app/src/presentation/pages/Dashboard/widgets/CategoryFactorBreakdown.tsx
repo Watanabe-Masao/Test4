@@ -373,7 +373,7 @@ export const CategoryFactorBreakdown = memo(function CategoryFactorBreakdown({
 
   const levelLabel =
     currentLevel === 'dept' ? '部門' : currentLevel === 'line' ? 'ライン' : 'クラス'
-  const chartH = Math.max(compact ? 180 : 240, items.length * (compact ? 28 : 34) + 40)
+  const chartH = Math.max(compact ? 200 : 260, items.length * (compact ? 36 : 44) + 50)
 
   return (
     <div>
@@ -508,23 +508,23 @@ const CategoryFactorEChart = memo(function CategoryFactorEChart({
 }) {
   const option = useMemo((): EChartsOption => {
     const names = waterfallItems.map((d) => d.name)
-    const barSize = compact ? 16 : 20
+    const barSize = compact ? 20 : 26
 
     // ウォーターフォール横棒: 透明ベース + 色付きバー をスタックして描画
-    // ECharts の bar は [start, end] レンジ直接描画不可のため、
-    // 各要因を「透明(base) + 実効値(visible)」の2シリーズでスタックする
+    // barGap: '-100%' で全要因を同一行に重ねて1本のバーとして表示する
     type WfSeries = {
       name: string
       type: 'bar'
       data: (number | { value: number; itemStyle: { color: string } })[]
       stack: string
-      itemStyle: { color: string; opacity?: number }
+      itemStyle: { color: string; opacity?: number; borderRadius?: number[] }
       barWidth: number
+      barGap: string
       emphasis?: { disabled: boolean }
     }
     const seriesList: WfSeries[] = []
 
-    /** 透明ベース + 色付きバーのペアを追加する */
+    /** 透明ベース + 色付きバーのペアを追加する（同一行に重ねて描画） */
     const addWaterfallPair = (
       name: string,
       color: string,
@@ -539,6 +539,7 @@ const CategoryFactorEChart = memo(function CategoryFactorEChart({
         stack: name,
         itemStyle: { color: 'transparent' },
         barWidth: barSize,
+        barGap: '-100%',
         emphasis: { disabled: true },
       })
       // 色付きバー: |end - start| の実効値
@@ -547,8 +548,9 @@ const CategoryFactorEChart = memo(function CategoryFactorEChart({
         type: 'bar' as const,
         data: waterfallItems.map((d) => Math.abs(getRangeEnd(d) - getRangeStart(d))),
         stack: name,
-        itemStyle: { color, opacity: 0.85 },
+        itemStyle: { color, opacity: 0.9, borderRadius: [2, 2, 2, 2] },
         barWidth: barSize,
+        barGap: '-100%',
       })
     }
 
@@ -603,12 +605,56 @@ const CategoryFactorEChart = memo(function CategoryFactorEChart({
       )
     }
 
+    // 要因ごとの名前と色を収集（ツールチップ用）
+    type FactorEntry = {
+      name: string
+      color: string
+      getValue: (d: WaterfallFactorItem) => number
+    }
+    const factorEntries: FactorEntry[] = []
+    if (hasCust)
+      factorEntries.push({
+        name: '客数効果',
+        color: FACTOR_COLORS.cust,
+        getValue: (d) => d.custEffect,
+      })
+    if (activeLevel === 2)
+      factorEntries.push({
+        name: '客単価効果',
+        color: FACTOR_COLORS.ticket,
+        getValue: (d) => d.ticketEffect,
+      })
+    if (activeLevel >= 3)
+      factorEntries.push({
+        name: '点数効果',
+        color: FACTOR_COLORS.qty,
+        getValue: (d) => d.qtyEffect,
+      })
+    if (activeLevel === 3)
+      factorEntries.push({
+        name: '単価効果',
+        color: FACTOR_COLORS.price,
+        getValue: (d) => d.priceEffect,
+      })
+    if (activeLevel === 5) {
+      factorEntries.push({
+        name: '価格効果',
+        color: FACTOR_COLORS.price,
+        getValue: (d) => d.pricePureEffect,
+      })
+      factorEntries.push({
+        name: '構成比変化効果',
+        color: FACTOR_COLORS.mix,
+        getValue: (d) => d.mixEffect,
+      })
+    }
+
     return {
       grid: {
         ...standardGrid(),
         left: compact ? 60 : 80,
-        top: 5,
-        bottom: 5,
+        top: 10,
+        bottom: 10,
       },
       tooltip: {
         ...standardTooltip(theme),
@@ -622,11 +668,20 @@ const CategoryFactorEChart = memo(function CategoryFactorEChart({
 
           const pL = prevLabel
           const cL = curLabel
-          let html = `<strong>${item.name}</strong><br/>`
-          html += `${pL}: ${fmtCurrency(item.prevAmount)}<br/>`
-          html += `${cL}: ${fmtCurrency(item.curAmount)}<br/>`
-          html += `増減: ${item.totalChange >= 0 ? '+' : ''}${fmtCurrency(item.totalChange)}`
-          if (item.hasChildren) html += '<br/><em>クリックでドリルダウン</em>'
+          let html = `<strong style="font-size:13px">${item.name}</strong><br/>`
+          html += `<span style="opacity:0.7">${pL}: ${fmtCurrency(item.prevAmount)} → ${cL}: ${fmtCurrency(item.curAmount)}</span><br/>`
+          html += `<strong>増減: ${item.totalChange >= 0 ? '+' : ''}${fmtCurrency(item.totalChange)}</strong><br/>`
+          html +=
+            '<hr style="margin:4px 0;border:none;border-top:1px solid rgba(128,128,128,0.3)"/>'
+          for (const fe of factorEntries) {
+            const v = fe.getValue(item)
+            if (v === 0) continue
+            const sign = v >= 0 ? '+' : ''
+            html += `<span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${fe.color};margin-right:4px"></span>`
+            html += `${fe.name}: ${sign}${fmtCurrency(v)}<br/>`
+          }
+          if (item.hasChildren)
+            html += '<br/><em style="opacity:0.6;font-size:11px">クリックでドリルダウン</em>'
           return html
         },
       },
@@ -635,7 +690,7 @@ const CategoryFactorEChart = memo(function CategoryFactorEChart({
         axisLabel: {
           formatter: (v: number) => fmt(v),
           color: theme.colors.text3,
-          fontSize: 9,
+          fontSize: 10,
           fontFamily: theme.typography.fontFamily.mono,
         },
         axisLine: { lineStyle: { color: theme.colors.border } },
@@ -649,7 +704,7 @@ const CategoryFactorEChart = memo(function CategoryFactorEChart({
         inverse: true,
         axisLabel: {
           color: theme.colors.text,
-          fontSize: 9,
+          fontSize: compact ? 10 : 11,
           fontFamily: theme.typography.fontFamily.primary,
           width: compact ? 55 : 75,
           overflow: 'truncate' as const,
