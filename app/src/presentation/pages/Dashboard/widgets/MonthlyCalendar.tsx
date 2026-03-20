@@ -7,7 +7,6 @@ import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import {
   calculateAchievementRate,
   calculateYoYRatio,
-  calculateTransactionValue,
   safeDivide,
 } from '@/domain/calculations/utils'
 import { calculatePinIntervals } from '@/application/hooks/calculation'
@@ -17,11 +16,21 @@ import { fetchCategoryTimeRecords } from '@/application/hooks/duckdb'
 import { useWeatherData } from '@/application/hooks/useWeather'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { categorizeWeatherCode } from '@/domain/calculations/weatherAggregation'
-import type { DailyWeatherSummary, WeatherCategory } from '@/domain/models'
+import type { DailyWeatherSummary } from '@/domain/models'
 import type { WidgetContext } from './types'
 import { DayDetailModal } from './DayDetailModal'
 import { RangeComparisonPanel } from './RangeComparison'
+import { CalendarCellPreview } from './CalendarCellPreview'
 import { fmtSen } from './drilldownUtils'
+import {
+  DOW_LABELS,
+  DOW_NAMES,
+  WEATHER_ICONS,
+  fmtSenDiff,
+  buildCalendarWeeks,
+  calcWeekSummary,
+  buildCumulativeMaps,
+} from './calendarUtils'
 import {
   CalWrapper,
   CalSectionTitle,
@@ -55,35 +64,12 @@ import {
   RangeInput,
   CalWeatherIcon,
   CalCellWrapper,
-  CalPreview,
-  PreviewTitle,
-  PreviewRow,
-  PreviewLabel,
-  PreviewValue,
-  PreviewHint,
   CalThWeek,
   CalTdWeek,
   WeekSummaryGrid,
   WeekSummaryLabel,
   WeekSummaryValue,
 } from '../DashboardPage.styles'
-
-const DOW_LABELS = ['月', '火', '水', '木', '金', '土', '日']
-const DOW_NAMES = ['日', '月', '火', '水', '木', '金', '土']
-
-const WEATHER_ICONS: Record<WeatherCategory, string> = {
-  sunny: '\u2600\uFE0F',
-  cloudy: '\u2601\uFE0F',
-  rainy: '\uD83C\uDF27\uFE0F',
-  snowy: '\u2744\uFE0F',
-  other: '\uD83C\uDF00',
-}
-
-/** 千円表記 (符号付き) */
-function fmtSenDiff(n: number): string {
-  const sen = Math.round(n / 1_000)
-  return `${sen >= 0 ? '+' : ''}${sen.toLocaleString()}千`
-}
 
 export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
   const { result: r, daysInMonth, year, month, prevYear, fmtCurrency } = ctx
@@ -188,45 +174,16 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
   ])
 
   // Build calendar grid
-  const weeks: (number | null)[][] = []
-  let currentWeek: (number | null)[] = []
-  const firstDow = (new Date(year, month - 1, 1).getDay() + 6) % 7
-  for (let i = 0; i < firstDow; i++) currentWeek.push(null)
-  for (let d = 1; d <= daysInMonth; d++) {
-    currentWeek.push(d)
-    if (currentWeek.length === 7) {
-      weeks.push(currentWeek)
-      currentWeek = []
-    }
-  }
-  if (currentWeek.length > 0) {
-    while (currentWeek.length < 7) currentWeek.push(null)
-    weeks.push(currentWeek)
-  }
+  const weeks = buildCalendarWeeks(year, month, daysInMonth)
 
   // Cumulative data (sales + customers)
-  const cumBudget = new Map<number, number>()
-  const cumSales = new Map<number, number>()
-  const cumPrevYear = new Map<number, number>()
-  const cumCustomers = new Map<number, number>()
-  const cumPrevCustomers = new Map<number, number>()
-  let runBudget = 0
-  let runSales = 0
-  let runPrevYear = 0
-  let runCustomers = 0
-  let runPrevCustomers = 0
-  for (let d = 1; d <= daysInMonth; d++) {
-    runBudget += r.budgetDaily.get(d) ?? 0
-    runSales += r.daily.get(d)?.sales ?? 0
-    runPrevYear += prevYear.daily.get(toDateKeyFromParts(year, month, d))?.sales ?? 0
-    runCustomers += r.daily.get(d)?.customers ?? 0
-    runPrevCustomers += prevYear.daily.get(toDateKeyFromParts(year, month, d))?.customers ?? 0
-    cumBudget.set(d, runBudget)
-    cumSales.set(d, runSales)
-    cumPrevYear.set(d, runPrevYear)
-    cumCustomers.set(d, runCustomers)
-    cumPrevCustomers.set(d, runPrevCustomers)
-  }
+  const { cumBudget, cumSales, cumPrevYear, cumCustomers, cumPrevCustomers } = buildCumulativeMaps(
+    daysInMonth,
+    r,
+    prevYear,
+    year,
+    month,
+  )
 
   // Range selection
   const parseDay = (v: string) => {
@@ -313,29 +270,6 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
     setPinDay(null)
   }
 
-  // ── Week summary calculator ──
-  const calcWeekSummary = (week: (number | null)[]) => {
-    let wSales = 0,
-      wBudget = 0,
-      wPySales = 0,
-      wCustomers = 0,
-      dayCount = 0
-    for (const day of week) {
-      if (day == null) continue
-      const rec = r.daily.get(day)
-      wSales += rec?.sales ?? 0
-      wBudget += r.budgetDaily.get(day) ?? 0
-      wPySales += prevYear.daily.get(toDateKeyFromParts(year, month, day))?.sales ?? 0
-      wCustomers += rec?.customers ?? 0
-      if ((rec?.sales ?? 0) > 0) dayCount++
-    }
-    const wDiff = wSales - wBudget
-    const wAch = calculateAchievementRate(wSales, wBudget)
-    const wPyRatio = calculateYoYRatio(wSales, wPySales)
-    const wTxVal = calculateTransactionValue(wSales, wCustomers)
-    return { wSales, wBudget, wDiff, wAch, wPySales, wPyRatio, wCustomers, wTxVal, dayCount }
-  }
-
   return (
     <CalWrapper>
       <CalSectionTitle
@@ -408,7 +342,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
         </thead>
         <tbody>
           {weeks.map((week, wi) => {
-            const ws = calcWeekSummary(week)
+            const ws = calcWeekSummary(week, r, prevYear, year, month)
             return (
               <tr key={wi}>
                 {week.map((day, di) => {
@@ -532,55 +466,21 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
 
                       {/* Hover Preview */}
                       {isHovered && (budget > 0 || actual > 0) && (
-                        <CalPreview>
-                          <PreviewTitle>
-                            {month}月{day}日（{dayOfWeek}）{weatherIcon && ` ${weatherIcon}`}
-                            {weather &&
-                              ` ${Math.round(weather.temperatureMax)}°/${Math.round(weather.temperatureMin)}°`}
-                          </PreviewTitle>
-                          <PreviewRow>
-                            <PreviewLabel>売上</PreviewLabel>
-                            <PreviewValue>{fmtCurrency(actual)}</PreviewValue>
-                          </PreviewRow>
-                          <PreviewRow>
-                            <PreviewLabel>予算</PreviewLabel>
-                            <PreviewValue>{fmtCurrency(budget)}</PreviewValue>
-                          </PreviewRow>
-                          <PreviewRow $color={sc.cond(dayDiff >= 0)}>
-                            <PreviewLabel>予算差</PreviewLabel>
-                            <PreviewValue>
-                              {dayDiff >= 0 ? '+' : ''}
-                              {fmtCurrency(dayDiff)}
-                            </PreviewValue>
-                          </PreviewRow>
-                          {budget > 0 && (
-                            <PreviewRow $color={sc.achievement(achievement_pragmatic)}>
-                              <PreviewLabel>達成率</PreviewLabel>
-                              <PreviewValue>{formatPercent(achievement_pragmatic)}</PreviewValue>
-                            </PreviewRow>
-                          )}
-                          {dayCust > 0 && (
-                            <>
-                              <PreviewRow>
-                                <PreviewLabel>客数</PreviewLabel>
-                                <PreviewValue>{dayCust.toLocaleString()}人</PreviewValue>
-                              </PreviewRow>
-                              <PreviewRow>
-                                <PreviewLabel>客単価</PreviewLabel>
-                                <PreviewValue>
-                                  {fmtCurrency(calculateTransactionValue(actual, dayCust))}
-                                </PreviewValue>
-                              </PreviewRow>
-                            </>
-                          )}
-                          {prevYear.hasPrevYear && pySales > 0 && (
-                            <PreviewRow $color={sc.cond(actual / pySales >= 1)}>
-                              <PreviewLabel>前年比</PreviewLabel>
-                              <PreviewValue>{formatPercent(actual / pySales)}</PreviewValue>
-                            </PreviewRow>
-                          )}
-                          <PreviewHint>クリックで詳細分析</PreviewHint>
-                        </CalPreview>
+                        <CalendarCellPreview
+                          month={month}
+                          day={day}
+                          dayOfWeek={dayOfWeek}
+                          actual={actual}
+                          budget={budget}
+                          achievement={achievement_pragmatic}
+                          dayDiff={dayDiff}
+                          customers={dayCust}
+                          pySales={pySales}
+                          hasPrevYear={prevYear.hasPrevYear}
+                          weather={weather}
+                          weatherIcon={weatherIcon}
+                          fmtCurrency={fmtCurrency}
+                        />
                       )}
                     </CalCellWrapper>
                   )
