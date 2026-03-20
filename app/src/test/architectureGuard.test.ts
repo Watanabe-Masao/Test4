@@ -91,31 +91,27 @@ const APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set([
   'application/hooks/useDuckDB.ts',
   // DuckDB 統合 — 汎用生データ取得（filterStore 経由の統一エントリーポイント）
   'application/hooks/useRawDataFetch.ts',
-  // 永続化インフラ接続 — ストレージ状態・復旧・バックアップ・フォルダ連携
-  'application/hooks/useStoragePersistence.ts',
+  // データ復旧（rawFileStore + DuckDB recovery を使用）
   'application/hooks/useDataRecovery.ts',
-  'application/hooks/useBackup.ts',
-  'application/hooks/useAutoBackup.ts',
-  'application/hooks/useAutoImport.ts',
-  // ファイルインポート（infrastructure のパーサー + rawFileStore を使用）
+  // ファイルインポート（rawFileStore を使用）
   'application/hooks/useImport.ts',
   'application/usecases/import/FileImportService.ts',
-  // エクスポート機能ブリッジ（Phase 3 で作成: ExportPort の実装）
+  // エクスポート機能ブリッジ（ExportPort の実装）
   'application/usecases/export/ExportService.ts',
-  // i18n ブリッジ（Phase 10-3a: presentation 層から infrastructure/i18n への直接依存を回避）
+  // i18n ブリッジ
   'application/hooks/useI18n.ts',
-  // 天気データ取得サービス（気象庁 ETRN クライアントを使用）
-  'application/usecases/weather/WeatherLoadService.ts',
-  // ジオコーディングブリッジ（presentation 層から infrastructure への直接依存を回避）
-  'application/hooks/useGeocode.ts',
-  // 週間天気予報取得サービス（気象庁 Forecast API を使用）
-  'application/usecases/weather/ForecastLoadService.ts',
   // 天気時間帯クエリフック（DuckDB weather_hourly テーブルを使用）
   'application/hooks/duckdb/useWeatherHourlyQuery.ts',
   // クエリプロファイルサービス（infrastructure/duckdb/queryProfiler の re-export）
   'application/services/queryProfileService.ts',
-  // ETRN 観測所検索ブリッジ（infrastructure/weather の ETRN クライアントを application 層経由で公開）
-  'application/hooks/useEtrnStationSearch.ts',
+  // ── ポートアダプタ（infrastructure 唯一の接点） ──
+  'application/adapters/weatherAdapter.ts',
+  'application/adapters/storagePersistenceAdapter.ts',
+  'application/adapters/backupAdapter.ts',
+  'application/adapters/fileSystemAdapter.ts',
+  // ── ポート型定義（infrastructure 型の import type のみ） ──
+  'application/ports/BackupPort.ts',
+  'application/ports/StoragePersistencePort.ts',
 ])
 
 /**
@@ -510,11 +506,11 @@ describe('Architecture Guard', () => {
 
   // ─── 許可リスト増加防止 ─────────────────────────────
 
-  it('APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST は 17 件以下', () => {
+  it('APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST は 16 件以下', () => {
     expect(
       APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST.size,
-      `APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST が ${APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST.size} 件（上限: 17）`,
-    ).toBeLessThanOrEqual(17)
+      `APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST が ${APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST.size} 件（上限: 16）`,
+    ).toBeLessThanOrEqual(16)
   })
 
   it('PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST は 0 件（完全解消済み）', () => {

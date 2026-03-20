@@ -15,12 +15,8 @@ import type {
   DailyWeatherSummary,
   HourlyWeatherRecord,
 } from '@/domain/models/record'
-import type { EtrnStation } from '@/infrastructure/weather'
-import {
-  resolveEtrnStationByLocation,
-  fetchEtrnDailyWeather,
-  fetchEtrnHourlyRange,
-} from '@/infrastructure/weather'
+import type { EtrnStation } from '@/application/ports/WeatherPort'
+import { weatherAdapter } from '@/application/adapters/weatherAdapter'
 
 /** 天気データ取得の進捗状態 */
 export interface WeatherLoadProgress {
@@ -112,7 +108,10 @@ export async function loadEtrnDailyForStore(
     console.debug('[Weather:Load] ETRN観測所未解決 → 自動解決開始')
     onProgress?.({ storeId, status: 'resolving', recordCount: 0 })
 
-    const etrnResult = await resolveEtrnStationByLocation(location.latitude, location.longitude)
+    const etrnResult = await weatherAdapter.resolveEtrnStationByLocation(
+      location.latitude,
+      location.longitude,
+    )
     if (!etrnResult) {
       console.warn('[Weather:Load] ETRN観測所解決失敗')
       onProgress?.({
@@ -154,7 +153,7 @@ export async function loadEtrnDailyForStore(
   console.debug('[Weather:Load] ETRN日別データ取得 %d/%d', year, month)
   onProgress?.({ storeId, status: 'loading', recordCount: 0 })
 
-  const daily = await fetchEtrnDailyWeather(
+  const daily = await weatherAdapter.fetchEtrnDailyWeather(
     finalPrecNo,
     finalBlockNo,
     finalStationType,
@@ -193,7 +192,10 @@ export async function loadEtrnHourlyForStore(
   if (precNo == null || !blockNo || !stationType) {
     onProgress?.({ storeId, status: 'resolving', recordCount: 0 })
 
-    const etrnResult = await resolveEtrnStationByLocation(location.latitude, location.longitude)
+    const etrnResult = await weatherAdapter.resolveEtrnStationByLocation(
+      location.latitude,
+      location.longitude,
+    )
     if (!etrnResult) {
       onProgress?.({
         storeId,
@@ -217,7 +219,7 @@ export async function loadEtrnHourlyForStore(
   // ETRN 時間別データを取得
   onProgress?.({ storeId, status: 'loading', recordCount: 0 })
 
-  const hourly = await fetchEtrnHourlyRange(
+  const hourly = await weatherAdapter.fetchEtrnHourlyRange(
     finalPrecNo,
     finalBlockNo,
     finalStationType,

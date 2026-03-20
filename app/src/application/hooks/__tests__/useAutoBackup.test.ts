@@ -14,6 +14,7 @@ vi.mock('@/infrastructure/storage/folderAccess', () => ({
   pickDirectory: vi.fn(() => Promise.resolve(null)),
   getStoredHandle: vi.fn(() => Promise.resolve(null)),
   removeHandle: vi.fn(() => Promise.resolve()),
+  listFiles: vi.fn(() => Promise.resolve([])),
 }))
 
 vi.mock('@/infrastructure/storage/backupExporter', () => ({
