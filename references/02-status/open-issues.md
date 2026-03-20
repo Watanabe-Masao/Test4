@@ -1,7 +1,7 @@
 # 課題管理
 
 > 管理責任: documentation-steward ロール。
-> 更新日: 2026-03-16
+> 更新日: 2026-03-20
 
 課題を3分類し、不要なアクセスを最小化する。
 
@@ -28,6 +28,7 @@
 
 | # | 課題 | 解決日 | 対応内容 |
 |---|---|---|---|
+| S-27 | WASM 空モック（vitest import 解決の band-aid） | 2026-03-20 | 空モック（Promise.reject）を4つの型付きモック（TS passthrough）に置換。wasmEngine init が成功し state='ready' に到達。init/fallback/rollback テスト追加。CI では pkg/ 存在時に実 WASM を使用する条件分岐を vitest.config に追加。4エンジンを observation-ready → promotion-candidate に昇格 |
 | S-1 | WidgetContext からの生データ除去 | 2026-03 | `categoryTimeSales` を `ctsIndex` に置換完了 |
 | S-2 | バレルエクスポート不整合 | 2026-03 | `factorDecomposition`, `causalChain` 等をバレルに追加 |
 | S-3 | 純粋関数の重複定義 | 2026-03 | `divisor.ts` に統一、`periodFilterUtils.ts` を re-export 化 |
