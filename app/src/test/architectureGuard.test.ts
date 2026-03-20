@@ -626,6 +626,36 @@ describe('Architecture Guard', () => {
     }
   })
 
+  // ─── 仮実装ファイル検出ガード ──────────────────────────
+  // 仮実装（Demo/Prototype）ファイルが _prototypes/ 外の本番パスに残っていないことを検証。
+  // 仮実装は _prototypes/ サブディレクトリに配置し、本番昇格時に正式名へリネームすること。
+
+  it('_prototypes/ 外に Demo/Prototype ファイルが存在しない', () => {
+    const srcDir = SRC_DIR
+    const files = collectTsFiles(srcDir)
+    const violations: string[] = []
+
+    const PROTOTYPE_NAME_PATTERN = /(Demo|Prototype)\.(ts|tsx)$/
+
+    for (const file of files) {
+      const rel = relativePath(file)
+      // _prototypes/ ディレクトリ内は許可
+      if (rel.includes('_prototypes/')) continue
+      // テストファイルは対象外（collectTsFiles で除外済みだが念のため）
+      if (rel.endsWith('.test.ts') || rel.endsWith('.test.tsx')) continue
+      // stories は対象外
+      if (rel.startsWith('stories/')) continue
+
+      if (PROTOTYPE_NAME_PATTERN.test(path.basename(file))) {
+        violations.push(
+          `${rel}: 仮実装ファイルが本番パスにあります。_prototypes/ に配置するか、正式名にリネームしてレイヤー違反を解消してください`,
+        )
+      }
+    }
+
+    expect(violations).toEqual([])
+  })
+
   // ─── 前年日付の独自計算禁止ガード ─────────────────────
   // 禁止事項 #2: 引数を無視して別ソースから再計算する
   // presentation 層で dowOffset を使った前年日付の独自計算を禁止。
