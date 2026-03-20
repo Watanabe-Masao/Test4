@@ -111,6 +111,8 @@ export const HourlyChart = memo(function HourlyChart({
   const hasPrevData = prevHourlyData.length > 0
   const hourlyData = hourlyMode === 'prev' && hasPrevData ? prevHourlyData : actualHourlyData
   const refData = hourlyMode === 'actual' ? prevHourlyData : actualHourlyData
+  const displayWeatherHourly =
+    hourlyMode === 'prev' && hasPrevData ? prevWeatherHourly : weatherHourly
 
   const allHours = useMemo(() => {
     const hrs = new Set<number>()
@@ -237,11 +239,11 @@ export const HourlyChart = memo(function HourlyChart({
 
   // ── 天気データマップ（ツールチップ用） ──
   const weatherMap = useMemo(() => {
-    if (!weatherHourly || weatherHourly.length === 0) return null
+    if (!displayWeatherHourly || displayWeatherHourly.length === 0) return null
     const m = new Map<number, HourlyWeatherRecord>()
-    for (const w of weatherHourly) m.set(w.hour, w)
+    for (const w of displayWeatherHourly) m.set(w.hour, w)
     return m
-  }, [weatherHourly])
+  }, [displayWeatherHourly])
 
   if (paddedData.length === 0 && prevHourlyData.length === 0) return null
   if (paddedData.length === 0) return null
@@ -453,10 +455,10 @@ export const HourlyChart = memo(function HourlyChart({
               {cumData.map((d, i) => (
                 <circle key={d.hour} cx={pxX(i)} cy={pxY(d.cumPct)} r="3.5" fill={sc.negative} />
               ))}
-              {weatherHourly && weatherHourly.length > 0 && (
+              {displayWeatherHourly && displayWeatherHourly.length > 0 && (
                 <WeatherTempLine
                   hours={paddedData}
-                  weatherHourly={weatherHourly}
+                  weatherHourly={displayWeatherHourly}
                   chartW={chartW}
                   chartH={chartH}
                   pxX={pxX}
@@ -487,8 +489,8 @@ export const HourlyChart = memo(function HourlyChart({
         ))}
       </HourlyAxis>
       {/* 天気アイコン行 */}
-      {weatherHourly && weatherHourly.length > 0 && (
-        <WeatherIconRow hours={paddedData} weatherHourly={weatherHourly} />
+      {displayWeatherHourly && displayWeatherHourly.length > 0 && (
+        <WeatherIconRow hours={paddedData} weatherHourly={displayWeatherHourly} />
       )}
 
       {/* 時間帯別前年比サマリ */}

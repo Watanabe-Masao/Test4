@@ -172,15 +172,17 @@ export function DayDetailModal({
   const dateKey = useMemo(() => toDateKeyFromParts(year, month, day), [year, month, day])
   const weatherResult = useDuckDBWeatherHourly(duckConn, duckDataVersion, weatherStoreId, dateKey)
 
-  // 前年天気データ
+  // 前年天気データ — comparisonFrame.previous から前年日付を導出
   const prevDateKey = useMemo(() => {
-    const curDate = new Date(year, month - 1, day)
-    const prevDate = new Date(curDate.getTime() + comparisonFrame.dowOffset * 86400000)
+    const pf = comparisonFrame.previous.from
+    // previous.from の年月を基準に、day + dowOffset で前年対応日を算出
+    // new Date が月跨ぎ（day=31+offset でも）を自動処理
+    const prevDate = new Date(pf.year, pf.month - 1, day + comparisonFrame.dowOffset)
     const py = prevDate.getFullYear()
     const pm = String(prevDate.getMonth() + 1).padStart(2, '0')
     const pd = String(prevDate.getDate()).padStart(2, '0')
     return `${py}-${pm}-${pd}`
-  }, [year, month, day, comparisonFrame.dowOffset])
+  }, [day, comparisonFrame])
   const prevWeatherResult = useDuckDBWeatherHourly(
     duckConn,
     duckDataVersion,

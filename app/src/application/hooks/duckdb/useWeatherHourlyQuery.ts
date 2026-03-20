@@ -61,9 +61,8 @@ export function useDuckDBWeatherHourly(
   useEffect(() => {
     // DuckDB にデータがある、まだロード中、location がない場合はスキップ
     if (hasDuckData || !duckDone || !location || !storeId || !dateKey) return
-    // 同じキーで既にフェッチ済みならスキップ
+    // 同じキーで既にフェッチ済み（成功済み）ならスキップ
     if (fetchedKeyRef.current === fetchKey) return
-    fetchedKeyRef.current = fetchKey
 
     let cancelled = false
     const parts = dateKey.split('-').map(Number)
@@ -72,11 +71,14 @@ export function useDuckDBWeatherHourly(
     loadEtrnHourlyForStore(storeId, location, y, m, [d])
       .then((result) => {
         if (!cancelled && result.hourly.length > 0) {
+          fetchedKeyRef.current = fetchKey // 成功時のみ再取得を抑止
           setEtrnCache({ key: fetchKey, data: result.hourly })
         }
       })
-      .catch(() => {
+      .catch((err: unknown) => {
         // ETRN取得失敗は無視（天気データは必須ではない）
+        // fetchedKeyRef は未設定のまま → 次のレンダーで再試行可能
+        console.warn('[useDuckDBWeatherHourly] ETRN fallback failed:', err)
       })
 
     return () => {
