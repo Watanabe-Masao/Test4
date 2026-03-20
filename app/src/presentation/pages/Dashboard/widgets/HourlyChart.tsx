@@ -58,7 +58,7 @@ import {
   AmtVal,
 } from './DayDetailModal.styles'
 import { WeatherTempLine, WeatherIconRow, WeatherTooltipInfo } from './HourlyWeatherOverlay'
-import { HourlyYoYSummary } from './HourlyYoYSummary'
+import { HourlyYoYSummary, WeatherSummaryRow } from './HourlyYoYSummary'
 
 type HourlyMode = 'actual' | 'prev'
 
@@ -321,6 +321,16 @@ export const HourlyChart = memo(function HourlyChart({
           <SumValue>{formatTurnaroundHour(turnaroundHour)}</SumValue>
         </HourlySumItem>
       </HourlySummaryRow>
+
+      {/* 天気サマリ行 */}
+      {weatherHourly && weatherHourly.length > 0 && (
+        <WeatherSummaryRow
+          weatherHourly={weatherHourly}
+          prevWeatherHourly={prevWeatherHourly}
+          curDateKey={curDateKey}
+          prevDateKey={prevDateKey}
+        />
+      )}
 
       {/* Multi-select hint & controls */}
       <ToggleBar style={{ marginBottom: 4 }}>

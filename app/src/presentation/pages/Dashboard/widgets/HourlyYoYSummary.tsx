@@ -5,11 +5,103 @@
  * 前年比が最も好調/不調な時間帯をハイライト表示する。
  */
 import { memo, useMemo } from 'react'
-import type { HourlyWeatherRecord } from '@/domain/models'
+import type { HourlyWeatherRecord, WeatherCategory } from '@/domain/models'
+import { categorizeWeatherCode } from '@/domain/calculations/weatherAggregation'
 import { formatPercent } from '@/domain/formatting'
 import { toComma } from '@/presentation/components/charts/chartTheme'
 import { sc } from '@/presentation/theme/semanticColors'
-import { SumLabel, SumValue } from './DayDetailModal.styles'
+import { HourlySummaryRow, HourlySumItem, SumLabel, SumValue } from './DayDetailModal.styles'
+
+const WEATHER_ICONS: Record<WeatherCategory, string> = {
+  sunny: '\u2600\uFE0F',
+  cloudy: '\u2601\uFE0F',
+  rainy: '\uD83C\uDF27\uFE0F',
+  snowy: '\u2744\uFE0F',
+  other: '\uD83C\uDF00',
+}
+
+/** 天気サマリ行 — 売上サマリの直下に表示 */
+export const WeatherSummaryRow = memo(function WeatherSummaryRow({
+  weatherHourly,
+  prevWeatherHourly,
+  curDateKey,
+  prevDateKey,
+}: {
+  weatherHourly: readonly HourlyWeatherRecord[]
+  prevWeatherHourly?: readonly HourlyWeatherRecord[]
+  curDateKey?: string
+  prevDateKey?: string
+}) {
+  const curTemps = weatherHourly.map((r) => r.temperature)
+  const curMax = Math.max(...curTemps)
+  const curMin = Math.min(...curTemps)
+  const curPrecip = weatherHourly.reduce((s, r) => s + r.precipitation, 0)
+  const dominantCode = weatherHourly
+    .map((r) => r.weatherCode)
+    .sort(
+      (a, b) =>
+        weatherHourly.filter((r) => r.weatherCode === b).length -
+        weatherHourly.filter((r) => r.weatherCode === a).length,
+    )[0]
+  const icon = WEATHER_ICONS[categorizeWeatherCode(dominantCode)]
+  const curYear = curDateKey?.slice(0, 4) ?? ''
+
+  const prev = useMemo(() => {
+    if (!prevWeatherHourly?.length) return null
+    const temps = prevWeatherHourly.map((r) => r.temperature)
+    return {
+      max: Math.max(...temps),
+      min: Math.min(...temps),
+      precip: prevWeatherHourly.reduce((s, r) => s + r.precipitation, 0),
+      dominantCode: prevWeatherHourly
+        .map((r) => r.weatherCode)
+        .sort(
+          (a, b) =>
+            prevWeatherHourly.filter((r) => r.weatherCode === b).length -
+            prevWeatherHourly.filter((r) => r.weatherCode === a).length,
+        )[0],
+    }
+  }, [prevWeatherHourly])
+
+  const prevYear = prevDateKey?.slice(0, 4) ?? ''
+
+  return (
+    <HourlySummaryRow>
+      <HourlySumItem>
+        <SumLabel>{curYear} 天気</SumLabel>
+        <SumValue>
+          {icon} <span style={{ color: '#e74c3c' }}>{curMax.toFixed(1)}°</span>/
+          <span style={{ color: '#3498db' }}>{curMin.toFixed(1)}°</span>
+        </SumValue>
+      </HourlySumItem>
+      {curPrecip > 0 && (
+        <HourlySumItem>
+          <SumLabel>降水量</SumLabel>
+          <SumValue style={{ color: '#3b82f6' }}>{curPrecip.toFixed(1)}mm</SumValue>
+        </HourlySumItem>
+      )}
+      {prev && (
+        <>
+          <HourlySumItem>
+            <SumLabel>{prevYear} 天気</SumLabel>
+            <SumValue>
+              {WEATHER_ICONS[categorizeWeatherCode(prev.dominantCode)]}{' '}
+              <span style={{ color: '#e74c3c' }}>{prev.max.toFixed(1)}°</span>/
+              <span style={{ color: '#3498db' }}>{prev.min.toFixed(1)}°</span>
+            </SumValue>
+          </HourlySumItem>
+          <HourlySumItem>
+            <SumLabel>気温差（最高）</SumLabel>
+            <SumValue>
+              {curMax - prev.max >= 0 ? '+' : ''}
+              {(curMax - prev.max).toFixed(1)}°
+            </SumValue>
+          </HourlySumItem>
+        </>
+      )}
+    </HourlySummaryRow>
+  )
+})
 
 export const HourlyYoYSummary = memo(function HourlyYoYSummary({
   actualData,

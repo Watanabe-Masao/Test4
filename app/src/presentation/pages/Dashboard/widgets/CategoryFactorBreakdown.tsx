@@ -510,72 +510,97 @@ const CategoryFactorEChart = memo(function CategoryFactorEChart({
     const names = waterfallItems.map((d) => d.name)
     const barSize = compact ? 16 : 20
 
-    // Build series for each active factor
-    // データは [start, end] レンジ形式 → stack は使わない（位置は既に計算済み）
-    type BarSeries = {
+    // ウォーターフォール横棒: 透明ベース + 色付きバー をスタックして描画
+    // ECharts の bar は [start, end] レンジ直接描画不可のため、
+    // 各要因を「透明(base) + 実効値(visible)」の2シリーズでスタックする
+    type WfSeries = {
       name: string
       type: 'bar'
-      data: number[][]
-      itemStyle: { color: string; opacity: number }
+      data: (number | { value: number; itemStyle: { color: string } })[]
+      stack: string
+      itemStyle: { color: string; opacity?: number }
       barWidth: number
+      emphasis?: { disabled: boolean }
     }
-    const seriesList: BarSeries[] = []
+    const seriesList: WfSeries[] = []
 
-    if (hasCust) {
+    /** 透明ベース + 色付きバーのペアを追加する */
+    const addWaterfallPair = (
+      name: string,
+      color: string,
+      getRangeStart: (d: WaterfallFactorItem) => number,
+      getRangeEnd: (d: WaterfallFactorItem) => number,
+    ) => {
+      // 透明ベース: min(start,end) まで透明バーで持ち上げる
       seriesList.push({
-        name: '客数効果',
+        name: '',
         type: 'bar' as const,
-        data: waterfallItems.map((d) => [d.custRange[0], d.custRange[1]]),
-        itemStyle: { color: FACTOR_COLORS.cust, opacity: 0.85 },
+        data: waterfallItems.map((d) => Math.min(getRangeStart(d), getRangeEnd(d))),
+        stack: name,
+        itemStyle: { color: 'transparent' },
+        barWidth: barSize,
+        emphasis: { disabled: true },
+      })
+      // 色付きバー: |end - start| の実効値
+      seriesList.push({
+        name,
+        type: 'bar' as const,
+        data: waterfallItems.map((d) => Math.abs(getRangeEnd(d) - getRangeStart(d))),
+        stack: name,
+        itemStyle: { color, opacity: 0.85 },
         barWidth: barSize,
       })
+    }
+
+    if (hasCust) {
+      addWaterfallPair(
+        '客数効果',
+        FACTOR_COLORS.cust,
+        (d) => d.custRange[0],
+        (d) => d.custRange[1],
+      )
     }
 
     if (activeLevel === 2) {
-      seriesList.push({
-        name: '客単価効果',
-        type: 'bar' as const,
-        data: waterfallItems.map((d) => [d.ticketRange[0], d.ticketRange[1]]),
-        itemStyle: { color: FACTOR_COLORS.ticket, opacity: 0.85 },
-        barWidth: barSize,
-      })
+      addWaterfallPair(
+        '客単価効果',
+        FACTOR_COLORS.ticket,
+        (d) => d.ticketRange[0],
+        (d) => d.ticketRange[1],
+      )
     }
 
     if (activeLevel >= 3) {
-      seriesList.push({
-        name: '点数効果',
-        type: 'bar' as const,
-        data: waterfallItems.map((d) => [d.qtyRange[0], d.qtyRange[1]]),
-        itemStyle: { color: FACTOR_COLORS.qty, opacity: 0.85 },
-        barWidth: barSize,
-      })
+      addWaterfallPair(
+        '点数効果',
+        FACTOR_COLORS.qty,
+        (d) => d.qtyRange[0],
+        (d) => d.qtyRange[1],
+      )
     }
 
     if (activeLevel === 3) {
-      seriesList.push({
-        name: '単価効果',
-        type: 'bar' as const,
-        data: waterfallItems.map((d) => [d.priceRange[0], d.priceRange[1]]),
-        itemStyle: { color: FACTOR_COLORS.price, opacity: 0.85 },
-        barWidth: barSize,
-      })
+      addWaterfallPair(
+        '単価効果',
+        FACTOR_COLORS.price,
+        (d) => d.priceRange[0],
+        (d) => d.priceRange[1],
+      )
     }
 
     if (activeLevel === 5) {
-      seriesList.push({
-        name: '価格効果',
-        type: 'bar' as const,
-        data: waterfallItems.map((d) => [d.pricePureRange[0], d.pricePureRange[1]]),
-        itemStyle: { color: FACTOR_COLORS.price, opacity: 0.85 },
-        barWidth: barSize,
-      })
-      seriesList.push({
-        name: '構成比変化効果',
-        type: 'bar' as const,
-        data: waterfallItems.map((d) => [d.mixRange[0], d.mixRange[1]]),
-        itemStyle: { color: FACTOR_COLORS.mix, opacity: 0.85 },
-        barWidth: barSize,
-      })
+      addWaterfallPair(
+        '価格効果',
+        FACTOR_COLORS.price,
+        (d) => d.pricePureRange[0],
+        (d) => d.pricePureRange[1],
+      )
+      addWaterfallPair(
+        '構成比変化効果',
+        FACTOR_COLORS.mix,
+        (d) => d.mixRange[0],
+        (d) => d.mixRange[1],
+      )
     }
 
     return {
