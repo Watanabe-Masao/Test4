@@ -109,9 +109,7 @@ const APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set([
   'application/adapters/storagePersistenceAdapter.ts',
   'application/adapters/backupAdapter.ts',
   'application/adapters/fileSystemAdapter.ts',
-  // ── ポート型定義（infrastructure 型の import type のみ） ──
-  'application/ports/BackupPort.ts',
-  'application/ports/StoragePersistencePort.ts',
+  // ポート型定義は domain 型のみに依存するため許可リスト不要
 ])
 
 /**
@@ -506,11 +504,11 @@ describe('Architecture Guard', () => {
 
   // ─── 許可リスト増加防止 ─────────────────────────────
 
-  it('APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST は 16 件以下', () => {
+  it('APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST は 14 件以下', () => {
     expect(
       APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST.size,
-      `APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST が ${APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST.size} 件（上限: 16）`,
-    ).toBeLessThanOrEqual(16)
+      `APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST が ${APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST.size} 件（上限: 14）`,
+    ).toBeLessThanOrEqual(14)
   })
 
   it('PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST は 0 件（完全解消済み）', () => {

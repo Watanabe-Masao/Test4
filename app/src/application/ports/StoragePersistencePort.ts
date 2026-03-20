@@ -1,12 +1,11 @@
 /**
  * StoragePersistencePort — ストレージ永続化・クォータの契約
  *
- * infrastructure/storage/storagePersistence + storagePolicy を隠蔽する。
- * 型は infrastructure の実装型を re-export する。
+ * 消費者（useStoragePersistence）が使いたいストレージ操作を定義する。
+ * domain 型のみに依存し、infrastructure への依存は持たない。
  */
-import type { StoragePressureLevel } from '@/infrastructure/storage/storagePolicy'
 
-export type { StoragePressureLevel }
+export type StoragePressureLevel = 'normal' | 'warning' | 'critical'
 
 export interface StorageStatusResult {
   readonly estimate: { usage: number; quota: number; usageRatio: number } | null

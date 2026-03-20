@@ -1,14 +1,30 @@
 /**
  * BackupPort — バックアップ操作の契約
  *
- * infrastructure/storage/backupExporter を隠蔽する。
- * 型は infrastructure の実装型を re-export する（ポート型の二重定義を回避）。
+ * 消費者（useBackup, useAutoBackup）が使いたいバックアップ操作を定義する。
+ * domain 型のみに依存し、infrastructure への依存は持たない。
  */
 import type { DataRepository } from '@/domain/repositories'
 import type { AppSettings } from '@/domain/models/storeTypes'
-import type { BackupMeta, BackupImportResult } from '@/infrastructure/storage/backupExporter'
 
-export type { BackupMeta, BackupImportResult }
+/** バックアップファイルのメタ情報 */
+export interface BackupMeta {
+  readonly formatVersion: number
+  readonly createdAt: string
+  readonly appVersion: string
+  readonly months: readonly { year: number; month: number }[]
+  readonly checksum?: string
+}
+
+/** バックアップインポート結果 */
+export interface BackupImportResult {
+  readonly monthsImported: number
+  readonly monthsSkipped: number
+  readonly errors: readonly string[]
+  readonly restoredAppSettings?: AppSettings
+  readonly importHistoryRestored: number
+  readonly rawManifestRestored: number
+}
 
 export interface BackupPort {
   exportBackup(repo: DataRepository, appSettings?: AppSettings): Promise<Blob>
