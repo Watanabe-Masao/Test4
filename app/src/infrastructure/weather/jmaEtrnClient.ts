@@ -28,7 +28,7 @@ interface StationEntry {
   readonly lon: readonly [number, number]
 }
 
-const STATIC_STATIONS: readonly StationEntry[] = etrnStationsData as readonly StationEntry[]
+const STATIC_STATIONS = etrnStationsData as unknown as readonly StationEntry[]
 
 // ─── Station Resolution (Static List Based) ─────────
 
