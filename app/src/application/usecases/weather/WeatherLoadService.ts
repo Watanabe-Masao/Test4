@@ -102,38 +102,51 @@ export async function loadEtrnDailyForStore(
   let stationType = location.etrnStationType
   let resolvedStation: EtrnStation | undefined
 
-  // ETRN 観測所が未解決の場合のみ自動解決（viewPoint パースで stationType は正確に判定済み）
-  const needsResolve = precNo == null || !blockNo || !stationType
-  if (needsResolve) {
-    console.debug('[Weather:Load] ETRN観測所未解決 → 自動解決開始')
+  // ETRN 観測所が未解決の場合は自動解決する。
+  // キャッシュが a1（AMeDAS）の場合は s1（気象台）へのアップグレードを試みる。
+  const isUnresolved = precNo == null || !blockNo || !stationType
+  const isA1Upgrade = !isUnresolved && stationType === 'a1'
+  if (isUnresolved || isA1Upgrade) {
+    console.debug(
+      '[Weather:Load] ETRN観測所%s → 自動解決開始',
+      isA1Upgrade ? 'a1→s1アップグレード' : '未解決',
+    )
     onProgress?.({ storeId, status: 'resolving', recordCount: 0 })
 
     const etrnResult = await weatherAdapter.resolveEtrnStationByLocation(
       location.latitude,
       location.longitude,
     )
-    if (!etrnResult) {
-      console.warn('[Weather:Load] ETRN観測所解決失敗')
-      onProgress?.({
-        storeId,
-        status: 'error',
-        recordCount: 0,
-        error: 'ETRN 観測所が見つかりません',
-      })
-      return { daily: [] }
-    }
 
-    precNo = etrnResult.precNo
-    blockNo = etrnResult.blockNo
-    stationType = etrnResult.stationType
-    resolvedStation = etrnResult
-    console.debug(
-      '[Weather:Load] ETRN観測所解決完了: precNo=%d block=%s type=%s (%s)',
-      precNo,
-      blockNo,
-      stationType,
-      etrnResult.stationName,
-    )
+    if (!etrnResult) {
+      if (isUnresolved) {
+        console.warn('[Weather:Load] ETRN観測所解決失敗')
+        onProgress?.({
+          storeId,
+          status: 'error',
+          recordCount: 0,
+          error: 'ETRN 観測所が見つかりません',
+        })
+        return { daily: [] }
+      }
+      // a1 アップグレード失敗時はキャッシュ済み a1 で続行
+      console.debug('[Weather:Load] a1→s1アップグレード失敗 → キャッシュ済みa1で続行')
+    } else if (isA1Upgrade && etrnResult.stationType === 'a1') {
+      // 再解決しても a1 のみ → キャッシュ済み値で続行（再解決ループを防止）
+      console.debug('[Weather:Load] s1観測所なし → キャッシュ済みa1で続行')
+    } else {
+      precNo = etrnResult.precNo
+      blockNo = etrnResult.blockNo
+      stationType = etrnResult.stationType
+      resolvedStation = etrnResult
+      console.debug(
+        '[Weather:Load] ETRN観測所解決完了: precNo=%d block=%s type=%s (%s)',
+        precNo,
+        blockNo,
+        stationType,
+        etrnResult.stationName,
+      )
+    }
   } else {
     console.debug(
       '[Weather:Load] ETRN観測所キャッシュ済み: precNo=%d block=%s type=%s',
@@ -185,28 +198,36 @@ export async function loadEtrnHourlyForStore(
   let stationType = location.etrnStationType
   let resolvedStation: EtrnStation | undefined
 
-  // ETRN 観測所が未解決の場合のみ自動解決
-  if (precNo == null || !blockNo || !stationType) {
+  // ETRN 観測所が未解決の場合は自動解決。a1 キャッシュは s1 へのアップグレードを試みる
+  const isUnresolved = precNo == null || !blockNo || !stationType
+  const isA1Upgrade = !isUnresolved && stationType === 'a1'
+  if (isUnresolved || isA1Upgrade) {
     onProgress?.({ storeId, status: 'resolving', recordCount: 0 })
 
     const etrnResult = await weatherAdapter.resolveEtrnStationByLocation(
       location.latitude,
       location.longitude,
     )
-    if (!etrnResult) {
-      onProgress?.({
-        storeId,
-        status: 'error',
-        recordCount: 0,
-        error: 'ETRN 観測所が見つかりません',
-      })
-      return { hourly: [] }
-    }
 
-    precNo = etrnResult.precNo
-    blockNo = etrnResult.blockNo
-    stationType = etrnResult.stationType
-    resolvedStation = etrnResult
+    if (!etrnResult) {
+      if (isUnresolved) {
+        onProgress?.({
+          storeId,
+          status: 'error',
+          recordCount: 0,
+          error: 'ETRN 観測所が見つかりません',
+        })
+        return { hourly: [] }
+      }
+      // a1 アップグレード失敗時はキャッシュ済み a1 で続行
+    } else if (isA1Upgrade && etrnResult.stationType === 'a1') {
+      // 再解決しても a1 のみ → キャッシュ済み値で続行
+    } else {
+      precNo = etrnResult.precNo
+      blockNo = etrnResult.blockNo
+      stationType = etrnResult.stationType
+      resolvedStation = etrnResult
+    }
   }
 
   const station: EtrnStation = resolvedStation ?? {
