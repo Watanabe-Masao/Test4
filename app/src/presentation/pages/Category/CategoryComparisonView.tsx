@@ -1,5 +1,5 @@
-import { ChartErrorBoundary } from '@/presentation/components/common'
-import type { StoreResult } from '@/domain/models'
+import { ChartErrorBoundary } from '@/presentation/components/common/feedback'
+import type { StoreResult } from '@/domain/models/storeTypes'
 import { ChartGrid } from './CategoryPage.styles'
 import {
   StoreComparisonCategoryBarChart,

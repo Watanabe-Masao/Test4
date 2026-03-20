@@ -3,8 +3,8 @@
  */
 import { describe, it, expect, beforeEach } from 'vitest'
 import { CalculationCache, computeFingerprint, computeGlobalFingerprint } from '../calculationCache'
-import { createEmptyImportedData } from '@/domain/models'
-import type { AppSettings, StoreResult } from '@/domain/models'
+import { createEmptyImportedData } from '@/domain/models/storeTypes'
+import type { AppSettings, StoreResult } from '@/domain/models/storeTypes'
 
 const mockSettings: AppSettings = {
   targetYear: 2024,

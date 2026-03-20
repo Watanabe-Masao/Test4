@@ -17,7 +17,7 @@ import type {
   SpecialSalesData,
   PurchaseData,
   TransferData,
-} from '@/domain/models'
+} from '@/domain/models/record'
 
 // バレル re-export（後方互換）
 export { OVERFLOW_DAYS, adjacentMonth, mergeAdjacentMonthRecords }

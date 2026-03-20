@@ -8,7 +8,7 @@
  * 予算データは budget テーブルから LEFT JOIN で取得。
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { DateRange } from '@/domain/models'
+import type { DateRange } from '@/domain/models/calendar'
 import { dateRangeToKeys } from '@/domain/models/CalendarDate'
 import { queryToObjects, buildWhereClause, storeIdFilter } from '../queryRunner'
 

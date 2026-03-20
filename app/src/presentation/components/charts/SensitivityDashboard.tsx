@@ -11,7 +11,7 @@ import {
   useElasticity,
 } from '@/application/hooks/useSensitivity'
 import type { SensitivityDeltas } from '@/application/hooks/useSensitivity'
-import type { StoreResult } from '@/domain/models'
+import type { StoreResult } from '@/domain/models/storeTypes'
 import {
   Grid,
   SliderSection,

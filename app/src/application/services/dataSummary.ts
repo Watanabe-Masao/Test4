@@ -6,13 +6,12 @@
  * ここで全てのレコード走査を集約する。
  */
 import type {
-  ImportedData,
-  DataType,
   Store,
   ClassifiedSalesData,
   CategoryTimeSalesData,
   DatedRecord,
-} from '@/domain/models'
+} from '@/domain/models/record'
+import type { ImportedData, DataType } from '@/domain/models/storeTypes'
 
 // ─── 型定義 ──────────────────────────────────────────
 

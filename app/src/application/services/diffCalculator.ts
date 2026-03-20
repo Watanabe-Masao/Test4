@@ -6,16 +6,14 @@
  * 2. 値変更:   既存に値があり、新規に異なる値がある → ユーザー確認
  * 3. 値削除:   既存に値があり、新規に値がない → ユーザー確認
  */
+import type { FieldChange, DataTypeDiff, DiffResult } from '@/domain/models/analysis'
 import type {
-  ImportedData,
   DatedRecord,
   CategoryTimeSalesData,
   ClassifiedSalesData,
-  FieldChange,
-  DataTypeDiff,
-  DiffResult,
-} from '@/domain/models'
-import { categoryTimeSalesRecordKey, classifiedSalesRecordKey } from '@/domain/models'
+} from '@/domain/models/record'
+import type { ImportedData } from '@/domain/models/storeTypes'
+import { categoryTimeSalesRecordKey, classifiedSalesRecordKey } from '@/domain/models/record'
 
 /** フラットレコードの一意キーを生成（storeId + day） */
 function flatRecordKey(rec: DatedRecord): string {
@@ -23,7 +21,7 @@ function flatRecordKey(rec: DatedRecord): string {
 }
 
 // ドメイン層で定義された型を再エクスポート
-export type { FieldChange, DataTypeDiff, DiffResult } from '@/domain/models'
+export type { FieldChange, DataTypeDiff, DiffResult } from '@/domain/models/analysis'
 
 // ─── データ種別名マッピング ──────────────────────────────
 

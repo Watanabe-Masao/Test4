@@ -11,9 +11,10 @@ import {
   generateMetricSummary,
 } from '../ExplanationService'
 import { calculateStoreResult } from '@/application/usecases/calculation/CalculationOrchestrator'
-import { createEmptyImportedData } from '@/domain/models'
+import { createEmptyImportedData } from '@/domain/models/storeTypes'
 import { createDefaultSettings } from '@/domain/constants/defaults'
-import type { ImportedData, StoreResult, AppSettings, Explanation } from '@/domain/models'
+import type { Explanation } from '@/domain/models/analysis'
+import type { ImportedData, StoreResult, AppSettings } from '@/domain/models/storeTypes'
 
 const DEFAULT_SETTINGS: AppSettings = {
   ...createDefaultSettings(),

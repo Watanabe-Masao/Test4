@@ -14,7 +14,7 @@ import {
   buildDateBreakdown,
   type BoxPlotStats,
 } from '@/application/hooks/useDuckDBQuery'
-import { EmptyState } from '@/presentation/components/common'
+import { EmptyState } from '@/presentation/components/common/layout'
 import { MapLegend, LegendItem } from './CategoryBoxPlotChart.styles'
 import type { ChartTheme, AnalysisAxis } from './CategoryBoxPlotChart.vm'
 import { StoreBreakdownChart, DateBreakdownChart } from './CategoryBoxPlotBreakdownCharts'

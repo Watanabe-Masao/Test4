@@ -1,17 +1,12 @@
 import { Fragment } from 'react'
-import {
-  Card,
-  CardTitle,
-  Chip,
-  ChipGroup,
-  KpiCard,
-  KpiGrid,
-  ChartErrorBoundary,
-} from '@/presentation/components/common'
+import { ChartErrorBoundary } from '@/presentation/components/common/feedback'
+import { Chip, ChipGroup } from '@/presentation/components/common/forms'
+import { Card, CardTitle } from '@/presentation/components/common/layout'
+import { KpiCard, KpiGrid } from '@/presentation/components/common/tables'
 import { formatPercent } from '@/domain/formatting'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { palette } from '@/presentation/theme/tokens'
-import type { MetricId } from '@/domain/models'
+import type { MetricId } from '@/domain/models/analysis'
 import {
   Section,
   TableWrapper,

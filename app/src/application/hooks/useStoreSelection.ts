@@ -4,7 +4,7 @@ import { useUiStore } from '@/application/stores/uiStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { aggregateStoreResults } from '@/application/usecases/calculation'
 import { getDaysInMonth } from '@/domain/constants/defaults'
-import type { StoreResult } from '@/domain/models'
+import type { StoreResult } from '@/domain/models/storeTypes'
 
 /** 店舗選択フック（複数選択対応） */
 export function useStoreSelection() {

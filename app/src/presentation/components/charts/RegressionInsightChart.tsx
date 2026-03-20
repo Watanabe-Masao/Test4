@@ -14,9 +14,9 @@ import {
   calculateStdDev,
 } from '@/application/hooks/useStatistics'
 import { safeDivide } from '@/domain/calculations/utils'
-import type { StoreResult } from '@/domain/models'
+import type { StoreResult } from '@/domain/models/storeTypes'
 import { CHART_GUIDES } from './chartGuides'
-import { SegmentedControl } from '@/presentation/components/common'
+import { SegmentedControl } from '@/presentation/components/common/layout'
 import { ChartCard } from './ChartCard'
 import { ChartEmpty } from './ChartState'
 import { EChart, type EChartsOption } from './EChart'

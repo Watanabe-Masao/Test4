@@ -1,17 +1,11 @@
 import { useState, useCallback, useRef, useEffect, memo, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MainContent } from '@/presentation/components/Layout'
-import {
-  KpiCard,
-  KpiGrid,
-  Chip,
-  ChipGroup,
-  ChartErrorBoundary,
-  MetricBreakdownPanel,
-  PageSkeleton,
-} from '@/presentation/components/common'
-import { useStoreSelection } from '@/application/hooks'
-import type { ViewType } from '@/domain/models'
+import { ChartErrorBoundary, PageSkeleton } from '@/presentation/components/common/feedback'
+import { Chip, ChipGroup } from '@/presentation/components/common/forms'
+import { KpiCard, KpiGrid, MetricBreakdownPanel } from '@/presentation/components/common/tables'
+import { useStoreSelection } from '@/application/hooks/ui'
+import type { ViewType } from '@/domain/models/storeTypes'
 import { VIEW_TO_PATH } from '@/application/navigation/viewMapping'
 import { palette } from '@/presentation/theme/tokens'
 import { useDataStore } from '@/application/stores/dataStore'

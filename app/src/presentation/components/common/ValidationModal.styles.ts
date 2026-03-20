@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import type { ValidationMessage } from '@/domain/models'
+import type { ValidationMessage } from '@/domain/models/record'
 
 export const MessageList = styled.div`
   display: flex;

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import { useState } from 'react'
 import { SettingsModal } from '@/presentation/components/common/SettingsModal'
-import { Button } from '@/presentation/components/common'
+import { Button } from '@/presentation/components/common/layout'
 import { createDefaultSettings } from '@/domain/constants/defaults'
 
 const meta: Meta<typeof SettingsModal> = {

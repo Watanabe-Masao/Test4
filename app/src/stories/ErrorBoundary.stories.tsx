@@ -4,7 +4,7 @@ import {
   ErrorBoundary,
   ChartErrorBoundary,
   PageErrorBoundary,
-} from '@/presentation/components/common'
+} from '@/presentation/components/common/feedback'
 import { I18nProvider } from '@/infrastructure/i18n/I18nContext'
 
 const meta: Meta<typeof ErrorBoundary> = {

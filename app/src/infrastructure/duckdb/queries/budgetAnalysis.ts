@@ -10,7 +10,7 @@
  * @see budgetAnalysis.ts — このクエリが置き換える JS 計算
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { DateRange } from '@/domain/models'
+import type { DateRange } from '@/domain/models/calendar'
 import { dateRangeToKeys } from '@/domain/models/CalendarDate'
 import { queryToObjects, buildWhereClause, storeIdFilter } from '../queryRunner'
 

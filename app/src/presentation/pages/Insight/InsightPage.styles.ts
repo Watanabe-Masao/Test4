@@ -5,9 +5,9 @@ import {
   DataTh,
   DataTd,
   DataTr,
-} from '@/presentation/components/common'
-export { TabBar, Tab } from '@/presentation/components/common'
-export { Section, SectionTitle } from '@/presentation/components/common'
+} from '@/presentation/components/common/tables'
+export { TabBar, Tab } from '@/presentation/components/common/layout'
+export { Section, SectionTitle } from '@/presentation/components/common/layout'
 
 export const ChartSection = styled.div`
   margin-bottom: ${({ theme }) => theme.spacing[8]};
@@ -49,7 +49,7 @@ export const Td = DataTd
 
 export const Tr = DataTr
 
-export { EmptyState } from '@/presentation/components/common'
+export { EmptyState } from '@/presentation/components/common/layout'
 
 /* ─── Summary (粗利計算) ────────────────────────────── */
 
@@ -73,7 +73,7 @@ export {
   VarianceRow,
   VarianceLabel,
   VarianceValue,
-} from '@/presentation/components/common'
+} from '@/presentation/components/common/tables'
 
 export const Formula = styled.div`
   font-size: ${({ theme }) => theme.typography.fontSize.xs};

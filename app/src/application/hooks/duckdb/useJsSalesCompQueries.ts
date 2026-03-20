@@ -6,7 +6,7 @@
  */
 import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { DateRange, ComparisonFrame, PrevYearScope } from '@/domain/models'
+import type { DateRange, ComparisonFrame, PrevYearScope } from '@/domain/models/calendar'
 import type { DailyCumulativeRow } from '@/infrastructure/duckdb/queries/aggregates/dailyAggregation'
 import { queryDailyCumulativeAggregation } from '@/infrastructure/duckdb/queries/aggregates/dailyAggregation'
 import type { HourlyProfileRow } from '@/infrastructure/duckdb/queries/features'

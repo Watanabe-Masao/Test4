@@ -5,9 +5,9 @@ import {
   DataTh,
   DataTd,
   DataTr,
-} from '@/presentation/components/common'
-export { Section, SectionTitle } from '@/presentation/components/common'
-export { EmptyState } from '@/presentation/components/common'
+} from '@/presentation/components/common/tables'
+export { Section, SectionTitle } from '@/presentation/components/common/layout'
+export { EmptyState } from '@/presentation/components/common/layout'
 
 export const ChartGrid = styled.div`
   display: grid;

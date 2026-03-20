@@ -5,7 +5,8 @@
  * 適合させるアダプター。DI はコンポジションルート（App.tsx）で行う。
  */
 import type { RawDataPort } from '@/application/ports'
-import type { RawFileRecord, RawDataManifest, DataType } from '@/domain/models'
+import type { RawFileRecord, RawDataManifest } from '@/domain/models/analysis'
+import type { DataType } from '@/domain/models/storeTypes'
 import { rawFileStore } from './rawFileStore'
 
 export class IndexedDBRawDataAdapter implements RawDataPort {

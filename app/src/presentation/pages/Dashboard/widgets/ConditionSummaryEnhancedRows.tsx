@@ -1,5 +1,5 @@
 import { memo } from 'react'
-import { DISCOUNT_TYPES } from '@/domain/models'
+import { DISCOUNT_TYPES } from '@/domain/models/record'
 import type { EnhancedRow, MetricKey } from './ConditionSummaryEnhanced.vm'
 import { fmtValue, fmtAchievement, resultColor } from './ConditionSummaryEnhanced.vm'
 import { formatPercent } from '@/domain/formatting'

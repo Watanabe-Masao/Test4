@@ -11,7 +11,7 @@
  *
  * Presentation 層は ComparisonEntry[] を受け取り、モード名を知らずに描画する。
  */
-import type { AlignmentPolicy, ComparisonFrame, DowGapAnalysis } from '@/domain/models'
+import type { AlignmentPolicy, ComparisonFrame, DowGapAnalysis } from '@/domain/models/calendar'
 
 /**
  * 比較エントリ — 1つの比較モードのデータ

@@ -9,9 +9,9 @@ import {
   calculateYoYRatio,
   calculateTransactionValue,
 } from '@/domain/calculations/utils'
-import type { StoreResult } from '@/domain/models'
-import type { PrevYearData } from '@/application/hooks'
-import type { WeatherCategory } from '@/domain/models'
+import type { StoreResult } from '@/domain/models/storeTypes'
+import type { PrevYearData } from '@/application/hooks/analytics'
+import type { WeatherCategory } from '@/domain/models/record'
 
 export const DOW_LABELS = ['月', '火', '水', '木', '金', '土', '日']
 export const DOW_NAMES = ['日', '月', '火', '水', '木', '金', '土']

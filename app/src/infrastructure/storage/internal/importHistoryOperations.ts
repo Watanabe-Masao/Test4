@@ -1,7 +1,7 @@
 /**
  * IndexedDB インポート履歴操作
  */
-import type { ImportHistoryEntry } from '@/domain/models'
+import type { ImportHistoryEntry } from '@/domain/models/analysis'
 import { dbGet, dbBatchPutWithReadModify, STORE_MONTHLY } from './dbHelpers'
 import { importHistoryKey } from './keys'
 

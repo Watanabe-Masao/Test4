@@ -4,8 +4,9 @@
  * ImportedData に対するビジネスルールバリデーションを担当する。
  * 整合性チェック、重複検出、日付範囲検証など。
  */
-import type { ImportedData, ValidationMessage } from '@/domain/models'
-import { classifiedSalesRecordKey, categoryTimeSalesRecordKey } from '@/domain/models'
+import type { ValidationMessage } from '@/domain/models/record'
+import type { ImportedData } from '@/domain/models/storeTypes'
+import { classifiedSalesRecordKey, categoryTimeSalesRecordKey } from '@/domain/models/record'
 import type { ImportSummary } from './FileImportService'
 
 /**

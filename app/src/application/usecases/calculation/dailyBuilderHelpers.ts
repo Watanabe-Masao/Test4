@@ -12,8 +12,8 @@ import type {
   CategoryType,
   DiscountEntry,
   CostInclusionDailyRecord,
-} from '@/domain/models'
-import { ZERO_COST_PRICE_PAIR, addCostPricePairs, addDiscountEntries } from '@/domain/models'
+} from '@/domain/models/record'
+import { ZERO_COST_PRICE_PAIR, addCostPricePairs, addDiscountEntries } from '@/domain/models/record'
 
 // ── 移動内訳 ─────────────────────────────────
 

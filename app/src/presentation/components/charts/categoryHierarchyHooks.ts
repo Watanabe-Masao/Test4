@@ -5,7 +5,7 @@
  * コンポーネント（Provider）とフック・ユーティリティを別ファイルに分離。
  */
 import { useContext } from 'react'
-import type { CategoryTimeSalesRecord } from '@/domain/models'
+import type { CategoryTimeSalesRecord } from '@/domain/models/record'
 import { HierarchyContext } from './categoryHierarchyContextDef'
 import type { HierarchyFilter } from './categoryHierarchyContextDef'
 

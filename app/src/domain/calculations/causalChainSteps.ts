@@ -4,7 +4,8 @@
  * causalChain.ts から抽出。各ステップの CausalStep 構築を担う。
  */
 import type { TwoFactorResult } from './factorDecomposition'
-import type { StoreResult, DiscountEntry } from '@/domain/models'
+import type { DiscountEntry } from '@/domain/models/record'
+import type { StoreResult } from '@/domain/models/storeTypes'
 import type { DiscountType } from '@/domain/models/ClassifiedSales'
 import type { CausalChainPrevInput } from './causalChain'
 import type { CausalStep, CausalFactor } from './causalChainFormatters'

@@ -17,7 +17,8 @@
  * 箱ひげ図は CategoryBoxPlotChart に分離。
  */
 import { memo } from 'react'
-import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
+import { ChartSkeleton } from '@/presentation/components/common/feedback'
+import { EmptyState } from '@/presentation/components/common/layout'
 import { palette } from '@/presentation/theme/tokens'
 import { ChartCard } from './ChartCard'
 import {

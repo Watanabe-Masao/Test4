@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { KpiCard, KpiGrid } from '@/presentation/components/common'
+import { KpiCard, KpiGrid } from '@/presentation/components/common/tables'
 
 const meta: Meta<typeof KpiCard> = {
   title: 'Common/KpiCard',

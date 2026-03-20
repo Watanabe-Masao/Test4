@@ -9,7 +9,7 @@ import { renderHook, act } from '@testing-library/react'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useUiStore } from '@/application/stores/uiStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
-import type { ImportedData } from '@/domain/models'
+import type { ImportedData } from '@/domain/models/storeTypes'
 
 // ── Mock useRepository ───────────────────────────────
 

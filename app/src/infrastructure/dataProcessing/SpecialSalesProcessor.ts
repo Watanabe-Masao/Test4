@@ -1,8 +1,8 @@
 import { parseDateComponents, monthKey } from '../fileImport/dateParser'
 import { safeNumber } from '@/domain/calculations/utils'
-import type { SpecialSalesData, SpecialSalesDayEntry } from '@/domain/models'
+import type { SpecialSalesData, SpecialSalesDayEntry } from '@/domain/models/record'
 
-export type { SpecialSalesData } from '@/domain/models'
+export type { SpecialSalesData } from '@/domain/models/record'
 
 /**
  * 花・産直データを処理する（年月パーティション対応）

@@ -22,12 +22,8 @@
  * ```
  */
 import type { DataRepository } from '@/domain/repositories'
-import type {
-  ImportedData,
-  AppSettings,
-  ImportHistoryEntry,
-  RawDataManifest,
-} from '@/domain/models'
+import type { ImportHistoryEntry, RawDataManifest } from '@/domain/models/analysis'
+import type { ImportedData, AppSettings } from '@/domain/models/storeTypes'
 import { writeFile, pruneOldFiles } from './folderAccess'
 import { rawFileStore } from './rawFileStore'
 import {

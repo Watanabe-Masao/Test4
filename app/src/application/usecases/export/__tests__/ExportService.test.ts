@@ -17,7 +17,8 @@ import {
   exportExplanationReport,
   exportTextSummaryReport,
 } from '@/infrastructure/export'
-import type { StoreResult, Store } from '@/domain/models'
+import type { Store } from '@/domain/models/record'
+import type { StoreResult } from '@/domain/models/storeTypes'
 import type { StoreExplanations } from '@/domain/models/Explanation'
 
 describe('ExportService', () => {

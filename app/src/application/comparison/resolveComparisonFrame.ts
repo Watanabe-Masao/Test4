@@ -9,7 +9,12 @@
  * - 同曜日オフセットを算出する
  * - 管理画面からの手動オーバーライドを適用する
  */
-import type { DateRange, ComparisonFrame, AlignmentPolicy, PrevYearScope } from '@/domain/models'
+import type {
+  DateRange,
+  ComparisonFrame,
+  AlignmentPolicy,
+  PrevYearScope,
+} from '@/domain/models/calendar'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 
 export interface ComparisonOverrides {

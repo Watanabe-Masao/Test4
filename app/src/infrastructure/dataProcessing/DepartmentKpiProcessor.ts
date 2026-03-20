@@ -1,5 +1,5 @@
 import { safeNumber } from '@/domain/calculations/utils'
-import type { DepartmentKpiData, DepartmentKpiRecord } from '@/domain/models'
+import type { DepartmentKpiData, DepartmentKpiRecord } from '@/domain/models/record'
 
 /**
  * 部門別KPI CSVを処理する

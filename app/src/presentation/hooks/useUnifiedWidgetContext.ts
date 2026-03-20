@@ -9,8 +9,10 @@
  */
 import { useState, useCallback, useMemo } from 'react'
 import type { UnifiedWidgetContext } from '@/presentation/components/widgets'
-import type { MetricId, DateRange } from '@/domain/models'
-import { useCalculation, useStoreSelection, useExplanations } from '@/application/hooks'
+import type { MetricId } from '@/domain/models/analysis'
+import type { DateRange } from '@/domain/models/calendar'
+import { useCalculation } from '@/application/hooks/calculation'
+import { useStoreSelection, useExplanations } from '@/application/hooks/ui'
 import { useDuckDB } from '@/application/hooks/useDuckDB'
 import { useComparisonModule } from '@/application/hooks/useComparisonModule'
 import {

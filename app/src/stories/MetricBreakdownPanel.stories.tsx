@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import { useState } from 'react'
-import { MetricBreakdownPanel } from '@/presentation/components/common'
-import type { Explanation, MetricId } from '@/domain/models'
+import { MetricBreakdownPanel } from '@/presentation/components/common/tables'
+import type { Explanation, MetricId } from '@/domain/models/analysis'
 
 const meta: Meta<typeof MetricBreakdownPanel> = {
   title: 'Common/MetricBreakdownPanel',

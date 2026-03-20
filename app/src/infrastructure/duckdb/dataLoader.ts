@@ -8,7 +8,7 @@
  * 数万行規模のデータで prepared statement より高速。
  */
 import type { AsyncDuckDB, AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { ImportedData } from '@/domain/models'
+import type { ImportedData } from '@/domain/models/storeTypes'
 import { ALL_TABLE_DDLS, STORE_DAY_SUMMARY_VIEW_DDL, TABLE_NAMES } from './schemas'
 import type { TableName } from './schemas'
 import {

@@ -3,8 +3,8 @@ import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { safeDivide, calculateTransactionValue } from '@/domain/calculations/utils'
 import { sc } from '@/presentation/theme/semanticColors'
 import type { StoreResult } from '@/domain/models/StoreResult'
-import type { PrevYearData } from '@/application/hooks'
-import type { AppSettings } from '@/domain/models'
+import type { PrevYearData } from '@/application/hooks/analytics'
+import type { AppSettings } from '@/domain/models/storeTypes'
 import {
   KpiCardWrapper,
   KpiRow,

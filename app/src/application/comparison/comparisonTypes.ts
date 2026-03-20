@@ -15,7 +15,7 @@
  * PrevYearData                ← 日別比較データ（経過日数キャップ付き）
  *   └── daily: Map<DateKey, PrevYearDailyEntry>
  */
-import type { DiscountEntry } from '@/domain/models'
+import type { DiscountEntry } from '@/domain/models/record'
 
 // ── 月間 KPI 型 ──
 

@@ -20,7 +20,7 @@ import type {
 import type { ComparisonFrame, PrevYearScope } from '@/domain/models/ComparisonFrame'
 import type { DateRange } from '@/domain/models/CalendarDate'
 import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
-import { ZERO_DISCOUNT_ENTRIES } from '@/domain/models'
+import { ZERO_DISCOUNT_ENTRIES } from '@/domain/models/record'
 import { prepareComparisonInputs } from '@/application/comparison/comparisonDataPrep'
 import { aggregateDailyByAlignment } from '@/application/comparison/buildComparisonAggregation'
 import {

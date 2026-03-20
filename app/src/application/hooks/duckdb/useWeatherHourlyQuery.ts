@@ -9,14 +9,14 @@
  */
 import { useMemo, useState, useEffect, useRef } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { HourlyWeatherRecord, StoreLocation } from '@/domain/models'
+import type { HourlyWeatherRecord, StoreLocation } from '@/domain/models/record'
 import {
   queryWeatherHourly,
   queryWeatherHourlyAvg,
   type HourlyWeatherAvgRow,
 } from '@/infrastructure/duckdb/queries/weatherQueries'
 import { useAsyncQuery, toDateKeys, type AsyncQueryResult } from './useAsyncQuery'
-import type { DateRange } from '@/domain/models'
+import type { DateRange } from '@/domain/models/calendar'
 import { loadEtrnHourlyForStore } from '@/application/usecases/weather/WeatherLoadService'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 

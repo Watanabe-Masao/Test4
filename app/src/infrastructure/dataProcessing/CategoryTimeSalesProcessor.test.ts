@@ -4,7 +4,7 @@ import {
   mergeCategoryTimeSalesData,
   isCTSSubtotalRow,
 } from './CategoryTimeSalesProcessor'
-import { categoryTimeSalesRecordKey } from '@/domain/models'
+import { categoryTimeSalesRecordKey } from '@/domain/models/record'
 
 /** テスト用CSVデータ行の構築ヘルパー */
 function makeRows(dataRows: unknown[][]): unknown[][] {

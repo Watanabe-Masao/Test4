@@ -5,8 +5,8 @@ import {
   computeSummaryFingerprint,
 } from '../summaryBuilder'
 import { buildDailyRecords } from '../dailyBuilder'
-import { createEmptyImportedData } from '@/domain/models'
-import type { ImportedData } from '@/domain/models'
+import { createEmptyImportedData } from '@/domain/models/storeTypes'
+import type { ImportedData } from '@/domain/models/storeTypes'
 
 // ─── テストヘルパー ──────────────────────────────────────
 

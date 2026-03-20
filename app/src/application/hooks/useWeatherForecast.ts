@@ -8,7 +8,7 @@
  * 解決した予報区域コードは settingsStore に保存してキャッシュする。
  */
 import { useState, useEffect, useCallback, useRef } from 'react'
-import type { DailyForecast, ForecastAreaResolution } from '@/domain/models'
+import type { DailyForecast, ForecastAreaResolution } from '@/domain/models/record'
 import { loadForecastForStore } from '../usecases/weather/ForecastLoadService'
 import { useSettingsStore } from '../stores/settingsStore'
 

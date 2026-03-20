@@ -5,7 +5,7 @@
  * StoreDaySummaryIndex の成分率集約を担う。
  */
 import type { MonthlyDataPoint } from '@/application/services/forecastBridge'
-import type { StoreDaySummaryIndex } from '@/domain/models'
+import type { StoreDaySummaryIndex } from '@/domain/models/record'
 import {
   safeDivide,
   getEffectiveGrossProfitRate,

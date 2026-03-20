@@ -1,7 +1,7 @@
 /**
  * IndexedDB ストレージキー生成とフィールドマッピング
  */
-import type { ImportedData, StorageDataType } from '@/domain/models'
+import type { ImportedData, StorageDataType } from '@/domain/models/storeTypes'
 
 /** 年月×データ種別からストレージキーを生成する */
 export function monthKey(year: number, month: number, dataType: StorageDataType): string {

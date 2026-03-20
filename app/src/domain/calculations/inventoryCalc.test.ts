@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { computeEstimatedInventory, computeEstimatedInventoryDetails } from './inventoryCalc'
-import type { DailyRecord } from '@/domain/models'
+import type { DailyRecord } from '@/domain/models/record'
 
 /** 最小限の DailyRecord を生成するヘルパー */
 function makeDailyRecord(overrides: {

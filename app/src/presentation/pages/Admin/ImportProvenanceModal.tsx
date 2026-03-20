@@ -1,4 +1,4 @@
-import type { ImportHistoryEntry } from '@/domain/models'
+import type { ImportHistoryEntry } from '@/domain/models/analysis'
 import type { StoreDayStats } from '@/application/hooks/useDataSummary'
 import { palette } from '@/presentation/theme/tokens'
 import { Modal } from '@/presentation/components/common/Modal'

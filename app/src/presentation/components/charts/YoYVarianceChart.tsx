@@ -19,7 +19,7 @@ import {
   SummaryItem,
   SummaryLabel,
 } from './YoYVarianceChart.styles'
-import type { DailyRecord } from '@/domain/models'
+import type { DailyRecord } from '@/domain/models/record'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import {
   calculateTransactionValue,

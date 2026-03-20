@@ -2,7 +2,7 @@
  * summaryCacheOperations.ts のユニットテスト
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import type { StoreDaySummaryCache } from '@/domain/models'
+import type { StoreDaySummaryCache } from '@/domain/models/record'
 
 // ── Mock dbHelpers ──
 vi.mock('../dbHelpers', () => ({

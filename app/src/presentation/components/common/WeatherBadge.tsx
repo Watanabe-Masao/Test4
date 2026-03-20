@@ -4,7 +4,7 @@
 import { memo } from 'react'
 import styled from 'styled-components'
 import { categorizeWeatherCode } from '@/domain/calculations/weatherAggregation'
-import type { WeatherCategory } from '@/domain/models'
+import type { WeatherCategory } from '@/domain/models/record'
 
 interface Props {
   /** WMO Weather Interpretation Code */

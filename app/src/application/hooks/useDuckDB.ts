@@ -24,7 +24,7 @@
  */
 import { useEffect, useRef, useCallback, useReducer } from 'react'
 import type { AsyncDuckDB, AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { ImportedData } from '@/domain/models'
+import type { ImportedData } from '@/domain/models/storeTypes'
 import type { DataRepository } from '@/domain/repositories'
 import { getDuckDBEngine } from '@/infrastructure/duckdb/engine'
 import { resetTables, loadMonth } from '@/infrastructure/duckdb/dataLoader'

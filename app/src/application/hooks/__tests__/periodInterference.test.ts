@@ -17,8 +17,8 @@ import {
   createDefaultPeriodSelection,
   deriveDowOffset,
   buildPrevYearScopeFromSelection,
-} from '@/domain/models'
-import type { PeriodSelection, DateRange } from '@/domain/models'
+} from '@/domain/models/calendar'
+import type { PeriodSelection, DateRange } from '@/domain/models/calendar'
 import {
   resolveComparisonFrame,
   buildPrevYearScope,

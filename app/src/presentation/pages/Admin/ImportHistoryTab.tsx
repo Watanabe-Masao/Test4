@@ -1,9 +1,9 @@
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import { palette } from '@/presentation/theme/tokens'
 import { useDataStore } from '@/application/stores/dataStore'
-import { useSettings } from '@/application/hooks'
+import { useSettings } from '@/application/hooks/ui'
 import { useRepository } from '@/application/context/useRepository'
-import type { ImportHistoryEntry } from '@/domain/models'
+import type { ImportHistoryEntry } from '@/domain/models/analysis'
 import { useDataSummary, type StoreDayStats } from '@/application/hooks/useDataSummary'
 import { Section, SectionTitle, Table, Th, Td, Badge, StoreIdBadge, HelpText } from './AdminShared'
 import {

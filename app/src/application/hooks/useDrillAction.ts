@@ -10,7 +10,8 @@
  */
 import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import type { DrillAction, ViewType } from '@/domain/models'
+import type { DrillAction } from '@/domain/models/analysis'
+import type { ViewType } from '@/domain/models/storeTypes'
 import { useAnalysisContextStore } from '@/application/stores/analysisContextStore'
 import { VIEW_TO_PATH } from '@/application/navigation/viewMapping'
 

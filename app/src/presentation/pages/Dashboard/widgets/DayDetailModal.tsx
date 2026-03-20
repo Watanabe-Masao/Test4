@@ -15,15 +15,11 @@ import {
   calculateTransactionValue,
 } from '@/domain/calculations/utils'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type {
-  DailyRecord,
-  DateRange,
-  ComparisonFrame,
-  CategoryTimeSalesRecord,
-} from '@/domain/models'
+import type { DateRange, ComparisonFrame } from '@/domain/models/calendar'
+import type { DailyRecord, CategoryTimeSalesRecord } from '@/domain/models/record'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import { useDuckDBCategoryTimeRecords, useDuckDBWeatherHourly } from '@/application/hooks/duckdb'
-import type { PrevYearData } from '@/application/hooks'
+import type { PrevYearData } from '@/application/hooks/analytics'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import {
   PinModalOverlay,

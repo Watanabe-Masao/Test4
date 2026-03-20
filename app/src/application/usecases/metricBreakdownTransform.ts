@@ -3,7 +3,8 @@
  *
  * 7つの useMemo の derivation ロジックを純粋関数化し、テスト可能にした。
  */
-import type { Explanation, MetricId, MetricUnit, Store } from '@/domain/models'
+import type { Explanation, MetricId, MetricUnit } from '@/domain/models/analysis'
+import type { Store } from '@/domain/models/record'
 import { formatCurrency, formatPercent } from '@/domain/formatting'
 import type {
   FormattedInput,

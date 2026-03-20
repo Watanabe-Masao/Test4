@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import type { StoreLocation, GeocodingResult } from '@/domain/models'
+import type { StoreLocation, GeocodingResult } from '@/domain/models/record'
 import { useGeocode } from '@/application/hooks/useGeocode'
 import { useEtrnStationSearch } from '@/application/hooks/useEtrnStationSearch'
 import { palette } from '@/presentation/theme/tokens'

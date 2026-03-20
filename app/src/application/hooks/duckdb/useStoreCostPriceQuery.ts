@@ -7,7 +7,7 @@
 import { useState, useEffect, useRef } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models/CalendarDate'
-import { dateRangeToKeys } from '@/domain/models'
+import { dateRangeToKeys } from '@/domain/models/calendar'
 import { queryStoreCostPrice } from '@/infrastructure/duckdb/queries/purchaseComparison'
 
 /** 店舗別原価/売価マップ */

@@ -14,7 +14,7 @@ import {
   type DailyCustomerEntry,
   type DailyDecompEntry,
 } from './ForecastPage.helpers'
-import type { PrevYearData } from '@/application/hooks'
+import type { PrevYearData } from '@/application/hooks/analytics'
 import type { WeeklySummary } from '@/application/hooks/useForecast'
 
 describe('buildDowCustomerAverages', () => {

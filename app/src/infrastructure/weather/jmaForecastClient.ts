@@ -6,7 +6,7 @@
  *
  * @see https://www.jma.go.jp/bosai/forecast/
  */
-import type { DailyForecast } from '@/domain/models'
+import type { DailyForecast } from '@/domain/models/record'
 import { getJmaBaseUrl } from './jmaApiConfig'
 import { reverseGeocode } from './geocodingClient'
 import { fetchJsonWithRetry } from './jmaJsonClient'

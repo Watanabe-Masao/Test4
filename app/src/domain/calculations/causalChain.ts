@@ -7,7 +7,8 @@
 import { safeDivide, getEffectiveGrossProfitRate } from './utils'
 import { decompose2 } from './factorDecomposition'
 import type { TwoFactorResult } from './factorDecomposition'
-import type { StoreResult, DiscountEntry } from '@/domain/models'
+import type { DiscountEntry } from '@/domain/models/record'
+import type { StoreResult } from '@/domain/models/storeTypes'
 import type { CausalStep } from './causalChainFormatters'
 import {
   buildGrossProfitStep,

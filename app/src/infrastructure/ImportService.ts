@@ -5,7 +5,7 @@
  * 個々のファイル処理は ImportDataProcessor に委譲する。
  * 型定義・パーティション操作は importTypes.ts に分割済み。
  */
-import type { DataType, AppSettings, ImportedData } from '@/domain/models'
+import type { DataType, AppSettings, ImportedData } from '@/domain/models/storeTypes'
 import { readTabularFile } from './fileImport/tabularReader'
 import { detectFileType, getDataTypeName } from './fileImport/FileTypeDetector'
 import { ImportError } from './fileImport/errors'
@@ -29,8 +29,8 @@ import type {
 // ─── Re-exports（後方互換） ─────────────────────────
 export { processFileData, normalizeRecordStoreIds, countDataRecords } from './ImportDataProcessor'
 export type { ProcessFileResult } from './ImportDataProcessor'
-export type { ImportedData } from '@/domain/models'
-export { createEmptyImportedData } from '@/domain/models'
+export type { ImportedData } from '@/domain/models/storeTypes'
+export { createEmptyImportedData } from '@/domain/models/storeTypes'
 export {
   createEmptyMonthPartitions,
   detectYearMonthFromPartitionsOrRecords,

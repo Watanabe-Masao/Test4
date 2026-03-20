@@ -6,8 +6,9 @@
 import { describe, it, expect } from 'vitest'
 import { buildClipBundle } from '../buildClipBundle'
 import type { BuildClipBundleParams } from '../buildClipBundle'
-import type { StoreResult, CategoryTimeSalesRecord, DailyRecord } from '@/domain/models'
-import type { PrevYearData, PrevYearDailyEntry } from '@/application/hooks'
+import type { CategoryTimeSalesRecord, DailyRecord } from '@/domain/models/record'
+import type { StoreResult } from '@/domain/models/storeTypes'
+import type { PrevYearData, PrevYearDailyEntry } from '@/application/hooks/analytics'
 import type { DiscountEntry } from '@/domain/models/ClassifiedSales'
 
 // ─── テストヘルパー ──────────────────────────────────────

@@ -1,4 +1,4 @@
-import type { DataType } from '@/domain/models'
+import type { DataType } from '@/domain/models/storeTypes'
 
 /**
  * ファイル種別自動判定 — 統合レジストリ

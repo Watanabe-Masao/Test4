@@ -5,7 +5,7 @@
  * presentation 層から infrastructure への直接依存を回避するためのブリッジ。
  */
 import { useState, useCallback } from 'react'
-import type { GeocodingResult } from '@/domain/models'
+import type { GeocodingResult } from '@/domain/models/record'
 import { searchLocation } from '@/infrastructure/weather/geocodingClient'
 
 export interface UseGeocodeResult {

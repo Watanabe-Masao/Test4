@@ -7,7 +7,7 @@
  * WeatherBadge 等の既存 UI コンポーネントと共用するために
  * WMO 互換コードへ変換する。
  */
-import type { WeatherCategory } from '@/domain/models'
+import type { WeatherCategory } from '@/domain/models/record'
 
 /**
  * 気象庁天気コードを WMO 互換コードに変換する。

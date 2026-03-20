@@ -20,4 +20,4 @@ export {
   loadStoreDaySummaryCache,
 } from './internal/summaryCacheOperations'
 export { isIndexedDBAvailable } from './internal/dbHelpers'
-export type { PersistedMeta } from '@/domain/models'
+export type { PersistedMeta } from '@/domain/models/analysis'

@@ -5,7 +5,7 @@ import {
   ImportSummaryCard,
 } from '@/presentation/components/common/ImportWizard'
 import type { ImportStage } from '@/presentation/components/common/ImportWizard'
-import { Button } from '@/presentation/components/common'
+import { Button } from '@/presentation/components/common/layout'
 
 // ─── ImportProgressSteps ─────────────────────────────────
 

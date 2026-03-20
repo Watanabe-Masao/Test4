@@ -1,28 +1,20 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'
-import {
-  useImport,
-  useStoreSelection,
-  useSettings,
-  useStorageAdmin,
-  useAutoBackup,
-  useAutoImport,
-} from '@/application/hooks'
+import { useImport, useStorageAdmin, useAutoBackup, useAutoImport } from '@/application/hooks/data'
+import { useStoreSelection, useSettings } from '@/application/hooks/ui'
 import { useRepository } from '@/application/context/useRepository'
 import { Sidebar } from '@/presentation/components/Layout'
 import {
-  Button,
-  Chip,
-  ChipGroup,
   useToast,
   SettingsModal,
   ValidationModal,
-  MonthSelector,
   DiffConfirmModal,
   ImportModal,
   OnlineStatusChip,
-} from '@/presentation/components/common'
-import type { DiffConfirmResult } from '@/presentation/components/common'
+} from '@/presentation/components/common/feedback'
+import { Chip, ChipGroup } from '@/presentation/components/common/forms'
+import { Button, MonthSelector } from '@/presentation/components/common/layout'
+import type { DiffConfirmResult } from '@/presentation/components/common/feedback'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import { detectDataMaxDay } from '@/domain/calculations/utils'
 import {

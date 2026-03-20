@@ -11,7 +11,7 @@
 import { useState, useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { ComparisonFrame, PrevYearScope } from '@/domain/models'
+import type { ComparisonFrame, PrevYearScope } from '@/domain/models/calendar'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { useDuckDBYoyDaily } from '@/application/hooks/useDuckDBQuery'
 import {
@@ -24,7 +24,7 @@ import {
 import { useCurrencyFormatter, toPct } from './chartTheme'
 import { sc } from '@/presentation/theme/semanticColors'
 import { useI18n } from '@/application/hooks/useI18n'
-import { SegmentedControl } from '@/presentation/components/common'
+import { SegmentedControl } from '@/presentation/components/common/layout'
 import { ChartCard } from './ChartCard'
 import { ChartLoading, ChartError, ChartEmpty } from './ChartState'
 import { EChart, type EChartsOption } from './EChart'

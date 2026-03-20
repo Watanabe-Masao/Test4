@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo, memo } from 'react'
-import type { Store } from '@/domain/models'
-import type { ConditionMetricId } from '@/domain/models'
+import type { Store } from '@/domain/models/record'
+import type { ConditionMetricId } from '@/domain/models/analysis'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
 import { CONDITION_METRIC_DEFS, CONDITION_METRIC_MAP } from '@/domain/constants/conditionMetrics'
 import { useSettingsStore } from '@/application/stores/settingsStore'

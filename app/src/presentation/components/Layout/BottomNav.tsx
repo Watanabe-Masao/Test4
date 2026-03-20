@@ -4,7 +4,7 @@
  * モバイル画面サイズで画面下部にナビゲーションバーを表示する。
  * デスクトップでは非表示。
  */
-import type { ViewType } from '@/domain/models'
+import type { ViewType } from '@/domain/models/storeTypes'
 import { Nav, NavItem, NavIcon, NavLabel } from './BottomNav.styles'
 
 /** ボトムナビに表示する主要ビュー (5つまで) */

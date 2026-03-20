@@ -10,7 +10,7 @@ import {
   computeEstimatedInventoryDetails,
 } from '@/domain/calculations/inventoryCalc'
 import type { InventoryPoint, InventoryDetailRow } from '@/domain/calculations/inventoryCalc'
-import type { DailyRecord } from '@/domain/models'
+import type { DailyRecord } from '@/domain/models/record'
 
 // Re-export types for presentation layer
 export type { InventoryPoint, InventoryDetailRow }

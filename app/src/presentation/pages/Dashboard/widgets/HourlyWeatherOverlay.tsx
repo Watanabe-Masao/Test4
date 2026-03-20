@@ -5,7 +5,7 @@
  * 売上バーチャートとの対比で天気と売上の関係を視覚化する。
  */
 import { memo, useMemo } from 'react'
-import type { HourlyWeatherRecord, WeatherCategory } from '@/domain/models'
+import type { HourlyWeatherRecord, WeatherCategory } from '@/domain/models/record'
 import { categorizeWeatherCode } from '@/domain/calculations/weatherAggregation'
 import { HourlyAxis, HourlyTick } from './DayDetailModal.styles'
 

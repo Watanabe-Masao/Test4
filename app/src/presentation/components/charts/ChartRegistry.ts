@@ -12,7 +12,7 @@
  *   5. domain を宣言 → 縦スライス移行時に自動分類
  */
 import type { WidgetSize } from '@/presentation/components/widgets/types'
-import type { ViewType } from '@/domain/models'
+import type { ViewType } from '@/domain/models/storeTypes'
 import type { MetricId } from '@/domain/models/Explanation'
 
 /** チャートの業務ドメイン分類 */

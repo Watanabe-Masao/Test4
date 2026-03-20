@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, act, waitFor } from '@testing-library/react'
 import { useWorkerCalculation, type WorkerCalculateResult } from '../useWorkerCalculation'
-import { createEmptyImportedData } from '@/domain/models'
-import type { AppSettings } from '@/domain/models'
+import { createEmptyImportedData } from '@/domain/models/storeTypes'
+import type { AppSettings } from '@/domain/models/storeTypes'
 
 // Worker モック
 let mockWorkerInstance: {

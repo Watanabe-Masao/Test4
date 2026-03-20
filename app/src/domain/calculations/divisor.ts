@@ -11,7 +11,7 @@
  * - TR-DIV-003: computeDowDivisorMap は曜日別に distinct day 数を返す
  * - 返り値は常に >= 1（0除算防止保証）
  */
-import type { CategoryTimeSalesRecord } from '@/domain/models'
+import type { CategoryTimeSalesRecord } from '@/domain/models/record'
 import type { AggregateMode } from '@/domain/models/UnifiedFilter'
 
 /**

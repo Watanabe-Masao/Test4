@@ -5,10 +5,10 @@
  * SourceDataIndex, targetIds の準備を共通化する。
  * React 依存なし。
  */
-import type { ImportedData } from '@/domain/models'
+import type { ImportedData } from '@/domain/models/storeTypes'
 import type { ClassifiedSalesDaySummary } from '@/domain/models/ClassifiedSales'
-import type { StoreDayIndex, SpecialSalesDayEntry } from '@/domain/models'
-import { aggregateAllStores, indexByStoreDay } from '@/domain/models'
+import type { StoreDayIndex, SpecialSalesDayEntry } from '@/domain/models/record'
+import { aggregateAllStores, indexByStoreDay } from '@/domain/models/record'
 import type { SourceDataIndex, SourceMonthContext } from '@/application/comparison/sourceDataIndex'
 import { buildSourceDataIndex } from '@/application/comparison/sourceDataIndex'
 

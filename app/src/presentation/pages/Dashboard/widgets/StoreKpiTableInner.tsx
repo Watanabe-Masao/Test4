@@ -13,7 +13,7 @@ import { useUiStore } from '@/application/stores/uiStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { calculationCache } from '@/application/services/calculationCache'
 import type { WidgetContext } from './types'
-import { Button } from '@/presentation/components/common'
+import { Button } from '@/presentation/components/common/layout'
 import { STableWrapper, STable, STd, ScrollWrapper } from '../DashboardPage.styles'
 import {
   KpiGroupTh,

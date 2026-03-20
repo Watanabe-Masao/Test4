@@ -5,7 +5,8 @@
  * 設定UIを統一的に提供する。
  */
 import { useState, useCallback, useRef, memo, type ReactNode } from 'react'
-import { Chip, ChipGroup, ChartErrorBoundary } from '@/presentation/components/common'
+import { ChartErrorBoundary } from '@/presentation/components/common/feedback'
+import { Chip, ChipGroup } from '@/presentation/components/common/forms'
 import { useIntersectionObserver } from '@/presentation/hooks/useIntersectionObserver'
 import type { WidgetDef, PageWidgetConfig, UnifiedWidgetContext } from './types'
 import { loadPageLayout, savePageLayout, buildWidgetMap } from './widgetLayout'

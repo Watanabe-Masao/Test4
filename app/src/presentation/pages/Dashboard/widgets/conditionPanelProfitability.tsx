@@ -5,7 +5,7 @@
  * レンダリングのみに専念する。
  */
 import { useMemo } from 'react'
-import { DISCOUNT_TYPES } from '@/domain/models'
+import { DISCOUNT_TYPES } from '@/domain/models/record'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { buildGpRateDetailVm, buildDiscountRateDetailVm } from './conditionPanelProfitability.vm'
 import {

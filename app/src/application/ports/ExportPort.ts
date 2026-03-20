@@ -4,7 +4,9 @@
  * Presentation 層が Infrastructure 層の export モジュールに直接依存しないよう、
  * エクスポート操作を抽象化する。
  */
-import type { StoreResult, Store, Explanation } from '@/domain/models'
+import type { Explanation } from '@/domain/models/analysis'
+import type { Store } from '@/domain/models/record'
+import type { StoreResult } from '@/domain/models/storeTypes'
 
 /** エクスポートサービスのインターフェース */
 export interface ExportPort {

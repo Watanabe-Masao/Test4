@@ -2,8 +2,8 @@
  * dataSummary 純粋関数のユニットテスト
  */
 import { describe, it, expect } from 'vitest'
-import { createEmptyImportedData } from '@/domain/models'
-import type { ImportedData } from '@/domain/models'
+import { createEmptyImportedData } from '@/domain/models/storeTypes'
+import type { ImportedData } from '@/domain/models/storeTypes'
 import {
   computeHasAnyData,
   computeLoadedTypes,

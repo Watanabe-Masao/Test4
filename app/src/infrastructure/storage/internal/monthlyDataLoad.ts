@@ -4,9 +4,9 @@
  * 年月単位でのデータ読み込み・スライス読み込み・サマリー取得を担当する。
  * 単一 readonly トランザクションで全キーを一括取得し、一貫スナップショットを保証する。
  */
-import type { ImportedData, StorageDataType } from '@/domain/models'
-import type { BudgetData, InventoryConfig, Store } from '@/domain/models'
-import { createEmptyImportedData } from '@/domain/models'
+import type { ImportedData, StorageDataType } from '@/domain/models/storeTypes'
+import type { BudgetData, InventoryConfig, Store } from '@/domain/models/record'
+import { createEmptyImportedData } from '@/domain/models/storeTypes'
 import { openDB, dbGet, STORE_MONTHLY } from './dbHelpers'
 import { monthKey, STORE_DAY_FIELDS, DATA_TYPE_LABELS } from './keys'
 import { unwrapEnvelope, budgetFromSerializable, validateLoadedData } from './serialization'

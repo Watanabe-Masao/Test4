@@ -7,8 +7,8 @@
  */
 import { describe, it, expect } from 'vitest'
 import { processFileData } from '../ImportService'
-import { createEmptyImportedData } from '@/domain/models'
-import type { AppSettings } from '@/domain/models'
+import { createEmptyImportedData } from '@/domain/models/storeTypes'
+import type { AppSettings } from '@/domain/models/storeTypes'
 
 const defaultSettings: AppSettings = {
   targetYear: 2025,

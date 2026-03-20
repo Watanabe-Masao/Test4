@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
 import { palette } from '@/presentation/theme/tokens'
-import type { StorageDataType } from '@/domain/models'
+import type { StorageDataType } from '@/domain/models/storeTypes'
 import { transformCtsPreview, type PreviewRecord } from '@/application/hooks/useDataPreview'
 import {
   RawDataSection,

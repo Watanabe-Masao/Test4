@@ -10,7 +10,8 @@ import { DualPeriodSlider } from './DualPeriodSlider'
 import { useDualPeriodRange } from './useDualPeriodRange'
 import { computeEstimatedInventory } from '@/application/hooks/calculation'
 import { calculateGrossProfitRate } from '@/domain/calculations/utils'
-import type { Store, StoreResult } from '@/domain/models'
+import type { Store } from '@/domain/models/record'
+import type { StoreResult } from '@/domain/models/storeTypes'
 import { ChartCard } from './ChartCard'
 import {
   Controls,

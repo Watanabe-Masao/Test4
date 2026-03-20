@@ -3,7 +3,7 @@
  *
  * セッション情報・保存済み月一覧の管理。
  */
-import type { PersistedMeta } from '@/domain/models'
+import type { PersistedMeta } from '@/domain/models/analysis'
 import type { ReadModifyWriteOp } from './dbHelpers'
 import { dbGet, dbGetAllKeys, STORE_META, STORE_MONTHLY } from './dbHelpers'
 

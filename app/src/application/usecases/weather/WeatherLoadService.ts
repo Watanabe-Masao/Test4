@@ -10,7 +10,11 @@
  *      - AMeDAS・予報区域に依存しない
  *   2. ETRN 日別 HTML テーブルをフェッチ・パース → DailyWeatherSummary
  */
-import type { StoreLocation, DailyWeatherSummary, HourlyWeatherRecord } from '@/domain/models'
+import type {
+  StoreLocation,
+  DailyWeatherSummary,
+  HourlyWeatherRecord,
+} from '@/domain/models/record'
 import type { EtrnStation } from '@/infrastructure/weather'
 import {
   resolveEtrnStationByLocation,

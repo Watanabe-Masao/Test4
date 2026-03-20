@@ -5,7 +5,7 @@
  * 前年比が最も好調/不調な時間帯をハイライト表示する。
  */
 import { memo, useMemo } from 'react'
-import type { HourlyWeatherRecord, WeatherCategory } from '@/domain/models'
+import type { HourlyWeatherRecord, WeatherCategory } from '@/domain/models/record'
 import { categorizeWeatherCode } from '@/domain/calculations/weatherAggregation'
 import { formatPercent } from '@/domain/formatting'
 import { toComma } from '@/presentation/components/charts/chartTheme'

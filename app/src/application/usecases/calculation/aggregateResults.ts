@@ -3,7 +3,7 @@
  *
  * スカラー合算は scalarAccumulator.ts、コレクション集約は collectionAggregator.ts に委譲。
  */
-import type { StoreResult } from '@/domain/models'
+import type { StoreResult } from '@/domain/models/storeTypes'
 import {
   evaluateObservationPeriod,
   worseObservationStatus,

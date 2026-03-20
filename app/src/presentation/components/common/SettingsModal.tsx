@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import { Modal } from './Modal'
 import { Button } from './Button'
-import type { AppSettings } from '@/domain/models'
+import type { AppSettings } from '@/domain/models/storeTypes'
 import type { AutoBackupState, AutoBackupActions } from '@/application/hooks/useAutoBackup'
 import type { AutoImportState, AutoImportActions } from '@/application/hooks/useAutoImport'
 import {

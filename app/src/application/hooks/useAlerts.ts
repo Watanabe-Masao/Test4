@@ -7,7 +7,7 @@
 import { useMemo } from 'react'
 import { evaluateAlerts, DEFAULT_ALERT_RULES } from '@/domain/calculations/rules/alertSystem'
 import type { Alert, AlertSeverity, AlertRule } from '@/domain/calculations/rules/alertSystem'
-import type { StoreResult } from '@/domain/models'
+import type { StoreResult } from '@/domain/models/storeTypes'
 
 export type { Alert, AlertSeverity, AlertRule }
 

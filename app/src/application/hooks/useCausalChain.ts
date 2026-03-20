@@ -12,7 +12,7 @@ import type {
   CausalFactor,
   ColorHint,
 } from '@/domain/calculations/causalChain'
-import type { StoreResult } from '@/domain/models'
+import type { StoreResult } from '@/domain/models/storeTypes'
 
 // Re-export types for presentation layer
 export type { CausalStep, CausalChainPrevInput, CausalFactor, ColorHint }

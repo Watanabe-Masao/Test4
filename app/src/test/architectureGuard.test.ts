@@ -688,4 +688,54 @@ describe('Architecture Guard', () => {
         `違反ファイル:\n${violating.join('\n')}`,
     ).toBe(0)
   })
+
+  // ─── サブバレル移行ガード ─────────────────────────────
+  // メインバレルからの直接 import を禁止し、サブバレル経由を強制する。
+  // バレル定義ファイル自体（index.ts 等）は除外。
+
+  const SUB_BARREL_RULES: {
+    mainBarrel: string
+    barrelDir: string
+    maxViolations: number
+  }[] = [
+    { mainBarrel: '@/domain/models', barrelDir: 'domain/models', maxViolations: 0 },
+    {
+      mainBarrel: '@/presentation/components/common',
+      barrelDir: 'presentation/components/common',
+      maxViolations: 0,
+    },
+    { mainBarrel: '@/application/hooks', barrelDir: 'application/hooks', maxViolations: 0 },
+  ]
+
+  for (const rule of SUB_BARREL_RULES) {
+    it(`${rule.mainBarrel} のメインバレル直接 import を禁止（サブバレル経由に移行済み）`, () => {
+      const files = collectTsFiles(SRC_DIR)
+      const violations: string[] = []
+      const mainBarrelPattern = new RegExp(
+        `from '${rule.mainBarrel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}'`,
+      )
+
+      for (const file of files) {
+        const rel = relativePath(file)
+        // バレル定義ファイル自体は除外
+        if (rel.startsWith(`${rule.barrelDir}/`)) continue
+        // テスト・stories は除外
+        if (rel.includes('__tests__/') || rel.startsWith('stories/')) continue
+        // __mocks__ は除外
+        if (rel.includes('__mocks__/')) continue
+
+        const content = fs.readFileSync(file, 'utf-8')
+        if (mainBarrelPattern.test(content)) {
+          violations.push(rel)
+        }
+      }
+
+      expect(
+        violations.length,
+        `メインバレル '${rule.mainBarrel}' からの直接 import が検出されました。\n` +
+          `サブバレル（record/storeTypes/calendar/analysis 等）を使用してください。\n` +
+          `違反ファイル:\n${violations.join('\n')}`,
+      ).toBeLessThanOrEqual(rule.maxViolations)
+    })
+  }
 })

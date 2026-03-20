@@ -16,8 +16,8 @@ import type {
   BudgetData,
   InventoryConfig,
   HourlyWeatherRecord,
-} from '@/domain/models'
-import { toDateKeyFromParts } from '@/domain/models'
+} from '@/domain/models/record'
+import { toDateKeyFromParts } from '@/domain/models/calendar'
 
 // ── カラム型定義 ──
 

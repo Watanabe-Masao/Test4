@@ -5,8 +5,8 @@ import {
   ChartSkeleton,
   TableSkeleton,
   PageSkeleton,
-  KpiGrid,
-} from '@/presentation/components/common'
+} from '@/presentation/components/common/feedback'
+import { KpiGrid } from '@/presentation/components/common/tables'
 
 const meta: Meta<typeof Skeleton> = {
   title: 'Common/Skeleton',

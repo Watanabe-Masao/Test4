@@ -4,8 +4,8 @@ import {
   calculateAllStores,
   aggregateStoreResults,
 } from '../CalculationOrchestrator'
-import { createEmptyImportedData } from '@/domain/models'
-import type { ImportedData } from '@/domain/models'
+import { createEmptyImportedData } from '@/domain/models/storeTypes'
+import type { ImportedData } from '@/domain/models/storeTypes'
 import { createDefaultSettings } from '@/domain/constants/defaults'
 
 const DEFAULT_SETTINGS = createDefaultSettings()

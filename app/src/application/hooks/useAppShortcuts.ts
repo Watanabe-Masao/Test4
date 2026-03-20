@@ -6,7 +6,7 @@
  */
 import { useState, useCallback, useMemo } from 'react'
 import { useKeyboardShortcuts, useUndoRedo, useCalculation } from '@/application/hooks'
-import type { ViewType } from '@/domain/models'
+import type { ViewType } from '@/domain/models/storeTypes'
 
 interface UseAppShortcutsOptions {
   readonly onViewChange: (view: ViewType) => void

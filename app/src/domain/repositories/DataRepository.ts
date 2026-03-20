@@ -5,13 +5,9 @@
  * 現在は IndexedDB 実装のみ。将来クラウド連携時にこのインターフェースに
  * REST/GraphQL 実装を追加することで、アプリケーション層の変更なしに移行できる。
  */
-import type {
-  ImportedData,
-  DataType,
-  StorageDataType,
-  ImportHistoryEntry,
-  StoreDaySummaryCache,
-} from '@/domain/models'
+import type { ImportHistoryEntry } from '@/domain/models/analysis'
+import type { StoreDaySummaryCache } from '@/domain/models/record'
+import type { ImportedData, DataType, StorageDataType } from '@/domain/models/storeTypes'
 
 /** 永続化されたセッションのメタデータ */
 export interface PersistedSessionMeta {

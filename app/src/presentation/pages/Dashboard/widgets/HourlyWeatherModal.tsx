@@ -15,12 +15,8 @@ import {
 } from '@/presentation/components/charts/echartsOptionBuilders'
 import { categorizeWeatherCode } from '@/domain/calculations/weatherAggregation'
 import { mapJmaWeatherCodeToCategory } from '@/domain/calculations/forecastWeatherMapping'
-import type {
-  HourlyWeatherRecord,
-  WeatherCategory,
-  AlignmentPolicy,
-  DailyForecast,
-} from '@/domain/models'
+import type { AlignmentPolicy } from '@/domain/models/calendar'
+import type { HourlyWeatherRecord, WeatherCategory, DailyForecast } from '@/domain/models/record'
 import {
   ChartContainer,
   SummaryGrid,

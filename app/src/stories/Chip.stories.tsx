@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import { useState } from 'react'
-import { Chip, ChipGroup } from '@/presentation/components/common'
+import { Chip, ChipGroup } from '@/presentation/components/common/forms'
 
 const meta: Meta<typeof Chip> = {
   title: 'Common/Chip',

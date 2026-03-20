@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { mergeInsertsOnly } from './useImport'
-import { createEmptyImportedData } from '@/domain/models'
-import type { ImportedData } from '@/domain/models'
+import { createEmptyImportedData } from '@/domain/models/storeTypes'
+import type { ImportedData } from '@/domain/models/storeTypes'
 
 function makeData(overrides: Partial<ImportedData> = {}): ImportedData {
   return { ...createEmptyImportedData(), ...overrides }

@@ -19,12 +19,14 @@ import {
   computeGpBeforeConsumable,
 } from './conditionSummaryUtils'
 import { formatPercent } from '@/domain/formatting'
-import type { StoreResult, Store, DiscountEntry, MetricId } from '@/domain/models'
+import type { MetricId } from '@/domain/models/analysis'
+import type { Store, DiscountEntry } from '@/domain/models/record'
+import type { StoreResult } from '@/domain/models/storeTypes'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
 import { isMetricEnabled } from '@/domain/calculations/rules/conditionResolver'
 import { metricSignal, SIGNAL_COLORS } from './conditionSummaryUtils'
 import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
-import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/hooks'
+import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/hooks/analytics'
 
 // ─── Domain Calculation Wrappers ─────────────────────────
 

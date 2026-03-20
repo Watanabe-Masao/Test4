@@ -10,8 +10,8 @@ import {
   buildStoreDaySummaryCache,
   computeSummaryFingerprint,
 } from '../summaryBuilder'
-import { createEmptyImportedData } from '@/domain/models'
-import type { ImportedData } from '@/domain/models'
+import { createEmptyImportedData } from '@/domain/models/storeTypes'
+import type { ImportedData } from '@/domain/models/storeTypes'
 import type { ClassifiedSalesRecord } from '@/domain/models/ClassifiedSales'
 
 // ─── テストヘルパー ──────────────────────────────────────

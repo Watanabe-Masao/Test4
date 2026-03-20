@@ -1,8 +1,9 @@
 /**
  * 粗利率・売変率の ViewModel
  */
-import type { StoreResult, Store } from '@/domain/models'
-import { DISCOUNT_TYPES } from '@/domain/models'
+import type { Store } from '@/domain/models/record'
+import type { StoreResult } from '@/domain/models/storeTypes'
+import { DISCOUNT_TYPES } from '@/domain/models/record'
 import { formatPercent, formatPointDiff } from '@/domain/formatting'
 import type { CurrencyFormatter } from '@/presentation/components/charts/chartTheme'
 import { calculateShare } from '@/domain/calculations/utils'

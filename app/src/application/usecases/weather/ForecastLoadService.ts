@@ -4,7 +4,7 @@
  * lat/lon → 逆ジオコーディング → officeCode → forecast API
  * の流れで週間天気予報を取得する。AMeDAS に非依存。
  */
-import type { StoreLocation, DailyForecast, ForecastAreaResolution } from '@/domain/models'
+import type { StoreLocation, DailyForecast, ForecastAreaResolution } from '@/domain/models/record'
 import { resolveForecastOfficeByLocation, fetchWeeklyForecast } from '@/infrastructure/weather'
 
 /**

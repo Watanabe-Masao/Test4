@@ -1,10 +1,10 @@
 import type {
-  ImportedData,
   CategoryTimeSalesData,
   ClassifiedSalesData,
   DepartmentKpiData,
-} from '@/domain/models'
-import { categoryTimeSalesRecordKey, classifiedSalesRecordKey } from '@/domain/models'
+} from '@/domain/models/record'
+import type { ImportedData } from '@/domain/models/storeTypes'
+import { categoryTimeSalesRecordKey, classifiedSalesRecordKey } from '@/domain/models/record'
 
 // ─── 複数月データ構築 ───────────────────────────────────
 

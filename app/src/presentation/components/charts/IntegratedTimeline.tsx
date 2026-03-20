@@ -13,8 +13,8 @@ import {
   detectDivergence,
   movingAverage,
 } from '@/application/hooks/useStatistics'
-import type { StoreResult } from '@/domain/models'
-import { SegmentedControl } from '@/presentation/components/common'
+import type { StoreResult } from '@/domain/models/storeTypes'
+import { SegmentedControl } from '@/presentation/components/common/layout'
 import { ChartCard } from './ChartCard'
 import { ChartEmpty } from './ChartState'
 import { EChart, type EChartsOption } from './EChart'

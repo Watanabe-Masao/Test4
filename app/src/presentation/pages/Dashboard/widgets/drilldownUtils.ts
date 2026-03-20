@@ -4,7 +4,7 @@
  * DayDetailModal のカテゴリドリルダウン機能で使用する
  * 集計ロジック・型定義・定数を集約する。
  */
-import type { CategoryTimeSalesRecord } from '@/domain/models'
+import type { CategoryTimeSalesRecord } from '@/domain/models/record'
 import { palette } from '@/presentation/theme/tokens'
 
 /* ── 色パレット ──────────────────────────── */

@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
+import { Card, CardTitle } from '@/presentation/components/common/layout'
 import {
   CalcRow,
   CalcLabel,
@@ -9,9 +10,7 @@ import {
   VarianceRow,
   VarianceLabel,
   VarianceValue,
-  Card,
-  CardTitle,
-} from '@/presentation/components/common'
+} from '@/presentation/components/common/tables'
 
 const meta: Meta = {
   title: 'Common/CalcRow',

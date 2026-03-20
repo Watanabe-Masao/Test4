@@ -4,7 +4,7 @@
  * 原価明細ページの KPI とタブコンテンツをウィジェット化。
  * UnifiedWidgetContext を使い、全ページから利用可能。
  */
-import { KpiCard, KpiGrid } from '@/presentation/components/common'
+import { KpiCard, KpiGrid } from '@/presentation/components/common/tables'
 import { formatPercent } from '@/domain/formatting'
 import { palette } from '@/presentation/theme/tokens'
 import type { WidgetDef } from '@/presentation/components/widgets'

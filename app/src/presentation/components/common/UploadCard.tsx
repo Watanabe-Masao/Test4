@@ -1,5 +1,5 @@
 import { useCallback, useRef } from 'react'
-import type { DataType } from '@/domain/models'
+import type { DataType } from '@/domain/models/storeTypes'
 import { CardWrapper, Icon, Name, Status } from './UploadCard.styles'
 
 const fileTypeIcons: Record<string, string> = {

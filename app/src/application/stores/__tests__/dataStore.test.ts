@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { useDataStore } from '../dataStore'
-import { createEmptyImportedData } from '@/domain/models'
+import { createEmptyImportedData } from '@/domain/models/storeTypes'
 
 describe('dataStore', () => {
   beforeEach(() => {

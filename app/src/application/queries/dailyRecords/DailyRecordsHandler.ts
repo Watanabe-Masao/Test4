@@ -5,7 +5,7 @@
  * DailySalesChart, GrossProfitAmountChart 等で使用。
  */
 import type { QueryHandler } from '../QueryContract'
-import type { DateRange } from '@/domain/models'
+import type { DateRange } from '@/domain/models/calendar'
 import {
   queryDailyRecords,
   queryPrevYearDailyRecords,

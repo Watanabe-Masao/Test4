@@ -9,7 +9,7 @@
 import { useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { DateRange } from '@/domain/models'
+import type { DateRange } from '@/domain/models/calendar'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { useDuckDBDailyCumulative } from '@/application/hooks/useDuckDBQuery'
 import {

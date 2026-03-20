@@ -8,7 +8,7 @@ import {
   queryDailyCumulativeBudget,
   queryBudgetAnalysisSummary,
 } from '@/infrastructure/duckdb/queries/budgetAnalysis'
-import type { DateRange } from '@/domain/models'
+import type { DateRange } from '@/domain/models/calendar'
 
 function makeMockConn(returnRows: Record<string, unknown>[] = []) {
   const capturedSql: string[] = []

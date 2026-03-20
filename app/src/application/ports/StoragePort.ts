@@ -14,7 +14,8 @@
  * DuckDB は normalized_records の派生キャッシュであり、StoragePort の管理対象外。
  * 破損時は rebuildFromIndexedDB() で再構築する（recovery.ts）。
  */
-import type { RawFileRecord, RawDataManifest, DataType } from '@/domain/models'
+import type { RawFileRecord, RawDataManifest } from '@/domain/models/analysis'
+import type { DataType } from '@/domain/models/storeTypes'
 
 /**
  * raw_data 層のストレージポート

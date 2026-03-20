@@ -7,7 +7,7 @@
  * - 累計粗利率・売変率の計算
  */
 import { useMemo } from 'react'
-import type { DailyRecord, TransferBreakdownEntry } from '@/domain/models'
+import type { DailyRecord, TransferBreakdownEntry } from '@/domain/models/record'
 import { safeDivide, calculateGrossProfitRate } from '@/domain/calculations/utils'
 
 /* ── 純粋関数 ───────────────────────────────── */

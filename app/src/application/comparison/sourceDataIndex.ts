@@ -12,7 +12,7 @@
  */
 import type { CalendarDate } from '@/domain/models/CalendarDate'
 import type { ClassifiedSalesDaySummary } from '@/domain/models/ClassifiedSales'
-import type { StoreDayIndex, SpecialSalesDayEntry } from '@/domain/models'
+import type { StoreDayIndex, SpecialSalesDayEntry } from '@/domain/models/record'
 
 // ── 型定義 ──
 

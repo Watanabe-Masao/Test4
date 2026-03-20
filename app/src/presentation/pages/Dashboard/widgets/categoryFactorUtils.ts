@@ -7,7 +7,7 @@ import {
   decomposePriceMix as decomposePriceMixDomain,
   type CategoryQtyAmt,
 } from '@/application/hooks/calculation'
-import type { CategoryTimeSalesRecord } from '@/domain/models'
+import type { CategoryTimeSalesRecord } from '@/domain/models/record'
 
 export function recordsToCategoryQtyAmt(
   records: readonly CategoryTimeSalesRecord[],

@@ -3,7 +3,7 @@
  *
  * レコード系データの storeId を最終的な店舗マスタに基づいて正規化する。
  */
-import type { ImportedData } from '@/domain/models'
+import type { ImportedData } from '@/domain/models/storeTypes'
 
 /**
  * レコード系データ（classifiedSales / categoryTimeSales）の storeId を正規化する。

@@ -11,7 +11,7 @@ import {
   VIEW_TO_PATH,
   preloadAdjacentPages,
 } from '@/application/navigation/viewMapping'
-import type { ViewType } from '@/domain/models'
+import type { ViewType } from '@/domain/models/storeTypes'
 
 /** URL pathname から現在の ViewType を導出する */
 export function useCurrentView(): ViewType {

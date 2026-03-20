@@ -3,7 +3,7 @@
  *
  * ImportOrchestrator から抽出。単月のインポート実行と差分解決を担う。
  */
-import type { AppSettings, ImportedData } from '@/domain/models'
+import type { AppSettings, ImportedData } from '@/domain/models/storeTypes'
 import { detectDataMaxDay } from '@/domain/calculations/utils'
 import { calculateDiff } from '@/application/services/diffCalculator'
 import { validateImportedData, filterDataForMonth } from './FileImportService'

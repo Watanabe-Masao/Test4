@@ -19,7 +19,8 @@ import {
 import { useChartTheme, useCurrencyFormatter, toPct } from './chartTheme'
 import { palette } from '@/presentation/theme/tokens'
 import { useI18n } from '@/application/hooks/useI18n'
-import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
+import { ChartSkeleton } from '@/presentation/components/common/feedback'
+import { EmptyState } from '@/presentation/components/common/layout'
 import { CHART_GUIDES } from './chartGuides'
 import { ChartCard } from './ChartCard'
 import {

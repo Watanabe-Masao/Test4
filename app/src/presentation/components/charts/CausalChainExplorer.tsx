@@ -1,5 +1,5 @@
 import { useState, useCallback, memo } from 'react'
-import type { StoreResult } from '@/domain/models'
+import type { StoreResult } from '@/domain/models/storeTypes'
 import {
   useCausalChain,
   type CausalChainPrevInput,

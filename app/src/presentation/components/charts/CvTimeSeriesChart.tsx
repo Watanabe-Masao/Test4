@@ -10,7 +10,7 @@
  */
 import { useState, useMemo, memo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { DateRange } from '@/domain/models'
+import type { DateRange } from '@/domain/models/calendar'
 import {
   useDuckDBCategoryBenchmark,
   useDuckDBCategoryBenchmarkTrend,
@@ -18,7 +18,7 @@ import {
   buildCategoryTrendData,
 } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, useCurrencyFormat } from './chartTheme'
-import { ChartSkeleton } from '@/presentation/components/common'
+import { ChartSkeleton } from '@/presentation/components/common/feedback'
 import { ChartCard } from './ChartCard'
 import {
   ControlStrip,

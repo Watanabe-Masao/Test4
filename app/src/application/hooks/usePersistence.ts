@@ -9,7 +9,8 @@ import { useSettingsStore } from '@/application/stores/settingsStore'
 import { invalidateAfterStateChange } from '@/application/services/stateInvalidation'
 import { useRepository } from '../context/useRepository'
 import { calculateDiff } from '@/application/services/diffCalculator'
-import type { ImportedData, DiffResult } from '@/domain/models'
+import type { DiffResult } from '@/domain/models/analysis'
+import type { ImportedData } from '@/domain/models/storeTypes'
 import { mergeInsertsOnly } from './useImport'
 
 // ─── 型定義 ──────────────────────────────────────────────

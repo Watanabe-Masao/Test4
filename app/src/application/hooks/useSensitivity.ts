@@ -16,7 +16,7 @@ import type {
   SensitivityResult,
   ElasticityResult,
 } from '@/domain/calculations/algorithms/sensitivity'
-import type { StoreResult } from '@/domain/models'
+import type { StoreResult } from '@/domain/models/storeTypes'
 
 // Re-export types for presentation layer
 export type { SensitivityBase, SensitivityDeltas, SensitivityResult, ElasticityResult }

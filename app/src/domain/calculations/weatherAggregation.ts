@@ -4,7 +4,11 @@
  * 時間別天気レコードを日別サマリに集約する。
  * domain 層のため副作用なし・外部依存なし。
  */
-import type { HourlyWeatherRecord, DailyWeatherSummary, WeatherCategory } from '@/domain/models'
+import type {
+  HourlyWeatherRecord,
+  DailyWeatherSummary,
+  WeatherCategory,
+} from '@/domain/models/record'
 import { safeDivide } from './utils'
 
 const SECONDS_PER_HOUR = 3600

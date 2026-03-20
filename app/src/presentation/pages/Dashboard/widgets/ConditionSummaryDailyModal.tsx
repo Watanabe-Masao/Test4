@@ -1,7 +1,7 @@
 import { memo, useState, useMemo, useCallback } from 'react'
-import { DISCOUNT_TYPES } from '@/domain/models'
-import type { StoreResult } from '@/domain/models'
-import type { PrevYearMonthlyKpi } from '@/application/hooks'
+import { DISCOUNT_TYPES } from '@/domain/models/record'
+import type { StoreResult } from '@/domain/models/storeTypes'
+import type { PrevYearMonthlyKpi } from '@/application/hooks/analytics'
 import type {
   MetricKey,
   DailyDetailRow,

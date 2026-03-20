@@ -1,8 +1,8 @@
 import { decompose2 } from '@/application/hooks/calculation'
 import type { ForecastInput, WeeklySummary } from '@/application/hooks/calculation'
 import { calculateTransactionValue, safeDivide, calculateShare } from '@/domain/calculations'
-import type { DailyRecord } from '@/domain/models'
-import type { PrevYearData } from '@/application/hooks'
+import type { DailyRecord } from '@/domain/models/record'
+import type { PrevYearData } from '@/application/hooks/analytics'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 
 export const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土']
