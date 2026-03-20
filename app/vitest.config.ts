@@ -1,23 +1,19 @@
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
-import { existsSync } from 'fs'
 
-// WASM pkg/ ディレクトリが存在すれば実 WASM を使用（CI 環境）。
-// 存在しなければ型付きモックに解決する（ローカル開発環境）。
-const wasmPkgExists = existsSync(resolve(__dirname, '../wasm/factor-decomposition/pkg'))
-
-const wasmAliases: Record<string, string> = wasmPkgExists
-  ? {}
-  : {
-      'factor-decomposition-wasm': resolve(
-        __dirname,
-        'src/test/__mocks__/factorDecompositionWasmMock.ts',
-      ),
-      'gross-profit-wasm': resolve(__dirname, 'src/test/__mocks__/grossProfitWasmMock.ts'),
-      'budget-analysis-wasm': resolve(__dirname, 'src/test/__mocks__/budgetAnalysisWasmMock.ts'),
-      'forecast-wasm': resolve(__dirname, 'src/test/__mocks__/forecastWasmMock.ts'),
-    }
+// vitest（jsdom 環境）では常に型付きモックを使用する。
+// jsdom は WebAssembly.instantiate を完全サポートしないため、
+// 実 WASM のテストは Rust 側の wasm-pack test で行う。
+const wasmAliases: Record<string, string> = {
+  'factor-decomposition-wasm': resolve(
+    __dirname,
+    'src/test/__mocks__/factorDecompositionWasmMock.ts',
+  ),
+  'gross-profit-wasm': resolve(__dirname, 'src/test/__mocks__/grossProfitWasmMock.ts'),
+  'budget-analysis-wasm': resolve(__dirname, 'src/test/__mocks__/budgetAnalysisWasmMock.ts'),
+  'forecast-wasm': resolve(__dirname, 'src/test/__mocks__/forecastWasmMock.ts'),
+}
 
 export default defineConfig({
   plugins: [react()],
