@@ -56,7 +56,15 @@ describe('weatherAdapter', () => {
 
       await weatherAdapter.fetchHourlyRange(STATION, 2025, 1, [1, 2, 3], onProgress)
 
-      expect(mockFetchHourly).toHaveBeenCalledWith(44, '47662', 's1', 2025, 1, [1, 2, 3], onProgress)
+      expect(mockFetchHourly).toHaveBeenCalledWith(
+        44,
+        '47662',
+        's1',
+        2025,
+        1,
+        [1, 2, 3],
+        onProgress,
+      )
     })
   })
 
