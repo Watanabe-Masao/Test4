@@ -527,7 +527,6 @@ describe('Architecture Guard', () => {
   const PRESENTATION_DUCKDB_HOOK_ALLOWLIST = new Set([
     // ── ウィジェットコンテキスト（Phase B で移行） ──
     'hooks/useUnifiedWidgetContext.ts',
-    'components/widgets/types.ts',
     // ── DuckDB チャート（Phase C Wave 1-3 で移行） ──
     'components/charts/CategoryHierarchyExplorer.tsx',
     'components/charts/CategoryPerformanceChart.tsx',
@@ -538,24 +537,15 @@ describe('Architecture Guard', () => {
     'components/charts/FeatureChart.tsx',
     'components/charts/HeatmapChart.helpers.ts',
     'components/charts/HourlyProfileChart.tsx',
-    'components/charts/TimeSlotChart.tsx',
     'components/charts/YoYChart.tsx',
     // ── ページ・ウィジェット（Phase C で移行） ──
-    'pages/Admin/AdminPage.tsx',
-    'pages/Admin/ImportHistoryTab.tsx',
-    'pages/Admin/PrevYearMappingTab.tsx',
     'pages/Admin/StorageManagementTab.tsx',
     'pages/Dashboard/widgets/ConditionMatrixTable.styles.ts',
     'pages/Dashboard/widgets/DayDetailModal.tsx',
     'pages/Dashboard/widgets/MonthlyCalendar.tsx',
-    'pages/Dashboard/widgets/RangeComparison.tsx',
     'pages/Dashboard/widgets/YoYWaterfallChart.tsx',
-    'pages/Dashboard/widgets/types.ts',
     // ── 仕入分析ページ ──
     'pages/PurchaseAnalysis/PurchaseAnalysisPage.tsx',
-    // ── レイアウト（DuckDB 接続状態表示用） ──
-    'components/Layout/MainContent.tsx',
-    'components/Layout/NavBar.tsx',
   ])
 
   it('presentation/ の新規ファイルは DuckDB フックを直接使用しない（filterStore 経由を使用）', () => {
@@ -590,7 +580,7 @@ describe('Architecture Guard', () => {
 
   it('presentation/ の DuckDB フック許可リストは増やさない（移行時に減らすのみ）', () => {
     // 許可リストのサイズ上限。移行が進むにつれてこの数値を減らしていく。
-    const MAX_ALLOWLIST_SIZE = 26
+    const MAX_ALLOWLIST_SIZE = 17
     expect(PRESENTATION_DUCKDB_HOOK_ALLOWLIST.size).toBeLessThanOrEqual(MAX_ALLOWLIST_SIZE)
   })
 

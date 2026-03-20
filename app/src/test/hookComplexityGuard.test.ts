@@ -338,8 +338,8 @@ describe('R11: hooks/ の useState 呼び出しが上限以下', () => {
   const hooksDir = path.join(SRC_DIR, 'application/hooks')
 
   // useState が多い既存ファイルの許容リスト
-  // usePersistence: 6 useState — persistence 初期化に必要な状態群。useReducer 化は過剰
-  // useAutoBackup: 6 useState — バックアップ状態管理に必要。useReducer 化は過剰
+  // usePersistence: 6 useState — >= 6 判定のため個別上限 7 が必要
+  // useAutoBackup: 6 useState — >= 6 判定のため個別上限 7 が必要
   const allowlist: Record<string, number> = {
     'application/hooks/usePersistence.ts': 7,
     'application/hooks/useAutoBackup.ts': 7,
