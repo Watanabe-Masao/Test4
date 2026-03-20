@@ -185,6 +185,14 @@ export const CategoryExplorerTable = memo(function CategoryExplorerTable({
               <Th scope="col" $sortable onClick={() => handleSort('quantity')}>
                 数量{arrow('quantity')}
               </Th>
+              <ThWithTip scope="col">
+                取扱日率
+                <TipIcon>?</TipIcon>
+                <TipBubble>
+                  売上のあった日数 ÷ 期間日数 ×
+                  100。100%で全日取扱、低い値は季節品や新規品の可能性。
+                </TipBubble>
+              </ThWithTip>
               {showPi && (
                 <ThWithTip scope="col" $sortable onClick={() => handleSort('piValue')}>
                   PI値{arrow('piValue')}
@@ -257,6 +265,26 @@ export const CategoryExplorerTable = memo(function CategoryExplorerTable({
                 </TdAmount>
                 <Td $mono>{it.pct.toFixed(1)}%</Td>
                 <Td $mono>{it.quantity.toLocaleString()}</Td>
+                <Td $mono>
+                  {it.handledDayCount != null &&
+                  it.totalDayCount != null &&
+                  it.totalDayCount > 0 ? (
+                    <span
+                      style={{
+                        color:
+                          it.handledDayCount === it.totalDayCount
+                            ? 'inherit'
+                            : it.handledDayCount === 0
+                              ? sc.negativeDark
+                              : sc.cautionDark,
+                      }}
+                    >
+                      {Math.round((it.handledDayCount / it.totalDayCount) * 100)}%
+                    </span>
+                  ) : (
+                    '-'
+                  )}
+                </Td>
                 {showPi && (
                   <Td $mono>
                     {it.piValue != null ? (

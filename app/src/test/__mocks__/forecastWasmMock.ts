@@ -111,6 +111,7 @@ export function analyze_trend(
       discountRate: null,
       costRate: null,
       costInclusionRate: null,
+      averageMarkupRate: null,
     })
   }
   const r = analyzeTrendTS(dataPoints)

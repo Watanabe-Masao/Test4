@@ -38,4 +38,8 @@ export interface HierarchyItem {
   peakHourShift?: number
   hasAnomalyShift?: boolean
   piValue?: number
+  /** 取扱日数（この期間でこのカテゴリに売上があった日数） */
+  handledDayCount?: number
+  /** 総日数（この期間の全日数） */
+  totalDayCount?: number
 }

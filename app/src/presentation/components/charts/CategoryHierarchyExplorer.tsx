@@ -237,6 +237,8 @@ export const CategoryHierarchyExplorer = memo(function CategoryHierarchyExplorer
         peakHourShift,
         hasAnomalyShift,
         piValue,
+        handledDayCount: entry.handledDayCount,
+        totalDayCount: entry.totalDayCount,
       }
     })
   }, [curLevelAgg.data, curHourly.data, prevLevelAgg.data, prevHourly.data, totalCustomers])
