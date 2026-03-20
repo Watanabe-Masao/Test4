@@ -462,9 +462,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                               ? palette.primary
                               : undefined
                         }
-                        $rangeType={
-                          isDayInRangeA(day) ? 'A' : isDayInRangeB(day) ? 'B' : undefined
-                        }
+                        $rangeType={isDayInRangeA(day) ? 'A' : isDayInRangeB(day) ? 'B' : undefined}
                       >
                         <CalDayHeader>
                           <CalDayNum $weekend={isWeekend}>
@@ -536,8 +534,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                       {isHovered && (budget > 0 || actual > 0) && (
                         <CalPreview>
                           <PreviewTitle>
-                            {month}月{day}日（{dayOfWeek}）
-                            {weatherIcon && ` ${weatherIcon}`}
+                            {month}月{day}日（{dayOfWeek}）{weatherIcon && ` ${weatherIcon}`}
                             {weather &&
                               ` ${Math.round(weather.temperatureMax)}°/${Math.round(weather.temperatureMin)}°`}
                           </PreviewTitle>
