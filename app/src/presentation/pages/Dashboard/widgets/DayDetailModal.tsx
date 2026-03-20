@@ -153,6 +153,22 @@ export function DayDetailModal({
   const dateKey = useMemo(() => toDateKeyFromParts(year, month, day), [year, month, day])
   const weatherResult = useDuckDBWeatherHourly(duckConn, duckDataVersion, weatherStoreId, dateKey)
 
+  // 前年天気データ
+  const prevDateKey = useMemo(() => {
+    const curDate = new Date(year, month - 1, day)
+    const prevDate = new Date(curDate.getTime() + comparisonFrame.dowOffset * 86400000)
+    const py = prevDate.getFullYear()
+    const pm = String(prevDate.getMonth() + 1).padStart(2, '0')
+    const pd = String(prevDate.getDate()).padStart(2, '0')
+    return `${py}-${pm}-${pd}`
+  }, [year, month, day, comparisonFrame.dowOffset])
+  const prevWeatherResult = useDuckDBWeatherHourly(
+    duckConn,
+    duckDataVersion,
+    weatherStoreId,
+    prevDateKey,
+  )
+
   const singleDayRange: DateRange = useMemo(
     () => ({
       from: { year, month, day },
@@ -483,6 +499,9 @@ export function DayDetailModal({
               dayRecords={dayRecords}
               prevDayRecords={prevDayRecords}
               weatherHourly={weatherResult.data ?? undefined}
+              prevWeatherHourly={prevWeatherResult.data ?? undefined}
+              prevDateKey={prevDateKey}
+              curDateKey={dateKey}
             />
             {dayRecords.length === 0 && (
               <DetailSection>

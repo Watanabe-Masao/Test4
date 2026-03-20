@@ -303,3 +303,126 @@ export const PinInputLabel = styled.label`
   color: ${({ theme }) => theme.colors.text3};
   margin-bottom: ${({ theme }) => theme.spacing[3]};
 `
+
+// ─── Weather Icon in Calendar Cell ───────────────────────
+
+export const CalWeatherIcon = styled.span`
+  font-size: 0.6rem;
+  line-height: 1;
+  margin-left: 2px;
+`
+
+// ─── Hover Preview (Popover) ─────────────────────────────
+
+export const CalCellWrapper = styled.td<{ $empty?: boolean; $hasActual?: boolean }>`
+  padding: ${({ theme }) => theme.spacing[1]};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  vertical-align: top;
+  height: 96px;
+  position: relative;
+  ${({ $empty, theme }) => ($empty ? `background: ${theme.colors.bg2};` : '')}
+  ${({ $hasActual, $empty, theme }) =>
+    !$empty && $hasActual === false
+      ? `
+    background: ${theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)'};
+    opacity: 0.7;
+  `
+      : ''}
+  ${({ $hasActual, $empty, theme }) =>
+    !$empty && $hasActual
+      ? `
+    background: ${`${theme.colors.palette.success}${theme.mode === 'dark' ? '0a' : '08'}`};
+  `
+      : ''}
+`
+
+export const CalPreview = styled.div`
+  position: absolute;
+  z-index: ${({ theme }) => theme.zIndex.tooltip};
+  bottom: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 200px;
+  padding: 8px 10px;
+  border-radius: ${({ theme }) => theme.radii.md};
+  background: ${({ theme }) => (theme.mode === 'dark' ? '#1e1e2e' : theme.colors.palette.white)};
+  color: ${({ theme }) => theme.colors.text};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+  font-size: 0.6rem;
+  line-height: 1.5;
+  white-space: nowrap;
+`
+
+export const PreviewTitle = styled.div`
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  font-size: 0.68rem;
+  margin-bottom: 4px;
+  color: ${({ theme }) => theme.colors.text};
+`
+
+export const PreviewRow = styled.div<{ $color?: string }>`
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: ${({ $color, theme }) => $color ?? theme.colors.text2};
+`
+
+export const PreviewLabel = styled.span`
+  color: ${({ theme }) => theme.colors.text3};
+`
+
+export const PreviewValue = styled.span`
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  font-weight: 600;
+`
+
+export const PreviewHint = styled.div`
+  margin-top: 4px;
+  font-size: 0.5rem;
+  color: ${({ theme }) => theme.colors.text4};
+  text-align: center;
+`
+
+// ─── Week Summary Column ─────────────────────────────────
+
+export const CalThWeek = styled.th`
+  padding: ${({ theme }) => `${theme.spacing[3]} ${theme.spacing[2]}`};
+  text-align: center;
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  color: ${({ theme }) => theme.colors.text3};
+  border-bottom: 2px solid ${({ theme }) => theme.colors.border};
+  width: 72px;
+  min-width: 72px;
+`
+
+export const CalTdWeek = styled.td`
+  padding: ${({ theme }) => theme.spacing[1]};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  vertical-align: top;
+  height: 96px;
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.01)'};
+`
+
+export const WeekSummaryGrid = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 2px;
+`
+
+export const WeekSummaryLabel = styled.div`
+  font-size: 0.5rem;
+  color: ${({ theme }) => theme.colors.text4};
+`
+
+export const WeekSummaryValue = styled.div<{ $color?: string }>`
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  color: ${({ $color, theme }) => $color ?? theme.colors.text};
+  line-height: 1.3;
+`

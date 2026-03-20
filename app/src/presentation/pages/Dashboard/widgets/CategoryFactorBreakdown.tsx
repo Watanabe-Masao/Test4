@@ -511,13 +511,13 @@ const CategoryFactorEChart = memo(function CategoryFactorEChart({
     const barSize = compact ? 16 : 20
 
     // Build series for each active factor
+    // データは [start, end] レンジ形式 → stack は使わない（位置は既に計算済み）
     type BarSeries = {
       name: string
       type: 'bar'
       data: number[][]
       itemStyle: { color: string; opacity: number }
       barWidth: number
-      stack: string
     }
     const seriesList: BarSeries[] = []
 
@@ -528,7 +528,6 @@ const CategoryFactorEChart = memo(function CategoryFactorEChart({
         data: waterfallItems.map((d) => [d.custRange[0], d.custRange[1]]),
         itemStyle: { color: FACTOR_COLORS.cust, opacity: 0.85 },
         barWidth: barSize,
-        stack: 'factor',
       })
     }
 
@@ -539,7 +538,6 @@ const CategoryFactorEChart = memo(function CategoryFactorEChart({
         data: waterfallItems.map((d) => [d.ticketRange[0], d.ticketRange[1]]),
         itemStyle: { color: FACTOR_COLORS.ticket, opacity: 0.85 },
         barWidth: barSize,
-        stack: 'factor',
       })
     }
 
@@ -550,7 +548,6 @@ const CategoryFactorEChart = memo(function CategoryFactorEChart({
         data: waterfallItems.map((d) => [d.qtyRange[0], d.qtyRange[1]]),
         itemStyle: { color: FACTOR_COLORS.qty, opacity: 0.85 },
         barWidth: barSize,
-        stack: 'factor',
       })
     }
 
@@ -561,7 +558,6 @@ const CategoryFactorEChart = memo(function CategoryFactorEChart({
         data: waterfallItems.map((d) => [d.priceRange[0], d.priceRange[1]]),
         itemStyle: { color: FACTOR_COLORS.price, opacity: 0.85 },
         barWidth: barSize,
-        stack: 'factor',
       })
     }
 
@@ -572,7 +568,6 @@ const CategoryFactorEChart = memo(function CategoryFactorEChart({
         data: waterfallItems.map((d) => [d.pricePureRange[0], d.pricePureRange[1]]),
         itemStyle: { color: FACTOR_COLORS.price, opacity: 0.85 },
         barWidth: barSize,
-        stack: 'factor',
       })
       seriesList.push({
         name: '構成比変化効果',
@@ -580,7 +575,6 @@ const CategoryFactorEChart = memo(function CategoryFactorEChart({
         data: waterfallItems.map((d) => [d.mixRange[0], d.mixRange[1]]),
         itemStyle: { color: FACTOR_COLORS.mix, opacity: 0.85 },
         barWidth: barSize,
-        stack: 'factor',
       })
     }
 

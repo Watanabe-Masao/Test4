@@ -11,7 +11,7 @@ export type WeatherCategory = 'sunny' | 'cloudy' | 'rainy' | 'snowy' | 'other'
 /** 時間別天気レコード（気象庁実測値の1時間分） */
 export interface HourlyWeatherRecord {
   readonly dateKey: string // YYYY-MM-DD
-  readonly hour: number // 0-23
+  readonly hour: number // 1-23（ETRN 時表記そのまま）
   readonly temperature: number // °C
   readonly humidity: number // %
   readonly precipitation: number // mm (1時間降水量)
