@@ -51,7 +51,7 @@ export function buildBaseDayItems(
     const grossSales = rec?.grossSales ?? 0
     const prevEntry = prevYearDaily?.get(toDateKeyFromParts(year, month, d))
     const prevSales = prevEntry?.sales ?? null
-    const prevDiscount = prevEntry?.discount ?? null
+    const prevDiscount = prevEntry?.discount != null ? Math.abs(prevEntry.discount) : null
     const customers = rec?.customers ?? 0
     const txValue = customers > 0 ? calculateTransactionValue(sales, customers) : null
     const prevCustomers = prevEntry && 'customers' in prevEntry ? (prevEntry.customers ?? 0) : 0
@@ -62,7 +62,7 @@ export function buildBaseDayItems(
     cumSales += sales
     cumPrevSales += prevEntry?.sales ?? 0
     cumDiscount += discount
-    cumPrevDiscount += prevEntry?.discount ?? 0
+    cumPrevDiscount += prevDiscount ?? 0
     cumGrossSales += grossSales
     const cumDiscountRate = safeDivide(cumDiscount, cumGrossSales, 0)
 
