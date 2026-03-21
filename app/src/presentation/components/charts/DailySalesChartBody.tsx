@@ -19,12 +19,17 @@ import type { DailyWeatherSummary } from '@/domain/models/record'
 import {
   buildWeatherMap,
   buildXLabels,
+  buildRightAxisSeries,
+  rightAxisFormatter as getRightAxisFormatter,
   ALL_LABELS,
   HIDDEN_NAMES,
   PERCENT_SERIES,
+  TEMPERATURE_SERIES,
   grad,
   withAlpha,
   pluck,
+  type RightAxisMode,
+  type DayWeatherInfo,
 } from './DailySalesChartBodyLogic'
 
 export type ViewType = 'standard' | 'cumulative' | 'difference' | 'rate'
@@ -45,6 +50,8 @@ interface Props {
   year?: number
   /** 当月の月（曜日算出用） */
   month?: number
+  /** 右軸の表示モード（デフォルト: quantity=点数） */
+  rightAxisMode?: RightAxisMode
 }
 
 /** option 生成の本体 */
@@ -56,9 +63,10 @@ function buildOption(
   ct: ChartTheme,
   needRightAxis: boolean,
   wfLegendPayload: Props['wfLegendPayload'],
-  weatherMap?: ReadonlyMap<number, { icon: string; temp: number }>,
+  weatherMap?: ReadonlyMap<number, DayWeatherInfo>,
   year?: number,
   month?: number,
+  rightAxisMode: RightAxisMode = 'quantity',
 ): EChartsOption {
   const rows = data as unknown as Record<string, unknown>[]
   const days = rows.map((d) => d.day as string | number)
@@ -110,8 +118,8 @@ function buildOption(
     },
   }
 
-  const rightAxisFormatter =
-    view === 'standard' ? (v: number) => toComma(v) : (v: number) => toAxisYen(v)
+  const rightFmt =
+    view === 'standard' ? getRightAxisFormatter(rightAxisMode) : (v: number) => toAxisYen(v)
 
   const yAxes: EChartsOption['yAxis'] =
     view === 'rate'
@@ -123,7 +131,7 @@ function buildOption(
               type: 'value' as const,
               position: 'right' as const,
               axisLabel: {
-                formatter: rightAxisFormatter,
+                formatter: rightFmt,
                 color: ct.textMuted,
                 fontSize: ct.fontSize.xs,
                 fontFamily: ct.monoFamily,
@@ -164,7 +172,9 @@ function buildOption(
               ? '-'
               : PERCENT_SERIES.has(item.seriesName)
                 ? toPct(item.value / 100)
-                : toComma(item.value)
+                : TEMPERATURE_SERIES.has(item.seriesName)
+                  ? `${item.value}°C`
+                  : toComma(item.value)
           return (
             `<div style="display:flex;justify-content:space-between;gap:12px">` +
             `${item.marker}<span>${label}</span>` +
@@ -202,7 +212,7 @@ function buildOption(
   // ── シリーズ構築 ──
   const series: EChartsOption['series'] = []
 
-  // ─── Standard: 売上+前年売上=棒、点数=破線（右軸）、移動平均線 ───
+  // ─── Standard: 売上+前年売上=棒、右軸=切替可能（点数/客数/売変/気温） ───
   if (view === 'standard') {
     series.push({
       name: 'sales',
@@ -228,25 +238,16 @@ function buildOption(
         barMaxWidth: 14,
       })
     }
-    // 点数（右Y軸）
-    series.push({
-      name: 'customers',
-      type: 'line' as const,
-      yAxisIndex: 1,
-      data: pluck(rows, 'customers'),
-      ...lineDefaults({ color: ct.colors.cyan, dashed: true }),
-      connectNulls: true,
-    })
-    if (hasPrev) {
-      series.push({
-        name: 'prevCustomers',
-        type: 'line' as const,
-        yAxisIndex: 1,
-        data: pluck(rows, 'prevCustomers'),
-        ...lineDefaults({ color: ct.colors.orange, dashed: true, width: 1.5 }),
-        connectNulls: true,
-      })
+    // 右軸シリーズ（モジュール化されたビルダーで生成）
+    const rightColors = {
+      cyan: ct.colors.cyan,
+      orange: ct.colors.orange,
+      danger: ct.colors.danger,
+      primary: ct.colors.primary,
     }
+    series.push(
+      ...buildRightAxisSeries(rightAxisMode, rows, days, hasPrev, rightColors, weatherMap ?? new Map()),
+    )
   }
 
   // ─── Cumulative: 実績・前年・予算の累計Area + 帯グラフ + 売変累計（右軸） ───
@@ -492,6 +493,7 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
   weatherDaily,
   year,
   month,
+  rightAxisMode = 'quantity',
 }: Props) {
   const rows = data as unknown as Record<string, unknown>[]
   const days = useMemo(() => rows.map((d) => d.day as number), [rows])
@@ -512,8 +514,9 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
         weatherMap,
         year,
         month,
+        rightAxisMode,
       ),
-    [data, view, isWf, hasPrev, ct, needRightAxis, wfLegendPayload, weatherMap, year, month],
+    [data, view, isWf, hasPrev, ct, needRightAxis, wfLegendPayload, weatherMap, year, month, rightAxisMode],
   )
 
   // ブラシ設定を追加（ドラッグ選択機能が有効な場合のみ）
