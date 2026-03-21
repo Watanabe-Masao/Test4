@@ -10,29 +10,35 @@
 export { useAsyncQuery, toDateKeys, storeIdsToArray } from './useAsyncQuery'
 export type { AsyncQueryResult } from './useAsyncQuery'
 
-// CTS（分類別時間帯売上）
+// CTS — 階層クエリ（カテゴリ集約・日次トレンド・CTS レコード）
 export {
-  useDuckDBHourlyAggregation,
   useDuckDBLevelAggregation,
-  useDuckDBStoreAggregation,
-  useDuckDBHourDowMatrix,
-  useDuckDBDistinctDayCount,
-  useDuckDBDowDivisorMap,
   useDuckDBCategoryDailyTrend,
   useDuckDBCategoryHourly,
   useDuckDBCategoryDowMatrix,
   useDuckDBCategoryTimeRecords,
   fetchCategoryTimeRecords,
-} from './useCtsQueries'
+} from './useCtsHierarchyQueries'
 export type {
-  HourlyAggregationRow,
   LevelAggregationRow,
-  StoreAggregationRow,
-  HourDowMatrixRow,
   CategoryDailyTrendRow,
   CategoryHourlyRow,
   CategoryDowMatrixRow,
-} from './useCtsQueries'
+} from './useCtsHierarchyQueries'
+
+// CTS — 時間帯集約クエリ（時間帯・店舗・マトリクス・日数）
+export {
+  useDuckDBHourlyAggregation,
+  useDuckDBStoreAggregation,
+  useDuckDBHourDowMatrix,
+  useDuckDBDistinctDayCount,
+  useDuckDBDowDivisorMap,
+} from './useCtsAggregationQueries'
+export type {
+  HourlyAggregationRow,
+  StoreAggregationRow,
+  HourDowMatrixRow,
+} from './useCtsAggregationQueries'
 
 // 部門KPI
 export { useDuckDBDeptKpi, useDuckDBDeptKpiTrend } from './useDeptKpiQueries'
@@ -50,7 +56,11 @@ export {
   useDuckDBAggregatedRates,
   useDuckDBStoreDaySummary,
 } from './useSummaryQueries'
-export type { DailyCumulativeRow, AggregatedRatesRow } from './useSummaryQueries'
+export type {
+  DailyCumulativeRow,
+  AggregatedRatesRow,
+  StoreDaySummaryRow,
+} from './useSummaryQueries'
 
 // 前年比較（YoY）
 export { useDuckDBYoyDaily, useDuckDBYoyCategory } from './useYoyQueries'

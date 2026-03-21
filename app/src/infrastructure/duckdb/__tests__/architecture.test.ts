@@ -86,7 +86,8 @@ describe('DuckDB クエリモジュールの barrel export', () => {
 
 describe('DuckDB クエリフックの責務分割', () => {
   const hookModules = [
-    'application/hooks/duckdb/useCtsQueries.ts',
+    'application/hooks/duckdb/useCtsHierarchyQueries.ts',
+    'application/hooks/duckdb/useCtsAggregationQueries.ts',
     'application/hooks/duckdb/useDeptKpiQueries.ts',
     'application/hooks/duckdb/useSummaryQueries.ts',
     'application/hooks/duckdb/useYoyQueries.ts',
@@ -94,11 +95,8 @@ describe('DuckDB クエリフックの責務分割', () => {
     'application/hooks/duckdb/useAdvancedQueries.ts',
   ]
 
-  // useCtsQueries は barrel 化済み — 実体は sub-module にある
-  const subModules = [
-    'application/hooks/duckdb/useCtsHierarchyQueries.ts',
-    'application/hooks/duckdb/useCtsAggregationQueries.ts',
-  ]
+  // hookModules のサブセット（中間バレル廃止後は hookModules に統合済み）
+  const subModules: string[] = []
 
   it('責務別モジュールが全て存在する', () => {
     for (const mod of hookModules) {
@@ -124,7 +122,7 @@ describe('DuckDB クエリフックの責務分割', () => {
 
   it('barrel index が全モジュールを re-export している', () => {
     const indexContent = readFile('application/hooks/duckdb/index.ts')
-    for (const mod of hookModules) {
+    for (const mod of [...hookModules, ...subModules]) {
       const baseName = path.basename(mod, '.ts')
       expect(indexContent).toContain(baseName)
     }
