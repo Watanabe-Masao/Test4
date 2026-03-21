@@ -9,27 +9,18 @@ import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import {
   safeDivide,
   calculateTransactionValue,
-  calculateMovingAverage,
   calculateAchievementRate,
   calculateYoYRatio,
 } from '@/domain/calculations'
 import type { BaseDayItem, DiffTarget, WaterfallItem } from '../hooks/useDailySalesData'
 
-/** N日移動平均を計算（ドメイン層のユーティリティに委譲） */
-function movingAverage(values: number[], window: number): (number | null)[] {
-  return calculateMovingAverage(values, window).map((v) => (isNaN(v) ? null : v))
-}
-
 /** buildBaseDayItems の戻り値 */
 export interface BaseDayItemsResult {
-  readonly baseData: Omit<BaseDayItem, 'salesMa7' | 'discountMa7' | 'prevDiscountMa7'>[]
-  readonly salesMa7: (number | null)[]
-  readonly discountMa7: (number | null)[]
-  readonly prevDiscountMa7: (number | null)[]
+  readonly baseData: BaseDayItem[]
 }
 
 /**
- * 日別ベースデータ（累積値・前年差・MA含む）を構築する純粋関数。
+ * 日別ベースデータ（累積値・前年差含む）を構築する純粋関数。
  *
  * useDailySalesData の最初の useMemo から抽出。
  */
@@ -43,9 +34,6 @@ export function buildBaseDayItems(
   year: number,
   month: number,
 ): BaseDayItemsResult {
-  const rawSales: number[] = []
-  const rawDiscount: number[] = []
-  const rawPrevDiscount: number[] = []
   let cumSales = 0,
     cumPrevSales = 0,
     cumDiscount = 0,
@@ -54,19 +42,16 @@ export function buildBaseDayItems(
     cumBudget = 0,
     cumYoyDiff = 0,
     cumBudgetDiff = 0
-  const bd: Omit<BaseDayItem, 'salesMa7' | 'discountMa7' | 'prevDiscountMa7'>[] = []
+  const bd: BaseDayItem[] = []
 
   for (let d = 1; d <= daysInMonth; d++) {
     const rec = daily.get(d)
     const sales = rec?.sales ?? 0
     const discount = rec?.discountAbsolute ?? 0
     const grossSales = rec?.grossSales ?? 0
-    rawSales.push(sales)
-    rawDiscount.push(discount)
     const prevEntry = prevYearDaily?.get(toDateKeyFromParts(year, month, d))
     const prevSales = prevEntry?.sales ?? null
     const prevDiscount = prevEntry?.discount ?? null
-    rawPrevDiscount.push(prevEntry?.discount ?? 0)
     const customers = rec?.customers ?? 0
     const txValue = customers > 0 ? calculateTransactionValue(sales, customers) : null
     const prevCustomers = prevEntry && 'customers' in prevEntry ? (prevEntry.customers ?? 0) : 0
@@ -116,22 +101,14 @@ export function buildBaseDayItems(
     })
   }
 
-  return {
-    baseData: bd,
-    salesMa7: movingAverage(rawSales, 7),
-    discountMa7: movingAverage(rawDiscount, 7),
-    prevDiscountMa7: movingAverage(rawPrevDiscount, 7),
-  }
+  return { baseData: bd }
 }
 
 /**
  * ベースデータからウォーターフォール表示用データを構築する純粋関数。
  */
 export function buildWaterfallData(
-  baseData: readonly Omit<BaseDayItem, 'salesMa7' | 'discountMa7' | 'prevDiscountMa7'>[],
-  salesMa7: readonly (number | null)[],
-  discountMa7: readonly (number | null)[],
-  prevDiscountMa7: readonly (number | null)[],
+  baseData: readonly BaseDayItem[],
   diffTarget: DiffTarget = 'yoy',
 ): WaterfallItem[] {
   let wfCumSales = 0,
@@ -190,9 +167,6 @@ export function buildWaterfallData(
       wfYoyUp,
       wfYoyDown,
       wfYoyCum: wfCumYoy,
-      salesMa7: salesMa7[i],
-      discountMa7: discountMa7[i],
-      prevDiscountMa7: prevDiscountMa7[i],
     }
   })
 }

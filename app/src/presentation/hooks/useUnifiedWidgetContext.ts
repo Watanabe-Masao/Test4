@@ -28,6 +28,7 @@ import { useDeptKpiView } from '@/application/hooks/useDeptKpiView'
 import { usePeriodSelectionStore } from '@/application/stores/periodSelectionStore'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { useStoreCostPriceQuery } from '@/application/hooks/duckdb/useStoreCostPriceQuery'
+import { useWeatherData } from '@/application/hooks/useWeather'
 
 interface UseUnifiedWidgetContextResult {
   /** 統一コンテキスト（currentResult が null の場合は null） */
@@ -112,6 +113,14 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
     comparison.prevYearDateRange ?? null,
   )
 
+  // ── 天気データ（選択店舗の代表1店から取得） ──
+  const weatherStoreId = useMemo(() => {
+    const ids = [...selectedStoreIds]
+    const storeLocations = useSettingsStore.getState().settings.storeLocations
+    return ids.find((id) => storeLocations[id]) ?? ids[0] ?? ''
+  }, [selectedStoreIds])
+  const { daily: weatherDaily } = useWeatherData(targetYear, targetMonth, weatherStoreId)
+
   // Store name map for category comparison
   const storeNames = useMemo(() => {
     const map = new Map<string, string>()
@@ -189,6 +198,9 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
 
     // 前年仕入額（額で持つ、率は domain/calculations で算出）
     prevYearStoreCostPrice,
+
+    // 天気データ
+    weatherDaily,
   }
 
   return {

@@ -2,7 +2,7 @@
  * 日次売上データ変換フック
  *
  * DailySalesChart のデータ変換・フィルタロジックを分離。
- * ウォーターフォールデータ・移動平均の算出を担う。
+ * ウォーターフォールデータの算出を担う。
  */
 import { useMemo } from 'react'
 import type { DailyRecord } from '@/domain/models/record'
@@ -62,9 +62,6 @@ export interface WaterfallItem {
   wfYoyUp: number
   wfYoyDown: number
   wfYoyCum: number
-  salesMa7: number | null
-  discountMa7: number | null
-  prevDiscountMa7: number | null
 }
 
 /** 日別ベースデータ（ウォーターフォール前） */
@@ -97,9 +94,6 @@ export interface BaseDayItem {
   budgetAchievementRate: number | null
   /** 前年比（currentCum / prevYearCum、1.0 = 100%） */
   yoyRatio: number | null
-  salesMa7: number | null
-  discountMa7: number | null
-  prevDiscountMa7: number | null
 }
 
 /** 差分モードの比較対象 */
@@ -129,7 +123,7 @@ export function useDailySalesData(
   budgetDaily?: ReadonlyMap<number, number>,
   diffTarget?: DiffTarget,
 ): DailySalesDataResult {
-  const { baseData, salesMa7, discountMa7, prevDiscountMa7, wfData } = useMemo(() => {
+  const { baseData, wfData } = useMemo(() => {
     const result = buildBaseDayItems(
       daily,
       daysInMonth,
@@ -139,15 +133,9 @@ export function useDailySalesData(
       month ?? 1,
     )
     const wf = isWf
-      ? buildWaterfallData(
-          result.baseData,
-          result.salesMa7,
-          result.discountMa7,
-          result.prevDiscountMa7,
-          diffTarget ?? 'yoy',
-        )
+      ? buildWaterfallData(result.baseData, diffTarget ?? 'yoy')
       : null
-    return { ...result, wfData: wf }
+    return { baseData: result.baseData, wfData: wf }
   }, [daily, daysInMonth, prevYearDaily, isWf, budgetDaily, year, month, diffTarget])
 
   /** 曜日フィルタ: 指定曜日に該当する日のみ通す */
@@ -165,25 +153,8 @@ export function useDailySalesData(
     if (isWf && wfData) {
       return wfData.filter(rangeFilter)
     }
-    return baseData
-      .map((d, i) => ({
-        ...d,
-        salesMa7: salesMa7[i],
-        discountMa7: discountMa7[i],
-        prevDiscountMa7: prevDiscountMa7[i],
-      }))
-      .filter(rangeFilter)
-  }, [
-    isWf,
-    wfData,
-    baseData,
-    salesMa7,
-    discountMa7,
-    prevDiscountMa7,
-    rangeStart,
-    rangeEnd,
-    dowFilter,
-  ])
+    return baseData.filter(rangeFilter)
+  }, [isWf, wfData, baseData, rangeStart, rangeEnd, dowFilter])
 
   return { data, hasPrev: !!prevYearDaily }
 }

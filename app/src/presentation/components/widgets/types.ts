@@ -84,6 +84,8 @@ export interface UnifiedWidgetContext {
   readonly onPrevYearDetail?: (type: 'sameDow' | 'sameDate') => void
   /** 前年店舗別仕入額（DuckDB UNION query 結果）。率ではなく額で持つ（禁止事項 #10） */
   readonly prevYearStoreCostPrice?: ReadonlyMap<string, { cost: number; price: number }>
+  /** 天気データ（日別サマリ） */
+  readonly weatherDaily?: readonly import('@/domain/models/WeatherData').DailyWeatherSummary[]
 
   // ── Insight 固有 ──
   readonly insightData?: InsightData

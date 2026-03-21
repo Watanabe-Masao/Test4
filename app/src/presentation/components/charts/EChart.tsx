@@ -172,7 +172,17 @@ export const EChart = memo(function EChart({
       })
     }
 
-    chartRef.current.setOption(option, { notMerge: true })
+    chartRef.current.setOption(
+      {
+        ...option,
+        animation: true,
+        animationDuration: 500,
+        animationDurationUpdate: 400,
+        animationEasing: 'cubicOut',
+        animationEasingUpdate: 'cubicInOut',
+      },
+      { notMerge: true },
+    )
 
     return () => {
       // コンポーネントアンマウント時に破棄

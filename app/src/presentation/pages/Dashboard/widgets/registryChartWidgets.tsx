@@ -39,6 +39,7 @@ export const WIDGETS_CHART: readonly WidgetDef[] = [
         currentDateRange={ctx.currentDateRange}
         selectedStoreIds={ctx.selectedStoreIds}
         prevYearScope={ctx.prevYearScope}
+        weatherDaily={ctx.weatherDaily}
       />
     ),
   },
