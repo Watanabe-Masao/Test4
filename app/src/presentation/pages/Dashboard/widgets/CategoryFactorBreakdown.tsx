@@ -299,12 +299,18 @@ export const CategoryFactorBreakdown = memo(function CategoryFactorBreakdown({
         steps.push({ key: 'mix', value: item.mixEffect })
       }
 
-      let pos = 0
+      // ダイバージング: プラス要素は 0 から右へ、マイナス要素は 0 から左へスタック
+      let posOffset = 0
+      let negOffset = 0
       const ranges = new Map<string, [number, number]>()
       for (const step of steps) {
-        const end = pos + step.value
-        ranges.set(step.key, [pos, end])
-        pos = end
+        if (step.value >= 0) {
+          ranges.set(step.key, [posOffset, posOffset + step.value])
+          posOffset += step.value
+        } else {
+          ranges.set(step.key, [negOffset + step.value, negOffset])
+          negOffset += step.value
+        }
       }
 
       const nil: [number, number] = [0, 0]
@@ -712,7 +718,26 @@ const CategoryFactorEChart = memo(function CategoryFactorEChart({
         axisLine: { show: false },
         axisTick: { show: false },
       },
-      series: seriesList,
+      series: [
+        ...seriesList,
+        // 0 基準線（ダイバージングの中心軸）
+        {
+          type: 'bar' as const,
+          data: [] as number[],
+          markLine: {
+            silent: true,
+            symbol: 'none' as const,
+            lineStyle: {
+              color: theme.colors.text3,
+              width: 1,
+              type: 'solid' as const,
+              opacity: 0.5,
+            },
+            data: [{ xAxis: 0 }],
+            label: { show: false },
+          },
+        },
+      ],
     }
   }, [waterfallItems, activeLevel, hasCust, compact, theme, fmt, fmtCurrency, prevLabel, curLabel])
 
