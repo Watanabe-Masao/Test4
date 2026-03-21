@@ -246,7 +246,14 @@ function buildOption(
       primary: ct.colors.primary,
     }
     series.push(
-      ...buildRightAxisSeries(rightAxisMode, rows, days, hasPrev, rightColors, weatherMap ?? new Map()),
+      ...buildRightAxisSeries(
+        rightAxisMode,
+        rows,
+        days,
+        hasPrev,
+        rightColors,
+        weatherMap ?? new Map(),
+      ),
     )
   }
 
@@ -516,7 +523,19 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
         month,
         rightAxisMode,
       ),
-    [data, view, isWf, hasPrev, ct, needRightAxis, wfLegendPayload, weatherMap, year, month, rightAxisMode],
+    [
+      data,
+      view,
+      isWf,
+      hasPrev,
+      ct,
+      needRightAxis,
+      wfLegendPayload,
+      weatherMap,
+      year,
+      month,
+      rightAxisMode,
+    ],
   )
 
   // ブラシ設定を追加（ドラッグ選択機能が有効な場合のみ）

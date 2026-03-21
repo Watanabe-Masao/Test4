@@ -17,7 +17,10 @@ export const ViewBtn = styled.button<{ $active?: boolean }>`
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.white : theme.colors.text3)};
   background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
-  transition: color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+  transition:
+    color 0.25s ease,
+    background 0.25s ease,
+    box-shadow 0.25s ease;
   ${({ $active, theme }) => $active && `box-shadow: 0 1px 4px ${theme.colors.palette.primary}40;`}
   white-space: nowrap;
   &:hover {

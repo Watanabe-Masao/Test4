@@ -52,12 +52,8 @@ export function useDrillDateRange(
     // 当年日付 → -1年 + dowOffset で前年同曜日の日付を算出（Date演算で月跨ぎ対応）
     const fromDate = new Date(year, month - 1, selectedRange.start)
     const toDate = new Date(year, month - 1, selectedRange.end)
-    const prevFrom = new Date(
-      fromDate.getTime() - DAYS_PER_YEAR * MILLISECONDS_PER_DAY + offsetMs,
-    )
-    const prevTo = new Date(
-      toDate.getTime() - DAYS_PER_YEAR * MILLISECONDS_PER_DAY + offsetMs,
-    )
+    const prevFrom = new Date(fromDate.getTime() - DAYS_PER_YEAR * MILLISECONDS_PER_DAY + offsetMs)
+    const prevTo = new Date(toDate.getTime() - DAYS_PER_YEAR * MILLISECONDS_PER_DAY + offsetMs)
     return {
       ...prevYearScope,
       dateRange: {
