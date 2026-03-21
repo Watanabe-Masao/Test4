@@ -9,9 +9,8 @@
  */
 import { useState, useMemo, memo } from 'react'
 import styled from 'styled-components'
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import type { CategoryTimeSalesRecord } from '@/domain/models/record'
+import type { DuckQueryContext } from './SubAnalysisPanel'
 import { useDuckDBCategoryTimeRecords } from '@/application/hooks/duckdb/useCtsHierarchyQueries'
 import { useDuckDBAggregatedRates } from '@/application/hooks/useDuckDBQuery'
 import {
@@ -35,11 +34,7 @@ import {
 const EMPTY_CTS: readonly CategoryTimeSalesRecord[] = []
 
 interface Props {
-  readonly duckConn: AsyncDuckDBConnection | null
-  readonly duckDataVersion: number
-  readonly currentDateRange: DateRange
-  readonly selectedStoreIds: ReadonlySet<string>
-  readonly prevYearScope?: PrevYearScope
+  readonly ctx: DuckQueryContext
 }
 
 const DECOMP_LABELS: Record<DecompLevel, string> = {
@@ -48,13 +43,8 @@ const DECOMP_LABELS: Record<DecompLevel, string> = {
   5: '5要素',
 }
 
-export const FactorDecompositionPanel = memo(function FactorDecompositionPanel({
-  duckConn,
-  duckDataVersion,
-  currentDateRange,
-  selectedStoreIds,
-  prevYearScope,
-}: Props) {
+export const FactorDecompositionPanel = memo(function FactorDecompositionPanel({ ctx }: Props) {
+  const { duckConn, duckDataVersion, currentDateRange, selectedStoreIds, prevYearScope } = ctx
   const [selectedLevel, setSelectedLevel] = useState<DecompLevel | null>(null)
   const [showHelp, setShowHelp] = useState(false)
 

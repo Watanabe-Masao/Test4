@@ -10,12 +10,11 @@ import { useMemo, memo } from 'react'
 import styled from 'styled-components'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import {
   useDuckDBStoreDaySummary,
   useDuckDBAggregatedRates,
 } from '@/application/hooks/useDuckDBQuery'
+import type { DuckQueryContext } from './SubAnalysisPanel'
 import { EChart, type EChartsOption } from './EChart'
 import { standardGrid, standardTooltip } from './echartsOptionBuilders'
 import { useCurrencyFormatter, useChartTheme } from './chartTheme'
@@ -23,20 +22,11 @@ import { formatPercent, formatCurrency } from '@/domain/formatting'
 import { sc } from '@/presentation/theme/semanticColors'
 
 interface Props {
-  readonly duckConn: AsyncDuckDBConnection | null
-  readonly duckDataVersion: number
-  readonly currentDateRange: DateRange
-  readonly selectedStoreIds: ReadonlySet<string>
-  readonly prevYearScope?: PrevYearScope
+  readonly ctx: DuckQueryContext
 }
 
-export const DiscountAnalysisPanel = memo(function DiscountAnalysisPanel({
-  duckConn,
-  duckDataVersion,
-  currentDateRange,
-  selectedStoreIds,
-  prevYearScope,
-}: Props) {
+export const DiscountAnalysisPanel = memo(function DiscountAnalysisPanel({ ctx }: Props) {
+  const { duckConn, duckDataVersion, currentDateRange, selectedStoreIds, prevYearScope } = ctx
   const theme = useTheme() as AppTheme
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()

@@ -6,28 +6,22 @@
  */
 import { useMemo, memo } from 'react'
 import styled from 'styled-components'
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { DateRange } from '@/domain/models/calendar'
 import type { DailyWeatherSummary } from '@/domain/models/record'
 import type { DailySalesForCorrelation } from '@/application/hooks/useWeatherCorrelation'
 import { useDuckDBStoreDaySummary } from '@/application/hooks/useDuckDBQuery'
+import type { DuckQueryContext } from './SubAnalysisPanel'
 import { WeatherCorrelationChart } from './WeatherCorrelationChart'
 
 interface Props {
-  readonly duckConn: AsyncDuckDBConnection | null
-  readonly duckDataVersion: number
-  readonly currentDateRange: DateRange
-  readonly selectedStoreIds: ReadonlySet<string>
+  readonly ctx: DuckQueryContext
   readonly weatherDaily?: readonly DailyWeatherSummary[]
 }
 
 export const WeatherAnalysisPanel = memo(function WeatherAnalysisPanel({
-  duckConn,
-  duckDataVersion,
-  currentDateRange,
-  selectedStoreIds,
+  ctx,
   weatherDaily,
 }: Props) {
+  const { duckConn, duckDataVersion, currentDateRange, selectedStoreIds } = ctx
   // DuckDB から日別売上・客数を取得
   const { data: dailyRows } = useDuckDBStoreDaySummary(
     duckConn,

@@ -7,12 +7,11 @@
 import { useState, useMemo, memo } from 'react'
 import styled, { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import { useDuckDBCategoryDowMatrix } from '@/application/hooks/useDuckDBQuery'
 import { useCurrencyFormatter } from './chartTheme'
 import { interpolateColor } from './HeatmapChart.helpers'
 import { ChartSkeleton } from '@/presentation/components/common/feedback'
+import type { DuckQueryContext } from './SubAnalysisPanel'
 
 type MetricMode = 'amount' | 'quantity'
 type HierarchyLevel = 'department' | 'line' | 'klass'
@@ -21,19 +20,11 @@ const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土']
 const DOW_ORDER = [1, 2, 3, 4, 5, 6, 0] // 月〜日
 
 interface Props {
-  readonly duckConn: AsyncDuckDBConnection | null
-  readonly duckDataVersion: number
-  readonly currentDateRange: DateRange
-  readonly selectedStoreIds: ReadonlySet<string>
-  readonly prevYearScope?: PrevYearScope
+  readonly ctx: DuckQueryContext
 }
 
-export const CategoryHeatmapPanel = memo(function CategoryHeatmapPanel({
-  duckConn,
-  duckDataVersion,
-  currentDateRange,
-  selectedStoreIds,
-}: Props) {
+export const CategoryHeatmapPanel = memo(function CategoryHeatmapPanel({ ctx }: Props) {
+  const { duckConn, duckDataVersion, currentDateRange, selectedStoreIds } = ctx
   const theme = useTheme() as AppTheme
   const fmt = useCurrencyFormatter()
   const [metric, setMetric] = useState<MetricMode>('amount')
