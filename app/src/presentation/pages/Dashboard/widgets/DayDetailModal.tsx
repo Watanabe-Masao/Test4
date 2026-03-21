@@ -16,8 +16,10 @@ import {
 } from '@/domain/calculations/utils'
 import type { AsyncDuckDBConnection, AsyncDuckDB } from '@duckdb/duckdb-wasm'
 import type { DateRange, ComparisonFrame } from '@/domain/models/calendar'
+import { resolvePrevDate } from '@/domain/models/calendar'
+import type { CalendarDate } from '@/domain/models/CalendarDate'
 import type { DailyRecord, CategoryTimeSalesRecord } from '@/domain/models/record'
-import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
+import { toDateKeyFromParts, toDateKey } from '@/domain/models/CalendarDate'
 import { useDuckDBCategoryTimeRecords, useDuckDBWeatherHourly } from '@/application/hooks/duckdb'
 import type { PrevYearData } from '@/application/hooks/analytics'
 import { useSettingsStore } from '@/application/stores/settingsStore'
@@ -173,6 +175,16 @@ export function DayDetailModal({
     setWeatherStoreOverride(e.target.value || null)
   }, [])
   const dateKey = useMemo(() => toDateKeyFromParts(year, month, day), [year, month, day])
+
+  // ── 前年対応日（唯一の解決点 — 天気・CTS・累計すべてこれを使う） ──
+  const currentCalDate: CalendarDate = useMemo(() => ({ year, month, day }), [year, month, day])
+  const prevCalDate: CalendarDate = useMemo(
+    () => resolvePrevDate(comparisonFrame, currentCalDate),
+    [comparisonFrame, currentCalDate],
+  )
+  const prevDateKey = useMemo(() => toDateKey(prevCalDate), [prevCalDate])
+
+  // ── 天気データ ──
   const weatherResult = useDuckDBWeatherHourly(
     duckConn,
     duckDataVersion,
@@ -180,18 +192,6 @@ export function DayDetailModal({
     dateKey,
     duckDb,
   )
-
-  // 前年天気データ — comparisonFrame.previous から前年日付を導出
-  const prevDateKey = useMemo(() => {
-    const pf = comparisonFrame.previous.from
-    // previous.from の年月を基準に、day + dowOffset で前年対応日を算出
-    // new Date が月跨ぎ（day=31+offset でも）を自動処理
-    const prevDate = new Date(pf.year, pf.month - 1, day + comparisonFrame.dowOffset)
-    const py = prevDate.getFullYear()
-    const pm = String(prevDate.getMonth() + 1).padStart(2, '0')
-    const pd = String(prevDate.getDate()).padStart(2, '0')
-    return `${py}-${pm}-${pd}`
-  }, [day, comparisonFrame])
   const prevWeatherResult = useDuckDBWeatherHourly(
     duckConn,
     duckDataVersion,
@@ -200,12 +200,10 @@ export function DayDetailModal({
     duckDb,
   )
 
+  // ── CTS（時間帯別売上） ──
   const singleDayRange: DateRange = useMemo(
-    () => ({
-      from: { year, month, day },
-      to: { year, month, day },
-    }),
-    [year, month, day],
+    () => ({ from: currentCalDate, to: currentCalDate }),
+    [currentCalDate],
   )
 
   const dayResult = useDuckDBCategoryTimeRecords(
@@ -216,18 +214,10 @@ export function DayDetailModal({
   )
   const dayRecords = dayResult.data ?? EMPTY_RECORDS
 
-  const prevDayRange: DateRange = useMemo(() => {
-    // dowOffset を使って正確な比較日を計算（同曜日モードでも正しい1日を特定）
-    const curDate = new Date(year, month - 1, day)
-    const prevDate = new Date(curDate.getTime() + comparisonFrame.dowOffset * 86400000)
-    const py = prevDate.getFullYear()
-    const pm = prevDate.getMonth() + 1
-    const pd = prevDate.getDate()
-    return {
-      from: { year: py, month: pm, day: pd },
-      to: { year: py, month: pm, day: pd },
-    }
-  }, [year, month, day, comparisonFrame.dowOffset])
+  const prevDayRange: DateRange = useMemo(
+    () => ({ from: prevCalDate, to: prevCalDate }),
+    [prevCalDate],
+  )
 
   const prevDayResult = useDuckDBCategoryTimeRecords(
     duckConn,
@@ -297,18 +287,13 @@ export function DayDetailModal({
   )
   const cumCategoryRecords = cumResult.data ?? EMPTY_RECORDS
 
-  const cumPrevDateRange: DateRange = useMemo(() => {
-    // dowOffset を使って正確な累計終了日を計算（同曜日モードでも正しい日を特定）
-    const curDate = new Date(year, month - 1, day)
-    const prevDate = new Date(curDate.getTime() + comparisonFrame.dowOffset * 86400000)
-    const py = prevDate.getFullYear()
-    const pm = prevDate.getMonth() + 1
-    const pd = prevDate.getDate()
-    return {
-      from: { year: py, month: pm, day: 1 },
-      to: { year: py, month: pm, day: pd },
-    }
-  }, [year, month, day, comparisonFrame.dowOffset])
+  const cumPrevDateRange: DateRange = useMemo(
+    () => ({
+      from: { year: prevCalDate.year, month: prevCalDate.month, day: 1 },
+      to: prevCalDate,
+    }),
+    [prevCalDate],
+  )
 
   const cumPrevResult = useDuckDBCategoryTimeRecords(
     duckConn,
