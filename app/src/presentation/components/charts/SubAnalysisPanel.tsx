@@ -86,16 +86,25 @@ const slideDown = keyframes`
 
 const PanelWrapper = styled.div`
   margin-top: ${({ theme }) => theme.spacing[3]};
+  background: ${({ theme }) => theme.colors.bg3};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.lg};
+  padding: ${({ theme }) => theme.spacing[4]};
+  box-shadow: ${({ theme }) => theme.shadows.sm};
   animation: ${slideDown} 0.3s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+  transition: box-shadow ${({ theme }) => theme.transitions.fast}
+    ${({ theme }) => theme.transitions.ease};
+
+  &:hover {
+    box-shadow: ${({ theme }) => theme.shadows.md};
+  }
 `
 
 const PanelHeader = styled.div`
-  font-size: 0.7rem;
-  font-weight: 600;
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text2};
-  padding: ${({ theme }) => `${theme.spacing[1]} ${theme.spacing[2]}`};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  margin-bottom: ${({ theme }) => theme.spacing[2]};
+  margin-bottom: ${({ theme }) => theme.spacing[3]};
 `
 
 const PanelContent = styled.div`

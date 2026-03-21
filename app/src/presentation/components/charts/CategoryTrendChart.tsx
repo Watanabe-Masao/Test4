@@ -60,6 +60,8 @@ interface Props {
   readonly selectedStoreIds: ReadonlySet<string>
   /** サブパネル埋め込み時に曜日セレクタを非表示にする */
   readonly hideDowSelector?: boolean
+  /** サブパネル埋め込み時に ChartCard ラッパーを省略する */
+  readonly embedded?: boolean
 }
 
 interface DrillState {
@@ -123,6 +125,7 @@ export const CategoryTrendChart = memo(function CategoryTrendChart({
   currentDateRange,
   selectedStoreIds,
   hideDowSelector,
+  embedded,
 }: Props) {
   const theme = useTheme() as AppTheme
   const fmt = useCurrencyFormatter()
@@ -237,8 +240,8 @@ export const CategoryTrendChart = memo(function CategoryTrendChart({
   const topCategory = categories[0]
   const subtitle = `上位${topN}カテゴリの日次売上トレンド | 月跨ぎ対応${selectedDows.length > 0 ? ' | 曜日フィルタ適用中' : ''}`
 
-  return (
-    <ChartCard title="カテゴリ別売上推移" subtitle={subtitle}>
+  const content = (
+    <>
       {hasDrill && (
         <BreadcrumbBar>
           <BreadcrumbItem $active={false} onClick={() => handleBreadcrumbClick('root')}>
@@ -309,6 +312,14 @@ export const CategoryTrendChart = memo(function CategoryTrendChart({
         <SummaryItem>カテゴリ数: {categories.length}</SummaryItem>
         {canDrill && <SummaryItem>ドリルダウン: チャート上のカテゴリをクリック</SummaryItem>}
       </SummaryRow>
+    </>
+  )
+
+  if (embedded) return content
+
+  return (
+    <ChartCard title="カテゴリ別売上推移" subtitle={subtitle}>
+      {content}
     </ChartCard>
   )
 })
