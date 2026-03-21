@@ -14,7 +14,7 @@ import {
   calculateShare,
   calculateTransactionValue,
 } from '@/domain/calculations/utils'
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import type { AsyncDuckDBConnection, AsyncDuckDB } from '@duckdb/duckdb-wasm'
 import type { DateRange, ComparisonFrame } from '@/domain/models/calendar'
 import type { DailyRecord, CategoryTimeSalesRecord } from '@/domain/models/record'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
@@ -74,6 +74,8 @@ interface DayDetailModalProps {
   prevYear: PrevYearData
   /** DuckDB コネクション */
   duckConn: AsyncDuckDBConnection | null
+  /** DuckDB インスタンス（天気データ永続化用） */
+  duckDb?: AsyncDuckDB | null
   /** DuckDB データバージョン（0 = 未ロード） */
   duckDataVersion: number
   /** 当年の全日別データ（前週比用） */
@@ -98,6 +100,7 @@ export function DayDetailModal({
   cumPrevCustomers,
   prevYear,
   duckConn,
+  duckDb,
   duckDataVersion,
   dailyMap,
   selectedStoreIds,
@@ -170,7 +173,13 @@ export function DayDetailModal({
     setWeatherStoreOverride(e.target.value || null)
   }, [])
   const dateKey = useMemo(() => toDateKeyFromParts(year, month, day), [year, month, day])
-  const weatherResult = useDuckDBWeatherHourly(duckConn, duckDataVersion, weatherStoreId, dateKey)
+  const weatherResult = useDuckDBWeatherHourly(
+    duckConn,
+    duckDataVersion,
+    weatherStoreId,
+    dateKey,
+    duckDb,
+  )
 
   // 前年天気データ — comparisonFrame.previous から前年日付を導出
   const prevDateKey = useMemo(() => {
@@ -188,6 +197,7 @@ export function DayDetailModal({
     duckDataVersion,
     weatherStoreId,
     prevDateKey,
+    duckDb,
   )
 
   const singleDayRange: DateRange = useMemo(

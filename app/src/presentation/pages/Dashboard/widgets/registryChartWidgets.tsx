@@ -34,6 +34,7 @@ export const WIDGETS_CHART: readonly WidgetDef[] = [
         prevYearDaily={ctx.prevYear.hasPrevYear ? ctx.prevYear.daily : undefined}
         budgetDaily={ctx.result.budgetDaily}
         duckConn={ctx.duckConn}
+        duckDb={ctx.duckDb}
         duckDataVersion={ctx.duckDataVersion}
         currentDateRange={ctx.currentDateRange}
         selectedStoreIds={ctx.selectedStoreIds}

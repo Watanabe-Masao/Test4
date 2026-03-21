@@ -6,7 +6,7 @@
  */
 import { memo, useMemo, useState } from 'react'
 import { useTheme } from 'styled-components'
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import type { AsyncDuckDBConnection, AsyncDuckDB } from '@duckdb/duckdb-wasm'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { useChartTheme, toComma, toPct } from './chartTheme'
@@ -46,6 +46,7 @@ const GRID_RIGHT = 45
 
 interface Props {
   readonly duckConn: AsyncDuckDBConnection | null
+  readonly duckDb?: AsyncDuckDB | null
   readonly duckDataVersion: number
   readonly currentDateRange: DateRange
   readonly selectedStoreIds: ReadonlySet<string>
@@ -56,6 +57,7 @@ interface Props {
 
 export const TimeSlotChart = memo(function TimeSlotChart({
   duckConn,
+  duckDb,
   duckDataVersion,
   currentDateRange,
   selectedStoreIds,
@@ -69,6 +71,7 @@ export const TimeSlotChart = memo(function TimeSlotChart({
 
   const d = useDuckDBTimeSlotData({
     duckConn,
+    duckDb,
     duckDataVersion,
     currentDateRange,
     selectedStoreIds,

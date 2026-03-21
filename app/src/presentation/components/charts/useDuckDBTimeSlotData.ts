@@ -5,7 +5,7 @@
  * 本ファイルは DuckDB クエリ発行 + 状態管理 + 計算結果の memo のみ。
  */
 import { useState, useMemo } from 'react'
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import type { AsyncDuckDBConnection, AsyncDuckDB } from '@duckdb/duckdb-wasm'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import {
   useDuckDBHourlyAggregation,
@@ -40,6 +40,7 @@ export type {
 
 interface Params {
   readonly duckConn: AsyncDuckDBConnection | null
+  readonly duckDb?: AsyncDuckDB | null
   readonly duckDataVersion: number
   readonly currentDateRange: DateRange
   readonly selectedStoreIds: ReadonlySet<string>
@@ -48,6 +49,7 @@ interface Params {
 
 export function useDuckDBTimeSlotData({
   duckConn,
+  duckDb,
   duckDataVersion,
   currentDateRange,
   selectedStoreIds,
@@ -169,12 +171,14 @@ export function useDuckDBTimeSlotData({
     duckDataVersion,
     weatherStoreId,
     currentDateRange,
+    duckDb,
   )
   const { data: prevWeatherAvg } = useDuckDBWeatherHourlyAvg(
     duckConn,
     duckDataVersion,
     weatherStoreId,
     prevDateRange,
+    duckDb,
   )
 
   const hasPrev = (compHourly?.length ?? 0) > 0
