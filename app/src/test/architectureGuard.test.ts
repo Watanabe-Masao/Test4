@@ -543,7 +543,6 @@ describe('Architecture Guard', () => {
     'components/charts/DeptHourlyChart.tsx',
     'components/charts/DowPatternChart.tsx',
     'components/charts/FeatureChart.tsx',
-    'components/charts/HourlyProfileChart.tsx',
     'components/charts/YoYChart.tsx',
     // ── ページ・ウィジェット（Phase C で移行） ──
     'pages/Admin/StorageManagementTab.tsx',
