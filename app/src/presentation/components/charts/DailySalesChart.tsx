@@ -32,6 +32,12 @@ interface Props {
   onDayRangeSelect?: (startDay: number, endDay: number) => void
   /** 天気データ（X軸に天気アイコン+気温を表示） */
   weatherDaily?: readonly DailyWeatherSummary[]
+  /** 右軸モード（親から制御する場合） */
+  rightAxisMode?: RightAxisMode
+  /** 右軸モード変更通知（親でサブパネル連動に使用） */
+  onRightAxisModeChange?: (mode: RightAxisMode) => void
+  /** ビュータイプ変更通知（親でサブパネル表示制御に使用） */
+  onViewChange?: (view: ViewType) => void
 }
 
 const VIEW_LABELS: Record<ViewType, string> = {
@@ -69,13 +75,33 @@ export const DailySalesChart = memo(function DailySalesChart({
   budgetDaily,
   onDayRangeSelect,
   weatherDaily,
+  rightAxisMode: controlledRightAxisMode,
+  onRightAxisModeChange,
+  onViewChange,
 }: Props) {
   const ct = useChartTheme()
-  const [view, setView] = useState<ViewType>('standard')
+  const [view, setViewInternal] = useState<ViewType>('standard')
   const [diffTarget, setDiffTarget] = useState<DiffTarget>('yoy')
   const [selectedDows, setSelectedDows] = useState<number[]>([])
-  const [rightAxisMode, setRightAxisMode] = useState<RightAxisMode>('quantity')
+  const [internalRightAxisMode, setInternalRightAxisMode] = useState<RightAxisMode>('quantity')
   const handleDowChange = useCallback((dows: number[]) => setSelectedDows(dows), [])
+
+  // controlled / uncontrolled 両対応
+  const rightAxisMode = controlledRightAxisMode ?? internalRightAxisMode
+  const setRightAxisMode = useCallback(
+    (mode: RightAxisMode) => {
+      setInternalRightAxisMode(mode)
+      onRightAxisModeChange?.(mode)
+    },
+    [onRightAxisModeChange],
+  )
+  const setView = useCallback(
+    (v: ViewType) => {
+      setViewInternal(v)
+      onViewChange?.(v)
+    },
+    [onViewChange],
+  )
 
   const isWf = view === 'difference'
   const { data, hasPrev } = useDailySalesData(

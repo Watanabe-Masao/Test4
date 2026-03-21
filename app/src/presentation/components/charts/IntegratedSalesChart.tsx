@@ -4,6 +4,10 @@
  * 日別チャートのバーをクリック or ドラッグ選択すると、
  * 選択した日付範囲の時間帯別チャートにズームイン遷移する。
  * 「← 日別に戻る」ボタンで日別ビューにスライドバックする。
+ *
+ * 右軸モードに応じてサブ分析パネルを動的配置:
+ *   点数 → カテゴリ×曜日ヒートマップ / 客数 → 要因分解ウォーターフォール
+ *   売変 → 売変分析 / 気温 → 天気相関分析
  */
 import { useState, useCallback, memo } from 'react'
 import styled, { keyframes, css } from 'styled-components'
@@ -11,8 +15,11 @@ import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import type { DailyRecord, DailyWeatherSummary } from '@/domain/models/record'
 import { useDrillDateRange } from '@/application/hooks/useDrillDateRange'
+import type { RightAxisMode } from './DailySalesChartBodyLogic'
+import type { ViewType } from './DailySalesChartBody'
 import { DailySalesChart } from './DailySalesChart'
 import { TimeSlotChart } from './TimeSlotChart'
+import { SubAnalysisPanel } from './SubAnalysisPanel'
 
 interface SelectedRange {
   readonly start: number
@@ -41,6 +48,8 @@ interface Props {
 
 export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Props) {
   const [selectedRange, setSelectedRange] = useState<SelectedRange | null>(null)
+  const [rightAxisMode, setRightAxisMode] = useState<RightAxisMode>('quantity')
+  const [dailyView, setDailyView] = useState<ViewType>('standard')
 
   const canDrill = props.duckConn != null && props.duckDataVersion > 0
 
@@ -84,9 +93,30 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
           budgetDaily={props.budgetDaily}
           onDayRangeSelect={canDrill ? handleDayRangeSelect : undefined}
           weatherDaily={props.weatherDaily}
+          rightAxisMode={rightAxisMode}
+          onRightAxisModeChange={setRightAxisMode}
+          onViewChange={setDailyView}
         />
         {canDrill && <DrillHint>日付をクリック or ドラッグで時間帯内訳を表示</DrillHint>}
       </ViewPane>
+
+      {/* サブ分析パネル（標準ビュー + ドリルダウンなし時のみ） */}
+      {!isDrilled && dailyView === 'standard' && (
+        <SubAnalysisPanel
+          mode={rightAxisMode}
+          daily={props.daily}
+          daysInMonth={props.daysInMonth}
+          year={props.year}
+          month={props.month}
+          prevYearDaily={props.prevYearDaily}
+          duckConn={props.duckConn}
+          duckDataVersion={props.duckDataVersion}
+          currentDateRange={props.currentDateRange}
+          selectedStoreIds={props.selectedStoreIds}
+          prevYearScope={props.prevYearScope}
+          weatherDaily={props.weatherDaily}
+        />
+      )}
 
       {/* 時間帯チャート（ドリルダウン先） */}
       {isDrilled && (
