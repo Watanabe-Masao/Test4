@@ -612,7 +612,6 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
           cumPrevCustomers={cumPrevCustomers.get(detailDay) ?? 0}
           prevYear={prevYear}
           duckConn={ctx.duckConn}
-          duckDb={ctx.duckDb}
           duckDataVersion={ctx.duckDataVersion}
           dailyMap={r.daily}
           selectedStoreIds={ctx.selectedStoreIds}
