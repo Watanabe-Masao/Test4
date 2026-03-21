@@ -111,36 +111,7 @@ export function DayDetailModal({
   const [compMode, setCompMode] = useState<CompMode>('yoy')
   const DOW_NAMES = ['日', '月', '火', '水', '木', '金', '土']
 
-  // WoW: 7日前と比較
-  const wowPrevDay = day - 7
-  const canWoW = wowPrevDay >= 1
-  const activeCompMode: CompMode = compMode === 'wow' && !canWoW ? 'yoy' : compMode
-
-  // ── Core metrics ──
-  const actual = record?.sales ?? 0
-  const diff = actual - budget
-  const ach = calculateAchievementRate(actual, budget)
-  const cumDiff = cumSales - cumBudget
-  const cumAch = calculateAchievementRate(cumSales, cumBudget)
-  const pySales = prevYear.daily.get(toDateKeyFromParts(year, month, day))?.sales ?? 0
-  const pyRatio = calculateYoYRatio(actual, pySales)
-  const dayOfWeek = DOW_NAMES[new Date(year, month - 1, day).getDay()]
-
-  // ── Customer metrics ──
-  const dayCust = record?.customers ?? 0
-  const dayTxVal = calculateTransactionValue(actual, dayCust)
-  const pyCust = prevYear.daily.get(toDateKeyFromParts(year, month, day))?.customers ?? 0
-  const pyTxVal = calculateTransactionValue(pySales, pyCust)
-  const cumTxVal = calculateTransactionValue(cumSales, cumCustomers)
-  const cumPrevTxVal = calculateTransactionValue(cumPrevYear, cumPrevCustomers)
-  const custRatio = calculateYoYRatio(dayCust, pyCust)
-  const txValRatio = calculateYoYRatio(dayTxVal, pyTxVal)
-
-  // ── WoW metrics (前週比) ──
-  const wowDailyRecord = canWoW && dailyMap ? dailyMap.get(wowPrevDay) : undefined
-  const wowPrevSales = wowDailyRecord?.sales ?? 0
-  const wowPrevCust = wowDailyRecord?.customers ?? 0
-  // ── DuckDB データ取得（CTS + 天気を一括） ──
+  // ── DuckDB データ取得（CTS + 天気 + 日別サマリーを一括） ──
   const storeIdsSet = selectedStoreIds ?? EMPTY_STORE_IDS
 
   // 天気店舗選択（UI操作 — ユーザーが店舗を切り替えられる）
@@ -172,7 +143,6 @@ export function DayDetailModal({
   }, [])
   const dateKey = useMemo(() => toDateKeyFromParts(year, month, day), [year, month, day])
 
-  // ── 一括データ取得（前年対応日の解決、isPrevYear フォールバック等すべて hook 内） ──
   const dd = useDayDetailData({
     conn: duckConn,
     db: duckDb,
@@ -191,6 +161,38 @@ export function DayDetailModal({
   const cumCategoryRecords = dd.cumRecords
   const cumPrevCategoryRecords = dd.cumPrevRecords
   const prevDateKey = dd.prevDateKey
+
+  // WoW: 7日前と比較
+  const wowPrevDay = day - 7
+  const canWoW = wowPrevDay >= 1
+  const activeCompMode: CompMode = compMode === 'wow' && !canWoW ? 'yoy' : compMode
+
+  // ── Core metrics ──
+  const actual = record?.sales ?? 0
+  const diff = actual - budget
+  const ach = calculateAchievementRate(actual, budget)
+  const cumDiff = cumSales - cumBudget
+  const cumAch = calculateAchievementRate(cumSales, cumBudget)
+  const pyEntry = prevYear.daily.get(toDateKeyFromParts(year, month, day))
+  // インメモリ(flowersIndex) → DuckDB(store_day_summary) の優先順でフォールバック
+  const pySales = pyEntry?.sales || dd.prevDaySummary.sales
+  const pyRatio = calculateYoYRatio(actual, pySales)
+  const dayOfWeek = DOW_NAMES[new Date(year, month - 1, day).getDay()]
+
+  // ── Customer metrics（DuckDB フォールバック付き） ──
+  const dayCust = record?.customers || dd.daySummary.customers
+  const dayTxVal = calculateTransactionValue(actual, dayCust)
+  const pyCust = pyEntry?.customers || dd.prevDaySummary.customers
+  const pyTxVal = calculateTransactionValue(pySales, pyCust)
+  const cumTxVal = calculateTransactionValue(cumSales, cumCustomers)
+  const cumPrevTxVal = calculateTransactionValue(cumPrevYear, cumPrevCustomers)
+  const custRatio = calculateYoYRatio(dayCust, pyCust)
+  const txValRatio = calculateYoYRatio(dayTxVal, pyTxVal)
+
+  // ── WoW metrics (前週比) ──
+  const wowDailyRecord = canWoW && dailyMap ? dailyMap.get(wowPrevDay) : undefined
+  const wowPrevSales = wowDailyRecord?.sales ?? 0
+  const wowPrevCust = wowDailyRecord?.customers ?? 0
 
   // ── 比較用メトリクス（モードに応じて切替） ──
   const compSales = activeCompMode === 'wow' ? wowPrevSales : pySales
