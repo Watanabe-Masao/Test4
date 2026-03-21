@@ -128,11 +128,8 @@ export const DailySalesChart = memo(function DailySalesChart({
       ]
     : undefined
 
-  // 気温モードは天気データがある場合のみ有効
-  const availableOptions =
-    weatherDaily && weatherDaily.length > 0
-      ? RIGHT_AXIS_OPTIONS
-      : RIGHT_AXIS_OPTIONS.filter((o) => o.mode !== 'temperature')
+  // 気温モードは天気データの有無に関わらず常に表示（データなしの場合はサブパネルで案内）
+  const availableOptions = RIGHT_AXIS_OPTIONS
 
   const toolbar = (
     <ViewToggle>
