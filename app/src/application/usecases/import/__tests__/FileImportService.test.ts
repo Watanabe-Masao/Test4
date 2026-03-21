@@ -442,7 +442,7 @@ function makeCTSRecord(day: number, storeId: string, totalAmount: number) {
 }
 
 describe('分類別売上 vs 時間帯売上 乖離チェック', () => {
-  it('乖離1%以内なら警告なし', () => {
+  it('乖離0.01%以内なら警告なし', () => {
     const data = makeData({
       stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
       purchase: {
@@ -457,8 +457,8 @@ describe('分類別売上 vs 時間帯売上 乖離チェック', () => {
           },
         ],
       },
-      classifiedSales: { records: [makeCSRecord(1, '1', 100000)] },
-      categoryTimeSales: { records: [makeCTSRecord(1, '1', 100500)] }, // 0.5% 乖離
+      classifiedSales: { records: [makeCSRecord(1, '1', 1000000)] },
+      categoryTimeSales: { records: [makeCTSRecord(1, '1', 1000005)] }, // 0.0005% 乖離（端数程度）
       settings: new Map([
         [
           '1',
@@ -629,8 +629,8 @@ describe('分類別売上 vs 時間帯売上 乖離チェック', () => {
     expect(detailText).toContain('時間帯売上のみ')
   })
 
-  it('日別は全て1%以内だが月合計で乖離 → 相殺メッセージ', () => {
-    // 各日は0.5%程度の乖離だが、同じ方向に偏って月合計では累積する
+  it('日別は全て0.01%以内だが月合計で乖離 → 相殺による検出', () => {
+    // 各日は0.6%の乖離 → 0.01%超なので日別も月合計も警告対象
     const csRecords = Array.from({ length: 28 }, (_, i) => makeCSRecord(i + 1, '1', 100000))
     const ctsRecords = Array.from({ length: 28 }, (_, i) => makeCTSRecord(i + 1, '1', 100600)) // +0.6% per day
     const data = makeData({
@@ -667,10 +667,8 @@ describe('分類別売上 vs 時間帯売上 乖離チェック', () => {
     })
     const messages = validateImportedData(data)
     const warning = messages.find((m) => m.message.includes('乖離'))
-    // 月合計乖離は 0.6% × 28日 ≒ 0.6% (率自体は0.6%) ... 累積しても率は同じ
-    // 実際: CS=2,800,000 CTS=2,816,800 差=16,800 率=0.6% < 1% → 警告なし
-    // → 率が低いので警告が出ないケース。もう少し大きくする
-    expect(warning).toBeUndefined() // 0.6%は1%以下なので警告なし
+    // 0.6%乖離は0.01%超なので警告が出る
+    expect(warning).toBeTruthy()
   })
 })
 

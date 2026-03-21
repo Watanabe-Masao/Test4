@@ -166,7 +166,7 @@ export const PISummaryRow = memo(function PISummaryRow({
 /* ------------------------------------------------------------------ */
 
 interface WaterfallBarChartProps {
-  data: WaterfallItem[]
+  data: readonly WaterfallItem[]
 }
 
 export const WaterfallBarChart = memo(function WaterfallBarChart({ data }: WaterfallBarChartProps) {

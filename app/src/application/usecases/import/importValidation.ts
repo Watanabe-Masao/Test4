@@ -8,6 +8,7 @@ import type { ValidationMessage } from '@/domain/models/record'
 import type { ImportedData } from '@/domain/models/storeTypes'
 import { classifiedSalesRecordKey, categoryTimeSalesRecordKey } from '@/domain/models/record'
 import type { ImportSummary } from './FileImportService'
+import { AMOUNT_RECONCILIATION_TOLERANCE } from '@/domain/constants'
 
 /**
  * インポートデータのバリデーション
@@ -196,7 +197,7 @@ export function validateImportedData(
     if (totalCSSum > 0 && totalCtsSum > 0) {
       const divergence = Math.abs(totalCSSum - totalCtsSum)
       const divergenceRate = divergence / totalCSSum
-      if (divergenceRate > 0.01) {
+      if (divergenceRate > AMOUNT_RECONCILIATION_TOLERANCE) {
         // Phase 2: 日別乖離の内訳を生成
         const csByDay = new Map<number, number>()
         const ctsByDay = new Map<number, number>()
@@ -217,7 +218,7 @@ export function validateImportedData(
           const dayDiv = Math.abs(csAmt - ctsAmt)
           if (csAmt === 0 && ctsAmt === 0) continue
           const dayRate = csAmt > 0 ? dayDiv / csAmt : ctsAmt > 0 ? 1 : 0
-          if (dayRate > 0.01 || dayDiv > 1000) {
+          if (dayRate > AMOUNT_RECONCILIATION_TOLERANCE || dayDiv > 1000) {
             const sign = ctsAmt >= csAmt ? '+' : '-'
             dailyDetails.push(
               `  ${day}日: 分類別 ${Math.round(csAmt).toLocaleString()}円 / 時間帯 ${Math.round(ctsAmt).toLocaleString()}円（差 ${sign}${Math.round(dayDiv).toLocaleString()}円, ${(dayRate * 100).toFixed(1)}%）`,

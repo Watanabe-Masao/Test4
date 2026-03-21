@@ -32,6 +32,7 @@ import {
   DecompBtn,
 } from './YoYWaterfallChart.styles'
 import { formatPercent } from '@/domain/formatting'
+import { AMOUNT_RECONCILIATION_TOLERANCE } from '@/domain/constants'
 import type { DecompLevel, ViewMode } from './YoYWaterfallChart.data'
 import { buildFactorData, buildCategoryData } from './YoYWaterfallChart.data'
 import {
@@ -103,8 +104,16 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
     // daily 合計と CTS 部門内訳のデータソースが整合する。
     const prev = ctx.comparisonFrame.previous
     const offset = ctx.comparisonFrame.dowOffset
-    const fromDate = new Date(prev.from.year, prev.from.month - 1, prev.from.day + (dayStart - 1) + offset)
-    const toDate = new Date(prev.from.year, prev.from.month - 1, prev.from.day + (dayEnd - 1) + offset)
+    const fromDate = new Date(
+      prev.from.year,
+      prev.from.month - 1,
+      prev.from.day + (dayStart - 1) + offset,
+    )
+    const toDate = new Date(
+      prev.from.year,
+      prev.from.month - 1,
+      prev.from.day + (dayEnd - 1) + offset,
+    )
     return {
       from: {
         year: fromDate.getFullYear(),
@@ -177,6 +186,11 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
     return { sales, customers }
   }, [periodCTS, r.daily, dayStart, dayEnd])
 
+  const wowPrevStart = wowRange.prevStart
+  const wowPrevEnd = wowRange.prevEnd
+  const prevDaily = prevYear.daily
+  const ctxYear = ctx.year
+  const ctxMonth = ctx.month
   const periodPrevSales = useMemo(() => {
     let sales = 0
     let customers = 0
@@ -187,13 +201,13 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
     // 客数は daily から取得
     if (activeCompMode === 'wow') {
       for (const [day, rec] of r.daily) {
-        if (day >= wowRange.prevStart && day <= wowRange.prevEnd) {
+        if (day >= wowPrevStart && day <= wowPrevEnd) {
           customers += rec.customers ?? 0
         }
       }
     } else {
       for (let d = dayStart; d <= dayEnd; d++) {
-        const entry = prevYear.daily.get(toDateKeyFromParts(ctx.year, ctx.month, d))
+        const entry = prevDaily.get(toDateKeyFromParts(ctxYear, ctxMonth, d))
         if (entry) {
           customers += entry.customers
         }
@@ -204,13 +218,13 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
     periodPrevCTS,
     activeCompMode,
     r.daily,
-    prevYear.daily,
+    prevDaily,
     dayStart,
     dayEnd,
-    wowRange.prevStart,
-    wowRange.prevEnd,
-    ctx.year,
-    ctx.month,
+    wowPrevStart,
+    wowPrevEnd,
+    ctxYear,
+    ctxMonth,
   ])
 
   // Aggregate total quantity from filtered CTS records
@@ -322,9 +336,11 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
   const data = viewMode === 'category' && hasCategoryView ? categoryData.items : factorData
   if (data.length === 0 && viewMode !== 'categoryFactor') return null
 
-  // データ整合性バリデーション: 残差が1%超で警告
+  // データ整合性バリデーション: 額の積み上げなので残差は本来0
   const showResidualWarning =
-    viewMode === 'category' && hasCategoryView && categoryData.residualPct > 0.01
+    viewMode === 'category' &&
+    hasCategoryView &&
+    categoryData.residualPct > AMOUNT_RECONCILIATION_TOLERANCE
 
   return (
     <Wrapper>

@@ -19,6 +19,7 @@ export {
   ANOMALY_ZSCORE_THRESHOLD,
   TREND_CHANGE_THRESHOLD,
   MANYEN_DIVISOR,
+  AMOUNT_RECONCILIATION_TOLERANCE,
 } from './calculationConstants'
 export { CATEGORY_LABELS, CATEGORY_ORDER } from './categories'
 export { METRIC_DEFS } from './metricDefs'
