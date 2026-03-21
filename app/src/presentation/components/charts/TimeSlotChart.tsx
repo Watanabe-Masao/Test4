@@ -77,13 +77,14 @@ export const TimeSlotChart = memo(function TimeSlotChart({
 
   const showPrev = d.hasPrev && d.showPrev
 
-  // 天気データをテーブル用に変換
+  // 天気データをテーブル用に変換（weatherCode を含む）
   const curWeatherForTable = useMemo(
     () =>
       d.curWeatherAvg?.map((w) => ({
         hour: w.hour,
         avgTemperature: w.avgTemperature,
         totalPrecipitation: w.totalPrecipitation,
+        weatherCode: w.weatherCode,
       })),
     [d.curWeatherAvg],
   )
@@ -93,6 +94,7 @@ export const TimeSlotChart = memo(function TimeSlotChart({
         hour: w.hour,
         avgTemperature: w.avgTemperature,
         totalPrecipitation: w.totalPrecipitation,
+        weatherCode: w.weatherCode,
       })),
     [d.prevWeatherAvg],
   )

@@ -81,6 +81,8 @@ export interface HourlyWeatherAvgRow {
   readonly totalPrecipitation: number
   readonly avgSunshineDuration: number
   readonly dayCount: number
+  /** 最頻天気コード（MODE） */
+  readonly weatherCode: number | null
 }
 
 /**
@@ -105,7 +107,8 @@ export async function queryWeatherHourlyAvg(
       AVG(humidity) AS avg_humidity,
       SUM(precipitation) AS total_precipitation,
       AVG(sunshine_duration) AS avg_sunshine_duration,
-      COUNT(DISTINCT date_key) AS day_count
+      COUNT(DISTINCT date_key) AS day_count,
+      MODE(weather_code) AS weather_code
     FROM weather_hourly
     ${where}
     GROUP BY hour

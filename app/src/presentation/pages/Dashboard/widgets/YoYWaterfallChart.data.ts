@@ -178,10 +178,6 @@ export function buildCategoryData(p: CategoryDataParams): WaterfallItem[] {
   if (p.periodCTS.length === 0 || p.periodPrevCTS.length === 0) return []
   if (!p.hasComparison || p.prevSales <= 0) return []
 
-  // アンカー: 日別データ由来の合計
-  const anchorPrev = p.prevSales
-  const anchorCur = p.curSales
-
   // Aggregate by department (CTS由来)
   const curDepts = new Map<string, { name: string; amount: number }>()
   for (const rec of p.periodCTS) {
@@ -199,6 +195,16 @@ export function buildCategoryData(p: CategoryDataParams): WaterfallItem[] {
     prevDepts.set(code, ex)
   }
 
+  // CTS由来の合計をアンカーに使う（データソース統一で調整不要）
+  let ctsPrevTotal = 0
+  for (const d of prevDepts.values()) ctsPrevTotal += d.amount
+  let ctsCurTotal = 0
+  for (const d of curDepts.values()) ctsCurTotal += d.amount
+
+  // CTS データが空に近い場合は r.daily にフォールバック
+  const anchorPrev = ctsPrevTotal > 0 ? ctsPrevTotal : p.prevSales
+  const anchorCur = ctsCurTotal > 0 ? ctsCurTotal : p.curSales
+
   // Build items sorted by absolute difference (largest impact first)
   const allCodes = new Set([...curDepts.keys(), ...prevDepts.keys()])
   const diffs: { code: string; name: string; diff: number }[] = []
@@ -214,7 +220,7 @@ export function buildCategoryData(p: CategoryDataParams): WaterfallItem[] {
 
   const items: WaterfallItem[] = []
 
-  // Start: 比較元売上（売上データにアンカー）
+  // Start: 比較元売上（CTS合計にアンカー）
   items.push({
     name: `${p.prevLabel}売上`,
     value: anchorPrev,
@@ -250,7 +256,7 @@ export function buildCategoryData(p: CategoryDataParams): WaterfallItem[] {
     }
   }
 
-  // データソース差異の端数調整
+  // 浮動小数点の端数調整のみ（同一データソースなので大きな差は出ない）
   const residual = anchorCur - running
   if (Math.abs(residual) >= 1) {
     items.push({
@@ -261,7 +267,7 @@ export function buildCategoryData(p: CategoryDataParams): WaterfallItem[] {
     })
   }
 
-  // End: 当期売上（売上データにアンカー）
+  // End: 当期売上（CTS合計にアンカー）
   items.push({
     name: `${p.curLabel}売上`,
     value: anchorCur,
