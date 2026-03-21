@@ -209,8 +209,19 @@ export const WaterfallBarChart = memo(function WaterfallBarChart({ data }: Water
       },
       yAxis: yenYAxis(theme),
       series: [
+        // 透明ベース（ウォーターフォールの浮遊バー効果）
         {
           type: 'bar' as const,
+          stack: 'wf',
+          data: data.map((d) => d.base),
+          itemStyle: { color: 'transparent', borderColor: 'transparent' },
+          emphasis: { disabled: true },
+          barMaxWidth: 40,
+        },
+        // 表示バー
+        {
+          type: 'bar' as const,
+          stack: 'wf',
           data: data.map((d) => {
             const color = d.isTotal
               ? theme.colors.palette.primary
@@ -218,7 +229,7 @@ export const WaterfallBarChart = memo(function WaterfallBarChart({ data }: Water
                 ? sc.positive
                 : sc.negative
             return {
-              value: [d.base, d.base + d.bar],
+              value: d.bar,
               itemStyle: { color, opacity: 0.85 },
             }
           }),

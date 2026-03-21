@@ -116,15 +116,25 @@ export interface DayWeatherInfo {
   readonly min: number
 }
 
+/**
+ * 天気データを日番号→天気情報のマップに変換する。
+ *
+ * @param dowOffset 同曜日比較時の日オフセット。前年天気の場合、
+ *   各天気データの日番号から dowOffset を引いて当年チャート位置に合わせる。
+ *   例: dowOffset=2 の場合、前年3日の天気を当年1日の位置に表示。
+ */
 export function buildWeatherMap(
   weatherDaily: readonly DailyWeatherSummary[] | undefined,
+  dowOffset = 0,
 ): ReadonlyMap<number, DayWeatherInfo> {
   const map = new Map<number, DayWeatherInfo>()
   if (!weatherDaily) return map
   for (const w of weatherDaily) {
-    const day = parseInt(w.dateKey.slice(8, 10), 10)
+    const rawDay = parseInt(w.dateKey.slice(8, 10), 10)
+    const chartDay = rawDay - dowOffset
+    if (chartDay < 1) continue
     const cat = categorizeWeatherCode(w.dominantWeatherCode)
-    map.set(day, {
+    map.set(chartDay, {
       icon: WEATHER_ICONS[cat],
       category: cat,
       temp: Math.round(w.temperatureAvg),

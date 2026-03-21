@@ -33,17 +33,13 @@ interface Props {
   ct: ChartTheme
   needRightAxis: boolean
   wfLegendPayload: { value: string; type: 'rect'; color: string }[] | undefined
-  /** バークリックまたはドラッグ選択で日付範囲を通知 */
   onDayRangeSelect?: (startDay: number, endDay: number) => void
-  /** 天気データ（X軸に天気アイコン+気温を表示） */
   weatherDaily?: readonly DailyWeatherSummary[]
-  /** 前年天気データ（X軸に前年天気+気温線を表示） */
   prevYearWeatherDaily?: readonly DailyWeatherSummary[]
-  /** 当月の年（曜日算出用） */
+  /** 同曜日比較時の日オフセット（前年天気の日番号ずらし用） */
+  dowOffset?: number
   year?: number
-  /** 当月の月（曜日算出用） */
   month?: number
-  /** 右軸の表示モード（デフォルト: quantity=点数） */
   rightAxisMode?: RightAxisMode
 }
 
@@ -493,6 +489,7 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
   onDayRangeSelect,
   weatherDaily,
   prevYearWeatherDaily,
+  dowOffset = 0,
   year,
   month,
   rightAxisMode = 'quantity',
@@ -502,8 +499,8 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
 
   const weatherMap = useMemo(() => buildWeatherMap(weatherDaily), [weatherDaily])
   const prevWeatherMap = useMemo(
-    () => buildWeatherMap(prevYearWeatherDaily),
-    [prevYearWeatherDaily],
+    () => buildWeatherMap(prevYearWeatherDaily, dowOffset),
+    [prevYearWeatherDaily, dowOffset],
   )
   const hasWeather = weatherMap.size > 0
   const hasPrevWeather = prevWeatherMap.size > 0

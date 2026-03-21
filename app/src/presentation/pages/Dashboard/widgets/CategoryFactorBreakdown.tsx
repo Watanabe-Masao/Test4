@@ -380,7 +380,9 @@ export const CategoryFactorBreakdown = memo(function CategoryFactorBreakdown({
 
   const levelLabel =
     currentLevel === 'dept' ? '部門' : currentLevel === 'line' ? 'ライン' : 'クラス'
-  const chartH = Math.max(compact ? 200 : 260, items.length * (compact ? 32 : 38) + 50)
+  // 品目数と分解要素数に応じて行間を動的に算出
+  const ROW_HEIGHT = compact ? 32 : 40
+  const chartH = Math.max(compact ? 200 : 280, items.length * ROW_HEIGHT + 60)
 
   return (
     <div>

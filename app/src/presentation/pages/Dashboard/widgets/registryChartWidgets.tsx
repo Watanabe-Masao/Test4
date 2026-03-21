@@ -41,6 +41,7 @@ export const WIDGETS_CHART: readonly WidgetDef[] = [
         prevYearScope={ctx.prevYearScope}
         weatherDaily={ctx.weatherDaily}
         prevYearWeatherDaily={ctx.prevYearWeatherDaily}
+        dowOffset={ctx.comparisonFrame.dowOffset}
         discountEntries={ctx.result.discountEntries}
         totalGrossSales={ctx.result.grossSales}
       />
