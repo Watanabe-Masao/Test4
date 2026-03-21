@@ -95,6 +95,7 @@ function toDashboardContext(ctx: UnifiedWidgetContext): DashboardWidgetContext {
     onPrevYearDetail: ctx.onPrevYearDetail ?? (() => {}),
     fmtCurrency: ctx.fmtCurrency,
     observationStatus: ctx.result.observationPeriod.status,
+    weatherDaily: ctx.weatherDaily,
   }
 }
 
