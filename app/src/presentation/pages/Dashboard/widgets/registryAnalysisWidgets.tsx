@@ -9,7 +9,6 @@ import {
   SeasonalBenchmarkChart,
   FeatureChart,
   CumulativeChart,
-  DeptTrendChart,
 } from '@/presentation/components/charts'
 import type { WidgetDef } from './types'
 import { WaterfallChartWidget } from './WaterfallChart'
@@ -192,22 +191,7 @@ export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
     ),
   },
   // 注: analysis-duckdb-yoy → analysis-yoy-variance に統合（データソース自動解決）
-  {
-    id: 'analysis-duckdb-dept-trend',
-    label: '部門別KPIトレンド',
-    group: 'トレンド分析',
-    size: 'full',
-    isVisible: (ctx) => ctx.duckDataVersion > 0 && ctx.duckLoadedMonthCount >= 2,
-    render: (ctx) => (
-      <DeptTrendChart
-        duckConn={ctx.duckConn}
-        duckDataVersion={ctx.duckDataVersion}
-        loadedMonthCount={ctx.duckLoadedMonthCount}
-        year={ctx.year}
-        month={ctx.month}
-      />
-    ),
-  },
+  // 注: analysis-duckdb-dept-trend → exec-department-kpi テーブルに統合
   // 注: duckdb-timeslot → chart-timeslot-sales に統合（データソース自動解決）
   // 注: duckdb-heatmap → chart-timeslot-heatmap に統合
   // 注: duckdb-dept-hourly → chart-dept-hourly-pattern に統合

@@ -103,7 +103,9 @@ export function buildFactorData(p: FactorDataParams): WaterfallItem[] {
     running += value
   }
 
-  if (p.prevCust > 0 && p.curCust > 0) {
+  const hasCust = p.prevCust > 0 && p.curCust > 0
+
+  if (hasCust) {
     if (p.activeLevel === 2) {
       const d = decompose2(p.prevSales, p.curSales, p.prevCust, p.curCust)
       push('客数効果', d.custEffect)
@@ -147,6 +149,11 @@ export function buildFactorData(p: FactorDataParams): WaterfallItem[] {
         }
       }
     }
+  } else if (p.hasQuantity) {
+    // 客数データ不在時: 点数ベースの2要素分解（数量効果 + 点単価効果）
+    const d = decompose2(p.prevSales, p.curSales, p.prevTotalQty, p.curTotalQty)
+    push('数量効果', d.custEffect)
+    push('点単価効果', d.ticketEffect)
   } else {
     push('増減', p.curSales - p.prevSales)
   }

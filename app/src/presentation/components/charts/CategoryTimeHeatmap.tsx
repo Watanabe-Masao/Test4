@@ -75,7 +75,7 @@ export const CategoryTimeHeatmap = memo(function CategoryTimeHeatmap({
         left: gridLeft,
         right: gridRight,
         top: 10,
-        bottom: 20,
+        bottom: 30,
         containLabel: false,
       },
       tooltip: {
@@ -136,8 +136,8 @@ export const CategoryTimeHeatmap = memo(function CategoryTimeHeatmap({
             borderColor: theme.colors.bg,
           },
           label: {
-            show: depts.length <= 8 && hours.length <= 14,
-            fontSize: 8,
+            show: depts.length <= 12 && hours.length <= 18,
+            fontSize: 9,
             color: theme.colors.text,
             fontFamily: theme.typography.fontFamily.mono,
             formatter: (params: unknown) => {
@@ -157,7 +157,7 @@ export const CategoryTimeHeatmap = memo(function CategoryTimeHeatmap({
   }, [data, metric, gridLeft, gridRight, theme, cf])
 
   const deptCount = useMemo(() => new Set(data.map((d) => d.code)).size, [data])
-  const chartH = Math.max(120, deptCount * 28 + 40)
+  const chartH = Math.max(160, deptCount * 38 + 60)
 
   if (data.length === 0) return null
 

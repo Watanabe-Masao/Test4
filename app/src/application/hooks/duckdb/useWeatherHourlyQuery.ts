@@ -3,18 +3,21 @@
  *
  * weather_hourly テーブルから指定日・店舗の時間別天気を取得する。
  * DuckDB にデータがない場合は ETRN API から直接取得するフォールバック付き。
+ * ETRN から取得したデータは DuckDB に永続化し、useDuckDBWeatherHourlyAvg が
+ * 蓄積データから月間平均を返せるようにする。
  *
  * UIは「日付と店舗を指定したら天気データが返る」だけを知る。
  * 取得元の切替ロジックはこのフック内に閉じる。
  */
 import { useMemo, useState, useEffect, useRef } from 'react'
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import type { AsyncDuckDBConnection, AsyncDuckDB } from '@duckdb/duckdb-wasm'
 import type { HourlyWeatherRecord, StoreLocation } from '@/domain/models/record'
 import {
   queryWeatherHourly,
   queryWeatherHourlyAvg,
   type HourlyWeatherAvgRow,
 } from '@/infrastructure/duckdb/queries/weatherQueries'
+import { insertWeatherHourly } from '@/infrastructure/duckdb/dataConversions'
 import { useAsyncQuery, toDateKeys, type AsyncQueryResult } from './useAsyncQuery'
 import type { DateRange } from '@/domain/models/calendar'
 import { loadEtrnHourlyForStore } from '@/application/usecases/weather/WeatherLoadService'
@@ -27,16 +30,21 @@ import { useSettingsStore } from '@/application/stores/settingsStore'
  *   1. DuckDB weather_hourly テーブル
  *   2. ETRN API（DuckDB にデータがない場合のフォールバック）
  *
+ * ETRN から取得したデータは DuckDB に永続化する。
+ * これにより useDuckDBWeatherHourlyAvg が蓄積データから月間平均を返せる。
+ *
  * @param conn DuckDB コネクション
  * @param dataVersion DuckDB データバージョン（0 = 未ロード）
  * @param storeId 店舗ID
  * @param dateKey 対象日 (YYYY-MM-DD)
+ * @param db DuckDB インスタンス（永続化用、省略時は永続化しない）
  */
 export function useDuckDBWeatherHourly(
   conn: AsyncDuckDBConnection | null,
   dataVersion: number,
   storeId: string,
   dateKey: string | null,
+  db?: AsyncDuckDB | null,
 ): AsyncQueryResult<readonly HourlyWeatherRecord[]> {
   const queryFn = useMemo(() => {
     if (!dateKey || !storeId) return null
@@ -69,22 +77,29 @@ export function useDuckDBWeatherHourly(
     const [y, m, d] = parts
 
     loadEtrnHourlyForStore(storeId, location, y, m, [d])
-      .then((result) => {
-        if (!cancelled && result.hourly.length > 0) {
-          fetchedKeyRef.current = fetchKey // 成功時のみ再取得を抑止
-          setEtrnCache({ key: fetchKey, data: result.hourly })
+      .then(async (result) => {
+        if (cancelled || result.hourly.length === 0) return
+        fetchedKeyRef.current = fetchKey // 成功時のみ再取得を抑止
+        setEtrnCache({ key: fetchKey, data: result.hourly })
+
+        // DuckDB に永続化（次回以降 ETRN API 不要 + WeatherHourlyAvg が集計可能に）
+        if (conn && db) {
+          try {
+            await insertWeatherHourly(conn, db, result.hourly, storeId)
+          } catch {
+            // 永続化失敗は無視（キャッシュとして動作するだけ）
+          }
         }
       })
       .catch((err: unknown) => {
         // ETRN取得失敗は無視（天気データは必須ではない）
-        // fetchedKeyRef は未設定のまま → 次のレンダーで再試行可能
         console.warn('[useDuckDBWeatherHourly] ETRN fallback failed:', err)
       })
 
     return () => {
       cancelled = true
     }
-  }, [hasDuckData, duckDone, location, storeId, dateKey, fetchKey])
+  }, [hasDuckData, duckDone, location, storeId, dateKey, fetchKey, conn, db])
 
   // DuckDB 優先、空なら ETRN フォールバック
   if (hasDuckData) return duckResult
@@ -98,12 +113,16 @@ export function useDuckDBWeatherHourly(
 
 /**
  * 指定店舗・日付範囲の時間帯別天気平均を取得する（月間プロファイル用）。
+ *
+ * 1. DuckDB weather_hourly から集計を試みる
+ * 2. 空なら ETRN API から日付範囲の全日を一括取得→DuckDB に永続化→再クエリ
  */
 export function useDuckDBWeatherHourlyAvg(
   conn: AsyncDuckDBConnection | null,
   dataVersion: number,
   storeId: string,
   dateRange: DateRange | undefined,
+  db?: AsyncDuckDB | null,
 ): AsyncQueryResult<readonly HourlyWeatherAvgRow[]> {
   const queryFn = useMemo(() => {
     if (!dateRange || !storeId) return null
@@ -111,5 +130,62 @@ export function useDuckDBWeatherHourlyAvg(
     return (c: AsyncDuckDBConnection) => queryWeatherHourlyAvg(c, storeId, dateFrom, dateTo)
   }, [storeId, dateRange])
 
-  return useAsyncQuery(conn, dataVersion, queryFn)
+  const duckResult = useAsyncQuery(conn, dataVersion, queryFn)
+
+  // ── ETRN フォールバック: DuckDB が空なら月間一括取得→永続化→再クエリ ──
+  const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
+  const location: StoreLocation | undefined = storeLocations[storeId]
+  const fetchedKeyRef = useRef('')
+  const [retryVersion, setRetryVersion] = useState(0)
+
+  const hasDuckData = (duckResult.data ?? []).length > 0
+  const duckDone = !duckResult.isLoading && duckResult.error == null
+  const fetchKey = dateRange ? `${storeId}|${dateRange.from.year}-${dateRange.from.month}` : ''
+
+  useEffect(() => {
+    if (hasDuckData || !duckDone || !location || !storeId || !dateRange || !conn || !db) return
+    if (fetchedKeyRef.current === fetchKey) return
+
+    let cancelled = false
+    const { from, to } = dateRange
+    // 日付範囲から全日リストを生成
+    const days: number[] = []
+    // 同一月の場合のみ（月跨ぎは from.month の日数分に限定）
+    const endDay = from.year === to.year && from.month === to.month ? to.day : 28
+    for (let d = from.day; d <= endDay; d++) days.push(d)
+
+    loadEtrnHourlyForStore(storeId, location, from.year, from.month, days)
+      .then(async (result) => {
+        if (cancelled || result.hourly.length === 0) return
+        fetchedKeyRef.current = fetchKey
+
+        // DuckDB に永続化
+        try {
+          await insertWeatherHourly(conn, db, result.hourly, storeId)
+          // 永続化成功→再クエリをトリガー
+          if (!cancelled) setRetryVersion((v) => v + 1)
+        } catch {
+          // 永続化失敗は無視
+        }
+      })
+      .catch(() => {
+        // ETRN取得失敗は無視
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [hasDuckData, duckDone, location, storeId, dateRange, fetchKey, conn, db])
+
+  // 永続化後の再クエリ
+  const retryQueryFn = useMemo(() => {
+    if (retryVersion === 0 || !dateRange || !storeId) return null
+    const { dateFrom, dateTo } = toDateKeys(dateRange)
+    return (c: AsyncDuckDBConnection) => queryWeatherHourlyAvg(c, storeId, dateFrom, dateTo)
+  }, [storeId, dateRange, retryVersion])
+
+  const retryResult = useAsyncQuery(conn, dataVersion, retryQueryFn)
+
+  if (retryVersion > 0 && (retryResult.data ?? []).length > 0) return retryResult
+  return duckResult
 }

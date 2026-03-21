@@ -20,12 +20,9 @@ export const DEFAULT_WIDGET_IDS: string[] = [
   // 予算進捗ハブ（最上位: 予算達成 + 店別ドリルダウン + 予算ヘッダ）
   'widget-budget-achievement',
   // モニタリング
-  'analysis-condition-summary',
   'analysis-alert-panel',
   // 日別予算進捗（売上 vs 予算の累計推移）
   'chart-daily-sales',
-  // 予実管理
-  'exec-plan-actual-forecast',
   'insight-budget',
   // 着地予測
   'exec-forecast-tools',
@@ -69,6 +66,14 @@ const WIDGET_ID_MIGRATION: ReadonlyMap<string, string> = new Map([
   ['exec-summary-bar', 'widget-budget-achievement'],
   // 収益概況テーブル → ConditionSummaryEnhanced に吸収
   ['kpi-summary-table', 'widget-budget-achievement'],
+  // コンディションサマリー → widget-budget-achievement に統合
+  ['analysis-condition-summary', 'widget-budget-achievement'],
+  // PLAN/ACTUAL/FORECAST → exec-forecast-tools に統合
+  ['exec-plan-actual-forecast', 'exec-forecast-tools'],
+  // カテゴリ偏り → chart-category-hierarchy-explorer に統合
+  ['chart-category-pie', 'chart-category-hierarchy-explorer'],
+  // 部門別KPIトレンド → exec-department-kpi に統合
+  ['analysis-duckdb-dept-trend', 'exec-department-kpi'],
 ])
 
 /** 旧 ID を統合 ID に変換し、重複を除去する */

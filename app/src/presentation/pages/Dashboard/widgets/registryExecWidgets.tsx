@@ -1,8 +1,6 @@
 import type { WidgetDef } from './types'
-import { renderPlanActualForecast } from './PlanActualForecast'
 import { MonthlyCalendarWidget } from './MonthlyCalendar'
 import { ForecastToolsWidget } from './ForecastTools'
-import { ConditionSummaryEnhanced } from './ConditionSummaryEnhanced'
 import { AlertPanelWidget } from './AlertPanel'
 import {
   renderDowAverage,
@@ -15,30 +13,15 @@ import {
 
 // ── 概要・ステータス ──
 // exec-summary-bar は KpiSummaryTable + ConditionSummaryEnhanced ヘッダに吸収済み
-// analysis-condition-summary は ConditionSummaryEnhanced に統合済み
+// analysis-condition-summary は widget-budget-achievement (registryKpiWidgets) に統合済み
+// exec-plan-actual-forecast は ForecastToolsWidget + insight/budget ページに統合済み
 export const WIDGETS_EXEC: readonly WidgetDef[] = [
-  {
-    id: 'analysis-condition-summary',
-    label: 'コンディションサマリー',
-    group: 'モニタリング',
-    size: 'full',
-    render: (ctx) => <ConditionSummaryEnhanced key={ctx.storeKey} ctx={ctx} />,
-  },
   {
     id: 'analysis-alert-panel',
     label: 'アラート',
     group: 'モニタリング',
     size: 'full',
     render: (ctx) => <AlertPanelWidget key={ctx.storeKey} ctx={ctx} />,
-  },
-  // ── 収益概況: 予実管理 ──
-  {
-    id: 'exec-plan-actual-forecast',
-    label: 'PLAN / ACTUAL / FORECAST',
-    group: '収益概況',
-    size: 'full',
-    linkTo: { view: 'insight', tab: 'budget' },
-    render: (ctx) => renderPlanActualForecast(ctx),
   },
   {
     id: 'exec-monthly-calendar',

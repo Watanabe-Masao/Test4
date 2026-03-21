@@ -11,7 +11,7 @@
  */
 import { useState, useCallback, memo } from 'react'
 import styled, { keyframes, css } from 'styled-components'
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import type { AsyncDuckDBConnection, AsyncDuckDB } from '@duckdb/duckdb-wasm'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import type { DailyRecord, DailyWeatherSummary, DiscountEntry } from '@/domain/models/record'
 import { useDrillDateRange } from '@/application/hooks/useDrillDateRange'
@@ -47,6 +47,7 @@ interface Props {
   readonly totalGrossSales?: number
   // TimeSlotChart props
   readonly duckConn: AsyncDuckDBConnection | null
+  readonly duckDb?: AsyncDuckDB | null
   readonly duckDataVersion: number
   readonly currentDateRange: DateRange
   readonly selectedStoreIds: ReadonlySet<string>
@@ -121,6 +122,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
           </BackButton>
           <TimeSlotChart
             duckConn={props.duckConn}
+            duckDb={props.duckDb}
             duckDataVersion={props.duckDataVersion}
             currentDateRange={rangeDateRange}
             selectedStoreIds={props.selectedStoreIds}

@@ -179,15 +179,18 @@ export function useComparisonModule(
     [kpi, currentAverageDailySales, periodSelection],
   )
 
-  // 8. 前年スコープ（旧互換 — DuckDB日付範囲 + 客数）
+  // 8. 前年スコープ（DuckDB日付範囲 + 客数）
+  // scope が存在すれば日付範囲を提供する。daily.hasPrevYear に依存しない。
+  // IndexedDB に前年データがなくても DuckDB に前年データがある場合があるため、
+  // DuckDB ベースのチャート（TimeSlotChart 等）が前年データを取得できるようにする。
   const prevYearScope = useMemo((): PrevYearScope | undefined => {
-    if (!scope || !daily.hasPrevYear) return undefined
+    if (!scope) return undefined
     return {
       dateRange: scope.effectivePeriod2,
       totalCustomers: daily.totalCustomers,
       dowOffset: scope.dowOffset,
     }
-  }, [scope, daily.hasPrevYear, daily.totalCustomers])
+  }, [scope, daily.totalCustomers])
 
   const prevYearDateRange = prevYearScope?.dateRange
 
