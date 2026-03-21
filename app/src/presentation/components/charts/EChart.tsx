@@ -219,12 +219,21 @@ export const EChart = memo(function EChart({
     }
   }, [onClick])
 
-  // ブラシ選択完了イベント
+  // ブラシ選択完了イベント + 自動アクティベーション
   useEffect(() => {
     const chart = chartRef.current
     if (!chart || !onBrushEnd) return
 
     chart.on('brushEnd', onBrushEnd as (...args: unknown[]) => void)
+
+    // brush が option に含まれている場合、lineX モードを自動アクティベート
+    // toolbox: [] で UI ボタンがないため、dispatchAction で直接起動する
+    chart.dispatchAction({
+      type: 'takeGlobalCursor',
+      key: 'brush',
+      brushOption: { brushType: 'lineX', brushMode: 'single' },
+    })
+
     return () => {
       chart.off('brushEnd', onBrushEnd)
     }
