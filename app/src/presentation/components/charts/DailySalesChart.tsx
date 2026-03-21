@@ -170,11 +170,7 @@ export const DailySalesChart = memo(function DailySalesChart({
   )
 
   return (
-    <ChartCard
-      title={VIEW_TITLES[view][diffTarget]}
-      toolbar={toolbar}
-      ariaLabel="日別売上チャート"
-    >
+    <ChartCard title={VIEW_TITLES[view][diffTarget]} toolbar={toolbar} ariaLabel="日別売上チャート">
       <div style={{ display: 'flex', gap: '12px', marginBottom: '4px', flexWrap: 'wrap' }}>
         <DowPresetSelector selectedDows={selectedDows} onChange={handleDowChange} />
       </div>
