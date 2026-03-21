@@ -224,7 +224,7 @@ export const EChart = memo(function EChart({
     const chart = chartRef.current
     if (!chart || !onBrushEnd) return
 
-    chart.on('brushEnd', onBrushEnd)
+    chart.on('brushEnd', onBrushEnd as (...args: unknown[]) => void)
     return () => {
       chart.off('brushEnd', onBrushEnd)
     }
