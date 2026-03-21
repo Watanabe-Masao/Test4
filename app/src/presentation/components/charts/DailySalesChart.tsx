@@ -29,6 +29,8 @@ interface Props {
   prevYearDaily?: ReadonlyMap<string, { sales: number; discount: number; customers?: number }>
   budgetDaily?: ReadonlyMap<number, number>
   mode?: DailyChartMode
+  /** バークリックまたはドラッグ選択で日付範囲を通知（時間帯ドリルダウン連動用） */
+  onDayRangeSelect?: (startDay: number, endDay: number) => void
 }
 
 const VIEW_LABELS: Record<ViewType, string> = {
@@ -64,6 +66,7 @@ export const DailySalesChart = memo(function DailySalesChart({
   month,
   prevYearDaily,
   budgetDaily,
+  onDayRangeSelect,
 }: Props) {
   const ct = useChartTheme()
   const [view, setView] = useState<ViewType>('standard')
@@ -143,6 +146,7 @@ export const DailySalesChart = memo(function DailySalesChart({
         ct={ct}
         needRightAxis={needRightAxis}
         wfLegendPayload={wfLegendPayload}
+        onDayRangeSelect={onDayRangeSelect}
       />
       <DualPeriodSlider
         min={1}

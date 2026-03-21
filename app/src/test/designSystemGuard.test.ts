@@ -319,8 +319,9 @@ describe('デザインシステムガード', () => {
     'presentation/components/charts/CvHeatmapView.tsx',
     'presentation/components/charts/CvLineView.tsx',
     'presentation/components/charts/CvSalesCvView.tsx',
-    // ファサード re-export
+    // ファサード re-export / ラッパー（内部コンポーネントが ChartCard を使用）
     'presentation/components/charts/GrossProfitRateChart.tsx',
+    'presentation/components/charts/IntegratedSalesChart.tsx',
     // KPI カード（チャートではない）
     'presentation/components/charts/BudgetProgressCard.tsx',
     // ダッシュボード（独自レイアウト）

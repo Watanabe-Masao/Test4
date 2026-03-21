@@ -1,5 +1,5 @@
 import {
-  DailySalesChart,
+  IntegratedSalesChart,
   CategoryRankingCard,
   GrossProfitAmountChart,
   DiscountTrendChart,
@@ -26,14 +26,19 @@ export const WIDGETS_CHART: readonly WidgetDef[] = [
     group: 'トレンド分析',
     size: 'full',
     linkTo: { view: 'daily' },
-    render: ({ result: r, daysInMonth, prevYear, year, month }) => (
-      <DailySalesChart
-        daily={r.daily}
-        daysInMonth={daysInMonth}
-        year={year}
-        month={month}
-        prevYearDaily={prevYear.hasPrevYear ? prevYear.daily : undefined}
-        budgetDaily={r.budgetDaily}
+    render: (ctx) => (
+      <IntegratedSalesChart
+        daily={ctx.result.daily}
+        daysInMonth={ctx.daysInMonth}
+        year={ctx.year}
+        month={ctx.month}
+        prevYearDaily={ctx.prevYear.hasPrevYear ? ctx.prevYear.daily : undefined}
+        budgetDaily={ctx.result.budgetDaily}
+        duckConn={ctx.duckConn}
+        duckDataVersion={ctx.duckDataVersion}
+        currentDateRange={ctx.currentDateRange}
+        selectedStoreIds={ctx.selectedStoreIds}
+        prevYearScope={ctx.prevYearScope}
       />
     ),
   },
