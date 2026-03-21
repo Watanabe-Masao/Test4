@@ -180,7 +180,7 @@ export interface CategoryDataResult {
   readonly items: readonly WaterfallItem[]
   /** CTS合計と部門内訳の残差（0に近いほど正常） */
   readonly residual: number
-  /** 残差率（anchorCur 基準、1%超で警告推奨） */
+  /** 残差率（anchorCur 基準、AMOUNT_RECONCILIATION_TOLERANCE 超で警告） */
   readonly residualPct: number
 }
 

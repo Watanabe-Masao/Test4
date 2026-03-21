@@ -8,11 +8,7 @@ import { describe, it, expect } from 'vitest'
 import { buildCategoryData } from '@/presentation/pages/Dashboard/widgets/YoYWaterfallChart.data'
 import type { CategoryTimeSalesRecord } from '@/domain/models/record'
 
-function makeRecord(
-  dept: string,
-  totalAmount: number,
-  day = 1,
-): CategoryTimeSalesRecord {
+function makeRecord(dept: string, totalAmount: number, day = 1): CategoryTimeSalesRecord {
   return {
     year: 2026,
     month: 3,
@@ -29,16 +25,8 @@ function makeRecord(
 
 describe('buildCategoryData — データ整合性', () => {
   it('同一データソースから計算される場合、残差は 0 になる', () => {
-    const curCTS = [
-      makeRecord('A', 100000),
-      makeRecord('B', 200000),
-      makeRecord('C', 50000),
-    ]
-    const prevCTS = [
-      makeRecord('A', 80000),
-      makeRecord('B', 180000),
-      makeRecord('C', 60000),
-    ]
+    const curCTS = [makeRecord('A', 100000), makeRecord('B', 200000), makeRecord('C', 50000)]
+    const prevCTS = [makeRecord('A', 80000), makeRecord('B', 180000), makeRecord('C', 60000)]
 
     // curSales/prevSales も CTS 合計と一致させる
     const curTotal = curCTS.reduce((s, r) => s + r.totalAmount, 0)
@@ -93,7 +81,7 @@ describe('buildCategoryData — データ整合性', () => {
       periodPrevCTS: prevCTS,
       hasComparison: true,
       prevSales: 99999, // CTS合計(80000)と不一致
-      curSales: 99999,  // CTS合計(100000)と不一致
+      curSales: 99999, // CTS合計(100000)と不一致
       prevLabel: '前年',
       curLabel: '当年',
     })
