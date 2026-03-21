@@ -1,14 +1,17 @@
 /**
  * ChartCard — 統一チャートカードシェルのスタイル
  *
+ * variant:
+ *   'card'    — スタンドアロン。背景・ボーダー・シャドウ付き（デフォルト）
+ *   'section' — 親カード内のサブセクション。背景を薄くし、シャドウなし
+ *
  * 全値はテーマトークン経由。直接色・サイズ指定なし。
  */
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
-export const CardShell = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
+export type ChartCardVariant = 'card' | 'section'
+
+const cardStyle = css`
   background: ${({ theme }) => theme.colors.bg3};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
@@ -21,6 +24,21 @@ export const CardShell = styled.div`
   &:hover {
     box-shadow: ${({ theme }) => theme.shadows.md};
   }
+`
+
+const sectionStyle = css`
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.01)'};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.md};
+  padding: ${({ theme }) => theme.spacing[4]};
+`
+
+export const CardShell = styled.div<{ $variant?: ChartCardVariant }>`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  ${({ $variant }) => ($variant === 'section' ? sectionStyle : cardStyle)}
 `
 
 export const HeaderRow = styled.div`
