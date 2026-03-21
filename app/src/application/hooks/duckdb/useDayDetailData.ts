@@ -22,6 +22,8 @@ import type { ComparisonFrame } from '@/domain/models/ComparisonFrame'
 import { resolvePrevDate } from '@/domain/models/ComparisonScope'
 import type { CategoryTimeSalesRecord, HourlyWeatherRecord } from '@/domain/models/record'
 import { useDuckDBCategoryTimeRecords } from './useCtsHierarchyQueries'
+import { useDuckDBStoreDaySummary } from './useSummaryQueries'
+import type { StoreDaySummaryRow } from './useSummaryQueries'
 import { useDuckDBWeatherHourly } from './useWeatherHourlyQuery'
 import type { AsyncQueryResult } from './useAsyncQuery'
 
@@ -33,11 +35,23 @@ export interface WeatherCandidate {
   readonly name: string
 }
 
+/** 日別集約サマリー（DuckDB store_day_summary 由来） */
+export interface DaySummary {
+  readonly sales: number
+  readonly customers: number
+}
+
 /** useDayDetailData の戻り値 */
 export interface DayDetailData {
   /** 前年対応日（UI のラベル表示用） */
   readonly prevDate: CalendarDate
   readonly prevDateKey: string
+
+  // ── 日別サマリー（DuckDB store_day_summary 由来 — 客数を含む） ──
+  /** 当日の売上・客数（DuckDB） */
+  readonly daySummary: DaySummary
+  /** 前年対応日の売上・客数（DuckDB） */
+  readonly prevDaySummary: DaySummary
 
   // ── CTS ──
   readonly dayRecords: readonly CategoryTimeSalesRecord[]
@@ -134,6 +148,13 @@ export function useDayDetailData(params: DayDetailDataParams): DayDetailData {
   const cumPrevFallback = useDuckDBCategoryTimeRecords(conn, dataVersion, ranges.cumPrevRange, selectedStoreIds)
   const cumPrevRecords = selectWithFallback(cumPrevResult, cumPrevFallback)
 
+  // ── 日別サマリー: 当日・前年の売上+客数（store_day_summary） ──
+  const curSummaryResult = useDuckDBStoreDaySummary(conn, dataVersion, ranges.singleDayRange, selectedStoreIds)
+  const prevSummaryResult = useDuckDBStoreDaySummary(conn, dataVersion, ranges.prevDayRange, selectedStoreIds, true)
+  const prevSummaryFallback = useDuckDBStoreDaySummary(conn, dataVersion, ranges.prevDayRange, selectedStoreIds)
+  const daySummary = aggregateSummary(curSummaryResult.data)
+  const prevDaySummary = aggregateSummary(prevSummaryResult.data) ?? aggregateSummary(prevSummaryFallback.data) ?? ZERO_SUMMARY
+
   // ── 天気: 当日 + 前年 ──
   const weatherResult = useDuckDBWeatherHourly(conn, dataVersion, weatherStoreId, ranges.dateKey, db)
   const prevWeatherResult = useDuckDBWeatherHourly(conn, dataVersion, weatherStoreId, ranges.prevDateKey, db)
@@ -141,6 +162,8 @@ export function useDayDetailData(params: DayDetailDataParams): DayDetailData {
   return {
     prevDate: ranges.prevDate,
     prevDateKey: ranges.prevDateKey,
+    daySummary: daySummary ?? ZERO_SUMMARY,
+    prevDaySummary,
     dayRecords: dayResult.data ?? EMPTY_RECORDS,
     prevDayRecords,
     wowPrevDayRecords: wowResult.data ?? EMPTY_RECORDS,
@@ -158,4 +181,18 @@ function selectWithFallback(
 ): readonly CategoryTimeSalesRecord[] {
   const primaryData = primary.data ?? EMPTY_RECORDS
   return primaryData.length > 0 ? primaryData : (fallback.data ?? EMPTY_RECORDS)
+}
+
+const ZERO_SUMMARY: DaySummary = { sales: 0, customers: 0 }
+
+/** StoreDaySummaryRow[] を店舗横断で集約して DaySummary に変換する */
+function aggregateSummary(rows: readonly StoreDaySummaryRow[] | null | undefined): DaySummary | null {
+  if (!rows || rows.length === 0) return null
+  let sales = 0
+  let customers = 0
+  for (const r of rows) {
+    sales += r.sales
+    customers += r.customers
+  }
+  return { sales, customers }
 }
