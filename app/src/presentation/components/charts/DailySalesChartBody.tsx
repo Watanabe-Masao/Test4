@@ -33,6 +33,8 @@ interface Props {
 const ALL_LABELS: Record<string, string> = {
   sales: '売上',
   prevYearSales: '比較期売上',
+  customers: '点数',
+  prevCustomers: '比較期点数',
   discount: '売変額',
   prevYearDiscount: '比較期売変額',
   salesMa7: '売上7日移動平均',
@@ -143,6 +145,9 @@ function buildOption(
     },
   }
 
+  const rightAxisFormatter =
+    view === 'standard' ? (v: number) => toComma(v) : (v: number) => toAxisYen(v)
+
   const yAxes: EChartsOption['yAxis'] =
     view === 'rate'
       ? yAxisPercent
@@ -153,7 +158,7 @@ function buildOption(
               type: 'value' as const,
               position: 'right' as const,
               axisLabel: {
-                formatter: (v: number) => toAxisYen(v),
+                formatter: rightAxisFormatter,
                 color: ct.textMuted,
                 fontSize: ct.fontSize.xs,
                 fontFamily: ct.monoFamily,
@@ -232,7 +237,7 @@ function buildOption(
   // ── シリーズ構築 ──
   const series: EChartsOption['series'] = []
 
-  // ─── Standard: 売上+前年売上=棒、売変=点線、移動平均線 ───
+  // ─── Standard: 売上+前年売上=棒、点数=破線（右軸）、移動平均線 ───
   if (view === 'standard') {
     series.push({
       name: 'sales',
@@ -258,20 +263,21 @@ function buildOption(
         barMaxWidth: 14,
       })
     }
+    // 点数（右Y軸）
     series.push({
-      name: 'discount',
+      name: 'customers',
       type: 'line' as const,
       yAxisIndex: 1,
-      data: pluck(rows, 'discount'),
-      ...lineDefaults({ color: ct.colors.danger, dashed: true }),
+      data: pluck(rows, 'customers'),
+      ...lineDefaults({ color: ct.colors.cyan, dashed: true }),
       connectNulls: true,
     })
     if (hasPrev) {
       series.push({
-        name: 'prevYearDiscount',
+        name: 'prevCustomers',
         type: 'line' as const,
         yAxisIndex: 1,
-        data: pluck(rows, 'prevYearDiscount'),
+        data: pluck(rows, 'prevCustomers'),
         ...lineDefaults({ color: ct.colors.orange, dashed: true, width: 1.5 }),
         connectNulls: true,
       })

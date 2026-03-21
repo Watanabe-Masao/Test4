@@ -224,7 +224,22 @@ export const EChart = memo(function EChart({
     const chart = chartRef.current
     if (!chart || !onBrushEnd) return
 
-    chart.on('brushEnd', onBrushEnd as (...args: unknown[]) => void)
+    const handler = (params: unknown) => {
+      // ユーザーコールバック実行
+      ;(onBrushEnd as (p: unknown) => void)(params)
+
+      // 選択ハイライトをクリア（通常のPCドラッグ選択の挙動を再現）
+      chart.dispatchAction({ type: 'brush', areas: [] })
+
+      // 次回選択に備えて lineX モードを再アクティベート
+      chart.dispatchAction({
+        type: 'takeGlobalCursor',
+        key: 'brush',
+        brushOption: { brushType: 'lineX', brushMode: 'single' },
+      })
+    }
+
+    chart.on('brushEnd', handler)
 
     // brush が option に含まれている場合、lineX モードを自動アクティベート
     // toolbox: [] で UI ボタンがないため、dispatchAction で直接起動する
@@ -235,7 +250,7 @@ export const EChart = memo(function EChart({
     })
 
     return () => {
-      chart.off('brushEnd', onBrushEnd)
+      chart.off('brushEnd', handler)
     }
   }, [onBrushEnd])
 

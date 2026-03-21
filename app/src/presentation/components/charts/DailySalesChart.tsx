@@ -12,9 +12,7 @@ import { useState, useCallback, memo } from 'react'
 import { ChartCard } from './ChartCard'
 import { ViewToggle, ViewBtn, Sep } from './DailySalesChart.styles'
 import { useChartTheme } from './chartTheme'
-import { DualPeriodSlider } from './DualPeriodSlider'
 import { DowPresetSelector } from './DowPresetSelector'
-import { useDualPeriodRange } from './useDualPeriodRange'
 import { useDailySalesData, type DiffTarget } from './useDailySalesData'
 import { DailySalesChartBody, type ViewType } from './DailySalesChartBody'
 import type { DailyRecord } from '@/domain/models/record'
@@ -41,7 +39,7 @@ const VIEW_LABELS: Record<ViewType, string> = {
 }
 
 const VIEW_TITLES: Record<ViewType, Record<DiffTarget, string>> = {
-  standard: { yoy: '日別売上・売変推移', budget: '日別売上・売変推移' },
+  standard: { yoy: '日別売上・点数推移', budget: '日別売上・点数推移' },
   cumulative: {
     yoy: '累計推移（実績・前年・予算・売変）',
     budget: '累計推移（実績・前年・予算・売変）',
@@ -71,15 +69,6 @@ export const DailySalesChart = memo(function DailySalesChart({
   const ct = useChartTheme()
   const [view, setView] = useState<ViewType>('standard')
   const [diffTarget, setDiffTarget] = useState<DiffTarget>('yoy')
-  const {
-    p1Start: rangeStart,
-    p1End: rangeEnd,
-    onP1Change: setRange,
-    p2Start,
-    p2End,
-    onP2Change,
-    p2Enabled,
-  } = useDualPeriodRange(daysInMonth)
   const [selectedDows, setSelectedDows] = useState<number[]>([])
   const handleDowChange = useCallback((dows: number[]) => setSelectedDows(dows), [])
 
@@ -89,8 +78,8 @@ export const DailySalesChart = memo(function DailySalesChart({
     daysInMonth,
     prevYearDaily,
     isWf,
-    rangeStart,
-    rangeEnd,
+    1,
+    daysInMonth,
     year,
     month,
     selectedDows,
@@ -147,17 +136,6 @@ export const DailySalesChart = memo(function DailySalesChart({
         needRightAxis={needRightAxis}
         wfLegendPayload={wfLegendPayload}
         onDayRangeSelect={onDayRangeSelect}
-      />
-      <DualPeriodSlider
-        min={1}
-        max={daysInMonth}
-        p1Start={rangeStart}
-        p1End={rangeEnd}
-        onP1Change={setRange}
-        p2Start={p2Start}
-        p2End={p2End}
-        onP2Change={onP2Change}
-        p2Enabled={p2Enabled}
       />
     </ChartCard>
   )
