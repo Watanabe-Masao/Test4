@@ -58,6 +58,8 @@ interface Props {
   readonly duckDataVersion: number
   readonly currentDateRange: DateRange
   readonly selectedStoreIds: ReadonlySet<string>
+  /** サブパネル埋め込み時に曜日セレクタを非表示にする */
+  readonly hideDowSelector?: boolean
 }
 
 interface DrillState {
@@ -120,6 +122,7 @@ export const CategoryTrendChart = memo(function CategoryTrendChart({
   duckDataVersion,
   currentDateRange,
   selectedStoreIds,
+  hideDowSelector,
 }: Props) {
   const theme = useTheme() as AppTheme
   const fmt = useCurrencyFormatter()
@@ -284,7 +287,9 @@ export const CategoryTrendChart = memo(function CategoryTrendChart({
             ariaLabel="表示件数"
           />
         </ChipGroup>
-        <DowPresetSelector selectedDows={selectedDows} onChange={handleDowChange} />
+        {!hideDowSelector && (
+          <DowPresetSelector selectedDows={selectedDows} onChange={handleDowChange} />
+        )}
       </ControlRow>
 
       <EChart

@@ -33,7 +33,7 @@ export interface SubAnalysisPanelProps extends DuckQueryContext {
 }
 
 const PANEL_LABELS: Record<RightAxisMode, string> = {
-  quantity: '部門×曜日ヒートマップ',
+  quantity: 'カテゴリ別売上推移',
   customers: '売上差 要因分解',
   discount: '売変分析',
   temperature: '天気-売上 相関分析',
