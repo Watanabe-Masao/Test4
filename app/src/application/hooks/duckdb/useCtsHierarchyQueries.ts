@@ -12,12 +12,17 @@ import {
   queryLevelAggregation,
   queryCategoryDailyTrend,
   queryCategoryHourly,
+  queryCategoryDowMatrix,
   queryCategoryTimeRecords,
   type CtsFilterParams,
   type LevelAggregationRow,
   type CategoryDailyTrendRow,
   type CategoryHourlyRow,
+  type CategoryDowMatrixRow,
 } from '@/infrastructure/duckdb/queries/categoryTimeSales'
+
+// re-export types for barrel consumers
+export type { CategoryDowMatrixRow }
 import { useAsyncQuery, toDateKeys, storeIdsToArray, type AsyncQueryResult } from './useAsyncQuery'
 
 /** 階層レベル別集約 */
@@ -130,6 +135,33 @@ export function useDuckDBCategoryHourly(
     hierarchy?.klassCode,
     isPrevYear,
   ])
+
+  return useAsyncQuery(conn, dataVersion, queryFn)
+}
+
+/** カテゴリ別×曜日マトリクス（部門/ライン/クラス × 曜日の売上・点数集約） */
+export function useDuckDBCategoryDowMatrix(
+  conn: AsyncDuckDBConnection | null,
+  dataVersion: number,
+  dateRange: DateRange | undefined,
+  storeIds: ReadonlySet<string>,
+  level: 'department' | 'line' | 'klass',
+  hierarchy?: { deptCode?: string; lineCode?: string; klassCode?: string },
+): AsyncQueryResult<readonly CategoryDowMatrixRow[]> {
+  const queryFn = useMemo(() => {
+    if (!dateRange) return null
+    const { dateFrom, dateTo } = toDateKeys(dateRange)
+    return (c: AsyncDuckDBConnection) =>
+      queryCategoryDowMatrix(c, {
+        dateFrom,
+        dateTo,
+        storeIds: storeIdsToArray(storeIds),
+        deptCode: hierarchy?.deptCode,
+        lineCode: hierarchy?.lineCode,
+        klassCode: hierarchy?.klassCode,
+        level,
+      })
+  }, [dateRange, storeIds, level, hierarchy?.deptCode, hierarchy?.lineCode, hierarchy?.klassCode])
 
   return useAsyncQuery(conn, dataVersion, queryFn)
 }

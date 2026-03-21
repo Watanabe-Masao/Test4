@@ -326,6 +326,12 @@ describe('デザインシステムガード', () => {
     'presentation/components/charts/BudgetProgressCard.tsx',
     // ダッシュボード（独自レイアウト）
     'presentation/components/charts/SensitivityDashboard.tsx',
+    // サブ分析パネル（IntegratedSalesChart のサブコンポーネント、親が ChartCard を提供）
+    'presentation/components/charts/SubAnalysisPanel.tsx',
+    'presentation/components/charts/FactorDecompositionPanel.tsx',
+    'presentation/components/charts/DiscountAnalysisPanel.tsx',
+    'presentation/components/charts/WeatherAnalysisPanel.tsx',
+    'presentation/components/charts/CategoryHeatmapPanel.tsx',
   ])
 
   it('スタンドアロンチャートの ChartCard 未使用が上限以下', () => {

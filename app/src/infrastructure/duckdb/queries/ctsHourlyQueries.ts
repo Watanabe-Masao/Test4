@@ -159,3 +159,68 @@ export async function queryCategoryHourly(
     ORDER BY agg.amount DESC, agg.hour`
   return queryToObjects<CategoryHourlyRow>(conn, sql)
 }
+
+// ── カテゴリ×曜日マトリクス ──
+
+export interface CategoryDowMatrixRow {
+  readonly code: string
+  readonly name: string
+  readonly dow: number
+  readonly amount: number
+  readonly quantity: number
+  readonly dayCount: number
+}
+
+/**
+ * カテゴリ×曜日マトリクス
+ *
+ * 指定した階層レベル（部門/ライン/クラス）で曜日別の売上・点数を集約する。
+ * time_slots テーブルを使い、名前は category_time_sales から取得。
+ */
+export async function queryCategoryDowMatrix(
+  conn: AsyncDuckDBConnection,
+  params: CtsFilterParams & { readonly level: 'department' | 'line' | 'klass' },
+): Promise<readonly CategoryDowMatrixRow[]> {
+  const where = tsWhereClause(params)
+
+  let codeCol: string
+  let nameCol: string
+
+  switch (params.level) {
+    case 'department':
+      codeCol = 'ts.dept_code'
+      nameCol = 'n.dept_name'
+      break
+    case 'line':
+      codeCol = 'ts.line_code'
+      nameCol = 'n.line_name'
+      break
+    case 'klass':
+      codeCol = 'ts.klass_code'
+      nameCol = 'n.klass_name'
+      break
+  }
+
+  const sql = `
+    WITH agg AS (
+      SELECT
+        ${codeCol} AS code,
+        EXTRACT(dow FROM make_date(ts.year, ts.month, ts.day))::INTEGER AS dow,
+        SUM(ts.amount) AS amount,
+        SUM(ts.quantity) AS quantity,
+        COUNT(DISTINCT make_date(ts.year, ts.month, ts.day)) AS day_count
+      FROM time_slots ts
+      ${where}
+      GROUP BY ${codeCol}, dow
+    ),
+    names AS (
+      SELECT DISTINCT ${codeCol.replace('ts.', '')} AS code_key,
+        ${nameCol.replace('n.', '')} AS name_val
+      FROM category_time_sales n
+    )
+    SELECT agg.code, names.name_val AS name, agg.dow, agg.amount, agg.quantity, agg.day_count
+    FROM agg
+    LEFT JOIN names ON agg.code = names.code_key
+    ORDER BY SUM(agg.amount) OVER (PARTITION BY agg.code) DESC, agg.dow`
+  return queryToObjects<CategoryDowMatrixRow>(conn, sql)
+}
