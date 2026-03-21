@@ -9,11 +9,9 @@ import {
   SeasonalBenchmarkChart,
   FeatureChart,
   CumulativeChart,
-  DeptTrendChart,
 } from '@/presentation/components/charts'
 import type { WidgetDef } from './types'
 import { WaterfallChartWidget } from './WaterfallChart'
-import { YoYWaterfallChartWidget } from './YoYWaterfallChart'
 import { GrossProfitHeatmapWidget } from './GrossProfitHeatmap'
 import { UnifiedYoYWidget } from './UnifiedAnalyticsWidgets'
 import { isYoYVisible } from './widgetVisibility'
@@ -28,15 +26,7 @@ export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
     linkTo: { view: 'insight', tab: 'decomposition' },
     render: (ctx) => <WaterfallChartWidget key={ctx.storeKey} ctx={ctx} />,
   },
-  {
-    id: 'analysis-yoy-waterfall',
-    label: '前年比較ウォーターフォール',
-    group: '要因分析',
-    size: 'full',
-    linkTo: { view: 'insight', tab: 'decomposition' },
-    isVisible: (ctx) => ctx.prevYear.hasPrevYear && ctx.prevYear.totalSales > 0,
-    render: (ctx) => <YoYWaterfallChartWidget key={ctx.storeKey} ctx={ctx} />,
-  },
+  // 注: 前年比較ウォーターフォール → analysis-yoy-variance に統合
   {
     id: 'analysis-gp-heatmap',
     label: '粗利率ヒートマップ',
@@ -192,22 +182,7 @@ export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
     ),
   },
   // 注: analysis-duckdb-yoy → analysis-yoy-variance に統合（データソース自動解決）
-  {
-    id: 'analysis-duckdb-dept-trend',
-    label: '部門別KPIトレンド',
-    group: 'トレンド分析',
-    size: 'full',
-    isVisible: (ctx) => ctx.duckDataVersion > 0 && ctx.duckLoadedMonthCount >= 2,
-    render: (ctx) => (
-      <DeptTrendChart
-        duckConn={ctx.duckConn}
-        duckDataVersion={ctx.duckDataVersion}
-        loadedMonthCount={ctx.duckLoadedMonthCount}
-        year={ctx.year}
-        month={ctx.month}
-      />
-    ),
-  },
+  // 注: analysis-duckdb-dept-trend → exec-department-kpi テーブルに統合
   // 注: duckdb-timeslot → chart-timeslot-sales に統合（データソース自動解決）
   // 注: duckdb-heatmap → chart-timeslot-heatmap に統合
   // 注: duckdb-dept-hourly → chart-dept-hourly-pattern に統合

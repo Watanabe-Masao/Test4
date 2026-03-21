@@ -1,6 +1,5 @@
 import {
   IntegratedSalesChart,
-  CategoryRankingCard,
   GrossProfitAmountChart,
   DiscountTrendChart,
   CategoryHierarchyExplorer,
@@ -48,14 +47,7 @@ export const WIDGETS_CHART: readonly WidgetDef[] = [
     ),
   },
   // 注: 予算vs実績チャート → DailySalesChart「累計推移」ビューに統合
-  {
-    id: 'chart-category-pie',
-    label: 'カテゴリ偏り',
-    group: '収益概況',
-    size: 'half',
-    linkTo: { view: 'category' },
-    render: ({ result: r }) => <CategoryRankingCard categoryTotals={r.categoryTotals} />,
-  },
+  // 注: カテゴリ偏り → CategoryHierarchyExplorer に統合
   {
     id: 'chart-gross-profit-amount',
     label: '粗利推移チャート',
