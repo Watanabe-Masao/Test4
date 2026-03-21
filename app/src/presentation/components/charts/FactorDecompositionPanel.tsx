@@ -1,20 +1,34 @@
 /**
  * FactorDecompositionPanel — 客数選択時の要因分解ウォーターフォール
  *
- * 日別売上差の要因内訳を5要素分解で表示。
+ * 日別売上差の要因内訳をウォーターフォールで表示。
+ * 分解レベル切替（2/3/5要素）、サマリー行、PI値表示、計算式ヘルプ。
  * 既存 YoYWaterfallChart のサブコンポーネント群を再利用。
  */
-import { useMemo, memo } from 'react'
+import { useState, useMemo, memo } from 'react'
+import styled from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import type { DailyRecord } from '@/domain/models/record'
+import type { CategoryTimeSalesRecord } from '@/domain/models/record'
 import { useDuckDBCategoryTimeRecords } from '@/application/hooks/duckdb/useCtsHierarchyQueries'
+import {
+  calculateItemsPerCustomer,
+  calculateAveragePricePerItem,
+} from '@/domain/calculations/utils'
 import { decomposePriceMix } from '@/presentation/pages/Dashboard/widgets/categoryFactorUtils'
 import { buildFactorData } from '@/presentation/pages/Dashboard/widgets/YoYWaterfallChart.data'
 import type { DecompLevel } from '@/presentation/pages/Dashboard/widgets/YoYWaterfallChart.data'
-import { WaterfallBarChart } from '@/presentation/pages/Dashboard/widgets/YoYWaterfallChart.subcomponents'
-import { formatCurrency } from '@/domain/formatting'
-import type { CategoryTimeSalesRecord } from '@/domain/models/record'
+import {
+  WaterfallBarChart,
+  SalesSummaryRow,
+  PISummaryRow,
+  DecompHelpSection,
+} from '@/presentation/pages/Dashboard/widgets/YoYWaterfallChart.subcomponents'
+import {
+  DecompRow,
+  DecompBtn,
+} from '@/presentation/pages/Dashboard/widgets/YoYWaterfallChart.styles'
 
 const EMPTY_CTS: readonly CategoryTimeSalesRecord[] = []
 
@@ -32,6 +46,12 @@ interface Props {
   readonly prevYearScope?: PrevYearScope
 }
 
+const DECOMP_LABELS: Record<DecompLevel, string> = {
+  2: '2要素',
+  3: '3要素',
+  5: '5要素',
+}
+
 export const FactorDecompositionPanel = memo(function FactorDecompositionPanel({
   daily,
   daysInMonth,
@@ -42,7 +62,10 @@ export const FactorDecompositionPanel = memo(function FactorDecompositionPanel({
   selectedStoreIds,
   prevYearScope,
 }: Props) {
-  // 当月の集計（DailyRecord には quantity がないため qty=0）
+  const [selectedLevel, setSelectedLevel] = useState<DecompLevel | null>(null)
+  const [showHelp, setShowHelp] = useState(false)
+
+  // 当月の集計
   const { curSales, curCust } = useMemo(() => {
     let sales = 0
     let cust = 0
@@ -105,7 +128,16 @@ export const FactorDecompositionPanel = memo(function FactorDecompositionPanel({
   }, [periodCTS, periodPrevCTS])
 
   const hasQuantity = curTotalQty > 0 && prevTotalQty > 0
-  const activeLevel: DecompLevel = priceMix ? 5 : hasQuantity ? 3 : 2
+  const maxLevel: DecompLevel = priceMix ? 5 : hasQuantity ? 3 : 2
+  const activeLevel: DecompLevel =
+    selectedLevel != null && selectedLevel <= maxLevel ? selectedLevel : maxLevel
+  const availableLevels: DecompLevel[] = maxLevel >= 5 ? [2, 3, 5] : maxLevel >= 3 ? [2, 3] : [2]
+
+  // PI 値算出
+  const curPI = calculateItemsPerCustomer(curTotalQty, curCust)
+  const prevPI = calculateItemsPerCustomer(prevTotalQty, prevCust)
+  const curPPI = calculateAveragePricePerItem(curSales, curTotalQty)
+  const prevPPI = calculateAveragePricePerItem(prevSales, prevTotalQty)
 
   // ウォーターフォールデータ構築
   const waterfallData = useMemo(
@@ -146,28 +178,48 @@ export const FactorDecompositionPanel = memo(function FactorDecompositionPanel({
     return <NoData>比較データがありません</NoData>
   }
 
-  const delta = curSales - prevSales
-  const sign = delta >= 0 ? '+' : ''
-
   return (
-    <div>
-      <Summary>
-        前年売上差:{' '}
-        <DeltaValue $positive={delta >= 0}>
-          {sign}
-          {formatCurrency(delta)}
-        </DeltaValue>
-        （{activeLevel}要素分解）
-      </Summary>
+    <PanelRoot>
+      {/* サマリー行 */}
+      <SalesSummaryRow prevLabel="前年" curLabel="当期" prevSales={prevSales} curSales={curSales} />
+
+      {/* PI 値（3要素以上で点数データがある場合） */}
+      {hasQuantity && (
+        <PISummaryRow
+          prevLabel="前年"
+          curLabel="当期"
+          prevPI={prevPI}
+          curPI={curPI}
+          prevPPI={prevPPI}
+          curPPI={curPPI}
+        />
+      )}
+
+      {/* 分解レベル切替 */}
+      {availableLevels.length > 1 && (
+        <DecompRow>
+          {availableLevels.map((lv) => (
+            <DecompBtn key={lv} $active={activeLevel === lv} onClick={() => setSelectedLevel(lv)}>
+              {DECOMP_LABELS[lv]}
+            </DecompBtn>
+          ))}
+        </DecompRow>
+      )}
+
+      {/* ウォーターフォール */}
       <WaterfallBarChart data={waterfallData} />
-    </div>
+
+      {/* 計算式ヘルプ */}
+      <DecompHelpSection
+        showHelp={showHelp}
+        onToggle={() => setShowHelp((p) => !p)}
+        activeLevel={activeLevel}
+      />
+    </PanelRoot>
   )
 })
 
 // ── Styles ──
-
-import styled from 'styled-components'
-import { sc } from '@/presentation/theme/semanticColors'
 
 const NoData = styled.div`
   text-align: center;
@@ -176,14 +228,6 @@ const NoData = styled.div`
   font-size: 0.75rem;
 `
 
-const Summary = styled.div`
-  font-size: 0.7rem;
-  color: ${({ theme }) => theme.colors.text3};
-  padding: ${({ theme }) => `${theme.spacing[1]} ${theme.spacing[2]}`};
-  margin-bottom: ${({ theme }) => theme.spacing[1]};
-`
-
-const DeltaValue = styled.span<{ $positive: boolean }>`
-  font-weight: 600;
-  color: ${({ $positive }) => ($positive ? sc.positive : sc.negative)};
+const PanelRoot = styled.div`
+  padding: ${({ theme }) => `${theme.spacing[2]} 0`};
 `

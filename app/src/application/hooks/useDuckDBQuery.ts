@@ -18,6 +18,7 @@ export {
   useDuckDBDowDivisorMap,
   useDuckDBCategoryDailyTrend,
   useDuckDBCategoryHourly,
+  useDuckDBCategoryDowMatrix,
   // 部門KPI
   useDuckDBDeptKpi,
   useDuckDBDeptKpiTrend,
@@ -65,6 +66,7 @@ export type {
   HourDowMatrixRow,
   CategoryDailyTrendRow,
   CategoryHourlyRow,
+  CategoryDowMatrixRow,
   DeptKpiRankedRow,
   DeptKpiSummaryRow,
   DeptKpiMonthlyTrendRow,

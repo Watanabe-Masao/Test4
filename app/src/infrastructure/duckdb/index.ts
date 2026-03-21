@@ -35,6 +35,7 @@ export {
   queryDowDivisorMap,
   queryCategoryDailyTrend,
   queryCategoryHourly,
+  queryCategoryDowMatrix,
 } from './queries/categoryTimeSales'
 export type {
   CtsFilterParams,
@@ -44,6 +45,7 @@ export type {
   HourDowMatrixRow,
   CategoryDailyTrendRow,
   CategoryHourlyRow,
+  CategoryDowMatrixRow,
 } from './queries/categoryTimeSales'
 
 export {

@@ -100,8 +100,8 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
         {canDrill && <DrillHint>日付をクリック or ドラッグで時間帯内訳を表示</DrillHint>}
       </ViewPane>
 
-      {/* サブ分析パネル（標準ビュー + ドリルダウンなし時のみ） */}
-      {!isDrilled && dailyView === 'standard' && (
+      {/* サブ分析パネル（標準ビュー時: 月全体 / ドリルダウン時: 選択範囲で連動） */}
+      {dailyView === 'standard' && (
         <SubAnalysisPanel
           mode={rightAxisMode}
           daily={props.daily}
@@ -111,9 +111,9 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
           prevYearDaily={props.prevYearDaily}
           duckConn={props.duckConn}
           duckDataVersion={props.duckDataVersion}
-          currentDateRange={props.currentDateRange}
+          currentDateRange={isDrilled && rangeDateRange ? rangeDateRange : props.currentDateRange}
           selectedStoreIds={props.selectedStoreIds}
-          prevYearScope={props.prevYearScope}
+          prevYearScope={isDrilled && rangePrevYearScope ? rangePrevYearScope : props.prevYearScope}
           weatherDaily={props.weatherDaily}
         />
       )}

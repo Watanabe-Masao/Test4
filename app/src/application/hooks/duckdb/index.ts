@@ -20,6 +20,7 @@ export {
   useDuckDBDowDivisorMap,
   useDuckDBCategoryDailyTrend,
   useDuckDBCategoryHourly,
+  useDuckDBCategoryDowMatrix,
   useDuckDBCategoryTimeRecords,
   fetchCategoryTimeRecords,
 } from './useCtsQueries'
@@ -30,6 +31,7 @@ export type {
   HourDowMatrixRow,
   CategoryDailyTrendRow,
   CategoryHourlyRow,
+  CategoryDowMatrixRow,
 } from './useCtsQueries'
 
 // 部門KPI

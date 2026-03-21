@@ -116,12 +116,14 @@ export {
   queryStoreAggregation,
   queryHourDowMatrix,
   queryCategoryHourly,
+  queryCategoryDowMatrix,
 } from './ctsHourlyQueries'
 export type {
   HourlyAggregationRow,
   StoreAggregationRow,
   HourDowMatrixRow,
   CategoryHourlyRow,
+  CategoryDowMatrixRow,
 } from './ctsHourlyQueries'
 
 export {

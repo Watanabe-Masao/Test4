@@ -9,6 +9,7 @@ export {
   useDuckDBLevelAggregation,
   useDuckDBCategoryDailyTrend,
   useDuckDBCategoryHourly,
+  useDuckDBCategoryDowMatrix,
   useDuckDBCategoryTimeRecords,
   fetchCategoryTimeRecords,
 } from './useCtsHierarchyQueries'
@@ -16,6 +17,7 @@ export type {
   LevelAggregationRow,
   CategoryDailyTrendRow,
   CategoryHourlyRow,
+  CategoryDowMatrixRow,
 } from './useCtsHierarchyQueries'
 
 export {
