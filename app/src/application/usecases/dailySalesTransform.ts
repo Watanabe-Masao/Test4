@@ -11,7 +11,7 @@ import {
   calculateTransactionValue,
   calculateMovingAverage,
 } from '@/domain/calculations'
-import type { BaseDayItem, WaterfallItem } from '../hooks/useDailySalesData'
+import type { BaseDayItem, DiffTarget, WaterfallItem } from '../hooks/useDailySalesData'
 
 /** N日移動平均を計算（ドメイン層のユーティリティに委譲） */
 function movingAverage(values: number[], window: number): (number | null)[] {
@@ -47,9 +47,11 @@ export function buildBaseDayItems(
   let cumSales = 0,
     cumPrevSales = 0,
     cumDiscount = 0,
+    cumPrevDiscount = 0,
     cumGrossSales = 0,
     cumBudget = 0,
-    cumYoyDiff = 0
+    cumYoyDiff = 0,
+    cumBudgetDiff = 0
   const bd: Omit<BaseDayItem, 'salesMa7' | 'discountMa7' | 'prevDiscountMa7'>[] = []
 
   for (let d = 1; d <= daysInMonth; d++) {
@@ -73,6 +75,7 @@ export function buildBaseDayItems(
     cumSales += sales
     cumPrevSales += prevEntry?.sales ?? 0
     cumDiscount += discount
+    cumPrevDiscount += prevEntry?.discount ?? 0
     cumGrossSales += grossSales
     const cumDiscountRate = safeDivide(cumDiscount, cumGrossSales, 0)
 
@@ -81,6 +84,9 @@ export function buildBaseDayItems(
 
     const yoyDiff = prevSales != null ? sales - prevSales : null
     if (yoyDiff != null) cumYoyDiff += yoyDiff
+
+    const budgetDiff = dayBudget != null ? sales - dayBudget : null
+    if (budgetDiff != null) cumBudgetDiff += budgetDiff
 
     bd.push({
       day: d,
@@ -96,8 +102,12 @@ export function buildBaseDayItems(
       prevYearCum: cumPrevSales > 0 ? cumPrevSales : null,
       budgetCum: cumBudget > 0 ? cumBudget : null,
       cumDiscountRate,
+      discountCum: cumDiscount,
+      prevYearDiscountCum: prevYearDaily ? cumPrevDiscount : null,
       yoyDiff,
       yoyDiffCum: prevYearDaily ? cumYoyDiff : null,
+      budgetDiff,
+      budgetDiffCum: budgetDaily ? cumBudgetDiff : null,
       budgetDaily: dayBudget,
     })
   }
@@ -118,11 +128,13 @@ export function buildWaterfallData(
   salesMa7: readonly (number | null)[],
   discountMa7: readonly (number | null)[],
   prevDiscountMa7: readonly (number | null)[],
+  diffTarget: DiffTarget = 'yoy',
 ): WaterfallItem[] {
   let wfCumSales = 0,
     wfCumDiscount = 0,
     wfCumCustomers = 0,
-    wfCumYoy = 0
+    wfCumYoy = 0,
+    wfCumDiscDiff = 0
 
   return baseData.map((item, i) => {
     const salesChange = i === 0 ? item.sales : item.sales - baseData[i - 1].sales
@@ -144,15 +156,20 @@ export function buildWaterfallData(
     const wfCustDown = customersChange < 0 ? Math.abs(customersChange) : 0
     wfCumCustomers += customersChange
 
-    // 前年差ウォーターフォール（日別の前年差を積み上げ）
-    const dayYoyDiff = item.yoyDiff ?? 0
-    const wfYoyBase = dayYoyDiff >= 0 ? wfCumYoy : wfCumYoy + dayYoyDiff
-    const wfYoyUp = dayYoyDiff >= 0 ? dayYoyDiff : 0
-    const wfYoyDown = dayYoyDiff < 0 ? Math.abs(dayYoyDiff) : 0
-    wfCumYoy += dayYoyDiff
+    // 差分ウォーターフォール（diffTarget に応じて前年差 or 予算差を積み上げ）
+    const dayDiff = diffTarget === 'budget' ? (item.budgetDiff ?? 0) : (item.yoyDiff ?? 0)
+    const wfYoyBase = dayDiff >= 0 ? wfCumYoy : wfCumYoy + dayDiff
+    const wfYoyUp = dayDiff >= 0 ? dayDiff : 0
+    const wfYoyDown = dayDiff < 0 ? Math.abs(dayDiff) : 0
+    wfCumYoy += dayDiff
+
+    // 売変差累計（当期売変 - 前年売変 の累計）
+    const dayDiscDiff = item.discount - (item.prevYearDiscount ?? 0)
+    wfCumDiscDiff += dayDiscDiff
 
     return {
       ...item,
+      discountDiffCum: wfCumDiscDiff,
       wfSalesBase,
       wfSalesUp,
       wfSalesDown,

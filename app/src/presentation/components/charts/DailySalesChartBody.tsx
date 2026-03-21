@@ -6,8 +6,8 @@
  *
  * ビュー構成:
  * - standard: 売上棒+前年棒+売変線+移動平均線
- * - prevYearCum: 実績・前年・予算の累計/単日切替
- * - vsLastYear: 実績=棒、前年=線、前年差累計WF
+ * - cumulative: 実績・前年・予算の累計Area
+ * - difference: 前年差累計ウォーターフォール
  */
 import { memo, useMemo } from 'react'
 import type { EChartsOption } from 'echarts'
@@ -16,7 +16,7 @@ import { standardGrid, lineDefaults } from './builders'
 import { type ChartTheme, toAxisYen, toComma } from './chartTheme'
 import type { DailySalesDataResult } from './useDailySalesData'
 
-export type ViewType = 'standard' | 'prevYearCum' | 'vsLastYear'
+export type ViewType = 'standard' | 'cumulative' | 'difference'
 
 interface Props {
   data: DailySalesDataResult['data']
@@ -25,7 +25,6 @@ interface Props {
   hasPrev: boolean
   ct: ChartTheme
   needRightAxis: boolean
-  cumMode: 'cumulative' | 'daily'
   wfLegendPayload: { value: string; type: 'rect'; color: string }[] | undefined
 }
 
@@ -38,17 +37,15 @@ const ALL_LABELS: Record<string, string> = {
   currentCum: '当期累計',
   prevYearCum: '比較期累計',
   budgetCum: '予算累計',
-  budgetDaily: '予算（日割）',
-  yoyDiff: '比較期差',
-  yoyDiffCum: '比較期差累計',
-  wfSalesUp: '増加',
-  wfSalesDown: '減少',
-  wfYoyUp: '比較期差+',
-  wfYoyDown: '比較期差-',
+  discountCum: '売変累計（当期）',
+  prevYearDiscountCum: '売変累計（前年）',
+  wfYoyUp: '差分+',
+  wfYoyDown: '差分-',
+  discountDiffCum: '売変差累計',
 }
 
 /** 隠しシリーズ名（ツールチップから除外） */
-const HIDDEN_NAMES = new Set(['wfSalesBase', 'wfSalesCum', 'wfYoyBase', 'wfYoyCum'])
+const HIDDEN_NAMES = new Set(['wfYoyBase'])
 
 /** ECharts 用 linearGradient ヘルパー */
 function grad(color: string, o1: number, o2: number): object {
@@ -89,7 +86,6 @@ function buildOption(
   hasPrev: boolean,
   ct: ChartTheme,
   needRightAxis: boolean,
-  cumMode: 'cumulative' | 'daily',
   wfLegendPayload: Props['wfLegendPayload'],
 ): EChartsOption {
   const rows = data as unknown as Record<string, unknown>[]
@@ -204,84 +200,8 @@ function buildOption(
   // ── シリーズ構築 ──
   const series: EChartsOption['series'] = []
 
-  // ─── ウォーターフォール: 売上系 (standard) ───
-  if (isWf && view === 'standard') {
-    series.push(
-      {
-        name: 'wfSalesBase',
-        type: 'bar' as const,
-        stack: 'wfS',
-        data: pluck(rows, 'wfSalesBase'),
-        itemStyle: { color: 'transparent' },
-        barMaxWidth: 16,
-        emphasis: { disabled: true },
-      },
-      {
-        name: 'wfSalesUp',
-        type: 'bar' as const,
-        stack: 'wfS',
-        data: pluck(rows, 'wfSalesUp'),
-        itemStyle: { color: withAlpha(ct.colors.success, 0.75), borderRadius: [2, 2, 0, 0] },
-        barMaxWidth: 16,
-      },
-      {
-        name: 'wfSalesDown',
-        type: 'bar' as const,
-        stack: 'wfS',
-        data: pluck(rows, 'wfSalesDown'),
-        itemStyle: { color: withAlpha(ct.colors.danger, 0.75), borderRadius: [2, 2, 0, 0] },
-        barMaxWidth: 16,
-      },
-      {
-        name: 'wfSalesCum',
-        type: 'line' as const,
-        data: pluck(rows, 'wfSalesCum'),
-        ...lineDefaults({ color: ct.colors.primary, dashed: true, width: 1.5 }),
-        connectNulls: true,
-      },
-    )
-  }
-
-  // ─── ウォーターフォール: 前年差 (vsLastYear) ───
-  if (isWf && view === 'vsLastYear') {
-    series.push(
-      {
-        name: 'wfYoyBase',
-        type: 'bar' as const,
-        stack: 'wfY',
-        data: pluck(rows, 'wfYoyBase'),
-        itemStyle: { color: 'transparent' },
-        barMaxWidth: 16,
-        emphasis: { disabled: true },
-      },
-      {
-        name: 'wfYoyUp',
-        type: 'bar' as const,
-        stack: 'wfY',
-        data: pluck(rows, 'wfYoyUp'),
-        itemStyle: { color: withAlpha(ct.colors.success, 0.75), borderRadius: [2, 2, 0, 0] },
-        barMaxWidth: 16,
-      },
-      {
-        name: 'wfYoyDown',
-        type: 'bar' as const,
-        stack: 'wfY',
-        data: pluck(rows, 'wfYoyDown'),
-        itemStyle: { color: withAlpha(ct.colors.danger, 0.75), borderRadius: [2, 2, 0, 0] },
-        barMaxWidth: 16,
-      },
-      {
-        name: 'wfYoyCum',
-        type: 'line' as const,
-        data: pluck(rows, 'wfYoyCum'),
-        ...lineDefaults({ color: ct.colors.primary, dashed: true, width: 1.5 }),
-        connectNulls: true,
-      },
-    )
-  }
-
   // ─── Standard: 売上+前年売上=棒、売変=点線、移動平均線 ───
-  if (!isWf && view === 'standard') {
+  if (view === 'standard') {
     series.push({
       name: 'sales',
       type: 'bar' as const,
@@ -334,8 +254,8 @@ function buildOption(
     })
   }
 
-  // ─── prevYearCum 累計モード: 実績・前年・予算の累計Area ───
-  if (!isWf && view === 'prevYearCum' && cumMode === 'cumulative') {
+  // ─── Cumulative: 実績・前年・予算の累計Area + 売変累計（右軸） ───
+  if (view === 'cumulative') {
     if (hasPrev) {
       series.push({
         name: 'prevYearCum',
@@ -367,110 +287,82 @@ function buildOption(
       areaStyle: { color: grad(ct.colors.primary, 0.3, 0.02) },
       symbol: 'none',
     })
-  }
-
-  // ─── prevYearCum 単日モード: 実績・前年・予算の日別棒 ───
-  if (!isWf && view === 'prevYearCum' && cumMode === 'daily') {
+    // 売変累計（右軸）
     series.push({
-      name: 'sales',
-      type: 'bar' as const,
-      data: pluck(rows, 'sales'),
-      itemStyle: {
-        color: grad(ct.colors.primary, 0.9, 0.5),
-        borderRadius: [3, 3, 0, 0],
-      },
-      barMaxWidth: 16,
-    })
-    if (hasPrev) {
-      series.push({
-        name: 'prevYearSales',
-        type: 'bar' as const,
-        data: pluck(rows, 'prevYearSales'),
-        itemStyle: {
-          color: grad(ct.colors.slate, 0.7, 0.3),
-          borderRadius: [3, 3, 0, 0],
-        },
-        barMaxWidth: 12,
-      })
-    }
-    series.push({
-      name: 'budgetDaily',
+      name: 'discountCum',
       type: 'line' as const,
-      data: pluck(rows, 'budgetDaily'),
-      ...lineDefaults({ color: ct.colors.success, dashed: true }),
+      yAxisIndex: 1,
+      data: pluck(rows, 'discountCum'),
+      ...lineDefaults({ color: ct.colors.danger, width: 2 }),
       connectNulls: true,
     })
-  }
-
-  // ─── vsLastYear 累計モード: 当年累計=棒、前年累計=線 ───
-  if (!isWf && view === 'vsLastYear' && cumMode === 'cumulative') {
-    series.push({
-      name: 'currentCum',
-      type: 'bar' as const,
-      data: pluck(rows, 'currentCum'),
-      itemStyle: {
-        color: grad(ct.colors.primary, 0.9, 0.5),
-        borderRadius: [3, 3, 0, 0],
-      },
-      barMaxWidth: 18,
-    })
     if (hasPrev) {
       series.push({
-        name: 'prevYearCum',
+        name: 'prevYearDiscountCum',
         type: 'line' as const,
-        data: pluck(rows, 'prevYearCum'),
-        ...lineDefaults({ color: ct.colors.slate, width: 2.5 }),
-        connectNulls: true,
-      })
-      series.push({
-        name: 'yoyDiffCum',
-        type: 'line' as const,
-        data: pluck(rows, 'yoyDiffCum'),
-        ...lineDefaults({ color: ct.colors.success, dashed: true, width: 1.5 }),
+        yAxisIndex: 1,
+        data: pluck(rows, 'prevYearDiscountCum'),
+        ...lineDefaults({ color: ct.colors.orange, dashed: true, width: 1.5 }),
         connectNulls: true,
       })
     }
   }
 
-  // ─── vsLastYear 単日モード: 当年=棒、前年=線 ───
-  if (!isWf && view === 'vsLastYear' && cumMode === 'daily') {
-    series.push({
-      name: 'sales',
-      type: 'bar' as const,
-      data: pluck(rows, 'sales'),
-      itemStyle: {
-        color: grad(ct.colors.primary, 0.9, 0.5),
-        borderRadius: [3, 3, 0, 0],
+  // ─── Difference: 差分ウォーターフォール + 売変差累計（右軸） ───
+  if (view === 'difference' && isWf) {
+    series.push(
+      {
+        name: 'wfYoyBase',
+        type: 'bar' as const,
+        stack: 'wfY',
+        data: pluck(rows, 'wfYoyBase'),
+        itemStyle: { color: 'transparent' },
+        barMaxWidth: 16,
+        emphasis: { disabled: true },
       },
-      barMaxWidth: 18,
-    })
-    if (hasPrev) {
-      series.push({
-        name: 'prevYearSales',
+      {
+        name: 'wfYoyUp',
+        type: 'bar' as const,
+        stack: 'wfY',
+        data: pluck(rows, 'wfYoyUp'),
+        itemStyle: { color: withAlpha(ct.colors.success, 0.75), borderRadius: [2, 2, 0, 0] },
+        barMaxWidth: 16,
+      },
+      {
+        name: 'wfYoyDown',
+        type: 'bar' as const,
+        stack: 'wfY',
+        data: pluck(rows, 'wfYoyDown'),
+        itemStyle: { color: withAlpha(ct.colors.danger, 0.75), borderRadius: [2, 2, 0, 0] },
+        barMaxWidth: 16,
+      },
+      {
+        name: 'wfYoyCum',
         type: 'line' as const,
-        data: pluck(rows, 'prevYearSales'),
-        ...lineDefaults({ color: ct.colors.slate, width: 2.5 }),
+        data: pluck(rows, 'wfYoyCum'),
+        ...lineDefaults({ color: ct.colors.primary, dashed: true, width: 1.5 }),
         connectNulls: true,
-      })
-    }
+      },
+      // 売変差累計（右軸）
+      {
+        name: 'discountDiffCum',
+        type: 'line' as const,
+        yAxisIndex: 1,
+        data: pluck(rows, 'discountDiffCum'),
+        ...lineDefaults({ color: ct.colors.orange, width: 1.5 }),
+        connectNulls: true,
+      },
+    )
   }
 
   // ─── WF 用ゼロ基準線 ───
-  const markLine =
-    isWf && series.length > 0
-      ? {
-          markLine: {
-            silent: true,
-            symbol: 'none',
-            lineStyle: { color: ct.grid, opacity: 0.5, type: 'solid' as const },
-            data: [{ yAxis: 0 }],
-          },
-        }
-      : {}
-
-  // 最初のシリーズにマークラインを付与
   if (isWf && series.length > 0) {
-    ;(series[series.length - 1] as Record<string, unknown>).markLine = markLine.markLine
+    ;(series[series.length - 1] as Record<string, unknown>).markLine = {
+      silent: true,
+      symbol: 'none',
+      lineStyle: { color: ct.grid, opacity: 0.5, type: 'solid' as const },
+      data: [{ yAxis: 0 }],
+    }
   }
 
   return {
@@ -490,12 +382,11 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
   hasPrev,
   ct,
   needRightAxis,
-  cumMode,
   wfLegendPayload,
 }: Props) {
   const option = useMemo(
-    () => buildOption(data, view, isWf, hasPrev, ct, needRightAxis, cumMode, wfLegendPayload),
-    [data, view, isWf, hasPrev, ct, needRightAxis, cumMode, wfLegendPayload],
+    () => buildOption(data, view, isWf, hasPrev, ct, needRightAxis, wfLegendPayload),
+    [data, view, isWf, hasPrev, ct, needRightAxis, wfLegendPayload],
   )
 
   return <EChart option={option} height={300} ariaLabel="日別売上チャート" />
