@@ -30,4 +30,4 @@ export {
   buildPrevYearScopeFromSelection,
 } from './PeriodSelection'
 export type { AlignmentEntry, AlignmentMode, QueryMonth, ComparisonScope } from './ComparisonScope'
-export { buildComparisonScope } from './ComparisonScope'
+export { buildComparisonScope, resolvePrevDate } from './ComparisonScope'

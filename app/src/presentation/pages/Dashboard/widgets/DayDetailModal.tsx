@@ -15,10 +15,10 @@ import {
   calculateTransactionValue,
 } from '@/domain/calculations/utils'
 import type { AsyncDuckDBConnection, AsyncDuckDB } from '@duckdb/duckdb-wasm'
-import type { DateRange, ComparisonFrame } from '@/domain/models/calendar'
-import type { DailyRecord, CategoryTimeSalesRecord } from '@/domain/models/record'
+import type { ComparisonFrame } from '@/domain/models/calendar'
+import type { DailyRecord } from '@/domain/models/record'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
-import { useDuckDBCategoryTimeRecords, useDuckDBWeatherHourly } from '@/application/hooks/duckdb'
+import { useDayDetailData } from '@/application/hooks/duckdb'
 import type { PrevYearData } from '@/application/hooks/analytics'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useDataStore } from '@/application/stores/dataStore'
@@ -57,7 +57,6 @@ import { DrilldownWaterfall } from './DrilldownWaterfall'
 type ModalTab = 'sales' | 'hourly' | 'breakdown'
 type CompMode = 'yoy' | 'wow'
 
-const EMPTY_RECORDS: readonly CategoryTimeSalesRecord[] = []
 const EMPTY_STORE_IDS: ReadonlySet<string> = new Set()
 
 interface DayDetailModalProps {
@@ -141,15 +140,14 @@ export function DayDetailModal({
   const wowDailyRecord = canWoW && dailyMap ? dailyMap.get(wowPrevDay) : undefined
   const wowPrevSales = wowDailyRecord?.sales ?? 0
   const wowPrevCust = wowDailyRecord?.customers ?? 0
-  // ── Category records（DuckDB から取得） ──
+  // ── DuckDB データ取得（CTS + 天気を一括） ──
   const storeIdsSet = selectedStoreIds ?? EMPTY_STORE_IDS
 
-  // ── 天気データ（DuckDB weather_hourly から取得） ──
+  // 天気店舗選択（UI操作 — ユーザーが店舗を切り替えられる）
   const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
   const storeMap = useDataStore((s) => s.data.stores)
   const [weatherStoreOverride, setWeatherStoreOverride] = useState<string | null>(null)
 
-  // 天気取得可能な店舗リスト（位置情報あり）
   const weatherCandidates = useMemo(() => {
     const ids = storeIdsSet.size > 0 ? Array.from(storeIdsSet) : Object.keys(storeLocations)
     return ids
@@ -173,100 +171,26 @@ export function DayDetailModal({
     setWeatherStoreOverride(e.target.value || null)
   }, [])
   const dateKey = useMemo(() => toDateKeyFromParts(year, month, day), [year, month, day])
-  const weatherResult = useDuckDBWeatherHourly(
-    duckConn,
-    duckDataVersion,
+
+  // ── 一括データ取得（前年対応日の解決、isPrevYear フォールバック等すべて hook 内） ──
+  const dd = useDayDetailData({
+    conn: duckConn,
+    db: duckDb,
+    dataVersion: duckDataVersion,
+    year,
+    month,
+    day,
+    comparisonFrame,
+    selectedStoreIds: storeIdsSet,
     weatherStoreId,
-    dateKey,
-    duckDb,
-  )
+  })
 
-  // 前年天気データ — comparisonFrame.previous から前年日付を導出
-  const prevDateKey = useMemo(() => {
-    const pf = comparisonFrame.previous.from
-    // previous.from の年月を基準に、day + dowOffset で前年対応日を算出
-    // new Date が月跨ぎ（day=31+offset でも）を自動処理
-    const prevDate = new Date(pf.year, pf.month - 1, day + comparisonFrame.dowOffset)
-    const py = prevDate.getFullYear()
-    const pm = String(prevDate.getMonth() + 1).padStart(2, '0')
-    const pd = String(prevDate.getDate()).padStart(2, '0')
-    return `${py}-${pm}-${pd}`
-  }, [day, comparisonFrame])
-  const prevWeatherResult = useDuckDBWeatherHourly(
-    duckConn,
-    duckDataVersion,
-    weatherStoreId,
-    prevDateKey,
-    duckDb,
-  )
-
-  const singleDayRange: DateRange = useMemo(
-    () => ({
-      from: { year, month, day },
-      to: { year, month, day },
-    }),
-    [year, month, day],
-  )
-
-  const dayResult = useDuckDBCategoryTimeRecords(
-    duckConn,
-    duckDataVersion,
-    singleDayRange,
-    storeIdsSet,
-  )
-  const dayRecords = dayResult.data ?? EMPTY_RECORDS
-
-  const prevDayRange: DateRange = useMemo(() => {
-    // dowOffset を使って正確な比較日を計算（同曜日モードでも正しい1日を特定）
-    const curDate = new Date(year, month - 1, day)
-    const prevDate = new Date(curDate.getTime() + comparisonFrame.dowOffset * 86400000)
-    const py = prevDate.getFullYear()
-    const pm = prevDate.getMonth() + 1
-    const pd = prevDate.getDate()
-    return {
-      from: { year: py, month: pm, day: pd },
-      to: { year: py, month: pm, day: pd },
-    }
-  }, [year, month, day, comparisonFrame.dowOffset])
-
-  const prevDayResult = useDuckDBCategoryTimeRecords(
-    duckConn,
-    duckDataVersion,
-    prevDayRange,
-    storeIdsSet,
-    true,
-  )
-  // フォールバック: 前年データが is_prev_year=false で格納されている場合（前年運用時にインポート）
-  const prevDayFallbackResult = useDuckDBCategoryTimeRecords(
-    duckConn,
-    duckDataVersion,
-    prevDayRange,
-    storeIdsSet,
-  )
-  const prevDayRecords =
-    (prevDayResult.data ?? []).length > 0
-      ? (prevDayResult.data ?? EMPTY_RECORDS)
-      : (prevDayFallbackResult.data ?? EMPTY_RECORDS)
-
-  // WoW用: 前週(day-7)のカテゴリレコード
-  const wowPrevDayRange: DateRange | undefined = useMemo(
-    () =>
-      canWoW
-        ? {
-            from: { year, month, day: wowPrevDay },
-            to: { year, month, day: wowPrevDay },
-          }
-        : undefined,
-    [canWoW, year, month, wowPrevDay],
-  )
-
-  const wowResult = useDuckDBCategoryTimeRecords(
-    duckConn,
-    duckDataVersion,
-    wowPrevDayRange,
-    storeIdsSet,
-  )
-  const wowPrevDayRecords = wowResult.data ?? EMPTY_RECORDS
+  const dayRecords = dd.dayRecords
+  const prevDayRecords = dd.prevDayRecords
+  const wowPrevDayRecords = dd.wowPrevDayRecords
+  const cumCategoryRecords = dd.cumRecords
+  const cumPrevCategoryRecords = dd.cumPrevRecords
+  const prevDateKey = dd.prevDateKey
 
   // ── 比較用メトリクス（モードに応じて切替） ──
   const compSales = activeCompMode === 'wow' ? wowPrevSales : pySales
@@ -279,54 +203,6 @@ export function DayDetailModal({
     () => (activeCompMode === 'wow' ? wowPrevDayRecords : prevDayRecords),
     [activeCompMode, wowPrevDayRecords, prevDayRecords],
   )
-
-  // 累計カテゴリレコード（1日〜当日）
-  const cumDateRange: DateRange = useMemo(
-    () => ({
-      from: { year, month, day: 1 },
-      to: { year, month, day },
-    }),
-    [year, month, day],
-  )
-
-  const cumResult = useDuckDBCategoryTimeRecords(
-    duckConn,
-    duckDataVersion,
-    cumDateRange,
-    storeIdsSet,
-  )
-  const cumCategoryRecords = cumResult.data ?? EMPTY_RECORDS
-
-  const cumPrevDateRange: DateRange = useMemo(() => {
-    // dowOffset を使って正確な累計終了日を計算（同曜日モードでも正しい日を特定）
-    const curDate = new Date(year, month - 1, day)
-    const prevDate = new Date(curDate.getTime() + comparisonFrame.dowOffset * 86400000)
-    const py = prevDate.getFullYear()
-    const pm = prevDate.getMonth() + 1
-    const pd = prevDate.getDate()
-    return {
-      from: { year: py, month: pm, day: 1 },
-      to: { year: py, month: pm, day: pd },
-    }
-  }, [year, month, day, comparisonFrame.dowOffset])
-
-  const cumPrevResult = useDuckDBCategoryTimeRecords(
-    duckConn,
-    duckDataVersion,
-    cumPrevDateRange,
-    storeIdsSet,
-    true,
-  )
-  const cumPrevFallbackResult = useDuckDBCategoryTimeRecords(
-    duckConn,
-    duckDataVersion,
-    cumPrevDateRange,
-    storeIdsSet,
-  )
-  const cumPrevCategoryRecords =
-    (cumPrevResult.data ?? []).length > 0
-      ? (cumPrevResult.data ?? EMPTY_RECORDS)
-      : (cumPrevFallbackResult.data ?? EMPTY_RECORDS)
 
   return (
     <PinModalOverlay onClick={onClose}>
@@ -566,8 +442,8 @@ export function DayDetailModal({
             <HourlyChart
               dayRecords={dayRecords}
               prevDayRecords={prevDayRecords}
-              weatherHourly={weatherResult.data ?? undefined}
-              prevWeatherHourly={prevWeatherResult.data ?? undefined}
+              weatherHourly={dd.weatherHourly}
+              prevWeatherHourly={dd.prevWeatherHourly}
               prevDateKey={prevDateKey}
               curDateKey={dateKey}
             />

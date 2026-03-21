@@ -14,6 +14,7 @@
  */
 import type { CalendarDate, DateRange } from './CalendarDate'
 import { toDateKey } from './CalendarDate'
+import type { ComparisonFrame } from './ComparisonFrame'
 import type { ComparisonPreset, PeriodSelection } from './PeriodSelection'
 import { deriveDowOffset } from './PeriodSelection'
 import { MILLISECONDS_PER_DAY, DOW_ALIGNMENT_WINDOW } from '@/domain/constants'
@@ -336,4 +337,33 @@ export function buildComparisonScope(
     alignmentMap,
     sourceMonth,
   }
+}
+
+// ── 公開ユーティリティ ──
+
+/**
+ * 当年の日付に対応する前年の比較日を解決する。
+ *
+ * ComparisonFrame の policy に基づいて:
+ * - sameDate: 単純に year-1（2月末/leap year は Date 正規化で吸収）
+ * - sameDayOfWeek: 前年同日 anchor ±7日から同曜日最近傍を選択
+ *
+ * alignmentMap と同一のアルゴリズム（resolveSameDowSource）を使用し、
+ * 個別の日に対して一貫した前年日付を返す。
+ *
+ * これにより presentation/ が独自の前年日付計算を行う必要がなくなる。
+ */
+export function resolvePrevDate(
+  frame: Pick<ComparisonFrame, 'policy'>,
+  currentDate: CalendarDate,
+): CalendarDate {
+  const cur = toDate(currentDate)
+
+  if (frame.policy === 'sameDayOfWeek') {
+    return fromDate(resolveSameDowSource(cur))
+  }
+
+  // sameDate: 単純に year-1
+  const prev = new Date(cur.getFullYear() - 1, cur.getMonth(), cur.getDate())
+  return fromDate(prev)
 }
