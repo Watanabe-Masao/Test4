@@ -103,10 +103,10 @@ export const TimeSlotChart = memo(function TimeSlotChart({
         type: 'line',
         yAxisIndex: 1,
         data: d.chartData.map((r) => (r as Record<string, unknown>).quantity as number),
-        lineStyle: { color: qtyColor, width: 2, type: 'dotted' },
+        lineStyle: { color: qtyColor, width: 2, type: 'dashed' },
         itemStyle: { color: qtyColor },
-        symbol: 'circle',
-        symbolSize: 4,
+        symbol: 'none',
+        smooth: true,
       },
     ]
 
@@ -132,10 +132,10 @@ export const TimeSlotChart = memo(function TimeSlotChart({
           data: d.chartData.map(
             (r) => ((r as Record<string, unknown>).prevQuantity as number) ?? null,
           ),
-          lineStyle: { color: theme.colors.palette.slate, width: 1.5, type: 'dotted' },
+          lineStyle: { color: theme.colors.palette.slate, width: 1.5, type: 'dashed' },
           itemStyle: { color: theme.colors.palette.slate },
-          symbol: 'circle',
-          symbolSize: 3,
+          symbol: 'none',
+          smooth: true,
           connectNulls: true,
         },
       )

@@ -41,7 +41,7 @@ const VIEW_LABELS: Record<ViewType, string> = {
 }
 
 const VIEW_TITLES: Record<ViewType, Record<DiffTarget, string>> = {
-  standard: { yoy: '日別売上・売変推移', budget: '日別売上・売変推移' },
+  standard: { yoy: '日別売上・点数推移', budget: '日別売上・点数推移' },
   cumulative: {
     yoy: '累計推移（実績・前年・予算・売変）',
     budget: '累計推移（実績・前年・予算・売変）',
