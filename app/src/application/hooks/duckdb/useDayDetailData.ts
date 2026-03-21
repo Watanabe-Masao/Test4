@@ -1,0 +1,161 @@
+/**
+ * 日別詳細データ取得フック
+ *
+ * カレンダーモーダルが必要とするDuckDBデータ（CTS・天気）を一括取得する。
+ * 前年対応日の解決、isPrevYear フォールバック、天気の ETRN フォールバック —
+ * すべてこのフック内に閉じる。presentation/ は結果だけを受け取る。
+ *
+ * ## 設計原則
+ * - UIは「この日のデータをくれ」と言うだけ
+ * - 比較モード（同日/同曜日）の解釈はフック内で完結
+ * - DuckDB の isPrevYear フラグの存在を UI は知らない
+ *
+ * ## R11 準拠
+ * 日付範囲の計算は resolveDayDetailRanges() 純粋関数に分離。
+ * フック本体は DuckDB クエリ発行 + 結果の組み立てのみ。
+ */
+import { useMemo } from 'react'
+import type { AsyncDuckDB, AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import type { CalendarDate, DateRange } from '@/domain/models/CalendarDate'
+import { toDateKey } from '@/domain/models/CalendarDate'
+import type { ComparisonFrame } from '@/domain/models/ComparisonFrame'
+import { resolvePrevDate } from '@/domain/models/ComparisonScope'
+import type { CategoryTimeSalesRecord, HourlyWeatherRecord } from '@/domain/models/record'
+import { useDuckDBCategoryTimeRecords } from './useCtsHierarchyQueries'
+import { useDuckDBWeatherHourly } from './useWeatherHourlyQuery'
+import type { AsyncQueryResult } from './useAsyncQuery'
+
+// ── 型定義 ──
+
+/** 天気候補店舗 */
+export interface WeatherCandidate {
+  readonly id: string
+  readonly name: string
+}
+
+/** useDayDetailData の戻り値 */
+export interface DayDetailData {
+  /** 前年対応日（UI のラベル表示用） */
+  readonly prevDate: CalendarDate
+  readonly prevDateKey: string
+
+  // ── CTS ──
+  readonly dayRecords: readonly CategoryTimeSalesRecord[]
+  readonly prevDayRecords: readonly CategoryTimeSalesRecord[]
+  readonly wowPrevDayRecords: readonly CategoryTimeSalesRecord[]
+  readonly cumRecords: readonly CategoryTimeSalesRecord[]
+  readonly cumPrevRecords: readonly CategoryTimeSalesRecord[]
+
+  // ── 天気 ──
+  readonly weatherHourly: readonly HourlyWeatherRecord[] | undefined
+  readonly prevWeatherHourly: readonly HourlyWeatherRecord[] | undefined
+}
+
+/** useDayDetailData のパラメータ */
+export interface DayDetailDataParams {
+  readonly conn: AsyncDuckDBConnection | null
+  readonly db?: AsyncDuckDB | null
+  readonly dataVersion: number
+  readonly year: number
+  readonly month: number
+  readonly day: number
+  readonly comparisonFrame: ComparisonFrame
+  readonly selectedStoreIds: ReadonlySet<string>
+  /** 天気データ取得対象の店舗ID */
+  readonly weatherStoreId: string
+}
+
+const EMPTY_RECORDS: readonly CategoryTimeSalesRecord[] = []
+
+// ── 純粋関数: 日付範囲の計算 ──
+
+/** 日別詳細に必要な全日付範囲を一括計算する（純粋関数） */
+export function resolveDayDetailRanges(
+  year: number,
+  month: number,
+  day: number,
+  comparisonFrame: ComparisonFrame,
+) {
+  const currentDate: CalendarDate = { year, month, day }
+  const prevDate = resolvePrevDate(comparisonFrame, currentDate)
+  const prevDateKey = toDateKey(prevDate)
+  const dateKey = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+
+  const singleDayRange: DateRange = { from: currentDate, to: currentDate }
+  const prevDayRange: DateRange = { from: prevDate, to: prevDate }
+
+  const wowPrevDay = day - 7
+  const canWoW = wowPrevDay >= 1
+  const wowRange: DateRange | undefined = canWoW
+    ? { from: { year, month, day: wowPrevDay }, to: { year, month, day: wowPrevDay } }
+    : undefined
+
+  const cumRange: DateRange = { from: { year, month, day: 1 }, to: { year, month, day } }
+  const cumPrevRange: DateRange = {
+    from: { year: prevDate.year, month: prevDate.month, day: 1 },
+    to: prevDate,
+  }
+
+  return { currentDate, prevDate, prevDateKey, dateKey, singleDayRange, prevDayRange, wowRange, cumRange, cumPrevRange }
+}
+
+/**
+ * 日別詳細に必要な全 DuckDB データを取得する。
+ *
+ * - CTS: 当日・前年当日・前週・累計当年・累計前年
+ * - 天気: 当日・前年
+ * - 前年対応日: comparisonFrame.policy に基づいて resolvePrevDate で解決
+ */
+export function useDayDetailData(params: DayDetailDataParams): DayDetailData {
+  const { conn, db, dataVersion, year, month, day, comparisonFrame, selectedStoreIds, weatherStoreId } = params
+
+  // 全日付範囲を一括計算（純粋関数 — useMemo 1つに集約）
+  const ranges = useMemo(
+    () => resolveDayDetailRanges(year, month, day, comparisonFrame),
+    [year, month, day, comparisonFrame],
+  )
+
+  // ── CTS: 当日 ──
+  const dayResult = useDuckDBCategoryTimeRecords(conn, dataVersion, ranges.singleDayRange, selectedStoreIds)
+
+  // ── CTS: 前年当日（isPrevYear=true + フォールバック） ──
+  const prevDayResult = useDuckDBCategoryTimeRecords(conn, dataVersion, ranges.prevDayRange, selectedStoreIds, true)
+  const prevDayFallback = useDuckDBCategoryTimeRecords(conn, dataVersion, ranges.prevDayRange, selectedStoreIds)
+  const prevDayRecords = selectWithFallback(prevDayResult, prevDayFallback)
+
+  // ── CTS: 前週（WoW） ──
+  const wowResult = useDuckDBCategoryTimeRecords(conn, dataVersion, ranges.wowRange, selectedStoreIds)
+
+  // ── CTS: 累計当年 ──
+  const cumResult = useDuckDBCategoryTimeRecords(conn, dataVersion, ranges.cumRange, selectedStoreIds)
+
+  // ── CTS: 累計前年 ──
+  const cumPrevResult = useDuckDBCategoryTimeRecords(conn, dataVersion, ranges.cumPrevRange, selectedStoreIds, true)
+  const cumPrevFallback = useDuckDBCategoryTimeRecords(conn, dataVersion, ranges.cumPrevRange, selectedStoreIds)
+  const cumPrevRecords = selectWithFallback(cumPrevResult, cumPrevFallback)
+
+  // ── 天気: 当日 + 前年 ──
+  const weatherResult = useDuckDBWeatherHourly(conn, dataVersion, weatherStoreId, ranges.dateKey, db)
+  const prevWeatherResult = useDuckDBWeatherHourly(conn, dataVersion, weatherStoreId, ranges.prevDateKey, db)
+
+  return {
+    prevDate: ranges.prevDate,
+    prevDateKey: ranges.prevDateKey,
+    dayRecords: dayResult.data ?? EMPTY_RECORDS,
+    prevDayRecords,
+    wowPrevDayRecords: wowResult.data ?? EMPTY_RECORDS,
+    cumRecords: cumResult.data ?? EMPTY_RECORDS,
+    cumPrevRecords,
+    weatherHourly: weatherResult.data ?? undefined,
+    prevWeatherHourly: prevWeatherResult.data ?? undefined,
+  }
+}
+
+/** isPrevYear=true の結果が空なら isPrevYear=false のフォールバックを使う */
+function selectWithFallback(
+  primary: AsyncQueryResult<readonly CategoryTimeSalesRecord[]>,
+  fallback: AsyncQueryResult<readonly CategoryTimeSalesRecord[]>,
+): readonly CategoryTimeSalesRecord[] {
+  const primaryData = primary.data ?? EMPTY_RECORDS
+  return primaryData.length > 0 ? primaryData : (fallback.data ?? EMPTY_RECORDS)
+}
