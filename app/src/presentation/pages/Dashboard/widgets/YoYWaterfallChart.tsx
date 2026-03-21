@@ -77,55 +77,9 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
     ctx.comparisonFrame.previous.from.year,
   )
 
-  // 期間指定に基づいて当年の売上・客数を日別データから再集計
-  const periodCurSales = useMemo(() => {
-    let sales = 0
-    let customers = 0
-    for (const [day, rec] of r.daily) {
-      if (day >= dayStart && day <= dayEnd) {
-        sales += rec.sales
-        customers += rec.customers ?? 0
-      }
-    }
-    return { sales, customers }
-  }, [r.daily, dayStart, dayEnd])
+  // ── 共通パイプライン: CTS から当年/比較期間のデータを統一取得 ──
 
-  // 比較期間の売上・客数（前年比 or 前週比で切替）
-  const periodPrevSales = useMemo(() => {
-    let sales = 0
-    let customers = 0
-    if (activeCompMode === 'wow') {
-      // 前週比: 同月の dayStart-7 ~ dayEnd-7
-      for (const [day, rec] of r.daily) {
-        if (day >= wowRange.prevStart && day <= wowRange.prevEnd) {
-          sales += rec.sales
-          customers += rec.customers ?? 0
-        }
-      }
-    } else {
-      // 前年比
-      for (let d = dayStart; d <= dayEnd; d++) {
-        const entry = prevYear.daily.get(toDateKeyFromParts(ctx.year, ctx.month, d))
-        if (entry) {
-          sales += entry.sales
-          customers += entry.customers
-        }
-      }
-    }
-    return { sales, customers }
-  }, [
-    activeCompMode,
-    r.daily,
-    prevYear.daily,
-    dayStart,
-    dayEnd,
-    wowRange.prevStart,
-    wowRange.prevEnd,
-    ctx.year,
-    ctx.month,
-  ])
-
-  // 期間指定でCTSレコードをDuckDBから取得
+  // 当年 CTS 日付範囲（スライダー連動）
   const curDateRange: DateRange = useMemo(
     () => ({
       from: { year: ctx.year, month: ctx.month, day: dayStart },
@@ -134,15 +88,7 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
     [ctx.year, ctx.month, dayStart, dayEnd],
   )
 
-  const curCtsResult = useDuckDBCategoryTimeRecords(
-    ctx.duckConn,
-    ctx.duckDataVersion,
-    curDateRange,
-    ctx.selectedStoreIds,
-  )
-  const periodCTS = curCtsResult.data ?? EMPTY_RECORDS
-
-  // 比較期間のCTSレコード（前年比 or 前週比で切替）
+  // 比較期間 CTS 日付範囲（前年比: dowOffset 調整済み / 前週比: -7日）
   const prevCtsDateRange: DateRange | undefined = useMemo(() => {
     if (activeCompMode === 'wow') {
       if (!canWoW) return undefined
@@ -151,27 +97,30 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
         to: { year: ctx.year, month: ctx.month, day: wowRange.prevEnd },
       }
     }
-    // 前年比: comparisonFrame.previous の年月 + スライダーの日範囲を使用
-    // prevYear.daily と同じ期間のCTSデータを取得するため、dowOffset ではなく
-    // comparisonFrame.previous が示す年月に dayStart〜dayEnd を適用する
+    // 前年比: prevYearScope.dateRange を基準に dowOffset で正しい前年日付を算出。
+    // prevYear.daily と同じ同曜日基準の前年日付を使うことで、
+    // daily 合計と CTS 部門内訳のデータソースが整合する。
     const prev = ctx.comparisonFrame.previous
-    const prevMaxDay = prev.to.day
+    const offset = ctx.comparisonFrame.dowOffset
+    const fromDate = new Date(prev.from.year, prev.from.month - 1, prev.from.day + (dayStart - 1) + offset)
+    const toDate = new Date(prev.from.year, prev.from.month - 1, prev.from.day + (dayEnd - 1) + offset)
     return {
       from: {
-        year: prev.from.year,
-        month: prev.from.month,
-        day: Math.min(dayStart, prevMaxDay),
+        year: fromDate.getFullYear(),
+        month: fromDate.getMonth() + 1,
+        day: fromDate.getDate(),
       },
       to: {
-        year: prev.from.year,
-        month: prev.from.month,
-        day: Math.min(dayEnd, prevMaxDay),
+        year: toDate.getFullYear(),
+        month: toDate.getMonth() + 1,
+        day: toDate.getDate(),
       },
     }
   }, [
     activeCompMode,
     canWoW,
     ctx.comparisonFrame.previous,
+    ctx.comparisonFrame.dowOffset,
     dayStart,
     dayEnd,
     wowRange.prevStart,
@@ -181,6 +130,16 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
   ])
 
   const prevIsPrevYear = activeCompMode !== 'wow'
+
+  // CTS クエリ発行（当年 + 比較期間）
+  const curCtsResult = useDuckDBCategoryTimeRecords(
+    ctx.duckConn,
+    ctx.duckDataVersion,
+    curDateRange,
+    ctx.selectedStoreIds,
+  )
+  const periodCTS = curCtsResult.data ?? EMPTY_RECORDS
+
   const prevCtsResult = useDuckDBCategoryTimeRecords(
     ctx.duckConn,
     ctx.duckDataVersion,
@@ -199,6 +158,59 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
     prevIsPrevYear && (prevCtsResult.data ?? []).length === 0
       ? (prevCtsFallbackResult.data ?? EMPTY_RECORDS)
       : (prevCtsResult.data ?? EMPTY_RECORDS)
+
+  // ── CTS から売上合計を導出（部門内訳と同一データソース） ──
+  const periodCurSales = useMemo(() => {
+    let sales = 0
+    let customers = 0
+    // CTS から売上合計を取得
+    for (const rec of periodCTS) {
+      sales += rec.totalAmount
+    }
+    // 客数は CTS に含まれないため daily から取得
+    for (const [day, rec] of r.daily) {
+      if (day >= dayStart && day <= dayEnd) {
+        customers += rec.customers ?? 0
+      }
+    }
+    return { sales, customers }
+  }, [periodCTS, r.daily, dayStart, dayEnd])
+
+  const periodPrevSales = useMemo(() => {
+    let sales = 0
+    let customers = 0
+    // CTS から前年売上合計を取得（部門内訳と同一ソース）
+    for (const rec of periodPrevCTS) {
+      sales += rec.totalAmount
+    }
+    // 客数は daily から取得
+    if (activeCompMode === 'wow') {
+      for (const [day, rec] of r.daily) {
+        if (day >= wowRange.prevStart && day <= wowRange.prevEnd) {
+          customers += rec.customers ?? 0
+        }
+      }
+    } else {
+      for (let d = dayStart; d <= dayEnd; d++) {
+        const entry = prevYear.daily.get(toDateKeyFromParts(ctx.year, ctx.month, d))
+        if (entry) {
+          customers += entry.customers
+        }
+      }
+    }
+    return { sales, customers }
+  }, [
+    periodPrevCTS,
+    activeCompMode,
+    r.daily,
+    prevYear.daily,
+    dayStart,
+    dayEnd,
+    wowRange.prevStart,
+    wowRange.prevEnd,
+    ctx.year,
+    ctx.month,
+  ])
 
   // Aggregate total quantity from filtered CTS records
   const curTotalQty = useMemo(
