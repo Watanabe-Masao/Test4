@@ -174,7 +174,6 @@ export const DailySalesChart = memo(function DailySalesChart({
       title={VIEW_TITLES[view][diffTarget]}
       toolbar={toolbar}
       ariaLabel="日別売上チャート"
-      height={weatherDaily && weatherDaily.length > 0 ? 480 : 400}
     >
       <div style={{ display: 'flex', gap: '12px', marginBottom: '4px', flexWrap: 'wrap' }}>
         <DowPresetSelector selectedDows={selectedDows} onChange={handleDowChange} />
