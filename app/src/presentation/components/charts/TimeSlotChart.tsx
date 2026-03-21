@@ -4,7 +4,7 @@
  * 金額(棒) + 点数(点線) の統合チャート、KPIサマリー、比較テーブル、
  * カテゴリ×時間帯ヒートマップを1画面に表示。前年/前週の切り替え対応。
  */
-import { memo, useMemo } from 'react'
+import { memo, useMemo, useState } from 'react'
 import { useTheme } from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
@@ -60,6 +60,8 @@ export const TimeSlotChart = memo(function TimeSlotChart({
   const theme = useTheme() as AppTheme
   const ct = useChartTheme()
   const { messages } = useI18n()
+  const [detailView, setDetailView] = useState<'table' | 'heatmap'>('table')
+  const [heatmapMetric, setHeatmapMetric] = useState<'amount' | 'quantity'>('amount')
 
   const d = useDuckDBTimeSlotData({
     duckConn,
@@ -320,31 +322,44 @@ export const TimeSlotChart = memo(function TimeSlotChart({
       {/* ── チャート（金額棒＋点数点線、前年比較付き） ── */}
       <EChart option={chartOption} height={320} ariaLabel="時間帯別売上チャート" />
 
-      {/* ── 比較テーブル（天気データ付き） ── */}
-      <TimeSlotComparisonTable
-        chartData={d.chartData}
-        curLabel={d.curLabel}
-        compLabel={d.compLabel}
-        hasPrev={d.hasPrev}
-        curWeather={curWeatherForTable}
-        prevWeather={prevWeatherForTable}
-      />
+      {/* ── 詳細ビュー切替（テーブル / ヒートマップ） ── */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12 }}>
+        <TabGroup>
+          <Tab $active={detailView === 'table'} onClick={() => setDetailView('table')}>
+            比較テーブル
+          </Tab>
+          {(d.categoryHourlyData?.length ?? 0) > 0 && (
+            <Tab $active={detailView === 'heatmap'} onClick={() => setDetailView('heatmap')}>
+              ヒートマップ
+            </Tab>
+          )}
+        </TabGroup>
+        {detailView === 'heatmap' && (
+          <TabGroup>
+            <Tab $active={heatmapMetric === 'amount'} onClick={() => setHeatmapMetric('amount')}>
+              金額
+            </Tab>
+            <Tab
+              $active={heatmapMetric === 'quantity'}
+              onClick={() => setHeatmapMetric('quantity')}
+            >
+              点数
+            </Tab>
+          </TabGroup>
+        )}
+      </div>
 
-      {/* ── カテゴリ×時間帯ヒートマップ ── */}
-      {(d.categoryHourlyData?.length ?? 0) > 0 && (
-        <>
-          <h4
-            style={{
-              margin: '16px 0 4px',
-              fontSize: '0.75rem',
-              fontWeight: 600,
-              color: theme.colors.text2,
-            }}
-          >
-            カテゴリ×時間帯 売上ヒートマップ
-          </h4>
-          <CategoryTimeHeatmap data={d.categoryHourlyData ?? []} />
-        </>
+      {detailView === 'table' ? (
+        <TimeSlotComparisonTable
+          chartData={d.chartData}
+          curLabel={d.curLabel}
+          compLabel={d.compLabel}
+          hasPrev={d.hasPrev}
+          curWeather={curWeatherForTable}
+          prevWeather={prevWeatherForTable}
+        />
+      ) : (
+        <CategoryTimeHeatmap data={d.categoryHourlyData ?? []} metric={heatmapMetric} />
       )}
 
       {d.insights.length > 0 && (

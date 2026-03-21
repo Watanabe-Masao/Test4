@@ -15,6 +15,7 @@ import {
 } from '@/application/hooks/useDuckDBQuery'
 import { useDuckDBWeatherHourlyAvg } from '@/application/hooks/duckdb/useWeatherHourlyQuery'
 import { useSettingsStore } from '@/application/stores/settingsStore'
+import { useDataStore } from '@/application/stores/dataStore'
 import {
   type ViewMode,
   type MetricMode,
@@ -156,10 +157,11 @@ export function useDuckDBTimeSlotData({
 
   // ── 天気時間帯平均 ──
   const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
+  const allStoreIds = useDataStore((s) => s.data.stores)
   const weatherStoreId = useMemo(() => {
-    const ids = selectedStoreIds.size > 0 ? [...selectedStoreIds] : []
+    const ids = selectedStoreIds.size > 0 ? [...selectedStoreIds] : [...allStoreIds.keys()]
     return ids.find((id) => storeLocations[id]) ?? ids[0] ?? ''
-  }, [selectedStoreIds, storeLocations])
+  }, [selectedStoreIds, allStoreIds, storeLocations])
 
   const prevDateRange = compMode === 'yoy' ? prevYearScope?.dateRange : undefined
   const { data: curWeatherAvg } = useDuckDBWeatherHourlyAvg(
