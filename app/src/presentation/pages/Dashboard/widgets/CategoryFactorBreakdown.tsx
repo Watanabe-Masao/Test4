@@ -582,9 +582,7 @@ const CategoryFactorEChart = memo(function CategoryFactorEChart({
     }
 
     // 効果の純合計（プラス効果 + マイナス効果）の折れ線
-    const netTotals = waterfallItems.map((d) =>
-      factors.reduce((sum, f) => sum + f.getValue(d), 0),
-    )
+    const netTotals = waterfallItems.map((d) => factors.reduce((sum, f) => sum + f.getValue(d), 0))
 
     const fmtLineLabel = (v: unknown): string => {
       const n = typeof v === 'number' ? v : 0
