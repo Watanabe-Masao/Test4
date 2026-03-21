@@ -731,4 +731,37 @@ describe('Architecture Guard', () => {
       ).toBeLessThanOrEqual(rule.maxViolations)
     })
   }
+
+  // ─── サブ分析パネルのデータソースガード ────────────────
+  // サブパネル（*Panel.tsx in components/charts/）はデータ集約に DuckDB を使用し、
+  // DailyRecord Map を直接走査して集計してはならない。
+  // データ整合性は DuckDB（store_day_summary + CTS）側で保証する。
+
+  it('サブ分析パネルが DailyRecord Map を集計に使用しない', () => {
+    const chartDir = path.join(SRC_DIR, 'presentation', 'components', 'charts')
+    const panelFiles = collectTsFiles(chartDir).filter((f) => f.endsWith('Panel.tsx'))
+    const violations: string[] = []
+
+    // DailyRecord Map の手動集計パターン（daily.get(d) で日別走査、prevYearDaily の Map 操作）
+    // DuckDB 結果の dailyRows 等は対象外（Map ではなく配列）
+    const DAILY_RECORD_AGGREGATION_PATTERNS = [
+      /daily\.get\(\s*\w+\s*\)/, // Map.get() アクセス
+      /prevYearDaily.*\.size/, // prevYearDaily Map のサイズチェック
+      /prevYearDaily\?\.get\(/, // prevYearDaily Map.get() アクセス
+    ]
+
+    for (const file of panelFiles) {
+      const content = fs.readFileSync(file, 'utf-8')
+      for (const pattern of DAILY_RECORD_AGGREGATION_PATTERNS) {
+        if (pattern.test(content)) {
+          violations.push(
+            `${relativePath(file)}: DailyRecord Map を手動集計しています。DuckDB の store_day_summary を使用してください`,
+          )
+          break
+        }
+      }
+    }
+
+    expect(violations).toEqual([])
+  })
 })

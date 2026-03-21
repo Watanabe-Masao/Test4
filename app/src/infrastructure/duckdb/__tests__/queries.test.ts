@@ -154,6 +154,7 @@ describe('クエリ結果型の構造', () => {
       directProducePrice: 0,
       costInclusionCost: 0,
       customers: 200,
+      totalQuantity: 500,
       isPrevYear: false,
     }
     expect(row.sales).toBe(100000)

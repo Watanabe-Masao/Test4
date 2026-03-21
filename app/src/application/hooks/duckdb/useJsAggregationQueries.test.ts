@@ -58,6 +58,7 @@ function mkRow(
     directProducePrice: 0,
     costInclusionCost: 0,
     customers: 0,
+    totalQuantity: 0,
     isPrevYear: false,
     ...partial,
   }

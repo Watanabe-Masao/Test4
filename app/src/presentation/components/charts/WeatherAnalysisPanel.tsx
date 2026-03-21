@@ -2,39 +2,56 @@
  * WeatherAnalysisPanel — 天気選択時の天気-売上相関分析パネル
  *
  * 既存 WeatherCorrelationChart をサブパネルとして配置。
- * daily データから salesDaily を構築して渡す。
+ * 売上・客数データは DuckDB store_day_summary から取得。
  */
 import { useMemo, memo } from 'react'
 import styled from 'styled-components'
-import type { DailyRecord, DailyWeatherSummary } from '@/domain/models/record'
+import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import type { DateRange } from '@/domain/models/calendar'
+import type { DailyWeatherSummary } from '@/domain/models/record'
 import type { DailySalesForCorrelation } from '@/application/hooks/useWeatherCorrelation'
+import { useDuckDBStoreDaySummary } from '@/application/hooks/useDuckDBQuery'
 import { WeatherCorrelationChart } from './WeatherCorrelationChart'
 
 interface Props {
-  readonly daily: ReadonlyMap<number, DailyRecord>
-  readonly daysInMonth: number
+  readonly duckConn: AsyncDuckDBConnection | null
+  readonly duckDataVersion: number
+  readonly currentDateRange: DateRange
+  readonly selectedStoreIds: ReadonlySet<string>
   readonly weatherDaily?: readonly DailyWeatherSummary[]
 }
 
 export const WeatherAnalysisPanel = memo(function WeatherAnalysisPanel({
-  daily,
-  daysInMonth,
+  duckConn,
+  duckDataVersion,
+  currentDateRange,
+  selectedStoreIds,
   weatherDaily,
 }: Props) {
+  // DuckDB から日別売上・客数を取得
+  const { data: dailyRows } = useDuckDBStoreDaySummary(
+    duckConn,
+    duckDataVersion,
+    currentDateRange,
+    selectedStoreIds,
+  )
+
   const salesDaily = useMemo((): readonly DailySalesForCorrelation[] => {
-    const result: DailySalesForCorrelation[] = []
-    for (let d = 1; d <= daysInMonth; d++) {
-      const rec = daily.get(d)
-      if (rec) {
-        result.push({
-          dateKey: `${d}`,
-          sales: rec.sales,
-          customers: rec.customers ?? 0,
-        })
-      }
+    if (!dailyRows) return []
+    // 日別に集約（複数店舗の場合）
+    const byDay = new Map<number, { sales: number; customers: number }>()
+    for (const row of dailyRows) {
+      const existing = byDay.get(row.day) ?? { sales: 0, customers: 0 }
+      existing.sales += row.sales
+      existing.customers += row.customers
+      byDay.set(row.day, existing)
     }
-    return result
-  }, [daily, daysInMonth])
+    return [...byDay.entries()].map(([day, v]) => ({
+      dateKey: `${day}`,
+      sales: v.sales,
+      customers: v.customers,
+    }))
+  }, [dailyRows])
 
   if (!weatherDaily || weatherDaily.length === 0) {
     return <NoData>天気データがありません</NoData>
