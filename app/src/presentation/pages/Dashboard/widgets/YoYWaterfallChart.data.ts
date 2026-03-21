@@ -2,6 +2,7 @@
  * YoYWaterfallChart の型定義・定数データ・データ変換関数
  */
 import { decompose2, decompose3, decompose5 } from '@/application/hooks/calculation'
+import { calculateShare } from '@/domain/calculations/utils'
 import { recordsToCategoryQtyAmt } from './categoryFactorUtils'
 import type { CategoryTimeSalesRecord } from '@/domain/models/record'
 
@@ -174,9 +175,19 @@ interface CategoryDataParams {
   readonly curLabel: string
 }
 
-export function buildCategoryData(p: CategoryDataParams): WaterfallItem[] {
-  if (p.periodCTS.length === 0 || p.periodPrevCTS.length === 0) return []
-  if (!p.hasComparison || p.prevSales <= 0) return []
+/** 部門別増減の構築結果 */
+export interface CategoryDataResult {
+  readonly items: readonly WaterfallItem[]
+  /** CTS合計と部門内訳の残差（0に近いほど正常） */
+  readonly residual: number
+  /** 残差率（anchorCur 基準、1%超で警告推奨） */
+  readonly residualPct: number
+}
+
+export function buildCategoryData(p: CategoryDataParams): CategoryDataResult {
+  const EMPTY: CategoryDataResult = { items: [], residual: 0, residualPct: 0 }
+  if (p.periodCTS.length === 0 || p.periodPrevCTS.length === 0) return EMPTY
+  if (!p.hasComparison || p.prevSales <= 0) return EMPTY
 
   // Aggregate by department (CTS由来)
   const curDepts = new Map<string, { name: string; amount: number }>()
@@ -256,11 +267,13 @@ export function buildCategoryData(p: CategoryDataParams): WaterfallItem[] {
     }
   }
 
-  // 浮動小数点の端数調整のみ（同一データソースなので大きな差は出ない）
+  // 残差計算（同一データソースなら 0 に近い。大きければデータ不整合）
   const residual = anchorCur - running
+  const residualPct = calculateShare(Math.abs(residual), anchorCur)
+
   if (Math.abs(residual) >= 1) {
     items.push({
-      name: '端数調整',
+      name: '調整',
       value: residual,
       base: residual >= 0 ? running : running + residual,
       bar: Math.abs(residual),
@@ -276,5 +289,5 @@ export function buildCategoryData(p: CategoryDataParams): WaterfallItem[] {
     isTotal: true,
   })
 
-  return items
+  return { items, residual, residualPct }
 }

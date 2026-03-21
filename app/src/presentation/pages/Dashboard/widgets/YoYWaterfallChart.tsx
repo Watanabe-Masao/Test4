@@ -31,6 +31,7 @@ import {
   DecompRow,
   DecompBtn,
 } from './YoYWaterfallChart.styles'
+import { formatPercent } from '@/domain/formatting'
 import type { DecompLevel, ViewMode } from './YoYWaterfallChart.data'
 import { buildFactorData, buildCategoryData } from './YoYWaterfallChart.data'
 import {
@@ -316,10 +317,14 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
 
   if (!hasComparison || prevSales <= 0) return null
 
-  const hasCategoryView = categoryData.length > 0
+  const hasCategoryView = categoryData.items.length > 0
   const hasCategoryFactorView = hasQuantity && hasCategoryView
-  const data = viewMode === 'category' && hasCategoryView ? categoryData : factorData
+  const data = viewMode === 'category' && hasCategoryView ? categoryData.items : factorData
   if (data.length === 0 && viewMode !== 'categoryFactor') return null
+
+  // データ整合性バリデーション: 残差が1%超で警告
+  const showResidualWarning =
+    viewMode === 'category' && hasCategoryView && categoryData.residualPct > 0.01
 
   return (
     <Wrapper>
@@ -417,6 +422,24 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
           prevPPI={piSummary.prevPPI}
           curPPI={piSummary.curPPI}
         />
+      )}
+
+      {showResidualWarning && (
+        <div
+          style={{
+            padding: '6px 12px',
+            marginBottom: 8,
+            fontSize: '0.6rem',
+            color: '#b45309',
+            background: 'rgba(245,158,11,0.08)',
+            borderRadius: 6,
+            border: '1px solid rgba(245,158,11,0.2)',
+          }}
+        >
+          部門合計と全体合計に差異があります（調整{' '}
+          {Math.round(categoryData.residual).toLocaleString()}円 /{' '}
+          {formatPercent(categoryData.residualPct)}）。データの信頼性を確認してください。
+        </div>
       )}
 
       {viewMode === 'categoryFactor' ? (
