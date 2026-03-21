@@ -34,7 +34,12 @@ interface Props {
   readonly month: number
   readonly prevYearDaily?: ReadonlyMap<
     string,
-    { sales: number; discount: number; customers?: number; discountEntries?: Record<string, number> }
+    {
+      sales: number
+      discount: number
+      customers?: number
+      discountEntries?: Record<string, number>
+    }
   >
   readonly budgetDaily?: ReadonlyMap<number, number>
   // SubAnalysisPanel（売変分析）用
