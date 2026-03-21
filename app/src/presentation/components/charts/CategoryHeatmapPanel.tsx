@@ -21,6 +21,7 @@ export const CategoryHeatmapPanel = memo(function CategoryHeatmapPanel({ ctx }: 
       currentDateRange={ctx.currentDateRange}
       selectedStoreIds={ctx.selectedStoreIds}
       hideDowSelector
+      embedded
     />
   )
 })
