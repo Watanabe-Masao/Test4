@@ -2,6 +2,7 @@
  * コアチャートコンポーネント
  */
 export { DailySalesChart } from './DailySalesChart'
+export { IntegratedSalesChart } from './IntegratedSalesChart'
 export { ShapleyTimeSeriesChart } from './ShapleyTimeSeriesChart'
 export { BudgetVsActualChart } from './BudgetVsActualChart'
 export { BudgetProgressCard } from './BudgetProgressCard'
