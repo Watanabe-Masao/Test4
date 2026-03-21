@@ -8,13 +8,14 @@
  * 取得元の切替ロジックはこのフック内に閉じる。
  */
 import { useMemo, useState, useEffect, useRef } from 'react'
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import type { AsyncDuckDBConnection, AsyncDuckDB } from '@duckdb/duckdb-wasm'
 import type { HourlyWeatherRecord, StoreLocation } from '@/domain/models/record'
 import {
   queryWeatherHourly,
   queryWeatherHourlyAvg,
   type HourlyWeatherAvgRow,
 } from '@/infrastructure/duckdb/queries/weatherQueries'
+import { insertWeatherHourly } from '@/infrastructure/duckdb/dataConversions'
 import { useAsyncQuery, toDateKeys, type AsyncQueryResult } from './useAsyncQuery'
 import type { DateRange } from '@/domain/models/calendar'
 import { loadEtrnHourlyForStore } from '@/application/usecases/weather/WeatherLoadService'
@@ -37,6 +38,7 @@ export function useDuckDBWeatherHourly(
   dataVersion: number,
   storeId: string,
   dateKey: string | null,
+  db?: AsyncDuckDB | null,
 ): AsyncQueryResult<readonly HourlyWeatherRecord[]> {
   const queryFn = useMemo(() => {
     if (!dateKey || !storeId) return null
@@ -69,22 +71,29 @@ export function useDuckDBWeatherHourly(
     const [y, m, d] = parts
 
     loadEtrnHourlyForStore(storeId, location, y, m, [d])
-      .then((result) => {
-        if (!cancelled && result.hourly.length > 0) {
-          fetchedKeyRef.current = fetchKey // 成功時のみ再取得を抑止
-          setEtrnCache({ key: fetchKey, data: result.hourly })
+      .then(async (result) => {
+        if (cancelled || result.hourly.length === 0) return
+        fetchedKeyRef.current = fetchKey // 成功時のみ再取得を抑止
+        setEtrnCache({ key: fetchKey, data: result.hourly })
+
+        // DuckDB に永続化（次回以降 ETRN API 不要）
+        if (conn && db) {
+          try {
+            await insertWeatherHourly(conn, db, result.hourly, storeId)
+          } catch {
+            // 永続化失敗は無視（キャッシュとして動作するだけ）
+          }
         }
       })
       .catch((err: unknown) => {
         // ETRN取得失敗は無視（天気データは必須ではない）
-        // fetchedKeyRef は未設定のまま → 次のレンダーで再試行可能
         console.warn('[useDuckDBWeatherHourly] ETRN fallback failed:', err)
       })
 
     return () => {
       cancelled = true
     }
-  }, [hasDuckData, duckDone, location, storeId, dateKey, fetchKey])
+  }, [hasDuckData, duckDone, location, storeId, dateKey, fetchKey, conn, db])
 
   // DuckDB 優先、空なら ETRN フォールバック
   if (hasDuckData) return duckResult
