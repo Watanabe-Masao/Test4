@@ -38,11 +38,18 @@ export const ViewBtn = styled.button<{ $active?: boolean }>`
 `
 
 export const Sep = styled.span`
-  opacity: 0.4;
-  padding: 3px 2px;
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
   cursor: default;
-  font-size: 0.65rem;
-  color: ${({ theme }) => theme.colors.text4};
+  &::after {
+    content: '';
+    display: block;
+    width: 1px;
+    height: 14px;
+    background: ${({ theme }) =>
+      theme.mode === 'dark' ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)'};
+  }
 `
 
 export const GroupLabel = styled.span`

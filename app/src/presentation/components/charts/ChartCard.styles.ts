@@ -45,7 +45,7 @@ export const HeaderRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: ${({ theme }) => theme.spacing[3]};
+  margin-bottom: ${({ theme }) => theme.spacing[2]};
   flex-wrap: wrap;
   gap: ${({ theme }) => theme.spacing[2]};
 `

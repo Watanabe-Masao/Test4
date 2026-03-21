@@ -107,10 +107,10 @@ const WEATHER_COLORS: Record<WeatherCategory, string> = {
   other: '#6b7280',
 }
 
-/** 天気データを day → { icon, color, temp, max, min } のマップに変換 */
+/** 天気データを day → { icon, category, temp, max, min } のマップに変換 */
 export interface DayWeatherInfo {
   readonly icon: string
-  readonly color: string
+  readonly category: WeatherCategory
   readonly temp: number
   readonly max: number
   readonly min: number
@@ -126,7 +126,7 @@ export function buildWeatherMap(
     const cat = categorizeWeatherCode(w.dominantWeatherCode)
     map.set(day, {
       icon: WEATHER_ICONS[cat],
-      color: WEATHER_COLORS[cat],
+      category: cat,
       temp: Math.round(w.temperatureAvg),
       max: Math.round(w.temperatureMax),
       min: Math.round(w.temperatureMin),
@@ -156,11 +156,11 @@ export function buildXLabels(
     }
     if (hasWeather) {
       const w = weatherMap.get(day)
-      if (w) label += `\n{${w.icon}|${w.icon}}{temp|${w.temp}°}`
+      if (w) label += `\n{${w.category}|${w.icon}}{temp|${w.temp}°}`
     }
     if (hasPrevWeather) {
       const pw = prevYearWeatherMap.get(day)
-      if (pw) label += `\n{${pw.icon}|${pw.icon}}{prevTemp|${pw.temp}°}`
+      if (pw) label += `\n{${pw.category}|${pw.icon}}{prevTemp|${pw.temp}°}`
     }
     return label
   })
@@ -169,13 +169,13 @@ export function buildXLabels(
 /** X軸 rich text スタイル定義（天気アイコン用） */
 export function buildWeatherRichStyles(): Record<string, object> {
   return {
-    '☀': { fontSize: 14, color: WEATHER_COLORS.sunny, padding: [2, 0, 0, 0] },
-    '☁': { fontSize: 14, color: WEATHER_COLORS.cloudy, padding: [2, 0, 0, 0] },
-    '☂': { fontSize: 14, color: WEATHER_COLORS.rainy, padding: [2, 0, 0, 0] },
-    '❄': { fontSize: 14, color: WEATHER_COLORS.snowy, padding: [2, 0, 0, 0] },
-    '—': { fontSize: 14, color: WEATHER_COLORS.other, padding: [2, 0, 0, 0] },
-    temp: { fontSize: 9, color: '#6b7280', padding: [2, 0, 0, 0] },
-    prevTemp: { fontSize: 9, color: '#9ca3af', padding: [2, 0, 0, 0] },
+    sunny: { fontSize: 13, color: WEATHER_COLORS.sunny },
+    cloudy: { fontSize: 13, color: WEATHER_COLORS.cloudy },
+    rainy: { fontSize: 13, color: WEATHER_COLORS.rainy },
+    snowy: { fontSize: 13, color: WEATHER_COLORS.snowy },
+    other: { fontSize: 13, color: WEATHER_COLORS.other },
+    temp: { fontSize: 9, color: '#6b7280' },
+    prevTemp: { fontSize: 9, color: '#9ca3af' },
   }
 }
 
