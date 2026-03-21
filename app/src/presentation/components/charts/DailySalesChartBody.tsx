@@ -26,6 +26,8 @@ interface Props {
   ct: ChartTheme
   needRightAxis: boolean
   wfLegendPayload: { value: string; type: 'rect'; color: string }[] | undefined
+  /** バークリックまたはドラッグ選択で日付範囲を通知 */
+  onDayRangeSelect?: (startDay: number, endDay: number) => void
 }
 
 const ALL_LABELS: Record<string, string> = {
@@ -523,11 +525,70 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
   ct,
   needRightAxis,
   wfLegendPayload,
+  onDayRangeSelect,
 }: Props) {
-  const option = useMemo(
+  const rows = data as unknown as Record<string, unknown>[]
+  const days = useMemo(() => rows.map((d) => d.day as number), [rows])
+
+  const baseOption = useMemo(
     () => buildOption(data, view, isWf, hasPrev, ct, needRightAxis, wfLegendPayload),
     [data, view, isWf, hasPrev, ct, needRightAxis, wfLegendPayload],
   )
 
-  return <EChart option={option} height={300} ariaLabel="日別売上チャート" />
+  // ブラシ設定を追加（ドラッグ選択機能が有効な場合のみ）
+  const option = useMemo(() => {
+    if (!onDayRangeSelect) return baseOption
+    return {
+      ...baseOption,
+      brush: {
+        toolbox: [],
+        xAxisIndex: 0,
+        brushStyle: {
+          borderWidth: 1,
+          color: 'rgba(59,130,246,0.15)',
+          borderColor: 'rgba(59,130,246,0.5)',
+        },
+        throttleType: 'debounce' as const,
+        throttleDelay: 100,
+      },
+    }
+  }, [baseOption, onDayRangeSelect])
+
+  // 単日クリック → 1日分の range として通知
+  const handleClick = useMemo(() => {
+    if (!onDayRangeSelect) return undefined
+    return (params: Record<string, unknown>) => {
+      const day = Number(params.name)
+      if (!isNaN(day) && day >= 1) onDayRangeSelect(day, day)
+    }
+  }, [onDayRangeSelect])
+
+  // ブラシ選択完了 → 日付範囲を通知
+  const handleBrushEnd = useMemo(() => {
+    if (!onDayRangeSelect) return undefined
+    return (params: Record<string, unknown>) => {
+      const areas = (params as { areas?: { coordRange?: number[] }[] }).areas
+      if (!areas || areas.length === 0) return
+      const range = areas[0].coordRange
+      if (!range || range.length < 2) return
+      // coordRange はカテゴリ軸のインデックス（0-based）
+      const startIdx = Math.max(0, Math.min(range[0], range[1]))
+      const endIdx = Math.min(days.length - 1, Math.max(range[0], range[1]))
+      const startDay = days[startIdx]
+      const endDay = days[endIdx]
+      if (startDay != null && endDay != null) {
+        onDayRangeSelect(startDay, endDay)
+      }
+    }
+  }, [onDayRangeSelect, days])
+
+  return (
+    <EChart
+      option={option}
+      height={300}
+      onClick={handleClick}
+      onBrushEnd={handleBrushEnd}
+      ariaLabel="日別売上チャート"
+    />
+  )
 })

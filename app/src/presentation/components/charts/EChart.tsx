@@ -30,6 +30,7 @@ import {
   ToolboxComponent,
   VisualMapComponent,
   RadarComponent,
+  BrushComponent,
 } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import type { EChartsOption } from 'echarts'
@@ -53,6 +54,7 @@ echarts.use([
   ToolboxComponent,
   VisualMapComponent,
   RadarComponent,
+  BrushComponent,
   CanvasRenderer,
 ])
 
@@ -142,6 +144,8 @@ interface EChartProps {
   readonly height?: number
   /** クリックイベント */
   readonly onClick?: (params: Record<string, unknown>) => void
+  /** ブラシ選択完了イベント */
+  readonly onBrushEnd?: (params: Record<string, unknown>) => void
   /** aria-label */
   readonly ariaLabel?: string
 }
@@ -150,6 +154,7 @@ export const EChart = memo(function EChart({
   option,
   height = 300,
   onClick,
+  onBrushEnd,
   ariaLabel,
 }: EChartProps) {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -213,6 +218,17 @@ export const EChart = memo(function EChart({
       chart.off('click', onClick)
     }
   }, [onClick])
+
+  // ブラシ選択完了イベント
+  useEffect(() => {
+    const chart = chartRef.current
+    if (!chart || !onBrushEnd) return
+
+    chart.on('brushEnd', onBrushEnd)
+    return () => {
+      chart.off('brushEnd', onBrushEnd)
+    }
+  }, [onBrushEnd])
 
   // アンマウント時に破棄
   useEffect(() => {

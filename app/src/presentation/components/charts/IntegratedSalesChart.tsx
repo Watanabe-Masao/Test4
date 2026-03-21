@@ -1,10 +1,11 @@
 /**
- * IntegratedSalesChart — 日別売上と時間帯別売上の統合ビュー
+ * IntegratedSalesChart — 日別売上 → 時間帯ドリルダウン統合ビュー
  *
- * 同一カード領域で「日別」と「時間帯」を切り替える。
- * 各チャートは独立した ChartCard を持つため、CSS でビュー切替とトランジションを実現。
+ * 日別チャートのバーをクリック or ドラッグ選択すると、
+ * 選択した日付範囲の時間帯別チャートにズームイン遷移する。
+ * 「← 日別に戻る」ボタンで日別ビューにスライドバックする。
  */
-import { useState, useCallback, memo } from 'react'
+import { useState, useCallback, useMemo, memo } from 'react'
 import styled, { keyframes } from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
@@ -12,7 +13,10 @@ import type { DailyRecord } from '@/domain/models/record'
 import { DailySalesChart } from './DailySalesChart'
 import { TimeSlotChart } from './TimeSlotChart'
 
-type MasterTab = 'daily' | 'timeslot'
+interface SelectedRange {
+  readonly start: number
+  readonly end: number
+}
 
 interface Props {
   // DailySalesChart props
@@ -33,104 +37,139 @@ interface Props {
   readonly prevYearScope?: PrevYearScope
 }
 
-const TAB_LABELS: Record<MasterTab, string> = {
-  daily: '日別',
-  timeslot: '時間帯',
-}
-
-const TABS: MasterTab[] = ['daily', 'timeslot']
-
 export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Props) {
-  const [tab, setTab] = useState<MasterTab>('daily')
-  const handleTab = useCallback((t: MasterTab) => setTab(t), [])
+  const [selectedRange, setSelectedRange] = useState<SelectedRange | null>(null)
 
-  const showTimeSlot = props.duckConn != null && props.duckDataVersion > 0
+  const canDrill = props.duckConn != null && props.duckDataVersion > 0
+
+  const handleDayRangeSelect = useCallback(
+    (startDay: number, endDay: number) => {
+      if (canDrill) setSelectedRange({ start: startDay, end: endDay })
+    },
+    [canDrill],
+  )
+
+  const handleBack = useCallback(() => setSelectedRange(null), [])
+
+  // 選択範囲の DateRange を作成
+  const rangeDateRange = useMemo<DateRange | null>(() => {
+    if (selectedRange == null) return null
+    return {
+      from: { year: props.year, month: props.month, day: selectedRange.start },
+      to: { year: props.year, month: props.month, day: selectedRange.end },
+    }
+  }, [selectedRange, props.year, props.month])
+
+  // 前年スコープも範囲に合わせる
+  const rangePrevYearScope = useMemo<PrevYearScope | undefined>(() => {
+    if (selectedRange == null || !props.prevYearScope) return undefined
+    const ps = props.prevYearScope
+    const prevYear = ps.dateRange.from.year
+    return {
+      ...ps,
+      dateRange: {
+        from: { year: prevYear, month: props.month, day: selectedRange.start },
+        to: { year: prevYear, month: props.month, day: selectedRange.end },
+      },
+    }
+  }, [selectedRange, props.month, props.prevYearScope])
+
+  const isDrilled = selectedRange != null && rangeDateRange != null
+
+  // 戻るボタンのラベル
+  const rangeLabel =
+    selectedRange != null
+      ? selectedRange.start === selectedRange.end
+        ? `${props.month}月${selectedRange.start}日`
+        : `${props.month}月${selectedRange.start}〜${selectedRange.end}日`
+      : ''
 
   return (
     <Wrapper>
-      <MasterTabBar>
-        {TABS.map((t) => {
-          if (t === 'timeslot' && !showTimeSlot) return null
-          return (
-            <MasterTabBtn key={t} $active={tab === t} onClick={() => handleTab(t)}>
-              {TAB_LABELS[t]}
-            </MasterTabBtn>
-          )
-        })}
-      </MasterTabBar>
-      <ViewContainer>
-        <ViewPane $active={tab === 'daily'} $direction="left">
-          <DailySalesChart
-            daily={props.daily}
-            daysInMonth={props.daysInMonth}
-            year={props.year}
-            month={props.month}
-            prevYearDaily={props.prevYearDaily}
-            budgetDaily={props.budgetDaily}
+      {/* 日別チャート */}
+      <ViewPane $active={!isDrilled} $direction="left">
+        <DailySalesChart
+          daily={props.daily}
+          daysInMonth={props.daysInMonth}
+          year={props.year}
+          month={props.month}
+          prevYearDaily={props.prevYearDaily}
+          budgetDaily={props.budgetDaily}
+          onDayRangeSelect={canDrill ? handleDayRangeSelect : undefined}
+        />
+        {canDrill && <DrillHint>日付をクリック or ドラッグで時間帯内訳を表示</DrillHint>}
+      </ViewPane>
+
+      {/* 時間帯チャート（ドリルダウン先） */}
+      {isDrilled && (
+        <ViewPane $active $direction="right">
+          <BackButton onClick={handleBack}>
+            <BackArrow>←</BackArrow>
+            {rangeLabel}の時間帯別 → 日別に戻る
+          </BackButton>
+          <TimeSlotChart
+            duckConn={props.duckConn}
+            duckDataVersion={props.duckDataVersion}
+            currentDateRange={rangeDateRange}
+            selectedStoreIds={props.selectedStoreIds}
+            prevYearScope={rangePrevYearScope}
           />
         </ViewPane>
-        {showTimeSlot && (
-          <ViewPane $active={tab === 'timeslot'} $direction="right">
-            <TimeSlotChart
-              duckConn={props.duckConn}
-              duckDataVersion={props.duckDataVersion}
-              currentDateRange={props.currentDateRange}
-              selectedStoreIds={props.selectedStoreIds}
-              prevYearScope={props.prevYearScope}
-            />
-          </ViewPane>
-        )}
-      </ViewContainer>
+      )}
     </Wrapper>
   )
 })
 
 // ── Styles ──
 
-const slideInFromRight = keyframes`
-  from { opacity: 0; transform: translateX(30px); }
-  to   { opacity: 1; transform: translateX(0); }
+const zoomIn = keyframes`
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 `
 
-const slideInFromLeft = keyframes`
-  from { opacity: 0; transform: translateX(-30px); }
-  to   { opacity: 1; transform: translateX(0); }
+const slideBack = keyframes`
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 `
 
 const Wrapper = styled.div`
   position: relative;
 `
 
-const MasterTabBar = styled.div`
-  display: flex;
-  gap: 0;
-  margin-bottom: ${({ theme }) => theme.spacing[2]};
-  background: ${({ theme }) =>
-    theme.mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)'};
-  border-radius: ${({ theme }) => theme.radii.md};
-  padding: 2px;
-  width: fit-content;
+const ViewPane = styled.div<{ $active: boolean; $direction: 'left' | 'right' }>`
+  display: ${({ $active }) => ($active ? 'block' : 'none')};
+  animation: ${({ $active, $direction }) =>
+    $active ? `${$direction === 'right' ? zoomIn : slideBack} 0.35s ease-out` : 'none'};
 `
 
-const MasterTabBtn = styled.button<{ $active?: boolean }>`
+const BackButton = styled.button`
   all: unset;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   font-size: 0.7rem;
-  font-weight: ${({ $active }) => ($active ? 600 : 400)};
-  padding: 4px 14px;
+  color: ${({ theme }) => theme.colors.palette.primary};
+  padding: 4px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
-  color: ${({ $active, theme }) => ($active ? theme.colors.palette.white : theme.colors.text3)};
-  background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
-  transition: all 0.2s;
-  white-space: nowrap;
+  margin-bottom: ${({ theme }) => theme.spacing[2]};
+  transition: all 0.15s;
 
   &:hover {
-    background: ${({ $active, theme }) =>
-      $active
-        ? theme.colors.palette.primary
-        : theme.mode === 'dark'
-          ? 'rgba(255,255,255,0.08)'
-          : 'rgba(0,0,0,0.06)'};
+    background: ${({ theme }) =>
+      theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
   }
   &:focus-visible {
     outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
@@ -138,14 +177,15 @@ const MasterTabBtn = styled.button<{ $active?: boolean }>`
   }
 `
 
-const ViewContainer = styled.div`
-  position: relative;
+const BackArrow = styled.span`
+  font-size: 0.85rem;
+  font-weight: 600;
 `
 
-const ViewPane = styled.div<{ $active: boolean; $direction: 'left' | 'right' }>`
-  display: ${({ $active }) => ($active ? 'block' : 'none')};
-  animation: ${({ $active, $direction }) =>
-    $active
-      ? `${$direction === 'left' ? slideInFromLeft : slideInFromRight} 0.3s ease-out`
-      : 'none'};
+const DrillHint = styled.div`
+  text-align: center;
+  font-size: 0.6rem;
+  color: ${({ theme }) => theme.colors.text4};
+  margin-top: ${({ theme }) => theme.spacing[1]};
+  opacity: 0.7;
 `
