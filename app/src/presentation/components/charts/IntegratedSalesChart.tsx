@@ -104,11 +104,6 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
       {dailyView === 'standard' && (
         <SubAnalysisPanel
           mode={rightAxisMode}
-          daily={props.daily}
-          daysInMonth={props.daysInMonth}
-          year={props.year}
-          month={props.month}
-          prevYearDaily={props.prevYearDaily}
           duckConn={props.duckConn}
           duckDataVersion={props.duckDataVersion}
           currentDateRange={isDrilled && rangeDateRange ? rangeDateRange : props.currentDateRange}

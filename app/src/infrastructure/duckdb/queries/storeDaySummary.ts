@@ -44,6 +44,7 @@ export interface StoreDaySummaryRow {
   readonly directProducePrice: number
   readonly costInclusionCost: number
   readonly customers: number
+  readonly totalQuantity: number
   readonly isPrevYear: boolean
 }
 
@@ -56,6 +57,7 @@ export interface AggregatedRatesRow {
   readonly totalDirectProduceCost: number
   readonly totalCostInclusionAmount: number
   readonly totalCustomers: number
+  readonly totalQuantity: number
 }
 
 // DailyCumulativeRow は aggregates/dailyAggregation.ts に移管。後方互換 re-export。
@@ -116,7 +118,8 @@ export async function queryAggregatedRates(
       COALESCE(SUM(flowers_cost), 0) AS total_flowers_cost,
       COALESCE(SUM(direct_produce_cost), 0) AS total_direct_produce_cost,
       COALESCE(SUM(cost_inclusion_cost), 0) AS total_cost_inclusion_cost,
-      COALESCE(SUM(customers), 0) AS total_customers
+      COALESCE(SUM(customers), 0) AS total_customers,
+      COALESCE(SUM(total_quantity), 0) AS total_quantity
     FROM store_day_summary
     ${where}`
   const rows = await queryToObjects<AggregatedRatesRow>(conn, sql)

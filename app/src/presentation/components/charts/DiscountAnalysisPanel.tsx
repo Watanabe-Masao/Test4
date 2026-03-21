@@ -3,12 +3,18 @@
  *
  * 日別の売変推移（棒グラフ）+ 売変率ラインを表示。
  * 前年比較がある場合は前年の売変も重ねる。
+ *
+ * データソース: DuckDB store_day_summary（DailyRecord Map 非依存）。
  */
 import { useMemo, memo } from 'react'
 import styled from 'styled-components'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
-import type { DailyRecord } from '@/domain/models/record'
+import {
+  useDuckDBStoreDaySummary,
+  useDuckDBAggregatedRates,
+} from '@/application/hooks/useDuckDBQuery'
+import type { DuckQueryContext } from './SubAnalysisPanel'
 import { EChart, type EChartsOption } from './EChart'
 import { standardGrid, standardTooltip } from './echartsOptionBuilders'
 import { useCurrencyFormatter, useChartTheme } from './chartTheme'
@@ -16,62 +22,89 @@ import { formatPercent, formatCurrency } from '@/domain/formatting'
 import { sc } from '@/presentation/theme/semanticColors'
 
 interface Props {
-  readonly daily: ReadonlyMap<number, DailyRecord>
-  readonly daysInMonth: number
-  readonly year: number
-  readonly month: number
-  readonly prevYearDaily?: ReadonlyMap<
-    string,
-    { sales: number; discount: number; customers?: number }
-  >
+  readonly ctx: DuckQueryContext
 }
 
-export const DiscountAnalysisPanel = memo(function DiscountAnalysisPanel({
-  daily,
-  daysInMonth,
-  year,
-  month,
-  prevYearDaily,
-}: Props) {
+export const DiscountAnalysisPanel = memo(function DiscountAnalysisPanel({ ctx }: Props) {
+  const { duckConn, duckDataVersion, currentDateRange, selectedStoreIds, prevYearScope } = ctx
   const theme = useTheme() as AppTheme
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
 
-  const { days, curDiscount, prevDiscount, curRate, totalCur, totalPrev } = useMemo(() => {
+  // 当期日別データ
+  const curDaily = useDuckDBStoreDaySummary(
+    duckConn,
+    duckDataVersion,
+    currentDateRange,
+    selectedStoreIds,
+  )
+
+  // 前年日別データ
+  const prevDateRange = prevYearScope?.dateRange
+  const prevDaily = useDuckDBStoreDaySummary(
+    duckConn,
+    duckDataVersion,
+    prevDateRange,
+    selectedStoreIds,
+    true,
+  )
+
+  // 当期集約
+  const curAgg = useDuckDBAggregatedRates(
+    duckConn,
+    duckDataVersion,
+    currentDateRange,
+    selectedStoreIds,
+  )
+  // 前年集約
+  const prevAgg = useDuckDBAggregatedRates(
+    duckConn,
+    duckDataVersion,
+    prevDateRange,
+    selectedStoreIds,
+    true,
+  )
+
+  const { days, curDiscount, prevDiscount, curRate } = useMemo(() => {
     const d: string[] = []
     const cur: number[] = []
     const prev: number[] = []
     const rate: (number | null)[] = []
-    let sumCur = 0
-    let sumPrev = 0
 
-    for (let i = 1; i <= daysInMonth; i++) {
+    // 当期: 日別サマリーから discount_amount と sales を取得
+    const curRows = curDaily.data ?? []
+    // 日→集約（複数店舗の場合を考慮）
+    const curByDay = new Map<number, { disc: number; sales: number }>()
+    for (const row of curRows) {
+      const existing = curByDay.get(row.day) ?? { disc: 0, sales: 0 }
+      existing.disc += row.discountAmount
+      existing.sales += row.sales
+      curByDay.set(row.day, existing)
+    }
+
+    // 前年: 同様
+    const prevRows = prevDaily.data ?? []
+    const prevByDay = new Map<number, number>()
+    for (const row of prevRows) {
+      prevByDay.set(row.day, (prevByDay.get(row.day) ?? 0) + row.discountAmount)
+    }
+
+    // 日数は当期データから推定
+    const maxDay = curByDay.size > 0 ? Math.max(...curByDay.keys()) : 0
+    for (let i = 1; i <= maxDay; i++) {
       d.push(`${i}`)
-      const rec = daily.get(i)
-      const disc = rec?.discountAmount ?? 0
-      const sales = rec?.sales ?? 0
-      cur.push(disc)
-      sumCur += disc
-
-      const prevKey = `${year - 1}-${String(month).padStart(2, '0')}-${String(i).padStart(2, '0')}`
-      const prevRec = prevYearDaily?.get(prevKey)
-      prev.push(prevRec?.discount ?? 0)
-      sumPrev += prevRec?.discount ?? 0
-
-      rate.push(sales > 0 ? disc / sales : null)
+      const c = curByDay.get(i)
+      cur.push(c?.disc ?? 0)
+      prev.push(prevByDay.get(i) ?? 0)
+      rate.push(c && c.sales > 0 ? c.disc / c.sales : null)
     }
 
-    return {
-      days: d,
-      curDiscount: cur,
-      prevDiscount: prev,
-      curRate: rate,
-      totalCur: sumCur,
-      totalPrev: sumPrev,
-    }
-  }, [daily, daysInMonth, year, month, prevYearDaily])
+    return { days: d, curDiscount: cur, prevDiscount: prev, curRate: rate }
+  }, [curDaily.data, prevDaily.data])
 
-  const hasPrev = prevYearDaily != null && prevYearDaily.size > 0
+  const hasPrev = (prevDaily.data?.length ?? 0) > 0
+  const totalCur = curAgg.data?.totalDiscountAbsolute ?? 0
+  const totalPrev = prevAgg.data?.totalDiscountAbsolute ?? 0
 
   const option = useMemo((): EChartsOption => {
     const series: EChartsOption['series'] = [

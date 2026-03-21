@@ -3,15 +3,16 @@
  *
  * 日別売上差の要因内訳をウォーターフォールで表示。
  * 分解レベル切替（2/3/5要素）、サマリー行、PI値表示、計算式ヘルプ。
- * 既存 YoYWaterfallChart のサブコンポーネント群を再利用。
+ *
+ * データソース: 全て DuckDB（store_day_summary + category_time_sales）。
+ * DailyRecord Map への依存なし — データ整合性を DuckDB 側で保証。
  */
 import { useState, useMemo, memo } from 'react'
 import styled from 'styled-components'
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
-import type { DailyRecord } from '@/domain/models/record'
 import type { CategoryTimeSalesRecord } from '@/domain/models/record'
+import type { DuckQueryContext } from './SubAnalysisPanel'
 import { useDuckDBCategoryTimeRecords } from '@/application/hooks/duckdb/useCtsHierarchyQueries'
+import { useDuckDBAggregatedRates } from '@/application/hooks/useDuckDBQuery'
 import {
   calculateItemsPerCustomer,
   calculateAveragePricePerItem,
@@ -33,17 +34,7 @@ import {
 const EMPTY_CTS: readonly CategoryTimeSalesRecord[] = []
 
 interface Props {
-  readonly daily: ReadonlyMap<number, DailyRecord>
-  readonly daysInMonth: number
-  readonly prevYearDaily?: ReadonlyMap<
-    string,
-    { sales: number; discount: number; customers?: number }
-  >
-  readonly duckConn: AsyncDuckDBConnection | null
-  readonly duckDataVersion: number
-  readonly currentDateRange: DateRange
-  readonly selectedStoreIds: ReadonlySet<string>
-  readonly prevYearScope?: PrevYearScope
+  readonly ctx: DuckQueryContext
 }
 
 const DECOMP_LABELS: Record<DecompLevel, string> = {
@@ -52,46 +43,35 @@ const DECOMP_LABELS: Record<DecompLevel, string> = {
   5: '5要素',
 }
 
-export const FactorDecompositionPanel = memo(function FactorDecompositionPanel({
-  daily,
-  daysInMonth,
-  prevYearDaily,
-  duckConn,
-  duckDataVersion,
-  currentDateRange,
-  selectedStoreIds,
-  prevYearScope,
-}: Props) {
+export const FactorDecompositionPanel = memo(function FactorDecompositionPanel({ ctx }: Props) {
+  const { duckConn, duckDataVersion, currentDateRange, selectedStoreIds, prevYearScope } = ctx
   const [selectedLevel, setSelectedLevel] = useState<DecompLevel | null>(null)
   const [showHelp, setShowHelp] = useState(false)
 
-  // 当月の集計
-  const { curSales, curCust } = useMemo(() => {
-    let sales = 0
-    let cust = 0
-    for (let d = 1; d <= daysInMonth; d++) {
-      const rec = daily.get(d)
-      if (rec) {
-        sales += rec.sales
-        cust += rec.customers ?? 0
-      }
-    }
-    return { curSales: sales, curCust: cust }
-  }, [daily, daysInMonth])
+  // 当期集約（store_day_summary から売上・客数・点数を一括取得）
+  const curAgg = useDuckDBAggregatedRates(
+    duckConn,
+    duckDataVersion,
+    currentDateRange,
+    selectedStoreIds,
+  )
+  const curSales = curAgg.data?.totalSales ?? 0
+  const curCust = curAgg.data?.totalCustomers ?? 0
+  const curTotalQty = curAgg.data?.totalQuantity ?? 0
 
-  // 前年の集計
-  const { prevSales, prevCust, hasComparison } = useMemo(() => {
-    if (!prevYearDaily || prevYearDaily.size === 0) {
-      return { prevSales: 0, prevCust: 0, hasComparison: false }
-    }
-    let sales = 0
-    let cust = 0
-    for (const [, rec] of prevYearDaily) {
-      sales += rec.sales
-      cust += rec.customers ?? 0
-    }
-    return { prevSales: sales, prevCust: cust, hasComparison: sales > 0 }
-  }, [prevYearDaily])
+  // 前年集約
+  const prevDateRange = prevYearScope?.dateRange
+  const prevAgg = useDuckDBAggregatedRates(
+    duckConn,
+    duckDataVersion,
+    prevDateRange,
+    selectedStoreIds,
+    true,
+  )
+  const prevSales = prevAgg.data?.totalSales ?? 0
+  const prevCust = prevAgg.data?.totalCustomers ?? 0
+  const prevTotalQty = prevAgg.data?.totalQuantity ?? 0
+  const hasComparison = prevSales > 0
 
   // CTS データ（5要素分解用）
   const curCTS = useDuckDBCategoryTimeRecords(
@@ -100,7 +80,6 @@ export const FactorDecompositionPanel = memo(function FactorDecompositionPanel({
     currentDateRange,
     selectedStoreIds,
   )
-  const prevDateRange = prevYearScope?.dateRange
   const prevCTS = useDuckDBCategoryTimeRecords(
     duckConn,
     duckDataVersion,
@@ -111,15 +90,6 @@ export const FactorDecompositionPanel = memo(function FactorDecompositionPanel({
 
   const periodCTS = useMemo(() => curCTS.data ?? EMPTY_CTS, [curCTS.data])
   const periodPrevCTS = useMemo(() => prevCTS.data ?? EMPTY_CTS, [prevCTS.data])
-
-  // CTS から数量を集計
-  const { curTotalQty, prevTotalQty } = useMemo(() => {
-    let curQ = 0
-    let prevQ = 0
-    for (const r of periodCTS) curQ += r.totalQuantity ?? 0
-    for (const r of periodPrevCTS) prevQ += r.totalQuantity ?? 0
-    return { curTotalQty: curQ, prevTotalQty: prevQ }
-  }, [periodCTS, periodPrevCTS])
 
   // 分解レベル判定
   const priceMix = useMemo(() => {
@@ -180,10 +150,8 @@ export const FactorDecompositionPanel = memo(function FactorDecompositionPanel({
 
   return (
     <PanelRoot>
-      {/* サマリー行 */}
       <SalesSummaryRow prevLabel="前年" curLabel="当期" prevSales={prevSales} curSales={curSales} />
 
-      {/* PI 値（3要素以上で点数データがある場合） */}
       {hasQuantity && (
         <PISummaryRow
           prevLabel="前年"
@@ -195,7 +163,6 @@ export const FactorDecompositionPanel = memo(function FactorDecompositionPanel({
         />
       )}
 
-      {/* 分解レベル切替 */}
       {availableLevels.length > 1 && (
         <DecompRow>
           {availableLevels.map((lv) => (
@@ -206,10 +173,8 @@ export const FactorDecompositionPanel = memo(function FactorDecompositionPanel({
         </DecompRow>
       )}
 
-      {/* ウォーターフォール */}
       <WaterfallBarChart data={waterfallData} />
 
-      {/* 計算式ヘルプ */}
       <DecompHelpSection
         showHelp={showHelp}
         onToggle={() => setShowHelp((p) => !p)}

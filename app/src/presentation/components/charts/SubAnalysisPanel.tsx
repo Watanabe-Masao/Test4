@@ -2,34 +2,33 @@
  * SubAnalysisPanel — 右軸モード連動サブ分析パネル
  *
  * 日別売上チャートの右軸選択に応じて、適切な分析パネルを動的にレンダリングする。
- * 標準ビュー + ドリルダウンなし時のみ表示。
+ * 全パネルは DuckDB をデータソースとし、DailyRecord Map には依存しない。
+ *
+ * DuckQueryContext: DuckDB 接続 + フィルタ条件の共通型。
+ * 全パネルがこの型を props として受け取ることでバケツリレーを解消。
  */
 import { memo } from 'react'
 import styled, { keyframes } from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
-import type { DailyRecord, DailyWeatherSummary } from '@/domain/models/record'
+import type { DailyWeatherSummary } from '@/domain/models/record'
 import type { RightAxisMode } from './DailySalesChartBodyLogic'
 import { FactorDecompositionPanel } from './FactorDecompositionPanel'
 import { DiscountAnalysisPanel } from './DiscountAnalysisPanel'
 import { WeatherAnalysisPanel } from './WeatherAnalysisPanel'
 import { CategoryHeatmapPanel } from './CategoryHeatmapPanel'
 
-export interface SubAnalysisPanelProps {
-  readonly mode: RightAxisMode
-  readonly daily: ReadonlyMap<number, DailyRecord>
-  readonly daysInMonth: number
-  readonly year: number
-  readonly month: number
-  readonly prevYearDaily?: ReadonlyMap<
-    string,
-    { sales: number; discount: number; customers?: number }
-  >
+/** DuckDB クエリに必要な共通コンテキスト */
+export interface DuckQueryContext {
   readonly duckConn: AsyncDuckDBConnection | null
   readonly duckDataVersion: number
   readonly currentDateRange: DateRange
   readonly selectedStoreIds: ReadonlySet<string>
   readonly prevYearScope?: PrevYearScope
+}
+
+export interface SubAnalysisPanelProps extends DuckQueryContext {
+  readonly mode: RightAxisMode
   readonly weatherDaily?: readonly DailyWeatherSummary[]
 }
 
@@ -50,48 +49,23 @@ export const SubAnalysisPanel = memo(function SubAnalysisPanel(props: SubAnalysi
 })
 
 function renderPanel(props: SubAnalysisPanelProps) {
+  const ctx: DuckQueryContext = {
+    duckConn: props.duckConn,
+    duckDataVersion: props.duckDataVersion,
+    currentDateRange: props.currentDateRange,
+    selectedStoreIds: props.selectedStoreIds,
+    prevYearScope: props.prevYearScope,
+  }
+
   switch (props.mode) {
     case 'customers':
-      return (
-        <FactorDecompositionPanel
-          daily={props.daily}
-          daysInMonth={props.daysInMonth}
-          prevYearDaily={props.prevYearDaily}
-          duckConn={props.duckConn}
-          duckDataVersion={props.duckDataVersion}
-          currentDateRange={props.currentDateRange}
-          selectedStoreIds={props.selectedStoreIds}
-          prevYearScope={props.prevYearScope}
-        />
-      )
+      return <FactorDecompositionPanel ctx={ctx} />
     case 'discount':
-      return (
-        <DiscountAnalysisPanel
-          daily={props.daily}
-          daysInMonth={props.daysInMonth}
-          year={props.year}
-          month={props.month}
-          prevYearDaily={props.prevYearDaily}
-        />
-      )
+      return <DiscountAnalysisPanel ctx={ctx} />
     case 'temperature':
-      return (
-        <WeatherAnalysisPanel
-          daily={props.daily}
-          daysInMonth={props.daysInMonth}
-          weatherDaily={props.weatherDaily}
-        />
-      )
+      return <WeatherAnalysisPanel ctx={ctx} weatherDaily={props.weatherDaily} />
     case 'quantity':
-      return (
-        <CategoryHeatmapPanel
-          duckConn={props.duckConn}
-          duckDataVersion={props.duckDataVersion}
-          currentDateRange={props.currentDateRange}
-          selectedStoreIds={props.selectedStoreIds}
-          prevYearScope={props.prevYearScope}
-        />
-      )
+      return <CategoryHeatmapPanel ctx={ctx} />
   }
 }
 

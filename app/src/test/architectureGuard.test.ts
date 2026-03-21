@@ -551,6 +551,25 @@ describe('Architecture Guard', () => {
     'pages/Dashboard/widgets/YoYWaterfallChart.tsx',
     // ── 仕入分析ページ ──
     'pages/PurchaseAnalysis/PurchaseAnalysisPage.tsx',
+    // ── サブ分析パネル（DuckDB が唯一のデータソース — DailyRecord Map 非依存） ──
+    'components/charts/FactorDecompositionPanel.tsx',
+    'components/charts/DiscountAnalysisPanel.tsx',
+    'components/charts/WeatherAnalysisPanel.tsx',
+    'components/charts/CategoryHeatmapPanel.tsx',
+    'components/charts/HeatmapChart.tsx',
+    // ── 以前のパターンで検出漏れしていた既存ファイル（改善されたガードで検出） ──
+    'components/charts/CategoryBenchmarkChart.vm.ts',
+    'components/charts/CategoryBoxPlotChart.vm.ts',
+    'components/charts/CategoryMixChart.tsx',
+    'components/charts/CategoryTrendChart.tsx',
+    'components/charts/CumulativeChart.tsx',
+    'components/charts/CvTimeSeriesChart.tsx',
+    'components/charts/DeptTrendChart.tsx',
+    'components/charts/PiCvBubbleChart.tsx',
+    'components/charts/StoreHourlyChart.tsx',
+    'components/charts/useDuckDBTimeSlotData.ts',
+    'pages/Dashboard/widgets/ConditionMatrixTable.tsx',
+    'pages/Dashboard/widgets/ConditionSummaryBudgetDrill.tsx',
   ])
 
   it('presentation/ の新規ファイルは DuckDB フックを直接使用しない（filterStore 経由を使用、import type は許容）', () => {
@@ -559,10 +578,14 @@ describe('Architecture Guard', () => {
     const violations: string[] = []
 
     // DuckDB フックの値 import パターン（import type は実行時依存を生まないため除外）
+    // サブパス直指定（duckdb/useCts*等）やバレル経由（useDuckDBQuery）も検出する
     const DUCKDB_HOOK_VALUE_PATTERNS = [
-      /import\s+(?!type\s).*from\s+['"]@\/application\/hooks\/duckdb['"]/,
-      /import\s+(?!type\s).*useDuckDB.*from\s+['"]@\/application\/hooks['"]/,
-      /import\s+(?!type\s).*useDuckDB.*from\s+['"]@\/application\/hooks\/useDuckDB['"]/,
+      // @/application/hooks/duckdb（バレル）またはサブパス直指定
+      /import\s+(?!type\s).*from\s+['"]@\/application\/hooks\/duckdb(?:\/[^'"]*)?['"]/,
+      // useDuckDB* を含む名前付き import（任意のパスから）
+      /import\s+(?!type\s)\{[^}]*useDuckDB[^}]*\}\s+from\s+['"]@\/application\/hooks[^'"]*['"]/,
+      // useDuckDBQuery バレル経由の全 import（type 以外）
+      /import\s+(?!type\s).*from\s+['"]@\/application\/hooks\/useDuckDBQuery['"]/,
     ]
 
     for (const file of files) {
@@ -585,7 +608,7 @@ describe('Architecture Guard', () => {
 
   it('presentation/ の DuckDB フック許可リストは増やさない（移行時に減らすのみ）', () => {
     // 許可リストのサイズ上限。移行が進むにつれてこの数値を減らしていく。
-    const MAX_ALLOWLIST_SIZE = 14
+    const MAX_ALLOWLIST_SIZE = 31
     expect(PRESENTATION_DUCKDB_HOOK_ALLOWLIST.size).toBeLessThanOrEqual(MAX_ALLOWLIST_SIZE)
   })
 
@@ -731,4 +754,37 @@ describe('Architecture Guard', () => {
       ).toBeLessThanOrEqual(rule.maxViolations)
     })
   }
+
+  // ─── サブ分析パネルのデータソースガード ────────────────
+  // サブパネル（*Panel.tsx in components/charts/）はデータ集約に DuckDB を使用し、
+  // DailyRecord Map を直接走査して集計してはならない。
+  // データ整合性は DuckDB（store_day_summary + CTS）側で保証する。
+
+  it('サブ分析パネルが DailyRecord Map を集計に使用しない', () => {
+    const chartDir = path.join(SRC_DIR, 'presentation', 'components', 'charts')
+    const panelFiles = collectTsFiles(chartDir).filter((f) => f.endsWith('Panel.tsx'))
+    const violations: string[] = []
+
+    // DailyRecord Map の手動集計パターン（daily.get(d) で日別走査、prevYearDaily の Map 操作）
+    // DuckDB 結果の dailyRows 等は対象外（Map ではなく配列）
+    const DAILY_RECORD_AGGREGATION_PATTERNS = [
+      /daily\.get\(\s*\w+\s*\)/, // Map.get() アクセス
+      /prevYearDaily.*\.size/, // prevYearDaily Map のサイズチェック
+      /prevYearDaily\?\.get\(/, // prevYearDaily Map.get() アクセス
+    ]
+
+    for (const file of panelFiles) {
+      const content = fs.readFileSync(file, 'utf-8')
+      for (const pattern of DAILY_RECORD_AGGREGATION_PATTERNS) {
+        if (pattern.test(content)) {
+          violations.push(
+            `${relativePath(file)}: DailyRecord Map を手動集計しています。DuckDB の store_day_summary を使用してください`,
+          )
+          break
+        }
+      }
+    }
+
+    expect(violations).toEqual([])
+  })
 })

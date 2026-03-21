@@ -25,6 +25,7 @@ export {
   // StoreDaySummary
   useDuckDBDailyCumulative,
   useDuckDBAggregatedRates,
+  useDuckDBStoreDaySummary,
   // YoY
   useDuckDBYoyDaily,
   useDuckDBYoyCategory,
