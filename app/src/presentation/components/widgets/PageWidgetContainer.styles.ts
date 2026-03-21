@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 export const Toolbar = styled.div`
   display: flex;
@@ -31,20 +31,19 @@ export const FullChartRow = styled.div`
 export const DragItem = styled.div<{ $isDragging?: boolean; $isOver?: boolean }>`
   position: relative;
   opacity: ${({ $isDragging }) => ($isDragging ? 0.4 : 1)};
-  ${({ $isOver, theme }) =>
-    $isOver
-      ? `
-    &::before {
-      content: '';
-      position: absolute;
-      inset: -3px;
-      border: 2px dashed ${theme.colors.palette.primary};
-      border-radius: ${theme.radii.lg};
-      pointer-events: none;
-      z-index: 1;
-    }
-  `
-      : ''}
+  ${({ $isOver }) =>
+    $isOver &&
+    css`
+      &::before {
+        content: '';
+        position: absolute;
+        inset: -3px;
+        border: 2px dashed ${({ theme }) => theme.colors.palette.primary};
+        border-radius: ${({ theme }) => theme.radii.lg};
+        pointer-events: none;
+        z-index: 1;
+      }
+    `}
   cursor: grab;
   &:active {
     cursor: grabbing;

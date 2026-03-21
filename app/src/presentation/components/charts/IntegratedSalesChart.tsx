@@ -6,7 +6,7 @@
  * 「← 日別に戻る」ボタンで日別ビューにスライドバックする。
  */
 import { useState, useCallback, memo } from 'react'
-import styled, { keyframes } from 'styled-components'
+import styled, { keyframes, css } from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import type { DailyRecord } from '@/domain/models/record'
@@ -136,8 +136,14 @@ const Wrapper = styled.div`
 
 const ViewPane = styled.div<{ $active: boolean; $direction: 'left' | 'right' }>`
   display: ${({ $active }) => ($active ? 'block' : 'none')};
-  animation: ${({ $active, $direction }) =>
-    $active ? `${$direction === 'right' ? zoomIn : slideBack} 0.35s ease-out` : 'none'};
+  ${({ $active, $direction }) =>
+    $active
+      ? css`
+          animation: ${$direction === 'right' ? zoomIn : slideBack} 0.35s ease-out;
+        `
+      : css`
+          animation: none;
+        `}
 `
 
 const BackButton = styled.button`
