@@ -11,7 +11,7 @@ import { memo } from 'react'
 import styled, { keyframes } from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
-import type { DailyWeatherSummary } from '@/domain/models/record'
+import type { DailyRecord, DailyWeatherSummary, DiscountEntry } from '@/domain/models/record'
 import type { RightAxisMode } from './DailySalesChartBodyLogic'
 import { ChartCard } from './ChartCard'
 import { FactorDecompositionPanel } from './FactorDecompositionPanel'
@@ -31,6 +31,17 @@ export interface DuckQueryContext {
 export interface SubAnalysisPanelProps extends DuckQueryContext {
   readonly mode: RightAxisMode
   readonly weatherDaily?: readonly DailyWeatherSummary[]
+  // 売変パネル用（DiscountTrendChart が DailyRecord を使用 — 将来 DuckDB 化で廃止予定）
+  readonly daily?: ReadonlyMap<number, DailyRecord>
+  readonly daysInMonth?: number
+  readonly year?: number
+  readonly month?: number
+  readonly discountEntries?: readonly DiscountEntry[]
+  readonly totalGrossSales?: number
+  readonly prevYearDaily?: ReadonlyMap<
+    string,
+    { sales: number; discount: number; discountEntries?: Record<string, number> }
+  >
 }
 
 const PANEL_CONFIG: Record<RightAxisMode, { title: string; subtitle: string }> = {
@@ -77,7 +88,18 @@ function renderPanel(props: SubAnalysisPanelProps) {
     case 'customers':
       return <FactorDecompositionPanel ctx={ctx} />
     case 'discount':
-      return <DiscountAnalysisPanel ctx={ctx} />
+      return (
+        <DiscountAnalysisPanel
+          ctx={ctx}
+          daily={props.daily ?? new Map()}
+          daysInMonth={props.daysInMonth ?? 31}
+          year={props.year ?? new Date().getFullYear()}
+          month={props.month ?? new Date().getMonth() + 1}
+          discountEntries={props.discountEntries}
+          totalGrossSales={props.totalGrossSales}
+          prevYearDaily={props.prevYearDaily}
+        />
+      )
     case 'temperature':
       return <WeatherAnalysisPanel ctx={ctx} weatherDaily={props.weatherDaily} />
     case 'quantity':

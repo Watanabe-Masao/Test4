@@ -33,6 +33,8 @@ interface Props {
     string,
     { sales: number; discount: number; discountEntries?: Record<string, number> }
   >
+  /** サブパネル埋め込み時に ChartCard ラッパーを省略する */
+  embedded?: boolean
 }
 
 function buildDiscountData(
@@ -87,6 +89,7 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
   year,
   month,
   prevYearDaily,
+  embedded,
 }: Props) {
   const theme = useTheme() as AppTheme
   const { format: fmtCurrency } = useCurrencyFormat()
@@ -250,8 +253,8 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
     </div>
   )
 
-  return (
-    <ChartCard title={titleText} toolbar={toolbar}>
+  const content = (
+    <>
       {kpiEntries.length > 0 && (
         <KpiGrid>
           {DISCOUNT_TYPES.map((dt, i) => {
@@ -288,6 +291,14 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
         onP2Change={onP2Change}
         p2Enabled={p2Enabled}
       />
+    </>
+  )
+
+  if (embedded) return content
+
+  return (
+    <ChartCard title={titleText} toolbar={toolbar}>
+      {content}
     </ChartCard>
   )
 })

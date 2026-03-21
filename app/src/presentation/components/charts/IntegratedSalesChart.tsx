@@ -110,6 +110,11 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
           selectedStoreIds={props.selectedStoreIds}
           prevYearScope={isDrilled && rangePrevYearScope ? rangePrevYearScope : props.prevYearScope}
           weatherDaily={props.weatherDaily}
+          daily={props.daily}
+          daysInMonth={props.daysInMonth}
+          year={props.year}
+          month={props.month}
+          prevYearDaily={props.prevYearDaily}
         />
       )}
 
