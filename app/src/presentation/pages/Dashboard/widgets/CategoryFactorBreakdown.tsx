@@ -9,6 +9,7 @@ import { useState, useMemo, useCallback, Fragment, memo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { EChart, type EChartsOption } from '@/presentation/components/charts/EChart'
+import type { BarSeriesOption, LineSeriesOption } from 'echarts'
 import {
   standardGrid,
   standardTooltip,
@@ -486,7 +487,7 @@ export const CategoryFactorBreakdown = memo(function CategoryFactorBreakdown({
   )
 })
 
-/** Inner EChart component for horizontal factor bar chart */
+/** トルネードチャート: プラス要因を右、マイナス要因を左にスタック表示 */
 const CategoryFactorEChart = memo(function CategoryFactorEChart({
   waterfallItems,
   activeLevel,
@@ -516,149 +517,132 @@ const CategoryFactorEChart = memo(function CategoryFactorEChart({
     const names = waterfallItems.map((d) => d.name)
     const barSize = compact ? 20 : 26
 
-    // ウォーターフォール横棒: 透明ベース + 色付きバー をスタックして描画
-    // barGap: '-100%' で全要因を同一行に重ねて1本のバーとして表示する
-    type WfSeries = {
-      name: string
-      type: 'bar'
-      data: (number | { value: number; itemStyle: { color: string } })[]
-      stack: string
-      itemStyle: { color: string; opacity?: number; borderRadius?: number[] }
-      barWidth: number
-      barGap: string
-      emphasis?: { disabled: boolean }
-    }
-    const seriesList: WfSeries[] = []
-
-    /** 透明ベース + 色付きバーのペアを追加する（同一行に重ねて描画） */
-    const addWaterfallPair = (
-      name: string,
-      color: string,
-      getRangeStart: (d: WaterfallFactorItem) => number,
-      getRangeEnd: (d: WaterfallFactorItem) => number,
-    ) => {
-      // 透明ベース: min(start,end) まで透明バーで持ち上げる
-      seriesList.push({
-        name: '',
-        type: 'bar' as const,
-        data: waterfallItems.map((d) => Math.min(getRangeStart(d), getRangeEnd(d))),
-        stack: name,
-        itemStyle: { color: 'transparent' },
-        barWidth: barSize,
-        barGap: '-100%',
-        emphasis: { disabled: true },
-      })
-      // 色付きバー: |end - start| の実効値
-      seriesList.push({
-        name,
-        type: 'bar' as const,
-        data: waterfallItems.map((d) => Math.abs(getRangeEnd(d) - getRangeStart(d))),
-        stack: name,
-        itemStyle: { color, opacity: 0.9, borderRadius: [2, 2, 2, 2] },
-        barWidth: barSize,
-        barGap: '-100%',
-      })
-    }
-
-    if (hasCust) {
-      addWaterfallPair(
-        '客数効果',
-        FACTOR_COLORS.cust,
-        (d) => d.custRange[0],
-        (d) => d.custRange[1],
-      )
-    }
-
-    if (activeLevel === 2) {
-      addWaterfallPair(
-        '客単価効果',
-        FACTOR_COLORS.ticket,
-        (d) => d.ticketRange[0],
-        (d) => d.ticketRange[1],
-      )
-    }
-
-    if (activeLevel >= 3) {
-      addWaterfallPair(
-        '点数効果',
-        FACTOR_COLORS.qty,
-        (d) => d.qtyRange[0],
-        (d) => d.qtyRange[1],
-      )
-    }
-
-    if (activeLevel === 3) {
-      addWaterfallPair(
-        '単価効果',
-        FACTOR_COLORS.price,
-        (d) => d.priceRange[0],
-        (d) => d.priceRange[1],
-      )
-    }
-
-    if (activeLevel === 5) {
-      addWaterfallPair(
-        '価格効果',
-        FACTOR_COLORS.price,
-        (d) => d.pricePureRange[0],
-        (d) => d.pricePureRange[1],
-      )
-      addWaterfallPair(
-        '構成比変化効果',
-        FACTOR_COLORS.mix,
-        (d) => d.mixRange[0],
-        (d) => d.mixRange[1],
-      )
-    }
-
-    // 要因ごとの名前と色を収集（ツールチップ用）
-    type FactorEntry = {
+    // 要因定義: 名前・色・値取得関数
+    type FactorDef = {
       name: string
       color: string
       getValue: (d: WaterfallFactorItem) => number
     }
-    const factorEntries: FactorEntry[] = []
+    const factors: FactorDef[] = []
     if (hasCust)
-      factorEntries.push({
-        name: '客数効果',
-        color: FACTOR_COLORS.cust,
-        getValue: (d) => d.custEffect,
-      })
+      factors.push({ name: '客数効果', color: FACTOR_COLORS.cust, getValue: (d) => d.custEffect })
     if (activeLevel === 2)
-      factorEntries.push({
+      factors.push({
         name: '客単価効果',
         color: FACTOR_COLORS.ticket,
         getValue: (d) => d.ticketEffect,
       })
     if (activeLevel >= 3)
-      factorEntries.push({
-        name: '点数効果',
-        color: FACTOR_COLORS.qty,
-        getValue: (d) => d.qtyEffect,
-      })
+      factors.push({ name: '点数効果', color: FACTOR_COLORS.qty, getValue: (d) => d.qtyEffect })
     if (activeLevel === 3)
-      factorEntries.push({
-        name: '単価効果',
-        color: FACTOR_COLORS.price,
-        getValue: (d) => d.priceEffect,
-      })
+      factors.push({ name: '単価効果', color: FACTOR_COLORS.price, getValue: (d) => d.priceEffect })
     if (activeLevel === 5) {
-      factorEntries.push({
+      factors.push({
         name: '価格効果',
         color: FACTOR_COLORS.price,
         getValue: (d) => d.pricePureEffect,
       })
-      factorEntries.push({
+      factors.push({
         name: '構成比変化効果',
         color: FACTOR_COLORS.mix,
         getValue: (d) => d.mixEffect,
       })
     }
 
+    // トルネード: プラス要因は右スタック、マイナス要因は左スタック（負値として）
+    const seriesList: BarSeriesOption[] = []
+
+    for (const f of factors) {
+      // プラス側（右）
+      seriesList.push({
+        name: f.name,
+        type: 'bar',
+        stack: 'positive',
+        data: waterfallItems.map((d) => {
+          const v = f.getValue(d)
+          return v > 0 ? v : 0
+        }),
+        itemStyle: { color: f.color, opacity: 0.9, borderRadius: [2, 2, 2, 2] },
+        barWidth: barSize,
+      })
+      // マイナス側（左）— 負値のままスタック
+      seriesList.push({
+        name: f.name,
+        type: 'bar',
+        stack: 'negative',
+        data: waterfallItems.map((d) => {
+          const v = f.getValue(d)
+          return v < 0 ? v : 0
+        }),
+        itemStyle: { color: f.color, opacity: 0.9, borderRadius: [2, 2, 2, 2] },
+        barWidth: barSize,
+      })
+    }
+
+    // プラス要因合計・マイナス要因合計の折れ線
+    const positiveTotals = waterfallItems.map((d) =>
+      factors.reduce((sum, f) => {
+        const v = f.getValue(d)
+        return v > 0 ? sum + v : sum
+      }, 0),
+    )
+    const negativeTotals = waterfallItems.map((d) =>
+      factors.reduce((sum, f) => {
+        const v = f.getValue(d)
+        return v < 0 ? sum + v : sum
+      }, 0),
+    )
+
+    const fmtLineLabel = (v: unknown, positive: boolean): string => {
+      const n = typeof v === 'number' ? v : 0
+      if (positive) return n > 0 ? fmt(n) : ''
+      return n < 0 ? fmt(n) : ''
+    }
+
+    const lineSeriesList: LineSeriesOption[] = [
+      {
+        name: 'プラス合計',
+        type: 'line',
+        data: positiveTotals,
+        symbol: 'circle',
+        symbolSize: 6,
+        lineStyle: { color: '#ef4444', width: 2 },
+        itemStyle: { color: '#ef4444' },
+        label: {
+          show: true,
+          position: 'right',
+          formatter: (p) => fmtLineLabel(p.value, true),
+          fontSize: 9,
+          color: '#ef4444',
+          fontFamily: theme.typography.fontFamily.mono,
+        },
+        z: 10,
+      },
+      {
+        name: 'マイナス合計',
+        type: 'line',
+        data: negativeTotals,
+        symbol: 'circle',
+        symbolSize: 6,
+        lineStyle: { color: '#3b82f6', width: 2 },
+        itemStyle: { color: '#3b82f6' },
+        label: {
+          show: true,
+          position: 'left',
+          formatter: (p) => fmtLineLabel(p.value, false),
+          fontSize: 9,
+          color: '#3b82f6',
+          fontFamily: theme.typography.fontFamily.mono,
+        },
+        z: 10,
+      },
+    ]
+
     return {
       grid: {
         ...standardGrid(),
         left: compact ? 60 : 80,
+        right: compact ? 50 : 60,
         top: 10,
         bottom: 10,
       },
@@ -679,15 +663,24 @@ const CategoryFactorEChart = memo(function CategoryFactorEChart({
           html += `<strong>増減: ${item.totalChange >= 0 ? '+' : ''}${fmtCurrency(item.totalChange)}</strong><br/>`
           html +=
             '<hr style="margin:4px 0;border:none;border-top:1px solid rgba(128,128,128,0.3)"/>'
-          for (const fe of factorEntries) {
+
+          let posSum = 0
+          let negSum = 0
+          for (const fe of factors) {
             const v = fe.getValue(item)
             if (v === 0) continue
+            if (v > 0) posSum += v
+            else negSum += v
             const sign = v >= 0 ? '+' : ''
             html += `<span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${fe.color};margin-right:4px"></span>`
             html += `${fe.name}: ${sign}${fmtCurrency(v)}<br/>`
           }
+          html +=
+            '<hr style="margin:4px 0;border:none;border-top:1px solid rgba(128,128,128,0.3)"/>'
+          html += `<span style="color:#ef4444">▶ プラス合計: +${fmtCurrency(posSum)}</span><br/>`
+          html += `<span style="color:#3b82f6">◀ マイナス合計: ${fmtCurrency(negSum)}</span>`
           if (item.hasChildren)
-            html += '<br/><em style="opacity:0.6;font-size:11px">クリックでドリルダウン</em>'
+            html += '<br/><br/><em style="opacity:0.6;font-size:11px">クリックでドリルダウン</em>'
           return html
         },
       },
@@ -720,7 +713,8 @@ const CategoryFactorEChart = memo(function CategoryFactorEChart({
       },
       series: [
         ...seriesList,
-        // 0 基準線（ダイバージングの中心軸）
+        ...lineSeriesList,
+        // 0 基準線（トルネードの中心軸）
         {
           type: 'bar' as const,
           data: [] as number[],
@@ -746,7 +740,7 @@ const CategoryFactorEChart = memo(function CategoryFactorEChart({
       option={option}
       height={chartH}
       onClick={onClick}
-      ariaLabel="カテゴリ別要因分解チャート"
+      ariaLabel="カテゴリ別要因分解トルネードチャート"
     />
   )
 })

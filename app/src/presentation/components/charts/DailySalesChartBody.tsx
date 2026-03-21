@@ -1,14 +1,4 @@
-/**
- * DailySalesChart 描画コンポーネント
- *
- * ECharts による日別チャート描画のみを担う。
- * データ変換・状態管理は親コンポーネントと useDailySalesData が担当。
- *
- * ビュー構成:
- * - standard: 売上棒+前年棒+売変線
- * - cumulative: 実績・前年・予算の累計Area
- * - difference: 前年差累計ウォーターフォール
- */
+/** DailySalesChart 描画コンポーネント — ECharts による日別チャート描画のみを担う */
 import { memo, useMemo } from 'react'
 import type { EChartsOption } from 'echarts'
 import { EChart } from './EChart'
@@ -19,6 +9,7 @@ import type { DailyWeatherSummary } from '@/domain/models/record'
 import {
   buildWeatherMap,
   buildXLabels,
+  buildWeatherRichStyles,
   buildRightAxisSeries,
   rightAxisFormatter as getRightAxisFormatter,
   ALL_LABELS,
@@ -46,6 +37,8 @@ interface Props {
   onDayRangeSelect?: (startDay: number, endDay: number) => void
   /** 天気データ（X軸に天気アイコン+気温を表示） */
   weatherDaily?: readonly DailyWeatherSummary[]
+  /** 前年天気データ（X軸に前年天気+気温線を表示） */
+  prevYearWeatherDaily?: readonly DailyWeatherSummary[]
   /** 当月の年（曜日算出用） */
   year?: number
   /** 当月の月（曜日算出用） */
@@ -64,6 +57,7 @@ function buildOption(
   needRightAxis: boolean,
   wfLegendPayload: Props['wfLegendPayload'],
   weatherMap?: ReadonlyMap<number, DayWeatherInfo>,
+  prevYearWeatherMap?: ReadonlyMap<number, DayWeatherInfo>,
   year?: number,
   month?: number,
   rightAxisMode: RightAxisMode = 'quantity',
@@ -71,7 +65,8 @@ function buildOption(
   const rows = data as unknown as Record<string, unknown>[]
   const days = rows.map((d) => d.day as string | number)
   const hasWeather = weatherMap != null && weatherMap.size > 0
-  const xLabels = buildXLabels(days, weatherMap ?? new Map(), year, month)
+  const hasPrevWeather = prevYearWeatherMap != null && prevYearWeatherMap.size > 0
+  const xLabels = buildXLabels(days, weatherMap ?? new Map(), prevYearWeatherMap, year, month)
 
   // ── 共通軸 ──
   const xAxis: EChartsOption['xAxis'] = {
@@ -79,10 +74,11 @@ function buildOption(
     data: xLabels,
     axisLabel: {
       color: ct.textMuted,
-      fontSize: hasWeather ? 9 : ct.fontSize.xs,
+      fontSize: hasWeather ? 10 : ct.fontSize.xs,
       fontFamily: ct.monoFamily,
       interval: 0,
-      lineHeight: hasWeather ? 14 : undefined,
+      lineHeight: hasWeather ? 16 : undefined,
+      ...(hasWeather ? { rich: buildWeatherRichStyles() } : {}),
     },
     axisLine: { lineStyle: { color: ct.grid } },
     axisTick: { show: false },
@@ -209,10 +205,8 @@ function buildOption(
         formatter: (name: string) => ALL_LABELS[name] ?? name,
       }
 
-  // ── シリーズ構築 ──
   const series: EChartsOption['series'] = []
-
-  // ─── Standard: 売上+前年売上=棒、右軸=切替可能（点数/客数/売変/気温） ───
+  // ─── Standard ───
   if (view === 'standard') {
     series.push({
       name: 'sales',
@@ -253,13 +247,13 @@ function buildOption(
         hasPrev,
         rightColors,
         weatherMap ?? new Map(),
+        prevYearWeatherMap,
       ),
     )
   }
 
-  // ─── Cumulative: 実績・前年・予算の累計Area + 帯グラフ + 売変累計（右軸） ───
+  // ─── Cumulative ───
   if (view === 'cumulative') {
-    // 帯グラフ: 予算と実績の間を塗りつぶし（達成=青帯、未達=赤帯）
     const budgetVals = pluck(rows, 'budgetCum')
     const currentVals = pluck(rows, 'currentCum')
     // 上側（max）と下側（min）で band を構成
@@ -478,7 +472,7 @@ function buildOption(
       top: 4,
       right: 12,
       left: 0,
-      bottom: hasWeather ? 50 : 30,
+      bottom: hasPrevWeather ? 72 : hasWeather ? 56 : 30,
     },
     tooltip,
     legend,
@@ -498,6 +492,7 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
   wfLegendPayload,
   onDayRangeSelect,
   weatherDaily,
+  prevYearWeatherDaily,
   year,
   month,
   rightAxisMode = 'quantity',
@@ -506,8 +501,12 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
   const days = useMemo(() => rows.map((d) => d.day as number), [rows])
 
   const weatherMap = useMemo(() => buildWeatherMap(weatherDaily), [weatherDaily])
+  const prevWeatherMap = useMemo(
+    () => buildWeatherMap(prevYearWeatherDaily),
+    [prevYearWeatherDaily],
+  )
   const hasWeather = weatherMap.size > 0
-
+  const hasPrevWeather = prevWeatherMap.size > 0
   const baseOption = useMemo(
     () =>
       buildOption(
@@ -519,6 +518,7 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
         needRightAxis,
         wfLegendPayload,
         weatherMap,
+        prevWeatherMap,
         year,
         month,
         rightAxisMode,
@@ -532,6 +532,7 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
       needRightAxis,
       wfLegendPayload,
       weatherMap,
+      prevWeatherMap,
       year,
       month,
       rightAxisMode,
@@ -589,7 +590,7 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
   return (
     <EChart
       option={option}
-      height={hasWeather ? 360 : 300}
+      height={hasPrevWeather ? 400 : hasWeather ? 360 : 300}
       onClick={handleClick}
       onBrushEnd={handleBrushEnd}
       ariaLabel="日別売上チャート"

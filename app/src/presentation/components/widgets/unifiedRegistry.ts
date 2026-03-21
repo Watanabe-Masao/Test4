@@ -96,6 +96,7 @@ function toDashboardContext(ctx: UnifiedWidgetContext): DashboardWidgetContext {
     fmtCurrency: ctx.fmtCurrency,
     observationStatus: ctx.result.observationPeriod.status,
     weatherDaily: ctx.weatherDaily,
+    prevYearWeatherDaily: ctx.prevYearWeatherDaily,
   }
 }
 

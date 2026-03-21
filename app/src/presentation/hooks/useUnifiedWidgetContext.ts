@@ -121,6 +121,18 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
   }, [selectedStoreIds, stores, storeLocations])
   const { daily: weatherDaily } = useWeatherData(targetYear, targetMonth, weatherStoreId)
 
+  // 前年天気データ（比較期間の年月から取得）
+  const prevYearMonth = useMemo(() => {
+    const dr = comparison.prevYearDateRange
+    if (!dr) return { year: targetYear - 1, month: targetMonth }
+    return { year: dr.from.year, month: dr.from.month }
+  }, [comparison.prevYearDateRange, targetYear, targetMonth])
+  const { daily: prevYearWeatherDaily } = useWeatherData(
+    prevYearMonth.year,
+    prevYearMonth.month,
+    weatherStoreId,
+  )
+
   // Store name map for category comparison
   const storeNames = useMemo(() => {
     const map = new Map<string, string>()
@@ -201,6 +213,7 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
 
     // 天気データ
     weatherDaily,
+    prevYearWeatherDaily,
   }
 
   return {
