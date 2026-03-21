@@ -13,10 +13,10 @@ import { memo, useMemo } from 'react'
 import type { EChartsOption } from 'echarts'
 import { EChart } from './EChart'
 import { standardGrid, lineDefaults } from './builders'
-import { type ChartTheme, toAxisYen, toComma } from './chartTheme'
+import { type ChartTheme, toAxisYen, toComma, toPct } from './chartTheme'
 import type { DailySalesDataResult } from './useDailySalesData'
 
-export type ViewType = 'standard' | 'cumulative' | 'difference'
+export type ViewType = 'standard' | 'cumulative' | 'difference' | 'rate'
 
 interface Props {
   data: DailySalesDataResult['data']
@@ -42,10 +42,16 @@ const ALL_LABELS: Record<string, string> = {
   wfYoyUp: '差分+',
   wfYoyDown: '差分-',
   discountDiffCum: '売変差累計',
+  budgetRate: '予算達成率',
+  prevYearRate: '前年比',
+  rateBand: '達成率帯',
 }
 
 /** 隠しシリーズ名（ツールチップから除外） */
-const HIDDEN_NAMES = new Set(['wfYoyBase'])
+const HIDDEN_NAMES = new Set(['wfYoyBase', 'bandUpper', 'bandLower'])
+
+/** パーセント表示するシリーズ名 */
+const PERCENT_SERIES = new Set(['budgetRate', 'prevYearRate'])
 
 /** ECharts 用 linearGradient ヘルパー */
 function grad(color: string, o1: number, o2: number): object {
@@ -119,24 +125,42 @@ function buildOption(
     },
   }
 
-  const yAxes: EChartsOption['yAxis'] = needRightAxis
-    ? [
-        yAxisLeft,
-        {
-          type: 'value' as const,
-          position: 'right' as const,
-          axisLabel: {
-            formatter: (v: number) => toAxisYen(v),
-            color: ct.textMuted,
-            fontSize: ct.fontSize.xs,
-            fontFamily: ct.monoFamily,
-          },
-          axisLine: { show: false },
-          axisTick: { show: false },
-          splitLine: { show: false },
-        },
-      ]
-    : yAxisLeft
+  const yAxisPercent = {
+    type: 'value' as const,
+    axisLabel: {
+      formatter: (v: number) => `${v.toFixed(1)}%`,
+      color: ct.textMuted,
+      fontSize: ct.fontSize.xs,
+      fontFamily: ct.monoFamily,
+    },
+    axisLine: { show: false },
+    axisTick: { show: false },
+    splitLine: {
+      lineStyle: { color: ct.grid, opacity: 0.3, type: 'dashed' as const },
+    },
+  }
+
+  const yAxes: EChartsOption['yAxis'] =
+    view === 'rate'
+      ? yAxisPercent
+      : needRightAxis
+        ? [
+            yAxisLeft,
+            {
+              type: 'value' as const,
+              position: 'right' as const,
+              axisLabel: {
+                formatter: (v: number) => toAxisYen(v),
+                color: ct.textMuted,
+                fontSize: ct.fontSize.xs,
+                fontFamily: ct.monoFamily,
+              },
+              axisLine: { show: false },
+              axisTick: { show: false },
+              splitLine: { show: false },
+            },
+          ]
+        : yAxisLeft
 
   // ── ツールチップ ──
   const tooltip: EChartsOption['tooltip'] = {
@@ -162,7 +186,12 @@ function buildOption(
         .filter((item) => !HIDDEN_NAMES.has(item.seriesName))
         .map((item) => {
           const label = ALL_LABELS[item.seriesName] ?? item.seriesName
-          const val = item.value == null ? '-' : toComma(item.value)
+          const val =
+            item.value == null
+              ? '-'
+              : PERCENT_SERIES.has(item.seriesName)
+                ? toPct(item.value / 100)
+                : toComma(item.value)
           return (
             `<div style="display:flex;justify-content:space-between;gap:12px">` +
             `${item.marker}<span>${label}</span>` +
@@ -254,8 +283,71 @@ function buildOption(
     })
   }
 
-  // ─── Cumulative: 実績・前年・予算の累計Area + 売変累計（右軸） ───
+  // ─── Cumulative: 実績・前年・予算の累計Area + 帯グラフ + 売変累計（右軸） ───
   if (view === 'cumulative') {
+    // 帯グラフ: 予算と実績の間を塗りつぶし（達成=青帯、未達=赤帯）
+    const budgetVals = pluck(rows, 'budgetCum')
+    const currentVals = pluck(rows, 'currentCum')
+    // 上側（max）と下側（min）で band を構成
+    const bandUpper = budgetVals.map((b, i) => {
+      const c = currentVals[i]
+      if (b == null || c == null) return null
+      return Math.max(b, c)
+    })
+    const bandLower = budgetVals.map((b, i) => {
+      const c = currentVals[i]
+      if (b == null || c == null) return null
+      return Math.min(b, c)
+    })
+    // 帯の色: 実績 >= 予算 なら success、実績 < 予算 なら danger
+    const bandColors = budgetVals.map((b, i) => {
+      const c = currentVals[i]
+      if (b == null || c == null) return ct.colors.success
+      return c >= b ? ct.colors.success : ct.colors.danger
+    })
+    // 帯の下半分（透明エリアで底上げ）
+    series.push({
+      name: 'bandLower',
+      type: 'line' as const,
+      data: bandLower,
+      lineStyle: { width: 0 },
+      itemStyle: { color: 'transparent' },
+      areaStyle: { color: 'transparent' },
+      symbol: 'none',
+      stack: 'band',
+      silent: true,
+    })
+    // 帯の上半分（下半分からの差分を塗りつぶし）
+    series.push({
+      name: 'bandUpper',
+      type: 'line' as const,
+      data: bandUpper.map((u, i) => {
+        const l = bandLower[i]
+        if (u == null || l == null) return null
+        return u - l
+      }),
+      lineStyle: { width: 0 },
+      itemStyle: {
+        color: bandColors[bandColors.length - 1] ?? ct.colors.success,
+      },
+      areaStyle: {
+        color: {
+          type: 'linear' as const,
+          x: 0,
+          y: 0,
+          x2: 1,
+          y2: 0,
+          colorStops: bandColors.flatMap((c, i) => [
+            { offset: Math.max(0, i / bandColors.length), color: withAlpha(c, 0.15) },
+            { offset: Math.min(1, (i + 1) / bandColors.length), color: withAlpha(c, 0.15) },
+          ]),
+        },
+      },
+      symbol: 'none',
+      stack: 'band',
+      silent: true,
+    })
+
     if (hasPrev) {
       series.push({
         name: 'prevYearCum',
@@ -271,7 +363,7 @@ function buildOption(
     series.push({
       name: 'budgetCum',
       type: 'line' as const,
-      data: pluck(rows, 'budgetCum'),
+      data: budgetVals,
       lineStyle: { color: ct.colors.success, width: 2, type: 'dashed' as const },
       itemStyle: { color: ct.colors.success },
       areaStyle: { color: grad(ct.colors.success, 0.15, 0.02) },
@@ -281,7 +373,7 @@ function buildOption(
     series.push({
       name: 'currentCum',
       type: 'line' as const,
-      data: pluck(rows, 'currentCum'),
+      data: currentVals,
       lineStyle: { color: ct.colors.primary, width: 2.5 },
       itemStyle: { color: ct.colors.primary },
       areaStyle: { color: grad(ct.colors.primary, 0.3, 0.02) },
@@ -304,6 +396,54 @@ function buildOption(
         data: pluck(rows, 'prevYearDiscountCum'),
         ...lineDefaults({ color: ct.colors.orange, dashed: true, width: 1.5 }),
         connectNulls: true,
+      })
+    }
+  }
+
+  // ─── Rate: 予算達成率・前年比の推移（%表示） ───
+  if (view === 'rate') {
+    const budgetVals = pluck(rows, 'budgetCum')
+    const currentVals = pluck(rows, 'currentCum')
+    const prevVals = pluck(rows, 'prevYearCum')
+
+    // 予算達成率 = currentCum / budgetCum * 100
+    const budgetRateData = currentVals.map((c, i) => {
+      const b = budgetVals[i]
+      if (c == null || b == null || b === 0) return null
+      return Math.round((c / b) * 10000) / 100
+    })
+    series.push({
+      name: 'budgetRate',
+      type: 'line' as const,
+      data: budgetRateData,
+      lineStyle: { color: ct.colors.success, width: 2.5 },
+      itemStyle: { color: ct.colors.success },
+      symbol: 'none',
+      smooth: true,
+      markLine: {
+        silent: true,
+        symbol: 'none',
+        lineStyle: { color: ct.colors.success, opacity: 0.4, type: 'dashed' as const },
+        data: [{ yAxis: 100 }],
+        label: { formatter: '100%', fontSize: ct.fontSize.xs },
+      },
+    })
+
+    // 前年比 = currentCum / prevYearCum * 100
+    if (hasPrev) {
+      const prevRateData = currentVals.map((c, i) => {
+        const p = prevVals[i]
+        if (c == null || p == null || p === 0) return null
+        return Math.round((c / p) * 10000) / 100
+      })
+      series.push({
+        name: 'prevYearRate',
+        type: 'line' as const,
+        data: prevRateData,
+        lineStyle: { color: ct.colors.slate, width: 2, type: 'dashed' as const },
+        itemStyle: { color: ct.colors.slate },
+        symbol: 'none',
+        smooth: true,
       })
     }
   }

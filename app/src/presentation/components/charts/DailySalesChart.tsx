@@ -35,6 +35,7 @@ const VIEW_LABELS: Record<ViewType, string> = {
   standard: '標準',
   cumulative: '累計',
   difference: '差分',
+  rate: '達成率',
 }
 
 const VIEW_TITLES: Record<ViewType, Record<DiffTarget, string>> = {
@@ -44,6 +45,7 @@ const VIEW_TITLES: Record<ViewType, Record<DiffTarget, string>> = {
     budget: '累計推移（実績・前年・予算・売変）',
   },
   difference: { yoy: '前年差ウォーターフォール', budget: '予算差ウォーターフォール' },
+  rate: { yoy: '予算達成率・前年比推移', budget: '予算達成率・前年比推移' },
 }
 
 const DIFF_LABELS: Record<DiffTarget, string> = {
@@ -53,7 +55,7 @@ const DIFF_LABELS: Record<DiffTarget, string> = {
 
 const DIFF_TARGETS: DiffTarget[] = ['yoy', 'budget']
 
-const VIEWS: ViewType[] = ['standard', 'cumulative', 'difference']
+const VIEWS: ViewType[] = ['standard', 'cumulative', 'difference', 'rate']
 
 export const DailySalesChart = memo(function DailySalesChart({
   daily,
@@ -93,8 +95,8 @@ export const DailySalesChart = memo(function DailySalesChart({
     diffTarget,
   )
 
-  // All modes use right axis: standard (売変), cumulative (売変累計), difference (売変差累計)
-  const needRightAxis = true
+  // Rate mode uses single % axis; all other modes use dual axes
+  const needRightAxis = view !== 'rate'
 
   const wfLegendPayload = isWf
     ? [
