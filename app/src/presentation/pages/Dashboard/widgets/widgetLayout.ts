@@ -70,8 +70,6 @@ const WIDGET_ID_MIGRATION: ReadonlyMap<string, string> = new Map([
   ['analysis-condition-summary', 'widget-budget-achievement'],
   // PLAN/ACTUAL/FORECAST → exec-forecast-tools に統合
   ['exec-plan-actual-forecast', 'exec-forecast-tools'],
-  // 前年比較ウォーターフォール → analysis-yoy-variance に統合
-  ['analysis-yoy-waterfall', 'analysis-yoy-variance'],
   // カテゴリ偏り → chart-category-hierarchy-explorer に統合
   ['chart-category-pie', 'chart-category-hierarchy-explorer'],
   // 部門別KPIトレンド → exec-department-kpi に統合
@@ -194,6 +192,9 @@ export function autoInjectDataWidgets(
       return true
     }
     // 従来ウィジェットの既存ロジック
+    if (w.id === 'analysis-yoy-waterfall') {
+      return ctx.prevYearHasPrevYear
+    }
     // 店別予算達成: 複数店舗時のみ自動注入
     if (w.id === 'widget-budget-achievement') {
       return ctx.storeCount > 1

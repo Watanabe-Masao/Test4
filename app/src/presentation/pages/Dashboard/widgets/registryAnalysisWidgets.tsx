@@ -12,6 +12,7 @@ import {
 } from '@/presentation/components/charts'
 import type { WidgetDef } from './types'
 import { WaterfallChartWidget } from './WaterfallChart'
+import { YoYWaterfallChartWidget } from './YoYWaterfallChart'
 import { GrossProfitHeatmapWidget } from './GrossProfitHeatmap'
 import { UnifiedYoYWidget } from './UnifiedAnalyticsWidgets'
 import { isYoYVisible } from './widgetVisibility'
@@ -26,7 +27,15 @@ export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
     linkTo: { view: 'insight', tab: 'decomposition' },
     render: (ctx) => <WaterfallChartWidget key={ctx.storeKey} ctx={ctx} />,
   },
-  // 注: 前年比較ウォーターフォール → analysis-yoy-variance に統合
+  {
+    id: 'analysis-yoy-waterfall',
+    label: '前年比較ウォーターフォール',
+    group: '要因分析',
+    size: 'full',
+    linkTo: { view: 'insight', tab: 'decomposition' },
+    isVisible: (ctx) => ctx.prevYear.hasPrevYear && ctx.prevYear.totalSales > 0,
+    render: (ctx) => <YoYWaterfallChartWidget key={ctx.storeKey} ctx={ctx} />,
+  },
   {
     id: 'analysis-gp-heatmap',
     label: '粗利率ヒートマップ',
