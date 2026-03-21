@@ -3,6 +3,8 @@
  *
  * グラフと見方を合わせ、横軸に時間帯、縦軸に当年/前年/差分/前年比を表示。
  * gridLeft / gridRight でチャートのプロットエリアと列位置を揃える。
+ *
+ * 天気情報はグラフ直下に TimeSlotWeatherTable として独立配置。
  */
 import { useState, useMemo, memo } from 'react'
 import { toPct, useCurrencyFormat } from './chartTheme'
@@ -36,8 +38,6 @@ interface Props {
   readonly curLabel: string
   readonly compLabel: string
   readonly hasPrev: boolean
-  readonly curWeather?: readonly WeatherHourlyAvg[]
-  readonly prevWeather?: readonly WeatherHourlyAvg[]
   readonly gridLeft?: number
   readonly gridRight?: number
 }
@@ -75,8 +75,6 @@ export const TimeSlotComparisonTable = memo(function TimeSlotComparisonTable({
   curLabel,
   compLabel,
   hasPrev,
-  curWeather,
-  prevWeather,
   gridLeft = 55,
   gridRight = 45,
 }: Props) {
@@ -85,10 +83,6 @@ export const TimeSlotComparisonTable = memo(function TimeSlotComparisonTable({
   const cf = useCurrencyFormat()
 
   const cols = useMemo(() => buildCols(chartData, metric, hasPrev), [chartData, metric, hasPrev])
-  const curW = useMemo(() => weatherByHour(curWeather), [curWeather])
-  const prevW = useMemo(() => weatherByHour(prevWeather), [prevWeather])
-  const hasWeather = curW.size > 0
-  const hasPrevWeather = hasWeather && hasPrev && prevW.size > 0
 
   const fmtVal = isAmount
     ? (v: number) => cf.formatWithUnit(v)
@@ -97,22 +91,6 @@ export const TimeSlotComparisonTable = memo(function TimeSlotComparisonTable({
   const fmtDiff = isAmount
     ? (v: number) => `${v >= 0 ? '+' : ''}${cf.formatWithUnit(v)}`
     : (v: number) => `${v >= 0 ? '+' : ''}${v.toLocaleString()}点`
-
-  /** 天気コードからアイコンを取得 */
-  const weatherIcon = (w: WeatherHourlyAvg | undefined): string => {
-    if (!w?.weatherCode) return ''
-    const cat = categorizeWeatherCode(w.weatherCode)
-    return WEATHER_ICONS[cat] ?? ''
-  }
-
-  const hasWeatherCodes = useMemo(
-    () => curWeather?.some((w) => w.weatherCode != null) ?? false,
-    [curWeather],
-  )
-  const hasPrevWeatherCodes = useMemo(
-    () => prevWeather?.some((w) => w.weatherCode != null) ?? false,
-    [prevWeather],
-  )
 
   return (
     <>
@@ -146,21 +124,6 @@ export const TimeSlotComparisonTable = memo(function TimeSlotComparisonTable({
             </tr>
           </thead>
           <tbody>
-            {/* 天気アイコン（当年） */}
-            {hasWeatherCodes && (
-              <tr>
-                <MiniTd style={{ fontWeight: 600, textAlign: 'left' }}>天気</MiniTd>
-                {cols.map((c) => {
-                  const w = curW.get(parseInt(c.hour, 10) || 0)
-                  return (
-                    <MiniTd key={c.hour} style={{ textAlign: 'center', fontSize: '0.8rem' }}>
-                      {weatherIcon(w)}
-                    </MiniTd>
-                  )
-                })}
-                <MiniTd></MiniTd>
-              </tr>
-            )}
             {/* 当年 */}
             <tr>
               <MiniTd style={{ fontWeight: 600, textAlign: 'left' }}>{curLabel}</MiniTd>
@@ -169,21 +132,6 @@ export const TimeSlotComparisonTable = memo(function TimeSlotComparisonTable({
               ))}
               <MiniTd></MiniTd>
             </tr>
-            {/* 前年天気アイコン */}
-            {hasPrevWeather && hasPrevWeatherCodes && (
-              <tr>
-                <MiniTd style={{ fontWeight: 600, textAlign: 'left' }}>{compLabel}天気</MiniTd>
-                {cols.map((c) => {
-                  const w = prevW.get(parseInt(c.hour, 10) || 0)
-                  return (
-                    <MiniTd key={c.hour} style={{ textAlign: 'center', fontSize: '0.8rem' }}>
-                      {weatherIcon(w)}
-                    </MiniTd>
-                  )
-                })}
-                <MiniTd></MiniTd>
-              </tr>
-            )}
             {/* 前年 */}
             {hasPrev && (
               <tr>
@@ -218,50 +166,165 @@ export const TimeSlotComparisonTable = memo(function TimeSlotComparisonTable({
                 <MiniTd></MiniTd>
               </tr>
             )}
-            {/* 気温 */}
-            {hasWeather && (
-              <tr>
-                <MiniTd style={{ fontWeight: 600, textAlign: 'left' }}>気温</MiniTd>
-                {cols.map((c) => {
-                  const w = curW.get(parseInt(c.hour, 10) || 0)
-                  return <MiniTd key={c.hour}>{w ? `${w.avgTemperature.toFixed(1)}°` : '-'}</MiniTd>
-                })}
-                <MiniTd></MiniTd>
-              </tr>
-            )}
-            {/* 降水量 */}
-            {hasWeather && (
-              <tr>
-                <MiniTd style={{ fontWeight: 600, textAlign: 'left' }}>降水</MiniTd>
-                {cols.map((c) => {
-                  const w = curW.get(parseInt(c.hour, 10) || 0)
-                  return (
-                    <MiniTd key={c.hour}>
-                      {w
-                        ? w.totalPrecipitation > 0
-                          ? `${w.totalPrecipitation.toFixed(1)}mm`
-                          : '-'
-                        : '-'}
-                    </MiniTd>
-                  )
-                })}
-                <MiniTd></MiniTd>
-              </tr>
-            )}
-            {/* 前年気温 */}
-            {hasPrevWeather && (
-              <tr>
-                <MiniTd style={{ fontWeight: 600, textAlign: 'left' }}>{compLabel}気温</MiniTd>
-                {cols.map((c) => {
-                  const w = prevW.get(parseInt(c.hour, 10) || 0)
-                  return <MiniTd key={c.hour}>{w ? `${w.avgTemperature.toFixed(1)}°` : '-'}</MiniTd>
-                })}
-                <MiniTd></MiniTd>
-              </tr>
-            )}
           </tbody>
         </MiniTable>
       </div>
     </>
+  )
+})
+
+// ── 天気テーブル（グラフ直下に独立配置） ──
+
+interface WeatherTableProps {
+  readonly hours: readonly string[]
+  readonly curLabel?: string
+  readonly compLabel: string
+  readonly hasPrev: boolean
+  readonly curWeather?: readonly WeatherHourlyAvg[]
+  readonly prevWeather?: readonly WeatherHourlyAvg[]
+  readonly gridLeft?: number
+  readonly gridRight?: number
+}
+
+export const TimeSlotWeatherTable = memo(function TimeSlotWeatherTable({
+  hours,
+  compLabel,
+  hasPrev,
+  curWeather,
+  prevWeather,
+  gridLeft = 55,
+  gridRight = 45,
+}: WeatherTableProps) {
+  const curW = useMemo(() => weatherByHour(curWeather), [curWeather])
+  const prevW = useMemo(() => weatherByHour(prevWeather), [prevWeather])
+  const hasWeather = curW.size > 0
+  const hasPrevWeather = hasWeather && hasPrev && prevW.size > 0
+
+  const hasWeatherCodes = useMemo(
+    () => curWeather?.some((w) => w.weatherCode != null) ?? false,
+    [curWeather],
+  )
+  const hasPrevWeatherCodes = useMemo(
+    () => prevWeather?.some((w) => w.weatherCode != null) ?? false,
+    [prevWeather],
+  )
+
+  const weatherIcon = (w: WeatherHourlyAvg | undefined): string => {
+    if (!w?.weatherCode) return ''
+    const cat = categorizeWeatherCode(w.weatherCode)
+    return WEATHER_ICONS[cat] ?? ''
+  }
+
+  if (!hasWeather) return null
+
+  return (
+    <div style={{ overflowX: 'auto', marginTop: 8 }}>
+      <MiniTable style={{ tableLayout: 'fixed', width: '100%' }}>
+        <colgroup>
+          <col style={{ width: gridLeft }} />
+          {hours.map((h) => (
+            <col key={h} />
+          ))}
+          <col style={{ width: gridRight }} />
+        </colgroup>
+        <thead>
+          <tr>
+            <MiniTh style={{ textAlign: 'left' }}></MiniTh>
+            {hours.map((h) => (
+              <MiniTh key={h}>{h}時</MiniTh>
+            ))}
+            <MiniTh></MiniTh>
+          </tr>
+        </thead>
+        <tbody>
+          {/* 天気アイコン（当年） */}
+          {hasWeatherCodes && (
+            <tr>
+              <MiniTd style={{ fontWeight: 600, textAlign: 'left' }}>天気</MiniTd>
+              {hours.map((h) => {
+                const w = curW.get(parseInt(h, 10) || 0)
+                return (
+                  <MiniTd key={h} style={{ textAlign: 'center', fontSize: '0.8rem' }}>
+                    {weatherIcon(w)}
+                  </MiniTd>
+                )
+              })}
+              <MiniTd></MiniTd>
+            </tr>
+          )}
+          {/* 前年天気アイコン */}
+          {hasPrevWeather && hasPrevWeatherCodes && (
+            <tr>
+              <MiniTd style={{ fontWeight: 600, textAlign: 'left' }}>{compLabel}天気</MiniTd>
+              {hours.map((h) => {
+                const w = prevW.get(parseInt(h, 10) || 0)
+                return (
+                  <MiniTd key={h} style={{ textAlign: 'center', fontSize: '0.8rem' }}>
+                    {weatherIcon(w)}
+                  </MiniTd>
+                )
+              })}
+              <MiniTd></MiniTd>
+            </tr>
+          )}
+          {/* 気温 */}
+          <tr>
+            <MiniTd style={{ fontWeight: 600, textAlign: 'left' }}>気温</MiniTd>
+            {hours.map((h) => {
+              const w = curW.get(parseInt(h, 10) || 0)
+              return <MiniTd key={h}>{w ? `${w.avgTemperature.toFixed(1)}°` : '-'}</MiniTd>
+            })}
+            <MiniTd></MiniTd>
+          </tr>
+          {/* 前年気温 */}
+          {hasPrevWeather && (
+            <tr>
+              <MiniTd style={{ fontWeight: 600, textAlign: 'left' }}>{compLabel}気温</MiniTd>
+              {hours.map((h) => {
+                const w = prevW.get(parseInt(h, 10) || 0)
+                return <MiniTd key={h}>{w ? `${w.avgTemperature.toFixed(1)}°` : '-'}</MiniTd>
+              })}
+              <MiniTd></MiniTd>
+            </tr>
+          )}
+          {/* 降水量 */}
+          <tr>
+            <MiniTd style={{ fontWeight: 600, textAlign: 'left' }}>降水量</MiniTd>
+            {hours.map((h) => {
+              const w = curW.get(parseInt(h, 10) || 0)
+              return (
+                <MiniTd key={h}>
+                  {w
+                    ? w.totalPrecipitation > 0
+                      ? `${w.totalPrecipitation.toFixed(1)}mm`
+                      : '-'
+                    : '-'}
+                </MiniTd>
+              )
+            })}
+            <MiniTd></MiniTd>
+          </tr>
+          {/* 前年降水量 */}
+          {hasPrevWeather && (
+            <tr>
+              <MiniTd style={{ fontWeight: 600, textAlign: 'left' }}>{compLabel}降水量</MiniTd>
+              {hours.map((h) => {
+                const w = prevW.get(parseInt(h, 10) || 0)
+                return (
+                  <MiniTd key={h}>
+                    {w
+                      ? w.totalPrecipitation > 0
+                        ? `${w.totalPrecipitation.toFixed(1)}mm`
+                        : '-'
+                      : '-'}
+                  </MiniTd>
+                )
+              })}
+              <MiniTd></MiniTd>
+            </tr>
+          )}
+        </tbody>
+      </MiniTable>
+    </div>
   )
 })
