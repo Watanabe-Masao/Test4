@@ -222,10 +222,11 @@ export const WaterfallBarChart = memo(function WaterfallBarChart({ data }: Water
               itemStyle: { color, opacity: 0.85 },
             }
           }),
-          barWidth: '60%',
+          barMaxWidth: 40,
           label: {
-            show: true,
+            show: data.length <= 8,
             position: 'top' as const,
+            distance: 4,
             formatter: (params: unknown) => {
               const p = params as { dataIndex: number }
               const item = data[p.dataIndex]

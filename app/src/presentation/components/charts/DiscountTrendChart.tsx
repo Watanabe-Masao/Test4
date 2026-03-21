@@ -51,6 +51,13 @@ function buildDiscountData(
     cumGrossSales = 0,
     prevCumDiscount = 0,
     prevCumGrossSales = 0
+  // 種別ごとの累計（個別モード用）
+  const typeCum: Record<string, number> = {}
+  const prevTypeCum: Record<string, number> = {}
+  for (const dt of DISCOUNT_TYPES) {
+    typeCum[dt.type] = 0
+    prevTypeCum[dt.type] = 0
+  }
   const result: Record<string, number | boolean | null>[] = []
   for (let d = 1; d <= daysInMonth; d++) {
     const rec = daily.get(d)
@@ -71,9 +78,18 @@ function buildDiscountData(
       hasSales: rec ? rec.sales > 0 : false,
     }
     for (const dt of DISCOUNT_TYPES) {
-      entry[`d${dt.type}`] = rec?.discountEntries?.find((e) => e.type === dt.type)?.amount ?? 0
+      const curAmt = rec?.discountEntries?.find((e) => e.type === dt.type)?.amount ?? 0
+      entry[`d${dt.type}`] = curAmt
+      typeCum[dt.type] += curAmt
+      // 種別累計売変率 = 種別累計 / 総売上累計
+      entry[`cumRate${dt.type}`] =
+        cumGrossSales > 0 ? calculateShare(typeCum[dt.type], cumGrossSales) : null
       if (prevYearDaily && prevEntry?.discountEntries) {
-        entry[`prevD${dt.type}`] = prevEntry.discountEntries[dt.type] ?? 0
+        const prevAmt = prevEntry.discountEntries[dt.type] ?? 0
+        entry[`prevD${dt.type}`] = prevAmt
+        prevTypeCum[dt.type] += prevAmt
+        entry[`prevCumRate${dt.type}`] =
+          prevCumGrossSales > 0 ? calculateShare(prevTypeCum[dt.type], prevCumGrossSales) : null
       }
     }
     result.push(entry)
@@ -164,20 +180,26 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
       })
     }
 
+    // 累計売変率ライン（stacked: 全体 / individual: 選択種別）
+    const cumRateKey = viewMode === 'individual' ? `cumRate${activeCode}` : 'cumRate'
+    const prevCumRateKey = viewMode === 'individual' ? `prevCumRate${activeCode}` : 'prevCumRate'
+    const cumRateLabel = viewMode === 'individual' ? `累計${activeLbl}率` : '累計売変率'
+    const prevCumRateLabel = viewMode === 'individual' ? `前年累計${activeLbl}率` : '前年累計売変率'
+
     series.push({
-      name: '累計売変率',
+      name: cumRateLabel,
       type: 'line',
       yAxisIndex: 1,
-      data: data.map((d) => d.cumRate as number),
+      data: data.map((d) => d[cumRateKey] as number),
       ...lineDefaults({ color: theme.colors.palette.orange }),
       connectNulls: true,
     })
     if (hasPrev) {
       series.push({
-        name: '前年累計売変率',
+        name: prevCumRateLabel,
         type: 'line',
         yAxisIndex: 1,
-        data: data.map((d) => d.prevCumRate as number | null),
+        data: data.map((d) => d[prevCumRateKey] as number | null),
         ...lineDefaults({ color: theme.chart.previousYear, width: 1.5, dashed: true }),
         connectNulls: true,
       })
