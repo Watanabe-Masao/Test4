@@ -1,6 +1,5 @@
 import {
   DowPatternChart,
-  HourlyProfileChart,
   CategoryTrendChart,
   CategoryHourlyChart,
   CategoryMixChart,
@@ -20,21 +19,6 @@ export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
     isVisible: (ctx) => ctx.duckDataVersion > 0,
     render: (ctx) => (
       <DowPatternChart
-        duckConn={ctx.duckConn}
-        duckDataVersion={ctx.duckDataVersion}
-        currentDateRange={ctx.currentDateRange}
-        selectedStoreIds={ctx.selectedStoreIds}
-      />
-    ),
-  },
-  {
-    id: 'duckdb-hourly-profile',
-    label: '時間帯プロファイル',
-    group: 'トレンド分析',
-    size: 'half',
-    isVisible: (ctx) => ctx.duckDataVersion > 0,
-    render: (ctx) => (
-      <HourlyProfileChart
         duckConn={ctx.duckConn}
         duckDataVersion={ctx.duckDataVersion}
         currentDateRange={ctx.currentDateRange}

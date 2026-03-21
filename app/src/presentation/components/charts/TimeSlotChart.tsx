@@ -1,25 +1,19 @@
 /**
  * 時間帯別売上チャート
  *
- * レガシー TimeSlotSalesChart の全機能を統合パイプラインで再実装:
- * - チャート / KPIサマリー / 前年比較 の3ビュー
- * - 金額 / 点数 メトリック切替
- * - 前年 / 前週 比較モード
- * - 合計 / 日平均 集計モード
- * - 部門 / ライン / クラス 階層フィルタ
- * - コアタイム・折り返し時間帯・ピーク等のKPI
- * - 自動インサイト生成
+ * 金額(棒) + 点数(点線) の統合チャート、KPIサマリー、比較テーブルを
+ * 1画面に表示。前年/前週の切り替えのみ。
  */
 import { memo, useMemo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import type { AppTheme } from '@/presentation/theme/theme'
-import { useChartTheme, useCurrencyFormatter, toComma, toPct } from './chartTheme'
+import { useChartTheme, toComma, toPct } from './chartTheme'
 import { EChart, type EChartsOption } from './EChart'
 import { yenYAxis, standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
 import { valueYAxis } from './builders'
-import { formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
+import { formatCoreTime } from './timeSlotUtils'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette, chartFontSize } from '@/presentation/theme/tokens'
 import { useI18n } from '@/application/hooks/useI18n'
@@ -28,30 +22,18 @@ import {
   Controls,
   TabGroup,
   Tab,
-  Separator,
   Grid,
   Card,
   CardLabel,
   CardValue,
   CardSub,
   YoYBadge,
-  SummaryRow,
-  Metric,
-  MetricLabel,
-  MetricValue,
-  ProgressBarWrap,
-  ProgressTrack,
-  ProgressFill,
-  ProgressLabelRow,
   InsightBar,
   InsightItem,
-  TableWrapper,
-  MiniTable,
-  MiniTh,
-  MiniTd,
 } from './TimeSlotSalesChart.styles'
 import { HierarchyRow, HierarchySelect, ErrorMsg } from './TimeSlotChart.styles'
 import { useDuckDBTimeSlotData } from './useDuckDBTimeSlotData'
+import { TimeSlotComparisonTable } from './TimeSlotComparisonTable'
 import { ChartSkeleton } from '@/presentation/components/common/feedback'
 import { EmptyState } from '@/presentation/components/common/layout'
 
@@ -76,7 +58,6 @@ export const TimeSlotChart = memo(function TimeSlotChart({
 }: Props) {
   const theme = useTheme() as AppTheme
   const ct = useChartTheme()
-  const fmt = useCurrencyFormatter()
   const { messages } = useI18n()
 
   const d = useDuckDBTimeSlotData({
@@ -89,24 +70,18 @@ export const TimeSlotChart = memo(function TimeSlotChart({
 
   const showPrev = d.hasPrev && d.showPrev
 
-  // ECharts option for chart view
+  // ECharts option for chart view — 金額(棒) + 点数(点線) 同時表示
   const chartOption = useMemo<EChartsOption>(() => {
     const hours = d.chartData.map((r) => String(r.hour))
-    const isAmount = d.metricMode === 'amount'
-    const dataKey = isAmount ? 'amount' : 'quantity'
-    const barColor = isAmount ? theme.colors.palette.primary : theme.colors.palette.cyan
+    const barColor = theme.colors.palette.primary
+    const qtyColor = theme.colors.palette.cyan
 
     const series: EChartsOption['series'] = [
       {
-        name: isAmount
-          ? showPrev
-            ? `${d.curLabel}売上`
-            : '売上金額'
-          : showPrev
-            ? `${d.curLabel}数量`
-            : '数量',
+        name: showPrev ? `${d.curLabel}売上` : '売上金額',
         type: 'bar',
-        data: d.chartData.map((r) => (r as Record<string, unknown>)[dataKey] as number),
+        yAxisIndex: 0,
+        data: d.chartData.map((r) => (r as Record<string, unknown>).amount as number),
         itemStyle: {
           color: {
             type: 'linear',
@@ -123,19 +98,47 @@ export const TimeSlotChart = memo(function TimeSlotChart({
         },
         barMaxWidth: 20,
       },
+      {
+        name: showPrev ? `${d.curLabel}点数` : '点数',
+        type: 'line',
+        yAxisIndex: 1,
+        data: d.chartData.map((r) => (r as Record<string, unknown>).quantity as number),
+        lineStyle: { color: qtyColor, width: 2, type: 'dotted' },
+        itemStyle: { color: qtyColor },
+        symbol: 'circle',
+        symbolSize: 4,
+      },
     ]
 
     if (showPrev) {
-      const prevKey = isAmount ? 'prevAmount' : 'prevQuantity'
-      series.push({
-        name: isAmount ? `${d.compLabel}売上` : `${d.compLabel}数量`,
-        type: 'line',
-        data: d.chartData.map((r) => ((r as Record<string, unknown>)[prevKey] as number) ?? null),
-        lineStyle: { color: theme.colors.palette.slate, width: 2.5, type: 'dashed' },
-        itemStyle: { color: theme.colors.palette.slate },
-        symbol: 'none',
-        connectNulls: true,
-      })
+      series.push(
+        {
+          name: `${d.compLabel}売上`,
+          type: 'bar',
+          yAxisIndex: 0,
+          data: d.chartData.map(
+            (r) => ((r as Record<string, unknown>).prevAmount as number) ?? null,
+          ),
+          itemStyle: {
+            color: `${theme.colors.palette.slate}80`,
+            borderRadius: [3, 3, 0, 0],
+          },
+          barMaxWidth: 20,
+        },
+        {
+          name: `${d.compLabel}点数`,
+          type: 'line',
+          yAxisIndex: 1,
+          data: d.chartData.map(
+            (r) => ((r as Record<string, unknown>).prevQuantity as number) ?? null,
+          ),
+          lineStyle: { color: theme.colors.palette.slate, width: 1.5, type: 'dotted' },
+          itemStyle: { color: theme.colors.palette.slate },
+          symbol: 'circle',
+          symbolSize: 3,
+          connectNulls: true,
+        },
+      )
     }
 
     return {
@@ -152,90 +155,17 @@ export const TimeSlotChart = memo(function TimeSlotChart({
         },
         axisLine: { lineStyle: { color: theme.colors.border } },
       },
-      yAxis: isAmount
-        ? yenYAxis(theme)
-        : valueYAxis(theme, { formatter: (v: number) => toComma(v) }),
+      yAxis: [
+        yenYAxis(theme),
+        valueYAxis(theme, {
+          formatter: (v: number) => toComma(v),
+          position: 'right',
+          showSplitLine: false,
+        }),
+      ],
       series,
     }
-  }, [d.chartData, d.metricMode, d.curLabel, d.compLabel, showPrev, theme])
-
-  // ECharts option for YoY comparison view
-  const yoyChartOption = useMemo<EChartsOption>(() => {
-    if (!d.yoyData) return {}
-    const hours = (d.yoyData.chartData as unknown as Record<string, unknown>[]).map((r) =>
-      String(r.hour),
-    )
-    const curData = (d.yoyData.chartData as unknown as Record<string, unknown>[]).map(
-      (r) => r.current as number,
-    )
-    const prevData = (d.yoyData.chartData as unknown as Record<string, unknown>[]).map(
-      (r) => (r.prevYear as number) ?? null,
-    )
-
-    return {
-      grid: standardGrid(),
-      tooltip: {
-        ...standardTooltip(theme),
-        formatter: (params: unknown) => {
-          const items = params as { seriesName: string; value: number; marker: string }[]
-          if (!Array.isArray(items) || items.length === 0) return ''
-          const lines = items.map((item) => {
-            const v = item.value ?? 0
-            const formatted =
-              item.seriesName === '差分' ? `${v >= 0 ? '+' : ''}${toComma(v)}円` : `${toComma(v)}円`
-            return `${item.marker} ${item.seriesName}: ${formatted}`
-          })
-          return `${String((items[0] as { axisValue?: string }).axisValue ?? '')}<br/>${lines.join('<br/>')}`
-        },
-      },
-      legend: {
-        ...standardLegend(theme),
-        data: [d.curLabel, d.compLabel],
-      },
-      xAxis: {
-        type: 'category' as const,
-        data: hours,
-        axisLabel: {
-          color: theme.colors.text3,
-          fontSize: chartFontSize.axis,
-          fontFamily: theme.typography.fontFamily.mono,
-        },
-        axisLine: { lineStyle: { color: theme.colors.border } },
-      },
-      yAxis: yenYAxis(theme),
-      series: [
-        {
-          name: d.curLabel,
-          type: 'bar' as const,
-          data: curData,
-          itemStyle: {
-            color: {
-              type: 'linear' as const,
-              x: 0,
-              y: 0,
-              x2: 0,
-              y2: 1,
-              colorStops: [
-                { offset: 0, color: `${ct.colors.primary}d9` },
-                { offset: 1, color: `${ct.colors.primary}66` },
-              ],
-            },
-            borderRadius: [3, 3, 0, 0],
-          },
-          barMaxWidth: 20,
-        },
-        {
-          name: d.compLabel,
-          type: 'line' as const,
-          data: prevData,
-          lineStyle: { color: ct.colors.slate, width: 2.5, type: 'dashed' as const },
-          itemStyle: { color: ct.colors.slate },
-          symbol: 'none',
-          connectNulls: true,
-        },
-      ],
-    }
-  }, [d.yoyData, d.curLabel, d.compLabel, theme, ct.colors.primary, ct.colors.slate])
+  }, [d.chartData, d.curLabel, d.compLabel, showPrev, theme])
 
   if (d.error) {
     return (
@@ -255,320 +185,97 @@ export const TimeSlotChart = memo(function TimeSlotChart({
     return <EmptyState>データをインポートしてください</EmptyState>
   }
 
-  const modeLabel = d.mode === 'daily' ? '（日平均）' : ''
-  const titleText =
-    d.viewMode === 'yoy'
-      ? `時間帯別 ${d.compLabel}比較`
-      : `時間帯別${d.metricMode === 'amount' ? '売上' : '数量'}${d.viewMode === 'kpi' ? ' サマリー' : ''}`
-
   return (
     <ChartCard
-      title={`${titleText}${modeLabel}`}
+      title={`時間帯別 ${d.compLabel}比較`}
       ariaLabel="時間帯別売上"
       toolbar={
-        <Controls>
-          {d.viewMode !== 'yoy' && (
+        d.hasPrev ? (
+          <Controls>
             <TabGroup>
-              <Tab $active={d.metricMode === 'amount'} onClick={() => d.setMetricMode('amount')}>
-                金額
+              <Tab $active={d.compMode === 'yoy'} onClick={() => d.setCompMode('yoy')}>
+                前年比
               </Tab>
-              <Tab
-                $active={d.metricMode === 'quantity'}
-                onClick={() => d.setMetricMode('quantity')}
-              >
-                点数
+              <Tab $active={d.compMode === 'wow'} onClick={() => d.setCompMode('wow')}>
+                前週比
               </Tab>
             </TabGroup>
-          )}
-          {d.hasPrev && (
-            <>
-              <Separator />
-              <TabGroup>
-                <Tab $active={d.compMode === 'yoy'} onClick={() => d.setCompMode('yoy')}>
-                  前年比
-                </Tab>
-                <Tab $active={d.compMode === 'wow'} onClick={() => d.setCompMode('wow')}>
-                  前週比
-                </Tab>
-              </TabGroup>
-            </>
-          )}
-          {d.hasPrev && d.viewMode === 'chart' && (
-            <>
-              <Separator />
-              <TabGroup>
-                <Tab $active={d.showPrev} onClick={() => d.setShowPrev(!d.showPrev)}>
-                  {d.compLabel}比較
-                </Tab>
-              </TabGroup>
-            </>
-          )}
-          <Separator />
-          <TabGroup>
-            <Tab $active={d.mode === 'total'} onClick={() => d.setMode('total')}>
-              合計
-            </Tab>
-            <Tab $active={d.mode === 'daily'} onClick={() => d.setMode('daily')}>
-              日平均
-            </Tab>
-          </TabGroup>
-          <Separator />
-          <TabGroup>
-            <Tab $active={d.viewMode === 'chart'} onClick={() => d.setViewMode('chart')}>
-              チャート
-            </Tab>
-            <Tab $active={d.viewMode === 'kpi'} onClick={() => d.setViewMode('kpi')}>
-              KPI
-            </Tab>
-            {d.hasPrev && (
-              <Tab $active={d.viewMode === 'yoy'} onClick={() => d.setViewMode('yoy')}>
-                {d.compLabel}比較
-              </Tab>
-            )}
-          </TabGroup>
-        </Controls>
+          </Controls>
+        ) : undefined
       }
     >
-      {/* ── Chart view (ECharts) ── */}
-      {d.viewMode === 'chart' && (
-        <EChart option={chartOption} height={320} ariaLabel="時間帯別売上チャート" />
-      )}
-
-      {/* ── KPI view ── */}
-      {d.viewMode === 'kpi' && d.kpi && (
+      {/* ── KPI サマリー ── */}
+      {d.kpi && (
         <Grid>
-          {d.metricMode === 'amount' ? (
-            <>
-              <Card $accent={palette.primary}>
-                <CardLabel>{d.curLabel} 総売上金額</CardLabel>
-                <CardValue>{Math.round(d.kpi.totalAmount / 10000).toLocaleString()}万円</CardValue>
-                <CardSub>
-                  {d.kpi.totalAmount.toLocaleString()}円
-                  {d.kpi.yoyRatio != null && (
-                    <YoYBadge $positive={d.kpi.yoyRatio >= 1}>
-                      {d.kpi.yoyRatio >= 1 ? '+' : ''}
-                      {toPct(d.kpi.yoyRatio - 1)}
-                    </YoYBadge>
-                  )}
-                </CardSub>
-              </Card>
-              {d.kpi.prevTotalAmount > 0 && (
-                <Card $accent={ct.colors.slate}>
-                  <CardLabel>{d.compLabel} 総売上金額</CardLabel>
-                  <CardValue>
-                    {Math.round(d.kpi.prevTotalAmount / 10000).toLocaleString()}万円
-                  </CardValue>
-                  <CardSub>{d.kpi.prevTotalAmount.toLocaleString()}円</CardSub>
-                </Card>
+          <Card $accent={palette.primary}>
+            <CardLabel>{d.curLabel} 総売上</CardLabel>
+            <CardValue>{Math.round(d.kpi.totalAmount / 10000).toLocaleString()}万円</CardValue>
+            <CardSub>
+              {d.kpi.totalAmount.toLocaleString()}円
+              {d.kpi.yoyRatio != null && (
+                <YoYBadge $positive={d.kpi.yoyRatio >= 1}>
+                  {d.kpi.yoyRatio >= 1 ? '+' : ''}
+                  {toPct(d.kpi.yoyRatio - 1)}
+                </YoYBadge>
               )}
-              {d.kpi.yoyDiff != null && (
-                <Card $accent={sc.cond(d.kpi.yoyDiff >= 0)}>
-                  <CardLabel>{d.compLabel}差（金額）</CardLabel>
-                  <CardValue style={{ color: sc.cond(d.kpi.yoyDiff >= 0) }}>
-                    {d.kpi.yoyDiff >= 0 ? '+' : ''}
-                    {Math.round(d.kpi.yoyDiff / 10000).toLocaleString()}万円
-                  </CardValue>
-                  <CardSub>
-                    {d.compLabel}比 {toPct(d.kpi.yoyRatio ?? 0)}
-                  </CardSub>
-                </Card>
-              )}
-              <Card $accent={palette.cyanDark}>
-                <CardLabel>総数量</CardLabel>
-                <CardValue>{d.kpi.totalQuantity.toLocaleString()}点</CardValue>
-              </Card>
-              <Card $accent={palette.warningDark}>
-                <CardLabel>ピーク時間帯</CardLabel>
-                <CardValue>{d.kpi.peakHour}時台</CardValue>
-                <CardSub>構成比 {d.kpi.peakHourPct}</CardSub>
-              </Card>
-              <Card $accent={palette.purpleDark}>
-                <CardLabel>コアタイム</CardLabel>
-                <CardValue>{formatCoreTime(d.kpi.coreTimeAmt)}</CardValue>
-                <CardSub>構成比 {d.kpi.coreTimePct}</CardSub>
-              </Card>
-              <Card $accent={sc.negative}>
-                <CardLabel>折り返し時間帯</CardLabel>
-                <CardValue>{formatTurnaroundHour(d.kpi.turnaroundAmt)}</CardValue>
-                <CardSub>累積50%到達</CardSub>
-              </Card>
-              <Card $accent="#14b8a6">
-                <CardLabel>時間帯平均</CardLabel>
-                <CardValue>{Math.round(d.kpi.avgPerHour / 10000).toLocaleString()}万</CardValue>
-                <CardSub>{d.kpi.activeHours}時間帯</CardSub>
-              </Card>
-            </>
-          ) : (
-            <>
-              <Card $accent={palette.cyanDark}>
-                <CardLabel>{d.curLabel} 総数量</CardLabel>
-                <CardValue>{d.kpi.totalQuantity.toLocaleString()}点</CardValue>
-                <CardSub>
-                  {d.kpi.yoyQuantityRatio != null && (
-                    <YoYBadge $positive={d.kpi.yoyQuantityRatio >= 1}>
-                      {d.kpi.yoyQuantityRatio >= 1 ? '+' : ''}
-                      {toPct(d.kpi.yoyQuantityRatio - 1)}
-                    </YoYBadge>
-                  )}
-                </CardSub>
-              </Card>
-              {d.kpi.prevTotalQuantity > 0 && (
-                <Card $accent={ct.colors.slate}>
-                  <CardLabel>{d.compLabel} 総数量</CardLabel>
-                  <CardValue>{d.kpi.prevTotalQuantity.toLocaleString()}点</CardValue>
-                </Card>
-              )}
-              {d.kpi.yoyQuantityDiff != null && (
-                <Card $accent={sc.cond(d.kpi.yoyQuantityDiff >= 0)}>
-                  <CardLabel>{d.compLabel}差（数量）</CardLabel>
-                  <CardValue style={{ color: sc.cond(d.kpi.yoyQuantityDiff >= 0) }}>
-                    {d.kpi.yoyQuantityDiff >= 0 ? '+' : ''}
-                    {d.kpi.yoyQuantityDiff.toLocaleString()}点
-                  </CardValue>
-                  <CardSub>
-                    {d.compLabel}比 {toPct(d.kpi.yoyQuantityRatio ?? 0)}
-                  </CardSub>
-                </Card>
-              )}
-              <Card $accent={palette.primary}>
-                <CardLabel>総売上金額</CardLabel>
-                <CardValue>{Math.round(d.kpi.totalAmount / 10000).toLocaleString()}万円</CardValue>
-                <CardSub>{d.kpi.totalAmount.toLocaleString()}円</CardSub>
-              </Card>
-              <Card $accent={palette.warningDark}>
-                <CardLabel>ピーク時間帯</CardLabel>
-                <CardValue>{d.kpi.peakHourQty}時台</CardValue>
-                <CardSub>構成比 {d.kpi.peakHourQtyPct}</CardSub>
-              </Card>
-              <Card $accent={palette.purpleDark}>
-                <CardLabel>コアタイム</CardLabel>
-                <CardValue>{formatCoreTime(d.kpi.coreTimeQty)}</CardValue>
-                <CardSub>構成比 {d.kpi.coreTimeQtyPct}</CardSub>
-              </Card>
-              <Card $accent={sc.negative}>
-                <CardLabel>折り返し時間帯</CardLabel>
-                <CardValue>{formatTurnaroundHour(d.kpi.turnaroundQty)}</CardValue>
-                <CardSub>累積50%到達</CardSub>
-              </Card>
-              <Card $accent="#14b8a6">
-                <CardLabel>時間帯平均</CardLabel>
-                <CardValue>{d.kpi.avgQtyPerHour.toLocaleString()}点</CardValue>
-                <CardSub>{d.kpi.activeHours}時間帯</CardSub>
-              </Card>
-            </>
+            </CardSub>
+          </Card>
+          {d.kpi.prevTotalAmount > 0 && (
+            <Card $accent={ct.colors.slate}>
+              <CardLabel>{d.compLabel} 総売上</CardLabel>
+              <CardValue>
+                {Math.round(d.kpi.prevTotalAmount / 10000).toLocaleString()}万円
+              </CardValue>
+              <CardSub>{d.kpi.prevTotalAmount.toLocaleString()}円</CardSub>
+            </Card>
           )}
+          {d.kpi.yoyDiff != null && (
+            <Card $accent={sc.cond(d.kpi.yoyDiff >= 0)}>
+              <CardLabel>{d.compLabel}差</CardLabel>
+              <CardValue style={{ color: sc.cond(d.kpi.yoyDiff >= 0) }}>
+                {d.kpi.yoyDiff >= 0 ? '+' : ''}
+                {Math.round(d.kpi.yoyDiff / 10000).toLocaleString()}万円
+              </CardValue>
+              <CardSub>
+                {d.compLabel}比 {toPct(d.kpi.yoyRatio ?? 0)}
+              </CardSub>
+            </Card>
+          )}
+          <Card $accent={palette.cyanDark}>
+            <CardLabel>総数量</CardLabel>
+            <CardValue>{d.kpi.totalQuantity.toLocaleString()}点</CardValue>
+            {d.kpi.yoyQuantityRatio != null && (
+              <CardSub>
+                <YoYBadge $positive={d.kpi.yoyQuantityRatio >= 1}>
+                  {d.kpi.yoyQuantityRatio >= 1 ? '+' : ''}
+                  {toPct(d.kpi.yoyQuantityRatio - 1)}
+                </YoYBadge>
+              </CardSub>
+            )}
+          </Card>
+          <Card $accent={palette.warningDark}>
+            <CardLabel>ピーク時間帯</CardLabel>
+            <CardValue>{d.kpi.peakHour}時台</CardValue>
+            <CardSub>構成比 {d.kpi.peakHourPct}</CardSub>
+          </Card>
+          <Card $accent={palette.purpleDark}>
+            <CardLabel>コアタイム</CardLabel>
+            <CardValue>{formatCoreTime(d.kpi.coreTimeAmt)}</CardValue>
+            <CardSub>構成比 {d.kpi.coreTimePct}</CardSub>
+          </Card>
         </Grid>
       )}
 
-      {/* ── YoY comparison view ── */}
-      {d.viewMode === 'yoy' &&
-        d.yoyData &&
-        (() => {
-          const s = d.yoyData.summary
-          const yoyColor = (s.yoyRatio ?? 0) >= 1 ? ct.colors.success : ct.colors.danger
-          return (
-            <>
-              <SummaryRow>
-                <Metric>
-                  <MetricLabel>{d.curLabel}合計</MetricLabel>
-                  <MetricValue>{fmt(s.curTotal)}円</MetricValue>
-                </Metric>
-                {s.yoyRatio != null && (
-                  <ProgressBarWrap>
-                    <ProgressLabelRow>
-                      <span>
-                        {d.compLabel}比 {toPct(s.yoyRatio)}
-                      </span>
-                      <span>
-                        {s.yoyDiff >= 0 ? '+' : ''}
-                        {fmt(s.yoyDiff)}円
-                      </span>
-                    </ProgressLabelRow>
-                    <ProgressTrack>
-                      <ProgressFill $pct={s.yoyRatio * 100} $color={yoyColor} />
-                    </ProgressTrack>
-                  </ProgressBarWrap>
-                )}
-                <Metric>
-                  <MetricLabel>{d.compLabel}合計</MetricLabel>
-                  <MetricValue $color={ct.colors.slate}>{fmt(s.prevTotal)}円</MetricValue>
-                </Metric>
-                {s.maxIncHour >= 0 && (
-                  <Metric>
-                    <MetricLabel>最大増加時間帯</MetricLabel>
-                    <MetricValue $color={sc.positive}>
-                      {s.maxIncHour}時 (+{fmt(s.maxIncDiff)})
-                    </MetricValue>
-                  </Metric>
-                )}
-                {s.maxDecHour >= 0 && (
-                  <Metric>
-                    <MetricLabel>最大減少時間帯</MetricLabel>
-                    <MetricValue $color={sc.negative}>
-                      {s.maxDecHour}時 ({fmt(s.maxDecDiff)})
-                    </MetricValue>
-                  </Metric>
-                )}
-                <Metric>
-                  <MetricLabel>コアタイム（{d.curLabel}）</MetricLabel>
-                  <MetricValue>{formatCoreTime(s.curCoreTime)}</MetricValue>
-                </Metric>
-                <Metric>
-                  <MetricLabel>折り返し（{d.curLabel}）</MetricLabel>
-                  <MetricValue>{formatTurnaroundHour(s.curTurnaround)}</MetricValue>
-                </Metric>
-                {s.prevCoreTime && (
-                  <Metric>
-                    <MetricLabel>コアタイム（{d.compLabel}）</MetricLabel>
-                    <MetricValue $color={ct.colors.slate}>
-                      {formatCoreTime(s.prevCoreTime)}
-                    </MetricValue>
-                  </Metric>
-                )}
-                {s.prevTurnaround != null && (
-                  <Metric>
-                    <MetricLabel>折り返し（{d.compLabel}）</MetricLabel>
-                    <MetricValue $color={ct.colors.slate}>
-                      {formatTurnaroundHour(s.prevTurnaround)}
-                    </MetricValue>
-                  </Metric>
-                )}
-              </SummaryRow>
+      {/* ── チャート（金額棒＋点数点線、前年比較付き） ── */}
+      <EChart option={chartOption} height={320} ariaLabel="時間帯別売上チャート" />
 
-              <EChart option={yoyChartOption} height={300} ariaLabel="時間帯別前年比較チャート" />
-
-              <TableWrapper>
-                <MiniTable>
-                  <thead>
-                    <tr>
-                      <MiniTh>時間帯</MiniTh>
-                      <MiniTh>{d.curLabel}</MiniTh>
-                      <MiniTh>{d.compLabel}</MiniTh>
-                      <MiniTh>差分</MiniTh>
-                      <MiniTh>{d.compLabel}比</MiniTh>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {d.yoyData.rows.map((row) => (
-                      <tr key={row.hour}>
-                        <MiniTd>{row.hour}</MiniTd>
-                        <MiniTd>{toComma(row.current)}円</MiniTd>
-                        <MiniTd>{toComma(row.prevYear)}円</MiniTd>
-                        <MiniTd $highlight $positive={row.diff >= 0}>
-                          {row.diff >= 0 ? '+' : ''}
-                          {toComma(row.diff)}円
-                        </MiniTd>
-                        <MiniTd $highlight $positive={(row.ratio ?? 0) >= 1}>
-                          {row.ratio != null ? toPct(row.ratio) : '-'}
-                        </MiniTd>
-                      </tr>
-                    ))}
-                  </tbody>
-                </MiniTable>
-              </TableWrapper>
-            </>
-          )
-        })()}
+      {/* ── 比較テーブル ── */}
+      <TimeSlotComparisonTable
+        chartData={d.chartData}
+        curLabel={d.curLabel}
+        compLabel={d.compLabel}
+        hasPrev={d.hasPrev}
+      />
 
       {d.insights.length > 0 && (
         <InsightBar>
@@ -578,7 +285,7 @@ export const TimeSlotChart = memo(function TimeSlotChart({
         </InsightBar>
       )}
 
-      {/* ── Hierarchy filter ── */}
+      {/* ── 階層フィルタ ── */}
       {(d.deptOptions.length > 1 || d.lineOptions.length > 1 || d.klassOptions.length > 1) && (
         <HierarchyRow>
           {d.deptOptions.length > 1 && (
