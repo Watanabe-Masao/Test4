@@ -116,9 +116,9 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
   // ── 天気データ（選択店舗の代表1店から取得） ──
   const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
   const weatherStoreId = useMemo(() => {
-    const ids = [...selectedStoreIds]
+    const ids = selectedStoreIds.size > 0 ? [...selectedStoreIds] : [...stores.keys()]
     return ids.find((id) => storeLocations[id]) ?? ids[0] ?? ''
-  }, [selectedStoreIds, storeLocations])
+  }, [selectedStoreIds, stores, storeLocations])
   const { daily: weatherDaily } = useWeatherData(targetYear, targetMonth, weatherStoreId)
 
   // Store name map for category comparison
