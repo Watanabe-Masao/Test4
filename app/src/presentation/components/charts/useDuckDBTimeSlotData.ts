@@ -11,7 +11,10 @@ import {
   useDuckDBHourlyAggregation,
   useDuckDBDistinctDayCount,
   useDuckDBLevelAggregation,
+  useDuckDBCategoryHourly,
 } from '@/application/hooks/useDuckDBQuery'
+import { useDuckDBWeatherHourlyAvg } from '@/application/hooks/duckdb/useWeatherHourlyQuery'
+import { useSettingsStore } from '@/application/stores/settingsStore'
 import {
   type ViewMode,
   type MetricMode,
@@ -139,6 +142,39 @@ export function useDuckDBTimeSlotData({
     false,
   )
 
+  // ── カテゴリ×時間帯集約 ──
+  const heatmapLevel = deptCode ? (lineCode ? 'klass' : 'line') : 'department'
+  const { data: categoryHourlyData } = useDuckDBCategoryHourly(
+    duckConn,
+    duckDataVersion,
+    currentDateRange,
+    selectedStoreIds,
+    heatmapLevel as 'department' | 'line' | 'klass',
+    hierarchy,
+    false,
+  )
+
+  // ── 天気時間帯平均 ──
+  const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
+  const weatherStoreId = useMemo(() => {
+    const ids = selectedStoreIds.size > 0 ? [...selectedStoreIds] : []
+    return ids.find((id) => storeLocations[id]) ?? ids[0] ?? ''
+  }, [selectedStoreIds, storeLocations])
+
+  const prevDateRange = compMode === 'yoy' ? prevYearScope?.dateRange : undefined
+  const { data: curWeatherAvg } = useDuckDBWeatherHourlyAvg(
+    duckConn,
+    duckDataVersion,
+    weatherStoreId,
+    currentDateRange,
+  )
+  const { data: prevWeatherAvg } = useDuckDBWeatherHourlyAvg(
+    duckConn,
+    duckDataVersion,
+    weatherStoreId,
+    prevDateRange,
+  )
+
   const hasPrev = (compHourly?.length ?? 0) > 0
   const compLabel = compMode === 'wow' ? '前週' : '前年'
   const curLabel = compMode === 'wow' ? '当週' : '当年'
@@ -222,5 +258,8 @@ export function useDuckDBTimeSlotData({
     deptOptions,
     lineOptions,
     klassOptions,
+    categoryHourlyData,
+    curWeatherAvg,
+    prevWeatherAvg,
   }
 }
