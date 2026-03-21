@@ -41,6 +41,7 @@ export const ALL_LABELS: Record<string, string> = {
   prevYearDiscountCum: '売変累計（前年）',
   wfYoyUp: '差分+',
   wfYoyDown: '差分-',
+  wfYoyCum: '差分累計',
   discountDiffCum: '売変差累計',
   budgetRate: '予算達成率',
   prevYearRate: '前年比',
