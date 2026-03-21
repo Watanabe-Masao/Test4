@@ -132,9 +132,7 @@ export function useDailySalesData(
       year ?? 2000,
       month ?? 1,
     )
-    const wf = isWf
-      ? buildWaterfallData(result.baseData, diffTarget ?? 'yoy')
-      : null
+    const wf = isWf ? buildWaterfallData(result.baseData, diffTarget ?? 'yoy') : null
     return { baseData: result.baseData, wfData: wf }
   }, [daily, daysInMonth, prevYearDaily, isWf, budgetDaily, year, month, diffTarget])
 
