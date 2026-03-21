@@ -5,7 +5,7 @@
  * データ変換・状態管理は親コンポーネントと useDailySalesData が担当。
  *
  * ビュー構成:
- * - standard: 売上棒+前年棒+売変線+移動平均線
+ * - standard: 売上棒+前年棒+売変線
  * - cumulative: 実績・前年・予算の累計Area
  * - difference: 前年差累計ウォーターフォール
  */
@@ -37,7 +37,6 @@ const ALL_LABELS: Record<string, string> = {
   prevCustomers: '比較期点数',
   discount: '売変額',
   prevYearDiscount: '比較期売変額',
-  salesMa7: '売上7日移動平均',
   currentCum: '当期累計',
   prevYearCum: '比較期累計',
   budgetCum: '予算累計',
@@ -281,14 +280,6 @@ function buildOption(
         connectNulls: true,
       })
     }
-    series.push({
-      name: 'salesMa7',
-      type: 'line' as const,
-      yAxisIndex: 0,
-      data: pluck(rows, 'salesMa7'),
-      ...lineDefaults({ color: ct.colors.cyanDark }),
-      connectNulls: true,
-    })
   }
 
   // ─── Cumulative: 実績・前年・予算の累計Area + 帯グラフ + 売変累計（右軸） ───
