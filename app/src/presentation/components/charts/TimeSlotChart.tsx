@@ -11,7 +11,7 @@ import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { useChartTheme, toComma, toPct } from './chartTheme'
 import { EChart, type EChartsOption } from './EChart'
-import { yenYAxis, standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
+import { yenYAxis, standardTooltip, standardLegend } from './echartsOptionBuilders'
 import { valueYAxis } from './builders'
 import { formatCoreTime } from './timeSlotUtils'
 import { sc } from '@/presentation/theme/semanticColors'
@@ -37,6 +37,10 @@ import { TimeSlotComparisonTable } from './TimeSlotComparisonTable'
 import { CategoryTimeHeatmap } from './CategoryTimeHeatmap'
 import { ChartSkeleton } from '@/presentation/components/common/feedback'
 import { EmptyState } from '@/presentation/components/common/layout'
+
+// ── Layout constants (チャート・テーブル・ヒートマップの時間帯列を揃える) ──
+const GRID_LEFT = 55
+const GRID_RIGHT = 45
 
 // ── Props ──
 
@@ -165,7 +169,7 @@ export const TimeSlotChart = memo(function TimeSlotChart({
     }
 
     return {
-      grid: standardGrid(),
+      grid: { left: GRID_LEFT, right: GRID_RIGHT, top: 30, bottom: 20, containLabel: false },
       tooltip: standardTooltip(theme),
       legend: standardLegend(theme),
       xAxis: {
@@ -357,9 +361,16 @@ export const TimeSlotChart = memo(function TimeSlotChart({
           hasPrev={d.hasPrev}
           curWeather={curWeatherForTable}
           prevWeather={prevWeatherForTable}
+          gridLeft={GRID_LEFT}
+          gridRight={GRID_RIGHT}
         />
       ) : (
-        <CategoryTimeHeatmap data={d.categoryHourlyData ?? []} metric={heatmapMetric} />
+        <CategoryTimeHeatmap
+          data={d.categoryHourlyData ?? []}
+          metric={heatmapMetric}
+          gridLeft={GRID_LEFT}
+          gridRight={GRID_RIGHT}
+        />
       )}
 
       {d.insights.length > 0 && (

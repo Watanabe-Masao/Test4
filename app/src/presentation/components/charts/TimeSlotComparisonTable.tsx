@@ -2,11 +2,11 @@
  * TimeSlotComparisonTable — 時間帯別比較テーブル（横軸=時間帯）
  *
  * グラフと見方を合わせ、横軸に時間帯、縦軸に当年/前年/差分/前年比を表示。
- * 天気データ（気温・降水量）の時間帯別平均も表示可能。
+ * gridLeft / gridRight でチャートのプロットエリアと列位置を揃える。
  */
 import { useState, useMemo, memo } from 'react'
 import { toComma, toPct } from './chartTheme'
-import { TabGroup, Tab, TableWrapper, MiniTable, MiniTh, MiniTd } from './TimeSlotSalesChart.styles'
+import { TabGroup, Tab, MiniTable, MiniTh, MiniTd } from './TimeSlotSalesChart.styles'
 
 type MetricToggle = 'amount' | 'quantity'
 
@@ -28,6 +28,8 @@ interface Props {
   readonly hasPrev: boolean
   readonly curWeather?: readonly WeatherHourlyAvg[]
   readonly prevWeather?: readonly WeatherHourlyAvg[]
+  readonly gridLeft?: number
+  readonly gridRight?: number
 }
 
 interface ColData {
@@ -65,6 +67,8 @@ export const TimeSlotComparisonTable = memo(function TimeSlotComparisonTable({
   hasPrev,
   curWeather,
   prevWeather,
+  gridLeft = 55,
+  gridRight = 45,
 }: Props) {
   const [metric, setMetric] = useState<MetricToggle>('amount')
   const isAmount = metric === 'amount'
@@ -88,43 +92,54 @@ export const TimeSlotComparisonTable = memo(function TimeSlotComparisonTable({
           </Tab>
         </TabGroup>
       </div>
-      <TableWrapper>
-        <MiniTable>
+      <div style={{ overflowX: 'auto' }}>
+        <MiniTable style={{ tableLayout: 'fixed', width: '100%' }}>
+          <colgroup>
+            <col style={{ width: gridLeft }} />
+            {cols.map((c) => (
+              <col key={c.hour} />
+            ))}
+            {/* 右マージン分のダミー列 */}
+            <col style={{ width: gridRight }} />
+          </colgroup>
           <thead>
             <tr>
               <MiniTh style={{ textAlign: 'left' }}></MiniTh>
               {cols.map((c) => (
                 <MiniTh key={c.hour}>{c.hour}時</MiniTh>
               ))}
+              <MiniTh></MiniTh>
             </tr>
           </thead>
           <tbody>
             {/* 当年 */}
             <tr>
-              <MiniTd style={{ fontWeight: 600 }}>{curLabel}</MiniTd>
+              <MiniTd style={{ fontWeight: 600, textAlign: 'left' }}>{curLabel}</MiniTd>
               {cols.map((c) => (
                 <MiniTd key={c.hour}>
                   {toComma(c.current)}
                   {suffix}
                 </MiniTd>
               ))}
+              <MiniTd></MiniTd>
             </tr>
             {/* 前年 */}
             {hasPrev && (
               <tr>
-                <MiniTd style={{ fontWeight: 600 }}>{compLabel}</MiniTd>
+                <MiniTd style={{ fontWeight: 600, textAlign: 'left' }}>{compLabel}</MiniTd>
                 {cols.map((c) => (
                   <MiniTd key={c.hour}>
                     {toComma(c.prev)}
                     {suffix}
                   </MiniTd>
                 ))}
+                <MiniTd></MiniTd>
               </tr>
             )}
             {/* 差分 */}
             {hasPrev && (
               <tr>
-                <MiniTd style={{ fontWeight: 600 }}>差分</MiniTd>
+                <MiniTd style={{ fontWeight: 600, textAlign: 'left' }}>差分</MiniTd>
                 {cols.map((c) => (
                   <MiniTd key={c.hour} $highlight $positive={c.diff >= 0}>
                     {c.diff >= 0 ? '+' : ''}
@@ -132,33 +147,36 @@ export const TimeSlotComparisonTable = memo(function TimeSlotComparisonTable({
                     {suffix}
                   </MiniTd>
                 ))}
+                <MiniTd></MiniTd>
               </tr>
             )}
             {/* 前年比 */}
             {hasPrev && (
               <tr>
-                <MiniTd style={{ fontWeight: 600 }}>{compLabel}比</MiniTd>
+                <MiniTd style={{ fontWeight: 600, textAlign: 'left' }}>{compLabel}比</MiniTd>
                 {cols.map((c) => (
                   <MiniTd key={c.hour} $highlight $positive={(c.ratio ?? 0) >= 1}>
                     {c.ratio != null ? toPct(c.ratio) : '-'}
                   </MiniTd>
                 ))}
+                <MiniTd></MiniTd>
               </tr>
             )}
             {/* 気温 */}
             {hasWeather && (
               <tr>
-                <MiniTd style={{ fontWeight: 600 }}>気温</MiniTd>
+                <MiniTd style={{ fontWeight: 600, textAlign: 'left' }}>気温</MiniTd>
                 {cols.map((c) => {
                   const w = curW.get(parseInt(c.hour, 10) || 0)
                   return <MiniTd key={c.hour}>{w ? `${w.avgTemperature.toFixed(1)}°` : '-'}</MiniTd>
                 })}
+                <MiniTd></MiniTd>
               </tr>
             )}
             {/* 降水量 */}
             {hasWeather && (
               <tr>
-                <MiniTd style={{ fontWeight: 600 }}>降水</MiniTd>
+                <MiniTd style={{ fontWeight: 600, textAlign: 'left' }}>降水</MiniTd>
                 {cols.map((c) => {
                   const w = curW.get(parseInt(c.hour, 10) || 0)
                   return (
@@ -171,21 +189,23 @@ export const TimeSlotComparisonTable = memo(function TimeSlotComparisonTable({
                     </MiniTd>
                   )
                 })}
+                <MiniTd></MiniTd>
               </tr>
             )}
             {/* 前年気温 */}
             {hasPrevWeather && (
               <tr>
-                <MiniTd style={{ fontWeight: 600 }}>{compLabel}気温</MiniTd>
+                <MiniTd style={{ fontWeight: 600, textAlign: 'left' }}>{compLabel}気温</MiniTd>
                 {cols.map((c) => {
                   const w = prevW.get(parseInt(c.hour, 10) || 0)
                   return <MiniTd key={c.hour}>{w ? `${w.avgTemperature.toFixed(1)}°` : '-'}</MiniTd>
                 })}
+                <MiniTd></MiniTd>
               </tr>
             )}
           </tbody>
         </MiniTable>
-      </TableWrapper>
+      </div>
     </>
   )
 })
