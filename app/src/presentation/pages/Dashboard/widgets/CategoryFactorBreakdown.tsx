@@ -564,6 +564,7 @@ const CategoryFactorEChart = memo(function CategoryFactorEChart({
         }),
         itemStyle: { color: f.color, opacity: 0.9, borderRadius: [2, 2, 2, 2] },
         barWidth: barSize,
+        barGap: '-100%',
       })
       // マイナス側（左）— 負値のままスタック
       seriesList.push({
@@ -576,62 +577,36 @@ const CategoryFactorEChart = memo(function CategoryFactorEChart({
         }),
         itemStyle: { color: f.color, opacity: 0.9, borderRadius: [2, 2, 2, 2] },
         barWidth: barSize,
+        barGap: '-100%',
       })
     }
 
-    // プラス要因合計・マイナス要因合計の折れ線
-    const positiveTotals = waterfallItems.map((d) =>
-      factors.reduce((sum, f) => {
-        const v = f.getValue(d)
-        return v > 0 ? sum + v : sum
-      }, 0),
-    )
-    const negativeTotals = waterfallItems.map((d) =>
-      factors.reduce((sum, f) => {
-        const v = f.getValue(d)
-        return v < 0 ? sum + v : sum
-      }, 0),
+    // 効果の純合計（プラス効果 + マイナス効果）の折れ線
+    const netTotals = waterfallItems.map((d) =>
+      factors.reduce((sum, f) => sum + f.getValue(d), 0),
     )
 
-    const fmtLineLabel = (v: unknown, positive: boolean): string => {
+    const fmtLineLabel = (v: unknown): string => {
       const n = typeof v === 'number' ? v : 0
-      if (positive) return n > 0 ? fmt(n) : ''
-      return n < 0 ? fmt(n) : ''
+      if (n === 0) return ''
+      return fmt(n)
     }
 
     const lineSeriesList: LineSeriesOption[] = [
       {
-        name: 'プラス合計',
+        name: '効果合計',
         type: 'line',
-        data: positiveTotals,
+        data: netTotals,
         symbol: 'circle',
         symbolSize: 6,
-        lineStyle: { color: '#ef4444', width: 2 },
-        itemStyle: { color: '#ef4444' },
+        lineStyle: { color: '#8b5cf6', width: 2 },
+        itemStyle: { color: '#8b5cf6' },
         label: {
           show: true,
           position: 'right',
-          formatter: (p) => fmtLineLabel(p.value, true),
+          formatter: (p) => fmtLineLabel(p.value),
           fontSize: 9,
-          color: '#ef4444',
-          fontFamily: theme.typography.fontFamily.mono,
-        },
-        z: 10,
-      },
-      {
-        name: 'マイナス合計',
-        type: 'line',
-        data: negativeTotals,
-        symbol: 'circle',
-        symbolSize: 6,
-        lineStyle: { color: '#3b82f6', width: 2 },
-        itemStyle: { color: '#3b82f6' },
-        label: {
-          show: true,
-          position: 'left',
-          formatter: (p) => fmtLineLabel(p.value, false),
-          fontSize: 9,
-          color: '#3b82f6',
+          color: '#8b5cf6',
           fontFamily: theme.typography.fontFamily.mono,
         },
         z: 10,
@@ -664,21 +639,19 @@ const CategoryFactorEChart = memo(function CategoryFactorEChart({
           html +=
             '<hr style="margin:4px 0;border:none;border-top:1px solid rgba(128,128,128,0.3)"/>'
 
-          let posSum = 0
-          let negSum = 0
+          let netSum = 0
           for (const fe of factors) {
             const v = fe.getValue(item)
             if (v === 0) continue
-            if (v > 0) posSum += v
-            else negSum += v
+            netSum += v
             const sign = v >= 0 ? '+' : ''
             html += `<span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${fe.color};margin-right:4px"></span>`
             html += `${fe.name}: ${sign}${fmtCurrency(v)}<br/>`
           }
           html +=
             '<hr style="margin:4px 0;border:none;border-top:1px solid rgba(128,128,128,0.3)"/>'
-          html += `<span style="color:#ef4444">▶ プラス合計: +${fmtCurrency(posSum)}</span><br/>`
-          html += `<span style="color:#3b82f6">◀ マイナス合計: ${fmtCurrency(negSum)}</span>`
+          const netSign = netSum >= 0 ? '+' : ''
+          html += `<span style="color:#8b5cf6">● 効果合計: ${netSign}${fmtCurrency(netSum)}</span>`
           if (item.hasChildren)
             html += '<br/><br/><em style="opacity:0.6;font-size:11px">クリックでドリルダウン</em>'
           return html
