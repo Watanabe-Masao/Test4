@@ -1,12 +1,12 @@
 /**
- * TimeSlotComparisonTable — 時間帯別比較テーブル
+ * TimeSlotComparisonTable — 時間帯別比較テーブル（横軸=時間帯）
  *
- * chartData から金額/点数を切り替えて前年（前週）比較テーブルを表示する。
- * 天気データ（気温・降水量）の時間帯別平均も表示可能。
+ * グラフと見方を合わせ、横軸に時間帯、縦軸に当年/前年/差分/前年比を表示。
+ * gridLeft / gridRight でチャートのプロットエリアと列位置を揃える。
  */
 import { useState, useMemo, memo } from 'react'
 import { toComma, toPct } from './chartTheme'
-import { TabGroup, Tab, TableWrapper, MiniTable, MiniTh, MiniTd } from './TimeSlotSalesChart.styles'
+import { TabGroup, Tab, MiniTable, MiniTh, MiniTd } from './TimeSlotSalesChart.styles'
 
 type MetricToggle = 'amount' | 'quantity'
 
@@ -28,18 +28,19 @@ interface Props {
   readonly hasPrev: boolean
   readonly curWeather?: readonly WeatherHourlyAvg[]
   readonly prevWeather?: readonly WeatherHourlyAvg[]
+  readonly gridLeft?: number
+  readonly gridRight?: number
 }
 
-interface TableRow {
+interface ColData {
   readonly hour: string
-  readonly hourNum: number
   readonly current: number
   readonly prev: number
   readonly diff: number
   readonly ratio: number | null
 }
 
-function buildRows(data: readonly ChartRow[], metric: MetricToggle, hasPrev: boolean): TableRow[] {
+function buildCols(data: readonly ChartRow[], metric: MetricToggle, hasPrev: boolean): ColData[] {
   const curKey = metric === 'amount' ? 'amount' : 'quantity'
   const prevKey = metric === 'amount' ? 'prevAmount' : 'prevQuantity'
 
@@ -48,9 +49,7 @@ function buildRows(data: readonly ChartRow[], metric: MetricToggle, hasPrev: boo
     const prev = hasPrev ? ((r[prevKey] as number) ?? 0) : 0
     const diff = current - prev
     const ratio = prev > 0 ? current / prev : null
-    const hourStr = r.hour as string
-    const hourNum = parseInt(hourStr, 10) || 0
-    return { hour: hourStr, hourNum, current, prev, diff, ratio }
+    return { hour: r.hour as string, current, prev, diff, ratio }
   })
 }
 
@@ -68,15 +67,18 @@ export const TimeSlotComparisonTable = memo(function TimeSlotComparisonTable({
   hasPrev,
   curWeather,
   prevWeather,
+  gridLeft = 55,
+  gridRight = 45,
 }: Props) {
   const [metric, setMetric] = useState<MetricToggle>('amount')
   const isAmount = metric === 'amount'
   const suffix = isAmount ? '円' : '点'
 
-  const rows = useMemo(() => buildRows(chartData, metric, hasPrev), [chartData, metric, hasPrev])
+  const cols = useMemo(() => buildCols(chartData, metric, hasPrev), [chartData, metric, hasPrev])
   const curW = useMemo(() => weatherByHour(curWeather), [curWeather])
   const prevW = useMemo(() => weatherByHour(prevWeather), [prevWeather])
   const hasWeather = curW.size > 0
+  const hasPrevWeather = hasWeather && hasPrev && prevW.size > 0
 
   return (
     <>
@@ -90,68 +92,120 @@ export const TimeSlotComparisonTable = memo(function TimeSlotComparisonTable({
           </Tab>
         </TabGroup>
       </div>
-      <TableWrapper>
-        <MiniTable>
+      <div style={{ overflowX: 'auto' }}>
+        <MiniTable style={{ tableLayout: 'fixed', width: '100%' }}>
+          <colgroup>
+            <col style={{ width: gridLeft }} />
+            {cols.map((c) => (
+              <col key={c.hour} />
+            ))}
+            {/* 右マージン分のダミー列 */}
+            <col style={{ width: gridRight }} />
+          </colgroup>
           <thead>
             <tr>
-              <MiniTh>時間帯</MiniTh>
-              <MiniTh>{curLabel}</MiniTh>
-              {hasPrev && <MiniTh>{compLabel}</MiniTh>}
-              {hasPrev && <MiniTh>差分</MiniTh>}
-              {hasPrev && <MiniTh>{compLabel}比</MiniTh>}
-              {hasWeather && <MiniTh>気温</MiniTh>}
-              {hasWeather && <MiniTh>降水</MiniTh>}
-              {hasWeather && hasPrev && prevW.size > 0 && <MiniTh>前年気温</MiniTh>}
+              <MiniTh style={{ textAlign: 'left' }}></MiniTh>
+              {cols.map((c) => (
+                <MiniTh key={c.hour}>{c.hour}時</MiniTh>
+              ))}
+              <MiniTh></MiniTh>
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => {
-              const cw = curW.get(row.hourNum)
-              const pw = prevW.get(row.hourNum)
-              return (
-                <tr key={row.hour}>
-                  <MiniTd>{row.hour}</MiniTd>
-                  <MiniTd>
-                    {toComma(row.current)}
+            {/* 当年 */}
+            <tr>
+              <MiniTd style={{ fontWeight: 600, textAlign: 'left' }}>{curLabel}</MiniTd>
+              {cols.map((c) => (
+                <MiniTd key={c.hour}>
+                  {toComma(c.current)}
+                  {suffix}
+                </MiniTd>
+              ))}
+              <MiniTd></MiniTd>
+            </tr>
+            {/* 前年 */}
+            {hasPrev && (
+              <tr>
+                <MiniTd style={{ fontWeight: 600, textAlign: 'left' }}>{compLabel}</MiniTd>
+                {cols.map((c) => (
+                  <MiniTd key={c.hour}>
+                    {toComma(c.prev)}
                     {suffix}
                   </MiniTd>
-                  {hasPrev && (
-                    <MiniTd>
-                      {toComma(row.prev)}
-                      {suffix}
-                    </MiniTd>
-                  )}
-                  {hasPrev && (
-                    <MiniTd $highlight $positive={row.diff >= 0}>
-                      {row.diff >= 0 ? '+' : ''}
-                      {toComma(row.diff)}
-                      {suffix}
-                    </MiniTd>
-                  )}
-                  {hasPrev && (
-                    <MiniTd $highlight $positive={(row.ratio ?? 0) >= 1}>
-                      {row.ratio != null ? toPct(row.ratio) : '-'}
-                    </MiniTd>
-                  )}
-                  {hasWeather && <MiniTd>{cw ? `${cw.avgTemperature.toFixed(1)}°` : '-'}</MiniTd>}
-                  {hasWeather && (
-                    <MiniTd>
-                      {cw
-                        ? cw.totalPrecipitation > 0
-                          ? `${cw.totalPrecipitation.toFixed(1)}mm`
+                ))}
+                <MiniTd></MiniTd>
+              </tr>
+            )}
+            {/* 差分 */}
+            {hasPrev && (
+              <tr>
+                <MiniTd style={{ fontWeight: 600, textAlign: 'left' }}>差分</MiniTd>
+                {cols.map((c) => (
+                  <MiniTd key={c.hour} $highlight $positive={c.diff >= 0}>
+                    {c.diff >= 0 ? '+' : ''}
+                    {toComma(c.diff)}
+                    {suffix}
+                  </MiniTd>
+                ))}
+                <MiniTd></MiniTd>
+              </tr>
+            )}
+            {/* 前年比 */}
+            {hasPrev && (
+              <tr>
+                <MiniTd style={{ fontWeight: 600, textAlign: 'left' }}>{compLabel}比</MiniTd>
+                {cols.map((c) => (
+                  <MiniTd key={c.hour} $highlight $positive={(c.ratio ?? 0) >= 1}>
+                    {c.ratio != null ? toPct(c.ratio) : '-'}
+                  </MiniTd>
+                ))}
+                <MiniTd></MiniTd>
+              </tr>
+            )}
+            {/* 気温 */}
+            {hasWeather && (
+              <tr>
+                <MiniTd style={{ fontWeight: 600, textAlign: 'left' }}>気温</MiniTd>
+                {cols.map((c) => {
+                  const w = curW.get(parseInt(c.hour, 10) || 0)
+                  return <MiniTd key={c.hour}>{w ? `${w.avgTemperature.toFixed(1)}°` : '-'}</MiniTd>
+                })}
+                <MiniTd></MiniTd>
+              </tr>
+            )}
+            {/* 降水量 */}
+            {hasWeather && (
+              <tr>
+                <MiniTd style={{ fontWeight: 600, textAlign: 'left' }}>降水</MiniTd>
+                {cols.map((c) => {
+                  const w = curW.get(parseInt(c.hour, 10) || 0)
+                  return (
+                    <MiniTd key={c.hour}>
+                      {w
+                        ? w.totalPrecipitation > 0
+                          ? `${w.totalPrecipitation.toFixed(1)}mm`
                           : '-'
                         : '-'}
                     </MiniTd>
-                  )}
-                  {hasWeather && hasPrev && prevW.size > 0 && (
-                    <MiniTd>{pw ? `${pw.avgTemperature.toFixed(1)}°` : '-'}</MiniTd>
-                  )}
-                </tr>
-              )
-            })}
+                  )
+                })}
+                <MiniTd></MiniTd>
+              </tr>
+            )}
+            {/* 前年気温 */}
+            {hasPrevWeather && (
+              <tr>
+                <MiniTd style={{ fontWeight: 600, textAlign: 'left' }}>{compLabel}気温</MiniTd>
+                {cols.map((c) => {
+                  const w = prevW.get(parseInt(c.hour, 10) || 0)
+                  return <MiniTd key={c.hour}>{w ? `${w.avgTemperature.toFixed(1)}°` : '-'}</MiniTd>
+                })}
+                <MiniTd></MiniTd>
+              </tr>
+            )}
           </tbody>
         </MiniTable>
-      </TableWrapper>
+      </div>
     </>
   )
 })

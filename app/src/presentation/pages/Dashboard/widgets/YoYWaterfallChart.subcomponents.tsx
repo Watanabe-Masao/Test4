@@ -11,6 +11,7 @@ import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { EChart, type EChartsOption } from '@/presentation/components/charts/EChart'
 import {
+  yenYAxis,
   standardGrid,
   standardTooltip,
 } from '@/presentation/components/charts/echartsOptionBuilders'
@@ -174,126 +175,71 @@ export const WaterfallBarChart = memo(function WaterfallBarChart({ data }: Water
   const { format: fmtCurrency } = useCurrencyFormat()
 
   const option = useMemo((): EChartsOption => {
-    // 要因項目のみ抽出（前期売上・当期売上の合計バーを除く）
-    const factors = data.filter((d) => !d.isTotal)
-    if (factors.length === 0) return {}
-
-    const names = factors.map((d) => d.name)
-    const netTotal = factors.reduce((sum, d) => sum + d.value, 0)
-
+    const names = data.map((d) => d.name)
+    const needsRotation = data.length > 6
     return {
       grid: {
         ...standardGrid(),
-        left: 110,
-        right: 80,
-        top: 10,
-        bottom: 10,
+        top: 30,
+        bottom: needsRotation ? 60 : 30,
       },
       tooltip: {
         ...standardTooltip(theme),
         trigger: 'axis' as const,
         formatter: (params: unknown) => {
           const arr = Array.isArray(params) ? params : [params]
-          const first = arr[0] as { dataIndex: number } | undefined
-          if (!first) return ''
-          const item = factors[first.dataIndex]
+          const p = arr[0] as { dataIndex: number } | undefined
+          if (!p) return ''
+          const item = data[p.dataIndex]
           if (!item) return ''
-          const sign = item.value >= 0 ? '+' : ''
-          let html = `<strong>${item.name}</strong><br/>`
-          html += `${sign}${fmtCurrency(item.value)}`
-          html += `<br/><hr style="margin:4px 0;border:none;border-top:1px solid rgba(128,128,128,0.3)"/>`
-          const netSign = netTotal >= 0 ? '+' : ''
-          html += `<span style="color:#8b5cf6">● 効果合計: ${netSign}${fmtCurrency(netTotal)}</span>`
-          return html
+          return `${item.name}<br/>${fmtCurrency(item.value)}`
         },
       },
       xAxis: {
-        type: 'value' as const,
-        axisLabel: {
-          formatter: (v: number) => fmt(v),
-          color: theme.colors.text3,
-          fontSize: 10,
-          fontFamily: theme.typography.fontFamily.mono,
-        },
-        axisLine: { lineStyle: { color: theme.colors.border } },
-        splitLine: {
-          lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' as const },
-        },
-      },
-      yAxis: {
         type: 'category' as const,
         data: names,
-        inverse: true,
         axisLabel: {
-          color: theme.colors.text,
-          fontSize: 11,
+          color: theme.colors.text3,
+          fontSize: 10,
           fontFamily: theme.typography.fontFamily.primary,
-          width: 100,
-          overflow: 'truncate' as const,
+          rotate: needsRotation ? -30 : 0,
         },
         axisLine: { lineStyle: { color: theme.colors.border } },
         axisTick: { show: false },
       },
+      yAxis: yenYAxis(theme),
       series: [
         {
           type: 'bar' as const,
-          data: factors.map((d) => ({
-            value: d.value,
-            itemStyle: {
-              color: d.value >= 0 ? sc.positive : sc.negative,
-              opacity: 0.85,
-              borderRadius: [2, 2, 2, 2],
-            },
-          })),
-          barMaxWidth: 28,
+          data: data.map((d) => {
+            const color = d.isTotal
+              ? theme.colors.palette.primary
+              : d.value >= 0
+                ? sc.positive
+                : sc.negative
+            return {
+              value: [d.base, d.base + d.bar],
+              itemStyle: { color, opacity: 0.85 },
+            }
+          }),
+          barMaxWidth: 40,
           label: {
-            show: true,
-            position: 'right' as const,
+            show: data.length <= 8,
+            position: 'top' as const,
             distance: 4,
             formatter: (params: unknown) => {
               const p = params as { dataIndex: number }
-              const item = factors[p.dataIndex]
-              if (!item) return ''
-              return fmt(item.value)
+              const item = data[p.dataIndex]
+              return item ? fmt(item.value) : ''
             },
             fontSize: 9,
             color: theme.colors.text,
             fontFamily: theme.typography.fontFamily.mono,
           },
         },
-        {
-          name: '効果合計',
-          type: 'line' as const,
-          data: factors.map(() => netTotal),
-          symbol: 'circle',
-          symbolSize: 6,
-          lineStyle: { color: '#8b5cf6', width: 2 },
-          itemStyle: { color: '#8b5cf6' },
-          label: {
-            show: true,
-            position: 'right' as const,
-            formatter: (p: unknown) => {
-              const params = p as { dataIndex: number }
-              return params.dataIndex === 0 ? fmt(netTotal) : ''
-            },
-            fontSize: 9,
-            color: '#8b5cf6',
-            fontFamily: theme.typography.fontFamily.mono,
-          },
-          z: 10,
-        },
       ],
-      markLine: {
-        silent: true,
-        symbol: 'none',
-        lineStyle: { color: theme.colors.border, type: 'dashed' as const },
-        data: [{ xAxis: 0 }],
-        label: { show: false },
-      },
     }
   }, [data, theme, fmt, fmtCurrency])
 
-  const chartH = Math.max(120, data.filter((d) => !d.isTotal).length * 50 + 40)
-
-  return <EChart option={option} height={chartH} ariaLabel="要因分解トルネードチャート" />
+  return <EChart option={option} height={360} ariaLabel="前年比較ウォーターフォールチャート" />
 })

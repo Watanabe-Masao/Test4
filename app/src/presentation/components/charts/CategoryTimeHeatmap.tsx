@@ -2,13 +2,13 @@
  * CategoryTimeHeatmap — カテゴリ×時間帯ヒートマップ
  *
  * 部門（行）×時間帯（列）の売上金額をヒートマップで表示。
- * ECharts の heatmap シリーズを使用。
+ * gridLeft / gridRight で親チャートのプロットエリアと列位置を揃える。
  */
 import { memo, useMemo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { EChart, type EChartsOption } from './EChart'
-import { standardGrid, standardTooltip } from './echartsOptionBuilders'
+import { standardTooltip } from './echartsOptionBuilders'
 import { useCurrencyFormatter } from './chartTheme'
 
 export interface CategoryHourlyItem {
@@ -22,11 +22,15 @@ export interface CategoryHourlyItem {
 interface Props {
   readonly data: readonly CategoryHourlyItem[]
   readonly metric?: 'amount' | 'quantity'
+  readonly gridLeft?: number
+  readonly gridRight?: number
 }
 
 export const CategoryTimeHeatmap = memo(function CategoryTimeHeatmap({
   data,
   metric = 'amount',
+  gridLeft = 55,
+  gridRight = 45,
 }: Props) {
   const theme = useTheme() as AppTheme
   const fmt = useCurrencyFormatter()
@@ -68,11 +72,11 @@ export const CategoryTimeHeatmap = memo(function CategoryTimeHeatmap({
 
     return {
       grid: {
-        ...standardGrid(),
-        left: 80,
-        right: 40,
+        left: gridLeft,
+        right: gridRight,
         top: 10,
-        bottom: 30,
+        bottom: 20,
+        containLabel: false,
       },
       tooltip: {
         ...standardTooltip(theme),
@@ -104,7 +108,7 @@ export const CategoryTimeHeatmap = memo(function CategoryTimeHeatmap({
           color: theme.colors.text,
           fontSize: 10,
           fontFamily: theme.typography.fontFamily.primary,
-          width: 70,
+          width: gridLeft - 8,
           overflow: 'truncate' as const,
         },
         axisLine: { lineStyle: { color: theme.colors.border } },
@@ -148,10 +152,10 @@ export const CategoryTimeHeatmap = memo(function CategoryTimeHeatmap({
         },
       ],
     }
-  }, [data, metric, theme, fmt])
+  }, [data, metric, gridLeft, gridRight, theme, fmt])
 
   const deptCount = useMemo(() => new Set(data.map((d) => d.code)).size, [data])
-  const chartH = Math.max(120, deptCount * 28 + 50)
+  const chartH = Math.max(120, deptCount * 28 + 40)
 
   if (data.length === 0) return null
 

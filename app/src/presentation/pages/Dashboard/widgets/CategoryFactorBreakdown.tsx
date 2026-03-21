@@ -380,7 +380,7 @@ export const CategoryFactorBreakdown = memo(function CategoryFactorBreakdown({
 
   const levelLabel =
     currentLevel === 'dept' ? '部門' : currentLevel === 'line' ? 'ライン' : 'クラス'
-  const chartH = Math.max(compact ? 200 : 260, items.length * (compact ? 36 : 44) + 50)
+  const chartH = Math.max(compact ? 200 : 260, items.length * (compact ? 32 : 38) + 50)
 
   return (
     <div>
@@ -515,7 +515,7 @@ const CategoryFactorEChart = memo(function CategoryFactorEChart({
 }) {
   const option = useMemo((): EChartsOption => {
     const names = waterfallItems.map((d) => d.name)
-    const barSize = compact ? 20 : 26
+    const barSize = compact ? 18 : 22
 
     // 要因定義: 名前・色・値取得関数
     type FactorDef = {
@@ -615,7 +615,7 @@ const CategoryFactorEChart = memo(function CategoryFactorEChart({
       grid: {
         ...standardGrid(),
         left: compact ? 60 : 80,
-        right: compact ? 50 : 60,
+        right: compact ? 50 : 70,
         top: 10,
         bottom: 10,
       },
@@ -674,7 +674,7 @@ const CategoryFactorEChart = memo(function CategoryFactorEChart({
         inverse: true,
         axisLabel: {
           color: theme.colors.text,
-          fontSize: compact ? 10 : 11,
+          fontSize: compact ? 9 : 11,
           fontFamily: theme.typography.fontFamily.primary,
           width: compact ? 55 : 75,
           overflow: 'truncate' as const,
