@@ -760,6 +760,54 @@ describe('Architecture Guard', () => {
   // DailyRecord Map を直接走査して集計してはならない。
   // データ整合性は DuckDB（store_day_summary + CTS）側で保証する。
 
+  // ─── ctx 提供データの重複取得禁止ガード ────────────────
+  // useUnifiedWidgetContext で一元取得されるデータは、ウィジェットや
+  // チャートコンポーネントが独自に hook を呼んで取得してはならない。
+  // 同じデータに対して複数の取得パスが存在すると、引数解決の不整合で
+  // 一方だけデータが空になるバグが発生する。
+  //
+  // 許可:
+  //   - useUnifiedWidgetContext.ts 自身
+  //   - _prototypes/ 内の仮実装
+  //   - EtrnTestWidget.tsx（開発用デバッグウィジェット）
+
+  /** ctx で提供されるデータの取得 hook 一覧 */
+  const CTX_PROVIDED_HOOKS = [
+    'useWeatherData', // → ctx.weatherDaily
+  ]
+
+  const CTX_HOOK_ALLOWLIST = new Set([
+    'presentation/hooks/useUnifiedWidgetContext.ts',
+    'presentation/pages/Dashboard/widgets/EtrnTestWidget.tsx',
+  ])
+
+  it('ウィジェット/チャートが ctx 提供データの hook を独自に呼ばない', () => {
+    const dirs = [
+      path.join(SRC_DIR, 'presentation', 'pages', 'Dashboard', 'widgets'),
+      path.join(SRC_DIR, 'presentation', 'components', 'charts'),
+      path.join(SRC_DIR, 'presentation', 'hooks'),
+    ]
+
+    const allFiles = dirs.flatMap((d) => (fs.existsSync(d) ? collectTsFiles(d) : []))
+    const violations: string[] = []
+
+    for (const file of allFiles) {
+      const relPath = relativePath(file)
+      if (CTX_HOOK_ALLOWLIST.has(relPath)) continue
+      if (relPath.includes('_prototypes/')) continue
+
+      const content = fs.readFileSync(file, 'utf-8')
+      for (const hook of CTX_PROVIDED_HOOKS) {
+        const importPattern = new RegExp(`import\\s+.*\\b${hook}\\b`)
+        if (importPattern.test(content)) {
+          violations.push(`${relPath}: ${hook} を直接 import。ctx 経由で取得してください`)
+        }
+      }
+    }
+
+    expect(violations, `ctx 提供データの重複取得:\n${violations.join('\n')}`).toEqual([])
+  })
+
   it('サブ分析パネルが DailyRecord Map を集計に使用しない', () => {
     const chartDir = path.join(SRC_DIR, 'presentation', 'components', 'charts')
     const panelFiles = collectTsFiles(chartDir).filter((f) => f.endsWith('Panel.tsx'))
