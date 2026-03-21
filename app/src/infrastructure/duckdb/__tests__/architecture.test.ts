@@ -146,7 +146,6 @@ describe('ウィジェットレジストリの DuckDB エントリ', () => {
   const duckdbOnlyWidgetIds = [
     'analysis-duckdb-features',
     'analysis-duckdb-cumulative',
-    'analysis-duckdb-dept-trend',
     'duckdb-dow-pattern',
     'duckdb-category-trend',
     'duckdb-category-hourly',
