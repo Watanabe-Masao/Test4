@@ -9,7 +9,7 @@ import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { EChart, type EChartsOption } from './EChart'
 import { standardTooltip } from './echartsOptionBuilders'
-import { useCurrencyFormatter } from './chartTheme'
+import { useCurrencyFormat } from './chartTheme'
 
 export interface CategoryHourlyItem {
   readonly code: string
@@ -33,7 +33,7 @@ export const CategoryTimeHeatmap = memo(function CategoryTimeHeatmap({
   gridRight = 45,
 }: Props) {
   const theme = useTheme() as AppTheme
-  const fmt = useCurrencyFormatter()
+  const cf = useCurrencyFormat()
 
   const option = useMemo((): EChartsOption => {
     if (data.length === 0) return {}
@@ -85,7 +85,7 @@ export const CategoryTimeHeatmap = memo(function CategoryTimeHeatmap({
           const [hi, di, val] = p.data
           const dept = depts[di] ?? ''
           const hour = hourLabels[hi] ?? ''
-          const formatted = isAmount ? fmt(val) : `${val.toLocaleString()}点`
+          const formatted = isAmount ? cf.formatWithUnit(val) : `${val.toLocaleString()}点`
           return `${dept} ${hour}<br/>${formatted}`
         },
       },
@@ -144,7 +144,7 @@ export const CategoryTimeHeatmap = memo(function CategoryTimeHeatmap({
               const val = p.data[2]
               if (val === 0) return ''
               if (isAmount) {
-                return val >= 10000 ? `${Math.round(val / 10000)}万` : fmt(val)
+                return cf.formatWithUnit(val)
               }
               return val.toLocaleString()
             },
@@ -152,7 +152,7 @@ export const CategoryTimeHeatmap = memo(function CategoryTimeHeatmap({
         },
       ],
     }
-  }, [data, metric, gridLeft, gridRight, theme, fmt])
+  }, [data, metric, gridLeft, gridRight, theme, cf])
 
   const deptCount = useMemo(() => new Set(data.map((d) => d.code)).size, [data])
   const chartH = Math.max(120, deptCount * 28 + 40)

@@ -2,6 +2,7 @@
  * YoYWaterfallChart の型定義・定数データ・データ変換関数
  */
 import { decompose2, decompose3, decompose5 } from '@/application/hooks/calculation'
+import { calculateShare } from '@/domain/calculations/utils'
 import { recordsToCategoryQtyAmt } from './categoryFactorUtils'
 import type { CategoryTimeSalesRecord } from '@/domain/models/record'
 
@@ -174,13 +175,19 @@ interface CategoryDataParams {
   readonly curLabel: string
 }
 
-export function buildCategoryData(p: CategoryDataParams): WaterfallItem[] {
-  if (p.periodCTS.length === 0 || p.periodPrevCTS.length === 0) return []
-  if (!p.hasComparison || p.prevSales <= 0) return []
+/** 部門別増減の構築結果 */
+export interface CategoryDataResult {
+  readonly items: readonly WaterfallItem[]
+  /** CTS合計と部門内訳の残差（0に近いほど正常） */
+  readonly residual: number
+  /** 残差率（anchorCur 基準、1%超で警告推奨） */
+  readonly residualPct: number
+}
 
-  // アンカー: 日別データ由来の合計
-  const anchorPrev = p.prevSales
-  const anchorCur = p.curSales
+export function buildCategoryData(p: CategoryDataParams): CategoryDataResult {
+  const EMPTY: CategoryDataResult = { items: [], residual: 0, residualPct: 0 }
+  if (p.periodCTS.length === 0 || p.periodPrevCTS.length === 0) return EMPTY
+  if (!p.hasComparison || p.prevSales <= 0) return EMPTY
 
   // Aggregate by department (CTS由来)
   const curDepts = new Map<string, { name: string; amount: number }>()
@@ -199,6 +206,16 @@ export function buildCategoryData(p: CategoryDataParams): WaterfallItem[] {
     prevDepts.set(code, ex)
   }
 
+  // CTS由来の合計をアンカーに使う（データソース統一で調整不要）
+  let ctsPrevTotal = 0
+  for (const d of prevDepts.values()) ctsPrevTotal += d.amount
+  let ctsCurTotal = 0
+  for (const d of curDepts.values()) ctsCurTotal += d.amount
+
+  // CTS データが空に近い場合は r.daily にフォールバック
+  const anchorPrev = ctsPrevTotal > 0 ? ctsPrevTotal : p.prevSales
+  const anchorCur = ctsCurTotal > 0 ? ctsCurTotal : p.curSales
+
   // Build items sorted by absolute difference (largest impact first)
   const allCodes = new Set([...curDepts.keys(), ...prevDepts.keys()])
   const diffs: { code: string; name: string; diff: number }[] = []
@@ -214,7 +231,7 @@ export function buildCategoryData(p: CategoryDataParams): WaterfallItem[] {
 
   const items: WaterfallItem[] = []
 
-  // Start: 比較元売上（売上データにアンカー）
+  // Start: 比較元売上（CTS合計にアンカー）
   items.push({
     name: `${p.prevLabel}売上`,
     value: anchorPrev,
@@ -250,18 +267,20 @@ export function buildCategoryData(p: CategoryDataParams): WaterfallItem[] {
     }
   }
 
-  // データソース差異の端数調整
+  // 残差計算（同一データソースなら 0 に近い。大きければデータ不整合）
   const residual = anchorCur - running
+  const residualPct = calculateShare(Math.abs(residual), anchorCur)
+
   if (Math.abs(residual) >= 1) {
     items.push({
-      name: '端数調整',
+      name: '調整',
       value: residual,
       base: residual >= 0 ? running : running + residual,
       bar: Math.abs(residual),
     })
   }
 
-  // End: 当期売上（売上データにアンカー）
+  // End: 当期売上（CTS合計にアンカー）
   items.push({
     name: `${p.curLabel}売上`,
     value: anchorCur,
@@ -270,5 +289,5 @@ export function buildCategoryData(p: CategoryDataParams): WaterfallItem[] {
     isTotal: true,
   })
 
-  return items
+  return { items, residual, residualPct }
 }

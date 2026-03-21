@@ -5,10 +5,19 @@
  * gridLeft / gridRight でチャートのプロットエリアと列位置を揃える。
  */
 import { useState, useMemo, memo } from 'react'
-import { toComma, toPct } from './chartTheme'
+import { toPct, useCurrencyFormat } from './chartTheme'
+import { categorizeWeatherCode } from '@/domain/calculations/weatherAggregation'
 import { TabGroup, Tab, MiniTable, MiniTh, MiniTd } from './TimeSlotSalesChart.styles'
 
 type MetricToggle = 'amount' | 'quantity'
+
+const WEATHER_ICONS: Record<string, string> = {
+  sunny: '\u2600\uFE0F',
+  cloudy: '\u2601\uFE0F',
+  rainy: '\uD83C\uDF27\uFE0F',
+  snowy: '\u2744\uFE0F',
+  other: '\uD83C\uDF00',
+}
 
 interface ChartRow {
   readonly [key: string]: string | number | null
@@ -19,6 +28,7 @@ export interface WeatherHourlyAvg {
   readonly hour: number
   readonly avgTemperature: number
   readonly totalPrecipitation: number
+  readonly weatherCode?: number | null
 }
 
 interface Props {
@@ -72,13 +82,37 @@ export const TimeSlotComparisonTable = memo(function TimeSlotComparisonTable({
 }: Props) {
   const [metric, setMetric] = useState<MetricToggle>('amount')
   const isAmount = metric === 'amount'
-  const suffix = isAmount ? '円' : '点'
+  const cf = useCurrencyFormat()
 
   const cols = useMemo(() => buildCols(chartData, metric, hasPrev), [chartData, metric, hasPrev])
   const curW = useMemo(() => weatherByHour(curWeather), [curWeather])
   const prevW = useMemo(() => weatherByHour(prevWeather), [prevWeather])
   const hasWeather = curW.size > 0
   const hasPrevWeather = hasWeather && hasPrev && prevW.size > 0
+
+  const fmtVal = isAmount
+    ? (v: number) => cf.formatWithUnit(v)
+    : (v: number) => `${v.toLocaleString()}点`
+
+  const fmtDiff = isAmount
+    ? (v: number) => `${v >= 0 ? '+' : ''}${cf.formatWithUnit(v)}`
+    : (v: number) => `${v >= 0 ? '+' : ''}${v.toLocaleString()}点`
+
+  /** 天気コードからアイコンを取得 */
+  const weatherIcon = (w: WeatherHourlyAvg | undefined): string => {
+    if (!w?.weatherCode) return ''
+    const cat = categorizeWeatherCode(w.weatherCode)
+    return WEATHER_ICONS[cat] ?? ''
+  }
+
+  const hasWeatherCodes = useMemo(
+    () => curWeather?.some((w) => w.weatherCode != null) ?? false,
+    [curWeather],
+  )
+  const hasPrevWeatherCodes = useMemo(
+    () => prevWeather?.some((w) => w.weatherCode != null) ?? false,
+    [prevWeather],
+  )
 
   return (
     <>
@@ -112,26 +146,50 @@ export const TimeSlotComparisonTable = memo(function TimeSlotComparisonTable({
             </tr>
           </thead>
           <tbody>
+            {/* 天気アイコン（当年） */}
+            {hasWeatherCodes && (
+              <tr>
+                <MiniTd style={{ fontWeight: 600, textAlign: 'left' }}>天気</MiniTd>
+                {cols.map((c) => {
+                  const w = curW.get(parseInt(c.hour, 10) || 0)
+                  return (
+                    <MiniTd key={c.hour} style={{ textAlign: 'center', fontSize: '0.8rem' }}>
+                      {weatherIcon(w)}
+                    </MiniTd>
+                  )
+                })}
+                <MiniTd></MiniTd>
+              </tr>
+            )}
             {/* 当年 */}
             <tr>
               <MiniTd style={{ fontWeight: 600, textAlign: 'left' }}>{curLabel}</MiniTd>
               {cols.map((c) => (
-                <MiniTd key={c.hour}>
-                  {toComma(c.current)}
-                  {suffix}
-                </MiniTd>
+                <MiniTd key={c.hour}>{fmtVal(c.current)}</MiniTd>
               ))}
               <MiniTd></MiniTd>
             </tr>
+            {/* 前年天気アイコン */}
+            {hasPrevWeather && hasPrevWeatherCodes && (
+              <tr>
+                <MiniTd style={{ fontWeight: 600, textAlign: 'left' }}>{compLabel}天気</MiniTd>
+                {cols.map((c) => {
+                  const w = prevW.get(parseInt(c.hour, 10) || 0)
+                  return (
+                    <MiniTd key={c.hour} style={{ textAlign: 'center', fontSize: '0.8rem' }}>
+                      {weatherIcon(w)}
+                    </MiniTd>
+                  )
+                })}
+                <MiniTd></MiniTd>
+              </tr>
+            )}
             {/* 前年 */}
             {hasPrev && (
               <tr>
                 <MiniTd style={{ fontWeight: 600, textAlign: 'left' }}>{compLabel}</MiniTd>
                 {cols.map((c) => (
-                  <MiniTd key={c.hour}>
-                    {toComma(c.prev)}
-                    {suffix}
-                  </MiniTd>
+                  <MiniTd key={c.hour}>{fmtVal(c.prev)}</MiniTd>
                 ))}
                 <MiniTd></MiniTd>
               </tr>
@@ -142,9 +200,7 @@ export const TimeSlotComparisonTable = memo(function TimeSlotComparisonTable({
                 <MiniTd style={{ fontWeight: 600, textAlign: 'left' }}>差分</MiniTd>
                 {cols.map((c) => (
                   <MiniTd key={c.hour} $highlight $positive={c.diff >= 0}>
-                    {c.diff >= 0 ? '+' : ''}
-                    {toComma(c.diff)}
-                    {suffix}
+                    {fmtDiff(c.diff)}
                   </MiniTd>
                 ))}
                 <MiniTd></MiniTd>
