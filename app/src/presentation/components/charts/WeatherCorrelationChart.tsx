@@ -26,6 +26,8 @@ import {
 interface Props {
   readonly weatherDaily: readonly DailyWeatherSummary[]
   readonly salesDaily: readonly DailySalesForCorrelation[]
+  /** サブパネル埋め込み時に ChartCard ラッパーを省略する */
+  readonly embedded?: boolean
 }
 
 function CorrelationSummaryCard({ label, result }: { label: string; result: CorrelationResult }) {
@@ -45,6 +47,7 @@ function CorrelationSummaryCard({ label, result }: { label: string; result: Corr
 export const WeatherCorrelationChart = memo(function WeatherCorrelationChart({
   weatherDaily,
   salesDaily,
+  embedded,
 }: Props) {
   const theme = useTheme() as AppTheme
   const correlation = useWeatherCorrelation(weatherDaily, salesDaily)
@@ -90,15 +93,13 @@ export const WeatherCorrelationChart = memo(function WeatherCorrelationChart({
   }, [timelineData, theme])
 
   if (!correlation) {
-    return (
-      <ChartCard title="天気-売上 相関分析">
-        <ChartEmpty message="天気データまたは売上データが不足しています" />
-      </ChartCard>
-    )
+    const empty = <ChartEmpty message="天気データまたは売上データが不足しています" />
+    if (embedded) return empty
+    return <ChartCard title="天気-売上 相関分析">{empty}</ChartCard>
   }
 
-  return (
-    <ChartCard title={`天気-売上 相関分析（n=${correlation.dataPoints}）`}>
+  const content = (
+    <>
       <CorrelationGrid>
         <CorrelationSummaryCard label="売上 × 気温" result={correlation.salesVsTemperature} />
         <CorrelationSummaryCard label="売上 × 降水量" result={correlation.salesVsPrecipitation} />
@@ -110,6 +111,12 @@ export const WeatherCorrelationChart = memo(function WeatherCorrelationChart({
       </CorrelationGrid>
 
       <EChart option={option} height={220} ariaLabel="天気-売上相関タイムライン" />
-    </ChartCard>
+    </>
+  )
+
+  if (embedded) return content
+
+  return (
+    <ChartCard title={`天気-売上 相関分析（n=${correlation.dataPoints}）`}>{content}</ChartCard>
   )
 })

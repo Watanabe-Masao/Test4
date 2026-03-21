@@ -8,6 +8,7 @@ import { useMemo, memo } from 'react'
 import styled from 'styled-components'
 import type { DailyWeatherSummary } from '@/domain/models/record'
 import type { DailySalesForCorrelation } from '@/application/hooks/useWeatherCorrelation'
+import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import { useDuckDBStoreDaySummary } from '@/application/hooks/useDuckDBQuery'
 import type { DuckQueryContext } from './SubAnalysisPanel'
 import { WeatherCorrelationChart } from './WeatherCorrelationChart'
@@ -30,6 +31,8 @@ export const WeatherAnalysisPanel = memo(function WeatherAnalysisPanel({
     selectedStoreIds,
   )
 
+  const { year, month } = currentDateRange.from
+
   const salesDaily = useMemo((): readonly DailySalesForCorrelation[] => {
     if (!dailyRows) return []
     // 日別に集約（複数店舗の場合）
@@ -40,18 +43,27 @@ export const WeatherAnalysisPanel = memo(function WeatherAnalysisPanel({
       existing.customers += row.customers
       byDay.set(row.day, existing)
     }
+    // dateKey を 'YYYY-MM-DD' 形式に変換（weatherDaily の dateKey と一致させる）
     return [...byDay.entries()].map(([day, v]) => ({
-      dateKey: `${day}`,
+      dateKey: toDateKeyFromParts(year, month, day),
       sales: v.sales,
       customers: v.customers,
     }))
-  }, [dailyRows])
+  }, [dailyRows, year, month])
 
   if (!weatherDaily || weatherDaily.length === 0) {
-    return <NoData>天気データがありません</NoData>
+    return (
+      <NoData>
+        <NoDataTitle>天気データがありません</NoDataTitle>
+        <NoDataDesc>
+          設定画面で店舗の所在地（緯度・経度）を登録すると、
+          気象庁の過去天気データ（ETRN）を自動取得し、売上との相関を分析できます。
+        </NoDataDesc>
+      </NoData>
+    )
   }
 
-  return <WeatherCorrelationChart weatherDaily={weatherDaily} salesDaily={salesDaily} />
+  return <WeatherCorrelationChart weatherDaily={weatherDaily} salesDaily={salesDaily} embedded />
 })
 
 // ── Styles ──
@@ -59,6 +71,18 @@ export const WeatherAnalysisPanel = memo(function WeatherAnalysisPanel({
 const NoData = styled.div`
   text-align: center;
   color: ${({ theme }) => theme.colors.text4};
-  padding: ${({ theme }) => theme.spacing[4]};
-  font-size: 0.75rem;
+  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]};
+`
+
+const NoDataTitle = styled.div`
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: ${({ theme }) => theme.spacing[2]};
+`
+
+const NoDataDesc = styled.div`
+  font-size: 0.65rem;
+  line-height: 1.6;
+  max-width: 400px;
+  margin: 0 auto;
 `
