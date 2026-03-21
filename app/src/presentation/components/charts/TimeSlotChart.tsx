@@ -373,7 +373,7 @@ export const TimeSlotChart = memo(function TimeSlotChart({
         <CategoryTimeHeatmap
           data={d.categoryHourlyData ?? []}
           metric={heatmapMetric}
-          gridLeft={GRID_LEFT}
+          gridLeft={80}
           gridRight={GRID_RIGHT}
         />
       )}
