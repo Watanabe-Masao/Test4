@@ -71,7 +71,10 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
   const [displayMode, setDisplayMode] = useState<DisplayMode>('rate')
   const [expandedStore, setExpandedStore] = useState<string | null>(null)
 
-  const { daysInMonth, elapsedDays } = ctx
+  const { elapsedDays } = ctx
+  // ctx.daysInMonth は effectiveEndDay（elapsedDays でキャップ済み）のため、
+  // 予算按分には暦上の月日数を使用する
+  const calendarDaysInMonth = new Date(ctx.year, ctx.month, 0).getDate()
   const prevYearMode = ctx.comparisonFrame.policy === 'sameDayOfWeek' ? 'sameDow' : 'sameDate'
 
   const settings = useSettingsStore((s) => s.settings)
@@ -126,20 +129,33 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
 
   // Unified card array (order controlled by CONDITION_CARD_ORDER)
   const allCards = useMemo(() => {
-    const budgetCards = buildCardSummaries(ctx.result, elapsedDays, daysInMonth, ctx.fmtCurrency)
+    const budgetCards = buildCardSummaries(
+      ctx.result,
+      elapsedDays,
+      calendarDaysInMonth,
+      ctx.fmtCurrency,
+    )
+    // CTS レコードを経過日数でスコープ（販売点数前年比の整合性確保）
+    const effectiveDay = elapsedDays ?? calendarDaysInMonth
+    const scopedCurQty = ctsRecords
+      .filter((rec) => rec.day <= effectiveDay)
+      .reduce((sum, rec) => sum + rec.totalQuantity, 0)
+    const scopedPrevQty = prevCtsRecords
+      .filter((rec) => rec.day <= effectiveDay)
+      .reduce((sum, rec) => sum + rec.totalQuantity, 0)
     const yoyCards = buildYoYCards({
       result: ctx.result,
       prevYear: ctx.prevYear,
       config: effectiveConfig,
-      ctsCurrentQty: ctsRecords.reduce((sum, rec) => sum + rec.totalQuantity, 0),
-      ctsPrevQty: prevCtsRecords.reduce((sum, rec) => sum + rec.totalQuantity, 0),
+      ctsCurrentQty: scopedCurQty,
+      ctsPrevQty: scopedPrevQty,
       fmtCurrency: ctx.fmtCurrency,
     })
     return buildUnifiedCards(budgetCards, yoyCards, hasMultipleStores)
   }, [
     ctx.result,
     elapsedDays,
-    daysInMonth,
+    calendarDaysInMonth,
     ctx.fmtCurrency,
     ctx.prevYear,
     effectiveConfig,
