@@ -557,14 +557,15 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
     }
   }, [baseOption, onDayRangeSelect])
 
-  // 単日クリック → 1日分の range として通知
+  // 単日クリック → 1日分の range として通知（dataIndex で days から日付取得）
   const handleClick = useMemo(() => {
     if (!onDayRangeSelect) return undefined
     return (params: Record<string, unknown>) => {
-      const day = Number(params.name)
-      if (!isNaN(day) && day >= 1) onDayRangeSelect(day, day)
+      const idx = params.dataIndex as number | undefined
+      const day = idx != null && idx >= 0 && idx < days.length ? days[idx] : Number(params.name)
+      if (day != null && !isNaN(day) && day >= 1) onDayRangeSelect(day, day)
     }
-  }, [onDayRangeSelect])
+  }, [onDayRangeSelect, days])
 
   // ブラシ選択完了 → 日付範囲を通知
   const handleBrushEnd = useMemo(() => {

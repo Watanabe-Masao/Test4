@@ -13,7 +13,7 @@ import { useState, useCallback, memo } from 'react'
 import styled, { keyframes, css } from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
-import type { DailyRecord, DailyWeatherSummary } from '@/domain/models/record'
+import type { DailyRecord, DailyWeatherSummary, DiscountEntry } from '@/domain/models/record'
 import { useDrillDateRange } from '@/application/hooks/useDrillDateRange'
 import type { RightAxisMode } from './DailySalesChartBodyLogic'
 import type { ViewType } from './DailySalesChartBody'
@@ -34,9 +34,12 @@ interface Props {
   readonly month: number
   readonly prevYearDaily?: ReadonlyMap<
     string,
-    { sales: number; discount: number; customers?: number }
+    { sales: number; discount: number; customers?: number; discountEntries?: Record<string, number> }
   >
   readonly budgetDaily?: ReadonlyMap<number, number>
+  // SubAnalysisPanel（売変分析）用
+  readonly discountEntries?: readonly DiscountEntry[]
+  readonly totalGrossSales?: number
   // TimeSlotChart props
   readonly duckConn: AsyncDuckDBConnection | null
   readonly duckDataVersion: number
@@ -100,25 +103,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
         {canDrill && <DrillHint>日付をクリック or ドラッグで時間帯内訳を表示</DrillHint>}
       </ViewPane>
 
-      {/* サブ分析パネル（標準ビュー時: 月全体 / ドリルダウン時: 選択範囲で連動） */}
-      {dailyView === 'standard' && (
-        <SubAnalysisPanel
-          mode={rightAxisMode}
-          duckConn={props.duckConn}
-          duckDataVersion={props.duckDataVersion}
-          currentDateRange={isDrilled && rangeDateRange ? rangeDateRange : props.currentDateRange}
-          selectedStoreIds={props.selectedStoreIds}
-          prevYearScope={isDrilled && rangePrevYearScope ? rangePrevYearScope : props.prevYearScope}
-          weatherDaily={props.weatherDaily}
-          daily={props.daily}
-          daysInMonth={props.daysInMonth}
-          year={props.year}
-          month={props.month}
-          prevYearDaily={props.prevYearDaily}
-        />
-      )}
-
-      {/* 時間帯チャート（ドリルダウン先） */}
+      {/* 時間帯チャート（ドリルダウン先 — 親グラフとして先に表示） */}
       {isDrilled && (
         <ViewPane $active $direction="right">
           <BackButton onClick={handleBack}>
@@ -133,6 +118,26 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
             prevYearScope={rangePrevYearScope}
           />
         </ViewPane>
+      )}
+
+      {/* サブ分析パネル（連動グラフ — 親グラフの下に表示） */}
+      {dailyView === 'standard' && (
+        <SubAnalysisPanel
+          mode={rightAxisMode}
+          duckConn={props.duckConn}
+          duckDataVersion={props.duckDataVersion}
+          currentDateRange={isDrilled && rangeDateRange ? rangeDateRange : props.currentDateRange}
+          selectedStoreIds={props.selectedStoreIds}
+          prevYearScope={isDrilled && rangePrevYearScope ? rangePrevYearScope : props.prevYearScope}
+          weatherDaily={props.weatherDaily}
+          daily={props.daily}
+          daysInMonth={props.daysInMonth}
+          year={props.year}
+          month={props.month}
+          prevYearDaily={props.prevYearDaily}
+          discountEntries={props.discountEntries}
+          totalGrossSales={props.totalGrossSales}
+        />
       )}
     </Wrapper>
   )

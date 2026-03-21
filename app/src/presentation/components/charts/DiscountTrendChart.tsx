@@ -294,7 +294,14 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
     </>
   )
 
-  if (embedded) return content
+  if (embedded) {
+    return (
+      <>
+        {toolbar}
+        {content}
+      </>
+    )
+  }
 
   return (
     <ChartCard title={titleText} toolbar={toolbar}>

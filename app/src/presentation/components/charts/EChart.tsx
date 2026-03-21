@@ -10,7 +10,7 @@
  *
  * Logic.ts → option 生成 → EChart で描画、の統一パイプライン。
  */
-import { useRef, useEffect, memo } from 'react'
+import { useRef, useEffect, useCallback, memo } from 'react'
 import * as echarts from 'echarts/core'
 import {
   BarChart,
@@ -263,6 +263,53 @@ export const EChart = memo(function EChart({
       chart.off('brushEnd', handler)
     }
   }, [onBrushEnd])
+
+  // ブラシモード中のクリック検出
+  // brush が takeGlobalCursor でアクティブな間、通常の click イベントが抑制される。
+  // mousedown/mouseup で素早いクリック（移動なし）を検出し、onClick を手動発火する。
+  const mouseStateRef = useRef<{ x: number; y: number; time: number } | null>(null)
+  const handleMouseDown = useCallback((e: MouseEvent) => {
+    mouseStateRef.current = { x: e.clientX, y: e.clientY, time: Date.now() }
+  }, [])
+
+  useEffect(() => {
+    const container = containerRef.current
+    const chart = chartRef.current
+    if (!container || !chart || !onClick || !onBrushEnd) return
+
+    const handleMouseUp = (e: MouseEvent) => {
+      const state = mouseStateRef.current
+      if (!state) return
+      mouseStateRef.current = null
+
+      const dx = Math.abs(e.clientX - state.x)
+      const dy = Math.abs(e.clientY - state.y)
+      const dt = Date.now() - state.time
+
+      // 素早いクリック（移動 < 5px、時間 < 300ms）→ 単一選択として処理
+      if (dx < 5 && dy < 5 && dt < 300) {
+        const rect = container.getBoundingClientRect()
+        const x = e.clientX - rect.left
+        const y = e.clientY - rect.top
+        const point = chart.convertFromPixel('grid', [x, y])
+        if (point) {
+          const idx = Math.round(point[0])
+          const opt = chart.getOption() as { xAxis?: { data?: string[] }[] }
+          const xData = Array.isArray(opt.xAxis) ? opt.xAxis[0]?.data : undefined
+          if (xData && idx >= 0 && idx < xData.length) {
+            onClick({ name: xData[idx], dataIndex: idx })
+          }
+        }
+      }
+    }
+
+    container.addEventListener('mousedown', handleMouseDown)
+    container.addEventListener('mouseup', handleMouseUp)
+    return () => {
+      container.removeEventListener('mousedown', handleMouseDown)
+      container.removeEventListener('mouseup', handleMouseUp)
+    }
+  }, [onClick, onBrushEnd, handleMouseDown])
 
   // アンマウント時に破棄
   useEffect(() => {
