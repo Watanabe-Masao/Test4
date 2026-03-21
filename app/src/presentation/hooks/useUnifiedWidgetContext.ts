@@ -156,7 +156,7 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
   const ctx: UnifiedWidgetContext = {
     // コア
     result: r,
-    daysInMonth,
+    daysInMonth: effectiveEndDay,
     targetRate: settings.targetGrossProfitRate,
     warningRate: settings.warningThreshold,
     year: targetYear,
