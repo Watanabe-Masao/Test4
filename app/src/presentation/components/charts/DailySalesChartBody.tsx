@@ -403,17 +403,13 @@ function buildOption(
   }
 
   // ─── Rate: 予算達成率・前年比の推移（%表示） ───
+  // 率は domain/calculations の calculateAchievementRate / calculateYoYRatio で
+  // 事前計算済み（BaseDayItem.budgetAchievementRate / yoyRatio）。
+  // ここでは表示用の % 変換（×100）のみ行う。
   if (view === 'rate') {
-    const budgetVals = pluck(rows, 'budgetCum')
-    const currentVals = pluck(rows, 'currentCum')
-    const prevVals = pluck(rows, 'prevYearCum')
-
-    // 予算達成率 = currentCum / budgetCum * 100
-    const budgetRateData = currentVals.map((c, i) => {
-      const b = budgetVals[i]
-      if (c == null || b == null || b === 0) return null
-      return Math.round((c / b) * 10000) / 100
-    })
+    const budgetRateData = pluck(rows, 'budgetAchievementRate').map((v) =>
+      v != null ? Math.round(v * 10000) / 100 : null,
+    )
     series.push({
       name: 'budgetRate',
       type: 'line' as const,
@@ -431,13 +427,10 @@ function buildOption(
       },
     })
 
-    // 前年比 = currentCum / prevYearCum * 100
     if (hasPrev) {
-      const prevRateData = currentVals.map((c, i) => {
-        const p = prevVals[i]
-        if (c == null || p == null || p === 0) return null
-        return Math.round((c / p) * 10000) / 100
-      })
+      const prevRateData = pluck(rows, 'yoyRatio').map((v) =>
+        v != null ? Math.round(v * 10000) / 100 : null,
+      )
       series.push({
         name: 'prevYearRate',
         type: 'line' as const,

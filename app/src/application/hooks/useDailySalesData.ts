@@ -93,6 +93,10 @@ export interface BaseDayItem {
   /** 予算差累計 */
   budgetDiffCum: number | null
   budgetDaily: number | null
+  /** 予算達成率（currentCum / budgetCum、1.0 = 100%） */
+  budgetAchievementRate: number | null
+  /** 前年比（currentCum / prevYearCum、1.0 = 100%） */
+  yoyRatio: number | null
   salesMa7: number | null
   discountMa7: number | null
   prevDiscountMa7: number | null

@@ -10,6 +10,8 @@ import {
   safeDivide,
   calculateTransactionValue,
   calculateMovingAverage,
+  calculateAchievementRate,
+  calculateYoYRatio,
 } from '@/domain/calculations'
 import type { BaseDayItem, DiffTarget, WaterfallItem } from '../hooks/useDailySalesData'
 
@@ -109,6 +111,8 @@ export function buildBaseDayItems(
       budgetDiff,
       budgetDiffCum: budgetDaily ? cumBudgetDiff : null,
       budgetDaily: dayBudget,
+      budgetAchievementRate: cumBudget > 0 ? calculateAchievementRate(cumSales, cumBudget) : null,
+      yoyRatio: cumPrevSales > 0 ? calculateYoYRatio(cumSales, cumPrevSales) : null,
     })
   }
 

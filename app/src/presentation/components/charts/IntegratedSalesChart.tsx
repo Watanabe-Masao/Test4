@@ -5,11 +5,12 @@
  * 選択した日付範囲の時間帯別チャートにズームイン遷移する。
  * 「← 日別に戻る」ボタンで日別ビューにスライドバックする。
  */
-import { useState, useCallback, useMemo, memo } from 'react'
+import { useState, useCallback, memo } from 'react'
 import styled, { keyframes } from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import type { DailyRecord } from '@/domain/models/record'
+import { useDrillDateRange } from '@/application/hooks/useDrillDateRange'
 import { DailySalesChart } from './DailySalesChart'
 import { TimeSlotChart } from './TimeSlotChart'
 
@@ -51,28 +52,13 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
 
   const handleBack = useCallback(() => setSelectedRange(null), [])
 
-  // 選択範囲の DateRange を作成
-  const rangeDateRange = useMemo<DateRange | null>(() => {
-    if (selectedRange == null) return null
-    return {
-      from: { year: props.year, month: props.month, day: selectedRange.start },
-      to: { year: props.year, month: props.month, day: selectedRange.end },
-    }
-  }, [selectedRange, props.year, props.month])
-
-  // 前年スコープも範囲に合わせる
-  const rangePrevYearScope = useMemo<PrevYearScope | undefined>(() => {
-    if (selectedRange == null || !props.prevYearScope) return undefined
-    const ps = props.prevYearScope
-    const prevYear = ps.dateRange.from.year
-    return {
-      ...ps,
-      dateRange: {
-        from: { year: prevYear, month: props.month, day: selectedRange.start },
-        to: { year: prevYear, month: props.month, day: selectedRange.end },
-      },
-    }
-  }, [selectedRange, props.month, props.prevYearScope])
+  // DateRange 構築は application 層の hook に委譲（presentation 層でのデータ調停を防止）
+  const { dateRange: rangeDateRange, prevYearScope: rangePrevYearScope } = useDrillDateRange(
+    selectedRange,
+    props.year,
+    props.month,
+    props.prevYearScope,
+  )
 
   const isDrilled = selectedRange != null && rangeDateRange != null
 
