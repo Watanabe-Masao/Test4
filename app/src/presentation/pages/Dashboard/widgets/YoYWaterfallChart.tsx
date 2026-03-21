@@ -151,34 +151,33 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
         to: { year: ctx.year, month: ctx.month, day: wowRange.prevEnd },
       }
     }
-    // dowOffset を使って正確な比較日を計算（同曜日モードでも正しい期間を特定）
-    const startDate = new Date(ctx.year, ctx.month - 1, dayStart)
-    const endDate = new Date(ctx.year, ctx.month - 1, dayEnd)
-    const offsetMs = ctx.comparisonFrame.dowOffset * 86400000
-    const prevStart = new Date(startDate.getTime() + offsetMs)
-    const prevEnd = new Date(endDate.getTime() + offsetMs)
+    // 前年比: comparisonFrame.previous の年月 + スライダーの日範囲を使用
+    // prevYear.daily と同じ期間のCTSデータを取得するため、dowOffset ではなく
+    // comparisonFrame.previous が示す年月に dayStart〜dayEnd を適用する
+    const prev = ctx.comparisonFrame.previous
+    const prevMaxDay = prev.to.day
     return {
       from: {
-        year: prevStart.getFullYear(),
-        month: prevStart.getMonth() + 1,
-        day: prevStart.getDate(),
+        year: prev.from.year,
+        month: prev.from.month,
+        day: Math.min(dayStart, prevMaxDay),
       },
       to: {
-        year: prevEnd.getFullYear(),
-        month: prevEnd.getMonth() + 1,
-        day: prevEnd.getDate(),
+        year: prev.from.year,
+        month: prev.from.month,
+        day: Math.min(dayEnd, prevMaxDay),
       },
     }
   }, [
     activeCompMode,
     canWoW,
-    ctx.year,
-    ctx.month,
-    ctx.comparisonFrame.dowOffset,
+    ctx.comparisonFrame.previous,
     dayStart,
     dayEnd,
     wowRange.prevStart,
     wowRange.prevEnd,
+    ctx.year,
+    ctx.month,
   ])
 
   const prevIsPrevYear = activeCompMode !== 'wow'
