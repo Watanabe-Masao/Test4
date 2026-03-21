@@ -151,15 +151,16 @@ export function MapView({ scores }: { scores: readonly CategoryBenchmarkScore[] 
         ...standardTooltip(theme),
         formatter: (params: unknown) => {
           const p = params as {
-            data: { value: [number, number, number]; name: string; productType: string }
+            data?: { value?: [number, number, number]; name?: string; productType?: string }
           }
+          if (!p?.data?.value || !Array.isArray(p.data.value)) return ''
           const [x, y, sales] = p.data.value
           return (
-            `<strong>${p.data.name}</strong><br/>` +
+            `<strong>${p.data.name ?? ''}</strong><br/>` +
             `Index: ${x.toFixed(1)}<br/>` +
             `安定度: ${y.toFixed(1)}%<br/>` +
             `売上: ${toCommaYen(sales)}<br/>` +
-            `タイプ: ${TYPE_LABELS[p.data.productType as keyof typeof TYPE_LABELS]}`
+            `タイプ: ${TYPE_LABELS[(p.data.productType ?? '') as keyof typeof TYPE_LABELS] ?? ''}`
           )
         },
       },

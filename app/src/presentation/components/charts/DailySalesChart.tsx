@@ -34,6 +34,8 @@ interface Props {
   weatherDaily?: readonly DailyWeatherSummary[]
   /** 前年天気データ（X軸に前年天気+気温線を表示） */
   prevYearWeatherDaily?: readonly DailyWeatherSummary[]
+  /** 同曜日比較時の日オフセット（前年天気の日番号ずらし用） */
+  dowOffset?: number
   /** 右軸モード（親から制御する場合） */
   rightAxisMode?: RightAxisMode
   /** 右軸モード変更通知（親でサブパネル連動に使用） */
@@ -78,6 +80,7 @@ export const DailySalesChart = memo(function DailySalesChart({
   onDayRangeSelect,
   weatherDaily,
   prevYearWeatherDaily,
+  dowOffset,
   rightAxisMode: controlledRightAxisMode,
   onRightAxisModeChange,
   onViewChange,
@@ -185,6 +188,7 @@ export const DailySalesChart = memo(function DailySalesChart({
         onDayRangeSelect={onDayRangeSelect}
         weatherDaily={weatherDaily}
         prevYearWeatherDaily={prevYearWeatherDaily}
+        dowOffset={dowOffset}
         year={year}
         month={month}
         rightAxisMode={rightAxisMode}

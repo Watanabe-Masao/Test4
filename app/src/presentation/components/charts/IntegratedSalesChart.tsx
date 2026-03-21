@@ -51,6 +51,7 @@ interface Props {
   readonly currentDateRange: DateRange
   readonly selectedStoreIds: ReadonlySet<string>
   readonly prevYearScope?: PrevYearScope
+  readonly dowOffset?: number
   readonly weatherDaily?: readonly DailyWeatherSummary[]
   readonly prevYearWeatherDaily?: readonly DailyWeatherSummary[]
 }
@@ -103,6 +104,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
           onDayRangeSelect={canDrill ? handleDayRangeSelect : undefined}
           weatherDaily={props.weatherDaily}
           prevYearWeatherDaily={props.prevYearWeatherDaily}
+          dowOffset={props.dowOffset}
           rightAxisMode={rightAxisMode}
           onRightAxisModeChange={setRightAxisMode}
           onViewChange={setDailyView}

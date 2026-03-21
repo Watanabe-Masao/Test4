@@ -213,6 +213,7 @@ export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
           trigger: 'axis' as const,
           formatter: (params: unknown) => {
             const items = params as { seriesName: string; value: number | null; marker: string }[]
+            if (!Array.isArray(items) || items.length === 0) return ''
             const categoryName = (items[0] as unknown as Record<string, unknown>).name as string
             const lines = items.map((item) => {
               const label = ALL_LABELS[item.seriesName] ?? item.seriesName
@@ -326,6 +327,7 @@ export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
         trigger: 'axis' as const,
         formatter: (params: unknown) => {
           const items = params as { seriesName: string; value: number | null; marker: string }[]
+          if (!Array.isArray(items) || items.length === 0) return ''
           const categoryName = (items[0] as unknown as Record<string, unknown>).name as string
           const lines = items.map((item) => {
             const label = ALL_LABELS[item.seriesName] ?? item.seriesName

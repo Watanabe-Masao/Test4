@@ -104,10 +104,11 @@ export const PiCvBubbleChart = memo(function PiCvBubbleChart({
         ...standardTooltip(theme),
         formatter: (params: unknown) => {
           const p = params as {
-            data: { value: [number, number]; name: string; productType: string }
+            data?: { value?: [number, number]; name?: string; productType?: string }
           }
+          if (!p?.data?.value || !Array.isArray(p.data.value)) return ''
           const [x, y] = p.data.value
-          return `<strong>${p.data.name}</strong><br/>PI: ${x.toFixed(2)}<br/>CV: ${y.toFixed(2)}`
+          return `<strong>${p.data.name ?? ''}</strong><br/>PI: ${x.toFixed(2)}<br/>CV: ${y.toFixed(2)}`
         },
       },
       xAxis: {

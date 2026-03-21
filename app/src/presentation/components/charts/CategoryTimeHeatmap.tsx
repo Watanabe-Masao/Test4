@@ -81,7 +81,8 @@ export const CategoryTimeHeatmap = memo(function CategoryTimeHeatmap({
       tooltip: {
         ...standardTooltip(theme),
         formatter: (params: unknown) => {
-          const p = params as { data: [number, number, number] }
+          const p = params as { data?: [number, number, number] }
+          if (!Array.isArray(p?.data) || p.data.length < 3) return ''
           const [hi, di, val] = p.data
           const dept = depts[di] ?? ''
           const hour = hourLabels[hi] ?? ''
@@ -140,7 +141,8 @@ export const CategoryTimeHeatmap = memo(function CategoryTimeHeatmap({
             color: theme.colors.text,
             fontFamily: theme.typography.fontFamily.mono,
             formatter: (params: unknown) => {
-              const p = params as { data: [number, number, number] }
+              const p = params as { data?: [number, number, number] }
+              if (!Array.isArray(p?.data) || p.data.length < 3) return ''
               const val = p.data[2]
               if (val === 0) return ''
               if (isAmount) {

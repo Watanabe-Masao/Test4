@@ -228,10 +228,12 @@ export const CustomerScatterChart = memo(function CustomerScatterChart({
       tooltip: {
         ...standardTooltip(theme),
         formatter: (params: unknown) => {
-          const p = params as { data: { value: [number, number] }; seriesName: string }
+          const p = params as { data?: { value?: [number, number] }; seriesName?: string }
+          if (!p?.data?.value || !Array.isArray(p.data.value)) return ''
           const [x, y] = p.data.value
-          if (isYoy) return `${p.seriesName}<br/>客数変化: ${toPct(x)}<br/>単価変化: ${toPct(y)}`
-          return `${p.seriesName}<br/>客数: ${toComma(x)}人<br/>客単価: ${toComma(y)}円`
+          const name = p.seriesName ?? ''
+          if (isYoy) return `${name}<br/>客数変化: ${toPct(x)}<br/>単価変化: ${toPct(y)}`
+          return `${name}<br/>客数: ${toComma(x)}人<br/>客単価: ${toComma(y)}円`
         },
       },
       legend: { ...standardLegend(theme) },
