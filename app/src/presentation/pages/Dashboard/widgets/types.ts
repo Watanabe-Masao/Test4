@@ -3,7 +3,7 @@ import type { AsyncDuckDB, AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { StoreExplanations, MetricId, ObservationStatus } from '@/domain/models/analysis'
 import type { DateRange, ComparisonFrame, PrevYearScope } from '@/domain/models/calendar'
 import type { StoreResult, ViewType } from '@/domain/models/storeTypes'
-import type { Store } from '@/domain/models/record'
+import type { Store, DailyWeatherSummary } from '@/domain/models/record'
 import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/hooks/analytics'
 import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
 import type { DepartmentKpiIndex } from '@/domain/models/DepartmentKpiIndex'
@@ -121,4 +121,6 @@ export interface WidgetContext {
   fmtCurrency: CurrencyFormatter
   /** 前年店舗別仕入額（DuckDB UNION query 結果）。率ではなく額で持つ（禁止事項 #10） */
   prevYearStoreCostPrice?: ReadonlyMap<string, { cost: number; price: number }>
+  /** 天気データ（日別サマリ） */
+  weatherDaily?: readonly DailyWeatherSummary[]
 }

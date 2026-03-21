@@ -15,7 +15,7 @@ import { useChartTheme } from './chartTheme'
 import { DowPresetSelector } from './DowPresetSelector'
 import { useDailySalesData, type DiffTarget } from './useDailySalesData'
 import { DailySalesChartBody, type ViewType } from './DailySalesChartBody'
-import type { DailyRecord } from '@/domain/models/record'
+import type { DailyRecord, DailyWeatherSummary } from '@/domain/models/record'
 
 export type DailyChartMode = 'sales' | 'discount' | 'all'
 
@@ -29,6 +29,8 @@ interface Props {
   mode?: DailyChartMode
   /** バークリックまたはドラッグ選択で日付範囲を通知（時間帯ドリルダウン連動用） */
   onDayRangeSelect?: (startDay: number, endDay: number) => void
+  /** 天気データ（X軸に天気アイコン+気温を表示） */
+  weatherDaily?: readonly DailyWeatherSummary[]
 }
 
 const VIEW_LABELS: Record<ViewType, string> = {
@@ -65,6 +67,7 @@ export const DailySalesChart = memo(function DailySalesChart({
   prevYearDaily,
   budgetDaily,
   onDayRangeSelect,
+  weatherDaily,
 }: Props) {
   const ct = useChartTheme()
   const [view, setView] = useState<ViewType>('standard')
@@ -122,7 +125,7 @@ export const DailySalesChart = memo(function DailySalesChart({
       title={VIEW_TITLES[view][diffTarget]}
       toolbar={toolbar}
       ariaLabel="日別売上チャート"
-      height={400}
+      height={weatherDaily && weatherDaily.length > 0 ? 460 : 400}
     >
       <div style={{ display: 'flex', gap: '12px', marginBottom: '8px', flexWrap: 'wrap' }}>
         <DowPresetSelector selectedDows={selectedDows} onChange={handleDowChange} />
@@ -136,6 +139,9 @@ export const DailySalesChart = memo(function DailySalesChart({
         needRightAxis={needRightAxis}
         wfLegendPayload={wfLegendPayload}
         onDayRangeSelect={onDayRangeSelect}
+        weatherDaily={weatherDaily}
+        year={year}
+        month={month}
       />
     </ChartCard>
   )

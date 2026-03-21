@@ -15,6 +15,17 @@ import { EChart } from './EChart'
 import { standardGrid, lineDefaults } from './builders'
 import { type ChartTheme, toAxisYen, toComma, toPct } from './chartTheme'
 import type { DailySalesDataResult } from './useDailySalesData'
+import type { DailyWeatherSummary } from '@/domain/models/record'
+import {
+  buildWeatherMap,
+  buildXLabels,
+  ALL_LABELS,
+  HIDDEN_NAMES,
+  PERCENT_SERIES,
+  grad,
+  withAlpha,
+  pluck,
+} from './DailySalesChartBodyLogic'
 
 export type ViewType = 'standard' | 'cumulative' | 'difference' | 'rate'
 
@@ -28,63 +39,12 @@ interface Props {
   wfLegendPayload: { value: string; type: 'rect'; color: string }[] | undefined
   /** バークリックまたはドラッグ選択で日付範囲を通知 */
   onDayRangeSelect?: (startDay: number, endDay: number) => void
-}
-
-const ALL_LABELS: Record<string, string> = {
-  sales: '売上',
-  prevYearSales: '比較期売上',
-  customers: '点数',
-  prevCustomers: '比較期点数',
-  discount: '売変額',
-  prevYearDiscount: '比較期売変額',
-  currentCum: '当期累計',
-  prevYearCum: '比較期累計',
-  budgetCum: '予算累計',
-  discountCum: '売変累計（当期）',
-  prevYearDiscountCum: '売変累計（前年）',
-  wfYoyUp: '差分+',
-  wfYoyDown: '差分-',
-  discountDiffCum: '売変差累計',
-  budgetRate: '予算達成率',
-  prevYearRate: '前年比',
-  rateBand: '達成率帯',
-}
-
-/** 隠しシリーズ名（ツールチップから除外） */
-const HIDDEN_NAMES = new Set(['wfYoyBase', 'bandUpper', 'bandLower'])
-
-/** パーセント表示するシリーズ名 */
-const PERCENT_SERIES = new Set(['budgetRate', 'prevYearRate'])
-
-/** ECharts 用 linearGradient ヘルパー */
-function grad(color: string, o1: number, o2: number): object {
-  return {
-    type: 'linear' as const,
-    x: 0,
-    y: 0,
-    x2: 0,
-    y2: 1,
-    colorStops: [
-      { offset: 0, color: withAlpha(color, o1) },
-      { offset: 1, color: withAlpha(color, o2) },
-    ],
-  }
-}
-
-/** rgba ヘルパー — hex色にアルファを付与 */
-function withAlpha(hex: string, alpha: number): string {
-  const r = parseInt(hex.slice(1, 3), 16)
-  const g = parseInt(hex.slice(3, 5), 16)
-  const b = parseInt(hex.slice(5, 7), 16)
-  return `rgba(${r},${g},${b},${alpha})`
-}
-
-/** データ配列からキーの値配列を取り出す */
-function pluck(arr: readonly Record<string, unknown>[], key: string): (number | null)[] {
-  return arr.map((d) => {
-    const v = d[key]
-    return v == null ? null : (v as number)
-  })
+  /** 天気データ（X軸に天気アイコン+気温を表示） */
+  weatherDaily?: readonly DailyWeatherSummary[]
+  /** 当月の年（曜日算出用） */
+  year?: number
+  /** 当月の月（曜日算出用） */
+  month?: number
 }
 
 /** option 生成の本体 */
@@ -96,18 +56,25 @@ function buildOption(
   ct: ChartTheme,
   needRightAxis: boolean,
   wfLegendPayload: Props['wfLegendPayload'],
+  weatherMap?: ReadonlyMap<number, { icon: string; temp: number }>,
+  year?: number,
+  month?: number,
 ): EChartsOption {
   const rows = data as unknown as Record<string, unknown>[]
   const days = rows.map((d) => d.day as string | number)
+  const hasWeather = weatherMap != null && weatherMap.size > 0
+  const xLabels = buildXLabels(days, weatherMap ?? new Map(), year, month)
 
   // ── 共通軸 ──
   const xAxis: EChartsOption['xAxis'] = {
     type: 'category' as const,
-    data: days as string[],
+    data: xLabels,
     axisLabel: {
       color: ct.textMuted,
-      fontSize: ct.fontSize.xs,
+      fontSize: hasWeather ? 9 : ct.fontSize.xs,
       fontFamily: ct.monoFamily,
+      interval: 0,
+      lineHeight: hasWeather ? 14 : undefined,
     },
     axisLine: { lineStyle: { color: ct.grid } },
     axisTick: { show: false },
@@ -498,7 +465,13 @@ function buildOption(
   }
 
   return {
-    grid: { ...standardGrid(), top: 4, right: 12, left: 0, bottom: 30 },
+    grid: {
+      ...standardGrid(),
+      top: 4,
+      right: 12,
+      left: 0,
+      bottom: hasWeather ? 50 : 30,
+    },
     tooltip,
     legend,
     xAxis,
@@ -516,13 +489,31 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
   needRightAxis,
   wfLegendPayload,
   onDayRangeSelect,
+  weatherDaily,
+  year,
+  month,
 }: Props) {
   const rows = data as unknown as Record<string, unknown>[]
   const days = useMemo(() => rows.map((d) => d.day as number), [rows])
 
+  const weatherMap = useMemo(() => buildWeatherMap(weatherDaily), [weatherDaily])
+  const hasWeather = weatherMap.size > 0
+
   const baseOption = useMemo(
-    () => buildOption(data, view, isWf, hasPrev, ct, needRightAxis, wfLegendPayload),
-    [data, view, isWf, hasPrev, ct, needRightAxis, wfLegendPayload],
+    () =>
+      buildOption(
+        data,
+        view,
+        isWf,
+        hasPrev,
+        ct,
+        needRightAxis,
+        wfLegendPayload,
+        weatherMap,
+        year,
+        month,
+      ),
+    [data, view, isWf, hasPrev, ct, needRightAxis, wfLegendPayload, weatherMap, year, month],
   )
 
   // ブラシ設定を追加（ドラッグ選択機能が有効な場合のみ）
@@ -575,7 +566,7 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
   return (
     <EChart
       option={option}
-      height={300}
+      height={hasWeather ? 360 : 300}
       onClick={handleClick}
       onBrushEnd={handleBrushEnd}
       ariaLabel="日別売上チャート"

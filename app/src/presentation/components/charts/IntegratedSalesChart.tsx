@@ -9,7 +9,7 @@ import { useState, useCallback, memo } from 'react'
 import styled, { keyframes, css } from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
-import type { DailyRecord } from '@/domain/models/record'
+import type { DailyRecord, DailyWeatherSummary } from '@/domain/models/record'
 import { useDrillDateRange } from '@/application/hooks/useDrillDateRange'
 import { DailySalesChart } from './DailySalesChart'
 import { TimeSlotChart } from './TimeSlotChart'
@@ -36,6 +36,7 @@ interface Props {
   readonly currentDateRange: DateRange
   readonly selectedStoreIds: ReadonlySet<string>
   readonly prevYearScope?: PrevYearScope
+  readonly weatherDaily?: readonly DailyWeatherSummary[]
 }
 
 export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Props) {
@@ -82,6 +83,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
           prevYearDaily={props.prevYearDaily}
           budgetDaily={props.budgetDaily}
           onDayRangeSelect={canDrill ? handleDayRangeSelect : undefined}
+          weatherDaily={props.weatherDaily}
         />
         {canDrill && <DrillHint>日付をクリック or ドラッグで時間帯内訳を表示</DrillHint>}
       </ViewPane>
