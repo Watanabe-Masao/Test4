@@ -24,6 +24,7 @@ interface Props {
   readonly metric?: 'amount' | 'quantity'
   readonly gridLeft?: number
   readonly gridRight?: number
+  readonly minCellHeight?: number
 }
 
 export const CategoryTimeHeatmap = memo(function CategoryTimeHeatmap({
@@ -31,6 +32,7 @@ export const CategoryTimeHeatmap = memo(function CategoryTimeHeatmap({
   metric = 'amount',
   gridLeft = 55,
   gridRight = 45,
+  minCellHeight = 28,
 }: Props) {
   const theme = useTheme() as AppTheme
   const cf = useCurrencyFormat()
@@ -157,7 +159,8 @@ export const CategoryTimeHeatmap = memo(function CategoryTimeHeatmap({
   }, [data, metric, gridLeft, gridRight, theme, cf])
 
   const deptCount = useMemo(() => new Set(data.map((d) => d.code)).size, [data])
-  const chartH = Math.max(160, deptCount * 38 + 60)
+  // grid の top(10) + bottom(30) = 40px を確保し、残りを均等にセルに割り当て
+  const chartH = Math.max(160, deptCount * minCellHeight + 40)
 
   if (data.length === 0) return null
 

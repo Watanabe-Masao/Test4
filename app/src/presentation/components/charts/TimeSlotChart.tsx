@@ -33,7 +33,7 @@ import {
 } from './TimeSlotSalesChart.styles'
 import { HierarchySelect, ErrorMsg } from './TimeSlotChart.styles'
 import { useDuckDBTimeSlotData } from './useDuckDBTimeSlotData'
-import { TimeSlotComparisonTable } from './TimeSlotComparisonTable'
+import { TimeSlotComparisonTable, TimeSlotWeatherTable } from './TimeSlotComparisonTable'
 import { CategoryTimeHeatmap } from './CategoryTimeHeatmap'
 import { ChartSkeleton } from '@/presentation/components/common/feedback'
 import { EmptyState } from '@/presentation/components/common/layout'
@@ -102,9 +102,10 @@ export const TimeSlotChart = memo(function TimeSlotChart({
     [d.prevWeatherAvg],
   )
 
+  const hours = useMemo(() => d.chartData.map((r) => String(r.hour)), [d.chartData])
+
   // ECharts option for chart view — 金額(棒) + 点数(点線) 同時表示
   const chartOption = useMemo<EChartsOption>(() => {
-    const hours = d.chartData.map((r) => String(r.hour))
     const barColor = theme.colors.palette.primary
     const qtyColor = theme.colors.palette.cyan
 
@@ -197,7 +198,7 @@ export const TimeSlotChart = memo(function TimeSlotChart({
       ],
       series,
     }
-  }, [d.chartData, d.curLabel, d.compLabel, showPrev, theme])
+  }, [hours, d.chartData, d.curLabel, d.compLabel, showPrev, theme])
 
   if (d.error) {
     return (
@@ -331,6 +332,18 @@ export const TimeSlotChart = memo(function TimeSlotChart({
       {/* ── チャート（金額棒＋点数点線、前年比較付き） ── */}
       <EChart option={chartOption} height={320} ariaLabel="時間帯別売上チャート" />
 
+      {/* ── 天気テーブル（グラフ直下 — テーブル/ヒートマップ切替に関係なく常時表示） ── */}
+      <TimeSlotWeatherTable
+        hours={hours}
+        curLabel={d.curLabel}
+        compLabel={d.compLabel}
+        hasPrev={d.hasPrev}
+        curWeather={curWeatherForTable}
+        prevWeather={prevWeatherForTable}
+        gridLeft={GRID_LEFT}
+        gridRight={GRID_RIGHT}
+      />
+
       {/* ── 詳細ビュー切替（テーブル / ヒートマップ） ── */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12 }}>
         <TabGroup>
@@ -364,8 +377,6 @@ export const TimeSlotChart = memo(function TimeSlotChart({
           curLabel={d.curLabel}
           compLabel={d.compLabel}
           hasPrev={d.hasPrev}
-          curWeather={curWeatherForTable}
-          prevWeather={prevWeatherForTable}
           gridLeft={GRID_LEFT}
           gridRight={GRID_RIGHT}
         />
@@ -373,7 +384,7 @@ export const TimeSlotChart = memo(function TimeSlotChart({
         <CategoryTimeHeatmap
           data={d.categoryHourlyData ?? []}
           metric={heatmapMetric}
-          gridLeft={GRID_LEFT}
+          gridLeft={80}
           gridRight={GRID_RIGHT}
         />
       )}
