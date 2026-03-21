@@ -31,7 +31,7 @@ import {
   InsightBar,
   InsightItem,
 } from './TimeSlotSalesChart.styles'
-import { HierarchyRow, HierarchySelect, ErrorMsg } from './TimeSlotChart.styles'
+import { HierarchySelect, ErrorMsg } from './TimeSlotChart.styles'
 import { useDuckDBTimeSlotData } from './useDuckDBTimeSlotData'
 import { TimeSlotComparisonTable } from './TimeSlotComparisonTable'
 import { ChartSkeleton } from '@/presentation/components/common/feedback'
@@ -190,8 +190,8 @@ export const TimeSlotChart = memo(function TimeSlotChart({
       title={`時間帯別 ${d.compLabel}比較`}
       ariaLabel="時間帯別売上"
       toolbar={
-        d.hasPrev ? (
-          <Controls>
+        <Controls>
+          {d.hasPrev && (
             <TabGroup>
               <Tab $active={d.compMode === 'yoy'} onClick={() => d.setCompMode('yoy')}>
                 前年比
@@ -200,8 +200,38 @@ export const TimeSlotChart = memo(function TimeSlotChart({
                 前週比
               </Tab>
             </TabGroup>
-          </Controls>
-        ) : undefined
+          )}
+          {d.deptOptions.length > 1 && (
+            <HierarchySelect value={d.deptCode} onChange={(e) => d.setDeptCode(e.target.value)}>
+              <option value="">全部門</option>
+              {d.deptOptions.map((o) => (
+                <option key={o.code} value={o.code}>
+                  {o.name}
+                </option>
+              ))}
+            </HierarchySelect>
+          )}
+          {d.deptCode && d.lineOptions.length > 1 && (
+            <HierarchySelect value={d.lineCode} onChange={(e) => d.setLineCode(e.target.value)}>
+              <option value="">全ライン</option>
+              {d.lineOptions.map((o) => (
+                <option key={o.code} value={o.code}>
+                  {o.name}
+                </option>
+              ))}
+            </HierarchySelect>
+          )}
+          {d.lineCode && d.klassOptions.length > 1 && (
+            <HierarchySelect value={d.klassCode} onChange={(e) => d.setKlassCode(e.target.value)}>
+              <option value="">全クラス</option>
+              {d.klassOptions.map((o) => (
+                <option key={o.code} value={o.code}>
+                  {o.name}
+                </option>
+              ))}
+            </HierarchySelect>
+          )}
+        </Controls>
       }
     >
       {/* ── KPI サマリー ── */}
@@ -285,41 +315,6 @@ export const TimeSlotChart = memo(function TimeSlotChart({
         </InsightBar>
       )}
 
-      {/* ── 階層フィルタ ── */}
-      {(d.deptOptions.length > 1 || d.lineOptions.length > 1 || d.klassOptions.length > 1) && (
-        <HierarchyRow>
-          {d.deptOptions.length > 1 && (
-            <HierarchySelect value={d.deptCode} onChange={(e) => d.setDeptCode(e.target.value)}>
-              <option value="">全部門</option>
-              {d.deptOptions.map((o) => (
-                <option key={o.code} value={o.code}>
-                  {o.name}
-                </option>
-              ))}
-            </HierarchySelect>
-          )}
-          {d.deptCode && d.lineOptions.length > 1 && (
-            <HierarchySelect value={d.lineCode} onChange={(e) => d.setLineCode(e.target.value)}>
-              <option value="">全ライン</option>
-              {d.lineOptions.map((o) => (
-                <option key={o.code} value={o.code}>
-                  {o.name}
-                </option>
-              ))}
-            </HierarchySelect>
-          )}
-          {d.lineCode && d.klassOptions.length > 1 && (
-            <HierarchySelect value={d.klassCode} onChange={(e) => d.setKlassCode(e.target.value)}>
-              <option value="">全クラス</option>
-              {d.klassOptions.map((o) => (
-                <option key={o.code} value={o.code}>
-                  {o.name}
-                </option>
-              ))}
-            </HierarchySelect>
-          )}
-        </HierarchyRow>
-      )}
     </ChartCard>
   )
 })
