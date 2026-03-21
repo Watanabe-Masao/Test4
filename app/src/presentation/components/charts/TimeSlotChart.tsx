@@ -314,7 +314,6 @@ export const TimeSlotChart = memo(function TimeSlotChart({
           ))}
         </InsightBar>
       )}
-
     </ChartCard>
   )
 })
