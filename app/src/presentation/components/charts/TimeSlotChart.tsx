@@ -129,12 +129,13 @@ export const TimeSlotChart = memo(function TimeSlotChart({
       const prevKey = isAmount ? 'prevAmount' : 'prevQuantity'
       series.push({
         name: isAmount ? `${d.compLabel}売上` : `${d.compLabel}数量`,
-        type: 'line',
+        type: 'bar',
         data: d.chartData.map((r) => ((r as Record<string, unknown>)[prevKey] as number) ?? null),
-        lineStyle: { color: theme.colors.palette.slate, width: 2.5, type: 'dashed' },
-        itemStyle: { color: theme.colors.palette.slate },
-        symbol: 'none',
-        connectNulls: true,
+        itemStyle: {
+          color: `${theme.colors.palette.slate}80`,
+          borderRadius: [3, 3, 0, 0],
+        },
+        barMaxWidth: 20,
       })
     }
 
@@ -226,12 +227,13 @@ export const TimeSlotChart = memo(function TimeSlotChart({
         },
         {
           name: d.compLabel,
-          type: 'line' as const,
+          type: 'bar' as const,
           data: prevData,
-          lineStyle: { color: ct.colors.slate, width: 2.5, type: 'dashed' as const },
-          itemStyle: { color: ct.colors.slate },
-          symbol: 'none',
-          connectNulls: true,
+          itemStyle: {
+            color: `${ct.colors.slate}80`,
+            borderRadius: [3, 3, 0, 0],
+          },
+          barMaxWidth: 20,
         },
       ],
     }

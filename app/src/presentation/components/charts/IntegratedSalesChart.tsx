@@ -109,29 +109,42 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
 // ── Styles ──
 
 const zoomIn = keyframes`
-  from {
+  0% {
     opacity: 0;
-    transform: scale(0.95) translateY(8px);
+    transform: scale(0.92) translateY(12px);
+    filter: blur(4px);
   }
-  to {
+  60% {
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
     opacity: 1;
     transform: scale(1) translateY(0);
+    filter: blur(0);
   }
 `
 
 const slideBack = keyframes`
-  from {
+  0% {
     opacity: 0;
-    transform: translateX(-20px);
+    transform: translateX(-30px) scale(0.98);
+    filter: blur(3px);
   }
-  to {
+  50% {
+    opacity: 0.8;
+    filter: blur(0);
+  }
+  100% {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateX(0) scale(1);
+    filter: blur(0);
   }
 `
 
 const Wrapper = styled.div`
   position: relative;
+  overflow: hidden;
 `
 
 const ViewPane = styled.div<{ $active: boolean; $direction: 'left' | 'right' }>`
@@ -139,7 +152,8 @@ const ViewPane = styled.div<{ $active: boolean; $direction: 'left' | 'right' }>`
   ${({ $active, $direction }) =>
     $active
       ? css`
-          animation: ${$direction === 'right' ? zoomIn : slideBack} 0.35s ease-out;
+          animation: ${$direction === 'right' ? zoomIn : slideBack} 0.5s
+            cubic-bezier(0.16, 1, 0.3, 1) both;
         `
       : css`
           animation: none;
