@@ -32,6 +32,8 @@ interface Props {
   onDayRangeSelect?: (startDay: number, endDay: number) => void
   /** 天気データ（X軸に天気アイコン+気温を表示） */
   weatherDaily?: readonly DailyWeatherSummary[]
+  /** 前年天気データ（X軸に前年天気+気温線を表示） */
+  prevYearWeatherDaily?: readonly DailyWeatherSummary[]
   /** 右軸モード（親から制御する場合） */
   rightAxisMode?: RightAxisMode
   /** 右軸モード変更通知（親でサブパネル連動に使用） */
@@ -75,6 +77,7 @@ export const DailySalesChart = memo(function DailySalesChart({
   budgetDaily,
   onDayRangeSelect,
   weatherDaily,
+  prevYearWeatherDaily,
   rightAxisMode: controlledRightAxisMode,
   onRightAxisModeChange,
   onViewChange,
@@ -171,7 +174,7 @@ export const DailySalesChart = memo(function DailySalesChart({
       title={VIEW_TITLES[view][diffTarget]}
       toolbar={toolbar}
       ariaLabel="日別売上チャート"
-      height={weatherDaily && weatherDaily.length > 0 ? 460 : 400}
+      height={weatherDaily && weatherDaily.length > 0 ? 520 : 400}
     >
       <div style={{ display: 'flex', gap: '12px', marginBottom: '8px', flexWrap: 'wrap' }}>
         <DowPresetSelector selectedDows={selectedDows} onChange={handleDowChange} />
@@ -186,6 +189,7 @@ export const DailySalesChart = memo(function DailySalesChart({
         wfLegendPayload={wfLegendPayload}
         onDayRangeSelect={onDayRangeSelect}
         weatherDaily={weatherDaily}
+        prevYearWeatherDaily={prevYearWeatherDaily}
         year={year}
         month={month}
         rightAxisMode={rightAxisMode}

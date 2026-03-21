@@ -123,4 +123,6 @@ export interface WidgetContext {
   prevYearStoreCostPrice?: ReadonlyMap<string, { cost: number; price: number }>
   /** 天気データ（日別サマリ） */
   weatherDaily?: readonly DailyWeatherSummary[]
+  /** 前年天気データ（日別サマリ） */
+  prevYearWeatherDaily?: readonly DailyWeatherSummary[]
 }

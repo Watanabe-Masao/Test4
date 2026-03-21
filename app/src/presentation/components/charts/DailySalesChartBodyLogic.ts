@@ -34,6 +34,8 @@ export const ALL_LABELS: Record<string, string> = {
   prevYearDiscount: '比較期売変額',
   tempMax: '最高気温',
   tempMin: '最低気温',
+  prevTempMax: '前年最高気温',
+  prevTempMin: '前年最低気温',
   currentCum: '当期累計',
   prevYearCum: '比較期累計',
   budgetCum: '予算累計',
@@ -92,14 +94,23 @@ const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土'] as const
 const WEATHER_ICONS: Record<WeatherCategory, string> = {
   sunny: '☀',
   cloudy: '☁',
-  rainy: '🌧',
+  rainy: '☂',
   snowy: '❄',
   other: '—',
 }
 
-/** 天気データを day → { icon, temp, max, min } のマップに変換 */
+const WEATHER_COLORS: Record<WeatherCategory, string> = {
+  sunny: '#f59e0b',
+  cloudy: '#9ca3af',
+  rainy: '#3b82f6',
+  snowy: '#38bdf8',
+  other: '#6b7280',
+}
+
+/** 天気データを day → { icon, color, temp, max, min } のマップに変換 */
 export interface DayWeatherInfo {
   readonly icon: string
+  readonly color: string
   readonly temp: number
   readonly max: number
   readonly min: number
@@ -115,6 +126,7 @@ export function buildWeatherMap(
     const cat = categorizeWeatherCode(w.dominantWeatherCode)
     map.set(day, {
       icon: WEATHER_ICONS[cat],
+      color: WEATHER_COLORS[cat],
       temp: Math.round(w.temperatureAvg),
       max: Math.round(w.temperatureMax),
       min: Math.round(w.temperatureMin),
@@ -123,14 +135,16 @@ export function buildWeatherMap(
   return map
 }
 
-/** X軸ラベルを生成: "1(日)\n☀25°" 形式 */
+/** X軸ラベルを生成: rich text 形式で天気アイコンを大きく色付き表示（当年/前年） */
 export function buildXLabels(
   days: readonly (string | number)[],
   weatherMap: ReadonlyMap<number, DayWeatherInfo>,
+  prevYearWeatherMap?: ReadonlyMap<number, DayWeatherInfo>,
   year?: number,
   month?: number,
 ): string[] {
   const hasWeather = weatherMap.size > 0
+  const hasPrevWeather = prevYearWeatherMap != null && prevYearWeatherMap.size > 0
   const hasDow = year != null && month != null
 
   return days.map((d) => {
@@ -142,10 +156,27 @@ export function buildXLabels(
     }
     if (hasWeather) {
       const w = weatherMap.get(day)
-      if (w) label += `\n${w.icon}${w.temp}°`
+      if (w) label += `\n{${w.icon}|${w.icon}}{temp|${w.temp}°}`
+    }
+    if (hasPrevWeather) {
+      const pw = prevYearWeatherMap.get(day)
+      if (pw) label += `\n{${pw.icon}|${pw.icon}}{prevTemp|${pw.temp}°}`
     }
     return label
   })
+}
+
+/** X軸 rich text スタイル定義（天気アイコン用） */
+export function buildWeatherRichStyles(): Record<string, object> {
+  return {
+    '☀': { fontSize: 14, color: WEATHER_COLORS.sunny, padding: [2, 0, 0, 0] },
+    '☁': { fontSize: 14, color: WEATHER_COLORS.cloudy, padding: [2, 0, 0, 0] },
+    '☂': { fontSize: 14, color: WEATHER_COLORS.rainy, padding: [2, 0, 0, 0] },
+    '❄': { fontSize: 14, color: WEATHER_COLORS.snowy, padding: [2, 0, 0, 0] },
+    '—': { fontSize: 14, color: WEATHER_COLORS.other, padding: [2, 0, 0, 0] },
+    temp: { fontSize: 9, color: '#6b7280', padding: [2, 0, 0, 0] },
+    prevTemp: { fontSize: 9, color: '#9ca3af', padding: [2, 0, 0, 0] },
+  }
 }
 
 // ── 右軸シリーズビルダー（モジュール化：他チャートからも利用可能）──
@@ -256,15 +287,16 @@ export function buildDiscountSeries(
   return series
 }
 
-/** 気温シリーズ（最高 + 最低） */
+/** 気温シリーズ（最高 + 最低 + 前年点線） */
 export function buildTemperatureSeries(
   days: readonly (string | number)[],
   weatherMap: ReadonlyMap<number, DayWeatherInfo>,
   colors: RightAxisColors,
+  prevYearWeatherMap?: ReadonlyMap<number, DayWeatherInfo>,
 ): SeriesItem[] {
   const maxTemps = days.map((d) => weatherMap.get(Number(d))?.max ?? null)
   const minTemps = days.map((d) => weatherMap.get(Number(d))?.min ?? null)
-  return [
+  const series: SeriesItem[] = [
     {
       name: 'tempMax',
       type: 'line',
@@ -282,6 +314,29 @@ export function buildTemperatureSeries(
       connectNulls: true,
     },
   ]
+  if (prevYearWeatherMap && prevYearWeatherMap.size > 0) {
+    const prevMax = days.map((d) => prevYearWeatherMap.get(Number(d))?.max ?? null)
+    const prevMin = days.map((d) => prevYearWeatherMap.get(Number(d))?.min ?? null)
+    series.push(
+      {
+        name: 'prevTempMax',
+        type: 'line',
+        yAxisIndex: 1,
+        data: prevMax,
+        ...lineDefaults({ color: colors.danger, width: 1, dashed: true }),
+        connectNulls: true,
+      },
+      {
+        name: 'prevTempMin',
+        type: 'line',
+        yAxisIndex: 1,
+        data: prevMin,
+        ...lineDefaults({ color: colors.primary, width: 1, dashed: true }),
+        connectNulls: true,
+      },
+    )
+  }
+  return series
 }
 
 /** 右軸モードに応じたシリーズを生成 */
@@ -292,6 +347,7 @@ export function buildRightAxisSeries(
   hasPrev: boolean,
   colors: RightAxisColors,
   weatherMap: ReadonlyMap<number, DayWeatherInfo>,
+  prevYearWeatherMap?: ReadonlyMap<number, DayWeatherInfo>,
 ): SeriesItem[] {
   switch (mode) {
     case 'quantity':
@@ -301,7 +357,7 @@ export function buildRightAxisSeries(
     case 'discount':
       return buildDiscountSeries(rows, hasPrev, colors)
     case 'temperature':
-      return buildTemperatureSeries(days, weatherMap, colors)
+      return buildTemperatureSeries(days, weatherMap, colors, prevYearWeatherMap)
   }
 }
 
@@ -312,4 +368,4 @@ export function rightAxisFormatter(mode: RightAxisMode): (v: number) => string {
 }
 
 /** 気温シリーズ名（ツールチップで °C 表示するため判定用） */
-export const TEMPERATURE_SERIES = new Set(['tempMax', 'tempMin'])
+export const TEMPERATURE_SERIES = new Set(['tempMax', 'tempMin', 'prevTempMax', 'prevTempMin'])

@@ -86,6 +86,8 @@ export interface UnifiedWidgetContext {
   readonly prevYearStoreCostPrice?: ReadonlyMap<string, { cost: number; price: number }>
   /** 天気データ（日別サマリ） */
   readonly weatherDaily?: readonly import('@/domain/models/WeatherData').DailyWeatherSummary[]
+  /** 前年天気データ（日別サマリ） */
+  readonly prevYearWeatherDaily?: readonly import('@/domain/models/WeatherData').DailyWeatherSummary[]
 
   // ── Insight 固有 ──
   readonly insightData?: InsightData

@@ -40,6 +40,7 @@ export const WIDGETS_CHART: readonly WidgetDef[] = [
         selectedStoreIds={ctx.selectedStoreIds}
         prevYearScope={ctx.prevYearScope}
         weatherDaily={ctx.weatherDaily}
+        prevYearWeatherDaily={ctx.prevYearWeatherDaily}
         discountEntries={ctx.result.discountEntries}
         totalGrossSales={ctx.result.grossSales}
       />
