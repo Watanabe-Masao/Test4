@@ -13,8 +13,6 @@ import { calculatePinIntervals } from '@/application/hooks/calculation'
 import { buildClipBundle } from '@/application/usecases/clipExport/buildClipBundle'
 import { downloadClipHtml } from '@/application/usecases/clipExport/downloadClipHtml'
 import { fetchCategoryTimeRecords } from '@/application/hooks/duckdb'
-import { useWeatherData } from '@/application/hooks/useWeather'
-import { useSettingsStore } from '@/application/stores/settingsStore'
 import { categorizeWeatherCode } from '@/domain/calculations/weatherAggregation'
 import type { DailyWeatherSummary } from '@/domain/models/record'
 import type { WidgetContext } from './types'
@@ -84,16 +82,8 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
   const [isExporting, setIsExporting] = useState(false)
   const [hoveredDay, setHoveredDay] = useState<number | null>(null)
 
-  // ── Weather data ──
-  const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
-  const weatherStoreId = useMemo(() => {
-    const candidates =
-      ctx.selectedStoreIds.size > 0
-        ? Array.from(ctx.selectedStoreIds)
-        : Array.from(ctx.stores.keys())
-    return candidates.find((id) => storeLocations[id]) ?? candidates[0] ?? ''
-  }, [ctx.selectedStoreIds, ctx.stores, storeLocations])
-  const { daily: weatherDaily } = useWeatherData(year, month, weatherStoreId)
+  // ── Weather data（ctx から一元取得 — 個別 hook 呼び出し禁止） ──
+  const weatherDaily = useMemo(() => ctx.weatherDaily ?? [], [ctx.weatherDaily])
   const weatherByDay = useMemo(() => {
     const m = new Map<number, DailyWeatherSummary>()
     for (const d of weatherDaily) {

@@ -114,11 +114,11 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
   )
 
   // ── 天気データ（選択店舗の代表1店から取得） ──
+  const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
   const weatherStoreId = useMemo(() => {
     const ids = [...selectedStoreIds]
-    const storeLocations = useSettingsStore.getState().settings.storeLocations
     return ids.find((id) => storeLocations[id]) ?? ids[0] ?? ''
-  }, [selectedStoreIds])
+  }, [selectedStoreIds, storeLocations])
   const { daily: weatherDaily } = useWeatherData(targetYear, targetMonth, weatherStoreId)
 
   // Store name map for category comparison
@@ -156,7 +156,7 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
   const ctx: UnifiedWidgetContext = {
     // コア
     result: r,
-    daysInMonth,
+    daysInMonth: effectiveEndDay,
     targetRate: settings.targetGrossProfitRate,
     warningRate: settings.warningThreshold,
     year: targetYear,

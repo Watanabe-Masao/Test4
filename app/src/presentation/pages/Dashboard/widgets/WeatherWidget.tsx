@@ -1,9 +1,8 @@
 /**
  * 天気ウィジェット — 日別天気サマリ + 週間予報 + 売上相関チャート
  *
- * 気象庁 ETRN から実測天気データを、Forecast API から
- * 週間予報を取得し、カレンダーグリッドに実績と予報を並べて表示する。
- * 日付クリックでモーダルを開き、時間別天気データを折れ線グラフで表示する。
+ * 日別天気データは ctx.weatherDaily（useUnifiedWidgetContext で一元取得）を使用する。
+ * 予報と時間帯別データはウィジェット固有のため個別 hook で取得する。
  *
  * UI/UX原則#1: 実績（緑系）と推定（オレンジ系）は別世界として視覚的に分離。
  * 禁止事項#11: presentation/ から外部APIを直接呼ばない → hook経由で取得。
@@ -11,13 +10,13 @@
 import { memo, useMemo, useState, useCallback } from 'react'
 import styled from 'styled-components'
 import { sc } from '@/presentation/theme/semanticColors'
-import { useWeatherData } from '@/application/hooks/useWeather'
 import { useWeatherForecast } from '@/application/hooks/useWeatherForecast'
 import { useWeatherHourlyOnDemand } from '@/application/hooks/useWeatherHourlyOnDemand'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import type { DailySalesForCorrelation } from '@/application/hooks/useWeatherCorrelation'
 import type { AlignmentPolicy } from '@/domain/models/calendar'
 import type { DailyForecast } from '@/domain/models/record'
+import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import { WeatherBadge } from '@/presentation/components/common/WeatherBadge'
 import { ForecastBadge } from '@/presentation/components/common/ForecastBadge'
 import { WeatherCorrelationChart } from '@/presentation/components/charts/WeatherCorrelationChart'
@@ -73,9 +72,9 @@ const DayLabel = styled.span`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
 `
 
-const LoadingText = styled.div`
+const NoLocationText = styled.div`
   text-align: center;
-  padding: ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[8]};
   color: ${({ theme }) => theme.colors.text3};
   font-size: ${({ theme }) => theme.typography.fontSize.sm};
 `
@@ -87,28 +86,20 @@ const ErrorText = styled.div`
   font-size: ${({ theme }) => theme.typography.fontSize.sm};
 `
 
-const NoLocationText = styled.div`
-  text-align: center;
-  padding: ${({ theme }) => theme.spacing[8]};
-  color: ${({ theme }) => theme.colors.text3};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
-`
-
 export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetContext }) {
   const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
 
+  // 日別天気データは ctx から取得（useUnifiedWidgetContext で一元管理）
+  const daily = useMemo(() => ctx.weatherDaily ?? [], [ctx.weatherDaily])
+
+  // 予報・時間帯別はウィジェット固有（ctx に含めるべきデータではないため個別取得）
   const storeId = useMemo(() => {
-    if (ctx.selectedStoreIds.size === 1) {
-      return Array.from(ctx.selectedStoreIds)[0]
-    }
-    const candidates =
+    const ids =
       ctx.selectedStoreIds.size > 0
         ? Array.from(ctx.selectedStoreIds)
         : Array.from(ctx.stores.keys())
-    return candidates.find((id) => storeLocations[id]) ?? candidates[0] ?? ''
+    return ids.find((id) => storeLocations[id]) ?? ids[0] ?? ''
   }, [ctx.selectedStoreIds, ctx.stores, storeLocations])
-
-  const { daily, isLoading, error } = useWeatherData(ctx.year, ctx.month, storeId)
 
   const {
     forecasts,
@@ -161,10 +152,8 @@ export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetC
   const salesDaily = useMemo<readonly DailySalesForCorrelation[]>(() => {
     const entries: DailySalesForCorrelation[] = []
     for (const [day, rec] of ctx.result.daily) {
-      const mm = String(ctx.month).padStart(2, '0')
-      const dd = String(day).padStart(2, '0')
       entries.push({
-        dateKey: `${ctx.year}-${mm}-${dd}`,
+        dateKey: toDateKeyFromParts(ctx.year, ctx.month, day),
         sales: rec.sales,
         customers: rec.customers ?? 0,
       })
@@ -172,15 +161,7 @@ export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetC
     return entries
   }, [ctx.result.daily, ctx.year, ctx.month])
 
-  if ((isLoading || isForecastLoading) && !daily.length && !forecasts.length) {
-    return <LoadingText>天気データを取得中...</LoadingText>
-  }
-
-  if ((error || forecastError) && !daily.length && !forecasts.length) {
-    return <ErrorText>天気データ取得エラー: {error ?? forecastError}</ErrorText>
-  }
-
-  if (daily.length === 0 && forecasts.length === 0) {
+  if (daily.length === 0 && !isForecastLoading && forecasts.length === 0) {
     const hasLocation = !!storeLocations[storeId]
     return (
       <NoLocationText>
