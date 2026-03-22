@@ -16,57 +16,14 @@
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
-
-const SRC_DIR = path.resolve(__dirname, '..')
-
-// ─── ヘルパー ───────────────────────────────────────────
-
-function collectTsFiles(dir: string, excludeTests = true): string[] {
-  const results: string[] = []
-  if (!fs.existsSync(dir)) return results
-  const entries = fs.readdirSync(dir, { withFileTypes: true })
-  for (const entry of entries) {
-    const fullPath = path.join(dir, entry.name)
-    if (entry.isDirectory()) {
-      if (entry.name === 'node_modules' || entry.name === 'dist' || entry.name === '__tests__')
-        continue
-      results.push(...collectTsFiles(fullPath, excludeTests))
-    } else if (/\.(ts|tsx)$/.test(entry.name)) {
-      if (excludeTests && (entry.name.endsWith('.test.ts') || entry.name.endsWith('.test.tsx')))
-        continue
-      results.push(fullPath)
-    }
-  }
-  return results
-}
-
-function rel(filePath: string): string {
-  return path.relative(SRC_DIR, filePath)
-}
-
-/** ファイルから import 文のモジュールパスを抽出する */
-function extractImports(filePath: string): string[] {
-  const content = fs.readFileSync(filePath, 'utf-8')
-  const imports: string[] = []
-  const regex =
-    /(?:import\s+(?:.*?\s+from\s+)?['"](@\/[^'"]+)['"]|export\s+.*?\s+from\s+['"](@\/[^'"]+)['"])/g
-  let match
-  while ((match = regex.exec(content)) !== null) {
-    imports.push(match[1] ?? match[2])
-  }
-  return imports
-}
-
-/** コメント行かどうか判定 */
-function isCommentLine(line: string): boolean {
-  const trimmed = line.trim()
-  return (
-    trimmed.startsWith('//') ||
-    trimmed.startsWith('*') ||
-    trimmed.startsWith('/*') ||
-    trimmed.startsWith('*/')
-  )
-}
+import {
+  SRC_DIR,
+  collectTsFiles,
+  rel,
+  extractImports,
+  isCommentLine,
+  stripStrings,
+} from './guardTestHelpers'
 
 // ─── 3-A: Domain 純粋性ガード ────────────────────────────
 
@@ -87,14 +44,6 @@ describe('Domain 純粋性ガード', () => {
       /\bsetInterval\s*\(/, // インターバル
       /\bMath\.random\s*\(/, // ランダム（非決定的）
     ]
-
-    /** 文字列リテラルを除去してコード部分のみ返す */
-    function stripStrings(line: string): string {
-      return line
-        .replace(/'[^']*'/g, '""')
-        .replace(/"[^"]*"/g, '""')
-        .replace(/`[^`]*`/g, '""')
-    }
 
     for (const file of files) {
       const content = fs.readFileSync(file, 'utf-8')

@@ -16,32 +16,7 @@
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
-
-const SRC_DIR = path.resolve(__dirname, '..')
-
-// ─── ヘルパー ───────────────────────────────────────────
-
-function collectTsFiles(dir: string): string[] {
-  const results: string[] = []
-  if (!fs.existsSync(dir)) return results
-  const entries = fs.readdirSync(dir, { withFileTypes: true })
-  for (const entry of entries) {
-    const fullPath = path.join(dir, entry.name)
-    if (entry.isDirectory()) {
-      if (entry.name === 'node_modules' || entry.name === 'dist' || entry.name === '__tests__')
-        continue
-      results.push(...collectTsFiles(fullPath))
-    } else if (/\.(ts|tsx)$/.test(entry.name)) {
-      if (entry.name.endsWith('.test.ts') || entry.name.endsWith('.test.tsx')) continue
-      results.push(fullPath)
-    }
-  }
-  return results
-}
-
-function rel(filePath: string): string {
-  return path.relative(SRC_DIR, filePath)
-}
+import { SRC_DIR, collectTsFiles, rel } from './guardTestHelpers'
 
 // ─── INV-SCOPE-01: presentation/ での year - 1 独自計算禁止 ──
 

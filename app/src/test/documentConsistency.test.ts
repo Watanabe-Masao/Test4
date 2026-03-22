@@ -161,25 +161,33 @@ describe('Reference path validity', () => {
   })
 })
 
-// ─── 禁止事項の整合性 ───────────────────────────────────
+// ─── 設計原則の整合性 ───────────────────────────────────
 
-describe('Prohibition consistency', () => {
-  it('prohibition-quick-ref.md covers all prohibitions in CLAUDE.md', () => {
+describe('Design principle consistency', () => {
+  it('CLAUDE.md contains all 7 design principle categories (A-G)', () => {
     const claudeMd = readFile('CLAUDE.md')
-    const quickRef = readFile('references/01-principles/prohibition-quick-ref.md')
 
-    // CLAUDE.md の禁止事項番号を抽出
-    const prohibitionPattern = /### (\d+)\. /g
-    const numbers: string[] = []
-    let match
-    while ((match = prohibitionPattern.exec(claudeMd)) !== null) {
-      numbers.push(match[1])
-    }
+    const expectedCategories = [
+      'A. 層境界',
+      'B. 実行エンジン境界',
+      'C. 純粋性と責務分離',
+      'D. 数学的不変条件',
+      'E. 型安全と欠損処理',
+      'F. コード構造規約',
+      'G. 機械的防御',
+    ]
 
-    // quick-ref に各番号が記載されているか
-    for (const num of numbers) {
-      expect(quickRef).toContain(num)
+    for (const cat of expectedCategories) {
+      expect(claudeMd).toContain(cat)
     }
+  })
+
+  it('principle-migration-map.md exists and references new categories', () => {
+    const migrationMap = readFile('references/01-principles/principle-migration-map.md')
+    expect(migrationMap).toContain('旧19原則')
+    expect(migrationMap).toContain('旧13禁止事項')
+    expect(migrationMap).toContain('旧12ルール')
+    expect(migrationMap).toContain('旧7層内原則')
   })
 })
 

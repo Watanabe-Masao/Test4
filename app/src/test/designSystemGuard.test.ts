@@ -16,12 +16,13 @@
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
+import { SRC_DIR, rel } from './guardTestHelpers'
 
-const SRC_DIR = path.resolve(__dirname, '..')
 const PRESENTATION_DIR = path.join(SRC_DIR, 'presentation')
 
-// ─── ヘルパー ───────────────────────────────────────────
+// ─── ローカルヘルパー ──────────────────────────────────
 
+/** 拡張子ベースでファイルを収集する（designSystemGuard 固有） */
 function collectFiles(dir: string, ext: string): string[] {
   const results: string[] = []
   if (!fs.existsSync(dir)) return results
@@ -36,10 +37,6 @@ function collectFiles(dir: string, ext: string): string[] {
     }
   }
   return results
-}
-
-function rel(filePath: string): string {
-  return path.relative(SRC_DIR, filePath)
 }
 
 function stripComments(content: string): string {
