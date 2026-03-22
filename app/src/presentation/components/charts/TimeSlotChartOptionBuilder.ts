@@ -50,6 +50,88 @@ export function resolvePrecipitationAxisRange(maxPrecip: number): {
   return { min: 0, max: 20, interval: 5 }
 }
 
+// ── 気温軸ポリシー ──
+
+/** 温度帯の定義 */
+export interface TemperatureBand {
+  /** 帯の下限（°C） */
+  readonly min: number
+  /** 帯の上限（°C） */
+  readonly max: number
+  /** 帯の表示ラベル */
+  readonly label: string
+  /** 帯の背景色（RGBA 文字列） */
+  readonly color: string
+}
+
+/** 固定の温度帯定義。季節に関わらず同じ境界を使う。 */
+export const TEMPERATURE_BANDS: readonly TemperatureBand[] = [
+  { min: -40, max: 0, label: '寒冷', color: 'rgba(59,130,246,0.06)' },
+  { min: 0, max: 10, label: '低温', color: 'rgba(96,165,250,0.05)' },
+  { min: 10, max: 20, label: '涼快', color: 'rgba(52,211,153,0.05)' },
+  { min: 20, max: 28, label: '暖', color: 'rgba(251,191,36,0.05)' },
+  { min: 28, max: 60, label: '高温', color: 'rgba(239,68,68,0.06)' },
+]
+
+/** 温度値が属する帯を返す */
+export function classifyTemperatureBand(temp: number): TemperatureBand {
+  for (const band of TEMPERATURE_BANDS) {
+    if (temp < band.max) return band
+  }
+  return TEMPERATURE_BANDS[TEMPERATURE_BANDS.length - 1]
+}
+
+/**
+ * 気温軸を準固定化する。
+ * データの min/max を取得し、余白を足して 5°C 刻みに丸める。
+ * 0°C をまたぐ場合は 0 を含める。
+ */
+export function roundTemperatureAxis(
+  minTemp: number,
+  maxTemp: number,
+): { min: number; max: number; interval: number } {
+  const STEP = 5
+  const PADDING = 2
+
+  const rawMin = minTemp - PADDING
+  const rawMax = maxTemp + PADDING
+
+  const axisMin = Math.floor(rawMin / STEP) * STEP
+  // Math.ceil(-3/5)*5 は -0 になるため、+0 で正規化
+  const axisMax = Math.ceil(rawMax / STEP) * STEP || 0
+
+  // 0°C をまたぐ場合は両側を含める
+  const finalMin = rawMin <= 0 && rawMax >= 0 ? Math.min(axisMin, 0) : axisMin
+  const finalMax = rawMin <= 0 && rawMax >= 0 ? Math.max(axisMax, 0) : axisMax
+
+  return { min: finalMin, max: finalMax, interval: STEP }
+}
+
+/**
+ * 軸レンジ内に収まる温度帯バンドを ECharts markArea 用データに変換する。
+ * 軸レンジ外のバンドはクリップされる。
+ */
+export function buildTemperatureBandMarkAreas(
+  axisMin: number,
+  axisMax: number,
+): readonly { readonly name: string; readonly yAxis: number; readonly itemStyle: { readonly color: string } }[][] {
+  const areas: { name: string; yAxis: number; itemStyle: { color: string } }[][] = []
+
+  for (const band of TEMPERATURE_BANDS) {
+    const clippedMin = Math.max(band.min, axisMin)
+    const clippedMax = Math.min(band.max, axisMax)
+
+    if (clippedMin >= clippedMax) continue
+
+    areas.push([
+      { name: band.label, yAxis: clippedMin, itemStyle: { color: band.color } },
+      { name: '', yAxis: clippedMax, itemStyle: { color: band.color } },
+    ])
+  }
+
+  return areas
+}
+
 // ── 純粋関数 ──
 
 /** ECharts の chartOption を構築する。React 非依存の純粋関数。 */
@@ -207,19 +289,68 @@ export function buildTimeSlotChartOption(input: TimeSlotChartOptionInput): EChar
     showSplitLine: false,
   }
 
-  if (lineMode === 'precipitation') {
-    // 実データの最大降水量を取得して段階的にスケールを決定
-    let maxPrecip = 0
+  // 天気データの min/max を収集（気温・降水量の軸レンジ決定に使用）
+  let minTemp = Infinity
+  let maxTemp = -Infinity
+  let maxPrecip = 0
+
+  if (lineMode === 'temperature' || lineMode === 'precipitation') {
     for (const h of hours) {
       const hourNum = parseInt(h, 10)
-      const curP = curWeatherMap.get(hourNum)?.precip ?? 0
-      const prevP = prevWeatherMap.get(hourNum)?.precip ?? 0
-      maxPrecip = Math.max(maxPrecip, curP, prevP)
+      const curEntry = curWeatherMap.get(hourNum)
+      const prevEntry = prevWeatherMap.get(hourNum)
+
+      if (lineMode === 'temperature') {
+        if (curEntry != null) {
+          minTemp = Math.min(minTemp, curEntry.temp)
+          maxTemp = Math.max(maxTemp, curEntry.temp)
+        }
+        if (prevEntry != null) {
+          minTemp = Math.min(minTemp, prevEntry.temp)
+          maxTemp = Math.max(maxTemp, prevEntry.temp)
+        }
+      } else {
+        maxPrecip = Math.max(maxPrecip, curEntry?.precip ?? 0, prevEntry?.precip ?? 0)
+      }
     }
+  }
+
+  if (lineMode === 'precipitation') {
     const precipRange = resolvePrecipitationAxisRange(maxPrecip)
     rightAxisOptions.min = precipRange.min
     rightAxisOptions.max = precipRange.max
     rightAxisOptions.interval = precipRange.interval
+  }
+
+  if (lineMode === 'temperature' && isFinite(minTemp) && isFinite(maxTemp)) {
+    const tempRange = roundTemperatureAxis(minTemp, maxTemp)
+    rightAxisOptions.min = tempRange.min
+    rightAxisOptions.max = tempRange.max
+    rightAxisOptions.interval = tempRange.interval
+  }
+
+  // 気温モード: 温度帯バンドを markArea で追加
+  if (lineMode === 'temperature' && isFinite(minTemp) && isFinite(maxTemp)) {
+    const tempRange = roundTemperatureAxis(minTemp, maxTemp)
+    const bandAreas = buildTemperatureBandMarkAreas(tempRange.min, tempRange.max)
+
+    if (bandAreas.length > 0) {
+      // 温度帯バンドを透明な補助シリーズとして追加
+      series.push({
+        name: '温度帯',
+        type: 'line',
+        yAxisIndex: 1,
+        data: [],
+        markArea: {
+          silent: true,
+          data: bandAreas.map(([start, end]) => [
+            { yAxis: start.yAxis, itemStyle: start.itemStyle },
+            { yAxis: end.yAxis, itemStyle: end.itemStyle },
+          ]),
+        },
+        legendHoverLink: false,
+      } as unknown as (typeof series extends readonly (infer T)[] ? T : never))
+    }
   }
 
   return {
