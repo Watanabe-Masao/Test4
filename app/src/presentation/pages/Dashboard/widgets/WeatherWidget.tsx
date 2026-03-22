@@ -5,7 +5,7 @@
  * 予報と時間帯別データはウィジェット固有のため個別 hook で取得する。
  *
  * UI/UX原則#1: 実績（緑系）と推定（オレンジ系）は別世界として視覚的に分離。
- * 禁止事項#11: presentation/ から外部APIを直接呼ばない → hook経由で取得。
+ * @guard A3 Presentation は描画専用 — 外部APIを直接呼ばない。hook経由で取得。
  */
 import { memo, useMemo, useState, useCallback } from 'react'
 import styled from 'styled-components'
@@ -109,7 +109,7 @@ export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetC
 
   const weatherPolicy: AlignmentPolicy = ctx.comparisonFrame.policy
 
-  // 時間別データ取得は Application hook 経由（禁止事項#11 遵守）
+  // 時間別データ取得は Application hook 経由（@guard A3）
   const { hourlyCache, prevHourlyCache, fetchHourly, fetchPrevHourly, resolvePrevDate } =
     useWeatherHourlyOnDemand(storeId, weatherPolicy)
 

@@ -1,5 +1,7 @@
 /**
  * 粗利率・売変率の ViewModel
+ *
+ * @guard F7 View は ViewModel のみ受け取る
  */
 import type { Store } from '@/domain/models/record'
 import type { StoreResult } from '@/domain/models/storeTypes'

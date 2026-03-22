@@ -7,7 +7,7 @@
  * ## 設計意図
  * - lastRecordedSalesDay は daily Map から導出する（single source of truth）
  * - elapsedDays = lastRecordedSalesDay（仕様準拠）
- * - 全フィールドは整数（率なし — 禁止事項#10）
+ * - 全フィールドは整数（率なし — @guard B3）
  * - 月内で閉じる（temporal-scope-semantics 準拠）
  */
 

@@ -3,6 +3,8 @@
  *
  * データ変換・ビジネスロジック・フォーマット判定を分離。
  * React / styled-components に依存しない純粋関数群。
+ *
+ * @guard F7 View は ViewModel のみ受け取る
  */
 import type {
   CategoryTrendPoint,

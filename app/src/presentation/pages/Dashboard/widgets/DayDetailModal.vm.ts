@@ -3,6 +3,8 @@
  *
  * 純粋なデータ変換・計算ロジック。React / styled-components に依存しない。
  * DayDetailModal.tsx はこのモジュールから関数・型をインポートして描画のみを行う。
+ *
+ * @guard F7 View は ViewModel のみ受け取る
  */
 import { formatCurrency, formatPercent } from '@/domain/formatting'
 import {

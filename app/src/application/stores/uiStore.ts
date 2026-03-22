@@ -1,3 +1,4 @@
+/** @guard C3 store は state 反映のみ */
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
 

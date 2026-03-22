@@ -10,6 +10,8 @@
  * - linked = false: ウィジェット固有の期間を使用
  * - オーバーライドは比較期間（period2）のみ対象
  *   （当期 period1 は全ウィジェット共通）
+ *
+ * @guard C3 store は state 反映のみ
  */
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'

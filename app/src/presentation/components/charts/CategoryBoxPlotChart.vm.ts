@@ -3,6 +3,8 @@
  *
  * 全ての状態管理・データ変換・フック呼び出しを集約する。
  * プレゼンテーション層は描画のみ。
+ *
+ * @guard F7 View は ViewModel のみ受け取る
  */
 import { useState, useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'

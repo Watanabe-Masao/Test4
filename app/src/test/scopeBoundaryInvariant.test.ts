@@ -4,10 +4,7 @@
  * ComparisonScope の消費者（resolveDayDetailRanges, 天気取得等）が
  * 月跨ぎ・同曜日オフセット・閏年の境界で正しいスコープを算出するか検証する。
  *
- * ## 不変条件
- * - INV-BOUNDARY-01: cumPrevRange の日数 === cumRange の日数
- * - INV-BOUNDARY-02: cumPrevRange は ComparisonScope.effectivePeriod2 に収まる
- * - INV-BOUNDARY-03: 天気取得月は effectivePeriod2 の全月をカバーする
+ * @guard D3 不変条件はテストで守る
  */
 import { describe, it, expect } from 'vitest'
 import { buildComparisonScope } from '@/domain/models/ComparisonScope'

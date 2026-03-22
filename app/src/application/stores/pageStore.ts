@@ -4,6 +4,8 @@
  * ユーザーがページの追加・削除・名前変更を行えるようにする。
  * 各ページは独自の名前とウィジェットレイアウトを持つ。
  * localStorage で永続化。
+ *
+ * @guard C3 store は state 反映のみ
  */
 import { create } from 'zustand'
 

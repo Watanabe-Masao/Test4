@@ -8,6 +8,8 @@
  *   - 全店舗の売上を日別に合算
  *   - Z スコアの店舗平均を算出
  *   - 異常日（|Z| >= 閾値）を検出
+ *
+ * @guard G5 hook ≤300行 — 純粋関数を分離
  */
 import type { DailyFeatureRow } from '@/application/hooks/useDuckDBQuery'
 

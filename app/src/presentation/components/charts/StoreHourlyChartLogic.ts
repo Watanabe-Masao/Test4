@@ -9,6 +9,8 @@
  *   - ピーク時間帯・コアタイム・折り返し時間の算出
  *   - コサイン類似度による店舗間パターン比較
  *   - 金額/構成比モードのデータ変換
+ *
+ * @guard G5 hook ≤300行 — 純粋関数を分離
  */
 import type { StoreAggregationRow } from '@/application/hooks/useDuckDBQuery'
 import { STORE_COLORS } from './chartTheme'

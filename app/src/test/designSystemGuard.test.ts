@@ -4,24 +4,19 @@
  * 配色・フォント・サイズの直接指定を禁止し、
  * テーマトークンと colorSystem 定数の使用を強制する。
  *
- * 設計原則:
- *   #1 「機械で守る」— ルールはテストに書く
- *   #8 「文字列はカタログ」— 色・サイズも定数カタログ化
- *
- * 移行戦略:
- *   - 違反ファイル数の上限を凍結（増加禁止）
- *   - 既存ファイルを修正するたびに上限を下げる
- *   - 新規 .styles.ts でハードコードすると即座に上限超過で FAIL
+ * @guard F2 文字列はカタログ（色・サイズも定数カタログ化）
+ * @guard G1 ルールはテストに書く
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
+import { SRC_DIR, rel } from './guardTestHelpers'
 
-const SRC_DIR = path.resolve(__dirname, '..')
 const PRESENTATION_DIR = path.join(SRC_DIR, 'presentation')
 
-// ─── ヘルパー ───────────────────────────────────────────
+// ─── ローカルヘルパー ──────────────────────────────────
 
+/** 拡張子ベースでファイルを収集する（designSystemGuard 固有） */
 function collectFiles(dir: string, ext: string): string[] {
   const results: string[] = []
   if (!fs.existsSync(dir)) return results
@@ -36,10 +31,6 @@ function collectFiles(dir: string, ext: string): string[] {
     }
   }
   return results
-}
-
-function rel(filePath: string): string {
-  return path.relative(SRC_DIR, filePath)
 }
 
 function stripComments(content: string): string {

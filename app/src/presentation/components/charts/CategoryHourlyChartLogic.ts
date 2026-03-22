@@ -9,6 +9,8 @@
  *   - 上位Nカテゴリの抽出
  *   - ピーク時間帯の判定
  *   - 色スケーリング用の最大値算出
+ *
+ * @guard G5 hook ≤300行 — 純粋関数を分離
  */
 import type { CategoryHourlyRow } from '@/application/hooks/useDuckDBQuery'
 import { findPeak } from '@/domain/calculations/rawAggregation'

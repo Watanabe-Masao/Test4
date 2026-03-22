@@ -1,15 +1,15 @@
 # 設計思想 — 構造で守り、機械で検証する
 
-> 本ドキュメントは CLAUDE.md から詳細を分離したものである。
+> 本ドキュメントは CLAUDE.md §設計原則（7カテゴリ A〜G）の詳細・適用例を記載する。
 > 原則の一覧は CLAUDE.md を参照。
+> 旧体系（19原則・13禁止・12ルール・7層内原則）との対応は `principle-migration-map.md` を参照。
 
 以下の原則はリファクタリング全フェーズに共通する設計判断の根拠である。
-個別の禁止事項（後述）は「何が壊れるか」を示すが、
-本節は「なぜそうしなければならないか」の上位原則を示す。
+各項目の「何が壊れるか」と「なぜそうしなければならないか」を示す。
 
 ### 1. アーキテクチャの境界は人の注意力ではなく、機械で守る
 
-レイヤー間の依存ルールは `architectureGuard.test.ts` が全ソースの import 文を
+レイヤー間の依存ルールは `guards/layerBoundaryGuard.test.ts` が全ソースの import 文を
 スキャンして検証する。「気をつけて import する」ではなく「違反したらテストが落ちる」。
 
 **適用例:**
@@ -164,7 +164,7 @@ Command は単月確定値を決定論的に計算し、Query は任意の日付
   出力は `StoreResult`（WriteModel）
 - `application/queries/`（Query 側）は `QueryHandler<TInput, TOutput>` インターフェースに従い、
   DuckDB に SQL を発行。`DailyCumulativeHandler`, `AggregatedRatesHandler` 等が統一パターンで実装
-- `architectureGuard.test.ts` が `application/queries/ → domain/calculations/` の import を禁止し、
+- `guards/layerBoundaryGuard.test.ts` が `application/queries/ → domain/calculations/` の import を禁止し、
   Query が Command に依存しないことを機械的に検証
 - `application/usecases/calculation/` から `infrastructure/duckdb/` への依存も同テストで禁止し、
   Command が Query に依存しないことを保証
@@ -184,7 +184,7 @@ Command は単月確定値を決定論的に計算し、Query は任意の日付
 - 新しい比較モードの追加は 4 箇所に限定: (1) `AlignmentPolicy` に新モード追加、
   (2) `resolveComparisonFrame()` に新ロジック追加、(3) `ComparisonContext` に新 PeriodSnapshot 追加、
   (4) `useComparisonContextQuery` に新クエリ追加
-- `architectureGuard.test.ts` が Presentation 層から比較コンテキストの内部モジュールへの
+- `guards/layerBoundaryGuard.test.ts` が Presentation 層から比較コンテキストの内部モジュールへの
   直接 import を禁止し、`useComparisonContext` 経由のみを許可
 - `application/queries/QueryContract.ts` が全 DuckDB クエリの共通インターフェース
   （`QueryHandler<TInput, TOutput>`）を定義し、クエリ追加時の構造を統一
@@ -237,7 +237,7 @@ Command は単月確定値を決定論的に計算し、Query は任意の日付
 - CLAUDE.md のファイルパスベース自動ルーティング表: `domain/calculations/` の変更は
   `invariant-guardian` ロールが担当、`infrastructure/duckdb/` は `duckdb-specialist`、
   `application/usecases/explanation/` は `explanation-steward` と機械的に決定
-- `architectureGuard.test.ts` がパスベースで依存ルールを検証:
+- `guards/layerBoundaryGuard.test.ts` がパスベースで依存ルールを検証:
   `domain/` 配下のファイルは外部層への import がゼロ件、
   `presentation/` 配下は `infrastructure/` への直接 import が禁止（許可リスト除く）
 - レイヤー構造（`domain/`, `application/`, `infrastructure/`, `presentation/`）自体がパスで
@@ -258,7 +258,7 @@ DuckDB から IndexedDB への書き戻しは禁止する。
   IndexedDB に保存された全月分のデータを DuckDB に再投入。DB 破損時の完全復旧を保証
 - `useDataRecovery` フックが UI に復旧機能を提供: `rebuildDuckDB()`（IndexedDB → DuckDB 再構築）、
   `clearDuckDBCache()`（OPFS ファイル削除。次回起動時に再構築）
-- `architectureGuard.test.ts` が `storage/ → duckdb/queries/` の import を禁止し、
+- `guards/layerBoundaryGuard.test.ts` が `storage/ → duckdb/queries/` の import を禁止し、
   DuckDB クエリ結果を IndexedDB に書き戻すことを構造的に不可能にしている
 
 **原則:** キャッシュは壊れてもよい。原本は壊してはならない。データの流れは常に一方向（IndexedDB → DuckDB）。

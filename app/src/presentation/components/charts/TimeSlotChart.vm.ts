@@ -3,6 +3,8 @@
  *
  * 描画に必要なデータ変換・フォーマット・ラベル生成をすべてここに集約する。
  * React / styled-components に依存しない純粋関数群。
+ *
+ * @guard F7 View は ViewModel のみ受け取る
  */
 import type { ViewMode, MetricMode, TimeSlotKpi, YoYData } from './useDuckDBTimeSlotData'
 import { toComma, toPct, toAxisYen } from './chartTheme'

@@ -5,6 +5,7 @@
  * 新規コードは filterStore を直接使用すること。
  *
  * @deprecated filterStore を使用してください
+ * @guard C3 store は state 反映のみ
  */
 import { useFilterStore } from './filterStore'
 

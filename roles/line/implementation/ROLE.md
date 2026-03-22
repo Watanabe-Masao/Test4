@@ -8,7 +8,7 @@ architecture の設計判断に従い、invariant-guardian の不変条件を守
 ## 前提（所与の事実）
 
 - TypeScript strict mode が有効。コンパイラの警告は全てバグの可能性がある
-- 4層レイヤードアーキテクチャに従う。import の方向は architectureGuard.test.ts が検証
+- 4層レイヤードアーキテクチャに従う。import の方向は guards/layerBoundaryGuard.test.ts が検証
 - 計算エンジンは JS と DuckDB の二重構造。責務は排他的（二重実装禁止）
 - UI コンポーネントは styles / hook / component の3分割が基本パターン
 - CI 6段階ゲート（lint → format → build → test → e2e）を通過しなければならない

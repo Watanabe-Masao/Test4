@@ -4,6 +4,10 @@
  * フック (usePeriodFilter, useHierarchyDropdown) は periodFilterHooks.ts に分離。
  * 型・純粋関数は periodFilterUtils.ts に分離。
  *
+ * @guard B1 Authoritative 計算は domain/calculations のみ
+ * @guard C2 pure function は1仕様軸に閉じる
+ * @see divisorRules.test.ts
+ *
  * ═══════════════════════════════════════════════════════════
  * ## 設計ルール（破ってはいけない原則）
  * ═══════════════════════════════════════════════════════════

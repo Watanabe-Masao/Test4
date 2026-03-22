@@ -3,6 +3,8 @@
  *
  * useAdvancedQueries から抽出した純粋関数群。
  * カテゴリベンチマークデータから箱ひげ図統計量と店舗/日別ブレイクダウンを構築する。
+ *
+ * @guard G5 hook ≤300行 — 純粋関数を分離
  */
 import type {
   CategoryBenchmarkRow,

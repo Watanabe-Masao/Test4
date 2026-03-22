@@ -15,7 +15,7 @@ export function addCostPricePairs(a: CostPricePair, b: CostPricePair): CostPrice
 }
 
 // ── CostPricePair → 率への compose 関数 ──
-// 下流はこれらを使って額から率を導出する。SQL/VM で率を直接計算しない（禁止事項 #10）。
+// 下流はこれらを使って額から率を導出する。SQL/VM で率を直接計算しない（@guard B3）。
 
 /**
  * CostPricePair から値入率を算出する

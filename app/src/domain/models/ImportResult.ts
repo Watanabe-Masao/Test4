@@ -2,7 +2,7 @@
  * インポート結果の型定義
  *
  * presentation 層が application/usecases/ の実装に依存せず、
- * domain/ の型として参照できるようにする（禁止事項 #12）。
+ * domain/ の型として参照できるようにする（@guard A4）。
  */
 import type { DataType } from './Settings'
 

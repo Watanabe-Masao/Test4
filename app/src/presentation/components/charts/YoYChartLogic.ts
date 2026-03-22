@@ -8,6 +8,8 @@
  *   - 当年/前年の日別売上を合算・マッチング
  *   - 差分・ウォーターフォールデータ構築
  *   - サマリー集計（合計・成長率）
+ *
+ * @guard G5 hook ≤300行 — 純粋関数を分離
  */
 import type { YoyDailyRow } from '@/application/hooks/useDuckDBQuery'
 

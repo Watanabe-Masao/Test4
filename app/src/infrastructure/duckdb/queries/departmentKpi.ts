@@ -36,7 +36,7 @@ export interface DeptKpiRankedRow {
  * 部門KPIサマリー行（SQL からの生データ）
  *
  * 率の加重平均は SQL 内で完結させず、加重合計（numerator）のみ返す。
- * 最終的な率の算出は TS 側で domain/calculations を経由する（禁止事項 #10）。
+ * 最終的な率の算出は TS 側で domain/calculations を経由する（@guard B3）。
  */
 export interface DeptKpiSummaryRow {
   readonly deptCount: number

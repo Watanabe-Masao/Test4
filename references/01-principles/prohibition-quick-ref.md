@@ -1,11 +1,12 @@
 # 禁止事項クイックリファレンス
 
-> 本ファイルは CLAUDE.md §禁止事項 から抽出した全文である。
-> 正式な原典は CLAUDE.md であり、乖離がある場合は CLAUDE.md を優先すること。
+> **統合済み:** 旧禁止事項は CLAUDE.md §設計原則（7カテゴリ A〜G）に統合された。
+> 旧番号との対応は `principle-migration-map.md` を参照。
+> 以下は過去の詳細記録として維持する。
 
-## クイックリファレンス表
+## クイックリファレンス表（旧体系）
 
-全9件（正本: CLAUDE.md §禁止事項）。全ロールが遵守必須。
+旧9件。現在は設計原則 A〜G に統合済み。
 
 | # | 禁止事項 | 壊れるもの | 検出手段 |
 |---|---|---|---|
@@ -13,7 +14,7 @@
 | 2 | 引数を無視して別ソースから再計算する | シャープリー恒等式が崩壊（カテゴリ合計 ≠ 売上合計） | factorDecomposition.test.ts |
 | 3 | useMemo/useCallback の依存配列から参照値を省く | ステールデータ（ファイルインポート後にチャートが更新されない） | `react-hooks/exhaustive-deps: error` |
 | 4 | 要因分解の合計を売上差と不一致にする | ウォーターフォールチャートが合計に到達しない | factorDecomposition.test.ts |
-| 5 | domain/ に外部依存・副作用を持ち込む | テストにモック必要、不変条件テスト実行困難 | architectureGuard.test.ts |
+| 5 | domain/ に外部依存・副作用を持ち込む | テストにモック必要、不変条件テスト実行困難 | guards/layerBoundaryGuard.test.ts |
 | 6 | UI が生データソースを直接参照する | データソース混同、計算ロジック分散、テスト困難 | review-gate チェック |
 | 7 | UI に変換・副作用・状態管理を混在させる（God Component） | 717行の MetricBreakdownPanel 事件。Storybook 不可、テスト不可 | 300行閾値 + review-gate |
 | 8 | 比較データの sourceDate を落とす変換を行う | 月跨ぎ時の出典追跡不能、前年比0表示（buildPrevSameDowMap 事件） | comparisonMigrationGuard.test.ts (INV-CMP-08) + sameDowPoint.test.ts |
@@ -25,7 +26,7 @@
 2. `git diff` で `eslint-disable` コメントの追加がないか確認
 3. 計算関数で引数を全て使用しているか確認（特に prevSales/curSales）
 4. `npm test` で factorDecomposition.test.ts が通ること
-5. `npm test` で architectureGuard.test.ts が通ること
+5. `npm test` で guards/layerBoundaryGuard.test.ts が通ること
 6. 新規 UI コンポーネントが生データ（records[]）を直接触っていないか確認
 7. 新規/変更ファイルが 300行を超えていないか確認
 8. `dailyMapping` を直接ループする独自変換がないか確認（`buildSameDowPoints()` を経由すること）

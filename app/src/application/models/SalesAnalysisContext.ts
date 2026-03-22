@@ -11,7 +11,7 @@
  * Domain 層（純粋業務概念）ではなく Application 層に配置する理由:
  * - dateRange + hierarchy + selectedDayRange は分析 UI の文脈であり、
  *   ビジネスモデルの一部ではない
- * - 取得対象データの契約（禁止事項 #12）は Domain に置くが、
+ * - 取得対象データの契約（@guard A4）は Domain に置くが、
  *   分析 UI の操作文脈は Application に閉じる
  */
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'

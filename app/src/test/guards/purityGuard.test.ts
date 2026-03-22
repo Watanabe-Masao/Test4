@@ -1,72 +1,26 @@
 /**
  * 構造純粋性ガードテスト
  *
- * CLAUDE.md の設計原則・禁止事項のうち、architectureGuard（import ベース）や
- * hookComplexityGuard（hook 複雑度ベース）でカバーされていない
- * 「コード内容ベースの構造制約」を機械的に検証する。
+ * コード内容ベースの構造制約を機械的に検証する。
  *
- * カテゴリ:
- * - Domain 純粋性（副作用API禁止、async禁止、catch握り潰し禁止）
- * - Presentation 描画専用（SQL埋め込み禁止、生データ参照禁止）
- * - Engine 境界（VM/Logic React-free、usecases React-free、DuckDB→domain禁止）
- * - 率の再計算禁止（禁止事項 #10 の機械化）
- * - facade/hook 責務混在検出
- * - 許可リスト増加防止
+ * @guard A2 Domain は純粋（副作用API禁止、async禁止）
+ * @guard A3 Presentation は描画専用（SQL埋め込み禁止）
+ * @guard A6 load 処理は3段階分離
+ * @guard B1 Authoritative 計算は domain/calculations のみ
+ * @guard B3 率は domain/calculations で算出
+ * @guard C6 facade は orchestration のみ
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
-
-const SRC_DIR = path.resolve(__dirname, '..')
-
-// ─── ヘルパー ───────────────────────────────────────────
-
-function collectTsFiles(dir: string, excludeTests = true): string[] {
-  const results: string[] = []
-  if (!fs.existsSync(dir)) return results
-  const entries = fs.readdirSync(dir, { withFileTypes: true })
-  for (const entry of entries) {
-    const fullPath = path.join(dir, entry.name)
-    if (entry.isDirectory()) {
-      if (entry.name === 'node_modules' || entry.name === 'dist' || entry.name === '__tests__')
-        continue
-      results.push(...collectTsFiles(fullPath, excludeTests))
-    } else if (/\.(ts|tsx)$/.test(entry.name)) {
-      if (excludeTests && (entry.name.endsWith('.test.ts') || entry.name.endsWith('.test.tsx')))
-        continue
-      results.push(fullPath)
-    }
-  }
-  return results
-}
-
-function rel(filePath: string): string {
-  return path.relative(SRC_DIR, filePath)
-}
-
-/** ファイルから import 文のモジュールパスを抽出する */
-function extractImports(filePath: string): string[] {
-  const content = fs.readFileSync(filePath, 'utf-8')
-  const imports: string[] = []
-  const regex =
-    /(?:import\s+(?:.*?\s+from\s+)?['"](@\/[^'"]+)['"]|export\s+.*?\s+from\s+['"](@\/[^'"]+)['"])/g
-  let match
-  while ((match = regex.exec(content)) !== null) {
-    imports.push(match[1] ?? match[2])
-  }
-  return imports
-}
-
-/** コメント行かどうか判定 */
-function isCommentLine(line: string): boolean {
-  const trimmed = line.trim()
-  return (
-    trimmed.startsWith('//') ||
-    trimmed.startsWith('*') ||
-    trimmed.startsWith('/*') ||
-    trimmed.startsWith('*/')
-  )
-}
+import {
+  SRC_DIR,
+  collectTsFiles,
+  rel,
+  extractImports,
+  isCommentLine,
+  stripStrings,
+} from '../guardTestHelpers'
 
 // ─── 3-A: Domain 純粋性ガード ────────────────────────────
 
@@ -87,14 +41,6 @@ describe('Domain 純粋性ガード', () => {
       /\bsetInterval\s*\(/, // インターバル
       /\bMath\.random\s*\(/, // ランダム（非決定的）
     ]
-
-    /** 文字列リテラルを除去してコード部分のみ返す */
-    function stripStrings(line: string): string {
-      return line
-        .replace(/'[^']*'/g, '""')
-        .replace(/"[^"]*"/g, '""')
-        .replace(/`[^`]*`/g, '""')
-    }
 
     for (const file of files) {
       const content = fs.readFileSync(file, 'utf-8')
@@ -341,7 +287,7 @@ describe('facade/hook 責務混在ガード', () => {
 
 describe('許可リスト増加防止ガード', () => {
   it('domain/ の 300行超除外ファイルは増やさない', () => {
-    // hookComplexityGuard.test.ts の domain 除外リストのファイル数上限
+    // guards/sizeGuard.test.ts の domain 除外リストのファイル数上限
     // 現在 7 件（metricDefs, metricResolver, PeriodSelection, rawAggregation,
     //   ComparisonScope, advancedForecast, formulaRegistryBusiness）
     // 増加には architecture ロールの承認が必要

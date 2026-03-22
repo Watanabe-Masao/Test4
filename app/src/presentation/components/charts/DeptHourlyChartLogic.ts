@@ -9,6 +9,8 @@
  *   - 時間帯×部門のマトリクス構築
  *   - 部門別時間帯パターンベクトル生成
  *   - ピアソン相関によるカニバリゼーション検出
+ *
+ * @guard G5 hook ≤300行 — 純粋関数を分離
  */
 import type { CategoryHourlyRow } from '@/application/hooks/useDuckDBQuery'
 import { topNByTotal } from '@/domain/calculations/rawAggregation'

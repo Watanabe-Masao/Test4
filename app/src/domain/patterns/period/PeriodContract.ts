@@ -1,7 +1,7 @@
 /**
  * PeriodContract — 期間の横断的関心事を型で管理する
  *
- * 設計原則 #12: 横断的関心事は Contract で管理
+ * @guard F5 横断的関心事は Contract で管理
  *
  * ComparisonContract と同じ思想で、期間選択の関心事を一箇所に集約する。
  * ウィジェットは PeriodNeed を宣言し、仕分け層（usePeriodResolver）が

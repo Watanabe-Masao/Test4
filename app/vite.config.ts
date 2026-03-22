@@ -57,6 +57,12 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: true,
     rollupOptions: {
+      external: [
+        'factor-decomposition-wasm',
+        'gross-profit-wasm',
+        'budget-analysis-wasm',
+        'forecast-wasm',
+      ],
       output: {
         manualChunks: {
           'vendor-xlsx': ['xlsx'],
@@ -70,5 +76,13 @@ export default defineConfig({
   },
   worker: {
     format: 'es' as const,
+    rollupOptions: {
+      external: [
+        'factor-decomposition-wasm',
+        'gross-profit-wasm',
+        'budget-analysis-wasm',
+        'forecast-wasm',
+      ],
+    },
   },
 })

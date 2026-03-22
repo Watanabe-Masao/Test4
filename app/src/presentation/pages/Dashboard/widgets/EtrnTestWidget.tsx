@@ -65,7 +65,7 @@ export const EtrnTestWidget = memo(function EtrnTestWidget({ ctx }: { ctx: Widge
   const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
   const location = storeLocations[storeKey]
 
-  // Application hook 経由でデータ取得（禁止事項#11 遵守）
+  // Application hook 経由でデータ取得（@guard A3）
   const { daily, isLoading, error } = useWeatherData(year, month, storeKey)
   const { hourlyCache, fetchHourly } = useWeatherHourlyOnDemand(storeKey, 'sameDate')
 

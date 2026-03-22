@@ -4,7 +4,7 @@
 
 ### 論理構造（なぜこの手順か）
 
-- import の方向に違反すると → architectureGuard.test.ts が落ちる → CI が FAIL する
+- import の方向に違反すると → guards/layerBoundaryGuard.test.ts が落ちる → CI が FAIL する
 - フレームワーク依存が domain/ に入ると → 純粋関数テストにモックが必要になる → テストの信頼性が落ちる
 - 許可リストに安易に追加すると → 境界の保護が弱まる → 依存方向が徐々に崩壊する
 
@@ -76,7 +76,7 @@
 #### 追加
 
 1. 追加理由を文書化する（「なぜ infrastructure に直接依存する必要があるか」）
-2. `architectureGuard.test.ts` の対応する許可リストにファイルパスを追加
+2. `guards/layerBoundaryGuard.test.ts` の対応する許可リストにファイルパスを追加
 3. `npm test` で全テストが通ることを確認
 4. review-gate に理由を伝達
 

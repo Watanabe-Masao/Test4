@@ -2,6 +2,8 @@
  * KPIテーブルウィジェット ViewModel
  *
  * データ変換・計算ロジックを抽出。React / styled-components に依存しない。
+ *
+ * @guard F7 View は ViewModel のみ受け取る
  */
 import { formatCurrency, formatPercent } from '@/domain/formatting'
 import { calculateAchievementRate, getEffectiveGrossProfitRate } from '@/domain/calculations/utils'

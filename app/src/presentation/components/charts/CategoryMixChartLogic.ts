@@ -8,6 +8,8 @@
  *   - カテゴリ別平均構成比の算出・ランキング
  *   - 週次チャートデータ構築
  *   - 最新週の構成比シフト（上昇/下落）判定
+ *
+ * @guard G5 hook ≤300行 — 純粋関数を分離
  */
 import type { CategoryMixWeeklyRow } from '@/application/hooks/useDuckDBQuery'
 

@@ -7,6 +7,8 @@
  * - HourlyWeatherAvgRow[] → WeatherHourlyDisplay[] への変換
  * - weatherCode の意味解釈は domain 層の toWeatherDisplay() に委譲
  * - AM/PM サマリのツールチップテキスト構築
+ *
+ * @guard G5 hook ≤300行 — 純粋関数を分離
  */
 import { toWeatherDisplay } from '@/domain/calculations/weatherAggregation'
 import type { HourlyWeatherAvgRow } from '@/application/hooks/duckdb'

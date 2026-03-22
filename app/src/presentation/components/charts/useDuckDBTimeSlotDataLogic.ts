@@ -2,6 +2,8 @@
  * useDuckDBTimeSlotData の純粋計算ロジック
  *
  * R11準拠: hook から pure function を分離し、テスト可能にする。
+ *
+ * @guard G5 hook ≤300行 — 純粋関数を分離
  */
 import type { DateRange } from '@/domain/models/calendar'
 import type { HourlyAggregationRow } from '@/application/hooks/useDuckDBQuery'
