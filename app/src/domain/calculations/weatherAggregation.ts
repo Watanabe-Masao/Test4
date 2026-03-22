@@ -113,6 +113,64 @@ function aggregateOneDay(
  * 85-86: Snow showers
  * 95-99: Thunderstorm
  */
+/** WeatherCategory の日本語ラベル */
+const WEATHER_LABELS: Readonly<Record<WeatherCategory, string>> = {
+  sunny: '晴れ',
+  cloudy: '曇り',
+  rainy: '雨',
+  snowy: '雪',
+  other: '不明',
+}
+
+/** WeatherCategory のアイコン（絵文字） */
+const WEATHER_CATEGORY_ICONS: Readonly<Record<WeatherCategory, string>> = {
+  sunny: '☀️',
+  cloudy: '☁️',
+  rainy: '🌧️',
+  snowy: '❄️',
+  other: '🌀',
+}
+
+/** weatherCode を表示に必要な情報に変換した結果 */
+export interface WeatherDisplayInfo {
+  readonly category: WeatherCategory
+  readonly icon: string
+  readonly label: string
+}
+
+/**
+ * WMO 天気コードを表示用モデルに変換する。
+ *
+ * Domain 層で weatherCode の意味解釈を完結させ、
+ * UI が weatherCode の数値を直接判定しなくて済むようにする。
+ *
+ * @param code WMO 天気コード。null なら欠損（データなし）。
+ * @returns 表示情報。code が null なら null を返す。
+ */
+export function toWeatherDisplay(code: number | null | undefined): WeatherDisplayInfo | null {
+  if (code == null) return null
+  const category = categorizeWeatherCode(code)
+  return {
+    category,
+    icon: WEATHER_CATEGORY_ICONS[category],
+    label: WEATHER_LABELS[category],
+  }
+}
+
+/**
+ * WeatherCategory のラベルを取得する。
+ */
+export function weatherCategoryLabel(cat: WeatherCategory): string {
+  return WEATHER_LABELS[cat]
+}
+
+/**
+ * WeatherCategory のアイコンを取得する。
+ */
+export function weatherCategoryIcon(cat: WeatherCategory): string {
+  return WEATHER_CATEGORY_ICONS[cat]
+}
+
 export function categorizeWeatherCode(code: number): WeatherCategory {
   if (code === 0) return 'sunny'
   if (code <= 3) return code === 1 ? 'sunny' : 'cloudy'
