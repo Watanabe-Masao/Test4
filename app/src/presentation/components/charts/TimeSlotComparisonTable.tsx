@@ -173,7 +173,7 @@ export const TimeSlotComparisonTable = memo(function TimeSlotComparisonTable({
   )
 })
 
-// ── 天気テーブル（グラフ直下に独立配置） ──
+// ── 天気アイコンテーブル（グラフ直下に配置） ──
 
 interface WeatherTableProps {
   readonly hours: readonly string[]
@@ -215,7 +215,7 @@ export const TimeSlotWeatherTable = memo(function TimeSlotWeatherTable({
     return WEATHER_ICONS[cat] ?? ''
   }
 
-  if (!hasWeather) return null
+  if (!hasWeather || !hasWeatherCodes) return null
 
   return (
     <div style={{ overflowX: 'auto' }}>
@@ -227,31 +227,20 @@ export const TimeSlotWeatherTable = memo(function TimeSlotWeatherTable({
           ))}
           <col style={{ width: gridRight }} />
         </colgroup>
-        <thead>
-          <tr>
-            <MiniTh style={{ textAlign: 'left' }}></MiniTh>
-            {hours.map((h) => (
-              <MiniTh key={h}>{h}時</MiniTh>
-            ))}
-            <MiniTh></MiniTh>
-          </tr>
-        </thead>
         <tbody>
           {/* 天気アイコン（当年） */}
-          {hasWeatherCodes && (
-            <tr>
-              <MiniTd style={{ fontWeight: 600, textAlign: 'left' }}>天気</MiniTd>
-              {hours.map((h) => {
-                const w = curW.get(parseInt(h, 10) || 0)
-                return (
-                  <MiniTd key={h} style={{ textAlign: 'center', fontSize: '0.8rem' }}>
-                    {weatherIcon(w)}
-                  </MiniTd>
-                )
-              })}
-              <MiniTd></MiniTd>
-            </tr>
-          )}
+          <tr>
+            <MiniTd style={{ fontWeight: 600, textAlign: 'left' }}>天気</MiniTd>
+            {hours.map((h) => {
+              const w = curW.get(parseInt(h, 10) || 0)
+              return (
+                <MiniTd key={h} style={{ textAlign: 'center', fontSize: '0.8rem' }}>
+                  {weatherIcon(w)}
+                </MiniTd>
+              )
+            })}
+            <MiniTd></MiniTd>
+          </tr>
           {/* 前年天気アイコン */}
           {hasPrevWeather && hasPrevWeatherCodes && (
             <tr>
@@ -261,62 +250,6 @@ export const TimeSlotWeatherTable = memo(function TimeSlotWeatherTable({
                 return (
                   <MiniTd key={h} style={{ textAlign: 'center', fontSize: '0.8rem' }}>
                     {weatherIcon(w)}
-                  </MiniTd>
-                )
-              })}
-              <MiniTd></MiniTd>
-            </tr>
-          )}
-          {/* 気温 */}
-          <tr>
-            <MiniTd style={{ fontWeight: 600, textAlign: 'left' }}>気温</MiniTd>
-            {hours.map((h) => {
-              const w = curW.get(parseInt(h, 10) || 0)
-              return <MiniTd key={h}>{w ? `${w.avgTemperature.toFixed(1)}°` : '-'}</MiniTd>
-            })}
-            <MiniTd></MiniTd>
-          </tr>
-          {/* 前年気温 */}
-          {hasPrevWeather && (
-            <tr>
-              <MiniTd style={{ fontWeight: 600, textAlign: 'left' }}>{compLabel}気温</MiniTd>
-              {hours.map((h) => {
-                const w = prevW.get(parseInt(h, 10) || 0)
-                return <MiniTd key={h}>{w ? `${w.avgTemperature.toFixed(1)}°` : '-'}</MiniTd>
-              })}
-              <MiniTd></MiniTd>
-            </tr>
-          )}
-          {/* 降水量 */}
-          <tr>
-            <MiniTd style={{ fontWeight: 600, textAlign: 'left' }}>降水量</MiniTd>
-            {hours.map((h) => {
-              const w = curW.get(parseInt(h, 10) || 0)
-              return (
-                <MiniTd key={h}>
-                  {w
-                    ? w.totalPrecipitation > 0
-                      ? `${w.totalPrecipitation.toFixed(1)}mm`
-                      : '-'
-                    : '-'}
-                </MiniTd>
-              )
-            })}
-            <MiniTd></MiniTd>
-          </tr>
-          {/* 前年降水量 */}
-          {hasPrevWeather && (
-            <tr>
-              <MiniTd style={{ fontWeight: 600, textAlign: 'left' }}>{compLabel}降水量</MiniTd>
-              {hours.map((h) => {
-                const w = prevW.get(parseInt(h, 10) || 0)
-                return (
-                  <MiniTd key={h}>
-                    {w
-                      ? w.totalPrecipitation > 0
-                        ? `${w.totalPrecipitation.toFixed(1)}mm`
-                        : '-'
-                      : '-'}
                   </MiniTd>
                 )
               })}
