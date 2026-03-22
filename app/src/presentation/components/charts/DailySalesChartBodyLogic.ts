@@ -249,7 +249,7 @@ interface RightAxisColors {
   readonly primary: string
 }
 
-/** 点数シリーズ（当期 + 前年） */
+/** 点数シリーズ（当期実線 + 前年破線、同色） */
 export function buildQuantitySeries(
   rows: readonly Record<string, unknown>[],
   hasPrev: boolean,
@@ -261,7 +261,7 @@ export function buildQuantitySeries(
       type: 'line',
       yAxisIndex: 1,
       data: pluck(rows, 'customers'),
-      ...lineDefaults({ color: colors.cyan, dashed: true }),
+      ...lineDefaults({ color: colors.cyan }),
       connectNulls: true,
     },
   ]
@@ -271,14 +271,14 @@ export function buildQuantitySeries(
       type: 'line',
       yAxisIndex: 1,
       data: pluck(rows, 'prevCustomers'),
-      ...lineDefaults({ color: colors.orange, dashed: true, width: 1.5 }),
+      ...lineDefaults({ color: colors.cyan, dashed: true, width: 1.5 }),
       connectNulls: true,
     })
   }
   return series
 }
 
-/** 客数シリーズ（客数 = customers フィールドを使用。点数と同フィールドだが意味が異なる表示） */
+/** 客数シリーズ（当期実線 + 前年破線、同色） */
 export function buildCustomerCountSeries(
   rows: readonly Record<string, unknown>[],
   hasPrev: boolean,
@@ -300,14 +300,14 @@ export function buildCustomerCountSeries(
       type: 'line',
       yAxisIndex: 1,
       data: pluck(rows, 'prevCustomers'),
-      ...lineDefaults({ color: colors.orange, width: 1.5 }),
+      ...lineDefaults({ color: colors.cyan, dashed: true, width: 1.5 }),
       connectNulls: true,
     })
   }
   return series
 }
 
-/** 売変シリーズ（当期 + 前年） */
+/** 売変シリーズ（当期実線 + 前年破線、同色） */
 export function buildDiscountSeries(
   rows: readonly Record<string, unknown>[],
   hasPrev: boolean,
@@ -329,7 +329,7 @@ export function buildDiscountSeries(
       type: 'line',
       yAxisIndex: 1,
       data: pluck(rows, 'prevYearDiscount'),
-      ...lineDefaults({ color: colors.orange, width: 1.5 }),
+      ...lineDefaults({ color: colors.danger, dashed: true, width: 1.5 }),
       connectNulls: true,
     })
   }

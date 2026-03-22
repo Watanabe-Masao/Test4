@@ -225,7 +225,7 @@ export const TimeSlotChart = memo(function TimeSlotChart({
         type: 'line',
         yAxisIndex: 1,
         data: d.chartData.map((r) => (r as Record<string, unknown>).quantity as number),
-        lineStyle: { color: qtyColor, width: 2, type: 'dashed' },
+        lineStyle: { color: qtyColor, width: 2 },
         itemStyle: { color: qtyColor },
         symbol: 'none',
         smooth: true,
@@ -238,8 +238,8 @@ export const TimeSlotChart = memo(function TimeSlotChart({
           data: d.chartData.map(
             (r) => ((r as Record<string, unknown>).prevQuantity as number) ?? null,
           ),
-          lineStyle: { color: theme.colors.palette.slate, width: 1.5, type: 'dashed' },
-          itemStyle: { color: theme.colors.palette.slate },
+          lineStyle: { color: qtyColor, width: 1.5, type: 'dashed' },
+          itemStyle: { color: qtyColor },
           symbol: 'none',
           smooth: true,
           connectNulls: true,
@@ -263,8 +263,8 @@ export const TimeSlotChart = memo(function TimeSlotChart({
           type: 'line',
           yAxisIndex: 1,
           data: hours.map((h) => prevWeatherMap.get(parseInt(h, 10))?.temp ?? null),
-          lineStyle: { color: theme.colors.palette.slate, width: 1.5 },
-          itemStyle: { color: theme.colors.palette.slate },
+          lineStyle: { color: tempColor, width: 1.5, type: 'dashed' },
+          itemStyle: { color: tempColor },
           symbol: 'circle',
           symbolSize: 3,
           smooth: true,
@@ -291,8 +291,8 @@ export const TimeSlotChart = memo(function TimeSlotChart({
           type: 'line',
           yAxisIndex: 1,
           data: hours.map((h) => prevWeatherMap.get(parseInt(h, 10))?.precip ?? null),
-          lineStyle: { color: theme.colors.palette.slate, width: 1.5 },
-          itemStyle: { color: theme.colors.palette.slate },
+          lineStyle: { color: precipColor, width: 1.5, type: 'dashed' },
+          itemStyle: { color: precipColor },
           symbol: 'circle',
           symbolSize: 3,
           smooth: true,
@@ -518,11 +518,9 @@ export const TimeSlotChart = memo(function TimeSlotChart({
         {showPrev && <LegendItem color={`${palette.slate}80`}>{d.compLabel}売上</LegendItem>}
         {lineMode === 'quantity' && (
           <>
-            <LegendItem color={palette.cyan} dashed>
-              {showPrev ? `${d.curLabel}点数` : '点数'}
-            </LegendItem>
+            <LegendItem color={palette.cyan}>{showPrev ? `${d.curLabel}点数` : '点数'}</LegendItem>
             {showPrev && (
-              <LegendItem color={palette.slate} dashed>
+              <LegendItem color={palette.cyan} dashed>
                 {d.compLabel}点数
               </LegendItem>
             )}
@@ -534,7 +532,9 @@ export const TimeSlotChart = memo(function TimeSlotChart({
               {showPrev ? `${d.curLabel}気温` : '気温'}
             </LegendItem>
             {showPrev && prevWeatherMap.size > 0 && (
-              <LegendItem color={palette.slate}>{d.compLabel}気温</LegendItem>
+              <LegendItem color={palette.warningDark} dashed>
+                {d.compLabel}気温
+              </LegendItem>
             )}
           </>
         )}
@@ -544,7 +544,9 @@ export const TimeSlotChart = memo(function TimeSlotChart({
               {showPrev ? `${d.curLabel}降水量` : '降水量'}
             </LegendItem>
             {showPrev && prevWeatherMap.size > 0 && (
-              <LegendItem color={palette.slate}>{d.compLabel}降水量</LegendItem>
+              <LegendItem color={palette.infoDark} dashed>
+                {d.compLabel}降水量
+              </LegendItem>
             )}
           </>
         )}
