@@ -436,3 +436,75 @@ CrossChartSelectionContext.setFocus({ hour: 14 })
 
 ViewModel は「何を描画するか」を決める責務であり、「どう描画するか」ではない。
 したがって Application 層が適切。Presentation に置くと、ドメイン値の解釈が再び漏れる。
+
+---
+
+## 売上推移分析ユニット — 標準実装リファレンス
+
+日別売上チャート（overview）→ 時間帯別チャート（drilldown）の親子連動を
+「包含型分析ユニット」として確立した標準実装。
+
+### 設計原則
+
+- **仕様継承**: DailySalesChart と TimeSlotChart は共通の `SalesAnalysisContext` を継承する派生ビュー
+- **合成で実装**: React コンポーネント継承は使わない。親コンテナ + 共通文脈 + 派生 ViewModel
+- **包含型ウィジェット**: ダッシュボードでは `IntegratedSalesChart` が1ウィジェット
+- **文脈の一元管理**: 比較軸・店舗・階層・選択状態は親コンテナが持ち、子は受け取るだけ
+
+### アーキテクチャ
+
+```
+IntegratedSalesChart（親コンテナ — 売上推移分析ユニット）
+  ├─ SalesAnalysisContext を構築（buildSalesAnalysisContext）
+  ├─ AnalysisViewEvents を CrossChartSelectionContext に伝播
+  │
+  ├─ DailySalesChart（overview ビュー）
+  │   ├─ onDayRangeSelect → IntegratedSalesChart.selectedRange
+  │   └─ DailySalesChartBody（描画）
+  │
+  ├─ TimeSlotChart（drilldown ビュー — context 経由で文脈を受領）
+  │   ├─ useDuckDBTimeSlotData → buildTimeSlotChartOption → TimeSlotChartView
+  │   └─ events.onSelectHour / onSelectCategory → 親に通知
+  │
+  └─ SubAnalysisPanel（連動パネル — 同じ analysisContext を使用）
+      ├─ CategoryHeatmapPanel
+      ├─ FactorDecompositionPanel
+      ├─ DiscountAnalysisPanel
+      └─ WeatherAnalysisPanel
+```
+
+### ファイル構成
+
+| ファイル | 責務 | 行数 |
+|---|---|---|
+| `IntegratedSalesChart.tsx` | 親コンテナ。SalesAnalysisContext 構築、ドリル状態管理、イベント伝播 | ~250 |
+| `DailySalesChart.tsx` | overview Controller。view/rightAxis/dow 状態管理 | ~198 |
+| `DailySalesChartBody.tsx` | overview View。描画のみ | ~570 |
+| `TimeSlotChart.tsx` | drilldown Controller。context or 従来 props からデータ取得 | ~170 |
+| `TimeSlotChartView.tsx` | drilldown View。描画のみ（weatherCode を含まない） | ~410 |
+| `TimeSlotChartOptionBuilder.ts` | ECharts option の純粋関数構築 | ~230 |
+| `SubAnalysisPanel.tsx` | 右軸モード連動サブパネル | ~128 |
+
+### 型定義
+
+| 型 | 配置 | 用途 |
+|---|---|---|
+| `SalesAnalysisContext` | `application/models/` | 分析ユニットの共通文脈（UI/分析の文脈） |
+| `AnalysisViewEvents` | `application/models/` | 子→親のインタラクション契約 |
+| `CategoryFocus` | `application/models/` | カテゴリ選択のフォーカス対象 |
+| `HierarchySelection` | `application/models/` | カテゴリ階層の選択状態 |
+
+### 横展開テンプレート
+
+他の分析ユニット（カテゴリ分析、予算分析等）を追加する場合:
+
+1. `XxxAnalysisContext`（必要なら `SalesAnalysisContext` を拡張）を Application 層に定義
+2. 親コンテナ `IntegratedXxxChart` を作成し、context を構築
+3. overview ビュー `XxxOverviewChart` + drilldown ビュー `XxxDrillChart` を配下に配置
+4. 子→親イベントは `AnalysisViewEvents` を共通で使用（必要なら拡張）
+5. `CrossChartSelectionContext` 経由で他ユニットと連動
+
+### 暫定互換
+
+`UnifiedTimeSlotWidget`（ダッシュボード独立ウィジェット）は従来 props で動作する暫定互換。
+新規改善は `IntegratedSalesChart` 側に寄せる。最終的に独立ウィジェットは縮退予定。
