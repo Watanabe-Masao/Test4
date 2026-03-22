@@ -123,30 +123,30 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
 
   // 前年天気データ（比較期間の年月から取得）
   // 同曜日比較で月跨ぎする場合、from月とto月の両方を取得して結合する
+  // prevYearDateRange は effectivePeriod2 由来。undefined なら天気比較なし
   const prevYearMonths = useMemo(() => {
     const dr = comparison.prevYearDateRange
-    if (!dr) return { from: { year: targetYear - 1, month: targetMonth }, to: null }
+    if (!dr) return null
     const from = { year: dr.from.year, month: dr.from.month }
     const to = { year: dr.to.year, month: dr.to.month }
     const spansTwoMonths = from.year !== to.year || from.month !== to.month
     return { from, to: spansTwoMonths ? to : null }
-  }, [comparison.prevYearDateRange, targetYear, targetMonth])
-  const { daily: prevYearWeatherBase } = useWeatherData(
-    prevYearMonths.from.year,
-    prevYearMonths.from.month,
-    weatherStoreId,
-  )
-  const { daily: prevYearWeatherOverflow } = useWeatherData(
-    prevYearMonths.to?.year ?? prevYearMonths.from.year,
-    prevYearMonths.to?.month ?? prevYearMonths.from.month,
-    weatherStoreId,
-  )
+  }, [comparison.prevYearDateRange])
+  // Hook は条件付き呼び出し不可のため、prevYearMonths が null なら当年月を渡す（結果は無視）
+  const prevFromYear = prevYearMonths?.from.year ?? targetYear
+  const prevFromMonth = prevYearMonths?.from.month ?? targetMonth
+  const { daily: prevYearWeatherBase } = useWeatherData(prevFromYear, prevFromMonth, weatherStoreId)
+  const overflowYear = prevYearMonths?.to?.year ?? prevFromYear
+  const overflowMonth = prevYearMonths?.to?.month ?? prevFromMonth
+  const { daily: prevYearWeatherOverflow } = useWeatherData(overflowYear, overflowMonth, weatherStoreId)
   const prevYearWeatherDaily = useMemo(
-    () =>
-      prevYearMonths.to
+    () => {
+      if (!prevYearMonths) return [] as readonly typeof prevYearWeatherBase[number][]
+      return prevYearMonths.to
         ? ([...prevYearWeatherBase, ...prevYearWeatherOverflow] as const)
-        : prevYearWeatherBase,
-    [prevYearWeatherBase, prevYearWeatherOverflow, prevYearMonths.to],
+        : prevYearWeatherBase
+    },
+    [prevYearWeatherBase, prevYearWeatherOverflow, prevYearMonths],
   )
 
   // Store name map for category comparison
