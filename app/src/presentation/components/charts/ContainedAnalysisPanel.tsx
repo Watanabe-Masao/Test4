@@ -5,12 +5,13 @@
  * 売上推移系もカテゴリ系も同じテンプレートで統一。
  *
  * 役割:
- * - depth に応じた視覚階層（背景色・左ボーダー）
+ * - role に応じた視覚階層（背景色・左ボーダー）
  * - 継承中の条件表示（ContextTag）
  * - ドリルダウン元の明示（drillLabel）
  * - slideDown アニメーション
  */
 import type { ReactNode } from 'react'
+import type { ContainedRole } from './ContainedAnalysisPanel.styles'
 import {
   PanelShell,
   PanelHeader,
@@ -40,8 +41,8 @@ export interface ContainedAnalysisPanelProps {
   readonly drillLabel?: string
   readonly toolbar?: ReactNode
   readonly children: ReactNode
-  /** ネスト深度（0=子、1=孫） */
-  readonly depth?: 0 | 1
+  /** 包含階層での役割（child=子、grandchild=孫） */
+  readonly role?: ContainedRole
 }
 
 // ── Component ──
@@ -53,10 +54,10 @@ export function ContainedAnalysisPanel({
   drillLabel,
   toolbar,
   children,
-  depth = 0,
+  role = 'child',
 }: ContainedAnalysisPanelProps) {
   return (
-    <PanelShell $depth={depth}>
+    <PanelShell $role={role}>
       {/* コンテキストタグ（継承条件表示） */}
       {inheritedContext != null && inheritedContext.length > 0 && (
         <ContextTagBar>

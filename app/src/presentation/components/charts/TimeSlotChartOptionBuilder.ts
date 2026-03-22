@@ -37,6 +37,19 @@ export interface TimeSlotChartOptionInput {
   readonly prevWeatherMap: ReadonlyMap<number, WeatherMapEntry>
 }
 
+// ── 降水量軸ポリシー ──
+
+/** 降水量モードの固定軸設定を解決する。0〜5mm を基本とし、大きい値に段階的に拡張。 */
+export function resolvePrecipitationAxisRange(maxPrecip: number): {
+  min: number
+  max: number
+  interval: number
+} {
+  if (maxPrecip <= 5) return { min: 0, max: 5, interval: 1 }
+  if (maxPrecip <= 10) return { min: 0, max: 10, interval: 2 }
+  return { min: 0, max: 20, interval: 5 }
+}
+
 // ── 純粋関数 ──
 
 /** ECharts の chartOption を構築する。React 非依存の純粋関数。 */
@@ -179,13 +192,35 @@ export function buildTimeSlotChartOption(input: TimeSlotChartOptionInput): EChar
     }
   }
 
-  // ── 右Y軸のフォーマッタ ──
+  // ── 右Y軸の構築 ──
   const rightYAxisFormatter =
     lineMode === 'quantity'
       ? (v: number) => toComma(v)
       : lineMode === 'temperature'
         ? (v: number) => `${v}°`
         : (v: number) => `${v}mm`
+
+  // 降水量モード: 固定スケールで小さい値の誇張を防ぐ
+  const rightAxisOptions: Parameters<typeof valueYAxis>[1] = {
+    formatter: rightYAxisFormatter,
+    position: 'right' as const,
+    showSplitLine: false,
+  }
+
+  if (lineMode === 'precipitation') {
+    // 実データの最大降水量を取得して段階的にスケールを決定
+    let maxPrecip = 0
+    for (const h of hours) {
+      const hourNum = parseInt(h, 10)
+      const curP = curWeatherMap.get(hourNum)?.precip ?? 0
+      const prevP = prevWeatherMap.get(hourNum)?.precip ?? 0
+      maxPrecip = Math.max(maxPrecip, curP, prevP)
+    }
+    const precipRange = resolvePrecipitationAxisRange(maxPrecip)
+    rightAxisOptions.min = precipRange.min
+    rightAxisOptions.max = precipRange.max
+    rightAxisOptions.interval = precipRange.interval
+  }
 
   return {
     grid: { left: GRID_LEFT, right: GRID_RIGHT, top: 10, bottom: 40, containLabel: false },
@@ -204,11 +239,7 @@ export function buildTimeSlotChartOption(input: TimeSlotChartOptionInput): EChar
     },
     yAxis: [
       yenYAxis(theme),
-      valueYAxis(theme, {
-        formatter: rightYAxisFormatter,
-        position: 'right',
-        showSplitLine: false,
-      }),
+      valueYAxis(theme, rightAxisOptions),
     ],
     series,
   }

@@ -225,7 +225,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
           subtitle={rangeLabel}
           inheritedContext={timeSlotContextTags}
           drillLabel="日別からドリルダウン"
-          depth={0}
+          role="child"
           toolbar={
             <BackButton onClick={handleBack}>
               <BackArrow>←</BackArrow>
@@ -246,7 +246,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
             title="部門別時間帯パターン"
             subtitle={`上位${DEFAULT_TOP_DEPARTMENT_POLICY.count}部門の時間帯別売上 | 積み上げ面グラフ`}
             drillLabel="時間帯からドリルダウン"
-            depth={1}
+            role="grandchild"
           >
             <DeptHourlyChart
               duckConn={props.duckConn}

@@ -2,7 +2,7 @@
  * ContainedAnalysisPanel — 包含型分析パネルのスタイル
  *
  * 親の中に子を含む共通UI枠。日別系もカテゴリ系も同じテンプレートで統一。
- * depth に応じた背景色の段階（0=子、1=孫）。
+ * role に応じた背景色の段階（child=子、grandchild=孫）。
  */
 import styled, { keyframes, css } from 'styled-components'
 
@@ -19,7 +19,7 @@ const slideDown = keyframes`
   }
 `
 
-// ── depth 別スタイル ──
+// ── role 別スタイル ──
 
 const childStyle = css`
   background: ${({ theme }) =>
@@ -36,13 +36,15 @@ const grandchildStyle = css`
 
 // ── メインコンテナ ──
 
-export const PanelShell = styled.div<{ $depth: 0 | 1 }>`
+export type ContainedRole = 'child' | 'grandchild'
+
+export const PanelShell = styled.div<{ $role: ContainedRole }>`
   margin-top: ${({ theme }) => theme.spacing[3]};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.md};
   padding: ${({ theme }) => theme.spacing[4]};
   animation: ${slideDown} 0.3s cubic-bezier(0.2, 0.9, 0.3, 1) both;
-  ${({ $depth }) => ($depth === 0 ? childStyle : grandchildStyle)}
+  ${({ $role }) => ($role === 'grandchild' ? grandchildStyle : childStyle)}
 `
 
 // ── ヘッダ ──

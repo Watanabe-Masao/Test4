@@ -85,7 +85,7 @@ export const IntegratedCategoryAnalysis = memo(function IntegratedCategoryAnalys
         subtitle="部門→ライン→クラスの階層ドリルダウン"
         inheritedContext={contextTags}
         drillLabel="カテゴリからドリルダウン"
-        depth={0}
+        role="child"
       >
         <CategoryHierarchyExplorer
           duckConn={duckConn}
