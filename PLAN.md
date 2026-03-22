@@ -1,135 +1,190 @@
-# 凍結 allowlist 解消計画
+# 天気データ基盤修正計画
 
-## 現状サマリ
-
-全凍結ファイル19件を精査した結果、以下の3カテゴリに分類。
-
-| カテゴリ | 件数 | 方針 |
-|----------|------|------|
-| A. 分割で解消可能 | 7件 | 今回対応 |
-| B. 正当な複雑さ（構造的に妥当） | 7件 | allowlist を「凍結」から「許容」に格上げ |
-| C. Domain/Infra の pure ファイル | 5件 | 除外リスト維持（hook でないため R11 対象外） |
+TimeSlotChart を「このアプリの思想に沿った標準サンプル」にするための残タスク。
+ステップ1-3（falsy修正、責務分離、ViewModel化）は完了済み。以下は残りの4項目。
 
 ---
 
-## A. 分割で解消するファイル（7件）
+## Step 5: 月跨ぎフォールバック修正
 
-### Phase 1: Query hook 分割（useMemo 10→5+5）
+### 問題
 
-#### A-1. useJsAggregationQueries.ts（useMemo 10, 282行）
-- **現状:** 10個の DuckDB クエリを1 hook にまとめている
-- **方針:** 売上系クエリ / 仕入系クエリに2分割
-  - `useJsSalesQueries.ts`（売上・客数・客単価系 5クエリ）
-  - `useJsPurchaseQueries.ts`（仕入・値入・原価系 5クエリ）
-  - 元ファイルはバレル re-export で後方互換
-- **ガード更新:** allowlist から削除（各5 < 基準7）
+`useWeatherHourlyQuery.ts:154` で月跨ぎ時に `endDay = 28` 固定。
+29-31日と翌月の日が取得されない。
 
-#### A-2. useCtsQueries.ts（useMemo 10, 339行）
-- **現状:** カテゴリ×時間帯の10クエリを1 hook に集約
-- **方針:** カテゴリ集計 / 時間帯集計に2分割
-  - `useCtsCatego ryQueries.ts`（カテゴリ階層・ベンチマーク系 5クエリ）
-  - `useCtsPeriodQueries.ts`（時間帯・日別トレンド系 5クエリ）
-  - 元ファイルはバレル re-export
-- **ガード更新:** allowlist + 行数 allowlist の両方から削除
-
-### Phase 2: useState 集約（useReducer 化）
-
-#### A-3. useDuckDB.ts（useState 9, 302行）
-- **現状:** DuckDB ライフサイクルの9状態を個別 useState で管理
-- **方針:** `useReducer` で状態を1つの `DuckDBState` に集約
-  - `type DuckDBState = { engineState, isLoading, error, dataVersion, ... }`
-  - `type DuckDBAction = { type: 'INIT_START' | 'INIT_SUCCESS' | 'LOAD_START' | ... }`
-  - reducer は純粋関数として `duckdbReducer.ts` に分離
-- **ガード更新:** useState allowlist + 行数 allowlist から削除
-
-#### A-4. useAutoImport.ts（useState 8, 224行）
-- **現状:** フォルダスキャンの8状態を個別管理
-- **方針:** `useReducer` で `AutoImportState` に集約
-  - reducer は `autoImportReducer.ts` に分離
-- **ガード更新:** useState allowlist から削除
-
-### Phase 3: 大型 Pure Logic 分割
-
-#### A-5. purchaseComparisonBuilders.ts（595行）
-- **現状:** 5つの build* 関数。`buildSupplierAndCategoryData` が180行
-- **方針:** 仕入先系 / カテゴリ系に分離
-  - `purchaseComparisonKpi.ts`（buildKpi + buildStoreData）
-  - `purchaseComparisonCategory.ts`（buildSupplierAndCategoryData + buildDailyPivot）
-  - `purchaseComparisonDaily.ts`（buildDailyData）
-  - 元ファイルはバレル re-export
-- **ガード更新:** 行数 allowlist から削除
-
-### Phase 4: Presentation 分割
-
-#### A-6. CvTimeSeriesChart.tsx（690行, Tier 2）
-- **現状:** 3つの表示モード（cvLine / salesCv / heatmap）が1コンポーネントに混在
-- **方針:**
-  - `useCvTimeSeriesData.ts` — クエリ + topCodes + trendPoints を hook 化
-  - `CvLineView.tsx` / `SalesCvView.tsx` / `CvHeatmapView.tsx` — 表示モード別
-  - `CvTimeSeriesChart.tsx` — thin wrapper（モード切替 + 共通 UI のみ）
-- **ガード更新:** Tier 2 allowlist から削除（400行以下になる）
-
-#### A-7. useMetricBreakdown.ts（useMemo 8, useState 5, 282行）
-- **現状:** ナビゲーション状態 + 表示データ構築が混在
-- **方針:**
-  - `useMetricBreakdownNavigation.ts` — tab/history/expand の状態管理を分離
-  - `useMetricBreakdown.ts` — データ構築のみ（useMemo 5-6個）
-- **ガード更新:** useMemo + useState allowlist から削除
-
----
-
-## B. 正当な複雑さ（allowlist 維持、コメント更新）
-
-| ファイル | 理由 |
-|----------|------|
-| useComparisonModule.ts（useMemo 8） | ファサードの composition pipeline。8段の useMemo が責務そのもの。分割すると facade の意味がなくなる |
-| usePersistence.ts（useState 6） | ストレージライフサイクルの独立状態。基準値ちょうど |
-| useAutoBackup.ts（useState 6） | バックアップライフサイクルの独立状態。基準値ちょうど |
-| categoryBenchmarkLogic.ts（398行） | Pure 関数。400行上限内。統計計算の凝集性が高い |
-| usePeriodAwareKpi.ts（300行） | 基準値ちょうど。期間マージの pure 関数が含まれ凝集的 |
-| TimeSlotChart.tsx（637行, Tier 2） | useState 0 / useMemo 0。hook に全委譲済みの理想形。JSX が長いだけ |
-| useLoadComparisonData.ts（R2） | 92行。reducer 抽出済み。.then() 2行のみの例外 |
-
-→ これらは「凍結（次回改修時に分割義務）」から「**許容（理由付き）**」にコメント変更。
-
----
-
-## C. Domain/Infra 除外リスト（維持）
-
-| ファイル | 行数 | 理由 |
-|----------|------|------|
-| metricDefs.ts | 454 | 純粋カタログ。分割すると参照性が下がる |
-| PeriodSelection.ts | 403 | 日付操作 + ビルダー。凝集的 |
-| rawAggregation.ts | 438 | 集計純粋関数群 |
-| ComparisonScope.ts | 339 | 比較ロジック純粋関数 |
-| schemas.ts | 338 | DDL 定数。分割不要 |
-
-→ 現状の除外コメントを維持。
-
----
-
-## 実行順序
-
-```
-Phase 1 (A-1, A-2)  ← 最も機械的。パターン同一
-    ↓
-Phase 2 (A-3, A-4)  ← useState → useReducer。テスト追加
-    ↓
-Phase 3 (A-5)       ← Pure 関数分割。テスト移動
-    ↓
-Phase 4 (A-6, A-7)  ← Presentation。影響範囲確認
-    ↓
-ガード更新 + B のコメント更新
-    ↓
-CI 全ゲート通過確認
+```typescript
+// 現状（壊れている）
+const endDay = from.year === to.year && from.month === to.month ? to.day : 28
+for (let d = from.day; d <= endDay; d++) days.push(d)
+loadEtrnHourlyForStore(storeId, location, from.year, from.month, days)
 ```
 
-## 完了基準
+### 制約
 
-- [x] hookComplexityGuard.test.ts の全 allowlist から A-1〜A-7 を削除
-- [x] R12 の Tier 2 から CvTimeSeriesChart を削除
-- [x] B のコメントを「凍結」→「許容（理由）」に更新
-- [x] CI 6段階ゲート全通過（214テスト 4302アサーション全通過、lint/format/tsc clean）
-- [x] 新規ファイルは全て基準値以下（useMemo ≤7, useState ≤6, hook 300行, component 400行）
+- `loadEtrnHourlyForStore(storeId, location, year, month, days[])` は **単月API**
+- 月跨ぎなら月ごとに分割して呼ぶ必要がある
 
-**完了日:** 2026-03-16
+### 修正方針
+
+1. `domain/models/CalendarDate.ts` に純粋関数 `splitDateRangeByMonth` を追加
+   - 入力: `from: CalendarDate, to: CalendarDate`
+   - 出力: `readonly { year: number; month: number; days: readonly number[] }[]`
+   - 例: `{2026,1,29}〜{2026,2,3}` → `[{2026,1,[29,30,31]}, {2026,2,[1,2,3]}]`
+   - 閏年・月末日は `new Date(year, month, 0).getDate()` で算出
+
+2. `useWeatherHourlyQuery.ts` の useEffect を修正
+   - `splitDateRangeByMonth` で月別チャンクに分割
+   - `Promise.all` で全月分を並列取得
+   - 全結果の `hourly` を結合してから `insertWeatherHourly`
+   - `fetchKey` を `${storeId}|${from.year}-${from.month}-${from.day}|${to.year}-${to.month}-${to.day}` に変更
+
+3. テスト追加
+   - 同月: `{2026,3,1}〜{2026,3,15}` → `[{2026,3,[1..15]}]`
+   - 月跨ぎ: `{2026,1,28}〜{2026,2,3}` → `[{2026,1,[28..31]}, {2026,2,[1..3]}]`
+   - 年跨ぎ: `{2025,12,30}〜{2026,1,2}` → `[{2025,12,[30,31]}, {2026,1,[1,2]}]`
+   - 閏年2月: `{2024,2,28}〜{2024,3,1}` → `[{2024,2,[28,29]}, {2024,3,[1]}]`
+   - 非閏年2月: `{2025,2,27}〜{2025,3,1}` → `[{2025,2,[27,28]}, {2025,3,[1]}]`
+
+### 変更ファイル
+
+| ファイル | 変更内容 |
+|---|---|
+| `domain/models/CalendarDate.ts` | `splitDateRangeByMonth` 純粋関数追加 |
+| `domain/models/calendar.ts` | バレルに export 追加 |
+| `application/hooks/duckdb/useWeatherHourlyQuery.ts` | useEffect 内の日付生成＋取得を修正 |
+| 新規テストファイル | `splitDateRangeByMonth` の境界値テスト |
+
+---
+
+## Step 6: dominantCode 初期値 0 の修正
+
+### 問題
+
+`weatherAggregation.ts:79` で `let dominantCode = 0`。
+0 は「晴れ」の有効値であり、初期値/未設定値と区別がつかない。
+
+### 現状の安全性
+
+- 呼び出し元 `aggregateHourlyToDaily` が `records.length === 0` を弾いているため、
+  今日時点では実際には壊れない
+- しかし、将来の呼び出し元追加時に 0（晴れ）が漏れるリスクがある
+
+### 修正方針
+
+`records[0].weatherCode` で初期化する（呼び出し元の guard で非空が保証済み）。
+
+```typescript
+// Before
+let dominantCode = 0
+let maxCount = 0
+
+// After
+let dominantCode = records[0].weatherCode
+let maxCount = 0
+```
+
+### テスト追加
+
+- `weatherAggregation.test.ts` に追加:
+  - 全レコードが weatherCode=0 → dominantWeatherCode が 0
+  - 単一レコード → そのレコードの code が返る
+
+### 変更ファイル
+
+| ファイル | 変更内容 |
+|---|---|
+| `domain/calculations/weatherAggregation.ts` | 初期値を `records[0].weatherCode` に変更 |
+| `domain/calculations/__tests__/weatherAggregation.test.ts` | 境界値テスト追加 |
+
+---
+
+## Step 7: 代表天気の仕様定義
+
+### 問題
+
+「時間帯の代表天気とは何か」が手続きとして未定義。
+
+- JS側 `aggregateOneDay()`: 最頻コード（同数なら先に出現した方）
+- SQL側 `queryWeatherHourlyAvg()`: `MODE(weather_code)` （同数時は非決定的）
+
+### 修正方針
+
+**JS 側（Authoritative Engine）のみ修正**。SQL 側は Exploration Engine
+として MODE のまま残す（CQRS の二重実装禁止原則に従い、仕様を JS に閉じる）。
+
+1. `weatherAggregation.ts` に天気カテゴリの深刻度順序を定義
+
+```typescript
+const WEATHER_SEVERITY: Record<WeatherCategory, number> = {
+  sunny: 0, cloudy: 1, rainy: 2, snowy: 3, other: 0,
+}
+```
+
+2. `aggregateOneDay` のタイブレーク条件を変更
+
+```typescript
+// Before: count > maxCount（先着順）
+// After:  count > maxCount || (count === maxCount && severity(code) > severity(dominantCode))
+```
+
+3. 仕様を `references/03-guides/widget-coordination-architecture.md` に明記
+   - 「同数の場合、より深刻な天気を優先する（雪 > 雨 > 曇り > 晴れ）」
+   - 「DuckDB の MODE は探索用であり、Authoritative な代表天気は JS で算出する」
+
+### テスト追加
+
+- タイブレーク: 晴れ12h + 雨12h → 雨が代表
+- 晴れ多数 + 雨少数 → 晴れが代表（頻度優先は維持）
+- 雪と雨の同数 → 雪が代表
+
+### 変更ファイル
+
+| ファイル | 変更内容 |
+|---|---|
+| `domain/calculations/weatherAggregation.ts` | 深刻度定数 + タイブレーク追加 |
+| `domain/calculations/__tests__/weatherAggregation.test.ts` | タイブレークテスト |
+| `references/03-guides/widget-coordination-architecture.md` | 代表天気の仕様明記 |
+
+---
+
+## Step 8: toWeatherDisplay のガードテスト
+
+### 問題
+
+今回新設した `toWeatherDisplay()` にテストがない。
+
+### テスト追加
+
+`domain/calculations/__tests__/weatherAggregation.test.ts` に追加:
+
+| 入力 | 期待結果 |
+|---|---|
+| `null` | `null` |
+| `undefined` | `null` |
+| `0` | `{ category: 'sunny', icon: '☀️', label: '晴れ' }` |
+| `3` | `{ category: 'cloudy', icon: '☁️', label: '曇り' }` |
+| `61` | `{ category: 'rainy', icon: '🌧️', label: '雨' }` |
+| `71` | `{ category: 'snowy', icon: '❄️', label: '雪' }` |
+| `200` | `{ category: 'other', icon: '🌀', label: '不明' }` |
+
+### 変更ファイル
+
+| ファイル | 変更内容 |
+|---|---|
+| `domain/calculations/__tests__/weatherAggregation.test.ts` | toWeatherDisplay テスト追加 |
+
+---
+
+## 実施順序
+
+```
+Step 8 (toWeatherDisplay テスト)     ← 最小・既存コード変更なし
+  ↓
+Step 6 (dominantCode 初期値修正)     ← 小・domain 1行修正 + テスト
+  ↓
+Step 5 (月跨ぎフォールバック修正)    ← 中・純粋関数抽出 + hook 修正
+  ↓
+Step 7 (代表天気の仕様定義)          ← 中・ドメインロジック変更 + 仕様文書
+```
+
+リスクが低い順に進め、各ステップでテスト通過を確認してからコミットする。
