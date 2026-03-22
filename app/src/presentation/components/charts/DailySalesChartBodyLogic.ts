@@ -107,13 +107,15 @@ const WEATHER_COLORS: Record<WeatherCategory, string> = {
   other: '#6b7280',
 }
 
-/** 天気データを day → { icon, category, temp, max, min } のマップに変換 */
+/** 天気データを day → { icon, category, temp, max, min, weatherText } のマップに変換 */
 export interface DayWeatherInfo {
   readonly icon: string
   readonly category: WeatherCategory
   readonly temp: number
   readonly max: number
   readonly min: number
+  /** 気象庁天気概況テキスト（昼/夜）— ツールチップ用 */
+  readonly weatherText?: string
 }
 
 /** dowOffset > 0 のとき、比較期間の開始日キーを算出する */
@@ -166,12 +168,15 @@ export function buildWeatherMap(
     }
     if (chartDay < 1) continue
     const cat = categorizeWeatherCode(w.dominantWeatherCode)
+    // 天気概況テキスト: 昼があれば昼、なければ夜
+    const weatherText = w.weatherTextDay ?? w.weatherTextNight
     map.set(chartDay, {
       icon: WEATHER_ICONS[cat],
       category: cat,
       temp: Math.round(w.temperatureAvg),
       max: Math.round(w.temperatureMax),
       min: Math.round(w.temperatureMin),
+      weatherText,
     })
   }
   return map
@@ -401,6 +406,54 @@ export function buildRightAxisSeries(
     case 'temperature':
       return buildTemperatureSeries(days, weatherMap, colors, prevYearWeatherMap)
   }
+}
+
+// ─── ツールチップフォーマッター ──────────────────────────
+
+interface TooltipItem {
+  readonly seriesName: string
+  readonly value: number | null
+  readonly color: string
+  readonly marker: string
+  readonly name: string
+}
+
+/** 日別チャートのツールチップ HTML を生成する */
+export function formatDailyTooltip(
+  params: unknown,
+  weatherMap: ReadonlyMap<number, DayWeatherInfo> | undefined,
+  fmtComma: (n: number) => string,
+  fmtPct: (n: number) => string,
+): string {
+  const items = params as TooltipItem[]
+  if (!Array.isArray(items) || items.length === 0) return ''
+  const day = items[0].name
+  const dayNum = parseInt(day, 10)
+  const w = weatherMap?.get(dayNum)
+  const weatherLine = w?.weatherText
+    ? `<div style="color:#6b7280;font-size:11px;margin-bottom:2px">${w.icon} ${w.weatherText}</div>`
+    : ''
+  const header = `<div style="font-weight:600;margin-bottom:4px">${day}日</div>${weatherLine}`
+  const lines = items
+    .filter((item) => !HIDDEN_NAMES.has(item.seriesName))
+    .map((item) => {
+      const label = ALL_LABELS[item.seriesName] ?? item.seriesName
+      const val =
+        item.value == null
+          ? '-'
+          : PERCENT_SERIES.has(item.seriesName)
+            ? fmtPct(item.value / 100)
+            : TEMPERATURE_SERIES.has(item.seriesName)
+              ? `${item.value}°C`
+              : fmtComma(item.value)
+      return (
+        `<div style="display:flex;justify-content:space-between;gap:12px">` +
+        `${item.marker}<span>${label}</span>` +
+        `<span style="font-weight:600;font-family:monospace">${val}</span></div>`
+      )
+    })
+    .join('')
+  return header + lines
 }
 
 /** 右軸のフォーマッタを返す */

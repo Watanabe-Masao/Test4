@@ -14,9 +14,7 @@ import {
   buildRightAxisSeries,
   rightAxisFormatter as getRightAxisFormatter,
   ALL_LABELS,
-  HIDDEN_NAMES,
-  PERCENT_SERIES,
-  TEMPERATURE_SERIES,
+  formatDailyTooltip,
   grad,
   withAlpha,
   pluck,
@@ -146,37 +144,7 @@ function buildOption(
       fontSize: ct.fontSize.sm,
       fontFamily: ct.fontFamily,
     },
-    formatter: (params: unknown) => {
-      const items = params as {
-        seriesName: string
-        value: number | null
-        color: string
-        marker: string
-      }[]
-      if (!Array.isArray(items) || items.length === 0) return ''
-      const day = (items[0] as unknown as { name: string }).name
-      const header = `<div style="font-weight:600;margin-bottom:4px">${day}日</div>`
-      const lines = items
-        .filter((item) => !HIDDEN_NAMES.has(item.seriesName))
-        .map((item) => {
-          const label = ALL_LABELS[item.seriesName] ?? item.seriesName
-          const val =
-            item.value == null
-              ? '-'
-              : PERCENT_SERIES.has(item.seriesName)
-                ? toPct(item.value / 100)
-                : TEMPERATURE_SERIES.has(item.seriesName)
-                  ? `${item.value}°C`
-                  : toComma(item.value)
-          return (
-            `<div style="display:flex;justify-content:space-between;gap:12px">` +
-            `${item.marker}<span>${label}</span>` +
-            `<span style="font-weight:600;font-family:monospace">${val}</span></div>`
-          )
-        })
-        .join('')
-      return header + lines
-    },
+    formatter: (params: unknown) => formatDailyTooltip(params, weatherMap, toComma, toPct),
   }
 
   // ── 凡例 ──

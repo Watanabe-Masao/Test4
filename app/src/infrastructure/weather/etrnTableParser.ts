@@ -26,6 +26,8 @@ interface ColumnMap {
   windSpeedMax?: number
   sunshineHours?: number
   humidityAvg?: number
+  weatherTextDay?: number // 天気概況（昼）
+  weatherTextNight?: number // 天気概況（夜）
 }
 
 /**
@@ -58,6 +60,14 @@ export function parseDailyTable(doc: Document, year: number, month: number): Dai
 
     if (tempMax === 0 && tempMin === 0 && precipTotal === 0 && tempAvg === 0) continue
 
+    const weatherTextDay = readTextCell(cells, columns.weatherTextDay)
+    const weatherTextNight = readTextCell(cells, columns.weatherTextNight)
+
+    // 天気概況テキストがある場合はそこから天気コードを導出（より正確）
+    const weatherCode = weatherTextDay
+      ? weatherCodeFromText(weatherTextDay, weatherTextNight)
+      : deriveDailyWeatherCodeFromSummary(precipTotal, sunshineHours, tempAvg)
+
     results.push({
       dateKey,
       temperatureAvg: tempAvg,
@@ -66,8 +76,10 @@ export function parseDailyTable(doc: Document, year: number, month: number): Dai
       precipitationTotal: precipTotal,
       humidityAvg,
       windSpeedMax: windSpeedMax * 3.6, // m/s → km/h
-      dominantWeatherCode: deriveDailyWeatherCodeFromSummary(precipTotal, sunshineHours, tempAvg),
+      dominantWeatherCode: weatherCode,
       sunshineTotalHours: sunshineHours,
+      weatherTextDay: weatherTextDay || undefined,
+      weatherTextNight: weatherTextNight || undefined,
     })
   }
 
@@ -114,6 +126,13 @@ function detectColumnPositions(table: Element): ColumnMap {
     }
     if (map.humidityAvg == null && /湿度/.test(label) && /平均/.test(label)) {
       map.humidityAvg = i
+    }
+    // 天気概況は「昼(06:00-18:00)」「夜(18:00-翌06:00)」の2カラム
+    if (map.weatherTextDay == null && /天気概況/.test(label) && /昼/.test(label)) {
+      map.weatherTextDay = i
+    }
+    if (map.weatherTextNight == null && /天気概況/.test(label) && /夜/.test(label)) {
+      map.weatherTextNight = i
     }
   }
 
@@ -199,6 +218,16 @@ function readCell(cells: NodeListOf<Element>, colIndex: number | undefined): num
   return parseEtrnValue(cell)
 }
 
+/** テキストセルの値を読む（天気概況用） */
+function readTextCell(cells: NodeListOf<Element>, colIndex: number | undefined): string {
+  if (colIndex == null) return ''
+  const cell = cells[colIndex]
+  if (!cell) return ''
+  const text = (cell.textContent ?? '').trim()
+  if (text === '--' || text === '///' || text === '×' || text === '…') return ''
+  return text
+}
+
 /**
  * ETRN テーブルセルから数値を抽出する。
  *
@@ -216,9 +245,65 @@ function parseEtrnValue(cell: Element): number {
   return Number.isFinite(num) ? num : 0
 }
 
-// ─── Weather Code Derivation ────────────────────────
+// ─── Weather Text → WMO Code Mapping ────────────────
 
-/** 日別の降水量・日照時間・気温から WMO 互換天気コードを導出する。 */
+/**
+ * 気象庁 ETRN 天気概況テキストから WMO 互換天気コードを導出する。
+ *
+ * 昼の天気を優先し、昼が不明な場合は夜を使用する。
+ * テキストの先頭語（主たる天気）で判定する。
+ *
+ * 気象庁天気概況の構造:
+ *   主天気 [修飾語 副天気]
+ *   修飾語: 後(のち), 一時, 時々
+ *   例: "晴後曇", "曇一時雨", "雨時々曇", "晴後一時雨", "大雨"
+ */
+
+/** 天気テキストのキーワードから代表天気コードへの優先マッチ */
+const WEATHER_TEXT_PATTERNS: readonly { readonly pattern: RegExp; readonly code: number }[] = [
+  // 雷 — WMO 95 (thunderstorm)
+  { pattern: /雷/, code: 95 },
+  // 大雪 — WMO 75 (heavy snow)
+  { pattern: /大雪/, code: 75 },
+  // 暴風雪・ふぶき — WMO 75
+  { pattern: /暴風雪|ふぶき|吹雪/, code: 75 },
+  // 大雨 — WMO 65 (heavy rain)
+  { pattern: /大雨/, code: 65 },
+  // みぞれ — WMO 68 (rain and snow mixed)
+  { pattern: /みぞれ/, code: 68 },
+  // 霧 — WMO 45
+  { pattern: /霧/, code: 45 },
+  // 雪が主語 — WMO 71 (snow)
+  { pattern: /^雪/, code: 71 },
+  // 雨が主語 — WMO 61 (rain)
+  { pattern: /^雨/, code: 61 },
+  // 薄曇 — WMO 2 (partly cloudy — 薄い雲)
+  { pattern: /薄曇/, code: 2 },
+  // 曇が主語 — 副天気で細分化
+  { pattern: /^曇.*雪/, code: 71 }, // 曇後雪, 曇一時雪, 曇時々雪
+  { pattern: /^曇.*雨/, code: 3 }, // 曇後雨 → overcast (主天気は曇)
+  { pattern: /^曇/, code: 3 }, // 曇 — WMO 3 (overcast)
+  // 晴が主語 — 副天気で細分化
+  { pattern: /^晴.*雨/, code: 2 }, // 晴後雨, 晴一時雨 → partly cloudy
+  { pattern: /^晴.*雪/, code: 2 }, // 晴後雪, 晴一時雪
+  { pattern: /^晴.*曇/, code: 2 }, // 晴後曇, 晴時々曇 → partly cloudy
+  { pattern: /^晴/, code: 0 }, // 晴 — WMO 0 (clear sky)
+  // 快晴 — WMO 0
+  { pattern: /快晴/, code: 0 },
+]
+
+function weatherCodeFromText(dayText: string, nightText: string): number {
+  const text = dayText || nightText
+  if (!text) return 3 // fallback: overcast
+  for (const { pattern, code } of WEATHER_TEXT_PATTERNS) {
+    if (pattern.test(text)) return code
+  }
+  return 3 // unknown → overcast
+}
+
+// ─── Weather Code Derivation (fallback) ─────────────
+
+/** 日別の降水量・日照時間・気温から WMO 互換天気コードを導出する（天気概況がない場合のフォールバック）。 */
 function deriveDailyWeatherCodeFromSummary(
   precipMm: number,
   sunshineHours: number,

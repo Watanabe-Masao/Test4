@@ -66,8 +66,11 @@ export const ConditionSummaryBudgetDrill = memo(function ConditionSummaryBudgetD
   const [showYoY, setShowYoY] = useState(false)
   const [dailyStoreId, setDailyStoreId] = useState<string | null>(null)
 
-  const { daysInMonth, elapsedDays } = ctx
-  const effectiveElapsed = elapsedDays ?? daysInMonth
+  const { elapsedDays } = ctx
+  // ctx.daysInMonth は effectiveEndDay（elapsedDays でキャップ済み）のため、
+  // 予算按分には暦上の月日数を使用する（ConditionSummaryEnhanced.tsx と同様）
+  const calendarDaysInMonth = new Date(ctx.year, ctx.month, 0).getDate()
+  const effectiveElapsed = elapsedDays ?? calendarDaysInMonth
   const activeDef = METRIC_DEFS[activeMetric]
 
   const hasYoYData =
@@ -83,7 +86,7 @@ export const ConditionSummaryBudgetDrill = memo(function ConditionSummaryBudgetD
       metric: activeMetric,
       tab: 'elapsed' as const,
       elapsedDays,
-      daysInMonth,
+      daysInMonth: calendarDaysInMonth,
       prevYear: ctx.prevYear,
       prevYearMonthlyKpi: ctx.prevYearMonthlyKpi,
       prevYearStoreCostPrice: ctx.prevYearStoreCostPrice,
@@ -93,7 +96,7 @@ export const ConditionSummaryBudgetDrill = memo(function ConditionSummaryBudgetD
       ctx.stores,
       activeMetric,
       elapsedDays,
-      daysInMonth,
+      calendarDaysInMonth,
       ctx.prevYear,
       ctx.prevYearMonthlyKpi,
       ctx.prevYearStoreCostPrice,
@@ -125,7 +128,7 @@ export const ConditionSummaryBudgetDrill = memo(function ConditionSummaryBudgetD
       dailySr,
       markupDailyQuery.data,
       effectiveElapsed,
-      daysInMonth,
+      calendarDaysInMonth,
     )
   }, [
     markupDailyQuery.queryStoreId,
@@ -133,7 +136,7 @@ export const ConditionSummaryBudgetDrill = memo(function ConditionSummaryBudgetD
     dailyStoreId,
     dailySr,
     effectiveElapsed,
-    daysInMonth,
+    calendarDaysInMonth,
   ])
 
   return (
@@ -185,7 +188,7 @@ export const ConditionSummaryBudgetDrill = memo(function ConditionSummaryBudgetD
 
         <Footer>
           <FooterNote>
-            経過予算達成（{effectiveElapsed}/{daysInMonth}日）
+            経過予算達成（{effectiveElapsed}/{calendarDaysInMonth}日）
             {showYoY && hasYoYData ? ' + 前年同曜日比' : ''} •{' '}
             {activeDef.isRate
               ? 'ポイント差'
@@ -212,7 +215,7 @@ export const ConditionSummaryBudgetDrill = memo(function ConditionSummaryBudgetD
           storeName={dailyStoreName}
           metric={activeMetric}
           elapsedDays={effectiveElapsed}
-          daysInMonth={daysInMonth}
+          daysInMonth={calendarDaysInMonth}
           prevYearMonthlyKpi={ctx.prevYearMonthlyKpi}
           hasPrevYear={ctx.prevYear.hasPrevYear}
           fmtCurrency={ctx.fmtCurrency}

@@ -36,6 +36,10 @@ export interface DailyWeatherSummary {
   readonly windSpeedMax: number // 日最大風速 km/h
   readonly dominantWeatherCode: number // 最頻出の WMO コード
   readonly sunshineTotalHours: number // 日照時間合計 hours
+  /** 気象庁 ETRN 天気概況（昼）— パースできなかった場合は undefined */
+  readonly weatherTextDay?: string
+  /** 気象庁 ETRN 天気概況（夜）— パースできなかった場合は undefined */
+  readonly weatherTextNight?: string
 }
 
 /** 店舗の位置情報（ジオコーディング結果） */
