@@ -36,8 +36,16 @@ describe('resolveDayDetailRanges', () => {
       const r = resolveDayDetailRanges(2026, 2, 15, sameDowFrame)
       // 当年15日分なので、前年も prevDate から14日遡った日が from
       const cumDays =
-        (new Date(r.cumPrevRange.to.year, r.cumPrevRange.to.month - 1, r.cumPrevRange.to.day).getTime() -
-          new Date(r.cumPrevRange.from.year, r.cumPrevRange.from.month - 1, r.cumPrevRange.from.day).getTime()) /
+        (new Date(
+          r.cumPrevRange.to.year,
+          r.cumPrevRange.to.month - 1,
+          r.cumPrevRange.to.day,
+        ).getTime() -
+          new Date(
+            r.cumPrevRange.from.year,
+            r.cumPrevRange.from.month - 1,
+            r.cumPrevRange.from.day,
+          ).getTime()) /
           86_400_000 +
         1
       expect(cumDays).toBe(15)

@@ -42,7 +42,9 @@ describe('buildWeatherMap', () => {
     const compStartDateKey = '2025-02-02'
     const prevYearData = [
       // Feb 2025 の全日データ
-      ...Array.from({ length: 28 }, (_, i) => makeSummary(`2025-02-${String(i + 1).padStart(2, '0')}`)),
+      ...Array.from({ length: 28 }, (_, i) =>
+        makeSummary(`2025-02-${String(i + 1).padStart(2, '0')}`),
+      ),
       // Mar 1, 2025（オーバーフロー日）
       makeSummary('2025-03-01'),
     ]
@@ -73,8 +75,12 @@ describe('buildWeatherMap', () => {
     // 当年: 31日ある月, 前年: 7日目～翌月6日目
     const compStartDateKey = '2025-01-07'
     const data = [
-      ...Array.from({ length: 25 }, (_, i) => makeSummary(`2025-01-${String(i + 7).padStart(2, '0')}`)),
-      ...Array.from({ length: 6 }, (_, i) => makeSummary(`2025-02-${String(i + 1).padStart(2, '0')}`)),
+      ...Array.from({ length: 25 }, (_, i) =>
+        makeSummary(`2025-01-${String(i + 7).padStart(2, '0')}`),
+      ),
+      ...Array.from({ length: 6 }, (_, i) =>
+        makeSummary(`2025-02-${String(i + 1).padStart(2, '0')}`),
+      ),
     ]
 
     it('チャート位置1に Jan 7 のデータが入る', () => {

@@ -393,7 +393,9 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                             {day}
                             {weatherIcon && (
                               <CalWeatherIcon
-                                title={weather?.weatherTextDay || weather?.weatherTextNight || undefined}
+                                title={
+                                  weather?.weatherTextDay || weather?.weatherTextNight || undefined
+                                }
                               >
                                 {weatherIcon}
                               </CalWeatherIcon>

@@ -467,7 +467,10 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
   const days = useMemo(() => rows.map((d) => d.day as number), [rows])
 
   const weatherMap = useMemo(() => buildWeatherMap(weatherDaily), [weatherDaily])
-  const compStartKey = useMemo(() => deriveCompStartDateKey(dowOffset, year, month), [dowOffset, year, month])
+  const compStartKey = useMemo(
+    () => deriveCompStartDateKey(dowOffset, year, month),
+    [dowOffset, year, month],
+  )
   const prevWeatherMap = useMemo(
     () => buildWeatherMap(prevYearWeatherDaily, dowOffset, compStartKey),
     [prevYearWeatherDaily, dowOffset, compStartKey],

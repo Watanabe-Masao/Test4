@@ -147,11 +147,13 @@ export function buildWeatherMap(
   if (!weatherDaily) return map
 
   // 開始日が指定されている場合、日数差ベースで位置を計算（月跨ぎ対応）
-  const startMs = compStartDateKey ? Date.UTC(
-    parseInt(compStartDateKey.slice(0, 4), 10),
-    parseInt(compStartDateKey.slice(5, 7), 10) - 1,
-    parseInt(compStartDateKey.slice(8, 10), 10),
-  ) : 0
+  const startMs = compStartDateKey
+    ? Date.UTC(
+        parseInt(compStartDateKey.slice(0, 4), 10),
+        parseInt(compStartDateKey.slice(5, 7), 10) - 1,
+        parseInt(compStartDateKey.slice(8, 10), 10),
+      )
+    : 0
   const MS_PER_DAY = 86_400_000
 
   for (const w of weatherDaily) {

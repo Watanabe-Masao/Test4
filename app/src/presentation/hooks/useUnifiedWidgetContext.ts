@@ -138,16 +138,17 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
   const { daily: prevYearWeatherBase } = useWeatherData(prevFromYear, prevFromMonth, weatherStoreId)
   const overflowYear = prevYearMonths?.to?.year ?? prevFromYear
   const overflowMonth = prevYearMonths?.to?.month ?? prevFromMonth
-  const { daily: prevYearWeatherOverflow } = useWeatherData(overflowYear, overflowMonth, weatherStoreId)
-  const prevYearWeatherDaily = useMemo(
-    () => {
-      if (!prevYearMonths) return [] as readonly typeof prevYearWeatherBase[number][]
-      return prevYearMonths.to
-        ? ([...prevYearWeatherBase, ...prevYearWeatherOverflow] as const)
-        : prevYearWeatherBase
-    },
-    [prevYearWeatherBase, prevYearWeatherOverflow, prevYearMonths],
+  const { daily: prevYearWeatherOverflow } = useWeatherData(
+    overflowYear,
+    overflowMonth,
+    weatherStoreId,
   )
+  const prevYearWeatherDaily = useMemo(() => {
+    if (!prevYearMonths) return [] as readonly (typeof prevYearWeatherBase)[number][]
+    return prevYearMonths.to
+      ? ([...prevYearWeatherBase, ...prevYearWeatherOverflow] as const)
+      : prevYearWeatherBase
+  }, [prevYearWeatherBase, prevYearWeatherOverflow, prevYearMonths])
 
   // Store name map for category comparison
   const storeNames = useMemo(() => {
