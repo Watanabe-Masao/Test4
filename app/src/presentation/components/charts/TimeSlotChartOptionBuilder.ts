@@ -73,6 +73,15 @@ export const TEMPERATURE_BANDS: readonly TemperatureBand[] = [
   { min: 28, max: 60, label: '高温', color: 'rgba(239,68,68,0.06)' },
 ]
 
+/** 温度帯ごとの線色。背景色より濃い不透明色で視認性を確保する。 */
+export const TEMPERATURE_LINE_COLORS: Record<string, string> = {
+  寒冷: '#2563eb', // blue-600
+  低温: '#3b82f6', // blue-500
+  涼快: '#10b981', // emerald-500
+  暖: '#f59e0b', // amber-500
+  高温: '#ef4444', // red-500
+}
+
 /** 温度値が属する帯を返す */
 export function classifyTemperatureBand(temp: number): TemperatureBand {
   for (const band of TEMPERATURE_BANDS) {
@@ -136,6 +145,22 @@ export function buildTemperatureBandMarkAreas(
   return areas
 }
 
+/**
+ * 当年気温線の動的色分け用 visualMap pieces を生成する。
+ * ECharts の piecewise visualMap で、データ値に応じて線色を温度帯に合わせる。
+ */
+export function buildTemperatureVisualMapPieces(): readonly {
+  readonly min: number
+  readonly max: number
+  readonly color: string
+}[] {
+  return TEMPERATURE_BANDS.map((band) => ({
+    min: band.min,
+    max: band.max,
+    color: TEMPERATURE_LINE_COLORS[band.label] ?? palette.warningDark,
+  }))
+}
+
 // ── 純粋関数 ──
 
 /** ECharts の chartOption を構築する。React 非依存の純粋関数。 */
@@ -197,6 +222,7 @@ export function buildTimeSlotChartOption(input: TimeSlotChartOptionInput): EChar
   // ── 折れ線（lineMode に応じて切替） ──
   const tempColor = palette.warningDark
   const precipColor = palette.infoDark
+  let curTempSeriesIndex = -1
 
   if (lineMode === 'quantity') {
     series.push({
@@ -223,13 +249,14 @@ export function buildTimeSlotChartOption(input: TimeSlotChartOptionInput): EChar
       })
     }
   } else if (lineMode === 'temperature') {
+    // 当年気温シリーズ: 色は visualMap で温度帯ごとに動的に適用
+    curTempSeriesIndex = series.length
     series.push({
       name: showPrev ? `${curLabel}気温` : '気温',
       type: 'line',
       yAxisIndex: 1,
       data: hours.map((h) => curWeatherMap.get(parseInt(h, 10))?.temp ?? null),
-      lineStyle: { color: tempColor, width: 2 },
-      itemStyle: { color: tempColor },
+      lineStyle: { width: 2 },
       symbol: 'circle',
       symbolSize: 4,
       smooth: true,
@@ -240,8 +267,8 @@ export function buildTimeSlotChartOption(input: TimeSlotChartOptionInput): EChar
         type: 'line',
         yAxisIndex: 1,
         data: hours.map((h) => prevWeatherMap.get(parseInt(h, 10))?.temp ?? null),
-        lineStyle: { color: tempColor, width: 1.5, type: 'dashed' },
-        itemStyle: { color: tempColor },
+        lineStyle: { color: `${tempColor}99`, width: 1.5, type: 'dashed' },
+        itemStyle: { color: `${tempColor}99` },
         symbol: 'circle',
         symbolSize: 3,
         smooth: true,
@@ -333,6 +360,28 @@ export function buildTimeSlotChartOption(input: TimeSlotChartOptionInput): EChar
     rightAxisOptions.interval = tempRange.interval
   }
 
+  // 気温モード: visualMap で当年気温線を温度帯ごとに色分け
+  let visualMap: EChartsOption['visualMap'] = undefined
+  if (
+    lineMode === 'temperature' &&
+    isFinite(minTemp) &&
+    isFinite(maxTemp) &&
+    curTempSeriesIndex >= 0
+  ) {
+    const pieces = buildTemperatureVisualMapPieces()
+    visualMap = {
+      show: false,
+      type: 'piecewise',
+      dimension: 1, // y値（気温）で色分け
+      seriesIndex: curTempSeriesIndex,
+      pieces: pieces.map((p) => ({
+        gte: p.min,
+        lt: p.max,
+        color: p.color,
+      })),
+    }
+  }
+
   // 気温モード: 温度帯バンドを markArea で追加
   if (lineMode === 'temperature' && isFinite(minTemp) && isFinite(maxTemp)) {
     const tempRange = roundTemperatureAxis(minTemp, maxTemp)
@@ -374,6 +423,7 @@ export function buildTimeSlotChartOption(input: TimeSlotChartOptionInput): EChar
     },
     yAxis: [yenYAxis(theme), valueYAxis(theme, rightAxisOptions)],
     series,
+    ...(visualMap != null ? { visualMap } : {}),
   }
 }
 
