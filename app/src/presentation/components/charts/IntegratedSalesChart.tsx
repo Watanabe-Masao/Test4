@@ -127,6 +127,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
             currentDateRange={rangeDateRange}
             selectedStoreIds={props.selectedStoreIds}
             prevYearScope={rangePrevYearScope}
+            weatherDaily={props.weatherDaily}
           />
         </ViewPane>
       )}

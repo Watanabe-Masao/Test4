@@ -8,6 +8,7 @@ import { memo, useMemo, useState } from 'react'
 import { useTheme } from 'styled-components'
 import type { AsyncDuckDBConnection, AsyncDuckDB } from '@duckdb/duckdb-wasm'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
+import type { DailyWeatherSummary } from '@/domain/models/record'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { useChartTheme, toComma, toPct } from './chartTheme'
 import { EChart, type EChartsOption } from './EChart'
@@ -94,6 +95,10 @@ interface Props {
   readonly currentDateRange: DateRange
   readonly selectedStoreIds: ReadonlySet<string>
   readonly prevYearScope?: PrevYearScope
+  /** 日別天気データ（ctx 経由）— DuckDB 時間帯天気が空のときのフォールバック */
+  readonly weatherDaily?: readonly DailyWeatherSummary[]
+  /** 前年日別天気データ（ctx 経由） */
+  readonly prevYearWeatherDaily?: readonly DailyWeatherSummary[]
 }
 
 // ── Component ──
@@ -105,6 +110,8 @@ export const TimeSlotChart = memo(function TimeSlotChart({
   currentDateRange,
   selectedStoreIds,
   prevYearScope,
+  weatherDaily,
+  prevYearWeatherDaily,
 }: Props) {
   const theme = useTheme() as AppTheme
   const ct = useChartTheme()
@@ -121,6 +128,8 @@ export const TimeSlotChart = memo(function TimeSlotChart({
     currentDateRange,
     selectedStoreIds,
     prevYearScope,
+    weatherDaily,
+    prevYearWeatherDaily,
   })
 
   const showPrev = d.hasPrev && d.showPrev

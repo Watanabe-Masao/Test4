@@ -14,6 +14,8 @@ import {
   useDuckDBCategoryHourly,
 } from '@/application/hooks/useDuckDBQuery'
 import { useDuckDBWeatherHourlyAvg } from '@/application/hooks/duckdb/useWeatherHourlyQuery'
+import type { HourlyWeatherAvgRow } from '@/application/hooks/duckdb'
+import type { DailyWeatherSummary } from '@/domain/models/record'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useDataStore } from '@/application/stores/dataStore'
 import {
@@ -45,11 +47,17 @@ interface Params {
   readonly currentDateRange: DateRange
   readonly selectedStoreIds: ReadonlySet<string>
   readonly prevYearScope?: PrevYearScope
+  /** 日別天気データ（ctx 経由）— DuckDB 時間帯天気が空のときのフォールバック */
+  readonly weatherDaily?: readonly DailyWeatherSummary[]
+  /** 前年日別天気データ（ctx 経由） */
+  readonly prevYearWeatherDaily?: readonly DailyWeatherSummary[]
 }
 
 export function useDuckDBTimeSlotData({
   duckConn,
   duckDb,
+  weatherDaily: weatherDailyProp,
+  prevYearWeatherDaily: prevYearWeatherDailyProp,
   duckDataVersion,
   currentDateRange,
   selectedStoreIds,
@@ -166,20 +174,34 @@ export function useDuckDBTimeSlotData({
   }, [selectedStoreIds, allStoreIds, storeLocations])
 
   const prevDateRange = compMode === 'yoy' ? prevYearScope?.dateRange : undefined
-  const { data: curWeatherAvg } = useDuckDBWeatherHourlyAvg(
+  const { data: curWeatherDuck } = useDuckDBWeatherHourlyAvg(
     duckConn,
     duckDataVersion,
     weatherStoreId,
     currentDateRange,
     duckDb,
   )
-  const { data: prevWeatherAvg } = useDuckDBWeatherHourlyAvg(
+  const { data: prevWeatherDuck } = useDuckDBWeatherHourlyAvg(
     duckConn,
     duckDataVersion,
     weatherStoreId,
     prevDateRange,
     duckDb,
   )
+
+  // DuckDB に時間帯天気がない場合、親から渡された日別天気をフォールバックに使う
+  const curWeatherAvg = useMemo(() => {
+    if ((curWeatherDuck ?? []).length > 0) return curWeatherDuck
+    if (!weatherDailyProp || weatherDailyProp.length === 0) return curWeatherDuck
+    return buildWeatherFallback(weatherDailyProp)
+  }, [curWeatherDuck, weatherDailyProp])
+
+  const prevWeatherAvg = useMemo(() => {
+    if ((prevWeatherDuck ?? []).length > 0) return prevWeatherDuck
+    if (!prevDateRange || !prevYearWeatherDailyProp || prevYearWeatherDailyProp.length === 0)
+      return prevWeatherDuck
+    return buildWeatherFallback(prevYearWeatherDailyProp)
+  }, [prevWeatherDuck, prevYearWeatherDailyProp, prevDateRange])
 
   const hasPrev = (compHourly?.length ?? 0) > 0
   const compLabel = compMode === 'wow' ? '前週' : '前年'
@@ -268,4 +290,50 @@ export function useDuckDBTimeSlotData({
     curWeatherAvg,
     prevWeatherAvg,
   }
+}
+
+// ─── Helper: 日別天気サマリーから時間帯フォールバックを生成 ───
+
+/**
+ * 日別天気サマリー（ETRN 月1リクエスト）から、全時間帯に同じ値を設定した
+ * HourlyWeatherAvgRow[] を生成する。DuckDB に時間帯天気データがない場合のフォールバック。
+ *
+ * 天気アイコン行の表示には十分だが、時間帯別の気温折れ線には不正確（日平均値で一律）。
+ */
+function buildWeatherFallback(
+  daily: readonly {
+    temperatureAvg: number
+    precipitationTotal: number
+    dominantWeatherCode: number
+  }[],
+): readonly HourlyWeatherAvgRow[] {
+  if (daily.length === 0) return []
+  const avgTemp = daily.reduce((s, d) => s + d.temperatureAvg, 0) / daily.length
+  const totalPrecip = daily.reduce((s, d) => s + d.precipitationTotal, 0)
+  // 最頻天気コード
+  const codeCounts = new Map<number, number>()
+  for (const d of daily)
+    codeCounts.set(d.dominantWeatherCode, (codeCounts.get(d.dominantWeatherCode) ?? 0) + 1)
+  let modeCode = 0
+  let modeCount = 0
+  for (const [code, count] of codeCounts) {
+    if (count > modeCount) {
+      modeCode = code
+      modeCount = count
+    }
+  }
+
+  const rows: HourlyWeatherAvgRow[] = []
+  for (let h = 9; h <= 21; h++) {
+    rows.push({
+      hour: h,
+      avgTemperature: avgTemp,
+      avgHumidity: 0,
+      totalPrecipitation: totalPrecip / daily.length,
+      avgSunshineDuration: 0,
+      dayCount: daily.length,
+      weatherCode: modeCode,
+    })
+  }
+  return rows
 }
