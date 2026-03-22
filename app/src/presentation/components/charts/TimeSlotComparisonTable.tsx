@@ -210,7 +210,7 @@ export const TimeSlotWeatherTable = memo(function TimeSlotWeatherTable({
   )
 
   const weatherIcon = (w: WeatherHourlyAvg | undefined): string => {
-    if (!w?.weatherCode) return ''
+    if (w?.weatherCode == null) return ''
     const cat = categorizeWeatherCode(w.weatherCode)
     return WEATHER_ICONS[cat] ?? ''
   }
