@@ -119,6 +119,7 @@ Exploration Engine は、正式な値の唯一の定義元にはしない。
 | 区分 | モジュール | 性質 |
 |---|---|---|
 | **Authoritative** | factorDecomposition, forecast, budgetAnalysis, invMethod, estMethod, markupRate, costAggregation, discountImpact, inventoryCalc, pinIntervals | 正式業務値を決定する |
+| **Authoritative** | weatherAggregation (aggregateHourlyToDaily, categorizeWeatherCode, deriveWeatherCode, toWeatherDisplay) | 天気データの集約・分類。気象実測値から日別サマリ・天気カテゴリを導出する |
 | **Pure Analytics Substrate** | rawAggregation, correlation, trendAnalysis, sensitivity, advancedForecast | 分析基盤。authoritative ではないが pure |
 
 Authoritative モジュールは Pure Analytics Substrate に依存してよいが、逆は許可しない。

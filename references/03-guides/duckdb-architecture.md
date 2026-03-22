@@ -32,7 +32,7 @@ KPI・粗利等の権威的指標計算は JS 計算パイプライン（`StoreR
 | レイヤー | ファイル | 責務 |
 |---|---|---|
 | **Infrastructure** | `duckdb/engine.ts` | DB 初期化、接続ライフサイクル管理 |
-| | `duckdb/schemas.ts` | テーブル DDL（12テーブル + `store_day_summary` VIEW）、`SCHEMA_VERSION` 管理 |
+| | | `duckdb/schemas.ts` | テーブル DDL（13テーブル + `store_day_summary` VIEW）、`SCHEMA_VERSION` 管理 |
 | | `duckdb/dataLoader.ts` | IndexedDB → DuckDB バルクロード |
 | | `duckdb/queryRunner.ts` | 汎用 `runQuery<T>()` ユーティリティ |
 | | `duckdb/queryParams.ts` | SQL パラメータのバリデーション（Branded Type 連携） |
@@ -41,7 +41,7 @@ KPI・粗利等の権威的指標計算は JS 計算パイプライン（`StoreR
 | | `duckdb/recovery.ts` | DuckDB エラーリカバリ・自動回復 |
 | | `duckdb/opfsPersistence.ts` | OPFS 永続化戦略判定、Parquet キャッシュ管理 |
 | | `duckdb/migrations/` | スキーママイグレーション（DDL バージョン管理） |
-| | `duckdb/queries/*.ts` | SQL クエリ関数（10 モジュール） |
+| | `duckdb/queries/*.ts` | SQL クエリ関数（11 モジュール） |
 | **Application** | `hooks/useDuckDB.ts` | DB 初期化 + データロード管理フック |
 | | `hooks/duckdb/*.ts` | クエリフック群（11ファイル、~29フック、`useAsyncQuery` ベース） |
 | | `hooks/useDuckDBQuery.ts` | バレル re-export（後方互換） |
@@ -65,6 +65,7 @@ DuckDB スキーマは以下の基本テーブルと VIEW で構成される:
 | `budget` | `BUDGET_DDL` | 予算データ |
 | `inventory_config` | `INVENTORY_CONFIG_DDL` | 在庫設定 |
 | `app_settings` | `APP_SETTINGS_DDL` | アプリケーション設定 |
+| `weather_hourly` | `WEATHER_HOURLY_DDL` | 気象庁 ETRN 時間別天気データ（API 取得→DuckDB キャッシュ） |
 | `store_day_summary` | — (VIEW) | 上記テーブルの LEFT JOIN による日次サマリ **VIEW** |
 
 `SCHEMA_VERSION` によりテーブル定義のバージョンが管理され、
@@ -114,6 +115,7 @@ hooks/duckdb/
 | `dailyRecords.ts` | `queryDailyRecords`, `queryPrevYearDailyRecords`, `queryAggregatedDailyRecords` | 日次レコード詳細、前年日次データ |
 | `storePeriodMetrics.ts` | `queryStorePeriodMetrics`, `queryStorePeriodMetricsSingle` | 店舗期間メトリクス |
 | `conditionMatrix.ts` | `queryConditionMatrix` | 条件マトリクス集約 |
+| `weatherQueries.ts` | `queryWeatherHourly`, `queryWeatherHourlyAvg`, `queryWeatherCacheCount`, `deleteWeatherCache` | 天気データ取得・時間帯別平均・キャッシュ管理 |
 
 ### チャートウィジェット一覧（15個）
 

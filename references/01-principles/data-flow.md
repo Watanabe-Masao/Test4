@@ -119,6 +119,31 @@ metadata（ImportHistory 等）         ─ 全段階の監査証跡
 集約計算は `domain/calculations/rawAggregation.ts` の純粋関数で実行する。
 詳細は `engine-responsibility.md` の「SQL→JS 移行」セクションを参照。
 
+### 天気データパイプライン
+
+天気データは外部 API（気象庁 ETRN）から取得する点で他のデータパイプラインと異なるが、
+4段階の責務分離は同一原則に従う。
+
+```
+  段階1                  段階2                    段階3                段階4
+  ETRN API fetch        aggregateHourlyToDaily   Weather index        Time-of-day display
+  + DuckDB persistence  (pure calculation)       construction         + filter
+
+  infrastructure        domain/                  application/         application/hooks
+  + application         calculations             hooks                → presentation
+```
+
+| 段階 | 責務 | 実装 |
+|---|---|---|
+| **1. 取得+永続化** | 気象庁 ETRN API から時間別天気を取得し、`weather_hourly` テーブルに永続化。キャッシュ有無を `queryWeatherCacheCount` で判定し、未取得分のみ API フェッチ | `infrastructure/` (ETRN client, DuckDB queries) + `application/` (hooks) |
+| **2. 集約計算** | `HourlyWeatherRecord[]` → `DailyWeatherSummary` への集約。日平均気温、日最高/最低気温、合計降水量、最頻天気コード等を純粋関数で導出 | `domain/calculations/weatherAggregation.ts` (`aggregateHourlyToDaily`) |
+| **3. インデックス構築** | 日別天気サマリをチャート用構造に変換。売上-天気相関、天気アイコン表示用データを構築 | `application/hooks/` |
+| **4. 動的フィルタ** | ユーザー操作（日付範囲、店舗選択）に応じて天気データを絞り込み、時間帯別天気表示やフィルタ条件として提供 | `application/hooks/` → `presentation/` |
+
+**DuckDB の役割:** 天気データでは DuckDB は ETRN API キャッシュとして機能する。
+`queryWeatherHourly` でフィルタ済みデータを取得し、集約は `domain/calculations/` の純粋関数で実行する
+（パターン B: JS 集約と同一方針）。
+
 ### UI の責務
 
 UIコンポーネントは**描画のみ**を行う。具体的には:

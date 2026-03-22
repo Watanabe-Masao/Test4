@@ -1,20 +1,22 @@
 /**
- * IntegratedSalesChart — 日別売上 → 時間帯ドリルダウン統合ビュー
+ * IntegratedSalesChart — 売上推移分析ユニットの正本コンテナ
  *
- * 日別チャートのバーをクリック or ドラッグ選択すると、
- * 選択した日付範囲の時間帯別チャートにズームイン遷移する。
- * 「← 日別に戻る」ボタンで日別ビューにスライドバックする。
+ * 日別売上（overview）と時間帯別売上（drilldown）を
+ * 同じ分析文脈の下で束ねる包含型ウィジェット。
  *
- * 右軸モードに応じてサブ分析パネルを動的配置:
- *   点数 → カテゴリ×曜日ヒートマップ / 客数 → 要因分解ウォーターフォール
- *   売変 → 売変分析 / 気温 → 天気相関分析
+ * SalesAnalysisContext を構築し、配下の派生ビューに配る。
+ * 日別チャートのバークリック/ドラッグで時間帯ドリルダウンに遷移。
+ * 右軸モードに応じてサブ分析パネルを動的配置。
  */
-import { useState, useCallback, memo } from 'react'
+import { useState, useCallback, useMemo, memo } from 'react'
 import styled, { keyframes, css } from 'styled-components'
 import type { AsyncDuckDBConnection, AsyncDuckDB } from '@duckdb/duckdb-wasm'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import type { DailyRecord, DailyWeatherSummary, DiscountEntry } from '@/domain/models/record'
 import { useDrillDateRange } from '@/application/hooks/useDrillDateRange'
+import { buildSalesAnalysisContext } from '@/application/models/SalesAnalysisContext'
+import type { AnalysisViewEvents, CategoryFocus } from '@/application/models/AnalysisViewEvents'
+import { useCrossChartSelection } from './crossChartSelectionHooks'
 import type { RightAxisMode } from './DailySalesChartBodyLogic'
 import type { ViewType } from './DailySalesChartBody'
 import { DailySalesChart } from './DailySalesChart'
@@ -83,6 +85,48 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
 
   const isDrilled = selectedRange != null && rangeDateRange != null
 
+  // 売上推移分析ユニットの共通文脈を構築
+  // ドリル時は rangeDateRange、未ドリル時は currentDateRange を使用
+  const analysisContext = useMemo(
+    () =>
+      buildSalesAnalysisContext(
+        isDrilled && rangeDateRange ? rangeDateRange : props.currentDateRange,
+        props.selectedStoreIds,
+        isDrilled && rangePrevYearScope ? rangePrevYearScope : props.prevYearScope,
+        selectedRange ? { startDay: selectedRange.start, endDay: selectedRange.end } : undefined,
+      ),
+    [
+      isDrilled,
+      rangeDateRange,
+      rangePrevYearScope,
+      props.currentDateRange,
+      props.selectedStoreIds,
+      props.prevYearScope,
+      selectedRange,
+    ],
+  )
+
+  // 子ビューからのイベントを CrossChartSelectionContext に伝播
+  const { highlightTimeSlot, highlightCategory } = useCrossChartSelection()
+
+  const childEvents = useMemo<AnalysisViewEvents>(
+    () => ({
+      onSelectHour: (hour: number) => highlightTimeSlot({ hour }),
+      onSelectCategory: (focus: CategoryFocus) =>
+        highlightCategory({
+          departmentCode: focus.level === 'department' ? focus.code : undefined,
+          lineCode: focus.level === 'line' ? focus.code : undefined,
+          klassCode: focus.level === 'klass' ? focus.code : undefined,
+          name: focus.name,
+        }),
+      onClearSelection: () => {
+        highlightTimeSlot(null)
+        highlightCategory(null)
+      },
+    }),
+    [highlightTimeSlot, highlightCategory],
+  )
+
   // 戻るボタンのラベル
   const rangeLabel =
     selectedRange != null
@@ -124,9 +168,8 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
             duckConn={props.duckConn}
             duckDb={props.duckDb}
             duckDataVersion={props.duckDataVersion}
-            currentDateRange={rangeDateRange}
-            selectedStoreIds={props.selectedStoreIds}
-            prevYearScope={rangePrevYearScope}
+            context={analysisContext}
+            events={childEvents}
           />
         </ViewPane>
       )}
@@ -137,9 +180,9 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
           mode={rightAxisMode}
           duckConn={props.duckConn}
           duckDataVersion={props.duckDataVersion}
-          currentDateRange={isDrilled && rangeDateRange ? rangeDateRange : props.currentDateRange}
-          selectedStoreIds={props.selectedStoreIds}
-          prevYearScope={isDrilled && rangePrevYearScope ? rangePrevYearScope : props.prevYearScope}
+          currentDateRange={analysisContext.dateRange}
+          selectedStoreIds={analysisContext.selectedStoreIds}
+          prevYearScope={analysisContext.comparisonScope}
           weatherDaily={props.weatherDaily}
           daily={props.daily}
           daysInMonth={props.daysInMonth}

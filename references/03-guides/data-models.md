@@ -900,3 +900,94 @@ function safeNumber(n: unknown): number
 /** ゼロ除算防止 (denominator=0 → fallback) */
 function safeDivide(numerator: number, denominator: number, fallback?: number): number
 ```
+
+---
+
+## 21. WeatherData --- 天気データ型
+
+**ファイル**: `app/src/domain/models/WeatherData.ts`
+
+気象庁の実測値・予報値をドメイン型として定義する。`date_key` (YYYY-MM-DD) を主キーとし、月跨ぎでも連続的に保持する。
+
+### 21.1 HourlyWeatherRecord --- 時間別天気レコード
+
+```typescript
+/** 時間別天気レコード（気象庁実測値の1時間分） */
+export interface HourlyWeatherRecord {
+  readonly dateKey: string        // YYYY-MM-DD
+  readonly hour: number           // 1-23（ETRN 時表記そのまま）
+  readonly temperature: number    // °C
+  readonly humidity: number       // %
+  readonly precipitation: number  // mm (1時間降水量)
+  readonly windSpeed: number      // km/h
+  readonly weatherCode: number    // WMO 互換コード（実測値から導出）
+  readonly sunshineDuration: number // seconds (日照時間)
+}
+```
+
+DuckDB の `weather_hourly` テーブルに永続化され、ETRN API からの再取得を回避するキャッシュとして機能する。
+
+### 21.2 DailyWeatherSummary --- 日別天気サマリ
+
+```typescript
+/** 日別天気サマリ（時間別から集約） */
+export interface DailyWeatherSummary {
+  readonly dateKey: string
+  readonly temperatureAvg: number       // 日平均気温 °C
+  readonly temperatureMax: number       // 日最高気温 °C
+  readonly temperatureMin: number       // 日最低気温 °C
+  readonly precipitationTotal: number   // 日合計降水量 mm
+  readonly humidityAvg: number          // 日平均湿度 %
+  readonly windSpeedMax: number         // 日最大風速 km/h
+  readonly dominantWeatherCode: number  // 最頻出の WMO コード
+  readonly sunshineTotalHours: number   // 日照時間合計 hours
+  readonly weatherTextDay?: string      // 気象庁 ETRN 天気概況（昼）
+  readonly weatherTextNight?: string    // 気象庁 ETRN 天気概況（夜）
+}
+```
+
+`domain/calculations/weatherAggregation.ts` の純粋関数 `aggregateHourlyToDaily` で `HourlyWeatherRecord[]` から導出する。UI 表示・売上-天気相関分析の入力として使用。
+
+### 21.3 StoreLocation --- 店舗位置情報
+
+```typescript
+/** 店舗の位置情報（ジオコーディング結果） */
+export interface StoreLocation {
+  readonly latitude: number
+  readonly longitude: number
+  readonly resolvedName?: string        // ジオコーディングで解決された地名
+  readonly amedasStationId?: string     // JMA 観測所番号
+  readonly amedasStationName?: string   // 観測所名
+  readonly forecastOfficeCode?: string  // 府県予報区コード
+  readonly weekAreaCode?: string        // 週間予報区域コード
+  readonly etrnPrecNo?: number          // ETRN 府県コード
+  readonly etrnBlockNo?: string         // ETRN 観測所コード
+  readonly etrnStationType?: 'a1' | 's1' // ETRN 観測所種別: a1=AMeDAS, s1=気象台
+}
+```
+
+ジオコーディング結果と気象庁 API 用の解決済みコードをキャッシュする。ETRN データ取得・天気予報取得に使用。
+
+### 21.4 DailyForecast --- 週間天気予報
+
+```typescript
+/** 週間天気予報の1日分 */
+export interface DailyForecast {
+  readonly dateKey: string              // YYYY-MM-DD
+  readonly weatherCode: string          // 気象庁天気コード ("100", "201" 等)
+  readonly pop: number | null           // 降水確率 (%)
+  readonly tempMin: number | null       // 最低気温 °C
+  readonly tempMax: number | null       // 最高気温 °C
+  readonly reliability: 'A' | 'B' | 'C' | null // 予報信頼度
+}
+```
+
+気象庁 forecast API の週間予報から抽出。`weatherCode` は気象庁独自コード（100系=晴、200系=曇、300系=雨、400系=雪）。
+
+### 21.5 関連型
+
+| 型名 | 用途 |
+|---|---|
+| `WeatherCategory` | WMO Weather Code の天気カテゴリ分類（`'sunny' \| 'cloudy' \| 'rainy' \| 'snowy' \| 'other'`） |
+| `ForecastAreaResolution` | 予報区域の解決結果（府県予報区・週間予報区域・観測所番号） |
+| `GeocodingResult` | 国土地理院 住所検索API の検索結果 |

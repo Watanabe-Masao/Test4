@@ -3,6 +3,122 @@
 本プロジェクトの主要な変更を記録します。
 フォーマットは [Keep a Changelog](https://keepachangelog.com/ja/1.1.0/) に準拠します。
 
+## [v1.4.0] - 2026-03-22
+
+### グラフ改善 + 売上推移分析ユニット -- UI/分析体験の全面刷新
+
+#### 売上推移分析ユニットの確立
+
+- **包含型分析ユニット**: DailySalesChart（overview）と TimeSlotChart（drilldown）を `IntegratedSalesChart` の配下に統合。ダッシュボード上で1つの連続した分析として扱う
+- **SalesAnalysisContext の導入**: 分析ユニットの共通文脈型を Application 層に定義。親コンテナが文脈を構築し、派生ビューに配る「仕様継承 + 合成」パターン
+- **AnalysisViewEvents の導入**: 子→親のインタラクション契約型。CrossChartSelectionContext への伝播を標準化
+- **TimeSlotChart Controller/View 分離**: 598行の monolith を Controller（150行）+ View（409行）+ OptionBuilder（227行）に分割
+- **chartOption 構築の純粋関数化**: `TimeSlotChartOptionBuilder.ts` に React 非依存の純粋関数として抽出
+- **context 渡し + 廃止予定互換**: `TimeSlotChart` は `context?: SalesAnalysisContext` 経由で文脈を受領。従来の独立 props は `@deprecated` として暫定維持
+
+#### データパイプライン統一
+
+- **サブパネルのデータソースを DuckDB に統一**: 全サブ分析パネル（カテゴリ推移・要因分解・売変分析・天気相関）が DuckDB 経由でデータ取得。DailyRecord Map への直接依存を排除
+- **天気データの供給経路一元化**: `ctx.weatherDaily` 経由での天気データ配信を標準化。分散していた取得ロジックを集約
+- **ヒートマップ・天気・部門増減のデータソース統一**: 全チャートが共通パイプライン経由でデータを受領
+- **DuckQueryContext 型の導入**: DuckDB クエリに必要な共通コンテキスト（duckConn, duckDataVersion, dateRange, storeIds, prevYearScope）を型で集約
+
+#### UI/グラフ技術スタックの刷新
+
+- **グラフレイアウトの統一**: チャート・テーブル・ヒートマップの時間帯列幅を `GRID_LEFT/GRID_RIGHT` で揃える
+- **ChartCard variant システム**: `variant='section'` によるサブパネルのデザイン統一を構造化
+- **実線/破線の統一ルール**: 当年=実線、前年=破線で全チャートを統一
+- **ヒートマップのセル数字表示**: データ値を直接セル上に表示し視認性向上
+- **ツールバーの視認性改善**: 各種切替UIの配置とスタイルを統一
+
+#### 日別売上チャートの大幅改善
+
+- **4 ビュー構成**: 標準（日別棒）/ 累計（エリア）/ 差分（ウォーターフォール）/ 達成率
+- **右軸モード切替**: 点数 / 客数 / 売変 / 気温の 4 モードで右軸データを切替
+- **サブ分析パネル**: 右軸モードに連動するサブパネル（カテゴリ推移 / 要因分解 / 売変分析 / 天気相関）
+- **累計チャート**: 達成率ビューと帯グラフ、予算差・売変差の表示
+- **差分ウォーターフォール**: 前年差 / 予算差のウォーターフォール + 累計線
+- **X 軸トリミング**: データ有効期間でのみ表示
+- **曜日フィルタ**: DowPresetSelector による曜日での絞り込み
+
+#### 時間帯別チャートの改善
+
+- **統合ビュー**: 日別売上と時間帯別売上を IntegratedSalesChart に統合
+- **ドリルダウン**: 日別チャートのバークリック/ドラッグで時間帯チャートにズームイン遷移
+- **前年棒グラフ化**: 時間帯チャートの前年を折れ線から棒グラフに変更
+- **部門選択ツールバー統合**: 部門/ライン/クラスの階層選択をツールバーに統合
+
+#### 要因分解の改善
+
+- **トルネードチャート**: 部門別要因分解をトルネード（ダイバージング棒）チャートに変更
+- **日別積み上げ棒**: 要因分解パネルを日別積み上げ棒グラフに刷新
+- **残差検証**: 額合わせ残差許容閾値を 1% → 0.01% に厳格化、共通定数化
+
+#### バグ修正
+
+- **前年日付計算の閏年バグ**: `resolvePrevDate` を domain/ に集約し閏年・月跨ぎを正しく処理
+- **前年同曜日の累計範囲**: day:1 始まりで日数超過するバグを修正
+- **ヒートマップ初回表示**: コンテナサイズ不正のバグを修正
+- **モーダル経過予算計算**: `calendarDaysInMonth` に統一
+
+#### テスト
+
+- **スコープ整合性ガードテスト**: prevYearScope の日付範囲整合性を機械的に検証
+- **境界値不変条件テスト**: 閏年・月末・年越しの境界値テスト追加
+
+#### リファクタリング
+
+- **不要ウィジェット 5 件削除**: 使用されていない分析ウィジェットを整理
+- **DuckDB フックガード精度改善**: バレルチェーン簡素化、偽陽性削減
+- **DuckQueryContext 型集約**: サブパネル Props を共通コンテキスト型で整理
+- **ChartCard variant 追加**: `variant='section'` でサブパネルのデザインを構造的に統一
+
+#### 新規ファイル
+
+- `application/models/SalesAnalysisContext.ts` — 分析ユニットの共通文脈型 + 構築純粋関数
+- `application/models/AnalysisViewEvents.ts` — 子→親のインタラクション契約型
+- `presentation/components/charts/TimeSlotChartView.tsx` — 描画専用コンポーネント
+- `presentation/components/charts/TimeSlotChartOptionBuilder.ts` — ECharts option 構築純粋関数
+
+#### ドキュメント
+
+- `widget-coordination-architecture.md` に「売上推移分析ユニット — 標準実装リファレンス」を追加
+- `weather-architecture.md` を新規作成（天気データ基盤の全体像）
+- `duckdb-architecture.md`, `data-models.md`, `data-flow.md`, `engine-boundary-policy.md` を天気関連で更新
+- `CHANGELOG.md` に v1.3.0, v1.4.0 を追記
+
+---
+
+## [v1.3.0] - 2026-03-21
+
+### 天気データ基盤 -- 気象庁 ETRN 統合
+
+#### 天気データ統合
+
+- **ETRN 天気 API 統合**: 気象庁 ETRN（電子閲覧室）から時間帯別気象データを取得。Cloudflare Worker プロキシ経由で CORS 対応
+- **天気データの DuckDB 永続化**: `weather_hourly` テーブルに時間帯別気象データを永続化。月跨ぎデータのサポート
+- **天気アイコン表示**: 日別チャートの X 軸に天気アイコン + 気温を表示。前年天気データも同曜日対応で表示
+- **時間帯チャートの折れ線切替**: 点数 / 気温 / 降水量の 3 モードで折れ線グラフを切替
+- **天気テーブル**: グラフ直下に天気アイコンのみのコンパクトテーブルを配置
+- **天気-売上相関分析**: `WeatherAnalysisPanel` で気温と売上・客数の相関を可視化
+- **ETRN 概況テキスト**: 昼/夜の天気概況をパースしツールチップに表示
+- **weatherCode 責務の集約**: Domain/Application 層に天気コード解釈を集約し、UI から意味解釈を除去
+
+#### アーキテクチャ
+
+- **Domain 層の天気計算**: `weatherAggregation.ts` に純粋関数（aggregateHourlyToDaily, categorizeWeatherCode, deriveWeatherCode, toWeatherDisplay）を配置
+- **WeatherLoadService**: ETRN データの取得→パース→DuckDB 永続化の 3 段パイプライン
+- **ETRN 観測所選択**: 静的 JSON リストベースに刷新、AMeDAS(a1) を仕組みで除外し気象台(s1)のみ使用
+- **月跨ぎ対応**: dowOffset による同曜日比較時の前年天気データを正しく取得
+
+#### バグ修正
+
+- **weatherCode=0 問題**: 晴天コード 0 が falsy チェックで除外されるバグを修正。**禁止事項 #13 を新設**（`number | null` の欠損判定に truthiness を使用禁止）
+- **天気データの月跨ぎバグ**: dowOffset による前年天気取得で月境界を正しく処理
+- **weatherCode=0 ガードテスト**: truthiness チェック禁止の構造的再発防止テスト追加
+
+---
+
 ## [v1.2.0] - 2026-02-28
 
 ### アーキテクチャリファクタリング -- 設計思想の体系化と構造改善
