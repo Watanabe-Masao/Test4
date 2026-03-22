@@ -190,7 +190,10 @@ app/src/
 ├── infrastructure/   # インフラ層（DuckDB, storage, export, i18n, pwa）
 ├── presentation/     # プレゼンテーション層（components, pages, theme）
 ├── stories/          # Storybook
-└── test/             # テストユーティリティ
+└── test/             # ガードテスト・共有インフラ
+    ├── guardTestHelpers.ts  # 共有ヘルパー（collectTsFiles, rel 等）
+    ├── allowlists.ts        # 全許可リスト一元管理（メタデータ付き）
+    └── observation/         # 観測テスト
 ```
 
 ### レイヤー間の依存ルール

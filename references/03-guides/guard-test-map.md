@@ -177,61 +177,27 @@ CLAUDE.md の設計原則・禁止事項のうち、import ベースでカバー
 
 ## 許可リスト管理
 
-### application → infrastructure 許可リスト（15件、上限16件）
+**一元管理:** 全許可リストは `app/src/test/allowlists.ts` にメタデータ付きで定義されている。
+各エントリに `reason`（理由）、`category`（分類）、`removalCondition`（削除条件）が付与されている。
 
-変更時は architecture ロールの承認が必要。
+テストファイルは `allowlists.ts` から `buildAllowlistSet()` / `buildQuantitativeAllowlist()` で
+Set / Record を構築して使用する。許可リストの変更は `allowlists.ts` のみで行う。
 
-| ファイル | 理由 |
+## 共有テストインフラ
+
+| ファイル | 内容 |
 |---|---|
-| `application/hooks/useDuckDB.ts` | DuckDB ライフサイクル管理 |
-| `application/hooks/duckdb/useCtsQueries.ts` | 時間帯売上クエリ |
-| `application/hooks/duckdb/useDeptKpiQueries.ts` | 部門KPIクエリ |
-| `application/hooks/duckdb/useSummaryQueries.ts` | サマリクエリ |
-| `application/hooks/duckdb/useYoyQueries.ts` | 前年比較クエリ |
-| `application/hooks/duckdb/useFeatureQueries.ts` | 特徴量クエリ |
-| `application/hooks/duckdb/useAdvancedQueries.ts` | 高度分析クエリ |
-| `application/hooks/duckdb/useMetricsQueries.ts` | 店舗メトリクスクエリ |
-| `application/hooks/duckdb/useDailyRecordQueries.ts` | 日次レコードクエリ |
-| `application/hooks/useStoragePersistence.ts` | ストレージ永続化 |
-| `application/hooks/useDataRecovery.ts` | データ復旧 |
-| `application/hooks/useBackup.ts` | バックアップ |
-| `application/hooks/useImport.ts` | ファイルインポート |
-| `application/usecases/import/FileImportService.ts` | インポートサービス |
-| `application/workers/useFileParseWorker.ts` | ワーカーフック |
-| `application/usecases/export/ExportService.ts` | エクスポート |
-| `application/hooks/useI18n.ts` | i18n ブリッジ |
+| `app/src/test/guardTestHelpers.ts` | `collectTsFiles`, `rel`, `extractImports`, `extractValueImports`, `isCommentLine`, `stripStrings`, `SRC_DIR` |
+| `app/src/test/allowlists.ts` | 全許可リストの一元定義 + `buildAllowlistSet`, `buildQuantitativeAllowlist` |
 
-### 比較移行許可リスト（INV-CMP-01: 11件、INV-CMP-03: 4件）
+## 設計原則カテゴリ → ガードテスト対応
 
-移行完了時にファイルを許可リストから削除する。新規追加は禁止。
-
-#### INV-CMP-01: prevYear.daily.get() 許可リスト
-
-| ファイル | 状態 |
+| カテゴリ | 主なガードテスト |
 |---|---|
-| `presentation/pages/Daily/DailyPage.tsx` | DateKey 移行済み |
-| `presentation/pages/Dashboard/widgets/AlertPanel.tsx` | DateKey 移行済み |
-| `presentation/pages/Dashboard/widgets/DayDetailModal.tsx` | DateKey 移行済み |
-| `presentation/pages/Dashboard/widgets/DayDetailModal.vm.ts` | DateKey 移行済み |
-| `presentation/pages/Dashboard/widgets/MonthlyCalendar.tsx` | DateKey 移行済み |
-| `presentation/pages/Dashboard/widgets/SalesAnalysisWidgets.tsx` | DateKey 移行済み |
-| `presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx` | DateKey 移行済み |
-| `presentation/pages/Insight/InsightTabBudget.tsx` | DateKey 移行済み |
-| `presentation/pages/Forecast/ForecastPage.helpers.ts` | DateKey 移行済み |
-| `application/hooks/useBudgetChartData.ts` | DateKey 移行済み |
-| `application/usecases/clipExport/buildClipBundle.ts` | DateKey 移行済み |
-
-#### INV-CMP-08: dailyMapping 直接使用許可リスト
-
-| ファイル | 理由 |
-|---|---|
-| `presentation/pages/Dashboard/widgets/PrevYearBudgetDetailPanel.tsx` | `...row` でスプレッドし全フィールド保持。sourceDate を落とさない正当な使用 |
-
-#### INV-CMP-03: comparisonFrame.previous 許可リスト
-
-| ファイル | 状態 |
-|---|---|
-| `presentation/pages/Dashboard/widgets/DayDetailModal.tsx` | 移行待ち |
-| `presentation/pages/Dashboard/widgets/DayDetailModal.vm.ts` | 移行待ち |
-| `presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx` | 移行待ち |
-| `presentation/pages/Dashboard/widgets/MonthlyCalendar.tsx` | 移行待ち |
+| A: 層境界 | architectureGuard, domainPurityGuard |
+| B: エンジン境界 | domainPurityGuard, architectureGuard (CQRS) |
+| C: 純粋性・責務分離 | hookComplexityGuard (R1,R5,R7), domainPurityGuard (facade) |
+| D: 数学的不変条件 | factorDecomposition, scopeBoundaryInvariant, waterfallDataIntegrity |
+| E: 型安全 | comparisonMigrationGuard (INV-CMP-08) |
+| F: コード構造規約 | architectureGuard (vertical slice, prototype, barrel) |
+| G: 機械的防御 | hookComplexityGuard (R3,R10,R11,R12), designSystemGuard |
