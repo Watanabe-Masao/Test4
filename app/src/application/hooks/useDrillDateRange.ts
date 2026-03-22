@@ -9,7 +9,6 @@
  */
 import { useMemo } from 'react'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
-import { DAYS_PER_YEAR, MILLISECONDS_PER_DAY } from '@/domain/constants'
 
 interface SelectedRange {
   readonly start: number
@@ -48,12 +47,9 @@ export function useDrillDateRange(
   const drillPrevYearScope = useMemo<PrevYearScope | undefined>(() => {
     if (selectedRange == null || !prevYearScope) return undefined
     const offset = prevYearScope.dowOffset
-    const offsetMs = offset * MILLISECONDS_PER_DAY
-    // 当年日付 → -1年 + dowOffset で前年同曜日の日付を算出（Date演算で月跨ぎ対応）
-    const fromDate = new Date(year, month - 1, selectedRange.start)
-    const toDate = new Date(year, month - 1, selectedRange.end)
-    const prevFrom = new Date(fromDate.getTime() - DAYS_PER_YEAR * MILLISECONDS_PER_DAY + offsetMs)
-    const prevTo = new Date(toDate.getTime() - DAYS_PER_YEAR * MILLISECONDS_PER_DAY + offsetMs)
+    // 前年日付 = year-1 + dowOffset日（Date演算で閏年・月跨ぎを正しく処理）
+    const prevFrom = new Date(year - 1, month - 1, selectedRange.start + offset)
+    const prevTo = new Date(year - 1, month - 1, selectedRange.end + offset)
     return {
       ...prevYearScope,
       dateRange: {

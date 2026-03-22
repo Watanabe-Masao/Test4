@@ -370,16 +370,6 @@ export const TimeSlotChart = memo(function TimeSlotChart({
       ariaLabel="時間帯別売上"
       toolbar={
         <Controls>
-          {d.hasPrev && (
-            <TabGroup>
-              <Tab $active={d.compMode === 'yoy'} onClick={() => d.setCompMode('yoy')}>
-                前年比
-              </Tab>
-              <Tab $active={d.compMode === 'wow'} onClick={() => d.setCompMode('wow')}>
-                前週比
-              </Tab>
-            </TabGroup>
-          )}
           {d.deptOptions.length > 1 && (
             <HierarchySelect value={d.deptCode} onChange={(e) => d.setDeptCode(e.target.value)}>
               <option value="">全部門</option>

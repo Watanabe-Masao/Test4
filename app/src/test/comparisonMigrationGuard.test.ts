@@ -143,11 +143,10 @@ describe('INV-CMP-03: comparisonFrame.previous の新規使用禁止', () => {
    */
   const ALLOWLIST = new Set([
     'presentation/pages/Dashboard/widgets/DayDetailModal.tsx',
-    'presentation/pages/Dashboard/widgets/DayDetailModal.vm.ts',
     'presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx',
     'presentation/pages/Dashboard/widgets/MonthlyCalendar.tsx',
   ])
-  const MAX_ALLOWLIST_SIZE = 4
+  const MAX_ALLOWLIST_SIZE = 3
 
   it('許可リストのサイズが上限を超えない', () => {
     expect(

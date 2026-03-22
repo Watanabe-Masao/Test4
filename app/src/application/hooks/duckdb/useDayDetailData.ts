@@ -105,8 +105,11 @@ export function resolveDayDetailRanges(
     : undefined
 
   const cumRange: DateRange = { from: { year, month, day: 1 }, to: { year, month, day } }
+  // 前年累計は当年と同じ日数分だけ遡る（同曜日比較で日がずれても正しい日数になる）
+  const cumDays = day - 1 // 当年の累計日数 - 1（prevDate からの遡り日数）
+  const prevFrom = new Date(prevDate.year, prevDate.month - 1, prevDate.day - cumDays)
   const cumPrevRange: DateRange = {
-    from: { year: prevDate.year, month: prevDate.month, day: 1 },
+    from: { year: prevFrom.getFullYear(), month: prevFrom.getMonth() + 1, day: prevFrom.getDate() },
     to: prevDate,
   }
 

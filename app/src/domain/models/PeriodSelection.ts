@@ -21,12 +21,7 @@
  */
 import type { DateRange, CalendarDate } from './CalendarDate'
 import type { PrevYearScope } from './ComparisonFrame'
-import {
-  DOW_ALIGNMENT_WINDOW,
-  MILLISECONDS_PER_DAY,
-  DAYS_PER_YEAR,
-  DAYS_PER_WEEK,
-} from '@/domain/constants'
+import { DOW_ALIGNMENT_WINDOW, DAYS_PER_WEEK } from '@/domain/constants'
 
 /** 比較プリセット — 期間-2 の自動算出方法 */
 export type ComparisonPreset =
@@ -324,20 +319,17 @@ export function deriveEffectivePeriod2(selection: PeriodSelection): DateRange {
   if (selection.activePreset !== 'prevYearSameDow' || offset === 0) {
     return selection.period2
   }
-  const offsetMs = offset * MILLISECONDS_PER_DAY
-  const fromDate = new Date(
-    selection.period1.from.year,
+  // 前年日付 = year-1 + dowOffset日（Date演算で閏年・月跨ぎを正しく処理）
+  const prevFrom = new Date(
+    selection.period1.from.year - 1,
     selection.period1.from.month - 1,
-    selection.period1.from.day,
+    selection.period1.from.day + offset,
   )
-  const toDate = new Date(
-    selection.period1.to.year,
+  const prevTo = new Date(
+    selection.period1.to.year - 1,
     selection.period1.to.month - 1,
-    selection.period1.to.day,
+    selection.period1.to.day + offset,
   )
-  // 前年日付 = 当年日付 - 1年 + dowOffset日
-  const prevFrom = new Date(fromDate.getTime() - DAYS_PER_YEAR * MILLISECONDS_PER_DAY + offsetMs)
-  const prevTo = new Date(toDate.getTime() - DAYS_PER_YEAR * MILLISECONDS_PER_DAY + offsetMs)
   return {
     from: {
       year: prevFrom.getFullYear(),
