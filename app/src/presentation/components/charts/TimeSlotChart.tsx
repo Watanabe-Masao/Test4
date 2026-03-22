@@ -111,6 +111,8 @@ export const TimeSlotChart = memo(function TimeSlotChart({
   const { messages } = useI18n()
   const [detailView, setDetailView] = useState<'table' | 'heatmap'>('table')
   const [heatmapMetric, setHeatmapMetric] = useState<'amount' | 'quantity'>('amount')
+  type LineMode = 'quantity' | 'temperature' | 'precipitation'
+  const [lineMode, setLineMode] = useState<LineMode>('quantity')
 
   const d = useDuckDBTimeSlotData({
     duckConn,
@@ -147,11 +149,34 @@ export const TimeSlotChart = memo(function TimeSlotChart({
 
   const hours = useMemo(() => d.chartData.map((r) => String(r.hour)), [d.chartData])
 
-  // ECharts option for chart view — 金額(棒) + 点数(点線) 同時表示
+  // 天気データを hour→値の Map に変換
+  const curWeatherMap = useMemo(() => {
+    const m = new Map<number, { temp: number; precip: number }>()
+    if (d.curWeatherAvg) {
+      for (const w of d.curWeatherAvg) {
+        m.set(w.hour, { temp: w.avgTemperature, precip: w.totalPrecipitation })
+      }
+    }
+    return m
+  }, [d.curWeatherAvg])
+  const prevWeatherMap = useMemo(() => {
+    const m = new Map<number, { temp: number; precip: number }>()
+    if (d.prevWeatherAvg) {
+      for (const w of d.prevWeatherAvg) {
+        m.set(w.hour, { temp: w.avgTemperature, precip: w.totalPrecipitation })
+      }
+    }
+    return m
+  }, [d.prevWeatherAvg])
+
+  const hasWeatherData = curWeatherMap.size > 0
+
+  // ECharts option for chart view — 金額(棒) + 折れ線（点数 or 天気）
   const chartOption = useMemo<EChartsOption>(() => {
     const barColor = theme.colors.palette.primary
     const qtyColor = theme.colors.palette.cyan
 
+    // ── 棒グラフ（売上金額） ──
     const series: EChartsOption['series'] = [
       {
         name: showPrev ? `${d.curLabel}売上` : '売上金額',
@@ -174,7 +199,28 @@ export const TimeSlotChart = memo(function TimeSlotChart({
         },
         barMaxWidth: 20,
       },
-      {
+    ]
+
+    if (showPrev) {
+      series.push({
+        name: `${d.compLabel}売上`,
+        type: 'bar',
+        yAxisIndex: 0,
+        data: d.chartData.map((r) => ((r as Record<string, unknown>).prevAmount as number) ?? null),
+        itemStyle: {
+          color: `${theme.colors.palette.slate}80`,
+          borderRadius: [3, 3, 0, 0],
+        },
+        barMaxWidth: 20,
+      })
+    }
+
+    // ── 折れ線（lineMode に応じて切替） ──
+    const tempColor = palette.warningDark
+    const precipColor = palette.infoDark
+
+    if (lineMode === 'quantity') {
+      series.push({
         name: showPrev ? `${d.curLabel}点数` : '点数',
         type: 'line',
         yAxisIndex: 1,
@@ -183,25 +229,9 @@ export const TimeSlotChart = memo(function TimeSlotChart({
         itemStyle: { color: qtyColor },
         symbol: 'none',
         smooth: true,
-      },
-    ]
-
-    if (showPrev) {
-      series.push(
-        {
-          name: `${d.compLabel}売上`,
-          type: 'bar',
-          yAxisIndex: 0,
-          data: d.chartData.map(
-            (r) => ((r as Record<string, unknown>).prevAmount as number) ?? null,
-          ),
-          itemStyle: {
-            color: `${theme.colors.palette.slate}80`,
-            borderRadius: [3, 3, 0, 0],
-          },
-          barMaxWidth: 20,
-        },
-        {
+      })
+      if (showPrev) {
+        series.push({
           name: `${d.compLabel}点数`,
           type: 'line',
           yAxisIndex: 1,
@@ -213,9 +243,71 @@ export const TimeSlotChart = memo(function TimeSlotChart({
           symbol: 'none',
           smooth: true,
           connectNulls: true,
-        },
-      )
+        })
+      }
+    } else if (lineMode === 'temperature') {
+      series.push({
+        name: showPrev ? `${d.curLabel}気温` : '気温',
+        type: 'line',
+        yAxisIndex: 1,
+        data: hours.map((h) => curWeatherMap.get(parseInt(h, 10))?.temp ?? null),
+        lineStyle: { color: tempColor, width: 2 },
+        itemStyle: { color: tempColor },
+        symbol: 'circle',
+        symbolSize: 4,
+        smooth: true,
+      })
+      if (showPrev && prevWeatherMap.size > 0) {
+        series.push({
+          name: `${d.compLabel}気温`,
+          type: 'line',
+          yAxisIndex: 1,
+          data: hours.map((h) => prevWeatherMap.get(parseInt(h, 10))?.temp ?? null),
+          lineStyle: { color: theme.colors.palette.slate, width: 1.5 },
+          itemStyle: { color: theme.colors.palette.slate },
+          symbol: 'circle',
+          symbolSize: 3,
+          smooth: true,
+          connectNulls: true,
+        })
+      }
+    } else {
+      // precipitation
+      series.push({
+        name: showPrev ? `${d.curLabel}降水量` : '降水量',
+        type: 'line',
+        yAxisIndex: 1,
+        data: hours.map((h) => curWeatherMap.get(parseInt(h, 10))?.precip ?? null),
+        lineStyle: { color: precipColor, width: 2 },
+        itemStyle: { color: precipColor },
+        areaStyle: { color: `${precipColor}20` },
+        symbol: 'circle',
+        symbolSize: 4,
+        smooth: true,
+      })
+      if (showPrev && prevWeatherMap.size > 0) {
+        series.push({
+          name: `${d.compLabel}降水量`,
+          type: 'line',
+          yAxisIndex: 1,
+          data: hours.map((h) => prevWeatherMap.get(parseInt(h, 10))?.precip ?? null),
+          lineStyle: { color: theme.colors.palette.slate, width: 1.5 },
+          itemStyle: { color: theme.colors.palette.slate },
+          symbol: 'circle',
+          symbolSize: 3,
+          smooth: true,
+          connectNulls: true,
+        })
+      }
     }
+
+    // ── 右Y軸のフォーマッタ ──
+    const rightYAxisFormatter =
+      lineMode === 'quantity'
+        ? (v: number) => toComma(v)
+        : lineMode === 'temperature'
+          ? (v: number) => `${v}°`
+          : (v: number) => `${v}mm`
 
     return {
       grid: { left: GRID_LEFT, right: GRID_RIGHT, top: 10, bottom: 5, containLabel: false },
@@ -231,14 +323,24 @@ export const TimeSlotChart = memo(function TimeSlotChart({
       yAxis: [
         yenYAxis(theme),
         valueYAxis(theme, {
-          formatter: (v: number) => toComma(v),
+          formatter: rightYAxisFormatter,
           position: 'right',
           showSplitLine: false,
         }),
       ],
       series,
     }
-  }, [hours, d.chartData, d.curLabel, d.compLabel, showPrev, theme])
+  }, [
+    hours,
+    d.chartData,
+    d.curLabel,
+    d.compLabel,
+    showPrev,
+    theme,
+    lineMode,
+    curWeatherMap,
+    prevWeatherMap,
+  ])
 
   if (d.error) {
     return (
@@ -304,6 +406,27 @@ export const TimeSlotChart = memo(function TimeSlotChart({
               ))}
             </HierarchySelect>
           )}
+          <TabGroup>
+            <Tab $active={lineMode === 'quantity'} onClick={() => setLineMode('quantity')}>
+              点数
+            </Tab>
+            {hasWeatherData && (
+              <>
+                <Tab
+                  $active={lineMode === 'temperature'}
+                  onClick={() => setLineMode('temperature')}
+                >
+                  気温
+                </Tab>
+                <Tab
+                  $active={lineMode === 'precipitation'}
+                  onClick={() => setLineMode('precipitation')}
+                >
+                  降水量
+                </Tab>
+              </>
+            )}
+          </TabGroup>
         </Controls>
       }
     >
@@ -398,15 +521,37 @@ export const TimeSlotChart = memo(function TimeSlotChart({
         <LegendItem color={palette.primary}>
           {showPrev ? `${d.curLabel}売上` : '売上金額'}
         </LegendItem>
-        <LegendItem color={palette.cyan} dashed>
-          {showPrev ? `${d.curLabel}点数` : '点数'}
-        </LegendItem>
-        {showPrev && (
+        {showPrev && <LegendItem color={`${palette.slate}80`}>{d.compLabel}売上</LegendItem>}
+        {lineMode === 'quantity' && (
           <>
-            <LegendItem color={`${palette.slate}80`}>{d.compLabel}売上</LegendItem>
-            <LegendItem color={palette.slate} dashed>
-              {d.compLabel}点数
+            <LegendItem color={palette.cyan} dashed>
+              {showPrev ? `${d.curLabel}点数` : '点数'}
             </LegendItem>
+            {showPrev && (
+              <LegendItem color={palette.slate} dashed>
+                {d.compLabel}点数
+              </LegendItem>
+            )}
+          </>
+        )}
+        {lineMode === 'temperature' && (
+          <>
+            <LegendItem color={palette.warningDark}>
+              {showPrev ? `${d.curLabel}気温` : '気温'}
+            </LegendItem>
+            {showPrev && prevWeatherMap.size > 0 && (
+              <LegendItem color={palette.slate}>{d.compLabel}気温</LegendItem>
+            )}
+          </>
+        )}
+        {lineMode === 'precipitation' && (
+          <>
+            <LegendItem color={palette.infoDark}>
+              {showPrev ? `${d.curLabel}降水量` : '降水量'}
+            </LegendItem>
+            {showPrev && prevWeatherMap.size > 0 && (
+              <LegendItem color={palette.slate}>{d.compLabel}降水量</LegendItem>
+            )}
           </>
         )}
       </div>
