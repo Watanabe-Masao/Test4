@@ -315,6 +315,7 @@ describe('デザインシステムガード', () => {
   /** ChartCard 不要のサブコンポーネント・特殊ケース */
   const CHARTCARD_EXCLUSIONS = new Set([
     // サブコンポーネント（親が ChartCard を提供）
+    'presentation/components/charts/ContainedAnalysisPanel.tsx',
     'presentation/components/charts/CategoryBoxPlotView.tsx',
     'presentation/components/charts/CvHeatmapView.tsx',
     'presentation/components/charts/CvLineView.tsx',

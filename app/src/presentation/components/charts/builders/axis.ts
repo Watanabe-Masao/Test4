@@ -44,16 +44,19 @@ export interface ValueYAxisOptions {
   min?: number | 'dataMin'
   /** 最大値 */
   max?: number | 'dataMax'
+  /** 軸目盛りの間隔（固定スケール用） */
+  interval?: number
 }
 
 /** 値軸（Y 軸）を構築 */
 export function valueYAxis(theme: AppTheme, opts?: ValueYAxisOptions): YAXisComponentOption {
-  const { formatter, position = 'left', showSplitLine = true, min, max } = opts ?? {}
+  const { formatter, position = 'left', showSplitLine = true, min, max, interval } = opts ?? {}
   return {
     type: 'value',
     position,
     min,
     max,
+    ...(interval != null ? { interval } : {}),
     axisLabel: {
       ...axisLabelStyle(theme),
       ...(formatter ? { formatter } : {}),

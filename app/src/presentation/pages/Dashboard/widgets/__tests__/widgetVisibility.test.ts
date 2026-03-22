@@ -4,10 +4,10 @@ import { makeWidgetContext, makeEmptyPrevYear, makePrevYear } from './widgetTest
 
 describe('ウィジェット isVisible', () => {
   const dataWidgetIds = [
-    'chart-category-hierarchy-explorer',
+    'chart-category-analysis',
     'chart-timeslot-sales',
     'chart-timeslot-heatmap',
-    'chart-dept-hourly-pattern',
+    // 注: chart-dept-hourly-pattern → IntegratedSalesChart 孫に統合
   ]
 
   const discountWidgetId = 'chart-discount-breakdown'
