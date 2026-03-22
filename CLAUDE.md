@@ -35,7 +35,7 @@
 
 | ロール | 位置づけ | 渡し先 |
 |---|---|---|
-| architecture | 設計判断（**設計思想16原則の管理者**） | → implementation |
+| architecture | 設計判断（**設計思想19原則の管理者**） | → implementation |
 | implementation | コーディング | → review-gate |
 | specialist/invariant-guardian | 数学検証 | ← → implementation |
 | specialist/duckdb-specialist | DuckDB専門 | ← → implementation |
@@ -259,7 +259,7 @@ cd app && npm run dev           # Vite 開発サーバー
 - styled-components 6（テーマトークン経由、ダーク/ライト対応）
 - Prettier: `semi: false` / `singleQuote: true` / `printWidth: 100` / `endOfLine: "lf"`
 
-## 設計思想 — 16原則（要約）
+## 設計思想 — 19原則（要約）
 
 詳細と適用例は `references/01-principles/design-principles.md` を参照。管理責任: architecture ロール。
 
@@ -279,6 +279,9 @@ cd app && npm run dev           # Vite 開発サーバー
 14. **全パターンに例外なし** — チャート・Hook・Handler 構造は規模に関わらず同一。AI開発で判断不要
 15. **配置はパスで決まる** — ファイルの配置先はパスベースルールで機械的に判定。曖昧さゼロ
 16. **Raw データは唯一の真実源** — DuckDB は normalized_records の派生キャッシュ。破損時は IndexedDB から再構築可能。DuckDB → IndexedDB の書き戻しは禁止
+17. **チャート間データは文脈継承** — 包含型分析ユニットで親が `SalesAnalysisContext` を構築し子に配る。子は比較文脈を再計算しない。子が持つのは表示状態のみ
+18. **View に raw 値を渡さない** — Controller/View 分離において View は ViewModel のみ受け取る。weatherCode・DateRange・DuckDB 接続は View に渡さない
+19. **独立互換で正本を汚さない** — 包含型コンテナが正本。暫定互換の独立ウィジェットのために正本の Props や構造を曲げない。互換レイヤーは正本の外側に置く
 
 ## 層内設計原則（7原則）
 

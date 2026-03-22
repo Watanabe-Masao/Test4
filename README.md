@@ -222,7 +222,7 @@ npm run storybook     # Storybook（ポート 6006）
 
 ## 設計制約
 
-- **16 設計原則** — 詳細は [CLAUDE.md](./CLAUDE.md) §設計思想、管理は architecture ロール
+- **19 設計原則** — 詳細は [CLAUDE.md](./CLAUDE.md) §設計思想、管理は architecture ロール
 - **13 禁止事項** — 全て実際のバグに基づく制約。[prohibition-quick-ref.md](./references/01-principles/prohibition-quick-ref.md)
 - **12 過剰複雑性防止ルール** — ガードテストで機械的に強制
 - **UI/UX 4 原則** — [uiux-principles.md](./references/01-principles/uiux-principles.md)
@@ -230,7 +230,7 @@ npm run storybook     # Storybook（ポート 6006）
 ## 参照資料（references/）
 
 **設計原則・制約**（01-principles/）
-- [設計思想 16 原則](./references/01-principles/design-principles.md)
+- [設計思想 19 原則](./references/01-principles/design-principles.md)
 - [データフロー](./references/01-principles/data-flow.md)
 - [データパイプライン整合性](./references/01-principles/data-pipeline-integrity.md)
 - [期間スコープの意味論](./references/01-principles/temporal-scope-semantics.md)
