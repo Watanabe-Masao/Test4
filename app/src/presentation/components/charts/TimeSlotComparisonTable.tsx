@@ -218,7 +218,7 @@ export const TimeSlotWeatherTable = memo(function TimeSlotWeatherTable({
   if (!hasWeather) return null
 
   return (
-    <div style={{ overflowX: 'auto', marginTop: 8 }}>
+    <div style={{ overflowX: 'auto' }}>
       <MiniTable style={{ tableLayout: 'fixed', width: '100%' }}>
         <colgroup>
           <col style={{ width: gridLeft }} />

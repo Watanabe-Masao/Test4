@@ -11,7 +11,7 @@ import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { useChartTheme, toComma, toPct } from './chartTheme'
 import { EChart, type EChartsOption } from './EChart'
-import { yenYAxis, standardTooltip, standardLegend } from './echartsOptionBuilders'
+import { yenYAxis, standardTooltip } from './echartsOptionBuilders'
 import { valueYAxis } from './builders'
 import { formatCoreTime } from './timeSlotUtils'
 import { sc } from '@/presentation/theme/semanticColors'
@@ -41,6 +41,49 @@ import { EmptyState } from '@/presentation/components/common/layout'
 // ── Layout constants (チャート・テーブル・ヒートマップの時間帯列を揃える) ──
 const GRID_LEFT = 55
 const GRID_RIGHT = 45
+
+// ── 凡例ヘルパー ──
+
+function LegendItem({
+  color,
+  dashed,
+  children,
+}: {
+  color: string
+  dashed?: boolean
+  children: React.ReactNode
+}) {
+  const swatch = dashed ? (
+    <span
+      style={{
+        display: 'inline-block',
+        width: 16,
+        height: 0,
+        borderTop: `2px dashed ${color}`,
+        verticalAlign: 'middle',
+        marginRight: 4,
+      }}
+    />
+  ) : (
+    <span
+      style={{
+        display: 'inline-block',
+        width: 10,
+        height: 10,
+        borderRadius: 2,
+        background: color,
+        verticalAlign: 'middle',
+        marginRight: 4,
+      }}
+    />
+  )
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+      {swatch}
+      {children}
+    </span>
+  )
+}
 
 // ── Props ──
 
@@ -175,17 +218,14 @@ export const TimeSlotChart = memo(function TimeSlotChart({
     }
 
     return {
-      grid: { left: GRID_LEFT, right: GRID_RIGHT, top: 30, bottom: 20, containLabel: false },
+      grid: { left: GRID_LEFT, right: GRID_RIGHT, top: 10, bottom: 5, containLabel: false },
       tooltip: standardTooltip(theme),
-      legend: standardLegend(theme),
+      legend: { show: false },
       xAxis: {
         type: 'category',
         data: hours,
-        axisLabel: {
-          color: theme.colors.text3,
-          fontSize: chartFontSize.axis,
-          fontFamily: theme.typography.fontFamily.mono,
-        },
+        axisLabel: { show: false },
+        axisTick: { show: false },
         axisLine: { lineStyle: { color: theme.colors.border } },
       },
       yAxis: [
@@ -332,10 +372,9 @@ export const TimeSlotChart = memo(function TimeSlotChart({
       {/* ── チャート（金額棒＋点数点線、前年比較付き） ── */}
       <EChart option={chartOption} height={320} ariaLabel="時間帯別売上チャート" />
 
-      {/* ── 天気テーブル（グラフ直下 — テーブル/ヒートマップ切替に関係なく常時表示） ── */}
+      {/* ── 天気テーブル（グラフ直下 — 時間帯ヘッダがX軸ラベルを兼ねる） ── */}
       <TimeSlotWeatherTable
         hours={hours}
-        curLabel={d.curLabel}
         compLabel={d.compLabel}
         hasPrev={d.hasPrev}
         curWeather={curWeatherForTable}
@@ -343,6 +382,34 @@ export const TimeSlotChart = memo(function TimeSlotChart({
         gridLeft={GRID_LEFT}
         gridRight={GRID_RIGHT}
       />
+
+      {/* ── 凡例（天気テーブルの下に HTML で表示） ── */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: 16,
+          fontSize: chartFontSize.axis,
+          color: theme.colors.text3,
+          marginTop: 4,
+          marginBottom: 4,
+        }}
+      >
+        <LegendItem color={palette.primary}>
+          {showPrev ? `${d.curLabel}売上` : '売上金額'}
+        </LegendItem>
+        <LegendItem color={palette.cyan} dashed>
+          {showPrev ? `${d.curLabel}点数` : '点数'}
+        </LegendItem>
+        {showPrev && (
+          <>
+            <LegendItem color={`${palette.slate}80`}>{d.compLabel}売上</LegendItem>
+            <LegendItem color={palette.slate} dashed>
+              {d.compLabel}点数
+            </LegendItem>
+          </>
+        )}
+      </div>
 
       {/* ── 詳細ビュー切替（テーブル / ヒートマップ） ── */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12 }}>
