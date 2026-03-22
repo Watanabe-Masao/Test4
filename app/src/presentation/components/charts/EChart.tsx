@@ -184,10 +184,26 @@ export const EChart = memo(function EChart({
       { notMerge: true },
     )
 
+    // setOption 後にコンテナサイズが確定してからリサイズ（タブ切替・初期描画対応）
+    const chart = chartRef.current
+    const rafId = requestAnimationFrame(() => {
+      chart.resize()
+    })
+
     return () => {
-      // コンポーネントアンマウント時に破棄
+      cancelAnimationFrame(rafId)
     }
   }, [option, themeName])
+
+  // height prop 変更時にリサイズ
+  useEffect(() => {
+    const chart = chartRef.current
+    if (!chart) return
+    const rafId = requestAnimationFrame(() => {
+      chart.resize()
+    })
+    return () => cancelAnimationFrame(rafId)
+  }, [height])
 
   // リサイズ対応
   useEffect(() => {
