@@ -108,56 +108,215 @@ export function stripStrings(line: string): string {
 
 // ─── @guard タグレジストリ ────────────────────────────────
 
+/** タグ定義の型。name（短い名前）+ examples（壊れるパターンの具体例） */
+export interface GuardTagDef {
+  readonly name: string
+  readonly examples: readonly string[]
+}
+
 /**
  * 設計原則タグの正式定義（一元管理）。
  * 新しいタグを追加する場合はここに登録する。
  * CI テストがこのレジストリとコード内のタグの整合性を検証する。
+ *
+ * examples には「何が壊れるか」「なぜこの制約が必要か」を具体的に記載する。
+ * コード内の @guard タグからここを参照することで文脈が辿れる。
  */
-export const GUARD_TAG_REGISTRY: Record<string, string> = {
-  // A: 層境界
-  A1: '4層依存ルール',
-  A2: 'Domain は純粋',
-  A3: 'Presentation は描画専用',
-  A4: '取得対象の契約は Domain で定義',
-  A5: 'DI はコンポジションルート',
-  A6: 'load 処理は3段階分離',
-  // B: 実行エンジン境界
-  B1: 'Authoritative 計算は domain/calculations のみ',
-  B2: 'JS/SQL 二重実装禁止',
-  B3: '率は domain/calculations で算出',
-  // C: 純粋性と責務分離
-  C1: '1ファイル = 1変更理由',
-  C2: 'pure function は1仕様軸に閉じる',
-  C3: 'store は state 反映のみ',
-  C4: '描画は純粋',
-  C5: '最小セレクタ',
-  C6: 'facade は orchestration のみ',
-  C7: '同義 API/action の併存禁止',
-  // D: 数学的不変条件
-  D1: '要因分解の合計は売上差に完全一致',
-  D2: '引数を無視して再計算しない',
-  D3: '不変条件はテストで守る',
-  // E: 型安全と欠損処理
-  E1: '境界で検証',
-  E2: '依存配列は省略しない',
-  E3: 'sourceDate を落とさない',
-  E4: '欠損判定は == null',
-  // F: コード構造規約
-  F1: 'バレルで後方互換',
-  F2: '文字列はカタログ',
-  F3: '全パターンに例外なし',
-  F4: '配置はパスで決まる',
-  F5: '横断的関心事は Contract で管理',
-  F6: 'チャート間データは文脈継承',
-  F7: 'View は ViewModel のみ受け取る',
-  F8: '独立互換で正本を汚さない',
-  F9: 'Raw データは唯一の真実源',
-  // G: 機械的防御
-  G1: 'ルールはテストに書く',
-  G2: 'エラーは伝播',
-  G3: 'コンパイラ警告を黙らせない',
-  G4: 'テスト用 export 禁止',
-  G5: 'サイズ上限',
-  G6: 'コンポーネントサイズ上限',
-  G7: 'キャッシュは本体より複雑にしない',
+export const GUARD_TAG_REGISTRY: Record<string, GuardTagDef> = {
+  // ═══ A: 層境界 ═══
+  A1: {
+    name: '4層依存ルール',
+    examples: [
+      'presentation/ → infrastructure/ の直接 import でデータ取得ロジックが分散',
+      'domain/ → application/ の依存でドメインの純粋性が崩壊',
+    ],
+  },
+  A2: {
+    name: 'Domain は純粋',
+    examples: [
+      'domain/ に fetch/localStorage を持ち込むとテストにモックが必要になる',
+      'domain/calculations/ に async を導入すると不変条件テストが実行困難になる',
+    ],
+  },
+  A3: {
+    name: 'Presentation は描画専用',
+    examples: [
+      'UI に直接 fetch を書くと God Component 化する（717行 MetricBreakdownPanel 事件）',
+      'presentation/ から外部 API を直接呼ぶとデータ取得ロジックが分散する',
+    ],
+  },
+  A4: {
+    name: '取得対象の契約は Domain で定義',
+    examples: ['application/ で型定義すると presentation/ が usecases/ を直接参照する必要が生じる'],
+  },
+  A5: {
+    name: 'DI はコンポジションルート',
+    examples: ['具体実装を知るのは App.tsx のみ。コンポーネントが infrastructure を直接参照しない'],
+  },
+  A6: {
+    name: 'load 処理は3段階分離',
+    examples: [
+      '1関数で load + merge + setStore + cache clear + UI更新すると責務が密結合',
+      'データ取得関数の中で store 更新すると副作用のテストが困難',
+    ],
+  },
+  // ═══ B: 実行エンジン境界 ═══
+  B1: {
+    name: 'Authoritative 計算は domain/calculations のみ',
+    examples: [
+      'hooks/stores/usecases に純粋計算を実装すると正式値の定義元が分散',
+      'TypeScript 制御層に authoritative ロジックを置くと責務境界が崩壊',
+    ],
+  },
+  B2: {
+    name: 'JS/SQL 二重実装禁止',
+    examples: ['同じ集約ロジックを JS と DuckDB SQL の両方に実装すると不整合が生じる'],
+  },
+  B3: {
+    name: '率は domain/calculations で算出',
+    examples: [
+      '率をパイプラインで持ち回すと加重平均が崩壊する',
+      'SQL/VM で率を直接計算すると全店合計・経過日集約が不正確になる',
+    ],
+  },
+  // ═══ C: 純粋性と責務分離 ═══
+  C1: {
+    name: '1ファイル = 1変更理由',
+    examples: ['300行超のファイルは変更頻度の異なる責務が混在している兆候'],
+  },
+  C2: {
+    name: 'pure function は1仕様軸に閉じる',
+    examples: ['集計+補完+マッピング+上限制御を1関数に混在させるとテスト不能'],
+  },
+  C3: {
+    name: 'store は state 反映のみ',
+    examples: [
+      'store action に算術式を埋め込むと業務ロジックが分散する',
+      '派生値導出・不変条件判定は store の外に出す',
+    ],
+  },
+  C4: {
+    name: '描画は純粋',
+    examples: ['memo + hook で描画と計算を分離しないとレンダリング最適化が不能'],
+  },
+  C5: {
+    name: '最小セレクタ',
+    examples: ['store 全体を購読すると無関係な state 変更で不要な再レンダリングが発生'],
+  },
+  C6: {
+    name: 'facade は orchestration のみ',
+    examples: [
+      'facade に判断・分岐・派生計算を増やすと分岐 >5 で複雑化',
+      'facade が業務判断の本体になると責務沈殿が発生',
+    ],
+  },
+  C7: {
+    name: '同義 API/action の併存禁止',
+    examples: ['名前が違うが中身が同じ action が増えると保守コストが倍増'],
+  },
+  // ═══ D: 数学的不変条件 ═══
+  D1: {
+    name: '要因分解の合計は売上差に完全一致',
+    examples: ['ウォーターフォールチャートが合計に到達しない → ユーザーの信頼喪失'],
+  },
+  D2: {
+    name: '引数を無視して再計算しない',
+    examples: [
+      '別ソースから再計算するとシャープリー恒等式が崩壊（カテゴリ合計 ≠ 売上合計）',
+      'prevSales/curSales を _ リネームして無視した事件',
+    ],
+  },
+  D3: {
+    name: '不変条件はテストで守る',
+    examples: ['実装ではなく制約をテストする。実装の変更に強い'],
+  },
+  // ═══ E: 型安全と欠損処理 ═══
+  E1: {
+    name: '境界で検証',
+    examples: ['検証していない文字列が SQL クエリに渡るとインジェクションリスク'],
+  },
+  E2: {
+    name: '依存配列は省略しない',
+    examples: ['ファイルインポート後にチャートが更新されないステールデータバグ'],
+  },
+  E3: {
+    name: 'sourceDate を落とさない',
+    examples: ['月跨ぎ時の出典追跡不能（buildPrevSameDowMap 事件）', '前年比が0表示になるバグ'],
+  },
+  E4: {
+    name: '欠損判定は == null',
+    examples: ['WMO天気コード 0（晴天）が欠損扱いされて天気表示が消える'],
+  },
+  // ═══ F: コード構造規約 ═══
+  F1: {
+    name: 'バレルで後方互換',
+    examples: ['ファイル移動で外部 import が壊れると全消費者の修正が必要'],
+  },
+  F2: {
+    name: '文字列はカタログ',
+    examples: ['ハードコード文字列が散在すると i18n 移行が困難'],
+  },
+  F3: {
+    name: '全パターンに例外なし',
+    examples: ['チャート・Hook・Handler 構造が規模で変わると AI 開発で判断が必要になる'],
+  },
+  F4: {
+    name: '配置はパスで決まる',
+    examples: ['ファイルの配置先が曖昧だとレビューのたびに議論が発生'],
+  },
+  F5: {
+    name: '横断的関心事は Contract で管理',
+    examples: ['比較モード追加時の変更箇所が5ファイル以上に散在する'],
+  },
+  F6: {
+    name: 'チャート間データは文脈継承',
+    examples: ['子が比較文脈を再計算すると親との不整合が発生'],
+  },
+  F7: {
+    name: 'View は ViewModel のみ受け取る',
+    examples: ['weatherCode・DateRange・DuckDB 接続を View に渡すと描画以外の責務が混入'],
+  },
+  F8: {
+    name: '独立互換で正本を汚さない',
+    examples: ['暫定互換の独立ウィジェットのために正本の Props を曲げるとリファクタリング不能'],
+  },
+  F9: {
+    name: 'Raw データは唯一の真実源',
+    examples: ['DuckDB → IndexedDB の書き戻しでデータ破損時に復元不能'],
+  },
+  // ═══ G: 機械的防御 ═══
+  G1: {
+    name: 'ルールはテストに書く',
+    examples: ['文書に書いただけのルールは守られない。違反したらテストが落ちる'],
+  },
+  G2: {
+    name: 'エラーは伝播',
+    examples: ['catch して握り潰すとサイレント失敗が最悪の失敗モードになる'],
+  },
+  G3: {
+    name: 'コンパイラ警告を黙らせない',
+    examples: ['_ リネームでバグがコンパイラの警告ごと隠蔽される（decompose5 事件）'],
+  },
+  G4: {
+    name: 'テスト用 export 禁止',
+    examples: [
+      '@internal export は公開面を不正に拡張する',
+      'カバレッジ回復のための実装変更は本末転倒',
+    ],
+  },
+  G5: {
+    name: 'サイズ上限',
+    examples: [
+      'hook が 300行を超えたら *Logic.ts に純粋関数を分離',
+      'useMemo ≤7、useState ≤6 を超えると責務過多の兆候',
+    ],
+  },
+  G6: {
+    name: 'コンポーネントサイズ上限',
+    examples: ['Presentation .tsx が 600行を超えたら ViewModel 分離を検討'],
+  },
+  G7: {
+    name: 'キャッシュは本体より複雑にしない',
+    examples: ['キャッシュ処理が本体より複雑になると保守コストが逆転する'],
+  },
 } as const
