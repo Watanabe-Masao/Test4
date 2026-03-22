@@ -1,27 +1,38 @@
 /**
  * IntegratedSalesChart — 売上推移分析ユニットの正本コンテナ
  *
- * 日別売上（overview）と時間帯別売上（drilldown）を
+ * 日別売上（overview）と時間帯別売上（drilldown）、部門別時間帯パターン（孫）を
  * 同じ分析文脈の下で束ねる包含型ウィジェット。
  *
- * SalesAnalysisContext を構築し、配下の派生ビューに配る。
- * 日別チャートのバークリック/ドラッグで時間帯ドリルダウンに遷移。
- * 右軸モードに応じてサブ分析パネルを動的配置。
+ * 設計原則:
+ * - 親が SalesAnalysisContext を構築し、配下の派生ビューに配る
+ * - 子/孫は文脈を consume only（比較文脈の再計算禁止）
+ * - 日別チャートは常時表示、時間帯は包含表示（ドリル時のみ）
+ * - 部門別時間帯パターンは孫として時間帯の下に包含
+ * - 右軸モードに応じてサブ分析パネルを動的配置
  */
 import { useState, useCallback, useMemo, memo } from 'react'
-import styled, { keyframes, css } from 'styled-components'
+import styled from 'styled-components'
 import type { AsyncDuckDBConnection, AsyncDuckDB } from '@duckdb/duckdb-wasm'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import type { DailyRecord, DailyWeatherSummary, DiscountEntry } from '@/domain/models/record'
 import { useDrillDateRange } from '@/application/hooks/useDrillDateRange'
-import { buildSalesAnalysisContext } from '@/application/models/SalesAnalysisContext'
+import { buildSalesAnalysisContext, deriveChildContext } from '@/application/models/SalesAnalysisContext'
 import type { AnalysisViewEvents, CategoryFocus } from '@/application/models/AnalysisViewEvents'
+import {
+  buildRootNodeContext,
+  deriveNodeContext,
+  deriveDeptPatternContext,
+  DEFAULT_TOP_DEPARTMENT_POLICY,
+} from '@/application/models/AnalysisNodeContext'
 import { useCrossChartSelection } from './crossChartSelectionHooks'
 import type { RightAxisMode } from './DailySalesChartBodyLogic'
 import type { ViewType } from './DailySalesChartBody'
 import { DailySalesChart } from './DailySalesChart'
 import { TimeSlotChart } from './TimeSlotChart'
+import { DeptHourlyChart } from './DeptHourlyChart'
 import { SubAnalysisPanel } from './SubAnalysisPanel'
+import { ContainedAnalysisPanel, type ContextTag } from './ContainedAnalysisPanel'
 
 interface SelectedRange {
   readonly start: number
@@ -47,7 +58,7 @@ interface Props {
   // SubAnalysisPanel（売変分析）用
   readonly discountEntries?: readonly DiscountEntry[]
   readonly totalGrossSales?: number
-  // TimeSlotChart props
+  // TimeSlotChart / DeptHourlyChart props
   readonly duckConn: AsyncDuckDBConnection | null
   readonly duckDb?: AsyncDuckDB | null
   readonly duckDataVersion: number
@@ -85,28 +96,64 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
 
   const isDrilled = selectedRange != null && rangeDateRange != null
 
-  // 売上推移分析ユニットの共通文脈を構築
-  // ドリル時は rangeDateRange、未ドリル時は currentDateRange を使用
-  const analysisContext = useMemo(
+  // ── 分析文脈の構築 ──
+
+  // 親文脈（日別売上推移）: 常に currentDateRange を使用
+  const parentContext = useMemo(
     () =>
       buildSalesAnalysisContext(
-        isDrilled && rangeDateRange ? rangeDateRange : props.currentDateRange,
+        props.currentDateRange,
         props.selectedStoreIds,
-        isDrilled && rangePrevYearScope ? rangePrevYearScope : props.prevYearScope,
-        selectedRange ? { startDay: selectedRange.start, endDay: selectedRange.end } : undefined,
+        props.prevYearScope,
       ),
-    [
-      isDrilled,
-      rangeDateRange,
-      rangePrevYearScope,
-      props.currentDateRange,
-      props.selectedStoreIds,
-      props.prevYearScope,
-      selectedRange,
-    ],
+    [props.currentDateRange, props.selectedStoreIds, props.prevYearScope],
   )
 
-  // 子ビューからのイベントを CrossChartSelectionContext に伝播
+  // 子文脈（時間帯 — ドリル時のみ）: 親から dateRange を上書き派生
+  const drillContext = useMemo(() => {
+    if (!isDrilled || !rangeDateRange) return null
+    return deriveChildContext(
+      parentContext,
+      rangeDateRange,
+      rangePrevYearScope ?? undefined,
+    )
+  }, [isDrilled, rangeDateRange, rangePrevYearScope, parentContext])
+
+  // AnalysisNodeContext（ノード階層モデル）
+  const dailyNode = useMemo(
+    () => buildRootNodeContext(parentContext, 'daily-sales'),
+    [parentContext],
+  )
+
+  const timeSlotNode = useMemo(
+    () =>
+      isDrilled && drillContext
+        ? deriveNodeContext(dailyNode, 'time-slot', {
+            overrideBase: drillContext,
+            focus: selectedRange
+              ? { kind: 'day-range' as const, startDay: selectedRange.start, endDay: selectedRange.end }
+              : undefined,
+          })
+        : null,
+    [dailyNode, isDrilled, drillContext, selectedRange],
+  )
+
+  // deptPatternNode は将来の孫コンポーネント context 対応時に使用予定
+  // 現在は DeptHourlyChart が従来 props で動作するため、ノード構築のみ行う
+  const deptPatternNode = useMemo(
+    () =>
+      timeSlotNode
+        ? deriveDeptPatternContext(timeSlotNode, DEFAULT_TOP_DEPARTMENT_POLICY)
+        : null,
+    [timeSlotNode],
+  )
+  void deptPatternNode
+
+  // SubAnalysisPanel 用の文脈（ドリル時は drill 範囲、未ドリル時は親）
+  const subPanelContext = drillContext ?? parentContext
+
+  // ── イベント連動 ──
+
   const { highlightTimeSlot, highlightCategory } = useCrossChartSelection()
 
   const childEvents = useMemo<AnalysisViewEvents>(
@@ -127,7 +174,8 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
     [highlightTimeSlot, highlightCategory],
   )
 
-  // 戻るボタンのラベル
+  // ── 表示用ラベル ──
+
   const rangeLabel =
     selectedRange != null
       ? selectedRange.start === selectedRange.end
@@ -135,54 +183,90 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
         : `${props.month}月${selectedRange.start}〜${selectedRange.end}日`
       : ''
 
+  // 時間帯チャートの継承条件タグ
+  const timeSlotContextTags = useMemo<readonly ContextTag[]>(() => {
+    if (!selectedRange) return []
+    const tags: ContextTag[] = [{ label: '選択日', value: rangeLabel }]
+    if (props.prevYearScope) {
+      tags.push({ label: '比較', value: '前年同期間' })
+    }
+    if (props.selectedStoreIds.size > 0) {
+      tags.push({ label: '対象店舗', value: `${props.selectedStoreIds.size}店` })
+    }
+    return tags
+  }, [selectedRange, rangeLabel, props.prevYearScope, props.selectedStoreIds])
+
   return (
     <Wrapper>
-      {/* 日別チャート */}
-      <ViewPane $active={!isDrilled} $direction="left">
-        <DailySalesChart
-          daily={props.daily}
-          daysInMonth={props.daysInMonth}
-          year={props.year}
-          month={props.month}
-          prevYearDaily={props.prevYearDaily}
-          budgetDaily={props.budgetDaily}
-          onDayRangeSelect={canDrill ? handleDayRangeSelect : undefined}
-          weatherDaily={props.weatherDaily}
-          prevYearWeatherDaily={props.prevYearWeatherDaily}
-          dowOffset={props.dowOffset}
-          rightAxisMode={rightAxisMode}
-          onRightAxisModeChange={setRightAxisMode}
-          onViewChange={setDailyView}
-        />
-        {canDrill && <DrillHint>日付をクリック or ドラッグで時間帯内訳を表示</DrillHint>}
-      </ViewPane>
+      {/* ── 日別チャート（常時表示） ── */}
+      <DailySalesChart
+        daily={props.daily}
+        daysInMonth={props.daysInMonth}
+        year={props.year}
+        month={props.month}
+        prevYearDaily={props.prevYearDaily}
+        budgetDaily={props.budgetDaily}
+        onDayRangeSelect={canDrill ? handleDayRangeSelect : undefined}
+        weatherDaily={props.weatherDaily}
+        prevYearWeatherDaily={props.prevYearWeatherDaily}
+        dowOffset={props.dowOffset}
+        rightAxisMode={rightAxisMode}
+        onRightAxisModeChange={setRightAxisMode}
+        onViewChange={setDailyView}
+      />
+      {canDrill && !isDrilled && (
+        <DrillHint>日付をクリック or ドラッグで時間帯内訳を表示</DrillHint>
+      )}
 
-      {/* 時間帯チャート（ドリルダウン先 — 親グラフとして先に表示） */}
-      {isDrilled && (
-        <ViewPane $active $direction="right">
-          <BackButton onClick={handleBack}>
-            <BackArrow>←</BackArrow>
-            {rangeLabel}の時間帯別 → 日別に戻る
-          </BackButton>
+      {/* ── 時間帯チャート（ドリル時 — 子として包含表示） ── */}
+      {isDrilled && drillContext && (
+        <ContainedAnalysisPanel
+          title={`時間帯別 前年比較`}
+          subtitle={rangeLabel}
+          inheritedContext={timeSlotContextTags}
+          drillLabel="日別からドリルダウン"
+          depth={0}
+          toolbar={
+            <BackButton onClick={handleBack}>
+              <BackArrow>←</BackArrow>
+              日別に戻る
+            </BackButton>
+          }
+        >
           <TimeSlotChart
             duckConn={props.duckConn}
             duckDb={props.duckDb}
             duckDataVersion={props.duckDataVersion}
-            context={analysisContext}
+            context={drillContext}
             events={childEvents}
           />
-        </ViewPane>
+
+          {/* ── 部門別時間帯パターン（孫として包含表示） ── */}
+          <ContainedAnalysisPanel
+            title="部門別時間帯パターン"
+            subtitle={`上位${DEFAULT_TOP_DEPARTMENT_POLICY.count}部門の時間帯別売上 | 積み上げ面グラフ`}
+            drillLabel="時間帯からドリルダウン"
+            depth={1}
+          >
+            <DeptHourlyChart
+              duckConn={props.duckConn}
+              duckDataVersion={props.duckDataVersion}
+              currentDateRange={drillContext.dateRange}
+              selectedStoreIds={drillContext.selectedStoreIds}
+            />
+          </ContainedAnalysisPanel>
+        </ContainedAnalysisPanel>
       )}
 
-      {/* サブ分析パネル（連動グラフ — 親グラフの下に表示） */}
+      {/* ── サブ分析パネル（連動グラフ — 親グラフの下に表示） ── */}
       {dailyView === 'standard' && (
         <SubAnalysisPanel
           mode={rightAxisMode}
           duckConn={props.duckConn}
           duckDataVersion={props.duckDataVersion}
-          currentDateRange={analysisContext.dateRange}
-          selectedStoreIds={analysisContext.selectedStoreIds}
-          prevYearScope={analysisContext.comparisonScope}
+          currentDateRange={subPanelContext.dateRange}
+          selectedStoreIds={subPanelContext.selectedStoreIds}
+          prevYearScope={subPanelContext.comparisonScope}
           weatherDaily={props.weatherDaily}
           daily={props.daily}
           daysInMonth={props.daysInMonth}
@@ -199,44 +283,8 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
 
 // ── Styles ──
 
-const zoomIn = keyframes`
-  0% {
-    opacity: 0;
-    transform: scale(0.96) translateY(8px);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-`
-
-const slideBack = keyframes`
-  0% {
-    opacity: 0;
-    transform: translateX(-16px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(0);
-  }
-`
-
 const Wrapper = styled.div`
   position: relative;
-  overflow: hidden;
-`
-
-const ViewPane = styled.div<{ $active: boolean; $direction: 'left' | 'right' }>`
-  display: ${({ $active }) => ($active ? 'block' : 'none')};
-  ${({ $active, $direction }) =>
-    $active
-      ? css`
-          animation: ${$direction === 'right' ? zoomIn : slideBack} 0.35s
-            cubic-bezier(0.2, 0.9, 0.3, 1) both;
-        `
-      : css`
-          animation: none;
-        `}
 `
 
 const BackButton = styled.button`
@@ -249,7 +297,6 @@ const BackButton = styled.button`
   color: ${({ theme }) => theme.colors.palette.primary};
   padding: 4px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
-  margin-bottom: ${({ theme }) => theme.spacing[2]};
   transition: all 0.15s;
 
   &:hover {

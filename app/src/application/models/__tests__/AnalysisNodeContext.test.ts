@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import type { SalesAnalysisContext } from '../SalesAnalysisContext'
 import { buildSalesAnalysisContext, deriveChildContext } from '../SalesAnalysisContext'
-import type { AnalysisNodeContext } from '../AnalysisNodeContext'
 import {
   deriveNodeContext,
   buildRootNodeContext,
@@ -10,11 +9,17 @@ import {
   DEFAULT_TOP_DEPARTMENT_POLICY,
 } from '../AnalysisNodeContext'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
+import type { CalendarDate } from '@/domain/models/CalendarDate'
 
 // ── テスト用ヘルパー ────────────────────────────────────
 
+function parseDate(s: string): CalendarDate {
+  const [y, m, d] = s.split('-').map(Number)
+  return { year: y, month: m, day: d }
+}
+
 function makeDateRange(from: string, to: string): DateRange {
-  return { from, to }
+  return { from: parseDate(from), to: parseDate(to) }
 }
 
 function makeBaseContext(overrides?: Partial<SalesAnalysisContext>): SalesAnalysisContext {
@@ -31,6 +36,8 @@ function makeBaseContext(overrides?: Partial<SalesAnalysisContext>): SalesAnalys
 
 const COMPARISON_A: PrevYearScope = {
   dateRange: makeDateRange('2024-03-01', '2024-03-31'),
+  totalCustomers: 1000,
+  dowOffset: 0,
 }
 
 // ── buildRootNodeContext ─────────────────────────────────
@@ -242,6 +249,8 @@ describe('deriveChildContext', () => {
     const parent = makeBaseContext({ comparisonScope: COMPARISON_A })
     const newScope: PrevYearScope = {
       dateRange: makeDateRange('2024-03-05', '2024-03-10'),
+      totalCustomers: 500,
+      dowOffset: 0,
     }
     const child = deriveChildContext(parent, makeDateRange('2025-03-05', '2025-03-10'), newScope)
 
