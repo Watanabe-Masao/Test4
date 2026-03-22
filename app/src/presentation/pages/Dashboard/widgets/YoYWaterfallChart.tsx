@@ -99,21 +99,12 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
         to: { year: ctx.year, month: ctx.month, day: wowRange.prevEnd },
       }
     }
-    // 前年比: prevYearScope.dateRange を基準に dowOffset で正しい前年日付を算出。
+    // 前年比: year-1 + dowOffset で前年同曜日の日付を算出（Date演算で閏年・月跨ぎ対応）。
     // prevYear.daily と同じ同曜日基準の前年日付を使うことで、
     // daily 合計と CTS 部門内訳のデータソースが整合する。
-    const prev = ctx.comparisonFrame.previous
     const offset = ctx.comparisonFrame.dowOffset
-    const fromDate = new Date(
-      prev.from.year,
-      prev.from.month - 1,
-      prev.from.day + (dayStart - 1) + offset,
-    )
-    const toDate = new Date(
-      prev.from.year,
-      prev.from.month - 1,
-      prev.from.day + (dayEnd - 1) + offset,
-    )
+    const fromDate = new Date(ctx.year - 1, ctx.month - 1, dayStart + offset)
+    const toDate = new Date(ctx.year - 1, ctx.month - 1, dayEnd + offset)
     return {
       from: {
         year: fromDate.getFullYear(),
@@ -129,7 +120,6 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
   }, [
     activeCompMode,
     canWoW,
-    ctx.comparisonFrame.previous,
     ctx.comparisonFrame.dowOffset,
     dayStart,
     dayEnd,

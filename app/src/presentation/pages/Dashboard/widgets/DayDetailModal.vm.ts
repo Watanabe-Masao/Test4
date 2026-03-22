@@ -11,7 +11,6 @@ import {
   calculateShare,
   calculateTransactionValue,
 } from '@/domain/calculations/utils'
-import type { DateRange, ComparisonFrame } from '@/domain/models/calendar'
 import type { DailyRecord } from '@/domain/models/record'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import type { PrevYearData } from '@/application/hooks/analytics'
@@ -166,55 +165,6 @@ export function computeComparisonLabels(
   const curCompLabel = activeCompMode === 'wow' ? `${day}日` : '当年'
 
   return { compSales, compCust, compLabel, curCompLabel }
-}
-
-// ── Date range builders ──
-
-export function buildSingleDayRange(year: number, month: number, day: number): DateRange {
-  return { from: { year, month, day }, to: { year, month, day } }
-}
-
-export function buildPrevDayRange(
-  comparisonFrame: ComparisonFrame,
-  year: number,
-  month: number,
-  day: number,
-): DateRange {
-  const curDate = new Date(year, month - 1, day)
-  const prevDate = new Date(curDate.getTime() + comparisonFrame.dowOffset * 86400000)
-  const py = prevDate.getFullYear()
-  const pm = prevDate.getMonth() + 1
-  const pd = prevDate.getDate()
-  return { from: { year: py, month: pm, day: pd }, to: { year: py, month: pm, day: pd } }
-}
-
-export function buildWowPrevDayRange(
-  canWoW: boolean,
-  year: number,
-  month: number,
-  wowPrevDay: number,
-): DateRange | undefined {
-  return canWoW
-    ? { from: { year, month, day: wowPrevDay }, to: { year, month, day: wowPrevDay } }
-    : undefined
-}
-
-export function buildCumDateRange(year: number, month: number, day: number): DateRange {
-  return { from: { year, month, day: 1 }, to: { year, month, day } }
-}
-
-export function buildCumPrevDateRange(
-  comparisonFrame: ComparisonFrame,
-  year: number,
-  month: number,
-  day: number,
-): DateRange {
-  const curDate = new Date(year, month - 1, day)
-  const prevDate = new Date(curDate.getTime() + comparisonFrame.dowOffset * 86400000)
-  const py = prevDate.getFullYear()
-  const pm = prevDate.getMonth() + 1
-  const pd = prevDate.getDate()
-  return { from: { year: py, month: pm, day: 1 }, to: { year: py, month: pm, day: pd } }
 }
 
 // ── Breakdown (仕入内訳) ──

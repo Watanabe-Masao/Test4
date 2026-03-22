@@ -59,8 +59,10 @@ describe('INV-SCOPE-01: presentation/ での前年日付の独自計算禁止', 
     'presentation/components/charts/DailySalesChartBodyLogic.ts',
     // 管理画面の前年マッピング設定（ユーザー設定の表示用）
     'presentation/pages/Admin/PrevYearMappingTab.tsx',
+    // CTS 前年日付を year-1 + dowOffset の Date 演算で算出（閏年対応済み）
+    'presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx',
   ])
-  const MAX_ALLOWLIST_SIZE = 4
+  const MAX_ALLOWLIST_SIZE = 5
 
   it('許可リストのサイズが上限を超えない', () => {
     expect(
@@ -129,6 +131,48 @@ describe('INV-SCOPE-02: 累計前年範囲の day:1 ハードコード禁止', (
       violations,
       `累計前年範囲で day: 1 のハードコードが検出されました:\n${violations.join('\n')}\n` +
         '前年累計は当年の累計日数分だけ prevDate から遡って算出してください。',
+    ).toEqual([])
+  })
+})
+
+// ─── INV-SCOPE-03: DAYS_PER_YEAR ミリ秒演算による前年日付計算禁止 ──
+
+describe('INV-SCOPE-03: DAYS_PER_YEAR * MILLISECONDS_PER_DAY による前年日付計算禁止', () => {
+  /**
+   * DAYS_PER_YEAR = 365 は閏年（366日）を考慮しない。
+   * 前年日付は new Date(year - 1, month - 1, day + offset) の
+   * Date 演算で算出すること。
+   */
+  it('前年日付計算に DAYS_PER_YEAR ミリ秒演算を使用していない', () => {
+    const targetDirs = [
+      path.join(SRC_DIR, 'domain', 'models'),
+      path.join(SRC_DIR, 'application', 'hooks'),
+      path.join(SRC_DIR, 'presentation'),
+    ]
+    const violations: string[] = []
+    // DAYS_PER_YEAR * MILLISECONDS_PER_DAY のパターンを検出
+    const pattern = /DAYS_PER_YEAR\s*\*\s*MILLISECONDS_PER_DAY/
+
+    for (const dir of targetDirs) {
+      const files = collectTsFiles(dir)
+      for (const file of files) {
+        const content = fs.readFileSync(file, 'utf-8')
+        const lines = content.split('\n')
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i]
+          if (line.trim().startsWith('//') || line.trim().startsWith('*')) continue
+          if (pattern.test(line)) {
+            violations.push(`${rel(file)}:${i + 1}: ${line.trim()}`)
+          }
+        }
+      }
+    }
+
+    expect(
+      violations,
+      `DAYS_PER_YEAR * MILLISECONDS_PER_DAY による前年日付計算が検出されました:\n${violations.join('\n')}\n` +
+        'DAYS_PER_YEAR = 365 は閏年を考慮しません。' +
+        '前年日付は new Date(year - 1, month - 1, day + offset) で算出してください。',
     ).toEqual([])
   })
 })

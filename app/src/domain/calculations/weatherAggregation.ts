@@ -127,15 +127,33 @@ export function categorizeWeatherCode(code: number): WeatherCategory {
 }
 
 /**
- * 気象実測値から WMO 互換の天気コードを導出する。
+ * 気象実測値から WMO 互換の天気コードを導出する（代理ラベル）。
  *
- * 実測データには天気コードがないため、降水量と日照時間から推定する。
- * WMO Weather Interpretation Code に準拠した値を返す。
+ * ## 重要: これは公式の観測天気コードではない
+ *
+ * ETRN の実測データには天気コード（現象種別）が含まれないため、
+ * 降水量・日照時間・気温の3変数から WMO コード番号を逆合成している。
+ * 返される値は WMO コードと同じ数字だが、意味の厳密さが異なる:
+ *
+ * - WMO 61 = 「公式観測で雨コード61が付与された」
+ * - この関数の 61 = 「降水量 1-5mm かつ気温 ≥ 1°C → 雨相当とみなした」
+ *
+ * ## 構造的限界
+ *
+ * - 霧(45-48)・雷雨(95-99)・にわか雨(80-82)・みぞれ等は判別不能
+ * - 生成可能なコードは 0, 2, 3, 51, 61, 65, 71, 75 の8種のみ
+ * - 雪判定の閾値 (temperatureCelsius < 1) は気象学的に粗い
+ * - 晴天判定は日照時間のみで霧・黄砂と区別不可能
+ *
+ * ## 用途の制限
+ *
+ * UI 表示（アイコン・バッジ）には十分だが、統計分析・回帰・ML 特徴量
+ * として使う場合は代理ラベルの限界を考慮すること。
  *
  * @param precipitationMm 時間降水量 (mm)
  * @param sunshineHours 時間日照時間 (hours, 0.0-1.0)
  * @param temperatureCelsius 気温 (°C)。省略時は雪判定しない
- * @returns WMO 互換天気コード
+ * @returns WMO 互換天気コード（代理ラベル）
  */
 export function deriveWeatherCode(
   precipitationMm: number,
