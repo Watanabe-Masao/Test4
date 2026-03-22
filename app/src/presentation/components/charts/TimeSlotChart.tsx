@@ -33,7 +33,7 @@ import {
 } from './TimeSlotSalesChart.styles'
 import { HierarchySelect, ErrorMsg } from './TimeSlotChart.styles'
 import { useDuckDBTimeSlotData } from './useDuckDBTimeSlotData'
-import { TimeSlotComparisonTable } from './TimeSlotComparisonTable'
+import { TimeSlotComparisonTable, TimeSlotWeatherTable } from './TimeSlotComparisonTable'
 import { CategoryTimeHeatmap } from './CategoryTimeHeatmap'
 import { ChartSkeleton } from '@/presentation/components/common/feedback'
 import { EmptyState } from '@/presentation/components/common/layout'
@@ -124,6 +124,28 @@ export const TimeSlotChart = memo(function TimeSlotChart({
   })
 
   const showPrev = d.hasPrev && d.showPrev
+
+  // 天気データをテーブル用に変換（weatherCode を含む）
+  const curWeatherForTable = useMemo(
+    () =>
+      d.curWeatherAvg?.map((w) => ({
+        hour: w.hour,
+        avgTemperature: w.avgTemperature,
+        totalPrecipitation: w.totalPrecipitation,
+        weatherCode: w.weatherCode,
+      })),
+    [d.curWeatherAvg],
+  )
+  const prevWeatherForTable = useMemo(
+    () =>
+      d.prevWeatherAvg?.map((w) => ({
+        hour: w.hour,
+        avgTemperature: w.avgTemperature,
+        totalPrecipitation: w.totalPrecipitation,
+        weatherCode: w.weatherCode,
+      })),
+    [d.prevWeatherAvg],
+  )
 
   const hours = useMemo(() => d.chartData.map((r) => String(r.hour)), [d.chartData])
 
@@ -476,6 +498,17 @@ export const TimeSlotChart = memo(function TimeSlotChart({
 
       {/* ── チャート（金額棒＋折れ線、前年比較付き） ── */}
       <EChart option={chartOption} height={320} ariaLabel="時間帯別売上チャート" />
+
+      {/* ── 天気アイコン（グラフ直下） ── */}
+      <TimeSlotWeatherTable
+        hours={hours}
+        compLabel={d.compLabel}
+        hasPrev={d.hasPrev}
+        curWeather={curWeatherForTable}
+        prevWeather={prevWeatherForTable}
+        gridLeft={GRID_LEFT}
+        gridRight={GRID_RIGHT}
+      />
 
       {/* ── 凡例（チャート下に HTML で表示） ── */}
       <div
