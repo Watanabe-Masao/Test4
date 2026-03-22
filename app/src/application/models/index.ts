@@ -7,3 +7,17 @@ export type { SalesAnalysisContext, HierarchySelection } from './SalesAnalysisCo
 export { buildSalesAnalysisContext, deriveChildContext } from './SalesAnalysisContext'
 
 export type { AnalysisViewEvents, CategoryFocus } from './AnalysisViewEvents'
+
+export type {
+  AnalysisNodeType,
+  AnalysisFocus,
+  TopDepartmentPolicy,
+  AnalysisNodeContext,
+} from './AnalysisNodeContext'
+export {
+  DEFAULT_TOP_DEPARTMENT_POLICY,
+  deriveNodeContext,
+  buildRootNodeContext,
+  deriveDeptPatternContext,
+  deriveCategoryDrilldownContext,
+} from './AnalysisNodeContext'
