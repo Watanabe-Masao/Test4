@@ -122,15 +122,31 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
   const { daily: weatherDaily } = useWeatherData(targetYear, targetMonth, weatherStoreId)
 
   // 前年天気データ（比較期間の年月から取得）
-  const prevYearMonth = useMemo(() => {
+  // 同曜日比較で月跨ぎする場合、from月とto月の両方を取得して結合する
+  const prevYearMonths = useMemo(() => {
     const dr = comparison.prevYearDateRange
-    if (!dr) return { year: targetYear - 1, month: targetMonth }
-    return { year: dr.from.year, month: dr.from.month }
+    if (!dr) return { from: { year: targetYear - 1, month: targetMonth }, to: null }
+    const from = { year: dr.from.year, month: dr.from.month }
+    const to = { year: dr.to.year, month: dr.to.month }
+    const spansTwoMonths = from.year !== to.year || from.month !== to.month
+    return { from, to: spansTwoMonths ? to : null }
   }, [comparison.prevYearDateRange, targetYear, targetMonth])
-  const { daily: prevYearWeatherDaily } = useWeatherData(
-    prevYearMonth.year,
-    prevYearMonth.month,
+  const { daily: prevYearWeatherBase } = useWeatherData(
+    prevYearMonths.from.year,
+    prevYearMonths.from.month,
     weatherStoreId,
+  )
+  const { daily: prevYearWeatherOverflow } = useWeatherData(
+    prevYearMonths.to?.year ?? prevYearMonths.from.year,
+    prevYearMonths.to?.month ?? prevYearMonths.from.month,
+    weatherStoreId,
+  )
+  const prevYearWeatherDaily = useMemo(
+    () =>
+      prevYearMonths.to
+        ? ([...prevYearWeatherBase, ...prevYearWeatherOverflow] as const)
+        : prevYearWeatherBase,
+    [prevYearWeatherBase, prevYearWeatherOverflow, prevYearMonths.to],
   )
 
   // Store name map for category comparison

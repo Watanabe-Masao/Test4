@@ -8,6 +8,7 @@ import type { DailySalesDataResult } from './useDailySalesData'
 import type { DailyWeatherSummary } from '@/domain/models/record'
 import {
   buildWeatherMap,
+  deriveCompStartDateKey,
   buildXLabels,
   buildWeatherRichStyles,
   buildRightAxisSeries,
@@ -498,9 +499,10 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
   const days = useMemo(() => rows.map((d) => d.day as number), [rows])
 
   const weatherMap = useMemo(() => buildWeatherMap(weatherDaily), [weatherDaily])
+  const compStartKey = useMemo(() => deriveCompStartDateKey(dowOffset, year, month), [dowOffset, year, month])
   const prevWeatherMap = useMemo(
-    () => buildWeatherMap(prevYearWeatherDaily, dowOffset),
-    [prevYearWeatherDaily, dowOffset],
+    () => buildWeatherMap(prevYearWeatherDaily, dowOffset, compStartKey),
+    [prevYearWeatherDaily, dowOffset, compStartKey],
   )
   const hasWeather = weatherMap.size > 0
   const hasPrevWeather = prevWeatherMap.size > 0

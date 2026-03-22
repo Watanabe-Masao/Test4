@@ -116,22 +116,54 @@ export interface DayWeatherInfo {
   readonly min: number
 }
 
+/** dowOffset > 0 のとき、比較期間の開始日キーを算出する */
+export function deriveCompStartDateKey(
+  dowOffset: number,
+  year: number | undefined,
+  month: number | undefined,
+): string | undefined {
+  if (dowOffset === 0 || !year || !month) return undefined
+  const d = 1 + dowOffset
+  return `${year - 1}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`
+}
+
 /**
  * 天気データを日番号→天気情報のマップに変換する。
  *
- * @param dowOffset 同曜日比較時の日オフセット。前年天気の場合、
- *   各天気データの日番号から dowOffset を引いて当年チャート位置に合わせる。
- *   例: dowOffset=2 の場合、前年3日の天気を当年1日の位置に表示。
+ * 前年天気（dowOffset > 0）の場合、比較期間の開始日からの日数差でチャート位置を算出する。
+ * これにより月跨ぎ（例: Feb 28 → Mar 1）でも正しい位置にマッピングされる。
+ *
+ * @param compStartDateKey 比較期間の開始日 (YYYY-MM-DD)。dowOffset > 0 の場合に必須。
+ *   指定されると dateKey ベースの日数差計算を使用し、月跨ぎを正しく処理する。
  */
 export function buildWeatherMap(
   weatherDaily: readonly DailyWeatherSummary[] | undefined,
   dowOffset = 0,
+  compStartDateKey?: string,
 ): ReadonlyMap<number, DayWeatherInfo> {
   const map = new Map<number, DayWeatherInfo>()
   if (!weatherDaily) return map
+
+  // 開始日が指定されている場合、日数差ベースで位置を計算（月跨ぎ対応）
+  const startMs = compStartDateKey ? Date.UTC(
+    parseInt(compStartDateKey.slice(0, 4), 10),
+    parseInt(compStartDateKey.slice(5, 7), 10) - 1,
+    parseInt(compStartDateKey.slice(8, 10), 10),
+  ) : 0
+  const MS_PER_DAY = 86_400_000
+
   for (const w of weatherDaily) {
-    const rawDay = parseInt(w.dateKey.slice(8, 10), 10)
-    const chartDay = rawDay - dowOffset
+    let chartDay: number
+    if (compStartDateKey) {
+      const wMs = Date.UTC(
+        parseInt(w.dateKey.slice(0, 4), 10),
+        parseInt(w.dateKey.slice(5, 7), 10) - 1,
+        parseInt(w.dateKey.slice(8, 10), 10),
+      )
+      chartDay = Math.round((wMs - startMs) / MS_PER_DAY) + 1
+    } else {
+      chartDay = parseInt(w.dateKey.slice(8, 10), 10) - dowOffset
+    }
     if (chartDay < 1) continue
     const cat = categorizeWeatherCode(w.dominantWeatherCode)
     map.set(chartDay, {
