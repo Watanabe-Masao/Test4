@@ -158,8 +158,7 @@ export function splitDateRangeByMonth(
     (curYear === to.year && curMonth === to.month && curDay <= to.day)
   ) {
     const lastDayOfMonth = new Date(curYear, curMonth, 0).getDate()
-    const endDay =
-      curYear === to.year && curMonth === to.month ? to.day : lastDayOfMonth
+    const endDay = curYear === to.year && curMonth === to.month ? to.day : lastDayOfMonth
 
     const days: number[] = []
     for (let d = curDay; d <= endDay; d++) days.push(d)

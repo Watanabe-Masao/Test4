@@ -39,13 +39,9 @@ function dominantWeatherCode(rows: readonly HourlyWeatherAvgRow[]): number | nul
 /**
  * 午前/午後の天気サマリをテキストにする。
  */
-function summarizePeriod(
-  periodRows: readonly HourlyWeatherAvgRow[],
-  periodLabel: string,
-): string {
+function summarizePeriod(periodRows: readonly HourlyWeatherAvgRow[], periodLabel: string): string {
   if (periodRows.length === 0) return ''
-  const avgTemp =
-    periodRows.reduce((s, r) => s + r.avgTemperature, 0) / periodRows.length
+  const avgTemp = periodRows.reduce((s, r) => s + r.avgTemperature, 0) / periodRows.length
   const totalPrecip = periodRows.reduce((s, r) => s + r.totalPrecipitation, 0)
   const display = toWeatherDisplay(dominantWeatherCode(periodRows))
   const icon = display?.icon ?? ''
@@ -61,10 +57,7 @@ function summarizePeriod(
  * 各時間帯のアイコンにホバーすると、その時間帯の天気と
  * 午前（6-11時）・午後（12-17時）の天気概要が表示される。
  */
-function buildWeatherTooltip(
-  hour: number,
-  rows: readonly HourlyWeatherAvgRow[],
-): string {
+function buildWeatherTooltip(hour: number, rows: readonly HourlyWeatherAvgRow[]): string {
   const amRows = rows.filter((r) => r.hour >= 6 && r.hour < 12)
   const pmRows = rows.filter((r) => r.hour >= 12 && r.hour < 18)
 
@@ -72,9 +65,7 @@ function buildWeatherTooltip(
   const currentDisplay = toWeatherDisplay(current?.weatherCode ?? null)
   const currentTemp = current ? `${current.avgTemperature.toFixed(1)}°C` : ''
   const currentPrecip =
-    current && current.totalPrecipitation > 0
-      ? ` / ${current.totalPrecipitation.toFixed(1)}mm`
-      : ''
+    current && current.totalPrecipitation > 0 ? ` / ${current.totalPrecipitation.toFixed(1)}mm` : ''
   const currentLine = currentDisplay
     ? `${hour}時: ${currentDisplay.icon}${currentDisplay.label} ${currentTemp}${currentPrecip}`
     : `${hour}時: データなし`

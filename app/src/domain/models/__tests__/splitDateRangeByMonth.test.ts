@@ -7,7 +7,9 @@ describe('splitDateRangeByMonth', () => {
       { year: 2026, month: 3, day: 1 },
       { year: 2026, month: 3, day: 15 },
     )
-    expect(result).toEqual([{ year: 2026, month: 3, days: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15] }])
+    expect(result).toEqual([
+      { year: 2026, month: 3, days: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15] },
+    ])
   })
 
   it('月跨ぎ: 1月末→2月初', () => {
