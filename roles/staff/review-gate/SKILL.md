@@ -40,7 +40,7 @@ cd app && npm run test:e2e  # ローカルでは npx playwright install --with-d
 - [x] #7 God Component なし
 
 ### ガードテスト
-- [x] architectureGuard.test.ts: PASS
+- [x] guards/layerBoundaryGuard.test.ts: PASS
 - [x] calculationRules.test.ts: PASS
 - [x] divisorRules.test.ts: PASS
 - [x] factorDecomposition.test.ts: PASS

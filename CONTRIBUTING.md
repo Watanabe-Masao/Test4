@@ -126,7 +126,7 @@ npm run lint && npm run format:check && npm run build && npm test
 本プロジェクトは 19 の設計原則に基づいています。`CLAUDE.md` の「設計思想」セクションに詳細があります。
 
 主要な原則:
-- **機械的アーキテクチャ検証**: `architectureGuard.test.ts` がレイヤー間依存を自動検証
+- **機械的アーキテクチャ検証**: `guards/layerBoundaryGuard.test.ts` がレイヤー間依存を自動検証
 - **不変条件テスト**: 実装ではなく制約をテスト（シャープリー恒等式、除数ルール等）
 - **最小セレクタ購読**: Zustand ストアのスライスセレクタで不要な再レンダーを防止
 - **描画の純粋性**: UI コンポーネントは「データ → JSX」の純粋変換のみ

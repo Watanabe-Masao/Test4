@@ -44,7 +44,7 @@
   - `factorDecomposition.test.ts`（シャープリー恒等式、30件）
   - `calculationRules.test.ts`（RULE-D1/D2/I1/P2/P3/C1、7件）
   - `divisorRules.test.ts`（RULE-1〜6 + 正規ロケーション + 網羅性、8件）
-  - `architectureGuard.test.ts` の構造的不変条件部分（architecture と共同管理）
+  - `guards/layerBoundaryGuard.test.ts` の構造的不変条件部分（architecture と共同管理）
 - 新しい計算パターンの不変条件化
 - 不変条件違反の原因分析と修正指示
 

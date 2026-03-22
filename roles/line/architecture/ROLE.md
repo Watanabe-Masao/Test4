@@ -10,7 +10,7 @@
 - アプリは4層: `Presentation → Application → Domain ← Infrastructure`
 - domain/ は純粋関数のみ。外部依存・副作用なし
 - 計算エンジンは2つ: JS（権威的指標）と DuckDB（探索・集約）。責務は排他的
-- architectureGuard.test.ts が import の方向を機械的に検証している
+- guards/layerBoundaryGuard.test.ts が import の方向を機械的に検証している
 - 売上データは複数ファイル由来で、合計が一致する保証がない
 
 ## 価値基準（最適化する対象）
@@ -46,7 +46,7 @@
 - データフロー4段階の検証
 - 300行超ファイルの分割判断
 - コンポジションルート（App.tsx / main.tsx）の変更承認
-- 許可リスト（architectureGuard.test.ts）の追加・削除承認
+- 許可リスト（guards/layerBoundaryGuard.test.ts）の追加・削除承認
 
 ## Boundary（やらないこと）
 
@@ -78,7 +78,7 @@
 
 ## Guard Test 所有
 
-- `app/src/test/architectureGuard.test.ts`（300行、9件の検証）
+- `app/src/test/guards/layerBoundaryGuard.test.ts`（300行、9件の検証）
 - 不変条件: INV-ARCH-01 〜 INV-ARCH-08
 
 ## 設計思想19原則（本ロールが管理）
