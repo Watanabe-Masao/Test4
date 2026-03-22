@@ -30,8 +30,8 @@ const childStyle = css`
 const grandchildStyle = css`
   background: ${({ theme }) =>
     theme.mode === 'dark' ? 'rgba(255,255,255,0.01)' : 'rgba(0,0,0,0.008)'};
-  border-left: 3px solid ${({ theme }) =>
-    theme.mode === 'dark' ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)'};
+  border-left: 3px solid
+    ${({ theme }) => (theme.mode === 'dark' ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)')};
 `
 
 // ── メインコンテナ ──
