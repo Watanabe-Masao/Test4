@@ -20,7 +20,7 @@ import {
   extractImports,
   isCommentLine,
   stripStrings,
-} from './guardTestHelpers'
+} from '../guardTestHelpers'
 
 // ─── 3-A: Domain 純粋性ガード ────────────────────────────
 

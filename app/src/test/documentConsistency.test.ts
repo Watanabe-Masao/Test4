@@ -332,9 +332,14 @@ describe('Role protocol bidirectional consistency', () => {
 describe('@guard tag consistency', () => {
   /** 制約テスト（Guard）として分類されるファイル */
   const GUARD_TEST_FILES = [
-    'architectureGuard.test.ts',
-    'hookComplexityGuard.test.ts',
-    'domainPurityGuard.test.ts',
+    // guards/ ディレクトリ（旧 architectureGuard, hookComplexityGuard, domainPurityGuard を分割）
+    'guards/layerBoundaryGuard.test.ts',
+    'guards/presentationIsolationGuard.test.ts',
+    'guards/structuralConventionGuard.test.ts',
+    'guards/codePatternGuard.test.ts',
+    'guards/sizeGuard.test.ts',
+    'guards/purityGuard.test.ts',
+    // 単一関心事のガード（分割不要）
     'comparisonMigrationGuard.test.ts',
     'scopeConsistencyGuard.test.ts',
     'designSystemGuard.test.ts',
@@ -444,6 +449,9 @@ describe('@guard tag consistency', () => {
       'F8', // 独立互換で正本を汚さない — レビューで検証
       'G2', // エラーは伝播 — レビューで検証
       'G3', // コンパイラ警告を黙らせない — noUnusedLocals で検証
+      'A5', // DI はコンポジションルート — レビューで検証
+      'C7', // 同義 API/action の併存禁止 — レビューで検証
+      'G7', // キャッシュは本体より複雑にしない — レビューで検証
     ])
 
     const unused = [...registryIds]

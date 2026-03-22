@@ -6,7 +6,9 @@
 
 | テストファイル | 管理ロール | ルール数 | 保護対象 |
 |---|---|---|---|
-| `app/src/test/architectureGuard.test.ts` | architecture | 21件 | 4層境界、許可リスト（増加防止含む）、ビジネス関数アクセス、CQRS境界、Migration Countdown |
+| `app/src/test/guards/layerBoundaryGuard.test.ts` | architecture | 11件 | 4層依存、許可リスト上限・実在確認 |
+| `app/src/test/guards/presentationIsolationGuard.test.ts` | architecture | 11件 | Presentation制約、CQRS境界、DuckDB Migration |
+| `app/src/test/guards/structuralConventionGuard.test.ts` | architecture | 7件 | 縦スライス、プロトタイプ、バレル移行、ctx重複 |
 | `app/src/domain/calculations/__tests__/calculationRules.test.ts` | invariant-guardian | 7件 | safeDivide, calculateTransactionValue, overflowDay, fmtSen, formatPercent, toPct |
 | `app/src/presentation/components/charts/__tests__/divisorRules.test.ts` | invariant-guardian | 8件 | computeDivisor, filterByStore, countDistinctDays, 正規ロケーション, 網羅性 |
 | `app/src/domain/calculations/__tests__/factorDecomposition.test.ts` | invariant-guardian | 30件 | シャープリー恒等式（2/3/5要素）、2↔3↔5 一貫性 |
@@ -16,15 +18,16 @@
 | `app/src/domain/calculations/__tests__/dowGapAnalysis.test.ts` | invariant-guardian | — | 曜日ギャップ分析の不変条件 |
 | `app/src/domain/calculations/__tests__/formulaRegistry.test.ts` | invariant-guardian | — | 計算式レジストリの整合性 |
 | `app/src/test/documentConsistency.test.ts` | documentation-steward | 12件 | 不変条件カタログ↔ガードテスト相互参照、エンジン責務↔実コード、CLAUDE.md 参照パス |
-| `app/src/test/hookComplexityGuard.test.ts` | architecture | 17件 | R1-R3,R5,R7,R10-R12: 純粋モジュール自動検出、useMemo/useState上限、行数制限（汎用上限方式）、facade分岐制限、副作用チェーン検出 |
-| `app/src/test/domainPurityGuard.test.ts` | architecture | 10件 | Domain純粋性、Presentation描画専用、Engine境界、率再計算禁止(#10)、facade責務混在検出、許可リスト増加防止 |
+| `app/src/test/guards/codePatternGuard.test.ts` | architecture | 8件 | R1-R3,R7,R10: 純粋モジュール、@internal禁止、store算術禁止、副作用チェーン |
+| `app/src/test/guards/sizeGuard.test.ts` | architecture | 9件 | R5,R11,R12: サイズ上限、facade分岐制限、層別行数制限 |
+| `app/src/test/guards/purityGuard.test.ts` | architecture | 10件 | Domain純粋性、Presentation描画専用、Engine境界、率再計算禁止、facade責務混在、許可リスト増加防止 |
 | `app/src/test/comparisonMigrationGuard.test.ts` | architecture | 9件 | 旧 day/offset 比較パターン禁止、ComparisonFrame 新規使用禁止、dailyMapping 独自変換禁止 |
 | `app/src/domain/models/__tests__/ComparisonScopeInvariant.test.ts` | invariant-guardian | 3件 | ComparisonScope 意味論（候補窓、位置ベース、1:1対応） |
 | `app/src/application/comparison/__tests__/sameDowPoint.test.ts` | invariant-guardian | 7件 | SameDowPoint sourceDate 保持、月跨ぎ・年跨ぎ、合計整合性 |
 
 ## ルール → テスト対応
 
-### architectureGuard.test.ts（architecture ロール管理）
+### layerBoundaryGuard / presentationIsolationGuard / structuralConventionGuard（旧 architectureGuard を分割）
 
 | ルール ID | 検証内容 | 不変条件 ID |
 |---|---|---|
@@ -105,7 +108,7 @@
 | explanation.value = safeDivide(sales, budget) | INV-EXPL-04 |
 | 無効入力 → 空 Map | INV-EXPL-05 |
 
-### hookComplexityGuard.test.ts（architecture ロール管理）
+### codePatternGuard / sizeGuard（旧 hookComplexityGuard を分割）
 
 per-file tracking を廃止し、層別汎用上限 + 除外リスト方式に移行済み。
 純粋モジュールチェックはファイル名パターン自動検出（`*Logic.ts`, `*.vm.ts`, `*Reducer.ts`, `*Builders.ts`）。
@@ -128,7 +131,7 @@ Presentation Tier 登録制は廃止し、全 .tsx に 600行上限を適用。
 | R5 | facade ファイルの if/switch ≤5 | — |
 | R2 | useEffect 内の fetch→store→cache 密結合禁止 | — |
 
-### domainPurityGuard.test.ts（architecture ロール管理）
+### purityGuard（旧 domainPurityGuard を移動）
 
 CLAUDE.md の設計原則・禁止事項のうち、import ベースでカバーされない
 コード内容ベースの構造制約を機械化。
