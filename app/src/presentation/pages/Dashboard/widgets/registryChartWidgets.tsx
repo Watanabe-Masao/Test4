@@ -1,8 +1,8 @@
 import {
   IntegratedSalesChart,
+  IntegratedCategoryAnalysis,
   GrossProfitAmountChart,
   DiscountTrendChart,
-  CategoryHierarchyExplorer,
   SalesPurchaseComparisonChart,
 } from '@/presentation/components/charts'
 import { fromDateKey } from '@/domain/models/CalendarDate'
@@ -10,7 +10,6 @@ import type { WidgetDef } from './types'
 import {
   UnifiedTimeSlotWidget,
   UnifiedHeatmapWidget,
-  UnifiedDeptHourlyWidget,
   UnifiedStoreHourlyWidget,
 } from './UnifiedAnalyticsWidgets'
 import { isTimeSeriesVisible, isStoreComparisonVisible } from './widgetVisibility'
@@ -108,16 +107,16 @@ export const WIDGETS_CHART: readonly WidgetDef[] = [
   // 注: 予算差・前年差推移 → BudgetVsActualChart「前年差」ビューに統合
   // 注: 日別客数推移 → DailySalesChart「客数」ビューに統合
   // 注: 日別客単価推移 → DailySalesChart「客単価」ビューに統合
-  // ── チャート: 分類別時間帯売上 ──
+  // ── カテゴリ分析ユニット（包含型: カテゴリ別売上推移 + カテゴリードリルダウン分析） ──
   {
-    id: 'chart-category-hierarchy-explorer',
-    label: '階層ドリルダウン分析',
+    id: 'chart-category-analysis',
+    label: 'カテゴリ分析',
     group: '構造分析',
     size: 'full',
     linkTo: { view: 'category' },
     isVisible: (ctx) => ctx.duckDataVersion > 0,
     render: (ctx) => (
-      <CategoryHierarchyExplorer
+      <IntegratedCategoryAnalysis
         duckConn={ctx.duckConn}
         duckDataVersion={ctx.duckDataVersion}
         currentDateRange={ctx.currentDateRange}
@@ -145,14 +144,7 @@ export const WIDGETS_CHART: readonly WidgetDef[] = [
     isVisible: isTimeSeriesVisible,
     render: (ctx) => <UnifiedHeatmapWidget ctx={ctx} />,
   },
-  {
-    id: 'chart-dept-hourly-pattern',
-    label: '部門別時間帯パターン',
-    group: '構造分析',
-    size: 'full',
-    isVisible: isTimeSeriesVisible,
-    render: (ctx) => <UnifiedDeptHourlyWidget ctx={ctx} />,
-  },
+  // 注: 部門別時間帯パターン → IntegratedSalesChart の孫に統合（ドリル時に包含表示）
   {
     id: 'chart-store-timeslot-comparison',
     label: '店舗別時間帯比較',

@@ -71,7 +71,9 @@ const WIDGET_ID_MIGRATION: ReadonlyMap<string, string> = new Map([
   // PLAN/ACTUAL/FORECAST → exec-forecast-tools に統合
   ['exec-plan-actual-forecast', 'exec-forecast-tools'],
   // カテゴリ偏り → chart-category-hierarchy-explorer に統合
-  ['chart-category-pie', 'chart-category-hierarchy-explorer'],
+  ['chart-category-pie', 'chart-category-analysis'],
+  ['chart-category-hierarchy-explorer', 'chart-category-analysis'],
+  ['chart-dept-hourly-pattern', 'chart-daily-sales'],
   // 部門別KPIトレンド → exec-department-kpi に統合
   ['analysis-duckdb-dept-trend', 'exec-department-kpi'],
 ])
@@ -154,10 +156,11 @@ function isDuckDBOnlyWidget(id: string): boolean {
 const DUCKDB_TIMESERIES_WIDGET_IDS = new Set([
   'chart-timeslot-sales',
   'chart-timeslot-heatmap',
-  'chart-dept-hourly-pattern',
+  'chart-category-analysis',
+  // 注: chart-dept-hourly-pattern → IntegratedSalesChart 孫に統合
+  // 注: chart-category-hierarchy-explorer → IntegratedCategoryAnalysis に統合
   'chart-store-timeslot-comparison',
   'analysis-yoy-variance',
-  'chart-category-hierarchy-explorer',
   'analysis-category-pi',
 ])
 

@@ -46,7 +46,7 @@ describe('autoInjectDataWidgets', () => {
     expect(result).not.toBeNull()
     expect(result!).toContain('chart-timeslot-sales')
     expect(result!).toContain('chart-timeslot-heatmap')
-    expect(result!).toContain('chart-category-hierarchy-explorer')
+    expect(result!).toContain('chart-category-analysis')
   })
 
   it('既存レイアウトのウィジェットは保持される', () => {

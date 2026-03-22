@@ -158,7 +158,7 @@ describe('ウィジェットレジストリの DuckDB エントリ', () => {
   const unifiedWidgetIds = [
     'chart-timeslot-sales',
     'chart-timeslot-heatmap',
-    'chart-dept-hourly-pattern',
+    // 注: chart-dept-hourly-pattern → IntegratedSalesChart 孫に統合
     'chart-store-timeslot-comparison',
     'analysis-yoy-variance',
   ]
@@ -185,7 +185,7 @@ describe('ウィジェットレジストリの DuckDB エントリ', () => {
   it('統合ウィジェットが UnifiedAnalyticsWidgets を使用している', () => {
     expect(registryContent).toContain('UnifiedTimeSlotWidget')
     expect(registryContent).toContain('UnifiedHeatmapWidget')
-    expect(registryContent).toContain('UnifiedDeptHourlyWidget')
+    // 注: UnifiedDeptHourlyWidget → IntegratedSalesChart 孫に統合
     expect(registryContent).toContain('UnifiedStoreHourlyWidget')
     expect(registryContent).toContain('UnifiedYoYWidget')
   })
