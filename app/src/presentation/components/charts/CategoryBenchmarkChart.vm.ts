@@ -3,6 +3,8 @@
  *
  * 状態管理・データ変換・計算・定数定義を集約。
  * .tsx 側は描画のみに集中する。
+ *
+ * @guard F7 View は ViewModel のみ受け取る
  */
 import { useState, useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'

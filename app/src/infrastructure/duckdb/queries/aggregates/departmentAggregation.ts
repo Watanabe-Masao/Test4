@@ -60,7 +60,7 @@ export interface DepartmentAggregationRow {
  * 部門別集約サマリー行
  *
  * 率の加重平均は SQL 内で完結させず、加重合計（numerator）のみ返す。
- * 最終的な率の算出は TS 側で domain/calculations を経由する（禁止事項 #10）。
+ * 最終的な率の算出は TS 側で domain/calculations を経由する（@guard B3）。
  */
 export interface DepartmentAggregationSummaryRow {
   readonly deptCount: number

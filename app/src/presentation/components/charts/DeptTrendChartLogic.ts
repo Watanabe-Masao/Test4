@@ -7,6 +7,8 @@
  * 責務:
  *   - 部門別×月別のクロス集計
  *   - 粗利率・売上の月次チャートデータ構築
+ *
+ * @guard G5 hook ≤300行 — 純粋関数を分離
  */
 import type { DeptKpiMonthlyTrendRow } from '@/application/hooks/useDuckDBQuery'
 

@@ -16,7 +16,7 @@ import {
   calculateGrossProfitRate,
 } from '@/domain/calculations/utils'
 
-// 型定義は domain/models/DepartmentKpiIndex.ts に移動済み（禁止事項 #12）。
+// 型定義は domain/models/DepartmentKpiIndex.ts に移動済み（@guard A4）。
 // 後方互換のため re-export を維持。
 export type { DepartmentKpiSummary, DepartmentKpiIndex } from '@/domain/models/DepartmentKpiIndex'
 import type { DepartmentKpiSummary, DepartmentKpiIndex } from '@/domain/models/DepartmentKpiIndex'

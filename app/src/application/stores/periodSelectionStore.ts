@@ -18,6 +18,8 @@
  * - プリセット変更時: period2 を自動算出
  * - 期間-1 スライダーを動かしても期間-2 は連動しない（自由選択）
  * - プリセット使用時のみ連動
+ *
+ * @guard C3 store は state 反映のみ
  */
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'

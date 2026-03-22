@@ -1,17 +1,10 @@
 /**
- * アーキテクチャガードテスト — domain / infrastructure / presentation 計算ロジックの設計ルール準拠検証
+ * 計算ルールガードテスト — 設計ルール準拠検証
  *
- * このテストはソースコードの**構造**を検査し、設計ルール違反を自動検出する。
- * CIで守られていないパターンを自動的に弾く。
+ * ソースコードの構造を検査し、計算ロジックの設計ルール違反を自動検出する。
  *
- * 検出する違反:
- *   RULE-D1: domain/calculations 内のインライン除算（safeDivide 未使用）
- *   RULE-D2: domain/calculations 内のインライン客単価計算（calculateTransactionValue 未使用）
- *   RULE-I1: overflow day ロジックの重複（overflowDay.ts 未使用）
- *   RULE-P1: presentation 層でのインライン客単価計算（calculateTransactionValue 未使用）
- *   RULE-P2: fmtSen ヘルパーの重複定義（drilldownUtils.ts からの import を強制）
- *   RULE-P3: Dashboard widgets 内のインラインパーセント書式（formatPercent 未使用）
- *   RULE-C1: Chart files 内のインラインパーセント書式（toPct 未使用）
+ * @guard B1 Authoritative 計算は domain/calculations のみ
+ * @guard C2 pure function は1仕様軸に閉じる
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

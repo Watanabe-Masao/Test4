@@ -2,7 +2,8 @@
  * ウォーターフォール部門別増減データ整合性テスト
  *
  * 不変条件: buildCategoryData の残差は同一データソースから計算されるため 0 に近い。
- * 残差が大きい場合はデータソースの不整合を示す。
+ *
+ * @guard D1 要因分解の合計は売上差に完全一致
  */
 import { describe, it, expect } from 'vitest'
 import { buildCategoryData } from '@/presentation/pages/Dashboard/widgets/YoYWaterfallChart.data'

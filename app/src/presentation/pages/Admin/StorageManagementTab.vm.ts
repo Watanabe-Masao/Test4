@@ -3,6 +3,8 @@
  *
  * Pure functions for data transformation, formatting, and lookups.
  * No React or styled-components dependencies.
+ *
+ * @guard F7 View は ViewModel のみ受け取る
  */
 
 import type { MonthEntry } from './StorageDataViewers.types'

@@ -321,7 +321,7 @@ export function useDrilldownData(props: CategoryDrilldownProps) {
   const isAmountMode = metric === 'amount'
   // 売上金額モードかつ実績/前年データソースの場合、Excel由来の actual/cumSales にアンカーする。
   // CSV(categoryTimeSales) 合計は Excel(sales) と一致する保証がないため、
-  // 禁止事項2「引数を無視して別ソースから再計算してはならない」に従う。
+  // @guard D2「引数を無視して別ソースから再計算してはならない」に従う。
   const anchoredActual = compare === 'daily' ? actual : cumSales
   const anchoredPrev = compare === 'daily' ? pySales : cumPrevYear
   const displayTotal = isAmountMode

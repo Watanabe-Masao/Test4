@@ -1,18 +1,12 @@
 /**
- * アーキテクチャガードテスト — 計算ロジックの設計ルール準拠検証
+ * 除数ルールガードテスト — 計算ロジックの設計ルール準拠検証
  *
- * このテストはソースコードの**構造**を検査し、設計ルール違反を自動検出する。
+ * ソースコードの構造を検査し、設計ルール違反を自動検出する。
  * ロジックの正しさではなく「ルールを守っていれば正しく動作する」ことを保証する。
  *
- * 検出する違反:
- *   RULE-1: computeDivisor を経由しないインライン除数算出
- *   RULE-2: レガシー API (pf.divisor / pf.divideByMode) の使用
- *   RULE-3: カレンダーベース除数 (countDowInRange) の除数用途での使用
- *   RULE-4: computeDivisor 以外での 0除算ガード（二重防御は設計違反の兆候）
- *   RULE-5: filterByStore を経由しないインライン店舗フィルタ
- *   RULE-6: 一元管理された純粋関数を経由しない計算変数の組み立て
- *
- * 知らない人が独自の組み方でコードを書いた場合、このテストが落ちて検出する。
+ * @guard B1 Authoritative 計算は domain/calculations のみ
+ * @guard C2 pure function は1仕様軸に閉じる
+ * @see PeriodFilter.tsx — RULE-1〜6 の定義元
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

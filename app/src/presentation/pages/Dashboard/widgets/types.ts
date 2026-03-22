@@ -119,7 +119,7 @@ export interface WidgetContext {
   onPrevYearDetail: (type: 'sameDow' | 'sameDate') => void
   /** 通貨単位設定に連動するフォーマッタ（千円/円切替対応） */
   fmtCurrency: CurrencyFormatter
-  /** 前年店舗別仕入額（DuckDB UNION query 結果）。率ではなく額で持つ（禁止事項 #10） */
+  /** 前年店舗別仕入額（DuckDB UNION query 結果）。率ではなく額で持つ（@guard B3） */
   prevYearStoreCostPrice?: ReadonlyMap<string, { cost: number; price: number }>
   /** 天気データ（日別サマリ） */
   weatherDaily?: readonly DailyWeatherSummary[]

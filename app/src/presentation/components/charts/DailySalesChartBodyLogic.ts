@@ -3,6 +3,8 @@
  *
  * R12準拠: 600行上限のため、ヘルパー関数・定数を分離。
  * 右軸シリーズビルダーはモジュール化し、他チャートからも再利用可能。
+ *
+ * @guard G5 hook ≤300行 — 純粋関数を分離
  */
 import type { DailyWeatherSummary } from '@/domain/models/record'
 import { categorizeWeatherCode } from '@/domain/calculations/weatherAggregation'

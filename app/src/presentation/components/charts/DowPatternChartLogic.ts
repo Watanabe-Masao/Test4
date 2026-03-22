@@ -7,6 +7,8 @@
  * 責務:
  *   - 全店舗の曜日別売上を合算
  *   - 全曜日平均、最多/最少曜日、CV を算出
+ *
+ * @guard G5 hook ≤300行 — 純粋関数を分離
  */
 import type { DowPatternRow } from '@/application/hooks/useDuckDBQuery'
 import { coefficientOfVariation } from '@/domain/calculations/rawAggregation'

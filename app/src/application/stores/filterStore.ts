@@ -19,6 +19,8 @@
  * - dayRange: settingsStore.dataEndDay 変更時にリセット
  * - hierarchy: deptCode 変更時に lineCode/klassCode をリセット
  *             lineCode 変更時に klassCode をリセット
+ *
+ * @guard C3 store は state 反映のみ
  */
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'

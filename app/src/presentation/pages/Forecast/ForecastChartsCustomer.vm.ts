@@ -3,6 +3,8 @@
  *
  * チャートコンポーネントから data transformation / 計算ロジックを分離する。
  * React / styled-components に依存しない純粋関数群。
+ *
+ * @guard F7 View は ViewModel のみ受け取る
  */
 import {
   DOW_LABELS,

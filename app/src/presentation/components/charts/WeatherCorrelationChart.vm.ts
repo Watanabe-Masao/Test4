@@ -2,6 +2,8 @@
  * WeatherCorrelationChart ViewModel
  *
  * 相関分析結果を Recharts 描画データに変換する。
+ *
+ * @guard F7 View は ViewModel のみ受け取る
  */
 import type { DailyWeatherSummary } from '@/domain/models/record'
 import type { DailySalesForCorrelation } from '@/application/hooks/useWeatherCorrelation'

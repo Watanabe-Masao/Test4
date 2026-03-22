@@ -1,13 +1,17 @@
 /**
  * フック複雑度ガードテスト
  *
- * 過剰複雑性の12ルール（R1-R3, R5, R7, R10-R12）を機械的に検証する。
- * architectureGuard.test.ts と同じパターンでソースコードを静的解析する。
+ * 過剰複雑性ルールを機械的に検証する。
+ * ソースコードの静的解析でパターン違反・サイズ超過を検出する。
  *
- * 設計方針:
- * - 個別ファイルの行数追跡（per-file tracking）は行わない
- * - 層別の汎用上限 + 除外リストで管理する
- * - 純粋モジュールはファイル名パターンで自動検出する
+ * @guard C2 pure function は1仕様軸に閉じる
+ * @guard C3 store は state 反映のみ
+ * @guard C6 facade は orchestration のみ
+ * @guard C7 同義 API/action の併存禁止
+ * @guard G4 テスト用 export 禁止
+ * @guard G5 サイズ上限（hook ≤300行、useMemo ≤7、useState ≤6）
+ * @guard G6 コンポーネントサイズ上限（.tsx ≤600行）
+ * @guard G7 キャッシュは本体より複雑にしない
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

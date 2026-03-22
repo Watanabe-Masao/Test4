@@ -11,7 +11,7 @@
  *
  * ## 設計原則
  * - pure function（副作用なし）
- * - 整数演算のみ（率なし — 禁止事項#10）
+ * - 整数演算のみ（率なし — @guard B3 率は domain/calculations で算出）
  * - 仕様軸は「観測品質」の1つのみ（層内設計: pure function の原則）
  * - lastRecordedSalesDay は daily Map から導出（フィールドとして保持しない）
  */

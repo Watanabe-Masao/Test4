@@ -2,8 +2,8 @@
  * ドキュメント整合性テスト
  *
  * CLAUDE.md・roles/・references/ とコードベースの整合性を機械的に検証する。
- * 設計思想1「アーキテクチャの境界は人の注意力ではなく、機械で守る」の
- * ドキュメント版。
+ *
+ * @guard G1 ルールはテストに書く
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
@@ -324,5 +324,135 @@ describe('Role protocol bidirectional consistency', () => {
         expect(Object.keys(roleNameToPath)).toContain(counterpart)
       }
     }
+  })
+})
+
+// ─── @guard タグ整合性 ───────────────────────────────────
+
+describe('@guard tag consistency', () => {
+  /** 制約テスト（Guard）として分類されるファイル */
+  const GUARD_TEST_FILES = [
+    'architectureGuard.test.ts',
+    'hookComplexityGuard.test.ts',
+    'domainPurityGuard.test.ts',
+    'comparisonMigrationGuard.test.ts',
+    'scopeConsistencyGuard.test.ts',
+    'designSystemGuard.test.ts',
+    'documentConsistency.test.ts',
+    'scopeBoundaryInvariant.test.ts',
+    'waterfallDataIntegrity.test.ts',
+  ]
+
+  it('制約テストファイルに @guard タグが含まれる', () => {
+    const missing: string[] = []
+    for (const file of GUARD_TEST_FILES) {
+      const content = readFile(`app/src/test/${file}`)
+      if (!content.includes('@guard')) {
+        missing.push(file)
+      }
+    }
+    expect(missing, `@guard タグがないファイル:\n${missing.join('\n')}`).toEqual([])
+  })
+
+  it('@guard タグは GUARD_TAG_REGISTRY に登録済みの ID のみ使用する', () => {
+    // レジストリから有効な ID セットを構築
+    const registryContent = readFile('app/src/test/guardTestHelpers.ts')
+    const registryIds = new Set<string>()
+    const idPattern = /^\s+([A-G]\d+):/gm
+    let match
+    while ((match = idPattern.exec(registryContent)) !== null) {
+      registryIds.add(match[1])
+    }
+
+    // 全 .ts/.tsx ファイルから @guard タグを収集
+    const srcDir = path.join(ROOT_DIR, 'app/src')
+    const violations: string[] = []
+
+    function scanDir(dir: string) {
+      if (!fs.existsSync(dir)) return
+      const entries = fs.readdirSync(dir, { withFileTypes: true })
+      for (const entry of entries) {
+        const fullPath = path.join(dir, entry.name)
+        if (entry.isDirectory()) {
+          if (entry.name === 'node_modules' || entry.name === 'dist') continue
+          scanDir(fullPath)
+        } else if (/\.(ts|tsx)$/.test(entry.name)) {
+          const content = fs.readFileSync(fullPath, 'utf-8')
+          const guardMatches = content.matchAll(/\*\s+@guard\s+(\S+)/g)
+          for (const m of guardMatches) {
+            if (!registryIds.has(m[1])) {
+              const rel = path.relative(srcDir, fullPath)
+              violations.push(`${rel}: 未登録の guard ID "${m[1]}"`)
+            }
+          }
+        }
+      }
+    }
+    scanDir(srcDir)
+
+    expect(
+      violations,
+      `GUARD_TAG_REGISTRY に未登録のタグが使用されています:\n${violations.join('\n')}`,
+    ).toEqual([])
+  })
+
+  it('GUARD_TAG_REGISTRY の全タグがコードベースで少なくとも1回使用されている', () => {
+    const registryContent = readFile('app/src/test/guardTestHelpers.ts')
+    const registryIds = new Set<string>()
+    const idPattern = /^\s+([A-G]\d+):/gm
+    let match
+    while ((match = idPattern.exec(registryContent)) !== null) {
+      registryIds.add(match[1])
+    }
+
+    // 全ソースファイルから使用されている guard ID を収集
+    const srcDir = path.join(ROOT_DIR, 'app/src')
+    const usedIds = new Set<string>()
+
+    function scanDir(dir: string) {
+      if (!fs.existsSync(dir)) return
+      const entries = fs.readdirSync(dir, { withFileTypes: true })
+      for (const entry of entries) {
+        const fullPath = path.join(dir, entry.name)
+        if (entry.isDirectory()) {
+          if (entry.name === 'node_modules' || entry.name === 'dist') continue
+          scanDir(fullPath)
+        } else if (/\.(ts|tsx)$/.test(entry.name)) {
+          // guardTestHelpers.ts 自体は除外（レジストリ定義元）
+          if (entry.name === 'guardTestHelpers.ts') continue
+          const content = fs.readFileSync(fullPath, 'utf-8')
+          const guardMatches = content.matchAll(/@guard\s+([A-G]\d+)/g)
+          for (const m of guardMatches) {
+            usedIds.add(m[1])
+          }
+        }
+      }
+    }
+    scanDir(srcDir)
+
+    // 現時点でガードテスト未対応のタグ（レビューで検証する原則）
+    // タグ付与が進んだらここから削除し、テスト通過させる
+    const REVIEW_ONLY_TAGS = new Set([
+      'C1', // 1ファイル = 1変更理由 — レビューで検証
+      'C4', // 描画は純粋 — レビューで検証
+      'C5', // 最小セレクタ — レビューで検証
+      'E1', // 境界で検証 — Branded Type、レビューで検証
+      'E2', // 依存配列は省略しない — ESLint exhaustive-deps で検証
+      'E4', // 欠損判定は == null — 将来ガード化予定
+      'F3', // 全パターンに例外なし — レビューで検証
+      'F6', // チャート間データは文脈継承 — レビューで検証
+      'F8', // 独立互換で正本を汚さない — レビューで検証
+      'G2', // エラーは伝播 — レビューで検証
+      'G3', // コンパイラ警告を黙らせない — noUnusedLocals で検証
+    ])
+
+    const unused = [...registryIds]
+      .filter((id) => !usedIds.has(id) && !REVIEW_ONLY_TAGS.has(id))
+      .sort()
+    expect(
+      unused,
+      `未使用の guard タグ（コードベースに @guard 参照なし、REVIEW_ONLY にも未登録）:\n${unused.join(', ')}\n` +
+        'タグ付与するか REVIEW_ONLY_TAGS に登録してください。',
+    ).toEqual([])
   })
 })

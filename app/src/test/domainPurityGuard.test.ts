@@ -1,17 +1,14 @@
 /**
  * 構造純粋性ガードテスト
  *
- * CLAUDE.md の設計原則・禁止事項のうち、architectureGuard（import ベース）や
- * hookComplexityGuard（hook 複雑度ベース）でカバーされていない
- * 「コード内容ベースの構造制約」を機械的に検証する。
+ * コード内容ベースの構造制約を機械的に検証する。
  *
- * カテゴリ:
- * - Domain 純粋性（副作用API禁止、async禁止、catch握り潰し禁止）
- * - Presentation 描画専用（SQL埋め込み禁止、生データ参照禁止）
- * - Engine 境界（VM/Logic React-free、usecases React-free、DuckDB→domain禁止）
- * - 率の再計算禁止（禁止事項 #10 の機械化）
- * - facade/hook 責務混在検出
- * - 許可リスト増加防止
+ * @guard A2 Domain は純粋（副作用API禁止、async禁止）
+ * @guard A3 Presentation は描画専用（SQL埋め込み禁止）
+ * @guard A6 load 処理は3段階分離
+ * @guard B1 Authoritative 計算は domain/calculations のみ
+ * @guard B3 率は domain/calculations で算出
+ * @guard C6 facade は orchestration のみ
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

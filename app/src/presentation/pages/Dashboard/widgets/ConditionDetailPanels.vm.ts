@@ -3,6 +3,8 @@
  *
  * 元の913行ファイルをパネルグループ別に分割。
  * 共通型は conditionDetailTypes.ts に配置。
+ *
+ * @guard F7 View は ViewModel のみ受け取る
  */
 
 // ─── Re-export shared types ─────────────────────────────

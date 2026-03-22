@@ -143,7 +143,7 @@ export interface StoreCostPriceRow {
  *
  * purchase + special_sales + transfers を UNION し、
  * 全仕入カテゴリを合算した額を store_id 別に返す。
- * 率の計算は呼び出し元が domain/calculations 経由で行う（禁止事項 #10）。
+ * 率の計算は呼び出し元が domain/calculations 経由で行う（@guard B3）。
  */
 export async function queryStoreCostPrice(
   conn: AsyncDuckDBConnection,

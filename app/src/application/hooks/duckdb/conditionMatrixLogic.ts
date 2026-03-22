@@ -3,6 +3,8 @@
  *
  * useConditionMatrix から抽出。ConditionMatrixRow[] を
  * 5期間比較マトリクスに変換する純粋関数群。
+ *
+ * @guard G5 hook ≤300行 — 純粋関数を分離
  */
 import type { ConditionMatrixRow } from '@/infrastructure/duckdb'
 

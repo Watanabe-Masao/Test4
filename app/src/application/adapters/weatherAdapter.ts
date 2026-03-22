@@ -7,6 +7,9 @@
  * 変換責務:
  * - EtrnStation → precNo/blockNo/stationType の展開
  * - WeeklyForecastResult → DailyForecast[] の抽出
+ *
+ * @guard A1 application/adapters/ 経由で infrastructure にアクセス
+ * @see architectureGuard.test.ts
  */
 import {
   searchLocation,

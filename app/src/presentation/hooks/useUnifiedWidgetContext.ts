@@ -106,7 +106,7 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
   // DuckDB エンジン初期化
   const duck = useDuckDB(data, targetYear, targetMonth, repo)
 
-  // ── 前年店舗別仕入額（application hook 経由、額で保持 — 禁止事項 #10） ──
+  // ── 前年店舗別仕入額（application hook 経由、額で保持 — @guard B3） ──
   const { data: prevYearStoreCostPrice } = useStoreCostPriceQuery(
     duck.conn,
     duck.dataVersion,

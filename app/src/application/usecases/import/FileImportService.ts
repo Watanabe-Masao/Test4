@@ -10,7 +10,7 @@ export type { MonthPartitions } from '@/infrastructure/ImportService'
 export { createEmptyMonthPartitions } from '@/infrastructure/ImportService'
 
 // ─── Types ───────────────────────────────────────────────
-// 型定義は domain/models/ImportResult.ts に移動済み（禁止事項 #12）。
+// 型定義は domain/models/ImportResult.ts に移動済み（@guard A4）。
 // 後方互換のため re-export を維持。
 export type { FileImportResult, ImportSummary } from '@/domain/models/ImportResult'
 

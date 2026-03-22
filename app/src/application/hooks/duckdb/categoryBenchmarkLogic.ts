@@ -3,6 +3,8 @@
  *
  * useAdvancedQueries から抽出した純粋関数群。
  * 構成比ベースのスコア算出、タイプ分類、日別トレンド構築を担う。
+ *
+ * @guard G5 hook ≤300行 — 純粋関数を分離
  */
 import type {
   CategoryBenchmarkRow,

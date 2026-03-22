@@ -5,7 +5,7 @@
  * Presentation → Infrastructure の直接依存を解消する。
  *
  * 返すのは日別の原価/売価（額）。
- * 率の算出は domain/calculations に委譲する（禁止事項 #10）。
+ * 率の算出は domain/calculations に委譲する（@guard B3）。
  */
 import { useState, useEffect, useRef } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'

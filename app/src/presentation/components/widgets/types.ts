@@ -82,7 +82,7 @@ export interface UnifiedWidgetContext {
   readonly comparisonFrame?: ComparisonFrame
   readonly dowGap?: DowGapAnalysis
   readonly onPrevYearDetail?: (type: 'sameDow' | 'sameDate') => void
-  /** 前年店舗別仕入額（DuckDB UNION query 結果）。率ではなく額で持つ（禁止事項 #10） */
+  /** 前年店舗別仕入額（DuckDB UNION query 結果）。率ではなく額で持つ（@guard B3） */
   readonly prevYearStoreCostPrice?: ReadonlyMap<string, { cost: number; price: number }>
   /** 天気データ（日別サマリ） */
   readonly weatherDaily?: readonly import('@/domain/models/WeatherData').DailyWeatherSummary[]

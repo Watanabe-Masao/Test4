@@ -2,13 +2,10 @@
  * 比較サブシステム移行ガードテスト
  *
  * 旧 day/offset パターンの再発を CI で検出・禁止する。
- * architectureGuard.test.ts / hookComplexityGuard.test.ts と同じ静的解析パターン。
- *
- * ## 背景
- *
  * V2 比較サブシステム（ComparisonScope.alignmentMap + resolveComparisonRows）への
- * 移行中に、旧パターンの新規使用を防ぐ。既存の違反は許可リストで凍結し、
- * 許可リストサイズの増加を禁止する。
+ * 移行中に、旧パターンの新規使用を防ぐ。
+ *
+ * @guard E3 sourceDate を落とさない
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

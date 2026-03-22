@@ -3,6 +3,8 @@
  *
  * DuckDB の DailyCumulativeRow[] を受け取り、チャート描画用データに変換する。
  * React 非依存。副作用なし。
+ *
+ * @guard G5 hook ≤300行 — 純粋関数を分離
  */
 import type { DailyCumulativeRow } from '@/application/hooks/useDuckDBQuery'
 

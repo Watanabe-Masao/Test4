@@ -20,7 +20,7 @@ export interface StoreCostPriceQueryResult {
 /**
  * 前年店舗別仕入額を DuckDB から取得する。
  *
- * 額で保持し、率の算出は domain/calculations に委譲する（禁止事項 #10）。
+ * 額で保持し、率の算出は domain/calculations に委譲する（@guard B3）。
  */
 export function useStoreCostPriceQuery(
   conn: AsyncDuckDBConnection | null,

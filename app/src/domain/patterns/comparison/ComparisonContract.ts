@@ -1,7 +1,7 @@
 /**
  * ComparisonContract — 比較の横断的関心事を型で管理する
  *
- * 設計原則 #12: 横断的関心事は Contract で管理
+ * @guard F5 横断的関心事は Contract で管理
  *
  * 新しい比較モードを追加する場合の変更箇所を限定する:
  *   1. AlignmentPolicy に新モード追加

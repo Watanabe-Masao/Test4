@@ -8,6 +8,8 @@
  *   - カテゴリ別合計額ランキング
  *   - 日別×カテゴリのクロス集計
  *   - 除外コードのフィルタリング
+ *
+ * @guard G5 hook ≤300行 — 純粋関数を分離
  */
 import type { CategoryDailyTrendRow } from '@/application/hooks/useDuckDBQuery'
 

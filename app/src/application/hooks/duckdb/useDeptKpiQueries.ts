@@ -2,7 +2,7 @@
  * 部門KPIクエリフック群
  *
  * SQL は加重合計（numerator）のみ返し、
- * 率の算出は domain/calculations の safeDivide 経由で行う（禁止事項 #10）。
+ * 率の算出は domain/calculations の safeDivide 経由で行う（@guard B3）。
  */
 import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'

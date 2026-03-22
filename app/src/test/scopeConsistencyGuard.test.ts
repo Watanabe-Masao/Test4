@@ -3,15 +3,10 @@
  *
  * 前年日付範囲の独自計算（year - 1 等）を CI で検出する。
  * 前年スコープは ComparisonScope / ComparisonFrame / resolvePrevDate 経由で
- * 一元的に解決すべきであり、消費者が独自に再計算すると
- * 同曜日比較の月跨ぎや閏年境界で不整合が生じる。
+ * 一元的に解決すべき。消費者が独自に再計算すると月跨ぎ・閏年境界で不整合が生じる。
  *
- * ## 背景
- * - buildWeatherMap が dowOffset の日番号算術で月跨ぎデータを消失
- * - resolveDayDetailRanges が cumPrevRange を day:1 からハードコードし
- *   同曜日モードで日数超過
- *
- * これらは全て「ヘッダが決定したスコープを使わず独自に再計算した」ことが原因。
+ * @guard E3 sourceDate を落とさない
+ * @guard D2 引数を無視して再計算しない
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

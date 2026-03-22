@@ -3,11 +3,15 @@
  *
  * レイヤー間の依存ルールをソースコードの import 文をスキャンして検証する。
  *
- * ルール:
- * - domain/ → 外部層へのインポートなし
- * - application/ → infrastructure/ へのインポートは許可リストのみ
- * - presentation/ → infrastructure/ へのインポートなし
- * - App.tsx（コンポジションルート）は例外として infrastructure を直接参照可能
+ * @guard A1 4層依存ルール
+ * @guard A2 Domain は純粋
+ * @guard A3 Presentation は描画専用
+ * @guard A4 取得対象の契約は Domain で定義
+ * @guard A5 DI はコンポジションルート
+ * @guard B2 JS/SQL 二重実装禁止（CQRS）
+ * @guard F1 バレルで後方互換
+ * @guard F4 配置はパスで決まる
+ * @guard F9 Raw データは唯一の真実源
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

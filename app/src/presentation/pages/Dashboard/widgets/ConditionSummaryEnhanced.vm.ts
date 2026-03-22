@@ -3,6 +3,8 @@
  *
  * WidgetContext + StoreResult から店別予算達成メトリクスを導出する純粋関数群。
  * Presentation 層の描画ロジックからデータ変換を分離する（原則#9: 描画は純粋）。
+ *
+ * @guard F7 View は ViewModel のみ受け取る
  */
 
 import {
@@ -244,7 +246,7 @@ export interface BuildRowsInput {
   readonly daysInMonth: number
   readonly prevYear: PrevYearData
   readonly prevYearMonthlyKpi: PrevYearMonthlyKpi
-  /** 前年店舗別仕入額（DuckDB UNION query 結果、額で持つ — 禁止事項 #10） */
+  /** 前年店舗別仕入額（DuckDB UNION query 結果、額で持つ — @guard B3） */
   readonly prevYearStoreCostPrice?: ReadonlyMap<string, { cost: number; price: number }>
 }
 
