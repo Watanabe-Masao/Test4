@@ -8,29 +8,25 @@
  */
 import { useState, useMemo, memo } from 'react'
 import { toPct, useCurrencyFormat } from './chartTheme'
-import { categorizeWeatherCode } from '@/domain/calculations/weatherAggregation'
 import { TabGroup, Tab, MiniTable, MiniTh, MiniTd } from './TimeSlotSalesChart.styles'
 
 type MetricToggle = 'amount' | 'quantity'
-
-const WEATHER_ICONS: Record<string, string> = {
-  sunny: '\u2600\uFE0F',
-  cloudy: '\u2601\uFE0F',
-  rainy: '\uD83C\uDF27\uFE0F',
-  snowy: '\u2744\uFE0F',
-  other: '\uD83C\uDF00',
-}
 
 interface ChartRow {
   readonly [key: string]: string | number | null
 }
 
-/** 天気時間帯平均データ */
-export interface WeatherHourlyAvg {
+/** 時間帯別天気の表示モデル（weatherCode は domain で解決済み） */
+export interface WeatherHourlyDisplay {
   readonly hour: number
   readonly avgTemperature: number
   readonly totalPrecipitation: number
-  readonly weatherCode?: number | null
+  /** domain 層で変換済みのアイコン文字。null = データなし */
+  readonly icon: string | null
+  /** domain 層で変換済みのラベル（"晴れ" 等）。null = データなし */
+  readonly label: string | null
+  /** ツールチップに表示する天気詳細テキスト（午前/午後サマリ等） */
+  readonly tooltip?: string
 }
 
 interface Props {
@@ -64,8 +60,8 @@ function buildCols(data: readonly ChartRow[], metric: MetricToggle, hasPrev: boo
 }
 
 function weatherByHour(
-  data: readonly WeatherHourlyAvg[] | undefined,
-): ReadonlyMap<number, WeatherHourlyAvg> {
+  data: readonly WeatherHourlyDisplay[] | undefined,
+): ReadonlyMap<number, WeatherHourlyDisplay> {
   if (!data) return new Map()
   return new Map(data.map((w) => [w.hour, w]))
 }
@@ -180,8 +176,8 @@ interface WeatherTableProps {
   readonly curLabel?: string
   readonly compLabel: string
   readonly hasPrev: boolean
-  readonly curWeather?: readonly WeatherHourlyAvg[]
-  readonly prevWeather?: readonly WeatherHourlyAvg[]
+  readonly curWeather?: readonly WeatherHourlyDisplay[]
+  readonly prevWeather?: readonly WeatherHourlyDisplay[]
   readonly gridLeft?: number
   readonly gridRight?: number
 }
@@ -200,22 +196,16 @@ export const TimeSlotWeatherTable = memo(function TimeSlotWeatherTable({
   const hasWeather = curW.size > 0
   const hasPrevWeather = hasWeather && hasPrev && prevW.size > 0
 
-  const hasWeatherCodes = useMemo(
-    () => curWeather?.some((w) => w.weatherCode != null) ?? false,
+  const hasIcons = useMemo(
+    () => curWeather?.some((w) => w.icon != null) ?? false,
     [curWeather],
   )
-  const hasPrevWeatherCodes = useMemo(
-    () => prevWeather?.some((w) => w.weatherCode != null) ?? false,
+  const hasPrevIcons = useMemo(
+    () => prevWeather?.some((w) => w.icon != null) ?? false,
     [prevWeather],
   )
 
-  const weatherIcon = (w: WeatherHourlyAvg | undefined): string => {
-    if (!w?.weatherCode) return ''
-    const cat = categorizeWeatherCode(w.weatherCode)
-    return WEATHER_ICONS[cat] ?? ''
-  }
-
-  if (!hasWeather || !hasWeatherCodes) return null
+  if (!hasWeather || !hasIcons) return null
 
   return (
     <div style={{ overflowX: 'auto' }}>
@@ -234,22 +224,30 @@ export const TimeSlotWeatherTable = memo(function TimeSlotWeatherTable({
             {hours.map((h) => {
               const w = curW.get(parseInt(h, 10) || 0)
               return (
-                <MiniTd key={h} style={{ textAlign: 'center', fontSize: '0.8rem' }}>
-                  {weatherIcon(w)}
+                <MiniTd
+                  key={h}
+                  style={{ textAlign: 'center', fontSize: '0.8rem', cursor: w?.tooltip ? 'help' : undefined }}
+                  title={w?.tooltip}
+                >
+                  {w?.icon ?? ''}
                 </MiniTd>
               )
             })}
             <MiniTd></MiniTd>
           </tr>
           {/* 前年天気アイコン */}
-          {hasPrevWeather && hasPrevWeatherCodes && (
+          {hasPrevWeather && hasPrevIcons && (
             <tr>
               <MiniTd style={{ fontWeight: 600, textAlign: 'left' }}>{compLabel}天気</MiniTd>
               {hours.map((h) => {
                 const w = prevW.get(parseInt(h, 10) || 0)
                 return (
-                  <MiniTd key={h} style={{ textAlign: 'center', fontSize: '0.8rem' }}>
-                    {weatherIcon(w)}
+                  <MiniTd
+                    key={h}
+                    style={{ textAlign: 'center', fontSize: '0.8rem', cursor: w?.tooltip ? 'help' : undefined }}
+                    title={w?.tooltip}
+                  >
+                    {w?.icon ?? ''}
                   </MiniTd>
                 )
               })}

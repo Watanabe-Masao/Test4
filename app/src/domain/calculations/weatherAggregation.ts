@@ -75,11 +75,14 @@ function aggregateOneDay(
     codeCounts.set(r.weatherCode, (codeCounts.get(r.weatherCode) ?? 0) + 1)
   }
 
-  // 最頻出の weather code
-  let dominantCode = 0
+  // 最頻出の weather code（同数時は深刻な天気を優先）
+  let dominantCode = records[0].weatherCode
   let maxCount = 0
   for (const [code, count] of codeCounts) {
-    if (count > maxCount) {
+    if (
+      count > maxCount ||
+      (count === maxCount && weatherSeverity(code) > weatherSeverity(dominantCode))
+    ) {
       maxCount = count
       dominantCode = code
     }
@@ -99,6 +102,27 @@ function aggregateOneDay(
 }
 
 /**
+ * 天気カテゴリの深刻度。代表天気の同数タイブレークに使用する。
+ *
+ * 値が大きいほど深刻（ユーザーの体感: 雪 > 雨 > 曇り > 晴れ）。
+ * 「晴れ12時間 + 雨12時間」のとき、雨を代表天気とする方がユーザー認知に合う。
+ */
+const WEATHER_SEVERITY: Readonly<Record<WeatherCategory, number>> = {
+  sunny: 0,
+  cloudy: 1,
+  rainy: 2,
+  snowy: 3,
+  other: 0,
+}
+
+/**
+ * 天気コードの深刻度を返す（タイブレーク用）。
+ */
+function weatherSeverity(code: number): number {
+  return WEATHER_SEVERITY[categorizeWeatherCode(code)] ?? 0
+}
+
+/**
  * WMO Weather Interpretation Code を天気カテゴリに分類する。
  *
  * @see WMO Weather interpretation codes (WMO-4677)
@@ -113,6 +137,64 @@ function aggregateOneDay(
  * 85-86: Snow showers
  * 95-99: Thunderstorm
  */
+/** WeatherCategory の日本語ラベル */
+const WEATHER_LABELS: Readonly<Record<WeatherCategory, string>> = {
+  sunny: '晴れ',
+  cloudy: '曇り',
+  rainy: '雨',
+  snowy: '雪',
+  other: '不明',
+}
+
+/** WeatherCategory のアイコン（絵文字） */
+const WEATHER_CATEGORY_ICONS: Readonly<Record<WeatherCategory, string>> = {
+  sunny: '☀️',
+  cloudy: '☁️',
+  rainy: '🌧️',
+  snowy: '❄️',
+  other: '🌀',
+}
+
+/** weatherCode を表示に必要な情報に変換した結果 */
+export interface WeatherDisplayInfo {
+  readonly category: WeatherCategory
+  readonly icon: string
+  readonly label: string
+}
+
+/**
+ * WMO 天気コードを表示用モデルに変換する。
+ *
+ * Domain 層で weatherCode の意味解釈を完結させ、
+ * UI が weatherCode の数値を直接判定しなくて済むようにする。
+ *
+ * @param code WMO 天気コード。null なら欠損（データなし）。
+ * @returns 表示情報。code が null なら null を返す。
+ */
+export function toWeatherDisplay(code: number | null | undefined): WeatherDisplayInfo | null {
+  if (code == null) return null
+  const category = categorizeWeatherCode(code)
+  return {
+    category,
+    icon: WEATHER_CATEGORY_ICONS[category],
+    label: WEATHER_LABELS[category],
+  }
+}
+
+/**
+ * WeatherCategory のラベルを取得する。
+ */
+export function weatherCategoryLabel(cat: WeatherCategory): string {
+  return WEATHER_LABELS[cat]
+}
+
+/**
+ * WeatherCategory のアイコンを取得する。
+ */
+export function weatherCategoryIcon(cat: WeatherCategory): string {
+  return WEATHER_CATEGORY_ICONS[cat]
+}
+
 export function categorizeWeatherCode(code: number): WeatherCategory {
   if (code === 0) return 'sunny'
   if (code <= 3) return code === 1 ? 'sunny' : 'cloudy'

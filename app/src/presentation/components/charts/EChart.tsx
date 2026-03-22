@@ -162,6 +162,25 @@ export const EChart = memo(function EChart({
   const theme = useTheme() as AppTheme
   const themeName = ensureThemeRegistered(theme)
 
+  // リサイズ対応（containerRef に紐づけるため初期化より先に設定）
+  const observerRef = useRef<ResizeObserver | null>(null)
+
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+
+    const observer = new ResizeObserver(() => {
+      chartRef.current?.resize()
+    })
+    observer.observe(container)
+    observerRef.current = observer
+
+    return () => {
+      observer.disconnect()
+      observerRef.current = null
+    }
+  }, [])
+
   // 初期化 + option 更新
   useEffect(() => {
     if (!containerRef.current) return
@@ -184,28 +203,11 @@ export const EChart = memo(function EChart({
       { notMerge: true },
     )
 
-    return () => {
-      // コンポーネントアンマウント時に破棄
-    }
-  }, [option, themeName])
-
-  // リサイズ対応
-  useEffect(() => {
-    const chart = chartRef.current
-    if (!chart) return
-
-    const observer = new ResizeObserver(() => {
-      chart.resize()
+    // 初期化直後にリサイズを実行し、レイアウト確定後のサイズを反映
+    requestAnimationFrame(() => {
+      chartRef.current?.resize()
     })
-
-    if (containerRef.current) {
-      observer.observe(containerRef.current)
-    }
-
-    return () => {
-      observer.disconnect()
-    }
-  }, [])
+  }, [option, themeName])
 
   // テーマ変更時に再初期化
   useEffect(() => {

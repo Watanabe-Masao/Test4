@@ -103,4 +103,29 @@ describe('buildWeatherMap', () => {
     const map = buildWeatherMap([], 1, '2025-02-02')
     expect(map.size).toBe(0)
   })
+
+  describe('weatherCode=0（晴天）の取り扱い', () => {
+    it('dominantWeatherCode=0 でも sunny アイコンがマッピングされる', () => {
+      const data = [makeSummary('2026-03-01', 0)]
+      const map = buildWeatherMap(data, 0)
+      expect(map.has(1)).toBe(true)
+      expect(map.get(1)?.category).toBe('sunny')
+      expect(map.get(1)?.icon).toBe('☀')
+    })
+
+    it('code=0 と code=1 は同じ sunny カテゴリになる', () => {
+      const data = [makeSummary('2026-03-01', 0), makeSummary('2026-03-02', 1)]
+      const map = buildWeatherMap(data, 0)
+      expect(map.get(1)?.category).toBe('sunny')
+      expect(map.get(2)?.category).toBe('sunny')
+    })
+
+    it('code=0 のデータが欠損扱いされない（icon が空文字でない）', () => {
+      const data = [makeSummary('2026-03-15', 0)]
+      const map = buildWeatherMap(data, 0)
+      const info = map.get(15)
+      expect(info).toBeDefined()
+      expect(info?.icon).not.toBe('')
+    })
+  })
 })

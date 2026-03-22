@@ -34,6 +34,7 @@ import {
 import { HierarchySelect, ErrorMsg } from './TimeSlotChart.styles'
 import { useDuckDBTimeSlotData } from './useDuckDBTimeSlotData'
 import { TimeSlotComparisonTable, TimeSlotWeatherTable } from './TimeSlotComparisonTable'
+import { toWeatherHourlyDisplayList } from './TimeSlotWeatherLogic'
 import { CategoryTimeHeatmap } from './CategoryTimeHeatmap'
 import { ChartSkeleton } from '@/presentation/components/common/feedback'
 import { EmptyState } from '@/presentation/components/common/layout'
@@ -125,25 +126,13 @@ export const TimeSlotChart = memo(function TimeSlotChart({
 
   const showPrev = d.hasPrev && d.showPrev
 
-  // 天気データをテーブル用に変換（weatherCode を含む）
+  // 天気データを表示モデルに変換（weatherCode の解釈は domain 層で完結）
   const curWeatherForTable = useMemo(
-    () =>
-      d.curWeatherAvg?.map((w) => ({
-        hour: w.hour,
-        avgTemperature: w.avgTemperature,
-        totalPrecipitation: w.totalPrecipitation,
-        weatherCode: w.weatherCode,
-      })),
+    () => toWeatherHourlyDisplayList(d.curWeatherAvg),
     [d.curWeatherAvg],
   )
   const prevWeatherForTable = useMemo(
-    () =>
-      d.prevWeatherAvg?.map((w) => ({
-        hour: w.hour,
-        avgTemperature: w.avgTemperature,
-        totalPrecipitation: w.totalPrecipitation,
-        weatherCode: w.weatherCode,
-      })),
+    () => toWeatherHourlyDisplayList(d.prevWeatherAvg),
     [d.prevWeatherAvg],
   )
 

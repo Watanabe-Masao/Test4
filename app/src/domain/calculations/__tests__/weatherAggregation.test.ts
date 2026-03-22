@@ -3,6 +3,7 @@ import {
   aggregateHourlyToDaily,
   categorizeWeatherCode,
   deriveWeatherCode,
+  toWeatherDisplay,
 } from '../weatherAggregation'
 import type { HourlyWeatherRecord } from '@/domain/models/record'
 
@@ -95,6 +96,44 @@ describe('aggregateHourlyToDaily', () => {
     expect(result[0].temperatureMin).toBe(25)
     expect(result[0].precipitationTotal).toBe(5)
     expect(result[0].sunshineTotalHours).toBeCloseTo(0.5, 5)
+  })
+
+  it('全レコードが weatherCode=0 のとき dominantWeatherCode は 0（晴れ）', () => {
+    const records = Array.from({ length: 12 }, (_, h) =>
+      makeHourly('2025-03-15', h, { weatherCode: 0 }),
+    )
+    const result = aggregateHourlyToDaily(records)
+    expect(result[0].dominantWeatherCode).toBe(0)
+  })
+
+  it('単一レコードの weatherCode がそのまま dominantWeatherCode になる', () => {
+    const records = [makeHourly('2025-03-15', 12, { weatherCode: 61 })]
+    const result = aggregateHourlyToDaily(records)
+    expect(result[0].dominantWeatherCode).toBe(61)
+  })
+
+  it('同数タイブレーク: 晴れ12h + 雨12h → 雨が代表（深刻度優先）', () => {
+    const records: HourlyWeatherRecord[] = []
+    for (let h = 0; h < 12; h++) records.push(makeHourly('2025-03-15', h, { weatherCode: 0 }))
+    for (let h = 12; h < 24; h++) records.push(makeHourly('2025-03-15', h, { weatherCode: 61 }))
+    const result = aggregateHourlyToDaily(records)
+    expect(result[0].dominantWeatherCode).toBe(61) // rainy > sunny
+  })
+
+  it('同数タイブレーク: 雨と雪が同数 → 雪が代表', () => {
+    const records: HourlyWeatherRecord[] = []
+    for (let h = 0; h < 12; h++) records.push(makeHourly('2025-03-15', h, { weatherCode: 61 }))
+    for (let h = 12; h < 24; h++) records.push(makeHourly('2025-03-15', h, { weatherCode: 71 }))
+    const result = aggregateHourlyToDaily(records)
+    expect(result[0].dominantWeatherCode).toBe(71) // snowy > rainy
+  })
+
+  it('頻度が異なる場合は頻度優先: 晴れ多数 + 雨少数 → 晴れが代表', () => {
+    const records: HourlyWeatherRecord[] = []
+    for (let h = 0; h < 20; h++) records.push(makeHourly('2025-03-15', h, { weatherCode: 0 }))
+    for (let h = 20; h < 24; h++) records.push(makeHourly('2025-03-15', h, { weatherCode: 61 }))
+    const result = aggregateHourlyToDaily(records)
+    expect(result[0].dominantWeatherCode).toBe(0) // 頻度: 20 > 4
   })
 
   it('全レコードの気温が同一の場合 avg=max=min', () => {
@@ -207,5 +246,49 @@ describe('deriveWeatherCode', () => {
 
   it('気温省略時は雪判定しない', () => {
     expect(deriveWeatherCode(2, 0)).toBe(61)
+  })
+})
+
+// ─── toWeatherDisplay ───────────────────────────────
+
+describe('toWeatherDisplay', () => {
+  it('null → null（欠損）', () => {
+    expect(toWeatherDisplay(null)).toBeNull()
+  })
+
+  it('undefined → null（欠損）', () => {
+    expect(toWeatherDisplay(undefined)).toBeNull()
+  })
+
+  it('0 → sunny（晴天は有効値であり欠損ではない）', () => {
+    const result = toWeatherDisplay(0)
+    expect(result).not.toBeNull()
+    expect(result!.category).toBe('sunny')
+    expect(result!.label).toBe('晴れ')
+    expect(result!.icon).toBeTruthy()
+  })
+
+  it('3 → cloudy', () => {
+    const result = toWeatherDisplay(3)
+    expect(result!.category).toBe('cloudy')
+    expect(result!.label).toBe('曇り')
+  })
+
+  it('61 → rainy', () => {
+    const result = toWeatherDisplay(61)
+    expect(result!.category).toBe('rainy')
+    expect(result!.label).toBe('雨')
+  })
+
+  it('71 → snowy', () => {
+    const result = toWeatherDisplay(71)
+    expect(result!.category).toBe('snowy')
+    expect(result!.label).toBe('雪')
+  })
+
+  it('200 → other（範囲外コード）', () => {
+    const result = toWeatherDisplay(200)
+    expect(result!.category).toBe('other')
+    expect(result!.label).toBe('不明')
   })
 })
