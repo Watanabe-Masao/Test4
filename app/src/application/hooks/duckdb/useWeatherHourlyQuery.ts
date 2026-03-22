@@ -19,7 +19,7 @@ import {
 } from '@/infrastructure/duckdb/queries/weatherQueries'
 import { insertWeatherHourly } from '@/infrastructure/duckdb/dataConversions'
 import { useAsyncQuery, toDateKeys, type AsyncQueryResult } from './useAsyncQuery'
-import type { DateRange } from '@/domain/models/calendar'
+import { type DateRange, splitDateRangeByMonth } from '@/domain/models/calendar'
 import { loadEtrnHourlyForStore } from '@/application/usecases/weather/WeatherLoadService'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 
@@ -140,28 +140,33 @@ export function useDuckDBWeatherHourlyAvg(
 
   const hasDuckData = (duckResult.data ?? []).length > 0
   const duckDone = !duckResult.isLoading && duckResult.error == null
-  const fetchKey = dateRange ? `${storeId}|${dateRange.from.year}-${dateRange.from.month}` : ''
+  const fetchKey = dateRange
+    ? `${storeId}|${dateRange.from.year}-${dateRange.from.month}-${dateRange.from.day}|${dateRange.to.year}-${dateRange.to.month}-${dateRange.to.day}`
+    : ''
 
   useEffect(() => {
     if (hasDuckData || !duckDone || !location || !storeId || !dateRange || !conn || !db) return
     if (fetchedKeyRef.current === fetchKey) return
 
     let cancelled = false
-    const { from, to } = dateRange
-    // 日付範囲から全日リストを生成
-    const days: number[] = []
-    // 同一月の場合のみ（月跨ぎは from.month の日数分に限定）
-    const endDay = from.year === to.year && from.month === to.month ? to.day : 28
-    for (let d = from.day; d <= endDay; d++) days.push(d)
+    // 月別チャンクに分割（月跨ぎ対応）
+    const chunks = splitDateRangeByMonth(dateRange.from, dateRange.to)
 
-    loadEtrnHourlyForStore(storeId, location, from.year, from.month, days)
-      .then(async (result) => {
-        if (cancelled || result.hourly.length === 0) return
+    // 全チャンクを並列取得し、結果を結合して DuckDB に永続化
+    Promise.all(
+      chunks.map((chunk) =>
+        loadEtrnHourlyForStore(storeId, location, chunk.year, chunk.month, chunk.days),
+      ),
+    )
+      .then(async (results) => {
+        if (cancelled) return
+        const allHourly = results.flatMap((r) => r.hourly)
+        if (allHourly.length === 0) return
         fetchedKeyRef.current = fetchKey
 
         // DuckDB に永続化
         try {
-          await insertWeatherHourly(conn, db, result.hourly, storeId)
+          await insertWeatherHourly(conn, db, allHourly, storeId)
           // 永続化成功→再クエリをトリガー
           if (!cancelled) setRetryVersion((v) => v + 1)
         } catch {

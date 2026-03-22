@@ -75,11 +75,14 @@ function aggregateOneDay(
     codeCounts.set(r.weatherCode, (codeCounts.get(r.weatherCode) ?? 0) + 1)
   }
 
-  // 最頻出の weather code
-  let dominantCode = 0
+  // 最頻出の weather code（同数時は深刻な天気を優先）
+  let dominantCode = records[0].weatherCode
   let maxCount = 0
   for (const [code, count] of codeCounts) {
-    if (count > maxCount) {
+    if (
+      count > maxCount ||
+      (count === maxCount && weatherSeverity(code) > weatherSeverity(dominantCode))
+    ) {
       maxCount = count
       dominantCode = code
     }
@@ -96,6 +99,27 @@ function aggregateOneDay(
     dominantWeatherCode: dominantCode,
     sunshineTotalHours: sunshineSum / SECONDS_PER_HOUR,
   }
+}
+
+/**
+ * 天気カテゴリの深刻度。代表天気の同数タイブレークに使用する。
+ *
+ * 値が大きいほど深刻（ユーザーの体感: 雪 > 雨 > 曇り > 晴れ）。
+ * 「晴れ12時間 + 雨12時間」のとき、雨を代表天気とする方がユーザー認知に合う。
+ */
+const WEATHER_SEVERITY: Readonly<Record<WeatherCategory, number>> = {
+  sunny: 0,
+  cloudy: 1,
+  rainy: 2,
+  snowy: 3,
+  other: 0,
+}
+
+/**
+ * 天気コードの深刻度を返す（タイブレーク用）。
+ */
+function weatherSeverity(code: number): number {
+  return WEATHER_SEVERITY[categorizeWeatherCode(code)] ?? 0
 }
 
 /**
