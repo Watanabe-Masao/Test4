@@ -17,6 +17,8 @@ interface Props {
   readonly temperatureMin?: number
   /** コンパクト表示（アイコンのみ） */
   readonly compact?: boolean
+  /** 気象庁天気概況テキスト（ツールチップに正式な天気記述を表示） */
+  readonly weatherText?: string
 }
 
 const WEATHER_ICONS: Record<WeatherCategory, string> = {
@@ -71,13 +73,15 @@ export const WeatherBadge = memo(function WeatherBadge({
   temperatureMax,
   temperatureMin,
   compact = false,
+  weatherText,
 }: Props) {
   const category = categorizeWeatherCode(weatherCode)
   const icon = WEATHER_ICONS[category]
+  const tooltipText = weatherText || WEATHER_LABELS[category]
 
   if (compact) {
     return (
-      <BadgeWrapper title={WEATHER_LABELS[category]}>
+      <BadgeWrapper title={tooltipText}>
         {icon}
         {temperature != null && <TempText>{Math.round(temperature)}°</TempText>}
         {temperatureMax != null && temperatureMin != null && (

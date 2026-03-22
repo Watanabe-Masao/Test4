@@ -391,7 +391,13 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                         <CalDayHeader>
                           <CalDayNum $weekend={isWeekend}>
                             {day}
-                            {weatherIcon && <CalWeatherIcon>{weatherIcon}</CalWeatherIcon>}
+                            {weatherIcon && (
+                              <CalWeatherIcon
+                                title={weather?.weatherTextDay || weather?.weatherTextNight || undefined}
+                              >
+                                {weatherIcon}
+                              </CalWeatherIcon>
+                            )}
                           </CalDayNum>
                           <span>
                             <CalActionBtn
