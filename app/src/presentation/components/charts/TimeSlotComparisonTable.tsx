@@ -196,10 +196,7 @@ export const TimeSlotWeatherTable = memo(function TimeSlotWeatherTable({
   const hasWeather = curW.size > 0
   const hasPrevWeather = hasWeather && hasPrev && prevW.size > 0
 
-  const hasIcons = useMemo(
-    () => curWeather?.some((w) => w.icon != null) ?? false,
-    [curWeather],
-  )
+  const hasIcons = useMemo(() => curWeather?.some((w) => w.icon != null) ?? false, [curWeather])
   const hasPrevIcons = useMemo(
     () => prevWeather?.some((w) => w.icon != null) ?? false,
     [prevWeather],
@@ -226,7 +223,11 @@ export const TimeSlotWeatherTable = memo(function TimeSlotWeatherTable({
               return (
                 <MiniTd
                   key={h}
-                  style={{ textAlign: 'center', fontSize: '0.8rem', cursor: w?.tooltip ? 'help' : undefined }}
+                  style={{
+                    textAlign: 'center',
+                    fontSize: '0.8rem',
+                    cursor: w?.tooltip ? 'help' : undefined,
+                  }}
                   title={w?.tooltip}
                 >
                   {w?.icon ?? ''}
@@ -244,7 +245,11 @@ export const TimeSlotWeatherTable = memo(function TimeSlotWeatherTable({
                 return (
                   <MiniTd
                     key={h}
-                    style={{ textAlign: 'center', fontSize: '0.8rem', cursor: w?.tooltip ? 'help' : undefined }}
+                    style={{
+                      textAlign: 'center',
+                      fontSize: '0.8rem',
+                      cursor: w?.tooltip ? 'help' : undefined,
+                    }}
                     title={w?.tooltip}
                   >
                     {w?.icon ?? ''}
