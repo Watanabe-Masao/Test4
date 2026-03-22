@@ -2,7 +2,7 @@
  * Presentation Isolation Guard
  *
  * presentation/ の描画専用原則と CQRS 境界を検証するガードテスト。
- * architectureGuard.test.ts から抽出。
+ * layerBoundaryGuard + presentationIsolationGuard + structuralConventionGuard に分割。
  *
  * @guard A3 Presentation は描画専用
  * @guard B2 JS/SQL 二重実装禁止

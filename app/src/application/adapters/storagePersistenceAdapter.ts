@@ -2,7 +2,7 @@
  * StoragePersistenceAdapter — StoragePersistencePort の infrastructure 実装
  *
  * @guard A1 application/adapters/ 経由で infrastructure にアクセス
- * @see architectureGuard.test.ts
+ * @see guards/layerBoundaryGuard.test.ts
  */
 import {
   requestPersistentStorage,

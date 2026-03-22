@@ -9,7 +9,7 @@
  * - WeeklyForecastResult → DailyForecast[] の抽出
  *
  * @guard A1 application/adapters/ 経由で infrastructure にアクセス
- * @see architectureGuard.test.ts
+ * @see guards/layerBoundaryGuard.test.ts
  */
 import {
   searchLocation,

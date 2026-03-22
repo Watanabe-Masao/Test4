@@ -287,7 +287,7 @@ describe('facade/hook 責務混在ガード', () => {
 
 describe('許可リスト増加防止ガード', () => {
   it('domain/ の 300行超除外ファイルは増やさない', () => {
-    // hookComplexityGuard.test.ts の domain 除外リストのファイル数上限
+    // guards/sizeGuard.test.ts の domain 除外リストのファイル数上限
     // 現在 7 件（metricDefs, metricResolver, PeriodSelection, rawAggregation,
     //   ComparisonScope, advancedForecast, formulaRegistryBusiness）
     // 増加には architecture ロールの承認が必要

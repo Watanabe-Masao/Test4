@@ -382,7 +382,7 @@ cd app && npm run build-storybook  # Storybook ビルド通過
 加えて、以下を必須とする:
 
 - architecture review
-- `architectureGuard.test.ts` 通過
+- `guards/layerBoundaryGuard.test.ts` 通過
 - 新規 pure function の単体テスト
 - 不変条件テスト
 
@@ -460,5 +460,5 @@ Phase 5: 小規模試験導入（別計画）
 
 ### 静的ガード
 
-- `hookComplexityGuard.test.ts` の architecture guard セクションで
+- `guards/codePatternGuard.test.ts` の architecture guard セクションで
   bridge 対象 runtime 関数の直接 import を検出する（将来追加候補）

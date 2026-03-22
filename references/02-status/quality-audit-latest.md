@@ -123,5 +123,5 @@ co-export しているため、React Fast Refresh が効かないケース。
 - 前回の高優先度バグ6件はすべて解消済み
 - Lint 警告は 33→15 に半減。残りはすべて Fast Refresh 関連で機能影響なし
 - 肥大化ファイルは 1,000行超が 4→1 に改善。500行超は依然として 19 ファイル存在
-- アーキテクチャガードテスト (`architectureGuard.test.ts`) による層間依存チェックが機能中
+- アーキテクチャガードテスト (`guards/layerBoundaryGuard.test.ts`) による層間依存チェックが機能中
 - `react-hooks/exhaustive-deps` が error に昇格済みで、依存配列不足が CI で遮断される

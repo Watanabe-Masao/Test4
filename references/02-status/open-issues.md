@@ -39,7 +39,7 @@
 | S-8 | documentConsistency.test.ts のカバー範囲が限定的 | 2026-03 | 不変条件カタログ↔ガードテスト相互参照、エンジン責務↔実コード、CLAUDE.md 参照パス、連携プロトコル相互参照の4検証を追加（5→12テスト） |
 | S-9 | Storybook の CI 位置づけ未定義 | 2026-03 | `build-storybook` を CI 第4ステップに追加、5段階→6段階ゲートに更新 |
 | S-10 | Import/Modal 系8コンポーネントの Storybook 未カバー | 2026-03 | FileDropZone, UploadCard, ImportProgressBar, ImportWizard, ValidationModal, DiffConfirmModal, RestoreDataModal, SettingsModal の全8ストーリーを作成 |
-| S-11 | fileParseWorker.ts が未使用 | 2026-03-07 | ファイル削除済み。architectureGuard.test.ts の allowlist からも除去済み |
+| S-11 | fileParseWorker.ts が未使用 | 2026-03-07 | ファイル削除済み。guards/layerBoundaryGuard.test.ts の allowlist からも除去済み |
 | S-12 | conditionResolver.ts のテスト未作成 | 2026-03-07 | `domain/calculations/__tests__/conditionResolver.test.ts` 作成済み |
 | S-13 | ESLint が storybook-static/ を lint 対象にしていた | 2026-03-07 | `eslint.config.js` の `globalIgnores` に `storybook-static` を追加 |
 | S-14 | ChartAnnotation.tsx の react-hooks/refs エラー | 2026-03-07 | floating-ui の `elements` パターンに変更し `refs` のレンダー中アクセスを回避 |
