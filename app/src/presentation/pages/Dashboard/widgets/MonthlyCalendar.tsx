@@ -358,9 +358,10 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
 
                   // Weather
                   const weather = weatherByDay.get(day)
-                  const weatherIcon = weather
-                    ? WEATHER_ICONS[categorizeWeatherCode(weather.dominantWeatherCode)]
-                    : null
+                  const weatherIcon =
+                    weather?.dominantWeatherCode != null
+                      ? WEATHER_ICONS[categorizeWeatherCode(weather.dominantWeatherCode)]
+                      : null
 
                   // Hover preview data
                   const isHovered = hoveredDay === day

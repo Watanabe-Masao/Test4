@@ -217,7 +217,10 @@ const DailyDataSection = memo(function DailyDataSection({
         </thead>
         <tbody>
           {daily.map((d) => {
-            const cat = categorizeWeatherCode(d.dominantWeatherCode)
+            const cat =
+              d.dominantWeatherCode != null
+                ? categorizeWeatherCode(d.dominantWeatherCode)
+                : undefined
             const isExpanded = expandedDate === d.dateKey
             const hourly = hourlyCache[d.dateKey]
             return (
@@ -226,7 +229,7 @@ const DailyDataSection = memo(function DailyDataSection({
                   <ClickableDate onClick={() => onDateClick(d.dateKey)}>
                     {isExpanded ? '▼' : '▶'} {d.dateKey.slice(5)}
                   </ClickableDate>
-                  <td>{WEATHER_ICONS[cat] ?? '?'}</td>
+                  <td>{cat != null ? (WEATHER_ICONS[cat] ?? '?') : ''}</td>
                   <td>{d.temperatureAvg.toFixed(1)}</td>
                   <td>{d.temperatureMax.toFixed(1)}</td>
                   <td>{d.temperatureMin.toFixed(1)}</td>
@@ -244,11 +247,15 @@ const DailyDataSection = memo(function DailyDataSection({
                       {hourly?.status === 'done' && hourly.records.length > 0 && (
                         <HourlyGrid>
                           {hourly.records.map((h) => {
-                            const hCat = categorizeWeatherCode(h.weatherCode)
+                            const hCat =
+                              h.weatherCode != null
+                                ? categorizeWeatherCode(h.weatherCode)
+                                : undefined
                             return (
                               <HourlyItem key={h.hour}>
                                 <span>
-                                  {String(h.hour).padStart(2, '0')}時 {WEATHER_ICONS[hCat] ?? '?'}
+                                  {String(h.hour).padStart(2, '0')}時{' '}
+                                  {hCat != null ? (WEATHER_ICONS[hCat] ?? '?') : ''}
                                 </span>
                                 <span>{h.temperature.toFixed(1)}℃</span>
                               </HourlyItem>

@@ -7,8 +7,8 @@ import { categorizeWeatherCode } from '@/domain/calculations/weatherAggregation'
 import type { WeatherCategory } from '@/domain/models/record'
 
 interface Props {
-  /** WMO Weather Interpretation Code */
-  readonly weatherCode: number
+  /** WMO Weather Interpretation Code（日照データなしの場合 null） */
+  readonly weatherCode: number | null
   /** 気温 (°C)。省略時は非表示 */
   readonly temperature?: number
   /** 最高気温 (°C)。省略時は非表示 */
@@ -75,6 +75,7 @@ export const WeatherBadge = memo(function WeatherBadge({
   compact = false,
   weatherText,
 }: Props) {
+  if (weatherCode == null) return null
   const category = categorizeWeatherCode(weatherCode)
   const icon = WEATHER_ICONS[category]
   const tooltipText = weatherText || WEATHER_LABELS[category]

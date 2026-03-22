@@ -64,9 +64,13 @@ export function parseDailyTable(doc: Document, year: number, month: number): Dai
     const weatherTextNight = readTextCell(cells, columns.weatherTextNight)
 
     // 天気概況テキストがある場合はそこから天気コードを導出（より正確）
+    // a1 観測所は天気概況も日照データもないため、降水なしの晴れ/曇り判定が不可能 → null
+    const hasSunshineData = columns.sunshineHours != null
     const weatherCode = weatherTextDay
       ? weatherCodeFromText(weatherTextDay, weatherTextNight)
-      : deriveDailyWeatherCodeFromSummary(precipTotal, sunshineHours, tempAvg)
+      : hasSunshineData || precipTotal > 0
+        ? deriveDailyWeatherCodeFromSummary(precipTotal, sunshineHours, tempAvg)
+        : null
 
     results.push({
       dateKey,

@@ -61,6 +61,14 @@ export function parseHourlyTable(doc: Document, dateKey: string): HourlyWeatherR
     const windSpeedMs = readCell(cells, columns.windSpeed)
     const sunshineDuration = readCell(cells, columns.sunshineDuration)
 
+    // a1 観測所は日照時間カラムがないため、降水なしの晴れ/曇り判定が不可能。
+    // 日照データがない場合は weatherCode を null にして天気アイコンを非表示にする。
+    const hasSunshineData = columns.sunshineDuration != null
+    const weatherCode =
+      hasSunshineData || precipitation > 0
+        ? deriveHourlyWeatherCode(precipitation, sunshineDuration, temperature)
+        : null
+
     results.push({
       dateKey,
       hour,
@@ -68,7 +76,7 @@ export function parseHourlyTable(doc: Document, dateKey: string): HourlyWeatherR
       humidity,
       precipitation,
       windSpeed: windSpeedMs * 3.6, // m/s → km/h（日別パーサーと統一）
-      weatherCode: deriveHourlyWeatherCode(precipitation, sunshineDuration, temperature),
+      weatherCode,
       sunshineDuration: sunshineDuration * 3600, // hours → seconds
     })
   }

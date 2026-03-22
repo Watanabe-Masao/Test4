@@ -304,7 +304,7 @@ function buildWeatherFallback(
   daily: readonly {
     temperatureAvg: number
     precipitationTotal: number
-    dominantWeatherCode: number
+    dominantWeatherCode: number | null
   }[],
 ): readonly HourlyWeatherAvgRow[] {
   if (daily.length === 0) return []
@@ -312,8 +312,11 @@ function buildWeatherFallback(
   const totalPrecip = daily.reduce((s, d) => s + d.precipitationTotal, 0)
   // 最頻天気コード
   const codeCounts = new Map<number, number>()
-  for (const d of daily)
-    codeCounts.set(d.dominantWeatherCode, (codeCounts.get(d.dominantWeatherCode) ?? 0) + 1)
+  for (const d of daily) {
+    if (d.dominantWeatherCode != null) {
+      codeCounts.set(d.dominantWeatherCode, (codeCounts.get(d.dominantWeatherCode) ?? 0) + 1)
+    }
+  }
   let modeCode = 0
   let modeCount = 0
   for (const [code, count] of codeCounts) {

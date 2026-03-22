@@ -36,14 +36,12 @@ export const WeatherSummaryRow = memo(function WeatherSummaryRow({
   const curMax = Math.max(...curTemps)
   const curMin = Math.min(...curTemps)
   const curPrecip = weatherHourly.reduce((s, r) => s + r.precipitation, 0)
-  const dominantCode = weatherHourly
-    .map((r) => r.weatherCode)
-    .sort(
-      (a, b) =>
-        weatherHourly.filter((r) => r.weatherCode === b).length -
-        weatherHourly.filter((r) => r.weatherCode === a).length,
-    )[0]
-  const icon = WEATHER_ICONS[categorizeWeatherCode(dominantCode)]
+  const nonNullCodes = weatherHourly.map((r) => r.weatherCode).filter((c) => c != null)
+  const dominantCode = nonNullCodes.sort(
+    (a, b) =>
+      nonNullCodes.filter((c) => c === b).length - nonNullCodes.filter((c) => c === a).length,
+  )[0]
+  const icon = dominantCode != null ? WEATHER_ICONS[categorizeWeatherCode(dominantCode)] : ''
   const curYear = curDateKey?.slice(0, 4) ?? ''
 
   const prev = useMemo(() => {
@@ -53,13 +51,12 @@ export const WeatherSummaryRow = memo(function WeatherSummaryRow({
       max: Math.max(...temps),
       min: Math.min(...temps),
       precip: prevWeatherHourly.reduce((s, r) => s + r.precipitation, 0),
-      dominantCode: prevWeatherHourly
-        .map((r) => r.weatherCode)
-        .sort(
-          (a, b) =>
-            prevWeatherHourly.filter((r) => r.weatherCode === b).length -
-            prevWeatherHourly.filter((r) => r.weatherCode === a).length,
-        )[0],
+      dominantCode: (() => {
+        const codes = prevWeatherHourly.map((r) => r.weatherCode).filter((c) => c != null)
+        return codes.sort(
+          (a, b) => codes.filter((c) => c === b).length - codes.filter((c) => c === a).length,
+        )[0] as number | undefined
+      })(),
     }
   }, [prevWeatherHourly])
 
@@ -85,7 +82,9 @@ export const WeatherSummaryRow = memo(function WeatherSummaryRow({
           <HourlySumItem>
             <SumLabel>{prevYear} 天気</SumLabel>
             <SumValue>
-              {WEATHER_ICONS[categorizeWeatherCode(prev.dominantCode)]}{' '}
+              {prev.dominantCode != null
+                ? WEATHER_ICONS[categorizeWeatherCode(prev.dominantCode)]
+                : ''}{' '}
               <span style={{ color: '#e74c3c' }}>{prev.max.toFixed(1)}°</span>/
               <span style={{ color: '#3498db' }}>{prev.min.toFixed(1)}°</span>
             </SumValue>

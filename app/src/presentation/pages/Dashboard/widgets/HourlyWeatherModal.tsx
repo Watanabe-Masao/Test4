@@ -280,10 +280,11 @@ export const HourlyWeatherModal = memo(function HourlyWeatherModal({
                 <WeatherIconRowLabel>{dateKey.slice(0, 4)}</WeatherIconRowLabel>
                 <WeatherIconRow>
                   {records.map((r) => {
-                    const cat = categorizeWeatherCode(r.weatherCode)
+                    const cat =
+                      r.weatherCode != null ? categorizeWeatherCode(r.weatherCode) : undefined
                     return (
                       <WeatherIconCell key={r.hour}>
-                        <WeatherIconEmoji>{WEATHER_ICONS[cat]}</WeatherIconEmoji>
+                        <WeatherIconEmoji>{cat != null ? WEATHER_ICONS[cat] : ''}</WeatherIconEmoji>
                         <span>{String(r.hour).padStart(2, '0')}</span>
                       </WeatherIconCell>
                     )
@@ -296,10 +297,11 @@ export const HourlyWeatherModal = memo(function HourlyWeatherModal({
                 <WeatherIconRowLabel>{prevYearDateKey?.slice(0, 4) ?? '前年'}</WeatherIconRowLabel>
                 <WeatherIconRow>
                   {prevYearRecords.map((r) => {
-                    const cat = categorizeWeatherCode(r.weatherCode)
+                    const cat =
+                      r.weatherCode != null ? categorizeWeatherCode(r.weatherCode) : undefined
                     return (
                       <WeatherIconCell key={`prev-${r.hour}`}>
-                        <WeatherIconEmoji>{WEATHER_ICONS[cat]}</WeatherIconEmoji>
+                        <WeatherIconEmoji>{cat != null ? WEATHER_ICONS[cat] : ''}</WeatherIconEmoji>
                         <span>{String(r.hour).padStart(2, '0')}</span>
                       </WeatherIconCell>
                     )

@@ -125,13 +125,13 @@ export const WeatherIconRow = memo(function WeatherIconRow({
       {hours.map((d) => {
         const w = weatherMap.get(d.hour)
         if (!w) return <HourlyTick key={`w-${d.hour}`} />
-        const cat = categorizeWeatherCode(w.weatherCode)
+        const cat = w.weatherCode != null ? categorizeWeatherCode(w.weatherCode) : undefined
         return (
           <HourlyTick key={`w-${d.hour}`} style={{ fontSize: '0.55rem', lineHeight: 1 }}>
             <span
               title={`${Math.round(w.temperature)}°C${w.precipitation > 0 ? ' ' + w.precipitation.toFixed(1) + 'mm' : ''}`}
             >
-              {WEATHER_ICONS[cat]}
+              {cat != null ? WEATHER_ICONS[cat] : ''}
             </span>
             {w.precipitation > 0 && (
               <span style={{ fontSize: '0.4rem', color: '#3b82f6', display: 'block' }}>
@@ -147,7 +147,7 @@ export const WeatherIconRow = memo(function WeatherIconRow({
 
 /** ツールチップ内の天気情報行 */
 export function WeatherTooltipInfo({ weather }: { readonly weather: HourlyWeatherRecord }) {
-  const cat = categorizeWeatherCode(weather.weatherCode)
+  const cat = weather.weatherCode != null ? categorizeWeatherCode(weather.weatherCode) : undefined
   return (
     <div
       style={{
@@ -156,7 +156,7 @@ export function WeatherTooltipInfo({ weather }: { readonly weather: HourlyWeathe
         paddingTop: 2,
       }}
     >
-      {WEATHER_ICONS[cat]} {Math.round(weather.temperature)}°C
+      {cat != null ? WEATHER_ICONS[cat] : ''} {Math.round(weather.temperature)}°C
       {weather.precipitation > 0 && (
         <span style={{ color: '#93c5fd' }}> {weather.precipitation.toFixed(1)}mm</span>
       )}

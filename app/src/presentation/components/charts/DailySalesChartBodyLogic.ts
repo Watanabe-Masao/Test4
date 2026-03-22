@@ -169,12 +169,13 @@ export function buildWeatherMap(
       chartDay = parseInt(w.dateKey.slice(8, 10), 10) - dowOffset
     }
     if (chartDay < 1) continue
-    const cat = categorizeWeatherCode(w.dominantWeatherCode)
+    const cat =
+      w.dominantWeatherCode != null ? categorizeWeatherCode(w.dominantWeatherCode) : undefined
     // 天気概況テキスト: 昼があれば昼、なければ夜
     const weatherText = w.weatherTextDay ?? w.weatherTextNight
     map.set(chartDay, {
-      icon: WEATHER_ICONS[cat],
-      category: cat,
+      icon: cat != null ? WEATHER_ICONS[cat] : '',
+      category: cat ?? 'other',
       temp: Math.round(w.temperatureAvg),
       max: Math.round(w.temperatureMax),
       min: Math.round(w.temperatureMin),

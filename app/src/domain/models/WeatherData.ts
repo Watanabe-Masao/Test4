@@ -16,7 +16,7 @@ export interface HourlyWeatherRecord {
   readonly humidity: number // %
   readonly precipitation: number // mm (1時間降水量)
   readonly windSpeed: number // km/h
-  readonly weatherCode: number // WMO 互換コード（実測値から導出）
+  readonly weatherCode: number | null // WMO 互換コード（実測値から導出。日照データなしの場合 null）
   readonly sunshineDuration: number // seconds (日照時間)
 }
 
@@ -34,7 +34,7 @@ export interface DailyWeatherSummary {
   readonly precipitationTotal: number // 日合計降水量 mm
   readonly humidityAvg: number // 日平均湿度 %
   readonly windSpeedMax: number // 日最大風速 km/h
-  readonly dominantWeatherCode: number // 最頻出の WMO コード
+  readonly dominantWeatherCode: number | null // 最頻出の WMO コード（日照・天気概況なしの場合 null）
   readonly sunshineTotalHours: number // 日照時間合計 hours
   /** 気象庁 ETRN 天気概況（昼）— パースできなかった場合は undefined */
   readonly weatherTextDay?: string

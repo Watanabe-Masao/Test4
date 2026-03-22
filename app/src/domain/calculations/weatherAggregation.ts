@@ -72,7 +72,9 @@ function aggregateOneDay(
     humiditySum += r.humidity
     if (r.windSpeed > windMax) windMax = r.windSpeed
     sunshineSum += r.sunshineDuration
-    codeCounts.set(r.weatherCode, (codeCounts.get(r.weatherCode) ?? 0) + 1)
+    if (r.weatherCode != null) {
+      codeCounts.set(r.weatherCode, (codeCounts.get(r.weatherCode) ?? 0) + 1)
+    }
   }
 
   // 最頻出の weather code
