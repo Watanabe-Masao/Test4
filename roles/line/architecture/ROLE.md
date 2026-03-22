@@ -81,7 +81,7 @@
 - `app/src/test/architectureGuard.test.ts`（300行、9件の検証）
 - 不変条件: INV-ARCH-01 〜 INV-ARCH-08
 
-## 設計思想16原則（本ロールが管理）
+## 設計思想19原則（本ロールが管理）
 
 全ロールの判断基準となる普遍的原則。詳細は `references/01-principles/design-principles.md` を参照。
 
@@ -104,7 +104,7 @@
 
 ## 参照ドキュメント
 
-- `references/01-principles/design-principles.md` — 設計思想16原則 詳細と適用例（**本ロールが管理**）
+- `references/01-principles/design-principles.md` — 設計思想19原則 詳細と適用例（**本ロールが管理**）
 - `references/01-principles/data-flow.md` — データフローアーキテクチャ（**本ロールが管理**）
 - `references/03-guides/guard-test-map.md` — ガードテスト一覧
 - `references/01-principles/engine-responsibility.md` — JS vs DuckDB 責務マトリクス

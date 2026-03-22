@@ -3,6 +3,38 @@
 本プロジェクトの主要な変更を記録します。
 フォーマットは [Keep a Changelog](https://keepachangelog.com/ja/1.1.0/) に準拠します。
 
+## [v1.5.0] - 2026-03-22
+
+### 包含型分析ユニット + 天気チャート改善
+
+#### 包含型分析ユニットの完成
+
+- **AnalysisNodeContext の導入**: 分析ノードの階層モデル（daily-sales → time-slot → dept-pattern, category-trend → category-drilldown）を型で表現。親子孫の文脈継承を構造化
+- **ContainedAnalysisPanel**: 包含型分析パネルの共通UI枠。role: 'child' | 'grandchild' で視覚階層を統一
+- **IntegratedCategoryAnalysis**: カテゴリ分析ユニットの正本コンテナ。CategoryTrendChart + CategoryHierarchyExplorer を包含
+- **部門別時間帯パターンの孫配置**: DeptHourlyChart を TimeSlotChart の下に孫として包含
+- **TopDepartmentPolicy 型**: 「上位5部門」の選定基準を型で仕様化（criterion, count, includeComparison）
+- **deriveNodeContext / deriveDeptPatternContext / deriveCategoryDrilldownContext**: 孫用文脈導出の純粋関数
+
+#### 天気チャートの軸改善
+
+- **降水量モード右軸固定化**: 0〜5mm 基本、段階的拡張（5-10mm→0-10, 10mm超→0-20mm）で少量降水の誇張を防止
+- **気温モード準固定軸**: データ min/max を 5°C 刻みに丸め、0°C 跨ぎ対応
+- **温度帯バンド表示**: 寒冷/低温/涼快/暖/高温の5段階を markArea で背景帯表示
+- **valueYAxis に interval オプション追加**: 固定スケール用の軸目盛り間隔指定
+
+#### ドキュメント整備
+
+- **設計原則 16→19 に拡張**: #17 チャート間データ文脈継承、#18 View に raw 値を渡さない、#19 独立互換で正本を汚さない
+- **反例集に3件追加**: 子チャートの比較文脈再計算、View への weatherCode 直渡し、独立互換による Props 肥大化
+- **README.md 全面更新**: チャートライブラリ Recharts→ECharts 移行の意思決定・背景・現在の移行状態を明記
+- **天気データ基盤**: 観測所=気象台(s1)のみ使用、AMeDAS(a1)は仕組みで除外を明記
+- **包含型分析ユニットの設計ルール4つと移行状態**を README に追加
+- **references/README.md 正本一覧拡充**: 天気基盤・ウィジェット連携・表示ルール・品質監査等を追加
+- **禁止事項 9→13件**: CLAUDE.md・README.md・references/README.md を同期更新
+
+---
+
 ## [v1.4.0] - 2026-03-22
 
 ### グラフ改善 + 売上推移分析ユニット -- UI/分析体験の全面刷新

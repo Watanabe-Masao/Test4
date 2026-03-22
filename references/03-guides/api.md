@@ -14,7 +14,7 @@ File Import -> IndexedDB -> DuckDB -> Query Module -> Hook -> Chart/Widget
 3. **DuckDB**: `useDuckDB` フックが IndexedDB のデータを DuckDB テーブルにロード
 4. **Query Module**: SQL クエリで集約・分析を実行
 5. **Hook**: `application/hooks/duckdb/` の各フックがクエリ結果を React ステートとして管理
-6. **Chart/Widget**: Recharts ベースのチャートコンポーネントが表示用データを描画
+6. **Chart/Widget**: ECharts ベースのチャートコンポーネントが表示用データを描画
 
 ---
 

@@ -114,7 +114,11 @@ export function roundTemperatureAxis(
 export function buildTemperatureBandMarkAreas(
   axisMin: number,
   axisMax: number,
-): readonly { readonly name: string; readonly yAxis: number; readonly itemStyle: { readonly color: string } }[][] {
+): readonly {
+  readonly name: string
+  readonly yAxis: number
+  readonly itemStyle: { readonly color: string }
+}[][] {
   const areas: { name: string; yAxis: number; itemStyle: { color: string } }[][] = []
 
   for (const band of TEMPERATURE_BANDS) {
@@ -349,7 +353,7 @@ export function buildTimeSlotChartOption(input: TimeSlotChartOptionInput): EChar
           ]),
         },
         legendHoverLink: false,
-      } as unknown as (typeof series extends readonly (infer T)[] ? T : never))
+      } as unknown as typeof series extends readonly (infer T)[] ? T : never)
     }
   }
 
@@ -368,10 +372,7 @@ export function buildTimeSlotChartOption(input: TimeSlotChartOptionInput): EChar
       },
       axisLine: { lineStyle: { color: theme.colors.border } },
     },
-    yAxis: [
-      yenYAxis(theme),
-      valueYAxis(theme, rightAxisOptions),
-    ],
+    yAxis: [yenYAxis(theme), valueYAxis(theme, rightAxisOptions)],
     series,
   }
 }

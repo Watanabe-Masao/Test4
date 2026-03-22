@@ -42,8 +42,7 @@ export const IntegratedCategoryAnalysis = memo(function IntegratedCategoryAnalys
   // ── 分析文脈の構築 ──
 
   const parentContext = useMemo(
-    () =>
-      buildSalesAnalysisContext(currentDateRange, selectedStoreIds, prevYearScope),
+    () => buildSalesAnalysisContext(currentDateRange, selectedStoreIds, prevYearScope),
     [currentDateRange, selectedStoreIds, prevYearScope],
   )
 

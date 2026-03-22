@@ -17,7 +17,10 @@ import type { AsyncDuckDBConnection, AsyncDuckDB } from '@duckdb/duckdb-wasm'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import type { DailyRecord, DailyWeatherSummary, DiscountEntry } from '@/domain/models/record'
 import { useDrillDateRange } from '@/application/hooks/useDrillDateRange'
-import { buildSalesAnalysisContext, deriveChildContext } from '@/application/models/SalesAnalysisContext'
+import {
+  buildSalesAnalysisContext,
+  deriveChildContext,
+} from '@/application/models/SalesAnalysisContext'
 import type { AnalysisViewEvents, CategoryFocus } from '@/application/models/AnalysisViewEvents'
 import {
   buildRootNodeContext,
@@ -112,11 +115,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
   // 子文脈（時間帯 — ドリル時のみ）: 親から dateRange を上書き派生
   const drillContext = useMemo(() => {
     if (!isDrilled || !rangeDateRange) return null
-    return deriveChildContext(
-      parentContext,
-      rangeDateRange,
-      rangePrevYearScope ?? undefined,
-    )
+    return deriveChildContext(parentContext, rangeDateRange, rangePrevYearScope ?? undefined)
   }, [isDrilled, rangeDateRange, rangePrevYearScope, parentContext])
 
   // AnalysisNodeContext（ノード階層モデル）
@@ -131,7 +130,11 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
         ? deriveNodeContext(dailyNode, 'time-slot', {
             overrideBase: drillContext,
             focus: selectedRange
-              ? { kind: 'day-range' as const, startDay: selectedRange.start, endDay: selectedRange.end }
+              ? {
+                  kind: 'day-range' as const,
+                  startDay: selectedRange.start,
+                  endDay: selectedRange.end,
+                }
               : undefined,
           })
         : null,
@@ -142,9 +145,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
   // 現在は DeptHourlyChart が従来 props で動作するため、ノード構築のみ行う
   const deptPatternNode = useMemo(
     () =>
-      timeSlotNode
-        ? deriveDeptPatternContext(timeSlotNode, DEFAULT_TOP_DEPARTMENT_POLICY)
-        : null,
+      timeSlotNode ? deriveDeptPatternContext(timeSlotNode, DEFAULT_TOP_DEPARTMENT_POLICY) : null,
     [timeSlotNode],
   )
   void deptPatternNode

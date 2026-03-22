@@ -263,6 +263,93 @@ DuckDB から IndexedDB への書き戻しは禁止する。
 
 **原則:** キャッシュは壊れてもよい。原本は壊してはならない。データの流れは常に一方向（IndexedDB → DuckDB）。
 
+### 17. チャート間のデータ受け渡しは文脈継承で行う
+
+包含型分析ユニット（親→子→孫）において、チャート間のデータ受け渡しは
+`SalesAnalysisContext` の継承で行う。子チャートが独自にデータを再取得・再計算しない。
+
+**受け渡しルール:**
+
+| 項目 | 親が決める | 子/孫が決める |
+|---|---|---|
+| 対象期間（dateRange） | 親 | × |
+| 比較文脈（comparisonScope） | 親 | × |
+| 対象店舗（selectedStoreIds） | 親 | × |
+| カテゴリ階層（hierarchy） | 親 | × |
+| 選択日範囲（selectedDayRange） | 親→子 | × |
+| 表示モード（lineMode, viewMode） | — | 子/孫が独自に持つ |
+| 詳細ビュー切替（detailView） | — | 子/孫が独自に持つ |
+| TopN フィルタ | — | 孫が独自に持つ |
+
+**適用例:**
+- `IntegratedSalesChart` が `buildSalesAnalysisContext()` で文脈を構築し、
+  `TimeSlotChart` は `context` 経由で受領。`deriveChildContext()` で dateRange を上書き
+- `DeptHourlyChart`（孫）は `deriveDeptPatternContext()` で親の文脈を継承。
+  `TopDepartmentPolicy` のみ孫固有のフォーカスとして追加
+- `IntegratedCategoryAnalysis` が `CategoryTrendChart` と `CategoryHierarchyExplorer` に
+  同一の文脈を配る。子は prevYearScope を context から取得
+
+**原則:** チャート間のデータ共有は暗黙のグローバル状態ではなく、明示的な文脈継承で行う。
+親が authoritative source、子は consume only。
+
+### 18. View に raw domain/query 値を渡さない
+
+Controller/View 分離されたチャートにおいて、View（描画コンポーネント）は
+表示モデル（ViewModel）のみを受け取る。Domain 層の生値や Query の結果を
+View に直接渡すことを禁止する。
+
+**View に渡してはいけないもの:**
+- `weatherCode`（数値コード → 天気アイコン/ラベルに変換してから渡す）
+- `DateRange`（日付オブジェクト → フォーマット済み文字列に変換してから渡す）
+- `PrevYearScope`（比較スコープ → ラベル文字列に変換してから渡す）
+- `AsyncDuckDBConnection`（DuckDB 接続 → Controller が保持）
+- raw query result（`Row[]` → ViewModel に変換してから渡す）
+- store selection の解決ロジック（解決済みの値のみ渡す）
+
+**View に渡してよいもの:**
+- `TimeSlotChartVM`（表示用に変換済みのデータ構造）
+- `EChartsOption`（OptionBuilder で構築済みのチャート設定）
+- 表示状態（`detailView`, `lineMode` 等の UI ローカル状態）
+- click handler（`onSelectHour`, `onDetailViewChange` 等）
+
+**適用例:**
+- `TimeSlotChart`（Controller）が `useDuckDBTimeSlotData` でデータ取得し、
+  `toWeatherHourlyDisplayList` で weatherCode を表示モデルに変換してから
+  `TimeSlotChartView` に渡す
+- `DailySalesChart`（Controller）が `DailySalesChartBody`（View）に chartOption と
+  KPI サマリーのみを渡す。View は DuckDB 接続を知らない
+- `buildTimeSlotChartOption`（OptionBuilder）は Controller 内で呼ばれ、
+  結果の `EChartsOption` だけが View に渡る
+
+**原則:** Controller/View/OptionBuilder の三層分離を維持する。
+View は「ViewModel → JSX」の純粋変換。ドメイン値の解釈は Controller か OptionBuilder が担う。
+
+### 19. 独立互換のために正本設計を汚さない
+
+包含型分析ユニット（`IntegratedSalesChart`, `IntegratedCategoryAnalysis`）が正本。
+暫定互換として残す独立ウィジェット（`UnifiedTimeSlotWidget` 等）のために、
+正本側のインターフェースや構造を曲げてはならない。
+
+**禁止パターン:**
+- `TimeSlotChart` の context 対応で、旧 props との分岐が Controller の主要ロジックを
+  汚染する（旧 props は context 不在時のフォールバックに限定する）
+- `IntegratedSalesChart` に、独立利用時のみ必要なフラグや特殊分岐を追加する
+- 正本コンテナの Props を、独立ウィジェットの便宜のために緩める
+
+**正しいパターン:**
+- `TimeSlotChart` は `context` 優先。旧 props は `@deprecated` + フォールバック。
+  context がある場合は旧 props を無視する
+- 独立ウィジェットが追加の変換が必要なら、ラッパー側（`UnifiedTimeSlotWidget`）で対応
+- 新規改善はすべて包含型コンテナ側に寄せる。独立ウィジェットへの機能追加は停止
+
+**適用例:**
+- `TimeSlotChart` の Props: `context?` + `@deprecated currentDateRange?` + `@deprecated selectedStoreIds?`
+  + `@deprecated prevYearScope?`。context がある場合は旧 props を全て無視
+- `UnifiedTimeSlotWidget` は registry から旧 props を渡すラッパー。正本には含まれない
+
+**原則:** 移行期間中の互換レイヤーは、正本の外側に置く。
+正本が互換のために設計を曲げた瞬間、移行は永久に完了しない。
+
 ---
 
 ## 反例集（やりがちだがダメなパターン）
@@ -469,3 +556,125 @@ readonly projectedGPAchievement: number
 
 **根拠:** 計算は Domain 層、表示は Presentation 層。
 UIは「描画のみ」の原則（設計原則 #9）に従う。
+
+### 反例 7: 子チャートが比較文脈を再計算する
+
+**ダメな例:**
+
+```typescript
+// presentation/components/charts/TimeSlotChart.tsx
+// 親から dateRange を受けたのに、独自に前年範囲を導出
+const prevYearRange = useMemo(() => ({
+  from: { ...dateRange.from, year: dateRange.from.year - 1 },
+  to: { ...dateRange.to, year: dateRange.to.year - 1 },
+}), [dateRange])
+```
+
+**何が壊れるか:**
+- 親が「前年同曜日比較」を選んでいるのに、子が「前年同日比較」で再計算する
+- 閏年・月跨ぎの処理が親と子で異なり、比較データが不整合になる
+- 親の comparisonScope に含まれる dowOffset が子で無視される
+- 複数の子チャートが各自の前年範囲を持ち、ダッシュボード上で比較基準がバラバラになる
+
+**正しいパターン:**
+
+```typescript
+// 親コンテナが文脈を構築
+const parentContext = buildSalesAnalysisContext(
+  currentDateRange, selectedStoreIds, prevYearScope,
+)
+
+// 子は context から受け取るだけ（再計算しない）
+<TimeSlotChart context={drillContext} />
+
+// drillContext は deriveChildContext() で dateRange だけ上書き
+// comparisonScope は親のものをそのまま継承
+const drillContext = deriveChildContext(parentContext, rangeDateRange)
+```
+
+**根拠:** 比較文脈（前年/前週/同曜日）の決定は親の責務（設計原則 #17）。
+子が独自に再計算すると、同じダッシュボード上で異なる比較基準が混在し、
+ユーザーに誤った分析結果を提示するリスクがある。
+
+### 反例 8: View に weatherCode を直接渡す
+
+**ダメな例:**
+
+```typescript
+// Controller → View に生の weatherCode を渡す
+<TimeSlotChartView
+  curWeatherCodes={d.curWeatherAvg.map(w => w.weatherCode)}
+/>
+
+// View 内で weatherCode を解釈する
+{weatherCode === 0 && <SunIcon />}     // ← 0 は晴れだが falsy！
+{weatherCode === 1 && <CloudIcon />}
+{!weatherCode && <EmptyIcon />}        // ← weatherCode=0 が欠損扱い
+```
+
+**何が壊れるか:**
+- `weatherCode=0`（晴天）が falsy チェックで除外される（禁止事項 #13 違反）
+- 天気コードの意味解釈が View に分散する
+- 新しい天気コード追加時、View 全箇所を修正する必要がある
+- テスト困難（View のレンダリングが必要）
+
+**正しいパターン:**
+
+```typescript
+// Controller で表示モデルに変換してから View に渡す
+const curWeatherDisplay = toWeatherHourlyDisplayList(d.curWeatherAvg)
+<TimeSlotChartView curWeather={curWeatherDisplay} />
+
+// View は表示モデルのみ参照（コードの解釈をしない）
+{weather.icon && <img src={weather.icon} alt={weather.label} />}
+{weather.label}
+```
+
+**根拠:** ドメイン値の解釈は Controller か Domain 層で完結させる（設計原則 #18）。
+View は変換済みの表示モデルを受け取るだけ。特に `number | null` 型の値は
+truthiness チェックが危険（禁止事項 #13）なので、変換前に View に渡してはならない。
+
+### 反例 9: 独立互換のために正本の Props を緩める
+
+**ダメな例:**
+
+```typescript
+// IntegratedSalesChart が独立利用も想定して Props を緩める
+interface Props {
+  // 包含型の場合は context 渡し
+  readonly context?: SalesAnalysisContext
+  // 独立利用の場合は個別 props
+  readonly currentDateRange?: DateRange
+  readonly selectedStoreIds?: ReadonlySet<string>
+  // 独立利用時のみ必要な特殊フラグ
+  readonly standalone?: boolean
+  readonly hideSubPanel?: boolean
+}
+```
+
+**何が壊れるか:**
+- 正本コンテナの Props が肥大化し、「どの組み合わせが有効か」が不明確になる
+- `standalone` フラグで分岐が増え、テストケースが爆発する
+- 互換レイヤーの要求が正本側に漏れ込み、永久に移行が完了しない
+
+**正しいパターン:**
+
+```typescript
+// 正本コンテナは包含型の Props のみ持つ
+interface Props {
+  readonly daily: ReadonlyMap<number, DailyRecord>
+  readonly duckConn: AsyncDuckDBConnection | null
+  // ... 包含型に必要な props のみ
+}
+
+// 独立ウィジェットはラッパー側で変換
+// registryChartWidgets.tsx
+{
+  id: 'chart-timeslot-sales',
+  render: (ctx) => <UnifiedTimeSlotWidget ctx={ctx} />,
+  // UnifiedTimeSlotWidget 内で旧 props → context 変換
+}
+```
+
+**根拠:** 互換レイヤーは正本の外側に置く（設計原則 #19）。
+正本が互換のために設計を曲げると、新旧の境界が曖昧になり移行が停滞する。
