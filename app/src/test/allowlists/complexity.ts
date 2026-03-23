@@ -157,4 +157,11 @@ export const hookLineLimits: readonly QuantitativeAllowlistEntry[] = [
     removalCondition: 'KPI hook のリファクタリング時',
     limit: 310,
   },
+  {
+    path: 'application/hooks/useTimeSlotData.ts',
+    reason: 'TimeSlot orchestrator。10 useQueryWithHandler + 12 useMemo input で import が多い',
+    category: 'structural',
+    removalCondition: 'query input 構築を sub-hook に分離する時',
+    limit: 320,
+  },
 ] as const

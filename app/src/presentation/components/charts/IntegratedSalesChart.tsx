@@ -13,7 +13,6 @@
  */
 import { useState, useCallback, useMemo, useRef, useEffect, memo } from 'react'
 import styled from 'styled-components'
-import type { AsyncDuckDBConnection, AsyncDuckDB } from '@duckdb/duckdb-wasm'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 import type { DailyRecord, DailyWeatherSummary, DiscountEntry } from '@/domain/models/record'
@@ -64,9 +63,6 @@ interface Props {
   readonly totalGrossSales?: number
   // TimeSlotChart / DeptHourlyChart / SubAnalysisPanel props
   readonly queryExecutor: QueryExecutor | null
-  readonly duckConn: AsyncDuckDBConnection | null
-  readonly duckDb?: AsyncDuckDB | null
-  readonly duckDataVersion: number
   readonly currentDateRange: DateRange
   readonly selectedStoreIds: ReadonlySet<string>
   readonly prevYearScope?: PrevYearScope
@@ -87,7 +83,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
   const parentRef = useRef<HTMLDivElement>(null)
   const drillPanelRef = useRef<HTMLDivElement>(null)
 
-  const canDrill = props.duckConn != null && props.duckDataVersion > 0
+  const canDrill = props.queryExecutor?.isReady === true
 
   const handleDayRangeSelect = useCallback(
     (startDay: number, endDay: number) => {
@@ -275,9 +271,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
           }
         >
           <TimeSlotChart
-            duckConn={props.duckConn}
-            duckDb={props.duckDb}
-            duckDataVersion={props.duckDataVersion}
+            queryExecutor={props.queryExecutor}
             context={drillContext}
             events={childEvents}
           />
@@ -303,8 +297,8 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
         <SubAnalysisPanel
           mode={rightAxisMode}
           queryExecutor={props.queryExecutor}
-          duckConn={props.duckConn}
-          duckDataVersion={props.duckDataVersion}
+          duckConn={null}
+          duckDataVersion={0}
           currentDateRange={subPanelContext.dateRange}
           selectedStoreIds={subPanelContext.selectedStoreIds}
           prevYearScope={subPanelContext.comparisonScope}

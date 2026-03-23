@@ -38,3 +38,16 @@ export {
   type CategoryTimeRecordsInput,
   type CategoryTimeRecordsOutput,
 } from './CategoryTimeRecordsHandler'
+
+export {
+  hourlyAggregationHandler,
+  type HourlyAggregationInput,
+  type HourlyAggregationOutput,
+  type HourlyAggregationRow,
+} from './HourlyAggregationHandler'
+
+export {
+  distinctDayCountHandler,
+  type DistinctDayCountInput,
+  type DistinctDayCountOutput,
+} from './DistinctDayCountHandler'

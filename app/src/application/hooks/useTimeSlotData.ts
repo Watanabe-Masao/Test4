@@ -1,22 +1,37 @@
 /**
  * TimeSlotChart のデータロジックフック
  *
- * R11準拠: 純粋計算は useTimeSlotDataLogic.ts に分離。
- * 本ファイルは DuckDB クエリ発行 + 状態管理 + 計算結果の memo のみ。
+ * R11準拠: 純粋計算は timeSlotDataLogic.ts に分離。
+ * 本ファイルは QueryHandler 経由クエリ発行 + 状態管理 + 計算結果の memo のみ。
  *
  * @layer Application — orchestrator hook
- * @guard G5 state ≤6 (5個), memo ≤7 (4個)
+ * @guard G5 state ≤6 (5個), memo ≤7 (5個)
  */
 import { useState, useMemo } from 'react'
-import type { AsyncDuckDBConnection, AsyncDuckDB } from '@duckdb/duckdb-wasm'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
+import { dateRangeToKeys } from '@/domain/models/CalendarDate'
+import type { QueryExecutor } from '@/application/queries/QueryPort'
+import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
 import {
-  useDuckDBHourlyAggregation,
-  useDuckDBDistinctDayCount,
-  useDuckDBLevelAggregation,
-  useDuckDBCategoryHourly,
-} from '@/application/hooks/useDuckDBQuery'
-import { useDuckDBWeatherHourlyAvg } from '@/application/hooks/duckdb/useWeatherHourlyQuery'
+  hourlyAggregationHandler,
+  type HourlyAggregationInput,
+} from '@/application/queries/cts/HourlyAggregationHandler'
+import {
+  distinctDayCountHandler,
+  type DistinctDayCountInput,
+} from '@/application/queries/cts/DistinctDayCountHandler'
+import {
+  levelAggregationHandler,
+  type LevelAggregationInput,
+} from '@/application/queries/cts/LevelAggregationHandler'
+import {
+  categoryHourlyHandler,
+  type CategoryHourlyInput,
+} from '@/application/queries/cts/CategoryHourlyHandler'
+import {
+  weatherHourlyAvgHandler,
+  type WeatherHourlyAvgInput,
+} from '@/application/queries/weather/WeatherHourlyHandler'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useDataStore } from '@/application/stores/dataStore'
 import {
@@ -42,21 +57,28 @@ export type {
 } from '@/application/usecases/timeSlotDataLogic'
 export type { HierarchyOption } from '@/application/hooks/useHierarchySelection'
 
+// ── Helper ──
+
+function toKeys(range: DateRange): { dateFrom: string; dateTo: string } {
+  const { fromKey, toKey } = dateRangeToKeys(range)
+  return { dateFrom: fromKey, dateTo: toKey }
+}
+
+function storeIdsArray(ids: ReadonlySet<string>): readonly string[] | undefined {
+  return ids.size > 0 ? [...ids] : undefined
+}
+
 // ── Hook ──
 
 interface Params {
-  readonly duckConn: AsyncDuckDBConnection | null
-  readonly duckDb?: AsyncDuckDB | null
-  readonly duckDataVersion: number
+  readonly queryExecutor: QueryExecutor | null
   readonly currentDateRange: DateRange
   readonly selectedStoreIds: ReadonlySet<string>
   readonly prevYearScope?: PrevYearScope
 }
 
-export function useDuckDBTimeSlotData({
-  duckConn,
-  duckDb,
-  duckDataVersion,
+export function useTimeSlotData({
+  queryExecutor,
   currentDateRange,
   selectedStoreIds,
   prevYearScope,
@@ -77,94 +99,76 @@ export function useDuckDBTimeSlotData({
   const compRange = compMode === 'wow' ? wowRange : prevYearScope?.dateRange
   const compIsPrevYear = compMode === 'yoy'
 
-  // ── DuckDB queries ──
+  // ── Query Inputs (5 useMemo — G5 ≤7 準拠) ──
 
-  const {
-    data: currentHourly,
-    isLoading,
-    error,
-  } = useDuckDBHourlyAggregation(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-    hierarchy,
-    false,
-  )
-  const { data: compHourly } = useDuckDBHourlyAggregation(
-    duckConn,
-    duckDataVersion,
-    compRange,
-    selectedStoreIds,
-    hierarchy,
-    compIsPrevYear,
-  )
-  const { data: currentDayCount } = useDuckDBDistinctDayCount(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-    false,
-  )
-  const { data: compDayCount } = useDuckDBDistinctDayCount(
-    duckConn,
-    duckDataVersion,
-    compRange,
-    selectedStoreIds,
-    compIsPrevYear,
+  const storeIds = storeIdsArray(selectedStoreIds)
+
+  const curHourlyInput = useMemo<HourlyAggregationInput>(
+    () => ({ ...toKeys(currentDateRange), storeIds, ...hierarchy, isPrevYear: false }),
+    [currentDateRange, storeIds, hierarchy],
   )
 
-  // Hierarchy dropdowns
-  const { data: departments } = useDuckDBLevelAggregation(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-    'department',
-    undefined,
-    false,
-  )
-  const { data: lines } = useDuckDBLevelAggregation(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-    'line',
-    deptCode ? { deptCode } : undefined,
-    false,
-  )
-  const { data: klasses } = useDuckDBLevelAggregation(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-    'klass',
-    deptCode || lineCode
-      ? { deptCode: deptCode || undefined, lineCode: lineCode || undefined }
-      : undefined,
-    false,
+  const compHourlyInput = useMemo<HourlyAggregationInput | null>(() => {
+    if (!compRange) return null
+    return { ...toKeys(compRange), storeIds, ...hierarchy, isPrevYear: compIsPrevYear }
+  }, [compRange, storeIds, hierarchy, compIsPrevYear])
+
+  const curDayCountInput = useMemo<DistinctDayCountInput>(
+    () => ({ ...toKeys(currentDateRange), storeIds, isPrevYear: false }),
+    [currentDateRange, storeIds],
   )
 
-  // ── Hierarchy Options (sub-hook: 3 useMemo) ──
-  const { deptOptions, lineOptions, klassOptions } = useHierarchyOptions(
-    departments,
-    lines,
-    klasses,
+  const compDayCountInput = useMemo<DistinctDayCountInput | null>(() => {
+    if (!compRange) return null
+    return { ...toKeys(compRange), storeIds, isPrevYear: compIsPrevYear }
+  }, [compRange, storeIds, compIsPrevYear])
+
+  const deptInput = useMemo<LevelAggregationInput>(
+    () => ({
+      ...toKeys(currentDateRange),
+      storeIds,
+      level: 'department' as const,
+      isPrevYear: false,
+    }),
+    [currentDateRange, storeIds],
   )
 
-  // ── カテゴリ×時間帯集約 ──
+  const lineInput = useMemo<LevelAggregationInput | null>(() => {
+    if (!deptCode) return null
+    return {
+      ...toKeys(currentDateRange),
+      storeIds,
+      level: 'line' as const,
+      deptCode,
+      isPrevYear: false,
+    }
+  }, [currentDateRange, storeIds, deptCode])
+
+  const klassInput = useMemo<LevelAggregationInput | null>(() => {
+    if (!deptCode && !lineCode) return null
+    return {
+      ...toKeys(currentDateRange),
+      storeIds,
+      level: 'klass' as const,
+      deptCode: deptCode || undefined,
+      lineCode: lineCode || undefined,
+      isPrevYear: false,
+    }
+  }, [currentDateRange, storeIds, deptCode, lineCode])
+
   const heatmapLevel = deptCode ? (lineCode ? 'klass' : 'line') : 'department'
-  const { data: categoryHourlyData } = useDuckDBCategoryHourly(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-    heatmapLevel as 'department' | 'line' | 'klass',
-    hierarchy,
-    false,
+  const categoryHourlyInput = useMemo<CategoryHourlyInput>(
+    () => ({
+      ...toKeys(currentDateRange),
+      storeIds,
+      level: heatmapLevel as 'department' | 'line' | 'klass',
+      ...hierarchy,
+      isPrevYear: false,
+    }),
+    [currentDateRange, storeIds, heatmapLevel, hierarchy],
   )
 
-  // ── 天気時間帯平均 ──
+  // ── Weather ──
   const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
   const allStoreIds = useDataStore((s) => s.data.stores)
   const weatherStoreId = useMemo(() => {
@@ -172,27 +176,80 @@ export function useDuckDBTimeSlotData({
     return ids.find((id) => storeLocations[id]) ?? ids[0] ?? ''
   }, [selectedStoreIds, allStoreIds, storeLocations])
 
-  const prevDateRange = compMode === 'yoy' ? prevYearScope?.dateRange : undefined
-  const { data: curWeatherAvg } = useDuckDBWeatherHourlyAvg(
-    duckConn,
-    duckDataVersion,
-    weatherStoreId,
-    currentDateRange,
-    duckDb,
+  const curWeatherInput = useMemo<WeatherHourlyAvgInput>(
+    () => ({ storeId: weatherStoreId, ...toKeys(currentDateRange) }),
+    [weatherStoreId, currentDateRange],
   )
-  const { data: prevWeatherAvg } = useDuckDBWeatherHourlyAvg(
-    duckConn,
-    duckDataVersion,
-    weatherStoreId,
-    prevDateRange,
-    duckDb,
+
+  const prevDateRange = compMode === 'yoy' ? prevYearScope?.dateRange : undefined
+  const prevWeatherInput = useMemo<WeatherHourlyAvgInput | null>(() => {
+    if (!prevDateRange) return null
+    return { storeId: weatherStoreId, ...toKeys(prevDateRange) }
+  }, [weatherStoreId, prevDateRange])
+
+  // ── QueryHandler Queries ──
+
+  const {
+    data: curHourlyOut,
+    isLoading,
+    error,
+  } = useQueryWithHandler(queryExecutor, hourlyAggregationHandler, curHourlyInput)
+  const { data: compHourlyOut } = useQueryWithHandler(
+    queryExecutor,
+    hourlyAggregationHandler,
+    compHourlyInput,
+  )
+  const { data: curDayCountOut } = useQueryWithHandler(
+    queryExecutor,
+    distinctDayCountHandler,
+    curDayCountInput,
+  )
+  const { data: compDayCountOut } = useQueryWithHandler(
+    queryExecutor,
+    distinctDayCountHandler,
+    compDayCountInput,
+  )
+  const { data: deptOut } = useQueryWithHandler(queryExecutor, levelAggregationHandler, deptInput)
+  const { data: lineOut } = useQueryWithHandler(queryExecutor, levelAggregationHandler, lineInput)
+  const { data: klassOut } = useQueryWithHandler(queryExecutor, levelAggregationHandler, klassInput)
+  const { data: catHourlyOut } = useQueryWithHandler(
+    queryExecutor,
+    categoryHourlyHandler,
+    categoryHourlyInput,
+  )
+  const { data: curWeatherOut } = useQueryWithHandler(
+    queryExecutor,
+    weatherHourlyAvgHandler,
+    curWeatherInput,
+  )
+  const { data: prevWeatherOut } = useQueryWithHandler(
+    queryExecutor,
+    weatherHourlyAvgHandler,
+    prevWeatherInput,
+  )
+
+  // ── Unwrap query results ──
+
+  const currentHourly = curHourlyOut?.records ?? null
+  const compHourly = compHourlyOut?.records ?? null
+  const currentDayCount = curDayCountOut?.count ?? null
+  const compDayCount = compDayCountOut?.count ?? null
+  const categoryHourlyData = catHourlyOut?.records ?? null
+  const curWeatherAvg = curWeatherOut?.records ?? null
+  const prevWeatherAvg = prevWeatherOut?.records ?? null
+
+  // ── Hierarchy Options (sub-hook: 3 useMemo) ──
+  const { deptOptions, lineOptions, klassOptions } = useHierarchyOptions(
+    deptOut?.records,
+    lineOut?.records,
+    klassOut?.records,
   )
 
   const hasPrev = (compHourly?.length ?? 0) > 0
   const compLabel = compMode === 'wow' ? '前週' : '前年'
   const curLabel = compMode === 'wow' ? '当週' : '当年'
 
-  // ── Computed values (4 useMemo — G5 ≤7 準拠) ──
+  // ── Computed values ──
 
   const { chartData, kpi } = useMemo(
     () =>
@@ -251,3 +308,8 @@ export function useDuckDBTimeSlotData({
     prevWeatherAvg,
   }
 }
+
+/**
+ * @deprecated バレル互換。新規コードは useTimeSlotData を直接使用すること。
+ */
+export const useDuckDBTimeSlotData = useTimeSlotData
