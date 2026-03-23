@@ -18,21 +18,10 @@ export const presentationDuckdbHook: readonly AllowlistEntry[] = [
   // DowPatternChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + dowPatternHandler
   // FeatureChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + dailyFeaturesHandler
   // YoYChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + yoyDailyHandler
-  {
-    path: 'pages/Admin/StorageManagementTab.tsx',
-    reason: 'DuckDB 管理',
-    category: 'structural',
-    removalCondition: 'QueryHandler 移行',
-  },
+  // StorageManagementTab.tsx — useStorageDuck facade hook 移行完了（2026-03-23）: useDuckDB を application 層に内包
   // DayDetailModal.tsx — re-export 経路整理完了（2026-03-23）: application/hooks/analytics 経由
   // YoYWaterfallChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + categoryTimeRecordsHandler ×3
-  // PurchaseAnalysisPage.tsx — usePurchaseComparisonQuery は re-export 済みだが、useDuckDB（conn取得）がガードに引っかかる
-  {
-    path: 'pages/PurchaseAnalysis/PurchaseAnalysisPage.tsx',
-    reason: 'useDuckDB conn 取得（queryExecutor 移行で解消予定）',
-    category: 'bridge',
-    removalCondition: 'queryExecutor 移行',
-  },
+  // PurchaseAnalysisPage.tsx — usePurchaseAnalysis facade hook 移行完了（2026-03-23）: useDuckDB を application 層に内包
   // FactorDecompositionPanel.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + storeDaySummaryHandler
   // WeatherAnalysisPanel.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + storeDaySummaryHandler
   // HeatmapChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + hourDowMatrixHandler + levelAggregationHandler
