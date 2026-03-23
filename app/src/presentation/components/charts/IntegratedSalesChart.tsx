@@ -15,6 +15,7 @@ import { useState, useCallback, useMemo, memo } from 'react'
 import styled from 'styled-components'
 import type { AsyncDuckDBConnection, AsyncDuckDB } from '@duckdb/duckdb-wasm'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
+import type { QueryExecutor } from '@/application/queries/QueryPort'
 import type { DailyRecord, DailyWeatherSummary, DiscountEntry } from '@/domain/models/record'
 import { useDrillDateRange } from '@/application/hooks/useDrillDateRange'
 import {
@@ -61,7 +62,8 @@ interface Props {
   // SubAnalysisPanel（売変分析）用
   readonly discountEntries?: readonly DiscountEntry[]
   readonly totalGrossSales?: number
-  // TimeSlotChart / DeptHourlyChart props
+  // TimeSlotChart / DeptHourlyChart / SubAnalysisPanel props
+  readonly queryExecutor: QueryExecutor | null
   readonly duckConn: AsyncDuckDBConnection | null
   readonly duckDb?: AsyncDuckDB | null
   readonly duckDataVersion: number
@@ -250,8 +252,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
             role="grandchild"
           >
             <DeptHourlyChart
-              duckConn={props.duckConn}
-              duckDataVersion={props.duckDataVersion}
+              queryExecutor={props.queryExecutor}
               currentDateRange={drillContext.dateRange}
               selectedStoreIds={drillContext.selectedStoreIds}
             />
@@ -263,6 +264,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
       {dailyView === 'standard' && (
         <SubAnalysisPanel
           mode={rightAxisMode}
+          queryExecutor={props.queryExecutor}
           duckConn={props.duckConn}
           duckDataVersion={props.duckDataVersion}
           currentDateRange={subPanelContext.dateRange}

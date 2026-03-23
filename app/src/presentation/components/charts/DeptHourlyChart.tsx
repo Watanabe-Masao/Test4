@@ -2,15 +2,22 @@
  * 部門別時間帯パターンチャート (ECharts)
  *
  * パイプライン:
- *   DuckDB Hook → DeptHourlyChartLogic.ts → ECharts option → EChart
+ *   QueryHandler → DeptHourlyChartLogic.ts → ECharts option → EChart
+ *
+ * @migration P5: useQueryWithHandler 経由に移行済み（旧: useDuckDBCategoryHourly 直接 import）
  */
 import React, { useState, useMemo, useCallback } from 'react'
 import { useTheme } from 'styled-components'
 import { HOUR_MIN, HOUR_MAX } from './HeatmapChart.helpers'
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models/calendar'
+import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { AppTheme } from '@/presentation/theme/theme'
-import { useDuckDBCategoryHourly } from '@/application/hooks/useDuckDBQuery'
+import type { QueryExecutor } from '@/application/queries/QueryPort'
+import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
+import {
+  categoryHourlyHandler,
+  type CategoryHourlyInput,
+} from '@/application/queries/cts/CategoryHourlyHandler'
 import { useCurrencyFormatter } from './chartTheme'
 import { buildDeptHourlyData, detectCannibalization, TOP_N_OPTIONS } from './DeptHourlyChartLogic'
 import { useI18n } from '@/application/hooks/useI18n'
@@ -42,8 +49,7 @@ const VIEW_OPTIONS: readonly { value: ViewMode; label: string }[] = [
 ]
 
 interface Props {
-  readonly duckConn: AsyncDuckDBConnection | null
-  readonly duckDataVersion: number
+  readonly queryExecutor: QueryExecutor | null
   readonly currentDateRange: DateRange
   readonly selectedStoreIds: ReadonlySet<string>
 }
@@ -76,8 +82,7 @@ function buildOption(
 }
 
 export const DeptHourlyChart = React.memo(function DeptHourlyChart({
-  duckConn,
-  duckDataVersion,
+  queryExecutor,
   currentDateRange,
   selectedStoreIds,
 }: Props) {
@@ -88,17 +93,23 @@ export const DeptHourlyChart = React.memo(function DeptHourlyChart({
   const [activeDepts, setActiveDepts] = useState<ReadonlySet<string>>(new Set())
   const [viewMode, setViewMode] = useState<ViewMode>('stacked')
 
+  const input = useMemo<CategoryHourlyInput | null>(() => {
+    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
+    return {
+      dateFrom: fromKey,
+      dateTo: toKey,
+      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
+      level: 'department' as const,
+    }
+  }, [currentDateRange, selectedStoreIds])
+
   const {
-    data: categoryHourlyRows,
+    data: output,
     error,
     isLoading,
-  } = useDuckDBCategoryHourly(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-    'department',
-  )
+  } = useQueryWithHandler(queryExecutor, categoryHourlyHandler, input)
+
+  const categoryHourlyRows = output?.records ?? null
 
   const { chartData, departments, hourlyPatterns } = useMemo(
     () =>
@@ -146,7 +157,7 @@ export const DeptHourlyChart = React.memo(function DeptHourlyChart({
       </ChartCard>
     )
   }
-  if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
+  if (!queryExecutor || chartData.length === 0) {
     return (
       <ChartCard title="部門別時間帯パターン">
         <ChartEmpty message="データをインポートしてください" />

@@ -9,14 +9,22 @@
  * PI↑CV↓=定番化 / PI↑CV↑=プロモ / PI↓CV↑=需要崩れ を判定。
  */
 import { useState, useMemo, memo } from 'react'
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models/calendar'
+import { dateRangeToKeys } from '@/domain/models/calendar'
+import type { QueryExecutor } from '@/application/queries/QueryPort'
+import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
 import {
-  useDuckDBCategoryBenchmark,
-  useDuckDBCategoryBenchmarkTrend,
+  categoryBenchmarkHandler,
+  type CategoryBenchmarkInput,
+} from '@/application/queries/advanced/CategoryBenchmarkHandler'
+import {
+  categoryBenchmarkTrendHandler,
+  type CategoryBenchmarkTrendInput,
+} from '@/application/queries/advanced/CategoryBenchmarkTrendHandler'
+import {
   buildCategoryBenchmarkScores,
   buildCategoryTrendData,
-} from '@/application/hooks/useDuckDBQuery'
+} from '@/application/queries/advanced'
 import { useChartTheme, useCurrencyFormat } from './chartTheme'
 import { ChartSkeleton } from '@/presentation/components/common/feedback'
 import { ChartCard } from './ChartCard'
@@ -50,15 +58,13 @@ import { CvHeatmapView } from './CvHeatmapView'
 // ── メインコンポーネント ──
 
 interface Props {
-  readonly duckConn: AsyncDuckDBConnection | null
-  readonly duckDataVersion: number
+  readonly queryExecutor: QueryExecutor | null
   readonly currentDateRange: DateRange
   readonly selectedStoreIds: ReadonlySet<string>
 }
 
 export const CvTimeSeriesChart = memo(function CvTimeSeriesChart({
-  duckConn,
-  duckDataVersion,
+  queryExecutor,
   currentDateRange,
   selectedStoreIds,
 }: Props) {
@@ -69,39 +75,54 @@ export const CvTimeSeriesChart = memo(function CvTimeSeriesChart({
   const [overlay, setOverlay] = useState<OverlayMode>('both')
   const [topN, setTopN] = useState(5)
 
-  const benchmarkResult = useDuckDBCategoryBenchmark(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-    level,
+  const benchmarkInput = useMemo<CategoryBenchmarkInput | null>(() => {
+    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
+    return {
+      dateFrom: fromKey,
+      dateTo: toKey,
+      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
+      level,
+    }
+  }, [currentDateRange, selectedStoreIds, level])
+
+  const benchmarkResult = useQueryWithHandler(
+    queryExecutor,
+    categoryBenchmarkHandler,
+    benchmarkInput,
   )
 
-  const trendResult = useDuckDBCategoryBenchmarkTrend(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-    level,
-  )
+  const trendInput = useMemo<CategoryBenchmarkTrendInput | null>(() => {
+    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
+    return {
+      dateFrom: fromKey,
+      dateTo: toKey,
+      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
+      level,
+    }
+  }, [currentDateRange, selectedStoreIds, level])
+
+  const trendResult = useQueryWithHandler(queryExecutor, categoryBenchmarkTrendHandler, trendInput)
 
   const storeCount = selectedStoreIds.size || 0
 
+  const benchmarkRows = benchmarkResult.data?.records ?? null
+  const trendRows = trendResult.data?.records ?? null
+
   const topCodes = useMemo(() => {
-    if (!benchmarkResult.data || benchmarkResult.data.length === 0) return []
-    const scores = buildCategoryBenchmarkScores(benchmarkResult.data, 1, storeCount, 'salesPi')
+    if (!benchmarkRows || benchmarkRows.length === 0) return []
+    const scores = buildCategoryBenchmarkScores(benchmarkRows, 1, storeCount, 'salesPi')
     return scores.slice(0, topN).map((s) => s.code)
-  }, [benchmarkResult.data, storeCount, topN])
+  }, [benchmarkRows, storeCount, topN])
 
   const trendPoints = useMemo(() => {
-    if (!trendResult.data || trendResult.data.length === 0 || topCodes.length === 0) return []
-    return buildCategoryTrendData(trendResult.data, topCodes, storeCount)
-  }, [trendResult.data, topCodes, storeCount])
+    if (!trendRows || trendRows.length === 0 || topCodes.length === 0) return []
+    return buildCategoryTrendData(trendRows, topCodes, storeCount)
+  }, [trendRows, topCodes, storeCount])
 
   const salesByDateCode = useMemo(() => {
-    if (!trendResult.data) return new Map<string, number>()
-    return buildSalesByDateCode(trendResult.data, topCodes)
-  }, [trendResult.data, topCodes])
+    if (!trendRows) return new Map<string, number>()
+    return buildSalesByDateCode(trendRows, topCodes)
+  }, [trendRows, topCodes])
 
   const chartData = useMemo(
     () => buildAllChartData(trendPoints, topCodes, salesByDateCode),

@@ -2,15 +2,22 @@
  * 店舗×時間帯比較チャート (ECharts)
  *
  * パイプライン:
- *   DuckDB Hook → StoreHourlyChartLogic.ts → ECharts option → EChart
+ *   QueryHandler → StoreHourlyChartLogic.ts → ECharts option → EChart
+ *
+ * @migration P5: useQueryWithHandler 経由に移行済み（旧: useDuckDBStoreAggregation 直接 import）
  */
 import { useState, useMemo, memo, useCallback } from 'react'
 import { useTheme } from 'styled-components'
 import { HOUR_MIN, HOUR_MAX } from './HeatmapChart.helpers'
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models/calendar'
+import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { AppTheme } from '@/presentation/theme/theme'
-import { useDuckDBStoreAggregation } from '@/application/hooks/useDuckDBQuery'
+import type { QueryExecutor } from '@/application/queries/QueryPort'
+import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
+import {
+  storeAggregationHandler,
+  type StoreAggregationInput,
+} from '@/application/queries/cts/StoreAggregationHandler'
 import { useCurrencyFormatter, toPct } from './chartTheme'
 import {
   buildStoreHourlyData,
@@ -46,8 +53,7 @@ const MODE_OPTIONS: readonly { value: StoreHourlyMode; label: string }[] = [
 ]
 
 interface Props {
-  readonly duckConn: AsyncDuckDBConnection | null
-  readonly duckDataVersion: number
+  readonly queryExecutor: QueryExecutor | null
   readonly currentDateRange: DateRange
   readonly selectedStoreIds: ReadonlySet<string>
   readonly stores: ReadonlyMap<string, { name: string }>
@@ -87,8 +93,7 @@ function buildOption(
 }
 
 export const StoreHourlyChart = memo(function StoreHourlyChart({
-  duckConn,
-  duckDataVersion,
+  queryExecutor,
   currentDateRange,
   selectedStoreIds,
   stores,
@@ -101,11 +106,22 @@ export const StoreHourlyChart = memo(function StoreHourlyChart({
 
   const handleCloseModal = useCallback(() => setSelectedStoreInfo(null), [])
 
+  const input = useMemo<StoreAggregationInput | null>(() => {
+    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
+    return {
+      dateFrom: fromKey,
+      dateTo: toKey,
+      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
+    }
+  }, [currentDateRange, selectedStoreIds])
+
   const {
-    data: storeRows,
+    data: output,
     error,
     isLoading,
-  } = useDuckDBStoreAggregation(duckConn, duckDataVersion, currentDateRange, selectedStoreIds)
+  } = useQueryWithHandler(queryExecutor, storeAggregationHandler, input)
+
+  const storeRows = output?.records ?? null
 
   const { chartData, storeInfos, similarities } = useMemo(
     () =>
@@ -134,7 +150,7 @@ export const StoreHourlyChart = memo(function StoreHourlyChart({
       </ChartCard>
     )
   }
-  if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
+  if (!queryExecutor || chartData.length === 0) {
     return (
       <ChartCard title="店舗×時間帯比較">
         <ChartEmpty message="データをインポートしてください" />

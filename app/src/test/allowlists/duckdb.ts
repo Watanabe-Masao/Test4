@@ -11,48 +11,13 @@ export const presentationDuckdbHook: readonly AllowlistEntry[] = [
     category: 'bridge',
     removalCondition: 'QueryHandler 移行',
   },
-  {
-    path: 'components/charts/CategoryHierarchyExplorer.tsx',
-    reason: 'DuckDB 探索',
-    category: 'migration',
-    removalCondition: 'QueryHandler 移行',
-  },
-  {
-    path: 'components/charts/CategoryPerformanceChart.tsx',
-    reason: 'DuckDB 探索',
-    category: 'migration',
-    removalCondition: 'QueryHandler 移行',
-  },
-  {
-    path: 'components/charts/CategoryHourlyChart.tsx',
-    reason: 'DuckDB 探索',
-    category: 'migration',
-    removalCondition: 'QueryHandler 移行',
-  },
-  {
-    path: 'components/charts/DeptHourlyChart.tsx',
-    reason: 'DuckDB 探索',
-    category: 'migration',
-    removalCondition: 'QueryHandler 移行',
-  },
-  {
-    path: 'components/charts/DowPatternChart.tsx',
-    reason: 'DuckDB 探索',
-    category: 'migration',
-    removalCondition: 'QueryHandler 移行',
-  },
-  {
-    path: 'components/charts/FeatureChart.tsx',
-    reason: 'DuckDB 探索',
-    category: 'migration',
-    removalCondition: 'QueryHandler 移行',
-  },
-  {
-    path: 'components/charts/YoYChart.tsx',
-    reason: 'DuckDB 探索',
-    category: 'migration',
-    removalCondition: 'QueryHandler 移行',
-  },
+  // CategoryHierarchyExplorer.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + levelAggregationHandler + categoryHourlyHandler
+  // CategoryPerformanceChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + levelAggregationHandler
+  // CategoryHourlyChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + categoryHourlyHandler
+  // DeptHourlyChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + categoryHourlyHandler
+  // DowPatternChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + dowPatternHandler
+  // FeatureChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + dailyFeaturesHandler
+  // YoYChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + yoyDailyHandler
   {
     path: 'pages/Admin/StorageManagementTab.tsx',
     reason: 'DuckDB 管理',
@@ -77,85 +42,25 @@ export const presentationDuckdbHook: readonly AllowlistEntry[] = [
     category: 'migration',
     removalCondition: 'QueryHandler 移行',
   },
-  {
-    path: 'components/charts/FactorDecompositionPanel.tsx',
-    reason: 'DuckDB 探索',
-    category: 'migration',
-    removalCondition: 'QueryHandler 移行',
-  },
-  {
-    path: 'components/charts/WeatherAnalysisPanel.tsx',
-    reason: 'DuckDB 探索',
-    category: 'migration',
-    removalCondition: 'QueryHandler 移行',
-  },
-  {
-    path: 'components/charts/HeatmapChart.tsx',
-    reason: 'DuckDB 探索',
-    category: 'migration',
-    removalCondition: 'QueryHandler 移行',
-  },
-  {
-    path: 'components/charts/CategoryBenchmarkChart.vm.ts',
-    reason: 'DuckDB 探索',
-    category: 'migration',
-    removalCondition: 'QueryHandler 移行',
-  },
-  {
-    path: 'components/charts/CategoryBoxPlotChart.vm.ts',
-    reason: 'DuckDB 探索',
-    category: 'migration',
-    removalCondition: 'QueryHandler 移行',
-  },
-  {
-    path: 'components/charts/CategoryMixChart.tsx',
-    reason: 'DuckDB 探索',
-    category: 'migration',
-    removalCondition: 'QueryHandler 移行',
-  },
-  {
-    path: 'components/charts/CategoryTrendChart.tsx',
-    reason: 'DuckDB 探索',
-    category: 'migration',
-    removalCondition: 'QueryHandler 移行',
-  },
+  // FactorDecompositionPanel.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + storeDaySummaryHandler
+  // WeatherAnalysisPanel.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + storeDaySummaryHandler
+  // HeatmapChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + hourDowMatrixHandler + levelAggregationHandler
+  // CategoryBenchmarkChart.vm.ts — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + categoryBenchmarkHandler + categoryBenchmarkTrendHandler + categoryHierarchyHandler
+  // CategoryBoxPlotChart.vm.ts — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + 同上
+  // CategoryMixChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + categoryMixWeeklyHandler
+  // CategoryTrendChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + categoryDailyTrendHandler
   // CumulativeChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + dailyCumulativeHandler
-  {
-    path: 'components/charts/CvTimeSeriesChart.tsx',
-    reason: 'DuckDB 探索',
-    category: 'migration',
-    removalCondition: 'QueryHandler 移行',
-  },
-  {
-    path: 'components/charts/DeptTrendChart.tsx',
-    reason: 'DuckDB 探索',
-    category: 'migration',
-    removalCondition: 'QueryHandler 移行',
-  },
-  {
-    path: 'components/charts/PiCvBubbleChart.tsx',
-    reason: 'DuckDB 探索',
-    category: 'migration',
-    removalCondition: 'QueryHandler 移行',
-  },
-  {
-    path: 'components/charts/StoreHourlyChart.tsx',
-    reason: 'DuckDB 探索',
-    category: 'migration',
-    removalCondition: 'QueryHandler 移行',
-  },
+  // CvTimeSeriesChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + categoryBenchmarkHandler + categoryBenchmarkTrendHandler
+  // DeptTrendChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + deptKpiTrendHandler
+  // PiCvBubbleChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + categoryBenchmarkHandler
+  // StoreHourlyChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + storeAggregationHandler
   {
     path: 'components/charts/useDuckDBTimeSlotData.ts',
     reason: 'DuckDB 探索',
     category: 'migration',
     removalCondition: 'QueryHandler 移行',
   },
-  {
-    path: 'pages/Dashboard/widgets/ConditionMatrixTable.tsx',
-    reason: 'DuckDB 探索',
-    category: 'migration',
-    removalCondition: 'QueryHandler 移行',
-  },
+  // ConditionMatrixTable.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + conditionMatrixHandler
   {
     path: 'pages/Dashboard/widgets/ConditionSummaryBudgetDrill.tsx',
     reason: 'DuckDB 探索',

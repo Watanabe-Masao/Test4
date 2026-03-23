@@ -2,13 +2,19 @@
  * 部門KPI月別トレンドチャート (ECharts)
  *
  * パイプライン:
- *   DuckDB Hook → DeptTrendChartLogic.ts → ECharts option → EChart
+ *   QueryHandler → DeptTrendChartLogic.ts → ECharts option → EChart
+ *
+ * @migration P5: useQueryWithHandler 経由に移行済み（旧: useDuckDBDeptKpiTrend 直接 import）
  */
 import { useMemo, useState, memo } from 'react'
 import { useTheme } from 'styled-components'
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { AppTheme } from '@/presentation/theme/theme'
-import { useDuckDBDeptKpiTrend } from '@/application/hooks/useDuckDBQuery'
+import type { QueryExecutor } from '@/application/queries/QueryPort'
+import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
+import {
+  deptKpiTrendHandler,
+  type DeptKpiTrendInput,
+} from '@/application/queries/dept/DeptKpiTrendHandler'
 import { buildDeptTrendData, type DeptTrendChartPoint } from './DeptTrendChartLogic'
 import { useI18n } from '@/application/hooks/useI18n'
 import { ChartCard } from './ChartCard'
@@ -25,8 +31,7 @@ import { categoryXAxis, valueYAxis } from './builders'
 import { DeptSelector, DeptChip } from './DeptTrendChart.styles'
 
 interface Props {
-  readonly duckConn: AsyncDuckDBConnection | null
-  readonly duckDataVersion: number
+  readonly queryExecutor: QueryExecutor | null
   readonly loadedMonthCount: number
   readonly year: number
   readonly month: number
@@ -103,8 +108,7 @@ function buildOption(
 }
 
 export const DeptTrendChart = memo(function DeptTrendChart({
-  duckConn,
-  duckDataVersion,
+  queryExecutor,
   loadedMonthCount,
   year,
   month,
@@ -127,11 +131,15 @@ export const DeptTrendChart = memo(function DeptTrendChart({
     return months
   }, [year, month])
 
+  const input = useMemo<DeptKpiTrendInput | null>(() => ({ yearMonths }), [yearMonths])
+
   const {
-    data: trendData,
+    data: output,
     isLoading,
     error,
-  } = useDuckDBDeptKpiTrend(duckConn, duckDataVersion, yearMonths)
+  } = useQueryWithHandler(queryExecutor, deptKpiTrendHandler, input)
+
+  const trendData = output?.records ?? null
 
   const { chartData, deptNames } = useMemo(
     () =>
@@ -166,7 +174,7 @@ export const DeptTrendChart = memo(function DeptTrendChart({
       </ChartCard>
     )
   }
-  if (!duckConn || duckDataVersion === 0 || loadedMonthCount < 2 || chartData.length === 0) {
+  if (!queryExecutor || loadedMonthCount < 2 || chartData.length === 0) {
     return (
       <ChartCard title="部門別KPIトレンド">
         <ChartEmpty message="データをインポートしてください" />

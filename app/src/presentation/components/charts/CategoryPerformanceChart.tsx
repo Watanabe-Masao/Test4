@@ -3,16 +3,23 @@
  *
  * queryLevelAggregation で階層別集約データを取得し、
  * PI値（金額PI / 点数PI）と偏差値を算出して横棒チャートで表示する。
+ *
+ * @migration P5: useQueryWithHandler 経由に移行済み（旧: useDuckDBLevelAggregation 直接 import）
  */
 import { useState, useMemo, memo } from 'react'
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { EChart, type EChartsOption } from './EChart'
 import { standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
 import { toComma, toDevScore } from './chartTheme'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
-import { useDuckDBLevelAggregation } from '@/application/hooks/duckdb'
+import { dateRangeToKeys } from '@/domain/models/calendar'
+import type { QueryExecutor } from '@/application/queries/QueryPort'
+import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
+import {
+  levelAggregationHandler,
+  type LevelAggregationInput,
+} from '@/application/queries/cts/LevelAggregationHandler'
 import { calculateStdDev } from '@/application/hooks/useStatistics'
 import { ChartSkeleton } from '@/presentation/components/common/feedback'
 import { ChartCard } from './ChartCard'
@@ -34,8 +41,7 @@ const LEVEL_LABELS: Record<LevelType, string> = {
 }
 
 interface Props {
-  duckConn: AsyncDuckDBConnection | null
-  duckDataVersion: number
+  queryExecutor: QueryExecutor | null
   currentDateRange: DateRange
   prevYearScope?: PrevYearScope
   selectedStoreIds: ReadonlySet<string>
@@ -65,8 +71,7 @@ interface CategoryRow {
 }
 
 export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
-  duckConn,
-  duckDataVersion,
+  queryExecutor,
   currentDateRange,
   prevYearScope,
   selectedStoreIds,
@@ -78,32 +83,43 @@ export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
   const [view, setView] = useState<ViewType>('piRank')
   const [level, setLevel] = useState<LevelType>('department')
 
-  // DuckDB: 当年レベル別集約
-  const curAgg = useDuckDBLevelAggregation(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-    level,
-  )
+  // QueryHandler: 当年レベル別集約
+  const curInput = useMemo<LevelAggregationInput | null>(() => {
+    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
+    return {
+      dateFrom: fromKey,
+      dateTo: toKey,
+      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
+      level,
+    }
+  }, [currentDateRange, selectedStoreIds, level])
 
-  // DuckDB: 前年レベル別集約
-  const prevAgg = useDuckDBLevelAggregation(
-    duckConn,
-    duckDataVersion,
-    prevYearDateRange,
-    selectedStoreIds,
-    level,
-    undefined,
-    true, // isPrevYear
-  )
+  const curAgg = useQueryWithHandler(queryExecutor, levelAggregationHandler, curInput)
+
+  // QueryHandler: 前年レベル別集約
+  const prevInput = useMemo<LevelAggregationInput | null>(() => {
+    if (!prevYearDateRange) return null
+    const { fromKey, toKey } = dateRangeToKeys(prevYearDateRange)
+    return {
+      dateFrom: fromKey,
+      dateTo: toKey,
+      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
+      level,
+      isPrevYear: true,
+    }
+  }, [prevYearDateRange, selectedStoreIds, level])
+
+  const prevAgg = useQueryWithHandler(queryExecutor, levelAggregationHandler, prevInput)
+
+  const curRecords = curAgg.data?.records ?? null
+  const prevRecords = prevAgg.data?.records ?? null
 
   const categoryRows = useMemo(() => {
-    if (!curAgg.data || curAgg.data.length === 0 || totalCustomers <= 0) return []
+    if (!curRecords || curRecords.length === 0 || totalCustomers <= 0) return []
 
     const prevMap = new Map<string, { amount: number; quantity: number }>()
-    if (prevAgg.data && prevTotalCustomers > 0) {
-      for (const row of prevAgg.data) {
+    if (prevRecords && prevTotalCustomers > 0) {
+      for (const row of prevRecords) {
         prevMap.set(row.code, { amount: row.amount, quantity: row.quantity })
       }
     }
@@ -112,7 +128,7 @@ export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
     const piAmounts: number[] = []
     const piQtys: number[] = []
 
-    for (const entry of curAgg.data) {
+    for (const entry of curRecords) {
       const piAmount = (entry.amount / totalCustomers) * 1000
       const piQty = (entry.quantity / totalCustomers) * 1000
 
@@ -159,7 +175,7 @@ export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
     // Sort by piAmount descending, limit to top 20
     rows.sort((a, b) => b.piAmount - a.piAmount)
     return rows.slice(0, 20)
-  }, [curAgg.data, prevAgg.data, totalCustomers, prevTotalCustomers])
+  }, [curRecords, prevRecords, totalCustomers, prevTotalCustomers])
 
   const names = categoryRows.map((r) => r.name)
 
@@ -391,7 +407,7 @@ export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
     )
   }
 
-  if (!curAgg.data || curAgg.data.length === 0) {
+  if (!curRecords || curRecords.length === 0) {
     return (
       <ChartCard title="カテゴリPI値・偏差値分析" ariaLabel="カテゴリ実績チャート">
         <EmptyMsg>分類別時間帯売上データがありません</EmptyMsg>

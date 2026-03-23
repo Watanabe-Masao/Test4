@@ -49,8 +49,7 @@ export const UnifiedHeatmapWidget = memo(function UnifiedHeatmapWidget({
 }) {
   return (
     <HeatmapChart
-      duckConn={ctx.duckConn}
-      duckDataVersion={ctx.duckDataVersion}
+      queryExecutor={ctx.queryExecutor}
       currentDateRange={ctx.currentDateRange}
       selectedStoreIds={ctx.selectedStoreIds}
       prevYearScope={ctx.prevYearScope}
@@ -67,8 +66,7 @@ export const UnifiedDeptHourlyWidget = memo(function UnifiedDeptHourlyWidget({
 }) {
   return (
     <DeptHourlyChart
-      duckConn={ctx.duckConn}
-      duckDataVersion={ctx.duckDataVersion}
+      queryExecutor={ctx.queryExecutor}
       currentDateRange={ctx.currentDateRange}
       selectedStoreIds={ctx.selectedStoreIds}
     />
@@ -84,8 +82,7 @@ export const UnifiedStoreHourlyWidget = memo(function UnifiedStoreHourlyWidget({
 }) {
   return (
     <StoreHourlyChart
-      duckConn={ctx.duckConn}
-      duckDataVersion={ctx.duckDataVersion}
+      queryExecutor={ctx.queryExecutor}
       currentDateRange={ctx.currentDateRange}
       selectedStoreIds={ctx.selectedStoreIds}
       stores={ctx.stores}
@@ -98,8 +95,7 @@ export const UnifiedStoreHourlyWidget = memo(function UnifiedStoreHourlyWidget({
 export const UnifiedYoYWidget = memo(function UnifiedYoYWidget({ ctx }: { ctx: WidgetContext }) {
   return (
     <YoYChart
-      duckConn={ctx.duckConn}
-      duckDataVersion={ctx.duckDataVersion}
+      queryExecutor={ctx.queryExecutor}
       frame={ctx.prevYear.hasPrevYear ? ctx.comparisonFrame : undefined}
       selectedStoreIds={ctx.selectedStoreIds}
       prevYearScope={ctx.prevYearScope}

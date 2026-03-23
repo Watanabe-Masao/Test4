@@ -16,8 +16,7 @@ interface Props {
 export const CategoryHeatmapPanel = memo(function CategoryHeatmapPanel({ ctx }: Props) {
   return (
     <CategoryTrendChart
-      duckConn={ctx.duckConn}
-      duckDataVersion={ctx.duckDataVersion}
+      queryExecutor={ctx.queryExecutor}
       currentDateRange={ctx.currentDateRange}
       selectedStoreIds={ctx.selectedStoreIds}
       hideDowSelector

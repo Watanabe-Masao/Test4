@@ -2,14 +2,21 @@
  * 曜日別売上パターンチャート (ECharts)
  *
  * パイプライン:
- *   DuckDB Hook → DowPatternChartLogic.ts → ECharts option → EChart
+ *   QueryHandler → DowPatternChartLogic.ts → ECharts option → EChart
+ *
+ * @migration P5: useQueryWithHandler 経由に移行済み（旧: useDuckDBDowPattern 直接 import）
  */
 import { useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models/calendar'
+import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { AppTheme } from '@/presentation/theme/theme'
-import { useDuckDBDowPattern } from '@/application/hooks/useDuckDBQuery'
+import type { QueryExecutor } from '@/application/queries/QueryPort'
+import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
+import {
+  dowPatternHandler,
+  type DowPatternInput,
+} from '@/application/queries/features/DowPatternHandler'
 import { buildDowPatternData, type DowChartDataPoint } from './DowPatternChartLogic'
 import { useCurrencyFormatter, toPct } from './chartTheme'
 import { useI18n } from '@/application/hooks/useI18n'
@@ -26,8 +33,7 @@ import {
 import { SummaryRow, SummaryItem } from './DowPatternChart.styles'
 
 interface Props {
-  readonly duckConn: AsyncDuckDBConnection | null
-  readonly duckDataVersion: number
+  readonly queryExecutor: QueryExecutor | null
   readonly currentDateRange: DateRange
   readonly selectedStoreIds: ReadonlySet<string>
 }
@@ -70,8 +76,7 @@ function buildOption(
 }
 
 export const DowPatternChart = memo(function DowPatternChart({
-  duckConn,
-  duckDataVersion,
+  queryExecutor,
   currentDateRange,
   selectedStoreIds,
 }: Props) {
@@ -79,11 +84,22 @@ export const DowPatternChart = memo(function DowPatternChart({
   const fmt = useCurrencyFormatter()
   const { messages } = useI18n()
 
+  const input = useMemo<DowPatternInput | null>(() => {
+    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
+    return {
+      dateFrom: fromKey,
+      dateTo: toKey,
+      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
+    }
+  }, [currentDateRange, selectedStoreIds])
+
   const {
-    data: rows,
+    data: output,
     error,
     isLoading,
-  } = useDuckDBDowPattern(duckConn, duckDataVersion, currentDateRange, selectedStoreIds)
+  } = useQueryWithHandler(queryExecutor, dowPatternHandler, input)
+
+  const rows = output?.records ?? null
 
   const { chartData, overallAvg, strongestDow, weakestDow, cv } = useMemo(
     () =>
@@ -114,7 +130,7 @@ export const DowPatternChart = memo(function DowPatternChart({
     )
   }
 
-  if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
+  if (!queryExecutor || chartData.length === 0) {
     return (
       <ChartCard title="曜日別売上パターン">
         <ChartEmpty message="データをインポートしてください" />

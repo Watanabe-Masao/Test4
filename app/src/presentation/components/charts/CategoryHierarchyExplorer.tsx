@@ -5,13 +5,25 @@
  * データは queryLevelAggregation と queryCategoryHourly で取得。
  * テーブル描画は CategoryExplorerTable に委譲。
  */
+/**
+ * @migration P5: useQueryWithHandler 経由に移行済み（旧: useDuckDBLevelAggregation + useDuckDBCategoryHourly 直接 import）
+ */
 import { Fragment, memo, useMemo, useState, useCallback } from 'react'
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
+import { dateRangeToKeys } from '@/domain/models/calendar'
+import type { QueryExecutor } from '@/application/queries/QueryPort'
+import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
+import {
+  levelAggregationHandler,
+  type LevelAggregationInput,
+} from '@/application/queries/cts/LevelAggregationHandler'
+import {
+  categoryHourlyHandler,
+  type CategoryHourlyInput,
+} from '@/application/queries/cts/CategoryHourlyHandler'
 import { toPct } from './chartTheme'
 import { CategoryExplorerTable } from './CategoryExplorerTable'
 import { findCoreTime, findTurnaroundHour } from './timeSlotUtils'
-import { useDuckDBLevelAggregation, useDuckDBCategoryHourly } from '@/application/hooks/duckdb'
 import { ChartSkeleton } from '@/presentation/components/common/feedback'
 import { ChartHelpButton } from './ChartHeader'
 import { CHART_GUIDES } from './chartGuides'
@@ -34,8 +46,7 @@ import {
 } from './CategoryHierarchyExplorer.styles'
 
 interface Props {
-  duckConn: AsyncDuckDBConnection | null
-  duckDataVersion: number
+  queryExecutor: QueryExecutor | null
   currentDateRange: DateRange
   prevYearScope?: PrevYearScope
   selectedStoreIds: ReadonlySet<string>
@@ -50,8 +61,7 @@ interface HierarchyFilter {
 }
 
 export const CategoryHierarchyExplorer = memo(function CategoryHierarchyExplorer({
-  duckConn,
-  duckDataVersion,
+  queryExecutor,
   currentDateRange,
   prevYearScope,
   selectedStoreIds,
@@ -75,58 +85,73 @@ export const CategoryHierarchyExplorer = memo(function CategoryHierarchyExplorer
     klass: 'クラス',
   }
 
-  // Hierarchy params for DuckDB
-  const hierarchy = useMemo(
-    () => ({
+  // 当年 input
+  const curLevelInput = useMemo<LevelAggregationInput | null>(() => {
+    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
+    return {
+      dateFrom: fromKey,
+      dateTo: toKey,
+      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
+      level: currentLevel,
       deptCode: filter.departmentCode,
       lineCode: filter.lineCode,
-    }),
-    [filter.departmentCode, filter.lineCode],
-  )
+    }
+  }, [currentDateRange, selectedStoreIds, currentLevel, filter.departmentCode, filter.lineCode])
 
-  // DuckDB: 当年レベル別集約
-  const curLevelAgg = useDuckDBLevelAggregation(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-    currentLevel,
-    hierarchy,
-  )
+  const curHourlyInput = useMemo<CategoryHourlyInput | null>(() => {
+    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
+    return {
+      dateFrom: fromKey,
+      dateTo: toKey,
+      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
+      level: currentLevel,
+      deptCode: filter.departmentCode,
+      lineCode: filter.lineCode,
+    }
+  }, [currentDateRange, selectedStoreIds, currentLevel, filter.departmentCode, filter.lineCode])
 
-  // DuckDB: 当年カテゴリ×時間帯集約
-  const curHourly = useDuckDBCategoryHourly(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-    currentLevel,
-    hierarchy,
-  )
+  // 前年 input
+  const prevLevelInput = useMemo<LevelAggregationInput | null>(() => {
+    if (!prevYearDateRange) return null
+    const { fromKey, toKey } = dateRangeToKeys(prevYearDateRange)
+    return {
+      dateFrom: fromKey,
+      dateTo: toKey,
+      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
+      level: currentLevel,
+      deptCode: filter.departmentCode,
+      lineCode: filter.lineCode,
+      isPrevYear: true,
+    }
+  }, [prevYearDateRange, selectedStoreIds, currentLevel, filter.departmentCode, filter.lineCode])
 
-  // DuckDB: 前年レベル別集約
-  const prevLevelAgg = useDuckDBLevelAggregation(
-    duckConn,
-    duckDataVersion,
-    prevYearDateRange,
-    selectedStoreIds,
-    currentLevel,
-    hierarchy,
-    true, // isPrevYear
-  )
+  const prevHourlyInput = useMemo<CategoryHourlyInput | null>(() => {
+    if (!prevYearDateRange) return null
+    const { fromKey, toKey } = dateRangeToKeys(prevYearDateRange)
+    return {
+      dateFrom: fromKey,
+      dateTo: toKey,
+      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
+      level: currentLevel,
+      deptCode: filter.departmentCode,
+      lineCode: filter.lineCode,
+      isPrevYear: true,
+    }
+  }, [prevYearDateRange, selectedStoreIds, currentLevel, filter.departmentCode, filter.lineCode])
 
-  // DuckDB: 前年カテゴリ×時間帯集約
-  const prevHourly = useDuckDBCategoryHourly(
-    duckConn,
-    duckDataVersion,
-    prevYearDateRange,
-    selectedStoreIds,
-    currentLevel,
-    hierarchy,
-    true, // isPrevYear
-  )
+  // QueryHandler 経由でデータ取得
+  const curLevelAgg = useQueryWithHandler(queryExecutor, levelAggregationHandler, curLevelInput)
+  const curHourly = useQueryWithHandler(queryExecutor, categoryHourlyHandler, curHourlyInput)
+  const prevLevelAgg = useQueryWithHandler(queryExecutor, levelAggregationHandler, prevLevelInput)
+  const prevHourly = useQueryWithHandler(queryExecutor, categoryHourlyHandler, prevHourlyInput)
 
-  const hasPrevYear = (prevLevelAgg.data?.length ?? 0) > 0
+  // records 展開
+  const curLevelData = curLevelAgg.data?.records ?? null
+  const curHourlyData = curHourly.data?.records ?? null
+  const prevLevelData = prevLevelAgg.data?.records ?? null
+  const prevHourlyData = prevHourly.data?.records ?? null
+
+  const hasPrevYear = (prevLevelData?.length ?? 0) > 0
 
   const breadcrumb = useMemo(() => {
     const items: { label: string; filter: HierarchyFilter }[] = [
@@ -146,12 +171,12 @@ export const CategoryHierarchyExplorer = memo(function CategoryHierarchyExplorer
 
   // Combine level aggregation with hourly data to build HierarchyItems
   const items = useMemo((): readonly HierarchyItem[] => {
-    if (!curLevelAgg.data || curLevelAgg.data.length === 0) return []
+    if (!curLevelData || curLevelData.length === 0) return []
 
     // Build hourly map: code → hour → amount
     const hourlyMap = new Map<string, Map<number, number>>()
-    if (curHourly.data) {
-      for (const row of curHourly.data) {
+    if (curHourlyData) {
+      for (const row of curHourlyData) {
         let hours = hourlyMap.get(row.code)
         if (!hours) {
           hours = new Map()
@@ -163,16 +188,16 @@ export const CategoryHierarchyExplorer = memo(function CategoryHierarchyExplorer
 
     // Build prev year amount map
     const prevMap = new Map<string, { amount: number; quantity: number }>()
-    if (prevLevelAgg.data) {
-      for (const row of prevLevelAgg.data) {
+    if (prevLevelData) {
+      for (const row of prevLevelData) {
         prevMap.set(row.code, { amount: row.amount, quantity: row.quantity })
       }
     }
 
     // Build prev year hourly map
     const prevHourlyMap = new Map<string, Map<number, number>>()
-    if (prevHourly.data) {
-      for (const row of prevHourly.data) {
+    if (prevHourlyData) {
+      for (const row of prevHourlyData) {
         let hours = prevHourlyMap.get(row.code)
         if (!hours) {
           hours = new Map()
@@ -182,9 +207,9 @@ export const CategoryHierarchyExplorer = memo(function CategoryHierarchyExplorer
       }
     }
 
-    const total = curLevelAgg.data.reduce((s, v) => s + v.amount, 0)
+    const total = curLevelData.reduce((s, v) => s + v.amount, 0)
 
-    return curLevelAgg.data.map((entry): HierarchyItem => {
+    return curLevelData.map((entry): HierarchyItem => {
       const hours = hourlyMap.get(entry.code) ?? new Map<number, number>()
       const hp = Array.from({ length: 24 }, (_, h) => Math.round(hours.get(h) ?? 0))
       const mx = Math.max(...hp)
@@ -241,7 +266,7 @@ export const CategoryHierarchyExplorer = memo(function CategoryHierarchyExplorer
         totalDayCount: entry.totalDayCount,
       }
     })
-  }, [curLevelAgg.data, curHourly.data, prevLevelAgg.data, prevHourly.data, totalCustomers])
+  }, [curLevelData, curHourlyData, prevLevelData, prevHourlyData, totalCustomers])
 
   const sortedItems = useMemo(() => {
     const arr = [...items]

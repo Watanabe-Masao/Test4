@@ -2,15 +2,22 @@
  * カテゴリ×時間帯分析チャート (ECharts)
  *
  * パイプライン:
- *   DuckDB Hook → CategoryHourlyChartLogic.ts → ECharts heatmap option → EChart
+ *   QueryHandler → CategoryHourlyChartLogic.ts → ECharts heatmap option → EChart
+ *
+ * @migration P5: useQueryWithHandler 経由に移行済み（旧: useDuckDBCategoryHourly 直接 import）
  */
 import { useMemo, useState, useCallback, memo } from 'react'
 import { useTheme } from 'styled-components'
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models/calendar'
+import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { AppTheme } from '@/presentation/theme/theme'
+import type { QueryExecutor } from '@/application/queries/QueryPort'
+import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
+import {
+  categoryHourlyHandler,
+  type CategoryHourlyInput,
+} from '@/application/queries/cts/CategoryHourlyHandler'
 import { HOUR_MIN, HOUR_MAX } from './HeatmapChart.helpers'
-import { useDuckDBCategoryHourly } from '@/application/hooks/useDuckDBQuery'
 import { buildCategoryHeatmapData } from './CategoryHourlyChartLogic'
 import { useI18n } from '@/application/hooks/useI18n'
 import { SegmentedControl } from '@/presentation/components/common/layout'
@@ -38,8 +45,7 @@ const LEVEL_SEGMENT_OPTIONS: readonly { value: HierarchyLevel; label: string }[]
 const HOURS = Array.from({ length: HOUR_MAX - HOUR_MIN + 1 }, (_, i) => i + HOUR_MIN)
 
 interface Props {
-  readonly duckConn: AsyncDuckDBConnection | null
-  readonly duckDataVersion: number
+  readonly queryExecutor: QueryExecutor | null
   readonly currentDateRange: DateRange
   readonly selectedStoreIds: ReadonlySet<string>
 }
@@ -134,8 +140,7 @@ function buildOption(
 }
 
 export const CategoryHourlyChart = memo(function CategoryHourlyChart({
-  duckConn,
-  duckDataVersion,
+  queryExecutor,
   currentDateRange,
   selectedStoreIds,
 }: Props) {
@@ -147,11 +152,23 @@ export const CategoryHourlyChart = memo(function CategoryHourlyChart({
     setLevel(newLevel)
   }, [])
 
+  const input = useMemo<CategoryHourlyInput | null>(() => {
+    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
+    return {
+      dateFrom: fromKey,
+      dateTo: toKey,
+      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
+      level,
+    }
+  }, [currentDateRange, selectedStoreIds, level])
+
   const {
-    data: hourlyRows,
+    data: output,
     error,
     isLoading,
-  } = useDuckDBCategoryHourly(duckConn, duckDataVersion, currentDateRange, selectedStoreIds, level)
+  } = useQueryWithHandler(queryExecutor, categoryHourlyHandler, input)
+
+  const hourlyRows = output?.records ?? null
 
   const heatmapData = useMemo(
     () =>
@@ -182,7 +199,7 @@ export const CategoryHourlyChart = memo(function CategoryHourlyChart({
       </ChartCard>
     )
   }
-  if (!duckConn || duckDataVersion === 0 || heatmapData.categories.length === 0) {
+  if (!queryExecutor || heatmapData.categories.length === 0) {
     return (
       <ChartCard title="カテゴリ×時間帯分析">
         <ChartEmpty message="データをインポートしてください" />

@@ -6,19 +6,33 @@
  *
  * @guard F7 View は ViewModel のみ受け取る
  */
+/**
+ * @migration P5: useQueryWithHandler 経由に移行済み
+ */
 import { useState, useMemo } from 'react'
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models/calendar'
+import { dateRangeToKeys } from '@/domain/models/calendar'
+import type { QueryExecutor } from '@/application/queries/QueryPort'
+import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
 import {
-  useDuckDBCategoryBenchmark,
-  useDuckDBCategoryBenchmarkTrend,
-  useDuckDBCategoryHierarchy,
+  categoryBenchmarkHandler,
+  type CategoryBenchmarkInput,
+} from '@/application/queries/advanced/CategoryBenchmarkHandler'
+import {
+  categoryBenchmarkTrendHandler,
+  type CategoryBenchmarkTrendInput,
+} from '@/application/queries/advanced/CategoryBenchmarkTrendHandler'
+import {
+  categoryHierarchyHandler,
+  type CategoryHierarchyInput,
+} from '@/application/queries/advanced/CategoryHierarchyHandler'
+import {
   buildBoxPlotData,
   buildBoxPlotDataByDate,
   type CategoryBenchmarkRow,
   type CategoryBenchmarkTrendRow,
   type BoxPlotStats,
-} from '@/application/hooks/useDuckDBQuery'
+} from '@/application/queries/advanced'
 import { useChartTheme, useCurrencyFormatter } from './chartTheme'
 import { useI18n } from '@/application/hooks/useI18n'
 import { useDataStore } from '@/application/stores'
@@ -26,8 +40,7 @@ import { useDataStore } from '@/application/stores'
 // ── Types ──
 
 export interface Props {
-  readonly duckConn: AsyncDuckDBConnection | null
-  readonly duckDataVersion: number
+  readonly queryExecutor: QueryExecutor | null
   readonly currentDateRange: DateRange
   readonly selectedStoreIds: ReadonlySet<string>
 }
@@ -57,8 +70,7 @@ export const ANALYSIS_AXIS_LABELS: Record<AnalysisAxis, string> = {
 // ── ViewModel Hook ──
 
 export function useCategoryBoxPlotChartVm({
-  duckConn,
-  duckDataVersion,
+  queryExecutor,
   currentDateRange,
   selectedStoreIds,
 }: Props) {
@@ -83,46 +95,79 @@ export function useCategoryBoxPlotChartVm({
   const isSingleStore = selectedStoreIds.size === 1
   const effectiveAxis: AnalysisAxis = isSingleStore ? 'date' : analysisAxis
 
-  const { data: deptList } = useDuckDBCategoryHierarchy(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-    'department',
-  )
+  // QueryHandler inputs
+  const deptHierarchyInput = useMemo<CategoryHierarchyInput | null>(() => {
+    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
+    return {
+      dateFrom: fromKey,
+      dateTo: toKey,
+      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
+      level: 'department' as const,
+    }
+  }, [currentDateRange, selectedStoreIds])
 
-  const { data: lineList } = useDuckDBCategoryHierarchy(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-    'line',
-    parentDeptCode || undefined,
+  const lineHierarchyInput = useMemo<CategoryHierarchyInput | null>(() => {
+    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
+    return {
+      dateFrom: fromKey,
+      dateTo: toKey,
+      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
+      level: 'line' as const,
+      parentDeptCode: parentDeptCode || undefined,
+    }
+  }, [currentDateRange, selectedStoreIds, parentDeptCode])
+
+  const benchmarkInput = useMemo<CategoryBenchmarkInput | null>(() => {
+    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
+    return {
+      dateFrom: fromKey,
+      dateTo: toKey,
+      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
+      level,
+      parentDeptCode: parentDeptCode || undefined,
+      parentLineCode: parentLineCode || undefined,
+    }
+  }, [currentDateRange, selectedStoreIds, level, parentDeptCode, parentLineCode])
+
+  const trendInput = useMemo<CategoryBenchmarkTrendInput | null>(() => {
+    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
+    return {
+      dateFrom: fromKey,
+      dateTo: toKey,
+      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
+      level,
+      parentDeptCode: parentDeptCode || undefined,
+      parentLineCode: parentLineCode || undefined,
+    }
+  }, [currentDateRange, selectedStoreIds, level, parentDeptCode, parentLineCode])
+
+  const { data: deptOutput } = useQueryWithHandler(
+    queryExecutor,
+    categoryHierarchyHandler,
+    deptHierarchyInput,
   )
+  const deptList = deptOutput?.records ?? null
+
+  const { data: lineOutput } = useQueryWithHandler(
+    queryExecutor,
+    categoryHierarchyHandler,
+    lineHierarchyInput,
+  )
+  const lineList = lineOutput?.records ?? null
 
   const {
-    data: rawRows,
+    data: benchmarkOutput,
     error,
     isLoading,
-  } = useDuckDBCategoryBenchmark(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-    level,
-    parentDeptCode || undefined,
-    parentLineCode || undefined,
-  )
+  } = useQueryWithHandler(queryExecutor, categoryBenchmarkHandler, benchmarkInput)
+  const rawRows = benchmarkOutput?.records ?? null
 
-  const { data: trendRows } = useDuckDBCategoryBenchmarkTrend(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-    level,
-    parentDeptCode || undefined,
-    parentLineCode || undefined,
+  const { data: trendOutput } = useQueryWithHandler(
+    queryExecutor,
+    categoryBenchmarkTrendHandler,
+    trendInput,
   )
+  const trendRows = trendOutput?.records ?? null
 
   const totalStoreCount = selectedStoreIds.size
 

@@ -11,6 +11,7 @@ import { memo } from 'react'
 import styled, { keyframes } from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
+import type { QueryExecutor } from '@/application/queries/QueryPort'
 import type { DailyRecord, DailyWeatherSummary, DiscountEntry } from '@/domain/models/record'
 import type { RightAxisMode } from './DailySalesChartBodyLogic'
 import { ChartCard } from './ChartCard'
@@ -21,6 +22,7 @@ import { CategoryHeatmapPanel } from './CategoryHeatmapPanel'
 
 /** DuckDB クエリに必要な共通コンテキスト */
 export interface DuckQueryContext {
+  readonly queryExecutor: QueryExecutor | null
   readonly duckConn: AsyncDuckDBConnection | null
   readonly duckDataVersion: number
   readonly currentDateRange: DateRange
@@ -77,6 +79,7 @@ export const SubAnalysisPanel = memo(function SubAnalysisPanel(props: SubAnalysi
 
 function renderPanel(props: SubAnalysisPanelProps) {
   const ctx: DuckQueryContext = {
+    queryExecutor: props.queryExecutor,
     duckConn: props.duckConn,
     duckDataVersion: props.duckDataVersion,
     currentDateRange: props.currentDateRange,

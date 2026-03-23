@@ -9,13 +9,22 @@
  * - 時間帯×曜日の売上日平均ヒートマップ
  * - Z-score 異常検出マーカー（|z| > 2）
  */
+/**
+ * @migration P5: useQueryWithHandler 経由に移行済み（旧: useDuckDBHourDowMatrix + useDuckDBLevelAggregation 直接 import）
+ */
 import { useState, useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
+import { dateRangeToKeys } from '@/domain/models/calendar'
+import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
 import {
-  useDuckDBHourDowMatrix,
-  useDuckDBLevelAggregation,
-} from '@/application/hooks/useDuckDBQuery'
+  hourDowMatrixHandler,
+  type HourDowMatrixInput,
+} from '@/application/queries/cts/HourDowMatrixHandler'
+import {
+  levelAggregationHandler,
+  type LevelAggregationInput,
+} from '@/application/queries/cts/LevelAggregationHandler'
 import { useChartTheme, useCurrencyFormatter, toPct } from './chartTheme'
 import { palette } from '@/presentation/theme/tokens'
 import { useI18n } from '@/application/hooks/useI18n'
@@ -58,8 +67,7 @@ import {
 // ── Component ──
 
 export const HeatmapChart = memo(function HeatmapChart({
-  duckConn,
-  duckDataVersion,
+  queryExecutor,
   currentDateRange,
   selectedStoreIds,
   prevYearScope,
@@ -73,70 +81,104 @@ export const HeatmapChart = memo(function HeatmapChart({
   const [lineCode, setLineCode] = useState('')
   const [klassCode, setKlassCode] = useState('')
 
-  const hierarchy = useMemo(
-    () => ({
-      deptCode: deptCode || undefined,
-      lineCode: lineCode || undefined,
-      klassCode: klassCode || undefined,
-    }),
-    [deptCode, lineCode, klassCode],
-  )
-
   const prevYearRange = prevYearScope?.dateRange
 
   // 当年 時間帯×曜日マトリクス
+  const matrixInput = useMemo<HourDowMatrixInput | null>(() => {
+    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
+    return {
+      dateFrom: fromKey,
+      dateTo: toKey,
+      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
+      deptCode: deptCode || undefined,
+      lineCode: lineCode || undefined,
+      klassCode: klassCode || undefined,
+    }
+  }, [currentDateRange, selectedStoreIds, deptCode, lineCode, klassCode])
+
   const {
-    data: matrixRows,
+    data: matrixOutput,
     isLoading,
     error,
-  } = useDuckDBHourDowMatrix(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-    hierarchy,
-  )
+  } = useQueryWithHandler(queryExecutor, hourDowMatrixHandler, matrixInput)
+  const matrixRows = matrixOutput?.records ?? null
 
   // 前年 時間帯×曜日マトリクス（前年比モード用）
-  const { data: prevMatrixRows } = useDuckDBHourDowMatrix(
-    duckConn,
-    duckDataVersion,
-    prevYearRange,
-    selectedStoreIds,
-    hierarchy,
-    true, // isPrevYear
+  const prevMatrixInput = useMemo<HourDowMatrixInput | null>(() => {
+    if (!prevYearRange) return null
+    const { fromKey, toKey } = dateRangeToKeys(prevYearRange)
+    return {
+      dateFrom: fromKey,
+      dateTo: toKey,
+      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
+      deptCode: deptCode || undefined,
+      lineCode: lineCode || undefined,
+      klassCode: klassCode || undefined,
+      isPrevYear: true,
+    }
+  }, [prevYearRange, selectedStoreIds, deptCode, lineCode, klassCode])
+
+  const { data: prevMatrixOutput } = useQueryWithHandler(
+    queryExecutor,
+    hourDowMatrixHandler,
+    prevMatrixInput,
   )
+  const prevMatrixRows = prevMatrixOutput?.records ?? null
 
   // 階層ドロップダウン
-  const { data: departments } = useDuckDBLevelAggregation(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-    'department',
-    undefined,
-    false,
+  const deptInput = useMemo<LevelAggregationInput | null>(() => {
+    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
+    return {
+      dateFrom: fromKey,
+      dateTo: toKey,
+      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
+      level: 'department' as const,
+    }
+  }, [currentDateRange, selectedStoreIds])
+
+  const { data: deptOutput } = useQueryWithHandler(
+    queryExecutor,
+    levelAggregationHandler,
+    deptInput,
   )
-  const { data: lines } = useDuckDBLevelAggregation(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-    'line',
-    deptCode ? { deptCode } : undefined,
-    false,
+  const departments = deptOutput?.records ?? null
+
+  const lineInput = useMemo<LevelAggregationInput | null>(() => {
+    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
+    return {
+      dateFrom: fromKey,
+      dateTo: toKey,
+      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
+      level: 'line' as const,
+      deptCode: deptCode || undefined,
+    }
+  }, [currentDateRange, selectedStoreIds, deptCode])
+
+  const { data: lineOutput } = useQueryWithHandler(
+    queryExecutor,
+    levelAggregationHandler,
+    lineInput,
   )
-  const { data: klasses } = useDuckDBLevelAggregation(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-    'klass',
-    deptCode || lineCode
-      ? { deptCode: deptCode || undefined, lineCode: lineCode || undefined }
-      : undefined,
-    false,
+  const lines = lineOutput?.records ?? null
+
+  const klassInput = useMemo<LevelAggregationInput | null>(() => {
+    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
+    return {
+      dateFrom: fromKey,
+      dateTo: toKey,
+      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
+      level: 'klass' as const,
+      deptCode: deptCode || undefined,
+      lineCode: lineCode || undefined,
+    }
+  }, [currentDateRange, selectedStoreIds, deptCode, lineCode])
+
+  const { data: klassOutput } = useQueryWithHandler(
+    queryExecutor,
+    levelAggregationHandler,
+    klassInput,
   )
+  const klasses = klassOutput?.records ?? null
 
   const heatmapData = useMemo(
     () => (matrixRows ? buildHeatmapData(matrixRows) : null),
@@ -164,7 +206,7 @@ export const HeatmapChart = memo(function HeatmapChart({
     return (
       <ChartCard title="時間帯×曜日ヒートマップ" ariaLabel="時間帯×曜日ヒートマップ">
         <ErrorMsg>
-          {messages.errors.dataFetchFailed}: {error}
+          {messages.errors.dataFetchFailed}: {error?.message}
         </ErrorMsg>
       </ChartCard>
     )
@@ -174,7 +216,7 @@ export const HeatmapChart = memo(function HeatmapChart({
     return <ChartSkeleton />
   }
 
-  if (!duckConn || duckDataVersion === 0 || !heatmapData || heatmapData.cells.size === 0) {
+  if (!queryExecutor || !heatmapData || heatmapData.cells.size === 0) {
     return <EmptyState>データをインポートしてください</EmptyState>
   }
 

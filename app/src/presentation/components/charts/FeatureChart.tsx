@@ -2,14 +2,21 @@
  * 特徴量分析チャート (ECharts)
  *
  * パイプライン:
- *   DuckDB Hook → FeatureChartLogic.ts → ECharts option → EChart
+ *   QueryHandler → FeatureChartLogic.ts → ECharts option → EChart
+ *
+ * @migration P5: useQueryWithHandler 経由に移行済み（旧: useDuckDBDailyFeatures 直接 import）
  */
 import { useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models/calendar'
+import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { AppTheme } from '@/presentation/theme/theme'
-import { useDuckDBDailyFeatures } from '@/application/hooks/useDuckDBQuery'
+import type { QueryExecutor } from '@/application/queries/QueryPort'
+import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
+import {
+  dailyFeaturesHandler,
+  type DailyFeaturesInput,
+} from '@/application/queries/features/DailyFeaturesHandler'
 import {
   buildFeatureChartData,
   Z_SCORE_THRESHOLD,
@@ -32,8 +39,7 @@ import { toCommaYen } from './echartsOptionBuilders'
 import { AnomalyGrid, AnomalyCard, AnomalyDate, AnomalyValue } from './FeatureChart.styles'
 
 interface Props {
-  readonly duckConn: AsyncDuckDBConnection | null
-  readonly duckDataVersion: number
+  readonly queryExecutor: QueryExecutor | null
   readonly currentDateRange: DateRange
   readonly selectedStoreIds: ReadonlySet<string>
 }
@@ -107,8 +113,7 @@ function buildOption(chartData: readonly FeatureChartDataPoint[], theme: AppThem
 }
 
 export const FeatureChart = memo(function FeatureChart({
-  duckConn,
-  duckDataVersion,
+  queryExecutor,
   currentDateRange,
   selectedStoreIds,
 }: Props) {
@@ -116,11 +121,22 @@ export const FeatureChart = memo(function FeatureChart({
   const fmt = useCurrencyFormatter()
   const { messages } = useI18n()
 
+  const input = useMemo<DailyFeaturesInput | null>(() => {
+    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
+    return {
+      dateFrom: fromKey,
+      dateTo: toKey,
+      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
+    }
+  }, [currentDateRange, selectedStoreIds])
+
   const {
-    data: features,
+    data: output,
     isLoading,
     error,
-  } = useDuckDBDailyFeatures(duckConn, duckDataVersion, currentDateRange, selectedStoreIds)
+  } = useQueryWithHandler(queryExecutor, dailyFeaturesHandler, input)
+
+  const features = output?.records ?? null
 
   const { chartData, anomalies } = useMemo(
     () => (features ? buildFeatureChartData(features) : { chartData: [], anomalies: [] }),
@@ -145,7 +161,7 @@ export const FeatureChart = memo(function FeatureChart({
     )
   }
 
-  if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
+  if (!queryExecutor || chartData.length === 0) {
     return (
       <ChartCard title="売上トレンド分析">
         <ChartEmpty message="データをインポートしてください" />

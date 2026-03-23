@@ -19,8 +19,7 @@ export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
     isVisible: (ctx) => ctx.duckDataVersion > 0,
     render: (ctx) => (
       <DowPatternChart
-        duckConn={ctx.duckConn}
-        duckDataVersion={ctx.duckDataVersion}
+        queryExecutor={ctx.queryExecutor}
         currentDateRange={ctx.currentDateRange}
         selectedStoreIds={ctx.selectedStoreIds}
       />
@@ -34,8 +33,7 @@ export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
     isVisible: (ctx) => ctx.duckDataVersion > 0,
     render: (ctx) => (
       <CategoryTrendChart
-        duckConn={ctx.duckConn}
-        duckDataVersion={ctx.duckDataVersion}
+        queryExecutor={ctx.queryExecutor}
         currentDateRange={ctx.currentDateRange}
         selectedStoreIds={ctx.selectedStoreIds}
       />
@@ -49,8 +47,7 @@ export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
     isVisible: (ctx) => ctx.duckDataVersion > 0,
     render: (ctx) => (
       <CategoryHourlyChart
-        duckConn={ctx.duckConn}
-        duckDataVersion={ctx.duckDataVersion}
+        queryExecutor={ctx.queryExecutor}
         currentDateRange={ctx.currentDateRange}
         selectedStoreIds={ctx.selectedStoreIds}
       />
@@ -64,8 +61,7 @@ export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
     isVisible: (ctx) => ctx.duckDataVersion > 0 && ctx.duckLoadedMonthCount >= 2,
     render: (ctx) => (
       <CategoryMixChart
-        duckConn={ctx.duckConn}
-        duckDataVersion={ctx.duckDataVersion}
+        queryExecutor={ctx.queryExecutor}
         currentDateRange={ctx.currentDateRange}
         selectedStoreIds={ctx.selectedStoreIds}
       />
@@ -79,8 +75,7 @@ export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
     isVisible: (ctx) => ctx.duckDataVersion > 0,
     render: (ctx) => (
       <CategoryBenchmarkChart
-        duckConn={ctx.duckConn}
-        duckDataVersion={ctx.duckDataVersion}
+        queryExecutor={ctx.queryExecutor}
         currentDateRange={ctx.currentDateRange}
         selectedStoreIds={ctx.selectedStoreIds}
       />
@@ -94,8 +89,7 @@ export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
     isVisible: (ctx) => ctx.duckDataVersion > 0,
     render: (ctx) => (
       <CategoryBoxPlotChart
-        duckConn={ctx.duckConn}
-        duckDataVersion={ctx.duckDataVersion}
+        queryExecutor={ctx.queryExecutor}
         currentDateRange={ctx.currentDateRange}
         selectedStoreIds={ctx.selectedStoreIds}
       />
@@ -110,8 +104,7 @@ export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
     isVisible: (ctx) => ctx.duckDataVersion > 0,
     render: (ctx) => (
       <CvTimeSeriesChart
-        duckConn={ctx.duckConn}
-        duckDataVersion={ctx.duckDataVersion}
+        queryExecutor={ctx.queryExecutor}
         currentDateRange={ctx.currentDateRange}
         selectedStoreIds={ctx.selectedStoreIds}
       />

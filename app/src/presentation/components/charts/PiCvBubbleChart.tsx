@@ -4,13 +4,15 @@
 import { useState, useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models/calendar'
+import { dateRangeToKeys } from '@/domain/models/calendar'
+import type { QueryExecutor } from '@/application/queries/QueryPort'
+import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
 import {
-  useDuckDBCategoryBenchmark,
-  buildCategoryBenchmarkScores,
-  type ProductType,
-} from '@/application/hooks/useDuckDBQuery'
+  categoryBenchmarkHandler,
+  type CategoryBenchmarkInput,
+} from '@/application/queries/advanced/CategoryBenchmarkHandler'
+import { buildCategoryBenchmarkScores, type ProductType } from '@/application/queries/advanced'
 import { ChartCard } from './ChartCard'
 import { ChartLoading, ChartError, ChartEmpty } from './ChartState'
 import { EChart, type EChartsOption } from './EChart'
@@ -37,15 +39,13 @@ function computeMedian(values: readonly number[]): number {
 }
 
 interface Props {
-  readonly duckConn: AsyncDuckDBConnection | null
-  readonly duckDataVersion: number
+  readonly queryExecutor: QueryExecutor | null
   readonly currentDateRange: DateRange
   readonly selectedStoreIds: ReadonlySet<string>
 }
 
 export const PiCvBubbleChart = memo(function PiCvBubbleChart({
-  duckConn,
-  duckDataVersion,
+  queryExecutor,
   currentDateRange,
   selectedStoreIds,
 }: Props) {
@@ -54,19 +54,25 @@ export const PiCvBubbleChart = memo(function PiCvBubbleChart({
   const [bubbleSize, setBubbleSize] = useState<BubbleSizeMetric>('sales')
   const [level, setLevel] = useState<HierarchyLevel>('department')
 
-  const benchmarkResult = useDuckDBCategoryBenchmark(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-    level,
-  )
+  const input = useMemo<CategoryBenchmarkInput | null>(() => {
+    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
+    return {
+      dateFrom: fromKey,
+      dateTo: toKey,
+      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
+      level,
+    }
+  }, [currentDateRange, selectedStoreIds, level])
+
+  const benchmarkResult = useQueryWithHandler(queryExecutor, categoryBenchmarkHandler, input)
   const storeCount = selectedStoreIds.size || 0
 
+  const benchmarkRows = benchmarkResult.data?.records ?? null
+
   const scores = useMemo(() => {
-    if (!benchmarkResult.data || benchmarkResult.data.length === 0) return []
-    return buildCategoryBenchmarkScores(benchmarkResult.data, 1, storeCount, piMetric)
-  }, [benchmarkResult.data, storeCount, piMetric])
+    if (!benchmarkRows || benchmarkRows.length === 0) return []
+    return buildCategoryBenchmarkScores(benchmarkRows, 1, storeCount, piMetric)
+  }, [benchmarkRows, storeCount, piMetric])
 
   const scatterData = useMemo(
     () =>

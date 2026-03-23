@@ -7,11 +7,19 @@
  *
  * データソース: DuckDB store_day_summary（当期 + 前年）。
  */
+/**
+ * @migration P5: useQueryWithHandler 経由に移行済み（旧: useDuckDBStoreDaySummary 直接 import）
+ */
 import { useState, useMemo, memo } from 'react'
 import styled, { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
+import { dateRangeToKeys } from '@/domain/models/calendar'
+import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
+import {
+  storeDaySummaryHandler,
+  type StoreDaySummaryInput,
+} from '@/application/queries/summary/StoreDaySummaryHandler'
 import type { DuckQueryContext } from './SubAnalysisPanel'
-import { useDuckDBStoreDaySummary } from '@/application/hooks/useDuckDBQuery'
 import { decompose2, decompose3 } from '@/application/services/factorDecompositionBridge'
 import { EChart, type EChartsOption } from './EChart'
 import { standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
@@ -108,27 +116,38 @@ interface Props {
 }
 
 export const FactorDecompositionPanel = memo(function FactorDecompositionPanel({ ctx }: Props) {
-  const { duckConn, duckDataVersion, currentDateRange, selectedStoreIds, prevYearScope } = ctx
+  const { queryExecutor, currentDateRange, selectedStoreIds, prevYearScope } = ctx
   const theme = useTheme() as AppTheme
   const [level, setLevel] = useState<DecompLevel>(2)
 
   // 当期日別データ
-  const { data: curRows } = useDuckDBStoreDaySummary(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-  )
+  const curInput = useMemo<StoreDaySummaryInput | null>(() => {
+    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
+    return {
+      dateFrom: fromKey,
+      dateTo: toKey,
+      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
+    }
+  }, [currentDateRange, selectedStoreIds])
+
+  const { data: curOutput } = useQueryWithHandler(queryExecutor, storeDaySummaryHandler, curInput)
+  const curRows = curOutput?.records ?? null
 
   // 前年日別データ
   const prevDateRange = prevYearScope?.dateRange
-  const { data: prevRows } = useDuckDBStoreDaySummary(
-    duckConn,
-    duckDataVersion,
-    prevDateRange,
-    selectedStoreIds,
-    true,
-  )
+  const prevInput = useMemo<StoreDaySummaryInput | null>(() => {
+    if (!prevDateRange) return null
+    const { fromKey, toKey } = dateRangeToKeys(prevDateRange)
+    return {
+      dateFrom: fromKey,
+      dateTo: toKey,
+      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
+      isPrevYear: true,
+    }
+  }, [prevDateRange, selectedStoreIds])
+
+  const { data: prevOutput } = useQueryWithHandler(queryExecutor, storeDaySummaryHandler, prevInput)
+  const prevRows = prevOutput?.records ?? null
 
   // 3要素が使用可能か（点数データの存在確認）
   const hasQuantity = useMemo(() => {

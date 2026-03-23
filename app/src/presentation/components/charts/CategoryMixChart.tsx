@@ -2,14 +2,21 @@
  * カテゴリ構成比推移チャート (ECharts)
  *
  * パイプライン:
- *   DuckDB Hook → CategoryMixChartLogic.ts → ECharts option → EChart
+ *   QueryHandler → CategoryMixChartLogic.ts → ECharts option → EChart
+ *
+ * @migration P5: useQueryWithHandler 経由に移行済み（旧: useDuckDBCategoryMixWeekly 直接 import）
  */
 import { useMemo, useState, useCallback, memo } from 'react'
 import { useTheme } from 'styled-components'
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models/calendar'
+import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { AppTheme } from '@/presentation/theme/theme'
-import { useDuckDBCategoryMixWeekly } from '@/application/hooks/useDuckDBQuery'
+import type { QueryExecutor } from '@/application/queries/QueryPort'
+import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
+import {
+  categoryMixWeeklyHandler,
+  type CategoryMixWeeklyInput,
+} from '@/application/queries/advanced/CategoryMixWeeklyHandler'
 import { buildMixChartData, type CategoryMeta } from './CategoryMixChartLogic'
 import { toPct } from './chartTheme'
 import { useI18n } from '@/application/hooks/useI18n'
@@ -38,8 +45,7 @@ const LEVEL_SEGMENT_OPTIONS: readonly { value: HierarchyLevel; label: string }[]
 ]
 
 interface Props {
-  readonly duckConn: AsyncDuckDBConnection | null
-  readonly duckDataVersion: number
+  readonly queryExecutor: QueryExecutor | null
   readonly currentDateRange: DateRange
   readonly selectedStoreIds: ReadonlySet<string>
 }
@@ -75,8 +81,7 @@ function buildOption(
 }
 
 export const CategoryMixChart = memo(function CategoryMixChart({
-  duckConn,
-  duckDataVersion,
+  queryExecutor,
   currentDateRange,
   selectedStoreIds,
 }: Props) {
@@ -88,17 +93,23 @@ export const CategoryMixChart = memo(function CategoryMixChart({
     setLevel(newLevel)
   }, [])
 
+  const input = useMemo<CategoryMixWeeklyInput | null>(() => {
+    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
+    return {
+      dateFrom: fromKey,
+      dateTo: toKey,
+      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
+      level,
+    }
+  }, [currentDateRange, selectedStoreIds, level])
+
   const {
-    data: mixRows,
+    data: output,
     error,
     isLoading,
-  } = useDuckDBCategoryMixWeekly(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-    level,
-  )
+  } = useQueryWithHandler(queryExecutor, categoryMixWeeklyHandler, input)
+
+  const mixRows = output?.records ?? null
 
   const { chartData, categories, topGainer, topLoser } = useMemo(
     () =>
@@ -127,7 +138,7 @@ export const CategoryMixChart = memo(function CategoryMixChart({
       </ChartCard>
     )
   }
-  if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
+  if (!queryExecutor || chartData.length === 0) {
     return (
       <ChartCard title="カテゴリ構成比推移">
         <ChartEmpty message="データをインポートしてください" />

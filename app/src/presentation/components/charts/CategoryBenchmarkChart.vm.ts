@@ -6,13 +6,27 @@
  *
  * @guard F7 View は ViewModel のみ受け取る
  */
+/**
+ * @migration P5: useQueryWithHandler 経由に移行済み
+ */
 import { useState, useMemo } from 'react'
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models/calendar'
+import { dateRangeToKeys } from '@/domain/models/calendar'
+import type { QueryExecutor } from '@/application/queries/QueryPort'
+import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
 import {
-  useDuckDBCategoryBenchmark,
-  useDuckDBCategoryBenchmarkTrend,
-  useDuckDBCategoryHierarchy,
+  categoryBenchmarkHandler,
+  type CategoryBenchmarkInput,
+} from '@/application/queries/advanced/CategoryBenchmarkHandler'
+import {
+  categoryBenchmarkTrendHandler,
+  type CategoryBenchmarkTrendInput,
+} from '@/application/queries/advanced/CategoryBenchmarkTrendHandler'
+import {
+  categoryHierarchyHandler,
+  type CategoryHierarchyInput,
+} from '@/application/queries/advanced/CategoryHierarchyHandler'
+import {
   buildCategoryBenchmarkScores,
   buildCategoryTrendData,
   buildCategoryBenchmarkScoresByDate,
@@ -20,7 +34,7 @@ import {
   type BenchmarkMetric,
   type ProductType,
   type CategoryTrendPoint,
-} from '@/application/hooks/useDuckDBQuery'
+} from '@/application/queries/advanced'
 import { useChartTheme, useCurrencyFormatter } from './chartTheme'
 import { useI18n } from '@/application/hooks/useI18n'
 import { palette } from '@/presentation/theme/tokens'
@@ -220,8 +234,7 @@ export function resolveEffectiveAxis(
 // ── Props ──
 
 export interface CategoryBenchmarkChartProps {
-  readonly duckConn: AsyncDuckDBConnection | null
-  readonly duckDataVersion: number
+  readonly queryExecutor: QueryExecutor | null
   readonly currentDateRange: DateRange
   readonly selectedStoreIds: ReadonlySet<string>
 }
@@ -278,7 +291,7 @@ export interface CategoryBenchmarkChartVm {
 export function useCategoryBenchmarkChartVm(
   props: CategoryBenchmarkChartProps,
 ): CategoryBenchmarkChartVm {
-  const { duckConn, duckDataVersion, currentDateRange, selectedStoreIds } = props
+  const { queryExecutor, currentDateRange, selectedStoreIds } = props
 
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
@@ -310,46 +323,79 @@ export function useCategoryBenchmarkChartVm(
   const isSingleStore = selectedStoreIds.size === 1
   const effectiveAxis = resolveEffectiveAxis(analysisAxis, isSingleStore)
 
-  const { data: deptList } = useDuckDBCategoryHierarchy(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-    'department',
-  )
+  // QueryHandler inputs
+  const deptHierarchyInput = useMemo<CategoryHierarchyInput | null>(() => {
+    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
+    return {
+      dateFrom: fromKey,
+      dateTo: toKey,
+      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
+      level: 'department' as const,
+    }
+  }, [currentDateRange, selectedStoreIds])
 
-  const { data: lineList } = useDuckDBCategoryHierarchy(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-    'line',
-    parentDeptCode || undefined,
+  const lineHierarchyInput = useMemo<CategoryHierarchyInput | null>(() => {
+    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
+    return {
+      dateFrom: fromKey,
+      dateTo: toKey,
+      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
+      level: 'line' as const,
+      parentDeptCode: parentDeptCode || undefined,
+    }
+  }, [currentDateRange, selectedStoreIds, parentDeptCode])
+
+  const benchmarkInput = useMemo<CategoryBenchmarkInput | null>(() => {
+    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
+    return {
+      dateFrom: fromKey,
+      dateTo: toKey,
+      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
+      level,
+      parentDeptCode: parentDeptCode || undefined,
+      parentLineCode: parentLineCode || undefined,
+    }
+  }, [currentDateRange, selectedStoreIds, level, parentDeptCode, parentLineCode])
+
+  const trendInput = useMemo<CategoryBenchmarkTrendInput | null>(() => {
+    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
+    return {
+      dateFrom: fromKey,
+      dateTo: toKey,
+      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
+      level,
+      parentDeptCode: parentDeptCode || undefined,
+      parentLineCode: parentLineCode || undefined,
+    }
+  }, [currentDateRange, selectedStoreIds, level, parentDeptCode, parentLineCode])
+
+  const { data: deptOutput } = useQueryWithHandler(
+    queryExecutor,
+    categoryHierarchyHandler,
+    deptHierarchyInput,
   )
+  const deptList = deptOutput?.records ?? null
+
+  const { data: lineOutput } = useQueryWithHandler(
+    queryExecutor,
+    categoryHierarchyHandler,
+    lineHierarchyInput,
+  )
+  const lineList = lineOutput?.records ?? null
 
   const {
-    data: rawRows,
+    data: benchmarkOutput,
     error,
     isLoading,
-  } = useDuckDBCategoryBenchmark(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-    level,
-    parentDeptCode || undefined,
-    parentLineCode || undefined,
-  )
+  } = useQueryWithHandler(queryExecutor, categoryBenchmarkHandler, benchmarkInput)
+  const rawRows = benchmarkOutput?.records ?? null
 
-  const { data: trendRows } = useDuckDBCategoryBenchmarkTrend(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-    level,
-    parentDeptCode || undefined,
-    parentLineCode || undefined,
+  const { data: trendOutput } = useQueryWithHandler(
+    queryExecutor,
+    categoryBenchmarkTrendHandler,
+    trendInput,
   )
+  const trendRows = trendOutput?.records ?? null
 
   const totalStoreCount = selectedStoreIds.size
 
@@ -415,9 +461,9 @@ export function useCategoryBenchmarkChartVm(
     subtitle,
     tableMetricLabel,
 
-    error: error ?? null,
+    error: error?.message ?? null,
     isLoading,
     hasRawData: rawRows != null,
-    hasConnection: duckConn != null && duckDataVersion > 0,
+    hasConnection: queryExecutor != null,
   }
 }
