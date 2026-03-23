@@ -36,16 +36,16 @@ export const useStateLimits: readonly QuantitativeAllowlistEntry[] = [
 export const presentationMemoLimits: readonly QuantitativeAllowlistEntry[] = [
   {
     path: 'presentation/pages/CostDetail/useCostDetailData.ts',
-    reason: '仕入詳細データの多段集計',
+    reason: '仕入詳細データの多段集計（helpers に 5 関数抽出済み）',
     category: 'structural',
-    removalCondition: 'ロジック分離時',
+    removalCondition: 'さらなるロジック分離時',
     limit: 13,
   },
   {
     path: 'presentation/pages/Dashboard/widgets/useDrilldownData.ts',
-    reason: 'ドリルダウンの多段集計',
+    reason: 'ドリルダウンの多段集計（logic に 3 関数抽出済み）',
     category: 'structural',
-    removalCondition: 'ロジック分離時',
+    removalCondition: 'さらなるロジック分離時',
     limit: 13,
   },
   {
