@@ -17,6 +17,21 @@ const config: StorybookConfig = {
       ...config.resolve.alias,
       '@': resolve(__dirname, '../src'),
     }
+    // WASM モジュールは dynamic import で遅延ロード。Storybook ビルドでは外部扱い
+    const wasmExternals = [
+      'factor-decomposition-wasm',
+      'gross-profit-wasm',
+      'budget-analysis-wasm',
+      'forecast-wasm',
+      'time-slot-wasm',
+    ]
+    config.build = config.build || {}
+    config.build.rollupOptions = config.build.rollupOptions || {}
+    const existing = config.build.rollupOptions.external
+    config.build.rollupOptions.external = [
+      ...(Array.isArray(existing) ? existing : existing ? [existing] : []),
+      ...wasmExternals,
+    ]
     return config
   },
 }
