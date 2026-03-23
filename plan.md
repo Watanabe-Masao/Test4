@@ -4,12 +4,19 @@
 >
 > - Phase 1: 原則体系の統合再編（51→25原則・7カテゴリ A〜G）
 > - Phase 2: 共有テストインフラ抽出（guardTestHelpers.ts）
-> - Phase 3: 許可リスト外部化（allowlists.ts、20リスト・86エントリ）
-> - Phase 4: ガードテスト物理分割（guards/ ディレクトリ、6ファイル・56テスト）
+> - Phase 3: 許可リスト外部化（allowlists/、6ファイル・62エントリ）
+> - Phase 4: ガードテスト物理分割（guards/ ディレクトリ、8ファイル）
 > - Phase 5: ドキュメント整合（guard-test-map.md、invariant-catalog.md、allowlist-management.md）
 > - @guard タグ体系: GUARD_TAG_REGISTRY（37タグ）+ 実装コード80+ファイルにタグ付与
 > - ビルドエラー修正: WASM rollupOptions.external
 > - 旧ファイル名参照: 全箇所更新済み（roles/, references/, CLAUDE.md, CONTRIBUTING.md）
+>
+> **P5 Query Access Architecture 再設計:**
+> - 量産移行完了: 22 chart + 2 page を QueryHandler / facade hook に移行
+> - 作成済み handler: 20 件（application/queries/ 配下）
+> - presentationDuckdbHook: 27→1（bridge 1 件残、最終フェーズで卒業予定）
+> - timeSlotCalculations: domain/ 昇格 + Rust/WASM bridge 完了
+> - Q1〜Q6 ルール + guard テストで query access を構造的に制約
 
 ## 背景と問題認識
 

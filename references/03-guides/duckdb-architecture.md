@@ -11,21 +11,26 @@ KPI・粗利等の権威的指標計算は JS 計算パイプライン（`StoreR
 ### アーキテクチャ
 
 ```
-  IndexedDB           OPFS              DuckDB-WASM             React hooks         UI
- ┌──────────┐      ┌──────────┐      ┌──────────────┐        ┌──────────────┐    ┌──────────┐
- │ 保存済み  │      │ DB ファイル│      │ engine.ts    │        │ useDuckDB    │    │ DuckDB   │
- │ インポート│ load │ Parquet   │ fast │ schemas.ts   │ query  │ hooks/duckdb/│    │ ウィジェ │
- │ データ   │──→  │ キャッシュ │──→  │ dataLoader.ts│──→    │ (~28 hooks)  │──→│ ット群   │
- └──────────┘      └──────────┘      │ queries/*.ts │        │ (12ファイル) │    │ (15個)   │
-                                     └──────────────┘        └──────────────┘    └──────────┘
+  IndexedDB           OPFS              DuckDB-WASM             Application              Presentation
+ ┌──────────┐      ┌──────────┐      ┌──────────────┐        ┌──────────────────┐      ┌──────────┐
+ │ 保存済み  │      │ DB ファイル│      │ engine.ts    │        │ QueryHandler     │      │ Chart    │
+ │ インポート│ load │ Parquet   │ fast │ schemas.ts   │ query  │ (queries/ 20件)  │ ctx  │ Widget   │
+ │ データ   │──→  │ キャッシュ │──→  │ dataLoader.ts│──→    │ useQueryWith     │──→  │ (22個)   │
+ └──────────┘      └──────────┘      │ queries/*.ts │        │ Handler          │      └──────────┘
+                                     └──────────────┘        │ queryExecutor    │
+                                                             └──────────────────┘
 ```
 
-**データフロー:**
+**データフロー（P5 再設計後）:**
 1. ユーザーがファイルインポート → IndexedDB に保存（既存フロー）
 2. `useDuckDB` フックが IndexedDB → DuckDB テーブルにデータ投入（`dataLoader.ts`）
-3. DuckDB に SQL クエリを発行し、集約済み結果を取得（`queries/*.ts`）
-4. `hooks/duckdb/` 配下の各フックが SQL 結果を React ステートとして返す
-5. DuckDB ウィジェットはフックの戻り値のみを参照して描画
+3. `queryExecutor`（`QueryPort.ts`）が DuckDB 接続を抽象化
+4. `QueryHandler`（`application/queries/`）が SQL クエリを発行し結果を返す
+5. `useQueryWithHandler` が handler を実行し React ステートとして返す
+6. Chart/Widget は `WidgetContext.queryExecutor` 経由で `useQueryWithHandler` を呼ぶだけ
+
+> **旧フロー（後方互換）:** `hooks/duckdb/` 配下の各フックは引き続き存在するが、
+> 新規チャートは `useQueryWithHandler` + `QueryHandler` パターンを使用する。
 
 ### レイヤー配置
 
@@ -276,3 +281,62 @@ DuckDB Worker は以下のメッセージタイプを処理する:
 7. **後方互換の委譲パターン**: SQL→JS 移行時、既存フック名（`useDuckDBDailyCumulative` 等）
    は維持し、内部で JS 版（`useJsDailyCumulative` 等）に委譲する。
    チャートコンポーネントの変更は不要。
+
+### Query Access Architecture（P5 再設計）
+
+P5 により、Presentation 層の DuckDB query access は以下の二つの正規入口に収束した。
+
+```
+Presentation                 Application                    Infrastructure
+┌──────────────────┐      ┌──────────────────────────┐    ┌───────────────┐
+│ Chart / Widget    │      │ useQueryWithHandler()     │    │ queries/*.ts  │
+│                   │─ctx─→│   + QueryHandler          │──→ │ (SQL 関数)    │
+│ queryExecutor     │      │   + QueryExecutor         │    └───────────────┘
+│ (WidgetContext)   │      │                           │
+└──────────────────┘      │ comparisonAccessors       │
+                          │   (alignment-aware API)    │
+                          └──────────────────────────────┘
+```
+
+**正規入口:**
+
+| 入口 | 用途 | ファイル |
+|---|---|---|
+| `useQueryWithHandler` | chart が個別 query を実行する標準パス | `application/hooks/useQueryWithHandler.ts` |
+| `WidgetContext.queryExecutor` | 共有コンテキスト経由の executor | `presentation/.../types.ts` |
+
+**QueryHandler パターン:**
+
+```typescript
+// application/queries/ 配下に配置
+export const myHandler: QueryHandler<MyInput, MyOutput> = {
+  name: 'MyQuery',
+  async execute(conn: AsyncDuckDBConnection, input: MyInput): Promise<MyOutput> {
+    const records = await queryMyData(conn, input)
+    return { records }
+  },
+}
+
+// Presentation 側
+const { data, isLoading } = useQueryWithHandler(ctx.queryExecutor, myHandler, input)
+```
+
+**Query Access Rules（Q1〜Q6）:**
+
+| ルール | 内容 |
+|---|---|
+| **Q1** | Presentation の query 入口は `useQueryWithHandler` と `WidgetContext` のみ |
+| **Q2** | 共有文脈は `WidgetContext`、個別結果は `useQueryWithHandler` |
+| **Q3** | Chart は DuckDB hook / QueryExecutor / useAsyncQuery を直接 import しない |
+| **Q4** | comparison / alignment-aware access は handler/resolver に閉じる |
+| **Q5** | `WidgetContext` は個別 chart 結果を保持しない（共有文脈の正本） |
+| **Q6** | heavy query を ctx に入れるには「2 widget 以上で常時利用」を満たすこと |
+
+**補足:**
+- `useQueryWithHandler` は input を `useMemo` 安定化前提。handler は `application/queries/` 配下のみ
+- `queryExecutor` は `useQueryWithHandler` の入力として渡すためにある。`executor.execute()` 直呼び出し禁止
+- `comparisonAccessors.ts` は raw map access を隠蔽する comparison module の公開 access API
+- guard テスト（`presentationIsolationGuard.test.ts`）で Q3 の executor/useAsyncQuery 直接使用を機械的に禁止
+
+**移行実績:** 22 chart + 2 page を QueryHandler / facade hook に移行完了。
+作成済み handler 20 件（`application/queries/` 配下）。

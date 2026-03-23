@@ -16,21 +16,21 @@
 | カテゴリ | 起点 | 現在 | 変動 | 性質 |
 |---|---|---|---|---|
 | structural | 26 | 50 | +24 | 構造上不可避。削減ではなく監視（P4 再分類 +10、complexity 新規計上 +15） |
-| migration | 33 | 25 | **-8** | 移行先が存在。消化するだけ（全件 presentationDuckdbHook） |
+| migration | 33 | 0 | **-33** | **全件解消** — QueryHandler + facade hook 移行完了 |
 | adapter | 5 | 10 | +5 | DI パターン。正当な例外として維持 |
 | legacy | 11 | 0 | **-11** | **全件解消** |
-| bridge | 4 | 1 | **-3** | 暫定接続。移行完了で不要になる |
+| bridge | 4 | 1 | **-3** | 残 1 件 useUnifiedWidgetContext.ts（MonthlyCalendar/DayDetailModal の queryExecutor 完全移行待ち） |
 | lifecycle | 1 | 1 | ±0 | ライフサイクル管理。正当 |
 
-**削減可能:** migration + bridge = **26 エントリ（30%）**
-**構造管理:** structural = **50 エントリ（57%）** — 正当な例外として監視
-**legacy 全件解消:** 旧 API 依存 11 件 → 0 件
+**削減可能:** bridge = **1 エントリ（2%）** — migration 全件解消済み
+**構造管理:** structural = **50 エントリ（82%）** — 正当な例外として監視
+**legacy + migration 全件解消:** 旧 API 依存 11 件 → 0 件、DuckDB hook 移行 33 件 → 0 件
 
 ### allowlist 別充填率
 
 | allowlist | エントリ | 上限 | 充填率 | 主カテゴリ |
 |---|---|---|---|---|
-| presentationDuckdbHook | 27 | 27 | **100%** | migration(25), bridge(1), structural(1) |
+| presentationDuckdbHook | 1 | 3 | **33%** | bridge(1) — 残: useUnifiedWidgetContext.ts |
 | applicationToInfrastructure | 11 | 11 | **100%** | adapter(10), lifecycle(1) |
 | cmpPrevYearDaily | 10 | 10 | **100%** | structural(10) |
 | presentationMemoLimits | 9 | — | — | structural(9) |
@@ -78,15 +78,17 @@
 | 対象 | allowlists/ 全ファイル（起点 99 → 現在 87 エントリ、旧スコープ比較では 72） |
 | 削減可能 | 26 エントリ（migration 25 + bridge 1） |
 | 成功条件 | 各 allowlist に削減方針があり、migration/bridge の優先順位が定義されている |
-| 状態 | **進行中** — legacy 全件解消、凍結 6 件達成 |
+| 状態 | **実質完了** — legacy 全件解消、migration 全件解消、凍結 6 件達成 |
 
-**削減優先順位:**
+**削減実績:**
 
-| 優先度 | カテゴリ | 起点 | 現在 | 理由 |
-|---|---|---|---|---|
-| 1 | migration | 33 | **25** | 全件 presentationDuckdbHook。QueryHandler 移行で消化 |
-| 2 | bridge | 4 | **1** | 暫定接続。移行完了で不要になる（3件解消済み） |
-| — | legacy | 11 | **0** | **全件解消** |
+| カテゴリ | 起点 | 現在 | 状態 |
+|---|---|---|---|
+| migration | 33 | **0** | **全件解消** — QueryHandler + facade hook で完了 |
+| bridge | 4 | **1** | 残 1 件（useUnifiedWidgetContext.ts）。MonthlyCalendar/DayDetailModal の queryExecutor 完全移行で解消 |
+| legacy | 11 | **0** | **全件解消** |
+
+**残アクション:** bridge 1 件の解消（P5 最終フェーズで対応）
 
 #### P3: レイヤー境界正常化
 
@@ -152,8 +154,8 @@ cmpFramePrevious は全件解消済み（凍結）。
 | 項目 | 内容 |
 |---|---|
 | 目的 | Presentation の query access を二つの正規構造に収束させ、query 発行責務を機械的に制約する |
-| 対象 | presentationDuckdbHook(**26** エントリ) + cmpPrevYearDaily(10 エントリ、P4 統合) |
-| 状態 | **Phase 1〜3 完了。量産移行フェーズに移行** |
+| 対象 | presentationDuckdbHook(**1** エントリ残、起点 27) + cmpPrevYearDaily(10 エントリ、P4 統合) |
+| 状態 | **Phase 4 量産移行完了。最終フェーズ（bridge 卒業）へ移行** |
 
 **再定義の背景（2026-03-23）:**
 
@@ -194,23 +196,36 @@ query orchestration を引き受けさせやすいことの結果。P4（cmpPrev
 - `comparisonAccessors.ts` は raw map access を隠蔽する comparison module の公開 access API
 - Presentation / VM / page は `PrevYearData` の内部構造を知らない
 
-**成功条件:**
-- Chart は DuckDB hook を import しない
-- Chart の query 入口は `useQueryWithHandler` のみ
-- `prevYear.daily.get(` は新規ゼロ
-- `presentationDuckdbHook` は単調減少
-- `duckConn` は最終的に WidgetContext から除去可能
+**成功条件（最終フェーズ）:**
+- ~~Chart は DuckDB hook を import しない~~ ✅ 達成
+- ~~Chart の query 入口は `useQueryWithHandler` のみ~~ ✅ 達成
+- ~~`prevYear.daily.get(` は新規ゼロ~~ ✅ 達成
+- ~~`presentationDuckdbHook` は単調減少~~ ✅ 27→1
+- `duckConn` を WidgetContext から除去（最終フェーズ目標）
+- migration allowlist = 0（達成）、bridge allowlist = 0（残 1）
+- admin 操作（StorageManagementTab）は別系統で管理
 
-**量産移行の優先順（Phase 4）:**
+**量産移行実績（Phase 4 完了）:**
 
-| 優先度 | 条件 | 例 |
+22 chart/page を QueryHandler + facade hook に移行完了:
+- CategoryHierarchyExplorer, CategoryPerformanceChart, CategoryHourlyChart, DeptHourlyChart,
+  DowPatternChart, FeatureChart, YoYChart, HeatmapChart, CategoryBenchmarkChart.vm,
+  CategoryBoxPlotChart.vm, CategoryMixChart, CategoryTrendChart, CumulativeChart, CvTimeSeriesChart,
+  DeptTrendChart, PiCvBubbleChart, StoreHourlyChart, ConditionMatrixTable, ConditionSummaryBudgetDrill,
+  FactorDecompositionPanel, WeatherAnalysisPanel, YoYWaterfallChart
+- facade hook: PurchaseAnalysisPage（usePurchaseAnalysis）, StorageManagementTab（useStorageDuck）
+- re-export 整理: DayDetailModal, useDuckDBTimeSlotData
+
+**最終フェーズ（Bridge 卒業）計画:**
+
+| Step | 内容 | 完了条件 |
 |---|---|---|
-| 1 | 既存 handler を流用できる | DailySalesChart |
-| 2 | input contract が単純 | DowPatternChart, FeatureChart |
-| 3 | comparison 非依存 | CategoryMixChart, CategoryTrendChart |
-| 4 | VM-query | CategoryBenchmarkChart.vm |
-| 5 | page-level / widget-context-assembly | PurchaseAnalysisPage |
-| 6 | comparison-coupled-query | YoYChart, YoYWaterfallChart |
+| 1 | visibility check を `queryExecutor.isReady` に置換 | registry / widgetVisibility から duckDataVersion 参照消去 |
+| 2 | unifiedRegistry.ts の fallback 削除 | `createQueryExecutor(ctx.duckConn)` 消去 |
+| 3 | MonthlyCalendar / DayDetailModal の bridge 解消 | useDayDetailData を QueryHandler ベースに |
+| 4 | WidgetContext / UnifiedWidgetContext 型から raw fields 削除 | duckConn, duckDb, duckDataVersion 除去 |
+| 5 | presentationDuckdbHook → 0、admin 分離 | migration=0, bridge=0, StorageManagementTab は別 allowlist |
+| 6 | 構造収束の確認 | guard + 型 + 文書で固定。後戻り圧力なし |
 
 ---
 
@@ -276,8 +291,8 @@ query orchestration を引き受けさせやすいことの結果。P4（cmpPrev
 
 | レーン | プロジェクト | 進め方 |
 |---|---|---|
-| **完了/凍結** | P1 ガード基盤, P3 レイヤー境界 | 新規追加を防止するガードとして維持 |
-| **主戦場** | P5 Query Access Architecture 再設計（P4 統合） | 基盤完了。量産移行フェーズ。Q1-Q6 で規律 |
+| **完了/凍結** | P1 ガード基盤, P3 レイヤー境界, P4 比較パターン | 新規追加を防止するガードとして維持 |
+| **最終フェーズ** | P5 Query Access Architecture 再設計（Bridge 卒業） | 量産移行完了。bridge 1件の卒業 + 構造収束確認 |
 | **毎 Sprint 少しずつ** | P2 allowlist 削減, P6 大型縮退 | PR ごとに 1-3 エントリ削減 |
 | **中期継続** | P7 ドキュメント, P8 guard 運用, P9 guard カバレッジ | 改修タイミングで段階的に |
 
@@ -285,9 +300,9 @@ query orchestration を引き受けさせやすいことの結果。P4（cmpPrev
 
 1. ~~P1: ガード基盤仕上げ~~ **完了**
 2. ~~P3: レイヤー境界正常化~~ **実質完了** — infrastructure→application 解消、presentation→usecases 1件残（凍結）
-3. ~~P4: 比較アクセスパターン~~ **P5 に統合** — comparisonAccessors + Guard で alignment-aware access を制度化
-4. P2: allowlist 削減運用化（legacy 全件解消済み、残り migration + bridge）
-5. **P5: Query Access Architecture 再設計（主戦場）** — 基盤完了、量産移行フェーズ
+3. ~~P4: 比較アクセスパターン~~ **P5 に統合完了** — comparisonAccessors + Guard で alignment-aware access を制度化
+4. ~~P2: allowlist 削減運用化~~ **実質完了** — legacy 全件解消、migration 全件解消、bridge 残 1
+5. **P5: Query Access Architecture 再設計（最終フェーズ: Bridge 卒業）** — 量産移行完了、bridge 1件の卒業 + 構造収束確認
 6. P6: 大型 hook/component 縮退（complexity 系 20 件の段階的削減）
 7. P7: ドキュメント整合強化
 8. P8: guard 運用ルール明確化
@@ -295,17 +310,16 @@ query orchestration を引き受けさせやすいことの結果。P4（cmpPrev
 
 ## 成果指標
 
-| 指標 | 起点（Sprint 1 完了時） | 現在値 | 次 Sprint 目標 | 中期目標 |
+| 指標 | 起点（Sprint 1 完了時） | 現在値 | 次目標 | 状態 |
 |---|---|---|---|---|
-| allowlist 総エントリ（旧スコープ） | 99 | **72**（-27） | 70 以下 | 60 以下 |
-| allowlist 総エントリ（全スコープ） | — | **87** | 85 以下 | 75 以下 |
-| migration カテゴリ | 33 | **25**（-8、全件 DuckDB） | 23 以下 | 15 以下 |
-| legacy カテゴリ | 11 | **0**（-11） | 0 | 0 |
-| bridge カテゴリ | 4 | **1**（-3） | 0 | 0 |
-| 凍結済み allowlist | 2 | **6**（+4） | 6 以上 | 6 以上 |
-| DuckDB 直結 | 36 | **26**（-10、CumulativeChart 移行） | 23 以下 | 15 以下 |
-| Tier2 大型 component | 8 | **0**（-8、凍結） | 0 | 0 |
-| app→infra | 14 | **11**（-3、全件 adapter/lifecycle） | 11 | 11 |
+| allowlist 総エントリ（旧スコープ） | 99 | **62**（-37） | — | 大幅削減 |
+| migration カテゴリ | 33 | **0**（-33） | 0 | **全件解消** ✅ |
+| legacy カテゴリ | 11 | **0**（-11） | 0 | **全件解消** ✅ |
+| bridge カテゴリ | 4 | **1**（-3） | 0 | 最終フェーズで解消 |
+| 凍結済み allowlist | 2 | **6**（+4） | 6 以上 | 達成 ✅ |
+| presentationDuckdbHook | 27 | **1**（-26） | 0 | bridge 卒業で完了 |
+| Tier2 大型 component | 8 | **0**（-8、凍結） | 0 | **全件解消** ✅ |
+| app→infra | 14 | **11**（-3、全件 adapter/lifecycle） | 11 | 安定 |
 
 ### 削減履歴
 
@@ -334,6 +348,47 @@ query orchestration を引き受けさせやすいことの結果。P4（cmpPrev
 | 2026-03-23 | YoYWaterfallChart.tsx | cmpFramePrevious | comparisonFrame.previous → prevYearScope（凍結） |
 | 2026-03-23 | EtrnTestWidget.tsx | ctxHook | カテゴリ修正 legacy → structural |
 | 2026-03-23 | CumulativeChart.tsx | presentationDuckdbHook | useQueryWithHandler + dailyCumulativeHandler に移行（P5 パイロット） |
+
+## P5 移行実績詳細
+
+### Batch 移行履歴（Phase 4 量産）
+
+| Batch | 件数 | 主な handler | allowlist 推移 |
+|---|---|---|---|
+| パイロット | 1 | DailyCumulative | 27→26 |
+| 1 | 5 | StoreAggregation, CategoryMixWeekly, DeptKpiTrend, CategoryDailyTrend, LevelAggregation | 26→21 |
+| 2 | 2 | DowPattern, DailyFeatures | 21→19 |
+| 3 | 2 | YoyDaily | 19→17 |
+| 4 | 4 | CategoryHourly, CategoryBenchmark, CategoryBenchmarkTrend | 17→13 |
+| 5 | 4 | HourDowMatrix, StoreDaySummary | 13→10 |
+| 6 | 3 | CategoryHierarchy, ConditionMatrix | 10→7 |
+| Late Sprint A | 1 | ConditionSummaryBudgetDrill（StoreDailyMarkupRateHandler） | 7→6 |
+| Late Sprint B | 1 | DayDetailModal re-export + YoYWaterfall（CategoryTimeRecordsHandler） | 6→4 |
+| facade 移行 | 3 | PurchaseAnalysis（usePurchaseAnalysis）, StorageManagement（useStorageDuck）, TimeSlot（useTimeSlotData） | 4→1 |
+
+### 作成済み QueryHandler（20 件）
+
+**cts/**: LevelAggregation, CategoryHourly, HourlyAggregation, StoreAggregation, HourDowMatrix, DistinctDayCount, CategoryDailyTrend, CategoryTimeRecords
+**advanced/**: CategoryMixWeekly, CategoryBenchmark, CategoryBenchmarkTrend, CategoryHierarchy, ConditionMatrix
+**dept/**: DeptKpiTrend
+**summary/**: StoreDaySummary, DailyQuantity, AggregatedRates, DailyCumulative
+**features/**: DowPattern, DailyFeatures
+**comparison/**: YoyDaily
+**purchase/**: StoreDailyMarkupRate
+**weather/**: WeatherHourlyAvg
+
+### 暫定措置一覧（負債ではないが未完了の発展項目）
+
+| 項目 | 種類 | 現状 | 方針 |
+|---|---|---|---|
+| `presentation/components/charts/useDuckDBTimeSlotData.ts` | 互換 re-export | application/hooks/useTimeSlotData への F1 バレル | consumer 正規パス移行後に削除。期限: 次の major refactor |
+| `presentation/components/charts/useDuckDBTimeSlotDataLogic.ts` | 互換 re-export | application/usecases/timeSlotDataLogic への F1 バレル | 同上 |
+| `usePurchaseAnalysis` facade hook | page-level service | **暫定着地** | 内部 8 KPI + 14 detail の QueryHandler 化は ROI 要検討 |
+| `useStorageDuck` facade hook | admin facade | **恒久** | admin 操作であり QueryHandler パターンの対象外 |
+| `duckLoadedMonthCount` | semantic field | WidgetContext に残留 | raw DuckDB ではなく UI visibility。将来 queryExecutor に統合可 |
+| timeSlotCalculations WASM | Rust/WASM bridge | 完了済み | 観測フェーズ中 |
+
+---
 
 ## リファクタリング教訓（フィードバックスパイラル）
 
