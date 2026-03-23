@@ -97,8 +97,7 @@ export const UnifiedStoreHourlyWidget = memo(function UnifiedStoreHourlyWidget({
 export const UnifiedYoYWidget = memo(function UnifiedYoYWidget({ ctx }: { ctx: WidgetContext }) {
   return (
     <YoYChart
-      duckConn={ctx.duckConn}
-      duckDataVersion={ctx.duckDataVersion}
+      queryExecutor={ctx.queryExecutor}
       frame={ctx.prevYear.hasPrevYear ? ctx.comparisonFrame : undefined}
       selectedStoreIds={ctx.selectedStoreIds}
       prevYearScope={ctx.prevYearScope}

@@ -2,18 +2,26 @@
  * 前年比較チャート (ECharts)
  *
  * パイプライン:
- *   DuckDB Hook → YoYChartLogic.ts → ECharts option → EChart
+ *   QueryHandler → YoYChartLogic.ts → ECharts option → EChart
  *
  * 表示モード:
  *   - 日次比較: 当年売上線 + 前年売上線（破線）+ 差分棒グラフ
  *   - ウォーターフォール: 前年→当年の累積差分を滝グラフで表示
+ *
+ * @migration P5: useQueryWithHandler 経由に移行済み（旧: useDuckDBYoyDaily 直接 import）
  */
 import { useState, useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { ComparisonFrame, PrevYearScope } from '@/domain/models/calendar'
+import { dateRangeToKeys } from '@/domain/models/calendar'
+import type { AlignmentPolicy } from '@/domain/models/ComparisonFrame'
 import type { AppTheme } from '@/presentation/theme/theme'
-import { useDuckDBYoyDaily } from '@/application/hooks/useDuckDBQuery'
+import type { QueryExecutor } from '@/application/queries/QueryPort'
+import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
+import {
+  yoyDailyHandler,
+  type YoyDailyInput,
+} from '@/application/queries/comparison/YoyDailyHandler'
 import {
   buildYoYChartData,
   buildYoYWaterfallData,
@@ -46,8 +54,7 @@ const VIEW_OPTIONS: readonly { value: ViewMode; label: string }[] = [
 ]
 
 interface Props {
-  readonly duckConn: AsyncDuckDBConnection | null
-  readonly duckDataVersion: number
+  readonly queryExecutor: QueryExecutor | null
   readonly frame: ComparisonFrame | undefined
   readonly selectedStoreIds: ReadonlySet<string>
   readonly prevYearScope?: PrevYearScope
@@ -147,9 +154,14 @@ function buildWaterfallOption(
   }
 }
 
+/** AlignmentPolicy → CompareModeV2 の変換 */
+function toCompareMode(policy: AlignmentPolicy | undefined): 'sameDate' | 'sameDayOfWeek' {
+  if (policy === 'sameDayOfWeek') return 'sameDayOfWeek'
+  return 'sameDate'
+}
+
 export const YoYChart = memo(function YoYChart({
-  duckConn,
-  duckDataVersion,
+  queryExecutor,
   frame,
   selectedStoreIds,
   prevYearScope,
@@ -159,11 +171,33 @@ export const YoYChart = memo(function YoYChart({
   const { messages } = useI18n()
   const [viewMode, setViewMode] = useState<ViewMode>('line')
 
+  const frameCurrent = frame?.current
+  const framePrevious = frame?.previous
+  const framePolicy = frame?.policy
+  const prevYearDateRange = prevYearScope?.dateRange
+
+  const input = useMemo<YoyDailyInput | null>(() => {
+    if (!frameCurrent || !framePrevious) return null
+    const cur = dateRangeToKeys(frameCurrent)
+    const prevRange = prevYearDateRange ?? framePrevious
+    const prev = dateRangeToKeys(prevRange)
+    return {
+      curDateFrom: cur.fromKey,
+      curDateTo: cur.toKey,
+      prevDateFrom: prev.fromKey,
+      prevDateTo: prev.toKey,
+      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
+      compareMode: toCompareMode(framePolicy),
+    }
+  }, [frameCurrent, framePrevious, framePolicy, selectedStoreIds, prevYearDateRange])
+
   const {
-    data: rows,
+    data: output,
     isLoading,
     error,
-  } = useDuckDBYoyDaily(duckConn, duckDataVersion, frame, selectedStoreIds, prevYearScope)
+  } = useQueryWithHandler(queryExecutor, yoyDailyHandler, input)
+
+  const rows = output?.records ?? null
 
   const chartData = useMemo(() => (rows ? buildYoYChartData(rows) : []), [rows])
   const waterfallData = useMemo(
@@ -198,7 +232,7 @@ export const YoYChart = memo(function YoYChart({
     )
   }
 
-  if (!duckConn || duckDataVersion === 0 || !frame || chartData.length === 0) {
+  if (!queryExecutor || !frame || chartData.length === 0) {
     return (
       <ChartCard title="前年比較">
         <ChartEmpty message="データをインポートしてください" />

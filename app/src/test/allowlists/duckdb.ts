@@ -30,25 +30,9 @@ export const presentationDuckdbHook: readonly AllowlistEntry[] = [
     category: 'migration',
     removalCondition: 'QueryHandler 移行',
   },
-  // DowPatternChart.tsx, FeatureChart.tsx — Batch 2 対象
-  {
-    path: 'components/charts/DowPatternChart.tsx',
-    reason: 'DuckDB 探索',
-    category: 'migration',
-    removalCondition: 'QueryHandler 移行',
-  },
-  {
-    path: 'components/charts/FeatureChart.tsx',
-    reason: 'DuckDB 探索',
-    category: 'migration',
-    removalCondition: 'QueryHandler 移行',
-  },
-  {
-    path: 'components/charts/YoYChart.tsx',
-    reason: 'DuckDB 探索',
-    category: 'migration',
-    removalCondition: 'QueryHandler 移行',
-  },
+  // DowPatternChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + dowPatternHandler
+  // FeatureChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + dailyFeaturesHandler
+  // YoYChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + yoyDailyHandler
   {
     path: 'pages/Admin/StorageManagementTab.tsx',
     reason: 'DuckDB 管理',
