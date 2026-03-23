@@ -6,6 +6,7 @@
  */
 import type { WidgetDef, UnifiedWidgetContext } from './types'
 import type { WidgetContext as DashboardWidgetContext } from '@/presentation/pages/Dashboard/widgets/types'
+import { createQueryExecutor } from '@/application/queries/QueryPort'
 import { WIDGET_REGISTRY as DASHBOARD_REGISTRY } from '@/presentation/pages/Dashboard/widgets/registry'
 import { DAILY_WIDGETS } from '@/presentation/pages/Daily/widgets'
 import { INSIGHT_WIDGETS } from '@/presentation/pages/Insight/widgets'
@@ -45,6 +46,7 @@ function toDashboardContext(ctx: UnifiedWidgetContext): DashboardWidgetContext {
     explanations: ctx.explanations,
     onExplain: ctx.onExplain,
     monthlyHistory: ctx.monthlyHistory ?? [],
+    queryExecutor: ctx.queryExecutor ?? createQueryExecutor(ctx.duckConn ?? null),
     duckConn: ctx.duckConn ?? null,
     duckDb: ctx.duckDb ?? null,
     duckDataVersion: ctx.duckDataVersion ?? 0,

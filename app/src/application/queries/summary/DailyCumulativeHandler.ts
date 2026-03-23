@@ -6,9 +6,9 @@
  */
 import type { QueryHandler, BaseQueryInput } from '../QueryContract'
 import {
-  queryDailyCumulative,
+  queryDailyCumulativeAggregation,
   type DailyCumulativeRow,
-} from '@/infrastructure/duckdb/queries/storeDaySummary'
+} from '@/infrastructure/duckdb/queries/aggregates/dailyAggregation'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 
 export interface DailyCumulativeInput extends BaseQueryInput {
@@ -25,7 +25,7 @@ export const dailyCumulativeHandler: QueryHandler<DailyCumulativeInput, DailyCum
     conn: AsyncDuckDBConnection,
     input: DailyCumulativeInput,
   ): Promise<DailyCumulativeOutput> {
-    const records = await queryDailyCumulative(conn, input)
+    const records = await queryDailyCumulativeAggregation(conn, input)
     return { records }
   },
 }

@@ -206,6 +206,7 @@ export function makeWidgetContext(overrides: Partial<WidgetContext> = {}): Widge
     explanations: new Map() as StoreExplanations,
     onExplain: () => {},
     monthlyHistory: [],
+    queryExecutor: { isReady: false, execute: async () => null },
     duckConn: null,
     duckDb: null,
     duckDataVersion: 0,

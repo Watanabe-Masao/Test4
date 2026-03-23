@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import type { AsyncDuckDB, AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import type { QueryExecutor } from '@/application/queries/QueryPort'
 import type { StoreExplanations, MetricId, ObservationStatus } from '@/domain/models/analysis'
 import type { DateRange, ComparisonFrame, PrevYearScope } from '@/domain/models/calendar'
 import type { StoreResult, ViewType } from '@/domain/models/storeTypes'
@@ -101,7 +102,9 @@ export interface WidgetContext {
   onExplain: (metricId: MetricId) => void
   /** 過去月データ（季節性分析用） */
   monthlyHistory: readonly MonthlyDataPoint[]
-  /** DuckDB コネクション（DuckDB 準備完了時のみ非 null） */
+  /** QueryExecutor — DuckDB クエリの標準経路 A（@see useQueryWithHandler） */
+  queryExecutor: QueryExecutor
+  /** DuckDB コネクション（DuckDB 準備完了時のみ非 null） @deprecated queryExecutor 経由に移行中 */
   duckConn: AsyncDuckDBConnection | null
   /** DuckDB インスタンス（バルクINSERT用、DuckDB 準備完了時のみ非 null） */
   duckDb: AsyncDuckDB | null

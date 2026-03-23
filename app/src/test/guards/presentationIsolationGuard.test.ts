@@ -21,6 +21,7 @@ import {
 // ─── 許可リスト（allowlists.ts から構築） ────────────────
 
 const PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST = buildAllowlistSet(presentationToInfrastructure)
+const PRESENTATION_DUCKDB_HOOK_ALLOWLIST_TOP = buildAllowlistSet(presentationDuckdbHook)
 
 // ─── テスト ──────────────────────────────────────────────
 
@@ -215,7 +216,7 @@ describe('Presentation Isolation Guard', () => {
    */
   const PRESENTATION_DUCKDB_HOOK_ALLOWLIST = buildAllowlistSet(presentationDuckdbHook)
 
-  it('presentation/ の新規ファイルは DuckDB フックを直接使用しない（filterStore 経由を使用、import type は許容）', () => {
+  it('presentation/ の新規ファイルは DuckDB フックを直接使用しない（useQueryWithHandler 経由を使用、import type は許容）', () => {
     const presDir = path.join(SRC_DIR, 'presentation')
     const files = collectTsFiles(presDir)
     const violations: string[] = []
@@ -239,7 +240,7 @@ describe('Presentation Isolation Guard', () => {
       for (const pattern of DUCKDB_HOOK_VALUE_PATTERNS) {
         if (pattern.test(content)) {
           violations.push(
-            `${relativePath(file)}: DuckDB フックを直接使用。filterStore + useFilterSelectors 経由を使用してください`,
+            `${relativePath(file)}: DuckDB フックを直接使用。useQueryWithHandler + QueryHandler 経由を使用してください`,
           )
           break
         }
@@ -251,7 +252,7 @@ describe('Presentation Isolation Guard', () => {
 
   it('presentation/ の DuckDB フック許可リストは増やさない（移行時に減らすのみ）', () => {
     // 許可リストのサイズ上限。移行が進むにつれてこの数値を減らしていく。
-    const MAX_ALLOWLIST_SIZE = 27
+    const MAX_ALLOWLIST_SIZE = 26
     expect(PRESENTATION_DUCKDB_HOOK_ALLOWLIST.size).toBeLessThanOrEqual(MAX_ALLOWLIST_SIZE)
   })
 
@@ -301,5 +302,57 @@ describe('Presentation Isolation Guard', () => {
         `前年同曜日の日付は domain/ComparisonScope の resolveSameDowSource アルゴリズムに従ってください。\n` +
         `違反ファイル:\n${violating.join('\n')}`,
     ).toBe(0)
+  })
+})
+
+// ─── Q3: presentation/ から executor.execute / useAsyncQuery の直接使用禁止 ────
+// @guard Q3 Chart は DuckDB hook / QueryExecutor / useAsyncQuery を直接 import しない
+
+describe('Q3: presentation/ は QueryExecutor と useAsyncQuery を直接使用しない', () => {
+  it('presentation/ で executor.execute() を直接呼ばない', () => {
+    const presDir = path.join(SRC_DIR, 'presentation')
+    const files = collectTsFiles(presDir)
+    const violations: string[] = []
+
+    // executor.execute( パターン（useQueryWithHandler 内部は対象外）
+    const EXECUTOR_DIRECT_CALL = /executor\.execute\s*\(/
+
+    for (const file of files) {
+      const content = fs.readFileSync(file, 'utf-8')
+      if (EXECUTOR_DIRECT_CALL.test(content)) {
+        violations.push(
+          `${relativePath(file)}: executor.execute() を直接呼び出し。useQueryWithHandler 経由を使用してください`,
+        )
+      }
+    }
+
+    expect(violations, `executor.execute() 直接呼び出し:\n${violations.join('\n')}`).toEqual([])
+  })
+
+  it('presentation/ で useAsyncQuery を直接 import しない', () => {
+    const presDir = path.join(SRC_DIR, 'presentation')
+    const files = collectTsFiles(presDir)
+    const violations: string[] = []
+
+    // useAsyncQuery の値 import（import type は許容）
+    const ASYNC_QUERY_IMPORT = /import\s+(?!type\s).*\buseAsyncQuery\b.*from/
+
+    for (const file of files) {
+      if (
+        PRESENTATION_DUCKDB_HOOK_ALLOWLIST_TOP.has(
+          path.relative(path.join(SRC_DIR, 'presentation'), file),
+        )
+      )
+        continue
+
+      const content = fs.readFileSync(file, 'utf-8')
+      if (ASYNC_QUERY_IMPORT.test(content)) {
+        violations.push(
+          `${relativePath(file)}: useAsyncQuery を直接 import。useQueryWithHandler 経由を使用してください`,
+        )
+      }
+    }
+
+    expect(violations, `useAsyncQuery 直接 import:\n${violations.join('\n')}`).toEqual([])
   })
 })

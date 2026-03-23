@@ -4,14 +4,21 @@
  * 日別累積クエリを使い、複数月にわたる累積売上の推移を表示する。
  *
  * パイプライン:
- *   DuckDB Hook → CumulativeChartLogic.ts → ECharts option → EChart
+ *   QueryHandler → CumulativeChartLogic.ts → ECharts option → EChart
+ *
+ * @migration P5: useQueryWithHandler 経由に移行済み（旧: useDuckDBDailyCumulative 直接 import）
  */
 import { useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models/calendar'
 import type { AppTheme } from '@/presentation/theme/theme'
-import { useDuckDBDailyCumulative } from '@/application/hooks/useDuckDBQuery'
+import type { QueryExecutor } from '@/application/queries/QueryPort'
+import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
+import {
+  dailyCumulativeHandler,
+  type DailyCumulativeInput,
+} from '@/application/queries/summary/DailyCumulativeHandler'
+import { dateRangeToKeys } from '@/domain/models/calendar'
 import {
   buildCumulativeChartData,
   computeCumulativeSummary,
@@ -33,8 +40,7 @@ import {
 import { SummaryRow, SummaryItem } from './CumulativeChart.styles'
 
 interface Props {
-  readonly duckConn: AsyncDuckDBConnection | null
-  readonly duckDataVersion: number
+  readonly queryExecutor: QueryExecutor | null
   readonly currentDateRange: DateRange
   readonly selectedStoreIds: ReadonlySet<string>
 }
@@ -104,8 +110,7 @@ function buildOption(
 }
 
 export const CumulativeChart = memo(function CumulativeChart({
-  duckConn,
-  duckDataVersion,
+  queryExecutor,
   currentDateRange,
   selectedStoreIds,
 }: Props) {
@@ -113,11 +118,21 @@ export const CumulativeChart = memo(function CumulativeChart({
   const fmt = useCurrencyFormatter()
   const { messages } = useI18n()
 
+  const input = useMemo<DailyCumulativeInput | null>(() => {
+    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
+    return {
+      dateFrom: fromKey,
+      dateTo: toKey,
+      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
+    }
+  }, [currentDateRange, selectedStoreIds])
+
   const {
-    data: rows,
+    data: output,
     error,
     isLoading,
-  } = useDuckDBDailyCumulative(duckConn, duckDataVersion, currentDateRange, selectedStoreIds)
+  } = useQueryWithHandler(queryExecutor, dailyCumulativeHandler, input)
+  const rows = output?.records ?? null
 
   const chartData = useMemo(() => (rows ? buildCumulativeChartData(rows) : []), [rows])
   const summary = useMemo(() => computeCumulativeSummary(chartData), [chartData])
@@ -131,7 +146,7 @@ export const CumulativeChart = memo(function CumulativeChart({
   if (error) {
     return (
       <ChartCard title="売上進捗">
-        <ChartError message={`${messages.errors.dataFetchFailed}: ${error}`} />
+        <ChartError message={`${messages.errors.dataFetchFailed}: ${error.message}`} />
       </ChartCard>
     )
   }
@@ -144,7 +159,7 @@ export const CumulativeChart = memo(function CumulativeChart({
     )
   }
 
-  if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
+  if (!queryExecutor?.isReady || chartData.length === 0) {
     return (
       <ChartCard title="売上進捗">
         <ChartEmpty message="データをインポートしてください" />

@@ -183,8 +183,7 @@ export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
     isVisible: (ctx) => ctx.duckDataVersion > 0,
     render: (ctx) => (
       <CumulativeChart
-        duckConn={ctx.duckConn}
-        duckDataVersion={ctx.duckDataVersion}
+        queryExecutor={ctx.queryExecutor}
         currentDateRange={ctx.currentDateRange}
         selectedStoreIds={ctx.selectedStoreIds}
       />
