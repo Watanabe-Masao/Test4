@@ -21,6 +21,7 @@ export default defineConfig([
     },
     rules: {
       'react-refresh/only-export-components': 'warn',
+      /** @guard E2 依存配列は省略しない — useMemo/useCallback の依存配列漏れを CI で検出 */
       'react-hooks/exhaustive-deps': 'error',
       '@typescript-eslint/no-explicit-any': 'error',
     },

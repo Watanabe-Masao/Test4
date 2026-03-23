@@ -6,6 +6,8 @@
  * @guard C2 pure function は1仕様軸に閉じる
  * @guard A6 load 処理は3段階分離
  * @guard E4 欠損判定は `== null`
+ * @guard E2 依存配列は省略しない（ESLint exhaustive-deps: error で強制）
+ * @guard G3 コンパイラ警告を黙らせない（noUnusedLocals + eslint-disable 検出）
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
@@ -356,5 +358,56 @@ describe('E4: domain/calculations/ で数値の truthiness チェックがない
         `0 が有効値のフィールドで !value を使うと欠損扱いされます。== null を使用してください。\n` +
         violations.join('\n'),
     ).toEqual([])
+  })
+})
+
+// ─── G3: eslint-disable / @ts-ignore 禁止 ──────────────
+
+describe('G3: ソースコードに eslint-disable / @ts-ignore がない', () => {
+  // 正当な例外（ライブラリ制約・非標準 API 対応）
+  const G3_ALLOWLIST = new Set([
+    'presentation/components/charts/EChart.tsx', // ECharts ライブラリの制約で exhaustive-deps を意図的に抑制
+    'presentation/components/common/FileDropZone.tsx', // webkitdirectory は非標準 HTML 属性
+  ])
+
+  it('eslint-disable コメントが存在しない（許可リスト除く）', () => {
+    const dirs = [
+      path.join(SRC_DIR, 'domain'),
+      path.join(SRC_DIR, 'application'),
+      path.join(SRC_DIR, 'infrastructure'),
+      path.join(SRC_DIR, 'presentation'),
+    ]
+    const violations: string[] = []
+    const SUPPRESS_PATTERNS = [/eslint-disable/, /@ts-ignore/, /@ts-expect-error/]
+
+    for (const dir of dirs) {
+      const files = collectTsFiles(dir)
+      for (const file of files) {
+        if (file.includes('.test.')) continue
+        const relPath = rel(file)
+        if (G3_ALLOWLIST.has(relPath)) continue
+
+        const content = fs.readFileSync(file, 'utf-8')
+        const lines = content.split('\n')
+        for (let i = 0; i < lines.length; i++) {
+          for (const pattern of SUPPRESS_PATTERNS) {
+            if (pattern.test(lines[i])) {
+              violations.push(`${relPath}:${i + 1}: ${lines[i].trim()}`)
+            }
+          }
+        }
+      }
+    }
+
+    expect(
+      violations,
+      `コンパイラ警告の抑制が検出されました（G3 違反）:\n` +
+        `eslint-disable / @ts-ignore / @ts-expect-error は禁止です。\n` +
+        violations.join('\n'),
+    ).toEqual([])
+  })
+
+  it('G3 許可リストは 2 件以下', () => {
+    expect(G3_ALLOWLIST.size).toBeLessThanOrEqual(2)
   })
 })

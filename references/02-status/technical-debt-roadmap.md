@@ -146,12 +146,14 @@ alignment-aware なアクセスパターンに段階的に移行する。
 
 | 項目 | 内容 |
 |---|---|
-| 目的 | Presentation 層から探索クエリ責務を剥がし、QueryHandler/hook 経由へ |
-| 対象 | presentationDuckdbHook — **36 エントリ**（最大 allowlist） |
-| 状態 | 36/37 で **残り 1 スロット**。事実上凍結 |
+| 目的 | Presentation 層から探索クエリ責務を剥がし、filterStore + useFilterSelectors 経由へ |
+| 対象 | presentationDuckdbHook — **27 エントリ** |
+| 状態 | 27/27 で凍結。**filterStore 移行待ち** |
 | 成功条件 | 件数が減少し、新規 direct 参照が発生しない |
 
-削減可能: migration(22) が QueryHandler 移行で解消可能。
+**再評価結果（2026-03-23）:** 個別 wrapper hook による表面的分離は不採用。
+コードベースの設計意図は `filterStore + useFilterSelectors` への統一移行。
+wrapper hook は既存パターンに存在せず、新規追加は一貫性を損なう。
 
 ---
 
@@ -197,8 +199,19 @@ alignment-aware なアクセスパターンに段階的に移行する。
 | 項目 | 内容 |
 |---|---|
 | 目的 | REVIEW_ONLY_TAGS をガードテストに昇格させる |
-| 対象 | C1, C4, C5, E1, E2 等の現在レビューのみで検証しているタグ |
+| 対象 | C1, C4, C5, E1 等の現在レビューのみで検証しているタグ |
+| 状態 | **E4, E2, G3 の 3 タグを機械テストに昇格** |
 | 成功条件 | 機械的に検出できるタグが増え、REVIEW_ONLY_TAGS が減少 |
+
+**昇格実績:**
+
+| タグ | 施策 | 検出方法 |
+|---|---|---|
+| E4 | codePatternGuard に追加 | `!obj.numericProp` パターン検出 |
+| E2 | eslint.config.js に `@guard` 付与 | `react-hooks/exhaustive-deps: 'error'` |
+| G3 | codePatternGuard に追加 | `eslint-disable` / `@ts-ignore` / `@ts-expect-error` 検出 |
+
+**REVIEW_ONLY_TAGS:** 14 → **11**（-3）
 
 ---
 
