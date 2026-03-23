@@ -58,6 +58,8 @@ describe('Layer Boundary Guard', () => {
       const rel = relativePath(file)
       // DuckDB adapter hooks: infrastructure/duckdb/ への依存は構造的に正しい
       if (rel.startsWith('application/hooks/duckdb/')) continue
+      // QueryHandler: infrastructure のクエリを呼ぶのが設計上の役割
+      if (rel.startsWith('application/queries/')) continue
       if (APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST.has(rel)) continue
 
       const imports = extractImports(file)
@@ -182,11 +184,11 @@ describe('Layer Boundary Guard', () => {
 
   // ─── 許可リスト増加防止 ─────────────────────────────
 
-  it('APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST は 12 件以下', () => {
+  it('APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST は 11 件以下', () => {
     expect(
       APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST.size,
-      `APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST が ${APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST.size} 件（上限: 12）`,
-    ).toBeLessThanOrEqual(12)
+      `APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST が ${APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST.size} 件（上限: 11）`,
+    ).toBeLessThanOrEqual(11)
   })
 
   it('PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST は 0 件（完全解消済み）', () => {

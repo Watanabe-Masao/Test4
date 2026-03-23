@@ -92,7 +92,7 @@
 
 | 境界 | 現状 | 上限 | 削減余地 |
 |---|---|---|---|
-| application→infrastructure | 12 | 14 | bridge(2) が移行で解消可能 |
+| application→infrastructure | **10** | 11 | **bridge 全件解消済み**。残り adapter(7)+lifecycle(1)+adapter(2) |
 | presentation→usecases | **1** | 1 | **legacy(1) を useClipExport hook で解消済み** |
 | infrastructure→application | **0** | 0 | **RawDataPort を domain/ports/ に移動し完了** |
 | presentation→infrastructure | **0** | 0 | **完了** |
@@ -213,14 +213,14 @@
 
 | 指標 | 起点（Sprint 1 完了時） | 現在値 | 次 Sprint 目標 | 中期目標 |
 |---|---|---|---|---|
-| allowlist 総エントリ | 99 | **85**（-14） | 81 以下 | 72 以下 |
+| allowlist 総エントリ | 99 | **84**（-15） | 80 以下 | 72 以下 |
 | migration カテゴリ | 33 | **29**（-4） | 26 以下 | 20 以下 |
 | legacy カテゴリ | 11 | **6**（-5） | 5 以下 | 5 以下 |
-| bridge カテゴリ | 4 | **2**（-2） | 1 以下 | 0 |
+| bridge カテゴリ | 4 | **1**（-3） | 0 | 0 |
 | 凍結済み allowlist | 2 | **4**（+2） | 5 以上 | 5 以上 |
 | DuckDB 直結 | 36 | **27**（-9） | 25 以下 | 20 以下 |
 | Tier2 大型 component | 8 | **4**（-4） | 3 以下 | 3 以下 |
-| app→infra 上限 | 14 | **12**（-2） | 11 以下 | 10 以下 |
+| app→infra 上限 | 14 | **11**（-3） | 10 以下 | 10 以下 |
 
 ### 削減履歴
 
@@ -240,6 +240,7 @@
 | 2026-03-23 | MonthlyCalendar.tsx | presentationDuckdbHook | DuckDB import を useClipExport に移動 |
 | 2026-03-23 | MonthlyCalendar.tsx | largeComponentTier2 | 589 行（600 未満） |
 | 2026-03-23 | queryProfileService.ts | applicationToInfrastructure | queryProfiler を application/ に移動 |
+| 2026-03-23 | useWeatherHourlyQuery.ts | applicationToInfrastructure | QueryHandler パターンに移行 |
 
 ## この一覧の使い方
 

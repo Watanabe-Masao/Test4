@@ -135,7 +135,7 @@ export type {
 
 // 天気時間帯
 export { useDuckDBWeatherHourly, useDuckDBWeatherHourlyAvg } from './useWeatherHourlyQuery'
-export type { HourlyWeatherAvgRow } from '@/infrastructure/duckdb/queries/weatherQueries'
+export type { HourlyWeatherAvgRow } from '@/application/queries/weather'
 
 // 日別詳細（カレンダーモーダル用一括取得）
 export { useDayDetailData } from './useDayDetailData'

@@ -23,3 +23,4 @@ export { createQueryExecutor } from './QueryPort'
 // ハンドラー
 export * from './summary'
 export * from './dailyRecords'
+export * from './weather'

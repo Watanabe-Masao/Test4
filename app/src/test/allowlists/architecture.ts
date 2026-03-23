@@ -48,12 +48,6 @@ export const applicationToInfrastructure: readonly AllowlistEntry[] = [
     removalCondition: 'i18n が adapter 層に移行されたとき',
   },
   {
-    path: 'application/hooks/duckdb/useWeatherHourlyQuery.ts',
-    reason: 'DuckDB 天気クエリ',
-    category: 'bridge',
-    removalCondition: 'QueryHandler パターンに移行されたとき',
-  },
-  {
     path: 'application/adapters/weatherAdapter.ts',
     reason: 'adapter パターン — 正当な例外',
     category: 'adapter',
