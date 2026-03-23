@@ -25,3 +25,10 @@ export {
   type CategoryHourlyOutput,
   type CategoryHourlyRow,
 } from './CategoryHourlyHandler'
+
+export {
+  hourDowMatrixHandler,
+  type HourDowMatrixInput,
+  type HourDowMatrixOutput,
+  type HourDowMatrixRow,
+} from './HourDowMatrixHandler'

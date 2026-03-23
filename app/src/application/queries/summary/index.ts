@@ -10,3 +10,9 @@ export type {
   AggregatedRatesOutput,
   AggregatedRatesRow,
 } from './AggregatedRatesHandler'
+export { storeDaySummaryHandler } from './StoreDaySummaryHandler'
+export type {
+  StoreDaySummaryInput,
+  StoreDaySummaryOutput,
+  StoreDaySummaryRow,
+} from './StoreDaySummaryHandler'

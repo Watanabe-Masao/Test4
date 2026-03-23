@@ -49,8 +49,7 @@ export const UnifiedHeatmapWidget = memo(function UnifiedHeatmapWidget({
 }) {
   return (
     <HeatmapChart
-      duckConn={ctx.duckConn}
-      duckDataVersion={ctx.duckDataVersion}
+      queryExecutor={ctx.queryExecutor}
       currentDateRange={ctx.currentDateRange}
       selectedStoreIds={ctx.selectedStoreIds}
       prevYearScope={ctx.prevYearScope}

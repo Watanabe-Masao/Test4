@@ -1,14 +1,13 @@
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
-import type { HourDowMatrixRow } from '@/application/hooks/useDuckDBQuery'
+import type { QueryExecutor } from '@/application/queries/QueryPort'
+import type { HourDowMatrixRow } from '@/application/queries/cts/HourDowMatrixHandler'
 
 // ── Types ──
 
 export type HeatmapMode = 'amount' | 'yoyDiff'
 
 export interface Props {
-  readonly duckConn: AsyncDuckDBConnection | null
-  readonly duckDataVersion: number
+  readonly queryExecutor: QueryExecutor | null
   readonly currentDateRange: DateRange
   readonly selectedStoreIds: ReadonlySet<string>
   readonly prevYearScope?: PrevYearScope

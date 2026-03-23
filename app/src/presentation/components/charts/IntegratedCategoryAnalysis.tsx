@@ -89,8 +89,7 @@ export const IntegratedCategoryAnalysis = memo(function IntegratedCategoryAnalys
         role="child"
       >
         <CategoryHierarchyExplorer
-          duckConn={duckConn}
-          duckDataVersion={duckDataVersion}
+          queryExecutor={queryExecutor}
           currentDateRange={currentDateRange}
           prevYearScope={prevYearScope}
           selectedStoreIds={selectedStoreIds}

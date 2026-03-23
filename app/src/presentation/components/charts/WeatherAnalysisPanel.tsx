@@ -4,12 +4,20 @@
  * 既存 WeatherCorrelationChart をサブパネルとして配置。
  * 売上・客数データは DuckDB store_day_summary から取得。
  */
+/**
+ * @migration P5: useQueryWithHandler 経由に移行済み（旧: useDuckDBStoreDaySummary 直接 import）
+ */
 import { useMemo, memo } from 'react'
 import styled from 'styled-components'
 import type { DailyWeatherSummary } from '@/domain/models/record'
 import type { DailySalesForCorrelation } from '@/application/hooks/useWeatherCorrelation'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
-import { useDuckDBStoreDaySummary } from '@/application/hooks/useDuckDBQuery'
+import { dateRangeToKeys } from '@/domain/models/calendar'
+import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
+import {
+  storeDaySummaryHandler,
+  type StoreDaySummaryInput,
+} from '@/application/queries/summary/StoreDaySummaryHandler'
 import type { DuckQueryContext } from './SubAnalysisPanel'
 import { WeatherCorrelationChart } from './WeatherCorrelationChart'
 
@@ -22,14 +30,19 @@ export const WeatherAnalysisPanel = memo(function WeatherAnalysisPanel({
   ctx,
   weatherDaily,
 }: Props) {
-  const { duckConn, duckDataVersion, currentDateRange, selectedStoreIds } = ctx
-  // DuckDB から日別売上・客数を取得
-  const { data: dailyRows } = useDuckDBStoreDaySummary(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-  )
+  const { queryExecutor, currentDateRange, selectedStoreIds } = ctx
+
+  const input = useMemo<StoreDaySummaryInput | null>(() => {
+    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
+    return {
+      dateFrom: fromKey,
+      dateTo: toKey,
+      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
+    }
+  }, [currentDateRange, selectedStoreIds])
+
+  const { data: output } = useQueryWithHandler(queryExecutor, storeDaySummaryHandler, input)
+  const dailyRows = output?.records ?? null
 
   const { year, month } = currentDateRange.from
 
