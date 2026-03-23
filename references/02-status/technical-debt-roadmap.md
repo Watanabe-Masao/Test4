@@ -12,14 +12,15 @@
 
 | カテゴリ | 起点 | 現在 | 変動 | 性質 |
 |---|---|---|---|---|
-| migration | 33 | 29 | -4 | 移行先が存在。消化するだけ |
-| structural | 26 | 25 | -1 | 構造上不可避。削減ではなく監視 |
+| structural | 26 | 35 | +9 | 構造上不可避。削減ではなく監視（P4 再分類 +10） |
+| migration | 33 | 20 | **-13** | 移行先が存在。消化するだけ |
 | adapter | 5 | 11 | +6 | DI パターン。正当な例外として維持（queries/ 免除追加） |
 | legacy | 11 | 2 | **-9** | 旧 API 依存。リファクタで解消可能 |
 | bridge | 4 | 1 | **-3** | 暫定接続。移行完了で不要になる |
 | lifecycle | 1 | 2 | +1 | ライフサイクル管理。正当 |
 
-**削減可能:** migration + legacy + bridge = **32 エントリ（44%）**
+**削減可能:** migration + legacy + bridge = **23 エントリ（32%）**
+**構造管理:** structural = **35 エントリ（48%）** — データソース移行済み、アクセスパターン監視
 
 ### allowlist 別充填率
 
@@ -107,30 +108,39 @@
 | 項目 | 内容 |
 |---|---|
 | 目的 | 旧 comparison API 依存を排除し、比較文脈を一系統に収束 |
-| 対象 | cmpPrevYearDaily(11), cmpFramePrevious(3), cmpDailyMapping(1) — **計 15 エントリ** |
+| 対象 | cmpPrevYearDaily(10), cmpFramePrevious(1), cmpDailyMapping(1) — **計 12 エントリ** |
 | 移行先 | `application/comparison/`（V2, 16 ファイル）+ `useComparisonModule` hook |
-| 状態 | 全 allowlist が **100% 充填**（新規追加不可能） |
-| 成功条件 | prevYear.daily.get(), comparisonFrame.previous, dailyMapping 劣化変換の残件が計画的に減少 |
+| 状態 | **データソース V2 移行済み**。アクセスパターン改善は改修タイミング |
 
-**旧 API 残存ファイル（11 ファイル）:**
+**再評価結果（2026-03-23）:**
 
-| ファイル | 違反 | 備考 |
+`ctx.prevYear` はすでに `useComparisonModule.daily`（V2）から供給されている。
+`prevYear.daily.get(toDateKeyFromParts(...))` は V2 の PrevYearData Map への正当なアクセス。
+
+ガードが防ぐリスク:
+- `toDateKeyFromParts` で「当月の日付」として key を構築→same-DOW alignment 時に不整合
+- 新規コードが alignment を無視して Map に直接アクセスすること
+
+**カテゴリ変更:** migration → structural（データソース移行済み、アクセスパターン管理）
+**方針:** ヘルパー関数で `.get()` を隠す表面的回避はしない。各ファイルの改修タイミングで
+alignment-aware なアクセスパターンに段階的に移行する。
+
+**残存ファイル（12 ファイル）:**
+
+| ファイル | パターン | カテゴリ |
 |---|---|---|
-| calendarUtils.ts | prevYear.daily.get ×3 | 最多。優先移行候補 |
-| MonthlyCalendar.tsx | prevYear.daily.get ×2, comparisonFrame.previous | 3 allowlist 跨り |
-| DayDetailModal.tsx | prevYear.daily.get, comparisonFrame.previous | 2 allowlist 跨り |
-| DayDetailModal.vm.ts | prevYear.daily.get ×2 | VM 層 |
-| YoYWaterfallChart.tsx | comparisonFrame.previous | |
-| AlertPanel.tsx | prevYear.daily.get | |
-| DailyPage.tsx | prevYear.daily.get | |
-| useBudgetChartData.ts | prevYear.daily.get | application 層 |
-| buildClipBundle.ts | prevYear.daily.get | export 機能 |
-| ForecastPage.helpers.ts | prevYear.daily.get | |
-| InsightTabBudget.tsx | prevYear.daily.get | |
-| PrevYearBudgetDetailPanel.tsx | dailyMapping（sourceDate 維持） | |
-
-**移行戦略:** Dashboard widgets（Calendar, DayDetail, YoYWaterfall）を一括移行すると
-3 allowlist を同時に削減でき、効率が最も高い。
+| calendarUtils.ts | prevYear.daily.get ×3 | structural |
+| MonthlyCalendar.tsx | prevYear.daily.get ×2 | structural |
+| DayDetailModal.tsx | prevYear.daily.get | structural |
+| DayDetailModal.vm.ts | prevYear.daily.get ×2 | structural |
+| AlertPanel.tsx | prevYear.daily.get | structural |
+| DailyPage.tsx | prevYear.daily.get | structural |
+| useBudgetChartData.ts | prevYear.daily.get | structural |
+| buildClipBundle.ts | prevYear.daily.get | structural |
+| ForecastPage.helpers.ts | prevYear.daily.get | structural |
+| InsightTabBudget.tsx | prevYear.daily.get | structural |
+| YoYWaterfallChart.tsx | comparisonFrame.previous | migration |
+| PrevYearBudgetDetailPanel.tsx | dailyMapping（sourceDate 維持） | structural |
 
 #### P5: DuckDB 直結削減
 
@@ -217,7 +227,7 @@
 | 指標 | 起点（Sprint 1 完了時） | 現在値 | 次 Sprint 目標 | 中期目標 |
 |---|---|---|---|---|
 | allowlist 総エントリ | 99 | **73**（-26） | 70 以下 | 60 以下 |
-| migration カテゴリ | 33 | **29**（-4） | 26 以下 | 20 以下 |
+| migration カテゴリ | 33 | **20**（-13、P4 再分類含む） | 18 以下 | 15 以下 |
 | legacy カテゴリ | 11 | **2**（-9） | 1 以下 | 0 |
 | bridge カテゴリ | 4 | **1**（-3） | 0 | 0 |
 | 凍結済み allowlist | 2 | **5**（+3） | 6 以上 | 6 以上 |
