@@ -31,7 +31,13 @@ export {
 export { presentationDuckdbHook } from './duckdb'
 
 // Complexity
-export { useMemoLimits, useStateLimits, hookLineLimits } from './complexity'
+export {
+  useMemoLimits,
+  useStateLimits,
+  hookLineLimits,
+  presentationMemoLimits,
+  presentationStateLimits,
+} from './complexity'
 
 // Size
 export { largeComponentTier2, infraLargeFiles, domainLargeFiles, usecasesLargeFiles } from './size'

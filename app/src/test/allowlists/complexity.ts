@@ -32,6 +32,119 @@ export const useStateLimits: readonly QuantitativeAllowlistEntry[] = [
   },
 ] as const
 
+/** presentation/ の useMemo 上限の個別例外（G5 横展開） */
+export const presentationMemoLimits: readonly QuantitativeAllowlistEntry[] = [
+  {
+    path: 'presentation/pages/CostDetail/useCostDetailData.ts',
+    reason: '仕入詳細データの多段集計',
+    category: 'structural',
+    removalCondition: 'ロジック分離時',
+    limit: 13,
+  },
+  {
+    path: 'presentation/pages/Dashboard/widgets/useDrilldownData.ts',
+    reason: 'ドリルダウンの多段集計',
+    category: 'structural',
+    removalCondition: 'ロジック分離時',
+    limit: 13,
+  },
+  {
+    path: 'presentation/pages/Admin/RawDataTab.tsx',
+    reason: '管理画面のデータ表示タブ。多数のフィルタ＋集計',
+    category: 'structural',
+    removalCondition: 'ロジック分離時',
+    limit: 12,
+  },
+  {
+    path: 'presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx',
+    reason: '複合比較チャート。要因分解＋比較期間の二重集計',
+    category: 'structural',
+    removalCondition: 'ロジック分離時',
+    limit: 11,
+  },
+  {
+    path: 'presentation/pages/Dashboard/widgets/HourlyChart.tsx',
+    reason: '時間帯別チャート。複数集計ビュー',
+    category: 'structural',
+    removalCondition: 'ロジック分離時',
+    limit: 10,
+  },
+  {
+    path: 'presentation/components/charts/useDuckDBTimeSlotData.ts',
+    reason: 'タイムスロットデータの多段集計',
+    category: 'structural',
+    removalCondition: 'ロジック分離時',
+    limit: 10,
+  },
+  {
+    path: 'presentation/components/charts/DailySalesChartBody.tsx',
+    reason: '日別売上チャート。複数シリーズの構築',
+    category: 'structural',
+    removalCondition: 'builders 分離時',
+    limit: 9,
+  },
+  {
+    path: 'presentation/pages/Dashboard/widgets/DrilldownWaterfall.tsx',
+    reason: 'ウォーターフォール計算',
+    category: 'structural',
+    removalCondition: 'ロジック分離時',
+    limit: 8,
+  },
+  {
+    path: 'presentation/components/charts/TimeSlotChart.tsx',
+    reason: 'タイムスロットチャートの集計',
+    category: 'structural',
+    removalCondition: 'ロジック分離時',
+    limit: 8,
+  },
+] as const
+
+/** presentation/ の useState 上限の個別例外（G5 横展開） */
+export const presentationStateLimits: readonly QuantitativeAllowlistEntry[] = [
+  {
+    path: 'presentation/pages/Admin/StorageManagementTab.tsx',
+    reason: '管理画面のストレージ管理。多数の操作状態',
+    category: 'structural',
+    removalCondition: 'useStorageManagement hook に分離時',
+    limit: 12,
+  },
+  {
+    path: 'presentation/pages/Dashboard/widgets/MonthlyCalendar.tsx',
+    reason: 'カレンダー操作状態（ピン・範囲選択・hover 等）',
+    category: 'structural',
+    removalCondition: 'カレンダー状態管理の hook 分離時',
+    limit: 11,
+  },
+  {
+    path: 'presentation/components/charts/CategoryBenchmarkChart.vm.ts',
+    reason: 'ベンチマーク VM の操作状態',
+    category: 'structural',
+    removalCondition: 'ロジック分離時',
+    limit: 9,
+  },
+  {
+    path: 'presentation/components/charts/useDuckDBTimeSlotData.ts',
+    reason: 'タイムスロット集計の操作状態',
+    category: 'structural',
+    removalCondition: 'ロジック分離時',
+    limit: 10,
+  },
+  {
+    path: 'presentation/components/charts/periodFilterHooks.ts',
+    reason: '期間フィルタの操作状態',
+    category: 'structural',
+    removalCondition: 'ロジック分離時',
+    limit: 9,
+  },
+  {
+    path: 'presentation/pages/Dashboard/widgets/useDrilldownData.ts',
+    reason: 'ドリルダウンの多段操作状態',
+    category: 'structural',
+    removalCondition: 'ロジック分離時',
+    limit: 11,
+  },
+] as const
+
 /** hook ファイル行数上限の個別例外 */
 export const hookLineLimits: readonly QuantitativeAllowlistEntry[] = [
   {
