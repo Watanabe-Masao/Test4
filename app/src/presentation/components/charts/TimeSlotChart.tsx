@@ -12,8 +12,8 @@
  */
 import { memo, useMemo, useState } from 'react'
 import { useTheme } from 'styled-components'
-import type { AsyncDuckDBConnection, AsyncDuckDB } from '@duckdb/duckdb-wasm'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
+import type { QueryExecutor } from '@/application/queries/QueryPort'
 import type { SalesAnalysisContext } from '@/application/models/SalesAnalysisContext'
 import type { AnalysisViewEvents } from '@/application/models/AnalysisViewEvents'
 import type { AppTheme } from '@/presentation/theme/theme'
@@ -30,9 +30,7 @@ import { buildTimeSlotChartOption, buildWeatherMap } from './TimeSlotChartOption
 // ── Props ──
 
 interface Props {
-  readonly duckConn: AsyncDuckDBConnection | null
-  readonly duckDb?: AsyncDuckDB | null
-  readonly duckDataVersion: number
+  readonly queryExecutor: QueryExecutor | null
   /** 分析文脈（親コンテナから渡される場合 — 推奨） */
   readonly context?: SalesAnalysisContext
   /**
@@ -57,9 +55,7 @@ interface Props {
 // ── Component ──
 
 export const TimeSlotChart = memo(function TimeSlotChart({
-  duckConn,
-  duckDb,
-  duckDataVersion,
+  queryExecutor,
   context,
   currentDateRange: legacyDateRange,
   selectedStoreIds: legacyStoreIds,
@@ -85,9 +81,7 @@ export const TimeSlotChart = memo(function TimeSlotChart({
   const hasRequiredProps = dateRange != null && storeIds != null
 
   const d = useDuckDBTimeSlotData({
-    duckConn: hasRequiredProps ? duckConn : null,
-    duckDb,
-    duckDataVersion,
+    queryExecutor: hasRequiredProps ? queryExecutor : null,
     currentDateRange: dateRange ?? dummyDateRange,
     selectedStoreIds: storeIds ?? emptyStoreIds,
     prevYearScope,
@@ -147,7 +141,7 @@ export const TimeSlotChart = memo(function TimeSlotChart({
     return (
       <ChartCard title="時間帯別売上" ariaLabel="時間帯別売上">
         <ErrorMsg>
-          {messages.errors.dataFetchFailed}: {d.error}
+          {messages.errors.dataFetchFailed}: {d.error?.message}
         </ErrorMsg>
       </ChartCard>
     )
@@ -157,7 +151,7 @@ export const TimeSlotChart = memo(function TimeSlotChart({
     return <ChartSkeleton />
   }
 
-  if (!duckConn || duckDataVersion === 0 || d.chartData.length === 0) {
+  if (!queryExecutor?.isReady || d.chartData.length === 0) {
     return <EmptyState>データをインポートしてください</EmptyState>
   }
 

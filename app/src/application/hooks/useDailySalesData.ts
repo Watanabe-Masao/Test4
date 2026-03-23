@@ -22,8 +22,12 @@ export interface WaterfallItem {
   prevYearSales: number | null
   prevYearDiscount: number | null
   customers: number
+  /** 買上点数（CTS 由来、DuckDB store_day_summary.total_quantity） */
+  quantity: number
   txValue: number | null
   prevCustomers: number | null
+  /** 前年買上点数 */
+  prevQuantity: number | null
   prevTxValue: number | null
   currentCum: number
   prevYearCum: number | null
@@ -72,8 +76,12 @@ export interface BaseDayItem {
   prevYearSales: number | null
   prevYearDiscount: number | null
   customers: number
+  /** 買上点数（CTS 由来、DuckDB store_day_summary.total_quantity） */
+  quantity: number
   txValue: number | null
   prevCustomers: number | null
+  /** 前年買上点数 */
+  prevQuantity: number | null
   prevTxValue: number | null
   currentCum: number
   prevYearCum: number | null
@@ -108,6 +116,14 @@ export interface DailySalesDataResult {
   readonly hasPrev: boolean
 }
 
+/** 日別点数データ（DuckDB 由来） */
+export interface DailyQuantityData {
+  /** 当期: day → quantity */
+  readonly current: ReadonlyMap<number, number>
+  /** 前年: day → quantity */
+  readonly prev: ReadonlyMap<number, number>
+}
+
 export function useDailySalesData(
   daily: ReadonlyMap<number, DailyRecord>,
   daysInMonth: number,
@@ -122,6 +138,7 @@ export function useDailySalesData(
   selectedDows?: readonly number[],
   budgetDaily?: ReadonlyMap<number, number>,
   diffTarget?: DiffTarget,
+  dailyQuantity?: DailyQuantityData,
 ): DailySalesDataResult {
   const { baseData, wfData } = useMemo(() => {
     const result = buildBaseDayItems(
@@ -132,9 +149,16 @@ export function useDailySalesData(
       year ?? 2000,
       month ?? 1,
     )
+    // DuckDB 由来の日別点数をマージ
+    if (dailyQuantity) {
+      for (const item of result.baseData) {
+        item.quantity = dailyQuantity.current.get(item.day) ?? 0
+        item.prevQuantity = dailyQuantity.prev.get(item.day) ?? null
+      }
+    }
     const wf = isWf ? buildWaterfallData(result.baseData, diffTarget ?? 'yoy') : null
     return { baseData: result.baseData, wfData: wf }
-  }, [daily, daysInMonth, prevYearDaily, isWf, budgetDaily, year, month, diffTarget])
+  }, [daily, daysInMonth, prevYearDaily, isWf, budgetDaily, year, month, diffTarget, dailyQuantity])
 
   /** 曜日フィルタ: 指定曜日に該当する日のみ通す */
   const dowFilter = useMemo(() => {

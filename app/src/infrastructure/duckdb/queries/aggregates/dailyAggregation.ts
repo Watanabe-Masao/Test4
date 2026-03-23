@@ -88,3 +88,42 @@ export async function queryDailyCumulativeAggregation(
 
   return queryToObjects<DailyCumulativeRow>(conn, sql)
 }
+
+// ── 日別点数クエリ ──
+
+/** 日別点数行 */
+export interface DailyQuantityRow {
+  readonly dateKey: string
+  readonly dailyQuantity: number
+}
+
+/**
+ * 日別の買上点数を SQL で集約する
+ *
+ * store_day_summary.total_quantity（category_time_sales 由来）を
+ * date_key で GROUP BY し、全店合計の日別点数を返す。
+ */
+export async function queryDailyQuantity(
+  conn: AsyncDuckDBConnection,
+  params: DailyAggregationParams,
+): Promise<readonly DailyQuantityRow[]> {
+  const dateFrom = validateDateKey(params.dateFrom)
+  const dateTo = validateDateKey(params.dateTo)
+
+  const where = buildWhereClause([
+    `date_key BETWEEN '${dateFrom}' AND '${dateTo}'`,
+    `is_prev_year = ${params.isPrevYear ?? false}`,
+    storeIdFilter(params.storeIds),
+  ])
+
+  const sql = `
+    SELECT
+      date_key,
+      SUM(total_quantity) AS daily_quantity
+    FROM store_day_summary
+    ${where}
+    GROUP BY date_key
+    ORDER BY date_key`
+
+  return queryToObjects<DailyQuantityRow>(conn, sql)
+}

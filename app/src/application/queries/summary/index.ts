@@ -16,3 +16,9 @@ export type {
   StoreDaySummaryOutput,
   StoreDaySummaryRow,
 } from './StoreDaySummaryHandler'
+export { dailyQuantityHandler } from './DailyQuantityHandler'
+export type {
+  DailyQuantityInput,
+  DailyQuantityOutput,
+  DailyQuantityRow,
+} from './DailyQuantityHandler'

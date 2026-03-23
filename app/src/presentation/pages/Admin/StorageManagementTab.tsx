@@ -2,9 +2,8 @@ import { useState, useCallback, useRef } from 'react'
 import { useStorageAdmin } from '@/application/hooks/data'
 import { useStoragePersistence } from '@/application/hooks/useStoragePersistence'
 import { useBackup, type BackupMeta } from '@/application/hooks/useBackup'
-import { useDataRecovery } from '@/application/hooks/useDataRecovery'
 import { useRepository } from '@/application/context/useRepository'
-import { useDuckDB } from '@/application/hooks/useDuckDB'
+import { useStorageDuck } from '@/application/hooks/useStorageDuck'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useDeviceSync } from '@/application/hooks/useDeviceSync'
@@ -68,8 +67,6 @@ export function StorageManagementTab() {
   const repo = useRepository()
   const data = useDataStore((s) => s.data)
   const settings = useSettingsStore((s) => s.settings)
-  const { conn, db } = useDuckDB(data, settings.targetYear, settings.targetMonth, repo)
-
   // 永続化ストレージ
   const {
     status: storageStatus,
@@ -98,7 +95,7 @@ export function StorageManagementTab() {
 
   // データ復旧
   const { rawFileGroups, canRebuild, isRebuilding, lastRebuildResult, rebuildDuckDB } =
-    useDataRecovery(conn, db, repo)
+    useStorageDuck(data, settings.targetYear, settings.targetMonth, repo)
 
   // データ管理（月別データ・展開・削除）
   const {

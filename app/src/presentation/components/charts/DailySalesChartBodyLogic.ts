@@ -244,7 +244,7 @@ interface SeriesItem {
   connectNulls: boolean
 }
 
-interface RightAxisColors {
+export interface RightAxisColors {
   readonly cyan: string
   readonly orange: string
   readonly danger: string
@@ -259,20 +259,20 @@ export function buildQuantitySeries(
 ): SeriesItem[] {
   const series: SeriesItem[] = [
     {
-      name: 'customers',
+      name: 'quantity',
       type: 'line',
       yAxisIndex: 1,
-      data: pluck(rows, 'customers'),
+      data: pluck(rows, 'quantity'),
       ...lineDefaults({ color: colors.cyan }),
       connectNulls: true,
     },
   ]
   if (hasPrev) {
     series.push({
-      name: 'prevCustomers',
+      name: 'prevQuantity',
       type: 'line',
       yAxisIndex: 1,
-      data: pluck(rows, 'prevCustomers'),
+      data: pluck(rows, 'prevQuantity'),
       ...lineDefaults({ color: colors.cyan, dashed: true, width: 1.5 }),
       connectNulls: true,
     })

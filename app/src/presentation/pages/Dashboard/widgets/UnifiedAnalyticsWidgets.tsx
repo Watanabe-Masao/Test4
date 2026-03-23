@@ -30,9 +30,7 @@ export const UnifiedTimeSlotWidget = memo(function UnifiedTimeSlotWidget({
 }) {
   return (
     <TimeSlotChart
-      duckConn={ctx.duckConn}
-      duckDb={ctx.duckDb}
-      duckDataVersion={ctx.duckDataVersion}
+      queryExecutor={ctx.queryExecutor}
       currentDateRange={ctx.currentDateRange}
       selectedStoreIds={ctx.selectedStoreIds}
       prevYearScope={ctx.prevYearScope}

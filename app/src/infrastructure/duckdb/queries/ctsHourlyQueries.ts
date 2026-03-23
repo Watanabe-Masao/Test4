@@ -11,11 +11,9 @@ import { tsWhereClause } from './categoryTimeSales'
 
 // ── 時間帯別集約 ──
 
-export interface HourlyAggregationRow {
-  readonly hour: number
-  readonly totalAmount: number
-  readonly totalQuantity: number
-}
+// 契約型は domain に定義（A4: 取得対象の契約は Domain で定義）
+export type { HourlyAggregationRow } from '@/domain/models/CtsQueryContracts'
+import type { HourlyAggregationRow } from '@/domain/models/CtsQueryContracts'
 
 /**
  * 時間帯別集約（aggregateHourly 相当）

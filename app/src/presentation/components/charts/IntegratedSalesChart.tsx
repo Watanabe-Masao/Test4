@@ -13,9 +13,15 @@
  */
 import { useState, useCallback, useMemo, useRef, useEffect, memo } from 'react'
 import styled from 'styled-components'
-import type { AsyncDuckDBConnection, AsyncDuckDB } from '@duckdb/duckdb-wasm'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
+import { dateRangeToKeys } from '@/domain/models/CalendarDate'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
+import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
+import {
+  dailyQuantityHandler,
+  type DailyQuantityInput,
+} from '@/application/queries/summary/DailyQuantityHandler'
+import type { DailyQuantityData } from './useDailySalesData'
 import type { DailyRecord, DailyWeatherSummary, DiscountEntry } from '@/domain/models/record'
 import { useDrillDateRange } from '@/application/hooks/useDrillDateRange'
 import {
@@ -64,9 +70,6 @@ interface Props {
   readonly totalGrossSales?: number
   // TimeSlotChart / DeptHourlyChart / SubAnalysisPanel props
   readonly queryExecutor: QueryExecutor | null
-  readonly duckConn: AsyncDuckDBConnection | null
-  readonly duckDb?: AsyncDuckDB | null
-  readonly duckDataVersion: number
   readonly currentDateRange: DateRange
   readonly selectedStoreIds: ReadonlySet<string>
   readonly prevYearScope?: PrevYearScope
@@ -87,7 +90,49 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
   const parentRef = useRef<HTMLDivElement>(null)
   const drillPanelRef = useRef<HTMLDivElement>(null)
 
-  const canDrill = props.duckConn != null && props.duckDataVersion > 0
+  const canDrill = props.queryExecutor?.isReady === true
+
+  // ── 日別点数データ（DuckDB 由来） ──
+  const storeIds = useMemo(
+    () => (props.selectedStoreIds.size > 0 ? [...props.selectedStoreIds] : undefined),
+    [props.selectedStoreIds],
+  )
+  const curQtyInput = useMemo<DailyQuantityInput | null>(() => {
+    const { fromKey, toKey } = dateRangeToKeys(props.currentDateRange)
+    return { dateFrom: fromKey, dateTo: toKey, storeIds, isPrevYear: false }
+  }, [props.currentDateRange, storeIds])
+  const prevYearDateRange = props.prevYearScope?.dateRange
+  const prevQtyInput = useMemo<DailyQuantityInput | null>(() => {
+    if (!prevYearDateRange) return null
+    const { fromKey, toKey } = dateRangeToKeys(prevYearDateRange)
+    return { dateFrom: fromKey, dateTo: toKey, storeIds, isPrevYear: true }
+  }, [prevYearDateRange, storeIds])
+  const { data: curQtyOut } = useQueryWithHandler(
+    props.queryExecutor,
+    dailyQuantityHandler,
+    curQtyInput,
+  )
+  const { data: prevQtyOut } = useQueryWithHandler(
+    props.queryExecutor,
+    dailyQuantityHandler,
+    prevQtyInput,
+  )
+  const dailyQuantity = useMemo<DailyQuantityData | undefined>(() => {
+    if (!curQtyOut) return undefined
+    const current = new Map<number, number>()
+    for (const r of curQtyOut.records) {
+      const day = Number(r.dateKey.split('-')[2])
+      current.set(day, (current.get(day) ?? 0) + r.dailyQuantity)
+    }
+    const prev = new Map<number, number>()
+    if (prevQtyOut) {
+      for (const r of prevQtyOut.records) {
+        const day = Number(r.dateKey.split('-')[2])
+        prev.set(day, (prev.get(day) ?? 0) + r.dailyQuantity)
+      }
+    }
+    return { current, prev }
+  }, [curQtyOut, prevQtyOut])
 
   const handleDayRangeSelect = useCallback(
     (startDay: number, endDay: number) => {
@@ -249,6 +294,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
         weatherDaily={props.weatherDaily}
         prevYearWeatherDaily={props.prevYearWeatherDaily}
         dowOffset={props.dowOffset}
+        dailyQuantity={dailyQuantity}
         rightAxisMode={rightAxisMode}
         onRightAxisModeChange={setRightAxisMode}
         onViewChange={setDailyView}
@@ -275,9 +321,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
           }
         >
           <TimeSlotChart
-            duckConn={props.duckConn}
-            duckDb={props.duckDb}
-            duckDataVersion={props.duckDataVersion}
+            queryExecutor={props.queryExecutor}
             context={drillContext}
             events={childEvents}
           />
@@ -303,8 +347,8 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
         <SubAnalysisPanel
           mode={rightAxisMode}
           queryExecutor={props.queryExecutor}
-          duckConn={props.duckConn}
-          duckDataVersion={props.duckDataVersion}
+          duckConn={null}
+          duckDataVersion={0}
           currentDateRange={subPanelContext.dateRange}
           selectedStoreIds={subPanelContext.selectedStoreIds}
           prevYearScope={subPanelContext.comparisonScope}

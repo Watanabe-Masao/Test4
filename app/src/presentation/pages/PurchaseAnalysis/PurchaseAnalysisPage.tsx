@@ -15,7 +15,7 @@ import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useStoreSelection } from '@/application/hooks/ui'
 import { usePeriodSelection } from '@/application/hooks/usePeriodResolver'
-import { useDuckDB, usePurchaseComparisonQuery } from '@/application/hooks/analytics'
+import { usePurchaseAnalysis } from '@/application/hooks/usePurchaseAnalysis'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useRepository } from '@/application/context/useRepository'
 import { deriveDowOffset, deriveEffectivePeriod2 } from '@/domain/models/PeriodSelection'
@@ -52,8 +52,6 @@ export function PurchaseAnalysisPage() {
 
   const { targetYear, targetMonth } = settings
 
-  const duck = useDuckDB(data, targetYear, targetMonth, repo)
-
   const userCategories = useMemo(() => {
     const map = new Map<string, string>()
     const labels = settings.userCategoryLabels ?? {}
@@ -78,17 +76,19 @@ export function PurchaseAnalysisPage() {
 
   const effectivePeriod2 = useMemo(() => deriveEffectivePeriod2(selection), [selection])
 
-  const { data: result, isLoading } = usePurchaseComparisonQuery(
-    duck.conn,
-    duck.dataVersion,
-    selection.period1,
-    effectivePeriod2,
-    selectedStoreIds,
-    settings.supplierCategoryMap,
+  const { data: result, isLoading } = usePurchaseAnalysis({
+    data,
+    targetYear,
+    targetMonth,
+    repo,
+    period1: selection.period1,
+    period2: effectivePeriod2,
+    storeIds: selectedStoreIds,
+    supplierCategoryMap: settings.supplierCategoryMap,
     userCategories,
     storeNames,
     dowOffset,
-  )
+  })
 
   const categorySort = useSort('currentCost')
 

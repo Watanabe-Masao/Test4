@@ -13,7 +13,7 @@ import { ChartCard } from './ChartCard'
 import { ViewToggle, ViewBtn, Sep, GroupLabel } from './DailySalesChart.styles'
 import { useChartTheme } from './chartTheme'
 import { DowPresetSelector } from './DowPresetSelector'
-import { useDailySalesData, type DiffTarget } from './useDailySalesData'
+import { useDailySalesData, type DiffTarget, type DailyQuantityData } from './useDailySalesData'
 import { DailySalesChartBody, type ViewType } from './DailySalesChartBody'
 import { RIGHT_AXIS_OPTIONS, type RightAxisMode } from './DailySalesChartBodyLogic'
 import type { DailyRecord, DailyWeatherSummary } from '@/domain/models/record'
@@ -36,6 +36,8 @@ interface Props {
   prevYearWeatherDaily?: readonly DailyWeatherSummary[]
   /** 同曜日比較時の日オフセット（前年天気の日番号ずらし用） */
   dowOffset?: number
+  /** 日別点数データ（DuckDB 由来） */
+  dailyQuantity?: DailyQuantityData
   /** 右軸モード（親から制御する場合） */
   rightAxisMode?: RightAxisMode
   /** 右軸モード変更通知（親でサブパネル連動に使用） */
@@ -81,6 +83,7 @@ export const DailySalesChart = memo(function DailySalesChart({
   weatherDaily,
   prevYearWeatherDaily,
   dowOffset,
+  dailyQuantity,
   rightAxisMode: controlledRightAxisMode,
   onRightAxisModeChange,
   onViewChange,
@@ -122,6 +125,7 @@ export const DailySalesChart = memo(function DailySalesChart({
     selectedDows,
     budgetDaily,
     diffTarget,
+    dailyQuantity,
   )
 
   // Rate mode uses single % axis; all other modes use dual axes

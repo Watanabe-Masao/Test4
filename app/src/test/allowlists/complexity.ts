@@ -30,6 +30,14 @@ export const useStateLimits: readonly QuantitativeAllowlistEntry[] = [
     removalCondition: 'backup hook のリファクタリング時',
     limit: 7,
   },
+  {
+    path: 'application/hooks/useTimeSlotData.ts',
+    reason: 'タイムスロット orchestrator。実質 state 5 個（import 行でカウント +1）',
+    category: 'structural',
+    removalCondition:
+      'queryExecutor 移行（Sprint 3）で DuckDB hook 9 本が useQueryWithHandler に変わる時',
+    limit: 7,
+  },
 ] as const
 
 /** presentation/ の useMemo 上限の個別例外（G5 横展開） */
@@ -69,13 +77,7 @@ export const presentationMemoLimits: readonly QuantitativeAllowlistEntry[] = [
     removalCondition: 'ロジック分離時',
     limit: 10,
   },
-  {
-    path: 'presentation/components/charts/useDuckDBTimeSlotData.ts',
-    reason: 'タイムスロットデータの多段集計',
-    category: 'structural',
-    removalCondition: 'ロジック分離時',
-    limit: 10,
-  },
+  // useDuckDBTimeSlotData.ts — バレル化完了（2026-03-23）: application/hooks/useTimeSlotData.ts へ移設
   {
     path: 'presentation/components/charts/DailySalesChartBody.tsx',
     reason: '日別売上チャート。複数シリーズの構築',
@@ -122,13 +124,7 @@ export const presentationStateLimits: readonly QuantitativeAllowlistEntry[] = [
     removalCondition: 'ロジック分離時',
     limit: 9,
   },
-  {
-    path: 'presentation/components/charts/useDuckDBTimeSlotData.ts',
-    reason: 'タイムスロット集計の操作状態',
-    category: 'structural',
-    removalCondition: 'ロジック分離時',
-    limit: 10,
-  },
+  // useDuckDBTimeSlotData.ts — バレル化完了（2026-03-23）: presentation 側の useState は 0 に
   {
     path: 'presentation/components/charts/periodFilterHooks.ts',
     reason: '期間フィルタの操作状態',
@@ -160,5 +156,12 @@ export const hookLineLimits: readonly QuantitativeAllowlistEntry[] = [
     category: 'structural',
     removalCondition: 'KPI hook のリファクタリング時',
     limit: 310,
+  },
+  {
+    path: 'application/hooks/useTimeSlotData.ts',
+    reason: 'TimeSlot orchestrator。10 useQueryWithHandler + 12 useMemo input で import が多い',
+    category: 'structural',
+    removalCondition: 'query input 構築を sub-hook に分離する時',
+    limit: 320,
   },
 ] as const
