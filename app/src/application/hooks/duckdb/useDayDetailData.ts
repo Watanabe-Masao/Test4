@@ -15,8 +15,9 @@
  * フック本体は DuckDB クエリ発行 + 結果の組み立てのみ。
  */
 import { useMemo } from 'react'
-import type { AsyncDuckDB, AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { CalendarDate, DateRange } from '@/domain/models/CalendarDate'
+import type { QueryExecutor } from '@/application/queries/QueryPort'
+import { getLegacyDuckDB } from '@/application/queries/QueryPort'
 import { toDateKey } from '@/domain/models/CalendarDate'
 import type { ComparisonFrame } from '@/domain/models/ComparisonFrame'
 import { resolvePrevDate } from '@/domain/models/ComparisonScope'
@@ -67,8 +68,8 @@ export interface DayDetailData {
 
 /** useDayDetailData のパラメータ */
 export interface DayDetailDataParams {
-  readonly conn: AsyncDuckDBConnection | null
-  readonly db?: AsyncDuckDB | null
+  readonly queryExecutor: QueryExecutor | null
+  /** DuckDB データバージョン（useMemo 依存配列用、0 = 未ロード） */
   readonly dataVersion: number
   readonly year: number
   readonly month: number
@@ -135,8 +136,7 @@ export function resolveDayDetailRanges(
  */
 export function useDayDetailData(params: DayDetailDataParams): DayDetailData {
   const {
-    conn,
-    db,
+    queryExecutor,
     dataVersion,
     year,
     month,
@@ -145,6 +145,9 @@ export function useDayDetailData(params: DayDetailDataParams): DayDetailData {
     selectedStoreIds,
     weatherStoreId,
   } = params
+
+  // Legacy escape hatch — QueryHandler 未移行の旧フック用（getLegacyDuckDB は移行完了後に削除）
+  const { conn, db } = getLegacyDuckDB(queryExecutor)
 
   // 全日付範囲を一括計算（純粋関数 — useMemo 1つに集約）
   const ranges = useMemo(

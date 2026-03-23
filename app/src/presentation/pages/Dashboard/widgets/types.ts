@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
-import type { AsyncDuckDB, AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
+import type { WeatherPersister } from '@/application/queries/weather'
 import type { StoreExplanations, MetricId, ObservationStatus } from '@/domain/models/analysis'
 import type { DateRange, ComparisonFrame, PrevYearScope } from '@/domain/models/calendar'
 import type { StoreResult, ViewType } from '@/domain/models/storeTypes'
@@ -104,14 +104,12 @@ export interface WidgetContext {
   monthlyHistory: readonly MonthlyDataPoint[]
   /** QueryExecutor — DuckDB クエリの標準経路 A（@see useQueryWithHandler） */
   queryExecutor: QueryExecutor
-  /** DuckDB コネクション（DuckDB 準備完了時のみ非 null） @deprecated queryExecutor 経由に移行中 */
-  duckConn: AsyncDuckDBConnection | null
-  /** DuckDB インスタンス（バルクINSERT用、DuckDB 準備完了時のみ非 null） */
-  duckDb: AsyncDuckDB | null
   /** DuckDB データロード済みバージョン（useMemo 依存配列用、0 = 未ロード） */
   duckDataVersion: number
-  /** DuckDB にロード済みの月数（当月含む。マルチ月機能の利用可否判定に使用） */
-  duckLoadedMonthCount: number
+  /** ロード済みの月数（当月含む。マルチ月機能の利用可否判定に使用） */
+  loadedMonthCount: number
+  /** 天気データ永続化コールバック（ETRN フォールバック用） */
+  weatherPersist: WeatherPersister | null
   /** 前年月間KPI（同曜日/同日、dataEndDay非依存） */
   prevYearMonthlyKpi: PrevYearMonthlyKpi
   /** 比較フレーム（全チャート共通の前年期間決定） */

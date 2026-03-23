@@ -5,8 +5,8 @@
  * UnifiedWidgetContext は全ウィジェットが必要とするデータの上位集合。
  */
 import type { ReactNode } from 'react'
-import type { AsyncDuckDB, AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
+import type { WeatherPersister } from '@/application/queries/weather'
 import type { StoreExplanations, MetricId } from '@/domain/models/analysis'
 import type { DateRange, ComparisonFrame, PrevYearScope } from '@/domain/models/calendar'
 import type { Store } from '@/domain/models/record'
@@ -77,10 +77,12 @@ export interface UnifiedWidgetContext {
   readonly monthlyHistory?: readonly MonthlyDataPoint[]
   /** QueryExecutor — DuckDB クエリの標準経路 A（@see useQueryWithHandler） */
   readonly queryExecutor?: QueryExecutor | null
-  readonly duckConn?: AsyncDuckDBConnection | null
-  readonly duckDb?: AsyncDuckDB | null
+  /** DuckDB データロード済みバージョン（useMemo 依存配列用、0 = 未ロード） */
   readonly duckDataVersion?: number
-  readonly duckLoadedMonthCount?: number
+  /** ロード済みの月数（当月含む。マルチ月機能の利用可否判定に使用） */
+  readonly loadedMonthCount?: number
+  /** 天気データ永続化コールバック（ETRN フォールバック用） */
+  readonly weatherPersist?: WeatherPersister | null
   readonly prevYearMonthlyKpi?: PrevYearMonthlyKpi
   readonly comparisonFrame?: ComparisonFrame
   readonly dowGap?: DowGapAnalysis

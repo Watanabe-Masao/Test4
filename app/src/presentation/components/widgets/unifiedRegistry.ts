@@ -7,12 +7,16 @@
 import type { WidgetDef, UnifiedWidgetContext } from './types'
 import type { WidgetContext as DashboardWidgetContext } from '@/presentation/pages/Dashboard/widgets/types'
 import { createQueryExecutor } from '@/application/queries/QueryPort'
+import type { QueryExecutor } from '@/application/queries/QueryPort'
 import { WIDGET_REGISTRY as DASHBOARD_REGISTRY } from '@/presentation/pages/Dashboard/widgets/registry'
 import { DAILY_WIDGETS } from '@/presentation/pages/Daily/widgets'
 import { INSIGHT_WIDGETS } from '@/presentation/pages/Insight/widgets'
 import { CATEGORY_WIDGETS } from '@/presentation/pages/Category/widgets'
 import { COST_DETAIL_WIDGETS } from '@/presentation/pages/CostDetail/widgets'
 import { REPORTS_WIDGETS } from '@/presentation/pages/Reports/widgets'
+
+/** queryExecutor が未提供のときのフォールバック（isReady = false） */
+const NULL_EXECUTOR = createQueryExecutor(null)
 
 /**
  * Dashboard WidgetContext → UnifiedWidgetContext アダプタ
@@ -46,11 +50,10 @@ function toDashboardContext(ctx: UnifiedWidgetContext): DashboardWidgetContext {
     explanations: ctx.explanations,
     onExplain: ctx.onExplain,
     monthlyHistory: ctx.monthlyHistory ?? [],
-    queryExecutor: ctx.queryExecutor ?? createQueryExecutor(ctx.duckConn ?? null),
-    duckConn: ctx.duckConn ?? null,
-    duckDb: ctx.duckDb ?? null,
+    queryExecutor: ctx.queryExecutor ?? (NULL_EXECUTOR as QueryExecutor),
     duckDataVersion: ctx.duckDataVersion ?? 0,
-    duckLoadedMonthCount: ctx.duckLoadedMonthCount ?? 0,
+    loadedMonthCount: ctx.loadedMonthCount ?? 0,
+    weatherPersist: ctx.weatherPersist ?? null,
     prevYearMonthlyKpi: ctx.prevYearMonthlyKpi ?? {
       hasPrevYear: false,
       sourceYear: 0,

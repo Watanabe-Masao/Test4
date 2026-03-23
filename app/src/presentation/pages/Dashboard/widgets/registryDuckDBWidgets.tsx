@@ -16,7 +16,7 @@ export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
     label: '曜日パターン分析',
     group: 'トレンド分析',
     size: 'half',
-    isVisible: (ctx) => ctx.duckDataVersion > 0,
+    isVisible: (ctx) => ctx.queryExecutor?.isReady === true,
     render: (ctx) => (
       <DowPatternChart
         queryExecutor={ctx.queryExecutor}
@@ -30,7 +30,7 @@ export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
     label: 'カテゴリ別売上推移',
     group: 'トレンド分析',
     size: 'full',
-    isVisible: (ctx) => ctx.duckDataVersion > 0,
+    isVisible: (ctx) => ctx.queryExecutor?.isReady === true,
     render: (ctx) => (
       <CategoryTrendChart
         queryExecutor={ctx.queryExecutor}
@@ -44,7 +44,7 @@ export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
     label: 'カテゴリ×時間帯',
     group: 'トレンド分析',
     size: 'full',
-    isVisible: (ctx) => ctx.duckDataVersion > 0,
+    isVisible: (ctx) => ctx.queryExecutor?.isReady === true,
     render: (ctx) => (
       <CategoryHourlyChart
         queryExecutor={ctx.queryExecutor}
@@ -58,7 +58,7 @@ export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
     label: 'カテゴリ構成比推移',
     group: 'トレンド分析',
     size: 'full',
-    isVisible: (ctx) => ctx.duckDataVersion > 0 && ctx.duckLoadedMonthCount >= 2,
+    isVisible: (ctx) => ctx.queryExecutor?.isReady === true && ctx.loadedMonthCount >= 2,
     render: (ctx) => (
       <CategoryMixChart
         queryExecutor={ctx.queryExecutor}
@@ -72,7 +72,7 @@ export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
     label: 'カテゴリベンチマーク',
     group: 'トレンド分析',
     size: 'full',
-    isVisible: (ctx) => ctx.duckDataVersion > 0,
+    isVisible: (ctx) => ctx.queryExecutor?.isReady === true,
     render: (ctx) => (
       <CategoryBenchmarkChart
         queryExecutor={ctx.queryExecutor}
@@ -86,7 +86,7 @@ export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
     label: 'カテゴリ箱ひげ図',
     group: 'トレンド分析',
     size: 'full',
-    isVisible: (ctx) => ctx.duckDataVersion > 0,
+    isVisible: (ctx) => ctx.queryExecutor?.isReady === true,
     render: (ctx) => (
       <CategoryBoxPlotChart
         queryExecutor={ctx.queryExecutor}
@@ -101,7 +101,7 @@ export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
     label: 'CV時系列分析',
     group: '構造分析',
     size: 'full',
-    isVisible: (ctx) => ctx.duckDataVersion > 0,
+    isVisible: (ctx) => ctx.queryExecutor?.isReady === true,
     render: (ctx) => (
       <CvTimeSeriesChart
         queryExecutor={ctx.queryExecutor}

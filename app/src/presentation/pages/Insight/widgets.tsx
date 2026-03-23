@@ -60,7 +60,7 @@ export const INSIGHT_WIDGETS: readonly WidgetDef[] = [
     label: 'カテゴリベンチマーク',
     group: '構造分析',
     size: 'full',
-    isVisible: (ctx) => (ctx.duckDataVersion ?? 0) > 0,
+    isVisible: (ctx) => ctx.queryExecutor?.isReady === true,
     render: (ctx) => {
       if (!ctx.queryExecutor || !ctx.currentDateRange) return null
       return (

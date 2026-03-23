@@ -7,12 +7,11 @@
  * @layer Application — データ取得 sub-hook
  */
 import { useEffect, useRef } from 'react'
-import type { AsyncDuckDBConnection, AsyncDuckDB } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models/calendar'
 import type { StoreLocation } from '@/domain/models/record'
 import { splitDateRangeByMonth } from '@/domain/models/calendar'
 import { loadEtrnHourlyForStore } from '@/application/usecases/weather/WeatherLoadService'
-import { persistWeatherHourly } from '@/application/queries/weather'
+import type { WeatherPersister } from '@/application/queries/weather'
 
 /**
  * DuckDB 天気データが空の場合に ETRN フォールバックを実行する。
@@ -28,18 +27,18 @@ export function useWeatherFallback(params: {
   readonly dateRange: DateRange
   readonly dateFrom: string
   readonly dateTo: string
-  readonly conn?: AsyncDuckDBConnection | null
-  readonly db?: AsyncDuckDB | null
+  /** 天気データ永続化コールバック（conn/db をクロージャで閉じたもの） */
+  readonly persist?: WeatherPersister | null
   /** ETRN 永続化成功後に呼ばれるコールバック（再クエリトリガー用） */
   readonly onRetry: () => void
 }): void {
-  const { duckQueryEmpty, storeId, location, dateRange, dateFrom, dateTo, conn, db, onRetry } =
+  const { duckQueryEmpty, storeId, location, dateRange, dateFrom, dateTo, persist, onRetry } =
     params
   const fetchedKeyRef = useRef('')
 
   useEffect(() => {
     // duckQueryEmpty が null (クエリ未完了) または false (データあり) なら何もしない
-    if (duckQueryEmpty !== true || !location || !storeId || !conn || !db) return
+    if (duckQueryEmpty !== true || !location || !storeId || !persist) return
     const fetchKey = `${storeId}|${dateFrom}|${dateTo}`
     if (fetchedKeyRef.current === fetchKey) return
 
@@ -58,7 +57,7 @@ export function useWeatherFallback(params: {
         fetchedKeyRef.current = fetchKey
 
         try {
-          await persistWeatherHourly(conn, db, allHourly, storeId)
+          await persist(allHourly, storeId)
           if (!cancelled) onRetry()
         } catch {
           // 永続化失敗は無視
@@ -71,5 +70,5 @@ export function useWeatherFallback(params: {
     return () => {
       cancelled = true
     }
-  }, [duckQueryEmpty, location, storeId, dateFrom, dateTo, dateRange, conn, db, onRetry])
+  }, [duckQueryEmpty, location, storeId, dateFrom, dateTo, dateRange, persist, onRetry])
 }

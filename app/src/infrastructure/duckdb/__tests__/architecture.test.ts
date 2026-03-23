@@ -180,8 +180,9 @@ describe('ウィジェットレジストリの DuckDB エントリ', () => {
   }
 
   it('DuckDB 専用ウィジェットに isVisible ガードがある', () => {
-    // duckDataVersion > 0 の条件が DuckDB 専用ウィジェットに含まれていること
-    const duckVisibilityCount = (registryContent.match(/duckDataVersion > 0/g) ?? []).length
+    // queryExecutor?.isReady === true の条件が DuckDB 専用ウィジェットに含まれていること
+    const duckVisibilityCount = (registryContent.match(/queryExecutor\?\.isReady === true/g) ?? [])
+      .length
     // 9 DuckDB専用エントリのうち少なくとも 5 個は直接ガード（残りは isVisible 関数経由）
     expect(duckVisibilityCount).toBeGreaterThanOrEqual(5)
   })

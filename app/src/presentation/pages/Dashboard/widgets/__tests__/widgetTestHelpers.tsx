@@ -207,10 +207,9 @@ export function makeWidgetContext(overrides: Partial<WidgetContext> = {}): Widge
     onExplain: () => {},
     monthlyHistory: [],
     queryExecutor: { isReady: false, execute: async () => null },
-    duckConn: null,
-    duckDb: null,
     duckDataVersion: 0,
-    duckLoadedMonthCount: 0,
+    loadedMonthCount: 0,
+    weatherPersist: null,
     prevYearMonthlyKpi: {
       hasPrevYear: false,
       sameDow: {

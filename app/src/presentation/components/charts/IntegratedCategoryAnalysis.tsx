@@ -13,7 +13,6 @@
  * CategoryTrendChart / CategoryHierarchyExplorer の独立利用は縮退対象。
  */
 import { memo, useMemo } from 'react'
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 import { buildSalesAnalysisContext } from '@/application/models/SalesAnalysisContext'
@@ -25,8 +24,6 @@ import { ChartCard } from './ChartCard'
 
 interface Props {
   readonly queryExecutor: QueryExecutor | null
-  readonly duckConn: AsyncDuckDBConnection | null
-  readonly duckDataVersion: number
   readonly currentDateRange: DateRange
   readonly selectedStoreIds: ReadonlySet<string>
   readonly prevYearScope?: PrevYearScope
@@ -35,8 +32,6 @@ interface Props {
 
 export const IntegratedCategoryAnalysis = memo(function IntegratedCategoryAnalysis({
   queryExecutor,
-  duckConn,
-  duckDataVersion,
   currentDateRange,
   selectedStoreIds,
   prevYearScope,
@@ -68,7 +63,7 @@ export const IntegratedCategoryAnalysis = memo(function IntegratedCategoryAnalys
     return tags
   }, [prevYearScope, selectedStoreIds])
 
-  if (!duckConn || duckDataVersion === 0) return null
+  if (!queryExecutor?.isReady) return null
 
   return (
     <ChartCard title="カテゴリ分析" subtitle="カテゴリ別売上推移 + 階層ドリルダウン">

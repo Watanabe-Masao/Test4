@@ -2,6 +2,9 @@ import { describe, it, expect } from 'vitest'
 import { WIDGET_REGISTRY } from '../registry'
 import { makeWidgetContext, makeEmptyPrevYear, makePrevYear } from './widgetTestHelpers'
 
+/** queryExecutor.isReady = true のモック */
+const READY_EXECUTOR = { isReady: true, execute: async () => null }
+
 describe('ウィジェット isVisible', () => {
   const dataWidgetIds = [
     'chart-category-analysis',
@@ -14,7 +17,9 @@ describe('ウィジェット isVisible', () => {
 
   describe('DuckDB 依存ウィジェット', () => {
     it('DuckDB 未準備の場合は非表示', () => {
-      const ctx = makeWidgetContext({ duckDataVersion: 0 })
+      const ctx = makeWidgetContext({
+        queryExecutor: { isReady: false, execute: async () => null },
+      })
 
       for (const id of dataWidgetIds) {
         const widget = WIDGET_REGISTRY.find((w) => w.id === id)
@@ -25,7 +30,7 @@ describe('ウィジェット isVisible', () => {
 
     it('DuckDB 準備完了の場合は表示', () => {
       const ctx = makeWidgetContext({
-        duckDataVersion: 1,
+        queryExecutor: READY_EXECUTOR,
       })
 
       for (const id of dataWidgetIds) {
@@ -40,7 +45,7 @@ describe('ウィジェット isVisible', () => {
   describe('店舗別時間帯比較ウィジェット', () => {
     it('単一店舗・DuckDB 未準備の場合は非表示', () => {
       const ctx = makeWidgetContext({
-        duckDataVersion: 0,
+        queryExecutor: { isReady: false, execute: async () => null },
         stores: new Map([['1', { id: '1', name: '店舗A', code: '0001' }]]),
       })
       const widget = WIDGET_REGISTRY.find((w) => w.id === 'chart-store-timeslot-comparison')
@@ -49,7 +54,7 @@ describe('ウィジェット isVisible', () => {
 
     it('複数店舗＋DuckDB 準備完了の場合は表示', () => {
       const ctx = makeWidgetContext({
-        duckDataVersion: 1,
+        queryExecutor: READY_EXECUTOR,
         stores: new Map([
           ['1', { id: '1', name: '店舗A', code: '0001' }],
           ['2', { id: '2', name: '店舗B', code: '0002' }],

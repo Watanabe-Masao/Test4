@@ -5,9 +5,10 @@
  * hook 経由でエクスポート機能を提供する（A3: Presentation は描画専用）。
  */
 import { useCallback, useState } from 'react'
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { StoreResult } from '@/domain/models/storeTypes'
 import type { PrevYearData } from '@/application/hooks/analytics'
+import type { QueryExecutor } from '@/application/queries/QueryPort'
+import { getLegacyDuckDB } from '@/application/queries/QueryPort'
 import { fetchCategoryTimeRecords } from '@/application/hooks/duckdb'
 import { buildClipBundle } from '@/application/usecases/clipExport/buildClipBundle'
 import { downloadClipHtml } from '@/application/usecases/clipExport/downloadClipHtml'
@@ -20,7 +21,7 @@ interface ClipExportParams {
   readonly daysInMonth: number
   readonly storeKey: string
   readonly stores: ReadonlyMap<string, { name: string }>
-  readonly duckConn: AsyncDuckDBConnection | null
+  readonly queryExecutor: QueryExecutor | null
   readonly selectedStoreIds: ReadonlySet<string>
   readonly comparisonFrame: { readonly dowOffset: number }
 }
@@ -44,7 +45,7 @@ export function useClipExport(params: ClipExportParams): ClipExportState {
         daysInMonth,
         storeKey,
         stores,
-        duckConn,
+        queryExecutor,
         selectedStoreIds,
         comparisonFrame,
       } = params
@@ -72,6 +73,7 @@ export function useClipExport(params: ClipExportParams): ClipExportState {
       let curCts: Awaited<ReturnType<typeof fetchCategoryTimeRecords>> = []
       let prevCts: Awaited<ReturnType<typeof fetchCategoryTimeRecords>> = []
 
+      const { conn: duckConn } = getLegacyDuckDB(queryExecutor)
       if (duckConn) {
         try {
           curCts = await fetchCategoryTimeRecords(duckConn, curRange, selectedStoreIds)
