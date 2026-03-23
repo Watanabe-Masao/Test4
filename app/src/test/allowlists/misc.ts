@@ -16,8 +16,8 @@ export const ctxHook: readonly AllowlistEntry[] = [
   },
   {
     path: 'presentation/pages/Dashboard/widgets/EtrnTestWidget.tsx',
-    reason: 'ETRN テストウィジェット。ctx 非経由で直接データ取得',
-    category: 'legacy',
+    reason: 'ETRN テストウィジェット。ctx 非経由で直接データ取得（デバッグ用途で維持）',
+    category: 'structural',
     removalCondition: 'テストウィジェット廃止時',
   },
 ] as const

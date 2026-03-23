@@ -106,9 +106,9 @@ describe('INV-CMP-03: comparisonFrame.previous の新規使用禁止', () => {
    * ComparisonScope ベースに移行完了時に削除する。
    */
   const ALLOWLIST = buildAllowlistSet(cmpFramePrevious)
-  const MAX_ALLOWLIST_SIZE = 3
+  const MAX_ALLOWLIST_SIZE = 0
 
-  it('許可リストのサイズが上限を超えない', () => {
+  it('許可リストのサイズが上限を超えない（全件解消済み）', () => {
     expect(
       ALLOWLIST.size,
       `許可リストが上限 ${MAX_ALLOWLIST_SIZE} を超えています（現在 ${ALLOWLIST.size}）。` +

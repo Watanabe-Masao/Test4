@@ -76,7 +76,7 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
     ctx.year,
     dayStart,
     dayEnd,
-    ctx.comparisonFrame.previous.from.year,
+    ctx.prevYearScope?.dateRange.from.year,
   )
 
   // ── 共通パイプライン: CTS から当年/比較期間のデータを統一取得 ──

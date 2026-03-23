@@ -87,15 +87,8 @@ export const cmpPrevYearDaily: readonly AllowlistEntry[] = [
   },
 ] as const
 
-/** INV-CMP-03: comparisonFrame.previous の既存違反（凍結） */
-export const cmpFramePrevious: readonly AllowlistEntry[] = [
-  {
-    path: 'presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx',
-    reason: '旧 previous パターン',
-    category: 'migration',
-    removalCondition: 'V2 比較移行完了時',
-  },
-] as const
+/** INV-CMP-03: comparisonFrame.previous — 全件解消済み。凍結 */
+export const cmpFramePrevious: readonly AllowlistEntry[] = [] as const
 
 /** INV-CMP-08: dailyMapping の既存違反（凍結） */
 export const cmpDailyMapping: readonly AllowlistEntry[] = [
