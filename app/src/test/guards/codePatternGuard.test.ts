@@ -5,6 +5,7 @@
  * @guard C3 store は state 反映のみ
  * @guard C2 pure function は1仕様軸に閉じる
  * @guard A6 load 処理は3段階分離
+ * @guard E4 欠損判定は `== null`
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
@@ -320,5 +321,40 @@ describe('R2: useEffect 内に fetch→store→cache の密結合がない', () 
     }
 
     expect(violations, `副作用チェーンが検出されました:\n${violations.join('\n')}`).toEqual([])
+  })
+})
+
+// ─── E4: 数値フィールドの truthiness チェック禁止 ───────
+
+describe('E4: domain/calculations/ で数値の truthiness チェックがない', () => {
+  const calcDir = path.join(SRC_DIR, 'domain/calculations')
+
+  it('!result.numericField パターンがない（number 型に !value は E4 違反）', () => {
+    const files = collectTsFiles(calcDir)
+    const violations: string[] = []
+
+    // result/entry/data/item のプロパティに対する truthiness チェックを検出
+    // !obj.prop (where prop is likely numeric: rate, amount, sales, etc.)
+    const NUMERIC_PROP_PATTERN =
+      /if\s*\(\s*!(?:result|entry|data|item|row|record|d)\.\w*(?:rate|amount|sales|cost|price|budget|qty|count|total|profit|discount|revenue|customers|value)\b/i
+
+    for (const file of files) {
+      // テストファイルは除外
+      if (file.includes('.test.')) continue
+      const content = fs.readFileSync(file, 'utf-8')
+      const lines = content.split('\n')
+      for (let i = 0; i < lines.length; i++) {
+        if (NUMERIC_PROP_PATTERN.test(lines[i])) {
+          violations.push(`${rel(file)}:${i + 1}: ${lines[i].trim()}`)
+        }
+      }
+    }
+
+    expect(
+      violations,
+      `数値フィールドの truthiness チェック（E4 違反）:\n` +
+        `0 が有効値のフィールドで !value を使うと欠損扱いされます。== null を使用してください。\n` +
+        violations.join('\n'),
+    ).toEqual([])
   })
 })

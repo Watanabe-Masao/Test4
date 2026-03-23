@@ -182,7 +182,7 @@ export function evaluateAlerts(
       }
 
       case 'budget_achievement_below': {
-        if (!result.budgetProgressRate) break
+        if (result.budgetProgressRate == null) break
         if (result.budgetProgressRate < rule.threshold) {
           alerts.push({
             ruleId: rule.id,
