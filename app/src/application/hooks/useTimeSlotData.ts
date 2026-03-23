@@ -5,7 +5,7 @@
  * 本ファイルは QueryHandler 経由クエリ発行 + 状態管理 + 計算結果の memo のみ。
  *
  * @layer Application — orchestrator hook
- * @guard G5 state ≤6 (5個), memo ≤7 (5個)
+ * @guard G5 state ≤6 (6個), memo ≤7 (6個)
  */
 import { useState, useMemo } from 'react'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
@@ -183,10 +183,15 @@ export function useTimeSlotData({
   }, [selectedStoreIds, allStoreIds, storeLocations])
 
   const prevDateRange = compMode === 'yoy' ? prevYearScope?.dateRange : undefined
+  const [prevWeatherRetry, setPrevWeatherRetry] = useState(0)
   const prevWeatherInput = useMemo<WeatherHourlyAvgInput | null>(() => {
     if (!prevDateRange) return null
-    return { storeId: weatherStoreId, ...toKeys(prevDateRange) }
-  }, [weatherStoreId, prevDateRange])
+    return {
+      storeId: weatherStoreId,
+      ...toKeys(prevDateRange),
+      ...(prevWeatherRetry > 0 ? { _v: prevWeatherRetry } : {}),
+    }
+  }, [weatherStoreId, prevDateRange, prevWeatherRetry])
 
   const weatherKeys = useMemo(() => toKeys(currentDateRange), [currentDateRange])
   const location: StoreLocation | undefined = storeLocations[weatherStoreId]
@@ -256,6 +261,25 @@ export function useTimeSlotData({
     conn,
     db,
     onRetry: () => setWeatherRetry((v) => v + 1),
+  })
+
+  // 前年天気の ETRN フォールバック
+  const prevDuckQueryEmpty =
+    prevWeatherOut === null ? null : (prevWeatherOut.records ?? []).length === 0
+  const prevWeatherKeys = useMemo(
+    () => (prevDateRange ? toKeys(prevDateRange) : null),
+    [prevDateRange],
+  )
+  useWeatherFallback({
+    duckQueryEmpty: prevDuckQueryEmpty,
+    storeId: weatherStoreId,
+    location,
+    dateRange: prevDateRange ?? currentDateRange,
+    dateFrom: prevWeatherKeys?.dateFrom ?? '',
+    dateTo: prevWeatherKeys?.dateTo ?? '',
+    conn,
+    db,
+    onRetry: () => setPrevWeatherRetry((v) => v + 1),
   })
   // ── Unwrap query results ──
 
