@@ -12,6 +12,13 @@ export const useMemoLimits: readonly QuantitativeAllowlistEntry[] = [
     removalCondition: '比較モジュールのリファクタリング時',
     limit: 8,
   },
+  {
+    path: 'application/hooks/useTimeSlotData.ts',
+    reason: 'TimeSlot orchestrator。前年天気 ETRN fallback 追加により prevWeatherKeys memo が必要',
+    category: 'structural',
+    removalCondition: 'weather fallback を WeatherHourlyAvgHandler 内蔵に移行する時',
+    limit: 8,
+  },
 ] as const
 
 /** useState 上限の個別例外 */
@@ -33,10 +40,10 @@ export const useStateLimits: readonly QuantitativeAllowlistEntry[] = [
   {
     path: 'application/hooks/useTimeSlotData.ts',
     reason:
-      'タイムスロット orchestrator。実質 state 6 個（weather retry 含む）+ import 行でカウント +1',
+      'タイムスロット orchestrator。実質 state 7 個（cur/prev weather retry 含む）+ import 行でカウント +1',
     category: 'structural',
     removalCondition: 'weather fallback を WeatherHourlyAvgHandler 内蔵に移行する時',
-    limit: 8,
+    limit: 9,
   },
 ] as const
 
@@ -160,9 +167,9 @@ export const hookLineLimits: readonly QuantitativeAllowlistEntry[] = [
   {
     path: 'application/hooks/useTimeSlotData.ts',
     reason:
-      'TimeSlot orchestrator。10 useQueryWithHandler + weather ETRN fallback + 12 useMemo input',
+      'TimeSlot orchestrator。10 useQueryWithHandler + cur/prev weather ETRN fallback + 12 useMemo input',
     category: 'structural',
     removalCondition: 'query input 構築を sub-hook に分離する時',
-    limit: 350,
+    limit: 380,
   },
 ] as const

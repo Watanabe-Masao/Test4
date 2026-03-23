@@ -35,6 +35,10 @@ export interface TimeSlotChartOptionInput {
   readonly lineMode: LineMode
   readonly curWeatherMap: ReadonlyMap<number, WeatherMapEntry>
   readonly prevWeatherMap: ReadonlyMap<number, WeatherMapEntry>
+  /** コアタイム範囲（markArea 表示用） */
+  readonly coreTimeRange?: { readonly startHour: number; readonly endHour: number } | null
+  /** ピーク時間帯（markPoint 表示用） */
+  readonly peakHour?: number | null
 }
 
 // ── 降水量軸ポリシー ──
@@ -175,10 +179,46 @@ export function buildTimeSlotChartOption(input: TimeSlotChartOptionInput): EChar
     lineMode,
     curWeatherMap,
     prevWeatherMap,
+    coreTimeRange,
+    peakHour,
   } = input
 
   const barColor = theme.colors.palette.primary
   const qtyColor = theme.colors.palette.cyan
+
+  // ── コアタイム / ピーク用の markArea / markPoint を事前構築 ──
+  const coreTimeMarkArea = coreTimeRange
+    ? {
+        silent: true,
+        itemStyle: { color: `${barColor}0d` },
+        data: [
+          [
+            { xAxis: `${coreTimeRange.startHour}時`, name: 'コアタイム' },
+            { xAxis: `${coreTimeRange.endHour}時` },
+          ],
+        ],
+        label: {
+          show: true,
+          position: 'top',
+          fontSize: 9,
+          color: `${barColor}99`,
+          fontWeight: 500,
+        },
+      }
+    : undefined
+
+  const peakIdx = peakHour != null ? hours.indexOf(`${peakHour}時`) : -1
+  const peakValue = peakIdx >= 0 ? ((chartData[peakIdx]?.amount as number) ?? 0) : 0
+  const peakMarkPoint =
+    peakHour != null && peakValue > 0
+      ? {
+          symbol: 'pin',
+          symbolSize: 30,
+          data: [{ coord: [`${peakHour}時`, peakValue], name: 'ピーク' }],
+          itemStyle: { color: barColor },
+          label: { show: true, fontSize: 8, color: '#fff', formatter: 'Peak' },
+        }
+      : undefined
 
   // ── 棒グラフ（売上金額） ──
   const series: EChartsOption['series'] = [
@@ -202,6 +242,8 @@ export function buildTimeSlotChartOption(input: TimeSlotChartOptionInput): EChar
         borderRadius: [3, 3, 0, 0],
       },
       barMaxWidth: 20,
+      ...(coreTimeMarkArea ? { markArea: coreTimeMarkArea } : {}),
+      ...(peakMarkPoint ? { markPoint: peakMarkPoint } : {}),
     },
   ]
 
