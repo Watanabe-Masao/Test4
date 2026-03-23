@@ -112,7 +112,7 @@ describe('Layer Boundary Guard', () => {
     // 値 import の既存違反（凍結）。移行完了時に許可リストから削除する。新規追加は禁止。
     // import type は実行時依存を生まないため検出対象外。
     const USECASE_ALLOWLIST = buildAllowlistSet(presentationToUsecases)
-    const MAX_USECASE_ALLOWLIST = 2
+    const MAX_USECASE_ALLOWLIST = 1
 
     const presDir = path.join(SRC_DIR, 'presentation')
     const files = collectTsFiles(presDir)
@@ -193,8 +193,8 @@ describe('Layer Boundary Guard', () => {
     expect(PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST.size).toBeLessThanOrEqual(0)
   })
 
-  it('INFRASTRUCTURE_TO_APPLICATION_ALLOWLIST は 1 件以下', () => {
-    expect(INFRASTRUCTURE_TO_APPLICATION_ALLOWLIST.size).toBeLessThanOrEqual(1)
+  it('INFRASTRUCTURE_TO_APPLICATION_ALLOWLIST は 0 件（完全解消済み）', () => {
+    expect(INFRASTRUCTURE_TO_APPLICATION_ALLOWLIST.size).toBeLessThanOrEqual(0)
   })
 
   // ─── 許可リストファイル実在チェック ─────────────────

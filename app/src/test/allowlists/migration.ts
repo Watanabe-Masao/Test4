@@ -42,12 +42,6 @@ export const cmpPrevYearDaily: readonly AllowlistEntry[] = [
     removalCondition: 'V2 比較移行完了時',
   },
   {
-    path: 'presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx',
-    reason: '旧 daily.get パターン',
-    category: 'migration',
-    removalCondition: 'V2 比較移行完了時',
-  },
-  {
     path: 'presentation/pages/Insight/InsightTabBudget.tsx',
     reason: '旧 daily.get パターン',
     category: 'migration',

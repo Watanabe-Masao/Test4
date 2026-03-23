@@ -25,28 +25,28 @@
 
 | allowlist | エントリ | 上限 | 充填率 | 主カテゴリ |
 |---|---|---|---|---|
-| presentationDuckdbHook | 36 | 37 | **97%** | migration(22), bridge(1), structural(1) |
+| presentationDuckdbHook | 34 | 35 | 97% | migration(20), bridge(1), structural(1) |
 | applicationToInfrastructure | 12 | 14 | 86% | adapter(5), bridge(2), lifecycle(1) |
-| cmpPrevYearDaily | 11 | 11 | **100%** | migration(11) |
-| largeComponentTier2 | 8 | — | — | legacy(8) |
+| cmpPrevYearDaily | **10** | 10 | **100%** | migration(10) |
+| largeComponentTier2 | **5** | — | — | legacy(5) |
 | domainLargeFiles | 7 | — | — | structural(7) |
-| cmpFramePrevious | 3 | 3 | **100%** | migration(3) |
-| infraLargeFiles | 3 | — | — | structural(3) |
-| presentationToUsecases | 2 | 2 | 100% | legacy(1) |
+| cmpFramePrevious | **1** | 3 | 33% | migration(1) |
+| infraLargeFiles | **2** | — | — | structural(2) |
+| presentationToUsecases | **1** | 1 | 100% | structural(1) |
 | useStateLimits | 2 | — | — | structural(2) |
 | hookLineLimits | 2 | — | — | structural(2) |
 | usecasesLargeFiles | 2 | — | — | structural(2) |
 | vmReactImport | 2 | — | — | structural(2) |
 | ctxHook | 2 | — | — | structural(1), legacy(1) |
 | useMemoLimits | 1 | — | — | structural(1) |
-| infrastructureToApplication | 1 | 1 | 100% | bridge(1) |
 | cmpDailyMapping | 1 | 1 | 100% | structural(1) |
 | sideEffectChain | 1 | — | — | structural(1) |
 | reactImportExcludeDirs | 1 | — | — | structural(1) |
+| infrastructureToApplication | **0** | 0 | — | **完了** |
 | presentationToInfrastructure | **0** | 0 | — | **完了** |
 | dowCalcOverride | **0** | 0 | — | **完了** |
 
-**凍結済み（削減成功例）:** presentationToInfrastructure, dowCalcOverride
+**凍結済み（削減成功例）:** presentationToInfrastructure, dowCalcOverride, infrastructureToApplication, presentationToUsecases（1件残、構造的例外のみ）
 
 ---
 
@@ -93,8 +93,8 @@
 | 境界 | 現状 | 上限 | 削減余地 |
 |---|---|---|---|
 | application→infrastructure | 12 | 14 | bridge(2) が移行で解消可能 |
-| presentation→usecases | 2 | 2 | legacy(1) が移行で解消可能 |
-| infrastructure→application | 1 | 1 | bridge(1) — 型を domain/ に移動で解消 |
+| presentation→usecases | **1** | 1 | **legacy(1) を useClipExport hook で解消済み** |
+| infrastructure→application | **0** | 0 | **RawDataPort を domain/ports/ に移動し完了** |
 | presentation→infrastructure | **0** | 0 | **完了** |
 
 ---
@@ -213,10 +213,10 @@
 
 | 指標 | 起点（Sprint 1 完了時） | 現在値 | 次 Sprint 目標 | 中期目標 |
 |---|---|---|---|---|
-| allowlist 総エントリ | 99 | **91**（-8） | 87 以下 | 72 以下 |
-| migration カテゴリ | 33 | **31**（-2） | 28 以下 | 20 以下 |
-| legacy カテゴリ | 11 | **8**（-3） | 7 以下 | 5 以下 |
-| 凍結済み allowlist | 2 | 2 | 3 以上 | 5 以上 |
+| allowlist 総エントリ | 99 | **88**（-11） | 84 以下 | 72 以下 |
+| migration カテゴリ | 33 | **30**（-3） | 27 以下 | 20 以下 |
+| legacy カテゴリ | 11 | **7**（-4） | 6 以下 | 5 以下 |
+| 凍結済み allowlist | 2 | **4**（+2） | 5 以上 | 5 以上 |
 | DuckDB 直結 | 36 | **34**（-2） | 32 以下 | 25 以下 |
 | Tier2 大型 component | 8 | **5**（-3） | 4 以下 | 3 以下 |
 
@@ -232,6 +232,9 @@
 | 2026-03-23 | CategoryHeatmapPanel.tsx | presentationDuckdbHook | DuckDB import なし |
 | 2026-03-23 | DayDetailModal.tsx | cmpFramePrevious | comparisonFrame.previous 未使用 |
 | 2026-03-23 | MonthlyCalendar.tsx | cmpFramePrevious | comparisonFrame.previous 未使用 |
+| 2026-03-23 | IndexedDBRawDataAdapter.ts | infrastructureToApplication | RawDataPort を domain/ports/ に移動 |
+| 2026-03-23 | MonthlyCalendar.tsx | presentationToUsecases | useClipExport hook 経由に移行 |
+| 2026-03-23 | YoYWaterfallChart.tsx | cmpPrevYearDaily | prevYear.daily.get パターン未使用 |
 
 ## この一覧の使い方
 
