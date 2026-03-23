@@ -33,9 +33,7 @@ export function buildOption(
   hasPrev: boolean,
   ct: ChartTheme,
   needRightAxis: boolean,
-  wfLegendPayload:
-    | readonly { value: string; type: 'rect'; color: string }[]
-    | undefined,
+  wfLegendPayload: readonly { value: string; type: 'rect'; color: string }[] | undefined,
   weatherMap?: ReadonlyMap<number, DayWeatherInfo>,
   prevYearWeatherMap?: ReadonlyMap<number, DayWeatherInfo>,
   year?: number,

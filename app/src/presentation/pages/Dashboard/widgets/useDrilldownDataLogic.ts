@@ -5,14 +5,18 @@
  */
 import type { CategoryTimeSalesRecord } from '@/domain/models/record'
 import type { HierarchyFilter } from '@/presentation/components/charts/categoryHierarchyHooks'
-import { aggregateForDrill, COLORS, type DrillItem, type SortKey, type SortDir } from './drilldownUtils'
+import {
+  aggregateForDrill,
+  COLORS,
+  type DrillItem,
+  type SortKey,
+  type SortDir,
+} from './drilldownUtils'
 
 type DrillLevel = 'department' | 'line' | 'klass'
 
 /** パンくずリストを構築する */
-export function buildBreadcrumb(
-  filter: HierarchyFilter,
-): { label: string; f: HierarchyFilter }[] {
+export function buildBreadcrumb(filter: HierarchyFilter): { label: string; f: HierarchyFilter }[] {
   const items: { label: string; f: HierarchyFilter }[] = [{ label: '全カテゴリ', f: {} }]
   if (filter.departmentCode) {
     items.push({
