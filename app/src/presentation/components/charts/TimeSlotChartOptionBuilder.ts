@@ -199,10 +199,10 @@ export function buildTimeSlotChartOption(input: TimeSlotChartOptionInput): EChar
         ],
         label: {
           show: true,
-          position: 'top',
+          position: 'top' as const,
           fontSize: 9,
           color: `${barColor}99`,
-          fontWeight: 500,
+          fontWeight: 500 as const,
         },
       }
     : undefined
@@ -242,10 +242,16 @@ export function buildTimeSlotChartOption(input: TimeSlotChartOptionInput): EChar
         borderRadius: [3, 3, 0, 0],
       },
       barMaxWidth: 20,
-      ...(coreTimeMarkArea ? { markArea: coreTimeMarkArea } : {}),
-      ...(peakMarkPoint ? { markPoint: peakMarkPoint } : {}),
     },
   ]
+
+  // コアタイム markArea + ピーク markPoint を当年売上バーに追加
+  // ECharts union 型の制約で初期化時に含められないため、post-hoc で追加
+  if (coreTimeMarkArea || peakMarkPoint) {
+    const bar = (series as Record<string, unknown>[])[0]
+    if (coreTimeMarkArea) bar.markArea = coreTimeMarkArea
+    if (peakMarkPoint) bar.markPoint = peakMarkPoint
+  }
 
   if (showPrev) {
     series.push({
