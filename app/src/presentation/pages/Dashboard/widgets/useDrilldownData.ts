@@ -15,16 +15,15 @@ import { toComma } from '@/presentation/components/charts/chartTheme'
 import { formatPercent } from '@/domain/formatting'
 import { calculateAchievementRate, calculateYoYRatio } from '@/domain/calculations/utils'
 import {
-  aggregateForDrill,
   buildDrillItems,
   fmtSen,
-  COLORS,
   type DrillItem,
   type MetricKey,
   type CompareMode,
   type SortKey,
   type SortDir,
 } from './drilldownUtils'
+import { buildBreadcrumb, buildLevelColorMap, sortDrillItems } from './useDrilldownDataLogic'
 
 export type { DrillItem, CompareMode, SortKey }
 
@@ -129,19 +128,7 @@ export function useDrilldownData(props: CategoryDrilldownProps) {
 
   /* ── パンくず ─────────────────────────────── */
 
-  const breadcrumb = useMemo(() => {
-    const items: { label: string; f: HierarchyFilter }[] = [{ label: '全カテゴリ', f: {} }]
-    if (filter.departmentCode) {
-      items.push({
-        label: filter.departmentName || filter.departmentCode,
-        f: { departmentCode: filter.departmentCode, departmentName: filter.departmentName },
-      })
-    }
-    if (filter.lineCode) {
-      items.push({ label: filter.lineName || filter.lineCode, f: { ...filter } })
-    }
-    return items
-  }, [filter])
+  const breadcrumb = useMemo(() => buildBreadcrumb(filter), [filter])
 
   /* ── フィルタ済みレコード ────────────────── */
 
@@ -162,24 +149,10 @@ export function useDrilldownData(props: CategoryDrilldownProps) {
 
   /* ── カラーマップ ────────────────────────── */
 
-  const levelColorMap = useMemo(() => {
-    const map = new Map<string, string>()
-    if (currentLevel === 'department') {
-      const base = cumRecords.length > 0 ? cumRecords : records
-      const deptMap = aggregateForDrill(base, 'department')
-      const sorted = [...deptMap.values()].sort((a, b) => b.amount - a.amount)
-      sorted.forEach((d, i) => map.set(d.code, COLORS[i % COLORS.length]))
-    } else {
-      const cumMap = aggregateForDrill(cumFiltered, currentLevel)
-      const cumSorted = [...cumMap.values()].sort((a, b) => b.amount - a.amount)
-      cumSorted.forEach((it, i) => map.set(it.code, COLORS[i % COLORS.length]))
-      const dayMap = aggregateForDrill(dayFiltered, currentLevel)
-      for (const it of dayMap.values()) {
-        if (!map.has(it.code)) map.set(it.code, COLORS[map.size % COLORS.length])
-      }
-    }
-    return map
-  }, [records, cumRecords, cumFiltered, dayFiltered, currentLevel])
+  const levelColorMap = useMemo(
+    () => buildLevelColorMap(records, cumRecords, cumFiltered, dayFiltered, currentLevel),
+    [records, cumRecords, cumFiltered, dayFiltered, currentLevel],
+  )
 
   /* ── ドリルアイテム ──────────────────────── */
 
@@ -249,31 +222,10 @@ export function useDrilldownData(props: CategoryDrilldownProps) {
 
   /* ── ソート済みリスト ────────────────────── */
 
-  const sorted = useMemo(() => {
-    const arr = [...items]
-    arr.sort((a, b) => {
-      let d = 0
-      switch (sortKey) {
-        case 'amount':
-          d = metric === 'amount' ? primaryAmt(a) - primaryAmt(b) : primaryQty(a) - primaryQty(b)
-          break
-        case 'quantity':
-          d = primaryQty(a) - primaryQty(b)
-          break
-        case 'pct':
-          d = a.pct - b.pct
-          break
-        case 'name':
-          d = a.name.localeCompare(b.name, 'ja')
-          break
-        case 'yoyRatio':
-          d = (a.yoyRatio ?? 0) - (b.yoyRatio ?? 0)
-          break
-      }
-      return sortDir === 'desc' ? -d : d
-    })
-    return arr
-  }, [items, sortKey, sortDir, metric, primaryAmt, primaryQty])
+  const sorted = useMemo(
+    () => sortDrillItems(items, sortKey, sortDir, metric, primaryAmt, primaryQty),
+    [items, sortKey, sortDir, metric, primaryAmt, primaryQty],
+  )
 
   /* ── コールバック ────────────────────────── */
 
