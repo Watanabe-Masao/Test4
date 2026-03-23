@@ -75,8 +75,7 @@ export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
     isVisible: (ctx) => ctx.duckDataVersion > 0,
     render: (ctx) => (
       <CategoryBenchmarkChart
-        duckConn={ctx.duckConn}
-        duckDataVersion={ctx.duckDataVersion}
+        queryExecutor={ctx.queryExecutor}
         currentDateRange={ctx.currentDateRange}
         selectedStoreIds={ctx.selectedStoreIds}
       />
@@ -90,8 +89,7 @@ export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
     isVisible: (ctx) => ctx.duckDataVersion > 0,
     render: (ctx) => (
       <CategoryBoxPlotChart
-        duckConn={ctx.duckConn}
-        duckDataVersion={ctx.duckDataVersion}
+        queryExecutor={ctx.queryExecutor}
         currentDateRange={ctx.currentDateRange}
         selectedStoreIds={ctx.selectedStoreIds}
       />

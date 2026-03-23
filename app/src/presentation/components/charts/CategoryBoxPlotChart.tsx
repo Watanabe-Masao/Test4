@@ -39,7 +39,7 @@ export const CategoryBoxPlotChart = memo(function CategoryBoxPlotChart(props: Pr
     return (
       <ChartCard title="カテゴリ箱ひげ図">
         <ErrorMsg>
-          {vm.messages.errors.dataFetchFailed}: {vm.error}
+          {vm.messages.errors.dataFetchFailed}: {vm.error?.message}
         </ErrorMsg>
       </ChartCard>
     )
@@ -49,7 +49,7 @@ export const CategoryBoxPlotChart = memo(function CategoryBoxPlotChart(props: Pr
     return <ChartSkeleton />
   }
 
-  if (!props.duckConn || props.duckDataVersion === 0) {
+  if (!props.queryExecutor) {
     return <EmptyState>データをインポートしてください</EmptyState>
   }
 

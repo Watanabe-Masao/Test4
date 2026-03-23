@@ -7,19 +7,24 @@
  * 列: 売上 / 点数 / 客数 / 客単価 / 売変率 / 総仕入金額
  * スライダーで分析期間を変更可能。
  */
+/**
+ * @migration P5: useQueryWithHandler 経由に移行済み（旧: useDuckDBConditionMatrix 直接 import）
+ */
 import { useMemo, memo } from 'react'
 import { palette } from '@/presentation/theme/tokens'
 import { formatPercent } from '@/domain/formatting'
 import { dateRangeDays } from '@/domain/models/calendar'
 import type { DateRange } from '@/domain/models/calendar'
+import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
 import {
-  useDuckDBConditionMatrix,
+  conditionMatrixHandler,
+  type ConditionMatrixInput,
   buildConditionMatrix,
   type MatrixCell,
   type MatrixRowData,
   type TrendDirectionRow,
   type TrendDirection,
-} from '@/application/hooks/duckdb/useConditionMatrix'
+} from '@/application/queries/advanced'
 import { DualPeriodSlider, useDualPeriodRange } from '@/presentation/components/charts'
 import type { WidgetContext } from './types'
 import {
@@ -110,7 +115,7 @@ interface Props {
 }
 
 export const ConditionMatrixTable = memo(function ConditionMatrixTable({ ctx }: Props) {
-  const { duckConn, duckDataVersion, selectedStoreIds, year, month, daysInMonth } = ctx
+  const { queryExecutor, selectedStoreIds, year, month, daysInMonth } = ctx
 
   // スライダーによる日範囲選択（他のグラフと統一）
   const {
@@ -132,12 +137,18 @@ export const ConditionMatrixTable = memo(function ConditionMatrixTable({ ctx }: 
     [year, month, dayStart, dayEnd],
   )
 
-  // DuckDB からデータ取得
+  // QueryHandler 経由でデータ取得
+  const conditionInput = useMemo<ConditionMatrixInput | null>(
+    () => ({ dateRange: effectiveRange, storeIds: selectedStoreIds }),
+    [effectiveRange, selectedStoreIds],
+  )
+
   const {
-    data: rawRows,
+    data: output,
     isLoading,
     error,
-  } = useDuckDBConditionMatrix(duckConn, duckDataVersion, effectiveRange, selectedStoreIds)
+  } = useQueryWithHandler(queryExecutor, conditionMatrixHandler, conditionInput)
+  const rawRows = output?.records ?? null
 
   // マトリクス構築
   const totalDays = dateRangeDays(effectiveRange)
@@ -150,14 +161,14 @@ export const ConditionMatrixTable = memo(function ConditionMatrixTable({ ctx }: 
   const showDowWarning = matrix != null && matrix.trendHalfDays !== 7
 
   // DuckDB 未準備
-  if (duckDataVersion === 0) return null
+  if (!queryExecutor) return null
 
   return (
     <Section>
       <SectionTitle>コンディションマトリクス</SectionTitle>
 
       {isLoading && <LoadingMsg>読み込み中...</LoadingMsg>}
-      {error && <ErrorMsg>データ取得エラー: {error}</ErrorMsg>}
+      {error && <ErrorMsg>データ取得エラー: {error.message}</ErrorMsg>}
 
       {matrix && (
         <TableWrapper>

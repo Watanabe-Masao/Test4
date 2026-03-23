@@ -45,18 +45,8 @@ export const presentationDuckdbHook: readonly AllowlistEntry[] = [
   // FactorDecompositionPanel.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + storeDaySummaryHandler
   // WeatherAnalysisPanel.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + storeDaySummaryHandler
   // HeatmapChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + hourDowMatrixHandler + levelAggregationHandler
-  {
-    path: 'components/charts/CategoryBenchmarkChart.vm.ts',
-    reason: 'DuckDB 探索',
-    category: 'migration',
-    removalCondition: 'QueryHandler 移行',
-  },
-  {
-    path: 'components/charts/CategoryBoxPlotChart.vm.ts',
-    reason: 'DuckDB 探索',
-    category: 'migration',
-    removalCondition: 'QueryHandler 移行',
-  },
+  // CategoryBenchmarkChart.vm.ts — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + categoryBenchmarkHandler + categoryBenchmarkTrendHandler + categoryHierarchyHandler
+  // CategoryBoxPlotChart.vm.ts — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + 同上
   // CategoryMixChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + categoryMixWeeklyHandler
   // CategoryTrendChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + categoryDailyTrendHandler
   // CumulativeChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + dailyCumulativeHandler
@@ -70,12 +60,7 @@ export const presentationDuckdbHook: readonly AllowlistEntry[] = [
     category: 'migration',
     removalCondition: 'QueryHandler 移行',
   },
-  {
-    path: 'pages/Dashboard/widgets/ConditionMatrixTable.tsx',
-    reason: 'DuckDB 探索',
-    category: 'migration',
-    removalCondition: 'QueryHandler 移行',
-  },
+  // ConditionMatrixTable.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + conditionMatrixHandler
   {
     path: 'pages/Dashboard/widgets/ConditionSummaryBudgetDrill.tsx',
     reason: 'DuckDB 探索',
