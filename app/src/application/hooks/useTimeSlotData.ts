@@ -28,8 +28,11 @@ import {
   categoryHourlyHandler,
   type CategoryHourlyInput,
 } from '@/application/queries/cts/CategoryHourlyHandler'
-import { weatherHourlyAvgHandler, type WeatherHourlyAvgInput } from '@/application/queries/weather'
-import type { AsyncDuckDBConnection, AsyncDuckDB } from '@duckdb/duckdb-wasm'
+import {
+  weatherHourlyAvgHandler,
+  type WeatherHourlyAvgInput,
+  type WeatherPersister,
+} from '@/application/queries/weather'
 import type { StoreLocation } from '@/domain/models/record'
 import { useWeatherFallback } from './useWeatherFallback'
 import { useSettingsStore } from '@/application/stores/settingsStore'
@@ -75,10 +78,8 @@ interface Params {
   readonly currentDateRange: DateRange
   readonly selectedStoreIds: ReadonlySet<string>
   readonly prevYearScope?: PrevYearScope
-  /** DuckDB コネクション（天気 ETRN フォールバック永続化用） */
-  readonly conn?: AsyncDuckDBConnection | null
-  /** DuckDB インスタンス（天気 ETRN フォールバック永続化用） */
-  readonly db?: AsyncDuckDB | null
+  /** 天気データ永続化コールバック（ETRN フォールバック用） */
+  readonly weatherPersist?: WeatherPersister | null
 }
 
 export function useTimeSlotData({
@@ -86,8 +87,7 @@ export function useTimeSlotData({
   currentDateRange,
   selectedStoreIds,
   prevYearScope,
-  conn,
-  db,
+  weatherPersist,
 }: Params) {
   // ── UI State (5 個 — G5 ≤6 準拠) ──
   const [viewMode, setViewMode] = useState<ViewMode>('chart')
@@ -258,8 +258,7 @@ export function useTimeSlotData({
     dateRange: currentDateRange,
     dateFrom: weatherKeys.dateFrom,
     dateTo: weatherKeys.dateTo,
-    conn,
-    db,
+    persist: weatherPersist,
     onRetry: () => setWeatherRetry((v) => v + 1),
   })
 
@@ -277,8 +276,7 @@ export function useTimeSlotData({
     dateRange: prevDateRange ?? currentDateRange,
     dateFrom: prevWeatherKeys?.dateFrom ?? '',
     dateTo: prevWeatherKeys?.dateTo ?? '',
-    conn,
-    db,
+    persist: weatherPersist,
     onRetry: () => setPrevWeatherRetry((v) => v + 1),
   })
   // ── Unwrap query results ──

@@ -10,16 +10,10 @@
  *   FactorDecompositionPanel, WeatherAnalysisPanel, YoYWaterfallChart
  * - facade hook 移行完了: PurchaseAnalysisPage, StorageManagementTab
  * - re-export 整理完了: DayDetailModal, useDuckDBTimeSlotData
+ * - bridge 卒業完了: useUnifiedWidgetContext → useWidgetQueryContext 抽出
+ *   MonthlyCalendar/DayDetailModal の queryExecutor 完全移行
  */
 import type { AllowlistEntry } from './types'
 
-/** presentation/ での DuckDB hook 直接使用（移行カウントダウン） */
-export const presentationDuckdbHook: readonly AllowlistEntry[] = [
-  {
-    path: 'hooks/useUnifiedWidgetContext.ts',
-    reason:
-      'ウィジェット統合コンテキスト — MonthlyCalendar/DayDetailModal が duckConn/duckDb を必要とする bridge',
-    category: 'bridge',
-    removalCondition: 'MonthlyCalendar/DayDetailModal の queryExecutor 完全移行',
-  },
-] as const
+/** presentation/ での DuckDB hook 直接使用（移行カウントダウン）— 全件卒業済み */
+export const presentationDuckdbHook: readonly AllowlistEntry[] = [] as const

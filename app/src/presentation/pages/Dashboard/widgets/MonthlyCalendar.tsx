@@ -89,7 +89,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
       daysInMonth,
       storeKey: ctx.storeKey,
       stores: ctx.stores,
-      duckConn: ctx.duckConn,
+      queryExecutor: ctx.queryExecutor,
       selectedStoreIds: ctx.selectedStoreIds,
       comparisonFrame: ctx.comparisonFrame,
     }),
@@ -101,7 +101,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
       daysInMonth,
       ctx.storeKey,
       ctx.stores,
-      ctx.duckConn,
+      ctx.queryExecutor,
       ctx.selectedStoreIds,
       ctx.comparisonFrame,
     ],
@@ -575,9 +575,8 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
           cumCustomers={cumCustomers.get(detailDay) ?? 0}
           cumPrevCustomers={cumPrevCustomers.get(detailDay) ?? 0}
           prevYear={prevYear}
-          duckConn={ctx.duckConn}
-          duckDb={ctx.duckDb}
-          duckDataVersion={ctx.duckDataVersion}
+          queryExecutor={ctx.queryExecutor}
+          dataVersion={ctx.duckDataVersion}
           dailyMap={r.daily}
           selectedStoreIds={ctx.selectedStoreIds}
           comparisonFrame={ctx.comparisonFrame}

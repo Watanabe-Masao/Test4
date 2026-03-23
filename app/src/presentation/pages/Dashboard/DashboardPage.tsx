@@ -160,13 +160,13 @@ export function DashboardPage() {
       prevYearHasPrevYear: ctx?.prevYear.hasPrevYear ?? false,
       storeCount: stores.size,
       hasDiscountData: ctx?.result.hasDiscountData,
-      isDuckDBReady: (ctx?.duckConn ?? null) != null,
+      isDuckDBReady: ctx?.queryExecutor?.isReady === true,
     })
     if (injected) {
       setWidgetIds(injected)
       saveLayout(injected)
     }
-  }, [ctx?.prevYear.hasPrevYear, stores.size, ctx?.result.hasDiscountData, ctx?.duckConn])
+  }, [ctx?.prevYear.hasPrevYear, stores.size, ctx?.result.hasDiscountData, ctx?.queryExecutor])
 
   const handleWidgetLink = useCallback(
     (view: ViewType, tab?: string) => {

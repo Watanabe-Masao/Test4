@@ -41,8 +41,7 @@ export const WIDGETS_CHART: readonly WidgetDef[] = [
         dowOffset={ctx.comparisonFrame.dowOffset}
         discountEntries={ctx.result.discountEntries}
         totalGrossSales={ctx.result.grossSales}
-        conn={ctx.duckConn}
-        db={ctx.duckDb}
+        weatherPersist={ctx.weatherPersist}
       />
     ),
   },
@@ -114,12 +113,10 @@ export const WIDGETS_CHART: readonly WidgetDef[] = [
     group: '構造分析',
     size: 'full',
     linkTo: { view: 'category' },
-    isVisible: (ctx) => ctx.duckDataVersion > 0,
+    isVisible: (ctx) => ctx.queryExecutor?.isReady === true,
     render: (ctx) => (
       <IntegratedCategoryAnalysis
         queryExecutor={ctx.queryExecutor}
-        duckConn={ctx.duckConn}
-        duckDataVersion={ctx.duckDataVersion}
         currentDateRange={ctx.currentDateRange}
         prevYearScope={ctx.prevYearScope}
         selectedStoreIds={ctx.selectedStoreIds}

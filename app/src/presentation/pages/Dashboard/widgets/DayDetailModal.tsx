@@ -14,7 +14,7 @@ import {
   calculateShare,
   calculateTransactionValue,
 } from '@/domain/calculations/utils'
-import type { AsyncDuckDBConnection, AsyncDuckDB } from '@duckdb/duckdb-wasm'
+import type { QueryExecutor } from '@/application/queries/QueryPort'
 import type { ComparisonFrame } from '@/domain/models/calendar'
 import type { DailyRecord } from '@/domain/models/record'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
@@ -70,12 +70,10 @@ interface DayDetailModalProps {
   cumCustomers: number
   cumPrevCustomers: number
   prevYear: PrevYearData
-  /** DuckDB コネクション */
-  duckConn: AsyncDuckDBConnection | null
-  /** DuckDB インスタンス（天気データ永続化用） */
-  duckDb?: AsyncDuckDB | null
-  /** DuckDB データバージョン（0 = 未ロード） */
-  duckDataVersion: number
+  /** QueryExecutor（DuckDB クエリ用） */
+  queryExecutor: QueryExecutor | null
+  /** DuckDB データバージョン（useMemo 依存配列用、0 = 未ロード） */
+  dataVersion: number
   /** 当年の全日別データ（前週比用） */
   dailyMap?: ReadonlyMap<number, DailyRecord>
   /** 選択中の店舗IDセット（空=全店舗） */
@@ -97,9 +95,8 @@ export function DayDetailModal({
   cumCustomers,
   cumPrevCustomers,
   prevYear,
-  duckConn,
-  duckDb,
-  duckDataVersion,
+  queryExecutor,
+  dataVersion,
   dailyMap,
   selectedStoreIds,
   comparisonFrame,
@@ -143,9 +140,8 @@ export function DayDetailModal({
   const dateKey = useMemo(() => toDateKeyFromParts(year, month, day), [year, month, day])
 
   const dd = useDayDetailData({
-    conn: duckConn,
-    db: duckDb,
-    dataVersion: duckDataVersion,
+    queryExecutor,
+    dataVersion,
     year,
     month,
     day,

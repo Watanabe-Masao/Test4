@@ -15,8 +15,8 @@ import { useState, useCallback, useMemo, useRef, useEffect, memo } from 'react'
 import styled from 'styled-components'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import { dateRangeToKeys } from '@/domain/models/CalendarDate'
-import type { AsyncDuckDBConnection, AsyncDuckDB } from '@duckdb/duckdb-wasm'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
+import type { WeatherPersister } from '@/application/queries/weather'
 import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
 import {
   dailyQuantityHandler,
@@ -77,10 +77,8 @@ interface Props {
   readonly dowOffset?: number
   readonly weatherDaily?: readonly DailyWeatherSummary[]
   readonly prevYearWeatherDaily?: readonly DailyWeatherSummary[]
-  /** DuckDB コネクション（TimeSlotChart 天気 ETRN フォールバック用） */
-  readonly conn?: AsyncDuckDBConnection | null
-  /** DuckDB インスタンス（TimeSlotChart 天気 ETRN フォールバック用） */
-  readonly db?: AsyncDuckDB | null
+  /** 天気データ永続化コールバック（TimeSlotChart ETRN フォールバック用） */
+  readonly weatherPersist?: WeatherPersister | null
 }
 
 /** ヘッダ固定分の offset（px） */
@@ -343,8 +341,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
             queryExecutor={props.queryExecutor}
             context={drillContext}
             events={childEvents}
-            conn={props.conn}
-            db={props.db}
+            weatherPersist={props.weatherPersist}
           />
 
           {/* ── 部門別時間帯パターン（孫として包含表示） ── */}
@@ -368,8 +365,6 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
         <SubAnalysisPanel
           mode={rightAxisMode}
           queryExecutor={props.queryExecutor}
-          duckConn={null}
-          duckDataVersion={0}
           currentDateRange={subPanelContext.dateRange}
           selectedStoreIds={subPanelContext.selectedStoreIds}
           prevYearScope={subPanelContext.comparisonScope}

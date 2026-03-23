@@ -8,4 +8,8 @@ export {
   type HourlyWeatherAvgRow,
 } from './WeatherHourlyHandler'
 
-export { persistWeatherHourly } from './WeatherPersistenceAdapter'
+export {
+  persistWeatherHourly,
+  createWeatherPersister,
+  type WeatherPersister,
+} from './WeatherPersistenceAdapter'

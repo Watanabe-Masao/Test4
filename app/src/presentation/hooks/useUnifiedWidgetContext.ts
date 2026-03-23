@@ -13,7 +13,6 @@ import type { MetricId } from '@/domain/models/analysis'
 import type { DateRange } from '@/domain/models/calendar'
 import { useCalculation } from '@/application/hooks/calculation'
 import { useStoreSelection, useExplanations } from '@/application/hooks/ui'
-import { useDuckDB } from '@/application/hooks/useDuckDB'
 import { useComparisonModule } from '@/application/hooks/useComparisonModule'
 import {
   useMonthlyHistory,
@@ -24,12 +23,11 @@ import { useDataStore } from '@/application/stores/dataStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useRepository } from '@/application/context/useRepository'
 import { detectDataMaxDay } from '@/domain/calculations/utils'
+import { useWidgetQueryContext } from '@/application/hooks/useWidgetQueryContext'
 import { useDeptKpiView } from '@/application/hooks/useDeptKpiView'
 import { usePeriodSelectionStore } from '@/application/stores/periodSelectionStore'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
-import { useStoreCostPriceQuery } from '@/application/hooks/duckdb/useStoreCostPriceQuery'
 import { useWeatherData } from '@/application/hooks/useWeather'
-import { createQueryExecutor } from '@/application/queries/QueryPort'
 
 interface UseUnifiedWidgetContextResult {
   /** 統一コンテキスト（currentResult が null の場合は null） */
@@ -104,19 +102,15 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
   // 通貨フォーマッタ（千円/円切替対応）
   const { format: fmtCurrency } = useCurrencyFormat()
 
-  // DuckDB エンジン初期化
-  const duck = useDuckDB(data, targetYear, targetMonth, repo)
-
-  // QueryExecutor — 標準経路 A の基盤。conn を隠蔽し QueryHandler 経由で実行する。
-  // createQueryExecutor は軽量なファクトリ関数。duck.conn の参照同一性で再利用が保証される。
-  const queryExecutor = createQueryExecutor(duck.conn)
-
-  // ── 前年店舗別仕入額（application hook 経由、額で保持 — @guard B3） ──
-  const { data: prevYearStoreCostPrice } = useStoreCostPriceQuery(
-    duck.conn,
-    duck.dataVersion,
+  // DuckDB クエリコンテキスト（エンジン初期化 + queryExecutor + 天気永続化 + 前年仕入額）
+  const duckCtx = useWidgetQueryContext(
+    data,
+    targetYear,
+    targetMonth,
+    repo,
     comparison.prevYearDateRange ?? null,
   )
+  const { queryExecutor, weatherPersist, prevYearStoreCostPrice } = duckCtx
 
   // ── 天気データ（選択店舗の代表1店から取得） ──
   const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
@@ -218,10 +212,9 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
     elapsedDays: r.elapsedDays,
     monthlyHistory,
     queryExecutor,
-    duckConn: duck.conn,
-    duckDb: duck.db,
-    duckDataVersion: duck.dataVersion,
-    duckLoadedMonthCount: duck.loadedMonthCount,
+    duckDataVersion: duckCtx.dataVersion,
+    loadedMonthCount: duckCtx.loadedMonthCount,
+    weatherPersist,
     prevYearMonthlyKpi: comparison.kpi,
     comparisonFrame: comparison.comparisonFrame,
     dowGap: comparison.dowGap,

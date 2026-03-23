@@ -88,7 +88,7 @@ export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
     group: 'トレンド分析',
     size: 'full',
     linkTo: { view: 'category' },
-    isVisible: (ctx) => ctx.duckDataVersion > 0,
+    isVisible: (ctx) => ctx.queryExecutor?.isReady === true,
     render: (ctx) => (
       <CategoryPerformanceChart
         queryExecutor={ctx.queryExecutor}
@@ -164,7 +164,7 @@ export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
     label: '売上トレンド分析',
     group: 'トレンド分析',
     size: 'full',
-    isVisible: (ctx) => ctx.duckDataVersion > 0,
+    isVisible: (ctx) => ctx.queryExecutor?.isReady === true,
     render: (ctx) => (
       <FeatureChart
         queryExecutor={ctx.queryExecutor}
@@ -178,7 +178,7 @@ export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
     label: '累積売上推移',
     group: 'トレンド分析',
     size: 'full',
-    isVisible: (ctx) => ctx.duckDataVersion > 0,
+    isVisible: (ctx) => ctx.queryExecutor?.isReady === true,
     render: (ctx) => (
       <CumulativeChart
         queryExecutor={ctx.queryExecutor}
