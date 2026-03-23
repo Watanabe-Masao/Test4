@@ -423,8 +423,8 @@ describe('@guard tag consistency', () => {
           if (entry.name === 'node_modules' || entry.name === 'dist') continue
           scanDir(fullPath)
         } else if (/\.(ts|tsx)$/.test(entry.name)) {
-          // guardTestHelpers.ts 自体は除外（レジストリ定義元）
-          if (entry.name === 'guardTestHelpers.ts') continue
+          // guardTagRegistry.ts を除外（レジストリ定義元）
+          if (entry.name === 'guardTagRegistry.ts') continue
           const content = fs.readFileSync(fullPath, 'utf-8')
           const guardMatches = content.matchAll(/@guard\s+([A-G]\d+)/g)
           for (const m of guardMatches) {
