@@ -186,7 +186,7 @@ describe('dualRunObserver', () => {
       expect(summary.byFunction.calculateGrossProfitBudget.calls).toBe(1)
     })
 
-    it('getSummary に全 14 関数が反映される', () => {
+    it('getSummary に全関数が反映される', () => {
       const summary = dualRunStatsHandler() as {
         byFunction: Record<string, { calls: number }>
       }
@@ -207,7 +207,9 @@ describe('dualRunObserver', () => {
       expect(fnNames).toContain('calculateWMA')
       expect(fnNames).toContain('linearRegression')
       expect(fnNames).toContain('analyzeTrend')
-      expect(fnNames).toHaveLength(19)
+      expect(fnNames).toContain('findCoreTime')
+      expect(fnNames).toContain('findTurnaroundHour')
+      expect(fnNames).toHaveLength(21)
     })
 
     it('grossProfit 関数の recordNullMismatch', () => {

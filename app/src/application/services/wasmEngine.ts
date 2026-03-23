@@ -2,7 +2,7 @@
  * WASM Engine ローダーシングルトン
  *
  * WASM モジュールの初期化・状態管理・モード切替を担当する。
- * 対応モジュール: factorDecomposition, grossProfit, budgetAnalysis, forecast
+ * 対応モジュール: factorDecomposition, grossProfit, budgetAnalysis, forecast, timeSlot
  *
  * 保証:
  * 1. WASM 未初期化でも UI は通常どおり動く（PROD: ts-only、DEV: dual-run-compare）
@@ -25,6 +25,7 @@ let wasmExports: typeof import('factor-decomposition-wasm') | null = null
 let grossProfitWasmExports: typeof import('gross-profit-wasm') | null = null
 let budgetAnalysisWasmExports: typeof import('budget-analysis-wasm') | null = null
 let forecastWasmExports: typeof import('forecast-wasm') | null = null
+let timeSlotWasmExports: typeof import('time-slot-wasm') | null = null
 
 /* ── 初期化 ───────────────────────────────────── */
 
@@ -105,6 +106,24 @@ export async function initForecastWasm(): Promise<void> {
   }
 }
 
+/**
+ * timeSlot WASM モジュールを非同期で初期化する。
+ */
+export async function initTimeSlotWasm(): Promise<void> {
+  if (timeSlotWasmExports !== null) return
+
+  try {
+    const wasm = await import('time-slot-wasm')
+    await wasm.default()
+    timeSlotWasmExports = wasm
+    if (import.meta.env.DEV) {
+      console.info('[wasmEngine] timeSlot ready — dual-run compare available')
+    }
+  } catch (e) {
+    console.warn('[wasmEngine] timeSlot WASM initialization failed, falling back to TS:', e)
+  }
+}
+
 /* ── 状態取得 ─────────────────────────────────── */
 
 export function getWasmState(): WasmState {
@@ -125,6 +144,10 @@ export function getBudgetAnalysisWasmExports(): typeof import('budget-analysis-w
 
 export function getForecastWasmExports(): typeof import('forecast-wasm') | null {
   return forecastWasmExports
+}
+
+export function getTimeSlotWasmExports(): typeof import('time-slot-wasm') | null {
+  return timeSlotWasmExports
 }
 
 /* ── モード管理 ───────────────────────────────── */

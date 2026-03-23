@@ -28,8 +28,10 @@ export const RIGHT_AXIS_OPTIONS: { mode: RightAxisMode; label: string }[] = [
 export const ALL_LABELS: Record<string, string> = {
   sales: '売上',
   prevYearSales: '比較期売上',
-  customers: '点数',
-  prevCustomers: '比較期点数',
+  quantity: '点数',
+  prevQuantity: '比較期点数',
+  customers: '客数',
+  prevCustomers: '比較期客数',
   customerCount: '客数',
   prevCustomerCount: '比較期客数',
   discount: '売変額',

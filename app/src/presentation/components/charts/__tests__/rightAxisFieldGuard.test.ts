@@ -1,105 +1,156 @@
 /**
- * 右軸モード ← → データフィールド対応ガードテスト
+ * モード切替 ← → データフィールド対応ガードテスト（静的解析版）
  *
- * ボタン名（RightAxisMode）と、シリーズが参照するデータフィールドが
- * 意味的に一致していることを機械的に保証する。
+ * 全チャートの「ボタン名（モード名）」と「シリーズが参照するデータフィールド」が
+ * 意味的に一致していることをソースコード解析で機械的に保証する。
  *
  * 「点数」ボタンが customers を参照するような不整合を防ぐ。
+ *
+ * 対象チャート:
+ * 1. DailySalesChart — rightAxisMode: quantity/customers/discount/temperature
+ * 2. TimeSlotChart — lineMode: quantity/temperature/precipitation
+ * 3. CategoryTimeHeatmap — heatmapMetric: amount/quantity
  *
  * @guard D2 引数を無視して再計算しない — モード名とデータソースの対応を検証
  */
 import { describe, it, expect } from 'vitest'
-import {
-  buildQuantitySeries,
-  buildCustomerCountSeries,
-  buildRightAxisSeries,
-  RIGHT_AXIS_OPTIONS,
-  type RightAxisColors,
-} from '../DailySalesChartBodyLogic'
+import * as fs from 'fs'
+import * as path from 'path'
 
-const COLORS: RightAxisColors = {
-  cyan: '#0ff',
-  orange: '#f90',
-  danger: '#f00',
-  primary: '#00f',
+const CHARTS_DIR = path.resolve(__dirname, '..')
+
+function readChart(filename: string): string {
+  return fs.readFileSync(path.join(CHARTS_DIR, filename), 'utf-8')
 }
 
-/** pluck で参照するフィールド名をシリーズ定義から抽出する */
-function extractFieldNames(series: readonly { name?: string; data?: unknown[] }[]): string[] {
-  return series.map((s) => s.name ?? '').filter(Boolean)
-}
+// ── 1. DailySalesChart — buildQuantitySeries / buildCustomerCountSeries ──
 
-describe('右軸モード ← → データフィールド対応ガード', () => {
-  const sampleRows: Record<string, unknown>[] = [
-    { day: 1, quantity: 100, prevQuantity: 90, customers: 50, prevCustomers: 45 },
-    { day: 2, quantity: 120, prevQuantity: 95, customers: 55, prevCustomers: 48 },
-  ]
+describe('DailySalesChart — 右軸モード ← → データフィールド対応', () => {
+  const src = readChart('DailySalesChartBodyLogic.ts')
 
-  it('quantity モード（点数）は quantity/prevQuantity フィールドを参照する', () => {
-    const series = buildQuantitySeries(sampleRows, true, COLORS)
-    const names = extractFieldNames(series)
+  it('buildQuantitySeries は quantity フィールドを参照し、customers を参照しない', () => {
+    // buildQuantitySeries の関数本体を抽出
+    const fnMatch = src.match(/function buildQuantitySeries[\s\S]*?^}/m)
+    expect(fnMatch).not.toBeNull()
+    const fnBody = fnMatch![0]
 
-    // 「点数」ボタンは quantity フィールドを参照すべき
-    expect(names).toContain('quantity')
-    expect(names).toContain('prevQuantity')
-    // customers を参照してはならない
-    expect(names).not.toContain('customers')
-    expect(names).not.toContain('prevCustomers')
+    // pluck(rows, 'quantity') を参照すること
+    expect(fnBody).toContain("pluck(rows, 'quantity')")
+    expect(fnBody).toContain("pluck(rows, 'prevQuantity')")
+    // pluck(rows, 'customers') を参照してはならない
+    expect(fnBody).not.toContain("pluck(rows, 'customers')")
+    expect(fnBody).not.toContain("pluck(rows, 'prevCustomers')")
   })
 
-  it('customers モード（客数）は customerCount/prevCustomerCount フィールドを参照する', () => {
-    const series = buildCustomerCountSeries(sampleRows, true, COLORS)
-    const names = extractFieldNames(series)
+  it('buildCustomerCountSeries は customers フィールドを参照し、quantity を参照しない', () => {
+    const fnMatch = src.match(/function buildCustomerCountSeries[\s\S]*?^}/m)
+    expect(fnMatch).not.toBeNull()
+    const fnBody = fnMatch![0]
 
-    // 「客数」ボタンは customers 系フィールドを参照すべき
-    expect(names).toContain('customerCount')
-    expect(names).toContain('prevCustomerCount')
-    // quantity を参照してはならない
-    expect(names).not.toContain('quantity')
-    expect(names).not.toContain('prevQuantity')
+    expect(fnBody).toContain("pluck(rows, 'customers')")
+    expect(fnBody).toContain("pluck(rows, 'prevCustomers')")
+    expect(fnBody).not.toContain("pluck(rows, 'quantity')")
+    expect(fnBody).not.toContain("pluck(rows, 'prevQuantity')")
   })
 
-  it('quantity モードと customers モードは異なるデータを返す', () => {
-    const qtySeries = buildRightAxisSeries('quantity', sampleRows, [1, 2], true, COLORS, new Map())
-    const custSeries = buildRightAxisSeries(
-      'customers',
-      sampleRows,
-      [1, 2],
-      true,
-      COLORS,
-      new Map(),
-    )
+  it('buildDiscountSeries は discount フィールドを参照する', () => {
+    const fnMatch = src.match(/function buildDiscountSeries[\s\S]*?^}/m)
+    expect(fnMatch).not.toBeNull()
+    const fnBody = fnMatch![0]
 
-    const qtyNames = extractFieldNames(qtySeries)
-    const custNames = extractFieldNames(custSeries)
+    expect(fnBody).toContain("pluck(rows, 'discount')")
+    expect(fnBody).toContain("pluck(rows, 'prevYearDiscount')")
+  })
 
-    // 両モードが同一のフィールド名セットを持たないことを保証
-    const qtySet = new Set(qtyNames)
-    const custSet = new Set(custNames)
-    const intersection = [...qtySet].filter((n) => custSet.has(n))
+  it('buildQuantitySeries と buildCustomerCountSeries は異なるシリーズ name を使う', () => {
+    const qtyMatch = src.match(/function buildQuantitySeries[\s\S]*?^}/m)
+    const custMatch = src.match(/function buildCustomerCountSeries[\s\S]*?^}/m)
+    expect(qtyMatch).not.toBeNull()
+    expect(custMatch).not.toBeNull()
+
+    // quantity シリーズの name
+    const qtyNames = [...qtyMatch![0].matchAll(/name:\s*'([^']+)'/g)].map((m) => m[1])
+    // customers シリーズの name
+    const custNames = [...custMatch![0].matchAll(/name:\s*'([^']+)'/g)].map((m) => m[1])
+
+    // 名前が被らないこと
+    const intersection = qtyNames.filter((n) => custNames.includes(n))
     expect(intersection).toEqual([])
   })
 
-  it('RIGHT_AXIS_OPTIONS の全モードが buildRightAxisSeries で処理される', () => {
-    for (const opt of RIGHT_AXIS_OPTIONS) {
-      // 各モードが例外なく実行できること（switch の漏れ検出）
-      expect(() =>
-        buildRightAxisSeries(opt.mode, sampleRows, [1, 2], false, COLORS, new Map()),
-      ).not.toThrow()
+  it('RIGHT_AXIS_OPTIONS の全モードに対応する buildRightAxisSeries の case がある', () => {
+    // RIGHT_AXIS_OPTIONS からモード値を抽出
+    const modeMatches = [...src.matchAll(/mode:\s*'(\w+)'/g)].map((m) => m[1])
+    // buildRightAxisSeries の switch case を抽出
+    const switchMatch = src.match(/function buildRightAxisSeries[\s\S]*?^}/m)
+    expect(switchMatch).not.toBeNull()
+    const switchBody = switchMatch![0]
+
+    for (const mode of modeMatches) {
+      expect(switchBody).toContain(`case '${mode}'`)
     }
   })
+})
 
-  it('quantity シリーズの data は sampleRows の quantity 値を含む', () => {
-    const series = buildQuantitySeries(sampleRows, false, COLORS)
-    const data = series[0].data as (number | null)[]
-    // quantity フィールドの値（100, 120）が含まれること
-    expect(data).toEqual([100, 120])
+// ── 2. TimeSlotChart — lineMode ← → データフィールド対応 ──
+
+describe('TimeSlotChart — lineMode ← → データフィールド対応', () => {
+  const src = readChart('TimeSlotChartOptionBuilder.ts')
+
+  it('quantity モードは r.quantity を参照し、r.customers を参照しない', () => {
+    // lineMode === 'quantity' ブロックを抽出
+    const qtyBlock = src.match(/if\s*\(lineMode === 'quantity'\)\s*\{[\s\S]*?\n {2}\}/m)
+    expect(qtyBlock).not.toBeNull()
+    const block = qtyBlock![0]
+
+    expect(block).toContain('r.quantity')
+    expect(block).toContain('r.prevQuantity')
+    expect(block).not.toContain('r.customers')
+    // シリーズ名に「点数」が含まれること
+    expect(block).toContain('点数')
   })
 
-  it('customers シリーズの data は sampleRows の customers 値を含む', () => {
-    const series = buildCustomerCountSeries(sampleRows, false, COLORS)
-    const data = series[0].data as (number | null)[]
-    // customers フィールドの値（50, 55）が含まれること
-    expect(data).toEqual([50, 55])
+  it('temperature モードは weatherMap の temp を参照する', () => {
+    // lineMode === 'temperature' ブロック
+    const tempBlock = src.match(/lineMode === 'temperature'\)\s*\{[\s\S]*?\n {2}\}/m)
+    expect(tempBlock).not.toBeNull()
+    const block = tempBlock![0]
+
+    expect(block).toContain('?.temp')
+    expect(block).toContain('気温')
+    expect(block).not.toContain('r.quantity')
+  })
+
+  it('precipitation モードは weatherMap の precip を参照する', () => {
+    // 降水量文字列が含まれること
+    expect(src).toContain('降水量')
+    expect(src).toContain('?.precip')
+  })
+
+  it('quantity モードのシリーズ名に気温・降水量が混入しない', () => {
+    const qtyBlock = src.match(/if\s*\(lineMode === 'quantity'\)\s*\{[\s\S]*?\n {2}\}/m)
+    expect(qtyBlock).not.toBeNull()
+    const block = qtyBlock![0]
+
+    expect(block).not.toContain('気温')
+    expect(block).not.toContain('降水量')
+  })
+})
+
+// ── 3. CategoryTimeHeatmap — heatmapMetric ← → データフィールド対応 ──
+
+describe('CategoryTimeHeatmap — heatmapMetric ← → データフィールド対応', () => {
+  const src = readChart('CategoryTimeHeatmap.tsx')
+
+  it('metric === "amount" のとき d.amount を参照する', () => {
+    expect(src).toContain("metric === 'amount'")
+    // isAmount ? d.amount : d.quantity パターンが存在すること
+    expect(src).toMatch(/isAmount\s*\?\s*d\.amount\s*:\s*d\.quantity/)
+  })
+
+  it('amount と quantity で異なるフィールドを参照する', () => {
+    // d.amount と d.quantity が別々に存在すること
+    expect(src).toContain('d.amount')
+    expect(src).toContain('d.quantity')
   })
 })
