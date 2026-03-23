@@ -1,20 +1,25 @@
 /**
  * ガードテスト許可リスト — 比較移行（comparisonMigrationGuard 系）
  *
- * ## P4 再評価メモ（2026-03-23）
+ * ## P4 再評価メモ（2026-03-23、追加検証済み）
  *
- * cmpPrevYearDaily のデータソースは既に V2（useComparisonModule.daily）に移行済み。
- * `prevYear.daily.get(toDateKeyFromParts(...))` は V2 の PrevYearData Map への正当なアクセス。
+ * cmpPrevYearDaily のデータソースは V2（useComparisonModule.daily）に移行済み。
+ * `prevYear.daily.get(toDateKeyFromParts(year, month, day))` は V2 の PrevYearData Map への
+ * **正当かつ正しいアクセスパターン**。
  *
- * ガードが防いでいるリスク:
- * - toDateKeyFromParts で「当月の日付」を構築してアクセスすると、
- *   same-DOW alignment 時に alignment が無視される可能性
- * - 新規コードが alignment を意識せず Map に直接アクセスするのを防止
+ * ## alignment は Map 構築時に適用済み
  *
- * カテゴリ変更: migration → structural
- * - データソース移行は完了。残るのはアクセスパターンのリスク管理
- * - ヘルパー関数で .get() を隠すのは表面的回避であり本質的改善ではない
- * - 各ファイルの改修タイミングで、alignment を意識したアクセスに移行する
+ * `aggregateDailyByAlignment()` が `entry.targetDayKey`（当期の日付キー）をキーとして
+ * Map を構築する。`toDateKeyFromParts(year, month, day)` で当期の日付を渡すのは
+ * このキーに正確に一致する。alignment は消費側ではなく生産側で処理済み。
+ *
+ * ## ガードの役割
+ *
+ * 新規コードが prevYear.daily.get() を使う場合、year/month/day が「当期の日付」であることを
+ * 前提とする。前年の日付を渡すとキーが不一致になるため、ガードで新規追加を禁止し、
+ * 既存コードの正しさを allowlist で管理する。
+ *
+ * カテゴリ: structural（正当なアクセスパターン。新規追加禁止のみ）
  */
 import type { AllowlistEntry } from './types'
 

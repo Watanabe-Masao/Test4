@@ -151,9 +151,19 @@ alignment-aware なアクセスパターンに段階的に移行する。
 | 状態 | 27/27 で凍結。**filterStore 移行待ち** |
 | 成功条件 | 件数が減少し、新規 direct 参照が発生しない |
 
-**再評価結果（2026-03-23）:** 個別 wrapper hook による表面的分離は不採用。
-コードベースの設計意図は `filterStore + useFilterSelectors` への統一移行。
-wrapper hook は既存パターンに存在せず、新規追加は一貫性を損なう。
+**再評価結果（2026-03-23、追加分析済み）:**
+
+filterStore + useFilterSelectors は**実装済み**。しかし P5 の本質は「DuckDB hook の
+import を presentation から除去する」ことであり、フィルタの統一だけでは不十分。
+
+DuckDB import の除去には以下のいずれかが必要:
+1. wrapper hook（不採用 — 既存パターンに存在せず一貫性を損なう）
+2. Context Provider パターン（DuckDB データを WidgetContext 経由で全供給）
+3. R-10（DualPeriodSlider 廃止）と組み合わせた大規模リファクタ
+
+**結論:** P5 は P4 同様に「現時点で正しく動いている構造」。filterStore によるフィルタ統一は
+別経路で価値を発揮する（新規チャート追加時）。既存 27 件の allowlist 削減は
+architecture レベルの設計変更（R-10 等）と同時に実施すべき。
 
 ---
 
