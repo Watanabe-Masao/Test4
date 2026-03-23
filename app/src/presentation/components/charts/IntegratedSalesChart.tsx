@@ -11,7 +11,7 @@
  * - 部門別時間帯パターンは孫として時間帯の下に包含
  * - 右軸モードに応じてサブ分析パネルを動的配置
  */
-import { useState, useCallback, useMemo, memo } from 'react'
+import { useState, useCallback, useMemo, useRef, useEffect, memo } from 'react'
 import styled from 'styled-components'
 import type { AsyncDuckDBConnection, AsyncDuckDB } from '@duckdb/duckdb-wasm'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
@@ -75,10 +75,17 @@ interface Props {
   readonly prevYearWeatherDaily?: readonly DailyWeatherSummary[]
 }
 
+/** ヘッダ固定分の offset（px） */
+const SCROLL_OFFSET = 16
+
 export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Props) {
   const [selectedRange, setSelectedRange] = useState<SelectedRange | null>(null)
   const [rightAxisMode, setRightAxisMode] = useState<RightAxisMode>('quantity')
   const [dailyView, setDailyView] = useState<ViewType>('standard')
+
+  // ── drill scroll 制御 ──
+  const parentRef = useRef<HTMLDivElement>(null)
+  const drillPanelRef = useRef<HTMLDivElement>(null)
 
   const canDrill = props.duckConn != null && props.duckDataVersion > 0
 
@@ -89,7 +96,19 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
     [canDrill],
   )
 
-  const handleBack = useCallback(() => setSelectedRange(null), [])
+  const handleBack = useCallback(() => {
+    setSelectedRange(null)
+    // 戻る時: 親チャート位置へ復帰
+    requestAnimationFrame(() => {
+      if (parentRef.current) {
+        const rect = parentRef.current.getBoundingClientRect()
+        window.scrollTo({
+          top: window.scrollY + rect.top - SCROLL_OFFSET,
+          behavior: 'smooth',
+        })
+      }
+    })
+  }, [])
 
   // DateRange 構築は application 層の hook に委譲（presentation 層でのデータ調停を防止）
   const { dateRange: rangeDateRange, prevYearScope: rangePrevYearScope } = useDrillDateRange(
@@ -100,6 +119,23 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
   )
 
   const isDrilled = selectedRange != null && rangeDateRange != null
+
+  // drill 開始時: 子パネル見出しへ自動スクロール
+  const prevIsDrilledRef = useRef(false)
+  useEffect(() => {
+    if (isDrilled && !prevIsDrilledRef.current) {
+      requestAnimationFrame(() => {
+        if (drillPanelRef.current) {
+          const rect = drillPanelRef.current.getBoundingClientRect()
+          window.scrollTo({
+            top: window.scrollY + rect.top - SCROLL_OFFSET,
+            behavior: 'smooth',
+          })
+        }
+      })
+    }
+    prevIsDrilledRef.current = isDrilled
+  }, [isDrilled])
 
   // ── 分析文脈の構築 ──
 
@@ -200,7 +236,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
   }, [selectedRange, rangeLabel, props.prevYearScope, props.selectedStoreIds])
 
   return (
-    <Wrapper>
+    <Wrapper ref={parentRef}>
       {/* ── 日別チャート（常時表示） ── */}
       <DailySalesChart
         daily={props.daily}
@@ -224,6 +260,8 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
       {/* ── 時間帯チャート（ドリル時 — 子として包含表示） ── */}
       {isDrilled && drillContext && (
         <ContainedAnalysisPanel
+          ref={drillPanelRef}
+          emphasized
           title={`時間帯別 前年比較`}
           subtitle={rangeLabel}
           inheritedContext={timeSlotContextTags}

@@ -32,3 +32,9 @@ export {
   type HourDowMatrixOutput,
   type HourDowMatrixRow,
 } from './HourDowMatrixHandler'
+
+export {
+  categoryTimeRecordsHandler,
+  type CategoryTimeRecordsInput,
+  type CategoryTimeRecordsOutput,
+} from './CategoryTimeRecordsHandler'

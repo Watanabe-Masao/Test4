@@ -10,7 +10,7 @@
  * - ドリルダウン元の明示（drillLabel）
  * - slideDown アニメーション
  */
-import type { ReactNode } from 'react'
+import { forwardRef, type ReactNode } from 'react'
 import type { ContainedRole } from './ContainedAnalysisPanel.styles'
 import {
   PanelShell,
@@ -43,46 +43,54 @@ export interface ContainedAnalysisPanelProps {
   readonly children: ReactNode
   /** 包含階層での役割（child=子、grandchild=孫） */
   readonly role?: ContainedRole
+  /** 到達時の一時的なハイライト */
+  readonly emphasized?: boolean
 }
 
 // ── Component ──
 
-export function ContainedAnalysisPanel({
-  title,
-  subtitle,
-  inheritedContext,
-  drillLabel,
-  toolbar,
-  children,
-  role = 'child',
-}: ContainedAnalysisPanelProps) {
-  return (
-    <PanelShell $role={role}>
-      {/* コンテキストタグ（継承条件表示） */}
-      {inheritedContext != null && inheritedContext.length > 0 && (
-        <ContextTagBar>
-          {inheritedContext.map((tag, i) => (
-            <ContextTagChip key={i}>
-              <TagLabel>{tag.label}:</TagLabel> {tag.value}
-            </ContextTagChip>
-          ))}
-        </ContextTagBar>
-      )}
+export const ContainedAnalysisPanel = forwardRef<HTMLDivElement, ContainedAnalysisPanelProps>(
+  function ContainedAnalysisPanel(
+    {
+      title,
+      subtitle,
+      inheritedContext,
+      drillLabel,
+      toolbar,
+      children,
+      role = 'child',
+      emphasized,
+    },
+    ref,
+  ) {
+    return (
+      <PanelShell $role={role} $emphasized={emphasized} ref={ref}>
+        {/* コンテキストタグ（継承条件表示） */}
+        {inheritedContext != null && inheritedContext.length > 0 && (
+          <ContextTagBar>
+            {inheritedContext.map((tag, i) => (
+              <ContextTagChip key={i}>
+                <TagLabel>{tag.label}:</TagLabel> {tag.value}
+              </ContextTagChip>
+            ))}
+          </ContextTagBar>
+        )}
 
-      {/* ヘッダ */}
-      <PanelHeader>
-        <div>
-          <TitleRow>
-            <PanelTitle>{title}</PanelTitle>
-            {drillLabel && <DrillLabel>{drillLabel}</DrillLabel>}
-          </TitleRow>
-          {subtitle && <PanelSubtitle>{subtitle}</PanelSubtitle>}
-        </div>
-        {toolbar}
-      </PanelHeader>
+        {/* ヘッダ */}
+        <PanelHeader>
+          <div>
+            <TitleRow>
+              <PanelTitle>{title}</PanelTitle>
+              {drillLabel && <DrillLabel>{drillLabel}</DrillLabel>}
+            </TitleRow>
+            {subtitle && <PanelSubtitle>{subtitle}</PanelSubtitle>}
+          </div>
+          {toolbar}
+        </PanelHeader>
 
-      {/* コンテンツ */}
-      {children}
-    </PanelShell>
-  )
-}
+        {/* コンテンツ */}
+        {children}
+      </PanelShell>
+    )
+  },
+)
