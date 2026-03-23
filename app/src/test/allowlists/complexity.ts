@@ -102,11 +102,11 @@ export const presentationMemoLimits: readonly QuantitativeAllowlistEntry[] = [
 /** presentation/ の useState 上限の個別例外（G5 横展開） */
 export const presentationStateLimits: readonly QuantitativeAllowlistEntry[] = [
   {
-    path: 'presentation/pages/Admin/StorageManagementTab.tsx',
-    reason: '管理画面のストレージ管理。多数の操作状態',
+    path: 'presentation/pages/Admin/useMonthDataManagement.ts',
+    reason: '月別データ管理の状態（StorageManagementTab から分離）',
     category: 'structural',
-    removalCondition: 'useStorageManagement hook に分離時',
-    limit: 12,
+    removalCondition: 'useState 削減時',
+    limit: 9,
   },
   {
     path: 'presentation/pages/Dashboard/widgets/MonthlyCalendar.tsx',
