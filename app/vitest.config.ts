@@ -13,6 +13,7 @@ const wasmAliases: Record<string, string> = {
   'gross-profit-wasm': resolve(__dirname, 'src/test/__mocks__/grossProfitWasmMock.ts'),
   'budget-analysis-wasm': resolve(__dirname, 'src/test/__mocks__/budgetAnalysisWasmMock.ts'),
   'forecast-wasm': resolve(__dirname, 'src/test/__mocks__/forecastWasmMock.ts'),
+  'time-slot-wasm': resolve(__dirname, 'src/test/__mocks__/timeSlotWasmMock.ts'),
 }
 
 export default defineConfig({
