@@ -46,7 +46,7 @@
 | presentationToInfrastructure | **0** | 0 | — | **完了** |
 | dowCalcOverride | **0** | 0 | — | **完了** |
 
-**凍結済み（削減成功例）:** presentationToInfrastructure, dowCalcOverride, infrastructureToApplication, presentationToUsecases（1件残、構造的例外のみ）
+**凍結済み（削減成功例）:** presentationToInfrastructure, dowCalcOverride, infrastructureToApplication, presentationToUsecases（1件残）, largeComponentTier2（全件解消）
 
 ---
 
@@ -213,13 +213,13 @@
 
 | 指標 | 起点（Sprint 1 完了時） | 現在値 | 次 Sprint 目標 | 中期目標 |
 |---|---|---|---|---|
-| allowlist 総エントリ | 99 | **82**（-17） | 78 以下 | 72 以下 |
+| allowlist 総エントリ | 99 | **80**（-19） | 76 以下 | 72 以下 |
 | migration カテゴリ | 33 | **29**（-4） | 26 以下 | 20 以下 |
-| legacy カテゴリ | 11 | **4**（-7） | 3 以下 | 3 以下 |
+| legacy カテゴリ | 11 | **2**（-9） | 1 以下 | 0 |
 | bridge カテゴリ | 4 | **1**（-3） | 0 | 0 |
 | 凍結済み allowlist | 2 | **4**（+2） | 5 以上 | 5 以上 |
 | DuckDB 直結 | 36 | **27**（-9） | 25 以下 | 20 以下 |
-| Tier2 大型 component | 8 | **2**（-6） | 2 以下 | 2 以下 |
+| Tier2 大型 component | 8 | **0**（-8） | 0 | 0 |
 | app→infra 上限 | 14 | **11**（-3） | 10 以下 | 10 以下 |
 
 ### 削減履歴
@@ -243,6 +243,8 @@
 | 2026-03-23 | useWeatherHourlyQuery.ts | applicationToInfrastructure | QueryHandler パターンに移行 |
 | 2026-03-23 | BudgetVsActualChart.tsx | largeComponentTier2 | builders 分離（623→262行） |
 | 2026-03-23 | YoYVarianceChart.tsx | largeComponentTier2 | builders 分離（618→307行） |
+| 2026-03-23 | CategoryFactorBreakdown.tsx | largeComponentTier2 | ロジック分離（719→469行） |
+| 2026-03-23 | ForecastChartsCustomer.tsx | largeComponentTier2 | builders 分離（755→213行） |
 
 ## この一覧の使い方
 
