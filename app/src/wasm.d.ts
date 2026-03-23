@@ -139,3 +139,10 @@ declare module 'forecast-wasm' {
     totalSales: Float64Array,
   ): Float64Array
 }
+
+// ─── time-slot-wasm ─────────────────────────────────────
+declare module 'time-slot-wasm' {
+  export default function init(): Promise<void>
+  export function find_core_time(hours: Float64Array, amounts: Float64Array): Float64Array
+  export function find_turnaround_hour(hours: Float64Array, amounts: Float64Array): number
+}
