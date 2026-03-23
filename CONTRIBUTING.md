@@ -25,7 +25,7 @@ npm install
 npm run dev
 ```
 
-開発サーバーは `http://localhost:5173` で起動します（Vite デフォルト）。
+開発サーバーは `http://localhost:5173/Test4/` で起動します。
 
 ### その他のコマンド
 

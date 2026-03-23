@@ -361,7 +361,7 @@ describe('@guard tag consistency', () => {
 
   it('@guard タグは GUARD_TAG_REGISTRY に登録済みの ID のみ使用する', () => {
     // レジストリから有効な ID セットを構築
-    const registryContent = readFile('app/src/test/guardTestHelpers.ts')
+    const registryContent = readFile('app/src/test/guardTagRegistry.ts')
     const registryIds = new Set<string>()
     const idPattern = /^\s+([A-G]\d+):/gm
     let match
@@ -402,7 +402,7 @@ describe('@guard tag consistency', () => {
   })
 
   it('GUARD_TAG_REGISTRY の全タグがコードベースで少なくとも1回使用されている', () => {
-    const registryContent = readFile('app/src/test/guardTestHelpers.ts')
+    const registryContent = readFile('app/src/test/guardTagRegistry.ts')
     const registryIds = new Set<string>()
     const idPattern = /^\s+([A-G]\d+):/gm
     let match
