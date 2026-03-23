@@ -45,12 +45,7 @@ export const presentationDuckdbHook: readonly AllowlistEntry[] = [
   // DeptTrendChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + deptKpiTrendHandler
   // PiCvBubbleChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + categoryBenchmarkHandler
   // StoreHourlyChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + storeAggregationHandler
-  {
-    path: 'components/charts/useDuckDBTimeSlotData.ts',
-    reason: 'DuckDB 探索',
-    category: 'migration',
-    removalCondition: 'QueryHandler 移行',
-  },
+  // useDuckDBTimeSlotData.ts — application/hooks/useTimeSlotData.ts へ移設完了（2026-03-23）: バレル re-export 化
   // ConditionMatrixTable.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + conditionMatrixHandler
   // ConditionSummaryBudgetDrill.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + storeDailyMarkupRateHandler
 ] as const
