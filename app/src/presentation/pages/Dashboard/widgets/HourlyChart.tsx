@@ -20,7 +20,11 @@ import {
 import { DetailSectionTitle } from '../DashboardPage.styles'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
-import { computeSelectedData, buildHourCategoryDetail, buildCumulativeData } from './HourlyChart.logic'
+import {
+  computeSelectedData,
+  buildHourCategoryDetail,
+  buildCumulativeData,
+} from './HourlyChart.logic'
 import {
   HourlySection,
   HourlyChartContainer,
@@ -166,10 +170,7 @@ export const HourlyChart = memo(function HourlyChart({
 
   const totalAmt = paddedData.reduce((s, d) => s + d.amount, 0)
 
-  const cumData = useMemo(
-    () => buildCumulativeData(paddedData, totalAmt),
-    [paddedData, totalAmt],
-  )
+  const cumData = useMemo(() => buildCumulativeData(paddedData, totalAmt), [paddedData, totalAmt])
 
   const n = paddedData.length
 

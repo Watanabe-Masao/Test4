@@ -454,7 +454,13 @@ export function buildItemDetailData(
     for (const [day, rec] of result.daily) {
       for (const item of rec.costInclusion.items) {
         if (item.itemCode === selectedItem)
-          details.push({ day, storeId: result.storeId, storeName: stName, quantity: item.quantity, cost: item.cost })
+          details.push({
+            day,
+            storeId: result.storeId,
+            storeName: stName,
+            quantity: item.quantity,
+            cost: item.cost,
+          })
       }
     }
   }
@@ -462,9 +468,7 @@ export function buildItemDetailData(
 }
 
 /** 日別原価算入データを構築する */
-export function buildDailyCostInclusionData(
-  days: readonly DayEntry[],
-): DailyCostInclusionEntry[] {
+export function buildDailyCostInclusionData(days: readonly DayEntry[]): DailyCostInclusionEntry[] {
   return days
     .filter(([, rec]) => rec.costInclusion.cost > 0 || rec.costInclusion.items.length > 0)
     .map(([day, rec]) => ({

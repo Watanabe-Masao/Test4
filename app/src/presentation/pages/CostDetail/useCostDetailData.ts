@@ -14,11 +14,7 @@ import {
   buildItemDetailData,
   buildDailyCostInclusionData,
 } from './useCostDetailData.helpers'
-import type {
-  ActiveTab,
-  TransferType,
-  CostInclusionViewMode,
-} from './useCostDetailData.types'
+import type { ActiveTab, TransferType, CostInclusionViewMode } from './useCostDetailData.types'
 
 // Re-export types for external consumers
 export type {
