@@ -423,8 +423,8 @@ describe('@guard tag consistency', () => {
           if (entry.name === 'node_modules' || entry.name === 'dist') continue
           scanDir(fullPath)
         } else if (/\.(ts|tsx)$/.test(entry.name)) {
-          // guardTestHelpers.ts 自体は除外（レジストリ定義元）
-          if (entry.name === 'guardTestHelpers.ts') continue
+          // guardTagRegistry.ts を除外（レジストリ定義元）
+          if (entry.name === 'guardTagRegistry.ts') continue
           const content = fs.readFileSync(fullPath, 'utf-8')
           const guardMatches = content.matchAll(/@guard\s+([A-G]\d+)/g)
           for (const m of guardMatches) {
@@ -442,13 +442,10 @@ describe('@guard tag consistency', () => {
       'C4', // 描画は純粋 — レビューで検証
       'C5', // 最小セレクタ — レビューで検証
       'E1', // 境界で検証 — Branded Type、レビューで検証
-      'E2', // 依存配列は省略しない — ESLint exhaustive-deps で検証
-      'E4', // 欠損判定は == null — 将来ガード化予定
       'F3', // 全パターンに例外なし — レビューで検証
       'F6', // チャート間データは文脈継承 — レビューで検証
       'F8', // 独立互換で正本を汚さない — レビューで検証
       'G2', // エラーは伝播 — レビューで検証
-      'G3', // コンパイラ警告を黙らせない — noUnusedLocals で検証
       'A5', // DI はコンポジションルート — レビューで検証
       'C7', // 同義 API/action の併存禁止 — レビューで検証
       'G7', // キャッシュは本体より複雑にしない — レビューで検証

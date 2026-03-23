@@ -20,6 +20,7 @@
 | R-6 | ~~FileImportService.ts（632行）~~ | **解決済み** | importValidation.ts 分離 + ImportOrchestrator 抽出 + multiMonthImport/singleMonthImport 分離により 632→194行に縮小。300行上限を大幅に下回り、3関心事（delegation/extraction/filter）は全てインポート業務に閉じているため追加分割は不要 |
 | R-7 | ~~既存コードのサブバレル移行が未完了~~ | **解決済み** | 一括移行完了（2026-03-20）: domain/models（321ファイル）, presentation/components/common（78ファイル）, application/hooks（34ファイル）+ 手動修正19ファイル。3つのガードテスト追加でメインバレル直接 import を禁止（maxViolations: 0） |
 | R-9 | ロールシステムのAI単体セッション最適化 | Medium | 9ロール×2ファイル=18ファイルの読み込みコストが高い。AI単体セッションではロールの切り替えが十分に機能していない。軽量ロール設計（ロール統合 or CLAUDE.md への集約）を検討する |
+| R-10 | チャート個別スライダーの廃止検討 | **High** | 14チャートが DualPeriodSlider で個別期間を管理→ `year - 1` + offset の日付計算を各自で独自実装。**バグの温床:** 閏年・月跨ぎ・同曜日/同日 alignment の不整合リスク。**操作感の問題:** ヘッダの期間選択とチャートの期間が乖離する。**推奨:** 期間はヘッダ（コンテキスト）で一元決定し、チャートは `ctx.currentDateRange` / `ctx.prevYearDateRange` を受け取るだけにする。DualPeriodSlider を廃止し、日付計算を ComparisonScope に閉じる。対象: BudgetVsActualChart, YoYVarianceChart, YoYWaterfallChart 他 14 ファイル。scope 変更を伴うため architecture ロールの設計判断が必要 |
 | R-8 | ~~null/0 棲み分け（カテゴリ・時間帯データ）~~ | **解決済み** | Phase 1（2026-03-16）: クエリ時フィルタリング完了。Phase 2（2026-03-20）: UI 改善完了。HierarchyItem に handledDayCount/totalDayCount を追加し、CategoryExplorerTable に「取扱日率」列を追加（100%=全日取扱: 通常色、部分取扱: caution 色、未取扱: negative 色）|
 
 ## 3. 解決済みの課題（アーカイブ）

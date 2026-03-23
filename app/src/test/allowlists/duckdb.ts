@@ -66,12 +66,6 @@ export const presentationDuckdbHook: readonly AllowlistEntry[] = [
     removalCondition: 'QueryHandler 移行',
   },
   {
-    path: 'pages/Dashboard/widgets/MonthlyCalendar.tsx',
-    reason: 'DuckDB 探索',
-    category: 'migration',
-    removalCondition: 'QueryHandler 移行',
-  },
-  {
     path: 'pages/Dashboard/widgets/YoYWaterfallChart.tsx',
     reason: 'DuckDB 探索',
     category: 'migration',
@@ -90,19 +84,7 @@ export const presentationDuckdbHook: readonly AllowlistEntry[] = [
     removalCondition: 'QueryHandler 移行',
   },
   {
-    path: 'components/charts/DiscountAnalysisPanel.tsx',
-    reason: 'DuckDB 探索',
-    category: 'migration',
-    removalCondition: 'QueryHandler 移行',
-  },
-  {
     path: 'components/charts/WeatherAnalysisPanel.tsx',
-    reason: 'DuckDB 探索',
-    category: 'migration',
-    removalCondition: 'QueryHandler 移行',
-  },
-  {
-    path: 'components/charts/CategoryHeatmapPanel.tsx',
     reason: 'DuckDB 探索',
     category: 'migration',
     removalCondition: 'QueryHandler 移行',

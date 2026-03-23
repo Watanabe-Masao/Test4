@@ -20,7 +20,7 @@ import {
 import { DetailSectionTitle } from '../DashboardPage.styles'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
-import { COLORS, type HourCategoryItem } from './drilldownUtils'
+import { computeSelectedData, buildHourCategoryDetail, buildCumulativeData } from './HourlyChart.logic'
 import {
   HourlySection,
   HourlyChartContainer,
@@ -154,64 +154,22 @@ export const HourlyChart = memo(function HourlyChart({
   }, [])
 
   // Aggregate selected hours data
-  const selectedData = useMemo(() => {
-    if (selectedHours.size === 0) return null
-    let amount = 0
-    let quantity = 0
-    for (const d of paddedData) {
-      if (selectedHours.has(d.hour)) {
-        amount += d.amount
-        quantity += d.quantity
-      }
-    }
-    return { amount, quantity }
-  }, [selectedHours, paddedData])
+  const selectedData = useMemo(
+    () => computeSelectedData(selectedHours, paddedData),
+    [selectedHours, paddedData],
+  )
 
-  // Build category detail for selected hours (aggregated across all selected)
-  const hourDetail = useMemo((): HourCategoryItem[] => {
-    if (selectedHours.size === 0) return []
-    const sourceRecs = hourlyMode === 'prev' ? prevDayRecords : dayRecords
-    const map = new Map<
-      string,
-      { dept: string; line: string; klass: string; amount: number; quantity: number }
-    >()
-    for (const rec of sourceRecs) {
-      for (const slot of rec.timeSlots) {
-        if (!selectedHours.has(slot.hour)) continue
-        if (slot.amount === 0 && slot.quantity === 0) continue
-        const key = `${rec.department.code}|${rec.line.code}|${rec.klass.code}`
-        const ex = map.get(key) ?? {
-          dept: rec.department.name || rec.department.code,
-          line: rec.line.name || rec.line.code,
-          klass: rec.klass.name || rec.klass.code,
-          amount: 0,
-          quantity: 0,
-        }
-        ex.amount += slot.amount
-        ex.quantity += slot.quantity
-        map.set(key, ex)
-      }
-    }
-    const items = [...map.values()].sort((a, b) => b.amount - a.amount)
-    const totalAmt = items.reduce((s, it) => s + it.amount, 0)
-    return items.map((it, i) => ({
-      ...it,
-      pct: totalAmt > 0 ? (it.amount / totalAmt) * 100 : 0,
-      color: COLORS[i % COLORS.length],
-    }))
-  }, [dayRecords, prevDayRecords, selectedHours, hourlyMode])
+  const hourDetail = useMemo(
+    () => buildHourCategoryDetail(selectedHours, dayRecords, prevDayRecords, hourlyMode),
+    [dayRecords, prevDayRecords, selectedHours, hourlyMode],
+  )
 
   const totalAmt = paddedData.reduce((s, d) => s + d.amount, 0)
 
-  const cumData = useMemo(() => {
-    const result: { hour: number; cumPct: number }[] = []
-    paddedData.reduce((acc, d) => {
-      const running = acc + d.amount
-      result.push({ hour: d.hour, cumPct: totalAmt > 0 ? (running / totalAmt) * 100 : 0 })
-      return running
-    }, 0)
-    return result
-  }, [paddedData, totalAmt])
+  const cumData = useMemo(
+    () => buildCumulativeData(paddedData, totalAmt),
+    [paddedData, totalAmt],
+  )
 
   const n = paddedData.length
 

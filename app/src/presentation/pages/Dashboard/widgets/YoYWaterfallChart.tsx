@@ -13,8 +13,13 @@ import {
   calculateAveragePricePerItem,
 } from '@/domain/calculations/utils'
 import { useDuckDBCategoryTimeRecords } from '@/application/hooks/duckdb'
-import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import type { DateRange } from '@/domain/models/calendar'
+import {
+  calculatePrevCtsDateRange,
+  aggregatePeriodCurSales,
+  aggregatePeriodPrevSales,
+  calculatePISummary,
+} from './YoYWaterfallChart.logic'
 import type { CategoryTimeSalesRecord } from '@/domain/models/record'
 import { CategoryFactorBreakdown } from './CategoryFactorBreakdown'
 import { decomposePriceMix } from './categoryFactorUtils'
@@ -76,7 +81,7 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
     ctx.year,
     dayStart,
     dayEnd,
-    ctx.comparisonFrame.previous.from.year,
+    ctx.prevYearScope?.dateRange.from.year,
   )
 
   // ── 共通パイプライン: CTS から当年/比較期間のデータを統一取得 ──
@@ -91,43 +96,31 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
   )
 
   // 比較期間 CTS 日付範囲（前年比: dowOffset 調整済み / 前週比: -7日）
-  const prevCtsDateRange: DateRange | undefined = useMemo(() => {
-    if (activeCompMode === 'wow') {
-      if (!canWoW) return undefined
-      return {
-        from: { year: ctx.year, month: ctx.month, day: wowRange.prevStart },
-        to: { year: ctx.year, month: ctx.month, day: wowRange.prevEnd },
-      }
-    }
-    // 前年比: year-1 + dowOffset で前年同曜日の日付を算出（Date演算で閏年・月跨ぎ対応）。
-    // prevYear.daily と同じ同曜日基準の前年日付を使うことで、
-    // daily 合計と CTS 部門内訳のデータソースが整合する。
-    const offset = ctx.comparisonFrame.dowOffset
-    const fromDate = new Date(ctx.year - 1, ctx.month - 1, dayStart + offset)
-    const toDate = new Date(ctx.year - 1, ctx.month - 1, dayEnd + offset)
-    return {
-      from: {
-        year: fromDate.getFullYear(),
-        month: fromDate.getMonth() + 1,
-        day: fromDate.getDate(),
-      },
-      to: {
-        year: toDate.getFullYear(),
-        month: toDate.getMonth() + 1,
-        day: toDate.getDate(),
-      },
-    }
-  }, [
-    activeCompMode,
-    canWoW,
-    ctx.comparisonFrame.dowOffset,
-    dayStart,
-    dayEnd,
-    wowRange.prevStart,
-    wowRange.prevEnd,
-    ctx.year,
-    ctx.month,
-  ])
+  const prevCtsDateRange: DateRange | undefined = useMemo(
+    () =>
+      calculatePrevCtsDateRange(
+        activeCompMode,
+        canWoW,
+        ctx.year,
+        ctx.month,
+        dayStart,
+        dayEnd,
+        ctx.comparisonFrame.dowOffset,
+        wowRange.prevStart,
+        wowRange.prevEnd,
+      ),
+    [
+      activeCompMode,
+      canWoW,
+      ctx.year,
+      ctx.month,
+      dayStart,
+      dayEnd,
+      ctx.comparisonFrame.dowOffset,
+      wowRange.prevStart,
+      wowRange.prevEnd,
+    ],
+  )
 
   const prevIsPrevYear = activeCompMode !== 'wow'
 
@@ -160,62 +153,38 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
       : (prevCtsResult.data ?? EMPTY_RECORDS)
 
   // ── CTS から売上合計を導出（部門内訳と同一データソース） ──
-  const periodCurSales = useMemo(() => {
-    let sales = 0
-    let customers = 0
-    // CTS から売上合計を取得
-    for (const rec of periodCTS) {
-      sales += rec.totalAmount
-    }
-    // 客数は CTS に含まれないため daily から取得
-    for (const [day, rec] of r.daily) {
-      if (day >= dayStart && day <= dayEnd) {
-        customers += rec.customers ?? 0
-      }
-    }
-    return { sales, customers }
-  }, [periodCTS, r.daily, dayStart, dayEnd])
+  const periodCurSales = useMemo(
+    () => aggregatePeriodCurSales(periodCTS, r.daily, dayStart, dayEnd),
+    [periodCTS, r.daily, dayStart, dayEnd],
+  )
 
-  const wowPrevStart = wowRange.prevStart
-  const wowPrevEnd = wowRange.prevEnd
-  const prevDaily = prevYear.daily
-  const ctxYear = ctx.year
-  const ctxMonth = ctx.month
-  const periodPrevSales = useMemo(() => {
-    let sales = 0
-    let customers = 0
-    // CTS から前年売上合計を取得（部門内訳と同一ソース）
-    for (const rec of periodPrevCTS) {
-      sales += rec.totalAmount
-    }
-    // 客数は daily から取得
-    if (activeCompMode === 'wow') {
-      for (const [day, rec] of r.daily) {
-        if (day >= wowPrevStart && day <= wowPrevEnd) {
-          customers += rec.customers ?? 0
-        }
-      }
-    } else {
-      for (let d = dayStart; d <= dayEnd; d++) {
-        const entry = prevDaily.get(toDateKeyFromParts(ctxYear, ctxMonth, d))
-        if (entry) {
-          customers += entry.customers
-        }
-      }
-    }
-    return { sales, customers }
-  }, [
-    periodPrevCTS,
-    activeCompMode,
-    r.daily,
-    prevDaily,
-    dayStart,
-    dayEnd,
-    wowPrevStart,
-    wowPrevEnd,
-    ctxYear,
-    ctxMonth,
-  ])
+  const periodPrevSales = useMemo(
+    () =>
+      aggregatePeriodPrevSales(
+        periodPrevCTS,
+        activeCompMode,
+        r.daily,
+        prevYear.daily,
+        dayStart,
+        dayEnd,
+        wowRange.prevStart,
+        wowRange.prevEnd,
+        ctx.year,
+        ctx.month,
+      ),
+    [
+      periodPrevCTS,
+      activeCompMode,
+      r.daily,
+      prevYear.daily,
+      dayStart,
+      dayEnd,
+      wowRange.prevStart,
+      wowRange.prevEnd,
+      ctx.year,
+      ctx.month,
+    ],
+  )
 
   // Aggregate total quantity from filtered CTS records
   const curTotalQty = useMemo(
@@ -310,14 +279,22 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
   )
 
   // PI値・点単価（3要素以上の分解時に表示）
-  const piSummary = useMemo(() => {
-    if (activeLevel < 3 || !hasQuantity || prevCust <= 0 || curCust <= 0) return null
-    const prevPI = calculateItemsPerCustomer(prevTotalQty, prevCust)
-    const curPI = calculateItemsPerCustomer(curTotalQty, curCust)
-    const prevPPI = calculateAveragePricePerItem(prevSales, prevTotalQty)
-    const curPPI = calculateAveragePricePerItem(curSales, curTotalQty)
-    return { prevPI, curPI, prevPPI, curPPI }
-  }, [activeLevel, hasQuantity, prevCust, curCust, prevTotalQty, curTotalQty, prevSales, curSales])
+  const piSummary = useMemo(
+    () =>
+      calculatePISummary(
+        activeLevel,
+        hasQuantity,
+        prevCust,
+        curCust,
+        prevTotalQty,
+        curTotalQty,
+        prevSales,
+        curSales,
+        calculateItemsPerCustomer,
+        calculateAveragePricePerItem,
+      ),
+    [activeLevel, hasQuantity, prevCust, curCust, prevTotalQty, curTotalQty, prevSales, curSales],
+  )
 
   if (!hasComparison || prevSales <= 0) return null
 

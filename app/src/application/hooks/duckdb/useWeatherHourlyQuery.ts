@@ -8,16 +8,18 @@
  *
  * UIは「日付と店舗を指定したら天気データが返る」だけを知る。
  * 取得元の切替ロジックはこのフック内に閉じる。
+ *
+ * QueryHandler パターン経由で infrastructure にアクセスする。
  */
 import { useMemo, useState, useEffect, useRef } from 'react'
 import type { AsyncDuckDBConnection, AsyncDuckDB } from '@duckdb/duckdb-wasm'
 import type { HourlyWeatherRecord, StoreLocation } from '@/domain/models/record'
 import {
-  queryWeatherHourly,
-  queryWeatherHourlyAvg,
+  weatherHourlyHandler,
+  weatherHourlyAvgHandler,
+  persistWeatherHourly,
   type HourlyWeatherAvgRow,
-} from '@/infrastructure/duckdb/queries/weatherQueries'
-import { insertWeatherHourly } from '@/infrastructure/duckdb/dataConversions'
+} from '@/application/queries/weather'
 import { useAsyncQuery, toDateKeys, type AsyncQueryResult } from './useAsyncQuery'
 import { type DateRange, splitDateRangeByMonth } from '@/domain/models/calendar'
 import { loadEtrnHourlyForStore } from '@/application/usecases/weather/WeatherLoadService'
@@ -48,7 +50,10 @@ export function useDuckDBWeatherHourly(
 ): AsyncQueryResult<readonly HourlyWeatherRecord[]> {
   const queryFn = useMemo(() => {
     if (!dateKey || !storeId) return null
-    return (c: AsyncDuckDBConnection) => queryWeatherHourly(c, storeId, dateKey, dateKey)
+    return (c: AsyncDuckDBConnection) =>
+      weatherHourlyHandler
+        .execute(c, { storeId, dateFrom: dateKey, dateTo: dateKey })
+        .then((r) => r.records)
   }, [storeId, dateKey])
 
   const duckResult = useAsyncQuery(conn, dataVersion, queryFn)
@@ -85,7 +90,7 @@ export function useDuckDBWeatherHourly(
         // DuckDB に永続化（次回以降 ETRN API 不要 + WeatherHourlyAvg が集計可能に）
         if (conn && db) {
           try {
-            await insertWeatherHourly(conn, db, result.hourly, storeId)
+            await persistWeatherHourly(conn, db, result.hourly, storeId)
           } catch {
             // 永続化失敗は無視（キャッシュとして動作するだけ）
           }
@@ -127,7 +132,8 @@ export function useDuckDBWeatherHourlyAvg(
   const queryFn = useMemo(() => {
     if (!dateRange || !storeId) return null
     const { dateFrom, dateTo } = toDateKeys(dateRange)
-    return (c: AsyncDuckDBConnection) => queryWeatherHourlyAvg(c, storeId, dateFrom, dateTo)
+    return (c: AsyncDuckDBConnection) =>
+      weatherHourlyAvgHandler.execute(c, { storeId, dateFrom, dateTo }).then((r) => r.records)
   }, [storeId, dateRange])
 
   const duckResult = useAsyncQuery(conn, dataVersion, queryFn)
@@ -166,7 +172,7 @@ export function useDuckDBWeatherHourlyAvg(
 
         // DuckDB に永続化
         try {
-          await insertWeatherHourly(conn, db, allHourly, storeId)
+          await persistWeatherHourly(conn, db, allHourly, storeId)
           // 永続化成功→再クエリをトリガー
           if (!cancelled) setRetryVersion((v) => v + 1)
         } catch {
@@ -186,7 +192,8 @@ export function useDuckDBWeatherHourlyAvg(
   const retryQueryFn = useMemo(() => {
     if (retryVersion === 0 || !dateRange || !storeId) return null
     const { dateFrom, dateTo } = toDateKeys(dateRange)
-    return (c: AsyncDuckDBConnection) => queryWeatherHourlyAvg(c, storeId, dateFrom, dateTo)
+    return (c: AsyncDuckDBConnection) =>
+      weatherHourlyAvgHandler.execute(c, { storeId, dateFrom, dateTo }).then((r) => r.records)
   }, [storeId, dateRange, retryVersion])
 
   const retryResult = useAsyncQuery(conn, dataVersion, retryQueryFn)

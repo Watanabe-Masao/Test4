@@ -7,7 +7,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 
 // シングルトンではなくクラスを直接テストするため、モジュール経由でインポート
 // queryProfiler はシングルトンなので、テスト間の干渉を避けるため clear() を使う
-import { queryProfiler } from '../queryProfiler'
+import { queryProfiler } from '@/application/services/QueryProfiler'
 
 describe('QueryProfiler', () => {
   beforeEach(() => {

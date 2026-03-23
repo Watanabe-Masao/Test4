@@ -1,6 +1,10 @@
-// Domain layer
+// Domain layer — 全サブモジュールを re-export（F1: バレルで後方互換）
 export * from './models'
 export * from './calculations'
 export * from './constants'
 export * from './formatting'
+export * from './patterns'
+export * from './ports'
+export * from './repositories'
 export * from './scopeResolution'
+export * from './utilities'

@@ -13,6 +13,8 @@ import {
   useMemoLimits,
   useStateLimits,
   hookLineLimits,
+  presentationMemoLimits,
+  presentationStateLimits,
   largeComponentTier2,
   infraLargeFiles,
   domainLargeFiles,
@@ -75,6 +77,58 @@ describe('R11: hooks/ の useState 呼び出しが上限以下', () => {
       violations,
       `useState 過多のファイルが検出されました:\n${violations.join('\n')}`,
     ).toEqual([])
+  })
+})
+
+// ─── G5 横展開: presentation/ の useMemo / useState 上限 ─────
+
+describe('G5: presentation/ の useMemo 呼び出しが上限以下', () => {
+  const presDir = path.join(SRC_DIR, 'presentation')
+  const allowlist = buildQuantitativeAllowlist(presentationMemoLimits)
+
+  it('useMemo 呼び出し数が上限以下', () => {
+    const files = collectTsFiles(presDir)
+    const violations: string[] = []
+
+    for (const file of files) {
+      if (file.includes('.test.')) continue
+      const content = fs.readFileSync(file, 'utf-8')
+      const relPath = rel(file)
+      const count = (content.match(/\buseMemo\s*\(/g) || []).length
+      const limit = allowlist[relPath] ?? 7
+
+      if (count >= limit) {
+        violations.push(`${relPath}: useMemo ${count}回 (上限: ${limit})`)
+      }
+    }
+
+    expect(violations, `useMemo 過多:\n${violations.join('\n')}`).toEqual([])
+  })
+})
+
+describe('G5: presentation/ の useState 呼び出しが上限以下', () => {
+  const presDir = path.join(SRC_DIR, 'presentation')
+  const allowlist = buildQuantitativeAllowlist(presentationStateLimits)
+  // presentation はコンポーネント状態が多いため hooks（6）より緩い上限
+  const PRESENTATION_STATE_LIMIT = 8
+
+  it('useState 呼び出し数が上限以下', () => {
+    const files = collectTsFiles(presDir)
+    const violations: string[] = []
+
+    for (const file of files) {
+      if (file.includes('.test.')) continue
+      const content = fs.readFileSync(file, 'utf-8')
+      const relPath = rel(file)
+      const count = (content.match(/\buseState\b/g) || []).length
+      const limit = allowlist[relPath] ?? PRESENTATION_STATE_LIMIT
+
+      if (count >= limit) {
+        violations.push(`${relPath}: useState ${count}回 (上限: ${limit})`)
+      }
+    }
+
+    expect(violations, `useState 過多:\n${violations.join('\n')}`).toEqual([])
   })
 })
 

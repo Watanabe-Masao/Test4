@@ -6,18 +6,18 @@ import type { AllowlistEntry } from './types'
 /** DOW 計算オーバーライド許可（全件解消済み。凍結） */
 export const dowCalcOverride: readonly AllowlistEntry[] = [] as const
 
-/** コンテキスト hook 許可 */
+/** ctx 提供データの重複取得許可（useWeatherData 等を ctx 経由ではなく直接 import する例外） */
 export const ctxHook: readonly AllowlistEntry[] = [
   {
     path: 'presentation/hooks/useUnifiedWidgetContext.ts',
-    reason: 'ウィジェット統合コンテキスト',
+    reason: 'ctx 自体の構築元。useWeatherData を直接 import して ctx に供給する',
     category: 'structural',
     removalCondition: 'コンテキスト設計見直し時',
   },
   {
     path: 'presentation/pages/Dashboard/widgets/EtrnTestWidget.tsx',
-    reason: 'ETRN テストウィジェット',
-    category: 'legacy',
+    reason: 'ETRN テストウィジェット。ctx 非経由で直接データ取得（デバッグ用途で維持）',
+    category: 'structural',
     removalCondition: 'テストウィジェット廃止時',
   },
 ] as const

@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import { Button } from '@/presentation/components/common/layout'
@@ -10,9 +10,7 @@ import {
   safeDivide,
 } from '@/domain/calculations/utils'
 import { calculatePinIntervals } from '@/application/hooks/calculation'
-import { buildClipBundle } from '@/application/usecases/clipExport/buildClipBundle'
-import { downloadClipHtml } from '@/application/usecases/clipExport/downloadClipHtml'
-import { fetchCategoryTimeRecords } from '@/application/hooks/duckdb'
+import { useClipExport } from '@/application/hooks/useClipExport'
 import { categorizeWeatherCode } from '@/domain/calculations/weatherAggregation'
 import type { DailyWeatherSummary } from '@/domain/models/record'
 import type { WidgetContext } from './types'
@@ -79,8 +77,36 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
   const [rangeAEnd, setRangeAEnd] = useState<string>('')
   const [rangeBStart, setRangeBStart] = useState<string>('')
   const [rangeBEnd, setRangeBEnd] = useState<string>('')
-  const [isExporting, setIsExporting] = useState(false)
   const [hoveredDay, setHoveredDay] = useState<number | null>(null)
+
+  // ── クリップエクスポート（hook 経由 — A3: presentation は描画専用） ──
+  const clipExportParams = useMemo(
+    () => ({
+      result: r,
+      prevYear,
+      year,
+      month,
+      daysInMonth,
+      storeKey: ctx.storeKey,
+      stores: ctx.stores,
+      duckConn: ctx.duckConn,
+      selectedStoreIds: ctx.selectedStoreIds,
+      comparisonFrame: ctx.comparisonFrame,
+    }),
+    [
+      r,
+      prevYear,
+      year,
+      month,
+      daysInMonth,
+      ctx.storeKey,
+      ctx.stores,
+      ctx.duckConn,
+      ctx.selectedStoreIds,
+      ctx.comparisonFrame,
+    ],
+  )
+  const { isExporting, exportClip: handleClipExport } = useClipExport(clipExportParams)
 
   // ── Weather data（ctx から一元取得 — 個別 hook 呼び出し禁止） ──
   const weatherDaily = useMemo(() => ctx.weatherDaily ?? [], [ctx.weatherDaily])
@@ -92,76 +118,6 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
     }
     return m
   }, [weatherDaily])
-
-  const handleClipExport = useCallback(async () => {
-    setIsExporting(true)
-    try {
-      const storeName = ctx.stores.get(ctx.storeKey)?.name ?? ctx.storeKey
-      const curRange = { from: { year, month, day: 1 }, to: { year, month, day: daysInMonth } }
-      const startDate = new Date(year, month - 1, 1)
-      const endDate = new Date(year, month - 1, daysInMonth)
-      const offsetMs = ctx.comparisonFrame.dowOffset * 86400000
-      const prevStartDate = new Date(startDate.getTime() + offsetMs)
-      const prevEndDate = new Date(endDate.getTime() + offsetMs)
-      const prevRange = {
-        from: {
-          year: prevStartDate.getFullYear(),
-          month: prevStartDate.getMonth() + 1,
-          day: prevStartDate.getDate(),
-        },
-        to: {
-          year: prevEndDate.getFullYear(),
-          month: prevEndDate.getMonth() + 1,
-          day: prevEndDate.getDate(),
-        },
-      }
-
-      let curCts: Awaited<ReturnType<typeof fetchCategoryTimeRecords>> = []
-      let prevCts: Awaited<ReturnType<typeof fetchCategoryTimeRecords>> = []
-
-      if (ctx.duckConn) {
-        try {
-          curCts = await fetchCategoryTimeRecords(ctx.duckConn, curRange, ctx.selectedStoreIds)
-        } catch {
-          // CTS 取得失敗時は空で継続
-        }
-        try {
-          prevCts = await fetchCategoryTimeRecords(
-            ctx.duckConn,
-            prevRange,
-            ctx.selectedStoreIds,
-            true,
-          )
-        } catch {
-          // CTS 取得失敗時は空で継続
-        }
-      }
-
-      const bundle = buildClipBundle({
-        result: r,
-        prevYear,
-        year,
-        month,
-        storeName,
-        ctsRecords: curCts,
-        ctsPrevRecords: prevCts,
-      })
-      downloadClipHtml(bundle)
-    } finally {
-      setIsExporting(false)
-    }
-  }, [
-    r,
-    prevYear,
-    year,
-    month,
-    daysInMonth,
-    ctx.storeKey,
-    ctx.stores,
-    ctx.duckConn,
-    ctx.selectedStoreIds,
-    ctx.comparisonFrame,
-  ])
 
   // Build calendar grid
   const weeks = buildCalendarWeeks(year, month, daysInMonth)

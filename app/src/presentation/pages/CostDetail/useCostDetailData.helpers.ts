@@ -1,4 +1,6 @@
 import type { DailyRecord, TransferBreakdownEntry } from '@/domain/models/record'
+import type { Store } from '@/domain/models/Store'
+import type { StoreResult } from '@/domain/models/storeTypes'
 import type { CustomCategory } from '@/domain/models/storeTypes'
 import { CATEGORY_ORDER, CATEGORY_LABELS } from '@/domain/constants/categories'
 import type { CategoryType } from '@/domain/models/record'
@@ -11,8 +13,13 @@ import { CATEGORY_COLORS, CUSTOM_CATEGORY_COLORS } from '@/presentation/pages/Ca
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import type {
   FlowEntry,
+  FlowGroup,
   ItemAggregate,
+  ItemDetail,
   AccountAggregate,
+  DailyTotals,
+  PairDailyEntry,
+  DailyCostInclusionEntry,
   TransferPivotStore,
   TransferPivotCell,
   TransferPivotRow,
@@ -362,4 +369,108 @@ export function buildPurchasePivot(
     rows,
     totals: { byColumn: totalsByCol, grandCost, grandPrice },
   }
+}
+
+// ─── useMemo 抽出関数（G5 横展開） ──────────────────────
+
+type DayEntry = [number, DailyRecord]
+type TransferField = 'interStoreIn' | 'interStoreOut' | 'interDepartmentIn' | 'interDepartmentOut'
+
+/** フローエントリをソース別にグループ化する */
+export function buildFlowGroups(flows: readonly FlowEntry[]): FlowGroup[] {
+  if (flows.length === 0) return []
+  const groups = new Map<string, FlowGroup>()
+  for (const f of flows) {
+    const existing = groups.get(f.from)
+    if (existing) {
+      existing.entries.push(f)
+      existing.totalCost += f.cost
+      existing.totalPrice += f.price
+    } else {
+      groups.set(f.from, {
+        fromId: f.from,
+        fromName: f.fromName,
+        entries: [f],
+        totalCost: f.cost,
+        totalPrice: f.price,
+      })
+    }
+  }
+  return Array.from(groups.values()).sort((a, b) => Math.abs(b.totalCost) - Math.abs(a.totalCost))
+}
+
+/** 選択ペアの日別移動データを構築する */
+export function buildPairDailyData(
+  selectedPair: string | null,
+  days: readonly DayEntry[],
+  inField: TransferField,
+  outField: TransferField,
+): PairDailyEntry[] | null {
+  if (!selectedPair) return null
+  return days
+    .map(([day, rec]) => {
+      const entries = [
+        ...rec.transferBreakdown[inField],
+        ...rec.transferBreakdown[outField],
+      ].filter((e) => `${e.fromStoreId}->${e.toStoreId}` === selectedPair)
+      const cost = entries.reduce((s, e) => s + e.cost, 0)
+      const price = entries.reduce((s, e) => s + e.price, 0)
+      return { day, cost, price }
+    })
+    .filter((d) => d.cost !== 0 || d.price !== 0)
+}
+
+/** 日別の入出合計を計算する */
+export function calculateDailyTotals(
+  days: readonly DayEntry[],
+  inField: TransferField,
+  outField: TransferField,
+): DailyTotals {
+  return days.reduce(
+    (acc, [, rec]) => {
+      const inRec = rec[inField]
+      const outRec = rec[outField]
+      return {
+        inCost: acc.inCost + inRec.cost,
+        inPrice: acc.inPrice + inRec.price,
+        outCost: acc.outCost + outRec.cost,
+        outPrice: acc.outPrice + outRec.price,
+      }
+    },
+    { inCost: 0, inPrice: 0, outCost: 0, outPrice: 0 },
+  )
+}
+
+/** 選択品目の店舗別明細を構築する */
+export function buildItemDetailData(
+  selectedItem: string | null,
+  selectedResults: readonly StoreResult[],
+  stores: ReadonlyMap<string, Store>,
+): ItemDetail[] | null {
+  if (!selectedItem) return null
+  const details: ItemDetail[] = []
+  for (const result of selectedResults) {
+    const stName = stores.get(result.storeId)?.name ?? result.storeId
+    for (const [day, rec] of result.daily) {
+      for (const item of rec.costInclusion.items) {
+        if (item.itemCode === selectedItem)
+          details.push({ day, storeId: result.storeId, storeName: stName, quantity: item.quantity, cost: item.cost })
+      }
+    }
+  }
+  return details.sort((a, b) => a.day - b.day || a.storeId.localeCompare(b.storeId))
+}
+
+/** 日別原価算入データを構築する */
+export function buildDailyCostInclusionData(
+  days: readonly DayEntry[],
+): DailyCostInclusionEntry[] {
+  return days
+    .filter(([, rec]) => rec.costInclusion.cost > 0 || rec.costInclusion.items.length > 0)
+    .map(([day, rec]) => ({
+      day,
+      cost: rec.costInclusion.cost,
+      itemCount: rec.costInclusion.items.length,
+      items: rec.costInclusion.items,
+    }))
 }

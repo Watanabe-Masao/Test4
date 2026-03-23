@@ -1,23 +1,19 @@
 /**
- * DuckDB クエリプロファイラー
+ * クエリプロファイラー
  *
  * 直近 N 件のクエリ実行ログをリングバッファで保持し、
  * 開発ツールパネルやデバッグコンソールから閲覧可能にする。
  *
+ * Application 層に配置（infrastructure 固有依存なし）。
+ * infrastructure/ からは後方互換 re-export で参照可能。
+ *
  * 使い方:
  * ```
- * import { queryProfiler } from '@/infrastructure/duckdb/queryProfiler'
+ * import { queryProfiler } from '@/application/services/QueryProfiler'
  *
- * // クエリ実行前にプロファイルを開始
  * const profile = queryProfiler.start('SELECT * FROM ...')
- *
- * // 実行後に終了
- * profile.end(rowCount)
- *
- * // エラー時
- * profile.fail(error)
- *
- * // ログ一覧
+ * profile.end(rowCount)   // 成功時
+ * profile.fail(error)     // エラー時
  * queryProfiler.getEntries() // readonly QueryProfileEntry[]
  * ```
  */

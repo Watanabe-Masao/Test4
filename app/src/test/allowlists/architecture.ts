@@ -48,18 +48,6 @@ export const applicationToInfrastructure: readonly AllowlistEntry[] = [
     removalCondition: 'i18n が adapter 層に移行されたとき',
   },
   {
-    path: 'application/hooks/duckdb/useWeatherHourlyQuery.ts',
-    reason: 'DuckDB 天気クエリ',
-    category: 'bridge',
-    removalCondition: 'QueryHandler パターンに移行されたとき',
-  },
-  {
-    path: 'application/services/queryProfileService.ts',
-    reason: 'DuckDB クエリプロファイリング',
-    category: 'bridge',
-    removalCondition: 'QueryHandler パターンに移行されたとき',
-  },
-  {
     path: 'application/adapters/weatherAdapter.ts',
     reason: 'adapter パターン — 正当な例外',
     category: 'adapter',
@@ -88,15 +76,8 @@ export const applicationToInfrastructure: readonly AllowlistEntry[] = [
 /** presentation/ → infrastructure/（Phase 3 で全件解消済み。凍結） */
 export const presentationToInfrastructure: readonly AllowlistEntry[] = [] as const
 
-/** infrastructure/ → application/（逆方向依存） */
-export const infrastructureToApplication: readonly AllowlistEntry[] = [
-  {
-    path: 'infrastructure/storage/IndexedDBRawDataAdapter.ts',
-    reason: 'RawDataAdapter が application の型を参照',
-    category: 'bridge',
-    removalCondition: 'domain/ に型を移動したとき',
-  },
-] as const
+/** infrastructure/ → application/（逆方向依存 — RawDataPort を domain/ に移動し全件解消。凍結） */
+export const infrastructureToApplication: readonly AllowlistEntry[] = [] as const
 
 /** presentation/ から application/usecases/ 直接参照 */
 export const presentationToUsecases: readonly AllowlistEntry[] = [
@@ -105,11 +86,5 @@ export const presentationToUsecases: readonly AllowlistEntry[] = [
     reason: '管理画面の特殊操作',
     category: 'structural',
     removalCondition: 'Admin 操作が hook 経由に移行されたとき',
-  },
-  {
-    path: 'presentation/pages/Dashboard/widgets/MonthlyCalendar.tsx',
-    reason: 'カレンダーウィジェットの直接参照',
-    category: 'legacy',
-    removalCondition: 'hook 経由に移行されたとき',
   },
 ] as const

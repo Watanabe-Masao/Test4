@@ -58,6 +58,8 @@ describe('Layer Boundary Guard', () => {
       const rel = relativePath(file)
       // DuckDB adapter hooks: infrastructure/duckdb/ への依存は構造的に正しい
       if (rel.startsWith('application/hooks/duckdb/')) continue
+      // QueryHandler: infrastructure のクエリを呼ぶのが設計上の役割
+      if (rel.startsWith('application/queries/')) continue
       if (APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST.has(rel)) continue
 
       const imports = extractImports(file)
@@ -112,7 +114,7 @@ describe('Layer Boundary Guard', () => {
     // 値 import の既存違反（凍結）。移行完了時に許可リストから削除する。新規追加は禁止。
     // import type は実行時依存を生まないため検出対象外。
     const USECASE_ALLOWLIST = buildAllowlistSet(presentationToUsecases)
-    const MAX_USECASE_ALLOWLIST = 2
+    const MAX_USECASE_ALLOWLIST = 1
 
     const presDir = path.join(SRC_DIR, 'presentation')
     const files = collectTsFiles(presDir)
@@ -182,19 +184,19 @@ describe('Layer Boundary Guard', () => {
 
   // ─── 許可リスト増加防止 ─────────────────────────────
 
-  it('APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST は 14 件以下', () => {
+  it('APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST は 11 件以下', () => {
     expect(
       APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST.size,
-      `APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST が ${APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST.size} 件（上限: 14）`,
-    ).toBeLessThanOrEqual(14)
+      `APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST が ${APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST.size} 件（上限: 11）`,
+    ).toBeLessThanOrEqual(11)
   })
 
   it('PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST は 0 件（完全解消済み）', () => {
     expect(PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST.size).toBeLessThanOrEqual(0)
   })
 
-  it('INFRASTRUCTURE_TO_APPLICATION_ALLOWLIST は 1 件以下', () => {
-    expect(INFRASTRUCTURE_TO_APPLICATION_ALLOWLIST.size).toBeLessThanOrEqual(1)
+  it('INFRASTRUCTURE_TO_APPLICATION_ALLOWLIST は 0 件（完全解消済み）', () => {
+    expect(INFRASTRUCTURE_TO_APPLICATION_ALLOWLIST.size).toBeLessThanOrEqual(0)
   })
 
   // ─── 許可リストファイル実在チェック ─────────────────
