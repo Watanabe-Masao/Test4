@@ -34,16 +34,43 @@ const grandchildStyle = css`
     ${({ theme }) => (theme.mode === 'dark' ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)')};
 `
 
+// ── 到達時ハイライト ──
+
+const arrivalGlow = keyframes`
+  0% {
+    box-shadow: 0 0 0 0 var(--arrival-color, rgba(59, 130, 246, 0.35));
+  }
+  50% {
+    box-shadow: 0 0 0 3px var(--arrival-color, rgba(59, 130, 246, 0.18));
+  }
+  100% {
+    box-shadow: 0 0 0 0 var(--arrival-color, rgba(59, 130, 246, 0));
+  }
+`
+
+const emphasizedStyle = css`
+  animation:
+    ${slideDown} 0.3s cubic-bezier(0.2, 0.9, 0.3, 1) both,
+    ${arrivalGlow} 0.6s ease-out 0.3s both;
+  border-left-width: 4px;
+`
+
 // ── メインコンテナ ──
 
 export type ContainedRole = 'child' | 'grandchild'
 
-export const PanelShell = styled.div<{ $role: ContainedRole }>`
+export const PanelShell = styled.div<{ $role: ContainedRole; $emphasized?: boolean }>`
   margin-top: ${({ theme }) => theme.spacing[3]};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.md};
   padding: ${({ theme }) => theme.spacing[4]};
-  animation: ${slideDown} 0.3s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+  --arrival-color: ${({ theme }) => `${theme.colors.palette.primary}50`};
+  ${({ $emphasized }) =>
+    $emphasized
+      ? emphasizedStyle
+      : css`
+          animation: ${slideDown} 0.3s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+        `}
   ${({ $role }) => ($role === 'grandchild' ? grandchildStyle : childStyle)}
 `
 

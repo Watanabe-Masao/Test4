@@ -20,7 +20,12 @@ import {
 } from './ConditionSummaryEnhanced.vm'
 import { StoreRow, StoreTableHeader } from './ConditionSummaryEnhancedRows'
 import { ConditionSummaryDailyModal } from './ConditionSummaryDailyModal'
-import { useStoreDailyMarkupRateQuery } from '@/application/hooks/duckdb/useStoreDailyMarkupRateQuery'
+import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
+import {
+  storeDailyMarkupRateHandler,
+  type StoreDailyMarkupRateInput,
+} from '@/application/queries/purchase'
+import { dateRangeToKeys } from '@/domain/models/calendar'
 import {
   TotalSection,
   TotalGrid,
@@ -112,32 +117,24 @@ export const ConditionSummaryBudgetDrill = memo(function ConditionSummaryBudgetD
   const dailySr = dailyStoreId ? ctx.allStoreResults.get(dailyStoreId) : null
   const dailyStoreName = dailyStoreId ? (ctx.stores.get(dailyStoreId)?.name ?? dailyStoreId) : ''
 
-  // 値入率日別前年比
-  const markupQueryStoreId =
-    dailyStoreId != null && activeMetric === 'markupRate' ? dailyStoreId : null
-  const markupDailyQuery = useStoreDailyMarkupRateQuery(
-    ctx.duckConn,
-    ctx.duckDataVersion ?? 0,
-    ctx.prevYearDateRange ?? null,
-    markupQueryStoreId,
+  // 値入率日別前年比 — QueryHandler 経由
+  const markupInput = useMemo<StoreDailyMarkupRateInput | null>(() => {
+    if (!dailyStoreId || activeMetric !== 'markupRate' || !ctx.prevYearDateRange) return null
+    const { fromKey, toKey } = dateRangeToKeys(ctx.prevYearDateRange)
+    return { dateFrom: fromKey, dateTo: toKey, storeId: dailyStoreId }
+  }, [dailyStoreId, activeMetric, ctx.prevYearDateRange])
+
+  const { data: markupOutput } = useQueryWithHandler(
+    ctx.queryExecutor,
+    storeDailyMarkupRateHandler,
+    markupInput,
   )
 
   const effectiveMarkupYoYRows = useMemo(() => {
-    if (markupDailyQuery.queryStoreId !== dailyStoreId || !dailySr) return []
-    return buildDailyMarkupRateYoYRows(
-      dailySr,
-      markupDailyQuery.data,
-      effectiveElapsed,
-      calendarDaysInMonth,
-    )
-  }, [
-    markupDailyQuery.queryStoreId,
-    markupDailyQuery.data,
-    dailyStoreId,
-    dailySr,
-    effectiveElapsed,
-    calendarDaysInMonth,
-  ])
+    const markupData = markupOutput?.data
+    if (!dailySr || !dailyStoreId || !markupData || markupData.size === 0) return []
+    return buildDailyMarkupRateYoYRows(dailySr, markupData, effectiveElapsed, calendarDaysInMonth)
+  }, [markupOutput, dailyStoreId, dailySr, effectiveElapsed, calendarDaysInMonth])
 
   return (
     <DrillOverlay onClick={onClose}>

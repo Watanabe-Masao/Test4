@@ -24,12 +24,7 @@ export const presentationDuckdbHook: readonly AllowlistEntry[] = [
     category: 'structural',
     removalCondition: 'QueryHandler 移行',
   },
-  {
-    path: 'pages/Dashboard/widgets/DayDetailModal.tsx',
-    reason: 'DuckDB 探索',
-    category: 'migration',
-    removalCondition: 'QueryHandler 移行',
-  },
+  // DayDetailModal.tsx — re-export 経路整理完了（2026-03-23）: application/hooks/analytics 経由
   {
     path: 'pages/Dashboard/widgets/YoYWaterfallChart.tsx',
     reason: 'DuckDB 探索',
@@ -61,10 +56,5 @@ export const presentationDuckdbHook: readonly AllowlistEntry[] = [
     removalCondition: 'QueryHandler 移行',
   },
   // ConditionMatrixTable.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + conditionMatrixHandler
-  {
-    path: 'pages/Dashboard/widgets/ConditionSummaryBudgetDrill.tsx',
-    reason: 'DuckDB 探索',
-    category: 'migration',
-    removalCondition: 'QueryHandler 移行',
-  },
+  // ConditionSummaryBudgetDrill.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + storeDailyMarkupRateHandler
 ] as const

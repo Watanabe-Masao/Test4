@@ -87,3 +87,10 @@ export { useLoadComparisonData } from './useLoadComparisonData'
 export type { ComparisonLoadStatus } from './useLoadComparisonData'
 export { useComparisonModule } from './useComparisonModule'
 export type { ComparisonModule } from './useComparisonModule'
+// DayDetail — application/hooks/duckdb/ からの re-export（presentation が duckdb/ を直接 import しないため）
+export { useDayDetailData } from './duckdb/useDayDetailData'
+export type {
+  DayDetailData,
+  DayDetailDataParams,
+  WeatherCandidate,
+} from './duckdb/useDayDetailData'
