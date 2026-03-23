@@ -8,40 +8,40 @@
 
 ## 現状スナップショット
 
-### allowlist 全体（99 エントリ）
+### allowlist 全体（73 エントリ、起点 99 から -26）
 
-| カテゴリ | 件数 | 割合 | 性質 |
-|---|---|---|---|
-| migration | 33 | 33% | 移行先が存在。消化するだけ |
-| structural | 26 | 26% | 構造上不可避。削減ではなく監視 |
-| legacy | 11 | 11% | 旧 API 依存。リファクタで解消可能 |
-| adapter | 5 | 5% | DI パターン。正当な例外として維持 |
-| bridge | 4 | 4% | 暫定接続。移行完了で不要になる |
-| lifecycle | 1 | 1% | ライフサイクル管理。正当 |
+| カテゴリ | 起点 | 現在 | 変動 | 性質 |
+|---|---|---|---|---|
+| migration | 33 | 29 | -4 | 移行先が存在。消化するだけ |
+| structural | 26 | 25 | -1 | 構造上不可避。削減ではなく監視 |
+| adapter | 5 | 11 | +6 | DI パターン。正当な例外として維持（queries/ 免除追加） |
+| legacy | 11 | 2 | **-9** | 旧 API 依存。リファクタで解消可能 |
+| bridge | 4 | 1 | **-3** | 暫定接続。移行完了で不要になる |
+| lifecycle | 1 | 2 | +1 | ライフサイクル管理。正当 |
 
-**削減可能:** migration + legacy + bridge = **48 エントリ（48%）**
+**削減可能:** migration + legacy + bridge = **32 エントリ（44%）**
 
 ### allowlist 別充填率
 
 | allowlist | エントリ | 上限 | 充填率 | 主カテゴリ |
 |---|---|---|---|---|
-| presentationDuckdbHook | 34 | 35 | 97% | migration(20), bridge(1), structural(1) |
-| applicationToInfrastructure | 12 | 14 | 86% | adapter(5), bridge(2), lifecycle(1) |
-| cmpPrevYearDaily | **10** | 10 | **100%** | migration(10) |
-| largeComponentTier2 | **5** | — | — | legacy(5) |
+| presentationDuckdbHook | 27 | 27 | **100%** | migration(19), bridge(1), structural(1) |
+| applicationToInfrastructure | 10 | 11 | 91% | adapter(7), lifecycle(2), adapter(1) |
+| cmpPrevYearDaily | 10 | 10 | **100%** | migration(10) |
 | domainLargeFiles | 7 | — | — | structural(7) |
-| cmpFramePrevious | **1** | 3 | 33% | migration(1) |
-| infraLargeFiles | **2** | — | — | structural(2) |
-| presentationToUsecases | **1** | 1 | 100% | structural(1) |
+| usecasesLargeFiles | 2 | — | — | structural(2) |
+| infraLargeFiles | 2 | — | — | structural(2) |
 | useStateLimits | 2 | — | — | structural(2) |
 | hookLineLimits | 2 | — | — | structural(2) |
-| usecasesLargeFiles | 2 | — | — | structural(2) |
 | vmReactImport | 2 | — | — | structural(2) |
 | ctxHook | 2 | — | — | structural(1), legacy(1) |
+| cmpFramePrevious | 1 | 3 | 33% | migration(1) |
+| presentationToUsecases | 1 | 1 | 100% | structural(1) |
 | useMemoLimits | 1 | — | — | structural(1) |
 | cmpDailyMapping | 1 | 1 | 100% | structural(1) |
 | sideEffectChain | 1 | — | — | structural(1) |
 | reactImportExcludeDirs | 1 | — | — | structural(1) |
+| largeComponentTier2 | **0** | 0 | — | **完了** |
 | infrastructureToApplication | **0** | 0 | — | **完了** |
 | presentationToInfrastructure | **0** | 0 | — | **完了** |
 | dowCalcOverride | **0** | 0 | — | **完了** |
@@ -68,17 +68,18 @@
 | 項目 | 内容 |
 |---|---|
 | 目的 | 例外を「一元管理」から「削減対象」に変える |
-| 対象 | allowlists/ 全ファイル（99 エントリ） |
-| 削減可能 | 48 エントリ（migration 33 + legacy 11 + bridge 4） |
+| 対象 | allowlists/ 全ファイル（起点 99 → 現在 73 エントリ） |
+| 削減可能 | 32 エントリ（migration 29 + legacy 2 + bridge 1） |
 | 成功条件 | 各 allowlist に削減方針があり、migration/legacy/bridge の優先順位が定義されている |
+| 状態 | **進行中** — 26 エントリ削減済み、凍結 5 件達成 |
 
 **削減優先順位:**
 
-| 優先度 | カテゴリ | 件数 | 理由 |
-|---|---|---|---|
-| 1 | migration | 33 | 移行先（V2 comparison, QueryHandler）が既に存在。消化するだけ |
-| 2 | legacy | 11 | 旧 API 依存。リファクタで解消可能 |
-| 3 | bridge | 4 | 暫定接続。移行完了で不要になる |
+| 優先度 | カテゴリ | 起点 | 現在 | 理由 |
+|---|---|---|---|---|
+| 1 | migration | 33 | 29 | 移行先（V2 comparison, QueryHandler）が既に存在。消化するだけ |
+| 2 | legacy | 11 | **2** | 旧 API 依存。リファクタで解消（9件解消済み） |
+| 3 | bridge | 4 | **1** | 暫定接続。移行完了で不要になる（3件解消済み） |
 
 #### P3: レイヤー境界正常化
 
@@ -151,17 +152,19 @@
 | 項目 | 内容 |
 |---|---|
 | 目的 | 例外で温存されている重い実装を段階的に薄くする |
-| 対象 | largeComponentTier2(8), useMemoLimits(1), useStateLimits(2), hookLineLimits(2) — **計 13 エントリ** |
+| 対象 | ~~largeComponentTier2(8)~~, useMemoLimits(1), useStateLimits(2), hookLineLimits(2) — **計 5 エントリ** |
+| 状態 | **largeComponentTier2 全件解消（凍結）。** 残りは hook 複雑性のみ |
 | 成功条件 | 件数が減り、分割テンプレートが定着 |
 
-**注目ファイル:**
+**分離実績:**
 
-| ファイル | 行数 | 上限 | 余裕 | リスク |
-|---|---|---|---|---|
-| ForecastChartsCustomer.tsx | 755 | 756 | **1 行** | 即超過リスク |
-| CategoryFactorBreakdown.tsx | 719 | — | — | 最大級 |
-| MonthlyCalendar.tsx | 633 | — | — | P4 移行で分割機会あり |
-| TimeSlotChart.tsx | 199 | 660 | 461 | **600 未満 — allowlist 不要** |
+| ファイル | 施策 | Before | After |
+|---|---|---|---|
+| BudgetVsActualChart.tsx | .builders.ts 分離 | 623 | 262 |
+| YoYVarianceChart.tsx | .builders.ts 分離 | 618 | 307 |
+| CategoryFactorBreakdown.tsx | .logic.ts 分離 | 719 | 469 |
+| ForecastChartsCustomer.tsx | .builders.ts 分離 | 755 | 213 |
+| MonthlyCalendar.tsx | useClipExport 分離 | 633 | 589 |
 
 #### P7: ドキュメント整合強化
 
@@ -213,13 +216,13 @@
 
 | 指標 | 起点（Sprint 1 完了時） | 現在値 | 次 Sprint 目標 | 中期目標 |
 |---|---|---|---|---|
-| allowlist 総エントリ | 99 | **80**（-19） | 76 以下 | 72 以下 |
+| allowlist 総エントリ | 99 | **73**（-26） | 70 以下 | 60 以下 |
 | migration カテゴリ | 33 | **29**（-4） | 26 以下 | 20 以下 |
 | legacy カテゴリ | 11 | **2**（-9） | 1 以下 | 0 |
 | bridge カテゴリ | 4 | **1**（-3） | 0 | 0 |
-| 凍結済み allowlist | 2 | **4**（+2） | 5 以上 | 5 以上 |
+| 凍結済み allowlist | 2 | **5**（+3） | 6 以上 | 6 以上 |
 | DuckDB 直結 | 36 | **27**（-9） | 25 以下 | 20 以下 |
-| Tier2 大型 component | 8 | **0**（-8） | 0 | 0 |
+| Tier2 大型 component | 8 | **0**（-8、凍結） | 0 | 0 |
 | app→infra 上限 | 14 | **11**（-3） | 10 以下 | 10 以下 |
 
 ### 削減履歴
