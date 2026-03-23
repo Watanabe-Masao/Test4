@@ -2,8 +2,21 @@
 
 ## 概要
 
-全ガードテストの許可リスト（allowlist）は `app/src/test/allowlists.ts` に一元管理されている。
+全ガードテストの許可リスト（allowlist）は `app/src/test/allowlists/` ディレクトリに分割管理されている。
 各エントリには `reason`（理由）、`category`（分類）、`removalCondition`（削除条件）が付与される。
+
+### ファイル構成
+
+| ファイル | 管理対象 | エントリ数 |
+|---|---|---|
+| `allowlists/architecture.ts` | レイヤー境界例外 | 12 |
+| `allowlists/duckdb.ts` | DuckDB hook 直接使用（移行カウントダウン） | 1 |
+| `allowlists/complexity.ts` | useMemo/useState/行数上限の例外 | 21 |
+| `allowlists/size.ts` | ファイルサイズ上限の例外 | 11 |
+| `allowlists/migration.ts` | 比較アクセスパターン凍結管理 | 11 |
+| `allowlists/misc.ts` | VM React import、ctx hook 等 | 6 |
+| `allowlists/types.ts` | 型定義 | — |
+| `allowlists/index.ts` | バレル re-export | — |
 
 ## 型定義
 
@@ -52,6 +65,36 @@ interface QuantitativeAllowlistEntry extends AllowlistEntry {
 - **例外が 0 であること ≠ 良いこと。** 例外を解消することで全体の設計が改善されることが重要
 - 許可リストを管理する（エントリを増減する）のではなく、**許可リストが不要になる構造**を目指す
 - 便宜的例外は許可理由にならない。構造で解消するか、移行計画に載せる
+
+## P5 Migration 運用（DuckDB hook 移行）
+
+### 移行パターン
+
+DuckDB hook の直接使用を `useQueryWithHandler` + `QueryHandler` に移行する。
+
+```
+Before: Chart → useDuckDBXxx() → infrastructure/duckdb/queries/
+After:  Chart → useQueryWithHandler(ctx.queryExecutor, xxxHandler, input) → handler → queries/
+```
+
+### 移行手順
+
+1. `application/queries/` に QueryHandler を作成
+2. Chart の DuckDB hook import を `useQueryWithHandler` に置換
+3. `allowlists/duckdb.ts` の `presentationDuckdbHook` からエントリを削除
+4. guard テストの `MAX_ALLOWLIST_SIZE` を減らす
+5. テスト通過を確認
+
+### 現在の状態（2026-03-23）
+
+- **移行完了:** 22 chart + 2 page
+- **残:** 1 件（useUnifiedWidgetContext.ts, bridge）
+- **作成済み handler:** 20 件（`application/queries/` 配下）
+
+### admin 操作の分離
+
+StorageManagementTab のような DuckDB 管理操作は query access migration の対象外。
+`presentationDuckdbAdmin` として別 allowlist で管理する方針。
 
 ## CI 検証
 

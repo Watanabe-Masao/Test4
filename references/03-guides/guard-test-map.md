@@ -7,7 +7,7 @@
 | テストファイル | 管理ロール | ルール数 | 保護対象 |
 |---|---|---|---|
 | `app/src/test/guards/layerBoundaryGuard.test.ts` | architecture | 11件 | 4層依存、許可リスト上限・実在確認 |
-| `app/src/test/guards/presentationIsolationGuard.test.ts` | architecture | 11件 | Presentation制約、CQRS境界、DuckDB Migration |
+| `app/src/test/guards/presentationIsolationGuard.test.ts` | architecture | 13件 | Presentation制約、CQRS境界、DuckDB Migration、Q3 enforcement |
 | `app/src/test/guards/structuralConventionGuard.test.ts` | architecture | 7件 | 縦スライス、プロトタイプ、バレル移行、ctx重複 |
 | `app/src/domain/calculations/__tests__/calculationRules.test.ts` | invariant-guardian | 7件 | safeDivide, calculateTransactionValue, overflowDay, fmtSen, formatPercent, toPct |
 | `app/src/presentation/components/charts/__tests__/divisorRules.test.ts` | invariant-guardian | 8件 | computeDivisor, filterByStore, countDistinctDays, 正規ロケーション, 網羅性 |
@@ -49,7 +49,9 @@
 | — | PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST ≤1件 | INV-ALLOW-02 |
 | — | INFRASTRUCTURE_TO_APPLICATION_ALLOWLIST ≤1件 | INV-ALLOW-03 |
 | — | Migration Countdown: DuckDB フック新規使用禁止 | — |
-| — | Migration Countdown: 許可リストサイズ ≤34 | — |
+| — | Migration Countdown: 許可リストサイズ ≤3（現在 1。最終目標 0） | — |
+| — | executor.execute() 直呼び出し禁止（Q3） | — |
+| — | useAsyncQuery 直接 import 禁止（Q3） | — |
 
 ### calculationRules.test.ts（invariant-guardian ロール管理）
 
