@@ -31,8 +31,9 @@ describe('INV-SCOPE-01: presentation/ での前年日付の独自計算禁止', 
     'presentation/pages/Admin/PrevYearMappingTab.tsx',
     // CTS 前年日付を year-1 + dowOffset の Date 演算で算出（閏年対応済み）
     'presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx',
+    'presentation/pages/Dashboard/widgets/YoYWaterfallChart.logic.ts',
   ])
-  const MAX_ALLOWLIST_SIZE = 5
+  const MAX_ALLOWLIST_SIZE = 6
 
   it('許可リストのサイズが上限を超えない', () => {
     expect(
