@@ -32,6 +32,7 @@ export const WIDGETS_CHART: readonly WidgetDef[] = [
         month={ctx.month}
         prevYearDaily={ctx.prevYear.hasPrevYear ? ctx.prevYear.daily : undefined}
         budgetDaily={ctx.result.budgetDaily}
+        queryExecutor={ctx.queryExecutor}
         duckConn={ctx.duckConn}
         duckDb={ctx.duckDb}
         duckDataVersion={ctx.duckDataVersion}
@@ -117,6 +118,7 @@ export const WIDGETS_CHART: readonly WidgetDef[] = [
     isVisible: (ctx) => ctx.duckDataVersion > 0,
     render: (ctx) => (
       <IntegratedCategoryAnalysis
+        queryExecutor={ctx.queryExecutor}
         duckConn={ctx.duckConn}
         duckDataVersion={ctx.duckDataVersion}
         currentDateRange={ctx.currentDateRange}

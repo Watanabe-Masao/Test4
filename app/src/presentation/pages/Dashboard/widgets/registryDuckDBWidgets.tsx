@@ -34,8 +34,7 @@ export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
     isVisible: (ctx) => ctx.duckDataVersion > 0,
     render: (ctx) => (
       <CategoryTrendChart
-        duckConn={ctx.duckConn}
-        duckDataVersion={ctx.duckDataVersion}
+        queryExecutor={ctx.queryExecutor}
         currentDateRange={ctx.currentDateRange}
         selectedStoreIds={ctx.selectedStoreIds}
       />
@@ -64,8 +63,7 @@ export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
     isVisible: (ctx) => ctx.duckDataVersion > 0 && ctx.duckLoadedMonthCount >= 2,
     render: (ctx) => (
       <CategoryMixChart
-        duckConn={ctx.duckConn}
-        duckDataVersion={ctx.duckDataVersion}
+        queryExecutor={ctx.queryExecutor}
         currentDateRange={ctx.currentDateRange}
         selectedStoreIds={ctx.selectedStoreIds}
       />

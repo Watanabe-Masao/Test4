@@ -15,6 +15,7 @@
 import { memo, useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
+import type { QueryExecutor } from '@/application/queries/QueryPort'
 import { buildSalesAnalysisContext } from '@/application/models/SalesAnalysisContext'
 import { buildRootNodeContext } from '@/application/models/AnalysisNodeContext'
 import { CategoryTrendChart } from './CategoryTrendChart'
@@ -23,6 +24,7 @@ import { ContainedAnalysisPanel, type ContextTag } from './ContainedAnalysisPane
 import { ChartCard } from './ChartCard'
 
 interface Props {
+  readonly queryExecutor: QueryExecutor | null
   readonly duckConn: AsyncDuckDBConnection | null
   readonly duckDataVersion: number
   readonly currentDateRange: DateRange
@@ -32,6 +34,7 @@ interface Props {
 }
 
 export const IntegratedCategoryAnalysis = memo(function IntegratedCategoryAnalysis({
+  queryExecutor,
   duckConn,
   duckDataVersion,
   currentDateRange,
@@ -71,8 +74,7 @@ export const IntegratedCategoryAnalysis = memo(function IntegratedCategoryAnalys
     <ChartCard title="カテゴリ分析" subtitle="カテゴリ別売上推移 + 階層ドリルダウン">
       {/* ── 親: カテゴリ別売上推移 ── */}
       <CategoryTrendChart
-        duckConn={duckConn}
-        duckDataVersion={duckDataVersion}
+        queryExecutor={queryExecutor}
         currentDateRange={currentDateRange}
         selectedStoreIds={selectedStoreIds}
         embedded

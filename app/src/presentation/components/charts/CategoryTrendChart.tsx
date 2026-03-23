@@ -2,16 +2,23 @@
  * カテゴリ別日次売上推移チャート (ECharts)
  *
  * パイプライン:
- *   DuckDB Hook → CategoryTrendChartLogic.ts → ECharts option → EChart
+ *   QueryHandler → CategoryTrendChartLogic.ts → ECharts option → EChart
  *
  * ECharts の組み込み legend toggle でカテゴリ除外/復帰を実現。
+ *
+ * @migration P5: useQueryWithHandler 経由に移行済み（旧: useDuckDBCategoryDailyTrend 直接 import）
  */
 import { useMemo, useState, useCallback, memo } from 'react'
 import { useTheme } from 'styled-components'
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models/calendar'
+import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { AppTheme } from '@/presentation/theme/theme'
-import { useDuckDBCategoryDailyTrend } from '@/application/hooks/useDuckDBQuery'
+import type { QueryExecutor } from '@/application/queries/QueryPort'
+import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
+import {
+  categoryDailyTrendHandler,
+  type CategoryDailyTrendInput,
+} from '@/application/queries/cts/CategoryDailyTrendHandler'
 import { buildCategoryTrendData, type CategoryInfo } from './CategoryTrendChartLogic'
 import { useCurrencyFormatter } from './chartTheme'
 import { DowPresetSelector } from './DowPresetSelector'
@@ -54,8 +61,7 @@ const TOP_N_SEGMENT_OPTIONS: readonly { value: string; label: string }[] = TOP_N
 )
 
 interface Props {
-  readonly duckConn: AsyncDuckDBConnection | null
-  readonly duckDataVersion: number
+  readonly queryExecutor: QueryExecutor | null
   readonly currentDateRange: DateRange
   readonly selectedStoreIds: ReadonlySet<string>
   /** サブパネル埋め込み時に曜日セレクタを非表示にする */
@@ -120,8 +126,7 @@ function buildOption(
 }
 
 export const CategoryTrendChart = memo(function CategoryTrendChart({
-  duckConn,
-  duckDataVersion,
+  queryExecutor,
   currentDateRange,
   selectedStoreIds,
   hideDowSelector,
@@ -152,33 +157,32 @@ export const CategoryTrendChart = memo(function CategoryTrendChart({
     }
   }, [])
 
-  const hierarchy = useMemo(
-    () =>
-      drill.deptCode || drill.lineCode
-        ? { deptCode: drill.deptCode, lineCode: drill.lineCode }
-        : undefined,
-    [drill.deptCode, drill.lineCode],
-  )
-
   const dowParam = useMemo(
     () => (selectedDows.length > 0 ? selectedDows : undefined),
     [selectedDows],
   )
 
+  const input = useMemo<CategoryDailyTrendInput | null>(() => {
+    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
+    return {
+      dateFrom: fromKey,
+      dateTo: toKey,
+      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
+      level,
+      topN,
+      deptCode: drill.deptCode,
+      lineCode: drill.lineCode,
+      dow: dowParam,
+    }
+  }, [currentDateRange, selectedStoreIds, level, topN, drill.deptCode, drill.lineCode, dowParam])
+
   const {
-    data: trendRows,
+    data: output,
     error,
     isLoading,
-  } = useDuckDBCategoryDailyTrend(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-    level,
-    hierarchy,
-    topN,
-    dowParam,
-  )
+  } = useQueryWithHandler(queryExecutor, categoryDailyTrendHandler, input)
+
+  const trendRows = output?.records ?? null
 
   // ECharts の legend toggle で除外を管理するため、excludedCodes は不要に
   const emptyExcluded = useMemo(() => new Set<string>(), [])
@@ -228,7 +232,7 @@ export const CategoryTrendChart = memo(function CategoryTrendChart({
       </ChartCard>
     )
   }
-  if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
+  if (!queryExecutor || chartData.length === 0) {
     return (
       <ChartCard title="カテゴリ別売上推移">
         <ChartEmpty message="データをインポートしてください" />
