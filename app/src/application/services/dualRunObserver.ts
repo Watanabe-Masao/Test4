@@ -34,6 +34,9 @@ type FnName =
   | 'calculateWMA'
   | 'linearRegression'
   | 'analyzeTrend'
+  // timeSlot
+  | 'findCoreTime'
+  | 'findTurnaroundHour'
 
 interface FnStats {
   calls: number
@@ -99,6 +102,9 @@ const stats: Record<FnName, FnStats> = {
   calculateWMA: makeFnStats(),
   linearRegression: makeFnStats(),
   analyzeTrend: makeFnStats(),
+  // timeSlot
+  findCoreTime: makeFnStats(),
+  findTurnaroundHour: makeFnStats(),
 }
 
 const mismatchLog: MismatchEntry[] = []

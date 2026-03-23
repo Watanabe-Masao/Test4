@@ -15,6 +15,7 @@ import { useState, useCallback, useMemo, useRef, useEffect, memo } from 'react'
 import styled from 'styled-components'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import { dateRangeToKeys } from '@/domain/models/CalendarDate'
+import type { AsyncDuckDBConnection, AsyncDuckDB } from '@duckdb/duckdb-wasm'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
 import {
@@ -76,6 +77,10 @@ interface Props {
   readonly dowOffset?: number
   readonly weatherDaily?: readonly DailyWeatherSummary[]
   readonly prevYearWeatherDaily?: readonly DailyWeatherSummary[]
+  /** DuckDB コネクション（TimeSlotChart 天気 ETRN フォールバック用） */
+  readonly conn?: AsyncDuckDBConnection | null
+  /** DuckDB インスタンス（TimeSlotChart 天気 ETRN フォールバック用） */
+  readonly db?: AsyncDuckDB | null
 }
 
 /** ヘッダ固定分の offset（px） */
@@ -125,14 +130,28 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
       current.set(day, (current.get(day) ?? 0) + r.dailyQuantity)
     }
     const prev = new Map<number, number>()
-    if (prevQtyOut) {
+    if (prevQtyOut && prevYearDateRange) {
+      // 前年 dateKey → 当期の日番号にマッピング
+      // prevYearDateRange.from と currentDateRange.from の対応を使い、
+      // 前年日付の経過日数を当期の日番号に変換する（同曜日比較時の日ずれ対応）
+      const prevFrom = new Date(
+        prevYearDateRange.from.year,
+        prevYearDateRange.from.month - 1,
+        prevYearDateRange.from.day,
+      )
+      const curFromDay = props.currentDateRange.from.day
       for (const r of prevQtyOut.records) {
-        const day = Number(r.dateKey.split('-')[2])
-        prev.set(day, (prev.get(day) ?? 0) + r.dailyQuantity)
+        const [y, m, d] = r.dateKey.split('-').map(Number)
+        const prevDate = new Date(y, m - 1, d)
+        const elapsed = Math.round(
+          (prevDate.getTime() - prevFrom.getTime()) / (24 * 60 * 60 * 1000),
+        )
+        const targetDay = curFromDay + elapsed
+        prev.set(targetDay, (prev.get(targetDay) ?? 0) + r.dailyQuantity)
       }
     }
     return { current, prev }
-  }, [curQtyOut, prevQtyOut])
+  }, [curQtyOut, prevQtyOut, prevYearDateRange, props.currentDateRange])
 
   const handleDayRangeSelect = useCallback(
     (startDay: number, endDay: number) => {
@@ -324,6 +343,8 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
             queryExecutor={props.queryExecutor}
             context={drillContext}
             events={childEvents}
+            conn={props.conn}
+            db={props.db}
           />
 
           {/* ── 部門別時間帯パターン（孫として包含表示） ── */}

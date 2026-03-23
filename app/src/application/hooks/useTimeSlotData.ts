@@ -28,10 +28,10 @@ import {
   categoryHourlyHandler,
   type CategoryHourlyInput,
 } from '@/application/queries/cts/CategoryHourlyHandler'
-import {
-  weatherHourlyAvgHandler,
-  type WeatherHourlyAvgInput,
-} from '@/application/queries/weather/WeatherHourlyHandler'
+import { weatherHourlyAvgHandler, type WeatherHourlyAvgInput } from '@/application/queries/weather'
+import type { AsyncDuckDBConnection, AsyncDuckDB } from '@duckdb/duckdb-wasm'
+import type { StoreLocation } from '@/domain/models/record'
+import { useWeatherFallback } from './useWeatherFallback'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useDataStore } from '@/application/stores/dataStore'
 import {
@@ -75,6 +75,10 @@ interface Params {
   readonly currentDateRange: DateRange
   readonly selectedStoreIds: ReadonlySet<string>
   readonly prevYearScope?: PrevYearScope
+  /** DuckDB コネクション（天気 ETRN フォールバック永続化用） */
+  readonly conn?: AsyncDuckDBConnection | null
+  /** DuckDB インスタンス（天気 ETRN フォールバック永続化用） */
+  readonly db?: AsyncDuckDB | null
 }
 
 export function useTimeSlotData({
@@ -82,6 +86,8 @@ export function useTimeSlotData({
   currentDateRange,
   selectedStoreIds,
   prevYearScope,
+  conn,
+  db,
 }: Params) {
   // ── UI State (5 個 — G5 ≤6 準拠) ──
   const [viewMode, setViewMode] = useState<ViewMode>('chart')
@@ -176,16 +182,25 @@ export function useTimeSlotData({
     return ids.find((id) => storeLocations[id]) ?? ids[0] ?? ''
   }, [selectedStoreIds, allStoreIds, storeLocations])
 
-  const curWeatherInput = useMemo<WeatherHourlyAvgInput>(
-    () => ({ storeId: weatherStoreId, ...toKeys(currentDateRange) }),
-    [weatherStoreId, currentDateRange],
-  )
-
   const prevDateRange = compMode === 'yoy' ? prevYearScope?.dateRange : undefined
   const prevWeatherInput = useMemo<WeatherHourlyAvgInput | null>(() => {
     if (!prevDateRange) return null
     return { storeId: weatherStoreId, ...toKeys(prevDateRange) }
   }, [weatherStoreId, prevDateRange])
+
+  const weatherKeys = useMemo(() => toKeys(currentDateRange), [currentDateRange])
+  const location: StoreLocation | undefined = storeLocations[weatherStoreId]
+
+  // curWeatherInput: weatherRetry をダミー値として含め、ETRN 永続化後に再クエリをトリガー
+  const [weatherRetry, setWeatherRetry] = useState(0)
+  const curWeatherInput = useMemo<WeatherHourlyAvgInput>(
+    () => ({
+      storeId: weatherStoreId,
+      ...weatherKeys,
+      ...(weatherRetry > 0 ? { _v: weatherRetry } : {}),
+    }),
+    [weatherStoreId, weatherKeys, weatherRetry],
+  )
 
   // ── QueryHandler Queries ──
 
@@ -228,6 +243,20 @@ export function useTimeSlotData({
     prevWeatherInput,
   )
 
+  // ── Weather ETRN Fallback (sub-hook) ──
+  // DuckDB クエリが完了して空だった場合のみ ETRN フォールバックを実行
+  const duckQueryEmpty = curWeatherOut === null ? null : (curWeatherOut.records ?? []).length === 0
+  useWeatherFallback({
+    duckQueryEmpty,
+    storeId: weatherStoreId,
+    location,
+    dateRange: currentDateRange,
+    dateFrom: weatherKeys.dateFrom,
+    dateTo: weatherKeys.dateTo,
+    conn,
+    db,
+    onRetry: () => setWeatherRetry((v) => v + 1),
+  })
   // ── Unwrap query results ──
 
   const currentHourly = curHourlyOut?.records ?? null

@@ -41,6 +41,8 @@ export const WIDGETS_CHART: readonly WidgetDef[] = [
         dowOffset={ctx.comparisonFrame.dowOffset}
         discountEntries={ctx.result.discountEntries}
         totalGrossSales={ctx.result.grossSales}
+        conn={ctx.duckConn}
+        db={ctx.duckDb}
       />
     ),
   },
