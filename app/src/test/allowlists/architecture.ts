@@ -54,12 +54,6 @@ export const applicationToInfrastructure: readonly AllowlistEntry[] = [
     removalCondition: 'QueryHandler パターンに移行されたとき',
   },
   {
-    path: 'application/services/queryProfileService.ts',
-    reason: 'DuckDB クエリプロファイリング',
-    category: 'bridge',
-    removalCondition: 'QueryHandler パターンに移行されたとき',
-  },
-  {
     path: 'application/adapters/weatherAdapter.ts',
     reason: 'adapter パターン — 正当な例外',
     category: 'adapter',

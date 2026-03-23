@@ -213,12 +213,14 @@
 
 | 指標 | 起点（Sprint 1 完了時） | 現在値 | 次 Sprint 目標 | 中期目標 |
 |---|---|---|---|---|
-| allowlist 総エントリ | 99 | **88**（-11） | 84 以下 | 72 以下 |
-| migration カテゴリ | 33 | **30**（-3） | 27 以下 | 20 以下 |
-| legacy カテゴリ | 11 | **7**（-4） | 6 以下 | 5 以下 |
+| allowlist 総エントリ | 99 | **85**（-14） | 81 以下 | 72 以下 |
+| migration カテゴリ | 33 | **29**（-4） | 26 以下 | 20 以下 |
+| legacy カテゴリ | 11 | **6**（-5） | 5 以下 | 5 以下 |
+| bridge カテゴリ | 4 | **2**（-2） | 1 以下 | 0 |
 | 凍結済み allowlist | 2 | **4**（+2） | 5 以上 | 5 以上 |
-| DuckDB 直結 | 36 | **34**（-2） | 32 以下 | 25 以下 |
-| Tier2 大型 component | 8 | **5**（-3） | 4 以下 | 3 以下 |
+| DuckDB 直結 | 36 | **27**（-9） | 25 以下 | 20 以下 |
+| Tier2 大型 component | 8 | **4**（-4） | 3 以下 | 3 以下 |
+| app→infra 上限 | 14 | **12**（-2） | 11 以下 | 10 以下 |
 
 ### 削減履歴
 
@@ -235,6 +237,9 @@
 | 2026-03-23 | IndexedDBRawDataAdapter.ts | infrastructureToApplication | RawDataPort を domain/ports/ に移動 |
 | 2026-03-23 | MonthlyCalendar.tsx | presentationToUsecases | useClipExport hook 経由に移行 |
 | 2026-03-23 | YoYWaterfallChart.tsx | cmpPrevYearDaily | prevYear.daily.get パターン未使用 |
+| 2026-03-23 | MonthlyCalendar.tsx | presentationDuckdbHook | DuckDB import を useClipExport に移動 |
+| 2026-03-23 | MonthlyCalendar.tsx | largeComponentTier2 | 589 行（600 未満） |
+| 2026-03-23 | queryProfileService.ts | applicationToInfrastructure | queryProfiler を application/ に移動 |
 
 ## この一覧の使い方
 

@@ -24,12 +24,6 @@ export const largeComponentTier2: readonly AllowlistEntry[] = [
     removalCondition: '分割リファクタリング時',
   },
   {
-    path: 'presentation/pages/Dashboard/widgets/MonthlyCalendar.tsx',
-    reason: '月間カレンダー（625行）',
-    category: 'legacy',
-    removalCondition: '分割リファクタリング時',
-  },
-  {
     path: 'presentation/pages/Forecast/ForecastChartsCustomer.tsx',
     reason: '予測チャート（756行）',
     category: 'legacy',
