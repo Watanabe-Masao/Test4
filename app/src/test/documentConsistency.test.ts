@@ -363,7 +363,7 @@ describe('@guard tag consistency', () => {
     // レジストリから有効な ID セットを構築
     const registryContent = readFile('app/src/test/guardTagRegistry.ts')
     const registryIds = new Set<string>()
-    const idPattern = /^\s+([A-G]\d+):/gm
+    const idPattern = /^\s+([A-Z]\d+):/gm
     let match
     while ((match = idPattern.exec(registryContent)) !== null) {
       registryIds.add(match[1])
@@ -404,7 +404,7 @@ describe('@guard tag consistency', () => {
   it('GUARD_TAG_REGISTRY の全タグがコードベースで少なくとも1回使用されている', () => {
     const registryContent = readFile('app/src/test/guardTagRegistry.ts')
     const registryIds = new Set<string>()
-    const idPattern = /^\s+([A-G]\d+):/gm
+    const idPattern = /^\s+([A-Z]\d+):/gm
     let match
     while ((match = idPattern.exec(registryContent)) !== null) {
       registryIds.add(match[1])
@@ -426,7 +426,7 @@ describe('@guard tag consistency', () => {
           // guardTagRegistry.ts を除外（レジストリ定義元）
           if (entry.name === 'guardTagRegistry.ts') continue
           const content = fs.readFileSync(fullPath, 'utf-8')
-          const guardMatches = content.matchAll(/@guard\s+([A-G]\d+)/g)
+          const guardMatches = content.matchAll(/@guard\s+([A-Z]\d+)/g)
           for (const m of guardMatches) {
             usedIds.add(m[1])
           }

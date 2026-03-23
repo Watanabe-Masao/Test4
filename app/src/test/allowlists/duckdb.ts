@@ -119,12 +119,7 @@ export const presentationDuckdbHook: readonly AllowlistEntry[] = [
     category: 'migration',
     removalCondition: 'QueryHandler 移行',
   },
-  {
-    path: 'components/charts/CumulativeChart.tsx',
-    reason: 'DuckDB 探索',
-    category: 'migration',
-    removalCondition: 'QueryHandler 移行',
-  },
+  // CumulativeChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + dailyCumulativeHandler
   {
     path: 'components/charts/CvTimeSeriesChart.tsx',
     reason: 'DuckDB 探索',

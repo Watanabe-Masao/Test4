@@ -64,7 +64,7 @@ describe('INV-CMP-01: prevYear.daily.get(day) の新規使用禁止', () => {
     expect(
       violations,
       `prevYear.daily.get() が許可リスト外で検出されました:\n${violations.join('\n')}\n` +
-        'V2 では resolved comparison row または alignmentMap ベースの集計を使ってください。',
+        'getPrevYearDailyValue() または getPrevYearDailySales() を使ってください（@see comparisonAccessors.ts）。',
     ).toEqual([])
   })
 })

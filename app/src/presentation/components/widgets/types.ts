@@ -6,6 +6,7 @@
  */
 import type { ReactNode } from 'react'
 import type { AsyncDuckDB, AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import type { QueryExecutor } from '@/application/queries/QueryPort'
 import type { StoreExplanations, MetricId } from '@/domain/models/analysis'
 import type { DateRange, ComparisonFrame, PrevYearScope } from '@/domain/models/calendar'
 import type { Store } from '@/domain/models/record'
@@ -74,6 +75,8 @@ export interface UnifiedWidgetContext {
   readonly dataMaxDay?: number
   readonly elapsedDays?: number | undefined
   readonly monthlyHistory?: readonly MonthlyDataPoint[]
+  /** QueryExecutor — DuckDB クエリの標準経路 A（@see useQueryWithHandler） */
+  readonly queryExecutor?: QueryExecutor | null
   readonly duckConn?: AsyncDuckDBConnection | null
   readonly duckDb?: AsyncDuckDB | null
   readonly duckDataVersion?: number

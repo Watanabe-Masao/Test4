@@ -29,6 +29,7 @@ import { usePeriodSelectionStore } from '@/application/stores/periodSelectionSto
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { useStoreCostPriceQuery } from '@/application/hooks/duckdb/useStoreCostPriceQuery'
 import { useWeatherData } from '@/application/hooks/useWeather'
+import { createQueryExecutor } from '@/application/queries/QueryPort'
 
 interface UseUnifiedWidgetContextResult {
   /** 統一コンテキスト（currentResult が null の場合は null） */
@@ -105,6 +106,10 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
 
   // DuckDB エンジン初期化
   const duck = useDuckDB(data, targetYear, targetMonth, repo)
+
+  // QueryExecutor — 標準経路 A の基盤。conn を隠蔽し QueryHandler 経由で実行する。
+  // createQueryExecutor は軽量なファクトリ関数。duck.conn の参照同一性で再利用が保証される。
+  const queryExecutor = createQueryExecutor(duck.conn)
 
   // ── 前年店舗別仕入額（application hook 経由、額で保持 — @guard B3） ──
   const { data: prevYearStoreCostPrice } = useStoreCostPriceQuery(
@@ -212,6 +217,7 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
     dataMaxDay,
     elapsedDays: r.elapsedDays,
     monthlyHistory,
+    queryExecutor,
     duckConn: duck.conn,
     duckDb: duck.db,
     duckDataVersion: duck.dataVersion,

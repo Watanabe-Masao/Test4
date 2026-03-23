@@ -211,4 +211,20 @@ export const GUARD_TAG_REGISTRY: Record<string, GuardTagDef> = {
     name: 'キャッシュは本体より複雑にしない',
     examples: ['キャッシュ処理が本体より複雑になると保守コストが逆転する'],
   },
+
+  // ═══ Q: Query Access Architecture ═══
+  Q3: {
+    name: 'Chart は DuckDB hook / QueryExecutor / useAsyncQuery を直接 import しない',
+    examples: [
+      'Chart が useDuckDBXxx を直接 import すると query orchestration が Presentation に漏れる',
+      'executor.execute() を Chart で直接呼ぶと QueryHandler の型安全が迂回される',
+    ],
+  },
+  Q4: {
+    name: 'alignment-aware access は handler/resolver に閉じる',
+    examples: [
+      'prevYear.daily.get() を Chart が直接呼ぶと alignment semantics の理解が消費側に要求される',
+      'toDateKeyFromParts で前年の日付を渡すと Map キー（当期の日付）と不一致になる',
+    ],
+  },
 } as const
