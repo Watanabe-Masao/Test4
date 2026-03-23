@@ -34,6 +34,8 @@ export const UnifiedTimeSlotWidget = memo(function UnifiedTimeSlotWidget({
       currentDateRange={ctx.currentDateRange}
       selectedStoreIds={ctx.selectedStoreIds}
       prevYearScope={ctx.prevYearScope}
+      conn={ctx.duckConn}
+      db={ctx.duckDb}
     />
   )
 })

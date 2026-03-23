@@ -32,11 +32,10 @@ export const useStateLimits: readonly QuantitativeAllowlistEntry[] = [
   },
   {
     path: 'application/hooks/useTimeSlotData.ts',
-    reason: 'タイムスロット orchestrator。実質 state 5 個（import 行でカウント +1）',
+    reason: 'タイムスロット orchestrator。実質 state 6 個（weather retry 含む）+ import 行でカウント +1',
     category: 'structural',
-    removalCondition:
-      'queryExecutor 移行（Sprint 3）で DuckDB hook 9 本が useQueryWithHandler に変わる時',
-    limit: 7,
+    removalCondition: 'weather fallback を WeatherHourlyAvgHandler 内蔵に移行する時',
+    limit: 8,
   },
 ] as const
 
@@ -159,9 +158,9 @@ export const hookLineLimits: readonly QuantitativeAllowlistEntry[] = [
   },
   {
     path: 'application/hooks/useTimeSlotData.ts',
-    reason: 'TimeSlot orchestrator。10 useQueryWithHandler + 12 useMemo input で import が多い',
+    reason: 'TimeSlot orchestrator。10 useQueryWithHandler + weather ETRN fallback + 12 useMemo input',
     category: 'structural',
     removalCondition: 'query input 構築を sub-hook に分離する時',
-    limit: 320,
+    limit: 350,
   },
 ] as const

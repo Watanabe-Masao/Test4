@@ -11,6 +11,7 @@
  * 新規利用箇所では context を使用すること。従来 props は縮退予定。
  */
 import { memo, useMemo, useState } from 'react'
+import type { AsyncDuckDBConnection, AsyncDuckDB } from '@duckdb/duckdb-wasm'
 import { useTheme } from 'styled-components'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
@@ -50,6 +51,10 @@ interface Props {
   readonly prevYearScope?: PrevYearScope
   /** 子→親イベント（親コンテナがハンドラを提供） */
   readonly events?: AnalysisViewEvents
+  /** DuckDB コネクション（天気 ETRN フォールバック用） */
+  readonly conn?: AsyncDuckDBConnection | null
+  /** DuckDB インスタンス（天気 ETRN フォールバック用） */
+  readonly db?: AsyncDuckDB | null
 }
 
 // ── Component ──
@@ -60,6 +65,8 @@ export const TimeSlotChart = memo(function TimeSlotChart({
   currentDateRange: legacyDateRange,
   selectedStoreIds: legacyStoreIds,
   prevYearScope: legacyPrevYearScope,
+  conn,
+  db,
 }: Props) {
   // context がある場合はそこから解決、なければ従来 props を使用
   const dateRange = context?.dateRange ?? legacyDateRange
@@ -85,6 +92,8 @@ export const TimeSlotChart = memo(function TimeSlotChart({
     currentDateRange: dateRange ?? dummyDateRange,
     selectedStoreIds: storeIds ?? emptyStoreIds,
     prevYearScope,
+    conn,
+    db,
   })
 
   const showPrev = d.hasPrev && d.showPrev
