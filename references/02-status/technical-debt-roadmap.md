@@ -1,0 +1,228 @@
+# 技術負債削減ロードマップ
+
+> 管理責任: documentation-steward ロール。
+> 起点: Sprint 1（guardTagRegistry 分離、allowlists/ 分割、CONTRIBUTING.md URL 整合）
+> 作成日: 2026-03-23
+
+---
+
+## 現状スナップショット
+
+### allowlist 全体（99 エントリ）
+
+| カテゴリ | 件数 | 割合 | 性質 |
+|---|---|---|---|
+| migration | 33 | 33% | 移行先が存在。消化するだけ |
+| structural | 26 | 26% | 構造上不可避。削減ではなく監視 |
+| legacy | 11 | 11% | 旧 API 依存。リファクタで解消可能 |
+| adapter | 5 | 5% | DI パターン。正当な例外として維持 |
+| bridge | 4 | 4% | 暫定接続。移行完了で不要になる |
+| lifecycle | 1 | 1% | ライフサイクル管理。正当 |
+
+**削減可能:** migration + legacy + bridge = **48 エントリ（48%）**
+
+### allowlist 別充填率
+
+| allowlist | エントリ | 上限 | 充填率 | 主カテゴリ |
+|---|---|---|---|---|
+| presentationDuckdbHook | 36 | 37 | **97%** | migration(22), bridge(1), structural(1) |
+| applicationToInfrastructure | 12 | 14 | 86% | adapter(5), bridge(2), lifecycle(1) |
+| cmpPrevYearDaily | 11 | 11 | **100%** | migration(11) |
+| largeComponentTier2 | 8 | — | — | legacy(8) |
+| domainLargeFiles | 7 | — | — | structural(7) |
+| cmpFramePrevious | 3 | 3 | **100%** | migration(3) |
+| infraLargeFiles | 3 | — | — | structural(3) |
+| presentationToUsecases | 2 | 2 | 100% | legacy(1) |
+| useStateLimits | 2 | — | — | structural(2) |
+| hookLineLimits | 2 | — | — | structural(2) |
+| usecasesLargeFiles | 2 | — | — | structural(2) |
+| vmReactImport | 2 | — | — | structural(2) |
+| ctxHook | 2 | — | — | structural(1), legacy(1) |
+| useMemoLimits | 1 | — | — | structural(1) |
+| infrastructureToApplication | 1 | 1 | 100% | bridge(1) |
+| cmpDailyMapping | 1 | 1 | 100% | structural(1) |
+| sideEffectChain | 1 | — | — | structural(1) |
+| reactImportExcludeDirs | 1 | — | — | structural(1) |
+| presentationToInfrastructure | **0** | 0 | — | **完了** |
+| dowCalcOverride | **0** | 0 | — | **完了** |
+
+**凍結済み（削減成功例）:** presentationToInfrastructure, dowCalcOverride
+
+---
+
+## 改善プロジェクト一覧
+
+### 最優先（次 Sprint の主目標）
+
+#### P1: ガード基盤仕上げ
+
+| 項目 | 内容 |
+|---|---|
+| 目的 | Sprint 1 の構造リファクタを安全に閉じる |
+| 状態 | **完了** |
+| 対象 | documentConsistency.test.ts, guardTagRegistry.ts, guardTestHelpers.ts, allowlists/index.ts |
+| 成功条件 | コメント・除外条件・参照先が整合し、lint/build/test が安定通過 |
+
+#### P2: allowlist 削減運用化
+
+| 項目 | 内容 |
+|---|---|
+| 目的 | 例外を「一元管理」から「削減対象」に変える |
+| 対象 | allowlists/ 全ファイル（99 エントリ） |
+| 削減可能 | 48 エントリ（migration 33 + legacy 11 + bridge 4） |
+| 成功条件 | 各 allowlist に削減方針があり、migration/legacy/bridge の優先順位が定義されている |
+
+**削減優先順位:**
+
+| 優先度 | カテゴリ | 件数 | 理由 |
+|---|---|---|---|
+| 1 | migration | 33 | 移行先（V2 comparison, QueryHandler）が既に存在。消化するだけ |
+| 2 | legacy | 11 | 旧 API 依存。リファクタで解消可能 |
+| 3 | bridge | 4 | 暫定接続。移行完了で不要になる |
+
+#### P3: レイヤー境界正常化
+
+| 項目 | 内容 |
+|---|---|
+| 目的 | 4 層依存ルールの例外を減らし、構造を健全化する |
+| 対象 | presentationToUsecases, infrastructureToApplication, applicationToInfrastructure の非 adapter 群 |
+| 成功条件 | presentation→usecases と infrastructure→application の例外が減少し、新規違反が増えない |
+
+**現状:**
+
+| 境界 | 現状 | 上限 | 削減余地 |
+|---|---|---|---|
+| application→infrastructure | 12 | 14 | bridge(2) が移行で解消可能 |
+| presentation→usecases | 2 | 2 | legacy(1) が移行で解消可能 |
+| infrastructure→application | 1 | 1 | bridge(1) — 型を domain/ に移動で解消 |
+| presentation→infrastructure | **0** | 0 | **完了** |
+
+---
+
+### 高優先（次の改善サイクル）
+
+#### P4: 比較サブシステム移行完了
+
+| 項目 | 内容 |
+|---|---|
+| 目的 | 旧 comparison API 依存を排除し、比較文脈を一系統に収束 |
+| 対象 | cmpPrevYearDaily(11), cmpFramePrevious(3), cmpDailyMapping(1) — **計 15 エントリ** |
+| 移行先 | `application/comparison/`（V2, 16 ファイル）+ `useComparisonModule` hook |
+| 状態 | 全 allowlist が **100% 充填**（新規追加不可能） |
+| 成功条件 | prevYear.daily.get(), comparisonFrame.previous, dailyMapping 劣化変換の残件が計画的に減少 |
+
+**旧 API 残存ファイル（11 ファイル）:**
+
+| ファイル | 違反 | 備考 |
+|---|---|---|
+| calendarUtils.ts | prevYear.daily.get ×3 | 最多。優先移行候補 |
+| MonthlyCalendar.tsx | prevYear.daily.get ×2, comparisonFrame.previous | 3 allowlist 跨り |
+| DayDetailModal.tsx | prevYear.daily.get, comparisonFrame.previous | 2 allowlist 跨り |
+| DayDetailModal.vm.ts | prevYear.daily.get ×2 | VM 層 |
+| YoYWaterfallChart.tsx | comparisonFrame.previous | |
+| AlertPanel.tsx | prevYear.daily.get | |
+| DailyPage.tsx | prevYear.daily.get | |
+| useBudgetChartData.ts | prevYear.daily.get | application 層 |
+| buildClipBundle.ts | prevYear.daily.get | export 機能 |
+| ForecastPage.helpers.ts | prevYear.daily.get | |
+| InsightTabBudget.tsx | prevYear.daily.get | |
+| PrevYearBudgetDetailPanel.tsx | dailyMapping（sourceDate 維持） | |
+
+**移行戦略:** Dashboard widgets（Calendar, DayDetail, YoYWaterfall）を一括移行すると
+3 allowlist を同時に削減でき、効率が最も高い。
+
+#### P5: DuckDB 直結削減
+
+| 項目 | 内容 |
+|---|---|
+| 目的 | Presentation 層から探索クエリ責務を剥がし、QueryHandler/hook 経由へ |
+| 対象 | presentationDuckdbHook — **36 エントリ**（最大 allowlist） |
+| 状態 | 36/37 で **残り 1 スロット**。事実上凍結 |
+| 成功条件 | 件数が減少し、新規 direct 参照が発生しない |
+
+削減可能: migration(22) が QueryHandler 移行で解消可能。
+
+---
+
+### 中期継続
+
+#### P6: 大型 hook / component 縮退
+
+| 項目 | 内容 |
+|---|---|
+| 目的 | 例外で温存されている重い実装を段階的に薄くする |
+| 対象 | largeComponentTier2(8), useMemoLimits(1), useStateLimits(2), hookLineLimits(2) — **計 13 エントリ** |
+| 成功条件 | 件数が減り、分割テンプレートが定着 |
+
+**注目ファイル:**
+
+| ファイル | 行数 | 上限 | 余裕 | リスク |
+|---|---|---|---|---|
+| ForecastChartsCustomer.tsx | 755 | 756 | **1 行** | 即超過リスク |
+| CategoryFactorBreakdown.tsx | 719 | — | — | 最大級 |
+| MonthlyCalendar.tsx | 633 | — | — | P4 移行で分割機会あり |
+| TimeSlotChart.tsx | 199 | 660 | 461 | **600 未満 — allowlist 不要** |
+
+#### P7: ドキュメント整合強化
+
+| 項目 | 内容 |
+|---|---|
+| 目的 | 実装・設定・ドキュメントの説明を継続的に一致させる |
+| 対象 | README.md, app/README.md, CONTRIBUTING.md, vite.config.ts, documentConsistency.test.ts |
+| 成功条件 | URL・パス・設計説明の不整合がなく、設定と案内文が一致 |
+
+#### P8: guard 運用ルール明確化
+
+| 項目 | 内容 |
+|---|---|
+| 目的 | 新規例外追加や guard 追加時の判断を属人化させない |
+| 対象 | allowlists/ 運用、guard 命名規約、追加フロー |
+| 成功条件 | 例外追加条件、category の使い分け、削除条件が短く明文化されている |
+
+#### P9: guard カバレッジ拡大
+
+| 項目 | 内容 |
+|---|---|
+| 目的 | REVIEW_ONLY_TAGS をガードテストに昇格させる |
+| 対象 | C1, C4, C5, E1, E2 等の現在レビューのみで検証しているタグ |
+| 成功条件 | 機械的に検出できるタグが増え、REVIEW_ONLY_TAGS が減少 |
+
+---
+
+## 管理レーン
+
+| レーン | プロジェクト | 進め方 |
+|---|---|---|
+| **今すぐ閉じる** | P1 ガード基盤仕上げ | **完了済み** |
+| **毎 Sprint 少しずつ** | P2 allowlist 削減, P3 レイヤー境界, P4 比較移行 | PR ごとに 1-3 エントリ削減 |
+| **中期継続** | P5 DuckDB 直結, P6 大型縮退, P7 ドキュメント, P8 guard 運用, P9 guard カバレッジ | 改修タイミングで段階的に |
+
+## 推奨実行順
+
+1. ~~P1: ガード基盤仕上げ~~ **完了**
+2. P2: allowlist 削減運用化（削減方針の明文化）
+3. P3: レイヤー境界正常化（bridge/legacy の解消）
+4. P4: 比較サブシステム移行完了（Dashboard widgets 一括）
+5. P5: DuckDB 直結削減（QueryHandler 移行）
+6. P6: 大型 hook/component 縮退（ForecastChartsCustomer 最優先）
+7. P7: ドキュメント整合強化
+8. P8: guard 運用ルール明確化
+9. P9: guard カバレッジ拡大
+
+## 成果指標
+
+| 指標 | 現在値 | 次 Sprint 目標 | 中期目標 |
+|---|---|---|---|
+| allowlist 総エントリ | 99 | 95 以下 | 80 以下 |
+| migration カテゴリ | 33 | 30 以下 | 20 以下 |
+| legacy カテゴリ | 11 | 10 以下 | 5 以下 |
+| 凍結済み allowlist | 2 | 3 以上 | 5 以上 |
+| DuckDB 直結 | 36 | 34 以下 | 25 以下 |
+| Tier2 大型 component | 8 | 7 以下 | 5 以下 |
+
+## この一覧の使い方
+
+- **Sprint 管理:** 最優先 3 件を直近 Sprint の主目標にする
+- **PR 管理:** 1 PR = 1 改善プロジェクトの一部に紐づける
+- **レビュー観点:** 「どの改善プロジェクトに資する変更か」を明示する
+- **進捗確認:** 成功条件をチェックリストとして使う
