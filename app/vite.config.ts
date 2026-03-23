@@ -50,6 +50,7 @@ export default defineConfig({
       'gross-profit-wasm',
       'budget-analysis-wasm',
       'forecast-wasm',
+      'time-slot-wasm',
     ],
   },
   assetsInclude: ['**/*.wasm'],
@@ -62,6 +63,7 @@ export default defineConfig({
         'gross-profit-wasm',
         'budget-analysis-wasm',
         'forecast-wasm',
+        'time-slot-wasm',
       ],
       output: {
         manualChunks: {
@@ -82,6 +84,7 @@ export default defineConfig({
         'gross-profit-wasm',
         'budget-analysis-wasm',
         'forecast-wasm',
+        'time-slot-wasm',
       ],
     },
   },
