@@ -12,8 +12,13 @@ import {
   calculateItemsPerCustomer,
   calculateAveragePricePerItem,
 } from '@/domain/calculations/utils'
-import { useDuckDBCategoryTimeRecords } from '@/application/hooks/duckdb'
+import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
+import {
+  categoryTimeRecordsHandler,
+  type CategoryTimeRecordsInput,
+} from '@/application/queries/cts'
 import type { DateRange } from '@/domain/models/calendar'
+import { dateRangeToKeys } from '@/domain/models/calendar'
 import {
   calculatePrevCtsDateRange,
   aggregatePeriodCurSales,
@@ -124,33 +129,59 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
 
   const prevIsPrevYear = activeCompMode !== 'wow'
 
-  // CTS クエリ発行（当年 + 比較期間）
-  const curCtsResult = useDuckDBCategoryTimeRecords(
-    ctx.duckConn,
-    ctx.duckDataVersion,
-    curDateRange,
-    ctx.selectedStoreIds,
-  )
-  const periodCTS = curCtsResult.data ?? EMPTY_RECORDS
+  // CTS クエリ発行（当年 + 比較期間） — QueryHandler 経由
+  const curCtsInput = useMemo<CategoryTimeRecordsInput | null>(() => {
+    const { fromKey, toKey } = dateRangeToKeys(curDateRange)
+    return {
+      dateFrom: fromKey,
+      dateTo: toKey,
+      storeIds: ctx.selectedStoreIds.size > 0 ? [...ctx.selectedStoreIds] : undefined,
+    }
+  }, [curDateRange, ctx.selectedStoreIds])
 
-  const prevCtsResult = useDuckDBCategoryTimeRecords(
-    ctx.duckConn,
-    ctx.duckDataVersion,
-    prevCtsDateRange,
-    ctx.selectedStoreIds,
-    prevIsPrevYear,
+  const prevCtsInput = useMemo<CategoryTimeRecordsInput | null>(() => {
+    if (!prevCtsDateRange) return null
+    const { fromKey, toKey } = dateRangeToKeys(prevCtsDateRange)
+    return {
+      dateFrom: fromKey,
+      dateTo: toKey,
+      storeIds: ctx.selectedStoreIds.size > 0 ? [...ctx.selectedStoreIds] : undefined,
+      isPrevYear: prevIsPrevYear,
+    }
+  }, [prevCtsDateRange, ctx.selectedStoreIds, prevIsPrevYear])
+
+  const prevCtsFallbackInput = useMemo<CategoryTimeRecordsInput | null>(() => {
+    if (!prevCtsDateRange || !prevIsPrevYear) return null
+    const { fromKey, toKey } = dateRangeToKeys(prevCtsDateRange)
+    return {
+      dateFrom: fromKey,
+      dateTo: toKey,
+      storeIds: ctx.selectedStoreIds.size > 0 ? [...ctx.selectedStoreIds] : undefined,
+    }
+  }, [prevCtsDateRange, ctx.selectedStoreIds, prevIsPrevYear])
+
+  const { data: curCtsOutput } = useQueryWithHandler(
+    ctx.queryExecutor,
+    categoryTimeRecordsHandler,
+    curCtsInput,
+  )
+  const periodCTS = curCtsOutput?.records ?? EMPTY_RECORDS
+
+  const { data: prevCtsOutput } = useQueryWithHandler(
+    ctx.queryExecutor,
+    categoryTimeRecordsHandler,
+    prevCtsInput,
   )
   // フォールバック: 前年データが is_prev_year=false で格納されている場合
-  const prevCtsFallbackResult = useDuckDBCategoryTimeRecords(
-    ctx.duckConn,
-    ctx.duckDataVersion,
-    prevCtsDateRange,
-    ctx.selectedStoreIds,
+  const { data: prevCtsFallbackOutput } = useQueryWithHandler(
+    ctx.queryExecutor,
+    categoryTimeRecordsHandler,
+    prevCtsFallbackInput,
   )
   const periodPrevCTS =
-    prevIsPrevYear && (prevCtsResult.data ?? []).length === 0
-      ? (prevCtsFallbackResult.data ?? EMPTY_RECORDS)
-      : (prevCtsResult.data ?? EMPTY_RECORDS)
+    prevIsPrevYear && (prevCtsOutput?.records ?? []).length === 0
+      ? (prevCtsFallbackOutput?.records ?? EMPTY_RECORDS)
+      : (prevCtsOutput?.records ?? EMPTY_RECORDS)
 
   // ── CTS から売上合計を導出（部門内訳と同一データソース） ──
   const periodCurSales = useMemo(

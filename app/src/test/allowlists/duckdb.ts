@@ -25,17 +25,13 @@ export const presentationDuckdbHook: readonly AllowlistEntry[] = [
     removalCondition: 'QueryHandler 移行',
   },
   // DayDetailModal.tsx — re-export 経路整理完了（2026-03-23）: application/hooks/analytics 経由
-  {
-    path: 'pages/Dashboard/widgets/YoYWaterfallChart.tsx',
-    reason: 'DuckDB 探索',
-    category: 'migration',
-    removalCondition: 'QueryHandler 移行',
-  },
+  // YoYWaterfallChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + categoryTimeRecordsHandler ×3
+  // PurchaseAnalysisPage.tsx — usePurchaseComparisonQuery は re-export 済みだが、useDuckDB（conn取得）がガードに引っかかる
   {
     path: 'pages/PurchaseAnalysis/PurchaseAnalysisPage.tsx',
-    reason: 'DuckDB 探索',
-    category: 'migration',
-    removalCondition: 'QueryHandler 移行',
+    reason: 'useDuckDB conn 取得（queryExecutor 移行で解消予定）',
+    category: 'bridge',
+    removalCondition: 'queryExecutor 移行',
   },
   // FactorDecompositionPanel.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + storeDaySummaryHandler
   // WeatherAnalysisPanel.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + storeDaySummaryHandler
