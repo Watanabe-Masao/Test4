@@ -211,14 +211,27 @@
 
 ## 成果指標
 
-| 指標 | 現在値 | 次 Sprint 目標 | 中期目標 |
+| 指標 | 起点（Sprint 1 完了時） | 現在値 | 次 Sprint 目標 | 中期目標 |
+|---|---|---|---|---|
+| allowlist 総エントリ | 99 | **91**（-8） | 87 以下 | 72 以下 |
+| migration カテゴリ | 33 | **31**（-2） | 28 以下 | 20 以下 |
+| legacy カテゴリ | 11 | **8**（-3） | 7 以下 | 5 以下 |
+| 凍結済み allowlist | 2 | 2 | 3 以上 | 5 以上 |
+| DuckDB 直結 | 36 | **34**（-2） | 32 以下 | 25 以下 |
+| Tier2 大型 component | 8 | **5**（-3） | 4 以下 | 3 以下 |
+
+### 削減履歴
+
+| 日付 | 削減エントリ | allowlist | 理由 |
 |---|---|---|---|
-| allowlist 総エントリ | 99 | 95 以下 | 80 以下 |
-| migration カテゴリ | 33 | 30 以下 | 20 以下 |
-| legacy カテゴリ | 11 | 10 以下 | 5 以下 |
-| 凍結済み allowlist | 2 | 3 以上 | 5 以上 |
-| DuckDB 直結 | 36 | 34 以下 | 25 以下 |
-| Tier2 大型 component | 8 | 7 以下 | 5 以下 |
+| 2026-03-23 | TimeSlotChart.tsx | largeComponentTier2 | 199 行（600 未満） |
+| 2026-03-23 | PerformanceIndexChart.tsx | largeComponentTier2 | 573 行（600 未満） |
+| 2026-03-23 | DayDetailModal.tsx | largeComponentTier2 | 579 行（600 未満） |
+| 2026-03-23 | jmaEtrnClient.ts | infraLargeFiles | 267 行（400 未満） |
+| 2026-03-23 | DiscountAnalysisPanel.tsx | presentationDuckdbHook | DuckDB import なし |
+| 2026-03-23 | CategoryHeatmapPanel.tsx | presentationDuckdbHook | DuckDB import なし |
+| 2026-03-23 | DayDetailModal.tsx | cmpFramePrevious | comparisonFrame.previous 未使用 |
+| 2026-03-23 | MonthlyCalendar.tsx | cmpFramePrevious | comparisonFrame.previous 未使用 |
 
 ## この一覧の使い方
 

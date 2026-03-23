@@ -76,19 +76,7 @@ export const cmpPrevYearDaily: readonly AllowlistEntry[] = [
 /** INV-CMP-03: comparisonFrame.previous の既存違反（凍結） */
 export const cmpFramePrevious: readonly AllowlistEntry[] = [
   {
-    path: 'presentation/pages/Dashboard/widgets/DayDetailModal.tsx',
-    reason: '旧 previous パターン',
-    category: 'migration',
-    removalCondition: 'V2 比較移行完了時',
-  },
-  {
     path: 'presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx',
-    reason: '旧 previous パターン',
-    category: 'migration',
-    removalCondition: 'V2 比較移行完了時',
-  },
-  {
-    path: 'presentation/pages/Dashboard/widgets/MonthlyCalendar.tsx',
     reason: '旧 previous パターン',
     category: 'migration',
     removalCondition: 'V2 比較移行完了時',

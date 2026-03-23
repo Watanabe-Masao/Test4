@@ -6,20 +6,8 @@ import type { AllowlistEntry } from './types'
 /** Presentation コンポーネント Tier 2（600行超の大規模コンポーネント） */
 export const largeComponentTier2: readonly AllowlistEntry[] = [
   {
-    path: 'presentation/components/charts/TimeSlotChart.tsx',
-    reason: '時間帯チャート（660行）',
-    category: 'legacy',
-    removalCondition: '分割リファクタリング時',
-  },
-  {
     path: 'presentation/components/charts/BudgetVsActualChart.tsx',
     reason: '予実チャート（696行）',
-    category: 'legacy',
-    removalCondition: '分割リファクタリング時',
-  },
-  {
-    path: 'presentation/components/charts/PerformanceIndexChart.tsx',
-    reason: '指標チャート（610行）',
     category: 'legacy',
     removalCondition: '分割リファクタリング時',
   },
@@ -32,12 +20,6 @@ export const largeComponentTier2: readonly AllowlistEntry[] = [
   {
     path: 'presentation/pages/Dashboard/widgets/CategoryFactorBreakdown.tsx',
     reason: 'カテゴリ要因分解（654行）',
-    category: 'legacy',
-    removalCondition: '分割リファクタリング時',
-  },
-  {
-    path: 'presentation/pages/Dashboard/widgets/DayDetailModal.tsx',
-    reason: '日次詳細モーダル（689行）',
     category: 'legacy',
     removalCondition: '分割リファクタリング時',
   },
@@ -66,12 +48,6 @@ export const infraLargeFiles: readonly AllowlistEntry[] = [
   {
     path: 'infrastructure/duckdb/queries/purchaseComparison.ts',
     reason: '仕入比較クエリ',
-    category: 'structural',
-    removalCondition: '分割時',
-  },
-  {
-    path: 'infrastructure/weather/jmaEtrnClient.ts',
-    reason: 'JMA ETRN クライアント',
     category: 'structural',
     removalCondition: '分割時',
   },
