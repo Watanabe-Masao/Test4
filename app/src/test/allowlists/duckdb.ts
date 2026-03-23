@@ -18,18 +18,8 @@ export const presentationDuckdbHook: readonly AllowlistEntry[] = [
     removalCondition: 'QueryHandler 移行',
   },
   // CategoryPerformanceChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + levelAggregationHandler
-  {
-    path: 'components/charts/CategoryHourlyChart.tsx',
-    reason: 'DuckDB 探索',
-    category: 'migration',
-    removalCondition: 'QueryHandler 移行',
-  },
-  {
-    path: 'components/charts/DeptHourlyChart.tsx',
-    reason: 'DuckDB 探索',
-    category: 'migration',
-    removalCondition: 'QueryHandler 移行',
-  },
+  // CategoryHourlyChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + categoryHourlyHandler
+  // DeptHourlyChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + categoryHourlyHandler
   // DowPatternChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + dowPatternHandler
   // FeatureChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + dailyFeaturesHandler
   // YoYChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + yoyDailyHandler
@@ -90,19 +80,9 @@ export const presentationDuckdbHook: readonly AllowlistEntry[] = [
   // CategoryMixChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + categoryMixWeeklyHandler
   // CategoryTrendChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + categoryDailyTrendHandler
   // CumulativeChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + dailyCumulativeHandler
-  {
-    path: 'components/charts/CvTimeSeriesChart.tsx',
-    reason: 'DuckDB 探索',
-    category: 'migration',
-    removalCondition: 'QueryHandler 移行',
-  },
+  // CvTimeSeriesChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + categoryBenchmarkHandler + categoryBenchmarkTrendHandler
   // DeptTrendChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + deptKpiTrendHandler
-  {
-    path: 'components/charts/PiCvBubbleChart.tsx',
-    reason: 'DuckDB 探索',
-    category: 'migration',
-    removalCondition: 'QueryHandler 移行',
-  },
+  // PiCvBubbleChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + categoryBenchmarkHandler
   // StoreHourlyChart.tsx — QueryHandler 移行完了（2026-03-23）: useQueryWithHandler + storeAggregationHandler
   {
     path: 'components/charts/useDuckDBTimeSlotData.ts',

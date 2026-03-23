@@ -47,8 +47,7 @@ export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
     isVisible: (ctx) => ctx.duckDataVersion > 0,
     render: (ctx) => (
       <CategoryHourlyChart
-        duckConn={ctx.duckConn}
-        duckDataVersion={ctx.duckDataVersion}
+        queryExecutor={ctx.queryExecutor}
         currentDateRange={ctx.currentDateRange}
         selectedStoreIds={ctx.selectedStoreIds}
       />
@@ -107,8 +106,7 @@ export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
     isVisible: (ctx) => ctx.duckDataVersion > 0,
     render: (ctx) => (
       <CvTimeSeriesChart
-        duckConn={ctx.duckConn}
-        duckDataVersion={ctx.duckDataVersion}
+        queryExecutor={ctx.queryExecutor}
         currentDateRange={ctx.currentDateRange}
         selectedStoreIds={ctx.selectedStoreIds}
       />

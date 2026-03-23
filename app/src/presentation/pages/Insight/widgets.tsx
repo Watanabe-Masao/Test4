@@ -62,11 +62,10 @@ export const INSIGHT_WIDGETS: readonly WidgetDef[] = [
     size: 'full',
     isVisible: (ctx) => (ctx.duckDataVersion ?? 0) > 0,
     render: (ctx) => {
-      if (!ctx.duckConn || !ctx.duckDataVersion || !ctx.currentDateRange) return null
+      if (!ctx.queryExecutor || !ctx.currentDateRange) return null
       return (
         <PiCvBubbleChart
-          duckConn={ctx.duckConn}
-          duckDataVersion={ctx.duckDataVersion}
+          queryExecutor={ctx.queryExecutor}
           currentDateRange={ctx.currentDateRange}
           selectedStoreIds={ctx.selectedStoreIds}
         />

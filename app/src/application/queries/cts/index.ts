@@ -18,3 +18,10 @@ export {
   type LevelAggregationOutput,
   type LevelAggregationRow,
 } from './LevelAggregationHandler'
+
+export {
+  categoryHourlyHandler,
+  type CategoryHourlyInput,
+  type CategoryHourlyOutput,
+  type CategoryHourlyRow,
+} from './CategoryHourlyHandler'

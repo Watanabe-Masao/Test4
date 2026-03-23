@@ -166,12 +166,21 @@ describe('Presentation Isolation Guard', () => {
     const files = collectTsFiles(queriesDir)
     const violations: string[] = []
 
+    // Composite handler は DuckDB 取得 + domain 純粋関数の組み合わせ。
+    // Query → Command 依存は意図的（P5 composite handler パターン）。
+    const COMPOSITE_HANDLER_ALLOWLIST = new Set([
+      'application/queries/features/DowPatternHandler.ts',
+      'application/queries/features/DailyFeaturesHandler.ts',
+    ])
+
     for (const file of files) {
+      const rel = relativePath(file)
+      if (COMPOSITE_HANDLER_ALLOWLIST.has(rel)) continue
       const imports = extractImports(file)
       for (const imp of imports) {
         if (imp.startsWith('@/domain/calculations')) {
           violations.push(
-            `${relativePath(file)}: ${imp} — Query ハンドラーは Command 側（domain/calculations）に依存できません`,
+            `${rel}: ${imp} — Query ハンドラーは Command 側（domain/calculations）に依存できません`,
           )
         }
       }
@@ -252,7 +261,7 @@ describe('Presentation Isolation Guard', () => {
 
   it('presentation/ の DuckDB フック許可リストは増やさない（移行時に減らすのみ）', () => {
     // 許可リストのサイズ上限。移行が進むにつれてこの数値を減らしていく。
-    const MAX_ALLOWLIST_SIZE = 18
+    const MAX_ALLOWLIST_SIZE = 14
     expect(PRESENTATION_DUCKDB_HOOK_ALLOWLIST.size).toBeLessThanOrEqual(MAX_ALLOWLIST_SIZE)
   })
 

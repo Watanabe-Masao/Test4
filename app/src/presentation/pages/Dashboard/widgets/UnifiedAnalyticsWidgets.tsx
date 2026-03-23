@@ -67,8 +67,7 @@ export const UnifiedDeptHourlyWidget = memo(function UnifiedDeptHourlyWidget({
 }) {
   return (
     <DeptHourlyChart
-      duckConn={ctx.duckConn}
-      duckDataVersion={ctx.duckDataVersion}
+      queryExecutor={ctx.queryExecutor}
       currentDateRange={ctx.currentDateRange}
       selectedStoreIds={ctx.selectedStoreIds}
     />

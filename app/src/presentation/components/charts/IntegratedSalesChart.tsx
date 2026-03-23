@@ -252,8 +252,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
             role="grandchild"
           >
             <DeptHourlyChart
-              duckConn={props.duckConn}
-              duckDataVersion={props.duckDataVersion}
+              queryExecutor={props.queryExecutor}
               currentDateRange={drillContext.dateRange}
               selectedStoreIds={drillContext.selectedStoreIds}
             />
