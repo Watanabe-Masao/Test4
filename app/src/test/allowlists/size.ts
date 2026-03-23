@@ -6,18 +6,6 @@ import type { AllowlistEntry } from './types'
 /** Presentation コンポーネント Tier 2（600行超の大規模コンポーネント） */
 export const largeComponentTier2: readonly AllowlistEntry[] = [
   {
-    path: 'presentation/components/charts/BudgetVsActualChart.tsx',
-    reason: '予実チャート（696行）',
-    category: 'legacy',
-    removalCondition: '分割リファクタリング時',
-  },
-  {
-    path: 'presentation/components/charts/YoYVarianceChart.tsx',
-    reason: '前年差チャート（668行）',
-    category: 'legacy',
-    removalCondition: '分割リファクタリング時',
-  },
-  {
     path: 'presentation/pages/Dashboard/widgets/CategoryFactorBreakdown.tsx',
     reason: 'カテゴリ要因分解（654行）',
     category: 'legacy',

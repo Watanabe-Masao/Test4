@@ -1,11 +1,8 @@
 import { memo, useState, useMemo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
-import { EChart } from './EChart'
-import type { EChartsOption } from 'echarts'
-import { standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
-import { valueYAxis } from './builders'
-import { useChartTheme, toComma, toPct, toAxisYen } from './chartTheme'
+import { EChart, type EChartsOption } from './EChart'
+import { useChartTheme, toComma } from './chartTheme'
 import { DualPeriodSlider } from './DualPeriodSlider'
 import { useDualPeriodRange } from './useDualPeriodRange'
 import { CHART_GUIDES } from './chartGuides'
@@ -19,6 +16,16 @@ import {
   SummaryItem,
   SummaryLabel,
 } from './YoYVarianceChart.styles'
+import {
+  type ViewType,
+  type GrowthSubMode,
+  VIEW_LABELS,
+  GROWTH_SUB_LABELS,
+  maToNull,
+  buildSalesGapOption,
+  buildMultiGapOption,
+  buildGrowthRateOption,
+} from './YoYVarianceChart.builders'
 import type { DailyRecord } from '@/domain/models/record'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import {
@@ -27,330 +34,12 @@ import {
   calculateGrowthRate,
 } from '@/domain/calculations/utils'
 
-type ViewType = 'salesGap' | 'multiGap' | 'growthRate'
-type GrowthSubMode = 'daily' | 'cumulative' | 'ma7'
-
-const VIEW_LABELS: Record<ViewType, string> = {
-  salesGap: '売上差異',
-  multiGap: '複合差異',
-  growthRate: '成長率',
-}
-
-const GROWTH_SUB_LABELS: Record<GrowthSubMode, string> = {
-  daily: '日別',
-  cumulative: '累計',
-  ma7: '7日移動平均',
-}
-
 interface Props {
   daily: ReadonlyMap<number, DailyRecord>
   daysInMonth: number
   year: number
   month: number
   prevYearDaily: ReadonlyMap<string, { sales: number; discount: number; customers?: number }>
-}
-
-/** NaN → null */
-function maToNull(values: number[]): (number | null)[] {
-  return values.map((v) => (isNaN(v) ? null : v))
-}
-
-const allLabels: Record<string, string> = {
-  salesDiff: '売上差異',
-  discountDiff: '売変差異',
-  customerDiff: '客数差異',
-  cumSalesDiff: '累計売上差異',
-  cumDiscountDiff: '累計売変差異',
-  cumCustomerDiff: '累計客数差異',
-  salesGrowth: '売上成長率',
-  customerGrowth: '客数成長率',
-  txValueGrowth: '客単価成長率',
-  cumSalesGrowth: '売上成長率(累計)',
-  cumCustomerGrowth: '客数成長率(累計)',
-  cumTxValueGrowth: '客単価成長率(累計)',
-  salesGrowthMa7: '売上成長率(7日MA)',
-  customerGrowthMa7: '客数成長率(7日MA)',
-  txValueGrowthMa7: '客単価成長率(7日MA)',
-}
-
-/** ECharts tooltip formatter for all views */
-function buildTooltipFormatter(view: ViewType): (params: unknown) => string {
-  return (params: unknown) => {
-    const items = params as { seriesName: string; value: unknown; marker: string }[]
-    if (!Array.isArray(items) || items.length === 0) return ''
-    const first = items[0]
-    const dayVal = (first as unknown as { axisValue: string }).axisValue
-    let html = `<div style="font-weight:600;margin-bottom:4px">${dayVal}日</div>`
-    for (const item of items) {
-      const val = item.value as number | null | undefined
-      const name = item.seriesName
-      let formatted: string
-      if (val == null) {
-        formatted = '-'
-      } else if (view === 'growthRate') {
-        formatted = toPct(val)
-      } else {
-        const key = name
-        if (
-          key.includes('customer') ||
-          key.includes('Customer') ||
-          key === allLabels.customerDiff
-        ) {
-          formatted = `${val >= 0 ? '+' : ''}${toComma(val)}人`
-        } else {
-          formatted = `${val >= 0 ? '+' : ''}${toComma(val)}`
-        }
-      }
-      html += `<div>${item.marker} ${name}: <strong>${formatted}</strong></div>`
-    }
-    return html
-  }
-}
-
-/** Build ECharts option for salesGap view */
-function buildSalesGapOption(
-  data: Record<string, unknown>[],
-  ct: ReturnType<typeof useChartTheme>,
-  theme: AppTheme,
-): EChartsOption {
-  const days = data.map((d) => String(d.day))
-  const salesDiffData = data.map((d) => d.salesDiff as number)
-  const cumSalesDiffData = data.map((d) => d.cumSalesDiff as number)
-  const barColors = data.map((d) =>
-    (d.salesDiff as number) >= 0 ? ct.colors.success : ct.colors.danger,
-  )
-
-  return {
-    grid: standardGrid(),
-    tooltip: {
-      ...standardTooltip(theme),
-      trigger: 'axis' as const,
-      formatter: buildTooltipFormatter('salesGap'),
-    },
-    legend: {
-      ...standardLegend(theme),
-      data: [allLabels.salesDiff, allLabels.cumSalesDiff],
-    },
-    xAxis: {
-      type: 'category' as const,
-      data: days,
-      axisLabel: {
-        color: ct.textMuted,
-        fontSize: ct.fontSize.xs,
-        fontFamily: ct.monoFamily,
-      },
-      axisLine: { lineStyle: { color: ct.grid } },
-      axisTick: { show: false },
-    },
-    yAxis: [
-      valueYAxis(theme, { formatter: (v: number) => toAxisYen(v) }),
-      valueYAxis(theme, {
-        formatter: (v: number) => toAxisYen(v),
-        position: 'right',
-        showSplitLine: false,
-      }),
-    ],
-    series: [
-      {
-        name: allLabels.salesDiff,
-        type: 'bar' as const,
-        yAxisIndex: 0,
-        data: salesDiffData.map((v, i) => ({
-          value: v,
-          itemStyle: { color: barColors[i], opacity: 0.7 },
-        })),
-        barMaxWidth: 16,
-        itemStyle: { borderRadius: [2, 2, 0, 0] },
-        markLine: {
-          silent: true,
-          symbol: 'none',
-          lineStyle: { color: ct.grid, opacity: 0.7, type: 'solid' as const },
-          data: [{ yAxis: 0 }],
-          label: { show: false },
-        },
-      },
-      {
-        name: allLabels.cumSalesDiff,
-        type: 'line' as const,
-        yAxisIndex: 1,
-        data: cumSalesDiffData,
-        smooth: true,
-        symbol: 'none',
-        connectNulls: true,
-        lineStyle: { width: 2, color: ct.colors.primary },
-        itemStyle: { color: ct.colors.primary },
-      },
-    ],
-  }
-}
-
-/** Build ECharts option for multiGap view */
-function buildMultiGapOption(
-  data: Record<string, unknown>[],
-  ct: ReturnType<typeof useChartTheme>,
-  theme: AppTheme,
-): EChartsOption {
-  const days = data.map((d) => String(d.day))
-  const salesDiffData = data.map((d) => d.salesDiff as number)
-  const discountDiffData = data.map((d) => d.discountDiff as number)
-  const customerDiffData = data.map((d) => d.customerDiff as number)
-  const barColors = data.map((d) =>
-    (d.salesDiff as number) >= 0 ? ct.colors.primary : ct.colors.slateDark,
-  )
-
-  return {
-    grid: standardGrid(),
-    tooltip: {
-      ...standardTooltip(theme),
-      trigger: 'axis' as const,
-      formatter: buildTooltipFormatter('multiGap'),
-    },
-    legend: {
-      ...standardLegend(theme),
-      data: [allLabels.salesDiff, allLabels.discountDiff, allLabels.customerDiff],
-    },
-    xAxis: {
-      type: 'category' as const,
-      data: days,
-      axisLabel: {
-        color: ct.textMuted,
-        fontSize: ct.fontSize.xs,
-        fontFamily: ct.monoFamily,
-      },
-      axisLine: { lineStyle: { color: ct.grid } },
-      axisTick: { show: false },
-    },
-    yAxis: [
-      valueYAxis(theme, { formatter: (v: number) => toAxisYen(v) }),
-      valueYAxis(theme, {
-        formatter: (v: number) => `${toComma(v)}人`,
-        position: 'right',
-        showSplitLine: false,
-      }),
-    ],
-    series: [
-      {
-        name: allLabels.salesDiff,
-        type: 'bar' as const,
-        yAxisIndex: 0,
-        data: salesDiffData.map((v, i) => ({
-          value: v,
-          itemStyle: { color: barColors[i], opacity: 0.7 },
-        })),
-        barMaxWidth: 12,
-        markLine: {
-          silent: true,
-          symbol: 'none',
-          lineStyle: { color: ct.grid, opacity: 0.7, type: 'solid' as const },
-          data: [{ yAxis: 0 }],
-          label: { show: false },
-        },
-      },
-      {
-        name: allLabels.discountDiff,
-        type: 'line' as const,
-        yAxisIndex: 0,
-        data: discountDiffData,
-        smooth: true,
-        symbol: 'none',
-        connectNulls: true,
-        lineStyle: { width: 2, color: ct.colors.danger },
-        itemStyle: { color: ct.colors.danger },
-      },
-      {
-        name: allLabels.customerDiff,
-        type: 'line' as const,
-        yAxisIndex: 1,
-        data: customerDiffData,
-        smooth: true,
-        symbol: 'none',
-        connectNulls: true,
-        lineStyle: { width: 2, color: ct.colors.info, type: 'dashed' as const },
-        itemStyle: { color: ct.colors.info },
-      },
-    ],
-  }
-}
-
-/** Build ECharts option for growthRate view */
-function buildGrowthRateOption(
-  data: Record<string, unknown>[],
-  growthKeys: { sales: string; customer: string; txValue: string },
-  ct: ReturnType<typeof useChartTheme>,
-  theme: AppTheme,
-): EChartsOption {
-  const days = data.map((d) => String(d.day))
-  const salesData = data.map((d) => (d[growthKeys.sales] as number | null) ?? null)
-  const customerData = data.map((d) => (d[growthKeys.customer] as number | null) ?? null)
-  const txValueData = data.map((d) => (d[growthKeys.txValue] as number | null) ?? null)
-
-  return {
-    grid: standardGrid(),
-    tooltip: {
-      ...standardTooltip(theme),
-      trigger: 'axis' as const,
-      formatter: buildTooltipFormatter('growthRate'),
-    },
-    legend: {
-      ...standardLegend(theme),
-      data: [
-        allLabels[growthKeys.sales] ?? growthKeys.sales,
-        allLabels[growthKeys.customer] ?? growthKeys.customer,
-        allLabels[growthKeys.txValue] ?? growthKeys.txValue,
-      ],
-    },
-    xAxis: {
-      type: 'category' as const,
-      data: days,
-      axisLabel: {
-        color: ct.textMuted,
-        fontSize: ct.fontSize.xs,
-        fontFamily: ct.monoFamily,
-      },
-      axisLine: { lineStyle: { color: ct.grid } },
-      axisTick: { show: false },
-    },
-    yAxis: valueYAxis(theme, { formatter: (v: number) => toPct(v, 0) }),
-    series: [
-      {
-        name: allLabels[growthKeys.sales] ?? growthKeys.sales,
-        type: 'line' as const,
-        data: salesData,
-        smooth: true,
-        symbol: 'none',
-        connectNulls: true,
-        lineStyle: { width: 2.5, color: ct.colors.primary },
-        itemStyle: { color: ct.colors.primary },
-        markLine: {
-          silent: true,
-          symbol: 'none',
-          lineStyle: { color: ct.grid, opacity: 0.7, type: 'solid' as const },
-          data: [{ yAxis: 0 }],
-          label: { show: false },
-        },
-      },
-      {
-        name: allLabels[growthKeys.customer] ?? growthKeys.customer,
-        type: 'line' as const,
-        data: customerData,
-        smooth: true,
-        symbol: 'none',
-        connectNulls: true,
-        lineStyle: { width: 2, color: ct.colors.info },
-        itemStyle: { color: ct.colors.info },
-      },
-      {
-        name: allLabels[growthKeys.txValue] ?? growthKeys.txValue,
-        type: 'line' as const,
-        data: txValueData,
-        smooth: true,
-        symbol: 'none',
-        connectNulls: true,
-        lineStyle: { width: 2, color: ct.colors.purple, type: 'dashed' as const },
-        itemStyle: { color: ct.colors.purple },
-      },
-    ],
-  }
 }
 
 export const YoYVarianceChart = memo(function YoYVarianceChart({
