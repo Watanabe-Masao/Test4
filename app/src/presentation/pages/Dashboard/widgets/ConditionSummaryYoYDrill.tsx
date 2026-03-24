@@ -138,6 +138,8 @@ export function YoYDrillOverlay({
               ctsRecords={ctsRecords}
               prevCtsRecords={prevCtsRecords}
               effectiveDay={effectiveDay}
+              expandedStore={expandedStore}
+              onExpandToggle={(id) => setExpandedStore((prev) => (prev === id ? null : id))}
             />
           )}
           {yoyDrill === 'totalCost' && (

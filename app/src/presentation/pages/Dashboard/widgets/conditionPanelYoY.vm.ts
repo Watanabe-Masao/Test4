@@ -280,14 +280,16 @@ export function buildItemsYoYDetailVm(
     }
   })
 
-  // Daily aggregation
+  // Daily aggregation (day > 0 のみ — 前年の同曜日アライメントで負の日付は除外)
   const dayMap = new Map<number, { cur: number; prev: number }>()
   for (const r of scopedCur) {
+    if (r.day <= 0) continue
     const e = dayMap.get(r.day) ?? { cur: 0, prev: 0 }
     e.cur += r.totalQuantity
     dayMap.set(r.day, e)
   }
   for (const r of scopedPrev) {
+    if (r.day <= 0) continue
     const e = dayMap.get(r.day) ?? { cur: 0, prev: 0 }
     e.prev += r.totalQuantity
     dayMap.set(r.day, e)
