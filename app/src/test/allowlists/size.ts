@@ -76,10 +76,4 @@ export const usecasesLargeFiles: readonly AllowlistEntry[] = [
     category: 'structural',
     removalCondition: '分割時',
   },
-  {
-    path: 'application/usecases/clipExport/clipJs.ts',
-    reason: 'クリップボードエクスポート',
-    category: 'structural',
-    removalCondition: '分割時',
-  },
 ] as const

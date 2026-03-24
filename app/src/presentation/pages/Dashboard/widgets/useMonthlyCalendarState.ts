@@ -205,8 +205,7 @@ export function useMonthlyCalendarState(ctx: WidgetContext) {
     handlePinConfirm,
     handlePinRemove,
     // Prev year lookup
-    getPrevYearSales: (day: number) =>
-      getPrevYearDailySales(prevYear, year, month, day),
+    getPrevYearSales: (day: number) => getPrevYearDailySales(prevYear, year, month, day),
     // Export
     isExporting,
     handleClipExport,
