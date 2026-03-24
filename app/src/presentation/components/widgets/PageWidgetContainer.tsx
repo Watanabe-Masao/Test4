@@ -39,10 +39,7 @@ import {
  * DuckDB エンジン自体が未初期化の段階ではウィジェット内部の hook が実行できないため、
  * この層で先にガードする。
  */
-function renderWidgetWithGuard(
-  widget: WidgetDef,
-  context: UnifiedWidgetContext,
-): ReactNode {
+function renderWidgetWithGuard(widget: WidgetDef, context: UnifiedWidgetContext): ReactNode {
   // KPI ウィジェットは同期計算結果のためガード不要
   if (widget.size === 'kpi') {
     return widget.render(context)
