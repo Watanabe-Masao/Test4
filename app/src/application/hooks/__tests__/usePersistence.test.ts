@@ -126,9 +126,9 @@ describe('usePersistence', () => {
 
       await waitFor(() => {
         expect(mockRepo.getSessionMeta).toHaveBeenCalled()
+        // 復元すべきデータがなくても「復元処理は完了」として扱う
+        expect(result.current.autoRestored).toBe(true)
       })
-      // 復元すべきデータがなくても「復元処理は完了」として扱う
-      expect(result.current.autoRestored).toBe(true)
     })
 
     it('does not restore when not available', async () => {
