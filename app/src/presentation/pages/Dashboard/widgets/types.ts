@@ -1,3 +1,4 @@
+import type { CurrentCtsQuantity } from '@/application/hooks/useCtsQuantity'
 import type { ReactNode } from 'react'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 import type { WeatherPersister } from '@/application/queries/weather'
@@ -127,4 +128,12 @@ export interface WidgetContext {
   weatherDaily?: readonly DailyWeatherSummary[]
   /** 前年天気データ（日別サマリ） */
   prevYearWeatherDaily?: readonly DailyWeatherSummary[]
+  /**
+   * 当年販売点数（CTS）の事前集計値（effectiveDay 以内）。
+   * Presentation が raw CTS レコードに触れないようにするための唯一の取得口。
+   */
+  currentCtsQuantity: CurrentCtsQuantity
 }
+
+// re-export: CurrentCtsQuantity は Application 層で定義
+export type { CurrentCtsQuantity }

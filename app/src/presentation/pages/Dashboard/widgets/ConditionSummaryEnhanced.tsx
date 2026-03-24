@@ -20,7 +20,6 @@ import {
 import { formatPercent } from '@/domain/formatting'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
 import { useSettingsStore } from '@/application/stores/settingsStore'
-import { useDataStore } from '@/application/stores/dataStore'
 import { ConditionCardShell } from './ConditionCardShell'
 import { ConditionSummaryBudgetDrill } from './ConditionSummaryBudgetDrill'
 import { ConditionSettingsPanelWidget } from './ConditionSettingsPanel'
@@ -116,9 +115,10 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
     return migrated
   }, [settings])
 
-  // CTS data for items YoY
-  const ctsRecords = useDataStore((s) => s.data.categoryTimeSales.records)
-  const prevCtsRecords = useDataStore((s) => s.data.prevYearCategoryTimeSales.records)
+  // CTS 販売点数: 事前集計済みの値を使う（raw CTS レコードに直接触れない）
+  const { currentCtsQuantity } = ctx
+  const prevYearKpiEntry =
+    prevYearMode === 'sameDow' ? ctx.prevYearMonthlyKpi.sameDow : ctx.prevYearMonthlyKpi.sameDate
 
   // Budget header
   const budgetHeader = useMemo(
@@ -142,14 +142,10 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
       calendarDaysInMonth,
       ctx.fmtCurrency,
     )
-    // CTS レコードを経過日数でスコープ（販売点数前年比の整合性確保）
+    // CTS 販売点数: 事前集計済みの値を使う（alignment 適用済み）
     const effectiveDay = elapsedDays ?? calendarDaysInMonth
-    const scopedCurQty = ctsRecords
-      .filter((rec) => rec.day <= effectiveDay)
-      .reduce((sum, rec) => sum + rec.totalQuantity, 0)
-    const scopedPrevQty = prevCtsRecords
-      .filter((rec) => rec.day <= effectiveDay)
-      .reduce((sum, rec) => sum + rec.totalQuantity, 0)
+    const scopedCurQty = currentCtsQuantity.total
+    const scopedPrevQty = prevYearKpiEntry.ctsQuantity
     // 前年総仕入: prevYearStoreCostPrice の cost 合計
     const prevYearTotalCost =
       ctx.prevYearStoreCostPrice != null && ctx.prevYearStoreCostPrice.size > 0
@@ -174,14 +170,8 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
     if (custTrend) trends.set('customerYoY', custTrend)
     const costTrend = computeTrend(ctx.result.daily, effectiveDay, (r) => r.totalCost)
     if (costTrend) trends.set('totalCost', costTrend)
-    // 販売点数: CTS レコードを日別集約してトレンド計算
-    const qtyByDay = new Map<number, number>()
-    for (const rec of ctsRecords) {
-      if (rec.day > 0 && rec.day <= effectiveDay) {
-        qtyByDay.set(rec.day, (qtyByDay.get(rec.day) ?? 0) + rec.totalQuantity)
-      }
-    }
-    const itemsTrend = computeTrend(qtyByDay, effectiveDay, (q) => q)
+    // 販売点数: 事前集計済み日別データからトレンド計算
+    const itemsTrend = computeTrend(currentCtsQuantity.byDay, effectiveDay, (q: number) => q)
     if (itemsTrend) trends.set('itemsYoY', itemsTrend)
     // 売変率: 加重平均 (discount / grossSales)
     const discountTrend = computeRateTrend(
@@ -259,8 +249,8 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
     ctx.fmtCurrency,
     ctx.prevYear,
     effectiveConfig,
-    ctsRecords,
-    prevCtsRecords,
+    currentCtsQuantity,
+    prevYearKpiEntry,
     hasMultipleStores,
     ctx.prevYearStoreCostPrice,
   ])
@@ -451,8 +441,7 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
           settings={settings}
           expandedStore={expandedStore}
           setExpandedStore={setExpandedStore}
-          ctsRecords={ctsRecords}
-          prevCtsRecords={prevCtsRecords}
+          currentCtsQuantity={currentCtsQuantity}
           effectiveDay={elapsedDays ?? calendarDaysInMonth}
           onClose={() => {
             setYoYDrill(null)

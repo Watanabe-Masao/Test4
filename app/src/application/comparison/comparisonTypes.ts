@@ -33,6 +33,8 @@ export interface DayMappingRow {
   readonly prevSales: number
   /** 前年客数 */
   readonly prevCustomers: number
+  /** 前年販売点数（CTS totalQuantity 合計） */
+  readonly prevCtsQuantity: number
 }
 
 /** 店舗×日別の計算根拠 */
@@ -46,6 +48,8 @@ export interface StoreContribution {
   readonly customers: number
   /** 前年の売変額（売変率の前年比計算用） */
   readonly discount: number
+  /** 前年販売点数（CTS totalQuantity） */
+  readonly ctsQuantity: number
 }
 
 /** 月間 KPI エントリ（同曜日 or 同日の1アライメント分） */
@@ -53,7 +57,9 @@ export interface PrevYearMonthlyKpiEntry {
   readonly sales: number
   readonly customers: number
   readonly transactionValue: number
-  /** 日別マッピング（prevDay → currentDay + 前年売上・客数） */
+  /** 前年販売点数合計（CTS totalQuantity の alignment 済み合計） */
+  readonly ctsQuantity: number
+  /** 日別マッピング（prevDay → currentDay + 前年売上・客数・販売点数） */
   readonly dailyMapping: readonly DayMappingRow[]
   /** 店舗×日別の計算根拠（Explanation の evidenceRefs 構築に使用） */
   readonly storeContributions: readonly StoreContribution[]
@@ -84,6 +90,8 @@ export interface PrevYearMonthlyTotal {
   readonly customers: number
   /** 前年月間客単価（sales / customers） */
   readonly transactionValue: number
+  /** 前年月間販売点数合計（alignment不要、全日合計） */
+  readonly ctsQuantity: number
 }
 
 /** 月間 KPI — 同曜日 + 同日の両アライメント + 月間固定トータルを持つコンテナ */
@@ -135,6 +143,8 @@ export interface SameDowPoint {
   readonly sales: number
   /** 前年客数 */
   readonly customers: number
+  /** 前年販売点数 */
+  readonly ctsQuantity: number
 }
 
 /**
@@ -157,6 +167,7 @@ export function buildSameDowPoints(
       },
       sales: row.prevSales,
       customers: row.prevCustomers,
+      ctsQuantity: row.prevCtsQuantity,
     })
   }
   return map
@@ -169,6 +180,8 @@ export interface PrevYearDailyEntry {
   readonly sales: number
   readonly discount: number
   readonly customers: number
+  /** 前年販売点数（CTS totalQuantity） */
+  readonly ctsQuantity: number
   /** 売変種別内訳（type → amount）。種別別チャート表示用 */
   readonly discountEntries?: Record<string, number>
 }
@@ -237,6 +250,8 @@ export interface PrevYearData {
   readonly totalDiscount: number
   /** 経過日数分の前年同曜日客数合計 */
   readonly totalCustomers: number
+  /** 経過日数分の前年販売点数合計（CTS totalQuantity） */
+  readonly totalCtsQuantity: number
   /** 粗売上（= totalSales + totalDiscount） */
   readonly grossSales: number
   /** 売変率（= totalDiscount / totalSales, totalSales > 0 の場合） */

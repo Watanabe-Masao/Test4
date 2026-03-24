@@ -31,11 +31,12 @@ const ZERO_KPI_ENTRY: PrevYearMonthlyKpiEntry = {
   sales: 0,
   customers: 0,
   transactionValue: 0,
+  ctsQuantity: 0,
   dailyMapping: [],
   storeContributions: [],
 }
 
-const ZERO_MONTHLY_TOTAL = { sales: 0, customers: 0, transactionValue: 0 }
+const ZERO_MONTHLY_TOTAL = { sales: 0, customers: 0, transactionValue: 0, ctsQuantity: 0 }
 
 const EMPTY_KPI: PrevYearMonthlyKpi = {
   hasPrevYear: false,

@@ -22,7 +22,7 @@ function row(
   prevSales: number,
   prevCustomers: number,
 ): DayMappingRow {
-  return { currentDay, prevYear, prevMonth, prevDay, prevSales, prevCustomers }
+  return { currentDay, prevYear, prevMonth, prevDay, prevSales, prevCustomers, prevCtsQuantity: 0 }
 }
 
 describe('buildSameDowPoints', () => {

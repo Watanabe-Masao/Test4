@@ -63,6 +63,7 @@ function toDashboardContext(ctx: UnifiedWidgetContext): DashboardWidgetContext {
         sales: 0,
         customers: 0,
         transactionValue: 0,
+        ctsQuantity: 0,
         dailyMapping: [],
         storeContributions: [],
       },
@@ -70,10 +71,11 @@ function toDashboardContext(ctx: UnifiedWidgetContext): DashboardWidgetContext {
         sales: 0,
         customers: 0,
         transactionValue: 0,
+        ctsQuantity: 0,
         dailyMapping: [],
         storeContributions: [],
       },
-      monthlyTotal: { sales: 0, customers: 0, transactionValue: 0 },
+      monthlyTotal: { sales: 0, customers: 0, transactionValue: 0, ctsQuantity: 0 },
     },
     comparisonScope: ctx.comparisonScope ?? null,
     dowGap: ctx.dowGap ?? {
@@ -91,6 +93,11 @@ function toDashboardContext(ctx: UnifiedWidgetContext): DashboardWidgetContext {
     observationStatus: ctx.result.observationPeriod.status,
     weatherDaily: ctx.weatherDaily,
     prevYearWeatherDaily: ctx.prevYearWeatherDaily,
+    currentCtsQuantity: ctx.currentCtsQuantity ?? {
+      total: 0,
+      byStore: new Map(),
+      byDay: new Map(),
+    },
   }
 }
 

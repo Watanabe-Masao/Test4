@@ -13,6 +13,7 @@
 import type { CalendarDate } from '@/domain/models/CalendarDate'
 import type { ClassifiedSalesDaySummary } from '@/domain/models/ClassifiedSales'
 import type { StoreDayIndex, SpecialSalesDayEntry } from '@/domain/models/record'
+import type { CategoryTimeSalesRecord } from '@/domain/models/DataTypes'
 
 // ── 型定義 ──
 
@@ -34,9 +35,14 @@ export interface SourceDataIndex {
   getSummary(storeId: string, date: CalendarDate): ClassifiedSalesDaySummary | undefined
   /** 客数（花データ）を CalendarDate で取得。月跨ぎ時は undefined */
   getFlowers(storeId: string, date: CalendarDate): SpecialSalesDayEntry | undefined
+  /** 販売点数（CTS totalQuantity）を CalendarDate で取得。データなし時は 0 */
+  getCtsQuantity(storeId: string, date: CalendarDate): number
   /** インデックスに含まれる全店舗ID */
   readonly storeIds: readonly string[]
 }
+
+/** CTS レコードを storeId × day で集約したインデックス（totalQuantity 合計） */
+export type CtsStoreDayIndex = Record<string, Record<number, number>>
 
 // ── 内部: リナンバリング変換 ──
 
@@ -75,6 +81,10 @@ export function buildSourceDataIndex(
   ctx: SourceMonthContext,
   /** 花データの完全インデックス（year-month-day キー）。月跨ぎ参照用 */
   flowersFullIndex?: ReadonlyMap<string, SpecialSalesDayEntry>,
+  /** CTS 数量インデックス（storeId × day → totalQuantity） */
+  ctsIndex?: CtsStoreDayIndex,
+  /** CTS 完全インデックス（"storeId:year-month-day" → totalQuantity）。月跨ぎ参照用 */
+  ctsFullIndex?: ReadonlyMap<string, number>,
 ): SourceDataIndex {
   const storeIds = Object.keys(allAgg)
 
@@ -100,6 +110,20 @@ export function buildSourceDataIndex(
       return undefined
     },
 
+    getCtsQuantity(storeId: string, date: CalendarDate): number {
+      if (!ctsIndex) return 0
+      // 同月なら日番号でダイレクト参照
+      if (date.year === ctx.year && date.month === ctx.month) {
+        return ctsIndex[storeId]?.[date.day] ?? 0
+      }
+      // 月跨ぎ: ctsFullIndex がある場合は year-month-day キーで参照
+      if (ctsFullIndex) {
+        const key = `${storeId}:${date.year}-${date.month}-${date.day}`
+        return ctsFullIndex.get(key) ?? 0
+      }
+      return 0
+    },
+
     storeIds,
   }
 }
@@ -111,6 +135,37 @@ export function buildFlowersFullIndex(
   const map = new Map<string, SpecialSalesDayEntry>()
   for (const r of records) {
     map.set(`${r.storeId}:${r.year}-${r.month}-${r.day}`, r)
+  }
+  return map
+}
+
+/**
+ * CTS レコードを storeId × day で集約する。
+ * 同一 storeId・day の複数カテゴリの totalQuantity を合算する。
+ */
+export function indexCtsQuantityByStoreDay(
+  records: readonly CategoryTimeSalesRecord[],
+): CtsStoreDayIndex {
+  const idx: Record<string, Record<number, number>> = {}
+  for (const r of records) {
+    if (!idx[r.storeId]) idx[r.storeId] = {}
+    const storeDays = idx[r.storeId]
+    storeDays[r.day] = (storeDays[r.day] ?? 0) + r.totalQuantity
+  }
+  return idx
+}
+
+/**
+ * CTS レコードから storeId:year-month-day キーの完全マップを構築する。
+ * 月跨ぎ参照用。同一キーの複数カテゴリの totalQuantity を合算する。
+ */
+export function buildCtsFullIndex(
+  records: readonly CategoryTimeSalesRecord[],
+): ReadonlyMap<string, number> {
+  const map = new Map<string, number>()
+  for (const r of records) {
+    const key = `${r.storeId}:${r.year}-${r.month}-${r.day}`
+    map.set(key, (map.get(key) ?? 0) + r.totalQuantity)
   }
   return map
 }

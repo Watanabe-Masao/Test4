@@ -23,6 +23,7 @@ function makeEntry(overrides?: Partial<PrevYearMonthlyKpiEntry>): PrevYearMonthl
     sales: 500000,
     customers: 250,
     transactionValue: 2000,
+    ctsQuantity: 0,
     dailyMapping: [
       {
         prevDay: 1,
@@ -31,6 +32,7 @@ function makeEntry(overrides?: Partial<PrevYearMonthlyKpiEntry>): PrevYearMonthl
         currentDay: 1,
         prevSales: 100000,
         prevCustomers: 50,
+        prevCtsQuantity: 0,
       },
       {
         prevDay: 2,
@@ -39,6 +41,7 @@ function makeEntry(overrides?: Partial<PrevYearMonthlyKpiEntry>): PrevYearMonthl
         currentDay: 2,
         prevSales: 120000,
         prevCustomers: 60,
+        prevCtsQuantity: 0,
       },
       {
         prevDay: 3,
@@ -47,6 +50,7 @@ function makeEntry(overrides?: Partial<PrevYearMonthlyKpiEntry>): PrevYearMonthl
         currentDay: 3,
         prevSales: 80000,
         prevCustomers: 40,
+        prevCtsQuantity: 0,
       },
       {
         prevDay: 15,
@@ -55,14 +59,55 @@ function makeEntry(overrides?: Partial<PrevYearMonthlyKpiEntry>): PrevYearMonthl
         currentDay: 15,
         prevSales: 200000,
         prevCustomers: 100,
+        prevCtsQuantity: 0,
       },
     ],
     storeContributions: [
-      { storeId: 'S1', originalDay: 1, mappedDay: 1, sales: 60000, customers: 30, discount: 0 },
-      { storeId: 'S2', originalDay: 1, mappedDay: 1, sales: 40000, customers: 20, discount: 0 },
-      { storeId: 'S1', originalDay: 2, mappedDay: 2, sales: 120000, customers: 60, discount: 0 },
-      { storeId: 'S1', originalDay: 3, mappedDay: 3, sales: 80000, customers: 40, discount: 0 },
-      { storeId: 'S1', originalDay: 15, mappedDay: 15, sales: 200000, customers: 100, discount: 0 },
+      {
+        storeId: 'S1',
+        originalDay: 1,
+        mappedDay: 1,
+        sales: 60000,
+        customers: 30,
+        discount: 0,
+        ctsQuantity: 0,
+      },
+      {
+        storeId: 'S2',
+        originalDay: 1,
+        mappedDay: 1,
+        sales: 40000,
+        customers: 20,
+        discount: 0,
+        ctsQuantity: 0,
+      },
+      {
+        storeId: 'S1',
+        originalDay: 2,
+        mappedDay: 2,
+        sales: 120000,
+        customers: 60,
+        discount: 0,
+        ctsQuantity: 0,
+      },
+      {
+        storeId: 'S1',
+        originalDay: 3,
+        mappedDay: 3,
+        sales: 80000,
+        customers: 40,
+        discount: 0,
+        ctsQuantity: 0,
+      },
+      {
+        storeId: 'S1',
+        originalDay: 15,
+        mappedDay: 15,
+        sales: 200000,
+        customers: 100,
+        discount: 0,
+        ctsQuantity: 0,
+      },
     ],
     ...overrides,
   }
@@ -80,7 +125,7 @@ function makePk(
     sourceYear: 2025,
     sourceMonth: 3,
     dowOffset: 1,
-    monthlyTotal: { sales: 0, customers: 0, transactionValue: 0 },
+    monthlyTotal: { sales: 0, customers: 0, transactionValue: 0, ctsQuantity: 0 },
   }
 }
 

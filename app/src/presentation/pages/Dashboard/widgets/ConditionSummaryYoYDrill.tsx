@@ -4,10 +4,9 @@
  * 客数前年比・客単価前年比・販売点数前年比・総仕入前年比・残予算必要達成率の
  * 店別詳細パネルを統一的に表示する。
  */
-import type { WidgetContext } from './types'
+import type { WidgetContext, CurrentCtsQuantity } from './types'
 import type { StoreResult, AppSettings } from '@/domain/models/storeTypes'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
-import type { CategoryTimeSalesRecord } from '@/domain/models/DataTypes'
 import { formatPercent } from '@/domain/formatting'
 import {
   CustomerYoYDetailTable,
@@ -70,8 +69,7 @@ interface YoYDrillOverlayProps {
   readonly settings: AppSettings
   readonly expandedStore: string | null
   readonly setExpandedStore: React.Dispatch<React.SetStateAction<string | null>>
-  readonly ctsRecords: readonly CategoryTimeSalesRecord[]
-  readonly prevCtsRecords: readonly CategoryTimeSalesRecord[]
+  readonly currentCtsQuantity: CurrentCtsQuantity
   readonly effectiveDay: number
   readonly onClose: () => void
 }
@@ -86,8 +84,7 @@ export function YoYDrillOverlay({
   settings,
   expandedStore,
   setExpandedStore,
-  ctsRecords,
-  prevCtsRecords,
+  currentCtsQuantity,
   effectiveDay,
   onClose,
 }: YoYDrillOverlayProps) {
@@ -133,8 +130,7 @@ export function YoYDrillOverlay({
               sortedStoreEntries={sortedStoreEntries}
               stores={ctx.stores}
               effectiveConfig={effectiveConfig}
-              ctsRecords={ctsRecords}
-              prevCtsRecords={prevCtsRecords}
+              currentCtsQuantity={currentCtsQuantity}
               effectiveDay={effectiveDay}
               prevYearMonthlyKpi={ctx.prevYearMonthlyKpi}
             />

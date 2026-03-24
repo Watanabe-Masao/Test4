@@ -28,6 +28,7 @@ import { useDeptKpiView } from '@/application/hooks/useDeptKpiView'
 import { usePeriodSelectionStore } from '@/application/stores/periodSelectionStore'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { useWeatherData } from '@/application/hooks/useWeather'
+import { useCtsQuantity } from '@/application/hooks/useCtsQuantity'
 
 interface UseUnifiedWidgetContextResult {
   /** 統一コンテキスト（currentResult が null の場合は null） */
@@ -79,6 +80,13 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
     targetMonth,
     currentMonthlyPoint,
   )
+
+  // ── 当年 CTS 販売点数の事前集計（Application 層フック経由） ──
+  const effectiveDayForCts =
+    currentResult?.elapsedDays != null && currentResult.elapsedDays > 0
+      ? Math.min(currentResult.elapsedDays, daysInMonth)
+      : daysInMonth
+  const currentCtsQuantity = useCtsQuantity(effectiveDayForCts, selectedStoreIds)
 
   // 指標説明（comparison module と同じデータソースを使う）
   const explanations = useExplanations(comparison.kpi, comparison.dowGap)
@@ -230,6 +238,9 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
     // 天気データ
     weatherDaily,
     prevYearWeatherDaily,
+
+    // 販売点数（CTS）事前集計値
+    currentCtsQuantity,
   }
 
   return {

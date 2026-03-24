@@ -50,6 +50,7 @@ const EMPTY_PREV_YEAR: PrevYearData = {
   totalSales: 0,
   totalDiscount: 0,
   totalCustomers: 0,
+  totalCtsQuantity: 0,
   grossSales: 0,
   discountRate: 0,
   totalDiscountEntries: [],
