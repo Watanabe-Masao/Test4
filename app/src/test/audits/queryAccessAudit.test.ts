@@ -1,0 +1,188 @@
+/**
+ * Query Access Audit — クエリアクセス経路の棚卸し
+ *
+ * presentation から query を発行する入口が規定どおりか、
+ * executor.execute() 直呼びが増えていないか、
+ * 正規経路 / 互換経路 / 禁止経路の件数を定量化する。
+ *
+ * 既存の presentationIsolationGuard が「違反禁止」に集中しているのに対し、
+ * この監査は「今どの access route が何本生きているか」を観測する。
+ *
+ * @audit Query Access Route Inventory
+ */
+import { describe, it, expect } from 'vitest'
+import * as fs from 'fs'
+import * as path from 'path'
+import { SRC_DIR, collectTsFiles, rel } from '../guardTestHelpers'
+
+// ── 経路分類 ──
+
+interface RouteCount {
+  /** useQueryWithHandler 経由（正規経路） */
+  queryWithHandler: string[]
+  /** QueryHandler 定義（application/queries/handlers/） */
+  queryHandlers: string[]
+  /** comparisonAccessors 経由（正規経路） */
+  comparisonAccessor: string[]
+  /** facade hook 経由（useComparisonContext 等） */
+  facadeHook: string[]
+  /** executor.execute() 直呼び（要注意） */
+  executorDirect: string[]
+  /** useAsyncQuery 直 import（互換経路） */
+  asyncQueryDirect: string[]
+  /** infrastructure/duckdb 直 import（禁止経路） */
+  infraDuckdbDirect: string[]
+}
+
+function inventoryQueryRoutes(): RouteCount {
+  const routes: RouteCount = {
+    queryWithHandler: [],
+    queryHandlers: [],
+    comparisonAccessor: [],
+    facadeHook: [],
+    executorDirect: [],
+    asyncQueryDirect: [],
+    infraDuckdbDirect: [],
+  }
+
+  // 1. QueryHandler 定義の棚卸し（サブディレクトリに分散配置）
+  const queriesDir = path.join(SRC_DIR, 'application/queries')
+  if (fs.existsSync(queriesDir)) {
+    const allFiles = collectTsFiles(queriesDir)
+    routes.queryHandlers = allFiles.filter((f) => f.includes('Handler')).map((f) => rel(f))
+  }
+
+  // 2. presentation/ のアクセスパターンを棚卸し
+  const presFiles = collectTsFiles(path.join(SRC_DIR, 'presentation'))
+  for (const file of presFiles) {
+    const content = fs.readFileSync(file, 'utf-8')
+    const relPath = rel(file)
+
+    if (/useQueryWithHandler/.test(content)) {
+      routes.queryWithHandler.push(relPath)
+    }
+    if (/(?:getPrevYearDailyValue|getPrevYearDailySales)/.test(content)) {
+      routes.comparisonAccessor.push(relPath)
+    }
+    if (/useComparisonContext/.test(content)) {
+      routes.facadeHook.push(relPath)
+    }
+    if (/executor\.execute\(/.test(content)) {
+      routes.executorDirect.push(relPath)
+    }
+    if (/from\s+['"].*useAsyncQuery/.test(content)) {
+      routes.asyncQueryDirect.push(relPath)
+    }
+    if (/from\s+['"]@\/infrastructure\/duckdb/.test(content)) {
+      routes.infraDuckdbDirect.push(relPath)
+    }
+  }
+
+  // 3. application/ のアクセスパターンも棚卸し
+  const appFiles = [
+    ...collectTsFiles(path.join(SRC_DIR, 'application/hooks')),
+    ...collectTsFiles(path.join(SRC_DIR, 'application/usecases')),
+  ]
+  for (const file of appFiles) {
+    const content = fs.readFileSync(file, 'utf-8')
+    const relPath = rel(file)
+
+    if (/(?:getPrevYearDailyValue|getPrevYearDailySales)/.test(content)) {
+      routes.comparisonAccessor.push(relPath)
+    }
+  }
+
+  return routes
+}
+
+// ── Tests ──
+
+describe('Query Access Audit — クエリアクセス経路棚卸し', () => {
+  const routes = inventoryQueryRoutes()
+
+  it('正規経路が存在する', () => {
+    // QueryHandler が少なくとも 1 つ存在
+    expect(
+      routes.queryHandlers.length,
+      'QueryHandler が 0 件。application/queries/handlers/ に定義が必要です。',
+    ).toBeGreaterThan(0)
+  })
+
+  it('禁止経路（infrastructure/duckdb 直 import）が presentation に 0 件', () => {
+    expect(
+      routes.infraDuckdbDirect,
+      `presentation/ から infrastructure/duckdb への直接 import: ${routes.infraDuckdbDirect.join(', ')}`,
+    ).toEqual([])
+  })
+
+  it('executor.execute() 直呼びが presentation に増えていない', () => {
+    // 現状の executor 直呼び数を上限として凍結
+    // 新規追加は QueryHandler 経由にすべき
+    const MAX_EXECUTOR_DIRECT = 5
+    expect(
+      routes.executorDirect.length,
+      `executor.execute() 直呼びが ${routes.executorDirect.length} 件（上限 ${MAX_EXECUTOR_DIRECT}）: ${routes.executorDirect.join(', ')}`,
+    ).toBeLessThanOrEqual(MAX_EXECUTOR_DIRECT)
+  })
+
+  it('useAsyncQuery 直 import が presentation に 0 件', () => {
+    expect(
+      routes.asyncQueryDirect,
+      `useAsyncQuery の直接 import: ${routes.asyncQueryDirect.join(', ')}`,
+    ).toEqual([])
+  })
+
+  it('経路レポートを生成する', () => {
+    const reportDir = path.resolve(__dirname, '../../../../references/02-status/generated')
+    if (!fs.existsSync(reportDir)) {
+      fs.mkdirSync(reportDir, { recursive: true })
+    }
+
+    const report = {
+      timestamp: new Date().toISOString(),
+      summary: {
+        queryHandlers: routes.queryHandlers.length,
+        正規経路_queryWithHandler: routes.queryWithHandler.length,
+        正規経路_comparisonAccessor: routes.comparisonAccessor.length,
+        正規経路_facadeHook: routes.facadeHook.length,
+        要注意_executorDirect: routes.executorDirect.length,
+        互換経路_asyncQueryDirect: routes.asyncQueryDirect.length,
+        禁止経路_infraDuckdbDirect: routes.infraDuckdbDirect.length,
+      },
+      detail: routes,
+    }
+
+    const jsonPath = path.join(reportDir, 'query-access-audit.json')
+    fs.writeFileSync(jsonPath, JSON.stringify(report, null, 2), 'utf-8')
+
+    // Markdown
+    const md = [
+      '# Query Access Audit Report',
+      '',
+      `> Generated: ${report.timestamp}`,
+      '',
+      '## Route Summary',
+      '',
+      '| 経路種別 | 件数 | 状態 |',
+      '|---|---|---|',
+      `| QueryHandler 定義 | ${routes.queryHandlers.length} | 基盤 |`,
+      `| useQueryWithHandler（正規） | ${routes.queryWithHandler.length} | 正規 |`,
+      `| comparisonAccessors（正規） | ${routes.comparisonAccessor.length} | 正規 |`,
+      `| facade hook（正規） | ${routes.facadeHook.length} | 正規 |`,
+      `| executor.execute 直呼び（要注意） | ${routes.executorDirect.length} | 要注意 |`,
+      `| useAsyncQuery 直 import（互換） | ${routes.asyncQueryDirect.length} | 互換 |`,
+      `| infrastructure/duckdb 直 import（禁止） | ${routes.infraDuckdbDirect.length} | 禁止 |`,
+      '',
+      '## Detail',
+      '',
+      ...Object.entries(routes)
+        .filter(([, files]) => files.length > 0)
+        .map(([name, files]) => [`### ${name}`, '', ...files.map((f) => `- ${f}`), ''].join('\n')),
+    ].join('\n')
+
+    const mdPath = path.join(reportDir, 'query-access-audit.md')
+    fs.writeFileSync(mdPath, md, 'utf-8')
+
+    expect(fs.existsSync(jsonPath)).toBe(true)
+  })
+})

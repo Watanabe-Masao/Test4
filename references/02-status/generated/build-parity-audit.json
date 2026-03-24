@@ -1,0 +1,45 @@
+{
+  "timestamp": "2026-03-24T06:00:07.517Z",
+  "wasmModules": [
+    "budget-analysis",
+    "factor-decomposition",
+    "forecast",
+    "gross-profit",
+    "time-slot"
+  ],
+  "packageScripts": [
+    "build:wasm",
+    "dev",
+    "build",
+    "preview",
+    "test",
+    "test:guards",
+    "test:observation",
+    "test:watch",
+    "test:coverage",
+    "lint",
+    "format",
+    "format:check",
+    "test:e2e",
+    "test:e2e:ui",
+    "storybook",
+    "build-storybook",
+    "test:visual"
+  ],
+  "ci": {
+    "wasmBuildDirectCalls": 0,
+    "npmScriptCalls": [
+      "build:wasm",
+      "lint",
+      "format:check",
+      "build",
+      "test:guards",
+      "build:wasm",
+      "build-storybook",
+      "build:wasm",
+      "build",
+      "test:e2e"
+    ],
+    "directShellCommands": 2
+  }
+}
