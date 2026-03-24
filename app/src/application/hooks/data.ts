@@ -3,7 +3,8 @@
  */
 export { useImport } from './useImport'
 export type { PendingDiffCheck } from './useImport'
-export { usePersistence } from './usePersistence'
+export { usePersistence, usePersistenceState } from './usePersistence'
+export type { PersistenceStatusInfo } from './usePersistence'
 export { useStorageAdmin } from './useStorageAdmin'
 export type { StoredMonthEntry, MonthDataSummaryEntry } from './useStorageAdmin'
 export { useStoragePersistence } from './useStoragePersistence'

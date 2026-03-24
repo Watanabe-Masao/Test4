@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-03-24T07:59:14.280Z",
-  "totalAllowlistEntries": 49,
+  "timestamp": "2026-03-24T09:47:50.165Z",
+  "totalAllowlistEntries": 50,
   "categoryBreakdown": {
     "adapter": 10,
-    "lifecycle": 1,
+    "lifecycle": 2,
     "structural": 38
   },
   "frozenLists": [
@@ -135,7 +135,7 @@
       "file": "presentation/components/charts/IntegratedSalesChart.tsx",
       "memoCount": 12,
       "stateCount": 4,
-      "lineCount": 467
+      "lineCount": 425
     },
     {
       "file": "presentation/pages/Dashboard/widgets/HourlyChart.tsx",
@@ -257,10 +257,10 @@
   ],
   "listSummary": {
     "applicationToInfrastructure": {
-      "count": 11,
+      "count": 12,
       "categories": {
         "adapter": 10,
-        "lifecycle": 1
+        "lifecycle": 2
       }
     },
     "presentationToInfrastructure": {

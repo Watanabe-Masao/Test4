@@ -104,6 +104,20 @@ export interface MessageCatalog {
     other: string
   }
 
+  // ─── ライフサイクル ──────────────────────────────────
+  lifecycle: {
+    booting: string
+    restoring: string
+    initializingEngine: string
+    loadingData: string
+    applyingUpdate: string
+    applyingUpdateDetail: string
+    error: string
+    emptyImport: string
+    emptyImportAction: string
+    emptyResult: string
+  }
+
   // ─── エラー ──────────────────────────────────────────
   errors: {
     occurred: string
@@ -198,6 +212,18 @@ export const jaMessages: MessageCatalog = {
     interDepartment: '部門間移動',
     other: 'その他',
   },
+  lifecycle: {
+    booting: '起動しています',
+    restoring: '保存済みデータを復元しています',
+    initializingEngine: '分析エンジンを起動しています',
+    loadingData: '分析データを読み込んでいます',
+    applyingUpdate: '最新版を適用しています',
+    applyingUpdateDetail: 'まもなく再読み込みします',
+    error: '起動に失敗しました。再読み込みを行ってください',
+    emptyImport: 'まだデータが取り込まれていません',
+    emptyImportAction: 'サイドバーからデータをインポートしてください',
+    emptyResult: 'この条件では表示できるデータがありません',
+  },
   errors: {
     occurred: 'エラーが発生しました',
     retry: '再試行',
@@ -290,6 +316,18 @@ export const enMessages: MessageCatalog = {
     interStore: 'Inter-Store',
     interDepartment: 'Inter-Department',
     other: 'Other',
+  },
+  lifecycle: {
+    booting: 'Starting up',
+    restoring: 'Restoring saved data',
+    initializingEngine: 'Initializing analysis engine',
+    loadingData: 'Loading analysis data',
+    applyingUpdate: 'Applying latest version',
+    applyingUpdateDetail: 'The page will reload shortly',
+    error: 'Failed to start. Please reload the page',
+    emptyImport: 'No data has been imported yet',
+    emptyImportAction: 'Import data from the sidebar',
+    emptyResult: 'No data matches the current criteria',
   },
   errors: {
     occurred: 'An error occurred',

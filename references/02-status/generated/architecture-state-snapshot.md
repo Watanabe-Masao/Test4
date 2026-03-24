@@ -1,12 +1,12 @@
 # Architecture State Snapshot
 
-> Generated: 2026-03-24T07:59:14.280Z
+> Generated: 2026-03-24T09:47:50.165Z
 
 ## Allowlist Summary
 
 | 指標 | 値 |
 |---|---|
-| 総エントリ数 | 49 |
+| 総エントリ数 | 50 |
 | アクティブリスト数 | 14 |
 | 凍結リスト数 | 7 |
 | .vm.ts ファイル数 | 16 |
@@ -18,7 +18,7 @@
 |---|---|
 | structural | 38 |
 | adapter | 10 |
-| lifecycle | 1 |
+| lifecycle | 2 |
 
 
 ## Active Bridges
@@ -98,7 +98,7 @@
 | presentation/pages/CostDetail/useCostDetailData.ts | 13 | 6 | 210 |
 | presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 14 | 5 | 475 |
 | presentation/components/charts/CategoryBenchmarkChart.vm.ts | 10 | 8 | 470 |
-| presentation/components/charts/IntegratedSalesChart.tsx | 12 | 4 | 467 |
+| presentation/components/charts/IntegratedSalesChart.tsx | 12 | 4 | 425 |
 | presentation/pages/Dashboard/widgets/HourlyChart.tsx | 10 | 6 | 538 |
 | presentation/components/charts/CategoryBoxPlotChart.vm.ts | 8 | 7 | 256 |
 | presentation/pages/Admin/RawDataTab.tsx | 12 | 2 | 294 |
@@ -136,7 +136,7 @@
 
 | リスト名 | 件数 | カテゴリ内訳 |
 |---|---|---|
-| applicationToInfrastructure | 11 | adapter:10, lifecycle:1 |
+| applicationToInfrastructure | 12 | adapter:10, lifecycle:2 |
 | presentationMemoLimits | 8 | structural:8 |
 | domainLargeFiles | 7 | structural:7 |
 | presentationStateLimits | 5 | structural:5 |

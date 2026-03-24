@@ -36,7 +36,7 @@ vi.mock('@/application/services/diffCalculator', () => ({
   calculateDiff: vi.fn(() => ({ needsConfirmation: false, diffs: [] })),
 }))
 
-import { usePersistence } from '../usePersistence'
+import { usePersistence, resetPersistenceState } from '../usePersistence'
 import { calculateDiff } from '@/application/services/diffCalculator'
 
 // ── Setup ──────────────────────────────────────────────
@@ -45,6 +45,7 @@ beforeEach(() => {
   useDataStore.getState().reset()
   useUiStore.getState().resetTransientState()
   useSettingsStore.getState().reset()
+  resetPersistenceState()
   vi.clearAllMocks()
 })
 
@@ -107,7 +108,7 @@ describe('usePersistence', () => {
       expect(useDataStore.getState().data.stores.size).toBe(1)
     })
 
-    it('does not restore when getSessionMeta returns null', async () => {
+    it('sets autoRestored true even when getSessionMeta returns null (no data to restore)', async () => {
       mockRepo.isAvailable.mockReturnValue(true)
       mockRepo.getSessionMeta.mockResolvedValue(null)
 
@@ -116,7 +117,8 @@ describe('usePersistence', () => {
       await waitFor(() => {
         expect(mockRepo.getSessionMeta).toHaveBeenCalled()
       })
-      expect(result.current.autoRestored).toBe(false)
+      // 復元すべきデータがなくても「復元処理は完了」として扱う
+      expect(result.current.autoRestored).toBe(true)
     })
 
     it('does not restore when not available', async () => {

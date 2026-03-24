@@ -1,7 +1,7 @@
 /**
  * アプリケーション全体の Provider ツリー
  *
- * テーマ、i18n、認証、リポジトリ、ルーター、トーストを重ねる。
+ * テーマ、i18n、認証、リポジトリ、ライフサイクル、ルーター、トーストを重ねる。
  * App.tsx からの分離で、Provider 構成の変更が一箇所に集約される。
  */
 import { type ReactNode, useState, useCallback } from 'react'
@@ -10,6 +10,7 @@ import { HashRouter } from 'react-router-dom'
 import { darkTheme, lightTheme, GlobalStyle } from '@/presentation/theme'
 import type { ThemeMode } from '@/presentation/theme'
 import { RepositoryProvider } from '@/application/context'
+import { AppLifecycleProvider } from '@/application/lifecycle'
 import { ToastProvider } from '@/presentation/components/common/feedback'
 import { I18nProvider } from '@/infrastructure/i18n'
 import { AuthProvider } from '@/application/context/AuthContext'
@@ -48,9 +49,11 @@ export function AppProviders({ children }: Props) {
         <I18nProvider>
           <AuthProvider>
             <RepositoryProvider repository={indexedDBRepository}>
-              <HashRouter>
-                <ToastProvider>{children}</ToastProvider>
-              </HashRouter>
+              <AppLifecycleProvider>
+                <HashRouter>
+                  <ToastProvider>{children}</ToastProvider>
+                </HashRouter>
+              </AppLifecycleProvider>
             </RepositoryProvider>
           </AuthProvider>
         </I18nProvider>

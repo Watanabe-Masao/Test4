@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import { registerServiceWorker } from '@/infrastructure/pwa'
+import { notifySwUpdate } from '@/application/lifecycle/swUpdateSignal'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -11,7 +12,7 @@ createRoot(document.getElementById('root')!).render(
 
 // PWA: Service Worker 登録（本番ビルドのみ）
 if (import.meta.env.PROD) {
-  registerServiceWorker()
+  registerServiceWorker({ onUpdateApplying: notifySwUpdate })
 }
 
 // WASM: factorDecomposition エンジン初期化 + 観測ヘルパー登録（DEV のみ）

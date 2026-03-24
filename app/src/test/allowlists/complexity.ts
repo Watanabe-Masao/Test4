@@ -25,10 +25,10 @@ export const useMemoLimits: readonly QuantitativeAllowlistEntry[] = [
 export const useStateLimits: readonly QuantitativeAllowlistEntry[] = [
   {
     path: 'application/hooks/usePersistence.ts',
-    reason: '永続化ステートの管理',
+    reason: '永続化ステートの管理（usePersistenceState の正本共有分を含む）',
     category: 'structural',
     removalCondition: 'persistence hook のリファクタリング時',
-    limit: 7,
+    limit: 8,
   },
   {
     path: 'application/hooks/useAutoBackup.ts',
