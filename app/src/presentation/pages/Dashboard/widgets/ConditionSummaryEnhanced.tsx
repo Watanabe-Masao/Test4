@@ -14,6 +14,7 @@ import {
   buildBudgetHeader,
   buildYoYCards,
   buildUnifiedCards,
+  computeTrend,
 } from './ConditionSummaryEnhanced.vm'
 import { formatPercent } from '@/domain/formatting'
 import type { StoreResult, AppSettings } from '@/domain/models/storeTypes'
@@ -177,7 +178,16 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
       ctsPrevQty: scopedPrevQty,
       fmtCurrency: ctx.fmtCurrency,
     })
-    return buildUnifiedCards(budgetCards, yoyCards, hasMultipleStores)
+    // Trend computation (last 7 days vs previous 7 days)
+    const trends = new Map<string, { direction: 'up' | 'down' | 'flat'; ratio: string }>()
+    const salesTrend = computeTrend(ctx.result.daily, effectiveDay, (r) => r.sales)
+    if (salesTrend) trends.set('sales', salesTrend)
+    const custTrend = computeTrend(ctx.result.daily, effectiveDay, (r) => r.customers ?? 0)
+    if (custTrend) trends.set('customerYoY', custTrend)
+    const costTrend = computeTrend(ctx.result.daily, effectiveDay, (r) => r.totalCost)
+    if (costTrend) trends.set('totalCost', costTrend)
+
+    return buildUnifiedCards(budgetCards, yoyCards, hasMultipleStores, trends)
   }, [
     ctx.result,
     elapsedDays,

@@ -29,11 +29,45 @@ export interface ConditionCardData {
   readonly signalColor: string
   /** クリック可能かどうか */
   readonly clickable: boolean
+  /** 直近1週間トレンド */
+  readonly trend?: { readonly direction: 'up' | 'down' | 'flat'; readonly ratio: string }
 }
 
 interface ConditionCardShellProps {
   readonly card: ConditionCardData
   readonly onClick?: () => void
+}
+
+const TREND_STYLES: Record<'up' | 'down' | 'flat', { arrow: string; color: string }> = {
+  up: { arrow: '↑', color: '#10b981' },
+  down: { arrow: '↓', color: '#ef4444' },
+  flat: { arrow: '→', color: '#94a3b8' },
+}
+
+function TrendBadge({
+  trend,
+}: {
+  readonly trend: { readonly direction: 'up' | 'down' | 'flat'; readonly ratio: string }
+}) {
+  const style = TREND_STYLES[trend.direction]
+  return (
+    <span
+      style={{
+        marginLeft: 6,
+        fontSize: '0.65rem',
+        fontFamily: 'monospace',
+        fontWeight: 700,
+        color: style.color,
+        background: `${style.color}12`,
+        padding: '1px 4px',
+        borderRadius: 3,
+        whiteSpace: 'nowrap',
+      }}
+      title={`7日トレンド: ${trend.ratio}`}
+    >
+      {style.arrow} {trend.ratio}
+    </span>
+  )
 }
 
 export const ConditionCardShell = memo(function ConditionCardShell({
@@ -48,7 +82,10 @@ export const ConditionCardShell = memo(function ConditionCardShell({
     >
       <CondSignal $color={card.signalColor} />
       <CondCardContent>
-        <CondCardLabel>{card.label}</CondCardLabel>
+        <CondCardLabel>
+          {card.label}
+          {card.trend && <TrendBadge trend={card.trend} />}
+        </CondCardLabel>
         <CondCardValue $color={card.signalColor}>{card.value}</CondCardValue>
         <CondCardSub>{card.sub}</CondCardSub>
       </CondCardContent>

@@ -112,7 +112,56 @@ export function buildCardSummaries(
           : '#10b981',
   })
 
+  // 総仕入
+  cards.push({
+    key: 'totalCost' as MetricKey,
+    label: '総仕入',
+    icon: 'TC',
+    color: '#64748b',
+    value: fmtCurrency(result.totalCost),
+    sub: `値入率 ${formatPercent100(result.averageMarkupRate * 100)}`,
+    signalColor: '#64748b',
+  })
+
   return cards
+}
+
+// ─── Trend Computation (直近7日 vs 前7日) ───────────────
+
+/**
+ * 日別データから直近N日の合計を前N日と比較し、トレンド方向と比率を返す。
+ *
+ * @param daily StoreResult.daily
+ * @param effectiveDay 経過日数（最新日）
+ * @param extractor 日別レコードから値を抽出する関数
+ * @param halfDays 半期間日数（デフォルト7）
+ */
+export function computeTrend<T>(
+  daily: ReadonlyMap<number, T>,
+  effectiveDay: number,
+  extractor: (rec: T) => number,
+  halfDays = 7,
+): { direction: TrendDirection; ratio: string } | undefined {
+  if (effectiveDay < halfDays * 2) return undefined
+
+  let recentSum = 0
+  let prevSum = 0
+  const recentStart = effectiveDay - halfDays + 1
+  const prevStart = recentStart - halfDays
+
+  for (let d = recentStart; d <= effectiveDay; d++) {
+    const rec = daily.get(d)
+    if (rec) recentSum += extractor(rec)
+  }
+  for (let d = prevStart; d < recentStart; d++) {
+    const rec = daily.get(d)
+    if (rec) prevSum += extractor(rec)
+  }
+
+  if (prevSum === 0) return undefined
+  const ratio = recentSum / prevSum
+  const direction: TrendDirection = ratio >= 1.02 ? 'up' : ratio <= 0.98 ? 'down' : 'flat'
+  return { direction, ratio: formatPercent(ratio, 2) }
 }
 
 // ─── Budget Header ──────────────────────────────────────
@@ -341,6 +390,7 @@ export type ConditionCardId =
   | 'gpRate'
   | 'markupRate'
   | 'discountRate'
+  | 'totalCost'
   | 'customerYoY'
   | 'itemsYoY'
   | 'txValue'
@@ -356,6 +406,7 @@ export const CONDITION_CARD_ORDER: readonly ConditionCardId[] = [
   'gpRate',
   'markupRate',
   'discountRate',
+  'totalCost',
   'customerYoY',
   'itemsYoY',
   'txValue',
@@ -369,11 +420,14 @@ export const CONDITION_CARD_GROUP: Record<ConditionCardId, 'budget' | 'yoy'> = {
   gpRate: 'budget',
   markupRate: 'budget',
   discountRate: 'budget',
+  totalCost: 'budget',
   customerYoY: 'yoy',
   itemsYoY: 'yoy',
   txValue: 'yoy',
   requiredPace: 'yoy',
 }
+
+export type TrendDirection = 'up' | 'down' | 'flat'
 
 export interface UnifiedCardData {
   readonly id: ConditionCardId
@@ -383,6 +437,8 @@ export interface UnifiedCardData {
   readonly sub: string
   readonly signalColor: string
   readonly clickable: boolean
+  /** 直近1週間トレンド（前半 vs 後半）。対象メトリクスのみ */
+  readonly trend?: { readonly direction: TrendDirection; readonly ratio: string }
 }
 
 /** budget + yoY カードを統一配列に変換し、CONDITION_CARD_ORDER 順でソートする */
@@ -390,6 +446,7 @@ export function buildUnifiedCards(
   budgetCards: readonly CardSummary[],
   yoyCards: readonly YoYCardSummary[],
   hasMultipleStores: boolean,
+  trends?: ReadonlyMap<string, { direction: TrendDirection; ratio: string }>,
 ): readonly UnifiedCardData[] {
   const map = new Map<string, UnifiedCardData>()
 
@@ -402,6 +459,7 @@ export function buildUnifiedCards(
       sub: c.sub,
       signalColor: c.signalColor,
       clickable: true,
+      trend: trends?.get(c.key),
     })
   }
 
@@ -414,6 +472,7 @@ export function buildUnifiedCards(
       sub: c.sub,
       signalColor: c.signalColor,
       clickable: hasMultipleStores && c.detailBreakdown != null,
+      trend: trends?.get(c.key),
     })
   }
 
