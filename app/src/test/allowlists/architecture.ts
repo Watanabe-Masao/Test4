@@ -71,6 +71,12 @@ export const applicationToInfrastructure: readonly AllowlistEntry[] = [
     category: 'adapter',
     removalCondition: '構造上不要にならない限り維持',
   },
+  {
+    path: 'application/lifecycle/useAppLifecycle.ts',
+    reason: 'DuckDB エンジン状態の購読（App Lifecycle 統合に必要）',
+    category: 'lifecycle',
+    removalCondition: 'DuckDB adapter 層が確立されたとき',
+  },
 ] as const
 
 /** presentation/ → infrastructure/（Phase 3 で全件解消済み。凍結） */

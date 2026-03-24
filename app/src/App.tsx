@@ -4,10 +4,10 @@ import { AppShell, NavBar, BottomNav } from '@/presentation/components/Layout'
 import {
   PageErrorBoundary,
   PageSkeleton,
+  GlobalStatusOverlay,
   useToast,
 } from '@/presentation/components/common/feedback'
 import { DataManagementSidebar } from '@/presentation/components/DataManagementSidebar'
-import { usePersistence } from '@/application/hooks/data'
 import { useRouteSync } from '@/application/hooks/useRouteSync'
 import { useAppShortcuts } from '@/application/hooks/useAppShortcuts'
 import { useThemeToggle, SettingsModalContext } from '@/appContextDefs'
@@ -27,20 +27,21 @@ function AppContent() {
     showToast,
   })
 
-  // 起動時の自動復元
-  usePersistence()
-
   // モバイル専用ルート: AppShell を使わず独自レイアウト
   if (isMobile) {
     return (
-      <Suspense fallback={<PageSkeleton />}>
-        <MobileDashboardPage />
-      </Suspense>
+      <>
+        <GlobalStatusOverlay />
+        <Suspense fallback={<PageSkeleton />}>
+          <MobileDashboardPage />
+        </Suspense>
+      </>
     )
   }
 
   return (
     <SettingsModalContext.Provider value={{ open: handleOpenSettings }}>
+      <GlobalStatusOverlay />
       <AppShell
         nav={
           <NavBar
