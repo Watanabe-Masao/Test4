@@ -6,7 +6,7 @@
  * React に依存しない純粋関数。
  */
 import type { AppTheme } from '@/presentation/theme/theme'
-import { toComma } from './chartTheme'
+import { toComma, toPct } from './chartTheme'
 import { yenYAxis } from './echartsOptionBuilders'
 import { tooltipBase } from './builders/tooltip'
 import { valueYAxis } from './builders'
@@ -58,7 +58,6 @@ type TooltipItem = {
 
 const fmtYen = (v: number) => `${Math.round(v).toLocaleString('ja-JP')}円`
 const fmtQty = (v: number) => `${Math.round(v).toLocaleString('ja-JP')}点`
-const fmtPct = (v: number) => `${(v * 100).toFixed(2)}%`
 const fmtDiff = (v: number) => `${v >= 0 ? '+' : ''}${Math.round(v).toLocaleString('ja-JP')}円`
 const fmtQtyDiff = (v: number) => `${v >= 0 ? '+' : ''}${Math.round(v).toLocaleString('ja-JP')}点`
 
@@ -86,6 +85,7 @@ function buildTimeSlotTooltip(
         if (item.value != null) byName.set(item.seriesName, item.value)
       }
 
+      const isQtyMode = lineMode === 'quantity'
       let html = `<div style="font-weight:600;margin-bottom:6px">${title}</div>`
 
       // ── 売上セクション ──
@@ -97,7 +97,7 @@ function buildTimeSlotTooltip(
       if (curSales != null) {
         const yoyStr =
           showPrev && prevSales != null && prevSales > 0
-            ? `&emsp;前年比 ${fmtPct(curSales / prevSales)}`
+            ? `&emsp;前年比 ${toPct(curSales / prevSales)}`
             : ''
         html +=
           `<div style="display:flex;justify-content:space-between;gap:8px">` +
@@ -113,7 +113,7 @@ function buildTimeSlotTooltip(
       }
 
       // ── 点数セクション ──
-      if (lineMode === 'quantity') {
+      if (isQtyMode) {
         const curQtyKey = showPrev ? `${curLabel}点数` : '点数'
         const prevQtyKey = `${compLabel}点数`
         const curQty = byName.get(curQtyKey)
@@ -125,7 +125,7 @@ function buildTimeSlotTooltip(
         if (curQty != null) {
           const qtyYoyStr =
             showPrev && prevQty != null && prevQty > 0
-              ? `&emsp;前年比 ${fmtPct(curQty / prevQty)}`
+              ? `&emsp;前年比 ${toPct(curQty / prevQty)}`
               : ''
           html +=
             `<div style="display:flex;justify-content:space-between;gap:8px">` +
