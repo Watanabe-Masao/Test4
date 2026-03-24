@@ -148,6 +148,48 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
         prev.set(targetDay, (prev.get(targetDay) ?? 0) + r.dailyQuantity)
       }
     }
+    // DEBUG: 前年点数2倍バグ調査用ログ（原因特定後に削除）
+    if (curQtyOut && prevQtyOut) {
+      const curSample = curQtyOut.records.slice(0, 3).map((r) => `${r.dateKey}=${r.dailyQuantity}`)
+      const prevSample = prevQtyOut.records
+        .slice(0, 3)
+        .map((r) => `${r.dateKey}=${r.dailyQuantity}`)
+      const curDay1 = current.get(1) ?? 'N/A'
+      const prevDay1 = prev.get(1) ?? 'N/A'
+      console.group('[DailyQty DEBUG] 点数2倍バグ調査')
+      console.log('当年レコード数:', curQtyOut.records.length, '先頭3件:', curSample)
+      console.log('前年レコード数:', prevQtyOut.records.length, '先頭3件:', prevSample)
+      console.log('当年day1 qty:', curDay1, '/ 前年day1 qty:', prevDay1)
+      console.log(
+        '前年/当年 比率 (day1):',
+        typeof curDay1 === 'number' && curDay1 > 0 ? (prevDay1 as number) / curDay1 : 'N/A',
+      )
+      console.log('prevYearDateRange:', prevYearDateRange)
+      console.log('currentDateRange:', props.currentDateRange)
+      // targetDay の重複チェック
+      const targetDayCounts = new Map<number, number>()
+      if (prevQtyOut && prevYearDateRange) {
+        const pf = new Date(
+          prevYearDateRange.from.year,
+          prevYearDateRange.from.month - 1,
+          prevYearDateRange.from.day,
+        )
+        for (const r of prevQtyOut.records) {
+          const [yy, mm, dd] = r.dateKey.split('-').map(Number)
+          const pd = new Date(yy, mm - 1, dd)
+          const el = Math.round((pd.getTime() - pf.getTime()) / 86400000)
+          const td = props.currentDateRange.from.day + el
+          targetDayCounts.set(td, (targetDayCounts.get(td) ?? 0) + 1)
+        }
+        const dupes = [...targetDayCounts.entries()].filter(([, c]) => c > 1)
+        if (dupes.length > 0) {
+          console.warn('⚠ targetDay 重複あり（同一日に複数レコードがマッピング）:', dupes)
+        } else {
+          console.log('✓ targetDay 重複なし')
+        }
+      }
+      console.groupEnd()
+    }
     return { current, prev }
   }, [curQtyOut, prevQtyOut, prevYearDateRange, props.currentDateRange])
 
