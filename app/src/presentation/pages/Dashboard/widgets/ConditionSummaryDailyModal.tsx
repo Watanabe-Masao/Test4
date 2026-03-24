@@ -8,7 +8,6 @@ import type {
   DailyDetailRow,
   DailyYoYRow,
   DailyDiscountRow,
-  DailyDiscountRateYoYRow,
   DailyMarkupRateYoYRow,
 } from './ConditionSummaryEnhanced.vm'
 import {
@@ -175,9 +174,9 @@ export const ConditionSummaryDailyModal = memo(function ConditionSummaryDailyMod
           ) : showYoY && metric === 'sales' ? (
             <YoYTable rows={yoyRows} fmtCurrency={fmtCurrency} year={year} month={month} />
           ) : showYoY && metric === 'discountRate' ? (
-            <DiscountRateYoYTable rows={discountRateYoYRows} year={year} month={month} />
+            <RateYoYTable rows={discountRateYoYRows} year={year} month={month} />
           ) : showYoY && metric === 'markupRate' ? (
-            <MarkupRateYoYTable rows={markupRateYoYRows} year={year} month={month} />
+            <RateYoYTable rows={markupRateYoYRows} year={year} month={month} />
           ) : metric === 'discountRate' ? (
             <DiscountTable
               rows={discountRows}
@@ -481,75 +480,24 @@ function YoYTable({
   )
 }
 
-// ─── Markup Rate YoY table ──────────────────────────────
+// ─── Rate YoY table (shared by Markup/Discount) ─────────
 
-function MarkupRateYoYTable({
-  rows,
-  year,
-  month,
-}: {
-  readonly rows: readonly DailyMarkupRateYoYRow[]
-  readonly year: number
-  readonly month: number
-}) {
-  return (
-    <DailyTable>
-      <thead>
-        <tr>
-          <DailyGroupTh rowSpan={2} $align="center">
-            日
-          </DailyGroupTh>
-          <DailyGroupTh colSpan={3}>単日</DailyGroupTh>
-          <DailyGroupTh colSpan={3} $group>
-            累計
-          </DailyGroupTh>
-        </tr>
-        <tr>
-          <DailyTh>前年</DailyTh>
-          <DailyTh>当年</DailyTh>
-          <DailyTh>差異</DailyTh>
-          <DailyTh $group>前年</DailyTh>
-          <DailyTh>当年</DailyTh>
-          <DailyTh>差異</DailyTh>
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((r) => {
-          const diffColor = rateDiffColor(r.diff)
-          const cumDiffColor = rateDiffColor(r.cumDiff)
-          return (
-            <DailyTr key={r.day}>
-              <DailyTd style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
-                {dayLabel(r.day, year, month)}
-              </DailyTd>
-              <DailyTd>{fmtValue(r.prevRate, true)}</DailyTd>
-              <DailyTd $bold>{fmtValue(r.curRate, true)}</DailyTd>
-              <DailyTd $color={diffColor} $bold>
-                {r.diff >= 0 ? '+' : ''}
-                {r.diff.toFixed(2)}pp
-              </DailyTd>
-              <DailyTd $group>{fmtValue(r.cumPrevRate, true)}</DailyTd>
-              <DailyTd $bold>{fmtValue(r.cumCurRate, true)}</DailyTd>
-              <DailyTd $color={cumDiffColor} $bold>
-                {r.cumDiff >= 0 ? '+' : ''}
-                {r.cumDiff.toFixed(2)}pp
-              </DailyTd>
-            </DailyTr>
-          )
-        })}
-      </tbody>
-    </DailyTable>
-  )
+interface RateYoYRow {
+  readonly day: number
+  readonly prevRate: number
+  readonly curRate: number
+  readonly diff: number
+  readonly cumPrevRate: number
+  readonly cumCurRate: number
+  readonly cumDiff: number
 }
 
-// ─── Discount Rate YoY table ────────────────────────────
-
-function DiscountRateYoYTable({
+function RateYoYTable({
   rows,
   year,
   month,
 }: {
-  readonly rows: readonly DailyDiscountRateYoYRow[]
+  readonly rows: readonly RateYoYRow[]
   readonly year: number
   readonly month: number
 }) {

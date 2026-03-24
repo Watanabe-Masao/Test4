@@ -11,6 +11,7 @@ import { calculateYoYRatio, calculateAchievementRate } from '@/domain/calculatio
 import type { CategoryTimeSalesRecord } from '@/domain/models/DataTypes'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
 import {
+  type DayMappingRow,
   type PrevYearData,
   type PrevYearMonthlyKpi,
   buildSameDowPoints,
@@ -241,15 +242,16 @@ export interface ItemsYoYDetailVm {
 }
 
 /**
- * Build a prevDay → currentDay mapping from dailyMapping.
+ * Build a prevDay → currentDay mapping from dailyMapping via buildSameDowPoints.
  * Used to remap prevCtsRecords to same-day-of-week aligned days.
  */
 export function buildDayMapping(
-  dailyMapping: readonly { readonly prevDay: number; readonly currentDay: number }[],
+  dailyMapping: readonly DayMappingRow[],
 ): ReadonlyMap<number, number> {
+  const points = buildSameDowPoints(dailyMapping)
   const m = new Map<number, number>()
-  for (const row of dailyMapping) {
-    m.set(row.prevDay, row.currentDay)
+  for (const [, pt] of points) {
+    m.set(pt.sourceDate.day, pt.currentDay)
   }
   return m
 }
