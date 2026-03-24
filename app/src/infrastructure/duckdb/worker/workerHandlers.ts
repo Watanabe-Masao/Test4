@@ -133,6 +133,7 @@ export async function executeDeleteMonth(
   month: number,
 ): Promise<null> {
   await deleteMonth(conn, year, month)
+  // 前年データは (year-1, month) に格納されるため、別途削除が必要（#前年点数2倍バグ対策）
   await deletePrevYearMonth(conn, year, month)
   return null
 }
