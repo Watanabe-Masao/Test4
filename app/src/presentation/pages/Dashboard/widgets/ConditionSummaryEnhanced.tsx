@@ -117,8 +117,6 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
 
   // CTS 販売点数: 事前集計済みの値を使う（raw CTS レコードに直接触れない）
   const { currentCtsQuantity } = ctx
-  const prevYearKpiEntry =
-    prevYearMode === 'sameDow' ? ctx.prevYearMonthlyKpi.sameDow : ctx.prevYearMonthlyKpi.sameDate
 
   // Budget header
   const budgetHeader = useMemo(
@@ -142,10 +140,11 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
       calendarDaysInMonth,
       ctx.fmtCurrency,
     )
-    // CTS 販売点数: 事前集計済みの値を使う（alignment 適用済み）
+    // CTS 販売点数: 当年は経過日数分の事前集計、前年も経過日数キャップ済みの daily から取得
+    // （prevYearKpiEntry.ctsQuantity は月全体の値なので使わない — スコープ不一致防止）
     const effectiveDay = elapsedDays ?? calendarDaysInMonth
     const scopedCurQty = currentCtsQuantity.total
-    const scopedPrevQty = prevYearKpiEntry.ctsQuantity
+    const scopedPrevQty = ctx.prevYear.totalCtsQuantity
     // 前年総仕入: prevYearStoreCostPrice の cost 合計
     const prevYearTotalCost =
       ctx.prevYearStoreCostPrice != null && ctx.prevYearStoreCostPrice.size > 0
@@ -250,7 +249,6 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
     ctx.prevYear,
     effectiveConfig,
     currentCtsQuantity,
-    prevYearKpiEntry,
     hasMultipleStores,
     ctx.prevYearStoreCostPrice,
   ])
