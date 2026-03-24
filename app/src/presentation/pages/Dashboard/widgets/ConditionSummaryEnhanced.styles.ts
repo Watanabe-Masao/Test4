@@ -695,33 +695,56 @@ export const DailyTable = styled.table`
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
 `
 
-export const DailyTh = styled.th<{ $align?: string }>`
+/** 単日 / 累計 のグループヘッダー行 */
+export const DailyGroupTh = styled.th<{ $align?: string; $group?: boolean }>`
+  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[4]};
+  text-align: ${({ $align }) => $align ?? 'center'};
+  font-size: 10px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  color: ${({ theme }) => theme.colors.palette.primary};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(59,130,246,0.05)'};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  ${({ $group, theme }) => ($group ? `border-left: 2px solid ${theme.colors.border};` : '')}
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+`
+
+export const DailyTh = styled.th<{ $align?: string; $group?: boolean }>`
   padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
   text-align: ${({ $align }) => $align ?? 'right'};
   font-size: 10px;
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text4};
   border-bottom: 2px solid ${({ theme }) => theme.colors.border};
+  ${({ $group, theme }) => ($group ? `border-left: 2px solid ${theme.colors.border};` : '')}
   white-space: nowrap;
   position: sticky;
-  top: 0;
+  top: 24px;
   background: ${({ theme }) => theme.colors.bg2};
   z-index: 1;
 `
 
-export const DailyTd = styled.td<{ $color?: string; $bold?: boolean }>`
+export const DailyTd = styled.td<{ $color?: string; $bold?: boolean; $group?: boolean }>`
   padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[4]};
   text-align: right;
   color: ${({ $color, theme }) => $color ?? theme.colors.text};
   font-weight: ${({ $bold }) => ($bold ? 700 : 400)};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border}44;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  ${({ $group, theme }) => ($group ? `border-left: 2px solid ${theme.colors.border};` : '')}
   white-space: nowrap;
 `
 
 export const DailyTr = styled.tr`
   transition: background 0.1s;
+  &:nth-child(even) {
+    background: ${({ theme }) =>
+      theme.mode === 'dark' ? 'rgba(255,255,255,0.015)' : 'rgba(0,0,0,0.015)'};
+  }
   &:hover {
     background: ${({ theme }) =>
-      theme.mode === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'};
+      theme.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)'};
   }
 `

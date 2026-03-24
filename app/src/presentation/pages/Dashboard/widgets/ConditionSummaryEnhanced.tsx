@@ -45,6 +45,11 @@ import {
   DrillHeader,
   DrillTitle,
   DrillBody,
+  Footer,
+  FooterNote,
+  LegendDot,
+  LegendGroup,
+  LegendItem,
 } from './ConditionSummaryEnhanced.styles'
 
 // ─── Card click handler type map ────────────────────────
@@ -122,8 +127,14 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
 
   // Budget header
   const budgetHeader = useMemo(
-    () => buildBudgetHeader(ctx.result, ctx.prevYearMonthlyKpi, ctx.dowGap),
-    [ctx.result, ctx.prevYearMonthlyKpi, ctx.dowGap],
+    () =>
+      buildBudgetHeader(
+        ctx.result,
+        ctx.prevYearMonthlyKpi,
+        ctx.dowGap,
+        prevYearMode === 'sameDow' ? 'sameDow' : 'sameDate',
+      ),
+    [ctx.result, ctx.prevYearMonthlyKpi, ctx.dowGap, prevYearMode],
   )
 
   const hasMultipleStores = ctx.allStoreResults.size > 1
@@ -377,6 +388,25 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
                 />
               )}
             </DrillBody>
+            <Footer>
+              <FooterNote>
+                {yoyDrill === 'customerYoY'
+                  ? '前年同曜日比 • 単位：人'
+                  : '客単価 = 売上 ÷ 客数 • 単位：円'}
+              </FooterNote>
+              <LegendGroup>
+                {[
+                  { color: '#10b981', label: '達成' },
+                  { color: '#eab308', label: '微未達' },
+                  { color: '#ef4444', label: '未達' },
+                ].map((item) => (
+                  <LegendItem key={item.label}>
+                    <LegendDot $color={item.color} />
+                    {item.label}
+                  </LegendItem>
+                ))}
+              </LegendGroup>
+            </Footer>
           </DrillPanel>
         </DrillOverlay>
       )}

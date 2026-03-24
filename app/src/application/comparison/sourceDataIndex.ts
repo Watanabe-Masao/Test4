@@ -73,6 +73,8 @@ export function buildSourceDataIndex(
   allAgg: Record<string, Record<number, ClassifiedSalesDaySummary>>,
   flowersIndex: StoreDayIndex<SpecialSalesDayEntry> | undefined,
   ctx: SourceMonthContext,
+  /** 花データの完全インデックス（year-month-day キー）。月跨ぎ参照用 */
+  flowersFullIndex?: ReadonlyMap<string, SpecialSalesDayEntry>,
 ): SourceDataIndex {
   const storeIds = Object.keys(allAgg)
 
@@ -86,12 +88,29 @@ export function buildSourceDataIndex(
 
     getFlowers(storeId: string, date: CalendarDate) {
       if (!flowersIndex) return undefined
-      // flowersIndex はリナンバリングされていないため、同月のみ正確に参照可能。
-      // 月跨ぎ時は undefined を返す（データが存在しない）。
-      if (date.year !== ctx.year || date.month !== ctx.month) return undefined
-      return flowersIndex[storeId]?.[date.day]
+      // 同月なら日番号でダイレクト参照
+      if (date.year === ctx.year && date.month === ctx.month) {
+        return flowersIndex[storeId]?.[date.day]
+      }
+      // 月跨ぎ: flowersFullIndex がある場合は year-month-day キーで参照
+      if (flowersFullIndex) {
+        const key = `${storeId}:${date.year}-${date.month}-${date.day}`
+        return flowersFullIndex.get(key)
+      }
+      return undefined
     },
 
     storeIds,
   }
+}
+
+/** 花レコード配列から storeId:year-month-day キーの完全マップを構築する */
+export function buildFlowersFullIndex(
+  records: readonly SpecialSalesDayEntry[],
+): ReadonlyMap<string, SpecialSalesDayEntry> {
+  const map = new Map<string, SpecialSalesDayEntry>()
+  for (const r of records) {
+    map.set(`${r.storeId}:${r.year}-${r.month}-${r.day}`, r)
+  }
+  return map
 }

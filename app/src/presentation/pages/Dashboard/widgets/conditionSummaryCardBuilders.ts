@@ -183,19 +183,23 @@ function buildDowGapSummary(dowGap: DowGapAnalysis | undefined): DowGapSummary |
  *
  * ## 期間スコープの意味論
  *
- * 前年売上は monthlyTotal（alignment不要の全日合計）を使用する。
- * sameDate.sales / sameDow.sales は alignment 経由で当期 period1 に依存するため、
- * 月間固定値が必要な予算前年比には不適切。
+ * prevYearMode に応じて前年売上の取得元を切り替える:
+ * - 'sameDate': monthlyTotal（alignment不要の全日合計）を使用
+ * - 'sameDow': sameDow.sales（同曜日 alignment 経由の集計）を使用
+ *
+ * 予算前年比もこれに連動する。
  */
 export function buildBudgetHeader(
   result: StoreResult,
   prevYearMonthlyKpi: PrevYearMonthlyKpi,
   dowGap: DowGapAnalysis | undefined,
+  prevYearMode: 'sameDate' | 'sameDow' = 'sameDate',
 ): BudgetHeaderData {
-  const prevYearMonthlySales =
-    prevYearMonthlyKpi.hasPrevYear && prevYearMonthlyKpi.monthlyTotal.sales > 0
-      ? prevYearMonthlyKpi.monthlyTotal.sales
-      : null
+  const rawSales =
+    prevYearMode === 'sameDow'
+      ? prevYearMonthlyKpi.sameDow.sales
+      : prevYearMonthlyKpi.monthlyTotal.sales
+  const prevYearMonthlySales = prevYearMonthlyKpi.hasPrevYear && rawSales > 0 ? rawSales : null
 
   const budgetVsPrevYear =
     prevYearMonthlySales != null ? safeDivide(result.budget, prevYearMonthlySales, 0) : null
