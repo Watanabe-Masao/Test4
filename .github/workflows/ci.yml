@@ -35,6 +35,7 @@ jobs:
             wasm/gross-profit/target
             wasm/budget-analysis/target
             wasm/forecast/target
+            wasm/time-slot/target
           key: ${{ runner.os }}-cargo-${{ hashFiles('wasm/*/Cargo.lock') }}
           restore-keys: ${{ runner.os }}-cargo-
 
@@ -42,12 +43,7 @@ jobs:
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
       - name: Build WASM modules
-        working-directory: .
-        run: |
-          cd wasm/factor-decomposition && wasm-pack build --target web --release
-          cd ../gross-profit && wasm-pack build --target web --release
-          cd ../budget-analysis && wasm-pack build --target web --release
-          cd ../forecast && wasm-pack build --target web --release
+        run: npm run build:wasm
 
       - uses: actions/setup-node@v4
         with:
@@ -71,15 +67,6 @@ jobs:
 
       - name: Guard tests (structural constraints)
         run: npm run test:guards
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-output
-          path: |
-            app/dist/
-            app/node_modules/
-          retention-days: 1
 
   # ── Gate 2: テスト + カバレッジ + Storybook（fast-gate 後に並列） ──
   test-coverage:
@@ -106,6 +93,7 @@ jobs:
             wasm/gross-profit/target
             wasm/budget-analysis/target
             wasm/forecast/target
+            wasm/time-slot/target
           key: ${{ runner.os }}-cargo-${{ hashFiles('wasm/*/Cargo.lock') }}
           restore-keys: ${{ runner.os }}-cargo-
 
@@ -113,12 +101,7 @@ jobs:
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
       - name: Build WASM modules
-        working-directory: .
-        run: |
-          cd wasm/factor-decomposition && wasm-pack build --target web --release
-          cd ../gross-profit && wasm-pack build --target web --release
-          cd ../budget-analysis && wasm-pack build --target web --release
-          cd ../forecast && wasm-pack build --target web --release
+        run: npm run build:wasm
 
       - uses: actions/setup-node@v4
         with:
@@ -159,6 +142,7 @@ jobs:
             wasm/gross-profit/target
             wasm/budget-analysis/target
             wasm/forecast/target
+            wasm/time-slot/target
           key: ${{ runner.os }}-cargo-${{ hashFiles('wasm/*/Cargo.lock') }}
           restore-keys: ${{ runner.os }}-cargo-
 
@@ -166,12 +150,7 @@ jobs:
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
       - name: Build WASM modules
-        working-directory: .
-        run: |
-          cd wasm/factor-decomposition && wasm-pack build --target web --release
-          cd ../gross-profit && wasm-pack build --target web --release
-          cd ../budget-analysis && wasm-pack build --target web --release
-          cd ../forecast && wasm-pack build --target web --release
+        run: npm run build:wasm
 
       - uses: actions/setup-node@v4
         with:
