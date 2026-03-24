@@ -8,7 +8,7 @@ import type { WidgetContext } from './types'
 import type { StoreResult, AppSettings } from '@/domain/models/storeTypes'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
 import { formatPercent } from '@/domain/formatting'
-import { safeDivide } from '@/domain/calculations/utils'
+import { safeDivide, calculateAchievementRate } from '@/domain/calculations/utils'
 import { CustomerYoYDetailTable } from './conditionPanelYoY'
 import { TxValueDetailTable } from './conditionPanelSalesDetail'
 import type { DisplayMode } from './conditionSummaryUtils'
@@ -156,7 +156,7 @@ function ItemsYoYContent({
   readonly ctsCurrentQty: number
   readonly ctsPrevQty: number
 }) {
-  const yoy = ctsPrevQty > 0 ? ctsCurrentQty / ctsPrevQty : 0
+  const yoy = calculateAchievementRate(ctsCurrentQty, ctsPrevQty)
   const yoyColor = yoy >= 1 ? '#10b981' : yoy >= 0.97 ? '#eab308' : '#ef4444'
   return (
     <TotalSection>
