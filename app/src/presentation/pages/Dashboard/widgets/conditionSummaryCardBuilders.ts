@@ -5,6 +5,7 @@
  */
 
 import { safeDivide } from '@/domain/calculations/utils'
+import { calculateRemainingBudgetRate } from '@/domain/calculations/remainingBudgetRate'
 import { formatPercent } from '@/domain/formatting'
 import type { MetricId } from '@/domain/models/analysis'
 import type { StoreResult } from '@/domain/models/storeTypes'
@@ -110,17 +111,6 @@ export function buildCardSummaries(
         : result.discountRate * 100 > 1
           ? '#eab308'
           : '#10b981',
-  })
-
-  // 総仕入
-  cards.push({
-    key: 'totalCost' as MetricKey,
-    label: '総仕入',
-    icon: 'TC',
-    color: '#64748b',
-    value: fmtCurrency(result.totalCost),
-    sub: `値入率 ${formatPercent100(result.averageMarkupRate * 100)}`,
-    signalColor: '#64748b',
   })
 
   return cards
@@ -265,7 +255,7 @@ export function buildBudgetHeader(
 
 // ─── YoY Card Summary (前年比メトリクス) ───────────────
 
-export type YoYCardKey = 'customerYoY' | 'itemsYoY' | 'txValue' | 'requiredPace'
+export type YoYCardKey = 'customerYoY' | 'itemsYoY' | 'txValue' | 'requiredPace' | 'totalCost'
 
 export interface YoYCardSummary {
   readonly key: YoYCardKey
@@ -274,7 +264,13 @@ export interface YoYCardSummary {
   readonly sub: string
   readonly signalColor: string
   readonly metricId: MetricId | null
-  readonly detailBreakdown: 'customerYoY' | 'txValue' | 'itemsYoY' | 'requiredPace' | null
+  readonly detailBreakdown:
+    | 'customerYoY'
+    | 'txValue'
+    | 'itemsYoY'
+    | 'requiredPace'
+    | 'totalCost'
+    | null
 }
 
 export interface BuildYoYCardsInput {
@@ -284,11 +280,24 @@ export interface BuildYoYCardsInput {
   readonly ctsCurrentQty: number
   readonly ctsPrevQty: number
   readonly fmtCurrency: (n: number) => string
+  readonly prevYearTotalCost?: number
+  readonly elapsedDays: number
+  readonly daysInMonth: number
 }
 
 /** 前年比系のカードデータを構築する */
 export function buildYoYCards(input: BuildYoYCardsInput): readonly YoYCardSummary[] {
-  const { result: r, prevYear, config, ctsCurrentQty, ctsPrevQty, fmtCurrency } = input
+  const {
+    result: r,
+    prevYear,
+    config,
+    ctsCurrentQty,
+    ctsPrevQty,
+    fmtCurrency,
+    prevYearTotalCost,
+    elapsedDays,
+    daysInMonth,
+  } = input
   const cards: YoYCardSummary[] = []
 
   // 客数前年比
@@ -354,28 +363,44 @@ export function buildYoYCards(input: BuildYoYCardsInput): readonly YoYCardSummar
     }
   }
 
-  // 必要ベース比
-  if (
-    isMetricEnabled(config, 'requiredPace') &&
-    r.averageDailySales > 0 &&
-    r.requiredDailySales > 0
-  ) {
-    const paceRatio = safeDivide(r.requiredDailySales, r.averageDailySales, 0)
-    const obsStatus = r.observationPeriod.status
-    const obsSuffix =
-      obsStatus === 'partial'
-        ? '（⚠ 観測日数少）'
-        : obsStatus === 'invalid' || obsStatus === 'undefined'
-          ? '（⚠ 観測不十分）'
-          : ''
+  // 残予算必要達成率
+  if (isMetricEnabled(config, 'requiredPace') && r.budget > 0 && elapsedDays < daysInMonth) {
+    const rate = calculateRemainingBudgetRate({
+      budget: r.budget,
+      totalSales: r.totalSales,
+      budgetDaily: r.budgetDaily,
+      elapsedDays,
+      daysInMonth,
+    })
+    // rate は %値 (100 = 計画通り)
+    const remaining = r.budget - r.totalSales
+    let remainingPeriodBudget = 0
+    for (let d = elapsedDays + 1; d <= daysInMonth; d++) {
+      remainingPeriodBudget += r.budgetDaily.get(d) ?? 0
+    }
+    const paceRatio = rate / 100 // signalの比較用に比率化
     cards.push({
       key: 'requiredPace',
-      label: '必要ベース比',
+      label: '残予算必要達成率',
       value: formatPercent(paceRatio, 2),
-      sub: `必要日販 ${fmtCurrency(r.requiredDailySales)} / 実績日販 ${fmtCurrency(r.averageDailySales)}${obsSuffix}`,
+      sub: `残予算 ${fmtCurrency(remaining)} / 残期間予算 ${fmtCurrency(remainingPeriodBudget)}`,
       signalColor: SIGNAL_COLORS[metricSignal(paceRatio, 'requiredPace', config)],
       metricId: null,
       detailBreakdown: 'requiredPace' as const,
+    })
+  }
+
+  // 総仕入前年比
+  if (r.totalCost > 0 && prevYearTotalCost != null && prevYearTotalCost > 0) {
+    const costYoY = r.totalCost / prevYearTotalCost
+    cards.push({
+      key: 'totalCost',
+      label: '総仕入前年比',
+      value: formatPercent(costYoY, 2),
+      sub: `当年 ${fmtCurrency(r.totalCost)} / 前年 ${fmtCurrency(prevYearTotalCost)}`,
+      signalColor: SIGNAL_COLORS[metricSignal(costYoY, 'customerYoY', config)],
+      metricId: null,
+      detailBreakdown: 'totalCost' as const,
     })
   }
 
@@ -406,10 +431,10 @@ export const CONDITION_CARD_ORDER: readonly ConditionCardId[] = [
   'gpRate',
   'markupRate',
   'discountRate',
-  'totalCost',
   'customerYoY',
   'itemsYoY',
   'txValue',
+  'totalCost',
   'requiredPace',
 ]
 
@@ -420,10 +445,10 @@ export const CONDITION_CARD_GROUP: Record<ConditionCardId, 'budget' | 'yoy'> = {
   gpRate: 'budget',
   markupRate: 'budget',
   discountRate: 'budget',
-  totalCost: 'budget',
   customerYoY: 'yoy',
   itemsYoY: 'yoy',
   txValue: 'yoy',
+  totalCost: 'yoy',
   requiredPace: 'yoy',
 }
 

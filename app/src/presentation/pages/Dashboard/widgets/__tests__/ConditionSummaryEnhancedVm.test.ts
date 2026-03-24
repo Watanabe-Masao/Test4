@@ -360,28 +360,16 @@ describe('ConditionSummaryEnhanced.vm 不変条件', () => {
         ctsCurrentQty: 0,
         ctsPrevQty: 0,
         fmtCurrency,
+        elapsedDays: 15,
+        daysInMonth: 30,
       }
     }
 
-    it('observationStatus = ok ではサフィックスなし', () => {
+    it('月途中では残予算必要達成率カードが生成される', () => {
       const cards = buildYoYCards(makeYoYInput('ok'))
       const pace = cards.find((c) => c.key === 'requiredPace')
       expect(pace).toBeDefined()
-      expect(pace!.sub).not.toContain('観測')
-    })
-
-    it('observationStatus = partial では「観測日数少」サフィックス', () => {
-      const cards = buildYoYCards(makeYoYInput('partial'))
-      const pace = cards.find((c) => c.key === 'requiredPace')
-      expect(pace).toBeDefined()
-      expect(pace!.sub).toContain('観測日数少')
-    })
-
-    it('observationStatus = invalid では「観測不十分」サフィックス', () => {
-      const cards = buildYoYCards(makeYoYInput('invalid'))
-      const pace = cards.find((c) => c.key === 'requiredPace')
-      expect(pace).toBeDefined()
-      expect(pace!.sub).toContain('観測不十分')
+      expect(pace!.label).toBe('残予算必要達成率')
     })
   })
 })

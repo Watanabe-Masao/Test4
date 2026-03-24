@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useUiStore } from '@/application/stores/uiStore'
 import { calculationCache } from '@/application/services/calculationCache'
@@ -28,6 +29,15 @@ export function InventorySettingsSection({
   readonly settings: AppSettings
   readonly settingsMap: ReadonlyMap<string, InventoryConfig>
 }) {
+  const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(new Set())
+  const toggleCollapse = (id: string) =>
+    setCollapsed((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+
   return (
     <SidebarSection>
       <SectionLabel>
@@ -49,93 +59,109 @@ export function InventorySettingsSection({
           const daysInMo = getDaysInMonth(settings.targetYear, settings.targetMonth)
           return (
             <StoreInventoryBlock key={s.id}>
-              <StoreInventoryTitle>{s.name}</StoreInventoryTitle>
-              <InventoryRow>
-                <InventoryLabel>機首在庫</InventoryLabel>
-                <BlurCommitInput
-                  value={cfg?.openingInventory}
-                  placeholder="機首在庫"
-                  onCommit={(val) => {
-                    useDataStore.getState().updateInventory(s.id, { openingInventory: val })
-                    calculationCache.clear()
-                    useUiStore.getState().invalidateCalculation()
-                  }}
-                />
-              </InventoryRow>
-              <InventoryRow>
-                <InventoryLabel>商品在庫</InventoryLabel>
-                <BlurCommitInput
-                  value={cfg?.productInventory}
-                  placeholder="商品在庫"
-                  onCommit={(val) => {
-                    useDataStore.getState().updateInventory(s.id, { productInventory: val })
-                    calculationCache.clear()
-                    useUiStore.getState().invalidateCalculation()
-                  }}
-                />
-              </InventoryRow>
-              <InventoryRow>
-                <InventoryLabel>原価算入費</InventoryLabel>
-                <BlurCommitInput
-                  value={cfg?.costInclusionInventory}
-                  placeholder="原価算入費在庫"
-                  onCommit={(val) => {
-                    useDataStore.getState().updateInventory(s.id, { costInclusionInventory: val })
-                    calculationCache.clear()
-                    useUiStore.getState().invalidateCalculation()
-                  }}
-                />
-              </InventoryRow>
-              <InventoryRow>
-                <InventoryLabel>期末在庫</InventoryLabel>
-                <InventoryAutoValue>
-                  {autoClosing != null
-                    ? autoClosing.toLocaleString()
-                    : (cfg?.closingInventory?.toLocaleString() ?? '—')}
-                </InventoryAutoValue>
-              </InventoryRow>
-              <InventoryDayRow>
-                <InventoryLabel>期末日</InventoryLabel>
-                <BlurCommitInput
-                  as={InventoryDayInput}
-                  value={cfg?.closingInventoryDay}
-                  placeholder="末日"
-                  min={1}
-                  max={daysInMo}
-                  onCommit={(val) => {
-                    useDataStore.getState().updateInventory(s.id, { closingInventoryDay: val })
-                    calculationCache.clear()
-                    useUiStore.getState().invalidateCalculation()
-                  }}
-                />
-                <InventoryLabel style={{ minWidth: 'auto' }}>日</InventoryLabel>
-              </InventoryDayRow>
-              <InventoryRow>
-                <InventoryLabel>花掛率%</InventoryLabel>
-                <BlurCommitInput
-                  value={cfg?.flowerCostRate != null ? cfg.flowerCostRate * 100 : null}
-                  step="any"
-                  placeholder={`${settings.flowerCostRate * 100}`}
-                  onCommit={(val) => {
-                    const rate = val != null ? val / 100 : undefined
-                    useDataStore.getState().updateInventory(s.id, { flowerCostRate: rate })
-                  }}
-                />
-              </InventoryRow>
-              <InventoryRow>
-                <InventoryLabel>産直掛率%</InventoryLabel>
-                <BlurCommitInput
-                  value={
-                    cfg?.directProduceCostRate != null ? cfg.directProduceCostRate * 100 : null
-                  }
-                  step="any"
-                  placeholder={`${settings.directProduceCostRate * 100}`}
-                  onCommit={(val) => {
-                    const rate = val != null ? val / 100 : undefined
-                    useDataStore.getState().updateInventory(s.id, { directProduceCostRate: rate })
-                  }}
-                />
-              </InventoryRow>
+              <StoreInventoryTitle
+                onClick={() => toggleCollapse(s.id)}
+                style={{ cursor: 'pointer', userSelect: 'none' }}
+              >
+                <span style={{ marginRight: 4, fontSize: '0.7em' }}>
+                  {collapsed.has(s.id) ? '▶' : '▼'}
+                </span>
+                {s.name}
+              </StoreInventoryTitle>
+              {!collapsed.has(s.id) && (
+                <>
+                  <InventoryRow>
+                    <InventoryLabel>機首在庫</InventoryLabel>
+                    <BlurCommitInput
+                      value={cfg?.openingInventory}
+                      placeholder="機首在庫"
+                      onCommit={(val) => {
+                        useDataStore.getState().updateInventory(s.id, { openingInventory: val })
+                        calculationCache.clear()
+                        useUiStore.getState().invalidateCalculation()
+                      }}
+                    />
+                  </InventoryRow>
+                  <InventoryRow>
+                    <InventoryLabel>商品在庫</InventoryLabel>
+                    <BlurCommitInput
+                      value={cfg?.productInventory}
+                      placeholder="商品在庫"
+                      onCommit={(val) => {
+                        useDataStore.getState().updateInventory(s.id, { productInventory: val })
+                        calculationCache.clear()
+                        useUiStore.getState().invalidateCalculation()
+                      }}
+                    />
+                  </InventoryRow>
+                  <InventoryRow>
+                    <InventoryLabel>原価算入費</InventoryLabel>
+                    <BlurCommitInput
+                      value={cfg?.costInclusionInventory}
+                      placeholder="原価算入費在庫"
+                      onCommit={(val) => {
+                        useDataStore
+                          .getState()
+                          .updateInventory(s.id, { costInclusionInventory: val })
+                        calculationCache.clear()
+                        useUiStore.getState().invalidateCalculation()
+                      }}
+                    />
+                  </InventoryRow>
+                  <InventoryRow>
+                    <InventoryLabel>期末在庫</InventoryLabel>
+                    <InventoryAutoValue>
+                      {autoClosing != null
+                        ? autoClosing.toLocaleString()
+                        : (cfg?.closingInventory?.toLocaleString() ?? '—')}
+                    </InventoryAutoValue>
+                  </InventoryRow>
+                  <InventoryDayRow>
+                    <InventoryLabel>期末日</InventoryLabel>
+                    <BlurCommitInput
+                      as={InventoryDayInput}
+                      value={cfg?.closingInventoryDay}
+                      placeholder="末日"
+                      min={1}
+                      max={daysInMo}
+                      onCommit={(val) => {
+                        useDataStore.getState().updateInventory(s.id, { closingInventoryDay: val })
+                        calculationCache.clear()
+                        useUiStore.getState().invalidateCalculation()
+                      }}
+                    />
+                    <InventoryLabel style={{ minWidth: 'auto' }}>日</InventoryLabel>
+                  </InventoryDayRow>
+                  <InventoryRow>
+                    <InventoryLabel>花掛率%</InventoryLabel>
+                    <BlurCommitInput
+                      value={cfg?.flowerCostRate != null ? cfg.flowerCostRate * 100 : null}
+                      step="any"
+                      placeholder={`${settings.flowerCostRate * 100}`}
+                      onCommit={(val) => {
+                        const rate = val != null ? val / 100 : undefined
+                        useDataStore.getState().updateInventory(s.id, { flowerCostRate: rate })
+                      }}
+                    />
+                  </InventoryRow>
+                  <InventoryRow>
+                    <InventoryLabel>産直掛率%</InventoryLabel>
+                    <BlurCommitInput
+                      value={
+                        cfg?.directProduceCostRate != null ? cfg.directProduceCostRate * 100 : null
+                      }
+                      step="any"
+                      placeholder={`${settings.directProduceCostRate * 100}`}
+                      onCommit={(val) => {
+                        const rate = val != null ? val / 100 : undefined
+                        useDataStore
+                          .getState()
+                          .updateInventory(s.id, { directProduceCostRate: rate })
+                      }}
+                    />
+                  </InventoryRow>
+                </>
+              )}
             </StoreInventoryBlock>
           )
         })}

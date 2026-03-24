@@ -1,15 +1,19 @@
 /**
  * YoYドリルダウンオーバーレイ — ConditionSummaryEnhanced から抽出
  *
- * 客数前年比・客単価前年比・販売点数前年比・必要ベース比の
+ * 客数前年比・客単価前年比・販売点数前年比・総仕入前年比・残予算必要達成率の
  * 店別詳細パネルを統一的に表示する。
  */
 import type { WidgetContext } from './types'
 import type { StoreResult, AppSettings } from '@/domain/models/storeTypes'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
+import type { CategoryTimeSalesRecord } from '@/domain/models/DataTypes'
 import { formatPercent } from '@/domain/formatting'
-import { safeDivide, calculateAchievementRate } from '@/domain/calculations/utils'
-import { CustomerYoYDetailTable } from './conditionPanelYoY'
+import {
+  CustomerYoYDetailTable,
+  ItemsYoYDetailTable,
+  TotalCostYoYDetailTable,
+} from './conditionPanelYoY'
 import { TxValueDetailTable } from './conditionPanelSalesDetail'
 import type { DisplayMode } from './conditionSummaryUtils'
 import {
@@ -31,6 +35,8 @@ import {
   BigValue,
   AchValue,
 } from './ConditionSummaryEnhanced.styles'
+import { calculateRemainingBudgetRate } from '@/domain/calculations/remainingBudgetRate'
+import type { RemainingBudgetRateInput } from '@/domain/calculations/remainingBudgetRate'
 
 // ─── Constants ──────────────────────────────────────────
 
@@ -38,19 +44,21 @@ const YOY_DRILL_LABELS: Record<string, string> = {
   customerYoY: '客数前年比',
   txValue: '客単価前年比',
   itemsYoY: '販売点数前年比',
-  requiredPace: '必要ベース比',
+  totalCost: '総仕入前年比',
+  requiredPace: '残予算必要達成率',
 }
 
 const YOY_DRILL_FOOTER: Record<string, string> = {
   customerYoY: '前年同曜日比 • 単位：人',
   txValue: '客単価 = 売上 ÷ 客数 • 単位：円',
   itemsYoY: '前年同曜日比 • 単位：点',
-  requiredPace: '必要日販 = (予算 - 累計実績) ÷ 残日数',
+  totalCost: '前年同月比 • 単位：円',
+  requiredPace: '残予算必要達成率 = (予算 - 累計実績) ÷ 残期間予算',
 }
 
 // ─── YoY Drill Overlay ──────────────────────────────────
 
-export type YoYDrillType = 'customerYoY' | 'txValue' | 'itemsYoY' | 'requiredPace'
+export type YoYDrillType = 'customerYoY' | 'txValue' | 'itemsYoY' | 'requiredPace' | 'totalCost'
 
 interface YoYDrillOverlayProps {
   readonly yoyDrill: YoYDrillType
@@ -62,8 +70,9 @@ interface YoYDrillOverlayProps {
   readonly settings: AppSettings
   readonly expandedStore: string | null
   readonly setExpandedStore: React.Dispatch<React.SetStateAction<string | null>>
-  readonly ctsCurrentQty: number
-  readonly ctsPrevQty: number
+  readonly ctsRecords: readonly CategoryTimeSalesRecord[]
+  readonly prevCtsRecords: readonly CategoryTimeSalesRecord[]
+  readonly effectiveDay: number
   readonly onClose: () => void
 }
 
@@ -77,8 +86,9 @@ export function YoYDrillOverlay({
   settings,
   expandedStore,
   setExpandedStore,
-  ctsCurrentQty,
-  ctsPrevQty,
+  ctsRecords,
+  prevCtsRecords,
+  effectiveDay,
   onClose,
 }: YoYDrillOverlayProps) {
   return (
@@ -121,10 +131,31 @@ export function YoYDrillOverlay({
             />
           )}
           {yoyDrill === 'itemsYoY' && (
-            <ItemsYoYContent ctsCurrentQty={ctsCurrentQty} ctsPrevQty={ctsPrevQty} />
+            <ItemsYoYDetailTable
+              sortedStoreEntries={sortedStoreEntries}
+              stores={ctx.stores}
+              effectiveConfig={effectiveConfig}
+              ctsRecords={ctsRecords}
+              prevCtsRecords={prevCtsRecords}
+              effectiveDay={effectiveDay}
+            />
+          )}
+          {yoyDrill === 'totalCost' && (
+            <TotalCostYoYDetailTable
+              sortedStoreEntries={sortedStoreEntries}
+              stores={ctx.stores}
+              effectiveConfig={effectiveConfig}
+              prevYearStoreCostPrice={ctx.prevYearStoreCostPrice}
+              fmtCurrency={ctx.fmtCurrency}
+            />
           )}
           {yoyDrill === 'requiredPace' && (
-            <RequiredPaceContent ctx={ctx} sortedStoreEntries={sortedStoreEntries} />
+            <RequiredPaceContent
+              ctx={ctx}
+              sortedStoreEntries={sortedStoreEntries}
+              elapsedDays={effectiveDay}
+              daysInMonth={new Date(ctx.year, ctx.month, 0).getDate()}
+            />
           )}
         </DrillBody>
         <Footer>
@@ -147,64 +178,50 @@ export function YoYDrillOverlay({
   )
 }
 
-// ─── Items YoY Content ──────────────────────────────────
-
-function ItemsYoYContent({
-  ctsCurrentQty,
-  ctsPrevQty,
-}: {
-  readonly ctsCurrentQty: number
-  readonly ctsPrevQty: number
-}) {
-  const yoy = calculateAchievementRate(ctsCurrentQty, ctsPrevQty)
-  const yoyColor = yoy >= 1 ? '#10b981' : yoy >= 0.97 ? '#eab308' : '#ef4444'
-  return (
-    <TotalSection>
-      <TotalGrid>
-        <TotalCell>
-          <SmallLabel>当年点数</SmallLabel>
-          <BigValue>{ctsCurrentQty.toLocaleString()}点</BigValue>
-        </TotalCell>
-        <TotalCell $align="center">
-          <SmallLabel>前年点数</SmallLabel>
-          <BigValue>{ctsPrevQty > 0 ? `${ctsPrevQty.toLocaleString()}点` : '—'}</BigValue>
-        </TotalCell>
-        <TotalCell $align="right">
-          <SmallLabel>前年比</SmallLabel>
-          <AchValue $color={yoyColor}>{ctsPrevQty > 0 ? formatPercent(yoy) : '—'}</AchValue>
-        </TotalCell>
-      </TotalGrid>
-    </TotalSection>
-  )
-}
-
 // ─── Required Pace Content ──────────────────────────────
 
 function RequiredPaceContent({
   ctx,
   sortedStoreEntries,
+  elapsedDays,
+  daysInMonth,
 }: {
   readonly ctx: WidgetContext
   readonly sortedStoreEntries: readonly [string, StoreResult][]
+  readonly elapsedDays: number
+  readonly daysInMonth: number
 }) {
-  const paceRatio = safeDivide(ctx.result.requiredDailySales, ctx.result.averageDailySales, 0)
-  const paceColor = paceRatio <= 1 ? '#10b981' : paceRatio <= 1.05 ? '#eab308' : '#ef4444'
+  const rateInput: RemainingBudgetRateInput = {
+    budget: ctx.result.budget,
+    totalSales: ctx.result.totalSales,
+    budgetDaily: ctx.result.budgetDaily,
+    elapsedDays,
+    daysInMonth,
+  }
+  const rate = calculateRemainingBudgetRate(rateInput)
+  const rateColor = rate <= 100 ? '#10b981' : rate <= 105 ? '#eab308' : '#ef4444'
+  const remaining = ctx.result.budget - ctx.result.totalSales
+  // 残期間予算
+  let remainingBudget = 0
+  for (let d = elapsedDays + 1; d <= daysInMonth; d++) {
+    remainingBudget += ctx.result.budgetDaily.get(d) ?? 0
+  }
 
   return (
     <>
       <TotalSection>
         <TotalGrid>
           <TotalCell>
-            <SmallLabel>実績日販</SmallLabel>
-            <BigValue>{ctx.fmtCurrency(ctx.result.averageDailySales)}</BigValue>
+            <SmallLabel>残予算額</SmallLabel>
+            <BigValue>{ctx.fmtCurrency(remaining)}</BigValue>
           </TotalCell>
           <TotalCell $align="center">
-            <SmallLabel>必要日販</SmallLabel>
-            <BigValue>{ctx.fmtCurrency(ctx.result.requiredDailySales)}</BigValue>
+            <SmallLabel>残期間予算</SmallLabel>
+            <BigValue>{ctx.fmtCurrency(remainingBudget)}</BigValue>
           </TotalCell>
           <TotalCell $align="right">
-            <SmallLabel>必要ベース比</SmallLabel>
-            <AchValue $color={paceColor}>{formatPercent(paceRatio)}</AchValue>
+            <SmallLabel>必要達成率</SmallLabel>
+            <AchValue $color={rateColor}>{formatPercent(rate / 100)}</AchValue>
           </TotalCell>
         </TotalGrid>
       </TotalSection>
@@ -230,7 +247,7 @@ function RequiredPaceContent({
                     borderBottom: '2px solid #e5e7eb',
                   }}
                 >
-                  実績日販
+                  残予算額
                 </th>
                 <th
                   style={{
@@ -239,7 +256,7 @@ function RequiredPaceContent({
                     borderBottom: '2px solid #e5e7eb',
                   }}
                 >
-                  必要日販
+                  残期間予算
                 </th>
                 <th
                   style={{
@@ -248,24 +265,35 @@ function RequiredPaceContent({
                     borderBottom: '2px solid #e5e7eb',
                   }}
                 >
-                  ベース比
+                  必要達成率
                 </th>
               </tr>
             </thead>
             <tbody>
               {sortedStoreEntries.map(([storeId, sr]) => {
                 const storeName = ctx.stores.get(storeId)?.name ?? storeId
-                const storeRatio = safeDivide(sr.requiredDailySales, sr.averageDailySales, 0)
+                const storeRate = calculateRemainingBudgetRate({
+                  budget: sr.budget,
+                  totalSales: sr.totalSales,
+                  budgetDaily: sr.budgetDaily,
+                  elapsedDays,
+                  daysInMonth,
+                })
                 const color =
-                  storeRatio <= 1 ? '#10b981' : storeRatio <= 1.05 ? '#eab308' : '#ef4444'
+                  storeRate <= 100 ? '#10b981' : storeRate <= 105 ? '#eab308' : '#ef4444'
+                const storeRemaining = sr.budget - sr.totalSales
+                let storeRemainingBudget = 0
+                for (let d = elapsedDays + 1; d <= daysInMonth; d++) {
+                  storeRemainingBudget += sr.budgetDaily.get(d) ?? 0
+                }
                 return (
                   <tr key={storeId} style={{ borderBottom: '1px solid #e5e7eb' }}>
                     <td style={{ padding: '4px 8px' }}>{storeName}</td>
                     <td style={{ textAlign: 'right', padding: '4px 8px', fontFamily: 'monospace' }}>
-                      {ctx.fmtCurrency(sr.averageDailySales)}
+                      {ctx.fmtCurrency(storeRemaining)}
                     </td>
                     <td style={{ textAlign: 'right', padding: '4px 8px', fontFamily: 'monospace' }}>
-                      {ctx.fmtCurrency(sr.requiredDailySales)}
+                      {ctx.fmtCurrency(storeRemainingBudget)}
                     </td>
                     <td
                       style={{
@@ -276,7 +304,7 @@ function RequiredPaceContent({
                         color,
                       }}
                     >
-                      {sr.averageDailySales > 0 ? formatPercent(storeRatio) : '—'}
+                      {storeRemainingBudget > 0 ? formatPercent(storeRate / 100) : '—'}
                     </td>
                   </tr>
                 )
