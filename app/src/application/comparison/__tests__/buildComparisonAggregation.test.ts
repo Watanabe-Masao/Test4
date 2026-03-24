@@ -239,6 +239,7 @@ describe('aggregateKpiByAlignment', () => {
       currentDay: 1,
       prevSales: 2000,
       prevCustomers: 40,
+      prevCtsQuantity: 0,
     })
     expect(result.storeContributions).toHaveLength(1)
     expect(result.storeContributions[0]).toEqual({
@@ -248,6 +249,7 @@ describe('aggregateKpiByAlignment', () => {
       sales: 2000,
       customers: 40,
       discount: 0,
+      ctsQuantity: 0,
     })
   })
 
