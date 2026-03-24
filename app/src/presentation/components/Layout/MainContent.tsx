@@ -65,7 +65,6 @@ function InlineMonthPicker() {
     [pickerYear, switchMonth],
   )
 
-
   if (isSwitching) {
     return (
       <MonthBadgeButton disabled style={{ opacity: 0.6 }}>
