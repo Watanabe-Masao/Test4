@@ -225,7 +225,7 @@ export interface YoYCardSummary {
   readonly sub: string
   readonly signalColor: string
   readonly metricId: MetricId | null
-  readonly detailBreakdown: 'customerYoY' | 'txValue' | null
+  readonly detailBreakdown: 'customerYoY' | 'txValue' | 'itemsYoY' | 'requiredPace' | null
 }
 
 export interface BuildYoYCardsInput {
@@ -276,7 +276,7 @@ export function buildYoYCards(input: BuildYoYCardsInput): readonly YoYCardSummar
       sub: `当年 ${ctsCurrentQty.toLocaleString()}点 / 前年 ${ctsPrevQty.toLocaleString()}点`,
       signalColor: SIGNAL_COLORS[metricSignal(itemsYoY, 'itemsYoY', config)],
       metricId: null,
-      detailBreakdown: null,
+      detailBreakdown: 'itemsYoY' as const,
     })
   }
 
@@ -326,7 +326,7 @@ export function buildYoYCards(input: BuildYoYCardsInput): readonly YoYCardSummar
       sub: `必要日販 ${fmtCurrency(r.requiredDailySales)} / 実績日販 ${fmtCurrency(r.averageDailySales)}${obsSuffix}`,
       signalColor: SIGNAL_COLORS[metricSignal(paceRatio, 'requiredPace', config)],
       metricId: null,
-      detailBreakdown: null,
+      detailBreakdown: 'requiredPace' as const,
     })
   }
 
