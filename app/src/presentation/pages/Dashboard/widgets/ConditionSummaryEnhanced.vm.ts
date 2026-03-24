@@ -70,4 +70,5 @@ export {
   CONDITION_CARD_GROUP,
   buildUnifiedCards,
   computeTrend,
+  computeRateTrend,
 } from './conditionSummaryCardBuilders'
