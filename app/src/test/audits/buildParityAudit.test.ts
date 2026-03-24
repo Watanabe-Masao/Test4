@@ -141,6 +141,22 @@ describe('Build Parity Audit — CI と正本ビルド手順の一致検証', ()
     ).toEqual([])
   })
 
+  it('CI に build-storybook ステップが含まれている', () => {
+    if (!ci) return
+    expect(
+      ci.npmScriptCalls.includes('build-storybook'),
+      'CI に build-storybook が含まれていません。test-coverage ジョブで実行されるべきです。',
+    ).toBe(true)
+  })
+
+  it('CI に format:check ステップが含まれている', () => {
+    if (!ci) return
+    expect(
+      ci.npmScriptCalls.includes('format:check'),
+      'CI に format:check が含まれていません。CLAUDE.md §CI パイプライン参照。',
+    ).toBe(true)
+  })
+
   it('ビルドパリティレポートを生成する', () => {
     const reportDir = path.resolve(__dirname, '../../../../references/02-status/generated')
     if (!fs.existsSync(reportDir)) {

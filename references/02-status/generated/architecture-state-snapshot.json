@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-24T06:00:06.682Z",
+  "timestamp": "2026-03-24T06:18:27.668Z",
   "totalAllowlistEntries": 49,
   "categoryBreakdown": {
     "adapter": 10,
@@ -19,6 +19,242 @@
   "activeLists": 14,
   "vmFileCount": 16,
   "compatReexportCount": 2,
+  "activeBridges": [
+    {
+      "path": "application/services/budgetAnalysisBridge.ts",
+      "lines": 194
+    },
+    {
+      "path": "application/services/factorDecompositionBridge.ts",
+      "lines": 322
+    },
+    {
+      "path": "application/services/forecastBridge.ts",
+      "lines": 437
+    },
+    {
+      "path": "application/services/grossProfitBridge.ts",
+      "lines": 521
+    },
+    {
+      "path": "application/services/timeSlotBridge.ts",
+      "lines": 174
+    }
+  ],
+  "facadeHooks": [
+    "application/hooks/duckdb/useAdvancedQueries.ts",
+    "application/hooks/duckdb/useAsyncQuery.ts",
+    "application/hooks/duckdb/useCtsAggregationQueries.ts",
+    "application/hooks/duckdb/useCtsHierarchyQueries.ts",
+    "application/hooks/duckdb/useDailyRecordQueries.ts",
+    "application/hooks/duckdb/useDayDetailData.ts",
+    "application/hooks/duckdb/useDeptKpiQueries.ts",
+    "application/hooks/duckdb/useFeatureQueries.ts",
+    "application/hooks/duckdb/useJsAggregationQueries.ts",
+    "application/hooks/duckdb/useJsFeatureQueries.ts",
+    "application/hooks/duckdb/useJsSalesCompQueries.ts",
+    "application/hooks/duckdb/useMetricsQueries.ts",
+    "application/hooks/duckdb/usePurchaseComparisonQuery.ts",
+    "application/hooks/duckdb/useStoreCostPriceQuery.ts",
+    "application/hooks/duckdb/useStoreDailyMarkupRateQuery.ts",
+    "application/hooks/duckdb/useSummaryQueries.ts",
+    "application/hooks/duckdb/useWeatherHourlyQuery.ts",
+    "application/hooks/duckdb/useYoyQueries.ts",
+    "application/hooks/useAnalyticsResolver.ts",
+    "application/hooks/useAppShortcuts.ts",
+    "application/hooks/useAutoBackup.ts",
+    "application/hooks/useAutoImport.ts",
+    "application/hooks/useAutoLoadPrevYear.ts",
+    "application/hooks/useBackup.ts",
+    "application/hooks/useCalculation.ts",
+    "application/hooks/useComparisonContext.ts",
+    "application/hooks/useComparisonModule.ts",
+    "application/hooks/useDataRecovery.ts",
+    "application/hooks/useDeviceSync.ts",
+    "application/hooks/useDrillAction.ts",
+    "application/hooks/useDuckDB.ts",
+    "application/hooks/useExplanation.ts",
+    "application/hooks/useFactorDecomposition.ts",
+    "application/hooks/useFilterSelectors.ts",
+    "application/hooks/useHierarchySelection.ts",
+    "application/hooks/useImport.ts",
+    "application/hooks/useLoadComparisonData.ts",
+    "application/hooks/useMetricBreakdown.ts",
+    "application/hooks/useMonthSwitcher.ts",
+    "application/hooks/useMonthlyHistory.ts",
+    "application/hooks/usePeriodAwareKpi.ts",
+    "application/hooks/usePersistence.ts",
+    "application/hooks/usePurchaseAnalysis.ts",
+    "application/hooks/useQueryWithHandler.ts",
+    "application/hooks/useRawDataFetch.ts",
+    "application/hooks/useRouteSync.ts",
+    "application/hooks/useSensitivity.ts",
+    "application/hooks/useSettings.ts",
+    "application/hooks/useStoragePersistence.ts",
+    "application/hooks/useStoreSelection.ts",
+    "application/hooks/useTimeSlotData.ts",
+    "application/hooks/useUndoRedo.ts",
+    "application/hooks/useWeather.ts",
+    "application/hooks/useWeatherFallback.ts",
+    "application/hooks/useWeatherForecast.ts",
+    "application/hooks/useWeatherHourlyOnDemand.ts",
+    "application/hooks/useWidgetQueryContext.ts"
+  ],
+  "complexityHotspots": [
+    {
+      "file": "application/hooks/useTimeSlotData.ts",
+      "memoCount": 20,
+      "stateCount": 8,
+      "lineCount": 367
+    },
+    {
+      "file": "presentation/pages/Dashboard/widgets/useDrilldownData.ts",
+      "memoCount": 14,
+      "stateCount": 10,
+      "lineCount": 413
+    },
+    {
+      "file": "presentation/pages/CostDetail/useCostDetailData.ts",
+      "memoCount": 13,
+      "stateCount": 6,
+      "lineCount": 210
+    },
+    {
+      "file": "presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx",
+      "memoCount": 14,
+      "stateCount": 5,
+      "lineCount": 475
+    },
+    {
+      "file": "presentation/components/charts/CategoryBenchmarkChart.vm.ts",
+      "memoCount": 10,
+      "stateCount": 8,
+      "lineCount": 470
+    },
+    {
+      "file": "presentation/components/charts/IntegratedSalesChart.tsx",
+      "memoCount": 12,
+      "stateCount": 4,
+      "lineCount": 425
+    },
+    {
+      "file": "presentation/pages/Dashboard/widgets/HourlyChart.tsx",
+      "memoCount": 10,
+      "stateCount": 6,
+      "lineCount": 538
+    },
+    {
+      "file": "presentation/components/charts/CategoryBoxPlotChart.vm.ts",
+      "memoCount": 8,
+      "stateCount": 7,
+      "lineCount": 256
+    },
+    {
+      "file": "presentation/pages/Admin/RawDataTab.tsx",
+      "memoCount": 12,
+      "stateCount": 2,
+      "lineCount": 294
+    },
+    {
+      "file": "presentation/pages/Dashboard/widgets/useMonthlyCalendarState.ts",
+      "memoCount": 4,
+      "stateCount": 10,
+      "lineCount": 214
+    }
+  ],
+  "nearLimitFiles": [
+    {
+      "file": "application/hooks/usePeriodAwareKpi.ts",
+      "metric": "lines",
+      "actual": 301,
+      "limit": 310,
+      "pct": 97
+    },
+    {
+      "file": "application/hooks/useTimeSlotData.ts",
+      "metric": "lines",
+      "actual": 367,
+      "limit": 380,
+      "pct": 97
+    },
+    {
+      "file": "presentation/pages/CostDetail/useCostDetailData.ts",
+      "metric": "useMemo",
+      "actual": 12,
+      "limit": 13,
+      "pct": 92
+    },
+    {
+      "file": "presentation/pages/Dashboard/widgets/useDrilldownData.ts",
+      "metric": "useMemo",
+      "actual": 12,
+      "limit": 13,
+      "pct": 92
+    },
+    {
+      "file": "presentation/pages/Admin/RawDataTab.tsx",
+      "metric": "useMemo",
+      "actual": 11,
+      "limit": 12,
+      "pct": 92
+    },
+    {
+      "file": "presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx",
+      "metric": "useMemo",
+      "actual": 10,
+      "limit": 11,
+      "pct": 91
+    },
+    {
+      "file": "presentation/pages/Dashboard/widgets/HourlyChart.tsx",
+      "metric": "useMemo",
+      "actual": 9,
+      "limit": 10,
+      "pct": 90
+    },
+    {
+      "file": "application/hooks/duckdb/categoryBenchmarkLogic.ts",
+      "metric": "lines",
+      "actual": 401,
+      "limit": 450,
+      "pct": 89
+    },
+    {
+      "file": "presentation/components/charts/DailySalesChartBody.tsx",
+      "metric": "useMemo",
+      "actual": 8,
+      "limit": 9,
+      "pct": 89
+    },
+    {
+      "file": "application/hooks/useTimeSlotData.ts",
+      "metric": "useMemo",
+      "actual": 7,
+      "limit": 8,
+      "pct": 88
+    },
+    {
+      "file": "presentation/pages/Dashboard/widgets/DrilldownWaterfall.tsx",
+      "metric": "useMemo",
+      "actual": 7,
+      "limit": 8,
+      "pct": 88
+    },
+    {
+      "file": "presentation/components/charts/TimeSlotChart.tsx",
+      "metric": "useMemo",
+      "actual": 7,
+      "limit": 8,
+      "pct": 88
+    },
+    {
+      "file": "presentation/pages/Dashboard/widgets/useMonthlyCalendarState.ts",
+      "metric": "useState",
+      "actual": 9,
+      "limit": 11,
+      "pct": 82
+    }
+  ],
   "listSummary": {
     "applicationToInfrastructure": {
       "count": 11,

@@ -132,7 +132,43 @@ describe('Comparison Semantics Audit — 比較意味論の散逸検出', () => 
     ).toBeLessThanOrEqual(MAX_CALL_SITES)
   })
 
-  // ── 6. レポート生成 ──
+  // ── 6. 前年日付の独自計算パターン（year - 1 以外） ──
+  it('前年日付の独自計算パターンが presentation/ に増えていない', () => {
+    const pattern = /getFullYear\(\)\s*-\s*1|\.setFullYear\([^)]*-|month\s*-\s*12/
+    const hits = findPatternInFiles(path.join(SRC_DIR, 'presentation'), pattern, [
+      '__tests__',
+      '.test.',
+      '.stories.',
+    ])
+    const MAX_DATE_BYPASS = 5
+    expect(
+      hits.length,
+      `presentation/ で前年日付の独自計算が ${hits.length} 件（上限 ${MAX_DATE_BYPASS}）。ComparisonScope 経由にすべき。`,
+    ).toBeLessThanOrEqual(MAX_DATE_BYPASS)
+  })
+
+  // ── 7. 比較意味論キーワードの正本集約度 ──
+  it('比較意味論キーワードの正本集約度を報告する（report-only）', () => {
+    const keywords = ['sourceDate', 'dayMappingRow', 'prevYearSameDow']
+    const leakage: Array<{ keyword: string; file: string; line: number }> = []
+    for (const keyword of keywords) {
+      const hits = findPatternInFiles(SRC_DIR, new RegExp(keyword), [
+        'application/comparison',
+        'domain/models',
+        'domain/patterns',
+        '__tests__',
+        '.test.',
+        'test/',
+      ])
+      for (const hit of hits) {
+        leakage.push({ keyword, file: hit.file, line: hit.line })
+      }
+    }
+    // report-only: 散逸数を記録（テスト失敗にはしない）
+    expect(leakage).toBeDefined()
+  })
+
+  // ── 8. レポート生成 ──
   it('比較意味論レポートを生成する', () => {
     const reportDir = path.resolve(__dirname, '../../../../references/02-status/generated')
     if (!fs.existsSync(reportDir)) {

@@ -1,6 +1,6 @@
 # Query Access Audit Report
 
-> Generated: 2026-03-24T06:00:07.542Z
+> Generated: 2026-03-24T06:17:45.577Z
 
 ## Route Summary
 
@@ -83,3 +83,12 @@
 - presentation/pages/Insight/InsightTabBudget.tsx
 - application/hooks/useBudgetChartData.ts
 - application/usecases/clipExport/buildClipBundle.ts
+
+### weatherRoutes
+
+- presentation/components/charts/WeatherAnalysisPanel.tsx
+- presentation/components/charts/WeatherCorrelationChart.tsx
+- presentation/components/charts/WeatherCorrelationChart.vm.ts
+- presentation/hooks/useUnifiedWidgetContext.ts
+- presentation/pages/Dashboard/widgets/EtrnTestWidget.tsx
+- presentation/pages/Dashboard/widgets/WeatherWidget.tsx
