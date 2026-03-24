@@ -16,6 +16,7 @@ import {
   StatusDot,
   ContextBar,
   MonthBadgeButton,
+  MonthNavArrow,
   BadgeWrapper,
   PickerOverlay,
   PickerDropdown,
@@ -46,7 +47,7 @@ import { ComparisonPresetToggle } from './ComparisonPresetToggle'
  */
 function InlineMonthPicker() {
   const settings = useSettingsStore((s) => s.settings)
-  const { isSwitching, switchMonth } = useMonthSwitcher()
+  const { isSwitching, switchMonth, goToPrevMonth, goToNextMonth } = useMonthSwitcher()
   const [open, setOpen] = useState(false)
   const [pickerYear, setPickerYear] = useState(settings.targetYear)
   const wrapperRef = useRef<HTMLDivElement>(null)
@@ -64,6 +65,7 @@ function InlineMonthPicker() {
     [pickerYear, switchMonth],
   )
 
+
   if (isSwitching) {
     return (
       <MonthBadgeButton disabled style={{ opacity: 0.6 }}>
@@ -73,10 +75,16 @@ function InlineMonthPicker() {
   }
 
   return (
-    <BadgeWrapper ref={wrapperRef}>
+    <BadgeWrapper ref={wrapperRef} style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+      <MonthNavArrow onClick={goToPrevMonth} aria-label="前月">
+        ◀
+      </MonthNavArrow>
       <MonthBadgeButton onClick={handleOpen}>
         {settings.targetYear}/{settings.targetMonth}月
       </MonthBadgeButton>
+      <MonthNavArrow onClick={goToNextMonth} aria-label="次月">
+        ▶
+      </MonthNavArrow>
       {open && (
         <>
           <PickerOverlay onClick={() => setOpen(false)} />

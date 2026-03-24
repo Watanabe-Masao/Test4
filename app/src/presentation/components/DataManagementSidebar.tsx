@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'
-import { useImport, useStorageAdmin, useAutoBackup, useAutoImport } from '@/application/hooks/data'
+import { useImport, useAutoBackup, useAutoImport } from '@/application/hooks/data'
 import { useStoreSelection, useSettings } from '@/application/hooks/ui'
 import { useRepository } from '@/application/context/useRepository'
 import { Sidebar } from '@/presentation/components/Layout'
@@ -13,7 +13,7 @@ import {
   OnlineStatusChip,
 } from '@/presentation/components/common/feedback'
 import { Chip, ChipGroup } from '@/presentation/components/common/forms'
-import { Button, MonthSelector } from '@/presentation/components/common/layout'
+import { Button } from '@/presentation/components/common/layout'
 import type { DiffConfirmResult } from '@/presentation/components/common/feedback'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import { detectDataMaxDay } from '@/domain/calculations/utils'
@@ -26,52 +26,6 @@ import { DataEndDaySlider } from '@/presentation/components/DataEndDaySlider'
 import { usePeriodSelectionStore } from '@/application/stores/periodSelectionStore'
 import { InventorySettingsSection } from '@/presentation/components/InventorySettingsSection'
 import styled from 'styled-components'
-
-const FolderSyncStatus = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  color: ${({ theme }) => theme.colors.text3};
-`
-
-const FolderRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-`
-
-const FolderDot = styled.span<{ $active: boolean }>`
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: ${({ $active, theme }) =>
-    $active ? theme.colors.palette.positive : theme.colors.text4};
-  flex-shrink: 0;
-`
-
-const FolderName = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  color: ${({ theme }) => theme.colors.text2};
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 120px;
-`
-
-const SmallBtn = styled.button`
-  all: unset;
-  cursor: pointer;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  padding: 1px 6px;
-  border-radius: 4px;
-  color: ${({ theme }) => theme.colors.text4};
-  background: ${({ theme }) =>
-    theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
-  &:hover {
-    color: ${({ theme }) => theme.colors.text2};
-  }
-`
 
 const TopRow = styled.div`
   display: flex;
@@ -92,7 +46,6 @@ export function DataManagementSidebar({
   const { selectedStoreIds, stores, toggleStore, selectAllStores } = useStoreSelection()
   const { settings, updateSettings } = useSettings()
   const showToast = useToast()
-  const { listMonths } = useStorageAdmin()
   const repo = useRepository()
 
   // 自動バックアップ
@@ -112,25 +65,9 @@ export function DataManagementSidebar({
   )
   const autoImport = useAutoImport(handleAutoImportFiles)
 
-  const [storedMonths, setStoredMonths] = useState<readonly { year: number; month: number }[]>([])
   const [showSettings, setShowSettings] = useState(false)
   const [showValidation, setShowValidation] = useState(false)
   const [showImportModal, setShowImportModal] = useState(false)
-
-  // 保存済み月リストを取得
-  useEffect(() => {
-    let cancelled = false
-    listMonths()
-      .then((months) => {
-        if (!cancelled) setStoredMonths(months)
-      })
-      .catch((err: unknown) => {
-        console.warn('保存済み月リストの取得に失敗:', err)
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [listMonths, data])
 
   const isSettingsOpen = showSettings || showSettingsExternal
   const closeSettings = useCallback(() => {
@@ -193,11 +130,6 @@ export function DataManagementSidebar({
           </TopRow>
         </SidebarSection>
 
-        <SidebarSection>
-          <SectionLabel>対象年月</SectionLabel>
-          <MonthSelector storedMonths={storedMonths} />
-        </SidebarSection>
-
         {hasNonBudgetData && (
           <DataEndDaySlider
             daysInMonth={daysInMonth}
@@ -220,8 +152,9 @@ export function DataManagementSidebar({
                   key={s.id}
                   $active={selectedStoreIds.has(s.id)}
                   onClick={() => toggleStore(s.id)}
+                  title={s.name}
                 >
-                  {s.name}
+                  {s.code}
                 </Chip>
               ))}
             </ChipGroup>
@@ -236,46 +169,7 @@ export function DataManagementSidebar({
           />
         )}
 
-        {/* フォルダ同期ステータス */}
-        {(autoBackup.supported || autoImport.supported) && (
-          <SidebarSection>
-            <SectionLabel>フォルダ同期</SectionLabel>
-            <FolderSyncStatus>
-              {autoBackup.supported && (
-                <FolderRow>
-                  <FolderDot $active={autoBackup.folderConfigured} />
-                  {autoBackup.folderConfigured ? (
-                    <>
-                      <FolderName title={autoBackup.folderName ?? undefined}>
-                        バックアップ: {autoBackup.folderName}
-                      </FolderName>
-                      <SmallBtn onClick={() => autoBackup.backupNow()}>保存</SmallBtn>
-                    </>
-                  ) : (
-                    <SmallBtn onClick={() => autoBackup.selectFolder()}>
-                      バックアップ先を選択
-                    </SmallBtn>
-                  )}
-                </FolderRow>
-              )}
-              {autoImport.supported && (
-                <FolderRow>
-                  <FolderDot $active={autoImport.folderConfigured} />
-                  {autoImport.folderConfigured ? (
-                    <>
-                      <FolderName title={autoImport.folderName ?? undefined}>
-                        自動取込: {autoImport.folderName}
-                      </FolderName>
-                      <SmallBtn onClick={() => autoImport.scanNow()}>スキャン</SmallBtn>
-                    </>
-                  ) : (
-                    <SmallBtn onClick={() => autoImport.selectFolder()}>取込元を選択</SmallBtn>
-                  )}
-                </FolderRow>
-              )}
-            </FolderSyncStatus>
-          </SidebarSection>
-        )}
+        {/* フォルダ同期は取込モーダルに移動済み */}
 
         <SidebarSection>
           <SidebarActions>
@@ -286,7 +180,13 @@ export function DataManagementSidebar({
         </SidebarSection>
       </Sidebar>
 
-      {showImportModal && <ImportModal onClose={() => setShowImportModal(false)} />}
+      {showImportModal && (
+        <ImportModal
+          onClose={() => setShowImportModal(false)}
+          autoBackup={autoBackup}
+          autoImport={autoImport}
+        />
+      )}
 
       {isSettingsOpen && (
         <SettingsModal

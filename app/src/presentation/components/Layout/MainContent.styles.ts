@@ -39,9 +39,9 @@ export const Badge = styled.span`
 `
 
 export const MonthBadgeButton = styled.button`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[3]};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
   border-radius: ${({ theme }) => theme.radii.pill};
   color: ${({ theme }) => theme.colors.text2};
   background: ${({ theme }) => theme.colors.bg3};
@@ -54,6 +54,32 @@ export const MonthBadgeButton = styled.button`
     border-color: ${({ theme }) => theme.colors.palette.primary}60;
     background: ${({ theme }) => theme.colors.palette.primary}10;
     color: ${({ theme }) => theme.colors.palette.primary};
+  }
+`
+
+export const MonthNavArrow = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: ${({ theme }) => theme.radii.sm};
+  background: transparent;
+  color: ${({ theme }) => theme.colors.text3};
+  cursor: pointer;
+  font-size: 14px;
+  touch-action: manipulation;
+  flex-shrink: 0;
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.bg4};
+    color: ${({ theme }) => theme.colors.text};
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: default;
   }
 `
 

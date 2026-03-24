@@ -9,9 +9,11 @@ export const ChipGroup = styled.div`
 export const Chip = styled.button<{ $active?: boolean }>`
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[4]};
   border-radius: ${({ theme }) => theme.radii.pill};
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  min-width: 48px;
   font-weight: ${({ $active, theme }) =>
     $active ? theme.typography.fontWeight.bold : theme.typography.fontWeight.semibold};
   font-family: ${({ theme }) => theme.typography.fontFamily.primary};
