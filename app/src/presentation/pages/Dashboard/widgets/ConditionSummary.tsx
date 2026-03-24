@@ -280,8 +280,6 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
                 settings={settings}
                 prevYear={ctx.prevYear}
                 prevYearMonthlyKpi={ctx.prevYearMonthlyKpi}
-                expandedStore={expandedMarkupStore}
-                onExpandToggle={(id) => setExpandedMarkupStore((prev) => (prev === id ? null : id))}
                 dataMaxDay={ctx.dataMaxDay}
               />
             ) : breakdownItem.detailBreakdown === 'txValue' ? (
