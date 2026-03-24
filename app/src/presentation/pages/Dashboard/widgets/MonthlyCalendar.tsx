@@ -2,7 +2,6 @@ import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import { Button } from '@/presentation/components/common/layout'
 import { formatPercent } from '@/domain/formatting'
-import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import { calculateAchievementRate } from '@/domain/calculations/utils'
 import { categorizeWeatherCode } from '@/domain/calculations/weatherAggregation'
 import type { WidgetContext } from './types'
@@ -10,13 +9,7 @@ import { DayDetailModal } from './DayDetailModal'
 import { RangeComparisonPanel } from './RangeComparison'
 import { CalendarCellPreview } from './CalendarCellPreview'
 import { fmtSen } from './drilldownUtils'
-import {
-  DOW_LABELS,
-  DOW_NAMES,
-  WEATHER_ICONS,
-  fmtSenDiff,
-  calcWeekSummary,
-} from './calendarUtils'
+import { DOW_LABELS, DOW_NAMES, WEATHER_ICONS, fmtSenDiff, calcWeekSummary } from './calendarUtils'
 import {
   CalWrapper,
   CalSectionTitle,
@@ -98,6 +91,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
     handleOpenPin,
     handlePinConfirm,
     handlePinRemove,
+    getPrevYearSales,
     isExporting,
     handleClipExport,
   } = useMonthlyCalendarState(ctx)
@@ -210,8 +204,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                   // Hover preview data
                   const isHovered = hoveredDay === day
                   const dayCust = rec?.customers ?? 0
-                  const pySales =
-                    prevYear.daily.get(toDateKeyFromParts(year, month, day))?.sales ?? 0
+                  const pySales = getPrevYearSales(day)
                   const dayOfWeek = DOW_NAMES[new Date(year, month - 1, day).getDay()]
 
                   return (

@@ -69,8 +69,13 @@ export function useMonthlyCalendarState(ctx: WidgetContext) {
   const weeks = buildCalendarWeeks(year, month, daysInMonth)
 
   // Cumulative data (sales + customers)
-  const { cumBudget, cumSales, cumPrevYear, cumCustomers, cumPrevCustomers } =
-    buildCumulativeMaps(daysInMonth, r, prevYear, year, month)
+  const { cumBudget, cumSales, cumPrevYear, cumCustomers, cumPrevCustomers } = buildCumulativeMaps(
+    daysInMonth,
+    r,
+    prevYear,
+    year,
+    month,
+  )
 
   // ── Range selection ──
   const parseDay = (v: string) => {
@@ -199,6 +204,9 @@ export function useMonthlyCalendarState(ctx: WidgetContext) {
     handleOpenPin,
     handlePinConfirm,
     handlePinRemove,
+    // Prev year lookup
+    getPrevYearSales: (day: number) =>
+      prevYear.daily.get(toDateKeyFromParts(year, month, day))?.sales ?? 0,
     // Export
     isExporting,
     handleClipExport,

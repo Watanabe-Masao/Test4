@@ -25,10 +25,7 @@ export interface ForecastBaseValues {
   readonly defaultTargetGPRate: number
 }
 
-export function deriveBaseValues(
-  r: StoreResult,
-  prevYear: PrevYearData,
-): ForecastBaseValues {
+export function deriveBaseValues(r: StoreResult, prevYear: PrevYearData): ForecastBaseValues {
   const actualSales = r.totalSales
   const actualGP = r.invMethodGrossProfit ?? r.estMethodMargin
   const actualGPRate = getEffectiveGrossProfitRate(r)

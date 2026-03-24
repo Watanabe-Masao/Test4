@@ -4,7 +4,13 @@
  */
 import type { CategoryTimeSalesRecord, HourlyWeatherRecord } from '@/domain/models/record'
 import { palette } from '@/presentation/theme/tokens'
-import { DetailSection, DetailSectionTitle, DetailRow, DetailLabel, DetailValue } from '../DashboardPage.styles'
+import {
+  DetailSection,
+  DetailSectionTitle,
+  DetailRow,
+  DetailLabel,
+  DetailValue,
+} from '../DashboardPage.styles'
 import { HourlyChart } from './HourlyChart'
 
 interface WeatherCandidate {

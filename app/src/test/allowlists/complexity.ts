@@ -118,10 +118,10 @@ export const presentationStateLimits: readonly QuantitativeAllowlistEntry[] = [
     limit: 9,
   },
   {
-    path: 'presentation/pages/Dashboard/widgets/MonthlyCalendar.tsx',
-    reason: 'カレンダー操作状態（ピン・範囲選択・hover 等）',
+    path: 'presentation/pages/Dashboard/widgets/useMonthlyCalendarState.ts',
+    reason: 'カレンダー操作状態（ピン・範囲選択・hover 等）— MonthlyCalendar.tsx から hook に抽出',
     category: 'structural',
-    removalCondition: 'カレンダー状態管理の hook 分離時',
+    removalCondition: 'useState 削減時（ピン状態と範囲状態の分離等）',
     limit: 11,
   },
   {

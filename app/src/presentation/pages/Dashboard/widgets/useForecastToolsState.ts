@@ -55,9 +55,7 @@ export function useForecastToolsState(ctx: WidgetContext): ForecastToolsState {
   const salesRange = salesSliderRange(base.actualSales, base.defaultSalesLanding)
 
   const [salesLanding, setSalesLanding] = useState(base.defaultSalesLanding)
-  const [remainGPRate, setRemainGPRate] = useState(
-    Math.round(base.defaultRemainGPRate * 1000) / 10,
-  )
+  const [remainGPRate, setRemainGPRate] = useState(Math.round(base.defaultRemainGPRate * 1000) / 10)
 
   const remainGPRateDecimal = remainGPRate / 100
   const tool1 = computeTool1(salesLanding, remainGPRateDecimal, base)
@@ -67,12 +65,16 @@ export function useForecastToolsState(ctx: WidgetContext): ForecastToolsState {
   const goalSalesRange = goalSalesSliderRange(base.actualSales, defaultTargetMonthlySales)
 
   const [targetMonthlySales, setTargetMonthlySales] = useState(defaultTargetMonthlySales)
-  const [targetGPRate, setTargetGPRate] = useState(
-    Math.round(base.defaultTargetGPRate * 1000) / 10,
-  )
+  const [targetGPRate, setTargetGPRate] = useState(Math.round(base.defaultTargetGPRate * 1000) / 10)
 
   const targetGPRateDecimal = targetGPRate / 100
-  const tool2 = computeTool2(targetMonthlySales, targetGPRateDecimal, defaultTargetMonthlySales, r, base)
+  const tool2 = computeTool2(
+    targetMonthlySales,
+    targetGPRateDecimal,
+    defaultTargetMonthlySales,
+    r,
+    base,
+  )
 
   const obsWarning = getObsWarning(ctx.observationStatus)
 
