@@ -114,8 +114,13 @@ jobs:
       - name: Test with coverage
         run: npx vitest run --coverage
 
+      - name: Type check & Build
+        run: npm run build
+
       - name: Storybook build
         run: npm run build-storybook
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
 
   # ── Gate 3: E2E テスト（fast-gate 後に並列） ──
   e2e:
