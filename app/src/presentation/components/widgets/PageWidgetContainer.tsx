@@ -3,9 +3,13 @@
  *
  * 各ページに組み込むことで、ウィジェットの表示・並べ替え・
  * 設定UIを統一的に提供する。
+ *
+ * DuckDB 依存ウィジェット（size !== 'kpi'）は queryExecutor の readiness を
+ * チェックし、未準備の場合は ChartSkeleton を表示する。
  */
 import { useState, useCallback, useRef, memo, type ReactNode } from 'react'
 import { ChartErrorBoundary } from '@/presentation/components/common/feedback'
+import { ChartSkeleton } from '@/presentation/components/common/feedback'
 import { Chip, ChipGroup } from '@/presentation/components/common/forms'
 import { useIntersectionObserver } from '@/presentation/hooks/useIntersectionObserver'
 import type { WidgetDef, PageWidgetConfig, UnifiedWidgetContext } from './types'
@@ -24,6 +28,33 @@ import {
   EmptyTitle,
   LazyPlaceholder,
 } from './PageWidgetContainer.styles'
+
+// ─── DuckDB ウィジェットコンテンツガード ────────────────
+
+/**
+ * DuckDB 依存ウィジェット（size !== 'kpi'）の描画前に
+ * queryExecutor の readiness をチェックし、未準備ならスケルトンを表示する。
+ *
+ * ウィジェット内部の useQueryWithHandler による個別ローディングは引き続き機能するが、
+ * DuckDB エンジン自体が未初期化の段階ではウィジェット内部の hook が実行できないため、
+ * この層で先にガードする。
+ */
+function renderWidgetWithGuard(
+  widget: WidgetDef,
+  context: UnifiedWidgetContext,
+): ReactNode {
+  // KPI ウィジェットは同期計算結果のためガード不要
+  if (widget.size === 'kpi') {
+    return widget.render(context)
+  }
+
+  // DuckDB 未準備の場合はスケルトンを表示
+  if (!context.queryExecutor || context.queryExecutor.isReady !== true) {
+    return <ChartSkeleton />
+  }
+
+  return widget.render(context)
+}
 
 // ─── Lazy Widget ────────────────────────────────────────
 
@@ -215,14 +246,14 @@ export function PageWidgetContainer({ config, context, toolbarExtra, headerConte
                     halfBuffer[0],
                     idx1,
                     <ChartErrorBoundary>
-                      <LazyWidget>{halfBuffer[0].render(context)}</LazyWidget>
+                      <LazyWidget>{renderWidgetWithGuard(halfBuffer[0], context)}</LazyWidget>
                     </ChartErrorBoundary>,
                   )}
                   {renderDraggable(
                     halfBuffer[1],
                     idx2,
                     <ChartErrorBoundary>
-                      <LazyWidget>{halfBuffer[1].render(context)}</LazyWidget>
+                      <LazyWidget>{renderWidgetWithGuard(halfBuffer[1], context)}</LazyWidget>
                     </ChartErrorBoundary>,
                   )}
                 </ChartRow>,
@@ -235,7 +266,7 @@ export function PageWidgetContainer({ config, context, toolbarExtra, headerConte
                     halfBuffer[0],
                     idx1,
                     <ChartErrorBoundary>
-                      <LazyWidget>{halfBuffer[0].render(context)}</LazyWidget>
+                      <LazyWidget>{renderWidgetWithGuard(halfBuffer[0], context)}</LazyWidget>
                     </ChartErrorBoundary>,
                   )}
                 </ChartRow>,
@@ -254,7 +285,7 @@ export function PageWidgetContainer({ config, context, toolbarExtra, headerConte
                     w,
                     idx,
                     <ChartErrorBoundary>
-                      <LazyWidget>{w.render(context)}</LazyWidget>
+                      <LazyWidget>{renderWidgetWithGuard(w, context)}</LazyWidget>
                     </ChartErrorBoundary>,
                   )}
                 </FullChartRow>,

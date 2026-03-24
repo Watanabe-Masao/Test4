@@ -80,9 +80,19 @@ describe('usePersistence', () => {
       expect(result.current.isSaving).toBe(false)
     })
 
-    it('autoRestored is false initially', () => {
+    it('autoRestored is false while restore is in progress', () => {
+      mockRepo.isAvailable.mockReturnValue(true)
+      mockRepo.getSessionMeta.mockReturnValue(new Promise(() => {})) // pending
       const { result } = renderHook(() => usePersistence())
       expect(result.current.autoRestored).toBe(false)
+    })
+
+    it('autoRestored is true when repo is not available (restore skipped)', async () => {
+      mockRepo.isAvailable.mockReturnValue(false)
+      const { result } = renderHook(() => usePersistence())
+      await waitFor(() => {
+        expect(result.current.autoRestored).toBe(true)
+      })
     })
   })
 
