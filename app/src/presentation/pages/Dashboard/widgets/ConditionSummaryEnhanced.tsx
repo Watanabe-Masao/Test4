@@ -15,6 +15,7 @@ import {
   buildYoYCards,
   buildUnifiedCards,
   computeTrend,
+  computeRateTrend,
 } from './ConditionSummaryEnhanced.vm'
 import { formatPercent } from '@/domain/formatting'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
@@ -173,6 +174,82 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
     if (custTrend) trends.set('customerYoY', custTrend)
     const costTrend = computeTrend(ctx.result.daily, effectiveDay, (r) => r.totalCost)
     if (costTrend) trends.set('totalCost', costTrend)
+    // 販売点数: CTS レコードを日別集約してトレンド計算
+    const qtyByDay = new Map<number, number>()
+    for (const rec of ctsRecords) {
+      if (rec.day > 0 && rec.day <= effectiveDay) {
+        qtyByDay.set(rec.day, (qtyByDay.get(rec.day) ?? 0) + rec.totalQuantity)
+      }
+    }
+    const itemsTrend = computeTrend(qtyByDay, effectiveDay, (q) => q)
+    if (itemsTrend) trends.set('itemsYoY', itemsTrend)
+    // 売変率: 加重平均 (discount / grossSales)
+    const discountTrend = computeRateTrend(
+      ctx.result.daily,
+      effectiveDay,
+      (r) => r.discountAbsolute,
+      (r) => r.grossSales,
+    )
+    if (discountTrend) trends.set('discountRate', discountTrend)
+    // 客単価: 直近7日 vs 前7日の客単価（sales/customers）比
+    if (effectiveDay >= 14) {
+      let rSales = 0,
+        rCust = 0,
+        pSales = 0,
+        pCust = 0
+      for (let d = effectiveDay - 6; d <= effectiveDay; d++) {
+        const rec = ctx.result.daily.get(d)
+        if (rec) {
+          rSales += rec.sales
+          rCust += rec.customers ?? 0
+        }
+      }
+      for (let d = effectiveDay - 13; d <= effectiveDay - 7; d++) {
+        const rec = ctx.result.daily.get(d)
+        if (rec) {
+          pSales += rec.sales
+          pCust += rec.customers ?? 0
+        }
+      }
+      if (rCust > 0 && pCust > 0) {
+        const ratio = rSales / rCust / (pSales / pCust)
+        const dir: 'up' | 'down' | 'flat' = ratio >= 1.02 ? 'up' : ratio <= 0.98 ? 'down' : 'flat'
+        trends.set('txValue', { direction: dir, ratio: formatPercent(ratio, 2) })
+      }
+    }
+    // 値入率: (allPrice - allCost) / allPrice の加重平均
+    const markupTrend = computeRateTrend(
+      ctx.result.daily,
+      effectiveDay,
+      (r) => {
+        const allPrice =
+          r.purchase.price +
+          r.flowers.price +
+          r.directProduce.price +
+          r.interStoreIn.price +
+          r.interStoreOut.price +
+          r.interDepartmentIn.price +
+          r.interDepartmentOut.price
+        const allCost =
+          r.purchase.cost +
+          r.flowers.cost +
+          r.directProduce.cost +
+          r.interStoreIn.cost +
+          r.interStoreOut.cost +
+          r.interDepartmentIn.cost +
+          r.interDepartmentOut.cost
+        return allPrice - allCost // markup amount (numerator)
+      },
+      (r) =>
+        r.purchase.price +
+        r.flowers.price +
+        r.directProduce.price +
+        r.interStoreIn.price +
+        r.interStoreOut.price +
+        r.interDepartmentIn.price +
+        r.interDepartmentOut.price, // allPrice (denominator)
+    )
+    if (markupTrend) trends.set('markupRate', markupTrend)
 
     return buildUnifiedCards(budgetCards, yoyCards, hasMultipleStores, trends)
   }, [

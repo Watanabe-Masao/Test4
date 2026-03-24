@@ -240,6 +240,51 @@ export interface ItemsYoYDetailVm {
   readonly hasDailyRows: boolean
 }
 
+/**
+ * Build a prevDay → currentDay mapping from dailyMapping.
+ * Used to remap prevCtsRecords to same-day-of-week aligned days.
+ */
+export function buildDayMapping(
+  dailyMapping: readonly { readonly prevDay: number; readonly currentDay: number }[],
+): ReadonlyMap<number, number> {
+  const m = new Map<number, number>()
+  for (const row of dailyMapping) {
+    m.set(row.prevDay, row.currentDay)
+  }
+  return m
+}
+
+/** Build per-store daily rows from CTS records with day remapping */
+export function buildItemsYoYStoreDailyRows(
+  ctsRecords: readonly CategoryTimeSalesRecord[],
+  prevCtsRecords: readonly CategoryTimeSalesRecord[],
+  effectiveDay: number,
+  storeId: string | null,
+  dayMapping: ReadonlyMap<number, number>,
+): ItemsYoYDailyRow[] {
+  const scopedCur = ctsRecords.filter(
+    (r) => r.day <= effectiveDay && r.day > 0 && (storeId == null || r.storeId === storeId),
+  )
+  const scopedPrev = prevCtsRecords.filter((r) => storeId == null || r.storeId === storeId)
+
+  const dayMap = new Map<number, { cur: number; prev: number }>()
+  for (const r of scopedCur) {
+    const e = dayMap.get(r.day) ?? { cur: 0, prev: 0 }
+    e.cur += r.totalQuantity
+    dayMap.set(r.day, e)
+  }
+  for (const r of scopedPrev) {
+    const mappedDay = dayMapping.get(r.day)
+    if (mappedDay == null || mappedDay <= 0 || mappedDay > effectiveDay) continue
+    const e = dayMap.get(mappedDay) ?? { cur: 0, prev: 0 }
+    e.prev += r.totalQuantity
+    dayMap.set(mappedDay, e)
+  }
+  return [...dayMap.entries()]
+    .sort(([a], [b]) => a - b)
+    .map(([day, v]) => ({ day, currentQty: v.cur, prevQty: v.prev }))
+}
+
 export function buildItemsYoYDetailVm(
   sortedStoreEntries: readonly [string, StoreResult][],
   stores: ReadonlyMap<string, Store>,
@@ -247,12 +292,19 @@ export function buildItemsYoYDetailVm(
   ctsRecords: readonly CategoryTimeSalesRecord[],
   prevCtsRecords: readonly CategoryTimeSalesRecord[],
   effectiveDay: number,
+  dayMapping: ReadonlyMap<number, number>,
 ): ItemsYoYDetailVm {
   const scopedCur = ctsRecords.filter((r) => r.day <= effectiveDay)
-  const scopedPrev = prevCtsRecords.filter((r) => r.day <= effectiveDay)
+  // Remap prevCtsRecords using dayMapping and filter to effectiveDay
+  const remappedPrev: CategoryTimeSalesRecord[] = []
+  for (const r of prevCtsRecords) {
+    const mappedDay = dayMapping.get(r.day)
+    if (mappedDay == null || mappedDay <= 0 || mappedDay > effectiveDay) continue
+    remappedPrev.push({ ...r, day: mappedDay })
+  }
 
   const totalCurQty = scopedCur.reduce((s, r) => s + r.totalQuantity, 0)
-  const totalPrevQty = scopedPrev.reduce((s, r) => s + r.totalQuantity, 0)
+  const totalPrevQty = remappedPrev.reduce((s, r) => s + r.totalQuantity, 0)
   const totalYoY = calculateAchievementRate(totalCurQty, totalPrevQty)
   const totalSig = totalPrevQty > 0 ? metricSignal(totalYoY, 'itemsYoY', effectiveConfig) : 'blue'
   const totalColor = SIGNAL_COLORS[totalSig]
@@ -264,7 +316,7 @@ export function buildItemsYoYDetailVm(
     const curQty = scopedCur
       .filter((r) => r.storeId === storeId)
       .reduce((s, r) => s + r.totalQuantity, 0)
-    const prevQty = scopedPrev
+    const prevQty = remappedPrev
       .filter((r) => r.storeId === storeId)
       .reduce((s, r) => s + r.totalQuantity, 0)
     const storeYoY = calculateAchievementRate(curQty, prevQty)
@@ -280,23 +332,14 @@ export function buildItemsYoYDetailVm(
     }
   })
 
-  // Daily aggregation (day > 0 のみ — 前年の同曜日アライメントで負の日付は除外)
-  const dayMap = new Map<number, { cur: number; prev: number }>()
-  for (const r of scopedCur) {
-    if (r.day <= 0) continue
-    const e = dayMap.get(r.day) ?? { cur: 0, prev: 0 }
-    e.cur += r.totalQuantity
-    dayMap.set(r.day, e)
-  }
-  for (const r of scopedPrev) {
-    if (r.day <= 0) continue
-    const e = dayMap.get(r.day) ?? { cur: 0, prev: 0 }
-    e.prev += r.totalQuantity
-    dayMap.set(r.day, e)
-  }
-  const dailyRows: ItemsYoYDailyRow[] = [...dayMap.entries()]
-    .sort(([a], [b]) => a - b)
-    .map(([day, v]) => ({ day, currentQty: v.cur, prevQty: v.prev }))
+  // Daily aggregation using already-remapped prev data
+  const dailyRows = buildItemsYoYStoreDailyRows(
+    ctsRecords,
+    prevCtsRecords,
+    effectiveDay,
+    null,
+    dayMapping,
+  )
 
   return {
     storeRows,

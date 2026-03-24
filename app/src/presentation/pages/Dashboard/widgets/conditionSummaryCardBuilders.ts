@@ -154,6 +154,54 @@ export function computeTrend<T>(
   return { direction, ratio: formatPercent(ratio, 2) }
 }
 
+/**
+ * 率メトリクスのトレンド: 直近N日と前N日の加重平均率を比較する。
+ *
+ * 通常の computeTrend は合計値の比率を見るが、率指標は
+ * sum(numerator) / sum(denominator) の加重平均で比較しないと
+ * 曜日ごとの売上規模の偏りで歪む。
+ *
+ * direction は率の差（pp）で判定: ≥+0.2pp up, ≤-0.2pp down, else flat
+ */
+export function computeRateTrend<T>(
+  daily: ReadonlyMap<number, T>,
+  effectiveDay: number,
+  numeratorExtractor: (rec: T) => number,
+  denominatorExtractor: (rec: T) => number,
+  halfDays = 7,
+): { direction: TrendDirection; ratio: string } | undefined {
+  if (effectiveDay < halfDays * 2) return undefined
+
+  let recentNum = 0
+  let recentDen = 0
+  let prevNum = 0
+  let prevDen = 0
+  const recentStart = effectiveDay - halfDays + 1
+  const prevStart = recentStart - halfDays
+
+  for (let d = recentStart; d <= effectiveDay; d++) {
+    const rec = daily.get(d)
+    if (rec) {
+      recentNum += numeratorExtractor(rec)
+      recentDen += denominatorExtractor(rec)
+    }
+  }
+  for (let d = prevStart; d < recentStart; d++) {
+    const rec = daily.get(d)
+    if (rec) {
+      prevNum += numeratorExtractor(rec)
+      prevDen += denominatorExtractor(rec)
+    }
+  }
+
+  if (recentDen === 0 || prevDen === 0) return undefined
+  const recentRate = recentNum / recentDen
+  const prevRate = prevNum / prevDen
+  const diffPp = (recentRate - prevRate) * 100
+  const direction: TrendDirection = diffPp >= 0.2 ? 'up' : diffPp <= -0.2 ? 'down' : 'flat'
+  return { direction, ratio: `${diffPp >= 0 ? '+' : ''}${diffPp.toFixed(2)}pp` }
+}
+
 // ─── Budget Header ──────────────────────────────────────
 
 export interface DowGapSummary {

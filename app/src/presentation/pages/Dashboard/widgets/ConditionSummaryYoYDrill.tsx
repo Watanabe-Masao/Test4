@@ -112,8 +112,6 @@ export function YoYDrillOverlay({
               settings={settings}
               prevYear={ctx.prevYear}
               prevYearMonthlyKpi={ctx.prevYearMonthlyKpi}
-              expandedStore={expandedStore}
-              onExpandToggle={(id) => setExpandedStore((prev) => (prev === id ? null : id))}
               dataMaxDay={ctx.dataMaxDay}
             />
           )}
@@ -138,8 +136,7 @@ export function YoYDrillOverlay({
               ctsRecords={ctsRecords}
               prevCtsRecords={prevCtsRecords}
               effectiveDay={effectiveDay}
-              expandedStore={expandedStore}
-              onExpandToggle={(id) => setExpandedStore((prev) => (prev === id ? null : id))}
+              prevYearMonthlyKpi={ctx.prevYearMonthlyKpi}
             />
           )}
           {yoyDrill === 'totalCost' && (
