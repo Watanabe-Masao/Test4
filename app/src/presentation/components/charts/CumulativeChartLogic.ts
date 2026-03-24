@@ -6,7 +6,7 @@
  *
  * @guard G5 hook ≤300行 — 純粋関数を分離
  */
-import type { DailyCumulativeRow } from '@/application/hooks/useDuckDBQuery'
+import type { DailyCumulativeRow } from '@/application/hooks/duckdb'
 
 // ─── Types ──────────────────────────────────────────
 

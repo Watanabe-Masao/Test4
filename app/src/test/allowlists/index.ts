@@ -8,7 +8,7 @@
  * ガードファミリ別にファイル分割されている:
  *   types.ts        — 型定義・ビルダー関数
  *   architecture.ts — 層境界（application→infra, presentation→usecases 等）
- *   duckdb.ts       — DuckDB hook 直接使用（QueryHandler 移行対象）
+ *   duckdb.ts       — DuckDB hook 直接使用（全件卒業済み・凍結）
  *   complexity.ts   — useMemo / useState / hook 行数の個別例外
  *   size.ts         — ファイルサイズ（大型コンポーネント / infra / domain / usecases）
  *   migration.ts    — 比較移行（prevYear.daily, comparisonFrame.previous 等）

@@ -10,7 +10,7 @@
  *
  * @guard G5 hook ≤300行 — 純粋関数を分離
  */
-import type { DowPatternRow } from '@/application/hooks/useDuckDBQuery'
+import type { DowPatternRow } from '@/application/hooks/duckdb'
 import { coefficientOfVariation } from '@/domain/calculations/rawAggregation'
 
 // ─── Types ──────────────────────────────────────────

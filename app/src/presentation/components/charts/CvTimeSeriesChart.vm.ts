@@ -6,10 +6,7 @@
  *
  * @guard F7 View は ViewModel のみ受け取る
  */
-import type {
-  CategoryTrendPoint,
-  CategoryBenchmarkTrendRow,
-} from '@/application/hooks/useDuckDBQuery'
+import type { CategoryTrendPoint, CategoryBenchmarkTrendRow } from '@/application/hooks/duckdb'
 
 // ── 型定義 ──
 

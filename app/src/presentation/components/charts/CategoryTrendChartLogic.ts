@@ -11,7 +11,7 @@
  *
  * @guard G5 hook ≤300行 — 純粋関数を分離
  */
-import type { CategoryDailyTrendRow } from '@/application/hooks/useDuckDBQuery'
+import type { CategoryDailyTrendRow } from '@/application/hooks/duckdb'
 
 // ─── Types ──────────────────────────────────────────
 

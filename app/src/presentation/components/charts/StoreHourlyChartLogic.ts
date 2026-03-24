@@ -12,7 +12,7 @@
  *
  * @guard G5 hook ≤300行 — 純粋関数を分離
  */
-import type { StoreAggregationRow } from '@/application/hooks/useDuckDBQuery'
+import type { StoreAggregationRow } from '@/application/hooks/duckdb'
 import { STORE_COLORS } from './chartTheme'
 
 // ─── Types ──────────────────────────────────────────

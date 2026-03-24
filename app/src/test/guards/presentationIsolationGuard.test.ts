@@ -231,14 +231,13 @@ describe('Presentation Isolation Guard', () => {
     const violations: string[] = []
 
     // DuckDB フックの値 import パターン（import type は実行時依存を生まないため除外）
-    // サブパス直指定（duckdb/useCts*等）やバレル経由（useDuckDBQuery）も検出する
+    // サブパス直指定（duckdb/useCts*等）を検出する
+    // 旧バレル useDuckDBQuery は削除済み
     const DUCKDB_HOOK_VALUE_PATTERNS = [
       // @/application/hooks/duckdb（バレル）またはサブパス直指定
       /import\s+(?!type\s).*from\s+['"]@\/application\/hooks\/duckdb(?:\/[^'"]*)?['"]/,
       // useDuckDB* を含む名前付き import（任意のパスから）
       /import\s+(?!type\s)\{[^}]*useDuckDB[^}]*\}\s+from\s+['"]@\/application\/hooks[^'"]*['"]/,
-      // useDuckDBQuery バレル経由の全 import（type 以外）
-      /import\s+(?!type\s).*from\s+['"]@\/application\/hooks\/useDuckDBQuery['"]/,
     ]
 
     for (const file of files) {
