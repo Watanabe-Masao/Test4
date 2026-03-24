@@ -1,5 +1,5 @@
 import { memo, useState, useMemo, useCallback } from 'react'
-import { DailyChart, dayLabel } from './ConditionSummaryDailyChart'
+import { DailyChart, DailyRateChart, dayLabel } from './ConditionSummaryDailyChart'
 import { DISCOUNT_TYPES } from '@/domain/models/record'
 import type { StoreResult } from '@/domain/models/storeTypes'
 import type { PrevYearMonthlyKpi } from '@/application/hooks/analytics'
@@ -156,6 +156,21 @@ export const ConditionSummaryDailyModal = memo(function ConditionSummaryDailyMod
               month={month}
               showYoY={showYoY}
               yoyRows={yoyRows}
+            />
+          ) : viewMode === 'chart' && isRate ? (
+            <DailyRateChart
+              rows={rows}
+              metric={metric}
+              year={year}
+              month={month}
+              budgetRate={
+                metric === 'gpRate' || metric === 'markupRate'
+                  ? sr.grossProfitRateBudget * 100
+                  : undefined
+              }
+              showYoY={showYoY}
+              discountRateYoYRows={discountRateYoYRows}
+              markupRateYoYRows={markupRateYoYRows}
             />
           ) : showYoY && metric === 'sales' ? (
             <YoYTable rows={yoyRows} fmtCurrency={fmtCurrency} year={year} month={month} />
