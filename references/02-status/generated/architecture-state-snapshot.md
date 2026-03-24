@@ -1,6 +1,6 @@
 # Architecture State Snapshot
 
-> Generated: 2026-03-24T06:18:27.668Z
+> Generated: 2026-03-24T07:59:14.280Z
 
 ## Allowlist Summary
 
@@ -98,7 +98,7 @@
 | presentation/pages/CostDetail/useCostDetailData.ts | 13 | 6 | 210 |
 | presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 14 | 5 | 475 |
 | presentation/components/charts/CategoryBenchmarkChart.vm.ts | 10 | 8 | 470 |
-| presentation/components/charts/IntegratedSalesChart.tsx | 12 | 4 | 425 |
+| presentation/components/charts/IntegratedSalesChart.tsx | 12 | 4 | 467 |
 | presentation/pages/Dashboard/widgets/HourlyChart.tsx | 10 | 6 | 538 |
 | presentation/components/charts/CategoryBoxPlotChart.vm.ts | 8 | 7 | 256 |
 | presentation/pages/Admin/RawDataTab.tsx | 12 | 2 | 294 |

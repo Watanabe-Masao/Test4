@@ -8,6 +8,7 @@
  * @guard E4 欠損判定は `== null`
  * @guard E2 依存配列は省略しない（ESLint exhaustive-deps: error で強制）
  * @guard G3 コンパイラ警告を黙らせない（noUnusedLocals + eslint-disable 検出）
+ * @guard B2 VIEW の LEFT JOIN は集約サブクエリ経由（行倍増防止）
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
@@ -409,5 +410,41 @@ describe('G3: ソースコードに eslint-disable / @ts-ignore がない', () =
 
   it('G3 許可リストは 2 件以下', () => {
     expect(G3_ALLOWLIST.size).toBeLessThanOrEqual(2)
+  })
+})
+
+// ─── B2: VIEW DDL の LEFT JOIN は集約サブクエリ経由 ─────
+
+describe('B2: store_day_summary VIEW の LEFT JOIN は全て集約サブクエリ', () => {
+  it('非集約テーブルへの直接 LEFT JOIN がない', () => {
+    // VIEW DDL を取得（ビルド時の実際の DDL 文字列を検証）
+    // eslint-disable は不要: schemas.ts は通常の export
+    const schemasPath = path.join(SRC_DIR, 'infrastructure/duckdb/schemas.ts')
+    const content = fs.readFileSync(schemasPath, 'utf-8')
+
+    // STORE_DAY_SUMMARY_VIEW_DDL のテンプレートリテラルを抽出
+    const viewMatch = content.match(/STORE_DAY_SUMMARY_VIEW_DDL\s*=\s*`([\s\S]*?)`/)
+    expect(viewMatch, 'STORE_DAY_SUMMARY_VIEW_DDL が見つからない').toBeTruthy()
+    const viewDdl = viewMatch![1]
+
+    // LEFT JOIN の直後がサブクエリ "(" か確認
+    // 安全パターン: LEFT JOIN (\n  SELECT ... GROUP BY ...)\n  alias
+    // 危険パターン: LEFT JOIN table_name alias
+    const leftJoinPattern = /LEFT\s+JOIN\s+(?!\()/gi
+    const violations: string[] = []
+    let match: RegExpExecArray | null
+
+    while ((match = leftJoinPattern.exec(viewDdl)) !== null) {
+      // LEFT JOIN の直後にテーブル名が来ている = 非集約の直接JOIN
+      const after = viewDdl.slice(match.index + match[0].length, match.index + match[0].length + 40)
+      violations.push(`LEFT JOIN ${after.trim().split(/\s/)[0]}`)
+    }
+
+    expect(
+      violations,
+      `store_day_summary VIEW に非集約の直接 LEFT JOIN が検出されました。\n` +
+        `LEFT JOIN は必ず GROUP BY サブクエリ経由にしてください（行倍増防止）。\n` +
+        violations.join('\n'),
+    ).toEqual([])
   })
 })

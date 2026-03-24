@@ -83,6 +83,49 @@ export async function deleteMonth(
 }
 
 /**
+ * loadMonth が前年データとして INSERT する (year-1, month) のデータも削除する。
+ *
+ * 【背景: なぜ deleteMonth だけでは不十分か】
+ * loadMonth は前年データを (year-1, month) の year/month で INSERT する。
+ * しかし deleteMonth(year, month) は当年の year/month のみ削除するため、
+ * 再ロード時に前年データが蓄積し、store_day_summary VIEW で行倍増が発生する。
+ * （実際に発生: #前年点数2倍バグ — special_sales の前年データが2重に）
+ *
+ * 【テーブル別の削除戦略】
+ * - classified_sales / category_time_sales / time_slots: is_prev_year=true のみ削除
+ *   → 同一 (year, month) に当年データ (is_prev_year=false) が共存しうるため
+ * - purchase / special_sales / transfers: is_prev_year 列なし → (prevYear, month) 全行削除
+ *   → これらのテーブルは is_prev_year 列を持たない設計上の制約
+ */
+/** is_prev_year 列を持つテーブル（前年フラグで絞り込み可能） */
+const TABLES_WITH_PREV_YEAR_FLAG: ReadonlySet<string> = new Set([
+  'classified_sales',
+  'category_time_sales',
+  'time_slots',
+])
+/** loadMonth が前年データを INSERT するテーブル（is_prev_year 列なし） */
+const PREV_YEAR_INSERT_TABLES: readonly string[] = ['purchase', 'special_sales', 'transfers']
+export async function deletePrevYearMonth(
+  conn: AsyncDuckDBConnection,
+  year: number,
+  month: number,
+): Promise<void> {
+  const prevYear = year - 1
+  // is_prev_year 列ありテーブル: 前年フラグ行のみ削除（当年として読み込んだデータは残す）
+  for (const name of TABLES_WITH_YEAR_MONTH) {
+    if (TABLES_WITH_PREV_YEAR_FLAG.has(name)) {
+      await conn.query(
+        `DELETE FROM ${name} WHERE year = ${prevYear} AND month = ${month} AND is_prev_year = true`,
+      )
+    }
+  }
+  // is_prev_year 列なしテーブル: (prevYear, month) の行を全削除
+  for (const name of PREV_YEAR_INSERT_TABLES) {
+    await conn.query(`DELETE FROM ${name} WHERE year = ${prevYear} AND month = ${month}`)
+  }
+}
+
+/**
  * 1ヶ月分の ImportedData を DuckDB に投入する。
  * 追記モード — テーブルが存在する前提で INSERT のみ行う。
  * 初回呼び出し前に resetTables() を呼ぶこと。

@@ -248,8 +248,19 @@ export const ALL_TABLE_DDLS: readonly { readonly name: TableName; readonly ddl: 
 ]
 
 // ── VIEW: store_day_summary ──
-// classified_sales を基準に6テーブルLEFT JOINで store×day を結合
-// 既存の summaryBuilder.ts と同等の結合ロジック
+// classified_sales を基準に9テーブル LEFT JOIN で store×day を結合。
+//
+// 【重要: 全 LEFT JOIN は GROUP BY サブクエリ経由】
+// 各ソーステーブルは同一 (year, month, store_id, day) に複数行を持ちうる:
+//   - classified_sales: 部門×ライン×クラス単位の行
+//   - purchase: 仕入先ごとの行
+//   - transfers: direction ごとの行
+//   - special_sales: type ごとの行（再ロード時に蓄積する可能性あり）
+//   - consumables: コスト項目ごとの行
+//   - category_time_sales: 部門×ライン×クラス単位の行
+//
+// 直接 LEFT JOIN すると行が倍増し、合計値が N 倍になる（実際に発生: #前年点数2倍バグ）。
+// ガードテスト codePatternGuard.test.ts "B2" で非集約 JOIN を機械的に禁止している。
 export const STORE_DAY_SUMMARY_VIEW_DDL = `
 CREATE OR REPLACE VIEW store_day_summary AS
 SELECT
@@ -281,6 +292,7 @@ SELECT
   COALESCE(qty.total_quantity, 0) AS total_quantity,
   cs.is_prev_year
 FROM (
+  -- cs: classified_sales は部門×ライン×クラス単位 → store×day に集約
   SELECT year, month, day, date_key, store_id, is_prev_year,
     SUM(sales_amount) AS sales,
     SUM(discount_71) AS discount_71,
@@ -291,6 +303,7 @@ FROM (
   GROUP BY year, month, day, date_key, store_id, is_prev_year
 ) cs
 LEFT JOIN (
+  -- p: purchase は仕入先ごとに行あり → store×day に集約
   SELECT year, month, store_id, day,
     SUM(cost) AS total_cost, SUM(price) AS total_price
   FROM purchase
@@ -299,6 +312,7 @@ LEFT JOIN (
   ON cs.year = p.year AND cs.month = p.month
   AND cs.store_id = p.store_id AND cs.day = p.day
 LEFT JOIN (
+  -- t_si: transfers(interStoreIn) は複数取引あり → store×day に集約
   SELECT year, month, store_id, day,
     SUM(cost) AS cost, SUM(price) AS price
   FROM transfers WHERE direction = 'interStoreIn'
@@ -307,6 +321,7 @@ LEFT JOIN (
   ON cs.year = t_si.year AND cs.month = t_si.month
   AND cs.store_id = t_si.store_id AND cs.day = t_si.day
 LEFT JOIN (
+  -- t_so: transfers(interStoreOut) → store×day に集約
   SELECT year, month, store_id, day,
     SUM(cost) AS cost, SUM(price) AS price
   FROM transfers WHERE direction = 'interStoreOut'
@@ -315,6 +330,7 @@ LEFT JOIN (
   ON cs.year = t_so.year AND cs.month = t_so.month
   AND cs.store_id = t_so.store_id AND cs.day = t_so.day
 LEFT JOIN (
+  -- t_di: transfers(interDeptIn) → store×day に集約
   SELECT year, month, store_id, day,
     SUM(cost) AS cost, SUM(price) AS price
   FROM transfers WHERE direction = 'interDeptIn'
@@ -323,6 +339,7 @@ LEFT JOIN (
   ON cs.year = t_di.year AND cs.month = t_di.month
   AND cs.store_id = t_di.store_id AND cs.day = t_di.day
 LEFT JOIN (
+  -- t_do: transfers(interDeptOut) → store×day に集約
   SELECT year, month, store_id, day,
     SUM(cost) AS cost, SUM(price) AS price
   FROM transfers WHERE direction = 'interDeptOut'
@@ -330,18 +347,36 @@ LEFT JOIN (
 ) t_do
   ON cs.year = t_do.year AND cs.month = t_do.month
   AND cs.store_id = t_do.store_id AND cs.day = t_do.day
-LEFT JOIN special_sales ss_f
+LEFT JOIN (
+  -- ss_f: special_sales(flowers) は再ロード時に蓄積しうる → store×day に集約
+  SELECT year, month, store_id, day,
+    SUM(cost) AS cost, SUM(price) AS price, SUM(customers) AS customers
+  FROM special_sales WHERE type = 'flowers'
+  GROUP BY year, month, store_id, day
+) ss_f
   ON cs.year = ss_f.year AND cs.month = ss_f.month
   AND cs.store_id = ss_f.store_id AND cs.day = ss_f.day
-  AND ss_f.type = 'flowers'
-LEFT JOIN special_sales ss_d
+LEFT JOIN (
+  -- ss_d: special_sales(directProduce) は再ロード時に蓄積しうる → store×day に集約
+  SELECT year, month, store_id, day,
+    SUM(cost) AS cost, SUM(price) AS price
+  FROM special_sales WHERE type = 'directProduce'
+  GROUP BY year, month, store_id, day
+) ss_d
   ON cs.year = ss_d.year AND cs.month = ss_d.month
   AND cs.store_id = ss_d.store_id AND cs.day = ss_d.day
-  AND ss_d.type = 'directProduce'
-LEFT JOIN consumables con
+LEFT JOIN (
+  -- con: consumables はコスト項目ごとに行あり → store×day に集約
+  SELECT year, month, store_id, day,
+    SUM(cost) AS cost
+  FROM consumables
+  GROUP BY year, month, store_id, day
+) con
   ON cs.year = con.year AND cs.month = con.month
   AND cs.store_id = con.store_id AND cs.day = con.day
 LEFT JOIN (
+  -- qty: category_time_sales は部門×ライン×クラス単位 → store×day に集約
+  -- is_prev_year で JOIN（当年/前年の混在防止）
   SELECT year, month, store_id, day, is_prev_year,
     SUM(total_quantity) AS total_quantity
   FROM category_time_sales
