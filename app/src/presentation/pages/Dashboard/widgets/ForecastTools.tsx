@@ -1,13 +1,7 @@
-import { useState, memo } from 'react'
+import { memo } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import { formatPercent, formatPointDiff } from '@/domain/formatting'
-import {
-  calculateAchievementRate,
-  calculateYoYRatio,
-  calculateGrossProfitRate,
-  getEffectiveGrossProfitRate,
-} from '@/domain/calculations/utils'
 import type { WidgetContext } from './types'
 import {
   ExecRow,
@@ -33,6 +27,7 @@ import {
   SubLabel,
 } from './ForecastTools.styles'
 import { EditableCurrencyValue, EditablePercentValue } from './EditableSliderValue'
+import { useForecastToolsState } from './useForecastToolsState'
 
 // ─── Component ──────────────────────────────────────────
 
@@ -41,96 +36,9 @@ export const ForecastToolsWidget = memo(function ForecastToolsWidget({
 }: {
   ctx: WidgetContext
 }) {
-  const { result: r, prevYear, fmtCurrency } = ctx
-
-  const actualSales = r.totalSales
-  const actualGP = r.invMethodGrossProfit ?? r.estMethodMargin
-  const actualGPRate = getEffectiveGrossProfitRate(r)
-
-  // 残予算（売上）
-  const remainingBudget = r.remainingBudget
-  const hasBudget = r.budget > 0
-  const hasRemainingBudget = remainingBudget > 0
-
-  // 前年データ
-  const hasPrevYear = prevYear.hasPrevYear && prevYear.totalSales > 0
-  const prevYearTotalSales = prevYear.totalSales
-
-  // デフォルト値（自動計算）
-  const defaultSalesLanding = Math.round(r.projectedSales)
-  const defaultRemainGPRate = actualGPRate
-  const defaultTargetGPRate = r.grossProfitRateBudget
-
-  // Slider ranges
-  const salesMin = Math.round(actualSales)
-  const salesMax = Math.round(defaultSalesLanding * 1.5)
-  const salesStep = Math.round((salesMax - salesMin) / 100) || 1000
-
-  const [salesLanding, setSalesLanding] = useState(defaultSalesLanding)
-  const [remainGPRate, setRemainGPRate] = useState(Math.round(defaultRemainGPRate * 1000) / 10) // stored as %
-  const [targetGPRate, setTargetGPRate] = useState(Math.round(defaultTargetGPRate * 1000) / 10) // stored as %
-
-  const remainGPRateDecimal = remainGPRate / 100
-  const targetGPRateDecimal = targetGPRate / 100
-
-  // ─── Tool 1: 着地見込みシミュレーション ──────────────
-  const tool1Valid = salesLanding > 0 && remainGPRateDecimal > 0
-  const remainingSales1 = salesLanding - actualSales
-  const remainingGP1 = remainingSales1 * remainGPRateDecimal
-  const totalGP1 = actualGP + remainingGP1
-  const landingGPRate1 = calculateGrossProfitRate(totalGP1, salesLanding)
-
-  const salesDiff = salesLanding - defaultSalesLanding
-  const gpRateDiff = remainGPRateDecimal - defaultRemainGPRate
-
-  // Tool 1 新規: 残予算対比（残期間売上が残予算の何%か）
-  const tool1RemainingBudgetRate = calculateAchievementRate(remainingSales1, remainingBudget)
-  // Tool 1 新規: 売上着地予算達成率
-  const tool1BudgetAchievement = calculateAchievementRate(salesLanding, r.budget)
-  // Tool 1 新規: 前年比
-  const tool1YoyRate = calculateYoYRatio(salesLanding, prevYearTotalSales)
-
-  // ─── Tool 2: ゴールシーク ────────────────────────────
-  const defaultTargetMonthlySales = Math.round(r.projectedSales)
-  const goalSalesMin = Math.round(actualSales)
-  const goalSalesMax = Math.round(defaultTargetMonthlySales * 1.5)
-  const goalSalesStep = Math.round((goalSalesMax - goalSalesMin) / 100) || 1000
-  const [targetMonthlySales, setTargetMonthlySales] = useState(defaultTargetMonthlySales)
-
-  const tool2Valid = targetGPRateDecimal > 0
-  const targetTotalSales2 = targetMonthlySales
-  const targetTotalGP2 = targetGPRateDecimal * targetTotalSales2
-  const requiredRemainingGP2 = targetTotalGP2 - actualGP
-  const remainingSales2 = targetTotalSales2 - actualSales
-  const requiredRemainingGPRate2 = calculateGrossProfitRate(requiredRemainingGP2, remainingSales2)
-  const goalDiff = targetGPRateDecimal - defaultTargetGPRate
-  const goalSalesDiff = targetMonthlySales - defaultTargetMonthlySales
-
-  // Tool 2 売上予算系
-  const salesBudget = r.budget
-  const projectedTotalSales2 = r.projectedSales
-  const projectedSalesAchievement = calculateAchievementRate(projectedTotalSales2, salesBudget)
-  const targetSalesAchievement = calculateAchievementRate(targetTotalSales2, salesBudget)
-
-  // Tool 2 粗利予算系
-  const gpBudget = r.grossProfitBudget
-  const projectedTotalGP2 = actualGP + (remainingSales2 > 0 ? remainingSales2 * actualGPRate : 0)
-  const projectedGPAchievement = calculateAchievementRate(projectedTotalGP2, gpBudget)
-  const targetGPAchievement = calculateAchievementRate(targetTotalGP2, gpBudget)
-
-  // Tool 2 新規: 残予算対比（残期間売上目標が残予算の何%か）
-  const tool2RemainingBudgetRate = calculateAchievementRate(remainingSales2, remainingBudget)
-  // Tool 2 新規: 前年比
-  const tool2YoyRate = calculateYoYRatio(targetTotalSales2, prevYearTotalSales)
-
-  // 観測品質による精度警告
-  const obsStatus = ctx.observationStatus
-  const obsWarning =
-    obsStatus === 'partial'
-      ? '観測日数が少ないため、シミュレーションの初期値（日販ベース着地予測）の精度が低下しています'
-      : obsStatus === 'invalid' || obsStatus === 'undefined'
-        ? '観測期間が不十分なため、シミュレーションの初期値は参考値です'
-        : null
+  const { fmtCurrency } = ctx
+  const s = useForecastToolsState(ctx)
+  const { base, tool1, tool2 } = s
 
   return (
     <ForecastToolsGrid>
@@ -139,84 +47,77 @@ export const ForecastToolsWidget = memo(function ForecastToolsWidget({
         <ToolCardTitle>着地見込みシミュレーション</ToolCardTitle>
 
         {/* バリデーション: 観測品質 */}
-        {obsWarning && <ValidationBanner>{obsWarning}</ValidationBanner>}
+        {s.obsWarning && <ValidationBanner>{s.obsWarning}</ValidationBanner>}
 
         {/* バリデーション: 残予算がない場合 */}
-        {hasBudget && !hasRemainingBudget && (
+        {base.hasBudget && !base.hasRemainingBudget && (
           <ValidationBanner>
-            残予算がありません（予算 {fmtCurrency(r.budget)} に対し実績 {fmtCurrency(actualSales)}
-            ）。シミュレーション結果は参考値です。
+            残予算がありません（予算 {fmtCurrency(base.budget)} に対し実績{' '}
+            {fmtCurrency(base.actualSales)}）。シミュレーション結果は参考値です。
           </ValidationBanner>
         )}
 
         <ToolInputGroup>
           <PinInputLabel>
             売上着地見込み
-            {salesDiff !== 0 && (
-              <DiffBadge $color={sc.cond(salesDiff > 0)}>
+            {tool1.salesDiff !== 0 && (
+              <DiffBadge $color={sc.cond(tool1.salesDiff > 0)}>
                 {' '}
-                ({salesDiff > 0 ? '+' : ''}
-                {fmtCurrency(salesDiff)})
+                ({tool1.salesDiff > 0 ? '+' : ''}
+                {fmtCurrency(tool1.salesDiff)})
               </DiffBadge>
             )}
           </PinInputLabel>
           <SliderWrapper>
             <SliderRow>
               <StepBtn
-                disabled={salesLanding <= salesMin}
-                onClick={() => setSalesLanding(Math.max(salesMin, salesLanding - salesStep))}
+                disabled={s.salesLanding <= s.salesRange.min}
+                onClick={() => s.stepSalesLanding(-1)}
               >
                 ◀
               </StepBtn>
               <SliderInput
                 type="range"
-                min={salesMin}
-                max={salesMax}
-                step={salesStep}
-                value={salesLanding}
-                onChange={(e) => setSalesLanding(Number(e.target.value))}
+                min={s.salesRange.min}
+                max={s.salesRange.max}
+                step={s.salesRange.step}
+                value={s.salesLanding}
+                onChange={(e) => s.setSalesLanding(Number(e.target.value))}
               />
               <StepBtn
-                disabled={salesLanding >= salesMax}
-                onClick={() => setSalesLanding(Math.min(salesMax, salesLanding + salesStep))}
+                disabled={s.salesLanding >= s.salesRange.max}
+                onClick={() => s.stepSalesLanding(1)}
               >
                 ▶
               </StepBtn>
               <EditableCurrencyValue
-                value={salesLanding}
-                min={salesMin}
-                max={salesMax}
-                onChange={setSalesLanding}
+                value={s.salesLanding}
+                min={s.salesRange.min}
+                max={s.salesRange.max}
+                onChange={s.setSalesLanding}
                 format={fmtCurrency}
               />
             </SliderRow>
             <SliderTicks>
-              <span>{fmtCurrency(salesMin)}</span>
-              <ResetButton onClick={() => setSalesLanding(defaultSalesLanding)}>
-                リセット
-              </ResetButton>
-              <span>{fmtCurrency(salesMax)}</span>
+              <span>{fmtCurrency(s.salesRange.min)}</span>
+              <ResetButton onClick={s.resetSalesLanding}>リセット</ResetButton>
+              <span>{fmtCurrency(s.salesRange.max)}</span>
             </SliderTicks>
           </SliderWrapper>
         </ToolInputGroup>
         <ToolInputGroup>
           <PinInputLabel>
             残期間の粗利率予測
-            {gpRateDiff !== 0 && (
-              <DiffBadge $color={sc.cond(gpRateDiff > 0)}>
+            {tool1.gpRateDiff !== 0 && (
+              <DiffBadge $color={sc.cond(tool1.gpRateDiff > 0)}>
                 {' '}
-                ({formatPointDiff(gpRateDiff)})
+                ({formatPointDiff(tool1.gpRateDiff)})
               </DiffBadge>
             )}
           </PinInputLabel>
           <SliderWrapper>
             <SliderRow>
-              <StepBtn
-                disabled={remainGPRate <= 10}
-                onClick={() =>
-                  setRemainGPRate(Math.max(10, Math.round((remainGPRate - 0.1) * 10) / 10))
-                }
-              >
+              <StepBtn disabled={s.remainGPRate <= 10} onClick={() => s.stepRemainGPRate(-1)}>
                 ◀
               </StepBtn>
               <SliderInput
@@ -224,86 +125,80 @@ export const ForecastToolsWidget = memo(function ForecastToolsWidget({
                 min={10}
                 max={40}
                 step={0.1}
-                value={remainGPRate}
-                onChange={(e) => setRemainGPRate(Number(e.target.value))}
+                value={s.remainGPRate}
+                onChange={(e) => s.setRemainGPRate(Number(e.target.value))}
               />
-              <StepBtn
-                disabled={remainGPRate >= 40}
-                onClick={() =>
-                  setRemainGPRate(Math.min(40, Math.round((remainGPRate + 0.1) * 10) / 10))
-                }
-              >
+              <StepBtn disabled={s.remainGPRate >= 40} onClick={() => s.stepRemainGPRate(1)}>
                 ▶
               </StepBtn>
               <EditablePercentValue
-                value={remainGPRate}
+                value={s.remainGPRate}
                 min={10}
                 max={40}
-                onChange={setRemainGPRate}
+                onChange={s.setRemainGPRate}
               />
             </SliderRow>
             <SliderTicks>
               <span>10.0%</span>
-              <ResetButton
-                onClick={() => setRemainGPRate(Math.round(defaultRemainGPRate * 1000) / 10)}
-              >
-                リセット
-              </ResetButton>
+              <ResetButton onClick={s.resetRemainGPRate}>リセット</ResetButton>
               <span>40.0%</span>
             </SliderTicks>
           </SliderWrapper>
         </ToolInputGroup>
-        {tool1Valid && (
+        {tool1.tool1Valid && (
           <ToolResultSection>
             <ExecRow>
               <ToolResultLabel>現在売上実績</ToolResultLabel>
-              <ToolResultValue>{fmtCurrency(actualSales)}</ToolResultValue>
+              <ToolResultValue>{fmtCurrency(base.actualSales)}</ToolResultValue>
             </ExecRow>
             <ExecRow>
               <ToolResultLabel>
                 残期間売上
-                {hasRemainingBudget && (
-                  <SubLabel>残予算比 {formatPercent(tool1RemainingBudgetRate)}</SubLabel>
+                {base.hasRemainingBudget && (
+                  <SubLabel>残予算比 {formatPercent(tool1.tool1RemainingBudgetRate)}</SubLabel>
                 )}
               </ToolResultLabel>
-              <ToolResultValue>{fmtCurrency(remainingSales1)}</ToolResultValue>
+              <ToolResultValue>{fmtCurrency(tool1.remainingSales1)}</ToolResultValue>
             </ExecRow>
             <ExecRow>
               <ToolResultLabel>現在粗利実績</ToolResultLabel>
-              <ToolResultValue>{fmtCurrency(actualGP)}</ToolResultValue>
+              <ToolResultValue>{fmtCurrency(base.actualGP)}</ToolResultValue>
             </ExecRow>
             <ExecRow>
               <ToolResultLabel>残期間粗利見込み</ToolResultLabel>
-              <ToolResultValue>{fmtCurrency(remainingGP1)}</ToolResultValue>
+              <ToolResultValue>{fmtCurrency(tool1.remainingGP1)}</ToolResultValue>
             </ExecRow>
             <ExecDividerLine />
             <ExecRow>
               <ToolResultLabel>最終売上着地</ToolResultLabel>
               <ToolResultValue $color={palette.primary}>
-                {fmtCurrency(salesLanding)}
+                {fmtCurrency(s.salesLanding)}
               </ToolResultValue>
             </ExecRow>
 
-            {/* 新規: 予算達成率 */}
-            {hasBudget && (
+            {/* 予算達成率 */}
+            {base.hasBudget && (
               <ExecRow>
                 <ToolResultLabel style={{ fontWeight: 700 }}>予算達成率</ToolResultLabel>
                 <ToolResultValue
                   style={{ fontWeight: 700 }}
-                  $color={sc.cond(tool1BudgetAchievement >= 1)}
+                  $color={sc.cond(tool1.tool1BudgetAchievement >= 1)}
                 >
-                  {formatPercent(tool1BudgetAchievement)}
+                  {formatPercent(tool1.tool1BudgetAchievement)}
                 </ToolResultValue>
               </ExecRow>
             )}
 
-            {/* 新規: 前年比 */}
-            {hasPrevYear && (
+            {/* 前年比 */}
+            {base.hasPrevYear && (
               <ExecRow>
                 <ToolResultLabel style={{ fontWeight: 700 }}>前年比</ToolResultLabel>
-                <ToolResultValue style={{ fontWeight: 700 }} $color={sc.cond(tool1YoyRate >= 1)}>
-                  {formatPercent(tool1YoyRate)}
-                  <SubLabel>(前年 {fmtCurrency(prevYearTotalSales)})</SubLabel>
+                <ToolResultValue
+                  style={{ fontWeight: 700 }}
+                  $color={sc.cond(tool1.tool1YoyRate >= 1)}
+                >
+                  {formatPercent(tool1.tool1YoyRate)}
+                  <SubLabel>(前年 {fmtCurrency(base.prevYearTotalSales)})</SubLabel>
                 </ToolResultValue>
               </ExecRow>
             )}
@@ -311,18 +206,20 @@ export const ForecastToolsWidget = memo(function ForecastToolsWidget({
             <ExecDividerLine />
             <ExecRow>
               <ToolResultLabel>最終粗利額着地</ToolResultLabel>
-              <ToolResultValue $color={sc.positive}>{fmtCurrency(totalGP1)}</ToolResultValue>
+              <ToolResultValue $color={sc.positive}>{fmtCurrency(tool1.totalGP1)}</ToolResultValue>
             </ExecRow>
             <ExecRow>
               <ToolResultLabel>最終粗利率着地</ToolResultLabel>
-              <ToolResultValue $color={sc.cond(landingGPRate1 >= ctx.targetRate)}>
-                {formatPercent(landingGPRate1)}
+              <ToolResultValue $color={sc.cond(tool1.landingGPRate1 >= ctx.targetRate)}>
+                {formatPercent(tool1.landingGPRate1)}
               </ToolResultValue>
             </ExecRow>
             <ExecRow>
               <ToolResultLabel>粗利率予算比</ToolResultLabel>
-              <ToolResultValue $color={sc.cond(landingGPRate1 >= r.grossProfitRateBudget)}>
-                {formatPointDiff(landingGPRate1 - r.grossProfitRateBudget)}
+              <ToolResultValue
+                $color={sc.cond(tool1.landingGPRate1 >= ctx.result.grossProfitRateBudget)}
+              >
+                {formatPointDiff(tool1.landingGPRate1 - ctx.result.grossProfitRateBudget)}
               </ToolResultValue>
             </ExecRow>
           </ToolResultSection>
@@ -334,10 +231,10 @@ export const ForecastToolsWidget = memo(function ForecastToolsWidget({
         <ToolCardTitle>ゴールシーク（必要粗利率逆算）</ToolCardTitle>
 
         {/* バリデーション: 観測品質 */}
-        {obsWarning && <ValidationBanner>{obsWarning}</ValidationBanner>}
+        {s.obsWarning && <ValidationBanner>{s.obsWarning}</ValidationBanner>}
 
         {/* バリデーション: 残予算がない場合 */}
-        {hasBudget && !hasRemainingBudget && (
+        {base.hasBudget && !base.hasRemainingBudget && (
           <ValidationBanner>
             残予算がありません。目標値の現実性を判断できないため、残予算対比は表示されません。
           </ValidationBanner>
@@ -346,72 +243,64 @@ export const ForecastToolsWidget = memo(function ForecastToolsWidget({
         <ToolInputGroup>
           <PinInputLabel>
             目標着地月間売上
-            {goalSalesDiff !== 0 && (
-              <DiffBadge $color={sc.cond(goalSalesDiff > 0)}>
+            {tool2.goalSalesDiff !== 0 && (
+              <DiffBadge $color={sc.cond(tool2.goalSalesDiff > 0)}>
                 {' '}
-                ({goalSalesDiff > 0 ? '+' : ''}
-                {fmtCurrency(goalSalesDiff)})
+                ({tool2.goalSalesDiff > 0 ? '+' : ''}
+                {fmtCurrency(tool2.goalSalesDiff)})
               </DiffBadge>
             )}
           </PinInputLabel>
           <SliderWrapper>
             <SliderRow>
               <StepBtn
-                disabled={targetMonthlySales <= goalSalesMin}
-                onClick={() =>
-                  setTargetMonthlySales(Math.max(goalSalesMin, targetMonthlySales - goalSalesStep))
-                }
+                disabled={s.targetMonthlySales <= s.goalSalesRange.min}
+                onClick={() => s.stepTargetMonthlySales(-1)}
               >
                 ◀
               </StepBtn>
               <SliderInput
                 type="range"
-                min={goalSalesMin}
-                max={goalSalesMax}
-                step={goalSalesStep}
-                value={targetMonthlySales}
-                onChange={(e) => setTargetMonthlySales(Number(e.target.value))}
+                min={s.goalSalesRange.min}
+                max={s.goalSalesRange.max}
+                step={s.goalSalesRange.step}
+                value={s.targetMonthlySales}
+                onChange={(e) => s.setTargetMonthlySales(Number(e.target.value))}
               />
               <StepBtn
-                disabled={targetMonthlySales >= goalSalesMax}
-                onClick={() =>
-                  setTargetMonthlySales(Math.min(goalSalesMax, targetMonthlySales + goalSalesStep))
-                }
+                disabled={s.targetMonthlySales >= s.goalSalesRange.max}
+                onClick={() => s.stepTargetMonthlySales(1)}
               >
                 ▶
               </StepBtn>
               <EditableCurrencyValue
-                value={targetMonthlySales}
-                min={goalSalesMin}
-                max={goalSalesMax}
-                onChange={setTargetMonthlySales}
+                value={s.targetMonthlySales}
+                min={s.goalSalesRange.min}
+                max={s.goalSalesRange.max}
+                onChange={s.setTargetMonthlySales}
                 format={fmtCurrency}
               />
             </SliderRow>
             <SliderTicks>
-              <span>{fmtCurrency(goalSalesMin)}</span>
-              <ResetButton onClick={() => setTargetMonthlySales(defaultTargetMonthlySales)}>
-                リセット
-              </ResetButton>
-              <span>{fmtCurrency(goalSalesMax)}</span>
+              <span>{fmtCurrency(s.goalSalesRange.min)}</span>
+              <ResetButton onClick={s.resetTargetMonthlySales}>リセット</ResetButton>
+              <span>{fmtCurrency(s.goalSalesRange.max)}</span>
             </SliderTicks>
           </SliderWrapper>
         </ToolInputGroup>
         <ToolInputGroup>
           <PinInputLabel>
             目標着地粗利率
-            {goalDiff !== 0 && (
-              <DiffBadge $color={sc.cond(goalDiff > 0)}> ({formatPointDiff(goalDiff)})</DiffBadge>
+            {tool2.goalDiff !== 0 && (
+              <DiffBadge $color={sc.cond(tool2.goalDiff > 0)}>
+                {' '}
+                ({formatPointDiff(tool2.goalDiff)})
+              </DiffBadge>
             )}
           </PinInputLabel>
           <SliderWrapper>
             <SliderRow>
-              <StepBtn
-                disabled={targetGPRate <= 10}
-                onClick={() =>
-                  setTargetGPRate(Math.max(10, Math.round((targetGPRate - 0.1) * 10) / 10))
-                }
-              >
+              <StepBtn disabled={s.targetGPRate <= 10} onClick={() => s.stepTargetGPRate(-1)}>
                 ◀
               </StepBtn>
               <SliderInput
@@ -419,68 +308,59 @@ export const ForecastToolsWidget = memo(function ForecastToolsWidget({
                 min={10}
                 max={40}
                 step={0.1}
-                value={targetGPRate}
-                onChange={(e) => setTargetGPRate(Number(e.target.value))}
+                value={s.targetGPRate}
+                onChange={(e) => s.setTargetGPRate(Number(e.target.value))}
               />
-              <StepBtn
-                disabled={targetGPRate >= 40}
-                onClick={() =>
-                  setTargetGPRate(Math.min(40, Math.round((targetGPRate + 0.1) * 10) / 10))
-                }
-              >
+              <StepBtn disabled={s.targetGPRate >= 40} onClick={() => s.stepTargetGPRate(1)}>
                 ▶
               </StepBtn>
               <EditablePercentValue
-                value={targetGPRate}
+                value={s.targetGPRate}
                 min={10}
                 max={40}
-                onChange={setTargetGPRate}
+                onChange={s.setTargetGPRate}
               />
             </SliderRow>
             <SliderTicks>
               <span>10.0%</span>
-              <ResetButton
-                onClick={() => setTargetGPRate(Math.round(defaultTargetGPRate * 1000) / 10)}
-              >
-                リセット
-              </ResetButton>
+              <ResetButton onClick={s.resetTargetGPRate}>リセット</ResetButton>
               <span>40.0%</span>
             </SliderTicks>
           </SliderWrapper>
         </ToolInputGroup>
-        {tool2Valid && (
+        {tool2.tool2Valid && (
           <ToolResultSection>
             <ExecRow>
               <ToolResultLabel style={{ fontWeight: 700 }}>月間売上予算</ToolResultLabel>
-              <ToolResultValue>{fmtCurrency(salesBudget)}</ToolResultValue>
+              <ToolResultValue>{fmtCurrency(tool2.salesBudget)}</ToolResultValue>
             </ExecRow>
             <ExecRow>
               <ToolResultLabel>予測月末売上</ToolResultLabel>
               <ToolResultValue>
-                {fmtCurrency(projectedTotalSales2)}
+                {fmtCurrency(tool2.projectedTotalSales2)}
                 {' / '}
-                {formatPercent(projectedSalesAchievement)}
+                {formatPercent(tool2.projectedSalesAchievement)}
               </ToolResultValue>
             </ExecRow>
             <ExecRow>
               <ToolResultLabel style={{ fontWeight: 700 }}>目標月間売上</ToolResultLabel>
               <ToolResultValue
                 style={{ fontWeight: 700 }}
-                $color={sc.cond(targetSalesAchievement >= 1)}
+                $color={sc.cond(tool2.targetSalesAchievement >= 1)}
               >
-                {fmtCurrency(targetTotalSales2)}
+                {fmtCurrency(tool2.targetTotalSales2)}
                 {' / '}
-                {formatPercent(targetSalesAchievement)}
+                {formatPercent(tool2.targetSalesAchievement)}
               </ToolResultValue>
             </ExecRow>
 
-            {/* 新規: 前年比 */}
-            {hasPrevYear && (
+            {/* 前年比 */}
+            {base.hasPrevYear && (
               <ExecRow>
                 <ToolResultLabel>前年比</ToolResultLabel>
-                <ToolResultValue $color={sc.cond(tool2YoyRate >= 1)}>
-                  {formatPercent(tool2YoyRate)}
-                  <SubLabel>(前年 {fmtCurrency(prevYearTotalSales)})</SubLabel>
+                <ToolResultValue $color={sc.cond(tool2.tool2YoyRate >= 1)}>
+                  {formatPercent(tool2.tool2YoyRate)}
+                  <SubLabel>(前年 {fmtCurrency(base.prevYearTotalSales)})</SubLabel>
                 </ToolResultValue>
               </ExecRow>
             )}
@@ -488,46 +368,46 @@ export const ForecastToolsWidget = memo(function ForecastToolsWidget({
             <ExecDividerLine />
             <ExecRow>
               <ToolResultLabel style={{ fontWeight: 700 }}>月間粗利額予算</ToolResultLabel>
-              <ToolResultValue>{fmtCurrency(gpBudget)}</ToolResultValue>
+              <ToolResultValue>{fmtCurrency(tool2.gpBudget)}</ToolResultValue>
             </ExecRow>
             <ExecRow>
               <ToolResultLabel>予測月間粗利額</ToolResultLabel>
               <ToolResultValue>
-                {fmtCurrency(projectedTotalGP2)}
+                {fmtCurrency(tool2.projectedTotalGP2)}
                 {' / '}
-                {formatPercent(projectedGPAchievement)}
+                {formatPercent(tool2.projectedGPAchievement)}
               </ToolResultValue>
             </ExecRow>
             <ExecRow>
               <ToolResultLabel style={{ fontWeight: 700 }}>目標粗利総額</ToolResultLabel>
               <ToolResultValue
                 style={{ fontWeight: 700 }}
-                $color={sc.cond(targetGPAchievement >= 1)}
+                $color={sc.cond(tool2.targetGPAchievement >= 1)}
               >
-                {fmtCurrency(targetTotalGP2)}
+                {fmtCurrency(tool2.targetTotalGP2)}
                 {' / '}
-                {formatPercent(targetGPAchievement)}
+                {formatPercent(tool2.targetGPAchievement)}
               </ToolResultValue>
             </ExecRow>
             <ExecDividerLine />
             <ExecRow>
               <ToolResultLabel>現在粗利実績</ToolResultLabel>
-              <ToolResultValue>{fmtCurrency(actualGP)}</ToolResultValue>
+              <ToolResultValue>{fmtCurrency(base.actualGP)}</ToolResultValue>
             </ExecRow>
             <ExecRow>
               <ToolResultLabel>残期間必要粗利</ToolResultLabel>
-              <ToolResultValue>{fmtCurrency(requiredRemainingGP2)}</ToolResultValue>
+              <ToolResultValue>{fmtCurrency(tool2.requiredRemainingGP2)}</ToolResultValue>
             </ExecRow>
             <ExecRow>
               <ToolResultLabel style={{ fontWeight: 700 }}>残期間売上目標</ToolResultLabel>
               <ToolResultValue style={{ fontWeight: 700 }}>
-                {fmtCurrency(remainingSales2)}
-                {/* 新規: 残予算達成率 */}
-                {hasRemainingBudget && (
+                {fmtCurrency(tool2.remainingSales2)}
+                {/* 残予算達成率 */}
+                {base.hasRemainingBudget && (
                   <SubLabel>
                     残予算比{' '}
-                    <span style={{ color: sc.cond(tool2RemainingBudgetRate <= 1) }}>
-                      {formatPercent(tool2RemainingBudgetRate)}
+                    <span style={{ color: sc.cond(tool2.tool2RemainingBudgetRate <= 1) }}>
+                      {formatPercent(tool2.tool2RemainingBudgetRate)}
                     </span>
                   </SubLabel>
                 )}
@@ -537,18 +417,18 @@ export const ForecastToolsWidget = memo(function ForecastToolsWidget({
               <ToolResultLabel style={{ fontWeight: 700 }}>残期間必要粗利率</ToolResultLabel>
               <ToolResultValue
                 style={{ fontWeight: 700 }}
-                $color={sc.cond(requiredRemainingGPRate2 <= actualGPRate)}
+                $color={sc.cond(tool2.requiredRemainingGPRate2 <= base.actualGPRate)}
               >
-                {formatPercent(requiredRemainingGPRate2)}
+                {formatPercent(tool2.requiredRemainingGPRate2)}
               </ToolResultValue>
             </ExecRow>
             <ExecRow>
               <ToolResultLabel style={{ fontWeight: 700 }}>現在粗利率との差</ToolResultLabel>
               <ToolResultValue
                 style={{ fontWeight: 700 }}
-                $color={sc.cond(requiredRemainingGPRate2 <= actualGPRate)}
+                $color={sc.cond(tool2.requiredRemainingGPRate2 <= base.actualGPRate)}
               >
-                {formatPointDiff(requiredRemainingGPRate2 - actualGPRate)}
+                {formatPointDiff(tool2.requiredRemainingGPRate2 - base.actualGPRate)}
               </ToolResultValue>
             </ExecRow>
           </ToolResultSection>

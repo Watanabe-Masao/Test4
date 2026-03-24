@@ -1,6 +1,7 @@
 /**
  * 日別詳細モーダル — カレンダー/テーブルから日を選択した際に表示。
  * 売上分析・時間帯分析・仕入内訳の3タブ構成。
+ * 各タブの描画は専用コンポーネントに委譲し、本ファイルはモーダル外殻+タブルーティングに専念する。
  */
 import { useState, useMemo, useCallback } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
@@ -11,7 +12,6 @@ import { CurrencyUnitToggle } from '@/presentation/components/charts'
 import {
   calculateAchievementRate,
   calculateYoYRatio,
-  calculateShare,
   calculateTransactionValue,
 } from '@/domain/calculations/utils'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
@@ -31,12 +31,6 @@ import {
   DetailKpiCard,
   DetailKpiLabel,
   DetailKpiValue,
-  DetailSection,
-  DetailSectionTitle,
-  DetailRow,
-  DetailLabel,
-  DetailValue,
-  DetailColumns,
 } from '../DashboardPage.styles'
 import {
   TabBar,
@@ -46,15 +40,14 @@ import {
   KpiMiniLabel,
   KpiMiniValue,
   KpiMiniSub,
-  ToggleGroup,
-  ToggleBtn,
 } from './DayDetailModal.styles'
-import { HourlyChart } from './HourlyChart'
-import { CategoryDrilldown } from './CategoryDrilldown'
-import { DrilldownWaterfall } from './DrilldownWaterfall'
+import { DayDetailSalesTab, type CompMode } from './DayDetailSalesTab'
+import { DayDetailHourlyTab } from './DayDetailHourlyTab'
+import { DayDetailBreakdownTab } from './DayDetailBreakdownTab'
+
+export type { CompMode }
 
 type ModalTab = 'sales' | 'hourly' | 'breakdown'
-type CompMode = 'yoy' | 'wow'
 
 const EMPTY_STORE_IDS: ReadonlySet<string> = new Set()
 
@@ -287,287 +280,59 @@ export function DayDetailModal({
 
         {/* ── Tab: 売上分析 ── */}
         {tab === 'sales' && (
-          <>
-            {/* 比較モード切替: 比較期比 / 前週比 */}
-            {(prevYear.hasPrevYear || canWoW) && (
-              <ToggleGroup style={{ marginBottom: '12px' }}>
-                <ToggleBtn $active={compMode === 'yoy'} onClick={() => setCompMode('yoy')}>
-                  比較期比
-                </ToggleBtn>
-                <ToggleBtn
-                  $active={compMode === 'wow'}
-                  onClick={() => {
-                    if (canWoW) setCompMode('wow')
-                  }}
-                  style={canWoW ? undefined : { opacity: 0.4, cursor: 'not-allowed' }}
-                >
-                  前週比
-                </ToggleBtn>
-              </ToggleGroup>
-            )}
-            {compSales > 0 && (
-              <DrilldownWaterfall
-                actual={actual}
-                pySales={compSales}
-                dayCust={dayCust}
-                pyCust={compCust}
-                dayRecords={dayRecords}
-                prevDayRecords={compDayRecords}
-                curLabel={curCompLabel}
-                prevLabel={compLabel}
-              />
-            )}
-            {dayRecords.length > 0 && (
-              <CategoryDrilldown
-                records={dayRecords}
-                prevRecords={prevDayRecords}
-                budget={budget}
-                cumRecords={cumCategoryRecords}
-                cumPrevRecords={cumPrevCategoryRecords}
-                cumBudget={cumBudget}
-                actual={actual}
-                ach={ach}
-                pySales={pySales}
-                hasPrevYearSales={prevYear.hasPrevYear}
-                cumSales={cumSales}
-                cumAch={cumAch}
-                cumPrevYear={cumPrevYear}
-                year={year}
-                month={month}
-                day={day}
-                wowRecords={wowPrevDayRecords}
-                wowPrevSales={wowPrevSales}
-                canWoW={canWoW}
-              />
-            )}
-
-            {/* Cumulative summary */}
-            <DetailSection>
-              <DetailSectionTitle>累計情報（1日〜{day}日）</DetailSectionTitle>
-              <DetailColumns>
-                <div>
-                  <DetailRow>
-                    <DetailLabel>予算累計</DetailLabel>
-                    <DetailValue>{fmtCurrencyWithUnit(cumBudget)}</DetailValue>
-                  </DetailRow>
-                  <DetailRow>
-                    <DetailLabel>実績累計</DetailLabel>
-                    <DetailValue>{fmtCurrencyWithUnit(cumSales)}</DetailValue>
-                  </DetailRow>
-                  <DetailRow>
-                    <DetailLabel>累計差異</DetailLabel>
-                    <DetailValue $color={sc.cond(cumDiff >= 0)}>
-                      {fmtCurrencyWithUnit(cumDiff)}
-                    </DetailValue>
-                  </DetailRow>
-                  <DetailRow>
-                    <DetailLabel>累計達成率</DetailLabel>
-                    <DetailValue $color={sc.cond(cumAch >= 1)}>{formatPercent(cumAch)}</DetailValue>
-                  </DetailRow>
-                </div>
-                <div>
-                  <DetailRow>
-                    <DetailLabel>累計客数</DetailLabel>
-                    <DetailValue>
-                      {cumCustomers > 0 ? `${cumCustomers.toLocaleString()}人` : '-'}
-                    </DetailValue>
-                  </DetailRow>
-                  <DetailRow>
-                    <DetailLabel>累計客単価</DetailLabel>
-                    <DetailValue>{cumTxVal > 0 ? fmtCurrencyWithUnit(cumTxVal) : '-'}</DetailValue>
-                  </DetailRow>
-                  {prevYear.hasPrevYear && cumPrevYear > 0 && (
-                    <>
-                      <DetailRow>
-                        <DetailLabel>前年累計</DetailLabel>
-                        <DetailValue>{fmtCurrencyWithUnit(cumPrevYear)}</DetailValue>
-                      </DetailRow>
-                      <DetailRow>
-                        <DetailLabel>前年累計客単価</DetailLabel>
-                        <DetailValue>
-                          {cumPrevTxVal > 0 ? fmtCurrencyWithUnit(cumPrevTxVal) : '-'}
-                        </DetailValue>
-                      </DetailRow>
-                    </>
-                  )}
-                </div>
-              </DetailColumns>
-            </DetailSection>
-          </>
+          <DayDetailSalesTab
+            compMode={compMode}
+            onCompModeChange={setCompMode}
+            hasPrevYear={prevYear.hasPrevYear}
+            canWoW={canWoW}
+            compSales={compSales}
+            compCust={compCust}
+            curCompLabel={curCompLabel}
+            compLabel={compLabel}
+            actual={actual}
+            dayCust={dayCust}
+            dayRecords={dayRecords}
+            compDayRecords={compDayRecords}
+            prevDayRecords={prevDayRecords}
+            wowPrevDayRecords={wowPrevDayRecords}
+            budget={budget}
+            cumBudget={cumBudget}
+            cumSales={cumSales}
+            cumAch={cumAch}
+            cumPrevYear={cumPrevYear}
+            cumCustomers={cumCustomers}
+            cumTxVal={cumTxVal}
+            cumPrevTxVal={cumPrevTxVal}
+            cumDiff={cumDiff}
+            ach={ach}
+            pySales={pySales}
+            wowPrevSales={wowPrevSales}
+            day={day}
+            month={month}
+            year={year}
+            cumCategoryRecords={cumCategoryRecords}
+            cumPrevCategoryRecords={cumPrevCategoryRecords}
+          />
         )}
 
         {/* ── Tab: 時間帯分析 ── */}
         {tab === 'hourly' && (
-          <>
-            {/* 天気データ用店舗セレクタ */}
-            {weatherCandidates.length > 1 && (
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  marginBottom: 8,
-                  fontSize: '0.65rem',
-                }}
-              >
-                <span style={{ opacity: 0.6 }}>天気データ:</span>
-                <select
-                  value={weatherStoreId}
-                  onChange={handleWeatherStoreChange}
-                  style={{
-                    fontSize: '0.65rem',
-                    padding: '2px 6px',
-                    borderRadius: 4,
-                    border: `1px solid ${palette.slate}`,
-                    background: 'transparent',
-                    color: 'inherit',
-                  }}
-                >
-                  {weatherCandidates.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-            {weatherCandidates.length === 1 && weatherStoreName && (
-              <div style={{ fontSize: '0.6rem', opacity: 0.5, marginBottom: 4 }}>
-                天気データ: {weatherStoreName}
-              </div>
-            )}
-            <HourlyChart
-              dayRecords={dayRecords}
-              prevDayRecords={prevDayRecords}
-              weatherHourly={dd.weatherHourly}
-              prevWeatherHourly={dd.prevWeatherHourly}
-              prevDateKey={prevDateKey}
-              curDateKey={dateKey}
-            />
-            {dayRecords.length === 0 && (
-              <DetailSection>
-                <DetailSectionTitle>時間帯別売上</DetailSectionTitle>
-                <DetailRow>
-                  <DetailLabel>データなし</DetailLabel>
-                  <DetailValue>-</DetailValue>
-                </DetailRow>
-              </DetailSection>
-            )}
-          </>
+          <DayDetailHourlyTab
+            dayRecords={dayRecords}
+            prevDayRecords={prevDayRecords}
+            weatherHourly={dd.weatherHourly}
+            prevWeatherHourly={dd.prevWeatherHourly}
+            prevDateKey={prevDateKey}
+            curDateKey={dateKey}
+            weatherCandidates={weatherCandidates}
+            weatherStoreId={weatherStoreId}
+            weatherStoreName={weatherStoreName}
+            onWeatherStoreChange={handleWeatherStoreChange}
+          />
         )}
 
         {/* ── Tab: 仕入内訳 ── */}
-        {tab === 'breakdown' && (
-          <DetailSection>
-            <DetailSectionTitle>仕入・コスト内訳</DetailSectionTitle>
-            {record ? (
-              (() => {
-                const totalCost = record.totalCost
-                const costItems: { label: string; cost: number; price: number }[] = [
-                  {
-                    label: '仕入（在庫）',
-                    cost: record.purchase.cost,
-                    price: record.purchase.price,
-                  },
-                  { label: '花', cost: record.flowers.cost, price: record.flowers.price },
-                  {
-                    label: '産直',
-                    cost: record.directProduce.cost,
-                    price: record.directProduce.price,
-                  },
-                  {
-                    label: '店間入',
-                    cost: record.interStoreIn.cost,
-                    price: record.interStoreIn.price,
-                  },
-                  {
-                    label: '店間出',
-                    cost: record.interStoreOut.cost,
-                    price: record.interStoreOut.price,
-                  },
-                  {
-                    label: '部門間入',
-                    cost: record.interDepartmentIn.cost,
-                    price: record.interDepartmentIn.price,
-                  },
-                  {
-                    label: '部門間出',
-                    cost: record.interDepartmentOut.cost,
-                    price: record.interDepartmentOut.price,
-                  },
-                ].filter((item) => item.cost !== 0 || item.price !== 0)
-                const totalPrice = costItems.reduce((sum, item) => sum + Math.abs(item.price), 0)
-
-                return (
-                  <>
-                    {costItems.map((item) => {
-                      const ratio = calculateShare(Math.abs(item.price), totalPrice)
-                      return (
-                        <DetailRow key={item.label}>
-                          <DetailLabel>{item.label}</DetailLabel>
-                          <DetailValue>
-                            {fmtCurrencyWithUnit(item.price)}{' '}
-                            <span style={{ color: palette.slate, fontSize: '0.75rem' }}>
-                              (原 {fmtCurrencyWithUnit(item.cost)})
-                            </span>
-                            <span
-                              style={{
-                                color: palette.primary,
-                                fontSize: '0.75rem',
-                                marginLeft: '4px',
-                              }}
-                            >
-                              ({formatPercent(ratio)})
-                            </span>
-                          </DetailValue>
-                        </DetailRow>
-                      )
-                    })}
-                    <DetailRow>
-                      <DetailLabel>総仕入原価</DetailLabel>
-                      <DetailValue>{fmtCurrencyWithUnit(totalCost)}</DetailValue>
-                    </DetailRow>
-                    {actual > 0 && totalCost > 0 && (
-                      <DetailRow>
-                        <DetailLabel>原価率</DetailLabel>
-                        <DetailValue>{formatPercent(totalCost / actual)}</DetailValue>
-                      </DetailRow>
-                    )}
-                    {record.costInclusion.cost > 0 && (
-                      <DetailRow>
-                        <DetailLabel>原価算入費</DetailLabel>
-                        <DetailValue>{fmtCurrencyWithUnit(record.costInclusion.cost)}</DetailValue>
-                      </DetailRow>
-                    )}
-                    {record.discountAmount !== 0 && (
-                      <>
-                        <DetailRow>
-                          <DetailLabel>売変額</DetailLabel>
-                          <DetailValue $color={sc.negative}>
-                            {fmtCurrencyWithUnit(record.discountAmount)}
-                          </DetailValue>
-                        </DetailRow>
-                        {record.grossSales > 0 && (
-                          <DetailRow>
-                            <DetailLabel>売変率</DetailLabel>
-                            <DetailValue $color={sc.negative}>
-                              {formatPercent(Math.abs(record.discountAmount) / record.grossSales)}
-                            </DetailValue>
-                          </DetailRow>
-                        )}
-                      </>
-                    )}
-                  </>
-                )
-              })()
-            ) : (
-              <DetailRow>
-                <DetailLabel>データなし</DetailLabel>
-                <DetailValue>-</DetailValue>
-              </DetailRow>
-            )}
-          </DetailSection>
-        )}
+        {tab === 'breakdown' && <DayDetailBreakdownTab record={record} actual={actual} />}
       </DetailModalContent>
     </PinModalOverlay>
   )
