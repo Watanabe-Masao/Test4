@@ -12,9 +12,9 @@
  */
 import { useState, useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'
-import type { ComparisonFrame, PrevYearScope } from '@/domain/models/calendar'
+import type { PrevYearScope } from '@/domain/models/calendar'
 import { dateRangeToKeys } from '@/domain/models/calendar'
-import type { AlignmentPolicy } from '@/domain/models/ComparisonFrame'
+import type { ComparisonScope, AlignmentMode } from '@/domain/models/ComparisonScope'
 import type { AppTheme } from '@/presentation/theme/theme'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
@@ -55,7 +55,7 @@ const VIEW_OPTIONS: readonly { value: ViewMode; label: string }[] = [
 
 interface Props {
   readonly queryExecutor: QueryExecutor | null
-  readonly frame: ComparisonFrame | undefined
+  readonly scope: ComparisonScope | null
   readonly selectedStoreIds: ReadonlySet<string>
   readonly prevYearScope?: PrevYearScope
 }
@@ -154,15 +154,15 @@ function buildWaterfallOption(
   }
 }
 
-/** AlignmentPolicy → CompareModeV2 の変換 */
-function toCompareMode(policy: AlignmentPolicy | undefined): 'sameDate' | 'sameDayOfWeek' {
-  if (policy === 'sameDayOfWeek') return 'sameDayOfWeek'
+/** AlignmentMode → CompareModeV2 の変換 */
+function toCompareMode(mode: AlignmentMode | undefined): 'sameDate' | 'sameDayOfWeek' {
+  if (mode === 'sameDayOfWeek') return 'sameDayOfWeek'
   return 'sameDate'
 }
 
 export const YoYChart = memo(function YoYChart({
   queryExecutor,
-  frame,
+  scope,
   selectedStoreIds,
   prevYearScope,
 }: Props) {
@@ -171,15 +171,15 @@ export const YoYChart = memo(function YoYChart({
   const { messages } = useI18n()
   const [viewMode, setViewMode] = useState<ViewMode>('line')
 
-  const frameCurrent = frame?.current
-  const framePrevious = frame?.previous
-  const framePolicy = frame?.policy
+  const scopePeriod1 = scope?.effectivePeriod1
+  const scopePeriod2 = scope?.effectivePeriod2
+  const scopeAlignmentMode = scope?.alignmentMode
   const prevYearDateRange = prevYearScope?.dateRange
 
   const input = useMemo<YoyDailyInput | null>(() => {
-    if (!frameCurrent || !framePrevious) return null
-    const cur = dateRangeToKeys(frameCurrent)
-    const prevRange = prevYearDateRange ?? framePrevious
+    if (!scopePeriod1 || !scopePeriod2) return null
+    const cur = dateRangeToKeys(scopePeriod1)
+    const prevRange = prevYearDateRange ?? scopePeriod2
     const prev = dateRangeToKeys(prevRange)
     return {
       curDateFrom: cur.fromKey,
@@ -187,9 +187,9 @@ export const YoYChart = memo(function YoYChart({
       prevDateFrom: prev.fromKey,
       prevDateTo: prev.toKey,
       storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
-      compareMode: toCompareMode(framePolicy),
+      compareMode: toCompareMode(scopeAlignmentMode),
     }
-  }, [frameCurrent, framePrevious, framePolicy, selectedStoreIds, prevYearDateRange])
+  }, [scopePeriod1, scopePeriod2, scopeAlignmentMode, selectedStoreIds, prevYearDateRange])
 
   const {
     data: output,
@@ -232,7 +232,7 @@ export const YoYChart = memo(function YoYChart({
     )
   }
 
-  if (!queryExecutor || !frame || chartData.length === 0) {
+  if (!queryExecutor || !scope || chartData.length === 0) {
     return (
       <ChartCard title="前年比較">
         <ChartEmpty message="データをインポートしてください" />

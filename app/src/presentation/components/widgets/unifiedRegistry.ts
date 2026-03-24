@@ -75,18 +75,7 @@ function toDashboardContext(ctx: UnifiedWidgetContext): DashboardWidgetContext {
       },
       monthlyTotal: { sales: 0, customers: 0, transactionValue: 0 },
     },
-    comparisonFrame: ctx.comparisonFrame ?? {
-      current: ctx.currentDateRange ?? {
-        from: { year: ctx.year, month: ctx.month, day: 1 },
-        to: { year: ctx.year, month: ctx.month, day: ctx.daysInMonth },
-      },
-      previous: ctx.prevYearDateRange ?? {
-        from: { year: ctx.year - 1, month: ctx.month, day: 1 },
-        to: { year: ctx.year - 1, month: ctx.month, day: ctx.daysInMonth },
-      },
-      dowOffset: 0,
-      policy: 'sameDate' as const,
-    },
+    comparisonScope: ctx.comparisonScope ?? null,
     dowGap: ctx.dowGap ?? {
       dowCounts: [],
       estimatedImpact: 0,

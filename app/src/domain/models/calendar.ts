@@ -13,7 +13,7 @@ export {
   dateRangeToKeys,
   splitDateRangeByMonth,
 } from './CalendarDate'
-export type { AlignmentPolicy, ComparisonFrame, PrevYearScope } from './ComparisonFrame'
+export type { AlignmentPolicy, ComparisonFrame } from './ComparisonFrame'
 export type { DowDayCount, DowGapAnalysis } from './ComparisonContext'
 export type {
   ComparisonPreset,
@@ -30,5 +30,11 @@ export {
   deriveEffectivePeriod2,
   buildPrevYearScopeFromSelection,
 } from './PeriodSelection'
-export type { AlignmentEntry, AlignmentMode, QueryMonth, ComparisonScope } from './ComparisonScope'
+export type {
+  AlignmentEntry,
+  AlignmentMode,
+  QueryMonth,
+  ComparisonScope,
+  PrevYearScope,
+} from './ComparisonScope'
 export { buildComparisonScope, resolvePrevDate } from './ComparisonScope'

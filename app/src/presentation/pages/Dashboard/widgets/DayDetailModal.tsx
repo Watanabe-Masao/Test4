@@ -15,7 +15,7 @@ import {
   calculateTransactionValue,
 } from '@/domain/calculations/utils'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
-import type { ComparisonFrame } from '@/domain/models/calendar'
+import type { ComparisonScope } from '@/domain/models/ComparisonScope'
 import type { DailyRecord } from '@/domain/models/record'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import { useDayDetailData, type PrevYearData } from '@/application/hooks/analytics'
@@ -78,8 +78,8 @@ interface DayDetailModalProps {
   dailyMap?: ReadonlyMap<number, DailyRecord>
   /** 選択中の店舗IDセット（空=全店舗） */
   selectedStoreIds?: ReadonlySet<string>
-  /** 比較フレーム（前年期間を統一的に取得） */
-  comparisonFrame: ComparisonFrame
+  /** 比較スコープ（前年期間を統一的に取得） */
+  comparisonScope: ComparisonScope | null
   onClose: () => void
 }
 
@@ -99,7 +99,7 @@ export function DayDetailModal({
   dataVersion,
   dailyMap,
   selectedStoreIds,
-  comparisonFrame,
+  comparisonScope,
   onClose,
 }: DayDetailModalProps) {
   const { formatWithUnit: fmtCurrencyWithUnit } = useCurrencyFormat()
@@ -145,7 +145,7 @@ export function DayDetailModal({
     year,
     month,
     day,
-    comparisonFrame,
+    comparisonScope,
     selectedStoreIds: storeIdsSet,
     weatherStoreId,
   })

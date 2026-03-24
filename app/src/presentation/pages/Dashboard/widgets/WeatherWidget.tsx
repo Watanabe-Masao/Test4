@@ -107,7 +107,7 @@ export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetC
     error: forecastError,
   } = useWeatherForecast(storeId)
 
-  const weatherPolicy: AlignmentPolicy = ctx.comparisonFrame.policy
+  const weatherPolicy: AlignmentPolicy = ctx.comparisonScope?.alignmentMode ?? 'sameDate'
 
   // 時間別データ取得は Application hook 経由（@guard A3）
   const { hourlyCache, prevHourlyCache, fetchHourly, fetchPrevHourly, resolvePrevDate } =

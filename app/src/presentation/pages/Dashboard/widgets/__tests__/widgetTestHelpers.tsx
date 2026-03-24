@@ -250,11 +250,27 @@ export function makeWidgetContext(overrides: Partial<WidgetContext> = {}): Widge
     onPrevYearDetail: () => {},
     fmtCurrency: formatCurrency,
     observationStatus: 'ok' as const,
-    comparisonFrame: {
-      current: { from: { year: 2026, month: 2, day: 1 }, to: { year: 2026, month: 2, day: 28 } },
-      previous: { from: { year: 2025, month: 2, day: 1 }, to: { year: 2025, month: 2, day: 28 } },
+    comparisonScope: {
+      period1: { from: { year: 2026, month: 2, day: 1 }, to: { year: 2026, month: 2, day: 28 } },
+      period2: { from: { year: 2025, month: 2, day: 1 }, to: { year: 2025, month: 2, day: 28 } },
+      preset: 'prevYearSameDow' as const,
+      alignmentMode: 'sameDayOfWeek' as const,
       dowOffset: 0,
-      policy: 'sameDayOfWeek' as const,
+      effectivePeriod1: {
+        from: { year: 2026, month: 2, day: 1 },
+        to: { year: 2026, month: 2, day: 28 },
+      },
+      effectivePeriod2: {
+        from: { year: 2025, month: 2, day: 1 },
+        to: { year: 2025, month: 2, day: 28 },
+      },
+      queryRanges: [
+        { year: 2025, month: 1 },
+        { year: 2025, month: 2 },
+        { year: 2025, month: 3 },
+      ],
+      alignmentMap: [],
+      sourceMonth: { year: 2025, month: 2 },
     },
     ...overrides,
   }

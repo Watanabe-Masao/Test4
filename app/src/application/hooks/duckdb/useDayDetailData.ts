@@ -19,7 +19,7 @@ import type { CalendarDate, DateRange } from '@/domain/models/CalendarDate'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 import { getLegacyDuckDB } from '@/application/queries/QueryPort'
 import { toDateKey } from '@/domain/models/CalendarDate'
-import type { ComparisonFrame } from '@/domain/models/ComparisonFrame'
+import type { ComparisonScope } from '@/domain/models/ComparisonScope'
 import { resolvePrevDate } from '@/domain/models/ComparisonScope'
 import type { CategoryTimeSalesRecord, HourlyWeatherRecord } from '@/domain/models/record'
 import { useDuckDBCategoryTimeRecords } from './useCtsHierarchyQueries'
@@ -74,7 +74,7 @@ export interface DayDetailDataParams {
   readonly year: number
   readonly month: number
   readonly day: number
-  readonly comparisonFrame: ComparisonFrame
+  readonly comparisonScope: ComparisonScope | null
   readonly selectedStoreIds: ReadonlySet<string>
   /** 天気データ取得対象の店舗ID */
   readonly weatherStoreId: string
@@ -89,10 +89,10 @@ export function resolveDayDetailRanges(
   year: number,
   month: number,
   day: number,
-  comparisonFrame: ComparisonFrame,
+  comparisonScope: ComparisonScope | null,
 ) {
   const currentDate: CalendarDate = { year, month, day }
-  const prevDate = resolvePrevDate(comparisonFrame, currentDate)
+  const prevDate = resolvePrevDate(comparisonScope?.alignmentMode ?? 'sameDate', currentDate)
   const prevDateKey = toDateKey(prevDate)
   const dateKey = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
 
@@ -132,7 +132,7 @@ export function resolveDayDetailRanges(
  *
  * - CTS: 当日・前年当日・前週・累計当年・累計前年
  * - 天気: 当日・前年
- * - 前年対応日: comparisonFrame.policy に基づいて resolvePrevDate で解決
+ * - 前年対応日: comparisonScope.alignmentMode に基づいて resolvePrevDate で解決
  */
 export function useDayDetailData(params: DayDetailDataParams): DayDetailData {
   const {
@@ -141,7 +141,7 @@ export function useDayDetailData(params: DayDetailDataParams): DayDetailData {
     year,
     month,
     day,
-    comparisonFrame,
+    comparisonScope,
     selectedStoreIds,
     weatherStoreId,
   } = params
@@ -151,8 +151,8 @@ export function useDayDetailData(params: DayDetailDataParams): DayDetailData {
 
   // 全日付範囲を一括計算（純粋関数 — useMemo 1つに集約）
   const ranges = useMemo(
-    () => resolveDayDetailRanges(year, month, day, comparisonFrame),
-    [year, month, day, comparisonFrame],
+    () => resolveDayDetailRanges(year, month, day, comparisonScope),
+    [year, month, day, comparisonScope],
   )
 
   // ── CTS: 当日 ──

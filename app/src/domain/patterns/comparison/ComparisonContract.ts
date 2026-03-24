@@ -11,7 +11,8 @@
  *
  * Presentation 層は ComparisonEntry[] を受け取り、モード名を知らずに描画する。
  */
-import type { AlignmentPolicy, ComparisonFrame, DowGapAnalysis } from '@/domain/models/calendar'
+import type { AlignmentPolicy, DowGapAnalysis } from '@/domain/models/calendar'
+import type { ComparisonScope } from '@/domain/models/ComparisonScope'
 
 /**
  * 比較エントリ — 1つの比較モードのデータ
@@ -45,8 +46,8 @@ export interface ComparisonResult<T> {
   readonly entries: readonly ComparisonEntry<T>[]
   /** 曜日ギャップ分析（存在しない場合は null） */
   readonly dowGap: DowGapAnalysis | null
-  /** 適用された比較フレーム */
-  readonly frame: ComparisonFrame | null
+  /** 適用された比較スコープ */
+  readonly scope: ComparisonScope | null
 }
 
 // ── ユーティリティ ──
@@ -82,9 +83,9 @@ export function createComparisonResult<T>(
   current: T,
   entries: readonly ComparisonEntry<T>[],
   dowGap: DowGapAnalysis | null = null,
-  frame: ComparisonFrame | null = null,
+  scope: ComparisonScope | null = null,
 ): ComparisonResult<T> {
-  return { current, entries, dowGap, frame }
+  return { current, entries, dowGap, scope }
 }
 
 /**

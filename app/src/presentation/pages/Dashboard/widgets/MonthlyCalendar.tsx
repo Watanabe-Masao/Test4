@@ -91,7 +91,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
       stores: ctx.stores,
       queryExecutor: ctx.queryExecutor,
       selectedStoreIds: ctx.selectedStoreIds,
-      comparisonFrame: ctx.comparisonFrame,
+      comparisonScope: ctx.comparisonScope,
     }),
     [
       r,
@@ -103,7 +103,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
       ctx.stores,
       ctx.queryExecutor,
       ctx.selectedStoreIds,
-      ctx.comparisonFrame,
+      ctx.comparisonScope,
     ],
   )
   const { isExporting, exportClip: handleClipExport } = useClipExport(clipExportParams)
@@ -579,7 +579,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
           dataVersion={ctx.duckDataVersion}
           dailyMap={r.daily}
           selectedStoreIds={ctx.selectedStoreIds}
-          comparisonFrame={ctx.comparisonFrame}
+          comparisonScope={ctx.comparisonScope}
           onClose={() => setDetailDay(null)}
         />
       )}

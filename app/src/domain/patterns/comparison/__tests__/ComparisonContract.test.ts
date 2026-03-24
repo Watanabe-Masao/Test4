@@ -28,22 +28,31 @@ describe('ComparisonContract', () => {
       expect(result.current).toBe(100)
       expect(result.entries).toHaveLength(1)
       expect(result.dowGap).toBeNull()
-      expect(result.frame).toBeNull()
+      expect(result.scope).toBeNull()
     })
 
-    it('dowGap と frame を渡せる', () => {
+    it('dowGap と scope を渡せる', () => {
       const entry = createComparisonEntry('sameDate', 0, false)
-      const frame = {
-        current: { from: { year: 2026, month: 3, day: 1 }, to: { year: 2026, month: 3, day: 31 } },
-        previous: {
+      const scope = {
+        period1: { from: { year: 2026, month: 3, day: 1 }, to: { year: 2026, month: 3, day: 31 } },
+        period2: { from: { year: 2025, month: 3, day: 1 }, to: { year: 2025, month: 3, day: 31 } },
+        preset: 'prevYearSameMonth' as const,
+        alignmentMode: 'sameDate' as const,
+        dowOffset: 0,
+        effectivePeriod1: {
+          from: { year: 2026, month: 3, day: 1 },
+          to: { year: 2026, month: 3, day: 31 },
+        },
+        effectivePeriod2: {
           from: { year: 2025, month: 3, day: 1 },
           to: { year: 2025, month: 3, day: 31 },
         },
-        dowOffset: 0,
-        policy: 'sameDate' as const,
+        queryRanges: [],
+        alignmentMap: [],
+        sourceMonth: { year: 2025, month: 3 },
       }
-      const result = createComparisonResult(0, [entry], null, frame)
-      expect(result.frame).toBe(frame)
+      const result = createComparisonResult(0, [entry], null, scope)
+      expect(result.scope).toBe(scope)
     })
   })
 

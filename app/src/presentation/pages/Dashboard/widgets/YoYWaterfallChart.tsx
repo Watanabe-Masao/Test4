@@ -101,6 +101,7 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
   )
 
   // 比較期間 CTS 日付範囲（前年比: dowOffset 調整済み / 前週比: -7日）
+  const dowOffset = ctx.comparisonScope?.dowOffset ?? 0
   const prevCtsDateRange: DateRange | undefined = useMemo(
     () =>
       calculatePrevCtsDateRange(
@@ -110,7 +111,7 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
         ctx.month,
         dayStart,
         dayEnd,
-        ctx.comparisonFrame.dowOffset,
+        dowOffset,
         wowRange.prevStart,
         wowRange.prevEnd,
       ),
@@ -121,7 +122,7 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
       ctx.month,
       dayStart,
       dayEnd,
-      ctx.comparisonFrame.dowOffset,
+      dowOffset,
       wowRange.prevStart,
       wowRange.prevEnd,
     ],

@@ -23,7 +23,7 @@ interface ClipExportParams {
   readonly stores: ReadonlyMap<string, { name: string }>
   readonly queryExecutor: QueryExecutor | null
   readonly selectedStoreIds: ReadonlySet<string>
-  readonly comparisonFrame: { readonly dowOffset: number }
+  readonly comparisonScope: { readonly dowOffset: number } | null
 }
 
 interface ClipExportState {
@@ -47,14 +47,14 @@ export function useClipExport(params: ClipExportParams): ClipExportState {
         stores,
         queryExecutor,
         selectedStoreIds,
-        comparisonFrame,
+        comparisonScope,
       } = params
 
       const storeName = stores.get(storeKey)?.name ?? storeKey
       const curRange = { from: { year, month, day: 1 }, to: { year, month, day: daysInMonth } }
       const startDate = new Date(year, month - 1, 1)
       const endDate = new Date(year, month - 1, daysInMonth)
-      const offsetMs = comparisonFrame.dowOffset * 86400000
+      const offsetMs = (comparisonScope?.dowOffset ?? 0) * 86400000
       const prevStartDate = new Date(startDate.getTime() + offsetMs)
       const prevEndDate = new Date(endDate.getTime() + offsetMs)
       const prevRange = {

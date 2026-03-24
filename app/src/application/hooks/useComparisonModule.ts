@@ -17,7 +17,7 @@ import type {
   PrevYearMonthlyKpi,
   PrevYearMonthlyKpiEntry,
 } from '@/application/comparison/comparisonTypes'
-import type { ComparisonFrame, PrevYearScope } from '@/domain/models/ComparisonFrame'
+import type { PrevYearScope } from '@/domain/models/ComparisonScope'
 import type { DateRange } from '@/domain/models/CalendarDate'
 import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
 import { ZERO_DISCOUNT_ENTRIES } from '@/domain/models/record'
@@ -42,8 +42,6 @@ export interface ComparisonModule {
   readonly kpi: PrevYearMonthlyKpi
   /** 曜日ギャップ分析 */
   readonly dowGap: DowGapAnalysis
-  /** 比較フレーム（旧互換） */
-  readonly comparisonFrame: ComparisonFrame
   /** 前年スコープ（旧互換 — DuckDB日付範囲 + 客数） */
   readonly prevYearScope: PrevYearScope | undefined
   /** 前年日付範囲（旧互換 — prevYearScope.dateRange と同一） */
@@ -79,13 +77,6 @@ const EMPTY_KPI: PrevYearMonthlyKpi = {
   sourceYear: 0,
   sourceMonth: 0,
   dowOffset: 0,
-}
-
-const EMPTY_FRAME: ComparisonFrame = {
-  current: { from: { year: 0, month: 1, day: 1 }, to: { year: 0, month: 1, day: 1 } },
-  previous: { from: { year: 0, month: 1, day: 1 }, to: { year: 0, month: 1, day: 1 } },
-  dowOffset: 0,
-  policy: 'sameDate',
 }
 
 const IDLE_STATUS: ComparisonLoadStatus = {
@@ -124,21 +115,7 @@ export function useComparisonModule(
   // 2. データ読込（side effect）
   const loadStatus = useLoadComparisonData(scope)
 
-  // 3. 比較フレーム（旧互換）
-  const comparisonFrame = useMemo(
-    (): ComparisonFrame =>
-      scope
-        ? {
-            current: scope.effectivePeriod1,
-            previous: scope.effectivePeriod2,
-            dowOffset: scope.dowOffset,
-            policy: scope.alignmentMode === 'sameDayOfWeek' ? 'sameDayOfWeek' : 'sameDate',
-          }
-        : EMPTY_FRAME,
-    [scope],
-  )
-
-  // 4. 共通入力データ準備（SourceDataIndex 構築 + targetIds）
+  // 3. 共通入力データ準備（SourceDataIndex 構築 + targetIds）
   // SourceMonthContext は scope.sourceMonth（alignmentMap の最頻月）を使う。
   const inputs = useMemo(() => {
     if (!scope) return null
@@ -150,13 +127,13 @@ export function useComparisonModule(
     })
   }, [data, selectedStoreIds, isAllStores, scope])
 
-  // 5. 日別集計（PrevYearData 互換）
+  // 4. 日別集計（PrevYearData 互換）
   const daily = useMemo((): PrevYearData => {
     if (!scope || !inputs) return EMPTY_DAILY
     return aggregateDailyByAlignment(inputs.sourceIndex, inputs.targetIds, scope.alignmentMap)
   }, [scope, inputs])
 
-  // 6. 月間KPI集計（PrevYearMonthlyKpi 互換）
+  // 5. 月間KPI集計（PrevYearMonthlyKpi 互換）
   const kpi = useMemo((): PrevYearMonthlyKpi => {
     if (!scope || !inputs) return EMPTY_KPI
     const { year, month } = scope.sourceMonth
@@ -167,7 +144,7 @@ export function useComparisonModule(
     })
   }, [scope, inputs, periodSelection])
 
-  // 7. 曜日ギャップ分析
+  // 6. 曜日ギャップ分析
   const dowGap = useMemo(
     (): DowGapAnalysis =>
       buildDowGapProjection(
@@ -179,7 +156,7 @@ export function useComparisonModule(
     [kpi, currentAverageDailySales, periodSelection],
   )
 
-  // 8. 前年スコープ（DuckDB日付範囲 + 客数）
+  // 7. 前年スコープ（DuckDB日付範囲 + 客数）
   // scope が存在すれば日付範囲を提供する。daily.hasPrevYear に依存しない。
   // IndexedDB に前年データがなくても DuckDB に前年データがある場合があるため、
   // DuckDB ベースのチャート（TimeSlotChart 等）が前年データを取得できるようにする。
@@ -200,7 +177,6 @@ export function useComparisonModule(
     daily,
     kpi,
     dowGap,
-    comparisonFrame,
     prevYearScope,
     prevYearDateRange,
   }

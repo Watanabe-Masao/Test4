@@ -8,7 +8,8 @@ import type { ReactNode } from 'react'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 import type { WeatherPersister } from '@/application/queries/weather'
 import type { StoreExplanations, MetricId } from '@/domain/models/analysis'
-import type { DateRange, ComparisonFrame, PrevYearScope } from '@/domain/models/calendar'
+import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
+import type { ComparisonScope } from '@/domain/models/ComparisonScope'
 import type { Store } from '@/domain/models/record'
 import type { StoreResult, ViewType, AppSettings } from '@/domain/models/storeTypes'
 import type { PeriodSelection } from '@/domain/models/PeriodSelection'
@@ -84,7 +85,7 @@ export interface UnifiedWidgetContext {
   /** 天気データ永続化コールバック（ETRN フォールバック用） */
   readonly weatherPersist?: WeatherPersister | null
   readonly prevYearMonthlyKpi?: PrevYearMonthlyKpi
-  readonly comparisonFrame?: ComparisonFrame
+  readonly comparisonScope?: ComparisonScope | null
   readonly dowGap?: DowGapAnalysis
   readonly onPrevYearDetail?: (type: 'sameDow' | 'sameDate') => void
   /** 前年店舗別仕入額（DuckDB UNION query 結果）。率ではなく額で持つ（@guard B3） */
