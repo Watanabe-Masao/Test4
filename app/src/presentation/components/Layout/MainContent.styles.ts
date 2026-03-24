@@ -2,7 +2,7 @@ import styled from 'styled-components'
 
 export const Main = styled.main`
   overflow-y: auto;
-  padding: ${({ theme }) => theme.spacing[8]};
+  padding: 0 ${({ theme }) => theme.spacing[8]} ${({ theme }) => theme.spacing[8]};
   background: ${({ theme }) => theme.colors.bg};
 `
 
@@ -13,9 +13,8 @@ export const Header = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin: -${({ theme }) => theme.spacing[8]};
+  padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[8]};
   margin-bottom: ${({ theme }) => theme.spacing[4]};
-  padding: ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[8]};
   background: ${({ theme }) => theme.colors.bg};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
 `

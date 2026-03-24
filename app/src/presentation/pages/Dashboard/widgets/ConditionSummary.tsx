@@ -7,7 +7,6 @@ import { isMetricEnabled } from '@/domain/calculations/rules/conditionResolver'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useDataStore } from '@/application/stores/dataStore'
 import type { WidgetContext } from './types'
-import { ConditionMatrixTable } from './ConditionMatrixTable'
 import {
   type ConditionItem,
   type DisplayMode,
@@ -315,9 +314,6 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
           </DetailPanel>
         </Overlay>
       )}
-
-      {/* Condition Matrix (DuckDB) */}
-      <ConditionMatrixTable ctx={ctx} />
     </Wrapper>
   )
 })
