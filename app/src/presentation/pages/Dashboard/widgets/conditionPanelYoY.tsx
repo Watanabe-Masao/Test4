@@ -14,6 +14,7 @@ import {
 import {
   type DailyYoYRow,
   type ItemsYoYDailyRow,
+  buildDailyYoYRows,
   buildSalesYoYDetailVm,
   buildCustomerYoYDetailVm,
   buildItemsYoYDetailVm,
@@ -205,6 +206,8 @@ export function CustomerYoYDetailTable({
   effectiveConfig,
   prevYear,
   prevYearMonthlyKpi,
+  expandedStore,
+  onExpandToggle,
   dataMaxDay,
 }: CustomerYoYDetailProps) {
   const [dailyMode, setDailyMode] = useState<'cumulative' | 'daily'>('cumulative')
@@ -223,6 +226,18 @@ export function CustomerYoYDetailTable({
       ),
     [sortedStoreEntries, stores, result, effectiveConfig, prevYear, prevYearMonthlyKpi, dataMaxDay],
   )
+
+  // Per-store daily rows for expanded store
+  const storeDailyRows = useMemo(() => {
+    if (!expandedStore) return vm.dailyRows
+    const sr = sortedStoreEntries.find(([id]) => id === expandedStore)?.[1]
+    if (!sr) return vm.dailyRows
+    return buildDailyYoYRows(sr, prevYearMonthlyKpi)
+  }, [expandedStore, sortedStoreEntries, vm.dailyRows, prevYearMonthlyKpi])
+
+  const dailyLabel = expandedStore
+    ? `${stores.get(expandedStore)?.name ?? expandedStore} 日別推移`
+    : '全店 日別推移'
 
   return (
     <>
@@ -243,37 +258,48 @@ export function CustomerYoYDetailTable({
         </TotalGrid>
       </TotalSection>
 
-      <DetailHeader style={{ padding: '12px 16px 0' }}>
-        <DetailTitle>店舗内訳</DetailTitle>
-      </DetailHeader>
-      <BTable>
-        <thead>
-          <tr>
-            <BTh>店舗名</BTh>
-            <BTh>当年客数</BTh>
-            <BTh>前年客数</BTh>
-            <BTh>前年比</BTh>
-          </tr>
-        </thead>
-        <tbody>
-          {vm.storeRows.map((row) => (
-            <BTr key={row.storeId}>
-              <BTd>
-                <BSignalDot $color={row.sigColor} />
-                {row.storeName}
-              </BTd>
-              <BTd>{row.currentCustomersStr}</BTd>
-              <BTd>{row.prevCustomersStr}</BTd>
-              <BTd $color={row.sigColor}>{row.yoyStr}</BTd>
-            </BTr>
-          ))}
-        </tbody>
-      </BTable>
+      {vm.storeRows.length > 1 && (
+        <>
+          <DetailHeader style={{ padding: '12px 16px 0' }}>
+            <DetailTitle>店舗内訳</DetailTitle>
+          </DetailHeader>
+          <BTable>
+            <thead>
+              <tr>
+                <BTh>店舗名</BTh>
+                <BTh>当年客数</BTh>
+                <BTh>前年客数</BTh>
+                <BTh>前年比</BTh>
+              </tr>
+            </thead>
+            <tbody>
+              {vm.storeRows.map((row) => (
+                <BTr
+                  key={row.storeId}
+                  onClick={() => onExpandToggle(row.storeId)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <BTd>
+                    <span style={{ marginRight: 4, fontSize: '0.7em' }}>
+                      {expandedStore === row.storeId ? '▼' : '▶'}
+                    </span>
+                    <BSignalDot $color={row.sigColor} />
+                    {row.storeName}
+                  </BTd>
+                  <BTd>{row.currentCustomersStr}</BTd>
+                  <BTd>{row.prevCustomersStr}</BTd>
+                  <BTd $color={row.sigColor}>{row.yoyStr}</BTd>
+                </BTr>
+              ))}
+            </tbody>
+          </BTable>
+        </>
+      )}
 
-      {vm.hasDailyRows && (
+      {(vm.hasDailyRows || storeDailyRows.length > 0) && (
         <>
           <DetailHeader style={{ marginTop: '16px', padding: '0 16px' }}>
-            <DetailTitle>全店 日別推移</DetailTitle>
+            <DetailTitle>{dailyLabel}</DetailTitle>
             <ToggleGroup>
               <ToggleBtn
                 $active={dailyMode === 'cumulative'}
@@ -295,7 +321,7 @@ export function CustomerYoYDetailTable({
                 <BTh>前年比</BTh>
               </tr>
             </thead>
-            <tbody>{renderDailyYoYRows(vm.dailyRows, dailyMode, 'customers', fmtCurrency)}</tbody>
+            <tbody>{renderDailyYoYRows(storeDailyRows, dailyMode, 'customers', fmtCurrency)}</tbody>
           </BTable>
         </>
       )}
@@ -348,7 +374,12 @@ export function ItemsYoYDetailTable({
   ctsRecords,
   prevCtsRecords,
   effectiveDay,
-}: ItemsYoYDetailProps) {
+  expandedStore,
+  onExpandToggle,
+}: ItemsYoYDetailProps & {
+  readonly expandedStore: string | null
+  readonly onExpandToggle: (storeId: string) => void
+}) {
   const [dailyMode, setDailyMode] = useState<'cumulative' | 'daily'>('cumulative')
 
   const vm = useMemo(
@@ -363,6 +394,35 @@ export function ItemsYoYDetailTable({
       ),
     [sortedStoreEntries, stores, effectiveConfig, ctsRecords, prevCtsRecords, effectiveDay],
   )
+
+  // Per-store daily rows
+  const storeDailyRows = useMemo(() => {
+    if (!expandedStore) return vm.dailyRows
+    const scopedCur = ctsRecords.filter(
+      (r) => r.storeId === expandedStore && r.day <= effectiveDay && r.day > 0,
+    )
+    const scopedPrev = prevCtsRecords.filter(
+      (r) => r.storeId === expandedStore && r.day <= effectiveDay && r.day > 0,
+    )
+    const dayMap = new Map<number, { cur: number; prev: number }>()
+    for (const r of scopedCur) {
+      const e = dayMap.get(r.day) ?? { cur: 0, prev: 0 }
+      e.cur += r.totalQuantity
+      dayMap.set(r.day, e)
+    }
+    for (const r of scopedPrev) {
+      const e = dayMap.get(r.day) ?? { cur: 0, prev: 0 }
+      e.prev += r.totalQuantity
+      dayMap.set(r.day, e)
+    }
+    return [...dayMap.entries()]
+      .sort(([a], [b]) => a - b)
+      .map(([day, v]) => ({ day, currentQty: v.cur, prevQty: v.prev }))
+  }, [expandedStore, vm.dailyRows, ctsRecords, prevCtsRecords, effectiveDay])
+
+  const dailyLabel = expandedStore
+    ? `${stores.get(expandedStore)?.name ?? expandedStore} 日別推移`
+    : '全店 日別推移'
 
   return (
     <>
@@ -399,8 +459,15 @@ export function ItemsYoYDetailTable({
             </thead>
             <tbody>
               {vm.storeRows.map((row) => (
-                <BTr key={row.storeId}>
+                <BTr
+                  key={row.storeId}
+                  onClick={() => onExpandToggle(row.storeId)}
+                  style={{ cursor: 'pointer' }}
+                >
                   <BTd>
+                    <span style={{ marginRight: 4, fontSize: '0.7em' }}>
+                      {expandedStore === row.storeId ? '▼' : '▶'}
+                    </span>
                     <BSignalDot $color={row.sigColor} />
                     {row.storeName}
                   </BTd>
@@ -414,10 +481,10 @@ export function ItemsYoYDetailTable({
         </>
       )}
 
-      {vm.hasDailyRows && (
+      {(vm.hasDailyRows || storeDailyRows.length > 0) && (
         <>
           <DetailHeader style={{ marginTop: '16px', padding: '0 16px' }}>
-            <DetailTitle>全店 日別推移</DetailTitle>
+            <DetailTitle>{dailyLabel}</DetailTitle>
             <ToggleGroup>
               <ToggleBtn
                 $active={dailyMode === 'cumulative'}
@@ -439,7 +506,7 @@ export function ItemsYoYDetailTable({
                 <BTh>前年比</BTh>
               </tr>
             </thead>
-            <tbody>{renderItemsDailyRows(vm.dailyRows, dailyMode)}</tbody>
+            <tbody>{renderItemsDailyRows(storeDailyRows, dailyMode)}</tbody>
           </BTable>
         </>
       )}
