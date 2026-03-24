@@ -1,4 +1,5 @@
 import { memo, useState, useMemo, useCallback } from 'react'
+import { DailyChart, dayLabel } from './ConditionSummaryDailyChart'
 import { DISCOUNT_TYPES } from '@/domain/models/record'
 import type { StoreResult } from '@/domain/models/storeTypes'
 import type { PrevYearMonthlyKpi } from '@/application/hooks/analytics'
@@ -44,6 +45,8 @@ interface DailyModalProps {
   readonly metric: MetricKey
   readonly elapsedDays: number
   readonly daysInMonth: number
+  readonly year: number
+  readonly month: number
   readonly prevYearMonthlyKpi: PrevYearMonthlyKpi
   readonly hasPrevYear: boolean
   readonly fmtCurrency: (n: number) => string
@@ -60,6 +63,8 @@ export const ConditionSummaryDailyModal = memo(function ConditionSummaryDailyMod
   metric,
   elapsedDays,
   daysInMonth,
+  year,
+  month,
   prevYearMonthlyKpi,
   hasPrevYear,
   fmtCurrency,
@@ -68,6 +73,7 @@ export const ConditionSummaryDailyModal = memo(function ConditionSummaryDailyMod
   onClose,
 }: DailyModalProps) {
   const [showYoY, setShowYoY] = useState(false)
+  const [viewMode, setViewMode] = useState<'table' | 'chart'>('table')
   const def = METRIC_DEFS[metric]
   const isRate = def.isRate
   const hasYoY =
@@ -124,6 +130,12 @@ export const ConditionSummaryDailyModal = memo(function ConditionSummaryDailyMod
             {storeName} — {def.label} 日別詳細
           </DrillTitle>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <YoYBtn
+              $active={viewMode === 'chart'}
+              onClick={() => setViewMode((p) => (p === 'table' ? 'chart' : 'table'))}
+            >
+              {viewMode === 'chart' ? '表' : 'グラフ'}
+            </YoYBtn>
             {hasYoY && (
               <YoYBtn $active={showYoY} onClick={() => setShowYoY((p) => !p)}>
                 前年比 {showYoY ? 'ON' : 'OFF'}
@@ -136,18 +148,32 @@ export const ConditionSummaryDailyModal = memo(function ConditionSummaryDailyMod
         </DrillHeader>
 
         <DailyTableWrapper>
-          {showYoY && metric === 'sales' ? (
-            <YoYTable rows={yoyRows} fmtCurrency={fmtCurrency} />
+          {viewMode === 'chart' && !isRate ? (
+            <DailyChart
+              rows={rows}
+              fmtCurrency={fmtCurrency}
+              year={year}
+              month={month}
+              showYoY={showYoY}
+              yoyRows={yoyRows}
+            />
+          ) : showYoY && metric === 'sales' ? (
+            <YoYTable rows={yoyRows} fmtCurrency={fmtCurrency} year={year} month={month} />
           ) : showYoY && metric === 'discountRate' ? (
-            <DiscountRateYoYTable rows={discountRateYoYRows} />
+            <DiscountRateYoYTable rows={discountRateYoYRows} year={year} month={month} />
           ) : showYoY && metric === 'markupRate' ? (
-            <MarkupRateYoYTable rows={markupRateYoYRows} />
+            <MarkupRateYoYTable rows={markupRateYoYRows} year={year} month={month} />
           ) : metric === 'discountRate' ? (
-            <DiscountTable rows={discountRows} fmtCurrency={fmtCurrency} />
+            <DiscountTable
+              rows={discountRows}
+              fmtCurrency={fmtCurrency}
+              year={year}
+              month={month}
+            />
           ) : isRate ? (
-            <RateTable rows={rows} metric={metric} />
+            <RateTable rows={rows} metric={metric} year={year} month={month} />
           ) : (
-            <AmountTable rows={rows} fmtCurrency={fmtCurrency} />
+            <AmountTable rows={rows} fmtCurrency={fmtCurrency} year={year} month={month} />
           )}
         </DailyTableWrapper>
 
@@ -167,9 +193,13 @@ export const ConditionSummaryDailyModal = memo(function ConditionSummaryDailyMod
 function AmountTable({
   rows,
   fmtCurrency,
+  year,
+  month,
 }: {
   readonly rows: readonly DailyDetailRow[]
   readonly fmtCurrency: (n: number) => string
+  readonly year: number
+  readonly month: number
 }) {
   return (
     <DailyTable>
@@ -200,7 +230,9 @@ function AmountTable({
           const cumAchColor = resultColor(r.cumAchievement, false)
           return (
             <DailyTr key={r.day}>
-              <DailyTd style={{ textAlign: 'center' }}>{r.day}</DailyTd>
+              <DailyTd style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
+                {dayLabel(r.day, year, month)}
+              </DailyTd>
               <DailyTd>{fmtCurrency(r.budget)}</DailyTd>
               <DailyTd $bold>{fmtCurrency(r.actual)}</DailyTd>
               <DailyTd $color={r.diff >= 0 ? '#10b981' : '#ef4444'}>
@@ -232,9 +264,13 @@ function AmountTable({
 function RateTable({
   rows,
   metric,
+  year,
+  month,
 }: {
   readonly rows: readonly DailyDetailRow[]
   readonly metric: MetricKey
+  readonly year: number
+  readonly month: number
 }) {
   const hasBudget = metric === 'gpRate' || metric === 'markupRate'
   return (
@@ -266,7 +302,9 @@ function RateTable({
           const cumDiffColor = rateDiffColor(r.cumAchievement)
           return (
             <DailyTr key={r.day}>
-              <DailyTd style={{ textAlign: 'center' }}>{r.day}</DailyTd>
+              <DailyTd style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
+                {dayLabel(r.day, year, month)}
+              </DailyTd>
               {hasBudget && <DailyTd>{fmtValue(r.budget, true)}</DailyTd>}
               <DailyTd $bold>{fmtValue(r.actual, true)}</DailyTd>
               {hasBudget && (
@@ -300,9 +338,13 @@ function RateTable({
 function DiscountTable({
   rows,
   fmtCurrency,
+  year,
+  month,
 }: {
   readonly rows: readonly DailyDiscountRow[]
   readonly fmtCurrency: (n: number) => string
+  readonly year: number
+  readonly month: number
 }) {
   return (
     <DailyTable>
@@ -329,7 +371,9 @@ function DiscountTable({
       <tbody>
         {rows.map((r) => (
           <DailyTr key={r.day}>
-            <DailyTd style={{ textAlign: 'center' }}>{r.day}</DailyTd>
+            <DailyTd style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
+              {dayLabel(r.day, year, month)}
+            </DailyTd>
             <DailyTd $bold>{fmtValue(r.totalRate, true)}</DailyTd>
             <DailyTd>{fmtCurrency(r.totalAmount)}</DailyTd>
             {DISCOUNT_TYPES.map((dt) => {
@@ -356,9 +400,13 @@ function DiscountTable({
 function YoYTable({
   rows,
   fmtCurrency,
+  year,
+  month,
 }: {
   readonly rows: readonly DailyYoYRow[]
   readonly fmtCurrency: (n: number) => string
+  readonly year: number
+  readonly month: number
 }) {
   return (
     <DailyTable>
@@ -389,7 +437,9 @@ function YoYTable({
           const cumYoYColor = resultColor(r.cumYoY, false)
           return (
             <DailyTr key={r.day}>
-              <DailyTd style={{ textAlign: 'center' }}>{r.day}</DailyTd>
+              <DailyTd style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
+                {dayLabel(r.day, year, month)}
+              </DailyTd>
               <DailyTd>{fmtCurrency(r.prevActual)}</DailyTd>
               <DailyTd $bold>{fmtCurrency(r.curActual)}</DailyTd>
               <DailyTd $color={r.diff >= 0 ? '#10b981' : '#ef4444'}>
@@ -418,7 +468,15 @@ function YoYTable({
 
 // ─── Markup Rate YoY table ──────────────────────────────
 
-function MarkupRateYoYTable({ rows }: { readonly rows: readonly DailyMarkupRateYoYRow[] }) {
+function MarkupRateYoYTable({
+  rows,
+  year,
+  month,
+}: {
+  readonly rows: readonly DailyMarkupRateYoYRow[]
+  readonly year: number
+  readonly month: number
+}) {
   return (
     <DailyTable>
       <thead>
@@ -446,7 +504,9 @@ function MarkupRateYoYTable({ rows }: { readonly rows: readonly DailyMarkupRateY
           const cumDiffColor = rateDiffColor(r.cumDiff)
           return (
             <DailyTr key={r.day}>
-              <DailyTd style={{ textAlign: 'center' }}>{r.day}</DailyTd>
+              <DailyTd style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
+                {dayLabel(r.day, year, month)}
+              </DailyTd>
               <DailyTd>{fmtValue(r.prevRate, true)}</DailyTd>
               <DailyTd $bold>{fmtValue(r.curRate, true)}</DailyTd>
               <DailyTd $color={diffColor} $bold>
@@ -469,7 +529,15 @@ function MarkupRateYoYTable({ rows }: { readonly rows: readonly DailyMarkupRateY
 
 // ─── Discount Rate YoY table ────────────────────────────
 
-function DiscountRateYoYTable({ rows }: { readonly rows: readonly DailyDiscountRateYoYRow[] }) {
+function DiscountRateYoYTable({
+  rows,
+  year,
+  month,
+}: {
+  readonly rows: readonly DailyDiscountRateYoYRow[]
+  readonly year: number
+  readonly month: number
+}) {
   return (
     <DailyTable>
       <thead>
@@ -497,7 +565,9 @@ function DiscountRateYoYTable({ rows }: { readonly rows: readonly DailyDiscountR
           const cumDiffColor = rateDiffColor(r.cumDiff)
           return (
             <DailyTr key={r.day}>
-              <DailyTd style={{ textAlign: 'center' }}>{r.day}</DailyTd>
+              <DailyTd style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
+                {dayLabel(r.day, year, month)}
+              </DailyTd>
               <DailyTd>{fmtValue(r.prevRate, true)}</DailyTd>
               <DailyTd $bold>{fmtValue(r.curRate, true)}</DailyTd>
               <DailyTd $color={diffColor} $bold>
