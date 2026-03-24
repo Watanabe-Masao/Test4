@@ -38,6 +38,10 @@ export interface TimeSlotKpi {
   readonly activeHours: number
   readonly avgPerHour: number
   readonly avgQtyPerHour: number
+  /** 前年のピーク時間帯（時） */
+  readonly prevPeakHour: number | null
+  /** 前年のコアタイム（3連続時間帯の最大売上区間） */
+  readonly prevCoreTimeAmt: ReturnType<typeof findCoreTime>
 }
 
 export interface YoYRow {
@@ -181,6 +185,21 @@ export function computeChartDataAndKpi(input: ChartKpiInput): {
   const coreTimeQtyPct =
     totalQuantity > 0 && coreTimeQty ? toPct(coreTimeQty.total / totalQuantity) : '0%'
 
+  // Prev year peak & core time
+  let prevPeakHour: number | null = null
+  if (hasPrev && compAmtMap.size > 0) {
+    let prevPeakRaw = 0
+    for (const [h, v] of compAmtMap) {
+      const scaled = Math.round(v / compDiv)
+      if (scaled > prevPeakRaw) {
+        prevPeakHour = h
+        prevPeakRaw = scaled
+      }
+    }
+  }
+  // 前年コアタイムはスケーリング前のマップで計算（相対順位は変わらない）
+  const prevCoreTimeAmt = hasPrev && compAmtMap.size > 0 ? findCoreTime(compAmtMap) : null
+
   // YoY
   const yoyRatio = prevTotalAmount > 0 ? totalAmount / prevTotalAmount : null
   const yoyDiff = prevTotalAmount > 0 ? totalAmount - prevTotalAmount : null
@@ -211,6 +230,8 @@ export function computeChartDataAndKpi(input: ChartKpiInput): {
       activeHours: curAmtMap.size,
       avgPerHour: curAmtMap.size > 0 ? Math.round(totalAmount / curAmtMap.size) : 0,
       avgQtyPerHour: curQtyMap.size > 0 ? Math.round(totalQuantity / curQtyMap.size) : 0,
+      prevPeakHour,
+      prevCoreTimeAmt,
     },
   }
 }

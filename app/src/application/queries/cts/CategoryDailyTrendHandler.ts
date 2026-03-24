@@ -17,6 +17,7 @@ export interface CategoryDailyTrendInput extends BaseQueryInput {
   readonly lineCode?: string
   readonly klassCode?: string
   readonly dow?: readonly number[]
+  readonly isPrevYear?: boolean
 }
 
 export interface CategoryDailyTrendOutput {

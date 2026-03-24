@@ -7,7 +7,8 @@
  */
 import type { AppTheme } from '@/presentation/theme/theme'
 import { toComma } from './chartTheme'
-import { yenYAxis, standardTooltip } from './echartsOptionBuilders'
+import { yenYAxis } from './echartsOptionBuilders'
+import { tooltipBase } from './builders/tooltip'
 import { valueYAxis } from './builders'
 import { palette } from '@/presentation/theme/tokens'
 import type { EChartsOption } from './EChart'
@@ -39,6 +40,141 @@ export interface TimeSlotChartOptionInput {
   readonly coreTimeRange?: { readonly startHour: number; readonly endHour: number } | null
   /** ピーク時間帯（markPoint 表示用） */
   readonly peakHour?: number | null
+  /** 前年コアタイム範囲 */
+  readonly prevCoreTimeRange?: { readonly startHour: number; readonly endHour: number } | null
+  /** 前年ピーク時間帯 */
+  readonly prevPeakHour?: number | null
+}
+
+// ── カスタムツールチップ ──
+
+type TooltipItem = {
+  seriesName: string
+  value: number | null | undefined
+  marker: string
+  axisValue?: string
+  name?: string
+}
+
+const fmtYen = (v: number) => `${Math.round(v).toLocaleString('ja-JP')}円`
+const fmtQty = (v: number) => `${Math.round(v).toLocaleString('ja-JP')}点`
+const fmtPct = (v: number) => `${(v * 100).toFixed(2)}%`
+const fmtDiff = (v: number) => `${v >= 0 ? '+' : ''}${Math.round(v).toLocaleString('ja-JP')}円`
+const fmtQtyDiff = (v: number) => `${v >= 0 ? '+' : ''}${Math.round(v).toLocaleString('ja-JP')}点`
+
+/**
+ * 時間帯別チャート用ツールチップ。
+ *
+ * 当年売上 / 前年比 を横並びで表示し、前年売上 / 前年差 を次の行に。
+ * 点数モードの場合は区切り線の下に点数も同様に表示。
+ */
+function buildTimeSlotTooltip(
+  theme: AppTheme,
+  showPrev: boolean,
+  curLabel: string,
+  compLabel: string,
+  lineMode: LineMode,
+) {
+  return {
+    ...tooltipBase(theme),
+    formatter: (params: unknown) => {
+      const items = params as TooltipItem[]
+      if (!Array.isArray(items) || items.length === 0) return ''
+      const title = items[0].axisValue ?? items[0].name ?? ''
+      const byName = new Map<string, number>()
+      for (const item of items) {
+        if (item.value != null) byName.set(item.seriesName, item.value)
+      }
+
+      let html = `<div style="font-weight:600;margin-bottom:6px">${title}</div>`
+
+      // ── 売上セクション ──
+      const curSalesKey = showPrev ? `${curLabel}売上` : '売上金額'
+      const prevSalesKey = `${compLabel}売上`
+      const curSales = byName.get(curSalesKey)
+      const prevSales = byName.get(prevSalesKey)
+
+      if (curSales != null) {
+        const yoyStr =
+          showPrev && prevSales != null && prevSales > 0
+            ? `&emsp;前年比 ${fmtPct(curSales / prevSales)}`
+            : ''
+        html +=
+          `<div style="display:flex;justify-content:space-between;gap:8px">` +
+          `<span>● ${curSalesKey}</span>` +
+          `<span style="font-weight:600;font-family:monospace">${fmtYen(curSales)}${yoyStr}</span></div>`
+      }
+      if (showPrev && prevSales != null) {
+        const diffStr = curSales != null ? `&emsp;前年差 ${fmtDiff(curSales - prevSales)}` : ''
+        html +=
+          `<div style="display:flex;justify-content:space-between;gap:8px;opacity:0.7">` +
+          `<span>○ ${prevSalesKey}</span>` +
+          `<span style="font-weight:600;font-family:monospace">${fmtYen(prevSales)}${diffStr}</span></div>`
+      }
+
+      // ── 点数セクション ──
+      if (lineMode === 'quantity') {
+        const curQtyKey = showPrev ? `${curLabel}点数` : '点数'
+        const prevQtyKey = `${compLabel}点数`
+        const curQty = byName.get(curQtyKey)
+        const prevQty = byName.get(prevQtyKey)
+
+        if (curQty != null || prevQty != null) {
+          html += `<div style="margin:4px 0;border-top:1px solid ${theme.colors.border};opacity:0.5"></div>`
+        }
+        if (curQty != null) {
+          const qtyYoyStr =
+            showPrev && prevQty != null && prevQty > 0
+              ? `&emsp;前年比 ${fmtPct(curQty / prevQty)}`
+              : ''
+          html +=
+            `<div style="display:flex;justify-content:space-between;gap:8px">` +
+            `<span>● ${curQtyKey}</span>` +
+            `<span style="font-weight:600;font-family:monospace">${fmtQty(curQty)}${qtyYoyStr}</span></div>`
+        }
+        if (showPrev && prevQty != null) {
+          const qtyDiffStr = curQty != null ? `&emsp;前年差 ${fmtQtyDiff(curQty - prevQty)}` : ''
+          html +=
+            `<div style="display:flex;justify-content:space-between;gap:8px;opacity:0.7">` +
+            `<span>○ ${prevQtyKey}</span>` +
+            `<span style="font-weight:600;font-family:monospace">${fmtQty(prevQty)}${qtyDiffStr}</span></div>`
+        }
+      }
+
+      // ── 累積構成比セクション ──
+      if (lineMode === 'cumulative') {
+        const cumItems = items.filter(
+          (item) => item.value != null && item.seriesName.includes('累積構成比'),
+        )
+        if (cumItems.length > 0) {
+          html += `<div style="margin:4px 0;border-top:1px solid ${theme.colors.border};opacity:0.5"></div>`
+          for (const item of cumItems) {
+            html += `<div>${item.marker} ${item.seriesName}: ${(item.value as number).toFixed(2)}%</div>`
+          }
+        }
+      }
+
+      // ── 天気セクション（気温・降水量） ──
+      if (lineMode === 'temperature' || lineMode === 'precipitation') {
+        const weatherItems = items.filter(
+          (item) =>
+            item.value != null &&
+            (item.seriesName.includes('気温') || item.seriesName.includes('降水量')),
+        )
+        if (weatherItems.length > 0) {
+          html += `<div style="margin:4px 0;border-top:1px solid ${theme.colors.border};opacity:0.5"></div>`
+          for (const item of weatherItems) {
+            const val = item.seriesName.includes('気温')
+              ? `${(item.value as number).toFixed(1)}°C`
+              : `${(item.value as number).toFixed(1)}mm`
+            html += `<div>${item.marker} ${item.seriesName}: ${val}</div>`
+          }
+        }
+      }
+
+      return html
+    },
+  }
 }
 
 // ── 降水量軸ポリシー ──
@@ -181,6 +317,8 @@ export function buildTimeSlotChartOption(input: TimeSlotChartOptionInput): EChar
     prevWeatherMap,
     coreTimeRange,
     peakHour,
+    prevCoreTimeRange,
+    prevPeakHour,
   } = input
 
   const barColor = theme.colors.palette.primary
@@ -190,7 +328,12 @@ export function buildTimeSlotChartOption(input: TimeSlotChartOptionInput): EChar
   const coreTimeMarkArea = coreTimeRange
     ? {
         silent: true,
-        itemStyle: { color: `${barColor}0d` },
+        itemStyle: {
+          color: `${barColor}18`,
+          borderWidth: 1,
+          borderColor: `${barColor}40`,
+          borderType: 'dashed' as const,
+        },
         data: [
           [
             { xAxis: `${coreTimeRange.startHour}時`, name: 'コアタイム' },
@@ -201,8 +344,8 @@ export function buildTimeSlotChartOption(input: TimeSlotChartOptionInput): EChar
           show: true,
           position: 'top' as const,
           fontSize: 9,
-          color: `${barColor}99`,
-          fontWeight: 500 as const,
+          color: `${barColor}cc`,
+          fontWeight: 600 as const,
         },
       }
     : undefined
@@ -254,7 +397,7 @@ export function buildTimeSlotChartOption(input: TimeSlotChartOptionInput): EChar
   }
 
   if (showPrev) {
-    series.push({
+    const prevBarEntry: Record<string, unknown> = {
       name: `${compLabel}売上`,
       type: 'bar',
       yAxisIndex: 0,
@@ -264,7 +407,52 @@ export function buildTimeSlotChartOption(input: TimeSlotChartOptionInput): EChar
         borderRadius: [3, 3, 0, 0],
       },
       barMaxWidth: 20,
-    })
+    }
+
+    // 前年のコアタイム markArea（当年と色を変え、交差部分も判別可能に）
+    const slateColor = theme.colors.palette.slate
+    if (prevCoreTimeRange) {
+      prevBarEntry.markArea = {
+        silent: true,
+        itemStyle: {
+          color: `${slateColor}18`,
+          borderWidth: 1,
+          borderColor: `${slateColor}50`,
+          borderType: 'dashed',
+        },
+        data: [
+          [
+            { xAxis: `${prevCoreTimeRange.startHour}時`, name: `${compLabel}コアタイム` },
+            { xAxis: `${prevCoreTimeRange.endHour}時` },
+          ],
+        ],
+        label: {
+          show: true,
+          position: 'bottom',
+          fontSize: 9,
+          color: `${slateColor}bb`,
+          fontWeight: 500,
+        },
+      }
+    }
+
+    // 前年のピーク markPoint
+    if (prevPeakHour != null) {
+      const prevPeakIdx = hours.indexOf(`${prevPeakHour}時`)
+      const prevPeakVal =
+        prevPeakIdx >= 0 ? ((chartData[prevPeakIdx]?.prevAmount as number) ?? 0) : 0
+      if (prevPeakVal > 0) {
+        prevBarEntry.markPoint = {
+          symbol: 'pin',
+          symbolSize: 24,
+          data: [{ coord: [`${prevPeakHour}時`, prevPeakVal], name: `${compLabel}Peak` }],
+          itemStyle: { color: `${slateColor}99` },
+          label: { show: true, fontSize: 7, color: '#fff', formatter: 'Peak' },
+        }
+      }
+    }
+
+    series.push(prevBarEntry as typeof series extends readonly (infer T)[] ? T : never)
   }
 
   // ── 折れ線（lineMode に応じて切替） ──
@@ -295,6 +483,52 @@ export function buildTimeSlotChartOption(input: TimeSlotChartOptionInput): EChar
         smooth: true,
         connectNulls: true,
       })
+    }
+  } else if (lineMode === 'cumulative') {
+    // 累積販売構成比: 各時間帯までの累積売上 / 全体売上 を %で表示
+    const cumulativeColor = palette.purpleDark
+    const amounts = chartData.map((r) => (r.amount as number) ?? 0)
+    const totalAmount = amounts.reduce((s, v) => s + v, 0)
+    if (totalAmount > 0) {
+      let cumSum = 0
+      const cumData = amounts.map((v) => {
+        cumSum += v
+        return Math.round((cumSum / totalAmount) * 10000) / 100 // 小数2位
+      })
+      series.push({
+        name: showPrev ? `${curLabel}累積構成比` : '累積構成比',
+        type: 'line',
+        yAxisIndex: 1,
+        data: cumData,
+        lineStyle: { color: cumulativeColor, width: 2.5 },
+        itemStyle: { color: cumulativeColor },
+        symbol: 'circle',
+        symbolSize: 4,
+        smooth: true,
+        areaStyle: { color: `${cumulativeColor}15` },
+      })
+    }
+    if (showPrev) {
+      const prevAmounts = chartData.map((r) => (r.prevAmount as number) ?? 0)
+      const prevTotal = prevAmounts.reduce((s, v) => s + v, 0)
+      if (prevTotal > 0) {
+        let prevCumSum = 0
+        const prevCumData = prevAmounts.map((v) => {
+          prevCumSum += v
+          return Math.round((prevCumSum / prevTotal) * 10000) / 100
+        })
+        series.push({
+          name: `${compLabel}累積構成比`,
+          type: 'line',
+          yAxisIndex: 1,
+          data: prevCumData,
+          lineStyle: { color: `${cumulativeColor}80`, width: 1.5, type: 'dashed' },
+          itemStyle: { color: `${cumulativeColor}80` },
+          symbol: 'none',
+          smooth: true,
+          connectNulls: true,
+        })
+      }
     }
   } else if (lineMode === 'temperature') {
     // 当年気温シリーズ: 色は visualMap で温度帯ごとに動的に適用
@@ -357,9 +591,11 @@ export function buildTimeSlotChartOption(input: TimeSlotChartOptionInput): EChar
   const rightYAxisFormatter =
     lineMode === 'quantity'
       ? (v: number) => toComma(v)
-      : lineMode === 'temperature'
-        ? (v: number) => `${v}°`
-        : (v: number) => `${v}mm`
+      : lineMode === 'cumulative'
+        ? (v: number) => `${v}%`
+        : lineMode === 'temperature'
+          ? (v: number) => `${v}°`
+          : (v: number) => `${v}mm`
 
   // 降水量モード: 固定スケールで小さい値の誇張を防ぐ
   const rightAxisOptions: Parameters<typeof valueYAxis>[1] = {
@@ -392,6 +628,12 @@ export function buildTimeSlotChartOption(input: TimeSlotChartOptionInput): EChar
         maxPrecip = Math.max(maxPrecip, curEntry?.precip ?? 0, prevEntry?.precip ?? 0)
       }
     }
+  }
+
+  if (lineMode === 'cumulative') {
+    rightAxisOptions.min = 0
+    rightAxisOptions.max = 100
+    rightAxisOptions.interval = 20
   }
 
   if (lineMode === 'precipitation') {
@@ -456,7 +698,7 @@ export function buildTimeSlotChartOption(input: TimeSlotChartOptionInput): EChar
 
   return {
     grid: { left: GRID_LEFT, right: GRID_RIGHT, top: 10, bottom: 40, containLabel: false },
-    tooltip: standardTooltip(theme),
+    tooltip: buildTimeSlotTooltip(theme, showPrev, curLabel, compLabel, lineMode),
     legend: { show: false },
     xAxis: {
       type: 'category',
