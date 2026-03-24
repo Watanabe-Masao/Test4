@@ -7,7 +7,7 @@
 import { useMemo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
-import type { CategoryBenchmarkScore, CategoryTrendPoint } from '@/application/hooks/useDuckDBQuery'
+import type { CategoryBenchmarkScore, CategoryTrendPoint } from '@/application/hooks/duckdb'
 import { toPct } from './chartTheme'
 import { EmptyState } from '@/presentation/components/common/layout'
 import { chartFontSize } from '@/presentation/theme/tokens'

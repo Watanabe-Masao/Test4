@@ -5,15 +5,12 @@
  * CategoryBoxPlotChart から分離された純粋な描画コンポーネント。
  */
 import { useState, useMemo } from 'react'
-import type {
-  CategoryBenchmarkRow,
-  CategoryBenchmarkTrendRow,
-} from '@/application/hooks/useDuckDBQuery'
+import type { CategoryBenchmarkRow, CategoryBenchmarkTrendRow } from '@/application/hooks/duckdb'
 import {
   buildStoreBreakdown,
   buildDateBreakdown,
   type BoxPlotStats,
-} from '@/application/hooks/useDuckDBQuery'
+} from '@/application/hooks/duckdb'
 import { EmptyState } from '@/presentation/components/common/layout'
 import { MapLegend, LegendItem } from './CategoryBoxPlotChart.styles'
 import type { ChartTheme, AnalysisAxis } from './CategoryBoxPlotChart.vm'

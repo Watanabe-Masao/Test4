@@ -20,7 +20,7 @@
  * - 比較の初期値は ON
  */
 import type { DateRange, CalendarDate } from './CalendarDate'
-import type { PrevYearScope } from './ComparisonFrame'
+import type { PrevYearScope } from './ComparisonScope'
 import { DOW_ALIGNMENT_WINDOW, DAYS_PER_WEEK } from '@/domain/constants'
 
 /** 比較プリセット — 期間-2 の自動算出方法 */

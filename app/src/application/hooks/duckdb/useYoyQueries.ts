@@ -6,7 +6,8 @@
  */
 import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { ComparisonFrame, PrevYearScope } from '@/domain/models/calendar'
+import type { PrevYearScope } from '@/domain/models/calendar'
+import type { ComparisonScope } from '@/domain/models/ComparisonScope'
 import {
   queryYoyCategoryComparison,
   type YoyDailyRow,
@@ -19,25 +20,25 @@ import { useJsYoyDaily } from './useJsAggregationQueries'
 export function useDuckDBYoyDaily(
   conn: AsyncDuckDBConnection | null,
   dataVersion: number,
-  frame: ComparisonFrame | undefined,
+  scope: ComparisonScope | null,
   storeIds: ReadonlySet<string>,
   prevYearScope?: PrevYearScope,
 ): AsyncQueryResult<readonly YoyDailyRow[]> {
-  return useJsYoyDaily(conn, dataVersion, frame, storeIds, prevYearScope)
+  return useJsYoyDaily(conn, dataVersion, scope, storeIds, prevYearScope)
 }
 
 /** カテゴリ別前年比較 */
 export function useDuckDBYoyCategory(
   conn: AsyncDuckDBConnection | null,
   dataVersion: number,
-  frame: ComparisonFrame | undefined,
+  scope: ComparisonScope | null,
   storeIds: ReadonlySet<string>,
   level: 'department' | 'line' | 'klass',
   prevYearScope?: PrevYearScope,
 ): AsyncQueryResult<readonly YoyCategoryRow[]> {
-  const curKeys = frame ? toDateKeys(frame.current) : null
+  const curKeys = scope ? toDateKeys(scope.effectivePeriod1) : null
   // prevYearScope が渡された場合はオフセット調整済み範囲を使用
-  const prevRange = prevYearScope?.dateRange ?? frame?.previous
+  const prevRange = prevYearScope?.dateRange ?? scope?.effectivePeriod2
   const prevKeys = prevRange ? toDateKeys(prevRange) : null
 
   const queryFn = useMemo(() => {

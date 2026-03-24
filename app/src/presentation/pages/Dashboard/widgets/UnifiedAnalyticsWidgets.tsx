@@ -95,7 +95,7 @@ export const UnifiedYoYWidget = memo(function UnifiedYoYWidget({ ctx }: { ctx: W
   return (
     <YoYChart
       queryExecutor={ctx.queryExecutor}
-      frame={ctx.prevYear.hasPrevYear ? ctx.comparisonFrame : undefined}
+      scope={ctx.prevYear.hasPrevYear ? ctx.comparisonScope : null}
       selectedStoreIds={ctx.selectedStoreIds}
       prevYearScope={ctx.prevYearScope}
     />

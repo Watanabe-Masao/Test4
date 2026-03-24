@@ -55,8 +55,9 @@ export const cmpPrevYearDaily: readonly AllowlistEntry[] = [
     removalCondition: 'alignment-aware なアクセスパターンに移行時',
   },
   {
-    path: 'presentation/pages/Dashboard/widgets/MonthlyCalendar.tsx',
-    reason: 'V2 データソース移行済み。alignment 考慮のアクセスパターン改善は改修時',
+    path: 'presentation/pages/Dashboard/widgets/useMonthlyCalendarState.ts',
+    reason:
+      'V2 データソース移行済み。MonthlyCalendar.tsx から hook に抽出。alignment 考慮のアクセスパターン改善は改修時',
     category: 'structural',
     removalCondition: 'alignment-aware なアクセスパターンに移行時',
   },

@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import type { ProductType } from '@/application/hooks/useDuckDBQuery'
+import type { ProductType } from '@/application/hooks/duckdb'
 
 export const Wrapper = styled.div`
   width: 100%;

@@ -5,7 +5,7 @@
  * Presentation 層が外部 API を直接呼ばないための Application 層フック。
  */
 import { useState, useCallback } from 'react'
-import type { AlignmentPolicy } from '@/domain/models/calendar'
+import type { AlignmentMode } from '@/domain/models/calendar'
 import type { HourlyWeatherRecord, StoreLocation } from '@/domain/models/record'
 import { loadEtrnHourlyForStore } from '@/application/usecases/weather/WeatherLoadService'
 import { useSettingsStore } from '@/application/stores/settingsStore'
@@ -24,7 +24,7 @@ export interface HourlyFetchState {
  */
 function resolvePrevYearDate(
   dateKey: string,
-  policy: AlignmentPolicy,
+  policy: AlignmentMode,
 ): { year: number; month: number; day: number; dateKey: string } {
   const d = new Date(dateKey + 'T00:00:00')
   if (policy === 'sameDayOfWeek') {
@@ -82,7 +82,7 @@ export interface UseWeatherHourlyOnDemandResult {
  */
 export function useWeatherHourlyOnDemand(
   storeId: string,
-  policy: AlignmentPolicy,
+  policy: AlignmentMode,
 ): UseWeatherHourlyOnDemandResult {
   const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
   const location: StoreLocation | undefined = storeLocations[storeId]

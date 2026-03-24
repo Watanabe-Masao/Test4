@@ -6,7 +6,8 @@
  */
 import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { DateRange, ComparisonFrame, PrevYearScope } from '@/domain/models/calendar'
+import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
+import type { ComparisonScope } from '@/domain/models/ComparisonScope'
 import type { DailyCumulativeRow } from '@/infrastructure/duckdb/queries/aggregates/dailyAggregation'
 import { queryDailyCumulativeAggregation } from '@/infrastructure/duckdb/queries/aggregates/dailyAggregation'
 import type { HourlyProfileRow } from '@/infrastructure/duckdb/queries/features'
@@ -19,7 +20,7 @@ import { useAsyncQuery, toDateKeys, storeIdsToArray, type AsyncQueryResult } fro
 import { computeYoyDailyV2, computeHourlyProfile } from './jsAggregationLogic'
 import { useRawSummaryRows } from './useJsFeatureQueries'
 import type { CompareModeV2 } from '@/application/comparison/comparisonTypes'
-import type { AlignmentPolicy } from '@/domain/models/ComparisonFrame'
+import type { AlignmentMode } from '@/domain/models/ComparisonScope'
 
 // ─── 日別累積売上（SQL 集約版） ──────────────────────────
 
@@ -53,9 +54,9 @@ export function useJsDailyCumulative(
 
 // ─── YoY 日別比較（JS計算版 V2） ─────────────────────
 
-/** AlignmentPolicy → CompareModeV2 の変換 */
-function toCompareModeV2(policy: AlignmentPolicy | undefined): CompareModeV2 {
-  if (policy === 'sameDayOfWeek') return 'sameDayOfWeek'
+/** AlignmentMode → CompareModeV2 の変換 */
+function toCompareModeV2(mode: AlignmentMode | undefined): CompareModeV2 {
+  if (mode === 'sameDayOfWeek') return 'sameDayOfWeek'
   return 'sameDate'
 }
 
@@ -70,22 +71,22 @@ function toCompareModeV2(policy: AlignmentPolicy | undefined): CompareModeV2 {
 export function useJsYoyDaily(
   conn: AsyncDuckDBConnection | null,
   dataVersion: number,
-  frame: ComparisonFrame | undefined,
+  scope: ComparisonScope | null,
   storeIds: ReadonlySet<string>,
   prevYearScope?: PrevYearScope,
 ): AsyncQueryResult<readonly YoyDailyRow[]> {
   // prevYearScope が渡された場合はオフセット調整済み範囲を使用
-  const prevDateRange = prevYearScope?.dateRange ?? frame?.previous
+  const prevDateRange = prevYearScope?.dateRange ?? scope?.effectivePeriod2
 
-  // compareMode は frame.policy から導出（第一ソース）
-  const resolvedMode = toCompareModeV2(frame?.policy)
+  // compareMode は scope.alignmentMode から導出（第一ソース）
+  const resolvedMode = toCompareModeV2(scope?.alignmentMode)
 
   // 当期データ取得
   const {
     data: curRows,
     isLoading: curLoading,
     error: curError,
-  } = useRawSummaryRows(conn, dataVersion, frame?.current, storeIds, false)
+  } = useRawSummaryRows(conn, dataVersion, scope?.effectivePeriod1, storeIds, false)
 
   // 前期データ取得
   const {

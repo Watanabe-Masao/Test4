@@ -216,7 +216,7 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
     loadedMonthCount: duckCtx.loadedMonthCount,
     weatherPersist,
     prevYearMonthlyKpi: comparison.kpi,
-    comparisonFrame: comparison.comparisonFrame,
+    comparisonScope: comparison.scope,
     dowGap: comparison.dowGap,
     onPrevYearDetail: handlePrevYearDetail,
 

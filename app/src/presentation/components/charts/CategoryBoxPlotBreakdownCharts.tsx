@@ -5,7 +5,7 @@
  * DateBreakdownChart: 日別内訳の横棒グラフ
  */
 import { useState, useMemo } from 'react'
-import type { StoreBreakdownItem, DateBreakdownItem } from '@/application/hooks/useDuckDBQuery'
+import type { StoreBreakdownItem, DateBreakdownItem } from '@/application/hooks/duckdb'
 import type { ChartTheme } from './CategoryBoxPlotChart.vm'
 
 // ── StoreBreakdownChart ──

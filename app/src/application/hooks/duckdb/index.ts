@@ -2,8 +2,8 @@
  * DuckDB クエリフック群 — バレルエクスポート
  *
  * 責務別に分割されたフックモジュールを再エクスポートする。
- * 外部からは `@/application/hooks/duckdb` または
- * 後方互換の `@/application/hooks/useDuckDBQuery` でインポート可能。
+ * 外部からは `@/application/hooks/duckdb` でインポートする。
+ * 旧バレル `useDuckDBQuery.ts` は削除済み。
  */
 
 // 汎用非同期クエリフック + ヘルパー

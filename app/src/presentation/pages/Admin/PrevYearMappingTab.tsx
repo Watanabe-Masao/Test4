@@ -5,8 +5,8 @@ import { useSettings } from '@/application/hooks/ui'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useUiStore } from '@/application/stores/uiStore'
 import { calculationCache } from '@/application/services/calculationCache'
-import { calcSameDowOffset } from '@/application/comparison/resolveComparisonFrame'
-import type { AlignmentPolicy } from '@/domain/models/calendar'
+import { calcSameDowOffset } from '@/application/comparison/dowOffset'
+import type { AlignmentMode } from '@/domain/models/calendar'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import { useDataSummary } from '@/application/hooks/useDataSummary'
 import {
@@ -274,9 +274,7 @@ export function PrevYearMappingTab() {
             <FieldLabel>期間合わせ方</FieldLabel>
             <Select
               value={settings.alignmentPolicy ?? 'sameDayOfWeek'}
-              onChange={(e) =>
-                updateSettings({ alignmentPolicy: e.target.value as AlignmentPolicy })
-              }
+              onChange={(e) => updateSettings({ alignmentPolicy: e.target.value as AlignmentMode })}
             >
               <option value="sameDayOfWeek">同曜日寄せ（推奨）</option>
               <option value="sameDate">同日付</option>

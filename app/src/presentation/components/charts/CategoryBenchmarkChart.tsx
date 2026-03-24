@@ -46,7 +46,7 @@ import {
   ANALYSIS_AXIS_LABELS,
   BENCHMARK_METRIC_LABELS,
 } from './CategoryBenchmarkChart.vm'
-import type { BenchmarkMetric } from '@/application/hooks/useDuckDBQuery'
+import type { BenchmarkMetric } from '@/application/hooks/duckdb'
 import { ChartView, TableView, MapView, TrendView } from './CategoryBenchmarkSubViews'
 
 // ── Component ──

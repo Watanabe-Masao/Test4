@@ -1,7 +1,7 @@
 /**
  * TimeSlotChart — 時間帯別売上チャート Controller
  *
- * データ取得（useDuckDBTimeSlotData）と状態管理を担い、
+ * データ取得（useTimeSlotData）と状態管理を担い、
  * 描画は TimeSlotChartView に委譲する。
  *
  * DailySalesChart → DailySalesChartBody と同じ Controller / View パターン。
@@ -21,7 +21,7 @@ import type { AppTheme } from '@/presentation/theme/theme'
 import { useI18n } from '@/application/hooks/useI18n'
 import { ChartCard } from './ChartCard'
 import { ErrorMsg } from './TimeSlotChart.styles'
-import { useDuckDBTimeSlotData } from './useDuckDBTimeSlotData'
+import { useTimeSlotData } from '@/application/hooks/useTimeSlotData'
 import { toWeatherHourlyDisplayList } from './TimeSlotWeatherLogic'
 import { ChartSkeleton } from '@/presentation/components/common/feedback'
 import { EmptyState } from '@/presentation/components/common/layout'
@@ -84,7 +84,7 @@ export const TimeSlotChart = memo(function TimeSlotChart({
   )
   const hasRequiredProps = dateRange != null && storeIds != null
 
-  const d = useDuckDBTimeSlotData({
+  const d = useTimeSlotData({
     queryExecutor: hasRequiredProps ? queryExecutor : null,
     currentDateRange: dateRange ?? dummyDateRange,
     selectedStoreIds: storeIds ?? emptyStoreIds,

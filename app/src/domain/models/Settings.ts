@@ -1,5 +1,5 @@
 // CustomCategory は customCategories.ts に移行。互換性のため re-export
-import type { AlignmentPolicy } from './ComparisonFrame'
+import type { AlignmentMode } from './ComparisonScope'
 import type { ConditionSummaryConfig } from './ConditionConfig'
 import type { CustomCategoryId } from '../constants/customCategories'
 import type { StoreLocation } from './WeatherData'
@@ -36,7 +36,7 @@ export interface AppSettings {
   readonly prevYearSourceYear: number | null // 前年データ取得元の年 (null = targetYear - 1)
   readonly prevYearSourceMonth: number | null // 前年データ取得元の月 (null = targetMonth)
   readonly prevYearDowOffset: number | null // 曜日オフセット手動指定 (null = 自動計算)
-  readonly alignmentPolicy: AlignmentPolicy // 比較期間の合わせ方 (default: 'sameDayOfWeek')
+  readonly alignmentPolicy: AlignmentMode // 比較期間の合わせ方 (default: 'sameDayOfWeek')
   readonly conditionConfig: ConditionSummaryConfig // コンディションサマリー閾値設定
   // 天気データ — 店舗位置情報（ジオコーディング結果）
   readonly storeLocations: Readonly<Record<string, StoreLocation>> // storeId → 位置情報

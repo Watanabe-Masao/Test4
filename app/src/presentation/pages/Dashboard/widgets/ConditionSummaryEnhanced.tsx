@@ -75,7 +75,8 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
   // ctx.daysInMonth は effectiveEndDay（elapsedDays でキャップ済み）のため、
   // 予算按分には暦上の月日数を使用する
   const calendarDaysInMonth = new Date(ctx.year, ctx.month, 0).getDate()
-  const prevYearMode = ctx.comparisonFrame.policy === 'sameDayOfWeek' ? 'sameDow' : 'sameDate'
+  const prevYearMode =
+    ctx.comparisonScope?.alignmentMode === 'sameDayOfWeek' ? 'sameDow' : 'sameDate'
 
   const settings = useSettingsStore((s) => s.settings)
 

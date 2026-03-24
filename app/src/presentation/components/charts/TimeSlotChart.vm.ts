@@ -6,7 +6,12 @@
  *
  * @guard F7 View は ViewModel のみ受け取る
  */
-import type { ViewMode, MetricMode, TimeSlotKpi, YoYData } from './useDuckDBTimeSlotData'
+import type {
+  ViewMode,
+  MetricMode,
+  TimeSlotKpi,
+  YoYData,
+} from '@/application/hooks/useTimeSlotData'
 import { toComma, toPct, toAxisYen } from './chartTheme'
 import { formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
 

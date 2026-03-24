@@ -363,4 +363,4 @@ export function useTimeSlotData({
 /**
  * @deprecated バレル互換。新規コードは useTimeSlotData を直接使用すること。
  */
-export const useDuckDBTimeSlotData = useTimeSlotData
+// 旧エイリアス useDuckDBTimeSlotData は削除済み — useTimeSlotData を直接使用

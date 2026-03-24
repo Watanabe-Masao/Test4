@@ -29,7 +29,7 @@ export {
   useDuckDBDailyRecords,
   useDuckDBPrevYearDailyRecords,
   useDuckDBAggregatedDailyRecords,
-} from './useDuckDBQuery'
+} from './duckdb'
 export {
   pearsonCorrelation,
   normalizeMinMax,

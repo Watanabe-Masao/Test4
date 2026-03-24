@@ -10,7 +10,7 @@ import type { ComparisonScope } from '@/domain/models/ComparisonScope'
 import { buildComparisonScope } from '@/domain/models/ComparisonScope'
 import type { PrevYearMonthlyKpi, PrevYearMonthlyKpiEntry } from './comparisonTypes'
 import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
-import { calcSameDowOffset } from '@/application/comparison/resolveComparisonFrame'
+import { calcSameDowOffset } from '@/application/comparison/dowOffset'
 import {
   analyzeDowGap,
   analyzeDowGapActualDay,

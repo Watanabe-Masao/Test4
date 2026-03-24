@@ -14,7 +14,6 @@
  */
 import type { CalendarDate, DateRange } from './CalendarDate'
 import { toDateKey } from './CalendarDate'
-import type { ComparisonFrame } from './ComparisonFrame'
 import type { ComparisonPreset, PeriodSelection } from './PeriodSelection'
 import { deriveDowOffset } from './PeriodSelection'
 import { MILLISECONDS_PER_DAY, DOW_ALIGNMENT_WINDOW } from '@/domain/constants'
@@ -354,16 +353,32 @@ export function buildComparisonScope(
  * これにより presentation/ が独自の前年日付計算を行う必要がなくなる。
  */
 export function resolvePrevDate(
-  frame: Pick<ComparisonFrame, 'policy'>,
+  alignmentMode: AlignmentMode,
   currentDate: CalendarDate,
 ): CalendarDate {
   const cur = toDate(currentDate)
 
-  if (frame.policy === 'sameDayOfWeek') {
+  if (alignmentMode === 'sameDayOfWeek') {
     return fromDate(resolveSameDowSource(cur))
   }
 
   // sameDate: 単純に year-1
   const prev = new Date(cur.getFullYear() - 1, cur.getMonth(), cur.getDate())
   return fromDate(prev)
+}
+
+/**
+ * 前年比較スコープ — DuckDB 日付範囲と JS 集計値の整合性を型で保証
+ *
+ * DOW offset + elapsedDays で調整済みの日付範囲と、
+ * 同じスコープで算出された客数をセットで管理する。
+ * 分離すると「DuckDB は全月クエリ ÷ JS は一部日数の客数」のようなスコープ不一致が発生する。
+ */
+export interface PrevYearScope {
+  /** DuckDB クエリ用の前年日付範囲（DOW offset + elapsedDays で調整済み） */
+  readonly dateRange: DateRange
+  /** JS エンジンで算出された前年客数（dateRange と同じスコープ） */
+  readonly totalCustomers: number
+  /** 同曜日寄せの日オフセット (0-6) */
+  readonly dowOffset: number
 }

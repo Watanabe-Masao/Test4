@@ -2,7 +2,8 @@ import type { ReactNode } from 'react'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 import type { WeatherPersister } from '@/application/queries/weather'
 import type { StoreExplanations, MetricId, ObservationStatus } from '@/domain/models/analysis'
-import type { DateRange, ComparisonFrame, PrevYearScope } from '@/domain/models/calendar'
+import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
+import type { ComparisonScope } from '@/domain/models/ComparisonScope'
 import type { StoreResult, ViewType } from '@/domain/models/storeTypes'
 import type { Store, DailyWeatherSummary } from '@/domain/models/record'
 import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/hooks/analytics'
@@ -112,8 +113,8 @@ export interface WidgetContext {
   weatherPersist: WeatherPersister | null
   /** 前年月間KPI（同曜日/同日、dataEndDay非依存） */
   prevYearMonthlyKpi: PrevYearMonthlyKpi
-  /** 比較フレーム（全チャート共通の前年期間決定） */
-  comparisonFrame: ComparisonFrame
+  /** 比較スコープ（全チャート共通の前年期間決定） */
+  comparisonScope: ComparisonScope | null
   /** 曜日ギャップ分析結果 */
   dowGap: DowGapAnalysis
   /** 前年予算比較詳細パネルを開く */
