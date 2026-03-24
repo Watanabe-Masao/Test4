@@ -11,7 +11,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  quality:
+  # ── Gate 1: 高速ゲート（lint + format + build + guard テスト） ──
+  fast-gate:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -68,11 +69,120 @@ jobs:
       - name: Type check & Build
         run: npm run build
 
+      - name: Guard tests (structural constraints)
+        run: npm run test:guards
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: |
+            app/dist/
+            app/node_modules/
+          retention-days: 1
+
+  # ── Gate 2: テスト + カバレッジ + Storybook（fast-gate 後に並列） ──
+  test-coverage:
+    needs: fast-gate
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Cache Rust dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            wasm/factor-decomposition/target
+            wasm/gross-profit/target
+            wasm/budget-analysis/target
+            wasm/forecast/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('wasm/*/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      - name: Build WASM modules
+        working-directory: .
+        run: |
+          cd wasm/factor-decomposition && wasm-pack build --target web --release
+          cd ../gross-profit && wasm-pack build --target web --release
+          cd ../budget-analysis && wasm-pack build --target web --release
+          cd ../forecast && wasm-pack build --target web --release
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - run: npm ci
+
       - name: Test with coverage
         run: npx vitest run --coverage
 
       - name: Storybook build
         run: npm run build-storybook
+
+  # ── Gate 3: E2E テスト（fast-gate 後に並列） ──
+  e2e:
+    needs: fast-gate
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Cache Rust dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            wasm/factor-decomposition/target
+            wasm/gross-profit/target
+            wasm/budget-analysis/target
+            wasm/forecast/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('wasm/*/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      - name: Build WASM modules
+        working-directory: .
+        run: |
+          cd wasm/factor-decomposition && wasm-pack build --target web --release
+          cd ../gross-profit && wasm-pack build --target web --release
+          cd ../budget-analysis && wasm-pack build --target web --release
+          cd ../forecast && wasm-pack build --target web --release
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - run: npm ci
+
+      - name: Build
+        run: npm run build
 
       - name: E2E tests
         run: npx playwright install --with-deps && npm run test:e2e

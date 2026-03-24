@@ -49,8 +49,9 @@ KPI・粗利等の権威的指標計算は JS 計算パイプライン（`StoreR
 | | `duckdb/queries/*.ts` | SQL クエリ関数（11 モジュール） |
 | **Application** | `hooks/useDuckDB.ts` | DB 初期化 + データロード管理フック |
 | | `hooks/duckdb/*.ts` | クエリフック群（11ファイル、~29フック、`useAsyncQuery` ベース） |
-| | `hooks/useDuckDBQuery.ts` | バレル re-export（後方互換） |
-| **Presentation** | `charts/*.tsx` | 15 個のチャートウィジェット |
+| | `hooks/useQueryWithHandler.ts` | QueryHandler 実行の標準入口 |
+| | `queries/*.ts` | QueryHandler 群（20件） |
+| **Presentation** | `charts/*.tsx` | チャートウィジェット（22個） |
 | | `charts/DateRangePicker.tsx` | 自由日付範囲セレクタ |
 
 #### DuckDB テーブル一覧

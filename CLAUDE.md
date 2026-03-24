@@ -214,20 +214,28 @@ cd app && npm run lint          # ESLint（エラー0で通ること）
 cd app && npm run build         # tsc -b（型チェック）+ vite build
 cd app && npm test              # vitest run（全テスト）
 cd app && npx vitest run <path> # 特定テスト実行
+cd app && npm run test:guards   # ガードテスト（構造制約、~9秒）
+cd app && npm run test:observation # 観測テスト（WASM二重実行）
 cd app && npm run format:check  # Prettier フォーマットチェック
 cd app && npm run test:e2e      # Playwright E2Eテスト
 cd app && npm run test:coverage # vitest + カバレッジレポート
 cd app && npm run dev           # Vite 開発サーバー
 ```
 
-### CI パイプライン（6段階ゲート）
+### CI パイプライン（3ジョブ構成）
 
+**fast-gate（高速ゲート — 最初に実行）:**
 1. `npm run lint` — ESLint（**エラー0必須**）
 2. `npm run format:check` — Prettier（**準拠必須**）
 3. `npm run build` — tsc -b + vite build（**strict mode**）
-4. `npm run build-storybook` — Storybook ビルド（**ストーリーの型・import 健全性**）
+4. `npm run test:guards` — ガードテスト（**構造制約の即時検証**）
+
+**test-coverage（fast-gate 後に並列実行）:**
 5. `npx vitest run --coverage` — vitest + カバレッジ（**lines 55%**）
-6. `npm run test:e2e` — Playwright E2E（**全シナリオ通過**）
+6. `npm run build-storybook` — Storybook ビルド（**ストーリーの型・import 健全性**）
+
+**e2e（fast-gate 後に並列実行）:**
+7. `npm run test:e2e` — Playwright E2E（**全シナリオ通過**）
 
 ## コーディング規約
 
