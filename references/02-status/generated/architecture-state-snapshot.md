@@ -1,6 +1,6 @@
 # Architecture State Snapshot
 
-> Generated: 2026-03-24T06:00:06.682Z
+> Generated: 2026-03-24T06:18:27.668Z
 
 ## Allowlist Summary
 
@@ -19,6 +19,108 @@
 | structural | 38 |
 | adapter | 10 |
 | lifecycle | 1 |
+
+
+## Active Bridges
+
+- application/services/budgetAnalysisBridge.ts (194 lines)
+- application/services/factorDecompositionBridge.ts (322 lines)
+- application/services/forecastBridge.ts (437 lines)
+- application/services/grossProfitBridge.ts (521 lines)
+- application/services/timeSlotBridge.ts (174 lines)
+
+## Facade Hooks
+
+- application/hooks/duckdb/useAdvancedQueries.ts
+- application/hooks/duckdb/useAsyncQuery.ts
+- application/hooks/duckdb/useCtsAggregationQueries.ts
+- application/hooks/duckdb/useCtsHierarchyQueries.ts
+- application/hooks/duckdb/useDailyRecordQueries.ts
+- application/hooks/duckdb/useDayDetailData.ts
+- application/hooks/duckdb/useDeptKpiQueries.ts
+- application/hooks/duckdb/useFeatureQueries.ts
+- application/hooks/duckdb/useJsAggregationQueries.ts
+- application/hooks/duckdb/useJsFeatureQueries.ts
+- application/hooks/duckdb/useJsSalesCompQueries.ts
+- application/hooks/duckdb/useMetricsQueries.ts
+- application/hooks/duckdb/usePurchaseComparisonQuery.ts
+- application/hooks/duckdb/useStoreCostPriceQuery.ts
+- application/hooks/duckdb/useStoreDailyMarkupRateQuery.ts
+- application/hooks/duckdb/useSummaryQueries.ts
+- application/hooks/duckdb/useWeatherHourlyQuery.ts
+- application/hooks/duckdb/useYoyQueries.ts
+- application/hooks/useAnalyticsResolver.ts
+- application/hooks/useAppShortcuts.ts
+- application/hooks/useAutoBackup.ts
+- application/hooks/useAutoImport.ts
+- application/hooks/useAutoLoadPrevYear.ts
+- application/hooks/useBackup.ts
+- application/hooks/useCalculation.ts
+- application/hooks/useComparisonContext.ts
+- application/hooks/useComparisonModule.ts
+- application/hooks/useDataRecovery.ts
+- application/hooks/useDeviceSync.ts
+- application/hooks/useDrillAction.ts
+- application/hooks/useDuckDB.ts
+- application/hooks/useExplanation.ts
+- application/hooks/useFactorDecomposition.ts
+- application/hooks/useFilterSelectors.ts
+- application/hooks/useHierarchySelection.ts
+- application/hooks/useImport.ts
+- application/hooks/useLoadComparisonData.ts
+- application/hooks/useMetricBreakdown.ts
+- application/hooks/useMonthSwitcher.ts
+- application/hooks/useMonthlyHistory.ts
+- application/hooks/usePeriodAwareKpi.ts
+- application/hooks/usePersistence.ts
+- application/hooks/usePurchaseAnalysis.ts
+- application/hooks/useQueryWithHandler.ts
+- application/hooks/useRawDataFetch.ts
+- application/hooks/useRouteSync.ts
+- application/hooks/useSensitivity.ts
+- application/hooks/useSettings.ts
+- application/hooks/useStoragePersistence.ts
+- application/hooks/useStoreSelection.ts
+- application/hooks/useTimeSlotData.ts
+- application/hooks/useUndoRedo.ts
+- application/hooks/useWeather.ts
+- application/hooks/useWeatherFallback.ts
+- application/hooks/useWeatherForecast.ts
+- application/hooks/useWeatherHourlyOnDemand.ts
+- application/hooks/useWidgetQueryContext.ts
+
+## Complexity Hotspots (Top 10)
+
+| ファイル | useMemo | useState | 行数 |
+|---|---|---|---|
+| application/hooks/useTimeSlotData.ts | 20 | 8 | 367 |
+| presentation/pages/Dashboard/widgets/useDrilldownData.ts | 14 | 10 | 413 |
+| presentation/pages/CostDetail/useCostDetailData.ts | 13 | 6 | 210 |
+| presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 14 | 5 | 475 |
+| presentation/components/charts/CategoryBenchmarkChart.vm.ts | 10 | 8 | 470 |
+| presentation/components/charts/IntegratedSalesChart.tsx | 12 | 4 | 425 |
+| presentation/pages/Dashboard/widgets/HourlyChart.tsx | 10 | 6 | 538 |
+| presentation/components/charts/CategoryBoxPlotChart.vm.ts | 8 | 7 | 256 |
+| presentation/pages/Admin/RawDataTab.tsx | 12 | 2 | 294 |
+| presentation/pages/Dashboard/widgets/useMonthlyCalendarState.ts | 4 | 10 | 214 |
+
+## Near-Limit Files (≥80%)
+
+| ファイル | 指標 | 実測 | 上限 | % |
+|---|---|---|---|---|
+| application/hooks/usePeriodAwareKpi.ts | lines | 301 | 310 | 97% |
+| application/hooks/useTimeSlotData.ts | lines | 367 | 380 | 97% |
+| presentation/pages/CostDetail/useCostDetailData.ts | useMemo | 12 | 13 | 92% |
+| presentation/pages/Dashboard/widgets/useDrilldownData.ts | useMemo | 12 | 13 | 92% |
+| presentation/pages/Admin/RawDataTab.tsx | useMemo | 11 | 12 | 92% |
+| presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | useMemo | 10 | 11 | 91% |
+| presentation/pages/Dashboard/widgets/HourlyChart.tsx | useMemo | 9 | 10 | 90% |
+| application/hooks/duckdb/categoryBenchmarkLogic.ts | lines | 401 | 450 | 89% |
+| presentation/components/charts/DailySalesChartBody.tsx | useMemo | 8 | 9 | 89% |
+| application/hooks/useTimeSlotData.ts | useMemo | 7 | 8 | 88% |
+| presentation/pages/Dashboard/widgets/DrilldownWaterfall.tsx | useMemo | 7 | 8 | 88% |
+| presentation/components/charts/TimeSlotChart.tsx | useMemo | 7 | 8 | 88% |
+| presentation/pages/Dashboard/widgets/useMonthlyCalendarState.ts | useState | 9 | 11 | 82% |
 
 ## Frozen Lists
 

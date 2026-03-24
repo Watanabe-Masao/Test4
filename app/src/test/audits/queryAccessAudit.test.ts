@@ -32,6 +32,10 @@ interface RouteCount {
   asyncQueryDirect: string[]
   /** infrastructure/duckdb 直 import（禁止経路） */
   infraDuckdbDirect: string[]
+  /** weather hook 使用（application 経由） */
+  weatherRoutes: string[]
+  /** presentation から weather infrastructure 直参照（禁止経路） */
+  weatherInfraDirect: string[]
 }
 
 function inventoryQueryRoutes(): RouteCount {
@@ -43,6 +47,8 @@ function inventoryQueryRoutes(): RouteCount {
     executorDirect: [],
     asyncQueryDirect: [],
     infraDuckdbDirect: [],
+    weatherRoutes: [],
+    weatherInfraDirect: [],
   }
 
   // 1. QueryHandler 定義の棚卸し（サブディレクトリに分散配置）
@@ -75,6 +81,12 @@ function inventoryQueryRoutes(): RouteCount {
     }
     if (/from\s+['"]@\/infrastructure\/duckdb/.test(content)) {
       routes.infraDuckdbDirect.push(relPath)
+    }
+    if (/useWeather(?:Data|Forecast|HourlyOnDemand|Correlation)/.test(content)) {
+      routes.weatherRoutes.push(relPath)
+    }
+    if (/from\s+['"]@\/infrastructure\/.*(?:weather|etrn)/.test(content)) {
+      routes.weatherInfraDirect.push(relPath)
     }
   }
 
@@ -132,6 +144,49 @@ describe('Query Access Audit — クエリアクセス経路棚卸し', () => {
     ).toEqual([])
   })
 
+  it('Weather hook が application 経由のみで使用されている', () => {
+    expect(
+      routes.weatherInfraDirect,
+      `presentation/ から weather infrastructure への直接 import: ${routes.weatherInfraDirect.join(', ')}`,
+    ).toEqual([])
+  })
+
+  it('useQueryWithHandler の参照先 Handler が全件存在する', () => {
+    const handlerNames = new Set<string>()
+    const presFiles = collectTsFiles(path.join(SRC_DIR, 'presentation'))
+    const handlerPattern = /useQueryWithHandler\(\s*(\w+Handler)/g
+    for (const file of presFiles) {
+      const content = fs.readFileSync(file, 'utf-8')
+      let match
+      while ((match = handlerPattern.exec(content)) !== null) {
+        handlerNames.add(match[1])
+      }
+    }
+    const handlerFileNames = new Set(routes.queryHandlers.map((f) => path.basename(f, '.ts')))
+    const missing = [...handlerNames].filter((name) => !handlerFileNames.has(name))
+    expect(missing, `参照されているが存在しない Handler: ${missing.join(', ')}`).toEqual([])
+  })
+
+  it('未使用 QueryHandler の棚卸し（report-only）', () => {
+    // report-only: 未使用 Handler は将来利用の可能性があるため警告のみ
+    const usedHandlers = new Set<string>()
+    const allFiles = [
+      ...collectTsFiles(path.join(SRC_DIR, 'presentation')),
+      ...collectTsFiles(path.join(SRC_DIR, 'application/hooks')),
+    ]
+    for (const file of allFiles) {
+      const content = fs.readFileSync(file, 'utf-8')
+      for (const handler of routes.queryHandlers) {
+        const handlerName = path.basename(handler, '.ts')
+        if (content.includes(handlerName)) {
+          usedHandlers.add(handlerName)
+        }
+      }
+    }
+    // 棚卸し結果をスナップショットに含める（テスト失敗にはしない）
+    expect(usedHandlers.size).toBeGreaterThan(0)
+  })
+
   it('経路レポートを生成する', () => {
     const reportDir = path.resolve(__dirname, '../../../../references/02-status/generated')
     if (!fs.existsSync(reportDir)) {
@@ -148,6 +203,8 @@ describe('Query Access Audit — クエリアクセス経路棚卸し', () => {
         要注意_executorDirect: routes.executorDirect.length,
         互換経路_asyncQueryDirect: routes.asyncQueryDirect.length,
         禁止経路_infraDuckdbDirect: routes.infraDuckdbDirect.length,
+        weather_applicationHook: routes.weatherRoutes.length,
+        禁止経路_weatherInfraDirect: routes.weatherInfraDirect.length,
       },
       detail: routes,
     }
@@ -176,8 +233,10 @@ describe('Query Access Audit — クエリアクセス経路棚卸し', () => {
       '## Detail',
       '',
       ...Object.entries(routes)
-        .filter(([, files]) => files.length > 0)
-        .map(([name, files]) => [`### ${name}`, '', ...files.map((f) => `- ${f}`), ''].join('\n')),
+        .filter(([, files]) => (files as string[]).length > 0)
+        .map(([name, files]) =>
+          [`### ${name}`, '', ...(files as string[]).map((f: string) => `- ${f}`), ''].join('\n'),
+        ),
     ].join('\n')
 
     const mdPath = path.join(reportDir, 'query-access-audit.md')

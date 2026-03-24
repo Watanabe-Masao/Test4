@@ -12,7 +12,7 @@
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
-import { SRC_DIR, collectTsFiles } from '../guardTestHelpers'
+import { SRC_DIR, collectTsFiles, rel } from '../guardTestHelpers'
 
 // ── Import all allowlists ──
 import {
@@ -38,7 +38,7 @@ import {
   vmReactImport,
   sideEffectChain,
 } from '../allowlists'
-import type { AllowlistEntry } from '../allowlists'
+import type { AllowlistEntry, QuantitativeAllowlistEntry } from '../allowlists'
 
 // ── Allowlist Registry ──
 // すべての allowlist をレジストリに登録し、網羅的に集計する
@@ -112,6 +112,123 @@ function countCompatReexports(): number {
   return count
 }
 
+// ── Helper: アクティブ Bridge ファイルの棚卸し ──
+function inventoryBridgeFiles(): Array<{ path: string; lines: number }> {
+  const servicesDir = path.join(SRC_DIR, 'application/services')
+  if (!fs.existsSync(servicesDir)) return []
+  const files = collectTsFiles(servicesDir)
+  return files
+    .filter((f) => /Bridge\.ts$/.test(f))
+    .map((f) => ({
+      path: rel(f),
+      lines: fs.readFileSync(f, 'utf-8').split('\n').length,
+    }))
+}
+
+// ── Helper: 複雑度ホットスポット ──
+interface ComplexityHotspot {
+  file: string
+  memoCount: number
+  stateCount: number
+  lineCount: number
+}
+
+function detectComplexityHotspots(topN = 10): ComplexityHotspot[] {
+  const dirs = [path.join(SRC_DIR, 'presentation'), path.join(SRC_DIR, 'application/hooks')]
+  const entries: ComplexityHotspot[] = []
+  for (const dir of dirs) {
+    if (!fs.existsSync(dir)) continue
+    for (const f of collectTsFiles(dir)) {
+      const content = fs.readFileSync(f, 'utf-8')
+      const memoCount = (content.match(/\buseMemo\b/g) || []).length
+      const stateCount = (content.match(/\buseState\b/g) || []).length
+      if (memoCount + stateCount >= 4) {
+        entries.push({
+          file: rel(f),
+          memoCount,
+          stateCount,
+          lineCount: content.split('\n').length,
+        })
+      }
+    }
+  }
+  return entries
+    .sort((a, b) => b.memoCount + b.stateCount - (a.memoCount + a.stateCount))
+    .slice(0, topN)
+}
+
+// ── Helper: facade hook の棚卸し ──
+function inventoryFacadeHooks(): string[] {
+  const hooksDir = path.join(SRC_DIR, 'application/hooks')
+  if (!fs.existsSync(hooksDir)) return []
+  const files = collectTsFiles(hooksDir)
+  const facades: string[] = []
+  for (const f of files) {
+    if (!path.basename(f).startsWith('use')) continue
+    const content = fs.readFileSync(f, 'utf-8')
+    // 他 hook を 3+ import しているファイルを facade とみなす
+    const hookImports = content.match(/\buse[A-Z]\w+/g) || []
+    const uniqueHooks = new Set(hookImports)
+    if (uniqueHooks.size >= 4) {
+      facades.push(rel(f))
+    }
+  }
+  return facades
+}
+
+// ── Helper: allowlist 上限近接ファイル ──
+interface NearLimitEntry {
+  file: string
+  metric: string
+  actual: number
+  limit: number
+  pct: number
+}
+
+function detectNearLimitFiles(): NearLimitEntry[] {
+  const results: NearLimitEntry[] = []
+  const allQuantitative: Array<{
+    entries: readonly QuantitativeAllowlistEntry[]
+    metric: string
+    countFn: (content: string) => number
+  }> = [
+    {
+      entries: useMemoLimits,
+      metric: 'useMemo',
+      countFn: (c) => (c.match(/\buseMemo\s*\(/g) || []).length,
+    },
+    {
+      entries: useStateLimits,
+      metric: 'useState',
+      countFn: (c) => (c.match(/\buseState\s*[<(]/g) || []).length,
+    },
+    { entries: hookLineLimits, metric: 'lines', countFn: (c) => c.split('\n').length },
+    {
+      entries: presentationMemoLimits,
+      metric: 'useMemo',
+      countFn: (c) => (c.match(/\buseMemo\s*\(/g) || []).length,
+    },
+    {
+      entries: presentationStateLimits,
+      metric: 'useState',
+      countFn: (c) => (c.match(/\buseState\s*[<(]/g) || []).length,
+    },
+  ]
+  for (const { entries, metric, countFn } of allQuantitative) {
+    for (const entry of entries) {
+      const fullPath = path.join(SRC_DIR, entry.path)
+      if (!fs.existsSync(fullPath)) continue
+      const content = fs.readFileSync(fullPath, 'utf-8')
+      const actual = countFn(content)
+      const pct = Math.round((actual / entry.limit) * 100)
+      if (pct >= 80) {
+        results.push({ file: entry.path, metric, actual, limit: entry.limit, pct })
+      }
+    }
+  }
+  return results.sort((a, b) => b.pct - a.pct)
+}
+
 // ── Snapshot 生成 ──
 function generateSnapshot() {
   const allEntries = Object.values(ALLOWLIST_REGISTRY).flat()
@@ -136,6 +253,10 @@ function generateSnapshot() {
     activeLists: Object.keys(ALLOWLIST_REGISTRY).length - frozen.length,
     vmFileCount: countVmFiles(),
     compatReexportCount: countCompatReexports(),
+    activeBridges: inventoryBridgeFiles(),
+    facadeHooks: inventoryFacadeHooks(),
+    complexityHotspots: detectComplexityHotspots(),
+    nearLimitFiles: detectNearLimitFiles(),
     listSummary,
   }
 }
@@ -198,6 +319,34 @@ describe('Architecture State Audit — 構造状態スナップショット', ()
     ).toBeLessThanOrEqual(2)
   })
 
+  it('アクティブ Bridge ファイルの棚卸し（増加禁止）', () => {
+    const MAX_BRIDGE_FILES = 5
+    expect(
+      snapshot.activeBridges.length,
+      `Bridge ファイルが ${snapshot.activeBridges.length} 件（上限 ${MAX_BRIDGE_FILES}）: ${snapshot.activeBridges.map((b) => b.path).join(', ')}`,
+    ).toBeLessThanOrEqual(MAX_BRIDGE_FILES)
+  })
+
+  it('複雑度ホットスポットをスナップショットに含める', () => {
+    // report-only: ホットスポットが検出されること自体は正常
+    expect(snapshot.complexityHotspots).toBeDefined()
+    expect(Array.isArray(snapshot.complexityHotspots)).toBe(true)
+  })
+
+  it('allowlist 上限超過が 0 件', () => {
+    const exceeded = snapshot.nearLimitFiles.filter((f) => f.pct > 100)
+    expect(
+      exceeded.map((f) => `${f.file}: ${f.metric} ${f.actual}/${f.limit} (${f.pct}%)`),
+      'allowlist 上限を超過しているファイルがあります',
+    ).toEqual([])
+  })
+
+  it('facade hook をスナップショットに含める', () => {
+    // report-only: facade hook が存在すること自体は正常
+    expect(snapshot.facadeHooks).toBeDefined()
+    expect(Array.isArray(snapshot.facadeHooks)).toBe(true)
+  })
+
   it('スナップショットレポートを生成する', () => {
     const reportDir = path.resolve(__dirname, '../../../../references/02-status/generated')
     if (!fs.existsSync(reportDir)) {
@@ -231,6 +380,31 @@ describe('Architecture State Audit — 構造状態スナップショット', ()
       ...Object.entries(snapshot.categoryBreakdown)
         .sort(([, a], [, b]) => b - a)
         .map(([cat, count]) => `| ${cat} | ${count} |`),
+      '',
+      '',
+      '## Active Bridges',
+      '',
+      ...snapshot.activeBridges.map((b) => `- ${b.path} (${b.lines} lines)`),
+      '',
+      '## Facade Hooks',
+      '',
+      ...snapshot.facadeHooks.map((f) => `- ${f}`),
+      '',
+      '## Complexity Hotspots (Top 10)',
+      '',
+      '| ファイル | useMemo | useState | 行数 |',
+      '|---|---|---|---|',
+      ...snapshot.complexityHotspots.map(
+        (h) => `| ${h.file} | ${h.memoCount} | ${h.stateCount} | ${h.lineCount} |`,
+      ),
+      '',
+      '## Near-Limit Files (≥80%)',
+      '',
+      '| ファイル | 指標 | 実測 | 上限 | % |',
+      '|---|---|---|---|---|',
+      ...snapshot.nearLimitFiles.map(
+        (f) => `| ${f.file} | ${f.metric} | ${f.actual} | ${f.limit} | ${f.pct}% |`,
+      ),
       '',
       '## Frozen Lists',
       '',
