@@ -2,7 +2,7 @@
  * グローバルステータスオーバーレイ
  *
  * App Lifecycle の blocking 状態時にフルスクリーンオーバーレイを表示する。
- * phase === 'ready' or 'error'（非 blocking）の場合は何も描画しない。
+ * error フェーズは non-blocking だが、ユーザーにエラーを通知するため常に表示する。
  *
  * UI は application が決めた意味を描画するだけ。状態の生成・判断を行わない。
  */
@@ -37,12 +37,7 @@ export function GlobalStatusOverlay() {
   const status = useAppLifecycleContext()
   const { messages } = useI18n()
 
-  // blocking でない場合は表示しない
-  if (!status.blocking) return null
-
-  const messageKey = PHASE_MESSAGE_KEY[status.phase]
-
-  // エラー時は別表示
+  // エラー時は blocking でなくても表示する
   if (status.phase === 'error') {
     return (
       <Overlay role="alert" aria-live="assertive">
@@ -52,6 +47,11 @@ export function GlobalStatusOverlay() {
       </Overlay>
     )
   }
+
+  // blocking でない場合は表示しない
+  if (!status.blocking) return null
+
+  const messageKey = PHASE_MESSAGE_KEY[status.phase]
 
   return (
     <Overlay role="status" aria-live="polite">

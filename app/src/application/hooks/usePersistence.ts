@@ -140,8 +140,14 @@ export function usePersistenceState(): PersistenceStatusInfo {
 
   // 初回復元を実行（usePersistence と共通ロジック）
   useEffect(() => {
-    if (!available || restoreExecuted) return
+    if (restoreExecuted) return
     restoreExecuted = true
+
+    // IndexedDB 利用不可 → 復元スキップ（完了扱い）
+    if (!available) {
+      setRestoreState({ isRestoring: false, autoRestored: true })
+      return
+    }
 
     setRestoreState({ isRestoring: true })
 
