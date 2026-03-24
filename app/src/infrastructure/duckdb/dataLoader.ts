@@ -97,11 +97,7 @@ const TABLES_WITH_PREV_YEAR_FLAG: ReadonlySet<string> = new Set([
   'time_slots',
 ])
 /** loadMonth が前年データを INSERT するテーブル（is_prev_year 列なし） */
-const PREV_YEAR_INSERT_TABLES: readonly string[] = [
-  'purchase',
-  'special_sales',
-  'transfers',
-]
+const PREV_YEAR_INSERT_TABLES: readonly string[] = ['purchase', 'special_sales', 'transfers']
 export async function deletePrevYearMonth(
   conn: AsyncDuckDBConnection,
   year: number,
@@ -118,9 +114,7 @@ export async function deletePrevYearMonth(
   }
   // is_prev_year 列なしテーブル: (prevYear, month) の行を全削除
   for (const name of PREV_YEAR_INSERT_TABLES) {
-    await conn.query(
-      `DELETE FROM ${name} WHERE year = ${prevYear} AND month = ${month}`,
-    )
+    await conn.query(`DELETE FROM ${name} WHERE year = ${prevYear} AND month = ${month}`)
   }
 }
 
