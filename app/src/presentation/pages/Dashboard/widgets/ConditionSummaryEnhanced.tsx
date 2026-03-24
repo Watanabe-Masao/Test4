@@ -54,6 +54,7 @@ const YOY_DRILL_IDS: ReadonlySet<string> = new Set([
   'txValue',
   'itemsYoY',
   'requiredPace',
+  'totalCost',
 ])
 
 // ─── Component ──────────────────────────────────────────
@@ -148,6 +149,11 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
     const scopedPrevQty = prevCtsRecords
       .filter((rec) => rec.day <= effectiveDay)
       .reduce((sum, rec) => sum + rec.totalQuantity, 0)
+    // 前年総仕入: prevYearStoreCostPrice の cost 合計
+    const prevYearTotalCost =
+      ctx.prevYearStoreCostPrice != null && ctx.prevYearStoreCostPrice.size > 0
+        ? [...ctx.prevYearStoreCostPrice.values()].reduce((s, v) => s + v.cost, 0)
+        : undefined
     const yoyCards = buildYoYCards({
       result: ctx.result,
       prevYear: ctx.prevYear,
@@ -155,6 +161,9 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
       ctsCurrentQty: scopedCurQty,
       ctsPrevQty: scopedPrevQty,
       fmtCurrency: ctx.fmtCurrency,
+      prevYearTotalCost,
+      elapsedDays: effectiveDay,
+      daysInMonth: calendarDaysInMonth,
     })
     // Trend computation (last 7 days vs previous 7 days)
     const trends = new Map<string, { direction: 'up' | 'down' | 'flat'; ratio: string }>()
@@ -176,6 +185,7 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
     ctsRecords,
     prevCtsRecords,
     hasMultipleStores,
+    ctx.prevYearStoreCostPrice,
   ])
 
   // Group cards by section for display
@@ -248,7 +258,12 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
           <BudgetHeaderValue>{formatPercent(budgetHeader.grossProfitRateBudget)}</BudgetHeaderValue>
         </BudgetHeaderItem>
         {budgetHeader.prevYearMonthlySales != null && (
-          <BudgetHeaderItem>
+          <BudgetHeaderItem
+            onClick={() => ctx.onPrevYearDetail(prevYearMode)}
+            style={{ cursor: 'pointer' }}
+            role="button"
+            tabIndex={0}
+          >
             <BudgetHeaderLabel>月間前年売上</BudgetHeaderLabel>
             <BudgetHeaderValue>
               {ctx.fmtCurrency(budgetHeader.prevYearMonthlySales)}
@@ -359,12 +374,9 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
           settings={settings}
           expandedStore={expandedStore}
           setExpandedStore={setExpandedStore}
-          ctsCurrentQty={ctsRecords
-            .filter((r) => r.day <= (elapsedDays ?? calendarDaysInMonth))
-            .reduce((s, r) => s + r.totalQuantity, 0)}
-          ctsPrevQty={prevCtsRecords
-            .filter((r) => r.day <= (elapsedDays ?? calendarDaysInMonth))
-            .reduce((s, r) => s + r.totalQuantity, 0)}
+          ctsRecords={ctsRecords}
+          prevCtsRecords={prevCtsRecords}
+          effectiveDay={elapsedDays ?? calendarDaysInMonth}
           onClose={() => {
             setYoYDrill(null)
             setExpandedStore(null)

@@ -13,9 +13,16 @@ import {
 } from '@/presentation/components/charts/chartTheme'
 import {
   type DailyYoYRow,
+  type ItemsYoYDailyRow,
   buildSalesYoYDetailVm,
   buildCustomerYoYDetailVm,
+  buildItemsYoYDetailVm,
+  buildTotalCostYoYDetailVm,
 } from './conditionPanelYoY.vm'
+import type { CategoryTimeSalesRecord } from '@/domain/models/DataTypes'
+import type { StoreResult } from '@/domain/models/storeTypes'
+import type { Store } from '@/domain/models/record'
+import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
 import {
   DetailHeader,
   DetailTitle,
@@ -289,6 +296,233 @@ export function CustomerYoYDetailTable({
               </tr>
             </thead>
             <tbody>{renderDailyYoYRows(vm.dailyRows, dailyMode, 'customers', fmtCurrency)}</tbody>
+          </BTable>
+        </>
+      )}
+    </>
+  )
+}
+
+// ─── Items YoY Daily Row Renderer ─────────────────────
+
+function renderItemsDailyRows(
+  rows: readonly ItemsYoYDailyRow[],
+  mode: 'cumulative' | 'daily',
+): React.ReactNode[] {
+  let cumCur = 0
+  let cumPrev = 0
+
+  return rows.map((row) => {
+    cumCur += row.currentQty
+    cumPrev += row.prevQty
+    const cur = mode === 'cumulative' ? cumCur : row.currentQty
+    const prev = mode === 'cumulative' ? cumPrev : row.prevQty
+    const yoy = calculateYoYRatio(cur, prev)
+
+    return (
+      <BTr key={row.day}>
+        <BTd>{row.day}日</BTd>
+        <BTd>{cur.toLocaleString()}点</BTd>
+        <BTd>{prev > 0 ? `${prev.toLocaleString()}点` : '—'}</BTd>
+        <BTd>{prev > 0 ? formatPercent(yoy, 2) : '—'}</BTd>
+      </BTr>
+    )
+  })
+}
+
+// ─── Items YoY Detail ─────────────────────────────────
+
+export interface ItemsYoYDetailProps {
+  readonly sortedStoreEntries: readonly [string, StoreResult][]
+  readonly stores: ReadonlyMap<string, Store>
+  readonly effectiveConfig: ConditionSummaryConfig
+  readonly ctsRecords: readonly CategoryTimeSalesRecord[]
+  readonly prevCtsRecords: readonly CategoryTimeSalesRecord[]
+  readonly effectiveDay: number
+}
+
+export function ItemsYoYDetailTable({
+  sortedStoreEntries,
+  stores,
+  effectiveConfig,
+  ctsRecords,
+  prevCtsRecords,
+  effectiveDay,
+}: ItemsYoYDetailProps) {
+  const [dailyMode, setDailyMode] = useState<'cumulative' | 'daily'>('cumulative')
+
+  const vm = useMemo(
+    () =>
+      buildItemsYoYDetailVm(
+        sortedStoreEntries,
+        stores,
+        effectiveConfig,
+        ctsRecords,
+        prevCtsRecords,
+        effectiveDay,
+      ),
+    [sortedStoreEntries, stores, effectiveConfig, ctsRecords, prevCtsRecords, effectiveDay],
+  )
+
+  return (
+    <>
+      <TotalSection>
+        <TotalGrid>
+          <TotalCell>
+            <SmallLabel>当年点数</SmallLabel>
+            <BigValue>{vm.totalCurrentStr}</BigValue>
+          </TotalCell>
+          <TotalCell $align="center">
+            <SmallLabel>前年点数</SmallLabel>
+            <BigValue>{vm.totalPrevStr}</BigValue>
+          </TotalCell>
+          <TotalCell $align="right">
+            <SmallLabel>前年比</SmallLabel>
+            <AchValue $color={vm.totalColor}>{vm.totalYoYStr}</AchValue>
+          </TotalCell>
+        </TotalGrid>
+      </TotalSection>
+
+      {vm.storeRows.length > 1 && (
+        <>
+          <DetailHeader style={{ padding: '12px 16px 0' }}>
+            <DetailTitle>店舗内訳</DetailTitle>
+          </DetailHeader>
+          <BTable>
+            <thead>
+              <tr>
+                <BTh>店舗名</BTh>
+                <BTh>当年点数</BTh>
+                <BTh>前年点数</BTh>
+                <BTh>前年比</BTh>
+              </tr>
+            </thead>
+            <tbody>
+              {vm.storeRows.map((row) => (
+                <BTr key={row.storeId}>
+                  <BTd>
+                    <BSignalDot $color={row.sigColor} />
+                    {row.storeName}
+                  </BTd>
+                  <BTd>{row.currentQtyStr}</BTd>
+                  <BTd>{row.prevQtyStr}</BTd>
+                  <BTd $color={row.sigColor}>{row.yoyStr}</BTd>
+                </BTr>
+              ))}
+            </tbody>
+          </BTable>
+        </>
+      )}
+
+      {vm.hasDailyRows && (
+        <>
+          <DetailHeader style={{ marginTop: '16px', padding: '0 16px' }}>
+            <DetailTitle>全店 日別推移</DetailTitle>
+            <ToggleGroup>
+              <ToggleBtn
+                $active={dailyMode === 'cumulative'}
+                onClick={() => setDailyMode('cumulative')}
+              >
+                累計
+              </ToggleBtn>
+              <ToggleBtn $active={dailyMode === 'daily'} onClick={() => setDailyMode('daily')}>
+                日別
+              </ToggleBtn>
+            </ToggleGroup>
+          </DetailHeader>
+          <BTable>
+            <thead>
+              <tr>
+                <BTh>日</BTh>
+                <BTh>当年</BTh>
+                <BTh>前年</BTh>
+                <BTh>前年比</BTh>
+              </tr>
+            </thead>
+            <tbody>{renderItemsDailyRows(vm.dailyRows, dailyMode)}</tbody>
+          </BTable>
+        </>
+      )}
+    </>
+  )
+}
+
+// ─── TotalCost YoY Detail ─────────────────────────────
+
+export interface TotalCostYoYDetailProps {
+  readonly sortedStoreEntries: readonly [string, StoreResult][]
+  readonly stores: ReadonlyMap<string, Store>
+  readonly effectiveConfig: ConditionSummaryConfig
+  readonly prevYearStoreCostPrice?: ReadonlyMap<string, { cost: number; price: number }>
+  readonly fmtCurrency: (n: number) => string
+}
+
+export function TotalCostYoYDetailTable({
+  sortedStoreEntries,
+  stores,
+  effectiveConfig,
+  prevYearStoreCostPrice,
+}: TotalCostYoYDetailProps) {
+  const { format: fmtCurrency } = useCurrencyFormat()
+
+  const vm = useMemo(
+    () =>
+      buildTotalCostYoYDetailVm(
+        sortedStoreEntries,
+        stores,
+        effectiveConfig,
+        prevYearStoreCostPrice,
+        fmtCurrency,
+      ),
+    [sortedStoreEntries, stores, effectiveConfig, prevYearStoreCostPrice, fmtCurrency],
+  )
+
+  return (
+    <>
+      <TotalSection>
+        <TotalGrid>
+          <TotalCell>
+            <SmallLabel>当年総仕入</SmallLabel>
+            <BigValue>{vm.totalCurrentStr}</BigValue>
+          </TotalCell>
+          <TotalCell $align="center">
+            <SmallLabel>前年総仕入</SmallLabel>
+            <BigValue>{vm.totalPrevStr}</BigValue>
+          </TotalCell>
+          <TotalCell $align="right">
+            <SmallLabel>前年比</SmallLabel>
+            <AchValue $color={vm.totalColor}>{vm.totalYoYStr}</AchValue>
+          </TotalCell>
+        </TotalGrid>
+      </TotalSection>
+
+      {vm.storeRows.length > 1 && (
+        <>
+          <DetailHeader style={{ padding: '12px 16px 0' }}>
+            <DetailTitle>店舗内訳</DetailTitle>
+          </DetailHeader>
+          <BTable>
+            <thead>
+              <tr>
+                <BTh>店舗名</BTh>
+                <BTh>当年仕入</BTh>
+                <BTh>前年仕入</BTh>
+                <BTh>前年比</BTh>
+              </tr>
+            </thead>
+            <tbody>
+              {vm.storeRows.map((row) => (
+                <BTr key={row.storeId}>
+                  <BTd>
+                    <BSignalDot $color={row.sigColor} />
+                    {row.storeName}
+                  </BTd>
+                  <BTd>{row.currentCostStr}</BTd>
+                  <BTd>{row.prevCostStr}</BTd>
+                  <BTd $color={row.sigColor}>{row.yoyStr}</BTd>
+                </BTr>
+              ))}
+            </tbody>
           </BTable>
         </>
       )}

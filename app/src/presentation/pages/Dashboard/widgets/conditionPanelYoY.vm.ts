@@ -7,7 +7,8 @@ import type { Store } from '@/domain/models/record'
 import type { StoreResult } from '@/domain/models/storeTypes'
 import { formatPercent } from '@/domain/formatting'
 import type { CurrencyFormatter } from '@/presentation/components/charts/chartTheme'
-import { calculateYoYRatio } from '@/domain/calculations/utils'
+import { calculateYoYRatio, calculateAchievementRate } from '@/domain/calculations/utils'
+import type { CategoryTimeSalesRecord } from '@/domain/models/DataTypes'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
 import {
   type PrevYearData,
@@ -209,5 +210,161 @@ export function buildCustomerYoYDetailVm(
     totalColor,
     dailyRows,
     hasDailyRows: dailyRows.length > 0,
+  }
+}
+
+// ─── Items (CTS) YoY Detail VM ──────────────────────────
+
+export interface ItemsYoYStoreRowVm {
+  readonly storeId: string
+  readonly storeName: string
+  readonly sigColor: string
+  readonly currentQtyStr: string
+  readonly prevQtyStr: string
+  readonly yoyStr: string
+}
+
+export interface ItemsYoYDailyRow {
+  readonly day: number
+  readonly currentQty: number
+  readonly prevQty: number
+}
+
+export interface ItemsYoYDetailVm {
+  readonly storeRows: readonly ItemsYoYStoreRowVm[]
+  readonly totalCurrentStr: string
+  readonly totalPrevStr: string
+  readonly totalYoYStr: string
+  readonly totalColor: string
+  readonly dailyRows: readonly ItemsYoYDailyRow[]
+  readonly hasDailyRows: boolean
+}
+
+export function buildItemsYoYDetailVm(
+  sortedStoreEntries: readonly [string, StoreResult][],
+  stores: ReadonlyMap<string, Store>,
+  effectiveConfig: ConditionSummaryConfig,
+  ctsRecords: readonly CategoryTimeSalesRecord[],
+  prevCtsRecords: readonly CategoryTimeSalesRecord[],
+  effectiveDay: number,
+): ItemsYoYDetailVm {
+  const scopedCur = ctsRecords.filter((r) => r.day <= effectiveDay)
+  const scopedPrev = prevCtsRecords.filter((r) => r.day <= effectiveDay)
+
+  const totalCurQty = scopedCur.reduce((s, r) => s + r.totalQuantity, 0)
+  const totalPrevQty = scopedPrev.reduce((s, r) => s + r.totalQuantity, 0)
+  const totalYoY = calculateAchievementRate(totalCurQty, totalPrevQty)
+  const totalSig = totalPrevQty > 0 ? metricSignal(totalYoY, 'itemsYoY', effectiveConfig) : 'blue'
+  const totalColor = SIGNAL_COLORS[totalSig]
+
+  // Per-store aggregation
+  const storeRows = sortedStoreEntries.map(([storeId]) => {
+    const store = stores.get(storeId)
+    const storeName = store?.name ?? storeId
+    const curQty = scopedCur
+      .filter((r) => r.storeId === storeId)
+      .reduce((s, r) => s + r.totalQuantity, 0)
+    const prevQty = scopedPrev
+      .filter((r) => r.storeId === storeId)
+      .reduce((s, r) => s + r.totalQuantity, 0)
+    const storeYoY = calculateAchievementRate(curQty, prevQty)
+    const sig = prevQty > 0 ? metricSignal(storeYoY, 'itemsYoY', effectiveConfig, storeId) : 'blue'
+    const sigColor = SIGNAL_COLORS[sig]
+    return {
+      storeId,
+      storeName,
+      sigColor,
+      currentQtyStr: `${curQty.toLocaleString()}点`,
+      prevQtyStr: prevQty > 0 ? `${prevQty.toLocaleString()}点` : '—',
+      yoyStr: prevQty > 0 ? formatPercent(storeYoY, 2) : '—',
+    }
+  })
+
+  // Daily aggregation
+  const dayMap = new Map<number, { cur: number; prev: number }>()
+  for (const r of scopedCur) {
+    const e = dayMap.get(r.day) ?? { cur: 0, prev: 0 }
+    e.cur += r.totalQuantity
+    dayMap.set(r.day, e)
+  }
+  for (const r of scopedPrev) {
+    const e = dayMap.get(r.day) ?? { cur: 0, prev: 0 }
+    e.prev += r.totalQuantity
+    dayMap.set(r.day, e)
+  }
+  const dailyRows: ItemsYoYDailyRow[] = [...dayMap.entries()]
+    .sort(([a], [b]) => a - b)
+    .map(([day, v]) => ({ day, currentQty: v.cur, prevQty: v.prev }))
+
+  return {
+    storeRows,
+    totalCurrentStr: `${totalCurQty.toLocaleString()}点`,
+    totalPrevStr: totalPrevQty > 0 ? `${totalPrevQty.toLocaleString()}点` : '—',
+    totalYoYStr: totalPrevQty > 0 ? formatPercent(totalYoY, 2) : '—',
+    totalColor,
+    dailyRows,
+    hasDailyRows: dailyRows.length > 0,
+  }
+}
+
+// ─── TotalCost YoY Detail VM ────────────────────────────
+
+export interface TotalCostYoYStoreRowVm {
+  readonly storeId: string
+  readonly storeName: string
+  readonly sigColor: string
+  readonly currentCostStr: string
+  readonly prevCostStr: string
+  readonly yoyStr: string
+}
+
+export interface TotalCostYoYDetailVm {
+  readonly storeRows: readonly TotalCostYoYStoreRowVm[]
+  readonly totalCurrentStr: string
+  readonly totalPrevStr: string
+  readonly totalYoYStr: string
+  readonly totalColor: string
+}
+
+export function buildTotalCostYoYDetailVm(
+  sortedStoreEntries: readonly [string, StoreResult][],
+  stores: ReadonlyMap<string, Store>,
+  effectiveConfig: ConditionSummaryConfig,
+  prevYearStoreCostPrice: ReadonlyMap<string, { cost: number; price: number }> | undefined,
+  fmtCurrency: CurrencyFormatter,
+): TotalCostYoYDetailVm {
+  const prevTotal =
+    prevYearStoreCostPrice != null
+      ? [...prevYearStoreCostPrice.values()].reduce((s, v) => s + v.cost, 0)
+      : 0
+  const curTotal = sortedStoreEntries.reduce((s, [, sr]) => s + sr.totalCost, 0)
+  const totalYoY = calculateYoYRatio(curTotal, prevTotal)
+  const totalSig = prevTotal > 0 ? metricSignal(totalYoY, 'customerYoY', effectiveConfig) : 'blue'
+  const totalColor = SIGNAL_COLORS[totalSig]
+
+  const storeRows = sortedStoreEntries.map(([storeId, sr]) => {
+    const store = stores.get(storeId)
+    const storeName = store?.name ?? storeId
+    const prevCost = prevYearStoreCostPrice?.get(storeId)?.cost ?? 0
+    const storeYoY = calculateYoYRatio(sr.totalCost, prevCost)
+    const sig =
+      prevCost > 0 ? metricSignal(storeYoY, 'customerYoY', effectiveConfig, storeId) : 'blue'
+    const sigColor = SIGNAL_COLORS[sig]
+    return {
+      storeId,
+      storeName,
+      sigColor,
+      currentCostStr: fmtCurrency(sr.totalCost),
+      prevCostStr: prevCost > 0 ? fmtCurrency(prevCost) : '—',
+      yoyStr: prevCost > 0 ? formatPercent(storeYoY, 2) : '—',
+    }
+  })
+
+  return {
+    storeRows,
+    totalCurrentStr: fmtCurrency(curTotal),
+    totalPrevStr: prevTotal > 0 ? fmtCurrency(prevTotal) : '—',
+    totalYoYStr: prevTotal > 0 ? formatPercent(totalYoY, 2) : '—',
+    totalColor,
   }
 }

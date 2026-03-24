@@ -468,12 +468,20 @@ export function PrevYearBudgetDetailPanel({
           <SummaryCard>
             <SummaryLabel>前年売上</SummaryLabel>
             <SummaryValue>{fmtCurrency(entry.sales)}</SummaryValue>
-            <SummarySub>客数: {entry.customers.toLocaleString('ja-JP')}人</SummarySub>
+            <SummarySub>
+              {entry.customers > 0
+                ? `客数: ${entry.customers.toLocaleString('ja-JP')}人`
+                : '客数: 未取込'}
+            </SummarySub>
           </SummaryCard>
           <SummaryCard>
             <SummaryLabel>前年客単価</SummaryLabel>
-            <SummaryValue>{fmtCurrency(prevTransactionValue)}</SummaryValue>
-            <SummarySub>売上 ÷ 客数</SummarySub>
+            <SummaryValue>
+              {entry.customers > 0 ? fmtCurrency(prevTransactionValue) : '-'}
+            </SummaryValue>
+            <SummarySub>
+              {entry.customers > 0 ? '売上 ÷ 客数' : '客数未取込のため算出不可'}
+            </SummarySub>
           </SummaryCard>
           <SummaryCard>
             <SummaryLabel>当年月間予算</SummaryLabel>
