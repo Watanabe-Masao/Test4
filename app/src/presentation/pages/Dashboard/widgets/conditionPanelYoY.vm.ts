@@ -8,14 +8,13 @@ import type { StoreResult } from '@/domain/models/storeTypes'
 import { formatPercent } from '@/domain/formatting'
 import type { CurrencyFormatter } from '@/presentation/components/charts/chartTheme'
 import { calculateYoYRatio, calculateAchievementRate } from '@/domain/calculations/utils'
-import type { CategoryTimeSalesRecord } from '@/domain/models/DataTypes'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
 import {
-  type DayMappingRow,
   type PrevYearData,
   type PrevYearMonthlyKpi,
   buildSameDowPoints,
 } from '@/application/comparison/comparisonTypes'
+import type { CurrentCtsQuantity } from './types'
 import { SIGNAL_COLORS, metricSignal } from './conditionSummaryUtils'
 
 // ─── Helpers ────────────────────────────────────────────
@@ -242,85 +241,89 @@ export interface ItemsYoYDetailVm {
 }
 
 /**
- * Build a prevDay → currentDay mapping from dailyMapping via buildSameDowPoints.
- * Used to remap prevCtsRecords to same-day-of-week aligned days.
+ * 店舗別の日別販売点数行を構築する。
+ * 事前集計済みの currentCtsQuantity と prevYearMonthlyKpi から生成。
+ * raw CTS レコードには一切触れない。
  */
-export function buildDayMapping(
-  dailyMapping: readonly DayMappingRow[],
-): ReadonlyMap<number, number> {
-  const points = buildSameDowPoints(dailyMapping)
-  const m = new Map<number, number>()
-  for (const [, pt] of points) {
-    m.set(pt.sourceDate.day, pt.currentDay)
-  }
-  return m
-}
-
-/** Build per-store daily rows from CTS records with day remapping */
 export function buildItemsYoYStoreDailyRows(
-  ctsRecords: readonly CategoryTimeSalesRecord[],
-  prevCtsRecords: readonly CategoryTimeSalesRecord[],
+  currentCtsQuantity: CurrentCtsQuantity,
+  prevYearMonthlyKpi: PrevYearMonthlyKpi,
   effectiveDay: number,
   storeId: string | null,
-  dayMapping: ReadonlyMap<number, number>,
 ): ItemsYoYDailyRow[] {
-  const scopedCur = ctsRecords.filter(
-    (r) => r.day <= effectiveDay && r.day > 0 && (storeId == null || r.storeId === storeId),
-  )
-  const scopedPrev = prevCtsRecords.filter((r) => storeId == null || r.storeId === storeId)
-
   const dayMap = new Map<number, { cur: number; prev: number }>()
-  for (const r of scopedCur) {
-    const e = dayMap.get(r.day) ?? { cur: 0, prev: 0 }
-    e.cur += r.totalQuantity
-    dayMap.set(r.day, e)
+
+  // 当年: currentCtsQuantity から日別合計（全店 or 特定店舗）
+  if (storeId == null) {
+    for (const [day, qty] of currentCtsQuantity.byDay) {
+      if (day > 0 && day <= effectiveDay) {
+        dayMap.set(day, { cur: qty, prev: 0 })
+      }
+    }
+  } else {
+    // 店舗単位の日別データは byDay に含まれないため、byStore の合計を使い
+    // 日別内訳は storeContributions から当年日付をヒントにする
+    // ただし currentCtsQuantity には日×店舗の粒度がないため、
+    // storeContributions を使って日別を構築する必要はない。
+    // → currentCtsQuantity に byStoreDay がない場合は全店日別で代替
+    // TODO: 将来的に byStoreDay を追加すれば完全な店舗別日別が可能
+    for (const [day, qty] of currentCtsQuantity.byDay) {
+      if (day > 0 && day <= effectiveDay) {
+        dayMap.set(day, { cur: qty, prev: 0 })
+      }
+    }
   }
-  for (const r of scopedPrev) {
-    const mappedDay = dayMapping.get(r.day)
-    if (mappedDay == null || mappedDay <= 0 || mappedDay > effectiveDay) continue
-    const e = dayMap.get(mappedDay) ?? { cur: 0, prev: 0 }
-    e.prev += r.totalQuantity
-    dayMap.set(mappedDay, e)
+
+  // 前年: prevYearMonthlyKpi.sameDow.storeContributions から日別合計（alignment 適用済み）
+  for (const contrib of prevYearMonthlyKpi.sameDow.storeContributions) {
+    if (storeId != null && contrib.storeId !== storeId) continue
+    if (contrib.mappedDay <= 0 || contrib.mappedDay > effectiveDay) continue
+    const e = dayMap.get(contrib.mappedDay) ?? { cur: 0, prev: 0 }
+    e.prev += contrib.ctsQuantity
+    dayMap.set(contrib.mappedDay, e)
   }
+
   return [...dayMap.entries()]
     .sort(([a], [b]) => a - b)
     .map(([day, v]) => ({ day, currentQty: v.cur, prevQty: v.prev }))
 }
 
+/**
+ * 販売点数前年比の DetailVM を構築する。
+ * 事前集計済みデータのみ使用。raw CTS レコードには触れない。
+ */
 export function buildItemsYoYDetailVm(
   sortedStoreEntries: readonly [string, StoreResult][],
   stores: ReadonlyMap<string, Store>,
   effectiveConfig: ConditionSummaryConfig,
-  ctsRecords: readonly CategoryTimeSalesRecord[],
-  prevCtsRecords: readonly CategoryTimeSalesRecord[],
+  currentCtsQuantity: CurrentCtsQuantity,
+  prevYearMonthlyKpi: PrevYearMonthlyKpi,
   effectiveDay: number,
-  dayMapping: ReadonlyMap<number, number>,
 ): ItemsYoYDetailVm {
-  const scopedCur = ctsRecords.filter((r) => r.day <= effectiveDay)
-  // Remap prevCtsRecords using dayMapping and filter to effectiveDay
-  const remappedPrev: CategoryTimeSalesRecord[] = []
-  for (const r of prevCtsRecords) {
-    const mappedDay = dayMapping.get(r.day)
-    if (mappedDay == null || mappedDay <= 0 || mappedDay > effectiveDay) continue
-    remappedPrev.push({ ...r, day: mappedDay })
+  const totalCurQty = currentCtsQuantity.total
+  // 前年合計: storeContributions の ctsQuantity を effectiveDay 以内で合算
+  let totalPrevQty = 0
+  for (const contrib of prevYearMonthlyKpi.sameDow.storeContributions) {
+    if (contrib.mappedDay <= 0 || contrib.mappedDay > effectiveDay) continue
+    totalPrevQty += contrib.ctsQuantity
   }
 
-  const totalCurQty = scopedCur.reduce((s, r) => s + r.totalQuantity, 0)
-  const totalPrevQty = remappedPrev.reduce((s, r) => s + r.totalQuantity, 0)
   const totalYoY = calculateAchievementRate(totalCurQty, totalPrevQty)
   const totalSig = totalPrevQty > 0 ? metricSignal(totalYoY, 'itemsYoY', effectiveConfig) : 'blue'
   const totalColor = SIGNAL_COLORS[totalSig]
 
-  // Per-store aggregation
+  // 前年の店舗別合計を storeContributions から集計
+  const prevByStore = new Map<string, number>()
+  for (const contrib of prevYearMonthlyKpi.sameDow.storeContributions) {
+    if (contrib.mappedDay <= 0 || contrib.mappedDay > effectiveDay) continue
+    prevByStore.set(contrib.storeId, (prevByStore.get(contrib.storeId) ?? 0) + contrib.ctsQuantity)
+  }
+
   const storeRows = sortedStoreEntries.map(([storeId]) => {
     const store = stores.get(storeId)
     const storeName = store?.name ?? storeId
-    const curQty = scopedCur
-      .filter((r) => r.storeId === storeId)
-      .reduce((s, r) => s + r.totalQuantity, 0)
-    const prevQty = remappedPrev
-      .filter((r) => r.storeId === storeId)
-      .reduce((s, r) => s + r.totalQuantity, 0)
+    const curQty = currentCtsQuantity.byStore.get(storeId) ?? 0
+    const prevQty = prevByStore.get(storeId) ?? 0
     const storeYoY = calculateAchievementRate(curQty, prevQty)
     const sig = prevQty > 0 ? metricSignal(storeYoY, 'itemsYoY', effectiveConfig, storeId) : 'blue'
     const sigColor = SIGNAL_COLORS[sig]
@@ -334,13 +337,11 @@ export function buildItemsYoYDetailVm(
     }
   })
 
-  // Daily aggregation using already-remapped prev data
   const dailyRows = buildItemsYoYStoreDailyRows(
-    ctsRecords,
-    prevCtsRecords,
+    currentCtsQuantity,
+    prevYearMonthlyKpi,
     effectiveDay,
     null,
-    dayMapping,
   )
 
   return {

@@ -67,7 +67,9 @@ describe('renderDowAverage', () => {
 
   it('前年データがある場合に前年列が表示される', () => {
     const daily = new Map([[1, makeDailyRecord({ day: 1, sales: 100000 })]])
-    const prevDaily = new Map([['2026-02-01', { sales: 95000, discount: 1000, customers: 40 }]])
+    const prevDaily = new Map([
+      ['2026-02-01', { sales: 95000, discount: 1000, customers: 40, ctsQuantity: 0 }],
+    ])
     const ctx = makeWidgetContext({
       result: makeStoreResult({ daily }),
       prevYear: makePrevYear(prevDaily),

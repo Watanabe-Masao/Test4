@@ -145,6 +145,7 @@ export function makeEmptyPrevYear(): PrevYearData {
     totalSales: 0,
     totalDiscount: 0,
     totalCustomers: 0,
+    totalCtsQuantity: 0,
     grossSales: 0,
     discountRate: 0,
     totalDiscountEntries: ZERO_DISCOUNT_ENTRIES,
@@ -172,6 +173,7 @@ export function makePrevYear(
     totalSales,
     totalDiscount,
     totalCustomers,
+    totalCtsQuantity: 0,
     grossSales,
     discountRate,
     totalDiscountEntries: ZERO_DISCOUNT_ENTRIES,
@@ -216,6 +218,7 @@ export function makeWidgetContext(overrides: Partial<WidgetContext> = {}): Widge
         sales: 0,
         customers: 0,
         transactionValue: 0,
+        ctsQuantity: 0,
         dailyMapping: [],
         storeContributions: [],
       },
@@ -223,13 +226,14 @@ export function makeWidgetContext(overrides: Partial<WidgetContext> = {}): Widge
         sales: 0,
         customers: 0,
         transactionValue: 0,
+        ctsQuantity: 0,
         dailyMapping: [],
         storeContributions: [],
       },
       sourceYear: 0,
       sourceMonth: 0,
       dowOffset: 0,
-      monthlyTotal: { sales: 0, customers: 0, transactionValue: 0 },
+      monthlyTotal: { sales: 0, customers: 0, transactionValue: 0, ctsQuantity: 0 },
     },
     dowGap: {
       dowCounts: Array.from({ length: 7 }, (_, i) => ({
@@ -272,6 +276,7 @@ export function makeWidgetContext(overrides: Partial<WidgetContext> = {}): Widge
       alignmentMap: [],
       sourceMonth: { year: 2025, month: 2 },
     },
+    currentCtsQuantity: { total: 0, byStore: new Map(), byDay: new Map() },
     ...overrides,
   }
 }

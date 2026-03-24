@@ -311,6 +311,41 @@ describe('Presentation Isolation Guard', () => {
         `違反ファイル:\n${violating.join('\n')}`,
     ).toBe(0)
   })
+
+  // ─── CTS raw レコードへの直接アクセス禁止ガード ──────
+  // @guard A3 Presentation は描画専用
+  // @guard F7 View に raw 値を渡さない
+  // presentation/ が raw CTS レコード（categoryTimeSales / prevYearCategoryTimeSales）に
+  // 直接アクセスすると、day mapping の適用漏れなど一貫性のないデータが生じる。
+  // 販売点数データは比較パイプライン（useComparisonModule）で事前集計された
+  // currentCtsQuantity / prevYearMonthlyKpi.ctsQuantity を経由して取得すること。
+
+  it('presentation/ は raw CTS レコードに直接アクセスしない', () => {
+    const presDir = path.join(SRC_DIR, 'presentation')
+    const files = collectTsFiles(presDir)
+    const violations: string[] = []
+
+    // categoryTimeSales.records / prevYearCategoryTimeSales.records への直接アクセスパターン
+    const CTS_RAW_ACCESS_PATTERNS = [
+      /categoryTimeSales\.records/,
+      /prevYearCategoryTimeSales\.records/,
+    ]
+
+    for (const file of files) {
+      const content = fs.readFileSync(file, 'utf-8')
+      for (const pattern of CTS_RAW_ACCESS_PATTERNS) {
+        if (pattern.test(content)) {
+          violations.push(
+            `${relativePath(file)}: raw CTS レコードへの直接アクセス。` +
+              `currentCtsQuantity（WidgetContext）または prevYearMonthlyKpi.ctsQuantity を使用してください`,
+          )
+          break
+        }
+      }
+    }
+
+    expect(violations).toEqual([])
+  })
 })
 
 // ─── Q3: presentation/ から executor.execute / useAsyncQuery の直接使用禁止 ────

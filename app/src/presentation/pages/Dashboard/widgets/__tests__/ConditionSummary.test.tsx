@@ -31,7 +31,9 @@ describe('ConditionSummaryWidget', () => {
   })
 
   it('前年客数データがある場合に客単価前年比カードが表示される', () => {
-    const prevDaily = new Map([['2026-02-01', { sales: 90000, discount: 500, customers: 40 }]])
+    const prevDaily = new Map([
+      ['2026-02-01', { sales: 90000, discount: 500, customers: 40, ctsQuantity: 0 }],
+    ])
     const ctx = makeWidgetContext({
       result: makeStoreResult({
         totalCustomers: 500,
@@ -46,7 +48,9 @@ describe('ConditionSummaryWidget', () => {
   })
 
   it('前年客数 = 0 では客単価前年比カードが非表示', () => {
-    const prevDaily = new Map([['2026-02-01', { sales: 90000, discount: 500, customers: 0 }]])
+    const prevDaily = new Map([
+      ['2026-02-01', { sales: 90000, discount: 500, customers: 0, ctsQuantity: 0 }],
+    ])
     const ctx = makeWidgetContext({
       result: makeStoreResult({
         totalCustomers: 500,
@@ -61,7 +65,9 @@ describe('ConditionSummaryWidget', () => {
   })
 
   it('前年客数データがある場合に客数前年比カードが表示される', () => {
-    const prevDaily = new Map([['2026-02-01', { sales: 90000, discount: 500, customers: 40 }]])
+    const prevDaily = new Map([
+      ['2026-02-01', { sales: 90000, discount: 500, customers: 40, ctsQuantity: 0 }],
+    ])
     const ctx = makeWidgetContext({
       result: makeStoreResult({
         totalCustomers: 500,
@@ -76,7 +82,9 @@ describe('ConditionSummaryWidget', () => {
   })
 
   it('前年客数 = 0 では客数前年比カードが非表示', () => {
-    const prevDaily = new Map([['2026-02-01', { sales: 90000, discount: 500, customers: 0 }]])
+    const prevDaily = new Map([
+      ['2026-02-01', { sales: 90000, discount: 500, customers: 0, ctsQuantity: 0 }],
+    ])
     const ctx = makeWidgetContext({
       result: makeStoreResult({
         totalCustomers: 500,
@@ -91,7 +99,9 @@ describe('ConditionSummaryWidget', () => {
   })
 
   it('客単価前年比の前年比シグナルが正しい（前年超え → blue）', () => {
-    const prevDaily = new Map([['2026-02-01', { sales: 90000, discount: 500, customers: 50 }]])
+    const prevDaily = new Map([
+      ['2026-02-01', { sales: 90000, discount: 500, customers: 50, ctsQuantity: 0 }],
+    ])
     const ctx = makeWidgetContext({
       result: makeStoreResult({
         totalCustomers: 500,

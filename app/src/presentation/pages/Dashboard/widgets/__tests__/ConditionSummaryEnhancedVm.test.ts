@@ -43,6 +43,7 @@ function makeHasPrevYearKpi(
     sales: totalSales,
     customers: totalCustomers,
     transactionValue: 0,
+    ctsQuantity: 0,
     dailyMapping: [] as {
       prevDay: number
       prevMonth: number
@@ -50,8 +51,9 @@ function makeHasPrevYearKpi(
       currentDay: number
       prevSales: number
       prevCustomers: number
+      prevCtsQuantity: number
     }[],
-    storeContributions,
+    storeContributions: storeContributions.map((c) => ({ ...c, ctsQuantity: 0 })),
   }
   return {
     hasPrevYear: true,
@@ -60,7 +62,12 @@ function makeHasPrevYearKpi(
     sourceYear: 2025,
     sourceMonth: 3,
     dowOffset: 0,
-    monthlyTotal: { sales: totalSales, customers: totalCustomers, transactionValue: 0 },
+    monthlyTotal: {
+      sales: totalSales,
+      customers: totalCustomers,
+      transactionValue: 0,
+      ctsQuantity: 0,
+    },
   }
 }
 

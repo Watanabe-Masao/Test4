@@ -13,6 +13,8 @@ import type { SourceDataIndex, SourceMonthContext } from '@/application/comparis
 import {
   buildSourceDataIndex,
   buildFlowersFullIndex,
+  indexCtsQuantityByStoreDay,
+  buildCtsFullIndex,
 } from '@/application/comparison/sourceDataIndex'
 
 /** prepareComparisonInputs の出力 */
@@ -69,11 +71,21 @@ export function prepareComparisonInputs(
   const prevYearFlowers = data.prevYearFlowers
   const flowersFullIndex =
     prevYearFlowers.records.length > 0 ? buildFlowersFullIndex(prevYearFlowers.records) : undefined
+
+  // CTS（販売点数）インデックス構築
+  const prevYearCts = data.prevYearCategoryTimeSales
+  const ctsIndex =
+    prevYearCts.records.length > 0 ? indexCtsQuantityByStoreDay(prevYearCts.records) : undefined
+  const ctsFullIndex =
+    prevYearCts.records.length > 0 ? buildCtsFullIndex(prevYearCts.records) : undefined
+
   const sourceIndex = buildSourceDataIndex(
     raw.allAgg,
     raw.flowersIndex,
     sourceMonthCtx,
     flowersFullIndex,
+    ctsIndex,
+    ctsFullIndex,
   )
   return { sourceIndex, targetIds: raw.targetIds }
 }

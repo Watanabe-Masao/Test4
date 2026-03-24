@@ -36,6 +36,7 @@ export interface ComparisonDailyResult {
   readonly totalSales: number
   readonly totalDiscount: number
   readonly totalCustomers: number
+  readonly totalCtsQuantity: number
   readonly grossSales: number
   readonly discountRate: number
   readonly totalDiscountEntries: readonly DiscountEntry[]
@@ -47,6 +48,7 @@ const EMPTY_DAILY: ComparisonDailyResult = {
   totalSales: 0,
   totalDiscount: 0,
   totalCustomers: 0,
+  totalCtsQuantity: 0,
   grossSales: 0,
   discountRate: 0,
   totalDiscountEntries: ZERO_DISCOUNT_ENTRIES,
@@ -54,16 +56,19 @@ const EMPTY_DAILY: ComparisonDailyResult = {
 
 // ── 日別集計の内部構成関数 ──
 
-/** 日別の売上・値引・客数を蓄積する */
+/** 日別の売上・値引・客数・販売点数を蓄積する */
 function accumulateDailyValues(
   sourceIndex: SourceDataIndex,
   targetIds: readonly string[],
   alignmentMap: readonly AlignmentEntry[],
 ): {
-  daily: Map<string, { sales: number; discount: number; customers: number }>
+  daily: Map<string, { sales: number; discount: number; customers: number; ctsQuantity: number }>
   dayDiscountEntries: Map<string, DiscountEntry[]>
 } {
-  const daily = new Map<string, { sales: number; discount: number; customers: number }>()
+  const daily = new Map<
+    string,
+    { sales: number; discount: number; customers: number; ctsQuantity: number }
+  >()
   const dayDiscountEntries = new Map<string, DiscountEntry[]>()
 
   for (const entry of alignmentMap) {
@@ -79,15 +84,18 @@ function accumulateDailyValues(
       const flowerEntry = sourceIndex.getFlowers(storeId, entry.sourceDate)
       const customers = flowerEntry?.customers ?? 0
 
+      const ctsQuantity = sourceIndex.getCtsQuantity(storeId, entry.sourceDate)
+
       const existing = daily.get(tgtKey)
       if (existing) {
         daily.set(tgtKey, {
           sales: existing.sales + sales,
           discount: existing.discount + discount,
           customers: existing.customers + customers,
+          ctsQuantity: existing.ctsQuantity + ctsQuantity,
         })
       } else {
-        daily.set(tgtKey, { sales, discount, customers })
+        daily.set(tgtKey, { sales, discount, customers, ctsQuantity })
       }
 
       // 売変種別内訳を蓄積
@@ -111,12 +119,16 @@ function accumulateDailyValues(
  * daily Map の全エントリを合計すればよい。
  */
 function summarizeDailyTotals(
-  daily: ReadonlyMap<string, { sales: number; discount: number; customers: number }>,
+  daily: ReadonlyMap<
+    string,
+    { sales: number; discount: number; customers: number; ctsQuantity: number }
+  >,
   dayDiscountEntries: ReadonlyMap<string, DiscountEntry[]>,
 ): {
   totalSales: number
   totalDiscount: number
   totalCustomers: number
+  totalCtsQuantity: number
   grossSales: number
   discountRate: number
   totalDiscountEntries: readonly DiscountEntry[]
@@ -124,12 +136,14 @@ function summarizeDailyTotals(
   let totalSales = 0
   let totalDiscount = 0
   let totalCustomers = 0
+  let totalCtsQuantity = 0
   let totalDiscountEntriesAcc: DiscountEntry[] = [...ZERO_DISCOUNT_ENTRIES.map((e) => ({ ...e }))]
 
   for (const [key, val] of daily) {
     totalSales += val.sales
     totalDiscount += val.discount
     totalCustomers += val.customers
+    totalCtsQuantity += val.ctsQuantity
     const dayEntries = dayDiscountEntries.get(key)
     if (dayEntries) {
       totalDiscountEntriesAcc = addDiscountEntries(
@@ -143,6 +157,7 @@ function summarizeDailyTotals(
     totalSales,
     totalDiscount,
     totalCustomers,
+    totalCtsQuantity,
     grossSales: totalSales + totalDiscount,
     discountRate: safeDivide(totalDiscount, totalSales),
     totalDiscountEntries: totalDiscountEntriesAcc,
@@ -177,7 +192,16 @@ export function aggregateDailyByAlignment(
       const discountEntries: Record<string, number> | undefined = entries
         ? Object.fromEntries(entries.map((e) => [e.type, e.amount]))
         : undefined
-      return [key, { ...val, discountEntries }]
+      return [
+        key,
+        {
+          sales: val.sales,
+          discount: val.discount,
+          customers: val.customers,
+          ctsQuantity: val.ctsQuantity,
+          discountEntries,
+        },
+      ]
     }),
   )
 
@@ -206,6 +230,7 @@ export function aggregateKpiByAlignment(
       sales: 0,
       customers: 0,
       transactionValue: 0,
+      ctsQuantity: 0,
       dailyMapping: [],
       storeContributions: [],
     }
@@ -213,9 +238,17 @@ export function aggregateKpiByAlignment(
 
   let totalSales = 0
   let totalCustomers = 0
+  let totalCtsQuantity = 0
   const dayMap = new Map<
     number,
-    { prevDay: number; prevMonth: number; prevYear: number; sales: number; customers: number }
+    {
+      prevDay: number
+      prevMonth: number
+      prevYear: number
+      sales: number
+      customers: number
+      ctsQuantity: number
+    }
   >()
   const storeContributions: StoreContribution[] = []
 
@@ -233,6 +266,9 @@ export function aggregateKpiByAlignment(
       const customers = flowerEntry?.customers ?? 0
       totalCustomers += customers
 
+      const ctsQty = sourceIndex.getCtsQuantity(storeId, entry.sourceDate)
+      totalCtsQuantity += ctsQty
+
       const discount = summary.discount ?? 0
 
       storeContributions.push({
@@ -242,12 +278,14 @@ export function aggregateKpiByAlignment(
         sales,
         customers,
         discount,
+        ctsQuantity: ctsQty,
       })
 
       const existing = dayMap.get(tgtDay)
       if (existing) {
         existing.sales += sales
         existing.customers += customers
+        existing.ctsQuantity += ctsQty
       } else {
         dayMap.set(tgtDay, {
           prevDay: entry.sourceDate.day,
@@ -255,6 +293,7 @@ export function aggregateKpiByAlignment(
           prevYear: entry.sourceDate.year,
           sales,
           customers,
+          ctsQuantity: ctsQty,
         })
       }
     }
@@ -269,12 +308,14 @@ export function aggregateKpiByAlignment(
       currentDay,
       prevSales: d.sales,
       prevCustomers: d.customers,
+      prevCtsQuantity: d.ctsQuantity,
     }))
 
   return {
     sales: totalSales,
     customers: totalCustomers,
     transactionValue: calculateTransactionValue(totalSales, totalCustomers),
+    ctsQuantity: totalCtsQuantity,
     dailyMapping,
     storeContributions,
   }
@@ -304,6 +345,7 @@ export function aggregateMonthlyTotal(
 ): PrevYearMonthlyTotal {
   let totalSales = 0
   let totalCustomers = 0
+  let totalCtsQuantity = 0
 
   for (let day = 1; day <= sourceMonthCtx.daysInMonth; day++) {
     const date = { year: sourceMonthCtx.year, month: sourceMonthCtx.month, day }
@@ -314,6 +356,8 @@ export function aggregateMonthlyTotal(
 
       const flowerEntry = sourceIndex.getFlowers(storeId, date)
       totalCustomers += flowerEntry?.customers ?? 0
+
+      totalCtsQuantity += sourceIndex.getCtsQuantity(storeId, date)
     }
   }
 
@@ -321,5 +365,6 @@ export function aggregateMonthlyTotal(
     sales: totalSales,
     customers: totalCustomers,
     transactionValue: calculateTransactionValue(totalSales, totalCustomers),
+    ctsQuantity: totalCtsQuantity,
   }
 }

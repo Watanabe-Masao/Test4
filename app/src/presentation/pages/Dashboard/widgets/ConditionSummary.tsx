@@ -5,7 +5,6 @@ import type { MetricId } from '@/domain/models/analysis'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
 import { isMetricEnabled } from '@/domain/calculations/rules/conditionResolver'
 import { useSettingsStore } from '@/application/stores/settingsStore'
-import { useDataStore } from '@/application/stores/dataStore'
 import type { WidgetContext } from './types'
 import {
   type ConditionItem,
@@ -108,9 +107,9 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
     [onExplain],
   )
 
-  // ─── CTS data for itemsYoY ──────────────────────────
-  const ctsRecords = useDataStore((s) => s.data.categoryTimeSales.records)
-  const prevCtsRecords = useDataStore((s) => s.data.prevYearCategoryTimeSales.records)
+  // ─── CTS 販売点数: 事前集計済み値を使用 ──────────────
+  const { currentCtsQuantity } = ctx
+  const prevYearCtsQty = ctx.prevYearMonthlyKpi.sameDow.ctsQuantity
 
   // ─── Build condition items ───────────────────────────
   // NOTE: 粗利率, 粗利率予算比, 売上予算達成率, 値入率, 売変率, 売上前年比 は
@@ -140,10 +139,10 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
     })
   }
 
-  // 8. Items YoY (販売点数前年比) — derived from CTS quantity data
+  // 8. Items YoY (販売点数前年比) — 事前集計済み値を使用
   if (isMetricEnabled(effectiveConfig, 'itemsYoY') && prevYear.hasPrevYear) {
-    const curQty = ctsRecords.reduce((sum, rec) => sum + rec.totalQuantity, 0)
-    const prevQty = prevCtsRecords.reduce((sum, rec) => sum + rec.totalQuantity, 0)
+    const curQty = currentCtsQuantity.total
+    const prevQty = prevYearCtsQty
     if (curQty > 0 && prevQty > 0) {
       const itemsYoY = curQty / prevQty
       items.push({

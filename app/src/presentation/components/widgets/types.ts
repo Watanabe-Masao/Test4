@@ -18,6 +18,7 @@ import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
 import type { DepartmentKpiIndex } from '@/domain/models/DepartmentKpiIndex'
 import type { MonthlyDataPoint } from '@/application/hooks/useStatistics'
 import type { InsightData } from '@/presentation/pages/Insight/useInsightData'
+import type { CurrentCtsQuantity } from '@/application/hooks/useCtsQuantity'
 import type { CostDetailData } from '@/presentation/pages/CostDetail/useCostDetailData'
 import type { CurrencyFormatter } from '@/presentation/components/charts/chartTheme'
 
@@ -94,6 +95,12 @@ export interface UnifiedWidgetContext {
   readonly weatherDaily?: readonly import('@/domain/models/WeatherData').DailyWeatherSummary[]
   /** 前年天気データ（日別サマリ） */
   readonly prevYearWeatherDaily?: readonly import('@/domain/models/WeatherData').DailyWeatherSummary[]
+
+  /**
+   * 当年販売点数（CTS）の事前集計値（effectiveDay 以内）。
+   * Presentation が raw CTS レコードに触れないようにするための唯一の取得口。
+   */
+  readonly currentCtsQuantity?: CurrentCtsQuantity
 
   // ── Insight 固有 ──
   readonly insightData?: InsightData

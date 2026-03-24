@@ -20,12 +20,11 @@ import {
   buildSalesYoYDetailVm,
   buildCustomerYoYDetailVm,
   buildItemsYoYDetailVm,
-  buildDayMapping,
   buildItemsYoYStoreDailyRows,
 } from './conditionPanelYoY.vm'
 import { CustomerYoYDailyModal, ItemsYoYDailyModal } from './conditionPanelYoYDailyModal'
 import type { PrevYearMonthlyKpi } from '@/application/comparison/comparisonTypes'
-import type { CategoryTimeSalesRecord } from '@/domain/models/DataTypes'
+import type { CurrentCtsQuantity } from './types'
 import type { StoreResult } from '@/domain/models/storeTypes'
 import type { Store } from '@/domain/models/record'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
@@ -376,8 +375,7 @@ export interface ItemsYoYDetailProps {
   readonly sortedStoreEntries: readonly [string, StoreResult][]
   readonly stores: ReadonlyMap<string, Store>
   readonly effectiveConfig: ConditionSummaryConfig
-  readonly ctsRecords: readonly CategoryTimeSalesRecord[]
-  readonly prevCtsRecords: readonly CategoryTimeSalesRecord[]
+  readonly currentCtsQuantity: CurrentCtsQuantity
   readonly effectiveDay: number
   readonly prevYearMonthlyKpi: PrevYearMonthlyKpi
 }
@@ -386,18 +384,12 @@ export function ItemsYoYDetailTable({
   sortedStoreEntries,
   stores,
   effectiveConfig,
-  ctsRecords,
-  prevCtsRecords,
+  currentCtsQuantity,
   effectiveDay,
   prevYearMonthlyKpi,
 }: ItemsYoYDetailProps) {
   const [dailyMode, setDailyMode] = useState<'cumulative' | 'daily'>('cumulative')
   const [dailyStoreId, setDailyStoreId] = useState<string | null>(null)
-
-  const dayMapping = useMemo(
-    () => buildDayMapping(prevYearMonthlyKpi.sameDow.dailyMapping),
-    [prevYearMonthlyKpi],
-  )
 
   const vm = useMemo(
     () =>
@@ -405,19 +397,17 @@ export function ItemsYoYDetailTable({
         sortedStoreEntries,
         stores,
         effectiveConfig,
-        ctsRecords,
-        prevCtsRecords,
+        currentCtsQuantity,
+        prevYearMonthlyKpi,
         effectiveDay,
-        dayMapping,
       ),
     [
       sortedStoreEntries,
       stores,
       effectiveConfig,
-      ctsRecords,
-      prevCtsRecords,
+      currentCtsQuantity,
+      prevYearMonthlyKpi,
       effectiveDay,
-      dayMapping,
     ],
   )
 
@@ -432,13 +422,12 @@ export function ItemsYoYDetailTable({
   const modalDailyRows = useMemo(() => {
     if (!dailyStoreId) return []
     return buildItemsYoYStoreDailyRows(
-      ctsRecords,
-      prevCtsRecords,
+      currentCtsQuantity,
+      prevYearMonthlyKpi,
       effectiveDay,
       dailyStoreId,
-      dayMapping,
     )
-  }, [dailyStoreId, ctsRecords, prevCtsRecords, effectiveDay, dayMapping])
+  }, [dailyStoreId, currentCtsQuantity, prevYearMonthlyKpi, effectiveDay])
 
   const modalStoreName = dailyStoreId ? (stores.get(dailyStoreId)?.name ?? dailyStoreId) : ''
 

@@ -156,9 +156,12 @@ describe('buildDailyCustomerData', () => {
     daily.set(1, { sales: 1000, customers: 10 } as never)
     daily.set(2, { sales: 1200, customers: 12 } as never)
 
-    const prevYearDaily = new Map<string, { sales: number; discount: number; customers: number }>()
-    prevYearDaily.set('2025-01-01', { sales: 800, discount: 0, customers: 8 })
-    prevYearDaily.set('2025-01-02', { sales: 900, discount: 0, customers: 9 })
+    const prevYearDaily = new Map<
+      string,
+      { sales: number; discount: number; customers: number; ctsQuantity: number }
+    >()
+    prevYearDaily.set('2025-01-01', { sales: 800, discount: 0, customers: 8, ctsQuantity: 0 })
+    prevYearDaily.set('2025-01-02', { sales: 900, discount: 0, customers: 9, ctsQuantity: 0 })
 
     const prevYear: PrevYearData = {
       hasPrevYear: true,
@@ -166,6 +169,7 @@ describe('buildDailyCustomerData', () => {
       totalSales: 1700,
       totalDiscount: 0,
       totalCustomers: 17,
+      totalCtsQuantity: 0,
       grossSales: 1700,
       discountRate: 0,
       totalDiscountEntries: [],
@@ -191,6 +195,7 @@ describe('buildDailyCustomerData', () => {
       totalSales: 0,
       totalDiscount: 0,
       totalCustomers: 0,
+      totalCtsQuantity: 0,
       grossSales: 0,
       discountRate: 0,
       totalDiscountEntries: [],
@@ -213,6 +218,7 @@ describe('buildDailyCustomerData', () => {
       totalSales: 0,
       totalDiscount: 0,
       totalCustomers: 0,
+      totalCtsQuantity: 0,
       grossSales: 0,
       discountRate: 0,
       totalDiscountEntries: [],
