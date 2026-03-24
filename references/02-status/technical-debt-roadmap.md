@@ -181,20 +181,8 @@ query orchestration を引き受けさせやすいことの結果。P4（cmpPrev
 
 **二層標準（Query Access Rules Q1〜Q6）:**
 
-| ルール | 内容 |
-|---|---|
-| **Q1** | Presentation の query 入口は `useQueryWithHandler` と `WidgetContext` のみ |
-| **Q2** | 共有文脈は `WidgetContext`、個別結果は `useQueryWithHandler` |
-| **Q3** | Chart は DuckDB hook / QueryExecutor / useAsyncQuery を直接 import しない |
-| **Q4** | comparison / alignment-aware access は handler/resolver に閉じる |
-| **Q5** | `WidgetContext` は個別 chart 結果を保持しない（共有文脈の正本） |
-| **Q6** | heavy query を ctx に入れるには「2 widget 以上で常時利用」を満たすこと |
-
-**Q ルール補足:**
-- `useQueryWithHandler` は input を `useMemo` 安定化前提。handler は `application/queries/` 配下のみ
-- `queryExecutor` は `useQueryWithHandler` の入力として渡すためにある。`executor.execute()` 直呼び出し禁止
-- `comparisonAccessors.ts` は raw map access を隠蔽する comparison module の公開 access API
-- Presentation / VM / page は `PrevYearData` の内部構造を知らない
+正本は `03-guides/duckdb-architecture.md` § Query Access Rules を参照。
+Guard テスト（`presentationIsolationGuard.test.ts`）で Q3 の機械的検証を実施。
 
 **成功条件（最終フェーズ）:**
 - ~~Chart は DuckDB hook を import しない~~ ✅ 達成

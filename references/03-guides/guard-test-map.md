@@ -182,27 +182,39 @@ CLAUDE.md の設計原則・禁止事項のうち、import ベースでカバー
 
 ## 許可リスト管理
 
-**一元管理:** 全許可リストは `app/src/test/allowlists.ts` にメタデータ付きで定義されている。
+**一元管理:** 全許可リストは `app/src/test/allowlists/` ディレクトリにカテゴリ別ファイルで定義されている。
 各エントリに `reason`（理由）、`category`（分類）、`removalCondition`（削除条件）が付与されている。
 
-テストファイルは `allowlists.ts` から `buildAllowlistSet()` / `buildQuantitativeAllowlist()` で
-Set / Record を構築して使用する。許可リストの変更は `allowlists.ts` のみで行う。
+```
+allowlists/
+├── index.ts           # バレル + buildAllowlistSet / buildQuantitativeAllowlist
+├── types.ts           # AllowlistEntry / QuantitativeAllowlistEntry 型定義
+├── architecture.ts    # 層境界例外（app→infra, presentation→infra）
+├── complexity.ts      # useMemo/useState/hook行数の上限超過
+├── size.ts            # 大型ファイル Tier 2 例外
+├── duckdb.ts          # DuckDB hook 直接使用（凍結）
+├── migration.ts       # 比較サブシステム移行
+└── misc.ts            # ViewModel React, contexts, 副作用
+```
+
+テストファイルは `allowlists/` から `buildAllowlistSet()` / `buildQuantitativeAllowlist()` で
+Set / Record を構築して使用する。許可リストの変更は `allowlists/` 内の該当ファイルのみで行う。
 
 ## 共有テストインフラ
 
 | ファイル | 内容 |
 |---|---|
 | `app/src/test/guardTestHelpers.ts` | `collectTsFiles`, `rel`, `extractImports`, `extractValueImports`, `isCommentLine`, `stripStrings`, `SRC_DIR` |
-| `app/src/test/allowlists.ts` | 全許可リストの一元定義 + `buildAllowlistSet`, `buildQuantitativeAllowlist` |
+| `app/src/test/allowlists/` | 全許可リストのカテゴリ別定義 + `buildAllowlistSet`, `buildQuantitativeAllowlist` |
 
 ## 設計原則カテゴリ → ガードテスト対応
 
 | カテゴリ | 主なガードテスト |
 |---|---|
-| A: 層境界 | architectureGuard, domainPurityGuard |
-| B: エンジン境界 | domainPurityGuard, architectureGuard (CQRS) |
-| C: 純粋性・責務分離 | hookComplexityGuard (R1,R5,R7), domainPurityGuard (facade) |
+| A: 層境界 | layerBoundaryGuard, presentationIsolationGuard, purityGuard |
+| B: エンジン境界 | purityGuard (INV-ENGINE-*), presentationIsolationGuard (CQRS) |
+| C: 純粋性・責務分離 | codePatternGuard (R1,R5,R7), purityGuard (facade) |
 | D: 数学的不変条件 | factorDecomposition, scopeBoundaryInvariant, waterfallDataIntegrity |
 | E: 型安全 | comparisonMigrationGuard (INV-CMP-08) |
-| F: コード構造規約 | architectureGuard (vertical slice, prototype, barrel) |
-| G: 機械的防御 | hookComplexityGuard (R3,R10,R11,R12), designSystemGuard |
+| F: コード構造規約 | structuralConventionGuard (vertical slice, prototype, barrel) |
+| G: 機械的防御 | sizeGuard (R11,R12), codePatternGuard (R3,R10), designSystemGuard |

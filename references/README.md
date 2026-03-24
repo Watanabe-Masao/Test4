@@ -6,9 +6,9 @@
 
 | ディレクトリ | 内容 | ファイル数 |
 |---|---|---|
-| `01-principles/` | 設計原則・制約（Engine 境界、禁止事項、パイプライン整合性） | 10 |
-| `02-status/` | 進捗・品質状態（maturity, promotion, 品質監査） | 6 |
-| `03-guides/` | 実装ガイド・リファレンス（API, データモデル, 天気基盤, 拡張手順） | 22 |
+| `01-principles/` | 設計原則・制約（Engine 境界、禁止事項、パイプライン整合性） | 11 |
+| `02-status/` | 進捗・品質状態（maturity, promotion, 品質監査） | 7 |
+| `03-guides/` | 実装ガイド・リファレンス（API, データモデル, 天気基盤, 拡張手順） | 23 |
 | `99-archive/` | 旧文書の圧縮要約（現行では参照しない） | 1 |
 
 ## 正本一覧
@@ -17,7 +17,7 @@
 
 | テーマ | 正本 |
 |---|---|
-| 設計思想 19 原則 | `01-principles/design-principles.md` |
+| 設計原則 25 項目（7 カテゴリ A-G） | `01-principles/design-principles.md` |
 | 禁止事項 13 件 | CLAUDE.md §禁止事項（クイックリファレンス: `01-principles/prohibition-quick-ref.md`） |
 | Engine 境界・3 エンジン定義 | `01-principles/engine-boundary-policy.md` |
 | JS vs DuckDB 責務 | `01-principles/engine-responsibility.md` |
@@ -37,6 +37,13 @@
 | Engine 昇格マトリクス | `02-status/engine-promotion-matrix.md` |
 | Engine 昇格基準 | `02-status/promotion-criteria.md` |
 | 品質監査レポート | `02-status/quality-audit-latest.md` |
+| 技術的負債ロードマップ | `02-status/technical-debt-roadmap.md` |
+| ガードテスト対応表 | `03-guides/guard-test-map.md` |
+| 許可リスト運用 | `03-guides/allowlist-management.md` |
+| DuckDB アーキテクチャ・Query Access Rules（Q1-Q6） | `03-guides/duckdb-architecture.md` |
+| 計算エンジン | `03-guides/calculation-engine.md` |
+| WASM 二重実行ランブック | `03-guides/wasm-dual-run-runbook.md` |
+| 拡張プレイブック | `03-guides/extension-playbook.md` |
 
 ## AI 向け索引
 
