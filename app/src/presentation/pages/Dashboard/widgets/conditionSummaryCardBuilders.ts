@@ -23,7 +23,6 @@ import {
   rateDiffColor,
   fmtAchievement,
 } from './conditionSummaryFormatters'
-import { computeGpBeforeConsumable } from './conditionSummaryUtils'
 
 // ─── Card Summary (カード表面用データ) ──────────────────
 

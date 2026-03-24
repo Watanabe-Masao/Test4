@@ -5,16 +5,10 @@
  * このファイルの関数はバレル経由で外部公開しない。
  */
 
-import {
-  calculateAchievementRate,
-  calculateYoYRatio,
-} from '@/domain/calculations/utils'
+import { calculateAchievementRate, calculateYoYRatio } from '@/domain/calculations/utils'
 import { calculateMarkupRates } from '@/domain/calculations/markupRate'
 import { calculateDiscountRate } from '@/domain/calculations/estMethod'
-import {
-  computeGpAfterConsumableAmount,
-  computeGpAfterConsumable,
-} from './conditionSummaryUtils'
+import { computeGpAfterConsumableAmount, computeGpAfterConsumable } from './conditionSummaryUtils'
 import type { StoreResult } from '@/domain/models/storeTypes'
 import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/hooks/analytics'
 import type { MetricKey, PeriodTab } from './conditionSummaryTypes'
