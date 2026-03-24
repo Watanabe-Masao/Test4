@@ -12,7 +12,7 @@ import type {
   ParquetImportResult,
   ReportGenerateResult,
 } from './types'
-import { resetTables, loadMonth, deleteMonth } from '../dataLoader'
+import { resetTables, loadMonth, deleteMonth, deletePrevYearMonth } from '../dataLoader'
 import type { LoadResult } from '../dataLoader'
 import { SCHEMA_VERSION, TABLE_NAMES } from '../schemas'
 import type { ImportedData } from '@/domain/models/storeTypes'
@@ -133,6 +133,7 @@ export async function executeDeleteMonth(
   month: number,
 ): Promise<null> {
   await deleteMonth(conn, year, month)
+  await deletePrevYearMonth(conn, year, month)
   return null
 }
 

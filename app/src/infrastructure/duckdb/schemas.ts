@@ -330,15 +330,28 @@ LEFT JOIN (
 ) t_do
   ON cs.year = t_do.year AND cs.month = t_do.month
   AND cs.store_id = t_do.store_id AND cs.day = t_do.day
-LEFT JOIN special_sales ss_f
+LEFT JOIN (
+  SELECT year, month, store_id, day,
+    SUM(cost) AS cost, SUM(price) AS price, SUM(customers) AS customers
+  FROM special_sales WHERE type = 'flowers'
+  GROUP BY year, month, store_id, day
+) ss_f
   ON cs.year = ss_f.year AND cs.month = ss_f.month
   AND cs.store_id = ss_f.store_id AND cs.day = ss_f.day
-  AND ss_f.type = 'flowers'
-LEFT JOIN special_sales ss_d
+LEFT JOIN (
+  SELECT year, month, store_id, day,
+    SUM(cost) AS cost, SUM(price) AS price
+  FROM special_sales WHERE type = 'directProduce'
+  GROUP BY year, month, store_id, day
+) ss_d
   ON cs.year = ss_d.year AND cs.month = ss_d.month
   AND cs.store_id = ss_d.store_id AND cs.day = ss_d.day
-  AND ss_d.type = 'directProduce'
-LEFT JOIN consumables con
+LEFT JOIN (
+  SELECT year, month, store_id, day,
+    SUM(cost) AS cost
+  FROM consumables
+  GROUP BY year, month, store_id, day
+) con
   ON cs.year = con.year AND cs.month = con.month
   AND cs.store_id = con.store_id AND cs.day = con.day
 LEFT JOIN (
