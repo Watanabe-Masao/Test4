@@ -8,7 +8,7 @@ import { useCallback, useMemo } from 'react'
 import { useTheme } from 'styled-components'
 import { evaluateAlerts, DEFAULT_ALERT_RULES } from '@/application/hooks/analytics'
 import { formatPercent } from '@/domain/formatting'
-import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
+import { getPrevYearDailyValue } from '@/application/comparison/comparisonAccessors'
 import type { Alert, AlertSeverity } from '@/application/hooks/analytics'
 import type { MetricId } from '@/domain/models/analysis'
 import type { WidgetContext } from './types'
@@ -86,7 +86,7 @@ export function AlertPanelWidget({ ctx }: { ctx: WidgetContext }) {
       const salesMap = new Map<number, number>()
       const daysInMonth = new Date(ctx.year, ctx.month, 0).getDate()
       for (let d = 1; d <= daysInMonth; d++) {
-        const entry = ctx.prevYear.daily.get(toDateKeyFromParts(ctx.year, ctx.month, d))
+        const entry = getPrevYearDailyValue(ctx.prevYear, ctx.year, ctx.month, d)
         if (entry) salesMap.set(d, entry.sales)
       }
       prevYearDailySales = salesMap

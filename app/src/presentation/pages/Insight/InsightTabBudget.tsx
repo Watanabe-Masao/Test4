@@ -4,7 +4,7 @@ import { Card, CardTitle } from '@/presentation/components/common/layout'
 import { KpiCard, KpiGrid } from '@/presentation/components/common/tables'
 import type { MetricId } from '@/domain/models/analysis'
 import type { StoreResult } from '@/domain/models/storeTypes'
-import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
+import { getPrevYearDailySales } from '@/application/comparison/comparisonAccessors'
 import {
   BudgetProgressCard,
   BudgetTrendChart,
@@ -267,9 +267,12 @@ export function BudgetTabContent({ d, r, onExplain }: BudgetTabProps) {
                         const discountRateCum = d.safeDivide(cumDiscount, cumGrossSales, 0)
                         const cumDiscountRate = discountRateCum
                         const budgetVariance = cd.actualCum - cd.budgetCum
-                        const pyDaySales =
-                          d.prevYear.daily.get(toDateKeyFromParts(d.year, d.month, cd.day))
-                            ?.sales ?? 0
+                        const pyDaySales = getPrevYearDailySales(
+                          d.prevYear,
+                          d.year,
+                          d.month,
+                          cd.day,
+                        )
                         cumPrevYear += pyDaySales
                         const pyDayRatio = pyDaySales > 0 ? daySales / pyDaySales : 0
                         const pyCumRatio = cumPrevYear > 0 ? cd.actualCum / cumPrevYear : 0

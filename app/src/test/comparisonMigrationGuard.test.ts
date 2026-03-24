@@ -26,7 +26,7 @@ describe('INV-CMP-01: prevYear.daily.get(day) の新規使用禁止', () => {
    * 移行完了時に許可リストから削除する。新規追加は禁止。
    */
   const ALLOWLIST = buildAllowlistSet(cmpPrevYearDaily)
-  const MAX_ALLOWLIST_SIZE = 10
+  const MAX_ALLOWLIST_SIZE = 0
 
   it('許可リストのサイズが上限を超えない', () => {
     expect(

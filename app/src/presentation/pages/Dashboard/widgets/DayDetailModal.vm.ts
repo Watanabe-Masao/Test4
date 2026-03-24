@@ -14,7 +14,10 @@ import {
   calculateTransactionValue,
 } from '@/domain/calculations/utils'
 import type { DailyRecord } from '@/domain/models/record'
-import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
+import {
+  getPrevYearDailyValue,
+  getPrevYearDailySales,
+} from '@/application/comparison/comparisonAccessors'
 import type { PrevYearData } from '@/application/hooks/analytics'
 
 // ── Re-exported types ──
@@ -54,7 +57,7 @@ export function computeCoreMetrics(
   const ach_pragmatic = calculateAchievementRate(actual, budget)
   const cumDiff = cumSales - cumBudget
   const cumAch_pragmatic = calculateAchievementRate(cumSales, cumBudget)
-  const pySales = prevYear.daily.get(toDateKeyFromParts(year, month, day))?.sales ?? 0
+  const pySales = getPrevYearDailySales(prevYear, year, month, day)
   const pyRatio_pragmatic = calculateYoYRatio(actual, pySales)
   const dayOfWeek = DOW_NAMES[new Date(year, month - 1, day).getDay()]
 
@@ -98,7 +101,7 @@ export function computeCustomerMetrics(
 ): CustomerMetrics {
   const dayCust = record?.customers ?? 0
   const dayTxVal = calculateTransactionValue(actual, dayCust)
-  const pyCust = prevYear.daily.get(toDateKeyFromParts(year, month, day))?.customers ?? 0
+  const pyCust = getPrevYearDailyValue(prevYear, year, month, day)?.customers ?? 0
   const pyTxVal = calculateTransactionValue(pySales, pyCust)
   const cumTxVal = calculateTransactionValue(cumSales, cumCustomers)
   const cumPrevTxVal = calculateTransactionValue(cumPrevYear, cumPrevCustomers)

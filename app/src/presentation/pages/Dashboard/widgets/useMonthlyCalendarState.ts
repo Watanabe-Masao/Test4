@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
+import { getPrevYearDailySales } from '@/application/comparison/comparisonAccessors'
 import {
   calculateAchievementRate,
   calculateYoYRatio,
@@ -95,7 +95,7 @@ export function useMonthlyCalendarState(ctx: WidgetContext) {
       budget += r.budgetDaily.get(d) ?? 0
       const daySales = r.daily.get(d)?.sales ?? 0
       sales += daySales
-      pySales += prevYear.daily.get(toDateKeyFromParts(year, month, d))?.sales ?? 0
+      pySales += getPrevYearDailySales(prevYear, year, month, d)
       if (daySales > 0) salesDaysCount++
     }
     const diff = sales - budget
@@ -206,7 +206,7 @@ export function useMonthlyCalendarState(ctx: WidgetContext) {
     handlePinRemove,
     // Prev year lookup
     getPrevYearSales: (day: number) =>
-      prevYear.daily.get(toDateKeyFromParts(year, month, day))?.sales ?? 0,
+      getPrevYearDailySales(prevYear, year, month, day),
     // Export
     isExporting,
     handleClipExport,
