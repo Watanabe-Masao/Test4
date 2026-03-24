@@ -109,7 +109,8 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
 
   // ─── CTS 販売点数: 事前集計済み値を使用 ──────────────
   const { currentCtsQuantity } = ctx
-  const prevYearCtsQty = ctx.prevYearMonthlyKpi.sameDow.ctsQuantity
+  // 前年も経過日数キャップ済みの daily から取得（月全体 KPI はスコープ不一致）
+  const prevYearCtsQty = ctx.prevYear.totalCtsQuantity
 
   // ─── Build condition items ───────────────────────────
   // NOTE: 粗利率, 粗利率予算比, 売上予算達成率, 値入率, 売変率, 売上前年比 は
