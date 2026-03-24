@@ -3,7 +3,10 @@
  *
  * 週計算ロジック、セル判定関数などを MonthlyCalendar.tsx から分離。
  */
-import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
+import {
+  getPrevYearDailyValue,
+  getPrevYearDailySales,
+} from '@/application/comparison/comparisonAccessors'
 import {
   calculateAchievementRate,
   calculateYoYRatio,
@@ -84,7 +87,7 @@ export function calcWeekSummary(
     const rec = r.daily.get(day)
     wSales += rec?.sales ?? 0
     wBudget += r.budgetDaily.get(day) ?? 0
-    wPySales += prevYear.daily.get(toDateKeyFromParts(year, month, day))?.sales ?? 0
+    wPySales += getPrevYearDailySales(prevYear, year, month, day)
     wCustomers += rec?.customers ?? 0
     if ((rec?.sales ?? 0) > 0) dayCount++
   }
@@ -116,9 +119,9 @@ export function buildCumulativeMaps(
   for (let d = 1; d <= daysInMonth; d++) {
     runBudget += r.budgetDaily.get(d) ?? 0
     runSales += r.daily.get(d)?.sales ?? 0
-    runPrevYear += prevYear.daily.get(toDateKeyFromParts(year, month, d))?.sales ?? 0
+    runPrevYear += getPrevYearDailySales(prevYear, year, month, d)
     runCustomers += r.daily.get(d)?.customers ?? 0
-    runPrevCustomers += prevYear.daily.get(toDateKeyFromParts(year, month, d))?.customers ?? 0
+    runPrevCustomers += getPrevYearDailyValue(prevYear, year, month, d)?.customers ?? 0
     cumBudget.set(d, runBudget)
     cumSales.set(d, runSales)
     cumPrevYear.set(d, runPrevYear)

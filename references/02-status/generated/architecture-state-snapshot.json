@@ -1,0 +1,137 @@
+{
+  "timestamp": "2026-03-24T06:00:06.682Z",
+  "totalAllowlistEntries": 49,
+  "categoryBreakdown": {
+    "adapter": 10,
+    "lifecycle": 1,
+    "structural": 38
+  },
+  "frozenLists": [
+    "presentationToInfrastructure",
+    "infrastructureToApplication",
+    "presentationDuckdbHook",
+    "largeComponentTier2",
+    "cmpPrevYearDaily",
+    "cmpFramePrevious",
+    "dowCalcOverride"
+  ],
+  "frozenCount": 7,
+  "activeLists": 14,
+  "vmFileCount": 16,
+  "compatReexportCount": 2,
+  "listSummary": {
+    "applicationToInfrastructure": {
+      "count": 11,
+      "categories": {
+        "adapter": 10,
+        "lifecycle": 1
+      }
+    },
+    "presentationToInfrastructure": {
+      "count": 0,
+      "categories": {}
+    },
+    "infrastructureToApplication": {
+      "count": 0,
+      "categories": {}
+    },
+    "presentationToUsecases": {
+      "count": 1,
+      "categories": {
+        "structural": 1
+      }
+    },
+    "presentationDuckdbHook": {
+      "count": 0,
+      "categories": {}
+    },
+    "useMemoLimits": {
+      "count": 2,
+      "categories": {
+        "structural": 2
+      }
+    },
+    "useStateLimits": {
+      "count": 3,
+      "categories": {
+        "structural": 3
+      }
+    },
+    "hookLineLimits": {
+      "count": 3,
+      "categories": {
+        "structural": 3
+      }
+    },
+    "presentationMemoLimits": {
+      "count": 8,
+      "categories": {
+        "structural": 8
+      }
+    },
+    "presentationStateLimits": {
+      "count": 5,
+      "categories": {
+        "structural": 5
+      }
+    },
+    "largeComponentTier2": {
+      "count": 0,
+      "categories": {}
+    },
+    "infraLargeFiles": {
+      "count": 2,
+      "categories": {
+        "structural": 2
+      }
+    },
+    "domainLargeFiles": {
+      "count": 7,
+      "categories": {
+        "structural": 7
+      }
+    },
+    "usecasesLargeFiles": {
+      "count": 1,
+      "categories": {
+        "structural": 1
+      }
+    },
+    "cmpPrevYearDaily": {
+      "count": 0,
+      "categories": {}
+    },
+    "cmpFramePrevious": {
+      "count": 0,
+      "categories": {}
+    },
+    "cmpDailyMapping": {
+      "count": 1,
+      "categories": {
+        "structural": 1
+      }
+    },
+    "dowCalcOverride": {
+      "count": 0,
+      "categories": {}
+    },
+    "ctxHook": {
+      "count": 2,
+      "categories": {
+        "structural": 2
+      }
+    },
+    "vmReactImport": {
+      "count": 2,
+      "categories": {
+        "structural": 2
+      }
+    },
+    "sideEffectChain": {
+      "count": 1,
+      "categories": {
+        "structural": 1
+      }
+    }
+  }
+}

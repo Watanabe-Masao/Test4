@@ -10,7 +10,7 @@ import { useStoreSelection } from '@/application/hooks/ui'
 import type { PrevYearData } from '@/application/comparison/comparisonTypes'
 import { formatPercent } from '@/domain/formatting'
 import type { CostPricePair } from '@/domain/models/record'
-import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
+import { getPrevYearDailySales } from '@/application/comparison/comparisonAccessors'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import {
   collectSupplierKeys,
@@ -243,7 +243,7 @@ export function DailyPage() {
           <tbody>
             {days.map(([day, rec]) => {
               const prevSales = prevYear.hasPrevYear
-                ? (prevYear.daily.get(toDateKeyFromParts(ctx.year, ctx.month, day))?.sales ?? 0)
+                ? getPrevYearDailySales(prevYear, ctx.year, ctx.month, day)
                 : 0
               const yoyRatio = prevSales > 0 ? rec.sales / prevSales : null
               const anomaly: 'up' | 'down' | undefined =

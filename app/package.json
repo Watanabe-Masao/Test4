@@ -8,7 +8,7 @@
     "npm": ">=10.0.0"
   },
   "scripts": {
-    "build:wasm": "cd ../wasm/factor-decomposition && wasm-pack build --target web --out-dir pkg && cd ../gross-profit && wasm-pack build --target web --out-dir pkg && cd ../budget-analysis && wasm-pack build --target web --out-dir pkg && cd ../forecast && wasm-pack build --target web --out-dir pkg && cd ../time-slot && wasm-pack build --target web --out-dir pkg",
+    "build:wasm": "cd ../wasm/factor-decomposition && wasm-pack build --target web --release --out-dir pkg && cd ../gross-profit && wasm-pack build --target web --release --out-dir pkg && cd ../budget-analysis && wasm-pack build --target web --release --out-dir pkg && cd ../forecast && wasm-pack build --target web --release --out-dir pkg && cd ../time-slot && wasm-pack build --target web --release --out-dir pkg",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",

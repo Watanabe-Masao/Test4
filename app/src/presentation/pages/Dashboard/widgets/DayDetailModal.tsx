@@ -19,6 +19,7 @@ import type { ComparisonScope } from '@/domain/models/ComparisonScope'
 import type { DailyRecord } from '@/domain/models/record'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import { useDayDetailData, type PrevYearData } from '@/application/hooks/analytics'
+import { getPrevYearDailyValue } from '@/application/comparison/comparisonAccessors'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useDataStore } from '@/application/stores/dataStore'
 import {
@@ -161,7 +162,7 @@ export function DayDetailModal({
   const ach = calculateAchievementRate(actual, budget)
   const cumDiff = cumSales - cumBudget
   const cumAch = calculateAchievementRate(cumSales, cumBudget)
-  const pyEntry = prevYear.daily.get(toDateKeyFromParts(year, month, day))
+  const pyEntry = getPrevYearDailyValue(prevYear, year, month, day)
   // インメモリ(flowersIndex) → DuckDB(store_day_summary) の優先順でフォールバック
   const pySales = pyEntry?.sales || dd.prevDaySummary.sales
   const pyRatio = calculateYoYRatio(actual, pySales)

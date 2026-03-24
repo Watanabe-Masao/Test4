@@ -3,7 +3,7 @@ import type { ForecastInput, WeeklySummary } from '@/application/hooks/calculati
 import { calculateTransactionValue, safeDivide, calculateShare } from '@/domain/calculations'
 import type { DailyRecord } from '@/domain/models/record'
 import type { PrevYearData } from '@/application/hooks/analytics'
-import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
+import { getPrevYearDailyValue } from '@/application/comparison/comparisonAccessors'
 
 export const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土']
 export const DEFAULT_DOW_COLORS = [
@@ -81,7 +81,7 @@ export function buildDailyCustomerData(
     if (rec.sales <= 0) continue
     const customers = rec.customers ?? 0
     const txValue = calculateTransactionValue(rec.sales, customers)
-    const py = prevYear.daily.get(toDateKeyFromParts(year, month, d))
+    const py = getPrevYearDailyValue(prevYear, year, month, d)
     const prevCustomers = py?.customers ?? 0
     const prevSales = py?.sales ?? 0
     const prevTxValue = calculateTransactionValue(prevSales, prevCustomers)

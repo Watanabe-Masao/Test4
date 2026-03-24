@@ -12,7 +12,7 @@ import {
   decompose3,
   decompose5,
 } from '@/application/services/factorDecompositionBridge'
-import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
+import { getPrevYearDailyValue } from '@/application/comparison/comparisonAccessors'
 import type {
   ClipBundle,
   ClipDailyEntry,
@@ -138,7 +138,7 @@ export function buildClipBundle(params: BuildClipBundleParams): ClipBundle {
   // 前年日別データ
   const prevYearDaily: ClipPrevYearEntry[] = []
   for (let d = 1; d <= daysInMonth; d++) {
-    const entry = prevYear.daily.get(toDateKeyFromParts(year, month, d))
+    const entry = getPrevYearDailyValue(prevYear, year, month, d)
     if (entry) {
       prevYearDaily.push({
         day: d,
