@@ -36,6 +36,7 @@ export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
         queryExecutor={ctx.queryExecutor}
         currentDateRange={ctx.currentDateRange}
         selectedStoreIds={ctx.selectedStoreIds}
+        prevYearScope={ctx.prevYearScope}
       />
     ),
   },

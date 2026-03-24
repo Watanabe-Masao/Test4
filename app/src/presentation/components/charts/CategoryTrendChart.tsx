@@ -10,7 +10,7 @@
  */
 import { useMemo, useState, useCallback, memo } from 'react'
 import { useTheme } from 'styled-components'
-import type { DateRange } from '@/domain/models/calendar'
+import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { AppTheme } from '@/presentation/theme/theme'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
@@ -19,7 +19,11 @@ import {
   categoryDailyTrendHandler,
   type CategoryDailyTrendInput,
 } from '@/application/queries/cts/CategoryDailyTrendHandler'
-import { buildCategoryTrendData, type CategoryInfo } from './CategoryTrendChartLogic'
+import {
+  buildCategoryTrendData,
+  buildPrevYearTrendData,
+  type CategoryInfo,
+} from './CategoryTrendChartLogic'
 import { useCurrencyFormatter } from './chartTheme'
 import { DowPresetSelector } from './DowPresetSelector'
 import { useI18n } from '@/application/hooks/useI18n'
@@ -64,6 +68,8 @@ interface Props {
   readonly queryExecutor: QueryExecutor | null
   readonly currentDateRange: DateRange
   readonly selectedStoreIds: ReadonlySet<string>
+  /** 前年スコープ（ヘッダの比較設定から取得） */
+  readonly prevYearScope?: PrevYearScope
   /** サブパネル埋め込み時に曜日セレクタを非表示にする */
   readonly hideDowSelector?: boolean
   /** サブパネル埋め込み時に ChartCard ラッパーを省略する */
@@ -77,13 +83,51 @@ interface DrillState {
   readonly lineName?: string
 }
 
+/** 前年シリーズ名のサフィックス */
+const PREV_YEAR_SUFFIX = '(前年)'
+
 function buildOption(
   chartData: readonly { date: string; [k: string]: string | number | null }[],
   categories: readonly CategoryInfo[],
   theme: AppTheme,
+  prevYearData?: ReadonlyMap<string, Record<string, number>>,
 ): EChartsOption {
   const dates = chartData.map((d) => d.date)
   const colors = theme.chart.series
+  const hasPrev = prevYearData != null && prevYearData.size > 0
+
+  // 当年シリーズ
+  const curSeries = categories.map((cat, i) => ({
+    name: cat.name,
+    type: 'line' as const,
+    data: chartData.map((d) => (d[cat.code] as number) ?? null),
+    lineStyle: { color: colors[i % colors.length], width: i === 0 ? 2.5 : 1.5 },
+    itemStyle: { color: colors[i % colors.length] },
+    symbolSize: i === 0 ? 6 : 3,
+    connectNulls: true,
+  }))
+
+  // 前年シリーズ（破線・半透明）
+  const prevSeries = hasPrev
+    ? categories.map((cat, i) => ({
+        name: `${cat.name}${PREV_YEAR_SUFFIX}`,
+        type: 'line' as const,
+        data: dates.map((date) => {
+          const dayData = prevYearData.get(date)
+          return dayData?.[cat.code] ?? null
+        }),
+        lineStyle: {
+          color: colors[i % colors.length],
+          width: 1,
+          type: 'dashed' as const,
+          opacity: 0.5,
+        },
+        itemStyle: { color: colors[i % colors.length], opacity: 0.5 },
+        symbolSize: 0,
+        connectNulls: true,
+        // legend で前年は初期非表示にせず、トグルで制御可能にする
+      }))
+    : []
 
   return {
     grid: standardGrid(),
@@ -94,34 +138,33 @@ function buildOption(
         const items = params as { seriesName: string; value: number | null; color: string }[]
         if (!Array.isArray(items)) return ''
         const header = `<div style="font-weight:600;margin-bottom:4px">日付: ${(items[0] as unknown as { name: string })?.name ?? ''}</div>`
-        const rows = items
-          .filter((item) => item.value != null)
-          .map(
-            (item) =>
-              `<div style="display:flex;justify-content:space-between;gap:12px">` +
-              `<span style="color:${item.color}">${item.seriesName}</span>` +
-              `<span style="font-weight:600;font-family:monospace">${toCommaYen(item.value!)}</span></div>`,
-          )
-          .join('')
-        return header + rows
+        // 当年と前年をグループ化して表示
+        const curItems = items.filter(
+          (item) => item.value != null && !item.seriesName.endsWith(PREV_YEAR_SUFFIX),
+        )
+        const prevItems = items.filter(
+          (item) => item.value != null && item.seriesName.endsWith(PREV_YEAR_SUFFIX),
+        )
+        const formatRow = (item: { seriesName: string; value: number | null; color: string }) =>
+          `<div style="display:flex;justify-content:space-between;gap:12px">` +
+          `<span style="color:${item.color}">${item.seriesName}</span>` +
+          `<span style="font-weight:600;font-family:monospace">${toCommaYen(item.value ?? 0)}</span></div>`
+        const curRows = curItems.map(formatRow).join('')
+        const prevRows =
+          prevItems.length > 0
+            ? `<div style="margin-top:4px;padding-top:4px;border-top:1px solid rgba(128,128,128,0.3);opacity:0.7">${prevItems.map(formatRow).join('')}</div>`
+            : ''
+        return header + curRows + prevRows
       },
     },
     legend: {
       ...standardLegend(theme),
       type: 'scroll',
-      selectedMode: true, // ECharts 組み込み legend toggle
+      selectedMode: true,
     },
     xAxis: categoryXAxis(dates, theme),
     yAxis: yenYAxis(theme),
-    series: categories.map((cat, i) => ({
-      name: cat.name,
-      type: 'line' as const,
-      data: chartData.map((d) => (d[cat.code] as number) ?? null),
-      lineStyle: { color: colors[i % colors.length], width: i === 0 ? 2.5 : 1.5 },
-      itemStyle: { color: colors[i % colors.length] },
-      symbolSize: i === 0 ? 6 : 3,
-      connectNulls: true,
-    })),
+    series: [...curSeries, ...prevSeries],
   }
 }
 
@@ -129,6 +172,7 @@ export const CategoryTrendChart = memo(function CategoryTrendChart({
   queryExecutor,
   currentDateRange,
   selectedStoreIds,
+  prevYearScope,
   hideDowSelector,
   embedded,
 }: Props) {
@@ -184,6 +228,31 @@ export const CategoryTrendChart = memo(function CategoryTrendChart({
 
   const trendRows = output?.records ?? null
 
+  // ── 前年クエリ ──
+  const prevYearDateRange = prevYearScope?.dateRange
+  const prevInput = useMemo<CategoryDailyTrendInput | null>(() => {
+    if (!prevYearDateRange) return null
+    const { fromKey, toKey } = dateRangeToKeys(prevYearDateRange)
+    return {
+      dateFrom: fromKey,
+      dateTo: toKey,
+      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
+      level,
+      topN: 100, // 当年トップNに含まれるカテゴリは全て取得（ロジック側でフィルタ）
+      deptCode: drill.deptCode,
+      lineCode: drill.lineCode,
+      dow: dowParam,
+      isPrevYear: true,
+    }
+  }, [prevYearDateRange, selectedStoreIds, level, drill.deptCode, drill.lineCode, dowParam])
+
+  const { data: prevOutput } = useQueryWithHandler(
+    queryExecutor,
+    categoryDailyTrendHandler,
+    prevInput,
+  )
+  const prevTrendRows = prevOutput?.records ?? null
+
   // ECharts の legend toggle で除外を管理するため、excludedCodes は不要に
   const emptyExcluded = useMemo(() => new Set<string>(), [])
   const { chartData, categories } = useMemo(
@@ -194,9 +263,16 @@ export const CategoryTrendChart = memo(function CategoryTrendChart({
     [trendRows, emptyExcluded],
   )
 
+  // 前年データを当年日付軸にマッピング
+  const prevYearMapped = useMemo(() => {
+    if (!prevTrendRows || !prevYearDateRange || chartData.length === 0) return undefined
+    const currentDates = chartData.map((d) => d.date)
+    return buildPrevYearTrendData(prevTrendRows, currentDates, categories)
+  }, [prevTrendRows, prevYearDateRange, chartData, categories])
+
   const option = useMemo(
-    () => buildOption(chartData, categories, theme),
-    [chartData, categories, theme],
+    () => buildOption(chartData, categories, theme, prevYearMapped),
+    [chartData, categories, theme, prevYearMapped],
   )
 
   // ECharts クリックでドリルダウン
@@ -205,6 +281,8 @@ export const CategoryTrendChart = memo(function CategoryTrendChart({
     (params: Record<string, unknown>) => {
       if (!canDrill) return
       const seriesName = params.seriesName as string
+      // 前年シリーズのクリックではドリルダウンしない
+      if (seriesName.endsWith(PREV_YEAR_SUFFIX)) return
       const cat = categories.find((c) => c.name === seriesName)
       if (!cat) return
       if (level === 'department') {

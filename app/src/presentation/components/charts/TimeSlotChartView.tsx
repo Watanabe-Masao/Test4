@@ -11,7 +11,6 @@ import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { toPct } from './chartTheme'
 import { EChart, type EChartsOption } from './EChart'
-import { formatCoreTime } from './timeSlotUtils'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette, chartFontSize } from '@/presentation/theme/tokens'
 import {
@@ -89,7 +88,7 @@ function LegendItem({
 
 // ── LineMode ──
 
-export type LineMode = 'quantity' | 'temperature' | 'precipitation'
+export type LineMode = 'quantity' | 'cumulative' | 'temperature' | 'precipitation'
 
 // ── Props ──
 
@@ -205,6 +204,9 @@ export const TimeSlotChartView = memo(function TimeSlotChartView({
           <Tab $active={lineMode === 'quantity'} onClick={() => onLineModeChange('quantity')}>
             点数
           </Tab>
+          <Tab $active={lineMode === 'cumulative'} onClick={() => onLineModeChange('cumulative')}>
+            累積構成比
+          </Tab>
           {hasWeatherData && (
             <>
               <Tab
@@ -271,16 +273,7 @@ export const TimeSlotChartView = memo(function TimeSlotChartView({
               </CardSub>
             )}
           </Card>
-          <Card $accent={palette.warningDark}>
-            <CardLabel>ピーク時間帯</CardLabel>
-            <CardValue>{kpi.peakHour}時台</CardValue>
-            <CardSub>構成比 {kpi.peakHourPct}</CardSub>
-          </Card>
-          <Card $accent={palette.purpleDark}>
-            <CardLabel>コアタイム</CardLabel>
-            <CardValue>{formatCoreTime(kpi.coreTimeAmt)}</CardValue>
-            <CardSub>構成比 {kpi.coreTimePct}</CardSub>
-          </Card>
+          {/* ピーク時間帯・コアタイムはチャートの markPoint / markArea で表示 */}
         </Grid>
       )}
 

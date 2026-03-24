@@ -124,6 +124,8 @@ export const TimeSlotChart = memo(function TimeSlotChart({
         prevWeatherMap,
         coreTimeRange: d.kpi?.coreTimeAmt ?? null,
         peakHour: d.kpi?.peakHour ?? null,
+        prevCoreTimeRange: d.kpi?.prevCoreTimeAmt ?? null,
+        prevPeakHour: d.kpi?.prevPeakHour ?? null,
       }),
     [
       hours,
