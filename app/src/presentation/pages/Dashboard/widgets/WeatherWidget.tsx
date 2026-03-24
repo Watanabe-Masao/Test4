@@ -14,7 +14,7 @@ import { useWeatherForecast } from '@/application/hooks/useWeatherForecast'
 import { useWeatherHourlyOnDemand } from '@/application/hooks/useWeatherHourlyOnDemand'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import type { DailySalesForCorrelation } from '@/application/hooks/useWeatherCorrelation'
-import type { AlignmentPolicy } from '@/domain/models/calendar'
+import type { AlignmentMode } from '@/domain/models/calendar'
 import type { DailyForecast } from '@/domain/models/record'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import { WeatherBadge } from '@/presentation/components/common/WeatherBadge'
@@ -107,7 +107,7 @@ export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetC
     error: forecastError,
   } = useWeatherForecast(storeId)
 
-  const weatherPolicy: AlignmentPolicy = ctx.comparisonScope?.alignmentMode ?? 'sameDate'
+  const weatherPolicy: AlignmentMode = ctx.comparisonScope?.alignmentMode ?? 'sameDate'
 
   // 時間別データ取得は Application hook 経由（@guard A3）
   const { hourlyCache, prevHourlyCache, fetchHourly, fetchPrevHourly, resolvePrevDate } =

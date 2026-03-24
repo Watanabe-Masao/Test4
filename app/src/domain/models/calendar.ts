@@ -13,7 +13,6 @@ export {
   dateRangeToKeys,
   splitDateRangeByMonth,
 } from './CalendarDate'
-export type { AlignmentPolicy, ComparisonFrame } from './ComparisonFrame'
 export type { DowDayCount, DowGapAnalysis } from './ComparisonContext'
 export type {
   ComparisonPreset,

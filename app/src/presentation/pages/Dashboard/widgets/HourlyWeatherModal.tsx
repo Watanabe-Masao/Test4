@@ -15,7 +15,7 @@ import {
 } from '@/presentation/components/charts/echartsOptionBuilders'
 import { categorizeWeatherCode } from '@/domain/calculations/weatherAggregation'
 import { mapJmaWeatherCodeToCategory } from '@/domain/calculations/forecastWeatherMapping'
-import type { AlignmentPolicy } from '@/domain/models/calendar'
+import type { AlignmentMode } from '@/domain/models/calendar'
 import type { HourlyWeatherRecord, WeatherCategory, DailyForecast } from '@/domain/models/record'
 import {
   ChartContainer,
@@ -45,7 +45,7 @@ interface Props {
   readonly records?: readonly HourlyWeatherRecord[]
   readonly prevYearRecords?: readonly HourlyWeatherRecord[]
   readonly prevYearDateKey?: string
-  readonly comparisonPolicy?: AlignmentPolicy
+  readonly comparisonPolicy?: AlignmentMode
   /** 予報日の場合の予報データ */
   readonly forecast?: DailyForecast
   readonly onClose: () => void

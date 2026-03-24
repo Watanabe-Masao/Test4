@@ -19,10 +19,7 @@ import {
   buildPrevYearScopeFromSelection,
 } from '@/domain/models/calendar'
 import type { PeriodSelection, DateRange } from '@/domain/models/calendar'
-import {
-  resolveComparisonFrame,
-  buildPrevYearScope,
-} from '@/application/comparison/resolveComparisonFrame'
+// ComparisonFrame は ComparisonScope に統合済み（旧モデル参照は削除）
 import { usePeriodSelectionStore } from '@/application/stores/periodSelectionStore'
 
 describe('期間ソース干渉テスト', () => {
@@ -103,22 +100,12 @@ describe('期間ソース干渉テスト', () => {
       expect(selection.period2).toEqual(customP2) // 不変
     })
 
-    it('effectiveEndDay < period1.to.day の場合、buildPrevYearScope と同等結果が得られる', () => {
+    it('effectiveEndDay < period1.to.day の場合、buildPrevYearScopeFromSelection で正しい結果が得られる', () => {
       // シナリオ: period1 = 全月(1-31)、elapsedDays = 20
       const effectiveEndDay = 20
       const year = 2026
       const month = 3
 
-      // 旧モデル
-      const daysInMonth = new Date(year, month, 0).getDate()
-      const baseRange: DateRange = {
-        from: { year, month, day: 1 },
-        to: { year, month, day: daysInMonth },
-      }
-      const frame = resolveComparisonFrame(baseRange, 'sameDate')
-      const oldScope = buildPrevYearScope(frame, effectiveEndDay, 500)
-
-      // 新モデル: period1.to.day を effectiveEndDay に調整してから applyPreset
       const scopedP1: DateRange = {
         from: { year, month, day: 1 },
         to: { year, month, day: effectiveEndDay },
@@ -132,32 +119,27 @@ describe('期間ソース干渉テスト', () => {
       }
       const newScope = buildPrevYearScopeFromSelection(scopedSel, 500)
 
-      // 完全一致
-      expect(newScope.dateRange).toEqual(oldScope.dateRange)
-      expect(newScope.totalCustomers).toBe(oldScope.totalCustomers)
-      expect(newScope.dowOffset).toBe(oldScope.dowOffset)
+      // sameDate（offset=0）: 前年同月同日範囲
+      expect(newScope.dateRange.from).toEqual({ year: year - 1, month, day: 1 })
+      expect(newScope.dateRange.to.day).toBe(effectiveEndDay)
+      expect(newScope.totalCustomers).toBe(500)
+      expect(newScope.dowOffset).toBe(0)
     })
   })
 
   describe('3. プリセット切替と旧 ComparisonFrame の整合性', () => {
-    it('prevYearSameMonth ↔ sameDate の同値性', () => {
+    it('prevYearSameMonth: 前年同月同日範囲を正しく生成', () => {
       const year = 2026
       const month = 3
       const daysInMonth = new Date(year, month, 0).getDate()
 
-      // 旧: sameDate (offset=0)
-      const frame = resolveComparisonFrame(
-        { from: { year, month, day: 1 }, to: { year, month, day: daysInMonth } },
-        'sameDate',
-      )
-
-      // 新: prevYearSameMonth (offset=0)
       const p1: DateRange = { from: { year, month, day: 1 }, to: { year, month, day: daysInMonth } }
       const p2 = applyPreset(p1, 'prevYearSameMonth', p1)
 
-      // 日付範囲が一致
-      expect(p2.from).toEqual(frame.previous.from)
-      expect(p2.to).toEqual(frame.previous.to)
+      // 前年同月の同日範囲
+      const prevDaysInMonth = new Date(year - 1, month, 0).getDate()
+      expect(p2.from).toEqual({ year: year - 1, month, day: 1 })
+      expect(p2.to).toEqual({ year: year - 1, month, day: Math.min(daysInMonth, prevDaysInMonth) })
     })
 
     it('prevYearSameDow: V2 候補範囲は前年同日 ±7 日', () => {
