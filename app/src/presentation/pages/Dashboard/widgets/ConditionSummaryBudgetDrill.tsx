@@ -217,6 +217,11 @@ export const ConditionSummaryBudgetDrill = memo(function ConditionSummaryBudgetD
           hasPrevYear={ctx.prevYear.hasPrevYear}
           fmtCurrency={ctx.fmtCurrency}
           markupRateYoYRows={effectiveMarkupYoYRows}
+          prevYearLabel={
+            ctx.prevYearDateRange
+              ? `${ctx.prevYearDateRange.from.year}年${ctx.prevYearDateRange.from.month}月`
+              : undefined
+          }
           onClose={handleDailyClose}
         />
       )}

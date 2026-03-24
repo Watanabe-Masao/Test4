@@ -21,6 +21,7 @@ interface DayMapping {
   readonly prevMonth: number
   readonly prevYear: number
   readonly prevSales: number
+  readonly prevCustomers?: number
 }
 
 export function useDowGapAnalysis(

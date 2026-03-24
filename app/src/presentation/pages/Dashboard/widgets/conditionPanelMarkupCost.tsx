@@ -23,6 +23,13 @@ import {
   BarCell,
   StoreBorderTr,
 } from './ConditionSummary.styles'
+import {
+  TotalSection,
+  TotalGrid,
+  TotalCell,
+  SmallLabel,
+  BigValue,
+} from './ConditionSummaryEnhanced.styles'
 import type { MarkupDetailProps, CostInclusionDetailProps } from './conditionDetailTypes'
 
 // ─── Markup Rate Detail ─────────────────────────────────
@@ -54,8 +61,21 @@ export function MarkupRateDetailTable({
 
   return (
     <>
-      <DetailHeader>
-        <DetailTitle>値入率 — 店舗内訳</DetailTitle>
+      <TotalSection>
+        <TotalGrid>
+          <TotalCell>
+            <SmallLabel>平均値入率</SmallLabel>
+            <BigValue>{vm.total.avgMarkupRate}</BigValue>
+          </TotalCell>
+          <TotalCell $align="center">
+            <SmallLabel>コア値入率</SmallLabel>
+            <BigValue>{vm.total.coreMarkupRate}</BigValue>
+          </TotalCell>
+        </TotalGrid>
+      </TotalSection>
+
+      <DetailHeader style={{ padding: '12px 16px 0' }}>
+        <DetailTitle>店舗内訳</DetailTitle>
         <ToggleGroup>
           <ToggleBtn $active={displayMode === 'rate'} onClick={() => onDisplayModeChange('rate')}>
             率
@@ -203,8 +223,21 @@ export function CostInclusionDetailTable({
 
   return (
     <>
-      <DetailHeader>
-        <DetailTitle>原価算入費 — 店舗別 品目内訳</DetailTitle>
+      <TotalSection>
+        <TotalGrid>
+          <TotalCell>
+            <SmallLabel>原価算入費合計</SmallLabel>
+            <BigValue>{vm.grandTotalStr}</BigValue>
+          </TotalCell>
+          <TotalCell $align="right">
+            <SmallLabel>原価算入率</SmallLabel>
+            <BigValue>{vm.grandRateStr}</BigValue>
+          </TotalCell>
+        </TotalGrid>
+      </TotalSection>
+
+      <DetailHeader style={{ padding: '12px 16px 0' }}>
+        <DetailTitle>店舗別 品目内訳</DetailTitle>
       </DetailHeader>
       <BTable>
         <thead>

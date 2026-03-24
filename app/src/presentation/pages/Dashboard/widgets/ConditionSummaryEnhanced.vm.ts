@@ -61,6 +61,7 @@ export type {
   ConditionCardId,
   UnifiedCardData,
 } from './conditionSummaryCardBuilders'
+export type { TrendDirection } from './conditionSummaryCardBuilders'
 export {
   buildCardSummaries,
   buildBudgetHeader,
@@ -68,4 +69,5 @@ export {
   CONDITION_CARD_ORDER,
   CONDITION_CARD_GROUP,
   buildUnifiedCards,
+  computeTrend,
 } from './conditionSummaryCardBuilders'

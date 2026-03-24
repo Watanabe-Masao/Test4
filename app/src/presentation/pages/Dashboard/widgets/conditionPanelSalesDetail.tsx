@@ -24,6 +24,13 @@ import {
   BreakdownValue,
   BreakdownSignal,
 } from './ConditionSummary.styles'
+import {
+  TotalSection,
+  TotalGrid,
+  TotalCell,
+  SmallLabel,
+  BigValue,
+} from './ConditionSummaryEnhanced.styles'
 import type {
   TxValueDetailProps,
   DailySalesDetailProps,
@@ -49,8 +56,25 @@ export function TxValueDetailTable({
 
   return (
     <>
-      <DetailHeader>
-        <DetailTitle>客単価 — 店舗内訳</DetailTitle>
+      <TotalSection>
+        <TotalGrid>
+          <TotalCell>
+            <SmallLabel>売上</SmallLabel>
+            <BigValue>{vm.totalSalesStr}</BigValue>
+          </TotalCell>
+          <TotalCell $align="center">
+            <SmallLabel>客数</SmallLabel>
+            <BigValue>{vm.totalCustomersStr}</BigValue>
+          </TotalCell>
+          <TotalCell $align="right">
+            <SmallLabel>客単価</SmallLabel>
+            <BigValue>{vm.totalTxStr}</BigValue>
+          </TotalCell>
+        </TotalGrid>
+      </TotalSection>
+
+      <DetailHeader style={{ padding: '12px 16px 0' }}>
+        <DetailTitle>店舗内訳</DetailTitle>
       </DetailHeader>
       <BTable>
         <thead>
@@ -114,12 +138,6 @@ export function TxValueDetailTable({
 
             return rows
           })}
-          <BTr $highlight>
-            <BTd $bold>合計</BTd>
-            <BTd $bold>{vm.totalSalesStr}</BTd>
-            <BTd $bold>{vm.totalCustomersStr}</BTd>
-            <BTd $bold>{vm.totalTxStr}</BTd>
-          </BTr>
         </tbody>
       </BTable>
     </>

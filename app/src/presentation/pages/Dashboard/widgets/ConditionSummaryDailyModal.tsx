@@ -29,6 +29,7 @@ import {
   DrillCloseBtn,
   DailyTableWrapper,
   DailyTable,
+  DailyGroupTh,
   DailyTh,
   DailyTd,
   DailyTr,
@@ -48,6 +49,8 @@ interface DailyModalProps {
   readonly fmtCurrency: (n: number) => string
   /** 値入率日別前年比行（親で DuckDB query 済み） */
   readonly markupRateYoYRows?: readonly DailyMarkupRateYoYRow[]
+  /** 前年比較期間の表示文字列（例: "2025年3月"） */
+  readonly prevYearLabel?: string
   readonly onClose: () => void
 }
 
@@ -61,6 +64,7 @@ export const ConditionSummaryDailyModal = memo(function ConditionSummaryDailyMod
   hasPrevYear,
   fmtCurrency,
   markupRateYoYRows = [],
+  prevYearLabel,
   onClose,
 }: DailyModalProps) {
   const [showYoY, setShowYoY] = useState(false)
@@ -110,6 +114,8 @@ export const ConditionSummaryDailyModal = memo(function ConditionSummaryDailyMod
     [onClose],
   )
 
+  const prevYearNote = prevYearLabel ? ` — 比較: ${prevYearLabel}（同曜日）` : ' — 前年同曜日比'
+
   return (
     <DrillOverlay onClick={handleOverlayClick}>
       <DailyModalPanel onClick={(e) => e.stopPropagation()}>
@@ -139,7 +145,7 @@ export const ConditionSummaryDailyModal = memo(function ConditionSummaryDailyMod
           ) : metric === 'discountRate' ? (
             <DiscountTable rows={discountRows} fmtCurrency={fmtCurrency} />
           ) : isRate ? (
-            <RateTable rows={rows} />
+            <RateTable rows={rows} metric={metric} />
           ) : (
             <AmountTable rows={rows} fmtCurrency={fmtCurrency} />
           )}
@@ -148,7 +154,7 @@ export const ConditionSummaryDailyModal = memo(function ConditionSummaryDailyMod
         <Footer>
           <FooterNote>
             {elapsedDays ?? daysInMonth}日経過 / {daysInMonth}日間
-            {showYoY ? ' — 前年同曜日比' : ''}
+            {showYoY ? prevYearNote : ''}
           </FooterNote>
         </Footer>
       </DailyModalPanel>
@@ -169,15 +175,23 @@ function AmountTable({
     <DailyTable>
       <thead>
         <tr>
-          <DailyTh $align="center">日</DailyTh>
+          <DailyGroupTh rowSpan={2} $align="center">
+            日
+          </DailyGroupTh>
+          <DailyGroupTh colSpan={4}>単日</DailyGroupTh>
+          <DailyGroupTh colSpan={4} $group>
+            累計
+          </DailyGroupTh>
+        </tr>
+        <tr>
           <DailyTh>予算</DailyTh>
           <DailyTh>実績</DailyTh>
           <DailyTh>差異</DailyTh>
           <DailyTh>達成率</DailyTh>
-          <DailyTh>累計予算</DailyTh>
-          <DailyTh>累計実績</DailyTh>
-          <DailyTh>累計差</DailyTh>
-          <DailyTh>累計達成</DailyTh>
+          <DailyTh $group>予算</DailyTh>
+          <DailyTh>実績</DailyTh>
+          <DailyTh>差異</DailyTh>
+          <DailyTh>達成率</DailyTh>
         </tr>
       </thead>
       <tbody>
@@ -196,7 +210,7 @@ function AmountTable({
               <DailyTd $color={achColor} $bold>
                 {fmtAchievement(r.achievement, false)}
               </DailyTd>
-              <DailyTd>{fmtCurrency(r.cumBudget)}</DailyTd>
+              <DailyTd $group>{fmtCurrency(r.cumBudget)}</DailyTd>
               <DailyTd $bold>{fmtCurrency(r.cumActual)}</DailyTd>
               <DailyTd $color={r.cumDiff >= 0 ? '#10b981' : '#ef4444'}>
                 {r.cumDiff >= 0 ? '+' : ''}
@@ -215,24 +229,67 @@ function AmountTable({
 
 // ─── Rate table (gpRate, markupRate) ─────────────────────
 
-function RateTable({ rows }: { readonly rows: readonly DailyDetailRow[] }) {
+function RateTable({
+  rows,
+  metric,
+}: {
+  readonly rows: readonly DailyDetailRow[]
+  readonly metric: MetricKey
+}) {
+  const hasBudget = metric === 'gpRate' || metric === 'markupRate'
   return (
     <DailyTable>
       <thead>
         <tr>
-          <DailyTh $align="center">日</DailyTh>
-          <DailyTh>当日値</DailyTh>
-          <DailyTh>累計平均</DailyTh>
+          <DailyGroupTh rowSpan={2} $align="center">
+            日
+          </DailyGroupTh>
+          <DailyGroupTh colSpan={hasBudget ? 3 : 1}>単日</DailyGroupTh>
+          <DailyGroupTh colSpan={hasBudget ? 3 : 1} $group>
+            累計
+          </DailyGroupTh>
+        </tr>
+        <tr>
+          {hasBudget && <DailyTh>予算</DailyTh>}
+          <DailyTh>実績</DailyTh>
+          {hasBudget && <DailyTh>差異</DailyTh>}
+          {hasBudget && <DailyTh $group>予算</DailyTh>}
+          {!hasBudget && <DailyTh $group>累計平均</DailyTh>}
+          {hasBudget && <DailyTh>実績</DailyTh>}
+          {hasBudget && <DailyTh>差異</DailyTh>}
         </tr>
       </thead>
       <tbody>
-        {rows.map((r) => (
-          <DailyTr key={r.day}>
-            <DailyTd style={{ textAlign: 'center' }}>{r.day}</DailyTd>
-            <DailyTd $bold>{fmtValue(r.actual, true)}</DailyTd>
-            <DailyTd>{r.day > 0 ? fmtValue(r.cumActual / r.day, true) : '—'}</DailyTd>
-          </DailyTr>
-        ))}
+        {rows.map((r) => {
+          const cumAvg = r.day > 0 ? r.cumActual / r.day : 0
+          const diffColor = rateDiffColor(r.achievement)
+          const cumDiffColor = rateDiffColor(r.cumAchievement)
+          return (
+            <DailyTr key={r.day}>
+              <DailyTd style={{ textAlign: 'center' }}>{r.day}</DailyTd>
+              {hasBudget && <DailyTd>{fmtValue(r.budget, true)}</DailyTd>}
+              <DailyTd $bold>{fmtValue(r.actual, true)}</DailyTd>
+              {hasBudget && (
+                <DailyTd $color={diffColor} $bold>
+                  {r.achievement >= 0 ? '+' : ''}
+                  {r.achievement.toFixed(2)}pt
+                </DailyTd>
+              )}
+              {hasBudget ? (
+                <>
+                  <DailyTd $group>{fmtValue(r.budget, true)}</DailyTd>
+                  <DailyTd $bold>{r.day > 0 ? fmtValue(cumAvg, true) : '—'}</DailyTd>
+                  <DailyTd $color={cumDiffColor} $bold>
+                    {r.cumAchievement >= 0 ? '+' : ''}
+                    {r.cumAchievement.toFixed(2)}pt
+                  </DailyTd>
+                </>
+              ) : (
+                <DailyTd $group>{r.day > 0 ? fmtValue(cumAvg, true) : '—'}</DailyTd>
+              )}
+            </DailyTr>
+          )
+        })}
       </tbody>
     </DailyTable>
   )
@@ -251,12 +308,22 @@ function DiscountTable({
     <DailyTable>
       <thead>
         <tr>
-          <DailyTh $align="center">日</DailyTh>
+          <DailyGroupTh rowSpan={2} $align="center">
+            日
+          </DailyGroupTh>
+          <DailyGroupTh colSpan={2 + DISCOUNT_TYPES.length}>単日 内訳</DailyGroupTh>
+          <DailyGroupTh colSpan={2} $group>
+            累計
+          </DailyGroupTh>
+        </tr>
+        <tr>
           <DailyTh>売変率</DailyTh>
           <DailyTh>売変額</DailyTh>
           {DISCOUNT_TYPES.map((dt) => (
             <DailyTh key={dt.type}>{dt.label}</DailyTh>
           ))}
+          <DailyTh $group>累計率</DailyTh>
+          <DailyTh>累計額</DailyTh>
         </tr>
       </thead>
       <tbody>
@@ -273,6 +340,10 @@ function DiscountTable({
                 </DailyTd>
               )
             })}
+            <DailyTd $group $bold>
+              {fmtValue(r.cumTotalRate, true)}
+            </DailyTd>
+            <DailyTd>{fmtCurrency(r.cumTotalAmount)}</DailyTd>
           </DailyTr>
         ))}
       </tbody>
@@ -293,22 +364,49 @@ function YoYTable({
     <DailyTable>
       <thead>
         <tr>
-          <DailyTh $align="center">日</DailyTh>
+          <DailyGroupTh rowSpan={2} $align="center">
+            日
+          </DailyGroupTh>
+          <DailyGroupTh colSpan={4}>単日</DailyGroupTh>
+          <DailyGroupTh colSpan={4} $group>
+            累計
+          </DailyGroupTh>
+        </tr>
+        <tr>
           <DailyTh>前年</DailyTh>
           <DailyTh>当年</DailyTh>
+          <DailyTh>差異</DailyTh>
+          <DailyTh>前年比</DailyTh>
+          <DailyTh $group>前年</DailyTh>
+          <DailyTh>当年</DailyTh>
+          <DailyTh>差異</DailyTh>
           <DailyTh>前年比</DailyTh>
         </tr>
       </thead>
       <tbody>
         {rows.map((r) => {
           const yoyColor = resultColor(r.yoy, false)
+          const cumYoYColor = resultColor(r.cumYoY, false)
           return (
             <DailyTr key={r.day}>
               <DailyTd style={{ textAlign: 'center' }}>{r.day}</DailyTd>
               <DailyTd>{fmtCurrency(r.prevActual)}</DailyTd>
               <DailyTd $bold>{fmtCurrency(r.curActual)}</DailyTd>
+              <DailyTd $color={r.diff >= 0 ? '#10b981' : '#ef4444'}>
+                {r.diff >= 0 ? '+' : ''}
+                {fmtCurrency(r.diff)}
+              </DailyTd>
               <DailyTd $color={yoyColor} $bold>
                 {r.prevActual > 0 ? fmtAchievement(r.yoy, false) : '—'}
+              </DailyTd>
+              <DailyTd $group>{fmtCurrency(r.cumPrevActual)}</DailyTd>
+              <DailyTd $bold>{fmtCurrency(r.cumCurActual)}</DailyTd>
+              <DailyTd $color={r.cumDiff >= 0 ? '#10b981' : '#ef4444'}>
+                {r.cumDiff >= 0 ? '+' : ''}
+                {fmtCurrency(r.cumDiff)}
+              </DailyTd>
+              <DailyTd $color={cumYoYColor} $bold>
+                {r.cumPrevActual > 0 ? fmtAchievement(r.cumYoY, false) : '—'}
               </DailyTd>
             </DailyTr>
           )
@@ -325,13 +423,21 @@ function MarkupRateYoYTable({ rows }: { readonly rows: readonly DailyMarkupRateY
     <DailyTable>
       <thead>
         <tr>
-          <DailyTh $align="center">日</DailyTh>
+          <DailyGroupTh rowSpan={2} $align="center">
+            日
+          </DailyGroupTh>
+          <DailyGroupTh colSpan={3}>単日</DailyGroupTh>
+          <DailyGroupTh colSpan={3} $group>
+            累計
+          </DailyGroupTh>
+        </tr>
+        <tr>
           <DailyTh>前年</DailyTh>
           <DailyTh>当年</DailyTh>
           <DailyTh>差異</DailyTh>
-          <DailyTh>累計前年</DailyTh>
-          <DailyTh>累計当年</DailyTh>
-          <DailyTh>累計差</DailyTh>
+          <DailyTh $group>前年</DailyTh>
+          <DailyTh>当年</DailyTh>
+          <DailyTh>差異</DailyTh>
         </tr>
       </thead>
       <tbody>
@@ -347,7 +453,7 @@ function MarkupRateYoYTable({ rows }: { readonly rows: readonly DailyMarkupRateY
                 {r.diff >= 0 ? '+' : ''}
                 {r.diff.toFixed(2)}pp
               </DailyTd>
-              <DailyTd>{fmtValue(r.cumPrevRate, true)}</DailyTd>
+              <DailyTd $group>{fmtValue(r.cumPrevRate, true)}</DailyTd>
               <DailyTd $bold>{fmtValue(r.cumCurRate, true)}</DailyTd>
               <DailyTd $color={cumDiffColor} $bold>
                 {r.cumDiff >= 0 ? '+' : ''}
@@ -368,13 +474,21 @@ function DiscountRateYoYTable({ rows }: { readonly rows: readonly DailyDiscountR
     <DailyTable>
       <thead>
         <tr>
-          <DailyTh $align="center">日</DailyTh>
+          <DailyGroupTh rowSpan={2} $align="center">
+            日
+          </DailyGroupTh>
+          <DailyGroupTh colSpan={3}>単日</DailyGroupTh>
+          <DailyGroupTh colSpan={3} $group>
+            累計
+          </DailyGroupTh>
+        </tr>
+        <tr>
           <DailyTh>前年</DailyTh>
           <DailyTh>当年</DailyTh>
           <DailyTh>差異</DailyTh>
-          <DailyTh>累計前年</DailyTh>
-          <DailyTh>累計当年</DailyTh>
-          <DailyTh>累計差</DailyTh>
+          <DailyTh $group>前年</DailyTh>
+          <DailyTh>当年</DailyTh>
+          <DailyTh>差異</DailyTh>
         </tr>
       </thead>
       <tbody>
@@ -390,7 +504,7 @@ function DiscountRateYoYTable({ rows }: { readonly rows: readonly DailyDiscountR
                 {r.diff >= 0 ? '+' : ''}
                 {r.diff.toFixed(2)}pp
               </DailyTd>
-              <DailyTd>{fmtValue(r.cumPrevRate, true)}</DailyTd>
+              <DailyTd $group>{fmtValue(r.cumPrevRate, true)}</DailyTd>
               <DailyTd $bold>{fmtValue(r.cumCurRate, true)}</DailyTd>
               <DailyTd $color={cumDiffColor} $bold>
                 {r.cumDiff >= 0 ? '+' : ''}

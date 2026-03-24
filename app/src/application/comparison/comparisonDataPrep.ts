@@ -10,7 +10,10 @@ import type { ClassifiedSalesDaySummary } from '@/domain/models/ClassifiedSales'
 import type { StoreDayIndex, SpecialSalesDayEntry } from '@/domain/models/record'
 import { aggregateAllStores, indexByStoreDay } from '@/domain/models/record'
 import type { SourceDataIndex, SourceMonthContext } from '@/application/comparison/sourceDataIndex'
-import { buildSourceDataIndex } from '@/application/comparison/sourceDataIndex'
+import {
+  buildSourceDataIndex,
+  buildFlowersFullIndex,
+} from '@/application/comparison/sourceDataIndex'
 
 /** prepareComparisonInputs の出力 */
 export interface ComparisonInputs {
@@ -63,6 +66,14 @@ export function prepareComparisonInputs(
   const raw = prepareRawInputs(data, selectedStoreIds, isAllStores)
   if (!raw) return null
 
-  const sourceIndex = buildSourceDataIndex(raw.allAgg, raw.flowersIndex, sourceMonthCtx)
+  const prevYearFlowers = data.prevYearFlowers
+  const flowersFullIndex =
+    prevYearFlowers.records.length > 0 ? buildFlowersFullIndex(prevYearFlowers.records) : undefined
+  const sourceIndex = buildSourceDataIndex(
+    raw.allAgg,
+    raw.flowersIndex,
+    sourceMonthCtx,
+    flowersFullIndex,
+  )
   return { sourceIndex, targetIds: raw.targetIds }
 }

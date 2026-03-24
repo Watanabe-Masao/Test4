@@ -35,7 +35,12 @@ export interface DailyYoYRow {
   readonly day: number
   readonly prevActual: number
   readonly curActual: number
+  readonly diff: number
   readonly yoy: number
+  readonly cumPrevActual: number
+  readonly cumCurActual: number
+  readonly cumDiff: number
+  readonly cumYoY: number
 }
 
 /** 店舗の日別詳細データを構築する（売上・粗利額用） */
@@ -241,11 +246,28 @@ export function buildDailyYoYRows(
   }
 
   const rows: DailyYoYRow[] = []
+  let cumCurActual = 0
+  let cumPrevActual = 0
   for (let day = 1; day <= effectiveElapsed; day++) {
     const curActual = sr.daily.get(day)?.sales ?? 0
     const prevActual = prevByDay.get(day) ?? 0
+    const diff = curActual - prevActual
     const yoy = prevActual > 0 ? calculateYoYRatio(curActual, prevActual) * 100 : 0
-    rows.push({ day, prevActual, curActual, yoy })
+    cumCurActual += curActual
+    cumPrevActual += prevActual
+    const cumDiff = cumCurActual - cumPrevActual
+    const cumYoY = cumPrevActual > 0 ? calculateYoYRatio(cumCurActual, cumPrevActual) * 100 : 0
+    rows.push({
+      day,
+      prevActual,
+      curActual,
+      diff,
+      yoy,
+      cumPrevActual,
+      cumCurActual,
+      cumDiff,
+      cumYoY,
+    })
   }
   return rows
 }
@@ -257,6 +279,10 @@ export interface DailyDiscountRow {
   /** 種別別金額 (71/72/73/74 順) */
   readonly entries: readonly { readonly type: string; readonly amount: number }[]
   readonly totalAmount: number
+  /** 累計売変率 */
+  readonly cumTotalRate: number
+  /** 累計売変額 */
+  readonly cumTotalAmount: number
 }
 
 /** 店舗の日別売変種別内訳を構築する */
@@ -267,11 +293,21 @@ export function buildDailyDiscountRows(
 ): readonly DailyDiscountRow[] {
   const effectiveElapsed = elapsedDays ?? daysInMonth
   const rows: DailyDiscountRow[] = []
+  let cumSales = 0
+  let cumDiscount = 0
 
   for (let day = 1; day <= effectiveElapsed; day++) {
     const dailyRecord = sr.daily.get(day)
     if (!dailyRecord) {
-      rows.push({ day, totalRate: 0, entries: [], totalAmount: 0 })
+      const cumTotalRate = calculateDiscountRate(cumSales, cumDiscount) * 100
+      rows.push({
+        day,
+        totalRate: 0,
+        entries: [],
+        totalAmount: 0,
+        cumTotalRate,
+        cumTotalAmount: cumDiscount,
+      })
       continue
     }
 
@@ -282,7 +318,18 @@ export function buildDailyDiscountRows(
       amount: e.amount,
     }))
 
-    rows.push({ day, totalRate, entries, totalAmount: dailyRecord.discountAbsolute })
+    cumSales += dailyRecord.sales
+    cumDiscount += dailyRecord.discountAbsolute
+    const cumTotalRate = calculateDiscountRate(cumSales, cumDiscount) * 100
+
+    rows.push({
+      day,
+      totalRate,
+      entries,
+      totalAmount: dailyRecord.discountAbsolute,
+      cumTotalRate,
+      cumTotalAmount: cumDiscount,
+    })
   }
   return rows
 }

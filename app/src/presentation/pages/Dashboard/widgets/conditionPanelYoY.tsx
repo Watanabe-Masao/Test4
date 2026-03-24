@@ -27,6 +27,14 @@ import {
   BTr,
   BSignalDot,
 } from './ConditionSummary.styles'
+import {
+  TotalSection,
+  TotalGrid,
+  TotalCell,
+  SmallLabel,
+  BigValue,
+  AchValue,
+} from './ConditionSummaryEnhanced.styles'
 import type { SalesYoYDetailProps, CustomerYoYDetailProps } from './conditionDetailTypes'
 
 // ─── Daily YoY Rendering ──────────────────────────────
@@ -104,8 +112,25 @@ export function SalesYoYDetailTable({
 
   return (
     <>
-      <DetailHeader>
-        <DetailTitle>売上前年比 — 店舗内訳</DetailTitle>
+      <TotalSection>
+        <TotalGrid>
+          <TotalCell>
+            <SmallLabel>当年売上</SmallLabel>
+            <BigValue>{vm.totalCurrentStr}</BigValue>
+          </TotalCell>
+          <TotalCell $align="center">
+            <SmallLabel>前年売上</SmallLabel>
+            <BigValue>{vm.totalPrevStr}</BigValue>
+          </TotalCell>
+          <TotalCell $align="right">
+            <SmallLabel>前年比</SmallLabel>
+            <AchValue $color={vm.totalColor}>{vm.totalYoYStr}</AchValue>
+          </TotalCell>
+        </TotalGrid>
+      </TotalSection>
+
+      <DetailHeader style={{ padding: '12px 16px 0' }}>
+        <DetailTitle>店舗内訳</DetailTitle>
       </DetailHeader>
       <BTable>
         <thead>
@@ -128,20 +153,12 @@ export function SalesYoYDetailTable({
               <BTd $color={row.sigColor}>{row.yoyStr}</BTd>
             </BTr>
           ))}
-          <BTr $highlight>
-            <BTd $bold>合計</BTd>
-            <BTd $bold>{vm.totalCurrentStr}</BTd>
-            <BTd $bold>{vm.totalPrevStr}</BTd>
-            <BTd $bold $color={vm.totalColor}>
-              {vm.totalYoYStr}
-            </BTd>
-          </BTr>
         </tbody>
       </BTable>
 
       {vm.hasDailyRows && (
         <>
-          <DetailHeader style={{ marginTop: '16px' }}>
+          <DetailHeader style={{ marginTop: '16px', padding: '0 16px' }}>
             <DetailTitle>全店 日別推移</DetailTitle>
             <ToggleGroup>
               <ToggleBtn
@@ -202,8 +219,25 @@ export function CustomerYoYDetailTable({
 
   return (
     <>
-      <DetailHeader>
-        <DetailTitle>客数前年比 — 店舗内訳</DetailTitle>
+      <TotalSection>
+        <TotalGrid>
+          <TotalCell>
+            <SmallLabel>当年客数</SmallLabel>
+            <BigValue>{vm.totalCurrentStr}</BigValue>
+          </TotalCell>
+          <TotalCell $align="center">
+            <SmallLabel>前年客数</SmallLabel>
+            <BigValue>{vm.totalPrevStr}</BigValue>
+          </TotalCell>
+          <TotalCell $align="right">
+            <SmallLabel>前年比</SmallLabel>
+            <AchValue $color={vm.totalColor}>{vm.totalYoYStr}</AchValue>
+          </TotalCell>
+        </TotalGrid>
+      </TotalSection>
+
+      <DetailHeader style={{ padding: '12px 16px 0' }}>
+        <DetailTitle>店舗内訳</DetailTitle>
       </DetailHeader>
       <BTable>
         <thead>
@@ -226,20 +260,12 @@ export function CustomerYoYDetailTable({
               <BTd $color={row.sigColor}>{row.yoyStr}</BTd>
             </BTr>
           ))}
-          <BTr $highlight>
-            <BTd $bold>合計</BTd>
-            <BTd $bold>{vm.totalCurrentStr}</BTd>
-            <BTd $bold>{vm.totalPrevStr}</BTd>
-            <BTd $bold $color={vm.totalColor}>
-              {vm.totalYoYStr}
-            </BTd>
-          </BTr>
         </tbody>
       </BTable>
 
       {vm.hasDailyRows && (
         <>
-          <DetailHeader style={{ marginTop: '16px' }}>
+          <DetailHeader style={{ marginTop: '16px', padding: '0 16px' }}>
             <DetailTitle>全店 日別推移</DetailTitle>
             <ToggleGroup>
               <ToggleBtn

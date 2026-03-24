@@ -19,6 +19,14 @@ import {
   BTr,
   BSignalDot,
 } from './ConditionSummary.styles'
+import {
+  TotalSection,
+  TotalGrid,
+  TotalCell,
+  SmallLabel,
+  BigValue,
+  AchValue,
+} from './ConditionSummaryEnhanced.styles'
 import type { DetailPanelProps } from './conditionDetailTypes'
 
 // ─── GP Rate Detail ─────────────────────────────────────
@@ -50,8 +58,25 @@ export function GpRateDetailTable({
 
   return (
     <>
-      <DetailHeader>
-        <DetailTitle>粗利率 — 店舗内訳</DetailTitle>
+      <TotalSection>
+        <TotalGrid>
+          <TotalCell>
+            <SmallLabel>粗利率予算</SmallLabel>
+            <BigValue>{vm.total.budgetRate}</BigValue>
+          </TotalCell>
+          <TotalCell $align="center">
+            <SmallLabel>原価算後粗利率</SmallLabel>
+            <BigValue>{vm.total.afterRate}</BigValue>
+          </TotalCell>
+          <TotalCell $align="right">
+            <SmallLabel>差異</SmallLabel>
+            <AchValue $color={vm.total.totalColor}>{vm.total.diffPointStr}</AchValue>
+          </TotalCell>
+        </TotalGrid>
+      </TotalSection>
+
+      <DetailHeader style={{ padding: '12px 16px 0' }}>
+        <DetailTitle>店舗内訳</DetailTitle>
         <ToggleGroup>
           <ToggleBtn $active={displayMode === 'rate'} onClick={() => onDisplayModeChange('rate')}>
             率
@@ -166,8 +191,17 @@ export function DiscountRateDetailTable({
 
   return (
     <>
-      <DetailHeader>
-        <DetailTitle>売変率 — 店舗内訳</DetailTitle>
+      <TotalSection>
+        <TotalGrid>
+          <TotalCell>
+            <SmallLabel>売変率</SmallLabel>
+            <BigValue>{displayMode === 'rate' ? vm.total.rateStr : vm.total.amtStr}</BigValue>
+          </TotalCell>
+        </TotalGrid>
+      </TotalSection>
+
+      <DetailHeader style={{ padding: '12px 16px 0' }}>
+        <DetailTitle>店舗内訳</DetailTitle>
         <ToggleGroup>
           <ToggleBtn $active={displayMode === 'rate'} onClick={() => onDisplayModeChange('rate')}>
             率
