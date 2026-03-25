@@ -7,7 +7,7 @@
  * 自由日付範囲: date_key BETWEEN で月跨ぎに対応。
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import { queryToObjects, buildWhereClause, storeIdFilter } from '../queryRunner'
+import { queryToObjects, queryScalar, buildWhereClause, storeIdFilter } from '../queryRunner'
 import { validateDateKey } from '../queryParams'
 import type { DailyCumulativeRow } from './aggregates/dailyAggregation'
 
@@ -146,14 +146,40 @@ export async function queryDailyCumulative(
   return queryToObjects<DailyCumulativeRow>(conn, sql)
 }
 
+/** materializeSummary の実行結果 */
+export interface MaterializeResult {
+  /** マテリアライズされた行数 */
+  readonly rowCount: number
+  /** CREATE TABLE AS SELECT の実行時間 (ms) */
+  readonly createMs: number
+  /** 全体の実行時間 (ms) */
+  readonly totalMs: number
+  /** スキップした場合 true（既にテーブルとして存在） */
+  readonly skipped: boolean
+}
+
 /**
  * VIEW を実テーブルにマテリアライズする（パフォーマンス最適化用）。
  * VIEW へのクエリが遅い場合に呼ぶ。
  *
+ * 既に TABLE として存在する場合（OPFS リストア後等）はスキップする。
+ *
  * DuckDB は DROP VIEW IF EXISTS でも対象が TABLE だとエラーになるため、
  * VIEW / TABLE の両方を try-catch で DROP してから RENAME する。
  */
-export async function materializeSummary(conn: AsyncDuckDBConnection): Promise<void> {
+export async function materializeSummary(conn: AsyncDuckDBConnection): Promise<MaterializeResult> {
+  // 既に TABLE として存在するかチェック（OPFS 復元後など）
+  const existingCount = await queryScalar<number>(
+    conn,
+    "SELECT COUNT(*) FROM information_schema.tables WHERE table_name = 'store_day_summary' AND table_type = 'BASE TABLE'",
+  )
+  if (existingCount && existingCount > 0) {
+    // 既にマテリアライズ済み — VIEW ではなく TABLE として存在
+    const rowCount =
+      (await queryScalar<number>(conn, 'SELECT COUNT(*) FROM store_day_summary')) ?? 0
+    return { rowCount, createMs: 0, totalMs: 0, skipped: true }
+  }
+
   const start = performance.now()
   await conn.query('CREATE TABLE store_day_summary_mat AS SELECT * FROM store_day_summary')
   const createMs = performance.now() - start
@@ -164,11 +190,15 @@ export async function materializeSummary(conn: AsyncDuckDBConnection): Promise<v
   await conn.query('ALTER TABLE store_day_summary_mat RENAME TO store_day_summary')
 
   const totalMs = performance.now() - start
+  const rowCount = (await queryScalar<number>(conn, 'SELECT COUNT(*) FROM store_day_summary')) ?? 0
+
   if (typeof console !== 'undefined') {
     console.debug(
-      `[materializeSummary] CREATE TABLE AS SELECT: ${Math.round(createMs)}ms, total: ${Math.round(totalMs)}ms`,
+      `[materializeSummary] ${rowCount} rows, CREATE: ${Math.round(createMs)}ms, total: ${Math.round(totalMs)}ms`,
     )
   }
+
+  return { rowCount, createMs: Math.round(createMs), totalMs: Math.round(totalMs), skipped: false }
 }
 
 /** DuckDB の DROP ... IF EXISTS が型不一致でエラーになる問題を吸収 */
