@@ -6,6 +6,9 @@
  */
 import type { WidgetDef, UnifiedWidgetContext } from './types'
 import type { WidgetContext as DashboardWidgetContext } from '@/presentation/pages/Dashboard/widgets/types'
+import type { PrevYearMonthlyKpi } from '@/application/hooks/analytics'
+import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
+import type { CurrentCtsQuantity } from '@/application/hooks/useCtsQuantity'
 import { createQueryExecutor } from '@/application/queries/QueryPort'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 import { WIDGET_REGISTRY as DASHBOARD_REGISTRY } from '@/presentation/pages/Dashboard/widgets/registry'
@@ -18,85 +21,72 @@ import { REPORTS_WIDGETS } from '@/presentation/pages/Reports/widgets'
 /** queryExecutor が未提供のときのフォールバック（isReady = false） */
 const NULL_EXECUTOR = createQueryExecutor(null)
 
+const EMPTY_KPI: PrevYearMonthlyKpi = {
+  hasPrevYear: false,
+  sourceYear: 0,
+  sourceMonth: 0,
+  dowOffset: 0,
+  sameDow: {
+    sales: 0,
+    customers: 0,
+    transactionValue: 0,
+    ctsQuantity: 0,
+    dailyMapping: [],
+    storeContributions: [],
+  },
+  sameDate: {
+    sales: 0,
+    customers: 0,
+    transactionValue: 0,
+    ctsQuantity: 0,
+    dailyMapping: [],
+    storeContributions: [],
+  },
+  monthlyTotal: { sales: 0, customers: 0, transactionValue: 0, ctsQuantity: 0 },
+}
+
+const EMPTY_DOW_GAP: DowGapAnalysis = {
+  dowCounts: [],
+  estimatedImpact: 0,
+  isValid: false,
+  prevDowDailyAvg: [0, 0, 0, 0, 0, 0, 0],
+  prevDowDailyAvgCustomers: [0, 0, 0, 0, 0, 0, 0],
+  hasPrevDowSales: false,
+  isSameStructure: true,
+  missingDataWarnings: [],
+}
+
+const EMPTY_CTS: CurrentCtsQuantity = { total: 0, byStore: new Map(), byDay: new Map() }
+
 /**
- * Dashboard WidgetContext → UnifiedWidgetContext アダプタ
+ * UnifiedWidgetContext → DashboardWidgetContext
  *
- * Dashboard の既存ウィジェットは WidgetContext を期待するため、
- * UnifiedWidgetContext から WidgetContext を構築して橋渡しする。
+ * Dashboard が保証するフィールドにデフォルト値を補完する。
+ * WidgetContext は UnifiedWidgetContext を extends するため、
+ * スプレッドでフィールドを引き継ぎ、required フィールドのみ上書きする。
  */
 function toDashboardContext(ctx: UnifiedWidgetContext): DashboardWidgetContext {
   return {
-    result: ctx.result,
-    daysInMonth: ctx.daysInMonth,
-    targetRate: ctx.targetRate,
-    warningRate: ctx.warningRate,
-    year: ctx.year,
-    month: ctx.month,
+    ...ctx,
     storeKey: ctx.storeKey ?? '',
-    prevYear: ctx.prevYear,
     allStoreResults: ctx.allStoreResults ?? new Map(),
-    stores: ctx.stores,
     currentDateRange: ctx.currentDateRange ?? {
       from: { year: ctx.year, month: ctx.month, day: 1 },
       to: { year: ctx.year, month: ctx.month, day: ctx.daysInMonth },
     },
-    prevYearScope: ctx.prevYearScope,
-    selectedStoreIds: ctx.selectedStoreIds,
     dataEndDay: ctx.dataEndDay ?? null,
     dataMaxDay: ctx.dataMaxDay ?? 0,
-    elapsedDays: ctx.elapsedDays,
-    departmentKpi: ctx.departmentKpi,
-    explanations: ctx.explanations,
-    onExplain: ctx.onExplain,
     monthlyHistory: ctx.monthlyHistory ?? [],
-    queryExecutor: ctx.queryExecutor ?? (NULL_EXECUTOR as QueryExecutor),
+    queryExecutor: (ctx.queryExecutor ?? NULL_EXECUTOR) as QueryExecutor,
     duckDataVersion: ctx.duckDataVersion ?? 0,
     loadedMonthCount: ctx.loadedMonthCount ?? 0,
     weatherPersist: ctx.weatherPersist ?? null,
-    prevYearMonthlyKpi: ctx.prevYearMonthlyKpi ?? {
-      hasPrevYear: false,
-      sourceYear: 0,
-      sourceMonth: 0,
-      dowOffset: 0,
-      sameDow: {
-        sales: 0,
-        customers: 0,
-        transactionValue: 0,
-        ctsQuantity: 0,
-        dailyMapping: [],
-        storeContributions: [],
-      },
-      sameDate: {
-        sales: 0,
-        customers: 0,
-        transactionValue: 0,
-        ctsQuantity: 0,
-        dailyMapping: [],
-        storeContributions: [],
-      },
-      monthlyTotal: { sales: 0, customers: 0, transactionValue: 0, ctsQuantity: 0 },
-    },
+    prevYearMonthlyKpi: ctx.prevYearMonthlyKpi ?? EMPTY_KPI,
     comparisonScope: ctx.comparisonScope ?? null,
-    dowGap: ctx.dowGap ?? {
-      dowCounts: [],
-      estimatedImpact: 0,
-      isValid: false,
-      prevDowDailyAvg: [0, 0, 0, 0, 0, 0, 0],
-      prevDowDailyAvgCustomers: [0, 0, 0, 0, 0, 0, 0],
-      hasPrevDowSales: false,
-      isSameStructure: true,
-      missingDataWarnings: [],
-    },
+    dowGap: ctx.dowGap ?? EMPTY_DOW_GAP,
     onPrevYearDetail: ctx.onPrevYearDetail ?? (() => {}),
-    fmtCurrency: ctx.fmtCurrency,
     observationStatus: ctx.result.observationPeriod.status,
-    weatherDaily: ctx.weatherDaily,
-    prevYearWeatherDaily: ctx.prevYearWeatherDaily,
-    currentCtsQuantity: ctx.currentCtsQuantity ?? {
-      total: 0,
-      byStore: new Map(),
-      byDay: new Map(),
-    },
+    currentCtsQuantity: ctx.currentCtsQuantity ?? EMPTY_CTS,
   }
 }
 
