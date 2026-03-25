@@ -31,8 +31,8 @@ export interface QueryProfileEntry {
   readonly durationMs: number | null
   /** 結果行数 */
   readonly rowCount: number | null
-  /** 成功/失敗 */
-  readonly status: 'running' | 'success' | 'error'
+  /** 成功/失敗/破棄 */
+  readonly status: 'running' | 'success' | 'error' | 'discarded'
   /** エラーメッセージ（status=error 時） */
   readonly errorMessage: string | null
   /** 呼び出し元情報（任意） */
@@ -44,6 +44,8 @@ export interface ActiveProfile {
   end(rowCount?: number): void
   /** クエリ失敗を記録する */
   fail(error: unknown): void
+  /** stale discard を記録する（新しいクエリに置き換えられた） */
+  discard(): void
 }
 
 type ProfilerListener = () => void
@@ -53,6 +55,7 @@ const DEFAULT_MAX_ENTRIES = 100
 class QueryProfiler {
   private readonly _entries: QueryProfileEntry[] = []
   private _nextId = 1
+  private _staleDiscards = 0
   private readonly _maxEntries: number
   private readonly _listeners = new Set<ProfilerListener>()
 
@@ -101,6 +104,15 @@ class QueryProfiler {
           errorMessage: error instanceof Error ? error.message : String(error),
         })
       },
+      discard: () => {
+        const endTime = performance.now()
+        this._staleDiscards++
+        this._updateEntry(id, {
+          endTime,
+          durationMs: endTime - startTime,
+          status: 'discarded',
+        })
+      },
     }
   }
 
@@ -118,6 +130,7 @@ class QueryProfiler {
     totalQueries: number
     successCount: number
     errorCount: number
+    staleDiscards: number
     avgDurationMs: number
     maxDurationMs: number
     totalDurationMs: number
@@ -143,6 +156,7 @@ class QueryProfiler {
       totalQueries: this._entries.length,
       successCount,
       errorCount,
+      staleDiscards: this._staleDiscards,
       avgDurationMs: successCount > 0 ? totalDuration / successCount : 0,
       maxDurationMs: maxDuration,
       totalDurationMs: totalDuration,
