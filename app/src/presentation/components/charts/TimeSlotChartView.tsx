@@ -10,6 +10,7 @@ import { memo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { toPct } from './chartTheme'
+import { formatTurnaroundHour } from './timeSlotUtils'
 import { EChart, type EChartsOption } from './EChart'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette, chartFontSize } from '@/presentation/theme/tokens'
@@ -273,7 +274,13 @@ export const TimeSlotChartView = memo(function TimeSlotChartView({
               </CardSub>
             )}
           </Card>
-          {/* ピーク時間帯・コアタイムはチャートの markPoint / markArea で表示 */}
+          {kpi.turnaroundAmt != null && (
+            <Card $accent={palette.purpleDark}>
+              <CardLabel>折り返し</CardLabel>
+              <CardValue>{formatTurnaroundHour(kpi.turnaroundAmt)}</CardValue>
+              <CardSub>売上50%到達</CardSub>
+            </Card>
+          )}
         </Grid>
       )}
 
