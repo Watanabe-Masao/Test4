@@ -87,7 +87,7 @@ function toDashboardContext(ctx: UnifiedWidgetContext): DashboardWidgetContext {
     onPrevYearDetail: ctx.onPrevYearDetail ?? (() => {}),
     observationStatus: ctx.result.observationPeriod.status,
     currentCtsQuantity: ctx.currentCtsQuantity ?? EMPTY_CTS,
-  }
+  } as DashboardWidgetContext
 }
 
 /**
