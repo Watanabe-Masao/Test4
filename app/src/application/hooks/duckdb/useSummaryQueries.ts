@@ -8,7 +8,6 @@ import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models/calendar'
 import {
-  queryStoreDaySummary,
   queryAggregatedRates,
   type StoreDaySummaryRow,
   type AggregatedRatesRow,
@@ -41,29 +40,6 @@ export function useDuckDBAggregatedRates(
     const { dateFrom, dateTo } = toDateKeys(dateRange)
     return (c: AsyncDuckDBConnection) =>
       queryAggregatedRates(c, {
-        dateFrom,
-        dateTo,
-        storeIds: storeIdsToArray(storeIds),
-        isPrevYear,
-      })
-  }, [dateRange, storeIds, isPrevYear])
-
-  return useAsyncQuery(conn, dataVersion, queryFn)
-}
-
-/** 店舗×日サマリー一覧 */
-export function useDuckDBStoreDaySummary(
-  conn: AsyncDuckDBConnection | null,
-  dataVersion: number,
-  dateRange: DateRange | undefined,
-  storeIds: ReadonlySet<string>,
-  isPrevYear?: boolean,
-): AsyncQueryResult<readonly StoreDaySummaryRow[]> {
-  const queryFn = useMemo(() => {
-    if (!dateRange) return null
-    const { dateFrom, dateTo } = toDateKeys(dateRange)
-    return (c: AsyncDuckDBConnection) =>
-      queryStoreDaySummary(c, {
         dateFrom,
         dateTo,
         storeIds: storeIdsToArray(storeIds),

@@ -238,6 +238,40 @@ describe('dispose', () => {
     await engine.dispose()
     expect(engine.state).toBe('disposed')
   })
+
+  it('dispose 後に resetDuckDBEngine → 新エンジンで再初期化が可能', async () => {
+    const engine1 = getDuckDBEngine()
+    await engine1.initialize()
+    await engine1.dispose()
+    expect(engine1.state).toBe('disposed')
+
+    // リセット後に新しいエンジンで再初期化
+    resetDuckDBEngine()
+    const engine2 = getDuckDBEngine()
+    expect(engine2).not.toBe(engine1)
+    expect(engine2.state).toBe('idle')
+    await engine2.initialize()
+    expect(engine2.state).toBe('ready')
+  })
+
+  it('disposed 後に getConnection を呼ぶとエラーを投げる', async () => {
+    const engine = getDuckDBEngine()
+    await engine.initialize()
+    await engine.dispose()
+    await expect(engine.getConnection()).rejects.toThrow()
+  })
+
+  it('dispose 時に state listener が disposed を通知する', async () => {
+    const engine = getDuckDBEngine()
+    await engine.initialize()
+
+    const states: string[] = []
+    const unsub = engine.onStateChange((s) => states.push(s))
+    await engine.dispose()
+    unsub()
+
+    expect(states).toContain('disposed')
+  })
 })
 
 // ── initialize 失敗ケース ─────────────────────────────────────────

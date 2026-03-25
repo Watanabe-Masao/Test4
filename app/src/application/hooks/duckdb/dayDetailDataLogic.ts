@@ -1,0 +1,182 @@
+/**
+ * 日別詳細データの純粋ロジック
+ *
+ * useDayDetailData から分離した型定義・日付範囲計算・入力構築・集約関数。
+ * React 依存なし — テスト可能な純粋関数のみ。
+ *
+ * @guard G5 hook ≤300行 — 純粋関数を分離
+ */
+import type { CalendarDate, DateRange } from '@/domain/models/CalendarDate'
+import { toDateKey, dateRangeToKeys } from '@/domain/models/CalendarDate'
+import type { ComparisonScope } from '@/domain/models/ComparisonScope'
+import { resolvePrevDate } from '@/domain/models/ComparisonScope'
+import type { CategoryTimeSalesRecord, HourlyWeatherRecord } from '@/domain/models/record'
+import type { CategoryTimeRecordsInput } from '@/application/queries/cts/CategoryTimeRecordsHandler'
+import type { StoreDaySummaryInput } from '@/application/queries/summary/StoreDaySummaryHandler'
+import type { StoreDaySummaryRow } from '@/application/queries/summary/StoreDaySummaryHandler'
+import type { WeatherHourlyInput } from '@/application/queries/weather/WeatherHourlyHandler'
+import type { AsyncQueryResult } from '@/application/queries/QueryContract'
+
+// ── 型定義 ──
+
+/** 天気候補店舗 */
+export interface WeatherCandidate {
+  readonly id: string
+  readonly name: string
+}
+
+/** 日別集約サマリー（DuckDB store_day_summary 由来） */
+export interface DaySummary {
+  readonly sales: number
+  readonly customers: number
+}
+
+/** useDayDetailData の戻り値 */
+export interface DayDetailData {
+  /** 前年対応日（UI のラベル表示用） */
+  readonly prevDate: CalendarDate
+  readonly prevDateKey: string
+
+  // ── 日別サマリー（DuckDB store_day_summary 由来 — 客数を含む） ──
+  readonly daySummary: DaySummary
+  readonly prevDaySummary: DaySummary
+
+  // ── CTS ──
+  readonly dayRecords: readonly CategoryTimeSalesRecord[]
+  readonly prevDayRecords: readonly CategoryTimeSalesRecord[]
+  readonly wowPrevDayRecords: readonly CategoryTimeSalesRecord[]
+  readonly cumRecords: readonly CategoryTimeSalesRecord[]
+  readonly cumPrevRecords: readonly CategoryTimeSalesRecord[]
+
+  // ── 天気 ──
+  readonly weatherHourly: readonly HourlyWeatherRecord[] | undefined
+  readonly prevWeatherHourly: readonly HourlyWeatherRecord[] | undefined
+}
+
+/** useDayDetailData のパラメータ */
+export interface DayDetailDataParams {
+  readonly queryExecutor: import('@/application/queries/QueryPort').QueryExecutor | null
+  readonly dataVersion: number
+  readonly year: number
+  readonly month: number
+  readonly day: number
+  readonly comparisonScope: ComparisonScope | null
+  readonly selectedStoreIds: ReadonlySet<string>
+  readonly weatherStoreId: string
+}
+
+export const EMPTY_RECORDS: readonly CategoryTimeSalesRecord[] = []
+export const ZERO_SUMMARY: DaySummary = { sales: 0, customers: 0 }
+
+// ── 純粋関数: 日付範囲の計算 ──
+
+/** 日別詳細に必要な全日付範囲を一括計算する */
+export function resolveDayDetailRanges(
+  year: number,
+  month: number,
+  day: number,
+  comparisonScope: ComparisonScope | null,
+) {
+  const currentDate: CalendarDate = { year, month, day }
+  const prevDate = resolvePrevDate(comparisonScope?.alignmentMode ?? 'sameDate', currentDate)
+  const prevDateKey = toDateKey(prevDate)
+  const dateKey = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+
+  const singleDayRange: DateRange = { from: currentDate, to: currentDate }
+  const prevDayRange: DateRange = { from: prevDate, to: prevDate }
+
+  const wowPrevDay = day - 7
+  const canWoW = wowPrevDay >= 1
+  const wowRange: DateRange | undefined = canWoW
+    ? { from: { year, month, day: wowPrevDay }, to: { year, month, day: wowPrevDay } }
+    : undefined
+
+  const cumRange: DateRange = { from: { year, month, day: 1 }, to: { year, month, day } }
+  const cumDays = day - 1
+  const prevFrom = new Date(prevDate.year, prevDate.month - 1, prevDate.day - cumDays)
+  const cumPrevRange: DateRange = {
+    from: {
+      year: prevFrom.getFullYear(),
+      month: prevFrom.getMonth() + 1,
+      day: prevFrom.getDate(),
+    },
+    to: prevDate,
+  }
+
+  return {
+    currentDate,
+    prevDate,
+    prevDateKey,
+    dateKey,
+    singleDayRange,
+    prevDayRange,
+    wowRange,
+    cumRange,
+    cumPrevRange,
+  }
+}
+
+// ── 入力構築ヘルパー ──
+
+export function buildCtsInput(
+  range: DateRange | undefined,
+  storeIds: ReadonlySet<string>,
+  isPrevYear?: boolean,
+): CategoryTimeRecordsInput | null {
+  if (!range) return null
+  const { fromKey, toKey } = dateRangeToKeys(range)
+  return {
+    dateFrom: fromKey,
+    dateTo: toKey,
+    storeIds: storeIds.size > 0 ? [...storeIds] : undefined,
+    isPrevYear,
+  }
+}
+
+export function buildSummaryInput(
+  range: DateRange | undefined,
+  storeIds: ReadonlySet<string>,
+  isPrevYear?: boolean,
+): StoreDaySummaryInput | null {
+  if (!range) return null
+  const { fromKey, toKey } = dateRangeToKeys(range)
+  return {
+    dateFrom: fromKey,
+    dateTo: toKey,
+    storeIds: storeIds.size > 0 ? [...storeIds] : undefined,
+    isPrevYear,
+  }
+}
+
+export function buildWeatherInput(
+  storeId: string,
+  dateKey: string | null,
+): WeatherHourlyInput | null {
+  if (!storeId || !dateKey) return null
+  return { storeId, dateFrom: dateKey, dateTo: dateKey }
+}
+
+// ── 集約ヘルパー ──
+
+/** isPrevYear=true の結果が空なら isPrevYear=false のフォールバックを使う */
+export function selectCtsWithFallback(
+  primary: AsyncQueryResult<{ readonly records: readonly CategoryTimeSalesRecord[] }>,
+  fallback: AsyncQueryResult<{ readonly records: readonly CategoryTimeSalesRecord[] }>,
+): readonly CategoryTimeSalesRecord[] {
+  const primaryData = primary.data?.records ?? EMPTY_RECORDS
+  return primaryData.length > 0 ? primaryData : (fallback.data?.records ?? EMPTY_RECORDS)
+}
+
+/** StoreDaySummaryRow[] を店舗横断で集約して DaySummary に変換する */
+export function aggregateSummary(
+  rows: readonly StoreDaySummaryRow[] | null | undefined,
+): DaySummary | null {
+  if (!rows || rows.length === 0) return null
+  let sales = 0
+  let customers = 0
+  for (const r of rows) {
+    sales += r.sales
+    customers += r.customers
+  }
+  return { sales, customers }
+}

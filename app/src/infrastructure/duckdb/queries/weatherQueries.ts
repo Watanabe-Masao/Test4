@@ -7,8 +7,8 @@
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { HourlyWeatherRecord } from '@/domain/models/record'
-import { queryToObjects, buildWhereClause, storeIdFilter } from '../queryRunner'
-import { queryScalar } from '../queryRunner'
+import { queryToObjects, buildWhereClause, storeIdFilter, queryScalar } from '../queryRunner'
+import { validateDateKey } from '../queryParams'
 
 // ── 結果型（DuckDB → domain 変換用） ──
 
@@ -45,8 +45,8 @@ export async function queryWeatherHourly(
 ): Promise<readonly HourlyWeatherRecord[]> {
   const where = buildWhereClause([
     storeIdFilter([storeId]),
-    `date_key >= '${startDate}'`,
-    `date_key <= '${endDate}'`,
+    `date_key >= '${validateDateKey(startDate)}'`,
+    `date_key <= '${validateDateKey(endDate)}'`,
   ])
 
   const sql = `
@@ -96,8 +96,8 @@ export async function queryWeatherHourlyAvg(
 ): Promise<readonly HourlyWeatherAvgRow[]> {
   const where = buildWhereClause([
     storeIdFilter([storeId]),
-    `date_key >= '${startDate}'`,
-    `date_key <= '${endDate}'`,
+    `date_key >= '${validateDateKey(startDate)}'`,
+    `date_key <= '${validateDateKey(endDate)}'`,
   ])
 
   const sql = `
@@ -129,8 +129,8 @@ export async function queryWeatherCacheCount(
 ): Promise<number> {
   const where = buildWhereClause([
     storeIdFilter([storeId]),
-    `date_key >= '${startDate}'`,
-    `date_key <= '${endDate}'`,
+    `date_key >= '${validateDateKey(startDate)}'`,
+    `date_key <= '${validateDateKey(endDate)}'`,
   ])
 
   const sql = `SELECT COUNT(*) AS cnt FROM weather_hourly ${where}`
@@ -149,8 +149,8 @@ export async function deleteWeatherCache(
 ): Promise<void> {
   const where = buildWhereClause([
     storeIdFilter([storeId]),
-    `date_key >= '${startDate}'`,
-    `date_key <= '${endDate}'`,
+    `date_key >= '${validateDateKey(startDate)}'`,
+    `date_key <= '${validateDateKey(endDate)}'`,
   ])
 
   await conn.query(`DELETE FROM weather_hourly ${where}`)

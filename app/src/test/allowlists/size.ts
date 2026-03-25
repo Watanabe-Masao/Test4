@@ -9,12 +9,6 @@ export const largeComponentTier2: readonly AllowlistEntry[] = [] as const
 /** Infrastructure ファイルサイズ除外（400行超） */
 export const infraLargeFiles: readonly AllowlistEntry[] = [
   {
-    path: 'infrastructure/duckdb/dataConversions.ts',
-    reason: 'DuckDB データ変換',
-    category: 'structural',
-    removalCondition: '分割時',
-  },
-  {
     path: 'infrastructure/duckdb/queries/purchaseComparison.ts',
     reason: '仕入比較クエリ',
     category: 'structural',

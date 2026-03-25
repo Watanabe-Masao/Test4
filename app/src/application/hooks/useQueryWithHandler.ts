@@ -23,12 +23,18 @@
  * - 個別 chart 専用の取得結果はこのフックで取得する（Rule Q2）
  * - loading / error の標準化、debounce、stale result の安全な破棄を統一する
  *
+ * ## Observability
+ *
+ * queryProfiler に handler 名・入力フィンガープリント・実行時間・stale discard を記録する。
+ * DevTools の QueryProfilePanel から閲覧可能。
+ *
  * @see QueryHandler  — application/queries/QueryContract.ts
  * @see QueryExecutor — application/queries/QueryPort.ts
  */
 import { useState, useEffect, useRef, useMemo } from 'react'
 import type { QueryHandler, AsyncQueryResult } from '@/application/queries/QueryContract'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
+import { queryProfiler } from '@/application/services/queryProfileService'
 
 /** Debounce delay to prevent rapid re-querying on cascading state updates */
 const QUERY_DEBOUNCE_MS = 50
@@ -79,15 +85,28 @@ export function useQueryWithHandler<TInput, TOutput>(
       if (cancelled) return
       setIsLoading(true)
       setError(null)
+
+      const profile = queryProfiler.start(
+        `[${currentHandler.name}] ${inputKey}`,
+        currentHandler.name,
+      )
+
       const run = async () => {
         try {
           const result = await executor.execute(currentHandler, currentInput)
           if (!cancelled && seq === seqRef.current) {
             setData(result)
+            profile.end()
+          } else {
+            // stale discard: 新しいクエリが発行されたため結果を破棄
+            profile.discard()
           }
         } catch (err: unknown) {
           if (!cancelled && seq === seqRef.current) {
             setError(err instanceof Error ? err : new Error(String(err)))
+            profile.fail(err)
+          } else {
+            profile.discard()
           }
         } finally {
           if (!cancelled && seq === seqRef.current) {

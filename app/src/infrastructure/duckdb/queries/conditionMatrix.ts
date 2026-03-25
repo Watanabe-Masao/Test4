@@ -10,6 +10,7 @@ import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models/calendar'
 import { dateRangeToKeys } from '@/domain/models/CalendarDate'
 import { queryToObjects, storeIdFilterWithAlias } from '../queryRunner'
+import { validateDateKey } from '../queryParams'
 
 /** 1期間・1店舗分の集約メトリクス */
 export interface PeriodMetrics {
@@ -170,7 +171,9 @@ export async function queryConditionMatrix(
   dateRange: DateRange,
   storeIds?: ReadonlySet<string>,
 ): Promise<readonly ConditionMatrixRow[]> {
-  const { fromKey, toKey } = dateRangeToKeys(dateRange)
+  const { fromKey: rawFrom, toKey: rawTo } = dateRangeToKeys(dateRange)
+  const fromKey = validateDateKey(rawFrom)
+  const toKey = validateDateKey(rawTo)
   const storeCondition = storeIdFilterWithAlias(
     storeIds && storeIds.size > 0 ? [...storeIds] : undefined,
     's',
@@ -178,10 +181,12 @@ export async function queryConditionMatrix(
   const storeWhere = storeCondition ? ` AND ${storeCondition}` : ''
 
   // 中間日を計算
-  const midKey = computeMidDateKey(fromKey, toKey)
+  const midKey = validateDateKey(computeMidDateKey(fromKey, toKey))
   const midDate = new Date(midKey)
   midDate.setDate(midDate.getDate() + 1)
-  const midNextKey = `${midDate.getFullYear()}-${String(midDate.getMonth() + 1).padStart(2, '0')}-${String(midDate.getDate()).padStart(2, '0')}`
+  const midNextKey = validateDateKey(
+    `${midDate.getFullYear()}-${String(midDate.getMonth() + 1).padStart(2, '0')}-${String(midDate.getDate()).padStart(2, '0')}`,
+  )
 
   // 前週シフト用の日付範囲を JS で事前計算
   // SQL の CAST(date_key AS DATE) は無効な date_key（例: 2025-02-32）でエラーになるため回避
@@ -189,8 +194,8 @@ export async function queryConditionMatrix(
   pwFromDate.setDate(pwFromDate.getDate() - 7)
   const pwToDate = new Date(toKey)
   pwToDate.setDate(pwToDate.getDate() - 7)
-  const pwFromKey = formatDateKey(pwFromDate)
-  const pwToKey = formatDateKey(pwToDate)
+  const pwFromKey = validateDateKey(formatDateKey(pwFromDate))
+  const pwToKey = validateDateKey(formatDateKey(pwToDate))
   const pwDateCondition = `s.date_key BETWEEN '${pwFromKey}' AND '${pwToKey}'`
 
   // 各期間の分類条件

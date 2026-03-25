@@ -21,19 +21,16 @@ describe('INV-SCOPE-01: presentation/ での前年日付の独自計算禁止', 
    * ComparisonScope ベースに移行完了時に削除する。
    */
   const ALLOWLIST = new Set([
-    // fallback デフォルト値（ctx.prevYearDateRange ?? ...）
-    'presentation/components/widgets/unifiedRegistry.ts',
-    // 表示ラベルのみ（スコープ計算ではない）
+    // 表示ラベルのみ（スコープ計算ではない — prevYear ?? year - 1）
     'presentation/pages/Dashboard/widgets/types.ts',
     // deriveCompStartDateKey — 天気 map の chartDay 算出用
     'presentation/components/charts/DailySalesChartBodyLogic.ts',
     // 管理画面の前年マッピング設定（ユーザー設定の表示用）
     'presentation/pages/Admin/PrevYearMappingTab.tsx',
     // CTS 前年日付を year-1 + dowOffset の Date 演算で算出（閏年対応済み）
-    'presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx',
     'presentation/pages/Dashboard/widgets/YoYWaterfallChart.logic.ts',
   ])
-  const MAX_ALLOWLIST_SIZE = 6
+  const MAX_ALLOWLIST_SIZE = 4
 
   it('許可リストのサイズが上限を超えない', () => {
     expect(

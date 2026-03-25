@@ -7,7 +7,13 @@ import type { AllowlistEntry } from './types'
 export const applicationToInfrastructure: readonly AllowlistEntry[] = [
   {
     path: 'application/hooks/useDuckDB.ts',
-    reason: 'DuckDB 接続ライフサイクル管理',
+    reason: 'DuckDB 接続ライフサイクル管理（composition root）',
+    category: 'adapter',
+    removalCondition: 'DuckDB adapter 層が確立されたとき',
+  },
+  {
+    path: 'application/hooks/useEngineLifecycle.ts',
+    reason: 'DuckDB エンジン初期化（useDuckDB から分離）',
     category: 'adapter',
     removalCondition: 'DuckDB adapter 層が確立されたとき',
   },

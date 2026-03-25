@@ -10,14 +10,12 @@
 export { useAsyncQuery, toDateKeys, storeIdsToArray } from './useAsyncQuery'
 export type { AsyncQueryResult } from './useAsyncQuery'
 
-// CTS — 階層クエリ（カテゴリ集約・日次トレンド・CTS レコード）
+// CTS — 階層クエリ（カテゴリ集約・日次トレンド）
 export {
   useDuckDBLevelAggregation,
   useDuckDBCategoryDailyTrend,
   useDuckDBCategoryHourly,
   useDuckDBCategoryDowMatrix,
-  useDuckDBCategoryTimeRecords,
-  fetchCategoryTimeRecords,
 } from './useCtsHierarchyQueries'
 export type {
   LevelAggregationRow,
@@ -51,11 +49,7 @@ export type {
 } from './useDeptKpiQueries'
 
 // StoreDaySummary（日次集計・指標）
-export {
-  useDuckDBDailyCumulative,
-  useDuckDBAggregatedRates,
-  useDuckDBStoreDaySummary,
-} from './useSummaryQueries'
+export { useDuckDBDailyCumulative, useDuckDBAggregatedRates } from './useSummaryQueries'
 export type {
   DailyCumulativeRow,
   AggregatedRatesRow,
@@ -133,8 +127,7 @@ export type {
   StoreDailyMarkupRateQueryResult,
 } from './useStoreDailyMarkupRateQuery'
 
-// 天気時間帯
-export { useDuckDBWeatherHourly, useDuckDBWeatherHourlyAvg } from './useWeatherHourlyQuery'
+// 天気時間帯（QueryHandler 移行済み — useQueryWithHandler + weatherHourlyHandler を使用）
 export type { HourlyWeatherAvgRow } from '@/application/queries/weather'
 
 // 日別詳細（カレンダーモーダル用一括取得）

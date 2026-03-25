@@ -28,6 +28,8 @@ import { useDeptKpiView } from '@/application/hooks/useDeptKpiView'
 import { usePeriodSelectionStore } from '@/application/stores/periodSelectionStore'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { useWeatherData } from '@/application/hooks/useWeather'
+import { useWeatherStoreId } from '@/application/hooks/useWeatherStoreId'
+import { usePrevYearWeather } from '@/application/hooks/usePrevYearWeather'
 import { useCtsQuantity } from '@/application/hooks/useCtsQuantity'
 
 interface UseUnifiedWidgetContextResult {
@@ -121,41 +123,14 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
   const { queryExecutor, weatherPersist, prevYearStoreCostPrice } = duckCtx
 
   // ── 天気データ（選択店舗の代表1店から取得） ──
-  const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
-  const weatherStoreId = useMemo(() => {
-    const ids = selectedStoreIds.size > 0 ? [...selectedStoreIds] : [...stores.keys()]
-    return ids.find((id) => storeLocations[id]) ?? ids[0] ?? ''
-  }, [selectedStoreIds, stores, storeLocations])
+  const weatherStoreId = useWeatherStoreId(selectedStoreIds, stores)
   const { daily: weatherDaily } = useWeatherData(targetYear, targetMonth, weatherStoreId)
-
-  // 前年天気データ（比較期間の年月から取得）
-  // 同曜日比較で月跨ぎする場合、from月とto月の両方を取得して結合する
-  // prevYearDateRange は effectivePeriod2 由来。undefined なら天気比較なし
-  const prevYearMonths = useMemo(() => {
-    const dr = comparison.prevYearDateRange
-    if (!dr) return null
-    const from = { year: dr.from.year, month: dr.from.month }
-    const to = { year: dr.to.year, month: dr.to.month }
-    const spansTwoMonths = from.year !== to.year || from.month !== to.month
-    return { from, to: spansTwoMonths ? to : null }
-  }, [comparison.prevYearDateRange])
-  // Hook は条件付き呼び出し不可のため、prevYearMonths が null なら当年月を渡す（結果は無視）
-  const prevFromYear = prevYearMonths?.from.year ?? targetYear
-  const prevFromMonth = prevYearMonths?.from.month ?? targetMonth
-  const { daily: prevYearWeatherBase } = useWeatherData(prevFromYear, prevFromMonth, weatherStoreId)
-  const overflowYear = prevYearMonths?.to?.year ?? prevFromYear
-  const overflowMonth = prevYearMonths?.to?.month ?? prevFromMonth
-  const { daily: prevYearWeatherOverflow } = useWeatherData(
-    overflowYear,
-    overflowMonth,
+  const prevYearWeatherDaily = usePrevYearWeather({
+    prevYearDateRange: comparison.prevYearDateRange,
+    targetYear,
+    targetMonth,
     weatherStoreId,
-  )
-  const prevYearWeatherDaily = useMemo(() => {
-    if (!prevYearMonths) return [] as readonly (typeof prevYearWeatherBase)[number][]
-    return prevYearMonths.to
-      ? ([...prevYearWeatherBase, ...prevYearWeatherOverflow] as const)
-      : prevYearWeatherBase
-  }, [prevYearWeatherBase, prevYearWeatherOverflow, prevYearMonths])
+  })
 
   // Store name map for category comparison
   const storeNames = useMemo(() => {

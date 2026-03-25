@@ -8,8 +8,13 @@ import { useCallback, useState } from 'react'
 import type { StoreResult } from '@/domain/models/storeTypes'
 import type { PrevYearData } from '@/application/hooks/analytics'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
-import { getLegacyDuckDB } from '@/application/queries/QueryPort'
-import { fetchCategoryTimeRecords } from '@/application/hooks/duckdb'
+import {
+  categoryTimeRecordsHandler,
+  type CategoryTimeRecordsInput,
+} from '@/application/queries/cts/CategoryTimeRecordsHandler'
+import { dateRangeToKeys } from '@/domain/models/CalendarDate'
+import type { DateRange } from '@/domain/models/CalendarDate'
+import type { CategoryTimeSalesRecord } from '@/domain/models/record'
 import { buildClipBundle } from '@/application/usecases/clipExport/buildClipBundle'
 import { downloadClipHtml } from '@/application/usecases/clipExport/downloadClipHtml'
 
@@ -29,6 +34,21 @@ interface ClipExportParams {
 interface ClipExportState {
   readonly isExporting: boolean
   readonly exportClip: () => Promise<void>
+}
+
+/** DateRange → CategoryTimeRecordsInput を構築する */
+function buildCtsInput(
+  range: DateRange,
+  storeIds: ReadonlySet<string>,
+  isPrevYear?: boolean,
+): CategoryTimeRecordsInput {
+  const { fromKey, toKey } = dateRangeToKeys(range)
+  return {
+    dateFrom: fromKey,
+    dateTo: toKey,
+    storeIds: storeIds.size > 0 ? [...storeIds] : undefined,
+    isPrevYear,
+  }
 }
 
 export function useClipExport(params: ClipExportParams): ClipExportState {
@@ -51,13 +71,16 @@ export function useClipExport(params: ClipExportParams): ClipExportState {
       } = params
 
       const storeName = stores.get(storeKey)?.name ?? storeKey
-      const curRange = { from: { year, month, day: 1 }, to: { year, month, day: daysInMonth } }
+      const curRange: DateRange = {
+        from: { year, month, day: 1 },
+        to: { year, month, day: daysInMonth },
+      }
       const startDate = new Date(year, month - 1, 1)
       const endDate = new Date(year, month - 1, daysInMonth)
       const offsetMs = (comparisonScope?.dowOffset ?? 0) * 86400000
       const prevStartDate = new Date(startDate.getTime() + offsetMs)
       const prevEndDate = new Date(endDate.getTime() + offsetMs)
-      const prevRange = {
+      const prevRange: DateRange = {
         from: {
           year: prevStartDate.getFullYear(),
           month: prevStartDate.getMonth() + 1,
@@ -70,18 +93,25 @@ export function useClipExport(params: ClipExportParams): ClipExportState {
         },
       }
 
-      let curCts: Awaited<ReturnType<typeof fetchCategoryTimeRecords>> = []
-      let prevCts: Awaited<ReturnType<typeof fetchCategoryTimeRecords>> = []
+      let curCts: readonly CategoryTimeSalesRecord[] = []
+      let prevCts: readonly CategoryTimeSalesRecord[] = []
 
-      const { conn: duckConn } = getLegacyDuckDB(queryExecutor)
-      if (duckConn) {
+      if (queryExecutor?.isReady) {
         try {
-          curCts = await fetchCategoryTimeRecords(duckConn, curRange, selectedStoreIds)
+          const curResult = await queryExecutor.execute(
+            categoryTimeRecordsHandler,
+            buildCtsInput(curRange, selectedStoreIds),
+          )
+          curCts = curResult?.records ?? []
         } catch {
           // CTS 取得失敗時は空で継続
         }
         try {
-          prevCts = await fetchCategoryTimeRecords(duckConn, prevRange, selectedStoreIds, true)
+          const prevResult = await queryExecutor.execute(
+            categoryTimeRecordsHandler,
+            buildCtsInput(prevRange, selectedStoreIds, true),
+          )
+          prevCts = prevResult?.records ?? []
         } catch {
           // CTS 取得失敗時は空で継続
         }

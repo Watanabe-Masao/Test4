@@ -8,6 +8,30 @@
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
+import {
+  applicationToInfrastructure,
+  presentationToInfrastructure,
+  infrastructureToApplication,
+  presentationToUsecases,
+  presentationDuckdbHook,
+  largeComponentTier2,
+  infraLargeFiles,
+  domainLargeFiles,
+  usecasesLargeFiles,
+  cmpPrevYearDaily,
+  cmpFramePrevious,
+  cmpDailyMapping,
+  dowCalcOverride,
+  ctxHook,
+  vmReactImport,
+  reactImportExcludeDirs,
+  sideEffectChain,
+  useMemoLimits,
+  useStateLimits,
+  hookLineLimits,
+  presentationMemoLimits,
+  presentationStateLimits,
+} from './allowlists'
 
 const ROOT_DIR = path.resolve(__dirname, '..', '..', '..')
 
@@ -441,7 +465,6 @@ describe('@guard tag consistency', () => {
       'C1', // 1ファイル = 1変更理由 — レビューで検証
       'C4', // 描画は純粋 — レビューで検証
       'C5', // 最小セレクタ — レビューで検証
-      'E1', // 境界で検証 — Branded Type、レビューで検証
       'F3', // 全パターンに例外なし — レビューで検証
       'F6', // チャート間データは文脈継承 — レビューで検証
       'F8', // 独立互換で正本を汚さない — レビューで検証
@@ -458,6 +481,67 @@ describe('@guard tag consistency', () => {
       unused,
       `未使用の guard タグ（コードベースに @guard 参照なし、REVIEW_ONLY にも未登録）:\n${unused.join(', ')}\n` +
         'タグ付与するか REVIEW_ONLY_TAGS に登録してください。',
+    ).toEqual([])
+  })
+})
+
+// ─── 許可リスト総数トラッキング ──────────────────────────
+
+describe('許可リスト総数トラッキング', () => {
+  it('全許可リストの合計エントリ数が上限を超えない', () => {
+    // 全許可リストの配列をインポートして総数をカウント
+    const allLists = [
+      applicationToInfrastructure,
+      presentationToInfrastructure,
+      infrastructureToApplication,
+      presentationToUsecases,
+      presentationDuckdbHook,
+      largeComponentTier2,
+      infraLargeFiles,
+      domainLargeFiles,
+      usecasesLargeFiles,
+      cmpPrevYearDaily,
+      cmpFramePrevious,
+      cmpDailyMapping,
+      dowCalcOverride,
+      ctxHook,
+      vmReactImport,
+      reactImportExcludeDirs,
+      sideEffectChain,
+      useMemoLimits,
+      useStateLimits,
+      hookLineLimits,
+      presentationMemoLimits,
+      presentationStateLimits,
+    ]
+    const totalEntries = allLists.reduce((sum, list) => sum + list.length, 0)
+    const MAX_TOTAL = 55
+
+    expect(
+      totalEntries,
+      `許可リスト総数が ${totalEntries} 件（上限: ${MAX_TOTAL}）。\n` +
+        '許可リストを増やす前に、構造改善で解消できないか検討してください。',
+    ).toBeLessThanOrEqual(MAX_TOTAL)
+  })
+
+  it('凍結済み許可リストが空のまま維持されている', () => {
+    const frozenLists = [
+      { name: 'presentationToInfrastructure', list: presentationToInfrastructure },
+      { name: 'infrastructureToApplication', list: infrastructureToApplication },
+      { name: 'presentationDuckdbHook', list: presentationDuckdbHook },
+      { name: 'largeComponentTier2', list: largeComponentTier2 },
+      { name: 'cmpPrevYearDaily', list: cmpPrevYearDaily },
+      { name: 'cmpFramePrevious', list: cmpFramePrevious },
+      { name: 'dowCalcOverride', list: dowCalcOverride },
+    ]
+    const violations = frozenLists
+      .filter((f) => f.list.length > 0)
+      .map((f) => `${f.name}: ${f.list.length} 件`)
+
+    expect(
+      violations,
+      `凍結済み許可リストにエントリが追加されています:\n${violations.join('\n')}\n` +
+        '凍結済みリストへの追加は禁止です。',
     ).toEqual([])
   })
 })

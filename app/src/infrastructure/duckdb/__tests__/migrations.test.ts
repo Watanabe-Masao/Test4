@@ -90,4 +90,13 @@ describe('migrations registry', () => {
       expect(typeof m.down).toBe('function')
     }
   })
+
+  it('最新マイグレーションの version が SCHEMA_VERSION を超えない', () => {
+    const lastMigration = migrations[migrations.length - 1]
+    expect(
+      lastMigration.version,
+      `最新マイグレーション version (${lastMigration.version}) が SCHEMA_VERSION (${SCHEMA_VERSION}) を超えています。\n` +
+        'schemas.ts の SCHEMA_VERSION を更新してください。',
+    ).toBeLessThanOrEqual(SCHEMA_VERSION)
+  })
 })

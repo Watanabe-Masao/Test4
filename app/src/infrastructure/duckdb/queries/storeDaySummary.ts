@@ -154,11 +154,21 @@ export async function queryDailyCumulative(
  * VIEW / TABLE の両方を try-catch で DROP してから RENAME する。
  */
 export async function materializeSummary(conn: AsyncDuckDBConnection): Promise<void> {
+  const start = performance.now()
   await conn.query('CREATE TABLE store_day_summary_mat AS SELECT * FROM store_day_summary')
+  const createMs = performance.now() - start
+
   // DuckDB は型不一致で IF EXISTS でもエラーになるため両方試す
   await safeDropObject(conn, 'store_day_summary', 'VIEW')
   await safeDropObject(conn, 'store_day_summary', 'TABLE')
   await conn.query('ALTER TABLE store_day_summary_mat RENAME TO store_day_summary')
+
+  const totalMs = performance.now() - start
+  if (typeof console !== 'undefined') {
+    console.debug(
+      `[materializeSummary] CREATE TABLE AS SELECT: ${Math.round(createMs)}ms, total: ${Math.round(totalMs)}ms`,
+    )
+  }
 }
 
 /** DuckDB の DROP ... IF EXISTS が型不一致でエラーになる問題を吸収 */
