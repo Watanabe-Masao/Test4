@@ -69,11 +69,11 @@ describe('queryDailyRecords', () => {
     expect(sql).toContain("s.date_key BETWEEN '2026-02-01' AND '2026-02-28'")
   })
 
-  it('is_prev_year = false を指定する（当年データ）', async () => {
+  it('is_prev_year = FALSE を指定する（当年データ）', async () => {
     const conn = makeMockConn()
     await queryDailyRecords(conn as never, feb2026)
     const sql = conn.getCapturedSql()[0]
-    expect(sql).toContain('s.is_prev_year = false')
+    expect(sql).toContain('s.is_prev_year = FALSE')
   })
 
   it('storeIds フィルタが SQL に反映される', async () => {
@@ -129,11 +129,11 @@ describe('queryDailyRecords', () => {
 })
 
 describe('queryPrevYearDailyRecords', () => {
-  it('is_prev_year = true を指定する（前年データ）', async () => {
+  it('is_prev_year = TRUE を指定する（前年データ）', async () => {
     const conn = makeMockConn()
     await queryPrevYearDailyRecords(conn as never, feb2026)
     const sql = conn.getCapturedSql()[0]
-    expect(sql).toContain('s.is_prev_year = true')
+    expect(sql).toContain('s.is_prev_year = TRUE')
   })
 
   it('budget JOIN を含まず budget_amount = 0 を固定で返す', async () => {

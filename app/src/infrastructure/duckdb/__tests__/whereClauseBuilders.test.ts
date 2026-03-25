@@ -78,7 +78,7 @@ describe('CTS WHERE 句統合テスト', () => {
   it('エイリアス付き日付フィルタ', () => {
     const result = ctsWhereClause({ dateFrom: '2026-02-01', dateTo: '2026-02-28' }, 'cts')
     expect(result).toContain("cts.date_key BETWEEN '2026-02-01' AND '2026-02-28'")
-    expect(result).toContain('cts.is_prev_year = false')
+    expect(result).toContain('cts.is_prev_year = FALSE')
   })
 
   it('前年フラグ TRUE', () => {
@@ -86,7 +86,7 @@ describe('CTS WHERE 句統合テスト', () => {
       { dateFrom: '2025-02-01', dateTo: '2025-02-28', isPrevYear: true },
       'cts',
     )
-    expect(result).toContain('cts.is_prev_year = true')
+    expect(result).toContain('cts.is_prev_year = TRUE')
   })
 
   it('店舗フィルタ付き', () => {
@@ -162,7 +162,7 @@ describe('storeDaySummary WHERE 句テスト', () => {
       dateTo: '2026-02-28',
     })
     expect(result).toBe(
-      "WHERE date_key BETWEEN '2026-02-01' AND '2026-02-28' AND is_prev_year = false",
+      "WHERE date_key BETWEEN '2026-02-01' AND '2026-02-28' AND is_prev_year = FALSE",
     )
   })
 
@@ -172,7 +172,7 @@ describe('storeDaySummary WHERE 句テスト', () => {
       dateTo: '2025-02-28',
       isPrevYear: true,
     })
-    expect(result).toContain('is_prev_year = true')
+    expect(result).toContain('is_prev_year = TRUE')
   })
 
   it('店舗フィルタなし（全店）', () => {

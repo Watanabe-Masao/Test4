@@ -43,7 +43,7 @@ describe('CTS フィルタ条件生成', () => {
       dateTo: '2026-02-28',
     })
     expect(result).toBe(
-      "WHERE date_key BETWEEN '2026-02-01' AND '2026-02-28' AND is_prev_year = false",
+      "WHERE date_key BETWEEN '2026-02-01' AND '2026-02-28' AND is_prev_year = FALSE",
     )
   })
 
@@ -59,7 +59,7 @@ describe('CTS フィルタ条件生成', () => {
       isPrevYear: true,
     })
     expect(result).toContain("date_key BETWEEN '2026-02-01' AND '2026-02-28'")
-    expect(result).toContain('is_prev_year = true')
+    expect(result).toContain('is_prev_year = TRUE')
     expect(result).toContain("store_id IN ('1', '2')")
     expect(result).toContain("dept_code = 'D01'")
     expect(result).toContain("line_code = 'L01'")

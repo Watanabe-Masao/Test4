@@ -94,14 +94,14 @@ describe('queryCategoryMixWeekly', () => {
     await queryCategoryMixWeekly(conn as never, baseMixParams)
     const sql = conn.getCapturedSql()[0]
     expect(sql).toContain("cts.date_key BETWEEN '2026-01-01' AND '2026-02-28'")
-    expect(sql).toContain('cts.is_prev_year = false')
+    expect(sql).toContain('cts.is_prev_year = FALSE')
   })
 
   it('isPrevYear = true で前年データを取得する', async () => {
     const conn = makeMockConn()
     await queryCategoryMixWeekly(conn as never, { ...baseMixParams, isPrevYear: true })
     const sql = conn.getCapturedSql()[0]
-    expect(sql).toContain('cts.is_prev_year = true')
+    expect(sql).toContain('cts.is_prev_year = TRUE')
   })
 
   it('storeIds フィルタが SQL に反映される（エイリアス付き）', async () => {
