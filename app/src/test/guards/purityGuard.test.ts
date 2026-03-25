@@ -9,6 +9,7 @@
  * @guard B1 Authoritative 計算は domain/calculations のみ
  * @guard B3 率は domain/calculations で算出
  * @guard C6 facade は orchestration のみ
+ * @guard C3 store は state 反映のみ
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
@@ -330,5 +331,65 @@ describe('許可リスト増加防止ガード', () => {
       largeFileCount,
       `infrastructure/ の 400行超ファイルが ${largeFileCount} 件（上限: ${MAX_INFRA_EXCLUSIONS}）`,
     ).toBeLessThanOrEqual(MAX_INFRA_EXCLUSIONS)
+  })
+})
+
+// ─── C3: store は state 反映のみ ──────────────────────────
+
+describe('C3: store は state 反映のみ', () => {
+  const storesDir = path.join(SRC_DIR, 'application/stores')
+
+  it('stores/ は domain/calculations をインポートしない', () => {
+    const files = collectTsFiles(storesDir)
+    const violations: string[] = []
+
+    for (const file of files) {
+      const imports = extractImports(file)
+      for (const imp of imports) {
+        if (imp.includes('domain/calculations')) {
+          violations.push(`${rel(file)}: import '${imp}'`)
+        }
+      }
+    }
+
+    expect(
+      violations,
+      `stores/ が domain/calculations を直接インポートしています:\n${violations.join('\n')}\n` +
+        '業務計算は store の外（hooks, usecases）で行い、結果を store に反映してください。',
+    ).toEqual([])
+  })
+
+  it('stores/ の set() 内で .reduce() を算術アキュムレータに使用しない', () => {
+    const files = collectTsFiles(storesDir)
+    const violations: string[] = []
+    // set() コールバック内の .reduce() + 算術パターンを検出
+    const reduceArithPattern = /\.reduce\(\s*\([^)]*\)\s*=>\s*[^,]*[+\-*/]/
+
+    for (const file of files) {
+      const content = fs.readFileSync(file, 'utf-8')
+      const lines = content.split('\n')
+      let inSetCallback = false
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i]
+        if (isCommentLine(line)) continue
+        const stripped = stripStrings(line)
+
+        if (/\bset\s*\(/.test(stripped)) inSetCallback = true
+        if (inSetCallback && reduceArithPattern.test(stripped)) {
+          violations.push(`${rel(file)}:${i + 1}: ${line.trim()}`)
+        }
+        // set() ブロック終了の簡易判定（次の export/const/function）
+        if (inSetCallback && /^\s*(export|const|function|\/\*\*)/.test(line) && i > 0) {
+          inSetCallback = false
+        }
+      }
+    }
+
+    expect(
+      violations,
+      `stores/ の set() 内で算術 .reduce() が検出されました:\n${violations.join('\n')}\n` +
+        '集計ロジックは store の外で行ってください（C3 違反）。',
+    ).toEqual([])
   })
 })
