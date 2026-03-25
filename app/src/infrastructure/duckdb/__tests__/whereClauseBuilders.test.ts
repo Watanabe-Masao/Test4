@@ -6,7 +6,13 @@
  * DuckDB 接続不要。
  */
 import { describe, it, expect } from 'vitest'
-import { buildWhereClause, storeIdFilter, storeIdFilterWithAlias } from '../queryRunner'
+import {
+  buildWhereClause,
+  buildTypedWhere,
+  storeIdFilter,
+  storeIdFilterWithAlias,
+  type WhereCondition,
+} from '../queryRunner'
 import { validateDateKey, validateStoreId, validateCode } from '../queryParams'
 
 // ─── storeIdFilterWithAlias ────────────────────────────────
@@ -252,5 +258,97 @@ describe('バリデーション境界テスト', () => {
     const result = storeIdFilter(ids)
     expect(result).toContain("store_id IN ('store1'")
     expect(result).toContain("'store100')")
+  })
+})
+
+// ─── buildTypedWhere — 型安全 WHERE 句ビルダー ────────────
+
+describe('buildTypedWhere', () => {
+  it('dateRange 条件を BETWEEN 句に変換する', () => {
+    const result = buildTypedWhere([
+      { type: 'dateRange', column: 'date_key', from: '2026-01-01', to: '2026-01-31' },
+    ])
+    expect(result).toBe("WHERE date_key BETWEEN '2026-01-01' AND '2026-01-31'")
+  })
+
+  it('dateRange にエイリアスを適用する', () => {
+    const result = buildTypedWhere([
+      { type: 'dateRange', column: 'date_key', from: '2026-02-01', to: '2026-02-28', alias: 's' },
+    ])
+    expect(result).toBe("WHERE s.date_key BETWEEN '2026-02-01' AND '2026-02-28'")
+  })
+
+  it('boolean 条件を TRUE/FALSE に変換する', () => {
+    const result = buildTypedWhere([{ type: 'boolean', column: 'is_prev_year', value: false }])
+    expect(result).toBe('WHERE is_prev_year = FALSE')
+  })
+
+  it('storeIds 条件を IN 句に変換する', () => {
+    const result = buildTypedWhere([{ type: 'storeIds', storeIds: ['S001', 'S002'] }])
+    expect(result).toBe("WHERE store_id IN ('S001', 'S002')")
+  })
+
+  it('storeIds が空の場合は条件をスキップする', () => {
+    const result = buildTypedWhere([
+      { type: 'dateRange', column: 'date_key', from: '2026-01-01', to: '2026-01-31' },
+      { type: 'storeIds', storeIds: [] },
+    ])
+    expect(result).toBe("WHERE date_key BETWEEN '2026-01-01' AND '2026-01-31'")
+  })
+
+  it('storeIds にエイリアスを適用する', () => {
+    const result = buildTypedWhere([{ type: 'storeIds', storeIds: ['S001'], alias: 'cts' }])
+    expect(result).toBe("WHERE cts.store_id IN ('S001')")
+  })
+
+  it('code 条件をバリデーション付きで変換する', () => {
+    const result = buildTypedWhere([{ type: 'code', column: 'dept_code', value: 'D01' }])
+    expect(result).toBe("WHERE dept_code = 'D01'")
+  })
+
+  it('in 条件を数値配列で変換する', () => {
+    const result = buildTypedWhere([{ type: 'in', column: 'dow', values: [0, 6] }])
+    expect(result).toBe('WHERE dow IN (0, 6)')
+  })
+
+  it('raw 条件をそのまま出力する', () => {
+    const result = buildTypedWhere([{ type: 'raw', sql: "custom_col = 'value'" }])
+    expect(result).toBe("WHERE custom_col = 'value'")
+  })
+
+  it('複数条件を AND で結合する', () => {
+    const conditions: WhereCondition[] = [
+      { type: 'dateRange', column: 'date_key', from: '2026-01-01', to: '2026-01-31', alias: 's' },
+      { type: 'boolean', column: 'is_prev_year', value: false, alias: 's' },
+      { type: 'storeIds', storeIds: ['S001', 'S002'], alias: 's' },
+    ]
+    const result = buildTypedWhere(conditions)
+    expect(result).toContain("s.date_key BETWEEN '2026-01-01' AND '2026-01-31'")
+    expect(result).toContain('s.is_prev_year = FALSE')
+    expect(result).toContain("s.store_id IN ('S001', 'S002')")
+    // WHERE + 3条件 = AND が2つ
+    expect(result).toMatch(/^WHERE .+ AND .+ AND .+$/)
+  })
+
+  it('全条件が null に評価される場合は空文字を返す', () => {
+    const result = buildTypedWhere([
+      { type: 'storeIds', storeIds: undefined },
+      { type: 'storeIds', storeIds: [] },
+    ])
+    expect(result).toBe('')
+  })
+
+  it('不正な日付で例外を投げる', () => {
+    expect(() =>
+      buildTypedWhere([
+        { type: 'dateRange', column: 'date_key', from: "2026-01-01' OR '1'='1", to: '2026-01-31' },
+      ]),
+    ).toThrow('Invalid date key')
+  })
+
+  it('不正なコードで例外を投げる', () => {
+    expect(() =>
+      buildTypedWhere([{ type: 'code', column: 'dept_code', value: "D01'; DROP TABLE--" }]),
+    ).toThrow('Invalid code')
   })
 })

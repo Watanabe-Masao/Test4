@@ -4,7 +4,7 @@
  * Arrow Table → JS Object[] 変換と snake_case → camelCase 変換を提供する。
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import { validateStoreId } from './queryParams'
+import { validateStoreId, validateDateKey, validateCode } from './queryParams'
 import { structRowToObject } from './rowConversion'
 
 /**
@@ -53,6 +53,103 @@ export function storeIdFilter(storeIds: readonly string[] | undefined): string |
   const validated = storeIds.map(validateStoreId)
   const quoted = validated.map((id) => `'${id.replace(/'/g, "''")}'`).join(', ')
   return `store_id IN (${quoted})`
+}
+
+// ── 型安全 WHERE 句ビルダー ──
+
+/**
+ * WHERE 句の条件を型で表現する discriminated union。
+ *
+ * 文字列補間の代わりに構造化データとして条件を組み立てることで、
+ * SQL インジェクションを型レベルで防止し、バリデーションを自動適用する。
+ *
+ * @example
+ * ```typescript
+ * const where = buildTypedWhere([
+ *   { type: 'dateRange', column: 'date_key', from: '2026-01-01', to: '2026-01-31' },
+ *   { type: 'boolean', column: 'is_prev_year', value: false },
+ *   { type: 'storeIds', storeIds: ['S001', 'S002'] },
+ * ])
+ * // → "WHERE date_key BETWEEN '2026-01-01' AND '2026-01-31' AND is_prev_year = FALSE AND store_id IN ('S001', 'S002')"
+ * ```
+ */
+export type WhereCondition =
+  | {
+      readonly type: 'dateRange'
+      readonly column: string
+      readonly from: string
+      readonly to: string
+      readonly alias?: string
+    }
+  | {
+      readonly type: 'boolean'
+      readonly column: string
+      readonly value: boolean
+      readonly alias?: string
+    }
+  | {
+      readonly type: 'storeIds'
+      readonly storeIds: readonly string[] | undefined
+      readonly alias?: string
+    }
+  | {
+      readonly type: 'code'
+      readonly column: string
+      readonly value: string
+      readonly alias?: string
+    }
+  | {
+      readonly type: 'in'
+      readonly column: string
+      readonly values: readonly (string | number)[]
+      readonly alias?: string
+    }
+  | { readonly type: 'raw'; readonly sql: string }
+
+/** WhereCondition を SQL 文字列に変換する */
+function conditionToSql(cond: WhereCondition): string | null {
+  const col = (c: WhereCondition & { column?: string; alias?: string }) =>
+    c.alias ? `${c.alias}.${c.column}` : c.column
+
+  switch (cond.type) {
+    case 'dateRange': {
+      const from = validateDateKey(cond.from)
+      const to = validateDateKey(cond.to)
+      return `${col(cond)} BETWEEN '${from}' AND '${to}'`
+    }
+    case 'boolean':
+      return `${col(cond)} = ${cond.value ? 'TRUE' : 'FALSE'}`
+    case 'storeIds': {
+      if (!cond.storeIds || cond.storeIds.length === 0) return null
+      return cond.alias
+        ? storeIdFilterWithAlias(cond.storeIds, cond.alias)
+        : storeIdFilter(cond.storeIds)
+    }
+    case 'code': {
+      const validated = validateCode(cond.value)
+      return `${col(cond)} = '${validated}'`
+    }
+    case 'in': {
+      if (cond.values.length === 0) return null
+      const items = cond.values
+        .map((v) => (typeof v === 'number' ? String(v) : `'${validateCode(v)}'`))
+        .join(', ')
+      return `${col(cond)} IN (${items})`
+    }
+    case 'raw':
+      return cond.sql
+  }
+}
+
+/**
+ * 型安全な WHERE 句を構築する。
+ *
+ * 各条件は WhereCondition 型で表現され、バリデーションが自動適用される。
+ * null に評価される条件（空の storeIds 等）は自動でスキップされる。
+ */
+export function buildTypedWhere(conditions: readonly WhereCondition[]): string {
+  const parts = conditions.map(conditionToSql).filter((s): s is string => s !== null)
+  return parts.length > 0 ? `WHERE ${parts.join(' AND ')}` : ''
 }
 
 /**
