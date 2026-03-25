@@ -7,7 +7,6 @@
  */
 import { describe, it, expect } from 'vitest'
 import {
-  buildWhereClause,
   buildTypedWhere,
   storeIdFilter,
   storeIdFilterWithAlias,
@@ -60,19 +59,20 @@ describe('CTS WHERE 句統合テスト', () => {
     },
     alias: string,
   ): string {
-    const a = alias
-    const dateFrom = validateDateKey(params.dateFrom)
-    const dateTo = validateDateKey(params.dateTo)
-    const conditions: (string | null)[] = [
-      `${a}.date_key BETWEEN '${dateFrom}' AND '${dateTo}'`,
-      `${a}.is_prev_year = ${params.isPrevYear ?? false}`,
-      storeIdFilterWithAlias(params.storeIds, a),
-      params.deptCode ? `${a}.dept_code = '${validateCode(params.deptCode)}'` : null,
-      params.lineCode ? `${a}.line_code = '${validateCode(params.lineCode)}'` : null,
-      params.klassCode ? `${a}.klass_code = '${validateCode(params.klassCode)}'` : null,
-      params.dow && params.dow.length > 0 ? `${a}.dow IN (${params.dow.join(', ')})` : null,
+    const conditions: WhereCondition[] = [
+      { type: 'dateRange', column: 'date_key', from: params.dateFrom, to: params.dateTo, alias },
+      { type: 'boolean', column: 'is_prev_year', value: params.isPrevYear ?? false, alias },
+      { type: 'storeIds', storeIds: params.storeIds, alias },
     ]
-    return buildWhereClause(conditions)
+    if (params.deptCode)
+      conditions.push({ type: 'code', column: 'dept_code', value: params.deptCode, alias })
+    if (params.lineCode)
+      conditions.push({ type: 'code', column: 'line_code', value: params.lineCode, alias })
+    if (params.klassCode)
+      conditions.push({ type: 'code', column: 'klass_code', value: params.klassCode, alias })
+    if (params.dow && params.dow.length > 0)
+      conditions.push({ type: 'in', column: 'dow', values: params.dow, alias })
+    return buildTypedWhere(conditions)
   }
 
   it('エイリアス付き日付フィルタ', () => {
@@ -147,12 +147,10 @@ describe('storeDaySummary WHERE 句テスト', () => {
     storeIds?: readonly string[]
     isPrevYear?: boolean
   }): string {
-    const dateFrom = validateDateKey(params.dateFrom)
-    const dateTo = validateDateKey(params.dateTo)
-    return buildWhereClause([
-      `date_key BETWEEN '${dateFrom}' AND '${dateTo}'`,
-      `is_prev_year = ${params.isPrevYear ?? false}`,
-      storeIdFilter(params.storeIds),
+    return buildTypedWhere([
+      { type: 'dateRange', column: 'date_key', from: params.dateFrom, to: params.dateTo },
+      { type: 'boolean', column: 'is_prev_year', value: params.isPrevYear ?? false },
+      { type: 'storeIds', storeIds: params.storeIds },
     ])
   }
 
