@@ -127,8 +127,7 @@ export type {
   StoreDailyMarkupRateQueryResult,
 } from './useStoreDailyMarkupRateQuery'
 
-// 天気時間帯
-export { useDuckDBWeatherHourly, useDuckDBWeatherHourlyAvg } from './useWeatherHourlyQuery'
+// 天気時間帯（QueryHandler 移行済み — useQueryWithHandler + weatherHourlyHandler を使用）
 export type { HourlyWeatherAvgRow } from '@/application/queries/weather'
 
 // 日別詳細（カレンダーモーダル用一括取得）
