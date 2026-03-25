@@ -178,6 +178,7 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
     selectedStoreIds,
     explanations,
     onExplain: handleExplain,
+    observationStatus: r.observationPeriod.status,
     departmentKpi: deptKpiIndex,
     fmtCurrency,
 

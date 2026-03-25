@@ -2,7 +2,7 @@ import type { CurrentCtsQuantity } from '@/application/hooks/useCtsQuantity'
 import type { ReactNode } from 'react'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 import type { WeatherPersister } from '@/application/queries/weather'
-import type { StoreExplanations, MetricId, ObservationStatus } from '@/domain/models/analysis'
+import type { StoreExplanations, MetricId } from '@/domain/models/analysis'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import type { ComparisonScope } from '@/domain/models/ComparisonScope'
 import type { StoreResult, ViewType } from '@/domain/models/storeTypes'
@@ -50,29 +50,13 @@ export function comparisonLabels(
   return { curLabel: curRange, prevLabel: prevRange }
 }
 
-export interface WidgetDef {
-  readonly id: string
-  readonly label: string
-  readonly group: string
-  readonly size: WidgetSize
-  readonly render: (ctx: WidgetContext) => ReactNode
-  /** データ有無による表示判定（未設定時は常に表示） */
-  readonly isVisible?: (ctx: WidgetContext) => boolean
-  /** 関連ページへのリンク（「もっと詳しく」動線） */
-  readonly linkTo?: { readonly view: ViewType; readonly tab?: string }
-}
-
 /**
  * Dashboard ウィジェットコンテキスト
  *
  * UnifiedWidgetContext の Dashboard 向け具象化。
- * Dashboard が保証するフィールドを required に昇格し、
- * observationStatus を追加する。
- *
- * UnifiedWidgetContext との関係:
- * - コアフィールド（result, year, month 等）はそのまま継承
- * - optional だったフィールドを required にオーバーライド
- * - observationStatus は result.observationPeriod.status から導出
+ * Dashboard が保証するフィールドを required に昇格する。
+ * useUnifiedWidgetContext が全フィールドを設定するため、
+ * ランタイムでは常に全フィールドが存在する。
  */
 export interface WidgetContext extends UnifiedWidgetContext {
   readonly storeKey: string
@@ -83,7 +67,6 @@ export interface WidgetContext extends UnifiedWidgetContext {
   readonly dataEndDay: number | null
   readonly dataMaxDay: number
   readonly elapsedDays: number | undefined
-  readonly observationStatus: ObservationStatus
   readonly departmentKpi: DepartmentKpiIndex
   readonly explanations: StoreExplanations
   readonly onExplain: (metricId: MetricId) => void
@@ -101,6 +84,18 @@ export interface WidgetContext extends UnifiedWidgetContext {
   readonly weatherDaily?: readonly DailyWeatherSummary[]
   readonly prevYearWeatherDaily?: readonly DailyWeatherSummary[]
   readonly currentCtsQuantity: CurrentCtsQuantity
+}
+
+export interface WidgetDef {
+  readonly id: string
+  readonly label: string
+  readonly group: string
+  readonly size: WidgetSize
+  readonly render: (ctx: WidgetContext) => ReactNode
+  /** データ有無による表示判定（未設定時は常に表示） */
+  readonly isVisible?: (ctx: WidgetContext) => boolean
+  /** 関連ページへのリンク（「もっと詳しく」動線） */
+  readonly linkTo?: { readonly view: ViewType; readonly tab?: string }
 }
 
 // re-export: CurrentCtsQuantity は Application 層で定義

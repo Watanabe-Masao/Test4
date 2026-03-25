@@ -7,7 +7,7 @@
 import type { ReactNode } from 'react'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 import type { WeatherPersister } from '@/application/queries/weather'
-import type { StoreExplanations, MetricId } from '@/domain/models/analysis'
+import type { StoreExplanations, MetricId, ObservationStatus } from '@/domain/models/analysis'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import type { ComparisonScope } from '@/domain/models/ComparisonScope'
 import type { Store } from '@/domain/models/record'
@@ -59,6 +59,8 @@ export interface UnifiedWidgetContext {
   readonly selectedStoreIds: ReadonlySet<string>
   readonly explanations: StoreExplanations
   readonly onExplain: (metricId: MetricId) => void
+  /** 観測品質ステータス（result.observationPeriod.status から導出） */
+  readonly observationStatus: ObservationStatus
   readonly departmentKpi: DepartmentKpiIndex
   /** 通貨単位設定に連動するフォーマッタ（千円/円切替対応） */
   readonly fmtCurrency: CurrencyFormatter

@@ -1,13 +1,13 @@
 # Query Access Audit Report
 
-> Generated: 2026-03-25T17:41:41.819Z
+> Generated: 2026-03-25T20:52:32.185Z
 
 ## Route Summary
 
 | 経路種別 | 件数 | 状態 |
 |---|---|---|
 | QueryHandler 定義 | 24 | 基盤 |
-| useQueryWithHandler（正規） | 26 | 正規 |
+| useQueryWithHandler（正規） | 25 | 正規 |
 | comparisonAccessors（正規） | 10 | 正規 |
 | facade hook（正規） | 0 | 正規 |
 | executor.execute 直呼び（要注意） | 0 | 要注意 |
@@ -43,7 +43,6 @@
 - presentation/pages/Dashboard/widgets/ConditionMatrixTable.tsx
 - presentation/pages/Dashboard/widgets/ConditionSummaryBudgetDrill.tsx
 - presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx
-- presentation/pages/Dashboard/widgets/types.ts
 
 ### queryHandlers
 

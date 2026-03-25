@@ -474,6 +474,7 @@ useQueryWithHandler + queryExecutor + comparisonAccessors の 3 点で query/acc
 | `useDuckDBStoreDaySummary` | useSummaryQueries.ts | storeDaySummaryHandler に移行 |
 | `useDuckDBCategoryTimeRecords` / `fetchCategoryTimeRecords` | useCtsHierarchyQueries.ts | categoryTimeRecordsHandler に移行 |
 | `loadAppSettings` | dataLoader.ts | プロダクション未使用 |
+| `toDashboardContext` adapter (75行) | unifiedRegistry.ts | 型アサーション1行に簡素化（-78行） |
 
 ### 残存（削除不可 — 正当理由あり）
 
@@ -483,7 +484,6 @@ useQueryWithHandler + queryExecutor + comparisonAccessors の 3 点で query/acc
 | `calculateDiscountImpact` (deprecated wrapper) | discountImpact.ts | 同上 | WASM 統合完了後 |
 | `fontSize.xs/sm/base/lg` | tokens.ts | 451箇所で使用中（guard テストで監視） | デザインシステム移行完了後 |
 | TimeSlotChart dual-mode props | TimeSlotChart.tsx | context ベース + props ベースの併存（移行中） | 全消費者が context 経由に移行後 |
-| `toDashboardContext` adapter | unifiedRegistry.ts | 62+ Dashboard widgets が WidgetContext を使用 | Phase 3 で段階撤去 |
 | `buildWhereClause` (旧 API) | queryRunner.ts | 16箇所で使用中（buildTypedWhere を推奨） | 全消費者が buildTypedWhere に移行後 |
 
 ### 監視方法
@@ -492,6 +492,26 @@ useQueryWithHandler + queryExecutor + comparisonAccessors の 3 点で query/acc
 - allowlist 総数は 55 件上限で管理（documentConsistency.test.ts）
 - 凍結済み allowlist（7リスト）は空であることをテストで保証
 - 新規後方互換の追加は C7 原則で禁止
+
+## 将来の設計判断項目（Authority 決定待ち）
+
+> 更新日: 2026-03-25
+
+以下の項目はコードレベルの改善ではなく、設計判断が必要。
+profiler データの蓄積やビジネス要件の変化を待って判断する。
+
+| # | 項目 | 判断ポイント | 現状 |
+|---|---|---|---|
+| **14** | dataVersion 粒度見直し | テーブル別バージョニング vs query fingerprint cache | 単一カウンタで動作中。profiler（#12）でクエリ再実行頻度を計測してから設計 |
+| **10** | features/ 縦スライス移行 | 新規機能から段階適用 vs 一括移行 | features/ にプレースホルダのみ。次の新規機能で pilot 実施を推奨 |
+| **15** | store_day_summary 列設計 | 用途別 materialized table 分割 | 40+列の高密度 VIEW。依存10ファイル（#6 ガードで監視中）。パフォーマンス問題発生時に検討 |
+
+## 将来のドキュメント項目
+
+| # | 項目 | 推奨タイミング |
+|---|---|---|
+| **19** | comparison/DuckDB 結節文書化 | 比較サブシステム改修時に references/03-guides/ に追記 |
+| **26** | weather_hourly キャッシュ戦略文書化 | 天気機能改修時に references/03-guides/ に追記 |
 
 ## この一覧の使い方
 
