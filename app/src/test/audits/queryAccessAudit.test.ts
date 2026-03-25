@@ -245,3 +245,45 @@ describe('Query Access Audit — クエリアクセス経路棚卸し', () => {
     expect(fs.existsSync(jsonPath)).toBe(true)
   })
 })
+
+// ── QueryHandler 名の一意性ガード ──
+
+describe('QueryHandler name 一意性', () => {
+  it('全 Handler の name プロパティが重複しない', () => {
+    const handlerDir = path.join(SRC_DIR, 'application/queries')
+    const handlerFiles = collectTsFiles(handlerDir).filter((f) => f.endsWith('Handler.ts'))
+
+    const names: { name: string; file: string }[] = []
+    const namePattern = /name:\s*'([^']+)'/
+
+    for (const file of handlerFiles) {
+      const content = fs.readFileSync(file, 'utf-8')
+      const match = content.match(namePattern)
+      if (match) {
+        names.push({ name: match[1], file: rel(file) })
+      }
+    }
+
+    // 重複チェック
+    const seen = new Map<string, string>()
+    const duplicates: string[] = []
+    for (const { name, file } of names) {
+      if (seen.has(name)) {
+        duplicates.push(`'${name}': ${seen.get(name)} と ${file}`)
+      }
+      seen.set(name, file)
+    }
+
+    expect(
+      duplicates,
+      `QueryHandler name が重複しています:\n${duplicates.join('\n')}\n` +
+        'handler.name はプロファイリング・ログで識別子として使われるため一意にしてください。',
+    ).toEqual([])
+  })
+
+  it('Handler ファイル数が最低限存在する', () => {
+    const handlerDir = path.join(SRC_DIR, 'application/queries')
+    const handlerFiles = collectTsFiles(handlerDir).filter((f) => f.endsWith('Handler.ts'))
+    expect(handlerFiles.length).toBeGreaterThanOrEqual(20)
+  })
+})
