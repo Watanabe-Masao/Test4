@@ -5,7 +5,8 @@
  * 型インターフェースの整合性を検証する。
  */
 import { describe, it, expect } from 'vitest'
-import { buildWhereClause, storeIdFilter } from '../queryRunner'
+import { buildTypedWhere } from '../queryRunner'
+import type { WhereCondition } from '../queryRunner'
 import type { CtsFilterParams } from '../queries/categoryTimeSales'
 import type {
   HourlyAggregationRow,
@@ -25,16 +26,20 @@ import type { CategoryMixWeeklyRow, CategoryBenchmarkRow } from '../queries/adva
 
 describe('CTS フィルタ条件生成', () => {
   function buildCtsWhereForTest(params: CtsFilterParams): string {
-    const conditions: (string | null)[] = [
-      `date_key BETWEEN '${params.dateFrom}' AND '${params.dateTo}'`,
-      `is_prev_year = ${params.isPrevYear ?? false}`,
-      storeIdFilter(params.storeIds),
-      params.deptCode ? `dept_code = '${params.deptCode}'` : null,
-      params.lineCode ? `line_code = '${params.lineCode}'` : null,
-      params.klassCode ? `klass_code = '${params.klassCode}'` : null,
-      params.dow && params.dow.length > 0 ? `dow IN (${params.dow.join(', ')})` : null,
+    const conditions: WhereCondition[] = [
+      { type: 'dateRange', column: 'date_key', from: params.dateFrom, to: params.dateTo },
+      { type: 'boolean', column: 'is_prev_year', value: params.isPrevYear ?? false },
+      { type: 'storeIds', storeIds: params.storeIds },
     ]
-    return buildWhereClause(conditions)
+    if (params.deptCode)
+      conditions.push({ type: 'code', column: 'dept_code', value: params.deptCode })
+    if (params.lineCode)
+      conditions.push({ type: 'code', column: 'line_code', value: params.lineCode })
+    if (params.klassCode)
+      conditions.push({ type: 'code', column: 'klass_code', value: params.klassCode })
+    if (params.dow && params.dow.length > 0)
+      conditions.push({ type: 'in', column: 'dow', values: params.dow })
+    return buildTypedWhere(conditions)
   }
 
   it('最小フィルタ（日付範囲のみ）', () => {
