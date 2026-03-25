@@ -45,18 +45,18 @@ describe('queryStoreDaySummary', () => {
     expect(sql).toContain("date_key BETWEEN '2026-02-01' AND '2026-02-28'")
   })
 
-  it('is_prev_year = false（デフォルト当年）が含まれる', async () => {
+  it('is_prev_year = FALSE（デフォルト当年）が含まれる', async () => {
     const conn = makeMockConn()
     await queryStoreDaySummary(conn as never, baseParams)
     const sql = conn.getCapturedSql()[0]
-    expect(sql).toContain('is_prev_year = false')
+    expect(sql).toContain('is_prev_year = FALSE')
   })
 
   it('isPrevYear = true で前年データを取得する', async () => {
     const conn = makeMockConn()
     await queryStoreDaySummary(conn as never, { ...baseParams, isPrevYear: true })
     const sql = conn.getCapturedSql()[0]
-    expect(sql).toContain('is_prev_year = true')
+    expect(sql).toContain('is_prev_year = TRUE')
   })
 
   it('storeIds フィルタが SQL に反映される', async () => {

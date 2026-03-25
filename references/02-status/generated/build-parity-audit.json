@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-24T09:48:15.109Z",
+  "timestamp": "2026-03-25T17:42:13.296Z",
   "wasmModules": [
     "budget-analysis",
     "factor-decomposition",
@@ -35,6 +35,7 @@
       "build",
       "test:guards",
       "build:wasm",
+      "build",
       "build-storybook",
       "build:wasm",
       "build",

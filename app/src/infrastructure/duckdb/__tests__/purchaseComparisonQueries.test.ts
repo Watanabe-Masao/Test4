@@ -115,7 +115,7 @@ describe('querySalesDaily', () => {
     await querySalesDaily(conn as never, dateFrom, dateTo, storeIds, false)
     const sql = conn.getCapturedSql()[0]
     expect(sql).toContain('FROM store_day_summary')
-    expect(sql).toContain('is_prev_year = false')
+    expect(sql).toContain('is_prev_year = FALSE')
     expect(sql).toContain('GROUP BY day')
   })
 
@@ -123,7 +123,7 @@ describe('querySalesDaily', () => {
     const conn = makeMockConn()
     await querySalesDaily(conn as never, '2025-02-01', '2025-02-28', storeIds, true)
     const sql = conn.getCapturedSql()[0]
-    expect(sql).toContain('is_prev_year = true')
+    expect(sql).toContain('is_prev_year = TRUE')
     expect(sql).toContain("date_key BETWEEN '2025-02-01' AND '2025-02-28'")
   })
 })
@@ -214,7 +214,7 @@ describe('querySalesTotal', () => {
     const sql = conn.getCapturedSql()[0]
     expect(sql).toContain('FROM classified_sales')
     expect(sql).toContain('SUM(sales_amount)')
-    expect(sql).toContain('is_prev_year = false')
+    expect(sql).toContain('is_prev_year = FALSE')
     expect(sql).toContain("date_key BETWEEN '2026-02-01' AND '2026-02-28'")
     expect(result).toBe(5000000)
   })
@@ -224,7 +224,7 @@ describe('querySalesTotal', () => {
     const result = await querySalesTotal(conn as never, '2025-02-01', '2025-02-28', storeIds, true)
     const sql = conn.getCapturedSql()[0]
     expect(sql).toContain('FROM classified_sales')
-    expect(sql).toContain('is_prev_year = true')
+    expect(sql).toContain('is_prev_year = TRUE')
     expect(result).toBe(4800000)
   })
 

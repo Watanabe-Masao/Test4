@@ -1,6 +1,6 @@
 # Architecture State Snapshot
 
-> Generated: 2026-03-24T09:47:50.165Z
+> Generated: 2026-03-25T17:40:51.241Z
 
 ## Allowlist Summary
 
@@ -16,8 +16,8 @@
 
 | カテゴリ | 件数 |
 |---|---|
-| structural | 38 |
-| adapter | 10 |
+| structural | 37 |
+| adapter | 11 |
 | lifecycle | 2 |
 
 
@@ -36,7 +36,6 @@
 - application/hooks/duckdb/useCtsAggregationQueries.ts
 - application/hooks/duckdb/useCtsHierarchyQueries.ts
 - application/hooks/duckdb/useDailyRecordQueries.ts
-- application/hooks/duckdb/useDayDetailData.ts
 - application/hooks/duckdb/useDeptKpiQueries.ts
 - application/hooks/duckdb/useFeatureQueries.ts
 - application/hooks/duckdb/useJsAggregationQueries.ts
@@ -47,7 +46,6 @@
 - application/hooks/duckdb/useStoreCostPriceQuery.ts
 - application/hooks/duckdb/useStoreDailyMarkupRateQuery.ts
 - application/hooks/duckdb/useSummaryQueries.ts
-- application/hooks/duckdb/useWeatherHourlyQuery.ts
 - application/hooks/duckdb/useYoyQueries.ts
 - application/hooks/useAnalyticsResolver.ts
 - application/hooks/useAppShortcuts.ts
@@ -62,6 +60,7 @@
 - application/hooks/useDeviceSync.ts
 - application/hooks/useDrillAction.ts
 - application/hooks/useDuckDB.ts
+- application/hooks/useEngineLifecycle.ts
 - application/hooks/useExplanation.ts
 - application/hooks/useFactorDecomposition.ts
 - application/hooks/useFilterSelectors.ts
@@ -73,6 +72,7 @@
 - application/hooks/useMonthlyHistory.ts
 - application/hooks/usePeriodAwareKpi.ts
 - application/hooks/usePersistence.ts
+- application/hooks/usePrevYearWeather.ts
 - application/hooks/usePurchaseAnalysis.ts
 - application/hooks/useQueryWithHandler.ts
 - application/hooks/useRawDataFetch.ts
@@ -81,12 +81,14 @@
 - application/hooks/useSettings.ts
 - application/hooks/useStoragePersistence.ts
 - application/hooks/useStoreSelection.ts
+- application/hooks/useStoredMonthsMonitor.ts
 - application/hooks/useTimeSlotData.ts
 - application/hooks/useUndoRedo.ts
 - application/hooks/useWeather.ts
 - application/hooks/useWeatherFallback.ts
 - application/hooks/useWeatherForecast.ts
 - application/hooks/useWeatherHourlyOnDemand.ts
+- application/hooks/useWeatherStoreId.ts
 - application/hooks/useWidgetQueryContext.ts
 
 ## Complexity Hotspots (Top 10)
@@ -136,17 +138,17 @@
 
 | リスト名 | 件数 | カテゴリ内訳 |
 |---|---|---|
-| applicationToInfrastructure | 12 | adapter:10, lifecycle:2 |
+| applicationToInfrastructure | 13 | adapter:11, lifecycle:2 |
 | presentationMemoLimits | 8 | structural:8 |
 | domainLargeFiles | 7 | structural:7 |
 | presentationStateLimits | 5 | structural:5 |
 | useStateLimits | 3 | structural:3 |
 | hookLineLimits | 3 | structural:3 |
 | useMemoLimits | 2 | structural:2 |
-| infraLargeFiles | 2 | structural:2 |
 | ctxHook | 2 | structural:2 |
 | vmReactImport | 2 | structural:2 |
 | presentationToUsecases | 1 | structural:1 |
+| infraLargeFiles | 1 | structural:1 |
 | usecasesLargeFiles | 1 | structural:1 |
 | cmpDailyMapping | 1 | structural:1 |
 | sideEffectChain | 1 | structural:1 |
