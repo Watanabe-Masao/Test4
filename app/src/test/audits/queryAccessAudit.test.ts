@@ -286,4 +286,54 @@ describe('QueryHandler name 一意性', () => {
     const handlerFiles = collectTsFiles(handlerDir).filter((f) => f.endsWith('Handler.ts'))
     expect(handlerFiles.length).toBeGreaterThanOrEqual(20)
   })
+
+  it('Handler の name プロパティがファイル名と一致する（命名規約）', () => {
+    const handlerDir = path.join(SRC_DIR, 'application/queries')
+    const handlerFiles = collectTsFiles(handlerDir).filter((f) => f.endsWith('Handler.ts'))
+    const violations: string[] = []
+    const namePattern = /name:\s*'([^']+)'/
+
+    for (const file of handlerFiles) {
+      const content = fs.readFileSync(file, 'utf-8')
+      const match = content.match(namePattern)
+      if (!match) continue
+
+      const handlerName = match[1]
+      const fileName = path.basename(file, '.ts').replace('Handler', '')
+      if (handlerName !== fileName) {
+        violations.push(`${rel(file)}: name='${handlerName}' ≠ fileName='${fileName}'`)
+      }
+    }
+
+    expect(
+      violations,
+      `QueryHandler name がファイル名と一致しません:\n${violations.join('\n')}\n` +
+        '→ name は PascalCase でファイル名から Handler サフィックスを除いたものにしてください。',
+    ).toEqual([])
+  })
+})
+
+// ── store_day_summary 依存可視化 ──
+
+describe('store_day_summary 依存トラッキング', () => {
+  it('store_day_summary を参照するクエリモジュール数が上限を超えない', () => {
+    const queriesDir = path.join(SRC_DIR, 'infrastructure/duckdb/queries')
+    const files = collectTsFiles(queriesDir)
+    const MAX_CONSUMERS = 10
+
+    const consumers: string[] = []
+    for (const file of files) {
+      const content = fs.readFileSync(file, 'utf-8')
+      if (content.includes('store_day_summary') || content.includes('storeDaySummary')) {
+        consumers.push(rel(file))
+      }
+    }
+
+    expect(
+      consumers.length,
+      `store_day_summary の依存モジュール数が ${consumers.length} 件（上限: ${MAX_CONSUMERS}）。\n` +
+        `依存ファイル:\n${consumers.join('\n')}\n` +
+        '→ 新規依存を追加する前に、既存の QueryHandler 経由でアクセスできないか検討してください。',
+    ).toBeLessThanOrEqual(MAX_CONSUMERS)
+  })
 })

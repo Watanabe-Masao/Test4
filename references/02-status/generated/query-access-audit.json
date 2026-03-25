@@ -1,8 +1,8 @@
 {
-  "timestamp": "2026-03-25T17:41:41.819Z",
+  "timestamp": "2026-03-25T20:52:32.185Z",
   "summary": {
     "queryHandlers": 24,
-    "正規経路_queryWithHandler": 26,
+    "正規経路_queryWithHandler": 25,
     "正規経路_comparisonAccessor": 10,
     "正規経路_facadeHook": 0,
     "要注意_executorDirect": 0,
@@ -37,8 +37,7 @@
       "presentation/components/widgets/types.ts",
       "presentation/pages/Dashboard/widgets/ConditionMatrixTable.tsx",
       "presentation/pages/Dashboard/widgets/ConditionSummaryBudgetDrill.tsx",
-      "presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx",
-      "presentation/pages/Dashboard/widgets/types.ts"
+      "presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx"
     ],
     "queryHandlers": [
       "application/queries/advanced/CategoryBenchmarkHandler.ts",
