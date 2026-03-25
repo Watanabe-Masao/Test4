@@ -2,7 +2,7 @@ import type { CurrentCtsQuantity } from '@/application/hooks/useCtsQuantity'
 import type { ReactNode } from 'react'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 import type { WeatherPersister } from '@/application/queries/weather'
-import type { StoreExplanations, MetricId, ObservationStatus } from '@/domain/models/analysis'
+import type { StoreExplanations, MetricId } from '@/domain/models/analysis'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import type { ComparisonScope } from '@/domain/models/ComparisonScope'
 import type { StoreResult, ViewType } from '@/domain/models/storeTypes'
@@ -83,7 +83,6 @@ export interface WidgetContext extends UnifiedWidgetContext {
   readonly dataEndDay: number | null
   readonly dataMaxDay: number
   readonly elapsedDays: number | undefined
-  readonly observationStatus: ObservationStatus
   readonly departmentKpi: DepartmentKpiIndex
   readonly explanations: StoreExplanations
   readonly onExplain: (metricId: MetricId) => void

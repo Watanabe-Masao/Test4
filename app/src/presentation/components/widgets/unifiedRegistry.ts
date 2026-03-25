@@ -85,7 +85,6 @@ function toDashboardContext(ctx: UnifiedWidgetContext): DashboardWidgetContext {
     comparisonScope: ctx.comparisonScope ?? null,
     dowGap: ctx.dowGap ?? EMPTY_DOW_GAP,
     onPrevYearDetail: ctx.onPrevYearDetail ?? (() => {}),
-    observationStatus: ctx.result.observationPeriod.status,
     currentCtsQuantity: ctx.currentCtsQuantity ?? EMPTY_CTS,
   } as DashboardWidgetContext
 }
