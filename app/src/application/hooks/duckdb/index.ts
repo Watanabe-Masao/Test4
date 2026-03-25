@@ -10,14 +10,12 @@
 export { useAsyncQuery, toDateKeys, storeIdsToArray } from './useAsyncQuery'
 export type { AsyncQueryResult } from './useAsyncQuery'
 
-// CTS — 階層クエリ（カテゴリ集約・日次トレンド・CTS レコード）
+// CTS — 階層クエリ（カテゴリ集約・日次トレンド）
 export {
   useDuckDBLevelAggregation,
   useDuckDBCategoryDailyTrend,
   useDuckDBCategoryHourly,
   useDuckDBCategoryDowMatrix,
-  useDuckDBCategoryTimeRecords,
-  fetchCategoryTimeRecords,
 } from './useCtsHierarchyQueries'
 export type {
   LevelAggregationRow,

@@ -42,7 +42,7 @@ export function useWidgetQueryContext(
   const duck = useDuckDB(data, targetYear, targetMonth, repo)
 
   // QueryExecutor — conn を隠蔽し QueryHandler 経由で実行する
-  const queryExecutor = createQueryExecutor(duck.conn, duck.db)
+  const queryExecutor = createQueryExecutor(duck.conn)
 
   // WeatherPersister — ETRN フォールバック用。conn/db をクロージャで閉じる
   const weatherPersist = createWeatherPersister(duck.conn, duck.db)
