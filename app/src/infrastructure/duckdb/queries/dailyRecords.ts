@@ -10,8 +10,8 @@
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models/calendar'
 import { dateRangeToKeys } from '@/domain/models/CalendarDate'
-import { queryToObjects, buildWhereClause, storeIdFilter } from '../queryRunner'
-import { validateDateKey } from '../queryParams'
+import { queryToObjects, buildTypedWhere } from '../queryRunner'
+import type { WhereCondition } from '../queryRunner'
 
 // ── 結果型 ──
 
@@ -73,15 +73,14 @@ function toWhereClause(
   storeIds?: ReadonlySet<string>,
   isPrevYear = false,
 ): string {
-  const { fromKey: rawFrom, toKey: rawTo } = dateRangeToKeys(dateRange)
-  const fromKey = validateDateKey(rawFrom)
-  const toKey = validateDateKey(rawTo)
-  const conditions: (string | null)[] = [
-    `s.date_key BETWEEN '${fromKey}' AND '${toKey}'`,
-    `s.is_prev_year = ${isPrevYear}`,
-    storeIdFilter(storeIds ? [...storeIds] : undefined)?.replace('store_id', 's.store_id') ?? null,
+  const { fromKey, toKey } = dateRangeToKeys(dateRange)
+  const storeIdArr = storeIds ? [...storeIds] : undefined
+  const conditions: WhereCondition[] = [
+    { type: 'dateRange', column: 'date_key', from: fromKey, to: toKey, alias: 's' },
+    { type: 'boolean', column: 'is_prev_year', value: isPrevYear, alias: 's' },
+    { type: 'storeIds', storeIds: storeIdArr, alias: 's' },
   ]
-  return buildWhereClause(conditions)
+  return buildTypedWhere(conditions)
 }
 
 // ── クエリ関数 ──
@@ -206,19 +205,13 @@ export async function queryAggregatedDailyRecords(
   dateRange: DateRange,
   storeIds?: ReadonlySet<string>,
 ): Promise<readonly DailyRecordRow[]> {
-  const { fromKey: rawFrom, toKey: rawTo } = dateRangeToKeys(dateRange)
-  const fromKey = validateDateKey(rawFrom)
-  const toKey = validateDateKey(rawTo)
-  const storeFilter =
-    storeIds && storeIds.size > 0
-      ? (storeIdFilter([...storeIds])?.replace('store_id', 's.store_id') ?? null)
-      : null
-  const conditions: (string | null)[] = [
-    `s.date_key BETWEEN '${fromKey}' AND '${toKey}'`,
-    `s.is_prev_year = FALSE`,
-    storeFilter,
-  ]
-  const where = buildWhereClause(conditions)
+  const { fromKey, toKey } = dateRangeToKeys(dateRange)
+  const storeIdArr = storeIds && storeIds.size > 0 ? [...storeIds] : undefined
+  const where = buildTypedWhere([
+    { type: 'dateRange', column: 'date_key', from: fromKey, to: toKey, alias: 's' },
+    { type: 'boolean', column: 'is_prev_year', value: false, alias: 's' },
+    { type: 'storeIds', storeIds: storeIdArr, alias: 's' },
+  ])
 
   const sql = `
     SELECT

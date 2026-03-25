@@ -7,8 +7,8 @@
  * 自由日付範囲: date_key BETWEEN で月跨ぎに対応。
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import { queryToObjects, queryScalar, buildWhereClause, storeIdFilter } from '../queryRunner'
-import { validateDateKey } from '../queryParams'
+import { queryToObjects, queryScalar, buildTypedWhere } from '../queryRunner'
+import type { WhereCondition } from '../queryRunner'
 import type { DailyCumulativeRow } from './aggregates/dailyAggregation'
 
 // ── 結果型 ──
@@ -73,13 +73,12 @@ interface SummaryFilterParams {
 }
 
 function summaryWhereClause(params: SummaryFilterParams): string {
-  const dateFrom = validateDateKey(params.dateFrom)
-  const dateTo = validateDateKey(params.dateTo)
-  return buildWhereClause([
-    `date_key BETWEEN '${dateFrom}' AND '${dateTo}'`,
-    `is_prev_year = ${params.isPrevYear ?? false}`,
-    storeIdFilter(params.storeIds),
-  ])
+  const conditions: WhereCondition[] = [
+    { type: 'dateRange', column: 'date_key', from: params.dateFrom, to: params.dateTo },
+    { type: 'boolean', column: 'is_prev_year', value: params.isPrevYear ?? false },
+    { type: 'storeIds', storeIds: params.storeIds },
+  ]
+  return buildTypedWhere(conditions)
 }
 
 // ── クエリ関数 ──
