@@ -474,6 +474,7 @@ useQueryWithHandler + queryExecutor + comparisonAccessors の 3 点で query/acc
 | `useDuckDBStoreDaySummary` | useSummaryQueries.ts | storeDaySummaryHandler に移行 |
 | `useDuckDBCategoryTimeRecords` / `fetchCategoryTimeRecords` | useCtsHierarchyQueries.ts | categoryTimeRecordsHandler に移行 |
 | `loadAppSettings` | dataLoader.ts | プロダクション未使用 |
+| `toDashboardContext` adapter (75行) | unifiedRegistry.ts | 型アサーション1行に簡素化（-78行） |
 
 ### 残存（削除不可 — 正当理由あり）
 
@@ -483,7 +484,6 @@ useQueryWithHandler + queryExecutor + comparisonAccessors の 3 点で query/acc
 | `calculateDiscountImpact` (deprecated wrapper) | discountImpact.ts | 同上 | WASM 統合完了後 |
 | `fontSize.xs/sm/base/lg` | tokens.ts | 451箇所で使用中（guard テストで監視） | デザインシステム移行完了後 |
 | TimeSlotChart dual-mode props | TimeSlotChart.tsx | context ベース + props ベースの併存（移行中） | 全消費者が context 経由に移行後 |
-| `toDashboardContext` adapter | unifiedRegistry.ts | 62+ Dashboard widgets が WidgetContext を使用 | Phase 3 で段階撤去 |
 | `buildWhereClause` (旧 API) | queryRunner.ts | 16箇所で使用中（buildTypedWhere を推奨） | 全消費者が buildTypedWhere に移行後 |
 
 ### 監視方法

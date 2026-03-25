@@ -564,8 +564,6 @@ describe('後方互換コード監視', () => {
     'presentation/theme/tokens.ts',
     // context 移行完了まで維持
     'presentation/components/charts/TimeSlotChart.tsx',
-    // Phase 3 Dashboard adapter 撤去まで維持
-    'presentation/components/widgets/unifiedRegistry.ts',
     // buildTypedWhere 移行完了まで維持
     'infrastructure/duckdb/queryRunner.ts',
     // 削除済みエイリアスのコメント参照（useDuckDBTimeSlotData）
@@ -575,7 +573,7 @@ describe('後方互換コード監視', () => {
     // ディレクトリ import 推奨のバレルラッパー
     'presentation/components/charts/GrossProfitRateChart.tsx',
   ]
-  const MAX_DEPRECATED_FILES = 9
+  const MAX_DEPRECATED_FILES = 8
 
   it('@deprecated を含むファイル数が上限を超えない', () => {
     const allFiles: string[] = []
