@@ -72,6 +72,7 @@ export const IntegratedCategoryAnalysis = memo(function IntegratedCategoryAnalys
         queryExecutor={queryExecutor}
         currentDateRange={currentDateRange}
         selectedStoreIds={selectedStoreIds}
+        prevYearScope={prevYearScope}
         embedded
       />
 
