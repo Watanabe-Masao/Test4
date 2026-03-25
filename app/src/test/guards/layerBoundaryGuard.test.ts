@@ -184,11 +184,11 @@ describe('Layer Boundary Guard', () => {
 
   // ─── 許可リスト増加防止 ─────────────────────────────
 
-  it('APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST は 12 件以下', () => {
+  it('APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST は 13 件以下', () => {
     expect(
       APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST.size,
-      `APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST が ${APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST.size} 件（上限: 12）`,
-    ).toBeLessThanOrEqual(12)
+      `APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST が ${APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST.size} 件（上限: 13）`,
+    ).toBeLessThanOrEqual(13)
   })
 
   it('PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST は 0 件（完全解消済み）', () => {

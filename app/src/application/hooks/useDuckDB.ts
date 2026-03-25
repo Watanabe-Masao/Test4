@@ -1,18 +1,15 @@
 /**
- * DuckDB ライフサイクル管理フック
+ * DuckDB ライフサイクル管理フック（Composition Root）
  *
  * DuckDB エンジンの初期化と ImportedData のロードを管理する。
  * data / year / month が変わるたびにテーブルをリセットし再ロードする。
  *
- * マルチ月対応:
- * repo を渡すと IndexedDB に保存された過去月データも自動でロードする。
- * 全月のデータが同一テーブルに格納されるため、月跨ぎクエリが可能になる。
- *
- * 競合条件対策:
- * useAutoLoadPrevYear が prevYear データを設定すると data が変化し loadData が
- * 再生成される。先行の loadData がまだ実行中の場合、世代番号（loadSeqRef）で
- * 古い呼び出しを無効化し、最新データのみがロードされることを保証する。
- * これにより二重 INSERT（データ重複）を防ぐ。
+ * 責務分割:
+ * - エンジン初期化 → useEngineLifecycle
+ * - 保存月監視 → useStoredMonthsMonitor
+ * - 変更検知 → computeFingerprint (duckdbFingerprint)
+ * - ロード直列化 → acquireMutex (loadCoordinator)
+ * - ロード統合 → 本ファイル（resetTables → loadMonth → materializeSummary）
  *
  * 使い方:
  * ```
@@ -26,10 +23,13 @@ import { useEffect, useRef, useCallback, useReducer } from 'react'
 import type { AsyncDuckDB, AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { ImportedData } from '@/domain/models/storeTypes'
 import type { DataRepository } from '@/domain/repositories'
-import { getDuckDBEngine } from '@/infrastructure/duckdb/engine'
 import { resetTables, loadMonth } from '@/infrastructure/duckdb/dataLoader'
 import { materializeSummary } from '@/infrastructure/duckdb/queries/storeDaySummary'
+import { acquireMutex } from '@/infrastructure/duckdb/loadCoordinator'
 import { duckdbReducer, INITIAL_DUCKDB_STATE } from './duckdbReducer'
+import { computeFingerprint } from './duckdbFingerprint'
+import { useEngineLifecycle } from './useEngineLifecycle'
+import { useStoredMonthsMonitor } from './useStoredMonthsMonitor'
 
 export interface DuckDBHookResult {
   /** エンジン初期化済み + データロード完了 + エラーなし */
@@ -50,38 +50,6 @@ export interface DuckDBHookResult {
   readonly loadedMonthCount: number
 }
 
-/**
- * ImportedData のフィンガープリント（変更検知用）。
- * レコード数ベースの軽量判定。storedMonthsKey で過去月の増減も検知する。
- */
-function computeFingerprint(
-  data: ImportedData,
-  year: number,
-  month: number,
-  storedMonthsKey: string,
-): string {
-  return [
-    year,
-    month,
-    data.classifiedSales.records.length,
-    data.prevYearClassifiedSales.records.length,
-    data.categoryTimeSales.records.length,
-    data.prevYearCategoryTimeSales.records.length,
-    data.departmentKpi.records.length,
-    Object.keys(data.purchase).length,
-    Object.keys(data.flowers).length,
-    data.stores.size,
-    data.budget.size,
-    data.settings.size,
-    storedMonthsKey,
-  ].join(':')
-}
-
-// グローバルミューテックス: 全 useDuckDB インスタンスの loadData を直列化する。
-// 各インスタンスが同一の DuckDB コネクションを共有するため、
-// インスタンスごとの mutex では resetTables/loadMonth のインターリーブを防げない。
-let globalLoadMutex: Promise<void> = Promise.resolve()
-
 export function useDuckDB(
   data: ImportedData | undefined,
   year: number,
@@ -95,11 +63,8 @@ export function useDuckDB(
 
   // 世代番号: loadData 呼び出しごとにインクリメントし、
   // 古い呼び出しは各 await 後にチェックして早期 return する。
-  // これにより useAutoLoadPrevYear の data 変更で再トリガーされた新しい loadData が
-  // 古い loadData の部分的 INSERT と競合しない。
   const loadSeqRef = useRef(0)
 
-  // マウント追跡
   useEffect(() => {
     isMounted.current = true
     return () => {
@@ -107,80 +72,11 @@ export function useDuckDB(
     }
   }, [])
 
-  // IndexedDB の保存月一覧を監視（data/year/month 変更時に再チェック）
-  useEffect(() => {
-    if (!repo) {
-      dispatch({ type: 'SET_STORED_MONTHS_KEY', key: '' })
-      return
-    }
+  // サブフック: エンジン初期化・コネクション取得
+  useEngineLifecycle(dispatch)
 
-    let cancelled = false
-
-    const checkStoredMonths = async () => {
-      try {
-        const months = await repo.listStoredMonths()
-        if (cancelled) return
-        const key = months.map((m) => `${m.year}-${m.month}`).join(',')
-        dispatch({ type: 'SET_STORED_MONTHS_KEY', key })
-      } catch {
-        // IndexedDB エラーは無視（マルチ月なしで動作継続）
-      }
-    }
-
-    checkStoredMonths()
-    return () => {
-      cancelled = true
-    }
-  }, [repo, data, year, month])
-
-  // エンジン初期化
-  useEffect(() => {
-    const engine = getDuckDBEngine()
-
-    const unsubscribe = engine.onStateChange((engineState) => {
-      if (isMounted.current) {
-        dispatch({ type: 'SET_ENGINE_STATE', engineState })
-      }
-    })
-
-    // 現在の状態を反映
-    dispatch({ type: 'SET_ENGINE_STATE', engineState: engine.state })
-
-    if (engine.state === 'idle') {
-      engine.initialize().then(
-        async () => {
-          if (!isMounted.current) return
-          try {
-            const c = await engine.getConnection()
-            const d = engine.getDB()
-            dispatch({ type: 'SET_CONN_DB', conn: c, db: d })
-          } catch (err) {
-            dispatch({ type: 'SET_ERROR', error: err instanceof Error ? err.message : String(err) })
-          }
-        },
-        (err: unknown) => {
-          if (isMounted.current) {
-            dispatch({ type: 'SET_ERROR', error: err instanceof Error ? err.message : String(err) })
-          }
-        },
-      )
-    } else if (engine.state === 'ready') {
-      engine.getConnection().then(
-        (c) => {
-          if (isMounted.current) {
-            dispatch({ type: 'SET_CONN_DB', conn: c, db: engine.getDB() })
-          }
-        },
-        (err: unknown) => {
-          if (isMounted.current) {
-            dispatch({ type: 'SET_ERROR', error: err instanceof Error ? err.message : String(err) })
-          }
-        },
-      )
-    }
-
-    return unsubscribe
-  }, [])
+  // サブフック: IndexedDB 保存月監視
+  useStoredMonthsMonitor(repo, data, year, month, dispatch)
 
   // データロード（当月 + 過去月）
   const loadData = useCallback(async () => {
@@ -193,23 +89,11 @@ export function useDuckDB(
     const seq = ++loadSeqRef.current
 
     // グローバルミューテックスで全インスタンスの loadData を直列化する。
-    // 世代番号だけでは resetTables の DROP → CREATE 途中に別インスタンスの loadData が
-    // 割り込むことを防げない（SQL がインターリーブする）。
-    const prevLoad = globalLoadMutex
-    let releaseMutex: () => void
-    globalLoadMutex = new Promise<void>((resolve) => {
-      releaseMutex = resolve
-    })
-
-    try {
-      await prevLoad
-    } catch {
-      // 先行の loadData のエラーは無視（自身のロードに影響しない）
-    }
+    const releaseMutex = await acquireMutex()
 
     // 先行待ち中に更に新しい loadData が発行された場合は bail out
     if (loadSeqRef.current !== seq || !isMounted.current) {
-      releaseMutex!()
+      releaseMutex()
       return
     }
 
@@ -261,7 +145,7 @@ export function useDuckDB(
         dispatch({ type: 'LOAD_ERROR', error: err instanceof Error ? err.message : String(err) })
       }
     } finally {
-      releaseMutex!()
+      releaseMutex()
       if (isMounted.current && loadSeqRef.current === seq) {
         dispatch({ type: 'LOAD_END' })
       }
