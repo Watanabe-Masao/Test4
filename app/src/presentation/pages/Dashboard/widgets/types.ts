@@ -97,9 +97,9 @@ export interface WidgetContext extends UnifiedWidgetContext {
   readonly dowGap: DowGapAnalysis
   readonly onPrevYearDetail: (type: 'sameDow' | 'sameDate') => void
   readonly fmtCurrency: CurrencyFormatter
-  readonly prevYearStoreCostPrice: ReadonlyMap<string, { cost: number; price: number }> | undefined
-  readonly weatherDaily: readonly DailyWeatherSummary[] | undefined
-  readonly prevYearWeatherDaily: readonly DailyWeatherSummary[] | undefined
+  readonly prevYearStoreCostPrice?: ReadonlyMap<string, { cost: number; price: number }>
+  readonly weatherDaily?: readonly DailyWeatherSummary[]
+  readonly prevYearWeatherDaily?: readonly DailyWeatherSummary[]
   readonly currentCtsQuantity: CurrentCtsQuantity
 }
 
