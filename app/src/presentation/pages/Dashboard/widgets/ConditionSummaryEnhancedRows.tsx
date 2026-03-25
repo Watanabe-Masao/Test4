@@ -276,31 +276,3 @@ function YoYInlineCell({ row }: { readonly row: EnhancedRow }) {
     </MonoMd>
   )
 }
-
-// ─── Legacy exports (backward compat) ────────────────────
-
-/** @deprecated Use StoreRow instead */
-export const MonthlyStoreRow = memo(function MonthlyStoreRow({
-  row,
-  showYoY,
-}: {
-  readonly row: EnhancedRow
-  readonly idx: number
-  readonly isRate: boolean
-  readonly showYoY: boolean
-}) {
-  return <StoreRow row={row} metric="sales" isRate={false} showYoY={showYoY} />
-})
-
-/** @deprecated Use StoreRow instead */
-export const ElapsedStoreRow = memo(function ElapsedStoreRow({
-  row,
-  showYoY,
-}: {
-  readonly row: EnhancedRow
-  readonly idx: number
-  readonly isRate: boolean
-  readonly showYoY: boolean
-}) {
-  return <StoreRow row={row} metric="sales" isRate={false} showYoY={showYoY} />
-})

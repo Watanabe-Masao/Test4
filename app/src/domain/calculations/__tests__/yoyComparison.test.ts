@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { comparePeriods, hasReferenceData, compareYoY, hasYoYData } from '../yoyComparison'
+import { comparePeriods, hasReferenceData } from '../yoyComparison'
 
 describe('comparePeriods 不変条件', () => {
   const cases = [
@@ -46,18 +46,5 @@ describe('comparePeriods 不変条件', () => {
   it('hasReferenceData は reference≠0 の場合 true', () => {
     expect(hasReferenceData(comparePeriods(1000, 500))).toBe(true)
     expect(hasReferenceData(comparePeriods(1000, 0))).toBe(false)
-  })
-})
-
-describe('YoY 互換エイリアス', () => {
-  it('compareYoY は comparePeriods と同じ結果を返す', () => {
-    const yoy = compareYoY(1200, 1000)
-    const period = comparePeriods(1200, 1000)
-    expect(yoy).toEqual(period)
-  })
-
-  it('hasYoYData は hasReferenceData と同じ結果を返す', () => {
-    const comparison = comparePeriods(1000, 500)
-    expect(hasYoYData(comparison)).toBe(hasReferenceData(comparison))
   })
 })
