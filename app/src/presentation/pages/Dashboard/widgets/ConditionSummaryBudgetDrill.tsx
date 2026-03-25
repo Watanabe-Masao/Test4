@@ -119,10 +119,11 @@ export const ConditionSummaryBudgetDrill = memo(function ConditionSummaryBudgetD
 
   // 値入率日別前年比 — QueryHandler 経由
   const markupInput = useMemo<StoreDailyMarkupRateInput | null>(() => {
-    if (!dailyStoreId || activeMetric !== 'markupRate' || !ctx.prevYearDateRange) return null
-    const { fromKey, toKey } = dateRangeToKeys(ctx.prevYearDateRange)
+    const pyRange = ctx.prevYearScope?.dateRange
+    if (!dailyStoreId || activeMetric !== 'markupRate' || !pyRange) return null
+    const { fromKey, toKey } = dateRangeToKeys(pyRange)
     return { dateFrom: fromKey, dateTo: toKey, storeId: dailyStoreId }
-  }, [dailyStoreId, activeMetric, ctx.prevYearDateRange])
+  }, [dailyStoreId, activeMetric, ctx.prevYearScope])
 
   const { data: markupOutput } = useQueryWithHandler(
     ctx.queryExecutor,
@@ -220,8 +221,8 @@ export const ConditionSummaryBudgetDrill = memo(function ConditionSummaryBudgetD
           fmtCurrency={ctx.fmtCurrency}
           markupRateYoYRows={effectiveMarkupYoYRows}
           prevYearLabel={
-            ctx.prevYearDateRange
-              ? `${ctx.prevYearDateRange.from.year}年${ctx.prevYearDateRange.from.month}月`
+            ctx.prevYearScope?.dateRange
+              ? `${ctx.prevYearScope.dateRange.from.year}年${ctx.prevYearScope.dateRange.from.month}月`
               : undefined
           }
           onClose={handleDailyClose}

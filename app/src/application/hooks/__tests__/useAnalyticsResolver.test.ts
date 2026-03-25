@@ -48,10 +48,7 @@ describe('buildSourceContext', () => {
       duckDataVersion: 3,
       duckLoadedMonthCount: 6,
       stores,
-      prevYearDateRange: {
-        from: { year: 2024, month: 1, day: 1 },
-        to: { year: 2024, month: 12, day: 31 },
-      },
+      hasPrevYear: true,
     })
 
     expect(result.duckConn).toBe(FAKE_CONN)
@@ -61,13 +58,13 @@ describe('buildSourceContext', () => {
     expect(result.hasPrevYear).toBe(true)
   })
 
-  it('sets hasPrevYear to false when prevYearDateRange is undefined', () => {
+  it('sets hasPrevYear to false when hasPrevYear is false', () => {
     const result = buildSourceContext({
       duckConn: null,
       duckDataVersion: 0,
       duckLoadedMonthCount: 0,
       stores: new Map(),
-      prevYearDateRange: undefined,
+      hasPrevYear: false,
     })
 
     expect(result.hasPrevYear).toBe(false)
@@ -85,6 +82,7 @@ describe('buildSourceContext', () => {
       duckDataVersion: 0,
       duckLoadedMonthCount: 0,
       stores,
+      hasPrevYear: false,
     })
     expect(result.storeCount).toBe(3)
   })

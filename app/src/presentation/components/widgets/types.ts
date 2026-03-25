@@ -71,7 +71,6 @@ export interface UnifiedWidgetContext {
   readonly storeKey?: string
   readonly allStoreResults?: ReadonlyMap<string, StoreResult>
   readonly currentDateRange?: DateRange
-  readonly prevYearDateRange?: DateRange
   readonly prevYearScope?: PrevYearScope
   readonly dataEndDay?: number | null
   readonly dataMaxDay?: number

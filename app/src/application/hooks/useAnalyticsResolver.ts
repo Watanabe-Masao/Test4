@@ -25,7 +25,6 @@
  */
 import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { DateRange } from '@/domain/models/calendar'
 import type { Store } from '@/domain/models/record'
 
 // ── Data Source Resolution ──
@@ -63,14 +62,14 @@ export function buildSourceContext(ctx: {
   duckDataVersion: number
   duckLoadedMonthCount: number
   stores: ReadonlyMap<string, Store>
-  prevYearDateRange?: DateRange
+  hasPrevYear: boolean
 }): SourceContext {
   return {
     duckConn: ctx.duckConn,
     duckDataVersion: ctx.duckDataVersion,
     duckLoadedMonthCount: ctx.duckLoadedMonthCount,
     storeCount: ctx.stores.size,
-    hasPrevYear: ctx.prevYearDateRange != null,
+    hasPrevYear: ctx.hasPrevYear,
   }
 }
 
@@ -128,9 +127,9 @@ export function useSourceContext(ctx: {
   duckDataVersion: number
   duckLoadedMonthCount: number
   stores: ReadonlyMap<string, Store>
-  prevYearDateRange?: DateRange
+  hasPrevYear: boolean
 }): SourceContext {
-  const { duckConn, duckDataVersion, duckLoadedMonthCount, stores, prevYearDateRange } = ctx
+  const { duckConn, duckDataVersion, duckLoadedMonthCount, stores, hasPrevYear } = ctx
   const storeCount = stores.size
   return useMemo(
     () => ({
@@ -138,9 +137,9 @@ export function useSourceContext(ctx: {
       duckDataVersion,
       duckLoadedMonthCount,
       storeCount,
-      hasPrevYear: prevYearDateRange != null,
+      hasPrevYear,
     }),
-    [duckConn, duckDataVersion, duckLoadedMonthCount, storeCount, prevYearDateRange],
+    [duckConn, duckDataVersion, duckLoadedMonthCount, storeCount, hasPrevYear],
   )
 }
 

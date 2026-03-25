@@ -118,7 +118,7 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
     targetYear,
     targetMonth,
     repo,
-    comparison.prevYearDateRange ?? null,
+    comparison.prevYearScope?.dateRange ?? null,
   )
   const { queryExecutor, weatherPersist, prevYearStoreCostPrice } = duckCtx
 
@@ -126,7 +126,7 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
   const weatherStoreId = useWeatherStoreId(selectedStoreIds, stores)
   const { daily: weatherDaily } = useWeatherData(targetYear, targetMonth, weatherStoreId)
   const prevYearWeatherDaily = usePrevYearWeather({
-    prevYearDateRange: comparison.prevYearDateRange,
+    prevYearDateRange: comparison.prevYearScope?.dateRange,
     targetYear,
     targetMonth,
     weatherStoreId,
@@ -188,7 +188,6 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
     storeKey: storeName,
     allStoreResults: storeResults,
     currentDateRange,
-    prevYearDateRange: comparison.prevYearDateRange,
     prevYearScope: comparison.prevYearScope,
     dataEndDay: settings.dataEndDay,
     dataMaxDay,

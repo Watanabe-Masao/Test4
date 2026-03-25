@@ -198,7 +198,6 @@ export function makeWidgetContext(overrides: Partial<WidgetContext> = {}): Widge
       from: { year: 2026, month: 2, day: 1 },
       to: { year: 2026, month: 2, day: 28 },
     },
-    prevYearDateRange: undefined,
     prevYearScope: undefined,
     selectedStoreIds: new Set(),
     dataEndDay: null,
