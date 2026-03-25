@@ -545,3 +545,85 @@ describe('許可リスト総数トラッキング', () => {
     ).toEqual([])
   })
 })
+
+// ─── 後方互換コード監視 ──────────────────────────────────
+
+describe('後方互換コード監視', () => {
+  const srcDir = path.resolve(__dirname, '..')
+
+  /**
+   * 残存が許可された @deprecated コードの一覧（凍結式管理）。
+   * 新規追加は禁止（C7: 同義 API/action の併存禁止）。
+   * 削除条件を満たしたらエントリを削除し、上限を引き下げる。
+   */
+  const KNOWN_DEPRECATED = [
+    // WASM dual-run 統合完了まで維持
+    'domain/calculations/estMethod.ts',
+    'domain/calculations/discountImpact.ts',
+    // デザインシステム移行完了まで維持
+    'presentation/theme/tokens.ts',
+    // context 移行完了まで維持
+    'presentation/components/charts/TimeSlotChart.tsx',
+    // Phase 3 Dashboard adapter 撤去まで維持
+    'presentation/components/widgets/unifiedRegistry.ts',
+    // buildTypedWhere 移行完了まで維持
+    'infrastructure/duckdb/queryRunner.ts',
+    // 削除済みエイリアスのコメント参照（useDuckDBTimeSlotData）
+    'application/hooks/useTimeSlotData.ts',
+    // ImportedData との段階的共存（構造移行中）
+    'domain/models/MonthlyData.ts',
+    // ディレクトリ import 推奨のバレルラッパー
+    'presentation/components/charts/GrossProfitRateChart.tsx',
+  ]
+  const MAX_DEPRECATED_FILES = 9
+
+  it('@deprecated を含むファイル数が上限を超えない', () => {
+    const allFiles: string[] = []
+    function walk(dir: string) {
+      if (!fs.existsSync(dir)) return
+      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        const full = path.join(dir, entry.name)
+        if (entry.isDirectory()) {
+          if (['node_modules', 'dist', '__tests__', '_prototypes'].includes(entry.name)) continue
+          walk(full)
+        } else if (/\.(ts|tsx)$/.test(entry.name) && !entry.name.endsWith('.test.ts')) {
+          allFiles.push(full)
+        }
+      }
+    }
+    walk(srcDir)
+
+    const deprecated: string[] = []
+    for (const file of allFiles) {
+      const content = fs.readFileSync(file, 'utf-8')
+      if (content.includes('@deprecated')) {
+        const rel = path.relative(srcDir, file).replace(/\\/g, '/')
+        if (!KNOWN_DEPRECATED.includes(rel)) {
+          deprecated.push(rel)
+        }
+      }
+    }
+
+    expect(
+      deprecated,
+      `未登録の @deprecated コードが検出されました:\n${deprecated.join('\n')}\n` +
+        '→ KNOWN_DEPRECATED に登録するか、@deprecated を削除してください。\n' +
+        '新規の後方互換追加は C7 原則で禁止です。',
+    ).toEqual([])
+  })
+
+  it('KNOWN_DEPRECATED の件数が上限を超えない', () => {
+    expect(
+      KNOWN_DEPRECATED.length,
+      `KNOWN_DEPRECATED が ${KNOWN_DEPRECATED.length} 件（上限: ${MAX_DEPRECATED_FILES}）。\n` +
+        '後方互換を削除したら KNOWN_DEPRECATED からも削除し、上限を引き下げてください。',
+    ).toBeLessThanOrEqual(MAX_DEPRECATED_FILES)
+  })
+
+  it('KNOWN_DEPRECATED のファイルが実在する', () => {
+    for (const rel of KNOWN_DEPRECATED) {
+      const full = path.join(srcDir, rel)
+      expect(fs.existsSync(full), `KNOWN_DEPRECATED のファイルが存在しません: ${rel}`).toBe(true)
+    }
+  })
+})
