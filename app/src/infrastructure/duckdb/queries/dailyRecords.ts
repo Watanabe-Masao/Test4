@@ -11,6 +11,7 @@ import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models/calendar'
 import { dateRangeToKeys } from '@/domain/models/CalendarDate'
 import { queryToObjects, buildWhereClause, storeIdFilter } from '../queryRunner'
+import { validateDateKey } from '../queryParams'
 
 // ── 結果型 ──
 
@@ -72,7 +73,9 @@ function toWhereClause(
   storeIds?: ReadonlySet<string>,
   isPrevYear = false,
 ): string {
-  const { fromKey, toKey } = dateRangeToKeys(dateRange)
+  const { fromKey: rawFrom, toKey: rawTo } = dateRangeToKeys(dateRange)
+  const fromKey = validateDateKey(rawFrom)
+  const toKey = validateDateKey(rawTo)
   const conditions: (string | null)[] = [
     `s.date_key BETWEEN '${fromKey}' AND '${toKey}'`,
     `s.is_prev_year = ${isPrevYear}`,
@@ -203,7 +206,9 @@ export async function queryAggregatedDailyRecords(
   dateRange: DateRange,
   storeIds?: ReadonlySet<string>,
 ): Promise<readonly DailyRecordRow[]> {
-  const { fromKey, toKey } = dateRangeToKeys(dateRange)
+  const { fromKey: rawFrom, toKey: rawTo } = dateRangeToKeys(dateRange)
+  const fromKey = validateDateKey(rawFrom)
+  const toKey = validateDateKey(rawTo)
   const storeFilter =
     storeIds && storeIds.size > 0
       ? (storeIdFilter([...storeIds])?.replace('store_id', 's.store_id') ?? null)

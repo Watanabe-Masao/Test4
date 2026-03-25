@@ -13,6 +13,7 @@ import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models/calendar'
 import { dateRangeToKeys } from '@/domain/models/CalendarDate'
 import { queryToObjects, buildWhereClause, storeIdFilter } from '../queryRunner'
+import { validateDateKey } from '../queryParams'
 
 // ── 結果型 ──
 
@@ -43,10 +44,12 @@ export interface BudgetAnalysisSummaryRow {
 /** ドメイン型 → SQL WHERE 句変換（モジュール内部のみ） */
 function toWhereClause(dateRange: DateRange, storeIds?: ReadonlySet<string>): string {
   const { fromKey, toKey } = dateRangeToKeys(dateRange)
+  const validFrom = validateDateKey(fromKey)
+  const validTo = validateDateKey(toKey)
   const storeIdArr = storeIds && storeIds.size > 0 ? [...storeIds] : undefined
   const storeCondition = storeIdFilter(storeIdArr)
   return buildWhereClause([
-    `s.date_key BETWEEN '${fromKey}' AND '${toKey}'`,
+    `s.date_key BETWEEN '${validFrom}' AND '${validTo}'`,
     's.is_prev_year = FALSE',
     storeCondition ? storeCondition.replace('store_id', 's.store_id') : null,
   ])
