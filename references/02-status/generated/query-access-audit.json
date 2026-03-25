@@ -1,8 +1,8 @@
 {
-  "timestamp": "2026-03-24T09:47:59.420Z",
+  "timestamp": "2026-03-25T15:16:14.224Z",
   "summary": {
     "queryHandlers": 24,
-    "正規経路_queryWithHandler": 25,
+    "正規経路_queryWithHandler": 26,
     "正規経路_comparisonAccessor": 10,
     "正規経路_facadeHook": 0,
     "要注意_executorDirect": 0,
@@ -33,6 +33,7 @@
       "presentation/components/charts/StoreHourlyChart.tsx",
       "presentation/components/charts/WeatherAnalysisPanel.tsx",
       "presentation/components/charts/YoYChart.tsx",
+      "presentation/components/widgets/PageWidgetContainer.tsx",
       "presentation/components/widgets/types.ts",
       "presentation/pages/Dashboard/widgets/ConditionMatrixTable.tsx",
       "presentation/pages/Dashboard/widgets/ConditionSummaryBudgetDrill.tsx",
