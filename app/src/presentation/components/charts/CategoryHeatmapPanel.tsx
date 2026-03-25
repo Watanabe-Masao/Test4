@@ -19,6 +19,7 @@ export const CategoryHeatmapPanel = memo(function CategoryHeatmapPanel({ ctx }: 
       queryExecutor={ctx.queryExecutor}
       currentDateRange={ctx.currentDateRange}
       selectedStoreIds={ctx.selectedStoreIds}
+      prevYearScope={ctx.prevYearScope}
       hideDowSelector
       embedded
     />
