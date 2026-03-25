@@ -85,12 +85,12 @@ describe('D1: decompose5 シャープリー恒等式', () => {
     const prevCust = 500
     const curCust = 550
     const prevCategories = [
-      { id: 'food', qty: 1000, amt: 600000 },
-      { id: 'drink', qty: 500, amt: 400000 },
+      { key: 'food', qty: 1000, amt: 600000 },
+      { key: 'drink', qty: 500, amt: 400000 },
     ]
     const curCategories = [
-      { id: 'food', qty: 1200, amt: 750000 },
-      { id: 'drink', qty: 450, amt: 450000 },
+      { key: 'food', qty: 1200, amt: 750000 },
+      { key: 'drink', qty: 450, amt: 450000 },
     ]
     const prevTotalQty = prevCategories.reduce((s, c) => s + c.qty, 0)
     const curTotalQty = curCategories.reduce((s, c) => s + c.qty, 0)
@@ -122,12 +122,12 @@ describe('D1: decompose5 シャープリー恒等式', () => {
     const curCust = 420
     // 前年にあった drink が消滅し、新たに snack が出現
     const prevCategories = [
-      { id: 'food', qty: 800, amt: 500000 },
-      { id: 'drink', qty: 400, amt: 300000 },
+      { key: 'food', qty: 800, amt: 500000 },
+      { key: 'drink', qty: 400, amt: 300000 },
     ]
     const curCategories = [
-      { id: 'food', qty: 900, amt: 600000 },
-      { id: 'snack', qty: 300, amt: 300000 },
+      { key: 'food', qty: 900, amt: 600000 },
+      { key: 'snack', qty: 300, amt: 300000 },
     ]
     const prevTotalQty = prevCategories.reduce((s, c) => s + c.qty, 0)
     const curTotalQty = curCategories.reduce((s, c) => s + c.qty, 0)

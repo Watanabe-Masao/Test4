@@ -482,3 +482,62 @@ describe('E1: infrastructure/duckdb/queries/ の日付文字列は validateDateK
     ).toEqual([])
   })
 })
+
+// ─── クエリ複雑度バジェット ──────────────────────────────
+
+describe('クエリ複雑度バジェット: infrastructure/duckdb/queries/', () => {
+  const queriesDir = path.join(SRC_DIR, 'infrastructure/duckdb/queries')
+
+  /** 単一クエリ文字列の JOIN 数を数える */
+  function countJoins(sql: string): number {
+    const matches = sql.match(/\b(LEFT\s+)?JOIN\b/gi)
+    return matches ? matches.length : 0
+  }
+
+  it('個別の SQL テンプレートリテラルの JOIN 数が上限を超えない', () => {
+    const MAX_JOINS_PER_QUERY = 10
+    const files = collectTsFiles(queriesDir)
+    const violations: string[] = []
+
+    for (const filePath of files) {
+      const content = fs.readFileSync(filePath, 'utf-8')
+      // テンプレートリテラル内の SQL を抽出
+      const sqlBlocks = content.match(/`[^`]*SELECT[^`]*`/gs) ?? []
+      for (const block of sqlBlocks) {
+        const joins = countJoins(block)
+        if (joins > MAX_JOINS_PER_QUERY) {
+          violations.push(`${rel(filePath)}: JOIN ${joins}回（上限: ${MAX_JOINS_PER_QUERY}）`)
+        }
+      }
+    }
+
+    expect(
+      violations,
+      `JOIN 数が上限を超えるクエリが検出されました:\n${violations.join('\n')}\n` +
+        'クエリを分割するか、サブクエリ/CTE に変換してください。',
+    ).toEqual([])
+  })
+
+  it('クエリファイルの行数が上限を超えない（許可リスト除く）', () => {
+    const MAX_QUERY_FILE_LINES = 450
+    const files = collectTsFiles(queriesDir)
+    const violations: string[] = []
+    // 許可リスト（size.ts の infraLargeFiles から）
+    const allowlist = new Set(['infrastructure/duckdb/queries/purchaseComparison.ts'])
+
+    for (const filePath of files) {
+      const relPath = rel(filePath)
+      if (allowlist.has(relPath)) continue
+      const lines = fs.readFileSync(filePath, 'utf-8').split('\n').length
+      if (lines > MAX_QUERY_FILE_LINES) {
+        violations.push(`${relPath}: ${lines}行（上限: ${MAX_QUERY_FILE_LINES}）`)
+      }
+    }
+
+    expect(
+      violations,
+      `行数が上限を超えるクエリファイルが検出されました:\n${violations.join('\n')}\n` +
+        'クエリを分割してください。',
+    ).toEqual([])
+  })
+})
