@@ -3,7 +3,7 @@ import type { AsyncDuckDB, AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { ImportedData } from '@/domain/models/storeTypes'
 import { createEmptyImportedData } from '@/domain/models/storeTypes'
 import { TABLE_NAMES } from '../schemas'
-import { resetTables, deleteMonth, loadMonth, loadAppSettings } from '../dataLoader'
+import { resetTables, deleteMonth, loadMonth } from '../dataLoader'
 import type { LoadResult } from '../dataLoader'
 
 // ── Mock DuckDB connection and database ──
@@ -365,38 +365,6 @@ describe('loadMonth', () => {
 
     const result = await loadMonth(conn, db, dataWithKpi, 2025, 1)
     expect(result.rowCounts.department_kpi).toBe(1)
-  })
-})
-
-describe('loadAppSettings', () => {
-  it('deletes existing settings and inserts new ones', async () => {
-    const conn = createMockConn()
-    const queryMock = vi.mocked(conn.query)
-
-    await loadAppSettings(conn, {
-      defaultMarkupRate: 0.3,
-      defaultBudget: 1000000,
-      targetGrossProfitRate: 0.25,
-      warningThreshold: 0.1,
-    })
-
-    const calls = queryMock.mock.calls.map((c) => c[0] as string)
-
-    // First call should be DELETE
-    expect(calls[0]).toBe('DELETE FROM app_settings')
-
-    // Then 4 INSERT calls
-    const insertCalls = calls.filter((c) => c.startsWith('INSERT'))
-    expect(insertCalls).toHaveLength(4)
-
-    expect(insertCalls[0]).toContain("'defaultMarkupRate'")
-    expect(insertCalls[0]).toContain('0.3')
-    expect(insertCalls[1]).toContain("'defaultBudget'")
-    expect(insertCalls[1]).toContain('1000000')
-    expect(insertCalls[2]).toContain("'targetGrossProfitRate'")
-    expect(insertCalls[2]).toContain('0.25')
-    expect(insertCalls[3]).toContain("'warningThreshold'")
-    expect(insertCalls[3]).toContain('0.1')
   })
 })
 

@@ -199,28 +199,3 @@ export async function loadMonth(
     durationMs: performance.now() - start,
   }
 }
-
-/**
- * アプリ設定を app_settings テーブルに投入する。
- * INSERT OR REPLACE で冪等に動作する。
- */
-export async function loadAppSettings(
-  conn: AsyncDuckDBConnection,
-  settings: {
-    readonly defaultMarkupRate: number
-    readonly defaultBudget: number
-    readonly targetGrossProfitRate: number
-    readonly warningThreshold: number
-  },
-): Promise<void> {
-  await conn.query('DELETE FROM app_settings')
-  const entries = [
-    { key: 'defaultMarkupRate', value: settings.defaultMarkupRate },
-    { key: 'defaultBudget', value: settings.defaultBudget },
-    { key: 'targetGrossProfitRate', value: settings.targetGrossProfitRate },
-    { key: 'warningThreshold', value: settings.warningThreshold },
-  ]
-  for (const { key, value } of entries) {
-    await conn.query(`INSERT INTO app_settings VALUES ('${key}', ${value})`)
-  }
-}

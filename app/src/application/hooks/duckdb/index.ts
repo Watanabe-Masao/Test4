@@ -49,11 +49,7 @@ export type {
 } from './useDeptKpiQueries'
 
 // StoreDaySummary（日次集計・指標）
-export {
-  useDuckDBDailyCumulative,
-  useDuckDBAggregatedRates,
-  useDuckDBStoreDaySummary,
-} from './useSummaryQueries'
+export { useDuckDBDailyCumulative, useDuckDBAggregatedRates } from './useSummaryQueries'
 export type {
   DailyCumulativeRow,
   AggregatedRatesRow,
