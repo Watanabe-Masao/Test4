@@ -117,15 +117,25 @@ describe('Temporal Isolation: Comparison Independence', () => {
 // ── 5. domain/models/temporal/ が periodSelectionStore を import しない ──
 
 describe('Temporal Isolation: Store Independence', () => {
-  it('domain/models/temporal/ が periodSelectionStore を import しない', () => {
+  it('domain/models/temporal/ が store 実装に依存しない', () => {
     const temporalModelDir = path.join(SRC_DIR, 'domain/models/temporal')
     const files = collectTsFiles(temporalModelDir)
     const violations: string[] = []
 
+    // 具体的な store への依存を禁止（Store を含むドメイン型名は許容）
+    const FORBIDDEN_STORE_PATTERNS = [
+      'periodSelectionStore',
+      '/stores/',
+      'useDataStore',
+      'useSettingsStore',
+      'useFilterStore',
+      'useUiStore',
+    ]
+
     for (const file of files) {
       const imports = extractImports(file)
       for (const imp of imports) {
-        if (imp.includes('periodSelectionStore') || imp.includes('Store')) {
+        if (FORBIDDEN_STORE_PATTERNS.some((p) => imp.includes(p))) {
           violations.push(`${rel(file)}: ${imp}`)
         }
       }
@@ -133,7 +143,7 @@ describe('Temporal Isolation: Store Independence', () => {
 
     expect(
       violations,
-      `domain/models/temporal/ が store に依存しています:\n${violations.join('\n')}\n` +
+      `domain/models/temporal/ が store 実装に依存しています:\n${violations.join('\n')}\n` +
         '→ 入力型は store 実装に依存せず、純粋な domain 型として維持してください。',
     ).toEqual([])
   })
