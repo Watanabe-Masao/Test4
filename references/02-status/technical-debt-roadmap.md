@@ -493,6 +493,26 @@ useQueryWithHandler + queryExecutor + comparisonAccessors の 3 点で query/acc
 - 凍結済み allowlist（7リスト）は空であることをテストで保証
 - 新規後方互換の追加は C7 原則で禁止
 
+## 将来の設計判断項目（Authority 決定待ち）
+
+> 更新日: 2026-03-25
+
+以下の項目はコードレベルの改善ではなく、設計判断が必要。
+profiler データの蓄積やビジネス要件の変化を待って判断する。
+
+| # | 項目 | 判断ポイント | 現状 |
+|---|---|---|---|
+| **14** | dataVersion 粒度見直し | テーブル別バージョニング vs query fingerprint cache | 単一カウンタで動作中。profiler（#12）でクエリ再実行頻度を計測してから設計 |
+| **10** | features/ 縦スライス移行 | 新規機能から段階適用 vs 一括移行 | features/ にプレースホルダのみ。次の新規機能で pilot 実施を推奨 |
+| **15** | store_day_summary 列設計 | 用途別 materialized table 分割 | 40+列の高密度 VIEW。依存10ファイル（#6 ガードで監視中）。パフォーマンス問題発生時に検討 |
+
+## 将来のドキュメント項目
+
+| # | 項目 | 推奨タイミング |
+|---|---|---|
+| **19** | comparison/DuckDB 結節文書化 | 比較サブシステム改修時に references/03-guides/ に追記 |
+| **26** | weather_hourly キャッシュ戦略文書化 | 天気機能改修時に references/03-guides/ に追記 |
+
 ## この一覧の使い方
 
 - **Sprint 管理:** 最優先 3 件を直近 Sprint の主目標にする
