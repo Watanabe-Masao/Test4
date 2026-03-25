@@ -707,7 +707,6 @@ export function buildTimeSlotChartOption(input: TimeSlotChartOptionInput): EChar
         color: theme.colors.text3,
         fontSize: 10,
         fontFamily: theme.typography.fontFamily.mono,
-        formatter: (v: string) => `${v}時`,
       },
       axisLine: { lineStyle: { color: theme.colors.border } },
     },
