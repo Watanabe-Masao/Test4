@@ -199,29 +199,65 @@ describe('materializeSummary', () => {
     const conn = {
       query: vi.fn((sql: string) => {
         capturedSql.push(sql)
+        // information_schema クエリには 0 行（TABLE 未存在）を返す
+        if (sql.includes('information_schema')) {
+          return Promise.resolve({ toArray: () => [{ 'count_star()': 0 }] })
+        }
+        // COUNT(*) クエリには行数を返す
+        if (sql.includes('SELECT COUNT(*)')) {
+          return Promise.resolve({ toArray: () => [{ 'count_star()': 100 }] })
+        }
         return Promise.resolve({ toArray: () => [] })
       }),
     }
-    await materializeSummary(conn as never)
-    expect(capturedSql[0]).toContain('CREATE TABLE store_day_summary_mat')
+    const result = await materializeSummary(conn as never)
     expect(capturedSql).toEqual(
       expect.arrayContaining([
+        expect.stringContaining('CREATE TABLE store_day_summary_mat'),
         expect.stringContaining('DROP VIEW IF EXISTS store_day_summary'),
         expect.stringContaining('DROP TABLE IF EXISTS store_day_summary'),
         expect.stringContaining('RENAME TO store_day_summary'),
       ]),
     )
+    expect(result.skipped).toBe(false)
+    expect(result.rowCount).toBe(100)
+  })
+
+  it('既に TABLE として存在する場合はスキップする', async () => {
+    const conn = {
+      query: vi.fn((sql: string) => {
+        // information_schema で TABLE が見つかる
+        if (sql.includes('information_schema')) {
+          return Promise.resolve({ toArray: () => [{ 'count_star()': 1 }] })
+        }
+        // COUNT(*) クエリには行数を返す
+        if (sql.includes('SELECT COUNT(*)')) {
+          return Promise.resolve({ toArray: () => [{ 'count_star()': 50 }] })
+        }
+        return Promise.resolve({ toArray: () => [] })
+      }),
+    }
+    const result = await materializeSummary(conn as never)
+    expect(result.skipped).toBe(true)
+    expect(result.rowCount).toBe(50)
   })
 
   it('DROP VIEW が型不一致エラーでも続行する', async () => {
     const conn = {
       query: vi.fn((sql: string) => {
+        if (sql.includes('information_schema')) {
+          return Promise.resolve({ toArray: () => [{ 'count_star()': 0 }] })
+        }
         if (sql.includes('DROP VIEW')) {
           return Promise.reject(new Error('Catalog Error: Existing object is of type Table'))
+        }
+        if (sql.includes('SELECT COUNT(*)')) {
+          return Promise.resolve({ toArray: () => [{ 'count_star()': 10 }] })
         }
         return Promise.resolve({ toArray: () => [] })
       }),
     }
-    await expect(materializeSummary(conn as never)).resolves.toBeUndefined()
+    const result = await materializeSummary(conn as never)
+    expect(result.skipped).toBe(false)
   })
 })
