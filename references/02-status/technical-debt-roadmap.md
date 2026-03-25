@@ -455,6 +455,44 @@ useQueryWithHandler + queryExecutor + comparisonAccessors の 3 点で query/acc
 
 タグに移行状況や一時判断を書かない。タグの examples は抽象論ではなく壊れる具体例を書く。
 
+## 残存後方互換コード一覧
+
+> 更新日: 2026-03-25
+> 管理方針: 後方互換コードは `@deprecated` タグで明示し、本一覧で追跡する。
+> 新規の後方互換追加は禁止（C7: 同義 API/action の併存禁止）。
+
+### 削除済み（本セッションで対応）
+
+| 対象 | ファイル | 削除理由 |
+|---|---|---|
+| `prevYearDateRange` | ComparisonModule + 11ファイル | prevYearScope?.dateRange に統一 |
+| `YoYComparison` / `compareYoY` / `hasYoYData` | yoyComparison.ts | comparePeriods / hasReferenceData と同一 |
+| `MonthlyStoreRow` / `ElapsedStoreRow` | ConditionSummaryEnhancedRows.tsx | StoreRow に統一済み |
+| `analysisContextStore` | stores/ | filterStore に統合済み（useDrillAction.ts 移行完了） |
+| `getLegacyDuckDB` / `legacyRegistry` | QueryPort.ts | QueryHandler 移行完了 |
+| `useDuckDBWeatherHourly/Avg` | useWeatherHourlyQuery.ts | useQueryWithHandler + weatherHourlyHandler に移行 |
+| `useDuckDBStoreDaySummary` | useSummaryQueries.ts | storeDaySummaryHandler に移行 |
+| `useDuckDBCategoryTimeRecords` / `fetchCategoryTimeRecords` | useCtsHierarchyQueries.ts | categoryTimeRecordsHandler に移行 |
+| `loadAppSettings` | dataLoader.ts | プロダクション未使用 |
+
+### 残存（削除不可 — 正当理由あり）
+
+| 対象 | ファイル | 理由 | 削除条件 |
+|---|---|---|---|
+| `calculateEstMethod` (deprecated wrapper) | estMethod.ts | grossProfitBridge 経由で大量使用中（WASM dual-run） | WASM 統合完了後 |
+| `calculateDiscountImpact` (deprecated wrapper) | discountImpact.ts | 同上 | WASM 統合完了後 |
+| `fontSize.xs/sm/base/lg` | tokens.ts | 451箇所で使用中（guard テストで監視） | デザインシステム移行完了後 |
+| TimeSlotChart dual-mode props | TimeSlotChart.tsx | context ベース + props ベースの併存（移行中） | 全消費者が context 経由に移行後 |
+| `toDashboardContext` adapter | unifiedRegistry.ts | 62+ Dashboard widgets が WidgetContext を使用 | Phase 3 で段階撤去 |
+| `buildWhereClause` (旧 API) | queryRunner.ts | 16箇所で使用中（buildTypedWhere を推奨） | 全消費者が buildTypedWhere に移行後 |
+
+### 監視方法
+
+- `@deprecated` タグは documentConsistency テストで未使用検出
+- allowlist 総数は 55 件上限で管理（documentConsistency.test.ts）
+- 凍結済み allowlist（7リスト）は空であることをテストで保証
+- 新規後方互換の追加は C7 原則で禁止
+
 ## この一覧の使い方
 
 - **Sprint 管理:** 最優先 3 件を直近 Sprint の主目標にする
