@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect, memo, type ReactNode } from 'react'
+import { useState, useCallback, useEffect, memo, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MainContent } from '@/presentation/components/Layout'
 import { ChartErrorBoundary, PageSkeleton } from '@/presentation/components/common/feedback'
@@ -21,6 +21,7 @@ import type { WidgetDef } from '@/presentation/components/widgets'
 import { useUnifiedWidgetContext } from '@/presentation/hooks/useUnifiedWidgetContext'
 import { PrevYearBudgetDetailPanel } from './widgets/PrevYearBudgetDetailPanel'
 import { loadLayout, saveLayout, autoInjectDataWidgets } from './widgets/widgetLayout'
+import { useWidgetDragDrop } from './useWidgetDragDrop'
 import { WidgetSettingsPanel } from './WidgetSettingsPanel'
 import {
   Section,
@@ -99,51 +100,12 @@ export function DashboardPage() {
   const [showSettings, setShowSettings] = useState(false)
   const [editMode, setEditMode] = useState(false)
 
-  const widgetIdsRef = useRef(widgetIds)
-  widgetIdsRef.current = widgetIds
-
-  // D&D state
-  const [dragIndex, setDragIndex] = useState<number | null>(null)
-  const [overIndex, setOverIndex] = useState<number | null>(null)
-  const dragItemRef = useRef<number | null>(null)
+  // D&D state & handlers (extracted to useWidgetDragDrop)
+  const { dragIndex, overIndex, handleDragStart, handleDragOver, handleDrop, handleDragEnd } =
+    useWidgetDragDrop(setWidgetIds)
 
   const handleApplyLayout = useCallback((ids: string[]) => {
     setWidgetIds(ids)
-    saveLayout(ids)
-  }, [])
-
-  // D&D handlers
-  const handleDragStart = useCallback((index: number) => {
-    dragItemRef.current = index
-    setDragIndex(index)
-  }, [])
-
-  const handleDragOver = useCallback((e: React.DragEvent, index: number) => {
-    e.preventDefault()
-    setOverIndex(index)
-  }, [])
-
-  const handleDrop = useCallback((targetIndex: number) => {
-    const sourceIndex = dragItemRef.current
-    if (sourceIndex == null || sourceIndex === targetIndex) {
-      setDragIndex(null)
-      setOverIndex(null)
-      return
-    }
-    setWidgetIds((prev) => {
-      const next = [...prev]
-      const [moved] = next.splice(sourceIndex, 1)
-      next.splice(targetIndex, 0, moved)
-      saveLayout(next)
-      return next
-    })
-    setDragIndex(null)
-    setOverIndex(null)
-  }, [])
-
-  const handleDragEnd = useCallback(() => {
-    setDragIndex(null)
-    setOverIndex(null)
   }, [])
 
   const handleRemoveWidget = useCallback((widgetId: string) => {
@@ -156,7 +118,7 @@ export function DashboardPage() {
 
   // データ駆動ウィジェットの自動注入
   useEffect(() => {
-    const injected = autoInjectDataWidgets(widgetIdsRef.current, {
+    const injected = autoInjectDataWidgets(widgetIds, {
       prevYearHasPrevYear: ctx?.prevYear.hasPrevYear ?? false,
       storeCount: stores.size,
       hasDiscountData: ctx?.result.hasDiscountData,
@@ -166,7 +128,13 @@ export function DashboardPage() {
       setWidgetIds(injected)
       saveLayout(injected)
     }
-  }, [ctx?.prevYear.hasPrevYear, stores.size, ctx?.result.hasDiscountData, ctx?.queryExecutor])
+  }, [
+    widgetIds,
+    ctx?.prevYear.hasPrevYear,
+    stores.size,
+    ctx?.result.hasDiscountData,
+    ctx?.queryExecutor,
+  ])
 
   const handleWidgetLink = useCallback(
     (view: ViewType, tab?: string) => {

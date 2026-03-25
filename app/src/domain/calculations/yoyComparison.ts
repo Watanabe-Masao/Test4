@@ -63,20 +63,3 @@ export function comparePeriods(current: number, reference: number): PeriodCompar
 export function hasReferenceData(comparison: PeriodComparison): boolean {
   return comparison.reference !== 0
 }
-
-// ── YoY 互換エイリアス ──
-// 既存コードが YoY として参照している箇所との後方互換。
-// 内部的には comparePeriods と同一。
-
-/** @deprecated PeriodComparison を使用。YoY は期間比較の特殊ケース */
-export type YoYComparison = PeriodComparison
-
-/** 前年比較を構築する（comparePeriods の YoY エイリアス） */
-export function compareYoY(current: number, previousYear: number): PeriodComparison {
-  return comparePeriods(current, previousYear)
-}
-
-/** @deprecated hasReferenceData を使用 */
-export function hasYoYData(comparison: PeriodComparison): boolean {
-  return hasReferenceData(comparison)
-}

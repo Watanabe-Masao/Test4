@@ -13,6 +13,6 @@ export function isStoreComparisonVisible(ctx: WidgetContext): boolean {
 /** 前年比較ウィジェットの表示判定: DuckDB + 前年データ or StoreResult + 前年データ */
 export function isYoYVisible(ctx: WidgetContext): boolean {
   const duckReady = ctx.queryExecutor?.isReady === true
-  if (duckReady && ctx.prevYearDateRange != null) return true
+  if (duckReady && ctx.prevYearScope?.dateRange != null) return true
   return ctx.prevYear.hasPrevYear && ctx.prevYear.totalSales > 0
 }

@@ -12,13 +12,8 @@
  * | computeDowDivisorMap (PeriodFilter)  | queryDowDivisorMap          |
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import {
-  queryToObjects,
-  queryScalar,
-  buildWhereClause,
-  storeIdFilterWithAlias,
-} from '../queryRunner'
-import { validateDateKey, validateCode } from '../queryParams'
+import { queryToObjects, queryScalar, buildTypedWhere } from '../queryRunner'
+import type { WhereCondition } from '../queryRunner'
 
 // ── 共通フィルタ ──
 
@@ -34,36 +29,34 @@ export interface CtsFilterParams {
   readonly isPrevYear?: boolean
 }
 
+/** CTS/TS 共通の WhereCondition を構築する */
+function buildCtsConditions(params: CtsFilterParams, alias: string): WhereCondition[] {
+  const conditions: WhereCondition[] = [
+    { type: 'dateRange', column: 'date_key', from: params.dateFrom, to: params.dateTo, alias },
+    { type: 'boolean', column: 'is_prev_year', value: params.isPrevYear ?? false, alias },
+    { type: 'storeIds', storeIds: params.storeIds, alias },
+  ]
+  if (params.deptCode)
+    conditions.push({ type: 'code', column: 'dept_code', value: params.deptCode, alias })
+  if (params.lineCode)
+    conditions.push({ type: 'code', column: 'line_code', value: params.lineCode, alias })
+  if (params.klassCode)
+    conditions.push({ type: 'code', column: 'klass_code', value: params.klassCode, alias })
+  return conditions
+}
+
 /** date_key + is_prev_year + 階層フィルタの WHERE 条件を組み立てる */
 export function ctsWhereClause(params: CtsFilterParams, tableAlias: string): string {
-  const a = tableAlias
-  const dateFrom = validateDateKey(params.dateFrom)
-  const dateTo = validateDateKey(params.dateTo)
-  const conditions: (string | null)[] = [
-    `${a}.date_key BETWEEN '${dateFrom}' AND '${dateTo}'`,
-    `${a}.is_prev_year = ${params.isPrevYear ?? false}`,
-    storeIdFilterWithAlias(params.storeIds, a),
-    params.deptCode ? `${a}.dept_code = '${validateCode(params.deptCode)}'` : null,
-    params.lineCode ? `${a}.line_code = '${validateCode(params.lineCode)}'` : null,
-    params.klassCode ? `${a}.klass_code = '${validateCode(params.klassCode)}'` : null,
-    params.dow && params.dow.length > 0 ? `${a}.dow IN (${params.dow.join(', ')})` : null,
-  ]
-  return buildWhereClause(conditions)
+  const conditions = buildCtsConditions(params, tableAlias)
+  if (params.dow && params.dow.length > 0) {
+    conditions.push({ type: 'in', column: 'dow', values: params.dow, alias: tableAlias })
+  }
+  return buildTypedWhere(conditions)
 }
 
 /** time_slots 用のフィルタ（dow は time_slots テーブルに無いため category_time_sales から） */
 export function tsWhereClause(params: CtsFilterParams): string {
-  const dateFrom = validateDateKey(params.dateFrom)
-  const dateTo = validateDateKey(params.dateTo)
-  const conditions: (string | null)[] = [
-    `ts.date_key BETWEEN '${dateFrom}' AND '${dateTo}'`,
-    `ts.is_prev_year = ${params.isPrevYear ?? false}`,
-    storeIdFilterWithAlias(params.storeIds, 'ts'),
-    params.deptCode ? `ts.dept_code = '${validateCode(params.deptCode)}'` : null,
-    params.lineCode ? `ts.line_code = '${validateCode(params.lineCode)}'` : null,
-    params.klassCode ? `ts.klass_code = '${validateCode(params.klassCode)}'` : null,
-  ]
-  return buildWhereClause(conditions)
+  return buildTypedWhere(buildCtsConditions(params, 'ts'))
 }
 
 // ── 除数計算用 ──

@@ -6,8 +6,25 @@
  * - カテゴリベンチマーク（指数加重ランキング）
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import { queryToObjects, buildWhereClause, storeIdFilterWithAlias } from '../queryRunner'
+import { queryToObjects, buildTypedWhere } from '../queryRunner'
+import type { WhereCondition } from '../queryRunner'
 import { validateDateKey } from '../queryParams'
+
+// ── 共通ヘルパー ──
+
+type CategoryLevel = 'department' | 'line' | 'klass'
+
+/** カテゴリ階層レベルに対応する SQL カラム名を返す */
+function categoryColumns(level: CategoryLevel): { code: string; name: string } {
+  switch (level) {
+    case 'department':
+      return { code: 'cts.dept_code', name: 'cts.dept_name' }
+    case 'line':
+      return { code: 'cts.line_code', name: 'cts.line_name' }
+    case 'klass':
+      return { code: 'cts.klass_code', name: 'cts.klass_name' }
+  }
+}
 
 // ── カテゴリ構成比 週次推移 ──
 
@@ -41,30 +58,18 @@ export async function queryCategoryMixWeekly(
   conn: AsyncDuckDBConnection,
   params: CategoryMixParams,
 ): Promise<readonly CategoryMixWeeklyRow[]> {
-  let codeCol: string
-  let nameCol: string
+  const { code: codeCol, name: nameCol } = categoryColumns(params.level)
 
-  switch (params.level) {
-    case 'department':
-      codeCol = 'cts.dept_code'
-      nameCol = 'cts.dept_name'
-      break
-    case 'line':
-      codeCol = 'cts.line_code'
-      nameCol = 'cts.line_name'
-      break
-    case 'klass':
-      codeCol = 'cts.klass_code'
-      nameCol = 'cts.klass_name'
-      break
-  }
-
-  const dateFrom = validateDateKey(params.dateFrom)
-  const dateTo = validateDateKey(params.dateTo)
-  const where = buildWhereClause([
-    `cts.date_key BETWEEN '${dateFrom}' AND '${dateTo}'`,
-    `cts.is_prev_year = ${params.isPrevYear ?? false}`,
-    storeIdFilterWithAlias(params.storeIds, 'cts'),
+  const where = buildTypedWhere([
+    {
+      type: 'dateRange',
+      column: 'date_key',
+      from: params.dateFrom,
+      to: params.dateTo,
+      alias: 'cts',
+    },
+    { type: 'boolean', column: 'is_prev_year', value: params.isPrevYear ?? false, alias: 'cts' },
+    { type: 'storeIds', storeIds: params.storeIds, alias: 'cts' },
   ])
 
   const sql = `
@@ -142,35 +147,28 @@ export async function queryCategoryHierarchy(
     readonly parentDeptCode?: string
   },
 ): Promise<readonly CategoryHierarchyItem[]> {
-  let codeCol: string
-  let nameCol: string
+  const { code: codeCol, name: nameCol } = categoryColumns(params.level)
 
-  switch (params.level) {
-    case 'department':
-      codeCol = 'cts.dept_code'
-      nameCol = 'cts.dept_name'
-      break
-    case 'line':
-      codeCol = 'cts.line_code'
-      nameCol = 'cts.line_name'
-      break
-    case 'klass':
-      codeCol = 'cts.klass_code'
-      nameCol = 'cts.klass_name'
-      break
-  }
-
-  const dateFrom = validateDateKey(params.dateFrom)
-  const dateTo = validateDateKey(params.dateTo)
-  const conditions = [
-    `cts.date_key BETWEEN '${dateFrom}' AND '${dateTo}'`,
-    'cts.is_prev_year = FALSE',
-    storeIdFilterWithAlias(params.storeIds, 'cts'),
+  const conditions: WhereCondition[] = [
+    {
+      type: 'dateRange',
+      column: 'date_key',
+      from: params.dateFrom,
+      to: params.dateTo,
+      alias: 'cts',
+    },
+    { type: 'boolean', column: 'is_prev_year', value: false, alias: 'cts' },
+    { type: 'storeIds', storeIds: params.storeIds, alias: 'cts' },
   ]
   if (params.parentDeptCode) {
-    conditions.push(`cts.dept_code = '${params.parentDeptCode.replace(/'/g, "''")}'`)
+    conditions.push({
+      type: 'code',
+      column: 'dept_code',
+      value: params.parentDeptCode,
+      alias: 'cts',
+    })
   }
-  const where = buildWhereClause(conditions)
+  const where = buildTypedWhere(conditions)
 
   const sql = `
     SELECT DISTINCT ${codeCol} AS code, ${nameCol} AS name
@@ -192,38 +190,38 @@ export async function queryCategoryBenchmark(
   conn: AsyncDuckDBConnection,
   params: CategoryBenchmarkParams,
 ): Promise<readonly CategoryBenchmarkRow[]> {
-  let codeCol: string
-  let nameCol: string
-
-  switch (params.level) {
-    case 'department':
-      codeCol = 'cts.dept_code'
-      nameCol = 'cts.dept_name'
-      break
-    case 'line':
-      codeCol = 'cts.line_code'
-      nameCol = 'cts.line_name'
-      break
-    case 'klass':
-      codeCol = 'cts.klass_code'
-      nameCol = 'cts.klass_name'
-      break
-  }
+  const { code: codeCol, name: nameCol } = categoryColumns(params.level)
 
   const dateFrom = validateDateKey(params.dateFrom)
   const dateTo = validateDateKey(params.dateTo)
-  const conditions = [
-    `cts.date_key BETWEEN '${dateFrom}' AND '${dateTo}'`,
-    'cts.is_prev_year = FALSE',
-    storeIdFilterWithAlias(params.storeIds, 'cts'),
+  const conditions: WhereCondition[] = [
+    {
+      type: 'dateRange',
+      column: 'date_key',
+      from: params.dateFrom,
+      to: params.dateTo,
+      alias: 'cts',
+    },
+    { type: 'boolean', column: 'is_prev_year', value: false, alias: 'cts' },
+    { type: 'storeIds', storeIds: params.storeIds, alias: 'cts' },
   ]
   if (params.parentDeptCode) {
-    conditions.push(`cts.dept_code = '${params.parentDeptCode.replace(/'/g, "''")}'`)
+    conditions.push({
+      type: 'code',
+      column: 'dept_code',
+      value: params.parentDeptCode,
+      alias: 'cts',
+    })
   }
   if (params.parentLineCode) {
-    conditions.push(`cts.line_code = '${params.parentLineCode.replace(/'/g, "''")}'`)
+    conditions.push({
+      type: 'code',
+      column: 'line_code',
+      value: params.parentLineCode,
+      alias: 'cts',
+    })
   }
-  const where = buildWhereClause(conditions)
+  const where = buildTypedWhere(conditions)
 
   const sql = `
     WITH cat_store AS (
@@ -301,38 +299,36 @@ export async function queryCategoryBenchmarkTrend(
   conn: AsyncDuckDBConnection,
   params: CategoryBenchmarkParams,
 ): Promise<readonly CategoryBenchmarkTrendRow[]> {
-  let codeCol: string
-  let nameCol: string
+  const { code: codeCol, name: nameCol } = categoryColumns(params.level)
 
-  switch (params.level) {
-    case 'department':
-      codeCol = 'cts.dept_code'
-      nameCol = 'cts.dept_name'
-      break
-    case 'line':
-      codeCol = 'cts.line_code'
-      nameCol = 'cts.line_name'
-      break
-    case 'klass':
-      codeCol = 'cts.klass_code'
-      nameCol = 'cts.klass_name'
-      break
-  }
-
-  const dateFrom = validateDateKey(params.dateFrom)
-  const dateTo = validateDateKey(params.dateTo)
-  const conditions = [
-    `cts.date_key BETWEEN '${dateFrom}' AND '${dateTo}'`,
-    'cts.is_prev_year = FALSE',
-    storeIdFilterWithAlias(params.storeIds, 'cts'),
+  const conditions: WhereCondition[] = [
+    {
+      type: 'dateRange',
+      column: 'date_key',
+      from: params.dateFrom,
+      to: params.dateTo,
+      alias: 'cts',
+    },
+    { type: 'boolean', column: 'is_prev_year', value: false, alias: 'cts' },
+    { type: 'storeIds', storeIds: params.storeIds, alias: 'cts' },
   ]
   if (params.parentDeptCode) {
-    conditions.push(`cts.dept_code = '${params.parentDeptCode.replace(/'/g, "''")}'`)
+    conditions.push({
+      type: 'code',
+      column: 'dept_code',
+      value: params.parentDeptCode,
+      alias: 'cts',
+    })
   }
   if (params.parentLineCode) {
-    conditions.push(`cts.line_code = '${params.parentLineCode.replace(/'/g, "''")}'`)
+    conditions.push({
+      type: 'code',
+      column: 'line_code',
+      value: params.parentLineCode,
+      alias: 'cts',
+    })
   }
-  const where = buildWhereClause(conditions)
+  const where = buildTypedWhere(conditions)
 
   const sql = `
     WITH daily_cat_store AS (

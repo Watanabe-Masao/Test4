@@ -36,7 +36,7 @@ export function useWidgetQueryContext(
   targetYear: number,
   targetMonth: number,
   repo: DataRepository | null,
-  prevYearDateRange: DateRange | null,
+  prevYearDateRange: DateRange | null | undefined,
 ): WidgetQueryContext {
   // DuckDB エンジン初期化
   const duck = useDuckDB(data, targetYear, targetMonth, repo)
@@ -51,7 +51,7 @@ export function useWidgetQueryContext(
   const { data: prevYearStoreCostPrice } = useStoreCostPriceQuery(
     duck.conn,
     duck.dataVersion,
-    prevYearDateRange,
+    prevYearDateRange ?? null,
   )
 
   return {

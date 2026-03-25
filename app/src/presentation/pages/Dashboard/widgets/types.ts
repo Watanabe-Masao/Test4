@@ -79,11 +79,6 @@ export interface WidgetContext {
    * 例: { from: { year: 2026, month: 2, day: 1 }, to: { year: 2026, month: 2, day: 28 } }
    */
   currentDateRange: DateRange
-  /**
-   * 前年データの日付範囲（前年データがない場合は undefined）。
-   * チャート用フックの compareRange パラメータに渡す。
-   */
-  prevYearDateRange?: DateRange
   /** 前年比較スコープ（DOW offset 調整済み日付範囲 + 同スコープの客数） */
   prevYearScope?: PrevYearScope
   /** 選択中の店舗ID（空 = 全店） */

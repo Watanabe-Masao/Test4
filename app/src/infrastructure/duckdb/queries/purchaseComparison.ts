@@ -6,8 +6,23 @@
  * date_key BETWEEN で同曜日・月跨ぎクエリに対応する。
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import { queryToObjects, buildWhereClause, storeIdFilter } from '../queryRunner'
-import { validateDateKey } from '../queryParams'
+import { queryToObjects, buildTypedWhere } from '../queryRunner'
+import type { WhereCondition } from '../queryRunner'
+
+/** purchase テーブル共通の WHERE 句を構築する */
+function purchaseWhere(
+  dateFrom: string,
+  dateTo: string,
+  storeIds?: readonly string[],
+  extra?: WhereCondition,
+): string {
+  const conditions: WhereCondition[] = [
+    { type: 'dateRange', column: 'date_key', from: dateFrom, to: dateTo },
+    { type: 'storeIds', storeIds },
+  ]
+  if (extra) conditions.push(extra)
+  return buildTypedWhere(conditions)
+}
 
 // ── 結果型（SQL → camelCase 変換後）──
 
@@ -41,9 +56,7 @@ export async function queryPurchaseBySupplier(
   dateTo: string,
   storeIds?: readonly string[],
 ): Promise<readonly PurchaseSupplierRow[]> {
-  const df = validateDateKey(dateFrom)
-  const dt = validateDateKey(dateTo)
-  const where = buildWhereClause([`date_key BETWEEN '${df}' AND '${dt}'`, storeIdFilter(storeIds)])
+  const where = purchaseWhere(dateFrom, dateTo, storeIds)
   const sql = `
     SELECT
       COALESCE(supplier_code, 'UNKNOWN') AS supplier_code,
@@ -67,9 +80,7 @@ export async function queryEffectiveMaxDay(
   dateTo: string,
   storeIds?: readonly string[],
 ): Promise<number | null> {
-  const df = validateDateKey(dateFrom)
-  const dt = validateDateKey(dateTo)
-  const where = buildWhereClause([`date_key BETWEEN '${df}' AND '${dt}'`, storeIdFilter(storeIds)])
+  const where = purchaseWhere(dateFrom, dateTo, storeIds)
   const sql = `
     SELECT MAX(EXTRACT(DAY FROM date_key::DATE)) AS max_day
     FROM purchase
@@ -87,9 +98,7 @@ export async function queryPurchaseTotal(
   dateTo: string,
   storeIds?: readonly string[],
 ): Promise<PurchaseTotalRow> {
-  const df = validateDateKey(dateFrom)
-  const dt = validateDateKey(dateTo)
-  const where = buildWhereClause([`date_key BETWEEN '${df}' AND '${dt}'`, storeIdFilter(storeIds)])
+  const where = purchaseWhere(dateFrom, dateTo, storeIds)
   const sql = `
     SELECT
       COALESCE(SUM(cost), 0) AS total_cost,
@@ -116,9 +125,7 @@ export async function queryPurchaseByStore(
   dateTo: string,
   storeIds?: readonly string[],
 ): Promise<readonly PurchaseStoreRow[]> {
-  const df = validateDateKey(dateFrom)
-  const dt = validateDateKey(dateTo)
-  const where = buildWhereClause([`date_key BETWEEN '${df}' AND '${dt}'`, storeIdFilter(storeIds)])
+  const where = purchaseWhere(dateFrom, dateTo, storeIds)
   const sql = `
     SELECT
       store_id,
@@ -151,11 +158,7 @@ export async function queryStoreCostPrice(
   dateTo: string,
   storeIds?: readonly string[],
 ): Promise<readonly StoreCostPriceRow[]> {
-  const df = validateDateKey(dateFrom)
-  const dt = validateDateKey(dateTo)
-  const dateFilter = `date_key BETWEEN '${df}' AND '${dt}'`
-  const storeFilter = storeIdFilter(storeIds)
-  const w = buildWhereClause([dateFilter, storeFilter])
+  const w = purchaseWhere(dateFrom, dateTo, storeIds)
 
   const sql = `
     SELECT
@@ -192,11 +195,7 @@ export async function queryStoreDailyMarkupRate(
   dateTo: string,
   storeIds?: readonly string[],
 ): Promise<readonly StoreDailyMarkupRateRow[]> {
-  const df = validateDateKey(dateFrom)
-  const dt = validateDateKey(dateTo)
-  const dateFilter = `date_key BETWEEN '${df}' AND '${dt}'`
-  const storeFilter = storeIdFilter(storeIds)
-  const w = buildWhereClause([dateFilter, storeFilter])
+  const w = purchaseWhere(dateFrom, dateTo, storeIds)
 
   const sql = `
     SELECT
@@ -232,13 +231,11 @@ export async function querySalesDaily(
   storeIds?: readonly string[],
   isPrevYear = false,
 ): Promise<readonly SalesDailyRow[]> {
-  const df = validateDateKey(dateFrom)
-  const dt = validateDateKey(dateTo)
-  const where = buildWhereClause([
-    `date_key BETWEEN '${df}' AND '${dt}'`,
-    `is_prev_year = ${isPrevYear}`,
-    storeIdFilter(storeIds),
-  ])
+  const where = purchaseWhere(dateFrom, dateTo, storeIds, {
+    type: 'boolean',
+    column: 'is_prev_year',
+    value: isPrevYear,
+  })
   const sql = `
     SELECT
       day,
@@ -267,9 +264,7 @@ export async function queryPurchaseDailyBySupplier(
   dateTo: string,
   storeIds?: readonly string[],
 ): Promise<readonly PurchaseDailySupplierRow[]> {
-  const df = validateDateKey(dateFrom)
-  const dt = validateDateKey(dateTo)
-  const where = buildWhereClause([`date_key BETWEEN '${df}' AND '${dt}'`, storeIdFilter(storeIds)])
+  const where = purchaseWhere(dateFrom, dateTo, storeIds)
   const sql = `
     SELECT
       day,
@@ -292,9 +287,7 @@ export async function queryPurchaseDaily(
   dateTo: string,
   storeIds?: readonly string[],
 ): Promise<readonly PurchaseDailyRow[]> {
-  const df = validateDateKey(dateFrom)
-  const dt = validateDateKey(dateTo)
-  const where = buildWhereClause([`date_key BETWEEN '${df}' AND '${dt}'`, storeIdFilter(storeIds)])
+  const where = purchaseWhere(dateFrom, dateTo, storeIds)
   const sql = `
     SELECT
       day,
@@ -324,9 +317,7 @@ export async function querySpecialSalesDaily(
   dateTo: string,
   storeIds?: readonly string[],
 ): Promise<readonly CategoryDailyRow[]> {
-  const df = validateDateKey(dateFrom)
-  const dt = validateDateKey(dateTo)
-  const where = buildWhereClause([`date_key BETWEEN '${df}' AND '${dt}'`, storeIdFilter(storeIds)])
+  const where = purchaseWhere(dateFrom, dateTo, storeIds)
   const sql = `
     SELECT
       day,
@@ -349,9 +340,7 @@ export async function querySpecialSalesTotal(
   dateTo: string,
   storeIds?: readonly string[],
 ): Promise<readonly { categoryKey: string; totalCost: number; totalPrice: number }[]> {
-  const df = validateDateKey(dateFrom)
-  const dt = validateDateKey(dateTo)
-  const where = buildWhereClause([`date_key BETWEEN '${df}' AND '${dt}'`, storeIdFilter(storeIds)])
+  const where = purchaseWhere(dateFrom, dateTo, storeIds)
   const sql = `
     SELECT
       type AS category_key,
@@ -372,9 +361,7 @@ export async function queryTransfersDaily(
   dateTo: string,
   storeIds?: readonly string[],
 ): Promise<readonly CategoryDailyRow[]> {
-  const df = validateDateKey(dateFrom)
-  const dt = validateDateKey(dateTo)
-  const where = buildWhereClause([`date_key BETWEEN '${df}' AND '${dt}'`, storeIdFilter(storeIds)])
+  const where = purchaseWhere(dateFrom, dateTo, storeIds)
   const sql = `
     SELECT
       day,
@@ -397,9 +384,7 @@ export async function queryTransfersTotal(
   dateTo: string,
   storeIds?: readonly string[],
 ): Promise<readonly { categoryKey: string; totalCost: number; totalPrice: number }[]> {
-  const df = validateDateKey(dateFrom)
-  const dt = validateDateKey(dateTo)
-  const where = buildWhereClause([`date_key BETWEEN '${df}' AND '${dt}'`, storeIdFilter(storeIds)])
+  const where = purchaseWhere(dateFrom, dateTo, storeIds)
   const sql = `
     SELECT
       direction AS category_key,
@@ -426,13 +411,11 @@ export async function querySalesTotal(
   storeIds?: readonly string[],
   isPrevYear = false,
 ): Promise<number> {
-  const df = validateDateKey(dateFrom)
-  const dt = validateDateKey(dateTo)
-  const where = buildWhereClause([
-    `date_key BETWEEN '${df}' AND '${dt}'`,
-    `is_prev_year = ${isPrevYear}`,
-    storeIdFilter(storeIds),
-  ])
+  const where = purchaseWhere(dateFrom, dateTo, storeIds, {
+    type: 'boolean',
+    column: 'is_prev_year',
+    value: isPrevYear,
+  })
   const sql = `
     SELECT COALESCE(SUM(sales_amount), 0) AS total_sales
     FROM classified_sales

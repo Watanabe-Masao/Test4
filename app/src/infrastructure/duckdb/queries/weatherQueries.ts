@@ -7,8 +7,8 @@
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { HourlyWeatherRecord } from '@/domain/models/record'
-import { queryToObjects, buildWhereClause, storeIdFilter, queryScalar } from '../queryRunner'
-import { validateDateKey } from '../queryParams'
+import { queryToObjects, buildTypedWhere, queryScalar } from '../queryRunner'
+import type { WhereCondition } from '../queryRunner'
 
 // ── 結果型（DuckDB → domain 変換用） ──
 
@@ -43,11 +43,11 @@ export async function queryWeatherHourly(
   startDate: string,
   endDate: string,
 ): Promise<readonly HourlyWeatherRecord[]> {
-  const where = buildWhereClause([
-    storeIdFilter([storeId]),
-    `date_key >= '${validateDateKey(startDate)}'`,
-    `date_key <= '${validateDateKey(endDate)}'`,
-  ])
+  const conditions: WhereCondition[] = [
+    { type: 'storeIds', storeIds: [storeId] },
+    { type: 'dateRange', column: 'date_key', from: startDate, to: endDate },
+  ]
+  const where = buildTypedWhere(conditions)
 
   const sql = `
     SELECT
@@ -94,10 +94,9 @@ export async function queryWeatherHourlyAvg(
   startDate: string,
   endDate: string,
 ): Promise<readonly HourlyWeatherAvgRow[]> {
-  const where = buildWhereClause([
-    storeIdFilter([storeId]),
-    `date_key >= '${validateDateKey(startDate)}'`,
-    `date_key <= '${validateDateKey(endDate)}'`,
+  const where = buildTypedWhere([
+    { type: 'storeIds', storeIds: [storeId] },
+    { type: 'dateRange', column: 'date_key', from: startDate, to: endDate },
   ])
 
   const sql = `
@@ -127,10 +126,9 @@ export async function queryWeatherCacheCount(
   startDate: string,
   endDate: string,
 ): Promise<number> {
-  const where = buildWhereClause([
-    storeIdFilter([storeId]),
-    `date_key >= '${validateDateKey(startDate)}'`,
-    `date_key <= '${validateDateKey(endDate)}'`,
+  const where = buildTypedWhere([
+    { type: 'storeIds', storeIds: [storeId] },
+    { type: 'dateRange', column: 'date_key', from: startDate, to: endDate },
   ])
 
   const sql = `SELECT COUNT(*) AS cnt FROM weather_hourly ${where}`
@@ -147,10 +145,9 @@ export async function deleteWeatherCache(
   startDate: string,
   endDate: string,
 ): Promise<void> {
-  const where = buildWhereClause([
-    storeIdFilter([storeId]),
-    `date_key >= '${validateDateKey(startDate)}'`,
-    `date_key <= '${validateDateKey(endDate)}'`,
+  const where = buildTypedWhere([
+    { type: 'storeIds', storeIds: [storeId] },
+    { type: 'dateRange', column: 'date_key', from: startDate, to: endDate },
   ])
 
   await conn.query(`DELETE FROM weather_hourly ${where}`)

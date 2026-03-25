@@ -12,7 +12,7 @@ import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { DrillAction } from '@/domain/models/analysis'
 import type { ViewType } from '@/domain/models/storeTypes'
-import { useAnalysisContextStore } from '@/application/stores/analysisContextStore'
+import { useFilterStore } from '@/application/stores/filterStore'
 import { VIEW_TO_PATH } from '@/application/navigation/viewMapping'
 
 function viewToPath(view: string): string {
@@ -29,7 +29,7 @@ export function useDrillAction() {
           // Type A: 同一ページでフィルタ追加
           if (action.filter) {
             const { key, value } = action.filter
-            const store = useAnalysisContextStore.getState()
+            const store = useFilterStore.getState()
             if (key === 'category') {
               store.setCategoryFilter(value)
             } else if (key === 'department') {

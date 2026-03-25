@@ -25,8 +25,8 @@
  * - DailyCumulativeRow → チャート ViewModel への変換
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import { queryToObjects, buildWhereClause, storeIdFilter } from '../../queryRunner'
-import { validateDateKey } from '../../queryParams'
+import { queryToObjects, buildTypedWhere } from '../../queryRunner'
+import type { WhereCondition } from '../../queryRunner'
 
 // ── 結果型 ──
 
@@ -67,14 +67,13 @@ export async function queryDailyCumulativeAggregation(
   conn: AsyncDuckDBConnection,
   params: DailyAggregationParams,
 ): Promise<readonly DailyCumulativeRow[]> {
-  const dateFrom = validateDateKey(params.dateFrom)
-  const dateTo = validateDateKey(params.dateTo)
+  const conditions: WhereCondition[] = [
+    { type: 'dateRange', column: 'date_key', from: params.dateFrom, to: params.dateTo },
+    { type: 'boolean', column: 'is_prev_year', value: params.isPrevYear ?? false },
+    { type: 'storeIds', storeIds: params.storeIds },
+  ]
 
-  const where = buildWhereClause([
-    `date_key BETWEEN '${dateFrom}' AND '${dateTo}'`,
-    `is_prev_year = ${params.isPrevYear ?? false}`,
-    storeIdFilter(params.storeIds),
-  ])
+  const where = buildTypedWhere(conditions)
 
   const sql = `
     SELECT
@@ -107,13 +106,10 @@ export async function queryDailyQuantity(
   conn: AsyncDuckDBConnection,
   params: DailyAggregationParams,
 ): Promise<readonly DailyQuantityRow[]> {
-  const dateFrom = validateDateKey(params.dateFrom)
-  const dateTo = validateDateKey(params.dateTo)
-
-  const where = buildWhereClause([
-    `date_key BETWEEN '${dateFrom}' AND '${dateTo}'`,
-    `is_prev_year = ${params.isPrevYear ?? false}`,
-    storeIdFilter(params.storeIds),
+  const where = buildTypedWhere([
+    { type: 'dateRange', column: 'date_key', from: params.dateFrom, to: params.dateTo },
+    { type: 'boolean', column: 'is_prev_year', value: params.isPrevYear ?? false },
+    { type: 'storeIds', storeIds: params.storeIds },
   ])
 
   const sql = `

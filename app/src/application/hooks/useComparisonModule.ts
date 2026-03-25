@@ -18,7 +18,6 @@ import type {
   PrevYearMonthlyKpiEntry,
 } from '@/application/comparison/comparisonTypes'
 import type { PrevYearScope } from '@/domain/models/ComparisonScope'
-import type { DateRange } from '@/domain/models/CalendarDate'
 import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
 import { ZERO_DISCOUNT_ENTRIES } from '@/domain/models/record'
 import { prepareComparisonInputs } from '@/application/comparison/comparisonDataPrep'
@@ -42,10 +41,8 @@ export interface ComparisonModule {
   readonly kpi: PrevYearMonthlyKpi
   /** 曜日ギャップ分析 */
   readonly dowGap: DowGapAnalysis
-  /** 前年スコープ（旧互換 — DuckDB日付範囲 + 客数） */
+  /** 前年スコープ（DuckDB日付範囲 + 客数 + dowOffset） */
   readonly prevYearScope: PrevYearScope | undefined
-  /** 前年日付範囲（旧互換 — prevYearScope.dateRange と同一） */
-  readonly prevYearDateRange: DateRange | undefined
 }
 
 // ── ゼロ値 ──
@@ -171,8 +168,6 @@ export function useComparisonModule(
     }
   }, [scope, daily.totalCustomers])
 
-  const prevYearDateRange = prevYearScope?.dateRange
-
   return {
     scope,
     loadStatus: scope ? loadStatus : IDLE_STATUS,
@@ -180,6 +175,5 @@ export function useComparisonModule(
     kpi,
     dowGap,
     prevYearScope,
-    prevYearDateRange,
   }
 }

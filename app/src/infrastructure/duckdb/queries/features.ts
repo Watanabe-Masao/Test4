@@ -13,8 +13,9 @@
  * - 部門別トレンド
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import { queryToObjects, buildWhereClause, storeIdFilter } from '../queryRunner'
-import { validateDateKey, validateCode } from '../queryParams'
+import { queryToObjects, buildTypedWhere } from '../queryRunner'
+import type { WhereCondition } from '../queryRunner'
+import { validateCode } from '../queryParams'
 
 // ── 結果型（domain/calculations/rawAggregation から re-export）──
 
@@ -44,13 +45,12 @@ interface FeatureFilterParams {
 }
 
 function featureWhereClause(params: FeatureFilterParams): string {
-  const dateFrom = validateDateKey(params.dateFrom)
-  const dateTo = validateDateKey(params.dateTo)
-  return buildWhereClause([
-    `date_key BETWEEN '${dateFrom}' AND '${dateTo}'`,
-    'is_prev_year = FALSE',
-    storeIdFilter(params.storeIds),
-  ])
+  const conditions: WhereCondition[] = [
+    { type: 'dateRange', column: 'date_key', from: params.dateFrom, to: params.dateTo },
+    { type: 'boolean', column: 'is_prev_year', value: false },
+    { type: 'storeIds', storeIds: params.storeIds },
+  ]
+  return buildTypedWhere(conditions)
 }
 
 // ── クエリ関数 ──
@@ -110,12 +110,10 @@ export async function queryHourlyProfile(
   conn: AsyncDuckDBConnection,
   params: FeatureFilterParams,
 ): Promise<readonly HourlyProfileRow[]> {
-  const dateFrom = validateDateKey(params.dateFrom)
-  const dateTo = validateDateKey(params.dateTo)
-  const where = buildWhereClause([
-    `date_key BETWEEN '${dateFrom}' AND '${dateTo}'`,
-    'is_prev_year = FALSE',
-    storeIdFilter(params.storeIds),
+  const where = buildTypedWhere([
+    { type: 'dateRange', column: 'date_key', from: params.dateFrom, to: params.dateTo },
+    { type: 'boolean', column: 'is_prev_year', value: false },
+    { type: 'storeIds', storeIds: params.storeIds },
   ])
 
   const sql = `
@@ -180,12 +178,10 @@ export async function queryDeptDailyTrend(
 ): Promise<readonly DeptDailyTrendRow[]> {
   const deptFilter = params.deptCode ? `AND dept_code = '${validateCode(params.deptCode)}'` : ''
 
-  const dateFrom = validateDateKey(params.dateFrom)
-  const dateTo = validateDateKey(params.dateTo)
-  const where = buildWhereClause([
-    `date_key BETWEEN '${dateFrom}' AND '${dateTo}'`,
-    'is_prev_year = FALSE',
-    storeIdFilter(params.storeIds),
+  const where = buildTypedWhere([
+    { type: 'dateRange', column: 'date_key', from: params.dateFrom, to: params.dateTo },
+    { type: 'boolean', column: 'is_prev_year', value: false },
+    { type: 'storeIds', storeIds: params.storeIds },
   ])
 
   const sql = `
