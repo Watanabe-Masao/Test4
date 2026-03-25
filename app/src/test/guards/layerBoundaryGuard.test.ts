@@ -46,7 +46,11 @@ describe('Layer Boundary Guard', () => {
       }
     }
 
-    expect(violations).toEqual([])
+    expect(
+      violations,
+      `domain/ が外部層に依存しています（A2 違反）:\n${violations.join('\n')}\n` +
+        '→ domain/ は純粋関数のみ。外部層への import を削除してください。',
+    ).toEqual([])
   })
 
   it('application/ は infrastructure/ に直接依存しない（許可リスト除く）', () => {
@@ -70,7 +74,11 @@ describe('Layer Boundary Guard', () => {
       }
     }
 
-    expect(violations).toEqual([])
+    expect(
+      violations,
+      `application/ が infrastructure/ に直接依存しています（A1 違反）:\n${violations.join('\n')}\n` +
+        '→ allowlists/architecture.ts に正当理由を記載するか、adapter パターンに移行してください。',
+    ).toEqual([])
   })
 
   it('application/ は presentation/ に依存しない', () => {
@@ -87,7 +95,11 @@ describe('Layer Boundary Guard', () => {
       }
     }
 
-    expect(violations).toEqual([])
+    expect(
+      violations,
+      `application/ が presentation/ に依存しています（A1 違反）:\n${violations.join('\n')}\n` +
+        '→ application/ は presentation/ に依存できません。依存方向を逆転してください。',
+    ).toEqual([])
   })
 
   it('presentation/ は infrastructure/ に直接依存しない（許可リスト除く、import type は許容）', () => {
@@ -107,7 +119,11 @@ describe('Layer Boundary Guard', () => {
       }
     }
 
-    expect(violations).toEqual([])
+    expect(
+      violations,
+      `presentation/ が infrastructure/ に直接依存しています（A1/A3 違反）:\n${violations.join('\n')}\n` +
+        '→ application/ の hook 経由でデータを取得してください。useQueryWithHandler を推奨。',
+    ).toEqual([])
   })
 
   it('presentation/ は application/usecases/ を直接 import しない（禁止事項 #11、import type は許容）', () => {
@@ -162,7 +178,11 @@ describe('Layer Boundary Guard', () => {
       }
     }
 
-    expect(violations).toEqual([])
+    expect(
+      violations,
+      `infrastructure/ が application/ に依存しています（A1 違反）:\n${violations.join('\n')}\n` +
+        '→ infrastructure/ は domain/ のみに依存できます。依存を domain/ 経由に変更してください。',
+    ).toEqual([])
   })
 
   it('infrastructure/ は presentation/ に依存しない', () => {
@@ -179,7 +199,11 @@ describe('Layer Boundary Guard', () => {
       }
     }
 
-    expect(violations).toEqual([])
+    expect(
+      violations,
+      `infrastructure/ が presentation/ に依存しています（A1 違反）:\n${violations.join('\n')}\n` +
+        '→ infrastructure/ は presentation/ に依存できません。',
+    ).toEqual([])
   })
 
   // ─── 許可リスト増加防止 ─────────────────────────────
