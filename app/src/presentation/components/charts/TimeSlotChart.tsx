@@ -146,7 +146,15 @@ export const TimeSlotChart = memo(function TimeSlotChart({
   // 部門別積み上げ面グラフ option（chartMode === 'department' 時のみ — useMemo 上限のため通常変数）
   const deptAreaOption =
     chartMode === 'department' && (d.categoryHourlyData?.length ?? 0) > 0
-      ? buildDeptStackedAreaOption(d.categoryHourlyData ?? [], theme)
+      ? buildDeptStackedAreaOption({
+          data: d.categoryHourlyData ?? [],
+          theme,
+          lineMode,
+          chartData: d.chartData,
+          showPrev,
+          curWeatherMap,
+          prevWeatherMap,
+        })
       : null
   const effectiveChartOption = deptAreaOption ?? chartOption
 
