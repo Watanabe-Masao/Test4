@@ -25,7 +25,7 @@ import type {
   GrossProfitBudgetInput,
   GrossProfitBudgetResult,
 } from '@/domain/calculations/budgetAnalysis'
-import { getExecutionMode, getWasmState, getBudgetAnalysisWasmExports } from './wasmEngine'
+import { getExecutionMode, getWasmModuleState, getBudgetAnalysisWasmExports } from './wasmEngine'
 import type { WasmState, ExecutionMode } from './wasmEngine'
 import { calculateBudgetAnalysisWasm, calculateGrossProfitBudgetWasm } from './budgetAnalysisWasm'
 import { recordCall, recordMismatch } from './dualRunObserver'
@@ -86,7 +86,7 @@ function compareScalarResults(
       wasmResult: wasmFields,
       diffs,
       maxAbsDiff,
-      wasmState: getWasmState(),
+      wasmState: getWasmModuleState('budgetAnalysis'),
       executionMode: getExecutionMode(),
     }
     console.warn('[budgetAnalysis dual-run mismatch]', log)

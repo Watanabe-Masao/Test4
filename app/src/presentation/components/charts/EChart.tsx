@@ -148,6 +148,8 @@ interface EChartProps {
   readonly onClick?: (params: Record<string, unknown>) => void
   /** ブラシ選択完了イベント */
   readonly onBrushEnd?: (params: Record<string, unknown>) => void
+  /** ブラシモード中のクリック検出を有効にする（単一grid + category軸チャート専用） */
+  readonly enableBrushClickEmulation?: boolean
   /** aria-label */
   readonly ariaLabel?: string
 }
@@ -157,6 +159,7 @@ export const EChart = memo(function EChart({
   height = 300,
   onClick,
   onBrushEnd,
+  enableBrushClickEmulation,
   ariaLabel,
 }: EChartProps) {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -279,7 +282,7 @@ export const EChart = memo(function EChart({
   useEffect(() => {
     const container = containerRef.current
     const chart = chartRef.current
-    if (!container || !chart || !onClick || !onBrushEnd) return
+    if (!container || !chart || !onClick || !onBrushEnd || !enableBrushClickEmulation) return
 
     const handleMouseUp = (e: MouseEvent) => {
       const state = mouseStateRef.current
@@ -295,13 +298,19 @@ export const EChart = memo(function EChart({
         const rect = container.getBoundingClientRect()
         const x = e.clientX - rect.left
         const y = e.clientY - rect.top
-        const point = chart.convertFromPixel('grid', [x, y])
-        if (point) {
-          const idx = Math.round(point[0])
-          const opt = chart.getOption() as { xAxis?: { data?: string[] }[] }
-          const xData = Array.isArray(opt.xAxis) ? opt.xAxis[0]?.data : undefined
-          if (xData && idx >= 0 && idx < xData.length) {
-            onClick({ name: xData[idx], dataIndex: idx })
+        try {
+          const point = chart.convertFromPixel('grid', [x, y])
+          if (point) {
+            const idx = Math.round(point[0])
+            const opt = chart.getOption() as { xAxis?: { data?: string[] }[] }
+            const xData = Array.isArray(opt.xAxis) ? opt.xAxis[0]?.data : undefined
+            if (xData && idx >= 0 && idx < xData.length) {
+              onClick({ name: xData[idx], dataIndex: idx })
+            }
+          }
+        } catch (error) {
+          if (import.meta.env.DEV) {
+            console.warn('[EChart] brush click emulation skipped:', error)
           }
         }
       }
@@ -313,7 +322,7 @@ export const EChart = memo(function EChart({
       container.removeEventListener('mousedown', handleMouseDown)
       container.removeEventListener('mouseup', handleMouseUp)
     }
-  }, [onClick, onBrushEnd, handleMouseDown])
+  }, [onClick, onBrushEnd, handleMouseDown, enableBrushClickEmulation])
 
   // アンマウント時に破棄
   useEffect(() => {
