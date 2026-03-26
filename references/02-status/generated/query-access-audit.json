@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-03-25T20:52:32.185Z",
+  "timestamp": "2026-03-26T13:54:06.757Z",
   "summary": {
-    "queryHandlers": 24,
+    "queryHandlers": 25,
     "正規経路_queryWithHandler": 25,
     "正規経路_comparisonAccessor": 10,
     "正規経路_facadeHook": 0,
@@ -63,6 +63,7 @@
       "application/queries/summary/DailyCumulativeHandler.ts",
       "application/queries/summary/DailyQuantityHandler.ts",
       "application/queries/summary/StoreDaySummaryHandler.ts",
+      "application/queries/temporal/MovingAverageHandler.ts",
       "application/queries/weather/WeatherHourlyHandler.ts"
     ],
     "comparisonAccessor": [

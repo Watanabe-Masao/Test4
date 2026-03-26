@@ -1,12 +1,12 @@
 # Query Access Audit Report
 
-> Generated: 2026-03-25T20:52:32.185Z
+> Generated: 2026-03-26T13:54:06.757Z
 
 ## Route Summary
 
 | 経路種別 | 件数 | 状態 |
 |---|---|---|
-| QueryHandler 定義 | 24 | 基盤 |
+| QueryHandler 定義 | 25 | 基盤 |
 | useQueryWithHandler（正規） | 25 | 正規 |
 | comparisonAccessors（正規） | 10 | 正規 |
 | facade hook（正規） | 0 | 正規 |
@@ -69,6 +69,7 @@
 - application/queries/summary/DailyCumulativeHandler.ts
 - application/queries/summary/DailyQuantityHandler.ts
 - application/queries/summary/StoreDaySummaryHandler.ts
+- application/queries/temporal/MovingAverageHandler.ts
 - application/queries/weather/WeatherHourlyHandler.ts
 
 ### comparisonAccessor

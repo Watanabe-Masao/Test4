@@ -1,10 +1,10 @@
 {
-  "timestamp": "2026-03-25T17:40:51.241Z",
-  "totalAllowlistEntries": 50,
+  "timestamp": "2026-03-26T13:54:18.374Z",
+  "totalAllowlistEntries": 51,
   "categoryBreakdown": {
     "adapter": 11,
     "lifecycle": 2,
-    "structural": 37
+    "structural": 38
   },
   "frozenLists": [
     "presentationToInfrastructure",
@@ -93,6 +93,7 @@
     "application/hooks/useStoragePersistence.ts",
     "application/hooks/useStoreSelection.ts",
     "application/hooks/useStoredMonthsMonitor.ts",
+    "application/hooks/useTemporalAnalysis.ts",
     "application/hooks/useTimeSlotData.ts",
     "application/hooks/useUndoRedo.ts",
     "application/hooks/useWeather.ts",
@@ -136,8 +137,14 @@
     {
       "file": "presentation/components/charts/IntegratedSalesChart.tsx",
       "memoCount": 12,
-      "stateCount": 4,
-      "lineCount": 425
+      "stateCount": 6,
+      "lineCount": 461
+    },
+    {
+      "file": "presentation/components/charts/CategoryTrendChart.tsx",
+      "memoCount": 9,
+      "stateCount": 7,
+      "lineCount": 519
     },
     {
       "file": "presentation/pages/Dashboard/widgets/HourlyChart.tsx",
@@ -156,12 +163,6 @@
       "memoCount": 12,
       "stateCount": 2,
       "lineCount": 294
-    },
-    {
-      "file": "presentation/pages/Dashboard/widgets/useMonthlyCalendarState.ts",
-      "memoCount": 4,
-      "stateCount": 10,
-      "lineCount": 214
     }
   ],
   "nearLimitFiles": [
@@ -215,6 +216,13 @@
       "pct": 90
     },
     {
+      "file": "presentation/components/charts/DailySalesChartBody.tsx",
+      "metric": "useMemo",
+      "actual": 9,
+      "limit": 10,
+      "pct": 90
+    },
+    {
       "file": "application/hooks/duckdb/categoryBenchmarkLogic.ts",
       "metric": "lines",
       "actual": 401,
@@ -222,14 +230,14 @@
       "pct": 89
     },
     {
-      "file": "presentation/components/charts/DailySalesChartBody.tsx",
+      "file": "application/hooks/useTimeSlotData.ts",
       "metric": "useMemo",
-      "actual": 8,
-      "limit": 9,
-      "pct": 89
+      "actual": 7,
+      "limit": 8,
+      "pct": 88
     },
     {
-      "file": "application/hooks/useTimeSlotData.ts",
+      "file": "presentation/components/charts/IntegratedSalesChart.tsx",
       "metric": "useMemo",
       "actual": 7,
       "limit": 8,
@@ -302,9 +310,9 @@
       }
     },
     "presentationMemoLimits": {
-      "count": 8,
+      "count": 9,
       "categories": {
-        "structural": 8
+        "structural": 9
       }
     },
     "presentationStateLimits": {
