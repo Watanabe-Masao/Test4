@@ -44,6 +44,7 @@ import { DailySalesChart } from './DailySalesChart'
 import { TimeSlotChart } from './TimeSlotChart'
 import { DeptHourlyChart } from './DeptHourlyChart'
 import { SubAnalysisPanel } from './SubAnalysisPanel'
+import { CategoryHeatmapPanel } from './CategoryHeatmapPanel'
 import { ContainedAnalysisPanel, type ContextTag } from './ContainedAnalysisPanel'
 
 interface SelectedRange {
@@ -376,11 +377,29 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
               selectedStoreIds={drillContext.selectedStoreIds}
             />
           </ContainedAnalysisPanel>
+
+          {/* ── カテゴリ別売上推移（部門別時間帯パターンの下） ── */}
+          <ContainedAnalysisPanel
+            title="カテゴリ別売上推移"
+            subtitle="部門/ライン別の日次トレンド"
+            drillLabel="時間帯からドリルダウン"
+            role="grandchild"
+          >
+            <CategoryHeatmapPanel
+              ctx={{
+                queryExecutor: props.queryExecutor,
+                currentDateRange: drillContext.dateRange,
+                selectedStoreIds: drillContext.selectedStoreIds,
+                prevYearScope: drillContext.comparisonScope,
+              }}
+            />
+          </ContainedAnalysisPanel>
         </ContainedAnalysisPanel>
       )}
 
       {/* ── サブ分析パネル（連動グラフ — 親グラフの下に表示） ── */}
-      {dailyView === 'standard' && (
+      {/* quantity モードのカテゴリ別売上推移は drill 内に移動済み */}
+      {dailyView === 'standard' && rightAxisMode !== 'quantity' && (
         <SubAnalysisPanel
           mode={rightAxisMode}
           queryExecutor={props.queryExecutor}
