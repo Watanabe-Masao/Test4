@@ -14,3 +14,6 @@ export { adaptStoreDaySummaryRow } from './storeDaySummaryTemporalAdapter'
 export type { StoreDaySummaryRowForTemporal } from './storeDaySummaryTemporalAdapter'
 export { resolveAllMetrics, TEMPORAL_METRIC_RESOLVERS } from './temporalMetricResolvers'
 export type { TemporalMetricResolver, StoreDaySummaryTemporalRow } from './temporalMetricResolvers'
+
+// Phase 5 fix: dateKey 集約
+export { aggregateStoreDaySummaryByDateKey } from './aggregateStoreDaySummaryByDateKey'

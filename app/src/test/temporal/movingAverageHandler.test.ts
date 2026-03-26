@@ -159,4 +159,38 @@ describe('MovingAverageHandler contract', () => {
       expect(result.anchorSeries[i].dateKey > result.anchorSeries[i - 1].dateKey).toBe(true)
     }
   })
+
+  it('複数店舗の同日 rows が集約されて MA が全店合計ベースになる', async () => {
+    // 3店舗 × 3日 (anchorRange: 3/1..3/3, windowSize=1 で MA=当日値)
+    const rows = [
+      // Store A: 3/1=1000, 3/2=2000, 3/3=3000
+      { ...makeSummaryRow(2026, 3, 1, 1000), storeId: 'A' },
+      { ...makeSummaryRow(2026, 3, 2, 2000), storeId: 'A' },
+      { ...makeSummaryRow(2026, 3, 3, 3000), storeId: 'A' },
+      // Store B: 3/1=4000, 3/2=5000, 3/3=6000
+      { ...makeSummaryRow(2026, 3, 1, 4000), storeId: 'B' },
+      { ...makeSummaryRow(2026, 3, 2, 5000), storeId: 'B' },
+      { ...makeSummaryRow(2026, 3, 3, 6000), storeId: 'B' },
+    ]
+    mockQuery.mockResolvedValue(rows as never)
+
+    const result = await movingAverageHandler.execute(
+      FAKE_CONN,
+      makeInput({
+        anchorRange: {
+          from: { year: 2026, month: 3, day: 1 },
+          to: { year: 2026, month: 3, day: 3 },
+        },
+        storeIds: ['A', 'B'],
+        windowSize: 1, // MA=当日値なので集約値がそのまま出る
+      }),
+    )
+
+    // 3/1: A(1000) + B(4000) = 5000
+    expect(result.anchorSeries[0].value).toBe(5000)
+    // 3/2: A(2000) + B(5000) = 7000
+    expect(result.anchorSeries[1].value).toBe(7000)
+    // 3/3: A(3000) + B(6000) = 9000
+    expect(result.anchorSeries[2].value).toBe(9000)
+  })
 })
