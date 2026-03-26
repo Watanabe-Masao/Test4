@@ -31,6 +31,8 @@ export interface ConditionCardData {
   readonly clickable: boolean
   /** 直近1週間トレンド */
   readonly trend?: { readonly direction: 'up' | 'down' | 'flat'; readonly ratio: string }
+  /** 未設定データがある場合のツールチップ案内 */
+  readonly hint?: string
 }
 
 interface ConditionCardShellProps {
@@ -79,6 +81,7 @@ export const ConditionCardShell = memo(function ConditionCardShell({
       $borderColor={card.signalColor}
       $clickable={card.clickable}
       onClick={card.clickable ? onClick : undefined}
+      title={card.hint}
     >
       <CondSignal $color={card.signalColor} />
       <CondCardContent>

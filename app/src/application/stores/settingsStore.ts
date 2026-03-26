@@ -50,7 +50,13 @@ export const useSettingsStore = create<SettingsStore>()(
       }),
       {
         name: 'shiire-arari-settings',
-        partialize: (state) => ({ settings: state.settings }),
+        partialize: (state) => {
+          // targetYear/targetMonth は persist しない（起動時は常に当月）
+          const persisted = { ...state.settings }
+          delete (persisted as Record<string, unknown>).targetYear
+          delete (persisted as Record<string, unknown>).targetMonth
+          return { settings: persisted }
+        },
         merge: (persisted, current) => {
           const stored = persisted as { settings?: Partial<AppSettings> }
           const raw = { ...current.settings, ...(stored?.settings ?? {}) }

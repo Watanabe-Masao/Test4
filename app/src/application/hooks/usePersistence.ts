@@ -1,15 +1,7 @@
 /**
- * データ永続化フック
- *
- * DataRepository 経由での保存・読み込み・差分チェックを提供する。
- *
- * state/command 分離:
- * - usePersistenceState(): readonly 状態のみ（AppLifecycle 用）
- * - usePersistenceActions(): command のみ
- * - usePersistence(): 上記2つを束ねる既存互換 façade
- *
- * 内部正本: persistenceStateRef + React state の組で一箇所に集約。
- * usePersistenceState / usePersistence どちらから読んでも同じ source を参照する。
+ * データ永続化フック — state/command 分離。
+ * usePersistenceState(): readonly / usePersistence(): 既存互換 façade。
+ * 内部正本は persistenceStateRef で一箇所に集約。
  */
 import { useCallback, useEffect, useState } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'
@@ -161,15 +153,28 @@ export function usePersistenceState(): PersistenceStatusInfo {
           }
           return
         }
-        const restoredData = await repo.loadMonthlyData(meta.year, meta.month)
+        // 当月データを優先ロード。なければ lastSession のデータをロード。
+        // 表示年月は常に当月（settingsStore の初期値）を維持する。
+        const { targetYear, targetMonth } = useSettingsStore.getState().settings
+        const currentMonthData = await repo.loadMonthlyData(targetYear, targetMonth)
         if (cancelled) return
-        if (restoredData) {
-          useDataStore.getState().setImportedData(restoredData)
-          useSettingsStore.getState().updateSettings({
-            targetYear: meta.year,
-            targetMonth: meta.month,
-          })
+
+        if (currentMonthData) {
+          // 当月データがある → それを表示
+          useDataStore.getState().setImportedData(currentMonthData)
           invalidateAfterStateChange()
+        } else if (meta.year !== targetYear || meta.month !== targetMonth) {
+          // 当月データなし → lastSession のデータをロードするが年月は当月を維持
+          const restoredData = await repo.loadMonthlyData(meta.year, meta.month)
+          if (cancelled) return
+          if (restoredData) {
+            useDataStore.getState().setImportedData(restoredData)
+            useSettingsStore.getState().updateSettings({
+              targetYear: meta.year,
+              targetMonth: meta.month,
+            })
+            invalidateAfterStateChange()
+          }
         }
         setRestoreState({ isRestoring: false, autoRestored: true })
       })

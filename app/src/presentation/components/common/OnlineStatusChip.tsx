@@ -1,24 +1,34 @@
 /**
- * OnlineStatusChip — オンライン/オフライン状態表示チップ
+ * DataStatusChip — データ取込状態表示チップ
  *
- * navigator.onLine の状態をリアルタイムで表示する。
+ * アプリのデータ状態（未取込 / 取込済み / 計算済み）を表示する。
  * 長押し（500ms）でコールバックを発火し、データ再取得などに利用。
+ *
+ * 旧 OnlineStatusChip を置き換え。navigator.onLine は常に true のため廃止。
  */
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useCallback, useRef, useEffect } from 'react'
 import styled from 'styled-components'
 
-const Chip = styled.button<{ $online: boolean }>`
+type DataStatus = 'no-data' | 'imported' | 'calculated'
+
+const STATUS_CONFIG: Record<
+  DataStatus,
+  { label: string; colorKey: 'warning' | 'info' | 'positive' }
+> = {
+  'no-data': { label: '未取込', colorKey: 'warning' },
+  imported: { label: '取込済', colorKey: 'info' },
+  calculated: { label: '計算済', colorKey: 'positive' },
+}
+
+const Chip = styled.button<{ $colorKey: 'warning' | 'info' | 'positive' }>`
   display: inline-flex;
   align-items: center;
   gap: 4px;
   padding: 2px 8px;
-  border: 1px solid
-    ${({ theme, $online }) =>
-      $online ? theme.colors.palette.positive : theme.colors.palette.negative};
+  border: 1px solid ${({ theme, $colorKey }) => theme.colors.palette[$colorKey]};
   border-radius: 12px;
   background: ${({ theme }) => theme.colors.bg2};
-  color: ${({ theme, $online }) =>
-    $online ? theme.colors.palette.positive : theme.colors.palette.negative};
+  color: ${({ theme, $colorKey }) => theme.colors.palette[$colorKey]};
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   cursor: pointer;
   user-select: none;
@@ -33,35 +43,32 @@ const Chip = styled.button<{ $online: boolean }>`
   }
 `
 
-const Dot = styled.span<{ $online: boolean }>`
+const Dot = styled.span<{ $colorKey: 'warning' | 'info' | 'positive' }>`
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: ${({ $online, theme }) =>
-    $online ? theme.colors.palette.positive : theme.colors.palette.negative};
+  background: ${({ theme, $colorKey }) => theme.colors.palette[$colorKey]};
 `
 
 interface OnlineStatusChipProps {
   /** 長押し時のコールバック（データ再取得など） */
   readonly onLongPress?: () => void
+  /** データが存在するか */
+  readonly hasData?: boolean
+  /** 計算済みか */
+  readonly isCalculated?: boolean
 }
 
-export function OnlineStatusChip({ onLongPress }: OnlineStatusChipProps) {
-  const [isOnline, setIsOnline] = useState(
-    typeof navigator !== 'undefined' ? navigator.onLine : true,
-  )
+/** 旧名エイリアス（後方互換） */
+export function OnlineStatusChip({ onLongPress, hasData, isCalculated }: OnlineStatusChipProps) {
+  return <DataStatusChip onLongPress={onLongPress} hasData={hasData} isCalculated={isCalculated} />
+}
+
+export function DataStatusChip({ onLongPress, hasData, isCalculated }: OnlineStatusChipProps) {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  useEffect(() => {
-    const handleOnline = () => setIsOnline(true)
-    const handleOffline = () => setIsOnline(false)
-    window.addEventListener('online', handleOnline)
-    window.addEventListener('offline', handleOffline)
-    return () => {
-      window.removeEventListener('online', handleOnline)
-      window.removeEventListener('offline', handleOffline)
-    }
-  }, [])
+  const status: DataStatus = isCalculated ? 'calculated' : hasData ? 'imported' : 'no-data'
+  const config = STATUS_CONFIG[status]
 
   const handlePointerDown = useCallback(() => {
     if (!onLongPress) return
@@ -86,14 +93,14 @@ export function OnlineStatusChip({ onLongPress }: OnlineStatusChipProps) {
 
   return (
     <Chip
-      $online={isOnline}
+      $colorKey={config.colorKey}
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
       onPointerLeave={handlePointerUp}
       title={onLongPress ? '長押しでデータ再取得' : undefined}
     >
-      <Dot $online={isOnline} />
-      {isOnline ? 'オンライン' : 'オフライン'}
+      <Dot $colorKey={config.colorKey} />
+      {config.label}
     </Chip>
   )
 }

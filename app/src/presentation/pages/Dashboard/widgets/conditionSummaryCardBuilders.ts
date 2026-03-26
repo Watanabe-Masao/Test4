@@ -35,6 +35,8 @@ export interface CardSummary {
   readonly value: string
   readonly sub: string
   readonly signalColor: string
+  /** 未設定データがある場合のツールチップ案内 */
+  readonly hint?: string
 }
 
 /** カード表面に表示する全店合計のサマリーを構築する */
@@ -61,16 +63,30 @@ export function buildCardSummaries(
 
   // 粗利額予算
   const gpM = extractMetric(result, 'gp', 'elapsed', elapsedDays, daysInMonth)
-  const gpAch = computeAchievement(gpM.actual, gpM.budget, false)
-  cards.push({
-    key: 'gp',
-    label: '粗利額予算',
-    icon: 'GP',
-    color: '#8b5cf6',
-    value: fmtAchievement(gpAch, false),
-    sub: `予算 ${fmtCurrency(gpM.budget)} / 実績 ${fmtCurrency(gpM.actual)}`,
-    signalColor: achievementColor(gpAch),
-  })
+  const gpBudgetSet = result.grossProfitBudget > 0
+  if (gpBudgetSet) {
+    const gpAch = computeAchievement(gpM.actual, gpM.budget, false)
+    cards.push({
+      key: 'gp',
+      label: '粗利額予算',
+      icon: 'GP',
+      color: '#8b5cf6',
+      value: fmtAchievement(gpAch, false),
+      sub: `予算 ${fmtCurrency(gpM.budget)} / 実績 ${fmtCurrency(gpM.actual)}`,
+      signalColor: achievementColor(gpAch),
+    })
+  } else {
+    cards.push({
+      key: 'gp',
+      label: '粗利額予算',
+      icon: 'GP',
+      color: '#9ca3af',
+      value: '未設定',
+      sub: `実績 ${fmtCurrency(gpM.actual)}`,
+      signalColor: '#9ca3af',
+      hint: '在庫設定ファイルで粗利額予算を入力してください',
+    })
+  }
 
   // 粗利率
   const gpRateM = extractMetric(result, 'gpRate', 'elapsed', elapsedDays, daysInMonth)
@@ -81,8 +97,11 @@ export function buildCardSummaries(
     icon: '%',
     color: '#06b6d4',
     value: formatPercent100(gpRateM.actual),
-    sub: `予算 ${formatPercent100(gpRateM.budget)} / ${gpRateDiff >= 0 ? '+' : ''}${gpRateDiff.toFixed(2)}pp`,
-    signalColor: rateDiffColor(gpRateDiff),
+    sub: gpBudgetSet
+      ? `予算 ${formatPercent100(gpRateM.budget)} / ${gpRateDiff >= 0 ? '+' : ''}${gpRateDiff.toFixed(2)}pp`
+      : `予算未設定 / 実績 ${formatPercent100(gpRateM.actual)}`,
+    signalColor: gpBudgetSet ? rateDiffColor(gpRateDiff) : '#9ca3af',
+    hint: gpBudgetSet ? undefined : '粗利額予算が未設定のため予算対比を算出できません',
   })
 
   // 値入率
@@ -512,6 +531,8 @@ export interface UnifiedCardData {
   readonly clickable: boolean
   /** 直近1週間トレンド（前半 vs 後半）。対象メトリクスのみ */
   readonly trend?: { readonly direction: TrendDirection; readonly ratio: string }
+  /** 未設定データがある場合のツールチップ案内 */
+  readonly hint?: string
 }
 
 /** budget + yoY カードを統一配列に変換し、CONDITION_CARD_ORDER 順でソートする */
@@ -533,6 +554,7 @@ export function buildUnifiedCards(
       signalColor: c.signalColor,
       clickable: true,
       trend: trends?.get(c.key),
+      hint: c.hint,
     })
   }
 

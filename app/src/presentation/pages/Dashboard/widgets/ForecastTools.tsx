@@ -368,7 +368,9 @@ export const ForecastToolsWidget = memo(function ForecastToolsWidget({
             <ExecDividerLine />
             <ExecRow>
               <ToolResultLabel style={{ fontWeight: 700 }}>月間粗利額予算</ToolResultLabel>
-              <ToolResultValue>{fmtCurrency(tool2.gpBudget)}</ToolResultValue>
+              <ToolResultValue>
+                {tool2.gpBudget > 0 ? fmtCurrency(tool2.gpBudget) : '未設定'}
+              </ToolResultValue>
             </ExecRow>
             <ExecRow>
               <ToolResultLabel>予測月間粗利額</ToolResultLabel>
