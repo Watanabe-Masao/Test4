@@ -1,5 +1,5 @@
 import type { WidgetDef } from './types'
-import { MonthlyCalendarWidget } from './MonthlyCalendar'
+import { MonthlyCalendarFCWidget } from './MonthlyCalendarFC'
 import { ForecastToolsWidget } from './ForecastTools'
 import { AlertPanelWidget } from './AlertPanel'
 import {
@@ -28,7 +28,7 @@ export const WIDGETS_EXEC: readonly WidgetDef[] = [
     label: '月間カレンダー',
     group: '収益概況',
     size: 'full',
-    render: (ctx) => <MonthlyCalendarWidget key={ctx.storeKey} ctx={ctx} />,
+    render: (ctx) => <MonthlyCalendarFCWidget key={ctx.storeKey} ctx={ctx} />,
   },
   // ── パターン分析 ──
   {
