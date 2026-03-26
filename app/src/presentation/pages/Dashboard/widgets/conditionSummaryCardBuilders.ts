@@ -61,16 +61,29 @@ export function buildCardSummaries(
 
   // 粗利額予算
   const gpM = extractMetric(result, 'gp', 'elapsed', elapsedDays, daysInMonth)
-  const gpAch = computeAchievement(gpM.actual, gpM.budget, false)
-  cards.push({
-    key: 'gp',
-    label: '粗利額予算',
-    icon: 'GP',
-    color: '#8b5cf6',
-    value: fmtAchievement(gpAch, false),
-    sub: `予算 ${fmtCurrency(gpM.budget)} / 実績 ${fmtCurrency(gpM.actual)}`,
-    signalColor: achievementColor(gpAch),
-  })
+  const gpBudgetSet = result.grossProfitBudget > 0
+  if (gpBudgetSet) {
+    const gpAch = computeAchievement(gpM.actual, gpM.budget, false)
+    cards.push({
+      key: 'gp',
+      label: '粗利額予算',
+      icon: 'GP',
+      color: '#8b5cf6',
+      value: fmtAchievement(gpAch, false),
+      sub: `予算 ${fmtCurrency(gpM.budget)} / 実績 ${fmtCurrency(gpM.actual)}`,
+      signalColor: achievementColor(gpAch),
+    })
+  } else {
+    cards.push({
+      key: 'gp',
+      label: '粗利額予算',
+      icon: 'GP',
+      color: '#9ca3af',
+      value: '未設定',
+      sub: `実績 ${fmtCurrency(gpM.actual)}`,
+      signalColor: '#9ca3af',
+    })
+  }
 
   // 粗利率
   const gpRateM = extractMetric(result, 'gpRate', 'elapsed', elapsedDays, daysInMonth)
@@ -81,8 +94,10 @@ export function buildCardSummaries(
     icon: '%',
     color: '#06b6d4',
     value: formatPercent100(gpRateM.actual),
-    sub: `予算 ${formatPercent100(gpRateM.budget)} / ${gpRateDiff >= 0 ? '+' : ''}${gpRateDiff.toFixed(2)}pp`,
-    signalColor: rateDiffColor(gpRateDiff),
+    sub: gpBudgetSet
+      ? `予算 ${formatPercent100(gpRateM.budget)} / ${gpRateDiff >= 0 ? '+' : ''}${gpRateDiff.toFixed(2)}pp`
+      : `予算未設定 / 実績 ${formatPercent100(gpRateM.actual)}`,
+    signalColor: gpBudgetSet ? rateDiffColor(gpRateDiff) : '#9ca3af',
   })
 
   // 値入率

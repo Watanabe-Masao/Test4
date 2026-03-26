@@ -311,7 +311,11 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
           tabIndex={0}
         >
           <BudgetHeaderLabel>月間粗利額予算</BudgetHeaderLabel>
-          <BudgetHeaderValue>{ctx.fmtCurrency(budgetHeader.grossProfitBudget)}</BudgetHeaderValue>
+          <BudgetHeaderValue>
+            {budgetHeader.grossProfitBudget > 0
+              ? ctx.fmtCurrency(budgetHeader.grossProfitBudget)
+              : '未設定'}
+          </BudgetHeaderValue>
         </BudgetHeaderItem>
         <BudgetHeaderItem
           onClick={() => setActiveMetric('gpRate')}
@@ -320,7 +324,11 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
           tabIndex={0}
         >
           <BudgetHeaderLabel>月間粗利率予算</BudgetHeaderLabel>
-          <BudgetHeaderValue>{formatPercent(budgetHeader.grossProfitRateBudget)}</BudgetHeaderValue>
+          <BudgetHeaderValue>
+            {budgetHeader.grossProfitBudget > 0
+              ? formatPercent(budgetHeader.grossProfitRateBudget)
+              : '未設定'}
+          </BudgetHeaderValue>
         </BudgetHeaderItem>
         {budgetHeader.prevYearMonthlySales != null && (
           <BudgetHeaderItem

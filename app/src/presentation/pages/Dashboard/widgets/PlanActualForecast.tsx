@@ -71,13 +71,19 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
           <ExecMetric label="月間売上予算" value={fmtCurrency(r.budget)} formula="予算データより" />
           <ExecMetric
             label="月間粗利額予算"
-            value={fmtCurrency(r.grossProfitBudget)}
-            formula={`売上予算 × 粗利率予算 = ${fmtCurrency(r.budget)} × ${formatPercent(r.grossProfitRateBudget)}`}
+            value={r.grossProfitBudget > 0 ? fmtCurrency(r.grossProfitBudget) : '未設定'}
+            formula={
+              r.grossProfitBudget > 0
+                ? `売上予算 × 粗利率予算 = ${fmtCurrency(r.budget)} × ${formatPercent(r.grossProfitRateBudget)}`
+                : '在庫設定で粗利額予算を入力してください'
+            }
           />
           <ExecMetric
             label="月間粗利率予算"
-            value={formatPercent(r.grossProfitRateBudget)}
-            formula="粗利額予算 ÷ 売上予算"
+            value={r.grossProfitBudget > 0 ? formatPercent(r.grossProfitRateBudget) : '未設定'}
+            formula={
+              r.grossProfitBudget > 0 ? '粗利額予算 ÷ 売上予算' : '粗利額予算の設定が必要です'
+            }
           />
           <ExecDividerLine />
           <ExecMetric
