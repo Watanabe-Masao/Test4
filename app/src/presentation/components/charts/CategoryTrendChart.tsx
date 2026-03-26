@@ -25,7 +25,7 @@ import {
   type CategoryInfo,
   type TrendMetric,
 } from './CategoryTrendChartLogic'
-import { useCurrencyFormatter } from './chartTheme'
+import { useCurrencyFormatter, toPct } from './chartTheme'
 import { DowPresetSelector } from './DowPresetSelector'
 import { useI18n } from '@/application/hooks/useI18n'
 import { SegmentedControl } from '@/presentation/components/common/layout'
@@ -198,7 +198,7 @@ function buildOption(
               const ratio = curVal / prevVal
               const diffSign = diff >= 0 ? '+' : ''
               const diffColor = diff >= 0 ? '#10b981' : '#ef4444'
-              const ratioStr = (ratio * 100).toFixed(1) + '%'
+              const ratioStr = toPct(ratio, 1)
               const yoyCell =
                 `<span style="font-family:monospace;text-align:right;line-height:1.2;margin-left:8px">` +
                 `<span style="color:${diffColor};font-size:10px">${diffSign}${fmtValue(diff)}</span><br/>` +
