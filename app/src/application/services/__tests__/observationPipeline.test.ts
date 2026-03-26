@@ -107,7 +107,7 @@ describe('観測パイプライン統合テスト', () => {
   beforeEach(() => {
     dualRunStatsHandler('reset')
     setExecutionMode('dual-run-compare')
-    vi.spyOn(wasmEngine, 'getWasmState').mockReturnValue('ready')
+    vi.spyOn(wasmEngine, 'getWasmModuleState').mockReturnValue('ready')
     vi.spyOn(console, 'warn')
 
     // WASM mock を TS と同じ結果を返すように設定（clean 検証用）

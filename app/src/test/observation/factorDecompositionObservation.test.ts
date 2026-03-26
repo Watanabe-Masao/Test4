@@ -79,7 +79,7 @@ describe('factorDecomposition 自動観測ハーネス', () => {
   beforeEach(() => {
     resetObserver()
     setExecutionMode('dual-run-compare')
-    vi.spyOn(wasmEngine, 'getWasmState').mockReturnValue('ready')
+    vi.spyOn(wasmEngine, 'getWasmModuleState').mockReturnValue('ready')
     vi.spyOn(wasmEngine, 'getWasmExports').mockReturnValue(
       {} as ReturnType<typeof wasmEngine.getWasmExports>,
     )
