@@ -56,7 +56,26 @@ cd app && npm run test:e2e  # ローカルでは npx playwright install --with-d
 -（なし / 違反箇所リスト）
 ```
 
-## SKILL-2: 許可リスト変更のレビュー
+## SKILL-2: 即差し戻し条件
+
+以下のどれかに当たったら、そのまま入れない（対応する設計原則を括弧内に示す）:
+
+- 1関数で load + merge + setStore + cache操作 + UI更新 をしている（A6）
+- 「テスト用 export」（@internal）がある（G4）
+- facade に責務追加がある（C6）
+- 同義 action が増える（C7）
+- store action に業務計算が増える（C3）
+- pure function が複数仕様軸を抱えている（C2）
+- キャッシュ処理の方が本体より複雑（G7）
+- 新要件への対応が「if追加」中心（C1）
+- hook の useMemo が 7 個以上ある（G5）
+- hook の useState が 6 個以上ある（G5）
+- hook ファイルが 300行を超えている（G5 — allowlist 登録済みファイルはその上限）
+- Presentation コンポーネント .tsx が 600行を超えている（G6）
+- 後方互換バレル（re-export のみのファイル）を新規追加している（C7）
+- presentation/ から DuckDB hook を直接 import している（useQueryWithHandler 経由を使用）
+
+## SKILL-3: 許可リスト変更のレビュー
 
 ### 論理構造（なぜこの手順か）
 

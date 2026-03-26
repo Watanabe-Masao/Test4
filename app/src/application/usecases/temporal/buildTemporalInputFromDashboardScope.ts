@@ -4,7 +4,11 @@
  * Dashboard の header / widget 文脈から MovingAverageInput を組み立てる。
  * header state を読む唯一の層。チャート本体は header の比較文脈を直接知らない。
  *
+ * 当期系列 overlay 専用。comparison（前年比・同曜日比較）は対象外。
+ * currentDateRange と selectedStoreIds のみ参照し、比較文脈は一切読まない。
+ *
  * Phase 5: 最初の consumer は「日別売上・売変推移」チャートの売上7日移動平均 overlay。
+ * 将来は Free analysis selector が正規の生成元となり、本 resolver は暫定統合。
  */
 import type { DateRange } from '@/domain/models/CalendarDate'
 import type { AnalysisMetric } from '@/domain/models/temporal'

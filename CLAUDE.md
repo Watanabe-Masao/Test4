@@ -28,7 +28,7 @@
 | ロール | 位置づけ | 品質責任 |
 |---|---|---|
 | pm-business | **指示者** 兼 要件の入口。タスク分解→作業者決定→完了判定 | 要件の正確さ・受入基準の測定可能性 |
-| review-gate | 品質の出口。成果物を受けて PASS/FAIL を自律判定 | 設計原則・ガードテスト・CI 6段階ゲート |
+| review-gate | 品質の出口。成果物を受けて PASS/FAIL を自律判定 | 設計原則・ガードテスト・CI 3ジョブ7ステップ |
 | documentation-steward | 記録の出口。pm-business の報告を受けて更新要否を自律判断 | CLAUDE.md・roles/・references/ とコードの整合性 |
 
 **実務部門（line/）** — 設計→実装→専門検証
@@ -186,14 +186,32 @@ ROLE.md と SKILL.md は以下の5層で思想を構造化する:
 ```
 app/src/
 ├── domain/           # ドメイン層（フレームワーク非依存、純粋関数）
-├── application/      # アプリケーション層（hooks, stores, usecases, workers）
+├── application/      # アプリケーション層（hooks, stores, usecases, queries, workers）
 ├── infrastructure/   # インフラ層（DuckDB, storage, export, i18n, pwa）
 ├── presentation/     # プレゼンテーション層（components, pages, theme）
+├── features/         # 縦スライス（sales/, category/, shared/ — 段階的移行中）
 ├── stories/          # Storybook
 └── test/             # ガードテスト・共有インフラ
-    ├── guardTestHelpers.ts  # 共有ヘルパー（collectTsFiles, rel 等）
-    ├── allowlists.ts        # 全許可リスト一元管理（メタデータ付き）
-    └── observation/         # 観測テスト
+    ├── guardTestHelpers.ts   # 共有ヘルパー（collectTsFiles, rel 等）
+    ├── guardTagRegistry.ts   # ガードタグのメタデータ管理
+    ├── allowlists/           # 許可リスト（カテゴリ別分割）
+    │   ├── architecture.ts   #   層境界ルール
+    │   ├── complexity.ts     #   行数・useMemo 制限
+    │   ├── duckdb.ts         #   DuckDB hook
+    │   ├── size.ts           #   ファイルサイズ
+    │   ├── migration.ts      #   比較移行
+    │   └── misc.ts           #   その他
+    ├── guards/               # 構造制約ガード
+    │   ├── layerBoundaryGuard.test.ts
+    │   ├── presentationIsolationGuard.test.ts
+    │   ├── structuralConventionGuard.test.ts
+    │   ├── codePatternGuard.test.ts
+    │   ├── sizeGuard.test.ts
+    │   ├── purityGuard.test.ts
+    │   └── temporalRollingGuard.test.ts
+    ├── audits/               # アーキテクチャ監査
+    ├── temporal/             # temporal path テスト
+    └── observation/          # 観測テスト（WASM 二重実行）
 ```
 
 ### レイヤー間の依存ルール
@@ -210,16 +228,22 @@ app/src/
 ## コマンド
 
 ```bash
-cd app && npm run lint          # ESLint（エラー0で通ること）
-cd app && npm run build         # tsc -b（型チェック）+ vite build
-cd app && npm test              # vitest run（全テスト）
-cd app && npx vitest run <path> # 特定テスト実行
-cd app && npm run test:guards   # ガードテスト（構造制約、~9秒）
+cd app && npm run lint            # ESLint（エラー0で通ること）
+cd app && npm run build           # tsc -b（型チェック）+ vite build
+cd app && npm test                # vitest run（全テスト）
+cd app && npx vitest run <path>   # 特定テスト実行
+cd app && npm run test:guards     # ガードテスト（構造制約、~9秒）
 cd app && npm run test:observation # 観測テスト（WASM二重実行）
-cd app && npm run format:check  # Prettier フォーマットチェック
-cd app && npm run test:e2e      # Playwright E2Eテスト
-cd app && npm run test:coverage # vitest + カバレッジレポート
-cd app && npm run dev           # Vite 開発サーバー
+cd app && npm run format:check    # Prettier フォーマットチェック
+cd app && npm run format          # Prettier 自動修正
+cd app && npm run test:e2e        # Playwright E2Eテスト
+cd app && npm run test:e2e:ui     # Playwright UI モード
+cd app && npm run test:coverage   # vitest + カバレッジレポート
+cd app && npm run test:visual     # ビジュアルリグレッション
+cd app && npm run build:wasm      # WASM モジュールビルド
+cd app && npm run storybook       # Storybook 開発サーバー
+cd app && npm run build-storybook # Storybook ビルド
+cd app && npm run dev             # Vite 開発サーバー
 ```
 
 ### CI パイプライン（3ジョブ構成）
@@ -239,107 +263,29 @@ cd app && npm run dev           # Vite 開発サーバー
 
 ## コーディング規約
 
-### 命名規則
+詳細は `references/03-guides/coding-conventions.md` を参照。
 
-| 対象 | 規則 | 例 |
-|---|---|---|
-| 型・インターフェース | PascalCase | `StoreResult`, `DailyRecord` |
-| 変数・関数 | camelCase | `totalSales`, `calculateGrossProfit` |
-| 定数 | UPPER_SNAKE_CASE | `COST_RATE_MIN`, `ALL_STORES_ID` |
-| コンポーネント | PascalCase | `DashboardPage`, `KpiCard` |
-| テストファイル | `*.test.ts(x)` | `factorDecomposition.test.ts` |
-| Boolean | is/has/should/needs 接頭辞 | `isCalculated`, `hasPrevYear` |
-
-### TypeScript
-
-- **strict mode 有効**（tsconfig.app.json）
-- `noUnusedLocals: true` / `noUnusedParameters: true` — ビルドで強制
-- パスエイリアス: `@/` → `src/`（import は `@/domain/...` の形式）
-- `readonly` を積極的に使用（イミュータブル設計）
-- `@typescript-eslint/no-explicit-any: 'error'` — `any` 型は lint エラー
-
-### 数値表示ルール
-
-- **パーセント表示は小数第2位まで**（`formatPercent(value)` — デフォルト `decimals=2`）
-- `formatPercent(value, 1)` のように小数点以下を減らしてはならない
-- 金額は `formatCurrency()` で整数表示（四捨五入 → カンマ区切り）
-- ポイント差は `formatPointDiff()` で `±N.Npt` 表示
-
-### スタイリング
-
-- styled-components 6（テーマトークン経由、ダーク/ライト対応）
-- Prettier: `semi: false` / `singleQuote: true` / `printWidth: 100` / `endOfLine: "lf"`
+- **strict mode** / `noUnusedLocals` / `noUnusedParameters` — ビルドで強制
+- パスエイリアス: `@/` → `src/`
+- `any` 禁止（lint エラー）、`readonly` 推奨
+- パーセント小数第2位（`formatPercent`）、金額整数（`formatCurrency`）
+- Prettier: `semi: false` / `singleQuote: true` / `printWidth: 100`
 
 ## 設計原則 — 7カテゴリ
 
-管理責任: architecture ロール。
-適用例と詳細は `references/01-principles/design-principles.md` を参照。
-旧体系（19原則・13禁止・12ルール・7層内原則）との対応は `references/01-principles/principle-migration-map.md` を参照。
+詳細・適用例は `references/01-principles/design-principles.md` を参照。管理責任: architecture。
 
-### A. 層境界（Layer Boundary）
+| カテゴリ | 要点 |
+|---------|------|
+| **A. 層境界** | 4層依存ルール（A1）、Domain 純粋（A2）、Presentation 描画専用（A3）、契約は Domain 定義（A4）、DI は App.tsx のみ（A5）、load 3段階分離（A6） |
+| **B. 実行エンジン境界** | Authoritative 計算は domain/calculations のみ（B1）、JS/SQL 二重実装禁止（B2）、率は domain で算出（B3） |
+| **C. 純粋性と責務分離** | 1ファイル=1変更理由（C1）、pure 1仕様軸（C2）、store は state のみ（C3）、描画純粋（C4）、最小セレクタ（C5）、facade は orchestration のみ（C6）、同義API併存禁止（C7） |
+| **D. 数学的不変条件** | 要因分解合計=売上差（D1）、引数無視再計算禁止（D2）、不変条件はテストで守る（D3） |
+| **E. 型安全と欠損処理** | 境界で検証（E1）、依存配列省略禁止（E2）、sourceDate 保持（E3）、欠損は `== null`（E4） |
+| **F. コード構造規約** | バレル後方互換（F1）、文字列カタログ（F2）、全パターン同一（F3）、パス配置（F4）、Contract 管理（F5）、文脈継承（F6）、View に raw 禁止（F7）、正本保護（F8）、Raw=唯一真実源（F9） |
+| **G. 機械的防御** | テストに書く（G1）、エラー伝播（G2）、警告黙殺禁止（G3）、テスト用export禁止（G4）、サイズ上限（G5/G6）、キャッシュ≤本体（G7） |
 
-- **A1: 4層依存ルール** — `Presentation → Application → Domain ← Infrastructure`。infrastructure/ と presentation/ は直接依存しない
-- **A2: Domain は純粋** — domain/ に外部依存・副作用を持ち込まない。純粋関数のテスト不能になる
-- **A3: Presentation は描画専用** — UI にデータ変換・副作用・状態管理を混在させない。外部API・ETRN・fetch の直接呼び出し禁止。hook 経由で結果を受け取るだけにする
-- **A4: 取得対象の契約は Domain で定義** — application/ や presentation/ で取得対象データの契約を定義しない。application/ は取得・調停、infrastructure/ は実装、presentation/ は描画に専念する
-- **A5: DI はコンポジションルート** — 具体実装を知るのは App.tsx のみ
-- **A6: load 処理は3段階分離** — 読込処理は「計画」「取得/補完」「反映」に分離する。データ取得関数の中で store 更新・cache clear・UI invalidation を同時に行わない
-
-### B. 実行エンジン境界（Engine Boundary）
-
-- **B1: Authoritative 計算は domain/calculations のみ** — pure かつ authoritative な処理を TypeScript の制御層（hooks, stores, usecases）に新規実装しない
-- **B2: JS/SQL 二重実装禁止** — 同じ集約ロジックを JS と SQL の両方に実装してはならない
-- **B3: 率は domain/calculations で算出** — 率（rate）をパイプラインで持ち回す・SQL/VM で直接計算しない。加重平均が崩壊し、全店合計・経過日集約が不正確になる
-
-### C. 純粋性と責務分離（Purity & Separation）
-
-- **C1: 1ファイル = 1変更理由** — 変更頻度が異なるものは分離する。300行超は分割検討。型粒度も変更頻度に合わせる
-- **C2: pure function は1仕様軸に閉じる** — 集計+補完+マッピング+上限制御の同居禁止。compose して使う
-- **C3: store は state 反映のみ** — 業務計算・派生値導出・不変条件判定は store の外に出す。store action に算術式を埋め込まない
-- **C4: 描画は純粋** — memo + hook で描画と計算を分離
-- **C5: 最小セレクタ** — store はスライスで購読。広すぎる購読は禁止
-- **C6: facade は orchestration のみ** — facade に判断・分岐・派生計算を増やさない（分岐 ≤5）
-- **C7: 同義 API/action の併存禁止** — 互換 API/alias/re-export は移行目的に限定。期限を切って削除する
-
-### D. 数学的不変条件（Mathematical Invariants）
-
-- **D1: 要因分解の合計は売上差に完全一致** — ウォーターフォールが合計に到達しないのは禁止
-- **D2: 引数を無視して再計算しない** — 別ソースから再計算するとシャープリー恒等式が崩壊する
-- **D3: 不変条件はテストで守る** — 実装ではなく制約をテストする
-
-### E. 型安全と欠損処理（Type Safety）
-
-- **E1: 境界で検証** — 外部入力は Branded Type で検証済みを型保証
-- **E2: 依存配列は省略しない** — useMemo/useCallback の依存配列から参照値を省くとステールデータバグ
-- **E3: sourceDate を落とさない** — 比較データの sourceDate を落とす変換は月跨ぎ時の出典追跡不能を招く
-- **E4: 欠損判定は `== null`** — `number | null` の判定に truthiness（`!value`）を使わない。`0` が有効値のフィールドで正当な値が欠損扱いされる
-
-### F. コード構造規約（Structural Conventions）
-
-- **F1: バレルで後方互換** — ファイル移動で外部 import を壊さない
-- **F2: 文字列はカタログ** — UI 文字列は messages.ts に一元管理
-- **F3: 全パターンに例外なし** — チャート・Hook・Handler 構造は規模に関わらず同一
-- **F4: 配置はパスで決まる** — ファイルの配置先はパスベースルールで機械的に判定
-- **F5: 横断的関心事は Contract で管理** — 複数機能に跨る関心事は Contract インターフェースで変更箇所を限定
-- **F6: チャート間データは文脈継承** — 親が `SalesAnalysisContext` を構築し子に配る。子は比較文脈を再計算しない
-- **F7: View に raw 値を渡さない** — View は ViewModel のみ受け取る。weatherCode・DateRange・DuckDB 接続は View に渡さない
-- **F8: 独立互換で正本を汚さない** — 暫定互換の独立ウィジェットのために正本の Props や構造を曲げない
-- **F9: Raw データは唯一の真実源** — DuckDB は normalized_records の派生キャッシュ。DuckDB → IndexedDB の書き戻しは禁止
-
-### G. 機械的防御（Mechanical Guards）
-
-- **G1: ルールはテストに書く** — 文書だけでは守られない。違反したらテストが落ちる
-- **G2: エラーは伝播** — catch で握り潰さない。壊れたなら壊れたと表示する
-- **G3: コンパイラ警告を黙らせない** — `_` リネームや `eslint-disable` でバグがコンパイラの警告ごと隠蔽される
-- **G4: テスト用 export 禁止** — @internal export、typeof === 'function' テスト、カバレッジ回復のための実装変更は禁止
-- **G5: サイズ上限** — hook ≤300行（超過時は *Logic.ts に分離）、useMemo ≤7、useState ≤6
-- **G6: コンポーネントサイズ上限** — Presentation .tsx ≤600行。Tier 2（600行超）は除外リストで個別管理
-- **G7: キャッシュは本体より複雑にしない**
-
-### 制約の変更について
-
-「やりたいことの邪魔になるから」は理由にならない。
-「この制約が防いでいたバグが、別の仕組みで防がれるようになった」は理由になる。
+**制約の変更:** 「邪魔だから」は理由にならない。「別の仕組みで防がれるようになった」は理由になる。
 
 ## アーキテクチャ進化計画（要約）
 
@@ -391,135 +337,35 @@ CQRS + 契約ハイブリッド設計により、既存4層モデルの内側に
 
 ## 3つの Execution Engine（要約）
 
-設計思想・判定ルール・禁止原則は `references/01-principles/engine-boundary-policy.md` を参照。
-具体的なモジュール割当・移行パターンは `references/01-principles/engine-responsibility.md` を参照。
-DuckDB アーキテクチャは `references/03-guides/duckdb-architecture.md` を参照。
+詳細は `references/01-principles/engine-boundary-policy.md`、`references/01-principles/engine-responsibility.md` を参照。
 
-| Execution Engine | 役割 | 実装 | 制約 |
-|---|---|---|---|
-| **Authoritative Business Calculation** | 正式な業務確定値を導く純粋計算 | `domain/calculations/` (TS → 将来 Rust/WASM) | pure only, 副作用なし, UI非依存 |
-| **Application Orchestration / Storage / UI** | 取得・保存・状態管理・非同期・表示制御・ViewModel | TypeScript | pure+authoritative を新規実装しない |
-| **Exploration** | 任意条件の探索・自由集計・drilldown | DuckDB SQL | 正式値の唯一定義元にしない |
+| Engine | 実装 | 制約 |
+|--------|------|------|
+| **Authoritative** | `domain/calculations/` | pure only。staging area であり Application の一部ではない |
+| **Application** | TypeScript（hooks, stores, usecases） | pure+authoritative を新規実装しない |
+| **Exploration** | DuckDB SQL | 正式値の唯一定義元にしない |
 
-`domain/calculations/` は Authoritative Engine の **staging area** であり、Application Engine の一部ではない。
-TypeScript で実装されていることは Application 責務であることを意味しない。
+## 数学的不変条件
 
-**鉄則:**
-- 同じ集約ロジックを JS と SQL の両方に実装してはならない（二重実装禁止）
-- pure かつ authoritative な処理を TypeScript の制御層（hooks, stores, usecases）に新規実装してはならない
+シャープリー恒等式・不変条件の詳細は `references/03-guides/invariant-catalog.md` を参照。
+**合計値は実際の売上差に完全一致。** カテゴリデータからの再計算は禁止（D1/D2）。
 
-## シャープリー恒等式（数学的不変条件）
+## 許可リスト・ガード運用
 
-- `decompose2`: `custEffect + ticketEffect = curSales - prevSales`
-- `decompose3`: `custEffect + qtyEffect + pricePerItemEffect = curSales - prevSales`
-- `decompose5`: `custEffect + qtyEffect + priceEffect + mixEffect = curSales - prevSales`
+詳細は `references/03-guides/allowlist-management.md` を参照。
+即差し戻し条件は `roles/staff/review-gate/SKILL.md` を参照。
 
-**合計値は実際の売上差に完全一致。** カテゴリデータからの再計算は禁止。
+## 直近の主要変更（#673-#692）
 
-## 禁止事項
+詳細は `references/02-status/recent-changes.md` を参照。
 
-設計原則の各項目が禁止事項を兼ねる。特に以下のカテゴリに集約されている:
-
-- **層境界違反** → A2, A3, A4, A6
-- **エンジン境界違反** → B1, B2, B3
-- **数学的不変条件の破壊** → D1, D2
-- **型安全の毀損** → E2, E3, E4
-- **機械的防御の回避** → G3, G4
-
-旧禁止事項番号との対応は `references/01-principles/principle-migration-map.md` を参照。
-
-## ガードテスト許可リストの運用原則
-
-許可リスト（allowlist）はガードテストの例外を管理する仕組みだが、
-**例外の数自体が構造の問題を表す指標**でもある。
-
-### 正当な例外と便宜的例外
-
-| 区分 | 定義 | 例 | 扱い |
-|---|---|---|---|
-| **正当な例外** | 明確に説明できる理由があり、構造上不可避 | adapter パターン（app→infra）、_prototypes/ の仮実装 | 許可リストに登録し維持 |
-| **便宜的例外** | 「とりあえず動くから」で追加された例外 | import type で型だけ必要なのにガードに引っかかる | **構造またはガードを見直して解消する** |
-
-### 例外増加時の構造分析義務
-
-許可リストのエントリが**一定数を超えた場合**、個別に管理するのではなく、
-以下のパターン分析を行う:
-
-1. **なぜこれほど例外が必要なのか？** — 例外のカテゴリを分類する
-2. **ガードの精度に問題はないか？** — 偽陽性（`import type` を値 import と同一視する等）があれば、ガードの検出ロジックを改善する
-3. **型の配置に問題はないか？** — presentation が application/usecases/ の型を必要とするなら、型が正しい層（domain/）に配置されていない（禁止事項 #12）
-4. **設計自体に問題はないか？** — presentation が infrastructure の行型を直接知っているなら、VM 層での変換が不足している
-
-### 原則
-
-- **例外が 0 であること ≠ 良いこと。** 例外を解消することで全体の設計が改善されることが重要
-- 許可リストを管理する（エントリを増減する）のではなく、**許可リストが不要になる構造**を目指す
-- 便宜的例外は許可理由にならない。構造で解消するか、移行計画に載せる
-
-## 仮実装（プロトタイプ）の命名規約
-
-レイヤー違反や簡易実装を「とりあえず動くもの」として導入する場合、
-**本番コードと区別できる命名・配置**を必須とする。
-仮実装が本番コードと同じ名前・同じパスに置かれると、リファクタリングが後回しにされ、
-レイヤー違反が恒久化する。
-
-### 命名ルール
-
-| 種類 | 命名パターン | 例 |
-|---|---|---|
-| コンポーネント | `*Demo.tsx` / `*Prototype.tsx` | `WeatherWidgetDemo.tsx` |
-| Hook | `useDemo*` / `usePrototype*` | `useDemoWeatherData.ts` |
-| サービス | `*DemoService.ts` | `WeatherDemoService.ts` |
-
-### 配置ルール
-
-- 仮実装は `_prototypes/` サブディレクトリに配置する（例: `presentation/pages/_prototypes/`）
-- `_prototypes/` 内のファイルはレイヤー違反ガードの対象外とする（許可リスト不要）
-- ただし `_prototypes/` 内のファイルは本番ビルドに含めてはならない
-
-### コメントルール
-
-- 仮実装ファイルの先頭に `// PROTOTYPE: <理由> — 本番では <正しい実装方針> に移行` を記載する
-- TODO コメントは `// TODO(PROTO):` 接頭辞を使う
-
-### ガード
-
-- `guards/structuralConventionGuard.test.ts` で `_prototypes/` 外に `Demo` / `Prototype` を含むファイル名がないことを検証する
-- 仮実装が本番パスに昇格する場合は、命名を正式名に変更し、レイヤー違反を解消してからマージする
-
-## 即差し戻し条件
-
-以下のどれかに当たったら、そのまま入れない（対応する設計原則を括弧内に示す）:
-
-- 1関数で load + merge + setStore + cache操作 + UI更新 をしている（A6）
-- 「テスト用 export」（@internal）がある（G4）
-- facade に責務追加がある（C6）
-- 同義 action が増える（C7）
-- store action に業務計算が増える（C3）
-- pure function が複数仕様軸を抱えている（C2）
-- キャッシュ処理の方が本体より複雑（G7）
-- 新要件への対応が「if追加」中心（C1）
-- hook の useMemo が 7 個以上ある（G5）
-- hook の useState が 6 個以上ある（G5）
-- hook ファイルが 300行を超えている（G5 — allowlist 登録済みファイルはその上限）
-- Presentation コンポーネント .tsx が 600行を超えている（G6）
-- 後方互換バレル（re-export のみのファイル）を新規追加している（C7）
-- presentation/ から DuckDB hook を直接 import している（Q3 — useQueryWithHandler 経由を使用）
-
-## 移行完了済み経路（新規追加禁止）
-
-以下の互換経路は削除済み。新規コードでこれらのパスを復活・追加してはならない。
-
-| 削除済みファイル | 正本パス |
-|---|---|
-| `application/hooks/useDuckDBQuery.ts` | `@/application/hooks/duckdb` |
-| `presentation/components/charts/useDuckDBTimeSlotData.ts` | `@/application/hooks/useTimeSlotData` |
-| `presentation/components/charts/useDuckDBTimeSlotDataLogic.ts` | `@/application/usecases/timeSlotDataLogic` |
-| `useDuckDBTimeSlotData`（エイリアス） | `useTimeSlotData` |
+- **Temporal Phase 0-5**: 移動平均 overlay の最小統合まで完了。policy は `references/03-guides/temporal-analysis-policy.md`
+- **P5/DuckDB 収束**: useDuckDB composition root 整理、QueryHandler 移行完了（allowlist 33→0）、buildTypedWhere 完全移行
+- **WidgetContext 整理**: UnifiedWidgetContext 派生化、observationStatus 昇格、weather hook 分離
+- **Guard 強化**: temporalRollingGuard / purityGuard / codePatternGuard 追加、allowlist カテゴリ分割
 
 ## Explanation（説明責任）
 
-50 MetricId（型定義済み）に対して3段階 UX（L1: 一言 → L2: 式と入力 → L3: ドリルダウン）を提供。
-詳細は `references/03-guides/explanation-architecture.md` と `references/03-guides/metric-id-registry.md` を参照。
-
-**鉄則:** 計算を再実行しない（StoreResult の値をそのまま使う）。Domain 層は型定義のみ。
+50 MetricId に対して3段階 UX（L1→L2→L3）を提供。
+詳細は `references/03-guides/explanation-architecture.md` を参照。
+**鉄則:** 計算を再実行しない（StoreResult の値をそのまま使う）。

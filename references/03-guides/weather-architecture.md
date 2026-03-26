@@ -295,4 +295,4 @@ DuckDB の `weather_hourly` テーブルでも数値カラムは `DOUBLE`（NULL
 - [DuckDB アーキテクチャ](./duckdb-architecture.md)
 - [データフロー](../01-principles/data-flow.md)
 - [エンジン境界ポリシー](../01-principles/engine-boundary-policy.md)
-- [禁止事項クイックリファレンス](../01-principles/prohibition-quick-ref.md)
+- [設計原則 A1-G7](../01-principles/design-principles.md)

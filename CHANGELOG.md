@@ -3,6 +3,29 @@
 本プロジェクトの主要な変更を記録します。
 フォーマットは [Keep a Changelog](https://keepachangelog.com/ja/1.1.0/) に準拠します。
 
+## [v1.5.1] - 2026-03-26
+
+### ドキュメント全面更新 + Temporal Phase 5 統合
+
+#### Temporal Analysis Phase 0-5 完了
+- **Phase 5**: 日別売上チャートに移動平均 overlay 最小統合（metric=sales, windowSize=7, policy=strict）
+- **dateKey 集約修正**: store×day rows を日別合計に集約してから rolling 計算に渡すルールを確立
+- **temporal-analysis-policy.md**: Phase 5 到達点・dateKey 集約ルール・UI 統合パターン・禁止事項5改定を反映
+
+#### P5/DuckDB 収束
+- **useDuckDB composition root 整理**: weather hook 分離、QueryHandler 移行完了（allowlist 33→0）
+- **buildTypedWhere 完全移行**: 6型 discriminated union、buildWhereClause を @deprecated 化
+- **WidgetContext 整理**: UnifiedWidgetContext 派生化、observationStatus 昇格
+
+#### ドキュメント圧縮・再構成
+- **CLAUDE.md 圧縮**: 525行→371行。コーディング規約・即差し戻し条件・許可リスト運用を references/ と roles/ に抽出
+- **設計原則体系統一**: prohibition-quick-ref.md 廃止。全ロールの参照を design-principles.md（A1-G7）に統一
+- **review-gate ROLE.md**: 禁止事項数不一致解消、CI 用語を「3ジョブ・7ステップ」に統一
+- **README.md 数値更新**: WASM 4→5、チャート 59→73、ウィジェット 91→124 等
+- **references/02-status/recent-changes.md**: #673-#692 の変更詳細を別紙化
+- **references/03-guides/coding-conventions.md**: CLAUDE.md から抽出
+- **PLAN.md / plan.md**: 完了済みのため references/99-archive/ へ移動
+
 ## [v1.5.0] - 2026-03-22
 
 ### 包含型分析ユニット + 天気チャート改善

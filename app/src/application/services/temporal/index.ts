@@ -15,5 +15,5 @@ export type { StoreDaySummaryRowForTemporal } from './storeDaySummaryTemporalAda
 export { resolveAllMetrics, TEMPORAL_METRIC_RESOLVERS } from './temporalMetricResolvers'
 export type { TemporalMetricResolver, StoreDaySummaryTemporalRow } from './temporalMetricResolvers'
 
-// Phase 5 fix: dateKey 集約
+// Phase 5: temporal source normalization — store粒度 source の dateKey 集約
 export { aggregateStoreDaySummaryByDateKey } from './aggregateStoreDaySummaryByDateKey'

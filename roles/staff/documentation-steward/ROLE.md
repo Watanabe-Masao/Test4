@@ -26,7 +26,7 @@ pm-business からタスク完了の報告を受けたとき、documentation-ste
 **ドキュメント更新が必要かどうか**を判断する。pm-business は判断しない。
 
 **更新する:**
-- 禁止事項が追加・変更された → CLAUDE.md + references/01-principles/prohibition-quick-ref.md
+- 設計原則が追加・変更された → CLAUDE.md + references/01-principles/design-principles.md
 - 設計判断が行われた（architecture が設計判断書を出した）→ references/ に ADR 追加
 - ロールの判断基準・責務に変更が生じた → 該当 ROLE.md / SKILL.md
 - ルーティング表に影響する変更（新しい作業種別、パス変更）→ CLAUDE.md §ルーティング表
@@ -98,7 +98,7 @@ pm-business からタスク完了の報告を受けたとき、documentation-ste
 | ROLE.md の連携プロトコル | 連携先のロールが実在するか |
 | guard-test-map.md | テストファイルが実在し、記載のルールを検証しているか |
 | metric-id-registry.md | `domain/models/Explanation.ts` の MetricId と一致するか |
-| prohibition-quick-ref.md | CLAUDE.md の禁止事項と一致するか |
+| design-principles.md | CLAUDE.md の設計原則 A1-G7 と一致するか |
 | open-issues.md | 課題ステータスがコードの実態と一致するか |
 
 ## 参照ドキュメント

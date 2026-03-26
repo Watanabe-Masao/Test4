@@ -277,6 +277,8 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
   )
 
   // ── 移動平均 overlay（Phase 5: 売上7日MA） ──
+  // 対象: 当期売上のみ / standard view 前提 / 比較系列・売変率には載せない
+  // chart は overlay series を受けるだけで rolling 計算を知らない
   const [showMovingAverage, setShowMovingAverage] = useState(true)
   const temporalScope = useMemo(
     () => ({ currentDateRange: props.currentDateRange, selectedStoreIds: props.selectedStoreIds }),
