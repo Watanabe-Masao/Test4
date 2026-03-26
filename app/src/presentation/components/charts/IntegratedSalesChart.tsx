@@ -13,6 +13,7 @@
  */
 import { useState, useCallback, useMemo, useRef, useEffect, memo } from 'react'
 import styled from 'styled-components'
+import { AnimatePresence, motion } from 'framer-motion'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import { dateRangeToKeys } from '@/domain/models/CalendarDate'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
@@ -92,6 +93,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
   const [rightAxisMode, setRightAxisMode] = useState<RightAxisMode>('quantity')
   const [dailyView, setDailyView] = useState<ViewType>('standard')
   const [drillLevel, setDrillLevel] = useState(0)
+  const [slideDirection, setSlideDirection] = useState(1)
 
   // ── drill scroll 制御 ──
   const parentRef = useRef<HTMLDivElement>(null)
@@ -159,6 +161,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
     (startDay: number, endDay: number) => {
       if (canDrill) {
         setSelectedRange({ start: startDay, end: endDay })
+        setSlideDirection(1)
         setDrillLevel(1)
       }
     },
@@ -294,10 +297,18 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
 
   // ── ドリルレベル管理（横スライド切替） ──
   // 0: 日別売上, 1: 時間帯別, 2: 部門別+カテゴリ別
-  const handleDrillToTimeSlot = useCallback(() => setDrillLevel(1), [])
-  const handleDrillToDetail = useCallback(() => setDrillLevel(2), [])
+  const setDrillWithDirection = useCallback(
+    (next: number) => {
+      setSlideDirection(next > drillLevel ? 1 : -1)
+      setDrillLevel(next)
+    },
+    [drillLevel],
+  )
+
+  const handleDrillToTimeSlot = useCallback(() => setDrillWithDirection(1), [setDrillWithDirection])
+  const handleDrillToDetail = useCallback(() => setDrillWithDirection(2), [setDrillWithDirection])
   const handleBackToDaily = useCallback(() => {
-    setDrillLevel(0)
+    setDrillWithDirection(0)
     setSelectedRange(null)
     requestAnimationFrame(() => {
       if (parentRef.current) {
@@ -308,7 +319,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
         })
       }
     })
-  }, [])
+  }, [setDrillWithDirection])
 
   return (
     <Wrapper ref={parentRef}>
@@ -329,81 +340,118 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
         </DrillNav>
       )}
 
-      {/* ── Level 0: 日別チャート ── */}
-      {drillLevel === 0 && (
-        <>
-          <DailySalesChart
-            daily={props.daily}
-            daysInMonth={props.daysInMonth}
-            year={props.year}
-            month={props.month}
-            prevYearDaily={props.prevYearDaily}
-            budgetDaily={props.budgetDaily}
-            onDayRangeSelect={canDrill ? handleDayRangeSelect : undefined}
-            weatherDaily={props.weatherDaily}
-            prevYearWeatherDaily={props.prevYearWeatherDaily}
-            dowOffset={props.dowOffset}
-            dailyQuantity={dailyQuantity}
-            rightAxisMode={rightAxisMode}
-            onRightAxisModeChange={setRightAxisMode}
-            onViewChange={setDailyView}
-            movingAverageSeries={movingAverageSeries}
-            showMovingAverage={showMovingAverage}
-            onShowMovingAverageChange={setShowMovingAverage}
-          />
-          {canDrill && <DrillHint>日付をクリック or ドラッグで時間帯内訳を表示</DrillHint>}
-          {/* サブ分析パネル（Level 0 のみ） */}
-          {dailyView === 'standard' && rightAxisMode !== 'quantity' && (
-            <SubAnalysisPanel
-              mode={rightAxisMode}
-              queryExecutor={props.queryExecutor}
-              currentDateRange={subPanelContext.dateRange}
-              selectedStoreIds={subPanelContext.selectedStoreIds}
-              prevYearScope={subPanelContext.comparisonScope}
-              weatherDaily={props.weatherDaily}
+      {/* ── レベル切替（横スライドアニメーション） ── */}
+      <AnimatePresence mode="wait" custom={slideDirection}>
+        {drillLevel === 0 && (
+          <motion.div
+            key="level-0"
+            custom={slideDirection}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={slideTransition}
+          >
+            <DailySalesChart
               daily={props.daily}
               daysInMonth={props.daysInMonth}
               year={props.year}
               month={props.month}
               prevYearDaily={props.prevYearDaily}
-              discountEntries={props.discountEntries}
-              totalGrossSales={props.totalGrossSales}
+              budgetDaily={props.budgetDaily}
+              onDayRangeSelect={canDrill ? handleDayRangeSelect : undefined}
+              weatherDaily={props.weatherDaily}
+              prevYearWeatherDaily={props.prevYearWeatherDaily}
+              dowOffset={props.dowOffset}
+              dailyQuantity={dailyQuantity}
+              rightAxisMode={rightAxisMode}
+              onRightAxisModeChange={setRightAxisMode}
+              onViewChange={setDailyView}
+              movingAverageSeries={movingAverageSeries}
+              showMovingAverage={showMovingAverage}
+              onShowMovingAverageChange={setShowMovingAverage}
             />
-          )}
-        </>
-      )}
+            {canDrill && <DrillHint>日付をクリック or ドラッグで時間帯内訳を表示</DrillHint>}
+            {dailyView === 'standard' && rightAxisMode !== 'quantity' && (
+              <SubAnalysisPanel
+                mode={rightAxisMode}
+                queryExecutor={props.queryExecutor}
+                currentDateRange={subPanelContext.dateRange}
+                selectedStoreIds={subPanelContext.selectedStoreIds}
+                prevYearScope={subPanelContext.comparisonScope}
+                weatherDaily={props.weatherDaily}
+                daily={props.daily}
+                daysInMonth={props.daysInMonth}
+                year={props.year}
+                month={props.month}
+                prevYearDaily={props.prevYearDaily}
+                discountEntries={props.discountEntries}
+                totalGrossSales={props.totalGrossSales}
+              />
+            )}
+          </motion.div>
+        )}
 
-      {/* ── Level 1: 時間帯別チャート ── */}
-      {drillLevel === 1 && isDrilled && drillContext && (
-        <TimeSlotChart
-          queryExecutor={props.queryExecutor}
-          context={drillContext}
-          events={childEvents}
-          weatherPersist={props.weatherPersist}
-        />
-      )}
+        {drillLevel === 1 && isDrilled && drillContext && (
+          <motion.div
+            key="level-1"
+            custom={slideDirection}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={slideTransition}
+          >
+            <TimeSlotChart
+              queryExecutor={props.queryExecutor}
+              context={drillContext}
+              events={childEvents}
+              weatherPersist={props.weatherPersist}
+            />
+          </motion.div>
+        )}
 
-      {/* ── Level 2: 部門別時間帯パターン + カテゴリ別売上推移 ── */}
-      {drillLevel === 2 && isDrilled && drillContext && (
-        <>
-          <DeptHourlyChart
-            queryExecutor={props.queryExecutor}
-            currentDateRange={drillContext.dateRange}
-            selectedStoreIds={drillContext.selectedStoreIds}
-          />
-          <CategoryHeatmapPanel
-            ctx={{
-              queryExecutor: props.queryExecutor,
-              currentDateRange: drillContext.dateRange,
-              selectedStoreIds: drillContext.selectedStoreIds,
-              prevYearScope: drillContext.comparisonScope,
-            }}
-          />
-        </>
-      )}
+        {drillLevel === 2 && isDrilled && drillContext && (
+          <motion.div
+            key="level-2"
+            custom={slideDirection}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={slideTransition}
+          >
+            <DeptHourlyChart
+              queryExecutor={props.queryExecutor}
+              currentDateRange={drillContext.dateRange}
+              selectedStoreIds={drillContext.selectedStoreIds}
+            />
+            <CategoryHeatmapPanel
+              ctx={{
+                queryExecutor: props.queryExecutor,
+                currentDateRange: drillContext.dateRange,
+                selectedStoreIds: drillContext.selectedStoreIds,
+                prevYearScope: drillContext.comparisonScope,
+              }}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </Wrapper>
   )
 })
+
+// ── Animation ──
+
+const SLIDE_OFFSET = 60
+
+const slideVariants = {
+  enter: (dir: number) => ({ x: dir * SLIDE_OFFSET, opacity: 0 }),
+  center: { x: 0, opacity: 1 },
+  exit: (dir: number) => ({ x: dir * -SLIDE_OFFSET, opacity: 0 }),
+}
+
+const slideTransition = { duration: 0.25, ease: [0.25, 0.1, 0.25, 1] as const }
 
 // ── Styles ──
 
