@@ -10,7 +10,7 @@
  * 日付演算は JS Date constructor でオーバーフローを自動処理する。
  * 既存 PeriodSelection.ts と同じパターン。
  *
- * requiredMonths は requiredRange.from → requiredRange.to を日単位走査し、
+ * requiredMonths は requiredRange.from → requiredRange.to を月単位でジャンプし、
  * 'YYYY-MM' を昇順・重複なしで返す。
  */
 import type { CalendarDate } from '@/domain/models/CalendarDate'
