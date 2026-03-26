@@ -171,6 +171,7 @@ describe('Presentation Isolation Guard', () => {
     const COMPOSITE_HANDLER_ALLOWLIST = new Set([
       'application/queries/features/DowPatternHandler.ts',
       'application/queries/features/DailyFeaturesHandler.ts',
+      'application/queries/temporal/MovingAverageHandler.ts',
     ])
 
     for (const file of files) {

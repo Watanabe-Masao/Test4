@@ -1,14 +1,29 @@
 /**
- * Temporal Analysis API — Phase 3 で実装予定
+ * useTemporalAnalysis — temporal analysis の独立入口
  *
- * この placeholder は temporal analysis の入口を予約する。
- * useUnifiedWidgetContext への追加を防ぐための設計境界マーカー。
- *
- * Phase 3 で MovingAverageHandler / useQueryWithHandler 経由の
- * 実装を入れる。現時点では型のみ。
+ * useQueryWithHandler の thin wrapper。
+ * business logic を持たない。useUnifiedWidgetContext に触れない。
  *
  * @see references/03-guides/temporal-analysis-policy.md
  */
-// Phase 3 で TemporalAnalysisApi interface を定義する。
-// 現時点では空のモジュール。
-export {}
+import type { AsyncQueryResult } from '@/application/queries/QueryContract'
+import type { QueryExecutor } from '@/application/queries/QueryPort'
+import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
+import {
+  movingAverageHandler,
+  type MovingAverageInput,
+  type MovingAverageOutput,
+} from '@/application/queries/temporal/MovingAverageHandler'
+
+/**
+ * 移動平均を QueryHandler 経由で取得する。
+ *
+ * UI は requiredRange / requiredMonths を知らずに呼べる。
+ * MovingAverageHandler が fetch plan → query → series → rolling を閉じる。
+ */
+export function useTemporalAnalysis(
+  executor: QueryExecutor | null,
+  input: MovingAverageInput | null,
+): AsyncQueryResult<MovingAverageOutput> {
+  return useQueryWithHandler(executor, movingAverageHandler, input)
+}
