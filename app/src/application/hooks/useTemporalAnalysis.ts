@@ -4,6 +4,10 @@
  * useQueryWithHandler の thin wrapper。
  * business logic を持たない。useUnifiedWidgetContext に触れない。
  *
+ * Phase 3 時点では moving average のみ対応。
+ * Phase 5 で rolling sum / cumulative / trend に汎化予定。
+ * hook 名は API 安定性のため変更しない。
+ *
  * @see references/03-guides/temporal-analysis-policy.md
  */
 import type { AsyncQueryResult } from '@/application/queries/QueryContract'
