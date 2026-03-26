@@ -45,7 +45,8 @@ import { TimeSlotChart } from './TimeSlotChart'
 import { DeptHourlyChart } from './DeptHourlyChart'
 import { SubAnalysisPanel } from './SubAnalysisPanel'
 import { CategoryHeatmapPanel } from './CategoryHeatmapPanel'
-import { ContainedAnalysisPanel, type ContextTag } from './ContainedAnalysisPanel'
+// ContainedAnalysisPanel は横スライド切替化により不要（将来の参照用にコメント残置）
+// import { ContainedAnalysisPanel, type ContextTag } from './ContainedAnalysisPanel'
 
 interface SelectedRange {
   readonly start: number
@@ -90,6 +91,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
   const [selectedRange, setSelectedRange] = useState<SelectedRange | null>(null)
   const [rightAxisMode, setRightAxisMode] = useState<RightAxisMode>('quantity')
   const [dailyView, setDailyView] = useState<ViewType>('standard')
+  const [drillLevel, setDrillLevel] = useState(0)
 
   // ── drill scroll 制御 ──
   const parentRef = useRef<HTMLDivElement>(null)
@@ -155,24 +157,13 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
 
   const handleDayRangeSelect = useCallback(
     (startDay: number, endDay: number) => {
-      if (canDrill) setSelectedRange({ start: startDay, end: endDay })
+      if (canDrill) {
+        setSelectedRange({ start: startDay, end: endDay })
+        setDrillLevel(1)
+      }
     },
     [canDrill],
   )
-
-  const handleBack = useCallback(() => {
-    setSelectedRange(null)
-    // 戻る時: 親チャート位置へ復帰
-    requestAnimationFrame(() => {
-      if (parentRef.current) {
-        const rect = parentRef.current.getBoundingClientRect()
-        window.scrollTo({
-          top: window.scrollY + rect.top - SCROLL_OFFSET,
-          behavior: 'smooth',
-        })
-      }
-    })
-  }, [])
 
   // DateRange 構築は application 層の hook に委譲（presentation 層でのデータ調停を防止）
   const { dateRange: rangeDateRange, prevYearScope: rangePrevYearScope } = useDrillDateRange(
@@ -184,13 +175,13 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
 
   const isDrilled = selectedRange != null && rangeDateRange != null
 
-  // drill 開始時: 子パネル見出しへ自動スクロール
+  // drill 開始時: ナビ見出しへ自動スクロール
   const prevIsDrilledRef = useRef(false)
   useEffect(() => {
     if (isDrilled && !prevIsDrilledRef.current) {
       requestAnimationFrame(() => {
-        if (drillPanelRef.current) {
-          const rect = drillPanelRef.current.getBoundingClientRect()
+        if (parentRef.current) {
+          const rect = parentRef.current.getBoundingClientRect()
           window.scrollTo({
             top: window.scrollY + rect.top - SCROLL_OFFSET,
             behavior: 'smooth',
@@ -301,120 +292,114 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
         : `${props.month}月${selectedRange.start}〜${selectedRange.end}日`
       : ''
 
-  // 時間帯チャートの継承条件タグ
-  const timeSlotContextTags = useMemo<readonly ContextTag[]>(() => {
-    if (!selectedRange) return []
-    const tags: ContextTag[] = [{ label: '選択日', value: rangeLabel }]
-    if (props.prevYearScope) {
-      tags.push({ label: '比較', value: '前年同期間' })
-    }
-    if (props.selectedStoreIds.size > 0) {
-      tags.push({ label: '対象店舗', value: `${props.selectedStoreIds.size}店` })
-    }
-    return tags
-  }, [selectedRange, rangeLabel, props.prevYearScope, props.selectedStoreIds])
+  // ── ドリルレベル管理（横スライド切替） ──
+  // 0: 日別売上, 1: 時間帯別, 2: 部門別+カテゴリ別
+  const handleDrillToTimeSlot = useCallback(() => setDrillLevel(1), [])
+  const handleDrillToDetail = useCallback(() => setDrillLevel(2), [])
+  const handleBackToDaily = useCallback(() => {
+    setDrillLevel(0)
+    setSelectedRange(null)
+    requestAnimationFrame(() => {
+      if (parentRef.current) {
+        const rect = parentRef.current.getBoundingClientRect()
+        window.scrollTo({
+          top: window.scrollY + rect.top - SCROLL_OFFSET,
+          behavior: 'smooth',
+        })
+      }
+    })
+  }, [])
 
   return (
     <Wrapper ref={parentRef}>
-      {/* ── 日別チャート（常時表示） ── */}
-      <DailySalesChart
-        daily={props.daily}
-        daysInMonth={props.daysInMonth}
-        year={props.year}
-        month={props.month}
-        prevYearDaily={props.prevYearDaily}
-        budgetDaily={props.budgetDaily}
-        onDayRangeSelect={canDrill ? handleDayRangeSelect : undefined}
-        weatherDaily={props.weatherDaily}
-        prevYearWeatherDaily={props.prevYearWeatherDaily}
-        dowOffset={props.dowOffset}
-        dailyQuantity={dailyQuantity}
-        rightAxisMode={rightAxisMode}
-        onRightAxisModeChange={setRightAxisMode}
-        onViewChange={setDailyView}
-        movingAverageSeries={movingAverageSeries}
-        showMovingAverage={showMovingAverage}
-        onShowMovingAverageChange={setShowMovingAverage}
-      />
-      {canDrill && !isDrilled && (
-        <DrillHint>日付をクリック or ドラッグで時間帯内訳を表示</DrillHint>
-      )}
-
-      {/* ── 時間帯チャート（ドリル時 — 子として包含表示） ── */}
+      {/* ── パンくずナビ（ドリル時） ── */}
       {isDrilled && drillContext && (
-        <ContainedAnalysisPanel
-          ref={drillPanelRef}
-          emphasized
-          title={`時間帯別 前年比較`}
-          subtitle={rangeLabel}
-          inheritedContext={timeSlotContextTags}
-          drillLabel="日別からドリルダウン"
-          role="child"
-          toolbar={
-            <BackButton onClick={handleBack}>
-              <BackArrow>←</BackArrow>
-              日別に戻る
-            </BackButton>
-          }
-        >
-          <TimeSlotChart
-            queryExecutor={props.queryExecutor}
-            context={drillContext}
-            events={childEvents}
-            weatherPersist={props.weatherPersist}
-          />
-
-          {/* ── 部門別時間帯パターン（孫として包含表示） ── */}
-          <ContainedAnalysisPanel
-            title="部門別時間帯パターン"
-            subtitle={`上位${DEFAULT_TOP_DEPARTMENT_POLICY.count}部門の時間帯別売上 | 積み上げ面グラフ`}
-            drillLabel="時間帯からドリルダウン"
-            role="grandchild"
-          >
-            <DeptHourlyChart
-              queryExecutor={props.queryExecutor}
-              currentDateRange={drillContext.dateRange}
-              selectedStoreIds={drillContext.selectedStoreIds}
-            />
-          </ContainedAnalysisPanel>
-
-          {/* ── カテゴリ別売上推移（部門別時間帯パターンの下） ── */}
-          <ContainedAnalysisPanel
-            title="カテゴリ別売上推移"
-            subtitle="部門/ライン別の日次トレンド"
-            drillLabel="時間帯からドリルダウン"
-            role="grandchild"
-          >
-            <CategoryHeatmapPanel
-              ctx={{
-                queryExecutor: props.queryExecutor,
-                currentDateRange: drillContext.dateRange,
-                selectedStoreIds: drillContext.selectedStoreIds,
-                prevYearScope: drillContext.comparisonScope,
-              }}
-            />
-          </ContainedAnalysisPanel>
-        </ContainedAnalysisPanel>
+        <DrillNav ref={drillPanelRef}>
+          <NavItem $active={drillLevel === 0} onClick={handleBackToDaily}>
+            日別売上
+          </NavItem>
+          <NavSep>›</NavSep>
+          <NavItem $active={drillLevel === 1} onClick={handleDrillToTimeSlot}>
+            時間帯別（{rangeLabel}）
+          </NavItem>
+          <NavSep>›</NavSep>
+          <NavItem $active={drillLevel === 2} onClick={handleDrillToDetail}>
+            部門別・カテゴリ別
+          </NavItem>
+        </DrillNav>
       )}
 
-      {/* ── サブ分析パネル（連動グラフ — 親グラフの下に表示） ── */}
-      {/* quantity モードのカテゴリ別売上推移は drill 内に移動済み */}
-      {dailyView === 'standard' && rightAxisMode !== 'quantity' && (
-        <SubAnalysisPanel
-          mode={rightAxisMode}
+      {/* ── Level 0: 日別チャート ── */}
+      {drillLevel === 0 && (
+        <>
+          <DailySalesChart
+            daily={props.daily}
+            daysInMonth={props.daysInMonth}
+            year={props.year}
+            month={props.month}
+            prevYearDaily={props.prevYearDaily}
+            budgetDaily={props.budgetDaily}
+            onDayRangeSelect={canDrill ? handleDayRangeSelect : undefined}
+            weatherDaily={props.weatherDaily}
+            prevYearWeatherDaily={props.prevYearWeatherDaily}
+            dowOffset={props.dowOffset}
+            dailyQuantity={dailyQuantity}
+            rightAxisMode={rightAxisMode}
+            onRightAxisModeChange={setRightAxisMode}
+            onViewChange={setDailyView}
+            movingAverageSeries={movingAverageSeries}
+            showMovingAverage={showMovingAverage}
+            onShowMovingAverageChange={setShowMovingAverage}
+          />
+          {canDrill && <DrillHint>日付をクリック or ドラッグで時間帯内訳を表示</DrillHint>}
+          {/* サブ分析パネル（Level 0 のみ） */}
+          {dailyView === 'standard' && rightAxisMode !== 'quantity' && (
+            <SubAnalysisPanel
+              mode={rightAxisMode}
+              queryExecutor={props.queryExecutor}
+              currentDateRange={subPanelContext.dateRange}
+              selectedStoreIds={subPanelContext.selectedStoreIds}
+              prevYearScope={subPanelContext.comparisonScope}
+              weatherDaily={props.weatherDaily}
+              daily={props.daily}
+              daysInMonth={props.daysInMonth}
+              year={props.year}
+              month={props.month}
+              prevYearDaily={props.prevYearDaily}
+              discountEntries={props.discountEntries}
+              totalGrossSales={props.totalGrossSales}
+            />
+          )}
+        </>
+      )}
+
+      {/* ── Level 1: 時間帯別チャート ── */}
+      {drillLevel === 1 && isDrilled && drillContext && (
+        <TimeSlotChart
           queryExecutor={props.queryExecutor}
-          currentDateRange={subPanelContext.dateRange}
-          selectedStoreIds={subPanelContext.selectedStoreIds}
-          prevYearScope={subPanelContext.comparisonScope}
-          weatherDaily={props.weatherDaily}
-          daily={props.daily}
-          daysInMonth={props.daysInMonth}
-          year={props.year}
-          month={props.month}
-          prevYearDaily={props.prevYearDaily}
-          discountEntries={props.discountEntries}
-          totalGrossSales={props.totalGrossSales}
+          context={drillContext}
+          events={childEvents}
+          weatherPersist={props.weatherPersist}
         />
+      )}
+
+      {/* ── Level 2: 部門別時間帯パターン + カテゴリ別売上推移 ── */}
+      {drillLevel === 2 && isDrilled && drillContext && (
+        <>
+          <DeptHourlyChart
+            queryExecutor={props.queryExecutor}
+            currentDateRange={drillContext.dateRange}
+            selectedStoreIds={drillContext.selectedStoreIds}
+          />
+          <CategoryHeatmapPanel
+            ctx={{
+              queryExecutor: props.queryExecutor,
+              currentDateRange: drillContext.dateRange,
+              selectedStoreIds: drillContext.selectedStoreIds,
+              prevYearScope: drillContext.comparisonScope,
+            }}
+          />
+        </>
       )}
     </Wrapper>
   )
@@ -426,16 +411,29 @@ const Wrapper = styled.div`
   position: relative;
 `
 
-const BackButton = styled.button`
+const DrillNav = styled.nav`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[2]};
+  padding: ${({ theme }) => theme.spacing[4]} 0;
+  margin-bottom: ${({ theme }) => theme.spacing[2]};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+`
+
+const NavItem = styled.button<{ $active: boolean }>`
   all: unset;
   cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.7rem;
-  color: ${({ theme }) => theme.colors.palette.primary};
-  padding: 4px 8px;
-  border-radius: ${({ theme }) => theme.radii.sm};
+  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[5]};
+  border-radius: ${({ theme }) => theme.radii.md};
+  font-weight: ${({ $active, theme }) =>
+    $active ? theme.typography.fontWeight.bold : theme.typography.fontWeight.normal};
+  color: ${({ $active, theme }) => ($active ? theme.colors.text : theme.colors.palette.primary)};
+  background: ${({ $active, theme }) =>
+    $active
+      ? theme.mode === 'dark'
+        ? 'rgba(255,255,255,0.08)'
+        : 'rgba(0,0,0,0.05)'
+      : 'transparent'};
   transition: all 0.15s;
 
   &:hover {
@@ -448,14 +446,14 @@ const BackButton = styled.button`
   }
 `
 
-const BackArrow = styled.span`
-  font-size: 0.85rem;
-  font-weight: 600;
+const NavSep = styled.span`
+  color: ${({ theme }) => theme.colors.text4};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
 `
 
 const DrillHint = styled.div`
   text-align: center;
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
   color: ${({ theme }) => theme.colors.text4};
   margin-top: ${({ theme }) => theme.spacing[1]};
   opacity: 0.7;

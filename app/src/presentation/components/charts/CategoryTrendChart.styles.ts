@@ -61,3 +61,31 @@ export const BreadcrumbItem = styled.button<{ $active: boolean }>`
 export const BreadcrumbSep = styled.span`
   color: ${({ theme }) => theme.colors.text4};
 `
+
+export const YoYToggle = styled.button<{ $active: boolean }>`
+  all: unset;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[1]};
+  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[4]};
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  transition: all ${({ theme }) => theme.transitions.fast};
+  background: ${({ $active, theme }) =>
+    $active ? `${theme.colors.palette.warningDark}1e` : 'transparent'};
+  color: ${({ $active, theme }) =>
+    $active ? theme.colors.palette.warningDark : theme.colors.text4};
+  border: 1px solid
+    ${({ $active, theme }) => ($active ? `${theme.colors.palette.warningDark}66` : 'transparent')};
+
+  &:hover {
+    background: ${({ theme }) => `${theme.colors.palette.warningDark}14`};
+    color: ${({ theme }) => theme.colors.palette.warningDark};
+  }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+  }
+`

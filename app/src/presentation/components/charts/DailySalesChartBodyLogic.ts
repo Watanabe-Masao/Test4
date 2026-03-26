@@ -433,7 +433,9 @@ export function formatDailyTooltip(
 ): string {
   const items = params as TooltipItem[]
   if (!Array.isArray(items) || items.length === 0) return ''
-  const day = items[0].name
+  const rawName = items[0].name
+  // X軸ラベルに含まれるEChartsリッチテキスト構文 {style|text} を除去
+  const day = rawName.replace(/\{[^}]*\|[^}]*\}/g, '').trim()
   const dayNum = parseInt(day, 10)
   const w = weatherMap?.get(dayNum)
   const weatherLine = w?.weatherText
