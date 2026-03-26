@@ -42,6 +42,7 @@ export function DataManagementSidebar({
   onSettingsExternalClose?: () => void
 } = {}) {
   const data = useDataStore((s) => s.data)
+  const storeResultsSize = useDataStore((s) => s.storeResults.size)
   const { importFiles, validationMessages, pendingDiff, resolveDiff } = useImport()
   const { selectedStoreIds, stores, toggleStore, selectAllStores } = useStoreSelection()
   const { settings, updateSettings } = useSettings()
@@ -123,7 +124,11 @@ export function DataManagementSidebar({
         {/* オンライン/オフラインステータス + インポートボタン */}
         <SidebarSection>
           <TopRow>
-            <OnlineStatusChip onLongPress={handleLongPress} />
+            <OnlineStatusChip
+              onLongPress={handleLongPress}
+              hasData={hasNonBudgetData}
+              isCalculated={storeResultsSize > 0}
+            />
             <Button $variant="primary" onClick={() => setShowImportModal(true)}>
               取込
             </Button>
