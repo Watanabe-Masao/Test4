@@ -16,7 +16,7 @@ import {
 import {
   type DailyYoYRow,
   type ItemsYoYDailyRow,
-  buildDailyYoYRows,
+  buildStoreDailyYoYRows,
   buildSalesYoYDetailVm,
   buildCustomerYoYDetailVm,
   buildItemsYoYDetailVm,
@@ -288,7 +288,7 @@ export function CustomerYoYDetailTable({
     if (!dailyStoreId) return []
     const sr = sortedStoreEntries.find(([id]) => id === dailyStoreId)?.[1]
     if (!sr) return []
-    return buildDailyYoYRows(sr, prevYearMonthlyKpi)
+    return buildStoreDailyYoYRows(sr, prevYearMonthlyKpi, dailyStoreId)
   }, [dailyStoreId, sortedStoreEntries, prevYearMonthlyKpi])
 
   const modalStoreName = dailyStoreId ? (stores.get(dailyStoreId)?.name ?? dailyStoreId) : ''

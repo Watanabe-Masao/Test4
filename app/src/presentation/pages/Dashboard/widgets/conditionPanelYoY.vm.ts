@@ -72,6 +72,42 @@ export function buildDailyYoYRows(r: StoreResult, kpi: PrevYearMonthlyKpi): Dail
   return rows
 }
 
+/**
+ * Build daily YoY comparison rows for a specific store.
+ * Uses storeContributions (per-store per-day) instead of dailyMapping (all-store aggregate).
+ */
+export function buildStoreDailyYoYRows(
+  sr: StoreResult,
+  kpi: PrevYearMonthlyKpi,
+  storeId: string,
+): DailyYoYRow[] {
+  if (!kpi.hasPrevYear) return []
+
+  // 前年の日別データを storeContributions からstore単位で集計
+  const prevByDay = new Map<number, { sales: number; customers: number }>()
+  for (const c of kpi.sameDow.storeContributions) {
+    if (c.storeId !== storeId) continue
+    const e = prevByDay.get(c.mappedDay) ?? { sales: 0, customers: 0 }
+    e.sales += c.sales
+    e.customers += c.customers
+    prevByDay.set(c.mappedDay, e)
+  }
+
+  const rows: DailyYoYRow[] = []
+  const days = [...sr.daily.entries()].sort(([a], [b]) => a - b)
+  for (const [day, dr] of days) {
+    const prev = prevByDay.get(day)
+    rows.push({
+      day,
+      currentSales: dr.sales,
+      prevSales: prev?.sales ?? 0,
+      currentCustomers: dr.customers ?? 0,
+      prevCustomers: prev?.customers ?? 0,
+    })
+  }
+  return rows
+}
+
 // ─── Sales YoY Detail VM ────────────────────────────────
 
 export interface SalesYoYStoreRowVm {
