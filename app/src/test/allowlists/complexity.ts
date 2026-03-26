@@ -87,10 +87,17 @@ export const presentationMemoLimits: readonly QuantitativeAllowlistEntry[] = [
   // useDuckDBTimeSlotData.ts — バレル化完了（2026-03-23）: application/hooks/useTimeSlotData.ts へ移設
   {
     path: 'presentation/components/charts/DailySalesChartBody.tsx',
-    reason: '日別売上チャート。複数シリーズの構築',
+    reason: '日別売上チャート。複数シリーズ + MA overlay 構築',
     category: 'structural',
     removalCondition: 'builders 分離時',
-    limit: 9,
+    limit: 10,
+  },
+  {
+    path: 'presentation/components/charts/IntegratedSalesChart.tsx',
+    reason: '統合売上チャート。日別/時間帯/天気/MA overlay の文脈構築',
+    category: 'structural',
+    removalCondition: 'コンテキスト分離時',
+    limit: 8,
   },
   {
     path: 'presentation/pages/Dashboard/widgets/DrilldownWaterfall.tsx',

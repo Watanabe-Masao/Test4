@@ -25,6 +25,10 @@ interface Props {
   year?: number
   month?: number
   rightAxisMode?: RightAxisMode
+  /** 移動平均 overlay 系列（temporal handler 由来） */
+  movingAverageSeries?: readonly { dateKey: string; value: number | null }[]
+  /** 移動平均表示フラグ */
+  showMovingAverage?: boolean
 }
 
 export const DailySalesChartBody = memo(function DailySalesChartBody({
@@ -42,6 +46,8 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
   year,
   month,
   rightAxisMode = 'quantity',
+  movingAverageSeries,
+  showMovingAverage,
 }: Props) {
   const rows = data as unknown as Record<string, unknown>[]
   const days = useMemo(() => rows.map((d) => d.day as number), [rows])
@@ -89,11 +95,46 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
     ],
   )
 
+  // MA overlay を追加（standard ビュー + showMovingAverage のみ）
+  const optionWithMA = useMemo(() => {
+    if (view !== 'standard' || !showMovingAverage || !movingAverageSeries?.length) return baseOption
+    // dateKey → day の Map を構築
+    const dayMap = new Map<string, number>()
+    for (const row of rows) {
+      const r = row as { day: number; dateKey?: string }
+      if (r.dateKey) dayMap.set(r.dateKey, r.day)
+    }
+    // MA series を ECharts series data に変換（日番号順）
+    const maData = days.map((day) => {
+      const dayStr = String(day).padStart(2, '0')
+      const monthStr = month ? String(month).padStart(2, '0') : '01'
+      const dateKey = `${year ?? 2026}-${monthStr}-${dayStr}`
+      const point = movingAverageSeries.find((p) => p.dateKey === dateKey)
+      return point?.value ?? null
+    })
+
+    const existingSeries = (baseOption.series as unknown[]) ?? []
+    return Object.assign({}, baseOption, {
+      series: [
+        ...existingSeries,
+        {
+          name: '売上7日移動平均',
+          type: 'line',
+          data: maData,
+          smooth: true,
+          symbol: 'none',
+          lineStyle: { width: 2, type: 'dashed', color: '#6366f1' },
+          z: 10,
+        },
+      ],
+    })
+  }, [baseOption, view, showMovingAverage, movingAverageSeries, rows, days, year, month])
+
   // ブラシ設定を追加（ドラッグ選択機能が有効な場合のみ）
   const option = useMemo(() => {
-    if (!onDayRangeSelect) return baseOption
+    if (!onDayRangeSelect) return optionWithMA
     return {
-      ...baseOption,
+      ...optionWithMA,
       brush: {
         toolbox: [],
         xAxisIndex: 0,
@@ -106,7 +147,7 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
         throttleDelay: 100,
       },
     }
-  }, [baseOption, onDayRangeSelect])
+  }, [optionWithMA, onDayRangeSelect])
 
   // 単日クリック → 1日分の range として通知（dataIndex で days から日付取得）
   const handleClick = useMemo(() => {

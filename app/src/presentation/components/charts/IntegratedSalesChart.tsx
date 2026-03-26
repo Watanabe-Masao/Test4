@@ -18,6 +18,7 @@ import { dateRangeToKeys } from '@/domain/models/CalendarDate'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 import type { WeatherPersister } from '@/application/queries/weather'
 import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
+import { useMovingAverageOverlay } from '@/application/hooks/useTemporalAnalysis'
 import {
   dailyQuantityHandler,
   type DailyQuantityInput,
@@ -275,6 +276,19 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
     [highlightTimeSlot, highlightCategory],
   )
 
+  // ── 移動平均 overlay（Phase 5: 売上7日MA） ──
+  const [showMovingAverage, setShowMovingAverage] = useState(true)
+  const temporalScope = useMemo(
+    () => ({ currentDateRange: props.currentDateRange, selectedStoreIds: props.selectedStoreIds }),
+    [props.currentDateRange, props.selectedStoreIds],
+  )
+  const { data: maOutput } = useMovingAverageOverlay(
+    props.queryExecutor ?? null,
+    temporalScope,
+    showMovingAverage,
+  )
+  const movingAverageSeries = maOutput?.anchorSeries
+
   // ── 表示用ラベル ──
 
   const rangeLabel =
@@ -315,6 +329,9 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
         rightAxisMode={rightAxisMode}
         onRightAxisModeChange={setRightAxisMode}
         onViewChange={setDailyView}
+        movingAverageSeries={movingAverageSeries}
+        showMovingAverage={showMovingAverage}
+        onShowMovingAverageChange={setShowMovingAverage}
       />
       {canDrill && !isDrilled && (
         <DrillHint>日付をクリック or ドラッグで時間帯内訳を表示</DrillHint>
