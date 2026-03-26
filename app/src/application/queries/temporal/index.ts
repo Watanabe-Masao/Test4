@@ -1,3 +1,3 @@
-// Phase 0 placeholder for temporal foundation.
-// Phase 3 で MovingAverageHandler / RollingSumHandler 等の QueryHandler を配置する。
-export {}
+// Phase 3: temporal QueryHandlers
+export { movingAverageHandler } from './MovingAverageHandler'
+export type { MovingAverageInput, MovingAverageOutput } from './MovingAverageHandler'
