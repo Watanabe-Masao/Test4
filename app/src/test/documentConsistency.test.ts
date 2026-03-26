@@ -206,8 +206,8 @@ describe('Design principle consistency', () => {
     }
   })
 
-  it('principle-migration-map.md exists and references new categories', () => {
-    const migrationMap = readFile('references/01-principles/principle-migration-map.md')
+  it('principle-migration-map.md exists in archive and references new categories', () => {
+    const migrationMap = readFile('references/99-archive/principle-migration-map.md')
     expect(migrationMap).toContain('旧19原則')
     expect(migrationMap).toContain('旧13禁止事項')
     expect(migrationMap).toContain('旧12ルール')

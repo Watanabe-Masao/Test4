@@ -1,9 +1,10 @@
 /**
- * MovingAverageHandler — 移動平均 QueryHandler
+ * MovingAverageHandler — ���動平均 QueryHandler
  *
- * 責務は orchestration のみ:
- * 1. buildTemporalFetchPlan(frame) で requiredRange/requiredMonths 導出
- * 2. queryStoreDaySummary(conn, params) で rows 取得
+ * 責��は orchestration のみ:
+ * 1. buildTemporalFetchPlan(frame) �� requiredRange/requiredMonths 導出
+ * 2. queryStoreDaySummary(conn, params) で store×day rows 取得
+ * 2.5. aggregateStoreDaySummaryByDateKey で dateKey 集約（日別合計の意味確定）
  * 3. adaptStoreDaySummaryRow で DailySeriesSourceRow[] 変換
  * 4. buildDailySeries(plan, sourceRows, frame.metric) で連続系列構築
  * 5. computeMovingAverage(series, frame.windowSize, policy) で計算

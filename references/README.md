@@ -18,7 +18,7 @@
 | テーマ | 正本 |
 |---|---|
 | 設計原則 25 項目（7 カテゴリ A-G） | `01-principles/design-principles.md` |
-| 禁止事項 13 件 | CLAUDE.md §禁止事項（クイックリファレンス: `01-principles/prohibition-quick-ref.md`） |
+| 設計原則が兼ねる禁止事項 | CLAUDE.md §設計原則（A1-G7 の各項目が禁止事項を兼ねる） |
 | Engine 境界・3 エンジン定義 | `01-principles/engine-boundary-policy.md` |
 | JS vs DuckDB 責務 | `01-principles/engine-responsibility.md` |
 | データパイプライン整合性 | `01-principles/data-pipeline-integrity.md` |

@@ -21,7 +21,7 @@
 
 | 変更の種類 | 更新先 |
 |---|---|
-| 新しい禁止事項の追加 | CLAUDE.md + `references/01-principles/prohibition-quick-ref.md` |
+| 設計原則の追加・変更 | CLAUDE.md + `references/01-principles/design-principles.md` |
 | ガードテストの追加 | `references/03-guides/guard-test-map.md` + 対応 ROLE.md |
 | 新ロールの追加 | CLAUDE.md ルーティング表 + `roles/` に ROLE.md + SKILL.md |
 | 不変条件の追加 | `references/03-guides/invariant-catalog.md` + 対応 ROLE.md |

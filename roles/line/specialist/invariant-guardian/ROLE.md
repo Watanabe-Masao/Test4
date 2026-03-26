@@ -129,4 +129,4 @@ invariant-guardian が体現する原則:
 
 - `references/03-guides/invariant-catalog.md` — 全不変条件カタログ（**必読**）
 - `references/03-guides/guard-test-map.md` — ガードテスト対応表
-- `references/01-principles/prohibition-quick-ref.md` — 禁止事項（特に #1, #2, #4 が関連）
+- `references/01-principles/design-principles.md` — 設計原則（特に D1, D2, D3 が関連）
