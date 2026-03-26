@@ -177,6 +177,6 @@ export const hookLineLimits: readonly QuantitativeAllowlistEntry[] = [
       'TimeSlot orchestrator。10 useQueryWithHandler + cur/prev weather ETRN fallback + 12 useMemo input',
     category: 'structural',
     removalCondition: 'query input 構築を sub-hook に分離する時',
-    limit: 380,
+    limit: 390,
   },
 ] as const

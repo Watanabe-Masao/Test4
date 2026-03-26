@@ -6,9 +6,9 @@
  *
  * 天気情報はグラフ直下に TimeSlotWeatherTable として独立配置。
  */
-import { useState, useMemo, memo } from 'react'
+import { useMemo, memo } from 'react'
 import { toPct, useCurrencyFormat } from './chartTheme'
-import { TabGroup, Tab, MiniTable, MiniTh, MiniTd } from './TimeSlotSalesChart.styles'
+import { MiniTable, MiniTh, MiniTd } from './TimeSlotSalesChart.styles'
 
 type MetricToggle = 'amount' | 'quantity'
 
@@ -34,6 +34,7 @@ interface Props {
   readonly curLabel: string
   readonly compLabel: string
   readonly hasPrev: boolean
+  readonly metric?: MetricToggle
   readonly gridLeft?: number
   readonly gridRight?: number
 }
@@ -71,10 +72,11 @@ export const TimeSlotComparisonTable = memo(function TimeSlotComparisonTable({
   curLabel,
   compLabel,
   hasPrev,
+  metric: metricProp,
   gridLeft = 55,
   gridRight = 45,
 }: Props) {
-  const [metric, setMetric] = useState<MetricToggle>('amount')
+  const metric = metricProp ?? 'amount'
   const isAmount = metric === 'amount'
   const cf = useCurrencyFormat()
 
@@ -90,16 +92,6 @@ export const TimeSlotComparisonTable = memo(function TimeSlotComparisonTable({
 
   return (
     <>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 4 }}>
-        <TabGroup>
-          <Tab $active={metric === 'amount'} onClick={() => setMetric('amount')}>
-            金額
-          </Tab>
-          <Tab $active={metric === 'quantity'} onClick={() => setMetric('quantity')}>
-            点数
-          </Tab>
-        </TabGroup>
-      </div>
       <div style={{ overflowX: 'auto' }}>
         <MiniTable style={{ tableLayout: 'fixed', width: '100%' }}>
           <colgroup>
