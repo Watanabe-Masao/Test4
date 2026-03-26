@@ -51,6 +51,28 @@
 4. domain/models/temporal/ → ComparisonScope / comparison の import 禁止
 5. domain/models/temporal/ → periodSelectionStore の import 禁止
 
+## Phase 4: Rolling Path Guard（実装済み）
+
+> Phase 4 は moving average を対象に完了。guard は rolling path 一般に先行対応。
+
+### 実装済み Guard ルール（temporalRollingGuard.test.ts）
+
+| Guard | ルール | 目的 |
+|---|---|---|
+| R-T1 | presentation/ で rolling 計算を import しない | UI に計算を置かない |
+| R-T2 | application/hooks/ で rolling 計算を直接 import しない | hook に計算を書かない |
+| R-T3 | temporal handler 以外で buildDailySeries + rolling 計算を組み合わせない | 経路の乱立防止 |
+| R-T4 | presentation/ で windowSize + reduce/slice の手書き平均を禁止 | 逆流防止 |
+| R-T5 | useUnifiedWidgetContext が temporal rolling を import しない | 結節点の保護 |
+| R-T6 | comparison/ が temporal rolling を import しない | comparison path との混線防止 |
+
+### 境界の定義
+
+- **comparison path** は「比較意味解釈」（前年同月/同曜日/期間比較）
+- **temporal rolling path** は「時系列窓計算」（移動平均/rolling sum/trend）
+- 両者は合成可能でも、**実装経路は分離する**
+- unified context は query result 倉庫でも temporal orchestration の入口でもない
+
 ## ディレクトリ配置
 
 ```

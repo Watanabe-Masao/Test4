@@ -7,7 +7,14 @@
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
-import { SRC_DIR, collectTsFiles, rel, extractImports } from '../guardTestHelpers'
+import {
+  SRC_DIR,
+  collectTsFiles,
+  rel,
+  extractImports,
+  isCommentLine,
+  stripStrings,
+} from '../guardTestHelpers'
 
 // ── R-T1: presentation/ で computeMovingAverage を import しない ──
 
@@ -55,6 +62,80 @@ describe('R-T2: application/hooks/ で rolling 計算を直接 import しない'
       violations,
       `application/hooks/ が rolling 計算を直接 import しています:\n${violations.join('\n')}\n` +
         '→ rolling 計算は handler 内で実行し、hook は useQueryWithHandler 経由で呼んでください。',
+    ).toEqual([])
+  })
+})
+
+// ── R-T3: temporal/ 以外で buildDailySeries + rolling 計算を組み合わせない ──
+
+describe('R-T3: rolling 実行経路は temporal handler 内に閉じる', () => {
+  it('application/queries/temporal/ 以外で buildDailySeries と rolling 計算を同時 import しない', () => {
+    const appDir = path.join(SRC_DIR, 'application')
+    const files = collectTsFiles(appDir)
+    const violations: string[] = []
+
+    const ROLLING_FUNCTIONS = ['computeMovingAverage', 'computeRollingSum']
+    const SERIES_BUILDER = 'buildDailySeries'
+    const ALLOWED_DIR = 'application/queries/temporal/'
+
+    for (const file of files) {
+      const relPath = rel(file)
+      if (relPath.startsWith(ALLOWED_DIR)) continue
+
+      const imports = extractImports(file)
+      const hasSeriesBuilder = imports.some((imp) => imp.includes(SERIES_BUILDER))
+      const hasRolling = imports.some((imp) => ROLLING_FUNCTIONS.some((fn) => imp.includes(fn)))
+
+      if (hasSeriesBuilder && hasRolling) {
+        violations.push(
+          `${relPath}: buildDailySeries + rolling 計算の同居（handler 外での rolling 実行）`,
+        )
+      }
+    }
+
+    expect(
+      violations,
+      `temporal handler 外で rolling 実行経路が検出されました:\n${violations.join('\n')}\n` +
+        '→ rolling 計算は application/queries/temporal/ の handler 内で閉じてください。',
+    ).toEqual([])
+  })
+})
+
+// ── R-T4: presentation/ で windowSize を使った手書き平均計算を禁止 ──
+
+describe('R-T4: presentation/ で rolling 平均の手書き実装を禁止', () => {
+  it('presentation/ で windowSize + reduce/slice を使った平均計算パターンがない', () => {
+    const presDir = path.join(SRC_DIR, 'presentation')
+    const files = collectTsFiles(presDir)
+    const violations: string[] = []
+
+    // windowSize と reduce を使った平均計算パターンを検出
+    for (const file of files) {
+      const content = fs.readFileSync(file, 'utf-8')
+      const lines = content.split('\n')
+      let hasWindowSize = false
+      let hasReduceAvg = false
+
+      for (const line of lines) {
+        if (isCommentLine(line)) continue
+        const stripped = stripStrings(line)
+        if (/windowSize/i.test(stripped)) hasWindowSize = true
+        if (/\.reduce\(.*\//.test(stripped) || /\.slice\(.*\.reduce\(/.test(stripped)) {
+          hasReduceAvg = true
+        }
+      }
+
+      if (hasWindowSize && hasReduceAvg) {
+        violations.push(
+          `${rel(file)}: windowSize + reduce/slice パターン（rolling 平均の手書き実装疑い）`,
+        )
+      }
+    }
+
+    expect(
+      violations,
+      `presentation/ で rolling 平均の手書き実装が検出されました:\n${violations.join('\n')}\n` +
+        '→ rolling 計算は useTemporalAnalysis 経由で取得してください。',
     ).toEqual([])
   })
 })

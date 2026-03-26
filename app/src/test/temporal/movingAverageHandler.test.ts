@@ -140,4 +140,23 @@ describe('MovingAverageHandler contract', () => {
     expect(dateKeys).not.toContain('2026-02-25')
     expect(dateKeys).not.toContain('2026-03-10')
   })
+
+  it('query 結果の順序が乱れていても anchorSeries は dateKey 昇順になる', async () => {
+    // rows を逆順で返す
+    const rows = [
+      makeSummaryRow(2026, 3, 5, 5000),
+      makeSummaryRow(2026, 3, 3, 3000),
+      makeSummaryRow(2026, 3, 1, 1000),
+      makeSummaryRow(2026, 2, 28, 500),
+      makeSummaryRow(2026, 2, 27, 400),
+    ]
+    mockQuery.mockResolvedValue(rows as never)
+
+    const result = await movingAverageHandler.execute(FAKE_CONN, makeInput())
+
+    // dateKey 昇順を保証
+    for (let i = 1; i < result.anchorSeries.length; i++) {
+      expect(result.anchorSeries[i].dateKey > result.anchorSeries[i - 1].dateKey).toBe(true)
+    }
+  })
 })

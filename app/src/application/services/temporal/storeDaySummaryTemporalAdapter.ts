@@ -9,7 +9,18 @@ import type { DailySeriesSourceRow } from './DailySeriesTypes'
 import { toYearMonthKey } from './DailySeriesTypes'
 import { resolveAllMetrics } from './temporalMetricResolvers'
 
-/** store_day_summary row の temporal adapter 用最小型 */
+/**
+ * store_day_summary row の temporal adapter 用最小型。
+ *
+ * 型変換の責務はこの adapter に閉じる。handler は adapter 経由でのみ
+ * query result を DailySeriesSourceRow に変換する。
+ * 将来 rolling 系 handler を増やしても、cast が handler へ戻らない。
+ *
+ * 変換チェーン:
+ *   queryStoreDaySummary → StoreDaySummaryRow（query result 生型）
+ *     → StoreDaySummaryRowForTemporal（adapter 入力型、必要フィールドの Pick）
+ *       → DailySeriesSourceRow（series 構築用の正規化型）
+ */
 export interface StoreDaySummaryRowForTemporal {
   readonly dateKey: string
   readonly year: number
