@@ -25,7 +25,7 @@ import { useTimeSlotData } from '@/application/hooks/useTimeSlotData'
 import { toWeatherHourlyDisplayList } from './TimeSlotWeatherLogic'
 import { ChartSkeleton } from '@/presentation/components/common/feedback'
 import { EmptyState } from '@/presentation/components/common/layout'
-import { TimeSlotChartView, type LineMode } from './TimeSlotChartView'
+import { TimeSlotChartView, type LineMode, type DeptViewMode } from './TimeSlotChartView'
 import { buildTimeSlotChartOption, buildWeatherMap } from './TimeSlotChartOptionBuilder'
 import { buildDeptStackedAreaOption } from './TimeSlotDeptAreaBuilder'
 
@@ -77,6 +77,7 @@ export const TimeSlotChart = memo(function TimeSlotChart({
   const [heatmapMetric, setHeatmapMetric] = useState<'amount' | 'quantity'>('amount')
   const [lineMode, setLineMode] = useState<LineMode>('quantity')
   const [chartMode, setChartMode] = useState<'overview' | 'department'>('overview')
+  const [deptViewMode, setDeptViewMode] = useState<DeptViewMode>('stacked')
 
   // dateRange / storeIds がない場合は空のダミーで hook を呼ぶ（hooks の呼び出し順序を維持）
   const emptyStoreIds = useMemo(() => new Set<string>(), [])
@@ -150,6 +151,7 @@ export const TimeSlotChart = memo(function TimeSlotChart({
           data: d.categoryHourlyData ?? [],
           theme,
           lineMode,
+          viewMode: deptViewMode,
           chartData: d.chartData,
           showPrev,
           curWeatherMap,
@@ -188,6 +190,8 @@ export const TimeSlotChart = memo(function TimeSlotChart({
         chartOption={effectiveChartOption}
         chartMode={chartMode}
         onChartModeChange={setChartMode}
+        deptViewMode={deptViewMode}
+        onDeptViewModeChange={setDeptViewMode}
         hours={hours}
         chartData={d.chartData}
         kpi={d.kpi}

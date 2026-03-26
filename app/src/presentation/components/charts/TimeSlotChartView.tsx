@@ -94,12 +94,15 @@ export type LineMode = 'quantity' | 'cumulative' | 'temperature' | 'precipitatio
 // ── Props ──
 
 export type ChartMode = 'overview' | 'department'
+export type DeptViewMode = 'stacked' | 'separate'
 
 export interface TimeSlotChartViewProps {
   // チャートデータ
   readonly chartOption: EChartsOption
   readonly chartMode: ChartMode
   readonly onChartModeChange: (v: ChartMode) => void
+  readonly deptViewMode: DeptViewMode
+  readonly onDeptViewModeChange: (v: DeptViewMode) => void
   readonly hours: readonly string[]
   readonly chartData: readonly ChartRow[]
   readonly kpi: TimeSlotKpi | null
@@ -142,6 +145,8 @@ export const TimeSlotChartView = memo(function TimeSlotChartView({
   chartOption,
   chartMode,
   onChartModeChange,
+  deptViewMode,
+  onDeptViewModeChange,
   hours,
   chartData,
   kpi,
@@ -185,6 +190,22 @@ export const TimeSlotChartView = memo(function TimeSlotChartView({
             部門別
           </Tab>
         </TabGroup>
+        {chartMode === 'department' && (
+          <TabGroup>
+            <Tab
+              $active={deptViewMode === 'stacked'}
+              onClick={() => onDeptViewModeChange('stacked')}
+            >
+              積み上げ
+            </Tab>
+            <Tab
+              $active={deptViewMode === 'separate'}
+              onClick={() => onDeptViewModeChange('separate')}
+            >
+              独立
+            </Tab>
+          </TabGroup>
+        )}
         {deptOptions.length > 1 && (
           <HierarchySelect value={deptCode} onChange={(e) => onDeptCodeChange(e.target.value)}>
             <option value="">全部門</option>

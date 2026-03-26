@@ -25,10 +25,13 @@ interface ChartRow {
   readonly [key: string]: string | number | null
 }
 
+export type DeptViewMode = 'stacked' | 'separate'
+
 export interface DeptAreaOptionInput {
   readonly data: readonly CategoryHourlyItem[]
   readonly theme: AppTheme
   readonly lineMode: LineMode
+  readonly viewMode: DeptViewMode
   /** 時間帯別売上・点数データ（lineMode=quantity 用） */
   readonly chartData: readonly ChartRow[]
   readonly showPrev: boolean
@@ -39,7 +42,8 @@ export interface DeptAreaOptionInput {
 }
 
 export function buildDeptStackedAreaOption(input: DeptAreaOptionInput): EChartsOption {
-  const { data, theme, lineMode, chartData, showPrev, curWeatherMap, prevWeatherMap } = input
+  const { data, theme, lineMode, viewMode, chartData, showPrev, curWeatherMap, prevWeatherMap } =
+    input
   if (data.length === 0) return {}
 
   // 部門合計でソート → 上位N件
@@ -83,22 +87,46 @@ export function buildDeptStackedAreaOption(input: DeptAreaOptionInput): EChartsO
     if (!isNaN(h)) chartDataByHour.set(h, row)
   }
 
-  // 第1軸: 部門別積み上げ面グラフ
+  const isStacked = viewMode === 'stacked'
+
+  // 第1軸: 部門別面グラフ（積み上げ or 独立）
   const deptSeries = [...departments].reverse().map((dept) => ({
     name: dept.name,
     type: 'line' as const,
-    stack: 'depts',
-    areaStyle: { opacity: 0.4 },
+    stack: isStacked ? 'depts' : undefined,
+    areaStyle: { opacity: isStacked ? 0.4 : 0.15 },
     data: sortedHours.map((h) => {
       const row = hourMap.get(h)
       return Math.round(row?.[`dept_${dept.code}`] ?? 0)
     }),
-    lineStyle: { color: dept.color, width: 1.5 },
+    lineStyle: { color: dept.color, width: isStacked ? 1.5 : 2 },
     itemStyle: { color: dept.color },
     symbol: 'none',
     smooth: true,
     yAxisIndex: 0,
   }))
+
+  // 前年合計売上（破線オーバーレイ）
+  if (showPrev) {
+    const prevSalesData = sortedHours.map((h) => {
+      const row = chartDataByHour.get(h)
+      return (row?.compAmount as number) ?? (row?.compSales as number) ?? null
+    })
+    if (prevSalesData.some((v) => v != null && v > 0)) {
+      deptSeries.push({
+        name: '前年売上',
+        type: 'line' as const,
+        stack: undefined,
+        areaStyle: { opacity: 0 },
+        data: prevSalesData,
+        lineStyle: { color: theme.colors.text4, width: 2, type: 'dashed' as const },
+        itemStyle: { color: theme.colors.text4 },
+        symbol: 'none',
+        smooth: true,
+        yAxisIndex: 0,
+      } as (typeof deptSeries)[number])
+    }
+  }
 
   // ── 第2軸: lineMode に応じたオーバーレイ ──
   const overlaySeries: object[] = []
