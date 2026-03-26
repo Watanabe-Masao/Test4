@@ -13,6 +13,7 @@
  */
 import { memo } from 'react'
 import {
+  TimeSlotChart,
   HeatmapChart,
   DeptHourlyChart,
   StoreHourlyChart,
@@ -20,7 +21,7 @@ import {
 } from '@/presentation/components/charts'
 import type { WidgetContext } from './types'
 
-// ── 1. 時間帯別売上（統合ビュー: 部門別積み上げ面グラフ + 第2軸オーバーレイ） ──
+// ── 1. 時間帯別売上 ──
 
 export const UnifiedTimeSlotWidget = memo(function UnifiedTimeSlotWidget({
   ctx,
@@ -28,11 +29,12 @@ export const UnifiedTimeSlotWidget = memo(function UnifiedTimeSlotWidget({
   ctx: WidgetContext
 }) {
   return (
-    <DeptHourlyChart
+    <TimeSlotChart
       queryExecutor={ctx.queryExecutor}
       currentDateRange={ctx.currentDateRange}
       selectedStoreIds={ctx.selectedStoreIds}
       prevYearScope={ctx.prevYearScope}
+      weatherPersist={ctx.weatherPersist}
     />
   )
 })

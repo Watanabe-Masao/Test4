@@ -42,7 +42,7 @@ import {
 import type { RightAxisMode } from './DailySalesChartBodyLogic'
 import type { ViewType } from './DailySalesChartBody'
 import { DailySalesChart } from './DailySalesChart'
-import { DeptHourlyChart } from './DeptHourlyChart'
+import { TimeSlotChart } from './TimeSlotChart'
 import { SubAnalysisPanel } from './SubAnalysisPanel'
 import { CategoryHeatmapPanel } from './CategoryHeatmapPanel'
 // ContainedAnalysisPanel は横スライド切替化により不要（将来の参照用にコメント残置）
@@ -374,11 +374,10 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
             exit="exit"
             transition={slideTransition}
           >
-            <DeptHourlyChart
+            <TimeSlotChart
               queryExecutor={props.queryExecutor}
-              currentDateRange={drillContext.dateRange}
-              selectedStoreIds={drillContext.selectedStoreIds}
-              prevYearScope={drillContext.comparisonScope}
+              context={drillContext}
+              weatherPersist={props.weatherPersist}
             />
             <CategoryHeatmapPanel
               ctx={{
