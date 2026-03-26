@@ -93,9 +93,13 @@ export type LineMode = 'quantity' | 'cumulative' | 'temperature' | 'precipitatio
 
 // ── Props ──
 
+export type ChartMode = 'overview' | 'department'
+
 export interface TimeSlotChartViewProps {
   // チャートデータ
   readonly chartOption: EChartsOption
+  readonly chartMode: ChartMode
+  readonly onChartModeChange: (v: ChartMode) => void
   readonly hours: readonly string[]
   readonly chartData: readonly ChartRow[]
   readonly kpi: TimeSlotKpi | null
@@ -136,6 +140,8 @@ export interface TimeSlotChartViewProps {
 
 export const TimeSlotChartView = memo(function TimeSlotChartView({
   chartOption,
+  chartMode,
+  onChartModeChange,
   hours,
   chartData,
   kpi,
@@ -171,6 +177,14 @@ export const TimeSlotChartView = memo(function TimeSlotChartView({
     <>
       {/* ── ツールバー ── */}
       <Controls>
+        <TabGroup>
+          <Tab $active={chartMode === 'overview'} onClick={() => onChartModeChange('overview')}>
+            全体比較
+          </Tab>
+          <Tab $active={chartMode === 'department'} onClick={() => onChartModeChange('department')}>
+            部門別
+          </Tab>
+        </TabGroup>
         {deptOptions.length > 1 && (
           <HierarchySelect value={deptCode} onChange={(e) => onDeptCodeChange(e.target.value)}>
             <option value="">全部門</option>

@@ -27,6 +27,7 @@ import { ChartSkeleton } from '@/presentation/components/common/feedback'
 import { EmptyState } from '@/presentation/components/common/layout'
 import { TimeSlotChartView, type LineMode } from './TimeSlotChartView'
 import { buildTimeSlotChartOption, buildWeatherMap } from './TimeSlotChartOptionBuilder'
+import { buildDeptStackedAreaOption } from './TimeSlotDeptAreaBuilder'
 
 // ── Props ──
 
@@ -75,6 +76,7 @@ export const TimeSlotChart = memo(function TimeSlotChart({
   const [detailView, setDetailView] = useState<'table' | 'heatmap'>('table')
   const [heatmapMetric, setHeatmapMetric] = useState<'amount' | 'quantity'>('amount')
   const [lineMode, setLineMode] = useState<LineMode>('quantity')
+  const [chartMode, setChartMode] = useState<'overview' | 'department'>('overview')
 
   // dateRange / storeIds がない場合は空のダミーで hook を呼ぶ（hooks の呼び出し順序を維持）
   const emptyStoreIds = useMemo(() => new Set<string>(), [])
@@ -141,6 +143,13 @@ export const TimeSlotChart = memo(function TimeSlotChart({
     ],
   )
 
+  // 部門別積み上げ面グラフ option（chartMode === 'department' 時のみ — useMemo 上限のため通常変数）
+  const deptAreaOption =
+    chartMode === 'department' && (d.categoryHourlyData?.length ?? 0) > 0
+      ? buildDeptStackedAreaOption(d.categoryHourlyData ?? [], theme)
+      : null
+  const effectiveChartOption = deptAreaOption ?? chartOption
+
   // ── Early returns（hooks の後） ──
 
   if (!hasRequiredProps) {
@@ -168,7 +177,9 @@ export const TimeSlotChart = memo(function TimeSlotChart({
   return (
     <ChartCard title={`時間帯別 ${d.compLabel}比較`} ariaLabel="時間帯別売上">
       <TimeSlotChartView
-        chartOption={chartOption}
+        chartOption={effectiveChartOption}
+        chartMode={chartMode}
+        onChartModeChange={setChartMode}
         hours={hours}
         chartData={d.chartData}
         kpi={d.kpi}
