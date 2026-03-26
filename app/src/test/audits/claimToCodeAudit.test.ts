@@ -16,14 +16,6 @@ import { SRC_DIR, collectTsFiles, rel } from '../guardTestHelpers'
 
 const ROOT_DIR = path.resolve(SRC_DIR, '../..')
 
-function readFileIfExists(filePath: string): string | null {
-  try {
-    return fs.readFileSync(filePath, 'utf-8')
-  } catch {
-    return null
-  }
-}
-
 // ── Claim: cmpPrevYearDaily は全件解消済み ──
 
 describe('Claim: prevYear.daily.get() は消費側から完全排除', () => {
