@@ -117,6 +117,7 @@ export interface TimeSlotChartViewProps {
   readonly hasWeatherData: boolean
   // カテゴリヒートマップ
   readonly categoryHourlyData: readonly CategoryHourlyItem[]
+  readonly prevCategoryHourlyData: readonly CategoryHourlyItem[]
   // 階層選択
   readonly deptOptions: readonly HierarchyOption[]
   readonly lineOptions: readonly HierarchyOption[]
@@ -159,6 +160,7 @@ export const TimeSlotChartView = memo(function TimeSlotChartView({
   prevWeather,
   hasWeatherData,
   categoryHourlyData,
+  prevCategoryHourlyData,
   deptOptions,
   lineOptions,
   klassOptions,
@@ -395,22 +397,20 @@ export const TimeSlotChartView = memo(function TimeSlotChartView({
             </Tab>
           )}
         </TabGroup>
-        {detailView === 'heatmap' && (
-          <TabGroup>
-            <Tab
-              $active={heatmapMetric === 'amount'}
-              onClick={() => onHeatmapMetricChange('amount')}
-            >
-              金額
-            </Tab>
-            <Tab
-              $active={heatmapMetric === 'quantity'}
-              onClick={() => onHeatmapMetricChange('quantity')}
-            >
-              点数
-            </Tab>
-          </TabGroup>
-        )}
+        <TabGroup style={{ marginLeft: 'auto' }}>
+          <Tab
+            $active={heatmapMetric === 'amount'}
+            onClick={() => onHeatmapMetricChange('amount')}
+          >
+            金額
+          </Tab>
+          <Tab
+            $active={heatmapMetric === 'quantity'}
+            onClick={() => onHeatmapMetricChange('quantity')}
+          >
+            点数
+          </Tab>
+        </TabGroup>
       </div>
 
       {detailView === 'table' ? (
@@ -419,12 +419,14 @@ export const TimeSlotChartView = memo(function TimeSlotChartView({
           curLabel={curLabel}
           compLabel={compLabel}
           hasPrev={hasPrev}
+          metric={heatmapMetric}
           gridLeft={GRID_LEFT}
           gridRight={GRID_RIGHT}
         />
       ) : (
         <CategoryTimeHeatmap
           data={categoryHourlyData}
+          prevData={prevCategoryHourlyData}
           metric={heatmapMetric}
           gridLeft={80}
           gridRight={GRID_RIGHT}

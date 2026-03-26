@@ -204,6 +204,7 @@ export const TimeSlotChart = memo(function TimeSlotChart({
         prevWeather={prevWeatherForTable ?? []}
         hasWeatherData={hasWeatherData}
         categoryHourlyData={d.categoryHourlyData ?? []}
+        prevCategoryHourlyData={d.prevCategoryHourlyData ?? []}
         deptOptions={d.deptOptions}
         lineOptions={d.lineOptions}
         klassOptions={d.klassOptions}

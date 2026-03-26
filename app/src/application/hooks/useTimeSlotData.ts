@@ -174,6 +174,21 @@ export function useTimeSlotData({
     [currentDateRange, storeIds, heatmapLevel, hierarchy],
   )
 
+  const pyRange = compMode === 'yoy' ? prevYearScope?.dateRange : undefined
+  const prevCatHourlyInput = useMemo<CategoryHourlyInput | null>(
+    () =>
+      pyRange
+        ? {
+            ...toKeys(pyRange),
+            storeIds,
+            level: heatmapLevel as 'department' | 'line' | 'klass',
+            ...hierarchy,
+            isPrevYear: true,
+          }
+        : null,
+    [pyRange, storeIds, heatmapLevel, hierarchy],
+  )
+
   // ── Weather ──
   const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
   const allStoreIds = useDataStore((s) => s.data.stores)
@@ -237,6 +252,11 @@ export function useTimeSlotData({
     categoryHourlyHandler,
     categoryHourlyInput,
   )
+  const { data: prevCatHourlyOut } = useQueryWithHandler(
+    queryExecutor,
+    categoryHourlyHandler,
+    prevCatHourlyInput,
+  )
   const { data: curWeatherOut } = useQueryWithHandler(
     queryExecutor,
     weatherHourlyAvgHandler,
@@ -286,6 +306,7 @@ export function useTimeSlotData({
   const currentDayCount = curDayCountOut?.count ?? null
   const compDayCount = compDayCountOut?.count ?? null
   const categoryHourlyData = catHourlyOut?.records ?? null
+  const prevCategoryHourlyData = prevCatHourlyOut?.records ?? null
   const curWeatherAvg = curWeatherOut?.records ?? null
   const prevWeatherAvg = prevWeatherOut?.records ?? null
 
@@ -355,6 +376,7 @@ export function useTimeSlotData({
     lineOptions,
     klassOptions,
     categoryHourlyData,
+    prevCategoryHourlyData,
     curWeatherAvg,
     prevWeatherAvg,
   }
