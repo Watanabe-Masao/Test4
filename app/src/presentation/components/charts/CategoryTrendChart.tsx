@@ -23,6 +23,7 @@ import {
   buildCategoryTrendData,
   buildPrevYearTrendData,
   type CategoryInfo,
+  type TrendMetric,
 } from './CategoryTrendChartLogic'
 import { useCurrencyFormatter } from './chartTheme'
 import { DowPresetSelector } from './DowPresetSelector'
@@ -48,6 +49,7 @@ import {
   BreadcrumbBar,
   BreadcrumbItem,
   BreadcrumbSep,
+  YoYToggle,
 } from './CategoryTrendChart.styles'
 
 type HierarchyLevel = 'department' | 'line' | 'klass'
@@ -63,6 +65,11 @@ const LEVEL_SEGMENT_OPTIONS: readonly { value: HierarchyLevel; label: string }[]
 const TOP_N_SEGMENT_OPTIONS: readonly { value: string; label: string }[] = TOP_N_OPTIONS.map(
   (n) => ({ value: String(n), label: `${n}件` }),
 )
+
+const METRIC_OPTIONS: readonly { value: TrendMetric; label: string }[] = [
+  { value: 'amount', label: '金額' },
+  { value: 'quantity', label: '点数' },
+]
 
 interface Props {
   readonly queryExecutor: QueryExecutor | null
@@ -86,15 +93,22 @@ interface DrillState {
 /** 前年シリーズ名のサフィックス */
 const PREV_YEAR_SUFFIX = '(前年)'
 
+function toCommaNum(val: number): string {
+  return val.toLocaleString() + '点'
+}
+
 function buildOption(
   chartData: readonly { date: string; [k: string]: string | number | null }[],
   categories: readonly CategoryInfo[],
   theme: AppTheme,
   prevYearData?: ReadonlyMap<string, Record<string, number>>,
+  isQuantity?: boolean,
+  prevYearLabel?: string,
 ): EChartsOption {
   const dates = chartData.map((d) => d.date)
   const colors = theme.chart.series
   const hasPrev = prevYearData != null && prevYearData.size > 0
+  const fmtValue = isQuantity ? toCommaNum : toCommaYen
 
   // 当年シリーズ
   const curSeries = categories.map((cat, i) => ({
@@ -125,9 +139,34 @@ function buildOption(
         itemStyle: { color: colors[i % colors.length], opacity: 0.5 },
         symbolSize: 0,
         connectNulls: true,
-        // legend で前年は初期非表示にせず、トグルで制御可能にする
       }))
     : []
+
+  // カテゴリ名→前年値の高速引きマップ構築（ツールチップ用）
+  const prevNameToValue = hasPrev
+    ? (dateName: string) => {
+        const dayData = prevYearData.get(dateName)
+        if (!dayData) return undefined
+        const result = new Map<string, number>()
+        for (const cat of categories) {
+          if (dayData[cat.code] != null) result.set(cat.name, dayData[cat.code])
+        }
+        return result
+      }
+    : undefined
+
+  const yAxis = isQuantity
+    ? {
+        type: 'value' as const,
+        axisLabel: {
+          color: theme.colors.text4,
+          formatter: (v: number) => v.toLocaleString(),
+        },
+        splitLine: { lineStyle: { color: theme.colors.border } },
+        name: '点数',
+        nameTextStyle: { color: theme.colors.text4 },
+      }
+    : yenYAxis(theme)
 
   return {
     grid: standardGrid(),
@@ -137,24 +176,58 @@ function buildOption(
       formatter: (params: unknown) => {
         const items = params as { seriesName: string; value: number | null; color: string }[]
         if (!Array.isArray(items)) return ''
-        const header = `<div style="font-weight:600;margin-bottom:4px">日付: ${(items[0] as unknown as { name: string })?.name ?? ''}</div>`
-        // 当年と前年をグループ化して表示
+        const dateName = (items[0] as unknown as { name: string })?.name ?? ''
+        const header = `<div style="font-weight:600;margin-bottom:4px">日付: ${dateName}</div>`
+
+        // 当年のみ取得
         const curItems = items.filter(
           (item) => item.value != null && !item.seriesName.endsWith(PREV_YEAR_SUFFIX),
         )
-        const prevItems = items.filter(
-          (item) => item.value != null && item.seriesName.endsWith(PREV_YEAR_SUFFIX),
-        )
-        const formatRow = (item: { seriesName: string; value: number | null; color: string }) =>
-          `<div style="display:flex;justify-content:space-between;gap:12px">` +
-          `<span style="color:${item.color}">${item.seriesName}</span>` +
-          `<span style="font-weight:600;font-family:monospace">${toCommaYen(item.value ?? 0)}</span></div>`
-        const curRows = curItems.map(formatRow).join('')
-        const prevRows =
-          prevItems.length > 0
-            ? `<div style="margin-top:4px;padding-top:4px;border-top:1px solid rgba(128,128,128,0.3);opacity:0.7">${prevItems.map(formatRow).join('')}</div>`
+
+        // 前年値マップ
+        const prevMap = prevNameToValue?.(dateName)
+
+        const rows = curItems
+          .map((item) => {
+            const curVal = item.value ?? 0
+            const prevVal = prevMap?.get(item.seriesName)
+            const valCell = `<span style="font-weight:600;font-family:monospace">${fmtValue(curVal)}</span>`
+
+            if (prevVal != null && prevVal > 0) {
+              const diff = curVal - prevVal
+              const ratio = curVal / prevVal
+              const diffSign = diff >= 0 ? '+' : ''
+              const diffColor = diff >= 0 ? '#10b981' : '#ef4444'
+              const ratioStr = (ratio * 100).toFixed(1) + '%'
+              const yoyCell =
+                `<span style="font-family:monospace;text-align:right;line-height:1.2;margin-left:8px">` +
+                `<span style="color:${diffColor};font-size:10px">${diffSign}${fmtValue(diff)}</span><br/>` +
+                `<span style="color:${diffColor};font-size:10px;font-weight:600">${ratioStr}</span>` +
+                `</span>`
+              return (
+                `<div style="display:flex;align-items:center;gap:4px">` +
+                `<span style="color:${item.color};flex:1;white-space:nowrap">${item.seriesName}</span>` +
+                valCell +
+                yoyCell +
+                `</div>`
+              )
+            }
+
+            return (
+              `<div style="display:flex;justify-content:space-between;gap:12px">` +
+              `<span style="color:${item.color}">${item.seriesName}</span>` +
+              valCell +
+              `</div>`
+            )
+          })
+          .join('')
+
+        const prevLabel =
+          hasPrev && prevYearLabel
+            ? `<div style="font-size:10px;color:rgba(128,128,128,0.8);margin-top:2px">前年: ${prevYearLabel}</div>`
             : ''
-        return header + curRows + prevRows
+
+        return header + rows + prevLabel
       },
     },
     legend: {
@@ -163,7 +236,7 @@ function buildOption(
       selectedMode: true,
     },
     xAxis: categoryXAxis(dates, theme),
-    yAxis: yenYAxis(theme),
+    yAxis,
     series: [...curSeries, ...prevSeries],
   }
 }
@@ -184,6 +257,8 @@ export const CategoryTrendChart = memo(function CategoryTrendChart({
   const [topN, setTopN] = useState<number>(8)
   const [selectedDows, setSelectedDows] = useState<number[]>([])
   const [drill, setDrill] = useState<DrillState>({})
+  const [metric, setMetric] = useState<TrendMetric>('amount')
+  const [showYoY, setShowYoY] = useState(false)
 
   const handleDowChange = useCallback((dows: number[]) => setSelectedDows(dows), [])
   const handleLevelChange = useCallback((newLevel: HierarchyLevel) => {
@@ -228,10 +303,11 @@ export const CategoryTrendChart = memo(function CategoryTrendChart({
 
   const trendRows = output?.records ?? null
 
-  // ── 前年クエリ ──
+  // ── 前年クエリ（showYoY 時のみ） ──
   const prevYearDateRange = prevYearScope?.dateRange
+  const hasPrevYearData = showYoY && prevYearDateRange != null
   const prevInput = useMemo<CategoryDailyTrendInput | null>(() => {
-    if (!prevYearDateRange) return null
+    if (!hasPrevYearData || !prevYearDateRange) return null
     const { fromKey, toKey } = dateRangeToKeys(prevYearDateRange)
     return {
       dateFrom: fromKey,
@@ -244,7 +320,15 @@ export const CategoryTrendChart = memo(function CategoryTrendChart({
       dow: dowParam,
       isPrevYear: true,
     }
-  }, [prevYearDateRange, selectedStoreIds, level, drill.deptCode, drill.lineCode, dowParam])
+  }, [
+    hasPrevYearData,
+    prevYearDateRange,
+    selectedStoreIds,
+    level,
+    drill.deptCode,
+    drill.lineCode,
+    dowParam,
+  ])
 
   const { data: prevOutput } = useQueryWithHandler(
     queryExecutor,
@@ -258,21 +342,30 @@ export const CategoryTrendChart = memo(function CategoryTrendChart({
   const { chartData, categories } = useMemo(
     () =>
       trendRows
-        ? buildCategoryTrendData(trendRows, emptyExcluded)
+        ? buildCategoryTrendData(trendRows, emptyExcluded, metric)
         : { chartData: [], categories: [] },
-    [trendRows, emptyExcluded],
+    [trendRows, emptyExcluded, metric],
   )
 
-  // 前年データを当年日付軸にマッピング
+  // 前年データを当年日付軸にマッピング（showYoY 時のみ）
   const prevYearMapped = useMemo(() => {
-    if (!prevTrendRows || !prevYearDateRange || chartData.length === 0) return undefined
+    if (!showYoY || !prevTrendRows || !prevYearDateRange || chartData.length === 0) return undefined
     const currentDates = chartData.map((d) => d.date)
-    return buildPrevYearTrendData(prevTrendRows, currentDates, categories)
-  }, [prevTrendRows, prevYearDateRange, chartData, categories])
+    return buildPrevYearTrendData(prevTrendRows, currentDates, categories, metric)
+  }, [showYoY, prevTrendRows, prevYearDateRange, chartData, categories, metric])
+
+  const isQuantityMode = metric === 'quantity'
+  const prevYearLabelStr = useMemo(() => {
+    if (!prevYearDateRange) return undefined
+    const from = prevYearDateRange.from
+    const to = prevYearDateRange.to
+    return `${from.year}/${from.month}/${from.day}〜${to.month}/${to.day}`
+  }, [prevYearDateRange])
 
   const option = useMemo(
-    () => buildOption(chartData, categories, theme, prevYearMapped),
-    [chartData, categories, theme, prevYearMapped],
+    () =>
+      buildOption(chartData, categories, theme, prevYearMapped, isQuantityMode, prevYearLabelStr),
+    [chartData, categories, theme, prevYearMapped, isQuantityMode, prevYearLabelStr],
   )
 
   // ECharts クリックでドリルダウン
@@ -364,6 +457,15 @@ export const CategoryTrendChart = memo(function CategoryTrendChart({
           </ChipGroup>
         )}
         <ChipGroup>
+          <ChipLabel>指標:</ChipLabel>
+          <SegmentedControl
+            options={METRIC_OPTIONS}
+            value={metric}
+            onChange={setMetric}
+            ariaLabel="指標切替"
+          />
+        </ChipGroup>
+        <ChipGroup>
           <ChipLabel>上位:</ChipLabel>
           <SegmentedControl
             options={TOP_N_SEGMENT_OPTIONS}
@@ -372,6 +474,11 @@ export const CategoryTrendChart = memo(function CategoryTrendChart({
             ariaLabel="表示件数"
           />
         </ChipGroup>
+        {prevYearScope && (
+          <YoYToggle $active={showYoY} onClick={() => setShowYoY((p) => !p)}>
+            前年比 {showYoY ? 'ON' : 'OFF'}
+          </YoYToggle>
+        )}
         {!hideDowSelector && (
           <DowPresetSelector selectedDows={selectedDows} onChange={handleDowChange} />
         )}
@@ -387,7 +494,11 @@ export const CategoryTrendChart = memo(function CategoryTrendChart({
       <SummaryRow>
         {topCategory && (
           <SummaryItem>
-            最大: {topCategory.name} ({fmt(topCategory.totalAmount)})
+            最大: {topCategory.name} (
+            {isQuantityMode
+              ? `${topCategory.totalAmount.toLocaleString()}点`
+              : fmt(topCategory.totalAmount)}
+            )
           </SummaryItem>
         )}
         <SummaryItem>対象日数: {chartData.length}日</SummaryItem>

@@ -9,12 +9,15 @@
  *   - 日別×カテゴリのクロス集計
  *   - 除外コードのフィルタリング
  *   - 前年データの当年日付軸へのマッピング
+ *   - 金額/点数の切り替え対応
  *
  * @guard G5 hook ≤300行 — 純粋関数を分離
  */
 import type { CategoryDailyTrendRow } from '@/application/hooks/duckdb'
 
 // ─── Types ──────────────────────────────────────────
+
+export type TrendMetric = 'amount' | 'quantity'
 
 export interface CategoryTrendDataPoint {
   readonly date: string
@@ -32,17 +35,24 @@ export interface CategoryTrendResult {
   readonly categories: readonly CategoryInfo[]
 }
 
+// ─── Helpers ────────────────────────────────────────
+
+function pickValue(row: CategoryDailyTrendRow, metric: TrendMetric): number {
+  return metric === 'quantity' ? row.quantity : row.amount
+}
+
 // ─── Logic ──────────────────────────────────────────
 
 /** CategoryDailyTrendRow[] → カテゴリ別日次チャートデータ */
 export function buildCategoryTrendData(
   rows: readonly CategoryDailyTrendRow[],
   excludedCodes: ReadonlySet<string>,
+  metric: TrendMetric = 'amount',
 ): CategoryTrendResult {
   const categoryTotals = new Map<string, { name: string; total: number }>()
   for (const row of rows) {
     const existing = categoryTotals.get(row.code) ?? { name: row.name, total: 0 }
-    existing.total += row.amount
+    existing.total += pickValue(row, metric)
     categoryTotals.set(row.code, existing)
   }
 
@@ -59,7 +69,7 @@ export function buildCategoryTrendData(
     if (excludedCodes.has(row.code)) continue
     const dateKey = row.dateKey.slice(5)
     const existing = dateMap.get(dateKey) ?? {}
-    existing[row.code] = (existing[row.code] ?? 0) + Math.round(row.amount)
+    existing[row.code] = (existing[row.code] ?? 0) + Math.round(pickValue(row, metric))
     dateMap.set(dateKey, existing)
   }
 
@@ -81,11 +91,13 @@ export function buildCategoryTrendData(
  * @param prevRows 前年の CategoryDailyTrendRow[]
  * @param currentDates 当年チャートの日付配列 (MM-DD 形式)
  * @param currentCategories 当年のカテゴリ（前年データをこのカテゴリに絞る）
+ * @param metric 集計対象（amount | quantity）
  */
 export function buildPrevYearTrendData(
   prevRows: readonly CategoryDailyTrendRow[],
   currentDates: readonly string[],
   currentCategories: readonly CategoryInfo[],
+  metric: TrendMetric = 'amount',
 ): ReadonlyMap<string, Record<string, number>> {
   if (prevRows.length === 0 || currentDates.length === 0) return new Map()
 
@@ -112,7 +124,7 @@ export function buildPrevYearTrendData(
     const currentDate = prevToCurrentDate.get(row.dateKey)
     if (!currentDate) continue
     const existing = result.get(currentDate) ?? {}
-    existing[row.code] = (existing[row.code] ?? 0) + Math.round(row.amount)
+    existing[row.code] = (existing[row.code] ?? 0) + Math.round(pickValue(row, metric))
     result.set(currentDate, existing)
   }
 
