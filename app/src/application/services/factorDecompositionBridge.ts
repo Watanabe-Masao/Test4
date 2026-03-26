@@ -23,7 +23,7 @@ import type {
   PriceMixResult,
   CategoryQtyAmt,
 } from '@/domain/calculations/factorDecomposition'
-import { getExecutionMode, getWasmState } from './wasmEngine'
+import { getExecutionMode, getWasmModuleState } from './wasmEngine'
 import type { WasmState, ExecutionMode } from './wasmEngine'
 import {
   decompose2Wasm,
@@ -58,7 +58,7 @@ interface DualRunMismatchLog {
 /* ── 内部ヘルパー ─────────────────────────────── */
 
 function isWasmReady(): boolean {
-  return getWasmState() === 'ready'
+  return getWasmModuleState('factorDecomposition') === 'ready'
 }
 
 function isDualRun(): boolean {
@@ -98,7 +98,7 @@ function compareResults(
       maxAbsDiff,
       sumInvariantTs,
       sumInvariantWasm,
-      wasmState: getWasmState(),
+      wasmState: getWasmModuleState('factorDecomposition'),
       executionMode: getExecutionMode(),
     }
     console.warn('[factorDecomposition dual-run mismatch]', log)

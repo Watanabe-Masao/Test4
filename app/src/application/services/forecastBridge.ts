@@ -50,7 +50,7 @@ import type {
   TrendAnalysisResult,
 } from '@/domain/calculations/algorithms/trendAnalysis'
 
-import { getExecutionMode, getWasmState, getForecastWasmExports } from './wasmEngine'
+import { getExecutionMode, getWasmModuleState, getForecastWasmExports } from './wasmEngine'
 import type { WasmState, ExecutionMode } from './wasmEngine'
 import {
   calculateStdDevWasm,
@@ -143,7 +143,7 @@ function compareNumericResults(
       maxAbsDiff,
       invariantTs,
       invariantWasm,
-      wasmState: getWasmState(),
+      wasmState: getWasmModuleState('forecast'),
       executionMode: getExecutionMode(),
     }
     console.warn('[forecast dual-run mismatch]', log)
@@ -217,7 +217,7 @@ export function detectAnomalies(
         kind: 'semantic-mismatch',
         tsCount: tsResult.length,
         wasmCount: wasmResult.length,
-        wasmState: getWasmState(),
+        wasmState: getWasmModuleState('forecast'),
         executionMode: getExecutionMode(),
       })
       recordNullMismatch('detectAnomalies')
@@ -369,7 +369,7 @@ export function analyzeTrend(dataPoints: readonly MonthlyDataPoint[]): TrendAnal
         kind: 'semantic-mismatch',
         tsTrend: tsResult.overallTrend,
         wasmTrend: wasmResult.overallTrend,
-        wasmState: getWasmState(),
+        wasmState: getWasmModuleState('forecast'),
         executionMode: getExecutionMode(),
       })
       recordNullMismatch('analyzeTrend')

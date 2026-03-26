@@ -572,8 +572,10 @@ describe('後方互換コード監視', () => {
     'domain/models/MonthlyData.ts',
     // ディレクトリ import 推奨のバレルラッパー
     'presentation/components/charts/GrossProfitRateChart.tsx',
+    // getWasmState() → getWasmModuleState() 移行完了まで維持
+    'application/services/wasmEngine.ts',
   ]
-  const MAX_DEPRECATED_FILES = 8
+  const MAX_DEPRECATED_FILES = 9
 
   it('@deprecated を含むファイル数が上限を超えない', () => {
     const allFiles: string[] = []

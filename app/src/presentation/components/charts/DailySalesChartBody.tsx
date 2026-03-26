@@ -184,6 +184,7 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
       height={hasPrevWeather ? 400 : hasWeather ? 360 : 300}
       onClick={handleClick}
       onBrushEnd={handleBrushEnd}
+      enableBrushClickEmulation
       ariaLabel="日別売上チャート"
     />
   )

@@ -13,11 +13,24 @@
  */
 
 export type WasmState = 'idle' | 'loading' | 'ready' | 'error'
+export type WasmModuleName =
+  | 'factorDecomposition'
+  | 'grossProfit'
+  | 'budgetAnalysis'
+  | 'forecast'
+  | 'timeSlot'
 export type ExecutionMode = 'ts-only' | 'wasm-only' | 'dual-run-compare'
 
 /* ── 内部状態 ─────────────────────────────────── */
 
-let wasmState: WasmState = 'idle'
+// idle 以外は再初期化しない（一度 loading/ready/error に到達したら state は変わらない）
+const moduleStates: Record<WasmModuleName, WasmState> = {
+  factorDecomposition: 'idle',
+  grossProfit: 'idle',
+  budgetAnalysis: 'idle',
+  forecast: 'idle',
+  timeSlot: 'idle',
+}
 let currentMode: ExecutionMode = 'ts-only'
 
 // WASM モジュールの export を保持
@@ -34,20 +47,23 @@ let timeSlotWasmExports: typeof import('time-slot-wasm') | null = null
  * 複数回呼ばれても安全（idle 以外では no-op）。
  */
 export async function initFactorDecompositionWasm(): Promise<void> {
-  if (wasmState !== 'idle') return
+  if (moduleStates.factorDecomposition !== 'idle') return
 
-  wasmState = 'loading'
+  moduleStates.factorDecomposition = 'loading'
   try {
     const wasm = await import('factor-decomposition-wasm')
     await wasm.default()
     wasmExports = wasm
-    wasmState = 'ready'
+    moduleStates.factorDecomposition = 'ready'
     if (import.meta.env.DEV) {
-      console.info('[wasmEngine] ready — dual-run compare available')
+      console.info('[wasmEngine] factorDecomposition ready — dual-run compare available')
     }
   } catch (e) {
-    wasmState = 'error'
-    console.warn('[wasmEngine] WASM initialization failed, falling back to TS:', e)
+    moduleStates.factorDecomposition = 'error'
+    console.warn(
+      '[wasmEngine] factorDecomposition WASM initialization failed, falling back to TS:',
+      e,
+    )
   }
 }
 
@@ -56,16 +72,19 @@ export async function initFactorDecompositionWasm(): Promise<void> {
  * factorDecomposition と独立して初期化可能。
  */
 export async function initGrossProfitWasm(): Promise<void> {
-  if (grossProfitWasmExports !== null) return
+  if (moduleStates.grossProfit !== 'idle') return
 
+  moduleStates.grossProfit = 'loading'
   try {
     const wasm = await import('gross-profit-wasm')
     await wasm.default()
     grossProfitWasmExports = wasm
+    moduleStates.grossProfit = 'ready'
     if (import.meta.env.DEV) {
       console.info('[wasmEngine] grossProfit ready — dual-run compare available')
     }
   } catch (e) {
+    moduleStates.grossProfit = 'error'
     console.warn('[wasmEngine] grossProfit WASM initialization failed, falling back to TS:', e)
   }
 }
@@ -74,16 +93,19 @@ export async function initGrossProfitWasm(): Promise<void> {
  * budgetAnalysis WASM モジュールを非同期で初期化する。
  */
 export async function initBudgetAnalysisWasm(): Promise<void> {
-  if (budgetAnalysisWasmExports !== null) return
+  if (moduleStates.budgetAnalysis !== 'idle') return
 
+  moduleStates.budgetAnalysis = 'loading'
   try {
     const wasm = await import('budget-analysis-wasm')
     await wasm.default()
     budgetAnalysisWasmExports = wasm
+    moduleStates.budgetAnalysis = 'ready'
     if (import.meta.env.DEV) {
       console.info('[wasmEngine] budgetAnalysis ready — dual-run compare available')
     }
   } catch (e) {
+    moduleStates.budgetAnalysis = 'error'
     console.warn('[wasmEngine] budgetAnalysis WASM initialization failed, falling back to TS:', e)
   }
 }
@@ -92,16 +114,19 @@ export async function initBudgetAnalysisWasm(): Promise<void> {
  * forecast WASM モジュールを非同期で初期化する。
  */
 export async function initForecastWasm(): Promise<void> {
-  if (forecastWasmExports !== null) return
+  if (moduleStates.forecast !== 'idle') return
 
+  moduleStates.forecast = 'loading'
   try {
     const wasm = await import('forecast-wasm')
     await wasm.default()
     forecastWasmExports = wasm
+    moduleStates.forecast = 'ready'
     if (import.meta.env.DEV) {
       console.info('[wasmEngine] forecast ready — dual-run compare available')
     }
   } catch (e) {
+    moduleStates.forecast = 'error'
     console.warn('[wasmEngine] forecast WASM initialization failed, falling back to TS:', e)
   }
 }
@@ -110,24 +135,41 @@ export async function initForecastWasm(): Promise<void> {
  * timeSlot WASM モジュールを非同期で初期化する。
  */
 export async function initTimeSlotWasm(): Promise<void> {
-  if (timeSlotWasmExports !== null) return
+  if (moduleStates.timeSlot !== 'idle') return
 
+  moduleStates.timeSlot = 'loading'
   try {
     const wasm = await import('time-slot-wasm')
     await wasm.default()
     timeSlotWasmExports = wasm
+    moduleStates.timeSlot = 'ready'
     if (import.meta.env.DEV) {
       console.info('[wasmEngine] timeSlot ready — dual-run compare available')
     }
   } catch (e) {
+    moduleStates.timeSlot = 'error'
     console.warn('[wasmEngine] timeSlot WASM initialization failed, falling back to TS:', e)
   }
 }
 
 /* ── 状態取得 ─────────────────────────────────── */
 
+/** 個別モジュールの状態を取得する */
+export function getWasmModuleState(name: WasmModuleName): WasmState {
+  return moduleStates[name]
+}
+
+/** 全モジュールの状態スナップショットを取得する（UI ステータス表示用） */
+export function getAllWasmStates(): Readonly<Record<WasmModuleName, WasmState>> {
+  return { ...moduleStates }
+}
+
+/**
+ * @deprecated Use getWasmModuleState('factorDecomposition') instead.
+ * 後方互換のために維持。
+ */
 export function getWasmState(): WasmState {
-  return wasmState
+  return moduleStates.factorDecomposition
 }
 
 export function getWasmExports(): typeof import('factor-decomposition-wasm') | null {

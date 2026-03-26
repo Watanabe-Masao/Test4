@@ -38,7 +38,7 @@ import type {
   TransferTotalsResult,
 } from '@/domain/calculations/grossProfit'
 import type { CalculationResult } from '@/domain/models/CalculationResult'
-import { getExecutionMode, getWasmState, getGrossProfitWasmExports } from './wasmEngine'
+import { getExecutionMode, getWasmModuleState, getGrossProfitWasmExports } from './wasmEngine'
 import type { WasmState, ExecutionMode } from './wasmEngine'
 import {
   calculateInvMethodWasm,
@@ -150,7 +150,7 @@ function compareNumericResults(
       maxAbsDiff,
       invariantTs,
       invariantWasm,
-      wasmState: getWasmState(),
+      wasmState: getWasmModuleState('grossProfit'),
       executionMode: getExecutionMode(),
     }
     console.warn('[grossProfit dual-run mismatch]', log)

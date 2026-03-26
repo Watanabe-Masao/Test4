@@ -19,7 +19,7 @@ import {
   findTurnaroundHour as findTurnaroundHourTS,
 } from '@/domain/calculations/timeSlotCalculations'
 
-import { getExecutionMode, getWasmState, getTimeSlotWasmExports } from './wasmEngine'
+import { getExecutionMode, getWasmModuleState, getTimeSlotWasmExports } from './wasmEngine'
 import type { WasmState, ExecutionMode } from './wasmEngine'
 import { findCoreTimeWasm, findTurnaroundHourWasm } from './timeSlotWasm'
 import { recordCall, recordMismatch } from './dualRunObserver'
@@ -107,7 +107,7 @@ export function findCoreTime(
       },
       diffs,
       maxAbsDiff,
-      wasmState: getWasmState(),
+      wasmState: getWasmModuleState('timeSlot'),
       executionMode: getExecutionMode(),
     }
     console.warn('[timeSlot dual-run mismatch]', log)
@@ -162,7 +162,7 @@ export function findTurnaroundHour(hourlyMap: Map<number, number>): number | nul
       wasmResult: { hour: wasmResult },
       diffs: { hour: wasmResult - tsResult },
       maxAbsDiff: diff,
-      wasmState: getWasmState(),
+      wasmState: getWasmModuleState('timeSlot'),
       executionMode: getExecutionMode(),
     }
     console.warn('[timeSlot dual-run mismatch]', log)
