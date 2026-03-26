@@ -1,15 +1,17 @@
 /**
- * 部門別時間帯パターンチャート (ECharts)
+ * 部門別時間帯パターンチャート (ECharts) — 統合ビュー
+ *
+ * 第1軸: 部門別積み上げ面グラフ（売上金額）
+ * 第2軸: 点数 / 累積構成比 / 気温 / 降水量 の切替オーバーレイ
  *
  * パイプライン:
- *   QueryHandler → DeptHourlyChartLogic.ts → ECharts option → EChart
- *
- * @migration P5: useQueryWithHandler 経由に移行済み（旧: useDuckDBCategoryHourly 直接 import）
+ *   CategoryHourlyHandler → DeptHourlyChartLogic.ts → ECharts option → EChart
+ *   HourlyAggregation / WeatherHourlyAvg → 第2軸オーバーレイ
  */
 import React, { useState, useMemo, useCallback } from 'react'
 import { useTheme } from 'styled-components'
 import { HOUR_MIN, HOUR_MAX } from './HeatmapChart.helpers'
-import type { DateRange } from '@/domain/models/calendar'
+import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { AppTheme } from '@/presentation/theme/theme'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
@@ -18,6 +20,10 @@ import {
   categoryHourlyHandler,
   type CategoryHourlyInput,
 } from '@/application/queries/cts/CategoryHourlyHandler'
+import {
+  hourlyAggregationHandler,
+  type HourlyAggregationInput,
+} from '@/application/queries/cts/HourlyAggregationHandler'
 import { useCurrencyFormatter } from './chartTheme'
 import { buildDeptHourlyData, detectCannibalization, TOP_N_OPTIONS } from './DeptHourlyChartLogic'
 import { useI18n } from '@/application/hooks/useI18n'
@@ -50,6 +56,7 @@ import {
 
 type ViewMode = 'stacked' | 'separate'
 type HierarchyLevel = 'department' | 'line' | 'klass'
+export type RightOverlayMode = 'quantity' | 'cumRatio' | 'temperature' | 'precipitation'
 
 const VIEW_OPTIONS: readonly { value: ViewMode; label: string }[] = [
   { value: 'stacked', label: '積み上げ' },
@@ -60,6 +67,13 @@ const LEVEL_OPTIONS: readonly { value: HierarchyLevel; label: string }[] = [
   { value: 'department', label: '部門' },
   { value: 'line', label: 'ライン' },
   { value: 'klass', label: 'クラス' },
+]
+
+const RIGHT_OVERLAY_OPTIONS: readonly { value: RightOverlayMode; label: string }[] = [
+  { value: 'quantity', label: '点数' },
+  { value: 'cumRatio', label: '累積構成比' },
+  { value: 'temperature', label: '気温' },
+  { value: 'precipitation', label: '降水量' },
 ]
 
 const LEVEL_LABELS: Record<HierarchyLevel, string> = {
@@ -76,36 +90,189 @@ interface DrillState {
   readonly lineName?: string
 }
 
+/** 第2軸オーバーレイ用データ（時間帯ごとの値） */
+export interface HourlyOverlayData {
+  readonly hour: number
+  readonly quantity?: number
+  readonly temperature?: number
+  readonly precipitation?: number
+}
+
 interface Props {
   readonly queryExecutor: QueryExecutor | null
   readonly currentDateRange: DateRange
   readonly selectedStoreIds: ReadonlySet<string>
+  /** 前年スコープ（点数の前年データ取得用） */
+  readonly prevYearScope?: PrevYearScope
+  /** 時間帯別の天気データ（親から受け渡し） */
+  readonly weatherOverlay?: readonly HourlyOverlayData[]
 }
 
 function buildOption(
-  chartData: readonly { hour: string; [k: string]: string | number }[],
+  chartData: readonly { hour: string; hourNum: number; [k: string]: string | number }[],
   departments: readonly { code: string; name: string; color: string }[],
   viewMode: ViewMode,
   theme: AppTheme,
+  rightMode: RightOverlayMode,
+  overlayByHour: ReadonlyMap<number, HourlyOverlayData>,
+  prevQtyByHour?: ReadonlyMap<number, number>,
 ): EChartsOption {
   const hours = chartData.map((d) => d.hour)
+
+  // 第1軸: 部門別積み上げ面グラフ
+  const deptSeries = [...departments].reverse().map((dept) => ({
+    name: dept.name,
+    type: 'line' as const,
+    stack: viewMode === 'stacked' ? 'depts' : undefined,
+    areaStyle: { opacity: viewMode === 'stacked' ? 0.4 : 0.15 },
+    data: chartData.map((d) => (d[`dept_${dept.code}`] as number) ?? 0),
+    lineStyle: { color: dept.color, width: viewMode === 'stacked' ? 1.5 : 2 },
+    itemStyle: { color: dept.color },
+    symbol: 'none',
+    smooth: true,
+    yAxisIndex: 0,
+  }))
+
+  // 第2軸: オーバーレイ series
+  const overlaySeries: object[] = []
+  const rightAxisConfig = buildRightAxisConfig(rightMode, theme)
+
+  if (rightMode === 'quantity') {
+    // 当年点数
+    overlaySeries.push({
+      name: '点数',
+      type: 'line',
+      yAxisIndex: 1,
+      data: chartData.map((d) => overlayByHour.get(d.hourNum)?.quantity ?? null),
+      lineStyle: { color: theme.colors.palette.primary, width: 2, type: 'solid' },
+      itemStyle: { color: theme.colors.palette.primary },
+      symbol: 'circle',
+      symbolSize: 4,
+      smooth: true,
+      z: 10,
+    })
+    // 前年点数（あれば）
+    if (prevQtyByHour && prevQtyByHour.size > 0) {
+      overlaySeries.push({
+        name: '前年点数',
+        type: 'line',
+        yAxisIndex: 1,
+        data: chartData.map((d) => prevQtyByHour.get(d.hourNum) ?? null),
+        lineStyle: {
+          color: theme.colors.palette.primary,
+          width: 1.5,
+          type: 'dashed',
+          opacity: 0.5,
+        },
+        itemStyle: { color: theme.colors.palette.primary, opacity: 0.5 },
+        symbol: 'none',
+        smooth: true,
+        z: 10,
+      })
+    }
+  } else if (rightMode === 'cumRatio') {
+    // 累積構成比（積み上げの合計を元に各時間帯の割合を累積）
+    const hourTotals = chartData.map((d) => {
+      let sum = 0
+      for (const dept of departments) sum += (d[`dept_${dept.code}`] as number) ?? 0
+      return sum
+    })
+    const grandTotal = hourTotals.reduce((a, b) => a + b, 0) || 1
+    let cumRatio = 0
+    const cumData = hourTotals.map((t) => {
+      cumRatio += t / grandTotal
+      return Math.round(cumRatio * 10000) / 100 // percent
+    })
+    overlaySeries.push({
+      name: '累積構成比',
+      type: 'line',
+      yAxisIndex: 1,
+      data: cumData,
+      lineStyle: { color: '#8b5cf6', width: 2 },
+      itemStyle: { color: '#8b5cf6' },
+      areaStyle: { color: '#8b5cf620' },
+      symbol: 'circle',
+      symbolSize: 4,
+      smooth: true,
+      z: 10,
+    })
+  } else if (rightMode === 'temperature') {
+    overlaySeries.push({
+      name: '気温',
+      type: 'line',
+      yAxisIndex: 1,
+      data: chartData.map((d) => overlayByHour.get(d.hourNum)?.temperature ?? null),
+      lineStyle: { color: '#ef4444', width: 2 },
+      itemStyle: { color: '#ef4444' },
+      symbol: 'circle',
+      symbolSize: 4,
+      smooth: true,
+      z: 10,
+    })
+  } else if (rightMode === 'precipitation') {
+    overlaySeries.push({
+      name: '降水量',
+      type: 'bar',
+      yAxisIndex: 1,
+      data: chartData.map((d) => overlayByHour.get(d.hourNum)?.precipitation ?? null),
+      barWidth: '30%',
+      itemStyle: { color: '#3b82f680' },
+      z: 5,
+    })
+  }
+
   return {
-    grid: standardGrid(),
-    tooltip: standardTooltip(theme),
+    grid: { ...standardGrid(), right: 60 },
+    tooltip: {
+      ...standardTooltip(theme),
+      trigger: 'axis',
+    },
     legend: { ...standardLegend(theme), type: 'scroll' },
     xAxis: categoryXAxis(hours, theme),
-    yAxis: yenYAxis(theme),
-    series: [...departments].reverse().map((dept) => ({
-      name: dept.name,
-      type: 'line' as const,
-      stack: viewMode === 'stacked' ? 'depts' : undefined,
-      areaStyle: { opacity: viewMode === 'stacked' ? 0.4 : 0.15 },
-      data: chartData.map((d) => (d[`dept_${dept.code}`] as number) ?? 0),
-      lineStyle: { color: dept.color, width: viewMode === 'stacked' ? 1.5 : 2 },
-      itemStyle: { color: dept.color },
-      symbol: 'none',
-      smooth: true,
-    })),
+    yAxis: [yenYAxis(theme), rightAxisConfig],
+    series: [...deptSeries, ...overlaySeries],
+  }
+}
+
+function buildRightAxisConfig(mode: RightOverlayMode, theme: AppTheme): object {
+  const base = {
+    type: 'value' as const,
+    position: 'right' as const,
+    splitLine: { show: false },
+    axisLine: { show: true, lineStyle: { color: theme.colors.border } },
+  }
+  switch (mode) {
+    case 'quantity':
+      return {
+        ...base,
+        name: '点数',
+        nameTextStyle: { color: theme.colors.text4 },
+        axisLabel: { color: theme.colors.text4, formatter: (v: number) => v.toLocaleString() },
+      }
+    case 'cumRatio':
+      return {
+        ...base,
+        name: '累積構成比',
+        nameTextStyle: { color: theme.colors.text4 },
+        min: 0,
+        max: 100,
+        axisLabel: { color: theme.colors.text4, formatter: (v: number) => `${v}%` },
+      }
+    case 'temperature':
+      return {
+        ...base,
+        name: '気温(°C)',
+        nameTextStyle: { color: theme.colors.text4 },
+        axisLabel: { color: theme.colors.text4, formatter: (v: number) => `${v}°` },
+      }
+    case 'precipitation':
+      return {
+        ...base,
+        name: '降水量(mm)',
+        nameTextStyle: { color: theme.colors.text4 },
+        min: 0,
+        axisLabel: { color: theme.colors.text4, formatter: (v: number) => `${v}mm` },
+      }
   }
 }
 
@@ -113,6 +280,8 @@ export const DeptHourlyChart = React.memo(function DeptHourlyChart({
   queryExecutor,
   currentDateRange,
   selectedStoreIds,
+  prevYearScope,
+  weatherOverlay,
 }: Props) {
   const theme = useTheme() as AppTheme
   const fmt = useCurrencyFormatter()
@@ -121,7 +290,9 @@ export const DeptHourlyChart = React.memo(function DeptHourlyChart({
   const [activeDepts, setActiveDepts] = useState<ReadonlySet<string>>(new Set())
   const [viewMode, setViewMode] = useState<ViewMode>('stacked')
   const [drill, setDrill] = useState<DrillState>({ level: 'department' })
+  const [rightMode, setRightMode] = useState<RightOverlayMode>('quantity')
 
+  // ── 部門別時間帯データ（第1軸） ──
   const input = useMemo<CategoryHourlyInput | null>(() => {
     const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
     return {
@@ -142,6 +313,55 @@ export const DeptHourlyChart = React.memo(function DeptHourlyChart({
 
   const categoryHourlyRows = output?.records ?? null
 
+  // ── 時間帯別点数データ（第2軸: quantity モード用） ──
+  const storeIds = useMemo(
+    () => (selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined),
+    [selectedStoreIds],
+  )
+  const qtyInput = useMemo<HourlyAggregationInput | null>(() => {
+    if (rightMode !== 'quantity') return null
+    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
+    return { dateFrom: fromKey, dateTo: toKey, storeIds, isPrevYear: false }
+  }, [currentDateRange, storeIds, rightMode])
+
+  const prevDateRange = prevYearScope?.dateRange
+  const prevQtyInput = useMemo<HourlyAggregationInput | null>(() => {
+    if (rightMode !== 'quantity' || !prevDateRange) return null
+    const { fromKey, toKey } = dateRangeToKeys(prevDateRange)
+    return { dateFrom: fromKey, dateTo: toKey, storeIds, isPrevYear: true }
+  }, [prevDateRange, storeIds, rightMode])
+
+  const { data: curQtyOut } = useQueryWithHandler(queryExecutor, hourlyAggregationHandler, qtyInput)
+  const { data: prevQtyOut } = useQueryWithHandler(
+    queryExecutor,
+    hourlyAggregationHandler,
+    prevQtyInput,
+  )
+
+  // 天気・点数 → hourMap
+  const overlayByHour = useMemo(() => {
+    const m = new Map<number, HourlyOverlayData>()
+    if (curQtyOut?.records) {
+      for (const r of curQtyOut.records) {
+        m.set(r.hour, { hour: r.hour, quantity: r.totalQuantity })
+      }
+    }
+    if (weatherOverlay) {
+      for (const w of weatherOverlay) {
+        const existing = m.get(w.hour) ?? { hour: w.hour }
+        m.set(w.hour, { ...existing, temperature: w.temperature, precipitation: w.precipitation })
+      }
+    }
+    return m
+  }, [curQtyOut, weatherOverlay])
+
+  const prevQtyByHour = useMemo(() => {
+    if (!prevQtyOut?.records) return undefined
+    const m = new Map<number, number>()
+    for (const r of prevQtyOut.records) m.set(r.hour, r.totalQuantity)
+    return m
+  }, [prevQtyOut])
+
   const { chartData, departments, hourlyPatterns } = useMemo(
     () =>
       categoryHourlyRows
@@ -156,8 +376,9 @@ export const DeptHourlyChart = React.memo(function DeptHourlyChart({
   )
 
   const option = useMemo(
-    () => buildOption(chartData, departments, viewMode, theme),
-    [chartData, departments, viewMode, theme],
+    () =>
+      buildOption(chartData, departments, viewMode, theme, rightMode, overlayByHour, prevQtyByHour),
+    [chartData, departments, viewMode, theme, rightMode, overlayByHour, prevQtyByHour],
   )
 
   const handleTopNChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -288,6 +509,12 @@ export const DeptHourlyChart = React.memo(function DeptHourlyChart({
           ))}
         </TopNSelect>
       </TopNSelector>
+      <SegmentedControl
+        options={RIGHT_OVERLAY_OPTIONS}
+        value={rightMode}
+        onChange={setRightMode}
+        ariaLabel="第2軸"
+      />
     </>
   )
 

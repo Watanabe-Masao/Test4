@@ -31,18 +31,17 @@ import {
   buildSalesAnalysisContext,
   deriveChildContext,
 } from '@/application/models/SalesAnalysisContext'
-import type { AnalysisViewEvents, CategoryFocus } from '@/application/models/AnalysisViewEvents'
+// AnalysisViewEvents / CategoryFocus は TimeSlotChart 統合に伴い不要（将来復帰可能性あり）
 import {
   buildRootNodeContext,
   deriveNodeContext,
   deriveDeptPatternContext,
   DEFAULT_TOP_DEPARTMENT_POLICY,
 } from '@/application/models/AnalysisNodeContext'
-import { useCrossChartSelection } from './crossChartSelectionHooks'
+// useCrossChartSelection は TimeSlotChart 統合に伴い不要
 import type { RightAxisMode } from './DailySalesChartBodyLogic'
 import type { ViewType } from './DailySalesChartBody'
 import { DailySalesChart } from './DailySalesChart'
-import { TimeSlotChart } from './TimeSlotChart'
 import { DeptHourlyChart } from './DeptHourlyChart'
 import { SubAnalysisPanel } from './SubAnalysisPanel'
 import { CategoryHeatmapPanel } from './CategoryHeatmapPanel'
@@ -249,28 +248,6 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
   // SubAnalysisPanel 用の文脈（ドリル時は drill 範囲、未ドリル時は親）
   const subPanelContext = drillContext ?? parentContext
 
-  // ── イベント連動 ──
-
-  const { highlightTimeSlot, highlightCategory } = useCrossChartSelection()
-
-  const childEvents = useMemo<AnalysisViewEvents>(
-    () => ({
-      onSelectHour: (hour: number) => highlightTimeSlot({ hour }),
-      onSelectCategory: (focus: CategoryFocus) =>
-        highlightCategory({
-          departmentCode: focus.level === 'department' ? focus.code : undefined,
-          lineCode: focus.level === 'line' ? focus.code : undefined,
-          klassCode: focus.level === 'klass' ? focus.code : undefined,
-          name: focus.name,
-        }),
-      onClearSelection: () => {
-        highlightTimeSlot(null)
-        highlightCategory(null)
-      },
-    }),
-    [highlightTimeSlot, highlightCategory],
-  )
-
   // ── 移動平均 overlay（Phase 5: 売上7日MA） ──
   // 対象: 当期売上のみ / standard view 前提 / 比較系列・売変率には載せない
   // chart は overlay series を受けるだけで rolling 計算を知らない
@@ -306,7 +283,6 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
   )
 
   const handleDrillToTimeSlot = useCallback(() => setDrillWithDirection(1), [setDrillWithDirection])
-  const handleDrillToDetail = useCallback(() => setDrillWithDirection(2), [setDrillWithDirection])
   const handleBackToDaily = useCallback(() => {
     setDrillWithDirection(0)
     setSelectedRange(null)
@@ -330,12 +306,8 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
             日別売上
           </NavItem>
           <NavSep>›</NavSep>
-          <NavItem $active={drillLevel === 1} onClick={handleDrillToTimeSlot}>
-            時間帯別（{rangeLabel}）
-          </NavItem>
-          <NavSep>›</NavSep>
-          <NavItem $active={drillLevel === 2} onClick={handleDrillToDetail}>
-            部門別・カテゴリ別
+          <NavItem $active={drillLevel >= 1} onClick={handleDrillToTimeSlot}>
+            時間帯別分析（{rangeLabel}）
           </NavItem>
         </DrillNav>
       )}
@@ -392,28 +364,9 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
           </motion.div>
         )}
 
-        {drillLevel === 1 && isDrilled && drillContext && (
+        {drillLevel >= 1 && isDrilled && drillContext && (
           <motion.div
             key="level-1"
-            custom={slideDirection}
-            variants={slideVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={slideTransition}
-          >
-            <TimeSlotChart
-              queryExecutor={props.queryExecutor}
-              context={drillContext}
-              events={childEvents}
-              weatherPersist={props.weatherPersist}
-            />
-          </motion.div>
-        )}
-
-        {drillLevel === 2 && isDrilled && drillContext && (
-          <motion.div
-            key="level-2"
             custom={slideDirection}
             variants={slideVariants}
             initial="enter"
@@ -425,6 +378,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
               queryExecutor={props.queryExecutor}
               currentDateRange={drillContext.dateRange}
               selectedStoreIds={drillContext.selectedStoreIds}
+              prevYearScope={drillContext.comparisonScope}
             />
             <CategoryHeatmapPanel
               ctx={{
