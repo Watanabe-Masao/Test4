@@ -44,6 +44,12 @@ interface Props {
   onRightAxisModeChange?: (mode: RightAxisMode) => void
   /** ビュータイプ変更通知（親でサブパネル表示制御に使用） */
   onViewChange?: (view: ViewType) => void
+  /** 移動平均 overlay 系列（temporal handler 由来、dateKey + value のみ使用） */
+  movingAverageSeries?: readonly { readonly dateKey: string; readonly value: number | null }[]
+  /** 移動平均表示フラグ */
+  showMovingAverage?: boolean
+  /** 移動平均表示切替コールバック */
+  onShowMovingAverageChange?: (show: boolean) => void
 }
 
 const VIEW_LABELS: Record<ViewType, string> = {
@@ -87,6 +93,9 @@ export const DailySalesChart = memo(function DailySalesChart({
   rightAxisMode: controlledRightAxisMode,
   onRightAxisModeChange,
   onViewChange,
+  movingAverageSeries,
+  showMovingAverage,
+  onShowMovingAverageChange,
 }: Props) {
   const ct = useChartTheme()
   const [view, setViewInternal] = useState<ViewType>('standard')
@@ -173,6 +182,17 @@ export const DailySalesChart = memo(function DailySalesChart({
           ))}
         </>
       )}
+      {view === 'standard' && onShowMovingAverageChange && (
+        <>
+          <Sep>|</Sep>
+          <ViewBtn
+            $active={showMovingAverage === true}
+            onClick={() => onShowMovingAverageChange(!showMovingAverage)}
+          >
+            移動平均
+          </ViewBtn>
+        </>
+      )}
     </ViewToggle>
   )
 
@@ -196,6 +216,8 @@ export const DailySalesChart = memo(function DailySalesChart({
         year={year}
         month={month}
         rightAxisMode={rightAxisMode}
+        movingAverageSeries={movingAverageSeries}
+        showMovingAverage={showMovingAverage}
       />
     </ChartCard>
   )
