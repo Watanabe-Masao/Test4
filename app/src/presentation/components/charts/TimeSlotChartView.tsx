@@ -215,7 +215,7 @@ export const TimeSlotChartView = memo(function TimeSlotChartView({
             ))}
           </HierarchySelect>
         )}
-        <TabGroup>
+        <TabGroup style={{ marginLeft: 'auto' }}>
           <Tab $active={lineMode === 'quantity'} onClick={() => onLineModeChange('quantity')}>
             点数
           </Tab>
