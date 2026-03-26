@@ -23,6 +23,7 @@ import { buildTemporalFetchPlan } from '@/application/usecases/temporal/buildTem
 import { buildDailySeries } from '@/application/services/temporal/buildDailySeries'
 import { adaptStoreDaySummaryRow } from '@/application/services/temporal/storeDaySummaryTemporalAdapter'
 import type { StoreDaySummaryRowForTemporal } from '@/application/services/temporal/storeDaySummaryTemporalAdapter'
+import { aggregateStoreDaySummaryByDateKey } from '@/application/services/temporal/aggregateStoreDaySummaryByDateKey'
 import { computeMovingAverage } from '@/domain/calculations/temporal/computeMovingAverage'
 import { queryStoreDaySummary } from '@/infrastructure/duckdb/queries/storeDaySummary'
 import { toDateKey } from '@/domain/models/CalendarDate'
@@ -74,9 +75,15 @@ export const movingAverageHandler: QueryHandler<MovingAverageInput, MovingAverag
       storeIds: frame.storeIds.length > 0 ? [...frame.storeIds] : undefined,
     })
 
+    // 2.5. store×day rows を dateKey 単位で集約（全店合計）
+    // queryStoreDaySummary は store×day 単位で返すため、複数店舗選択時に
+    // 同一 dateKey に複数行が存在する。series 構築前に日別合計の意味を確定する。
+    const aggregatedRows = aggregateStoreDaySummaryByDateKey(
+      rows.map((r) => r as StoreDaySummaryRowForTemporal),
+    )
+
     // 3. rows → DailySeriesSourceRow[]（adapter に委譲）
-    // StoreDaySummaryRow は StoreDaySummaryRowForTemporal の上位集合
-    const sourceRows = rows.map((r) => adaptStoreDaySummaryRow(r as StoreDaySummaryRowForTemporal))
+    const sourceRows = aggregatedRows.map((r) => adaptStoreDaySummaryRow(r))
 
     // 4. 連続日次系列構築
     const dailySeries = buildDailySeries(plan, sourceRows, frame.metric)
