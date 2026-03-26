@@ -110,7 +110,7 @@ export function buildDeptStackedAreaOption(input: DeptAreaOptionInput): EChartsO
   if (showPrev) {
     const prevSalesData = sortedHours.map((h) => {
       const row = chartDataByHour.get(h)
-      return (row?.compAmount as number) ?? (row?.compSales as number) ?? null
+      return (row?.prevAmount as number) ?? null
     })
     if (prevSalesData.some((v) => v != null && v > 0)) {
       deptSeries.push({
@@ -139,7 +139,7 @@ export function buildDeptStackedAreaOption(input: DeptAreaOptionInput): EChartsO
       yAxisIndex: 1,
       data: sortedHours.map((h) => {
         const row = chartDataByHour.get(h)
-        return row?.curQuantity ?? row?.curQty ?? null
+        return (row?.quantity as number) ?? null
       }),
       lineStyle: { color: palette.cyan, width: 2.5 },
       itemStyle: { color: palette.cyan },
@@ -155,7 +155,7 @@ export function buildDeptStackedAreaOption(input: DeptAreaOptionInput): EChartsO
         yAxisIndex: 1,
         data: sortedHours.map((h) => {
           const row = chartDataByHour.get(h)
-          return row?.compQuantity ?? row?.compQty ?? null
+          return (row?.prevQuantity as number) ?? null
         }),
         lineStyle: { color: palette.cyan, width: 1.5, type: 'dashed', opacity: 0.5 },
         itemStyle: { color: palette.cyan, opacity: 0.5 },
