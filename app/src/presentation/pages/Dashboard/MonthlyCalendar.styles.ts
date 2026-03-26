@@ -426,3 +426,32 @@ export const WeekSummaryValue = styled.div<{ $color?: string }>`
   color: ${({ $color, theme }) => $color ?? theme.colors.text};
   line-height: 1.3;
 `
+
+// ─── Drag Range Selection ──────────────────────────────
+
+export const DragTargetBtn = styled.button<{ $active: boolean; $color: string }>`
+  all: unset;
+  cursor: pointer;
+  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[5]};
+  border-radius: ${({ theme }) => theme.radii.md};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  transition: all 0.15s;
+  border: 2px solid ${({ $active, $color, theme }) => ($active ? $color : theme.colors.border)};
+  background: ${({ $active, $color }) => ($active ? `${$color}18` : 'transparent')};
+  color: ${({ $active, $color, theme }) => ($active ? $color : theme.colors.text3)};
+  &:hover {
+    border-color: ${({ $color }) => $color};
+    background: ${({ $color }) => `${$color}10`};
+  }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+  }
+`
+
+export const DragHint = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text4};
+  margin-left: auto;
+`
