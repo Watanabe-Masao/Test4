@@ -1,12 +1,12 @@
 # Architecture State Snapshot
 
-> Generated: 2026-03-25T17:40:51.241Z
+> Generated: 2026-03-26T13:54:18.374Z
 
 ## Allowlist Summary
 
 | 指標 | 値 |
 |---|---|
-| 総エントリ数 | 50 |
+| 総エントリ数 | 51 |
 | アクティブリスト数 | 14 |
 | 凍結リスト数 | 7 |
 | .vm.ts ファイル数 | 16 |
@@ -16,7 +16,7 @@
 
 | カテゴリ | 件数 |
 |---|---|
-| structural | 37 |
+| structural | 38 |
 | adapter | 11 |
 | lifecycle | 2 |
 
@@ -82,6 +82,7 @@
 - application/hooks/useStoragePersistence.ts
 - application/hooks/useStoreSelection.ts
 - application/hooks/useStoredMonthsMonitor.ts
+- application/hooks/useTemporalAnalysis.ts
 - application/hooks/useTimeSlotData.ts
 - application/hooks/useUndoRedo.ts
 - application/hooks/useWeather.ts
@@ -100,11 +101,11 @@
 | presentation/pages/CostDetail/useCostDetailData.ts | 13 | 6 | 210 |
 | presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 14 | 5 | 475 |
 | presentation/components/charts/CategoryBenchmarkChart.vm.ts | 10 | 8 | 470 |
-| presentation/components/charts/IntegratedSalesChart.tsx | 12 | 4 | 425 |
+| presentation/components/charts/IntegratedSalesChart.tsx | 12 | 6 | 461 |
+| presentation/components/charts/CategoryTrendChart.tsx | 9 | 7 | 519 |
 | presentation/pages/Dashboard/widgets/HourlyChart.tsx | 10 | 6 | 538 |
 | presentation/components/charts/CategoryBoxPlotChart.vm.ts | 8 | 7 | 256 |
 | presentation/pages/Admin/RawDataTab.tsx | 12 | 2 | 294 |
-| presentation/pages/Dashboard/widgets/useMonthlyCalendarState.ts | 4 | 10 | 214 |
 
 ## Near-Limit Files (≥80%)
 
@@ -117,9 +118,10 @@
 | presentation/pages/Admin/RawDataTab.tsx | useMemo | 11 | 12 | 92% |
 | presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | useMemo | 10 | 11 | 91% |
 | presentation/pages/Dashboard/widgets/HourlyChart.tsx | useMemo | 9 | 10 | 90% |
+| presentation/components/charts/DailySalesChartBody.tsx | useMemo | 9 | 10 | 90% |
 | application/hooks/duckdb/categoryBenchmarkLogic.ts | lines | 401 | 450 | 89% |
-| presentation/components/charts/DailySalesChartBody.tsx | useMemo | 8 | 9 | 89% |
 | application/hooks/useTimeSlotData.ts | useMemo | 7 | 8 | 88% |
+| presentation/components/charts/IntegratedSalesChart.tsx | useMemo | 7 | 8 | 88% |
 | presentation/pages/Dashboard/widgets/DrilldownWaterfall.tsx | useMemo | 7 | 8 | 88% |
 | presentation/components/charts/TimeSlotChart.tsx | useMemo | 7 | 8 | 88% |
 | presentation/pages/Dashboard/widgets/useMonthlyCalendarState.ts | useState | 9 | 11 | 82% |
@@ -139,7 +141,7 @@
 | リスト名 | 件数 | カテゴリ内訳 |
 |---|---|---|
 | applicationToInfrastructure | 13 | adapter:11, lifecycle:2 |
-| presentationMemoLimits | 8 | structural:8 |
+| presentationMemoLimits | 9 | structural:9 |
 | domainLargeFiles | 7 | structural:7 |
 | presentationStateLimits | 5 | structural:5 |
 | useStateLimits | 3 | structural:3 |
