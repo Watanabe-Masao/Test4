@@ -94,3 +94,62 @@ export const InsightTitle = styled.div`
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text2};
 `
+
+// ─── Drill-down Navigation ─────────────────────────────
+
+export const BreadcrumbRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[1]};
+  margin-bottom: ${({ theme }) => theme.spacing[3]};
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
+`
+
+export const BreadcrumbLink = styled.button`
+  all: unset;
+  cursor: pointer;
+  color: ${({ theme }) => theme.colors.palette.primary};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
+  &:hover {
+    text-decoration: underline;
+  }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
+  }
+`
+
+export const BreadcrumbSep = styled.span`
+  color: ${({ theme }) => theme.colors.text4};
+`
+
+export const BreadcrumbCurrent = styled.span`
+  color: ${({ theme }) => theme.colors.text2};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+`
+
+export const BackRow = styled.div`
+  margin-bottom: ${({ theme }) => theme.spacing[2]};
+`
+
+export const BackLink = styled.button`
+  all: unset;
+  cursor: pointer;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
+  color: ${({ theme }) => theme.colors.palette.primary};
+  &:hover {
+    text-decoration: underline;
+  }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
+  }
+`
+
+export const DrillIcon = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
+  opacity: 0.5;
+  margin-left: 2px;
+`

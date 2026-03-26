@@ -39,14 +39,42 @@ import {
   InsightBar,
   InsightItem,
   InsightTitle,
+  BreadcrumbRow,
+  BreadcrumbLink,
+  BreadcrumbSep,
+  BreadcrumbCurrent,
+  BackRow,
+  BackLink,
+  DrillIcon,
 } from './DeptHourlyChart.styles'
 
 type ViewMode = 'stacked' | 'separate'
+type HierarchyLevel = 'department' | 'line' | 'klass'
 
 const VIEW_OPTIONS: readonly { value: ViewMode; label: string }[] = [
   { value: 'stacked', label: '積み上げ' },
   { value: 'separate', label: '独立' },
 ]
+
+const LEVEL_OPTIONS: readonly { value: HierarchyLevel; label: string }[] = [
+  { value: 'department', label: '部門' },
+  { value: 'line', label: 'ライン' },
+  { value: 'klass', label: 'クラス' },
+]
+
+const LEVEL_LABELS: Record<HierarchyLevel, string> = {
+  department: '部門',
+  line: 'ライン',
+  klass: 'クラス',
+}
+
+interface DrillState {
+  readonly level: HierarchyLevel
+  readonly deptCode?: string
+  readonly deptName?: string
+  readonly lineCode?: string
+  readonly lineName?: string
+}
 
 interface Props {
   readonly queryExecutor: QueryExecutor | null
@@ -92,6 +120,7 @@ export const DeptHourlyChart = React.memo(function DeptHourlyChart({
   const [topN, setTopN] = useState(5)
   const [activeDepts, setActiveDepts] = useState<ReadonlySet<string>>(new Set())
   const [viewMode, setViewMode] = useState<ViewMode>('stacked')
+  const [drill, setDrill] = useState<DrillState>({ level: 'department' })
 
   const input = useMemo<CategoryHourlyInput | null>(() => {
     const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
@@ -99,9 +128,11 @@ export const DeptHourlyChart = React.memo(function DeptHourlyChart({
       dateFrom: fromKey,
       dateTo: toKey,
       storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
-      level: 'department' as const,
+      level: drill.level,
+      deptCode: drill.deptCode,
+      lineCode: drill.lineCode,
     }
-  }, [currentDateRange, selectedStoreIds])
+  }, [currentDateRange, selectedStoreIds, drill.level, drill.deptCode, drill.lineCode])
 
   const {
     data: output,
@@ -143,31 +174,103 @@ export const DeptHourlyChart = React.memo(function DeptHourlyChart({
     })
   }, [])
 
+  const handleDrillDown = useCallback(
+    (code: string, name: string) => {
+      setActiveDepts(new Set())
+      if (drill.level === 'department') {
+        setDrill({ level: 'line', deptCode: code, deptName: name })
+      } else if (drill.level === 'line') {
+        setDrill({
+          level: 'klass',
+          deptCode: drill.deptCode,
+          deptName: drill.deptName,
+          lineCode: code,
+          lineName: name,
+        })
+      }
+    },
+    [drill],
+  )
+
+  const handleDrillUp = useCallback(() => {
+    setActiveDepts(new Set())
+    if (drill.level === 'klass') {
+      setDrill({ level: 'line', deptCode: drill.deptCode, deptName: drill.deptName })
+    } else if (drill.level === 'line') {
+      setDrill({ level: 'department' })
+    }
+  }, [drill])
+
+  const handleLevelChange = useCallback((level: HierarchyLevel) => {
+    setActiveDepts(new Set())
+    setDrill({ level })
+  }, [])
+
+  const chartTitle = '部門別時間帯パターン'
+
   if (error) {
     return (
-      <ChartCard title="部門別時間帯パターン">
+      <ChartCard title={chartTitle}>
         <ChartError message={`${messages.errors.dataFetchFailed}: ${error}`} />
       </ChartCard>
     )
   }
   if (isLoading && !categoryHourlyRows) {
     return (
-      <ChartCard title="部門別時間帯パターン">
+      <ChartCard title={chartTitle}>
         <ChartLoading />
       </ChartCard>
     )
   }
   if (!queryExecutor || chartData.length === 0) {
     return (
-      <ChartCard title="部門別時間帯パターン">
+      <ChartCard title={chartTitle}>
         <ChartEmpty message="データをインポートしてください" />
       </ChartCard>
     )
   }
 
-  const subtitle = `上位${topN}部門の時間帯別売上 | ${viewMode === 'stacked' ? '積み上げ面グラフ' : '独立面グラフ'}`
+  const levelLabel = LEVEL_LABELS[drill.level]
+  const subtitle = `上位${topN}${levelLabel}の時間帯別売上 | ${viewMode === 'stacked' ? '積み上げ面グラフ' : '独立面グラフ'}`
+
+  // パンくずリスト（ドリルダウン時）
+  const breadcrumb =
+    drill.level !== 'department' ? (
+      <BreadcrumbRow>
+        <BreadcrumbLink onClick={() => setDrill({ level: 'department' })}>全部門</BreadcrumbLink>
+        {drill.deptName && (
+          <>
+            <BreadcrumbSep>›</BreadcrumbSep>
+            {drill.level === 'line' ? (
+              <BreadcrumbCurrent>{drill.deptName}</BreadcrumbCurrent>
+            ) : (
+              <BreadcrumbLink
+                onClick={() =>
+                  setDrill({ level: 'line', deptCode: drill.deptCode, deptName: drill.deptName })
+                }
+              >
+                {drill.deptName}
+              </BreadcrumbLink>
+            )}
+          </>
+        )}
+        {drill.lineName && (
+          <>
+            <BreadcrumbSep>›</BreadcrumbSep>
+            <BreadcrumbCurrent>{drill.lineName}</BreadcrumbCurrent>
+          </>
+        )}
+      </BreadcrumbRow>
+    ) : null
+
   const toolbar = (
     <>
+      <SegmentedControl
+        options={LEVEL_OPTIONS}
+        value={drill.level}
+        onChange={handleLevelChange}
+        ariaLabel="階層レベル"
+      />
       <SegmentedControl
         options={VIEW_OPTIONS}
         value={viewMode}
@@ -179,7 +282,8 @@ export const DeptHourlyChart = React.memo(function DeptHourlyChart({
         <TopNSelect value={topN} onChange={handleTopNChange}>
           {TOP_N_OPTIONS.map((n) => (
             <option key={n} value={n}>
-              {n}部門
+              {n}
+              {levelLabel}
             </option>
           ))}
         </TopNSelect>
@@ -187,8 +291,12 @@ export const DeptHourlyChart = React.memo(function DeptHourlyChart({
     </>
   )
 
+  const canDrillDown = drill.level !== 'klass'
+
   return (
-    <ChartCard title="部門別時間帯パターン" subtitle={subtitle} toolbar={toolbar}>
+    <ChartCard title={chartTitle} subtitle={subtitle} toolbar={toolbar}>
+      {breadcrumb}
+
       <ChipContainer>
         {departments.map((dept) => (
           <DeptChip
@@ -196,12 +304,23 @@ export const DeptHourlyChart = React.memo(function DeptHourlyChart({
             $color={dept.color}
             $active={activeDepts.size === 0 || activeDepts.has(dept.code)}
             onClick={() => handleChipClick(dept.code)}
+            onDoubleClick={canDrillDown ? () => handleDrillDown(dept.code, dept.name) : undefined}
+            title={canDrillDown ? 'ダブルクリックでドリルダウン' : undefined}
           >
             <ColorDot $color={dept.color} />
             {dept.name}
+            {canDrillDown && <DrillIcon>▸</DrillIcon>}
           </DeptChip>
         ))}
       </ChipContainer>
+
+      {drill.level !== 'department' && (
+        <BackRow>
+          <BackLink onClick={handleDrillUp}>
+            ← {drill.level === 'klass' ? 'ライン' : '部門'}に戻る
+          </BackLink>
+        </BackRow>
+      )}
 
       <EChart option={option} height={300} ariaLabel="部門別時間帯パターンチャート" />
 

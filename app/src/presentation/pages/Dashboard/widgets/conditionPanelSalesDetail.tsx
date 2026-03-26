@@ -18,7 +18,6 @@ import {
   BSignalDot,
   ExpandIcon,
   SubRow,
-  StoreBorderTr,
   BreakdownRow,
   BreakdownLabel,
   BreakdownValue,
@@ -30,6 +29,14 @@ import {
   TotalCell,
   SmallLabel,
   BigValue,
+  StoreRowWrapper,
+  StoreRowGrid,
+  StoreName,
+  MonoSm,
+  MonoMd,
+  TableHeaderRow,
+  TableHeaderCell,
+  SectionLabel,
 } from './ConditionSummaryEnhanced.styles'
 import type {
   TxValueDetailProps,
@@ -52,7 +59,7 @@ export function TxValueDetailTable({
     [sortedStoreEntries, stores, result, fmtCurrency],
   )
 
-  const hasExpanded = expandedStore != null
+  const TX_COLS = '1.2fr 1fr 1fr 1fr'
 
   return (
     <>
@@ -73,73 +80,70 @@ export function TxValueDetailTable({
         </TotalGrid>
       </TotalSection>
 
-      <DetailHeader style={{ padding: '12px 16px 0' }}>
-        <DetailTitle>店舗内訳</DetailTitle>
-      </DetailHeader>
-      <BTable>
-        <thead>
-          <tr>
-            <BTh>店舗名</BTh>
-            <BTh>売上</BTh>
-            <BTh>客数</BTh>
-            <BTh>客単価</BTh>
-          </tr>
-        </thead>
-        <tbody>
-          {vm.storeRows.flatMap((row, idx) => {
-            const isExpanded = expandedStore === row.storeId
-            const rows: React.ReactNode[] = []
-
-            if (hasExpanded && idx > 0) {
-              rows.push(
-                <StoreBorderTr key={`${row.storeId}-border`}>
-                  <td colSpan={4} />
-                </StoreBorderTr>,
-              )
-            }
-
-            rows.push(
-              <BTr
-                key={row.storeId}
-                onClick={() => onExpandToggle(row.storeId)}
-                style={{ cursor: 'pointer' }}
-              >
-                <BTd>
-                  <ExpandIcon $expanded={isExpanded}>▶</ExpandIcon>
-                  <BSignalDot $color={SIGNAL_COLORS.blue} />
-                  {row.storeName}
-                </BTd>
-                <BTd>{row.salesStr}</BTd>
-                <BTd>{row.customersStr}</BTd>
-                <BTd>{row.txStr}</BTd>
-              </BTr>,
-            )
-
-            if (isExpanded) {
-              rows.push(
-                <SubRow key={`${row.storeId}-header`}>
-                  <BTd style={{ paddingLeft: '28px', fontSize: '0.7rem', fontWeight: 600 }}>日</BTd>
-                  <BTd style={{ fontSize: '0.7rem', fontWeight: 600 }}>売上</BTd>
-                  <BTd style={{ fontSize: '0.7rem', fontWeight: 600 }}>客数</BTd>
-                  <BTd style={{ fontSize: '0.7rem', fontWeight: 600 }}>客単価</BTd>
-                </SubRow>,
-              )
-              for (const dr of row.dailyRows) {
-                rows.push(
-                  <SubRow key={`${row.storeId}-${dr.day}`}>
-                    <BTd style={{ paddingLeft: '28px' }}>{dr.dayLabel}</BTd>
-                    <BTd>{dr.salesStr}</BTd>
-                    <BTd>{dr.customersStr}</BTd>
-                    <BTd>{dr.txStr}</BTd>
-                  </SubRow>,
-                )
-              }
-            }
-
-            return rows
-          })}
-        </tbody>
-      </BTable>
+      <div style={{ padding: '12px 16px 4px' }}>
+        <SectionLabel>店舗内訳</SectionLabel>
+      </div>
+      <TableHeaderRow style={{ gridTemplateColumns: TX_COLS }}>
+        <TableHeaderCell>店名</TableHeaderCell>
+        <TableHeaderCell $align="right">売上</TableHeaderCell>
+        <TableHeaderCell $align="right">客数</TableHeaderCell>
+        <TableHeaderCell $align="right">客単価</TableHeaderCell>
+      </TableHeaderRow>
+      <div>
+        {vm.storeRows.map((row) => {
+          const isExpanded = expandedStore === row.storeId
+          return (
+            <div key={row.storeId}>
+              <StoreRowWrapper $clickable onClick={() => onExpandToggle(row.storeId)}>
+                <StoreRowGrid style={{ gridTemplateColumns: TX_COLS }}>
+                  <StoreName>
+                    <ExpandIcon $expanded={isExpanded}>▶</ExpandIcon>
+                    {row.storeName}
+                  </StoreName>
+                  <MonoSm style={{ textAlign: 'right' }}>{row.salesStr}</MonoSm>
+                  <MonoSm style={{ textAlign: 'right' }}>{row.customersStr}</MonoSm>
+                  <MonoMd $bold style={{ textAlign: 'right' }}>
+                    {row.txStr}
+                  </MonoMd>
+                </StoreRowGrid>
+              </StoreRowWrapper>
+              {isExpanded && (
+                <>
+                  <StoreRowWrapper
+                    style={{
+                      background: 'var(--sub-row-bg, rgba(0,0,0,0.02))',
+                      padding: '2px 16px',
+                    }}
+                  >
+                    <StoreRowGrid style={{ gridTemplateColumns: TX_COLS }}>
+                      <MonoSm style={{ paddingLeft: 16, fontWeight: 600 }}>日</MonoSm>
+                      <MonoSm style={{ textAlign: 'right', fontWeight: 600 }}>売上</MonoSm>
+                      <MonoSm style={{ textAlign: 'right', fontWeight: 600 }}>客数</MonoSm>
+                      <MonoSm style={{ textAlign: 'right', fontWeight: 600 }}>客単価</MonoSm>
+                    </StoreRowGrid>
+                  </StoreRowWrapper>
+                  {row.dailyRows.map((dr) => (
+                    <StoreRowWrapper
+                      key={dr.day}
+                      style={{
+                        background: 'var(--sub-row-bg, rgba(0,0,0,0.02))',
+                        padding: '2px 16px',
+                      }}
+                    >
+                      <StoreRowGrid style={{ gridTemplateColumns: TX_COLS }}>
+                        <MonoSm style={{ paddingLeft: 16 }}>{dr.dayLabel}</MonoSm>
+                        <MonoSm style={{ textAlign: 'right' }}>{dr.salesStr}</MonoSm>
+                        <MonoSm style={{ textAlign: 'right' }}>{dr.customersStr}</MonoSm>
+                        <MonoSm style={{ textAlign: 'right' }}>{dr.txStr}</MonoSm>
+                      </StoreRowGrid>
+                    </StoreRowWrapper>
+                  ))}
+                </>
+              )}
+            </div>
+          )
+        })}
+      </div>
     </>
   )
 }
