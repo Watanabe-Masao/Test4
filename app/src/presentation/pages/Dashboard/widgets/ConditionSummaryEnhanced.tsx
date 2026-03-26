@@ -309,6 +309,11 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
           style={{ cursor: 'pointer' }}
           role="button"
           tabIndex={0}
+          title={
+            budgetHeader.grossProfitBudget > 0
+              ? undefined
+              : '在庫設定ファイルで粗利額予算を入力してください'
+          }
         >
           <BudgetHeaderLabel>月間粗利額予算</BudgetHeaderLabel>
           <BudgetHeaderValue>
@@ -322,6 +327,11 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
           style={{ cursor: 'pointer' }}
           role="button"
           tabIndex={0}
+          title={
+            budgetHeader.grossProfitBudget > 0
+              ? undefined
+              : '粗利額予算が未設定のため算出できません'
+          }
         >
           <BudgetHeaderLabel>月間粗利率予算</BudgetHeaderLabel>
           <BudgetHeaderValue>
