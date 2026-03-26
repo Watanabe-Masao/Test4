@@ -1,23 +1,19 @@
 /**
  * MovingAverageHandler — 移動平均 QueryHandler
  *
- * Phase 1 の TemporalFetchPlan → Phase 2 の buildDailySeries → Phase 3 の computeMovingAverage を
- * 既存 Query Architecture に乗せる最小経路。
- *
- * 責務:
+ * 責務は orchestration のみ:
  * 1. buildTemporalFetchPlan(frame) で requiredRange/requiredMonths 導出
  * 2. queryStoreDaySummary(conn, params) で rows 取得
- * 3. rows → DailySeriesSourceRow[] 変換
+ * 3. adaptStoreDaySummaryRow で DailySeriesSourceRow[] 変換
  * 4. buildDailySeries(plan, sourceRows, frame.metric) で連続系列構築
  * 5. computeMovingAverage(series, frame.windowSize, policy) で計算
  * 6. anchorRange に切り戻し
+ *
+ * row adapter / metric 解釈は services/temporal/ に委譲。
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { QueryHandler } from '@/application/queries/QueryContract'
-import type {
-  DailySeriesPoint,
-  DailySeriesSourceRow,
-} from '@/application/services/temporal/DailySeriesTypes'
+import type { DailySeriesPoint } from '@/application/services/temporal/DailySeriesTypes'
 import type {
   RollingAnalysisFrame,
   YearMonthKey,
@@ -25,11 +21,12 @@ import type {
 import type { MovingAverageMissingnessPolicy } from '@/domain/calculations/temporal/computeMovingAverage'
 import { buildTemporalFetchPlan } from '@/application/usecases/temporal/buildTemporalFetchPlan'
 import { buildDailySeries } from '@/application/services/temporal/buildDailySeries'
-import { toYearMonthKey } from '@/application/services/temporal/DailySeriesTypes'
+import { adaptStoreDaySummaryRow } from '@/application/services/temporal/storeDaySummaryTemporalAdapter'
+import type { StoreDaySummaryRowForTemporal } from '@/application/services/temporal/storeDaySummaryTemporalAdapter'
 import { computeMovingAverage } from '@/domain/calculations/temporal/computeMovingAverage'
 import { queryStoreDaySummary } from '@/infrastructure/duckdb/queries/storeDaySummary'
 import { toDateKey } from '@/domain/models/CalendarDate'
-import type { CalendarDate, DateRange } from '@/domain/models/CalendarDate'
+import type { DateRange } from '@/domain/models/CalendarDate'
 
 // ── Input / Output ──
 
@@ -43,31 +40,7 @@ export interface MovingAverageOutput {
   readonly requiredMonths: readonly YearMonthKey[]
 }
 
-// ── Row Adapter ──
-
-/** store_day_summary の row を DailySeriesSourceRow に変換する */
-function toSourceRow(row: {
-  readonly dateKey: string
-  readonly year: number
-  readonly month: number
-  readonly day: number
-  readonly sales: number
-  readonly customers: number
-  readonly coreSales: number
-}): DailySeriesSourceRow {
-  const date: CalendarDate = { year: row.year, month: row.month, day: row.day }
-  return {
-    date,
-    dateKey: row.dateKey,
-    sourceMonthKey: toYearMonthKey(date),
-    values: {
-      sales: row.sales,
-      customers: row.customers,
-      transactionValue: row.customers > 0 ? row.sales / row.customers : null,
-      grossProfitRate: row.coreSales > 0 ? (row.sales - row.coreSales) / row.sales : null,
-    },
-  }
-}
+// ── Helpers ──
 
 /** anchorRange 内の points だけを抽出する */
 function sliceToAnchorRange(
@@ -101,9 +74,9 @@ export const movingAverageHandler: QueryHandler<MovingAverageInput, MovingAverag
       storeIds: frame.storeIds.length > 0 ? [...frame.storeIds] : undefined,
     })
 
-    // 3. rows → DailySeriesSourceRow[]
-    const sourceRows: DailySeriesSourceRow[] = rows.map((r) =>
-      toSourceRow(r as Parameters<typeof toSourceRow>[0]),
+    // 3. rows → DailySeriesSourceRow[]（adapter に委譲）
+    const sourceRows = rows.map((r) =>
+      adaptStoreDaySummaryRow(r as unknown as StoreDaySummaryRowForTemporal),
     )
 
     // 4. 連続日次系列構築
@@ -111,8 +84,6 @@ export const movingAverageHandler: QueryHandler<MovingAverageInput, MovingAverag
 
     // 5. 移動平均計算（domain 層の純粋関数）
     const maPoints = computeMovingAverage(dailySeries, frame.windowSize, policy)
-
-    // MA 結果を DailySeriesPoint に merge（date/dateKey/sourceMonthKey を保持）
     const maSeries: DailySeriesPoint[] = dailySeries.map((original, i) => ({
       ...original,
       value: maPoints[i].value,
