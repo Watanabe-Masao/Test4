@@ -39,7 +39,6 @@ import {
   PinInputLabel,
   ToolInputGroup,
   RangeToolbar,
-  RangeLabel,
   RangeInput,
   CalWeatherIcon,
   CalCellWrapper,
@@ -49,6 +48,7 @@ import {
   WeekSummaryLabel,
   WeekSummaryValue,
 } from '../DashboardPage.styles'
+import { DragTargetBtn, DragHint } from '../MonthlyCalendar.styles'
 import { useMonthlyCalendarState } from './useMonthlyCalendarState'
 
 export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
@@ -91,6 +91,11 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
     handleOpenPin,
     handlePinConfirm,
     handlePinRemove,
+    dragRef,
+    setDragTarget,
+    handleDragStart,
+    handleDragEnter,
+    handleDragEnd,
     getPrevYearSales,
     isExporting,
     handleClipExport,
@@ -100,7 +105,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
   void sortedPins
 
   return (
-    <CalWrapper>
+    <CalWrapper onMouseUp={handleDragEnd} onMouseLeave={handleDragEnd}>
       <CalSectionTitle
         style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
       >
@@ -112,9 +117,16 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
         </Button>
       </CalSectionTitle>
 
-      {/* Range Selection Toolbar */}
+      {/* Range Selection Toolbar — ドラッグ選択 + 手入力 */}
       <RangeToolbar>
-        <RangeLabel>期間A:</RangeLabel>
+        <DragTargetBtn
+          $active={hasAnyRange && rangeAStart !== ''}
+          $color={palette.warningDark}
+          onClick={() => setDragTarget('A')}
+          title="クリックしてからカレンダーをドラッグで期間A選択"
+        >
+          期間A
+        </DragTargetBtn>
         <RangeInput
           type="text"
           value={rangeAStart}
@@ -131,7 +143,14 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
         <Button $variant="outline" onClick={handleRangeSwap} title="A⇄B 入替">
           ⇄
         </Button>
-        <RangeLabel>期間B:</RangeLabel>
+        <DragTargetBtn
+          $active={hasAnyRange && rangeBStart !== ''}
+          $color={palette.primary}
+          onClick={() => setDragTarget('B')}
+          title="クリックしてからカレンダーをドラッグで期間B選択"
+        >
+          期間B
+        </DragTargetBtn>
         <RangeInput
           type="text"
           value={rangeBStart}
@@ -150,6 +169,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
             クリア
           </Button>
         )}
+        <DragHint>セルをドラッグで期間選択</DragHint>
       </RangeToolbar>
 
       {/* Range Comparison Panel */}
@@ -211,8 +231,18 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                     <CalCellWrapper
                       key={di}
                       $hasActual={hasActual}
-                      onMouseEnter={() => setHoveredDay(day)}
+                      onMouseEnter={() => {
+                        setHoveredDay(day)
+                        handleDragEnter(day)
+                      }}
                       onMouseLeave={() => setHoveredDay(null)}
+                      onMouseDown={(e: React.MouseEvent) => {
+                        if (e.button === 0) {
+                          e.preventDefault()
+                          handleDragStart(day, dragRef.current.target)
+                        }
+                      }}
+                      onMouseUp={handleDragEnd}
                     >
                       <CalDayCell
                         $pinned={isPinned}

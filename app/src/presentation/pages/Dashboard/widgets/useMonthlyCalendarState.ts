@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useCallback, useMemo, useRef } from 'react'
 import { getPrevYearDailySales } from '@/application/comparison/comparisonAccessors'
 import {
   calculateAchievementRate,
@@ -24,6 +24,52 @@ export function useMonthlyCalendarState(ctx: WidgetContext) {
   const [rangeBStart, setRangeBStart] = useState<string>('')
   const [rangeBEnd, setRangeBEnd] = useState<string>('')
   const [hoveredDay, setHoveredDay] = useState<number | null>(null)
+
+  // ── ドラッグ期間選択（useRef で state 上限を回避） ──
+  const dragRef = useRef<{ active: boolean; target: 'A' | 'B'; anchorDay: number | null }>({
+    active: false,
+    target: 'A',
+    anchorDay: null,
+  })
+
+  const handleDragStart = useCallback(
+    (day: number, target: 'A' | 'B') => {
+      dragRef.current = { active: true, target, anchorDay: day }
+      if (target === 'A') {
+        setRangeAStart(String(day))
+        setRangeAEnd(String(day))
+      } else {
+        setRangeBStart(String(day))
+        setRangeBEnd(String(day))
+      }
+    },
+    [setRangeAStart, setRangeAEnd, setRangeBStart, setRangeBEnd],
+  )
+
+  const handleDragEnter = useCallback(
+    (day: number) => {
+      const d = dragRef.current
+      if (!d.active || d.anchorDay == null) return
+      const start = Math.min(d.anchorDay, day)
+      const end = Math.max(d.anchorDay, day)
+      if (d.target === 'A') {
+        setRangeAStart(String(start))
+        setRangeAEnd(String(end))
+      } else {
+        setRangeBStart(String(start))
+        setRangeBEnd(String(end))
+      }
+    },
+    [setRangeAStart, setRangeAEnd, setRangeBStart, setRangeBEnd],
+  )
+
+  const handleDragEnd = useCallback(() => {
+    dragRef.current = { ...dragRef.current, active: false }
+  }, [])
+
+  const handleSetDragTarget = useCallback((target: 'A' | 'B') => {
+    dragRef.current = { ...dragRef.current, target }
+  }, [])
 
   // ── クリップエクスポート（hook 経由 — A3: presentation は描画専用） ──
   const clipExportParams = useMemo(
@@ -204,6 +250,12 @@ export function useMonthlyCalendarState(ctx: WidgetContext) {
     handleOpenPin,
     handlePinConfirm,
     handlePinRemove,
+    // Drag selection
+    dragRef,
+    setDragTarget: handleSetDragTarget,
+    handleDragStart,
+    handleDragEnter,
+    handleDragEnd,
     // Prev year lookup
     getPrevYearSales: (day: number) => getPrevYearDailySales(prevYear, year, month, day),
     // Export
