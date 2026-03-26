@@ -208,18 +208,18 @@ describe('Claim: bridge allowlist の収束', () => {
 
 describe('Claim: CLAUDE.md 新規追加禁止ルールの guard 反映', () => {
   it('後方互換バレル（re-export のみ）の新規追加がない', () => {
-    // CLAUDE.md: 後方互換バレル（re-export のみのファイル）を新規追加している（C7）
-    // 既存の互換バレルはすでに削除済みのため、新規が0であるべき
-    const claudeMd = readFileIfExists(path.join(ROOT_DIR, 'CLAUDE.md'))
-    expect(claudeMd).not.toBeNull()
-
-    // 削除済みファイルパスが CLAUDE.md に記載されているか確認
+    // 設計原則 C7: 後方互換バレル（re-export のみのファイル）を新規追加しない
+    // 既存の互換バレルはすでに削除済みのため、復活していないことを確認
     const deletedPaths = [
       'application/hooks/useDuckDBQuery.ts',
       'presentation/components/charts/useDuckDBTimeSlotData.ts',
     ]
     for (const p of deletedPaths) {
-      expect(claudeMd!.includes(p), `CLAUDE.md に削除済みパス ${p} の記載がありません。`).toBe(true)
+      const fullPath = path.join(ROOT_DIR, 'app', 'src', p)
+      expect(
+        fs.existsSync(fullPath),
+        `削除済みパス ${p} が復活しています。`,
+      ).toBe(false)
     }
   })
 })
