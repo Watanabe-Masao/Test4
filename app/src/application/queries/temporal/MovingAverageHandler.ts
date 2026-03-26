@@ -75,9 +75,8 @@ export const movingAverageHandler: QueryHandler<MovingAverageInput, MovingAverag
     })
 
     // 3. rows → DailySeriesSourceRow[]（adapter に委譲）
-    const sourceRows = rows.map((r) =>
-      adaptStoreDaySummaryRow(r as unknown as StoreDaySummaryRowForTemporal),
-    )
+    // StoreDaySummaryRow は StoreDaySummaryRowForTemporal の上位集合
+    const sourceRows = rows.map((r) => adaptStoreDaySummaryRow(r as StoreDaySummaryRowForTemporal))
 
     // 4. 連続日次系列構築
     const dailySeries = buildDailySeries(plan, sourceRows, frame.metric)
