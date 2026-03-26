@@ -1,6 +1,6 @@
 # Architecture State Snapshot
 
-> Generated: 2026-03-26T13:54:18.374Z
+> Generated: 2026-03-26T21:40:28.096Z
 
 ## Allowlist Summary
 
@@ -96,23 +96,23 @@
 
 | ファイル | useMemo | useState | 行数 |
 |---|---|---|---|
-| application/hooks/useTimeSlotData.ts | 20 | 8 | 367 |
+| application/hooks/useTimeSlotData.ts | 21 | 8 | 389 |
 | presentation/pages/Dashboard/widgets/useDrilldownData.ts | 14 | 10 | 413 |
 | presentation/pages/CostDetail/useCostDetailData.ts | 13 | 6 | 210 |
 | presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 14 | 5 | 475 |
 | presentation/components/charts/CategoryBenchmarkChart.vm.ts | 10 | 8 | 470 |
-| presentation/components/charts/IntegratedSalesChart.tsx | 12 | 6 | 461 |
+| presentation/components/charts/IntegratedSalesChart.tsx | 11 | 7 | 462 |
 | presentation/components/charts/CategoryTrendChart.tsx | 9 | 7 | 519 |
+| presentation/components/charts/DeptHourlyChart.tsx | 10 | 6 | 576 |
+| presentation/components/charts/TimeSlotChart.tsx | 10 | 6 | 228 |
 | presentation/pages/Dashboard/widgets/HourlyChart.tsx | 10 | 6 | 538 |
-| presentation/components/charts/CategoryBoxPlotChart.vm.ts | 8 | 7 | 256 |
-| presentation/pages/Admin/RawDataTab.tsx | 12 | 2 | 294 |
 
 ## Near-Limit Files (≥80%)
 
 | ファイル | 指標 | 実測 | 上限 | % |
 |---|---|---|---|---|
+| application/hooks/useTimeSlotData.ts | lines | 389 | 390 | 100% |
 | application/hooks/usePeriodAwareKpi.ts | lines | 301 | 310 | 97% |
-| application/hooks/useTimeSlotData.ts | lines | 367 | 380 | 97% |
 | presentation/pages/CostDetail/useCostDetailData.ts | useMemo | 12 | 13 | 92% |
 | presentation/pages/Dashboard/widgets/useDrilldownData.ts | useMemo | 12 | 13 | 92% |
 | presentation/pages/Admin/RawDataTab.tsx | useMemo | 11 | 12 | 92% |
