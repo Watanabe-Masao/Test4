@@ -208,10 +208,7 @@ describe('Claim: CLAUDE.md 新規追加禁止ルールの guard 反映', () => {
     ]
     for (const p of deletedPaths) {
       const fullPath = path.join(ROOT_DIR, 'app', 'src', p)
-      expect(
-        fs.existsSync(fullPath),
-        `削除済みパス ${p} が復活しています。`,
-      ).toBe(false)
+      expect(fs.existsSync(fullPath), `削除済みパス ${p} が復活しています。`).toBe(false)
     }
   })
 })
