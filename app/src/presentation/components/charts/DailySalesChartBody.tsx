@@ -149,8 +149,8 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
     }
   }, [optionWithMA, onDayRangeSelect])
 
-  // 単日クリック → 1日分の range として通知（dataIndex で days から日付取得）
-  const handleClick = useMemo(() => {
+  // 単日ダブルクリック → 1日分の range として通知（dataIndex で days から日付取得）
+  const handleDblClick = useMemo(() => {
     if (!onDayRangeSelect) return undefined
     return (params: Record<string, unknown>) => {
       const idx = params.dataIndex as number | undefined
@@ -182,9 +182,8 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
     <EChart
       option={option}
       height={hasPrevWeather ? 400 : hasWeather ? 360 : 300}
-      onClick={handleClick}
+      onDblClick={handleDblClick}
       onBrushEnd={handleBrushEnd}
-      enableBrushClickEmulation
       ariaLabel="日別売上チャート"
     />
   )

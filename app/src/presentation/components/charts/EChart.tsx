@@ -146,6 +146,8 @@ interface EChartProps {
   readonly height?: number
   /** クリックイベント */
   readonly onClick?: (params: Record<string, unknown>) => void
+  /** ダブルクリックイベント */
+  readonly onDblClick?: (params: Record<string, unknown>) => void
   /** ブラシ選択完了イベント */
   readonly onBrushEnd?: (params: Record<string, unknown>) => void
   /** ブラシモード中のクリック検出を有効にする（単一grid + category軸チャート専用） */
@@ -158,6 +160,7 @@ export const EChart = memo(function EChart({
   option,
   height = 300,
   onClick,
+  onDblClick,
   onBrushEnd,
   enableBrushClickEmulation,
   ariaLabel,
@@ -235,6 +238,16 @@ export const EChart = memo(function EChart({
       chart.off('click', onClick)
     }
   }, [onClick])
+
+  // ダブルクリックイベント
+  useEffect(() => {
+    const chart = chartRef.current
+    if (!chart || !onDblClick) return
+    chart.on('dblclick', onDblClick)
+    return () => {
+      chart.off('dblclick', onDblClick)
+    }
+  }, [onDblClick])
 
   // ブラシ選択完了イベント + 自動アクティベーション
   useEffect(() => {
