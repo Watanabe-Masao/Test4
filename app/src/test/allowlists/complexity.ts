@@ -97,7 +97,7 @@ export const presentationMemoLimits: readonly QuantitativeAllowlistEntry[] = [
     reason: '統合売上チャート。日別/時間帯/天気/MA overlay の文脈構築',
     category: 'structural',
     removalCondition: 'コンテキスト分離時',
-    limit: 8,
+    limit: 9,
   },
   {
     path: 'presentation/pages/Dashboard/widgets/DrilldownWaterfall.tsx',
@@ -117,6 +117,13 @@ export const presentationMemoLimits: readonly QuantitativeAllowlistEntry[] = [
 
 /** presentation/ の useState 上限の個別例外（G5 横展開） */
 export const presentationStateLimits: readonly QuantitativeAllowlistEntry[] = [
+  {
+    path: 'presentation/components/charts/IntegratedSalesChart.tsx',
+    reason: '統合売上チャート。ドリルレベル + スライド方向 + clickedDay 等',
+    category: 'structural',
+    removalCondition: 'ドリル状態を reducer に統合する時',
+    limit: 10,
+  },
   {
     path: 'presentation/pages/Admin/useMonthDataManagement.ts',
     reason: '月別データ管理の状態（StorageManagementTab から分離）',
