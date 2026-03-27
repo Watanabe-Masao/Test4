@@ -2,20 +2,16 @@ import {
   CustomerScatterChart,
   PerformanceIndexChart,
   CategoryPerformanceChart,
-  IntegratedTimeline,
   CausalChainExplorer,
   SensitivityDashboard,
   RegressionInsightChart,
   SeasonalBenchmarkChart,
   FeatureChart,
-  CumulativeChart,
 } from '@/presentation/components/charts'
 import type { WidgetDef } from './types'
 import { WaterfallChartWidget } from './WaterfallChart'
 import { YoYWaterfallChartWidget } from './YoYWaterfallChart'
 import { GrossProfitHeatmapWidget } from './GrossProfitHeatmap'
-import { UnifiedYoYWidget } from './UnifiedAnalyticsWidgets'
-import { isYoYVisible } from './widgetVisibility'
 
 // ── 分析・可視化 ──
 export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
@@ -44,14 +40,9 @@ export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
     render: (ctx) => <GrossProfitHeatmapWidget key={ctx.storeKey} ctx={ctx} />,
   },
   // ── 多角的分析 ──
-  {
-    id: 'analysis-yoy-variance',
-    label: '前年差異分析',
-    group: 'トレンド分析',
-    size: 'full',
-    isVisible: isYoYVisible,
-    render: (ctx) => <UnifiedYoYWidget ctx={ctx} />,
-  },
+  // 注: analysis-yoy-variance（前年比較）→ DailySalesChart「差分」ビューに統合
+  // 注: analysis-integrated-timeline（統合タイムライン）→ 削除（PerformanceIndexChart で代替）
+  // 注: analysis-duckdb-cumulative（売上進捗）→ DailySalesChart「累計」ビューに統合
   {
     id: 'analysis-customer-scatter',
     label: '客数×客単価 効率分析',
@@ -100,15 +91,6 @@ export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
     ),
   },
   // ── Phase 4: 統合ビュー + 研究者向け分析 ──
-  {
-    id: 'analysis-integrated-timeline',
-    label: '統合タイムライン',
-    group: 'トレンド分析',
-    size: 'full',
-    render: ({ result: r, daysInMonth }) => (
-      <IntegratedTimeline result={r} daysInMonth={daysInMonth} />
-    ),
-  },
   {
     id: 'analysis-causal-chain',
     label: '因果チェーン分析',
@@ -167,20 +149,6 @@ export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
     isVisible: (ctx) => ctx.queryExecutor?.isReady === true,
     render: (ctx) => (
       <FeatureChart
-        queryExecutor={ctx.queryExecutor}
-        currentDateRange={ctx.currentDateRange}
-        selectedStoreIds={ctx.selectedStoreIds}
-      />
-    ),
-  },
-  {
-    id: 'analysis-duckdb-cumulative',
-    label: '累積売上推移',
-    group: 'トレンド分析',
-    size: 'full',
-    isVisible: (ctx) => ctx.queryExecutor?.isReady === true,
-    render: (ctx) => (
-      <CumulativeChart
         queryExecutor={ctx.queryExecutor}
         currentDateRange={ctx.currentDateRange}
         selectedStoreIds={ctx.selectedStoreIds}

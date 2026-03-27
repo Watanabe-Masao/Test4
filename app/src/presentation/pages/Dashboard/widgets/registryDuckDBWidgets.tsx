@@ -1,7 +1,6 @@
 import {
   DowPatternChart,
   CategoryTrendChart,
-  CategoryHourlyChart,
   CategoryMixChart,
   CategoryBenchmarkChart,
   CategoryBoxPlotChart,
@@ -40,20 +39,7 @@ export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
       />
     ),
   },
-  {
-    id: 'duckdb-category-hourly',
-    label: 'カテゴリ×時間帯',
-    group: 'トレンド分析',
-    size: 'full',
-    isVisible: (ctx) => ctx.queryExecutor?.isReady === true,
-    render: (ctx) => (
-      <CategoryHourlyChart
-        queryExecutor={ctx.queryExecutor}
-        currentDateRange={ctx.currentDateRange}
-        selectedStoreIds={ctx.selectedStoreIds}
-      />
-    ),
-  },
+  // 注: duckdb-category-hourly（カテゴリ×時間帯）→ TimeSlotChart 部門別モードに統合
   {
     id: 'duckdb-category-mix',
     label: 'カテゴリ構成比推移',
