@@ -12,6 +12,7 @@ import type { DateRange } from '@/domain/models/calendar'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 import type { WeatherPersister } from '@/application/queries/weather'
 import type { DataRepository } from '@/domain/repositories'
+import { useMemo } from 'react'
 import { useDuckDB } from '@/application/hooks/useDuckDB'
 import { createQueryExecutor } from '@/application/queries/QueryPort'
 import { createWeatherPersister } from '@/application/queries/weather'
@@ -41,11 +42,14 @@ export function useWidgetQueryContext(
   // DuckDB エンジン初期化
   const duck = useDuckDB(data, targetYear, targetMonth, repo)
 
-  // QueryExecutor — conn を隠蔽し QueryHandler 経由で実行する
-  const queryExecutor = createQueryExecutor(duck.conn)
+  // QueryExecutor — conn を隠蔽し QueryHandler 経由で実行する（useMemo で参照安定化）
+  const queryExecutor = useMemo(() => createQueryExecutor(duck.conn), [duck.conn])
 
-  // WeatherPersister — ETRN フォールバック用。conn/db をクロージャで閉じる
-  const weatherPersist = createWeatherPersister(duck.conn, duck.db)
+  // WeatherPersister — ETRN フォールバック用（useMemo で参照安定化）
+  const weatherPersist = useMemo(
+    () => createWeatherPersister(duck.conn, duck.db),
+    [duck.conn, duck.db],
+  )
 
   // 前年店舗別仕入額（額で保持 — @guard B3）
   const { data: prevYearStoreCostPrice } = useStoreCostPriceQuery(
