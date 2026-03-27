@@ -34,6 +34,28 @@ const METRIC_LABELS: Record<string, string> = {
 /**
  * @param secondaryMetric 右軸指標に対応する AnalysisMetric（null = MA なし）
  */
+/**
+ * 前年MA series の dateKey を当年にリマッピングする。
+ * 前年と当年の日数ベースで1:1マッピング（同曜日寄せ対応）。
+ */
+function remapPrevYearSeries(
+  prevSeries: readonly DailySeriesPoint[] | undefined,
+  curSeries: readonly DailySeriesPoint[] | undefined,
+): readonly DailySeriesPoint[] | undefined {
+  if (!prevSeries?.length || !curSeries?.length) return undefined
+  // 前年dateKey → 当年dateKey のマッピング（日数順で1:1対応）
+  const prevKeys = prevSeries.map((p) => p.dateKey).sort()
+  const curKeys = curSeries.map((p) => p.dateKey).sort()
+  const keyMap = new Map<string, string>()
+  for (let i = 0; i < prevKeys.length && i < curKeys.length; i++) {
+    keyMap.set(prevKeys[i], curKeys[i])
+  }
+  return prevSeries.map((p) => ({
+    ...p,
+    dateKey: keyMap.get(p.dateKey) ?? p.dateKey,
+  }))
+}
+
 export function useMultiMovingAverage(
   executor: QueryExecutor | null,
   currentDateRange: DateRange,
@@ -118,9 +140,11 @@ export function useMultiMovingAverage(
   return useMemo<MovingAverageOverlays>(
     () => ({
       salesCur: salesCurOut?.anchorSeries,
-      salesPrev: salesPrevOut?.anchorSeries,
+      salesPrev: remapPrevYearSeries(salesPrevOut?.anchorSeries, salesCurOut?.anchorSeries),
       metricCur: hasMetric ? metricCurOut?.anchorSeries : undefined,
-      metricPrev: hasMetric ? metricPrevOut?.anchorSeries : undefined,
+      metricPrev: hasMetric
+        ? remapPrevYearSeries(metricPrevOut?.anchorSeries, metricCurOut?.anchorSeries)
+        : undefined,
       metricLabel: secondaryMetric ? METRIC_LABELS[secondaryMetric] : undefined,
     }),
     [salesCurOut, salesPrevOut, metricCurOut, metricPrevOut, hasMetric, secondaryMetric],
