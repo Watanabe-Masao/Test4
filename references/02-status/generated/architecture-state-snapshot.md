@@ -1,6 +1,6 @@
 # Architecture State Snapshot
 
-> Generated: 2026-03-27T08:04:24.414Z
+> Generated: 2026-03-27T13:40:32.263Z
 
 ## Allowlist Summary
 
@@ -70,6 +70,7 @@
 - application/hooks/useMetricBreakdown.ts
 - application/hooks/useMonthSwitcher.ts
 - application/hooks/useMonthlyHistory.ts
+- application/hooks/useMultiMovingAverage.ts
 - application/hooks/usePeriodAwareKpi.ts
 - application/hooks/usePersistence.ts
 - application/hooks/usePrevYearWeather.ts
@@ -98,9 +99,9 @@
 |---|---|---|---|
 | application/hooks/useTimeSlotData.ts | 21 | 8 | 389 |
 | presentation/pages/Dashboard/widgets/useDrilldownData.ts | 14 | 10 | 413 |
-| presentation/components/charts/IntegratedSalesChart.tsx | 11 | 9 | 529 |
+| presentation/components/charts/IntegratedSalesChart.tsx | 11 | 11 | 587 |
 | presentation/pages/CostDetail/useCostDetailData.ts | 13 | 6 | 210 |
-| presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 14 | 5 | 475 |
+| presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 14 | 5 | 488 |
 | presentation/components/charts/CategoryBenchmarkChart.vm.ts | 10 | 8 | 470 |
 | presentation/components/charts/CategoryTrendChart.tsx | 9 | 7 | 519 |
 | presentation/components/charts/DeptHourlyChart.tsx | 10 | 6 | 576 |
