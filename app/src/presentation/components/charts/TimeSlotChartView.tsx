@@ -398,10 +398,7 @@ export const TimeSlotChartView = memo(function TimeSlotChartView({
           )}
         </TabGroup>
         <TabGroup style={{ marginLeft: 'auto' }}>
-          <Tab
-            $active={heatmapMetric === 'amount'}
-            onClick={() => onHeatmapMetricChange('amount')}
-          >
+          <Tab $active={heatmapMetric === 'amount'} onClick={() => onHeatmapMetricChange('amount')}>
             金額
           </Tab>
           <Tab
