@@ -8,7 +8,7 @@ const READY_EXECUTOR = { isReady: true, execute: async () => null }
 describe('ウィジェット isVisible', () => {
   const dataWidgetIds = [
     'chart-category-analysis',
-    'chart-timeslot-sales',
+    // 注: chart-timeslot-sales → IntegratedSalesChart ドリルダウンに統合
     'chart-timeslot-heatmap',
     // 注: chart-dept-hourly-pattern → IntegratedSalesChart 孫に統合
   ]

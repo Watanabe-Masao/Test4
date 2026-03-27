@@ -1,10 +1,10 @@
 {
-  "timestamp": "2026-03-26T23:54:31.014Z",
-  "totalAllowlistEntries": 51,
+  "timestamp": "2026-03-27T08:04:24.414Z",
+  "totalAllowlistEntries": 52,
   "categoryBreakdown": {
     "adapter": 11,
     "lifecycle": 2,
-    "structural": 38
+    "structural": 39
   },
   "frozenLists": [
     "presentationToInfrastructure",
@@ -117,6 +117,12 @@
       "lineCount": 413
     },
     {
+      "file": "presentation/components/charts/IntegratedSalesChart.tsx",
+      "memoCount": 11,
+      "stateCount": 9,
+      "lineCount": 529
+    },
+    {
       "file": "presentation/pages/CostDetail/useCostDetailData.ts",
       "memoCount": 13,
       "stateCount": 6,
@@ -133,12 +139,6 @@
       "memoCount": 10,
       "stateCount": 8,
       "lineCount": 470
-    },
-    {
-      "file": "presentation/components/charts/IntegratedSalesChart.tsx",
-      "memoCount": 11,
-      "stateCount": 7,
-      "lineCount": 462
     },
     {
       "file": "presentation/components/charts/CategoryTrendChart.tsx",
@@ -216,13 +216,6 @@
       "pct": 90
     },
     {
-      "file": "presentation/components/charts/DailySalesChartBody.tsx",
-      "metric": "useMemo",
-      "actual": 9,
-      "limit": 10,
-      "pct": 90
-    },
-    {
       "file": "application/hooks/duckdb/categoryBenchmarkLogic.ts",
       "metric": "lines",
       "actual": 401,
@@ -231,13 +224,6 @@
     },
     {
       "file": "application/hooks/useTimeSlotData.ts",
-      "metric": "useMemo",
-      "actual": 7,
-      "limit": 8,
-      "pct": 88
-    },
-    {
-      "file": "presentation/components/charts/IntegratedSalesChart.tsx",
       "metric": "useMemo",
       "actual": 7,
       "limit": 8,
@@ -263,6 +249,13 @@
       "actual": 9,
       "limit": 11,
       "pct": 82
+    },
+    {
+      "file": "presentation/components/charts/DailySalesChartBody.tsx",
+      "metric": "useMemo",
+      "actual": 8,
+      "limit": 10,
+      "pct": 80
     }
   ],
   "listSummary": {
@@ -316,9 +309,9 @@
       }
     },
     "presentationStateLimits": {
-      "count": 5,
+      "count": 6,
       "categories": {
-        "structural": 5
+        "structural": 6
       }
     },
     "largeComponentTier2": {

@@ -1,12 +1,12 @@
 # Architecture State Snapshot
 
-> Generated: 2026-03-26T23:54:31.014Z
+> Generated: 2026-03-27T08:04:24.414Z
 
 ## Allowlist Summary
 
 | 指標 | 値 |
 |---|---|
-| 総エントリ数 | 51 |
+| 総エントリ数 | 52 |
 | アクティブリスト数 | 14 |
 | 凍結リスト数 | 7 |
 | .vm.ts ファイル数 | 16 |
@@ -16,7 +16,7 @@
 
 | カテゴリ | 件数 |
 |---|---|
-| structural | 38 |
+| structural | 39 |
 | adapter | 11 |
 | lifecycle | 2 |
 
@@ -98,10 +98,10 @@
 |---|---|---|---|
 | application/hooks/useTimeSlotData.ts | 21 | 8 | 389 |
 | presentation/pages/Dashboard/widgets/useDrilldownData.ts | 14 | 10 | 413 |
+| presentation/components/charts/IntegratedSalesChart.tsx | 11 | 9 | 529 |
 | presentation/pages/CostDetail/useCostDetailData.ts | 13 | 6 | 210 |
 | presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 14 | 5 | 475 |
 | presentation/components/charts/CategoryBenchmarkChart.vm.ts | 10 | 8 | 470 |
-| presentation/components/charts/IntegratedSalesChart.tsx | 11 | 7 | 462 |
 | presentation/components/charts/CategoryTrendChart.tsx | 9 | 7 | 519 |
 | presentation/components/charts/DeptHourlyChart.tsx | 10 | 6 | 576 |
 | presentation/components/charts/TimeSlotChart.tsx | 10 | 6 | 228 |
@@ -118,13 +118,12 @@
 | presentation/pages/Admin/RawDataTab.tsx | useMemo | 11 | 12 | 92% |
 | presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | useMemo | 10 | 11 | 91% |
 | presentation/pages/Dashboard/widgets/HourlyChart.tsx | useMemo | 9 | 10 | 90% |
-| presentation/components/charts/DailySalesChartBody.tsx | useMemo | 9 | 10 | 90% |
 | application/hooks/duckdb/categoryBenchmarkLogic.ts | lines | 401 | 450 | 89% |
 | application/hooks/useTimeSlotData.ts | useMemo | 7 | 8 | 88% |
-| presentation/components/charts/IntegratedSalesChart.tsx | useMemo | 7 | 8 | 88% |
 | presentation/pages/Dashboard/widgets/DrilldownWaterfall.tsx | useMemo | 7 | 8 | 88% |
 | presentation/components/charts/TimeSlotChart.tsx | useMemo | 7 | 8 | 88% |
 | presentation/pages/Dashboard/widgets/useMonthlyCalendarState.ts | useState | 9 | 11 | 82% |
+| presentation/components/charts/DailySalesChartBody.tsx | useMemo | 8 | 10 | 80% |
 
 ## Frozen Lists
 
@@ -143,7 +142,7 @@
 | applicationToInfrastructure | 13 | adapter:11, lifecycle:2 |
 | presentationMemoLimits | 9 | structural:9 |
 | domainLargeFiles | 7 | structural:7 |
-| presentationStateLimits | 5 | structural:5 |
+| presentationStateLimits | 6 | structural:6 |
 | useStateLimits | 3 | structural:3 |
 | hookLineLimits | 3 | structural:3 |
 | useMemoLimits | 2 | structural:2 |
