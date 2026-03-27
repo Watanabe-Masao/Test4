@@ -80,74 +80,56 @@ export function useMultiMovingAverage(
   const hasPrev = prevYearScope != null
   const hasMetric = secondaryMetric != null && secondaryMetric !== 'sales'
 
-  // 1. 当年売上MA
-  const salesCurConfig = useMemo(
-    () => ({ metric: 'sales' as const, windowSize: 7, policy: 'strict' as const }),
-    [],
+  // extraMetrics: 売上MAクエリに追加メトリックを同梱（1クエリで複数MA）
+  const extraMetrics = useMemo(
+    () => (hasMetric && secondaryMetric ? [secondaryMetric] : []),
+    [hasMetric, secondaryMetric],
   )
-  const { data: salesCurOut } = useMovingAverageOverlay(executor, curScope, showMA, salesCurConfig)
 
-  // 2. 前年売上MA（partial: 前月データ未ロード時も利用可能な範囲で計算）
-  const salesPrevConfig = useMemo(
+  // 1. 当年MA（売上 + extraMetrics を1クエリで取得）
+  const curConfig = useMemo(
+    () => ({
+      metric: 'sales' as const,
+      windowSize: 7,
+      policy: 'strict' as const,
+      extraMetrics,
+    }),
+    [extraMetrics],
+  )
+  const { data: curOut } = useMovingAverageOverlay(executor, curScope, showMA, curConfig)
+
+  // 2. 前年MA（売上 + extraMetrics を1クエリで取得）
+  const prevConfig = useMemo(
     () => ({
       metric: 'sales' as const,
       windowSize: 7,
       policy: 'partial' as const,
       isPrevYear: true,
+      extraMetrics,
     }),
-    [],
+    [extraMetrics],
   )
-  const { data: salesPrevOut } = useMovingAverageOverlay(
+  const { data: prevOut } = useMovingAverageOverlay(
     executor,
     prevScope,
     showMA && hasPrev,
-    salesPrevConfig,
-  )
-
-  // 3. 当年右軸指標MA（partial: 指標によってはデータ欠損日がありうる）
-  const metricCurConfig = useMemo(
-    () => ({
-      metric: (secondaryMetric ?? 'sales') as AnalysisMetric,
-      windowSize: 7,
-      policy: 'partial' as const,
-    }),
-    [secondaryMetric],
-  )
-  const { data: metricCurOut } = useMovingAverageOverlay(
-    executor,
-    curScope,
-    showMA && hasMetric,
-    metricCurConfig,
-  )
-
-  // 4. 前年右軸指標MA（partial: 前月データ未ロード時も利用可能な範囲で計算）
-  const metricPrevConfig = useMemo(
-    () => ({
-      metric: (secondaryMetric ?? 'sales') as AnalysisMetric,
-      windowSize: 7,
-      policy: 'partial' as const,
-      isPrevYear: true,
-    }),
-    [secondaryMetric],
-  )
-  const { data: metricPrevOut } = useMovingAverageOverlay(
-    executor,
-    prevScope,
-    showMA && hasMetric && hasPrev,
-    metricPrevConfig,
+    prevConfig,
   )
 
   return useMemo<MovingAverageOverlays>(
     () => ({
-      salesCur: salesCurOut?.anchorSeries,
-      salesPrev: remapPrevYearSeries(salesPrevOut?.anchorSeries, salesCurOut?.anchorSeries),
-      // DEBUG: metricCur に salesCur のデータを使って描画テスト
-      metricCur: hasMetric ? (metricCurOut?.anchorSeries ?? salesCurOut?.anchorSeries) : undefined,
-      metricPrev: hasMetric
-        ? remapPrevYearSeries(metricPrevOut?.anchorSeries, metricCurOut?.anchorSeries)
-        : undefined,
+      salesCur: curOut?.anchorSeries,
+      salesPrev: remapPrevYearSeries(prevOut?.anchorSeries, curOut?.anchorSeries),
+      metricCur: hasMetric && secondaryMetric ? curOut?.extraSeries?.[secondaryMetric] : undefined,
+      metricPrev:
+        hasMetric && secondaryMetric
+          ? remapPrevYearSeries(
+              prevOut?.extraSeries?.[secondaryMetric],
+              curOut?.extraSeries?.[secondaryMetric],
+            )
+          : undefined,
       metricLabel: secondaryMetric ? METRIC_LABELS[secondaryMetric] : undefined,
     }),
-    [salesCurOut, salesPrevOut, metricCurOut, metricPrevOut, hasMetric, secondaryMetric],
+    [curOut, prevOut, hasMetric, secondaryMetric],
   )
 }

@@ -25,6 +25,7 @@ export interface TemporalOverlayConfig {
   readonly windowSize: number
   readonly policy: MovingAverageMissingnessPolicy
   readonly isPrevYear?: boolean
+  readonly extraMetrics?: readonly string[]
 }
 
 /** Phase 5 デフォルト設定: 売上7日移動平均、strict */
@@ -59,5 +60,6 @@ export function buildTemporalInputFromDashboardScope(
     },
     policy: config.policy,
     isPrevYear: config.isPrevYear,
+    extraMetrics: config.extraMetrics,
   }
 }
