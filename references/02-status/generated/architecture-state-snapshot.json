@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-27T08:04:24.414Z",
+  "timestamp": "2026-03-27T13:40:32.263Z",
   "totalAllowlistEntries": 52,
   "categoryBreakdown": {
     "adapter": 11,
@@ -81,6 +81,7 @@
     "application/hooks/useMetricBreakdown.ts",
     "application/hooks/useMonthSwitcher.ts",
     "application/hooks/useMonthlyHistory.ts",
+    "application/hooks/useMultiMovingAverage.ts",
     "application/hooks/usePeriodAwareKpi.ts",
     "application/hooks/usePersistence.ts",
     "application/hooks/usePrevYearWeather.ts",
@@ -119,8 +120,8 @@
     {
       "file": "presentation/components/charts/IntegratedSalesChart.tsx",
       "memoCount": 11,
-      "stateCount": 9,
-      "lineCount": 529
+      "stateCount": 11,
+      "lineCount": 587
     },
     {
       "file": "presentation/pages/CostDetail/useCostDetailData.ts",
@@ -132,7 +133,7 @@
       "file": "presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx",
       "memoCount": 14,
       "stateCount": 5,
-      "lineCount": 475
+      "lineCount": 488
     },
     {
       "file": "presentation/components/charts/CategoryBenchmarkChart.vm.ts",
