@@ -1,6 +1,5 @@
 import {
   DowPatternChart,
-  CategoryTrendChart,
   CategoryMixChart,
   CategoryBenchmarkChart,
   CategoryBoxPlotChart,
@@ -24,21 +23,7 @@ export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
       />
     ),
   },
-  {
-    id: 'duckdb-category-trend',
-    label: 'カテゴリ別売上推移',
-    group: 'トレンド分析',
-    size: 'full',
-    isVisible: (ctx) => ctx.queryExecutor?.isReady === true,
-    render: (ctx) => (
-      <CategoryTrendChart
-        queryExecutor={ctx.queryExecutor}
-        currentDateRange={ctx.currentDateRange}
-        selectedStoreIds={ctx.selectedStoreIds}
-        prevYearScope={ctx.prevYearScope}
-      />
-    ),
-  },
+  // 注: duckdb-category-trend → IntegratedCategoryAnalysis「売上推移」タブに統合
   // 注: duckdb-category-hourly（カテゴリ×時間帯）→ TimeSlotChart 部門別モードに統合
   {
     id: 'duckdb-category-mix',

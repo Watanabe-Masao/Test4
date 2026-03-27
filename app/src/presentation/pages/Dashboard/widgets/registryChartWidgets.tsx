@@ -7,11 +7,7 @@ import {
 } from '@/presentation/components/charts'
 import { fromDateKey } from '@/domain/models/CalendarDate'
 import type { WidgetDef } from './types'
-import {
-  UnifiedTimeSlotWidget,
-  UnifiedHeatmapWidget,
-  UnifiedStoreHourlyWidget,
-} from './UnifiedAnalyticsWidgets'
+import { UnifiedHeatmapWidget, UnifiedStoreHourlyWidget } from './UnifiedAnalyticsWidgets'
 import { isTimeSeriesVisible, isStoreComparisonVisible } from './widgetVisibility'
 import { WeatherWidget } from './WeatherWidget'
 import { EtrnTestWidget } from './EtrnTestWidget'
@@ -124,14 +120,7 @@ export const WIDGETS_CHART: readonly WidgetDef[] = [
       />
     ),
   },
-  {
-    id: 'chart-timeslot-sales',
-    label: '時間帯別売上',
-    group: '構造分析',
-    size: 'full',
-    isVisible: isTimeSeriesVisible,
-    render: (ctx) => <UnifiedTimeSlotWidget ctx={ctx} />,
-  },
+  // 注: chart-timeslot-sales → IntegratedSalesChart ドリルダウン（全体比較/部門別）に統合
   // 注: 部門・クラス別売上 → CategoryHierarchyExplorer に統合
   // 注: 時間帯KPIサマリー → TimeSlotSalesChart「KPI」タブに統合
   {
