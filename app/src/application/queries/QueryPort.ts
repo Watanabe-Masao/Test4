@@ -29,8 +29,17 @@ export interface QueryExecutor {
 
 /**
  * DuckDB コネクションベースの QueryExecutor 実装
+ *
+ * dataVersion を含めることで、データロード完了時に参照が変わり、
+ * useQueryWithHandler の effect が再実行される。
  */
-export function createQueryExecutor(conn: AsyncDuckDBConnection | null): QueryExecutor {
+export function createQueryExecutor(
+  conn: AsyncDuckDBConnection | null,
+  dataVersion?: number,
+): QueryExecutor {
+  // dataVersion を含めた新しいオブジェクトを毎回生成することで、
+  // useMemo の deps に dataVersion を加えた時に参照が変わる
+  void dataVersion
   return {
     isReady: conn !== null,
     async execute<TInput, TOutput>(
