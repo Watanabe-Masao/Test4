@@ -5,8 +5,8 @@ import { useState, useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { useCurrencyFormat, toPct } from './chartTheme'
-import { DualPeriodSlider } from './DualPeriodSlider'
-import { useDualPeriodRange } from './useDualPeriodRange'
+// DualPeriodSlider は削除（親チャートの期間指定に統合）
+// useDualPeriodRange は削除（スライダー期間指定廃止）
 import type { DailyRecord, DiscountEntry } from '@/domain/models/record'
 import { DISCOUNT_TYPES } from '@/domain/models/record'
 import { formatPercent } from '@/domain/formatting'
@@ -109,15 +109,8 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
 }: Props) {
   const theme = useTheme() as AppTheme
   const { format: fmtCurrency } = useCurrencyFormat()
-  const {
-    p1Start: rangeStart,
-    p1End: rangeEnd,
-    onP1Change: setRange,
-    p2Start,
-    p2End,
-    onP2Change,
-    p2Enabled,
-  } = useDualPeriodRange(daysInMonth)
+  const rangeStart = 1
+  const rangeEnd = daysInMonth
   const [viewMode, setViewMode] = useState<ViewMode>('stacked')
   const [activeCode, setActiveCode] = useState<string>('71')
 
@@ -301,18 +294,6 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
       )}
 
       <EChart option={option} height={280} ariaLabel="売変推移チャート" />
-
-      <DualPeriodSlider
-        min={1}
-        max={daysInMonth}
-        p1Start={rangeStart}
-        p1End={rangeEnd}
-        onP1Change={setRange}
-        p2Start={p2Start}
-        p2End={p2End}
-        onP2Change={onP2Change}
-        p2Enabled={p2Enabled}
-      />
     </>
   )
 
