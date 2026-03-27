@@ -65,28 +65,7 @@ describe('ウィジェット isVisible', () => {
     })
   })
 
-  describe('前年比較ウォーターフォールウィジェット', () => {
-    it('前年データなしの場合は非表示', () => {
-      const ctx = makeWidgetContext({
-        prevYear: makeEmptyPrevYear(),
-      })
-      const widget = WIDGET_REGISTRY.find((w) => w.id === 'analysis-yoy-waterfall')
-      expect(widget?.isVisible).toBeDefined()
-      expect(widget!.isVisible!(ctx)).toBe(false)
-    })
-
-    it('前年データありの場合は表示', () => {
-      const ctx = makeWidgetContext({
-        prevYear: makePrevYear(new Map(), {
-          totalSales: 100000,
-          totalDiscount: 0,
-          totalCustomers: 50,
-        }),
-      })
-      const widget = WIDGET_REGISTRY.find((w) => w.id === 'analysis-yoy-waterfall')
-      expect(widget!.isVisible!(ctx)).toBe(true)
-    })
-  })
+  // 注: 前年比較ウォーターフォール → IntegratedSalesChart「要因分析」タブに統合
 
   describe('売変内訳ウィジェット', () => {
     it('売変データなしの場合は非表示', () => {

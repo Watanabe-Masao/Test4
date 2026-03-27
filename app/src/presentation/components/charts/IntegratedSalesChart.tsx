@@ -44,8 +44,17 @@ import type { ViewType } from './DailySalesChartBody'
 import { DailySalesChart } from './DailySalesChart'
 import { TimeSlotChart } from './TimeSlotChart'
 import { SubAnalysisPanel } from './SubAnalysisPanel'
-import { CategoryHeatmapPanel } from './CategoryHeatmapPanel'
+import { YoYWaterfallChartWidget } from '@/presentation/pages/Dashboard/widgets/YoYWaterfallChart'
 import { CategoryHierarchyExplorer } from './CategoryHierarchyExplorer'
+import { TabGroup, Tab } from './TimeSlotSalesChart.styles'
+import {
+  RangeActionBox,
+  RangeActionLabel,
+  RangeActionBtnGroup,
+  RangeActionBtn,
+  DrillPeriodBadge,
+  DayDrillClose,
+} from './IntegratedSalesChart.styles'
 // ContainedAnalysisPanel は横スライド切替化により不要（将来の参照用にコメント残置）
 // import { ContainedAnalysisPanel, type ContextTag } from './ContainedAnalysisPanel'
 
@@ -83,6 +92,8 @@ interface Props {
   readonly prevYearWeatherDaily?: readonly DailyWeatherSummary[]
   /** 天気データ永続化コールバック（TimeSlotChart ETRN フォールバック用） */
   readonly weatherPersist?: WeatherPersister | null
+  /** WidgetContext（要因分析 embedded 用 — 親から渡す） */
+  readonly widgetCtx?: import('@/presentation/pages/Dashboard/widgets/types').WidgetContext
 }
 
 /** ヘッダ固定分の offset（px） */
@@ -97,6 +108,8 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
 
   // clickedDay: useState 上限(8)回避のため useReducer 的にdrillLevelを再利用
   const [clickedDay, setClickedDay] = useState<number | null>(null)
+  const [subTab, setSubTab] = useState<'factor' | 'trend' | 'drilldown'>('factor')
+  const [pendingRange, setPendingRange] = useState<{ start: number; end: number } | null>(null)
 
   // ── drill scroll 制御 ──
   const parentRef = useRef<HTMLDivElement>(null)
@@ -162,18 +175,33 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
 
   const handleDayClick = useCallback((day: number) => {
     setClickedDay((prev) => (prev === day ? null : day))
+    setSubTab('drilldown')
   }, [])
 
   const handleDayRangeSelect = useCallback(
     (startDay: number, endDay: number) => {
-      if (canDrill) {
-        setSelectedRange({ start: startDay, end: endDay })
-        setSlideDirection(1)
-        setDrillLevel(1)
-      }
+      if (!canDrill) return
+      setPendingRange({ start: startDay, end: endDay })
     },
     [canDrill],
   )
+
+  const handleRangeToTimeSlot = useCallback(() => {
+    if (!pendingRange) return
+    setSelectedRange(pendingRange)
+    setPendingRange(null)
+    setSlideDirection(1)
+    setDrillLevel(1)
+  }, [pendingRange])
+
+  const handleRangeToDrilldown = useCallback(() => {
+    if (!pendingRange) return
+    setClickedDay(pendingRange.start)
+    setPendingRange(null)
+    setSubTab('drilldown')
+  }, [pendingRange])
+
+  const handleRangeCancel = useCallback(() => setPendingRange(null), [])
 
   // DateRange 構築は application 層の hook に委譲（presentation 層でのデータ調停を防止）
   const { dateRange: rangeDateRange, prevYearScope: rangePrevYearScope } = useDrillDateRange(
@@ -220,6 +248,17 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
     if (!isDrilled || !rangeDateRange) return null
     return deriveChildContext(parentContext, rangeDateRange, rangePrevYearScope ?? undefined)
   }, [isDrilled, rangeDateRange, rangePrevYearScope, parentContext])
+
+  // 要因分析/ドリルダウン分析用の日付範囲（クリック日 or 全期間）
+  const drillDateRange = useMemo<DateRange>(() => {
+    if (clickedDay != null) {
+      return {
+        from: { year: props.year, month: props.month, day: clickedDay },
+        to: { year: props.year, month: props.month, day: pendingRange?.end ?? clickedDay },
+      }
+    }
+    return props.currentDateRange
+  }, [clickedDay, pendingRange, props.year, props.month, props.currentDateRange])
 
   // AnalysisNodeContext（ノード階層モデル）
   const dailyNode = useMemo(
@@ -353,46 +392,106 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
               onShowMovingAverageChange={setShowMovingAverage}
             />
             {canDrill && (
-              <DrillHint>
-                シングルクリックでカテゴリ分析 / ダブルクリック or ドラッグで時間帯内訳
-              </DrillHint>
+              <DrillHint>クリックでカテゴリ分析 / ダブルクリック or ドラッグで時間帯内訳</DrillHint>
             )}
-            {clickedDay != null && props.queryExecutor?.isReady && (
-              <DayDrillPanel>
-                <DayDrillHeader>
-                  <DayDrillTitle>
-                    {props.month}月{clickedDay}日 カテゴリドリルダウン分析
-                  </DayDrillTitle>
-                  <DayDrillClose onClick={() => setClickedDay(null)}>✕</DayDrillClose>
-                </DayDrillHeader>
-                <CategoryHierarchyExplorer
+
+            {/* 範囲選択BOX */}
+            {pendingRange != null && (
+              <RangeActionBox>
+                <RangeActionLabel>
+                  {props.month}月{pendingRange.start}日
+                  {pendingRange.start !== pendingRange.end && `〜${pendingRange.end}日`}
+                  を選択しました
+                </RangeActionLabel>
+                <RangeActionBtnGroup>
+                  <RangeActionBtn onClick={handleRangeToTimeSlot}>時間帯売上</RangeActionBtn>
+                  <RangeActionBtn onClick={handleRangeToDrilldown}>ドリルダウン分析</RangeActionBtn>
+                  <RangeActionBtn $secondary onClick={handleRangeCancel}>
+                    キャンセル
+                  </RangeActionBtn>
+                </RangeActionBtnGroup>
+              </RangeActionBox>
+            )}
+
+            {/* 子パネル: 標準ビュー + 右軸モードに応じて切替 */}
+            {dailyView === 'standard' &&
+              props.queryExecutor?.isReady &&
+              (rightAxisMode === 'quantity' || rightAxisMode === 'customers' ? (
+                /* 標準 + 点数/客数 → 要因分析 / カテゴリ分析 / ドリルダウン分析 */
+                <div style={{ marginTop: 12 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                    <TabGroup>
+                      <Tab $active={subTab === 'factor'} onClick={() => setSubTab('factor')}>
+                        要因分析
+                      </Tab>
+                      <Tab $active={subTab === 'trend'} onClick={() => setSubTab('trend')}>
+                        カテゴリ分析
+                      </Tab>
+                      <Tab $active={subTab === 'drilldown'} onClick={() => setSubTab('drilldown')}>
+                        ドリルダウン分析
+                      </Tab>
+                    </TabGroup>
+                    {clickedDay != null && (subTab === 'drilldown' || subTab === 'factor') && (
+                      <DrillPeriodBadge>
+                        {props.month}月{clickedDay}
+                        {pendingRange && pendingRange.start !== pendingRange.end
+                          ? `〜${pendingRange.end}`
+                          : ''}
+                        日<DayDrillClose onClick={() => setClickedDay(null)}>✕</DayDrillClose>
+                      </DrillPeriodBadge>
+                    )}
+                  </div>
+                  {subTab === 'factor' && props.widgetCtx && (
+                    <YoYWaterfallChartWidget
+                      ctx={props.widgetCtx}
+                      overrideDateRange={drillDateRange}
+                      embedded
+                    />
+                  )}
+                  {subTab === 'trend' && (
+                    <SubAnalysisPanel
+                      mode={rightAxisMode}
+                      queryExecutor={props.queryExecutor}
+                      currentDateRange={subPanelContext.dateRange}
+                      selectedStoreIds={subPanelContext.selectedStoreIds}
+                      prevYearScope={subPanelContext.comparisonScope}
+                      weatherDaily={props.weatherDaily}
+                      daily={props.daily}
+                      daysInMonth={props.daysInMonth}
+                      year={props.year}
+                      month={props.month}
+                      prevYearDaily={props.prevYearDaily}
+                      discountEntries={props.discountEntries}
+                      totalGrossSales={props.totalGrossSales}
+                    />
+                  )}
+                  {subTab === 'drilldown' && (
+                    <CategoryHierarchyExplorer
+                      queryExecutor={props.queryExecutor}
+                      currentDateRange={drillDateRange}
+                      prevYearScope={props.prevYearScope}
+                      selectedStoreIds={props.selectedStoreIds}
+                    />
+                  )}
+                </div>
+              ) : (
+                /* 標準 + 売変/気温/降水量 → 対応する SubAnalysisPanel のみ */
+                <SubAnalysisPanel
+                  mode={rightAxisMode}
                   queryExecutor={props.queryExecutor}
-                  currentDateRange={{
-                    from: { year: props.year, month: props.month, day: clickedDay },
-                    to: { year: props.year, month: props.month, day: clickedDay },
-                  }}
-                  prevYearScope={props.prevYearScope}
-                  selectedStoreIds={props.selectedStoreIds}
+                  currentDateRange={subPanelContext.dateRange}
+                  selectedStoreIds={subPanelContext.selectedStoreIds}
+                  prevYearScope={subPanelContext.comparisonScope}
+                  weatherDaily={props.weatherDaily}
+                  daily={props.daily}
+                  daysInMonth={props.daysInMonth}
+                  year={props.year}
+                  month={props.month}
+                  prevYearDaily={props.prevYearDaily}
+                  discountEntries={props.discountEntries}
+                  totalGrossSales={props.totalGrossSales}
                 />
-              </DayDrillPanel>
-            )}
-            {dailyView === 'standard' && (
-              <SubAnalysisPanel
-                mode={rightAxisMode}
-                queryExecutor={props.queryExecutor}
-                currentDateRange={subPanelContext.dateRange}
-                selectedStoreIds={subPanelContext.selectedStoreIds}
-                prevYearScope={subPanelContext.comparisonScope}
-                weatherDaily={props.weatherDaily}
-                daily={props.daily}
-                daysInMonth={props.daysInMonth}
-                year={props.year}
-                month={props.month}
-                prevYearDaily={props.prevYearDaily}
-                discountEntries={props.discountEntries}
-                totalGrossSales={props.totalGrossSales}
-              />
-            )}
+              ))}
           </motion.div>
         )}
 
@@ -410,14 +509,6 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
               queryExecutor={props.queryExecutor}
               context={drillContext}
               weatherPersist={props.weatherPersist}
-            />
-            <CategoryHeatmapPanel
-              ctx={{
-                queryExecutor: props.queryExecutor,
-                currentDateRange: drillContext.dateRange,
-                selectedStoreIds: drillContext.selectedStoreIds,
-                prevYearScope: drillContext.comparisonScope,
-              }}
             />
           </motion.div>
         )}
@@ -490,39 +581,4 @@ const DrillHint = styled.div`
   color: ${({ theme }) => theme.colors.text4};
   margin-top: ${({ theme }) => theme.spacing[1]};
   opacity: 0.7;
-`
-
-const DayDrillPanel = styled.div`
-  margin-top: ${({ theme }) => theme.spacing[4]};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.md};
-  background: ${({ theme }) => theme.colors.bg3};
-  overflow: hidden;
-`
-
-const DayDrillHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[6]};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-`
-
-const DayDrillTitle = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  color: ${({ theme }) => theme.colors.text};
-`
-
-const DayDrillClose = styled.button`
-  all: unset;
-  cursor: pointer;
-  color: ${({ theme }) => theme.colors.text3};
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
-  padding: ${({ theme }) => theme.spacing[1]};
-  border-radius: ${({ theme }) => theme.radii.sm};
-  &:hover {
-    background: ${({ theme }) =>
-      theme.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'};
-  }
 `

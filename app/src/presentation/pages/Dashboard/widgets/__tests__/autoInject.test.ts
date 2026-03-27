@@ -59,13 +59,9 @@ describe('autoInjectDataWidgets', () => {
     expect(result![1]).toBe('chart-daily-sales')
   })
 
-  it('前年データがある場合に前年比較ウォーターフォールが注入される', () => {
-    const result = autoInjectDataWidgets(['widget-budget-achievement'], WITH_DUCKDB_PREV)
-    expect(result).not.toBeNull()
-    expect(result!).toContain('analysis-yoy-waterfall')
-  })
+  // 注: analysis-yoy-waterfall → IntegratedSalesChart「要因分析」タブに統合
 
-  it('前年データがない場合は前年比較ウォーターフォールは注入されない', () => {
+  it('前年データがない場合は前年ウォーターフォールは注入されない', () => {
     const result = autoInjectDataWidgets(['widget-budget-achievement'], WITH_DUCKDB)
     expect(result).not.toBeNull()
     expect(result!).not.toContain('analysis-yoy-waterfall')

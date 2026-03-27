@@ -54,11 +54,19 @@ import {
 
 const EMPTY_RECORDS: readonly CategoryTimeSalesRecord[] = []
 
+interface YoYWaterfallProps {
+  readonly ctx: WidgetContext
+  /** 親から期間を指定する場合（embedded モード） */
+  readonly overrideDateRange?: DateRange
+  /** embedded モード: スライダー・比較モード切替・タイトルを非表示 */
+  readonly embedded?: boolean
+}
+
 export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
   ctx,
-}: {
-  ctx: WidgetContext
-}) {
+  overrideDateRange,
+  embedded,
+}: YoYWaterfallProps) {
   const r = ctx.result
   const prevYear = ctx.prevYear
   const [viewMode, setViewMode] = useState<ViewMode>('factor')
@@ -91,13 +99,14 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
 
   // ── 共通パイプライン: CTS から当年/比較期間のデータを統一取得 ──
 
-  // 当年 CTS 日付範囲（スライダー連動）
+  // 当年 CTS 日付範囲（embedded 時は親から、通常はスライダー連動）
   const curDateRange: DateRange = useMemo(
-    () => ({
-      from: { year: ctx.year, month: ctx.month, day: dayStart },
-      to: { year: ctx.year, month: ctx.month, day: dayEnd },
-    }),
-    [ctx.year, ctx.month, dayStart, dayEnd],
+    () =>
+      overrideDateRange ?? {
+        from: { year: ctx.year, month: ctx.month, day: dayStart },
+        to: { year: ctx.year, month: ctx.month, day: dayEnd },
+      },
+    [overrideDateRange, ctx.year, ctx.month, dayStart, dayEnd],
   )
 
   // 比較期間 CTS 日付範囲（前年比: dowOffset 調整済み / 前週比: -7日）
@@ -343,38 +352,42 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
 
   return (
     <Wrapper>
-      <Title>
-        {activeCompMode === 'yoy' ? '前年比較' : '前週比較'}ウォーターフォール（要因分解）
-      </Title>
-      <Subtitle>
-        {labels.prevLabel}売上から{labels.curLabel}売上への変動要因を可視化
-      </Subtitle>
+      {!embedded && (
+        <>
+          <Title>
+            {activeCompMode === 'yoy' ? '前年比較' : '前週比較'}ウォーターフォール（要因分解）
+          </Title>
+          <Subtitle>
+            {labels.prevLabel}売上から{labels.curLabel}売上への変動要因を可視化
+          </Subtitle>
 
-      <ModeRow>
-        <ModeBtn $active={compMode === 'yoy'} onClick={() => setCompMode('yoy')}>
-          前年比
-        </ModeBtn>
-        <ModeBtn
-          $active={compMode === 'wow'}
-          onClick={() => canWoW && setCompMode('wow')}
-          style={canWoW ? undefined : { opacity: 0.4, cursor: 'not-allowed' }}
-        >
-          前週比
-        </ModeBtn>
-      </ModeRow>
+          <ModeRow>
+            <ModeBtn $active={compMode === 'yoy'} onClick={() => setCompMode('yoy')}>
+              前年比
+            </ModeBtn>
+            <ModeBtn
+              $active={compMode === 'wow'}
+              onClick={() => canWoW && setCompMode('wow')}
+              style={canWoW ? undefined : { opacity: 0.4, cursor: 'not-allowed' }}
+            >
+              前週比
+            </ModeBtn>
+          </ModeRow>
 
-      <DualPeriodSlider
-        min={1}
-        max={ctx.daysInMonth}
-        p1Start={dayStart}
-        p1End={dayEnd}
-        onP1Change={setDayRange}
-        p2Start={p2Start}
-        p2End={p2End}
-        onP2Change={onP2Change}
-        p2Enabled={p2Enabled}
-        elapsedDays={ctx.elapsedDays}
-      />
+          <DualPeriodSlider
+            min={1}
+            max={ctx.daysInMonth}
+            p1Start={dayStart}
+            p1End={dayEnd}
+            onP1Change={setDayRange}
+            p2Start={p2Start}
+            p2End={p2End}
+            onP2Change={onP2Change}
+            p2Enabled={p2Enabled}
+            elapsedDays={ctx.elapsedDays}
+          />
+        </>
+      )}
 
       {(hasCategoryView || hasCategoryFactorView) && (
         <TabRow>

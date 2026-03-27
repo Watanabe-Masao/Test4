@@ -59,3 +59,10 @@ export const GroupLabel = styled.span`
   cursor: default;
   white-space: nowrap;
 `
+
+export const RightGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+`
