@@ -160,12 +160,9 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
     return { current, prev }
   }, [curQtyOut, prevQtyOut, prevYearDateRange, props.currentDateRange])
 
-  const handleDayClick = useCallback(
-    (day: number) => {
-      setClickedDay((prev) => (prev === day ? null : day))
-    },
-    [],
-  )
+  const handleDayClick = useCallback((day: number) => {
+    setClickedDay((prev) => (prev === day ? null : day))
+  }, [])
 
   const handleDayRangeSelect = useCallback(
     (startDay: number, endDay: number) => {
