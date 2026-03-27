@@ -31,6 +31,8 @@ export function aggregateStoreDaySummaryByDateKey(
       sales: number
       customers: number
       coreSales: number
+      totalQuantity: number
+      discountAmount: number
     }
   >()
 
@@ -40,6 +42,8 @@ export function aggregateStoreDaySummaryByDateKey(
       existing.sales += row.sales
       existing.customers += row.customers
       existing.coreSales += row.coreSales
+      existing.totalQuantity += row.totalQuantity
+      existing.discountAmount += row.discountAmount
     } else {
       map.set(row.dateKey, {
         year: row.year,
@@ -49,6 +53,8 @@ export function aggregateStoreDaySummaryByDateKey(
         sales: row.sales,
         customers: row.customers,
         coreSales: row.coreSales,
+        totalQuantity: row.totalQuantity,
+        discountAmount: row.discountAmount,
       })
     }
   }

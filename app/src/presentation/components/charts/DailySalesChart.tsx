@@ -46,8 +46,8 @@ interface Props {
   onRightAxisModeChange?: (mode: RightAxisMode) => void
   /** ビュータイプ変更通知（親でサブパネル表示制御に使用） */
   onViewChange?: (view: ViewType) => void
-  /** 移動平均 overlay 系列（temporal handler 由来、dateKey + value のみ使用） */
-  movingAverageSeries?: readonly { readonly dateKey: string; readonly value: number | null }[]
+  /** 移動平均 overlay（複数指標 × 当年/前年） */
+  maOverlays?: import('@/application/hooks/useMultiMovingAverage').MovingAverageOverlays
   /** 移動平均表示フラグ */
   showMovingAverage?: boolean
   /** 移動平均表示切替コールバック */
@@ -96,7 +96,7 @@ export const DailySalesChart = memo(function DailySalesChart({
   rightAxisMode: controlledRightAxisMode,
   onRightAxisModeChange,
   onViewChange,
-  movingAverageSeries,
+  maOverlays,
   showMovingAverage,
   onShowMovingAverageChange,
 }: Props) {
@@ -222,7 +222,7 @@ export const DailySalesChart = memo(function DailySalesChart({
         year={year}
         month={month}
         rightAxisMode={rightAxisMode}
-        movingAverageSeries={movingAverageSeries}
+        maOverlays={maOverlays}
         showMovingAverage={showMovingAverage}
       />
     </ChartCard>

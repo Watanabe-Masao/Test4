@@ -19,7 +19,7 @@ import { dateRangeToKeys } from '@/domain/models/CalendarDate'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 import type { WeatherPersister } from '@/application/queries/weather'
 import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
-import { useMovingAverageOverlay } from '@/application/hooks/useTemporalAnalysis'
+import { useMultiMovingAverage } from '@/application/hooks/useMultiMovingAverage'
 import {
   dailyQuantityHandler,
   type DailyQuantityInput,
@@ -295,20 +295,21 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
   // SubAnalysisPanel 用の文脈（ドリル時は drill 範囲、未ドリル時は親）
   const subPanelContext = drillContext ?? parentContext
 
-  // ── 移動平均 overlay（Phase 5: 売上7日MA） ──
-  // 対象: 当期売上のみ / standard view 前提 / 比較系列・売変率には載せない
-  // chart は overlay series を受けるだけで rolling 計算を知らない
+  // ── 移動平均 overlay（売上 + 右軸指標 × 当年/前年） ──
   const [showMovingAverage, setShowMovingAverage] = useState(true)
-  const temporalScope = useMemo(
-    () => ({ currentDateRange: props.currentDateRange, selectedStoreIds: props.selectedStoreIds }),
-    [props.currentDateRange, props.selectedStoreIds],
-  )
-  const { data: maOutput } = useMovingAverageOverlay(
+  const RIGHT_AXIS_MA_METRIC: Partial<Record<RightAxisMode, import('@/domain/models/temporal').AnalysisMetric>> = {
+    quantity: 'quantity',
+    customers: 'customers',
+    discount: 'discount',
+  }
+  const maOverlays = useMultiMovingAverage(
     props.queryExecutor ?? null,
-    temporalScope,
+    props.currentDateRange,
+    props.selectedStoreIds,
+    props.prevYearScope,
+    RIGHT_AXIS_MA_METRIC[rightAxisMode] ?? null,
     showMovingAverage,
   )
-  const movingAverageSeries = maOutput?.anchorSeries
 
   // ── 表示用ラベル ──
 
@@ -387,7 +388,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
               rightAxisMode={rightAxisMode}
               onRightAxisModeChange={setRightAxisMode}
               onViewChange={setDailyView}
-              movingAverageSeries={movingAverageSeries}
+              maOverlays={maOverlays}
               showMovingAverage={showMovingAverage}
               onShowMovingAverageChange={setShowMovingAverage}
             />
