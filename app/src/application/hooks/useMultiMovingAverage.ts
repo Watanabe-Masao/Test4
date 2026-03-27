@@ -87,12 +87,12 @@ export function useMultiMovingAverage(
   )
   const { data: salesCurOut } = useMovingAverageOverlay(executor, curScope, showMA, salesCurConfig)
 
-  // 2. 前年売上MA
+  // 2. 前年売上MA（partial: 前月データ未ロード時も利用可能な範囲で計算）
   const salesPrevConfig = useMemo(
     () => ({
       metric: 'sales' as const,
       windowSize: 7,
-      policy: 'strict' as const,
+      policy: 'partial' as const,
       isPrevYear: true,
     }),
     [],
@@ -104,12 +104,12 @@ export function useMultiMovingAverage(
     salesPrevConfig,
   )
 
-  // 3. 当年右軸指標MA
+  // 3. 当年右軸指標MA（partial: 指標によってはデータ欠損日がありうる）
   const metricCurConfig = useMemo(
     () => ({
       metric: (secondaryMetric ?? 'sales') as AnalysisMetric,
       windowSize: 7,
-      policy: 'strict' as const,
+      policy: 'partial' as const,
     }),
     [secondaryMetric],
   )
@@ -120,12 +120,12 @@ export function useMultiMovingAverage(
     metricCurConfig,
   )
 
-  // 4. 前年右軸指標MA
+  // 4. 前年右軸指標MA（partial: 前月データ未ロード時も利用可能な範囲で計算）
   const metricPrevConfig = useMemo(
     () => ({
       metric: (secondaryMetric ?? 'sales') as AnalysisMetric,
       windowSize: 7,
-      policy: 'strict' as const,
+      policy: 'partial' as const,
       isPrevYear: true,
     }),
     [secondaryMetric],
