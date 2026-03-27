@@ -154,10 +154,10 @@ describe('ウィジェットレジストリの DuckDB エントリ', () => {
   // DuckDB 専用ウィジェット（レジストリに直接登録）
   const duckdbOnlyWidgetIds = [
     'analysis-duckdb-features',
-    'analysis-duckdb-cumulative',
+    // 注: analysis-duckdb-cumulative → DailySalesChart「累計」ビューに統合
     'duckdb-dow-pattern',
-    'duckdb-category-trend',
-    'duckdb-category-hourly',
+    // 注: duckdb-category-trend → IntegratedCategoryAnalysis「売上推移」タブに統合
+    // 注: duckdb-category-hourly → TimeSlotChart 部門別モードに統合
     'duckdb-category-mix',
     'duckdb-category-benchmark',
     'duckdb-category-boxplot',
@@ -165,11 +165,11 @@ describe('ウィジェットレジストリの DuckDB エントリ', () => {
 
   // 統合ウィジェット（DuckDB/CTS 自動切替）
   const unifiedWidgetIds = [
-    'chart-timeslot-sales',
+    // 注: chart-timeslot-sales → IntegratedSalesChart ドリルダウンに統合
     'chart-timeslot-heatmap',
     // 注: chart-dept-hourly-pattern → IntegratedSalesChart 孫に統合
     'chart-store-timeslot-comparison',
-    'analysis-yoy-variance',
+    // 注: analysis-yoy-variance → DailySalesChart「差分」ビューに統合
   ]
 
   for (const widgetId of duckdbOnlyWidgetIds) {
@@ -188,16 +188,16 @@ describe('ウィジェットレジストリの DuckDB エントリ', () => {
     // queryExecutor?.isReady === true の条件が DuckDB 専用ウィジェットに含まれていること
     const duckVisibilityCount = (registryContent.match(/queryExecutor\?\.isReady === true/g) ?? [])
       .length
-    // 9 DuckDB専用エントリのうち少なくとも 5 個は直接ガード（残りは isVisible 関数経由）
-    expect(duckVisibilityCount).toBeGreaterThanOrEqual(5)
+    // 6 DuckDB専用エントリのうち少なくとも 3 個は直接ガード（残りは isVisible 関数経由）
+    expect(duckVisibilityCount).toBeGreaterThanOrEqual(3)
   })
 
   it('統合ウィジェットが UnifiedAnalyticsWidgets を使用している', () => {
-    expect(registryContent).toContain('UnifiedTimeSlotWidget')
+    // 注: UnifiedTimeSlotWidget → IntegratedSalesChart ドリルダウンに統合
     expect(registryContent).toContain('UnifiedHeatmapWidget')
     // 注: UnifiedDeptHourlyWidget → IntegratedSalesChart 孫に統合
     expect(registryContent).toContain('UnifiedStoreHourlyWidget')
-    expect(registryContent).toContain('UnifiedYoYWidget')
+    // 注: UnifiedYoYWidget → DailySalesChart「差分」ビューに統合
   })
 })
 

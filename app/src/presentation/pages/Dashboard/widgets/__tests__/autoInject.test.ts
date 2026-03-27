@@ -44,7 +44,7 @@ describe('autoInjectDataWidgets', () => {
   it('DuckDB 準備完了時にウィジェットが注入される', () => {
     const result = autoInjectDataWidgets(['widget-budget-achievement'], WITH_DUCKDB)
     expect(result).not.toBeNull()
-    expect(result!).toContain('chart-timeslot-sales')
+    // 注: chart-timeslot-sales → IntegratedSalesChart ドリルダウンに統合
     expect(result!).toContain('chart-timeslot-heatmap')
     expect(result!).toContain('chart-category-analysis')
   })
@@ -144,9 +144,9 @@ describe('autoInjectDataWidgets', () => {
     const result = autoInjectDataWidgets(['widget-budget-achievement'], WITH_DUCKDB)
     expect(result).not.toBeNull()
     expect(result!).toContain('analysis-duckdb-features')
-    expect(result!).toContain('analysis-duckdb-cumulative')
+    // 注: analysis-duckdb-cumulative → DailySalesChart「累計」ビューに統合
     // 統合ウィジェットも DuckDB 準備完了で注入される
-    expect(result!).toContain('chart-timeslot-sales')
+    // 注: chart-timeslot-sales → IntegratedSalesChart ドリルダウンに統合
     expect(result!).toContain('chart-timeslot-heatmap')
   })
 
@@ -155,7 +155,7 @@ describe('autoInjectDataWidgets', () => {
     expect(result).not.toBeNull()
     // DuckDB 専用 + 統合ウィジェット合わせて十分な数が注入される
     const injectedCount = result!.length - 1 // kpi-core-sales を除く
-    expect(injectedCount).toBeGreaterThanOrEqual(8)
+    expect(injectedCount).toBeGreaterThanOrEqual(5)
   })
 
   it('DuckDB: 前年データがないと前年比較は注入されない', () => {
@@ -167,8 +167,9 @@ describe('autoInjectDataWidgets', () => {
   it('DuckDB: 前年データがあると前年比較が注入される', () => {
     const result = autoInjectDataWidgets(['widget-budget-achievement'], WITH_DUCKDB_PREV)
     expect(result).not.toBeNull()
-    // 統合 YoY ウィジェット（analysis-yoy-variance）として注入
-    expect(result!).toContain('analysis-yoy-variance')
+    // 注: analysis-yoy-variance → DailySalesChart「差分」ビューに統合
+    // 前年データありでも削除済みウィジェットは注入されない
+    expect(result!).not.toContain('analysis-yoy-variance')
   })
 
   it('DuckDB: 店舗が1つの場合は店舗比較系が注入されない', () => {
