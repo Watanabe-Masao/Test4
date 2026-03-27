@@ -10,7 +10,7 @@
  */
 import { useState, useCallback, memo } from 'react'
 import { ChartCard } from './ChartCard'
-import { ViewToggle, ViewBtn, Sep, GroupLabel } from './DailySalesChart.styles'
+import { ViewToggle, ViewBtn, Sep, GroupLabel, RightGroup } from './DailySalesChart.styles'
 import { useChartTheme } from './chartTheme'
 import { DowPresetSelector } from './DowPresetSelector'
 import { useDailySalesData, type DiffTarget, type DailyQuantityData } from './useDailySalesData'
@@ -170,32 +170,34 @@ export const DailySalesChart = memo(function DailySalesChart({
           ))}
         </>
       )}
-      {view === 'standard' && (
-        <>
-          <Sep>|</Sep>
-          <GroupLabel>右軸</GroupLabel>
-          {availableOptions.map((o) => (
+      <RightGroup>
+        {view === 'standard' && (
+          <>
+            <Sep>|</Sep>
+            <GroupLabel>右軸</GroupLabel>
+            {availableOptions.map((o) => (
+              <ViewBtn
+                key={o.mode}
+                $active={rightAxisMode === o.mode}
+                onClick={() => setRightAxisMode(o.mode)}
+              >
+                {o.label}
+              </ViewBtn>
+            ))}
+          </>
+        )}
+        {view === 'standard' && onShowMovingAverageChange && (
+          <>
+            <Sep>|</Sep>
             <ViewBtn
-              key={o.mode}
-              $active={rightAxisMode === o.mode}
-              onClick={() => setRightAxisMode(o.mode)}
+              $active={showMovingAverage === true}
+              onClick={() => onShowMovingAverageChange(!showMovingAverage)}
             >
-              {o.label}
+              移動平均
             </ViewBtn>
-          ))}
-        </>
-      )}
-      {view === 'standard' && onShowMovingAverageChange && (
-        <>
-          <Sep>|</Sep>
-          <ViewBtn
-            $active={showMovingAverage === true}
-            onClick={() => onShowMovingAverageChange(!showMovingAverage)}
-          >
-            移動平均
-          </ViewBtn>
-        </>
-      )}
+          </>
+        )}
+      </RightGroup>
     </ViewToggle>
   )
 

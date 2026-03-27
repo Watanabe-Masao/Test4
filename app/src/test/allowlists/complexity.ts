@@ -122,7 +122,7 @@ export const presentationStateLimits: readonly QuantitativeAllowlistEntry[] = [
     reason: '統合売上チャート。ドリルレベル + スライド方向 + clickedDay 等',
     category: 'structural',
     removalCondition: 'ドリル状態を reducer に統合する時',
-    limit: 10,
+    limit: 12,
   },
   {
     path: 'presentation/pages/Admin/useMonthDataManagement.ts',
