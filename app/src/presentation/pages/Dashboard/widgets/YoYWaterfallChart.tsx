@@ -351,7 +351,7 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
     categoryData.residualPct > AMOUNT_RECONCILIATION_TOLERANCE
 
   return (
-    <Wrapper>
+    <Wrapper style={embedded ? { padding: 0, border: 'none', background: 'transparent' } : undefined}>
       {!embedded && (
         <>
           <Title>

@@ -24,19 +24,19 @@ export type ThresholdUnit = 'pt' | 'pct' | 'yen' | 'ratio'
 
 /** コンディションメトリクスID */
 export type ConditionMetricId =
+  | 'sales'
+  | 'gp'
   | 'gpRate'
   | 'markupRate'
-  | 'budgetProgress'
-  | 'projectedAchievement'
   | 'discountRate'
   | 'costInclusion'
+  | 'salesYoY'
   | 'customerYoY'
   | 'txValue'
-  | 'salesYoY'
-  | 'gpAmount'
-  | 'dailySales'
-  | 'requiredPace'
   | 'itemsYoY'
+  | 'totalCost'
+  | 'requiredPace'
+  | 'dailySales'
 
 /** メトリクスレジストリエントリ（コード内定義、不変） */
 export interface ConditionMetricDef {

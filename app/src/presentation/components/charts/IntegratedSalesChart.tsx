@@ -108,7 +108,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
 
   // clickedDay: useState 上限(8)回避のため useReducer 的にdrillLevelを再利用
   const [clickedDay, setClickedDay] = useState<number | null>(null)
-  const [subTab, setSubTab] = useState<'factor' | 'trend' | 'drilldown'>('factor')
+  const [subTab, setSubTab] = useState<'trend' | 'drilldown'>('trend')
   const [pendingRange, setPendingRange] = useState<{ start: number; end: number } | null>(null)
 
   // ── drill scroll 制御 ──
@@ -416,17 +416,23 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
               </RangeActionBox>
             )}
 
-            {/* 子パネル: 標準ビュー + 右軸モードに応じて切替 */}
+            {/* 子1: 要因分析（独立表示 — 右軸モードに関係なく表示） */}
+            {dailyView === 'standard' && props.widgetCtx && props.queryExecutor?.isReady && (
+              <YoYWaterfallChartWidget
+                ctx={props.widgetCtx}
+                overrideDateRange={drillDateRange}
+                embedded
+              />
+            )}
+
+            {/* 子2: 標準ビュー + 右軸モードに応じた分析パネル */}
             {dailyView === 'standard' &&
               props.queryExecutor?.isReady &&
               (rightAxisMode === 'quantity' || rightAxisMode === 'customers' ? (
-                /* 標準 + 点数/客数 → 要因分析 / カテゴリ分析 / ドリルダウン分析 */
+                /* 標準 + 点数/客数 → カテゴリ分析 / ドリルダウン分析 */
                 <div style={{ marginTop: 12 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                     <TabGroup>
-                      <Tab $active={subTab === 'factor'} onClick={() => setSubTab('factor')}>
-                        要因分析
-                      </Tab>
                       <Tab $active={subTab === 'trend'} onClick={() => setSubTab('trend')}>
                         カテゴリ分析
                       </Tab>
@@ -434,7 +440,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
                         ドリルダウン分析
                       </Tab>
                     </TabGroup>
-                    {clickedDay != null && (subTab === 'drilldown' || subTab === 'factor') && (
+                    {clickedDay != null && subTab === 'drilldown' && (
                       <DrillPeriodBadge>
                         {props.month}月{clickedDay}
                         {pendingRange && pendingRange.start !== pendingRange.end
@@ -444,13 +450,6 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
                       </DrillPeriodBadge>
                     )}
                   </div>
-                  {subTab === 'factor' && props.widgetCtx && (
-                    <YoYWaterfallChartWidget
-                      ctx={props.widgetCtx}
-                      overrideDateRange={drillDateRange}
-                      embedded
-                    />
-                  )}
                   {subTab === 'trend' && (
                     <SubAnalysisPanel
                       mode={rightAxisMode}
