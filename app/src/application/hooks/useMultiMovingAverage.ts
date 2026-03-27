@@ -141,7 +141,8 @@ export function useMultiMovingAverage(
     () => ({
       salesCur: salesCurOut?.anchorSeries,
       salesPrev: remapPrevYearSeries(salesPrevOut?.anchorSeries, salesCurOut?.anchorSeries),
-      metricCur: hasMetric ? metricCurOut?.anchorSeries : undefined,
+      // DEBUG: metricCur に salesCur のデータを使って描画テスト
+      metricCur: hasMetric ? (metricCurOut?.anchorSeries ?? salesCurOut?.anchorSeries) : undefined,
       metricPrev: hasMetric
         ? remapPrevYearSeries(metricPrevOut?.anchorSeries, metricCurOut?.anchorSeries)
         : undefined,
