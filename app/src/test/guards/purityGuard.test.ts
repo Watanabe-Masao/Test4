@@ -8,6 +8,7 @@
  * @guard A6 load 処理は3段階分離
  * @guard B1 Authoritative 計算は domain/calculations のみ
  * @guard B3 率は domain/calculations で算出
+ * @guard D3 率メトリクスの累計は原量から domain 関数で再計算（率の合算禁止）
  * @guard C6 facade は orchestration のみ
  * @guard C3 store は state 反映のみ
  */
@@ -391,5 +392,89 @@ describe('C3: store は state 反映のみ', () => {
       `stores/ の set() 内で算術 .reduce() が検出されました:\n${violations.join('\n')}\n` +
         '集計ロジックは store の外で行ってください（C3 違反）。',
     ).toEqual([])
+  })
+})
+
+// ─── D3: 率メトリクスの累計は原量から再計算（率の合算禁止） ──
+
+describe('D3: 率メトリクスの累計計算ガード', () => {
+  /**
+   * 率（値入率・粗利率・売変率）の累計を「日別率の合算÷日数」で求めるのは
+   * 数学的に不正確。正しくは累計の原量（売価・原価等）から domain 関数で再計算すべき。
+   *
+   * 検出パターン:
+   *   - cumRate += rate / cumRate += dailyRate のような率の合算
+   *   - cumActual / day のような率の平均化（日別ビルダー内）
+   *
+   * 対象: presentation/ の daily builder / VM ファイル
+   */
+  it('presentation/ の daily builder で率の合算パターンが存在しないこと', () => {
+    const presDir = path.join(SRC_DIR, 'presentation')
+    const files = collectTsFiles(presDir).filter(
+      (f) =>
+        (f.includes('Daily') ||
+          f.includes('daily') ||
+          f.includes('Builder') ||
+          f.includes('builder')) &&
+        !f.includes('.test.') &&
+        !f.includes('.stories.'),
+    )
+
+    const violations: string[] = []
+
+    // 率の合算パターン: cumXxx += xxxRate * 100 or cumActual += averageMarkupRate
+    const rateAccumPatterns = [
+      /cum\w*\s*\+=\s*\w*[Rr]ate\s*\*\s*100/,
+      /cum\w*\s*\+=\s*average[A-Z]\w*Rate/,
+      /cum\w*\s*\+=\s*calculate\w*Rate/,
+    ]
+
+    for (const file of files) {
+      const content = fs.readFileSync(file, 'utf-8')
+      const lines = content.split('\n')
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i]
+        if (isCommentLine(line)) continue
+        const stripped = stripStrings(line)
+        for (const pattern of rateAccumPatterns) {
+          if (pattern.test(stripped)) {
+            violations.push(
+              `${rel(file)}:${i + 1}: ${line.trim()}\n` +
+                '  → 率の合算は不正確。累計原量から domain 関数で再計算してください。',
+            )
+          }
+        }
+      }
+    }
+
+    expect(
+      violations,
+      `率メトリクスの累計で不正な合算パターンが検出されました:\n${violations.join('\n')}\n` +
+        '率の累計は日別率の合算ではなく、累計原量から domain/calculations の関数で再計算してください（D3 違反）。',
+    ).toEqual([])
+  })
+
+  it('conditionSummaryDailyBuilders が累計値入率を calculateMarkupRates で算出していること', () => {
+    const filePath = path.join(
+      SRC_DIR,
+      'presentation/pages/Dashboard/widgets/conditionSummaryDailyBuilders.ts',
+    )
+    const content = fs.readFileSync(filePath, 'utf-8')
+
+    // calculateMarkupRates が2回以上呼ばれていること（日別 + 累計）
+    const markupCalls = (content.match(/calculateMarkupRates\s*\(/g) || []).length
+    expect(
+      markupCalls,
+      `conditionSummaryDailyBuilders で calculateMarkupRates の呼び出しが${markupCalls}回。` +
+        '日別と累計の2回以上呼ばれるべきです（率の合算禁止: D3）。',
+    ).toBeGreaterThanOrEqual(2)
+
+    // calculateDiscountRate が2回以上呼ばれていること（日別 + 累計）
+    const discountCalls = (content.match(/calculateDiscountRate\s*\(/g) || []).length
+    expect(
+      discountCalls,
+      `conditionSummaryDailyBuilders で calculateDiscountRate の呼び出しが${discountCalls}回。` +
+        '日別と累計の2回以上呼ばれるべきです（率の合算禁止: D3）。',
+    ).toBeGreaterThanOrEqual(2)
   })
 })
