@@ -35,6 +35,8 @@ interface Props {
   >
   /** サブパネル埋め込み時に ChartCard ラッパーを省略する */
   embedded?: boolean
+  /** 日付クリック → カテゴリ別売変ドリルダウン */
+  onDayClick?: (day: number) => void
 }
 
 function buildDiscountData(
@@ -106,6 +108,7 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
   month,
   prevYearDaily,
   embedded,
+  onDayClick,
 }: Props) {
   const theme = useTheme() as AppTheme
   const { format: fmtCurrency } = useCurrencyFormat()
@@ -293,7 +296,19 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
         </KpiGrid>
       )}
 
-      <EChart option={option} height={280} ariaLabel="売変推移チャート" />
+      <EChart
+        option={option}
+        height={280}
+        onClick={
+          onDayClick
+            ? (params: Record<string, unknown>) => {
+                const day = params.name as number | undefined
+                if (day != null && day >= 1) onDayClick(Number(day))
+              }
+            : undefined
+        }
+        ariaLabel="売変推移チャート"
+      />
     </>
   )
 

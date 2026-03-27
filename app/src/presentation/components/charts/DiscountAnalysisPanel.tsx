@@ -1,18 +1,18 @@
 /**
  * DiscountAnalysisPanel — 売変選択時の売変内訳分析パネル
  *
- * 既存 DiscountTrendChart（種別スタック棒+累計売変率ライン+前年比較）をラップ。
- * DailyRecord Map は DiscountTrendChart が使用（将来 DuckDB 化予定）。
+ * 日別売変推移（DiscountTrendChart）+ カテゴリ別売変分析（CategoryDiscountChart）。
+ * 日別チャートの日付クリックでカテゴリ別にドリルダウン。
  */
-import { memo } from 'react'
+import { memo, useState, useCallback } from 'react'
 import type { DailyRecord } from '@/domain/models/record'
 import type { DiscountEntry } from '@/domain/models/record'
 import type { DuckQueryContext } from './SubAnalysisPanel'
 import { DiscountTrendChart } from './DiscountTrendChart'
+import { CategoryDiscountChart } from './CategoryDiscountChart'
 
 interface Props {
   readonly ctx: DuckQueryContext
-  /** DiscountTrendChart が使用する DailyRecord データ（将来 DuckDB 化で廃止予定） */
   readonly daily: ReadonlyMap<number, DailyRecord>
   readonly daysInMonth: number
   readonly year: number
@@ -26,6 +26,7 @@ interface Props {
 }
 
 export const DiscountAnalysisPanel = memo(function DiscountAnalysisPanel({
+  ctx,
   daily,
   daysInMonth,
   year,
@@ -34,16 +35,36 @@ export const DiscountAnalysisPanel = memo(function DiscountAnalysisPanel({
   totalGrossSales,
   prevYearDaily,
 }: Props) {
+  const [drillDay, setDrillDay] = useState<number | null>(null)
+
+  const handleDayClick = useCallback((day: number) => {
+    setDrillDay((prev) => (prev === day ? null : day))
+  }, [])
+
+  const drillDateRange =
+    drillDay != null
+      ? { from: { year, month, day: drillDay }, to: { year, month, day: drillDay } }
+      : ctx.currentDateRange
+
   return (
-    <DiscountTrendChart
-      daily={daily}
-      daysInMonth={daysInMonth}
-      year={year}
-      month={month}
-      discountEntries={discountEntries}
-      totalGrossSales={totalGrossSales}
-      prevYearDaily={prevYearDaily}
-      embedded
-    />
+    <>
+      <DiscountTrendChart
+        daily={daily}
+        daysInMonth={daysInMonth}
+        year={year}
+        month={month}
+        discountEntries={discountEntries}
+        totalGrossSales={totalGrossSales}
+        prevYearDaily={prevYearDaily}
+        embedded
+        onDayClick={handleDayClick}
+      />
+      <CategoryDiscountChart
+        queryExecutor={ctx.queryExecutor}
+        currentDateRange={drillDateRange}
+        selectedStoreIds={ctx.selectedStoreIds}
+        dateLabel={drillDay != null ? `${month}月${drillDay}日` : undefined}
+      />
+    </>
   )
 })
