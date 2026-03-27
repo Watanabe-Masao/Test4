@@ -4,11 +4,7 @@
  * @guard F7 View は ViewModel のみ受け取る
  */
 
-import {
-  safeDivide,
-  calculateAchievementRate,
-  calculateYoYRatio,
-} from '@/domain/calculations/utils'
+import { calculateAchievementRate, calculateYoYRatio } from '@/domain/calculations/utils'
 import { calculateMarkupRates } from '@/domain/calculations/markupRate'
 import { calculateDiscountRate } from '@/domain/calculations/estMethod'
 import type { StoreResult } from '@/domain/models/storeTypes'
@@ -136,16 +132,16 @@ export function buildDailyDetailRows(
         : dailyBudget > 0
           ? calculateAchievementRate(dailyActual, dailyBudget) * 100
           : 0
-    const cumDiff = cumActual - cumBudget
-    const cumAchievement =
-      metric === 'markupRate'
-        ? cumBudget > 0
-          ? safeDivide(cumActual, effectiveElapsed > 0 ? day : 1, 0) -
-            sr.grossProfitRateBudget * 100
-          : 0
-        : cumBudget > 0
-          ? calculateAchievementRate(cumActual, cumBudget) * 100
-          : 0
+    // 率メトリクス（値入率・粗利率・売変率）は累計を日平均で表示
+    const isRateMetric = metric === 'markupRate' || metric === 'gpRate' || metric === 'discountRate'
+    const cumAvgActual = isRateMetric && day > 0 ? cumActual / day : cumActual
+    const cumAvgBudget = isRateMetric ? dailyBudget : cumBudget
+    const cumDiff = isRateMetric ? cumAvgActual - cumAvgBudget : cumActual - cumBudget
+    const cumAchievement = isRateMetric
+      ? cumAvgActual - cumAvgBudget
+      : cumBudget > 0
+        ? calculateAchievementRate(cumActual, cumBudget) * 100
+        : 0
 
     rows.push({
       day,
@@ -153,8 +149,8 @@ export function buildDailyDetailRows(
       actual: dailyActual,
       diff,
       achievement,
-      cumBudget,
-      cumActual,
+      cumBudget: isRateMetric ? cumAvgBudget : cumBudget,
+      cumActual: isRateMetric ? cumAvgActual : cumActual,
       cumDiff,
       cumAchievement,
     })
