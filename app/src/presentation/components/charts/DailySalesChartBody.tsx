@@ -27,8 +27,8 @@ interface Props {
   year?: number
   month?: number
   rightAxisMode?: RightAxisMode
-  /** 移動平均 overlay 系列（temporal handler 由来） */
-  movingAverageSeries?: readonly { dateKey: string; value: number | null }[]
+  /** 移動平均 overlay（複数指標 × 当年/前年） */
+  maOverlays?: import('@/application/hooks/useMultiMovingAverage').MovingAverageOverlays
   /** 移動平均表示フラグ */
   showMovingAverage?: boolean
 }
@@ -49,7 +49,7 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
   year,
   month,
   rightAxisMode = 'quantity',
-  movingAverageSeries,
+  maOverlays,
   showMovingAverage,
 }: Props) {
   const rows = data as unknown as Record<string, unknown>[]
@@ -100,38 +100,85 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
 
   // MA overlay を追加（standard ビュー + showMovingAverage のみ）
   const optionWithMA = useMemo(() => {
-    if (view !== 'standard' || !showMovingAverage || !movingAverageSeries?.length) return baseOption
-    // dateKey → day の Map を構築
-    const dayMap = new Map<string, number>()
-    for (const row of rows) {
-      const r = row as { day: number; dateKey?: string }
-      if (r.dateKey) dayMap.set(r.dateKey, r.day)
+    if (view !== 'standard' || !showMovingAverage || !maOverlays) return baseOption
+
+    const toMaData = (series: readonly { dateKey: string; value: number | null }[] | undefined) => {
+      if (!series?.length) return null
+      return days.map((day) => {
+        const dayStr = String(day).padStart(2, '0')
+        const monthStr = month ? String(month).padStart(2, '0') : '01'
+        const dateKey = `${year ?? 2026}-${monthStr}-${dayStr}`
+        const point = series.find((p) => p.dateKey === dateKey)
+        return point?.value ?? null
+      })
     }
-    // MA series を ECharts series data に変換（日番号順）
-    const maData = days.map((day) => {
-      const dayStr = String(day).padStart(2, '0')
-      const monthStr = month ? String(month).padStart(2, '0') : '01'
-      const dateKey = `${year ?? 2026}-${monthStr}-${dayStr}`
-      const point = movingAverageSeries.find((p) => p.dateKey === dateKey)
-      return point?.value ?? null
-    })
+
+    const maSeries: object[] = []
+    const metricLabel = maOverlays.metricLabel ?? ''
+
+    // 売上MA（当年）— インディゴ破線
+    const salesCurData = toMaData(maOverlays.salesCur)
+    if (salesCurData) {
+      maSeries.push({
+        name: '売上7日MA',
+        type: 'line',
+        data: salesCurData,
+        smooth: true,
+        symbol: 'none',
+        lineStyle: { width: 2, type: 'dashed', color: '#6366f1' },
+        z: 10,
+      })
+    }
+
+    // 売上MA（前年）— インディゴ点線
+    const salesPrevData = toMaData(maOverlays.salesPrev)
+    if (salesPrevData) {
+      maSeries.push({
+        name: '売上7日MA(前年)',
+        type: 'line',
+        data: salesPrevData,
+        smooth: true,
+        symbol: 'none',
+        lineStyle: { width: 1.5, type: 'dotted', color: '#6366f180' },
+        z: 10,
+      })
+    }
+
+    // 指標MA（当年）— 右軸色破線
+    const metricCurData = toMaData(maOverlays.metricCur)
+    if (metricCurData && metricLabel) {
+      maSeries.push({
+        name: `${metricLabel}7日MA`,
+        type: 'line',
+        data: metricCurData,
+        smooth: true,
+        symbol: 'none',
+        lineStyle: { width: 2, type: 'dashed', color: '#06b6d4' },
+        yAxisIndex: needRightAxis ? 1 : 0,
+        z: 10,
+      })
+    }
+
+    // 指標MA（前年）— 右軸色点線
+    const metricPrevData = toMaData(maOverlays.metricPrev)
+    if (metricPrevData && metricLabel) {
+      maSeries.push({
+        name: `${metricLabel}7日MA(前年)`,
+        type: 'line',
+        data: metricPrevData,
+        smooth: true,
+        symbol: 'none',
+        lineStyle: { width: 1.5, type: 'dotted', color: '#06b6d480' },
+        yAxisIndex: needRightAxis ? 1 : 0,
+        z: 10,
+      })
+    }
+
+    if (maSeries.length === 0) return baseOption
 
     const existingSeries = (baseOption.series as unknown[]) ?? []
-    return Object.assign({}, baseOption, {
-      series: [
-        ...existingSeries,
-        {
-          name: '売上7日移動平均',
-          type: 'line',
-          data: maData,
-          smooth: true,
-          symbol: 'none',
-          lineStyle: { width: 2, type: 'dashed', color: '#6366f1' },
-          z: 10,
-        },
-      ],
-    })
-  }, [baseOption, view, showMovingAverage, movingAverageSeries, rows, days, year, month])
+    return Object.assign({}, baseOption, { series: [...existingSeries, ...maSeries] })
+  }, [baseOption, view, showMovingAverage, maOverlays, days, year, month, needRightAxis])
 
   // ブラシ設定を追加（ドラッグ選択機能が有効な場合のみ）
   const option = useMemo(() => {

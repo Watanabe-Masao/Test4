@@ -35,6 +35,8 @@ import type { DateRange } from '@/domain/models/CalendarDate'
 export interface MovingAverageInput {
   readonly frame: RollingAnalysisFrame
   readonly policy: MovingAverageMissingnessPolicy
+  /** 前年データを取得する場合 true */
+  readonly isPrevYear?: boolean
 }
 
 export interface MovingAverageOutput {
@@ -74,6 +76,7 @@ export const movingAverageHandler: QueryHandler<MovingAverageInput, MovingAverag
       dateFrom: fromKey,
       dateTo: toKey,
       storeIds: frame.storeIds.length > 0 ? [...frame.storeIds] : undefined,
+      isPrevYear: input.isPrevYear ?? false,
     })
 
     // 2.5. store×day rows を dateKey 単位で集約（全店合計）

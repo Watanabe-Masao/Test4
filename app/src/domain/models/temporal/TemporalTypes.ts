@@ -18,7 +18,13 @@ import type { DateRange } from '@/domain/models/CalendarDate'
 export type AnalysisMode = 'movingAverage' | 'rollingSum' | 'cumulative' | 'trend'
 
 /** 分析指標 */
-export type AnalysisMetric = 'sales' | 'customers' | 'transactionValue' | 'grossProfitRate'
+export type AnalysisMetric =
+  | 'sales'
+  | 'customers'
+  | 'transactionValue'
+  | 'grossProfitRate'
+  | 'quantity'
+  | 'discount'
 
 // ── 3系統の入力型 ──
 

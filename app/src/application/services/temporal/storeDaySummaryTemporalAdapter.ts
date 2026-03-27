@@ -29,6 +29,8 @@ export interface StoreDaySummaryRowForTemporal {
   readonly sales: number
   readonly customers: number
   readonly coreSales: number
+  readonly totalQuantity: number
+  readonly discountAmount: number
 }
 
 /**
