@@ -42,8 +42,13 @@ export function useWidgetQueryContext(
   // DuckDB エンジン初期化
   const duck = useDuckDB(data, targetYear, targetMonth, repo)
 
-  // QueryExecutor — conn を隠蔽し QueryHandler 経由で実行する（useMemo で参照安定化）
-  const queryExecutor = useMemo(() => createQueryExecutor(duck.conn), [duck.conn])
+  // QueryExecutor — conn を隠蔽し QueryHandler 経由で実行する
+  // dataVersion を deps に含めることで、データロード完了時に executor 参照が更新され、
+  // useQueryWithHandler の全クエリが再実行される
+  const queryExecutor = useMemo(
+    () => createQueryExecutor(duck.conn, duck.dataVersion),
+    [duck.conn, duck.dataVersion],
+  )
 
   // WeatherPersister — ETRN フォールバック用（useMemo で参照安定化）
   const weatherPersist = useMemo(
