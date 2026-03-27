@@ -37,11 +37,15 @@ export interface MovingAverageInput {
   readonly policy: MovingAverageMissingnessPolicy
   /** 前年データを取得する場合 true */
   readonly isPrevYear?: boolean
+  /** 追加メトリック（frame.metric に加えて計算する） */
+  readonly extraMetrics?: readonly string[]
 }
 
 export interface MovingAverageOutput {
   readonly anchorSeries: readonly DailySeriesPoint[]
   readonly requiredMonths: readonly YearMonthKey[]
+  /** extraMetrics の結果（key = metric名） */
+  readonly extraSeries?: Readonly<Record<string, readonly DailySeriesPoint[]>>
 }
 
 // ── Helpers ──
@@ -103,9 +107,26 @@ export const movingAverageHandler: QueryHandler<MovingAverageInput, MovingAverag
     // 6. anchorRange に切り戻し
     const anchorSeries = sliceToAnchorRange(maSeries, frame.anchorRange)
 
+    // 7. extraMetrics（同じ sourceRows から追加メトリックの MA を計算）
+    let extraSeries: Record<string, readonly DailySeriesPoint[]> | undefined
+    if (input.extraMetrics && input.extraMetrics.length > 0) {
+      extraSeries = {}
+      for (const metric of input.extraMetrics) {
+        const series = buildDailySeries(plan, sourceRows, metric)
+        const maExtra = computeMovingAverage(series, frame.windowSize, policy)
+        const mapped: DailySeriesPoint[] = series.map((original, i) => ({
+          ...original,
+          value: maExtra[i].value,
+          status: maExtra[i].status,
+        }))
+        extraSeries[metric] = sliceToAnchorRange(mapped, frame.anchorRange)
+      }
+    }
+
     return {
       anchorSeries,
       requiredMonths: plan.requiredMonths,
+      extraSeries,
     }
   },
 }
