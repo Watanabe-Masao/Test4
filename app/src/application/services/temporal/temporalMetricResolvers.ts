@@ -11,7 +11,7 @@ export interface StoreDaySummaryTemporalRow {
   readonly customers: number
   readonly coreSales: number
   readonly totalQuantity: number
-  readonly discountAmount: number
+  readonly discountAbsolute: number
 }
 
 /** metric 値の resolver 関数型 */
@@ -24,7 +24,7 @@ export const TEMPORAL_METRIC_RESOLVERS: Readonly<Record<string, TemporalMetricRe
   transactionValue: (row) => (row.customers > 0 ? row.sales / row.customers : null),
   grossProfitRate: (row) => (row.coreSales > 0 ? (row.sales - row.coreSales) / row.sales : null),
   quantity: (row) => row.totalQuantity,
-  discount: (row) => row.discountAmount,
+  discount: (row) => row.discountAbsolute,
 }
 
 /**

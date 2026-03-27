@@ -4,11 +4,7 @@
  * @guard F7 View は ViewModel のみ受け取る
  */
 
-import {
-  safeDivide,
-  calculateAchievementRate,
-  calculateYoYRatio,
-} from '@/domain/calculations/utils'
+import { calculateAchievementRate, calculateYoYRatio } from '@/domain/calculations/utils'
 import { calculateMarkupRates } from '@/domain/calculations/markupRate'
 import { calculateDiscountRate } from '@/domain/calculations/estMethod'
 import type { StoreResult } from '@/domain/models/storeTypes'
@@ -63,17 +59,32 @@ export function buildDailyDetailRows(
   let cumBudget = 0
   let cumActual = 0
 
+  // 率メトリクス用: 累計の原量を保持し domain 関数で再計算する
+  const cumAmounts = {
+    purchasePrice: 0,
+    purchaseCost: 0,
+    deliveryPrice: 0,
+    deliveryCost: 0,
+    transferPrice: 0,
+    transferCost: 0,
+    sales: 0,
+    totalCost: 0,
+    costInclusion: 0,
+    discountAbsolute: 0,
+  }
+
   for (let day = 1; day <= effectiveElapsed; day++) {
     let dailyBudget: number
     let dailyActual: number
+    let cumRateActual: number | null = null
 
     if (metric === 'sales') {
       dailyBudget = sr.budgetDaily.get(day) ?? 0
       dailyActual = sr.daily.get(day)?.sales ?? 0
     } else {
-      // Rate metrics: use daily rate values
       const dailyRecord = sr.daily.get(day)
       if (!dailyRecord) {
+        const prevCumRateActual = cumRateActual
         rows.push({
           day,
           budget: 0,
@@ -81,15 +92,36 @@ export function buildDailyDetailRows(
           diff: 0,
           achievement: 0,
           cumBudget: cumBudget,
-          cumActual: cumActual,
-          cumDiff: cumActual - cumBudget,
+          cumActual: prevCumRateActual ?? cumActual,
+          cumDiff: (prevCumRateActual ?? cumActual) - cumBudget,
           cumAchievement: 0,
         })
         continue
       }
+
+      // 累計原量の蓄積（全率メトリクスで使用）
+      cumAmounts.purchasePrice += dailyRecord.purchase.price
+      cumAmounts.purchaseCost += dailyRecord.purchase.cost
+      cumAmounts.deliveryPrice += dailyRecord.flowers.price + dailyRecord.directProduce.price
+      cumAmounts.deliveryCost += dailyRecord.flowers.cost + dailyRecord.directProduce.cost
+      cumAmounts.transferPrice +=
+        dailyRecord.interStoreIn.price +
+        dailyRecord.interStoreOut.price +
+        dailyRecord.interDepartmentIn.price +
+        dailyRecord.interDepartmentOut.price
+      cumAmounts.transferCost +=
+        dailyRecord.interStoreIn.cost +
+        dailyRecord.interStoreOut.cost +
+        dailyRecord.interDepartmentIn.cost +
+        dailyRecord.interDepartmentOut.cost
+      cumAmounts.sales += dailyRecord.sales
+      cumAmounts.totalCost += dailyRecord.totalCost
+      cumAmounts.costInclusion += dailyRecord.costInclusion.cost
+      cumAmounts.discountAbsolute += dailyRecord.discountAbsolute
+
       if (metric === 'markupRate') {
         dailyBudget = sr.grossProfitRateBudget * 100
-        // domain/calculations/markupRate の calculateMarkupRates を使用
+        // 日別: domain 関数で当日の値入率を算出
         const { averageMarkupRate } = calculateMarkupRates({
           purchasePrice: dailyRecord.purchase.price,
           purchaseCost: dailyRecord.purchase.cost,
@@ -108,16 +140,35 @@ export function buildDailyDetailRows(
           defaultMarkupRate: 0,
         })
         dailyActual = averageMarkupRate * 100
+        // 累計: domain 関数で累計原量から再計算（率の合算ではない）
+        const { averageMarkupRate: cumMarkupRate } = calculateMarkupRates({
+          purchasePrice: cumAmounts.purchasePrice,
+          purchaseCost: cumAmounts.purchaseCost,
+          deliveryPrice: cumAmounts.deliveryPrice,
+          deliveryCost: cumAmounts.deliveryCost,
+          transferPrice: cumAmounts.transferPrice,
+          transferCost: cumAmounts.transferCost,
+          defaultMarkupRate: 0,
+        })
+        cumRateActual = cumMarkupRate * 100
       } else if (metric === 'discountRate') {
         dailyBudget = 0
-        // domain/calculations/estMethod の calculateDiscountRate を使用
         dailyActual = calculateDiscountRate(dailyRecord.sales, dailyRecord.discountAbsolute) * 100
+        // 累計: domain 関数で累計原量から再計算
+        cumRateActual = calculateDiscountRate(cumAmounts.sales, cumAmounts.discountAbsolute) * 100
       } else if (metric === 'gpRate') {
         dailyBudget = sr.grossProfitRateBudget * 100
         dailyActual =
           dailyRecord.sales > 0
             ? ((dailyRecord.sales - dailyRecord.totalCost - dailyRecord.costInclusion.cost) /
                 dailyRecord.sales) *
+              100
+            : 0
+        // 累計: 累計原量から再計算
+        cumRateActual =
+          cumAmounts.sales > 0
+            ? ((cumAmounts.sales - cumAmounts.totalCost - cumAmounts.costInclusion) /
+                cumAmounts.sales) *
               100
             : 0
       } else {
@@ -129,23 +180,23 @@ export function buildDailyDetailRows(
     cumBudget += dailyBudget
     cumActual += dailyActual
 
+    const isRateMetric = metric === 'markupRate' || metric === 'gpRate' || metric === 'discountRate'
     const diff = dailyActual - dailyBudget
-    const achievement =
-      metric === 'markupRate'
-        ? dailyActual - dailyBudget
-        : dailyBudget > 0
-          ? calculateAchievementRate(dailyActual, dailyBudget) * 100
-          : 0
-    const cumDiff = cumActual - cumBudget
-    const cumAchievement =
-      metric === 'markupRate'
-        ? cumBudget > 0
-          ? safeDivide(cumActual, effectiveElapsed > 0 ? day : 1, 0) -
-            sr.grossProfitRateBudget * 100
-          : 0
-        : cumBudget > 0
-          ? calculateAchievementRate(cumActual, cumBudget) * 100
-          : 0
+    const achievement = isRateMetric
+      ? dailyActual - dailyBudget
+      : dailyBudget > 0
+        ? calculateAchievementRate(dailyActual, dailyBudget) * 100
+        : 0
+
+    // 率メトリクス: 累計は domain 関数で累計原量から再計算した値を使用
+    const effectiveCumActual = isRateMetric && cumRateActual != null ? cumRateActual : cumActual
+    const effectiveCumBudget = isRateMetric ? dailyBudget : cumBudget
+    const cumDiff = effectiveCumActual - effectiveCumBudget
+    const cumAchievement = isRateMetric
+      ? effectiveCumActual - effectiveCumBudget
+      : cumBudget > 0
+        ? calculateAchievementRate(cumActual, cumBudget) * 100
+        : 0
 
     rows.push({
       day,
@@ -153,8 +204,8 @@ export function buildDailyDetailRows(
       actual: dailyActual,
       diff,
       achievement,
-      cumBudget,
-      cumActual,
+      cumBudget: effectiveCumBudget,
+      cumActual: effectiveCumActual,
       cumDiff,
       cumAchievement,
     })
