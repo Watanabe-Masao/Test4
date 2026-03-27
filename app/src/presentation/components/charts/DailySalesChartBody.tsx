@@ -102,15 +102,6 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
   const optionWithMA = useMemo(() => {
     if (view !== 'standard' || !showMovingAverage || !maOverlays) return baseOption
 
-    // eslint-disable-next-line no-console
-    console.debug('[MA] overlays:', {
-      salesCur: maOverlays.salesCur?.length ?? 0,
-      salesPrev: maOverlays.salesPrev?.length ?? 0,
-      metricCur: maOverlays.metricCur?.length ?? 0,
-      metricPrev: maOverlays.metricPrev?.length ?? 0,
-      label: maOverlays.metricLabel,
-    })
-
     const toMaData = (series: readonly { dateKey: string; value: number | null }[] | undefined) => {
       if (!series?.length) return null
       return days.map((day) => {
