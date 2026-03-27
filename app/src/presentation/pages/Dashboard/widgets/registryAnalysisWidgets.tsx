@@ -10,7 +10,6 @@ import {
 } from '@/presentation/components/charts'
 import type { WidgetDef } from './types'
 import { WaterfallChartWidget } from './WaterfallChart'
-import { YoYWaterfallChartWidget } from './YoYWaterfallChart'
 import { GrossProfitHeatmapWidget } from './GrossProfitHeatmap'
 
 // ── 分析・可視化 ──
@@ -23,15 +22,7 @@ export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
     linkTo: { view: 'insight', tab: 'decomposition' },
     render: (ctx) => <WaterfallChartWidget key={ctx.storeKey} ctx={ctx} />,
   },
-  {
-    id: 'analysis-yoy-waterfall',
-    label: '前年比較ウォーターフォール',
-    group: '要因分析',
-    size: 'full',
-    linkTo: { view: 'insight', tab: 'decomposition' },
-    isVisible: (ctx) => ctx.prevYear.hasPrevYear && ctx.prevYear.totalSales > 0,
-    render: (ctx) => <YoYWaterfallChartWidget key={ctx.storeKey} ctx={ctx} />,
-  },
+  // 注: analysis-yoy-waterfall → IntegratedSalesChart の「要因分析」タブに統合
   {
     id: 'analysis-gp-heatmap',
     label: '粗利率ヒートマップ',

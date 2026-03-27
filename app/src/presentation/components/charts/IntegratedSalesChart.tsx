@@ -44,7 +44,7 @@ import type { ViewType } from './DailySalesChartBody'
 import { DailySalesChart } from './DailySalesChart'
 import { TimeSlotChart } from './TimeSlotChart'
 import { SubAnalysisPanel } from './SubAnalysisPanel'
-import { FactorDecompositionPanel } from './FactorDecompositionPanel'
+import { YoYWaterfallChartWidget } from '@/presentation/pages/Dashboard/widgets/YoYWaterfallChart'
 import { CategoryHierarchyExplorer } from './CategoryHierarchyExplorer'
 import { TabGroup, Tab } from './TimeSlotSalesChart.styles'
 import {
@@ -92,6 +92,8 @@ interface Props {
   readonly prevYearWeatherDaily?: readonly DailyWeatherSummary[]
   /** 天気データ永続化コールバック（TimeSlotChart ETRN フォールバック用） */
   readonly weatherPersist?: WeatherPersister | null
+  /** WidgetContext（要因分析 embedded 用 — 親から渡す） */
+  readonly widgetCtx?: import('@/presentation/pages/Dashboard/widgets/types').WidgetContext
 }
 
 /** ヘッダ固定分の offset（px） */
@@ -439,14 +441,11 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
                       </DrillPeriodBadge>
                     )}
                   </div>
-                  {subTab === 'factor' && (
-                    <FactorDecompositionPanel
-                      ctx={{
-                        queryExecutor: props.queryExecutor,
-                        currentDateRange: drillDateRange,
-                        selectedStoreIds: props.selectedStoreIds,
-                        prevYearScope: props.prevYearScope,
-                      }}
+                  {subTab === 'factor' && props.widgetCtx && (
+                    <YoYWaterfallChartWidget
+                      ctx={props.widgetCtx}
+                      overrideDateRange={drillDateRange}
+                      embedded
                     />
                   )}
                   {subTab === 'trend' && (

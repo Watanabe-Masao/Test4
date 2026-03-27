@@ -38,6 +38,7 @@ export const WIDGETS_CHART: readonly WidgetDef[] = [
         discountEntries={ctx.result.discountEntries}
         totalGrossSales={ctx.result.grossSales}
         weatherPersist={ctx.weatherPersist}
+        widgetCtx={ctx}
       />
     ),
   },
