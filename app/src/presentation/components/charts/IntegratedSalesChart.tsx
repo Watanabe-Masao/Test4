@@ -297,7 +297,9 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
 
   // ── 移動平均 overlay（売上 + 右軸指標 × 当年/前年） ──
   const [showMovingAverage, setShowMovingAverage] = useState(true)
-  const RIGHT_AXIS_MA_METRIC: Partial<Record<RightAxisMode, import('@/domain/models/temporal').AnalysisMetric>> = {
+  const RIGHT_AXIS_MA_METRIC: Partial<
+    Record<RightAxisMode, import('@/domain/models/temporal').AnalysisMetric>
+  > = {
     quantity: 'quantity',
     customers: 'customers',
     discount: 'discount',
