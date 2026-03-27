@@ -28,7 +28,6 @@ import type { DisplayMode } from './conditionSummaryUtils'
 import {
   DashWrapper,
   Header,
-  HeaderMeta,
   HeaderTitle,
   CardGridRow,
   BudgetHeaderRow,
@@ -283,7 +282,6 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
       {/* Header */}
       <Header>
         <div>
-          <HeaderMeta>CONDITION SUMMARY</HeaderMeta>
           <HeaderTitle>コンディションサマリー</HeaderTitle>
         </div>
         <SettingsGear onClick={() => setShowSettings((p) => !p)} title="閾値設定">

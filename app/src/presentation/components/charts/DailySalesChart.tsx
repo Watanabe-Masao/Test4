@@ -30,6 +30,8 @@ interface Props {
   mode?: DailyChartMode
   /** バークリックまたはドラッグ選択で日付範囲を通知（時間帯ドリルダウン連動用） */
   onDayRangeSelect?: (startDay: number, endDay: number) => void
+  /** シングルクリック → 日別ドリルダウン分析 */
+  onDayClick?: (day: number) => void
   /** 天気データ（X軸に天気アイコン+気温を表示） */
   weatherDaily?: readonly DailyWeatherSummary[]
   /** 前年天気データ（X軸に前年天気+気温線を表示） */
@@ -86,6 +88,7 @@ export const DailySalesChart = memo(function DailySalesChart({
   prevYearDaily,
   budgetDaily,
   onDayRangeSelect,
+  onDayClick,
   weatherDaily,
   prevYearWeatherDaily,
   dowOffset,
@@ -210,6 +213,7 @@ export const DailySalesChart = memo(function DailySalesChart({
         needRightAxis={needRightAxis}
         wfLegendPayload={wfLegendPayload}
         onDayRangeSelect={onDayRangeSelect}
+        onDayClick={onDayClick}
         weatherDaily={weatherDaily}
         prevYearWeatherDaily={prevYearWeatherDaily}
         dowOffset={dowOffset}

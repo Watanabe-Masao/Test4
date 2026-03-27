@@ -13,12 +13,12 @@ export const DashWrapper = styled.div`
 // ─── Header ─────────────────────────────────────────────
 
 export const Header = styled.div`
-  padding: ${({ theme }) => theme.spacing[8]} ${({ theme }) => theme.spacing[10]}
-    ${({ theme }) => theme.spacing[6]};
+  padding: ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[10]}
+    ${({ theme }) => theme.spacing[3]};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
 `
 
 export const HeaderMeta = styled.div`
@@ -30,9 +30,9 @@ export const HeaderMeta = styled.div`
 `
 
 export const HeaderTitle = styled.h2`
-  font-size: ${({ theme }) => theme.typography.fontSize.xl};
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  margin: 0 0 ${({ theme }) => theme.spacing[5]} 0;
+  margin: 0;
   color: ${({ theme }) => theme.colors.text};
 `
 
@@ -443,7 +443,7 @@ export const LegendItem = styled.span`
 export const BudgetHeaderRow = styled.div`
   display: flex;
   gap: ${({ theme }) => theme.spacing[6]};
-  padding: ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[10]};
+  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[10]};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   flex-wrap: wrap;
   align-items: baseline;
@@ -483,8 +483,8 @@ export const BudgetGrowthBadge = styled.span<{ $positive: boolean }>`
 export const CardGridRow = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: ${({ theme }) => theme.spacing[4]};
-  padding: 0 ${({ theme }) => theme.spacing[10]} ${({ theme }) => theme.spacing[6]};
+  gap: ${({ theme }) => theme.spacing[3]};
+  padding: 0 ${({ theme }) => theme.spacing[10]} ${({ theme }) => theme.spacing[4]};
 `
 
 export const CardGroupLabel = styled.div`
@@ -492,7 +492,7 @@ export const CardGroupLabel = styled.div`
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text4};
   letter-spacing: 0.5px;
-  padding: ${({ theme }) => theme.spacing[5]} ${({ theme }) => theme.spacing[10]}
+  padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[10]}
     ${({ theme }) => theme.spacing[2]};
 `
 
