@@ -344,7 +344,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
               onShowMovingAverageChange={setShowMovingAverage}
             />
             {canDrill && <DrillHint>日付をダブルクリック or ドラッグで時間帯内訳を表示</DrillHint>}
-            {dailyView === 'standard' && rightAxisMode !== 'quantity' && (
+            {dailyView === 'standard' && (
               <SubAnalysisPanel
                 mode={rightAxisMode}
                 queryExecutor={props.queryExecutor}
