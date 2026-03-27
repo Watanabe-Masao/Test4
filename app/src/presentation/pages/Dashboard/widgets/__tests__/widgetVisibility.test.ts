@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { WIDGET_REGISTRY } from '../registry'
-import { makeWidgetContext, makeEmptyPrevYear, makePrevYear } from './widgetTestHelpers'
+import { makeWidgetContext } from './widgetTestHelpers'
 
 /** queryExecutor.isReady = true のモック */
 const READY_EXECUTOR = { isReady: true, execute: async () => null }
