@@ -4,13 +4,12 @@
  * 部門（行）×時間帯（列）の売上金額をヒートマップで表示。
  * gridLeft / gridRight で親チャートのプロットエリアと列位置を揃える。
  */
-import { memo, useMemo, useState } from 'react'
+import { memo, useMemo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { EChart, type EChartsOption } from './EChart'
 import { standardTooltip } from './echartsOptionBuilders'
 import { useCurrencyFormat } from './chartTheme'
-import { TabGroup, Tab } from './TimeSlotSalesChart.styles'
 
 export interface CategoryHourlyItem {
   readonly code: string
@@ -24,6 +23,7 @@ interface Props {
   readonly data: readonly CategoryHourlyItem[]
   readonly prevData?: readonly CategoryHourlyItem[]
   readonly metric?: 'amount' | 'quantity'
+  readonly showYoY?: boolean
   readonly gridLeft?: number
   readonly gridRight?: number
 }
@@ -32,12 +32,13 @@ export const CategoryTimeHeatmap = memo(function CategoryTimeHeatmap({
   data,
   prevData,
   metric = 'amount',
+  showYoY: showYoYProp,
   gridLeft = 55,
   gridRight = 45,
 }: Props) {
   const theme = useTheme() as AppTheme
   const cf = useCurrencyFormat()
-  const [showYoY, setShowYoY] = useState(false)
+  const showYoY = showYoYProp ?? false
 
   const hasPrev = (prevData?.length ?? 0) > 0
 
@@ -98,18 +99,20 @@ export const CategoryTimeHeatmap = memo(function CategoryTimeHeatmap({
       }
     }
 
+    // 前年比: 100%を中心にダイバージング配色（赤←100%→緑）
     const visualMapConfig = isYoY
       ? {
-          min: Math.min(minVal, 80),
-          max: Math.max(maxVal, 120),
-          calculable: false,
-          orient: 'horizontal' as const,
-          left: 'center',
-          bottom: 0,
+          type: 'piecewise' as const,
+          pieces: [
+            { min: 0, max: 70, color: '#ef4444' },
+            { min: 70, max: 85, color: '#fca5a5' },
+            { min: 85, max: 95, color: '#fecaca' },
+            { min: 95, max: 105, color: '#fef9c3' },
+            { min: 105, max: 115, color: '#bbf7d0' },
+            { min: 115, max: 130, color: '#86efac' },
+            { min: 130, color: '#10b981' },
+          ],
           show: false,
-          inRange: {
-            color: ['#ef4444', '#fca5a5', '#fef9c3', '#bbf7d0', '#10b981'],
-          },
         }
       : {
           min: 0,
@@ -203,21 +206,5 @@ export const CategoryTimeHeatmap = memo(function CategoryTimeHeatmap({
 
   if (data.length === 0) return null
 
-  return (
-    <>
-      {hasPrev && (
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 4 }}>
-          <TabGroup>
-            <Tab $active={!showYoY} onClick={() => setShowYoY(false)}>
-              実績値
-            </Tab>
-            <Tab $active={showYoY} onClick={() => setShowYoY(true)}>
-              前年比
-            </Tab>
-          </TabGroup>
-        </div>
-      )}
-      <EChart option={option} height={chartH} ariaLabel="カテゴリ×時間帯ヒートマップ" />
-    </>
-  )
+  return <EChart option={option} height={chartH} ariaLabel="カテゴリ×時間帯ヒートマップ" />
 })

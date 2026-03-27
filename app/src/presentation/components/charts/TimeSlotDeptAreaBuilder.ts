@@ -81,9 +81,10 @@ export function buildDeptStackedAreaOption(input: DeptAreaOptionInput): EChartsO
   }
 
   // chartData の hour → index マップ（オーバーレイデータ参照用）
+  // chartData.hour は "9時" 形式の文字列のため、parseInt で数値に変換
   const chartDataByHour = new Map<number, ChartRow>()
   for (const row of chartData) {
-    const h = Number(row.hour)
+    const h = parseInt(String(row.hour), 10)
     if (!isNaN(h)) chartDataByHour.set(h, row)
   }
 

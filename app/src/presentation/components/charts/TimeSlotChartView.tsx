@@ -6,7 +6,7 @@
  *
  * Props は完全に ViewModel — weatherCode 等のドメイン値を含まない。
  */
-import { memo } from 'react'
+import { memo, useState } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { toPct } from './chartTheme'
@@ -179,6 +179,7 @@ export const TimeSlotChartView = memo(function TimeSlotChartView({
   hasPrevWeather,
 }: TimeSlotChartViewProps) {
   const theme = useTheme() as AppTheme
+  const [showHeatmapYoY, setShowHeatmapYoY] = useState(false)
 
   return (
     <>
@@ -408,6 +409,16 @@ export const TimeSlotChartView = memo(function TimeSlotChartView({
             点数
           </Tab>
         </TabGroup>
+        {hasPrev && prevCategoryHourlyData.length > 0 && (
+          <TabGroup style={{ marginLeft: 12 }}>
+            <Tab $active={!showHeatmapYoY} onClick={() => setShowHeatmapYoY(false)}>
+              実績値
+            </Tab>
+            <Tab $active={showHeatmapYoY} onClick={() => setShowHeatmapYoY(true)}>
+              前年比
+            </Tab>
+          </TabGroup>
+        )}
       </div>
 
       {detailView === 'table' ? (
@@ -425,6 +436,7 @@ export const TimeSlotChartView = memo(function TimeSlotChartView({
           data={categoryHourlyData}
           prevData={prevCategoryHourlyData}
           metric={heatmapMetric}
+          showYoY={showHeatmapYoY}
           gridLeft={80}
           gridRight={GRID_RIGHT}
         />
