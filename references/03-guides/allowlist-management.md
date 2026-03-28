@@ -9,11 +9,11 @@
 
 | ファイル | 管理対象 | エントリ数 |
 |---|---|---|
-| `allowlists/architecture.ts` | レイヤー境界例外 | 12 |
-| `allowlists/duckdb.ts` | DuckDB hook 直接使用（移行カウントダウン） | 1 |
-| `allowlists/complexity.ts` | useMemo/useState/行数上限の例外 | 21 |
-| `allowlists/size.ts` | ファイルサイズ上限の例外 | 11 |
-| `allowlists/migration.ts` | 比較アクセスパターン凍結管理 | 11 |
+| `allowlists/architecture.ts` | レイヤー境界例外 | 14 |
+| `allowlists/duckdb.ts` | DuckDB hook 直接使用（全件卒業済み） | 0 |
+| `allowlists/complexity.ts` | useMemo/useState/行数上限の例外 | 23 |
+| `allowlists/size.ts` | ファイルサイズ上限の例外 | 9 |
+| `allowlists/migration.ts` | 比較アクセスパターン凍結管理（10件移行完了） | 1 |
 | `allowlists/misc.ts` | VM React import、ctx hook 等 | 6 |
 | `allowlists/types.ts` | 型定義 | — |
 | `allowlists/index.ts` | バレル re-export | — |

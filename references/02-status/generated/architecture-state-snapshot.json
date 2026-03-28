@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-28T03:53:11.099Z",
+  "timestamp": "2026-03-28T11:55:19.707Z",
   "totalAllowlistEntries": 52,
   "categoryBreakdown": {
     "adapter": 11,
@@ -112,16 +112,16 @@
       "lineCount": 389
     },
     {
+      "file": "presentation/components/charts/IntegratedSalesChart.tsx",
+      "memoCount": 12,
+      "stateCount": 12,
+      "lineCount": 598
+    },
+    {
       "file": "presentation/pages/Dashboard/widgets/useDrilldownData.ts",
       "memoCount": 14,
       "stateCount": 10,
       "lineCount": 413
-    },
-    {
-      "file": "presentation/components/charts/IntegratedSalesChart.tsx",
-      "memoCount": 11,
-      "stateCount": 12,
-      "lineCount": 595
     },
     {
       "file": "presentation/pages/CostDetail/useCostDetailData.ts",

@@ -14,3 +14,7 @@ export {
   getHierarchyLevel,
 } from './categoryHierarchyHooks'
 export type { HierarchyFilter } from './categoryHierarchyHooks'
+export { CategoryBarChart } from './CategoryBarChart'
+export { CategoryDiscountChart } from './CategoryDiscountChart'
+export { CategoryDiscountTable } from './CategoryDiscountTable'
+export { StorePIComparisonChart } from './StorePIComparisonChart'

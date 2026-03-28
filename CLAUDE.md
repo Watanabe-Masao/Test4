@@ -186,7 +186,7 @@ ROLE.md と SKILL.md は以下の5層で思想を構造化する:
 ```
 app/src/
 ├── domain/           # ドメイン層（フレームワーク非依存、純粋関数）
-├── application/      # アプリケーション層（hooks, stores, usecases, queries, workers）
+├── application/      # アプリケーション層（hooks, stores, usecases, queries, workers, services/temporal）
 ├── infrastructure/   # インフラ層（DuckDB, storage, export, i18n, pwa）
 ├── presentation/     # プレゼンテーション層（components, pages, theme）
 ├── features/         # 縦スライス（sales/, category/, shared/ — 段階的移行中）
@@ -355,7 +355,7 @@ CQRS + 契約ハイブリッド設計により、既存4層モデルの内側に
 詳細は `references/03-guides/allowlist-management.md` を参照。
 即差し戻し条件は `roles/staff/review-gate/SKILL.md` を参照。
 
-## 直近の主要変更（#673-#692）
+## 直近の主要変更（#673-#730+）
 
 詳細は `references/02-status/recent-changes.md` を参照。
 
@@ -363,6 +363,13 @@ CQRS + 契約ハイブリッド設計により、既存4層モデルの内側に
 - **P5/DuckDB 収束**: useDuckDB composition root 整理、QueryHandler 移行完了（allowlist 33→0）、buildTypedWhere 完全移行
 - **WidgetContext 整理**: UnifiedWidgetContext 派生化、observationStatus 昇格、weather hook 分離
 - **Guard 強化**: temporalRollingGuard / purityGuard / codePatternGuard 追加、allowlist カテゴリ分割
+- **MA 修正・拡張**: extraMetrics partial 修正、toMaData date.day 化、remapPrevYearSeries date 整合、prevYearAlignment 共通化
+- **カテゴリ分析 3ビュー化**: 日次推移 / カテゴリ棒（CategoryBarChart）/ ドリルダウン分析
+- **売変分析強化**: CategoryDiscountChart（ドリルダウン・前年比較・ソート・フィルター継承）
+- **PI値分析改善**: partial MA、色改善、店舗別PI比較チャート（StorePIComparisonChart）
+- **motion アニメーション**: Tab pill / Modal spring / パネル切替フェード / Dashboard widget フェード
+- **シミュレーション UI**: SimulationInsightBanner + SimulationSummaryCard、SensitivityDashboard 5→3カード
+- **パフォーマンス**: Weather inflight dedupe、DuckDB ConsoleLogger 抑止
 
 ## Explanation（説明責任）
 
