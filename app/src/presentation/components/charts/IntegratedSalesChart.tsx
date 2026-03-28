@@ -254,10 +254,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
 
   // ドリルダウン分析用の日付範囲と前年スコープ（選択範囲 or 全期間）
   const drillTabRange = useMemo<{ start: number; end: number } | null>(
-    () =>
-      clickedDay != null
-        ? { start: clickedDay, end: drillEnd ?? clickedDay }
-        : null,
+    () => (clickedDay != null ? { start: clickedDay, end: drillEnd ?? clickedDay } : null),
     [clickedDay, drillEnd],
   )
   const { dateRange: drillTabDateRange, prevYearScope: drillTabPrevYearScope } = useDrillDateRange(
@@ -443,10 +440,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
                     {clickedDay != null && subTab === 'drilldown' && (
                       <DrillPeriodBadge>
                         {props.month}月{clickedDay}
-                        {drillEnd != null && drillEnd !== clickedDay
-                          ? `〜${drillEnd}`
-                          : ''}
-                        日
+                        {drillEnd != null && drillEnd !== clickedDay ? `〜${drillEnd}` : ''}日
                         <DayDrillClose
                           onClick={() => {
                             setClickedDay(null)
