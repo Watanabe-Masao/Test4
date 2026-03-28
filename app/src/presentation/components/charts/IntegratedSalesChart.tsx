@@ -44,7 +44,6 @@ import type { ViewType } from './DailySalesChartBody'
 import { DailySalesChart } from './DailySalesChart'
 import { TimeSlotChart } from './TimeSlotChart'
 import { SubAnalysisPanel } from './SubAnalysisPanel'
-import { YoYWaterfallChartWidget } from '@/presentation/pages/Dashboard/widgets/YoYWaterfallChart'
 import { CategoryHierarchyExplorer } from './CategoryHierarchyExplorer'
 import { TabGroup, Tab } from './TimeSlotSalesChart.styles'
 import {
@@ -114,6 +113,8 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
   // ── drill scroll 制御 ──
   const parentRef = useRef<HTMLDivElement>(null)
   const drillPanelRef = useRef<HTMLDivElement>(null)
+  /** 範囲選択→ドリルダウン遷移時の end 日 */
+  const [drillEnd, setDrillEnd] = useState<number | null>(null)
 
   const canDrill = props.queryExecutor?.isReady === true
 
@@ -175,6 +176,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
 
   const handleDayClick = useCallback((day: number) => {
     setClickedDay((prev) => (prev === day ? null : day))
+    setDrillEnd(null) // シングルクリック = 単日
     setSubTab('drilldown')
   }, [])
 
@@ -196,6 +198,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
 
   const handleRangeToDrilldown = useCallback(() => {
     if (!pendingRange) return
+    setDrillEnd(pendingRange.end) // 範囲の終了日を保持
     setClickedDay(pendingRange.start)
     setPendingRange(null)
     setSubTab('drilldown')
@@ -249,16 +252,22 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
     return deriveChildContext(parentContext, rangeDateRange, rangePrevYearScope ?? undefined)
   }, [isDrilled, rangeDateRange, rangePrevYearScope, parentContext])
 
-  // 要因分析/ドリルダウン分析用の日付範囲（クリック日 or 全期間）
-  const drillDateRange = useMemo<DateRange>(() => {
-    if (clickedDay != null) {
-      return {
-        from: { year: props.year, month: props.month, day: clickedDay },
-        to: { year: props.year, month: props.month, day: pendingRange?.end ?? clickedDay },
-      }
-    }
-    return props.currentDateRange
-  }, [clickedDay, pendingRange, props.year, props.month, props.currentDateRange])
+  // ドリルダウン分析用の日付範囲と前年スコープ（選択範囲 or 全期間）
+  const drillTabRange = useMemo<{ start: number; end: number } | null>(
+    () =>
+      clickedDay != null
+        ? { start: clickedDay, end: drillEnd ?? clickedDay }
+        : null,
+    [clickedDay, drillEnd],
+  )
+  const { dateRange: drillTabDateRange, prevYearScope: drillTabPrevYearScope } = useDrillDateRange(
+    drillTabRange,
+    props.year,
+    props.month,
+    props.prevYearScope,
+  )
+  const drillDateRange = drillTabDateRange ?? props.currentDateRange
+  const drillPrevYearScope = drillTabPrevYearScope ?? props.prevYearScope
 
   // AnalysisNodeContext（ノード階層モデル）
   const dailyNode = useMemo(
@@ -416,16 +425,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
               </RangeActionBox>
             )}
 
-            {/* 子1: 要因分析（独立表示 — 右軸モードに関係なく表示） */}
-            {dailyView === 'standard' && props.widgetCtx && props.queryExecutor?.isReady && (
-              <YoYWaterfallChartWidget
-                ctx={props.widgetCtx}
-                overrideDateRange={drillDateRange}
-                embedded
-              />
-            )}
-
-            {/* 子2: 標準ビュー + 右軸モードに応じた分析パネル */}
+            {/* 子: 標準ビュー + 右軸モードに応じた分析パネル */}
             {dailyView === 'standard' &&
               props.queryExecutor?.isReady &&
               (rightAxisMode === 'quantity' || rightAxisMode === 'customers' ? (
@@ -443,16 +443,24 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
                     {clickedDay != null && subTab === 'drilldown' && (
                       <DrillPeriodBadge>
                         {props.month}月{clickedDay}
-                        {pendingRange && pendingRange.start !== pendingRange.end
-                          ? `〜${pendingRange.end}`
+                        {drillEnd != null && drillEnd !== clickedDay
+                          ? `〜${drillEnd}`
                           : ''}
-                        日<DayDrillClose onClick={() => setClickedDay(null)}>✕</DayDrillClose>
+                        日
+                        <DayDrillClose
+                          onClick={() => {
+                            setClickedDay(null)
+                            setDrillEnd(null)
+                          }}
+                        >
+                          ✕
+                        </DayDrillClose>
                       </DrillPeriodBadge>
                     )}
                   </div>
                   {subTab === 'trend' && (
                     <SubAnalysisPanel
-                      mode={rightAxisMode}
+                      mode="quantity"
                       queryExecutor={props.queryExecutor}
                       currentDateRange={subPanelContext.dateRange}
                       selectedStoreIds={subPanelContext.selectedStoreIds}
@@ -471,7 +479,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
                     <CategoryHierarchyExplorer
                       queryExecutor={props.queryExecutor}
                       currentDateRange={drillDateRange}
-                      prevYearScope={props.prevYearScope}
+                      prevYearScope={drillPrevYearScope}
                       selectedStoreIds={props.selectedStoreIds}
                     />
                   )}

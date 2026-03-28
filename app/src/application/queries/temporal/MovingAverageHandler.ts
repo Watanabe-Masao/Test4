@@ -113,7 +113,9 @@ export const movingAverageHandler: QueryHandler<MovingAverageInput, MovingAverag
       extraSeries = {}
       for (const metric of input.extraMetrics) {
         const series = buildDailySeries(plan, sourceRows, metric)
-        const maExtra = computeMovingAverage(series, frame.windowSize, policy)
+        // extraMetrics always use 'partial' — their data sources may have gaps
+        // (e.g. special_sales LEFT JOIN) per original design in commit 49fdedf
+        const maExtra = computeMovingAverage(series, frame.windowSize, 'partial')
         const mapped: DailySeriesPoint[] = series.map((original, i) => ({
           ...original,
           value: maExtra[i].value,
