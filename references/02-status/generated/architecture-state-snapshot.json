@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-27T13:40:32.263Z",
+  "timestamp": "2026-03-28T03:53:11.099Z",
   "totalAllowlistEntries": 52,
   "categoryBreakdown": {
     "adapter": 11,
@@ -120,8 +120,8 @@
     {
       "file": "presentation/components/charts/IntegratedSalesChart.tsx",
       "memoCount": 11,
-      "stateCount": 11,
-      "lineCount": 587
+      "stateCount": 12,
+      "lineCount": 595
     },
     {
       "file": "presentation/pages/CostDetail/useCostDetailData.ts",
@@ -133,7 +133,7 @@
       "file": "presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx",
       "memoCount": 14,
       "stateCount": 5,
-      "lineCount": 488
+      "lineCount": 490
     },
     {
       "file": "presentation/components/charts/CategoryBenchmarkChart.vm.ts",
