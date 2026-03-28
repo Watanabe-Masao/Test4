@@ -7,6 +7,30 @@ import { REQUEST_DELAY_MS, EtrnNotFoundError, delay, fetchHtmlWithRetry } from '
 import { reverseGeocode } from './geocodingClient'
 import etrnStationsData from './etrnStations.json'
 
+// ─── Debug Logger ──────────────────────────────────
+
+const WEATHER_DEBUG = import.meta.env.DEV
+
+function weatherDebug(...args: unknown[]) {
+  if (!WEATHER_DEBUG) return
+  console.debug(...args)
+}
+
+// ─── Inflight Dedupe ───────────────────────────────
+
+/** 同一 station/year/month の並列リクエストを Promise 単位で共有 */
+const inflightDaily = new Map<string, Promise<readonly DailyWeatherSummary[]>>()
+
+function dailyKey(
+  precNo: number,
+  blockNo: string,
+  stationType: 'a1' | 's1',
+  year: number,
+  month: number,
+): string {
+  return `${precNo}:${blockNo}:${stationType}:${year}:${month}`
+}
+
 // ─── Types ──────────────────────────────────────────
 
 /** ETRN 観測所情報（解決済み） */
@@ -114,7 +138,27 @@ export function getStaticStationList(): readonly EtrnStationEntry[] {
 /**
  * ETRN から月単位の日別天気データを取得する。
  */
-export async function fetchEtrnDailyWeather(
+export function fetchEtrnDailyWeather(
+  precNo: number,
+  blockNo: string,
+  stationType: 'a1' | 's1',
+  year: number,
+  month: number,
+): Promise<readonly DailyWeatherSummary[]> {
+  const key = dailyKey(precNo, blockNo, stationType, year, month)
+  const inflight = inflightDaily.get(key)
+  if (inflight) {
+    weatherDebug('[Weather:ETRN] 日別データ取得 dedupe: %d/%d (inflight)', year, month)
+    return inflight
+  }
+  const promise = fetchEtrnDailyWeatherImpl(precNo, blockNo, stationType, year, month).finally(() =>
+    inflightDaily.delete(key),
+  )
+  inflightDaily.set(key, promise)
+  return promise
+}
+
+async function fetchEtrnDailyWeatherImpl(
   precNo: number,
   blockNo: string,
   stationType: 'a1' | 's1',
@@ -126,7 +170,7 @@ export async function fetchEtrnDailyWeather(
     `${baseUrl}/obd/stats/etrn/view/daily_${stationType}.php` +
     `?prec_no=${precNo}&block_no=${blockNo}&year=${year}&month=${month}&day=&view=`
 
-  console.debug(
+  weatherDebug(
     '[Weather:ETRN] 日別データ取得: %d/%d precNo=%d block=%s type=%s',
     year,
     month,
@@ -148,7 +192,7 @@ export async function fetchEtrnDailyWeather(
   const doc = new DOMParser().parseFromString(html, 'text/html')
 
   const results = parseDailyTable(doc, year, month)
-  console.debug('[Weather:ETRN] 日別データ取得完了: %d/%d → %d日分', year, month, results.length)
+  weatherDebug('[Weather:ETRN] 日別データ取得完了: %d/%d → %d日分', year, month, results.length)
   return results
 }
 

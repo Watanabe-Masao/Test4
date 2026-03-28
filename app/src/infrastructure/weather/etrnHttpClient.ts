@@ -7,6 +7,13 @@
 /** JMA サーバーへの配慮 — リクエスト間隔 (ms) */
 export const REQUEST_DELAY_MS = 300
 
+const WEATHER_DEBUG = import.meta.env.DEV
+
+function weatherDebug(...args: unknown[]) {
+  if (!WEATHER_DEBUG) return
+  console.debug(...args)
+}
+
 /** リトライ設定 */
 const MAX_RETRIES = 2
 const INITIAL_RETRY_DELAY_MS = 1000
@@ -28,10 +35,10 @@ export async function fetchHtmlWithRetry(url: string): Promise<string> {
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
       if (attempt > 0) {
-        console.debug('[Weather:ETRN] リトライ %d/%d: %s', attempt, MAX_RETRIES, url)
+        weatherDebug('[Weather:ETRN] リトライ %d/%d: %s', attempt, MAX_RETRIES, url)
       }
       const response = await fetch(url)
-      console.debug('[Weather:ETRN] HTTP %d %s ← %s', response.status, response.statusText, url)
+      weatherDebug('[Weather:ETRN] HTTP %d %s ← %s', response.status, response.statusText, url)
       if (!response.ok) {
         if (response.status === 404) {
           throw new EtrnNotFoundError(url)
