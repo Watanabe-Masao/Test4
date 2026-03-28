@@ -1,18 +1,14 @@
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import { formatPercent, formatPointDiff } from '@/domain/formatting'
 import type { WidgetContext } from './types'
 import {
-  ExecRow,
-  ExecDividerLine,
   ForecastToolsGrid,
   ToolCard,
   ToolCardTitle,
   ToolInputGroup,
   ToolResultSection,
-  ToolResultValue,
-  ToolResultLabel,
   PinInputLabel,
 } from '../DashboardPage.styles'
 import {
@@ -24,10 +20,12 @@ import {
   StepBtn,
   ResetButton,
   ValidationBanner,
-  SubLabel,
 } from './ForecastTools.styles'
 import { EditableCurrencyValue, EditablePercentValue } from './EditableSliderValue'
 import { useForecastToolsState } from './useForecastToolsState'
+import { SimulationSummaryCard } from './SimulationSummaryCard'
+import { SimulationInsightBanner } from './SimulationInsightBanner'
+import { getTool1Insight, getTool2Insight } from './simulationInsight'
 
 // ─── Component ──────────────────────────────────────────
 
@@ -39,6 +37,28 @@ export const ForecastToolsWidget = memo(function ForecastToolsWidget({
   const { fmtCurrency } = ctx
   const s = useForecastToolsState(ctx)
   const { base, tool1, tool2 } = s
+
+  const tool1Insight = useMemo(
+    () =>
+      getTool1Insight({
+        tool1BudgetAchievement: tool1.tool1BudgetAchievement,
+        landingGPRate1: tool1.landingGPRate1,
+        actualGPRate: base.actualGPRate,
+        tool1YoyRate: tool1.tool1YoyRate,
+        hasBudget: base.hasBudget,
+        hasPrevYear: base.hasPrevYear,
+      }),
+    [tool1, base],
+  )
+
+  const tool2Insight = useMemo(
+    () =>
+      getTool2Insight({
+        requiredRemainingGPRate2: tool2.requiredRemainingGPRate2,
+        actualGPRate: base.actualGPRate,
+      }),
+    [tool2, base],
+  )
 
   return (
     <ForecastToolsGrid>
@@ -147,81 +167,75 @@ export const ForecastToolsWidget = memo(function ForecastToolsWidget({
         </ToolInputGroup>
         {tool1.tool1Valid && (
           <ToolResultSection>
-            <ExecRow>
-              <ToolResultLabel>現在売上実績</ToolResultLabel>
-              <ToolResultValue>{fmtCurrency(base.actualSales)}</ToolResultValue>
-            </ExecRow>
-            <ExecRow>
-              <ToolResultLabel>
-                残期間売上
-                {base.hasRemainingBudget && (
-                  <SubLabel>残予算比 {formatPercent(tool1.tool1RemainingBudgetRate)}</SubLabel>
-                )}
-              </ToolResultLabel>
-              <ToolResultValue>{fmtCurrency(tool1.remainingSales1)}</ToolResultValue>
-            </ExecRow>
-            <ExecRow>
-              <ToolResultLabel>現在粗利実績</ToolResultLabel>
-              <ToolResultValue>{fmtCurrency(base.actualGP)}</ToolResultValue>
-            </ExecRow>
-            <ExecRow>
-              <ToolResultLabel>残期間粗利見込み</ToolResultLabel>
-              <ToolResultValue>{fmtCurrency(tool1.remainingGP1)}</ToolResultValue>
-            </ExecRow>
-            <ExecDividerLine />
-            <ExecRow>
-              <ToolResultLabel>最終売上着地</ToolResultLabel>
-              <ToolResultValue $color={palette.primary}>
-                {fmtCurrency(s.salesLanding)}
-              </ToolResultValue>
-            </ExecRow>
-
-            {/* 予算達成率 */}
-            {base.hasBudget && (
-              <ExecRow>
-                <ToolResultLabel style={{ fontWeight: 700 }}>予算達成率</ToolResultLabel>
-                <ToolResultValue
-                  style={{ fontWeight: 700 }}
-                  $color={sc.cond(tool1.tool1BudgetAchievement >= 1)}
-                >
-                  {formatPercent(tool1.tool1BudgetAchievement)}
-                </ToolResultValue>
-              </ExecRow>
-            )}
-
-            {/* 前年比 */}
-            {base.hasPrevYear && (
-              <ExecRow>
-                <ToolResultLabel style={{ fontWeight: 700 }}>前年比</ToolResultLabel>
-                <ToolResultValue
-                  style={{ fontWeight: 700 }}
-                  $color={sc.cond(tool1.tool1YoyRate >= 1)}
-                >
-                  {formatPercent(tool1.tool1YoyRate)}
-                  <SubLabel>(前年 {fmtCurrency(base.prevYearTotalSales)})</SubLabel>
-                </ToolResultValue>
-              </ExecRow>
-            )}
-
-            <ExecDividerLine />
-            <ExecRow>
-              <ToolResultLabel>最終粗利額着地</ToolResultLabel>
-              <ToolResultValue $color={sc.positive}>{fmtCurrency(tool1.totalGP1)}</ToolResultValue>
-            </ExecRow>
-            <ExecRow>
-              <ToolResultLabel>最終粗利率着地</ToolResultLabel>
-              <ToolResultValue $color={sc.cond(tool1.landingGPRate1 >= ctx.targetRate)}>
-                {formatPercent(tool1.landingGPRate1)}
-              </ToolResultValue>
-            </ExecRow>
-            <ExecRow>
-              <ToolResultLabel>粗利率予算比</ToolResultLabel>
-              <ToolResultValue
-                $color={sc.cond(tool1.landingGPRate1 >= ctx.result.grossProfitRateBudget)}
-              >
-                {formatPointDiff(tool1.landingGPRate1 - ctx.result.grossProfitRateBudget)}
-              </ToolResultValue>
-            </ExecRow>
+            <SimulationInsightBanner {...tool1Insight} />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+              <SimulationSummaryCard
+                title="売上着地"
+                primary={{
+                  label: '最終売上着地',
+                  value: fmtCurrency(s.salesLanding),
+                  tone: 'primary',
+                }}
+                secondaries={[
+                  ...(base.hasBudget
+                    ? [
+                        {
+                          label: '予算達成率',
+                          value: formatPercent(tool1.tool1BudgetAchievement),
+                          tone:
+                            tool1.tool1BudgetAchievement >= 1
+                              ? ('positive' as const)
+                              : ('negative' as const),
+                        },
+                      ]
+                    : []),
+                  ...(base.hasPrevYear
+                    ? [
+                        {
+                          label: '前年比',
+                          value: formatPercent(tool1.tool1YoyRate),
+                          tone:
+                            tool1.tool1YoyRate >= 1 ? ('positive' as const) : ('negative' as const),
+                        },
+                      ]
+                    : []),
+                ]}
+                details={[
+                  { label: '現在売上実績', value: fmtCurrency(base.actualSales) },
+                  { label: '残期間売上', value: fmtCurrency(tool1.remainingSales1) },
+                  ...(base.hasRemainingBudget
+                    ? [{ label: '残予算比', value: formatPercent(tool1.tool1RemainingBudgetRate) }]
+                    : []),
+                ]}
+              />
+              <SimulationSummaryCard
+                title="粗利見込み"
+                primary={{
+                  label: '最終粗利額着地',
+                  value: fmtCurrency(tool1.totalGP1),
+                  tone: 'positive',
+                }}
+                secondaries={[
+                  {
+                    label: '最終粗利率',
+                    value: formatPercent(tool1.landingGPRate1),
+                    tone: tool1.landingGPRate1 >= ctx.targetRate ? 'positive' : 'negative',
+                  },
+                  {
+                    label: '粗利率予算比',
+                    value: formatPointDiff(tool1.landingGPRate1 - ctx.result.grossProfitRateBudget),
+                    tone:
+                      tool1.landingGPRate1 >= ctx.result.grossProfitRateBudget
+                        ? 'positive'
+                        : 'negative',
+                  },
+                ]}
+                details={[
+                  { label: '現在粗利実績', value: fmtCurrency(base.actualGP) },
+                  { label: '残期間粗利見込み', value: fmtCurrency(tool1.remainingGP1) },
+                ]}
+              />
+            </div>
           </ToolResultSection>
         )}
       </ToolCard>
@@ -330,109 +344,95 @@ export const ForecastToolsWidget = memo(function ForecastToolsWidget({
         </ToolInputGroup>
         {tool2.tool2Valid && (
           <ToolResultSection>
-            <ExecRow>
-              <ToolResultLabel style={{ fontWeight: 700 }}>月間売上予算</ToolResultLabel>
-              <ToolResultValue>{fmtCurrency(tool2.salesBudget)}</ToolResultValue>
-            </ExecRow>
-            <ExecRow>
-              <ToolResultLabel>予測月末売上</ToolResultLabel>
-              <ToolResultValue>
-                {fmtCurrency(tool2.projectedTotalSales2)}
-                {' / '}
-                {formatPercent(tool2.projectedSalesAchievement)}
-              </ToolResultValue>
-            </ExecRow>
-            <ExecRow>
-              <ToolResultLabel style={{ fontWeight: 700 }}>目標月間売上</ToolResultLabel>
-              <ToolResultValue
-                style={{ fontWeight: 700 }}
-                $color={sc.cond(tool2.targetSalesAchievement >= 1)}
-              >
-                {fmtCurrency(tool2.targetTotalSales2)}
-                {' / '}
-                {formatPercent(tool2.targetSalesAchievement)}
-              </ToolResultValue>
-            </ExecRow>
-
-            {/* 前年比 */}
-            {base.hasPrevYear && (
-              <ExecRow>
-                <ToolResultLabel>前年比</ToolResultLabel>
-                <ToolResultValue $color={sc.cond(tool2.tool2YoyRate >= 1)}>
-                  {formatPercent(tool2.tool2YoyRate)}
-                  <SubLabel>(前年 {fmtCurrency(base.prevYearTotalSales)})</SubLabel>
-                </ToolResultValue>
-              </ExecRow>
-            )}
-
-            <ExecDividerLine />
-            <ExecRow>
-              <ToolResultLabel style={{ fontWeight: 700 }}>月間粗利額予算</ToolResultLabel>
-              <ToolResultValue>
-                {tool2.gpBudget > 0 ? fmtCurrency(tool2.gpBudget) : '未設定'}
-              </ToolResultValue>
-            </ExecRow>
-            <ExecRow>
-              <ToolResultLabel>予測月間粗利額</ToolResultLabel>
-              <ToolResultValue>
-                {fmtCurrency(tool2.projectedTotalGP2)}
-                {' / '}
-                {formatPercent(tool2.projectedGPAchievement)}
-              </ToolResultValue>
-            </ExecRow>
-            <ExecRow>
-              <ToolResultLabel style={{ fontWeight: 700 }}>目標粗利総額</ToolResultLabel>
-              <ToolResultValue
-                style={{ fontWeight: 700 }}
-                $color={sc.cond(tool2.targetGPAchievement >= 1)}
-              >
-                {fmtCurrency(tool2.targetTotalGP2)}
-                {' / '}
-                {formatPercent(tool2.targetGPAchievement)}
-              </ToolResultValue>
-            </ExecRow>
-            <ExecDividerLine />
-            <ExecRow>
-              <ToolResultLabel>現在粗利実績</ToolResultLabel>
-              <ToolResultValue>{fmtCurrency(base.actualGP)}</ToolResultValue>
-            </ExecRow>
-            <ExecRow>
-              <ToolResultLabel>残期間必要粗利</ToolResultLabel>
-              <ToolResultValue>{fmtCurrency(tool2.requiredRemainingGP2)}</ToolResultValue>
-            </ExecRow>
-            <ExecRow>
-              <ToolResultLabel style={{ fontWeight: 700 }}>残期間売上目標</ToolResultLabel>
-              <ToolResultValue style={{ fontWeight: 700 }}>
-                {fmtCurrency(tool2.remainingSales2)}
-                {/* 残予算達成率 */}
-                {base.hasRemainingBudget && (
-                  <SubLabel>
-                    残予算比{' '}
-                    <span style={{ color: sc.cond(tool2.tool2RemainingBudgetRate <= 1) }}>
-                      {formatPercent(tool2.tool2RemainingBudgetRate)}
-                    </span>
-                  </SubLabel>
-                )}
-              </ToolResultValue>
-            </ExecRow>
-            <ExecRow>
-              <ToolResultLabel style={{ fontWeight: 700 }}>残期間必要粗利率</ToolResultLabel>
-              <ToolResultValue
-                style={{ fontWeight: 700 }}
-                $color={sc.cond(tool2.requiredRemainingGPRate2 <= base.actualGPRate)}
-              >
-                {formatPercent(tool2.requiredRemainingGPRate2)}
-              </ToolResultValue>
-            </ExecRow>
-            <ExecRow>
-              <ToolResultLabel style={{ fontWeight: 700 }}>現在粗利率との差</ToolResultLabel>
-              <ToolResultValue
-                style={{ fontWeight: 700 }}
-                $color={sc.cond(tool2.requiredRemainingGPRate2 <= base.actualGPRate)}
-              >
-                {formatPointDiff(tool2.requiredRemainingGPRate2 - base.actualGPRate)}
-              </ToolResultValue>
-            </ExecRow>
+            <SimulationInsightBanner {...tool2Insight} />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
+              <SimulationSummaryCard
+                title="売上目標"
+                primary={{
+                  label: '目標月間売上',
+                  value: fmtCurrency(tool2.targetTotalSales2),
+                  tone: tool2.targetSalesAchievement >= 1 ? 'positive' : 'negative',
+                  subLabel: `達成率 ${formatPercent(tool2.targetSalesAchievement)}`,
+                }}
+                secondaries={[
+                  { label: '月間売上予算', value: fmtCurrency(tool2.salesBudget) },
+                  ...(base.hasPrevYear
+                    ? [
+                        {
+                          label: '前年比',
+                          value: formatPercent(tool2.tool2YoyRate),
+                          tone:
+                            tool2.tool2YoyRate >= 1 ? ('positive' as const) : ('negative' as const),
+                        },
+                      ]
+                    : []),
+                ]}
+                details={[
+                  {
+                    label: '予測月末売上',
+                    value: `${fmtCurrency(tool2.projectedTotalSales2)} / ${formatPercent(tool2.projectedSalesAchievement)}`,
+                  },
+                ]}
+              />
+              <SimulationSummaryCard
+                title="粗利目標"
+                primary={{
+                  label: '目標粗利総額',
+                  value: fmtCurrency(tool2.targetTotalGP2),
+                  tone: tool2.targetGPAchievement >= 1 ? 'positive' : 'negative',
+                  subLabel: `達成率 ${formatPercent(tool2.targetGPAchievement)}`,
+                }}
+                secondaries={[
+                  {
+                    label: '月間粗利額予算',
+                    value: tool2.gpBudget > 0 ? fmtCurrency(tool2.gpBudget) : '未設定',
+                  },
+                ]}
+                details={[
+                  {
+                    label: '予測粗利額',
+                    value: `${fmtCurrency(tool2.projectedTotalGP2)} / ${formatPercent(tool2.projectedGPAchievement)}`,
+                  },
+                  { label: '現在粗利実績', value: fmtCurrency(base.actualGP) },
+                ]}
+              />
+              <SimulationSummaryCard
+                title="必要アクション"
+                primary={{
+                  label: '残期間必要粗利率',
+                  value: formatPercent(tool2.requiredRemainingGPRate2),
+                  tone:
+                    tool2.requiredRemainingGPRate2 <= base.actualGPRate ? 'positive' : 'negative',
+                }}
+                secondaries={[
+                  {
+                    label: '現在粗利率との差',
+                    value: formatPointDiff(tool2.requiredRemainingGPRate2 - base.actualGPRate),
+                    tone:
+                      tool2.requiredRemainingGPRate2 <= base.actualGPRate ? 'positive' : 'negative',
+                  },
+                  {
+                    label: '残期間売上目標',
+                    value: fmtCurrency(tool2.remainingSales2),
+                  },
+                ]}
+                details={[
+                  { label: '残期間必要粗利', value: fmtCurrency(tool2.requiredRemainingGP2) },
+                  ...(base.hasRemainingBudget
+                    ? [
+                        {
+                          label: '残予算比',
+                          value: formatPercent(tool2.tool2RemainingBudgetRate),
+                          tone:
+                            tool2.tool2RemainingBudgetRate <= 1
+                              ? ('positive' as const)
+                              : ('negative' as const),
+                        },
+                      ]
+                    : []),
+                ]}
+              />
+            </div>
           </ToolResultSection>
         )}
       </ToolCard>
