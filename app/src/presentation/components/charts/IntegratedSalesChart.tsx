@@ -259,8 +259,11 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
     props.month,
     props.prevYearScope,
   )
-  const drillDateRange = drillTabDateRange ?? props.currentDateRange
-  const drillPrevYearScope = drillTabPrevYearScope ?? props.prevYearScope
+  // カテゴリ分析 + ドリルダウン分析の共通スコープ（日クリック/範囲選択時は絞り込み、なければ全期間）
+  const analysisContext = useMemo(() => {
+    if (!drillTabDateRange) return parentContext
+    return deriveChildContext(parentContext, drillTabDateRange, drillTabPrevYearScope ?? undefined)
+  }, [parentContext, drillTabDateRange, drillTabPrevYearScope])
 
   // AnalysisNodeContext（ノード階層モデル）
   const dailyNode = useMemo(
@@ -293,9 +296,6 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
     [timeSlotNode],
   )
   void deptPatternNode
-
-  // SubAnalysisPanel 用の文脈（ドリル時は drill 範囲、未ドリル時は親）
-  const subPanelContext = drillContext ?? parentContext
 
   // ── 移動平均 overlay（売上 + 右軸指標 × 当年/前年） ──
   const [showMovingAverage, setShowMovingAverage] = useState(true)
@@ -452,9 +452,9 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
                     <SubAnalysisPanel
                       mode="quantity"
                       queryExecutor={props.queryExecutor}
-                      currentDateRange={subPanelContext.dateRange}
-                      selectedStoreIds={subPanelContext.selectedStoreIds}
-                      prevYearScope={subPanelContext.comparisonScope}
+                      currentDateRange={analysisContext.dateRange}
+                      selectedStoreIds={analysisContext.selectedStoreIds}
+                      prevYearScope={analysisContext.comparisonScope}
                       weatherDaily={props.weatherDaily}
                       daily={props.daily}
                       daysInMonth={props.daysInMonth}
@@ -468,9 +468,9 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
                   {subTab === 'drilldown' && (
                     <CategoryHierarchyExplorer
                       queryExecutor={props.queryExecutor}
-                      currentDateRange={drillDateRange}
-                      prevYearScope={drillPrevYearScope}
-                      selectedStoreIds={props.selectedStoreIds}
+                      currentDateRange={analysisContext.dateRange}
+                      prevYearScope={analysisContext.comparisonScope}
+                      selectedStoreIds={analysisContext.selectedStoreIds}
                     />
                   )}
                 </div>
@@ -479,9 +479,9 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
                 <SubAnalysisPanel
                   mode={rightAxisMode}
                   queryExecutor={props.queryExecutor}
-                  currentDateRange={subPanelContext.dateRange}
-                  selectedStoreIds={subPanelContext.selectedStoreIds}
-                  prevYearScope={subPanelContext.comparisonScope}
+                  currentDateRange={analysisContext.dateRange}
+                  selectedStoreIds={analysisContext.selectedStoreIds}
+                  prevYearScope={analysisContext.comparisonScope}
                   weatherDaily={props.weatherDaily}
                   daily={props.daily}
                   daysInMonth={props.daysInMonth}

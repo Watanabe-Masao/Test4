@@ -181,7 +181,16 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
 
     const existingSeries = (baseOption.series as unknown[]) ?? []
     return Object.assign({}, baseOption, { series: [...existingSeries, ...maSeries] })
-  }, [baseOption, view, showMovingAverage, maOverlays, days, needRightAxis, ct.colors.primary, ct.colors.cyanDark])
+  }, [
+    baseOption,
+    view,
+    showMovingAverage,
+    maOverlays,
+    days,
+    needRightAxis,
+    ct.colors.primary,
+    ct.colors.cyanDark,
+  ])
 
   // ブラシ設定を追加（ドラッグ選択機能が有効な場合のみ）
   const option = useMemo(() => {
