@@ -54,23 +54,29 @@ export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
     label: 'PI値・偏差値・Zスコア',
     group: 'トレンド分析',
     size: 'full',
-    render: ({ result: r, daysInMonth, year, month, prevYear }) => (
+    render: (ctx) => (
       <PerformanceIndexChart
-        daily={r.daily}
-        daysInMonth={daysInMonth}
-        year={year}
-        month={month}
-        prevYearDaily={prevYear.hasPrevYear ? prevYear.daily : undefined}
+        daily={ctx.result.daily}
+        daysInMonth={ctx.daysInMonth}
+        year={ctx.year}
+        month={ctx.month}
+        prevYearDaily={ctx.prevYear.hasPrevYear ? ctx.prevYear.daily : undefined}
+        queryExecutor={ctx.queryExecutor}
+        currentDateRange={ctx.currentDateRange}
+        prevYearScope={ctx.prevYearScope}
+        selectedStoreIds={ctx.selectedStoreIds}
+        totalCustomers={ctx.result.totalCustomers}
       />
     ),
   },
+  // 注: analysis-category-pi → PerformanceIndexChart の子チャートに統合
   {
     id: 'analysis-category-pi',
     label: 'カテゴリPI値・偏差値',
     group: 'トレンド分析',
     size: 'full',
     linkTo: { view: 'category' },
-    isVisible: (ctx) => ctx.queryExecutor?.isReady === true,
+    isVisible: () => false, // PerformanceIndexChart に統合済み — 非表示
     render: (ctx) => (
       <CategoryPerformanceChart
         queryExecutor={ctx.queryExecutor}

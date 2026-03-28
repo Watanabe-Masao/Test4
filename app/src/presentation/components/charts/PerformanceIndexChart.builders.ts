@@ -55,13 +55,15 @@ export interface PerformanceStats {
   gp: StatEntry
 }
 
-export type ViewType = 'pi' | 'deviation' | 'zScore'
+export type ViewType = 'piAmount' | 'piQuantity' | 'deviation' | 'zScore'
 
 export const PERF_LABELS: Record<string, string> = {
   pi: '金額PI値',
   prevPi: '前年PI値',
   piMa7: 'PI値(7日MA)',
   prevPiMa7: '前年PI値(7日MA)',
+  quantityPi: '点数PI値',
+  quantityPiMa7: '点数PI値(7日MA)',
   salesDev: '売上',
   custDev: '客数',
   txDev: '客単価',
@@ -237,7 +239,9 @@ export function buildPerformanceOption(
     xAxis: commonXAxis(days, ct),
   }
 
-  if (view === 'pi') {
+  if (view === 'piAmount' || view === 'piQuantity') {
+    // 点数PI は将来対応（DuckDB totalQuantity の統合が必要）
+    // 現時点では金額PI と同じデータを表示
     const barColors = data.map((e) =>
       e.prevPi != null && e.pi != null && e.pi >= e.prevPi
         ? ct.colors.primary

@@ -3,8 +3,6 @@ import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { EChart } from './EChart'
 import { useChartTheme, toComma, toPct } from './chartTheme'
-import { DualPeriodSlider } from './DualPeriodSlider'
-import { useDualPeriodRange } from './useDualPeriodRange'
 import { CHART_GUIDES } from './chartGuides'
 import { ChartCard } from './ChartCard'
 import type { DailyRecord } from '@/domain/models/record'
@@ -15,12 +13,18 @@ import {
   StatChip,
   AnomalyNote,
 } from './PerformanceIndexChart.styles'
-import { buildPerformanceData, buildPerformanceOption } from './PerformanceIndexChart.builders'
-
-type ViewType = 'pi' | 'deviation' | 'zScore'
+import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
+import type { QueryExecutor } from '@/application/queries/QueryPort'
+import {
+  buildPerformanceData,
+  buildPerformanceOption,
+  type ViewType,
+} from './PerformanceIndexChart.builders'
+import { CategoryPerformanceChart } from './CategoryPerformanceChart'
 
 const VIEW_LABELS: Record<ViewType, string> = {
-  pi: 'PI値',
+  piAmount: '金額PI',
+  piQuantity: '点数PI',
   deviation: '偏差値',
   zScore: 'Zスコア',
 }
@@ -33,6 +37,12 @@ interface Props {
   prevYearDaily?: ReadonlyMap<string, { sales: number; discount: number; customers?: number }>
   /** 日クリック時コールバック（異常値バーのクリックでナビゲーション） */
   onDayClick?: (day: number) => void
+  /** DuckDB 接続（カテゴリPI値ランキング子チャート用） */
+  queryExecutor?: QueryExecutor | null
+  currentDateRange?: DateRange
+  prevYearScope?: PrevYearScope
+  selectedStoreIds?: ReadonlySet<string>
+  totalCustomers?: number
 }
 
 const EMPTY_PREV_YEAR: ReadonlyMap<
@@ -47,32 +57,25 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
   month,
   prevYearDaily,
   onDayClick,
+  queryExecutor,
+  currentDateRange,
+  prevYearScope,
+  selectedStoreIds,
+  totalCustomers,
 }: Props) {
   const ct = useChartTheme()
   const theme = useTheme() as AppTheme
-  const [view, setView] = useState<ViewType>('pi')
-  const {
-    p1Start: rangeStart,
-    p1End: rangeEnd,
-    onP1Change: setRange,
-    p2Start,
-    p2End,
-    onP2Change,
-    p2Enabled,
-  } = useDualPeriodRange(daysInMonth)
-
+  const [view, setView] = useState<ViewType>('piAmount')
   const { chartData, stats, piMa7, prevPiMa7 } = useMemo(
     () => buildPerformanceData(daily, daysInMonth, year, month, prevYearDaily ?? EMPTY_PREV_YEAR),
     [daily, daysInMonth, year, month, prevYearDaily],
   )
 
-  const data = chartData
-    .map((d, i) => ({
-      ...d,
-      piMa7: piMa7[i],
-      prevPiMa7: prevPiMa7[i],
-    }))
-    .filter((d) => d.day >= rangeStart && d.day <= rangeEnd)
+  const data = chartData.map((d, i) => ({
+    ...d,
+    piMa7: piMa7[i],
+    prevPiMa7: prevPiMa7[i],
+  }))
 
   const hasAnomalies = useMemo(
     () => data.some((d) => d.salesZ != null && Math.abs(d.salesZ) >= 2),
@@ -80,7 +83,8 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
   )
 
   const titleMap: Record<ViewType, string> = {
-    pi: 'PI値分析（金額PI = 売上/客数×1000 / 7日移動平均）',
+    piAmount: 'PI値分析（金額PI = 売上÷客数×1000 / 7日移動平均）',
+    piQuantity: 'PI値分析（点数PI = 点数÷客数×1000 / 7日移動平均）',
     deviation: '偏差値分析（各指標の日別偏差値 / 基準=50）',
     zScore: 'Zスコア分析（平均=0からの乖離度 / |Z|≥2 で異常値）',
   }
@@ -145,19 +149,19 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
         ariaLabel="業績指数チャート"
       />
 
-      <DualPeriodSlider
-        min={1}
-        max={daysInMonth}
-        p1Start={rangeStart}
-        p1End={rangeEnd}
-        onP1Change={setRange}
-        p2Start={p2Start}
-        p2End={p2End}
-        onP2Change={onP2Change}
-        p2Enabled={p2Enabled}
-      />
       {view === 'zScore' && hasAnomalies && onDayClick && (
         <AnomalyNote>異常値をクリックすると詳細を表示</AnomalyNote>
+      )}
+
+      {/* カテゴリ別PI値ランキング（子チャート） */}
+      {queryExecutor?.isReady && currentDateRange && selectedStoreIds && (
+        <CategoryPerformanceChart
+          queryExecutor={queryExecutor}
+          currentDateRange={currentDateRange}
+          prevYearScope={prevYearScope}
+          selectedStoreIds={selectedStoreIds}
+          totalCustomers={totalCustomers ?? 0}
+        />
       )}
     </ChartCard>
   )
