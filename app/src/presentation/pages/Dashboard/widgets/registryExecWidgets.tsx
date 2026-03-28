@@ -6,7 +6,6 @@ import {
   renderDowAverage,
   renderWeeklySummary,
   renderDailyStoreSalesTable,
-
   renderDailyInventoryTable,
   renderStoreKpiTable,
 } from './TableWidgets'
