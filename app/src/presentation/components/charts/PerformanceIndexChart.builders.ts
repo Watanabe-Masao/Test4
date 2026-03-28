@@ -253,12 +253,26 @@ export function buildPerformanceOption(
   }
 
   if (view === 'piAmount' || view === 'piQuantity') {
-    // 点数PI は将来対応（DuckDB totalQuantity の統合が必要）
-    // 現時点では金額PI と同じデータを表示
+    const hasPrev = data.some((e) => e.prevPi != null)
+    // 前年PI棒（当年棒の背後にグレー棒で表示）
+    if (hasPrev) {
+      series.push({
+        name: 'prevPi',
+        type: 'bar' as const,
+        data: (data as unknown as Record<string, unknown>[]).map((d) => ({
+          value: d.prevPi as number | null,
+        })),
+        barMaxWidth: 18,
+        barGap: '-100%',
+        z: 1,
+        itemStyle: { color: ct.colors.slate, borderRadius: [3, 3, 0, 0], opacity: 0.35 },
+      })
+    }
+    // 当年PI棒（前年比で色分け：上回り=primary、下回り=orange）
     const barColors = data.map((e) =>
       e.prevPi != null && e.pi != null && e.pi >= e.prevPi
         ? ct.colors.primary
-        : ct.colors.slateDark,
+        : ct.colors.orange,
     )
     series.push(
       {
@@ -268,8 +282,9 @@ export function buildPerformanceOption(
           value: d.pi as number | null,
           itemStyle: { color: barColors[i] },
         })),
-        barMaxWidth: 14,
-        itemStyle: { borderRadius: [2, 2, 0, 0], opacity: 0.7 },
+        barMaxWidth: 18,
+        z: 2,
+        itemStyle: { borderRadius: [3, 3, 0, 0] },
       },
       {
         name: 'piMa7',
@@ -279,6 +294,7 @@ export function buildPerformanceOption(
         itemStyle: { color: ct.colors.primary },
         symbol: 'none' as const,
         connectNulls: true,
+        smooth: true,
       },
       {
         name: 'prevPiMa7',
@@ -288,6 +304,7 @@ export function buildPerformanceOption(
         itemStyle: { color: ct.colors.slate },
         symbol: 'none' as const,
         connectNulls: true,
+        smooth: true,
       },
     )
     return { ...base, yAxis: valueYAxis(theme, { formatter: (v: number) => toComma(v) }), series }

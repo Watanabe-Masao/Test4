@@ -328,8 +328,8 @@ export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
     const mainData = (categoryRows as unknown as Record<string, unknown>[]).map((entry) => {
       const val = entry[mainKey] as number
       const prev = entry[prevKey] as number | null
-      const color = prev != null && val >= prev ? mainColor : theme.colors.palette.slateDark
-      return { value: val, itemStyle: { color, opacity: 0.7 } }
+      const color = prev != null && val >= prev ? mainColor : theme.colors.palette.orange
+      return { value: val, itemStyle: { color } }
     })
 
     const prevData = (categoryRows as unknown as Record<string, unknown>[]).map(
