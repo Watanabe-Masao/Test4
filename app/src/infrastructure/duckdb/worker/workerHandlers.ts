@@ -72,7 +72,9 @@ export async function initializeDb(bundles: duckdb.DuckDBBundles): Promise<Initi
 
   const bundle = await duckdb.selectBundle(bundles)
   const worker = new Worker(bundle.mainWorker!)
-  const logger = new duckdb.ConsoleLogger()
+  const logger = import.meta.env.DEV
+    ? new duckdb.ConsoleLogger(duckdb.LogLevel.WARNING)
+    : new duckdb.VoidLogger()
   const newDb = new duckdb.AsyncDuckDB(logger, worker)
   await newDb.instantiate(bundle.mainModule, bundle.pthreadWorker)
 
