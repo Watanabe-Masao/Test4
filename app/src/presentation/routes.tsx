@@ -1,13 +1,16 @@
 /**
- * ルーティング定義
+ * ルーティング定義（metadata-driven）
  *
- * 遅延ロードされるページコンポーネントと Route 構造を管理する。
- * ViewType ↔ URLパスのマッピングは application/navigation/viewMapping.ts に定義。
+ * PAGE_REGISTRY から Route を生成する。コンポーネント解決は PAGE_COMPONENT_MAP で行う。
+ * ページメタデータの正本は application/navigation/pageRegistry.ts。
  */
+import type { ComponentType } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { lazyWithRetry } from '@/presentation/lazyWithRetry'
+import { PAGE_REGISTRY, REDIRECT_REGISTRY } from '@/application/navigation/pageRegistry'
 
 // ─── 遅延ロード: ページコンポーネント（チャンク読込リトライ付き） ──
+
 const DashboardPage = lazyWithRetry(() =>
   import('@/presentation/pages/Dashboard/DashboardPage').then((m) => ({
     default: m.DashboardPage,
@@ -52,26 +55,47 @@ export const MobileDashboardPage = lazyWithRetry(() =>
   })),
 )
 
+// ─── ページ id → コンポーネント マッピング ───────────────────────
+
+/**
+ * PAGE_REGISTRY の id と対応するコンポーネント。
+ * pageMetaGuard でキーの網羅性を機械検証する。
+ */
+export const PAGE_COMPONENT_MAP: Record<string, ComponentType> = {
+  dashboard: DashboardPage,
+  'store-analysis': StoreAnalysisPage,
+  daily: DailyPage,
+  insight: InsightPage,
+  category: CategoryPage,
+  'cost-detail': CostDetailPage,
+  'purchase-analysis': PurchaseAnalysisPage,
+  reports: ReportsPage,
+  admin: AdminPage,
+  custom: CustomPage,
+}
+
 // ─── ルート定義コンポーネント ────────────────────────────────
+
 export function AppRoutes() {
   return (
     <Routes>
-      <Route path="/dashboard" element={<DashboardPage />} />
-      <Route path="/store-analysis" element={<StoreAnalysisPage />} />
-      <Route path="/daily" element={<DailyPage />} />
-      <Route path="/insight" element={<InsightPage />} />
-      <Route path="/category" element={<CategoryPage />} />
-      <Route path="/cost-detail" element={<CostDetailPage />} />
-      <Route path="/purchase-analysis" element={<PurchaseAnalysisPage />} />
-      <Route path="/reports" element={<ReportsPage />} />
-      <Route path="/admin" element={<AdminPage />} />
-      <Route path="/custom/:pageId" element={<CustomPage />} />
-      {/* 旧ルートからのリダイレクト */}
-      <Route path="/analysis" element={<Navigate to="/insight" replace />} />
-      <Route path="/forecast" element={<Navigate to="/insight" replace />} />
-      <Route path="/summary" element={<Navigate to="/insight" replace />} />
-      <Route path="/transfer" element={<Navigate to="/cost-detail" replace />} />
-      <Route path="/consumable" element={<Navigate to="/cost-detail" replace />} />
+      {/* Standard + dynamic ページ（PAGE_REGISTRY から生成） */}
+      {PAGE_REGISTRY.map((page) => {
+        const Component = PAGE_COMPONENT_MAP[page.id]
+        if (!Component) return null
+        return <Route key={page.id} path={page.pathPattern} element={<Component />} />
+      })}
+
+      {/* レガシーパスからのリダイレクト（REDIRECT_REGISTRY から生成） */}
+      {REDIRECT_REGISTRY.map((redirect) => (
+        <Route
+          key={redirect.from}
+          path={redirect.from}
+          element={<Navigate to={redirect.to} replace />}
+        />
+      ))}
+
+      {/* 未知ルートのフォールバック（明示的 — true unknown → dashboard） */}
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   )

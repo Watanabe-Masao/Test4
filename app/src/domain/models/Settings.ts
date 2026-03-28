@@ -42,17 +42,8 @@ export interface AppSettings {
   readonly storeLocations: Readonly<Record<string, StoreLocation>> // storeId → 位置情報
 }
 
-/** ビュー種別 */
-export type ViewType =
-  | 'dashboard'
-  | 'store-analysis'
-  | 'daily'
-  | 'insight'
-  | 'category'
-  | 'cost-detail'
-  | 'purchase-analysis'
-  | 'reports'
-  | 'admin'
+/** ビュー種別（正本は PageMeta.ts — 後方互換のため re-export） */
+export type { ViewType } from './PageMeta'
 
 /** データ種別 */
 export type DataType =
