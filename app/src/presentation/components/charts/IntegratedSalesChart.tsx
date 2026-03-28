@@ -46,6 +46,7 @@ import { DailySalesChart } from './DailySalesChart'
 import { TimeSlotChart } from './TimeSlotChart'
 import { SubAnalysisPanel } from './SubAnalysisPanel'
 import { CategoryHierarchyExplorer } from './CategoryHierarchyExplorer'
+import { CategoryBarChart } from './CategoryBarChart'
 import { TabGroup, Tab } from './TimeSlotSalesChart.styles'
 import {
   RangeActionBox,
@@ -108,7 +109,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
 
   // clickedDay: useState 上限(8)回避のため useReducer 的にdrillLevelを再利用
   const [clickedDay, setClickedDay] = useState<number | null>(null)
-  const [subTab, setSubTab] = useState<'trend' | 'drilldown'>('trend')
+  const [subTab, setSubTab] = useState<'trend' | 'bar' | 'drilldown'>('trend')
   const [pendingRange, setPendingRange] = useState<{ start: number; end: number } | null>(null)
 
   // ── drill scroll 制御 ──
@@ -427,7 +428,10 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                     <TabGroup>
                       <Tab $active={subTab === 'trend'} onClick={() => setSubTab('trend')}>
-                        カテゴリ分析
+                        日次推移
+                      </Tab>
+                      <Tab $active={subTab === 'bar'} onClick={() => setSubTab('bar')}>
+                        カテゴリ棒
                       </Tab>
                       <Tab $active={subTab === 'drilldown'} onClick={() => setSubTab('drilldown')}>
                         ドリルダウン分析
@@ -463,6 +467,15 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
                       prevYearDaily={props.prevYearDaily}
                       discountEntries={props.discountEntries}
                       totalGrossSales={props.totalGrossSales}
+                    />
+                  )}
+                  {subTab === 'bar' && (
+                    <CategoryBarChart
+                      queryExecutor={props.queryExecutor}
+                      currentDateRange={analysisContext.dateRange}
+                      selectedStoreIds={analysisContext.selectedStoreIds}
+                      prevYearScope={analysisContext.comparisonScope}
+                      embedded
                     />
                   )}
                   {subTab === 'drilldown' && (
