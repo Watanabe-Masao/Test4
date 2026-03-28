@@ -119,10 +119,10 @@ export const presentationMemoLimits: readonly QuantitativeAllowlistEntry[] = [
 export const presentationStateLimits: readonly QuantitativeAllowlistEntry[] = [
   {
     path: 'presentation/components/charts/IntegratedSalesChart.tsx',
-    reason: '統合売上チャート。ドリルレベル + スライド方向 + clickedDay 等',
+    reason: '統合売上チャート。ドリルレベル + スライド方向 + clickedDay + drillEnd 等',
     category: 'structural',
     removalCondition: 'ドリル状態を reducer に統合する時',
-    limit: 12,
+    limit: 13,
   },
   {
     path: 'presentation/pages/Admin/useMonthDataManagement.ts',
