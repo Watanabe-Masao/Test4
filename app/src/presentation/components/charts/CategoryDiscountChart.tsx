@@ -34,11 +34,14 @@ const LEVEL_OPTIONS: readonly { value: Level; label: string }[] = [
   { value: 'klass', label: 'クラス' },
 ]
 
-const DISCOUNT_COLORS: Record<string, string> = {
-  '71': '#ef4444',
-  '72': '#f59e0b',
-  '73': '#22c55e',
-  '74': '#8b5cf6',
+/** テーマトークンから売変種別の色を取得 */
+function discountColors(theme: AppTheme): Record<string, string> {
+  return {
+    '71': theme.colors.palette.dangerDark,
+    '72': theme.colors.palette.warningDark,
+    '73': theme.colors.palette.successDark,
+    '74': theme.colors.palette.purpleDark,
+  }
 }
 
 interface Props {
@@ -47,6 +50,8 @@ interface Props {
   readonly selectedStoreIds: ReadonlySet<string>
   /** タイトルに表示する日付ラベル（ドリルダウン元から渡される） */
   readonly dateLabel?: string
+  /** 親の種別フィルター（null = 全種別表示） */
+  readonly discountTypeFilter?: string | null
 }
 
 export const CategoryDiscountChart = memo(function CategoryDiscountChart({
@@ -54,10 +59,12 @@ export const CategoryDiscountChart = memo(function CategoryDiscountChart({
   currentDateRange,
   selectedStoreIds,
   dateLabel,
+  discountTypeFilter,
 }: Props) {
   const theme = useTheme() as AppTheme
   const cf = useCurrencyFormat()
   const [level, setLevel] = useState<Level>('department')
+  const dtColors = useMemo(() => discountColors(theme), [theme])
 
   const storeIds = useMemo(
     () => (selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined),
@@ -75,7 +82,11 @@ export const CategoryDiscountChart = memo(function CategoryDiscountChart({
     input,
   )
 
-  const records = useMemo(() => output?.records ?? [], [output])
+  const records = useMemo(() => {
+    const raw = output?.records ?? []
+    // 売変合計の絶対値が大きい順にソート
+    return [...raw].sort((a, b) => Math.abs(b.discountTotal) - Math.abs(a.discountTotal))
+  }, [output])
 
   const option = useMemo((): EChartsOption => {
     if (records.length === 0) return {}
@@ -129,7 +140,9 @@ export const CategoryDiscountChart = memo(function CategoryDiscountChart({
         },
         axisLine: { lineStyle: { color: theme.colors.border } },
       },
-      series: DISCOUNT_TYPES.map((dt) => ({
+      series: DISCOUNT_TYPES.filter(
+        (dt) => discountTypeFilter == null || dt.type === discountTypeFilter,
+      ).map((dt) => ({
         name: dt.label,
         type: 'bar' as const,
         stack: 'discount',
@@ -147,11 +160,11 @@ export const CategoryDiscountChart = memo(function CategoryDiscountChart({
               return 0
           }
         }),
-        itemStyle: { color: DISCOUNT_COLORS[dt.type] },
+        itemStyle: { color: dtColors[dt.type] },
         barWidth: '60%',
       })),
     }
-  }, [records, theme, cf])
+  }, [records, theme, cf, dtColors, discountTypeFilter])
 
   const title = dateLabel ? `${dateLabel} カテゴリ別売変分析` : 'カテゴリ別売変分析'
 
@@ -246,7 +259,7 @@ export const CategoryDiscountChart = memo(function CategoryDiscountChart({
                   textAlign: 'right',
                   padding: '4px 8px',
                   borderBottom: `2px solid ${theme.colors.border}`,
-                  color: DISCOUNT_COLORS[dt.type],
+                  color: dtColors[dt.type],
                 }}
               >
                 {dt.label}

@@ -36,6 +36,7 @@ export const DiscountAnalysisPanel = memo(function DiscountAnalysisPanel({
   prevYearDaily,
 }: Props) {
   const [drillDay, setDrillDay] = useState<number | null>(null)
+  const [discountFilter, setDiscountFilter] = useState<string | null>(null)
 
   const handleDayClick = useCallback((day: number) => {
     setDrillDay((prev) => (prev === day ? null : day))
@@ -58,12 +59,14 @@ export const DiscountAnalysisPanel = memo(function DiscountAnalysisPanel({
         prevYearDaily={prevYearDaily}
         embedded
         onDayClick={handleDayClick}
+        onFilterChange={setDiscountFilter}
       />
       <CategoryDiscountChart
         queryExecutor={ctx.queryExecutor}
         currentDateRange={drillDateRange}
         selectedStoreIds={ctx.selectedStoreIds}
         dateLabel={drillDay != null ? `${month}月${drillDay}日` : undefined}
+        discountTypeFilter={discountFilter}
       />
     </>
   )

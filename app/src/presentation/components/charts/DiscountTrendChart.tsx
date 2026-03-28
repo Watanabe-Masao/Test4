@@ -37,6 +37,8 @@ interface Props {
   embedded?: boolean
   /** 日付クリック → カテゴリ別売変ドリルダウン */
   onDayClick?: (day: number) => void
+  /** 種別フィルター変更を親に通知（null = 全種別） */
+  onFilterChange?: (discountType: string | null) => void
 }
 
 function buildDiscountData(
@@ -109,6 +111,7 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
   prevYearDaily,
   embedded,
   onDayClick,
+  onFilterChange,
 }: Props) {
   const theme = useTheme() as AppTheme
   const { format: fmtCurrency } = useCurrencyFormat()
@@ -238,7 +241,10 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
           color: viewMode === 'stacked' ? theme.colors.palette.primary : theme.colors.text3,
           cursor: 'pointer',
         }}
-        onClick={() => setViewMode('stacked')}
+        onClick={() => {
+          setViewMode('stacked')
+          onFilterChange?.(null)
+        }}
       >
         全種別
       </button>
@@ -263,6 +269,7 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
           onClick={() => {
             setViewMode('individual')
             setActiveCode(dt.type)
+            onFilterChange?.(dt.type)
           }}
         >
           {dt.label}
