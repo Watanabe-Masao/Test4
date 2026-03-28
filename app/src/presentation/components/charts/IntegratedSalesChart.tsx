@@ -46,6 +46,7 @@ import { DailySalesChart } from './DailySalesChart'
 import { TimeSlotChart } from './TimeSlotChart'
 import { SubAnalysisPanel } from './SubAnalysisPanel'
 import { SubTabContent, type SubTabKey } from './IntegratedSalesSubTabs'
+import { YoYWaterfallChartWidget } from '@/presentation/pages/Dashboard/widgets/YoYWaterfallChart'
 import { TabGroup, Tab, TabWrapper } from './TimeSlotSalesChart.styles'
 import {
   RangeActionBox,
@@ -416,6 +417,15 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
                   </RangeActionBtn>
                 </RangeActionBtnGroup>
               </RangeActionBox>
+            )}
+
+            {/* 要因分析（独立表示 — 標準ビュー時のみ） */}
+            {dailyView === 'standard' && props.widgetCtx && props.queryExecutor?.isReady && (
+              <YoYWaterfallChartWidget
+                ctx={props.widgetCtx}
+                overrideDateRange={drillTabDateRange ?? undefined}
+                embedded
+              />
             )}
 
             {/* 子: 標準ビュー + 右軸モードに応じた分析パネル */}
