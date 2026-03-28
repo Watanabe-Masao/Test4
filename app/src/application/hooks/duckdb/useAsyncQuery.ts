@@ -3,16 +3,12 @@
  */
 import { useState, useEffect, useRef } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import type { AsyncQueryResult } from '@/application/queries/QueryContract'
 import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { DateRange } from '@/domain/models/calendar'
 
-// ── 型定義 ──
-
-export interface AsyncQueryResult<T> {
-  readonly data: T | null
-  readonly isLoading: boolean
-  readonly error: string | null
-}
+// AsyncQueryResult は QueryContract.ts の定義を正本として re-export
+export type { AsyncQueryResult } from '@/application/queries/QueryContract'
 
 // ── 汎用クエリフック ──
 
@@ -32,7 +28,7 @@ export function useAsyncQuery<T>(
 ): AsyncQueryResult<T> {
   const [data, setData] = useState<T | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<Error | null>(null)
   const seqRef = useRef(0)
 
   useEffect(() => {
@@ -56,7 +52,7 @@ export function useAsyncQuery<T>(
           }
         } catch (err: unknown) {
           if (!cancelled && seq === seqRef.current) {
-            setError(err instanceof Error ? err.message : String(err))
+            setError(err instanceof Error ? err : new Error(String(err)))
           }
         } finally {
           if (!cancelled && seq === seqRef.current) {

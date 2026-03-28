@@ -39,7 +39,7 @@ export type ValidatedFetchResult<T> =
       readonly message: string
     }
   | { readonly status: 'valid'; readonly data: T; readonly error: null }
-  | { readonly status: 'error'; readonly data: null; readonly error: string }
+  | { readonly status: 'error'; readonly data: null; readonly error: Error }
 
 // ─── バリデーションルール ─────────────────────────────
 

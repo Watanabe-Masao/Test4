@@ -42,7 +42,7 @@ import type { CategoryTimeSalesRecord } from '@/domain/models/record'
 function toValidated<T>(
   data: readonly T[] | null,
   isLoading: boolean,
-  error: string | null,
+  error: Error | null,
   conn: AsyncDuckDBConnection | null,
   dateKeyField?: string,
 ): ValidatedFetchResult<readonly T[]> & { readonly validation: DataValidation | null } {

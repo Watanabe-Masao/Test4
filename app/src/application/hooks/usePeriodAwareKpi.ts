@@ -52,7 +52,7 @@ export interface PeriodAwareKpiResult {
   /** 選択期間が月全日かどうか */
   readonly isFullMonth: boolean
   /** エラー */
-  readonly error: string | null
+  readonly error: Error | null
 }
 
 // ── マージ関数 ──
