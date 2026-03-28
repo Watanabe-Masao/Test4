@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useId, useRef, type ReactNode } from 'react'
+import { motion } from 'framer-motion'
 import {
   Backdrop,
   Container,
@@ -11,6 +12,23 @@ import {
 } from './Modal.styles'
 
 export type { ModalSize }
+
+const prefersReduced =
+  typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+
+const backdropVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1 },
+}
+
+const panelVariants = {
+  hidden: { opacity: 0, scale: 0.96, y: 8 },
+  visible: { opacity: 1, scale: 1, y: 0 },
+}
+
+const springTransition = prefersReduced
+  ? { duration: 0 }
+  : { type: 'spring' as const, stiffness: 400, damping: 30 }
 
 export function Modal({
   title,
@@ -84,8 +102,23 @@ export function Modal({
   }, [])
 
   return (
-    <Backdrop data-modal-backdrop onClick={handleBackdropClick}>
+    <Backdrop
+      as={motion.div}
+      variants={backdropVariants}
+      initial="hidden"
+      animate="visible"
+      exit="hidden"
+      transition={{ duration: prefersReduced ? 0 : 0.15 }}
+      data-modal-backdrop
+      onClick={handleBackdropClick}
+    >
       <Container
+        as={motion.div}
+        variants={panelVariants}
+        initial="hidden"
+        animate="visible"
+        exit="hidden"
+        transition={springTransition}
         ref={containerRef}
         role="dialog"
         aria-modal="true"

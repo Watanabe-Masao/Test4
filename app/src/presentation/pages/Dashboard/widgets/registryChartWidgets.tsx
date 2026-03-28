@@ -1,8 +1,6 @@
 import {
   IntegratedSalesChart,
-  IntegratedCategoryAnalysis,
   GrossProfitAmountChart,
-  DiscountTrendChart,
   SalesPurchaseComparisonChart,
 } from '@/presentation/components/charts'
 import { fromDateKey } from '@/domain/models/CalendarDate'
@@ -82,45 +80,11 @@ export const WIDGETS_CHART: readonly WidgetDef[] = [
       )
     },
   },
-  {
-    id: 'chart-discount-breakdown',
-    label: '売変内訳分析（71-74）',
-    group: '収益概況',
-    size: 'full',
-    isVisible: (ctx) => ctx.result.hasDiscountData,
-    render: ({ result: r, daysInMonth, year, month, prevYear }) => (
-      <DiscountTrendChart
-        daily={r.daily}
-        daysInMonth={daysInMonth}
-        year={year}
-        month={month}
-        discountEntries={r.discountEntries}
-        totalGrossSales={r.grossSales}
-        prevYearDaily={prevYear.hasPrevYear ? prevYear.daily : undefined}
-      />
-    ),
-  },
+  // 注: chart-discount-breakdown → IntegratedSalesChart「売変」モードの子パネルに統合
+  // 注: chart-category-analysis → IntegratedSalesChart「カテゴリ分析」タブに統合
   // 注: 予算差・前年差推移 → BudgetVsActualChart「前年差」ビューに統合
   // 注: 日別客数推移 → DailySalesChart「客数」ビューに統合
   // 注: 日別客単価推移 → DailySalesChart「客単価」ビューに統合
-  // ── カテゴリ分析ユニット（包含型: カテゴリ別売上推移 + カテゴリードリルダウン分析） ──
-  {
-    id: 'chart-category-analysis',
-    label: 'カテゴリ分析',
-    group: '構造分析',
-    size: 'full',
-    linkTo: { view: 'category' },
-    isVisible: (ctx) => ctx.queryExecutor?.isReady === true,
-    render: (ctx) => (
-      <IntegratedCategoryAnalysis
-        queryExecutor={ctx.queryExecutor}
-        currentDateRange={ctx.currentDateRange}
-        prevYearScope={ctx.prevYearScope}
-        selectedStoreIds={ctx.selectedStoreIds}
-        totalCustomers={ctx.result.totalCustomers}
-      />
-    ),
-  },
   // 注: chart-timeslot-sales → IntegratedSalesChart ドリルダウン（全体比較/部門別）に統合
   // 注: 部門・クラス別売上 → CategoryHierarchyExplorer に統合
   // 注: 時間帯KPIサマリー → TimeSlotSalesChart「KPI」タブに統合

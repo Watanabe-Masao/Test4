@@ -46,7 +46,7 @@ describe('autoInjectDataWidgets', () => {
     expect(result).not.toBeNull()
     // 注: chart-timeslot-sales → IntegratedSalesChart ドリルダウンに統合
     expect(result!).toContain('chart-timeslot-heatmap')
-    expect(result!).toContain('chart-category-analysis')
+    // 注: chart-category-analysis → chart-daily-sales に統合
   })
 
   it('既存レイアウトのウィジェットは保持される', () => {

@@ -24,17 +24,6 @@ export const Backdrop = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: fadeIn ${({ theme }) => theme.transitions.fast}
-    ${({ theme }) => theme.transitions.ease};
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
 `
 
 export const Container = styled.div<{ $size: ModalSize }>`
@@ -48,20 +37,7 @@ export const Container = styled.div<{ $size: ModalSize }>`
   max-height: ${({ theme }) => theme.modal.maxHeight};
   overflow-y: auto;
   position: relative;
-  animation: modalSlideIn ${({ theme }) => theme.transitions.normal}
-    ${({ theme }) => theme.transitions.spring};
   ${({ $size }) => sizeStyles[$size]}
-
-  @keyframes modalSlideIn {
-    from {
-      opacity: 0;
-      transform: scale(0.96) translateY(8px);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1) translateY(0);
-    }
-  }
 `
 
 export const Header = styled.div`

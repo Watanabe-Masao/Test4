@@ -19,13 +19,18 @@ import {
   type CategoryDiscountInput,
 } from '@/application/queries/cts/CategoryDiscountHandler'
 import { DISCOUNT_TYPES } from '@/domain/models/record'
-import { formatPercent } from '@/domain/formatting'
 import { useCurrencyFormat } from './chartTheme'
 import { SegmentedControl } from '@/presentation/components/common/layout'
 import { ChartCard } from './ChartCard'
 import { ChartLoading, ChartEmpty } from './ChartState'
 import { EChart, type EChartsOption } from './EChart'
 import { standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
+import {
+  CategoryDiscountTable,
+  type SortKey,
+  type SortDir,
+  type DrillState,
+} from './CategoryDiscountTable'
 
 type Level = 'department' | 'line' | 'klass'
 
@@ -68,12 +73,6 @@ interface Props {
   readonly discountTypeFilter?: string | null
 }
 
-interface DrillState {
-  readonly level: Level
-  readonly parentFilter?: { column: string; value: string }
-  readonly breadcrumbs: readonly string[]
-}
-
 export const CategoryDiscountChart = memo(function CategoryDiscountChart({
   queryExecutor,
   currentDateRange,
@@ -89,6 +88,8 @@ export const CategoryDiscountChart = memo(function CategoryDiscountChart({
     breadcrumbs: [],
   })
   const dtColors = useMemo(() => discountColors(theme), [theme])
+  const [sortKey, setSortKey] = useState<SortKey>('discountTotal')
+  const [sortDir, setSortDir] = useState<SortDir>('desc')
 
   const storeIds = useMemo(
     () => (selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined),
@@ -133,19 +134,58 @@ export const CategoryDiscountChart = memo(function CategoryDiscountChart({
     prevInput,
   )
 
-  const records = useMemo(() => {
-    const raw = output?.records ?? []
-    return [...raw].sort((a, b) => Math.abs(b.discountTotal) - Math.abs(a.discountTotal))
-  }, [output])
-
   // 前年データを code → row で索引
   const prevByCode = useMemo(() => {
-    const map = new Map<string, (typeof records)[number]>()
+    const map = new Map<
+      string,
+      import('@/infrastructure/duckdb/queries/categoryDiscount').CategoryDiscountRow
+    >()
     for (const r of prevOutput?.records ?? []) {
       map.set(r.code, r)
     }
     return map
   }, [prevOutput])
+
+  const records = useMemo(() => {
+    const raw = output?.records ?? []
+    const totalDiscount = raw.reduce((s, x) => s + x.discountTotal, 0)
+    const sorted = [...raw].sort((a, b) => {
+      const getValue = (
+        r: import('@/infrastructure/duckdb/queries/categoryDiscount').CategoryDiscountRow,
+      ) => {
+        switch (sortKey) {
+          case 'discountTotal':
+            return Math.abs(r.discountTotal)
+          case 'discountRate':
+            return r.salesAmount > 0 ? Math.abs(r.discountTotal / r.salesAmount) : 0
+          case 'share':
+            return totalDiscount !== 0 ? Math.abs(r.discountTotal / totalDiscount) : 0
+          case 'prevYoyRate': {
+            const prev = prevByCode.get(r.code)
+            if (!prev || prev.discountTotal === 0) return -Infinity
+            return (r.discountTotal - prev.discountTotal) / Math.abs(prev.discountTotal)
+          }
+          case 'prevDiscountRate': {
+            const prev = prevByCode.get(r.code)
+            if (!prev || prev.salesAmount === 0) return -Infinity
+            return Math.abs(prev.discountTotal / prev.salesAmount)
+          }
+          case 'discount71':
+            return Math.abs(r.discount71)
+          case 'discount72':
+            return Math.abs(r.discount72)
+          case 'discount73':
+            return Math.abs(r.discount73)
+          case 'discount74':
+            return Math.abs(r.discount74)
+        }
+      }
+      const va = getValue(a)
+      const vb = getValue(b)
+      return sortDir === 'desc' ? vb - va : va - vb
+    })
+    return sorted
+  }, [output, sortKey, sortDir, prevByCode])
 
   // ダブルクリックでドリルダウン
   const handleDblClick = useCallback(
@@ -161,6 +201,18 @@ export const CategoryDiscountChart = memo(function CategoryDiscountChart({
       })
     },
     [drill],
+  )
+
+  const toggleSort = useCallback(
+    (key: SortKey) => {
+      if (sortKey === key) {
+        setSortDir((d) => (d === 'desc' ? 'asc' : 'desc'))
+      } else {
+        setSortKey(key)
+        setSortDir('desc')
+      }
+    },
+    [sortKey],
   )
 
   // パンくずクリックで戻る
@@ -218,7 +270,7 @@ export const CategoryDiscountChart = memo(function CategoryDiscountChart({
       barWidth: '60%',
     }))
 
-    // 前年売変合計（半透明バー）
+    // 前年売変合計（当年バーの上にマーカーで表示 — 重なりを避ける）
     const prevBarData = reversed.map((r) => {
       const prev = prevByCode.get(r.code)
       return prev ? prev.discountTotal : null
@@ -228,14 +280,15 @@ export const CategoryDiscountChart = memo(function CategoryDiscountChart({
     const series: EChartsOption['series'] = [...barSeries]
 
     if (hasPrevData) {
+      // 前年位置を「|」マーカーで表示（バーと重ならない）
       series.push({
         name: '前年売変',
-        type: 'bar' as const,
+        type: 'scatter' as const,
         data: prevBarData,
-        itemStyle: { color: 'rgba(156,163,175,0.3)', borderColor: '#9ca3af', borderWidth: 1 },
-        barWidth: '40%',
-        barGap: '-70%',
-        z: 1,
+        symbol: 'rect',
+        symbolSize: [3, 18],
+        itemStyle: { color: theme.colors.text3 },
+        z: 15,
       } as EChartsOption['series'] extends readonly (infer T)[] ? T : never)
     }
 
@@ -357,6 +410,7 @@ export const CategoryDiscountChart = memo(function CategoryDiscountChart({
     <ChartCard
       title={title}
       subtitle="部門/ライン/クラス別の売変内訳（ダブルクリックでドリルダウン）"
+      collapsible
       toolbar={
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {drill.breadcrumbs.length > 0 && (
@@ -391,189 +445,19 @@ export const CategoryDiscountChart = memo(function CategoryDiscountChart({
         onDblClick={handleDblClick}
       />
 
-      {/* 売変率テーブル */}
-      <table
-        style={{
-          width: '100%',
-          borderCollapse: 'collapse',
-          fontSize: theme.typography.fontSize.xs,
-          marginTop: 8,
-        }}
-      >
-        <thead>
-          <tr>
-            {[
-              { label: 'カテゴリ', align: 'left' as const },
-              { label: '売変合計', align: 'right' as const },
-              { label: '売変率', align: 'right' as const },
-              { label: '構成比', align: 'right' as const },
-              ...(prevByCode.size > 0
-                ? [
-                    { label: '前年売変', align: 'right' as const },
-                    { label: '前年比', align: 'right' as const },
-                  ]
-                : []),
-            ].map((col) => (
-              <th
-                key={col.label}
-                style={{
-                  textAlign: col.align,
-                  padding: '4px 8px',
-                  borderBottom: `2px solid ${theme.colors.border}`,
-                  color: theme.colors.text3,
-                }}
-              >
-                {col.label}
-              </th>
-            ))}
-            {DISCOUNT_TYPES.map((dt) => (
-              <th
-                key={dt.type}
-                style={{
-                  textAlign: 'right',
-                  padding: '4px 8px',
-                  borderBottom: `2px solid ${theme.colors.border}`,
-                  color: dtColors[dt.type],
-                }}
-              >
-                {dt.label}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {records.map((r) => {
-            const rate = r.salesAmount > 0 ? r.discountTotal / r.salesAmount : 0
-            const totalDiscount = records.reduce((s, x) => s + x.discountTotal, 0)
-            const share = totalDiscount !== 0 ? r.discountTotal / totalDiscount : 0
-            const prev = prevByCode.get(r.code)
-            const yoyRate =
-              prev && prev.discountTotal !== 0
-                ? (r.discountTotal - prev.discountTotal) / Math.abs(prev.discountTotal)
-                : null
-            return (
-              <tr
-                key={r.code}
-                style={{
-                  borderBottom: `1px solid ${theme.colors.border}`,
-                  cursor: NEXT_LEVEL[drill.level] ? 'pointer' : undefined,
-                }}
-                onDoubleClick={() => {
-                  const name = r.name || r.code
-                  const nextLevel = NEXT_LEVEL[drill.level]
-                  if (!nextLevel) return
-                  setDrill({
-                    level: nextLevel,
-                    parentFilter: { column: LEVEL_COLUMN[drill.level], value: name },
-                    breadcrumbs: [...drill.breadcrumbs, name],
-                  })
-                }}
-              >
-                <td style={{ padding: '4px 8px', fontWeight: 600 }}>{r.name || r.code}</td>
-                <td
-                  style={{
-                    textAlign: 'right',
-                    padding: '4px 8px',
-                    fontFamily: theme.typography.fontFamily.mono,
-                  }}
-                >
-                  {cf.formatWithUnit(r.discountTotal)}
-                </td>
-                <td
-                  style={{
-                    textAlign: 'right',
-                    padding: '4px 8px',
-                    fontFamily: theme.typography.fontFamily.mono,
-                  }}
-                >
-                  {formatPercent(rate)}
-                </td>
-                <td
-                  style={{
-                    textAlign: 'right',
-                    padding: '4px 8px',
-                    fontFamily: theme.typography.fontFamily.mono,
-                  }}
-                >
-                  {formatPercent(share)}
-                </td>
-                {prev != null && (
-                  <>
-                    <td
-                      style={{
-                        textAlign: 'right',
-                        padding: '4px 8px',
-                        fontFamily: theme.typography.fontFamily.mono,
-                        color: theme.colors.text3,
-                      }}
-                    >
-                      {cf.formatWithUnit(prev.discountTotal)}
-                    </td>
-                    <td
-                      style={{
-                        textAlign: 'right',
-                        padding: '4px 8px',
-                        fontFamily: theme.typography.fontFamily.mono,
-                        color:
-                          yoyRate != null && yoyRate > 0
-                            ? theme.colors.palette.dangerDark
-                            : theme.colors.palette.successDark,
-                      }}
-                    >
-                      {yoyRate != null ? formatPercent(yoyRate) : '—'}
-                    </td>
-                  </>
-                )}
-                {prev == null && prevByCode.size > 0 && (
-                  <>
-                    <td
-                      style={{
-                        textAlign: 'right',
-                        padding: '4px 8px',
-                        color: theme.colors.text4,
-                      }}
-                    >
-                      —
-                    </td>
-                    <td
-                      style={{
-                        textAlign: 'right',
-                        padding: '4px 8px',
-                        color: theme.colors.text4,
-                      }}
-                    >
-                      —
-                    </td>
-                  </>
-                )}
-                {DISCOUNT_TYPES.map((dt) => {
-                  const val =
-                    dt.type === '71'
-                      ? r.discount71
-                      : dt.type === '72'
-                        ? r.discount72
-                        : dt.type === '73'
-                          ? r.discount73
-                          : r.discount74
-                  return (
-                    <td
-                      key={dt.type}
-                      style={{
-                        textAlign: 'right',
-                        padding: '4px 8px',
-                        fontFamily: theme.typography.fontFamily.mono,
-                        color: val !== 0 ? theme.colors.text : theme.colors.text4,
-                      }}
-                    >
-                      {val !== 0 ? cf.formatWithUnit(val) : '—'}
-                    </td>
-                  )
-                })}
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
+      {/* 売変率テーブル（ヘッダークリックでソート → グラフ連動） */}
+      <CategoryDiscountTable
+        records={records}
+        prevByCode={prevByCode}
+        drill={drill}
+        setDrill={setDrill}
+        sortKey={sortKey}
+        sortDir={sortDir}
+        toggleSort={toggleSort}
+        dtColors={dtColors}
+        theme={theme}
+        cf={cf}
+      />
     </ChartCard>
   )
 })

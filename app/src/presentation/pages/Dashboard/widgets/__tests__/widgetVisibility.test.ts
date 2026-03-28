@@ -7,13 +7,13 @@ const READY_EXECUTOR = { isReady: true, execute: async () => null }
 
 describe('ウィジェット isVisible', () => {
   const dataWidgetIds = [
-    'chart-category-analysis',
+    // 注: chart-category-analysis → chart-daily-sales に統合
     // 注: chart-timeslot-sales → IntegratedSalesChart ドリルダウンに統合
     'chart-timeslot-heatmap',
     // 注: chart-dept-hourly-pattern → IntegratedSalesChart 孫に統合
   ]
 
-  const discountWidgetId = 'chart-discount-breakdown'
+  // 注: chart-discount-breakdown → IntegratedSalesChart 売変モードに統合
 
   describe('DuckDB 依存ウィジェット', () => {
     it('DuckDB 未準備の場合は非表示', () => {
@@ -66,23 +66,7 @@ describe('ウィジェット isVisible', () => {
   })
 
   // 注: 前年比較ウォーターフォール → IntegratedSalesChart「要因分析」タブに統合
-
-  describe('売変内訳ウィジェット', () => {
-    it('売変データなしの場合は非表示', () => {
-      const ctx = makeWidgetContext({})
-      // デフォルトは hasDiscountData: true なので false に上書き
-      ;(ctx.result as { hasDiscountData: boolean }).hasDiscountData = false
-      const widget = WIDGET_REGISTRY.find((w) => w.id === discountWidgetId)
-      expect(widget?.isVisible).toBeDefined()
-      expect(widget!.isVisible!(ctx)).toBe(false)
-    })
-
-    it('売変データありの場合は表示', () => {
-      const ctx = makeWidgetContext({})
-      const widget = WIDGET_REGISTRY.find((w) => w.id === discountWidgetId)
-      expect(widget!.isVisible!(ctx)).toBe(true)
-    })
-  })
+  // 注: 売変内訳ウィジェット → IntegratedSalesChart 売変モードに統合
 
   describe('isVisible が未設定のウィジェットは常に表示', () => {
     it('通常ウィジェットには isVisible がない', () => {

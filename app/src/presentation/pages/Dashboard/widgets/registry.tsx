@@ -20,11 +20,11 @@ import { WIDGETS_DUCKDB } from './registryDuckDBWidgets'
  */
 export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   ...WIDGETS_KPI,
-  ...WIDGETS_CHART.slice(0, 8),
+  ...WIDGETS_CHART.slice(0, 4), // daily-sales, gross-profit, heatmap, store-timeslot
   ...WIDGETS_EXEC.slice(0, 6),
-  WIDGETS_CHART[8], // chart-sales-purchase-comparison
+  WIDGETS_CHART[4], // chart-sales-purchase-comparison
   ...WIDGETS_EXEC.slice(6),
   ...WIDGETS_ANALYSIS,
   ...WIDGETS_DUCKDB,
-  ...WIDGETS_CHART.slice(9), // chart-weather-correlation, chart-etrn-test
+  ...WIDGETS_CHART.slice(5), // chart-weather-correlation, chart-etrn-test
 ]

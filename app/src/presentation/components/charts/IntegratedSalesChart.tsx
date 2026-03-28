@@ -45,8 +45,8 @@ import type { ViewType } from './DailySalesChartBody'
 import { DailySalesChart } from './DailySalesChart'
 import { TimeSlotChart } from './TimeSlotChart'
 import { SubAnalysisPanel } from './SubAnalysisPanel'
-import { CategoryHierarchyExplorer } from './CategoryHierarchyExplorer'
-import { TabGroup, Tab } from './TimeSlotSalesChart.styles'
+import { SubTabContent, type SubTabKey } from './IntegratedSalesSubTabs'
+import { TabGroup, Tab, TabWrapper } from './TimeSlotSalesChart.styles'
 import {
   RangeActionBox,
   RangeActionLabel,
@@ -108,7 +108,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
 
   // clickedDay: useState 上限(8)回避のため useReducer 的にdrillLevelを再利用
   const [clickedDay, setClickedDay] = useState<number | null>(null)
-  const [subTab, setSubTab] = useState<'trend' | 'drilldown'>('trend')
+  const [subTab, setSubTab] = useState<SubTabKey>('trend')
   const [pendingRange, setPendingRange] = useState<{ start: number; end: number } | null>(null)
 
   // ── drill scroll 制御 ──
@@ -426,12 +426,25 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
                 <div style={{ marginTop: 12 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                     <TabGroup>
-                      <Tab $active={subTab === 'trend'} onClick={() => setSubTab('trend')}>
-                        カテゴリ分析
-                      </Tab>
-                      <Tab $active={subTab === 'drilldown'} onClick={() => setSubTab('drilldown')}>
-                        ドリルダウン分析
-                      </Tab>
+                      {(['trend', 'bar', 'drilldown'] as const).map((key) => (
+                        <TabWrapper key={key}>
+                          {subTab === key && (
+                            <motion.div
+                              layoutId="sub-tab-pill"
+                              className="tab-indicator"
+                              style={{ position: 'absolute', inset: 0, borderRadius: 'inherit' }}
+                              transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                            />
+                          )}
+                          <Tab $active={subTab === key} onClick={() => setSubTab(key)}>
+                            {key === 'trend'
+                              ? '日次推移'
+                              : key === 'bar'
+                                ? 'カテゴリ棒'
+                                : 'ドリルダウン分析'}
+                          </Tab>
+                        </TabWrapper>
+                      ))}
                     </TabGroup>
                     {clickedDay != null && subTab === 'drilldown' && (
                       <DrillPeriodBadge>
@@ -448,31 +461,21 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
                       </DrillPeriodBadge>
                     )}
                   </div>
-                  {subTab === 'trend' && (
-                    <SubAnalysisPanel
-                      mode="quantity"
-                      queryExecutor={props.queryExecutor}
-                      currentDateRange={analysisContext.dateRange}
-                      selectedStoreIds={analysisContext.selectedStoreIds}
-                      prevYearScope={analysisContext.comparisonScope}
-                      weatherDaily={props.weatherDaily}
-                      daily={props.daily}
-                      daysInMonth={props.daysInMonth}
-                      year={props.year}
-                      month={props.month}
-                      prevYearDaily={props.prevYearDaily}
-                      discountEntries={props.discountEntries}
-                      totalGrossSales={props.totalGrossSales}
-                    />
-                  )}
-                  {subTab === 'drilldown' && (
-                    <CategoryHierarchyExplorer
-                      queryExecutor={props.queryExecutor}
-                      currentDateRange={analysisContext.dateRange}
-                      prevYearScope={analysisContext.comparisonScope}
-                      selectedStoreIds={analysisContext.selectedStoreIds}
-                    />
-                  )}
+                  <SubTabContent
+                    subTab={subTab}
+                    queryExecutor={props.queryExecutor}
+                    dateRange={analysisContext.dateRange}
+                    selectedStoreIds={analysisContext.selectedStoreIds}
+                    comparisonScope={analysisContext.comparisonScope}
+                    weatherDaily={props.weatherDaily}
+                    daily={props.daily}
+                    daysInMonth={props.daysInMonth}
+                    year={props.year}
+                    month={props.month}
+                    prevYearDaily={props.prevYearDaily}
+                    discountEntries={props.discountEntries}
+                    totalGrossSales={props.totalGrossSales}
+                  />
                 </div>
               ) : (
                 /* 標準 + 売変/気温/降水量 → 対応する SubAnalysisPanel のみ */

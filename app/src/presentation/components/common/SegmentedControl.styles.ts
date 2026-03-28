@@ -16,6 +16,18 @@ export const Track = styled.div<{ $size: 'sm' | 'md' }>`
   box-shadow: inset 0 1px 2px ${({ theme }) => theme.interactive.backdrop};
 `
 
+/** Segment のラッパー（layout pill のアンカー） */
+export const SegmentWrapper = styled.div`
+  position: relative;
+  border-radius: ${({ theme }) => theme.radii.sm};
+
+  /* motion.div のインジケーター */
+  .seg-indicator {
+    background: ${({ theme }) => theme.colors.bg3};
+    box-shadow: ${({ theme }) => theme.shadows.sm};
+  }
+`
+
 export const Segment = styled.button<{ $active: boolean; $size: 'sm' | 'md' }>`
   all: unset;
   cursor: pointer;
@@ -30,9 +42,10 @@ export const Segment = styled.button<{ $active: boolean; $size: 'sm' | 'md' }>`
   transition: all ${({ theme }) => theme.transitions.fast} ease;
   font-weight: ${({ $active, theme }) =>
     $active ? theme.typography.fontWeight.semibold : theme.typography.fontWeight.normal};
+  position: relative;
+  z-index: 1;
   color: ${({ $active, theme }) => ($active ? theme.colors.text : theme.colors.text3)};
-  background: ${({ $active, theme }) => ($active ? theme.colors.bg3 : 'transparent')};
-  box-shadow: ${({ $active, theme }) => ($active ? theme.shadows.sm : 'none')};
+  background: transparent;
 
   &:hover:not([aria-checked='true']) {
     color: ${({ theme }) => theme.colors.text2};
