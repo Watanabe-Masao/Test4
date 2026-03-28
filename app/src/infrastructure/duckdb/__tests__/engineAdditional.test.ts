@@ -10,7 +10,10 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 // vi.mock はホイストされるため、factory 内で定義する必要がある
 
 vi.mock('@duckdb/duckdb-wasm', () => {
-  class MockConsoleLogger {}
+  class MockConsoleLogger {
+    constructor(_level?: unknown) {}
+  }
+  class MockVoidLogger {}
 
   class MockAsyncDuckDB {
     private mockConn = {
@@ -35,6 +38,8 @@ vi.mock('@duckdb/duckdb-wasm', () => {
       pthreadWorker: null,
     }),
     ConsoleLogger: MockConsoleLogger,
+    VoidLogger: MockVoidLogger,
+    LogLevel: { NONE: 0, DEBUG: 1, INFO: 2, WARNING: 3, ERROR: 4 },
     AsyncDuckDB: MockAsyncDuckDB,
     DuckDBBundles: {},
   }
