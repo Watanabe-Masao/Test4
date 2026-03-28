@@ -12,7 +12,6 @@ import type { DailyRecord } from '@/domain/models/record'
 import {
   safeDivide,
   calculateTransactionValue,
-  calculateMovingAverage,
   calculateShare,
   calculateGrossProfitRate,
 } from '@/domain/calculations/utils'
@@ -53,6 +52,20 @@ export interface PerformanceStats {
   tx: StatEntry
   disc: StatEntry
   gp: StatEntry
+}
+
+/** partial MA: ウィンドウ不足でも利用可能な分で計算（月初からMA表示） */
+function calculatePartialMovingAverage(
+  values: readonly number[],
+  window: number,
+): (number | null)[] {
+  return values.map((_, i) => {
+    const start = Math.max(0, i - window + 1)
+    const slice = values.slice(start, i + 1)
+    const valid = slice.filter((v) => v > 0)
+    if (valid.length === 0) return null
+    return valid.reduce((s, v) => s + v, 0) / valid.length
+  })
 }
 
 export type ViewType = 'piAmount' | 'piQuantity' | 'deviation' | 'zScore'
@@ -172,8 +185,8 @@ export function buildPerformanceData(
   return {
     chartData: rows,
     stats: { sales: salesStat, cust: custStat, tx: txStat, disc: discStat, gp: gpStat },
-    piMa7: calculateMovingAverage(piRaw, 7).map((v) => (isNaN(v) ? null : v)),
-    prevPiMa7: calculateMovingAverage(prevPiRaw, 7).map((v) => (isNaN(v) ? null : v)),
+    piMa7: calculatePartialMovingAverage(piRaw, 7),
+    prevPiMa7: calculatePartialMovingAverage(prevPiRaw, 7),
   }
 }
 
