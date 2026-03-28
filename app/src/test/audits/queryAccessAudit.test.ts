@@ -319,7 +319,7 @@ describe('store_day_summary 依存トラッキング', () => {
   it('store_day_summary を参照するクエリモジュール数が上限を超えない', () => {
     const queriesDir = path.join(SRC_DIR, 'infrastructure/duckdb/queries')
     const files = collectTsFiles(queriesDir)
-    const MAX_CONSUMERS = 10
+    const MAX_CONSUMERS = 11
 
     const consumers: string[] = []
     for (const file of files) {

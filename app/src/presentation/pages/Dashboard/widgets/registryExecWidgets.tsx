@@ -6,7 +6,7 @@ import {
   renderDowAverage,
   renderWeeklySummary,
   renderDailyStoreSalesTable,
-  renderDepartmentKpiTable,
+
   renderDailyInventoryTable,
   renderStoreKpiTable,
 } from './TableWidgets'
@@ -69,15 +69,7 @@ export const WIDGETS_EXEC: readonly WidgetDef[] = [
     linkTo: { view: 'reports' },
     render: (ctx) => renderStoreKpiTable(ctx),
   },
-  // ── 部門別 ──
-  {
-    id: 'exec-department-kpi',
-    label: '部門別KPI一覧',
-    group: '構造分析',
-    size: 'full',
-    isVisible: () => false, // 部門別データ未対応のため非表示
-    render: (ctx) => renderDepartmentKpiTable(ctx),
-  },
+  // 注: exec-department-kpi → 部門別データ未対応のため削除
   // ── シミュレーション ──
   {
     id: 'exec-forecast-tools',

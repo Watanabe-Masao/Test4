@@ -17,6 +17,7 @@ import {
   storeCategoryPIHandler,
   type StoreCategoryPIInput,
 } from '@/application/queries/cts/StoreCategoryPIHandler'
+import { safeDivide } from '@/domain/calculations/utils'
 import { useCurrencyFormat } from './chartTheme'
 import { chartFontSize } from '@/presentation/theme/tokens'
 import { SegmentedControl } from '@/presentation/components/common/layout'
@@ -79,10 +80,10 @@ export const StorePIComparisonChart = memo(function StorePIComparisonChart({
       entries.push({
         storeId,
         name: stores.get(storeId)?.name ?? storeId,
-        piAmount: Math.round((result.totalSales / result.totalCustomers) * 1000),
+        piAmount: Math.round(safeDivide(result.totalSales, result.totalCustomers, 0) * 1000),
         piQty:
           'totalQuantity' in result && typeof result.totalQuantity === 'number'
-            ? Math.round((result.totalQuantity / result.totalCustomers) * 1000)
+            ? Math.round(safeDivide(result.totalQuantity, result.totalCustomers, 0) * 1000)
             : 0,
       })
     }

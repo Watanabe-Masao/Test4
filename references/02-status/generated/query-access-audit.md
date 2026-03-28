@@ -1,13 +1,13 @@
 # Query Access Audit Report
 
-> Generated: 2026-03-28T03:52:32.305Z
+> Generated: 2026-03-28T09:37:27.681Z
 
 ## Route Summary
 
 | 経路種別 | 件数 | 状態 |
 |---|---|---|
-| QueryHandler 定義 | 26 | 基盤 |
-| useQueryWithHandler（正規） | 26 | 正規 |
+| QueryHandler 定義 | 27 | 基盤 |
+| useQueryWithHandler（正規） | 28 | 正規 |
 | comparisonAccessors（正規） | 10 | 正規 |
 | facade hook（正規） | 0 | 正規 |
 | executor.execute 直呼び（要注意） | 0 | 要注意 |
@@ -18,6 +18,7 @@
 
 ### queryWithHandler
 
+- presentation/components/charts/CategoryBarChart.tsx
 - presentation/components/charts/CategoryBenchmarkChart.vm.ts
 - presentation/components/charts/CategoryBoxPlotChart.vm.ts
 - presentation/components/charts/CategoryDiscountChart.tsx
@@ -37,6 +38,7 @@
 - presentation/components/charts/IntegratedSalesChart.tsx
 - presentation/components/charts/PiCvBubbleChart.tsx
 - presentation/components/charts/StoreHourlyChart.tsx
+- presentation/components/charts/StorePIComparisonChart.tsx
 - presentation/components/charts/WeatherAnalysisPanel.tsx
 - presentation/components/charts/YoYChart.tsx
 - presentation/components/widgets/PageWidgetContainer.tsx
@@ -62,6 +64,7 @@
 - application/queries/cts/HourlyAggregationHandler.ts
 - application/queries/cts/LevelAggregationHandler.ts
 - application/queries/cts/StoreAggregationHandler.ts
+- application/queries/cts/StoreCategoryPIHandler.ts
 - application/queries/dailyRecords/DailyRecordsHandler.ts
 - application/queries/dept/DeptKpiTrendHandler.ts
 - application/queries/features/DailyFeaturesHandler.ts
