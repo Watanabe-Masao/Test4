@@ -65,7 +65,7 @@ describe('getTool2Insight', () => {
   })
 
   it('negative: 必要粗利率が現在の5%超', () => {
-    const result = getTool2Insight({ requiredRemainingGPRate2: 0.30, actualGPRate: 0.25 })
+    const result = getTool2Insight({ requiredRemainingGPRate2: 0.3, actualGPRate: 0.25 })
     expect(result.level).toBe('negative')
   })
 })
