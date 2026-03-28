@@ -467,8 +467,8 @@ export const TimeSlotChartView = memo(function TimeSlotChartView({
               }}
             />
           </motion.div>
-        )
-      }</AnimatePresence>
+        )}
+      </AnimatePresence>
 
       {insights.length > 0 && (
         <InsightBar>
