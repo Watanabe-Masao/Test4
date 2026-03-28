@@ -10,6 +10,14 @@
  * - buildStoreCostRateMap (間接)
  */
 import { describe, it, expect, vi } from 'vitest'
+
+// IndexedDB ノイズ抑制: DatasetRegistry のハッシュ登録を無効化
+vi.mock('@/infrastructure/storage/datasetRegistry', () => ({
+  datasetRegistry: {
+    updateFileHash: vi.fn().mockResolvedValue(undefined),
+    isDuplicate: vi.fn().mockResolvedValue(false),
+  },
+}))
 import {
   processFileData,
   processDroppedFiles,
@@ -110,8 +118,7 @@ describe('processFileData — departmentKpi', () => {
 // ── processFileData: categoryTimeSales ────────────────────────────
 
 describe('processFileData — categoryTimeSales', () => {
-  it('categoryTimeSales データを処理する', () => {
-    // categoryTimeSales は 3 行スキップ後に日付を検出する
+  it('categoryTimeSales データを処理し warnings を返す', () => {
     const rows = [
       ['ヘッダー1'],
       ['ヘッダー2'],
@@ -144,41 +151,39 @@ describe('processFileData — categoryTimeSales', () => {
         '',
       ],
     ]
-    // この形式はプロセッサによって変わるため、エラーが出ないことを確認する
-    expect(() =>
-      processFileData(
-        'categoryTimeSales',
-        rows,
-        'category_time.csv',
-        createEmptyImportedData(),
-        DEFAULT_SETTINGS,
-      ),
-    ).not.toThrow()
+    const result = processFileData(
+      'categoryTimeSales',
+      rows,
+      'category_time.csv',
+      createEmptyImportedData(),
+      DEFAULT_SETTINGS,
+    )
+    // data が返り、stores が Map であること
+    expect(result.data).toBeDefined()
+    expect(result.data.stores).toBeInstanceOf(Map)
   })
 })
 
 // ── processFileData: 警告生成 (checkProcessorResult) ──────────────
 
 describe('processFileData — 警告生成', () => {
-  it('データが0件のとき警告を返す（ヘッダ形式不正の可能性）', () => {
-    // ヘッダは正しいが年月が不明なため budget が0件になるケースをシミュレート
+  it('不正データで処理しても data と warnings を返す', () => {
     const validRows = [
       ['コード', '日付', '金額'],
       ['INVALID_STORE', 'NOT_A_DATE', 'NaN'],
       ['INVALID_STORE', 'NOT_A_DATE', 'NaN'],
     ]
 
-    // budget の場合は processFileData が警告なしで返すこともある
-    // 代わりに processFileData を呼び出してエラーなしで完了することを確認
-    expect(() =>
-      processFileData(
-        'budget',
-        validRows,
-        'budget.csv',
-        createEmptyImportedData(),
-        DEFAULT_SETTINGS,
-      ),
-    ).not.toThrow()
+    const result = processFileData(
+      'budget',
+      validRows,
+      'budget.csv',
+      createEmptyImportedData(),
+      DEFAULT_SETTINGS,
+    )
+    // エラーにならず data を返すこと
+    expect(result.data).toBeDefined()
+    expect(result.data.stores).toBeInstanceOf(Map)
   })
 })
 
@@ -190,8 +195,10 @@ describe('processDroppedFiles', () => {
     expect(result.summary.results).toHaveLength(0)
     expect(result.summary.successCount).toBe(0)
     expect(result.summary.failureCount).toBe(0)
-    expect(result.data).toBeDefined()
-    expect(result.monthPartitions).toBeDefined()
+    // data は空の ImportedData 構造であること
+    expect(result.data.stores.size).toBe(0)
+    // monthPartitions は空オブジェクトであること
+    expect(result.monthPartitions).toEqual(expect.objectContaining({ purchase: {} }))
   })
 
   it('parseFile で正常にファイルを処理できる', async () => {

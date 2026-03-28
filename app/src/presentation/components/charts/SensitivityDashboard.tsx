@@ -1,7 +1,10 @@
 import { useState, useCallback, useMemo, memo } from 'react'
+import styled from 'styled-components'
 import { toPct, toComma, toManYen } from './chartTheme'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
+import { SimulationInsightBanner } from '@/presentation/pages/Dashboard/widgets/SimulationInsightBanner'
+import { getSensitivityInsight } from '@/presentation/pages/Dashboard/widgets/simulationInsight'
 import { CHART_GUIDES } from './chartGuides'
 import { ChartCard } from './ChartCard'
 import { safeDivide, calculateShare } from '@/domain/calculations/utils'
@@ -276,8 +279,16 @@ export const SensitivityDashboard = memo(function SensitivityDashboard({ result 
         </SliderSection>
 
         <ResultSection>
+          <SimulationInsightBanner
+            {...getSensitivityInsight({
+              grossProfitDelta: sensitivity.grossProfitDelta,
+              budgetAchievementDelta: sensitivity.budgetAchievementDelta,
+            })}
+          />
+
+          {/* カード A: 粗利インパクト（粗利額 + 粗利率を統合） */}
           <ResultCard $color={sc.positive}>
-            <ResultLabel>粗利額</ResultLabel>
+            <ResultLabel>粗利インパクト</ResultLabel>
             <ResultRow>
               <ResultValue>{toManYen(sensitivity.simulatedGrossProfit)}</ResultValue>
               <ResultDelta
@@ -287,42 +298,34 @@ export const SensitivityDashboard = memo(function SensitivityDashboard({ result 
                 {fmtDelta(sensitivity.grossProfitDelta)}
               </ResultDelta>
             </ResultRow>
+            <ResultSubRow>
+              <ResultSubLabel>粗利率</ResultSubLabel>
+              <ResultSubValue>
+                {toPct(sensitivity.simulatedGrossProfitRate)}
+                <ResultDelta
+                  $positive={
+                    sensitivity.simulatedGrossProfitRate >= sensitivity.baseGrossProfitRate
+                  }
+                  $isZero={sensitivity.simulatedGrossProfitRate === sensitivity.baseGrossProfitRate}
+                >
+                  {sensitivity.simulatedGrossProfitRate - sensitivity.baseGrossProfitRate >= 0
+                    ? '+'
+                    : ''}
+                  {toPct(sensitivity.simulatedGrossProfitRate - sensitivity.baseGrossProfitRate)}
+                </ResultDelta>
+              </ResultSubValue>
+            </ResultSubRow>
             {!isAllZero && (
               <Formula>
                 粗売上 {toManYen(simValues.simGrossSales)} − 原価 {toManYen(simValues.simCost)} −
                 売変 {toManYen(simValues.simDiscount)} − 消耗品 {toManYen(simValues.simConsumable)}
-                <br />= {toManYen(sensitivity.simulatedGrossProfit)}（現在{' '}
-                {toManYen(sensitivity.baseGrossProfit)} → 差{' '}
-                {fmtDelta(sensitivity.grossProfitDelta)}）
               </Formula>
             )}
           </ResultCard>
 
+          {/* カード B: 売上シミュレーション（月間売上 + 着地予測を統合） */}
           <ResultCard $color={palette.primary}>
-            <ResultLabel>粗利率</ResultLabel>
-            <ResultRow>
-              <ResultValue>{toPct(sensitivity.simulatedGrossProfitRate)}</ResultValue>
-              <ResultDelta
-                $positive={sensitivity.simulatedGrossProfitRate >= sensitivity.baseGrossProfitRate}
-                $isZero={sensitivity.simulatedGrossProfitRate === sensitivity.baseGrossProfitRate}
-              >
-                {sensitivity.simulatedGrossProfitRate - sensitivity.baseGrossProfitRate >= 0
-                  ? '+'
-                  : ''}
-                {toPct(sensitivity.simulatedGrossProfitRate - sensitivity.baseGrossProfitRate)}
-              </ResultDelta>
-            </ResultRow>
-            {!isAllZero && (
-              <Formula>
-                粗利 {toManYen(sensitivity.simulatedGrossProfit)} ÷ 売上{' '}
-                {toManYen(sensitivity.simulatedSales)}（現在{' '}
-                {toPct(sensitivity.baseGrossProfitRate)}）
-              </Formula>
-            )}
-          </ResultCard>
-
-          <ResultCard $color={palette.blueDark}>
-            <ResultLabel>月間売上</ResultLabel>
+            <ResultLabel>売上シミュレーション</ResultLabel>
             <ResultRow>
               <ResultValue>{toManYen(sensitivity.simulatedSales)}</ResultValue>
               <ResultDelta
@@ -332,27 +335,27 @@ export const SensitivityDashboard = memo(function SensitivityDashboard({ result 
                 {fmtDelta(sensitivity.salesDelta)}
               </ResultDelta>
             </ResultRow>
+            <ResultSubRow>
+              <ResultSubLabel>着地予測</ResultSubLabel>
+              <ResultSubValue>
+                {toManYen(sensitivity.simulatedProjectedSales)}
+                <ResultDelta
+                  $positive={sensitivity.projectedSalesDelta >= 0}
+                  $isZero={sensitivity.projectedSalesDelta === 0}
+                >
+                  {fmtDelta(sensitivity.projectedSalesDelta)}
+                </ResultDelta>
+              </ResultSubValue>
+            </ResultSubRow>
             {!isAllZero && (
               <Formula>
                 客数 {toComma(Math.round(simValues.simCustomers))}人 × 客単価{' '}
-                {toComma(Math.round(simValues.simTxValue))}円（現在 {toManYen(base.totalSales)}）
+                {toComma(Math.round(simValues.simTxValue))}円
               </Formula>
             )}
           </ResultCard>
 
-          <ResultCard $color={palette.purpleDark}>
-            <ResultLabel>着地予測</ResultLabel>
-            <ResultRow>
-              <ResultValue>{toManYen(sensitivity.simulatedProjectedSales)}</ResultValue>
-              <ResultDelta
-                $positive={sensitivity.projectedSalesDelta >= 0}
-                $isZero={sensitivity.projectedSalesDelta === 0}
-              >
-                {fmtDelta(sensitivity.projectedSalesDelta)}
-              </ResultDelta>
-            </ResultRow>
-          </ResultCard>
-
+          {/* カード C: 予算達成率変化（単独維持） */}
           <ResultCard $color={palette.warningDark}>
             <ResultLabel>予算達成率変化</ResultLabel>
             <ResultRow>
@@ -451,3 +454,30 @@ export const SensitivityDashboard = memo(function SensitivityDashboard({ result 
     </ChartCard>
   )
 })
+
+// ── 統合カード用の副行スタイル ──
+
+const ResultSubRow = styled.div`
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: ${({ theme }) => theme.spacing[2]};
+  margin-top: ${({ theme }) => theme.spacing[1]};
+  padding-top: ${({ theme }) => theme.spacing[1]};
+  border-top: 1px dashed ${({ theme }) => theme.colors.border};
+`
+
+const ResultSubLabel = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
+  color: ${({ theme }) => theme.colors.text3};
+`
+
+const ResultSubValue = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  color: ${({ theme }) => theme.colors.text2};
+  display: flex;
+  align-items: baseline;
+  gap: ${({ theme }) => theme.spacing[2]};
+`
