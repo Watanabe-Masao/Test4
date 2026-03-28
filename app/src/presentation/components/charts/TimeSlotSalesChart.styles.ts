@@ -40,19 +40,27 @@ export const TabGroup = styled.div`
   padding: 2px;
 `
 
+export const TabWrapper = styled.div`
+  position: relative;
+  border-radius: ${({ theme }) => theme.radii.sm};
+
+  .tab-indicator {
+    background: ${({ theme }) => theme.colors.palette.primary};
+    box-shadow: 0 1px 4px ${({ theme }) => theme.colors.palette.primary}40;
+  }
+`
+
 export const Tab = styled.button<{ $active: boolean }>`
   all: unset;
   cursor: pointer;
+  position: relative;
+  z-index: 1;
   font-size: 0.65rem;
   padding: 2px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.white : theme.colors.text3)};
-  background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
-  transition:
-    color 0.25s ease,
-    background 0.25s ease,
-    box-shadow 0.25s ease;
-  ${({ $active, theme }) => $active && `box-shadow: 0 1px 4px ${theme.colors.palette.primary}40;`}
+  background: transparent;
+  transition: color 0.15s ease;
   white-space: nowrap;
   &:hover {
     opacity: 0.85;

@@ -4,10 +4,14 @@
  * Track（凹みコンテナ）+ Thumb（浮き上がりインジケータ）で
  * 静かで上品な切替を実現する。チャートのビュー切替に使用。
  *
+ * motion.div の layoutId でアクティブインジケータがスムーズにスライドする。
+ * prefers-reduced-motion 時は即時切替にフォールバック。
+ *
  * アクセシビリティ: role="radiogroup" + 矢印キーナビゲーション
  */
 import { useCallback, useRef } from 'react'
-import { Track, Segment } from './SegmentedControl.styles'
+import { motion } from 'framer-motion'
+import { Track, Segment, SegmentWrapper } from './SegmentedControl.styles'
 
 export interface SegmentOption<T extends string> {
   readonly value: T
@@ -20,6 +24,8 @@ interface SegmentedControlProps<T extends string> {
   readonly onChange: (value: T) => void
   readonly size?: 'sm' | 'md'
   readonly ariaLabel?: string
+  /** layoutId のプレフィックス（同一画面に複数ある場合に一意化） */
+  readonly layoutId?: string
 }
 
 export function SegmentedControl<T extends string>({
@@ -28,8 +34,11 @@ export function SegmentedControl<T extends string>({
   onChange,
   size = 'sm',
   ariaLabel,
+  layoutId = 'seg',
 }: SegmentedControlProps<T>) {
   const trackRef = useRef<HTMLDivElement>(null)
+  const prefersReduced =
+    typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -63,18 +72,34 @@ export function SegmentedControl<T extends string>({
       {options.map((opt) => {
         const isActive = opt.value === value
         return (
-          <Segment
-            key={opt.value}
-            $active={isActive}
-            $size={size}
-            role="radio"
-            aria-checked={isActive}
-            tabIndex={isActive ? 0 : -1}
-            onClick={() => onChange(opt.value)}
-            onKeyDown={handleKeyDown}
-          >
-            {opt.label}
-          </Segment>
+          <SegmentWrapper key={opt.value}>
+            {isActive && (
+              <motion.div
+                layoutId={layoutId}
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  borderRadius: 'inherit',
+                  zIndex: 0,
+                }}
+                className="seg-indicator"
+                transition={
+                  prefersReduced ? { duration: 0 } : { type: 'spring', stiffness: 500, damping: 35 }
+                }
+              />
+            )}
+            <Segment
+              $active={isActive}
+              $size={size}
+              role="radio"
+              aria-checked={isActive}
+              tabIndex={isActive ? 0 : -1}
+              onClick={() => onChange(opt.value)}
+              onKeyDown={handleKeyDown}
+            >
+              {opt.label}
+            </Segment>
+          </SegmentWrapper>
         )
       })}
     </Track>

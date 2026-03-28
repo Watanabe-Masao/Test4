@@ -324,6 +324,8 @@ describe('デザインシステムガード', () => {
     'presentation/components/charts/DiscountAnalysisPanel.tsx',
     'presentation/components/charts/WeatherAnalysisPanel.tsx',
     'presentation/components/charts/CategoryHeatmapPanel.tsx',
+    // IntegratedSalesChart のサブタブコンテンツ（AnimatePresence ラッパー）
+    'presentation/components/charts/IntegratedSalesSubTabs.tsx',
     // カテゴリ×時間帯ヒートマップ（TimeSlotChart のサブコンポーネント、親が ChartCard を提供）
     'presentation/components/charts/CategoryTimeHeatmap.tsx',
     // TimeSlotChart の View コンポーネント（Controller が ChartCard を提供）
