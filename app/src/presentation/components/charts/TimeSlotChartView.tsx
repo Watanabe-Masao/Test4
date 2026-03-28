@@ -7,6 +7,7 @@
  * Props は完全に ViewModel — weatherCode 等のドメイン値を含まない。
  */
 import { memo, useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { toPct } from './chartTheme'
@@ -421,36 +422,53 @@ export const TimeSlotChartView = memo(function TimeSlotChartView({
         )}
       </div>
 
-      {detailView === 'table' ? (
-        <TimeSlotComparisonTable
-          chartData={chartData}
-          curLabel={curLabel}
-          compLabel={compLabel}
-          hasPrev={hasPrev}
-          metric={heatmapMetric}
-          gridLeft={GRID_LEFT}
-          gridRight={GRID_RIGHT}
-        />
-      ) : (
-        <CategoryTimeHeatmap
-          data={categoryHourlyData}
-          prevData={prevCategoryHourlyData}
-          metric={heatmapMetric}
-          showYoY={showHeatmapYoY}
-          gridLeft={80}
-          gridRight={GRID_RIGHT}
-          onCategoryClick={(code) => {
-            // 部門クリック → 部門コードを設定してライン展開
-            if (!deptCode || deptCode === '') {
-              onDeptCodeChange(code)
-            } else if (!lineCode || lineCode === '') {
-              onLineCodeChange(code)
-            } else {
-              onKlassCodeChange(code)
-            }
-          }}
-        />
-      )}
+      <AnimatePresence mode="wait">
+        {detailView === 'table' ? (
+          <motion.div
+            key="detail-table"
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.15 }}
+          >
+            <TimeSlotComparisonTable
+              chartData={chartData}
+              curLabel={curLabel}
+              compLabel={compLabel}
+              hasPrev={hasPrev}
+              metric={heatmapMetric}
+              gridLeft={GRID_LEFT}
+              gridRight={GRID_RIGHT}
+            />
+          </motion.div>
+        ) : (
+          <motion.div
+            key={`detail-heatmap-${deptCode}-${lineCode}`}
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.15 }}
+          >
+            <CategoryTimeHeatmap
+              data={categoryHourlyData}
+              prevData={prevCategoryHourlyData}
+              metric={heatmapMetric}
+              showYoY={showHeatmapYoY}
+              gridLeft={80}
+              gridRight={GRID_RIGHT}
+              onCategoryClick={(code) => {
+                if (!deptCode || deptCode === '') {
+                  onDeptCodeChange(code)
+                } else if (!lineCode || lineCode === '') {
+                  onLineCodeChange(code)
+                } else {
+                  onKlassCodeChange(code)
+                }
+              }}
+            />
+          </motion.div>
+        )
+      }</AnimatePresence>
 
       {insights.length > 0 && (
         <InsightBar>
