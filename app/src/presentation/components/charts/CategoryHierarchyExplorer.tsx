@@ -9,6 +9,7 @@
  * @migration P5: useQueryWithHandler 経由に移行済み（旧: useDuckDBLevelAggregation + useDuckDBCategoryHourly 直接 import）
  */
 import { Fragment, memo, useMemo, useState, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
@@ -388,18 +389,38 @@ export const CategoryHierarchyExplorer = memo(function CategoryHierarchyExplorer
         )}
       </HeaderRow>
       <BreadcrumbBar>
-        {breadcrumb.map((bc, i) => (
-          <Fragment key={i}>
-            {i > 0 && <BreadcrumbSep>▸</BreadcrumbSep>}
-            <BreadcrumbItem
-              $active={i === breadcrumb.length - 1}
-              onClick={() => setFilter(bc.filter)}
+        <AnimatePresence mode="popLayout">
+          {breadcrumb.map((bc, i) => (
+            <Fragment key={bc.label}>
+              {i > 0 && <BreadcrumbSep>▸</BreadcrumbSep>}
+              <motion.span
+                layout
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 8 }}
+                transition={{ duration: 0.15 }}
+              >
+                <BreadcrumbItem
+                  $active={i === breadcrumb.length - 1}
+                  onClick={() => setFilter(bc.filter)}
+                >
+                  {bc.label}
+                </BreadcrumbItem>
+              </motion.span>
+            </Fragment>
+          ))}
+          {filter.departmentCode && (
+            <motion.span
+              key="reset"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.12 }}
             >
-              {bc.label}
-            </BreadcrumbItem>
-          </Fragment>
-        ))}
-        {filter.departmentCode && <ResetBtn onClick={() => setFilter({})}>リセット</ResetBtn>}
+              <ResetBtn onClick={() => setFilter({})}>リセット</ResetBtn>
+            </motion.span>
+          )}
+        </AnimatePresence>
       </BreadcrumbBar>
       <SummaryBar>
         <SummaryItem>
@@ -435,21 +456,31 @@ export const CategoryHierarchyExplorer = memo(function CategoryHierarchyExplorer
         )}
       </SummaryBar>
 
-      <CategoryExplorerTable
-        items={items}
-        sortedItems={sortedItems}
-        currentLevel={currentLevel}
-        levelLabels={levelLabels}
-        sortKey={sortKey}
-        sortDir={sortDir}
-        handleSort={handleSort}
-        handleDrill={handleDrill}
-        showYoYCols={showYoYCols}
-        showPi={showPi}
-        avgPi={avgPi}
-        maxAmt={maxAmt}
-        canDrill={canDrill}
-      />
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={currentLevel + (filter.departmentCode ?? '') + (filter.lineCode ?? '')}
+          initial={{ opacity: 0, y: 4 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -4 }}
+          transition={{ duration: 0.15 }}
+        >
+          <CategoryExplorerTable
+            items={items}
+            sortedItems={sortedItems}
+            currentLevel={currentLevel}
+            levelLabels={levelLabels}
+            sortKey={sortKey}
+            sortDir={sortDir}
+            handleSort={handleSort}
+            handleDrill={handleDrill}
+            showYoYCols={showYoYCols}
+            showPi={showPi}
+            avgPi={avgPi}
+            maxAmt={maxAmt}
+            canDrill={canDrill}
+          />
+        </motion.div>
+      </AnimatePresence>
     </Wrapper>
   )
 })

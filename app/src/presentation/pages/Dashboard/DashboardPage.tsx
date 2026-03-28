@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, memo, type ReactNode } from 'react'
+import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { MainContent } from '@/presentation/components/Layout'
 import { ChartErrorBoundary, PageSkeleton } from '@/presentation/components/common/feedback'
@@ -74,7 +75,21 @@ const LazyWidget = memo(function LazyWidget({ children }: { children: ReactNode 
     freezeOnceVisible: true,
   })
 
-  return <div ref={ref}>{hasBeenVisible ? children : <div style={{ minHeight: 300 }} />}</div>
+  return (
+    <div ref={ref}>
+      {hasBeenVisible ? (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.2, ease: 'easeOut' }}
+        >
+          {children}
+        </motion.div>
+      ) : (
+        <div style={{ minHeight: 300 }} />
+      )}
+    </div>
+  )
 })
 
 // ─── Main Dashboard ──────────────────────────────────────
