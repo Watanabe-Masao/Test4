@@ -37,6 +37,8 @@ interface Props {
   embedded?: boolean
   /** 日付クリック → カテゴリ別売変ドリルダウン */
   onDayClick?: (day: number) => void
+  /** 範囲ドラッグ選択 */
+  onDayRangeSelect?: (startDay: number, endDay: number) => void
   /** 種別フィルター変更を親に通知（null = 全種別） */
   onFilterChange?: (discountType: string | null) => void
 }
@@ -111,6 +113,7 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
   prevYearDaily,
   embedded,
   onDayClick,
+  onDayRangeSelect,
   onFilterChange,
 }: Props) {
   const theme = useTheme() as AppTheme
@@ -304,7 +307,24 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
       )}
 
       <EChart
-        option={option}
+        option={
+          onDayRangeSelect
+            ? {
+                ...option,
+                brush: {
+                  toolbox: [],
+                  xAxisIndex: 0,
+                  brushStyle: {
+                    borderWidth: 1,
+                    color: 'rgba(59,130,246,0.15)',
+                    borderColor: 'rgba(59,130,246,0.5)',
+                  },
+                  throttleType: 'debounce' as const,
+                  throttleDelay: 300,
+                },
+              }
+            : option
+        }
         height={280}
         onClick={
           onDayClick
@@ -314,6 +334,17 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
               }
             : undefined
         }
+        onBrushEnd={
+          onDayRangeSelect
+            ? (params: Record<string, unknown>) => {
+                const areas = (params as { areas?: { coordRange?: number[] }[] }).areas
+                if (!areas?.[0]?.coordRange) return
+                const [start, end] = areas[0].coordRange
+                onDayRangeSelect(Math.min(start, end) + 1, Math.max(start, end) + 1)
+              }
+            : undefined
+        }
+        enableBrushClickEmulation={!!onDayRangeSelect}
         ariaLabel="売変推移チャート"
       />
     </>

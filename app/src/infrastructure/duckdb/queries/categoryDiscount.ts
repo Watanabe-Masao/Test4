@@ -37,6 +37,8 @@ interface CategoryDiscountParams {
   readonly storeIds?: readonly string[]
   readonly level: 'department' | 'line' | 'klass'
   readonly isPrevYear?: boolean
+  /** 親カテゴリでフィルタ（ドリルダウン用） */
+  readonly parentFilter?: { readonly column: string; readonly value: string }
 }
 
 function levelColumns(level: 'department' | 'line' | 'klass'): {
@@ -65,6 +67,9 @@ export async function queryCategoryDiscount(
     { type: 'storeIds', storeIds: params.storeIds },
   ]
   const where = buildTypedWhere(conditions)
+  const parentWhere = params.parentFilter
+    ? ` AND ${params.parentFilter.column} = '${params.parentFilter.value.replace(/'/g, "''")}'`
+    : ''
   const sql = `
     SELECT
       ${col.code} AS code,
@@ -76,7 +81,7 @@ export async function queryCategoryDiscount(
       COALESCE(SUM(discount_74), 0) AS discount_74,
       COALESCE(SUM(discount_71) + SUM(discount_72) + SUM(discount_73) + SUM(discount_74), 0) AS discount_total
     FROM classified_sales
-    ${where}
+    ${where}${parentWhere}
     GROUP BY ${col.code}, ${col.name}
     ORDER BY discount_total DESC`
   return queryToObjects<CategoryDiscountRow>(conn, sql)
