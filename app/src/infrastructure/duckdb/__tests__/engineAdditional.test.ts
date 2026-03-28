@@ -11,6 +11,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 vi.mock('@duckdb/duckdb-wasm', () => {
   class MockConsoleLogger {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     constructor(_?: unknown) {}
   }
   class MockVoidLogger {}
