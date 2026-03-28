@@ -1,4 +1,4 @@
-# 品質チェックレポート（2026-03-07）
+# 品質チェックレポート（2026-03-28 更新）
 
 ## 実施環境
 
@@ -22,8 +22,8 @@
 
 | 指標 | 2026-02-21 | 2026-03-07 | 変化 |
 |---|---|---|---|
-| テストファイル数 | 66 | **171** | +105 (+159%) |
-| テスト数 | 616 | **3,121** | +2,505 (+407%) |
+| テストファイル数 | 66 | **250** | +184 (+279%) |
+| テスト数 | 616 | **4,659** | +4,043 (+656%) |
 | Lint エラー | 0 | **0** | 維持 |
 | Lint 警告 | 33 | **15** | -18 (-55%) |
 | MetricId 数 | 不明 | **81** | — |
@@ -63,7 +63,7 @@ co-export しているため、React Fast Refresh が効かないケース。
 | `duckdb/dataLoader.ts` | 690 | DuckDB データロード |
 | `charts/DuckDBCategoryBenchmarkChart.tsx` | 666 | カテゴリベンチマーク |
 | `charts/DuckDBTimeSlotChart.tsx` | 655 | 時間帯チャート |
-| `import/FileImportService.ts` | 632 | ファイルインポート |
+| ~~`import/FileImportService.ts`~~ | ~~632~~ → 194 | **解決済み**（ImportOrchestrator 抽出等で縮小） |
 | `charts/TimeSlotSalesChart.tsx` | 614 | 時間帯売上 |
 | `DayDetailModal.styles.ts` | 605 | スタイル定義 |
 | `Category/CategoryTotalView.tsx` | 602 | カテゴリ全体ビュー |
@@ -90,20 +90,8 @@ co-export しているため、React Fast Refresh が効かないケース。
 
 ## 現在の課題（`open-issues.md` と同期）
 
-### High
-
-| # | 課題 |
-|---|---|
-| C-1 | `hash.ts` の配置ミス（Infrastructure→Application 逆依存） |
-| C-2 | MetricId レジストリの数値不整合（コード: 81、ドキュメント: 50） |
-
-### Medium
-
-| # | 課題 |
-|---|---|
-| C-3 | CSV ロジック二重実装（パリティテスト未作成） |
-| C-4 | サイレントエラー握り潰し（8箇所以上） |
-| C-5 | api.md の Hook 構成が古い |
+> 2026-03-28 時点: C-1〜C-5 はすべて **解決済み**（`open-issues.md` 参照）。
+> 現在の対応必要な課題はなし。将来リスクとして R-10（DualPeriodSlider 廃止検討）が High で残存。
 
 ## 前回の高優先度項目の解消状況
 
@@ -119,7 +107,7 @@ co-export しているため、React Fast Refresh が効かないケース。
 
 ## 総評
 
-- テスト数が **5倍** に増加し、品質基盤が大幅に強化された
+- テスト数が **7.5倍** に増加し（616→4,659）、品質基盤が大幅に強化された
 - 前回の高優先度バグ6件はすべて解消済み
 - Lint 警告は 33→15 に半減。残りはすべて Fast Refresh 関連で機能影響なし
 - 肥大化ファイルは 1,000行超が 4→1 に改善。500行超は依然として 19 ファイル存在
