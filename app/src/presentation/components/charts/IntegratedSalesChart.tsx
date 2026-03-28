@@ -168,16 +168,24 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
           (prevDate.getTime() - prevFrom.getTime()) / (24 * 60 * 60 * 1000),
         )
         const targetDay = curFromDay + elapsed
-        prev.set(targetDay, (prev.get(targetDay) ?? 0) + r.dailyQuantity)
+        if (targetDay >= 1 && targetDay <= props.daysInMonth) {
+          prev.set(targetDay, (prev.get(targetDay) ?? 0) + r.dailyQuantity)
+        }
       }
     }
     return { current, prev }
-  }, [curQtyOut, prevQtyOut, prevYearDateRange, props.currentDateRange])
+  }, [curQtyOut, prevQtyOut, prevYearDateRange, props.currentDateRange, props.daysInMonth])
 
   const handleDayClick = useCallback((day: number) => {
-    setClickedDay((prev) => (prev === day ? null : day))
-    setDrillEnd(null) // シングルクリック = 単日
-    setSubTab('drilldown')
+    setClickedDay((prev) => {
+      if (prev === day) {
+        setSubTab('trend')
+        return null
+      }
+      setSubTab('drilldown')
+      return day
+    })
+    setDrillEnd(null)
   }, [])
 
   const handleDayRangeSelect = useCallback(
@@ -316,7 +324,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
     props.selectedStoreIds,
     props.prevYearScope,
     RIGHT_AXIS_MA_METRIC[rightAxisMode] ?? null,
-    showMovingAverage,
+    showMovingAverage && dailyView === 'standard',
   )
 
   // ── 表示用ラベル ──
