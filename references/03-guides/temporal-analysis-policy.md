@@ -106,6 +106,9 @@
 4. buildDailySeries(plan, sourceRows, metric) → 連続日次系列
 5. computeMovingAverage(series, windowSize, policy) → MA 計算
 6. sliceToAnchorRange → anchorRange に切り戻し
+7. extraMetrics（客数・点数・売変等）は同じ sourceRows から追加 MA を計算
+   - extraMetrics は常に `'partial'` policy を使用（special_sales LEFT JOIN 等のデータ欠損に対応）
+   - primary metric（sales）の policy とは独立
 ```
 
 ## ディレクトリ配置
