@@ -2,14 +2,15 @@
  * DiscountAnalysisPanel — 売変選択時の売変内訳分析パネル
  *
  * 日別売変推移（DiscountTrendChart）+ カテゴリ別売変分析（CategoryDiscountChart）。
- * 日別チャートの日付クリックでカテゴリ別にドリルダウン。
+ * 日別チャートの日付クリックまたは範囲ドラッグでカテゴリ別にドリルダウン。
  */
-import { memo, useState, useCallback } from 'react'
+import { memo, useState, useCallback, useMemo } from 'react'
 import type { DailyRecord } from '@/domain/models/record'
 import type { DiscountEntry } from '@/domain/models/record'
 import type { DuckQueryContext } from './SubAnalysisPanel'
 import { DiscountTrendChart } from './DiscountTrendChart'
 import { CategoryDiscountChart } from './CategoryDiscountChart'
+import { useDrillDateRange } from '@/application/hooks/useDrillDateRange'
 
 interface Props {
   readonly ctx: DuckQueryContext
@@ -35,16 +36,34 @@ export const DiscountAnalysisPanel = memo(function DiscountAnalysisPanel({
   totalGrossSales,
   prevYearDaily,
 }: Props) {
-  const [drillDay, setDrillDay] = useState<number | null>(null)
+  const [drillRange, setDrillRange] = useState<{ start: number; end: number } | null>(null)
+  const [discountFilter, setDiscountFilter] = useState<string | null>(null)
 
   const handleDayClick = useCallback((day: number) => {
-    setDrillDay((prev) => (prev === day ? null : day))
+    setDrillRange((prev) =>
+      prev?.start === day && prev?.end === day ? null : { start: day, end: day },
+    )
   }, [])
 
-  const drillDateRange =
-    drillDay != null
-      ? { from: { year, month, day: drillDay }, to: { year, month, day: drillDay } }
-      : ctx.currentDateRange
+  const handleDayRangeSelect = useCallback((startDay: number, endDay: number) => {
+    setDrillRange({ start: startDay, end: endDay })
+  }, [])
+
+  const { dateRange: drillDateRange, prevYearScope: drillPrevYearScope } = useDrillDateRange(
+    drillRange,
+    year,
+    month,
+    ctx.prevYearScope,
+  )
+
+  const effectiveDateRange = drillDateRange ?? ctx.currentDateRange
+  const effectivePrevYearScope = drillPrevYearScope ?? ctx.prevYearScope
+
+  const dateLabel = useMemo(() => {
+    if (!drillRange) return undefined
+    if (drillRange.start === drillRange.end) return `${month}月${drillRange.start}日`
+    return `${month}月${drillRange.start}〜${drillRange.end}日`
+  }, [drillRange, month])
 
   return (
     <>
@@ -58,12 +77,16 @@ export const DiscountAnalysisPanel = memo(function DiscountAnalysisPanel({
         prevYearDaily={prevYearDaily}
         embedded
         onDayClick={handleDayClick}
+        onDayRangeSelect={handleDayRangeSelect}
+        onFilterChange={setDiscountFilter}
       />
       <CategoryDiscountChart
         queryExecutor={ctx.queryExecutor}
-        currentDateRange={drillDateRange}
+        currentDateRange={effectiveDateRange}
         selectedStoreIds={ctx.selectedStoreIds}
-        dateLabel={drillDay != null ? `${month}月${drillDay}日` : undefined}
+        prevYearScope={effectivePrevYearScope}
+        dateLabel={dateLabel}
+        discountTypeFilter={discountFilter}
       />
     </>
   )

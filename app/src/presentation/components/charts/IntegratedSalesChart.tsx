@@ -20,6 +20,7 @@ import type { QueryExecutor } from '@/application/queries/QueryPort'
 import type { WeatherPersister } from '@/application/queries/weather'
 import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
 import { useMultiMovingAverage } from '@/application/hooks/useMultiMovingAverage'
+import { alignPrevYearDay } from '@/application/services/temporal/prevYearAlignment'
 import {
   dailyQuantityHandler,
   type DailyQuantityInput,
@@ -152,32 +153,27 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
     }
     const prev = new Map<number, number>()
     if (prevQtyOut && prevYearDateRange) {
-      // 前年 dateKey → 当期の日番号にマッピング
-      // prevYearDateRange.from と currentDateRange.from の対応を使い、
-      // 前年日付の経過日数を当期の日番号に変換する（同曜日比較時の日ずれ対応）
-      const prevFrom = new Date(
-        prevYearDateRange.from.year,
-        prevYearDateRange.from.month - 1,
-        prevYearDateRange.from.day,
-      )
       const curFromDay = props.currentDateRange.from.day
       for (const r of prevQtyOut.records) {
-        const [y, m, d] = r.dateKey.split('-').map(Number)
-        const prevDate = new Date(y, m - 1, d)
-        const elapsed = Math.round(
-          (prevDate.getTime() - prevFrom.getTime()) / (24 * 60 * 60 * 1000),
-        )
-        const targetDay = curFromDay + elapsed
-        prev.set(targetDay, (prev.get(targetDay) ?? 0) + r.dailyQuantity)
+        const targetDay = alignPrevYearDay(r.dateKey, prevYearDateRange.from, curFromDay)
+        if (targetDay >= 1 && targetDay <= props.daysInMonth) {
+          prev.set(targetDay, (prev.get(targetDay) ?? 0) + r.dailyQuantity)
+        }
       }
     }
     return { current, prev }
-  }, [curQtyOut, prevQtyOut, prevYearDateRange, props.currentDateRange])
+  }, [curQtyOut, prevQtyOut, prevYearDateRange, props.currentDateRange, props.daysInMonth])
 
   const handleDayClick = useCallback((day: number) => {
-    setClickedDay((prev) => (prev === day ? null : day))
-    setDrillEnd(null) // シングルクリック = 単日
-    setSubTab('drilldown')
+    setClickedDay((prev) => {
+      if (prev === day) {
+        setSubTab('trend')
+        return null
+      }
+      setSubTab('drilldown')
+      return day
+    })
+    setDrillEnd(null)
   }, [])
 
   const handleDayRangeSelect = useCallback(
@@ -263,8 +259,11 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
     props.month,
     props.prevYearScope,
   )
-  const drillDateRange = drillTabDateRange ?? props.currentDateRange
-  const drillPrevYearScope = drillTabPrevYearScope ?? props.prevYearScope
+  // カテゴリ分析 + ドリルダウン分析の共通スコープ（日クリック/範囲選択時は絞り込み、なければ全期間）
+  const analysisContext = useMemo(() => {
+    if (!drillTabDateRange) return parentContext
+    return deriveChildContext(parentContext, drillTabDateRange, drillTabPrevYearScope ?? undefined)
+  }, [parentContext, drillTabDateRange, drillTabPrevYearScope])
 
   // AnalysisNodeContext（ノード階層モデル）
   const dailyNode = useMemo(
@@ -298,9 +297,6 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
   )
   void deptPatternNode
 
-  // SubAnalysisPanel 用の文脈（ドリル時は drill 範囲、未ドリル時は親）
-  const subPanelContext = drillContext ?? parentContext
-
   // ── 移動平均 overlay（売上 + 右軸指標 × 当年/前年） ──
   const [showMovingAverage, setShowMovingAverage] = useState(true)
   const RIGHT_AXIS_MA_METRIC: Partial<
@@ -316,7 +312,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
     props.selectedStoreIds,
     props.prevYearScope,
     RIGHT_AXIS_MA_METRIC[rightAxisMode] ?? null,
-    showMovingAverage,
+    showMovingAverage && dailyView === 'standard',
   )
 
   // ── 表示用ラベル ──
@@ -456,9 +452,9 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
                     <SubAnalysisPanel
                       mode="quantity"
                       queryExecutor={props.queryExecutor}
-                      currentDateRange={subPanelContext.dateRange}
-                      selectedStoreIds={subPanelContext.selectedStoreIds}
-                      prevYearScope={subPanelContext.comparisonScope}
+                      currentDateRange={analysisContext.dateRange}
+                      selectedStoreIds={analysisContext.selectedStoreIds}
+                      prevYearScope={analysisContext.comparisonScope}
                       weatherDaily={props.weatherDaily}
                       daily={props.daily}
                       daysInMonth={props.daysInMonth}
@@ -472,9 +468,9 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
                   {subTab === 'drilldown' && (
                     <CategoryHierarchyExplorer
                       queryExecutor={props.queryExecutor}
-                      currentDateRange={drillDateRange}
-                      prevYearScope={drillPrevYearScope}
-                      selectedStoreIds={props.selectedStoreIds}
+                      currentDateRange={analysisContext.dateRange}
+                      prevYearScope={analysisContext.comparisonScope}
+                      selectedStoreIds={analysisContext.selectedStoreIds}
                     />
                   )}
                 </div>
@@ -483,9 +479,9 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
                 <SubAnalysisPanel
                   mode={rightAxisMode}
                   queryExecutor={props.queryExecutor}
-                  currentDateRange={subPanelContext.dateRange}
-                  selectedStoreIds={subPanelContext.selectedStoreIds}
-                  prevYearScope={subPanelContext.comparisonScope}
+                  currentDateRange={analysisContext.dateRange}
+                  selectedStoreIds={analysisContext.selectedStoreIds}
+                  prevYearScope={analysisContext.comparisonScope}
                   weatherDaily={props.weatherDaily}
                   daily={props.daily}
                   daysInMonth={props.daysInMonth}
