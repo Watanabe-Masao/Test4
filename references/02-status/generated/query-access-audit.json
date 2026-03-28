@@ -1,8 +1,8 @@
 {
-  "timestamp": "2026-03-28T03:52:32.305Z",
+  "timestamp": "2026-03-28T09:37:27.681Z",
   "summary": {
-    "queryHandlers": 26,
-    "正規経路_queryWithHandler": 26,
+    "queryHandlers": 27,
+    "正規経路_queryWithHandler": 28,
     "正規経路_comparisonAccessor": 10,
     "正規経路_facadeHook": 0,
     "要注意_executorDirect": 0,
@@ -13,6 +13,7 @@
   },
   "detail": {
     "queryWithHandler": [
+      "presentation/components/charts/CategoryBarChart.tsx",
       "presentation/components/charts/CategoryBenchmarkChart.vm.ts",
       "presentation/components/charts/CategoryBoxPlotChart.vm.ts",
       "presentation/components/charts/CategoryDiscountChart.tsx",
@@ -32,6 +33,7 @@
       "presentation/components/charts/IntegratedSalesChart.tsx",
       "presentation/components/charts/PiCvBubbleChart.tsx",
       "presentation/components/charts/StoreHourlyChart.tsx",
+      "presentation/components/charts/StorePIComparisonChart.tsx",
       "presentation/components/charts/WeatherAnalysisPanel.tsx",
       "presentation/components/charts/YoYChart.tsx",
       "presentation/components/widgets/PageWidgetContainer.tsx",
@@ -56,6 +58,7 @@
       "application/queries/cts/HourlyAggregationHandler.ts",
       "application/queries/cts/LevelAggregationHandler.ts",
       "application/queries/cts/StoreAggregationHandler.ts",
+      "application/queries/cts/StoreCategoryPIHandler.ts",
       "application/queries/dailyRecords/DailyRecordsHandler.ts",
       "application/queries/dept/DeptKpiTrendHandler.ts",
       "application/queries/features/DailyFeaturesHandler.ts",
