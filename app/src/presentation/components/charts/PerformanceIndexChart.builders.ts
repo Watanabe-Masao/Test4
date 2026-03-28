@@ -270,9 +270,7 @@ export function buildPerformanceOption(
     }
     // 当年PI棒（前年比で色分け：上回り=primary、下回り=orange）
     const barColors = data.map((e) =>
-      e.prevPi != null && e.pi != null && e.pi >= e.prevPi
-        ? ct.colors.primary
-        : ct.colors.orange,
+      e.prevPi != null && e.pi != null && e.pi >= e.prevPi ? ct.colors.primary : ct.colors.orange,
     )
     series.push(
       {
