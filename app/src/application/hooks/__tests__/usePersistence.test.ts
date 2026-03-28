@@ -53,31 +53,45 @@ beforeEach(() => {
 
 describe('usePersistence', () => {
   describe('initial state', () => {
-    it('available is true when repo.isAvailable() returns true', () => {
+    it('available is true when repo.isAvailable() returns true', async () => {
       mockRepo.isAvailable.mockReturnValue(true)
+      mockRepo.getSessionMeta.mockResolvedValue(null)
       const { result } = renderHook(() => usePersistence())
-      expect(result.current.available).toBe(true)
+      await waitFor(() => {
+        expect(result.current.available).toBe(true)
+      })
     })
 
-    it('available is false when repo.isAvailable() returns false', () => {
+    it('available is false when repo.isAvailable() returns false', async () => {
       mockRepo.isAvailable.mockReturnValue(false)
       const { result } = renderHook(() => usePersistence())
-      expect(result.current.available).toBe(false)
+      await waitFor(() => {
+        expect(result.current.available).toBe(false)
+      })
     })
 
-    it('showDiffDialog is false initially', () => {
+    it('showDiffDialog is false initially', async () => {
+      mockRepo.getSessionMeta.mockResolvedValue(null)
       const { result } = renderHook(() => usePersistence())
-      expect(result.current.showDiffDialog).toBe(false)
+      await waitFor(() => {
+        expect(result.current.showDiffDialog).toBe(false)
+      })
     })
 
-    it('diffResult is null initially', () => {
+    it('diffResult is null initially', async () => {
+      mockRepo.getSessionMeta.mockResolvedValue(null)
       const { result } = renderHook(() => usePersistence())
-      expect(result.current.diffResult).toBeNull()
+      await waitFor(() => {
+        expect(result.current.diffResult).toBeNull()
+      })
     })
 
-    it('isSaving is false initially', () => {
+    it('isSaving is false initially', async () => {
+      mockRepo.getSessionMeta.mockResolvedValue(null)
       const { result } = renderHook(() => usePersistence())
-      expect(result.current.isSaving).toBe(false)
+      await waitFor(() => {
+        expect(result.current.isSaving).toBe(false)
+      })
     })
 
     it('autoRestored is false while restore is in progress', () => {
@@ -260,8 +274,11 @@ describe('usePersistence', () => {
   })
 
   describe('applyDiffDecision', () => {
-    it('overwrite: returns incoming data as-is', () => {
+    it('overwrite: returns incoming data as-is', async () => {
+      mockRepo.getSessionMeta.mockResolvedValue(null)
       const { result } = renderHook(() => usePersistence())
+      await waitFor(() => expect(result.current.autoRestored).toBe(true))
+
       const incoming = {
         ...createEmptyImportedData(),
         stores: new Map([['s1', { id: 's1', code: '001', name: 'New' }]]),
@@ -277,20 +294,25 @@ describe('usePersistence', () => {
       expect(applied).toBe(incoming)
     })
 
-    it('keep-existing: merges inserts only', () => {
+    it('keep-existing: merges inserts only and preserves existing stores', async () => {
+      mockRepo.getSessionMeta.mockResolvedValue(null)
       const { result } = renderHook(() => usePersistence())
-      const existing = createEmptyImportedData()
+      await waitFor(() => expect(result.current.autoRestored).toBe(true))
+
+      const existing = {
+        ...createEmptyImportedData(),
+        stores: new Map([['s1', { id: 's1', code: '001', name: 'Existing' }]]),
+      }
       const incoming = createEmptyImportedData()
 
-      // Should call mergeInsertsOnly (returns existing with inserts)
       const applied = result.current.applyDiffDecision(
         'keep-existing',
         incoming,
         existing,
         new Set(['purchase']),
       )
-      // The result should be defined (not null)
-      expect(applied).toBeDefined()
+      // keep-existing は既存データを基盤にするため、既存 stores が保持される
+      expect(applied.stores.has('s1')).toBe(true)
     })
   })
 
