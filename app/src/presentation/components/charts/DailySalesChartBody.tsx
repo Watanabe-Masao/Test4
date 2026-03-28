@@ -102,15 +102,17 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
   const optionWithMA = useMemo(() => {
     if (view !== 'standard' || !showMovingAverage || !maOverlays) return baseOption
 
-    const toMaData = (series: readonly { dateKey: string; value: number | null }[] | undefined) => {
+    const toMaData = (
+      series: readonly { date: { day: number }; value: number | null }[] | undefined,
+    ) => {
       if (!series?.length) return null
-      return days.map((day) => {
-        const dayStr = String(day).padStart(2, '0')
-        const monthStr = month ? String(month).padStart(2, '0') : '01'
-        const dateKey = `${year ?? 2026}-${monthStr}-${dayStr}`
-        const point = series.find((p) => p.dateKey === dateKey)
-        return point?.value ?? null
-      })
+      const byDay = new Map<number, number | null>()
+      for (const p of series) {
+        byDay.set(p.date.day, p.value)
+      }
+      const result = days.map((day) => byDay.get(day as number) ?? null)
+      // 全 null なら表示不要（legend/tooltip に項目だけ出る不整合を防止）
+      return result.some((v) => v != null) ? result : null
     }
 
     const maSeries: object[] = []
@@ -178,7 +180,7 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
 
     const existingSeries = (baseOption.series as unknown[]) ?? []
     return Object.assign({}, baseOption, { series: [...existingSeries, ...maSeries] })
-  }, [baseOption, view, showMovingAverage, maOverlays, days, year, month, needRightAxis])
+  }, [baseOption, view, showMovingAverage, maOverlays, days, needRightAxis])
 
   // ブラシ設定を追加（ドラッグ選択機能が有効な場合のみ）
   const option = useMemo(() => {
