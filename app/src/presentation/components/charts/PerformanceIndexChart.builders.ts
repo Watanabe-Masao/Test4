@@ -12,7 +12,6 @@ import type { DailyRecord } from '@/domain/models/record'
 import {
   safeDivide,
   calculateTransactionValue,
-  calculateMovingAverage,
   calculateShare,
   calculateGrossProfitRate,
 } from '@/domain/calculations/utils'
@@ -55,13 +54,29 @@ export interface PerformanceStats {
   gp: StatEntry
 }
 
-export type ViewType = 'pi' | 'deviation' | 'zScore'
+/** partial MA: ウィンドウ不足でも利用可能な分で計算（月初からMA表示） */
+function calculatePartialMovingAverage(
+  values: readonly number[],
+  window: number,
+): (number | null)[] {
+  return values.map((_, i) => {
+    const start = Math.max(0, i - window + 1)
+    const slice = values.slice(start, i + 1)
+    const valid = slice.filter((v) => v > 0)
+    if (valid.length === 0) return null
+    return valid.reduce((s, v) => s + v, 0) / valid.length
+  })
+}
+
+export type ViewType = 'piAmount' | 'piQuantity' | 'deviation' | 'zScore'
 
 export const PERF_LABELS: Record<string, string> = {
   pi: '金額PI値',
   prevPi: '前年PI値',
   piMa7: 'PI値(7日MA)',
   prevPiMa7: '前年PI値(7日MA)',
+  quantityPi: '点数PI値',
+  quantityPiMa7: '点数PI値(7日MA)',
   salesDev: '売上',
   custDev: '客数',
   txDev: '客単価',
@@ -170,8 +185,8 @@ export function buildPerformanceData(
   return {
     chartData: rows,
     stats: { sales: salesStat, cust: custStat, tx: txStat, disc: discStat, gp: gpStat },
-    piMa7: calculateMovingAverage(piRaw, 7).map((v) => (isNaN(v) ? null : v)),
-    prevPiMa7: calculateMovingAverage(prevPiRaw, 7).map((v) => (isNaN(v) ? null : v)),
+    piMa7: calculatePartialMovingAverage(piRaw, 7),
+    prevPiMa7: calculatePartialMovingAverage(prevPiRaw, 7),
   }
 }
 
@@ -237,11 +252,27 @@ export function buildPerformanceOption(
     xAxis: commonXAxis(days, ct),
   }
 
-  if (view === 'pi') {
+  if (view === 'piAmount' || view === 'piQuantity') {
+    const hasPrev = data.some((e) => e.prevPi != null)
+    // 前年PI棒（当年棒の背後にグレー棒で表示）
+    if (hasPrev) {
+      series.push({
+        name: 'prevPi',
+        type: 'bar' as const,
+        data: (data as unknown as Record<string, unknown>[]).map((d) => ({
+          value: d.prevPi as number | null,
+        })),
+        barMaxWidth: 18,
+        barGap: '-100%',
+        z: 1,
+        itemStyle: { color: ct.colors.slate, borderRadius: [3, 3, 0, 0], opacity: 0.35 },
+      })
+    }
+    // 当年PI棒（前年比で色分け：上回り=primary、下回り=orange）
     const barColors = data.map((e) =>
       e.prevPi != null && e.pi != null && e.pi >= e.prevPi
         ? ct.colors.primary
-        : ct.colors.slateDark,
+        : ct.colors.orange,
     )
     series.push(
       {
@@ -251,8 +282,9 @@ export function buildPerformanceOption(
           value: d.pi as number | null,
           itemStyle: { color: barColors[i] },
         })),
-        barMaxWidth: 14,
-        itemStyle: { borderRadius: [2, 2, 0, 0], opacity: 0.7 },
+        barMaxWidth: 18,
+        z: 2,
+        itemStyle: { borderRadius: [3, 3, 0, 0] },
       },
       {
         name: 'piMa7',
@@ -262,6 +294,7 @@ export function buildPerformanceOption(
         itemStyle: { color: ct.colors.primary },
         symbol: 'none' as const,
         connectNulls: true,
+        smooth: true,
       },
       {
         name: 'prevPiMa7',
@@ -271,6 +304,7 @@ export function buildPerformanceOption(
         itemStyle: { color: ct.colors.slate },
         symbol: 'none' as const,
         connectNulls: true,
+        smooth: true,
       },
     )
     return { ...base, yAxis: valueYAxis(theme, { formatter: (v: number) => toComma(v) }), series }

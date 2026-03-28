@@ -388,21 +388,8 @@ export const CategoryDiscountChart = memo(function CategoryDiscountChart({
     return `${base}（${drill.breadcrumbs.join(' > ')}）`
   })()
 
-  if (isLoading && records.length === 0) {
-    return (
-      <ChartCard title={title}>
-        <ChartLoading />
-      </ChartCard>
-    )
-  }
-
-  if (!queryExecutor?.isReady || records.length === 0) {
-    return (
-      <ChartCard title={title}>
-        <ChartEmpty message="データをインポートしてください" />
-      </ChartCard>
-    )
-  }
+  const isEmpty = !queryExecutor?.isReady || records.length === 0
+  const showLoading = isLoading && records.length === 0
 
   const chartH = Math.max(200, records.length * 28 + 60)
 
@@ -438,26 +425,32 @@ export const CategoryDiscountChart = memo(function CategoryDiscountChart({
         </div>
       }
     >
-      <EChart
-        option={option}
-        height={chartH}
-        ariaLabel="カテゴリ別売変分析"
-        onDblClick={handleDblClick}
-      />
-
-      {/* 売変率テーブル（ヘッダークリックでソート → グラフ連動） */}
-      <CategoryDiscountTable
-        records={records}
-        prevByCode={prevByCode}
-        drill={drill}
-        setDrill={setDrill}
-        sortKey={sortKey}
-        sortDir={sortDir}
-        toggleSort={toggleSort}
-        dtColors={dtColors}
-        theme={theme}
-        cf={cf}
-      />
+      {showLoading ? (
+        <ChartLoading />
+      ) : isEmpty ? (
+        <ChartEmpty message="データをインポートしてください" />
+      ) : (
+        <>
+          <EChart
+            option={option}
+            height={chartH}
+            ariaLabel="カテゴリ別売変分析"
+            onDblClick={handleDblClick}
+          />
+          <CategoryDiscountTable
+            records={records}
+            prevByCode={prevByCode}
+            drill={drill}
+            setDrill={setDrill}
+            sortKey={sortKey}
+            sortDir={sortDir}
+            toggleSort={toggleSort}
+            dtColors={dtColors}
+            theme={theme}
+            cf={cf}
+          />
+        </>
+      )}
     </ChartCard>
   )
 })

@@ -236,14 +236,15 @@ export function buildWeatherRichStyles(): Record<string, object> {
 
 interface SeriesItem {
   name: string
-  type: 'line'
+  type: 'line' | 'bar'
   yAxisIndex: number
-  data: (number | null)[]
-  lineStyle: { color: string; width: number; type: 'solid' | 'dashed' }
-  itemStyle: { color: string }
-  symbol: 'none'
-  smooth: boolean
-  connectNulls: boolean
+  data: (number | null | { value: number | null; itemStyle?: object })[]
+  lineStyle?: { color: string; width: number; type?: 'solid' | 'dashed' }
+  itemStyle?: { color: string; borderRadius?: number[] }
+  symbol?: 'none'
+  smooth?: boolean
+  connectNulls?: boolean
+  barMaxWidth?: number
 }
 
 export interface RightAxisColors {
@@ -311,7 +312,7 @@ export function buildCustomerCountSeries(
   return series
 }
 
-/** 売変シリーズ（当期実線 + 前年破線、同色） */
+/** 売変シリーズ（当期棒 + 前年棒、並列） */
 export function buildDiscountSeries(
   rows: readonly Record<string, unknown>[],
   hasPrev: boolean,
@@ -320,21 +321,21 @@ export function buildDiscountSeries(
   const series: SeriesItem[] = [
     {
       name: 'discount',
-      type: 'line',
+      type: 'bar',
       yAxisIndex: 1,
       data: pluck(rows, 'discount'),
-      ...lineDefaults({ color: colors.danger }),
-      connectNulls: true,
+      itemStyle: { color: colors.danger, borderRadius: [2, 2, 0, 0] },
+      barMaxWidth: 10,
     },
   ]
   if (hasPrev) {
     series.push({
       name: 'prevYearDiscount',
-      type: 'line',
+      type: 'bar',
       yAxisIndex: 1,
       data: pluck(rows, 'prevYearDiscount'),
-      ...lineDefaults({ color: colors.danger, dashed: true, width: 1.5 }),
-      connectNulls: true,
+      itemStyle: { color: withAlpha(colors.danger, 0.35), borderRadius: [2, 2, 0, 0] },
+      barMaxWidth: 10,
     })
   }
   return series
