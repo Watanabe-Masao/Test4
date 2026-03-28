@@ -20,6 +20,7 @@ import type { QueryExecutor } from '@/application/queries/QueryPort'
 import type { WeatherPersister } from '@/application/queries/weather'
 import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
 import { useMultiMovingAverage } from '@/application/hooks/useMultiMovingAverage'
+import { alignPrevYearDay } from '@/application/services/temporal/prevYearAlignment'
 import {
   dailyQuantityHandler,
   type DailyQuantityInput,
@@ -152,22 +153,9 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
     }
     const prev = new Map<number, number>()
     if (prevQtyOut && prevYearDateRange) {
-      // 前年 dateKey → 当期の日番号にマッピング
-      // prevYearDateRange.from と currentDateRange.from の対応を使い、
-      // 前年日付の経過日数を当期の日番号に変換する（同曜日比較時の日ずれ対応）
-      const prevFrom = new Date(
-        prevYearDateRange.from.year,
-        prevYearDateRange.from.month - 1,
-        prevYearDateRange.from.day,
-      )
       const curFromDay = props.currentDateRange.from.day
       for (const r of prevQtyOut.records) {
-        const [y, m, d] = r.dateKey.split('-').map(Number)
-        const prevDate = new Date(y, m - 1, d)
-        const elapsed = Math.round(
-          (prevDate.getTime() - prevFrom.getTime()) / (24 * 60 * 60 * 1000),
-        )
-        const targetDay = curFromDay + elapsed
+        const targetDay = alignPrevYearDay(r.dateKey, prevYearDateRange.from, curFromDay)
         if (targetDay >= 1 && targetDay <= props.daysInMonth) {
           prev.set(targetDay, (prev.get(targetDay) ?? 0) + r.dailyQuantity)
         }

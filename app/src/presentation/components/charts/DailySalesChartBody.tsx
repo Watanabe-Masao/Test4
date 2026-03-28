@@ -4,7 +4,7 @@ import { EChart } from './EChart'
 import type { DailySalesDataResult } from './useDailySalesData'
 import type { DailyWeatherSummary } from '@/domain/models/record'
 import type { ChartTheme } from './chartTheme'
-import { deriveCompStartDateKey, type RightAxisMode } from './DailySalesChartBodyLogic'
+import { deriveCompStartDateKey, withAlpha, type RightAxisMode } from './DailySalesChartBodyLogic'
 import { buildWeatherMap, buildOption } from './DailySalesChartBody.builders'
 
 export type ViewType = 'standard' | 'cumulative' | 'difference' | 'rate'
@@ -52,8 +52,7 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
   maOverlays,
   showMovingAverage,
 }: Props) {
-  const rows = data as unknown as Record<string, unknown>[]
-  const days = useMemo(() => rows.map((d) => d.day as number), [rows])
+  const days = useMemo(() => data.map((d) => d.day), [data])
 
   const weatherMap = useMemo(() => buildWeatherMap(weatherDaily), [weatherDaily])
   const compStartKey = useMemo(
@@ -117,8 +116,10 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
 
     const maSeries: object[] = []
     const metricLabel = maOverlays.metricLabel ?? ''
+    const maColorPrimary = ct.colors.primary // 売上MA用
+    const maColorMetric = ct.colors.cyanDark // 指標MA用
 
-    // 売上MA（当年）— インディゴ破線
+    // 売上MA（当年）— primary 破線
     const salesCurData = toMaData(maOverlays.salesCur)
     if (salesCurData) {
       maSeries.push({
@@ -127,12 +128,12 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
         data: salesCurData,
         smooth: true,
         symbol: 'none',
-        lineStyle: { width: 2, type: 'dashed', color: '#6366f1' },
+        lineStyle: { width: 2, type: 'dashed', color: maColorPrimary },
         z: 10,
       })
     }
 
-    // 売上MA（前年）— インディゴ点線
+    // 売上MA（前年）— primary 点線（半透明）
     const salesPrevData = toMaData(maOverlays.salesPrev)
     if (salesPrevData) {
       maSeries.push({
@@ -141,7 +142,7 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
         data: salesPrevData,
         smooth: true,
         symbol: 'none',
-        lineStyle: { width: 1.5, type: 'dotted', color: '#6366f180' },
+        lineStyle: { width: 1.5, type: 'dotted', color: withAlpha(maColorPrimary, 0.5) },
         z: 10,
       })
     }
@@ -155,13 +156,13 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
         data: metricCurData,
         smooth: true,
         symbol: 'none',
-        lineStyle: { width: 2, type: 'dashed', color: '#06b6d4' },
+        lineStyle: { width: 2, type: 'dashed', color: maColorMetric },
         yAxisIndex: needRightAxis ? 1 : 0,
         z: 10,
       })
     }
 
-    // 指標MA（前年）— 右軸色点線
+    // 指標MA（前年）— 右軸色点線（半透明）
     const metricPrevData = toMaData(maOverlays.metricPrev)
     if (metricPrevData && metricLabel) {
       maSeries.push({
@@ -170,7 +171,7 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
         data: metricPrevData,
         smooth: true,
         symbol: 'none',
-        lineStyle: { width: 1.5, type: 'dotted', color: '#06b6d480' },
+        lineStyle: { width: 1.5, type: 'dotted', color: withAlpha(maColorMetric, 0.5) },
         yAxisIndex: needRightAxis ? 1 : 0,
         z: 10,
       })
@@ -180,7 +181,7 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
 
     const existingSeries = (baseOption.series as unknown[]) ?? []
     return Object.assign({}, baseOption, { series: [...existingSeries, ...maSeries] })
-  }, [baseOption, view, showMovingAverage, maOverlays, days, needRightAxis])
+  }, [baseOption, view, showMovingAverage, maOverlays, days, needRightAxis, ct.colors.primary, ct.colors.cyanDark])
 
   // ブラシ設定を追加（ドラッグ選択機能が有効な場合のみ）
   const option = useMemo(() => {

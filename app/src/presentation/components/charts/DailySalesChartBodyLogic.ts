@@ -430,6 +430,7 @@ export function formatDailyTooltip(
   weatherMap: ReadonlyMap<number, DayWeatherInfo> | undefined,
   fmtComma: (n: number) => string,
   fmtPct: (n: number) => string,
+  prevYearWeatherMap?: ReadonlyMap<number, DayWeatherInfo>,
 ): string {
   const items = params as TooltipItem[]
   if (!Array.isArray(items) || items.length === 0) return ''
@@ -438,10 +439,14 @@ export function formatDailyTooltip(
   const day = rawName.replace(/\{[^}]*\|[^}]*\}/g, '').trim()
   const dayNum = parseInt(day, 10)
   const w = weatherMap?.get(dayNum)
+  const pw = prevYearWeatherMap?.get(dayNum)
   const weatherLine = w?.weatherText
     ? `<div style="color:#6b7280;font-size:11px;margin-bottom:2px">${w.icon} ${w.weatherText}</div>`
     : ''
-  const header = `<div style="font-weight:600;margin-bottom:4px">${day}日</div>${weatherLine}`
+  const prevWeatherLine = pw?.weatherText
+    ? `<div style="color:#9ca3af;font-size:10px;margin-bottom:2px">前年: ${pw.icon} ${pw.weatherText}</div>`
+    : ''
+  const header = `<div style="font-weight:600;margin-bottom:4px">${day}日</div>${weatherLine}${prevWeatherLine}`
   const lines = items
     .filter((item) => !HIDDEN_NAMES.has(item.seriesName))
     .map((item) => {

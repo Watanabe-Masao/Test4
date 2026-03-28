@@ -127,7 +127,8 @@ export function buildOption(
       fontSize: ct.fontSize.sm,
       fontFamily: ct.fontFamily,
     },
-    formatter: (params: unknown) => formatDailyTooltip(params, weatherMap, toComma, toPct),
+    formatter: (params: unknown) =>
+      formatDailyTooltip(params, weatherMap, toComma, toPct, prevYearWeatherMap),
   }
 
   // ── 凡例 ──
