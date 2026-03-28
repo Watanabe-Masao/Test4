@@ -15,12 +15,15 @@ import {
 } from './PerformanceIndexChart.styles'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
+import type { StoreResult } from '@/domain/models/StoreResult'
+import type { Store } from '@/domain/models/Store'
 import {
   buildPerformanceData,
   buildPerformanceOption,
   type ViewType,
 } from './PerformanceIndexChart.builders'
 import { CategoryPerformanceChart } from './CategoryPerformanceChart'
+import { StorePIComparisonChart } from './StorePIComparisonChart'
 
 const VIEW_LABELS: Record<ViewType, string> = {
   piAmount: '金額PI',
@@ -43,6 +46,9 @@ interface Props {
   prevYearScope?: PrevYearScope
   selectedStoreIds?: ReadonlySet<string>
   totalCustomers?: number
+  /** 店舗別PI値比較用 */
+  allStoreResults?: ReadonlyMap<string, StoreResult>
+  stores?: ReadonlyMap<string, Store>
 }
 
 const EMPTY_PREV_YEAR: ReadonlyMap<
@@ -62,6 +68,8 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
   prevYearScope,
   selectedStoreIds,
   totalCustomers,
+  allStoreResults,
+  stores,
 }: Props) {
   const ct = useChartTheme()
   const theme = useTheme() as AppTheme
@@ -163,6 +171,23 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
           totalCustomers={totalCustomers ?? 0}
         />
       )}
+
+      {/* 店舗別・カテゴリ別PI値比較（子チャート） */}
+      {allStoreResults &&
+        stores &&
+        allStoreResults.size >= 2 &&
+        queryExecutor?.isReady &&
+        currentDateRange &&
+        selectedStoreIds && (
+          <StorePIComparisonChart
+            allStoreResults={allStoreResults}
+            stores={stores}
+            queryExecutor={queryExecutor}
+            currentDateRange={currentDateRange}
+            selectedStoreIds={selectedStoreIds}
+            prevYearScope={prevYearScope}
+          />
+        )}
     </ChartCard>
   )
 })
