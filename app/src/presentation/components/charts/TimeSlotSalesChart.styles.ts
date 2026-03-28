@@ -59,8 +59,10 @@ export const Tab = styled.button<{ $active: boolean }>`
   padding: 2px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.white : theme.colors.text3)};
-  background: transparent;
-  transition: color 0.15s ease;
+  background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
+  transition:
+    color 0.15s ease,
+    background 0.15s ease;
   white-space: nowrap;
   &:hover {
     opacity: 0.85;

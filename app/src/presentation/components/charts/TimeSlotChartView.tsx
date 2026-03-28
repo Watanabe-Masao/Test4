@@ -399,6 +399,29 @@ export const TimeSlotChartView = memo(function TimeSlotChartView({
             </Tab>
           )}
         </TabGroup>
+        {/* ドリル中の戻るボタン */}
+        {(deptCode || lineCode) && (
+          <button
+            style={{
+              padding: '2px 8px',
+              fontSize: '0.65rem',
+              border: `1px solid ${palette.primary}`,
+              borderRadius: '4px',
+              background: 'transparent',
+              color: palette.primary,
+              cursor: 'pointer',
+            }}
+            onClick={() => {
+              if (lineCode) {
+                onLineCodeChange('')
+              } else if (deptCode) {
+                onDeptCodeChange('')
+              }
+            }}
+          >
+            ← 戻る
+          </button>
+        )}
         <TabGroup style={{ marginLeft: 'auto' }}>
           <Tab $active={heatmapMetric === 'amount'} onClick={() => onHeatmapMetricChange('amount')}>
             金額
