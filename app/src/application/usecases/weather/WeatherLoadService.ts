@@ -88,14 +88,7 @@ export async function loadEtrnDailyForStore(
   month: number,
   onProgress?: (progress: WeatherLoadProgress) => void,
 ): Promise<EtrnLoadResult> {
-  console.debug(
-    '[Weather:Load] ETRN日別取得開始: store=%s %d/%d lat=%f lon=%f',
-    storeId,
-    year,
-    month,
-    location.latitude,
-    location.longitude,
-  )
+  console.debug('[Weather:Load] ETRN日別取得開始: store=%s %d/%d', storeId, year, month)
 
   let precNo = location.etrnPrecNo
   let blockNo = location.etrnBlockNo
@@ -107,10 +100,6 @@ export async function loadEtrnDailyForStore(
   const isUnresolved = precNo == null || !blockNo || !stationType
   const isA1Upgrade = !isUnresolved && stationType === 'a1'
   if (isUnresolved || isA1Upgrade) {
-    console.debug(
-      '[Weather:Load] ETRN観測所%s → 自動解決開始',
-      isA1Upgrade ? 'a1→s1アップグレード' : '未解決',
-    )
     onProgress?.({ storeId, status: 'resolving', recordCount: 0 })
 
     const etrnResult = await weatherAdapter.resolveEtrnStationByLocation(
@@ -130,30 +119,14 @@ export async function loadEtrnDailyForStore(
         return { daily: [] }
       }
       // a1 アップグレード失敗時はキャッシュ済み a1 で続行
-      console.debug('[Weather:Load] a1→s1アップグレード失敗 → キャッシュ済みa1で続行')
     } else if (isA1Upgrade && etrnResult.stationType === 'a1') {
       // 再解決しても a1 のみ → キャッシュ済み値で続行（再解決ループを防止）
-      console.debug('[Weather:Load] s1観測所なし → キャッシュ済みa1で続行')
     } else {
       precNo = etrnResult.precNo
       blockNo = etrnResult.blockNo
       stationType = etrnResult.stationType
       resolvedStation = etrnResult
-      console.debug(
-        '[Weather:Load] ETRN観測所解決完了: precNo=%d block=%s type=%s (%s)',
-        precNo,
-        blockNo,
-        stationType,
-        etrnResult.stationName,
-      )
     }
-  } else {
-    console.debug(
-      '[Weather:Load] ETRN観測所キャッシュ済み: precNo=%d block=%s type=%s',
-      precNo,
-      blockNo,
-      stationType,
-    )
   }
 
   // ここに到達した時点で precNo / blockNo / stationType は確定済み
@@ -165,8 +138,6 @@ export async function loadEtrnDailyForStore(
     stationName: '',
   }
 
-  // ETRN 日別データを取得
-  console.debug('[Weather:Load] ETRN日別データ取得 %d/%d', year, month)
   onProgress?.({ storeId, status: 'loading', recordCount: 0 })
 
   const daily = await weatherAdapter.fetchDailyWeather(station, year, month)
