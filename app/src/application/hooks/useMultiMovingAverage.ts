@@ -50,10 +50,18 @@ function remapPrevYearSeries(
   for (let i = 0; i < prevKeys.length && i < curKeys.length; i++) {
     keyMap.set(prevKeys[i], curKeys[i])
   }
-  return prevSeries.map((p) => ({
-    ...p,
-    dateKey: keyMap.get(p.dateKey) ?? p.dateKey,
-  }))
+  // curSeries を dateKey → point で索引（date も当年側に揃える）
+  const curByKey = new Map(curSeries.map((p) => [p.dateKey, p]))
+  return prevSeries.map((p) => {
+    const mappedKey = keyMap.get(p.dateKey)
+    if (!mappedKey) return p
+    const curPoint = curByKey.get(mappedKey)
+    return {
+      ...p,
+      dateKey: mappedKey,
+      date: curPoint?.date ?? p.date,
+    }
+  })
 }
 
 export function useMultiMovingAverage(

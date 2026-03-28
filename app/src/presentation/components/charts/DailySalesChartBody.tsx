@@ -110,7 +110,9 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
       for (const p of series) {
         byDay.set(p.date.day, p.value)
       }
-      return days.map((day) => byDay.get(day as number) ?? null)
+      const result = days.map((day) => byDay.get(day as number) ?? null)
+      // 全 null なら表示不要（legend/tooltip に項目だけ出る不整合を防止）
+      return result.some((v) => v != null) ? result : null
     }
 
     const maSeries: object[] = []
