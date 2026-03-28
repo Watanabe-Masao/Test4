@@ -1,6 +1,6 @@
 # Architecture State Snapshot
 
-> Generated: 2026-03-28T03:53:11.099Z
+> Generated: 2026-03-28T11:55:19.707Z
 
 ## Allowlist Summary
 
@@ -98,8 +98,8 @@
 | ファイル | useMemo | useState | 行数 |
 |---|---|---|---|
 | application/hooks/useTimeSlotData.ts | 21 | 8 | 389 |
+| presentation/components/charts/IntegratedSalesChart.tsx | 12 | 12 | 598 |
 | presentation/pages/Dashboard/widgets/useDrilldownData.ts | 14 | 10 | 413 |
-| presentation/components/charts/IntegratedSalesChart.tsx | 11 | 12 | 595 |
 | presentation/pages/CostDetail/useCostDetailData.ts | 13 | 6 | 210 |
 | presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 14 | 5 | 490 |
 | presentation/components/charts/CategoryBenchmarkChart.vm.ts | 10 | 8 | 470 |
