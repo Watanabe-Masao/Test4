@@ -8,7 +8,7 @@
  *   'card'    — スタンドアロンのチャートカード（デフォルト）
  *   'section' — 親カード内に埋め込まれるサブセクション
  */
-import type { ReactNode } from 'react'
+import { type ReactNode, useState, useCallback } from 'react'
 import type { ChartGuide } from './chartGuides'
 import type { ChartCardVariant } from './ChartCard.styles'
 import { ChartHelpButton } from './ChartHeader'
@@ -23,6 +23,10 @@ interface ChartCardProps {
   readonly ariaLabel?: string
   /** 'card'（デフォルト）: スタンドアロン / 'section': 親カード内サブセクション */
   readonly variant?: ChartCardVariant
+  /** 折りたたみ可能にする（デフォルト: false） */
+  readonly collapsible?: boolean
+  /** 折りたたみの初期状態（デフォルト: false = 開） */
+  readonly defaultCollapsed?: boolean
   readonly children: ReactNode
 }
 
@@ -34,21 +38,43 @@ export function ChartCard({
   height,
   ariaLabel,
   variant,
+  collapsible,
+  defaultCollapsed = false,
   children,
 }: ChartCardProps) {
+  const [collapsed, setCollapsed] = useState(defaultCollapsed)
+  const toggleCollapse = useCallback(() => setCollapsed((c) => !c), [])
+
   return (
     <CardShell aria-label={ariaLabel ?? title} $variant={variant}>
-      <HeaderRow>
+      <HeaderRow
+        style={collapsible ? { cursor: 'pointer', userSelect: 'none' } : undefined}
+        onClick={collapsible ? toggleCollapse : undefined}
+      >
         <TitleArea>
-          <div>
-            <Title>{title}</Title>
-            {subtitle && <Subtitle>{subtitle}</Subtitle>}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            {collapsible && (
+              <span
+                style={{
+                  display: 'inline-block',
+                  transition: 'transform 0.2s',
+                  transform: collapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
+                  fontSize: '0.7em',
+                }}
+              >
+                ▼
+              </span>
+            )}
+            <div>
+              <Title>{title}</Title>
+              {subtitle && <Subtitle>{subtitle}</Subtitle>}
+            </div>
           </div>
           {guide && <ChartHelpButton guide={guide} />}
         </TitleArea>
-        {toolbar}
+        {!collapsed && toolbar}
       </HeaderRow>
-      <ChartBody $height={height}>{children}</ChartBody>
+      {!collapsed && <ChartBody $height={height}>{children}</ChartBody>}
     </CardShell>
   )
 }
