@@ -11,7 +11,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 vi.mock('@duckdb/duckdb-wasm', () => {
   class MockConsoleLogger {
-    constructor(_level?: unknown) {}
+    constructor(_?: unknown) {}
   }
   class MockVoidLogger {}
 
