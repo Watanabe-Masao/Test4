@@ -66,6 +66,8 @@ export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
         prevYearScope={ctx.prevYearScope}
         selectedStoreIds={ctx.selectedStoreIds}
         totalCustomers={ctx.result.totalCustomers}
+        allStoreResults={ctx.allStoreResults}
+        stores={ctx.stores}
       />
     ),
   },
