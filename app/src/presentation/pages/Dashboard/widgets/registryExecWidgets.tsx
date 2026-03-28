@@ -75,6 +75,7 @@ export const WIDGETS_EXEC: readonly WidgetDef[] = [
     label: '部門別KPI一覧',
     group: '構造分析',
     size: 'full',
+    isVisible: () => false, // 部門別データ未対応のため非表示
     render: (ctx) => renderDepartmentKpiTable(ctx),
   },
   // ── シミュレーション ──
