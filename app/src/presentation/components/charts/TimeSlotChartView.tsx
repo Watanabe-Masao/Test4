@@ -439,6 +439,16 @@ export const TimeSlotChartView = memo(function TimeSlotChartView({
           showYoY={showHeatmapYoY}
           gridLeft={80}
           gridRight={GRID_RIGHT}
+          onCategoryClick={(code) => {
+            // 部門クリック → 部門コードを設定してライン展開
+            if (!deptCode || deptCode === '') {
+              onDeptCodeChange(code)
+            } else if (!lineCode || lineCode === '') {
+              onLineCodeChange(code)
+            } else {
+              onKlassCodeChange(code)
+            }
+          }}
         />
       )}
 

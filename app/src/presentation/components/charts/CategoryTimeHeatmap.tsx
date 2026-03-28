@@ -4,7 +4,7 @@
  * 部門（行）×時間帯（列）の売上金額をヒートマップで表示。
  * gridLeft / gridRight で親チャートのプロットエリアと列位置を揃える。
  */
-import { memo, useMemo } from 'react'
+import { memo, useMemo, useCallback } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { EChart, type EChartsOption } from './EChart'
@@ -26,6 +26,8 @@ interface Props {
   readonly showYoY?: boolean
   readonly gridLeft?: number
   readonly gridRight?: number
+  /** 行（カテゴリ）クリックでドリルダウン */
+  readonly onCategoryClick?: (code: string, name: string) => void
 }
 
 export const CategoryTimeHeatmap = memo(function CategoryTimeHeatmap({
@@ -35,6 +37,7 @@ export const CategoryTimeHeatmap = memo(function CategoryTimeHeatmap({
   showYoY: showYoYProp,
   gridLeft = 55,
   gridRight = 45,
+  onCategoryClick,
 }: Props) {
   const theme = useTheme() as AppTheme
   const cf = useCurrencyFormat()
@@ -204,7 +207,36 @@ export const CategoryTimeHeatmap = memo(function CategoryTimeHeatmap({
   const rowH = deptCount > 20 ? 24 : 32
   const chartH = Math.max(180, deptCount * rowH + 40)
 
+  // 行クリック → ドリルダウン
+  const handleClick = useCallback(
+    (params: Record<string, unknown>) => {
+      if (!onCategoryClick) return
+      const d = params.data as [number, number, number] | undefined
+      if (!Array.isArray(d) || d.length < 3) return
+      const deptIndex = d[1]
+      const totals = new Map<string, { name: string; code: string; total: number }>()
+      for (const item of data) {
+        const ex = totals.get(item.code) ?? { name: item.name, code: item.code, total: 0 }
+        ex.total += metric === 'amount' ? item.amount : item.quantity
+        totals.set(item.code, ex)
+      }
+      const sorted = [...totals.entries()].sort((a, b) => b[1].total - a[1].total)
+      const entry = sorted[deptIndex]
+      if (entry) {
+        onCategoryClick(entry[1].code, entry[1].name)
+      }
+    },
+    [onCategoryClick, data, metric],
+  )
+
   if (data.length === 0) return null
 
-  return <EChart option={option} height={chartH} ariaLabel="カテゴリ×時間帯ヒートマップ" />
+  return (
+    <EChart
+      option={option}
+      height={chartH}
+      ariaLabel="カテゴリ×時間帯ヒートマップ"
+      onClick={onCategoryClick ? handleClick : undefined}
+    />
+  )
 })
