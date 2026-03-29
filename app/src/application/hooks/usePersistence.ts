@@ -1,13 +1,13 @@
 /**
  * データ永続化フック — state/command 分離。
  * usePersistenceState(): readonly / usePersistence(): 既存互換 façade。
- * 内部正本は persistenceStateRef で一箇所に集約。
+ * 復元状態の正本は PersistenceContext（PersistenceProvider が管理）。
  */
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useContext, useState } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
-import { invalidateAfterStateChange } from '@/application/services/stateInvalidation'
 import { useRepository } from '../context/useRepository'
+import { PersistenceContext } from '../context/persistenceContextDef'
 import { calculateDiff } from '@/application/services/diffCalculator'
 import type { DiffResult } from '@/domain/models/analysis'
 import type { ImportedData } from '@/domain/models/storeTypes'
@@ -63,139 +63,15 @@ export interface PersistenceActions {
   clearAll: () => Promise<void>
 }
 
-// ─── 内部正本: 復元状態の共有 ────────────────────────────
-
-interface RestoreState {
-  isRestoring: boolean
-  autoRestored: boolean
-  restoreError: string | null
-}
-
-type RestoreListener = () => void
-
-/**
- * モジュールスコープの正本。
- * usePersistence と usePersistenceState の両方がこの source を参照する。
- */
-let restoreState: RestoreState = {
-  isRestoring: false,
-  autoRestored: false,
-  restoreError: null,
-}
-
-const restoreListeners = new Set<RestoreListener>()
-let restoreExecuted = false
-
-function setRestoreState(update: Partial<RestoreState>): void {
-  restoreState = { ...restoreState, ...update }
-  for (const listener of restoreListeners) {
-    listener()
-  }
-}
-
-function subscribeRestoreState(listener: RestoreListener): () => void {
-  restoreListeners.add(listener)
-  return () => {
-    restoreListeners.delete(listener)
-  }
-}
-
-function getRestoreStateSnapshot(): RestoreState {
-  return restoreState
-}
-
-/** テスト用: 正本をリセットする */
-export function resetPersistenceState(): void {
-  restoreState = { isRestoring: false, autoRestored: false, restoreError: null }
-  restoreExecuted = false
-  restoreListeners.clear()
-}
-
 // ─── usePersistenceState: readonly 状態フック ───────────
 
 /**
  * Persistence の readonly 状態のみ返す。
+ * PersistenceContext から復元状態を取得する。
  * AppLifecycleProvider がこのフックを使い、usePersistence の command には依存しない。
  */
 export function usePersistenceState(): PersistenceStatusInfo {
-  const [, forceUpdate] = useState(0)
-  const repo = useRepository()
-  const available = useState(() => repo.isAvailable())[0]
-
-  // 正本を購読して再レンダリングをトリガー
-  useEffect(() => {
-    const unsubscribe = subscribeRestoreState(() => {
-      forceUpdate((c) => c + 1)
-    })
-    return unsubscribe
-  }, [])
-
-  // 初回復元を実行（usePersistence と共通ロジック）
-  useEffect(() => {
-    if (restoreExecuted) return
-    restoreExecuted = true
-
-    // IndexedDB 利用不可 → 復元スキップ（完了扱い）
-    if (!available) {
-      setRestoreState({ isRestoring: false, autoRestored: true })
-      return
-    }
-
-    setRestoreState({ isRestoring: true })
-
-    let cancelled = false
-    repo
-      .getSessionMeta()
-      .then(async (meta) => {
-        if (cancelled || !meta) {
-          if (!cancelled) {
-            setRestoreState({ isRestoring: false, autoRestored: true })
-          }
-          return
-        }
-        // 当月データを優先ロード。なければ lastSession のデータをロード。
-        // 表示年月は常に当月（settingsStore の初期値）を維持する。
-        const { targetYear, targetMonth } = useSettingsStore.getState().settings
-        const currentMonthData = await repo.loadMonthlyData(targetYear, targetMonth)
-        if (cancelled) return
-
-        if (currentMonthData) {
-          // 当月データがある → それを表示
-          useDataStore.getState().setImportedData(currentMonthData)
-          invalidateAfterStateChange()
-        } else if (meta.year !== targetYear || meta.month !== targetMonth) {
-          // 当月データなし → lastSession のデータをロードするが年月は当月を維持
-          const restoredData = await repo.loadMonthlyData(meta.year, meta.month)
-          if (cancelled) return
-          if (restoredData) {
-            useDataStore.getState().setImportedData(restoredData)
-            useSettingsStore.getState().updateSettings({
-              targetYear: meta.year,
-              targetMonth: meta.month,
-            })
-            invalidateAfterStateChange()
-          }
-        }
-        setRestoreState({ isRestoring: false, autoRestored: true })
-      })
-      .catch((err) => {
-        if (!cancelled) {
-          const message = err instanceof Error ? err.message : String(err)
-          console.warn('[usePersistence] ストレージアクセスエラー:', err)
-          setRestoreState({ isRestoring: false, restoreError: message })
-        }
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [available, repo])
-
-  const snapshot = getRestoreStateSnapshot()
-  return {
-    isRestoring: snapshot.isRestoring,
-    autoRestored: snapshot.autoRestored,
-    restoreError: snapshot.restoreError,
-  }
+  return useContext(PersistenceContext)
 }
 
 // ─── usePersistence: 既存互換 façade ───────────────────
@@ -210,7 +86,7 @@ export function usePersistence(): PersistenceState & PersistenceActions {
   const [diffResult, setDiffResult] = useState<DiffResult | null>(null)
   const [isSaving, setIsSaving] = useState(false)
 
-  // readonly 状態は正本から取得
+  // readonly 状態は Context から取得
   const status = usePersistenceState()
 
   const saveCurrentData = useCallback(async () => {

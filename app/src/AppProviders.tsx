@@ -9,7 +9,7 @@ import { ThemeProvider } from 'styled-components'
 import { HashRouter } from 'react-router-dom'
 import { darkTheme, lightTheme, GlobalStyle } from '@/presentation/theme'
 import type { ThemeMode } from '@/presentation/theme'
-import { RepositoryProvider } from '@/application/context'
+import { RepositoryProvider, PersistenceProvider } from '@/application/context'
 import { AppLifecycleProvider } from '@/application/lifecycle'
 import { ToastProvider } from '@/presentation/components/common/feedback'
 import { I18nProvider } from '@/infrastructure/i18n'
@@ -49,11 +49,13 @@ export function AppProviders({ children }: Props) {
         <I18nProvider>
           <AuthProvider>
             <RepositoryProvider repository={indexedDBRepository}>
-              <AppLifecycleProvider>
-                <HashRouter>
-                  <ToastProvider>{children}</ToastProvider>
-                </HashRouter>
-              </AppLifecycleProvider>
+              <PersistenceProvider>
+                <AppLifecycleProvider>
+                  <HashRouter>
+                    <ToastProvider>{children}</ToastProvider>
+                  </HashRouter>
+                </AppLifecycleProvider>
+              </PersistenceProvider>
             </RepositoryProvider>
           </AuthProvider>
         </I18nProvider>

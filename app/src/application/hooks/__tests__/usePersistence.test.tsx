@@ -2,9 +2,11 @@
  * usePersistence フックのテスト
  *
  * 保存・差分確認・差分判定・ダイアログ制御ロジックを検証する。
+ * PersistenceProvider でラップして Context 経由の復元状態を提供する。
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { renderHook, act, waitFor } from '@testing-library/react'
+import type { ReactNode } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useUiStore } from '@/application/stores/uiStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
@@ -36,8 +38,17 @@ vi.mock('@/application/services/diffCalculator', () => ({
   calculateDiff: vi.fn(() => ({ needsConfirmation: false, diffs: [] })),
 }))
 
-import { usePersistence, resetPersistenceState } from '../usePersistence'
+import { usePersistence } from '../usePersistence'
+import { PersistenceProvider } from '@/application/context/PersistenceProvider'
 import { calculateDiff } from '@/application/services/diffCalculator'
+
+// ── Provider wrapper for renderHook ──────────────────
+
+function createWrapper() {
+  return function Wrapper({ children }: { children: ReactNode }) {
+    return <PersistenceProvider>{children}</PersistenceProvider>
+  }
+}
 
 // ── Setup ──────────────────────────────────────────────
 
@@ -45,7 +56,6 @@ beforeEach(() => {
   useDataStore.getState().reset()
   useUiStore.getState().resetTransientState()
   useSettingsStore.getState().reset()
-  resetPersistenceState()
   vi.clearAllMocks()
 })
 
@@ -56,7 +66,7 @@ describe('usePersistence', () => {
     it('available is true when repo.isAvailable() returns true', async () => {
       mockRepo.isAvailable.mockReturnValue(true)
       mockRepo.getSessionMeta.mockResolvedValue(null)
-      const { result } = renderHook(() => usePersistence())
+      const { result } = renderHook(() => usePersistence(), { wrapper: createWrapper() })
       await waitFor(() => {
         expect(result.current.available).toBe(true)
       })
@@ -64,7 +74,7 @@ describe('usePersistence', () => {
 
     it('available is false when repo.isAvailable() returns false', async () => {
       mockRepo.isAvailable.mockReturnValue(false)
-      const { result } = renderHook(() => usePersistence())
+      const { result } = renderHook(() => usePersistence(), { wrapper: createWrapper() })
       await waitFor(() => {
         expect(result.current.available).toBe(false)
       })
@@ -72,7 +82,7 @@ describe('usePersistence', () => {
 
     it('showDiffDialog is false initially', async () => {
       mockRepo.getSessionMeta.mockResolvedValue(null)
-      const { result } = renderHook(() => usePersistence())
+      const { result } = renderHook(() => usePersistence(), { wrapper: createWrapper() })
       await waitFor(() => {
         expect(result.current.showDiffDialog).toBe(false)
       })
@@ -80,7 +90,7 @@ describe('usePersistence', () => {
 
     it('diffResult is null initially', async () => {
       mockRepo.getSessionMeta.mockResolvedValue(null)
-      const { result } = renderHook(() => usePersistence())
+      const { result } = renderHook(() => usePersistence(), { wrapper: createWrapper() })
       await waitFor(() => {
         expect(result.current.diffResult).toBeNull()
       })
@@ -88,7 +98,7 @@ describe('usePersistence', () => {
 
     it('isSaving is false initially', async () => {
       mockRepo.getSessionMeta.mockResolvedValue(null)
-      const { result } = renderHook(() => usePersistence())
+      const { result } = renderHook(() => usePersistence(), { wrapper: createWrapper() })
       await waitFor(() => {
         expect(result.current.isSaving).toBe(false)
       })
@@ -97,13 +107,13 @@ describe('usePersistence', () => {
     it('autoRestored is false while restore is in progress', () => {
       mockRepo.isAvailable.mockReturnValue(true)
       mockRepo.getSessionMeta.mockReturnValue(new Promise(() => {})) // pending
-      const { result } = renderHook(() => usePersistence())
+      const { result } = renderHook(() => usePersistence(), { wrapper: createWrapper() })
       expect(result.current.autoRestored).toBe(false)
     })
 
     it('autoRestored is true when repo is not available (restore skipped)', async () => {
       mockRepo.isAvailable.mockReturnValue(false)
-      const { result } = renderHook(() => usePersistence())
+      const { result } = renderHook(() => usePersistence(), { wrapper: createWrapper() })
       await waitFor(() => {
         expect(result.current.autoRestored).toBe(true)
       })
@@ -124,7 +134,7 @@ describe('usePersistence', () => {
       }
       mockRepo.loadMonthlyData.mockResolvedValue(data)
 
-      const { result } = renderHook(() => usePersistence())
+      const { result } = renderHook(() => usePersistence(), { wrapper: createWrapper() })
 
       await waitFor(() => {
         expect(result.current.autoRestored).toBe(true)
@@ -136,7 +146,7 @@ describe('usePersistence', () => {
       mockRepo.isAvailable.mockReturnValue(true)
       mockRepo.getSessionMeta.mockResolvedValue(null)
 
-      const { result } = renderHook(() => usePersistence())
+      const { result } = renderHook(() => usePersistence(), { wrapper: createWrapper() })
 
       await waitFor(() => {
         expect(mockRepo.getSessionMeta).toHaveBeenCalled()
@@ -148,7 +158,7 @@ describe('usePersistence', () => {
     it('does not restore when not available', async () => {
       mockRepo.isAvailable.mockReturnValue(false)
 
-      renderHook(() => usePersistence())
+      renderHook(() => usePersistence(), { wrapper: createWrapper() })
 
       // wait a tick
       await new Promise((r) => setTimeout(r, 10))
@@ -161,7 +171,7 @@ describe('usePersistence', () => {
       mockRepo.isAvailable.mockReturnValue(true)
       useSettingsStore.getState().updateSettings({ targetYear: 2025, targetMonth: 7 })
 
-      const { result } = renderHook(() => usePersistence())
+      const { result } = renderHook(() => usePersistence(), { wrapper: createWrapper() })
 
       await act(async () => {
         await result.current.saveCurrentData()
@@ -173,7 +183,7 @@ describe('usePersistence', () => {
     it('does not save when not available', async () => {
       mockRepo.isAvailable.mockReturnValue(false)
 
-      const { result } = renderHook(() => usePersistence())
+      const { result } = renderHook(() => usePersistence(), { wrapper: createWrapper() })
 
       await act(async () => {
         await result.current.saveCurrentData()
@@ -185,7 +195,7 @@ describe('usePersistence', () => {
     it('isSaving is false after save completes', async () => {
       mockRepo.isAvailable.mockReturnValue(true)
 
-      const { result } = renderHook(() => usePersistence())
+      const { result } = renderHook(() => usePersistence(), { wrapper: createWrapper() })
 
       await act(async () => {
         await result.current.saveCurrentData()
@@ -199,7 +209,7 @@ describe('usePersistence', () => {
     it('returns null when not available', async () => {
       mockRepo.isAvailable.mockReturnValue(false)
 
-      const { result } = renderHook(() => usePersistence())
+      const { result } = renderHook(() => usePersistence(), { wrapper: createWrapper() })
 
       let returned: DiffResult | null | undefined
       await act(async () => {
@@ -215,7 +225,7 @@ describe('usePersistence', () => {
       mockRepo.isAvailable.mockReturnValue(true)
       mockRepo.loadMonthlyData.mockResolvedValue(null)
 
-      const { result } = renderHook(() => usePersistence())
+      const { result } = renderHook(() => usePersistence(), { wrapper: createWrapper() })
 
       let returned: DiffResult | null | undefined
       await act(async () => {
@@ -235,7 +245,7 @@ describe('usePersistence', () => {
         diffs: [],
       } as unknown as DiffResult)
 
-      const { result } = renderHook(() => usePersistence())
+      const { result } = renderHook(() => usePersistence(), { wrapper: createWrapper() })
 
       let returned: DiffResult | null | undefined
       await act(async () => {
@@ -257,7 +267,7 @@ describe('usePersistence', () => {
       } as unknown as DiffResult
       vi.mocked(calculateDiff).mockReturnValue(fakeDiff)
 
-      const { result } = renderHook(() => usePersistence())
+      const { result } = renderHook(() => usePersistence(), { wrapper: createWrapper() })
 
       let returned: DiffResult | null | undefined
       await act(async () => {
@@ -276,7 +286,7 @@ describe('usePersistence', () => {
   describe('applyDiffDecision', () => {
     it('overwrite: returns incoming data as-is', async () => {
       mockRepo.getSessionMeta.mockResolvedValue(null)
-      const { result } = renderHook(() => usePersistence())
+      const { result } = renderHook(() => usePersistence(), { wrapper: createWrapper() })
       await waitFor(() => expect(result.current.autoRestored).toBe(true))
 
       const incoming = {
@@ -296,7 +306,7 @@ describe('usePersistence', () => {
 
     it('keep-existing: merges inserts only and preserves existing stores', async () => {
       mockRepo.getSessionMeta.mockResolvedValue(null)
-      const { result } = renderHook(() => usePersistence())
+      const { result } = renderHook(() => usePersistence(), { wrapper: createWrapper() })
       await waitFor(() => expect(result.current.autoRestored).toBe(true))
 
       const existing = {
@@ -325,7 +335,7 @@ describe('usePersistence', () => {
         diffs: [],
       } as unknown as DiffResult)
 
-      const { result } = renderHook(() => usePersistence())
+      const { result } = renderHook(() => usePersistence(), { wrapper: createWrapper() })
 
       await act(async () => {
         await result.current.checkDiffBeforeImport(createEmptyImportedData(), new Set(['purchase']))
@@ -345,7 +355,7 @@ describe('usePersistence', () => {
       mockRepo.isAvailable.mockReturnValue(true)
       useSettingsStore.getState().updateSettings({ targetYear: 2025, targetMonth: 5 })
 
-      const { result } = renderHook(() => usePersistence())
+      const { result } = renderHook(() => usePersistence(), { wrapper: createWrapper() })
 
       await act(async () => {
         await result.current.clearCurrentMonth()
@@ -357,7 +367,7 @@ describe('usePersistence', () => {
     it('does not call clearMonth when not available', async () => {
       mockRepo.isAvailable.mockReturnValue(false)
 
-      const { result } = renderHook(() => usePersistence())
+      const { result } = renderHook(() => usePersistence(), { wrapper: createWrapper() })
 
       await act(async () => {
         await result.current.clearCurrentMonth()
@@ -371,7 +381,7 @@ describe('usePersistence', () => {
     it('calls repo.clearAll', async () => {
       mockRepo.isAvailable.mockReturnValue(true)
 
-      const { result } = renderHook(() => usePersistence())
+      const { result } = renderHook(() => usePersistence(), { wrapper: createWrapper() })
 
       await act(async () => {
         await result.current.clearAll()
@@ -383,7 +393,7 @@ describe('usePersistence', () => {
     it('does not call clearAll when not available', async () => {
       mockRepo.isAvailable.mockReturnValue(false)
 
-      const { result } = renderHook(() => usePersistence())
+      const { result } = renderHook(() => usePersistence(), { wrapper: createWrapper() })
 
       await act(async () => {
         await result.current.clearAll()
