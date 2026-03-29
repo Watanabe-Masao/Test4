@@ -3,6 +3,7 @@
 // This file handles only: FFI boundary, Float64Array conversion.
 
 pub mod correlation;
+pub mod dow_gap;
 pub mod sensitivity;
 
 use correlation::{
@@ -104,5 +105,39 @@ pub fn calculate_sensitivity(params: &js_sys::Float64Array) -> js_sys::Float64Ar
     arr.set_index(7, r.simulated_projected_sales);
     arr.set_index(8, r.projected_sales_delta);
     arr.set_index(9, r.budget_achievement_delta);
+    arr
+}
+
+// ── DoW Gap Analysis ──
+
+#[wasm_bindgen]
+pub fn calc_median(values: &js_sys::Float64Array) -> f64 {
+    let mut v = values.to_vec();
+    dow_gap::calc_median(&mut v)
+}
+
+#[wasm_bindgen]
+pub fn calc_adjusted_mean(values: &js_sys::Float64Array) -> f64 {
+    dow_gap::calc_adjusted_mean(&values.to_vec())
+}
+
+#[wasm_bindgen]
+pub fn stddev_pop(values: &js_sys::Float64Array) -> f64 {
+    dow_gap::stddev_pop(&values.to_vec())
+}
+
+#[wasm_bindgen]
+pub fn coefficient_of_variation(values: &js_sys::Float64Array) -> f64 {
+    dow_gap::coefficient_of_variation(&values.to_vec())
+}
+
+/// Returns Float64Array of 7 elements [Sun, Mon, ..., Sat]
+#[wasm_bindgen]
+pub fn count_dows_in_month(year: i32, month: u32) -> js_sys::Float64Array {
+    let counts = dow_gap::count_dows_in_month(year, month);
+    let arr = js_sys::Float64Array::new_with_length(7);
+    for (i, c) in counts.iter().enumerate() {
+        arr.set_index(i as u32, *c as f64);
+    }
     arr
 }
