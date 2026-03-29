@@ -55,27 +55,9 @@ export const applicationToInfrastructure: readonly AllowlistEntry[] = [
   },
   {
     path: 'application/adapters/weatherAdapter.ts',
-    reason: 're-export bridge（実装は infrastructure/adapters/ に移動済み）',
+    reason: 're-export bridge（WeatherLoadService/ForecastLoadService が使用中）',
     category: 'adapter',
-    removalCondition: '全消費者が infrastructure/adapters/ を直接参照に切替後に削除',
-  },
-  {
-    path: 'application/adapters/storagePersistenceAdapter.ts',
-    reason: 're-export bridge（実装は infrastructure/adapters/ に移動済み）',
-    category: 'adapter',
-    removalCondition: '全消費者が infrastructure/adapters/ を直接参照に切替後に削除',
-  },
-  {
-    path: 'application/adapters/backupAdapter.ts',
-    reason: 're-export bridge（実装は infrastructure/adapters/ に移動済み）',
-    category: 'adapter',
-    removalCondition: '全消費者が infrastructure/adapters/ を直接参照に切替後に削除',
-  },
-  {
-    path: 'application/adapters/fileSystemAdapter.ts',
-    reason: 're-export bridge（実装は infrastructure/adapters/ に移動済み）',
-    category: 'adapter',
-    removalCondition: '全消費者が infrastructure/adapters/ を直接参照に切替後に削除',
+    removalCondition: 'サービスが DI パラメータ経由に切替後に削除',
   },
   {
     path: 'application/lifecycle/useAppLifecycle.ts',

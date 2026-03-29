@@ -12,7 +12,7 @@ import {
   exportExplanationReport as infraExportExplanation,
   exportTextSummaryReport as infraExportTextSummary,
 } from '@/infrastructure/export'
-import type { ExportPort } from '@/application/ports/ExportPort'
+import type { ExportPort } from '@/domain/ports/ExportPort'
 
 /** ExportPort の実装インスタンス */
 export const exportService: ExportPort = {

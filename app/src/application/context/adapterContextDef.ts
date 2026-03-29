@@ -5,10 +5,10 @@
  * 消費者は直接 adapter を import せず、useXxxAdapter() hook で取得する。
  */
 import { createContext } from 'react'
-import type { WeatherPort } from '@/application/ports/WeatherPort'
-import type { BackupPort } from '@/application/ports/BackupPort'
-import type { FileSystemPort } from '@/application/ports/FileSystemPort'
-import type { StoragePersistencePort } from '@/application/ports/StoragePersistencePort'
+import type { WeatherPort } from '@/domain/ports/WeatherPort'
+import type { BackupPort } from '@/domain/ports/BackupPort'
+import type { FileSystemPort } from '@/domain/ports/FileSystemPort'
+import type { StoragePersistencePort } from '@/domain/ports/StoragePersistencePort'
 
 export interface AdapterSet {
   readonly weather: WeatherPort

@@ -6,7 +6,7 @@
  */
 import { useState, useEffect, useCallback } from 'react'
 import { useStoragePersistenceAdapter } from '@/application/context/useAdapters'
-import type { StoragePressureLevel } from '@/application/ports/StoragePersistencePort'
+import type { StoragePressureLevel } from '@/domain/ports/StoragePersistencePort'
 
 export interface StorageStatusInfo {
   readonly isPersisted: boolean

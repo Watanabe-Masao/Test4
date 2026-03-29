@@ -7,7 +7,7 @@
  */
 import { useState, useCallback } from 'react'
 import { useBackupAdapter } from '@/application/context/useAdapters'
-import type { BackupMeta, BackupImportResult } from '@/application/ports/BackupPort'
+import type { BackupMeta, BackupImportResult } from '@/domain/ports/BackupPort'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import type { DataRepository } from '@/domain/repositories'
 

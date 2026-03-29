@@ -6,10 +6,10 @@
  */
 import { useContext } from 'react'
 import { AdapterContext } from './adapterContextDef'
-import type { WeatherPort } from '@/application/ports/WeatherPort'
-import type { BackupPort } from '@/application/ports/BackupPort'
-import type { FileSystemPort } from '@/application/ports/FileSystemPort'
-import type { StoragePersistencePort } from '@/application/ports/StoragePersistencePort'
+import type { WeatherPort } from '@/domain/ports/WeatherPort'
+import type { BackupPort } from '@/domain/ports/BackupPort'
+import type { FileSystemPort } from '@/domain/ports/FileSystemPort'
+import type { StoragePersistencePort } from '@/domain/ports/StoragePersistencePort'
 
 function useAdapterSet() {
   const ctx = useContext(AdapterContext)

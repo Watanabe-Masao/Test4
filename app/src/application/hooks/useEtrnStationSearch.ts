@@ -5,7 +5,7 @@
  * HTML スクレイピング不要。ネットワークリクエスト不要で即座に結果を返す。
  */
 import { useMemo } from 'react'
-import type { EtrnStation, EtrnStationEntry } from '@/application/ports/WeatherPort'
+import type { EtrnStation, EtrnStationEntry } from '@/domain/ports/WeatherPort'
 import { useWeatherAdapter } from '@/application/context/useAdapters'
 
 /** 都道府県選択肢 */
