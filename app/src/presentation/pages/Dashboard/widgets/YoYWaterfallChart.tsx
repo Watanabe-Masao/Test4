@@ -12,6 +12,7 @@ import {
   calculateItemsPerCustomer,
   calculateAveragePricePerItem,
 } from '@/domain/calculations/utils'
+import { formatPercent } from '@/domain/formatting'
 import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
 import {
   categoryTimeRecordsHandler,
@@ -42,7 +43,6 @@ import {
   DecompRow,
   DecompBtn,
 } from './YoYWaterfallChart.styles'
-import { formatPercent } from '@/domain/formatting'
 import { AMOUNT_RECONCILIATION_TOLERANCE } from '@/domain/constants'
 import type { DecompLevel, ViewMode } from './YoYWaterfallChart.data'
 import { buildFactorData, buildCategoryData } from './YoYWaterfallChart.data'
@@ -447,8 +447,8 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
             border: '1px solid rgba(245,158,11,0.2)',
           }}
         >
-          分類別時間帯データ（CTS）が不足しています（カバー率 {(ctsCoverageRatio * 100).toFixed(1)}
-          %）。要因分解の精度に影響する可能性があります。
+          分類別時間帯データ（CTS）が不足しています（カバー率{' '}
+          {formatPercent(ctsCoverageRatio, 1)}）。要因分解の精度に影響する可能性があります。
         </div>
       )}
 
