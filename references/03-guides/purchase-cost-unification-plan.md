@@ -86,15 +86,25 @@ readPurchaseCost() → PurchaseCostReadModel
    - 複合正本: `PurchaseCostReadModel`（grandTotalCost + inventoryPurchaseCost 導出値）
    - parse 方針: 正本 read は DEV/PROD とも `.parse()`（fail fast）
 5. ~~唯一の read 関数を新設~~ → 完了
-   - `application/readModels/purchaseCost/readPurchaseCost.ts`（177行）
+   - `application/readModels/purchaseCost/readPurchaseCost.ts`（純関数）
    - 3正本を並列取得 → `PurchaseCostReadModel.parse()` で runtime 検証
-   - 変換ヘルパー `toPurchaseDailySupplierRows` / `toCategoryDailyRows` も提供
+   - 変換ヘルパー `toPurchaseDailySupplierRows` / `toCategoryDailyRows` / `toStoreCostRows` / `toDailyCostRows`
 6. ~~facade hook を新設~~ → 完了
    - `application/readModels/purchaseCost/usePurchaseCost.ts`（65行）
-   - `useQueryWithHandler` 経由で `purchaseCostHandler` を実行
+   - UI 層からの標準入口（useQueryWithHandler 経由）
 7. ~~既存 usePurchaseComparisonQuery を readPurchaseCost に切替~~ → 完了
-   - Phase 2 の6クエリ → 2回の `purchaseCostHandler.execute()` に統合
+   - `purchaseCostHandler.execute()` を直接呼び出し（Promise.all 並列実行のため）
    - 旧経路の直接呼び出しを完全除去（後方互換なし）
+
+#### 入口ルール（方針A — purchase-cost-definition.md §8 と統一）
+
+```
+UI 層（presentation）の標準入口 = usePurchaseCost()
+Application 層の orchestration/comparison = purchaseCostHandler / readPurchaseCost() 許容
+```
+
+usePurchaseComparisonQuery が purchaseCostHandler.execute() を直接呼ぶのは、
+Application 層内の orchestration であり正当な用法。ガードテストで明示的に許可済み。
    - 複合正本の `grandTotalCost` で KPI を上書き
 8. ~~取得経路ガードテスト~~ → 完了
    - `test/guards/purchaseCostPathGuard.test.ts`（5テスト、3層防御）
