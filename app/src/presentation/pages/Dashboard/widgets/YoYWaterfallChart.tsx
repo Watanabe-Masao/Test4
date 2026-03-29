@@ -12,6 +12,7 @@ import {
   calculateItemsPerCustomer,
   calculateAveragePricePerItem,
 } from '@/domain/calculations/utils'
+import { formatPercent } from '@/domain/formatting'
 import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
 import {
   categoryTimeRecordsHandler,
@@ -448,7 +449,7 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
           }}
         >
           分類別時間帯データ（CTS）が不足しています（カバー率{' '}
-          {(ctsCoverageRatio * 100).toFixed(1)}%）。要因分解の精度に影響する可能性があります。
+          {formatPercent(ctsCoverageRatio, 1)}）。要因分解の精度に影響する可能性があります。
         </div>
       )}
 
