@@ -8,8 +8,8 @@ function makeRecord(day: number, storeId = 's1'): CategoryTimeSalesRecord {
 
 describe('computeDivisor', () => {
   it('total モード → 1', () => expect(computeDivisor(15, 'total')).toBe(1))
-  it('daily モード → distinctDayCount', () => expect(computeDivisor(15, 'daily')).toBe(15))
-  it('0日 → 1（ゼロ除算防止）', () => expect(computeDivisor(0, 'daily')).toBe(1))
+  it('daily モード → distinctDayCount', () => expect(computeDivisor(15, 'dailyAvg')).toBe(15))
+  it('0日 → 1（ゼロ除算防止）', () => expect(computeDivisor(0, 'dailyAvg')).toBe(1))
 })
 
 describe('countDistinctDays', () => {

@@ -478,3 +478,107 @@ describe('D3: 率メトリクスの累計計算ガード', () => {
     ).toBeGreaterThanOrEqual(2)
   })
 })
+
+// ─── B1 拡張: domain/calculations の金銭計算は Rust crate 必須 ──
+// @guard B1 Authoritative 計算は domain/calculations のみ
+
+describe('B1 拡張: domain/calculations の金銭計算関数は WASM bridge が存在すること', () => {
+  /**
+   * Rust crate による数学的証明（不変条件テスト + property-based テスト）を
+   * 強制するためのガード。新規の金銭計算関数を TS のみで追加することを禁止する。
+   *
+   * 既存の TS-only ファイルは allowlist で管理し、段階的に Rust 化する。
+   */
+
+  // Rust crate が存在する（bridge 経由で WASM 呼び出し可能な）計算ファイル
+  const RUST_COVERED_FILES = new Set([
+    'budgetAnalysis.ts',
+    'factorDecomposition.ts',
+    'invMethod.ts',
+    'estMethod.ts',
+    'discountImpact.ts',
+    'costAggregation.ts',
+    'markupRate.ts',
+    'timeSlotCalculations.ts',
+    // forecast 系
+    'algorithms/advancedForecast.ts',
+    'algorithms/trendAnalysis.ts',
+  ])
+
+  // TS のみで許容するファイル（Rust 化不要 or 段階移行中）
+  const TS_ONLY_ALLOWLIST = new Set([
+    // ユーティリティ（全モジュール共通の基盤関数）
+    'utils.ts',
+    'aggregation.ts',
+    'divisor.ts',
+    'remainingBudgetRate.ts',
+    'averageDivisor.ts',
+    // 型定義・バレル
+    'factorDecompositionDto.ts',
+    'decomposition.ts',
+    'grossProfit.ts',
+    'forecast.ts',
+    // ルールエンジン・判定ロジック（ビジネスルール、Rust 不適）
+    'observationPeriod.ts',
+    'rules/alertSystem.ts',
+    'rules/conditionResolver.ts',
+    // データ検出・天気マッピング（外部データ依存）
+    'dataDetection.ts',
+    'forecastWeatherMapping.ts',
+    'weatherAggregation.ts',
+    // 集約・フィルタ（DuckDB 側で処理すべき）
+    'rawAggregation.ts',
+    'rawAggregation/aggregationUtilities.ts',
+    'rawAggregation/dailyAggregation.ts',
+    'rawAggregation/featureAggregation.ts',
+    'rawAggregation/statisticalFunctions.ts',
+    // UI フォーマッター・合成（Rust 不適）
+    'causalChain.ts',
+    'causalChainFormatters.ts',
+    'causalChainSteps.ts',
+    'yoyComparison.ts',
+    // Temporal（DuckDB/application 層の責務）
+    'temporal/computeMovingAverage.ts',
+    // 統計・分析（Rust 化候補だが現時点は許容）
+    'inventoryCalc.ts',
+    'dowGapActualDay.ts',
+    'dowGapAnalysis.ts',
+    'dowGapStatistics.ts',
+    'pinIntervals.ts',
+    'algorithms/correlation.ts',
+    'algorithms/sensitivity.ts',
+  ])
+
+  it('domain/calculations/ の全ファイルが Rust 実装済みまたは allowlist に登録されている', () => {
+    const calcDir = path.join(SRC_DIR, 'domain/calculations')
+    const files = collectTsFiles(calcDir)
+    const violations: string[] = []
+
+    for (const file of files) {
+      const relPath = path.relative(calcDir, file)
+      if (relPath.startsWith('__tests__')) continue
+      if (relPath === 'index.ts' || relPath.endsWith('/index.ts')) continue
+      if (relPath.endsWith('.barrel.ts')) continue
+
+      if (!RUST_COVERED_FILES.has(relPath) && !TS_ONLY_ALLOWLIST.has(relPath)) {
+        violations.push(relPath)
+      }
+    }
+
+    expect(
+      violations,
+      `domain/calculations/ に未登録のファイルがあります:\n${violations.join('\n')}\n` +
+        '→ Rust crate を作成するか、TS_ONLY_ALLOWLIST に正当な理由を付けて登録してください。\n' +
+        '金銭計算の新規追加は Rust crate + 数学的証明が必須です（B1 拡張）。',
+    ).toEqual([])
+  })
+
+  it('TS_ONLY_ALLOWLIST のサイズが増加していない（段階的 Rust 化）', () => {
+    const MAX_TS_ONLY = 32
+    expect(
+      TS_ONLY_ALLOWLIST.size,
+      `TS_ONLY_ALLOWLIST が ${TS_ONLY_ALLOWLIST.size} 件（上限: ${MAX_TS_ONLY}）。` +
+        'Rust 化が進んだらエントリを削除してください。',
+    ).toBeLessThanOrEqual(MAX_TS_ONLY)
+  })
+})
