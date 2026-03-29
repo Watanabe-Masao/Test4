@@ -9,7 +9,7 @@ import type {
   DailyWeatherSummary,
   WeatherCategory,
 } from '@/domain/models/record'
-import { safeDivide } from './utils'
+import { safeDivide } from '@/domain/calculations/utils'
 
 const SECONDS_PER_HOUR = 3600
 

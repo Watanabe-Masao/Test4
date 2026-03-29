@@ -11,7 +11,10 @@
  */
 import type { QueryHandler, BaseQueryInput } from '../QueryContract'
 import { queryStoreDaySummary } from '@/infrastructure/duckdb/queries/storeDaySummary'
-import { computeDailyFeatures, type DailyFeatureRow } from '@/domain/calculations/rawAggregation'
+import {
+  computeDailyFeatures,
+  type DailyFeatureRow,
+} from '@/application/query-bridge/rawAggregation'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 
 /** MA-28 のために必要な先行データ日数 */

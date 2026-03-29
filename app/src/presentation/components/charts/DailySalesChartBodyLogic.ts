@@ -7,7 +7,7 @@
  * @guard G5 hook ≤300行 — 純粋関数を分離
  */
 import type { DailyWeatherSummary } from '@/domain/models/record'
-import { categorizeWeatherCode } from '@/domain/calculations/weatherAggregation'
+import { categorizeWeatherCode } from '@/domain/weather/weatherAggregation'
 import type { WeatherCategory } from '@/domain/models/record'
 import { lineDefaults } from './builders'
 

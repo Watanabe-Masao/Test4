@@ -10,7 +10,7 @@
  *
  * @guard G5 hook ≤300行 — 純粋関数を分離
  */
-import { toWeatherDisplay } from '@/domain/calculations/weatherAggregation'
+import { toWeatherDisplay } from '@/domain/weather/weatherAggregation'
 import type { HourlyWeatherAvgRow } from '@/application/hooks/duckdb'
 import type { WeatherHourlyDisplay } from './TimeSlotComparisonTable'
 

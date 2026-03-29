@@ -13,7 +13,7 @@
  * @guard G5 hook ≤300行 — 純粋関数を分離
  */
 import type { CategoryHourlyRow } from '@/application/hooks/duckdb'
-import { findPeak } from '@/domain/calculations/rawAggregation'
+import { findPeak } from '@/application/query-bridge/rawAggregation'
 
 // ─── Types ──────────────────────────────────────────
 

@@ -3,7 +3,7 @@
  *
  * rawAggregation から抽出。時間帯集約、期間レート、ランキング、YoY、カテゴリシェアを担う。
  */
-import { safeDivide } from '../utils'
+import { safeDivide } from '@/domain/calculations/utils'
 
 /** 時間帯集約結果 */
 export interface HourlyAggregate {
