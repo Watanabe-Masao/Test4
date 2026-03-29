@@ -7,11 +7,48 @@
  * 自由日付範囲: date_key BETWEEN で月跨ぎに対応。
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import { z } from 'zod'
 import { queryToObjects, queryScalar, buildTypedWhere } from '../queryRunner'
 import type { WhereCondition } from '../queryRunner'
 import type { DailyCumulativeRow } from './aggregates/dailyAggregation'
 
-// ── 結果型 ──
+// ── 結果型 + Zod スキーマ ──
+
+/** StoreDaySummaryRow の Zod スキーマ（DEV 行検証用） */
+export const StoreDaySummaryRowSchema = z.object({
+  year: z.number(),
+  month: z.number(),
+  day: z.number(),
+  dateKey: z.string(),
+  storeId: z.string(),
+  sales: z.number(),
+  coreSales: z.number(),
+  grossSales: z.number(),
+  discount71: z.number(),
+  discount72: z.number(),
+  discount73: z.number(),
+  discount74: z.number(),
+  discountAmount: z.number(),
+  discountAbsolute: z.number(),
+  purchaseCost: z.number(),
+  purchasePrice: z.number(),
+  interStoreInCost: z.number(),
+  interStoreInPrice: z.number(),
+  interStoreOutCost: z.number(),
+  interStoreOutPrice: z.number(),
+  interDeptInCost: z.number(),
+  interDeptInPrice: z.number(),
+  interDeptOutCost: z.number(),
+  interDeptOutPrice: z.number(),
+  flowersCost: z.number(),
+  flowersPrice: z.number(),
+  directProduceCost: z.number(),
+  directProducePrice: z.number(),
+  costInclusionCost: z.number(),
+  customers: z.number(),
+  totalQuantity: z.number(),
+  isPrevYear: z.boolean(),
+})
 
 export interface StoreDaySummaryRow {
   readonly year: number
@@ -95,7 +132,7 @@ export async function queryStoreDaySummary(
     SELECT * FROM store_day_summary
     ${where}
     ORDER BY store_id, date_key`
-  return queryToObjects<StoreDaySummaryRow>(conn, sql)
+  return queryToObjects<StoreDaySummaryRow>(conn, sql, StoreDaySummaryRowSchema)
 }
 
 /**
