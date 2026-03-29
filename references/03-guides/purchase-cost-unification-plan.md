@@ -144,16 +144,19 @@ readPurchaseCost() → PurchaseCostReadModel
 
 **目的:** 正本以外からの仕入原価 read を禁止し再発防止する。
 
-#### 3層防御
+#### ガードテスト（4層9テスト — 完了）
 
-1. **import 経路ガード:** presentation 層が購買系クエリを直接 import していないこと
-2. **集計経路ガード:** application 層で `readPurchaseCost()` 以外が cost/price 合計を組み立てていないこと
-3. **旧 helper 利用ガード:** deprecated 化した旧関数の新規利用がないこと
+1. **import 経路ガード:** presentation 層が旧購買系クエリ8関数を直接 import していない
+2. **集計経路ガード:** 正当な集計元以外で仕入原価の独自集計パターンがない
+3. **正本一貫性ガード:** readPurchaseCost の3正本取得・導出値・旧経路不在
+4. **正しい手続き保証:** KPI上書き・変換ヘルパー使用・正しい経由ルート
 
-#### 冗長クエリの統合
+#### 冗長クエリの統合（完了）
 
-- `queryPurchaseTotal` → 廃止（dailyBySupplier の集計で代替）
-- `queryPurchaseBySupplier` → 取引先名解決専用に限定
+- ~~`queryPurchaseBySupplier`~~ → **完全廃止**（`PurchaseSupplierRow` 型も削除）
+  - `querySupplierNames` を新設（名前解決専用、SUM なし）
+  - `buildSupplierAndCategoryData` を ReadModel ベースに全面書換え
+- `queryPurchaseTotal` → Phase 1 KPI 先行表示専用として維持（正本ではないことを明記済み）
 
 ---
 

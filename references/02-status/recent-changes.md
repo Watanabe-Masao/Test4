@@ -22,14 +22,15 @@
 
 ### 構造防御
 
-9. **取得経路ガード** — `purchaseCostPathGuard.test.ts`（5テスト、3層防御: import/集計/旧helper）
-10. **天気ファイル移動** — domain/calculations/ → domain/weather/ へ。NON_CALCULATION_FILES=0 達成
+9. **取得経路ガード** — `purchaseCostPathGuard.test.ts`（9テスト、4層防御: import/集計/正本一貫性/手続き保証）
+10. **冗長クエリ廃止** — `queryPurchaseBySupplier` 完全削除。`querySupplierNames`（名前解決専用）を新設。`buildSupplierAndCategoryData` を ReadModel ベースに全面書換え
+11. **天気ファイル移動** — domain/calculations/ → domain/weather/ へ。NON_CALCULATION_FILES=0 達成
 
 ### 数値成果
 
 | 指標 | 変更 |
 |------|------|
-| ガードテスト | 158 → **163**（+5: 仕入原価取得経路ガード） |
+| ガードテスト | 158 → **167**（+9: 仕入原価取得経路ガード 4層防御） |
 | 一貫性テスト | **18** パス（ピボット/KPI 一致不変条件） |
 | 取得経路 | 3経路 → **1経路**（readPurchaseCost に統合） |
 | 移動原価フィルタ | IN のみ → **全方向**（二重計上解消） |
