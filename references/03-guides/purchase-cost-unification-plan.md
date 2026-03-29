@@ -85,31 +85,39 @@ readPurchaseCost() → PurchaseCostReadModel
    - 3独立正本: `PurchaseCanonical` + `DeliverySalesCanonical` + `TransfersCanonical`
    - 複合正本: `PurchaseCostReadModel`（grandTotalCost + inventoryPurchaseCost 導出値）
    - parse 方針: 正本 read は DEV/PROD とも `.parse()`（fail fast）
-5. **唯一の read 関数を新設**
-   - `application/readModels/purchaseCost/readPurchaseCost.ts`
-   - `queryPurchaseDailyBySupplier` + `querySpecialSalesDaily` + `queryTransfersDaily` を統合
-   - 3正本を構築し `PurchaseCostReadModel.parse()` で runtime 検証
-6. **facade hook を新設**
-   - `application/readModels/purchaseCost/usePurchaseCost.ts`
-   - `useQueryWithHandler` 経由で `readPurchaseCost` を呼び出し
-7. **既存の usePurchaseComparisonQuery を readPurchaseCost に切替**
-   - Phase 1 KPI（高速表示）は維持、Phase 2 で readPurchaseCost に上書き
+5. ~~唯一の read 関数を新設~~ → 完了
+   - `application/readModels/purchaseCost/readPurchaseCost.ts`（177行）
+   - 3正本を並列取得 → `PurchaseCostReadModel.parse()` で runtime 検証
+   - 変換ヘルパー `toPurchaseDailySupplierRows` / `toCategoryDailyRows` も提供
+6. ~~facade hook を新設~~ → 完了
+   - `application/readModels/purchaseCost/usePurchaseCost.ts`（65行）
+   - `useQueryWithHandler` 経由で `purchaseCostHandler` を実行
+7. ~~既存 usePurchaseComparisonQuery を readPurchaseCost に切替~~ → 完了
+   - Phase 2 の6クエリ → 2回の `purchaseCostHandler.execute()` に統合
+   - 旧経路の直接呼び出しを完全除去（後方互換なし）
+   - 複合正本の `grandTotalCost` で KPI を上書き
+8. ~~取得経路ガードテスト~~ → 完了
+   - `test/guards/purchaseCostPathGuard.test.ts`（5テスト、3層防御）
+   - Layer 1: import 経路（presentation → 旧クエリ禁止）
+   - Layer 2: 集計経路（正当な集計元以外での独自集計禁止）
+   - Layer 3: 複合正本一貫性（3正本取得 + 導出値 + 旧経路不在）
 
-#### 修正対象ファイル
+#### 成果物
 
-- 新規: `application/readModels/purchaseCost/PurchaseCostTypes.ts`
-- 新規: `application/readModels/purchaseCost/readPurchaseCost.ts`
-- 新規: `application/readModels/purchaseCost/usePurchaseCost.ts`
-- 修正: `application/hooks/duckdb/usePurchaseComparisonQuery.ts`
-- 修正: `application/hooks/duckdb/purchaseComparisonDaily.ts`
-- 修正: `application/hooks/duckdb/purchaseComparisonCategory.ts`
-- 修正: `application/hooks/duckdb/purchaseComparisonKpi.ts`
+| ファイル | 行数 | 責務 |
+|---------|------|------|
+| `PurchaseCostTypes.ts` | 107 | Zod 契約定義 |
+| `readPurchaseCost.ts` | 177 | QueryHandler + 変換ヘルパー |
+| `usePurchaseCost.ts` | 65 | facade hook |
+| `index.ts` | 21 | バレルエクスポート |
+| `purchaseCostPathGuard.test.ts` | 127 | 3層防御ガード（5テスト） |
 
-#### 完了条件
+#### 完了条件 → ✅ 全て達成
 
-- 仕入原価の意味が Zod スキーマと文書で固定されている
-- KPI / カテゴリ明細 / ピボットの合計が数学的に一致する
-- 既存の一貫性テストがパスする
+- ✅ 仕入原価の意味が Zod スキーマと文書で固定されている
+- ✅ KPI / カテゴリ明細 / ピボットの合計が数学的に一致する
+- ✅ 既存の一貫性テスト + 新規ガード（163テスト）がパスする
+- ✅ 旧経路の直接呼び出しが完全除去されガードで保護されている
 
 ---
 
