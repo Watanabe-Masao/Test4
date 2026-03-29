@@ -20,13 +20,12 @@ import type { QueryExecutor } from '@/application/queries/QueryPort'
 import type { WeatherPersister } from '@/application/queries/weather'
 import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
 import { useMultiMovingAverage } from '@/application/hooks/useMultiMovingAverage'
-import { alignPrevYearDay } from '@/application/services/temporal/prevYearAlignment'
 import {
   dailyQuantityHandler,
   type DailyQuantityInput,
 } from '@/application/queries/summary/DailyQuantityHandler'
-import type { DailyQuantityData } from './useDailySalesData'
 import type { DailyRecord, DailyWeatherSummary, DiscountEntry } from '@/domain/models/record'
+import { aggregateDailyQuantity } from './IntegratedSalesChartLogic'
 import { useDrillDateRange } from '@/application/hooks/useDrillDateRange'
 import {
   buildSalesAnalysisContext,
@@ -145,25 +144,17 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
     dailyQuantityHandler,
     prevQtyInput,
   )
-  const dailyQuantity = useMemo<DailyQuantityData | undefined>(() => {
-    if (!curQtyOut) return undefined
-    const current = new Map<number, number>()
-    for (const r of curQtyOut.records) {
-      const day = Number(r.dateKey.split('-')[2])
-      current.set(day, (current.get(day) ?? 0) + r.dailyQuantity)
-    }
-    const prev = new Map<number, number>()
-    if (prevQtyOut && prevYearDateRange) {
-      const curFromDay = props.currentDateRange.from.day
-      for (const r of prevQtyOut.records) {
-        const targetDay = alignPrevYearDay(r.dateKey, prevYearDateRange.from, curFromDay)
-        if (targetDay >= 1 && targetDay <= props.daysInMonth) {
-          prev.set(targetDay, (prev.get(targetDay) ?? 0) + r.dailyQuantity)
-        }
-      }
-    }
-    return { current, prev }
-  }, [curQtyOut, prevQtyOut, prevYearDateRange, props.currentDateRange, props.daysInMonth])
+  const dailyQuantity = useMemo(
+    () =>
+      aggregateDailyQuantity(
+        curQtyOut?.records,
+        prevQtyOut?.records,
+        prevYearDateRange,
+        props.currentDateRange,
+        props.daysInMonth,
+      ),
+    [curQtyOut, prevQtyOut, prevYearDateRange, props.currentDateRange, props.daysInMonth],
+  )
 
   const handleDayClick = useCallback((day: number) => {
     setClickedDay((prev) => {
