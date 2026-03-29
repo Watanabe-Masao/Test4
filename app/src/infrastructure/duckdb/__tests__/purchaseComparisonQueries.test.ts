@@ -55,29 +55,29 @@ describe('queryPurchaseDailyBySupplier', () => {
     await queryPurchaseDailyBySupplier(conn as never, dateFrom, dateTo, storeIds)
     const sql = conn.getCapturedSql()[0]
     expect(sql).toContain('FROM purchase')
-    expect(sql).toContain('GROUP BY day, supplier_code')
+    expect(sql).toContain('GROUP BY store_id, day, supplier_code')
   })
 })
 
 describe('querySpecialSalesDaily', () => {
-  it('special_sales テーブルから日別×カテゴリ別に集約する SQL を生成する', async () => {
+  it('special_sales テーブルから店舗×日別×カテゴリ別に集約する SQL を生成する', async () => {
     const conn = makeMockConn()
     await querySpecialSalesDaily(conn as never, dateFrom, dateTo, storeIds)
     const sql = conn.getCapturedSql()[0]
     expect(sql).toContain('FROM special_sales')
     expect(sql).toContain('type AS category_key')
-    expect(sql).toContain('GROUP BY day, type')
+    expect(sql).toContain('GROUP BY store_id, day, type')
   })
 })
 
 describe('queryTransfersDaily', () => {
-  it('transfers テーブルから日別×方向別に集約する SQL を生成する', async () => {
+  it('transfers テーブルから店舗×日別×方向別に集約する SQL を生成する', async () => {
     const conn = makeMockConn()
     await queryTransfersDaily(conn as never, dateFrom, dateTo, storeIds)
     const sql = conn.getCapturedSql()[0]
     expect(sql).toContain('FROM transfers')
     expect(sql).toContain('direction AS category_key')
-    expect(sql).toContain('GROUP BY day, direction')
+    expect(sql).toContain('GROUP BY store_id, day, direction')
   })
 })
 
