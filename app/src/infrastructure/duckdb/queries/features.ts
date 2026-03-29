@@ -13,6 +13,7 @@
  * - 部門別トレンド
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import { z } from 'zod'
 import { queryToObjects, buildTypedWhere } from '../queryRunner'
 import type { WhereCondition } from '../queryRunner'
 import { validateCode } from '../queryParams'
@@ -27,6 +28,38 @@ import type {
 
 export type { DailyFeatureRow, HourlyProfileRow, DowPatternRow }
 
+export const DailyFeatureRowSchema = z.object({
+  storeId: z.string(),
+  dateKey: z.string(),
+  sales: z.number(),
+  salesMa3: z.number().nullable(),
+  salesMa7: z.number().nullable(),
+  salesMa28: z.number().nullable(),
+  salesDiff1d: z.number().nullable(),
+  salesDiff7d: z.number().nullable(),
+  cumulativeSales: z.number(),
+  cv7day: z.number().nullable(),
+  cv28day: z.number().nullable(),
+  zScore: z.number().nullable(),
+  spikeRatio: z.number().nullable(),
+})
+
+export const HourlyProfileRowSchema = z.object({
+  storeId: z.string(),
+  hour: z.number(),
+  totalAmount: z.number(),
+  hourShare: z.number(),
+  hourRank: z.number(),
+})
+
+export const DowPatternRowSchema = z.object({
+  storeId: z.string(),
+  dow: z.number(),
+  avgSales: z.number(),
+  dayCount: z.number(),
+  salesStddev: z.number().nullable(),
+})
+
 export interface DeptDailyTrendRow {
   readonly storeId: string
   readonly deptCode: string
@@ -35,6 +68,15 @@ export interface DeptDailyTrendRow {
   readonly dailyAmount: number
   readonly deptMa7day: number | null
 }
+
+export const DeptDailyTrendRowSchema = z.object({
+  storeId: z.string(),
+  deptCode: z.string(),
+  deptName: z.string().nullable(),
+  dateKey: z.string(),
+  dailyAmount: z.number(),
+  deptMa7day: z.number().nullable(),
+})
 
 // ── 共通フィルタ ──
 
@@ -100,7 +142,7 @@ export async function queryDailyFeatures(
       w7  AS (PARTITION BY store_id ORDER BY date_key ROWS BETWEEN 6 PRECEDING AND CURRENT ROW),
       w28 AS (PARTITION BY store_id ORDER BY date_key ROWS BETWEEN 27 PRECEDING AND CURRENT ROW)
     ORDER BY store_id, date_key`
-  return queryToObjects<DailyFeatureRow>(conn, sql)
+  return queryToObjects<DailyFeatureRow>(conn, sql, DailyFeatureRowSchema)
 }
 
 /**
@@ -128,7 +170,7 @@ export async function queryHourlyProfile(
     ${where}
     GROUP BY store_id, hour
     ORDER BY store_id, hour`
-  return queryToObjects<HourlyProfileRow>(conn, sql)
+  return queryToObjects<HourlyProfileRow>(conn, sql, HourlyProfileRowSchema)
 }
 
 /**
@@ -163,7 +205,7 @@ export async function queryDowPattern(
     FROM daily
     GROUP BY store_id, dow
     ORDER BY store_id, dow`
-  return queryToObjects<DowPatternRow>(conn, sql)
+  return queryToObjects<DowPatternRow>(conn, sql, DowPatternRowSchema)
 }
 
 /**
@@ -202,5 +244,5 @@ export async function queryDeptDailyTrend(
     GROUP BY store_id, dept_code, dept_name, date_key
     HAVING SUM(total_amount) > 0
     ORDER BY store_id, dept_code, date_key`
-  return queryToObjects<DeptDailyTrendRow>(conn, sql)
+  return queryToObjects<DeptDailyTrendRow>(conn, sql, DeptDailyTrendRowSchema)
 }

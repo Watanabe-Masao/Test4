@@ -7,6 +7,7 @@
  * 結果: 店舗ごとに { current, prevYear, prevWeek, trendRecent, trendPrior } の5期間分の集計値。
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import { z } from 'zod'
 import type { DateRange } from '@/domain/models/calendar'
 import { dateRangeToKeys } from '@/domain/models/CalendarDate'
 import { queryToObjects, storeIdFilterWithAlias } from '../queryRunner'
@@ -86,6 +87,66 @@ export interface ConditionMatrixRow {
   readonly tpQuantity: number
   readonly tpSalesDays: number
 }
+
+/** ConditionMatrixRow 用の Zod スキーマ（5期間×10メトリクス + storeId） */
+export const ConditionMatrixRowSchema = z.object({
+  storeId: z.string(),
+  // ── 当期 ──
+  curSales: z.number(),
+  curCustomers: z.number(),
+  curDiscount: z.number(),
+  curGrossSales: z.number(),
+  curDiscountRate: z.number(),
+  curTotalCost: z.number(),
+  curConsumable: z.number(),
+  curConsumableRate: z.number(),
+  curQuantity: z.number(),
+  curSalesDays: z.number(),
+  // ── 前年同期 ──
+  pySales: z.number(),
+  pyCustomers: z.number(),
+  pyDiscount: z.number(),
+  pyGrossSales: z.number(),
+  pyDiscountRate: z.number(),
+  pyTotalCost: z.number(),
+  pyConsumable: z.number(),
+  pyConsumableRate: z.number(),
+  pyQuantity: z.number(),
+  pySalesDays: z.number(),
+  // ── 前週同期 ──
+  pwSales: z.number(),
+  pwCustomers: z.number(),
+  pwDiscount: z.number(),
+  pwGrossSales: z.number(),
+  pwDiscountRate: z.number(),
+  pwTotalCost: z.number(),
+  pwConsumable: z.number(),
+  pwConsumableRate: z.number(),
+  pwQuantity: z.number(),
+  pwSalesDays: z.number(),
+  // ── トレンド（後半） ──
+  trSales: z.number(),
+  trCustomers: z.number(),
+  trDiscount: z.number(),
+  trGrossSales: z.number(),
+  trDiscountRate: z.number(),
+  trTotalCost: z.number(),
+  trConsumable: z.number(),
+  trConsumableRate: z.number(),
+  trQuantity: z.number(),
+  trSalesDays: z.number(),
+  // ── トレンド（前半） ──
+  tpSales: z.number(),
+  tpCustomers: z.number(),
+  tpDiscount: z.number(),
+  tpGrossSales: z.number(),
+  tpDiscountRate: z.number(),
+  tpTotalCost: z.number(),
+  tpConsumable: z.number(),
+  tpConsumableRate: z.number(),
+  tpQuantity: z.number(),
+  tpSalesDays: z.number(),
+})
 
 /**
  * 条件付き集計列を生成するヘルパー。
@@ -227,5 +288,5 @@ export async function queryConditionMatrix(
     ORDER BY s.store_id
   `
 
-  return queryToObjects<ConditionMatrixRow>(conn, sql)
+  return queryToObjects<ConditionMatrixRow>(conn, sql, ConditionMatrixRowSchema)
 }

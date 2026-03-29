@@ -1,11 +1,6 @@
-/**
- * 高度分析クエリモジュール
- *
- * DuckDB のウィンドウ関数を活用した高度な分析:
- * - カテゴリ構成比の週次推移（構成シフト検出）
- * - カテゴリベンチマーク（指数加重ランキング）
- */
+/** 高度分析クエリ — カテゴリ構成比の週次推移・カテゴリベンチマーク（指数加重ランキング） */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import { z } from 'zod'
 import { queryToObjects, buildTypedWhere } from '../queryRunner'
 import type { WhereCondition } from '../queryRunner'
 import { validateDateKey } from '../queryParams'
@@ -38,6 +33,17 @@ export interface CategoryMixWeeklyRow {
   readonly prevWeekShare: number | null
   readonly shareShift: number | null
 }
+
+export const CategoryMixWeeklyRowSchema = z.object({
+  weekStart: z.string(),
+  code: z.string(),
+  name: z.string(),
+  weekSales: z.number(),
+  totalWeekSales: z.number(),
+  sharePct: z.number(),
+  prevWeekShare: z.number().nullable(),
+  shareShift: z.number().nullable(),
+})
 
 export interface CategoryMixParams {
   readonly dateFrom: string
@@ -97,7 +103,7 @@ export async function queryCategoryMixWeekly(
       share_pct - LAG(share_pct) OVER (PARTITION BY code ORDER BY week_start) AS share_shift
     FROM with_total
     ORDER BY week_start, week_sales DESC`
-  return queryToObjects<CategoryMixWeeklyRow>(conn, sql)
+  return queryToObjects<CategoryMixWeeklyRow>(conn, sql, CategoryMixWeeklyRowSchema)
 }
 
 // ── カテゴリベンチマーク（指数加重ランキング） ──
@@ -117,6 +123,18 @@ export interface CategoryBenchmarkRow {
   readonly storeCount: number
 }
 
+export const CategoryBenchmarkRowSchema = z.object({
+  code: z.string(),
+  name: z.string(),
+  storeId: z.string(),
+  totalSales: z.number(),
+  totalQuantity: z.number(),
+  storeCustomers: z.number(),
+  share: z.number(),
+  salesRank: z.number(),
+  storeCount: z.number(),
+})
+
 export interface CategoryBenchmarkParams {
   readonly dateFrom: string
   readonly dateTo: string
@@ -133,6 +151,11 @@ export interface CategoryHierarchyItem {
   readonly code: string
   readonly name: string
 }
+
+export const CategoryHierarchyItemSchema = z.object({
+  code: z.string(),
+  name: z.string(),
+})
 
 /**
  * 指定レベルの distinct カテゴリ一覧を取得（階層フィルタ用）
@@ -175,7 +198,7 @@ export async function queryCategoryHierarchy(
     FROM category_time_sales cts
     ${where}
     ORDER BY code`
-  return queryToObjects<CategoryHierarchyItem>(conn, sql)
+  return queryToObjects<CategoryHierarchyItem>(conn, sql, CategoryHierarchyItemSchema)
 }
 
 /**
@@ -274,7 +297,7 @@ export async function queryCategoryBenchmark(
       COUNT(*) OVER (PARTITION BY code)::INTEGER AS store_count
     FROM cat_share
     ORDER BY code, sales_rank`
-  return queryToObjects<CategoryBenchmarkRow>(conn, sql)
+  return queryToObjects<CategoryBenchmarkRow>(conn, sql, CategoryBenchmarkRowSchema)
 }
 
 // ── カテゴリベンチマーク 日別トレンド ──
@@ -288,6 +311,15 @@ export interface CategoryBenchmarkTrendRow {
   readonly totalSales: number
   readonly share: number
 }
+
+export const CategoryBenchmarkTrendRowSchema = z.object({
+  dateKey: z.string(),
+  code: z.string(),
+  name: z.string(),
+  storeId: z.string(),
+  totalSales: z.number(),
+  share: z.number(),
+})
 
 /**
  * カテゴリベンチマーク日別トレンド
@@ -360,5 +392,5 @@ export async function queryCategoryBenchmarkTrend(
     JOIN daily_store_total dst
       ON dcs.date_key = dst.date_key AND dcs.store_id = dst.store_id
     ORDER BY dcs.date_key, dcs.code`
-  return queryToObjects<CategoryBenchmarkTrendRow>(conn, sql)
+  return queryToObjects<CategoryBenchmarkTrendRow>(conn, sql, CategoryBenchmarkTrendRowSchema)
 }

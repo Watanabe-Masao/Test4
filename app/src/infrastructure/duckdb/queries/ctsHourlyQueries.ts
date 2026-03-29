@@ -5,6 +5,7 @@
  * time_slots テーブルを主に使用するクエリ群。
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import { z } from 'zod'
 import { queryToObjects } from '../queryRunner'
 import type { CtsFilterParams } from './categoryTimeSales'
 import { tsWhereClause } from './categoryTimeSales'
@@ -14,6 +15,12 @@ import { tsWhereClause } from './categoryTimeSales'
 // 契約型は domain に定義（A4: 取得対象の契約は Domain で定義）
 export type { HourlyAggregationRow } from '@/domain/models/CtsQueryContracts'
 import type { HourlyAggregationRow } from '@/domain/models/CtsQueryContracts'
+
+export const HourlyAggregationRowSchema = z.object({
+  hour: z.number(),
+  totalAmount: z.number(),
+  totalQuantity: z.number(),
+})
 
 /**
  * 時間帯別集約（aggregateHourly 相当）
@@ -32,7 +39,7 @@ export async function queryHourlyAggregation(
     ${where}
     GROUP BY ts.hour
     ORDER BY ts.hour`
-  return queryToObjects<HourlyAggregationRow>(conn, sql)
+  return queryToObjects<HourlyAggregationRow>(conn, sql, HourlyAggregationRowSchema)
 }
 
 // ── 店舗別時間帯集約 ──
@@ -42,6 +49,12 @@ export interface StoreAggregationRow {
   readonly hour: number
   readonly amount: number
 }
+
+export const StoreAggregationRowSchema = z.object({
+  storeId: z.string(),
+  hour: z.number(),
+  amount: z.number(),
+})
 
 /**
  * 店舗別×時間帯集約（aggregateByStore 相当）
@@ -60,7 +73,7 @@ export async function queryStoreAggregation(
     ${where}
     GROUP BY ts.store_id, ts.hour
     ORDER BY ts.store_id, ts.hour`
-  return queryToObjects<StoreAggregationRow>(conn, sql)
+  return queryToObjects<StoreAggregationRow>(conn, sql, StoreAggregationRowSchema)
 }
 
 // ── 時間帯×曜日マトリクス ──
@@ -71,6 +84,13 @@ export interface HourDowMatrixRow {
   readonly amount: number
   readonly dayCount: number
 }
+
+export const HourDowMatrixRowSchema = z.object({
+  hour: z.number(),
+  dow: z.number(),
+  amount: z.number(),
+  dayCount: z.number(),
+})
 
 /**
  * 時間帯×曜日マトリクス（aggregateHourDow 相当）
@@ -92,7 +112,7 @@ export async function queryHourDowMatrix(
     ${where}
     GROUP BY ts.hour, dow
     ORDER BY ts.hour, dow`
-  return queryToObjects<HourDowMatrixRow>(conn, sql)
+  return queryToObjects<HourDowMatrixRow>(conn, sql, HourDowMatrixRowSchema)
 }
 
 // ── カテゴリ×時間帯集約 ──
@@ -104,6 +124,14 @@ export interface CategoryHourlyRow {
   readonly amount: number
   readonly quantity: number
 }
+
+export const CategoryHourlyRowSchema = z.object({
+  code: z.string(),
+  name: z.string(),
+  hour: z.number(),
+  amount: z.number(),
+  quantity: z.number(),
+})
 
 /**
  * カテゴリ別×時間帯集約
@@ -155,7 +183,7 @@ export async function queryCategoryHourly(
     FROM agg
     LEFT JOIN names ON agg.code = names.code_key
     ORDER BY agg.amount DESC, agg.hour`
-  return queryToObjects<CategoryHourlyRow>(conn, sql)
+  return queryToObjects<CategoryHourlyRow>(conn, sql, CategoryHourlyRowSchema)
 }
 
 // ── カテゴリ×曜日マトリクス ──
@@ -168,6 +196,15 @@ export interface CategoryDowMatrixRow {
   readonly quantity: number
   readonly dayCount: number
 }
+
+export const CategoryDowMatrixRowSchema = z.object({
+  code: z.string(),
+  name: z.string(),
+  dow: z.number(),
+  amount: z.number(),
+  quantity: z.number(),
+  dayCount: z.number(),
+})
 
 /**
  * カテゴリ×曜日マトリクス
@@ -220,5 +257,5 @@ export async function queryCategoryDowMatrix(
     FROM agg
     LEFT JOIN names ON agg.code = names.code_key
     ORDER BY SUM(agg.amount) OVER (PARTITION BY agg.code) DESC, agg.dow`
-  return queryToObjects<CategoryDowMatrixRow>(conn, sql)
+  return queryToObjects<CategoryDowMatrixRow>(conn, sql, CategoryDowMatrixRowSchema)
 }

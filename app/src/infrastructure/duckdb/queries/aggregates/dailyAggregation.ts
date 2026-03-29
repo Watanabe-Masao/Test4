@@ -25,6 +25,7 @@
  * - DailyCumulativeRow → チャート ViewModel への変換
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import { z } from 'zod'
 import { queryToObjects, buildTypedWhere } from '../../queryRunner'
 import type { WhereCondition } from '../../queryRunner'
 
@@ -36,6 +37,12 @@ export interface DailyCumulativeRow {
   readonly dailySales: number
   readonly cumulativeSales: number
 }
+
+export const DailyCumulativeRowSchema = z.object({
+  dateKey: z.string(),
+  dailySales: z.number(),
+  cumulativeSales: z.number(),
+})
 
 // ── フィルタ条件 ──
 
@@ -85,7 +92,7 @@ export async function queryDailyCumulativeAggregation(
     GROUP BY date_key
     ORDER BY date_key`
 
-  return queryToObjects<DailyCumulativeRow>(conn, sql)
+  return queryToObjects<DailyCumulativeRow>(conn, sql, DailyCumulativeRowSchema)
 }
 
 // ── 日別点数クエリ ──
@@ -95,6 +102,11 @@ export interface DailyQuantityRow {
   readonly dateKey: string
   readonly dailyQuantity: number
 }
+
+export const DailyQuantityRowSchema = z.object({
+  dateKey: z.string(),
+  dailyQuantity: z.number(),
+})
 
 /**
  * 日別の買上点数を SQL で集約する
@@ -121,5 +133,5 @@ export async function queryDailyQuantity(
     GROUP BY date_key
     ORDER BY date_key`
 
-  return queryToObjects<DailyQuantityRow>(conn, sql)
+  return queryToObjects<DailyQuantityRow>(conn, sql, DailyQuantityRowSchema)
 }

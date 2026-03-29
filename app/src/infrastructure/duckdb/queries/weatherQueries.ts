@@ -6,6 +6,7 @@
  * 2回目以降のアクセスは DuckDB から直接読み出す。
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import { z } from 'zod'
 import type { HourlyWeatherRecord } from '@/domain/models/record'
 import { queryToObjects, buildTypedWhere, queryScalar } from '../queryRunner'
 import type { WhereCondition } from '../queryRunner'
@@ -27,6 +28,21 @@ interface WeatherHourlyRow {
   readonly weatherCode: number
   readonly sunshineDuration: number
 }
+
+const WeatherHourlyRowSchema = z.object({
+  dateKey: z.string(),
+  year: z.number(),
+  month: z.number(),
+  day: z.number(),
+  hour: z.number(),
+  storeId: z.string(),
+  temperature: z.number(),
+  humidity: z.number(),
+  precipitation: z.number(),
+  windSpeed: z.number(),
+  weatherCode: z.number(),
+  sunshineDuration: z.number(),
+})
 
 /**
  * 指定店舗・日付範囲の時間別天気データを取得する。
@@ -58,7 +74,7 @@ export async function queryWeatherHourly(
     ${where}
     ORDER BY date_key, hour`
 
-  const rows = await queryToObjects<WeatherHourlyRow>(conn, sql)
+  const rows = await queryToObjects<WeatherHourlyRow>(conn, sql, WeatherHourlyRowSchema)
 
   // DuckDB 行 → domain 型に変換
   return rows.map((row) => ({
@@ -84,6 +100,16 @@ export interface HourlyWeatherAvgRow {
   /** 最頻天気コード（MODE） */
   readonly weatherCode: number | null
 }
+
+export const HourlyWeatherAvgRowSchema = z.object({
+  hour: z.number(),
+  avgTemperature: z.number(),
+  avgHumidity: z.number(),
+  totalPrecipitation: z.number(),
+  avgSunshineDuration: z.number(),
+  dayCount: z.number(),
+  weatherCode: z.number().nullable(),
+})
 
 /**
  * 指定店舗・日付範囲の時間帯別天気平均を取得する（月間プロファイル用）。
@@ -113,7 +139,7 @@ export async function queryWeatherHourlyAvg(
     GROUP BY hour
     ORDER BY hour`
 
-  return queryToObjects<HourlyWeatherAvgRow>(conn, sql)
+  return queryToObjects<HourlyWeatherAvgRow>(conn, sql, HourlyWeatherAvgRowSchema)
 }
 
 /**

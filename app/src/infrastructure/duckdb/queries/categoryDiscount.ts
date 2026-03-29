@@ -5,6 +5,7 @@
  * 日別 or 期間合計のどちらにも対応。
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import { z } from 'zod'
 import { queryToObjects, buildTypedWhere } from '../queryRunner'
 import type { WhereCondition } from '../queryRunner'
 
@@ -19,6 +20,17 @@ export interface CategoryDiscountRow {
   readonly discountTotal: number
 }
 
+export const CategoryDiscountRowSchema = z.object({
+  code: z.string(),
+  name: z.string(),
+  salesAmount: z.number(),
+  discount71: z.number(),
+  discount72: z.number(),
+  discount73: z.number(),
+  discount74: z.number(),
+  discountTotal: z.number(),
+})
+
 export interface CategoryDiscountDailyRow {
   readonly dateKey: string
   readonly code: string
@@ -30,6 +42,18 @@ export interface CategoryDiscountDailyRow {
   readonly discount74: number
   readonly discountTotal: number
 }
+
+export const CategoryDiscountDailyRowSchema = z.object({
+  dateKey: z.string(),
+  code: z.string(),
+  name: z.string(),
+  salesAmount: z.number(),
+  discount71: z.number(),
+  discount72: z.number(),
+  discount73: z.number(),
+  discount74: z.number(),
+  discountTotal: z.number(),
+})
 
 interface CategoryDiscountParams {
   readonly dateFrom: string
@@ -84,7 +108,7 @@ export async function queryCategoryDiscount(
     ${where}${parentWhere}
     GROUP BY ${col.code}, ${col.name}
     ORDER BY discount_total DESC`
-  return queryToObjects<CategoryDiscountRow>(conn, sql)
+  return queryToObjects<CategoryDiscountRow>(conn, sql, CategoryDiscountRowSchema)
 }
 
 /** カテゴリ別売変日別推移 */
@@ -114,5 +138,5 @@ export async function queryCategoryDiscountDaily(
     ${where}
     GROUP BY date_key, ${col.code}, ${col.name}
     ORDER BY date_key, discount_total DESC`
-  return queryToObjects<CategoryDiscountDailyRow>(conn, sql)
+  return queryToObjects<CategoryDiscountDailyRow>(conn, sql, CategoryDiscountDailyRowSchema)
 }
