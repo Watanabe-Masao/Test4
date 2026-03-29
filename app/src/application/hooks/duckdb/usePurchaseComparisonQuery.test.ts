@@ -221,15 +221,9 @@ describe('purchaseComparisonBuilders', () => {
         { day: 1, supplierCode: 'S001', supplierName: 'A', totalCost: 450, totalPrice: 550 },
         { day: 3, supplierCode: 'S002', supplierName: 'B', totalCost: 100, totalPrice: 130 },
       ]
-      const curSpecial = [
-        { day: 1, categoryKey: 'flowers', totalCost: 50, totalPrice: 70 },
-      ]
-      const prevSpecial = [
-        { day: 1, categoryKey: 'flowers', totalCost: 40, totalPrice: 60 },
-      ]
-      const curTransfers = [
-        { day: 2, categoryKey: 'interStoreIn', totalCost: 30, totalPrice: 35 },
-      ]
+      const curSpecial = [{ day: 1, categoryKey: 'flowers', totalCost: 50, totalPrice: 70 }]
+      const prevSpecial = [{ day: 1, categoryKey: 'flowers', totalCost: 40, totalPrice: 60 }]
+      const curTransfers = [{ day: 2, categoryKey: 'interStoreIn', totalCost: 30, totalPrice: 35 }]
 
       const flowerCat: CategoryComparisonRow = {
         ...cat,
@@ -289,7 +283,18 @@ describe('purchaseComparisonBuilders', () => {
       ]
       const supplierMap = { S001: 'market_purchase' as const }
 
-      const pivot = buildDailyPivot(curDaily, prevDaily, [], [], [], [], [cat], supplierMap, 2025, 3)
+      const pivot = buildDailyPivot(
+        curDaily,
+        prevDaily,
+        [],
+        [],
+        [],
+        [],
+        [cat],
+        supplierMap,
+        2025,
+        3,
+      )
 
       // ピボット grandTotal から KPI を構築
       const kpi = buildKpi(

@@ -43,7 +43,6 @@ import {
   DecompRow,
   DecompBtn,
 } from './YoYWaterfallChart.styles'
-import { formatPercent } from '@/domain/formatting'
 import { AMOUNT_RECONCILIATION_TOLERANCE } from '@/domain/constants'
 import type { DecompLevel, ViewMode } from './YoYWaterfallChart.data'
 import { buildFactorData, buildCategoryData } from './YoYWaterfallChart.data'
