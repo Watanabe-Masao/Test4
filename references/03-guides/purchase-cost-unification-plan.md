@@ -138,6 +138,14 @@ readPurchaseCost() → PurchaseCostReadModel
 - 探索系クエリ: `.safeParse()` + DEV ログ
 - 周辺 I/O: `.safeParse()` + ログ
 
+#### Phase 1 実施状況 ✅ 全 Step 完了
+
+| Step | 対象 | 適用数 | 状態 |
+|------|------|--------|------|
+| Step 1 | PurchaseCostReadModel | 1型 (.parse fail fast) | ✅ |
+| Step 2 | 全 queryToObjects | 46型 (DEV safeParse) | ✅ |
+| Step 3 | store hydration / backup | 3箇所 (safeParse + フォールバック) | ✅ |
+
 ---
 
 ### Phase 2: 取得経路ガード
