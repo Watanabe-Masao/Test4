@@ -5,7 +5,6 @@ import {
   categoryColor,
   markupRate,
   buildDailyPivot,
-  computeKpiTotals,
   buildKpi,
 } from './purchaseComparisonBuilders'
 import type { CategoryComparisonRow } from '@/domain/models/PurchaseComparison'

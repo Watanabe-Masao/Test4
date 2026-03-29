@@ -331,16 +331,10 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
     [activeLevel, hasQuantity, prevCust, curCust, prevTotalQty, curTotalQty, prevSales, curSales],
   )
 
-  // CTS データ整合性チェック: StoreResult の日別売上合計と CTS 売上を比較
-  const dailySalesTotal = useMemo(() => {
-    let sum = 0
-    for (const [day, rec] of r.daily) {
-      if (day >= dayStart && day <= dayEnd) sum += rec.sales ?? 0
-    }
-    return sum
-  }, [r.daily, dayStart, dayEnd])
-  const ctsCoverageRatio = dailySalesTotal > 0 ? curSales / dailySalesTotal : 1
-  const hasCtsDataGap = ctsCoverageRatio < 0.5 && dailySalesTotal > 0
+  // CTS データ整合性チェック: CTS 売上合計と daily 売上合計を比較
+  const ctsSalesTotal = periodCTS.reduce((s, rec) => s + rec.totalAmount, 0)
+  const ctsCoverageRatio = curSales > 0 ? ctsSalesTotal / curSales : 1
+  const hasCtsDataGap = ctsCoverageRatio < 0.5 && curSales > 0
 
   if (!hasComparison || prevSales <= 0) return null
 

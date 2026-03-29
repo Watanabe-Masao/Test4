@@ -50,21 +50,22 @@ export function calculatePrevCtsDateRange(
 }
 
 /**
- * CTS + daily から当期の売上・客数合計を算出する。
+ * daily（StoreResult 由来）から当期の売上・客数合計を算出する。
+ *
+ * 売上の正本は daily レコード（classified_sales ベース）。
+ * CTS はカテゴリ別内訳専用であり、売上合計には使用しない。
  */
 export function aggregatePeriodCurSales(
-  periodCTS: readonly CategoryTimeSalesRecord[],
+  _periodCTS: readonly CategoryTimeSalesRecord[],
   daily: ReadonlyMap<number, DailyRecord>,
   dayStart: number,
   dayEnd: number,
 ): { sales: number; customers: number } {
   let sales = 0
   let customers = 0
-  for (const rec of periodCTS) {
-    sales += rec.totalAmount
-  }
   for (const [day, rec] of daily) {
     if (day >= dayStart && day <= dayEnd) {
+      sales += rec.sales ?? 0
       customers += rec.customers ?? 0
     }
   }
@@ -72,10 +73,13 @@ export function aggregatePeriodCurSales(
 }
 
 /**
- * CTS + daily/prevDaily から比較期の売上・客数合計を算出する。
+ * daily/prevDaily から比較期の売上・客数合計を算出する。
+ *
+ * 売上の正本は daily/prevDaily レコード。
+ * CTS はカテゴリ別内訳専用であり、売上合計には使用しない。
  */
 export function aggregatePeriodPrevSales(
-  periodPrevCTS: readonly CategoryTimeSalesRecord[],
+  _periodPrevCTS: readonly CategoryTimeSalesRecord[],
   activeCompMode: ComparisonMode,
   daily: ReadonlyMap<number, DailyRecord>,
   prevDaily: ReadonlyMap<string, { sales: number; discount: number; customers: number }>,
@@ -88,12 +92,10 @@ export function aggregatePeriodPrevSales(
 ): { sales: number; customers: number } {
   let sales = 0
   let customers = 0
-  for (const rec of periodPrevCTS) {
-    sales += rec.totalAmount
-  }
   if (activeCompMode === 'wow') {
     for (const [day, rec] of daily) {
       if (day >= wowPrevStart && day <= wowPrevEnd) {
+        sales += rec.sales ?? 0
         customers += rec.customers ?? 0
       }
     }
@@ -101,6 +103,7 @@ export function aggregatePeriodPrevSales(
     for (let d = dayStart; d <= dayEnd; d++) {
       const entry = prevDaily.get(toDateKeyFromParts(year, month, d))
       if (entry) {
+        sales += entry.sales
         customers += entry.customers
       }
     }
