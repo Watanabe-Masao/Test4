@@ -541,3 +541,74 @@ describe('クエリ複雑度バジェット: infrastructure/duckdb/queries/', ()
     ).toEqual([])
   })
 })
+
+// ─── C5: 最小セレクタ — store 全体購読の防止 ─────────────
+// @guard C5 最小セレクタ
+
+describe('C5: Zustand store はセレクタ付きで呼ぶ', () => {
+  // store.getState() は store 外からの非リアクティブアクセスなので許可
+  const BARE_CALL_PATTERN = /\b(useDataStore|useSettingsStore|useUiStore)\(\s*\)/g
+
+  it('セレクタなしの store 呼び出しが存在しない', () => {
+    const appDir = path.join(SRC_DIR, 'application')
+    const presDir = path.join(SRC_DIR, 'presentation')
+    const files = [...collectTsFiles(appDir), ...collectTsFiles(presDir)]
+    const violations: string[] = []
+
+    for (const file of files) {
+      const content = fs.readFileSync(file, 'utf-8')
+      const matches = content.match(BARE_CALL_PATTERN)
+      if (matches) {
+        for (const m of matches) {
+          violations.push(`${rel(file)}: ${m}`)
+        }
+      }
+    }
+
+    expect(
+      violations,
+      `セレクタなしの store 呼び出しが検出されました（C5 違反）:\n` +
+        `useDataStore((s) => s.field) のようにセレクタを指定してください。\n` +
+        violations.join('\n'),
+    ).toEqual([])
+  })
+})
+
+// ─── G2: エラーは伝播 — 空 catch の防止 ──────────────────
+// @guard G2 エラーは伝播
+
+describe('G2: 空の catch ブロックが存在しない', () => {
+  // catch { } or .catch(() => {}) with truly empty body (no statements, only whitespace/comments)
+  const EMPTY_CATCH_PATTERNS = [
+    /\.catch\(\s*\(\)\s*=>\s*\{\s*\}\s*\)/g, // .catch(() => {})
+    /\.catch\(\s*\(\s*\)\s*=>\s*\{\s*\/\/[^\n]*\n\s*\}\s*\)/g, // .catch(() => { // comment })
+  ]
+
+  it('空の catch ハンドラが存在しない（コメントのみも禁止）', () => {
+    const dirs = [
+      path.join(SRC_DIR, 'application'),
+      path.join(SRC_DIR, 'presentation'),
+      path.join(SRC_DIR, 'infrastructure'),
+    ]
+    const files = dirs.flatMap((d) => collectTsFiles(d))
+    const violations: string[] = []
+
+    for (const file of files) {
+      const content = fs.readFileSync(file, 'utf-8')
+      for (const pattern of EMPTY_CATCH_PATTERNS) {
+        const matches = [...content.matchAll(pattern)]
+        for (const m of matches) {
+          const line = content.slice(0, m.index).split('\n').length
+          violations.push(`${rel(file)}:${line}: ${m[0].trim().slice(0, 40)}`)
+        }
+      }
+    }
+
+    expect(
+      violations,
+      `空の catch ハンドラが検出されました（G2 違反）:\n` +
+        `catch 内でエラーを握り潰さないでください。最低でも console.warn を入れてください。\n` +
+        violations.join('\n'),
+    ).toEqual([])
+  })
+})
