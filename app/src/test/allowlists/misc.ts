@@ -26,15 +26,15 @@ export const ctxHook: readonly AllowlistEntry[] = [
 export const vmReactImport: readonly AllowlistEntry[] = [
   {
     path: 'presentation/components/charts/CategoryBenchmarkChart.vm.ts',
-    reason: 'Recharts ResponsiveContainer 等が必要',
+    reason: 'VM 内で useState/useMemo を使用',
     category: 'structural',
-    removalCondition: 'Recharts 依存が VM から分離されたとき',
+    removalCondition: 'React hooks が VM から分離されたとき',
   },
   {
     path: 'presentation/components/charts/CategoryBoxPlotChart.vm.ts',
-    reason: 'Recharts ResponsiveContainer 等が必要',
+    reason: 'VM 内で useState/useMemo を使用',
     category: 'structural',
-    removalCondition: 'Recharts 依存が VM から分離されたとき',
+    removalCondition: 'React hooks が VM から分離されたとき',
   },
 ] as const
 

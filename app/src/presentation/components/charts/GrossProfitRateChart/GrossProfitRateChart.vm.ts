@@ -2,7 +2,7 @@
  * GrossProfitRateChart ViewModel
  *
  * WriteModel（StoreResult.daily）→ 描画データ変換。
- * Recharts に渡すデータ構造と閾値判定ロジックを分離する。
+ * ECharts に渡すデータ構造と閾値判定ロジックを分離する。
  *
  * @guard F7 View は ViewModel のみ受け取る
  */
