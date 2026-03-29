@@ -8,6 +8,11 @@ pub mod est_method;
 pub mod inv_method;
 pub mod markup_rate;
 pub mod types;
+
+#[cfg(test)]
+mod inv_method_tests;
+#[cfg(test)]
+mod est_method_tests;
 pub mod utils;
 
 use wasm_bindgen::prelude::*;

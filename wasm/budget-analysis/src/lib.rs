@@ -7,6 +7,9 @@ pub mod gross_profit_budget;
 pub mod types;
 pub mod utils;
 
+#[cfg(test)]
+mod budget_analysis_tests;
+
 use wasm_bindgen::prelude::*;
 
 /// Calculate budget analysis for a single store.
