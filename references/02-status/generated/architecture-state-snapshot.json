@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-29T01:26:36.917Z",
+  "timestamp": "2026-03-29T02:14:34.758Z",
   "totalAllowlistEntries": 52,
   "categoryBreakdown": {
     "adapter": 11,
@@ -115,7 +115,7 @@
       "file": "presentation/components/charts/IntegratedSalesChart.tsx",
       "memoCount": 12,
       "stateCount": 12,
-      "lineCount": 598
+      "lineCount": 589
     },
     {
       "file": "presentation/pages/Dashboard/widgets/useDrilldownData.ts",
@@ -145,13 +145,13 @@
       "file": "presentation/components/charts/CategoryTrendChart.tsx",
       "memoCount": 9,
       "stateCount": 7,
-      "lineCount": 519
+      "lineCount": 368
     },
     {
       "file": "presentation/components/charts/DeptHourlyChart.tsx",
       "memoCount": 10,
       "stateCount": 6,
-      "lineCount": 576
+      "lineCount": 419
     },
     {
       "file": "presentation/components/charts/TimeSlotChart.tsx",
@@ -221,6 +221,13 @@
       "metric": "lines",
       "actual": 401,
       "limit": 450,
+      "pct": 89
+    },
+    {
+      "file": "presentation/components/charts/IntegratedSalesChart.tsx",
+      "metric": "useMemo",
+      "actual": 8,
+      "limit": 9,
       "pct": 89
     },
     {

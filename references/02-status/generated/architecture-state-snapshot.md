@@ -1,6 +1,6 @@
 # Architecture State Snapshot
 
-> Generated: 2026-03-29T01:26:36.917Z
+> Generated: 2026-03-29T02:14:34.758Z
 
 ## Allowlist Summary
 
@@ -98,13 +98,13 @@
 | ファイル | useMemo | useState | 行数 |
 |---|---|---|---|
 | application/hooks/useTimeSlotData.ts | 21 | 8 | 389 |
-| presentation/components/charts/IntegratedSalesChart.tsx | 12 | 12 | 598 |
+| presentation/components/charts/IntegratedSalesChart.tsx | 12 | 12 | 589 |
 | presentation/pages/Dashboard/widgets/useDrilldownData.ts | 14 | 10 | 413 |
 | presentation/pages/CostDetail/useCostDetailData.ts | 13 | 6 | 210 |
 | presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 14 | 5 | 490 |
 | presentation/components/charts/CategoryBenchmarkChart.vm.ts | 10 | 8 | 470 |
-| presentation/components/charts/CategoryTrendChart.tsx | 9 | 7 | 519 |
-| presentation/components/charts/DeptHourlyChart.tsx | 10 | 6 | 576 |
+| presentation/components/charts/CategoryTrendChart.tsx | 9 | 7 | 368 |
+| presentation/components/charts/DeptHourlyChart.tsx | 10 | 6 | 419 |
 | presentation/components/charts/TimeSlotChart.tsx | 10 | 6 | 228 |
 | presentation/pages/Dashboard/widgets/HourlyChart.tsx | 10 | 6 | 538 |
 
@@ -120,6 +120,7 @@
 | presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | useMemo | 10 | 11 | 91% |
 | presentation/pages/Dashboard/widgets/HourlyChart.tsx | useMemo | 9 | 10 | 90% |
 | application/hooks/duckdb/categoryBenchmarkLogic.ts | lines | 401 | 450 | 89% |
+| presentation/components/charts/IntegratedSalesChart.tsx | useMemo | 8 | 9 | 89% |
 | application/hooks/useTimeSlotData.ts | useMemo | 7 | 8 | 88% |
 | presentation/pages/Dashboard/widgets/DrilldownWaterfall.tsx | useMemo | 7 | 8 | 88% |
 | presentation/components/charts/TimeSlotChart.tsx | useMemo | 7 | 8 | 88% |
