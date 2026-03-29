@@ -99,7 +99,7 @@ export function ChartView({
   return <EChart option={option} height={chartHeight} ariaLabel="カテゴリベンチマーク棒グラフ" />
 }
 
-// ── TableView (テーブル — Recharts なし) ──
+// ── TableView (テーブル表示) ──
 
 export function TableView({
   scores,

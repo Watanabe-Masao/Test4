@@ -1,7 +1,7 @@
 /**
  * WeatherCorrelationChart ViewModel
  *
- * 相関分析結果を Recharts 描画データに変換する。
+ * 相関分析結果を ECharts 描画データに変換する。
  *
  * @guard F7 View は ViewModel のみ受け取る
  */
