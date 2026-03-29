@@ -111,6 +111,32 @@ export function toPurchaseDailySupplierRows(
   }))
 }
 
+/**
+ * ReadModel の3正本を day で集約し、日別の totalCost/totalPrice を導出する。
+ * 売上 vs 仕入原価チャート用。全正本（通常仕入+売上納品+移動原価）を含む。
+ */
+export function toDailyCostRows(
+  model: PurchaseCostReadModel,
+): readonly { day: number; totalCost: number; totalPrice: number }[] {
+  const dayMap = new Map<number, { cost: number; price: number }>()
+  const add = (day: number, cost: number, price: number) => {
+    const existing = dayMap.get(day)
+    if (existing) {
+      existing.cost += cost
+      existing.price += price
+    } else {
+      dayMap.set(day, { cost, price })
+    }
+  }
+  for (const r of model.purchase.rows) add(r.day, r.cost, r.price)
+  for (const r of model.deliverySales.rows) add(r.day, r.cost, r.price)
+  for (const r of model.transfers.rows) add(r.day, r.cost, r.price)
+
+  return Array.from(dayMap.entries())
+    .sort(([a], [b]) => a - b)
+    .map(([day, { cost, price }]) => ({ day, totalCost: cost, totalPrice: price }))
+}
+
 /** ReadModel の deliverySales/transfers rows を既存 CategoryDailyRow 形式に変換 */
 export function toCategoryDailyRows(canonical: {
   readonly rows: readonly { day: number; categoryKey: string; cost: number; price: number }[]

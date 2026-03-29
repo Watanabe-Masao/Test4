@@ -15,6 +15,7 @@ export {
   purchaseCostHandler,
   toPurchaseDailySupplierRows,
   toCategoryDailyRows,
+  toDailyCostRows,
 } from './readPurchaseCost'
 export type { PurchaseCostInput, PurchaseCostOutput } from './readPurchaseCost'
 export { usePurchaseCost } from './usePurchaseCost'

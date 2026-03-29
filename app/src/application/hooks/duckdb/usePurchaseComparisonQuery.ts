@@ -7,7 +7,6 @@ import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models/CalendarDate'
 import {
   querySupplierNames,
-  queryPurchaseDaily,
   queryPurchaseByStore,
   querySalesDaily,
   querySalesTotal,
@@ -29,6 +28,7 @@ import {
   purchaseCostHandler,
   toPurchaseDailySupplierRows,
   toCategoryDailyRows,
+  toDailyCostRows,
 } from '@/application/readModels/purchaseCost'
 
 export function usePurchaseComparisonQuery(
@@ -110,8 +110,6 @@ export function usePurchaseComparisonQuery(
           prevSalesTotal,
           curSupplierNames,
           prevSupplierNames,
-          curDaily,
-          prevDaily,
           curStores,
           prevStores,
           curSalesDaily,
@@ -123,8 +121,6 @@ export function usePurchaseComparisonQuery(
           querySalesTotal(c, prevDateFrom, cappedPrevDateTo, storeIdArr, false),
           querySupplierNames(c, curDateFrom, curDateTo, storeIdArr),
           querySupplierNames(c, prevDateFrom, cappedPrevDateTo, storeIdArr),
-          queryPurchaseDaily(c, curDateFrom, curDateTo, storeIdArr),
-          queryPurchaseDaily(c, prevDateFrom, cappedPrevDateTo, storeIdArr),
           queryPurchaseByStore(c, curDateFrom, curDateTo, storeIdArr),
           queryPurchaseByStore(c, prevDateFrom, cappedPrevDateTo, storeIdArr),
           querySalesDaily(c, curDateFrom, curDateTo, storeIdArr, false),
@@ -154,7 +150,13 @@ export function usePurchaseComparisonQuery(
           kpiTotals,
         )
 
-        const daily = buildDailyData(curDaily, prevDaily, curSalesDaily, prevSalesDaily)
+        // 日別データは ReadModel から導出（全正本の日別合計）
+        const daily = buildDailyData(
+          toDailyCostRows(curModel),
+          toDailyCostRows(prevModel),
+          curSalesDaily,
+          prevSalesDaily,
+        )
         const byStore = buildStoreData(curStores, prevStores, storeNames)
 
         const dailyPivot = buildDailyPivot(
