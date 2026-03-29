@@ -6,7 +6,7 @@
  */
 import { useMemo } from 'react'
 import type { EtrnStation, EtrnStationEntry } from '@/application/ports/WeatherPort'
-import { weatherAdapter } from '@/application/adapters/weatherAdapter'
+import { useWeatherAdapter } from '@/application/context/useAdapters'
 
 /** 都道府県選択肢 */
 export interface PrefectureOption {
@@ -30,9 +30,10 @@ function dmsToDecimal(dm: readonly [number, number]): number {
 
 /** 静的リストから都道府県→観測所を検索するフック */
 export function useEtrnStationSearch(): UseEtrnStationSearchResult {
+  const weatherAdapter = useWeatherAdapter()
   const stations: readonly EtrnStationEntry[] = useMemo(
     () => weatherAdapter.getStaticStationList(),
-    [],
+    [weatherAdapter],
   )
 
   const prefectures = useMemo<readonly PrefectureOption[]>(() => {

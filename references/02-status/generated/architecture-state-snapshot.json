@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-29T02:53:21.627Z",
+  "timestamp": "2026-03-29T06:55:43.429Z",
   "totalAllowlistEntries": 52,
   "categoryBreakdown": {
     "adapter": 11,
@@ -72,9 +72,11 @@
     "application/hooks/useDrillAction.ts",
     "application/hooks/useDuckDB.ts",
     "application/hooks/useEngineLifecycle.ts",
+    "application/hooks/useEtrnStationSearch.ts",
     "application/hooks/useExplanation.ts",
     "application/hooks/useFactorDecomposition.ts",
     "application/hooks/useFilterSelectors.ts",
+    "application/hooks/useGeocode.ts",
     "application/hooks/useHierarchySelection.ts",
     "application/hooks/useImport.ts",
     "application/hooks/useLoadComparisonData.ts",

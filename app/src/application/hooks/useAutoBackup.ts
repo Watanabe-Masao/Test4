@@ -5,8 +5,7 @@
  * File System Access API (Chromium 86+) 前提。非対応ブラウザでは無効。
  */
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { fileSystemAdapter } from '@/application/adapters/fileSystemAdapter'
-import { backupAdapter } from '@/application/adapters/backupAdapter'
+import { useFileSystemAdapter, useBackupAdapter } from '@/application/context/useAdapters'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import type { DataRepository } from '@/domain/repositories'
 
@@ -41,6 +40,8 @@ export function useAutoBackup(
   repo: DataRepository | null,
   triggerKey: string,
 ): AutoBackupState & AutoBackupActions {
+  const fileSystemAdapter = useFileSystemAdapter()
+  const backupAdapter = useBackupAdapter()
   const supported = fileSystemAdapter.isFileSystemAccessSupported()
   const [dirHandle, setDirHandle] = useState<FileSystemDirectoryHandle | null>(null)
   const [folderName, setFolderName] = useState<string | null>(null)
@@ -59,7 +60,7 @@ export function useAutoBackup(
         setFolderName(h.name)
       }
     })
-  }, [supported])
+  }, [supported, fileSystemAdapter])
 
   const selectFolder = useCallback(async () => {
     const handle = await fileSystemAdapter.pickDirectory('backup')
@@ -70,7 +71,7 @@ export function useAutoBackup(
       return true
     }
     return false
-  }, [])
+  }, [fileSystemAdapter])
 
   const clearFolder = useCallback(async () => {
     await fileSystemAdapter.removeHandle('backup')
@@ -78,7 +79,7 @@ export function useAutoBackup(
     setFolderName(null)
     setLastBackupAt(null)
     setError(null)
-  }, [])
+  }, [fileSystemAdapter])
 
   /** 排他制御: 進行中の Promise を保持し、多重実行を防止する */
   const runningRef = useRef<Promise<string | null> | null>(null)
@@ -119,7 +120,7 @@ export function useAutoBackup(
 
     runningRef.current = task
     return task
-  }, [repo, dirHandle])
+  }, [repo, dirHandle, backupAdapter])
 
   // triggerKey が変わるたびにデバウンスで自動バックアップ
   const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)

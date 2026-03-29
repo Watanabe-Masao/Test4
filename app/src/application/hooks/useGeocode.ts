@@ -6,7 +6,7 @@
  */
 import { useState, useCallback } from 'react'
 import type { GeocodingResult } from '@/domain/models/record'
-import { weatherAdapter } from '@/application/adapters/weatherAdapter'
+import { useWeatherAdapter } from '@/application/context/useAdapters'
 
 export interface UseGeocodeResult {
   readonly candidates: readonly GeocodingResult[]
@@ -16,21 +16,25 @@ export interface UseGeocodeResult {
 }
 
 export function useGeocode(): UseGeocodeResult {
+  const weatherAdapter = useWeatherAdapter()
   const [candidates, setCandidates] = useState<readonly GeocodingResult[]>([])
   const [isSearching, setIsSearching] = useState(false)
 
-  const search = useCallback(async (query: string) => {
-    if (!query.trim()) return
-    setIsSearching(true)
-    try {
-      const results = await weatherAdapter.searchLocation(query.trim())
-      setCandidates(results)
-    } catch {
-      setCandidates([])
-    } finally {
-      setIsSearching(false)
-    }
-  }, [])
+  const search = useCallback(
+    async (query: string) => {
+      if (!query.trim()) return
+      setIsSearching(true)
+      try {
+        const results = await weatherAdapter.searchLocation(query.trim())
+        setCandidates(results)
+      } catch {
+        setCandidates([])
+      } finally {
+        setIsSearching(false)
+      }
+    },
+    [weatherAdapter],
+  )
 
   const clear = useCallback(() => {
     setCandidates([])

@@ -7,7 +7,7 @@
  * File System Access API (Chromium 86+) 前提。非対応ブラウザでは無効。
  */
 import { useCallback, useEffect, useRef, useReducer } from 'react'
-import { fileSystemAdapter } from '@/application/adapters/fileSystemAdapter'
+import { useFileSystemAdapter } from '@/application/context/useAdapters'
 import { autoImportReducer, createInitialAutoImportState } from './autoImportReducer'
 
 /** インポート対象の拡張子 */
@@ -88,6 +88,7 @@ function loadInitialAutoSync(): boolean {
 export function useAutoImport(
   onFilesFound: (files: File[]) => Promise<void>,
 ): AutoImportState & AutoImportActions {
+  const fileSystemAdapter = useFileSystemAdapter()
   const supported = fileSystemAdapter.isFileSystemAccessSupported()
   const [state, dispatch] = useReducer(
     autoImportReducer,
@@ -108,7 +109,7 @@ export function useAutoImport(
         dispatch({ type: 'RESTORE_HANDLE', handle: h })
       }
     })
-  }, [supported])
+  }, [supported, fileSystemAdapter])
 
   const selectFolder = useCallback(async () => {
     const handle = await fileSystemAdapter.pickDirectory('import')
@@ -119,14 +120,14 @@ export function useAutoImport(
       return true
     }
     return false
-  }, [])
+  }, [fileSystemAdapter])
 
   const clearFolder = useCallback(async () => {
     await fileSystemAdapter.removeHandle('import')
     dispatch({ type: 'CLEAR_FOLDER' })
     processedRef.current = new Set()
     saveProcessedFingerprints(processedRef.current)
-  }, [])
+  }, [fileSystemAdapter])
 
   const scanNow = useCallback(async (): Promise<File[]> => {
     if (!state.dirHandle) return []
@@ -169,7 +170,7 @@ export function useAutoImport(
     } finally {
       dispatch({ type: 'SCAN_END' })
     }
-  }, [state.dirHandle, onFilesFound])
+  }, [state.dirHandle, onFilesFound, fileSystemAdapter])
 
   // 起動時にフォルダが設定されていれば自動スキャン（1回）
   const autoScanRef = useRef(false)

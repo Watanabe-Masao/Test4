@@ -10,11 +10,24 @@ import { HashRouter } from 'react-router-dom'
 import { darkTheme, lightTheme, GlobalStyle } from '@/presentation/theme'
 import type { ThemeMode } from '@/presentation/theme'
 import { RepositoryProvider, PersistenceProvider } from '@/application/context'
+import { AdapterProvider } from '@/application/context/AdapterProvider'
 import { AppLifecycleProvider } from '@/application/lifecycle'
 import { ToastProvider } from '@/presentation/components/common/feedback'
 import { I18nProvider } from '@/infrastructure/i18n'
 import { AuthProvider } from '@/application/context/AuthContext'
 import { indexedDBRepository } from '@/infrastructure/storage/IndexedDBRepository'
+import { weatherAdapter } from '@/application/adapters/weatherAdapter'
+import { backupAdapter } from '@/application/adapters/backupAdapter'
+import { fileSystemAdapter } from '@/application/adapters/fileSystemAdapter'
+import { storagePersistenceAdapter } from '@/application/adapters/storagePersistenceAdapter'
+import type { AdapterSet } from '@/application/context/adapterContextDef'
+
+const adapters: AdapterSet = {
+  weather: weatherAdapter,
+  backup: backupAdapter,
+  fileSystem: fileSystemAdapter,
+  storagePersistence: storagePersistenceAdapter,
+}
 import { ThemeToggleContext } from '@/appContextDefs'
 
 function getInitialTheme(): ThemeMode {
@@ -49,13 +62,15 @@ export function AppProviders({ children }: Props) {
         <I18nProvider>
           <AuthProvider>
             <RepositoryProvider repository={indexedDBRepository}>
-              <PersistenceProvider>
-                <AppLifecycleProvider>
-                  <HashRouter>
-                    <ToastProvider>{children}</ToastProvider>
-                  </HashRouter>
-                </AppLifecycleProvider>
-              </PersistenceProvider>
+              <AdapterProvider adapters={adapters}>
+                <PersistenceProvider>
+                  <AppLifecycleProvider>
+                    <HashRouter>
+                      <ToastProvider>{children}</ToastProvider>
+                    </HashRouter>
+                  </AppLifecycleProvider>
+                </PersistenceProvider>
+              </AdapterProvider>
             </RepositoryProvider>
           </AuthProvider>
         </I18nProvider>
