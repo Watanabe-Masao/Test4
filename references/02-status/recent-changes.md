@@ -2,6 +2,24 @@
 
 > 更新日: 2026-03-29
 
+## 仕入原価正本化 + 取得経路統合（2026-03-29）
+
+仕入原価がページによって異なる値を示す問題を解決:
+
+1. **移動原価 IN のみフィルタ是正** — 仕入分析の3箇所で transfers を IN のみフィルタしていたため二重計上が発生。全方向(IN+OUT)に修正
+2. **複合正本構造を設計** — 3独立正本（通常仕入・売上納品・移動原価）を組み合わせて総仕入原価を構成。推定法は売上納品を除外して参照可能
+3. **Zod 正本契約を定義** — `PurchaseCostReadModel` で runtime 検証。3正本 + 導出値(grandTotalCost, inventoryPurchaseCost) + メタデータ
+4. **ウォーターフォール売上修正** — CTS 依存から daily(StoreResult)正本に変更。CTS 不足時の警告追加
+5. **仕入分析バグ修正** — cappedPrevDateTo 月跨ぎバグ、ピボット未来日差異非表示、取得経路一元化(KPI再計算)
+6. **天気ファイル移動** — domain/calculations/ → domain/weather/ へ。NON_CALCULATION_FILES=0 達成
+7. **定義書・計画書** — purchase-cost-definition.md(正本定義)、purchase-cost-unification-plan.md(実施計画)
+
+### 関連文書
+- `references/01-principles/purchase-cost-definition.md` — 仕入原価の正本定義
+- `references/03-guides/purchase-cost-unification-plan.md` — 取得経路統合計画
+
+---
+
 ## ルーティング正本化・非同期状態統一・層境界改善（2026-03-29）
 
 6つの並行ストリームを1セッションで完了:

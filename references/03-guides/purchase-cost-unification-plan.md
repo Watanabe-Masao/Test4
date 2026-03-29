@@ -38,16 +38,28 @@
 
 ### 要約
 
-3つの計算スコープが存在し、移動原価の扱いが異なる:
+3つの独立正本（通常仕入・売上納品・移動原価）を複合正本として管理:
 
-| スコープ | 花・産直 | 移動 | 用途 |
-|---------|---------|------|------|
-| 在庫法 | 含む | 全方向 | 会計的実績粗利 |
-| 推定法 | 除外 | 全方向 | 在庫推定・異常検知 |
-| 仕入分析（現行） | 含む | **IN のみ** ⚠️ | 仕入動向分析 |
+```
+readPurchaseCost() → PurchaseCostReadModel
+  ├→ purchase（通常仕入正本 — 帳合先別 × 日）
+  ├→ deliverySales（売上納品正本 — 花・産直 × 日）
+  └→ transfers（移動原価正本 — 全方向 × 日）
 
-**是正方針:** 仕入分析の移動を全方向に修正し、在庫法と整合させる。
-IN のみ加算は二重計上を引き起こすため（詳細は purchase-cost-definition.md §4）。
+導出値:
+  grandTotalCost       = purchase + deliverySales + transfers（在庫法・仕入分析共通）
+  inventoryPurchaseCost = purchase + transfers（推定法用 — 売上納品を除外）
+```
+
+各計算スコープでの組み合わせ:
+
+| スコープ | 通常仕入 | 売上納品 | 移動原価 | 原価算入費 |
+|---------|---------|---------|---------|-----------|
+| 在庫法 | ✅ | ✅ | ✅ 全方向 | 粗利計算時に加算 |
+| 推定法 | ✅ | ❌ 除外 | ✅ 全方向 | 粗利計算時に加算 |
+| 仕入分析 | ✅ | ✅ | ✅ 全方向 | 不要 |
+
+**是正完了:** 仕入分析の移動を全方向に修正済み（2026-03-29）。
 
 ### 棚卸し結果
 
@@ -65,20 +77,22 @@ IN のみ加算は二重計上を引き起こすため（詳細は purchase-cost
 
 #### タスク
 
-1. ~~仕入原価棚卸し表を作成~~ → 完了
-2. ~~正式定義を文書化~~ → `purchase-cost-definition.md` 完了
-3. **Zod スキーマで正本契約を定義**
+1. ~~仕入原価棚卸し表を作成~~ → 完了（34箇所特定）
+2. ~~正式定義を文書化~~ → `purchase-cost-definition.md` 完了（複合正本構造）
+3. ~~移動原価 IN のみフィルタを是正~~ → 完了（3箇所修正、全方向に統一）
+4. ~~Zod スキーマで複合正本契約を定義~~ → 完了
    - `application/readModels/purchaseCost/PurchaseCostTypes.ts`
-   - `PurchaseCostQueryInput` + `PurchaseCostReadModel`（意味メタデータ含む）
+   - 3独立正本: `PurchaseCanonical` + `DeliverySalesCanonical` + `TransfersCanonical`
+   - 複合正本: `PurchaseCostReadModel`（grandTotalCost + inventoryPurchaseCost 導出値）
    - parse 方針: 正本 read は DEV/PROD とも `.parse()`（fail fast）
-4. **唯一の read 関数を新設**
+5. **唯一の read 関数を新設**
    - `application/readModels/purchaseCost/readPurchaseCost.ts`
    - `queryPurchaseDailyBySupplier` + `querySpecialSalesDaily` + `queryTransfersDaily` を統合
-   - 1関数から KPI / カテゴリ / ピボットの全ビューを JS 集計で導出
-5. **facade hook を新設**
+   - 3正本を構築し `PurchaseCostReadModel.parse()` で runtime 検証
+6. **facade hook を新設**
    - `application/readModels/purchaseCost/usePurchaseCost.ts`
    - `useQueryWithHandler` 経由で `readPurchaseCost` を呼び出し
-6. **既存の usePurchaseComparisonQuery を readPurchaseCost に切替**
+7. **既存の usePurchaseComparisonQuery を readPurchaseCost に切替**
    - Phase 1 KPI（高速表示）は維持、Phase 2 で readPurchaseCost に上書き
 
 #### 修正対象ファイル
