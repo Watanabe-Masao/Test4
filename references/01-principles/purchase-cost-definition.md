@@ -104,47 +104,59 @@
 - **全店合計**で見れば IN と OUT は**相殺されてゼロ**になる
 - **単店舗**で見ると、OUT した分は原価が減り、IN した分は原価が増える
 
-## 3. 3つの計算スコープ
+## 3. 正本構造: 3つの独立正本 → 複合正本
 
-コードベースに存在する3つの異なるスコープ:
+### 3つの独立正本
 
-### 在庫法（invMethod）— 全方向
+| 正本 | 内容 | 管理単位 |
+|------|------|---------|
+| **通常仕入正本** | purchase（帳合先別内訳） | 帳合先 × 日 |
+| **売上納品正本** | flowers + directProduce | 種別 × 日 |
+| **移動原価正本** | interStoreIn/Out + interDeptIn/Out | 方向 × 日 |
 
-```
-総仕入原価 = purchase + flowers + directProduce
-           + interStoreIn + interStoreOut
-           + interDeptIn + interDeptOut
-```
-
-- **用途:** 会計的実績粗利の算出（売上原価 = 期首在庫 + 総仕入原価 - 期末在庫）
-- **移動:** 全方向（IN + OUT）。在庫の出入り全体を捉える
-- **実装:** `getDailyTotalCost()` → `StoreResult.totalCost`
-
-### 推定法（estMethod）— 花・産直除外、移動は全方向、原価算入費を加算
+### 複合正本: 総仕入原価
 
 ```
-期中仕入原価(在庫販売分) = totalCost - deliverySales.cost
-                        = purchase + interStoreIn + interStoreOut
-                          + interDeptIn + interDeptOut
-
-推定原価 = 粗売上 × (1 - 値入率) + 原価算入費
-推定期末在庫 = 期首在庫 + 期中仕入原価 - 推定原価
+総仕入原価 = 通常仕入正本 + 売上納品正本 + 移動原価正本
 ```
 
-- **用途:** 推定期末在庫の算出。在庫推定・異常検知
-- **移動:** 全方向。花・産直のみ除外（売上納品 = 在庫を経由しない）
-- **原価算入費:** 推定原価に加算される（在庫法の総仕入原価には含まれない）
-- **実装:** `inventoryCost` in `storeAssembler.ts`, `calculateEstMethodWithStatus` in `estMethod.ts`
-
-### 仕入分析（現行実装）— IN 方向のみ ⚠️
+各正本は独立に管理され、用途に応じて組み合わせる:
 
 ```
-仕入原価 = purchase + flowers + directProduce + interStoreIn + interDeptIn
+在庫法:   通常仕入 + 売上納品 + 移動原価（3つ全部）
+推定法:   通常仕入 + 移動原価（売上納品を除外 = 在庫を経由しない）
+仕入分析: 通常仕入 + 売上納品 + 移動原価（3つ全部）
 ```
 
-- **用途:** 仕入分析ページの KPI / カテゴリ明細 / 日別ピボット
-- **移動:** IN のみ。OUT を含まない
-- **実装:** `computeKpiTotals()`, `buildDailyPivot()`, `buildSupplierAndCategoryData()`
+### 各計算スコープでの使い方
+
+**在庫法（invMethod）**
+
+```
+総仕入原価 = 通常仕入正本 + 売上納品正本 + 移動原価正本
+売上原価 = 期首在庫 + 総仕入原価 − 期末在庫
+```
+- 実装: `getDailyTotalCost()` → `StoreResult.totalCost`
+
+**推定法（estMethod）**
+
+```
+期中仕入原価 = 通常仕入正本 + 移動原価正本（売上納品を除外）
+推定原価 = 粗売上 × (1 − 値入率) + 原価算入費
+推定期末在庫 = 期首在庫 + 期中仕入原価 − 推定原価
+```
+- 売上納品は在庫を経由しないため除外
+- 原価算入費は粗利計算時に加算（仕入原価そのものには含まない）
+- 実装: `inventoryCost` in `storeAssembler.ts`, `calculateEstMethodWithStatus` in `estMethod.ts`
+
+**仕入分析**
+
+```
+仕入原価 = 通常仕入正本 + 売上納品正本 + 移動原価正本（3つ全部）
+```
+- 在庫法と同じスコープ
+- 原価算入費は含まない（仕入行為ではなく経費の原価みなし）
+- 実装: `readPurchaseCost()` → KPI / カテゴリ / ピボットを JS 集計で導出
 
 ## 4. 現行「仕入分析」の移動 IN のみフィルタの問題 ⚠️
 
@@ -182,35 +194,24 @@
 2. `purchaseComparisonDaily.ts` line 131, 147 — 日別ピボット
 3. `purchaseComparisonCategory.ts` line 188 — カテゴリ明細
 
-### 是正方針（要検討）
+### 是正完了（2026-03-29）
 
-**移動 IN/OUT を両方含める**ことで在庫法と整合させるべき。
-ただし業務ロジックの変更であるため、慎重な検証が必要:
+移動 IN/OUT を全方向に是正済み。3箇所のフィルタを撤去:
+1. `purchaseComparisonKpi.ts` — `computeKpiTotals()` の IN フィルタ撤去
+2. `purchaseComparisonDaily.ts` — `buildDailyPivot()` の IN フィルタ撤去
+3. `purchaseComparisonCategory.ts` — IN/OUT をネット集約に変更
 
-- 全店合計で IN/OUT が正しく相殺されるかデータ検証
-- 単店舗表示で移動 OUT がマイナス値として正しく表示されるか
-- カテゴリ明細で「店間移動」が IN-OUT のネット値になるか
-- 粗利ウォーターフォール（在庫法）との整合性確認
-
-## 5. 正本の統一方針
-
-### 目標: 全スコープで移動を全方向（IN + OUT）に統一
-
-| スコープ | 花・産直 | 移動 | 現状 | 目標 |
-|---------|---------|------|------|------|
-| 在庫法 | 含む | 全方向 | ✅ 正しい | 変更なし |
-| 推定法 | 除外 | 全方向 | ✅ 正しい | 変更なし |
-| 仕入分析 | 含む | **IN のみ** ⚠️ | 二重計上リスク | **全方向に修正** |
-
-### 取得経路の正本
+## 5. 取得経路の正本（複合正本構造）
 
 ```
-唯一の正本 read: readPurchaseCost()
-  ├→ queryPurchaseDailyBySupplier()  — purchase テーブル
-  ├→ querySpecialSalesDaily()        — special_sales テーブル（花・産直）
-  └→ queryTransfersDaily()           — transfers テーブル（全方向: IN + OUT）
+readPurchaseCost() — 3つの独立正本を統合して返す
+  ├→ 通常仕入正本: queryPurchaseDailyBySupplier() — purchase テーブル
+  ├→ 売上納品正本: querySpecialSalesDaily()        — special_sales テーブル
+  └→ 移動原価正本: queryTransfersDaily()           — transfers テーブル（全方向）
 
-  結果から JS 集計で導出:
+  複合正本から JS 集計で導出:
+  ├→ 総仕入原価 = 通常仕入 + 売上納品 + 移動原価（在庫法・仕入分析共通）
+  ├→ 期中仕入原価 = 通常仕入 + 移動原価（推定法用 — 売上納品を除外）
   ├→ KPI 合計
   ├→ カテゴリ別内訳（店間移動・部門間移動は IN-OUT のネット値）
   └→ 日別ピボット
