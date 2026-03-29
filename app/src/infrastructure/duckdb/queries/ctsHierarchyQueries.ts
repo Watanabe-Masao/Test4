@@ -5,6 +5,7 @@
  * category_time_sales テーブルを主に使用するクエリ群。
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import { z } from 'zod'
 import { queryToObjects } from '../queryRunner'
 import type { CategoryTimeSalesRecord, TimeSlotEntry } from '@/domain/models/record'
 import type { CtsFilterParams } from './categoryTimeSales'
@@ -23,6 +24,16 @@ export interface LevelAggregationRow {
   /** 全日数: 期間内の distinct 日数 */
   readonly totalDayCount: number
 }
+
+export const LevelAggregationRowSchema = z.object({
+  code: z.string(),
+  name: z.string(),
+  amount: z.number(),
+  quantity: z.number(),
+  childCount: z.number(),
+  handledDayCount: z.number(),
+  totalDayCount: z.number(),
+})
 
 /**
  * 階層レベル別集約（aggregateByLevel 相当）
@@ -69,7 +80,7 @@ export async function queryLevelAggregation(
     GROUP BY ${codeCol}, ${nameCol}
     HAVING SUM(cts.total_amount) > 0
     ORDER BY amount DESC`
-  return queryToObjects<LevelAggregationRow>(conn, sql)
+  return queryToObjects<LevelAggregationRow>(conn, sql, LevelAggregationRowSchema)
 }
 
 // ── カテゴリ別日次トレンド ──
@@ -81,6 +92,14 @@ export interface CategoryDailyTrendRow {
   readonly amount: number
   readonly quantity: number
 }
+
+export const CategoryDailyTrendRowSchema = z.object({
+  code: z.string(),
+  name: z.string(),
+  dateKey: z.string(),
+  amount: z.number(),
+  quantity: z.number(),
+})
 
 /**
  * カテゴリ別日次売上トレンド（月跨ぎ対応）
@@ -135,7 +154,7 @@ export async function queryCategoryDailyTrend(
     FROM daily d
     WHERE d.code IN (SELECT code FROM ranked)
     ORDER BY d.date_key, d.code`
-  return queryToObjects<CategoryDailyTrendRow>(conn, sql)
+  return queryToObjects<CategoryDailyTrendRow>(conn, sql, CategoryDailyTrendRowSchema)
 }
 
 // ── CategoryTimeSalesRecord 互換データ取得 ──
@@ -158,6 +177,24 @@ interface CtsJoinRow {
   readonly hourQuantity: number | null
   readonly hourAmount: number | null
 }
+
+const CtsJoinRowSchema = z.object({
+  year: z.number(),
+  month: z.number(),
+  day: z.number(),
+  storeId: z.string(),
+  deptCode: z.string(),
+  deptName: z.string().nullable(),
+  lineCode: z.string(),
+  lineName: z.string().nullable(),
+  klassCode: z.string(),
+  klassName: z.string().nullable(),
+  totalQuantity: z.number(),
+  totalAmount: z.number(),
+  hour: z.number().nullable(),
+  hourQuantity: z.number().nullable(),
+  hourAmount: z.number().nullable(),
+})
 
 /**
  * category_time_sales + time_slots を JOIN して CategoryTimeSalesRecord[] を返す。
@@ -190,7 +227,7 @@ export async function queryCategoryTimeRecords(
     ${where}
     ORDER BY cts.store_id, cts.date_key,
              cts.dept_code, cts.line_code, cts.klass_code, ts.hour`
-  const rows = await queryToObjects<CtsJoinRow>(conn, sql)
+  const rows = await queryToObjects<CtsJoinRow>(conn, sql, CtsJoinRowSchema)
   return groupRowsToRecords(rows)
 }
 

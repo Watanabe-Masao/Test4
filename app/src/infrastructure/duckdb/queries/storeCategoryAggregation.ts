@@ -5,6 +5,7 @@
  * store_day_summary から店舗別客数を取得し、店舗別カテゴリPI値の算出に使う。
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import { z } from 'zod'
 import { queryToObjects, buildTypedWhere } from '../queryRunner'
 import type { WhereCondition } from '../queryRunner'
 
@@ -16,10 +17,23 @@ export interface StoreCategoryRow {
   readonly quantity: number
 }
 
+export const StoreCategoryRowSchema = z.object({
+  storeId: z.string(),
+  code: z.string(),
+  name: z.string(),
+  amount: z.number(),
+  quantity: z.number(),
+})
+
 export interface StoreCustomerRow {
   readonly storeId: string
   readonly totalCustomers: number
 }
+
+export const StoreCustomerRowSchema = z.object({
+  storeId: z.string(),
+  totalCustomers: z.number(),
+})
 
 interface StoreCategoryParams {
   readonly dateFrom: string
@@ -63,7 +77,7 @@ export async function queryStoreCategoryAggregation(
     ${where}
     GROUP BY store_id, ${col.code}, ${col.name}
     ORDER BY store_id, amount DESC`
-  return queryToObjects<StoreCategoryRow>(conn, sql)
+  return queryToObjects<StoreCategoryRow>(conn, sql, StoreCategoryRowSchema)
 }
 
 /** 店舗別の客数合計 */
@@ -84,5 +98,5 @@ export async function queryStoreCustomers(
     FROM store_day_summary
     ${where}
     GROUP BY store_id`
-  return queryToObjects<StoreCustomerRow>(conn, sql)
+  return queryToObjects<StoreCustomerRow>(conn, sql, StoreCustomerRowSchema)
 }

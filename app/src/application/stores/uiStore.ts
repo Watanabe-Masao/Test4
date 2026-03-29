@@ -1,5 +1,6 @@
 /** @guard C3 store は state 反映のみ */
 import { create } from 'zustand'
+import { z } from 'zod'
 import { devtools, persist } from 'zustand/middleware'
 
 // ─── Types ────────────────────────────────────────────
@@ -77,6 +78,22 @@ export const useUiStore = create<UiStore>()(
             if (!raw) return null
             try {
               const parsed = JSON.parse(raw)
+              // zustand persist の構造検証
+              const persistSchema = z
+                .object({
+                  state: z
+                    .object({
+                      selectedStoreIds: z.union([z.array(z.string()), z.instanceof(Set)]),
+                      currencyUnit: z.enum(['sen', 'yen']).optional(),
+                    })
+                    .passthrough(),
+                })
+                .passthrough()
+              const validated = persistSchema.safeParse(parsed)
+              if (!validated.success) {
+                console.warn('[uiStore] hydration schema mismatch:', validated.error.message)
+                return null
+              }
               // Set の復元
               if (parsed?.state?.selectedStoreIds) {
                 parsed.state.selectedStoreIds = new Set(parsed.state.selectedStoreIds)

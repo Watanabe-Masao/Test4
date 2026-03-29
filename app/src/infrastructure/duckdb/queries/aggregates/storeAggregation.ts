@@ -28,6 +28,7 @@
  * - warning / status 判定
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import { z } from 'zod'
 import { queryToObjects, buildTypedWhere } from '../../queryRunner'
 import type { WhereCondition } from '../../queryRunner'
 
@@ -47,6 +48,20 @@ export interface StoreAggregationRow {
   readonly totalCustomers: number
   readonly salesDays: number
 }
+
+export const StoreAggregationRowSchema = z.object({
+  storeId: z.string(),
+  totalSales: z.number(),
+  totalCoreSales: z.number(),
+  totalPurchaseCost: z.number(),
+  totalDiscountAbsolute: z.number(),
+  discountRate: z.number(),
+  totalFlowersCost: z.number(),
+  totalDirectProduceCost: z.number(),
+  totalCostInclusionCost: z.number(),
+  totalCustomers: z.number(),
+  salesDays: z.number(),
+})
 
 // ── フィルタ条件 ──
 
@@ -116,7 +131,7 @@ export async function queryStoreAggregation(
     GROUP BY store_id
     ORDER BY store_id`
 
-  return queryToObjects<StoreAggregationRow>(conn, sql)
+  return queryToObjects<StoreAggregationRow>(conn, sql, StoreAggregationRowSchema)
 }
 
 /**
@@ -153,6 +168,6 @@ export async function queryStoreAggregationSummary(
     FROM store_day_summary
     ${where}`
 
-  const rows = await queryToObjects<StoreAggregationRow>(conn, sql)
+  const rows = await queryToObjects<StoreAggregationRow>(conn, sql, StoreAggregationRowSchema)
   return rows.length > 0 ? rows[0] : null
 }

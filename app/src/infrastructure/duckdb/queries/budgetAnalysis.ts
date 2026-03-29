@@ -10,6 +10,7 @@
  * @see budgetAnalysis.ts — このクエリが置き換える JS 計算
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import { z } from 'zod'
 import type { DateRange } from '@/domain/models/calendar'
 import { dateRangeToKeys } from '@/domain/models/CalendarDate'
 import { queryToObjects, buildTypedWhere } from '../queryRunner'
@@ -28,6 +29,16 @@ export interface DailyCumulativeBudgetRow {
   readonly cumulativeBudget: number
 }
 
+export const DailyCumulativeBudgetRowSchema = z.object({
+  storeId: z.string(),
+  dateKey: z.string(),
+  day: z.number(),
+  dailySales: z.number(),
+  dailyBudget: z.number(),
+  cumulativeSales: z.number(),
+  cumulativeBudget: z.number(),
+})
+
 /** 店舗別予算分析サマリー */
 export interface BudgetAnalysisSummaryRow {
   readonly storeId: string
@@ -38,6 +49,16 @@ export interface BudgetAnalysisSummaryRow {
   readonly salesDays: number
   readonly totalDays: number
 }
+
+export const BudgetAnalysisSummaryRowSchema = z.object({
+  storeId: z.string(),
+  totalSales: z.number(),
+  totalBudget: z.number(),
+  budgetAchievementRate: z.number(),
+  averageDailySales: z.number(),
+  salesDays: z.number(),
+  totalDays: z.number(),
+})
 
 // ── 内部ヘルパー ──
 
@@ -98,7 +119,7 @@ export async function queryDailyCumulativeBudget(
     FROM daily
     ORDER BY store_id, date_key`
 
-  return queryToObjects<DailyCumulativeBudgetRow>(conn, sql)
+  return queryToObjects<DailyCumulativeBudgetRow>(conn, sql, DailyCumulativeBudgetRowSchema)
 }
 
 /**
@@ -137,5 +158,5 @@ export async function queryBudgetAnalysisSummary(
     GROUP BY s.store_id
     ORDER BY s.store_id`
 
-  return queryToObjects<BudgetAnalysisSummaryRow>(conn, sql)
+  return queryToObjects<BudgetAnalysisSummaryRow>(conn, sql, BudgetAnalysisSummaryRowSchema)
 }

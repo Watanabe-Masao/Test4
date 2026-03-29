@@ -8,12 +8,13 @@
  * 予算データは budget テーブルから LEFT JOIN で取得。
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import { z } from 'zod'
 import type { DateRange } from '@/domain/models/calendar'
 import { dateRangeToKeys } from '@/domain/models/CalendarDate'
 import { queryToObjects, buildTypedWhere } from '../queryRunner'
 import type { WhereCondition } from '../queryRunner'
 
-// ── 結果型 ──
+// ── 結果型 + Zod スキーマ ──
 
 /** 日別明細行（store_day_summary の 1 行に予算を付加） */
 export interface DailyRecordRow {
@@ -65,6 +66,41 @@ export interface DailyRecordRow {
   // ── 予算 ──
   readonly budgetAmount: number
 }
+
+/** DailyRecordRow の Zod スキーマ（DEV 行検証用） */
+export const DailyRecordRowSchema = z.object({
+  storeId: z.string(),
+  dateKey: z.string(),
+  year: z.number(),
+  month: z.number(),
+  day: z.number(),
+  sales: z.number(),
+  coreSales: z.number(),
+  grossSales: z.number(),
+  discount71: z.number(),
+  discount72: z.number(),
+  discount73: z.number(),
+  discount74: z.number(),
+  discountAmount: z.number(),
+  discountAbsolute: z.number(),
+  purchaseCost: z.number(),
+  purchasePrice: z.number(),
+  interStoreInCost: z.number(),
+  interStoreInPrice: z.number(),
+  interStoreOutCost: z.number(),
+  interStoreOutPrice: z.number(),
+  interDeptInCost: z.number(),
+  interDeptInPrice: z.number(),
+  interDeptOutCost: z.number(),
+  interDeptOutPrice: z.number(),
+  flowersCost: z.number(),
+  flowersPrice: z.number(),
+  directProduceCost: z.number(),
+  directProducePrice: z.number(),
+  costInclusionCost: z.number(),
+  customers: z.number(),
+  budgetAmount: z.number(),
+})
 
 // ── 内部ヘルパー ──
 
@@ -138,7 +174,7 @@ export async function queryDailyRecords(
     ${where}
     ORDER BY s.store_id, s.date_key
   `
-  return queryToObjects<DailyRecordRow>(conn, sql)
+  return queryToObjects<DailyRecordRow>(conn, sql, DailyRecordRowSchema)
 }
 
 /**
@@ -191,7 +227,7 @@ export async function queryPrevYearDailyRecords(
     ${where}
     ORDER BY s.store_id, s.date_key
   `
-  return queryToObjects<DailyRecordRow>(conn, sql)
+  return queryToObjects<DailyRecordRow>(conn, sql, DailyRecordRowSchema)
 }
 
 /**
@@ -254,7 +290,7 @@ export async function queryAggregatedDailyRecords(
     GROUP BY s.date_key, s.year, s.month, s.day
     ORDER BY s.date_key
   `
-  return queryToObjects<DailyRecordRow>(conn, sql)
+  return queryToObjects<DailyRecordRow>(conn, sql, DailyRecordRowSchema)
 }
 
 /** DailyRecordRow から総仕入原価を算出（getDailyTotalCost の SQL 版） */

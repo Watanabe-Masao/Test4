@@ -5,6 +5,7 @@
  * 複数月のトレンド比較にも対応。
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import { z } from 'zod'
 import { queryToObjects } from '../queryRunner'
 import { validateYearMonth, validateCode } from '../queryParams'
 
@@ -32,6 +33,28 @@ export interface DeptKpiRankedRow {
   readonly salesAchievementRank: number
 }
 
+export const DeptKpiRankedRowSchema = z.object({
+  year: z.number(),
+  month: z.number(),
+  deptCode: z.string(),
+  deptName: z.string(),
+  gpRateBudget: z.number(),
+  gpRateActual: z.number(),
+  gpRateVariance: z.number(),
+  markupRate: z.number(),
+  discountRate: z.number(),
+  salesBudget: z.number(),
+  salesActual: z.number(),
+  salesVariance: z.number(),
+  salesAchievement: z.number(),
+  openingInventory: z.number(),
+  closingInventory: z.number(),
+  gpRateLanding: z.number(),
+  salesLanding: z.number(),
+  gpRateRank: z.number(),
+  salesAchievementRank: z.number(),
+})
+
 /**
  * 部門KPIサマリー行（SQL からの生データ）
  *
@@ -53,6 +76,17 @@ export interface DeptKpiSummaryRow {
   readonly markupWeightedSum: number
 }
 
+export const DeptKpiSummaryRowSchema = z.object({
+  deptCount: z.number(),
+  totalSalesBudget: z.number(),
+  totalSalesActual: z.number(),
+  overallSalesAchievement: z.number(),
+  gpBudgetWeightedSum: z.number(),
+  gpActualWeightedSum: z.number(),
+  discountWeightedSum: z.number(),
+  markupWeightedSum: z.number(),
+})
+
 export interface DeptKpiMonthlyTrendRow {
   readonly year: number
   readonly month: number
@@ -61,6 +95,15 @@ export interface DeptKpiMonthlyTrendRow {
   readonly gpRateActual: number
   readonly salesActual: number
 }
+
+export const DeptKpiMonthlyTrendRowSchema = z.object({
+  year: z.number(),
+  month: z.number(),
+  deptCode: z.string(),
+  deptName: z.string(),
+  gpRateActual: z.number(),
+  salesActual: z.number(),
+})
 
 // ── クエリ関数 ──
 
@@ -86,7 +129,7 @@ export async function queryDeptKpiRanked(
     FROM department_kpi
     WHERE year = ${params.year} AND month = ${params.month}
     ORDER BY gp_rate_actual DESC`
-  return queryToObjects<DeptKpiRankedRow>(conn, sql)
+  return queryToObjects<DeptKpiRankedRow>(conn, sql, DeptKpiRankedRowSchema)
 }
 
 /**
@@ -111,7 +154,7 @@ export async function queryDeptKpiSummary(
       COALESCE(SUM(markup_rate * sales_actual), 0) AS markup_weighted_sum
     FROM department_kpi
     WHERE year = ${params.year} AND month = ${params.month}`
-  const rows = await queryToObjects<DeptKpiSummaryRow>(conn, sql)
+  const rows = await queryToObjects<DeptKpiSummaryRow>(conn, sql, DeptKpiSummaryRowSchema)
   return rows.length > 0 ? rows[0] : null
 }
 
@@ -142,5 +185,5 @@ export async function queryDeptKpiMonthlyTrend(
     WHERE (year, month) IN (VALUES ${values})
     ${deptFilter}
     ORDER BY year, month, dept_code`
-  return queryToObjects<DeptKpiMonthlyTrendRow>(conn, sql)
+  return queryToObjects<DeptKpiMonthlyTrendRow>(conn, sql, DeptKpiMonthlyTrendRowSchema)
 }

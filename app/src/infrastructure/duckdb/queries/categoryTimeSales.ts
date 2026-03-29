@@ -12,6 +12,7 @@
  * | computeDowDivisorMap (PeriodFilter)  | queryDowDivisorMap          |
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import { z } from 'zod'
 import { queryToObjects, queryScalar, buildTypedWhere } from '../queryRunner'
 import type { WhereCondition } from '../queryRunner'
 
@@ -98,7 +99,12 @@ export async function queryDowDivisorMap(
     FROM category_time_sales cts
     ${where}${businessFilter}
     GROUP BY cts.dow`
-  const rows = await queryToObjects<{ dow: number; divisor: number }>(conn, sql)
+  const DowDivisorRowSchema = z.object({ dow: z.number(), divisor: z.number() })
+  const rows = await queryToObjects<{ dow: number; divisor: number }>(
+    conn,
+    sql,
+    DowDivisorRowSchema,
+  )
   return new Map(rows.map((r) => [r.dow, r.divisor]))
 }
 

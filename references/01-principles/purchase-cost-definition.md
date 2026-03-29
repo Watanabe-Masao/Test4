@@ -249,7 +249,11 @@ readPurchaseCost() — 3つの独立正本を統合して返す（storeId × day
 
 ## 8. ガード条件
 
-- 仕入分析ページは `readPurchaseCost()` 以外から仕入原価を取得してはならない
-- `queryPurchaseTotal()` は廃止予定（dailyBySupplier の集計で代替）
-- `queryPurchaseBySupplier()` は取引先名解決専用に限定
+### 取得経路のルール
+
+- **UI 層（presentation）の標準入口は `usePurchaseCost()`** とする
+- **Application 層の orchestration / comparison hook では `purchaseCostHandler` または `readPurchaseCost()` の直接使用を許容する**
+  - 理由: Promise.all による並列実行や、売上等の別正本と同時取得が必要なため
+  - ガードテストで明示的に許可済み（`ALLOWED_COST_AGGREGATION_FILES`）
 - presentation 層が購買系クエリを直接 import してはならない
+- `queryPurchaseTotal` / `queryPurchaseBySupplier` / `queryPurchaseByStore` / `queryPurchaseDaily` は廃止済み。使用禁止

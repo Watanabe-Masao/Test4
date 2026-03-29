@@ -6,6 +6,7 @@
  * date_key BETWEEN で同曜日・月跨ぎクエリに対応する。
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import { z } from 'zod'
 import { queryToObjects, buildTypedWhere } from '../queryRunner'
 import type { WhereCondition } from '../queryRunner'
 
@@ -90,6 +91,12 @@ export interface StoreCostPriceRow {
   readonly totalPrice: number
 }
 
+export const StoreCostPriceRowSchema = z.object({
+  storeId: z.string(),
+  totalCost: z.number(),
+  totalPrice: z.number(),
+})
+
 /**
  * 指定日付範囲の店舗別原価/売価を取得する。
  *
@@ -119,7 +126,7 @@ export async function queryStoreCostPrice(
     ) combined
     GROUP BY store_id
     ORDER BY total_cost DESC`
-  return queryToObjects<StoreCostPriceRow>(conn, sql)
+  return queryToObjects<StoreCostPriceRow>(conn, sql, StoreCostPriceRowSchema)
 }
 
 /** 店舗×日別値入率集計（purchase + special_sales + transfers の UNION） */
@@ -129,6 +136,13 @@ export interface StoreDailyMarkupRateRow {
   readonly totalCost: number
   readonly totalPrice: number
 }
+
+export const StoreDailyMarkupRateRowSchema = z.object({
+  storeId: z.string(),
+  day: z.number(),
+  totalCost: z.number(),
+  totalPrice: z.number(),
+})
 
 /**
  * 指定日付範囲の店舗×日別原価/売価を取得する。
@@ -157,7 +171,7 @@ export async function queryStoreDailyMarkupRate(
     ) combined
     GROUP BY store_id, day
     ORDER BY store_id, day`
-  return queryToObjects<StoreDailyMarkupRateRow>(conn, sql)
+  return queryToObjects<StoreDailyMarkupRateRow>(conn, sql, StoreDailyMarkupRateRowSchema)
 }
 
 /** 日別売上集計（チャート用） */
@@ -165,6 +179,11 @@ export interface SalesDailyRow {
   readonly day: number
   readonly totalSales: number
 }
+
+export const SalesDailyRowSchema = z.object({
+  day: z.number(),
+  totalSales: z.number(),
+})
 
 /**
  * 指定日付範囲の日別売上を取得する（store_day_summary）
@@ -189,7 +208,7 @@ export async function querySalesDaily(
     ${where}
     GROUP BY day
     ORDER BY day`
-  return queryToObjects<SalesDailyRow>(conn, sql)
+  return queryToObjects<SalesDailyRow>(conn, sql, SalesDailyRowSchema)
 }
 
 /** 店舗×日別×取引先別仕入集計 */
@@ -200,6 +219,14 @@ export interface PurchaseDailySupplierRow {
   readonly totalCost: number
   readonly totalPrice: number
 }
+
+export const PurchaseDailySupplierRowSchema = z.object({
+  storeId: z.string(),
+  day: z.number(),
+  supplierCode: z.string(),
+  totalCost: z.number(),
+  totalPrice: z.number(),
+})
 
 /**
  * 指定日付範囲の店舗×日別×取引先別仕入集計を取得する
@@ -225,7 +252,7 @@ export async function queryPurchaseDailyBySupplier(
     ${where}
     GROUP BY store_id, day, supplier_code
     ORDER BY store_id, day, supplier_code`
-  return queryToObjects<PurchaseDailySupplierRow>(conn, sql)
+  return queryToObjects<PurchaseDailySupplierRow>(conn, sql, PurchaseDailySupplierRowSchema)
 }
 
 /**
@@ -239,6 +266,14 @@ export interface CategoryDailyRow {
   readonly totalCost: number
   readonly totalPrice: number
 }
+
+export const CategoryDailyRowSchema = z.object({
+  storeId: z.string(),
+  day: z.number(),
+  categoryKey: z.string(),
+  totalCost: z.number(),
+  totalPrice: z.number(),
+})
 
 /**
  * special_sales（花・産直）の店舗×日別集計
@@ -261,7 +296,7 @@ export async function querySpecialSalesDaily(
     ${where}
     GROUP BY store_id, day, type
     ORDER BY day, type`
-  return queryToObjects<CategoryDailyRow>(conn, sql)
+  return queryToObjects<CategoryDailyRow>(conn, sql, CategoryDailyRowSchema)
 }
 
 // querySpecialSalesTotal は廃止済み。正本は readPurchaseCost の deliverySales。
@@ -287,7 +322,7 @@ export async function queryTransfersDaily(
     ${where}
     GROUP BY store_id, day, direction
     ORDER BY store_id, day, direction`
-  return queryToObjects<CategoryDailyRow>(conn, sql)
+  return queryToObjects<CategoryDailyRow>(conn, sql, CategoryDailyRowSchema)
 }
 
 // queryTransfersTotal は廃止済み。正本は readPurchaseCost の transfers。
@@ -296,6 +331,10 @@ export async function queryTransfersDaily(
 export interface SalesTotalRow {
   readonly totalSales: number
 }
+
+export const SalesTotalRowSchema = z.object({
+  totalSales: z.number(),
+})
 
 /**
  * 指定日付範囲の売上合計を取得（classified_sales から直接集約）
@@ -316,6 +355,6 @@ export async function querySalesTotal(
     SELECT COALESCE(SUM(sales_amount), 0) AS total_sales
     FROM classified_sales
     ${where}`
-  const rows = await queryToObjects<SalesTotalRow>(conn, sql)
+  const rows = await queryToObjects<SalesTotalRow>(conn, sql, SalesTotalRowSchema)
   return rows.length > 0 ? rows[0].totalSales : 0
 }

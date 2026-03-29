@@ -33,6 +33,7 @@
  * - warning / status 判定
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import { z } from 'zod'
 import { queryToObjects } from '../../queryRunner'
 import { validateYearMonth } from '../../queryParams'
 
@@ -56,6 +57,23 @@ export interface DepartmentAggregationRow {
   readonly salesLanding: number
 }
 
+export const DepartmentAggregationRowSchema = z.object({
+  deptCode: z.string(),
+  deptName: z.string(),
+  salesBudget: z.number(),
+  salesActual: z.number(),
+  salesAchievement: z.number(),
+  gpRateBudget: z.number(),
+  gpRateActual: z.number(),
+  gpRateVariance: z.number(),
+  markupRate: z.number(),
+  discountRate: z.number(),
+  openingInventory: z.number(),
+  closingInventory: z.number(),
+  gpRateLanding: z.number(),
+  salesLanding: z.number(),
+})
+
 /**
  * 部門別集約サマリー行
  *
@@ -76,6 +94,17 @@ export interface DepartmentAggregationSummaryRow {
   /** SUM(markup_rate × sales_actual) — 率算出は TS 側で行う */
   readonly markupWeightedSum: number
 }
+
+export const DepartmentAggregationSummaryRowSchema = z.object({
+  deptCount: z.number(),
+  totalSalesBudget: z.number(),
+  totalSalesActual: z.number(),
+  overallSalesAchievement: z.number(),
+  gpBudgetWeightedSum: z.number(),
+  gpActualWeightedSum: z.number(),
+  discountWeightedSum: z.number(),
+  markupWeightedSum: z.number(),
+})
 
 // ── フィルタ条件 ──
 
@@ -123,7 +152,7 @@ export async function queryDepartmentAggregation(
     WHERE year = ${params.year} AND month = ${params.month}
     ORDER BY dept_code`
 
-  return queryToObjects<DepartmentAggregationRow>(conn, sql)
+  return queryToObjects<DepartmentAggregationRow>(conn, sql, DepartmentAggregationRowSchema)
 }
 
 /**
@@ -153,6 +182,10 @@ export async function queryDepartmentAggregationSummary(
     FROM department_kpi
     WHERE year = ${params.year} AND month = ${params.month}`
 
-  const rows = await queryToObjects<DepartmentAggregationSummaryRow>(conn, sql)
+  const rows = await queryToObjects<DepartmentAggregationSummaryRow>(
+    conn,
+    sql,
+    DepartmentAggregationSummaryRowSchema,
+  )
   return rows.length > 0 ? rows[0] : null
 }
