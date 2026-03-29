@@ -5,8 +5,12 @@
  * infrastructure 型に依存しない generic signature で定義。
  */
 import { movingAverage } from './dailyAggregation'
-import { stddevPop, zScore as calcZScore, coefficientOfVariation } from './statisticalFunctions'
-import { safeDivide } from '../utils'
+import {
+  stddevPop,
+  zScore as calcZScore,
+  coefficientOfVariation,
+} from '@/domain/calculations/rawAggregation/statisticalFunctions'
+import { safeDivide } from '@/domain/calculations/utils'
 
 // ── 出力型 ───────────────────────────────────────────
 

@@ -37,8 +37,8 @@ export const domainLargeFiles: readonly AllowlistEntry[] = [
     removalCondition: '分割時',
   },
   {
-    path: 'domain/calculations/rawAggregation.ts',
-    reason: 'Raw 集計',
+    path: 'application/query-bridge/rawAggregation.ts',
+    reason: 'Raw 集計（application/query-bridge/ へ移動済み）',
     category: 'structural',
     removalCondition: '分割時',
   },

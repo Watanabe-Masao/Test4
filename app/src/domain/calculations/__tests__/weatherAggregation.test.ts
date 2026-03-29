@@ -4,7 +4,7 @@ import {
   categorizeWeatherCode,
   deriveWeatherCode,
   toWeatherDisplay,
-} from '../weatherAggregation'
+} from '@/domain/calculations/weatherAggregation'
 import type { HourlyWeatherRecord } from '@/domain/models/record'
 
 // ─── Helper ──────────────────────────────────────────

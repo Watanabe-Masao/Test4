@@ -19,7 +19,7 @@ export {
   computeDowPattern,
   computeDailyFeatures,
   computeHourlyProfile,
-} from '@/domain/calculations/rawAggregation'
+} from '@/application/query-bridge/rawAggregation'
 
 // ─── YoY 日別比較 ───────────────────────────────────────
 

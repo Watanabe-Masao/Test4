@@ -14,7 +14,7 @@
  * @guard G5 hook ≤300行 — 純粋関数を分離
  */
 import type { CategoryHourlyRow } from '@/application/hooks/duckdb'
-import { topNByTotal } from '@/domain/calculations/rawAggregation'
+import { topNByTotal } from '@/application/query-bridge/rawAggregation'
 import { STORE_COLORS } from './chartTheme'
 import { palette } from '@/presentation/theme/tokens'
 import { pearsonCorrelation } from '@/application/hooks/useStatistics'

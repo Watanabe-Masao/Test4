@@ -17,7 +17,7 @@ import {
   rankBy,
   yoyMerge,
   categoryShare,
-} from './rawAggregation'
+} from '@/application/query-bridge/rawAggregation'
 
 // ─── テストデータ ─────────────────────────────────────
 

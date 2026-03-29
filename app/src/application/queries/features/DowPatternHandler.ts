@@ -8,7 +8,7 @@
  */
 import type { QueryHandler, BaseQueryInput } from '../QueryContract'
 import { queryStoreDaySummary } from '@/infrastructure/duckdb/queries/storeDaySummary'
-import { computeDowPattern, type DowPatternRow } from '@/domain/calculations/rawAggregation'
+import { computeDowPattern, type DowPatternRow } from '@/application/query-bridge/rawAggregation'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 
 export type DowPatternInput = BaseQueryInput

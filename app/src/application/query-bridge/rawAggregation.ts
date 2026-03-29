@@ -11,7 +11,7 @@
  * - 二重実装禁止: これらの関数が正規の計算ロジック。SQL 側の集約は段階的に廃止
  * - 0除算防止: safeDivide を使用
  */
-import { safeDivide } from './utils'
+import { safeDivide } from '@/domain/calculations/utils'
 
 // ─── 型定義 ───────────────────────────────────────────
 
@@ -487,15 +487,11 @@ export function findPeak<K>(map: ReadonlyMap<K, number>): { key: K; value: numbe
 
 // ─── 特徴量集約（rawAggregation/ から re-export）──────────
 
-export {
-  computeDowPattern,
-  computeDailyFeatures,
-  computeHourlyProfile,
-} from './rawAggregation/featureAggregation'
+export { computeDowPattern, computeDailyFeatures, computeHourlyProfile } from './featureAggregation'
 export type {
   DowPatternRow,
   DailyFeatureRow,
   HourlyProfileRow,
   DowPatternInput,
   DailyFeatureInput,
-} from './rawAggregation/featureAggregation'
+} from './featureAggregation'

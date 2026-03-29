@@ -23,7 +23,7 @@ import type {
   DailyFeatureRow,
   HourlyProfileRow,
   DowPatternRow,
-} from '@/domain/calculations/rawAggregation'
+} from '@/application/query-bridge/rawAggregation'
 
 export type { DailyFeatureRow, HourlyProfileRow, DowPatternRow }
 

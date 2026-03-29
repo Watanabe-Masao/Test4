@@ -15,7 +15,7 @@ import {
   stddevPop,
   zScore,
   coefficientOfVariation,
-} from '@/domain/calculations/rawAggregation'
+} from '@/application/query-bridge/rawAggregation'
 import { safeDivide } from '@/domain/calculations/utils'
 import {
   computeDowPattern,
