@@ -7,13 +7,14 @@
  * 自由日付範囲: 当年・前年それぞれ独立した date_key 範囲で指定。
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import { z } from 'zod'
 import { queryToObjects, storeIdFilter } from '../queryRunner'
 import { validateDateKey } from '../queryParams'
 
-// ── 結果型 ──
+// ── 結果型 + Zod スキーマ ──
 
 export interface YoyDailyRow {
-  readonly curDateKey: string | null // FULL OUTER JOIN: 前年のみの行は null
+  readonly curDateKey: string | null
   readonly prevDateKey: string | null
   readonly storeId: string
   readonly curSales: number
@@ -22,6 +23,17 @@ export interface YoyDailyRow {
   readonly curCustomers: number
   readonly prevCustomers: number | null
 }
+
+export const YoyDailyRowSchema = z.object({
+  curDateKey: z.string().nullable(),
+  prevDateKey: z.string().nullable(),
+  storeId: z.string(),
+  curSales: z.number(),
+  prevSales: z.number().nullable(),
+  salesDiff: z.number(),
+  curCustomers: z.number(),
+  prevCustomers: z.number().nullable(),
+})
 
 export interface YoyCategoryRow {
   readonly code: string
@@ -32,6 +44,16 @@ export interface YoyCategoryRow {
   readonly curQuantity: number
   readonly prevQuantity: number | null
 }
+
+export const YoyCategoryRowSchema = z.object({
+  code: z.string(),
+  name: z.string(),
+  curAmount: z.number(),
+  prevAmount: z.number().nullable(),
+  amountDiff: z.number(),
+  curQuantity: z.number(),
+  prevQuantity: z.number().nullable(),
+})
 
 // ── クエリ関数 ──
 
@@ -102,7 +124,7 @@ export async function queryYoyDailyComparison(
     FULL OUTER JOIN prev_data p
       ON c.store_id = p.store_id AND c.month = p.month AND c.day = p.day
     ORDER BY COALESCE(c.store_id, p.store_id), COALESCE(c.date_key, p.date_key)`
-  return queryToObjects<YoyDailyRow>(conn, sql)
+  return queryToObjects<YoyDailyRow>(conn, sql, YoyDailyRowSchema)
 }
 
 /**
@@ -181,5 +203,5 @@ export async function queryYoyCategoryComparison(
     FROM current_agg c
     FULL OUTER JOIN prev_agg p ON c.code = p.code
     ORDER BY COALESCE(c.amount, 0) DESC`
-  return queryToObjects<YoyCategoryRow>(conn, sql)
+  return queryToObjects<YoyCategoryRow>(conn, sql, YoyCategoryRowSchema)
 }
