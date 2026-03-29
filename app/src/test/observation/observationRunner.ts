@@ -17,6 +17,7 @@ export type ObservationTarget =
   | 'budgetAnalysis'
   | 'forecast'
   | 'factorDecomposition'
+  | 'timeSlot'
 
 export interface ObservationSummary {
   readonly totalCalls: number

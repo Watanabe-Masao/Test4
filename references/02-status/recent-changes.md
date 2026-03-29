@@ -1,6 +1,29 @@
 # 直近の主要変更（#673-#730+）
 
-> 更新日: 2026-03-28
+> 更新日: 2026-03-29
+
+## ルーティング正本化・非同期状態統一・層境界改善（2026-03-29）
+
+6つの並行ストリームを1セッションで完了:
+
+1. **PageMeta 正本化** — 7箇所の断片化を PAGE_REGISTRY に統一、pageMetaGuard (12テスト) 追加
+2. **AsyncState<T> 統一** — error 型 string→Error 統一、adapter 付き共通型
+3. **Persistence Provider 化** — module-scope state → PersistenceContext + useReducer
+4. **Presentation 層責務分割** — 10ファイルの計算ロジック・option builder を .vm.ts / Logic.ts に抽出
+5. **層境界改善** — Port 型を domain/ports/ に移動、adapter を infrastructure/adapters/ に移動、AdapterProvider DI 導入
+6. **ドキュメント清掃** — Recharts 残存コメント清掃、品質レポート・Engine Matrix 更新
+
+### 数値成果
+
+| 指標 | Before | After |
+|------|--------|-------|
+| Lint 警告 | 15 | **2** (-87%) |
+| app→infra allowlist | 13 | **10** (-23%) |
+| application/ports/ | 8 ファイル | **全廃** |
+| テスト数 | 3,121 | **4,686** (+50%) |
+| ガードテスト | 140 | **152** (+12) |
+
+---
 
 ## 概要
 

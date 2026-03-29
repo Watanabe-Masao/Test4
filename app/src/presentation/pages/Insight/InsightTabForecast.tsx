@@ -4,6 +4,11 @@ import { Card, CardTitle } from '@/presentation/components/common/layout'
 import { KpiCard, KpiGrid } from '@/presentation/components/common/tables'
 import type { MetricId } from '@/domain/models/analysis'
 import type { StoreResult } from '@/domain/models/storeTypes'
+import {
+  computeWeeklyActuals,
+  computeDecompPct,
+  computeDecompTotals,
+} from './InsightTabForecast.vm'
 import { CurrencyUnitToggle } from '@/presentation/components/charts'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { sc } from '@/presentation/theme/semanticColors'
@@ -255,16 +260,7 @@ export function ForecastTabContent({ d, r, onExplain }: ForecastTabProps) {
               </thead>
               <tbody>
                 {d.forecastData.forecast.weeklySummaries.map((w) => {
-                  let weekCustomers = 0
-                  let weekSales = 0
-                  for (let day = w.startDay; day <= w.endDay; day++) {
-                    const rec = r.daily.get(day)
-                    if (rec) {
-                      weekCustomers += rec.customers ?? 0
-                      weekSales += rec.sales
-                    }
-                  }
-                  const weekTxValue = d.calculateTransactionValue(weekSales, weekCustomers)
+                  const wa = computeWeeklyActuals(w.startDay, w.endDay, r.daily)
                   return (
                     <FcTr key={w.weekNumber}>
                       <FcTd
@@ -280,12 +276,10 @@ export function ForecastTabContent({ d, r, onExplain }: ForecastTabProps) {
                       <FcTd>{w.days}日</FcTd>
                       <FcTd>{d.fmtCurrency(w.totalSales)}</FcTd>
                       {d.customerData?.hasCustomerData && (
-                        <FcTd>
-                          {weekCustomers > 0 ? `${weekCustomers.toLocaleString()}人` : '-'}
-                        </FcTd>
+                        <FcTd>{wa.customers > 0 ? `${wa.customers.toLocaleString()}人` : '-'}</FcTd>
                       )}
                       {d.customerData?.hasCustomerData && (
-                        <FcTd>{weekTxValue > 0 ? `${weekTxValue.toLocaleString()}円` : '-'}</FcTd>
+                        <FcTd>{wa.txValue > 0 ? `${wa.txValue.toLocaleString()}円` : '-'}</FcTd>
                       )}
                       <FcTd>{d.fmtCurrency(w.totalGrossProfit)}</FcTd>
                       <FcTd>{d.formatPercent(w.grossProfitRate)}</FcTd>
@@ -417,8 +411,7 @@ export function DecompositionTabContent({ d }: Omit<ForecastTabProps, 'onExplain
                   </thead>
                   <tbody>
                     {d.customerData.weeklyDecomp.map((w) => {
-                      const total = Math.abs(w.custEffect) + Math.abs(w.ticketEffect)
-                      const custPct = total > 0 ? w.custEffect / (w.custEffect + w.ticketEffect) : 0
+                      const custPct = computeDecompPct(w.custEffect, w.ticketEffect)
                       return (
                         <FcTr key={w.weekNumber}>
                           <FcTd>第{w.weekNumber}週</FcTd>
@@ -435,19 +428,7 @@ export function DecompositionTabContent({ d }: Omit<ForecastTabProps, 'onExplain
                       )
                     })}
                     {(() => {
-                      const totals = d.customerData!.weeklyDecomp.reduce(
-                        (acc, w) => ({
-                          salesDiff: acc.salesDiff + w.salesDiff,
-                          custEffect: acc.custEffect + w.custEffect,
-                          ticketEffect: acc.ticketEffect + w.ticketEffect,
-                        }),
-                        { salesDiff: 0, custEffect: 0, ticketEffect: 0 },
-                      )
-                      const totalAbs = Math.abs(totals.custEffect) + Math.abs(totals.ticketEffect)
-                      const totalCustPct =
-                        totalAbs > 0
-                          ? totals.custEffect / (totals.custEffect + totals.ticketEffect)
-                          : 0
+                      const totals = computeDecompTotals(d.customerData!.weeklyDecomp)
                       return (
                         <FcTrTotal>
                           <FcTd>合計</FcTd>
@@ -455,7 +436,7 @@ export function DecompositionTabContent({ d }: Omit<ForecastTabProps, 'onExplain
                           <FcTd>{d.fmtCurrency(totals.salesDiff)}</FcTd>
                           <FcTd>{d.fmtCurrency(totals.custEffect)}</FcTd>
                           <FcTd>{d.fmtCurrency(totals.ticketEffect)}</FcTd>
-                          <FcTd>{d.formatPercent(totalCustPct)}</FcTd>
+                          <FcTd>{d.formatPercent(totals.custPct)}</FcTd>
                         </FcTrTotal>
                       )
                     })()}
