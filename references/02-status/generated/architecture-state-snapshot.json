@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-29T02:33:07.734Z",
+  "timestamp": "2026-03-29T02:45:07.055Z",
   "totalAllowlistEntries": 52,
   "categoryBreakdown": {
     "adapter": 11,
@@ -17,7 +17,7 @@
   ],
   "frozenCount": 7,
   "activeLists": 14,
-  "vmFileCount": 18,
+  "vmFileCount": 21,
   "compatReexportCount": 2,
   "activeBridges": [
     {
@@ -133,7 +133,7 @@
       "file": "presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx",
       "memoCount": 14,
       "stateCount": 5,
-      "lineCount": 490
+      "lineCount": 484
     },
     {
       "file": "presentation/components/charts/CategoryBenchmarkChart.vm.ts",
