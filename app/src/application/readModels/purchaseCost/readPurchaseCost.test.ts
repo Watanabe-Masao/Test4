@@ -26,26 +26,26 @@ import type { CategoryComparisonRow } from '@/domain/models/PurchaseComparison'
 function makeTestModel(overrides?: Partial<PurchaseCostReadModelType>): PurchaseCostReadModelType {
   const purchase = {
     rows: [
-      { day: 1, supplierCode: 'S001', cost: 500_000, price: 600_000 },
-      { day: 1, supplierCode: 'S002', cost: 300_000, price: 400_000 },
-      { day: 2, supplierCode: 'S001', cost: 200_000, price: 250_000 },
+      { storeId: 'S001', day: 1, supplierCode: 'S001', cost: 500_000, price: 600_000 },
+      { storeId: 'S001', day: 1, supplierCode: 'S002', cost: 300_000, price: 400_000 },
+      { storeId: 'S001', day: 2, supplierCode: 'S001', cost: 200_000, price: 250_000 },
     ],
     totalCost: 1_000_000,
     totalPrice: 1_250_000,
   }
   const deliverySales = {
     rows: [
-      { day: 1, categoryKey: 'flowers', cost: 50_000, price: 70_000 },
-      { day: 2, categoryKey: 'directProduce', cost: 30_000, price: 40_000 },
+      { storeId: 'S001', day: 1, categoryKey: 'flowers', cost: 50_000, price: 70_000 },
+      { storeId: 'S001', day: 2, categoryKey: 'directProduce', cost: 30_000, price: 40_000 },
     ],
     totalCost: 80_000,
     totalPrice: 110_000,
   }
   const transfers = {
     rows: [
-      { day: 1, categoryKey: 'interStoreIn', cost: 100_000, price: 120_000 },
-      { day: 1, categoryKey: 'interStoreOut', cost: -60_000, price: -70_000 },
-      { day: 2, categoryKey: 'interDeptIn', cost: 20_000, price: 25_000 },
+      { storeId: 'S001', day: 1, categoryKey: 'interStoreIn', cost: 100_000, price: 120_000 },
+      { storeId: 'S001', day: 1, categoryKey: 'interStoreOut', cost: -60_000, price: -70_000 },
+      { storeId: 'S001', day: 2, categoryKey: 'interDeptIn', cost: 20_000, price: 25_000 },
     ],
     totalCost: 60_000,
     totalPrice: 75_000,

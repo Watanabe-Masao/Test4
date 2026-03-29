@@ -86,8 +86,22 @@ describe('purchaseComparisonBuilders', () => {
 
     it('aggregates current period supplier data into correct category', () => {
       const curDaily = [
-        { day: 1, supplierCode: 'S001', supplierName: 'A', totalCost: 500, totalPrice: 600 },
-        { day: 1, supplierCode: 'S002', supplierName: 'B', totalCost: 300, totalPrice: 400 },
+        {
+          storeId: 'S001',
+          day: 1,
+          supplierCode: 'S001',
+          supplierName: 'A',
+          totalCost: 500,
+          totalPrice: 600,
+        },
+        {
+          storeId: 'S001',
+          day: 1,
+          supplierCode: 'S002',
+          supplierName: 'B',
+          totalCost: 300,
+          totalPrice: 400,
+        },
       ]
       const supplierMap = { S001: 'market_purchase' as const, S002: 'market_purchase' as const }
 
@@ -101,7 +115,14 @@ describe('purchaseComparisonBuilders', () => {
 
     it('aggregates previous period data separately', () => {
       const prevDaily = [
-        { day: 5, supplierCode: 'S001', supplierName: 'A', totalCost: 400, totalPrice: 500 },
+        {
+          storeId: 'S001',
+          day: 5,
+          supplierCode: 'S001',
+          supplierName: 'A',
+          totalCost: 400,
+          totalPrice: 500,
+        },
       ]
       const supplierMap = { S001: 'market_purchase' as const }
 
@@ -116,10 +137,24 @@ describe('purchaseComparisonBuilders', () => {
       // 2026年3月: 日曜始まり, 2025年3月: 土曜始まり → offset=1
       // prev day 2 → current day 1, prev day 3 → current day 2
       const curDaily = [
-        { day: 1, supplierCode: 'S001', supplierName: 'A', totalCost: 100, totalPrice: 120 },
+        {
+          storeId: 'S001',
+          day: 1,
+          supplierCode: 'S001',
+          supplierName: 'A',
+          totalCost: 100,
+          totalPrice: 120,
+        },
       ]
       const prevDaily = [
-        { day: 2, supplierCode: 'S001', supplierName: 'A', totalCost: 400, totalPrice: 500 },
+        {
+          storeId: 'S001',
+          day: 2,
+          supplierCode: 'S001',
+          supplierName: 'A',
+          totalCost: 400,
+          totalPrice: 500,
+        },
       ]
       const supplierMap = { S001: 'market_purchase' as const }
 
@@ -146,7 +181,14 @@ describe('purchaseComparisonBuilders', () => {
     it('wraps prev day from next month when dowOffset causes underflow', () => {
       // offset=1, prev day 1 (from April) → current day 31 (March has 31 days)
       const prevDaily = [
-        { day: 1, supplierCode: 'S001', supplierName: 'A', totalCost: 300, totalPrice: 350 },
+        {
+          storeId: 'S001',
+          day: 1,
+          supplierCode: 'S001',
+          supplierName: 'A',
+          totalCost: 300,
+          totalPrice: 350,
+        },
       ]
       const supplierMap = { S001: 'market_purchase' as const }
 
@@ -169,7 +211,9 @@ describe('purchaseComparisonBuilders', () => {
     })
 
     it('includes special sales in correct category', () => {
-      const curSpecial = [{ day: 2, categoryKey: 'flowers', totalCost: 200, totalPrice: 250 }]
+      const curSpecial = [
+        { storeId: 'S001', day: 2, categoryKey: 'flowers', totalCost: 200, totalPrice: 250 },
+      ]
       const flowerCat: CategoryComparisonRow = {
         ...cat,
         categoryId: 'flowers',
@@ -184,8 +228,14 @@ describe('purchaseComparisonBuilders', () => {
 
     it('includes inter-store transfers (IN + OUT, net value)', () => {
       const curTransfers = [
-        { day: 3, categoryKey: 'interStoreIn', totalCost: 150, totalPrice: 180 },
-        { day: 3, categoryKey: 'interStoreOut', totalCost: -100, totalPrice: -120 },
+        { storeId: 'S001', day: 3, categoryKey: 'interStoreIn', totalCost: 150, totalPrice: 180 },
+        {
+          storeId: 'S001',
+          day: 3,
+          categoryKey: 'interStoreOut',
+          totalCost: -100,
+          totalPrice: -120,
+        },
       ]
       const storeCat: CategoryComparisonRow = {
         ...cat,
@@ -203,7 +253,14 @@ describe('purchaseComparisonBuilders', () => {
     it('computes dayOfWeek correctly', () => {
       // 2025-03-01 is a Saturday (6)
       const curDaily = [
-        { day: 1, supplierCode: 'S001', supplierName: 'A', totalCost: 100, totalPrice: 120 },
+        {
+          storeId: 'S001',
+          day: 1,
+          supplierCode: 'S001',
+          supplierName: 'A',
+          totalCost: 100,
+          totalPrice: 120,
+        },
       ]
       const supplierMap = { S001: 'market_purchase' as const }
 
@@ -213,17 +270,58 @@ describe('purchaseComparisonBuilders', () => {
 
     it('一貫性不変条件: ピボット行合計 = grandTotal', () => {
       const curDaily = [
-        { day: 1, supplierCode: 'S001', supplierName: 'A', totalCost: 500, totalPrice: 600 },
-        { day: 2, supplierCode: 'S001', supplierName: 'A', totalCost: 300, totalPrice: 400 },
-        { day: 2, supplierCode: 'S002', supplierName: 'B', totalCost: 200, totalPrice: 250 },
+        {
+          storeId: 'S001',
+          day: 1,
+          supplierCode: 'S001',
+          supplierName: 'A',
+          totalCost: 500,
+          totalPrice: 600,
+        },
+        {
+          storeId: 'S001',
+          day: 2,
+          supplierCode: 'S001',
+          supplierName: 'A',
+          totalCost: 300,
+          totalPrice: 400,
+        },
+        {
+          storeId: 'S001',
+          day: 2,
+          supplierCode: 'S002',
+          supplierName: 'B',
+          totalCost: 200,
+          totalPrice: 250,
+        },
       ]
       const prevDaily = [
-        { day: 1, supplierCode: 'S001', supplierName: 'A', totalCost: 450, totalPrice: 550 },
-        { day: 3, supplierCode: 'S002', supplierName: 'B', totalCost: 100, totalPrice: 130 },
+        {
+          storeId: 'S001',
+          day: 1,
+          supplierCode: 'S001',
+          supplierName: 'A',
+          totalCost: 450,
+          totalPrice: 550,
+        },
+        {
+          storeId: 'S001',
+          day: 3,
+          supplierCode: 'S002',
+          supplierName: 'B',
+          totalCost: 100,
+          totalPrice: 130,
+        },
       ]
-      const curSpecial = [{ day: 1, categoryKey: 'flowers', totalCost: 50, totalPrice: 70 }]
-      const prevSpecial = [{ day: 1, categoryKey: 'flowers', totalCost: 40, totalPrice: 60 }]
-      const curTransfers = [{ day: 2, categoryKey: 'interStoreIn', totalCost: 30, totalPrice: 35 }]
+      const curSpecial = [
+        { storeId: 'S001', day: 1, categoryKey: 'flowers', totalCost: 50, totalPrice: 70 },
+      ]
+      const prevSpecial = [
+        { storeId: 'S001', day: 1, categoryKey: 'flowers', totalCost: 40, totalPrice: 60 },
+      ]
+      const curTransfers = [
+        { storeId: 'S001', day: 2, categoryKey: 'interStoreIn', totalCost: 30, totalPrice: 35 },
+      ]
 
       const flowerCat: CategoryComparisonRow = {
         ...cat,
@@ -276,10 +374,24 @@ describe('purchaseComparisonBuilders', () => {
 
     it('一貫性不変条件: ピボット grandTotal から構築した KPI は同じ値', () => {
       const curDaily = [
-        { day: 1, supplierCode: 'S001', supplierName: 'A', totalCost: 1000, totalPrice: 1200 },
+        {
+          storeId: 'S001',
+          day: 1,
+          supplierCode: 'S001',
+          supplierName: 'A',
+          totalCost: 1000,
+          totalPrice: 1200,
+        },
       ]
       const prevDaily = [
-        { day: 1, supplierCode: 'S001', supplierName: 'A', totalCost: 900, totalPrice: 1100 },
+        {
+          storeId: 'S001',
+          day: 1,
+          supplierCode: 'S001',
+          supplierName: 'A',
+          totalCost: 900,
+          totalPrice: 1100,
+        },
       ]
       const supplierMap = { S001: 'market_purchase' as const }
 

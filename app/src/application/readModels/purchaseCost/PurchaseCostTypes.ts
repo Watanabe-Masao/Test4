@@ -29,6 +29,7 @@ export type PurchaseCostQueryInput = z.infer<typeof PurchaseCostQueryInput>
 // ── 日別×帳合先行（通常仕入の最小粒度） ──
 
 export const PurchaseDaySupplierRow = z.object({
+  storeId: z.string(),
   day: z.number(),
   supplierCode: z.string(),
   cost: z.number(),
@@ -40,6 +41,7 @@ export type PurchaseDaySupplierRow = z.infer<typeof PurchaseDaySupplierRow>
 // ── 日別×種別行（売上納品・移動原価の最小粒度） ──
 
 export const CategoryDayRow = z.object({
+  storeId: z.string(),
   day: z.number(),
   categoryKey: z.string(), // 'flowers' | 'directProduce' | 'interStoreIn' | etc.
   cost: z.number(),

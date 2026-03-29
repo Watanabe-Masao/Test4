@@ -7,7 +7,6 @@ import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models/CalendarDate'
 import {
   querySupplierNames,
-  queryPurchaseByStore,
   querySalesDaily,
   querySalesTotal,
   queryEffectiveMaxDay,
@@ -29,6 +28,7 @@ import {
   toPurchaseDailySupplierRows,
   toCategoryDailyRows,
   toDailyCostRows,
+  toStoreCostRows,
 } from '@/application/readModels/purchaseCost'
 
 export function usePurchaseComparisonQuery(
@@ -110,8 +110,6 @@ export function usePurchaseComparisonQuery(
           prevSalesTotal,
           curSupplierNames,
           prevSupplierNames,
-          curStores,
-          prevStores,
           curSalesDaily,
           prevSalesDaily,
         ] = await Promise.all([
@@ -121,8 +119,6 @@ export function usePurchaseComparisonQuery(
           querySalesTotal(c, prevDateFrom, cappedPrevDateTo, storeIdArr, false),
           querySupplierNames(c, curDateFrom, curDateTo, storeIdArr),
           querySupplierNames(c, prevDateFrom, cappedPrevDateTo, storeIdArr),
-          queryPurchaseByStore(c, curDateFrom, curDateTo, storeIdArr),
-          queryPurchaseByStore(c, prevDateFrom, cappedPrevDateTo, storeIdArr),
           querySalesDaily(c, curDateFrom, curDateTo, storeIdArr, false),
           querySalesDaily(c, prevDateFrom, cappedPrevDateTo, storeIdArr, false),
         ])
@@ -157,7 +153,12 @@ export function usePurchaseComparisonQuery(
           curSalesDaily,
           prevSalesDaily,
         )
-        const byStore = buildStoreData(curStores, prevStores, storeNames)
+        // 店舗別は ReadModel から導出（全正本の合計を storeId で集約）
+        const byStore = buildStoreData(
+          toStoreCostRows(curModel),
+          toStoreCostRows(prevModel),
+          storeNames,
+        )
 
         const dailyPivot = buildDailyPivot(
           toPurchaseDailySupplierRows(curModel),
