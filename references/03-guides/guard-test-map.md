@@ -26,7 +26,7 @@
 | `app/src/application/comparison/__tests__/sameDowPoint.test.ts` | invariant-guardian | 7件 | SameDowPoint sourceDate 保持、月跨ぎ・年跨ぎ、合計整合性 |
 | `app/src/test/guards/purchaseCostPathGuard.test.ts` | architecture | 5件 | 仕入原価取得経路3層防御（import禁止・集計逸脱禁止・正本一貫性） |
 | `app/src/application/hooks/duckdb/usePurchaseComparisonQuery.test.ts` | invariant-guardian | 18件 | ピボット一貫性不変条件、KPI-ピボット値一致、buildDailyPivot 動作検証 |
-| `app/src/application/readModels/purchaseCost/readPurchaseCost.test.ts` | invariant-guardian | 16件 | 仕入原価プロセス正当性（正本値・計算式・使用方法・変換ヘルパー） |
+| `app/src/application/readModels/purchaseCost/readPurchaseCost.test.ts` | invariant-guardian | 21件 | 仕入原価プロセス正当性（正本値・計算式・使用方法・変換ヘルパー・店舗別導出） |
 | `app/src/test/guards/purchaseCostImportGuard.test.ts` | architecture | 15件 | インポートプロセス正当性（ファイル判別・パース・DuckDB格納・正本化パス） |
 
 ## ルール → テスト対応

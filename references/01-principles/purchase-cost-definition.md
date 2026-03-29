@@ -204,14 +204,19 @@
 ## 5. 取得経路の正本（複合正本構造）
 
 ```
-readPurchaseCost() — 3つの独立正本を統合して返す
+readPurchaseCost() — 3つの独立正本を統合して返す（storeId × day 粒度）
   ├→ 通常仕入正本: queryPurchaseDailyBySupplier() — purchase テーブル
+  │   GROUP BY store_id, day, supplier_code
   ├→ 売上納品正本: querySpecialSalesDaily()        — special_sales テーブル
+  │   GROUP BY store_id, day, type
   └→ 移動原価正本: queryTransfersDaily()           — transfers テーブル（全方向）
+      GROUP BY store_id, day, direction
 
   複合正本から JS 集計で導出:
-  ├→ 総仕入原価 = 通常仕入 + 売上納品 + 移動原価（在庫法・仕入分析共通）
-  ├→ 期中仕入原価 = 通常仕入 + 移動原価（推定法用 — 売上納品を除外）
+  ├→ grandTotalCost      = 3正本の合計（全店・在庫法・仕入分析共通）
+  ├→ inventoryPurchaseCost = purchase + transfers（推定法用 — 売上納品除外）
+  ├→ toStoreCostRows()    = storeId で集約した店舗別合計
+  ├→ toDailyCostRows()    = day で集約した日別合計
   ├→ KPI 合計
   ├→ カテゴリ別内訳（店間移動・部門間移動は IN-OUT のネット値）
   └→ 日別ピボット
