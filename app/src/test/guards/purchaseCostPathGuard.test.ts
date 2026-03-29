@@ -124,4 +124,45 @@ describe('仕入原価取得経路ガード', () => {
     expect(content).not.toContain('querySpecialSalesDaily(')
     expect(content).not.toContain('queryTransfersDaily(')
   })
+
+  // ── Layer 4: 正しい手続きの保証 ──
+  // 正本が正しく使われ、正しい経路で値が流れていること
+
+  it('usePurchaseComparisonQuery は複合正本の grandTotalCost で KPI を上書きしている', () => {
+    const queryFile = path.join(SRC_DIR, 'application/hooks/duckdb/usePurchaseComparisonQuery.ts')
+    const content = fs.readFileSync(queryFile, 'utf-8')
+
+    // Phase 2 で正本の grandTotalCost を使って reconciledKpi を構築
+    expect(content).toContain('curModel.grandTotalCost')
+    expect(content).toContain('prevModel.grandTotalCost')
+    expect(content).toContain('reconciledKpi')
+  })
+
+  it('usePurchaseComparisonQuery は ReadModel から変換ヘルパーでビルダーにデータを渡している', () => {
+    const queryFile = path.join(SRC_DIR, 'application/hooks/duckdb/usePurchaseComparisonQuery.ts')
+    const content = fs.readFileSync(queryFile, 'utf-8')
+
+    expect(content).toContain('toPurchaseDailySupplierRows')
+    expect(content).toContain('toCategoryDailyRows')
+  })
+
+  it('usePurchaseAnalysis は usePurchaseComparisonQuery を経由している', () => {
+    const facadeFile = path.join(SRC_DIR, 'application/hooks/usePurchaseAnalysis.ts')
+    const content = fs.readFileSync(facadeFile, 'utf-8')
+
+    expect(content).toContain('usePurchaseComparisonQuery')
+  })
+
+  it('PurchaseAnalysisPage は usePurchaseAnalysis を経由している', () => {
+    const pageFile = path.join(
+      SRC_DIR,
+      'presentation/pages/PurchaseAnalysis/PurchaseAnalysisPage.tsx',
+    )
+    const content = fs.readFileSync(pageFile, 'utf-8')
+
+    expect(content).toContain('usePurchaseAnalysis')
+    // 購買系クエリや purchaseCostHandler の直接使用がないこと
+    expect(content).not.toContain('purchaseCostHandler')
+    expect(content).not.toContain('queryPurchase')
+  })
 })
