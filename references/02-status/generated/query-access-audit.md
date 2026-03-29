@@ -1,6 +1,6 @@
 # Query Access Audit Report
 
-> Generated: 2026-03-29T08:47:59.030Z
+> Generated: 2026-03-29T09:45:45.023Z
 
 ## Route Summary
 
@@ -8,7 +8,7 @@
 |---|---|---|
 | QueryHandler 定義 | 27 | 基盤 |
 | useQueryWithHandler（正規） | 28 | 正規 |
-| comparisonAccessors（正規） | 10 | 正規 |
+| comparisonAccessors（正規） | 11 | 正規 |
 | facade hook（正規） | 0 | 正規 |
 | executor.execute 直呼び（要注意） | 0 | 要注意 |
 | useAsyncQuery 直 import（互換） | 0 | 互換 |
@@ -86,6 +86,7 @@
 - presentation/pages/Dashboard/widgets/calendarUtils.ts
 - presentation/pages/Dashboard/widgets/useMonthlyCalendarState.ts
 - presentation/pages/Forecast/ForecastPage.helpers.ts
+- presentation/pages/Insight/InsightTabBudget.tsx
 - presentation/pages/Insight/InsightTabBudget.vm.ts
 - application/hooks/useBudgetChartData.ts
 - application/usecases/clipExport/buildClipBundle.ts
