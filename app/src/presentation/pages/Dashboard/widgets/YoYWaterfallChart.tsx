@@ -447,8 +447,8 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
             border: '1px solid rgba(245,158,11,0.2)',
           }}
         >
-          分類別時間帯データ（CTS）が不足しています（カバー率{' '}
-          {(ctsCoverageRatio * 100).toFixed(1)}%）。要因分解の精度に影響する可能性があります。
+          分類別時間帯データ（CTS）が不足しています（カバー率 {(ctsCoverageRatio * 100).toFixed(1)}
+          %）。要因分解の精度に影響する可能性があります。
         </div>
       )}
 

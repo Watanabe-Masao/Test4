@@ -294,7 +294,10 @@ export const PurchaseDailyPivotTable = memo(function PurchaseDailyPivotTable({
                     <PivotTd>
                       {prevPrice > 0 ? formatPercent(markupRateVal(prevCost, prevPrice)) : '-'}
                     </PivotTd>
-                    <DiffCell $groupStart $positive={hasCurData ? diffColor(cost - prevCost) : false}>
+                    <DiffCell
+                      $groupStart
+                      $positive={hasCurData ? diffColor(cost - prevCost) : false}
+                    >
                       {hasCurData && cost - prevCost !== 0 ? fmtOrDash(cost - prevCost) : '-'}
                     </DiffCell>
                     <DiffCell $positive={hasCurData ? diffColor(price - prevPrice) : false}>
