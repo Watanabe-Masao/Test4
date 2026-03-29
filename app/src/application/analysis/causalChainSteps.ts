@@ -3,13 +3,19 @@
  *
  * causalChain.ts から抽出。各ステップの CausalStep 構築を担う。
  */
-import type { TwoFactorResult } from './factorDecomposition'
+import type { TwoFactorResult } from '@/domain/calculations/factorDecomposition'
 import type { DiscountEntry } from '@/domain/models/record'
 import type { StoreResult } from '@/domain/models/storeTypes'
 import type { DiscountType } from '@/domain/models/ClassifiedSales'
 import type { CausalChainPrevInput } from './causalChain'
-import type { CausalStep, CausalFactor } from './causalChainFormatters'
-import { fmtPct, fmtComma, fmtYen, fmtDelta, findMaxFactorIndex } from './causalChainFormatters'
+import type { CausalStep, CausalFactor } from '@/domain/formatting/causalChainFormatters'
+import {
+  fmtPct,
+  fmtComma,
+  fmtYen,
+  fmtDelta,
+  findMaxFactorIndex,
+} from '@/domain/formatting/causalChainFormatters'
 
 /**
  * 売変種別ごとのカラーヒント。

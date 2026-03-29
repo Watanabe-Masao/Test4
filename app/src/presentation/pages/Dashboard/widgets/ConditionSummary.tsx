@@ -3,7 +3,7 @@ import { formatPercent } from '@/domain/formatting'
 import { safeDivide, calculateTransactionValue } from '@/domain/calculations/utils'
 import type { MetricId } from '@/domain/models/analysis'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
-import { isMetricEnabled } from '@/domain/calculations/rules/conditionResolver'
+import { isMetricEnabled } from '@/application/rules/conditionResolver'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import type { WidgetContext } from './types'
 import {

@@ -1,6 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { evaluateAlerts, evaluateAllStoreAlerts, DEFAULT_ALERT_RULES } from './rules/alertSystem'
-import type { AlertRule } from './rules/alertSystem'
+import {
+  evaluateAlerts,
+  evaluateAllStoreAlerts,
+  DEFAULT_ALERT_RULES,
+} from '@/application/rules/alertSystem'
+import type { AlertRule } from '@/application/rules/alertSystem'
 import type { StoreResult } from '@/domain/models/StoreResult'
 
 // ─── Minimal mock StoreResult factory ─────────────────

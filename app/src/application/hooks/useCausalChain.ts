@@ -5,13 +5,13 @@
  * application 層で因果連鎖結果を提供する。
  */
 import { useMemo } from 'react'
-import { buildCausalSteps, storeResultToCausalPrev } from '@/domain/calculations/causalChain'
+import { buildCausalSteps, storeResultToCausalPrev } from '@/application/analysis/causalChain'
 import type {
   CausalStep,
   CausalChainPrevInput,
   CausalFactor,
   ColorHint,
-} from '@/domain/calculations/causalChain'
+} from '@/application/analysis/causalChain'
 import type { StoreResult } from '@/domain/models/storeTypes'
 
 // Re-export types for presentation layer

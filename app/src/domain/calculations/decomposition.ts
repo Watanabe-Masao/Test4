@@ -22,13 +22,11 @@ export {
   ZERO_ACTUAL_DAY_IMPACT,
 } from './dowGapAnalysis'
 
-// 因果チェーン分析
-export { buildCausalSteps, storeResultToCausalPrev } from './causalChain'
-export type { ColorHint, CausalFactor, CausalStep, CausalChainPrevInput } from './causalChain'
+// 因果チェーン分析 → application/analysis/ に移動済み
+// 消費者は @/application/analysis/causalChain から直接 import
 
-// アラート・閾値（rules/ サブディレクトリ）
-export { evaluateAlerts, evaluateAllStoreAlerts, DEFAULT_ALERT_RULES } from './rules/alertSystem'
-export type { AlertRule, Alert, AlertSeverity, AlertRuleType } from './rules/alertSystem'
+// アラート・閾値 → application/rules/ に移動済み
+// 消費者は @/application/rules/ から直接 import
 
 // 相関分析・統計（algorithms/ サブディレクトリ）
 export {

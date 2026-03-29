@@ -7,8 +7,8 @@ import type {
   ConditionMetricId,
   ConditionSummaryConfig,
   ThresholdSet,
-} from '../../models/ConditionConfig'
-import { CONDITION_METRIC_MAP } from '../../constants/conditionMetrics'
+} from '@/domain/calculations/../models/ConditionConfig'
+import { CONDITION_METRIC_MAP } from '@/domain/calculations/../constants/conditionMetrics'
 
 /**
  * 単一メトリクスの閾値を解決する（ConditionSummary 内部のシグナル判定用）。
