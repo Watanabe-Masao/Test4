@@ -329,8 +329,9 @@ class BackupExporter {
       } else {
         text = await file.text()
       }
-      const backup = JSON.parse(text) as BackupFile
-      return backup.meta ?? null
+      const backupRaw = JSON.parse(text)
+      if (!backupRaw || typeof backupRaw !== 'object' || !backupRaw.meta) return null
+      return (backupRaw as BackupFile).meta ?? null
     } catch {
       return null
     }
