@@ -8,7 +8,8 @@
  *   - 他の features/* への直接依存は禁止（shared/ 経由のみ）
  *   - 既存コードの移行は改修タイミングで段階的に行う
  *   - バレル re-export で後方互換を維持
+ *
+ * Pilot (2026-03-29):
+ *   domain/salesMetrics.ts — 日別達成率・予算ペース・前年成長率の純粋計算
  */
-
-// 段階的に移行。現時点では空。
-// 新規売上機能はこのスライス内に作成する。
+export { computeDailyAchievementRate, computeBudgetPace, computeYoYGrowthRate } from './domain'

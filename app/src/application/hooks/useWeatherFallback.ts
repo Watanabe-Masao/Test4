@@ -63,8 +63,8 @@ export function useWeatherFallback(params: {
           // 永続化失敗は無視
         }
       })
-      .catch(() => {
-        // ETRN 取得失敗は無視（天気は必須ではない）
+      .catch((err: unknown) => {
+        console.warn('[useWeatherFallback] ETRN fallback failed:', err)
       })
 
     return () => {

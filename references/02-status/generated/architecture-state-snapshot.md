@@ -1,6 +1,6 @@
 # Architecture State Snapshot
 
-> Generated: 2026-03-29T08:48:41.946Z
+> Generated: 2026-03-29T12:07:39.751Z
 
 ## Allowlist Summary
 
@@ -108,7 +108,7 @@
 | presentation/components/charts/CategoryTrendChart.tsx | 9 | 7 | 368 |
 | presentation/components/charts/DeptHourlyChart.tsx | 10 | 6 | 419 |
 | presentation/components/charts/TimeSlotChart.tsx | 10 | 6 | 228 |
-| presentation/pages/Dashboard/widgets/HourlyChart.tsx | 10 | 6 | 538 |
+| presentation/pages/Dashboard/widgets/HourlyChart.tsx | 10 | 6 | 514 |
 
 ## Near-Limit Files (≥80%)
 

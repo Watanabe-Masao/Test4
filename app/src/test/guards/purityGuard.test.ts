@@ -478,3 +478,121 @@ describe('D3: 率メトリクスの累計計算ガード', () => {
     ).toBeGreaterThanOrEqual(2)
   })
 })
+
+// ─── B1 拡張: domain/calculations の金銭計算は Rust crate 必須 ──
+// @guard B1 Authoritative 計算は domain/calculations のみ
+
+describe('B1 拡張: domain/calculations の金銭計算関数は WASM bridge が存在すること', () => {
+  /**
+   * Rust crate による数学的証明（不変条件テスト + property-based テスト）を
+   * 強制するためのガード。新規の金銭計算関数を TS のみで追加することを禁止する。
+   *
+   * 既存の TS-only ファイルは allowlist で管理し、段階的に Rust 化する。
+   */
+
+  // Rust crate が存在する（bridge 経由で WASM 呼び出し可能な）計算ファイル
+  const RUST_COVERED_FILES = new Set([
+    'budgetAnalysis.ts',
+    'factorDecomposition.ts',
+    'invMethod.ts',
+    'estMethod.ts',
+    'discountImpact.ts',
+    'costAggregation.ts',
+    'markupRate.ts',
+    'timeSlotCalculations.ts',
+    // forecast 系
+    'algorithms/advancedForecast.ts',
+    'algorithms/trendAnalysis.ts',
+    // statistics crate
+    'algorithms/correlation.ts',
+    'algorithms/sensitivity.ts',
+    // core-utils crate
+    'utils.ts',
+    'aggregation.ts',
+    'remainingBudgetRate.ts',
+    // statistics crate (dow_gap + divisor)
+    'divisor.ts',
+    'averageDivisor.ts',
+    'dowGapActualDay.ts',
+    'dowGapAnalysis.ts',
+    'dowGapStatistics.ts',
+    'rawAggregation/statisticalFunctions.ts',
+    'pinIntervals.ts',
+    'inventoryCalc.ts',
+    // forecast crate (temporal)
+    'temporal/computeMovingAverage.ts',
+    'observationPeriod.ts',
+    'forecast.ts',
+  ])
+
+  // TS のみで許容するファイル（Rust 化不要 or 段階移行中）
+  // 非計算ファイル: domain/calculations/ に配置されているが計算ではない
+  // 将来 application/ や infrastructure/ に移動する候補（import パス変更が必要）
+  const NON_CALCULATION_FILES = new Set([
+    'rules/alertSystem.ts', // → application/rules/（設定駆動ルールエンジン）
+    'rules/conditionResolver.ts', // → application/rules/（設定ポリシー）
+    'dataDetection.ts', // → application/services/（データ検出ヘルパー）
+    'forecastWeatherMapping.ts', // → infrastructure/weather/（外部データマッピング）
+    'weatherAggregation.ts', // → infrastructure/weather/（天気集約）
+    'rawAggregation.ts', // → application/query-bridge/（DuckDB 結果処理）
+    'rawAggregation/aggregationUtilities.ts',
+    'rawAggregation/dailyAggregation.ts',
+    'rawAggregation/featureAggregation.ts',
+    'causalChain.ts', // → application/analysis/（Shapley 統合）
+    'causalChainSteps.ts', // → application/analysis/（ステップ構築）
+    'causalChainFormatters.ts', // → domain/formatting/（フォーマッター）
+    'yoyComparison.ts', // → domain/models/（比較モデル）
+  ])
+
+  // 全計算ファイルが Rust 化完了 — TS_ONLY_ALLOWLIST は空
+  const TS_ONLY_ALLOWLIST = new Set<string>([])
+
+  it('domain/calculations/ の全ファイルが Rust 実装済みまたは allowlist に登録されている', () => {
+    const calcDir = path.join(SRC_DIR, 'domain/calculations')
+    const files = collectTsFiles(calcDir)
+    const violations: string[] = []
+
+    for (const file of files) {
+      const relPath = path.relative(calcDir, file)
+      if (relPath.startsWith('__tests__')) continue
+      if (relPath === 'index.ts' || relPath.endsWith('/index.ts')) continue
+      if (relPath.endsWith('.barrel.ts')) continue
+
+      // 型定義・re-export のみのファイルは計算ではないため除外
+      const content = fs.readFileSync(file, 'utf-8')
+      if (!content.includes('export function ')) continue
+
+      // 非計算ファイル（ルールエンジン・フォーマッター・集約等）は対象外
+      if (NON_CALCULATION_FILES.has(relPath)) continue
+
+      if (!RUST_COVERED_FILES.has(relPath) && !TS_ONLY_ALLOWLIST.has(relPath)) {
+        violations.push(relPath)
+      }
+    }
+
+    expect(
+      violations,
+      `domain/calculations/ に未登録のファイルがあります:\n${violations.join('\n')}\n` +
+        '→ Rust crate を作成するか、TS_ONLY_ALLOWLIST に正当な理由を付けて登録してください。\n' +
+        '金銭計算の新規追加は Rust crate + 数学的証明が必須です（B1 拡張）。',
+    ).toEqual([])
+  })
+
+  it('NON_CALCULATION_FILES のサイズが増加していない（段階的移動）', () => {
+    const MAX_NON_CALC = 13
+    expect(
+      NON_CALCULATION_FILES.size,
+      `NON_CALCULATION_FILES が ${NON_CALCULATION_FILES.size} 件（上限: ${MAX_NON_CALC}）。` +
+        'ファイル移動が完了したらエントリを削除してください。',
+    ).toBeLessThanOrEqual(MAX_NON_CALC)
+  })
+
+  it('TS_ONLY_ALLOWLIST のサイズが増加していない（段階的 Rust 化）', () => {
+    const MAX_TS_ONLY = 0
+    expect(
+      TS_ONLY_ALLOWLIST.size,
+      `TS_ONLY_ALLOWLIST が ${TS_ONLY_ALLOWLIST.size} 件（上限: ${MAX_TS_ONLY}）。` +
+        'Rust 化が進んだらエントリを削除してください。',
+    ).toBeLessThanOrEqual(MAX_TS_ONLY)
+  })
+})

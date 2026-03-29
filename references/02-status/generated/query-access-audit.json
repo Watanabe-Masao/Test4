@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-03-29T08:47:59.030Z",
+  "timestamp": "2026-03-29T12:07:00.095Z",
   "summary": {
     "queryHandlers": 27,
     "正規経路_queryWithHandler": 28,
-    "正規経路_comparisonAccessor": 10,
+    "正規経路_comparisonAccessor": 11,
     "正規経路_facadeHook": 0,
     "要注意_executorDirect": 0,
     "互換経路_asyncQueryDirect": 0,
@@ -79,6 +79,7 @@
       "presentation/pages/Dashboard/widgets/calendarUtils.ts",
       "presentation/pages/Dashboard/widgets/useMonthlyCalendarState.ts",
       "presentation/pages/Forecast/ForecastPage.helpers.ts",
+      "presentation/pages/Insight/InsightTabBudget.tsx",
       "presentation/pages/Insight/InsightTabBudget.vm.ts",
       "application/hooks/useBudgetChartData.ts",
       "application/usecases/clipExport/buildClipBundle.ts"

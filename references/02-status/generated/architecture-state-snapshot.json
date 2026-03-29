@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-29T08:48:41.946Z",
+  "timestamp": "2026-03-29T12:07:39.751Z",
   "totalAllowlistEntries": 49,
   "categoryBreakdown": {
     "adapter": 8,
@@ -165,7 +165,7 @@
       "file": "presentation/pages/Dashboard/widgets/HourlyChart.tsx",
       "memoCount": 10,
       "stateCount": 6,
-      "lineCount": 538
+      "lineCount": 514
     }
   ],
   "nearLimitFiles": [

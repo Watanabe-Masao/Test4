@@ -20,8 +20,8 @@ export function acquireMutex(): Promise<() => void> {
   })
 
   return prevLoad
-    .catch(() => {
-      // 先行ロードのエラーは無視（自身のロードに影響しない）
+    .catch((err: unknown) => {
+      console.warn('[loadCoordinator] previous load failed (non-blocking):', err)
     })
     .then(() => releaseMutex!)
 }
