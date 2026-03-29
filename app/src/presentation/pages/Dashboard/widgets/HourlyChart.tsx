@@ -21,6 +21,7 @@ import { DetailSectionTitle } from '../DashboardPage.styles'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import {
+  buildHourlyData,
   computeSelectedData,
   buildHourCategoryDetail,
   buildCumulativeData,
@@ -84,33 +85,8 @@ export const HourlyChart = memo(function HourlyChart({
   const [hoveredHour, setHoveredHour] = useState<number | null>(null)
   const [selectedHours, setSelectedHours] = useState<Set<number>>(new Set())
   const [hourlyMode, setHourlyMode] = useState<HourlyMode>('actual')
-  const buildHourlyData = useCallback((recs: readonly CategoryTimeSalesRecord[]) => {
-    const map = new Map<number, { amount: number; quantity: number }>()
-    for (const rec of recs) {
-      for (const slot of rec.timeSlots) {
-        const ex = map.get(slot.hour) ?? { amount: 0, quantity: 0 }
-        ex.amount += slot.amount
-        ex.quantity += slot.quantity
-        map.set(slot.hour, ex)
-      }
-    }
-    const entries = [...map.entries()].sort(([a], [b]) => a - b)
-    if (entries.length === 0) return []
-    const minH = Math.min(...entries.map(([h]) => h))
-    const maxH = Math.max(...entries.map(([h]) => h))
-    const result: { hour: number; amount: number; quantity: number }[] = []
-    for (let h = minH; h <= maxH; h++) {
-      const d = map.get(h)
-      result.push({ hour: h, amount: d?.amount ?? 0, quantity: d?.quantity ?? 0 })
-    }
-    return result
-  }, [])
-
-  const actualHourlyData = useMemo(() => buildHourlyData(dayRecords), [dayRecords, buildHourlyData])
-  const prevHourlyData = useMemo(
-    () => buildHourlyData(prevDayRecords),
-    [prevDayRecords, buildHourlyData],
-  )
+  const actualHourlyData = useMemo(() => buildHourlyData(dayRecords), [dayRecords])
+  const prevHourlyData = useMemo(() => buildHourlyData(prevDayRecords), [prevDayRecords])
 
   const hasPrevData = prevHourlyData.length > 0
   const hourlyData = hourlyMode === 'prev' && hasPrevData ? prevHourlyData : actualHourlyData
