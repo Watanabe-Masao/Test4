@@ -26,12 +26,8 @@ function purchaseWhere(
 
 // ── 結果型（SQL → camelCase 変換後）──
 
-/** 日別仕入集計（チャート用） */
-export interface PurchaseDailyRow {
-  readonly day: number
-  readonly totalCost: number
-  readonly totalPrice: number
-}
+// PurchaseDailyRow / queryPurchaseDaily は廃止済み。
+// 日別は readPurchaseCost の toDailyCostRows() で正本から導出する。
 
 // ── クエリ関数 ──
 
@@ -84,34 +80,8 @@ export async function queryEffectiveMaxDay(
 
 // queryPurchaseTotal は廃止済み。正本は readPurchaseCost の grandTotalCost。
 
-/** 店舗別仕入集計 */
-export interface PurchaseStoreRow {
-  readonly storeId: string
-  readonly totalCost: number
-  readonly totalPrice: number
-}
-
-/**
- * 指定日付範囲の店舗別仕入集計を取得する
- */
-export async function queryPurchaseByStore(
-  conn: AsyncDuckDBConnection,
-  dateFrom: string,
-  dateTo: string,
-  storeIds?: readonly string[],
-): Promise<readonly PurchaseStoreRow[]> {
-  const where = purchaseWhere(dateFrom, dateTo, storeIds)
-  const sql = `
-    SELECT
-      store_id,
-      COALESCE(SUM(cost), 0) AS total_cost,
-      COALESCE(SUM(price), 0) AS total_price
-    FROM purchase
-    ${where}
-    GROUP BY store_id
-    ORDER BY total_cost DESC`
-  return queryToObjects<PurchaseStoreRow>(conn, sql)
-}
+// queryPurchaseByStore / PurchaseStoreRow は廃止済み。
+// 店舗別は readPurchaseCost の toStoreCostRows() で正本から導出する。
 
 /** 店舗別仕入額集計（purchase + special_sales + transfers の UNION） */
 export interface StoreCostPriceRow {
@@ -261,25 +231,6 @@ export async function queryPurchaseDailyBySupplier(
 /**
  * 指定日付範囲の日別仕入集計を取得する（チャート用）
  */
-export async function queryPurchaseDaily(
-  conn: AsyncDuckDBConnection,
-  dateFrom: string,
-  dateTo: string,
-  storeIds?: readonly string[],
-): Promise<readonly PurchaseDailyRow[]> {
-  const where = purchaseWhere(dateFrom, dateTo, storeIds)
-  const sql = `
-    SELECT
-      day,
-      COALESCE(SUM(cost), 0) AS total_cost,
-      COALESCE(SUM(price), 0) AS total_price
-    FROM purchase
-    ${where}
-    GROUP BY day
-    ORDER BY day`
-  return queryToObjects<PurchaseDailyRow>(conn, sql)
-}
-
 /** 店舗×カテゴリ別日別集計行（花・産直・店間・部門間用） */
 export interface CategoryDailyRow {
   readonly storeId: string

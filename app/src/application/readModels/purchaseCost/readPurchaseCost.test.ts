@@ -16,12 +16,56 @@ import {
   PurchaseCostReadModel,
   type PurchaseCostReadModel as PurchaseCostReadModelType,
 } from './PurchaseCostTypes'
-import { toPurchaseDailySupplierRows, toCategoryDailyRows } from './readPurchaseCost'
+import {
+  toPurchaseDailySupplierRows,
+  toCategoryDailyRows,
+  toStoreCostRows,
+  toDailyCostRows,
+} from './readPurchaseCost'
 import { buildDailyPivot } from '@/application/hooks/duckdb/purchaseComparisonBuilders'
 import { buildKpi, type KpiTotals } from '@/application/hooks/duckdb/purchaseComparisonKpi'
 import type { CategoryComparisonRow } from '@/domain/models/PurchaseComparison'
 
 // ── テストデータ ──
+
+/** 複数店舗のテストデータ */
+function makeMultiStoreModel(): PurchaseCostReadModelType {
+  const purchase = {
+    rows: [
+      { storeId: 'S001', day: 1, supplierCode: 'A', cost: 300_000, price: 400_000 },
+      { storeId: 'S002', day: 1, supplierCode: 'A', cost: 200_000, price: 250_000 },
+      { storeId: 'S001', day: 2, supplierCode: 'B', cost: 100_000, price: 120_000 },
+    ],
+    totalCost: 600_000,
+    totalPrice: 770_000,
+  }
+  const deliverySales = {
+    rows: [
+      { storeId: 'S001', day: 1, categoryKey: 'flowers', cost: 30_000, price: 40_000 },
+      { storeId: 'S002', day: 1, categoryKey: 'flowers', cost: 20_000, price: 30_000 },
+    ],
+    totalCost: 50_000,
+    totalPrice: 70_000,
+  }
+  const transfers = {
+    rows: [
+      { storeId: 'S001', day: 1, categoryKey: 'interStoreOut', cost: -50_000, price: -60_000 },
+      { storeId: 'S002', day: 1, categoryKey: 'interStoreIn', cost: 50_000, price: 60_000 },
+    ],
+    totalCost: 0,
+    totalPrice: 0,
+  }
+  return {
+    purchase,
+    deliverySales,
+    transfers,
+    grandTotalCost: 650_000,
+    grandTotalPrice: 840_000,
+    inventoryPurchaseCost: 600_000,
+    inventoryPurchasePrice: 770_000,
+    meta: { missingDayCount: 0, dataVersion: 1 },
+  }
+}
 
 function makeTestModel(overrides?: Partial<PurchaseCostReadModelType>): PurchaseCostReadModelType {
   const purchase = {
@@ -254,5 +298,55 @@ describe('変換ヘルパーが値を変えないこと', () => {
       expect(rows[i].totalCost).toBe(model.deliverySales.rows[i].cost)
       expect(rows[i].totalPrice).toBe(model.deliverySales.rows[i].price)
     }
+  })
+})
+
+// ── 6. 店舗別導出が正しいこと ──
+
+describe('店舗別導出が正しいこと', () => {
+  it('toStoreCostRows は3正本を storeId で集約する', () => {
+    const model = makeMultiStoreModel()
+    const rows = toStoreCostRows(model)
+
+    expect(rows.length).toBe(2)
+    const s001 = rows.find((r) => r.storeId === 'S001')!
+    const s002 = rows.find((r) => r.storeId === 'S002')!
+
+    // S001: purchase(300k+100k) + flowers(30k) + transfersOut(-50k) = 380k
+    expect(s001.totalCost).toBe(300_000 + 100_000 + 30_000 + -50_000)
+    // S002: purchase(200k) + flowers(20k) + transfersIn(50k) = 270k
+    expect(s002.totalCost).toBe(200_000 + 20_000 + 50_000)
+  })
+
+  it('店舗別合計の総和 = grandTotalCost', () => {
+    const model = makeMultiStoreModel()
+    const rows = toStoreCostRows(model)
+    const storeSum = rows.reduce((s, r) => s + r.totalCost, 0)
+    expect(storeSum).toBe(model.grandTotalCost)
+  })
+
+  it('移動原価は店舗間で相殺されてゼロ（全店合計）', () => {
+    const model = makeMultiStoreModel()
+    expect(model.transfers.totalCost).toBe(0)
+  })
+
+  it('toDailyCostRows は3正本を day で集約する', () => {
+    const model = makeMultiStoreModel()
+    const rows = toDailyCostRows(model)
+
+    // day 1: S001 purchase(300k) + S002 purchase(200k) + flowers(30k+20k) + transfers(-50k+50k) = 550k
+    // day 2: S001 purchase(100k)
+    expect(rows.length).toBe(2)
+    expect(rows[0].day).toBe(1)
+    expect(rows[0].totalCost).toBe(300_000 + 200_000 + 30_000 + 20_000 + -50_000 + 50_000)
+    expect(rows[1].day).toBe(2)
+    expect(rows[1].totalCost).toBe(100_000)
+  })
+
+  it('日別合計の総和 = grandTotalCost', () => {
+    const model = makeMultiStoreModel()
+    const rows = toDailyCostRows(model)
+    const daySum = rows.reduce((s, r) => s + r.totalCost, 0)
+    expect(daySum).toBe(model.grandTotalCost)
   })
 })

@@ -5,7 +5,12 @@
  * 共有定数・ユーティリティ関数・KPI 計算・店舗比較を担う。
  */
 import type { StoreComparisonRow, PurchaseComparisonKpi } from '@/domain/models/PurchaseComparison'
-import type { PurchaseStoreRow } from '@/infrastructure/duckdb/queries/purchaseComparison'
+/** 店舗別仕入原価行（ReadModel の toStoreCostRows から導出） */
+interface StoreRow {
+  readonly storeId: string
+  readonly totalCost: number
+  readonly totalPrice: number
+}
 import type { CustomCategoryId } from '@/domain/constants/customCategories'
 import type { PresetCategoryId } from '@/domain/constants/customCategories'
 import {
@@ -114,8 +119,8 @@ export function buildKpi(
 // ── 店舗別データ構築 ──
 
 export function buildStoreData(
-  curStores: readonly PurchaseStoreRow[],
-  prevStores: readonly PurchaseStoreRow[],
+  curStores: readonly StoreRow[],
+  prevStores: readonly StoreRow[],
   storeNames: ReadonlyMap<string, string>,
 ): StoreComparisonRow[] {
   const prevStoreMap = new Map(prevStores.map((r) => [r.storeId, r]))

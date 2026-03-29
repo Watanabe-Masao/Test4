@@ -9,9 +9,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import {
   querySupplierNames,
-  queryPurchaseDaily,
   queryPurchaseDailyBySupplier,
-  queryPurchaseByStore,
   querySalesDaily,
   querySpecialSalesDaily,
   queryTransfersDaily,
@@ -85,25 +83,8 @@ describe('queryTransfersDaily', () => {
 
 // ── 補助クエリ（仕入原価正本ではない） ──
 
-describe('queryPurchaseDaily', () => {
-  it('日別仕入集計の SQL を生成する', async () => {
-    const conn = makeMockConn()
-    await queryPurchaseDaily(conn as never, dateFrom, dateTo, storeIds)
-    const sql = conn.getCapturedSql()[0]
-    expect(sql).toContain('FROM purchase')
-    expect(sql).toContain('GROUP BY day')
-  })
-})
-
-describe('queryPurchaseByStore', () => {
-  it('店舗別仕入集計の SQL を生成する', async () => {
-    const conn = makeMockConn()
-    await queryPurchaseByStore(conn as never, dateFrom, dateTo, storeIds)
-    const sql = conn.getCapturedSql()[0]
-    expect(sql).toContain('FROM purchase')
-    expect(sql).toContain('GROUP BY store_id')
-  })
-})
+// queryPurchaseDaily / queryPurchaseByStore は廃止済み。
+// ReadModel の toDailyCostRows / toStoreCostRows で正本から導出する。
 
 describe('querySalesDaily', () => {
   it('当年の日別売上を store_day_summary から取得する', async () => {

@@ -15,16 +15,22 @@ import type {
 import type {
   PurchaseDailySupplierRow,
   CategoryDailyRow,
-  PurchaseDailyRow,
   SalesDailyRow,
 } from '@/infrastructure/duckdb/queries/purchaseComparison'
+
+/** 日別仕入集計行（ReadModel の toDailyCostRows から導出） */
+interface DailyCostRow {
+  readonly day: number
+  readonly totalCost: number
+  readonly totalPrice: number
+}
 import type { CustomCategoryId } from '@/domain/constants/customCategories'
 import { UNCATEGORIZED_CATEGORY_ID } from '@/domain/constants/customCategories'
 import { SPECIAL_SALES_CATEGORY_MAP, TRANSFERS_CATEGORY_MAP } from './purchaseComparisonKpi'
 
 export function buildDailyData(
-  curDaily: readonly PurchaseDailyRow[],
-  prevDaily: readonly PurchaseDailyRow[],
+  curDaily: readonly DailyCostRow[],
+  prevDaily: readonly DailyCostRow[],
   curSalesDaily: readonly SalesDailyRow[],
   prevSalesDaily: readonly SalesDailyRow[],
 ): PurchaseDailyData {
