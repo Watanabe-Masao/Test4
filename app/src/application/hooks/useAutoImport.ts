@@ -134,18 +134,24 @@ export function useAutoImport(
     try {
       const entries = await fileSystemAdapter.listFiles(state.dirHandle, [...IMPORTABLE_EXTENSIONS])
       const newFiles: File[] = []
+      const newFingerprints: string[] = []
 
       for (const entry of entries) {
         const file = await entry.handle.getFile()
         // entry.name は相対パス（サブディレクトリ含む）なので同名ファイルも区別できる
         const fp = fileFingerprint(entry.name, file.size, file.lastModified)
         if (processedRef.current.has(fp)) continue
-        processedRef.current.add(fp)
+        newFingerprints.push(fp)
         newFiles.push(file)
       }
 
-      // 新しい指紋を永続化
+      // onFilesFound を先に実行 — 成功後にのみ processed 化する
       if (newFiles.length > 0) {
+        await onFilesFound(newFiles)
+        // import 成功 → processed に追加（失敗時は再試行可能）
+        for (const fp of newFingerprints) {
+          processedRef.current.add(fp)
+        }
         saveProcessedFingerprints(processedRef.current)
       }
 
@@ -154,10 +160,6 @@ export function useAutoImport(
         importCount: newFiles.length,
         scanAt: new Date().toISOString(),
       })
-
-      if (newFiles.length > 0) {
-        await onFilesFound(newFiles)
-      }
 
       return newFiles
     } catch (err) {
