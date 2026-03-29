@@ -26,13 +26,6 @@ function purchaseWhere(
 
 // ── 結果型（SQL → camelCase 変換後）──
 
-export interface PurchaseSupplierRow {
-  readonly supplierCode: string
-  readonly supplierName: string
-  readonly totalCost: number
-  readonly totalPrice: number
-}
-
 export interface PurchaseTotalRow {
   readonly totalCost: number
   readonly totalPrice: number
@@ -50,25 +43,30 @@ export interface PurchaseDailyRow {
 /**
  * 指定日付範囲の取引先別仕入集計を取得する
  */
-export async function queryPurchaseBySupplier(
+/**
+ * 取引先コード → 取引先名のマッピングを取得する（名前解決専用）
+ *
+ * cost/price の集計値は正本ではない。正本は readPurchaseCost の PurchaseCostReadModel。
+ */
+export async function querySupplierNames(
   conn: AsyncDuckDBConnection,
   dateFrom: string,
   dateTo: string,
   storeIds?: readonly string[],
-): Promise<readonly PurchaseSupplierRow[]> {
+): Promise<ReadonlyMap<string, string>> {
   const where = purchaseWhere(dateFrom, dateTo, storeIds)
   const sql = `
-    SELECT
+    SELECT DISTINCT
       COALESCE(supplier_code, 'UNKNOWN') AS supplier_code,
-      COALESCE(supplier_name, '不明') AS supplier_name,
-      COALESCE(SUM(cost), 0) AS total_cost,
-      COALESCE(SUM(price), 0) AS total_price
+      COALESCE(supplier_name, '不明') AS supplier_name
     FROM purchase
-    ${where}
-    GROUP BY supplier_code, supplier_name
-    ORDER BY total_cost DESC`
-  return queryToObjects<PurchaseSupplierRow>(conn, sql)
+    ${where}`
+  const rows = await queryToObjects<{ supplierCode: string; supplierName: string }>(conn, sql)
+  return new Map(rows.map((r) => [r.supplierCode, r.supplierName]))
 }
+
+// queryPurchaseBySupplier は廃止済み。
+// 取引先名は querySupplierNames()、cost/price は readPurchaseCost の ReadModel を使用。
 
 /**
  * 指定日付範囲内で実データが存在する最大日付のday部分を取得する。
@@ -90,7 +88,11 @@ export async function queryEffectiveMaxDay(
 }
 
 /**
- * 指定日付範囲の仕入合計を取得する
+ * 指定日付範囲の仕入合計を取得する — Phase 1 KPI 先行表示専用
+ *
+ * purchase テーブルのみの SUM。正本ではない。
+ * 仕入原価の正本は readPurchaseCost (purchaseCostHandler) の grandTotalCost。
+ * Phase 2 で正本に上書きされるため、最終表示値には影響しない。
  */
 export async function queryPurchaseTotal(
   conn: AsyncDuckDBConnection,

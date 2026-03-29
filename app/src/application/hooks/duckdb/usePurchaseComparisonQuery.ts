@@ -6,7 +6,7 @@ import { useState, useEffect, useRef, useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models/CalendarDate'
 import {
-  queryPurchaseBySupplier,
+  querySupplierNames,
   queryPurchaseTotal,
   queryPurchaseDaily,
   queryPurchaseByStore,
@@ -23,11 +23,12 @@ import {
   toDateKey,
   computeKpiTotals,
   buildKpi,
-  buildSupplierAndCategoryData,
   buildDailyData,
   buildStoreData,
   buildDailyPivot,
 } from './purchaseComparisonBuilders'
+import type { KpiTotals } from './purchaseComparisonKpi'
+import { buildSupplierAndCategoryData } from './purchaseComparisonCategory'
 import {
   purchaseCostHandler,
   toPurchaseDailySupplierRows,
@@ -95,7 +96,9 @@ export function usePurchaseComparisonQuery(
 
         if (cancelled || seq !== seqRef.current) return
 
-        // ── Phase 1: KPI 先行表示（高速） ──
+        // ── Phase 1: KPI 先行表示（高速、暫定値） ──
+        // Total クエリ(SUM 1行)で高速に KPI を表示。正本ではない。
+        // Phase 2 で複合正本(purchaseCostHandler)の grandTotalCost に上書きされる。
         const [
           curTotal,
           prevTotal,
@@ -169,8 +172,8 @@ export function usePurchaseComparisonQuery(
         const [
           curCostOutput,
           prevCostOutput,
-          curSuppliers,
-          prevSuppliers,
+          curSupplierNames,
+          prevSupplierNames,
           curDaily,
           prevDaily,
           curStores,
@@ -180,8 +183,8 @@ export function usePurchaseComparisonQuery(
         ] = await Promise.all([
           purchaseCostHandler.execute(c, costInput),
           purchaseCostHandler.execute(c, prevCostInput),
-          queryPurchaseBySupplier(c, curDateFrom, curDateTo, storeIdArr),
-          queryPurchaseBySupplier(c, prevDateFrom, cappedPrevDateTo, storeIdArr),
+          querySupplierNames(c, curDateFrom, curDateTo, storeIdArr),
+          querySupplierNames(c, prevDateFrom, cappedPrevDateTo, storeIdArr),
           queryPurchaseDaily(c, curDateFrom, curDateTo, storeIdArr),
           queryPurchaseDaily(c, prevDateFrom, cappedPrevDateTo, storeIdArr),
           queryPurchaseByStore(c, curDateFrom, curDateTo, storeIdArr),
@@ -192,10 +195,10 @@ export function usePurchaseComparisonQuery(
 
         if (cancelled || seq !== seqRef.current) return
 
-        // ── 複合正本から既存ビルダー用のデータを抽出 ──
         const curModel = curCostOutput.model
         const prevModel = prevCostOutput.model
 
+        // ── 複合正本から既存ビルダー用のデータを抽出 ──
         const curDailyBySupplier = toPurchaseDailySupplierRows(curModel)
         const prevDailyBySupplier = toPurchaseDailySupplierRows(prevModel)
         const curSpecialDaily = toCategoryDailyRows(curModel.deliverySales)
@@ -203,25 +206,21 @@ export function usePurchaseComparisonQuery(
         const curTransfersDaily = toCategoryDailyRows(curModel.transfers)
         const prevTransfersDaily = toCategoryDailyRows(prevModel.transfers)
 
-        // ── 詳細データ構築（既存ビルダーはそのまま使用） ──
+        // ── 取引先・カテゴリ構築（ReadModel + 名前マップから） ──
+        const reconciledTotals: KpiTotals = {
+          allCurCost: curModel.grandTotalCost,
+          allCurPrice: curModel.grandTotalPrice,
+          allPrevCost: prevModel.grandTotalCost,
+          allPrevPrice: prevModel.grandTotalPrice,
+        }
         const { bySupplier, byCategory, categorySuppliers } = buildSupplierAndCategoryData(
-          curSuppliers,
-          prevSuppliers,
-          curTotal,
-          prevTotal,
+          curModel,
+          prevModel,
+          curSupplierNames,
+          prevSupplierNames,
           supplierCategoryMap,
           userCategories,
-          curSpecialTotal,
-          prevSpecialTotal,
-          curTransfersTotal,
-          prevTransfersTotal,
-          // KPI totals は複合正本から導出
-          {
-            allCurCost: curModel.grandTotalCost,
-            allCurPrice: curModel.grandTotalPrice,
-            allPrevCost: prevModel.grandTotalCost,
-            allPrevPrice: prevModel.grandTotalPrice,
-          },
+          reconciledTotals,
         )
 
         const daily = buildDailyData(curDaily, prevDaily, curSalesDaily, prevSalesDaily)

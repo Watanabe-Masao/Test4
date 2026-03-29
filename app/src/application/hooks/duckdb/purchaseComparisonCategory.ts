@@ -1,14 +1,17 @@
 /**
  * 仕入比較 — 取引先・カテゴリ別データ構築（純粋関数）
  *
- * purchaseComparisonBuilders.ts から分割。
- * 取引先別比較 → カテゴリ別集約のロジックを担う。
+ * ReadModel（PurchaseCostReadModel）の purchase.rows を正本として使用し、
+ * 取引先別・カテゴリ別の比較データを構築する。
+ * 取引先名は supplierNames マップから解決する。
+ *
+ * @see readPurchaseCost.ts — 正本 read
+ * @see purchase-cost-definition.md — 正本定義
  */
 import type {
   SupplierComparisonRow,
   CategoryComparisonRow,
 } from '@/domain/models/PurchaseComparison'
-import type { PurchaseSupplierRow } from '@/infrastructure/duckdb/queries/purchaseComparison'
 import type { CustomCategoryId } from '@/domain/constants/customCategories'
 import type { PresetCategoryId } from '@/domain/constants/customCategories'
 import {
@@ -22,18 +25,28 @@ import {
   SPECIAL_SALES_CATEGORY_MAP,
   type KpiTotals,
 } from './purchaseComparisonKpi'
+import type { PurchaseCostReadModel } from '@/application/readModels/purchaseCost/PurchaseCostTypes'
 
+/** 取引先別の集計中間構造 */
+interface SupplierAccum {
+  curCost: number
+  curPrice: number
+  prevCost: number
+  prevPrice: number
+}
+
+/**
+ * ReadModel + 名前マップ + special/transfers から取引先別・カテゴリ別データを構築する。
+ *
+ * 仕入原価の正本は ReadModel の purchase.rows。queryPurchaseBySupplier は廃止済み。
+ */
 export function buildSupplierAndCategoryData(
-  curSuppliers: readonly PurchaseSupplierRow[],
-  prevSuppliers: readonly PurchaseSupplierRow[],
-  curTotal: { totalCost: number; totalPrice: number },
-  prevTotal: { totalCost: number; totalPrice: number },
+  curModel: PurchaseCostReadModel,
+  prevModel: PurchaseCostReadModel,
+  curSupplierNames: ReadonlyMap<string, string>,
+  prevSupplierNames: ReadonlyMap<string, string>,
   supplierCategoryMap: Readonly<Partial<Record<string, CustomCategoryId>>>,
   userCategories: ReadonlyMap<string, string>,
-  curSpecialTotal: readonly { categoryKey: string; totalCost: number; totalPrice: number }[],
-  prevSpecialTotal: readonly { categoryKey: string; totalCost: number; totalPrice: number }[],
-  curTransfersTotal: readonly { categoryKey: string; totalCost: number; totalPrice: number }[],
-  prevTransfersTotal: readonly { categoryKey: string; totalCost: number; totalPrice: number }[],
   kpiTotals: KpiTotals,
 ): {
   bySupplier: SupplierComparisonRow[]
@@ -42,25 +55,62 @@ export function buildSupplierAndCategoryData(
 } {
   const { allCurCost, allCurPrice, allPrevCost } = kpiTotals
 
-  // ── 取引先別比較 ──
-  const prevMap = new Map(prevSuppliers.map((r) => [r.supplierCode, r]))
-  const allCodes = new Set([
-    ...curSuppliers.map((r) => r.supplierCode),
-    ...prevSuppliers.map((r) => r.supplierCode),
-  ])
+  // ── ReadModel の purchase.rows を supplierCode で集約 ──
+  const curAccum = new Map<string, SupplierAccum>()
+  for (const r of curModel.purchase.rows) {
+    const existing = curAccum.get(r.supplierCode)
+    if (existing) {
+      existing.curCost += r.cost
+      existing.curPrice += r.price
+    } else {
+      curAccum.set(r.supplierCode, {
+        curCost: r.cost,
+        curPrice: r.price,
+        prevCost: 0,
+        prevPrice: 0,
+      })
+    }
+  }
 
-  const bySupplier: SupplierComparisonRow[] = []
+  const prevAccum = new Map<string, SupplierAccum>()
+  for (const r of prevModel.purchase.rows) {
+    const existing = prevAccum.get(r.supplierCode)
+    if (existing) {
+      existing.prevCost += r.cost
+      existing.prevPrice += r.price
+    } else {
+      prevAccum.set(r.supplierCode, {
+        curCost: 0,
+        curPrice: 0,
+        prevCost: r.cost,
+        prevPrice: r.price,
+      })
+    }
+  }
+
+  // 当期・前期を統合
+  const allCodes = new Set([...curAccum.keys(), ...prevAccum.keys()])
+  const supplierTotals = new Map<string, SupplierAccum>()
   for (const code of allCodes) {
-    const cur = curSuppliers.find((r) => r.supplierCode === code)
-    const prev = prevMap.get(code)
-    const cc = cur?.totalCost ?? 0
-    const cp = cur?.totalPrice ?? 0
-    const pc = prev?.totalCost ?? 0
-    const pp = prev?.totalPrice ?? 0
+    const cur = curAccum.get(code)
+    const prev = prevAccum.get(code)
+    supplierTotals.set(code, {
+      curCost: cur?.curCost ?? 0,
+      curPrice: cur?.curPrice ?? 0,
+      prevCost: prev?.prevCost ?? 0,
+      prevPrice: prev?.prevPrice ?? 0,
+    })
+  }
 
+  // ── 取引先名を解決して SupplierComparisonRow 構築 ──
+  const purchaseTotal = { cur: curModel.purchase.totalCost, prev: prevModel.purchase.totalCost }
+  const bySupplier: SupplierComparisonRow[] = []
+  for (const [code, totals] of supplierTotals) {
+    const name = curSupplierNames.get(code) ?? prevSupplierNames.get(code) ?? '不明'
+    const { curCost: cc, curPrice: cp, prevCost: pc, prevPrice: pp } = totals
     bySupplier.push({
       supplierCode: code,
-      supplierName: cur?.supplierName ?? prev?.supplierName ?? '不明',
+      supplierName: name,
       currentCost: cc,
       currentPrice: cp,
       prevCost: pc,
@@ -68,11 +118,11 @@ export function buildSupplierAndCategoryData(
       costDiff: cc - pc,
       priceDiff: cp - pp,
       costChangeRate: pc > 0 ? (cc - pc) / pc : 0,
-      currentCostShare: curTotal.totalCost > 0 ? cc / curTotal.totalCost : 0,
-      prevCostShare: prevTotal.totalCost > 0 ? pc / prevTotal.totalCost : 0,
+      currentCostShare: purchaseTotal.cur > 0 ? cc / purchaseTotal.cur : 0,
+      prevCostShare: purchaseTotal.prev > 0 ? pc / purchaseTotal.prev : 0,
       costShareDiff:
-        (curTotal.totalCost > 0 ? cc / curTotal.totalCost : 0) -
-        (prevTotal.totalCost > 0 ? pc / prevTotal.totalCost : 0),
+        (purchaseTotal.cur > 0 ? cc / purchaseTotal.cur : 0) -
+        (purchaseTotal.prev > 0 ? pc / purchaseTotal.prev : 0),
       currentMarkupRate: markupRate(cc, cp),
       prevMarkupRate: markupRate(pc, pp),
     })
@@ -113,7 +163,7 @@ export function buildSupplierAndCategoryData(
     })
   }
 
-  // ── special_sales / transfers をカテゴリに追加 ──
+  // ── 売上納品を ReadModel からカテゴリに追加 ──
   const addExtraCategory = (
     key: string,
     catId: PresetCategoryId,
@@ -162,30 +212,18 @@ export function buildSupplierAndCategoryData(
     }
   }
 
-  const curSpecialMap = new Map(curSpecialTotal.map((r) => [r.categoryKey, r]))
-  const prevSpecialMap = new Map(prevSpecialTotal.map((r) => [r.categoryKey, r]))
-  for (const key of new Set([
-    ...curSpecialTotal.map((r) => r.categoryKey),
-    ...prevSpecialTotal.map((r) => r.categoryKey),
-  ])) {
+  // 売上納品（ReadModel の deliverySales から）
+  const curDeliveryByKey = groupCategoryRows(curModel.deliverySales.rows)
+  const prevDeliveryByKey = groupCategoryRows(prevModel.deliverySales.rows)
+  for (const key of new Set([...curDeliveryByKey.keys(), ...prevDeliveryByKey.keys()])) {
     const catId = SPECIAL_SALES_CATEGORY_MAP[key]
     if (!catId) continue
-    const cur = curSpecialMap.get(key)
-    const prev = prevSpecialMap.get(key)
-    addExtraCategory(
-      key,
-      catId,
-      cur?.totalCost ?? 0,
-      cur?.totalPrice ?? 0,
-      prev?.totalCost ?? 0,
-      prev?.totalPrice ?? 0,
-    )
+    const cur = curDeliveryByKey.get(key)
+    const prev = prevDeliveryByKey.get(key)
+    addExtraCategory(key, catId, cur?.cost ?? 0, cur?.price ?? 0, prev?.cost ?? 0, prev?.price ?? 0)
   }
 
-  // 移動原価は全方向（IN + OUT）を含め、同一カテゴリにネット集約する。
-  // OUT はマイナスの仕入として加算される（purchase-cost-definition.md §4）。
-  const curTransMap = new Map(curTransfersTotal.map((r) => [r.categoryKey, r]))
-  const prevTransMap = new Map(prevTransfersTotal.map((r) => [r.categoryKey, r]))
+  // 移動原価（ReadModel の transfers から、IN+OUT ネット集約）
   const transferPairs: ReadonlyArray<{
     inKey: string
     outKey: string
@@ -194,15 +232,17 @@ export function buildSupplierAndCategoryData(
     { inKey: 'interStoreIn', outKey: 'interStoreOut', catId: 'inter_store' },
     { inKey: 'interDeptIn', outKey: 'interDeptOut', catId: 'inter_department' },
   ]
+  const curTransferByKey = groupCategoryRows(curModel.transfers.rows)
+  const prevTransferByKey = groupCategoryRows(prevModel.transfers.rows)
   for (const { inKey, outKey, catId } of transferPairs) {
-    const curIn = curTransMap.get(inKey)
-    const curOut = curTransMap.get(outKey)
-    const prevIn = prevTransMap.get(inKey)
-    const prevOut = prevTransMap.get(outKey)
-    const curC = (curIn?.totalCost ?? 0) + (curOut?.totalCost ?? 0)
-    const curP = (curIn?.totalPrice ?? 0) + (curOut?.totalPrice ?? 0)
-    const prevC = (prevIn?.totalCost ?? 0) + (prevOut?.totalCost ?? 0)
-    const prevP = (prevIn?.totalPrice ?? 0) + (prevOut?.totalPrice ?? 0)
+    const curC =
+      (curTransferByKey.get(inKey)?.cost ?? 0) + (curTransferByKey.get(outKey)?.cost ?? 0)
+    const curP =
+      (curTransferByKey.get(inKey)?.price ?? 0) + (curTransferByKey.get(outKey)?.price ?? 0)
+    const prevC =
+      (prevTransferByKey.get(inKey)?.cost ?? 0) + (prevTransferByKey.get(outKey)?.cost ?? 0)
+    const prevP =
+      (prevTransferByKey.get(inKey)?.price ?? 0) + (prevTransferByKey.get(outKey)?.price ?? 0)
     if (curC !== 0 || curP !== 0 || prevC !== 0 || prevP !== 0) {
       addExtraCategory(inKey, catId, curC, curP, prevC, prevP)
     }
@@ -237,4 +277,21 @@ export function buildSupplierAndCategoryData(
   byCategory.sort((a, b) => b.currentCost - a.currentCost)
 
   return { bySupplier, byCategory, categorySuppliers }
+}
+
+// ── ヘルパー ──
+
+function groupCategoryRows(
+  rows: readonly { categoryKey: string; cost: number; price: number }[],
+): Map<string, { cost: number; price: number }> {
+  const map = new Map<string, { cost: number; price: number }>()
+  for (const r of rows) {
+    const existing = map.get(r.categoryKey)
+    if (existing) {
+      map.set(r.categoryKey, { cost: existing.cost + r.cost, price: existing.price + r.price })
+    } else {
+      map.set(r.categoryKey, { cost: r.cost, price: r.price })
+    }
+  }
+  return map
 }
