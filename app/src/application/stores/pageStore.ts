@@ -8,6 +8,7 @@
  * @guard C3 store は state 反映のみ
  */
 import { create } from 'zustand'
+import { z } from 'zod'
 
 export interface CustomPage {
   /** 一意識別子 */
@@ -19,6 +20,13 @@ export interface CustomPage {
   /** ルートパス（自動生成: /custom/{id}） */
   readonly path: string
 }
+
+const CustomPageSchema = z.object({
+  id: z.string(),
+  label: z.string(),
+  defaultWidgetIds: z.array(z.string()),
+  path: z.string(),
+})
 
 interface PageStoreState {
   /** カスタムページ一覧 */
@@ -45,7 +53,12 @@ function loadPages(): CustomPage[] {
     if (!raw) return []
     const parsed = JSON.parse(raw)
     if (!Array.isArray(parsed)) return []
-    return parsed
+    const result = z.array(CustomPageSchema).safeParse(parsed)
+    if (!result.success) {
+      console.warn('[pageStore] hydration schema mismatch:', result.error.message)
+      return []
+    }
+    return result.data
   } catch {
     return []
   }

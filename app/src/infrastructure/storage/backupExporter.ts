@@ -198,7 +198,24 @@ class BackupExporter {
       text = await file.text()
     }
 
-    const backup = JSON.parse(text) as BackupFile
+    const backupRaw = JSON.parse(text)
+
+    // 最低限の構造検証（safeParse — 周辺 I/O は fail fast しない）
+    if (
+      !backupRaw ||
+      typeof backupRaw !== 'object' ||
+      !backupRaw.meta ||
+      !Array.isArray(backupRaw.months)
+    ) {
+      return {
+        monthsImported: 0,
+        monthsSkipped: 0,
+        errors: ['Invalid backup file structure: missing meta or months'],
+        importHistoryRestored: 0,
+        rawManifestRestored: 0,
+      }
+    }
+    const backup = backupRaw as BackupFile
 
     // バージョンチェック（v1/v2/v3 全対応）
     if (!backup.meta || backup.meta.formatVersion > BACKUP_FORMAT_VERSION) {
