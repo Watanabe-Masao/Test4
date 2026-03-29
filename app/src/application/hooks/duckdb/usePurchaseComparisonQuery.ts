@@ -225,8 +225,21 @@ export function usePurchaseComparisonQuery(
           dowOffset,
         )
 
+        // ── 一貫性保証: ピボットの grandTotal を正とした KPI 再計算 ──
+        // Phase 1 KPI は高速表示用（Total クエリ）。Phase 2 のピボット合計と
+        // カテゴリ合計は同一 dailyBySupplier データから導出されるため一致する。
+        // KPI もピボット合計で上書きし、3つの合計の一貫性を保証する。
+        const pivotTotals = dailyPivot.totals
+        const reconciledKpiTotals = {
+          allCurCost: pivotTotals.grandCost,
+          allCurPrice: pivotTotals.grandPrice,
+          allPrevCost: pivotTotals.prevGrandCost,
+          allPrevPrice: pivotTotals.prevGrandPrice,
+        }
+        const reconciledKpi = buildKpi(reconciledKpiTotals, curSalesTotal, prevSalesTotal)
+
         setData({
-          kpi,
+          kpi: reconciledKpi,
           bySupplier,
           byCategory,
           byStore,

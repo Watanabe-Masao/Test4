@@ -331,6 +331,17 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
     [activeLevel, hasQuantity, prevCust, curCust, prevTotalQty, curTotalQty, prevSales, curSales],
   )
 
+  // CTS データ整合性チェック: StoreResult の日別売上合計と CTS 売上を比較
+  const dailySalesTotal = useMemo(() => {
+    let sum = 0
+    for (const [day, rec] of r.daily) {
+      if (day >= dayStart && day <= dayEnd) sum += rec.sales ?? 0
+    }
+    return sum
+  }, [r.daily, dayStart, dayEnd])
+  const ctsCoverageRatio = dailySalesTotal > 0 ? curSales / dailySalesTotal : 1
+  const hasCtsDataGap = ctsCoverageRatio < 0.5 && dailySalesTotal > 0
+
   if (!hasComparison || prevSales <= 0) return null
 
   const hasCategoryView = categoryData.items.length > 0
@@ -428,6 +439,23 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
           onToggle={() => setShowHelp(!showHelp)}
           activeLevel={activeLevel}
         />
+      )}
+
+      {hasCtsDataGap && (
+        <div
+          style={{
+            padding: '6px 12px',
+            marginBottom: 8,
+            fontSize: '0.6rem',
+            color: '#b45309',
+            background: 'rgba(245,158,11,0.08)',
+            borderRadius: 6,
+            border: '1px solid rgba(245,158,11,0.2)',
+          }}
+        >
+          分類別時間帯データ（CTS）が不足しています（カバー率{' '}
+          {(ctsCoverageRatio * 100).toFixed(1)}%）。要因分解の精度に影響する可能性があります。
+        </div>
       )}
 
       <SalesSummaryRow
