@@ -14,7 +14,6 @@ export {
   CUSTOM_CATEGORY_COLORS,
   SPECIAL_SALES_CATEGORY_MAP,
   TRANSFERS_CATEGORY_MAP,
-  computeKpiTotals,
   buildKpi,
   buildStoreData,
 } from './purchaseComparisonKpi'

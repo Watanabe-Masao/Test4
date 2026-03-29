@@ -128,14 +128,19 @@ describe('仕入原価取得経路ガード', () => {
   // ── Layer 4: 正しい手続きの保証 ──
   // 正本が正しく使われ、正しい経路で値が流れていること
 
-  it('usePurchaseComparisonQuery は複合正本の grandTotalCost で KPI を上書きしている', () => {
+  it('usePurchaseComparisonQuery は複合正本の grandTotalCost で KPI を構築している', () => {
     const queryFile = path.join(SRC_DIR, 'application/hooks/duckdb/usePurchaseComparisonQuery.ts')
     const content = fs.readFileSync(queryFile, 'utf-8')
 
-    // Phase 2 で正本の grandTotalCost を使って reconciledKpi を構築
+    // 正本の grandTotalCost から直接 KPI を構築（2段階上書きではなく単一フェーズ）
     expect(content).toContain('curModel.grandTotalCost')
     expect(content).toContain('prevModel.grandTotalCost')
-    expect(content).toContain('reconciledKpi')
+    expect(content).toContain('buildKpi')
+    // 旧 Total クエリを使用していないこと
+    expect(content).not.toContain('queryPurchaseTotal')
+    expect(content).not.toContain('querySpecialSalesTotal')
+    expect(content).not.toContain('queryTransfersTotal')
+    expect(content).not.toContain('computeKpiTotals')
   })
 
   it('usePurchaseComparisonQuery は ReadModel から変換ヘルパーでビルダーにデータを渡している', () => {

@@ -26,11 +26,6 @@ function purchaseWhere(
 
 // ── 結果型（SQL → camelCase 変換後）──
 
-export interface PurchaseTotalRow {
-  readonly totalCost: number
-  readonly totalPrice: number
-}
-
 /** 日別仕入集計（チャート用） */
 export interface PurchaseDailyRow {
   readonly day: number
@@ -87,29 +82,7 @@ export async function queryEffectiveMaxDay(
   return rows.length > 0 ? rows[0].maxDay : null
 }
 
-/**
- * 指定日付範囲の仕入合計を取得する — Phase 1 KPI 先行表示専用
- *
- * purchase テーブルのみの SUM。正本ではない。
- * 仕入原価の正本は readPurchaseCost (purchaseCostHandler) の grandTotalCost。
- * Phase 2 で正本に上書きされるため、最終表示値には影響しない。
- */
-export async function queryPurchaseTotal(
-  conn: AsyncDuckDBConnection,
-  dateFrom: string,
-  dateTo: string,
-  storeIds?: readonly string[],
-): Promise<PurchaseTotalRow> {
-  const where = purchaseWhere(dateFrom, dateTo, storeIds)
-  const sql = `
-    SELECT
-      COALESCE(SUM(cost), 0) AS total_cost,
-      COALESCE(SUM(price), 0) AS total_price
-    FROM purchase
-    ${where}`
-  const rows = await queryToObjects<PurchaseTotalRow>(conn, sql)
-  return rows.length > 0 ? rows[0] : { totalCost: 0, totalPrice: 0 }
-}
+// queryPurchaseTotal は廃止済み。正本は readPurchaseCost の grandTotalCost。
 
 /** 店舗別仕入集計 */
 export interface PurchaseStoreRow {
@@ -333,26 +306,7 @@ export async function querySpecialSalesDaily(
   return queryToObjects<CategoryDailyRow>(conn, sql)
 }
 
-/**
- * special_sales（花・産直）の合計
- */
-export async function querySpecialSalesTotal(
-  conn: AsyncDuckDBConnection,
-  dateFrom: string,
-  dateTo: string,
-  storeIds?: readonly string[],
-): Promise<readonly { categoryKey: string; totalCost: number; totalPrice: number }[]> {
-  const where = purchaseWhere(dateFrom, dateTo, storeIds)
-  const sql = `
-    SELECT
-      type AS category_key,
-      COALESCE(SUM(cost), 0) AS total_cost,
-      COALESCE(SUM(price), 0) AS total_price
-    FROM special_sales
-    ${where}
-    GROUP BY type`
-  return queryToObjects<{ categoryKey: string; totalCost: number; totalPrice: number }>(conn, sql)
-}
+// querySpecialSalesTotal は廃止済み。正本は readPurchaseCost の deliverySales。
 
 /**
  * transfers（店間・部門間）の日別集計
@@ -377,26 +331,7 @@ export async function queryTransfersDaily(
   return queryToObjects<CategoryDailyRow>(conn, sql)
 }
 
-/**
- * transfers（店間・部門間）の合計
- */
-export async function queryTransfersTotal(
-  conn: AsyncDuckDBConnection,
-  dateFrom: string,
-  dateTo: string,
-  storeIds?: readonly string[],
-): Promise<readonly { categoryKey: string; totalCost: number; totalPrice: number }[]> {
-  const where = purchaseWhere(dateFrom, dateTo, storeIds)
-  const sql = `
-    SELECT
-      direction AS category_key,
-      COALESCE(SUM(cost), 0) AS total_cost,
-      COALESCE(SUM(price), 0) AS total_price
-    FROM transfers
-    ${where}
-    GROUP BY direction`
-  return queryToObjects<{ categoryKey: string; totalCost: number; totalPrice: number }>(conn, sql)
-}
+// queryTransfersTotal は廃止済み。正本は readPurchaseCost の transfers。
 
 /** 売上合計（classified_sales 直接、is_prev_year 不要） */
 export interface SalesTotalRow {

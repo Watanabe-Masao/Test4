@@ -84,39 +84,8 @@ export interface KpiTotals {
   readonly allPrevPrice: number
 }
 
-export function computeKpiTotals(
-  curTotal: { totalCost: number; totalPrice: number },
-  prevTotal: { totalCost: number; totalPrice: number },
-  curSpecialTotal: readonly { categoryKey: string; totalCost: number; totalPrice: number }[],
-  prevSpecialTotal: readonly { categoryKey: string; totalCost: number; totalPrice: number }[],
-  curTransfersTotal: readonly { categoryKey: string; totalCost: number; totalPrice: number }[],
-  prevTransfersTotal: readonly { categoryKey: string; totalCost: number; totalPrice: number }[],
-): KpiTotals {
-  let allCurCost = curTotal.totalCost
-  let allCurPrice = curTotal.totalPrice
-  let allPrevCost = prevTotal.totalCost
-  let allPrevPrice = prevTotal.totalPrice
-  for (const r of curSpecialTotal) {
-    allCurCost += r.totalCost
-    allCurPrice += r.totalPrice
-  }
-  for (const r of prevSpecialTotal) {
-    allPrevCost += r.totalCost
-    allPrevPrice += r.totalPrice
-  }
-  // 移動原価は全方向（IN + OUT）を含める。
-  // IN のみだと二重計上が発生する（purchase-cost-definition.md §4）。
-  // OUT はマイナスの仕入として商品+原価の移動を表す。
-  for (const r of curTransfersTotal) {
-    allCurCost += r.totalCost
-    allCurPrice += r.totalPrice
-  }
-  for (const r of prevTransfersTotal) {
-    allPrevCost += r.totalCost
-    allPrevPrice += r.totalPrice
-  }
-  return { allCurCost, allCurPrice, allPrevCost, allPrevPrice }
-}
+// computeKpiTotals は廃止済み。
+// KPI の仕入原価合計は readPurchaseCost の grandTotalCost から直接構築する。
 
 export function buildKpi(
   totals: KpiTotals,
