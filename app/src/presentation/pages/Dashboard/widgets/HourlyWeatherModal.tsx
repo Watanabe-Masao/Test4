@@ -13,8 +13,8 @@ import {
   standardGrid,
   standardTooltip,
 } from '@/presentation/components/charts/echartsOptionBuilders'
-import { categorizeWeatherCode } from '@/domain/calculations/weatherAggregation'
-import { mapJmaWeatherCodeToCategory } from '@/domain/calculations/forecastWeatherMapping'
+import { categorizeWeatherCode } from '@/domain/weather/weatherAggregation'
+import { mapJmaWeatherCodeToCategory } from '@/domain/weather/forecastWeatherMapping'
 import type { AlignmentMode } from '@/domain/models/calendar'
 import type { HourlyWeatherRecord, WeatherCategory, DailyForecast } from '@/domain/models/record'
 import {

@@ -10,7 +10,7 @@
 import { Fragment, memo, useState, useCallback } from 'react'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import type { DailyWeatherSummary, StoreLocation } from '@/domain/models/record'
-import { categorizeWeatherCode } from '@/domain/calculations/weatherAggregation'
+import { categorizeWeatherCode } from '@/domain/weather/weatherAggregation'
 import { useWeatherData } from '@/application/hooks/useWeather'
 import {
   useWeatherHourlyOnDemand,

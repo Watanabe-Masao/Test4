@@ -3,7 +3,7 @@
  */
 import { memo } from 'react'
 import styled from 'styled-components'
-import { categorizeWeatherCode } from '@/domain/calculations/weatherAggregation'
+import { categorizeWeatherCode } from '@/domain/weather/weatherAggregation'
 import type { WeatherCategory } from '@/domain/models/record'
 
 interface Props {

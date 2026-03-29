@@ -6,7 +6,7 @@
  */
 import { memo, useMemo } from 'react'
 import type { HourlyWeatherRecord, WeatherCategory } from '@/domain/models/record'
-import { categorizeWeatherCode } from '@/domain/calculations/weatherAggregation'
+import { categorizeWeatherCode } from '@/domain/weather/weatherAggregation'
 import { formatPercent } from '@/domain/formatting'
 import { toComma } from '@/presentation/components/charts/chartTheme'
 import { sc } from '@/presentation/theme/semanticColors'

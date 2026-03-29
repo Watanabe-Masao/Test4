@@ -6,7 +6,7 @@
  */
 import { memo, useMemo } from 'react'
 import type { HourlyWeatherRecord, WeatherCategory } from '@/domain/models/record'
-import { categorizeWeatherCode } from '@/domain/calculations/weatherAggregation'
+import { categorizeWeatherCode } from '@/domain/weather/weatherAggregation'
 import { HourlyAxis, HourlyTick } from './DayDetailModal.styles'
 
 const WEATHER_ICONS: Record<WeatherCategory, string> = {
