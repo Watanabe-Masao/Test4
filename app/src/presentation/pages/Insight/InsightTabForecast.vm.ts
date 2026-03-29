@@ -10,13 +10,6 @@ import { calculateTransactionValue } from '@/domain/calculations/utils'
 
 // ── 型定義 ──
 
-export interface WeeklyActualData {
-  readonly weekNumber: number
-  readonly weekCustomers: number
-  readonly weekSales: number
-  readonly weekTxValue: number
-}
-
 export interface DecompTotals {
   readonly salesDiff: number
   readonly custEffect: number
@@ -31,7 +24,7 @@ export function computeWeeklyActuals(
   startDay: number,
   endDay: number,
   daily: ReadonlyMap<number, DailyRecord>,
-): { customers: number; sales: number; txValue: number } {
+): { readonly customers: number; readonly sales: number; readonly txValue: number } {
   let customers = 0
   let sales = 0
   for (let day = startDay; day <= endDay; day++) {
@@ -45,10 +38,13 @@ export function computeWeeklyActuals(
   return { customers, sales, txValue }
 }
 
-/** 分解行の寄与率を計算する */
+/**
+ * 分解行の絶対寄与率を計算する。
+ * custEffect と ticketEffect の絶対値の和に対する custEffect の絶対値の比率。
+ */
 export function computeDecompPct(custEffect: number, ticketEffect: number): number {
   const total = Math.abs(custEffect) + Math.abs(ticketEffect)
-  return total > 0 ? custEffect / (custEffect + ticketEffect) : 0
+  return total > 0 ? Math.abs(custEffect) / total : 0
 }
 
 /** 分解合計行を計算する */

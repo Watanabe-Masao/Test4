@@ -59,9 +59,10 @@ export const MobileDashboardPage = lazyWithRetry(() =>
 
 /**
  * PAGE_REGISTRY の id と対応するコンポーネント。
- * pageMetaGuard でキーの網羅性を機械検証する。
+ * 型レベルで PAGE_REGISTRY id との一致を保証。pageMetaGuard でも機械検証する。
  */
-export const PAGE_COMPONENT_MAP: Record<string, ComponentType> = {
+type PageId = (typeof PAGE_REGISTRY)[number]['id']
+export const PAGE_COMPONENT_MAP: Record<PageId, ComponentType> = {
   dashboard: DashboardPage,
   'store-analysis': StoreAnalysisPage,
   daily: DailyPage,

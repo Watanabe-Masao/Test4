@@ -1,10 +1,12 @@
 import { ChartErrorBoundary } from '@/presentation/components/common/feedback'
+import { useMemo } from 'react'
 import { Chip, ChipGroup } from '@/presentation/components/common/forms'
 import { Card, CardTitle } from '@/presentation/components/common/layout'
 import { KpiCard, KpiGrid } from '@/presentation/components/common/tables'
 import type { MetricId } from '@/domain/models/analysis'
 import type { StoreResult } from '@/domain/models/storeTypes'
 import { buildBudgetTableRows } from './InsightTabBudget.vm'
+import { getPrevYearDailySales } from '@/application/comparison/comparisonAccessors'
 import {
   BudgetProgressCard,
   BudgetTrendChart,
@@ -45,6 +47,17 @@ interface BudgetTabProps {
 }
 
 export function BudgetTabContent({ d, r, onExplain }: BudgetTabProps) {
+  // 前年日別売上 Map を構築（VM に application 依存を漏らさない）
+  const prevYearDailyMap = useMemo(() => {
+    const map = new Map<number, number>()
+    if (!d.prevYear.hasPrevYear) return map
+    for (let day = 1; day <= d.daysInMonth; day++) {
+      const sales = getPrevYearDailySales(d.prevYear, d.year, d.month, day)
+      if (sales > 0) map.set(day, sales)
+    }
+    return map
+  }, [d.prevYear, d.year, d.month, d.daysInMonth])
+
   return (
     <>
       {d.selectedResults.length > 1 && (
@@ -254,9 +267,7 @@ export function BudgetTabContent({ d, r, onExplain }: BudgetTabProps) {
                     r.daily,
                     d.salesDaily,
                     r.budgetDaily,
-                    d.prevYear,
-                    d.year,
-                    d.month,
+                    prevYearDailyMap,
                   ).map((row) => (
                     <Tr key={row.day}>
                       <Td>{row.day}</Td>
@@ -276,8 +287,8 @@ export function BudgetTabContent({ d, r, onExplain }: BudgetTabProps) {
                       <Td $positive={row.achievement >= 1} $negative={row.achievement < 0.9}>
                         {d.formatPercent(row.achievement)}
                       </Td>
+                      <Td>{d.formatPercent(row.discountRate)}</Td>
                       <Td>{d.formatPercent(row.discountRateCum)}</Td>
-                      <Td>{d.formatPercent(row.cumDiscountRate)}</Td>
                       {d.prevYear.hasPrevYear && (
                         <Td>{row.pyDaySales > 0 ? d.fmtCurrency(row.pyDaySales) : '-'}</Td>
                       )}
