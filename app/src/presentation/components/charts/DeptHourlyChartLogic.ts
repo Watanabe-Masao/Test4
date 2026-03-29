@@ -9,6 +9,7 @@
  *   - 時間帯×部門のマトリクス構築
  *   - 部門別時間帯パターンベクトル生成
  *   - ピアソン相関によるカニバリゼーション検出
+ *   - ECharts option 構築（buildOption / buildRightAxisConfig）
  *
  * @guard G5 hook ≤300行 — 純粋関数を分離
  */
@@ -17,6 +18,11 @@ import { topNByTotal } from '@/domain/calculations/rawAggregation'
 import { STORE_COLORS } from './chartTheme'
 import { palette } from '@/presentation/theme/tokens'
 import { pearsonCorrelation } from '@/application/hooks/useStatistics'
+import type { AppTheme } from '@/presentation/theme/theme'
+import type { EChartsOption } from './EChart'
+import { yenYAxis, standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
+import { categoryXAxis } from './builders'
+import type { RightOverlayMode, HourlyOverlayData } from './DeptHourlyChart'
 
 // ─── Types ──────────────────────────────────────────
 
@@ -159,4 +165,171 @@ export function detectCannibalization(
   }
 
   return results.sort((a, b) => a.r - b.r)
+}
+
+// ─── ECharts Option Builders ───────────────────────
+
+export function buildRightAxisConfig(mode: RightOverlayMode, theme: AppTheme): object {
+  const base = {
+    type: 'value' as const,
+    position: 'right' as const,
+    splitLine: { show: false },
+    axisLine: { show: true, lineStyle: { color: theme.colors.border } },
+  }
+  switch (mode) {
+    case 'quantity':
+      return {
+        ...base,
+        name: '点数',
+        nameTextStyle: { color: theme.colors.text4 },
+        axisLabel: { color: theme.colors.text4, formatter: (v: number) => v.toLocaleString() },
+      }
+    case 'cumRatio':
+      return {
+        ...base,
+        name: '累積構成比',
+        nameTextStyle: { color: theme.colors.text4 },
+        min: 0,
+        max: 100,
+        axisLabel: { color: theme.colors.text4, formatter: (v: number) => `${v}%` },
+      }
+    case 'temperature':
+      return {
+        ...base,
+        name: '気温(°C)',
+        nameTextStyle: { color: theme.colors.text4 },
+        axisLabel: { color: theme.colors.text4, formatter: (v: number) => `${v}°` },
+      }
+    case 'precipitation':
+      return {
+        ...base,
+        name: '降水量(mm)',
+        nameTextStyle: { color: theme.colors.text4 },
+        min: 0,
+        axisLabel: { color: theme.colors.text4, formatter: (v: number) => `${v}mm` },
+      }
+  }
+}
+
+export function buildDeptHourlyOption(
+  chartData: readonly { hour: string; hourNum: number; [k: string]: string | number }[],
+  departments: readonly { code: string; name: string; color: string }[],
+  viewMode: 'stacked' | 'separate',
+  theme: AppTheme,
+  rightMode: RightOverlayMode,
+  overlayByHour: ReadonlyMap<number, HourlyOverlayData>,
+  prevQtyByHour?: ReadonlyMap<number, number>,
+): EChartsOption {
+  const hours = chartData.map((d) => d.hour)
+
+  // 第1軸: 部門別積み上げ面グラフ
+  const deptSeries = [...departments].reverse().map((dept) => ({
+    name: dept.name,
+    type: 'line' as const,
+    stack: viewMode === 'stacked' ? 'depts' : undefined,
+    areaStyle: { opacity: viewMode === 'stacked' ? 0.4 : 0.15 },
+    data: chartData.map((d) => (d[`dept_${dept.code}`] as number) ?? 0),
+    lineStyle: { color: dept.color, width: viewMode === 'stacked' ? 1.5 : 2 },
+    itemStyle: { color: dept.color },
+    symbol: 'none',
+    smooth: true,
+    yAxisIndex: 0,
+  }))
+
+  // 第2軸: オーバーレイ series
+  const overlaySeries: object[] = []
+  const rightAxisConfig = buildRightAxisConfig(rightMode, theme)
+
+  if (rightMode === 'quantity') {
+    overlaySeries.push({
+      name: '点数',
+      type: 'line',
+      yAxisIndex: 1,
+      data: chartData.map((d) => overlayByHour.get(d.hourNum)?.quantity ?? null),
+      lineStyle: { color: theme.colors.palette.primary, width: 2, type: 'solid' },
+      itemStyle: { color: theme.colors.palette.primary },
+      symbol: 'circle',
+      symbolSize: 4,
+      smooth: true,
+      z: 10,
+    })
+    if (prevQtyByHour && prevQtyByHour.size > 0) {
+      overlaySeries.push({
+        name: '前年点数',
+        type: 'line',
+        yAxisIndex: 1,
+        data: chartData.map((d) => prevQtyByHour.get(d.hourNum) ?? null),
+        lineStyle: {
+          color: theme.colors.palette.primary,
+          width: 1.5,
+          type: 'dashed',
+          opacity: 0.5,
+        },
+        itemStyle: { color: theme.colors.palette.primary, opacity: 0.5 },
+        symbol: 'none',
+        smooth: true,
+        z: 10,
+      })
+    }
+  } else if (rightMode === 'cumRatio') {
+    const hourTotals = chartData.map((d) => {
+      let sum = 0
+      for (const dept of departments) sum += (d[`dept_${dept.code}`] as number) ?? 0
+      return sum
+    })
+    const grandTotal = hourTotals.reduce((a, b) => a + b, 0) || 1
+    let cumRatio = 0
+    const cumData = hourTotals.map((t) => {
+      cumRatio += t / grandTotal
+      return Math.round(cumRatio * 10000) / 100
+    })
+    overlaySeries.push({
+      name: '累積構成比',
+      type: 'line',
+      yAxisIndex: 1,
+      data: cumData,
+      lineStyle: { color: '#8b5cf6', width: 2 },
+      itemStyle: { color: '#8b5cf6' },
+      areaStyle: { color: '#8b5cf620' },
+      symbol: 'circle',
+      symbolSize: 4,
+      smooth: true,
+      z: 10,
+    })
+  } else if (rightMode === 'temperature') {
+    overlaySeries.push({
+      name: '気温',
+      type: 'line',
+      yAxisIndex: 1,
+      data: chartData.map((d) => overlayByHour.get(d.hourNum)?.temperature ?? null),
+      lineStyle: { color: '#ef4444', width: 2 },
+      itemStyle: { color: '#ef4444' },
+      symbol: 'circle',
+      symbolSize: 4,
+      smooth: true,
+      z: 10,
+    })
+  } else if (rightMode === 'precipitation') {
+    overlaySeries.push({
+      name: '降水量',
+      type: 'bar',
+      yAxisIndex: 1,
+      data: chartData.map((d) => overlayByHour.get(d.hourNum)?.precipitation ?? null),
+      barWidth: '30%',
+      itemStyle: { color: '#3b82f680' },
+      z: 5,
+    })
+  }
+
+  return {
+    grid: { ...standardGrid(), right: 60 },
+    tooltip: {
+      ...standardTooltip(theme),
+      trigger: 'axis',
+    },
+    legend: { ...standardLegend(theme), type: 'scroll' },
+    xAxis: categoryXAxis(hours, theme),
+    yAxis: [yenYAxis(theme), rightAxisConfig],
+    series: [...deptSeries, ...overlaySeries],
+  }
 }

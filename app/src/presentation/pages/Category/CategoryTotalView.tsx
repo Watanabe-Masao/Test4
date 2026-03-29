@@ -7,7 +7,12 @@ import { CUSTOM_CATEGORIES } from '@/domain/models/storeTypes'
 import type { AppSettings } from '@/domain/models/storeTypes'
 import { formatPercent } from '@/domain/formatting'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
-import { calculateMarkupRate, calculateShare } from '@/domain/calculations/utils'
+import { calculateMarkupRate } from '@/domain/calculations/utils'
+import {
+  computeCategoryTotals,
+  computeRowMetrics,
+  computeStoreGrossProfit,
+} from './CategoryTotalView.vm'
 import type { PresetCategoryId } from '@/domain/constants/customCategories'
 import { isUserCategory } from '@/domain/constants/customCategories'
 import { palette } from '@/presentation/theme/tokens'
@@ -61,11 +66,16 @@ export function CategoryTotalView({
     settings.userCategoryLabels,
   )
 
-  // 合計行用
-  const totalCatCost = categoryData.reduce((s, c) => s + c.cost, 0)
-  const totalCatPrice = categoryData.reduce((s, c) => s + c.price, 0)
-  const totalGrossProfit = totalCatPrice - totalCatCost
-  const overallMarkupRate = calculateMarkupRate(totalGrossProfit, totalCatPrice)
+  // 合計行用（vm に委譲）
+  const totals = computeCategoryTotals(categoryData)
+  const {
+    totalCost: totalCatCost,
+    totalPrice: totalCatPrice,
+    totalGrossProfit,
+    overallMarkupRate,
+    totalAbsCost,
+    totalAbsPrice,
+  } = totals
 
   return (
     <>
@@ -106,15 +116,16 @@ export function CategoryTotalView({
             </thead>
             <tbody>
               {(() => {
-                const totalAbsCost = categoryData.reduce((s, c) => s + Math.abs(c.cost), 0)
-                const totalAbsPrice = categoryData.reduce((s, c) => s + Math.abs(c.price), 0)
                 const rows: React.ReactNode[] = []
 
                 for (const d of categoryData) {
                   const catKey = `${d.isCustom ? 'cc-' : ''}${d.category}`
-                  const grossProfit = d.price - d.cost
-                  const costShare = calculateShare(Math.abs(d.cost), totalAbsCost)
-                  const priceShare = calculateShare(Math.abs(d.price), totalAbsPrice)
+                  const { grossProfit, costShare, priceShare } = computeRowMetrics(
+                    d.cost,
+                    d.price,
+                    totalAbsCost,
+                    totalAbsPrice,
+                  )
                   const isExpanded = expandedCategory === catKey
 
                   rows.push(
@@ -210,8 +221,10 @@ export function CategoryTotalView({
                         }
                         if (storeCost === 0 && storePrice === 0) continue
 
-                        const sGP = storePrice - storeCost
-                        const sMarkup = calculateMarkupRate(sGP, storePrice)
+                        const { grossProfit: sGP, markupRate: sMarkup } = computeStoreGrossProfit(
+                          storeCost,
+                          storePrice,
+                        )
                         const storeKey = `${catKey}:${sr.storeId}`
                         const isStoreExpanded = expandedStore === storeKey
 

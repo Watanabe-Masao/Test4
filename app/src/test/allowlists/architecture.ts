@@ -55,27 +55,9 @@ export const applicationToInfrastructure: readonly AllowlistEntry[] = [
   },
   {
     path: 'application/adapters/weatherAdapter.ts',
-    reason: 'adapter パターン — 正当な例外',
+    reason: 're-export bridge（WeatherLoadService/ForecastLoadService が使用中）',
     category: 'adapter',
-    removalCondition: '構造上不要にならない限り維持',
-  },
-  {
-    path: 'application/adapters/storagePersistenceAdapter.ts',
-    reason: 'adapter パターン — 正当な例外',
-    category: 'adapter',
-    removalCondition: '構造上不要にならない限り維持',
-  },
-  {
-    path: 'application/adapters/backupAdapter.ts',
-    reason: 'adapter パターン — 正当な例外',
-    category: 'adapter',
-    removalCondition: '構造上不要にならない限り維持',
-  },
-  {
-    path: 'application/adapters/fileSystemAdapter.ts',
-    reason: 'adapter パターン — 正当な例外',
-    category: 'adapter',
-    removalCondition: '構造上不要にならない限り維持',
+    removalCondition: 'サービスが DI パラメータ経由に切替後に削除',
   },
   {
     path: 'application/lifecycle/useAppLifecycle.ts',

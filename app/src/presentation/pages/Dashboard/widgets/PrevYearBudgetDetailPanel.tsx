@@ -18,6 +18,12 @@ import { formatPercent } from '@/domain/formatting'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { safeDivide, calculateTransactionValue } from '@/domain/calculations/utils'
 import {
+  aggregateWeeklyTotals,
+  computeEstimatedCustomerGap,
+  computeEstimatedUnitPriceImpact,
+  buildPeriodLabels,
+} from './PrevYearBudgetDetailPanel.vm'
+import {
   Overlay,
   Panel,
   MbpHeader,
@@ -136,20 +142,10 @@ export function PrevYearBudgetDetailPanel({
 
   const title = type === 'sameDow' ? '予算成長率（同曜日）' : '予算成長率（同日）'
 
-  // dailyMapping の先頭/末尾から実際の比較期間を算出
-  const periodLabels = useMemo(() => {
-    const dm = entry.dailyMapping
-    if (dm.length === 0)
-      return { prev: `${sourceYear}年${sourceMonth}月`, cur: `${targetYear}年${targetMonth}月` }
-    const first = dm[0]
-    const last = dm[dm.length - 1]
-    const prev =
-      first.prevMonth === last.prevMonth && first.prevYear === last.prevYear
-        ? `${first.prevYear}年${first.prevMonth}月${first.prevDay}日〜${last.prevDay}日`
-        : `${first.prevYear}年${first.prevMonth}月${first.prevDay}日〜${last.prevYear}年${last.prevMonth}月${last.prevDay}日`
-    const cur = `${targetYear}年${targetMonth}月${first.currentDay}日〜${last.currentDay}日`
-    return { prev, cur }
-  }, [entry.dailyMapping, sourceYear, sourceMonth, targetYear, targetMonth])
+  const periodLabels = useMemo(
+    () => buildPeriodLabels(entry.dailyMapping, sourceYear, sourceMonth, targetYear, targetMonth),
+    [entry.dailyMapping, sourceYear, sourceMonth, targetYear, targetMonth],
+  )
 
   // 日別データ + 週番号
   const baseRows: readonly TableRow[] = useMemo(() => {
@@ -161,30 +157,7 @@ export function PrevYearBudgetDetailPanel({
     }))
   }, [entry.dailyMapping, budgetDaily, targetYear, targetMonth])
 
-  // 週別集計
-  const weeklyTotals = useMemo(() => {
-    const map = new Map<
-      number,
-      { sales: number; customers: number; budget: number; days: number }
-    >()
-    for (const row of baseRows) {
-      const existing = map.get(row.week)
-      if (existing) {
-        existing.sales += row.prevSales
-        existing.customers += row.prevCustomers
-        existing.budget += row.budget
-        existing.days++
-      } else {
-        map.set(row.week, {
-          sales: row.prevSales,
-          customers: row.prevCustomers,
-          budget: row.budget,
-          days: 1,
-        })
-      }
-    }
-    return map
-  }, [baseRows])
+  const weeklyTotals = useMemo(() => aggregateWeeklyTotals(baseRows), [baseRows])
 
   // サマリー指標
   const prevTransactionValue = calculateTransactionValue(entry.sales, entry.customers)
@@ -196,35 +169,23 @@ export function PrevYearBudgetDetailPanel({
   // 曜日ギャップ影響額（選択手法、フォールバック: mean の estimatedImpact）
   const salesImpact = methodResult?.salesImpact ?? dowGap.estimatedImpact
 
-  // 想定客数ギャップ: 曜日別平均客数 × 日数差
-  const estimatedCustomerGap = useMemo(() => {
-    if (!dowGap.isValid) return 0
-    if (methodResult) {
-      // 手法別: Σ(diff × dowAvgCustomers)
-      return Math.round(
-        dowGap.dowCounts.reduce(
-          (s, d) => s + d.diff * (methodResult.dowAvgCustomers[d.dow] ?? 0),
-          0,
-        ),
-      )
-    }
-    // フォールバック: 曜日別平均客数（mean）
-    return Math.round(
-      dowGap.dowCounts.reduce(
-        (s, d) => s + d.diff * (dowGap.prevDowDailyAvgCustomers[d.dow] ?? 0),
-        0,
-      ),
-    )
-  }, [dowGap, methodResult])
+  const estimatedCustomerGap = useMemo(
+    () => computeEstimatedCustomerGap(dowGap, gapMethod),
+    [dowGap, gapMethod],
+  )
 
-  // 想定客単価影響
-  const estimatedUnitPriceImpact = useMemo(() => {
-    if (!dowGap.isValid || entry.customers === 0) return 0
-    const adjustedSales = entry.sales + salesImpact
-    const adjustedCustomers = entry.customers + estimatedCustomerGap
-    if (adjustedCustomers <= 0) return 0
-    return safeDivide(adjustedSales, adjustedCustomers, 0) - prevTransactionValue
-  }, [dowGap, entry, salesImpact, estimatedCustomerGap, prevTransactionValue])
+  const estimatedUnitPriceImpact = useMemo(
+    () =>
+      computeEstimatedUnitPriceImpact(
+        dowGap,
+        entry.sales,
+        entry.customers,
+        salesImpact,
+        estimatedCustomerGap,
+        prevTransactionValue,
+      ),
+    [dowGap, entry.sales, entry.customers, salesImpact, estimatedCustomerGap, prevTransactionValue],
+  )
 
   // 実日法
   const actualDay = dowGap.actualDayImpact

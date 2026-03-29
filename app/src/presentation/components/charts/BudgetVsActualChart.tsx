@@ -28,8 +28,14 @@ import {
   COMPARE_TITLES,
 } from './BudgetVsActualChart.styles'
 import type { BudgetViewType, CompareMode } from './BudgetVsActualChart.styles'
-import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import { type DataPoint, buildOption } from './BudgetVsActualChart.builders'
+import {
+  computeBudgetProgress,
+  getProgressStatusColor,
+  buildPrevYearCumMap,
+  enrichChartData,
+  computePrevYearComparison,
+} from './BudgetVsActualChart.vm'
 
 interface Props {
   data: readonly DataPoint[]
@@ -81,77 +87,41 @@ export const BudgetVsActualChart = memo(function BudgetVsActualChart({
   const showBudget = compareMode !== 'currentVsPrev'
   const showPrevYearSeries = compareMode !== 'budgetVsActual' && hasPrevYear
 
-  // 最新の実績データを取得
-  const latestWithSales = [...data].reverse().find((d) => d.actualCum > 0)
-  const currentActual = latestWithSales?.actualCum ?? 0
-  const currentBudgetCum = latestWithSales?.budgetCum ?? 0
-  const currentDay = latestWithSales?.day ?? 0
+  // 予算進捗率・着地予想（vm から導出）
+  const progress = useMemo(
+    () => computeBudgetProgress(data, budget, salesDays, daysInMonth),
+    [data, budget, salesDays, daysInMonth],
+  )
+  const { currentActual, currentBudgetCum, progressRate, projected, projectedAchievement } =
+    progress
 
-  // 達成率（対予算累計）
-  const progressRate = currentBudgetCum > 0 ? currentActual / currentBudgetCum : 0
-  // 着地見込み
-  const totalDays = daysInMonth ?? data.length
-  const effectiveSalesDays = salesDays ?? currentDay
-  const avgDaily = effectiveSalesDays > 0 ? currentActual / effectiveSalesDays : 0
-  const remainingDays = totalDays - currentDay
-  const projected = currentActual + avgDaily * remainingDays
-  const projectedAchievement = budget > 0 ? projected / budget : 0
+  const paceColor = ct.colors[getProgressStatusColor(progressRate)]
+  const projColor = ct.colors[getProgressStatusColor(projectedAchievement)]
 
-  // 色分け: >=100% 緑, >=90% 黄, <90% 赤
-  const getStatusColor = (rate: number) => {
-    if (rate >= 1.0) return ct.colors.success
-    if (rate >= 0.9) return ct.colors.warning
-    return ct.colors.danger
-  }
-
-  const paceColor = getStatusColor(progressRate)
-  const projColor = getStatusColor(projectedAchievement)
-
-  // 前年累計を計算（prevYearDiff ビュー用）
-  const prevYearCumMap = useMemo(() => {
-    const map = new Map<number, number>()
-    if (prevYearDaily) {
-      let pCum = 0
-      const days = daysInMonth ?? data.length
-      for (let d = 1; d <= days; d++) {
-        pCum += prevYearDaily.get(toDateKeyFromParts(year, month, d))?.sales ?? 0
-        map.set(d, pCum)
-      }
-    }
-    return map
-  }, [prevYearDaily, daysInMonth, data.length, year, month])
-
+  // 前年累計マップ（vm から導出）
+  const totalDaysForCalc = daysInMonth ?? data.length
+  const prevYearCumMap = useMemo(
+    () => buildPrevYearCumMap(prevYearDaily, totalDaysForCalc, year, month),
+    [prevYearDaily, totalDaysForCalc, year, month],
+  )
   const hasPrevYearDiff =
     prevYearCumMap.size > 0 && (prevYearCumMap.get(prevYearCumMap.size) ?? 0) > 0
 
-  // 差分・達成率を含む拡張データ
+  // 差分・達成率を含む拡張データ（vm から導出）
   const chartData = useMemo(
-    () =>
-      [...data]
-        .map((d) => ({
-          ...d,
-          diff: d.actualCum > 0 ? d.actualCum - d.budgetCum : null,
-          achieveRate:
-            d.budgetCum > 0 && d.actualCum > 0 ? (d.actualCum / d.budgetCum) * 100 : null,
-          budgetDiff: d.actualCum > 0 ? d.actualCum - d.budgetCum : null,
-          prevYearDiff:
-            hasPrevYearDiff && d.actualCum > 0
-              ? d.actualCum - (prevYearCumMap.get(d.day) ?? 0)
-              : null,
-        }))
-        .filter((d) => d.day >= rangeStart && d.day <= rangeEnd),
-    [data, rangeStart, rangeEnd, hasPrevYearDiff, prevYearCumMap],
+    () => enrichChartData(data, prevYearCumMap, hasPrevYearDiff, rangeStart, rangeEnd),
+    [data, prevYearCumMap, hasPrevYearDiff, rangeStart, rangeEnd],
   )
 
   const chartTitle = COMPARE_TITLES[compareMode]?.[effectiveView] ?? VIEW_TITLES[effectiveView]
 
-  // 前年同曜日の累計最新値（サマリー表示用）
+  // 前年比較サマリー（vm から導出）
+  const latestWithSales = [...data].reverse().find((d) => d.actualCum > 0)
   const latestPrevYearCum = latestWithSales?.prevYearCum ?? null
-  const prevYearDiffAmt = latestPrevYearCum != null ? currentActual - latestPrevYearCum : null
-  const prevYearGrowth =
-    latestPrevYearCum != null && latestPrevYearCum > 0
-      ? ((currentActual - latestPrevYearCum) / latestPrevYearCum) * 100
-      : null
+  const { diffAmt: prevYearDiffAmt, growth: prevYearGrowth } = computePrevYearComparison(
+    currentActual,
+    latestPrevYearCum,
+  )
 
   const option = useMemo(
     () =>

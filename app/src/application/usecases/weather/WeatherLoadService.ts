@@ -15,7 +15,7 @@ import type {
   DailyWeatherSummary,
   HourlyWeatherRecord,
 } from '@/domain/models/record'
-import type { EtrnStation } from '@/application/ports/WeatherPort'
+import type { EtrnStation } from '@/domain/ports/WeatherPort'
 import { weatherAdapter } from '@/application/adapters/weatherAdapter'
 
 /** 天気データ取得の進捗状態 */

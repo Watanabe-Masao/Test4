@@ -10,7 +10,7 @@ import {
   isOpfsAvailable,
 } from '@/infrastructure/storage/storagePersistence'
 import { getStorageStatus } from '@/infrastructure/storage/storagePolicy'
-import type { StoragePersistencePort } from '@/application/ports/StoragePersistencePort'
+import type { StoragePersistencePort } from '@/domain/ports/StoragePersistencePort'
 
 export const storagePersistenceAdapter: StoragePersistencePort = {
   requestPersistentStorage,

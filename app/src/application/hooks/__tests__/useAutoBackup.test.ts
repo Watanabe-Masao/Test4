@@ -9,18 +9,24 @@ import { renderHook, act, waitFor } from '@testing-library/react'
 
 // ── Mocks ────────────────────────────────────────────
 
-vi.mock('@/infrastructure/storage/folderAccess', () => ({
-  isFileSystemAccessSupported: vi.fn(() => false),
-  pickDirectory: vi.fn(() => Promise.resolve(null)),
-  getStoredHandle: vi.fn(() => Promise.resolve(null)),
-  removeHandle: vi.fn(() => Promise.resolve()),
+const mockFileSystemAdapter = {
+  isFileSystemAccessSupported: vi.fn((): boolean => false),
+  pickDirectory: vi.fn((): Promise<FileSystemDirectoryHandle | null> => Promise.resolve(null)),
+  getStoredHandle: vi.fn((): Promise<FileSystemDirectoryHandle | null> => Promise.resolve(null)),
+  removeHandle: vi.fn((): Promise<void> => Promise.resolve()),
   listFiles: vi.fn(() => Promise.resolve([])),
-}))
+}
 
-vi.mock('@/infrastructure/storage/backupExporter', () => ({
-  backupExporter: {
-    exportToFolder: vi.fn(() => Promise.resolve('backup_2025.json')),
-  },
+const mockBackupAdapter = {
+  exportBackup: vi.fn(() => Promise.resolve(new Blob())),
+  importBackup: vi.fn(() => Promise.resolve({ monthsImported: 0, monthsSkipped: 0, errors: [] })),
+  readMeta: vi.fn(() => Promise.resolve(null)),
+  exportToFolder: vi.fn(() => Promise.resolve('backup_2025.json')),
+}
+
+vi.mock('@/application/context/useAdapters', () => ({
+  useFileSystemAdapter: () => mockFileSystemAdapter,
+  useBackupAdapter: () => mockBackupAdapter,
 }))
 
 vi.mock('@/application/stores/settingsStore', () => ({
@@ -29,13 +35,6 @@ vi.mock('@/application/stores/settingsStore', () => ({
   },
 }))
 
-import {
-  isFileSystemAccessSupported,
-  pickDirectory,
-  getStoredHandle,
-  removeHandle,
-} from '@/infrastructure/storage/folderAccess'
-import { backupExporter } from '@/infrastructure/storage/backupExporter'
 import { useAutoBackup } from '../useAutoBackup'
 import type { DataRepository } from '@/domain/repositories'
 
@@ -66,8 +65,8 @@ describe('useAutoBackup', () => {
 
   describe('when File System Access API is NOT supported', () => {
     beforeEach(() => {
-      vi.mocked(isFileSystemAccessSupported).mockReturnValue(false)
-      vi.mocked(getStoredHandle).mockResolvedValue(null)
+      mockFileSystemAdapter.isFileSystemAccessSupported.mockReturnValue(false)
+      mockFileSystemAdapter.getStoredHandle.mockResolvedValue(null)
     })
 
     it('returns supported=false', () => {
@@ -103,14 +102,14 @@ describe('useAutoBackup', () => {
     it('getStoredHandle is NOT called when unsupported', () => {
       renderHook(() => useAutoBackup(null, ''))
       // When not supported, the initRef effect should not call getStoredHandle
-      expect(getStoredHandle).not.toHaveBeenCalled()
+      expect(mockFileSystemAdapter.getStoredHandle).not.toHaveBeenCalled()
     })
   })
 
   describe('when File System Access API IS supported', () => {
     beforeEach(() => {
-      vi.mocked(isFileSystemAccessSupported).mockReturnValue(true)
-      vi.mocked(getStoredHandle).mockResolvedValue(null)
+      mockFileSystemAdapter.isFileSystemAccessSupported.mockReturnValue(true)
+      mockFileSystemAdapter.getStoredHandle.mockResolvedValue(null)
     })
 
     it('returns supported=true', () => {
@@ -120,7 +119,7 @@ describe('useAutoBackup', () => {
 
     it('restores stored handle on mount', async () => {
       const handle = makeDirHandle('SavedFolder')
-      vi.mocked(getStoredHandle).mockResolvedValue(handle)
+      mockFileSystemAdapter.getStoredHandle.mockResolvedValue(handle)
 
       const { result } = renderHook(() => useAutoBackup(null, ''))
       await waitFor(() => {
@@ -130,11 +129,11 @@ describe('useAutoBackup', () => {
     })
 
     it('remains not configured when no stored handle', async () => {
-      vi.mocked(getStoredHandle).mockResolvedValue(null)
+      mockFileSystemAdapter.getStoredHandle.mockResolvedValue(null)
 
       const { result } = renderHook(() => useAutoBackup(null, ''))
       await waitFor(() => {
-        expect(getStoredHandle).toHaveBeenCalledWith('backup')
+        expect(mockFileSystemAdapter.getStoredHandle).toHaveBeenCalledWith('backup')
       })
       expect(result.current.folderConfigured).toBe(false)
     })
@@ -142,12 +141,12 @@ describe('useAutoBackup', () => {
 
   describe('selectFolder', () => {
     beforeEach(() => {
-      vi.mocked(isFileSystemAccessSupported).mockReturnValue(true)
-      vi.mocked(getStoredHandle).mockResolvedValue(null)
+      mockFileSystemAdapter.isFileSystemAccessSupported.mockReturnValue(true)
+      mockFileSystemAdapter.getStoredHandle.mockResolvedValue(null)
     })
 
     it('returns false when pickDirectory returns null (user cancelled)', async () => {
-      vi.mocked(pickDirectory).mockResolvedValue(null)
+      mockFileSystemAdapter.pickDirectory.mockResolvedValue(null)
       const { result } = renderHook(() => useAutoBackup(null, ''))
 
       let returned: boolean | undefined
@@ -159,7 +158,7 @@ describe('useAutoBackup', () => {
 
     it('returns true and sets folderName when folder is picked', async () => {
       const handle = makeDirHandle('PickedFolder')
-      vi.mocked(pickDirectory).mockResolvedValue(handle)
+      mockFileSystemAdapter.pickDirectory.mockResolvedValue(handle)
 
       const { result } = renderHook(() => useAutoBackup(null, ''))
 
@@ -172,7 +171,7 @@ describe('useAutoBackup', () => {
 
     it('clears error when folder is successfully picked', async () => {
       const handle = makeDirHandle('Folder')
-      vi.mocked(pickDirectory).mockResolvedValue(handle)
+      mockFileSystemAdapter.pickDirectory.mockResolvedValue(handle)
 
       const { result } = renderHook(() => useAutoBackup(null, ''))
 
@@ -185,13 +184,13 @@ describe('useAutoBackup', () => {
 
   describe('clearFolder', () => {
     beforeEach(() => {
-      vi.mocked(isFileSystemAccessSupported).mockReturnValue(true)
-      vi.mocked(getStoredHandle).mockResolvedValue(null)
+      mockFileSystemAdapter.isFileSystemAccessSupported.mockReturnValue(true)
+      mockFileSystemAdapter.getStoredHandle.mockResolvedValue(null)
     })
 
     it('calls removeHandle and clears state', async () => {
       const handle = makeDirHandle('FolderToRemove')
-      vi.mocked(pickDirectory).mockResolvedValue(handle)
+      mockFileSystemAdapter.pickDirectory.mockResolvedValue(handle)
 
       const { result } = renderHook(() => useAutoBackup(null, ''))
 
@@ -205,7 +204,7 @@ describe('useAutoBackup', () => {
       await act(async () => {
         await result.current.clearFolder()
       })
-      expect(removeHandle).toHaveBeenCalledWith('backup')
+      expect(mockFileSystemAdapter.removeHandle).toHaveBeenCalledWith('backup')
       expect(result.current.folderConfigured).toBe(false)
       expect(result.current.folderName).toBeNull()
       expect(result.current.lastBackupAt).toBeNull()
@@ -215,8 +214,8 @@ describe('useAutoBackup', () => {
 
   describe('backupNow', () => {
     beforeEach(() => {
-      vi.mocked(isFileSystemAccessSupported).mockReturnValue(true)
-      vi.mocked(getStoredHandle).mockResolvedValue(null)
+      mockFileSystemAdapter.isFileSystemAccessSupported.mockReturnValue(true)
+      mockFileSystemAdapter.getStoredHandle.mockResolvedValue(null)
     })
 
     it('returns null when repo is null', async () => {
@@ -241,8 +240,8 @@ describe('useAutoBackup', () => {
     it('performs backup when folder is configured and permission granted', async () => {
       const repo = makeRepo()
       const handle = makeDirHandle('BackupFolder')
-      vi.mocked(pickDirectory).mockResolvedValue(handle)
-      vi.mocked(backupExporter.exportToFolder).mockResolvedValue('backup_file.json')
+      mockFileSystemAdapter.pickDirectory.mockResolvedValue(handle)
+      mockBackupAdapter.exportToFolder.mockResolvedValue('backup_file.json')
 
       const { result } = renderHook(() => useAutoBackup(repo, ''))
 
@@ -264,8 +263,8 @@ describe('useAutoBackup', () => {
     it('sets error when backup fails', async () => {
       const repo = makeRepo()
       const handle = makeDirHandle('BackupFolder')
-      vi.mocked(pickDirectory).mockResolvedValue(handle)
-      vi.mocked(backupExporter.exportToFolder).mockRejectedValue(new Error('disk full'))
+      mockFileSystemAdapter.pickDirectory.mockResolvedValue(handle)
+      mockBackupAdapter.exportToFolder.mockRejectedValue(new Error('disk full'))
 
       const { result } = renderHook(() => useAutoBackup(repo, ''))
 
@@ -287,7 +286,7 @@ describe('useAutoBackup', () => {
         queryPermission: vi.fn(() => Promise.resolve('denied')),
         requestPermission: vi.fn(() => Promise.resolve('denied')),
       } as unknown as FileSystemDirectoryHandle
-      vi.mocked(pickDirectory).mockResolvedValue(handle)
+      mockFileSystemAdapter.pickDirectory.mockResolvedValue(handle)
 
       const { result } = renderHook(() => useAutoBackup(repo, ''))
 

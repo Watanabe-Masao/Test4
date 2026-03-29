@@ -1,15 +1,15 @@
 # Architecture State Snapshot
 
-> Generated: 2026-03-29T01:26:36.917Z
+> Generated: 2026-03-29T07:21:44.914Z
 
 ## Allowlist Summary
 
 | 指標 | 値 |
 |---|---|
-| 総エントリ数 | 52 |
+| 総エントリ数 | 49 |
 | アクティブリスト数 | 14 |
 | 凍結リスト数 | 7 |
-| .vm.ts ファイル数 | 16 |
+| .vm.ts ファイル数 | 22 |
 | 互換 re-export 残数 | 2 |
 
 ## Category Breakdown
@@ -17,7 +17,7 @@
 | カテゴリ | 件数 |
 |---|---|
 | structural | 39 |
-| adapter | 11 |
+| adapter | 8 |
 | lifecycle | 2 |
 
 
@@ -61,9 +61,11 @@
 - application/hooks/useDrillAction.ts
 - application/hooks/useDuckDB.ts
 - application/hooks/useEngineLifecycle.ts
+- application/hooks/useEtrnStationSearch.ts
 - application/hooks/useExplanation.ts
 - application/hooks/useFactorDecomposition.ts
 - application/hooks/useFilterSelectors.ts
+- application/hooks/useGeocode.ts
 - application/hooks/useHierarchySelection.ts
 - application/hooks/useImport.ts
 - application/hooks/useLoadComparisonData.ts
@@ -98,13 +100,13 @@
 | ファイル | useMemo | useState | 行数 |
 |---|---|---|---|
 | application/hooks/useTimeSlotData.ts | 21 | 8 | 389 |
-| presentation/components/charts/IntegratedSalesChart.tsx | 12 | 12 | 598 |
+| presentation/components/charts/IntegratedSalesChart.tsx | 12 | 12 | 589 |
 | presentation/pages/Dashboard/widgets/useDrilldownData.ts | 14 | 10 | 413 |
 | presentation/pages/CostDetail/useCostDetailData.ts | 13 | 6 | 210 |
-| presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 14 | 5 | 490 |
+| presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 14 | 5 | 484 |
 | presentation/components/charts/CategoryBenchmarkChart.vm.ts | 10 | 8 | 470 |
-| presentation/components/charts/CategoryTrendChart.tsx | 9 | 7 | 519 |
-| presentation/components/charts/DeptHourlyChart.tsx | 10 | 6 | 576 |
+| presentation/components/charts/CategoryTrendChart.tsx | 9 | 7 | 368 |
+| presentation/components/charts/DeptHourlyChart.tsx | 10 | 6 | 419 |
 | presentation/components/charts/TimeSlotChart.tsx | 10 | 6 | 228 |
 | presentation/pages/Dashboard/widgets/HourlyChart.tsx | 10 | 6 | 538 |
 
@@ -120,6 +122,7 @@
 | presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | useMemo | 10 | 11 | 91% |
 | presentation/pages/Dashboard/widgets/HourlyChart.tsx | useMemo | 9 | 10 | 90% |
 | application/hooks/duckdb/categoryBenchmarkLogic.ts | lines | 401 | 450 | 89% |
+| presentation/components/charts/IntegratedSalesChart.tsx | useMemo | 8 | 9 | 89% |
 | application/hooks/useTimeSlotData.ts | useMemo | 7 | 8 | 88% |
 | presentation/pages/Dashboard/widgets/DrilldownWaterfall.tsx | useMemo | 7 | 8 | 88% |
 | presentation/components/charts/TimeSlotChart.tsx | useMemo | 7 | 8 | 88% |
@@ -140,7 +143,7 @@
 
 | リスト名 | 件数 | カテゴリ内訳 |
 |---|---|---|
-| applicationToInfrastructure | 13 | adapter:11, lifecycle:2 |
+| applicationToInfrastructure | 10 | adapter:8, lifecycle:2 |
 | presentationMemoLimits | 9 | structural:9 |
 | domainLargeFiles | 7 | structural:7 |
 | presentationStateLimits | 6 | structural:6 |

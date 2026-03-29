@@ -5,7 +5,7 @@
  * 正しく展開して infrastructure 関数を呼び出すことを検証する。
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import type { EtrnStation } from '@/application/ports/WeatherPort'
+import type { EtrnStation } from '@/domain/ports/WeatherPort'
 
 // infrastructure/weather をモック
 vi.mock('@/infrastructure/weather', () => ({

@@ -28,6 +28,7 @@ import {
 import type { CategoryTimeSalesRecord } from '@/domain/models/record'
 import { CategoryFactorBreakdown } from './CategoryFactorBreakdown'
 import { decomposePriceMix } from './categoryFactorUtils'
+import { aggregateTotalQuantity } from './YoYWaterfallChart.vm'
 import type { WidgetContext, ComparisonMode } from './types'
 import { wowPrevRange, comparisonLabels } from './types'
 import {
@@ -227,16 +228,9 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
     ],
   )
 
-  // Aggregate total quantity from filtered CTS records
-  const curTotalQty = useMemo(
-    () => periodCTS.reduce((s, rec) => s + rec.totalQuantity, 0),
-    [periodCTS],
-  )
-
-  const prevTotalQty = useMemo(
-    () => periodPrevCTS.reduce((s, rec) => s + rec.totalQuantity, 0),
-    [periodPrevCTS],
-  )
+  // Aggregate total quantity from filtered CTS records (vm 関数に委譲)
+  const curTotalQty = useMemo(() => aggregateTotalQuantity(periodCTS), [periodCTS])
+  const prevTotalQty = useMemo(() => aggregateTotalQuantity(periodPrevCTS), [periodPrevCTS])
 
   const hasQuantity = curTotalQty > 0 && prevTotalQty > 0
 

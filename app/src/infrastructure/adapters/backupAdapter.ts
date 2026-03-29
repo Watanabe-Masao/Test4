@@ -5,7 +5,7 @@
  * @see guards/layerBoundaryGuard.test.ts
  */
 import { backupExporter } from '@/infrastructure/storage/backupExporter'
-import type { BackupPort } from '@/application/ports/BackupPort'
+import type { BackupPort } from '@/domain/ports/BackupPort'
 
 export const backupAdapter: BackupPort = {
   exportBackup: (repo, appSettings) => backupExporter.exportBackup(repo, appSettings),

@@ -7,7 +7,7 @@ import { useUiStore } from '@/application/stores/uiStore'
 import { calculationCache } from '@/application/services/calculationCache'
 import { calcSameDowOffset } from '@/application/comparison/dowOffset'
 import type { AlignmentMode } from '@/domain/models/calendar'
-import { getDaysInMonth } from '@/domain/constants/defaults'
+import { buildMappingPreview, buildSourceOptions } from './PrevYearMappingTab.vm'
 import { useDataSummary } from '@/application/hooks/useDataSummary'
 import {
   Section,
@@ -146,71 +146,30 @@ export function PrevYearMappingTab() {
   // prevYearDays は useDataSummary から取得済み
   const prevDayHasData = prevYearDays
 
-  // 日付マッピングプレビュー
-  const mappingPreview = useMemo(() => {
-    const daysInTarget = getDaysInMonth(targetYear, targetMonth)
-    const daysInSource = getDaysInMonth(effectiveSourceYear, effectiveSourceMonth)
-    const firstDow = new Date(targetYear, targetMonth - 1, 1).getDay()
-    const nextSourceMonth = (effectiveSourceMonth % 12) + 1
+  const mappingPreview = useMemo(
+    () =>
+      buildMappingPreview(
+        targetYear,
+        targetMonth,
+        effectiveOffset,
+        effectiveSourceYear,
+        effectiveSourceMonth,
+        prevDayHasData,
+      ),
+    [
+      targetYear,
+      targetMonth,
+      effectiveOffset,
+      effectiveSourceYear,
+      effectiveSourceMonth,
+      prevDayHasData,
+    ],
+  )
 
-    interface MappingRow {
-      currentDay: number
-      prevDay: number // 拡張day番号（overflow含む）
-      dow: number
-      isOverflow: boolean // 前年ソース月を超えている
-      prevDisplayMonth: number // 表示用の月
-      prevDisplayDay: number // 表示用の日
-      hasData: boolean
-    }
-
-    const rows: MappingRow[] = []
-    let matchedCount = 0
-    let unmatchedCount = 0
-
-    for (let d = 1; d <= daysInTarget; d++) {
-      const dow = (firstDow + d - 1) % 7
-      const prevDay = d + effectiveOffset
-      const isOverflow = prevDay > daysInSource
-      const prevDisplayMonth = isOverflow ? nextSourceMonth : effectiveSourceMonth
-      const prevDisplayDay = isOverflow ? prevDay - daysInSource : prevDay
-      const hasData = prevDayHasData.has(prevDay)
-      if (hasData) matchedCount++
-      else unmatchedCount++
-      rows.push({
-        currentDay: d,
-        prevDay,
-        dow,
-        isOverflow,
-        prevDisplayMonth,
-        prevDisplayDay,
-        hasData,
-      })
-    }
-    return { rows, firstDow, daysInTarget, daysInSource, matchedCount, unmatchedCount }
-  }, [
-    targetYear,
-    targetMonth,
-    effectiveOffset,
-    effectiveSourceYear,
-    effectiveSourceMonth,
-    prevDayHasData,
-  ])
-
-  // 選択用: auto + 利用可能月
-  const sourceOptions = useMemo(() => {
-    const opts: { value: string; label: string }[] = [
-      { value: 'auto', label: `自動 (${targetYear - 1}年${targetMonth}月)` },
-    ]
-    for (const { year, month } of availableMonths) {
-      // 当月はスキップ
-      if (year === targetYear && month === targetMonth) continue
-      opts.push({
-        value: `${year}-${month}`,
-        label: `${year}年${month}月`,
-      })
-    }
-    return opts
-  }, [availableMonths, targetYear, targetMonth])
+  const sourceOptions = useMemo(
+    () => buildSourceOptions(availableMonths, targetYear, targetMonth),
+    [availableMonths, targetYear, targetMonth],
+  )
 
   const currentSourceValue =
     sourceYear !== null && sourceMonth !== null ? `${sourceYear}-${sourceMonth}` : 'auto'

@@ -6,7 +6,7 @@
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import type { StoreLocation } from '@/domain/models/record'
-import type { WeatherPort, EtrnStation } from '@/application/ports/WeatherPort'
+import type { WeatherPort, EtrnStation } from '@/domain/ports/WeatherPort'
 
 // weatherAdapter をモック
 vi.mock('@/application/adapters/weatherAdapter', () => ({

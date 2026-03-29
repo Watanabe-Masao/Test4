@@ -11,7 +11,7 @@ import {
   removeHandle,
   listFiles,
 } from '@/infrastructure/storage/folderAccess'
-import type { FileSystemPort } from '@/application/ports/FileSystemPort'
+import type { FileSystemPort } from '@/domain/ports/FileSystemPort'
 
 export const fileSystemAdapter: FileSystemPort = {
   isFileSystemAccessSupported,

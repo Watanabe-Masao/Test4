@@ -1,8 +1,8 @@
 {
-  "timestamp": "2026-03-29T01:26:36.917Z",
-  "totalAllowlistEntries": 52,
+  "timestamp": "2026-03-29T07:21:44.914Z",
+  "totalAllowlistEntries": 49,
   "categoryBreakdown": {
-    "adapter": 11,
+    "adapter": 8,
     "lifecycle": 2,
     "structural": 39
   },
@@ -17,7 +17,7 @@
   ],
   "frozenCount": 7,
   "activeLists": 14,
-  "vmFileCount": 16,
+  "vmFileCount": 22,
   "compatReexportCount": 2,
   "activeBridges": [
     {
@@ -72,9 +72,11 @@
     "application/hooks/useDrillAction.ts",
     "application/hooks/useDuckDB.ts",
     "application/hooks/useEngineLifecycle.ts",
+    "application/hooks/useEtrnStationSearch.ts",
     "application/hooks/useExplanation.ts",
     "application/hooks/useFactorDecomposition.ts",
     "application/hooks/useFilterSelectors.ts",
+    "application/hooks/useGeocode.ts",
     "application/hooks/useHierarchySelection.ts",
     "application/hooks/useImport.ts",
     "application/hooks/useLoadComparisonData.ts",
@@ -115,7 +117,7 @@
       "file": "presentation/components/charts/IntegratedSalesChart.tsx",
       "memoCount": 12,
       "stateCount": 12,
-      "lineCount": 598
+      "lineCount": 589
     },
     {
       "file": "presentation/pages/Dashboard/widgets/useDrilldownData.ts",
@@ -133,7 +135,7 @@
       "file": "presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx",
       "memoCount": 14,
       "stateCount": 5,
-      "lineCount": 490
+      "lineCount": 484
     },
     {
       "file": "presentation/components/charts/CategoryBenchmarkChart.vm.ts",
@@ -145,13 +147,13 @@
       "file": "presentation/components/charts/CategoryTrendChart.tsx",
       "memoCount": 9,
       "stateCount": 7,
-      "lineCount": 519
+      "lineCount": 368
     },
     {
       "file": "presentation/components/charts/DeptHourlyChart.tsx",
       "memoCount": 10,
       "stateCount": 6,
-      "lineCount": 576
+      "lineCount": 419
     },
     {
       "file": "presentation/components/charts/TimeSlotChart.tsx",
@@ -224,6 +226,13 @@
       "pct": 89
     },
     {
+      "file": "presentation/components/charts/IntegratedSalesChart.tsx",
+      "metric": "useMemo",
+      "actual": 8,
+      "limit": 9,
+      "pct": 89
+    },
+    {
       "file": "application/hooks/useTimeSlotData.ts",
       "metric": "useMemo",
       "actual": 7,
@@ -261,9 +270,9 @@
   ],
   "listSummary": {
     "applicationToInfrastructure": {
-      "count": 13,
+      "count": 10,
       "categories": {
-        "adapter": 11,
+        "adapter": 8,
         "lifecycle": 2
       }
     },

@@ -6,8 +6,8 @@
  * v2: AppSettings を含むバックアップ + gzip 圧縮対応。
  */
 import { useState, useCallback } from 'react'
-import { backupAdapter } from '@/application/adapters/backupAdapter'
-import type { BackupMeta, BackupImportResult } from '@/application/ports/BackupPort'
+import { useBackupAdapter } from '@/application/context/useAdapters'
+import type { BackupMeta, BackupImportResult } from '@/domain/ports/BackupPort'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import type { DataRepository } from '@/domain/repositories'
 
@@ -21,6 +21,7 @@ export function useBackup(repo: DataRepository | null): {
   importBackup: (file: File, overwrite?: boolean) => Promise<BackupImportResult>
   previewBackup: (file: File) => Promise<BackupMeta | null>
 } {
+  const backupAdapter = useBackupAdapter()
   const [isExporting, setIsExporting] = useState(false)
   const [isImporting, setIsImporting] = useState(false)
   const [lastImportResult, setLastImportResult] = useState<BackupImportResult | null>(null)
@@ -45,7 +46,7 @@ export function useBackup(repo: DataRepository | null): {
     } finally {
       setIsExporting(false)
     }
-  }, [repo])
+  }, [repo, backupAdapter])
 
   const importBackup = useCallback(
     async (file: File, overwrite = false): Promise<BackupImportResult> => {
@@ -73,12 +74,15 @@ export function useBackup(repo: DataRepository | null): {
         setIsImporting(false)
       }
     },
-    [repo],
+    [repo, backupAdapter],
   )
 
-  const previewBackup = useCallback(async (file: File): Promise<BackupMeta | null> => {
-    return backupAdapter.readMeta(file)
-  }, [])
+  const previewBackup = useCallback(
+    async (file: File): Promise<BackupMeta | null> => {
+      return backupAdapter.readMeta(file)
+    },
+    [backupAdapter],
+  )
 
   return {
     isExporting,
