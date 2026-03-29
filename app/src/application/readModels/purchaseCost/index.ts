@@ -12,6 +12,7 @@ export type {
   CategoryDayRow,
 } from './PurchaseCostTypes'
 export {
+  readPurchaseCost,
   purchaseCostHandler,
   toPurchaseDailySupplierRows,
   toCategoryDailyRows,

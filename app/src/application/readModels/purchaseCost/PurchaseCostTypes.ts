@@ -97,10 +97,27 @@ export const PurchaseCostReadModel = z.object({
   inventoryPurchaseCost: z.number(),
   inventoryPurchasePrice: z.number(),
 
-  /** メタデータ */
+  /** メタデータ: この値が何者かを runtime でも固定する */
   meta: z.object({
-    /** 欠損日数（監査用） */
-    missingDayCount: z.number(),
+    /** 欠損時の扱い: 0 として集計（欠損日はスキップしない） */
+    missingPolicy: z.literal('zero'),
+    /** 丸め規約: 金額は整数円(Math.round)、率は小数(raw) */
+    rounding: z.object({
+      amountMethod: z.literal('round'),
+      amountPrecision: z.literal(0),
+      rateMethod: z.literal('raw'),
+    }),
+    /**
+     * 正本別欠損日数（監査用）。
+     * 「通常仕入はゼロだが花だけある日」等を正確に識別する。
+     */
+    missingDays: z.object({
+      purchase: z.number(),
+      deliverySales: z.number(),
+      transfers: z.number(),
+      /** 3正本全てにデータがない日数 */
+      composite: z.number(),
+    }),
     /** DuckDB dataVersion */
     dataVersion: z.number(),
   }),

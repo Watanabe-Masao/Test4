@@ -87,21 +87,45 @@ function buildCategoryCanonical(
   }
 }
 
-/** 期間内の全日数のうち、データが存在しない日数を算出 */
+/** 期間内の全日数のうち、3正本それぞれと複合でデータが存在しない日数を算出 */
 function countMissingDays(
   dateFrom: string,
   dateTo: string,
   purchaseRows: readonly { day: number }[],
-): number {
+  specialRows: readonly { day: number }[],
+  transferRows: readonly { day: number }[],
+): { purchase: number; deliverySales: number; transfers: number; composite: number } {
   const fromDay = Number(dateFrom.split('-')[2])
   const toDay = Number(dateTo.split('-')[2])
   const totalDays = toDay - fromDay + 1
-  if (totalDays <= 0) return 0
-  const daysWithData = new Set(purchaseRows.map((r) => r.day))
-  return Math.max(0, totalDays - daysWithData.size)
+  if (totalDays <= 0) return { purchase: 0, deliverySales: 0, transfers: 0, composite: 0 }
+
+  const purchaseDays = new Set(purchaseRows.map((r) => r.day))
+  const specialDays = new Set(specialRows.map((r) => r.day))
+  const transferDays = new Set(transferRows.map((r) => r.day))
+
+  let purchaseMissing = 0
+  let deliveryMissing = 0
+  let transfersMissing = 0
+  let compositeMissing = 0
+  for (let d = fromDay; d <= toDay; d++) {
+    const pMiss = !purchaseDays.has(d)
+    const dMiss = !specialDays.has(d)
+    const tMiss = !transferDays.has(d)
+    if (pMiss) purchaseMissing++
+    if (dMiss) deliveryMissing++
+    if (tMiss) transfersMissing++
+    if (pMiss && dMiss && tMiss) compositeMissing++
+  }
+  return {
+    purchase: purchaseMissing,
+    deliverySales: deliveryMissing,
+    transfers: transfersMissing,
+    composite: compositeMissing,
+  }
 }
 
-// ── QueryHandler ──
+// ── 純関数 + QueryHandler ──
 
 export interface PurchaseCostInput extends BaseQueryInput {
   readonly dataVersion: number
@@ -205,10 +229,69 @@ export function toCategoryDailyRows(canonical: {
 }
 
 /**
- * PurchaseCostHandler — 仕入原価複合正本の QueryHandler
+ * readPurchaseCost — 仕入原価の唯一の read 関数（純関数）
  *
- * 3つの独立正本を並列取得し、PurchaseCostReadModel を構築する。
- * .parse() で runtime 検証（fail fast）。
+ * 3つの独立正本を並列取得し、PurchaseCostReadModel を構築・runtime 検証する。
+ * QueryHandler に依存しないため、テストや直接呼び出しでも使用可能。
+ */
+export async function readPurchaseCost(
+  conn: AsyncDuckDBConnection,
+  input: PurchaseCostInput,
+): Promise<PurchaseCostReadModel> {
+  const storeIds = input.storeIds ? [...input.storeIds] : undefined
+
+  // 3つの独立正本を並列取得
+  const [purchaseRows, specialRows, transferRows] = await Promise.all([
+    queryPurchaseDailyBySupplier(conn, input.dateFrom, input.dateTo, storeIds),
+    querySpecialSalesDaily(conn, input.dateFrom, input.dateTo, storeIds),
+    queryTransfersDaily(conn, input.dateFrom, input.dateTo, storeIds),
+  ])
+
+  // 各正本を構築
+  const purchase = buildPurchaseCanonical(purchaseRows)
+  const deliverySales = buildCategoryCanonical(specialRows)
+  const transfers = buildCategoryCanonical(transferRows)
+
+  // 導出値
+  const grandTotalCost = purchase.totalCost + deliverySales.totalCost + transfers.totalCost
+  const grandTotalPrice = purchase.totalPrice + deliverySales.totalPrice + transfers.totalPrice
+  const inventoryPurchaseCost = purchase.totalCost + transfers.totalCost
+  const inventoryPurchasePrice = purchase.totalPrice + transfers.totalPrice
+
+  const missingDays = countMissingDays(
+    input.dateFrom,
+    input.dateTo,
+    purchaseRows,
+    specialRows,
+    transferRows,
+  )
+
+  // runtime 検証（fail fast）
+  return PurchaseCostReadModel.parse({
+    purchase,
+    deliverySales,
+    transfers,
+    grandTotalCost,
+    grandTotalPrice,
+    inventoryPurchaseCost,
+    inventoryPurchasePrice,
+    meta: {
+      missingPolicy: 'zero' as const,
+      rounding: {
+        amountMethod: 'round' as const,
+        amountPrecision: 0 as const,
+        rateMethod: 'raw' as const,
+      },
+      missingDays,
+      dataVersion: input.dataVersion,
+    },
+  })
+}
+
+/**
+ * purchaseCostHandler — useQueryWithHandler 用の QueryHandler ラッパー
+ *
+ * readPurchaseCost 純関数を QueryHandler インターフェースでラップする。
  */
 export const purchaseCostHandler: QueryHandler<PurchaseCostInput, PurchaseCostOutput> = {
   name: 'PurchaseCost',
@@ -216,43 +299,7 @@ export const purchaseCostHandler: QueryHandler<PurchaseCostInput, PurchaseCostOu
     conn: AsyncDuckDBConnection,
     input: PurchaseCostInput,
   ): Promise<PurchaseCostOutput> {
-    const storeIds = input.storeIds ? [...input.storeIds] : undefined
-
-    // 3つの独立正本を並列取得
-    const [purchaseRows, specialRows, transferRows] = await Promise.all([
-      queryPurchaseDailyBySupplier(conn, input.dateFrom, input.dateTo, storeIds),
-      querySpecialSalesDaily(conn, input.dateFrom, input.dateTo, storeIds),
-      queryTransfersDaily(conn, input.dateFrom, input.dateTo, storeIds),
-    ])
-
-    // 各正本を構築
-    const purchase = buildPurchaseCanonical(purchaseRows)
-    const deliverySales = buildCategoryCanonical(specialRows)
-    const transfers = buildCategoryCanonical(transferRows)
-
-    // 導出値
-    const grandTotalCost = purchase.totalCost + deliverySales.totalCost + transfers.totalCost
-    const grandTotalPrice = purchase.totalPrice + deliverySales.totalPrice + transfers.totalPrice
-    const inventoryPurchaseCost = purchase.totalCost + transfers.totalCost
-    const inventoryPurchasePrice = purchase.totalPrice + transfers.totalPrice
-
-    const missingDayCount = countMissingDays(input.dateFrom, input.dateTo, purchaseRows)
-
-    // runtime 検証（fail fast）
-    const model = PurchaseCostReadModel.parse({
-      purchase,
-      deliverySales,
-      transfers,
-      grandTotalCost,
-      grandTotalPrice,
-      inventoryPurchaseCost,
-      inventoryPurchasePrice,
-      meta: {
-        missingDayCount,
-        dataVersion: input.dataVersion,
-      },
-    })
-
+    const model = await readPurchaseCost(conn, input)
     return { model }
   },
 }

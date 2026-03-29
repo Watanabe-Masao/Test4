@@ -1,17 +1,19 @@
 /**
  * usePurchaseCost — 仕入原価複合正本の facade hook
  *
- * 全ページ・全ウィジェットはこの hook 経由で仕入原価を取得する。
- * 内部で purchaseCostHandler を useQueryWithHandler 経由で実行し、
- * PurchaseCostReadModel を返す。
+ * presentation 層や単独利用のページ・ウィジェットが
+ * 仕入原価を取得するための標準入口。
  *
- * 用途別の参照:
- *   在庫法:   model.grandTotalCost（3つ全部）
- *   推定法:   model.inventoryPurchaseCost（売上納品を除外）
- *   仕入分析: model.grandTotalCost + 各正本の内訳
+ * ## 現在の利用状況
  *
- * @see readPurchaseCost.ts — QueryHandler 実装
- * @see PurchaseCostTypes.ts — Zod 契約
+ * - 仕入分析ページは usePurchaseAnalysis → usePurchaseComparisonQuery 経由で
+ *   purchaseCostHandler.execute() を直接呼び出している（Promise.all 並列実行のため）
+ * - この hook は将来の単独利用（仕入分析以外のページ/ウィジェット）用に維持
+ * - usePurchaseComparisonQuery が handler を直接呼ぶのは application 層内の
+ *   正当な連携であり、ガードテストで明示的に許可済み
+ *
+ * @see readPurchaseCost — 唯一の read 関数（純関数）
+ * @see purchaseCostHandler — useQueryWithHandler 用ラッパー
  * @see references/01-principles/purchase-cost-definition.md — 正本定義
  */
 import { useMemo } from 'react'
