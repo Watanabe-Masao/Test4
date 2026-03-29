@@ -9,7 +9,7 @@ import type { MetricId } from '@/domain/models/analysis'
 import type { StoreResult, CustomCategory } from '@/domain/models/storeTypes'
 import type { ConditionMetricId } from '@/domain/models/analysis'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
-import { resolveThresholds, evaluateSignal } from '@/domain/calculations/rules/conditionResolver'
+import { resolveThresholds, evaluateSignal } from '@/application/rules/conditionResolver'
 import { CONDITION_METRIC_MAP } from '@/domain/constants/conditionMetrics'
 import type { PresetCategoryId } from '@/domain/constants/customCategories'
 import {

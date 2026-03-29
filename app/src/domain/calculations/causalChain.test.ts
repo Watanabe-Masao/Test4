@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import { buildCausalSteps, storeResultToCausalPrev, type CausalChainPrevInput } from './causalChain'
+import {
+  buildCausalSteps,
+  storeResultToCausalPrev,
+  type CausalChainPrevInput,
+} from '@/application/analysis/causalChain'
 import type { DiscountEntry, DiscountType } from '@/domain/models/record'
 import type { StoreResult } from '@/domain/models/storeTypes'
 

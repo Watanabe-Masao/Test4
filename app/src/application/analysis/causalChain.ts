@@ -4,12 +4,12 @@
  * 型定義・フォーマッタは causalChainFormatters.ts、
  * ステップビルダーは causalChainSteps.ts に委譲。
  */
-import { safeDivide, getEffectiveGrossProfitRate } from './utils'
-import { decompose2 } from './factorDecomposition'
-import type { TwoFactorResult } from './factorDecomposition'
+import { safeDivide, getEffectiveGrossProfitRate } from '@/domain/calculations/utils'
+import { decompose2 } from '@/domain/calculations/factorDecomposition'
+import type { TwoFactorResult } from '@/domain/calculations/factorDecomposition'
 import type { DiscountEntry } from '@/domain/models/record'
 import type { StoreResult } from '@/domain/models/storeTypes'
-import type { CausalStep } from './causalChainFormatters'
+import type { CausalStep } from '@/domain/formatting/causalChainFormatters'
 import {
   buildGrossProfitStep,
   buildFactorDecompositionStep,
@@ -18,7 +18,7 @@ import {
 } from './causalChainSteps'
 
 // 型の re-export（後方互換）
-export type { ColorHint, CausalFactor, CausalStep } from './causalChainFormatters'
+export type { ColorHint, CausalFactor, CausalStep } from '@/domain/formatting/causalChainFormatters'
 
 /**
  * buildCausalSteps の前年データ入力。

@@ -24,12 +24,12 @@ StoreResult の確定値を消費する単月計算。全て純粋関数。
 | 在庫法/推定法 粗利計算 | `invMethod.ts`, `estMethod.ts` | 単月 |
 | 予算達成率・消化率 | `budgetAnalysis.ts` | 単月（StoreResult 確定値） |
 | 感度分析・弾力性 | `algorithms/sensitivity.ts` | 単月 |
-| 因果チェーン | `causalChain.ts` | 単月 |
+| 因果チェーン | `application/analysis/causalChain.ts` | 単月（application 層に移動済み） |
 | 予測・異常値検出 | `forecast.ts` | 単月（日次データの週別・曜日別集計） |
 | トレンド分析・季節性 | `algorithms/trendAnalysis.ts` | 複数月（月次粒度の推移分析） |
 | 線形回帰・加重移動平均 | `algorithms/advancedForecast.ts` | 単月（日次データの回帰） |
 | 相関分析・正規化 | `algorithms/correlation.ts` | 汎用統計関数 |
-| アラート・閾値評価 | `rules/alertSystem.ts` | 単月（StoreResult からルール評価） |
+| アラート・閾値評価 | `application/rules/alertSystem.ts` | 単月（application 層に移動済み） |
 | 日別推定在庫計算 | `inventoryCalc.ts` | 単月（推定法による在庫推移） |
 | 売変影響分析 | `discountImpact.ts` | 単月（売変ロス原価の算出） |
 | ピン止め区間粗利計算 | `pinIntervals.ts` | 区間（在庫確定日で区切られた期間） |

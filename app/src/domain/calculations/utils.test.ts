@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { formatCurrency, formatManYen, formatPercent, formatPointDiff } from '@/domain/formatting'
+import { maxDayOfRecord, detectDataMaxDay } from '@/application/services/dataDetection'
 import {
   safeNumber,
   safeDivide,
@@ -15,8 +16,6 @@ import {
   calculateAveragePricePerItem,
   computeAverageDivisor,
   computeActiveDowDivisorMap,
-  maxDayOfRecord,
-  detectDataMaxDay,
 } from './utils'
 
 describe('safeNumber', () => {

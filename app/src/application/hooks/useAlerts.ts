@@ -5,8 +5,8 @@
  * application 層でアラート評価結果を提供する。
  */
 import { useMemo } from 'react'
-import { evaluateAlerts, DEFAULT_ALERT_RULES } from '@/domain/calculations/rules/alertSystem'
-import type { Alert, AlertSeverity, AlertRule } from '@/domain/calculations/rules/alertSystem'
+import { evaluateAlerts, DEFAULT_ALERT_RULES } from '@/application/rules/alertSystem'
+import type { Alert, AlertSeverity, AlertRule } from '@/application/rules/alertSystem'
 import type { StoreResult } from '@/domain/models/storeTypes'
 
 export type { Alert, AlertSeverity, AlertRule }

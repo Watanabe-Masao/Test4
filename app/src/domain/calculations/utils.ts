@@ -220,6 +220,6 @@ export function isSettingsForTargetMonth(
 
 // ── サブモジュール re-export ──
 
-export { maxDayOfRecord, detectDataMaxDay } from './dataDetection'
+// dataDetection は application/services/ に移動済み — 消費者は @/application/services/dataDetection から import
 export type { AverageMode, AveragingContext } from './averageDivisor'
 export { computeAverageDivisor, computeActiveDowDivisorMap } from './averageDivisor'

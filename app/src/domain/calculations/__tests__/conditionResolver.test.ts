@@ -5,7 +5,11 @@
  * シグナル評価（higher_better / lower_better）を検証する。
  */
 import { describe, it, expect } from 'vitest'
-import { resolveThresholds, isMetricEnabled, evaluateSignal } from '../rules/conditionResolver'
+import {
+  resolveThresholds,
+  isMetricEnabled,
+  evaluateSignal,
+} from '@/application/rules/conditionResolver'
 import type { ConditionSummaryConfig, ThresholdSet } from '@/domain/models/ConditionConfig'
 import { DEFAULT_CONDITION_CONFIG } from '@/domain/constants/conditionMetrics'
 

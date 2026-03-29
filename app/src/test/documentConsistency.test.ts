@@ -270,7 +270,16 @@ describe('Engine responsibility ↔ code consistency', () => {
 
     expect(modules.size).toBeGreaterThan(0)
 
-    const missing = [...modules].filter((mod) => !fileExists(`app/src/domain/calculations/${mod}`))
+    const missing = [...modules].filter((mod) => {
+      // application/ や infrastructure/ 等の絶対パスは app/src/ から検証
+      if (mod.includes('/')) {
+        const parts = mod.split('/')
+        if (['application', 'infrastructure', 'domain'].includes(parts[0])) {
+          return !fileExists(`app/src/${mod}`)
+        }
+      }
+      return !fileExists(`app/src/domain/calculations/${mod}`)
+    })
     expect(missing).toEqual([])
   })
 

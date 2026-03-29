@@ -59,7 +59,7 @@ export { useDeptKpiView } from './useDeptKpiView'
 export type { DepartmentKpiIndex } from './useDeptKpiView'
 export { useAlerts } from './useAlerts'
 export type { Alert, AlertSeverity, AlertRule } from './useAlerts'
-export { evaluateAlerts, DEFAULT_ALERT_RULES } from '@/domain/calculations/rules/alertSystem'
+export { evaluateAlerts, DEFAULT_ALERT_RULES } from '@/application/rules/alertSystem'
 export {
   resolveTimeSeriesSource,
   resolveYoYSource,
