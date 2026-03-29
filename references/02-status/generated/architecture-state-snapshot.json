@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-29T02:45:07.055Z",
+  "timestamp": "2026-03-29T02:53:21.627Z",
   "totalAllowlistEntries": 52,
   "categoryBreakdown": {
     "adapter": 11,
@@ -17,7 +17,7 @@
   ],
   "frozenCount": 7,
   "activeLists": 14,
-  "vmFileCount": 21,
+  "vmFileCount": 22,
   "compatReexportCount": 2,
   "activeBridges": [
     {

@@ -1,6 +1,6 @@
 # Architecture State Snapshot
 
-> Generated: 2026-03-29T02:45:07.055Z
+> Generated: 2026-03-29T02:53:21.627Z
 
 ## Allowlist Summary
 
@@ -9,7 +9,7 @@
 | 総エントリ数 | 52 |
 | アクティブリスト数 | 14 |
 | 凍結リスト数 | 7 |
-| .vm.ts ファイル数 | 21 |
+| .vm.ts ファイル数 | 22 |
 | 互換 re-export 残数 | 2 |
 
 ## Category Breakdown
