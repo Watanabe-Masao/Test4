@@ -10,10 +10,10 @@ import { renderHook, act, waitFor } from '@testing-library/react'
 // ── Mocks ────────────────────────────────────────────
 
 const mockFileSystemAdapter = {
-  isFileSystemAccessSupported: vi.fn(() => false),
-  pickDirectory: vi.fn(() => Promise.resolve(null)),
-  getStoredHandle: vi.fn(() => Promise.resolve(null)),
-  removeHandle: vi.fn(() => Promise.resolve()),
+  isFileSystemAccessSupported: vi.fn((): boolean => false),
+  pickDirectory: vi.fn((): Promise<FileSystemDirectoryHandle | null> => Promise.resolve(null)),
+  getStoredHandle: vi.fn((): Promise<FileSystemDirectoryHandle | null> => Promise.resolve(null)),
+  removeHandle: vi.fn((): Promise<void> => Promise.resolve()),
   listFiles: vi.fn(() => Promise.resolve([])),
 }
 
