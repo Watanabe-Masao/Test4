@@ -276,6 +276,8 @@ export const PurchaseDailyPivotTable = memo(function PurchaseDailyPivotTable({
               const prevPrice = getPrevPrice(row)
               const sub = subtotalMap.get(row.day)
               const cum = cumulativeRows[idx]
+              // 当期データなし日: 差異・前年比は非表示（前期データのみ表示）
+              const hasCurData = cost !== 0 || price !== 0
 
               return (
                 <Fragment key={row.day}>
@@ -292,14 +294,14 @@ export const PurchaseDailyPivotTable = memo(function PurchaseDailyPivotTable({
                     <PivotTd>
                       {prevPrice > 0 ? formatPercent(markupRateVal(prevCost, prevPrice)) : '-'}
                     </PivotTd>
-                    <DiffCell $groupStart $positive={diffColor(cost - prevCost)}>
-                      {cost - prevCost !== 0 ? fmtOrDash(cost - prevCost) : '-'}
+                    <DiffCell $groupStart $positive={hasCurData ? diffColor(cost - prevCost) : false}>
+                      {hasCurData && cost - prevCost !== 0 ? fmtOrDash(cost - prevCost) : '-'}
                     </DiffCell>
-                    <DiffCell $positive={diffColor(price - prevPrice)}>
-                      {price - prevPrice !== 0 ? fmtOrDash(price - prevPrice) : '-'}
+                    <DiffCell $positive={hasCurData ? diffColor(price - prevPrice) : false}>
+                      {hasCurData && price - prevPrice !== 0 ? fmtOrDash(price - prevPrice) : '-'}
                     </DiffCell>
-                    <PivotTd $groupStart>{yoyRate(cost, prevCost)}</PivotTd>
-                    <PivotTd>{yoyRate(price, prevPrice)}</PivotTd>
+                    <PivotTd $groupStart>{hasCurData ? yoyRate(cost, prevCost) : '-'}</PivotTd>
+                    <PivotTd>{hasCurData ? yoyRate(price, prevPrice) : '-'}</PivotTd>
                     <PivotTd $groupStart>{fmtOrDash(cum.cumCost)}</PivotTd>
                     <PivotTd>{fmtOrDash(cum.cumPrice)}</PivotTd>
                     <PivotTd $groupStart>{fmtOrDash(cum.cumPrevCost)}</PivotTd>
