@@ -1,7 +1,7 @@
 # 課題管理
 
 > 管理責任: documentation-steward ロール。
-> 更新日: 2026-03-23
+> 更新日: 2026-03-29
 
 課題を3分類し、不要なアクセスを最小化する。
 
@@ -9,50 +9,68 @@
 
 ## 1. 現在の課題（対応が必要）
 
-なし（全件解決済み）
+| # | 課題 | 優先度 | 詳細 |
+|---|---|---|---|
+| C-1 | Presentation 層のテストカバレッジ不足 | **High** | presentation/ の 243 TSX ファイルのうち約 95% にテストなし。coverage 対象外に設定されている。E2E は 5 spec のみで業務フローの検証が不足 |
+| C-2 | @deprecated ファイル数が上限超過 | Medium | KNOWN_DEPRECATED 12 件 > 上限 9 件。WASM authoritative 昇格後に estMethod.ts / discountImpact.ts を削除すれば 10 件に減少するが、さらに 1 件の削除が必要 |
 
 ## 2. 将来のリスク（いま壊れていないが放置すると問題になる）
 
 | # | リスク | 優先度 | 詳細 |
 |---|---|---|---|
-| R-1 | Application→Infrastructure 直接 import（ポート抽象不足） | Low | 4ポート新設済み（2026-03-20）: WeatherPort, StoragePersistencePort, BackupPort, FileSystemPort。許可リスト 17→16。残: DuckDB（構造的CQRS）, rawFileStore（2件）, Export（完了）, I18n（re-export）, queryProfiler（DevTools） |
-| R-4 | God コンポーネント（300行超）10 ファイル | Low | .vm.ts ViewModel 抽出を10ファイルで実施済み（2026-03-08）。CvTimeSeriesChart を3ビューに分割（690→261行、Tier 2 解消）。残: TimeSlotChart（660行 Tier 2）+ チャート500行超ファイルの .vm.ts 作成は Phase 6 で継続 |
-| R-6 | ~~FileImportService.ts（632行）~~ | **解決済み** | importValidation.ts 分離 + ImportOrchestrator 抽出 + multiMonthImport/singleMonthImport 分離により 632→194行に縮小。300行上限を大幅に下回り、3関心事（delegation/extraction/filter）は全てインポート業務に閉じているため追加分割は不要 |
-| R-7 | ~~既存コードのサブバレル移行が未完了~~ | **解決済み** | 一括移行完了（2026-03-20）: domain/models（321ファイル）, presentation/components/common（78ファイル）, application/hooks（34ファイル）+ 手動修正19ファイル。3つのガードテスト追加でメインバレル直接 import を禁止（maxViolations: 0） |
-| R-9 | ロールシステムのAI単体セッション最適化 | Medium | 9ロール×2ファイル=18ファイルの読み込みコストが高い。AI単体セッションではロールの切り替えが十分に機能していない。軽量ロール設計（ロール統合 or CLAUDE.md への集約）を検討する |
-| R-10 | チャート個別スライダーの廃止検討 | **High** | 14チャートが DualPeriodSlider で個別期間を管理→ `year - 1` + offset の日付計算を各自で独自実装。**バグの温床:** 閏年・月跨ぎ・同曜日/同日 alignment の不整合リスク。**操作感の問題:** ヘッダの期間選択とチャートの期間が乖離する。**推奨:** 期間はヘッダ（コンテキスト）で一元決定し、チャートは `ctx.currentDateRange` / `ctx.prevYearDateRange` を受け取るだけにする。DualPeriodSlider を廃止し、日付計算を ComparisonScope に閉じる。対象: BudgetVsActualChart, YoYVarianceChart, YoYWaterfallChart 他 14 ファイル。scope 変更を伴うため architecture ロールの設計判断が必要 |
-| R-8 | ~~null/0 棲み分け（カテゴリ・時間帯データ）~~ | **解決済み** | Phase 1（2026-03-16）: クエリ時フィルタリング完了。Phase 2（2026-03-20）: UI 改善完了。HierarchyItem に handledDayCount/totalDayCount を追加し、CategoryExplorerTable に「取扱日率」列を追加（100%=全日取扱: 通常色、部分取扱: caution 色、未取扱: negative 色）|
+| R-10 | チャート個別スライダーの廃止検討 | **High** | 14 チャートが DualPeriodSlider で個別期間管理 → `year - 1` + offset の日付計算を各自で独自実装。バグの温床（閏年・月跨ぎ・alignment 不整合）。推奨: 期間はヘッダで一元決定し、チャートは `ctx.currentDateRange` / `ctx.prevYearDateRange` を受け取るだけにする。architecture ロールの設計判断が必要 |
+| R-1 | Application→Infrastructure 直接 import | Low | allowlist 10 件（前回 13 から -3）。Port 型は domain/ に移動済み、adapter 実装は infrastructure/ に移動済み。残: DuckDB CQRS (4件)、rawFileStore (2件)、useI18n (1件)、Export (2件)、weatherAdapter bridge (1件)。DuckDB 4 件は構造的に不可避 |
+| R-4 | 肥大化コンポーネント（500行超） | Low | 前回 19 件 → 実質 9 件に改善。builders/Logic 等の純粋関数ファイルは対象外。残: IntegratedSalesChart (588行)、StorageManagementTab (547行)、HourlyChart (537行)、InsightTabBudget/Forecast (536/533行) 等。Phase 6 で継続 |
+| R-9 | ロールシステムの AI 単体セッション最適化 | Medium | 9 ロール × 2 ファイル = 18 ファイルの読み込みコストが高い。軽量ロール設計を検討する |
 
-## 3. 解決済みの課題（アーカイブ）
+### 解決済みリスク
+
+| # | リスク | 解決日 | 対応 |
+|---|---|---|---|
+| R-6 | FileImportService.ts (632行) | 2026-03 | 632→194行に縮小 |
+| R-7 | サブバレル移行未完了 | 2026-03 | 一括移行完了 + ガードテスト追加 |
+| R-8 | null/0 棲み分け | 2026-03 | UI 改善完了 |
+
+## 3. 次に取り組むべきこと（優先順）
+
+### 即時実行可能
+
+| # | タスク | 見積り | 効果 |
+|---|---|---|---|
+| 1 | **WASM wasm-only trial 実行**（4 engine: factorDecomposition → budgetAnalysis → forecast → grossProfit） | 各 1-2 週 | authoritative 昇格、deprecated 2 件自動削除 |
+| 2 | **P5 最終フェーズ（Bridge 卒業）**: MonthlyCalendar/DayDetailModal bridge 解消 → WidgetContext raw fields 削除 | 2-3 日 | presentationDuckdbHook 1→0、bridge allowlist 0 |
+| 3 | **timeSlot 観測テスト作成**: compare 計画策定 + timeSlotObservation.test.ts | 1 週 | 第 5 engine を promotion-candidate に |
+
+### 次スプリント
+
+| # | タスク | 見積り | 効果 |
+|---|---|---|---|
+| 4 | **R-10 設計判断**: DualPeriodSlider 廃止 + ComparisonScope 一元化の設計 | 2-4 週 | 14 ファイルの日付計算バグリスク解消 |
+| 5 | **Phase 6**: 残 500行超コンポーネントの .vm.ts 抽出 | 1-2 週 | complexity allowlist 削減 |
+| 6 | **テストカバレッジ強化**: Presentation 層のコンポーネントテスト追加、coverage 閾値 55→70% | 継続 | 品質基盤 |
+
+### 中期
+
+| # | タスク | 見積り | 効果 |
+|---|---|---|---|
+| 7 | guard カバレッジ拡大（REVIEW_ONLY_TAGS 11→5 以下） | 継続 | 機械検証範囲拡大 |
+| 8 | E2E テスト拡充（業務フローカバー） | 継続 | リグレッション防止 |
+| 9 | R-9 ロールシステム軽量化 | 設計判断後 | AI セッション効率化 |
+
+## 4. 解決済みの課題（アーカイブ）
 
 > 以下は対応完了済み。参考情報として残す。
 
 | # | 課題 | 解決日 | 対応内容 |
 |---|---|---|---|
-| S-27 | WASM 空モック（vitest import 解決の band-aid） | 2026-03-20 | 空モック（Promise.reject）を4つの型付きモック（TS passthrough）に置換。wasmEngine init が成功し state='ready' に到達。init/fallback/rollback テスト追加。CI では pkg/ 存在時に実 WASM を使用する条件分岐を vitest.config に追加。4エンジンを observation-ready → promotion-candidate に昇格 |
-| S-1 | WidgetContext からの生データ除去 | 2026-03 | `categoryTimeSales` を `ctsIndex` に置換完了 |
-| S-2 | バレルエクスポート不整合 | 2026-03 | `factorDecomposition`, `causalChain` 等をバレルに追加 |
-| S-3 | 純粋関数の重複定義 | 2026-03 | `divisor.ts` に統一、`periodFilterUtils.ts` を re-export 化 |
-| S-4 | engine-responsibility.md の責務マトリクスが不完全 | 2026-03 | 未記載の JS 計算モジュール5件を追加、両エンジン共存概念の区別表を追加 |
-| S-5 | CTS → DuckDB 統一が一部未完了 | 2026-03 | CategoryHierarchyExplorer, CategoryPerformanceChart を DuckDB 専用に変換済み（commit d3f0e0d）。ただし `application/usecases/categoryTimeSales/` は存続中（useCtsQueries.ts 経由で利用） |
-| S-6 | PWA オフライン戦略が未設計 | 2026-03 | sw.js（3層キャッシュ戦略）+ IndexedDB 永続化 + registerSW.ts で実装済み |
-| S-7 | DevTools の本番ビルド除外方針が未定義 | 2026-03 | QueryProfilePanel が `import.meta.env.DEV` ガードで本番除外済み。architectureGuard 許可リストに登録 |
-| S-8 | documentConsistency.test.ts のカバー範囲が限定的 | 2026-03 | 不変条件カタログ↔ガードテスト相互参照、エンジン責務↔実コード、CLAUDE.md 参照パス、連携プロトコル相互参照の4検証を追加（5→12テスト） |
-| S-9 | Storybook の CI 位置づけ未定義 | 2026-03 | `build-storybook` を CI 第4ステップに追加、5段階→6段階ゲートに更新 |
-| S-10 | Import/Modal 系8コンポーネントの Storybook 未カバー | 2026-03 | FileDropZone, UploadCard, ImportProgressBar, ImportWizard, ValidationModal, DiffConfirmModal, RestoreDataModal, SettingsModal の全8ストーリーを作成 |
-| S-11 | fileParseWorker.ts が未使用 | 2026-03-07 | ファイル削除済み。guards/layerBoundaryGuard.test.ts の allowlist からも除去済み |
-| S-12 | conditionResolver.ts のテスト未作成 | 2026-03-07 | `domain/calculations/__tests__/conditionResolver.test.ts` 作成済み |
-| S-13 | ESLint が storybook-static/ を lint 対象にしていた | 2026-03-07 | `eslint.config.js` の `globalIgnores` に `storybook-static` を追加 |
-| S-14 | ChartAnnotation.tsx の react-hooks/refs エラー | 2026-03-07 | floating-ui の `elements` パターンに変更し `refs` のレンダー中アクセスを回避 |
-| S-15 | hash.ts の配置ミス（Infrastructure→Application 逆依存） | 2026-03-08 | `application/services/hash.ts`（re-export）を削除。全 import を `@/domain/utilities/hash` に統一 |
-| S-16 | MetricId レジストリの数値不整合 | 2026-03-08 | コード上の MetricId は 50 件。CLAUDE.md・metric-id-registry.md・implementation-plan の誤記（81件）を修正 |
-| S-17 | CSV ロジック二重実装 | 2026-03-08 | `domain/utilities/csv.ts` に一元化。`csvExporter.ts` は re-export、`reportExportWorker.ts` は直接 import に変更。重複コード削除 |
-| S-18 | サイレントエラー握り潰し | 2026-03-08 | `IndexedDBStore.test.ts` の空 `.catch(() => {})` に `console.warn` を追加。他34箇所は適切にハンドリング済みを確認 |
-| S-19 | api.md の Hook 構成が古い | 2026-03-08 | api.md セクション4は既に12ファイル分割構成を正しく記載。`useDuckDBQuery.ts` の後方互換 re-export も記載済み |
-| S-20 | DashboardPage.styles.ts（1,272行） | 2026-03-08 | 5分割完了（バレル re-export で後方互換維持）。現在19行のバレルファイル |
-| S-21 | P→I 違反: useUnifiedWidgetContext.ts | 2026-03-16 | `useStoreCostPriceQuery` hook を `application/hooks/duckdb/` に抽出。infrastructure 直接 import を除去。architectureGuard allowlist から削除 |
-| S-22 | P→I 違反: ConditionSummaryEnhanced.tsx | 2026-03-16 | `useStoreDailyMarkupRateQuery` hook を `application/hooks/duckdb/` に抽出。60行超のインライン query+useEffect を hook 呼出+useMemo に置換。allowlist から削除 |
-| S-23 | 禁止事項#10: departmentKpi.ts SQL 率計算 | 2026-03-16 | SQL を `SUM(rate * sales)` → weighted sum（分子のみ）に変更。率の算出は `useDeptKpiQueries.ts` の `resolveSummary()` で `safeDivide` を使い domain 層に委譲 |
-| S-24 | ドメインのマジックナンバー定数化 | 2026-03-16 | `calculationConstants.ts` に12定数を集約。forecast.ts, trendAnalysis.ts, correlation.ts, ComparisonScope.ts, PeriodSelection.ts, dowGapAnalysis.ts, advancedForecast.ts, formatting/index.ts の全ハードコード値を名前付き定数に置換 |
-| S-25 | Silent error handler: DataManagementSidebar.tsx | 2026-03-16 | `autoImport.scanNow().catch(() => {})` のエラー握り潰しを修正。成功時/失敗時それぞれトースト表示に変更 |
-| S-26 | 凍結 allowlist 7件解消 | 2026-03-16 | Phase 1: useJsAggregationQueries / useCtsQueries を各2分割（barrel化）。Phase 2: useDuckDB / useAutoImport を useReducer 化（reducer 純粋関数を分離）。Phase 3: purchaseComparisonBuilders を3分割（barrel化）。Phase 4: CvTimeSeriesChart を3ビューに分割（690→261行）、useMetricBreakdown の useMemo 統合（7→6）。結果: useMemo allowlist 4→1、useState allowlist 5→2、行数 allowlist 5→2、R12 Tier 2 から CvTimeSeriesChart 除去 |
+| S-27 | WASM 空モック | 2026-03-20 | 型付きモックに置換、4 engine を promotion-candidate に昇格 |
+| S-1〜S-26 | 各種課題 | 2026-03 | 全件解決済み（詳細は前回版を参照） |
+| — | PageMeta 正本化 | 2026-03-29 | PAGE_REGISTRY 導入、7 箇所の断片化を統一 |
+| — | AsyncState<T> 統一 | 2026-03-29 | error 型統一、adapter 付き共通型 |
+| — | usePersistence Provider 化 | 2026-03-29 | module-scope state → Context |
+| — | useAutoImport timing 修正 | 2026-03-29 | processed フラグを成功後に移動 |
+| — | Port 型 domain/ 移動 | 2026-03-29 | application/ports/ 全廃、6 Port を domain/ports/ に移動 |
+| — | Adapter infrastructure/ 移動 | 2026-03-29 | 4 adapter 実装を正しい層に配置、allowlist 13→10 |
+| — | AdapterProvider DI | 2026-03-29 | 6 hook を Context 経由に切替 |
+| — | Presentation 層責務分割 | 2026-03-29 | 10 ファイルの計算ロジック・option builder 抽出 |
+| — | Recharts 残存清掃 | 2026-03-29 | 全チャート ECharts 移行完了を確認、コメント・README 更新 |
