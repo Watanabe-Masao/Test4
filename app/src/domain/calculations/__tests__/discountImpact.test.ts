@@ -1,8 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import {
-  calculateDiscountImpactWithStatus,
-  calculateDiscountImpact,
-} from '../discountImpact'
+import { calculateDiscountImpactWithStatus, calculateDiscountImpact } from '../discountImpact'
 
 describe('calculateDiscountImpactWithStatus', () => {
   it('正常: 売変ロス原価を計算', () => {
