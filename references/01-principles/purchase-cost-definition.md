@@ -237,10 +237,15 @@ readPurchaseCost() — 3つの独立正本を統合して返す（storeId × day
 
 ## 7. 欠損時の扱い
 
+- **ポリシー:** `missingPolicy: 'zero'` — 欠損は 0 として集計（スキップしない）
 - DuckDB クエリ: `COALESCE(SUM(cost), 0)` — NULL は 0
 - JS 集計: `?? 0` — undefined/null は 0
-- 欠損日: 0 として集計（スキップしない）
-- `missingDayCount` で欠損日数を記録し、監査可能にする
+- **正本別欠損日数** (`missingDays`): 3正本それぞれと複合で欠損日を記録
+  - `purchase`: 通常仕入の欠損日数
+  - `deliverySales`: 売上納品の欠損日数
+  - `transfers`: 移動原価の欠損日数
+  - `composite`: 3正本全てにデータがない日数
+- これにより「通常仕入は0だが花だけある日」を「データ欠損」と区別可能
 
 ## 8. ガード条件
 

@@ -63,7 +63,16 @@ function makeMultiStoreModel(): PurchaseCostReadModelType {
     grandTotalPrice: 840_000,
     inventoryPurchaseCost: 600_000,
     inventoryPurchasePrice: 770_000,
-    meta: { missingDayCount: 0, dataVersion: 1 },
+    meta: {
+      missingPolicy: 'zero' as const,
+      rounding: {
+        amountMethod: 'round' as const,
+        amountPrecision: 0 as const,
+        rateMethod: 'raw' as const,
+      },
+      missingDays: { purchase: 0, deliverySales: 0, transfers: 0, composite: 0 },
+      dataVersion: 1,
+    },
   }
 }
 
@@ -102,7 +111,16 @@ function makeTestModel(overrides?: Partial<PurchaseCostReadModelType>): Purchase
     grandTotalPrice: purchase.totalPrice + deliverySales.totalPrice + transfers.totalPrice,
     inventoryPurchaseCost: purchase.totalCost + transfers.totalCost,
     inventoryPurchasePrice: purchase.totalPrice + transfers.totalPrice,
-    meta: { missingDayCount: 0, dataVersion: 1 },
+    meta: {
+      missingPolicy: 'zero' as const,
+      rounding: {
+        amountMethod: 'round' as const,
+        amountPrecision: 0 as const,
+        rateMethod: 'raw' as const,
+      },
+      missingDays: { purchase: 0, deliverySales: 0, transfers: 0, composite: 0 },
+      dataVersion: 1,
+    },
     ...overrides,
   }
 }
