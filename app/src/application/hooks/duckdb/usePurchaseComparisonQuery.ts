@@ -1,14 +1,6 @@
 /**
- * 仕入比較クエリフック
- *
- * 当期・比較期の仕入原価を複合正本（readPurchaseCost）から取得し、
- * 前年比較データを構築する。
- *
- * Phase 1: KPI 先行表示（queryPurchaseTotal 等で高速表示）
- * Phase 2: 詳細クエリ（purchaseCostHandler + 残存クエリ）→ KPI を正本で上書き
- *
- * @see readPurchaseCost.ts — 仕入原価の唯一の正本 read
- * @see purchase-cost-definition.md — 正本定義
+ * 仕入比較クエリフック — Phase 1: KPI先行表示 → Phase 2: 複合正本で上書き
+ * @see readPurchaseCost.ts, purchase-cost-definition.md
  */
 import { useState, useEffect, useRef, useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
