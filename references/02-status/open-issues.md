@@ -38,7 +38,7 @@
 | # | タスク | 見積り | 効果 |
 |---|---|---|---|
 | 1 | **WASM wasm-only trial 実行**（4 engine: factorDecomposition → budgetAnalysis → forecast → grossProfit） | 各 1-2 週 | authoritative 昇格、deprecated 2 件自動削除 |
-| 2 | **P5 最終フェーズ（Bridge 卒業）**: MonthlyCalendar/DayDetailModal bridge 解消 → WidgetContext raw fields 削除 | 2-3 日 | presentationDuckdbHook 1→0、bridge allowlist 0 |
+| ~~2~~ | ~~P5 Bridge 卒業~~ | — | **解決済み**: presentationDuckdbHook 0件、bridge 0件（2026-03-29 確認） |
 | 3 | **timeSlot 観測テスト作成**: compare 計画策定 + timeSlotObservation.test.ts | 1 週 | 第 5 engine を promotion-candidate に |
 
 ### 次スプリント
