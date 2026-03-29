@@ -156,7 +156,11 @@ readPurchaseCost() → PurchaseCostReadModel
 - ~~`queryPurchaseBySupplier`~~ → **完全廃止**（`PurchaseSupplierRow` 型も削除）
   - `querySupplierNames` を新設（名前解決専用、SUM なし）
   - `buildSupplierAndCategoryData` を ReadModel ベースに全面書換え
-- `queryPurchaseTotal` → Phase 1 KPI 先行表示専用として維持（正本ではないことを明記済み）
+- ~~`queryPurchaseTotal`~~ → **完全廃止**（`PurchaseTotalRow` 型も削除）
+- ~~`querySpecialSalesTotal`~~ → **完全廃止**
+- ~~`queryTransfersTotal`~~ → **完全廃止**
+- ~~`computeKpiTotals`~~ → **完全廃止**
+- 2段階表示（暫定KPI→正本上書き）を廃止。単一フェーズ×単一正本に統合
 
 ---
 
