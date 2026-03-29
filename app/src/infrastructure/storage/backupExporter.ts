@@ -24,6 +24,7 @@
 import type { DataRepository } from '@/domain/repositories'
 import type { ImportHistoryEntry, RawDataManifest } from '@/domain/models/analysis'
 import type { ImportedData, AppSettings } from '@/domain/models/storeTypes'
+import { z } from 'zod'
 import { writeFile, pruneOldFiles } from './folderAccess'
 import { rawFileStore } from './rawFileStore'
 import {
@@ -200,17 +201,26 @@ class BackupExporter {
 
     const backupRaw = JSON.parse(text)
 
-    // 最低限の構造検証（safeParse — 周辺 I/O は fail fast しない）
-    if (
-      !backupRaw ||
-      typeof backupRaw !== 'object' ||
-      !backupRaw.meta ||
-      !Array.isArray(backupRaw.months)
-    ) {
+    // Zod safeParse による構造検証（周辺 I/O は fail fast しない）
+    const BackupFileSchema = z.object({
+      meta: z.object({
+        formatVersion: z.number(),
+        createdAt: z.string(),
+        appVersion: z.string(),
+        months: z.array(z.object({ year: z.number(), month: z.number() })),
+        checksum: z.string().optional(),
+      }),
+      months: z.array(z.object({ year: z.number(), month: z.number() }).passthrough()),
+      appSettings: z.unknown().optional(),
+      rawManifest: z.array(z.unknown()).optional(),
+    })
+    const validated = BackupFileSchema.safeParse(backupRaw)
+    if (!validated.success) {
+      console.warn('[backupExporter] restore schema mismatch:', validated.error.message)
       return {
         monthsImported: 0,
         monthsSkipped: 0,
-        errors: ['Invalid backup file structure: missing meta or months'],
+        errors: [`Invalid backup file structure: ${validated.error.message.slice(0, 200)}`],
         importHistoryRestored: 0,
         rawManifestRestored: 0,
       }
@@ -330,8 +340,20 @@ class BackupExporter {
         text = await file.text()
       }
       const backupRaw = JSON.parse(text)
-      if (!backupRaw || typeof backupRaw !== 'object' || !backupRaw.meta) return null
-      return (backupRaw as BackupFile).meta ?? null
+      const MetaSchema = z
+        .object({
+          meta: z.object({
+            formatVersion: z.number(),
+            createdAt: z.string(),
+            appVersion: z.string(),
+            months: z.array(z.object({ year: z.number(), month: z.number() })),
+            checksum: z.string().optional(),
+          }),
+        })
+        .passthrough()
+      const validated = MetaSchema.safeParse(backupRaw)
+      if (!validated.success) return null
+      return validated.data.meta
     } catch {
       return null
     }
