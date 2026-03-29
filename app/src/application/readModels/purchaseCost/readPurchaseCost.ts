@@ -42,11 +42,18 @@ function sumCostPrice(rows: readonly { totalCost: number; totalPrice: number }[]
 }
 
 function buildPurchaseCanonical(
-  rows: readonly { day: number; supplierCode: string; totalCost: number; totalPrice: number }[],
+  rows: readonly {
+    storeId: string
+    day: number
+    supplierCode: string
+    totalCost: number
+    totalPrice: number
+  }[],
 ): PurchaseCanonical {
   const { cost, price } = sumCostPrice(rows)
   return {
     rows: rows.map((r) => ({
+      storeId: r.storeId,
       day: r.day,
       supplierCode: r.supplierCode,
       cost: r.totalCost,
@@ -58,11 +65,18 @@ function buildPurchaseCanonical(
 }
 
 function buildCategoryCanonical(
-  rows: readonly { day: number; categoryKey: string; totalCost: number; totalPrice: number }[],
+  rows: readonly {
+    storeId: string
+    day: number
+    categoryKey: string
+    totalCost: number
+    totalPrice: number
+  }[],
 ): DeliverySalesCanonical | TransfersCanonical {
   const { cost, price } = sumCostPrice(rows)
   return {
     rows: rows.map((r) => ({
+      storeId: r.storeId,
       day: r.day,
       categoryKey: r.categoryKey,
       cost: r.totalCost,
@@ -100,10 +114,15 @@ export interface PurchaseCostOutput {
 // ── ReadModel → 既存ビルダー用の変換ヘルパー ──
 
 /** ReadModel の purchase.rows を既存 PurchaseDailySupplierRow 形式に変換 */
-export function toPurchaseDailySupplierRows(
-  model: PurchaseCostReadModel,
-): readonly { day: number; supplierCode: string; totalCost: number; totalPrice: number }[] {
+export function toPurchaseDailySupplierRows(model: PurchaseCostReadModel): readonly {
+  storeId: string
+  day: number
+  supplierCode: string
+  totalCost: number
+  totalPrice: number
+}[] {
   return model.purchase.rows.map((r) => ({
+    storeId: r.storeId,
     day: r.day,
     supplierCode: r.supplierCode,
     totalCost: r.cost,
@@ -111,11 +130,73 @@ export function toPurchaseDailySupplierRows(
   }))
 }
 
+/** ReadModel から店舗別の仕入原価合計を導出する */
+export function toStoreCostRows(
+  model: PurchaseCostReadModel,
+): readonly { storeId: string; totalCost: number; totalPrice: number }[] {
+  const storeMap = new Map<string, { cost: number; price: number }>()
+  const add = (storeId: string, cost: number, price: number) => {
+    const existing = storeMap.get(storeId)
+    if (existing) {
+      existing.cost += cost
+      existing.price += price
+    } else {
+      storeMap.set(storeId, { cost, price })
+    }
+  }
+  for (const r of model.purchase.rows) add(r.storeId, r.cost, r.price)
+  for (const r of model.deliverySales.rows) add(r.storeId, r.cost, r.price)
+  for (const r of model.transfers.rows) add(r.storeId, r.cost, r.price)
+
+  return Array.from(storeMap.entries())
+    .map(([storeId, { cost, price }]) => ({ storeId, totalCost: cost, totalPrice: price }))
+    .sort((a, b) => b.totalCost - a.totalCost)
+}
+
+/**
+ * ReadModel の3正本を day で集約し、日別の totalCost/totalPrice を導出する。
+ * 売上 vs 仕入原価チャート用。全正本（通常仕入+売上納品+移動原価）を含む。
+ */
+export function toDailyCostRows(
+  model: PurchaseCostReadModel,
+): readonly { day: number; totalCost: number; totalPrice: number }[] {
+  const dayMap = new Map<number, { cost: number; price: number }>()
+  const add = (day: number, cost: number, price: number) => {
+    const existing = dayMap.get(day)
+    if (existing) {
+      existing.cost += cost
+      existing.price += price
+    } else {
+      dayMap.set(day, { cost, price })
+    }
+  }
+  for (const r of model.purchase.rows) add(r.day, r.cost, r.price)
+  for (const r of model.deliverySales.rows) add(r.day, r.cost, r.price)
+  for (const r of model.transfers.rows) add(r.day, r.cost, r.price)
+
+  return Array.from(dayMap.entries())
+    .sort(([a], [b]) => a - b)
+    .map(([day, { cost, price }]) => ({ day, totalCost: cost, totalPrice: price }))
+}
+
 /** ReadModel の deliverySales/transfers rows を既存 CategoryDailyRow 形式に変換 */
 export function toCategoryDailyRows(canonical: {
-  readonly rows: readonly { day: number; categoryKey: string; cost: number; price: number }[]
-}): readonly { day: number; categoryKey: string; totalCost: number; totalPrice: number }[] {
+  readonly rows: readonly {
+    storeId: string
+    day: number
+    categoryKey: string
+    cost: number
+    price: number
+  }[]
+}): readonly {
+  storeId: string
+  day: number
+  categoryKey: string
+  totalCost: number
+  totalPrice: number
+}[] {
   return canonical.rows.map((r) => ({
+    storeId: r.storeId,
     day: r.day,
     categoryKey: r.categoryKey,
     totalCost: r.cost,

@@ -156,7 +156,33 @@ readPurchaseCost() → PurchaseCostReadModel
 - ~~`queryPurchaseBySupplier`~~ → **完全廃止**（`PurchaseSupplierRow` 型も削除）
   - `querySupplierNames` を新設（名前解決専用、SUM なし）
   - `buildSupplierAndCategoryData` を ReadModel ベースに全面書換え
-- `queryPurchaseTotal` → Phase 1 KPI 先行表示専用として維持（正本ではないことを明記済み）
+- ~~`queryPurchaseTotal`~~ → **完全廃止**（`PurchaseTotalRow` 型も削除）
+- ~~`querySpecialSalesTotal`~~ → **完全廃止**
+- ~~`queryTransfersTotal`~~ → **完全廃止**
+- ~~`computeKpiTotals`~~ → **完全廃止**
+- 2段階表示（暫定KPI→正本上書き）を廃止。単一フェーズ×単一正本に統合
+
+#### 店舗別正本化（完了）
+
+- ReadModel に storeId 粒度を追加（全3クエリの GROUP BY に store_id 追加）
+- ~~`queryPurchaseByStore`~~ → **完全廃止**（`PurchaseStoreRow` 型も削除）
+  - `toStoreCostRows(ReadModel)` で3正本を storeId 集約して店舗別合計を導出
+- ~~`queryPurchaseDaily`~~ → **完全廃止**（`PurchaseDailyRow` 型も削除）
+  - `toDailyCostRows(ReadModel)` で3正本を day 集約して日別合計を導出
+- 店舗別テスト追加（5テスト）: storeId 集約・総和=grand・相殺ゼロ・日別集約・日別総和=grand
+- usePurchaseComparisonQuery 並列クエリ: 12本→8本に削減
+
+#### 廃止した旧クエリ・型の全一覧
+
+| 廃止 | 代替 |
+|------|------|
+| `queryPurchaseTotal` + `PurchaseTotalRow` | ReadModel.grandTotalCost |
+| `queryPurchaseBySupplier` + `PurchaseSupplierRow` | querySupplierNames + ReadModel |
+| `querySpecialSalesTotal` | ReadModel.deliverySales |
+| `queryTransfersTotal` | ReadModel.transfers |
+| `computeKpiTotals` | buildKpi(ReadModel.grandTotalCost) |
+| `queryPurchaseDaily` + `PurchaseDailyRow` | toDailyCostRows(ReadModel) |
+| `queryPurchaseByStore` + `PurchaseStoreRow` | toStoreCostRows(ReadModel) |
 
 ---
 
