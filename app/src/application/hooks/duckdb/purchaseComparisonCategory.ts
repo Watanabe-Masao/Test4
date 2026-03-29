@@ -20,7 +20,6 @@ import {
   categoryColor,
   markupRate,
   SPECIAL_SALES_CATEGORY_MAP,
-  TRANSFERS_CATEGORY_MAP,
   type KpiTotals,
 } from './purchaseComparisonKpi'
 
@@ -183,21 +182,30 @@ export function buildSupplierAndCategoryData(
     )
   }
 
+  // 移動原価は全方向（IN + OUT）を含め、同一カテゴリにネット集約する。
+  // OUT はマイナスの仕入として加算される（purchase-cost-definition.md §4）。
   const curTransMap = new Map(curTransfersTotal.map((r) => [r.categoryKey, r]))
   const prevTransMap = new Map(prevTransfersTotal.map((r) => [r.categoryKey, r]))
-  for (const direction of ['interStoreIn', 'interDeptIn'] as const) {
-    const catId = TRANSFERS_CATEGORY_MAP[direction]
-    if (!catId) continue
-    const cur = curTransMap.get(direction)
-    const prev = prevTransMap.get(direction)
-    addExtraCategory(
-      direction,
-      catId,
-      cur?.totalCost ?? 0,
-      cur?.totalPrice ?? 0,
-      prev?.totalCost ?? 0,
-      prev?.totalPrice ?? 0,
-    )
+  const transferPairs: ReadonlyArray<{
+    inKey: string
+    outKey: string
+    catId: PresetCategoryId
+  }> = [
+    { inKey: 'interStoreIn', outKey: 'interStoreOut', catId: 'inter_store' },
+    { inKey: 'interDeptIn', outKey: 'interDeptOut', catId: 'inter_department' },
+  ]
+  for (const { inKey, outKey, catId } of transferPairs) {
+    const curIn = curTransMap.get(inKey)
+    const curOut = curTransMap.get(outKey)
+    const prevIn = prevTransMap.get(inKey)
+    const prevOut = prevTransMap.get(outKey)
+    const curC = (curIn?.totalCost ?? 0) + (curOut?.totalCost ?? 0)
+    const curP = (curIn?.totalPrice ?? 0) + (curOut?.totalPrice ?? 0)
+    const prevC = (prevIn?.totalCost ?? 0) + (prevOut?.totalCost ?? 0)
+    const prevP = (prevIn?.totalPrice ?? 0) + (prevOut?.totalPrice ?? 0)
+    if (curC !== 0 || curP !== 0 || prevC !== 0 || prevP !== 0) {
+      addExtraCategory(inKey, catId, curC, curP, prevC, prevP)
+    }
   }
 
   // ── CategoryComparisonRow 構築 ──

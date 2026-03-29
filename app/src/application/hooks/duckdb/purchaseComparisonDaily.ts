@@ -125,10 +125,10 @@ export function buildDailyPivot(
     const catId = SPECIAL_SALES_CATEGORY_MAP[row.categoryKey]
     if (catId) addCur(ensureDay(row.day), catId, row.totalCost, row.totalPrice)
   }
+  // 移動原価は全方向（IN + OUT）を含める（purchase-cost-definition.md §4）
   for (const row of curTransfersDaily) {
     const catId = TRANSFERS_CATEGORY_MAP[row.categoryKey]
     if (!catId) continue
-    if (row.categoryKey !== 'interStoreIn' && row.categoryKey !== 'interDeptIn') continue
     addCur(ensureDay(row.day), catId, row.totalCost, row.totalPrice)
   }
 
@@ -141,10 +141,10 @@ export function buildDailyPivot(
     const catId = SPECIAL_SALES_CATEGORY_MAP[row.categoryKey]
     if (catId) addPrev(ensureDay(alignPrevDay(row.day)), catId, row.totalCost, row.totalPrice)
   }
+  // 移動原価は全方向（IN + OUT）を含める（purchase-cost-definition.md §4）
   for (const row of prevTransfersDaily) {
     const catId = TRANSFERS_CATEGORY_MAP[row.categoryKey]
     if (!catId) continue
-    if (row.categoryKey !== 'interStoreIn' && row.categoryKey !== 'interDeptIn') continue
     addPrev(ensureDay(alignPrevDay(row.day)), catId, row.totalCost, row.totalPrice)
   }
 

@@ -182,10 +182,10 @@ describe('purchaseComparisonBuilders', () => {
       expect(result.rows[0].totalCost).toBe(200)
     })
 
-    it('includes inter-store transfers (In only)', () => {
+    it('includes inter-store transfers (IN + OUT, net value)', () => {
       const curTransfers = [
         { day: 3, categoryKey: 'interStoreIn', totalCost: 150, totalPrice: 180 },
-        { day: 3, categoryKey: 'interStoreOut', totalCost: 100, totalPrice: 120 },
+        { day: 3, categoryKey: 'interStoreOut', totalCost: -100, totalPrice: -120 },
       ]
       const storeCat: CategoryComparisonRow = {
         ...cat,
@@ -196,8 +196,8 @@ describe('purchaseComparisonBuilders', () => {
 
       const result = buildDailyPivot([], [], [], [], curTransfers, [], [storeCat], {}, 2025, 3)
       expect(result.rows).toHaveLength(1)
-      // Only 'interStoreIn' should be counted
-      expect(result.rows[0].totalCost).toBe(150)
+      // IN + OUT の両方を含める（purchase-cost-definition.md §4）
+      expect(result.rows[0].totalCost).toBe(150 + -100)
     })
 
     it('computes dayOfWeek correctly', () => {

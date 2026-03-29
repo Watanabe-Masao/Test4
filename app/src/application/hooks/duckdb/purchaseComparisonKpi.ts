@@ -104,17 +104,16 @@ export function computeKpiTotals(
     allPrevCost += r.totalCost
     allPrevPrice += r.totalPrice
   }
+  // 移動原価は全方向（IN + OUT）を含める。
+  // IN のみだと二重計上が発生する（purchase-cost-definition.md §4）。
+  // OUT はマイナスの仕入として商品+原価の移動を表す。
   for (const r of curTransfersTotal) {
-    if (r.categoryKey === 'interStoreIn' || r.categoryKey === 'interDeptIn') {
-      allCurCost += r.totalCost
-      allCurPrice += r.totalPrice
-    }
+    allCurCost += r.totalCost
+    allCurPrice += r.totalPrice
   }
   for (const r of prevTransfersTotal) {
-    if (r.categoryKey === 'interStoreIn' || r.categoryKey === 'interDeptIn') {
-      allPrevCost += r.totalCost
-      allPrevPrice += r.totalPrice
-    }
+    allPrevCost += r.totalCost
+    allPrevPrice += r.totalPrice
   }
   return { allCurCost, allCurPrice, allPrevCost, allPrevPrice }
 }
