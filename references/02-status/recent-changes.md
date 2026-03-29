@@ -4,19 +4,41 @@
 
 ## 仕入原価正本化 + 取得経路統合（2026-03-29）
 
-仕入原価がページによって異なる値を示す問題を解決:
+仕入原価がページによって異なる値を示す問題を解決。Phase 0 全タスク完了。
+
+### バグ修正
 
 1. **移動原価 IN のみフィルタ是正** — 仕入分析の3箇所で transfers を IN のみフィルタしていたため二重計上が発生。全方向(IN+OUT)に修正
-2. **複合正本構造を設計** — 3独立正本（通常仕入・売上納品・移動原価）を組み合わせて総仕入原価を構成。推定法は売上納品を除外して参照可能
-3. **Zod 正本契約を定義** — `PurchaseCostReadModel` で runtime 検証。3正本 + 導出値(grandTotalCost, inventoryPurchaseCost) + メタデータ
-4. **ウォーターフォール売上修正** — CTS 依存から daily(StoreResult)正本に変更。CTS 不足時の警告追加
-5. **仕入分析バグ修正** — cappedPrevDateTo 月跨ぎバグ、ピボット未来日差異非表示、取得経路一元化(KPI再計算)
-6. **天気ファイル移動** — domain/calculations/ → domain/weather/ へ。NON_CALCULATION_FILES=0 達成
-7. **定義書・計画書** — purchase-cost-definition.md(正本定義)、purchase-cost-unification-plan.md(実施計画)
+2. **ウォーターフォール売上修正** — CTS 依存から daily(StoreResult)正本に変更。CTS 不足時の警告追加
+3. **仕入分析バグ修正** — cappedPrevDateTo 月跨ぎバグ、ピボット未来日差異非表示
+
+### 正本化（Phase 0 完了）
+
+4. **複合正本構造** — 3独立正本（通常仕入・売上納品・移動原価）を組み合わせて総仕入原価を構成
+5. **Zod 正本契約** — `PurchaseCostReadModel` で runtime 検証（fail fast）。3正本 + grandTotalCost(在庫法/仕入分析) + inventoryPurchaseCost(推定法)
+6. **唯一の read 関数** — `readPurchaseCost.ts`（QueryHandler）で3正本を並列取得→統合→parse
+7. **facade hook** — `usePurchaseCost.ts` で useQueryWithHandler 経由の統一入口
+8. **既存切替** — `usePurchaseComparisonQuery` が `purchaseCostHandler` を使用。旧経路完全除去
+
+### 構造防御
+
+9. **取得経路ガード** — `purchaseCostPathGuard.test.ts`（9テスト、4層防御: import/集計/正本一貫性/手続き保証）
+10. **冗長クエリ廃止** — `queryPurchaseBySupplier` 完全削除。`querySupplierNames`（名前解決専用）を新設。`buildSupplierAndCategoryData` を ReadModel ベースに全面書換え
+11. **天気ファイル移動** — domain/calculations/ → domain/weather/ へ。NON_CALCULATION_FILES=0 達成
+
+### 数値成果
+
+| 指標 | 変更 |
+|------|------|
+| ガードテスト | 158 → **167**（+9: 仕入原価取得経路ガード 4層防御） |
+| 一貫性テスト | **18** パス（ピボット/KPI 一致不変条件） |
+| 取得経路 | 3経路 → **1経路**（readPurchaseCost に統合） |
+| 移動原価フィルタ | IN のみ → **全方向**（二重計上解消） |
 
 ### 関連文書
 - `references/01-principles/purchase-cost-definition.md` — 仕入原価の正本定義
 - `references/03-guides/purchase-cost-unification-plan.md` — 取得経路統合計画
+- `app/src/application/readModels/purchaseCost/` — 複合正本実装
 
 ---
 

@@ -7,7 +7,7 @@
  */
 import { describe, it, expect, vi } from 'vitest'
 import {
-  queryPurchaseBySupplier,
+  querySupplierNames,
   queryPurchaseTotal,
   queryPurchaseDaily,
   queryPurchaseDailyBySupplier,
@@ -38,23 +38,17 @@ const storeIds = ['S001', 'S002']
 
 // ── 既存クエリ ──
 
-describe('queryPurchaseBySupplier', () => {
-  it('purchase テーブルから取引先別に集約する SQL を生成する', async () => {
+describe('querySupplierNames', () => {
+  it('purchase テーブルから取引先コード・名前の DISTINCT を取得する SQL を生成する', async () => {
     const conn = makeMockConn()
-    await queryPurchaseBySupplier(conn as never, dateFrom, dateTo, storeIds)
+    await querySupplierNames(conn as never, dateFrom, dateTo, storeIds)
     const sql = conn.getCapturedSql()[0]
     expect(sql).toContain('FROM purchase')
+    expect(sql).toContain('DISTINCT')
     expect(sql).toContain("date_key BETWEEN '2026-02-01' AND '2026-02-28'")
-    expect(sql).toContain('GROUP BY supplier_code, supplier_name')
     expect(sql).toContain("store_id IN ('S001', 'S002')")
-  })
-
-  it('storeIds なしでも動作する', async () => {
-    const conn = makeMockConn()
-    await queryPurchaseBySupplier(conn as never, dateFrom, dateTo)
-    const sql = conn.getCapturedSql()[0]
-    expect(sql).toContain('FROM purchase')
-    expect(sql).not.toContain('store_id IN')
+    // cost/price の集計がないこと（名前解決専用）
+    expect(sql).not.toContain('SUM(cost)')
   })
 })
 

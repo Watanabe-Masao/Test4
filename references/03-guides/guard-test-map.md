@@ -24,6 +24,10 @@
 | `app/src/test/comparisonMigrationGuard.test.ts` | architecture | 9件 | 旧 day/offset 比較パターン禁止、ComparisonFrame 新規使用禁止、dailyMapping 独自変換禁止 |
 | `app/src/domain/models/__tests__/ComparisonScopeInvariant.test.ts` | invariant-guardian | 3件 | ComparisonScope 意味論（候補窓、位置ベース、1:1対応） |
 | `app/src/application/comparison/__tests__/sameDowPoint.test.ts` | invariant-guardian | 7件 | SameDowPoint sourceDate 保持、月跨ぎ・年跨ぎ、合計整合性 |
+| `app/src/test/guards/purchaseCostPathGuard.test.ts` | architecture | 5件 | 仕入原価取得経路3層防御（import禁止・集計逸脱禁止・正本一貫性） |
+| `app/src/application/hooks/duckdb/usePurchaseComparisonQuery.test.ts` | invariant-guardian | 18件 | ピボット一貫性不変条件、KPI-ピボット値一致、buildDailyPivot 動作検証 |
+| `app/src/application/readModels/purchaseCost/readPurchaseCost.test.ts` | invariant-guardian | 16件 | 仕入原価プロセス正当性（正本値・計算式・使用方法・変換ヘルパー） |
+| `app/src/test/guards/purchaseCostImportGuard.test.ts` | architecture | 15件 | インポートプロセス正当性（ファイル判別・パース・DuckDB格納・正本化パス） |
 
 ## ルール → テスト対応
 
