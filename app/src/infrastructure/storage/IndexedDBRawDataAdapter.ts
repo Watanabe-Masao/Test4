@@ -7,7 +7,18 @@
 import type { RawDataPort } from '@/domain/ports'
 import type { RawFileRecord, RawDataManifest } from '@/domain/models/analysis'
 import type { DataType } from '@/domain/models/storeTypes'
+import { z } from 'zod'
 import { rawFileStore } from './rawFileStore'
+
+/** rawFileStore エントリの runtime 検証スキーマ */
+const RawFileEntrySchema = z.object({
+  filename: z.string(),
+  relativePath: z.string().optional(),
+  dataType: z.string(),
+  hash: z.string(),
+  size: z.number(),
+  savedAt: z.string(),
+})
 
 export class IndexedDBRawDataAdapter implements RawDataPort {
   async saveRawFile(
@@ -32,6 +43,12 @@ export class IndexedDBRawDataAdapter implements RawDataPort {
   async getRawManifest(year: number, month: number): Promise<RawDataManifest | null> {
     const files = await rawFileStore.listFiles(year, month)
     if (files.length === 0) return null
+    // runtime 検証（safeParse — IndexedDB からの復元は fail fast しない）
+    const validated = z.array(RawFileEntrySchema).safeParse(files)
+    if (!validated.success) {
+      console.warn('[IndexedDBRawDataAdapter] manifest schema mismatch:', validated.error.message)
+      return null
+    }
     return {
       year,
       month,

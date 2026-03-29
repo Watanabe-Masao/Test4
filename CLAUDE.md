@@ -355,6 +355,18 @@ CQRS + 契約ハイブリッド設計により、既存4層モデルの内側に
 詳細は `references/03-guides/allowlist-management.md` を参照。
 即差し戻し条件は `roles/staff/review-gate/SKILL.md` を参照。
 
+## 仕入原価の正本ルール
+
+詳細は `references/01-principles/purchase-cost-definition.md` を参照。
+実施計画は `references/03-guides/purchase-cost-unification-plan.md` を参照。
+
+- **正本:** `readPurchaseCost()` が唯一の read 関数。3独立正本（通常仕入・売上納品・移動原価）を `PurchaseCostReadModel` として構築
+- **UI 層の入口:** `usePurchaseCost()` を標準入口とする
+- **Application 層:** `purchaseCostHandler` / `readPurchaseCost()` の直接使用を許容
+- **禁止:** 旧クエリ（queryPurchaseTotal 等7関数）は廃止済み。復活禁止
+- **移動原価:** IN + OUT の全方向を含める（IN のみは二重計上になるため禁止）
+- **ガード:** `purchaseCostPathGuard.test.ts`（4層9テスト）+ `purchaseCostImportGuard.test.ts`（15テスト）で保証
+
 ## 直近の主要変更（#673-#730+）
 
 詳細は `references/02-status/recent-changes.md` を参照。

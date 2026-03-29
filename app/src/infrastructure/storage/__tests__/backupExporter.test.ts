@@ -250,7 +250,7 @@ describe('backupExporter', () => {
 
     it('不正なバージョンのバックアップはエラーを返すこと', async () => {
       const badBackup = JSON.stringify({
-        meta: { formatVersion: 999 },
+        meta: { formatVersion: 999, createdAt: '2025-01-01', appVersion: '1.0', months: [] },
         months: [],
       })
       const blob = new Blob([badBackup], { type: 'application/json' })
@@ -280,6 +280,57 @@ describe('backupExporter', () => {
       const blob = new Blob(['not json'], { type: 'application/json' })
       const meta = await backupExporter.readMeta(blob)
       expect(meta).toBeNull()
+    })
+
+    it('valid JSON だが meta 構造が不正な場合は null を返すこと', async () => {
+      // JSON としては valid だが BackupFile の構造を持たない
+      const blob = new Blob([JSON.stringify({ foo: 'bar' })], { type: 'application/json' })
+      const meta = await backupExporter.readMeta(blob)
+      expect(meta).toBeNull()
+    })
+
+    it('meta.formatVersion が欠損している場合は null を返すこと', async () => {
+      const blob = new Blob(
+        [JSON.stringify({ meta: { createdAt: '2025-01-01', appVersion: '1.0', months: [] } })],
+        { type: 'application/json' },
+      )
+      const meta = await backupExporter.readMeta(blob)
+      expect(meta).toBeNull()
+    })
+  })
+
+  describe('importBackup — Zod safeParse 境界検証', () => {
+    function createImportRepoForSafeParse() {
+      return {
+        ...createMockRepo(createEmptyImportedData()),
+        listStoredMonths: vi.fn().mockResolvedValue([]),
+        loadMonthlyData: vi.fn().mockResolvedValue(null),
+        saveMonthlyData: vi.fn(),
+      } as unknown as DataRepository
+    }
+
+    it('valid JSON だが BackupFile 構造が不正な場合はエラーを返すこと', async () => {
+      const blob = new Blob([JSON.stringify({ noMeta: true })], { type: 'application/json' })
+      const repo = createImportRepoForSafeParse()
+      const result = await backupExporter.importBackup(blob, repo)
+      expect(result.monthsImported).toBe(0)
+      expect(result.errors.length).toBeGreaterThan(0)
+    })
+
+    it('meta.months が配列でない場合はエラーを返すこと', async () => {
+      const blob = new Blob(
+        [
+          JSON.stringify({
+            meta: { formatVersion: 3, createdAt: '2025-01-01', appVersion: '1.0', months: 'bad' },
+            months: [],
+          }),
+        ],
+        { type: 'application/json' },
+      )
+      const repo = createImportRepoForSafeParse()
+      const result = await backupExporter.importBackup(blob, repo)
+      expect(result.monthsImported).toBe(0)
+      expect(result.errors.length).toBeGreaterThan(0)
     })
   })
 

@@ -1,8 +1,10 @@
 /**
- * 仕入原価取得経路ガード — 3層防御
+ * 仕入原価取得経路ガード — 4層防御
  *
- * 仕入原価の正本は readPurchaseCost / usePurchaseCost に統一されている。
- * 旧経路からの逸脱を防ぎ、値の不一致再発を防止する。
+ * Layer 1: import 経路 — presentation が旧購買系クエリを直接 import しない
+ * Layer 2: 集計逸脱 — 正当な集計元以外で独自集計パターンがない
+ * Layer 3: 正本一貫性 — readPurchaseCost の3正本取得・導出値・旧経路不在
+ * Layer 4: 手続き保証 — KPI直接構築・変換ヘルパー・facade経由・ページ経由
  *
  * @see references/01-principles/purchase-cost-definition.md
  * @see references/03-guides/purchase-cost-unification-plan.md

@@ -28,6 +28,7 @@
 | `app/src/application/hooks/duckdb/usePurchaseComparisonQuery.test.ts` | invariant-guardian | 18件 | ピボット一貫性不変条件、KPI-ピボット値一致、buildDailyPivot 動作検証 |
 | `app/src/application/readModels/purchaseCost/readPurchaseCost.test.ts` | invariant-guardian | 21件 | 仕入原価プロセス正当性（正本値・計算式・使用方法・変換ヘルパー・店舗別導出） |
 | `app/src/test/guards/purchaseCostImportGuard.test.ts` | architecture | 15件 | インポートプロセス正当性（ファイル判別・パース・DuckDB格納・正本化パス） |
+| `app/src/infrastructure/storage/__tests__/backupExporter.test.ts` | architecture | 27件 | バックアップ往復・Map復元・SHA-256・AppSettings・ImportHistory・Zod safeParse 境界 |
 
 ## ルール → テスト対応
 
