@@ -1,11 +1,14 @@
 /**
  * 仕入比較クエリフック
  *
- * 当期・比較期の purchase + special_sales + transfers テーブルを
- * 取引先別・カテゴリ別に集約し、前年比較データを構築する。
- * date_key BETWEEN で同曜日にも対応。
+ * 当期・比較期の仕入原価を複合正本（readPurchaseCost）から取得し、
+ * 前年比較データを構築する。
  *
- * データ構築ロジックは purchaseComparisonBuilders.ts に分離。
+ * Phase 1: KPI 先行表示（queryPurchaseTotal 等で高速表示）
+ * Phase 2: 詳細クエリ（purchaseCostHandler + 残存クエリ）→ KPI を正本で上書き
+ *
+ * @see readPurchaseCost.ts — 仕入原価の唯一の正本 read
+ * @see purchase-cost-definition.md — 正本定義
  */
 import { useState, useEffect, useRef, useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
@@ -14,12 +17,9 @@ import {
   queryPurchaseBySupplier,
   queryPurchaseTotal,
   queryPurchaseDaily,
-  queryPurchaseDailyBySupplier,
   queryPurchaseByStore,
   querySalesDaily,
-  querySpecialSalesDaily,
   querySpecialSalesTotal,
-  queryTransfersDaily,
   queryTransfersTotal,
   querySalesTotal,
   queryEffectiveMaxDay,
@@ -36,6 +36,11 @@ import {
   buildStoreData,
   buildDailyPivot,
 } from './purchaseComparisonBuilders'
+import {
+  purchaseCostHandler,
+  toPurchaseDailySupplierRows,
+  toCategoryDailyRows,
+} from '@/application/readModels/purchaseCost'
 
 export function usePurchaseComparisonQuery(
   conn: AsyncDuckDBConnection | null,
@@ -77,9 +82,6 @@ export function usePurchaseComparisonQuery(
         const c = conn
 
         // ── Phase 0: 取り込み有効期間のキャップ ──
-        // 当期の実データ最終日を取得し、前期の日付範囲を同日数にキャップ。
-        // 前年同曜日モードでは前期が月跨ぎ（例: 2025-03-02～2025-04-01）になるため
-        // 日部分の比較ではなく、経過日数ベースでキャップする。
         const effectiveMaxDay = await queryEffectiveMaxDay(c, curDateFrom, curDateTo, storeIdArr)
         let cappedPrevDateTo = prevDateTo
         if (effectiveMaxDay != null) {
@@ -101,7 +103,7 @@ export function usePurchaseComparisonQuery(
 
         if (cancelled || seq !== seqRef.current) return
 
-        // ── Phase 1: KPI用の合計クエリ（8件）を先行実行 ──
+        // ── Phase 1: KPI 先行表示（高速） ──
         const [
           curTotal,
           prevTotal,
@@ -124,7 +126,6 @@ export function usePurchaseComparisonQuery(
 
         if (cancelled || seq !== seqRef.current) return
 
-        // ── KPI を即座に計算・表示 ──
         const kpiTotals = computeKpiTotals(
           curTotal,
           prevTotal,
@@ -135,7 +136,6 @@ export function usePurchaseComparisonQuery(
         )
         const kpi = buildKpi(kpiTotals, curSalesTotal, prevSalesTotal)
 
-        // KPI だけ先に表示（詳細はプレースホルダ）
         setData({
           kpi,
           bySupplier: [],
@@ -158,8 +158,25 @@ export function usePurchaseComparisonQuery(
           isDetailReady: false,
         })
 
-        // ── Phase 2: 詳細クエリ（14件）──
+        // ── Phase 2: 詳細クエリ ──
+        // 仕入原価は複合正本（purchaseCostHandler）から取得し、
+        // 残存クエリ（取引先名・日別チャート・店舗比較・売上日別）と並列実行
+        const costInput = {
+          dateFrom: curDateFrom,
+          dateTo: curDateTo,
+          storeIds: storeIdArr,
+          dataVersion,
+        }
+        const prevCostInput = {
+          dateFrom: prevDateFrom,
+          dateTo: cappedPrevDateTo,
+          storeIds: storeIdArr,
+          dataVersion,
+        }
+
         const [
+          curCostOutput,
+          prevCostOutput,
           curSuppliers,
           prevSuppliers,
           curDaily,
@@ -168,13 +185,9 @@ export function usePurchaseComparisonQuery(
           prevStores,
           curSalesDaily,
           prevSalesDaily,
-          curDailyBySupplier,
-          curSpecialDaily,
-          curTransfersDaily2,
-          prevDailyBySupplier,
-          prevSpecialDaily,
-          prevTransfersDaily,
         ] = await Promise.all([
+          purchaseCostHandler.execute(c, costInput),
+          purchaseCostHandler.execute(c, prevCostInput),
           queryPurchaseBySupplier(c, curDateFrom, curDateTo, storeIdArr),
           queryPurchaseBySupplier(c, prevDateFrom, cappedPrevDateTo, storeIdArr),
           queryPurchaseDaily(c, curDateFrom, curDateTo, storeIdArr),
@@ -183,17 +196,22 @@ export function usePurchaseComparisonQuery(
           queryPurchaseByStore(c, prevDateFrom, cappedPrevDateTo, storeIdArr),
           querySalesDaily(c, curDateFrom, curDateTo, storeIdArr, false),
           querySalesDaily(c, prevDateFrom, cappedPrevDateTo, storeIdArr, false),
-          queryPurchaseDailyBySupplier(c, curDateFrom, curDateTo, storeIdArr),
-          querySpecialSalesDaily(c, curDateFrom, curDateTo, storeIdArr),
-          queryTransfersDaily(c, curDateFrom, curDateTo, storeIdArr),
-          queryPurchaseDailyBySupplier(c, prevDateFrom, cappedPrevDateTo, storeIdArr),
-          querySpecialSalesDaily(c, prevDateFrom, cappedPrevDateTo, storeIdArr),
-          queryTransfersDaily(c, prevDateFrom, cappedPrevDateTo, storeIdArr),
         ])
 
         if (cancelled || seq !== seqRef.current) return
 
-        // ── 詳細データ構築 ──
+        // ── 複合正本から既存ビルダー用のデータを抽出 ──
+        const curModel = curCostOutput.model
+        const prevModel = prevCostOutput.model
+
+        const curDailyBySupplier = toPurchaseDailySupplierRows(curModel)
+        const prevDailyBySupplier = toPurchaseDailySupplierRows(prevModel)
+        const curSpecialDaily = toCategoryDailyRows(curModel.deliverySales)
+        const prevSpecialDaily = toCategoryDailyRows(prevModel.deliverySales)
+        const curTransfersDaily = toCategoryDailyRows(curModel.transfers)
+        const prevTransfersDaily = toCategoryDailyRows(prevModel.transfers)
+
+        // ── 詳細データ構築（既存ビルダーはそのまま使用） ──
         const { bySupplier, byCategory, categorySuppliers } = buildSupplierAndCategoryData(
           curSuppliers,
           prevSuppliers,
@@ -205,7 +223,13 @@ export function usePurchaseComparisonQuery(
           prevSpecialTotal,
           curTransfersTotal,
           prevTransfersTotal,
-          kpiTotals,
+          // KPI totals は複合正本から導出
+          {
+            allCurCost: curModel.grandTotalCost,
+            allCurPrice: curModel.grandTotalPrice,
+            allPrevCost: prevModel.grandTotalCost,
+            allPrevPrice: prevModel.grandTotalPrice,
+          },
         )
 
         const daily = buildDailyData(curDaily, prevDaily, curSalesDaily, prevSalesDaily)
@@ -216,7 +240,7 @@ export function usePurchaseComparisonQuery(
           prevDailyBySupplier,
           curSpecialDaily,
           prevSpecialDaily,
-          curTransfersDaily2,
+          curTransfersDaily,
           prevTransfersDaily,
           byCategory,
           supplierCategoryMap,
@@ -225,18 +249,17 @@ export function usePurchaseComparisonQuery(
           dowOffset,
         )
 
-        // ── 一貫性保証: ピボットの grandTotal を正とした KPI 再計算 ──
-        // Phase 1 KPI は高速表示用（Total クエリ）。Phase 2 のピボット合計と
-        // カテゴリ合計は同一 dailyBySupplier データから導出されるため一致する。
-        // KPI もピボット合計で上書きし、3つの合計の一貫性を保証する。
-        const pivotTotals = dailyPivot.totals
-        const reconciledKpiTotals = {
-          allCurCost: pivotTotals.grandCost,
-          allCurPrice: pivotTotals.grandPrice,
-          allPrevCost: pivotTotals.prevGrandCost,
-          allPrevPrice: pivotTotals.prevGrandPrice,
-        }
-        const reconciledKpi = buildKpi(reconciledKpiTotals, curSalesTotal, prevSalesTotal)
+        // ── 一貫性保証: 複合正本の grandTotalCost を正とした KPI ──
+        const reconciledKpi = buildKpi(
+          {
+            allCurCost: curModel.grandTotalCost,
+            allCurPrice: curModel.grandTotalPrice,
+            allPrevCost: prevModel.grandTotalCost,
+            allPrevPrice: prevModel.grandTotalPrice,
+          },
+          curSalesTotal,
+          prevSalesTotal,
+        )
 
         setData({
           kpi: reconciledKpi,

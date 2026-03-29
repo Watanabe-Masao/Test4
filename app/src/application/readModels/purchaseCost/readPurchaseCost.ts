@@ -97,6 +97,32 @@ export interface PurchaseCostOutput {
   readonly model: PurchaseCostReadModel
 }
 
+// ── ReadModel → 既存ビルダー用の変換ヘルパー ──
+
+/** ReadModel の purchase.rows を既存 PurchaseDailySupplierRow 形式に変換 */
+export function toPurchaseDailySupplierRows(
+  model: PurchaseCostReadModel,
+): readonly { day: number; supplierCode: string; totalCost: number; totalPrice: number }[] {
+  return model.purchase.rows.map((r) => ({
+    day: r.day,
+    supplierCode: r.supplierCode,
+    totalCost: r.cost,
+    totalPrice: r.price,
+  }))
+}
+
+/** ReadModel の deliverySales/transfers rows を既存 CategoryDailyRow 形式に変換 */
+export function toCategoryDailyRows(canonical: {
+  readonly rows: readonly { day: number; categoryKey: string; cost: number; price: number }[]
+}): readonly { day: number; categoryKey: string; totalCost: number; totalPrice: number }[] {
+  return canonical.rows.map((r) => ({
+    day: r.day,
+    categoryKey: r.categoryKey,
+    totalCost: r.cost,
+    totalPrice: r.price,
+  }))
+}
+
 /**
  * PurchaseCostHandler — 仕入原価複合正本の QueryHandler
  *

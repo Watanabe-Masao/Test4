@@ -11,7 +11,11 @@ export type {
   PurchaseDaySupplierRow,
   CategoryDayRow,
 } from './PurchaseCostTypes'
-export { purchaseCostHandler } from './readPurchaseCost'
+export {
+  purchaseCostHandler,
+  toPurchaseDailySupplierRows,
+  toCategoryDailyRows,
+} from './readPurchaseCost'
 export type { PurchaseCostInput, PurchaseCostOutput } from './readPurchaseCost'
 export { usePurchaseCost } from './usePurchaseCost'
 export type { UsePurchaseCostParams, UsePurchaseCostResult } from './usePurchaseCost'
