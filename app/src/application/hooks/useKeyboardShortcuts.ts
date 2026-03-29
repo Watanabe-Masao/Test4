@@ -1,15 +1,9 @@
 import { useEffect, useCallback } from 'react'
 import type { ViewType } from '@/domain/models/storeTypes'
+import { getShortcutMap } from '@/application/navigation/pageRegistry'
 
-/** ビューの順序（数字キー 1-7 対応） */
-const VIEW_ORDER: ViewType[] = [
-  'dashboard',
-  'daily',
-  'insight',
-  'category',
-  'cost-detail',
-  'reports',
-]
+/** ショートカットマップ（PAGE_REGISTRY から導出、キャッシュ） */
+const SHORTCUT_MAP = getShortcutMap()
 
 interface KeyboardShortcutHandlers {
   onViewChange: (view: ViewType) => void
@@ -22,7 +16,7 @@ interface KeyboardShortcutHandlers {
 /**
  * グローバルキーボードショートカット
  *
- * - 1-9: ビュー切替（ダッシュボード〜レポート）
+ * - 1-9: ビュー切替（PAGE_REGISTRY の shortcutIndex に基づく）
  * - Ctrl+Enter: 計算実行
  * - Ctrl+,: 設定モーダル
  * - Ctrl+Z: Undo
@@ -79,10 +73,13 @@ export function useKeyboardShortcuts(handlers: KeyboardShortcutHandlers) {
       // ── 数字キー 1-9: ビュー切替（モーダル非表示時のみ） ──
       if (!ctrl && !e.altKey && !e.shiftKey && !hasModal) {
         const num = parseInt(e.key)
-        if (num >= 1 && num <= 9 && num <= VIEW_ORDER.length) {
-          e.preventDefault()
-          handlers.onViewChange(VIEW_ORDER[num - 1])
-          return
+        if (num >= 1 && num <= 9) {
+          const page = SHORTCUT_MAP.get(num)
+          if (page) {
+            e.preventDefault()
+            handlers.onViewChange(page.id as ViewType)
+            return
+          }
         }
       }
     },

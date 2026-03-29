@@ -9,6 +9,7 @@ import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useDataSummary } from '@/application/hooks/useDataSummary'
 import { useI18n } from '@/application/hooks/useI18n'
 import { usePageStore } from '@/application/stores/pageStore'
+import { getNavPages } from '@/application/navigation/pageRegistry'
 import {
   Nav,
   Logo,
@@ -36,28 +37,27 @@ type NavLabelKey =
   | 'costDetail'
   | 'purchaseAnalysis'
   | 'reports'
+  | 'admin'
 
-type NavItem = { view: ViewType; labelKey: NavLabelKey; icon: string }
-type NavDivider = { divider: true }
-type NavEntry = NavItem | NavDivider
+/** PageMeta.id → i18n nav message key */
+const NAV_LABEL_KEY: Record<string, NavLabelKey> = {
+  dashboard: 'dashboard',
+  'store-analysis': 'storeAnalysis',
+  daily: 'daily',
+  insight: 'insight',
+  category: 'category',
+  'cost-detail': 'costDetail',
+  'purchase-analysis': 'purchaseAnalysis',
+  reports: 'reports',
+  admin: 'admin',
+}
 
-const navEntries: NavEntry[] = [
-  // L0: ダッシュボード
-  { view: 'dashboard', labelKey: 'dashboard', icon: '📊' },
-  { divider: true },
-  // L1/L2: 分析ドリルダウン
-  { view: 'store-analysis', labelKey: 'storeAnalysis', icon: '🏪' },
-  { view: 'daily', labelKey: 'daily', icon: '📅' },
-  { view: 'insight', labelKey: 'insight', icon: '📈' },
-  { divider: true },
-  // 横断: 原価・カテゴリ
-  { view: 'cost-detail', labelKey: 'costDetail', icon: '💰' },
-  { view: 'purchase-analysis', labelKey: 'purchaseAnalysis', icon: '🏭' },
-  { view: 'category', labelKey: 'category', icon: '📁' },
-  { divider: true },
-  // 出力
-  { view: 'reports', labelKey: 'reports', icon: '📄' },
-]
+/** navVisible なページ（navOrder 順、キャッシュ） */
+const NAV_PAGES = getNavPages()
+
+/** admin ページは下部に分離表示 */
+const MAIN_NAV_PAGES = NAV_PAGES.filter((p) => p.id !== 'admin')
+const ADMIN_PAGE = NAV_PAGES.find((p) => p.id === 'admin')
 
 /** 計算状態インジケーター */
 function CalcStatusBadge() {
@@ -194,22 +194,24 @@ export function NavBar({
       }}
     >
       <Logo>荒</Logo>
-      {navEntries.map((entry, i) =>
-        'divider' in entry ? (
-          <Divider key={`div-${i}`} />
-        ) : (
-          <NavButton
-            key={entry.view}
-            $active={currentView === entry.view}
-            onClick={() => onViewChange(entry.view)}
-            title={messages.nav[entry.labelKey]}
-            aria-label={messages.nav[entry.labelKey]}
-            aria-current={currentView === entry.view ? 'page' : undefined}
-          >
-            {entry.icon}
-          </NavButton>
-        ),
-      )}
+      {MAIN_NAV_PAGES.map((page, i) => {
+        const labelKey = NAV_LABEL_KEY[page.id]
+        const label = labelKey ? messages.nav[labelKey] : page.label
+        return (
+          <span key={page.id}>
+            <NavButton
+              $active={currentView === page.id}
+              onClick={() => onViewChange(page.id as ViewType)}
+              title={label}
+              aria-label={label}
+              aria-current={currentView === page.id ? 'page' : undefined}
+            >
+              {page.icon}
+            </NavButton>
+            {page.navDividerAfter && i < MAIN_NAV_PAGES.length - 1 && <Divider />}
+          </span>
+        )
+      })}
 
       {pages.length > 0 && <Divider />}
       {pages.map((page) => (
@@ -231,15 +233,17 @@ export function NavBar({
 
       <Spacer />
       <CalcStatusBadge />
-      <NavButton
-        $active={currentView === 'admin'}
-        onClick={() => onViewChange('admin')}
-        title={messages.nav.admin}
-        aria-label={messages.nav.admin}
-        aria-current={currentView === 'admin' ? 'page' : undefined}
-      >
-        ⚙
-      </NavButton>
+      {ADMIN_PAGE && (
+        <NavButton
+          $active={currentView === 'admin'}
+          onClick={() => onViewChange('admin')}
+          title={messages.nav.admin}
+          aria-label={messages.nav.admin}
+          aria-current={currentView === 'admin' ? 'page' : undefined}
+        >
+          {ADMIN_PAGE.icon}
+        </NavButton>
+      )}
       <ThemeButton
         onClick={onThemeToggle}
         title={themeMode === 'dark' ? messages.nav.lightMode : messages.nav.darkMode}

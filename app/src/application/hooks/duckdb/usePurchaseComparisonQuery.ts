@@ -57,7 +57,7 @@ export function usePurchaseComparisonQuery(
 
   const [data, setData] = useState<PurchaseComparisonResult | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<Error | null>(null)
   const seqRef = useRef(0)
 
   useEffect(() => {
@@ -227,7 +227,7 @@ export function usePurchaseComparisonQuery(
         })
       } catch (err: unknown) {
         if (!cancelled && seq === seqRef.current) {
-          setError(err instanceof Error ? err.message : String(err))
+          setError(err instanceof Error ? err : new Error(String(err)))
         }
       } finally {
         if (!cancelled && seq === seqRef.current) {

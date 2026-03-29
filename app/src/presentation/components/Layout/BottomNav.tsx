@@ -1,20 +1,15 @@
 /**
- * Phase 3.5: モバイルボトムナビゲーション
+ * モバイルボトムナビゲーション
  *
  * モバイル画面サイズで画面下部にナビゲーションバーを表示する。
- * デスクトップでは非表示。
+ * デスクトップでは非表示。ページ定義は PAGE_REGISTRY から導出。
  */
 import type { ViewType } from '@/domain/models/storeTypes'
+import { getMobileNavPages } from '@/application/navigation/pageRegistry'
 import { Nav, NavItem, NavIcon, NavLabel } from './BottomNav.styles'
 
-/** ボトムナビに表示する主要ビュー (5つまで) */
-const bottomItems: { view: ViewType; label: string; icon: string }[] = [
-  { view: 'dashboard', label: 'ダッシュ', icon: '📊' },
-  { view: 'daily', label: '日別', icon: '📅' },
-  { view: 'insight', label: 'インサイト', icon: '📈' },
-  { view: 'category', label: 'カテゴリ', icon: '📁' },
-  { view: 'admin', label: '管理', icon: '⚙' },
-]
+/** mobileNavVisible なページ（navOrder 順、キャッシュ） */
+const MOBILE_NAV_PAGES = getMobileNavPages()
 
 export function BottomNav({
   currentView,
@@ -25,15 +20,15 @@ export function BottomNav({
 }) {
   return (
     <Nav aria-label="モバイルナビゲーション">
-      {bottomItems.map((item) => (
+      {MOBILE_NAV_PAGES.map((page) => (
         <NavItem
-          key={item.view}
-          $active={currentView === item.view}
-          onClick={() => onViewChange(item.view)}
-          aria-label={item.label}
+          key={page.id}
+          $active={currentView === page.id}
+          onClick={() => onViewChange(page.id as ViewType)}
+          aria-label={page.label}
         >
-          <NavIcon>{item.icon}</NavIcon>
-          <NavLabel>{item.label}</NavLabel>
+          <NavIcon>{page.icon}</NavIcon>
+          <NavLabel>{page.label}</NavLabel>
         </NavItem>
       ))}
     </Nav>

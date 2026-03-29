@@ -227,4 +227,13 @@ export const GUARD_TAG_REGISTRY: Record<string, GuardTagDef> = {
       'toDateKeyFromParts で前年の日付を渡すと Map キー（当期の日付）と不一致になる',
     ],
   },
+  // ═══ F10: ページ正本 ═══
+  F10: {
+    name: 'ページ正本の整合性',
+    examples: [
+      'PAGE_REGISTRY と routes.tsx の PAGE_COMPONENT_MAP が不一致だとルートが欠落する',
+      'navVisible と mobileNavVisible の subset 関係が崩れるとモバイル専用ページが出現する',
+      'ViewType と PAGE_REGISTRY の standard ids が不一致だと型安全が崩壊する',
+    ],
+  },
 } as const
