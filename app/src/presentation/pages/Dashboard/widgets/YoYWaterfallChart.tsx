@@ -331,6 +331,11 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
     [activeLevel, hasQuantity, prevCust, curCust, prevTotalQty, curTotalQty, prevSales, curSales],
   )
 
+  // CTS データ整合性チェック: CTS 売上合計と daily 売上合計を比較
+  const ctsSalesTotal = periodCTS.reduce((s, rec) => s + rec.totalAmount, 0)
+  const ctsCoverageRatio = curSales > 0 ? ctsSalesTotal / curSales : 1
+  const hasCtsDataGap = ctsCoverageRatio < 0.5 && curSales > 0
+
   if (!hasComparison || prevSales <= 0) return null
 
   const hasCategoryView = categoryData.items.length > 0
@@ -428,6 +433,23 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
           onToggle={() => setShowHelp(!showHelp)}
           activeLevel={activeLevel}
         />
+      )}
+
+      {hasCtsDataGap && (
+        <div
+          style={{
+            padding: '6px 12px',
+            marginBottom: 8,
+            fontSize: '0.6rem',
+            color: '#b45309',
+            background: 'rgba(245,158,11,0.08)',
+            borderRadius: 6,
+            border: '1px solid rgba(245,158,11,0.2)',
+          }}
+        >
+          分類別時間帯データ（CTS）が不足しています（カバー率{' '}
+          {(ctsCoverageRatio * 100).toFixed(1)}%）。要因分解の精度に影響する可能性があります。
+        </div>
       )}
 
       <SalesSummaryRow

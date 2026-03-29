@@ -77,14 +77,25 @@ export function usePurchaseComparisonQuery(
         const c = conn
 
         // ── Phase 0: 取り込み有効期間のキャップ ──
-        // 当期の実データ最終日を取得し、前期の日付範囲を同日数にキャップ
+        // 当期の実データ最終日を取得し、前期の日付範囲を同日数にキャップ。
+        // 前年同曜日モードでは前期が月跨ぎ（例: 2025-03-02～2025-04-01）になるため
+        // 日部分の比較ではなく、経過日数ベースでキャップする。
         const effectiveMaxDay = await queryEffectiveMaxDay(c, curDateFrom, curDateTo, storeIdArr)
         let cappedPrevDateTo = prevDateTo
         if (effectiveMaxDay != null) {
-          const prevDay = Number(prevDateTo.split('-')[2])
-          if (prevDay > effectiveMaxDay) {
-            const prevPrefix = prevDateTo.substring(0, 8) // 'YYYY-MM-'
-            cappedPrevDateTo = `${prevPrefix}${String(effectiveMaxDay).padStart(2, '0')}`
+          const curFromDate = new Date(curDateFrom)
+          const effectiveDays = effectiveMaxDay - curFromDate.getDate() + 1
+          const prevFromDate = new Date(prevDateFrom)
+          const prevToDate = new Date(prevDateTo)
+          const prevDays =
+            Math.round((prevToDate.getTime() - prevFromDate.getTime()) / 86_400_000) + 1
+          if (prevDays > effectiveDays) {
+            const cappedDate = new Date(prevFromDate)
+            cappedDate.setDate(cappedDate.getDate() + effectiveDays - 1)
+            const y = cappedDate.getFullYear()
+            const m = String(cappedDate.getMonth() + 1).padStart(2, '0')
+            const d = String(cappedDate.getDate()).padStart(2, '0')
+            cappedPrevDateTo = `${y}-${m}-${d}`
           }
         }
 
@@ -214,8 +225,21 @@ export function usePurchaseComparisonQuery(
           dowOffset,
         )
 
+        // ── 一貫性保証: ピボットの grandTotal を正とした KPI 再計算 ──
+        // Phase 1 KPI は高速表示用（Total クエリ）。Phase 2 のピボット合計と
+        // カテゴリ合計は同一 dailyBySupplier データから導出されるため一致する。
+        // KPI もピボット合計で上書きし、3つの合計の一貫性を保証する。
+        const pivotTotals = dailyPivot.totals
+        const reconciledKpiTotals = {
+          allCurCost: pivotTotals.grandCost,
+          allCurPrice: pivotTotals.grandPrice,
+          allPrevCost: pivotTotals.prevGrandCost,
+          allPrevPrice: pivotTotals.prevGrandPrice,
+        }
+        const reconciledKpi = buildKpi(reconciledKpiTotals, curSalesTotal, prevSalesTotal)
+
         setData({
-          kpi,
+          kpi: reconciledKpi,
           bySupplier,
           byCategory,
           byStore,

@@ -5,6 +5,7 @@ import {
   categoryColor,
   markupRate,
   buildDailyPivot,
+  buildKpi,
 } from './purchaseComparisonBuilders'
 import type { CategoryComparisonRow } from '@/domain/models/PurchaseComparison'
 
@@ -208,6 +209,104 @@ describe('purchaseComparisonBuilders', () => {
 
       const result = buildDailyPivot(curDaily, [], [], [], [], [], [cat], supplierMap, 2025, 3)
       expect(result.rows[0].dayOfWeek).toBe(6) // Saturday
+    })
+
+    it('一貫性不変条件: ピボット行合計 = grandTotal', () => {
+      const curDaily = [
+        { day: 1, supplierCode: 'S001', supplierName: 'A', totalCost: 500, totalPrice: 600 },
+        { day: 2, supplierCode: 'S001', supplierName: 'A', totalCost: 300, totalPrice: 400 },
+        { day: 2, supplierCode: 'S002', supplierName: 'B', totalCost: 200, totalPrice: 250 },
+      ]
+      const prevDaily = [
+        { day: 1, supplierCode: 'S001', supplierName: 'A', totalCost: 450, totalPrice: 550 },
+        { day: 3, supplierCode: 'S002', supplierName: 'B', totalCost: 100, totalPrice: 130 },
+      ]
+      const curSpecial = [
+        { day: 1, categoryKey: 'flowers', totalCost: 50, totalPrice: 70 },
+      ]
+      const prevSpecial = [
+        { day: 1, categoryKey: 'flowers', totalCost: 40, totalPrice: 60 },
+      ]
+      const curTransfers = [
+        { day: 2, categoryKey: 'interStoreIn', totalCost: 30, totalPrice: 35 },
+      ]
+
+      const flowerCat: CategoryComparisonRow = {
+        ...cat,
+        categoryId: 'flowers',
+        category: '花',
+        color: '#ec4899',
+      }
+      const storeCat: CategoryComparisonRow = {
+        ...cat,
+        categoryId: 'inter_store',
+        category: '店間移動',
+        color: '#8b5cf6',
+      }
+      const supplierMap = {
+        S001: 'market_purchase' as const,
+        S002: 'market_purchase' as const,
+      }
+
+      const result = buildDailyPivot(
+        curDaily,
+        prevDaily,
+        curSpecial,
+        prevSpecial,
+        curTransfers,
+        [],
+        [cat, flowerCat, storeCat],
+        supplierMap,
+        2025,
+        3,
+      )
+
+      // 行合計の合算 = grandTotal
+      const rowSumCost = result.rows.reduce((s, r) => s + r.totalCost, 0)
+      const rowSumPrice = result.rows.reduce((s, r) => s + r.totalPrice, 0)
+      const rowSumPrevCost = result.rows.reduce((s, r) => s + r.prevTotalCost, 0)
+      const rowSumPrevPrice = result.rows.reduce((s, r) => s + r.prevTotalPrice, 0)
+
+      expect(rowSumCost).toBe(result.totals.grandCost)
+      expect(rowSumPrice).toBe(result.totals.grandPrice)
+      expect(rowSumPrevCost).toBe(result.totals.prevGrandCost)
+      expect(rowSumPrevPrice).toBe(result.totals.prevGrandPrice)
+
+      // 列合計の合算 = grandTotal
+      const colSumCost = Object.values(result.totals.byColumn).reduce((s, c) => s + c.cost, 0)
+      const colSumPrice = Object.values(result.totals.byColumn).reduce((s, c) => s + c.price, 0)
+
+      expect(colSumCost).toBe(result.totals.grandCost)
+      expect(colSumPrice).toBe(result.totals.grandPrice)
+    })
+
+    it('一貫性不変条件: ピボット grandTotal から構築した KPI は同じ値', () => {
+      const curDaily = [
+        { day: 1, supplierCode: 'S001', supplierName: 'A', totalCost: 1000, totalPrice: 1200 },
+      ]
+      const prevDaily = [
+        { day: 1, supplierCode: 'S001', supplierName: 'A', totalCost: 900, totalPrice: 1100 },
+      ]
+      const supplierMap = { S001: 'market_purchase' as const }
+
+      const pivot = buildDailyPivot(curDaily, prevDaily, [], [], [], [], [cat], supplierMap, 2025, 3)
+
+      // ピボット grandTotal から KPI を構築
+      const kpi = buildKpi(
+        {
+          allCurCost: pivot.totals.grandCost,
+          allCurPrice: pivot.totals.grandPrice,
+          allPrevCost: pivot.totals.prevGrandCost,
+          allPrevPrice: pivot.totals.prevGrandPrice,
+        },
+        5000,
+        4500,
+      )
+
+      expect(kpi.currentTotalCost).toBe(pivot.totals.grandCost)
+      expect(kpi.currentTotalPrice).toBe(pivot.totals.grandPrice)
+      expect(kpi.prevTotalCost).toBe(pivot.totals.prevGrandCost)
+      expect(kpi.prevTotalPrice).toBe(pivot.totals.prevGrandPrice)
     })
   })
 })
