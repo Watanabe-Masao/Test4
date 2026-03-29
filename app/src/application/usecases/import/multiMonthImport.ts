@@ -6,7 +6,7 @@
 import type { DataTypeDiff } from '@/domain/models/analysis'
 import type { AppSettings, ImportedData } from '@/domain/models/storeTypes'
 import { createEmptyImportedData } from '@/domain/models/storeTypes'
-import { detectDataMaxDay } from '@/domain/calculations/utils'
+import { detectDataMaxDay } from '@/application/services/dataDetection'
 import { calculateDiff } from '@/application/services/diffCalculator'
 import { validateImportedData, filterDataForMonth } from './FileImportService'
 import type { ImportSummary, MonthPartitions } from './FileImportService'

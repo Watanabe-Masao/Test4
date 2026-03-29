@@ -16,7 +16,7 @@ import { Chip, ChipGroup } from '@/presentation/components/common/forms'
 import { Button } from '@/presentation/components/common/layout'
 import type { DiffConfirmResult } from '@/presentation/components/common/feedback'
 import { getDaysInMonth } from '@/domain/constants/defaults'
-import { detectDataMaxDay } from '@/domain/calculations/utils'
+import { detectDataMaxDay } from '@/application/services/dataDetection'
 import {
   SidebarSection,
   SectionLabel,

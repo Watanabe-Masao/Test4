@@ -17,7 +17,7 @@
  * // YoY 用エイリアス（既存コードとの互換）:
  * const yoy = compareYoY(curSales, prevSales)
  */
-import { safeDivide } from './utils'
+import { safeDivide } from '@/domain/calculations/utils'
 
 /**
  * 期間比較の結果
