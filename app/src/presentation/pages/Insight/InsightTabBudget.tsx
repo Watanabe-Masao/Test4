@@ -4,7 +4,7 @@ import { Card, CardTitle } from '@/presentation/components/common/layout'
 import { KpiCard, KpiGrid } from '@/presentation/components/common/tables'
 import type { MetricId } from '@/domain/models/analysis'
 import type { StoreResult } from '@/domain/models/storeTypes'
-import { getPrevYearDailySales } from '@/application/comparison/comparisonAccessors'
+import { buildBudgetTableRows } from './InsightTabBudget.vm'
 import {
   BudgetProgressCard,
   BudgetTrendChart,
@@ -249,80 +249,59 @@ export function BudgetTabContent({ d, r, onExplain }: BudgetTabProps) {
                   </tr>
                 </thead>
                 <tbody>
-                  {(() => {
-                    let cumDiscount = 0
-                    let cumGrossSales = 0
-                    let cumPrevYear = 0
-                    return d.chartData
-                      .filter((cd) => cd.actualCum > 0 || cd.budgetCum > 0)
-                      .map((cd) => {
-                        const dailyRec = r.daily.get(cd.day)
-                        const daySales = d.salesDaily.get(cd.day) ?? 0
-                        const dayBudget = r.budgetDaily.get(cd.day) ?? 0
-                        const variance = daySales - dayBudget
-                        const achievement = cd.budgetCum > 0 ? cd.actualCum / cd.budgetCum : 0
-                        const dayDiscountAbsolute = dailyRec?.discountAbsolute ?? 0
-                        cumDiscount += dayDiscountAbsolute
-                        cumGrossSales += dailyRec?.grossSales ?? 0
-                        const discountRateCum = d.safeDivide(cumDiscount, cumGrossSales, 0)
-                        const cumDiscountRate = discountRateCum
-                        const budgetVariance = cd.actualCum - cd.budgetCum
-                        const pyDaySales = getPrevYearDailySales(
-                          d.prevYear,
-                          d.year,
-                          d.month,
-                          cd.day,
-                        )
-                        cumPrevYear += pyDaySales
-                        const pyDayRatio = pyDaySales > 0 ? daySales / pyDaySales : 0
-                        const pyCumRatio = cumPrevYear > 0 ? cd.actualCum / cumPrevYear : 0
-                        return (
-                          <Tr key={cd.day}>
-                            <Td>{cd.day}</Td>
-                            <Td>{d.fmtCurrency(dayBudget)}</Td>
-                            <Td>{d.fmtCurrency(daySales)}</Td>
-                            <Td $positive={variance > 0} $negative={variance < 0}>
-                              {variance > 0 ? '+' : ''}
-                              {d.fmtCurrency(variance)}
-                            </Td>
-                            <Td>{d.fmtCurrency(dayDiscountAbsolute)}</Td>
-                            <Td>{d.fmtCurrency(cd.budgetCum)}</Td>
-                            <Td>{d.fmtCurrency(cd.actualCum)}</Td>
-                            <Td $positive={budgetVariance > 0} $negative={budgetVariance < 0}>
-                              {budgetVariance > 0 ? '+' : ''}
-                              {d.fmtCurrency(budgetVariance)}
-                            </Td>
-                            <Td $positive={achievement >= 1} $negative={achievement < 0.9}>
-                              {d.formatPercent(achievement)}
-                            </Td>
-                            <Td>{d.formatPercent(discountRateCum)}</Td>
-                            <Td>{d.formatPercent(cumDiscountRate)}</Td>
-                            {d.prevYear.hasPrevYear && (
-                              <Td>{pyDaySales > 0 ? d.fmtCurrency(pyDaySales) : '-'}</Td>
-                            )}
-                            {d.prevYear.hasPrevYear && (
-                              <Td
-                                $positive={pyDayRatio >= 1}
-                                $negative={pyDayRatio > 0 && pyDayRatio < 1}
-                              >
-                                {pyDaySales > 0 ? d.formatPercent(pyDayRatio) : '-'}
-                              </Td>
-                            )}
-                            {d.prevYear.hasPrevYear && (
-                              <Td>{cumPrevYear > 0 ? d.fmtCurrency(cumPrevYear) : '-'}</Td>
-                            )}
-                            {d.prevYear.hasPrevYear && (
-                              <Td
-                                $positive={pyCumRatio >= 1}
-                                $negative={pyCumRatio > 0 && pyCumRatio < 1}
-                              >
-                                {cumPrevYear > 0 ? d.formatPercent(pyCumRatio) : '-'}
-                              </Td>
-                            )}
-                          </Tr>
-                        )
-                      })
-                  })()}
+                  {buildBudgetTableRows(
+                    d.chartData,
+                    r.daily,
+                    d.salesDaily,
+                    r.budgetDaily,
+                    d.prevYear,
+                    d.year,
+                    d.month,
+                  ).map((row) => (
+                    <Tr key={row.day}>
+                      <Td>{row.day}</Td>
+                      <Td>{d.fmtCurrency(row.dayBudget)}</Td>
+                      <Td>{d.fmtCurrency(row.daySales)}</Td>
+                      <Td $positive={row.variance > 0} $negative={row.variance < 0}>
+                        {row.variance > 0 ? '+' : ''}
+                        {d.fmtCurrency(row.variance)}
+                      </Td>
+                      <Td>{d.fmtCurrency(row.dayDiscountAbsolute)}</Td>
+                      <Td>{d.fmtCurrency(row.budgetCum)}</Td>
+                      <Td>{d.fmtCurrency(row.actualCum)}</Td>
+                      <Td $positive={row.budgetVariance > 0} $negative={row.budgetVariance < 0}>
+                        {row.budgetVariance > 0 ? '+' : ''}
+                        {d.fmtCurrency(row.budgetVariance)}
+                      </Td>
+                      <Td $positive={row.achievement >= 1} $negative={row.achievement < 0.9}>
+                        {d.formatPercent(row.achievement)}
+                      </Td>
+                      <Td>{d.formatPercent(row.discountRateCum)}</Td>
+                      <Td>{d.formatPercent(row.cumDiscountRate)}</Td>
+                      {d.prevYear.hasPrevYear && (
+                        <Td>{row.pyDaySales > 0 ? d.fmtCurrency(row.pyDaySales) : '-'}</Td>
+                      )}
+                      {d.prevYear.hasPrevYear && (
+                        <Td
+                          $positive={row.pyDayRatio >= 1}
+                          $negative={row.pyDayRatio > 0 && row.pyDayRatio < 1}
+                        >
+                          {row.pyDaySales > 0 ? d.formatPercent(row.pyDayRatio) : '-'}
+                        </Td>
+                      )}
+                      {d.prevYear.hasPrevYear && (
+                        <Td>{row.cumPrevYear > 0 ? d.fmtCurrency(row.cumPrevYear) : '-'}</Td>
+                      )}
+                      {d.prevYear.hasPrevYear && (
+                        <Td
+                          $positive={row.pyCumRatio >= 1}
+                          $negative={row.pyCumRatio > 0 && row.pyCumRatio < 1}
+                        >
+                          {row.cumPrevYear > 0 ? d.formatPercent(row.pyCumRatio) : '-'}
+                        </Td>
+                      )}
+                    </Tr>
+                  ))}
                 </tbody>
               </Table>
             </TableWrapper>

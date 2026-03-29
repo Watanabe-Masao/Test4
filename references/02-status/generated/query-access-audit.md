@@ -1,6 +1,6 @@
 # Query Access Audit Report
 
-> Generated: 2026-03-29T08:20:31.760Z
+> Generated: 2026-03-29T08:47:59.030Z
 
 ## Route Summary
 
@@ -86,7 +86,7 @@
 - presentation/pages/Dashboard/widgets/calendarUtils.ts
 - presentation/pages/Dashboard/widgets/useMonthlyCalendarState.ts
 - presentation/pages/Forecast/ForecastPage.helpers.ts
-- presentation/pages/Insight/InsightTabBudget.tsx
+- presentation/pages/Insight/InsightTabBudget.vm.ts
 - application/hooks/useBudgetChartData.ts
 - application/usecases/clipExport/buildClipBundle.ts
 
