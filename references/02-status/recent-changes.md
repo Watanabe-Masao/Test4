@@ -1,6 +1,48 @@
 # 直近の主要変更（#673-#730+）
 
-> 更新日: 2026-03-29
+> 更新日: 2026-03-30
+
+## 正本化体系完成 — 全 readModels ガード完備（2026-03-30）
+
+全5正本（purchaseCost / grossProfit / salesFact / discountFact / factorDecomposition）に
+パスガードが揃い、正本化体系の構造的防御が完成。
+
+### 新規ガードテスト
+
+| ガード | テスト数 | 保護対象 |
+|--------|---------|----------|
+| salesFactPathGuard | 5 | readSalesFact 存在・Zod契約・旧クエリimport禁止・orchestrator統合・定義書 |
+| discountFactPathGuard | 5 | readDiscountFact 存在・Zod契約・旧クエリimport禁止・orchestrator統合・定義書 |
+| factorDecompositionPathGuard | 5 | calculateFactorDecomposition 存在・Zod契約・domain直接import許可リスト制限・presentation層制限・定義書 |
+| canonicalizationSystemGuard | 6 | 全readModelディレクトリ・ファイル構成・全定義書・レジストリ・orchestrator・CLAUDE.md参照 |
+
+### 旧経路修正
+
+- **causalChain.ts**: `decompose2` 直接import → `calculateFactorDecomposition` 正本経由に置換
+- **grossProfit/index.ts**: バレルエクスポート追加（他の readModel と構成統一）
+
+### 数値成果
+
+| 指標 | Before | After |
+|------|--------|-------|
+| ガードテストファイル | 18 | **22** (+4) |
+| ガードテスト数 | 197 | **212** (+15) |
+| 正本パスガード数 | 2 (purchaseCost, grossProfit) | **6** (全正本+体系) |
+| factorDecomposition 許可リスト外の直接import | 1 (causalChain) | **0** |
+
+### 全正本化ガード一覧
+
+| 正本 | パスガード | プロセステスト |
+|------|-----------|---------------|
+| purchaseCost | purchaseCostPathGuard (9) + importGuard (15) | readPurchaseCost.test (21) |
+| grossProfit | grossProfitPathGuard (5) | calculateGrossProfit.test (15) |
+| salesFact | salesFactPathGuard (5) | readSalesFact.test (8) |
+| discountFact | discountFactPathGuard (5) | readDiscountFact.test (7) |
+| factorDecomposition | factorDecompositionPathGuard (5) | calculateFactorDecomposition.test (6) |
+| 体系統合 | canonicalizationSystemGuard (6) | — |
+| 計算レジストリ | calculationCanonGuard (4) | — |
+
+---
 
 ## 仕入原価正本化 + 取得経路統合（2026-03-29）
 
