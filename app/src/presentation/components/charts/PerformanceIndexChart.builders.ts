@@ -17,7 +17,7 @@ import {
 } from '@/domain/calculations/utils'
 import { calculateStdDev } from '@/application/hooks/useStatistics'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
-import { calculateAmountPI } from '@/domain/calculations/piValue'
+import { calculateAmountPI, calculateQuantityPI } from '@/domain/calculations/piValue'
 
 // ── 型定義 ──
 
@@ -30,6 +30,10 @@ export interface PerformanceRow {
   gpRate: number
   pi: number | null
   prevPi: number | null
+  /** 点数PI値（CTS 由来の点数を使用） */
+  qtyPi: number | null
+  /** 前年点数PI値 */
+  prevQtyPi: number | null
   salesZ: number | null
   custZ: number | null
   txZ: number | null
@@ -98,11 +102,14 @@ export function buildPerformanceData(
   year: number,
   month: number,
   prevYearDaily: ReadonlyMap<string, { sales: number; discount: number; customers?: number }>,
+  dailyQuantity?: ReadonlyMap<number, number>,
 ): {
   chartData: PerformanceRow[]
   stats: PerformanceStats
   piMa7: (number | null)[]
   prevPiMa7: (number | null)[]
+  qtyPiMa7: (number | null)[]
+  prevQtyPiMa7: (number | null)[]
 } {
   const salesValues: number[] = []
   const customerValues: number[] = []
@@ -111,6 +118,8 @@ export function buildPerformanceData(
   const gpRates: number[] = []
   const piRaw: number[] = []
   const prevPiRaw: number[] = []
+  const qtyPiRaw: number[] = []
+  const prevQtyPiRaw: number[] = []
 
   const rawRows: {
     day: number
@@ -121,6 +130,8 @@ export function buildPerformanceData(
     gpRate: number
     pi: number | null
     prevPi: number | null
+    qtyPi: number | null
+    prevQtyPi: number | null
   }[] = []
 
   for (let d = 1; d <= daysInMonth; d++) {
@@ -135,10 +146,14 @@ export function buildPerformanceData(
     const discountRate = grossSales > 0 ? calculateShare(discount, grossSales) : 0
     const gpRate = sales > 0 ? calculateGrossProfitRate(sales - cost - costInclusion, sales) : 0
     const pi = customers > 0 ? calculateAmountPI(sales, customers) : null
+    const qty = dailyQuantity?.get(d) ?? 0
+    const qtyPi = customers > 0 && qty > 0 ? calculateQuantityPI(qty, customers) : null
 
     const prev = prevYearDaily.get(toDateKeyFromParts(year, month, d))
     const prevCustomers = prev?.customers ?? 0
     const prevPi = prevCustomers > 0 ? safeDivide(prev?.sales ?? 0, prevCustomers, 0) * 1000 : null
+    // TODO: 前年点数PI — 前年の日別点数データが必要（現状は null）
+    const prevQtyPi: number | null = null
 
     if (sales > 0) salesValues.push(sales)
     if (customers > 0) customerValues.push(customers)
@@ -147,7 +162,20 @@ export function buildPerformanceData(
     if (sales > 0) gpRates.push(gpRate)
     piRaw.push(pi ?? 0)
     prevPiRaw.push(prevPi ?? 0)
-    rawRows.push({ day: d, sales, customers, txValue, discountRate, gpRate, pi, prevPi })
+    qtyPiRaw.push(qtyPi ?? 0)
+    prevQtyPiRaw.push(prevQtyPi ?? 0)
+    rawRows.push({
+      day: d,
+      sales,
+      customers,
+      txValue,
+      discountRate,
+      gpRate,
+      pi,
+      prevPi,
+      qtyPi,
+      prevQtyPi,
+    })
   }
 
   const salesStat = calculateStdDev(salesValues)
@@ -188,6 +216,8 @@ export function buildPerformanceData(
     stats: { sales: salesStat, cust: custStat, tx: txStat, disc: discStat, gp: gpStat },
     piMa7: calculatePartialMovingAverage(piRaw, 7),
     prevPiMa7: calculatePartialMovingAverage(prevPiRaw, 7),
+    qtyPiMa7: calculatePartialMovingAverage(qtyPiRaw, 7),
+    prevQtyPiMa7: calculatePartialMovingAverage(prevQtyPiRaw, 7),
   }
 }
 
@@ -196,6 +226,8 @@ export function buildPerformanceData(
 export interface PerformanceDataRow extends PerformanceRow {
   piMa7: number | null
   prevPiMa7: number | null
+  qtyPiMa7: number | null
+  prevQtyPiMa7: number | null
 }
 
 function commonXAxis(days: string[], ct: ChartTheme): EChartsOption['xAxis'] {
@@ -254,41 +286,46 @@ export function buildPerformanceOption(
   }
 
   if (view === 'piAmount' || view === 'piQuantity') {
-    const hasPrev = data.some((e) => e.prevPi != null)
-    // 前年PI棒（当年棒の背後にグレー棒で表示）
+    const isQty = view === 'piQuantity'
+    const piKey = isQty ? 'qtyPi' : 'pi'
+    const prevPiKey = isQty ? 'prevQtyPi' : 'prevPi'
+    const ma7Key = isQty ? 'qtyPiMa7' : 'piMa7'
+    const prevMa7Key = isQty ? 'prevQtyPiMa7' : 'prevPiMa7'
+    const hasPrev = data.some((e) => e[prevPiKey] != null)
+    // 前年PI棒（当年棒と横並び）
     if (hasPrev) {
       series.push({
         name: 'prevPi',
         type: 'bar' as const,
-        data: (data as unknown as Record<string, unknown>[]).map((d) => ({
-          value: d.prevPi as number | null,
-        })),
-        barMaxWidth: 18,
-        barGap: '-100%',
+        data: data.map((d) => ({ value: d[prevPiKey] })),
+        barMaxWidth: 14,
+        barGap: '20%',
         z: 1,
-        itemStyle: { color: ct.colors.slate, borderRadius: [3, 3, 0, 0], opacity: 0.35 },
+        itemStyle: { color: ct.colors.slate, borderRadius: [3, 3, 0, 0], opacity: 0.4 },
       })
     }
     // 当年PI棒（前年比で色分け：上回り=primary、下回り=orange）
-    const barColors = data.map((e) =>
-      e.prevPi != null && e.pi != null && e.pi >= e.prevPi ? ct.colors.primary : ct.colors.orange,
-    )
+    const barColors = data.map((e) => {
+      const cur = e[piKey]
+      const prev = e[prevPiKey]
+      return prev != null && cur != null && cur >= prev ? ct.colors.primary : ct.colors.orange
+    })
     series.push(
       {
         name: 'pi',
         type: 'bar' as const,
-        data: (data as unknown as Record<string, unknown>[]).map((d, i) => ({
-          value: d.pi as number | null,
+        data: data.map((d, i) => ({
+          value: d[piKey],
           itemStyle: { color: barColors[i] },
         })),
-        barMaxWidth: 18,
+        barMaxWidth: 14,
         z: 2,
         itemStyle: { borderRadius: [3, 3, 0, 0] },
       },
       {
         name: 'piMa7',
         type: 'line' as const,
-        data: data.map((d) => d.piMa7 ?? null),
+        data: data.map((d) => d[ma7Key] ?? null),
         lineStyle: { color: ct.colors.primary, width: 2.5 },
         itemStyle: { color: ct.colors.primary },
         symbol: 'none' as const,
@@ -298,7 +335,7 @@ export function buildPerformanceOption(
       {
         name: 'prevPiMa7',
         type: 'line' as const,
-        data: data.map((d) => d.prevPiMa7 ?? null),
+        data: data.map((d) => d[prevMa7Key] ?? null),
         lineStyle: { color: ct.colors.slate, width: 1.5, type: 'dashed' as const },
         itemStyle: { color: ct.colors.slate },
         symbol: 'none' as const,

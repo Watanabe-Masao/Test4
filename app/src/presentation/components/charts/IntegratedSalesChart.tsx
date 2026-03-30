@@ -167,6 +167,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
               maOverlays={maOverlays}
               showMovingAverage={showMovingAverage}
               onShowMovingAverageChange={setShowMovingAverage}
+              hasActiveSelection={pendingRange != null}
             />
             {canDrill && (
               <DrillHint>クリックでカテゴリ分析 / ダブルクリック or ドラッグで時間帯内訳</DrillHint>
@@ -196,6 +197,8 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
                 ctx={props.widgetCtx}
                 overrideDateRange={drillTabDateRange ?? undefined}
                 embedded
+                rangeStart={clickedDay ?? undefined}
+                rangeEnd={drillEnd ?? clickedDay ?? undefined}
               />
             )}
 
@@ -227,7 +230,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
                         </TabWrapper>
                       ))}
                     </TabGroup>
-                    {clickedDay != null && subTab === 'drilldown' && (
+                    {clickedDay != null && (
                       <DrillPeriodBadge>
                         {props.month}月{clickedDay}
                         {drillEnd != null && drillEnd !== clickedDay ? `〜${drillEnd}` : ''}日

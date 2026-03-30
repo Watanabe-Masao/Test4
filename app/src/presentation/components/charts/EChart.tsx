@@ -152,6 +152,8 @@ interface EChartProps {
   readonly onBrushEnd?: (params: Record<string, unknown>) => void
   /** ブラシモード中のクリック検出を有効にする（単一grid + category軸チャート専用） */
   readonly enableBrushClickEmulation?: boolean
+  /** ブラシ選択後にハイライトを維持する（pendingRange 表示中など） */
+  readonly keepBrushSelection?: boolean
   /** aria-label */
   readonly ariaLabel?: string
 }
@@ -163,6 +165,7 @@ export const EChart = memo(function EChart({
   onDblClick,
   onBrushEnd,
   enableBrushClickEmulation,
+  keepBrushSelection,
   ariaLabel,
 }: EChartProps) {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -258,15 +261,17 @@ export const EChart = memo(function EChart({
       // ユーザーコールバック実行
       ;(onBrushEnd as (p: unknown) => void)(params)
 
-      // 選択ハイライトをクリア（通常のPCドラッグ選択の挙動を再現）
-      chart.dispatchAction({ type: 'brush', areas: [] })
+      if (!keepBrushSelection) {
+        // 選択ハイライトをクリア（通常のPCドラッグ選択の挙動を再現）
+        chart.dispatchAction({ type: 'brush', areas: [] })
 
-      // 次回選択に備えて lineX モードを再アクティベート
-      chart.dispatchAction({
-        type: 'takeGlobalCursor',
-        key: 'brush',
-        brushOption: { brushType: 'lineX', brushMode: 'single' },
-      })
+        // 次回選択に備えて lineX モードを再アクティベート
+        chart.dispatchAction({
+          type: 'takeGlobalCursor',
+          key: 'brush',
+          brushOption: { brushType: 'lineX', brushMode: 'single' },
+        })
+      }
     }
 
     chart.on('brushEnd', handler)
@@ -282,7 +287,19 @@ export const EChart = memo(function EChart({
     return () => {
       chart.off('brushEnd', handler)
     }
-  }, [onBrushEnd])
+  }, [onBrushEnd, keepBrushSelection])
+
+  // keepBrushSelection が false に戻ったらハイライトをクリアし、ブラシモードを再起動
+  useEffect(() => {
+    const chart = chartRef.current
+    if (!chart || !onBrushEnd || keepBrushSelection) return
+    chart.dispatchAction({ type: 'brush', areas: [] })
+    chart.dispatchAction({
+      type: 'takeGlobalCursor',
+      key: 'brush',
+      brushOption: { brushType: 'lineX', brushMode: 'single' },
+    })
+  }, [keepBrushSelection, onBrushEnd])
 
   // ブラシモード中のクリック検出
   // brush が takeGlobalCursor でアクティブな間、通常の click イベントが抑制される。

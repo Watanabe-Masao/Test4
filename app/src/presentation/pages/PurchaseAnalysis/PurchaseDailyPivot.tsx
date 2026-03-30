@@ -250,6 +250,8 @@ export const PurchaseDailyPivotTable = memo(function PurchaseDailyPivotTable({
               <PivotGroupTh colSpan={2}>前年比</PivotGroupTh>
               <PivotGroupTh colSpan={2}>累計（当期）</PivotGroupTh>
               <PivotGroupTh colSpan={2}>累計（前期）</PivotGroupTh>
+              <PivotGroupTh colSpan={2}>累計差異</PivotGroupTh>
+              <PivotGroupTh colSpan={2}>累計前年比</PivotGroupTh>
             </tr>
             <tr>
               <PivotSubTh className="group-start">原価</PivotSubTh>
@@ -258,6 +260,10 @@ export const PurchaseDailyPivotTable = memo(function PurchaseDailyPivotTable({
               <PivotSubTh className="group-start">原価</PivotSubTh>
               <PivotSubTh>売価</PivotSubTh>
               <PivotSubTh>値入率</PivotSubTh>
+              <PivotSubTh className="group-start">原価</PivotSubTh>
+              <PivotSubTh>売価</PivotSubTh>
+              <PivotSubTh className="group-start">原価</PivotSubTh>
+              <PivotSubTh>売価</PivotSubTh>
               <PivotSubTh className="group-start">原価</PivotSubTh>
               <PivotSubTh>売価</PivotSubTh>
               <PivotSubTh className="group-start">原価</PivotSubTh>
@@ -309,6 +315,18 @@ export const PurchaseDailyPivotTable = memo(function PurchaseDailyPivotTable({
                     <PivotTd>{fmtOrDash(cum.cumPrice)}</PivotTd>
                     <PivotTd $groupStart>{fmtOrDash(cum.cumPrevCost)}</PivotTd>
                     <PivotTd>{fmtOrDash(cum.cumPrevPrice)}</PivotTd>
+                    <DiffCell $groupStart $positive={diffColor(cum.cumCost - cum.cumPrevCost)}>
+                      {cum.cumCost - cum.cumPrevCost !== 0
+                        ? fmtOrDash(cum.cumCost - cum.cumPrevCost)
+                        : '-'}
+                    </DiffCell>
+                    <DiffCell $positive={diffColor(cum.cumPrice - cum.cumPrevPrice)}>
+                      {cum.cumPrice - cum.cumPrevPrice !== 0
+                        ? fmtOrDash(cum.cumPrice - cum.cumPrevPrice)
+                        : '-'}
+                    </DiffCell>
+                    <PivotTd $groupStart>{yoyRate(cum.cumCost, cum.cumPrevCost)}</PivotTd>
+                    <PivotTd>{yoyRate(cum.cumPrice, cum.cumPrevPrice)}</PivotTd>
                   </tr>
                   {showSubtotals && sub && (
                     <TrSubtotal>
@@ -338,6 +356,8 @@ export const PurchaseDailyPivotTable = memo(function PurchaseDailyPivotTable({
                       <PivotTd>{yoyRate(getSubPrice(sub), getSubPrevPrice(sub))}</PivotTd>
                       <PivotTd $groupStart colSpan={2} />
                       <PivotTd $groupStart colSpan={2} />
+                      <PivotTd $groupStart colSpan={2} />
+                      <PivotTd $groupStart colSpan={2} />
                     </TrSubtotal>
                   )}
                 </Fragment>
@@ -365,6 +385,14 @@ export const PurchaseDailyPivotTable = memo(function PurchaseDailyPivotTable({
               <PivotTd>{fmtCurrency(totPrice)}</PivotTd>
               <PivotTd $groupStart>{fmtCurrency(totPrevCost)}</PivotTd>
               <PivotTd>{fmtCurrency(totPrevPrice)}</PivotTd>
+              <DiffCell $groupStart $positive={diffColor(totCost - totPrevCost)}>
+                {fmtCurrency(totCost - totPrevCost)}
+              </DiffCell>
+              <DiffCell $positive={diffColor(totPrice - totPrevPrice)}>
+                {fmtCurrency(totPrice - totPrevPrice)}
+              </DiffCell>
+              <PivotTd $groupStart>{yoyRate(totCost, totPrevCost)}</PivotTd>
+              <PivotTd>{yoyRate(totPrice, totPrevPrice)}</PivotTd>
             </TrTotal>
           </tbody>
         </Table>

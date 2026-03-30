@@ -72,7 +72,9 @@ export function ChartCard({
           </div>
           {guide && <ChartHelpButton guide={guide} />}
         </TitleArea>
-        {!collapsed && toolbar}
+        {!collapsed && toolbar && (
+          <div onClick={(e) => e.stopPropagation()}>{toolbar}</div>
+        )}
       </HeaderRow>
       {!collapsed && <ChartBody $height={height}>{children}</ChartBody>}
     </CardShell>

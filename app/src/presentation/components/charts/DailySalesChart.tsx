@@ -52,6 +52,8 @@ interface Props {
   showMovingAverage?: boolean
   /** 移動平均表示切替コールバック */
   onShowMovingAverageChange?: (show: boolean) => void
+  /** 範囲選択後のハイライトを維持する（pendingRange 存在時） */
+  hasActiveSelection?: boolean
 }
 
 const VIEW_LABELS: Record<ViewType, string> = {
@@ -99,6 +101,7 @@ export const DailySalesChart = memo(function DailySalesChart({
   maOverlays,
   showMovingAverage,
   onShowMovingAverageChange,
+  hasActiveSelection,
 }: Props) {
   const ct = useChartTheme()
   const [view, setViewInternal] = useState<ViewType>('standard')
@@ -224,6 +227,7 @@ export const DailySalesChart = memo(function DailySalesChart({
         rightAxisMode={rightAxisMode}
         maOverlays={maOverlays}
         showMovingAverage={showMovingAverage}
+        hasActiveSelection={hasActiveSelection}
       />
     </ChartCard>
   )

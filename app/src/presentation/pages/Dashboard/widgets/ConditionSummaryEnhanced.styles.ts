@@ -478,7 +478,63 @@ export const BudgetGrowthBadge = styled.span<{ $positive: boolean }>`
   border-radius: ${({ theme }) => theme.radii.sm};
 `
 
-// ─── Card Grid (横一列カードレイアウト) ─────────────────
+// ─── Card Grid (横スクロールカードレイアウト) ─────────────
+
+export const CardScrollContainer = styled.div`
+  position: relative;
+  overflow: hidden;
+`
+
+export const CardScrollInner = styled.div`
+  display: flex;
+  gap: ${({ theme }) => theme.spacing[3]};
+  padding: 0 ${({ theme }) => theme.spacing[10]} ${({ theme }) => theme.spacing[4]};
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`
+
+export const ScrollCard = styled.div`
+  flex: 0 0 180px;
+  min-width: 180px;
+`
+
+export const ScrollArrow = styled.button<{ $direction: 'left' | 'right' }>`
+  all: unset;
+  position: absolute;
+  top: 50%;
+  ${({ $direction }) => ($direction === 'left' ? 'left: 4px;' : 'right: 4px;')}
+  transform: translateY(-50%);
+  z-index: 2;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(30, 30, 30, 0.9)' : 'rgba(255, 255, 255, 0.9)'};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  color: ${({ theme }) => theme.colors.text3};
+  font-size: 14px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.15s;
+  &:hover {
+    color: ${({ theme }) => theme.colors.text};
+    background: ${({ theme }) =>
+      theme.mode === 'dark' ? 'rgba(50, 50, 50, 0.95)' : 'rgba(255, 255, 255, 1)'};
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+  }
+`
 
 export const CardGridRow = styled.div`
   display: grid;
@@ -487,13 +543,50 @@ export const CardGridRow = styled.div`
   padding: 0 ${({ theme }) => theme.spacing[10]} ${({ theme }) => theme.spacing[4]};
 `
 
-export const CardGroupLabel = styled.div`
+// ─── Collapsible Section ───────────────────────────────
+
+export const SectionHeader = styled.button`
+  all: unset;
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[2]};
+  cursor: pointer;
+  padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[10]}
+    ${({ theme }) => theme.spacing[2]};
+  width: 100%;
+  box-sizing: border-box;
+  &:hover {
+    background: ${({ theme }) =>
+      theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.015)'};
+  }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: -2px;
+  }
+`
+
+export const SectionChevron = styled.span<{ $open: boolean }>`
+  display: inline-flex;
+  transition: transform 0.2s ease;
+  transform: rotate(${({ $open }) => ($open ? '90deg' : '0deg')});
+  font-size: 10px;
+  color: ${({ theme }) => theme.colors.text4};
+`
+
+export const SectionContent = styled.div<{ $open: boolean }>`
+  display: grid;
+  grid-template-rows: ${({ $open }) => ($open ? '1fr' : '0fr')};
+  transition: grid-template-rows 0.25s ease;
+  & > div {
+    overflow: hidden;
+  }
+`
+
+export const CardGroupLabel = styled.span`
   font-size: 10px;
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text4};
   letter-spacing: 0.5px;
-  padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[10]}
-    ${({ theme }) => theme.spacing[2]};
 `
 
 export const SettingsGear = styled.button`

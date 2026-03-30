@@ -345,6 +345,8 @@ export interface YoYCardSummary {
     | 'itemsYoY'
     | 'requiredPace'
     | 'totalCost'
+    | 'qtyCustomerGap'
+    | 'amtCustomerGap'
     | null
 }
 
@@ -504,7 +506,7 @@ export function buildYoYCards(input: BuildYoYCardsInput): readonly YoYCardSummar
         sub: `点数${formatPercent(gap.quantityYoY)} − 客数${formatPercent(gap.customerYoY)}`,
         signalColor: gap.quantityCustomerGap >= 0 ? SIGNAL_COLORS.blue : SIGNAL_COLORS.red,
         metricId: null,
-        detailBreakdown: null,
+        detailBreakdown: 'qtyCustomerGap',
       })
       cards.push({
         key: 'amtCustomerGap',
@@ -513,7 +515,7 @@ export function buildYoYCards(input: BuildYoYCardsInput): readonly YoYCardSummar
         sub: `金額${formatPercent(gap.salesYoY)} − 客数${formatPercent(gap.customerYoY)}`,
         signalColor: gap.amountCustomerGap >= 0 ? SIGNAL_COLORS.blue : SIGNAL_COLORS.red,
         metricId: null,
-        detailBreakdown: null,
+        detailBreakdown: 'amtCustomerGap',
       })
     }
   }

@@ -312,7 +312,7 @@ export function buildCustomerCountSeries(
   return series
 }
 
-/** 売変シリーズ（当期棒 + 前年棒、並列） */
+/** 売変シリーズ（当期実線 + 前年破線） */
 export function buildDiscountSeries(
   rows: readonly Record<string, unknown>[],
   hasPrev: boolean,
@@ -321,21 +321,21 @@ export function buildDiscountSeries(
   const series: SeriesItem[] = [
     {
       name: 'discount',
-      type: 'bar',
+      type: 'line',
       yAxisIndex: 1,
       data: pluck(rows, 'discount'),
-      itemStyle: { color: colors.danger, borderRadius: [2, 2, 0, 0] },
-      barMaxWidth: 10,
+      ...lineDefaults({ color: colors.danger }),
+      connectNulls: true,
     },
   ]
   if (hasPrev) {
     series.push({
       name: 'prevYearDiscount',
-      type: 'bar',
+      type: 'line',
       yAxisIndex: 1,
       data: pluck(rows, 'prevYearDiscount'),
-      itemStyle: { color: withAlpha(colors.danger, 0.35), borderRadius: [2, 2, 0, 0] },
-      barMaxWidth: 10,
+      ...lineDefaults({ color: colors.danger, dashed: true, width: 1.5 }),
+      connectNulls: true,
     })
   }
   return series
