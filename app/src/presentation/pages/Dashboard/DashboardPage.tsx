@@ -1,7 +1,7 @@
 import { useState, useCallback, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MainContent } from '@/presentation/components/Layout'
-import { ChartErrorBoundary, PageSkeleton } from '@/presentation/components/common/feedback'
+import { PageSkeleton } from '@/presentation/components/common/feedback'
 import { Chip, ChipGroup } from '@/presentation/components/common/forms'
 import { KpiCard, KpiGrid, MetricBreakdownPanel } from '@/presentation/components/common/tables'
 import { useStoreSelection } from '@/application/hooks/ui'
@@ -20,7 +20,7 @@ import { useWidgetDragDrop } from './useWidgetDragDrop'
 import { useDashboardLayout } from './useDashboardLayout'
 import { WidgetSettingsPanel } from './WidgetSettingsPanel'
 import { DrillThroughScrollHandler } from './DrillThroughScrollHandler'
-import { LazyWidget } from './LazyWidget'
+import { DashboardChartGrid } from './DashboardChartGrid'
 import {
   Section,
   SectionTitle,
@@ -29,8 +29,6 @@ import {
   EmptyTitle,
   Toolbar,
   WidgetGridStyled,
-  ChartRow,
-  FullChartRow,
   DragItem,
   DragHandle,
   DeleteBtn,
@@ -125,9 +123,6 @@ export function DashboardPage() {
     )
   }
 
-  // Flat index tracker for D&D
-  let flatIdx = 0
-
   const renderDraggable = (
     widget: { id: string; linkTo?: { view: ViewType; tab?: string } },
     index: number,
@@ -200,83 +195,19 @@ export function DashboardPage() {
           {/* KPI Widgets */}
           {kpiWidgets.length > 0 && (
             <WidgetGridStyled>
-              {kpiWidgets.map((w) => {
-                const idx = flatIdx++
-                return renderDraggable(w, idx, w.render(ctx))
-              })}
+              {kpiWidgets.map((w, i) => renderDraggable(w, i, w.render(ctx)))}
             </WidgetGridStyled>
           )}
 
           {/* Chart Widgets */}
-          {chartWidgets.length > 0 &&
-            (() => {
-              const elements: ReactNode[] = []
-              let halfBuffer: typeof chartWidgets = []
-
-              const flushHalves = () => {
-                if (halfBuffer.length === 0) return
-                if (halfBuffer.length === 2) {
-                  const idx1 = flatIdx++
-                  const idx2 = flatIdx++
-                  elements.push(
-                    <ChartRow key={`half-${halfBuffer[0].id}`}>
-                      {renderDraggable(
-                        halfBuffer[0],
-                        idx1,
-                        <ChartErrorBoundary>
-                          <LazyWidget>{halfBuffer[0].render(ctx)}</LazyWidget>
-                        </ChartErrorBoundary>,
-                      )}
-                      {renderDraggable(
-                        halfBuffer[1],
-                        idx2,
-                        <ChartErrorBoundary>
-                          <LazyWidget>{halfBuffer[1].render(ctx)}</LazyWidget>
-                        </ChartErrorBoundary>,
-                      )}
-                    </ChartRow>,
-                  )
-                } else {
-                  const idx1 = flatIdx++
-                  elements.push(
-                    <ChartRow key={`half-${halfBuffer[0].id}`}>
-                      {renderDraggable(
-                        halfBuffer[0],
-                        idx1,
-                        <ChartErrorBoundary>
-                          <LazyWidget>{halfBuffer[0].render(ctx)}</LazyWidget>
-                        </ChartErrorBoundary>,
-                      )}
-                    </ChartRow>,
-                  )
-                }
-                halfBuffer = []
-              }
-
-              chartWidgets.forEach((w) => {
-                if (w.size === 'full') {
-                  flushHalves()
-                  const idx = flatIdx++
-                  elements.push(
-                    <FullChartRow key={w.id}>
-                      {renderDraggable(
-                        w,
-                        idx,
-                        <ChartErrorBoundary>
-                          <LazyWidget>{w.render(ctx)}</LazyWidget>
-                        </ChartErrorBoundary>,
-                      )}
-                    </FullChartRow>,
-                  )
-                } else {
-                  halfBuffer.push(w)
-                  if (halfBuffer.length === 2) flushHalves()
-                }
-              })
-              flushHalves()
-
-              return <>{elements}</>
-            })()}
+          {chartWidgets.length > 0 && (
+            <DashboardChartGrid
+              chartWidgets={chartWidgets}
+              ctx={ctx}
+              flatIdxStart={kpiWidgets.length}
+              renderWidget={renderDraggable}
+            />
+          )}
 
           {/* Settings Panel */}
           {showSettings && (
