@@ -385,6 +385,7 @@ CQRS + 契約ハイブリッド設計により、既存4層モデルの内側に
 - **widget orchestrator:** `useWidgetDataOrchestrator` が readModels を統合配布
 - **Rust authoritative:** 7 crate が authoritative 計算を担う（`authoritative-calculation-definition.md`）
 - **Zod 契約:** 全 queryToObjects に46型のスキーマ + readModels の .parse() fail fast
+- **正本化原則:** `references/01-principles/canonicalization-principles.md` — 7原則 + 禁止事項
 
 ## 直近の主要変更（#673-#730+）
 
