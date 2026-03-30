@@ -496,7 +496,7 @@ export function buildYoYCards(input: BuildYoYCardsInput): readonly YoYCardSummar
       prevSales: prevYear.totalSales,
     })
     if (gap) {
-      const fmtGap = (v: number) => `${v >= 0 ? '+' : ''}${(v * 100).toFixed(1)}%`
+      const fmtGap = (v: number) => `${v >= 0 ? '+' : ''}${formatPercent(v, 1)}`
       cards.push({
         key: 'qtyCustomerGap',
         label: '点数客数GAP',
