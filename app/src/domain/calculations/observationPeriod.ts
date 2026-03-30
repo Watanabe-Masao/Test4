@@ -16,6 +16,7 @@
  * - lastRecordedSalesDay は daily Map から導出（フィールドとして保持しない）
  */
 
+import { z } from 'zod'
 import type { ObservationPeriod, ObservationStatus } from '../models/ObservationPeriod'
 import {
   DEFAULT_MIN_DAYS_FOR_VALID,
@@ -37,6 +38,13 @@ export interface ObservationThresholds {
   /** 最低営業日数: これ未満は invalid（デフォルト: 3） */
   readonly minSalesDays: number
 }
+
+export const ObservationThresholdsSchema = z.object({
+  minDaysForValid: z.number(),
+  minDaysForOk: z.number(),
+  staleDaysThreshold: z.number(),
+  minSalesDays: z.number(),
+})
 
 /** デフォルト閾値 */
 export const DEFAULT_OBSERVATION_THRESHOLDS: Readonly<ObservationThresholds> = {

@@ -367,6 +367,27 @@ CQRS + 契約ハイブリッド設計により、既存4層モデルの内側に
 - **移動原価:** IN + OUT の全方向を含める（IN のみは二重計上になるため禁止）
 - **ガード:** `purchaseCostPathGuard.test.ts`（4層9テスト）+ `purchaseCostImportGuard.test.ts`（15テスト）で保証
 
+## 正本化体系（readModels）
+
+全ての業務値は `application/readModels/` に正本化されている。
+定義書は `references/01-principles/` を参照。
+
+| 正本 | ReadModel | 定義書 |
+|------|-----------|--------|
+| 仕入原価 | `readPurchaseCost()` | `purchase-cost-definition.md` |
+| 粗利 | `calculateGrossProfit()` | `gross-profit-definition.md` |
+| 売上・販売点数 | `readSalesFact()` | `sales-definition.md` |
+| 値引き | `readDiscountFact()` | `discount-definition.md` |
+| 要因分解 | `calculateFactorDecomposition()` | `authoritative-calculation-definition.md` |
+| 予算 | StoreResult（統一済み） | `budget-definition.md` |
+| KPI | StoreResult（統一済み） | `kpi-definition.md` |
+
+- **widget orchestrator:** `useWidgetDataOrchestrator` が readModels を統合配布
+- **Rust authoritative:** 7 crate が authoritative 計算を担う（`authoritative-calculation-definition.md`）
+- **Zod 契約:** 全 queryToObjects に46型のスキーマ + readModels の .parse() fail fast
+- **正本化原則:** `references/01-principles/canonicalization-principles.md` — 7原則 + 禁止事項
+- **正本化マップ:** `references/01-principles/calculation-canonicalization-map.md` — domain/calculations/ 全30ファイルの分類（必須/検討/不要）
+
 ## 直近の主要変更（#673-#730+）
 
 詳細は `references/02-status/recent-changes.md` を参照。
