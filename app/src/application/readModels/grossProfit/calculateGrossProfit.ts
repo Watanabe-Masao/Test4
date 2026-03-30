@@ -151,3 +151,39 @@ export function calculateGrossProfitWithFallback(input: {
     },
   })
 }
+
+// ── StoreResult → 粗利正本のアダプター ──
+
+/**
+ * StoreResult から粗利を正本計算する。
+ *
+ * conditionSummaryUtils の4関数を置換するためのアダプター。
+ * シグネチャ互換（StoreResult → number）を維持しつつ、内部を正本経由にする。
+ */
+export function grossProfitFromStoreResult(
+  sr: {
+    readonly totalSales: number
+    readonly totalCost: number
+    readonly inventoryCost: number
+    readonly openingInventory: number | null
+    readonly closingInventory: number | null
+    readonly totalCostInclusion: number
+    readonly totalCoreSales: number
+    readonly discountRate: number
+    readonly coreMarkupRate: number
+  },
+  inclusionMode: 'before_cost_inclusion' | 'after_cost_inclusion',
+): GrossProfitReadModelType {
+  return calculateGrossProfitWithFallback({
+    sales: sr.totalSales,
+    totalPurchaseCost: sr.totalCost,
+    inventoryPurchaseCost: sr.inventoryCost,
+    openingInventory: sr.openingInventory,
+    closingInventory: sr.closingInventory,
+    costInclusion: sr.totalCostInclusion,
+    inclusionMode,
+    coreSales: sr.totalCoreSales,
+    discountRate: sr.discountRate,
+    markupRate: sr.coreMarkupRate,
+  })
+}

@@ -1,10 +1,6 @@
 import { palette } from '@/presentation/theme/tokens'
-import {
-  safeDivide,
-  getEffectiveGrossProfitRate,
-  calculateMarkupRate,
-  calculateShare,
-} from '@/domain/calculations/utils'
+import { calculateMarkupRate, calculateShare } from '@/domain/calculations/utils'
+import { grossProfitFromStoreResult } from '@/application/readModels/grossProfit/calculateGrossProfit'
 import type { MetricId } from '@/domain/models/analysis'
 import type { StoreResult, CustomCategory } from '@/domain/models/storeTypes'
 import type { ConditionMetricId } from '@/domain/models/analysis'
@@ -66,30 +62,22 @@ export function metricSignal(
   return evaluateSignal(value, thresholds, def.direction)
 }
 
-// ─── GP Helpers ─────────────────────────────────────────
-
-export function computeGpAfterConsumable(sr: StoreResult): number {
-  return sr.invMethodGrossProfitRate != null
-    ? safeDivide(sr.invMethodGrossProfit! - sr.totalCostInclusion, sr.totalSales, 0)
-    : sr.estMethodMarginRate
-}
+// ─── GP Helpers（計算正本 calculateGrossProfit 経由） ──────
 
 export function computeGpBeforeConsumable(sr: StoreResult): number {
-  return getEffectiveGrossProfitRate(sr)
+  return grossProfitFromStoreResult(sr, 'before_cost_inclusion').grossProfitRate
+}
+
+export function computeGpAfterConsumable(sr: StoreResult): number {
+  return grossProfitFromStoreResult(sr, 'after_cost_inclusion').grossProfitRate
 }
 
 export function computeGpAmount(sr: StoreResult): number {
-  return sr.invMethodGrossProfit ?? sr.estMethodMargin
+  return grossProfitFromStoreResult(sr, 'before_cost_inclusion').grossProfit
 }
 
 export function computeGpAfterConsumableAmount(sr: StoreResult): number {
-  if (sr.invMethodGrossProfit != null) {
-    // 在庫法: invMethodGrossProfit は原価算入費を含まないため別途控除
-    return sr.invMethodGrossProfit - sr.totalCostInclusion
-  }
-  // 推定法: estMethodMargin の COGS (= grossSales × (1 - markupRate) + costInclusion)
-  // に原価算入費が既に含まれるため追加控除不要
-  return sr.estMethodMargin
+  return grossProfitFromStoreResult(sr, 'after_cost_inclusion').grossProfit
 }
 
 // ─── Store Breakdown Extractors ─────────────────────────
