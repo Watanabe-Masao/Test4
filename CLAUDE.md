@@ -386,6 +386,7 @@ CQRS + 契約ハイブリッド設計により、既存4層モデルの内側に
 - **Rust authoritative:** 7 crate が authoritative 計算を担う（`authoritative-calculation-definition.md`）
 - **Zod 契約:** 全 queryToObjects に46型のスキーマ + readModels の .parse() fail fast
 - **正本化原則:** `references/01-principles/canonicalization-principles.md` — 7原則 + 禁止事項
+- **正本化マップ:** `references/01-principles/calculation-canonicalization-map.md` — domain/calculations/ 全30ファイルの分類（必須/検討/不要）
 
 ## 直近の主要変更（#673-#730+）
 
