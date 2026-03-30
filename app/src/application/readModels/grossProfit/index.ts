@@ -14,3 +14,7 @@ export {
   grossProfitFromStoreResult,
 } from './calculateGrossProfit'
 export { GROSS_PROFIT_LABELS } from './grossProfitLabels'
+export {
+  getEffectiveGrossProfitRate,
+  getEffectiveGrossProfit,
+} from '@/domain/calculations/utils'

@@ -9,10 +9,12 @@ import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import {
   safeDivide,
   calculateTransactionValue,
-  getEffectiveGrossProfitRate,
-  getEffectiveGrossProfit,
   calculateYoYRatio,
 } from '@/domain/calculations/utils'
+import {
+  getEffectiveGrossProfitRate,
+  getEffectiveGrossProfit,
+} from '@/application/readModels/grossProfit'
 import { calculateForecast } from '@/application/hooks/calculation'
 import {
   DOW_LABELS,

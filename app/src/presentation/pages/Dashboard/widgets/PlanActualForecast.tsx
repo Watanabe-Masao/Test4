@@ -5,11 +5,13 @@ import { formatPercent, formatPointDiff } from '@/domain/formatting'
 import {
   safeDivide,
   calculateTransactionValue,
-  getEffectiveGrossProfitRate,
-  getEffectiveGrossProfit,
   calculateAchievementRate,
   calculateGrossProfitRate,
 } from '@/domain/calculations/utils'
+import {
+  getEffectiveGrossProfitRate,
+  getEffectiveGrossProfit,
+} from '@/application/readModels/grossProfit'
 import type { WidgetContext } from './types'
 import {
   ExecGrid,
