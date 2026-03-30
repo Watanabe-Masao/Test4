@@ -1,5 +1,4 @@
-import { useState, useCallback, useEffect, memo, type ReactNode } from 'react'
-import { motion } from 'framer-motion'
+import { useState, useCallback, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MainContent } from '@/presentation/components/Layout'
 import { ChartErrorBoundary, PageSkeleton } from '@/presentation/components/common/feedback'
@@ -14,14 +13,14 @@ import {
   CategoryHierarchyProvider,
   CurrencyUnitToggle,
   CrossChartSelectionProvider,
-  useCrossChartSelection,
 } from '@/presentation/components/charts'
-import { useIntersectionObserver } from '@/presentation/hooks/useIntersectionObserver'
 import { useUnifiedWidgetContext } from '@/presentation/hooks/useUnifiedWidgetContext'
 import { PrevYearBudgetDetailPanel } from './widgets/PrevYearBudgetDetailPanel'
 import { useWidgetDragDrop } from './useWidgetDragDrop'
 import { useDashboardLayout } from './useDashboardLayout'
 import { WidgetSettingsPanel } from './WidgetSettingsPanel'
+import { DrillThroughScrollHandler } from './DrillThroughScrollHandler'
+import { LazyWidget } from './LazyWidget'
 import {
   Section,
   SectionTitle,
@@ -38,57 +37,6 @@ import {
   WidgetLinkBtn,
   WidgetWrapper,
 } from './DashboardPage.styles'
-
-// ─── Drill-through scroll handler ────────────────────────
-
-/** CrossChartSelectionContext のドリルスルーリクエストに応じて対象ウィジェットへスクロール */
-function DrillThroughScrollHandler() {
-  const { drillThroughTarget, requestDrillThrough } = useCrossChartSelection()
-
-  useEffect(() => {
-    if (!drillThroughTarget) return
-    const el = document.querySelector(`[data-widget-id="${drillThroughTarget.widgetId}"]`)
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      // ハイライトアニメーション
-      el.classList.add('drill-highlight')
-      const timer = setTimeout(() => {
-        el.classList.remove('drill-highlight')
-        requestDrillThrough(null)
-      }, 1500)
-      return () => clearTimeout(timer)
-    }
-    requestDrillThrough(null)
-  }, [drillThroughTarget, requestDrillThrough])
-
-  return null
-}
-
-// ─── Lazy Widget (遅延レンダリング) ─────────────────────
-
-/** チャートウィジェットをビューポートに入るまでプレースホルダーで表示する */
-const LazyWidget = memo(function LazyWidget({ children }: { children: ReactNode }) {
-  const { ref, hasBeenVisible } = useIntersectionObserver({
-    rootMargin: '200px',
-    freezeOnceVisible: true,
-  })
-
-  return (
-    <div ref={ref}>
-      {hasBeenVisible ? (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.2, ease: 'easeOut' }}
-        >
-          {children}
-        </motion.div>
-      ) : (
-        <div style={{ minHeight: 300 }} />
-      )}
-    </div>
-  )
-})
 
 // ─── Main Dashboard ──────────────────────────────────────
 
