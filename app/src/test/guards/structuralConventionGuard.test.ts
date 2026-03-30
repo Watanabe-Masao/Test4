@@ -83,6 +83,46 @@ describe('Structural Convention Guard', () => {
     expect(violations).toEqual([])
   })
 
+  it('features/ への外部 import は barrel 経由のみ（deep import 禁止）', () => {
+    const featuresDir = path.join(SRC_DIR, 'features')
+    if (!fs.existsSync(featuresDir)) return
+
+    // features/ 配下のスライス名を収集
+    const sliceNames = fs
+      .readdirSync(featuresDir, { withFileTypes: true })
+      .filter((e) => e.isDirectory())
+      .map((e) => e.name)
+
+    // features/ 外の全ファイルをスキャン
+    const allFiles = collectTsFiles(SRC_DIR)
+    const violations: string[] = []
+
+    for (const file of allFiles) {
+      const relPath = relativePath(file)
+      // features/ 内部のファイルは対象外（内部 import は自由）
+      if (relPath.startsWith('features/')) continue
+      // テスト・stories は対象外
+      if (relPath.includes('__tests__/') || relPath.startsWith('stories/')) continue
+
+      const imports = extractImports(file)
+      for (const imp of imports) {
+        for (const slice of sliceNames) {
+          const barrelPath = `@/features/${slice}`
+          // barrel 自体は OK（例: @/features/sales）
+          if (imp === barrelPath) continue
+          // deep import は NG（例: @/features/sales/domain/salesMetrics）
+          if (imp.startsWith(`${barrelPath}/`)) {
+            violations.push(
+              `${relPath}: ${imp} — features/${slice} への deep import 禁止。barrel 経由 (@/features/${slice}) を使用してください`,
+            )
+          }
+        }
+      }
+    }
+
+    expect(violations).toEqual([])
+  })
+
   // ─── 仮実装ファイル検出ガード ──────────────────────────
 
   it('_prototypes/ 外に Demo/Prototype ファイルが存在しない', () => {
