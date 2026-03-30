@@ -44,6 +44,30 @@
 | **RBR** | 残予算必要率 | 残予算達成に必要な率 | remaining / remainingBudget | [0, ∞) | — | — |
 | **CGP** | 客数GAP | 購買行動変化（率の差分） | qtyYoY − custYoY | (-∞, ∞) | — | 分解公理 |
 
+### 率のスコープ（単日 vs 累計）
+
+**重要:** 同じカテゴリの率でも、分子・分母のスコープが異なると意味が変わる。
+
+| スコープ | 分子 | 分母 | 用途 | 集約ルール |
+|----------|------|------|------|-----------|
+| **単日（daily）** | 当日の額 | 当日の額 | 日別テーブル・カレンダー | そのまま表示 |
+| **累計（cumulative）** | 初日〜当日の合計額 | 初日〜当日の合計額 | KPI・月次ダッシュボード | 額を積み上げてから除算 |
+| **月次（monthly）** | 月全体の額 | 月全体の額 | StoreResult の最終値 | — |
+
+```
+✅ 正しい累計率の計算:
+  cumSales += dailySales
+  cumBudget += dailyBudget
+  cumAchievement = calculateAchievementRate(cumSales, cumBudget)
+
+❌ 誤った累計率の計算:
+  cumAchievement = average(dailyAchievementRates)  // 加重平均が崩壊
+```
+
+**原則:** 率の関数（calculateAchievementRate 等）は **スコープを知らない**。
+スコープの管理は呼び出し側の責務。ただし、累計スコープでは必ず
+「額の積み上げ → 最後に1回だけ除算」パターンに従うこと。
+
 ### YOY と GRW の違い
 
 **重要:** 前年比（YOY）と成長率（GRW）は異なる指標である。
