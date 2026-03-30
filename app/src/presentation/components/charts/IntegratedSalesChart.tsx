@@ -13,7 +13,7 @@
  *
  * 状態管理・データ取得は useIntegratedSalesState に分離。
  */
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
@@ -25,6 +25,9 @@ import { TimeSlotChart } from './TimeSlotChart'
 import { SubAnalysisPanel } from './SubAnalysisPanel'
 import { SubTabContent } from './IntegratedSalesSubTabs'
 import { YoYWaterfallChartWidget } from '@/presentation/pages/Dashboard/widgets/YoYWaterfallChart'
+import { useCurrencyFormat } from './chartTheme'
+import { formatPercent } from '@/domain/formatting'
+import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import { TabGroup, Tab, TabWrapper } from './TimeSlotSalesChart.styles'
 import {
   Wrapper,
@@ -121,6 +124,40 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
     daysInMonth: props.daysInMonth,
   })
 
+  const { format: fmtCurrency } = useCurrencyFormat()
+
+  // ── pendingRange / clickedDay の統合範囲 ──
+  const effectiveRange =
+    pendingRange ?? (clickedDay != null ? { start: clickedDay, end: drillEnd ?? clickedDay } : null)
+
+  // ── 選択範囲のサマリー（RangeActionBox + 要因分解に使用） ──
+  const rangeSummary = useMemo(() => {
+    if (!pendingRange) return null
+    const { start, end } = pendingRange
+    let curSales = 0
+    let prevSales = 0
+    let curCustomers = 0
+    let prevCustomers = 0
+    for (let d = start; d <= end; d++) {
+      const rec = props.daily.get(d)
+      if (rec) {
+        curSales += rec.sales ?? 0
+        curCustomers += rec.customers ?? 0
+      }
+      if (props.prevYearDaily) {
+        const key = toDateKeyFromParts(props.year, props.month, d)
+        const prev = props.prevYearDaily.get(key)
+        if (prev) {
+          prevSales += prev.sales ?? 0
+          prevCustomers += prev.customers ?? 0
+        }
+      }
+    }
+    const diff = curSales - prevSales
+    const yoy = prevSales > 0 ? curSales / prevSales : null
+    return { curSales, prevSales, diff, yoy, curCustomers, prevCustomers }
+  }, [pendingRange, props.daily, props.prevYearDaily, props.year, props.month])
+
   return (
     <Wrapper ref={parentRef}>
       {/* ── パンくずナビ（ドリル時） ── */}
@@ -176,18 +213,68 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
             {/* 範囲選択BOX */}
             {pendingRange != null && (
               <RangeActionBox>
-                <RangeActionLabel>
-                  {props.month}月{pendingRange.start}日
-                  {pendingRange.start !== pendingRange.end && `〜${pendingRange.end}日`}
-                  を選択しました
-                </RangeActionLabel>
-                <RangeActionBtnGroup>
-                  <RangeActionBtn onClick={handleRangeToTimeSlot}>時間帯売上</RangeActionBtn>
-                  <RangeActionBtn onClick={handleRangeToDrilldown}>ドリルダウン分析</RangeActionBtn>
-                  <RangeActionBtn $secondary onClick={handleRangeCancel}>
-                    キャンセル
-                  </RangeActionBtn>
-                </RangeActionBtnGroup>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1 }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}
+                  >
+                    <RangeActionLabel>
+                      {props.month}月{pendingRange.start}日
+                      {pendingRange.start !== pendingRange.end && `〜${pendingRange.end}日`}
+                      を選択しました
+                    </RangeActionLabel>
+                    <RangeActionBtnGroup>
+                      <RangeActionBtn onClick={handleRangeToTimeSlot}>時間帯売上</RangeActionBtn>
+                      <RangeActionBtn onClick={handleRangeToDrilldown}>
+                        ドリルダウン分析
+                      </RangeActionBtn>
+                      <RangeActionBtn $secondary onClick={handleRangeCancel}>
+                        キャンセル
+                      </RangeActionBtn>
+                    </RangeActionBtnGroup>
+                  </div>
+                  {rangeSummary && (
+                    <div
+                      style={{
+                        display: 'flex',
+                        gap: 16,
+                        fontSize: '0.7rem',
+                        fontFamily: 'monospace',
+                        color: 'inherit',
+                        opacity: 0.85,
+                        flexWrap: 'wrap',
+                      }}
+                    >
+                      <span>
+                        当期売上: <b>{fmtCurrency(rangeSummary.curSales)}</b>
+                      </span>
+                      <span>
+                        前年売上: <b>{fmtCurrency(rangeSummary.prevSales)}</b>
+                      </span>
+                      <span style={{ color: rangeSummary.diff >= 0 ? '#10b981' : '#ef4444' }}>
+                        差額:{' '}
+                        <b>
+                          {rangeSummary.diff >= 0 ? '+' : ''}
+                          {fmtCurrency(rangeSummary.diff)}
+                        </b>
+                      </span>
+                      {rangeSummary.yoy != null && (
+                        <span style={{ color: rangeSummary.yoy >= 1 ? '#10b981' : '#ef4444' }}>
+                          前年比: <b>{formatPercent(rangeSummary.yoy, 2)}</b>
+                        </span>
+                      )}
+                      <span>
+                        当期客数: <b>{rangeSummary.curCustomers.toLocaleString()}人</b>
+                      </span>
+                      <span>
+                        前年客数: <b>{rangeSummary.prevCustomers.toLocaleString()}人</b>
+                      </span>
+                    </div>
+                  )}
+                </div>
               </RangeActionBox>
             )}
 
@@ -197,8 +284,8 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
                 ctx={props.widgetCtx}
                 overrideDateRange={drillTabDateRange ?? undefined}
                 embedded
-                rangeStart={clickedDay ?? undefined}
-                rangeEnd={drillEnd ?? clickedDay ?? undefined}
+                rangeStart={effectiveRange?.start}
+                rangeEnd={effectiveRange?.end}
               />
             )}
 
