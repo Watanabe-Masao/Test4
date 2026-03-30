@@ -38,6 +38,11 @@
 | **TXV** | 客単価 | 1客あたり売上（単位値） | sales / customers | [0, ∞) 整数 | customers=0 → 0 | TV × C ≈ S (丸め誤差内) |
 | **PIC** | PI値 | 1客あたり点数 | totalQty / customers | [0, ∞) | customers=0 → 0 | — |
 | **PPU** | 点単価 | 1点あたり売上 | sales / totalQty | [0, ∞) | totalQty=0 → 0 | S = C × Q × P̄ |
+| **BPR** | 予算消化率 | 実績の経過予算に対する割合 | actual / elapsedBudget | [0, ∞) | elapsedBudget=0 → 0 | budgetAnalysis 内包 |
+| **BER** | 予算経過率 | 経過予算の月間予算に対する割合 | elapsedBudget / budget | [0, 1] | budget=0 → 0 | 単調増加 |
+| **CIR** | 原価算入率 | 原価算入費の売上に対する割合 | costInclusion / sales | [0, 1] | sales=0 → 0 | — |
+| **RBR** | 残予算必要率 | 残予算達成に必要な率 | remaining / remainingBudget | [0, ∞) | — | — |
+| **CGP** | 客数GAP | 購買行動変化（率の差分） | qtyYoY − custYoY | (-∞, ∞) | — | 分解公理 |
 
 ### YOY と GRW の違い
 
@@ -83,15 +88,35 @@
 | `calculateDiscountRate(salesAmount, discountAmount)` | DSC | estMethod.ts | pragmatic | ✅ reconstruction, range, complementarity, monotonicity, zero-safety |
 | `calculateMarkupRates(input)` | MKP（複合） | markupRate.ts | 正式 | ✅ (markupRate.test.ts) |
 | `calculateBudgetAnalysis(input)` | ACH（複合） | budgetAnalysis.ts | 正式 | ✅ (Rust invariants B-INV-1〜8) |
+| `calculateRemainingBudgetRate(input)` | RBR | remainingBudgetRate.ts | 正式 | ✅ (Zod契約追加済み) |
+| `calculateQuantityPI(qty, cust)` | PIC×1000 | piValue.ts | 正式 | ✅ (Zod契約追加済み) |
+| `calculateAmountPI(sales, cust)` | PPU×1000 | piValue.ts | 正式 | ✅ (Zod契約追加済み) |
+| `calculateCustomerGap(input)` | CGP | customerGap.ts | 正式 | ✅ (Zod契約追加済み) |
+
+#### budgetAnalysis が内包する率
+
+`calculateBudgetAnalysis()` は以下の率を一括計算する（Rust authoritative）:
+
+| 率 | カテゴリ | 数式 | 意味 |
+|---|---|---|---|
+| budgetProgressRate | BPR | totalSales / cumulativeBudget | 予算消化率 |
+| budgetElapsedRate | BER | cumulativeBudget / budget | 予算経過率 |
+| achievementRate | ACH | totalSales / budget | 月間達成率 |
+| budgetProgressGap | — | BPR - BER | 消化ペース差 |
+
+これらは個別の domain 関数を持たず、`calculateBudgetAnalysis` の出力フィールドとして一括管理される。
+多店舗集約（collectionAggregator）では同じ式を JS で再計算するが、
+式の意味は budgetAnalysis.ts の定義に従う。
 
 ### safeDivide の残存が適切な場合
 
 | 用途 | 例 | 理由 |
 |---|---|---|
 | 日商平均 | `safeDivide(budget, daysInMonth, 0)` | 比率ではなく単位値の算出 |
-| 原価算入率 | `safeDivide(costInclusion, sales, 0)` | 専用プリミティブ未定義（将来検討） |
-| 予算進捗率 | `safeDivide(sales, cumulativeBudget, 0)` | 達成率とは異なる（消化ペース） |
-| 予算経過率 | `safeDivide(cumulativeBudget, budget, 0)` | 時間経過の割合 |
+| 日平均客数 | `safeDivide(totalCustomers, salesDays, 0)` | 単位値の算出 |
+| 原価算入率 | `safeDivide(costInclusion, sales, 0)` | CIR として登録済み（storeAssembler 内） |
+| 予算進捗率 | `safeDivide(sales, cumulativeBudget, 0)` | BPR として budgetAnalysis に内包 |
+| 予算経過率 | `safeDivide(cumulativeBudget, budget, 0)` | BER として budgetAnalysis に内包 |
 | ペース比率 | `safeDivide(requiredDaily, actualDaily, 0)` | 必要ペースの比率 |
 | 標準誤差 | `safeDivide(stdDev, sqrt(n), stdDev)` | 統計計算 |
 
