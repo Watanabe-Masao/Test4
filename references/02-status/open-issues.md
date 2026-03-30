@@ -18,7 +18,6 @@
 
 | # | リスク | 優先度 | 詳細 |
 |---|---|---|---|
-| R-10 | チャート個別スライダーの廃止検討 | **High** | 14 チャートが DualPeriodSlider で個別期間管理 → `year - 1` + offset の日付計算を各自で独自実装。バグの温床（閏年・月跨ぎ・alignment 不整合）。推奨: 期間はヘッダで一元決定し、チャートは `ctx.currentDateRange` / `ctx.prevYearDateRange` を受け取るだけにする。architecture ロールの設計判断が必要 |
 | R-1 | Application→Infrastructure 直接 import | Low | allowlist 10 件（前回 13 から -3）。Port 型は domain/ に移動済み、adapter 実装は infrastructure/ に移動済み。残: DuckDB CQRS (4件)、rawFileStore (2件)、useI18n (1件)、Export (2件)、weatherAdapter bridge (1件)。DuckDB 4 件は構造的に不可避 |
 | R-4 | 肥大化コンポーネント（500行超） | Low | 前回 19 件 → 実質 9 件に改善。builders/Logic 等の純粋関数ファイルは対象外。残: IntegratedSalesChart (588行)、StorageManagementTab (547行)、HourlyChart (537行)、InsightTabBudget/Forecast (536/533行) 等。Phase 6 で継続 |
 | R-9 | ロールシステムの AI 単体セッション最適化 | Medium | 9 ロール × 2 ファイル = 18 ファイルの読み込みコストが高い。軽量ロール設計を検討する |
@@ -30,6 +29,7 @@
 | R-6 | FileImportService.ts (632行) | 2026-03 | 632→194行に縮小 |
 | R-7 | サブバレル移行未完了 | 2026-03 | 一括移行完了 + ガードテスト追加 |
 | R-8 | null/0 棲み分け | 2026-03 | UI 改善完了 |
+| R-10 | DualPeriodSlider 個別管理 | 2026-03 | 全11チャートから内蔵 Slider 削除。ページレベル統合 + chartPeriodProps で UnifiedWidgetContext 経由配布 |
 
 ## 3. 次に取り組むべきこと（優先順）
 

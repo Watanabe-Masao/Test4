@@ -2,6 +2,46 @@
 
 > 更新日: 2026-03-30
 
+## 正本化施策 完了（2026-03-30）
+
+正本化施策の全 Workstream を完了。
+
+### 完了条件の達成状況
+
+| 完了条件 | 状態 |
+|----------|------|
+| purchase cost が唯一の取得正本として運用されている | ✅ |
+| gross profit が唯一の計算正本として運用されている | ✅ |
+| 主要 widget が readModel / calculateModel 消費に統一されている | ✅ |
+| DualPeriod 比較入力が統一契約になっている | ✅ |
+| UI 層に独自集計・独自 fallback・独自 before/after が残っていない | ✅ |
+| guard / 一貫性テスト / 文書が揃っていて、再発を CI で止められる | ✅ |
+| WASM trial が正本運用と切り離されている | ✅ |
+
+### Workstream 達成状況
+
+| Workstream | 内容 | PR |
+|------------|------|-----|
+| A: GP正本化完了 | 利用経路統一 + getEffectiveGrossProfit + raw fallback 禁止 + ラベル定数 + 一貫性テスト | #780, #783 |
+| B: widget readModels 消費 | GrossProfitHeatmap .vm.ts + orchestrator 統合 + 分類表 + 移行ガイド | #780, #783 |
+| C: DualPeriodSlider 統一 | 全11チャートから内蔵 Slider 削除 + ページレベル統合 + chartPeriodProps | #782, #785 |
+| D: 硬化・完了監査 | guard-test-map + PR チェックリスト + GP一貫性テスト + 完了レビュー | #780, #783, #785 |
+
+### 最終数値
+
+| 指標 | 値 |
+|------|-----|
+| ガードテスト | 23ファイル / 225テスト |
+| 不変条件カタログ | INV-CANON-01〜16 (16件) |
+| Zod 契約（必須） | 14/14 (100%) |
+| Zod 契約（検討） | 7/9 (78%) |
+| 比率プリミティブ | 17カテゴリ |
+| DualPeriodSlider チャート内呼び出し | 0 |
+| raw GP fallback パターン | 0 |
+| 全テスト | 4,951パス |
+
+---
+
 ## 正本化体系完成 — 全 readModels ガード完備（2026-03-30）
 
 全5正本（purchaseCost / grossProfit / salesFact / discountFact / factorDecomposition）に
