@@ -6,9 +6,9 @@
 
 | ディレクトリ | 内容 | ファイル数 |
 |---|---|---|
-| `01-principles/` | 設計原則・制約（Engine 境界、禁止事項、パイプライン整合性） | 11 |
-| `02-status/` | 進捗・品質状態（maturity, promotion, 品質監査） | 7 |
-| `03-guides/` | 実装ガイド・リファレンス（API, データモデル, 天気基盤, 拡張手順） | 23 |
+| `01-principles/` | 設計原則・制約・正本定義書（Engine 境界、正本化原則、業務値定義） | 22 |
+| `02-status/` | 進捗・品質状態（maturity, promotion, 品質監査, 課題管理） | 8+ |
+| `03-guides/` | 実装ガイド・リファレンス（API, データモデル, ガードテスト, 不変条件） | 28 |
 | `99-archive/` | 旧文書の圧縮要約（現行では参照しない） | 1 |
 
 ## 正本一覧
@@ -27,6 +27,17 @@
 | ドメイン率プリミティブ | `01-principles/domain-ratio-primitives.md` |
 | 観測期間仕様 | `01-principles/observation-period-spec.md` |
 | UI/UX 4 原則 | `01-principles/uiux-principles.md` |
+| 正本化原則（P1-P7） | `01-principles/canonicalization-principles.md` |
+| 仕入原価の正本定義 | `01-principles/purchase-cost-definition.md` |
+| 粗利の正本定義 | `01-principles/gross-profit-definition.md` |
+| 売上の正本定義 | `01-principles/sales-definition.md` |
+| 値引きの正本定義 | `01-principles/discount-definition.md` |
+| 予算の正本定義 | `01-principles/budget-definition.md` |
+| KPIの正本定義 | `01-principles/kpi-definition.md` |
+| PI値の正本定義 | `01-principles/pi-value-definition.md` |
+| 客数GAPの正本定義 | `01-principles/customer-gap-definition.md` |
+| Authoritative計算の定義 | `01-principles/authoritative-calculation-definition.md` |
+| 正本化マップ | `01-principles/calculation-canonicalization-map.md` |
 | MetricId レジストリ | `03-guides/metric-id-registry.md`（50 定義/42 実装済み） |
 | 不変条件カタログ | `03-guides/invariant-catalog.md` |
 | Compare 共通規約 | `03-guides/compare-conventions.md` |
@@ -44,6 +55,8 @@
 | 計算エンジン | `03-guides/calculation-engine.md` |
 | WASM 二重実行ランブック | `03-guides/wasm-dual-run-runbook.md` |
 | 拡張プレイブック | `03-guides/extension-playbook.md` |
+| 仕入原価統合計画 | `03-guides/purchase-cost-unification-plan.md` |
+| Temporal 分析ポリシー | `03-guides/temporal-analysis-policy.md` |
 
 ## AI 向け索引
 

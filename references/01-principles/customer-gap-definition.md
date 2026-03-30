@@ -53,3 +53,14 @@
 点数客数GAP ≈ (curPI / prevPI − 1) × 客数前年比
   ※ PI値 = 点数 / 客数 × 1000 なので、客数GAPはPI値の前年比変化と密接
 ```
+
+## 6. 正本関数
+
+```ts
+calculateCustomerGap(input: CustomerGapInput): CustomerGapResult | null
+```
+
+- **実装:** `domain/calculations/customerGap.ts`
+- **Zod 契約:** `CustomerGapInputSchema` / `CustomerGapResultSchema`
+- **テスト:** `domain/calculations/__tests__/customerGap.test.ts` (9テスト)
+- **利用箇所:** `conditionSummaryCardBuilders.ts` — KPIカード（点数客数GAP / 金額客数GAP）

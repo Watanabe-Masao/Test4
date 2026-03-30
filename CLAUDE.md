@@ -201,14 +201,23 @@ app/src/
     │   ├── size.ts           #   ファイルサイズ
     │   ├── migration.ts      #   比較移行
     │   └── misc.ts           #   その他
-    ├── guards/               # 構造制約ガード
+    ├── calculationCanonRegistry.ts  # domain/calculations/ 全ファイル分類
+    ├── guards/               # 構造制約ガード（22ファイル / 213テスト）
     │   ├── layerBoundaryGuard.test.ts
     │   ├── presentationIsolationGuard.test.ts
     │   ├── structuralConventionGuard.test.ts
     │   ├── codePatternGuard.test.ts
     │   ├── sizeGuard.test.ts
     │   ├── purityGuard.test.ts
-    │   └── temporalRollingGuard.test.ts
+    │   ├── temporalRollingGuard.test.ts
+    │   ├── purchaseCostPathGuard.test.ts
+    │   ├── purchaseCostImportGuard.test.ts
+    │   ├── grossProfitPathGuard.test.ts
+    │   ├── salesFactPathGuard.test.ts
+    │   ├── discountFactPathGuard.test.ts
+    │   ├── factorDecompositionPathGuard.test.ts
+    │   ├── calculationCanonGuard.test.ts
+    │   └── canonicalizationSystemGuard.test.ts
     ├── audits/               # アーキテクチャ監査
     ├── temporal/             # temporal path テスト
     └── observation/          # 観測テスト（WASM 二重実行）
@@ -372,37 +381,37 @@ CQRS + 契約ハイブリッド設計により、既存4層モデルの内側に
 全ての業務値は `application/readModels/` に正本化されている。
 定義書は `references/01-principles/` を参照。
 
-| 正本 | ReadModel | 定義書 |
-|------|-----------|--------|
-| 仕入原価 | `readPurchaseCost()` | `purchase-cost-definition.md` |
-| 粗利 | `calculateGrossProfit()` | `gross-profit-definition.md` |
-| 売上・販売点数 | `readSalesFact()` | `sales-definition.md` |
-| 値引き | `readDiscountFact()` | `discount-definition.md` |
-| 要因分解 | `calculateFactorDecomposition()` | `authoritative-calculation-definition.md` |
-| 予算 | StoreResult（統一済み） | `budget-definition.md` |
-| KPI | StoreResult（統一済み） | `kpi-definition.md` |
+| 正本 | ReadModel | 定義書 | パスガード |
+|------|-----------|--------|-----------|
+| 仕入原価 | `readPurchaseCost()` | `purchase-cost-definition.md` | purchaseCostPathGuard (9) + importGuard (15) |
+| 粗利 | `calculateGrossProfit()` | `gross-profit-definition.md` | grossProfitPathGuard (6) |
+| 売上・販売点数 | `readSalesFact()` | `sales-definition.md` | salesFactPathGuard (5) |
+| 値引き | `readDiscountFact()` | `discount-definition.md` | discountFactPathGuard (5) |
+| 要因分解 | `calculateFactorDecomposition()` | `authoritative-calculation-definition.md` | factorDecompositionPathGuard (5) |
+| 予算 | StoreResult（統一済み） | `budget-definition.md` | — |
+| KPI | StoreResult（統一済み） | `kpi-definition.md` | — |
+| PI値 | `calculateQuantityPI()` / `calculateAmountPI()` | `pi-value-definition.md` | — |
+| 客数GAP | `calculateCustomerGap()` | `customer-gap-definition.md` | — |
 
-- **widget orchestrator:** `useWidgetDataOrchestrator` が readModels を統合配布
-- **Rust authoritative:** 7 crate が authoritative 計算を担う（`authoritative-calculation-definition.md`）
-- **Zod 契約:** 全 queryToObjects に46型のスキーマ + readModels の .parse() fail fast
+- **widget orchestrator:** `useWidgetDataOrchestrator` が 3正本を `UnifiedWidgetContext.readModels` 経由で全 widget に配布
+- **体系統合ガード:** `canonicalizationSystemGuard.test.ts` (6テスト) — 全 readModel ディレクトリ・定義書・CLAUDE.md 参照を検証
+- **計算レジストリ:** `calculationCanonRegistry.ts` + `calculationCanonGuard.test.ts` — domain/calculations/ 全ファイルの分類管理
+- **Zod 契約:** 全 queryToObjects に46型 + readModels の .parse() fail fast + domain/calculations 必須14/14 + 検討7/9
+- **不変条件:** `invariant-catalog.md` に INV-CANON-01〜16 として16件の正本化不変条件を登録
 - **正本化原則:** `references/01-principles/canonicalization-principles.md` — 7原則 + 禁止事項
-- **正本化マップ:** `references/01-principles/calculation-canonicalization-map.md` — domain/calculations/ 全30ファイルの分類（必須/検討/不要）
+- **正本化マップ:** `references/01-principles/calculation-canonicalization-map.md` — domain/calculations/ 全ファイルの分類
 
 ## 直近の主要変更（#673-#730+）
 
 詳細は `references/02-status/recent-changes.md` を参照。
 
-- **Temporal Phase 0-5**: 移動平均 overlay の最小統合まで完了。policy は `references/03-guides/temporal-analysis-policy.md`
-- **P5/DuckDB 収束**: useDuckDB composition root 整理、QueryHandler 移行完了（allowlist 33→0）、buildTypedWhere 完全移行
-- **WidgetContext 整理**: UnifiedWidgetContext 派生化、observationStatus 昇格、weather hook 分離
-- **Guard 強化**: temporalRollingGuard / purityGuard / codePatternGuard 追加、allowlist カテゴリ分割
-- **MA 修正・拡張**: extraMetrics partial 修正、toMaData date.day 化、remapPrevYearSeries date 整合、prevYearAlignment 共通化
-- **カテゴリ分析 3ビュー化**: 日次推移 / カテゴリ棒（CategoryBarChart）/ ドリルダウン分析
-- **売変分析強化**: CategoryDiscountChart（ドリルダウン・前年比較・ソート・フィルター継承）
-- **PI値分析改善**: partial MA、色改善、店舗別PI比較チャート（StorePIComparisonChart）
-- **motion アニメーション**: Tab pill / Modal spring / パネル切替フェード / Dashboard widget フェード
-- **シミュレーション UI**: SimulationInsightBanner + SimulationSummaryCard、SensitivityDashboard 5→3カード
-- **パフォーマンス**: Weather inflight dedupe、DuckDB ConsoleLogger 抑止
+- **正本化体系完成**: 全5正本にパスガード + 体系統合ガード（22ファイル/213テスト）。Zod 契約は必須14/14 + 検討7/9。INV-CANON-01〜16 を不変条件カタログに登録
+- **widget orchestrator 統合**: `useWidgetDataOrchestrator` を `UnifiedWidgetContext.readModels` に統合。3正本（purchaseCost/salesFact/discountFact）を全 widget に配布
+- **仕入原価正本化**: 3独立正本（通常仕入・売上納品・移動原価）を `readPurchaseCost` に統合。旧7クエリ廃止。取得経路ガード4層防御
+- **粗利計算正本化**: 4種の粗利を `calculateGrossProfit` に統一。conditionSummaryUtils の4関数を正本経由に置換。2層構造（計算層 vs 利用層）を文書化
+- **Temporal Phase 0-5**: 移動平均 overlay の最小統合。policy は `references/03-guides/temporal-analysis-policy.md`
+- **P5/DuckDB 収束**: QueryHandler 移行完了、buildTypedWhere 完全移行
+- **Guard 強化**: temporalRollingGuard / purityGuard / codePatternGuard / 正本化ガード群追加
 
 ## Explanation（説明責任）
 

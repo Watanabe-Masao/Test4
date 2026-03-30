@@ -48,9 +48,19 @@ storeId × date × deptCode × lineCode × klassCode
 - 売変率 = discountTotal / (sales + discountTotal)
 - 売変インパクト（discountLossCost）
 
-## 6. 関連ファイル
+## 6. 正本化状態（実装済み）
 
-- `infrastructure/duckdb/queries/categoryDiscount.ts` — DuckDB クエリ
+- **正本関数:** `readDiscountFact()` — `application/readModels/discountFact/readDiscountFact.ts`
+- **Zod 契約:** `DiscountFactReadModel` / `DiscountFactRow` — `DiscountFactTypes.ts`
+- **QueryHandler:** `discountFactHandler` — useQueryWithHandler 連携用
+- **導出ヘルパー:** `toStoreDiscountRows()` / `toDailyDiscountRows()` / `toDeptDiscountRows()`
+- **ガードテスト:** `discountFactPathGuard.test.ts` (5テスト)
+- **一貫性テスト:** `readDiscountFact.test.ts` (7テスト)
+- **widget orchestrator:** `useWidgetDataOrchestrator` 経由で `UnifiedWidgetContext.readModels.discountFact` として配布
+
+## 7. 関連ファイル
+
+- `application/readModels/discountFact/` — 正本実装
+- `infrastructure/duckdb/queries/categoryDiscount.ts` — DuckDB クエリ（readDiscountFact 内部で使用）
 - `domain/calculations/discountImpact.ts` — 売変インパクト計算
 - `domain/models/StoreResult.ts` — discountRate, totalDiscount, discountEntries
-- `presentation/components/charts/DiscountAnalysisPanel.tsx` — 表示

@@ -53,21 +53,16 @@ PI値は「来店客1,000人あたりの購買指標」。
 | `calculateQuantityPI(qty, customers)` | 販売点数, 客数 | 点数PI値 | **あり** |
 | `calculateAmountPI(sales, customers)` | 売上金額, 客数 | 金額PI値 | **あり** |
 
-これらは `domain/calculations/piValue.ts` に新設する。
+- **実装:** `domain/calculations/piValue.ts`（実装済み）
+- **Zod 契約:** `PIValueInputSchema` / `PIValueResultSchema`（実装済み）
+- **テスト:** `domain/calculations/__tests__/piValue.test.ts` (9テスト)
+
 既存の `calculateItemsPerCustomer` / `calculateAveragePricePerItem` は
 1人あたり買上点数・点単価として残す（PI値とは別の指標）。
-
-### Zod 契約
-
-```ts
-const PIValueResult = z.object({
-  quantityPI: z.number(),  // 点数PI値（×1000）
-  amountPI: z.number(),    // 金額PI値（×1000）
-})
-```
 
 ## 5. ガード条件
 
 - PI値の計算は `calculateQuantityPI` / `calculateAmountPI` のみ
 - `StoreCategoryPIHandler` はこれらの関数を使用する
 - presentation 層で独自に ×1000 しない
+- **利用箇所:** `categoryBenchmarkLogic.ts`, `StoreCategoryPIHandler.ts`, `PerformanceIndexChart.builders.ts`

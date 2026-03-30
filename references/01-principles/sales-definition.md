@@ -82,21 +82,19 @@ storeId × date × deptCode × lineCode × klassCode × hour
 `useDataPreview.ts` の `RawCtsRecord` は `CategoryTimeSalesRecord` と互換であり、
 `totalQuantity` フィールドは CTS レコードに正しく存在する。
 
-## 6. 推奨実施順序
+## 6. 正本化状態（実装済み）
 
-1. `useDataPreview.ts` の潜在バグ修正
-2. 販売点数の正本方針決定（A or B）
-3. 方針に応じた Zod 契約 + 実装
-4. ガードテスト追加
-5. ドキュメント更新
+- **正本関数:** `readSalesFact()` — `application/readModels/salesFact/readSalesFact.ts`
+- **Zod 契約:** `SalesFactReadModel` / `SalesFactDailyRow` / `SalesFactHourlyRow` — `SalesFactTypes.ts`
+- **QueryHandler:** `salesFactHandler` — useQueryWithHandler 連携用
+- **導出ヘルパー:** `toStoreSalesRows()` / `toDailySalesRows()` / `toHourlySalesRows()` / `toDeptSalesRows()`
+- **ガードテスト:** `salesFactPathGuard.test.ts` (5テスト)
+- **一貫性テスト:** `readSalesFact.test.ts` (8テスト)
+- **widget orchestrator:** `useWidgetDataOrchestrator` 経由で `UnifiedWidgetContext.readModels.salesFact` として配布
 
 ## 7. 関連ファイル
 
-- `domain/models/StoreResult.ts` — 売上の正本（totalSales 等）
-- `domain/models/DailyRecord.ts` — 日別レコード（totalQuantity なし）
-- `infrastructure/duckdb/schemas.ts` — store_day_summary VIEW 定義
-- `infrastructure/duckdb/queries/storeDaySummary.ts` — StoreDaySummaryRow
-- `infrastructure/duckdb/queries/categoryTimeSales.ts` — CTS クエリ
-- `infrastructure/duckdb/queries/ctsHourlyQueries.ts` — 時間帯集計
-- `infrastructure/duckdb/queries/ctsHierarchyQueries.ts` — 階層集計
-- `application/hooks/useDataPreview.ts` — 潜在バグ箇所
+- `application/readModels/salesFact/` — 正本実装
+- `domain/models/StoreResult.ts` — 売上の集計済み正本（totalSales 等）
+- `infrastructure/duckdb/queries/categoryTimeSales.ts` — CTS クエリ（readSalesFact 内部で使用）
+- `infrastructure/duckdb/queries/ctsHourlyQueries.ts` — 時間帯集計（readSalesFact 内部で使用）
