@@ -76,6 +76,7 @@ export const CALCULATION_CANON_REGISTRY: Readonly<Record<string, CanonEntry>> = 
 
   // ── 必須: 新規追加 ──
   'piValue.ts': { tag: 'required', reason: 'PI値（点数PI値・金額PI値）', zodAdded: true },
+  'customerGap.ts': { tag: 'required', reason: '前年比客数GAP（点数・金額）', zodAdded: true },
 
   // ── 不要: プリミティブ・ユーティリティ・バレル ──
   'utils.ts': { tag: 'not-needed', reason: 'safeDivide 等のプリミティブ', zodAdded: false },
