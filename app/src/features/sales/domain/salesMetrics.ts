@@ -6,11 +6,15 @@
  *
  * @guard A2 Domain は純粋
  */
-import { safeDivide } from '@/domain/calculations/utils'
+import {
+  safeDivide,
+  calculateAchievementRate,
+  calculateGrowthRate,
+} from '@/domain/calculations/utils'
 
-/** 日別達成率を計算する */
+/** 日別達成率を計算する（正本関数 calculateAchievementRate に委譲） */
 export function computeDailyAchievementRate(actual: number, budget: number): number {
-  return safeDivide(actual, budget, 0)
+  return calculateAchievementRate(actual, budget)
 }
 
 /** 予算消化ペースを計算する（elapsed / total に対する actual / budget の比） */
@@ -26,8 +30,8 @@ export function computeBudgetPace(
   return safeDivide(actualRatio, expectedRatio, 0)
 }
 
-/** 前年成長率を計算する */
+/** 前年成長率を計算する（正本関数 calculateGrowthRate に委譲） */
 export function computeYoYGrowthRate(current: number, previous: number): number | null {
   if (previous <= 0) return null
-  return (current - previous) / previous
+  return calculateGrowthRate(current, previous)
 }

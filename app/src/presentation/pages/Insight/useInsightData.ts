@@ -10,6 +10,7 @@ import {
   safeDivide,
   calculateTransactionValue,
   getEffectiveGrossProfitRate,
+  getEffectiveGrossProfit,
   calculateYoYRatio,
 } from '@/domain/calculations/utils'
 import { calculateForecast } from '@/application/hooks/calculation'
@@ -141,7 +142,7 @@ export function useInsightData() {
 
   // ─── 派生値 ─────────────────────────────────────────────
   const r = currentResult
-  const actualGrossProfit = r ? (r.invMethodGrossProfit ?? r.estMethodMargin) : 0
+  const actualGrossProfit = r ? getEffectiveGrossProfit(r) : 0
   const actualGrossProfitRate = r ? getEffectiveGrossProfitRate(r) : 0
 
   const totalCustomers = r?.totalCustomers ?? 0

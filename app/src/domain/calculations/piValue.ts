@@ -14,8 +14,7 @@
  */
 import { z } from 'zod'
 import { safeDivide } from './utils'
-
-const PI_MULTIPLIER = 1_000
+import { PI_MULTIPLIER } from '@/domain/constants'
 
 // ── 入力契約 ──
 

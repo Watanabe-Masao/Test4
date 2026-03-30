@@ -4,6 +4,7 @@
  * スカラー合算は scalarAccumulator.ts、コレクション集約は collectionAggregator.ts に委譲。
  */
 import type { StoreResult } from '@/domain/models/storeTypes'
+import { getEffectiveGrossProfit } from '@/domain/calculations/utils'
 import {
   evaluateObservationPeriod,
   worseObservationStatus,
@@ -143,7 +144,10 @@ export function aggregateStoreResults(
     averageDailySales,
     ...budgetAnalysis,
     ...calculateGrossProfitBudget({
-      grossProfit: inv.invMethodGrossProfit ?? est.estMethodMargin,
+      grossProfit: getEffectiveGrossProfit({
+        invMethodGrossProfit: inv.invMethodGrossProfit,
+        estMethodMargin: est.estMethodMargin,
+      }),
       grossProfitBudget: scalars.gpBudget,
       budgetElapsedRate: budgetAnalysis.budgetElapsedRate,
       elapsedDays: scalars.elapsedDays,

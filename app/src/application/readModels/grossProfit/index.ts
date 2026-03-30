@@ -13,3 +13,4 @@ export {
   calculateGrossProfitWithFallback,
   grossProfitFromStoreResult,
 } from './calculateGrossProfit'
+export { GROSS_PROFIT_LABELS } from './grossProfitLabels'

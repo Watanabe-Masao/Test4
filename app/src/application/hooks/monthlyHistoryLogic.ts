@@ -11,6 +11,7 @@ import type { StoreDaySummaryIndex } from '@/domain/models/record'
 import {
   safeDivide,
   getEffectiveGrossProfitRate,
+  getEffectiveGrossProfit,
   calculateGrossProfitRate,
 } from '@/domain/calculations/utils'
 
@@ -48,7 +49,7 @@ export function currentResultToMonthlyPoint(
     month,
     totalSales: result.totalSales,
     totalCustomers: result.totalCustomers,
-    grossProfit: result.invMethodGrossProfit ?? result.estMethodMargin,
+    grossProfit: getEffectiveGrossProfit(result),
     grossProfitRate: getEffectiveGrossProfitRate(result),
     budget: result.budget > 0 ? result.budget : null,
     budgetAchievement: result.budgetAchievementRate,

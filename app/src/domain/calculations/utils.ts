@@ -204,6 +204,17 @@ export function getEffectiveGrossProfitRate(result: {
 }
 
 /**
+ * 在庫法粗利額（実績）が利用可能ならそれを、なければ推定法マージン額を返す。
+ * getEffectiveGrossProfitRate の額バージョン。
+ */
+export function getEffectiveGrossProfit(result: {
+  readonly invMethodGrossProfit: number | null
+  readonly estMethodMargin: number
+}): number {
+  return result.invMethodGrossProfit ?? result.estMethodMargin
+}
+
+/**
  * 設定データの inventoryDate が対象年月と一致するか判定する。
  * 日付なしやパース不能は後方互換のため true を返す。
  */

@@ -6,6 +6,7 @@ import {
   safeDivide,
   calculateTransactionValue,
   getEffectiveGrossProfitRate,
+  getEffectiveGrossProfit,
   calculateAchievementRate,
   calculateGrossProfitRate,
 } from '@/domain/calculations/utils'
@@ -46,7 +47,7 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
     elapsedBudget += r.budgetDaily.get(d) ?? 0
   }
 
-  const actualGP = r.invMethodGrossProfit ?? r.estMethodMargin
+  const actualGP = getEffectiveGrossProfit(r)
   const actualGPRate = getEffectiveGrossProfitRate(r)
 
   const elapsedGPBudget = r.grossProfitBudget * r.budgetElapsedRate
