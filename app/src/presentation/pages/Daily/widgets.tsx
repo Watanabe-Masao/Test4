@@ -20,6 +20,8 @@ export const DAILY_WIDGETS: readonly WidgetDef[] = [
         daysInMonth={ctx.daysInMonth}
         targetRate={ctx.targetRate}
         warningRate={ctx.warningRate}
+        rangeStart={ctx.chartPeriodProps?.rangeStart}
+        rangeEnd={ctx.chartPeriodProps?.rangeEnd}
       />
     ),
   },
@@ -35,6 +37,8 @@ export const DAILY_WIDGETS: readonly WidgetDef[] = [
         year={ctx.year}
         month={ctx.month}
         prevYearDaily={ctx.prevYear.hasPrevYear ? ctx.prevYear.daily : undefined}
+        rangeStart={ctx.chartPeriodProps?.rangeStart}
+        rangeEnd={ctx.chartPeriodProps?.rangeEnd}
       />
     ),
     isVisible: (ctx) => ctx.prevYear.hasPrevYear,
