@@ -10,44 +10,28 @@
  * - 日別チャートは常時表示、時間帯は包含表示（ドリル時のみ）
  * - 部門別時間帯パターンは孫として時間帯の下に包含
  * - 右軸モードに応じてサブ分析パネルを動的配置
+ *
+ * 状態管理・データ取得は useIntegratedSalesState に分離。
  */
-import { useState, useCallback, useMemo, useRef, useEffect, memo } from 'react'
-import styled from 'styled-components'
+import { memo } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
-import { dateRangeToKeys } from '@/domain/models/CalendarDate'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 import type { WeatherPersister } from '@/application/queries/weather'
-import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
-import { useMultiMovingAverage } from '@/application/hooks/useMultiMovingAverage'
-import {
-  dailyQuantityHandler,
-  type DailyQuantityInput,
-} from '@/application/queries/summary/DailyQuantityHandler'
 import type { DailyRecord, DailyWeatherSummary, DiscountEntry } from '@/domain/models/record'
-import { aggregateDailyQuantity } from './IntegratedSalesChartLogic'
-import { useDrillDateRange } from '@/application/hooks/useDrillDateRange'
-import {
-  buildSalesAnalysisContext,
-  deriveChildContext,
-} from '@/application/models/SalesAnalysisContext'
-// AnalysisViewEvents / CategoryFocus は TimeSlotChart 統合に伴い不要（将来復帰可能性あり）
-import {
-  buildRootNodeContext,
-  deriveNodeContext,
-  deriveDeptPatternContext,
-  DEFAULT_TOP_DEPARTMENT_POLICY,
-} from '@/application/models/AnalysisNodeContext'
-// useCrossChartSelection は TimeSlotChart 統合に伴い不要
-import type { RightAxisMode } from './DailySalesChartBodyLogic'
-import type { ViewType } from './DailySalesChartBody'
+import { useIntegratedSalesState } from './useIntegratedSalesState'
 import { DailySalesChart } from './DailySalesChart'
 import { TimeSlotChart } from './TimeSlotChart'
 import { SubAnalysisPanel } from './SubAnalysisPanel'
-import { SubTabContent, type SubTabKey } from './IntegratedSalesSubTabs'
+import { SubTabContent } from './IntegratedSalesSubTabs'
 import { YoYWaterfallChartWidget } from '@/presentation/pages/Dashboard/widgets/YoYWaterfallChart'
 import { TabGroup, Tab, TabWrapper } from './TimeSlotSalesChart.styles'
 import {
+  Wrapper,
+  DrillNav,
+  NavItem,
+  NavSep,
+  DrillHint,
   RangeActionBox,
   RangeActionLabel,
   RangeActionBtnGroup,
@@ -55,13 +39,6 @@ import {
   DrillPeriodBadge,
   DayDrillClose,
 } from './IntegratedSalesChart.styles'
-// ContainedAnalysisPanel は横スライド切替化により不要（将来の参照用にコメント残置）
-// import { ContainedAnalysisPanel, type ContextTag } from './ContainedAnalysisPanel'
-
-interface SelectedRange {
-  readonly start: number
-  readonly end: number
-}
 
 interface Props {
   // DailySalesChart props
@@ -96,250 +73,53 @@ interface Props {
   readonly widgetCtx?: import('@/presentation/pages/Dashboard/widgets/types').WidgetContext
 }
 
-/** ヘッダ固定分の offset（px） */
-const SCROLL_OFFSET = 16
-
 export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Props) {
-  const [selectedRange, setSelectedRange] = useState<SelectedRange | null>(null)
-  const [rightAxisMode, setRightAxisMode] = useState<RightAxisMode>('quantity')
-  const [dailyView, setDailyView] = useState<ViewType>('standard')
-  const [drillLevel, setDrillLevel] = useState(0)
-  const [slideDirection, setSlideDirection] = useState(1)
-
-  // clickedDay: useState 上限(8)回避のため useReducer 的にdrillLevelを再利用
-  const [clickedDay, setClickedDay] = useState<number | null>(null)
-  const [subTab, setSubTab] = useState<SubTabKey>('trend')
-  const [pendingRange, setPendingRange] = useState<{ start: number; end: number } | null>(null)
-
-  // ── drill scroll 制御 ──
-  const parentRef = useRef<HTMLDivElement>(null)
-  const drillPanelRef = useRef<HTMLDivElement>(null)
-  /** 範囲選択→ドリルダウン遷移時の end 日 */
-  const [drillEnd, setDrillEnd] = useState<number | null>(null)
-
-  const canDrill = props.queryExecutor?.isReady === true
-
-  // ── 日別点数データ（DuckDB 由来） ──
-  const storeIds = useMemo(
-    () => (props.selectedStoreIds.size > 0 ? [...props.selectedStoreIds] : undefined),
-    [props.selectedStoreIds],
-  )
-  const curQtyInput = useMemo<DailyQuantityInput | null>(() => {
-    const { fromKey, toKey } = dateRangeToKeys(props.currentDateRange)
-    return { dateFrom: fromKey, dateTo: toKey, storeIds, isPrevYear: false }
-  }, [props.currentDateRange, storeIds])
-  const prevYearDateRange = props.prevYearScope?.dateRange
-  const prevQtyInput = useMemo<DailyQuantityInput | null>(() => {
-    if (!prevYearDateRange) return null
-    const { fromKey, toKey } = dateRangeToKeys(prevYearDateRange)
-    return { dateFrom: fromKey, dateTo: toKey, storeIds, isPrevYear: true }
-  }, [prevYearDateRange, storeIds])
-  const { data: curQtyOut } = useQueryWithHandler(
-    props.queryExecutor,
-    dailyQuantityHandler,
-    curQtyInput,
-  )
-  const { data: prevQtyOut } = useQueryWithHandler(
-    props.queryExecutor,
-    dailyQuantityHandler,
-    prevQtyInput,
-  )
-  const dailyQuantity = useMemo(
-    () =>
-      aggregateDailyQuantity(
-        curQtyOut?.records,
-        prevQtyOut?.records,
-        prevYearDateRange,
-        props.currentDateRange,
-        props.daysInMonth,
-      ),
-    [curQtyOut, prevQtyOut, prevYearDateRange, props.currentDateRange, props.daysInMonth],
-  )
-
-  const handleDayClick = useCallback((day: number) => {
-    setClickedDay((prev) => {
-      if (prev === day) {
-        setSubTab('trend')
-        return null
-      }
-      setSubTab('drilldown')
-      return day
-    })
-    setDrillEnd(null)
-  }, [])
-
-  const handleDayRangeSelect = useCallback(
-    (startDay: number, endDay: number) => {
-      if (!canDrill) return
-      setPendingRange({ start: startDay, end: endDay })
-    },
-    [canDrill],
-  )
-
-  const handleRangeToTimeSlot = useCallback(() => {
-    if (!pendingRange) return
-    setSelectedRange(pendingRange)
-    setPendingRange(null)
-    setSlideDirection(1)
-    setDrillLevel(1)
-  }, [pendingRange])
-
-  const handleRangeToDrilldown = useCallback(() => {
-    if (!pendingRange) return
-    setDrillEnd(pendingRange.end) // 範囲の終了日を保持
-    setClickedDay(pendingRange.start)
-    setPendingRange(null)
-    setSubTab('drilldown')
-  }, [pendingRange])
-
-  const handleRangeCancel = useCallback(() => setPendingRange(null), [])
-
-  // DateRange 構築は application 層の hook に委譲（presentation 層でのデータ調停を防止）
-  const { dateRange: rangeDateRange, prevYearScope: rangePrevYearScope } = useDrillDateRange(
-    selectedRange,
-    props.year,
-    props.month,
-    props.prevYearScope,
-  )
-
-  const isDrilled = selectedRange != null && rangeDateRange != null
-
-  // drill 開始時: ナビ見出しへ自動スクロール
-  const prevIsDrilledRef = useRef(false)
-  useEffect(() => {
-    if (isDrilled && !prevIsDrilledRef.current) {
-      requestAnimationFrame(() => {
-        if (parentRef.current) {
-          const rect = parentRef.current.getBoundingClientRect()
-          window.scrollTo({
-            top: window.scrollY + rect.top - SCROLL_OFFSET,
-            behavior: 'smooth',
-          })
-        }
-      })
-    }
-    prevIsDrilledRef.current = isDrilled
-  }, [isDrilled])
-
-  // ── 分析文脈の構築 ──
-
-  // 親文脈（日別売上推移）: 常に currentDateRange を使用
-  const parentContext = useMemo(
-    () =>
-      buildSalesAnalysisContext(
-        props.currentDateRange,
-        props.selectedStoreIds,
-        props.prevYearScope,
-      ),
-    [props.currentDateRange, props.selectedStoreIds, props.prevYearScope],
-  )
-
-  // 子文脈（時間帯 — ドリル時のみ）: 親から dateRange を上書き派生
-  const drillContext = useMemo(() => {
-    if (!isDrilled || !rangeDateRange) return null
-    return deriveChildContext(parentContext, rangeDateRange, rangePrevYearScope ?? undefined)
-  }, [isDrilled, rangeDateRange, rangePrevYearScope, parentContext])
-
-  // ドリルダウン分析用の日付範囲と前年スコープ（選択範囲 or 全期間）
-  const drillTabRange = useMemo<{ start: number; end: number } | null>(
-    () => (clickedDay != null ? { start: clickedDay, end: drillEnd ?? clickedDay } : null),
-    [clickedDay, drillEnd],
-  )
-  const { dateRange: drillTabDateRange, prevYearScope: drillTabPrevYearScope } = useDrillDateRange(
-    drillTabRange,
-    props.year,
-    props.month,
-    props.prevYearScope,
-  )
-  // カテゴリ分析 + ドリルダウン分析の共通スコープ（日クリック/範囲選択時は絞り込み、なければ全期間）
-  const analysisContext = useMemo(() => {
-    if (!drillTabDateRange) return parentContext
-    return deriveChildContext(parentContext, drillTabDateRange, drillTabPrevYearScope ?? undefined)
-  }, [parentContext, drillTabDateRange, drillTabPrevYearScope])
-
-  // AnalysisNodeContext（ノード階層モデル）
-  const dailyNode = useMemo(
-    () => buildRootNodeContext(parentContext, 'daily-sales'),
-    [parentContext],
-  )
-
-  const timeSlotNode = useMemo(
-    () =>
-      isDrilled && drillContext
-        ? deriveNodeContext(dailyNode, 'time-slot', {
-            overrideBase: drillContext,
-            focus: selectedRange
-              ? {
-                  kind: 'day-range' as const,
-                  startDay: selectedRange.start,
-                  endDay: selectedRange.end,
-                }
-              : undefined,
-          })
-        : null,
-    [dailyNode, isDrilled, drillContext, selectedRange],
-  )
-
-  // deptPatternNode は将来の孫コンポーネント context 対応時に使用予定
-  // 現在は DeptHourlyChart が従来 props で動作するため、ノード構築のみ行う
-  const deptPatternNode = useMemo(
-    () =>
-      timeSlotNode ? deriveDeptPatternContext(timeSlotNode, DEFAULT_TOP_DEPARTMENT_POLICY) : null,
-    [timeSlotNode],
-  )
-  void deptPatternNode
-
-  // ── 移動平均 overlay（売上 + 右軸指標 × 当年/前年） ──
-  const [showMovingAverage, setShowMovingAverage] = useState(true)
-  const RIGHT_AXIS_MA_METRIC: Partial<
-    Record<RightAxisMode, import('@/domain/models/temporal').AnalysisMetric>
-  > = {
-    quantity: 'quantity',
-    customers: 'customers',
-    discount: 'discount',
-  }
-  const maOverlays = useMultiMovingAverage(
-    props.queryExecutor ?? null,
-    props.currentDateRange,
-    props.selectedStoreIds,
-    props.prevYearScope,
-    RIGHT_AXIS_MA_METRIC[rightAxisMode] ?? null,
-    showMovingAverage && dailyView === 'standard',
-  )
-
-  // ── 表示用ラベル ──
-
-  const rangeLabel =
-    selectedRange != null
-      ? selectedRange.start === selectedRange.end
-        ? `${props.month}月${selectedRange.start}日`
-        : `${props.month}月${selectedRange.start}〜${selectedRange.end}日`
-      : ''
-
-  // ── ドリルレベル管理（横スライド切替） ──
-  // 0: 日別売上, 1: 時間帯別, 2: 部門別+カテゴリ別
-  const setDrillWithDirection = useCallback(
-    (next: number) => {
-      setSlideDirection(next > drillLevel ? 1 : -1)
-      setDrillLevel(next)
-    },
-    [drillLevel],
-  )
-
-  const handleDrillToTimeSlot = useCallback(() => setDrillWithDirection(1), [setDrillWithDirection])
-  const handleBackToDaily = useCallback(() => {
-    setDrillWithDirection(0)
-    setSelectedRange(null)
-    requestAnimationFrame(() => {
-      if (parentRef.current) {
-        const rect = parentRef.current.getBoundingClientRect()
-        window.scrollTo({
-          top: window.scrollY + rect.top - SCROLL_OFFSET,
-          behavior: 'smooth',
-        })
-      }
-    })
-  }, [setDrillWithDirection])
+  const {
+    // state
+    rightAxisMode,
+    setRightAxisMode,
+    dailyView,
+    setDailyView,
+    drillLevel,
+    slideDirection,
+    clickedDay,
+    setClickedDay,
+    subTab,
+    setSubTab,
+    pendingRange,
+    drillEnd,
+    setDrillEnd,
+    showMovingAverage,
+    setShowMovingAverage,
+    // refs
+    parentRef,
+    drillPanelRef,
+    // derived
+    canDrill,
+    isDrilled,
+    dailyQuantity,
+    drillContext,
+    analysisContext,
+    drillTabDateRange,
+    maOverlays,
+    rangeLabel,
+    // handlers
+    handleDayClick,
+    handleDayRangeSelect,
+    handleRangeToTimeSlot,
+    handleRangeToDrilldown,
+    handleRangeCancel,
+    handleDrillToTimeSlot,
+    handleBackToDaily,
+  } = useIntegratedSalesState({
+    queryExecutor: props.queryExecutor,
+    currentDateRange: props.currentDateRange,
+    selectedStoreIds: props.selectedStoreIds,
+    prevYearScope: props.prevYearScope,
+    year: props.year,
+    month: props.month,
+    daysInMonth: props.daysInMonth,
+  })
 
   return (
     <Wrapper ref={parentRef}>
@@ -532,57 +312,3 @@ const slideVariants = {
 }
 
 const slideTransition = { duration: 0.25, ease: [0.25, 0.1, 0.25, 1] as const }
-
-// ── Styles ──
-
-const Wrapper = styled.div`
-  position: relative;
-`
-
-const DrillNav = styled.nav`
-  display: flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing[2]};
-  padding: ${({ theme }) => theme.spacing[4]} 0;
-  margin-bottom: ${({ theme }) => theme.spacing[2]};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
-`
-
-const NavItem = styled.button<{ $active: boolean }>`
-  all: unset;
-  cursor: pointer;
-  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[5]};
-  border-radius: ${({ theme }) => theme.radii.md};
-  font-weight: ${({ $active, theme }) =>
-    $active ? theme.typography.fontWeight.bold : theme.typography.fontWeight.normal};
-  color: ${({ $active, theme }) => ($active ? theme.colors.text : theme.colors.palette.primary)};
-  background: ${({ $active, theme }) =>
-    $active
-      ? theme.mode === 'dark'
-        ? 'rgba(255,255,255,0.08)'
-        : 'rgba(0,0,0,0.05)'
-      : 'transparent'};
-  transition: all 0.15s;
-
-  &:hover {
-    background: ${({ theme }) =>
-      theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
-  }
-  &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
-    outline-offset: 2px;
-  }
-`
-
-const NavSep = styled.span`
-  color: ${({ theme }) => theme.colors.text4};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-`
-
-const DrillHint = styled.div`
-  text-align: center;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  color: ${({ theme }) => theme.colors.text4};
-  margin-top: ${({ theme }) => theme.spacing[1]};
-  opacity: 0.7;
-`

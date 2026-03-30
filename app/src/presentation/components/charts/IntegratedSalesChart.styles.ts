@@ -1,5 +1,57 @@
 import styled from 'styled-components'
 
+export const Wrapper = styled.div`
+  position: relative;
+`
+
+export const DrillNav = styled.nav`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[2]};
+  padding: ${({ theme }) => theme.spacing[4]} 0;
+  margin-bottom: ${({ theme }) => theme.spacing[2]};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+`
+
+export const NavItem = styled.button<{ $active: boolean }>`
+  all: unset;
+  cursor: pointer;
+  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[5]};
+  border-radius: ${({ theme }) => theme.radii.md};
+  font-weight: ${({ $active, theme }) =>
+    $active ? theme.typography.fontWeight.bold : theme.typography.fontWeight.normal};
+  color: ${({ $active, theme }) => ($active ? theme.colors.text : theme.colors.palette.primary)};
+  background: ${({ $active, theme }) =>
+    $active
+      ? theme.mode === 'dark'
+        ? 'rgba(255,255,255,0.08)'
+        : 'rgba(0,0,0,0.05)'
+      : 'transparent'};
+  transition: all 0.15s;
+
+  &:hover {
+    background: ${({ theme }) =>
+      theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+  }
+`
+
+export const NavSep = styled.span`
+  color: ${({ theme }) => theme.colors.text4};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+`
+
+export const DrillHint = styled.div`
+  text-align: center;
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text4};
+  margin-top: ${({ theme }) => theme.spacing[1]};
+  opacity: 0.7;
+`
+
 export const RangeActionBox = styled.div`
   display: flex;
   align-items: center;
