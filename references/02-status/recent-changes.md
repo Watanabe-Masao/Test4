@@ -30,6 +30,20 @@
 | 正本パスガード数 | 2 (purchaseCost, grossProfit) | **6** (全正本+体系) |
 | factorDecomposition 許可リスト外の直接import | 1 (causalChain) | **0** |
 
+### Zod 契約拡充
+
+- **sensitivity.ts**: 4スキーマ（SensitivityBase/Deltas/Result + ElasticityResult）
+- **trendAnalysis.ts**: 2スキーマ（MonthlyDataPoint + TrendAnalysisResult）
+- **advancedForecast.ts**: 4スキーマ（WMAEntry/MonthEndProjection/LinearRegression + WeatherAdjustedProjection）
+- **correlation.ts**: 4スキーマ（CorrelationResult/NormalizedSeries/DivergencePoint/CorrelationMatrixCell）
+- **forecast.ts**: 4スキーマ（WeeklySummary/DayOfWeekAverage/AnomalyDetectionResult + ForecastResult）
+- **computeMovingAverage.ts**: 2スキーマ（MovingAveragePoint + MissingnessPolicy）
+- **必須14/14完了、検討7/9完了**（残り2件は domain/models 依存で据え置き）
+
+### getEffectiveGrossProfitRate 凍結ガード
+
+- 利用ファイル数上限13に凍結。新規利用は grossProfitFromStoreResult 経由を強制
+
 ### 全正本化ガード一覧
 
 | 正本 | パスガード | プロセステスト |

@@ -7,14 +7,18 @@
  * @guard A2 Domain は純粋（副作用なし）
  */
 
-/** 移動平均の入力ポイント（domain 層で閉じた型） */
-export interface MovingAveragePoint {
-  readonly value: number | null
-  readonly status: 'ok' | 'missing'
-}
+import { z } from 'zod'
 
-/** 欠損処理ポリシー */
-export type MovingAverageMissingnessPolicy = 'strict' | 'partial'
+// ─── Zod Schemas ─────────────────────────────────────
+
+export const MovingAveragePointSchema = z.object({
+  value: z.number().nullable(),
+  status: z.enum(['ok', 'missing']),
+})
+export type MovingAveragePoint = z.infer<typeof MovingAveragePointSchema>
+
+export const MovingAverageMissingnessPolicySchema = z.enum(['strict', 'partial'])
+export type MovingAverageMissingnessPolicy = z.infer<typeof MovingAverageMissingnessPolicySchema>
 
 /**
  * 日次系列の trailing 移動平均を計算する。

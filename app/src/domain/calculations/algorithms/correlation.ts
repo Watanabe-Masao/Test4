@@ -4,44 +4,41 @@
  * 統合タイムラインや店舗クラスタリングで使用する
  * 統計的な分析の純粋関数群。
  */
+import { z } from 'zod'
 import { safeDivide } from '../utils'
 import { DIVERGENCE_DETECTION_THRESHOLD } from '@/domain/constants'
 
-// ─── Types ────────────────────────────────────────────
+// ─── Zod Schemas ─────────────────────────────────────
 
-/** 相関係数の計算結果 */
-export interface CorrelationResult {
-  /** ピアソンの積率相関係数 r（-1 ～ 1） */
-  readonly r: number
-  /** データ点数 */
-  readonly n: number
-}
+export const CorrelationResultSchema = z.object({
+  r: z.number(),
+  n: z.number(),
+})
+export type CorrelationResult = z.infer<typeof CorrelationResultSchema>
 
-/** 正規化（Min-Max）されたデータ系列 */
-export interface NormalizedSeries {
-  readonly values: readonly number[]
-  readonly min: number
-  readonly max: number
-  readonly range: number
-}
+export const NormalizedSeriesSchema = z.object({
+  values: z.array(z.number()).readonly(),
+  min: z.number(),
+  max: z.number(),
+  range: z.number(),
+})
+export type NormalizedSeries = z.infer<typeof NormalizedSeriesSchema>
 
-/** 乖離検出の結果 */
-export interface DivergencePoint {
-  readonly index: number
-  readonly seriesAValue: number
-  readonly seriesBValue: number
-  /** 2系列の正規化値の差分 */
-  readonly divergence: number
-  /** 閾値超過フラグ */
-  readonly isSignificant: boolean
-}
+export const DivergencePointSchema = z.object({
+  index: z.number(),
+  seriesAValue: z.number(),
+  seriesBValue: z.number(),
+  divergence: z.number(),
+  isSignificant: z.boolean(),
+})
+export type DivergencePoint = z.infer<typeof DivergencePointSchema>
 
-/** 相関マトリクスのセル */
-export interface CorrelationMatrixCell {
-  readonly seriesA: string
-  readonly seriesB: string
-  readonly correlation: CorrelationResult
-}
+export const CorrelationMatrixCellSchema = z.object({
+  seriesA: z.string(),
+  seriesB: z.string(),
+  correlation: CorrelationResultSchema,
+})
+export type CorrelationMatrixCell = z.infer<typeof CorrelationMatrixCellSchema>
 
 // ─── Correlation ──────────────────────────────────────
 

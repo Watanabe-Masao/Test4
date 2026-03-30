@@ -64,15 +64,24 @@ export const CALCULATION_CANON_REGISTRY: Readonly<Record<string, CanonEntry>> = 
   'algorithms/advancedForecast.ts': {
     tag: 'review',
     reason: 'WMA・回帰・天気調整予測',
-    zodAdded: false,
+    zodAdded: true,
   },
   'algorithms/sensitivity.ts': { tag: 'review', reason: 'What-if 分析', zodAdded: true },
   'algorithms/trendAnalysis.ts': { tag: 'review', reason: 'MoM/YoY/トレンド', zodAdded: true },
-  'algorithms/correlation.ts': { tag: 'review', reason: '相関・類似度', zodAdded: false },
-  'forecast.ts': { tag: 'review', reason: '週次サマリー・異常値検出', zodAdded: false },
-  'dowGapAnalysis.ts': { tag: 'review', reason: '曜日ギャップ分析', zodAdded: false },
-  'dowGapActualDay.ts': { tag: 'review', reason: '実日数マッピング', zodAdded: false },
-  'temporal/computeMovingAverage.ts': { tag: 'review', reason: '移動平均', zodAdded: false },
+  'algorithms/correlation.ts': { tag: 'review', reason: '相関・類似度', zodAdded: true },
+  'forecast.ts': { tag: 'review', reason: '週次サマリー・異常値検出', zodAdded: true },
+  // 出力型が domain/models/ComparisonContext（外部定義）に依存。Zod 化は domain/models のスキーマ整備後
+  'dowGapAnalysis.ts': {
+    tag: 'review',
+    reason: '曜日ギャップ分析（出力型: DowGapAnalysis）',
+    zodAdded: false,
+  },
+  'dowGapActualDay.ts': {
+    tag: 'review',
+    reason: '実日数マッピング（出力型: ActualDayImpact）',
+    zodAdded: false,
+  },
+  'temporal/computeMovingAverage.ts': { tag: 'review', reason: '移動平均', zodAdded: true },
 
   // ── 必須: 新規追加 ──
   'piValue.ts': { tag: 'required', reason: 'PI値（点数PI値・金額PI値）', zodAdded: true },

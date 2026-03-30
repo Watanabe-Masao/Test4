@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { safeDivide } from './utils'
 import { DAYS_PER_WEEK, ANOMALY_ZSCORE_THRESHOLD } from '@/domain/constants'
 
@@ -5,47 +6,49 @@ import { DAYS_PER_WEEK, ANOMALY_ZSCORE_THRESHOLD } from '@/domain/constants'
  * 予測・異常値検出
  */
 
-/** 週別サマリー */
-export interface WeeklySummary {
-  readonly weekNumber: number // 1-based
-  readonly startDay: number
-  readonly endDay: number
-  readonly totalSales: number
-  readonly totalGrossProfit: number
-  readonly grossProfitRate: number
-  readonly days: number // 営業日数
-}
+// ─── Zod Schemas ─────────────────────────────────────
 
-/** 曜日別平均 */
-export interface DayOfWeekAverage {
-  readonly dayOfWeek: number // 0=Sun, 1=Mon, ... 6=Sat
-  readonly averageSales: number
-  readonly count: number
-}
+export const WeeklySummarySchema = z.object({
+  weekNumber: z.number(),
+  startDay: z.number(),
+  endDay: z.number(),
+  totalSales: z.number(),
+  totalGrossProfit: z.number(),
+  grossProfitRate: z.number(),
+  days: z.number(),
+})
+export type WeeklySummary = z.infer<typeof WeeklySummarySchema>
 
-/** 異常値検出結果 */
-export interface AnomalyDetectionResult {
-  readonly day: number
-  readonly value: number
-  readonly mean: number
-  readonly stdDev: number
-  readonly zScore: number
-  readonly isAnomaly: boolean
-}
+export const DayOfWeekAverageSchema = z.object({
+  dayOfWeek: z.number(),
+  averageSales: z.number(),
+  count: z.number(),
+})
+export type DayOfWeekAverage = z.infer<typeof DayOfWeekAverageSchema>
 
-/** 予測入力 */
+export const AnomalyDetectionResultSchema = z.object({
+  day: z.number(),
+  value: z.number(),
+  mean: z.number(),
+  stdDev: z.number(),
+  zScore: z.number(),
+  isAnomaly: z.boolean(),
+})
+export type AnomalyDetectionResult = z.infer<typeof AnomalyDetectionResultSchema>
+
+export const ForecastResultSchema = z.object({
+  weeklySummaries: z.array(WeeklySummarySchema).readonly(),
+  dayOfWeekAverages: z.array(DayOfWeekAverageSchema).readonly(),
+  anomalies: z.array(AnomalyDetectionResultSchema).readonly(),
+})
+export type ForecastResult = z.infer<typeof ForecastResultSchema>
+
+/** 予測入力（Map ベースのため Zod スキーマは出力のみ） */
 export interface ForecastInput {
   readonly year: number
-  readonly month: number // 1-12
-  readonly dailySales: ReadonlyMap<number, number> // day → sales
-  readonly dailyGrossProfit: ReadonlyMap<number, number> // day → grossProfit
-}
-
-/** 予測結果 */
-export interface ForecastResult {
-  readonly weeklySummaries: readonly WeeklySummary[]
-  readonly dayOfWeekAverages: readonly DayOfWeekAverage[]
-  readonly anomalies: readonly AnomalyDetectionResult[]
+  readonly month: number
+  readonly dailySales: ReadonlyMap<number, number>
+  readonly dailyGrossProfit: ReadonlyMap<number, number>
 }
 
 /**
