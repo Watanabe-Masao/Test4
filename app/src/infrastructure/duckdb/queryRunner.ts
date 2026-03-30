@@ -8,29 +8,45 @@ import type { ZodType } from 'zod'
 import { validateStoreId, validateDateKey, validateCode } from './queryParams'
 import { structRowToObject } from './rowConversion'
 
+/** queryToObjects の検証モード */
+export type ValidationMode = 'off' | 'first-row' | 'all-rows'
+
 /**
  * SQL を実行し、結果を camelCase 変換済みの JS Object 配列として返す。
  *
- * @param schema オプショナルの Zod スキーマ。指定時は DEV 環境で最初の行を .parse() で検証する。
- *   型不一致があれば console.warn で通知（PROD ではスキップ）。
+ * @param schema オプショナルの Zod スキーマ。指定時は DEV 環境で行を検証する。
+ * @param options.validate 検証モード: 'first-row'（デフォルト）/ 'all-rows' / 'off'
  *   正本 ReadModel の検証は ReadModel 側で .parse() を使用すること（こちらは行レベルの補助検証）。
  */
 export async function queryToObjects<T>(
   conn: AsyncDuckDBConnection,
   sql: string,
   schema?: ZodType<T>,
+  options?: { readonly validate?: ValidationMode },
 ): Promise<readonly T[]> {
   const result = await conn.query(sql)
   const rows = result.toArray()
   const objects = rows.map((row) => structRowToObject(row as Record<string, unknown>) as T)
 
-  // DEV 環境で行スキーマ検証（最初の行のみ — パフォーマンス考慮）
-  if (schema && objects.length > 0 && import.meta.env.DEV) {
-    const parsed = schema.safeParse(objects[0])
-    if (!parsed.success) {
-      console.warn(
-        `[queryToObjects] Row schema validation failed:\n${parsed.error.message}\nSQL: ${sql.slice(0, 200)}`,
-      )
+  const mode = options?.validate ?? 'first-row'
+  if (schema && objects.length > 0 && import.meta.env.DEV && mode !== 'off') {
+    if (mode === 'all-rows') {
+      for (let i = 0; i < objects.length; i++) {
+        const parsed = schema.safeParse(objects[i])
+        if (!parsed.success) {
+          console.warn(
+            `[queryToObjects] Row ${i} schema validation failed:\n${parsed.error.message}\nSQL: ${sql.slice(0, 200)}`,
+          )
+          break // 最初の失敗で停止（ログ洪水を防ぐ）
+        }
+      }
+    } else {
+      const parsed = schema.safeParse(objects[0])
+      if (!parsed.success) {
+        console.warn(
+          `[queryToObjects] Row schema validation failed:\n${parsed.error.message}\nSQL: ${sql.slice(0, 200)}`,
+        )
+      }
     }
   }
 
