@@ -7,6 +7,7 @@
  *
  * 値入率 = (売価 - 原価) / 売価
  */
+import { z } from 'zod'
 import { safeDivide } from './utils'
 
 /** 値入率計算の入力 */
@@ -27,6 +28,16 @@ export interface MarkupRateInput {
   readonly defaultMarkupRate: number
 }
 
+export const MarkupRateInputSchema = z.object({
+  purchasePrice: z.number(),
+  purchaseCost: z.number(),
+  deliveryPrice: z.number(),
+  deliveryCost: z.number(),
+  transferPrice: z.number(),
+  transferCost: z.number(),
+  defaultMarkupRate: z.number(),
+})
+
 /** 値入率計算の結果 */
 export interface MarkupRateResult {
   /** 全体値入率（仕入 + 売上納品 + 移動） */
@@ -34,6 +45,11 @@ export interface MarkupRateResult {
   /** コア値入率（仕入 + 移動、売上納品除く） */
   readonly coreMarkupRate: number
 }
+
+export const MarkupRateResultSchema = z.object({
+  averageMarkupRate: z.number(),
+  coreMarkupRate: z.number(),
+})
 
 /**
  * 値入率を計算する

@@ -3,7 +3,11 @@
  *
  * 正式な業務確定値を導出する Authoritative 関数。
  * 移動（店間入出・部門間入出）の売価・原価合計を計算する。
+ *
+ * @see references/01-principles/calculation-canonicalization-map.md — 必須分類
+ * @see references/01-principles/purchase-cost-definition.md — 移動原価の性質
  */
+import { z } from 'zod'
 
 /** 移動合計の入力（4方向の売価・原価） */
 export interface TransferTotalsInput {
@@ -17,11 +21,27 @@ export interface TransferTotalsInput {
   readonly interDepartmentOutCost: number
 }
 
+export const TransferTotalsInputSchema = z.object({
+  interStoreInPrice: z.number(),
+  interStoreInCost: z.number(),
+  interStoreOutPrice: z.number(),
+  interStoreOutCost: z.number(),
+  interDepartmentInPrice: z.number(),
+  interDepartmentInCost: z.number(),
+  interDepartmentOutPrice: z.number(),
+  interDepartmentOutCost: z.number(),
+})
+
 /** 移動合計の結果 */
 export interface TransferTotalsResult {
   readonly transferPrice: number
   readonly transferCost: number
 }
+
+export const TransferTotalsResultSchema = z.object({
+  transferPrice: z.number(),
+  transferCost: z.number(),
+})
 
 /**
  * 移動の売価合計・原価合計を計算する

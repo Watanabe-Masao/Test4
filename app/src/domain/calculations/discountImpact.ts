@@ -1,22 +1,36 @@
+import { z } from 'zod'
 import { safeDivide } from './utils'
 import type { CalculationResult } from '@/domain/models/CalculationResult'
 import { okResult, invalidResult } from '@/domain/models/CalculationResult'
 
 /**
  * 売変影響分析
+ *
+ * @see references/01-principles/calculation-canonicalization-map.md — 必須分類
+ * @see references/01-principles/discount-definition.md — 値引きの正本定義
  */
 
 /** 売変影響の入力パラメータ */
 export interface DiscountImpactInput {
-  readonly coreSales: number // コア売上
-  readonly markupRate: number // 値入率
-  readonly discountRate: number // 売変率
+  readonly coreSales: number
+  readonly markupRate: number
+  readonly discountRate: number
 }
+
+export const DiscountImpactInputSchema = z.object({
+  coreSales: z.number(),
+  markupRate: z.number(),
+  discountRate: z.number(),
+})
 
 /** 売変影響の計算結果 */
 export interface DiscountImpactResult {
-  readonly discountLossCost: number // 売変ロス原価
+  readonly discountLossCost: number
 }
+
+export const DiscountImpactResultSchema = z.object({
+  discountLossCost: z.number(),
+})
 
 /**
  * 売変率の定義域を検証する
