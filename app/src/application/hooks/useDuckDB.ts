@@ -2,14 +2,14 @@
  * DuckDB ライフサイクル管理フック（Composition Root）
  *
  * DuckDB エンジンの初期化と ImportedData のロードを管理する。
- * data / year / month が変わるたびにテーブルをリセットし再ロードする。
+ * data / year / month が変わるたびに差分ロードで必要な月のみ更新する。
  *
  * 責務分割:
  * - エンジン初期化 → useEngineLifecycle
  * - 保存月監視 → useStoredMonthsMonitor
- * - 変更検知 → computeFingerprint (duckdbFingerprint)
+ * - 変更検知 → computeFingerprint / computeMonthFingerprint (duckdbFingerprint)
  * - ロード直列化 → acquireMutex (loadCoordinator)
- * - ロード統合 → 本ファイル（resetTables → loadMonth → materializeSummary）
+ * - ロード統合 → 本ファイル（差分: deleteMonth → loadMonth → materializeSummary）
  *
  * 使い方:
  * ```
@@ -24,10 +24,11 @@ import type { AsyncDuckDB, AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { ImportedData } from '@/domain/models/storeTypes'
 import type { DataRepository } from '@/domain/repositories'
 import { resetTables, loadMonth } from '@/infrastructure/duckdb/dataLoader'
+import { deleteMonth, deletePrevYearMonth } from '@/infrastructure/duckdb/deletePolicy'
 import { materializeSummary } from '@/infrastructure/duckdb/queries/storeDaySummary'
 import { acquireMutex } from '@/infrastructure/duckdb/loadCoordinator'
 import { duckdbReducer, INITIAL_DUCKDB_STATE } from './duckdbReducer'
-import { computeFingerprint } from './duckdbFingerprint'
+import { computeFingerprint, computeMonthFingerprint } from './duckdbFingerprint'
 import { useEngineLifecycle } from './useEngineLifecycle'
 import { useStoredMonthsMonitor } from './useStoredMonthsMonitor'
 
@@ -50,6 +51,11 @@ export interface DuckDBHookResult {
   readonly loadedMonthCount: number
 }
 
+/** 月キー生成 */
+function monthKey(y: number, m: number): string {
+  return `${y}-${m}`
+}
+
 export function useDuckDB(
   data: ImportedData | undefined,
   year: number,
@@ -65,6 +71,11 @@ export function useDuckDB(
   // 古い呼び出しは各 await 後にチェックして早期 return する。
   const loadSeqRef = useRef(0)
 
+  // 差分ロード用: ロード済み月と各月のフィンガープリント
+  const loadedMonthsRef = useRef<Map<string, string>>(new Map())
+  // 初回ロード済みフラグ（初回は resetTables → フルロード）
+  const initialLoadDone = useRef(false)
+
   useEffect(() => {
     isMounted.current = true
     return () => {
@@ -78,7 +89,7 @@ export function useDuckDB(
   // サブフック: IndexedDB 保存月監視
   useStoredMonthsMonitor(repo, data, year, month, dispatch)
 
-  // データロード（当月 + 過去月）
+  // データロード（当月 + 過去月 — 差分ロード対応）
   const loadData = useCallback(async () => {
     if (!state.conn || !state.db || !data) return
 
@@ -100,49 +111,113 @@ export function useDuckDB(
     dispatch({ type: 'LOAD_START' })
 
     try {
-      await resetTables(state.conn)
-      if (loadSeqRef.current !== seq || !isMounted.current) return
+      const isStale = () => loadSeqRef.current !== seq || !isMounted.current
+      let anyChanged = false
 
-      // 1. 当月のインメモリデータをロード
-      await loadMonth(state.conn, state.db, data, year, month)
-      if (loadSeqRef.current !== seq || !isMounted.current) return
+      if (!initialLoadDone.current) {
+        // ── 初回: 全テーブルリセット → フルロード ──
+        await resetTables(state.conn)
+        if (isStale()) return
+        loadedMonthsRef.current.clear()
+        anyChanged = true
 
-      let monthCount = 1
+        await loadMonth(state.conn, state.db, data, year, month)
+        if (isStale()) return
+        loadedMonthsRef.current.set(monthKey(year, month), computeMonthFingerprint(data))
 
-      // 2. IndexedDB から過去月データを追記ロード
-      if (repo) {
-        const storedMonths = await repo.listStoredMonths()
-        for (const { year: y, month: m } of storedMonths) {
-          if (loadSeqRef.current !== seq || !isMounted.current) return
-          // 当月はインメモリデータで既にロード済み — スキップ
-          if (y === year && m === month) continue
-
-          try {
-            const historicalData = await repo.loadMonthlyData(y, m)
-            if (loadSeqRef.current !== seq || !isMounted.current) return
-            if (historicalData) {
-              await loadMonth(state.conn, state.db, historicalData, y, m)
-              if (loadSeqRef.current !== seq || !isMounted.current) return
-              monthCount += 1
+        if (repo) {
+          const storedMonths = await repo.listStoredMonths()
+          for (const { year: y, month: m } of storedMonths) {
+            if (isStale()) return
+            if (y === year && m === month) continue
+            try {
+              const historicalData = await repo.loadMonthlyData(y, m)
+              if (isStale()) return
+              if (historicalData) {
+                await loadMonth(state.conn, state.db, historicalData, y, m)
+                if (isStale()) return
+                loadedMonthsRef.current.set(monthKey(y, m), computeMonthFingerprint(historicalData))
+              }
+            } catch {
+              console.warn(`DuckDB: ${y}-${m} のロードに失敗（スキップ）`)
             }
-          } catch {
-            // 個別の月のロード失敗は無視して続行
-            console.warn(`DuckDB: ${y}-${m} のロードに失敗（スキップ）`)
+          }
+        }
+
+        initialLoadDone.current = true
+      } else {
+        // ── 差分ロード: 変更された月のみ delete → insert ──
+        const currentMonthFp = computeMonthFingerprint(data)
+        const curKey = monthKey(year, month)
+
+        // 当月: フィンガープリントが変わったら再ロード
+        if (loadedMonthsRef.current.get(curKey) !== currentMonthFp) {
+          await deleteMonth(state.conn, year, month)
+          await deletePrevYearMonth(state.conn, year, month)
+          if (isStale()) return
+          await loadMonth(state.conn, state.db, data, year, month)
+          if (isStale()) return
+          loadedMonthsRef.current.set(curKey, currentMonthFp)
+          anyChanged = true
+        }
+
+        // 過去月: 追加・変更があれば差分ロード
+        if (repo) {
+          const storedMonths = await repo.listStoredMonths()
+          const desiredKeys = new Set(storedMonths.map(({ year: y, month: m }) => monthKey(y, m)))
+          desiredKeys.add(curKey) // 当月は必ず維持
+
+          // 不要になった月を削除
+          for (const key of loadedMonthsRef.current.keys()) {
+            if (!desiredKeys.has(key)) {
+              const [y, m] = key.split('-').map(Number)
+              await deleteMonth(state.conn, y, m)
+              await deletePrevYearMonth(state.conn, y, m)
+              if (isStale()) return
+              loadedMonthsRef.current.delete(key)
+              anyChanged = true
+            }
+          }
+
+          // 新規・変更月をロード
+          for (const { year: y, month: m } of storedMonths) {
+            if (isStale()) return
+            if (y === year && m === month) continue
+            const key = monthKey(y, m)
+            if (loadedMonthsRef.current.has(key)) continue // 変更なし → スキップ
+
+            try {
+              const historicalData = await repo.loadMonthlyData(y, m)
+              if (isStale()) return
+              if (historicalData) {
+                await loadMonth(state.conn, state.db, historicalData, y, m)
+                if (isStale()) return
+                loadedMonthsRef.current.set(key, computeMonthFingerprint(historicalData))
+                anyChanged = true
+              }
+            } catch {
+              console.warn(`DuckDB: ${y}-${m} のロードに失敗（スキップ）`)
+            }
           }
         }
       }
 
-      // 全月ロード完了後、VIEW を物理テーブルに昇格（全後続クエリが高速化）
-      await materializeSummary(state.conn)
-      if (loadSeqRef.current !== seq || !isMounted.current) return
+      // ── VIEW 物理化: 変更があった場合のみ ──
+      if (anyChanged) {
+        await materializeSummary(state.conn)
+        if (isStale()) return
+      }
 
       if (isMounted.current && loadSeqRef.current === seq) {
         lastFingerprint.current = fingerprint
-        dispatch({ type: 'LOAD_SUCCESS', monthCount })
+        dispatch({ type: 'LOAD_SUCCESS', monthCount: loadedMonthsRef.current.size })
       }
     } catch (err) {
       if (isMounted.current && loadSeqRef.current === seq) {
         dispatch({ type: 'LOAD_ERROR', error: err instanceof Error ? err.message : String(err) })
+        // 差分ロード中のエラー → 次回は初回フルロードにフォールバック
+        initialLoadDone.current = false
+        loadedMonthsRef.current.clear()
       }
     } finally {
       releaseMutex()

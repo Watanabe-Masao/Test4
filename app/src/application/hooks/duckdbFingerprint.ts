@@ -28,3 +28,22 @@ export function computeFingerprint(
     storedMonthsKey,
   ].join(':')
 }
+
+/**
+ * 単月の ImportedData からフィンガープリントを計算する。
+ * 差分ロード時に月単位の変更検知に使用する。
+ */
+export function computeMonthFingerprint(data: ImportedData): string {
+  return [
+    data.classifiedSales.records.length,
+    data.prevYearClassifiedSales.records.length,
+    data.categoryTimeSales.records.length,
+    data.prevYearCategoryTimeSales.records.length,
+    data.departmentKpi.records.length,
+    Object.keys(data.purchase).length,
+    Object.keys(data.flowers).length,
+    data.stores.size,
+    data.budget.size,
+    data.settings.size,
+  ].join(':')
+}
