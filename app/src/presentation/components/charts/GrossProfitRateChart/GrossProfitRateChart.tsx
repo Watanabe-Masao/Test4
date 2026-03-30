@@ -2,6 +2,7 @@
  * GrossProfitRateChart — 粗利率推移チャート（累計ベース）
  *
  * 描画のみ。データ変換は GrossProfitRateChart.vm.ts に委譲。
+ * 期間選択はページレベルの DualPeriodSlider から props で受け取る。
  */
 import { memo, useMemo } from 'react'
 import { useTheme } from 'styled-components'
@@ -9,8 +10,6 @@ import type { AppTheme } from '@/presentation/theme/theme'
 import { EChart, type EChartsOption } from '../EChart'
 import { standardGrid, standardTooltip, categoryXAxis, valueYAxis } from '../builders'
 import { toPct } from '../chartTheme'
-import { DualPeriodSlider } from '../DualPeriodSlider'
-import { useDualPeriodRange } from '../useDualPeriodRange'
 import type { DailyRecord } from '@/domain/models/record'
 import { ChartCard } from '../ChartCard'
 import { chartFontSize } from '@/presentation/theme/tokens'
@@ -25,6 +24,10 @@ interface Props {
   daysInMonth: number
   targetRate: number
   warningRate: number
+  /** 表示開始日（ページレベル Slider から） */
+  rangeStart?: number
+  /** 表示終了日（ページレベル Slider から） */
+  rangeEnd?: number
 }
 
 function buildOption(
@@ -123,17 +126,12 @@ export const GrossProfitRateChart = memo(function GrossProfitRateChart({
   daysInMonth,
   targetRate,
   warningRate,
+  rangeStart: rangeStartProp,
+  rangeEnd: rangeEndProp,
 }: Props) {
   const theme = useTheme() as AppTheme
-  const {
-    p1Start: rangeStart,
-    p1End: rangeEnd,
-    onP1Change: setRange,
-    p2Start,
-    p2End,
-    onP2Change,
-    p2Enabled,
-  } = useDualPeriodRange(daysInMonth)
+  const rangeStart = rangeStartProp ?? 1
+  const rangeEnd = rangeEndProp ?? daysInMonth
 
   const { data, yMax } = useMemo(
     () => buildGrossProfitRateViewModel(daily, daysInMonth, rangeStart, rangeEnd),
@@ -148,17 +146,6 @@ export const GrossProfitRateChart = memo(function GrossProfitRateChart({
   return (
     <ChartCard title="粗利率推移（累計ベース）" ariaLabel="粗利率チャート">
       <EChart option={option} height={280} ariaLabel="粗利率チャート" />
-      <DualPeriodSlider
-        min={1}
-        max={daysInMonth}
-        p1Start={rangeStart}
-        p1End={rangeEnd}
-        onP1Change={setRange}
-        p2Start={p2Start}
-        p2End={p2End}
-        onP2Change={onP2Change}
-        p2Enabled={p2Enabled}
-      />
     </ChartCard>
   )
 })
