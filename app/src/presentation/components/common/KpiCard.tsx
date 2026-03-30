@@ -1,4 +1,5 @@
 import { useCallback } from 'react'
+import { GROSS_PROFIT_LABELS } from '@/application/readModels/grossProfit'
 import {
   Wrapper,
   Label,
@@ -86,11 +87,13 @@ export function KpiCard({
             $variant={badge}
             title={
               badge === 'actual'
-                ? '在庫法による実績値'
-                : '推定法による理論値（実績粗利ではありません）'
+                ? GROSS_PROFIT_LABELS.inventoryTooltip
+                : GROSS_PROFIT_LABELS.estimatedTooltip
             }
           >
-            {badge === 'actual' ? '実績' : '推定'}
+            {badge === 'actual'
+              ? GROSS_PROFIT_LABELS.inventoryBadge
+              : GROSS_PROFIT_LABELS.estimatedBadge}
           </MethodBadge>
         )}
         {warning && displayMode !== 'hidden' && (
