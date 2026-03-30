@@ -4,8 +4,7 @@
 import { useState, useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
-import { DualPeriodSlider } from './DualPeriodSlider'
-import { useDualPeriodRange } from './useDualPeriodRange'
+
 import { SegmentedControl } from '@/presentation/components/common/layout'
 import { ChartCard } from './ChartCard'
 import { EChart, type EChartsOption } from './EChart'
@@ -49,6 +48,8 @@ interface Props {
   readonly daysInMonth?: number
   readonly year: number
   readonly month: number
+  readonly rangeStart?: number
+  readonly rangeEnd?: number
 }
 
 function buildOption(
@@ -177,20 +178,15 @@ export const BudgetTrendChart = memo(function BudgetTrendChart({
   budget,
   showPrevYear,
   daysInMonth,
+  rangeStart: rangeStartProp,
+  rangeEnd: rangeEndProp,
 }: Props) {
   const theme = useTheme() as AppTheme
   const [view, setView] = useState<ViewType>('line')
 
   const totalDaysForSlider = daysInMonth ?? data.length
-  const {
-    p1Start: rangeStart,
-    p1End: rangeEnd,
-    onP1Change: setRange,
-    p2Start,
-    p2End,
-    onP2Change,
-    p2Enabled,
-  } = useDualPeriodRange(totalDaysForSlider)
+  const rangeStart = rangeStartProp ?? 1
+  const rangeEnd = rangeEndProp ?? totalDaysForSlider
 
   const hasPrevYear = showPrevYear || data.some((d) => d.prevYearCum != null && d.prevYearCum > 0)
 
@@ -224,18 +220,6 @@ export const BudgetTrendChart = memo(function BudgetTrendChart({
   return (
     <ChartCard title={VIEW_TITLES[view]} toolbar={toolbar} ariaLabel="予算トレンド">
       <EChart option={option} height={280} ariaLabel="予算トレンドチャート" />
-
-      <DualPeriodSlider
-        min={1}
-        max={totalDaysForSlider}
-        p1Start={rangeStart}
-        p1End={rangeEnd}
-        onP1Change={setRange}
-        p2Start={p2Start}
-        p2End={p2End}
-        onP2Change={onP2Change}
-        p2Enabled={p2Enabled}
-      />
     </ChartCard>
   )
 })

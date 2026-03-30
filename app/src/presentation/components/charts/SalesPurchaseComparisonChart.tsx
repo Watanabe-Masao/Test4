@@ -6,8 +6,7 @@ import { toComma, toPct, STORE_COLORS } from './chartTheme'
 import { EChart, type EChartsOption } from './EChart'
 import { yenYAxis, standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
 import { categoryXAxis, lineDefaults } from './builders'
-import { DualPeriodSlider } from './DualPeriodSlider'
-import { useDualPeriodRange } from './useDualPeriodRange'
+
 import { computeEstimatedInventory } from '@/application/hooks/calculation'
 import { calculateGrossProfitRate } from '@/domain/calculations/utils'
 import type { Store } from '@/domain/models/record'
@@ -37,6 +36,8 @@ interface Props {
   stores: ReadonlyMap<string, Store>
   daysInMonth: number
   headerExtra?: ReactNode
+  rangeStart?: number
+  rangeEnd?: number
 }
 
 /** ECharts sub-component for chart rendering */
@@ -130,17 +131,12 @@ export const SalesPurchaseComparisonChart = memo(function SalesPurchaseCompariso
   stores,
   daysInMonth,
   headerExtra,
+  rangeStart: rangeStartProp,
+  rangeEnd: rangeEndProp,
 }: Props) {
   const theme = useTheme() as AppTheme
-  const {
-    p1Start: rangeStart,
-    p1End: rangeEnd,
-    onP1Change: setRange,
-    p2Start,
-    p2End,
-    onP2Change,
-    p2Enabled,
-  } = useDualPeriodRange(daysInMonth)
+  const rangeStart = rangeStartProp ?? 1
+  const rangeEnd = rangeEndProp ?? daysInMonth
   const [sortKey, setSortKey] = useState<SortKey>('sales')
   const [sortDesc, setSortDesc] = useState(true)
   const [seriesMode, setSeriesMode] = useState<SeriesMode>('sales')
@@ -385,18 +381,6 @@ export const SalesPurchaseComparisonChart = memo(function SalesPurchaseCompariso
           </tbody>
         </MiniTable>
       </CompTable>
-
-      <DualPeriodSlider
-        min={1}
-        max={daysInMonth}
-        p1Start={rangeStart}
-        p1End={rangeEnd}
-        onP1Change={setRange}
-        p2Start={p2Start}
-        p2End={p2End}
-        onP2Change={onP2Change}
-        p2Enabled={p2Enabled}
-      />
     </ChartCard>
   )
 })
