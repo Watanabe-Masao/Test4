@@ -4,38 +4,18 @@
  * 第1軸: 部門別積み上げ面グラフ（売上金額）
  * 第2軸: 点数 / 累積構成比 / 気温 / 降水量 の切替オーバーレイ
  *
- * パイプライン:
- *   CategoryHourlyHandler → DeptHourlyChartLogic.ts → ECharts option → EChart
- *   HourlyAggregation / WeatherHourlyAvg → 第2軸オーバーレイ
+ * データ取得・状態管理は useDeptHourlyChartData に分離。
+ * 本コンポーネントは描画のみ。
  */
-import React, { useState, useMemo, useCallback } from 'react'
-import { useTheme } from 'styled-components'
-import type { AppTheme } from '@/presentation/theme/theme'
-import { HOUR_MIN, HOUR_MAX } from './HeatmapChart.helpers'
+import React from 'react'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
-import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
-import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
-import {
-  categoryHourlyHandler,
-  type CategoryHourlyInput,
-} from '@/application/queries/cts/CategoryHourlyHandler'
-import {
-  hourlyAggregationHandler,
-  type HourlyAggregationInput,
-} from '@/application/queries/cts/HourlyAggregationHandler'
-import { useCurrencyFormatter } from './chartTheme'
-import {
-  buildDeptHourlyData,
-  detectCannibalization,
-  buildDeptHourlyOption,
-  TOP_N_OPTIONS,
-} from './DeptHourlyChartLogic'
-import { useI18n } from '@/application/hooks/useI18n'
+import { TOP_N_OPTIONS } from './DeptHourlyChartLogic'
 import { SegmentedControl } from '@/presentation/components/common/layout'
 import { ChartCard } from './ChartCard'
 import { ChartLoading, ChartError, ChartEmpty } from './ChartState'
 import { EChart } from './EChart'
+import { useDeptHourlyChartData } from './useDeptHourlyChartData'
 import {
   TopNSelector,
   TopNSelect,
@@ -57,16 +37,22 @@ import {
   DrillIcon,
 } from './DeptHourlyChart.styles'
 
-type ViewMode = 'stacked' | 'separate'
-type HierarchyLevel = 'department' | 'line' | 'klass'
 export type RightOverlayMode = 'quantity' | 'cumRatio' | 'temperature' | 'precipitation'
 
-const VIEW_OPTIONS: readonly { value: ViewMode; label: string }[] = [
+/** 第2軸オーバーレイ用データ（時間帯ごとの値） */
+export interface HourlyOverlayData {
+  readonly hour: number
+  readonly quantity?: number
+  readonly temperature?: number
+  readonly precipitation?: number
+}
+
+const VIEW_OPTIONS: readonly { value: 'stacked' | 'separate'; label: string }[] = [
   { value: 'stacked', label: '積み上げ' },
   { value: 'separate', label: '独立' },
 ]
 
-const LEVEL_OPTIONS: readonly { value: HierarchyLevel; label: string }[] = [
+const LEVEL_OPTIONS: readonly { value: 'department' | 'line' | 'klass'; label: string }[] = [
   { value: 'department', label: '部門' },
   { value: 'line', label: 'ライン' },
   { value: 'klass', label: 'クラス' },
@@ -79,214 +65,40 @@ const RIGHT_OVERLAY_OPTIONS: readonly { value: RightOverlayMode; label: string }
   { value: 'precipitation', label: '降水量' },
 ]
 
-const LEVEL_LABELS: Record<HierarchyLevel, string> = {
+const LEVEL_LABELS: Record<string, string> = {
   department: '部門',
   line: 'ライン',
   klass: 'クラス',
-}
-
-interface DrillState {
-  readonly level: HierarchyLevel
-  readonly deptCode?: string
-  readonly deptName?: string
-  readonly lineCode?: string
-  readonly lineName?: string
-}
-
-/** 第2軸オーバーレイ用データ（時間帯ごとの値） */
-export interface HourlyOverlayData {
-  readonly hour: number
-  readonly quantity?: number
-  readonly temperature?: number
-  readonly precipitation?: number
 }
 
 interface Props {
   readonly queryExecutor: QueryExecutor | null
   readonly currentDateRange: DateRange
   readonly selectedStoreIds: ReadonlySet<string>
-  /** 前年スコープ（点数の前年データ取得用） */
   readonly prevYearScope?: PrevYearScope
-  /** 時間帯別の天気データ（親から受け渡し） */
   readonly weatherOverlay?: readonly HourlyOverlayData[]
 }
 
-export const DeptHourlyChart = React.memo(function DeptHourlyChart({
-  queryExecutor,
-  currentDateRange,
-  selectedStoreIds,
-  prevYearScope,
-  weatherOverlay,
-}: Props) {
-  const theme = useTheme() as AppTheme
-  const fmt = useCurrencyFormatter()
-  const { messages } = useI18n()
-  const [topN, setTopN] = useState(5)
-  const [activeDepts, setActiveDepts] = useState<ReadonlySet<string>>(new Set())
-  const [viewMode, setViewMode] = useState<ViewMode>('stacked')
-  const [drill, setDrill] = useState<DrillState>({ level: 'department' })
-  const [rightMode, setRightMode] = useState<RightOverlayMode>('quantity')
-
-  // ── 部門別時間帯データ（第1軸） ──
-  const input = useMemo<CategoryHourlyInput | null>(() => {
-    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
-      level: drill.level,
-      deptCode: drill.deptCode,
-      lineCode: drill.lineCode,
-    }
-  }, [currentDateRange, selectedStoreIds, drill.level, drill.deptCode, drill.lineCode])
-
-  const {
-    data: output,
-    error,
-    isLoading,
-  } = useQueryWithHandler(queryExecutor, categoryHourlyHandler, input)
-
-  const categoryHourlyRows = output?.records ?? null
-
-  // ── 時間帯別点数データ（第2軸: quantity モード用） ──
-  const storeIds = useMemo(
-    () => (selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined),
-    [selectedStoreIds],
-  )
-  const qtyInput = useMemo<HourlyAggregationInput | null>(() => {
-    if (rightMode !== 'quantity') return null
-    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-    return { dateFrom: fromKey, dateTo: toKey, storeIds, isPrevYear: false }
-  }, [currentDateRange, storeIds, rightMode])
-
-  const prevDateRange = prevYearScope?.dateRange
-  const prevQtyInput = useMemo<HourlyAggregationInput | null>(() => {
-    if (rightMode !== 'quantity' || !prevDateRange) return null
-    const { fromKey, toKey } = dateRangeToKeys(prevDateRange)
-    return { dateFrom: fromKey, dateTo: toKey, storeIds, isPrevYear: true }
-  }, [prevDateRange, storeIds, rightMode])
-
-  const { data: curQtyOut } = useQueryWithHandler(queryExecutor, hourlyAggregationHandler, qtyInput)
-  const { data: prevQtyOut } = useQueryWithHandler(
-    queryExecutor,
-    hourlyAggregationHandler,
-    prevQtyInput,
-  )
-
-  // 天気・点数 → hourMap
-  const overlayByHour = useMemo(() => {
-    const m = new Map<number, HourlyOverlayData>()
-    if (curQtyOut?.records) {
-      for (const r of curQtyOut.records) {
-        m.set(r.hour, { hour: r.hour, quantity: r.totalQuantity })
-      }
-    }
-    if (weatherOverlay) {
-      for (const w of weatherOverlay) {
-        const existing = m.get(w.hour) ?? { hour: w.hour }
-        m.set(w.hour, { ...existing, temperature: w.temperature, precipitation: w.precipitation })
-      }
-    }
-    return m
-  }, [curQtyOut, weatherOverlay])
-
-  const prevQtyByHour = useMemo(() => {
-    if (!prevQtyOut?.records) return undefined
-    const m = new Map<number, number>()
-    for (const r of prevQtyOut.records) m.set(r.hour, r.totalQuantity)
-    return m
-  }, [prevQtyOut])
-
-  const { chartData, departments, hourlyPatterns } = useMemo(
-    () =>
-      categoryHourlyRows
-        ? buildDeptHourlyData(categoryHourlyRows, topN, activeDepts, HOUR_MIN, HOUR_MAX)
-        : { chartData: [], departments: [], hourlyPatterns: new Map<string, number[]>() },
-    [categoryHourlyRows, topN, activeDepts],
-  )
-
-  const cannibalization = useMemo(
-    () => detectCannibalization(departments, hourlyPatterns),
-    [departments, hourlyPatterns],
-  )
-
-  const option = useMemo(
-    () =>
-      buildDeptHourlyOption(
-        chartData,
-        departments,
-        viewMode,
-        theme,
-        rightMode,
-        overlayByHour,
-        prevQtyByHour,
-      ),
-    [chartData, departments, viewMode, theme, rightMode, overlayByHour, prevQtyByHour],
-  )
-
-  const handleTopNChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    setTopN(Number(e.target.value))
-    setActiveDepts(new Set())
-  }, [])
-
-  const handleChipClick = useCallback((code: string) => {
-    setActiveDepts((prev) => {
-      const next = new Set(prev)
-      if (next.has(code)) next.delete(code)
-      else next.add(code)
-      return next
-    })
-  }, [])
-
-  const handleDrillDown = useCallback(
-    (code: string, name: string) => {
-      setActiveDepts(new Set())
-      if (drill.level === 'department') {
-        setDrill({ level: 'line', deptCode: code, deptName: name })
-      } else if (drill.level === 'line') {
-        setDrill({
-          level: 'klass',
-          deptCode: drill.deptCode,
-          deptName: drill.deptName,
-          lineCode: code,
-          lineName: name,
-        })
-      }
-    },
-    [drill],
-  )
-
-  const handleDrillUp = useCallback(() => {
-    setActiveDepts(new Set())
-    if (drill.level === 'klass') {
-      setDrill({ level: 'line', deptCode: drill.deptCode, deptName: drill.deptName })
-    } else if (drill.level === 'line') {
-      setDrill({ level: 'department' })
-    }
-  }, [drill])
-
-  const handleLevelChange = useCallback((level: HierarchyLevel) => {
-    setActiveDepts(new Set())
-    setDrill({ level })
-  }, [])
+export const DeptHourlyChart = React.memo(function DeptHourlyChart(props: Props) {
+  const d = useDeptHourlyChartData(props)
 
   const chartTitle = '部門別時間帯パターン'
 
-  if (error) {
+  if (d.error) {
     return (
       <ChartCard title={chartTitle}>
-        <ChartError message={`${messages.errors.dataFetchFailed}: ${error}`} />
+        <ChartError message={`${d.errorMessage}: ${d.error}`} />
       </ChartCard>
     )
   }
-  if (isLoading && !categoryHourlyRows) {
+  if (d.isLoading && !d.categoryHourlyRows) {
     return (
       <ChartCard title={chartTitle}>
         <ChartLoading />
       </ChartCard>
     )
   }
-  if (!queryExecutor || chartData.length === 0) {
+  if (!d.queryExecutor || d.chartData.length === 0) {
     return (
       <ChartCard title={chartTitle}>
         <ChartEmpty message="データをインポートしてください" />
@@ -294,34 +106,37 @@ export const DeptHourlyChart = React.memo(function DeptHourlyChart({
     )
   }
 
-  const levelLabel = LEVEL_LABELS[drill.level]
-  const subtitle = `上位${topN}${levelLabel}の時間帯別売上 | ${viewMode === 'stacked' ? '積み上げ面グラフ' : '独立面グラフ'}`
+  const levelLabel = LEVEL_LABELS[d.drill.level]
+  const subtitle = `上位${d.topN}${levelLabel}の時間帯別売上 | ${d.viewMode === 'stacked' ? '積み上げ面グラフ' : '独立面グラフ'}`
 
-  // パンくずリスト（ドリルダウン時）
   const breadcrumb =
-    drill.level !== 'department' ? (
+    d.drill.level !== 'department' ? (
       <BreadcrumbRow>
-        <BreadcrumbLink onClick={() => setDrill({ level: 'department' })}>全部門</BreadcrumbLink>
-        {drill.deptName && (
+        <BreadcrumbLink onClick={() => d.setDrill({ level: 'department' })}>全部門</BreadcrumbLink>
+        {d.drill.deptName && (
           <>
             <BreadcrumbSep>›</BreadcrumbSep>
-            {drill.level === 'line' ? (
-              <BreadcrumbCurrent>{drill.deptName}</BreadcrumbCurrent>
+            {d.drill.level === 'line' ? (
+              <BreadcrumbCurrent>{d.drill.deptName}</BreadcrumbCurrent>
             ) : (
               <BreadcrumbLink
                 onClick={() =>
-                  setDrill({ level: 'line', deptCode: drill.deptCode, deptName: drill.deptName })
+                  d.setDrill({
+                    level: 'line',
+                    deptCode: d.drill.deptCode,
+                    deptName: d.drill.deptName,
+                  })
                 }
               >
-                {drill.deptName}
+                {d.drill.deptName}
               </BreadcrumbLink>
             )}
           </>
         )}
-        {drill.lineName && (
+        {d.drill.lineName && (
           <>
             <BreadcrumbSep>›</BreadcrumbSep>
-            <BreadcrumbCurrent>{drill.lineName}</BreadcrumbCurrent>
+            <BreadcrumbCurrent>{d.drill.lineName}</BreadcrumbCurrent>
           </>
         )}
       </BreadcrumbRow>
@@ -331,19 +146,19 @@ export const DeptHourlyChart = React.memo(function DeptHourlyChart({
     <>
       <SegmentedControl
         options={LEVEL_OPTIONS}
-        value={drill.level}
-        onChange={handleLevelChange}
+        value={d.drill.level}
+        onChange={d.handleLevelChange}
         ariaLabel="階層レベル"
       />
       <SegmentedControl
         options={VIEW_OPTIONS}
-        value={viewMode}
-        onChange={setViewMode}
+        value={d.viewMode}
+        onChange={d.setViewMode}
         ariaLabel="表示モード"
       />
       <TopNSelector>
         <span>上位</span>
-        <TopNSelect value={topN} onChange={handleTopNChange}>
+        <TopNSelect value={d.topN} onChange={d.handleTopNChange}>
           {TOP_N_OPTIONS.map((n) => (
             <option key={n} value={n}>
               {n}
@@ -354,27 +169,27 @@ export const DeptHourlyChart = React.memo(function DeptHourlyChart({
       </TopNSelector>
       <SegmentedControl
         options={RIGHT_OVERLAY_OPTIONS}
-        value={rightMode}
-        onChange={setRightMode}
+        value={d.rightMode}
+        onChange={d.setRightMode}
         ariaLabel="第2軸"
       />
     </>
   )
 
-  const canDrillDown = drill.level !== 'klass'
+  const canDrillDown = d.drill.level !== 'klass'
 
   return (
     <ChartCard title={chartTitle} subtitle={subtitle} toolbar={toolbar}>
       {breadcrumb}
 
       <ChipContainer>
-        {departments.map((dept) => (
+        {d.departments.map((dept) => (
           <DeptChip
             key={dept.code}
             $color={dept.color}
-            $active={activeDepts.size === 0 || activeDepts.has(dept.code)}
-            onClick={() => handleChipClick(dept.code)}
-            onDoubleClick={canDrillDown ? () => handleDrillDown(dept.code, dept.name) : undefined}
+            $active={d.activeDepts.size === 0 || d.activeDepts.has(dept.code)}
+            onClick={() => d.handleChipClick(dept.code)}
+            onDoubleClick={canDrillDown ? () => d.handleDrillDown(dept.code, dept.name) : undefined}
             title={canDrillDown ? 'ダブルクリックでドリルダウン' : undefined}
           >
             <ColorDot $color={dept.color} />
@@ -384,31 +199,31 @@ export const DeptHourlyChart = React.memo(function DeptHourlyChart({
         ))}
       </ChipContainer>
 
-      {drill.level !== 'department' && (
+      {d.drill.level !== 'department' && (
         <BackRow>
-          <BackLink onClick={handleDrillUp}>
-            ← {drill.level === 'klass' ? 'ライン' : '部門'}に戻る
+          <BackLink onClick={d.handleDrillUp}>
+            ← {d.drill.level === 'klass' ? 'ライン' : '部門'}に戻る
           </BackLink>
         </BackRow>
       )}
 
-      <EChart option={option} height={300} ariaLabel="部門別時間帯パターンチャート" />
+      <EChart option={d.option} height={300} ariaLabel="部門別時間帯パターンチャート" />
 
       <SummaryRow>
-        {departments.slice(0, 5).map((dept) => (
+        {d.departments.slice(0, 5).map((dept) => (
           <SummaryItem key={dept.code}>
             <SummaryLabel>{dept.name}:</SummaryLabel>
-            {fmt(dept.totalAmount)}
+            {d.fmt(dept.totalAmount)}
           </SummaryItem>
         ))}
       </SummaryRow>
 
-      {cannibalization.length > 0 && (
+      {d.cannibalization.length > 0 && (
         <InsightBar>
           <InsightTitle>時間帯カニバリゼーション検出（相関分析）</InsightTitle>
-          {cannibalization.map((c, i) => (
+          {d.cannibalization.map((c, i) => (
             <InsightItem key={i}>
-              {c.deptA} × {c.deptB}: 相関r={c.r.toFixed(2)}（負の相関 → 同時間帯で競合の可能性）
+              {c.deptA} x {c.deptB}: 相関r={c.r.toFixed(2)}（負の相関 → 同時間帯で競合の可能性）
             </InsightItem>
           ))}
         </InsightBar>

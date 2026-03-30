@@ -92,13 +92,7 @@ export const presentationMemoLimits: readonly QuantitativeAllowlistEntry[] = [
     removalCondition: 'builders 分離時',
     limit: 10,
   },
-  {
-    path: 'presentation/components/charts/useIntegratedSalesState.ts',
-    reason: '統合売上チャートの状態管理。drill context + MA overlay + 日別点数クエリ',
-    category: 'structural',
-    removalCondition: 'ドリル状態を reducer に統合する時',
-    limit: 9,
-  },
+  // useIntegratedSalesState.ts — useMemo 許可リスト削除済み（drill reducer + context 分離完了）
   {
     path: 'presentation/pages/Dashboard/widgets/DrilldownWaterfall.tsx',
     reason: 'ウォーターフォール計算',
@@ -117,13 +111,7 @@ export const presentationMemoLimits: readonly QuantitativeAllowlistEntry[] = [
 
 /** presentation/ の useState 上限の個別例外（G5 横展開） */
 export const presentationStateLimits: readonly QuantitativeAllowlistEntry[] = [
-  {
-    path: 'presentation/components/charts/useIntegratedSalesState.ts',
-    reason: '統合売上チャート。ドリルレベル + スライド方向 + clickedDay + drillEnd 等',
-    category: 'structural',
-    removalCondition: 'ドリル状態を reducer に統合する時',
-    limit: 13,
-  },
+  // useIntegratedSalesState.ts — useState 許可リスト削除済み（drill reducer 統合完了）
   {
     path: 'presentation/pages/Admin/useMonthDataManagement.ts',
     reason: '月別データ管理の状態（StorageManagementTab から分離）',
@@ -138,13 +126,7 @@ export const presentationStateLimits: readonly QuantitativeAllowlistEntry[] = [
     removalCondition: 'useState 削減時（ピン状態と範囲状態の分離等）',
     limit: 11,
   },
-  {
-    path: 'presentation/components/charts/CategoryBenchmarkChart.vm.ts',
-    reason: 'ベンチマーク VM の操作状態',
-    category: 'structural',
-    removalCondition: 'ロジック分離時',
-    limit: 9,
-  },
+  // CategoryBenchmarkChart.vm.ts — useState 許可リスト削除済み（drill state 統合 + Logic 分離完了）
   // useDuckDBTimeSlotData.ts — バレル化完了（2026-03-23）: presentation 側の useState は 0 に
   {
     path: 'presentation/components/charts/periodFilterHooks.ts',
