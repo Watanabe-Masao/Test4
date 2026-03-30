@@ -175,88 +175,110 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
     return map
   }, [selectedResults, stores])
 
-  if (!currentResult) {
-    return {
-      ctx: null,
-      isComputing,
-      isCalculated,
-      storeName,
-      daysInMonth,
-      explainMetric,
-      setExplainMetric,
-      prevYearDetailType,
-      setPrevYearDetailType,
+  const effectiveEndDay = currentResult
+    ? currentResult.elapsedDays != null && currentResult.elapsedDays > 0
+      ? Math.min(currentResult.elapsedDays, daysInMonth)
+      : daysInMonth
+    : daysInMonth
+
+  const ctx: UnifiedWidgetContext | null = useMemo(() => {
+    if (!currentResult) return null
+    const r = currentResult
+    const currentDateRange: DateRange = {
+      from: { year: targetYear, month: targetMonth, day: 1 },
+      to: { year: targetYear, month: targetMonth, day: effectiveEndDay },
     }
-  }
+    return {
+      // コア
+      result: r,
+      daysInMonth: effectiveEndDay,
+      targetRate: settings.targetGrossProfitRate,
+      warningRate: settings.warningThreshold,
+      year: targetYear,
+      month: targetMonth,
+      settings,
+      prevYear: comparison.daily,
+      stores: data.stores,
+      selectedStoreIds,
+      explanations,
+      onExplain: handleExplain,
+      observationStatus: r.observationPeriod.status,
+      departmentKpi: deptKpiIndex,
+      fmtCurrency,
 
-  const r = currentResult
-  const effectiveEndDay =
-    r.elapsedDays != null && r.elapsedDays > 0 ? Math.min(r.elapsedDays, daysInMonth) : daysInMonth
+      // 期間選択
+      periodSelection,
 
-  const currentDateRange: DateRange = {
-    from: { year: targetYear, month: targetMonth, day: 1 },
-    to: { year: targetYear, month: targetMonth, day: effectiveEndDay },
-  }
+      // Dashboard 固有
+      storeKey: storeName,
+      allStoreResults: storeResults,
+      currentDateRange,
+      prevYearScope: comparison.prevYearScope,
+      dataEndDay: settings.dataEndDay,
+      dataMaxDay,
+      elapsedDays: r.elapsedDays,
+      monthlyHistory,
+      queryExecutor,
+      duckDataVersion: duckCtx.dataVersion,
+      loadedMonthCount: duckCtx.loadedMonthCount,
+      weatherPersist,
+      prevYearMonthlyKpi: comparison.kpi,
+      comparisonScope: comparison.scope,
+      dowGap: comparison.dowGap,
+      onPrevYearDetail: handlePrevYearDetail,
 
-  const ctx: UnifiedWidgetContext = {
-    // コア
-    result: r,
-    daysInMonth: effectiveEndDay,
-    targetRate: settings.targetGrossProfitRate,
-    warningRate: settings.warningThreshold,
-    year: targetYear,
-    month: targetMonth,
+      // Category 固有
+      selectedResults,
+      storeNames,
+
+      // 前年仕入額（額で持つ、率は domain/calculations で算出）
+      prevYearStoreCostPrice,
+
+      // 天気データ
+      weatherDaily,
+      prevYearWeatherDaily,
+
+      // 販売点数（CTS）事前集計値
+      currentCtsQuantity,
+
+      // 正本化 readModels（orchestrator 経由）
+      readModels,
+
+      // 比較期間入力（ページレベル DualPeriodSlider）
+      chartPeriodProps,
+    }
+  }, [
+    currentResult,
+    effectiveEndDay,
+    targetYear,
+    targetMonth,
     settings,
-    prevYear: comparison.daily,
-    stores: data.stores,
+    comparison,
+    data.stores,
     selectedStoreIds,
     explanations,
-    onExplain: handleExplain,
-    observationStatus: r.observationPeriod.status,
-    departmentKpi: deptKpiIndex,
+    handleExplain,
+    deptKpiIndex,
     fmtCurrency,
-
-    // 期間選択
     periodSelection,
-
-    // Dashboard 固有
-    storeKey: storeName,
-    allStoreResults: storeResults,
-    currentDateRange,
-    prevYearScope: comparison.prevYearScope,
-    dataEndDay: settings.dataEndDay,
+    storeName,
+    storeResults,
     dataMaxDay,
-    elapsedDays: r.elapsedDays,
     monthlyHistory,
     queryExecutor,
-    duckDataVersion: duckCtx.dataVersion,
-    loadedMonthCount: duckCtx.loadedMonthCount,
+    duckCtx.dataVersion,
+    duckCtx.loadedMonthCount,
     weatherPersist,
-    prevYearMonthlyKpi: comparison.kpi,
-    comparisonScope: comparison.scope,
-    dowGap: comparison.dowGap,
-    onPrevYearDetail: handlePrevYearDetail,
-
-    // Category 固有
+    handlePrevYearDetail,
     selectedResults,
     storeNames,
-
-    // 前年仕入額（額で持つ、率は domain/calculations で算出）
     prevYearStoreCostPrice,
-
-    // 天気データ
     weatherDaily,
     prevYearWeatherDaily,
-
-    // 販売点数（CTS）事前集計値
     currentCtsQuantity,
-
-    // 正本化 readModels（orchestrator 経由）
     readModels,
-
-    // 比較期間入力（ページレベル DualPeriodSlider）
     chartPeriodProps,
-  }
+  ])
 
   return {
     ctx,

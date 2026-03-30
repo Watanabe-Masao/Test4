@@ -72,6 +72,13 @@ export default defineConfig({
           'vendor-table': ['@tanstack/react-table'],
           'vendor-router': ['react-router-dom'],
           'vendor-state': ['zustand'],
+          'vendor-echarts': [
+            'echarts/core',
+            'echarts/charts',
+            'echarts/components',
+            'echarts/renderers',
+          ],
+          'vendor-motion': ['framer-motion'],
         },
       },
     },
