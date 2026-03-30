@@ -466,6 +466,104 @@ Map<number, { sales, customers }> を構築するコード = 0件
 - **ロール**: architecture
 - **違反時の影響**: 加重平均が崩壊し、全店合計・経過日集約が不正確になる
 
+## 正本化体系不変条件
+
+### INV-CANON-01: 仕入原価 旧クエリ import 禁止
+
+- **テスト**: `guards/purchaseCostPathGuard.test.ts`
+- **ロール**: architecture
+- **違反時の影響**: 旧経路で仕入原価を取得し、正本と異なる値が表示される
+
+### INV-CANON-02: 仕入原価 集計逸脱禁止
+
+- **テスト**: `guards/purchaseCostPathGuard.test.ts`
+- **ロール**: architecture
+- **違反時の影響**: 独自集計が正本と乖離し、ページ間で値が不一致になる
+
+### INV-CANON-03: 仕入原価 正本一貫性
+
+- **テスト**: `guards/purchaseCostPathGuard.test.ts`
+- **ロール**: architecture
+- **違反時の影響**: 3独立正本（通常仕入・売上納品・移動原価）の構成が崩壊する
+
+### INV-CANON-04: 粗利 calculateGrossProfit 存在・Zod 契約
+
+- **テスト**: `guards/grossProfitPathGuard.test.ts`
+- **ロール**: architecture
+- **違反時の影響**: 粗利計算の唯一入口が不在になり、独自計算が発生する
+
+### INV-CANON-05: 粗利 conditionSummaryUtils 正本経由
+
+- **テスト**: `guards/grossProfitPathGuard.test.ts`
+- **ロール**: architecture
+- **違反時の影響**: KPIカードの粗利値が正本と乖離する
+
+### INV-CANON-06: 粗利 インライン計算パターン制限
+
+- **テスト**: `guards/grossProfitPathGuard.test.ts`
+- **ロール**: architecture
+- **違反時の影響**: presentation 層で粗利の独自計算が散在する
+
+### INV-CANON-07: 売上 readSalesFact 存在・Zod 契約
+
+- **テスト**: `guards/salesFactPathGuard.test.ts`
+- **ロール**: architecture
+- **違反時の影響**: 売上ファクト正本が不在になり、取得経路が分散する
+
+### INV-CANON-08: 売上 presentation 層旧クエリ import 禁止
+
+- **テスト**: `guards/salesFactPathGuard.test.ts`
+- **ロール**: architecture
+- **違反時の影響**: presentation が infrastructure のクエリに直接依存する
+
+### INV-CANON-09: 値引き readDiscountFact 存在・Zod 契約
+
+- **テスト**: `guards/discountFactPathGuard.test.ts`
+- **ロール**: architecture
+- **違反時の影響**: 値引きファクト正本が不在になり、71-74種別の取得が不統一になる
+
+### INV-CANON-10: 値引き presentation 層旧クエリ import 禁止
+
+- **テスト**: `guards/discountFactPathGuard.test.ts`
+- **ロール**: architecture
+- **違反時の影響**: presentation が classified_sales クエリに直接依存する
+
+### INV-CANON-11: 要因分解 calculateFactorDecomposition 存在・Zod 契約
+
+- **テスト**: `guards/factorDecompositionPathGuard.test.ts`
+- **ロール**: architecture
+- **違反時の影響**: Shapley 不変条件の runtime 検証が欠落する
+
+### INV-CANON-12: 要因分解 domain 直接 import 許可リスト制限
+
+- **テスト**: `guards/factorDecompositionPathGuard.test.ts`
+- **ロール**: architecture
+- **違反時の影響**: bridge / readModel を経由せずに decompose 関数が使われ、Zod 検証が迂回される
+
+### INV-CANON-13: 全 readModel ディレクトリ・ファイル構成
+
+- **テスト**: `guards/canonicalizationSystemGuard.test.ts`
+- **ロール**: architecture
+- **違反時の影響**: readModel ディレクトリの構造が不統一になり、正本化パターンが崩壊する
+
+### INV-CANON-14: 全定義書存在
+
+- **テスト**: `guards/canonicalizationSystemGuard.test.ts`
+- **ロール**: architecture
+- **違反時の影響**: 正本の定義が文書化されず、仕様と実装の乖離が発生する
+
+### INV-CANON-15: CLAUDE.md 正本化参照
+
+- **テスト**: `guards/canonicalizationSystemGuard.test.ts`
+- **ロール**: architecture
+- **違反時の影響**: 開発ルールに正本化ルールが記載されず、新規開発で旧経路が作られる
+
+### INV-CANON-16: orchestrator による正本統合
+
+- **テスト**: `guards/salesFactPathGuard.test.ts`, `guards/discountFactPathGuard.test.ts`
+- **ロール**: architecture
+- **違反時の影響**: widget orchestrator が正本を統合配布できず、widget が個別に取得する
+
 ## 許可リスト増加防止不変条件
 
 ### INV-ALLOW-01: APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST ≤16件

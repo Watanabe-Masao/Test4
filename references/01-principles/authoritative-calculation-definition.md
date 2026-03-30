@@ -64,6 +64,7 @@ TS 関数（レガシー）          Rust/WASM 関数
 |-----------|------------------------|
 | calculateGrossProfit | invMethod / estMethod（grossProfitBridge 経由） |
 | calculateGrossProfitWithFallback | 同上 + fallback ロジック |
+| calculateFactorDecomposition | decompose2 / decompose3 / decompose5（factorDecompositionBridge 経由） |
 
 ### 正本化の方針
 

@@ -29,6 +29,15 @@
 | `app/src/application/readModels/purchaseCost/readPurchaseCost.test.ts` | invariant-guardian | 21件 | 仕入原価プロセス正当性（正本値・計算式・使用方法・変換ヘルパー・店舗別導出） |
 | `app/src/test/guards/purchaseCostImportGuard.test.ts` | architecture | 15件 | インポートプロセス正当性（ファイル判別・パース・DuckDB格納・正本化パス） |
 | `app/src/infrastructure/storage/__tests__/backupExporter.test.ts` | architecture | 27件 | バックアップ往復・Map復元・SHA-256・AppSettings・ImportHistory・Zod safeParse 境界 |
+| `app/src/test/guards/grossProfitPathGuard.test.ts` | architecture | 5件 | 粗利計算正本（calculateGrossProfit 存在・Zod契約・conditionSummaryUtils正本経由・インライン計算制限・定義書） |
+| `app/src/test/guards/salesFactPathGuard.test.ts` | architecture | 5件 | 売上ファクト正本（readSalesFact 存在・Zod契約・旧クエリimport禁止・orchestrator統合・定義書） |
+| `app/src/test/guards/discountFactPathGuard.test.ts` | architecture | 5件 | 値引きファクト正本（readDiscountFact 存在・Zod契約・旧クエリimport禁止・orchestrator統合・定義書） |
+| `app/src/test/guards/factorDecompositionPathGuard.test.ts` | architecture | 5件 | 要因分解正本（calculateFactorDecomposition 存在・Zod契約・直接import許可リスト制限・presentation層制限・定義書） |
+| `app/src/test/guards/canonicalizationSystemGuard.test.ts` | architecture | 6件 | 正本化体系統合（全readModelディレクトリ・ファイル構成・全定義書・レジストリ・orchestrator・CLAUDE.md参照） |
+| `app/src/application/readModels/grossProfit/calculateGrossProfit.test.ts` | invariant-guardian | 15件 | 粗利4種計算（在庫法×2・推定法×2・Zod契約・フォールバック・StoreResult互換） |
+| `app/src/application/readModels/salesFact/readSalesFact.test.ts` | invariant-guardian | 8件 | 売上ファクト正本（Zod parse・grand合計不変条件・導出ヘルパー4種） |
+| `app/src/application/readModels/discountFact/readDiscountFact.test.ts` | invariant-guardian | 7件 | 値引きファクト正本（Zod parse・grand合計・71-74内訳・導出ヘルパー3種） |
+| `app/src/application/readModels/factorDecomposition/calculateFactorDecomposition.test.ts` | invariant-guardian | 6件 | 要因分解正本（Shapley不変条件2/3/5要素・Zod parse・meta） |
 
 ## ルール → テスト対応
 
@@ -57,6 +66,30 @@
 | — | Migration Countdown: 許可リストサイズ ≤3（現在 1。最終目標 0） | — |
 | — | executor.execute() 直呼び出し禁止（Q3） | — |
 | — | useAsyncQuery 直接 import 禁止（Q3） | — |
+
+### 正本化ガード群（architecture ロール管理）
+
+purchaseCostPathGuard / grossProfitPathGuard / salesFactPathGuard /
+discountFactPathGuard / factorDecompositionPathGuard / canonicalizationSystemGuard
+
+| 検証内容 | テストファイル | 不変条件 ID |
+|---|---|---|
+| 仕入原価: 旧クエリ import 禁止 | purchaseCostPathGuard | INV-CANON-01 |
+| 仕入原価: 集計逸脱禁止 | purchaseCostPathGuard | INV-CANON-02 |
+| 仕入原価: 正本一貫性 | purchaseCostPathGuard | INV-CANON-03 |
+| 粗利: calculateGrossProfit 存在・Zod 契約 | grossProfitPathGuard | INV-CANON-04 |
+| 粗利: conditionSummaryUtils 正本経由 | grossProfitPathGuard | INV-CANON-05 |
+| 粗利: インライン計算パターン制限 | grossProfitPathGuard | INV-CANON-06 |
+| 売上: readSalesFact 存在・Zod 契約 | salesFactPathGuard | INV-CANON-07 |
+| 売上: presentation 層旧クエリ import 禁止 | salesFactPathGuard | INV-CANON-08 |
+| 値引き: readDiscountFact 存在・Zod 契約 | discountFactPathGuard | INV-CANON-09 |
+| 値引き: presentation 層旧クエリ import 禁止 | discountFactPathGuard | INV-CANON-10 |
+| 要因分解: calculateFactorDecomposition 存在・Zod 契約 | factorDecompositionPathGuard | INV-CANON-11 |
+| 要因分解: domain 直接 import 許可リスト制限 | factorDecompositionPathGuard | INV-CANON-12 |
+| 体系: 全 readModel ディレクトリ + ファイル構成 | canonicalizationSystemGuard | INV-CANON-13 |
+| 体系: 全定義書存在 | canonicalizationSystemGuard | INV-CANON-14 |
+| 体系: CLAUDE.md 参照 | canonicalizationSystemGuard | INV-CANON-15 |
+| orchestrator: salesFact/discountFact 統合 | salesFact/discountFactPathGuard | INV-CANON-16 |
 
 ### calculationRules.test.ts（invariant-guardian ロール管理）
 
@@ -222,4 +255,5 @@ Set / Record を構築して使用する。許可リストの変更は `allowlis
 | D: 数学的不変条件 | factorDecomposition, scopeBoundaryInvariant, waterfallDataIntegrity |
 | E: 型安全 | comparisonMigrationGuard (INV-CMP-08) |
 | F: コード構造規約 | structuralConventionGuard (vertical slice, prototype, barrel) |
+| F8: 正本保護 | purchaseCostPathGuard, grossProfitPathGuard, salesFactPathGuard, discountFactPathGuard, factorDecompositionPathGuard, canonicalizationSystemGuard, calculationCanonGuard |
 | G: 機械的防御 | sizeGuard (R11,R12), codePatternGuard (R3,R10), designSystemGuard |

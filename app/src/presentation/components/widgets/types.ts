@@ -21,6 +21,7 @@ import type { InsightData } from '@/presentation/pages/Insight/useInsightData'
 import type { CurrentCtsQuantity } from '@/application/hooks/useCtsQuantity'
 import type { CostDetailData } from '@/presentation/pages/CostDetail/useCostDetailData'
 import type { CurrencyFormatter } from '@/presentation/components/charts/chartTheme'
+import type { WidgetDataOrchestratorResult } from '@/application/hooks/useWidgetDataOrchestrator'
 
 export type WidgetSize = 'kpi' | 'half' | 'full'
 
@@ -102,6 +103,10 @@ export interface UnifiedWidgetContext {
    * Presentation が raw CTS レコードに触れないようにするための唯一の取得口。
    */
   readonly currentCtsQuantity?: CurrentCtsQuantity
+
+  // ── 正本化 readModels（orchestrator 経由） ──
+  /** 3正本（purchaseCost / salesFact / discountFact）の統合ビュー */
+  readonly readModels?: WidgetDataOrchestratorResult
 
   // ── Insight 固有 ──
   readonly insightData?: InsightData

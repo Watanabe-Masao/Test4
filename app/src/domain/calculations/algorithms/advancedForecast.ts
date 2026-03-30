@@ -6,45 +6,37 @@
  * - 信頼区間付き予測
  * - 線形回帰による傾向推定
  */
+import { z } from 'zod'
 import { safeDivide } from '../utils'
 import { calculateStdDev } from '../forecast'
 import { DEFAULT_WMA_WINDOW, DAYS_PER_WEEK, CONFIDENCE_95_ZSCORE } from '@/domain/constants'
 import type { DailyForecast } from '@/domain/models/record'
 
-// ─── Types ────────────────────────────────────────────
+// ─── Zod Schemas ─────────────────────────────────────
 
-/** 加重移動平均の結果 */
-export interface WMAEntry {
-  readonly day: number
-  readonly actual: number
-  readonly wma: number
-}
+export const WMAEntrySchema = z.object({
+  day: z.number(),
+  actual: z.number(),
+  wma: z.number(),
+})
+export type WMAEntry = z.infer<typeof WMAEntrySchema>
 
-/** 月末予測結果 */
-export interface MonthEndProjection {
-  /** 単純平均ベースの予測 */
-  readonly linearProjection: number
-  /** 曜日調整済み予測 */
-  readonly dowAdjustedProjection: number
-  /** 加重移動平均ベースの予測 (直近重み) */
-  readonly wmaProjection: number
-  /** 予測の信頼区間 (95%) */
-  readonly confidenceInterval: {
-    readonly lower: number
-    readonly upper: number
-  }
-  /** 線形回帰による傾向 (1日あたりの増減) */
-  readonly dailyTrend: number
-  /** 回帰ベースの予測 */
-  readonly regressionProjection: number
-}
+export const MonthEndProjectionSchema = z.object({
+  linearProjection: z.number(),
+  dowAdjustedProjection: z.number(),
+  wmaProjection: z.number(),
+  confidenceInterval: z.object({ lower: z.number(), upper: z.number() }),
+  dailyTrend: z.number(),
+  regressionProjection: z.number(),
+})
+export type MonthEndProjection = z.infer<typeof MonthEndProjectionSchema>
 
-/** 線形回帰の結果 */
-export interface LinearRegressionResult {
-  readonly slope: number // 傾き (1日あたりの変化量)
-  readonly intercept: number // 切片
-  readonly rSquared: number // 決定係数
-}
+export const LinearRegressionResultSchema = z.object({
+  slope: z.number(),
+  intercept: z.number(),
+  rSquared: z.number(),
+})
+export type LinearRegressionResult = z.infer<typeof LinearRegressionResultSchema>
 
 // ─── Weighted Moving Average ──────────────────────────
 
@@ -249,34 +241,30 @@ export function calculateMonthEndProjection(
 // ─── Weather-Adjusted Projection ─────────────────────
 
 /** 天候補正済み予測の入力 */
+/** 天候補正入力（forecasts は外部型 DailyForecast のため Zod は出力のみ） */
 export interface WeatherAdjustmentInput {
-  /** 基準予測値（補正対象） */
   readonly baseProjection: number
-  /** 予報データ（未来日のみ） */
   readonly forecasts: readonly DailyForecast[]
-  /** 売上と気温の相関係数 (Pearson r) */
   readonly salesTempCorrelation: number
-  /** 売上と降水量の相関係数 (Pearson r) */
   readonly salesPrecipCorrelation: number
-  /** 平年気温 (°C) */
   readonly normalTemp: number
-  /** 日平均売上（補正のベース単位） */
   readonly dailyAvgSales: number
 }
 
-/** 天候補正済み予測の出力 */
-export interface WeatherAdjustedProjection {
-  /** 天候補正済み予測値 */
-  readonly adjustedProjection: number
-  /** 補正量（正=上方、負=下方） */
-  readonly adjustmentAmount: number
-  /** 各予報日の補正内訳 */
-  readonly dailyAdjustments: readonly {
-    readonly dateKey: string
-    readonly tempEffect: number
-    readonly precipEffect: number
-  }[]
-}
+export const WeatherAdjustedProjectionSchema = z.object({
+  adjustedProjection: z.number(),
+  adjustmentAmount: z.number(),
+  dailyAdjustments: z
+    .array(
+      z.object({
+        dateKey: z.string(),
+        tempEffect: z.number(),
+        precipEffect: z.number(),
+      }),
+    )
+    .readonly(),
+})
+export type WeatherAdjustedProjection = z.infer<typeof WeatherAdjustedProjectionSchema>
 
 /**
  * 天気予報と売上-天気相関を使い、月末予測を天候補正する。

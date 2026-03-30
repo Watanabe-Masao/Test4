@@ -44,6 +44,26 @@ npm run dev
 
 開発サーバーが起動し、`http://localhost:5173/Test4/` でアクセスできます。
 
+## アーキテクチャ
+
+4層モデル: `Presentation → Application → Domain ← Infrastructure`
+
+### 正本化体系（Canonicalization）
+
+全ての業務値は `application/readModels/` に正本化されており、Zod runtime 契約で保護されています。
+
+| 正本 | 関数 | 種類 |
+|------|------|------|
+| 仕入原価 | `readPurchaseCost()` | 取得 |
+| 粗利 | `calculateGrossProfit()` | 計算 |
+| 売上 | `readSalesFact()` | 取得 |
+| 値引き | `readDiscountFact()` | 計算 |
+| 要因分解 | `calculateFactorDecomposition()` | 計算 |
+
+`useWidgetDataOrchestrator` が取得系3正本を統合し、`UnifiedWidgetContext.readModels` 経由で全 widget に配布します。
+
+詳細は `CLAUDE.md` の「正本化体系（readModels）」セクションおよび `references/01-principles/canonicalization-principles.md` を参照。
+
 ## パスエイリアス
 
 `@/` が `src/` ディレクトリにマッピングされています。インポートパスを短く保つために活用してください。
@@ -182,6 +202,7 @@ src/
 │   ├── context/          #   React Context（レガシー互換）
 │   ├── hooks/            #   カスタムフック（useDuckDBQuery 含む 20+ フック）
 │   ├── stores/           #   Zustand ストア（dataStore, settingsStore, uiStore）
+│   ├── readModels/       #   正本化 ReadModels（purchaseCost, grossProfit, salesFact, discountFact, factorDecomposition）
 │   ├── usecases/         #   ユースケース
 │   │   ├── calculation/  #     計算パイプライン（dailyBuilder, storeAssembler）
 │   │   ├── explanation/  #     説明責任（ExplanationService）
@@ -221,7 +242,7 @@ src/
 │   │   └── Layout/       #     レイアウト（AppShell, NavBar, Sidebar）
 │   ├── hooks/            #   プレゼンテーション層フック
 │   └── theme/            #   テーマ定義・デザイントークン
-├── test/                 # テストセットアップ
+├── test/                 # ガードテスト・共有インフラ（22ファイル / 213テスト）
 ├── App.tsx               # ルートコンポーネント（コンポジションルート）
 └── main.tsx              # エントリポイント
 ```

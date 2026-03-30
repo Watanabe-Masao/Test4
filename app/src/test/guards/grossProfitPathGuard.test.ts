@@ -62,7 +62,8 @@ describe('粗利計算正本ガード', () => {
     'domain/calculations/invMethod.ts',
     'domain/calculations/estMethod.ts',
     'domain/calculations/utils.ts',
-    // 表示専用の直接アクセス（段階的に収束予定）
+    // 在庫法/推定法の詳細分岐を意図的に表示するビュー（正本関数では情報が足りない）
+    // これらは「フォールバック後の単一値」ではなく「両方法の内部構造」を表示する
     'presentation/pages/Dashboard/widgets/ExecSummaryBarWidget.tsx',
     'presentation/pages/Dashboard/widgets/PlanActualForecast.tsx',
     'presentation/pages/Dashboard/widgets/conditionSummaryDailyBuilders.ts',
@@ -90,6 +91,33 @@ describe('粗利計算正本ガード', () => {
       `presentation 層で粗利のインライン計算を検出:\n${violations.join('\n')}\n` +
         '→ grossProfitFromStoreResult() 経由に切り替えてください',
     ).toEqual([])
+  })
+
+  // ── getEffectiveGrossProfitRate の利用箇所凍結 ──
+
+  /**
+   * getEffectiveGrossProfitRate は domain 層の単純アクセサ（2層構造の利用層）。
+   * 既存の利用は許容するが、新規の追加は grossProfitFromStoreResult 経由を推奨する。
+   * 上限を超えた場合は新規利用を正本経由に切り替えること。
+   */
+  const GET_EFFECTIVE_GP_RATE_MAX_FILES = 13
+
+  it('getEffectiveGrossProfitRate の利用ファイル数が凍結上限を超えていない', () => {
+    const allFiles = collectTsFiles(path.join(SRC_DIR))
+    let count = 0
+    for (const file of allFiles) {
+      const relPath = rel(file)
+      // 定義元と正本ガード自身は除外
+      if (relPath === 'domain/calculations/utils.ts') continue
+      if (relPath.startsWith('test/guards/')) continue
+      const content = fs.readFileSync(file, 'utf-8')
+      if (content.includes('getEffectiveGrossProfitRate')) count++
+    }
+    expect(
+      count,
+      `getEffectiveGrossProfitRate の利用ファイル数が ${GET_EFFECTIVE_GP_RATE_MAX_FILES} を超過（現在 ${count}）\n` +
+        '→ 新規利用は grossProfitFromStoreResult() 経由に切り替えてください',
+    ).toBeLessThanOrEqual(GET_EFFECTIVE_GP_RATE_MAX_FILES)
   })
 
   // ── 定義書の存在確認 ──

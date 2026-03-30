@@ -94,6 +94,22 @@ flat な totalCost だけでは用途別の組み合わせができない。
 これは purchase cost の成功パターンを制度化したもの。
 「定義書がない正本」「テストがない正本」「ガードがない正本」は正本として認めない。
 
+## 正本化済み readModels 一覧
+
+| 正本 | 種類 | 関数 | Zod | パスガード |
+|------|------|------|-----|-----------|
+| 仕入原価 | 取得 | `readPurchaseCost()` | ✅ | purchaseCostPathGuard (9) + importGuard (15) |
+| 粗利 | 計算 | `calculateGrossProfit()` | ✅ | grossProfitPathGuard (6) |
+| 売上 | 取得 | `readSalesFact()` | ✅ | salesFactPathGuard (5) |
+| 値引き | 取得 | `readDiscountFact()` | ✅ | discountFactPathGuard (5) |
+| 要因分解 | 計算 | `calculateFactorDecomposition()` | ✅ | factorDecompositionPathGuard (5) |
+| PI値 | 計算 | `calculateQuantityPI()` / `calculateAmountPI()` | ✅ | — |
+| 客数GAP | 計算 | `calculateCustomerGap()` | ✅ | — |
+
+**widget orchestrator:** `useWidgetDataOrchestrator` が取得系3正本を `UnifiedWidgetContext.readModels` 経由で全 widget に配布。
+
+**体系統合ガード:** `canonicalizationSystemGuard.test.ts` が全 readModel ディレクトリ・定義書・レジストリ・CLAUDE.md 参照を検証。
+
 ---
 
 ## 禁止事項（実装を通じて確認された）

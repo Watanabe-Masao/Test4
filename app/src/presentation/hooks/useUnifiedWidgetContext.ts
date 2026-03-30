@@ -31,6 +31,8 @@ import { useWeatherData } from '@/application/hooks/useWeather'
 import { useWeatherStoreId } from '@/application/hooks/useWeatherStoreId'
 import { usePrevYearWeather } from '@/application/hooks/usePrevYearWeather'
 import { useCtsQuantity } from '@/application/hooks/useCtsQuantity'
+import { useWidgetDataOrchestrator } from '@/application/hooks/useWidgetDataOrchestrator'
+import type { WidgetDataOrchestratorParams } from '@/application/hooks/useWidgetDataOrchestrator'
 
 interface UseUnifiedWidgetContextResult {
   /** 統一コンテキスト（currentResult が null の場合は null） */
@@ -121,6 +123,29 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
     comparison.prevYearScope?.dateRange ?? null,
   )
   const { queryExecutor, weatherPersist, prevYearStoreCostPrice } = duckCtx
+
+  // ── 正本化 readModels（orchestrator 経由） ──
+  const orchestratorParams = useMemo<WidgetDataOrchestratorParams | null>(
+    () =>
+      duckCtx.dataVersion > 0
+        ? {
+            executor: queryExecutor,
+            dateFrom: `${targetYear}-${String(targetMonth).padStart(2, '0')}-01`,
+            dateTo: `${targetYear}-${String(targetMonth).padStart(2, '0')}-${String(daysInMonth).padStart(2, '0')}`,
+            storeIds: selectedStoreIds.size > 0 ? Array.from(selectedStoreIds) : undefined,
+            dataVersion: duckCtx.dataVersion,
+          }
+        : null,
+    [queryExecutor, targetYear, targetMonth, daysInMonth, selectedStoreIds, duckCtx.dataVersion],
+  )
+  const readModels = useWidgetDataOrchestrator(
+    orchestratorParams ?? {
+      executor: null,
+      dateFrom: '',
+      dateTo: '',
+      dataVersion: 0,
+    },
+  )
 
   // ── 天気データ（選択店舗の代表1店から取得） ──
   const weatherStoreId = useWeatherStoreId(selectedStoreIds, stores)
@@ -216,6 +241,9 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
 
     // 販売点数（CTS）事前集計値
     currentCtsQuantity,
+
+    // 正本化 readModels（orchestrator 経由）
+    readModels,
   }
 
   return {
