@@ -19,6 +19,11 @@ export const MILLISECONDS_PER_DAY = 86_400_000
 /** 1年の月数 */
 export const MONTHS_PER_YEAR = 12
 
+// ── PI値 ──
+
+/** PI値の乗数（来店客1,000人あたり） */
+export const PI_MULTIPLIER = 1_000
+
 // ── 比較・アラインメント ──
 
 /** 同曜日選択の探索半径（前年同日を anchor として ±N 日の候補窓） */

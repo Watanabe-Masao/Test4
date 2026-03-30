@@ -20,6 +20,7 @@ export {
   TREND_CHANGE_THRESHOLD,
   MANYEN_DIVISOR,
   AMOUNT_RECONCILIATION_TOLERANCE,
+  PI_MULTIPLIER,
 } from './calculationConstants'
 export { CATEGORY_LABELS, CATEGORY_ORDER } from './categories'
 export { METRIC_DEFS } from './metricDefs'
