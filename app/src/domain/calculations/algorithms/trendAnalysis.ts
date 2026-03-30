@@ -4,6 +4,7 @@
  * IndexedDB に保存された過去月データを横断的に分析する。
  * 月次 KPI の推移、季節性パターン、前月比/前年同月比を計算する。
  */
+import { z } from 'zod'
 import { safeDivide } from '../utils'
 import {
   MONTHS_PER_YEAR,
@@ -12,48 +13,38 @@ import {
   TREND_CHANGE_THRESHOLD,
 } from '@/domain/constants'
 
-// ─── Types ────────────────────────────────────────────
+// ─── Zod Schemas ─────────────────────────────────────
 
 /** 月次データポイント */
-export interface MonthlyDataPoint {
-  readonly year: number
-  readonly month: number
-  readonly totalSales: number
-  readonly totalCustomers: number | null
-  readonly grossProfit: number | null
-  readonly grossProfitRate: number | null
-  readonly budget: number | null
-  readonly budgetAchievement: number | null
-  readonly storeCount: number
-  /** 売変率（= 売変合計 / 売上） */
-  readonly discountRate: number | null
-  /** 原価率（= (在庫仕入原価 + 売上納品原価) / 粗売上） */
-  readonly costRate: number | null
-  /** 原価算入率（= 原価算入費 / 売上） */
-  readonly costInclusionRate: number | null
-  /** 平均値入率（= (売価合計 - 原価合計) / 売価合計） */
-  readonly averageMarkupRate: number | null
-}
+export const MonthlyDataPointSchema = z.object({
+  year: z.number(),
+  month: z.number(),
+  totalSales: z.number(),
+  totalCustomers: z.number().nullable(),
+  grossProfit: z.number().nullable(),
+  grossProfitRate: z.number().nullable(),
+  budget: z.number().nullable(),
+  budgetAchievement: z.number().nullable(),
+  storeCount: z.number(),
+  discountRate: z.number().nullable(),
+  costRate: z.number().nullable(),
+  costInclusionRate: z.number().nullable(),
+  averageMarkupRate: z.number().nullable(),
+})
+export type MonthlyDataPoint = z.infer<typeof MonthlyDataPointSchema>
 
 /** トレンド分析結果 */
-export interface TrendAnalysisResult {
-  /** 月次データポイント列 (時系列順) */
-  readonly dataPoints: readonly MonthlyDataPoint[]
-  /** 前月比 (%) — 2番目以降のポイントに対応 */
-  readonly momChanges: readonly (number | null)[]
-  /** 前年同月比 (%) — 対応する前年データがある場合のみ */
-  readonly yoyChanges: readonly (number | null)[]
-  /** 3ヶ月移動平均 (売上) */
-  readonly movingAvg3: readonly (number | null)[]
-  /** 6ヶ月移動平均 (売上) */
-  readonly movingAvg6: readonly (number | null)[]
-  /** 季節性インデックス (月平均に対する各月の比率) */
-  readonly seasonalIndex: readonly number[]
-  /** 売上の全体トレンド (正=上昇、負=下降) */
-  readonly overallTrend: 'up' | 'down' | 'flat'
-  /** 月平均売上 */
-  readonly averageMonthlySales: number
-}
+export const TrendAnalysisResultSchema = z.object({
+  dataPoints: z.array(MonthlyDataPointSchema).readonly(),
+  momChanges: z.array(z.number().nullable()).readonly(),
+  yoyChanges: z.array(z.number().nullable()).readonly(),
+  movingAvg3: z.array(z.number().nullable()).readonly(),
+  movingAvg6: z.array(z.number().nullable()).readonly(),
+  seasonalIndex: z.array(z.number()).readonly(),
+  overallTrend: z.enum(['up', 'down', 'flat']),
+  averageMonthlySales: z.number(),
+})
+export type TrendAnalysisResult = z.infer<typeof TrendAnalysisResultSchema>
 
 // ─── Analysis Functions ───────────────────────────────
 

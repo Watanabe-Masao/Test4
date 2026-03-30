@@ -6,71 +6,58 @@
  *
  * 弾性値（Elasticity）: パラメータ1pt変動あたりの粗利変動額
  */
+import { z } from 'zod'
 import { safeDivide } from '../utils'
 
-// ─── Types ────────────────────────────────────────────
+// ─── Zod Schemas ─────────────────────────────────────
 
 /** 感度分析の入力パラメータ（ベースライン値） */
-export interface SensitivityBase {
-  readonly totalSales: number
-  readonly totalCost: number
-  readonly totalDiscount: number
-  readonly grossSales: number
-  readonly totalCustomers: number
-  readonly totalCostInclusion: number
-  readonly averageMarkupRate: number
-  readonly budget: number
-  readonly elapsedDays: number
-  readonly salesDays: number
-}
+export const SensitivityBaseSchema = z.object({
+  totalSales: z.number(),
+  totalCost: z.number(),
+  totalDiscount: z.number(),
+  grossSales: z.number(),
+  totalCustomers: z.number(),
+  totalCostInclusion: z.number(),
+  averageMarkupRate: z.number(),
+  budget: z.number(),
+  elapsedDays: z.number(),
+  salesDays: z.number(),
+})
+export type SensitivityBase = z.infer<typeof SensitivityBaseSchema>
 
 /** 変動量（差分） — 各パラメータの変動pt/% */
-export interface SensitivityDeltas {
-  /** 売変率の変動（pt単位、例: -0.01 = 1pt改善） */
-  readonly discountRateDelta: number
-  /** 客数の変動率（例: 0.05 = +5%） */
-  readonly customersDelta: number
-  /** 客単価の変動率（例: -0.03 = -3%） */
-  readonly transactionValueDelta: number
-  /** 原価率の変動（pt単位、例: 0.02 = 2pt悪化） */
-  readonly costRateDelta: number
-}
+export const SensitivityDeltasSchema = z.object({
+  discountRateDelta: z.number(),
+  customersDelta: z.number(),
+  transactionValueDelta: z.number(),
+  costRateDelta: z.number(),
+})
+export type SensitivityDeltas = z.infer<typeof SensitivityDeltasSchema>
 
 /** 感度分析の結果 */
-export interface SensitivityResult {
-  /** ベースラインの粗利額（推定法ベース） */
-  readonly baseGrossProfit: number
-  /** ベースラインの粗利率 */
-  readonly baseGrossProfitRate: number
-  /** シミュレーション後の粗利額 */
-  readonly simulatedGrossProfit: number
-  /** シミュレーション後の粗利率 */
-  readonly simulatedGrossProfitRate: number
-  /** 粗利額の変化量 */
-  readonly grossProfitDelta: number
-  /** シミュレーション後の売上 */
-  readonly simulatedSales: number
-  /** 売上の変化量 */
-  readonly salesDelta: number
-  /** シミュレーション後の着地予測 */
-  readonly simulatedProjectedSales: number
-  /** 着地予測の変化量 */
-  readonly projectedSalesDelta: number
-  /** 予算達成率の変化 */
-  readonly budgetAchievementDelta: number
-}
+export const SensitivityResultSchema = z.object({
+  baseGrossProfit: z.number(),
+  baseGrossProfitRate: z.number(),
+  simulatedGrossProfit: z.number(),
+  simulatedGrossProfitRate: z.number(),
+  grossProfitDelta: z.number(),
+  simulatedSales: z.number(),
+  salesDelta: z.number(),
+  simulatedProjectedSales: z.number(),
+  projectedSalesDelta: z.number(),
+  budgetAchievementDelta: z.number(),
+})
+export type SensitivityResult = z.infer<typeof SensitivityResultSchema>
 
 /** 弾性値（各パラメータ1pt変動あたりの粗利変動額） */
-export interface ElasticityResult {
-  /** 売変率1pt変動 → 粗利変動額 */
-  readonly discountRateElasticity: number
-  /** 客数1%変動 → 粗利変動額 */
-  readonly customersElasticity: number
-  /** 客単価1%変動 → 粗利変動額 */
-  readonly transactionValueElasticity: number
-  /** 原価率1pt変動 → 粗利変動額 */
-  readonly costRateElasticity: number
-}
+export const ElasticityResultSchema = z.object({
+  discountRateElasticity: z.number(),
+  customersElasticity: z.number(),
+  transactionValueElasticity: z.number(),
+  costRateElasticity: z.number(),
+})
+export type ElasticityResult = z.infer<typeof ElasticityResultSchema>
 
 // ─── Functions ────────────────────────────────────────
 

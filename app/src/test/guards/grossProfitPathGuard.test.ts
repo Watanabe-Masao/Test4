@@ -93,6 +93,33 @@ describe('粗利計算正本ガード', () => {
     ).toEqual([])
   })
 
+  // ── getEffectiveGrossProfitRate の利用箇所凍結 ──
+
+  /**
+   * getEffectiveGrossProfitRate は domain 層の単純アクセサ（2層構造の利用層）。
+   * 既存の利用は許容するが、新規の追加は grossProfitFromStoreResult 経由を推奨する。
+   * 上限を超えた場合は新規利用を正本経由に切り替えること。
+   */
+  const GET_EFFECTIVE_GP_RATE_MAX_FILES = 13
+
+  it('getEffectiveGrossProfitRate の利用ファイル数が凍結上限を超えていない', () => {
+    const allFiles = collectTsFiles(path.join(SRC_DIR))
+    let count = 0
+    for (const file of allFiles) {
+      const relPath = rel(file)
+      // 定義元と正本ガード自身は除外
+      if (relPath === 'domain/calculations/utils.ts') continue
+      if (relPath.startsWith('test/guards/')) continue
+      const content = fs.readFileSync(file, 'utf-8')
+      if (content.includes('getEffectiveGrossProfitRate')) count++
+    }
+    expect(
+      count,
+      `getEffectiveGrossProfitRate の利用ファイル数が ${GET_EFFECTIVE_GP_RATE_MAX_FILES} を超過（現在 ${count}）\n` +
+        '→ 新規利用は grossProfitFromStoreResult() 経由に切り替えてください',
+    ).toBeLessThanOrEqual(GET_EFFECTIVE_GP_RATE_MAX_FILES)
+  })
+
   // ── 定義書の存在確認 ──
 
   it('粗利の正本定義書が存在する', () => {
