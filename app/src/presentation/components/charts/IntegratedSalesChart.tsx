@@ -228,7 +228,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
                         </TabWrapper>
                       ))}
                     </TabGroup>
-                    {clickedDay != null && subTab === 'drilldown' && (
+                    {clickedDay != null && (
                       <DrillPeriodBadge>
                         {props.month}月{clickedDay}
                         {drillEnd != null && drillEnd !== clickedDay ? `〜${drillEnd}` : ''}日
