@@ -65,17 +65,17 @@ export const presentationMemoLimits: readonly QuantitativeAllowlistEntry[] = [
   },
   {
     path: 'presentation/pages/Admin/RawDataTab.tsx',
-    reason: '管理画面のデータ表示タブ。多数のフィルタ＋集計',
+    reason: '管理画面のデータ表示タブ。多数のフィルタ＋集計（CTS タブ追加）',
     category: 'structural',
     removalCondition: 'ロジック分離時',
-    limit: 12,
+    limit: 13,
   },
   {
     path: 'presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx',
-    reason: '複合比較チャート。要因分解＋比較期間の二重集計',
+    reason: '複合比較チャート。要因分解＋比較期間の二重集計（CTS 診断追加）',
     category: 'structural',
     removalCondition: 'ロジック分離時',
-    limit: 11,
+    limit: 12,
   },
   {
     path: 'presentation/pages/Dashboard/widgets/HourlyChart.tsx',

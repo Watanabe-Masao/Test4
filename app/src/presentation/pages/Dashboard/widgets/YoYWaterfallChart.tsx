@@ -332,6 +332,27 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
   const ctsCoverageRatio = curSales > 0 ? ctsSalesTotal / curSales : 1
   const hasCtsDataGap = ctsCoverageRatio < 0.5 && curSales > 0
 
+  // 診断用: CTS のカバー店舗数・日数
+  const ctsDiag = useMemo(() => {
+    if (!hasCtsDataGap) return null
+    const ctsStores = new Set<string>()
+    const ctsDays = new Set<number>()
+    for (const rec of periodCTS) {
+      ctsStores.add(rec.storeId)
+      ctsDays.add(rec.day)
+    }
+    let dailyDayCount = 0
+    for (const [day] of r.daily) {
+      if (day >= dayStart && day <= dayEnd) dailyDayCount++
+    }
+    return {
+      ctsRecordCount: periodCTS.length,
+      ctsStoreCount: ctsStores.size,
+      ctsDayCount: ctsDays.size,
+      dailyDayCount,
+    }
+  }, [hasCtsDataGap, periodCTS, r.daily, dayStart, dayEnd])
+
   if (!hasComparison || prevSales <= 0) return null
 
   const hasCategoryView = categoryData.items.length > 0
@@ -430,8 +451,16 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
             border: '1px solid rgba(245,158,11,0.2)',
           }}
         >
-          分類別時間帯データ（CTS）が不足しています（カバー率 {formatPercent(ctsCoverageRatio, 1)}
-          ）。要因分解の精度に影響する可能性があります。
+          分類別時間帯データ（CTS）が不足しています（カバー率{' '}
+          {formatPercent(ctsCoverageRatio, 1)}
+          ）。価格・構成比の分解精度に影響します。
+          {ctsDiag && (
+            <span style={{ display: 'block', marginTop: 2, opacity: 0.85 }}>
+              CTS: {ctsDiag.ctsStoreCount}店舗 × {ctsDiag.ctsDayCount}日分 /{' '}
+              {ctsDiag.ctsRecordCount.toLocaleString()}件 — 日別売上: {ctsDiag.dailyDayCount}
+              日分。インポート済みデータの対象月・店舗をご確認ください。
+            </span>
+          )}
         </div>
       )}
 

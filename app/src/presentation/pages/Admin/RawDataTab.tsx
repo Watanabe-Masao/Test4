@@ -8,6 +8,7 @@ import type {
   SpecialSalesDayEntry,
   CostInclusionRecord,
   StoreDayIndex,
+  CategoryTimeSalesRecord,
 } from '@/domain/models/record'
 import { Section, SectionTitle, HelpText, EmptyState } from './AdminShared'
 import {
@@ -33,6 +34,7 @@ type RawDataType =
   | 'flowers'
   | 'directProduce'
   | 'consumables'
+  | 'categoryTimeSales'
 
 const RAW_DATA_LABELS: Record<RawDataType, string> = {
   classifiedSales: '売上（分類別）',
@@ -47,6 +49,20 @@ const RAW_DATA_LABELS: Record<RawDataType, string> = {
   flowers: '花（売価）',
   directProduce: '産直（売価）',
   consumables: '消耗品（原価）',
+  categoryTimeSales: '時間帯売上（CTS）',
+}
+
+/** CTS レコードを store×day の売上合計に集約 */
+function buildCtsIndex(
+  records: readonly CategoryTimeSalesRecord[],
+): StoreDayIndex<{ amount: number }> {
+  const idx: Record<string, Record<number, { amount: number }>> = {}
+  for (const rec of records) {
+    const store = (idx[rec.storeId] ??= {})
+    const existing = store[rec.day]
+    store[rec.day] = { amount: (existing?.amount ?? 0) + rec.totalAmount }
+  }
+  return idx
 }
 
 export function RawDataTab() {
@@ -85,6 +101,10 @@ export function RawDataTab() {
     () => indexByStoreDay(data.consumables.records),
     [data.consumables.records],
   )
+  const ctsIdx = useMemo(
+    () => buildCtsIndex(data.categoryTimeSales.records),
+    [data.categoryTimeSales.records],
+  )
 
   /** StoreDayIndex のソースを dataType に応じて返す */
   const getSource = useCallback((): StoreDayIndex<unknown> => {
@@ -110,6 +130,8 @@ export function RawDataTab() {
         return directProduceIdx as StoreDayIndex<unknown>
       case 'consumables':
         return consumablesIdx as StoreDayIndex<unknown>
+      case 'categoryTimeSales':
+        return ctsIdx as StoreDayIndex<unknown>
       default:
         return {}
     }
@@ -123,6 +145,7 @@ export function RawDataTab() {
     flowersIdx,
     directProduceIdx,
     consumablesIdx,
+    ctsIdx,
   ])
 
   /** 各セルの数値を取得 */
@@ -157,6 +180,8 @@ export function RawDataTab() {
           return (directProduceIdx[storeId]?.[day] as SpecialSalesDayEntry | undefined)?.price ?? 0
         case 'consumables':
           return (consumablesIdx[storeId]?.[day] as CostInclusionRecord | undefined)?.cost ?? 0
+        case 'categoryTimeSales':
+          return (ctsIdx[storeId]?.[day] as { amount: number } | undefined)?.amount ?? 0
         default:
           return 0
       }
@@ -171,6 +196,7 @@ export function RawDataTab() {
       flowersIdx,
       directProduceIdx,
       consumablesIdx,
+      ctsIdx,
     ],
   )
 
