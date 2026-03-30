@@ -5,6 +5,7 @@
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { QueryHandler, BaseQueryInput } from '@/application/queries/QueryContract'
+import { calculateQuantityPI, calculateAmountPI } from '@/domain/calculations/piValue'
 import {
   queryStoreCategoryAggregation,
   queryStoreCustomers,
@@ -65,8 +66,8 @@ export const storeCategoryPIHandler: QueryHandler<StoreCategoryPIInput, StoreCat
         name: row.name,
         amount: row.amount,
         quantity: row.quantity,
-        piAmount: customers > 0 ? (row.amount / customers) * 1000 : 0,
-        piQty: customers > 0 ? (row.quantity / customers) * 1000 : 0,
+        piAmount: calculateAmountPI(row.amount, customers),
+        piQty: calculateQuantityPI(row.quantity, customers),
       }
     })
 

@@ -17,6 +17,7 @@ import {
 } from '@/domain/calculations/utils'
 import { calculateStdDev } from '@/application/hooks/useStatistics'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
+import { calculateAmountPI } from '@/domain/calculations/piValue'
 
 // ── 型定義 ──
 
@@ -133,7 +134,7 @@ export function buildPerformanceData(
     const txValue = customers > 0 ? calculateTransactionValue(sales, customers) : null
     const discountRate = grossSales > 0 ? calculateShare(discount, grossSales) : 0
     const gpRate = sales > 0 ? calculateGrossProfitRate(sales - cost - costInclusion, sales) : 0
-    const pi = customers > 0 ? safeDivide(sales, customers, 0) * 1000 : null
+    const pi = customers > 0 ? calculateAmountPI(sales, customers) : null
 
     const prev = prevYearDaily.get(toDateKeyFromParts(year, month, d))
     const prevCustomers = prev?.customers ?? 0

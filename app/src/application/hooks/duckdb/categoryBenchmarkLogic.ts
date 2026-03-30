@@ -10,6 +10,7 @@ import type {
   CategoryBenchmarkRow,
   CategoryBenchmarkTrendRow,
 } from '@/infrastructure/duckdb/queries/advancedAnalytics'
+import { calculateAmountPI, calculateQuantityPI } from '@/domain/calculations/piValue'
 
 /** ベンチマーク指標の種類 */
 export type BenchmarkMetric = 'share' | 'salesPi' | 'quantityPi'
@@ -54,11 +55,6 @@ export function classifyProductType(index: number, cv: number): ProductType {
   if (highIndex && !lowVariance) return 'regional'
   if (!highIndex && lowVariance) return 'standard'
   return 'unstable'
-}
-
-/** PI値を算出: value / customers × 1000（客数0の場合は0） */
-export function computePi(value: number, customers: number): number {
-  return customers > 0 ? (value / customers) * 1000 : 0
 }
 
 /**
@@ -132,10 +128,14 @@ export function buildCategoryBenchmarkScores(
     let metricValues: number[]
     switch (metric) {
       case 'salesPi':
-        metricValues = cat.salesPerStore.map((s, i) => computePi(s, cat.customersPerStore[i]))
+        metricValues = cat.salesPerStore.map((s, i) =>
+          calculateAmountPI(s, cat.customersPerStore[i]),
+        )
         break
       case 'quantityPi':
-        metricValues = cat.quantityPerStore.map((q, i) => computePi(q, cat.customersPerStore[i]))
+        metricValues = cat.quantityPerStore.map((q, i) =>
+          calculateQuantityPI(q, cat.customersPerStore[i]),
+        )
         break
       default:
         metricValues = [...cat.shares]

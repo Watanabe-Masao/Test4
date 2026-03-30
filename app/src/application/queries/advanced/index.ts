@@ -26,7 +26,6 @@ export {
   buildCategoryBenchmarkScoresByDate,
   buildCategoryTrendData,
   classifyProductType,
-  computePi,
   type BenchmarkMetric,
   type CategoryBenchmarkScore,
   type CategoryTrendPoint,
