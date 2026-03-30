@@ -212,6 +212,53 @@ const ach = budget > 0 ? sales / budget : 0
 
 ---
 
+## 集約時の除算ルール（丸め誤差防止）
+
+### 原則: 額の積み上げ → 最後に1回だけ除算
+
+率・比率の集約（月次・全店・カテゴリ合計等）では、**率を足し合わせず、額を積み上げてから最後に1回だけ除算する**。
+
+```
+✅ 正しい（額の積み上げ → 最後に1回除算）:
+  cumSales += dailySales
+  cumBudget += dailyBudget
+  cumAchievementRate = calculateAchievementRate(cumSales, cumBudget)
+
+❌ 誤り（率の合算 — 丸め誤差が蓄積）:
+  cumAchievementRate += dailyAchievementRate
+  cumAchievementRate /= dayCount
+```
+
+### 理由
+
+率の加算・平均は**加重平均が崩壊する**。日商100万円の日と日商10万円の日の達成率を単純平均すると、100万円の日の重みが1/10に縮小される。額を積み上げてから割れば、自然に売上額による加重平均になる。
+
+### 適用対象
+
+| 率 | 分子（額を積み上げ） | 分母（額を積み上げ） |
+|------|------|------|
+| 達成率 (ACH) | cumActualSales | cumBudget |
+| 前年比 (YOY) | cumCurrentSales | cumPrevSales |
+| 粗利率 (GPR) | cumGrossProfit | cumSales |
+| 売変率 (DSC) | cumDiscount | cumGrossSales |
+| 値入率 (MKP) | cumMarkup | cumSalesPrice |
+| 構成比 (SHR) | partAmount | wholeAmount |
+
+### 既存実装の確認
+
+`conditionSummaryDailyBuilders.ts` の累計計算はこの原則に従っている:
+- 売上: `cumActual += dailyActual` → `calculateAchievementRate(cumActual, cumBudget)`
+- 値入率: `cumCost/cumPrice` → `calculateMarkupRates({...cumAmounts})`
+- 売変率: `cumSales/cumDiscount` → `calculateDiscountRate(cumSales, cumDiscount)`
+
+### ガード
+
+`purityGuard.test.ts` の INV-RATE-01（presentation 層での率の直接計算禁止）が
+この原則を間接的に保護している。率の直接計算を禁止することで、
+必然的に domain 関数を通じた正しい除算パターンに誘導される。
+
+---
+
 ## 移行計画
 
 ### Phase 1: 意味的関数の追加（現在）
