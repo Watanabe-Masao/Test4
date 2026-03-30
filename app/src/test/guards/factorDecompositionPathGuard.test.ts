@@ -54,8 +54,7 @@ describe('要因分解正本ガード', () => {
     'application/hooks/calculation.ts',
     // 観測テスト基盤（WASM 二重実行）
     'application/services/observationEntry.ts',
-    // causalChain — 2因子のみ使用（段階的移行対象）
-    'application/analysis/causalChain.ts',
+    // causalChain は calculateFactorDecomposition 経由に移行済み
   ])
 
   it('domain/calculations/factorDecomposition の直接利用が許可リストに制限されている', () => {

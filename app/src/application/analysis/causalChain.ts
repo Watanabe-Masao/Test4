@@ -5,7 +5,7 @@
  * ステップビルダーは causalChainSteps.ts に委譲。
  */
 import { safeDivide, getEffectiveGrossProfitRate } from '@/domain/calculations/utils'
-import { decompose2 } from '@/domain/calculations/factorDecomposition'
+import { calculateFactorDecomposition } from '@/application/readModels/factorDecomposition'
 import type { TwoFactorResult } from '@/domain/calculations/factorDecomposition'
 import type { DiscountEntry } from '@/domain/models/record'
 import type { StoreResult } from '@/domain/models/storeTypes'
@@ -73,12 +73,19 @@ export function buildCausalSteps(
   // Shapley 2因子分解を1回だけ計算（Step 2 と Step 4 で共有）
   const shapley: TwoFactorResult | null =
     prevYear?.totalSales != null && prevYear?.totalCustomers != null && prevYear.totalCustomers > 0
-      ? decompose2(
-          prevYear.totalSales,
-          result.totalSales,
-          prevYear.totalCustomers,
-          result.totalCustomers,
-        )
+      ? (() => {
+          const decomp = calculateFactorDecomposition({
+            prevSales: prevYear.totalSales!,
+            curSales: result.totalSales,
+            prevCustomers: prevYear.totalCustomers!,
+            curCustomers: result.totalCustomers,
+            level: 'two',
+          })
+          return {
+            custEffect: decomp.effects.custEffect ?? 0,
+            ticketEffect: decomp.effects.ticketEffect ?? 0,
+          }
+        })()
       : null
 
   const steps: CausalStep[] = []
