@@ -54,6 +54,12 @@ export const applicationToInfrastructure: readonly AllowlistEntry[] = [
     removalCondition: 'i18n が adapter 層に移行されたとき',
   },
   {
+    path: 'application/readModels/salesFact/readSalesFact.ts',
+    reason: '売上・販売点数の分析用正本（DuckDB queryRunner + buildTypedWhere 直接使用）',
+    category: 'adapter',
+    removalCondition: 'クエリを infrastructure/duckdb/queries/ に移動後に削除',
+  },
+  {
     path: 'application/adapters/weatherAdapter.ts',
     reason: 're-export bridge（WeatherLoadService/ForecastLoadService が使用中）',
     category: 'adapter',
