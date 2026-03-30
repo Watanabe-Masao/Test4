@@ -197,6 +197,8 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
                 ctx={props.widgetCtx}
                 overrideDateRange={drillTabDateRange ?? undefined}
                 embedded
+                rangeStart={clickedDay ?? undefined}
+                rangeEnd={drillEnd ?? clickedDay ?? undefined}
               />
             )}
 
