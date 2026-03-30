@@ -167,6 +167,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
               maOverlays={maOverlays}
               showMovingAverage={showMovingAverage}
               onShowMovingAverageChange={setShowMovingAverage}
+              hasActiveSelection={pendingRange != null}
             />
             {canDrill && (
               <DrillHint>クリックでカテゴリ分析 / ダブルクリック or ドラッグで時間帯内訳</DrillHint>

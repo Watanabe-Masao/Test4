@@ -31,6 +31,8 @@ interface Props {
   maOverlays?: import('@/application/hooks/useMultiMovingAverage').MovingAverageOverlays
   /** 移動平均表示フラグ */
   showMovingAverage?: boolean
+  /** 範囲選択後のハイライトを維持する */
+  hasActiveSelection?: boolean
 }
 
 export const DailySalesChartBody = memo(function DailySalesChartBody({
@@ -51,6 +53,7 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
   rightAxisMode = 'quantity',
   maOverlays,
   showMovingAverage,
+  hasActiveSelection,
 }: Props) {
   const days = useMemo(() => data.map((d) => d.day), [data])
 
@@ -189,6 +192,7 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
       onClick={onDayClick ? handleClick : undefined}
       onDblClick={handleDblClick}
       onBrushEnd={handleBrushEnd}
+      keepBrushSelection={hasActiveSelection}
       ariaLabel="日別売上チャート"
     />
   )
