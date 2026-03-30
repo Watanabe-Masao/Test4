@@ -60,6 +60,12 @@ export const applicationToInfrastructure: readonly AllowlistEntry[] = [
     removalCondition: 'クエリを infrastructure/duckdb/queries/ に移動後に削除',
   },
   {
+    path: 'application/readModels/discountFact/readDiscountFact.ts',
+    reason: '値引き（売変）の分析用正本（DuckDB queryRunner + buildTypedWhere 直接使用）',
+    category: 'adapter',
+    removalCondition: 'クエリを infrastructure/duckdb/queries/ に移動後に削除',
+  },
+  {
     path: 'application/adapters/weatherAdapter.ts',
     reason: 're-export bridge（WeatherLoadService/ForecastLoadService が使用中）',
     category: 'adapter',
