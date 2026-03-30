@@ -33,6 +33,8 @@ import { usePrevYearWeather } from '@/application/hooks/usePrevYearWeather'
 import { useCtsQuantity } from '@/application/hooks/useCtsQuantity'
 import { useWidgetDataOrchestrator } from '@/application/hooks/useWidgetDataOrchestrator'
 import type { WidgetDataOrchestratorParams } from '@/application/hooks/useWidgetDataOrchestrator'
+import { useDualPeriodRange } from '@/presentation/components/charts/useDualPeriodRange'
+import { buildChartPeriodProps } from '@/presentation/hooks/dualPeriod'
 
 interface UseUnifiedWidgetContextResult {
   /** 統一コンテキスト（currentResult が null の場合は null） */
@@ -147,6 +149,13 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
     },
   )
 
+  // ── ページレベル比較期間（全チャートで共有） ──
+  const dualPeriodRange = useDualPeriodRange(daysInMonth)
+  const chartPeriodProps = useMemo(
+    () => buildChartPeriodProps(dualPeriodRange, periodSelection.activePreset),
+    [dualPeriodRange, periodSelection.activePreset],
+  )
+
   // ── 天気データ（選択店舗の代表1店から取得） ──
   const weatherStoreId = useWeatherStoreId(selectedStoreIds, stores)
   const { daily: weatherDaily } = useWeatherData(targetYear, targetMonth, weatherStoreId)
@@ -244,6 +253,9 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
 
     // 正本化 readModels（orchestrator 経由）
     readModels,
+
+    // 比較期間入力（ページレベル DualPeriodSlider）
+    chartPeriodProps,
   }
 
   return {

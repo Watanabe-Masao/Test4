@@ -48,7 +48,8 @@ export const WIDGETS_CHART: readonly WidgetDef[] = [
     group: '収益概況',
     size: 'full',
     linkTo: { view: 'insight', tab: 'grossProfit' },
-    render: ({ result: r, daysInMonth, targetRate, warningRate, prevYear, year, month }) => {
+    render: (ctx) => {
+      const { result: r, daysInMonth, targetRate, warningRate, prevYear, year, month } = ctx
       // 前年仕入コストマップの構築（前年粗利率ライン表示用）
       // 注: prevYear.daily は classifiedSales 由来。仕入コストは個別に持っていないため
       // 「前年売変データから近似」する。正確な前年粗利率は在庫データが必要。
@@ -76,6 +77,8 @@ export const WIDGETS_CHART: readonly WidgetDef[] = [
           warningRate={warningRate}
           prevYearDaily={prevYear.hasPrevYear ? prevYear.daily : undefined}
           prevYearCostMap={prevYearCostMap}
+          rangeStart={ctx.chartPeriodProps?.rangeStart}
+          rangeEnd={ctx.chartPeriodProps?.rangeEnd}
         />
       )
     },
@@ -112,7 +115,8 @@ export const WIDGETS_CHART: readonly WidgetDef[] = [
     label: '売上・仕入 店舗比較',
     group: '構造分析',
     size: 'full',
-    render: ({ allStoreResults, stores, daysInMonth }) => {
+    render: (ctx) => {
+      const { allStoreResults, stores, daysInMonth } = ctx
       const results = Array.from(allStoreResults.values())
       if (results.length < 2) return null
       return (
@@ -120,6 +124,8 @@ export const WIDGETS_CHART: readonly WidgetDef[] = [
           comparisonResults={results}
           stores={stores}
           daysInMonth={daysInMonth}
+          rangeStart={ctx.chartPeriodProps?.rangeStart}
+          rangeEnd={ctx.chartPeriodProps?.rangeEnd}
         />
       )
     },

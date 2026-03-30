@@ -108,6 +108,10 @@ export interface UnifiedWidgetContext {
   /** 3正本（purchaseCost / salesFact / discountFact）の統合ビュー */
   readonly readModels?: WidgetDataOrchestratorResult
 
+  // ── 比較期間入力（ページレベル DualPeriodSlider から） ──
+  /** ページレベルで統一された比較期間。DualPeriod 専用フィールド */
+  readonly chartPeriodProps?: import('@/presentation/hooks/dualPeriod').ChartPeriodProps
+
   // ── Insight 固有 ──
   readonly insightData?: InsightData
 
