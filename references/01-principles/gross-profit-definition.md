@@ -166,7 +166,30 @@ type GrossProfitMeta = {
 | projectedGrossProfit | number | 粗利着地予測 |
 | projectedGPAchievement | number | 粗利着地予測達成率 |
 
-## 8. 2層構造: 計算層 vs 利用層
+## 8. 表示名ルール
+
+粗利のフォールバック状態に応じて表示名とバッジを統一する。
+KPI と詳細画面で同じルールを適用する。
+
+| フォールバック状態 | 表示名 | バッジ | 色 |
+|------------------|--------|--------|-----|
+| 在庫法が使用可能 | 「粗利率」/ 「粗利額」 | 「実績」 | positive |
+| 推定法にフォールバック | 「推定粗利率」/ 「推定粗利額」 | 「推定」 | caution |
+
+### 判定方法
+
+```ts
+const gp = grossProfitFromStoreResult(sr, inclusionMode)
+const label = gp.meta.usedFallback ? '推定粗利率' : '粗利率'
+const badge = gp.meta.usedFallback ? '推定' : '実績'
+```
+
+### 禁止
+
+- KPI で「粗利率」と表示しながら推定法の値を使う
+- 詳細画面で「実績」バッジを付けながら推定法の値を表示する
+
+## 9. 2層構造: 計算層 vs 利用層
 
 ### 計算層（StoreResult 組み立て）
 

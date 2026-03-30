@@ -4,7 +4,11 @@
  * 4種の粗利 × フォールバック × Zod 検証を検証。
  */
 import { describe, it, expect } from 'vitest'
-import { calculateGrossProfit, calculateGrossProfitWithFallback } from './calculateGrossProfit'
+import {
+  calculateGrossProfit,
+  calculateGrossProfitWithFallback,
+  grossProfitFromStoreResult,
+} from './calculateGrossProfit'
 import { GrossProfitReadModel } from './GrossProfitTypes'
 
 describe('calculateGrossProfit', () => {
@@ -169,5 +173,90 @@ describe('calculateGrossProfitWithFallback', () => {
     expect(result.grossProfit).toBe(0)
     expect(result.meta.source).toBe('inventory')
     expect(result.meta.usedFallback).toBe(false)
+  })
+})
+
+describe('4種の粗利の一貫性', () => {
+  const baseInput = {
+    sales: 10_000_000,
+    totalPurchaseCost: 7_000_000,
+    inventoryPurchaseCost: 6_000_000,
+    openingInventory: 3_000_000,
+    closingInventory: 2_500_000,
+    costInclusion: 100_000,
+    coreSales: 8_000_000,
+    discountRate: 0.02,
+    markupRate: 0.26,
+  }
+
+  it('在庫法: after の粗利 = before の粗利 - 原価算入費', () => {
+    const before = calculateGrossProfitWithFallback({
+      ...baseInput,
+      inclusionMode: 'before_cost_inclusion',
+    })
+    const after = calculateGrossProfitWithFallback({
+      ...baseInput,
+      inclusionMode: 'after_cost_inclusion',
+    })
+    expect(after.grossProfit).toBeCloseTo(before.grossProfit - baseInput.costInclusion, 0)
+  })
+
+  it('推定法: before と after は同値', () => {
+    const before = calculateGrossProfitWithFallback({
+      ...baseInput,
+      openingInventory: null,
+      closingInventory: null,
+      inclusionMode: 'before_cost_inclusion',
+    })
+    const after = calculateGrossProfitWithFallback({
+      ...baseInput,
+      openingInventory: null,
+      closingInventory: null,
+      inclusionMode: 'after_cost_inclusion',
+    })
+    expect(before.grossProfit).toBe(after.grossProfit)
+    expect(before.meta.usedFallback).toBe(true)
+    expect(after.meta.usedFallback).toBe(true)
+  })
+
+  it('在庫法と推定法で method/source が正しく記録される', () => {
+    const inv = calculateGrossProfitWithFallback({
+      ...baseInput,
+      inclusionMode: 'before_cost_inclusion',
+    })
+    const est = calculateGrossProfitWithFallback({
+      ...baseInput,
+      openingInventory: null,
+      closingInventory: null,
+      inclusionMode: 'before_cost_inclusion',
+    })
+    expect(inv.method).toBe('inventory')
+    expect(inv.meta.source).toBe('inventory')
+    expect(inv.meta.usedFallback).toBe(false)
+    expect(est.method).toBe('estimated')
+    expect(est.meta.source).toBe('estimated')
+    expect(est.meta.usedFallback).toBe(true)
+  })
+
+  it('grossProfitFromStoreResult と同じ結果を返す', () => {
+    // grossProfitFromStoreResult は StoreResult 互換のオブジェクトから計算
+    const sr = {
+      totalSales: baseInput.sales,
+      totalCost: baseInput.totalPurchaseCost,
+      inventoryCost: baseInput.inventoryPurchaseCost,
+      openingInventory: baseInput.openingInventory,
+      closingInventory: baseInput.closingInventory,
+      totalCostInclusion: baseInput.costInclusion,
+      totalCoreSales: baseInput.coreSales,
+      discountRate: baseInput.discountRate,
+      coreMarkupRate: baseInput.markupRate,
+    }
+    const fromSR = grossProfitFromStoreResult(sr, 'before_cost_inclusion')
+    const direct = calculateGrossProfitWithFallback({
+      ...baseInput,
+      inclusionMode: 'before_cost_inclusion',
+    })
+    expect(fromSR.grossProfit).toBeCloseTo(direct.grossProfit, 0)
+    expect(fromSR.grossProfitRate).toBeCloseTo(direct.grossProfitRate, 5)
   })
 })
