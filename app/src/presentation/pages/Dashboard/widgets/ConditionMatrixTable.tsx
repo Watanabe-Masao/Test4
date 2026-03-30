@@ -25,7 +25,7 @@ import {
   type TrendDirectionRow,
   type TrendDirection,
 } from '@/application/queries/advanced'
-import { DualPeriodSlider, useDualPeriodRange } from '@/presentation/components/charts'
+// DualPeriodSlider はページレベルに統合済み（C-3/C-4）
 import type { WidgetContext } from './types'
 import {
   Section,
@@ -112,21 +112,18 @@ function renderDirectionRow(row: TrendDirectionRow) {
 
 interface Props {
   readonly ctx: WidgetContext
+  readonly rangeStart?: number
+  readonly rangeEnd?: number
 }
 
-export const ConditionMatrixTable = memo(function ConditionMatrixTable({ ctx }: Props) {
+export const ConditionMatrixTable = memo(function ConditionMatrixTable({
+  ctx,
+  rangeStart: rangeStartProp,
+  rangeEnd: rangeEndProp,
+}: Props) {
   const { queryExecutor, selectedStoreIds, year, month, daysInMonth } = ctx
-
-  // スライダーによる日範囲選択（他のグラフと統一）
-  const {
-    p1Start: dayStart,
-    p1End: dayEnd,
-    onP1Change: setDayRange,
-    p2Start,
-    p2End,
-    onP2Change,
-    p2Enabled,
-  } = useDualPeriodRange(daysInMonth)
+  const dayStart = rangeStartProp ?? 1
+  const dayEnd = rangeEndProp ?? daysInMonth
 
   // 日番号から DateRange に変換
   const effectiveRange: DateRange = useMemo(
@@ -199,19 +196,6 @@ export const ConditionMatrixTable = memo(function ConditionMatrixTable({ ctx }: 
       )}
 
       {!isLoading && !error && !matrix && <LoadingMsg>データがありません</LoadingMsg>}
-
-      <DualPeriodSlider
-        min={1}
-        max={daysInMonth}
-        p1Start={dayStart}
-        p1End={dayEnd}
-        onP1Change={setDayRange}
-        p2Start={p2Start}
-        p2End={p2End}
-        onP2Change={onP2Change}
-        p2Enabled={p2Enabled}
-        elapsedDays={ctx.elapsedDays}
-      />
     </Section>
   )
 })

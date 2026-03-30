@@ -4,9 +4,8 @@
 import { memo, useMemo, useState, useCallback } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
-import { DualPeriodSlider } from './DualPeriodSlider'
+// DualPeriodSlider はページレベルに統合済み（C-3/C-4）
 import { DowPresetSelector } from './DowPresetSelector'
-import { useDualPeriodRange } from './useDualPeriodRange'
 import type { DailyRecord } from '@/domain/models/record'
 import { useShapleyTimeSeries } from '@/application/hooks/analytics'
 import { SegmentedControl } from '@/presentation/components/common/layout'
@@ -29,6 +28,8 @@ interface Props {
   year: number
   month: number
   prevYearDaily?: ReadonlyMap<string, { sales: number; discount: number; customers?: number }>
+  rangeStart?: number
+  rangeEnd?: number
 }
 
 type ViewMode = 'cumulative' | 'daily'
@@ -53,18 +54,13 @@ export const ShapleyTimeSeriesChart = memo(function ShapleyTimeSeriesChart({
   year,
   month,
   prevYearDaily,
+  rangeStart: rangeStartProp,
+  rangeEnd: rangeEndProp,
 }: Props) {
   const theme = useTheme() as AppTheme
   const [viewMode, setViewMode] = useState<ViewMode>('cumulative')
-  const {
-    p1Start: rangeStart,
-    p1End: rangeEnd,
-    onP1Change: setRange,
-    p2Start,
-    p2End,
-    onP2Change,
-    p2Enabled,
-  } = useDualPeriodRange(daysInMonth)
+  const rangeStart = rangeStartProp ?? 1
+  const rangeEnd = rangeEndProp ?? daysInMonth
   const [selectedDows, setSelectedDows] = useState<number[]>([])
   const handleDowChange = useCallback((dows: number[]) => setSelectedDows(dows), [])
 
@@ -178,17 +174,6 @@ export const ShapleyTimeSeriesChart = memo(function ShapleyTimeSeriesChart({
     <ChartCard title="客数・客単価 要因分解（シャープリー）" subtitle={subtitle} toolbar={toolbar}>
       <DowPresetSelector selectedDows={selectedDows} onChange={handleDowChange} />
       <EChart option={option as EChartsOption} height={280} ariaLabel="シャープリー分解チャート" />
-      <DualPeriodSlider
-        min={1}
-        max={daysInMonth}
-        p1Start={rangeStart}
-        p1End={rangeEnd}
-        onP1Change={setRange}
-        p2Start={p2Start}
-        p2End={p2End}
-        onP2Change={onP2Change}
-        p2Enabled={p2Enabled}
-      />
     </ChartCard>
   )
 })
