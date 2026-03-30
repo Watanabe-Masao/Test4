@@ -49,6 +49,8 @@ interface Props {
   /** 店舗別PI値比較用 */
   allStoreResults?: ReadonlyMap<string, StoreResult>
   stores?: ReadonlyMap<string, Store>
+  /** 日別販売点数データ（CTS 由来、点数PI計算用） */
+  dailyQuantity?: ReadonlyMap<number, number>
 }
 
 const EMPTY_PREV_YEAR: ReadonlyMap<
@@ -70,19 +72,30 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
   totalCustomers,
   allStoreResults,
   stores,
+  dailyQuantity,
 }: Props) {
   const ct = useChartTheme()
   const theme = useTheme() as AppTheme
   const [view, setView] = useState<ViewType>('piAmount')
-  const { chartData, stats, piMa7, prevPiMa7 } = useMemo(
-    () => buildPerformanceData(daily, daysInMonth, year, month, prevYearDaily ?? EMPTY_PREV_YEAR),
-    [daily, daysInMonth, year, month, prevYearDaily],
+  const { chartData, stats, piMa7, prevPiMa7, qtyPiMa7, prevQtyPiMa7 } = useMemo(
+    () =>
+      buildPerformanceData(
+        daily,
+        daysInMonth,
+        year,
+        month,
+        prevYearDaily ?? EMPTY_PREV_YEAR,
+        dailyQuantity,
+      ),
+    [daily, daysInMonth, year, month, prevYearDaily, dailyQuantity],
   )
 
   const data = chartData.map((d, i) => ({
     ...d,
     piMa7: piMa7[i],
     prevPiMa7: prevPiMa7[i],
+    qtyPiMa7: qtyPiMa7[i],
+    prevQtyPiMa7: prevQtyPiMa7[i],
   }))
 
   const hasAnomalies = useMemo(
