@@ -1,38 +1,19 @@
 /**
  * カテゴリ別日次売上推移チャート (ECharts)
  *
- * パイプライン:
- *   QueryHandler → CategoryTrendChartLogic.ts → ECharts option → EChart
- *
- * ECharts の組み込み legend toggle でカテゴリ除外/復帰を実現。
- *
- * @migration P5: useQueryWithHandler 経由に移行済み（旧: useDuckDBCategoryDailyTrend 直接 import）
+ * データ取得・状態管理は useCategoryTrendChartData に分離。
+ * 本コンポーネントは描画のみ。
  */
-import { useMemo, useState, useCallback, memo } from 'react'
-import { useTheme } from 'styled-components'
-import type { AppTheme } from '@/presentation/theme/theme'
+import { memo } from 'react'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
-import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
-import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
-import {
-  categoryDailyTrendHandler,
-  type CategoryDailyTrendInput,
-} from '@/application/queries/cts/CategoryDailyTrendHandler'
-import {
-  buildCategoryTrendData,
-  buildPrevYearTrendData,
-  buildCategoryTrendOption,
-  PREV_YEAR_SUFFIX,
-  type TrendMetric,
-} from './CategoryTrendChartLogic'
-import { useCurrencyFormatter } from './chartTheme'
 import { DowPresetSelector } from './DowPresetSelector'
-import { useI18n } from '@/application/hooks/useI18n'
 import { SegmentedControl } from '@/presentation/components/common/layout'
 import { ChartCard } from './ChartCard'
 import { ChartLoading, ChartError, ChartEmpty } from './ChartState'
 import { EChart } from './EChart'
+import { useCategoryTrendChartData } from './useCategoryTrendChartData'
+import type { TrendMetric } from './CategoryTrendChartLogic'
 import {
   ControlRow,
   ChipGroup,
@@ -68,19 +49,9 @@ interface Props {
   readonly queryExecutor: QueryExecutor | null
   readonly currentDateRange: DateRange
   readonly selectedStoreIds: ReadonlySet<string>
-  /** 前年スコープ（ヘッダの比較設定から取得） */
   readonly prevYearScope?: PrevYearScope
-  /** サブパネル埋め込み時に曜日セレクタを非表示にする */
   readonly hideDowSelector?: boolean
-  /** サブパネル埋め込み時に ChartCard ラッパーを省略する */
   readonly embedded?: boolean
-}
-
-interface DrillState {
-  readonly deptCode?: string
-  readonly deptName?: string
-  readonly lineCode?: string
-  readonly lineName?: string
 }
 
 export const CategoryTrendChart = memo(function CategoryTrendChart({
@@ -91,168 +62,28 @@ export const CategoryTrendChart = memo(function CategoryTrendChart({
   hideDowSelector,
   embedded,
 }: Props) {
-  const theme = useTheme() as AppTheme
-  const fmt = useCurrencyFormatter()
-  const { messages } = useI18n()
-
-  const [level, setLevel] = useState<HierarchyLevel>('department')
-  const [topN, setTopN] = useState<number>(8)
-  const [selectedDows, setSelectedDows] = useState<number[]>([])
-  const [drill, setDrill] = useState<DrillState>({})
-  const [metric, setMetric] = useState<TrendMetric>('amount')
-  const [showYoY, setShowYoY] = useState(false)
-
-  const handleDowChange = useCallback((dows: number[]) => setSelectedDows(dows), [])
-  const handleLevelChange = useCallback((newLevel: HierarchyLevel) => {
-    setLevel(newLevel)
-    setDrill({})
-  }, [])
-
-  const handleBreadcrumbClick = useCallback((targetLevel: 'root' | 'department') => {
-    if (targetLevel === 'root') {
-      setDrill({})
-      setLevel('department')
-    } else {
-      setDrill((prev) => ({ deptCode: prev.deptCode, deptName: prev.deptName }))
-      setLevel('line')
-    }
-  }, [])
-
-  const dowParam = useMemo(
-    () => (selectedDows.length > 0 ? selectedDows : undefined),
-    [selectedDows],
-  )
-
-  const input = useMemo<CategoryDailyTrendInput | null>(() => {
-    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
-      level,
-      topN,
-      deptCode: drill.deptCode,
-      lineCode: drill.lineCode,
-      dow: dowParam,
-    }
-  }, [currentDateRange, selectedStoreIds, level, topN, drill.deptCode, drill.lineCode, dowParam])
-
-  const {
-    data: output,
-    error,
-    isLoading,
-  } = useQueryWithHandler(queryExecutor, categoryDailyTrendHandler, input)
-
-  const trendRows = output?.records ?? null
-
-  // ── 前年クエリ（showYoY 時のみ） ──
-  const prevYearDateRange = prevYearScope?.dateRange
-  const hasPrevYearData = showYoY && prevYearDateRange != null
-  const prevInput = useMemo<CategoryDailyTrendInput | null>(() => {
-    if (!hasPrevYearData || !prevYearDateRange) return null
-    const { fromKey, toKey } = dateRangeToKeys(prevYearDateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
-      level,
-      topN: 100, // 当年トップNに含まれるカテゴリは全て取得（ロジック側でフィルタ）
-      deptCode: drill.deptCode,
-      lineCode: drill.lineCode,
-      dow: dowParam,
-      isPrevYear: true,
-    }
-  }, [
-    hasPrevYearData,
-    prevYearDateRange,
-    selectedStoreIds,
-    level,
-    drill.deptCode,
-    drill.lineCode,
-    dowParam,
-  ])
-
-  const { data: prevOutput } = useQueryWithHandler(
+  const d = useCategoryTrendChartData({
     queryExecutor,
-    categoryDailyTrendHandler,
-    prevInput,
-  )
-  const prevTrendRows = prevOutput?.records ?? null
+    currentDateRange,
+    selectedStoreIds,
+    prevYearScope,
+  })
 
-  // ECharts の legend toggle で除外を管理するため、excludedCodes は不要に
-  const emptyExcluded = useMemo(() => new Set<string>(), [])
-  const { chartData, categories } = useMemo(
-    () =>
-      trendRows
-        ? buildCategoryTrendData(trendRows, emptyExcluded, metric)
-        : { chartData: [], categories: [] },
-    [trendRows, emptyExcluded, metric],
-  )
-
-  // 前年データを当年日付軸にマッピング（showYoY 時のみ）
-  const prevYearMapped = useMemo(() => {
-    if (!showYoY || !prevTrendRows || !prevYearDateRange || chartData.length === 0) return undefined
-    const currentDates = chartData.map((d) => d.date)
-    return buildPrevYearTrendData(prevTrendRows, currentDates, categories, metric)
-  }, [showYoY, prevTrendRows, prevYearDateRange, chartData, categories, metric])
-
-  const isQuantityMode = metric === 'quantity'
-  const prevYearLabelStr = useMemo(() => {
-    if (!prevYearDateRange) return undefined
-    const from = prevYearDateRange.from
-    const to = prevYearDateRange.to
-    return `${from.year}/${from.month}/${from.day}〜${to.month}/${to.day}`
-  }, [prevYearDateRange])
-
-  const option = useMemo(
-    () =>
-      buildCategoryTrendOption(
-        chartData,
-        categories,
-        theme,
-        prevYearMapped,
-        isQuantityMode,
-        prevYearLabelStr,
-      ),
-    [chartData, categories, theme, prevYearMapped, isQuantityMode, prevYearLabelStr],
-  )
-
-  // ECharts クリックでドリルダウン
-  const canDrill = level !== 'klass'
-  const handleChartClick = useCallback(
-    (params: Record<string, unknown>) => {
-      if (!canDrill) return
-      const seriesName = params.seriesName as string
-      // 前年シリーズのクリックではドリルダウンしない
-      if (seriesName.endsWith(PREV_YEAR_SUFFIX)) return
-      const cat = categories.find((c) => c.name === seriesName)
-      if (!cat) return
-      if (level === 'department') {
-        setDrill({ deptCode: cat.code, deptName: cat.name })
-        setLevel('line')
-      } else if (level === 'line') {
-        setDrill((prev) => ({ ...prev, lineCode: cat.code, lineName: cat.name }))
-        setLevel('klass')
-      }
-    },
-    [canDrill, categories, level],
-  )
-
-  if (error) {
+  if (d.error) {
     return (
       <ChartCard title="カテゴリ別売上推移">
-        <ChartError message={`${messages.errors.dataFetchFailed}: ${error}`} />
+        <ChartError message={`${d.errorMessage}: ${d.error}`} />
       </ChartCard>
     )
   }
-  if (isLoading && !trendRows) {
+  if (d.isLoading && !d.trendRows) {
     return (
       <ChartCard title="カテゴリ別売上推移">
         <ChartLoading />
       </ChartCard>
     )
   }
-  if (!queryExecutor || chartData.length === 0) {
+  if (!d.queryExecutor || d.chartData.length === 0) {
     return (
       <ChartCard title="カテゴリ別売上推移">
         <ChartEmpty message="データをインポートしてください" />
@@ -260,31 +91,31 @@ export const CategoryTrendChart = memo(function CategoryTrendChart({
     )
   }
 
-  const hasDrill = drill.deptCode != null
-  const topCategory = categories[0]
-  const subtitle = `上位${topN}カテゴリの日次売上トレンド | 月跨ぎ対応${selectedDows.length > 0 ? ' | 曜日フィルタ適用中' : ''}`
+  const hasDrill = d.drill.deptCode != null
+  const topCategory = d.categories[0]
+  const subtitle = `上位${d.topN}カテゴリの日次売上トレンド | 月跨ぎ対応${d.selectedDows.length > 0 ? ' | 曜日フィルタ適用中' : ''}`
 
   const content = (
     <>
       {hasDrill && (
         <BreadcrumbBar>
-          <BreadcrumbItem $active={false} onClick={() => handleBreadcrumbClick('root')}>
+          <BreadcrumbItem $active={false} onClick={() => d.handleBreadcrumbClick('root')}>
             全体
           </BreadcrumbItem>
           <BreadcrumbSep>▸</BreadcrumbSep>
-          {drill.deptCode && (
+          {d.drill.deptCode && (
             <>
               <BreadcrumbItem
-                $active={level === 'line' && !drill.lineCode}
-                onClick={() => handleBreadcrumbClick('department')}
+                $active={d.level === 'line' && !d.drill.lineCode}
+                onClick={() => d.handleBreadcrumbClick('department')}
               >
-                {drill.deptName ?? drill.deptCode}
+                {d.drill.deptName ?? d.drill.deptCode}
               </BreadcrumbItem>
-              {drill.lineCode && (
+              {d.drill.lineCode && (
                 <>
                   <BreadcrumbSep>▸</BreadcrumbSep>
                   <BreadcrumbItem $active onClick={() => {}}>
-                    {drill.lineName ?? drill.lineCode}
+                    {d.drill.lineName ?? d.drill.lineCode}
                   </BreadcrumbItem>
                 </>
               )}
@@ -299,8 +130,8 @@ export const CategoryTrendChart = memo(function CategoryTrendChart({
             <ChipLabel>階層:</ChipLabel>
             <SegmentedControl
               options={LEVEL_SEGMENT_OPTIONS}
-              value={level}
-              onChange={handleLevelChange}
+              value={d.level}
+              onChange={d.handleLevelChange}
               ariaLabel="階層レベル"
             />
           </ChipGroup>
@@ -309,8 +140,8 @@ export const CategoryTrendChart = memo(function CategoryTrendChart({
           <ChipLabel>指標:</ChipLabel>
           <SegmentedControl
             options={METRIC_OPTIONS}
-            value={metric}
-            onChange={setMetric}
+            value={d.metric}
+            onChange={d.setMetric}
             ariaLabel="指標切替"
           />
         </ChipGroup>
@@ -318,25 +149,25 @@ export const CategoryTrendChart = memo(function CategoryTrendChart({
           <ChipLabel>上位:</ChipLabel>
           <SegmentedControl
             options={TOP_N_SEGMENT_OPTIONS}
-            value={String(topN)}
-            onChange={(v) => setTopN(Number(v))}
+            value={String(d.topN)}
+            onChange={(v) => d.setTopN(Number(v))}
             ariaLabel="表示件数"
           />
         </ChipGroup>
-        {prevYearScope && (
-          <YoYToggle $active={showYoY} onClick={() => setShowYoY((p) => !p)}>
-            前年比 {showYoY ? 'ON' : 'OFF'}
+        {d.prevYearScope && (
+          <YoYToggle $active={d.showYoY} onClick={() => d.setShowYoY((p) => !p)}>
+            前年比 {d.showYoY ? 'ON' : 'OFF'}
           </YoYToggle>
         )}
         {!hideDowSelector && (
-          <DowPresetSelector selectedDows={selectedDows} onChange={handleDowChange} />
+          <DowPresetSelector selectedDows={d.selectedDows} onChange={d.handleDowChange} />
         )}
       </ControlRow>
 
       <EChart
-        option={option}
+        option={d.option}
         height={320}
-        onClick={handleChartClick}
+        onClick={d.handleChartClick}
         ariaLabel="カテゴリ別売上推移チャート"
       />
 
@@ -344,15 +175,15 @@ export const CategoryTrendChart = memo(function CategoryTrendChart({
         {topCategory && (
           <SummaryItem>
             最大: {topCategory.name} (
-            {isQuantityMode
+            {d.isQuantityMode
               ? `${topCategory.totalAmount.toLocaleString()}点`
-              : fmt(topCategory.totalAmount)}
+              : d.fmt(topCategory.totalAmount)}
             )
           </SummaryItem>
         )}
-        <SummaryItem>対象日数: {chartData.length}日</SummaryItem>
-        <SummaryItem>カテゴリ数: {categories.length}</SummaryItem>
-        {canDrill && <SummaryItem>ドリルダウン: チャート上のカテゴリをクリック</SummaryItem>}
+        <SummaryItem>対象日数: {d.chartData.length}日</SummaryItem>
+        <SummaryItem>カテゴリ数: {d.categories.length}</SummaryItem>
+        {d.canDrill && <SummaryItem>ドリルダウン: チャート上のカテゴリをクリック</SummaryItem>}
       </SummaryRow>
     </>
   )
