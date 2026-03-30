@@ -8,6 +8,7 @@
 import type { AppTheme } from '@/presentation/theme/theme'
 import { toComma, toPct } from './chartTheme'
 import { yenYAxis } from './echartsOptionBuilders'
+import { calculateYoYRatio } from '@/domain/calculations/utils'
 import { tooltipBase } from './builders/tooltip'
 import { valueYAxis } from './builders'
 import { palette } from '@/presentation/theme/tokens'
@@ -97,7 +98,7 @@ function buildTimeSlotTooltip(
       if (curSales != null) {
         const yoyStr =
           showPrev && prevSales != null && prevSales > 0
-            ? `&emsp;前年比 ${toPct(curSales / prevSales)}`
+            ? `&emsp;前年比 ${toPct(calculateYoYRatio(curSales, prevSales))}`
             : ''
         html +=
           `<div style="display:flex;justify-content:space-between;gap:8px">` +
