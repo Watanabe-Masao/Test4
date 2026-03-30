@@ -74,6 +74,9 @@ export const CALCULATION_CANON_REGISTRY: Readonly<Record<string, CanonEntry>> = 
   'dowGapActualDay.ts': { tag: 'review', reason: '実日数マッピング', zodAdded: false },
   'temporal/computeMovingAverage.ts': { tag: 'review', reason: '移動平均', zodAdded: false },
 
+  // ── 必須: 新規追加 ──
+  'piValue.ts': { tag: 'required', reason: 'PI値（点数PI値・金額PI値）', zodAdded: true },
+
   // ── 不要: プリミティブ・ユーティリティ・バレル ──
   'utils.ts': { tag: 'not-needed', reason: 'safeDivide 等のプリミティブ', zodAdded: false },
   'divisor.ts': { tag: 'not-needed', reason: '除数計算ユーティリティ', zodAdded: false },

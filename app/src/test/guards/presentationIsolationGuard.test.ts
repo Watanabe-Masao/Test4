@@ -172,6 +172,7 @@ describe('Presentation Isolation Guard', () => {
       'application/queries/features/DowPatternHandler.ts',
       'application/queries/features/DailyFeaturesHandler.ts',
       'application/queries/temporal/MovingAverageHandler.ts',
+      'application/queries/cts/StoreCategoryPIHandler.ts', // PI値正本関数を使用
     ])
 
     for (const file of files) {
