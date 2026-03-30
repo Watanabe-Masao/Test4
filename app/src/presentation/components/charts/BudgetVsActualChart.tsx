@@ -3,8 +3,7 @@ import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { EChart } from './EChart'
 import { useChartTheme, useCurrencyFormatter, toPct } from './chartTheme'
-import { DualPeriodSlider } from './DualPeriodSlider'
-import { useDualPeriodRange } from './useDualPeriodRange'
+
 import { ChartCard } from './ChartCard'
 import {
   ToggleRow,
@@ -49,6 +48,8 @@ interface Props {
   month: number
   /** 前年日別データ（前年差ビュー用） */
   prevYearDaily?: ReadonlyMap<string, { sales: number }>
+  rangeStart?: number
+  rangeEnd?: number
 }
 
 export const BudgetVsActualChart = memo(function BudgetVsActualChart({
@@ -60,21 +61,16 @@ export const BudgetVsActualChart = memo(function BudgetVsActualChart({
   year,
   month,
   prevYearDaily,
+  rangeStart: rangeStartProp,
+  rangeEnd: rangeEndProp,
 }: Props) {
   const ct = useChartTheme()
   const theme = useTheme() as AppTheme
   const fmt = useCurrencyFormatter()
   const [view, setView] = useState<BudgetViewType>('line')
   const totalDaysForSlider = daysInMonth ?? data.length
-  const {
-    p1Start: rangeStart,
-    p1End: rangeEnd,
-    onP1Change: setRange,
-    p2Start,
-    p2End,
-    onP2Change,
-    p2Enabled,
-  } = useDualPeriodRange(totalDaysForSlider)
+  const rangeStart = rangeStartProp ?? 1
+  const rangeEnd = rangeEndProp ?? totalDaysForSlider
   const hasPrevYear = showPrevYear || data.some((d) => d.prevYearCum != null && d.prevYearCum > 0)
 
   // ── 比較モード ──
@@ -216,17 +212,6 @@ export const BudgetVsActualChart = memo(function BudgetVsActualChart({
       <ChartArea>
         <EChart option={option} height={300} ariaLabel="予算実績比較チャート" />
       </ChartArea>
-      <DualPeriodSlider
-        min={1}
-        max={totalDaysForSlider}
-        p1Start={rangeStart}
-        p1End={rangeEnd}
-        onP1Change={setRange}
-        p2Start={p2Start}
-        p2End={p2End}
-        onP2Change={onP2Change}
-        p2Enabled={p2Enabled}
-      />
     </ChartCard>
   )
 })

@@ -5,8 +5,7 @@ import { useCurrencyFormatter, useCurrencyFormat, toPct, STORE_COLORS } from './
 import { EChart } from './EChart'
 import { standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
 import { categoryXAxis, yenYAxis, lineDefaults } from './builders'
-import { DualPeriodSlider } from './DualPeriodSlider'
-import { useDualPeriodRange } from './useDualPeriodRange'
+
 import { computeEstimatedInventoryDetails } from '@/application/hooks/calculation'
 import type { InventoryDetailRow } from '@/application/hooks/calculation'
 import type { DailyRecord, Store } from '@/domain/models/record'
@@ -40,6 +39,8 @@ interface Props {
   discountRate: number
   comparisonResults?: readonly StoreResult[]
   stores?: ReadonlyMap<string, Store>
+  rangeStart?: number
+  rangeEnd?: number
 }
 
 /* ------------------------------------------------------------------ */
@@ -55,20 +56,15 @@ export const EstimatedInventoryDetailChart = memo(function EstimatedInventoryDet
   discountRate,
   comparisonResults,
   stores,
+  rangeStart: rangeStartProp,
+  rangeEnd: rangeEndProp,
 }: Props) {
   const theme = useTheme() as AppTheme
   const currFmt = useCurrencyFormatter()
   const { format: fmtCurrency } = useCurrencyFormat()
   const fmt = createFmt(fmtCurrency)
-  const {
-    p1Start: rangeStart,
-    p1End: rangeEnd,
-    onP1Change: setRange,
-    p2Start,
-    p2End,
-    onP2Change,
-    p2Enabled,
-  } = useDualPeriodRange(daysInMonth)
+  const rangeStart = rangeStartProp ?? 1
+  const rangeEnd = rangeEndProp ?? daysInMonth
 
   const canCompare = (comparisonResults?.length ?? 0) >= 2
   const [viewMode, setViewMode] = useState<ViewMode>('aggregate')
@@ -227,18 +223,6 @@ export const EstimatedInventoryDetailChart = memo(function EstimatedInventoryDet
           ariaLabel="店舗別推定在庫チャート"
         />
 
-        <DualPeriodSlider
-          min={1}
-          max={daysInMonth}
-          p1Start={rangeStart}
-          p1End={rangeEnd}
-          onP1Change={setRange}
-          p2Start={p2Start}
-          p2End={p2End}
-          onP2Change={onP2Change}
-          p2Enabled={p2Enabled}
-        />
-
         {/* 比較サマリーテーブル */}
         <TableWrap>
           <Table>
@@ -375,18 +359,6 @@ export const EstimatedInventoryDetailChart = memo(function EstimatedInventoryDet
         }}
         height={280}
         ariaLabel="推定在庫詳細チャート"
-      />
-
-      <DualPeriodSlider
-        min={1}
-        max={daysInMonth}
-        p1Start={rangeStart}
-        p1End={rangeEnd}
-        onP1Change={setRange}
-        p2Start={p2Start}
-        p2End={p2End}
-        onP2Change={onP2Change}
-        p2Enabled={p2Enabled}
       />
 
       {/* ---- テーブル ---- */}

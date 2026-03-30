@@ -5,8 +5,7 @@ import { useState, useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { toPct } from './chartTheme'
-import { DualPeriodSlider } from './DualPeriodSlider'
-import { useDualPeriodRange } from './useDualPeriodRange'
+
 import type { DailyRecord } from '@/domain/models/record'
 import { calculateGrossProfitRate } from '@/domain/calculations/utils'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
@@ -34,6 +33,8 @@ interface Props {
   month: number
   prevYearDaily?: ReadonlyMap<string, { sales: number; discount: number; customers?: number }>
   prevYearCostMap?: ReadonlyMap<number, number>
+  rangeStart?: number
+  rangeEnd?: number
 }
 
 function buildGpData(
@@ -81,18 +82,13 @@ export const GrossProfitAmountChart = memo(function GrossProfitAmountChart({
   month,
   prevYearDaily,
   prevYearCostMap,
+  rangeStart: rangeStartProp,
+  rangeEnd: rangeEndProp,
 }: Props) {
   const theme = useTheme() as AppTheme
   const [gpView, setGpView] = useState<GpView>('amountRate')
-  const {
-    p1Start: rangeStart,
-    p1End: rangeEnd,
-    onP1Change: setRange,
-    p2Start,
-    p2End,
-    onP2Change,
-    p2Enabled,
-  } = useDualPeriodRange(daysInMonth)
+  const rangeStart = rangeStartProp ?? 1
+  const rangeEnd = rangeEndProp ?? daysInMonth
 
   const allData = useMemo(
     () => buildGpData(daily, daysInMonth, year, month, prevYearDaily, prevYearCostMap),
@@ -219,17 +215,6 @@ export const GrossProfitAmountChart = memo(function GrossProfitAmountChart({
   return (
     <ChartCard title={titleText} toolbar={toolbar}>
       <EChart option={option} height={280} ariaLabel="粗利推移チャート" />
-      <DualPeriodSlider
-        min={1}
-        max={daysInMonth}
-        p1Start={rangeStart}
-        p1End={rangeEnd}
-        onP1Change={setRange}
-        p2Start={p2Start}
-        p2End={p2End}
-        onP2Change={onP2Change}
-        p2Enabled={p2Enabled}
-      />
     </ChartCard>
   )
 })

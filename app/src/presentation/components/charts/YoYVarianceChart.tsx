@@ -3,8 +3,7 @@ import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { EChart, type EChartsOption } from './EChart'
 import { useChartTheme, toComma } from './chartTheme'
-import { DualPeriodSlider } from './DualPeriodSlider'
-import { useDualPeriodRange } from './useDualPeriodRange'
+
 import { CHART_GUIDES } from './chartGuides'
 import { ChartCard } from './ChartCard'
 import {
@@ -34,6 +33,8 @@ interface Props {
   year: number
   month: number
   prevYearDaily: ReadonlyMap<string, { sales: number; discount: number; customers?: number }>
+  rangeStart?: number
+  rangeEnd?: number
 }
 
 export const YoYVarianceChart = memo(function YoYVarianceChart({
@@ -42,20 +43,15 @@ export const YoYVarianceChart = memo(function YoYVarianceChart({
   year,
   month,
   prevYearDaily,
+  rangeStart: rangeStartProp,
+  rangeEnd: rangeEndProp,
 }: Props) {
   const ct = useChartTheme()
   const theme = useTheme() as AppTheme
   const [view, setView] = useState<ViewType>('salesGap')
   const [growthSub, setGrowthSub] = useState<GrowthSubMode>('daily')
-  const {
-    p1Start: rangeStart,
-    p1End: rangeEnd,
-    onP1Change: setRange,
-    p2Start,
-    p2End,
-    onP2Change,
-    p2Enabled,
-  } = useDualPeriodRange(daysInMonth)
+  const rangeStart = rangeStartProp ?? 1
+  const rangeEnd = rangeEndProp ?? daysInMonth
 
   const { chartData, totals, salesGrowthMa7, customerGrowthMa7, txValueGrowthMa7 } = useMemo(
     () => aggregateYoYVarianceData(daily, daysInMonth, year, month, prevYearDaily),
@@ -158,17 +154,6 @@ export const YoYVarianceChart = memo(function YoYVarianceChart({
         </SummaryItem>
       </SummaryRow>
       <EChart option={option} ariaLabel="前年差異チャート" />
-      <DualPeriodSlider
-        min={1}
-        max={daysInMonth}
-        p1Start={rangeStart}
-        p1End={rangeEnd}
-        onP1Change={setRange}
-        p2Start={p2Start}
-        p2End={p2End}
-        onP2Change={onP2Change}
-        p2Enabled={p2Enabled}
-      />
     </ChartCard>
   )
 })

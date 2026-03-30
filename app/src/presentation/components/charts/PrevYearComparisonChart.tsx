@@ -6,8 +6,6 @@ import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { chartFontSize } from '@/presentation/theme/tokens'
 import { useCurrencyFormatter, toPct } from './chartTheme'
-import { DualPeriodSlider } from './DualPeriodSlider'
-import { useDualPeriodRange } from './useDualPeriodRange'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import { ChartCard } from './ChartCard'
 import { EChart, type EChartsOption } from './EChart'
@@ -36,6 +34,10 @@ interface Props {
   daysInMonth: number
   year: number
   month: number
+  /** 表示開始日（ページレベル Slider から） */
+  rangeStart?: number
+  /** 表示終了日（ページレベル Slider から） */
+  rangeEnd?: number
 }
 
 /** 累計データ構築（純粋関数） */
@@ -80,18 +82,13 @@ export const PrevYearComparisonChart = memo(function PrevYearComparisonChart({
   daysInMonth,
   year,
   month,
+  rangeStart: rangeStartProp,
+  rangeEnd: rangeEndProp,
 }: Props) {
   const theme = useTheme() as AppTheme
   const fmt = useCurrencyFormatter()
-  const {
-    p1Start: rangeStart,
-    p1End: rangeEnd,
-    onP1Change: setRange,
-    p2Start,
-    p2End,
-    onP2Change,
-    p2Enabled,
-  } = useDualPeriodRange(daysInMonth)
+  const rangeStart = rangeStartProp ?? 1
+  const rangeEnd = rangeEndProp ?? daysInMonth
 
   const { allData, prevTotal, latestCurrentCum, prevCumAtLatest, yoyRatio, yoyDiff } = useMemo(
     () => buildCumulativeData(currentDaily, prevYearDaily, year, month, daysInMonth),
@@ -191,18 +188,6 @@ export const PrevYearComparisonChart = memo(function PrevYearComparisonChart({
       )}
 
       <EChart option={option} height={280} ariaLabel="期間比較チャート" />
-
-      <DualPeriodSlider
-        min={1}
-        max={daysInMonth}
-        p1Start={rangeStart}
-        p1End={rangeEnd}
-        onP1Change={setRange}
-        p2Start={p2Start}
-        p2End={p2End}
-        onP2Change={onP2Change}
-        p2Enabled={p2Enabled}
-      />
     </ChartCard>
   )
 })
