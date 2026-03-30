@@ -6,6 +6,7 @@
 
 import { safeDivide } from '@/domain/calculations/utils'
 import { calculateRemainingBudgetRate } from '@/domain/calculations/remainingBudgetRate'
+import { calculateCustomerGap } from '@/domain/calculations/customerGap'
 import { formatPercent } from '@/domain/formatting'
 import type { MetricId } from '@/domain/models/analysis'
 import type { StoreResult } from '@/domain/models/storeTypes'
@@ -322,7 +323,14 @@ export function buildBudgetHeader(
 
 // ─── YoY Card Summary (前年比メトリクス) ───────────────
 
-export type YoYCardKey = 'customerYoY' | 'itemsYoY' | 'txValue' | 'requiredPace' | 'totalCost'
+export type YoYCardKey =
+  | 'customerYoY'
+  | 'itemsYoY'
+  | 'txValue'
+  | 'requiredPace'
+  | 'totalCost'
+  | 'qtyCustomerGap'
+  | 'amtCustomerGap'
 
 export interface YoYCardSummary {
   readonly key: YoYCardKey
@@ -471,6 +479,45 @@ export function buildYoYCards(input: BuildYoYCardsInput): readonly YoYCardSummar
     })
   }
 
+  // 前年比客数GAP（点数・金額）— 正本関数 calculateCustomerGap 経由
+  if (
+    prevYear.hasPrevYear &&
+    r.totalCustomers > 0 &&
+    prevYear.totalCustomers > 0 &&
+    ctsCurrentQty > 0 &&
+    ctsPrevQty > 0
+  ) {
+    const gap = calculateCustomerGap({
+      curCustomers: r.totalCustomers,
+      prevCustomers: prevYear.totalCustomers,
+      curQuantity: ctsCurrentQty,
+      prevQuantity: ctsPrevQty,
+      curSales: r.totalSales,
+      prevSales: prevYear.totalSales,
+    })
+    if (gap) {
+      const fmtGap = (v: number) => `${v >= 0 ? '+' : ''}${(v * 100).toFixed(1)}%`
+      cards.push({
+        key: 'qtyCustomerGap',
+        label: '点数客数GAP',
+        value: fmtGap(gap.quantityCustomerGap),
+        sub: `点数${formatPercent(gap.quantityYoY)} − 客数${formatPercent(gap.customerYoY)}`,
+        signalColor: gap.quantityCustomerGap >= 0 ? SIGNAL_COLORS.blue : SIGNAL_COLORS.red,
+        metricId: null,
+        detailBreakdown: null,
+      })
+      cards.push({
+        key: 'amtCustomerGap',
+        label: '金額客数GAP',
+        value: fmtGap(gap.amountCustomerGap),
+        sub: `金額${formatPercent(gap.salesYoY)} − 客数${formatPercent(gap.customerYoY)}`,
+        signalColor: gap.amountCustomerGap >= 0 ? SIGNAL_COLORS.blue : SIGNAL_COLORS.red,
+        metricId: null,
+        detailBreakdown: null,
+      })
+    }
+  }
+
   return cards
 }
 
@@ -487,6 +534,8 @@ export type ConditionCardId =
   | 'itemsYoY'
   | 'txValue'
   | 'requiredPace'
+  | 'qtyCustomerGap'
+  | 'amtCustomerGap'
 
 /**
  * カードの表示順序定義。
@@ -501,6 +550,8 @@ export const CONDITION_CARD_ORDER: readonly ConditionCardId[] = [
   'customerYoY',
   'itemsYoY',
   'txValue',
+  'qtyCustomerGap',
+  'amtCustomerGap',
   'totalCost',
   'requiredPace',
 ]
@@ -515,6 +566,8 @@ export const CONDITION_CARD_GROUP: Record<ConditionCardId, 'budget' | 'yoy'> = {
   customerYoY: 'yoy',
   itemsYoY: 'yoy',
   txValue: 'yoy',
+  qtyCustomerGap: 'yoy',
+  amtCustomerGap: 'yoy',
   totalCost: 'yoy',
   requiredPace: 'yoy',
 }
