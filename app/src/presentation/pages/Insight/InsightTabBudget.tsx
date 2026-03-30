@@ -12,6 +12,8 @@ import {
   BudgetTrendChart,
   PrevYearComparisonChart,
   EstimatedInventoryDetailChart,
+  DualPeriodSlider,
+  useDualPeriodRange,
 } from '@/presentation/components/charts'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
@@ -47,6 +49,17 @@ interface BudgetTabProps {
 }
 
 export function BudgetTabContent({ d, r, onExplain }: BudgetTabProps) {
+  // ページレベルの期間選択（全チャートで共有）
+  const {
+    p1Start: rangeStart,
+    p1End: rangeEnd,
+    onP1Change: setRange,
+    p2Start,
+    p2End,
+    onP2Change,
+    p2Enabled,
+  } = useDualPeriodRange(d.daysInMonth)
+
   // 前年日別売上 Map を構築（VM に application 依存を漏らさない）
   const prevYearDailyMap = useMemo(() => {
     const map = new Map<number, number>()
@@ -192,6 +205,19 @@ export function BudgetTabContent({ d, r, onExplain }: BudgetTabProps) {
               </ChipGroup>
             </ToggleSection>
           )}
+          {/* ページレベル期間スライダー（全チャートで共有） */}
+          <DualPeriodSlider
+            min={1}
+            max={d.daysInMonth}
+            p1Start={rangeStart}
+            p1End={rangeEnd}
+            onP1Change={setRange}
+            p2Start={p2Start}
+            p2End={p2End}
+            onP2Change={onP2Change}
+            p2Enabled={p2Enabled}
+          />
+
           <ChartSection>
             <ChartErrorBoundary>
               {d.chartMode === 'budget-vs-actual' && (
@@ -200,6 +226,8 @@ export function BudgetTabContent({ d, r, onExplain }: BudgetTabProps) {
                   budget={r.budget}
                   year={d.year}
                   month={d.month}
+                  rangeStart={rangeStart}
+                  rangeEnd={rangeEnd}
                 />
               )}
               {d.chartMode === 'prev-year' &&
@@ -214,6 +242,8 @@ export function BudgetTabContent({ d, r, onExplain }: BudgetTabProps) {
                       daysInMonth={d.daysInMonth}
                       year={d.year}
                       month={d.month}
+                      rangeStart={rangeStart}
+                      rangeEnd={rangeEnd}
                     />
                   )
                 })()}
@@ -224,6 +254,8 @@ export function BudgetTabContent({ d, r, onExplain }: BudgetTabProps) {
                   showPrevYear
                   year={d.year}
                   month={d.month}
+                  rangeStart={rangeStart}
+                  rangeEnd={rangeEnd}
                 />
               )}
               {d.chartMode !== 'budget-vs-actual' && !d.prevYear.hasPrevYear && (
@@ -324,6 +356,16 @@ export function BudgetTabContent({ d, r, onExplain }: BudgetTabProps) {
 }
 
 export function GrossProfitTabContent({ d, r, onExplain }: BudgetTabProps) {
+  const {
+    p1Start: rangeStart,
+    p1End: rangeEnd,
+    onP1Change: setRange,
+    p2Start,
+    p2End,
+    onP2Change,
+    p2Enabled,
+  } = useDualPeriodRange(d.daysInMonth)
+
   return (
     <>
       <CalcGrid>
@@ -481,6 +523,17 @@ export function GrossProfitTabContent({ d, r, onExplain }: BudgetTabProps) {
 
       <Section>
         <ChartErrorBoundary>
+          <DualPeriodSlider
+            min={1}
+            max={d.daysInMonth}
+            p1Start={rangeStart}
+            p1End={rangeEnd}
+            onP1Change={setRange}
+            p2Start={p2Start}
+            p2End={p2End}
+            onP2Change={onP2Change}
+            p2Enabled={p2Enabled}
+          />
           <EstimatedInventoryDetailChart
             daily={r.daily}
             daysInMonth={d.daysInMonth}
@@ -490,6 +543,8 @@ export function GrossProfitTabContent({ d, r, onExplain }: BudgetTabProps) {
             discountRate={r.discountRate}
             comparisonResults={d.selectedResults}
             stores={d.stores}
+            rangeStart={rangeStart}
+            rangeEnd={rangeEnd}
           />
         </ChartErrorBoundary>
       </Section>
