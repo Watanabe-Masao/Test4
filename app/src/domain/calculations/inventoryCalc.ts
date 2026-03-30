@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import type { DailyRecord } from '@/domain/models/record'
 import { getDailyTotalCost } from '@/domain/models/record'
 import { safeDivide } from './utils'
@@ -7,6 +8,12 @@ export interface InventoryPoint {
   readonly estimated: number
   readonly actual: number | null
 }
+
+export const InventoryPointSchema = z.object({
+  day: z.number(),
+  estimated: z.number(),
+  actual: z.number().nullable(),
+})
 
 /** 日別推定在庫の中間計算値を含む詳細行 */
 export interface InventoryDetailRow {
@@ -22,6 +29,20 @@ export interface InventoryDetailRow {
   readonly estimated: number // 推定在庫
   readonly actual: number | null // 実在庫(末日のみ)
 }
+
+export const InventoryDetailRowSchema = z.object({
+  day: z.number(),
+  sales: z.number(),
+  coreSales: z.number(),
+  grossSales: z.number(),
+  inventoryCost: z.number(),
+  estCogs: z.number(),
+  costInclusionCost: z.number(),
+  cumInventoryCost: z.number(),
+  cumEstCogs: z.number(),
+  estimated: z.number(),
+  actual: z.number().nullable(),
+})
 
 /**
  * 1店舗分の日別推定在庫推移を計算する。

@@ -8,7 +8,7 @@
  */
 import { describe, it, expect } from 'vitest'
 import * as path from 'path'
-import { collectTsFiles, rel } from '../guardTestHelpers'
+import { collectTsFiles } from '../guardTestHelpers'
 import { CALCULATION_CANON_REGISTRY } from '../calculationCanonRegistry'
 
 const SRC_DIR = path.resolve(__dirname, '../..')

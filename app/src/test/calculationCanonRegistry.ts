@@ -51,9 +51,9 @@ export const CALCULATION_CANON_REGISTRY: Readonly<Record<string, CanonEntry>> = 
   'costAggregation.ts': { tag: 'required', reason: '移動合計・在庫仕入原価', zodAdded: true },
   'markupRate.ts': { tag: 'required', reason: '値入率', zodAdded: true },
   'remainingBudgetRate.ts': { tag: 'required', reason: '残予算必要達成率', zodAdded: true },
-  'inventoryCalc.ts': { tag: 'required', reason: '日別推定在庫推移', zodAdded: false },
-  'observationPeriod.ts': { tag: 'required', reason: '観測期間ステータス', zodAdded: false },
-  'pinIntervals.ts': { tag: 'required', reason: '在庫確定区間の粗利', zodAdded: false },
+  'inventoryCalc.ts': { tag: 'required', reason: '日別推定在庫推移', zodAdded: true },
+  'observationPeriod.ts': { tag: 'required', reason: '観測期間ステータス', zodAdded: true },
+  'pinIntervals.ts': { tag: 'required', reason: '在庫確定区間の粗利', zodAdded: true },
 
   // ── 検討: Zod 入出力契約の追加を検討 ──
   'timeSlotCalculations.ts': {

@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import type { DailyRecord } from '@/domain/models/record'
 import { getDailyTotalCost } from '@/domain/models/record'
 import { safeDivide } from './utils'
@@ -13,6 +14,18 @@ export interface PinInterval {
   readonly grossProfit: number
   readonly grossProfitRate: number
 }
+
+export const PinIntervalSchema = z.object({
+  startDay: z.number(),
+  endDay: z.number(),
+  openingInventory: z.number(),
+  closingInventory: z.number(),
+  totalSales: z.number(),
+  totalPurchaseCost: z.number(),
+  cogs: z.number(),
+  grossProfit: z.number(),
+  grossProfitRate: z.number(),
+})
 
 /**
  * ピン止め区間ごとの在庫法粗利率を計算する
