@@ -8,6 +8,7 @@
  * - 残期間予算 = Σ budgetDaily[elapsedDays+1 .. daysInMonth]
  * - 100% = 計画通りのペース、100%超 = 巻き返しが必要
  */
+import { z } from 'zod'
 import { safeDivide } from './utils'
 
 export interface RemainingBudgetRateInput {
@@ -22,6 +23,14 @@ export interface RemainingBudgetRateInput {
   /** 月日数 */
   readonly daysInMonth: number
 }
+
+export const RemainingBudgetRateInputSchema = z.object({
+  budget: z.number(),
+  totalSales: z.number(),
+  budgetDaily: z.map(z.number(), z.number()),
+  elapsedDays: z.number(),
+  daysInMonth: z.number(),
+})
 
 /**
  * 残予算必要達成率を算出する（%値: 100 = 計画通り）
