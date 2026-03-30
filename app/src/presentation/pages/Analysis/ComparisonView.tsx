@@ -1,7 +1,10 @@
 import { Card, CardTitle } from '@/presentation/components/common/layout'
 import { formatPercent } from '@/domain/formatting'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
-import { getEffectiveGrossProfitRate, getEffectiveGrossProfit } from '@/application/readModels/grossProfit'
+import {
+  getEffectiveGrossProfitRate,
+  getEffectiveGrossProfit,
+} from '@/application/readModels/grossProfit'
 import type { StoreResult } from '@/domain/models/StoreResult'
 import { TableWrapper, Table, Th, Td, Tr } from './AnalysisPage.styles'
 
