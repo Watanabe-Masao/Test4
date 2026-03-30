@@ -6,7 +6,8 @@
  * @guard F7 View は ViewModel のみ受け取る
  */
 import { formatCurrency, formatPercent } from '@/domain/formatting'
-import { calculateAchievementRate, getEffectiveGrossProfitRate } from '@/domain/calculations/utils'
+import { calculateAchievementRate } from '@/domain/calculations/utils'
+import { getEffectiveGrossProfitRate } from '@/application/readModels/grossProfit'
 import type { Store, DepartmentKpiRecord } from '@/domain/models/record'
 import type { StoreResult } from '@/domain/models/storeTypes'
 import { fmtPct, fmtPtDiff } from './kpiTableUtils'

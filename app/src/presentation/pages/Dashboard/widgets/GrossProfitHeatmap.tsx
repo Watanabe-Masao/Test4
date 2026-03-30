@@ -1,6 +1,11 @@
-import { memo, useState } from 'react'
+import { memo, useState, useMemo } from 'react'
 import { formatPercent } from '@/domain/formatting'
 import type { WidgetContext } from './types'
+import {
+  buildGpRatesFromReadModels,
+  buildHeatmapFromStoreResults,
+  type StoreHeatRow,
+} from './GrossProfitHeatmap.vm'
 import {
   Wrapper,
   TitleRow,
@@ -60,44 +65,33 @@ export const GrossProfitHeatmapWidget = memo(function GrossProfitHeatmapWidget({
 }: {
   ctx: WidgetContext
 }) {
-  const { allStoreResults, stores, daysInMonth, targetRate, warningRate } = ctx
+  const { allStoreResults, stores, daysInMonth, targetRate, warningRate, readModels } = ctx
   const [mode, setMode] = useState<HeatMode>('gpRate')
 
-  // Build store data rows
-  const storeRows: {
-    id: string
-    name: string
-    dailyRates: Map<number, number>
-    dailyBudgetDev: Map<number, number>
-  }[] = []
+  // readModels から粗利率を構築（available 時）、StoreResult をフォールバック
+  const storeRows: readonly StoreHeatRow[] = useMemo(() => {
+    if (!allStoreResults) return []
 
-  for (const [storeId, result] of allStoreResults) {
-    const store = stores.get(storeId)
-    const name = store?.name ?? storeId
-    const dailyRates = new Map<number, number>()
-    const dailyBudgetDev = new Map<number, number>()
-
-    // Calculate cumulative GP rate up to each day
-    let cumSales = 0
-    let cumCost = 0
-    for (let d = 1; d <= daysInMonth; d++) {
-      const rec = result.daily.get(d)
-      if (rec) {
-        cumSales += rec.sales
-        cumCost += rec.totalCost
-        if (cumSales > 0) {
-          dailyRates.set(d, (cumSales - cumCost) / cumSales)
-        }
-      }
-
-      // Budget deviation: (cumSales - cumBudget) / cumBudget
-      const cumEntry = result.dailyCumulative.get(d)
-      if (cumEntry && cumEntry.budget > 0 && cumEntry.sales > 0) {
-        dailyBudgetDev.set(d, (cumEntry.sales - cumEntry.budget) / cumEntry.budget)
-      }
+    // readModels が利用可能な場合: 粗利率は readModels 正本経路、予算乖離は StoreResult
+    if (readModels?.salesFact && readModels?.purchaseCost) {
+      const gpRows = buildGpRatesFromReadModels(
+        readModels.salesFact,
+        readModels.purchaseCost,
+        stores,
+        daysInMonth,
+      )
+      // 予算乖離は StoreResult からマージ
+      const budgetRows = buildHeatmapFromStoreResults(allStoreResults, stores, daysInMonth)
+      const budgetMap = new Map(budgetRows.map((r) => [r.id, r.dailyBudgetDev]))
+      return gpRows.map((r) => ({
+        ...r,
+        dailyBudgetDev: budgetMap.get(r.id) ?? new Map(),
+      }))
     }
-    storeRows.push({ id: storeId, name, dailyRates, dailyBudgetDev })
-  }
+
+    // フォールバック: StoreResult から両方構築
+    return buildHeatmapFromStoreResults(allStoreResults, stores, daysInMonth)
+  }, [allStoreResults, stores, daysInMonth, readModels])
 
   if (storeRows.length === 0) return null
 
