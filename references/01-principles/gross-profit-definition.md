@@ -166,7 +166,43 @@ type GrossProfitMeta = {
 | projectedGrossProfit | number | 粗利着地予測 |
 | projectedGPAchievement | number | 粗利着地予測達成率 |
 
-## 8. 既存の散在ロジック（置換対象）
+## 8. 2層構造: 計算層 vs 利用層
+
+### 計算層（StoreResult 組み立て）
+
+```
+grossProfitBridge → invMethod / estMethod（Rust dispatch）
+  ↓
+storeAssembler → 両方法の結果を StoreResult に格納
+  invMethodGrossProfit / invMethodGrossProfitRate
+  estMethodMargin / estMethodMarginRate
+```
+
+- 在庫法と推定法を**両方とも独立に計算**して StoreResult に格納
+- フォールバック選択は行わない（両方の結果を保持）
+- grossProfitBridge は Rust/WASM の dispatch 層
+
+### 利用層（表示・分析）
+
+```
+calculateGrossProfitWithFallback / grossProfitFromStoreResult
+  → 在庫法が成立すれば在庫法、不足時は推定法にフォールバック
+  → meta.usedFallback で使用方法を記録
+```
+
+- StoreResult から粗利を取り出す際のフォールバック規則を統一
+- conditionSummaryUtils の4関数はこの層を経由済み
+- 表示・KPI・分析は全てこの層を通す
+
+### なぜ2層なのか
+
+storeAssembler が `calculateGrossProfitWithFallback` を使うと、
+StoreResult に `invMethodGrossProfit` と `estMethodMargin` の**両方を格納できない**。
+StoreResult は両方法の結果を個別に保持する必要がある（詳細画面で在庫法/推定法を並べて表示するため）。
+
+したがって:
+- **計算層:** 両方法を独立に実行し StoreResult に格納（storeAssembler の責務）
+- **利用層:** StoreResult から粗利を取り出す際にフォールバック規則を適用（calculateGrossProfit の責務）
 
 ### conditionSummaryUtils.ts（最初の置換対象）
 

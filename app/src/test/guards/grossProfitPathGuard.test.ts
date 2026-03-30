@@ -52,13 +52,17 @@ describe('粗利計算正本ガード', () => {
 
   /** 粗利の独自計算が許容されるファイル */
   const ALLOWED_GP_CALC_FILES = new Set([
+    // 計算層: 両方法を独立に実行し StoreResult に格納（意図的な直接アクセス）
     'application/readModels/grossProfit/calculateGrossProfit.ts',
     'application/usecases/calculation/storeAssembler.ts',
+    'application/usecases/calculation/aggregateResults.ts',
+    'application/usecases/calculation/collectionAggregator.ts',
+    'application/usecases/explanation/budgetExplanations.ts',
     'application/services/grossProfitBridge.ts',
     'domain/calculations/invMethod.ts',
     'domain/calculations/estMethod.ts',
     'domain/calculations/utils.ts',
-    // 表示専用の直接アクセスは現状許容（Step 5c で段階的に収束）
+    // 表示専用の直接アクセス（段階的に収束予定）
     'presentation/pages/Dashboard/widgets/ExecSummaryBarWidget.tsx',
     'presentation/pages/Dashboard/widgets/PlanActualForecast.tsx',
     'presentation/pages/Dashboard/widgets/conditionSummaryDailyBuilders.ts',
