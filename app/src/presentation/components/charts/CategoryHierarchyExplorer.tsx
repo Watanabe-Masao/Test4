@@ -2,7 +2,7 @@
  * カテゴリ階層エクスプローラー
  *
  * 部門→ライン→クラス の階層ドリルダウンを提供する。
- * データは queryLevelAggregation と queryCategoryHourly で取得。
+ * データ取得・HierarchyItem 組み立ては useCategoryHierarchyData に分離。
  * テーブル描画は CategoryExplorerTable に委譲。
  */
 /**
@@ -11,24 +11,14 @@
 import { Fragment, memo, useMemo, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
-import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
-import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
-import {
-  levelAggregationHandler,
-  type LevelAggregationInput,
-} from '@/application/queries/cts/LevelAggregationHandler'
-import {
-  categoryHourlyHandler,
-  type CategoryHourlyInput,
-} from '@/application/queries/cts/CategoryHourlyHandler'
 import { toPct } from './chartTheme'
 import { CategoryExplorerTable } from './CategoryExplorerTable'
-import { findCoreTime, findTurnaroundHour } from './timeSlotUtils'
 import { ChartSkeleton } from '@/presentation/components/common/feedback'
 import { ChartHelpButton } from './ChartHeader'
 import { CHART_GUIDES } from './chartGuides'
 import type { HierarchyItem, SortKey, SortDir } from './categoryExplorerTypes'
+import { useCategoryHierarchyData, type HierarchyLevel } from './useCategoryHierarchyData'
 import {
   Wrapper,
   BreadcrumbBar,
@@ -68,13 +58,12 @@ export const CategoryHierarchyExplorer = memo(function CategoryHierarchyExplorer
   selectedStoreIds,
   totalCustomers,
 }: Props) {
-  const prevYearDateRange = prevYearScope?.dateRange
   const [filter, setFilter] = useState<HierarchyFilter>({})
   const [sortKey, setSortKey] = useState<SortKey>('amount')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
   const [showYoY, setShowYoY] = useState(true)
 
-  const currentLevel: 'department' | 'line' | 'klass' = filter.lineCode
+  const currentLevel: HierarchyLevel = filter.lineCode
     ? 'klass'
     : filter.departmentCode
       ? 'line'
@@ -86,229 +75,31 @@ export const CategoryHierarchyExplorer = memo(function CategoryHierarchyExplorer
     klass: 'クラス',
   }
 
-  // 当年 input
-  const curLevelInput = useMemo<LevelAggregationInput | null>(() => {
-    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
-      level: currentLevel,
-      deptCode: filter.departmentCode,
-      lineCode: filter.lineCode,
-    }
-  }, [currentDateRange, selectedStoreIds, currentLevel, filter.departmentCode, filter.lineCode])
-
-  const curHourlyInput = useMemo<CategoryHourlyInput | null>(() => {
-    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
-      level: currentLevel,
-      deptCode: filter.departmentCode,
-      lineCode: filter.lineCode,
-    }
-  }, [currentDateRange, selectedStoreIds, currentLevel, filter.departmentCode, filter.lineCode])
-
-  // 前年 input
-  const prevLevelInput = useMemo<LevelAggregationInput | null>(() => {
-    if (!prevYearDateRange) return null
-    const { fromKey, toKey } = dateRangeToKeys(prevYearDateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
-      level: currentLevel,
-      deptCode: filter.departmentCode,
-      lineCode: filter.lineCode,
-      isPrevYear: true,
-    }
-  }, [prevYearDateRange, selectedStoreIds, currentLevel, filter.departmentCode, filter.lineCode])
-
-  const prevHourlyInput = useMemo<CategoryHourlyInput | null>(() => {
-    if (!prevYearDateRange) return null
-    const { fromKey, toKey } = dateRangeToKeys(prevYearDateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
-      level: currentLevel,
-      deptCode: filter.departmentCode,
-      lineCode: filter.lineCode,
-      isPrevYear: true,
-    }
-  }, [prevYearDateRange, selectedStoreIds, currentLevel, filter.departmentCode, filter.lineCode])
-
-  // QueryHandler 経由でデータ取得
-  const curLevelAgg = useQueryWithHandler(queryExecutor, levelAggregationHandler, curLevelInput)
-  const curHourly = useQueryWithHandler(queryExecutor, categoryHourlyHandler, curHourlyInput)
-  const prevLevelAgg = useQueryWithHandler(queryExecutor, levelAggregationHandler, prevLevelInput)
-  const prevHourly = useQueryWithHandler(queryExecutor, categoryHourlyHandler, prevHourlyInput)
-
-  // records 展開
-  const curLevelData = curLevelAgg.data?.records ?? null
-  const curHourlyData = curHourly.data?.records ?? null
-  const prevLevelData = prevLevelAgg.data?.records ?? null
-  const prevHourlyData = prevHourly.data?.records ?? null
-
-  const hasPrevYear = (prevLevelData?.length ?? 0) > 0
+  const { items, sortedItems, hasPrevYear, isLoading } = useCategoryHierarchyData({
+    queryExecutor,
+    currentDateRange,
+    prevYearScope,
+    selectedStoreIds,
+    totalCustomers,
+    filter,
+    currentLevel,
+    sortKey,
+    sortDir,
+  })
 
   const breadcrumb = useMemo(() => {
-    const items: { label: string; filter: HierarchyFilter }[] = [
-      { label: '全カテゴリ', filter: {} },
-    ]
+    const bc: { label: string; filter: HierarchyFilter }[] = [{ label: '全カテゴリ', filter: {} }]
     if (filter.departmentCode) {
-      items.push({
+      bc.push({
         label: filter.departmentName || filter.departmentCode,
         filter: { departmentCode: filter.departmentCode, departmentName: filter.departmentName },
       })
     }
     if (filter.lineCode) {
-      items.push({ label: filter.lineName || filter.lineCode, filter: { ...filter } })
+      bc.push({ label: filter.lineName || filter.lineCode, filter: { ...filter } })
     }
-    return items
+    return bc
   }, [filter])
-
-  // Combine level aggregation with hourly data to build HierarchyItems
-  const items = useMemo((): readonly HierarchyItem[] => {
-    if (!curLevelData || curLevelData.length === 0) return []
-
-    // Build hourly map: code → hour → amount
-    const hourlyMap = new Map<string, Map<number, number>>()
-    if (curHourlyData) {
-      for (const row of curHourlyData) {
-        let hours = hourlyMap.get(row.code)
-        if (!hours) {
-          hours = new Map()
-          hourlyMap.set(row.code, hours)
-        }
-        hours.set(row.hour, (hours.get(row.hour) ?? 0) + row.amount)
-      }
-    }
-
-    // Build prev year amount map
-    const prevMap = new Map<string, { amount: number; quantity: number }>()
-    if (prevLevelData) {
-      for (const row of prevLevelData) {
-        prevMap.set(row.code, { amount: row.amount, quantity: row.quantity })
-      }
-    }
-
-    // Build prev year hourly map
-    const prevHourlyMap = new Map<string, Map<number, number>>()
-    if (prevHourlyData) {
-      for (const row of prevHourlyData) {
-        let hours = prevHourlyMap.get(row.code)
-        if (!hours) {
-          hours = new Map()
-          prevHourlyMap.set(row.code, hours)
-        }
-        hours.set(row.hour, (hours.get(row.hour) ?? 0) + row.amount)
-      }
-    }
-
-    const total = curLevelData.reduce((s, v) => s + v.amount, 0)
-
-    return curLevelData.map((entry): HierarchyItem => {
-      const hours = hourlyMap.get(entry.code) ?? new Map<number, number>()
-      const hp = Array.from({ length: 24 }, (_, h) => Math.round(hours.get(h) ?? 0))
-      const mx = Math.max(...hp)
-
-      const prev = prevMap.get(entry.code)
-      const prevAmt = prev ? Math.round(prev.amount) : undefined
-      const prevQty = prev ? Math.round(prev.quantity) : undefined
-
-      const ct = findCoreTime(hours)
-      const th = findTurnaroundHour(hours)
-      const curPeakHour = mx > 0 ? hp.indexOf(mx) : -1
-
-      let prevPeakHour: number | undefined
-      let peakHourShift: number | undefined
-      let hasAnomalyShift = false
-      const prevHours = prevHourlyMap.get(entry.code)
-      if (prevHours) {
-        const prevHp = Array.from({ length: 24 }, (_, h) => Math.round(prevHours.get(h) ?? 0))
-        const prevMx = Math.max(...prevHp)
-        prevPeakHour = prevMx > 0 ? prevHp.indexOf(prevMx) : undefined
-        if (prevPeakHour != null && prevPeakHour >= 0 && curPeakHour >= 0) {
-          peakHourShift = curPeakHour - prevPeakHour
-          hasAnomalyShift = Math.abs(peakHourShift) >= 2
-        }
-      }
-
-      const amt = Math.round(entry.amount)
-      const qty = Math.round(entry.quantity)
-      const piValue =
-        totalCustomers && totalCustomers > 0 ? (entry.amount / totalCustomers) * 1000 : undefined
-
-      return {
-        code: entry.code,
-        name: entry.name || entry.code,
-        amount: amt,
-        quantity: qty,
-        pct: total > 0 ? (amt / total) * 100 : 0,
-        peakHour: curPeakHour,
-        coreTimeStart: ct?.startHour ?? -1,
-        coreTimeEnd: ct?.endHour ?? -1,
-        turnaroundHour: th ?? -1,
-        hourlyPattern: hp,
-        childCount: entry.childCount,
-        prevAmount: prevAmt,
-        prevQuantity: prevQty,
-        yoyRatio: prevAmt && prevAmt > 0 ? amt / prevAmt : undefined,
-        yoyDiff: prevAmt != null ? amt - prevAmt : undefined,
-        yoyQuantityRatio: prevQty && prevQty > 0 ? qty / prevQty : undefined,
-        prevPeakHour,
-        peakHourShift,
-        hasAnomalyShift,
-        piValue,
-        handledDayCount: entry.handledDayCount,
-        totalDayCount: entry.totalDayCount,
-      }
-    })
-  }, [curLevelData, curHourlyData, prevLevelData, prevHourlyData, totalCustomers])
-
-  const sortedItems = useMemo(() => {
-    const arr = [...items]
-    arr.sort((a, b) => {
-      let d = 0
-      switch (sortKey) {
-        case 'amount':
-          d = a.amount - b.amount
-          break
-        case 'quantity':
-          d = a.quantity - b.quantity
-          break
-        case 'pct':
-          d = a.pct - b.pct
-          break
-        case 'peakHour':
-          d = a.peakHour - b.peakHour
-          break
-        case 'coreTimeStart':
-          d = a.coreTimeStart - b.coreTimeStart
-          break
-        case 'turnaroundHour':
-          d = a.turnaroundHour - b.turnaroundHour
-          break
-        case 'name':
-          d = a.name.localeCompare(b.name, 'ja')
-          break
-        case 'yoyRatio':
-          d = (a.yoyRatio ?? 0) - (b.yoyRatio ?? 0)
-          break
-        case 'yoyDiff':
-          d = (a.yoyDiff ?? 0) - (b.yoyDiff ?? 0)
-          break
-        case 'piValue':
-          d = (a.piValue ?? 0) - (b.piValue ?? 0)
-          break
-      }
-      return sortDir === 'desc' ? -d : d
-    })
-    return arr
-  }, [items, sortKey, sortDir])
 
   const handleDrill = useCallback(
     (it: HierarchyItem) => {
@@ -331,6 +122,7 @@ export const CategoryHierarchyExplorer = memo(function CategoryHierarchyExplorer
     [sortKey],
   )
 
+  // ── サマリー KPI ──
   const totalAmt = items.reduce((s, i) => s + i.amount, 0)
   const totalQty = items.reduce((s, i) => s + i.quantity, 0)
   const totalPrevAmt = items.reduce((s, i) => s + (i.prevAmount ?? 0), 0)
@@ -343,8 +135,9 @@ export const CategoryHierarchyExplorer = memo(function CategoryHierarchyExplorer
   const canDrill = currentLevel !== 'klass'
   const showYoYCols = hasPrevYear && showYoY
 
-  // Loading
-  if (curLevelAgg.isLoading) {
+  // ── Early returns ──
+
+  if (isLoading) {
     return (
       <Wrapper>
         <ChartSkeleton height="400px" />

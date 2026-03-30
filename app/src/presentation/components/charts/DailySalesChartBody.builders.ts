@@ -7,6 +7,7 @@ import type { EChartsOption } from 'echarts'
 import { standardGrid, lineDefaults } from './builders'
 import { type ChartTheme, toAxisYen, toComma, toPct } from './chartTheme'
 import type { DailySalesDataResult } from './useDailySalesData'
+import type { MovingAverageOverlays } from '@/application/hooks/useMultiMovingAverage'
 import {
   buildWeatherMap,
   buildXLabels,
@@ -419,4 +420,89 @@ export function buildOption(
     yAxis: yAxes,
     series,
   }
+}
+
+/** 移動平均 overlay series を baseOption に追加する */
+export function buildMAOverlay(
+  baseOption: EChartsOption,
+  maOverlays: MovingAverageOverlays,
+  days: readonly (string | number)[],
+  ct: ChartTheme,
+  needRightAxis: boolean,
+): EChartsOption {
+  const toMaData = (
+    series: readonly { date: { day: number }; value: number | null }[] | undefined,
+  ) => {
+    if (!series?.length) return null
+    const byDay = new Map<number, number | null>()
+    for (const p of series) {
+      byDay.set(p.date.day, p.value)
+    }
+    const result = days.map((day) => byDay.get(day as number) ?? null)
+    return result.some((v) => v != null) ? result : null
+  }
+
+  const maSeries: object[] = []
+  const metricLabel = maOverlays.metricLabel ?? ''
+  const maColorPrimary = ct.colors.primary
+  const maColorMetric = ct.colors.cyanDark
+
+  const salesCurData = toMaData(maOverlays.salesCur)
+  if (salesCurData) {
+    maSeries.push({
+      name: '売上7日MA',
+      type: 'line',
+      data: salesCurData,
+      smooth: true,
+      symbol: 'none',
+      lineStyle: { width: 2, type: 'dashed', color: maColorPrimary },
+      z: 10,
+    })
+  }
+
+  const salesPrevData = toMaData(maOverlays.salesPrev)
+  if (salesPrevData) {
+    maSeries.push({
+      name: '売上7日MA(前年)',
+      type: 'line',
+      data: salesPrevData,
+      smooth: true,
+      symbol: 'none',
+      lineStyle: { width: 1.5, type: 'dotted', color: withAlpha(maColorPrimary, 0.5) },
+      z: 10,
+    })
+  }
+
+  const metricCurData = toMaData(maOverlays.metricCur)
+  if (metricCurData && metricLabel) {
+    maSeries.push({
+      name: `${metricLabel}7日MA`,
+      type: 'line',
+      data: metricCurData,
+      smooth: true,
+      symbol: 'none',
+      lineStyle: { width: 2, type: 'dashed', color: maColorMetric },
+      yAxisIndex: needRightAxis ? 1 : 0,
+      z: 10,
+    })
+  }
+
+  const metricPrevData = toMaData(maOverlays.metricPrev)
+  if (metricPrevData && metricLabel) {
+    maSeries.push({
+      name: `${metricLabel}7日MA(前年)`,
+      type: 'line',
+      data: metricPrevData,
+      smooth: true,
+      symbol: 'none',
+      lineStyle: { width: 1.5, type: 'dotted', color: withAlpha(maColorMetric, 0.5) },
+      yAxisIndex: needRightAxis ? 1 : 0,
+      z: 10,
+    })
+  }
+
+  if (maSeries.length === 0) return baseOption
+
+  const existingSeries = (baseOption.series as unknown[]) ?? []
+  return Object.assign({}, baseOption, { series: [...existingSeries, ...maSeries] })
 }

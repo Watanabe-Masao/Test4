@@ -4,11 +4,27 @@ import {
   SalesPurchaseComparisonChart,
 } from '@/presentation/components/charts'
 import { fromDateKey } from '@/domain/models/CalendarDate'
-import type { WidgetDef } from './types'
+import type { WidgetDef, WidgetContext } from './types'
 import { UnifiedHeatmapWidget, UnifiedStoreHourlyWidget } from './UnifiedAnalyticsWidgets'
 import { isTimeSeriesVisible, isStoreComparisonVisible } from './widgetVisibility'
 import { WeatherWidget } from './WeatherWidget'
 import { EtrnTestWidget } from './EtrnTestWidget'
+
+/**
+ * 前年の日別近似原価マップを構築する。
+ * 前年は日別仕入原価を持たないため、売上-売変で近似する。
+ * 正確な値ではないが傾向比較には有用。
+ */
+function buildPrevYearCostMap(ctx: WidgetContext): ReadonlyMap<number, number> | undefined {
+  const { prevYear } = ctx
+  if (!prevYear.hasPrevYear || prevYear.totalSales <= 0) return undefined
+  const costMap = new Map<number, number>()
+  for (const [dateKey, entry] of prevYear.daily) {
+    const day = fromDateKey(dateKey).day
+    costMap.set(day, entry.sales > 0 ? entry.sales - entry.discount : 0)
+  }
+  return costMap
+}
 
 // ── トレンド分析: 日次 ──
 export const WIDGETS_CHART: readonly WidgetDef[] = [
@@ -48,40 +64,21 @@ export const WIDGETS_CHART: readonly WidgetDef[] = [
     group: '収益概況',
     size: 'full',
     linkTo: { view: 'insight', tab: 'grossProfit' },
-    render: (ctx) => {
-      const { result: r, daysInMonth, targetRate, warningRate, prevYear, year, month } = ctx
-      // 前年仕入コストマップの構築（前年粗利率ライン表示用）
-      // 注: prevYear.daily は classifiedSales 由来。仕入コストは個別に持っていないため
-      // 「前年売変データから近似」する。正確な前年粗利率は在庫データが必要。
-      // ここでは前年売変率で近似的に原価を推定する
-      let prevYearCostMap: ReadonlyMap<number, number> | undefined
-      if (prevYear.hasPrevYear && prevYear.totalSales > 0) {
-        const costMap = new Map<number, number>()
-        for (const [dateKey, entry] of prevYear.daily) {
-          // 前年は日別仕入原価を持たないため、売上-売変で近似
-          // これは粗売上≈売上+売変として、原価≈売上×(1-値入率) の近似
-          // 正確な値ではないが傾向比較には有用
-          const day = fromDateKey(dateKey).day
-          costMap.set(day, entry.sales > 0 ? entry.sales - entry.discount : 0)
-        }
-        prevYearCostMap = costMap
-      }
-      return (
-        <GrossProfitAmountChart
-          daily={r.daily}
-          daysInMonth={daysInMonth}
-          year={year}
-          month={month}
-          grossProfitBudget={r.grossProfitBudget}
-          targetRate={targetRate}
-          warningRate={warningRate}
-          prevYearDaily={prevYear.hasPrevYear ? prevYear.daily : undefined}
-          prevYearCostMap={prevYearCostMap}
-          rangeStart={ctx.chartPeriodProps?.rangeStart}
-          rangeEnd={ctx.chartPeriodProps?.rangeEnd}
-        />
-      )
-    },
+    render: (ctx) => (
+      <GrossProfitAmountChart
+        daily={ctx.result.daily}
+        daysInMonth={ctx.daysInMonth}
+        year={ctx.year}
+        month={ctx.month}
+        grossProfitBudget={ctx.result.grossProfitBudget}
+        targetRate={ctx.targetRate}
+        warningRate={ctx.warningRate}
+        prevYearDaily={ctx.prevYear.hasPrevYear ? ctx.prevYear.daily : undefined}
+        prevYearCostMap={buildPrevYearCostMap(ctx)}
+        rangeStart={ctx.chartPeriodProps?.rangeStart}
+        rangeEnd={ctx.chartPeriodProps?.rangeEnd}
+      />
+    ),
   },
   // 注: chart-discount-breakdown → IntegratedSalesChart「売変」モードの子パネルに統合
   // 注: chart-category-analysis → IntegratedSalesChart「カテゴリ分析」タブに統合

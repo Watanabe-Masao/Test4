@@ -93,10 +93,10 @@ export const presentationMemoLimits: readonly QuantitativeAllowlistEntry[] = [
     limit: 10,
   },
   {
-    path: 'presentation/components/charts/IntegratedSalesChart.tsx',
-    reason: '統合売上チャート。日別/時間帯/天気/MA overlay の文脈構築',
+    path: 'presentation/components/charts/useIntegratedSalesState.ts',
+    reason: '統合売上チャートの状態管理。drill context + MA overlay + 日別点数クエリ',
     category: 'structural',
-    removalCondition: 'コンテキスト分離時',
+    removalCondition: 'ドリル状態を reducer に統合する時',
     limit: 9,
   },
   {
@@ -118,7 +118,7 @@ export const presentationMemoLimits: readonly QuantitativeAllowlistEntry[] = [
 /** presentation/ の useState 上限の個別例外（G5 横展開） */
 export const presentationStateLimits: readonly QuantitativeAllowlistEntry[] = [
   {
-    path: 'presentation/components/charts/IntegratedSalesChart.tsx',
+    path: 'presentation/components/charts/useIntegratedSalesState.ts',
     reason: '統合売上チャート。ドリルレベル + スライド方向 + clickedDay + drillEnd 等',
     category: 'structural',
     removalCondition: 'ドリル状態を reducer に統合する時',

@@ -17,12 +17,10 @@ import {
   useCrossChartSelection,
 } from '@/presentation/components/charts'
 import { useIntersectionObserver } from '@/presentation/hooks/useIntersectionObserver'
-import { UNIFIED_WIDGET_MAP } from '@/presentation/components/widgets'
-import type { WidgetDef } from '@/presentation/components/widgets'
 import { useUnifiedWidgetContext } from '@/presentation/hooks/useUnifiedWidgetContext'
 import { PrevYearBudgetDetailPanel } from './widgets/PrevYearBudgetDetailPanel'
-import { loadLayout, saveLayout, autoInjectDataWidgets } from './widgets/widgetLayout'
 import { useWidgetDragDrop } from './useWidgetDragDrop'
+import { useDashboardLayout } from './useDashboardLayout'
 import { WidgetSettingsPanel } from './WidgetSettingsPanel'
 import {
   Section,
@@ -111,45 +109,28 @@ export function DashboardPage() {
     setPrevYearDetailType,
   } = useUnifiedWidgetContext()
 
-  const [widgetIds, setWidgetIds] = useState<string[]>(loadLayout)
+  const {
+    widgetIds,
+    setWidgetIds,
+    activeWidgets,
+    kpiWidgets,
+    chartWidgets,
+    handleApplyLayout,
+    handleRemoveWidget,
+  } = useDashboardLayout({
+    ctx,
+    prevYearHasPrevYear: ctx?.prevYear.hasPrevYear ?? false,
+    storeCount: stores.size,
+    hasDiscountData: ctx?.result.hasDiscountData,
+    isDuckDBReady: ctx?.queryExecutor?.isReady === true,
+  })
+
   const [showSettings, setShowSettings] = useState(false)
   const [editMode, setEditMode] = useState(false)
 
   // D&D state & handlers (extracted to useWidgetDragDrop)
   const { dragIndex, overIndex, handleDragStart, handleDragOver, handleDrop, handleDragEnd } =
     useWidgetDragDrop(setWidgetIds)
-
-  const handleApplyLayout = useCallback((ids: string[]) => {
-    setWidgetIds(ids)
-  }, [])
-
-  const handleRemoveWidget = useCallback((widgetId: string) => {
-    setWidgetIds((prev) => {
-      const next = prev.filter((id) => id !== widgetId)
-      saveLayout(next)
-      return next
-    })
-  }, [])
-
-  // データ駆動ウィジェットの自動注入
-  useEffect(() => {
-    const injected = autoInjectDataWidgets(widgetIds, {
-      prevYearHasPrevYear: ctx?.prevYear.hasPrevYear ?? false,
-      storeCount: stores.size,
-      hasDiscountData: ctx?.result.hasDiscountData,
-      isDuckDBReady: ctx?.queryExecutor?.isReady === true,
-    })
-    if (injected) {
-      setWidgetIds(injected)
-      saveLayout(injected)
-    }
-  }, [
-    widgetIds,
-    ctx?.prevYear.hasPrevYear,
-    stores.size,
-    ctx?.result.hasDiscountData,
-    ctx?.queryExecutor,
-  ])
 
   const handleWidgetLink = useCallback(
     (view: ViewType, tab?: string) => {
@@ -196,20 +177,14 @@ export function DashboardPage() {
     )
   }
 
-  // Resolve active widgets (isVisible でデータ有無をフィルタ)
-  const activeWidgets = widgetIds
-    .map((id) => UNIFIED_WIDGET_MAP.get(id))
-    .filter((w): w is WidgetDef => w != null)
-    .filter((w) => (w.isVisible ? w.isVisible(ctx) : true))
-
-  // Split by type
-  const kpiWidgets = activeWidgets.filter((w) => w.size === 'kpi')
-  const chartWidgets = activeWidgets.filter((w) => w.size !== 'kpi')
-
   // Flat index tracker for D&D
   let flatIdx = 0
 
-  const renderDraggable = (widget: WidgetDef, index: number, content: ReactNode) => {
+  const renderDraggable = (
+    widget: { id: string; linkTo?: { view: ViewType; tab?: string } },
+    index: number,
+    content: ReactNode,
+  ) => {
     if (!editMode)
       return (
         <WidgetWrapper key={widget.id} data-widget-id={widget.id}>
@@ -288,7 +263,7 @@ export function DashboardPage() {
           {chartWidgets.length > 0 &&
             (() => {
               const elements: ReactNode[] = []
-              let halfBuffer: WidgetDef[] = []
+              let halfBuffer: typeof chartWidgets = []
 
               const flushHalves = () => {
                 if (halfBuffer.length === 0) return
