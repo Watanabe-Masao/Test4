@@ -14,6 +14,7 @@ import {
   TotalCostYoYDetailTable,
 } from './conditionPanelYoY'
 import { TxValueDetailTable } from './conditionPanelSalesDetail'
+import { CustomerGapDetailTable } from './conditionPanelCustomerGap'
 import type { DisplayMode } from './conditionSummaryUtils'
 import {
   DrillOverlay,
@@ -45,6 +46,8 @@ const YOY_DRILL_LABELS: Record<string, string> = {
   itemsYoY: '販売点数前年比',
   totalCost: '総仕入前年比',
   requiredPace: '残予算必要達成率',
+  qtyCustomerGap: '点数客数GAP',
+  amtCustomerGap: '金額客数GAP',
 }
 
 const YOY_DRILL_FOOTER: Record<string, string> = {
@@ -53,11 +56,20 @@ const YOY_DRILL_FOOTER: Record<string, string> = {
   itemsYoY: '前年同曜日比 • 単位：点',
   totalCost: '前年同月比 • 単位：円',
   requiredPace: '残予算必要達成率 = (予算 - 累計実績) ÷ 残期間予算',
+  qtyCustomerGap: '点数客数GAP = 点数前年比 − 客数前年比',
+  amtCustomerGap: '金額客数GAP = 金額前年比 − 客数前年比',
 }
 
 // ─── YoY Drill Overlay ──────────────────────────────────
 
-export type YoYDrillType = 'customerYoY' | 'txValue' | 'itemsYoY' | 'requiredPace' | 'totalCost'
+export type YoYDrillType =
+  | 'customerYoY'
+  | 'txValue'
+  | 'itemsYoY'
+  | 'requiredPace'
+  | 'totalCost'
+  | 'qtyCustomerGap'
+  | 'amtCustomerGap'
 
 interface YoYDrillOverlayProps {
   readonly yoyDrill: YoYDrillType
@@ -142,6 +154,18 @@ export function YoYDrillOverlay({
               effectiveConfig={effectiveConfig}
               prevYearStoreCostPrice={ctx.prevYearStoreCostPrice}
               fmtCurrency={ctx.fmtCurrency}
+            />
+          )}
+          {(yoyDrill === 'qtyCustomerGap' || yoyDrill === 'amtCustomerGap') && (
+            <CustomerGapDetailTable
+              gapType={yoyDrill === 'qtyCustomerGap' ? 'quantity' : 'amount'}
+              sortedStoreEntries={sortedStoreEntries}
+              stores={ctx.stores}
+              result={ctx.result}
+              prevYear={ctx.prevYear}
+              currentCtsQuantity={currentCtsQuantity}
+              prevYearMonthlyKpi={ctx.prevYearMonthlyKpi}
+              effectiveDay={effectiveDay}
             />
           )}
           {yoyDrill === 'requiredPace' && (

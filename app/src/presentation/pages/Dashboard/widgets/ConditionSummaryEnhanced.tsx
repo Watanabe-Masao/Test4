@@ -20,7 +20,7 @@ import {
 import { formatPercent } from '@/domain/formatting'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
 import { useSettingsStore } from '@/application/stores/settingsStore'
-import { ConditionCardShell } from './ConditionCardShell'
+import { ScrollableCardRow } from './ConditionScrollableCardRow'
 import { ConditionSummaryBudgetDrill } from './ConditionSummaryBudgetDrill'
 import { ConditionSettingsPanelWidget } from './ConditionSettingsPanel'
 import { YoYDrillOverlay, type YoYDrillType } from './ConditionSummaryYoYDrill'
@@ -29,7 +29,6 @@ import {
   DashWrapper,
   Header,
   HeaderTitle,
-  CardGridRow,
   BudgetHeaderRow,
   BudgetHeaderItem,
   BudgetHeaderLabel,
@@ -37,6 +36,9 @@ import {
   BudgetGrowthBadge,
   CardGroupLabel,
   SettingsGear,
+  SectionHeader,
+  SectionChevron,
+  SectionContent,
 } from './ConditionSummaryEnhanced.styles'
 
 // ─── Card click handler type map ────────────────────────
@@ -54,6 +56,8 @@ const YOY_DRILL_IDS: ReadonlySet<string> = new Set([
   'itemsYoY',
   'requiredPace',
   'totalCost',
+  'qtyCustomerGap',
+  'amtCustomerGap',
 ])
 
 // ─── Component ──────────────────────────────────────────
@@ -68,6 +72,7 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
   const [showSettings, setShowSettings] = useState(false)
   const [displayMode, setDisplayMode] = useState<DisplayMode>('rate')
   const [expandedStore, setExpandedStore] = useState<string | null>(null)
+  const [sectionOpen, setSectionOpen] = useState({ budget: true, yoy: true })
 
   const { elapsedDays } = ctx
   // ctx.daysInMonth は effectiveEndDay（elapsedDays でキャップ済み）のため、
@@ -402,35 +407,41 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
         )}
       </BudgetHeaderRow>
 
-      {/* Budget metric cards */}
+      {/* Budget metric cards — collapsible + horizontal scroll */}
       {budgetGroup.length > 0 && (
         <>
-          <CardGroupLabel>予算達成</CardGroupLabel>
-          <CardGridRow>
-            {budgetGroup.map((card) => (
-              <ConditionCardShell
-                key={card.id}
-                card={card}
-                onClick={() => handleCardClick(card.id)}
-              />
-            ))}
-          </CardGridRow>
+          <SectionHeader
+            onClick={() => setSectionOpen((p) => ({ ...p, budget: !p.budget }))}
+            aria-expanded={sectionOpen.budget}
+            aria-controls="condition-budget-cards"
+          >
+            <SectionChevron $open={sectionOpen.budget}>▶</SectionChevron>
+            <CardGroupLabel>予算達成</CardGroupLabel>
+          </SectionHeader>
+          <SectionContent $open={sectionOpen.budget} id="condition-budget-cards">
+            <div>
+              <ScrollableCardRow cards={budgetGroup} onCardClick={handleCardClick} />
+            </div>
+          </SectionContent>
         </>
       )}
 
-      {/* YoY / Pace metric cards */}
+      {/* YoY / Pace metric cards — collapsible + horizontal scroll */}
       {yoyGroup.length > 0 && (
         <>
-          <CardGroupLabel>前年比較</CardGroupLabel>
-          <CardGridRow>
-            {yoyGroup.map((card) => (
-              <ConditionCardShell
-                key={card.id}
-                card={card}
-                onClick={() => handleCardClick(card.id)}
-              />
-            ))}
-          </CardGridRow>
+          <SectionHeader
+            onClick={() => setSectionOpen((p) => ({ ...p, yoy: !p.yoy }))}
+            aria-expanded={sectionOpen.yoy}
+            aria-controls="condition-yoy-cards"
+          >
+            <SectionChevron $open={sectionOpen.yoy}>▶</SectionChevron>
+            <CardGroupLabel>前年比較</CardGroupLabel>
+          </SectionHeader>
+          <SectionContent $open={sectionOpen.yoy} id="condition-yoy-cards">
+            <div>
+              <ScrollableCardRow cards={yoyGroup} onCardClick={handleCardClick} />
+            </div>
+          </SectionContent>
         </>
       )}
 
