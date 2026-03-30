@@ -112,9 +112,9 @@ export function calculateGrossProfitWithFallback(input: {
   readonly discountRate: number
   readonly markupRate: number
 }): GrossProfitReadModelType {
-  // まず在庫法を試行
+  // まず在庫法を試行（在庫データの有無で判定。値が0かどうかは fallback の理由にならない）
   if (input.openingInventory != null && input.closingInventory != null) {
-    const result = calculateGrossProfit({
+    return calculateGrossProfit({
       sales: input.sales,
       purchaseCost: input.totalPurchaseCost,
       openingInventory: input.openingInventory,
@@ -123,10 +123,6 @@ export function calculateGrossProfitWithFallback(input: {
       method: 'inventory',
       inclusionMode: input.inclusionMode,
     })
-
-    if (result.grossProfit !== 0 || result.grossProfitRate !== 0) {
-      return result
-    }
   }
 
   // 在庫法が使えない → 推定法にフォールバック

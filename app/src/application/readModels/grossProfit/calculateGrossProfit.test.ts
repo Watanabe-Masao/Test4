@@ -150,4 +150,24 @@ describe('calculateGrossProfitWithFallback', () => {
     expect(result.meta.source).toBe('estimated')
     expect(result.meta.usedFallback).toBe(true)
   })
+
+  it('粗利がゼロでも在庫法を維持する（0 は fallback の理由にならない）', () => {
+    // COGS = 3,000,000 + 7,000,000 - 0 = 10,000,000
+    // GP = 10,000,000 - 10,000,000 = 0
+    const result = calculateGrossProfitWithFallback({
+      sales: 10_000_000,
+      totalPurchaseCost: 7_000_000,
+      inventoryPurchaseCost: 6_000_000,
+      openingInventory: 3_000_000,
+      closingInventory: 0,
+      costInclusion: 0,
+      inclusionMode: 'before_cost_inclusion',
+      coreSales: 8_000_000,
+      discountRate: 0.02,
+      markupRate: 0.26,
+    })
+    expect(result.grossProfit).toBe(0)
+    expect(result.meta.source).toBe('inventory')
+    expect(result.meta.usedFallback).toBe(false)
+  })
 })
