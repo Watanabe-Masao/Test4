@@ -6,7 +6,7 @@
  */
 import type { MetricId, Explanation } from '@/domain/models/analysis'
 import type { StoreResult } from '@/domain/models/storeTypes'
-import { calculateAchievementRate } from '@/domain/calculations/utils'
+import { calculateAchievementRate, getEffectiveGrossProfit } from '@/domain/calculations/utils'
 import { inp } from './explanationHelpers'
 
 /**
@@ -198,7 +198,7 @@ export function registerBudgetExplanations(
   })
 
   if (result.grossProfitBudget > 0) {
-    const gpActual = result.invMethodGrossProfit ?? result.estMethodMargin
+    const gpActual = getEffectiveGrossProfit(result)
     const gpBudgetAchievement = calculateAchievementRate(gpActual, result.grossProfitBudget)
 
     map.set('grossProfitBudgetAchievement', {

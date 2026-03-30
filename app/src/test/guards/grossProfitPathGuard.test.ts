@@ -120,6 +120,57 @@ describe('粗利計算正本ガード', () => {
     ).toBeLessThanOrEqual(GET_EFFECTIVE_GP_RATE_MAX_FILES)
   })
 
+  // ── getEffectiveGrossProfit（額）の利用箇所凍結 ──
+
+  const GET_EFFECTIVE_GP_AMOUNT_MAX_FILES = 7
+
+  it('getEffectiveGrossProfit の利用ファイル数が凍結上限を超えていない', () => {
+    const allFiles = collectTsFiles(path.join(SRC_DIR))
+    let count = 0
+    for (const file of allFiles) {
+      const relPath = rel(file)
+      if (relPath === 'domain/calculations/utils.ts') continue
+      if (relPath.startsWith('test/guards/')) continue
+      const content = fs.readFileSync(file, 'utf-8')
+      if (content.includes('getEffectiveGrossProfit(')) count++
+    }
+    expect(
+      count,
+      `getEffectiveGrossProfit の利用ファイル数が ${GET_EFFECTIVE_GP_AMOUNT_MAX_FILES} を超過（現在 ${count}）\n` +
+        '→ 新規利用は grossProfitFromStoreResult() 経由に切り替えてください',
+    ).toBeLessThanOrEqual(GET_EFFECTIVE_GP_AMOUNT_MAX_FILES)
+  })
+
+  // ── raw fallback パターン禁止 ──
+
+  /**
+   * invMethodGrossProfit ?? estMethodMargin の直接 fallback パターンを禁止。
+   * getEffectiveGrossProfit() を使用すること。
+   */
+  const RAW_GP_FALLBACK_ALLOWED = new Set([
+    // 定義元
+    'domain/calculations/utils.ts',
+  ])
+
+  it('invMethodGrossProfit ?? estMethodMargin の raw パターンが許可リスト外にない', () => {
+    const allFiles = collectTsFiles(path.join(SRC_DIR))
+    const violations: string[] = []
+    for (const file of allFiles) {
+      const relPath = rel(file)
+      if (RAW_GP_FALLBACK_ALLOWED.has(relPath)) continue
+      if (relPath.startsWith('test/')) continue
+      const content = fs.readFileSync(file, 'utf-8')
+      if (/invMethodGrossProfit\s*\?\?\s*[\w.]*estMethodMargin/.test(content)) {
+        violations.push(relPath)
+      }
+    }
+    expect(
+      violations,
+      `raw GP fallback パターン検出:\n${violations.join('\n')}\n` +
+        '→ getEffectiveGrossProfit() を使用してください',
+    ).toEqual([])
+  })
+
   // ── 定義書の存在確認 ──
 
   it('粗利の正本定義書が存在する', () => {

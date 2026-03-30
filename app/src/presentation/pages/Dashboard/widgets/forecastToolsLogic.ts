@@ -3,6 +3,7 @@ import {
   calculateYoYRatio,
   calculateGrossProfitRate,
   getEffectiveGrossProfitRate,
+  getEffectiveGrossProfit,
 } from '@/domain/calculations/utils'
 import type { StoreResult } from '@/domain/models/storeTypes'
 import type { PrevYearData } from '@/application/hooks/analytics'
@@ -27,7 +28,7 @@ export interface ForecastBaseValues {
 
 export function deriveBaseValues(r: StoreResult, prevYear: PrevYearData): ForecastBaseValues {
   const actualSales = r.totalSales
-  const actualGP = r.invMethodGrossProfit ?? r.estMethodMargin
+  const actualGP = getEffectiveGrossProfit(r)
   const actualGPRate = getEffectiveGrossProfitRate(r)
   const remainingBudget = r.remainingBudget
   const hasBudget = r.budget > 0
