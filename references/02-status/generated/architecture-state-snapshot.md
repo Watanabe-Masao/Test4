@@ -1,12 +1,12 @@
 # Architecture State Snapshot
 
-> Generated: 2026-03-29T21:40:33.494Z
+> Generated: 2026-03-30T03:56:05.895Z
 
 ## Allowlist Summary
 
 | 指標 | 値 |
 |---|---|
-| 総エントリ数 | 49 |
+| 総エントリ数 | 51 |
 | アクティブリスト数 | 14 |
 | 凍結リスト数 | 7 |
 | .vm.ts ファイル数 | 24 |
@@ -17,7 +17,7 @@
 | カテゴリ | 件数 |
 |---|---|
 | structural | 39 |
-| adapter | 8 |
+| adapter | 10 |
 | lifecycle | 2 |
 
 
@@ -143,7 +143,7 @@
 
 | リスト名 | 件数 | カテゴリ内訳 |
 |---|---|---|
-| applicationToInfrastructure | 10 | adapter:8, lifecycle:2 |
+| applicationToInfrastructure | 12 | adapter:10, lifecycle:2 |
 | presentationMemoLimits | 9 | structural:9 |
 | domainLargeFiles | 7 | structural:7 |
 | presentationStateLimits | 6 | structural:6 |
