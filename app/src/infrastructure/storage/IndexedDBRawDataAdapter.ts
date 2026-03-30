@@ -30,6 +30,14 @@ export class IndexedDBRawDataAdapter implements RawDataPort {
     relativePath?: string,
   ): Promise<RawFileRecord> {
     const entry = await rawFileStore.saveFile(year, month, dataType, file, filename, relativePath)
+    // runtime 検証（safeParse — 保存結果の整合性確認）
+    const validated = RawFileEntrySchema.safeParse(entry)
+    if (!validated.success) {
+      console.warn(
+        '[IndexedDBRawDataAdapter] saveRawFile schema mismatch:',
+        validated.error.message,
+      )
+    }
     return {
       filename: entry.filename,
       ...(entry.relativePath ? { relativePath: entry.relativePath } : {}),
@@ -71,6 +79,12 @@ export class IndexedDBRawDataAdapter implements RawDataPort {
   ): Promise<{ entry: RawFileRecord; blob: Blob } | null> {
     const result = await rawFileStore.getFile(year, month, dataType)
     if (!result) return null
+    // runtime 検証（safeParse — IndexedDB からの取得結果を検証）
+    const validated = RawFileEntrySchema.safeParse(result.entry)
+    if (!validated.success) {
+      console.warn('[IndexedDBRawDataAdapter] getRawFile schema mismatch:', validated.error.message)
+      return null
+    }
     return {
       entry: {
         filename: result.entry.filename,
