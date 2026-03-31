@@ -12,8 +12,10 @@ import type {
   InventoryConfig,
 } from '@/domain/models/record'
 import type { ImportedData, StoreResult } from '@/domain/models/storeTypes'
+import type { MonthlyData, AppData } from '@/domain/models/MonthlyData'
 import { mergeInventoryConfig } from '@/domain/models/record'
 import { createEmptyImportedData } from '@/domain/models/storeTypes'
+import { toMonthlyData } from '@/domain/models/monthlyDataAdapter'
 
 // ─── Types ────────────────────────────────────────────
 export interface DataStore {
@@ -30,6 +32,7 @@ export interface DataStore {
   setStoreResults: (results: ReadonlyMap<string, StoreResult>) => void
   setStoreExplanations: (explanations: ReadonlyMap<string, StoreExplanations>) => void
   setValidationMessages: (messages: readonly ValidationMessage[]) => void
+  // TODO(Phase 4): comparison 反転後に削除。prevYear は AppData.prevYear から供給。
   setPrevYearAutoData: (payload: {
     prevYearClassifiedSales: ClassifiedSalesData
     prevYearCategoryTimeSales: CategoryTimeSalesData
@@ -131,3 +134,27 @@ export const useDataStore = create<DataStore>()(
     { name: 'DataStore' },
   ),
 )
+
+// ─── MonthlyData / AppData 互換 selector ──────────────
+// Phase 2: 新規コードはこちらを使用。旧 s.data は段階的に移行。
+
+/**
+ * 現在月の MonthlyData を取得する selector。
+ * dataStore.data (ImportedData) から adapter 経由で変換。
+ */
+export function useCurrentMonthData(year: number, month: number): MonthlyData {
+  return useDataStore((s) =>
+    toMonthlyData(s.data, { year, month, importedAt: new Date().toISOString() }),
+  )
+}
+
+/**
+ * AppData（current + prevYear）を取得する selector。
+ * 現段階では prevYear は null（Phase 4 で comparison から供給）。
+ */
+export function useAppData(year: number, month: number): AppData {
+  return useDataStore((s) => ({
+    current: toMonthlyData(s.data, { year, month, importedAt: new Date().toISOString() }),
+    prevYear: null,
+  }))
+}
