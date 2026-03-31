@@ -317,3 +317,45 @@ describe('Widget Ownership Guard', () => {
     expect(violations).toEqual([])
   })
 })
+
+// ─── ImportedData 移行 Guard ───────────────────────────
+
+describe('ImportedData Migration Guard', () => {
+  /**
+   * ImportedData の direct import（非 type-only）の件数を凍結。
+   * 新規 direct import を禁止し、既存件数を単調減少させる。
+   */
+  const MAX_IMPORTED_DATA_DIRECT_IMPORTS = 14
+
+  it('ImportedData の direct import 数が上限以下（増加禁止）', () => {
+    const allFiles = collectTsFiles(SRC_DIR)
+    const IMPORT_PATTERN = /import\s+\{[^}]*\bImportedData\b/
+    let count = 0
+    const violating: string[] = []
+
+    for (const file of allFiles) {
+      const relPath = relativePath(file)
+      if (relPath.includes('__tests__/') || relPath.includes('monthlyDataAdapter')) continue
+      if (relPath === 'domain/models/ImportedData.ts') continue
+      if (relPath === 'domain/models/storeTypes.ts') continue
+
+      const content = fs.readFileSync(file, 'utf-8')
+      const lines = content.split('\n')
+      for (const line of lines) {
+        if (line.trimStart().startsWith('import type')) continue
+        if (IMPORT_PATTERN.test(line)) {
+          count++
+          violating.push(relPath)
+          break
+        }
+      }
+    }
+
+    expect(
+      count,
+      `ImportedData direct import: ${count}/${MAX_IMPORTED_DATA_DIRECT_IMPORTS}。` +
+        `新規 direct import は禁止。MonthlyData / AppData を使用してください。\n` +
+        `違反ファイル:\n${violating.join('\n')}`,
+    ).toBeLessThanOrEqual(MAX_IMPORTED_DATA_DIRECT_IMPORTS)
+  })
+})
