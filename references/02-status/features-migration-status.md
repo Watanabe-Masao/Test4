@@ -35,18 +35,18 @@
 
 ## Dashboard Widget Ownership
 
-全 31 widget に owner が定義済み（`test/widgetOwnershipRegistry.ts`）。
+全 31 widget に owner が定義済み（`presentation/pages/Dashboard/widgets/widgetOwnership.ts`）。
+`WidgetId` 型が `WIDGET_OWNERSHIP` から自動導出され、`WidgetDef.id` を型安全にする。
 
 | Owner | Count | Widget IDs |
 |-------|-------|-----------|
-| sales | 7 | chart-daily-sales, chart-timeslot-heatmap, chart-store-timeslot-comparison, analysis-customer-scatter, exec-dow-average, exec-daily-store-sales, duckdb-dow-pattern |
+| sales | 7 | chart-daily-sales, chart-timeslot-heatmap, chart-store-timeslot-comparison, analysis-customer-scatter, exec-dow-average, exec-weekly-summary, exec-daily-store-sales, duckdb-dow-pattern |
 | budget | 3 | chart-gross-profit-amount, analysis-waterfall, analysis-gp-heatmap |
 | forecast | 2 | analysis-seasonal-benchmark, exec-forecast-tools |
 | category | 4 | analysis-category-pi, duckdb-category-mix, duckdb-category-benchmark, duckdb-category-boxplot |
 | purchase | 1 | chart-sales-purchase-comparison |
 | cost-detail | 1 | exec-daily-inventory |
 | shared | 12 | widget-budget-achievement, chart-weather-correlation, chart-etrn-test, analysis-performance-index, analysis-causal-chain, analysis-sensitivity, analysis-regression-insight, analysis-duckdb-features, analysis-alert-panel, exec-monthly-calendar, exec-store-kpi, duckdb-cv-timeseries |
-| exec-weekly-summary | — | sales owner (exec-weekly-summary) |
 
 Guard: `structuralConventionGuard.test.ts` — 未登録 widget / orphan / shared 理由なし を CI で検出。
 

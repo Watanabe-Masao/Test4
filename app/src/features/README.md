@@ -72,7 +72,8 @@ root の `presentation/` `application/` には追加しない。
 
 ### 6. Dashboard widget の ownership
 
-Dashboard widget には owner feature が定義されている（`test/widgetOwnershipRegistry.ts`）。
+Dashboard widget には owner feature が定義されている（`presentation/pages/Dashboard/widgets/widgetOwnership.ts`）。
+`WidgetId` 型が `WIDGET_OWNERSHIP` から自動導出され、`WidgetDef.id` を型安全にする。
 
 - owner がある widget は、将来的にその feature 配下が正本になる
 - `shared` は複数 domain を横断するため単一 feature に帰属しない widget

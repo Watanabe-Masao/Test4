@@ -71,12 +71,7 @@ export function autoInjectDataWidgets(
     if (DUCKDB_TIMESERIES_WIDGET_IDS.has(w.id)) {
       if (!ctx.isDuckDBReady) return false
       if (w.id === 'chart-store-timeslot-comparison') return ctx.storeCount > 1
-      if (w.id === 'analysis-yoy-variance') return ctx.prevYearHasPrevYear
       return true
-    }
-    // 従来ウィジェットの既存ロジック
-    if (w.id === 'analysis-yoy-waterfall') {
-      return ctx.prevYearHasPrevYear
     }
     // 店別予算達成: 複数店舗時のみ自動注入
     if (w.id === 'widget-budget-achievement') {

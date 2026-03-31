@@ -1,4 +1,5 @@
 import type { CurrentCtsQuantity } from '@/application/hooks/useCtsQuantity'
+import type { WidgetId } from './widgetOwnership'
 import type { ReactNode } from 'react'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 import type { WeatherPersister } from '@/application/queries/weather'
@@ -87,7 +88,7 @@ export interface WidgetContext extends UnifiedWidgetContext {
 }
 
 export interface WidgetDef {
-  readonly id: string
+  readonly id: WidgetId
   readonly label: string
   readonly group: string
   readonly size: WidgetSize
