@@ -69,3 +69,14 @@ root の `presentation/` `application/` には追加しない。
 - 既存は改修タイミングで移動
 - barrel re-export で後方互換を維持
 - 移動 → wrapper 化 → import 切替 → 削除 の順
+
+### 6. Dashboard widget の ownership
+
+Dashboard widget には owner feature が定義されている（`test/widgetOwnershipRegistry.ts`）。
+
+- owner がある widget は、将来的にその feature 配下が正本になる
+- `shared` は複数 domain を横断するため単一 feature に帰属しない widget
+- `shared` にする場合は manifest に理由を記載する（guard で強制）
+- **新規 widget 追加時は必ず manifest に登録する**（未登録は guard で失敗）
+
+**guard:** `structuralConventionGuard.test.ts` — Widget Ownership Guard

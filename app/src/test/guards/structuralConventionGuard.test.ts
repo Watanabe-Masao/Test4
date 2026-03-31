@@ -244,3 +244,76 @@ describe('Structural Convention Guard', () => {
     expect(violations).toEqual([])
   })
 })
+
+// ─── Widget Ownership Guard ────────────────────────────
+
+describe('Widget Ownership Guard', () => {
+  const REGISTRY_FILES = [
+    'presentation/pages/Dashboard/widgets/registryKpiWidgets.tsx',
+    'presentation/pages/Dashboard/widgets/registryChartWidgets.tsx',
+    'presentation/pages/Dashboard/widgets/registryAnalysisWidgets.tsx',
+    'presentation/pages/Dashboard/widgets/registryExecWidgets.tsx',
+    'presentation/pages/Dashboard/widgets/registryDuckDBWidgets.tsx',
+  ]
+
+  /** registry ファイルから widget ID を抽出する */
+  function extractWidgetIds(): string[] {
+    const ids: string[] = []
+    const idPattern = /id:\s*'([^']+)'/g
+    for (const relPath of REGISTRY_FILES) {
+      const filePath = path.join(SRC_DIR, relPath)
+      if (!fs.existsSync(filePath)) continue
+      const content = fs.readFileSync(filePath, 'utf-8')
+      let match
+      while ((match = idPattern.exec(content)) !== null) {
+        ids.push(match[1])
+      }
+    }
+    return ids
+  }
+
+  it('Dashboard widget は全て ownership manifest に登録されている', async () => {
+    const { WIDGET_OWNERSHIP } = await import('../widgetOwnershipRegistry')
+    const registeredIds = extractWidgetIds()
+    const violations: string[] = []
+
+    for (const id of registeredIds) {
+      if (!(id in WIDGET_OWNERSHIP)) {
+        violations.push(
+          `${id}: ownership manifest (widgetOwnershipRegistry.ts) に未登録。owner を定義してください`,
+        )
+      }
+    }
+
+    expect(violations, `未登録 widget:\n${violations.join('\n')}`).toEqual([])
+  })
+
+  it('ownership manifest に登録されているが registry に存在しない orphan がない', async () => {
+    const { WIDGET_OWNERSHIP } = await import('../widgetOwnershipRegistry')
+    const registeredIds = new Set(extractWidgetIds())
+    const violations: string[] = []
+
+    for (const id of Object.keys(WIDGET_OWNERSHIP)) {
+      if (!registeredIds.has(id)) {
+        violations.push(
+          `${id}: ownership manifest に登録されているが、registry に widget が存在しません`,
+        )
+      }
+    }
+
+    expect(violations, `orphan widget:\n${violations.join('\n')}`).toEqual([])
+  })
+
+  it('shared widget には理由が記載されている', async () => {
+    const { WIDGET_OWNERSHIP } = await import('../widgetOwnershipRegistry')
+    const violations: string[] = []
+
+    for (const [id, entry] of Object.entries(WIDGET_OWNERSHIP)) {
+      if (entry.owner === 'shared' && (!entry.reason || entry.reason.trim().length < 5)) {
+        violations.push(`${id}: shared widget には理由（5文字以上）が必要です`)
+      }
+    }
+
+    expect(violations).toEqual([])
+  })
+})
