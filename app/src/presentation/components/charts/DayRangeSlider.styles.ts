@@ -91,7 +91,8 @@ export const RangeInput = styled.input`
     border: 2px solid ${({ theme }) => theme.colors.bg3};
     cursor: pointer;
     pointer-events: auto;
-    box-shadow: ${({ theme }) => theme.mode === 'dark' ? '0 1px 3px rgba(0,0,0,0.5)' : '0 1px 3px rgba(0,0,0,0.3)'};
+    box-shadow: ${({ theme }) =>
+      theme.mode === 'dark' ? '0 1px 3px rgba(0,0,0,0.5)' : '0 1px 3px rgba(0,0,0,0.3)'};
   }
 
   &::-moz-range-thumb {
@@ -102,7 +103,8 @@ export const RangeInput = styled.input`
     border: 2px solid ${({ theme }) => theme.colors.bg3};
     cursor: pointer;
     pointer-events: auto;
-    box-shadow: ${({ theme }) => theme.mode === 'dark' ? '0 1px 3px rgba(0,0,0,0.5)' : '0 1px 3px rgba(0,0,0,0.3)'};
+    box-shadow: ${({ theme }) =>
+      theme.mode === 'dark' ? '0 1px 3px rgba(0,0,0,0.5)' : '0 1px 3px rgba(0,0,0,0.3)'};
   }
 `
 

@@ -30,7 +30,9 @@ export const StepCard = styled.div<{ $active: boolean }>`
   padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[4]};
   background: ${({ $active, theme }) =>
     $active
-      ? theme.mode === 'dark' ? `${theme.colors.palette.primary}14` : `${theme.colors.palette.primary}0a`
+      ? theme.mode === 'dark'
+        ? `${theme.colors.palette.primary}14`
+        : `${theme.colors.palette.primary}0a`
       : theme.colors.bg2};
   cursor: pointer;
   transition: all 0.15s;

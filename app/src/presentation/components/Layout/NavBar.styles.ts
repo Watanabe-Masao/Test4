@@ -177,7 +177,8 @@ export const ContextMenu = styled.div`
   background: ${({ theme }) => theme.colors.bg};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.md};
-  box-shadow: ${({ theme }) => theme.mode === 'dark' ? '0 4px 12px rgba(0,0,0,0.3)' : '0 4px 12px rgba(0,0,0,0.15)'};
+  box-shadow: ${({ theme }) =>
+    theme.mode === 'dark' ? '0 4px 12px rgba(0,0,0,0.3)' : '0 4px 12px rgba(0,0,0,0.15)'};
   padding: ${({ theme }) => theme.spacing[1]};
   min-width: 120px;
 `
@@ -209,5 +210,6 @@ export const RenameInput = styled.input`
   color: ${({ theme }) => theme.colors.text};
   outline: none;
   min-width: 120px;
-  box-shadow: ${({ theme }) => theme.mode === 'dark' ? '0 4px 12px rgba(0,0,0,0.3)' : '0 4px 12px rgba(0,0,0,0.15)'};
+  box-shadow: ${({ theme }) =>
+    theme.mode === 'dark' ? '0 4px 12px rgba(0,0,0,0.3)' : '0 4px 12px rgba(0,0,0,0.15)'};
 `

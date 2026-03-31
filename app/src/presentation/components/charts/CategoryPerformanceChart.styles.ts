@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { palette } from '@/presentation/theme/tokens'
 
 export const Wrapper = styled.div`
   width: 100%;
@@ -55,7 +56,9 @@ export const ViewBtn = styled.button<{ $active?: boolean }>`
     background: ${({ $active, theme }) =>
       $active
         ? theme.colors.palette.primary
-        : theme.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'};
+        : theme.mode === 'dark'
+          ? `${palette.white}14`
+          : `${palette.black}0f`};
   }
   &:focus-visible {
     outline: 2px solid ${({ theme }) => theme.colors.palette.primary};

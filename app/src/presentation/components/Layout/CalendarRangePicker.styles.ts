@@ -17,7 +17,8 @@ export const CalendarDropdown = styled.div`
   background: ${({ theme }) => theme.colors.bg2};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
-  box-shadow: ${({ theme }) => theme.mode === 'dark' ? '0 8px 24px rgba(0,0,0,0.5)' : '0 8px 24px rgba(0,0,0,0.3)'};
+  box-shadow: ${({ theme }) =>
+    theme.mode === 'dark' ? '0 8px 24px rgba(0,0,0,0.5)' : '0 8px 24px rgba(0,0,0,0.3)'};
   padding: ${({ theme }) => theme.spacing[4]};
   min-width: 280px;
 `
@@ -32,7 +33,8 @@ export const DualPeriodPanel = styled.div`
   background: ${({ theme }) => theme.colors.bg2};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
-  box-shadow: ${({ theme }) => theme.mode === 'dark' ? '0 8px 24px rgba(0,0,0,0.5)' : '0 8px 24px rgba(0,0,0,0.3)'};
+  box-shadow: ${({ theme }) =>
+    theme.mode === 'dark' ? '0 8px 24px rgba(0,0,0,0.5)' : '0 8px 24px rgba(0,0,0,0.3)'};
   padding: ${({ theme }) => theme.spacing[4]};
   min-width: 580px;
   max-height: 90vh;
@@ -109,7 +111,9 @@ export const PresetChip = styled.button<{ $active?: boolean }>`
     ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.border)};
   background: ${({ $active, theme }) =>
     $active
-      ? theme.mode === 'dark' ? `${theme.colors.palette.primary}33` : `${theme.colors.palette.primary}14`
+      ? theme.mode === 'dark'
+        ? `${theme.colors.palette.primary}33`
+        : `${theme.colors.palette.primary}14`
       : 'transparent'};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text3)};
   cursor: pointer;

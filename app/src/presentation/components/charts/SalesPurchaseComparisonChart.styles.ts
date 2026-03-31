@@ -61,7 +61,9 @@ export const ToggleBtn = styled.button<{ $active: boolean }>`
   border-radius: ${({ theme }) => theme.radii.sm};
   background: ${({ $active, theme }) =>
     $active
-      ? theme.mode === 'dark' ? `${theme.colors.palette.primary}33` : `${theme.colors.palette.primary}14`
+      ? theme.mode === 'dark'
+        ? `${theme.colors.palette.primary}33`
+        : `${theme.colors.palette.primary}14`
       : 'transparent'};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text3)};
   cursor: pointer;

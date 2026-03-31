@@ -48,7 +48,8 @@ export const ToastCard = styled.div<{ $level: ToastLevel; $dismissing: boolean }
   align-items: flex-start;
   gap: ${({ theme }) => theme.spacing[3]};
   pointer-events: auto;
-  box-shadow: ${({ theme }) => theme.mode === 'dark' ? '0 4px 12px rgba(0,0,0,0.3)' : '0 4px 12px rgba(0,0,0,0.15)'};
+  box-shadow: ${({ theme }) =>
+    theme.mode === 'dark' ? '0 4px 12px rgba(0,0,0,0.3)' : '0 4px 12px rgba(0,0,0,0.15)'};
   ${({ $dismissing }) =>
     $dismissing
       ? css`
@@ -122,7 +123,8 @@ export const HistoryToggle = styled.button<{ $hasUnread: boolean }>`
   justify-content: center;
   font-size: ${({ theme }) => theme.typography.fontSize.title};
   color: ${({ theme }) => theme.colors.text3};
-  box-shadow: ${({ theme }) => theme.mode === 'dark' ? '0 2px 8px rgba(0,0,0,0.25)' : '0 2px 8px rgba(0,0,0,0.12)'};
+  box-shadow: ${({ theme }) =>
+    theme.mode === 'dark' ? '0 2px 8px rgba(0,0,0,0.25)' : '0 2px 8px rgba(0,0,0,0.12)'};
   &:hover {
     background: ${({ theme }) => theme.colors.bg4};
     color: ${({ theme }) => theme.colors.text};
@@ -160,7 +162,8 @@ export const HistoryPanel = styled.div`
   background: ${({ theme }) => theme.colors.bg2};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
-  box-shadow: ${({ theme }) => theme.mode === 'dark' ? '0 8px 24px rgba(0,0,0,0.4)' : '0 8px 24px rgba(0,0,0,0.2)'};
+  box-shadow: ${({ theme }) =>
+    theme.mode === 'dark' ? '0 8px 24px rgba(0,0,0,0.4)' : '0 8px 24px rgba(0,0,0,0.2)'};
   display: flex;
   flex-direction: column;
   overflow: hidden;

@@ -176,7 +176,8 @@ export const SliderInput = styled.input`
     background: ${({ theme }) => theme.colors.palette.primary};
     border: 2px solid ${({ theme }) => theme.colors.bg3};
     cursor: pointer;
-    box-shadow: ${({ theme }) => theme.mode === 'dark' ? '0 1px 3px rgba(0,0,0,0.5)' : '0 1px 3px rgba(0,0,0,0.3)'};
+    box-shadow: ${({ theme }) =>
+      theme.mode === 'dark' ? '0 1px 3px rgba(0,0,0,0.5)' : '0 1px 3px rgba(0,0,0,0.3)'};
   }
 
   &::-moz-range-thumb {
@@ -186,7 +187,8 @@ export const SliderInput = styled.input`
     background: ${({ theme }) => theme.colors.palette.primary};
     border: 2px solid ${({ theme }) => theme.colors.bg3};
     cursor: pointer;
-    box-shadow: ${({ theme }) => theme.mode === 'dark' ? '0 1px 3px rgba(0,0,0,0.5)' : '0 1px 3px rgba(0,0,0,0.3)'};
+    box-shadow: ${({ theme }) =>
+      theme.mode === 'dark' ? '0 1px 3px rgba(0,0,0,0.5)' : '0 1px 3px rgba(0,0,0,0.3)'};
   }
 `
 
