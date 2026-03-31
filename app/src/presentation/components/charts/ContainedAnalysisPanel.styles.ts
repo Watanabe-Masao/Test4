@@ -5,6 +5,7 @@
  * role に応じた背景色の段階（child=子、grandchild=孫）。
  */
 import styled, { keyframes, css } from 'styled-components'
+import { palette } from '@/presentation/theme/tokens'
 
 // ── アニメーション ──
 
@@ -38,13 +39,13 @@ const grandchildStyle = css`
 
 const arrivalGlow = keyframes`
   0% {
-    box-shadow: 0 0 0 0 var(--arrival-color, rgba(59, 130, 246, 0.35));
+    box-shadow: 0 0 0 0 var(--arrival-color, ${palette.blueDark}59);
   }
   50% {
-    box-shadow: 0 0 0 3px var(--arrival-color, rgba(59, 130, 246, 0.18));
+    box-shadow: 0 0 0 3px var(--arrival-color, ${palette.blueDark}2e);
   }
   100% {
-    box-shadow: 0 0 0 0 var(--arrival-color, rgba(59, 130, 246, 0));
+    box-shadow: 0 0 0 0 var(--arrival-color, ${palette.blueDark}00);
   }
 `
 
