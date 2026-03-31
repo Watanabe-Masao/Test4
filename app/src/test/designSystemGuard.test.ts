@@ -107,7 +107,7 @@ function scanFile(filePath: string, pattern: RegExp): { relPath: string; violati
 const MAX_HEX_VIOLATING_FILES = 1
 
 /** rgba() 違反を持つファイル数の上限 */
-const MAX_RGBA_VIOLATING_FILES = 14
+const MAX_RGBA_VIOLATING_FILES = 0
 
 /** font-size 違反を持つファイル数の上限 */
 const MAX_FONT_VIOLATING_FILES = 0
@@ -234,7 +234,7 @@ describe('デザインシステムガード', () => {
   // fontSize.micro/sm/base/lg/xl/2xl/3xl の使用を検出。ロールベース名を使用すべき。
 
   /** deprecated fontSize エイリアスを使用するファイル数の上限 */
-  const MAX_DEPRECATED_FONT_ALIAS_FILES = 120
+  const MAX_DEPRECATED_FONT_ALIAS_FILES = 0
 
   it('deprecated fontSize エイリアス使用が上限以下', () => {
     const allTsFiles = [
