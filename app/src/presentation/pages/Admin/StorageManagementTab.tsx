@@ -2,6 +2,7 @@
  * StorageManagementTab — composition shell
  *
  * hook 呼び出しとセクション配置のみ。各セクションは独立コンポーネント。
+ * section 実体は features/storage-admin に移動済み。
  */
 import { useStorageAdmin } from '@/application/hooks/data'
 import { useStoragePersistence } from '@/application/hooks/useStoragePersistence'
@@ -11,13 +12,15 @@ import { useStorageDuck } from '@/application/hooks/useStorageDuck'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useDeviceSync } from '@/application/hooks/useDeviceSync'
-import { useMonthDataManagement } from './useMonthDataManagement'
-import { ClearAllDataSection } from './ClearAllDataSection'
-import { StorageStatusSection } from './StorageStatusSection'
-import { BackupSection } from './BackupSection'
-import { DeviceSyncSection } from './DeviceSyncSection'
-import { DuckDbCacheSection } from './DuckDbCacheSection'
-import { MonthDataSection } from './MonthDataSection'
+import {
+  useMonthDataManagement,
+  StorageStatusSection,
+  BackupSection,
+  DeviceSyncSection,
+  DuckDbCacheSection,
+  MonthDataSection,
+  ClearAllDataSection,
+} from '@/features/storage-admin'
 import { Section, SectionTitle, LoadingText } from './StorageManagementTab.styles'
 
 export function StorageManagementTab() {
