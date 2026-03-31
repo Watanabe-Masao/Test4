@@ -48,19 +48,22 @@
 
 ## 3. 後方互換コードの凍結式管理（@deprecated）
 
-残存を認めるが、新規追加は禁止。件数上限は 9。
+残存を認めるが、新規追加は禁止。件数上限は **4**。
 
 | ファイル | 凍結理由 | 解除条件 |
 |---------|---------|---------|
-| domain/calculations/estMethod.ts | WASM dual-run 統合完了まで維持 | WASM 統合完了後 |
-| domain/calculations/discountImpact.ts | 同上 | WASM 統合完了後 |
-| presentation/theme/tokens.ts | デザインシステム移行完了まで維持 | DS 移行完了後 |
-| presentation/components/charts/TimeSlotChart.tsx | context 移行完了まで維持 | 全消費者移行後 |
-| infrastructure/duckdb/queryRunner.ts | buildTypedWhere 移行完了まで維持 | 全消費者移行後 |
-| application/hooks/useTimeSlotData.ts | 削除済みエイリアスのコメント参照維持 | 移行完了後 |
+| domain/calculations/estMethod.ts | WASM dual-run bridge が old 関数名に依存 | WASM bridge 統合完了後 |
+| domain/calculations/discountImpact.ts | 同上 | WASM bridge 統合完了後 |
+| application/services/grossProfitBridge.ts | WASM dual-run bridge 本体 | WASM 統合完了後 |
 | domain/models/MonthlyData.ts | ImportedData との段階的共存 | 構造移行完了後 |
-| presentation/components/charts/GrossProfitRateChart.tsx | バレルラッパー | 依存整理後 |
-| application/services/wasmEngine.ts | getWasmState() 系の移行完了まで維持 | API 移行完了後 |
+
+**解消済み（このセッションで削除）:**
+- ~~tokens.ts~~ — deprecated alias 全廃により削除
+- ~~TimeSlotChart.tsx~~ — context prop 移行完了
+- ~~queryRunner.ts~~ — buildWhereClause 削除（呼び出し元0）
+- ~~useTimeSlotData.ts~~ — orphan コメント削除
+- ~~GrossProfitRateChart.tsx~~ — バレルファイル削除（directory index.ts に統合）
+- ~~wasmEngine.ts~~ — getWasmState() 削除（呼び出し元0）
 
 ---
 
@@ -83,3 +86,5 @@
 | rgba() | 64 | 0 | 2026-03-31 | palette hex alpha / theme.mode ternary 化で全廃 |
 | hex 色 | 1 | 0 | 2026-03-31 | theme.colors.palette.white に置換 |
 | z-index ハードコード | 10 | 0 | 2026-03-31 | theme.zIndex.* トークンに全置換 |
+| ECharts fontSize | 7 | 0 | 2026-03-31 | chartFontSize.* トークンに全置換 |
+| @deprecated | 9 | 4 | 2026-03-31 | tokens/TimeSlotChart/queryRunner/useTimeSlotData/GrossProfitRateChart/wasmEngine の6件を回収 |
