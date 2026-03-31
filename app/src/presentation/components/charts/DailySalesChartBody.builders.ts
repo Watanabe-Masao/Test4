@@ -445,7 +445,7 @@ export function buildMAOverlay(
   const maSeries: object[] = []
   const metricLabel = maOverlays.metricLabel ?? ''
   const maColorPrimary = ct.semantic.movingAverage
-  const maColorMetric = ct.colors.cyanDark
+  const maColorMetric = ct.semantic.quantity
 
   const salesCurData = toMaData(maOverlays.salesCur)
   if (salesCurData) {
