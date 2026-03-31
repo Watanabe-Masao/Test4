@@ -20,6 +20,8 @@ runs:
           wasm/budget-analysis/target
           wasm/forecast/target
           wasm/time-slot/target
+          wasm/statistics/target
+          wasm/core-utils/target
         key: ${{ runner.os }}-cargo-${{ hashFiles('wasm/*/Cargo.lock') }}
         restore-keys: ${{ runner.os }}-cargo-
 

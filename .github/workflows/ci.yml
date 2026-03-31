@@ -11,15 +11,31 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # ── WASM ビルド（1回だけ、artifact で後続に配布） ──────────
+  wasm-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-wasm
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wasm-pkg
+          path: wasm/**/pkg
+          retention-days: 1
+
   # ── Gate 1: 高速ゲート（lint + format + build + guard テスト） ──
   fast-gate:
+    needs: wasm-build
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: app
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-wasm
+      - uses: actions/download-artifact@v4
+        with:
+          name: wasm-pkg
+          path: wasm
 
       - uses: actions/setup-node@v4
         with:
@@ -46,14 +62,17 @@ jobs:
 
   # ── Gate 2: テスト + カバレッジ + Storybook（fast-gate 後に並列） ──
   test-coverage:
-    needs: fast-gate
+    needs: [wasm-build, fast-gate]
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: app
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-wasm
+      - uses: actions/download-artifact@v4
+        with:
+          name: wasm-pkg
+          path: wasm
 
       - uses: actions/setup-node@v4
         with:
@@ -74,16 +93,23 @@ jobs:
         env:
           NODE_OPTIONS: '--max-old-space-size=4096'
 
-  # ── Gate 3: E2E テスト（fast-gate 後に並列） ──
+  # ── Gate 3: E2E テスト（fast-gate 後に並列、matrix で分割） ──
   e2e:
-    needs: fast-gate
+    needs: [wasm-build, fast-gate]
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [chromium, mobile-chrome]
     defaults:
       run:
         working-directory: app
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-wasm
+      - uses: actions/download-artifact@v4
+        with:
+          name: wasm-pkg
+          path: wasm
 
       - uses: actions/setup-node@v4
         with:
@@ -93,8 +119,65 @@ jobs:
 
       - run: npm ci
 
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('app/package-lock.json') }}
+
+      - name: Install Playwright (chromium only)
+        run: npx playwright install --with-deps chromium
+
       - name: Build
         run: npm run build
 
-      - name: E2E tests
-        run: npx playwright install --with-deps && npm run test:e2e
+      - name: E2E tests (${{ matrix.project }})
+        run: npx playwright test --project=${{ matrix.project }}
+
+  # ── Pages ビルド（main push のみ、全ゲート通過後） ──────────
+  pages-build:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [fast-gate, test-coverage, e2e]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: wasm-pkg
+          path: wasm
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - run: npm ci
+
+      - name: Production build
+        run: npm run build
+        env:
+          VITE_JMA_PROXY_URL: ${{ secrets.VITE_JMA_PROXY_URL }}
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: app/dist
+
+  # ── Pages デプロイ（main push のみ） ──────────────────────
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: pages-build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
