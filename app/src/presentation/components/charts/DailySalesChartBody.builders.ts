@@ -183,10 +183,10 @@ export function buildOption(
       })
     }
     const rightColors = {
-      cyan: ct.colors.cyan,
-      orange: ct.colors.orange,
-      danger: ct.colors.danger,
-      primary: ct.colors.primary,
+      cyan: ct.semantic.quantity,
+      orange: ct.semantic.purchaseCost,
+      danger: ct.semantic.discount,
+      primary: ct.semantic.sales,
     }
     series.push(
       ...buildRightAxisSeries(

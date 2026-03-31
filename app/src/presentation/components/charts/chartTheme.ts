@@ -50,6 +50,8 @@ export function useChartTheme() {
       base: 11,
     },
     isDark: theme.mode === 'dark',
+    // ─── 意味的カラー（業務概念 → 色） ──
+    semantic: theme.chart.semantic,
   }
 }
 

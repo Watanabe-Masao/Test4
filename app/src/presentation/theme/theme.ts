@@ -63,6 +63,72 @@ export interface ChartColors {
   readonly barPositive: string
   /** 棒グラフ負値 */
   readonly barNegative: string
+
+  // ─── 意味的カラー（全チャート共通） ──────────────────────
+  /** 意味的カラーマップ: 業務概念 → 色 */
+  readonly semantic: ChartSemanticColors
+}
+
+/**
+ * チャート意味的カラー — 業務概念ごとの色を1箇所で定義
+ *
+ * 全チャートはここを参照し、概念に対して統一的な色を使う。
+ * 「この色は何を意味するか」で色を決め、恣意的なハードコードを防ぐ。
+ */
+export interface ChartSemanticColors {
+  // ─── 当年（実線・棒の主色） ──────────────────────────
+  /** 売上 */
+  readonly sales: string
+  /** 予算 */
+  readonly budget: string
+  /** 粗利 */
+  readonly grossProfit: string
+  /** 粗利率 */
+  readonly grossProfitRate: string
+  /** 客数 */
+  readonly customers: string
+  /** 客単価 */
+  readonly transactionValue: string
+  /** 販売点数 */
+  readonly quantity: string
+  /** 売変（値引き） */
+  readonly discount: string
+  /** 値入率 */
+  readonly markupRate: string
+  /** 仕入原価 */
+  readonly purchaseCost: string
+
+  // ─── 前年（当年の薄い版 — 破線・半透明棒） ──────────
+  /** 売上（前年） */
+  readonly salesPrev: string
+  /** 予算（前年） */
+  readonly budgetPrev: string
+  /** 粗利（前年） */
+  readonly grossProfitPrev: string
+  /** 客数（前年） */
+  readonly customersPrev: string
+  /** 販売点数（前年） */
+  readonly quantityPrev: string
+  /** 売変（前年） */
+  readonly discountPrev: string
+
+  // ─── 差異・状態 ──────────────────────────────────────
+  /** プラス差異（改善） */
+  readonly positive: string
+  /** マイナス差異（悪化） */
+  readonly negative: string
+  /** 中立 / 基準線 */
+  readonly neutral: string
+
+  // ─── 外部データ ──────────────────────────────────────
+  /** 気温（高温） */
+  readonly tempHigh: string
+  /** 気温（低温） */
+  readonly tempLow: string
+
+  // ─── 分析 ────────────────────────────────────────────
+  /** 移動平均 */
+  readonly movingAverage: string
 }
 
 // ─── エレベーション型 ────────────────────────────────────
@@ -149,6 +215,40 @@ const chartColors: ChartColors = {
   budget: palette.infoDark,
   barPositive: palette.successDark,
   barNegative: palette.dangerDark,
+
+  semantic: {
+    // ─── 当年（実線・棒の主色） ──────────────────────────
+    sales: palette.primary, // indigo — 売上
+    budget: palette.successDark, // green — 予算
+    grossProfit: palette.purpleDark, // purple — 粗利
+    grossProfitRate: palette.purpleDark, // purple — 粗利率
+    customers: palette.cyanDark, // cyan — 客数
+    transactionValue: palette.purpleDark, // purple — 客単価
+    quantity: palette.infoDark, // sky blue — 販売点数
+    discount: palette.dangerDark, // red — 売変
+    markupRate: palette.warningDark, // amber — 値入率
+    purchaseCost: palette.orangeDark, // orange — 仕入原価
+
+    // ─── 前年（当年の薄い版 — 破線・半透明棒） ──────────
+    salesPrev: `${palette.primary}60`, // indigo 薄い
+    budgetPrev: `${palette.successDark}60`,
+    grossProfitPrev: `${palette.purpleDark}60`,
+    customersPrev: `${palette.cyanDark}60`,
+    quantityPrev: `${palette.infoDark}60`,
+    discountPrev: `${palette.dangerDark}60`,
+
+    // ─── 差異・状態 ──────────────────────────────────────
+    positive: palette.successDark, // green — プラス差異
+    negative: palette.dangerDark, // red — マイナス差異
+    neutral: palette.slate, // gray — 中立
+
+    // ─── 外部データ ──────────────────────────────────────
+    tempHigh: palette.dangerDark, // red — 高温
+    tempLow: palette.primary, // blue — 低温
+
+    // ─── 分析 ────────────────────────────────────────────
+    movingAverage: palette.primary, // indigo — MA overlay
+  },
 }
 
 // ─── エレベーション（モード非依存） ──────────────────────
