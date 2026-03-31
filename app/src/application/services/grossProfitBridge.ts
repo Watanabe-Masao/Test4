@@ -15,11 +15,9 @@
  */
 import {
   calculateInvMethod as calculateInvMethodTS,
-  calculateEstMethod as calculateEstMethodTS,
   calculateEstMethodWithStatus as calculateEstMethodWithStatusTS,
   calculateCoreSales as calculateCoreSalesTS,
   calculateDiscountRate as calculateDiscountRateTS,
-  calculateDiscountImpact as calculateDiscountImpactTS,
   calculateDiscountImpactWithStatus as calculateDiscountImpactWithStatusTS,
   calculateMarkupRates as calculateMarkupRatesTS,
   calculateTransferTotals as calculateTransferTotalsTS,
@@ -209,47 +207,14 @@ export function calculateInvMethod(input: InvMethodInput): InvMethodResult {
 
 /**
  * 推定法マージン計算
+ *
+ * @deprecated calculateEstMethodWithStatus を使用してください
  */
 export function calculateEstMethod(input: EstMethodInput): EstMethodResult {
-  if (import.meta.env.DEV) recordCall('calculateEstMethod')
-  const mode = getExecutionMode()
-
-  if (mode === 'ts-only' || !isWasmReady()) {
-    return calculateEstMethodTS(input)
-  }
-
-  if (mode === 'wasm-only') {
-    return calculateEstMethodWasm(input)
-  }
-
-  // dual-run-compare
-  const tsResult = calculateEstMethodTS(input)
-  if (isDualRun()) {
-    const wasmResult = calculateEstMethodWasm(input)
-    compareNumericResults(
-      'calculateEstMethod',
-      {
-        grossSales: tsResult.grossSales,
-        cogs: tsResult.cogs,
-        margin: tsResult.margin,
-        marginRate: tsResult.marginRate,
-        closingInventory: tsResult.closingInventory,
-      },
-      {
-        grossSales: wasmResult.grossSales,
-        cogs: wasmResult.cogs,
-        margin: wasmResult.margin,
-        marginRate: wasmResult.marginRate,
-        closingInventory: wasmResult.closingInventory,
-      },
-      {
-        coreSales: input.coreSales,
-        discountRate: input.discountRate,
-        markupRate: input.markupRate,
-      },
-    )
-  }
-  return tsResult
+  const result = calculateEstMethodWithStatus(input)
+  if (result.value != null) return result.value
+  // 後方互換: invalid 時はゼロフォールバック
+  return { grossSales: 0, cogs: 0, margin: 0, marginRate: 0, closingInventory: null }
 }
 
 /**
@@ -325,25 +290,31 @@ export function calculateDiscountRate(totalDiscountAmount: number, totalSales: n
 /**
  * 売変ロス原価計算
  */
-export function calculateDiscountImpact(input: DiscountImpactInput): DiscountImpactResult {
+export function calculateDiscountImpact(
+  input: DiscountImpactInput,
+): CalculationResult<DiscountImpactResult> {
   if (import.meta.env.DEV) recordCall('calculateDiscountImpact')
   const mode = getExecutionMode()
 
+  const defaultFallback: DiscountImpactResult = { discountLossCost: 0 }
+
   if (mode === 'ts-only' || !isWasmReady()) {
-    return calculateDiscountImpactTS(input)
+    return calculateDiscountImpactWithStatusTS(input)
   }
 
   if (mode === 'wasm-only') {
-    return calculateDiscountImpactWasm(input)
+    const wasmResult = calculateDiscountImpactWasm(input)
+    return { status: 'ok', value: wasmResult, warnings: [] }
   }
 
   // dual-run-compare
-  const tsResult = calculateDiscountImpactTS(input)
+  const tsStatusResult = calculateDiscountImpactWithStatusTS(input)
+  const tsValue = tsStatusResult.value ?? defaultFallback
   if (isDualRun()) {
     const wasmResult = calculateDiscountImpactWasm(input)
     compareNumericResults(
       'calculateDiscountImpact',
-      { discountLossCost: tsResult.discountLossCost },
+      { discountLossCost: tsValue.discountLossCost },
       { discountLossCost: wasmResult.discountLossCost },
       {
         coreSales: input.coreSales,
@@ -352,7 +323,7 @@ export function calculateDiscountImpact(input: DiscountImpactInput): DiscountImp
       },
     )
   }
-  return tsResult
+  return tsStatusResult
 }
 
 /**
@@ -492,29 +463,10 @@ export function calculateEstMethodWithStatus(
 /**
  * 売変ロス原価計算（CalculationResult 版）
  *
- * Status/warnings は TS authoritative。WASM は数値検証のみ（dual-run 時）。
+ * calculateDiscountImpact が既に CalculationResult を返すため、エイリアスとして維持。
  */
 export function calculateDiscountImpactWithStatus(
   input: DiscountImpactInput,
 ): CalculationResult<DiscountImpactResult> {
-  if (import.meta.env.DEV) recordCall('calculateDiscountImpact')
-
-  const tsStatusResult = calculateDiscountImpactWithStatusTS(input)
-
-  // dual-run: 数値比較のみ（status/warnings は TS が権威）
-  if (isDualRun() && tsStatusResult.value) {
-    const wasmResult = calculateDiscountImpactWasm(input)
-    compareNumericResults(
-      'calculateDiscountImpact',
-      { discountLossCost: tsStatusResult.value.discountLossCost },
-      { discountLossCost: wasmResult.discountLossCost },
-      {
-        coreSales: input.coreSales,
-        markupRate: input.markupRate,
-        discountRate: input.discountRate,
-      },
-    )
-  }
-
-  return tsStatusResult
+  return calculateDiscountImpact(input)
 }

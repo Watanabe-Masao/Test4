@@ -569,10 +569,12 @@ describe('後方互換コード監視', () => {
     // WASM dual-run 統合完了まで維持
     'domain/calculations/estMethod.ts',
     'domain/calculations/discountImpact.ts',
+    // Bridge の後方互換ラッパー（calculateEstMethod @deprecated）
+    'application/services/grossProfitBridge.ts',
     // ImportedData との段階的共存（構造移行中）
     'domain/models/MonthlyData.ts',
   ]
-  const MAX_DEPRECATED_FILES = 3
+  const MAX_DEPRECATED_FILES = 4
 
   it('@deprecated を含むファイル数が上限を超えない', () => {
     const allFiles: string[] = []
