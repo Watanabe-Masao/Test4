@@ -19,7 +19,7 @@ export const BreadcrumbBar = styled.div`
 export const BreadcrumbItem = styled.button<{ $active: boolean }>`
   all: unset;
   cursor: pointer;
-  font-size: 0.72rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ $active }) => ($active ? 600 : 400)};
   color: ${({ $active, theme }) => ($active ? theme.colors.text : theme.colors.palette.primary)};
   padding: 2px 6px;
@@ -35,14 +35,14 @@ export const BreadcrumbItem = styled.button<{ $active: boolean }>`
   }
 `
 export const BreadcrumbSep = styled.span`
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text4};
   user-select: none;
 `
 export const ResetBtn = styled.button`
   all: unset;
   cursor: pointer;
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   margin-left: auto;
   padding: 2px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
@@ -70,11 +70,11 @@ export const SummaryItem = styled.div`
   gap: 6px;
 `
 export const SummaryLabel = styled.span`
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text4};
 `
 export const SummaryValue = styled.span`
-  font-size: 0.8rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-weight: 600;
   color: ${({ theme }) => theme.colors.text};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
@@ -105,7 +105,7 @@ export const TreemapBlock = styled.div<{ $flex: number; $color: string; $canDril
   }
 `
 export const TreemapLabel = styled.div`
-  font-size: 0.55rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.palette.white};
   font-weight: 600;
   white-space: nowrap;
@@ -115,14 +115,14 @@ export const TreemapLabel = styled.div`
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 `
 export const TreemapPct = styled.div`
-  font-size: 0.5rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: rgba(255, 255, 255, 0.85);
   font-family: monospace;
 `
 export const EmptyFilterMsg = styled.div`
   text-align: center;
   padding: 40px 16px;
-  font-size: 0.75rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   color: ${({ theme }) => theme.colors.text3};
 `
 export const TableWrap = styled.div`
@@ -131,12 +131,12 @@ export const TableWrap = styled.div`
 export const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.65rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
 `
 export const Th = styled.th<{ $sortable?: boolean }>`
   text-align: left;
   padding: 6px 8px;
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   font-weight: 600;
   color: ${({ theme }) => theme.colors.text3};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
@@ -178,7 +178,7 @@ export const NameMain = styled.div`
   white-space: nowrap;
 `
 export const NameCode = styled.div`
-  font-size: 0.52rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
 `
@@ -207,7 +207,7 @@ export const AmtFill = styled.div<{ $pct: number; $color: string }>`
 `
 export const AmtVal = styled.span`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: 0.62rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text2};
   min-width: 70px;
   text-align: right;
@@ -216,7 +216,7 @@ export const PeakBadge = styled.span`
   display: inline-block;
   padding: 1px 5px;
   border-radius: 4px;
-  font-size: 0.58rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   background: ${({ theme }) =>
     theme.mode === 'dark' ? 'rgba(99,102,241,0.2)' : 'rgba(99,102,241,0.1)'};
@@ -231,16 +231,16 @@ export const DrillBtn = styled.span`
   align-items: center;
   gap: 2px;
   color: ${({ theme }) => theme.colors.palette.primary};
-  font-size: 0.7rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: 600;
 `
 export const DrillCount = styled.span`
-  font-size: 0.5rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
 `
 export const YoYBadge = styled.span<{ $positive: boolean }>`
-  font-size: 0.55rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: 600;
   color: ${({ $positive }) => sc.cond($positive)};
 `
@@ -255,7 +255,7 @@ export const TabGroup = styled.div`
 export const Tab = styled.button<{ $active: boolean }>`
   all: unset;
   cursor: pointer;
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   padding: 2px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.white : theme.colors.text3)};
@@ -293,14 +293,14 @@ export const AnomalyBadge = styled.span`
   gap: 2px;
   padding: 1px 5px;
   border-radius: 4px;
-  font-size: 0.52rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: 600;
   background: ${sc.negative}1f;
   color: ${sc.negative};
 `
 export const PiValueBadge = styled.span<{ $below: boolean }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: 0.58rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ $below }) => ($below ? sc.negative : 'inherit')};
   background: ${({ $below }) => ($below ? `${sc.negative}14` : 'transparent')};
   padding: ${({ $below }) => ($below ? '0 3px' : '0')};
@@ -316,7 +316,7 @@ export const TipIcon = styled.span`
   width: 13px;
   height: 13px;
   border-radius: 50%;
-  font-size: 9px;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: 700;
   line-height: 1;
   margin-left: 3px;
@@ -340,7 +340,7 @@ export const TipBubble = styled.div`
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.md};
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  font-size: 0.58rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: 400;
   white-space: normal;
   line-height: 1.5;

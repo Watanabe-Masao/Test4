@@ -172,7 +172,7 @@ export const MarkupCell = styled.td<{ $rate: number }>`
   &::after {
     content: ${({ $rate }) =>
       $rate >= 0.3 ? "' ●'" : $rate >= 0.2 ? "' ▲'" : $rate > 0 ? "' ▼'" : "''"};
-    font-size: 0.45rem;
+    font-size: ${({ theme }) => theme.typography.fontSize.micro};
     vertical-align: middle;
   }
 `

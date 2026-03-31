@@ -27,7 +27,7 @@ export const HeaderTitle = styled.div`
 `
 
 export const HeaderSub = styled.div`
-  font-size: 11px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text4};
 `
 
@@ -47,7 +47,7 @@ export const MonthArrow = styled.button`
   height: 32px;
   border-radius: ${({ theme }) => theme.radii.md};
   color: ${({ theme }) => theme.colors.text3};
-  font-size: 14px;
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   &:active:not(:disabled) {
     opacity: 0.5;
   }
@@ -66,7 +66,7 @@ export const MonthArrow = styled.button`
 export const DesktopLink = styled.button`
   all: unset;
   cursor: pointer;
-  font-size: 11px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.palette.primary};
   padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[2]};
   border-radius: ${({ theme }) => theme.radii.sm};
@@ -138,7 +138,7 @@ export const KpiRow = styled.div`
 `
 
 export const KpiLabel = styled.span`
-  font-size: 11px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text4};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
 `
@@ -151,7 +151,7 @@ export const KpiValue = styled.span<{ $color?: string }>`
 `
 
 export const KpiSub = styled.div<{ $color?: string }>`
-  font-size: 11px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ $color, theme }) => $color ?? theme.colors.text4};
 `
@@ -175,7 +175,7 @@ export const KpiMiniCard = styled.div`
 `
 
 export const KpiMiniLabel = styled.div`
-  font-size: 10px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text4};
   margin-bottom: 2px;
 `
@@ -215,7 +215,7 @@ export const EmptyMessage = styled.div`
 `
 
 export const EmptyIcon = styled.div`
-  font-size: 48px;
+  font-size: ${({ theme }) => theme.typography.fontSize.display};
 `
 
 export const DailyRow = styled.div<{ $isWeekend: boolean }>`
@@ -245,13 +245,13 @@ export const DailyCol = styled.div`
   flex: 1;
   text-align: right;
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: 11px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text};
 `
 
 export const DailyHeader = styled(DailyRow)`
   background: ${({ theme }) => theme.colors.bg3};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  font-size: 10px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text4};
 `

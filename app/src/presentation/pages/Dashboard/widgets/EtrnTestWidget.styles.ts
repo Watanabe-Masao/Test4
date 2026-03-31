@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 
 export const Wrapper = styled.div`
-  font-size: 0.75rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -15,7 +15,7 @@ export const Section = styled.div`
 
 export const SectionTitle = styled.div`
   font-weight: 600;
-  font-size: 0.7rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   color: ${({ theme }) => theme.colors.text3};
   margin-bottom: 4px;
 `
@@ -40,7 +40,7 @@ export const DataTable = styled.table`
   width: 100%;
   border-collapse: collapse;
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: 0.65rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
 
   th,
   td {
@@ -82,7 +82,7 @@ export const HourlyGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
   gap: 2px;
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
 `
 
 export const HourlyItem = styled.div`

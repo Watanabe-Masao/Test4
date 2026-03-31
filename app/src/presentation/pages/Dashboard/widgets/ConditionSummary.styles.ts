@@ -79,7 +79,7 @@ export const SettingsField = styled.div`
 `
 
 export const SettingsLabel = styled.label`
-  font-size: 11px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text3};
   white-space: nowrap;
   min-width: 40px;
@@ -87,7 +87,7 @@ export const SettingsLabel = styled.label`
 
 export const SettingsInput = styled.input`
   width: 60px;
-  font-size: 11px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   padding: 2px 6px;
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.sm};
@@ -100,7 +100,7 @@ export const SettingsInput = styled.input`
 `
 
 export const SettingsUnit = styled.span`
-  font-size: 10px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text4};
 `
 
@@ -119,7 +119,7 @@ export const StoreSelect = styled.select`
 `
 
 export const StoreOverrideNote = styled.div`
-  font-size: 10px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text4};
   margin-bottom: ${({ theme }) => theme.spacing[3]};
   padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[2]};
@@ -226,7 +226,7 @@ export const ChipRow = styled.div`
 export const EvidenceChip = styled.button`
   all: unset;
   cursor: pointer;
-  font-size: 9px;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   padding: 1px 6px;
   border-radius: ${({ theme }) => theme.radii.sm};
   background: ${({ theme }) =>
@@ -363,7 +363,7 @@ export const BSignalDot = styled.span<{ $color: string }>`
 
 export const ExpandIcon = styled.span<{ $expanded: boolean }>`
   display: inline-block;
-  font-size: 10px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   margin-right: 4px;
   transition: transform 0.15s;
   transform: rotate(${({ $expanded }) => ($expanded ? '90deg' : '0deg')});

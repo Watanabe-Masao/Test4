@@ -29,13 +29,13 @@ export const SummaryItem = styled.div`
 `
 
 export const SummaryLabel = styled.span`
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text4};
 `
 
 export const SummaryValue = styled.span`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: 0.85rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-weight: 600;
   color: ${({ theme }) => theme.colors.text};
 `
@@ -55,7 +55,7 @@ export const WeatherIconRowWrapper = styled.div`
 export const WeatherIconRowLabel = styled.div`
   writing-mode: vertical-rl;
   text-orientation: mixed;
-  font-size: 0.5rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
   padding: 2px 3px;
   display: flex;
@@ -83,7 +83,7 @@ export const WeatherIconCell = styled.div`
   align-items: center;
   gap: 1px;
   padding: 3px 0;
-  font-size: 0.55rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   border-right: 1px solid ${({ theme }) => theme.colors.border};
@@ -93,6 +93,6 @@ export const WeatherIconCell = styled.div`
 `
 
 export const WeatherIconEmoji = styled.span`
-  font-size: 0.85rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   line-height: 1;
 `

@@ -7,23 +7,21 @@ export const Row = styled.div`
 `
 
 export const Label = styled.span`
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text4};
   margin-right: ${({ theme }) => theme.spacing[1]};
 `
 
 export const Chip = styled.button<{ $active: boolean }>`
   padding: 2px 6px;
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   min-width: 24px;
   border: 1px solid
     ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.border)};
   border-radius: ${({ theme }) => theme.radii.sm};
   background: ${({ $active, theme }) =>
     $active
-      ? theme.mode === 'dark'
-        ? 'rgba(99,102,241,0.2)'
-        : 'rgba(99,102,241,0.08)'
+      ? theme.mode === 'dark' ? `${theme.colors.palette.primary}33` : `${theme.colors.palette.primary}14`
       : 'transparent'};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text3)};
   cursor: pointer;

@@ -99,7 +99,7 @@ export const MarkupCell = styled.td<{ $rate: number }>`
 `
 
 export const MarkupIndicator = styled.span<{ $isDown: boolean }>`
-  font-size: 0.7rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   margin-left: 4px;
   color: ${({ $isDown, theme }) =>
     $isDown ? theme.colors.palette.dangerDark : theme.colors.palette.successDark};
@@ -174,7 +174,7 @@ export const PivotTd = styled(Td)<{ $groupStart?: boolean; $negative?: boolean }
 `
 
 export const SubNote = styled.span`
-  font-size: 0.7rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   color: ${({ theme }) => theme.colors.text4};
 `
 
@@ -192,7 +192,7 @@ export const DrillToggle = styled.span`
   display: inline-block;
   width: 16px;
   text-align: center;
-  font-size: 0.7rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   color: ${({ theme }) => theme.colors.text4};
   margin-right: 4px;
   transition: transform 0.15s;

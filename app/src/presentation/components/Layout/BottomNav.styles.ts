@@ -47,12 +47,12 @@ export const NavItem = styled.button<{ $active?: boolean }>`
 `
 
 export const NavIcon = styled.span`
-  font-size: 20px;
+  font-size: ${({ theme }) => theme.typography.fontSize.heading};
   line-height: 1;
 `
 
 export const NavLabel = styled.span`
-  font-size: 10px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   line-height: 1;
   white-space: nowrap;
 `

@@ -28,7 +28,7 @@ export const MTable = styled.table`
 export const MTh = styled.th`
   text-align: center;
   padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[3]};
-  font-size: 10px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text3};
   border-bottom: 2px solid ${({ theme }) => theme.colors.border};
   white-space: nowrap;
@@ -44,7 +44,7 @@ export const MTd = styled.td<{ $color?: string; $bold?: boolean }>`
   color: ${({ $color, theme }) => $color ?? theme.colors.text};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   white-space: nowrap;
-  font-size: 11px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   ${({ $bold }) => $bold && 'font-weight: 700;'}
   &:first-child {
     text-align: left;
@@ -83,12 +83,12 @@ export const WarningMsg = styled.div`
     theme.mode === 'dark' ? 'rgba(245,158,11,0.12)' : 'rgba(245,158,11,0.08)'};
   border: 1px solid ${palette.caution};
   border-radius: ${({ theme }) => theme.radii.sm};
-  font-size: 0.65rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${palette.caution};
 `
 
 export const DirectionArrow = styled.span<{ $dir: TrendDirection }>`
-  font-size: 14px;
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-weight: 700;
   color: ${({ $dir }) =>
     $dir === 'up' ? palette.positive : $dir === 'down' ? palette.negative : palette.slate};

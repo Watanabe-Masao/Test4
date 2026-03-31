@@ -48,7 +48,7 @@ export const ToastCard = styled.div<{ $level: ToastLevel; $dismissing: boolean }
   align-items: flex-start;
   gap: ${({ theme }) => theme.spacing[3]};
   pointer-events: auto;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: ${({ theme }) => theme.mode === 'dark' ? '0 4px 12px rgba(0,0,0,0.3)' : '0 4px 12px rgba(0,0,0,0.15)'};
   ${({ $dismissing }) =>
     $dismissing
       ? css`
@@ -69,7 +69,7 @@ export const IconBadge = styled.span<{ $level: ToastLevel }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.65rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   font-weight: 700;
   line-height: 1;
 `
@@ -91,7 +91,7 @@ export const CloseBtn = styled.button`
   justify-content: center;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ theme }) => theme.colors.text4};
-  font-size: 0.7rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   &:hover {
     background: ${({ theme }) => theme.colors.bg4};
     color: ${({ theme }) => theme.colors.text2};
@@ -120,9 +120,9 @@ export const HistoryToggle = styled.button<{ $hasUnread: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.title};
   color: ${({ theme }) => theme.colors.text3};
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  box-shadow: ${({ theme }) => theme.mode === 'dark' ? '0 2px 8px rgba(0,0,0,0.25)' : '0 2px 8px rgba(0,0,0,0.12)'};
   &:hover {
     background: ${({ theme }) => theme.colors.bg4};
     color: ${({ theme }) => theme.colors.text};
@@ -160,7 +160,7 @@ export const HistoryPanel = styled.div`
   background: ${({ theme }) => theme.colors.bg2};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  box-shadow: ${({ theme }) => theme.mode === 'dark' ? '0 8px 24px rgba(0,0,0,0.4)' : '0 8px 24px rgba(0,0,0,0.2)'};
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -216,7 +216,7 @@ export const HistoryEntry = styled.div<{ $level: ToastLevel }>`
 
 export const HistoryTime = styled.span`
   flex-shrink: 0;
-  font-size: 0.65rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text4};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   white-space: nowrap;

@@ -3,6 +3,72 @@
 本プロジェクトの主要な変更を記録します。
 フォーマットは [Keep a Changelog](https://keepachangelog.com/ja/1.1.0/) に準拠します。
 
+## バージョニングポリシー
+
+[Semantic Versioning 2.0.0](https://semver.org/lang/ja/) に従います。
+
+- **MAJOR** (x.0.0): 破壊的変更（データ形式の非互換、API 削除等）
+- **MINOR** (0.x.0): 機能追加・改善（後方互換あり）
+- **PATCH** (0.0.x): バグ修正・ドキュメント修正
+
+> 注: v0.9.0〜v1.5.1 は開発初期に厳密な semver 運用が行われていなかった時期のバージョンです。
+> v1.6.0 以降は上記ポリシーに従います。
+
+## [v1.6.0] - 2026-03-31
+
+### UI 改善
+
+- **コンディションサマリー**: 予算達成・前年比較セクションを折りたたみ式に変更、カードの横スクロール+矢印ナビゲーション
+- **客数GAP ドリルダウン**: 点数客数GAP / 金額客数GAP の店舗別詳細モーダルを追加
+- **チャート選択**: ブラシ選択のハイライトを維持、範囲選択で自動ドリルダウン遷移
+- **要因分解**: 日/範囲選択時に売上が正しく反映されるよう修正、チャート高さをコンパクト化
+- **PI値チャート**: 棒グラフを前年と並列表示に変更、点数PIを正しく計算
+- **売変チャート**: 棒グラフから折れ線に変更
+- **仕入日別表**: 累計差異・累計前年比の4列を追加
+- **CTS カバー率**: 警告メッセージに診断情報（店舗数・日数・件数）を追加
+- **取込データ一覧**: 時間帯売上（CTS）タブを追加
+- **ChartCard**: ツールバーボタンクリックで折りたたみが発動するバグを修正
+- **日付チップ**: 全サブタブ（日次推移・カテゴリ棒・ドリルダウン分析）で表示維持
+
+### パフォーマンス最適化
+
+- **useQueryWithHandler**: WeakMap ベースの共有キャッシュ + in-flight dedupe で重複クエリ排除
+- **useDuckDB**: 全テーブル再構築から月単位の差分ロードに変更（年月切替が劇的に高速化）
+- **useUnifiedWidgetContext**: ctx オブジェクトを useMemo 化し widget の不要再レンダリングを回避
+- **Vite chunk 分離**: echarts (941KB) と framer-motion (167KB) をメインバンドルから分離
+
+### features/ 縦スライス移行
+
+全 8 feature の移行完了:
+- **sales**: domain + application(dailySalesTransform) + ui(SalesAnalysisWidgets)
+- **storage-admin**: application(useMonthDataManagement) + ui(6 sections)
+- **budget**: application(useBudgetChartData) + ui(InsightTabBudget)
+- **forecast**: application(useForecast) + ui(InsightTabForecast)
+- **purchase**: application(purchaseAnalysisHelpers) + ui(DailyPivot + Tables + Chart)
+- **category**: application(categoryData + vm) + ui(8 components)
+- **cost-detail**: application(useCostDetailData) + ui(3 tabs)
+- **reports**: ui(ReportSummaryGrid + ReportDeptTable)
+
+### 構造品質
+
+- **Widget Ownership Manifest**: 全31 Dashboard widget に owner を定義、3 guard テストで CI 強制
+- **WidgetId 型安全化**: ownership manifest から WidgetId を型導出、WidgetDef.id を string → WidgetId に
+- **Deep import guard**: features/ への外部 import は barrel 経由のみ許可
+- **Cross-slice isolation guard**: features 間の直接依存を禁止
+
+### CI/CD
+
+- **WASM ビルド統一**: deploy.yml の手書きビルドを `npm run build:wasm` に統一
+- **Composite action**: Rust+wasm-pack セットアップを `.github/actions/setup-wasm/` に抽出
+- **Vite base path**: 環境変数 `VITE_BASE_PATH` で切り替え可能に
+
+### ドキュメント
+
+- **README**: 技術詳細を削減し、機能・クイックスタート中心にシンプル化
+- **CONTRIBUTING**: 新規参加者向け「読む順番」セクションを追加
+- **features/README.md**: 縦スライスルール + widget ownership ルールを文書化
+- **features-migration-status.md**: 全 8 feature + widget ownership の進捗管理
+
 ## [v1.5.1] - 2026-03-26
 
 ### ドキュメント全面更新 + Temporal Phase 5 統合

@@ -15,7 +15,7 @@ export const BreadcrumbItem = styled.button<{ $active?: boolean }>`
   background: none;
   border: none;
   padding: 2px 6px;
-  font-size: 0.7rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   cursor: pointer;
   color: ${({ $active, theme }) => ($active ? theme.colors.text : theme.colors.palette.primary)};
   font-weight: ${({ $active }) => ($active ? 600 : 400)};
@@ -26,7 +26,7 @@ export const BreadcrumbItem = styled.button<{ $active?: boolean }>`
 `
 
 export const BreadcrumbSep = styled.span`
-  font-size: 0.65rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text3};
 `
 
@@ -41,7 +41,7 @@ export const LegendItem = styled.span`
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 0.65rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text2};
 `
 
@@ -67,7 +67,7 @@ export const DecompBtn = styled.button<{ $active: boolean }>`
   background: ${({ $active, theme }) =>
     $active ? theme.colors.palette.primary + '18' : 'transparent'};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text2)};
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   cursor: pointer;
   font-weight: ${({ $active }) => ($active ? 600 : 400)};
   &:hover {
@@ -78,7 +78,7 @@ export const DecompBtn = styled.button<{ $active: boolean }>`
 export const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.65rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   margin-top: 8px;
 
   th,
@@ -118,7 +118,7 @@ export const Table = styled.table`
 
 export const DrillIcon = styled.span`
   color: ${({ theme }) => theme.colors.text3};
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   margin-left: 2px;
 `
 
@@ -144,7 +144,7 @@ export const TipBox = styled.div`
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: 8px;
   padding: 8px 10px;
-  font-size: 0.7rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   color: ${({ theme }) => theme.colors.text};
   line-height: 1.5;
 `
@@ -159,7 +159,7 @@ export const TipRow = styled.div<{ $color?: string }>`
 `
 
 export const TipHint = styled.div`
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text3};
   margin-top: 4px;
 `

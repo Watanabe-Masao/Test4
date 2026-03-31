@@ -64,7 +64,8 @@ export const Badge = styled.span<{ $color?: string }>`
   border-radius: ${({ theme }) => theme.radii.pill};
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
-  background: ${({ $color }) => ($color ? `${$color}20` : 'rgba(255,255,255,0.1)')};
+  background: ${({ $color, theme }) =>
+    $color ? `${$color}20` : theme.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)'};
   color: ${({ $color, theme }) => $color ?? theme.colors.text3};
 `
 
@@ -86,7 +87,7 @@ export const StatusItem = styled.div`
 `
 
 export const StatusLabel = styled.span`
-  font-size: 11px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text4};
 `
 
@@ -139,7 +140,7 @@ export const PreviewGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 2px;
-  font-size: 11px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
 `
 
@@ -164,19 +165,19 @@ export const DayCell = styled.div<{ $mapped: boolean; $isWeekend: boolean; $hasD
 `
 
 export const MappingArrow = styled.div`
-  font-size: 10px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text4};
   line-height: 1;
 `
 
 export const PrevDayLabel = styled.div<{ $isOverflow?: boolean }>`
-  font-size: 10px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   opacity: ${({ $isOverflow }) => ($isOverflow ? 0.8 : 0.6)};
   color: ${({ $isOverflow }) => ($isOverflow ? palette.warningDark : 'inherit')};
 `
 
 export const DataStatus = styled.div<{ $hasData: boolean }>`
-  font-size: 10px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   line-height: 1.2;
 `
 

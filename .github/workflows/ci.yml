@@ -19,31 +19,7 @@ jobs:
         working-directory: app
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: wasm32-unknown-unknown
-
-      - name: Cache Rust dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            wasm/factor-decomposition/target
-            wasm/gross-profit/target
-            wasm/budget-analysis/target
-            wasm/forecast/target
-            wasm/time-slot/target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('wasm/*/Cargo.lock') }}
-          restore-keys: ${{ runner.os }}-cargo-
-
-      - name: Install wasm-pack
-        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-
-      - name: Build WASM modules
-        run: npm run build:wasm
+      - uses: ./.github/actions/setup-wasm
 
       - uses: actions/setup-node@v4
         with:
@@ -77,31 +53,7 @@ jobs:
         working-directory: app
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: wasm32-unknown-unknown
-
-      - name: Cache Rust dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            wasm/factor-decomposition/target
-            wasm/gross-profit/target
-            wasm/budget-analysis/target
-            wasm/forecast/target
-            wasm/time-slot/target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('wasm/*/Cargo.lock') }}
-          restore-keys: ${{ runner.os }}-cargo-
-
-      - name: Install wasm-pack
-        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-
-      - name: Build WASM modules
-        run: npm run build:wasm
+      - uses: ./.github/actions/setup-wasm
 
       - uses: actions/setup-node@v4
         with:
@@ -131,31 +83,7 @@ jobs:
         working-directory: app
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: wasm32-unknown-unknown
-
-      - name: Cache Rust dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            wasm/factor-decomposition/target
-            wasm/gross-profit/target
-            wasm/budget-analysis/target
-            wasm/forecast/target
-            wasm/time-slot/target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('wasm/*/Cargo.lock') }}
-          restore-keys: ${{ runner.os }}-cargo-
-
-      - name: Install wasm-pack
-        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-
-      - name: Build WASM modules
-        run: npm run build:wasm
+      - uses: ./.github/actions/setup-wasm
 
       - uses: actions/setup-node@v4
         with:

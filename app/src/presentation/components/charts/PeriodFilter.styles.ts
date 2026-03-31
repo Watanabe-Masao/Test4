@@ -9,13 +9,13 @@ export const Bar = styled.div`
 `
 
 export const Label = styled.span`
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text4};
   white-space: nowrap;
 `
 
 export const RangeValue = styled.span`
-  font-size: 0.65rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   font-weight: 600;
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ theme }) => theme.colors.text2};
@@ -42,7 +42,7 @@ export const SliderInput = styled.input`
     border-radius: 50%;
     background: ${({ theme }) => theme.colors.palette.primary};
     border: 2px solid ${({ theme }) => theme.colors.bg2};
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    box-shadow: ${({ theme }) => theme.mode === 'dark' ? '0 1px 3px rgba(0,0,0,0.5)' : '0 1px 3px rgba(0,0,0,0.3)'};
     cursor: pointer;
   }
   &::-moz-range-thumb {
@@ -51,7 +51,7 @@ export const SliderInput = styled.input`
     border-radius: 50%;
     background: ${({ theme }) => theme.colors.palette.primary};
     border: 2px solid ${({ theme }) => theme.colors.bg2};
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    box-shadow: ${({ theme }) => theme.mode === 'dark' ? '0 1px 3px rgba(0,0,0,0.5)' : '0 1px 3px rgba(0,0,0,0.3)'};
     cursor: pointer;
   }
 `
@@ -68,7 +68,7 @@ export const TabGroup = styled.div`
 export const Tab = styled.button<{ $active: boolean }>`
   all: unset;
   cursor: pointer;
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   padding: 2px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.white : theme.colors.text3)};
@@ -94,7 +94,7 @@ export const Sep = styled.span`
 export const DowToggle = styled.button<{ $active: boolean; $isSun: boolean; $isSat: boolean }>`
   all: unset;
   cursor: pointer;
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   width: 22px;
   height: 22px;
   display: flex;
@@ -137,14 +137,14 @@ export const DowToggle = styled.button<{ $active: boolean; $isSun: boolean; $isS
 `
 
 export const WarningLabel = styled.span`
-  font-size: 0.55rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.palette.warning};
   white-space: nowrap;
   font-weight: 600;
 `
 
 export const FilterSelect = styled.select`
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   padding: 2px 6px;
   border-radius: 4px;
   border: 1px solid ${({ theme }) => theme.colors.border};
@@ -168,7 +168,7 @@ export const DropdownRow = styled.div`
 `
 
 export const DropdownLabel = styled.span`
-  font-size: 0.55rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   white-space: nowrap;
 `

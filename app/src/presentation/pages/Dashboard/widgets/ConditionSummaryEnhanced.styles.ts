@@ -22,7 +22,7 @@ export const Header = styled.div`
 `
 
 export const HeaderMeta = styled.div`
-  font-size: 10px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ theme }) => theme.colors.text4};
   letter-spacing: 1px;
@@ -178,7 +178,7 @@ export const TotalCell = styled.div<{ $align?: 'left' | 'center' | 'right' }>`
 `
 
 export const PeriodBadge = styled.span<{ $color: string }>`
-  font-size: 10px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ $color }) => $color};
@@ -222,7 +222,7 @@ export const AchValue = styled.div<{ $color: string }>`
 `
 
 export const SmallLabel = styled.div`
-  font-size: 10px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text4};
   margin-bottom: 2px;
 `
@@ -264,7 +264,7 @@ export const YoYRow = styled.div`
 `
 
 export const YoYLabel = styled.span`
-  font-size: 10px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.palette.warningDark}99;
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
 `
@@ -393,7 +393,7 @@ export const DiffSpan = styled.span<{ $positive: boolean }>`
 `
 
 export const GpRateNote = styled.span`
-  font-size: 10px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text4};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
 `
@@ -412,7 +412,7 @@ export const Footer = styled.div`
 `
 
 export const FooterNote = styled.div`
-  font-size: 10px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ theme }) => theme.colors.text4};
 `
@@ -428,7 +428,7 @@ export const LegendDot = styled.span<{ $color: string }>`
 export const LegendGroup = styled.div`
   display: flex;
   gap: ${({ theme }) => theme.spacing[5]};
-  font-size: 10px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text4};
 `
 
@@ -521,7 +521,7 @@ export const ScrollArrow = styled.button<{ $direction: 'left' | 'right' }>`
     theme.mode === 'dark' ? 'rgba(30, 30, 30, 0.9)' : 'rgba(255, 255, 255, 0.9)'};
   border: 1px solid ${({ theme }) => theme.colors.border};
   color: ${({ theme }) => theme.colors.text3};
-  font-size: 14px;
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.15s;
   &:hover {
@@ -569,7 +569,7 @@ export const SectionChevron = styled.span<{ $open: boolean }>`
   display: inline-flex;
   transition: transform 0.2s ease;
   transform: rotate(${({ $open }) => ($open ? '90deg' : '0deg')});
-  font-size: 10px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text4};
 `
 
@@ -583,7 +583,7 @@ export const SectionContent = styled.div<{ $open: boolean }>`
 `
 
 export const CardGroupLabel = styled.span`
-  font-size: 10px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text4};
   letter-spacing: 0.5px;
@@ -725,7 +725,7 @@ export const DrillCloseBtn = styled.button`
   height: 30px;
   border-radius: ${({ theme }) => theme.radii.md};
   color: ${({ theme }) => theme.colors.text3};
-  font-size: 18px;
+  font-size: ${({ theme }) => theme.typography.fontSize.heading};
   flex-shrink: 0;
   transition: all 0.15s;
   &:hover {
@@ -751,7 +751,7 @@ export const TableHeaderRow = styled.div`
 `
 
 export const TableHeaderCell = styled.span<{ $align?: 'left' | 'center' | 'right' }>`
-  font-size: 10px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   font-family: ${({ theme }) => theme.typography.fontFamily.primary};
   color: ${({ theme }) => theme.colors.text4};
@@ -792,7 +792,7 @@ export const DailyTable = styled.table`
 export const DailyGroupTh = styled.th<{ $align?: string; $group?: boolean }>`
   padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[4]};
   text-align: ${({ $align }) => $align ?? 'center'};
-  font-size: 10px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.palette.primary};
   background: ${({ theme }) =>
@@ -808,7 +808,7 @@ export const DailyGroupTh = styled.th<{ $align?: string; $group?: boolean }>`
 export const DailyTh = styled.th<{ $align?: string; $group?: boolean }>`
   padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
   text-align: ${({ $align }) => $align ?? 'right'};
-  font-size: 10px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text4};
   border-bottom: 2px solid ${({ theme }) => theme.colors.border};

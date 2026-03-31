@@ -177,7 +177,7 @@ export const RawDataChip = styled.button<{ $active: boolean }>`
   background: ${({ $active, theme }) =>
     $active ? `${theme.colors.palette.primary}20` : 'transparent'};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text3)};
-  font-size: 11px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   border-radius: ${({ theme }) => theme.radii.pill};
   cursor: pointer;
   transition: all 0.15s;
@@ -198,7 +198,7 @@ export const RawTable = styled.table`
   min-width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  font-size: 11px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
 `
 
@@ -233,7 +233,7 @@ export const RawTd = styled.td<{ $sticky?: boolean; $zero?: boolean }>`
 export const ConfirmOverlay = styled.div`
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: ${({ theme }) => (theme.mode === 'dark' ? 'rgba(0,0,0,0.5)' : 'rgba(15,23,42,0.35)')};
   display: flex;
   align-items: center;
   justify-content: center;

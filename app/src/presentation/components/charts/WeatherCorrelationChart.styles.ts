@@ -1,5 +1,6 @@
 import styled from 'styled-components'
 import { sc } from '@/presentation/theme/semanticColors'
+import { palette } from '@/presentation/theme/tokens'
 
 export const CorrelationGrid = styled.div`
   display: grid;
@@ -16,14 +17,14 @@ export const CorrelationCard = styled.div<{ $strength: 'strong' | 'moderate' | '
       ? `${sc.positive}12`
       : $strength === 'moderate'
         ? `${sc.caution}12`
-        : 'rgba(148,163,184,0.08)'};
+        : `${palette.slate}14`}; /* palette. ref: slate 8% */
   border: 1px solid
     ${({ $strength }) =>
       $strength === 'strong'
         ? `${sc.positive}30`
         : $strength === 'moderate'
           ? `${sc.caution}30`
-          : 'rgba(148,163,184,0.15)'};
+          : `${palette.slate}26`}; /* palette. ref: slate 15% */
 `
 
 export const CorrelationLabel = styled.div`

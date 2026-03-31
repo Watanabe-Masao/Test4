@@ -66,11 +66,11 @@ export const Handle = styled.div<{ $pos: number; $color: string; $zIndex?: numbe
   border: 2px solid ${({ theme }) => theme.colors.bg3};
   cursor: ew-resize;
   z-index: ${({ $zIndex }) => $zIndex ?? 2};
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  box-shadow: ${({ theme }) => theme.mode === 'dark' ? '0 1px 3px rgba(0,0,0,0.5)' : '0 1px 3px rgba(0,0,0,0.3)'};
   transition: box-shadow 0.15s;
 
   &:hover {
-    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
+    box-shadow: ${({ theme }) => theme.mode === 'dark' ? '0 1px 6px rgba(0,0,0,0.6)' : '0 1px 6px rgba(0,0,0,0.4)'};
   }
 `
 
@@ -105,7 +105,7 @@ export const PeriodLabel = styled.span<{ $color: string }>`
 export const ResetBtn = styled.button`
   all: unset;
   cursor: pointer;
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   padding: 2px 6px;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ theme }) => theme.colors.text4};
@@ -127,7 +127,7 @@ export const ResetBtn = styled.button`
 export const TickRow = styled.div`
   position: relative;
   height: 12px;
-  font-size: 0.5rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
 `

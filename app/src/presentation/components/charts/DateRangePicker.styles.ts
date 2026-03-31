@@ -9,7 +9,7 @@ export const Wrapper = styled.div`
   background: ${({ theme }) => theme.colors.bg3};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
-  font-size: 0.65rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
 `
 
 export const Label = styled.span`
@@ -20,7 +20,7 @@ export const Label = styled.span`
 
 export const DateInput = styled.input`
   padding: 2px 6px;
-  font-size: 0.65rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   background: ${({ theme }) => theme.colors.bg};
   color: ${({ theme }) => theme.colors.text2};
@@ -45,15 +45,13 @@ export const Separator = styled.span`
 
 export const PresetButton = styled.button<{ $active: boolean }>`
   padding: 2px 8px;
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   border: 1px solid
     ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.border)};
   border-radius: ${({ theme }) => theme.radii.sm};
   background: ${({ $active, theme }) =>
     $active
-      ? theme.mode === 'dark'
-        ? 'rgba(99,102,241,0.2)'
-        : 'rgba(99,102,241,0.08)'
+      ? theme.mode === 'dark' ? `${theme.colors.palette.primary}33` : `${theme.colors.palette.primary}14`
       : 'transparent'};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text3)};
   cursor: pointer;

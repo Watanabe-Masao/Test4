@@ -8,7 +8,7 @@ export const HierarchyRow = styled.div`
 `
 
 export const HierarchySelect = styled.select`
-  font-size: 0.65rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   padding: 2px 6px;
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.sm};
@@ -20,6 +20,6 @@ export const HierarchySelect = styled.select`
 export const ErrorMsg = styled.div`
   padding: 24px;
   text-align: center;
-  font-size: 0.75rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   color: ${({ theme }) => theme.colors.text3};
 `

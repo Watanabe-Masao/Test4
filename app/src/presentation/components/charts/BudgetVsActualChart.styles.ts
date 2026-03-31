@@ -46,7 +46,7 @@ export const ViewToggle = styled.div`
 export const ViewBtn = styled.button<{ $active?: boolean }>`
   all: unset;
   cursor: pointer;
-  font-size: 0.65rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   padding: 3px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.white : theme.colors.text3)};
@@ -57,9 +57,7 @@ export const ViewBtn = styled.button<{ $active?: boolean }>`
     background: ${({ $active, theme }) =>
       $active
         ? theme.colors.palette.primary
-        : theme.mode === 'dark'
-          ? 'rgba(255,255,255,0.08)'
-          : 'rgba(0,0,0,0.06)'};
+        : theme.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'};
   }
   &:focus-visible {
     outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
@@ -80,7 +78,7 @@ export const CompareChipGroup = styled.div`
 export const CompareChip = styled.button<{ $active?: boolean }>`
   all: unset;
   cursor: pointer;
-  font-size: 0.65rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   padding: 3px 10px;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.white : theme.colors.text3)};
@@ -91,9 +89,7 @@ export const CompareChip = styled.button<{ $active?: boolean }>`
     background: ${({ $active, theme }) =>
       $active
         ? theme.colors.palette.info
-        : theme.mode === 'dark'
-          ? 'rgba(255,255,255,0.08)'
-          : 'rgba(0,0,0,0.06)'};
+        : theme.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'};
   }
   &:focus-visible {
     outline: 2px solid ${({ theme }) => theme.colors.palette.primary};

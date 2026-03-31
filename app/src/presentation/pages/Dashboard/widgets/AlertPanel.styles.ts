@@ -87,7 +87,7 @@ export const SeverityIcon = styled.div<{ $severity: AlertSeverity }>`
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  font-size: 12px;
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: bold;
   background: ${({ $severity }) =>
     $severity === 'critical'

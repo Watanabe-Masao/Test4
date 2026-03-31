@@ -116,7 +116,7 @@ export const StepBtn = styled.button`
   justify-content: center;
   width: 22px;
   height: 22px;
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   line-height: 1;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ theme }) => theme.colors.text3};

@@ -119,7 +119,7 @@ export const Tr = styled.tr<{ $anomaly?: 'up' | 'down' }>`
 
 export const AnomalyBadge = styled.span<{ $direction: 'up' | 'down' }>`
   display: inline-block;
-  font-size: 0.65rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   padding: 0 ${({ theme }) => theme.spacing[2]};
   border-radius: ${({ theme }) => theme.radii.pill};
@@ -142,7 +142,7 @@ export const PrevYearTd = styled.td<{ $positive?: boolean }>`
 export const ToggleIcon = styled.span<{ $expanded?: boolean }>`
   display: inline-block;
   margin-left: 2px;
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   transition: transform ${({ theme }) => theme.transitions.fast};
   ${({ $expanded }) =>
     $expanded &&

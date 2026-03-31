@@ -40,7 +40,7 @@ export const DragHandle = styled.div`
   border-radius: ${({ theme }) => theme.radii.sm};
   background: ${({ theme }) => theme.colors.bg4};
   color: ${({ theme }) => theme.colors.text3};
-  font-size: 10px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   opacity: 0;
   transition: opacity 0.2s;
   z-index: 2;
@@ -63,7 +63,7 @@ export const DeleteBtn = styled.button`
   border-radius: ${({ theme }) => theme.radii.sm};
   background: ${({ theme }) => theme.colors.palette.danger};
   color: ${({ theme }) => theme.colors.palette.white};
-  font-size: 11px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   font-weight: bold;
   line-height: 1;
   opacity: 0;
@@ -88,7 +88,7 @@ export const WidgetLinkBtn = styled.button`
   position: absolute;
   bottom: 4px;
   right: 4px;
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   padding: 2px 6px;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ theme }) => theme.colors.text4};

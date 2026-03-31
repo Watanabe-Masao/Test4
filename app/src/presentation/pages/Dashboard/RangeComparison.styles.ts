@@ -194,7 +194,7 @@ export const CompareBarSegment = styled.div<{ $width: string; $color: string; $a
   align-items: center;
   justify-content: ${({ $align }) => $align ?? 'center'};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.palette.white};
   padding: 0 4px;

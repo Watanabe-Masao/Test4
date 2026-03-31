@@ -15,7 +15,7 @@ export const HelpBtn = styled.button<{ $active?: boolean }>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   font-weight: 700;
   margin-left: ${({ theme }) => theme.spacing[2]};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.white : theme.colors.text4)};
