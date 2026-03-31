@@ -569,14 +569,10 @@ describe('後方互換コード監視', () => {
     // WASM dual-run 統合完了まで維持
     'domain/calculations/estMethod.ts',
     'domain/calculations/discountImpact.ts',
-    // デザインシステム移行完了まで維持
-    'presentation/theme/tokens.ts',
     // context 移行完了まで維持
     'presentation/components/charts/TimeSlotChart.tsx',
     // buildTypedWhere 移行完了まで維持
     'infrastructure/duckdb/queryRunner.ts',
-    // 削除済みエイリアスのコメント参照（useDuckDBTimeSlotData）
-    'application/hooks/useTimeSlotData.ts',
     // ImportedData との段階的共存（構造移行中）
     'domain/models/MonthlyData.ts',
     // ディレクトリ import 推奨のバレルラッパー
@@ -584,7 +580,7 @@ describe('後方互換コード監視', () => {
     // getWasmState() → getWasmModuleState() 移行完了まで維持
     'application/services/wasmEngine.ts',
   ]
-  const MAX_DEPRECATED_FILES = 9
+  const MAX_DEPRECATED_FILES = 7
 
   it('@deprecated を含むファイル数が上限を超えない', () => {
     const allFiles: string[] = []
