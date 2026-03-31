@@ -301,14 +301,14 @@ export function buildPerformanceOption(
         barMaxWidth: 14,
         barGap: '20%',
         z: 1,
-        itemStyle: { color: ct.colors.slate, borderRadius: [3, 3, 0, 0], opacity: 0.4 },
+        itemStyle: { color: ct.semantic.salesPrev, borderRadius: [3, 3, 0, 0], opacity: 0.4 },
       })
     }
     // 当年PI棒（前年比で色分け：上回り=primary、下回り=orange）
     const barColors = data.map((e) => {
       const cur = e[piKey]
       const prev = e[prevPiKey]
-      return prev != null && cur != null && cur >= prev ? ct.colors.primary : ct.colors.orange
+      return prev != null && cur != null && cur >= prev ? ct.semantic.positive : ct.semantic.negative
     })
     series.push(
       {
@@ -326,8 +326,8 @@ export function buildPerformanceOption(
         name: 'piMa7',
         type: 'line' as const,
         data: data.map((d) => d[ma7Key] ?? null),
-        lineStyle: { color: ct.colors.primary, width: 2.5 },
-        itemStyle: { color: ct.colors.primary },
+        lineStyle: { color: ct.semantic.sales, width: 2.5 },
+        itemStyle: { color: ct.semantic.sales },
         symbol: 'none' as const,
         connectNulls: true,
         smooth: true,
@@ -336,8 +336,8 @@ export function buildPerformanceOption(
         name: 'prevPiMa7',
         type: 'line' as const,
         data: data.map((d) => d[prevMa7Key] ?? null),
-        lineStyle: { color: ct.colors.slate, width: 1.5, type: 'dashed' as const },
-        itemStyle: { color: ct.colors.slate },
+        lineStyle: { color: ct.semantic.salesPrev, width: 1.5, type: 'dashed' as const },
+        itemStyle: { color: ct.semantic.salesPrev },
         symbol: 'none' as const,
         connectNulls: true,
         smooth: true,
@@ -348,11 +348,11 @@ export function buildPerformanceOption(
 
   if (view === 'deviation') {
     for (const cfg of [
-      { key: 'salesDev', color: ct.colors.primary, width: 2 },
-      { key: 'custDev', color: ct.colors.info, width: 2 },
-      { key: 'txDev', color: ct.colors.purple, width: 2, dash: 'dashed' as const },
-      { key: 'gpDev', color: ct.colors.success, width: 1.5 },
-      { key: 'discDev', color: ct.colors.danger, width: 1.5, dash: 'dashed' as const },
+      { key: 'salesDev', color: ct.semantic.sales, width: 2 },
+      { key: 'custDev', color: ct.semantic.customers, width: 2 },
+      { key: 'txDev', color: ct.semantic.transactionValue, width: 2, dash: 'dashed' as const },
+      { key: 'gpDev', color: ct.semantic.grossProfitRate, width: 1.5 },
+      { key: 'discDev', color: ct.semantic.discount, width: 1.5, dash: 'dashed' as const },
     ]) {
       series.push({
         name: cfg.key,
@@ -388,7 +388,7 @@ export function buildPerformanceOption(
               {
                 yAxis: 60,
                 lineStyle: {
-                  color: ct.colors.success,
+                  color: ct.semantic.positive,
                   width: 1,
                   opacity: 0.3,
                   type: 'dashed' as const,
@@ -397,7 +397,7 @@ export function buildPerformanceOption(
               {
                 yAxis: 40,
                 lineStyle: {
-                  color: ct.colors.danger,
+                  color: ct.semantic.negative,
                   width: 1,
                   opacity: 0.3,
                   type: 'dashed' as const,
@@ -413,7 +413,7 @@ export function buildPerformanceOption(
   // zScore
   const barColors = data.map((e) => {
     const z = e.salesZ ?? 0
-    return Math.abs(z) >= 2 ? ct.colors.danger : z >= 0 ? ct.colors.primary : ct.colors.slateDark
+    return Math.abs(z) >= 2 ? ct.semantic.negative : z >= 0 ? ct.semantic.sales : ct.semantic.neutral
   })
   const barOpacities = data.map((e) => {
     const z = e.salesZ ?? 0
@@ -434,8 +434,8 @@ export function buildPerformanceOption(
       name: 'custZ',
       type: 'line' as const,
       data: data.map((d) => d.custZ ?? null),
-      lineStyle: { color: ct.colors.info, width: 1.5 },
-      itemStyle: { color: ct.colors.info },
+      lineStyle: { color: ct.semantic.customers, width: 1.5 },
+      itemStyle: { color: ct.semantic.customers },
       symbol: 'none' as const,
       connectNulls: true,
     },
@@ -443,8 +443,8 @@ export function buildPerformanceOption(
       name: 'txZ',
       type: 'line' as const,
       data: data.map((d) => d.txZ ?? null),
-      lineStyle: { color: ct.colors.purple, width: 1.5, type: 'dashed' as const },
-      itemStyle: { color: ct.colors.purple },
+      lineStyle: { color: ct.semantic.transactionValue, width: 1.5, type: 'dashed' as const },
+      itemStyle: { color: ct.semantic.transactionValue },
       symbol: 'none' as const,
       connectNulls: true,
     },
@@ -471,7 +471,7 @@ export function buildPerformanceOption(
             {
               yAxis: 2,
               lineStyle: {
-                color: ct.colors.danger,
+                color: ct.semantic.negative,
                 width: 1,
                 opacity: 0.4,
                 type: 'dashed' as const,
@@ -479,7 +479,7 @@ export function buildPerformanceOption(
               label: {
                 show: true,
                 formatter: '+2\u03c3',
-                color: ct.colors.danger,
+                color: ct.semantic.negative,
                 fontSize: 8,
                 position: 'end' as const,
               },
@@ -487,7 +487,7 @@ export function buildPerformanceOption(
             {
               yAxis: -2,
               lineStyle: {
-                color: ct.colors.danger,
+                color: ct.semantic.negative,
                 width: 1,
                 opacity: 0.4,
                 type: 'dashed' as const,
@@ -495,7 +495,7 @@ export function buildPerformanceOption(
               label: {
                 show: true,
                 formatter: '-2\u03c3',
-                color: ct.colors.danger,
+                color: ct.semantic.negative,
                 fontSize: 8,
                 position: 'end' as const,
               },

@@ -62,9 +62,9 @@ export const BudgetProgressCard = memo(function BudgetProgressCard({
   const projectedAchievement = budget > 0 ? projected / budget : 0
 
   const getStatusColor = (rate: number) => {
-    if (rate >= 1.0) return ct.colors.success
+    if (rate >= 1.0) return ct.semantic.positive
     if (rate >= 0.9) return ct.colors.warning
-    return ct.colors.danger
+    return ct.semantic.negative
   }
 
   const paceColor = getStatusColor(progressRate)

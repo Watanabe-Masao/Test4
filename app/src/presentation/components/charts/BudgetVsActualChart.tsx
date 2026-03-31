@@ -199,7 +199,7 @@ export const BudgetVsActualChart = memo(function BudgetVsActualChart({
           {prevYearDiffAmt != null && (
             <Metric>
               <MetricLabel>比較期差</MetricLabel>
-              <MetricValue $color={prevYearDiffAmt >= 0 ? ct.colors.success : ct.colors.danger}>
+              <MetricValue $color={prevYearDiffAmt >= 0 ? ct.semantic.positive : ct.semantic.negative}>
                 {prevYearDiffAmt >= 0 ? '+' : ''}
                 {fmt(prevYearDiffAmt)}円
                 {prevYearGrowth != null &&

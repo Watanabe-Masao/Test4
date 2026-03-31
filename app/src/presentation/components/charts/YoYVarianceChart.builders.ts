@@ -91,7 +91,7 @@ export function buildSalesGapOption(
   const salesDiffData = data.map((d) => d.salesDiff as number)
   const cumSalesDiffData = data.map((d) => d.cumSalesDiff as number)
   const barColors = data.map((d) =>
-    (d.salesDiff as number) >= 0 ? ct.colors.success : ct.colors.danger,
+    (d.salesDiff as number) >= 0 ? ct.semantic.positive : ct.semantic.negative,
   )
 
   return {
@@ -151,8 +151,8 @@ export function buildSalesGapOption(
         smooth: true,
         symbol: 'none',
         connectNulls: true,
-        lineStyle: { width: 2, color: ct.colors.primary },
-        itemStyle: { color: ct.colors.primary },
+        lineStyle: { width: 2, color: ct.semantic.sales },
+        itemStyle: { color: ct.semantic.sales },
       },
     ],
   }
@@ -169,7 +169,7 @@ export function buildMultiGapOption(
   const discountDiffData = data.map((d) => d.discountDiff as number)
   const customerDiffData = data.map((d) => d.customerDiff as number)
   const barColors = data.map((d) =>
-    (d.salesDiff as number) >= 0 ? ct.colors.primary : ct.colors.slateDark,
+    (d.salesDiff as number) >= 0 ? ct.semantic.positive : ct.semantic.neutral,
   )
 
   return {
@@ -228,8 +228,8 @@ export function buildMultiGapOption(
         smooth: true,
         symbol: 'none',
         connectNulls: true,
-        lineStyle: { width: 2, color: ct.colors.danger },
-        itemStyle: { color: ct.colors.danger },
+        lineStyle: { width: 2, color: ct.semantic.discount },
+        itemStyle: { color: ct.semantic.discount },
       },
       {
         name: allLabels.customerDiff,
@@ -239,8 +239,8 @@ export function buildMultiGapOption(
         smooth: true,
         symbol: 'none',
         connectNulls: true,
-        lineStyle: { width: 2, color: ct.colors.info, type: 'dashed' as const },
-        itemStyle: { color: ct.colors.info },
+        lineStyle: { width: 2, color: ct.semantic.customers, type: 'dashed' as const },
+        itemStyle: { color: ct.semantic.customers },
       },
     ],
   }
@@ -293,8 +293,8 @@ export function buildGrowthRateOption(
         smooth: true,
         symbol: 'none',
         connectNulls: true,
-        lineStyle: { width: 2.5, color: ct.colors.primary },
-        itemStyle: { color: ct.colors.primary },
+        lineStyle: { width: 2.5, color: ct.semantic.sales },
+        itemStyle: { color: ct.semantic.sales },
         markLine: {
           silent: true,
           symbol: 'none',
@@ -310,8 +310,8 @@ export function buildGrowthRateOption(
         smooth: true,
         symbol: 'none',
         connectNulls: true,
-        lineStyle: { width: 2, color: ct.colors.info },
-        itemStyle: { color: ct.colors.info },
+        lineStyle: { width: 2, color: ct.semantic.customers },
+        itemStyle: { color: ct.semantic.customers },
       },
       {
         name: allLabels[growthKeys.txValue] ?? growthKeys.txValue,
@@ -320,8 +320,8 @@ export function buildGrowthRateOption(
         smooth: true,
         symbol: 'none',
         connectNulls: true,
-        lineStyle: { width: 2, color: ct.colors.purple, type: 'dashed' as const },
-        itemStyle: { color: ct.colors.purple },
+        lineStyle: { width: 2, color: ct.semantic.transactionValue, type: 'dashed' as const },
+        itemStyle: { color: ct.semantic.transactionValue },
       },
     ],
   }

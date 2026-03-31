@@ -145,19 +145,19 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
     >
       {view === 'deviation' && (
         <StatsRow>
-          <StatChip $color={ct.colors.primary}>
+          <StatChip $color={ct.semantic.sales}>
             売上 平均:{toComma(stats.sales.mean)} σ:{toComma(stats.sales.stdDev)}
           </StatChip>
-          <StatChip $color={ct.colors.info}>
+          <StatChip $color={ct.semantic.customers}>
             客数 平均:{toComma(stats.cust.mean)} σ:{toComma(stats.cust.stdDev)}
           </StatChip>
-          <StatChip $color={ct.colors.purple}>
+          <StatChip $color={ct.semantic.transactionValue}>
             客単価 平均:{toComma(stats.tx.mean)} σ:{toComma(stats.tx.stdDev)}
           </StatChip>
-          <StatChip $color={ct.colors.danger}>
+          <StatChip $color={ct.semantic.discount}>
             売変率 平均:{toPct(stats.disc.mean)} σ:{toPct(stats.disc.stdDev)}
           </StatChip>
-          <StatChip $color={ct.colors.success}>
+          <StatChip $color={ct.semantic.grossProfitRate}>
             粗利率 平均:{toPct(stats.gp.mean)} σ:{toPct(stats.gp.stdDev)}
           </StatChip>
         </StatsRow>

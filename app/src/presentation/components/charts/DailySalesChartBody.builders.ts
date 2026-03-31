@@ -164,7 +164,7 @@ export function buildOption(
       yAxisIndex: 0,
       data: pluck(rows, 'sales'),
       itemStyle: {
-        color: grad(ct.colors.primary, 0.9, 0.5),
+        color: grad(ct.semantic.sales, 0.9, 0.5),
         borderRadius: [3, 3, 0, 0],
       },
       barMaxWidth: 18,
@@ -176,7 +176,7 @@ export function buildOption(
         yAxisIndex: 0,
         data: pluck(rows, 'prevYearSales'),
         itemStyle: {
-          color: grad(ct.colors.slate, 0.7, 0.3),
+          color: grad(ct.semantic.salesPrev, 0.7, 0.3),
           borderRadius: [3, 3, 0, 0],
         },
         barMaxWidth: 14,
@@ -217,8 +217,8 @@ export function buildOption(
     })
     const bandColors = budgetVals.map((b, i) => {
       const c = currentVals[i]
-      if (b == null || c == null) return ct.colors.success
-      return c >= b ? ct.colors.success : ct.colors.danger
+      if (b == null || c == null) return ct.semantic.positive
+      return c >= b ? ct.semantic.positive : ct.semantic.negative
     })
     series.push({
       name: 'bandLower',
@@ -241,7 +241,7 @@ export function buildOption(
       }),
       lineStyle: { width: 0 },
       itemStyle: {
-        color: bandColors[bandColors.length - 1] ?? ct.colors.success,
+        color: bandColors[bandColors.length - 1] ?? ct.semantic.positive,
       },
       areaStyle: {
         color: {
@@ -266,9 +266,9 @@ export function buildOption(
         name: 'prevYearCum',
         type: 'line' as const,
         data: pluck(rows, 'prevYearCum'),
-        lineStyle: { color: ct.colors.slate, width: 2, type: 'dashed' as const },
-        itemStyle: { color: ct.colors.slate },
-        areaStyle: { color: grad(ct.colors.slate, 0.15, 0.02) },
+        lineStyle: { color: ct.semantic.salesPrev, width: 2, type: 'dashed' as const },
+        itemStyle: { color: ct.semantic.salesPrev },
+        areaStyle: { color: grad(ct.semantic.salesPrev, 0.15, 0.02) },
         symbol: 'none',
         connectNulls: true,
       })
@@ -277,9 +277,9 @@ export function buildOption(
       name: 'budgetCum',
       type: 'line' as const,
       data: budgetVals,
-      lineStyle: { color: ct.colors.success, width: 2, type: 'dashed' as const },
-      itemStyle: { color: ct.colors.success },
-      areaStyle: { color: grad(ct.colors.success, 0.15, 0.02) },
+      lineStyle: { color: ct.semantic.budget, width: 2, type: 'dashed' as const },
+      itemStyle: { color: ct.semantic.budget },
+      areaStyle: { color: grad(ct.semantic.budget, 0.15, 0.02) },
       symbol: 'none',
       connectNulls: true,
     })
@@ -287,9 +287,9 @@ export function buildOption(
       name: 'currentCum',
       type: 'line' as const,
       data: currentVals,
-      lineStyle: { color: ct.colors.primary, width: 2.5 },
-      itemStyle: { color: ct.colors.primary },
-      areaStyle: { color: grad(ct.colors.primary, 0.3, 0.02) },
+      lineStyle: { color: ct.semantic.sales, width: 2.5 },
+      itemStyle: { color: ct.semantic.sales },
+      areaStyle: { color: grad(ct.semantic.sales, 0.3, 0.02) },
       symbol: 'none',
     })
     series.push({
@@ -297,7 +297,7 @@ export function buildOption(
       type: 'line' as const,
       yAxisIndex: 1,
       data: pluck(rows, 'discountCum'),
-      ...lineDefaults({ color: ct.colors.danger, width: 2 }),
+      ...lineDefaults({ color: ct.semantic.discount, width: 2 }),
       connectNulls: true,
     })
     if (hasPrev) {
@@ -306,7 +306,7 @@ export function buildOption(
         type: 'line' as const,
         yAxisIndex: 1,
         data: pluck(rows, 'prevYearDiscountCum'),
-        ...lineDefaults({ color: ct.colors.orange, dashed: true, width: 1.5 }),
+        ...lineDefaults({ color: ct.semantic.discountPrev, dashed: true, width: 1.5 }),
         connectNulls: true,
       })
     }
@@ -321,14 +321,14 @@ export function buildOption(
       name: 'budgetRate',
       type: 'line' as const,
       data: budgetRateData,
-      lineStyle: { color: ct.colors.success, width: 2.5 },
-      itemStyle: { color: ct.colors.success },
+      lineStyle: { color: ct.semantic.budget, width: 2.5 },
+      itemStyle: { color: ct.semantic.budget },
       symbol: 'none',
       smooth: true,
       markLine: {
         silent: true,
         symbol: 'none',
-        lineStyle: { color: ct.colors.success, opacity: 0.4, type: 'dashed' as const },
+        lineStyle: { color: ct.semantic.budget, opacity: 0.4, type: 'dashed' as const },
         data: [{ yAxis: 100 }],
         label: { formatter: '100%', fontSize: ct.fontSize.micro },
       },
@@ -342,8 +342,8 @@ export function buildOption(
         name: 'prevYearRate',
         type: 'line' as const,
         data: prevRateData,
-        lineStyle: { color: ct.colors.slate, width: 2, type: 'dashed' as const },
-        itemStyle: { color: ct.colors.slate },
+        lineStyle: { color: ct.semantic.salesPrev, width: 2, type: 'dashed' as const },
+        itemStyle: { color: ct.semantic.salesPrev },
         symbol: 'none',
         smooth: true,
       })
@@ -367,7 +367,7 @@ export function buildOption(
         type: 'bar' as const,
         stack: 'wfY',
         data: pluck(rows, 'wfYoyUp'),
-        itemStyle: { color: withAlpha(ct.colors.success, 0.75), borderRadius: [2, 2, 0, 0] },
+        itemStyle: { color: withAlpha(ct.semantic.positive, 0.75), borderRadius: [2, 2, 0, 0] },
         barMaxWidth: 16,
       },
       {
@@ -375,14 +375,14 @@ export function buildOption(
         type: 'bar' as const,
         stack: 'wfY',
         data: pluck(rows, 'wfYoyDown'),
-        itemStyle: { color: withAlpha(ct.colors.danger, 0.75), borderRadius: [2, 2, 0, 0] },
+        itemStyle: { color: withAlpha(ct.semantic.negative, 0.75), borderRadius: [2, 2, 0, 0] },
         barMaxWidth: 16,
       },
       {
         name: 'wfYoyCum',
         type: 'line' as const,
         data: pluck(rows, 'wfYoyCum'),
-        ...lineDefaults({ color: ct.colors.primary, dashed: true, width: 1.5 }),
+        ...lineDefaults({ color: ct.semantic.sales, dashed: true, width: 1.5 }),
         connectNulls: true,
       },
       {
@@ -390,7 +390,7 @@ export function buildOption(
         type: 'line' as const,
         yAxisIndex: 1,
         data: pluck(rows, 'discountDiffCum'),
-        ...lineDefaults({ color: ct.colors.orange, width: 1.5 }),
+        ...lineDefaults({ color: ct.semantic.discount, width: 1.5 }),
         connectNulls: true,
       },
     )
@@ -444,7 +444,7 @@ export function buildMAOverlay(
 
   const maSeries: object[] = []
   const metricLabel = maOverlays.metricLabel ?? ''
-  const maColorPrimary = ct.colors.primary
+  const maColorPrimary = ct.semantic.movingAverage
   const maColorMetric = ct.colors.cyanDark
 
   const salesCurData = toMaData(maOverlays.salesCur)
