@@ -44,7 +44,7 @@ export const TabGroup = styled.div`
 export const Tab = styled.button<{ $active: boolean; $color?: string }>`
   all: unset;
   cursor: pointer;
-  font-size: 0.65rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   padding: 2px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.white : theme.colors.text3)};
@@ -78,20 +78,20 @@ export const KpiCard = styled.div<{ $color: string }>`
 `
 
 export const KpiLabel = styled.div`
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text3};
   margin-bottom: ${({ theme }) => theme.spacing[1]};
 `
 
 export const KpiValue = styled.div`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: 0.85rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-weight: 600;
   color: ${({ theme }) => theme.colors.text};
 `
 
 export const KpiSub = styled.div`
-  font-size: 0.55rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   margin-top: ${({ theme }) => theme.spacing[1]};

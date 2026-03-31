@@ -47,9 +47,7 @@ export const ViewBtn = styled.button<{ $active?: boolean }>`
     background: ${({ $active, theme }) =>
       $active
         ? theme.colors.palette.primary
-        : theme.mode === 'dark'
-          ? 'rgba(255,255,255,0.08)'
-          : 'rgba(0,0,0,0.06)'};
+        : theme.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'};
   }
   &:focus-visible {
     outline: 2px solid ${({ theme }) => theme.colors.palette.primary};

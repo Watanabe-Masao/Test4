@@ -23,7 +23,7 @@ export const EmptyState = styled.div`
 `
 
 export const EmptyIcon = styled.div`
-  font-size: 2rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.display};
   margin-bottom: ${({ theme }) => theme.spacing[6]};
 `
 

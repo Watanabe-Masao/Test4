@@ -30,9 +30,7 @@ export const StepCard = styled.div<{ $active: boolean }>`
   padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[4]};
   background: ${({ $active, theme }) =>
     $active
-      ? theme.mode === 'dark'
-        ? 'rgba(99,102,241,0.08)'
-        : 'rgba(99,102,241,0.04)'
+      ? theme.mode === 'dark' ? `${theme.colors.palette.primary}14` : `${theme.colors.palette.primary}0a`
       : theme.colors.bg2};
   cursor: pointer;
   transition: all 0.15s;
@@ -55,20 +53,20 @@ export const StepNum = styled.span<{ $color: string }>`
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   font-weight: 700;
   color: ${({ theme }) => theme.colors.palette.white};
   background: ${({ $color }) => $color};
 `
 
 export const StepTitle = styled.span`
-  font-size: 0.7rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: 600;
   color: ${({ theme }) => theme.colors.text};
 `
 
 export const StepBody = styled.div`
-  font-size: 0.65rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text3};
   line-height: 1.5;
 `
@@ -87,7 +85,7 @@ export const Factor = styled.div<{ $color: string; $isMax: boolean }>`
   background: ${({ $color }) => $color}${({ $isMax }) => ($isMax ? '18' : '08')};
   border: 1px solid ${({ $color }) => $color}${({ $isMax }) => ($isMax ? '50' : '20')};
   border-radius: ${({ theme }) => theme.radii.sm};
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
 `
 
 export const FactorLabel = styled.div`
@@ -104,7 +102,7 @@ export const FactorValue = styled.div`
 export const Arrow = styled.div`
   text-align: center;
   color: ${({ theme }) => theme.colors.text4};
-  font-size: 0.7rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   padding: 2px 0;
 `
 
@@ -114,7 +112,7 @@ export const InsightBox = styled.div<{ $color: string }>`
   background: ${({ $color }) => $color}0a;
   border: 1px solid ${({ $color }) => $color}30;
   border-radius: ${({ theme }) => theme.radii.md};
-  font-size: 0.65rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text2};
   line-height: 1.6;
 `
@@ -126,7 +124,7 @@ export const DrillLink = styled.button`
   align-items: center;
   gap: 2px;
   margin-top: ${({ theme }) => theme.spacing[1]};
-  font-size: 0.55rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.palette.primary};
   &:hover {
     text-decoration: underline;

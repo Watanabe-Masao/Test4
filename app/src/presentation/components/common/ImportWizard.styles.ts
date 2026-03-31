@@ -52,7 +52,7 @@ export const StepLine = styled.div<{ $done: boolean }>`
 `
 
 export const StepLabel = styled.div<{ $state: 'pending' | 'active' | 'done' }>`
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ $state, theme }) =>
     $state === 'active'
       ? theme.colors.palette.primary
@@ -163,20 +163,20 @@ export const FileRow = styled.div<{ $ok: boolean }>`
   display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing[2]};
-  font-size: 0.65rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ $ok, theme }) => ($ok ? theme.colors.text3 : theme.colors.palette.danger)};
   padding: 2px 0;
 `
 
 export const FileIcon = styled.span<{ $ok: boolean }>`
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ $ok, theme }) => ($ok ? theme.colors.palette.success : theme.colors.palette.danger)};
 `
 
 export const FileType = styled.span`
   flex-shrink: 0;
-  font-size: 0.55rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   padding: 0 4px;
   border-radius: 2px;
   background: ${({ theme }) => theme.colors.bg4};
@@ -185,7 +185,7 @@ export const FileType = styled.span`
 
 // ─── 拡張サマリー用スタイル ────────────────────────────
 export const RecordCountBadge = styled.span`
-  font-size: 0.55rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ theme }) => theme.colors.palette.primary};
   background: ${({ theme }) => theme.colors.palette.primary}12;
@@ -194,13 +194,13 @@ export const RecordCountBadge = styled.span`
 `
 
 export const SkippedInfo = styled.div`
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text4};
   padding: 2px 0;
 `
 
 export const WarningInfo = styled.div`
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.palette.warning};
   padding: 2px 0;
 `

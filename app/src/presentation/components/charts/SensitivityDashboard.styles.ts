@@ -48,13 +48,13 @@ export const SliderHeader = styled.div`
 `
 
 export const SliderLabel = styled.div`
-  font-size: 0.65rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   font-weight: 600;
   color: ${({ theme }) => theme.colors.text2};
 `
 
 export const SliderValue = styled.div<{ $positive: boolean; $isZero: boolean }>`
-  font-size: 0.7rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: 700;
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ $isZero, $positive }) => ($isZero ? '#94a3b8' : sc.cond($positive))};
@@ -65,7 +65,7 @@ export const BaseValueRow = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: ${({ theme }) => theme.spacing[2]};
-  font-size: 0.55rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
 `
@@ -98,7 +98,7 @@ export const StyledSlider = styled.input`
 `
 
 export const ElasticityBadge = styled.div`
-  font-size: 0.5rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   margin-top: 2px;
@@ -119,7 +119,7 @@ export const ResultCard = styled.div<{ $color: string }>`
 `
 
 export const ResultLabel = styled.div`
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text4};
   margin-bottom: 2px;
 `
@@ -131,21 +131,21 @@ export const ResultRow = styled.div`
 `
 
 export const ResultValue = styled.div`
-  font-size: 0.9rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.title};
   font-weight: 700;
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ theme }) => theme.colors.text};
 `
 
 export const ResultDelta = styled.div<{ $positive: boolean; $isZero: boolean }>`
-  font-size: 0.65rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   font-weight: 600;
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ $isZero, $positive }) => ($isZero ? '#94a3b8' : sc.cond($positive))};
 `
 
 export const Formula = styled.div`
-  font-size: 0.5rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   margin-top: 4px;
@@ -159,7 +159,7 @@ export const Formula = styled.div`
 export const ResetBtn = styled.button`
   all: unset;
   cursor: pointer;
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   padding: 4px 10px;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ theme }) => theme.colors.text3};
@@ -178,7 +178,7 @@ export const ResetBtn = styled.button`
 export const ActionBtn = styled.button<{ $variant?: 'primary' | 'default' }>`
   all: unset;
   cursor: pointer;
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   padding: 4px 10px;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ $variant, theme }) =>
@@ -209,7 +209,7 @@ export const ScenarioSection = styled.div`
 export const ScenarioTable = styled.table`
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.55rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
 `
 
@@ -242,7 +242,7 @@ export const ScenarioName = styled.td`
 export const DeleteBtn = styled.button`
   all: unset;
   cursor: pointer;
-  font-size: 0.5rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   padding: 1px 4px;
   border-radius: 2px;
@@ -256,7 +256,7 @@ export const DeleteBtn = styled.button`
 export const LoadBtn = styled.button`
   all: unset;
   cursor: pointer;
-  font-size: 0.5rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.palette.primary};
   padding: 1px 4px;
   border-radius: 2px;

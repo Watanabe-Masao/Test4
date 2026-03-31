@@ -26,7 +26,7 @@ export const Title = styled.div`
 `
 
 export const Subtitle = styled.div`
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text4};
   margin-top: 2px;
 `
@@ -47,7 +47,7 @@ export const ControlGroup = styled.div<{ $hidden?: boolean }>`
 `
 
 export const ControlLabel = styled.span`
-  font-size: 0.5rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -62,7 +62,7 @@ export const ButtonGroup = styled.div`
 
 export const ToggleBtn = styled.button<{ $active: boolean }>`
   padding: 2px 10px;
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   border: 1px solid
     ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.border)};
   border-radius: ${({ theme }) => theme.radii.sm};
@@ -90,20 +90,20 @@ export const ToggleBtn = styled.button<{ $active: boolean }>`
 export const ErrorMsg = styled.div`
   padding: 24px;
   text-align: center;
-  font-size: 0.75rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   color: ${({ theme }) => theme.colors.text3};
 `
 
 export const DataTable = styled.table`
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.65rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
 `
 
 export const Th = styled.th`
   text-align: center;
   padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[3]};
-  font-size: 10px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text3};
   border-bottom: 2px solid ${({ theme }) => theme.colors.border};
   white-space: nowrap;
@@ -119,7 +119,7 @@ export const Td = styled.td<{ $color?: string; $bold?: boolean; $align?: string 
   color: ${({ $color, theme }) => $color ?? theme.colors.text};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   white-space: nowrap;
-  font-size: 11px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   ${({ $bold }) => $bold && 'font-weight: 700;'}
   &:first-child {
     text-align: left;
@@ -133,7 +133,7 @@ export const TypeBadge = styled.span<{ $type: ProductType }>`
   display: inline-block;
   padding: 1px 6px;
   border-radius: 3px;
-  font-size: 9px;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: 600;
   background: ${({ $type, theme }) => {
     const alpha = theme.mode === 'dark' ? '0.2' : '0.1'
@@ -171,7 +171,7 @@ export const MapLegend = styled.div`
   gap: ${({ theme }) => theme.spacing[4]};
   justify-content: center;
   margin-top: ${({ theme }) => theme.spacing[2]};
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text3};
 `
 
@@ -190,7 +190,7 @@ export const LegendItem = styled.span<{ $color: string }>`
 
 export const MapQuadrantLabel = styled.div`
   position: absolute;
-  font-size: 9px;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   font-weight: 600;
   pointer-events: none;
@@ -212,26 +212,26 @@ export const KpiCard = styled.div<{ $accent: string }>`
 `
 
 export const KpiLabel = styled.div`
-  font-size: 0.55rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   font-weight: 600;
 `
 
 export const KpiValue = styled.div`
-  font-size: 0.75rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: 700;
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ theme }) => theme.colors.text};
 `
 
 export const KpiSub = styled.div`
-  font-size: 0.55rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
 `
 
 export const FilterSelect = styled.select`
   padding: 2px 6px;
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.sm};
   background: ${({ theme }) => (theme.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#fff')};

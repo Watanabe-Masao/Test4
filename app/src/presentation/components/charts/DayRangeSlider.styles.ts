@@ -31,7 +31,7 @@ export const NumInput = styled.input`
 `
 
 export const UnitLabel = styled.span`
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text4};
   white-space: nowrap;
 `
@@ -91,7 +91,7 @@ export const RangeInput = styled.input`
     border: 2px solid ${({ theme }) => theme.colors.bg3};
     cursor: pointer;
     pointer-events: auto;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    box-shadow: ${({ theme }) => theme.mode === 'dark' ? '0 1px 3px rgba(0,0,0,0.5)' : '0 1px 3px rgba(0,0,0,0.3)'};
   }
 
   &::-moz-range-thumb {
@@ -102,7 +102,7 @@ export const RangeInput = styled.input`
     border: 2px solid ${({ theme }) => theme.colors.bg3};
     cursor: pointer;
     pointer-events: auto;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    box-shadow: ${({ theme }) => theme.mode === 'dark' ? '0 1px 3px rgba(0,0,0,0.5)' : '0 1px 3px rgba(0,0,0,0.3)'};
   }
 `
 
@@ -114,7 +114,7 @@ export const StepBtn = styled.button`
   justify-content: center;
   width: 18px;
   height: 18px;
-  font-size: 0.55rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   line-height: 1;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ theme }) => theme.colors.text3};
@@ -138,7 +138,7 @@ export const StepBtn = styled.button`
 export const ResetBtn = styled.button`
   all: unset;
   cursor: pointer;
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   padding: 2px 6px;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ theme }) => theme.colors.text4};
@@ -157,7 +157,7 @@ export const ResetBtn = styled.button`
 `
 
 export const WarningLabel = styled.span`
-  font-size: 0.55rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.palette.warning};
   white-space: nowrap;
   font-weight: 600;

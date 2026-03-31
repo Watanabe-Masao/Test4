@@ -82,7 +82,7 @@ export const TrDetailLast = styled(TrDetail)`
 export const ToggleIcon = styled.span<{ $expanded?: boolean }>`
   display: inline-block;
   margin-right: 4px;
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   transition: transform 0.15s ease;
   ${({ $expanded }) => $expanded && `transform: rotate(90deg);`}
 `
@@ -240,7 +240,7 @@ export const RankBadge = styled.span<{ $rank: number }>`
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  font-size: 0.65rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   font-family: ${({ theme }) => theme.typography.fontFamily.primary};
   background: ${({ $rank, theme }) =>

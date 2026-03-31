@@ -86,7 +86,7 @@ export const CloseButton = styled.button`
   justify-content: center;
   border-radius: ${({ theme }) => theme.radii.md};
   color: ${({ theme }) => theme.colors.text4};
-  font-size: 18px;
+  font-size: ${({ theme }) => theme.typography.fontSize.heading};
   transition:
     background ${({ theme }) => theme.transitions.fast} ${({ theme }) => theme.transitions.ease},
     color ${({ theme }) => theme.transitions.fast} ${({ theme }) => theme.transitions.ease},
@@ -166,7 +166,7 @@ export const InputValue = styled.span`
 `
 
 export const LinkIcon = styled.span`
-  font-size: 10px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.palette.primary};
   margin-left: ${({ theme }) => theme.spacing[1]};
 `
@@ -283,7 +283,7 @@ export const MbpTd = styled.td`
 `
 
 export const ExpandIcon = styled.span`
-  font-size: 10px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   margin-right: ${({ theme }) => theme.spacing[1]};
   color: ${({ theme }) => theme.colors.text4};
 `

@@ -12,7 +12,7 @@ export const PanelOverlay = styled.div<{ $collapsed: boolean }>`
   border-radius: 8px 0 0 0;
   z-index: 9999;
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
-  font-size: 11px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${(p) => p.theme.colors.text};
   overflow: hidden;
   transition: all 0.2s ease;
@@ -35,7 +35,7 @@ export const Title = styled.span`
 
 export const Stats = styled.span`
   opacity: 0.7;
-  font-size: 10px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
 `
 
 export const ClearButton = styled.button`
@@ -45,7 +45,7 @@ export const ClearButton = styled.button`
   padding: 2px 8px;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 10px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   &:hover {
     background: rgba(255, 255, 255, 0.1);
   }
@@ -93,7 +93,7 @@ export const StatusBadge = styled.span<{ $status: string }>`
   text-align: center;
   padding: 1px 4px;
   border-radius: 3px;
-  font-size: 9px;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: 600;
   text-transform: uppercase;
   background: ${(p) =>

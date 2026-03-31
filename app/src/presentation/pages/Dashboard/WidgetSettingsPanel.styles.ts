@@ -45,7 +45,7 @@ export const PresetCard = styled.button<{ $active?: boolean }>`
 `
 
 export const PresetDesc = styled.div`
-  font-size: 10px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text4};
   margin-top: 2px;
 `
@@ -61,7 +61,7 @@ export const PresetDeleteBtn = styled.button`
   border-radius: 50%;
   background: ${({ theme }) => theme.colors.palette.danger};
   color: ${({ theme }) => theme.colors.palette.white};
-  font-size: 10px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -135,7 +135,7 @@ export const SaveBtn = styled.button`
 
 export const CustomTag = styled.span`
   display: inline-block;
-  font-size: 9px;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   padding: 1px 4px;
   border-radius: ${({ theme }) => theme.radii.sm};
   background: ${({ theme }) => theme.colors.palette.warning}25;

@@ -87,7 +87,7 @@ export const StatusItem = styled.div`
 `
 
 export const StatusLabel = styled.span`
-  font-size: 11px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text4};
 `
 
@@ -140,7 +140,7 @@ export const PreviewGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 2px;
-  font-size: 11px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
 `
 
@@ -165,19 +165,19 @@ export const DayCell = styled.div<{ $mapped: boolean; $isWeekend: boolean; $hasD
 `
 
 export const MappingArrow = styled.div`
-  font-size: 10px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text4};
   line-height: 1;
 `
 
 export const PrevDayLabel = styled.div<{ $isOverflow?: boolean }>`
-  font-size: 10px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   opacity: ${({ $isOverflow }) => ($isOverflow ? 0.8 : 0.6)};
   color: ${({ $isOverflow }) => ($isOverflow ? palette.warningDark : 'inherit')};
 `
 
 export const DataStatus = styled.div<{ $hasData: boolean }>`
-  font-size: 10px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   line-height: 1.2;
 `
 

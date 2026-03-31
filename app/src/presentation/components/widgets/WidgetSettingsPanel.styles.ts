@@ -99,7 +99,7 @@ export const PanelFooter = styled.div`
 export const DragHandleIcon = styled.span`
   cursor: grab;
   color: ${({ theme }) => theme.colors.text4};
-  font-size: 10px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   user-select: none;
   &:active {
     cursor: grabbing;

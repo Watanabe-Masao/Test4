@@ -10,14 +10,14 @@ import { STh, STd } from '../DashboardPage.styles'
 
 export const KpiGroupTh = styled(STh)`
   text-align: center;
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   white-space: nowrap;
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
 `
 
 export const KpiSubTh = styled(STh)`
   text-align: center;
-  font-size: 0.55rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   white-space: nowrap;
 `
 
@@ -34,7 +34,7 @@ export const BudgetTd = styled(STd)`
 /* ── Warning banner for data completeness ────────────── */
 
 export const KpiWarningBar = styled.div<{ $clickable?: boolean }>`
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.palette.warning};
   background: ${({ theme }) =>
     theme.mode === 'dark' ? 'rgba(234,179,8,0.12)' : 'rgba(234,179,8,0.08)'};
@@ -68,7 +68,7 @@ export const CellInput = styled.input`
   border: none;
   background: transparent;
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   text-align: right;
   padding: 4px 8px;
   color: ${({ theme }) => theme.colors.text};
@@ -81,7 +81,7 @@ export const CellInput = styled.input`
   }
   &::placeholder {
     color: ${({ theme }) => theme.colors.text4};
-    font-size: 0.55rem;
+    font-size: ${({ theme }) => theme.typography.fontSize.micro};
   }
   /* hide spin buttons */
   &::-webkit-inner-spin-button,
@@ -95,7 +95,7 @@ export const EditHint = styled.span`
   position: absolute;
   top: 1px;
   right: 2px;
-  font-size: 0.4rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.palette.primary};
   opacity: 0.5;
   pointer-events: none;
@@ -105,7 +105,7 @@ export const KpiTooltip = styled.div`
   z-index: ${({ theme }) => theme.zIndex.dropdown};
   padding: 8px 12px;
   border-radius: 6px;
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   line-height: 1.6;
   white-space: nowrap;
   background: ${({ theme }) => (theme.mode === 'dark' ? '#1e1e2e' : theme.colors.palette.white)};

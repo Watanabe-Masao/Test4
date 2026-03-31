@@ -42,7 +42,7 @@ export const FolderButton = styled.button`
 `
 
 export const Icon = styled.div`
-  font-size: 1.2rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.heading};
   margin-bottom: ${({ theme }) => theme.spacing[2]};
 `
 

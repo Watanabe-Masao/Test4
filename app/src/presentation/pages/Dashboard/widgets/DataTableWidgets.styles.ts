@@ -3,13 +3,13 @@ import { STh, STd } from '../DashboardPage.styles'
 
 export const GroupTh = styled(STh)`
   text-align: center;
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
 `
 
 export const SubTh = styled(STh)`
   text-align: center;
-  font-size: 0.55rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   white-space: nowrap;
 `
 

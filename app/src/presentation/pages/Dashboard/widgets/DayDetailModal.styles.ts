@@ -22,7 +22,7 @@ export const DrillBreadcrumb = styled.div`
 export const BcItem = styled.button<{ $active: boolean }>`
   all: unset;
   cursor: pointer;
-  font-size: 0.72rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ $active }) => ($active ? 600 : 400)};
   color: ${({ $active, theme }) => ($active ? theme.colors.text : theme.colors.palette.primary)};
   padding: 2px 6px;
@@ -45,7 +45,7 @@ export const BcSep = styled.span`
 export const BcReset = styled.button`
   all: unset;
   cursor: pointer;
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   margin-left: auto;
   padding: 2px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
@@ -88,7 +88,7 @@ export const TreeBlock = styled.div<{ $flex: number; $color: string; $canDrill: 
   }
 `
 export const TreeLabel = styled.div`
-  font-size: 0.55rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.palette.white};
   font-weight: 600;
   white-space: nowrap;
@@ -98,7 +98,7 @@ export const TreeLabel = styled.div`
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 `
 export const TreePct = styled.div`
-  font-size: 0.5rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: rgba(255, 255, 255, 0.85);
   font-family: monospace;
 `
@@ -106,12 +106,12 @@ export const TreePct = styled.div`
 export const DrillTable = styled.table`
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.65rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
 `
 export const DTh = styled.th<{ $sortable?: boolean }>`
   text-align: left;
   padding: 5px 6px;
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   font-weight: 600;
   color: ${({ theme }) => theme.colors.text3};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
@@ -174,18 +174,18 @@ export const AmtFill = styled.div<{ $pct: number; $color: string }>`
 `
 export const AmtVal = styled.span`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: 0.62rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text2};
   min-width: 60px;
   text-align: right;
 `
 export const DrillArrow = styled.span`
   color: ${({ theme }) => theme.colors.palette.primary};
-  font-size: 0.7rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: 600;
 `
 export const YoYVal = styled.span<{ $positive: boolean }>`
-  font-size: 0.58rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: 600;
   color: ${({ $positive }) => sc.cond($positive)};
 `
@@ -201,11 +201,11 @@ export const SumItem = styled.div`
   gap: 4px;
 `
 export const SumLabel = styled.span`
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text4};
 `
 export const SumValue = styled.span`
-  font-size: 0.78rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: 600;
   color: ${({ theme }) => theme.colors.text};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
@@ -231,7 +231,7 @@ export const ToggleGroup = styled.div`
 export const ToggleBtn = styled.button<{ $active: boolean }>`
   all: unset;
   cursor: pointer;
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   padding: 2px 10px;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.white : 'inherit')};
@@ -248,7 +248,7 @@ export const ToggleBtn = styled.button<{ $active: boolean }>`
   }
 `
 export const ToggleLabel = styled.span`
-  font-size: 0.55rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   white-space: nowrap;
 `
@@ -259,7 +259,7 @@ export const StackedBarSection = styled.div`
   margin-bottom: ${({ theme }) => theme.spacing[4]};
 `
 export const StackBarTitle = styled.div`
-  font-size: 0.65rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   font-weight: 600;
   color: ${({ theme }) => theme.colors.text3};
   margin-bottom: 4px;
@@ -295,7 +295,7 @@ export const StackRow = styled.div<{ $active?: boolean }>`
   }
 `
 export const ActiveBadge = styled.span`
-  font-size: 0.45rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.palette.primary};
   font-weight: 700;
   margin-left: 4px;
@@ -303,7 +303,7 @@ export const ActiveBadge = styled.span`
   letter-spacing: 0.02em;
 `
 export const StackLabel = styled.span`
-  font-size: 0.62rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text3};
   min-width: 32px;
   text-align: right;
@@ -336,7 +336,7 @@ export const StackSegment = styled.div<{ $flex: number; $color: string }>`
   }
 `
 export const SegLabel = styled.span`
-  font-size: 0.5rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.palette.white};
   font-weight: 600;
   white-space: nowrap;
@@ -347,7 +347,7 @@ export const SegLabel = styled.span`
   padding: 0 2px;
 `
 export const StackTotal = styled.span`
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   margin-left: 6px;
   white-space: nowrap;
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
@@ -363,7 +363,7 @@ export const LegendItem = styled.div<{ $clickable: boolean }>`
   display: flex;
   align-items: center;
   gap: 3px;
-  font-size: 0.55rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text2};
   cursor: ${({ $clickable }) => ($clickable ? 'pointer' : 'default')};
   &:hover {
@@ -381,7 +381,7 @@ export const SegmentTooltip = styled.div`
   z-index: ${({ theme }) => theme.zIndex.tooltip};
   padding: 6px 10px;
   border-radius: 6px;
-  font-size: 0.55rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   white-space: nowrap;
   pointer-events: none;
   background: ${({ theme }) => (theme.mode === 'dark' ? '#1e1e2e' : theme.colors.palette.white)};
@@ -401,7 +401,7 @@ export const TabBar = styled.div`
 export const Tab = styled.button<{ $active: boolean }>`
   all: unset;
   cursor: pointer;
-  font-size: 0.75rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: 600;
   padding: 8px 16px;
   white-space: nowrap;
@@ -444,18 +444,18 @@ export const KpiMini = styled.div<{ $accent?: string }>`
   padding: ${({ theme }) => `${theme.spacing[2]} ${theme.spacing[3]}`};
 `
 export const KpiMiniLabel = styled.div`
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text4};
   margin-bottom: 2px;
 `
 export const KpiMiniValue = styled.div<{ $color?: string }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: 0.85rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-weight: 700;
   color: ${({ $color, theme }) => $color ?? theme.colors.text};
 `
 export const KpiMiniSub = styled.span`
-  font-size: 0.55rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   margin-left: 4px;
 `
@@ -496,7 +496,7 @@ export const HourlyRightAxis = styled.div`
   align-items: flex-end;
   width: 36px;
   padding: 0 2px 0 4px;
-  font-size: 0.45rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-family: monospace;
   color: ${({ theme }) => theme.colors.text4};
 `
@@ -525,7 +525,7 @@ export const HourlyTick = styled.div`
   flex: 1;
   margin: 0 1px;
   text-align: center;
-  font-size: 0.5rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   font-family: monospace;
 `
@@ -537,7 +537,7 @@ export const HourlyTooltipBox = styled.div`
   z-index: ${({ theme }) => theme.zIndex.tooltip};
   padding: 4px 8px;
   border-radius: 4px;
-  font-size: 0.55rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   white-space: nowrap;
   background: ${({ theme }) => (theme.mode === 'dark' ? '#1e1e2e' : theme.colors.palette.white)};
   color: ${({ theme }) => theme.colors.text};
@@ -555,7 +555,7 @@ export const HourlySumItem = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1px;
-  font-size: 0.65rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
 `
 
 /* ── Hourly Detail styled components ────── */
@@ -576,14 +576,14 @@ export const HourlyDetailHeader = styled.div`
   margin-bottom: ${({ theme }) => theme.spacing[3]};
 `
 export const HourlyDetailTitle = styled.span`
-  font-size: 0.72rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: 600;
   color: ${({ theme }) => theme.colors.text};
 `
 export const HourlyDetailClose = styled.button`
   all: unset;
   cursor: pointer;
-  font-size: 0.65rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   padding: 2px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ theme }) => theme.colors.text3};

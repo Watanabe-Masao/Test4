@@ -17,7 +17,7 @@ export const TabBtn = styled.button<{ $active: boolean }>`
   background: ${({ $active, theme }) =>
     $active ? theme.colors.palette.primary : theme.colors.bg2};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.white : theme.colors.text)};
-  font-size: 0.65rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   cursor: pointer;
   &:hover {
     opacity: 0.8;
@@ -28,7 +28,7 @@ export const PiRow = styled.div`
   display: flex;
   gap: 12px;
   margin: 4px 0 8px;
-  font-size: 0.65rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text2};
 `
 
@@ -50,7 +50,7 @@ export const DecompBtn = styled.button<{ $active: boolean }>`
   background: ${({ $active, theme }) =>
     $active ? theme.colors.palette.primary + '18' : 'transparent'};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text2)};
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   cursor: pointer;
   font-weight: ${({ $active }) => ($active ? 600 : 400)};
   &:hover {

@@ -40,7 +40,7 @@ export const ControlGroup = styled.div`
 `
 
 export const ControlLabel = styled.span`
-  font-size: 0.5rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -55,15 +55,13 @@ export const ButtonGroup = styled.div`
 
 export const ToggleBtn = styled.button<{ $active: boolean }>`
   padding: 2px 8px;
-  font-size: 0.55rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   border: 1px solid
     ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.border)};
   border-radius: ${({ theme }) => theme.radii.sm};
   background: ${({ $active, theme }) =>
     $active
-      ? theme.mode === 'dark'
-        ? 'rgba(99,102,241,0.2)'
-        : 'rgba(99,102,241,0.08)'
+      ? theme.mode === 'dark' ? `${theme.colors.palette.primary}33` : `${theme.colors.palette.primary}14`
       : 'transparent'};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text3)};
   cursor: pointer;
@@ -76,7 +74,7 @@ export const ToggleBtn = styled.button<{ $active: boolean }>`
 
 export const StoreChip = styled.button<{ $active: boolean; $color: string }>`
   padding: 2px 8px;
-  font-size: 0.55rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   border: 1px solid ${({ $active, $color }) => ($active ? $color : 'transparent')};
   border-radius: ${({ theme }) => theme.radii.sm};
   background: ${({ $active, $color }) => ($active ? `${$color}18` : 'transparent')};
@@ -109,7 +107,7 @@ export const CompTable = styled.div`
 export const MiniTable = styled.table`
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
 `
 
 export const MiniTh = styled.th<{ $sortable?: boolean }>`
@@ -155,7 +153,7 @@ export const StoreDot = styled.span<{ $color: string }>`
 
 export const RankBadge = styled.span<{ $rank: number }>`
   display: inline-block;
-  font-size: 0.5rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: 700;
   width: 14px;
   height: 14px;

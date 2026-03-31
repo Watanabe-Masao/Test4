@@ -31,7 +31,7 @@ export const ExecSummaryHint = styled.span`
   position: absolute;
   top: ${({ theme }) => theme.spacing[2]};
   right: ${({ theme }) => theme.spacing[2]};
-  font-size: 10px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text3};
   opacity: 0.5;
   pointer-events: none;

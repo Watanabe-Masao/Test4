@@ -101,7 +101,7 @@ export const StatusDot = styled.div<{ $color: string; $pulse?: boolean }>`
 `
 
 export const StatusText = styled.div<{ $color: string }>`
-  font-size: 0.5rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: 600;
   color: ${({ $color }) => $color};
   white-space: nowrap;
@@ -110,7 +110,7 @@ export const StatusText = styled.div<{ $color: string }>`
 `
 
 export const StatusMeta = styled.div`
-  font-size: 0.45rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   white-space: nowrap;
   text-align: center;
@@ -133,7 +133,7 @@ export const CustomPageBtn = styled.button<{ $active?: boolean }>`
     $active ? `${theme.colors.palette.primary}20` : 'transparent'};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text3)};
   cursor: pointer;
-  font-size: 11px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   font-weight: 600;
   transition: all ${({ theme }) => theme.transitions.fast};
   display: flex;
@@ -158,7 +158,7 @@ export const AddPageBtn = styled.button`
   background: transparent;
   color: ${({ theme }) => theme.colors.text4};
   cursor: pointer;
-  font-size: 16px;
+  font-size: ${({ theme }) => theme.typography.fontSize.title};
   transition: all ${({ theme }) => theme.transitions.fast};
   display: flex;
   align-items: center;
@@ -177,7 +177,7 @@ export const ContextMenu = styled.div`
   background: ${({ theme }) => theme.colors.bg};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.md};
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: ${({ theme }) => theme.mode === 'dark' ? '0 4px 12px rgba(0,0,0,0.3)' : '0 4px 12px rgba(0,0,0,0.15)'};
   padding: ${({ theme }) => theme.spacing[1]};
   min-width: 120px;
 `
@@ -209,5 +209,5 @@ export const RenameInput = styled.input`
   color: ${({ theme }) => theme.colors.text};
   outline: none;
   min-width: 120px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: ${({ theme }) => theme.mode === 'dark' ? '0 4px 12px rgba(0,0,0,0.3)' : '0 4px 12px rgba(0,0,0,0.15)'};
 `

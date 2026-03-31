@@ -176,7 +176,7 @@ export const SliderInput = styled.input`
     background: ${({ theme }) => theme.colors.palette.primary};
     border: 2px solid ${({ theme }) => theme.colors.bg3};
     cursor: pointer;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    box-shadow: ${({ theme }) => theme.mode === 'dark' ? '0 1px 3px rgba(0,0,0,0.5)' : '0 1px 3px rgba(0,0,0,0.3)'};
   }
 
   &::-moz-range-thumb {
@@ -186,14 +186,14 @@ export const SliderInput = styled.input`
     background: ${({ theme }) => theme.colors.palette.primary};
     border: 2px solid ${({ theme }) => theme.colors.bg3};
     cursor: pointer;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    box-shadow: ${({ theme }) => theme.mode === 'dark' ? '0 1px 3px rgba(0,0,0,0.5)' : '0 1px 3px rgba(0,0,0,0.3)'};
   }
 `
 
 export const SliderResetBtn = styled.button`
   all: unset;
   cursor: pointer;
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   padding: 2px 6px;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ theme }) => theme.colors.text4};
@@ -212,7 +212,7 @@ export const SliderResetBtn = styled.button`
 `
 
 export const DetectedDayHint = styled.span`
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text4};
 `
 
@@ -247,7 +247,7 @@ export const SliderNumInput = styled.input`
 `
 
 export const SliderNumUnit = styled.span`
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text4};
 `
 
@@ -260,7 +260,7 @@ export const PrivacyInfoBox = styled.div`
   background: ${({ theme }) => theme.colors.bg2};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.md};
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text4};
 `
 

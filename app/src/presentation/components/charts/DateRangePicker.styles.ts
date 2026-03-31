@@ -51,9 +51,7 @@ export const PresetButton = styled.button<{ $active: boolean }>`
   border-radius: ${({ theme }) => theme.radii.sm};
   background: ${({ $active, theme }) =>
     $active
-      ? theme.mode === 'dark'
-        ? 'rgba(99,102,241,0.2)'
-        : 'rgba(99,102,241,0.08)'
+      ? theme.mode === 'dark' ? `${theme.colors.palette.primary}33` : `${theme.colors.palette.primary}14`
       : 'transparent'};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text3)};
   cursor: pointer;

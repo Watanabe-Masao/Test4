@@ -62,14 +62,14 @@ export const FolderName = styled.span`
 `
 
 export const FolderStatus = styled.span<{ $ok: boolean }>`
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme, $ok }) => ($ok ? theme.colors.palette.success : theme.colors.text4)};
 `
 
 export const FolderSmallBtn = styled.button`
   all: unset;
   cursor: pointer;
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   padding: 2px 6px;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ theme }) => theme.colors.text4};
@@ -95,6 +95,6 @@ export const DiagnosticBox = styled.div`
   background: ${({ theme }) => theme.colors.bg2};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.md};
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text4};
 `

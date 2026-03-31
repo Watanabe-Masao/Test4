@@ -17,7 +17,7 @@ export const Title = styled.div`
 `
 
 export const Subtitle = styled.div`
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text4};
   margin-bottom: ${({ theme }) => theme.spacing[4]};
 `
@@ -29,14 +29,14 @@ export const GridContainer = styled.div`
 export const HeatmapTable = styled.table`
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
 `
 
 export const HeaderCell = styled.th`
   padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[3]};
   text-align: center;
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text3};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
@@ -45,7 +45,7 @@ export const HeaderCell = styled.th`
 export const RowHeader = styled.td`
   padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[3]};
   text-align: right;
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
   color: ${({ theme }) => theme.colors.text3};
   white-space: nowrap;
@@ -55,7 +55,7 @@ export const RowHeader = styled.td`
 export const DataCell = styled.td<{ $bgColor: string; $isAnomaly: boolean; $textColor: string }>`
   padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[2]};
   text-align: center;
-  font-size: 0.55rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ $textColor }) => $textColor};
   background: ${({ $bgColor }) => $bgColor};
   border: ${({ $isAnomaly, theme }) =>
@@ -75,7 +75,7 @@ export const SummaryRow = styled.div`
   gap: ${({ theme }) => theme.spacing[4]};
   margin-top: ${({ theme }) => theme.spacing[3]};
   padding: 0 ${({ theme }) => theme.spacing[2]};
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
 `
 
 export const SummaryItem = styled.div`
@@ -94,7 +94,7 @@ export const LegendBar = styled.div`
   gap: ${({ theme }) => theme.spacing[2]};
   margin-top: ${({ theme }) => theme.spacing[3]};
   padding: 0 ${({ theme }) => theme.spacing[2]};
-  font-size: 0.55rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
 `
 
@@ -108,7 +108,7 @@ export const GradientBar = styled.div<{ $from: string; $to: string }>`
 export const ErrorMsg = styled.div`
   padding: 24px;
   text-align: center;
-  font-size: 0.75rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   color: ${({ theme }) => theme.colors.text3};
 `
 
@@ -133,7 +133,7 @@ export const TabGroup = styled.div`
 export const Tab = styled.button<{ $active: boolean }>`
   all: unset;
   cursor: pointer;
-  font-size: 0.65rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   padding: 2px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.white : theme.colors.text3)};
@@ -157,7 +157,7 @@ export const HierarchyRow = styled.div`
 `
 
 export const HierarchySelect = styled.select`
-  font-size: 0.65rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   padding: 2px 6px;
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.sm};
@@ -170,7 +170,7 @@ export const HierarchySelect = styled.select`
 export const DiffDataCell = styled.td<{ $ratio: number; $hasData: boolean; $textColor: string }>`
   padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[2]};
   text-align: center;
-  font-size: 0.55rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ $textColor }) => $textColor};
   background: ${({ $ratio, $hasData }) => {
     if (!$hasData) return 'transparent'

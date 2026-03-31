@@ -87,7 +87,7 @@ export const ExplainHint = styled.span`
   position: absolute;
   top: ${({ theme }) => theme.spacing[2]};
   right: ${({ theme }) => theme.spacing[2]};
-  font-size: 11px;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.palette.primary};
   opacity: 0.7;
   transition: opacity 0.15s;

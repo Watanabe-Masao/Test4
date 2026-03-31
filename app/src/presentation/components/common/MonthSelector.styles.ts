@@ -17,7 +17,7 @@ export const ArrowButton = styled.button`
   background: ${({ theme }) => theme.colors.bg2};
   color: ${({ theme }) => theme.colors.text3};
   cursor: pointer;
-  font-size: 14px;
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   transition: all ${({ theme }) => theme.transitions.fast};
 
   &:hover:not(:disabled) {
@@ -94,7 +94,7 @@ export const YearArrow = styled.button`
   background: transparent;
   color: ${({ theme }) => theme.colors.text3};
   cursor: pointer;
-  font-size: 12px;
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
 
   &:hover {
     background: ${({ theme }) => theme.colors.bg4};

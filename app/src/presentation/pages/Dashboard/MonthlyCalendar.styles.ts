@@ -174,7 +174,7 @@ export const CalDayHeader = styled.div`
 export const CalActionBtn = styled.button<{ $color?: string }>`
   all: unset;
   cursor: pointer;
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   padding: 1px 3px;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ $color, theme }) => $color ?? theme.colors.text3};
@@ -206,7 +206,7 @@ export const CalDataArea = styled.div`
 
 export const PinIndicator = styled.div`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.palette.primary};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   margin-top: ${({ theme }) => theme.spacing[1]};
@@ -307,7 +307,7 @@ export const PinInputLabel = styled.label`
 // ─── Weather Icon in Calendar Cell ───────────────────────
 
 export const CalWeatherIcon = styled.span`
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   line-height: 1;
   margin-left: 2px;
 `
@@ -350,14 +350,14 @@ export const CalPreview = styled.div`
   border: 1px solid ${({ theme }) => theme.colors.border};
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
   pointer-events: none;
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   line-height: 1.5;
   white-space: nowrap;
 `
 
 export const PreviewTitle = styled.div`
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  font-size: 0.68rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   margin-bottom: 4px;
   color: ${({ theme }) => theme.colors.text};
 `
@@ -380,7 +380,7 @@ export const PreviewValue = styled.span`
 
 export const PreviewHint = styled.div`
   margin-top: 4px;
-  font-size: 0.5rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   text-align: center;
 `
@@ -415,7 +415,7 @@ export const WeekSummaryGrid = styled.div`
 `
 
 export const WeekSummaryLabel = styled.div`
-  font-size: 0.5rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
 `
 

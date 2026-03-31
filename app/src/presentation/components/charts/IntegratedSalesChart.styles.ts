@@ -23,9 +23,7 @@ export const NavItem = styled.button<{ $active: boolean }>`
   color: ${({ $active, theme }) => ($active ? theme.colors.text : theme.colors.palette.primary)};
   background: ${({ $active, theme }) =>
     $active
-      ? theme.mode === 'dark'
-        ? 'rgba(255,255,255,0.08)'
-        : 'rgba(0,0,0,0.05)'
+      ? theme.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)'
       : 'transparent'};
   transition: all 0.15s;
 

@@ -55,7 +55,7 @@ export const Tab = styled.button<{ $active: boolean }>`
   cursor: pointer;
   position: relative;
   z-index: 1;
-  font-size: 0.65rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   padding: 2px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.white : theme.colors.text3)};
@@ -82,7 +82,7 @@ export const Separator = styled.span`
 export const EmptyFilterMsg = styled.div`
   text-align: center;
   padding: 40px 16px;
-  font-size: 0.75rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   color: ${({ theme }) => theme.colors.text3};
 `
 
@@ -102,20 +102,20 @@ export const Card = styled.div<{ $accent?: string }>`
 `
 
 export const CardLabel = styled.div`
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text3};
   margin-bottom: 2px;
 `
 
 export const CardValue = styled.div`
-  font-size: 0.95rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.title};
   font-weight: 700;
   color: ${({ theme }) => theme.colors.text};
   line-height: 1.2;
 `
 
 export const CardSub = styled.div`
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text3};
   margin-top: 2px;
   display: flex;
@@ -124,7 +124,7 @@ export const CardSub = styled.div`
 `
 
 export const YoYBadge = styled.span<{ $positive: boolean }>`
-  font-size: 0.55rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: 600;
   padding: 1px 4px;
   border-radius: 4px;
@@ -150,12 +150,12 @@ export const Metric = styled.div`
 `
 
 export const MetricLabel = styled.div`
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text3};
 `
 
 export const MetricValue = styled.div<{ $color?: string }>`
-  font-size: 0.85rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-weight: 700;
   color: ${({ $color, theme }) => $color ?? theme.colors.text};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
@@ -189,7 +189,7 @@ export const ProgressFill = styled.div<{ $pct: number; $color: string }>`
 export const ProgressLabelRow = styled.div`
   display: flex;
   justify-content: space-between;
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text3};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
 `
@@ -206,7 +206,7 @@ export const InsightBar = styled.div`
 `
 
 export const InsightItem = styled.div`
-  font-size: 0.65rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text2};
   line-height: 1.5;
   &::before {
@@ -224,7 +224,7 @@ export const TableWrapper = styled.div`
 export const MiniTable = styled.table`
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.65rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
 `
 
 export const MiniTh = styled.th`

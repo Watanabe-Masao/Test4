@@ -29,7 +29,7 @@ export const ToggleGroup = styled.div`
 export const Toggle = styled.button<{ $active: boolean }>`
   all: unset;
   cursor: pointer;
-  font-size: 0.65rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   padding: 2px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ $active, theme }) => ($active ? theme.colors.bg : theme.colors.text3)};
@@ -77,7 +77,7 @@ export const HeatTd = styled.td<{ $bg: string; $textColor: string }>`
   padding: ${({ theme }) => `${theme.spacing[1]}`};
   text-align: center;
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: 0.5rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   background: ${({ $bg }) => $bg};
   color: ${({ $textColor }) => $textColor};
