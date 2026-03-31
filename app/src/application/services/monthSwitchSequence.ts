@@ -55,9 +55,9 @@ async function loadNewMonthData(repo: DataRepository, year: number, month: numbe
   if (!repo.isAvailable()) return
   const monthlyData = await repo.loadMonthlyData(year, month)
   if (monthlyData) {
-    useDataStore.getState().setImportedData(
-      toLegacyImportedData({ current: monthlyData, prevYear: null }),
-    )
+    useDataStore
+      .getState()
+      .setImportedData(toLegacyImportedData({ current: monthlyData, prevYear: null }))
     invalidateAfterStateChange()
   }
 }
