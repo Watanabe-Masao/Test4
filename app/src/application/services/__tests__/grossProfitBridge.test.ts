@@ -186,7 +186,8 @@ describe('bridge ts-only mode: bridge と直接呼び出しの結果一致', () 
     const input = makeDiscountInput()
     const bridge = calculateDiscountImpact(input)
     const direct = calculateDiscountImpactDirect(input)
-    expect(bridge).toEqual(direct)
+    // bridge は CalculationResult<DiscountImpactResult> を返す
+    expect(bridge.value).toEqual(direct)
   })
 
   it('calculateMarkupRates', () => {
