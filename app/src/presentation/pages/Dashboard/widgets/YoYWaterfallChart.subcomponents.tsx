@@ -252,5 +252,5 @@ export const WaterfallBarChart = memo(function WaterfallBarChart({ data }: Water
     }
   }, [data, theme, fmt, fmtCurrency])
 
-  return <EChart option={option} height={360} ariaLabel="前年比較ウォーターフォールチャート" />
+  return <EChart option={option} height={260} ariaLabel="前年比較ウォーターフォールチャート" />
 })
