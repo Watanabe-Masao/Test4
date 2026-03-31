@@ -269,13 +269,14 @@ export const useDataStore = create<DataStore>()(
 
       reset: () =>
         set(
-          (state) => ({
+          () => ({
             appData: { current: null, prevYear: null },
             currentMonthData: null,
-            authoritativeDataVersion: state.authoritativeDataVersion + 1,
-            comparisonDataVersion: state.comparisonDataVersion + 1,
+            authoritativeDataVersion: 0,
+            comparisonDataVersion: 0,
             legacyData: initialData,
-            dataVersion: state.authoritativeDataVersion + 1,
+            data: initialData,
+            dataVersion: 0,
             storeResults: new Map(),
             storeExplanations: new Map(),
             validationMessages: [],
