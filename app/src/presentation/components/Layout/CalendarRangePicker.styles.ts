@@ -231,7 +231,7 @@ export const DayPickerWrapper = styled.div`
   .rdp-range_start .rdp-day_button,
   .rdp-range_end .rdp-day_button {
     background: ${({ theme }) => theme.colors.palette.primary};
-    color: #fff;
+    color: ${({ theme }) => theme.colors.palette.white};
     font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
 
     &:hover {
