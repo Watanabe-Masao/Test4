@@ -136,25 +136,43 @@ export const useDataStore = create<DataStore>()(
 )
 
 // ─── MonthlyData / AppData 互換 selector ──────────────
-// Phase 2: 新規コードはこちらを使用。旧 s.data は段階的に移行。
+// Phase 2 暫定: 利用箇所を限定すること。Phase 2 完了時に state を AppData 化する。
 
 /**
  * 現在月の MonthlyData を取得する selector。
- * dataStore.data (ImportedData) から adapter 経由で変換。
+ * dataVersion === 0（未ロード）の場合は null を返す。
+ * origin.importedAt は store version ベース（provenance 偽装防止）。
  */
-export function useCurrentMonthData(year: number, month: number): MonthlyData {
-  return useDataStore((s) =>
-    toMonthlyData(s.data, { year, month, importedAt: new Date().toISOString() }),
-  )
+export function useCurrentMonthData(
+  targetYear: number,
+  targetMonth: number,
+  importedAt?: string,
+): MonthlyData | null {
+  return useDataStore((s) => {
+    if (s.dataVersion === 0) return null
+    return toMonthlyData(s.data, {
+      year: targetYear,
+      month: targetMonth,
+      importedAt: importedAt ?? `store-v${s.dataVersion}`,
+    })
+  })
 }
 
 /**
- * AppData（current + prevYear）を取得する selector。
- * 現段階では prevYear は null（Phase 4 で comparison から供給）。
+ * AppData を取得する selector。
+ * current が未ロード時は null。prevYear は Phase 4 で供給予定。
+ * ⚠ 毎回新規オブジェクト返却 — 利用箇所を限定 or shallow 比較を併用。
  */
-export function useAppData(year: number, month: number): AppData {
+export function useAppData(targetYear: number, targetMonth: number, importedAt?: string): AppData {
   return useDataStore((s) => ({
-    current: toMonthlyData(s.data, { year, month, importedAt: new Date().toISOString() }),
+    current:
+      s.dataVersion === 0
+        ? null
+        : toMonthlyData(s.data, {
+            year: targetYear,
+            month: targetMonth,
+            importedAt: importedAt ?? `store-v${s.dataVersion}`,
+          }),
     prevYear: null,
   }))
 }
