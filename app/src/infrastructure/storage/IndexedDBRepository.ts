@@ -44,13 +44,15 @@ export class IndexedDBRepository implements DataRepository {
   }
 
   async loadMonthlyData(year: number, month: number): Promise<MonthlyData | null> {
-    const legacy = await loadImportedData(year, month)
-    if (!legacy) return null
-    // provenance: session meta から importedAt を復元（storage envelope に保存済み）
-    const meta = await getPersistedMeta()
-    const importedAt =
-      meta && meta.year === year && meta.month === month ? meta.savedAt : new Date().toISOString()
-    return toMonthlyData(legacy, { year, month, importedAt })
+    const loaded = await loadImportedData(year, month)
+    if (!loaded) return null
+    // provenance: envelope origin を優先、なければ session meta フォールバック
+    const origin = loaded.origin ?? {
+      year,
+      month,
+      importedAt: (await getPersistedMeta())?.savedAt ?? new Date().toISOString(),
+    }
+    return toMonthlyData(loaded.data, origin)
   }
 
   async saveDataSlice(
