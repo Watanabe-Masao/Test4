@@ -78,13 +78,17 @@ export function PersistenceProvider({ children }: Props) {
 
         if (currentMonthData) {
           // store は ImportedData ベース — compat adapter 経由（Phase 2 完了まで維持）
-          useDataStore.getState().setImportedData(toLegacyImportedData({ current: currentMonthData, prevYear: null }))
+          useDataStore
+            .getState()
+            .setImportedData(toLegacyImportedData({ current: currentMonthData, prevYear: null }))
           invalidateAfterStateChange()
         } else if (meta.year !== targetYear || meta.month !== targetMonth) {
           const restoredData = await repo.loadMonthlyData(meta.year, meta.month)
           if (cancelled) return
           if (restoredData) {
-            useDataStore.getState().setImportedData(toLegacyImportedData({ current: restoredData, prevYear: null }))
+            useDataStore
+              .getState()
+              .setImportedData(toLegacyImportedData({ current: restoredData, prevYear: null }))
             useSettingsStore.getState().updateSettings({
               targetYear: meta.year,
               targetMonth: meta.month,

@@ -19,6 +19,7 @@ import type {
   ImportSideEffects,
 } from './ImportOrchestrator'
 import { saveSummaryCache, saveImportHistory } from './importHelpers'
+import { toMonthlyData, toLegacyImportedData } from '@/domain/models/monthlyDataAdapter'
 
 export async function orchestrateMultiMonth(
   processedData: ImportedData,
@@ -37,9 +38,12 @@ export async function orchestrateMultiMonth(
   if (repo.isAvailable()) {
     try {
       for (const { year, month } of recordMonths) {
-        const existing = await repo.loadMonthlyData(year, month)
-        if (existing) {
-          existingByMonth.set(`${year}-${month}`, existing)
+        const monthlyData = await repo.loadMonthlyData(year, month)
+        if (monthlyData) {
+          existingByMonth.set(
+            `${year}-${month}`,
+            toLegacyImportedData({ current: monthlyData, prevYear: null }),
+          )
         }
       }
     } catch {
@@ -109,7 +113,11 @@ export async function orchestrateMultiMonth(
       const monthData = filterDataForMonth(processedData, year, month, monthPartitions)
       const existing = existingByMonth.get(mk) ?? null
       const finalData = buildMonthData(existing, monthData, DEFAULT_MERGE_ACTION)
-      await repo.saveMonthlyData(finalData, year, month)
+      await repo.saveMonthlyData(
+        toMonthlyData(finalData, { year, month, importedAt: new Date().toISOString() }),
+        year,
+        month,
+      )
       saveSummaryCache(finalData, year, month, repo)
       if (mk === targetMk) primaryData = finalData
     }
@@ -166,7 +174,11 @@ export async function resolveMultiMonthDiff(
       const monthData = filterDataForMonth(incomingData, year, month, monthPartitions)
       const existing = existingByMonth.get(mk) ?? null
       const finalData = buildMonthData(existing, monthData, action)
-      await repo.saveMonthlyData(finalData, year, month)
+      await repo.saveMonthlyData(
+        toMonthlyData(finalData, { year, month, importedAt: new Date().toISOString() }),
+        year,
+        month,
+      )
       saveSummaryCache(finalData, year, month, repo)
     }
     for (const { year, month } of months) {

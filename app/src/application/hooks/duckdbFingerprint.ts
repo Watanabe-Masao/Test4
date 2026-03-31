@@ -34,21 +34,21 @@ export function computeFingerprint(
  * ImportedData / MonthlyData の両方に対応（共通フィールドのみ使用）。
  */
 export function computeMonthFingerprint(data: {
-  classifiedSales: { records: readonly unknown[] }
-  categoryTimeSales: { records: readonly unknown[] }
-  departmentKpi: { records: readonly unknown[] }
-  purchase: Record<string, unknown>
-  flowers: { records?: readonly unknown[] }
-  stores: ReadonlyMap<string, unknown>
-  budget: ReadonlyMap<string, unknown>
-  settings: ReadonlyMap<string, unknown>
+  readonly classifiedSales: { readonly records: { readonly length: number } }
+  readonly categoryTimeSales: { readonly records: { readonly length: number } }
+  readonly departmentKpi: { readonly records: { readonly length: number } }
+  readonly purchase: { readonly records: { readonly length: number } }
+  readonly flowers: { readonly records: { readonly length: number } }
+  readonly stores: { readonly size: number }
+  readonly budget: { readonly size: number }
+  readonly settings: { readonly size: number }
 }): string {
   return [
     data.classifiedSales.records.length,
     data.categoryTimeSales.records.length,
     data.departmentKpi.records.length,
-    Object.keys(data.purchase).length,
-    ('records' in data.flowers ? (data.flowers.records?.length ?? 0) : Object.keys(data.flowers).length),
+    data.purchase.records.length,
+    data.flowers.records.length,
     data.stores.size,
     data.budget.size,
     data.settings.size,
