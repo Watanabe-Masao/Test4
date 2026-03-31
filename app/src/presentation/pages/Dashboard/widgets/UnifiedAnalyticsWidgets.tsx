@@ -30,12 +30,7 @@ export const UnifiedTimeSlotWidget = memo(function UnifiedTimeSlotWidget({
   ctx: WidgetContext
 }) {
   const context = useMemo(
-    () =>
-      buildSalesAnalysisContext(
-        ctx.currentDateRange,
-        ctx.selectedStoreIds,
-        ctx.prevYearScope,
-      ),
+    () => buildSalesAnalysisContext(ctx.currentDateRange, ctx.selectedStoreIds, ctx.prevYearScope),
     [ctx.currentDateRange, ctx.selectedStoreIds, ctx.prevYearScope],
   )
   return (

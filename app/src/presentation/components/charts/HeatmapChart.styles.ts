@@ -177,7 +177,9 @@ export const DiffDataCell = styled.td<{ $ratio: number; $hasData: boolean; $text
     if (!$hasData) return 'transparent'
     if ($ratio === 0) return `${palette.slate}1A`
     const absR = Math.min(Math.abs($ratio), 0.5) / 0.5
-    const alpha = Math.round((0.2 + absR * 0.7) * 255).toString(16).padStart(2, '0')
+    const alpha = Math.round((0.2 + absR * 0.7) * 255)
+      .toString(16)
+      .padStart(2, '0')
     if ($ratio > 0) return `${palette.successDark}${alpha}`
     return `${palette.dangerDark}${alpha}`
   }};

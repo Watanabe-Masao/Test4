@@ -37,7 +37,9 @@ export const Toggle = styled.button<{ $active: boolean }>`
   background: ${({ $active, theme }) =>
     $active
       ? theme.colors.palette.primary
-      : theme.mode === 'dark' ? `${palette.white}0F` : `${palette.black}0A`};
+      : theme.mode === 'dark'
+        ? `${palette.white}0F`
+        : `${palette.black}0A`};
   &:hover {
     opacity: 0.85;
   }

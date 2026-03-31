@@ -7,7 +7,8 @@ export const WarningBanner = styled.div<{ $clickable?: boolean }>`
   background: ${({ theme }) =>
     theme.mode === 'dark' ? `${palette.warningDark}1F` : `${palette.warningDark}14`};
   border: 1px solid
-    ${({ theme }) => (theme.mode === 'dark' ? `${palette.warningDark}4D` : `${palette.warningDark}40`)};
+    ${({ theme }) =>
+      theme.mode === 'dark' ? `${palette.warningDark}4D` : `${palette.warningDark}40`};
   border-radius: ${({ theme }) => theme.radii.sm};
   padding: ${({ theme }) => `${theme.spacing[2]} ${theme.spacing[3]}`};
   margin-top: ${({ theme }) => theme.spacing[2]};

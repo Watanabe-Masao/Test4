@@ -153,9 +153,7 @@ export const Tr = styled.tr<{ $clickable: boolean }>`
   transition: background 0.1s;
   &:hover {
     background: ${({ $clickable, theme }) =>
-      $clickable
-        ? theme.mode === 'dark' ? `${palette.white}0A` : `${palette.black}05`
-        : 'none'};
+      $clickable ? (theme.mode === 'dark' ? `${palette.white}0A` : `${palette.black}05`) : 'none'};
   }
 `
 export const Td = styled.td<{ $mono?: boolean }>`

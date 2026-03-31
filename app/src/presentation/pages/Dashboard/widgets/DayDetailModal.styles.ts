@@ -128,9 +128,7 @@ export const DTr = styled.tr<{ $clickable: boolean }>`
   transition: background 0.1s;
   &:hover {
     background: ${({ $clickable, theme }) =>
-      $clickable
-        ? theme.mode === 'dark' ? `${palette.white}0A` : `${palette.black}05`
-        : 'none'};
+      $clickable ? (theme.mode === 'dark' ? `${palette.white}0A` : `${palette.black}05`) : 'none'};
   }
 `
 export const DTd = styled.td<{ $mono?: boolean }>`
@@ -278,13 +276,19 @@ export const StackRow = styled.div<{ $active?: boolean }>`
     ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
   background: ${({ $active, theme }) =>
     $active
-      ? theme.mode === 'dark' ? `${palette.primary}1A` : `${palette.primary}0F`
+      ? theme.mode === 'dark'
+        ? `${palette.primary}1A`
+        : `${palette.primary}0F`
       : 'transparent'};
   &:hover {
     background: ${({ $active, theme }) =>
       $active
-        ? theme.mode === 'dark' ? `${palette.primary}24` : `${palette.primary}17`
-        : theme.mode === 'dark' ? `${palette.white}0A` : `${palette.black}08`};
+        ? theme.mode === 'dark'
+          ? `${palette.primary}24`
+          : `${palette.primary}17`
+        : theme.mode === 'dark'
+          ? `${palette.white}0A`
+          : `${palette.black}08`};
   }
 `
 export const ActiveBadge = styled.span`
@@ -380,7 +384,8 @@ export const SegmentTooltip = styled.div`
   background: ${({ theme }) => (theme.mode === 'dark' ? '#1e1e2e' : theme.colors.palette.white)};
   color: ${({ theme }) => theme.colors.text};
   border: 1px solid ${({ theme }) => theme.colors.border};
-  box-shadow: ${({ theme }) => `0 4px 16px ${theme.mode === 'dark' ? `${palette.black}66` : `${palette.black}40`}`};
+  box-shadow: ${({ theme }) =>
+    `0 4px 16px ${theme.mode === 'dark' ? `${palette.black}66` : `${palette.black}40`}`};
 `
 
 /* ── Tab styled components ──────────────── */
@@ -535,7 +540,8 @@ export const HourlyTooltipBox = styled.div`
   background: ${({ theme }) => (theme.mode === 'dark' ? '#1e1e2e' : theme.colors.palette.white)};
   color: ${({ theme }) => theme.colors.text};
   border: 1px solid ${({ theme }) => theme.colors.border};
-  box-shadow: ${({ theme }) => `0 2px 8px ${theme.mode === 'dark' ? `${palette.black}66` : `${palette.black}33`}`};
+  box-shadow: ${({ theme }) =>
+    `0 2px 8px ${theme.mode === 'dark' ? `${palette.black}66` : `${palette.black}33`}`};
   pointer-events: none;
 `
 export const HourlySummaryRow = styled.div`
