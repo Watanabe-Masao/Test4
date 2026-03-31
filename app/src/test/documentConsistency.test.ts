@@ -571,16 +571,10 @@ describe('後方互換コード監視', () => {
     'domain/calculations/discountImpact.ts',
     // context 移行完了まで維持
     'presentation/components/charts/TimeSlotChart.tsx',
-    // buildTypedWhere 移行完了まで維持
-    'infrastructure/duckdb/queryRunner.ts',
     // ImportedData との段階的共存（構造移行中）
     'domain/models/MonthlyData.ts',
-    // ディレクトリ import 推奨のバレルラッパー
-    'presentation/components/charts/GrossProfitRateChart.tsx',
-    // getWasmState() → getWasmModuleState() 移行完了まで維持
-    'application/services/wasmEngine.ts',
   ]
-  const MAX_DEPRECATED_FILES = 7
+  const MAX_DEPRECATED_FILES = 4
 
   it('@deprecated を含むファイル数が上限を超えない', () => {
     const allFiles: string[] = []

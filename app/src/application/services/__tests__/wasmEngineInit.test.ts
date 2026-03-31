@@ -12,11 +12,11 @@ describe('wasmEngine 初期化', () => {
   })
 
   it('initFactorDecompositionWasm → state が ready になる', async () => {
-    const { initFactorDecompositionWasm, getWasmState } =
+    const { initFactorDecompositionWasm, getWasmModuleState } =
       await import('@/application/services/wasmEngine')
-    expect(getWasmState()).toBe('idle')
+    expect(getWasmModuleState('factorDecomposition')).toBe('idle')
     await initFactorDecompositionWasm()
-    expect(getWasmState()).toBe('ready')
+    expect(getWasmModuleState('factorDecomposition')).toBe('ready')
   })
 
   it('initGrossProfitWasm → exports が非null', async () => {
@@ -44,13 +44,13 @@ describe('wasmEngine 初期化', () => {
   })
 
   it('2回目の initFactorDecompositionWasm は no-op（冪等性）', async () => {
-    const { initFactorDecompositionWasm, getWasmState } =
+    const { initFactorDecompositionWasm, getWasmModuleState } =
       await import('@/application/services/wasmEngine')
     await initFactorDecompositionWasm()
-    expect(getWasmState()).toBe('ready')
+    expect(getWasmModuleState('factorDecomposition')).toBe('ready')
     // 2回目も ready のまま
     await initFactorDecompositionWasm()
-    expect(getWasmState()).toBe('ready')
+    expect(getWasmModuleState('factorDecomposition')).toBe('ready')
   })
 
   it('DEV 環境 + localStorage 未設定 → dual-run-compare がデフォルト', async () => {

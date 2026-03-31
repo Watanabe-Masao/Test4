@@ -21,11 +21,11 @@ describe('wasmEngine fallback', () => {
       default: () => Promise.reject(new Error('mock init failure')),
     }))
 
-    const { initFactorDecompositionWasm, getWasmState } =
+    const { initFactorDecompositionWasm, getWasmModuleState } =
       await import('@/application/services/wasmEngine')
     vi.spyOn(console, 'warn').mockImplementation(() => {})
     await initFactorDecompositionWasm()
-    expect(getWasmState()).toBe('error')
+    expect(getWasmModuleState('factorDecomposition')).toBe('error')
   })
 
   it('state=error → bridge は TS を返す（decompose2）', async () => {
@@ -36,7 +36,7 @@ describe('wasmEngine fallback', () => {
     const wasmEngine = await import('@/application/services/wasmEngine')
     vi.spyOn(console, 'warn').mockImplementation(() => {})
     await wasmEngine.initFactorDecompositionWasm()
-    expect(wasmEngine.getWasmState()).toBe('error')
+    expect(wasmEngine.getWasmModuleState('factorDecomposition')).toBe('error')
 
     wasmEngine.setExecutionMode('wasm-only')
 
@@ -54,7 +54,7 @@ describe('wasmEngine fallback', () => {
     const wasmEngine = await import('@/application/services/wasmEngine')
     // idle のまま init を呼ばない = loading 状態にはならないが、
     // idle でも ready でないため TS にフォールバックする
-    expect(wasmEngine.getWasmState()).toBe('idle')
+    expect(wasmEngine.getWasmModuleState('factorDecomposition')).toBe('idle')
 
     wasmEngine.setExecutionMode('wasm-only')
 
@@ -71,7 +71,7 @@ describe('wasmEngine fallback', () => {
     vi.doUnmock('factor-decomposition-wasm')
     const wasmEngine = await import('@/application/services/wasmEngine')
     await wasmEngine.initFactorDecompositionWasm()
-    expect(wasmEngine.getWasmState()).toBe('ready')
+    expect(wasmEngine.getWasmModuleState('factorDecomposition')).toBe('ready')
 
     wasmEngine.setExecutionMode('wasm-only')
 
