@@ -12,7 +12,7 @@
  */
 import { memo, useMemo, useState } from 'react'
 import { useTheme } from 'styled-components'
-import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
+import type { DateRange } from '@/domain/models/calendar'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 import type { WeatherPersister } from '@/application/queries/weather'
 import type { SalesAnalysisContext } from '@/application/models/SalesAnalysisContext'
@@ -33,23 +33,8 @@ import { buildDeptStackedAreaOption } from './TimeSlotDeptAreaBuilder'
 
 interface Props {
   readonly queryExecutor: QueryExecutor | null
-  /** 分析文脈（親コンテナから渡される場合 — 推奨） */
+  /** 分析文脈（親コンテナから渡す） */
   readonly context?: SalesAnalysisContext
-  /**
-   * @deprecated context.dateRange を使用してください。
-   * UnifiedTimeSlotWidget 互換のみ。縮退後に削除予定。
-   */
-  readonly currentDateRange?: DateRange
-  /**
-   * @deprecated context.selectedStoreIds を使用してください。
-   * UnifiedTimeSlotWidget 互換のみ。縮退後に削除予定。
-   */
-  readonly selectedStoreIds?: ReadonlySet<string>
-  /**
-   * @deprecated context.comparisonScope を使用してください。
-   * UnifiedTimeSlotWidget 互換のみ。縮退後に削除予定。
-   */
-  readonly prevYearScope?: PrevYearScope
   /** 子→親イベント（親コンテナがハンドラを提供） */
   readonly events?: AnalysisViewEvents
   /** 天気データ永続化コールバック（ETRN フォールバック用） */
@@ -61,15 +46,11 @@ interface Props {
 export const TimeSlotChart = memo(function TimeSlotChart({
   queryExecutor,
   context,
-  currentDateRange: legacyDateRange,
-  selectedStoreIds: legacyStoreIds,
-  prevYearScope: legacyPrevYearScope,
   weatherPersist,
 }: Props) {
-  // context がある場合はそこから解決、なければ従来 props を使用
-  const dateRange = context?.dateRange ?? legacyDateRange
-  const storeIds = context?.selectedStoreIds ?? legacyStoreIds
-  const prevYearScope = context?.comparisonScope ?? legacyPrevYearScope
+  const dateRange = context?.dateRange
+  const storeIds = context?.selectedStoreIds
+  const prevYearScope = context?.comparisonScope
 
   const theme = useTheme() as AppTheme
   const { messages } = useI18n()
