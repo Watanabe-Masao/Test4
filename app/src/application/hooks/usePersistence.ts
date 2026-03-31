@@ -11,6 +11,7 @@ import { PersistenceContext } from '../context/persistenceContextDef'
 import { calculateDiff } from '@/application/services/diffCalculator'
 import type { DiffResult } from '@/domain/models/analysis'
 import type { ImportedData } from '@/domain/models/storeTypes'
+import { toMonthlyData, toLegacyImportedData } from '@/domain/models/monthlyDataAdapter'
 import { mergeInsertsOnly } from './useImport'
 
 // ─── 型定義 ──────────────────────────────────────────────
@@ -93,7 +94,12 @@ export function usePersistence(): PersistenceState & PersistenceActions {
     if (!available) return
     setIsSaving(true)
     try {
-      await repo.saveMonthlyData(data, settings.targetYear, settings.targetMonth)
+      const monthly = toMonthlyData(data, {
+        year: settings.targetYear,
+        month: settings.targetMonth,
+        importedAt: new Date().toISOString(),
+      })
+      await repo.saveMonthlyData(monthly, settings.targetYear, settings.targetMonth)
     } finally {
       setIsSaving(false)
     }
@@ -107,8 +113,10 @@ export function usePersistence(): PersistenceState & PersistenceActions {
       if (!available) return null
 
       const { targetYear, targetMonth } = settings
-      const existing = await repo.loadMonthlyData(targetYear, targetMonth)
-      if (!existing) return null
+      const existingMonthly = await repo.loadMonthlyData(targetYear, targetMonth)
+      if (!existingMonthly) return null
+      // diff 計算は ImportedData ベース — compat adapter 経由（Phase 2 完了まで維持）
+      const existing = toLegacyImportedData({ current: existingMonthly, prevYear: null })
 
       const diff = calculateDiff(existing, incoming, importedTypes)
       if (diff.needsConfirmation) {

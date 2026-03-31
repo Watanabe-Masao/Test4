@@ -27,6 +27,7 @@ import { resetTables, loadMonth } from '@/infrastructure/duckdb/dataLoader'
 import { deleteMonth, deletePrevYearMonth } from '@/infrastructure/duckdb/deletePolicy'
 import { materializeSummary } from '@/infrastructure/duckdb/queries/storeDaySummary'
 import { acquireMutex } from '@/infrastructure/duckdb/loadCoordinator'
+import { toLegacyImportedData } from '@/domain/models/monthlyDataAdapter'
 import { duckdbReducer, INITIAL_DUCKDB_STATE } from './duckdbReducer'
 import { computeFingerprint, computeMonthFingerprint } from './duckdbFingerprint'
 import { useEngineLifecycle } from './useEngineLifecycle'
@@ -134,7 +135,8 @@ export function useDuckDB(
               const historicalData = await repo.loadMonthlyData(y, m)
               if (isStale()) return
               if (historicalData) {
-                await loadMonth(state.conn, state.db, historicalData, y, m)
+                const legacyData = toLegacyImportedData({ current: historicalData, prevYear: null })
+                await loadMonth(state.conn, state.db, legacyData, y, m)
                 if (isStale()) return
                 loadedMonthsRef.current.set(monthKey(y, m), computeMonthFingerprint(historicalData))
               }
@@ -190,7 +192,8 @@ export function useDuckDB(
               const historicalData = await repo.loadMonthlyData(y, m)
               if (isStale()) return
               if (historicalData) {
-                await loadMonth(state.conn, state.db, historicalData, y, m)
+                const legacyData = toLegacyImportedData({ current: historicalData, prevYear: null })
+                await loadMonth(state.conn, state.db, legacyData, y, m)
                 if (isStale()) return
                 loadedMonthsRef.current.set(key, computeMonthFingerprint(historicalData))
                 anyChanged = true

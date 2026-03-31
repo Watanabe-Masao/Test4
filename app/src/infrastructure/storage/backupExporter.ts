@@ -35,6 +35,7 @@ import {
   decompress,
   isGzipped,
 } from './backupFormat'
+import { toMonthlyData, toLegacyImportedData } from '@/domain/models/monthlyDataAdapter'
 
 /** バックアップファイルのフォーマットバージョン */
 const BACKUP_FORMAT_VERSION = 3
@@ -112,8 +113,9 @@ class BackupExporter {
     const months: BackupMonthData[] = []
 
     for (const { year, month } of storedMonths) {
-      const data = await repo.loadMonthlyData(year, month)
-      if (data) {
+      const monthlyData = await repo.loadMonthlyData(year, month)
+      if (monthlyData) {
+        const data = toLegacyImportedData({ current: monthlyData, prevYear: null })
         const importHistory = await repo.loadImportHistory(year, month)
         months.push({
           year,
@@ -269,8 +271,8 @@ class BackupExporter {
       try {
         // 既存データチェック
         if (!overwrite) {
-          const existing = await repo.loadMonthlyData(monthData.year, monthData.month)
-          if (existing) {
+          const existingMonthly = await repo.loadMonthlyData(monthData.year, monthData.month)
+          if (existingMonthly) {
             monthsSkipped++
             continue
           }
@@ -278,7 +280,15 @@ class BackupExporter {
 
         // JSON.parse で失われた Map を復元してから保存
         const hydrated = hydrateImportedData(monthData.data)
-        await repo.saveMonthlyData(hydrated, monthData.year, monthData.month)
+        await repo.saveMonthlyData(
+          toMonthlyData(hydrated, {
+            year: monthData.year,
+            month: monthData.month,
+            importedAt: new Date().toISOString(),
+          }),
+          monthData.year,
+          monthData.month,
+        )
         monthsImported++
 
         // v2: インポート履歴を復元

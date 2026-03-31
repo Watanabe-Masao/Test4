@@ -11,11 +11,13 @@ import type {
 } from '@/domain/repositories'
 import type { ImportHistoryEntry } from '@/domain/models/analysis'
 import type { StoreDaySummaryCache } from '@/domain/models/record'
-import type { ImportedData, DataType, StorageDataType } from '@/domain/models/storeTypes'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
+import type { DataType, StorageDataType } from '@/domain/models/storeTypes'
+import { toLegacyImportedData, toMonthlyData } from '@/domain/models/monthlyDataAdapter'
 import {
   saveImportedData,
   loadImportedData,
-  saveDataSlice,
+  saveDataSlice as saveDataSliceInternal,
   loadMonthlySlice,
   getPersistedMeta,
   clearMonthData,
@@ -34,21 +36,26 @@ export class IndexedDBRepository implements DataRepository {
     return isIndexedDBAvailable()
   }
 
-  async saveMonthlyData(data: ImportedData, year: number, month: number): Promise<void> {
-    return saveImportedData(data, year, month)
+  async saveMonthlyData(data: MonthlyData, year: number, month: number): Promise<void> {
+    // 内部 storage は ImportedData ベース — adapter で互換変換（Phase 2 完了まで維持）
+    const legacy = toLegacyImportedData({ current: data, prevYear: null })
+    return saveImportedData(legacy, year, month)
   }
 
-  async loadMonthlyData(year: number, month: number): Promise<ImportedData | null> {
-    return loadImportedData(year, month)
+  async loadMonthlyData(year: number, month: number): Promise<MonthlyData | null> {
+    const legacy = await loadImportedData(year, month)
+    if (!legacy) return null
+    return toMonthlyData(legacy, { year, month, importedAt: new Date().toISOString() })
   }
 
   async saveDataSlice(
-    data: ImportedData,
+    data: MonthlyData,
     year: number,
     month: number,
     dataTypes: readonly DataType[],
   ): Promise<void> {
-    return saveDataSlice(data, year, month, dataTypes)
+    const legacy = toLegacyImportedData({ current: data, prevYear: null })
+    return saveDataSliceInternal(legacy, year, month, dataTypes)
   }
 
   async loadDataSlice<T>(

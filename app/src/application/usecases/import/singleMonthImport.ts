@@ -11,6 +11,7 @@ import type { ImportSummary, MonthPartitions } from './FileImportService'
 import { buildMonthData, mergeInsertsOnly } from './importDataMerge'
 import type { ImportResult, ResolveDiffResult, ImportSideEffects } from './ImportOrchestrator'
 import { saveSummaryCache, saveImportHistory } from './importHelpers'
+import { toMonthlyData, toLegacyImportedData } from '@/domain/models/monthlyDataAdapter'
 
 export async function orchestrateSingleMonth(
   processedData: ImportedData,
@@ -28,8 +29,9 @@ export async function orchestrateSingleMonth(
 
   if (repo.isAvailable()) {
     try {
-      const existing = await repo.loadMonthlyData(targetYear, targetMonth)
-      if (existing) {
+      const existingMonthly = await repo.loadMonthlyData(targetYear, targetMonth)
+      if (existingMonthly) {
+        const existing = toLegacyImportedData({ current: existingMonthly, prevYear: null })
         const diff = calculateDiff(existing, targetData, importedTypes)
         if (diff.needsConfirmation) {
           return {
@@ -59,7 +61,15 @@ export async function orchestrateSingleMonth(
   const detectedMaxDay = detectDataMaxDay(targetData)
 
   if (repo.isAvailable()) {
-    await repo.saveMonthlyData(targetData, targetYear, targetMonth)
+    await repo.saveMonthlyData(
+      toMonthlyData(targetData, {
+        year: targetYear,
+        month: targetMonth,
+        importedAt: new Date().toISOString(),
+      }),
+      targetYear,
+      targetMonth,
+    )
     saveSummaryCache(targetData, targetYear, targetMonth, repo)
     saveImportHistory(summary, targetYear, targetMonth, repo)
   }
@@ -94,7 +104,15 @@ export async function resolveSingleMonthDiff(
 
   if (repo.isAvailable()) {
     const { targetYear, targetMonth } = settings
-    await repo.saveMonthlyData(finalData, targetYear, targetMonth)
+    await repo.saveMonthlyData(
+      toMonthlyData(finalData, {
+        year: targetYear,
+        month: targetMonth,
+        importedAt: new Date().toISOString(),
+      }),
+      targetYear,
+      targetMonth,
+    )
     saveSummaryCache(finalData, targetYear, targetMonth, repo)
     saveImportHistory(summary, targetYear, targetMonth, repo)
   }

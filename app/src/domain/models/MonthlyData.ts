@@ -18,6 +18,7 @@ import type {
   CategoryTimeSalesData,
   DepartmentKpiData,
 } from './DataTypes'
+import type { ClassifiedSalesData } from './ClassifiedSales'
 import type { DataOrigin } from './DataOrigin'
 
 /** 当月データ集約（年月は origin が持つ） */
@@ -25,6 +26,7 @@ export interface MonthlyData {
   readonly origin: DataOrigin
   readonly stores: ReadonlyMap<string, Store>
   readonly suppliers: ReadonlyMap<string, { code: string; name: string }>
+  readonly classifiedSales: ClassifiedSalesData
   readonly purchase: PurchaseData
   readonly interStoreIn: TransferData
   readonly interStoreOut: TransferData
@@ -56,6 +58,7 @@ export function createEmptyMonthlyData(origin: DataOrigin): MonthlyData {
     origin,
     stores: new Map(),
     suppliers: new Map(),
+    classifiedSales: { records: [] },
     purchase: { records: [] },
     interStoreIn: { records: [] },
     interStoreOut: { records: [] },

@@ -10,6 +10,7 @@ import { useSettingsStore } from '@/application/stores/settingsStore'
 import { usePeriodSelectionStore } from '@/application/stores/periodSelectionStore'
 import { invalidateAfterStateChange } from './stateInvalidation'
 import { createEmptyImportedData } from '@/domain/models/storeTypes'
+import { toMonthlyData, toLegacyImportedData } from '@/domain/models/monthlyDataAdapter'
 
 /** Step 1: 現在のデータを IndexedDB に保存 */
 async function saveCurrentData(repo: DataRepository): Promise<void> {
@@ -18,7 +19,15 @@ async function saveCurrentData(repo: DataRepository): Promise<void> {
   const hasData =
     currentData.classifiedSales.records.length > 0 || currentData.purchase.records.length > 0
   if (hasData && repo.isAvailable()) {
-    await repo.saveMonthlyData(currentData, targetYear, targetMonth)
+    await repo.saveMonthlyData(
+      toMonthlyData(currentData, {
+        year: targetYear,
+        month: targetMonth,
+        importedAt: new Date().toISOString(),
+      }),
+      targetYear,
+      targetMonth,
+    )
   }
 }
 
@@ -44,9 +53,11 @@ function resetPeriodSelection(year: number, month: number): void {
 /** Step 5: 新しい年月のデータを IndexedDB からロード */
 async function loadNewMonthData(repo: DataRepository, year: number, month: number): Promise<void> {
   if (!repo.isAvailable()) return
-  const data = await repo.loadMonthlyData(year, month)
-  if (data) {
-    useDataStore.getState().setImportedData(data)
+  const monthlyData = await repo.loadMonthlyData(year, month)
+  if (monthlyData) {
+    useDataStore.getState().setImportedData(
+      toLegacyImportedData({ current: monthlyData, prevYear: null }),
+    )
     invalidateAfterStateChange()
   }
 }

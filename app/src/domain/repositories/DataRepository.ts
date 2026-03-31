@@ -7,7 +7,8 @@
  */
 import type { ImportHistoryEntry } from '@/domain/models/analysis'
 import type { StoreDaySummaryCache } from '@/domain/models/record'
-import type { ImportedData, DataType, StorageDataType } from '@/domain/models/storeTypes'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
+import type { DataType, StorageDataType } from '@/domain/models/storeTypes'
 
 /** 永続化されたセッションのメタデータ */
 export interface PersistedSessionMeta {
@@ -34,14 +35,14 @@ export interface DataRepository {
   isAvailable(): boolean
 
   /** 指定年月の全データを保存する */
-  saveMonthlyData(data: ImportedData, year: number, month: number): Promise<void>
+  saveMonthlyData(data: MonthlyData, year: number, month: number): Promise<void>
 
   /** 指定年月の全データを読み込む (存在しない場合 null) */
-  loadMonthlyData(year: number, month: number): Promise<ImportedData | null>
+  loadMonthlyData(year: number, month: number): Promise<MonthlyData | null>
 
   /** 特定データ種別のみを保存する */
   saveDataSlice(
-    data: ImportedData,
+    data: MonthlyData,
     year: number,
     month: number,
     dataTypes: readonly DataType[],
