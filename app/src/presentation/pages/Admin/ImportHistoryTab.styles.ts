@@ -59,10 +59,10 @@ export const ValidationItem = styled.div<{ $level: string }>`
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   background: ${({ $level }) =>
     $level === 'error'
-      ? 'rgba(239,68,68,0.1)'
+      ? `${palette.dangerDark}1a`
       : $level === 'warning'
-        ? 'rgba(245,158,11,0.1)'
-        : 'rgba(59,130,246,0.1)'};
+        ? `${palette.warningDark}1a`
+        : `${palette.blueDark}1a`};
   color: ${({ $level }) =>
     $level === 'error'
       ? palette.dangerDark
