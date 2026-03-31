@@ -4,6 +4,7 @@
  * KpiTableWidgets.tsx から分割。
  */
 import styled from 'styled-components'
+import { palette } from '@/presentation/theme/tokens'
 import { STh, STd } from '../DashboardPage.styles'
 
 /* ── 部門別KPI styled components ────────────────────── */
@@ -50,8 +51,8 @@ export const KpiWarningBar = styled.div<{ $clickable?: boolean }>`
     cursor: pointer;
     transition: background 0.15s;
     &:hover {
-      background: rgba(234,179,8,0.18);
-      border-color: rgba(234,179,8,0.5);
+      background: ${palette.warningDark}2E;
+      border-color: ${palette.warningDark}80;
     }
   `}
 `
@@ -111,7 +112,7 @@ export const KpiTooltip = styled.div`
   background: ${({ theme }) => (theme.mode === 'dark' ? '#1e1e2e' : theme.colors.palette.white)};
   color: ${({ theme }) => theme.colors.text};
   border: 1px solid ${({ theme }) => theme.colors.border};
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  box-shadow: ${({ theme }) => `0 4px 16px ${theme.mode === 'dark' ? `${palette.black}66` : `${palette.black}33`}`};
   pointer-events: none;
   bottom: calc(100% + 4px);
   right: 0;

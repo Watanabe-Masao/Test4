@@ -44,10 +44,6 @@ export function useChartTheme() {
       micro: 9,
       label: 10,
       body: 11,
-      // 後方互換
-      xs: 9,
-      sm: 10,
-      base: 11,
     },
     isDark: theme.mode === 'dark',
     // ─── 意味的カラー（業務概念 → 色） ──

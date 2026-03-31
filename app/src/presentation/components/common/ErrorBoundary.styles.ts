@@ -152,7 +152,7 @@ export const PageErrorIcon = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: ${({ theme }) => theme.typography.fontSize['2xl']};
+  font-size: ${({ theme }) => theme.typography.fontSize.heading};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
 `
 

@@ -1,5 +1,6 @@
 import styled from 'styled-components'
 import { sc } from '@/presentation/theme/semanticColors'
+import { palette } from '@/presentation/theme/tokens'
 
 // ─── Types ──────────────────────────────────────────────
 
@@ -45,7 +46,7 @@ export const SliderInput = styled.input`
     border-radius: 50%;
     background: ${({ theme }) => theme.colors.palette.primary};
     border: 2px solid ${({ theme }) => theme.colors.bg2};
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 1px 4px ${palette.black}4D;
     cursor: pointer;
     transition: transform 0.15s;
   }
@@ -59,7 +60,7 @@ export const SliderInput = styled.input`
     border-radius: 50%;
     background: ${({ theme }) => theme.colors.palette.primary};
     border: 2px solid ${({ theme }) => theme.colors.bg2};
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 1px 4px ${palette.black}4D;
     cursor: pointer;
   }
 `

@@ -231,7 +231,7 @@ export const ProgressLabel = styled.div`
 `
 
 export const ProgressValue = styled.div<{ $accent?: string }>`
-  font-size: ${({ theme }) => theme.typography.fontSize['2xl']};
+  font-size: ${({ theme }) => theme.typography.fontSize.heading};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ $accent, theme }) => $accent ?? theme.colors.text};

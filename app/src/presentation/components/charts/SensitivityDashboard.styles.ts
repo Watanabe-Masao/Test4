@@ -185,14 +185,10 @@ export const ActionBtn = styled.button<{ $variant?: 'primary' | 'default' }>`
     $variant === 'primary' ? theme.colors.palette.primary : theme.colors.text3};
   background: ${({ $variant, theme }) =>
     $variant === 'primary'
-      ? theme.mode === 'dark'
-        ? 'rgba(99,102,241,0.15)'
-        : 'rgba(99,102,241,0.08)'
-      : theme.mode === 'dark'
-        ? 'rgba(255,255,255,0.06)'
-        : 'rgba(0,0,0,0.04)'};
+      ? theme.mode === 'dark' ? `${palette.primary}26` : `${palette.primary}14`
+      : theme.mode === 'dark' ? `${palette.white}0F` : `${palette.black}0A`};
   border: 1px solid
-    ${({ $variant }) => ($variant === 'primary' ? 'rgba(99,102,241,0.3)' : 'transparent')};
+    ${({ $variant }) => ($variant === 'primary' ? `${palette.primary}4D` : 'transparent')};
   &:hover {
     opacity: 0.8;
   }

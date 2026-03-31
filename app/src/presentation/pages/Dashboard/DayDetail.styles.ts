@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { palette } from '@/presentation/theme/tokens'
 
 // ─── Detail Modal Styled Components ─────────────────────
 
@@ -12,7 +13,7 @@ export const DetailModalContent = styled.div`
   width: 960px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: ${({ theme }) => `0 20px 60px ${theme.mode === 'dark' ? `${palette.black}80` : `${palette.black}4D`}`};
 `
 
 export const DetailHeader = styled.div`
@@ -153,7 +154,7 @@ export const DetailBarAmount = styled.span`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: white;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  text-shadow: 0 1px 2px ${palette.black}66;
   white-space: nowrap;
 `
 

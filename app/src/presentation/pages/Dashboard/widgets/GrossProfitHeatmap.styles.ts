@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { palette } from '@/presentation/theme/tokens'
 
 export const Wrapper = styled.div`
   background: ${({ theme }) => theme.colors.bg3};
@@ -36,9 +37,7 @@ export const Toggle = styled.button<{ $active: boolean }>`
   background: ${({ $active, theme }) =>
     $active
       ? theme.colors.palette.primary
-      : theme.mode === 'dark'
-        ? 'rgba(255,255,255,0.06)'
-        : 'rgba(0,0,0,0.04)'};
+      : theme.mode === 'dark' ? `${palette.white}0F` : `${palette.black}0A`};
   &:hover {
     opacity: 0.85;
   }
@@ -124,5 +123,5 @@ export const LegendSwatch = styled.div<{ $bg: string }>`
   height: 14px;
   border-radius: 2px;
   background: ${({ $bg }) => $bg};
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid ${palette.black}1A;
 `

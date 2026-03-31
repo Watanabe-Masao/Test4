@@ -10,7 +10,7 @@ export const Page = styled.div`
 `
 
 export const PageTitle = styled.h1`
-  font-size: ${({ theme }) => theme.typography.fontSize['2xl']};
+  font-size: ${({ theme }) => theme.typography.fontSize.heading};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
 `

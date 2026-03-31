@@ -1,5 +1,6 @@
 import styled from 'styled-components'
 import { sc } from '@/presentation/theme/semanticColors'
+import { palette } from '@/presentation/theme/tokens'
 
 export const Wrapper = styled.div`
   width: 100%;
@@ -112,11 +113,11 @@ export const TreemapLabel = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 1px 2px ${palette.black}4D;
 `
 export const TreemapPct = styled.div`
   font-size: ${({ theme }) => theme.typography.fontSize.micro};
-  color: rgba(255, 255, 255, 0.85);
+  color: ${palette.white}D9;
   font-family: monospace;
 `
 export const EmptyFilterMsg = styled.div`
@@ -153,9 +154,7 @@ export const Tr = styled.tr<{ $clickable: boolean }>`
   &:hover {
     background: ${({ $clickable, theme }) =>
       $clickable
-        ? theme.mode === 'dark'
-          ? 'rgba(255,255,255,0.04)'
-          : 'rgba(0,0,0,0.02)'
+        ? theme.mode === 'dark' ? `${palette.white}0A` : `${palette.black}05`
         : 'none'};
   }
 `
@@ -339,7 +338,7 @@ export const TipBubble = styled.div`
   color: ${({ theme }) => theme.colors.text2};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.md};
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px ${palette.black}26;
   font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: 400;
   white-space: normal;

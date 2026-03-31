@@ -5,6 +5,7 @@
  */
 import styled from 'styled-components'
 import { sc } from '@/presentation/theme/semanticColors'
+import { palette } from '@/presentation/theme/tokens'
 
 /* ── Drilldown Styled Components ─────────── */
 
@@ -95,11 +96,11 @@ export const TreeLabel = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 1px 2px ${palette.black}4D;
 `
 export const TreePct = styled.div`
   font-size: ${({ theme }) => theme.typography.fontSize.micro};
-  color: rgba(255, 255, 255, 0.85);
+  color: ${palette.white}D9;
   font-family: monospace;
 `
 
@@ -128,9 +129,7 @@ export const DTr = styled.tr<{ $clickable: boolean }>`
   &:hover {
     background: ${({ $clickable, theme }) =>
       $clickable
-        ? theme.mode === 'dark'
-          ? 'rgba(255,255,255,0.04)'
-          : 'rgba(0,0,0,0.02)'
+        ? theme.mode === 'dark' ? `${palette.white}0A` : `${palette.black}05`
         : 'none'};
   }
 `
@@ -279,19 +278,13 @@ export const StackRow = styled.div<{ $active?: boolean }>`
     ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
   background: ${({ $active, theme }) =>
     $active
-      ? theme.mode === 'dark'
-        ? 'rgba(99,102,241,0.10)'
-        : 'rgba(99,102,241,0.06)'
+      ? theme.mode === 'dark' ? `${palette.primary}1A` : `${palette.primary}0F`
       : 'transparent'};
   &:hover {
     background: ${({ $active, theme }) =>
       $active
-        ? theme.mode === 'dark'
-          ? 'rgba(99,102,241,0.14)'
-          : 'rgba(99,102,241,0.09)'
-        : theme.mode === 'dark'
-          ? 'rgba(255,255,255,0.04)'
-          : 'rgba(0,0,0,0.03)'};
+        ? theme.mode === 'dark' ? `${palette.primary}24` : `${palette.primary}17`
+        : theme.mode === 'dark' ? `${palette.white}0A` : `${palette.black}08`};
   }
 `
 export const ActiveBadge = styled.span`
@@ -340,7 +333,7 @@ export const SegLabel = styled.span`
   color: ${({ theme }) => theme.colors.palette.white};
   font-weight: 600;
   white-space: nowrap;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  text-shadow: 0 1px 2px ${palette.black}66;
   pointer-events: none;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -387,7 +380,7 @@ export const SegmentTooltip = styled.div`
   background: ${({ theme }) => (theme.mode === 'dark' ? '#1e1e2e' : theme.colors.palette.white)};
   color: ${({ theme }) => theme.colors.text};
   border: 1px solid ${({ theme }) => theme.colors.border};
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  box-shadow: ${({ theme }) => `0 4px 16px ${theme.mode === 'dark' ? `${palette.black}66` : `${palette.black}40`}`};
 `
 
 /* ── Tab styled components ──────────────── */
@@ -542,7 +535,7 @@ export const HourlyTooltipBox = styled.div`
   background: ${({ theme }) => (theme.mode === 'dark' ? '#1e1e2e' : theme.colors.palette.white)};
   color: ${({ theme }) => theme.colors.text};
   border: 1px solid ${({ theme }) => theme.colors.border};
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: ${({ theme }) => `0 2px 8px ${theme.mode === 'dark' ? `${palette.black}66` : `${palette.black}33`}`};
   pointer-events: none;
 `
 export const HourlySummaryRow = styled.div`

@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { palette } from '@/presentation/theme/tokens'
 
 export const PanelOverlay = styled.div<{ $collapsed: boolean }>`
   position: fixed;
@@ -40,14 +41,14 @@ export const Stats = styled.span`
 
 export const ClearButton = styled.button`
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid ${palette.white}33;
   color: inherit;
   padding: 2px 8px;
   border-radius: 4px;
   cursor: pointer;
   font-size: ${({ theme }) => theme.typography.fontSize.caption};
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: ${palette.white}1A;
   }
 `
 
@@ -62,17 +63,17 @@ export const EntryRow = styled.div<{ $status: string }>`
   grid-template-columns: 50px 1fr 60px 50px;
   gap: 8px;
   padding: 4px 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid ${palette.white}0D;
   align-items: center;
   background: ${(p) =>
     p.$status === 'error'
-      ? 'rgba(255, 80, 80, 0.1)'
+      ? `${palette.dangerDark}1A`
       : p.$status === 'running'
-        ? 'rgba(255, 200, 50, 0.1)'
+        ? `${palette.warningDark}1A`
         : 'transparent'};
 
   &:hover {
-    background: rgba(255, 255, 255, 0.05);
+    background: ${palette.white}0D;
   }
 `
 
@@ -98,10 +99,10 @@ export const StatusBadge = styled.span<{ $status: string }>`
   text-transform: uppercase;
   background: ${(p) =>
     p.$status === 'success'
-      ? 'rgba(123, 237, 159, 0.2)'
+      ? `${palette.successDark}33`
       : p.$status === 'error'
-        ? 'rgba(255, 107, 107, 0.2)'
-        : 'rgba(255, 200, 50, 0.2)'};
+        ? `${palette.danger}33`
+        : `${palette.warningDark}33`};
   color: ${(p) =>
     p.$status === 'success' ? '#7bed9f' : p.$status === 'error' ? '#ff6b6b' : '#ffc832'};
 `

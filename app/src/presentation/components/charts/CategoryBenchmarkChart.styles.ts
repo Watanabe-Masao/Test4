@@ -1,5 +1,6 @@
 import styled from 'styled-components'
 import type { ProductType } from '@/application/hooks/duckdb'
+import { palette } from '@/presentation/theme/tokens'
 
 export const Wrapper = styled.div`
   width: 100%;
@@ -69,8 +70,8 @@ export const ToggleBtn = styled.button<{ $active: boolean }>`
   background: ${({ $active, theme }) =>
     $active
       ? theme.mode === 'dark'
-        ? 'rgba(99,102,241,0.2)'
-        : 'rgba(99,102,241,0.08)'
+        ? `${palette.primary}33`
+        : `${palette.primary}14`
       : 'transparent'};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text3)};
   cursor: pointer;
@@ -139,13 +140,13 @@ export const TypeBadge = styled.span<{ $type: ProductType }>`
     const alpha = theme.mode === 'dark' ? '0.2' : '0.1'
     switch ($type) {
       case 'flagship':
-        return `rgba(34,197,94,${alpha})`
+        return `${palette.successDark}${Math.round(Number(alpha) * 255).toString(16).padStart(2, '0')}`
       case 'regional':
-        return `rgba(59,130,246,${alpha})`
+        return `${palette.blueDark}${Math.round(Number(alpha) * 255).toString(16).padStart(2, '0')}`
       case 'standard':
-        return `rgba(156,163,175,${alpha})`
+        return `${palette.slate}${Math.round(Number(alpha) * 255).toString(16).padStart(2, '0')}`
       case 'unstable':
-        return `rgba(239,68,68,${alpha})`
+        return `${palette.dangerDark}${Math.round(Number(alpha) * 255).toString(16).padStart(2, '0')}`
     }
   }};
   color: ${({ $type }) => {

@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { palette } from '@/presentation/theme/tokens'
 
 // ─── Main Layout ────────────────────────────────────────
 
@@ -174,7 +175,7 @@ export const Card = styled.div<{ $borderColor: string; $clickable?: boolean }>`
     cursor: pointer;
     transition: box-shadow 0.15s, transform 0.15s;
     &:hover {
-      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+      box-shadow: 0 2px 8px ${palette.black}1A;
       transform: translateY(-1px);
     }
   `}
@@ -254,7 +255,7 @@ export const Overlay = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.4);
+  background: ${({ theme }) => theme.mode === 'dark' ? `${palette.black}80` : `${palette.black}66`};
 `
 
 export const DetailPanel = styled.div`
@@ -266,7 +267,7 @@ export const DetailPanel = styled.div`
   max-width: 720px;
   max-height: 80vh;
   overflow-y: auto;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  box-shadow: ${({ theme }) => `0 8px 32px ${theme.mode === 'dark' ? `${palette.black}66` : `${palette.black}33`}`};
 `
 
 export const DetailHeader = styled.div`

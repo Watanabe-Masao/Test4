@@ -30,7 +30,6 @@ import type { BudgetViewType, CompareMode } from './BudgetVsActualChart.styles'
 import { type DataPoint, buildOption } from './BudgetVsActualChart.builders'
 import {
   computeBudgetProgress,
-  getProgressStatusColor,
   buildPrevYearCumMap,
   enrichChartData,
   computePrevYearComparison,
@@ -91,8 +90,10 @@ export const BudgetVsActualChart = memo(function BudgetVsActualChart({
   const { currentActual, currentBudgetCum, progressRate, projected, projectedAchievement } =
     progress
 
-  const paceColor = ct.colors[getProgressStatusColor(progressRate)]
-  const projColor = ct.colors[getProgressStatusColor(projectedAchievement)]
+  const statusColor = (rate: number) =>
+    rate >= 1.0 ? ct.semantic.positive : rate >= 0.9 ? ct.semantic.markupRate : ct.semantic.negative
+  const paceColor = statusColor(progressRate)
+  const projColor = statusColor(projectedAchievement)
 
   // 前年累計マップ（vm から導出）
   const totalDaysForCalc = daysInMonth ?? data.length

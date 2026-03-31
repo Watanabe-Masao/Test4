@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { palette } from '@/presentation/theme/tokens'
 
 export const Wrapper = styled.div`
   width: 100%;
@@ -174,10 +175,11 @@ export const DiffDataCell = styled.td<{ $ratio: number; $hasData: boolean; $text
   color: ${({ $textColor }) => $textColor};
   background: ${({ $ratio, $hasData }) => {
     if (!$hasData) return 'transparent'
-    if ($ratio === 0) return 'rgba(100,100,100,0.1)'
+    if ($ratio === 0) return `${palette.slate}1A`
     const absR = Math.min(Math.abs($ratio), 0.5) / 0.5
-    if ($ratio > 0) return `rgba(34,197,94,${0.2 + absR * 0.7})`
-    return `rgba(239,68,68,${0.2 + absR * 0.7})`
+    const alpha = Math.round((0.2 + absR * 0.7) * 255).toString(16).padStart(2, '0')
+    if ($ratio > 0) return `${palette.successDark}${alpha}`
+    return `${palette.dangerDark}${alpha}`
   }};
   border-radius: ${({ theme }) => theme.radii.sm};
   transition: all 0.15s;
