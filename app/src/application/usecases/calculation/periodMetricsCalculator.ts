@@ -1,6 +1,6 @@
 /** 期間メトリクス計算: store_day_summary の生データから domain/calculations/ の純粋関数で指標を算出 */
 import {
-  calculateEstMethod,
+  calculateEstMethodWithStatus,
   calculateDiscountRate,
   calculateInvMethod,
   calculateDiscountImpact,
@@ -187,7 +187,7 @@ function calculatePeriodMetrics(
   })
 
   // ── 推定法 ──
-  const estResult = calculateEstMethod({
+  const estResultWithStatus = calculateEstMethodWithStatus({
     coreSales: agg.totalCoreSales,
     discountRate,
     markupRate: coreMarkupRate,
@@ -195,13 +195,20 @@ function calculatePeriodMetrics(
     openingInventory: invConfig?.openingInventory ?? null,
     inventoryPurchaseCost: inventoryCost,
   })
+  const estResult = estResultWithStatus.value ?? {
+    grossSales: 0,
+    cogs: 0,
+    margin: 0,
+    marginRate: 0,
+    closingInventory: null,
+  }
 
   // ── 売変ロス原価 ──
   const { discountLossCost } = calculateDiscountImpact({
     coreSales: agg.totalCoreSales,
     markupRate: coreMarkupRate,
     discountRate,
-  })
+  }).value ?? { discountLossCost: 0 }
 
   const salesDays = agg.salesDateKeys.size
   const totalDays = agg.dateKeys.size

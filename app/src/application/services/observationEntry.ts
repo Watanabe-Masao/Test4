@@ -11,7 +11,7 @@
  */
 import {
   calculateInvMethod,
-  calculateEstMethod,
+  calculateEstMethodWithStatus,
   calculateCoreSales,
   calculateDiscountRate,
   calculateDiscountImpact,
@@ -137,7 +137,7 @@ type EngineFixtureData =
 
 function runGrossProfit(d: GrossProfitFixtureData): void {
   calculateInvMethod(d.invMethod)
-  calculateEstMethod(d.estMethod)
+  calculateEstMethodWithStatus(d.estMethod)
   calculateCoreSales(
     d.coreSales.totalSales,
     d.coreSales.flowerSalesPrice,

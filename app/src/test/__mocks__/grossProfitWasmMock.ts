@@ -9,7 +9,7 @@ import {
   calculateEstMethod as calculateEstMethodTS,
   calculateCoreSales as calculateCoreSalesTS,
   calculateDiscountRate as calculateDiscountRateTS,
-  calculateDiscountImpact as calculateDiscountImpactTS,
+  calculateDiscountImpactWithStatus as calculateDiscountImpactWithStatusTS,
   calculateMarkupRates as calculateMarkupRatesTS,
   calculateTransferTotals as calculateTransferTotalsTS,
   calculateInventoryCost as calculateInventoryCostTS,
@@ -86,7 +86,9 @@ export function calculate_discount_impact(
   markupRate: number,
   discountRate: number,
 ): number {
-  const r = calculateDiscountImpactTS({ coreSales, markupRate, discountRate })
+  const r = calculateDiscountImpactWithStatusTS({ coreSales, markupRate, discountRate }).value ?? {
+    discountLossCost: 0,
+  }
   return r.discountLossCost
 }
 
