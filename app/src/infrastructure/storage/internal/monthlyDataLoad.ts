@@ -1,8 +1,9 @@
 /**
- * IndexedDB 月次データ読み込み
+ * IndexedDB 月次データ読み込み（legacy 内部実装）
  *
- * 年月単位でのデータ読み込み・スライス読み込み・サマリー取得を担当する。
- * 単一 readonly トランザクションで全キーを一括取得し、一貫スナップショットを保証する。
+ * 内部的に ImportedData 形式で読み込む。
+ * public API は DataRepository (MonthlyData) → IndexedDBRepository (adapter) 経由。
+ * TODO(Phase 2): storage 内部も MonthlyData に統一後、ImportedData 依存を解消
  */
 import type { ImportedData, StorageDataType } from '@/domain/models/storeTypes'
 import type { BudgetData, InventoryConfig, Store } from '@/domain/models/record'

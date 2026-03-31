@@ -9,7 +9,6 @@
  */
 import type { ImportedData } from './ImportedData'
 import type { MonthlyData, AppData } from './MonthlyData'
-import { createEmptyMonthlyData } from './MonthlyData'
 import type { DataOrigin } from './DataOrigin'
 
 /**
@@ -81,14 +80,20 @@ export function toAppData(
 /**
  * AppData + LegacyComparisonSlices → ImportedData に変換する。
  * 互換レイヤー専用。新規コードでは使用しない。
+ *
+ * @throws appData.current が null の場合（保存対象がない状態での呼び出しは設計エラー）
  */
 export function toLegacyImportedData(
   appData: AppData,
   slices?: LegacyComparisonSlices,
 ): ImportedData {
-  const current =
-    appData.current ??
-    createEmptyMonthlyData({ year: 2000, month: 1, importedAt: new Date().toISOString() })
+  if (!appData.current) {
+    throw new Error(
+      'toLegacyImportedData: appData.current is null. ' +
+        'Cannot construct ImportedData without current month data.',
+    )
+  }
+  const current = appData.current
   const s = slices ?? EMPTY_SLICES
 
   return {
