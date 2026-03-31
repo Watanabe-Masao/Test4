@@ -18,6 +18,7 @@ import {
 import { calculateStdDev } from '@/application/hooks/useStatistics'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import { calculateAmountPI, calculateQuantityPI } from '@/domain/calculations/piValue'
+import { chartFontSize } from '@/presentation/theme/tokens'
 
 // ── 型定義 ──
 
@@ -480,7 +481,7 @@ export function buildPerformanceOption(
                 show: true,
                 formatter: '+2\u03c3',
                 color: ct.semantic.negative,
-                fontSize: 8,
+                fontSize: chartFontSize.axis - 2,
                 position: 'end' as const,
               },
             },
@@ -496,7 +497,7 @@ export function buildPerformanceOption(
                 show: true,
                 formatter: '-2\u03c3',
                 color: ct.semantic.negative,
-                fontSize: 8,
+                fontSize: chartFontSize.axis - 2,
                 position: 'end' as const,
               },
             },

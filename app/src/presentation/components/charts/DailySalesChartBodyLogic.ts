@@ -10,6 +10,7 @@ import type { DailyWeatherSummary } from '@/domain/models/record'
 import { categorizeWeatherCode } from '@/domain/weather/weatherAggregation'
 import type { WeatherCategory } from '@/domain/models/record'
 import { lineDefaults } from './builders'
+import { chartFontSize, palette } from '@/presentation/theme/tokens'
 
 // ── 右軸モード ──
 
@@ -222,13 +223,13 @@ export function buildXLabels(
 /** X軸 rich text スタイル定義（天気アイコン用） */
 export function buildWeatherRichStyles(): Record<string, object> {
   return {
-    sunny: { fontSize: 13, color: WEATHER_COLORS.sunny },
-    cloudy: { fontSize: 13, color: WEATHER_COLORS.cloudy },
-    rainy: { fontSize: 13, color: WEATHER_COLORS.rainy },
-    snowy: { fontSize: 13, color: WEATHER_COLORS.snowy },
-    other: { fontSize: 13, color: WEATHER_COLORS.other },
-    temp: { fontSize: 9, color: '#6b7280' },
-    prevTemp: { fontSize: 9, color: '#9ca3af' },
+    sunny: { fontSize: chartFontSize.title, color: WEATHER_COLORS.sunny },
+    cloudy: { fontSize: chartFontSize.title, color: WEATHER_COLORS.cloudy },
+    rainy: { fontSize: chartFontSize.title, color: WEATHER_COLORS.rainy },
+    snowy: { fontSize: chartFontSize.title, color: WEATHER_COLORS.snowy },
+    other: { fontSize: chartFontSize.title, color: WEATHER_COLORS.other },
+    temp: { fontSize: chartFontSize.axis - 1, color: palette.slateDark },
+    prevTemp: { fontSize: chartFontSize.axis - 1, color: palette.slate },
   }
 }
 
