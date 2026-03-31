@@ -13,7 +13,8 @@ export const DetailModalContent = styled.div`
   width: 960px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: ${({ theme }) => `0 20px 60px ${theme.mode === 'dark' ? `${palette.black}80` : `${palette.black}4D`}`};
+  box-shadow: ${({ theme }) =>
+    `0 20px 60px ${theme.mode === 'dark' ? `${palette.black}80` : `${palette.black}4D`}`};
 `
 
 export const DetailHeader = styled.div`

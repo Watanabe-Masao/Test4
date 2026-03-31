@@ -112,7 +112,8 @@ export const KpiTooltip = styled.div`
   background: ${({ theme }) => (theme.mode === 'dark' ? '#1e1e2e' : theme.colors.palette.white)};
   color: ${({ theme }) => theme.colors.text};
   border: 1px solid ${({ theme }) => theme.colors.border};
-  box-shadow: ${({ theme }) => `0 4px 16px ${theme.mode === 'dark' ? `${palette.black}66` : `${palette.black}33`}`};
+  box-shadow: ${({ theme }) =>
+    `0 4px 16px ${theme.mode === 'dark' ? `${palette.black}66` : `${palette.black}33`}`};
   pointer-events: none;
   bottom: calc(100% + 4px);
   right: 0;

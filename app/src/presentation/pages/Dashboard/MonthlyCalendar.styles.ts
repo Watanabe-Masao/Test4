@@ -252,7 +252,8 @@ export const IntervalMetricValue = styled.div`
 export const PinModalOverlay = styled.div`
   position: fixed;
   inset: 0;
-  background: ${({ theme }) => theme.mode === 'dark' ? `${palette.black}B3` : `${palette.black}99`};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? `${palette.black}B3` : `${palette.black}99`};
   z-index: ${({ theme }) => theme.zIndex.sticky};
   display: flex;
   align-items: center;
@@ -266,7 +267,8 @@ export const PinModalContent = styled.div`
   padding: ${({ theme }) => `${theme.spacing[10]} ${theme.spacing[10]}`};
   min-width: 400px;
   max-width: 90vw;
-  box-shadow: ${({ theme }) => `0 20px 60px ${theme.mode === 'dark' ? `${palette.black}80` : `${palette.black}4D`}`};
+  box-shadow: ${({ theme }) =>
+    `0 20px 60px ${theme.mode === 'dark' ? `${palette.black}80` : `${palette.black}4D`}`};
 `
 
 export const PinModalTitle = styled.h3`
@@ -349,7 +351,8 @@ export const CalPreview = styled.div`
   background: ${({ theme }) => (theme.mode === 'dark' ? '#1e1e2e' : theme.colors.palette.white)};
   color: ${({ theme }) => theme.colors.text};
   border: 1px solid ${({ theme }) => theme.colors.border};
-  box-shadow: ${({ theme }) => `0 4px 16px ${theme.mode === 'dark' ? `${palette.black}66` : `${palette.black}40`}`};
+  box-shadow: ${({ theme }) =>
+    `0 4px 16px ${theme.mode === 'dark' ? `${palette.black}66` : `${palette.black}40`}`};
   pointer-events: none;
   font-size: ${({ theme }) => theme.typography.fontSize.caption};
   line-height: 1.5;

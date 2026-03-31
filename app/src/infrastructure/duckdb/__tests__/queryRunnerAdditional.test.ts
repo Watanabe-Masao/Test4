@@ -7,12 +7,7 @@
  * queryToObjects / queryScalar をモック接続経由で検証する。
  */
 import { describe, it, expect, vi } from 'vitest'
-import {
-  storeIdFilter,
-  storeIdFilterWithAlias,
-  queryToObjects,
-  queryScalar,
-} from '../queryRunner'
+import { storeIdFilter, storeIdFilterWithAlias, queryToObjects, queryScalar } from '../queryRunner'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 
 // ── storeIdFilterWithAlias ──────────────────────────────────────
@@ -131,7 +126,6 @@ describe('queryScalar', () => {
     expect(result).toBe('hello')
   })
 })
-
 
 // ── storeIdFilter の追加ケース ────────────────────────────────────
 

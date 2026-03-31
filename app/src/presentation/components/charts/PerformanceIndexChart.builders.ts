@@ -309,7 +309,9 @@ export function buildPerformanceOption(
     const barColors = data.map((e) => {
       const cur = e[piKey]
       const prev = e[prevPiKey]
-      return prev != null && cur != null && cur >= prev ? ct.semantic.positive : ct.semantic.negative
+      return prev != null && cur != null && cur >= prev
+        ? ct.semantic.positive
+        : ct.semantic.negative
     })
     series.push(
       {
@@ -414,7 +416,11 @@ export function buildPerformanceOption(
   // zScore
   const barColors = data.map((e) => {
     const z = e.salesZ ?? 0
-    return Math.abs(z) >= 2 ? ct.semantic.negative : z >= 0 ? ct.semantic.sales : ct.semantic.neutral
+    return Math.abs(z) >= 2
+      ? ct.semantic.negative
+      : z >= 0
+        ? ct.semantic.sales
+        : ct.semantic.neutral
   })
   const barOpacities = data.map((e) => {
     const z = e.salesZ ?? 0

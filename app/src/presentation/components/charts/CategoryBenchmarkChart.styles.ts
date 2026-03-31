@@ -140,13 +140,21 @@ export const TypeBadge = styled.span<{ $type: ProductType }>`
     const alpha = theme.mode === 'dark' ? '0.2' : '0.1'
     switch ($type) {
       case 'flagship':
-        return `${palette.successDark}${Math.round(Number(alpha) * 255).toString(16).padStart(2, '0')}`
+        return `${palette.successDark}${Math.round(Number(alpha) * 255)
+          .toString(16)
+          .padStart(2, '0')}`
       case 'regional':
-        return `${palette.blueDark}${Math.round(Number(alpha) * 255).toString(16).padStart(2, '0')}`
+        return `${palette.blueDark}${Math.round(Number(alpha) * 255)
+          .toString(16)
+          .padStart(2, '0')}`
       case 'standard':
-        return `${palette.slate}${Math.round(Number(alpha) * 255).toString(16).padStart(2, '0')}`
+        return `${palette.slate}${Math.round(Number(alpha) * 255)
+          .toString(16)
+          .padStart(2, '0')}`
       case 'unstable':
-        return `${palette.dangerDark}${Math.round(Number(alpha) * 255).toString(16).padStart(2, '0')}`
+        return `${palette.dangerDark}${Math.round(Number(alpha) * 255)
+          .toString(16)
+          .padStart(2, '0')}`
     }
   }};
   color: ${({ $type }) => {

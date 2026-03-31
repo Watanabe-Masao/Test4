@@ -255,7 +255,8 @@ export const Overlay = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: ${({ theme }) => theme.mode === 'dark' ? `${palette.black}80` : `${palette.black}66`};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? `${palette.black}80` : `${palette.black}66`};
 `
 
 export const DetailPanel = styled.div`
@@ -267,7 +268,8 @@ export const DetailPanel = styled.div`
   max-width: 720px;
   max-height: 80vh;
   overflow-y: auto;
-  box-shadow: ${({ theme }) => `0 8px 32px ${theme.mode === 'dark' ? `${palette.black}66` : `${palette.black}33`}`};
+  box-shadow: ${({ theme }) =>
+    `0 8px 32px ${theme.mode === 'dark' ? `${palette.black}66` : `${palette.black}33`}`};
 `
 
 export const DetailHeader = styled.div`
