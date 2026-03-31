@@ -12,22 +12,33 @@ import type {
   InventoryConfig,
 } from '@/domain/models/record'
 import type { ImportedData, StoreResult } from '@/domain/models/storeTypes'
-import type { MonthlyData, AppData } from '@/domain/models/MonthlyData'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
 import { mergeInventoryConfig } from '@/domain/models/record'
 import { createEmptyImportedData } from '@/domain/models/storeTypes'
-import { toMonthlyData } from '@/domain/models/monthlyDataAdapter'
+import { toMonthlyData, toLegacyImportedData } from '@/domain/models/monthlyDataAdapter'
 
 // ─── Types ────────────────────────────────────────────
 export interface DataStore {
-  // State
+  // ─── Authoritative State（正本） ──────────────────────
+  /** 現在月の authoritative state（null = 未ロード） */
+  currentMonthData: MonthlyData | null
+  /** authoritative version（currentMonthData 更新でインクリメント） */
+  authoritativeDataVersion: number
+
+  // ─── Legacy State（互換 mirror — Phase 2B で legacyData に改名予定） ──
   data: ImportedData
-  /** 入力データが変更されるたびにインクリメントされるバージョン番号（キャッシュキー用） */
+  /** legacy: authoritativeDataVersion を使用してください */
   dataVersion: number
+
+  // ─── Derived State ──────────────────────────────────
   storeResults: ReadonlyMap<string, StoreResult>
   storeExplanations: ReadonlyMap<string, StoreExplanations>
   validationMessages: readonly ValidationMessage[]
 
-  // Actions
+  // ─── Actions ────────────────────────────────────────
+  /** 現在月データを設定する（正本更新） */
+  setCurrentMonthData: (monthly: MonthlyData) => void
+  /** legacy: setCurrentMonthData を使用してください */
   setImportedData: (data: ImportedData) => void
   setStoreResults: (results: ReadonlyMap<string, StoreResult>) => void
   setStoreExplanations: (explanations: ReadonlyMap<string, StoreExplanations>) => void
@@ -72,7 +83,6 @@ function applyPrevYearData(
       }),
     },
     // 前年データは補足データのため dataVersion はインクリメントしない
-    // (計算エンジンの再起動を防止)
     dataVersion: state.dataVersion,
   }
 }
@@ -81,16 +91,69 @@ function applyPrevYearData(
 export const useDataStore = create<DataStore>()(
   devtools(
     (set) => ({
-      // State
+      // Authoritative State
+      currentMonthData: null,
+      authoritativeDataVersion: 0,
+
+      // Legacy State
       data: initialData,
       dataVersion: 0,
+
+      // Derived State
       storeResults: new Map(),
       storeExplanations: new Map(),
       validationMessages: [],
 
-      // Actions
+      // ─── Actions ──────────────────────────────────
+      setCurrentMonthData: (monthly) =>
+        set(
+          (state) => {
+            // 正本更新 + legacy mirror 同期
+            const legacy = toLegacyImportedData({ current: monthly, prevYear: null })
+            // prevYear* は legacy mirror の既存値を維持
+            const mergedLegacy = {
+              ...legacy,
+              prevYearClassifiedSales: state.data.prevYearClassifiedSales,
+              prevYearCategoryTimeSales: state.data.prevYearCategoryTimeSales,
+              prevYearFlowers: state.data.prevYearFlowers,
+              prevYearPurchase: state.data.prevYearPurchase,
+              prevYearDirectProduce: state.data.prevYearDirectProduce,
+              prevYearInterStoreIn: state.data.prevYearInterStoreIn,
+              prevYearInterStoreOut: state.data.prevYearInterStoreOut,
+            }
+            const nextVersion = state.authoritativeDataVersion + 1
+            return {
+              currentMonthData: monthly,
+              authoritativeDataVersion: nextVersion,
+              data: mergedLegacy,
+              dataVersion: nextVersion,
+            }
+          },
+          false,
+          'setCurrentMonthData',
+        ),
+
       setImportedData: (data) =>
-        set((state) => ({ data, dataVersion: state.dataVersion + 1 }), false, 'setImportedData'),
+        set(
+          (state) => {
+            // legacy 互換: ImportedData から currentMonthData を導出
+            const origin = state.currentMonthData?.origin ?? {
+              year: 0,
+              month: 0,
+              importedAt: new Date().toISOString(),
+            }
+            const monthly = toMonthlyData(data, origin)
+            const nextVersion = state.authoritativeDataVersion + 1
+            return {
+              currentMonthData: monthly,
+              authoritativeDataVersion: nextVersion,
+              data,
+              dataVersion: nextVersion,
+            }
+          },
+          false,
+          'setImportedData',
+        ),
 
       setStoreResults: (results) => set({ storeResults: results }, false, 'setStoreResults'),
 
@@ -109,9 +172,16 @@ export const useDataStore = create<DataStore>()(
             const newSettings = new Map(state.data.settings)
             const merged = mergeInventoryConfig(newSettings.get(storeId), storeId, config)
             newSettings.set(storeId, merged)
+            // currentMonthData も同期更新
+            const updatedCurrentMonth = state.currentMonthData
+              ? { ...state.currentMonthData, settings: newSettings }
+              : null
+            const nextVersion = state.authoritativeDataVersion + 1
             return {
+              currentMonthData: updatedCurrentMonth,
+              authoritativeDataVersion: nextVersion,
               data: { ...state.data, settings: newSettings },
-              dataVersion: state.dataVersion + 1,
+              dataVersion: nextVersion,
             }
           },
           false,
@@ -121,8 +191,10 @@ export const useDataStore = create<DataStore>()(
       reset: () =>
         set(
           (state) => ({
+            currentMonthData: null,
+            authoritativeDataVersion: state.authoritativeDataVersion + 1,
             data: initialData,
-            dataVersion: state.dataVersion + 1,
+            dataVersion: state.authoritativeDataVersion + 1,
             storeResults: new Map(),
             storeExplanations: new Map(),
             validationMessages: [],
@@ -135,44 +207,14 @@ export const useDataStore = create<DataStore>()(
   ),
 )
 
-// ─── MonthlyData / AppData 互換 selector ──────────────
-// Phase 2 暫定: 利用箇所を限定すること。Phase 2 完了時に state を AppData 化する。
+// ─── Authoritative Selectors ─────────────────────────
+// これらが Phase 2 以降の正規入口。旧 s.data は段階的に移行。
 
 /**
- * 現在月の MonthlyData を取得する selector。
- * dataVersion === 0（未ロード）の場合は null を返す。
- * origin.importedAt は store version ベース（provenance 偽装防止）。
+ * 現在月の MonthlyData を取得する。
+ * store state から直接読む（selector 内変換なし）。
+ * null = 未ロード。
  */
-export function useCurrentMonthData(
-  targetYear: number,
-  targetMonth: number,
-  importedAt?: string,
-): MonthlyData | null {
-  return useDataStore((s) => {
-    if (s.dataVersion === 0) return null
-    return toMonthlyData(s.data, {
-      year: targetYear,
-      month: targetMonth,
-      importedAt: importedAt ?? `store-v${s.dataVersion}`,
-    })
-  })
-}
-
-/**
- * AppData を取得する selector。
- * current が未ロード時は null。prevYear は Phase 4 で供給予定。
- * ⚠ 毎回新規オブジェクト返却 — 利用箇所を限定 or shallow 比較を併用。
- */
-export function useAppData(targetYear: number, targetMonth: number, importedAt?: string): AppData {
-  return useDataStore((s) => ({
-    current:
-      s.dataVersion === 0
-        ? null
-        : toMonthlyData(s.data, {
-            year: targetYear,
-            month: targetMonth,
-            importedAt: importedAt ?? `store-v${s.dataVersion}`,
-          }),
-    prevYear: null,
-  }))
+export function useCurrentMonthData(): MonthlyData | null {
+  return useDataStore((s) => s.currentMonthData)
 }
