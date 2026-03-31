@@ -1,8 +1,9 @@
 /**
- * IndexedDB 月次データ保存
+ * IndexedDB 月次データ保存（legacy 内部実装）
  *
- * ImportedData の年月単位での保存・スライス保存を担当する。
- * 全書き込み操作は単一トランザクションで原子的に実行される。
+ * 内部的に ImportedData 形式で保存する。
+ * public API は DataRepository (MonthlyData) → IndexedDBRepository (adapter) 経由。
+ * TODO(Phase 2): storage 内部も MonthlyData に統一後、ImportedData 依存を解消
  */
 import type { PersistedMeta } from '@/domain/models/analysis'
 import type { ImportedData, DataType } from '@/domain/models/storeTypes'

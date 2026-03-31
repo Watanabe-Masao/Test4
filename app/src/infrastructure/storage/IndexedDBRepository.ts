@@ -37,7 +37,8 @@ export class IndexedDBRepository implements DataRepository {
   }
 
   async saveMonthlyData(data: MonthlyData, year: number, month: number): Promise<void> {
-    // 内部 storage は ImportedData ベース — adapter で互換変換（Phase 2 完了まで維持）
+    // TODO(Phase 2): dataStore が AppData に移行後、compat layer を削除
+    // 内部 storage は ImportedData ベース — adapter で互換変換
     const legacy = toLegacyImportedData({ current: data, prevYear: null })
     return saveImportedData(legacy, year, month)
   }
@@ -45,7 +46,11 @@ export class IndexedDBRepository implements DataRepository {
   async loadMonthlyData(year: number, month: number): Promise<MonthlyData | null> {
     const legacy = await loadImportedData(year, month)
     if (!legacy) return null
-    return toMonthlyData(legacy, { year, month, importedAt: new Date().toISOString() })
+    // provenance: session meta から importedAt を復元（storage envelope に保存済み）
+    const meta = await getPersistedMeta()
+    const importedAt =
+      meta && meta.year === year && meta.month === month ? meta.savedAt : new Date().toISOString()
+    return toMonthlyData(legacy, { year, month, importedAt })
   }
 
   async saveDataSlice(
@@ -54,6 +59,7 @@ export class IndexedDBRepository implements DataRepository {
     month: number,
     dataTypes: readonly DataType[],
   ): Promise<void> {
+    // TODO(Phase 2): compat layer 削除
     const legacy = toLegacyImportedData({ current: data, prevYear: null })
     return saveDataSliceInternal(legacy, year, month, dataTypes)
   }
