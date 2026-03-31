@@ -1,0 +1,33 @@
+name: Setup WASM Build Environment
+description: Install Rust toolchain, wasm-pack, cache dependencies, and build WASM modules
+
+runs:
+  using: composite
+  steps:
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        targets: wasm32-unknown-unknown
+
+    - name: Cache Rust dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cargo/registry
+          ~/.cargo/git
+          wasm/factor-decomposition/target
+          wasm/gross-profit/target
+          wasm/budget-analysis/target
+          wasm/forecast/target
+          wasm/time-slot/target
+        key: ${{ runner.os }}-cargo-${{ hashFiles('wasm/*/Cargo.lock') }}
+        restore-keys: ${{ runner.os }}-cargo-
+
+    - name: Install wasm-pack
+      shell: bash
+      run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+    - name: Build WASM modules
+      shell: bash
+      working-directory: app
+      run: npm run build:wasm

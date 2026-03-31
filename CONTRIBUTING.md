@@ -27,6 +27,16 @@ npm run dev
 
 開発サーバーは `http://localhost:5173/Test4/` で起動します。
 
+## 初めて参加する方へ — 読む順番
+
+ドキュメントが多いため、以下の順で読むと全体像を掴みやすいです。
+
+1. **CLAUDE.md** — プロジェクト構成・設計原則・コマンド一覧（全体マップ）
+2. **app/src/features/README.md** — 縦スライス構成と feature ルール
+3. **references/01-principles/design-principles.md** — 7カテゴリの設計原則
+4. **references/02-status/features-migration-status.md** — 現在の移行状況
+5. **app/src/test/guards/** — guard テストの一覧を眺めて制約を把握
+
 ### その他のコマンド
 
 ```bash
