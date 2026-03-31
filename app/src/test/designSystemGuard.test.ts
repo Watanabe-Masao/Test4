@@ -104,7 +104,7 @@ function scanFile(filePath: string, pattern: RegExp): { relPath: string; violati
 // 既存ファイルを修正したら上限を下げること。
 
 /** hex 色違反を持つファイル数の上限 */
-const MAX_HEX_VIOLATING_FILES = 1
+const MAX_HEX_VIOLATING_FILES = 0
 
 /** rgba() 違反を持つファイル数の上限 */
 const MAX_RGBA_VIOLATING_FILES = 0
@@ -390,7 +390,7 @@ describe('デザインシステムガード', () => {
   // グローバル z-index (100以上) は theme.zIndex トークンを使用すべき。
 
   /** z-index ハードコード (100以上) を持つ .styles.ts ファイル数の上限 */
-  const MAX_ZINDEX_HARDCODE_FILES = 10
+  const MAX_ZINDEX_HARDCODE_FILES = 0
 
   it('グローバル z-index ハードコードが上限以下', () => {
     const allStyleFiles = collectFiles(PRESENTATION_DIR, '.styles.ts')

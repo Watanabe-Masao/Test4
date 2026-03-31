@@ -173,7 +173,7 @@ export const AddPageBtn = styled.button`
 
 export const ContextMenu = styled.div`
   position: fixed;
-  z-index: 100;
+  z-index: ${({ theme }) => theme.zIndex.dropdown};
   background: ${({ theme }) => theme.colors.bg};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.md};
@@ -201,7 +201,7 @@ export const ContextMenuItem = styled.button<{ $danger?: boolean }>`
 
 export const RenameInput = styled.input`
   position: fixed;
-  z-index: 100;
+  z-index: ${({ theme }) => theme.zIndex.dropdown};
   padding: 4px 8px;
   font-size: ${({ theme }) => theme.typography.fontSize.micro};
   background: ${({ theme }) => theme.colors.bg};

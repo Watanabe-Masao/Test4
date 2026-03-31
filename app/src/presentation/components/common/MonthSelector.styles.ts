@@ -55,12 +55,12 @@ export const MonthDisplay = styled.button`
 export const PickerOverlay = styled.div`
   position: fixed;
   inset: 0;
-  z-index: 100;
+  z-index: ${({ theme }) => theme.zIndex.dropdown};
 `
 
 export const PickerDropdown = styled.div`
   position: absolute;
-  z-index: 101;
+  z-index: ${({ theme }) => theme.zIndex.dropdown + 1};
   background: ${({ theme }) => theme.colors.bg2};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};

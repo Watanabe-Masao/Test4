@@ -13,7 +13,7 @@ const spin = keyframes`
 export const Overlay = styled.div`
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: ${({ theme }) => theme.zIndex.tooltip + 100};
   display: flex;
   flex-direction: column;
   align-items: center;

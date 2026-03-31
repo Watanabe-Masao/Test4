@@ -20,5 +20,5 @@ export const Popover = styled.div<{ $ct: ChartTheme }>`
     ${({ theme }) => (theme.mode === 'dark' ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.1)')};
   max-width: 280px;
   line-height: 1.5;
-  z-index: 1100;
+  z-index: ${({ theme }) => theme.zIndex.toast};
 `

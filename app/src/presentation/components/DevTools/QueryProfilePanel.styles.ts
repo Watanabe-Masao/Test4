@@ -11,7 +11,7 @@ export const PanelOverlay = styled.div<{ $collapsed: boolean }>`
   border-top: 2px solid ${(p) => p.theme.colors.palette.info};
   border-left: 2px solid ${(p) => p.theme.colors.palette.info};
   border-radius: 8px 0 0 0;
-  z-index: 9999;
+  z-index: ${(p) => p.theme.zIndex.tooltip + 100};
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
   font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${(p) => p.theme.colors.text};

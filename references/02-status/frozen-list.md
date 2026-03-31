@@ -35,14 +35,14 @@
 
 | 項目 | 現在の上限 | 凍結ルール | 備考 |
 |------|----------|----------|------|
-| hex 色違反ファイル数 | 1 | 増加禁止 | 新規は theme.colors.* / palette.* 使用 |
+| hex 色違反ファイル数 | **0** | **ゼロ維持** | 全廃完了。theme.colors.* / palette.* 必須 |
 | rgba() 違反ファイル数 | **0** | **ゼロ維持** | 全廃完了。palette hex alpha / theme.mode ternary 必須 |
 | font-size 直書き違反ファイル数 | **0** | **ゼロ維持** | 全廃完了。theme.typography.fontSize.* 必須 |
 | ECharts fontSize ハードコード | 7 | 増加禁止 | chartFontSize.* 利用 |
-| deprecated fontSize alias 使用ファイル数 | 0 | **ゼロ維持** | ロールベース名への移行完了 |
-| Recharts 使用ファイル数 | 0 | **ゼロ維持** | ECharts 移行済み |
-| ChartCard 未使用チャート数 | 0 | **ゼロ維持** | 新規 standalone chart は ChartCard 必須 |
-| z-index ハードコードファイル数 | 10 | 増加禁止 | theme.zIndex.* 利用 |
+| deprecated fontSize alias 使用ファイル数 | **0** | **ゼロ維持** | 全廃完了。ロールベース名必須 |
+| Recharts 使用ファイル数 | **0** | **ゼロ維持** | ECharts 移行済み |
+| ChartCard 未使用チャート数 | **0** | **ゼロ維持** | 新規 standalone chart は ChartCard 必須 |
+| z-index ハードコードファイル数 | **0** | **ゼロ維持** | 全廃完了。theme.zIndex.* 必須 |
 
 ---
 
@@ -81,3 +81,5 @@
 | font-size 直書き | 73 | 0 | 2026-03-31 | theme.typography.fontSize.* トークンに全置換 |
 | deprecated fontSize alias | 473回使用 | 0 | 2026-03-31 | ロールベース名（micro/caption/label/body/title/heading/display）に全置換 |
 | rgba() | 64 | 0 | 2026-03-31 | palette hex alpha / theme.mode ternary 化で全廃 |
+| hex 色 | 1 | 0 | 2026-03-31 | theme.colors.palette.white に置換 |
+| z-index ハードコード | 10 | 0 | 2026-03-31 | theme.zIndex.* トークンに全置換 |

@@ -27,7 +27,7 @@ export const Container = styled.div`
   position: fixed;
   bottom: ${({ theme }) => theme.spacing[8]};
   right: ${({ theme }) => theme.spacing[8]};
-  z-index: 3000;
+  z-index: ${({ theme }) => theme.zIndex.toast};
   display: flex;
   flex-direction: column-reverse;
   gap: ${({ theme }) => theme.spacing[3]};
@@ -112,7 +112,7 @@ export const HistoryToggle = styled.button<{ $hasUnread: boolean }>`
   position: fixed;
   bottom: ${({ theme }) => theme.spacing[8]};
   right: calc(${({ theme }) => theme.spacing[8]} + 440px);
-  z-index: 3001;
+  z-index: ${({ theme }) => theme.zIndex.toast + 1};
   width: 36px;
   height: 36px;
   border-radius: 50%;
@@ -156,7 +156,7 @@ export const HistoryPanel = styled.div`
   position: fixed;
   bottom: calc(${({ theme }) => theme.spacing[8]} + 44px);
   right: ${({ theme }) => theme.spacing[8]};
-  z-index: 3002;
+  z-index: ${({ theme }) => theme.zIndex.toast + 2};
   width: 380px;
   max-height: 400px;
   background: ${({ theme }) => theme.colors.bg2};

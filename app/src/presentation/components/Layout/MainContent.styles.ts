@@ -109,7 +109,7 @@ export const ContextBar = styled.div`
 export const PickerOverlay = styled.div`
   position: fixed;
   inset: 0;
-  z-index: 200;
+  z-index: ${({ theme }) => theme.zIndex.sticky};
 `
 
 export const PickerDropdown = styled.div`
@@ -117,7 +117,7 @@ export const PickerDropdown = styled.div`
   top: 100%;
   left: 0;
   margin-top: 4px;
-  z-index: 201;
+  z-index: ${({ theme }) => theme.zIndex.sticky + 1};
   background: ${({ theme }) => theme.colors.bg2};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
