@@ -147,10 +147,10 @@ describe('saveImportedData / loadImportedData', () => {
     const loaded = await loadImportedData(2026, 2)
 
     expect(loaded).not.toBeNull()
-    expect(loaded!.stores.size).toBe(2)
-    expect(loaded!.stores.get('1')?.name).toBe('店舗A')
-    expect(loaded!.suppliers.size).toBe(1)
-    expect(loaded!.suppliers.get('0000001')?.name).toBe('取引先A')
+    expect(loaded!.data.stores.size).toBe(2)
+    expect(loaded!.data.stores.get('1')?.name).toBe('店舗A')
+    expect(loaded!.data.suppliers.size).toBe(1)
+    expect(loaded!.data.suppliers.get('0000001')?.name).toBe('取引先A')
   })
 
   it('分類別売上データが正しく復元される', async () => {
@@ -159,11 +159,15 @@ describe('saveImportedData / loadImportedData', () => {
 
     const loaded = await loadImportedData(2026, 2)
 
-    expect(loaded!.classifiedSales.records).toHaveLength(3)
-    const store1Day1 = loaded!.classifiedSales.records.find((r) => r.storeId === '1' && r.day === 1)
+    expect(loaded!.data.classifiedSales.records).toHaveLength(3)
+    const store1Day1 = loaded!.data.classifiedSales.records.find(
+      (r) => r.storeId === '1' && r.day === 1,
+    )
     expect(store1Day1?.salesAmount).toBe(50000)
     expect(store1Day1?.discount71).toBe(3000)
-    const store2Day1 = loaded!.classifiedSales.records.find((r) => r.storeId === '2' && r.day === 1)
+    const store2Day1 = loaded!.data.classifiedSales.records.find(
+      (r) => r.storeId === '2' && r.day === 1,
+    )
     expect(store2Day1?.salesAmount).toBe(40000)
   })
 
@@ -173,7 +177,7 @@ describe('saveImportedData / loadImportedData', () => {
 
     const loaded = await loadImportedData(2026, 2)
 
-    const entry = loaded!.purchase.records.find((r) => r.storeId === '1' && r.day === 1)
+    const entry = loaded!.data.purchase.records.find((r) => r.storeId === '1' && r.day === 1)
     expect(entry?.total.cost).toBe(10000)
     expect(entry?.suppliers['0000001']?.name).toBe('取引先A')
   })
@@ -184,9 +188,9 @@ describe('saveImportedData / loadImportedData', () => {
 
     const loaded = await loadImportedData(2026, 2)
 
-    expect(loaded!.settings.size).toBe(1)
-    expect(loaded!.settings.get('1')?.openingInventory).toBe(100000)
-    expect(loaded!.settings.get('1')?.closingInventory).toBe(120000)
+    expect(loaded!.data.settings.size).toBe(1)
+    expect(loaded!.data.settings.get('1')?.openingInventory).toBe(100000)
+    expect(loaded!.data.settings.get('1')?.closingInventory).toBe(120000)
   })
 
   it('予算データ（Map<string, BudgetData>）が復元される', async () => {
@@ -195,8 +199,8 @@ describe('saveImportedData / loadImportedData', () => {
 
     const loaded = await loadImportedData(2026, 2)
 
-    expect(loaded!.budget.size).toBe(1)
-    const budget = loaded!.budget.get('1')
+    expect(loaded!.data.budget.size).toBe(1)
+    const budget = loaded!.data.budget.get('1')
     expect(budget?.total).toBe(410000)
     expect(budget?.daily.get(1)).toBe(200000)
     expect(budget?.daily.get(2)).toBe(210000)
@@ -222,7 +226,7 @@ describe('saveImportedData / loadImportedData', () => {
     await saveImportedData(data2, 2026, 2)
 
     const loaded = await loadImportedData(2026, 2)
-    const rec = loaded!.classifiedSales.records.find((r) => r.storeId === '1' && r.day === 1)
+    const rec = loaded!.data.classifiedSales.records.find((r) => r.storeId === '1' && r.day === 1)
     expect(rec?.salesAmount).toBe(99999)
   })
 
@@ -232,8 +236,8 @@ describe('saveImportedData / loadImportedData', () => {
 
     const loaded = await loadImportedData(2026, 1)
     expect(loaded).not.toBeNull()
-    expect(loaded!.stores.size).toBe(0)
-    expect(loaded!.classifiedSales.records).toHaveLength(0)
+    expect(loaded!.data.stores.size).toBe(0)
+    expect(loaded!.data.classifiedSales.records).toHaveLength(0)
   })
 
   // ─── 前年分類別売上データの保持テスト ─────────────────────────
@@ -249,7 +253,7 @@ describe('saveImportedData / loadImportedData', () => {
     const loaded = await loadImportedData(2026, 2)
 
     // prevYearClassifiedSales は当月のDBエントリには含まれない
-    expect(loaded!.prevYearClassifiedSales.records).toHaveLength(0)
+    expect(loaded!.data.prevYearClassifiedSales.records).toHaveLength(0)
   })
 
   // ─── categoryTimeSales の保持テスト ─────────────────────
@@ -260,8 +264,8 @@ describe('saveImportedData / loadImportedData', () => {
 
     const loaded = await loadImportedData(2026, 2)
 
-    expect(loaded!.categoryTimeSales.records).toHaveLength(2)
-    const r0 = loaded!.categoryTimeSales.records[0]
+    expect(loaded!.data.categoryTimeSales.records).toHaveLength(2)
+    const r0 = loaded!.data.categoryTimeSales.records[0]
     expect(r0.day).toBe(1)
     expect(r0.storeId).toBe('1')
     expect(r0.department.name).toBe('食品')
@@ -271,7 +275,7 @@ describe('saveImportedData / loadImportedData', () => {
     expect(r0.totalQuantity).toBe(25)
     expect(r0.totalAmount).toBe(125000)
 
-    const r1 = loaded!.categoryTimeSales.records[1]
+    const r1 = loaded!.data.categoryTimeSales.records[1]
     expect(r1.storeId).toBe('2')
     expect(r1.department.name).toBe('日用品')
   })
@@ -282,7 +286,7 @@ describe('saveImportedData / loadImportedData', () => {
 
     const loaded = await loadImportedData(2026, 2)
 
-    expect(loaded!.categoryTimeSales.records).toHaveLength(0)
+    expect(loaded!.data.categoryTimeSales.records).toHaveLength(0)
   })
 
   it('categoryTimeSales を上書き保存できる', async () => {
@@ -310,9 +314,9 @@ describe('saveImportedData / loadImportedData', () => {
 
     const loaded = await loadImportedData(2026, 2)
 
-    expect(loaded!.categoryTimeSales.records).toHaveLength(1)
-    expect(loaded!.categoryTimeSales.records[0].storeId).toBe('3')
-    expect(loaded!.categoryTimeSales.records[0].department.name).toBe('衣料')
+    expect(loaded!.data.categoryTimeSales.records).toHaveLength(1)
+    expect(loaded!.data.categoryTimeSales.records[0].storeId).toBe('3')
+    expect(loaded!.data.categoryTimeSales.records[0].department.name).toBe('衣料')
   })
 })
 
@@ -351,7 +355,7 @@ describe('clearMonthData', () => {
 
     // データがあることを確認
     const before = await loadImportedData(2026, 2)
-    expect(before!.categoryTimeSales.records).toHaveLength(2)
+    expect(before!.data.categoryTimeSales.records).toHaveLength(2)
 
     await clearMonthData(2026, 2)
 
@@ -359,7 +363,7 @@ describe('clearMonthData', () => {
     const emptyData = createEmptyImportedData()
     await saveImportedData(emptyData, 2026, 2)
     const after = await loadImportedData(2026, 2)
-    expect(after!.categoryTimeSales.records).toHaveLength(0)
+    expect(after!.data.categoryTimeSales.records).toHaveLength(0)
   })
 
   it('分類別売上データも削除される', async () => {
@@ -374,7 +378,7 @@ describe('clearMonthData', () => {
     const emptyData = createEmptyImportedData()
     await saveImportedData(emptyData, 2026, 2)
     const after = await loadImportedData(2026, 2)
-    expect(after!.classifiedSales.records).toHaveLength(0)
+    expect(after!.data.classifiedSales.records).toHaveLength(0)
   })
 })
 
@@ -440,10 +444,10 @@ describe('saveDataSlice', () => {
     const loaded = await loadImportedData(2026, 2)
 
     // classifiedSales は更新されている
-    const rec = loaded!.classifiedSales.records.find((r) => r.storeId === '1' && r.day === 1)
+    const rec = loaded!.data.classifiedSales.records.find((r) => r.storeId === '1' && r.day === 1)
     expect(rec?.salesAmount).toBe(99999)
     // purchase は元のまま（saveDataSlice は指定種別のみ保存）
-    const pRec = loaded!.purchase.records.find((r) => r.storeId === '1' && r.day === 1)
+    const pRec = loaded!.data.purchase.records.find((r) => r.storeId === '1' && r.day === 1)
     expect(pRec?.total.cost).toBe(100)
   })
 
@@ -456,8 +460,8 @@ describe('saveDataSlice', () => {
 
     const loaded = await loadImportedData(2026, 2)
 
-    expect(loaded!.categoryTimeSales.records).toHaveLength(2)
-    expect(loaded!.categoryTimeSales.records[0].department.name).toBe('食品')
+    expect(loaded!.data.categoryTimeSales.records).toHaveLength(2)
+    expect(loaded!.data.categoryTimeSales.records[0].department.name).toBe('食品')
   })
 
   it('複数データ種別を同時に保存できる', async () => {
@@ -484,11 +488,11 @@ describe('saveDataSlice', () => {
 
     const loaded = await loadImportedData(2026, 2)
 
-    const rec = loaded!.classifiedSales.records.find((r) => r.storeId === '1' && r.day === 1)
+    const rec = loaded!.data.classifiedSales.records.find((r) => r.storeId === '1' && r.day === 1)
     expect(rec?.salesAmount).toBe(88888)
-    const pEntry = loaded!.purchase.records.find((r) => r.storeId === '1' && r.day === 1)
+    const pEntry = loaded!.data.purchase.records.find((r) => r.storeId === '1' && r.day === 1)
     expect(pEntry?.total.cost).toBe(20000)
-    expect(loaded!.categoryTimeSales.records).toHaveLength(2)
+    expect(loaded!.data.categoryTimeSales.records).toHaveLength(2)
   })
 
   it('saveDataSlice はメタデータを更新する', async () => {
@@ -524,9 +528,9 @@ describe('saveDataSlice', () => {
 
     const loaded = await loadImportedData(2026, 2)
 
-    expect(loaded!.stores.get('1')?.name).toBe('店舗A_更新')
-    expect(loaded!.stores.get('3')?.name).toBe('店舗C')
-    expect(loaded!.stores.has('2')).toBe(false) // 元の店舗Bは消える（全置換）
+    expect(loaded!.data.stores.get('1')?.name).toBe('店舗A_更新')
+    expect(loaded!.data.stores.get('3')?.name).toBe('店舗C')
+    expect(loaded!.data.stores.has('2')).toBe(false) // 元の店舗Bは消える（全置換）
   })
 })
 
@@ -543,20 +547,20 @@ describe('data integrity', () => {
     expect(loaded).not.toBeNull()
 
     // 店舗
-    expect(loaded!.stores.size).toBe(data.stores.size)
+    expect(loaded!.data.stores.size).toBe(data.stores.size)
     for (const [id, store] of data.stores) {
-      expect(loaded!.stores.get(id)?.name).toBe(store.name)
-      expect(loaded!.stores.get(id)?.code).toBe(store.code)
+      expect(loaded!.data.stores.get(id)?.name).toBe(store.name)
+      expect(loaded!.data.stores.get(id)?.code).toBe(store.code)
     }
 
     // 取引先
-    expect(loaded!.suppliers.size).toBe(data.suppliers.size)
+    expect(loaded!.data.suppliers.size).toBe(data.suppliers.size)
 
     // 分類別売上: レコード数一致 + 各フィールド一致
-    expect(loaded!.classifiedSales.records).toHaveLength(data.classifiedSales.records.length)
+    expect(loaded!.data.classifiedSales.records).toHaveLength(data.classifiedSales.records.length)
     for (let i = 0; i < data.classifiedSales.records.length; i++) {
       const orig = data.classifiedSales.records[i]
-      const load = loaded!.classifiedSales.records[i]
+      const load = loaded!.data.classifiedSales.records[i]
       expect(load.year).toBe(orig.year)
       expect(load.month).toBe(orig.month)
       expect(load.day).toBe(orig.day)
@@ -567,26 +571,28 @@ describe('data integrity', () => {
 
     // 仕入
     const origPurchase = data.purchase.records.find((r) => r.storeId === '1' && r.day === 1)
-    const loadPurchase = loaded!.purchase.records.find((r) => r.storeId === '1' && r.day === 1)
+    const loadPurchase = loaded!.data.purchase.records.find((r) => r.storeId === '1' && r.day === 1)
     expect(loadPurchase?.total.cost).toBe(origPurchase?.total.cost)
     expect(loadPurchase?.total.price).toBe(origPurchase?.total.price)
 
     // 在庫設定
-    expect(loaded!.settings.size).toBe(data.settings.size)
-    expect(loaded!.settings.get('1')?.openingInventory).toBe(
+    expect(loaded!.data.settings.size).toBe(data.settings.size)
+    expect(loaded!.data.settings.get('1')?.openingInventory).toBe(
       data.settings.get('1')?.openingInventory,
     )
 
     // 予算
-    expect(loaded!.budget.size).toBe(data.budget.size)
+    expect(loaded!.data.budget.size).toBe(data.budget.size)
     const origBudget = data.budget.get('1')!
-    const loadBudget = loaded!.budget.get('1')!
+    const loadBudget = loaded!.data.budget.get('1')!
     expect(loadBudget.total).toBe(origBudget.total)
     expect(loadBudget.daily.get(1)).toBe(origBudget.daily.get(1))
     expect(loadBudget.daily.get(2)).toBe(origBudget.daily.get(2))
 
     // categoryTimeSales
-    expect(loaded!.categoryTimeSales.records).toHaveLength(data.categoryTimeSales.records.length)
+    expect(loaded!.data.categoryTimeSales.records).toHaveLength(
+      data.categoryTimeSales.records.length,
+    )
   })
 
   it('NaN/Infinity を含むデータが 0 に正規化されて保存される', async () => {
@@ -615,7 +621,7 @@ describe('data integrity', () => {
     expect(loaded).not.toBeNull()
 
     // NaN と Infinity は 0 に正規化される
-    const entry = loaded!.purchase.records.find((r) => r.storeId === '1' && r.day === 1)
+    const entry = loaded!.data.purchase.records.find((r) => r.storeId === '1' && r.day === 1)
     expect(entry?.suppliers['0000001']?.cost).toBe(0)
     expect(entry?.suppliers['0000001']?.price).toBe(0)
     expect(entry?.total.cost).toBe(0)
@@ -642,7 +648,7 @@ describe('data integrity', () => {
     const loaded = await loadImportedData(2026, 2)
     expect(loaded).not.toBeNull()
 
-    const budget = loaded!.budget.get('1')!
+    const budget = loaded!.data.budget.get('1')!
     expect(budget.total).toBe(100000)
     expect(budget.daily.get(1)).toBe(50000)
     expect(budget.daily.has(32)).toBe(false) // 32日は除外
@@ -661,7 +667,7 @@ describe('data integrity', () => {
     expect(loaded).not.toBeNull()
 
     // prevYear 系は DB に保存されない
-    expect(loaded!.prevYearClassifiedSales.records).toHaveLength(0)
-    expect(loaded!.prevYearCategoryTimeSales.records).toHaveLength(0)
+    expect(loaded!.data.prevYearClassifiedSales.records).toHaveLength(0)
+    expect(loaded!.data.prevYearCategoryTimeSales.records).toHaveLength(0)
   })
 })

@@ -18,7 +18,16 @@ import { unwrapEnvelope, budgetFromSerializable, validateLoadedData } from './se
  * 保存されていない場合は null を返す。
  * 基本的なスキーマ検証を行い、不整合があれば null を返す。
  */
-export async function loadImportedData(year: number, month: number): Promise<ImportedData | null> {
+/** loadImportedData の戻り値（origin 付き） */
+export interface LoadedImportedData {
+  readonly data: ImportedData
+  readonly origin: import('@/domain/models/DataOrigin').DataOrigin | null
+}
+
+export async function loadImportedData(
+  year: number,
+  month: number,
+): Promise<LoadedImportedData | null> {
   // 読み取り対象のキーとエイリアスを定義
   type KeyAlias = { key: string; alias: string }
   const keysToRead: KeyAlias[] = [
@@ -72,8 +81,12 @@ export async function loadImportedData(year: number, month: number): Promise<Imp
     }
   }
 
+  // provenance: 最初に見つかった envelope origin を保持
+  let envelopeOrigin: import('@/domain/models/DataOrigin').DataOrigin | null = null
+
   // stores — envelope unwrap
   const storesUnwrapped = unwrapEnvelope<Record<string, Store>>(rawStoresEntry, year, month)
+  if (storesUnwrapped?.origin && !envelopeOrigin) envelopeOrigin = storesUnwrapped.origin
   const storesObj = storesUnwrapped?.value
   result.stores =
     storesObj && typeof storesObj === 'object' ? new Map(Object.entries(storesObj)) : new Map()
@@ -132,6 +145,7 @@ export async function loadImportedData(year: number, month: number): Promise<Imp
     year,
     month,
   )
+  if (csUnwrapped?.origin && !envelopeOrigin) envelopeOrigin = csUnwrapped.origin
   const csObj = csUnwrapped?.value
   if (csObj && Array.isArray(csObj.records)) {
     // discount71-74 が欠けている古いデータを正規化
@@ -191,7 +205,7 @@ export async function loadImportedData(year: number, month: number): Promise<Imp
     return null
   }
 
-  return result as unknown as ImportedData
+  return { data: result as unknown as ImportedData, origin: envelopeOrigin }
 }
 
 /**
