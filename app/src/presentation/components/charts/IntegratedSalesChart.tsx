@@ -110,7 +110,6 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
     handleDayClick,
     handleDayRangeSelect,
     handleRangeToTimeSlot,
-    handleRangeToDrilldown,
     handleRangeCancel,
     handleDrillToTimeSlot,
     handleBackToDaily,
@@ -228,11 +227,8 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
                     </RangeActionLabel>
                     <RangeActionBtnGroup>
                       <RangeActionBtn onClick={handleRangeToTimeSlot}>時間帯売上</RangeActionBtn>
-                      <RangeActionBtn onClick={handleRangeToDrilldown}>
-                        ドリルダウン分析
-                      </RangeActionBtn>
                       <RangeActionBtn $secondary onClick={handleRangeCancel}>
-                        キャンセル
+                        選択解除
                       </RangeActionBtn>
                     </RangeActionBtnGroup>
                   </div>

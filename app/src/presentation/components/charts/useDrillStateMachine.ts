@@ -65,7 +65,13 @@ function drillReducer(state: DrillState, action: DrillAction): DrillState {
       }
     }
     case 'DAY_RANGE_SELECT':
-      return { ...state, pendingRange: { start: action.start, end: action.end } }
+      return {
+        ...state,
+        pendingRange: { start: action.start, end: action.end },
+        clickedDay: action.start,
+        drillEnd: action.end,
+        subTab: 'drilldown',
+      }
     case 'RANGE_TO_TIMESLOT':
       if (!state.pendingRange) return state
       return {
