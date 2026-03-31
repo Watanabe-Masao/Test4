@@ -20,7 +20,7 @@ export const HeaderRow = styled.div`
 `
 
 export const Title = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text2};
 `
@@ -79,7 +79,7 @@ export const StatChip = styled.div<{ $color: string }>`
 
 export const AnomalyNote = styled.div`
   text-align: center;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
   margin-top: ${({ theme }) => theme.spacing[1]};
   padding: 0 ${({ theme }) => theme.spacing[4]};

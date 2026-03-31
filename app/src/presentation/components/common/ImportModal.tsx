@@ -46,7 +46,7 @@ const PrivacyInfoBox = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   margin-top: 8px;
 `
@@ -70,7 +70,7 @@ const FolderSection = styled.div`
   padding: 12px;
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.md};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
 `
 
 const FolderRow = styled.div`
@@ -89,7 +89,7 @@ const FolderDot = styled.span<{ $active: boolean }>`
 `
 
 const FolderBtn = styled.button`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   padding: 2px 8px;
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.sm};

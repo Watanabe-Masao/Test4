@@ -13,7 +13,7 @@ export const MessageItem = styled.div<{ $level: ValidationMessage['level'] }>`
   gap: ${({ theme }) => theme.spacing[2]};
   padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[4]};
   border-radius: ${({ theme }) => theme.radii.md};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   background: ${({ $level, theme }) =>
     $level === 'error'
       ? `${theme.colors.palette.danger}18`
@@ -37,7 +37,7 @@ export const MessageHeader = styled.div`
 `
 
 export const LevelBadge = styled.span<{ $level: ValidationMessage['level'] }>`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   text-transform: uppercase;
   white-space: nowrap;
@@ -53,7 +53,7 @@ export const DetailsToggle = styled.button`
   background: none;
   border: none;
   color: ${({ theme }) => theme.colors.text3};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   cursor: pointer;
   padding: 0;
   margin-left: auto;
@@ -69,7 +69,7 @@ export const DetailsList = styled.div`
   flex-direction: column;
   gap: 2px;
   padding-left: ${({ theme }) => theme.spacing[8]};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   max-height: 150px;
@@ -103,13 +103,13 @@ export const NextStepsBox = styled.div<{ $variant: 'success' | 'warning' | 'erro
 `
 
 export const NextStepsTitle = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text};
 `
 
 export const NextStepsText = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
   line-height: 1.6;
 `

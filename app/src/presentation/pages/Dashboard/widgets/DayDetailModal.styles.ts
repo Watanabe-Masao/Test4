@@ -37,7 +37,7 @@ export const BcItem = styled.button<{ $active: boolean }>`
   }
 `
 export const BcSep = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   user-select: none;
   margin: 0 2px;

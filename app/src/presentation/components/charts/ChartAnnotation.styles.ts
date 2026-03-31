@@ -13,7 +13,7 @@ export const Popover = styled.div<{ $ct: ChartTheme }>`
   border: 1px solid ${(p) => p.$ct.grid};
   border-radius: 8px;
   padding: 10px 14px;
-  font-size: ${(p) => p.$ct.fontSize.sm}px;
+  font-size: ${(p) => p.$ct.fontSize.label}px;
   font-family: ${(p) => p.$ct.fontFamily};
   color: ${(p) => p.$ct.text};
   box-shadow: 0 4px 16px

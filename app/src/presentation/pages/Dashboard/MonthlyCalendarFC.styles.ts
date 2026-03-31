@@ -21,7 +21,7 @@ export const FCCalendarArea = styled.div`
 
   .fc .fc-col-header-cell {
     padding: ${({ theme }) => theme.spacing[3]} 0;
-    font-size: ${({ theme }) => theme.typography.fontSize.sm};
+    font-size: ${({ theme }) => theme.typography.fontSize.label};
     font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
     color: ${({ theme }) => theme.colors.text3};
   }
@@ -71,7 +71,7 @@ export const FCWeekSummaryCol = styled.div`
 
 export const FCWeekSummaryHeader = styled.div`
   text-align: center;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text3};
   padding: ${({ theme }) => theme.spacing[3]} 0;
@@ -104,12 +104,12 @@ export const FCDayHeader = styled.div`
 
 export const FCDayNum = styled.div<{ $dim?: boolean }>`
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   color: ${({ $dim, theme }) => ($dim ? theme.colors.text4 : theme.colors.text)};
 `
 
 export const FCWeatherIcon = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   line-height: 1;
   margin-left: 2px;
 `

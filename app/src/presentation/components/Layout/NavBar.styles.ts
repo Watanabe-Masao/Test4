@@ -23,7 +23,7 @@ export const Logo = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-size: ${({ theme }) => theme.typography.fontSize.title};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: white;
   margin-bottom: ${({ theme }) => theme.spacing[4]};
@@ -38,7 +38,7 @@ export const NavButton = styled.button<{ $active?: boolean }>`
     $active ? `${theme.colors.palette.primary}20` : 'transparent'};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text3)};
   cursor: pointer;
-  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-size: ${({ theme }) => theme.typography.fontSize.title};
   transition: all ${({ theme }) => theme.transitions.fast};
   display: flex;
   align-items: center;
@@ -62,7 +62,7 @@ export const ThemeButton = styled.button`
   background: transparent;
   color: ${({ theme }) => theme.colors.text3};
   cursor: pointer;
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   transition: all ${({ theme }) => theme.transitions.fast};
   display: flex;
   align-items: center;
@@ -189,7 +189,7 @@ export const ContextMenuItem = styled.button<{ $danger?: boolean }>`
   display: block;
   width: 100%;
   padding: 6px 12px;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ $danger, theme }) => ($danger ? theme.colors.palette.danger : theme.colors.text)};
   border-radius: ${({ theme }) => theme.radii.sm};
   box-sizing: border-box;
@@ -203,7 +203,7 @@ export const RenameInput = styled.input`
   position: fixed;
   z-index: 100;
   padding: 4px 8px;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   background: ${({ theme }) => theme.colors.bg};
   border: 2px solid ${({ theme }) => theme.colors.palette.primary};
   border-radius: ${({ theme }) => theme.radii.sm};

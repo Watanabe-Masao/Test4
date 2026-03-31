@@ -20,7 +20,7 @@ export const ToolCard = styled.div<{ $accent: string }>`
 `
 
 export const ToolCardTitle = styled.h4`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
   margin-bottom: ${({ theme }) => theme.spacing[8]};
@@ -34,7 +34,7 @@ export const ToolInputField = styled.input`
   width: 100%;
   padding: ${({ theme }) => `${theme.spacing[4]} ${theme.spacing[6]}`};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   background: ${({ theme }) => theme.colors.bg2};
   border: 2px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.md};
@@ -46,7 +46,7 @@ export const ToolInputField = styled.input`
 `
 
 export const ToolInputSub = styled.div<{ $color?: string }>`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ $color, theme }) => $color ?? theme.colors.text4};
   margin-top: ${({ theme }) => theme.spacing[1]};
@@ -64,12 +64,12 @@ export const ToolResultSection = styled.div`
 
 export const ToolResultValue = styled.span<{ $color?: string }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ $color, theme }) => $color ?? theme.colors.text};
 `
 
 export const ToolResultLabel = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   color: ${({ theme }) => theme.colors.text3};
 `

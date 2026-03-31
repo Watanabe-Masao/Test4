@@ -15,7 +15,7 @@ export const SidebarWrapper = styled.aside`
 `
 
 export const SidebarTitle = styled.h2`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text3};
   text-transform: uppercase;

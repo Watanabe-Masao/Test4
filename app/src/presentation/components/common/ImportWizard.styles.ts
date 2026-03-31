@@ -94,7 +94,7 @@ export const ProgressFill = styled.div<{ $percent: number }>`
 `
 
 export const ProgressText = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
   display: flex;
   justify-content: space-between;
@@ -119,7 +119,7 @@ export const SummaryCard = styled.div`
 `
 
 export const SummaryTitle = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text2};
   display: flex;
@@ -133,7 +133,7 @@ export const SummaryStats = styled.div`
 `
 
 export const StatBadge = styled.span<{ $variant: 'success' | 'error' | 'skip' }>`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   padding: 1px 6px;
   border-radius: ${({ theme }) => theme.radii.sm};

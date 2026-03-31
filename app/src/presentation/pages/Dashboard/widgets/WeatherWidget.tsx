@@ -76,14 +76,14 @@ const NoLocationText = styled.div`
   text-align: center;
   padding: ${({ theme }) => theme.spacing[8]};
   color: ${({ theme }) => theme.colors.text3};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
 `
 
 const ErrorText = styled.div`
   text-align: center;
   padding: ${({ theme }) => theme.spacing[4]};
   color: ${sc.negative};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
 `
 
 export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetContext }) {

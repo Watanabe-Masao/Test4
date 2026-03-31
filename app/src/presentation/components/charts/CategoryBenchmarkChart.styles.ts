@@ -20,7 +20,7 @@ export const HeaderRow = styled.div`
 `
 
 export const Title = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text2};
 `
@@ -125,7 +125,7 @@ export const Td = styled.td<{ $color?: string; $bold?: boolean; $align?: string 
     text-align: left;
     font-family: inherit;
     font-weight: 600;
-    font-size: ${({ theme }) => theme.typography.fontSize.xs};
+    font-size: ${({ theme }) => theme.typography.fontSize.micro};
   }
 `
 

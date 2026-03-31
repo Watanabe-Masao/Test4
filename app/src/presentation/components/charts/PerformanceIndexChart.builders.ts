@@ -234,7 +234,7 @@ function commonXAxis(days: string[], ct: ChartTheme): EChartsOption['xAxis'] {
   return {
     type: 'category' as const,
     data: days,
-    axisLabel: { color: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily },
+    axisLabel: { color: ct.textMuted, fontSize: ct.fontSize.micro, fontFamily: ct.monoFamily },
     axisLine: { lineStyle: { color: ct.grid } },
     axisTick: { show: false },
   }

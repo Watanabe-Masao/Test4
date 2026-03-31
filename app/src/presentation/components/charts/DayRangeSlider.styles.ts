@@ -9,7 +9,7 @@ export const SliderRow = styled.div`
 
 export const NumInput = styled.input`
   width: 38px;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ theme }) => theme.colors.text2};
   background: ${({ theme }) =>

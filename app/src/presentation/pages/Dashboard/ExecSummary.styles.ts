@@ -41,7 +41,7 @@ export const ExecSummaryHint = styled.span`
 `
 
 export const ExecSummaryLabel = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   margin-bottom: ${({ theme }) => theme.spacing[2]};
@@ -49,14 +49,14 @@ export const ExecSummaryLabel = styled.div`
 
 export const ExecSummaryValue = styled.div`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-size: ${({ theme }) => theme.typography.fontSize.title};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
 `
 
 export const ExecSummarySub = styled.div<{ $color?: string }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ $color, theme }) => $color ?? theme.colors.text3};
   margin-top: ${({ theme }) => theme.spacing[1]};
 `
@@ -79,7 +79,7 @@ export const ExecSummaryTabBar = styled.div`
 export const ExecSummaryTab = styled.button<{ $active: boolean }>`
   all: unset;
   cursor: pointer;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ $active, theme }) =>
     $active ? theme.typography.fontWeight.bold : theme.typography.fontWeight.semibold};
   padding: ${({ theme }) => `${theme.spacing[3]} ${theme.spacing[6]}`};
@@ -124,7 +124,7 @@ export const ExecColHeader = styled.div<{ $color: string }>`
 `
 
 export const ExecColTag = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -132,14 +132,14 @@ export const ExecColTag = styled.span`
 `
 
 export const ExecColTitle = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
   margin-top: ${({ theme }) => theme.spacing[1]};
 `
 
 export const ExecColSub = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
 `
 
@@ -158,21 +158,21 @@ export const ExecRow = styled.div`
 `
 
 export const ExecLabel = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
   flex-shrink: 0;
 `
 
 export const ExecVal = styled.div`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
   text-align: right;
 `
 
 export const ExecSub = styled.div<{ $color?: string }>`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ $color, theme }) => $color ?? theme.colors.text3};
   text-align: right;

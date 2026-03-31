@@ -20,7 +20,7 @@ export const HeaderRow = styled.div`
 `
 
 export const Title = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text2};
 `
@@ -81,7 +81,7 @@ export const SummaryRow = styled.div`
 `
 
 export const SummaryItem = styled.div<{ $positive?: boolean }>`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ $positive, theme }) =>
     $positive ? theme.colors.palette.success : theme.colors.palette.danger};

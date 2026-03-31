@@ -318,7 +318,7 @@ export const CategoryBarChart = memo(function CategoryBarChart({
         <button
           style={{
             padding: '2px 8px',
-            fontSize: theme.typography.fontSize.xs,
+            fontSize: theme.typography.fontSize.micro,
             border: `1px solid ${theme.colors.border}`,
             borderRadius: theme.radii.sm,
             background: 'transparent',

@@ -252,7 +252,7 @@ export function BoxPlotView({
               border: `1px solid ${ct.grid}`,
               borderRadius: 8,
               padding: '6px 10px',
-              fontSize: ct.fontSize.sm,
+              fontSize: ct.fontSize.label,
               fontFamily: ct.fontFamily,
               color: ct.text,
               pointerEvents: 'none',

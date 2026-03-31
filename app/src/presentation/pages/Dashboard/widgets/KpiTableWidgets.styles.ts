@@ -134,7 +134,7 @@ export const TableHeader = styled.div`
 `
 
 export const TableTitleText = styled.h3`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
   margin: 0;

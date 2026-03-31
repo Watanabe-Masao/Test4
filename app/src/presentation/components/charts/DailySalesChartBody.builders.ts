@@ -53,7 +53,7 @@ export function buildOption(
     data: xLabels,
     axisLabel: {
       color: ct.textMuted,
-      fontSize: hasWeather ? 10 : ct.fontSize.xs,
+      fontSize: hasWeather ? 10 : ct.fontSize.micro,
       fontFamily: ct.monoFamily,
       interval: 0,
       lineHeight: hasWeather ? 16 : undefined,
@@ -68,7 +68,7 @@ export function buildOption(
     axisLabel: {
       formatter: (v: number) => toAxisYen(v),
       color: ct.textMuted,
-      fontSize: ct.fontSize.xs,
+      fontSize: ct.fontSize.micro,
       fontFamily: ct.monoFamily,
     },
     axisLine: { show: false },
@@ -83,7 +83,7 @@ export function buildOption(
     axisLabel: {
       formatter: (v: number) => `${v.toFixed(1)}%`,
       color: ct.textMuted,
-      fontSize: ct.fontSize.xs,
+      fontSize: ct.fontSize.micro,
       fontFamily: ct.monoFamily,
     },
     axisLine: { show: false },
@@ -108,7 +108,7 @@ export function buildOption(
               axisLabel: {
                 formatter: rightFmt,
                 color: ct.textMuted,
-                fontSize: ct.fontSize.xs,
+                fontSize: ct.fontSize.micro,
                 fontFamily: ct.monoFamily,
               },
               axisLine: { show: false },
@@ -125,7 +125,7 @@ export function buildOption(
     borderColor: ct.grid,
     textStyle: {
       color: ct.text,
-      fontSize: ct.fontSize.sm,
+      fontSize: ct.fontSize.label,
       fontFamily: ct.fontFamily,
     },
     formatter: (params: unknown) =>
@@ -147,11 +147,11 @@ export function buildOption(
     ? {
         data: legendData,
         bottom: 0,
-        textStyle: { fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily },
+        textStyle: { fontSize: ct.fontSize.micro, fontFamily: ct.fontFamily },
       }
     : {
         bottom: 0,
-        textStyle: { fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily },
+        textStyle: { fontSize: ct.fontSize.micro, fontFamily: ct.fontFamily },
         formatter: (name: string) => ALL_LABELS[name] ?? name,
       }
 
@@ -330,7 +330,7 @@ export function buildOption(
         symbol: 'none',
         lineStyle: { color: ct.colors.success, opacity: 0.4, type: 'dashed' as const },
         data: [{ yAxis: 100 }],
-        label: { formatter: '100%', fontSize: ct.fontSize.xs },
+        label: { formatter: '100%', fontSize: ct.fontSize.micro },
       },
     })
 

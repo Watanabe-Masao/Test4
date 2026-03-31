@@ -8,7 +8,7 @@ export const Section = styled.div`
 `
 
 export const SectionTitle = styled.h2`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
   margin-bottom: ${({ theme }) => theme.spacing[4]};
@@ -17,7 +17,7 @@ export const SectionTitle = styled.h2`
 export const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
 `
 
 export const Th = styled.th`
@@ -26,7 +26,7 @@ export const Th = styled.th`
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   color: ${({ theme }) => theme.colors.text3};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
 `
 
 export const Td = styled.td`
@@ -39,14 +39,14 @@ export const EmptyState = styled.div`
   text-align: center;
   padding: ${({ theme }) => theme.spacing[10]};
   color: ${({ theme }) => theme.colors.text4};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
 `
 
 export const Badge = styled.span<{ $color?: string }>`
   display: inline-block;
   padding: 1px ${({ theme }) => theme.spacing[2]};
   border-radius: ${({ theme }) => theme.radii.pill};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
   background: ${({ $color, theme }) =>
     $color ? `${$color}20` : theme.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)'};
@@ -56,7 +56,7 @@ export const Badge = styled.span<{ $color?: string }>`
 export const StoreIdBadge = styled.span`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ theme }) => theme.colors.text3};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
 `
 
 export const Select = styled.select`
@@ -65,7 +65,7 @@ export const Select = styled.select`
   border-radius: ${({ theme }) => theme.radii.md};
   background: ${({ theme }) => theme.colors.bg3};
   color: ${({ theme }) => theme.colors.text};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   cursor: pointer;
 
   &:focus {
@@ -80,7 +80,7 @@ export const Input = styled.input`
   border-radius: ${({ theme }) => theme.radii.md};
   background: ${({ theme }) => theme.colors.bg3};
   color: ${({ theme }) => theme.colors.text};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   width: 100%;
 
   &:focus {
@@ -90,7 +90,7 @@ export const Input = styled.input`
 `
 
 export const HelpText = styled.p`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   margin-bottom: ${({ theme }) => theme.spacing[4]};
 `

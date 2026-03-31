@@ -41,6 +41,10 @@ export function useChartTheme() {
     fontFamily: theme.typography.fontFamily.primary,
     monoFamily: theme.typography.fontFamily.mono,
     fontSize: {
+      micro: 9,
+      label: 10,
+      body: 11,
+      // 後方互換
       xs: 9,
       sm: 10,
       base: 11,

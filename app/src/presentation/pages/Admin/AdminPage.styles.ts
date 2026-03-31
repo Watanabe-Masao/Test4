@@ -45,7 +45,7 @@ export const SmallButton = styled.button<{ $variant?: 'danger' | 'primary' }>`
       : $variant === 'primary'
         ? theme.colors.palette.primary
         : theme.colors.text};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   cursor: pointer;
 
   &:hover {
@@ -67,7 +67,7 @@ export const InstallBanner = styled.div`
     theme.mode === 'dark' ? 'rgba(99,102,241,0.15)' : 'rgba(99,102,241,0.08)'};
   border: 1px solid ${({ theme }) => theme.colors.palette.primary};
   border-radius: ${({ theme }) => theme.radii.lg};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   color: ${({ theme }) => theme.colors.text2};
 `
 
@@ -77,7 +77,7 @@ export const InstallButton = styled.button`
   color: white;
   border: none;
   border-radius: ${({ theme }) => theme.radii.md};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   cursor: pointer;
   white-space: nowrap;
 

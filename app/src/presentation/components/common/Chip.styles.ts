@@ -12,7 +12,7 @@ export const Chip = styled.button<{ $active?: boolean }>`
   justify-content: center;
   padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[4]};
   border-radius: ${({ theme }) => theme.radii.pill};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   min-width: 48px;
   font-weight: ${({ $active, theme }) =>
     $active ? theme.typography.fontWeight.bold : theme.typography.fontWeight.semibold};

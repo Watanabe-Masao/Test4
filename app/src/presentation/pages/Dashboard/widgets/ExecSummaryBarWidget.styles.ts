@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 
 export const WarningBanner = styled.div<{ $clickable?: boolean }>`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.palette.warning};
   background: ${({ theme }) =>
     theme.mode === 'dark' ? 'rgba(234,179,8,0.12)' : 'rgba(234,179,8,0.08)'};

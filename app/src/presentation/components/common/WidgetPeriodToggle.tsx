@@ -16,7 +16,7 @@ const ToggleRow = styled.div`
   display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing[2]};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   padding: ${({ theme }) => theme.spacing[1]} 0;
 `
@@ -43,7 +43,7 @@ const CustomPeriodRow = styled.div`
   align-items: center;
   gap: ${({ theme }) => theme.spacing[2]};
   margin-top: ${({ theme }) => theme.spacing[1]};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
 `
 
 const MiniInput = styled.input`
@@ -51,7 +51,7 @@ const MiniInput = styled.input`
   padding: ${({ theme }) => theme.spacing[1]};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.sm};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ theme }) => theme.colors.text};
   background: ${({ theme }) => theme.colors.bg2};

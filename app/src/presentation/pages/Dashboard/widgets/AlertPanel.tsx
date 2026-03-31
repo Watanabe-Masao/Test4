@@ -132,7 +132,7 @@ export function AlertPanelWidget({ ctx }: { ctx: WidgetContext }) {
           {alerts.length > 0 && (
             <span
               style={{
-                fontSize: theme.typography.fontSize.xs,
+                fontSize: theme.typography.fontSize.micro,
                 color: theme.colors.text3,
                 marginLeft: 8,
               }}

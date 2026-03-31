@@ -17,7 +17,7 @@ export const GlobalStyle = createGlobalStyle`
 
   body {
     font-family: ${({ theme }) => theme.typography.fontFamily.primary};
-    font-size: ${({ theme }) => theme.typography.fontSize.base};
+    font-size: ${({ theme }) => theme.typography.fontSize.body};
     color: ${({ theme }) => theme.colors.text};
     background: ${({ theme }) => theme.colors.bg};
     line-height: 1.5;

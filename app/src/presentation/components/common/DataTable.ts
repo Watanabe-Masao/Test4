@@ -28,7 +28,7 @@ export const StickyTableWrapper = styled(DataTableWrapper)`
 `
 
 export const DataTableTitle = styled.h3`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
   margin-bottom: ${({ theme }) => theme.spacing[4]};
@@ -37,7 +37,7 @@ export const DataTableTitle = styled.h3`
 export const DataTable = styled.table`
   width: 100%;
   border-collapse: collapse;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   @media print {
     thead {

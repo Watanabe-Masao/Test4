@@ -16,7 +16,7 @@ export const TitleRow = styled.div`
 `
 
 export const Title = styled.h4`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
 `
@@ -53,14 +53,14 @@ export const Toggle = styled.button<{ $active: boolean }>`
 export const HeatTable = styled.table`
   width: 100%;
   border-collapse: collapse;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   table-layout: fixed;
 `
 
 export const HeatTh = styled.th`
   padding: ${({ theme }) => `${theme.spacing[2]} ${theme.spacing[1]}`};
   text-align: center;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text3};
   border-bottom: 2px solid ${({ theme }) => theme.colors.border};
@@ -94,7 +94,7 @@ export const HeatTd = styled.td<{ $bg: string; $textColor: string }>`
 
 export const HeatTdStore = styled.td`
   padding: ${({ theme }) => `${theme.spacing[2]} ${theme.spacing[3]}`};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text};
   white-space: nowrap;
@@ -115,7 +115,7 @@ export const Legend = styled.div`
   align-items: center;
   gap: ${({ theme }) => theme.spacing[3]};
   margin-top: ${({ theme }) => theme.spacing[4]};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
 `
 

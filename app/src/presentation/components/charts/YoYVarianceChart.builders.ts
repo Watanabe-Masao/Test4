@@ -110,7 +110,7 @@ export function buildSalesGapOption(
       data: days,
       axisLabel: {
         color: ct.textMuted,
-        fontSize: ct.fontSize.xs,
+        fontSize: ct.fontSize.micro,
         fontFamily: ct.monoFamily,
       },
       axisLine: { lineStyle: { color: ct.grid } },
@@ -188,7 +188,7 @@ export function buildMultiGapOption(
       data: days,
       axisLabel: {
         color: ct.textMuted,
-        fontSize: ct.fontSize.xs,
+        fontSize: ct.fontSize.micro,
         fontFamily: ct.monoFamily,
       },
       axisLine: { lineStyle: { color: ct.grid } },
@@ -278,7 +278,7 @@ export function buildGrowthRateOption(
       data: days,
       axisLabel: {
         color: ct.textMuted,
-        fontSize: ct.fontSize.xs,
+        fontSize: ct.fontSize.micro,
         fontFamily: ct.monoFamily,
       },
       axisLine: { lineStyle: { color: ct.grid } },

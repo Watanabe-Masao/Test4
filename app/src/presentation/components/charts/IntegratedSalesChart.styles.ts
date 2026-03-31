@@ -11,7 +11,7 @@ export const DrillNav = styled.nav`
   gap: ${({ theme }) => theme.spacing[2]};
   padding: ${({ theme }) => theme.spacing[4]} 0;
   margin-bottom: ${({ theme }) => theme.spacing[2]};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
 `
 
 export const NavItem = styled.button<{ $active: boolean }>`
@@ -42,12 +42,12 @@ export const NavItem = styled.button<{ $active: boolean }>`
 
 export const NavSep = styled.span`
   color: ${({ theme }) => theme.colors.text4};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
 `
 
 export const DrillHint = styled.div`
   text-align: center;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   margin-top: ${({ theme }) => theme.spacing[1]};
   opacity: 0.7;
@@ -66,7 +66,7 @@ export const RangeActionBox = styled.div`
 `
 
 export const RangeActionLabel = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text};
 `
@@ -82,7 +82,7 @@ export const RangeActionBtn = styled.button<{ $secondary?: boolean }>`
   cursor: pointer;
   padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[5]};
   border-radius: ${({ theme }) => theme.radii.md};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   background: ${({ $secondary, theme }) =>
     $secondary ? theme.colors.bg4 : theme.colors.palette.primary};
@@ -97,7 +97,7 @@ export const RangeActionBtn = styled.button<{ $secondary?: boolean }>`
 export const DrillPeriodBadge = styled.span`
   display: inline-flex;
   align-items: center;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.palette.primary};
   background: ${({ theme }) => `${theme.colors.palette.primary}14`};
@@ -109,7 +109,7 @@ export const DayDrillClose = styled.button`
   all: unset;
   cursor: pointer;
   color: ${({ theme }) => theme.colors.text3};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   padding: 0 ${({ theme }) => theme.spacing[2]};
   margin-left: ${({ theme }) => theme.spacing[2]};
   &:hover {

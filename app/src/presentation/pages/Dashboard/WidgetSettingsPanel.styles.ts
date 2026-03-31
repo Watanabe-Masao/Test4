@@ -7,7 +7,7 @@ export const PresetSection = styled.div`
 `
 
 export const PresetLabel = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text3};
   margin-bottom: 8px;
@@ -28,7 +28,7 @@ export const PresetCard = styled.button<{ $active?: boolean }>`
     ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.border)};
   background: ${({ $active, theme }) =>
     $active ? `${theme.colors.palette.primary}15` : theme.colors.bg};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text};
   transition: all 0.15s;
   position: relative;
@@ -96,7 +96,7 @@ export const SaveRow = styled.div`
 export const SaveInput = styled.input`
   flex: 1;
   padding: 5px 8px;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   background: ${({ theme }) => theme.colors.bg3};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.sm};
@@ -111,7 +111,7 @@ export const SaveBtn = styled.button`
   all: unset;
   cursor: pointer;
   padding: 4px 10px;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.palette.white};
   background: ${({ theme }) => theme.colors.palette.primary};

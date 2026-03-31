@@ -47,7 +47,7 @@ export const GuidePanel = styled.div`
   border-radius: ${({ theme }) => theme.radii.md};
   padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[4]};
   margin: 0 ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[3]};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
   line-height: 1.6;
 `
@@ -82,7 +82,7 @@ export const MetricTag = styled.span`
   margin: 2px 4px 2px 0;
   border-radius: ${({ theme }) => theme.radii.sm};
   background: ${({ theme }) => theme.interactive.mutedBg};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   white-space: nowrap;
 `

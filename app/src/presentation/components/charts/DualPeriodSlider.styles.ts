@@ -89,7 +89,7 @@ export const PeriodLabel = styled.span<{ $color: string }>`
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
   white-space: nowrap;
 

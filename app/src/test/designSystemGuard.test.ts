@@ -231,7 +231,7 @@ describe('デザインシステムガード', () => {
   })
 
   // ─── deprecated fontSize エイリアスガード ─────────────
-  // fontSize.xs/sm/base/lg/xl/2xl/3xl の使用を検出。ロールベース名を使用すべき。
+  // fontSize.micro/sm/base/lg/xl/2xl/3xl の使用を検出。ロールベース名を使用すべき。
 
   /** deprecated fontSize エイリアスを使用するファイル数の上限 */
   const MAX_DEPRECATED_FONT_ALIAS_FILES = 120

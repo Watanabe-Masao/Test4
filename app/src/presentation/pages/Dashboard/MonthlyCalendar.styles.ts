@@ -11,7 +11,7 @@ export const CalWrapper = styled.div`
 `
 
 export const CalSectionTitle = styled.h3`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
   margin-bottom: ${({ theme }) => theme.spacing[6]};
@@ -20,14 +20,14 @@ export const CalSectionTitle = styled.h3`
 export const CalTable = styled.table`
   width: 100%;
   border-collapse: collapse;
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   table-layout: fixed;
 `
 
 export const CalTh = styled.th<{ $weekend?: boolean }>`
   padding: ${({ theme }) => `${theme.spacing[3]} ${theme.spacing[2]}`};
   text-align: center;
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ $weekend, theme }) => ($weekend ? theme.colors.palette.danger : theme.colors.text3)};
   border-bottom: 2px solid ${({ theme }) => theme.colors.border};
@@ -57,7 +57,7 @@ export const CalTd = styled.td<{ $empty?: boolean; $hasActual?: boolean }>`
 
 export const CalDayNum = styled.div<{ $weekend?: boolean }>`
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   color: ${({ $weekend, theme }) => ($weekend ? theme.colors.palette.danger : theme.colors.text)};
   margin-bottom: 2px;
 `
@@ -70,7 +70,7 @@ export const CalGrid = styled.div`
 
 export const CalCell = styled.div<{ $color?: string; $bold?: boolean }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ $bold, theme }) => ($bold ? theme.typography.fontWeight.bold : 'normal')};
   color: ${({ $color, theme }) => $color ?? theme.colors.text2};
   line-height: 1.4;
@@ -81,7 +81,7 @@ export const CalCell = styled.div<{ $color?: string; $bold?: boolean }>`
 
 export const CalHeroValue = styled.div`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
   line-height: 1.3;
@@ -236,14 +236,14 @@ export const IntervalCard = styled.div<{ $color?: string }>`
 `
 
 export const IntervalMetricLabel = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   color: ${({ theme }) => theme.colors.text3};
   margin-bottom: ${({ theme }) => theme.spacing[2]};
 `
 
 export const IntervalMetricValue = styled.div`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-size: ${({ theme }) => theme.typography.fontSize.title};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
 `
@@ -269,7 +269,7 @@ export const PinModalContent = styled.div`
 `
 
 export const PinModalTitle = styled.h3`
-  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-size: ${({ theme }) => theme.typography.fontSize.title};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
   margin-bottom: ${({ theme }) => theme.spacing[8]};
@@ -279,7 +279,7 @@ export const PinInputField = styled.input`
   width: 100%;
   padding: ${({ theme }) => `${theme.spacing[4]} ${theme.spacing[6]}`};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-size: ${({ theme }) => theme.typography.fontSize.title};
   background: ${({ theme }) => theme.colors.bg3};
   border: 2px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.md};
@@ -298,7 +298,7 @@ export const PinButtonRow = styled.div`
 
 export const PinInputLabel = styled.label`
   display: block;
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text3};
   margin-bottom: ${({ theme }) => theme.spacing[3]};
@@ -390,7 +390,7 @@ export const PreviewHint = styled.div`
 export const CalThWeek = styled.th`
   padding: ${({ theme }) => `${theme.spacing[3]} ${theme.spacing[2]}`};
   text-align: center;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text3};
   border-bottom: 2px solid ${({ theme }) => theme.colors.border};
@@ -421,7 +421,7 @@ export const WeekSummaryLabel = styled.div`
 
 export const WeekSummaryValue = styled.div<{ $color?: string }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ $color, theme }) => $color ?? theme.colors.text};
   line-height: 1.3;
@@ -434,7 +434,7 @@ export const DragTargetBtn = styled.button<{ $active: boolean; $color: string }>
   cursor: pointer;
   padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[5]};
   border-radius: ${({ theme }) => theme.radii.md};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   transition: all 0.15s;
   border: 2px solid ${({ $active, $color, theme }) => ($active ? $color : theme.colors.border)};
@@ -451,7 +451,7 @@ export const DragTargetBtn = styled.button<{ $active: boolean; $color: string }>
 `
 
 export const DragHint = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   margin-left: auto;
 `

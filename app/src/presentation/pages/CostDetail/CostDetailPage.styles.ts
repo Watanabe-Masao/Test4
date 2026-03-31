@@ -66,7 +66,7 @@ export const TrDetail = styled.tr`
   background: ${({ theme }) => theme.colors.bg3};
   td {
     padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[4]};
-    font-size: ${({ theme }) => theme.typography.fontSize.xs};
+    font-size: ${({ theme }) => theme.typography.fontSize.micro};
     color: ${({ theme }) => theme.colors.text3};
     border-bottom: none;
   }
@@ -104,7 +104,7 @@ export const PivotGroupTh = styled.th`
   color: ${({ theme }) => theme.colors.text2};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   font-family: ${({ theme }) => theme.typography.fontFamily.primary};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   border-left: 2px solid ${({ theme }) => theme.colors.border};
   white-space: nowrap;
@@ -117,7 +117,7 @@ export const PivotSubTh = styled.th`
   color: ${({ theme }) => theme.colors.text3};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   font-family: ${({ theme }) => theme.typography.fontFamily.primary};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   white-space: nowrap;
 
@@ -140,7 +140,7 @@ export const PurchasePivotGroupTh = styled(PivotGroupTh)<{ $color?: string }>`
 export const FlowTable = styled.table`
   width: 100%;
   border-collapse: collapse;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
 `
 
 export const FlowTh = styled.th`
@@ -150,7 +150,7 @@ export const FlowTh = styled.th`
   color: ${({ theme }) => theme.colors.text3};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   font-family: ${({ theme }) => theme.typography.fontFamily.primary};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   white-space: nowrap;
   &:first-child {
@@ -201,7 +201,7 @@ export const FlowGroupHeader = styled.tr`
   td {
     padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[3]};
     font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-    font-size: ${({ theme }) => theme.typography.fontSize.xs};
+    font-size: ${({ theme }) => theme.typography.fontSize.micro};
     color: ${({ theme }) => theme.colors.text3};
     border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   }

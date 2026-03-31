@@ -13,7 +13,7 @@ export const SidebarSection = styled.div`
 `
 
 export const SectionLabel = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text4};
   text-transform: uppercase;
@@ -37,7 +37,7 @@ export const InventoryRow = styled.div`
 `
 
 export const InventoryLabel = styled.label`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
   white-space: nowrap;
   min-width: 48px;
@@ -50,7 +50,7 @@ export const InventoryInput = styled.input`
   border-radius: ${({ theme }) => theme.radii.md};
   background: ${({ theme }) => theme.colors.bg2};
   color: ${({ theme }) => theme.colors.text};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   &:focus {
     outline: none;
@@ -66,21 +66,21 @@ export const StoreInventoryBlock = styled.div`
 `
 
 export const StoreInventoryTitle = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text2};
   margin-bottom: ${({ theme }) => theme.spacing[2]};
 `
 
 export const InventoryDateBadge = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   font-weight: ${({ theme }) => theme.typography.fontWeight.normal};
   margin-left: ${({ theme }) => theme.spacing[2]};
 `
 
 export const InventoryAutoValue = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ theme }) => theme.colors.text3};
   padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[2]};
@@ -104,7 +104,7 @@ export const InventoryDayInput = styled.input`
   border-radius: ${({ theme }) => theme.radii.md};
   background: ${({ theme }) => theme.colors.bg2};
   color: ${({ theme }) => theme.colors.text};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   text-align: center;
   &:focus {
@@ -127,7 +127,7 @@ export const SliderHeader = styled.div`
 `
 
 export const SliderLabel = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ theme }) => theme.colors.text3};
   white-space: nowrap;
@@ -227,7 +227,7 @@ export const SliderNumRow = styled.div`
 
 export const SliderNumInput = styled.input`
   width: 42px;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ theme }) => theme.colors.text2};
   background: ${({ theme }) =>

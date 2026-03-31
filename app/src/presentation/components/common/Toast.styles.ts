@@ -40,7 +40,7 @@ export const ToastCard = styled.div<{ $level: ToastLevel; $dismissing: boolean }
   border-left: 3px solid ${({ $level }) => levelColors[$level]};
   border-radius: ${({ theme }) => theme.radii.md};
   padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[4]};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   color: ${({ theme }) => theme.colors.text};
   min-width: 280px;
   max-width: 420px;
@@ -175,7 +175,7 @@ export const HistoryHeader = styled.div`
   justify-content: space-between;
   padding: ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[5]};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text};
 `
@@ -183,7 +183,7 @@ export const HistoryHeader = styled.div`
 export const HistoryClear = styled.button`
   all: unset;
   cursor: pointer;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   &:hover {
     color: ${({ theme }) => theme.colors.text2};
@@ -208,7 +208,7 @@ export const HistoryEntry = styled.div<{ $level: ToastLevel }>`
   gap: ${({ theme }) => theme.spacing[3]};
   padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[3]};
   border-radius: ${({ theme }) => theme.radii.md};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text2};
   border-left: 2px solid ${({ $level }) => levelColors[$level]};
   margin-bottom: ${({ theme }) => theme.spacing[1]};
@@ -235,5 +235,5 @@ export const EmptyHistory = styled.div`
   padding: ${({ theme }) => theme.spacing[10]};
   text-align: center;
   color: ${({ theme }) => theme.colors.text4};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
 `

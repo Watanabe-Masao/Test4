@@ -12,7 +12,7 @@ export const RawTable = styled.table`
   min-width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
 `
 
@@ -56,7 +56,7 @@ export const DataChip = styled.button<{ $active: boolean }>`
   background: ${({ $active, theme }) =>
     $active ? `${theme.colors.palette.primary}20` : 'transparent'};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text3)};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   border-radius: ${({ theme }) => theme.radii.pill};
   cursor: pointer;

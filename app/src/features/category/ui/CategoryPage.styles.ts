@@ -69,7 +69,7 @@ export const ToggleBar = styled.div`
 `
 
 export const ToggleLabel = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text2};
 `
@@ -85,7 +85,7 @@ export const PieWrapper = styled.div`
 `
 
 export const PieTitle = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text2};
   margin-bottom: ${({ theme }) => theme.spacing[2]};
@@ -105,7 +105,7 @@ export const CategorySelect = styled.select`
   border-radius: ${({ theme }) => theme.radii.md};
   background: ${({ theme }) => theme.colors.bg2};
   color: ${({ theme }) => theme.colors.text};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-family: ${({ theme }) => theme.typography.fontFamily.primary};
   cursor: pointer;
   &:focus {
@@ -120,7 +120,7 @@ export const CustomCategoryBadge = styled.span`
   border-radius: ${({ theme }) => theme.radii.sm};
   background: ${({ theme }) => theme.colors.bg4};
   color: ${({ theme }) => theme.colors.text2};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-family: ${({ theme }) => theme.typography.fontFamily.primary};
   margin-left: ${({ theme }) => theme.spacing[2]};
 `
@@ -136,7 +136,7 @@ export const ChartWrapper = styled.div`
 `
 
 export const ChartTitle = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text2};
   margin-bottom: ${({ theme }) => theme.spacing[4]};
@@ -191,7 +191,7 @@ export const SortButton = styled.button`
   all: unset;
   cursor: pointer;
   white-space: nowrap;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   font-family: ${({ theme }) => theme.typography.fontFamily.primary};
   color: ${({ theme }) => theme.colors.text3};
@@ -219,7 +219,7 @@ export const SupplierFilterInput = styled.input`
   border-radius: ${({ theme }) => theme.radii.md};
   background: ${({ theme }) => theme.colors.bg2};
   color: ${({ theme }) => theme.colors.text};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-family: ${({ theme }) => theme.typography.fontFamily.primary};
   width: 100%;
   max-width: 200px;
@@ -254,7 +254,7 @@ export const DrillTr = styled.tr<{
     `
     background: ${theme.colors.bg3};
     animation: drillFadeIn 0.2s ease;
-    td { font-size: ${theme.typography.fontSize.xs}; }
+    td { font-size: ${theme.typography.fontSize.micro}; }
     td:first-child {
       border-left: 2px solid ${$catColor ?? theme.colors.palette.primary};
     }
@@ -264,7 +264,7 @@ export const DrillTr = styled.tr<{
     $depth > 1 &&
     `
     background: ${theme.colors.bg4};
-    td { font-size: ${theme.typography.fontSize.xs}; color: ${theme.colors.text3}; }
+    td { font-size: ${theme.typography.fontSize.micro}; color: ${theme.colors.text3}; }
     td:first-child {
       border-left: 2px solid ${$catColor ?? theme.colors.palette.primary};
     }
@@ -291,7 +291,7 @@ export const DrillToggle = styled.span<{ $expanded?: boolean }>`
   width: 16px;
   height: 16px;
   margin-right: ${({ theme }) => theme.spacing[2]};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   transition:
     transform 0.2s ease,
     color 0.2s ease;
