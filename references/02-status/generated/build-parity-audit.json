@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-30T12:55:01.017Z",
+  "timestamp": "2026-03-31T16:53:43.699Z",
   "wasmModules": [
     "budget-analysis",
     "core-utils",
@@ -31,15 +31,12 @@
   "ci": {
     "wasmBuildDirectCalls": 0,
     "npmScriptCalls": [
-      "build:wasm",
       "lint",
       "format:check",
       "build",
       "test:guards",
-      "build:wasm",
       "build",
       "build-storybook",
-      "build:wasm",
       "build",
       "test:e2e"
     ],

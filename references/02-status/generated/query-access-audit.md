@@ -1,14 +1,14 @@
 # Query Access Audit Report
 
-> Generated: 2026-03-30T12:53:35.523Z
+> Generated: 2026-03-31T16:52:50.971Z
 
 ## Route Summary
 
 | 経路種別 | 件数 | 状態 |
 |---|---|---|
 | QueryHandler 定義 | 27 | 基盤 |
-| useQueryWithHandler（正規） | 28 | 正規 |
-| comparisonAccessors（正規） | 11 | 正規 |
+| useQueryWithHandler（正規） | 29 | 正規 |
+| comparisonAccessors（正規） | 8 | 正規 |
 | facade hook（正規） | 0 | 正規 |
 | executor.execute 直呼び（要注意） | 0 | 要注意 |
 | useAsyncQuery 直 import（互換） | 0 | 互換 |
@@ -26,21 +26,22 @@
 - presentation/components/charts/CategoryHourlyChart.tsx
 - presentation/components/charts/CategoryMixChart.tsx
 - presentation/components/charts/CategoryPerformanceChart.tsx
-- presentation/components/charts/CategoryTrendChart.tsx
 - presentation/components/charts/CumulativeChart.tsx
 - presentation/components/charts/CvTimeSeriesChart.tsx
-- presentation/components/charts/DeptHourlyChart.tsx
 - presentation/components/charts/DeptTrendChart.tsx
 - presentation/components/charts/DowPatternChart.tsx
 - presentation/components/charts/FactorDecompositionPanel.tsx
 - presentation/components/charts/FeatureChart.tsx
 - presentation/components/charts/HeatmapChart.tsx
-- presentation/components/charts/IntegratedSalesChart.tsx
 - presentation/components/charts/PiCvBubbleChart.tsx
 - presentation/components/charts/StoreHourlyChart.tsx
 - presentation/components/charts/StorePIComparisonChart.tsx
 - presentation/components/charts/WeatherAnalysisPanel.tsx
 - presentation/components/charts/YoYChart.tsx
+- presentation/components/charts/useCategoryHierarchyData.ts
+- presentation/components/charts/useCategoryTrendChartData.ts
+- presentation/components/charts/useDeptHourlyChartData.ts
+- presentation/components/charts/useIntegratedSalesState.ts
 - presentation/components/widgets/PageWidgetContainer.tsx
 - presentation/components/widgets/types.ts
 - presentation/pages/Dashboard/widgets/ConditionMatrixTable.tsx
@@ -86,9 +87,6 @@
 - presentation/pages/Dashboard/widgets/calendarUtils.ts
 - presentation/pages/Dashboard/widgets/useMonthlyCalendarState.ts
 - presentation/pages/Forecast/ForecastPage.helpers.ts
-- presentation/pages/Insight/InsightTabBudget.tsx
-- presentation/pages/Insight/InsightTabBudget.vm.ts
-- application/hooks/useBudgetChartData.ts
 - application/usecases/clipExport/buildClipBundle.ts
 
 ### weatherRoutes

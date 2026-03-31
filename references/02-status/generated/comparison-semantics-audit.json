@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-30T12:53:20.375Z",
+  "timestamp": "2026-03-31T16:52:37.360Z",
   "comparisonModuleFiles": [
     "application/comparison/ComparisonContext.ts",
     "application/comparison/adjacentMonthUtils.ts",
@@ -20,10 +20,12 @@
     "application/comparison/sourceDataIndex.ts"
   ],
   "accessorUsageSites": [
-    "application/hooks/useBudgetChartData.ts",
-    "application/hooks/useBudgetChartData.ts",
     "application/usecases/clipExport/buildClipBundle.ts",
     "application/usecases/clipExport/buildClipBundle.ts",
+    "features/budget/application/useBudgetChartData.ts",
+    "features/budget/application/useBudgetChartData.ts",
+    "features/budget/ui/InsightTabBudget.tsx",
+    "features/budget/ui/InsightTabBudget.tsx",
     "presentation/pages/Daily/DailyPage.tsx",
     "presentation/pages/Daily/DailyPage.tsx",
     "presentation/pages/Dashboard/widgets/AlertPanel.tsx",
@@ -43,9 +45,7 @@
     "presentation/pages/Dashboard/widgets/useMonthlyCalendarState.ts",
     "presentation/pages/Dashboard/widgets/useMonthlyCalendarState.ts",
     "presentation/pages/Forecast/ForecastPage.helpers.ts",
-    "presentation/pages/Forecast/ForecastPage.helpers.ts",
-    "presentation/pages/Insight/InsightTabBudget.tsx",
-    "presentation/pages/Insight/InsightTabBudget.tsx"
+    "presentation/pages/Forecast/ForecastPage.helpers.ts"
   ],
   "accessorUsageCount": 26
 }
