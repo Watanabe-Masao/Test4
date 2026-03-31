@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { palette } from '@/presentation/theme/tokens'
 
 // ─── Main Layout ────────────────────────────────────────
 
@@ -17,7 +18,7 @@ export const TitleRow = styled.div`
 `
 
 export const Title = styled.h4`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
   margin: 0;
@@ -29,7 +30,7 @@ export const SettingsChip = styled.button`
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[3]};
   border-radius: ${({ theme }) => theme.radii.md};
   border: 1px solid ${({ theme }) => theme.colors.border};
@@ -57,7 +58,7 @@ export const SettingsPanel = styled.div`
 `
 
 export const SettingsSectionTitle = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text2};
   margin-bottom: ${({ theme }) => theme.spacing[2]};
@@ -106,7 +107,7 @@ export const SettingsUnit = styled.span`
 
 export const StoreSelect = styled.select`
   width: 100%;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[3]};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.sm};
@@ -174,7 +175,7 @@ export const Card = styled.div<{ $borderColor: string; $clickable?: boolean }>`
     cursor: pointer;
     transition: box-shadow 0.15s, transform 0.15s;
     &:hover {
-      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+      box-shadow: 0 2px 8px ${palette.black}1A;
       transform: translateY(-1px);
     }
   `}
@@ -196,20 +197,20 @@ export const CardContent = styled.div`
 `
 
 export const CardLabel = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
   margin-bottom: ${({ theme }) => theme.spacing[1]};
 `
 
 export const CardValue = styled.div<{ $color: string }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-size: ${({ theme }) => theme.typography.fontSize.title};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ $color }) => $color};
 `
 
 export const CardSub = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   margin-top: ${({ theme }) => theme.spacing[1]};
@@ -254,7 +255,7 @@ export const Overlay = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.4);
+  background: ${({ theme }) => theme.mode === 'dark' ? `${palette.black}80` : `${palette.black}66`};
 `
 
 export const DetailPanel = styled.div`
@@ -266,7 +267,7 @@ export const DetailPanel = styled.div`
   max-width: 720px;
   max-height: 80vh;
   overflow-y: auto;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  box-shadow: ${({ theme }) => `0 8px 32px ${theme.mode === 'dark' ? `${palette.black}66` : `${palette.black}33`}`};
 `
 
 export const DetailHeader = styled.div`
@@ -277,7 +278,7 @@ export const DetailHeader = styled.div`
 `
 
 export const DetailTitle = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
 `
@@ -293,7 +294,7 @@ export const ToggleBtn = styled.button<{ $active: boolean }>`
   all: unset;
   cursor: pointer;
   padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[3]};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.white : theme.colors.text3)};
   transition: all 0.15s;
@@ -314,13 +315,13 @@ export const ToggleBtn = styled.button<{ $active: boolean }>`
 export const BTable = styled.table`
   width: 100%;
   border-collapse: collapse;
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
 `
 
 export const BTh = styled.th`
   text-align: right;
   padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[3]};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
   border-bottom: 2px solid ${({ theme }) => theme.colors.border};
   white-space: nowrap;
@@ -413,7 +414,7 @@ export const BreakdownRow = styled.div<{ $bold?: boolean }>`
   align-items: center;
   padding: ${({ theme }) => theme.spacing[2]} 0;
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   ${({ $bold }) => $bold && 'font-weight: 700;'}
 `
 
@@ -439,7 +440,7 @@ export const BreakdownSignal = styled.span<{ $color: string }>`
 export const CloseBtn = styled.button`
   all: unset;
   cursor: pointer;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
   padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
   border-radius: ${({ theme }) => theme.radii.sm};

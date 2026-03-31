@@ -97,7 +97,7 @@ export function CategoryDiscountTable({
       style={{
         width: '100%',
         borderCollapse: 'collapse',
-        fontSize: theme.typography.fontSize.xs,
+        fontSize: theme.typography.fontSize.micro,
         marginTop: 8,
       }}
     >

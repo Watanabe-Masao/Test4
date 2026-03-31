@@ -148,8 +148,8 @@ export const DailySalesChart = memo(function DailySalesChart({
 
   const wfLegendPayload = isWf
     ? [
-        { value: 'wfYoyUp', type: 'rect' as const, color: ct.colors.success },
-        { value: 'wfYoyDown', type: 'rect' as const, color: ct.colors.danger },
+        { value: 'wfYoyUp', type: 'rect' as const, color: ct.semantic.positive },
+        { value: 'wfYoyDown', type: 'rect' as const, color: ct.semantic.negative },
       ]
     : undefined
 

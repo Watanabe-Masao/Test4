@@ -8,14 +8,14 @@ export const Wrapper = styled.div`
 `
 
 export const Title = styled.h4`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
   margin-bottom: ${({ theme }) => theme.spacing[2]};
 `
 
 export const Subtitle = styled.p`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text2};
   margin-bottom: ${({ theme }) => theme.spacing[4]};
 `
@@ -33,7 +33,7 @@ export const TabBtn = styled.button<{ $active: boolean }>`
   background: ${({ $active, theme }) =>
     $active ? theme.colors.palette.primary : theme.colors.bg2};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.white : theme.colors.text)};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   cursor: pointer;
   &:hover {
     opacity: 0.8;
@@ -54,12 +54,12 @@ export const SummaryItem = styled.div`
 `
 
 export const SummaryLabel = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text2};
 `
 
 export const SummaryValue = styled.span<{ $color?: string }>`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ $color, theme }) => $color ?? theme.colors.text};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
@@ -82,7 +82,7 @@ export const ModeBtn = styled.button<{ $active: boolean }>`
   border: none;
   background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.white : 'inherit')};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   cursor: pointer;
   font-weight: ${({ $active }) => ($active ? 600 : 400)};
   white-space: nowrap;
@@ -106,7 +106,7 @@ export const DecompBtn = styled.button<{ $active: boolean }>`
   background: ${({ $active, theme }) =>
     $active ? theme.colors.palette.primary + '18' : 'transparent'};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text2)};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   cursor: pointer;
   font-weight: ${({ $active }) => ($active ? 600 : 400)};
   &:hover {
@@ -117,7 +117,7 @@ export const DecompBtn = styled.button<{ $active: boolean }>`
 export const HelpToggle = styled.button`
   all: unset;
   cursor: pointer;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.palette.primary};
   margin-bottom: ${({ theme }) => theme.spacing[3]};
   display: inline-flex;
@@ -135,7 +135,7 @@ export const HelpToggle = styled.button`
 `
 
 export const HelpBox = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text2};
   background: ${({ theme }) =>
     theme.mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.02)'};

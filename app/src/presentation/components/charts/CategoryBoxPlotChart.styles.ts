@@ -19,7 +19,7 @@ export const HeaderRow = styled.div`
 `
 
 export const Title = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text2};
 `
@@ -67,7 +67,9 @@ export const ToggleBtn = styled.button<{ $active: boolean }>`
   border-radius: ${({ theme }) => theme.radii.sm};
   background: ${({ $active, theme }) =>
     $active
-      ? theme.mode === 'dark' ? `${theme.colors.palette.primary}33` : `${theme.colors.palette.primary}14`
+      ? theme.mode === 'dark'
+        ? `${theme.colors.palette.primary}33`
+        : `${theme.colors.palette.primary}14`
       : 'transparent'};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text3)};
   cursor: pointer;

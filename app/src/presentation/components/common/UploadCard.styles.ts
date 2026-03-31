@@ -17,18 +17,18 @@ export const CardWrapper = styled.div<{ $loaded: boolean }>`
 `
 
 export const Icon = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   margin-bottom: ${({ theme }) => theme.spacing[1]};
 `
 
 export const Name = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text2};
 `
 
 export const Status = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.palette.success};
   margin-top: ${({ theme }) => theme.spacing[1]};
 `

@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { palette } from '@/presentation/theme/tokens'
 
 // ─── Calendar Styled Components ─────────────────────────
 
@@ -11,7 +12,7 @@ export const CalWrapper = styled.div`
 `
 
 export const CalSectionTitle = styled.h3`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
   margin-bottom: ${({ theme }) => theme.spacing[6]};
@@ -20,14 +21,14 @@ export const CalSectionTitle = styled.h3`
 export const CalTable = styled.table`
   width: 100%;
   border-collapse: collapse;
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   table-layout: fixed;
 `
 
 export const CalTh = styled.th<{ $weekend?: boolean }>`
   padding: ${({ theme }) => `${theme.spacing[3]} ${theme.spacing[2]}`};
   text-align: center;
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ $weekend, theme }) => ($weekend ? theme.colors.palette.danger : theme.colors.text3)};
   border-bottom: 2px solid ${({ theme }) => theme.colors.border};
@@ -57,7 +58,7 @@ export const CalTd = styled.td<{ $empty?: boolean; $hasActual?: boolean }>`
 
 export const CalDayNum = styled.div<{ $weekend?: boolean }>`
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   color: ${({ $weekend, theme }) => ($weekend ? theme.colors.palette.danger : theme.colors.text)};
   margin-bottom: 2px;
 `
@@ -70,7 +71,7 @@ export const CalGrid = styled.div`
 
 export const CalCell = styled.div<{ $color?: string; $bold?: boolean }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ $bold, theme }) => ($bold ? theme.typography.fontWeight.bold : 'normal')};
   color: ${({ $color, theme }) => $color ?? theme.colors.text2};
   line-height: 1.4;
@@ -81,7 +82,7 @@ export const CalCell = styled.div<{ $color?: string; $bold?: boolean }>`
 
 export const CalHeroValue = styled.div`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
   line-height: 1.3;
@@ -112,7 +113,7 @@ export const CalAchBar = styled.div<{ $pct: number }>`
     ${({ $pct }) =>
       $pct > 1
         ? `background-image: repeating-linear-gradient(
-        -45deg, transparent, transparent 2px, rgba(255,255,255,0.15) 2px, rgba(255,255,255,0.15) 4px);`
+        -45deg, transparent, transparent 2px, ${palette.white}26 2px, ${palette.white}26 4px);`
         : ''}
   }
 `
@@ -236,14 +237,14 @@ export const IntervalCard = styled.div<{ $color?: string }>`
 `
 
 export const IntervalMetricLabel = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   color: ${({ theme }) => theme.colors.text3};
   margin-bottom: ${({ theme }) => theme.spacing[2]};
 `
 
 export const IntervalMetricValue = styled.div`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-size: ${({ theme }) => theme.typography.fontSize.title};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
 `
@@ -251,7 +252,7 @@ export const IntervalMetricValue = styled.div`
 export const PinModalOverlay = styled.div`
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: ${({ theme }) => theme.mode === 'dark' ? `${palette.black}B3` : `${palette.black}99`};
   z-index: ${({ theme }) => theme.zIndex.sticky};
   display: flex;
   align-items: center;
@@ -265,11 +266,11 @@ export const PinModalContent = styled.div`
   padding: ${({ theme }) => `${theme.spacing[10]} ${theme.spacing[10]}`};
   min-width: 400px;
   max-width: 90vw;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: ${({ theme }) => `0 20px 60px ${theme.mode === 'dark' ? `${palette.black}80` : `${palette.black}4D`}`};
 `
 
 export const PinModalTitle = styled.h3`
-  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-size: ${({ theme }) => theme.typography.fontSize.title};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
   margin-bottom: ${({ theme }) => theme.spacing[8]};
@@ -279,7 +280,7 @@ export const PinInputField = styled.input`
   width: 100%;
   padding: ${({ theme }) => `${theme.spacing[4]} ${theme.spacing[6]}`};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-size: ${({ theme }) => theme.typography.fontSize.title};
   background: ${({ theme }) => theme.colors.bg3};
   border: 2px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.md};
@@ -298,7 +299,7 @@ export const PinButtonRow = styled.div`
 
 export const PinInputLabel = styled.label`
   display: block;
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text3};
   margin-bottom: ${({ theme }) => theme.spacing[3]};
@@ -348,7 +349,7 @@ export const CalPreview = styled.div`
   background: ${({ theme }) => (theme.mode === 'dark' ? '#1e1e2e' : theme.colors.palette.white)};
   color: ${({ theme }) => theme.colors.text};
   border: 1px solid ${({ theme }) => theme.colors.border};
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  box-shadow: ${({ theme }) => `0 4px 16px ${theme.mode === 'dark' ? `${palette.black}66` : `${palette.black}40`}`};
   pointer-events: none;
   font-size: ${({ theme }) => theme.typography.fontSize.caption};
   line-height: 1.5;
@@ -390,7 +391,7 @@ export const PreviewHint = styled.div`
 export const CalThWeek = styled.th`
   padding: ${({ theme }) => `${theme.spacing[3]} ${theme.spacing[2]}`};
   text-align: center;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text3};
   border-bottom: 2px solid ${({ theme }) => theme.colors.border};
@@ -421,7 +422,7 @@ export const WeekSummaryLabel = styled.div`
 
 export const WeekSummaryValue = styled.div<{ $color?: string }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ $color, theme }) => $color ?? theme.colors.text};
   line-height: 1.3;
@@ -434,7 +435,7 @@ export const DragTargetBtn = styled.button<{ $active: boolean; $color: string }>
   cursor: pointer;
   padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[5]};
   border-radius: ${({ theme }) => theme.radii.md};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   transition: all 0.15s;
   border: 2px solid ${({ $active, $color, theme }) => ($active ? $color : theme.colors.border)};
@@ -451,7 +452,7 @@ export const DragTargetBtn = styled.button<{ $active: boolean; $color: string }>
 `
 
 export const DragHint = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   margin-left: auto;
 `

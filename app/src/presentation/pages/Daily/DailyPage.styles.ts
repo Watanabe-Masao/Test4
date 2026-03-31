@@ -66,7 +66,7 @@ export const SubTh = styled.th`
   color: ${({ theme }) => theme.colors.text4};
   font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
   font-family: ${({ theme }) => theme.typography.fontFamily.primary};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   white-space: nowrap;
   position: sticky;
@@ -97,7 +97,7 @@ export const SubTd = styled.td<{ $negative?: boolean }>`
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   color: ${({ $negative, theme }) =>
     $negative ? theme.colors.palette.danger : theme.colors.text3};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
 `
 
 export const Tr = styled.tr<{ $anomaly?: 'up' | 'down' }>`
@@ -136,7 +136,7 @@ export const PrevYearTd = styled.td<{ $positive?: boolean }>`
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   color: ${({ $positive, theme }) =>
     $positive === undefined ? theme.colors.text3 : $positive ? sc.positive : sc.negative};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
 `
 
 export const ToggleIcon = styled.span<{ $expanded?: boolean }>`

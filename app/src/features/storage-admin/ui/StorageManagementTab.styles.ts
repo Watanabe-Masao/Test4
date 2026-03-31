@@ -11,14 +11,14 @@ export const Section = styled.div`
 `
 
 export const SectionTitle = styled.h2`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
   margin-bottom: ${({ theme }) => theme.spacing[4]};
 `
 
 export const HelpText = styled.p`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   margin-bottom: ${({ theme }) => theme.spacing[4]};
 `
@@ -27,12 +27,12 @@ export const EmptyState = styled.div`
   text-align: center;
   padding: ${({ theme }) => theme.spacing[10]};
   color: ${({ theme }) => theme.colors.text4};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
 `
 
 export const LoadingText = styled.div`
   color: ${({ theme }) => theme.colors.text3};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   padding: ${({ theme }) => theme.spacing[4]};
   text-align: center;
 `
@@ -71,13 +71,13 @@ export const MonthLabel = styled.div`
 `
 
 export const MonthTitle = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
 `
 
 export const MonthBadge = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
 `
@@ -90,7 +90,7 @@ export const HeaderActions = styled.div`
 
 export const ExpandIcon = styled.span<{ $expanded: boolean }>`
   color: ${({ theme }) => theme.colors.text3};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   transition: transform 0.2s;
   transform: ${({ $expanded }) => ($expanded ? 'rotate(90deg)' : 'rotate(0deg)')};
 `
@@ -100,7 +100,7 @@ export const DeleteButton = styled.button`
   border: 1px solid ${({ theme }) => theme.colors.palette.danger ?? palette.dangerDark};
   background: transparent;
   color: ${({ theme }) => theme.colors.palette.danger ?? palette.dangerDark};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   border-radius: ${({ theme }) => theme.radii.md};
   cursor: pointer;
@@ -137,12 +137,12 @@ export const DataTypeRow = styled.div<{ $hasData: boolean }>`
 `
 
 export const DataTypeLabel = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text2};
 `
 
 export const DataTypeCount = styled.span<{ $hasData: boolean }>`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ $hasData, theme }) => ($hasData ? theme.colors.palette.primary : theme.colors.text4)};
@@ -157,7 +157,7 @@ export const RawDataSection = styled.div`
 `
 
 export const RawDataTitle = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text3};
   margin-bottom: ${({ theme }) => theme.spacing[2]};
@@ -250,14 +250,14 @@ export const ConfirmDialog = styled.div`
 `
 
 export const ConfirmTitle = styled.h3`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
   margin-bottom: ${({ theme }) => theme.spacing[3]};
 `
 
 export const ConfirmMessage = styled.p`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   color: ${({ theme }) => theme.colors.text3};
   margin-bottom: ${({ theme }) => theme.spacing[5]};
 `
@@ -273,7 +273,7 @@ export const CancelButton = styled.button`
   border: 1px solid ${({ theme }) => theme.colors.border};
   background: transparent;
   color: ${({ theme }) => theme.colors.text2};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   border-radius: ${({ theme }) => theme.radii.md};
   cursor: pointer;
   &:hover {
@@ -286,7 +286,7 @@ export const ConfirmDeleteButton = styled.button`
   border: none;
   background: ${({ theme }) => theme.colors.palette.danger ?? palette.dangerDark};
   color: ${({ theme }) => theme.colors.palette.white};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   border-radius: ${({ theme }) => theme.radii.md};
   cursor: pointer;
@@ -296,7 +296,7 @@ export const ConfirmDeleteButton = styled.button`
 `
 
 export const ConfirmDetail = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
   background: ${({ theme }) => theme.colors.bg3};
   padding: ${({ theme }) => theme.spacing[3]};
@@ -313,7 +313,7 @@ export const ConfirmDetailRow = styled.div`
 `
 
 export const ConfirmWarning = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.palette.danger ?? palette.dangerDark};
   margin-bottom: ${({ theme }) => theme.spacing[3]};
@@ -347,7 +347,7 @@ export const GovernanceIcon = styled.span`
 `
 
 export const GovernanceText = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
   line-height: 1.5;
 `
@@ -359,14 +359,14 @@ export const GovernanceStat = styled.div`
 `
 
 export const GovernanceStatValue = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-size: ${({ theme }) => theme.typography.fontSize.title};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ theme }) => theme.colors.text};
 `
 
 export const GovernanceStatLabel = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
 `
 
@@ -417,7 +417,7 @@ export const ActionButton = styled.button<{ $variant?: 'primary' | 'danger' | 'd
       : $variant === 'danger'
         ? (theme.colors.palette.danger ?? palette.dangerDark)
         : theme.colors.text2};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   border-radius: ${({ theme }) => theme.radii.md};
   cursor: pointer;
@@ -439,12 +439,12 @@ export const StatusRow = styled.div`
 `
 
 export const StatusLabel = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
 `
 
 export const StatusValue = styled.span<{ $highlight?: boolean }>`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ $highlight, theme }) =>
@@ -464,7 +464,7 @@ export const FileInputLabel = styled.label`
   padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.md};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   color: ${({ theme }) => theme.colors.text2};
   cursor: pointer;
   &:hover {
@@ -475,7 +475,7 @@ export const FileInputLabel = styled.label`
 export const ImportResultBox = styled.div<{ $hasErrors: boolean }>`
   padding: ${({ theme }) => theme.spacing[3]};
   border-radius: ${({ theme }) => theme.radii.md};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   background: ${({ $hasErrors, theme }) =>
     $hasErrors
       ? `${theme.colors.palette.danger ?? palette.dangerDark}10`
@@ -498,7 +498,7 @@ export const SyncCodeTextArea = styled.textarea`
   border-radius: ${({ theme }) => theme.radii.md};
   background: ${({ theme }) => theme.colors.bg3};
   color: ${({ theme }) => theme.colors.text};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   resize: vertical;
   word-break: break-all;

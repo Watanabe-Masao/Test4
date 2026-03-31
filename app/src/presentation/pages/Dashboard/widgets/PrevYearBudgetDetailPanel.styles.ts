@@ -16,26 +16,26 @@ export const SummaryCard = styled.div`
 `
 
 export const SummaryLabel = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
   margin-bottom: ${({ theme }) => theme.spacing[1]};
 `
 
 export const SummaryValue = styled.div`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
 `
 
 export const SummarySub = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   margin-top: 2px;
 `
 
 export const PeriodInfo = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
   margin-bottom: ${({ theme }) => theme.spacing[3]};
   padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[3]};
@@ -55,7 +55,7 @@ export const WeekRow = styled.tr`
   background: ${({ theme }) => `${theme.colors.palette.primary}08`};
   td {
     border-top: 1px solid ${({ theme }) => `${theme.colors.palette.primary}20`};
-    font-size: ${({ theme }) => theme.typography.fontSize.xs};
+    font-size: ${({ theme }) => theme.typography.fontSize.micro};
   }
 `
 
@@ -97,7 +97,7 @@ export const RatioCell = styled(NumTd)<{ $ratio: number }>`
 `
 
 export const SectionTitle = styled.h3`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text2};
   margin: ${({ theme }) => theme.spacing[4]} 0 ${({ theme }) => theme.spacing[2]};
@@ -124,13 +124,13 @@ export const DowGapCell = styled.div<{ $diff: number }>`
 `
 
 export const DowGapLabel = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
 `
 
 export const DowGapDiff = styled.div<{ $diff: number }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ $diff, theme }) =>
     $diff > 0
@@ -141,7 +141,7 @@ export const DowGapDiff = styled.div<{ $diff: number }>`
 `
 
 export const DowGapCount = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
 `
 
@@ -156,7 +156,7 @@ export const MethodToggleBar = styled.div`
 
 export const MethodButton = styled.button<{ $active: boolean }>`
   padding: ${({ theme }) => `${theme.spacing[1]} ${theme.spacing[3]}`};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ $active, theme }) =>
     $active ? theme.typography.fontWeight.semibold : 'normal'};
   background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
@@ -177,7 +177,7 @@ export const ShiftedDayTable = styled.table`
   width: 100%;
   border-collapse: collapse;
   margin-bottom: ${({ theme }) => theme.spacing[2]};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   th,
   td {
     padding: ${({ theme }) => `${theme.spacing[1]} ${theme.spacing[2]}`};
@@ -198,7 +198,7 @@ export const ShiftedDayNumTd = styled.td`
 
 export const ShiftedDaySummary = styled.div`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   padding: ${({ theme }) => `${theme.spacing[2]} ${theme.spacing[3]}`};
   background: ${({ theme }) => theme.colors.bg3};
@@ -211,7 +211,7 @@ export const ShiftedDaySummary = styled.div`
 `
 
 export const ShiftedDayLabel = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: normal;
   color: ${({ theme }) => theme.colors.text3};
   margin-right: ${({ theme }) => theme.spacing[1]};

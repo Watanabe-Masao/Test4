@@ -164,14 +164,6 @@ export function getAllWasmStates(): Readonly<Record<WasmModuleName, WasmState>> 
   return { ...moduleStates }
 }
 
-/**
- * @deprecated Use getWasmModuleState('factorDecomposition') instead.
- * 後方互換のために維持。
- */
-export function getWasmState(): WasmState {
-  return moduleStates.factorDecomposition
-}
-
 export function getWasmExports(): typeof import('factor-decomposition-wasm') | null {
   return wasmExports
 }

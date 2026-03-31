@@ -119,7 +119,7 @@ export const EmptyState = styled.div`
 `
 
 export const EmptyTitle = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-size: ${({ theme }) => theme.typography.fontSize.title};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text2};
   margin-bottom: ${({ theme }) => theme.spacing[4]};

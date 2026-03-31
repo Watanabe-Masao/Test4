@@ -1,5 +1,6 @@
 import styled from 'styled-components'
 import { sc } from '@/presentation/theme/semanticColors'
+import { palette } from '@/presentation/theme/tokens'
 
 // ─── Types ──────────────────────────────────────────────
 
@@ -45,7 +46,7 @@ export const SliderInput = styled.input`
     border-radius: 50%;
     background: ${({ theme }) => theme.colors.palette.primary};
     border: 2px solid ${({ theme }) => theme.colors.bg2};
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 1px 4px ${palette.black}4D;
     cursor: pointer;
     transition: transform 0.15s;
   }
@@ -59,14 +60,14 @@ export const SliderInput = styled.input`
     border-radius: 50%;
     background: ${({ theme }) => theme.colors.palette.primary};
     border: 2px solid ${({ theme }) => theme.colors.bg2};
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 1px 4px ${palette.black}4D;
     cursor: pointer;
   }
 `
 
 export const SliderValueInput = styled.input`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
   min-width: 80px;
@@ -95,14 +96,14 @@ export const SliderValueInput = styled.input`
 export const SliderTicks = styled.div`
   display: flex;
   justify-content: space-between;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   padding: 0 2px;
 `
 
 export const DiffBadge = styled.span<{ $color: string }>`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ $color }) => $color};
   text-align: right;
@@ -143,7 +144,7 @@ export const StepBtn = styled.button`
 export const ResetButton = styled.button`
   all: unset;
   cursor: pointer;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
   padding: ${({ theme }) => `${theme.spacing[1]} ${theme.spacing[3]}`};
   border-radius: ${({ theme }) => theme.radii.sm};
@@ -169,12 +170,12 @@ export const ValidationBanner = styled.div`
     theme.mode === 'dark' ? 'rgba(249, 115, 22, 0.12)' : 'rgba(249, 115, 22, 0.08)'};
   border: 1px solid ${sc.negative};
   border-radius: ${({ theme }) => theme.radii.sm};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${sc.negative};
 `
 
 export const SubLabel = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   margin-left: ${({ theme }) => theme.spacing[1]};
 `

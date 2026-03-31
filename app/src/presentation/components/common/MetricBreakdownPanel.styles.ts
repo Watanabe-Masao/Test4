@@ -62,14 +62,14 @@ export const MbpHeader = styled.div`
 `
 
 export const MbpTitle = styled.h3`
-  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-size: ${({ theme }) => theme.typography.fontSize.title};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
   margin: 0;
 `
 
 export const ValueDisplay = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xl};
+  font-size: ${({ theme }) => theme.typography.fontSize.title};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.palette.primary};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
@@ -109,7 +109,7 @@ export const MbpSection = styled.div`
 `
 
 export const MbpSectionTitle = styled.h4`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text4};
   text-transform: uppercase;
@@ -122,7 +122,7 @@ export const FormulaBox = styled.div`
   background: ${({ theme }) => theme.colors.bg3};
   border-radius: ${({ theme }) => theme.radii.md};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   color: ${({ theme }) => theme.colors.text2};
   border-left: 3px solid ${({ theme }) => theme.colors.palette.primary};
 `
@@ -154,12 +154,12 @@ export const InputRow = styled.div<{ $clickable?: boolean }>`
 `
 
 export const InputName = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   color: ${({ theme }) => theme.colors.text2};
 `
 
 export const InputValue = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text};
@@ -172,7 +172,7 @@ export const LinkIcon = styled.span`
 `
 
 export const ScopeInfo = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   margin-top: ${({ theme }) => theme.spacing[1]};
 `
@@ -182,7 +182,7 @@ export const BreadcrumbBar = styled.div`
   align-items: center;
   gap: ${({ theme }) => theme.spacing[1]};
   margin-bottom: ${({ theme }) => theme.spacing[3]};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
 `
 
@@ -219,12 +219,12 @@ export const RelatedMetricRow = styled.div`
 `
 
 export const RelatedMetricName = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   color: ${({ theme }) => theme.colors.palette.primary};
 `
 
 export const RelatedMetricValue = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ theme }) => theme.colors.text3};
 `
@@ -239,7 +239,7 @@ export const TableWrap = styled.div`
 export const MbpTable = styled.table`
   width: 100%;
   border-collapse: collapse;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
 `
 
 export const MbpTh = styled.th`
@@ -296,7 +296,7 @@ export const DetailTd = styled.td`
   padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[3]};
   padding-left: ${({ theme }) => theme.spacing[8]};
   color: ${({ theme }) => theme.colors.text4};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border}04;
 
@@ -316,7 +316,7 @@ export const TabButton = styled.button<{ $active: boolean }>`
   cursor: pointer;
   padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[3]};
   border-radius: ${({ theme }) => theme.radii.sm};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ $active, theme }) =>
     $active ? theme.typography.fontWeight.semibold : theme.typography.fontWeight.normal};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text4)};
@@ -346,7 +346,7 @@ export const EvidenceBadge = styled.span`
   border-radius: ${({ theme }) => theme.radii.sm};
   background: ${({ theme }) => theme.colors.palette.primary}10;
   color: ${({ theme }) => theme.colors.palette.primary};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
 `
 
@@ -361,7 +361,7 @@ export const ActionButton = styled.button`
   cursor: pointer;
   padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[2]};
   border-radius: ${({ theme }) => theme.radii.sm};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text3};
   background: ${({ theme }) => theme.colors.bg3};
@@ -386,7 +386,7 @@ export const ActionButton = styled.button`
 `
 
 export const CopiedFeedback = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.palette.primary};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
 `
@@ -400,19 +400,19 @@ export const FormulaDetailBox = styled.div`
 
 export const FormulaExpression = styled.div`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   color: ${({ theme }) => theme.colors.text2};
   margin-bottom: ${({ theme }) => theme.spacing[2]};
 `
 
 export const FormulaDescription = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
   margin-bottom: ${({ theme }) => theme.spacing[3]};
 `
 
 export const SourceTag = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ theme }) => theme.colors.palette.info};
   background: ${({ theme }) => theme.colors.palette.info}10;
@@ -442,7 +442,7 @@ export const WarningAlertBox = styled.div<{
         : $severity === 'warning'
           ? theme.colors.palette.warningDark
           : theme.colors.palette.primary};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text2};
 `
 
@@ -454,7 +454,7 @@ export const DisplayModeBadge = styled.span<{
   align-items: center;
   padding: 1px ${({ theme }) => theme.spacing[2]};
   border-radius: ${({ theme }) => theme.radii.sm};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   margin-left: ${({ theme }) => theme.spacing[2]};
   background: ${({ $mode, theme }) =>

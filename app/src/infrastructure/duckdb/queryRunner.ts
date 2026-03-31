@@ -69,19 +69,6 @@ export async function queryScalar<T>(conn: AsyncDuckDBConnection, sql: string): 
 }
 
 /**
- * SQL の WHERE 句用フィルタ条件を生成するヘルパー。
- * NULL でない値のみ AND 条件に追加する。
- *
- * @deprecated buildTypedWhere を使用してください。
- * 文字列ベースの条件構築は SQL インジェクションリスクがあります。
- * queries/ ディレクトリでは全て buildTypedWhere に移行済み。
- */
-export function buildWhereClause(conditions: readonly (string | null)[]): string {
-  const filtered = conditions.filter((c): c is string => c !== null)
-  return filtered.length > 0 ? `WHERE ${filtered.join(' AND ')}` : ''
-}
-
-/**
  * store_id IN (...) 条件を生成する。
  * storeIds が空または未指定なら null（条件なし）を返す。
  * 各 ID はバリデーション済みであることが保証される。

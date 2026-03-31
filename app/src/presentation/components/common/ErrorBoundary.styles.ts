@@ -22,19 +22,19 @@ export const ErrorIcon = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-size: ${({ theme }) => theme.typography.fontSize.title};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
 `
 
 export const ErrorHeading = styled.h3`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text};
   margin: 0;
 `
 
 export const ErrorMessage = styled.p`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   color: ${({ theme }) => theme.colors.text3};
   margin: 0;
   max-width: 400px;
@@ -48,7 +48,7 @@ export const RetryButton = styled.button`
   padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[6]};
   border-radius: ${({ theme }) => theme.radii.md};
   font-family: ${({ theme }) => theme.typography.fontFamily.primary};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   cursor: pointer;
   transition: all ${({ theme }) => theme.transitions.fast};
@@ -89,19 +89,19 @@ export const ChartErrorIcon = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
 `
 
 export const ChartErrorText = styled.p`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
   color: ${({ theme }) => theme.colors.text2};
   margin: 0;
 `
 
 export const ChartErrorDetail = styled.p`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
   margin: 0;
   max-width: 300px;
@@ -115,7 +115,7 @@ export const ChartRetryButton = styled.button`
   padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[5]};
   border-radius: ${({ theme }) => theme.radii.md};
   font-family: ${({ theme }) => theme.typography.fontFamily.primary};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   cursor: pointer;
   transition: all ${({ theme }) => theme.transitions.fast};
@@ -152,19 +152,19 @@ export const PageErrorIcon = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: ${({ theme }) => theme.typography.fontSize['2xl']};
+  font-size: ${({ theme }) => theme.typography.fontSize.heading};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
 `
 
 export const PageErrorHeading = styled.h2`
-  font-size: ${({ theme }) => theme.typography.fontSize.xl};
+  font-size: ${({ theme }) => theme.typography.fontSize.title};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
   margin: 0;
 `
 
 export const PageErrorDescription = styled.p`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   color: ${({ theme }) => theme.colors.text2};
   margin: 0;
 `
@@ -172,7 +172,7 @@ export const PageErrorDescription = styled.p`
 export const PageErrorMessage = styled.code`
   display: block;
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
   background: ${({ theme }) => theme.colors.bg3};
   border: 1px solid ${({ theme }) => theme.colors.border};
@@ -190,7 +190,7 @@ export const PageRetryButton = styled.button`
   padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[8]};
   border-radius: ${({ theme }) => theme.radii.md};
   font-family: ${({ theme }) => theme.typography.fontFamily.primary};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   cursor: pointer;
   transition: all ${({ theme }) => theme.transitions.fast};

@@ -1,4 +1,5 @@
 import styled, { css } from 'styled-components'
+import { palette } from '@/presentation/theme/tokens'
 
 // ─── Container ──────────────────────────────────────────
 
@@ -30,7 +31,7 @@ export const HeaderMeta = styled.div`
 `
 
 export const HeaderTitle = styled.h2`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   margin: 0;
   color: ${({ theme }) => theme.colors.text};
@@ -60,7 +61,7 @@ export const TabBtn = styled.button<{ $active: boolean }>`
   padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[8]};
   border-radius: ${({ theme }) => theme.radii.md};
   cursor: pointer;
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ $active }) => ($active ? 700 : 400)};
   font-family: ${({ theme }) => theme.typography.fontFamily.primary};
   background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
@@ -77,7 +78,7 @@ export const YoYBtn = styled.button<{ $active: boolean }>`
   padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[7]};
   border-radius: ${({ theme }) => theme.radii.md};
   cursor: pointer;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   font-family: ${({ theme }) => theme.typography.fontFamily.primary};
   display: flex;
@@ -145,7 +146,7 @@ export const MetricIcon = styled.span<{ $color?: string }>`
   border-radius: ${({ theme }) => theme.radii.md};
   background: ${({ $color }) => ($color ? `${$color}18` : 'transparent')};
   color: ${({ $color, theme }) => $color ?? theme.colors.text};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   letter-spacing: -0.5px;
@@ -153,7 +154,7 @@ export const MetricIcon = styled.span<{ $color?: string }>`
 `
 
 export const MetricLabel = styled.span<{ $active: boolean; $color: string }>`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ $active }) => ($active ? 700 : 400)};
   font-family: ${({ theme }) => theme.typography.fontFamily.primary};
   color: ${({ $active, $color, theme }) => ($active ? $color : theme.colors.text3)};
@@ -188,34 +189,34 @@ export const PeriodBadge = styled.span<{ $color: string }>`
 `
 
 export const SectionLabel = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
   font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
 `
 
 export const BigValue = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
 `
 
 export const SubValue = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-size: ${({ theme }) => theme.typography.fontSize.title};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
   color: ${({ theme }) => theme.colors.text3};
 `
 
 export const MainValue = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
 `
 
 export const AchValue = styled.div<{ $color: string }>`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ $color }) => $color};
@@ -228,7 +229,7 @@ export const SmallLabel = styled.div`
 `
 
 export const Arrow = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-size: ${({ theme }) => theme.typography.fontSize.title};
   color: ${({ theme }) => theme.colors.text4};
 `
 
@@ -271,21 +272,21 @@ export const YoYLabel = styled.span`
 
 export const MonoSm = styled.span<{ $color?: string; $bold?: boolean }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   color: ${({ $color, theme }) => $color ?? theme.colors.text3};
   ${({ $bold }) => $bold && 'font-weight: 700;'}
 `
 
 export const MonoMd = styled.span<{ $color?: string; $bold?: boolean }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   color: ${({ $color, theme }) => $color ?? theme.colors.text};
   ${({ $bold }) => $bold && 'font-weight: 700;'}
 `
 
 export const MonoLg = styled.span<{ $color?: string; $bold?: boolean }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-size: ${({ theme }) => theme.typography.fontSize.title};
   color: ${({ $color, theme }) => $color ?? theme.colors.text};
   ${({ $bold }) => $bold && 'font-weight: 700;'}
 `
@@ -346,14 +347,14 @@ export const RankBadge = styled.span<{ $color: string }>`
   border-radius: ${({ theme }) => theme.radii.md};
   background: ${({ $color }) => `${$color}14`};
   color: ${({ $color }) => $color};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   flex-shrink: 0;
 `
 
 export const StoreName = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
   overflow: hidden;
@@ -363,20 +364,20 @@ export const StoreName = styled.span`
 
 export const StoreAchValue = styled.span<{ $color: string }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.xl};
+  font-size: ${({ theme }) => theme.typography.fontSize.title};
   font-weight: ${({ theme }) => theme.typography.fontWeight.extrabold};
   color: ${({ $color }) => $color};
 `
 
 export const StoreBudgetValue = styled.span`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-size: ${({ theme }) => theme.typography.fontSize.title};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
 `
 
 export const RateChip = styled.span<{ $color: string }>`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ $color }) => $color};
@@ -387,7 +388,7 @@ export const RateChip = styled.span<{ $color: string }>`
 
 export const DiffSpan = styled.span<{ $positive: boolean }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ $positive }) => ($positive ? '#10b98199' : '#ef444499')};
 `
@@ -456,21 +457,21 @@ export const BudgetHeaderItem = styled.div`
 `
 
 export const BudgetHeaderLabel = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   white-space: nowrap;
 `
 
 export const BudgetHeaderValue = styled.span`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
 `
 
 export const BudgetGrowthBadge = styled.span<{ $positive: boolean }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ $positive }) => ($positive ? '#10b981' : '#ef4444')};
   background: ${({ $positive }) => ($positive ? '#10b98112' : '#ef444412')};
@@ -522,13 +523,13 @@ export const ScrollArrow = styled.button<{ $direction: 'left' | 'right' }>`
   border: 1px solid ${({ theme }) => theme.colors.border};
   color: ${({ theme }) => theme.colors.text3};
   font-size: ${({ theme }) => theme.typography.fontSize.body};
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 4px ${palette.black}1A;
   transition: all 0.15s;
   &:hover {
     color: ${({ theme }) => theme.colors.text};
     background: ${({ theme }) =>
       theme.mode === 'dark' ? 'rgba(50, 50, 50, 0.95)' : 'rgba(255, 255, 255, 1)'};
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 8px ${palette.black}26;
   }
   &:focus-visible {
     outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
@@ -592,7 +593,7 @@ export const CardGroupLabel = styled.span`
 export const SettingsGear = styled.button`
   all: unset;
   cursor: pointer;
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   color: ${({ theme }) => theme.colors.text4};
   padding: ${({ theme }) => theme.spacing[2]};
   border-radius: ${({ theme }) => theme.radii.sm};
@@ -624,7 +625,7 @@ export const CondCard = styled.div<{ $borderColor: string; $clickable?: boolean 
     $clickable &&
     `
     &:hover {
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      box-shadow: 0 2px 8px ${palette.black}14;
       transform: translateY(-1px);
     }
   `}
@@ -645,20 +646,20 @@ export const CondCardContent = styled.div`
 `
 
 export const CondCardLabel = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
   margin-bottom: ${({ theme }) => theme.spacing[1]};
 `
 
 export const CondCardValue = styled.div<{ $color: string }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-size: ${({ theme }) => theme.typography.fontSize.title};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ $color }) => $color};
 `
 
 export const CondCardSub = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   margin-top: ${({ theme }) => theme.spacing[1]};
@@ -688,7 +689,7 @@ export const DrillPanel = styled.div`
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 8px 24px ${palette.black}1F;
 `
 
 export const DrillHeader = styled.div`
@@ -704,7 +705,7 @@ export const DrillHeader = styled.div`
 `
 
 export const DrillTitle = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
 `
@@ -772,7 +773,7 @@ export const DailyModalPanel = styled.div`
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 8px 24px ${palette.black}1F;
 `
 
 export const DailyTableWrapper = styled.div`
@@ -785,7 +786,7 @@ export const DailyTable = styled.table`
   width: 100%;
   border-collapse: collapse;
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
 `
 
 /** 単日 / 累計 のグループヘッダー行 */

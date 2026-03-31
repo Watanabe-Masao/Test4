@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { palette } from '@/presentation/theme/tokens'
 
 // ─── Detail Modal Styled Components ─────────────────────
 
@@ -12,7 +13,7 @@ export const DetailModalContent = styled.div`
   width: 960px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: ${({ theme }) => `0 20px 60px ${theme.mode === 'dark' ? `${palette.black}80` : `${palette.black}4D`}`};
 `
 
 export const DetailHeader = styled.div`
@@ -23,7 +24,7 @@ export const DetailHeader = styled.div`
 `
 
 export const DetailTitle = styled.h3`
-  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-size: ${({ theme }) => theme.typography.fontSize.title};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
 `
@@ -31,7 +32,7 @@ export const DetailTitle = styled.h3`
 export const DetailCloseBtn = styled.button`
   all: unset;
   cursor: pointer;
-  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-size: ${({ theme }) => theme.typography.fontSize.title};
   color: ${({ theme }) => theme.colors.text3};
   padding: ${({ theme }) => theme.spacing[2]};
   border-radius: ${({ theme }) => theme.radii.sm};
@@ -61,14 +62,14 @@ export const DetailKpiCard = styled.div<{ $accent?: string }>`
 `
 
 export const DetailKpiLabel = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
   margin-bottom: ${({ theme }) => theme.spacing[2]};
 `
 
 export const DetailKpiValue = styled.div<{ $color?: string }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ $color, theme }) => $color ?? theme.colors.text};
 `
@@ -78,7 +79,7 @@ export const DetailSection = styled.div`
 `
 
 export const DetailSectionTitle = styled.h4`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text2};
   margin-bottom: ${({ theme }) => theme.spacing[4]};
@@ -96,13 +97,13 @@ export const DetailRow = styled.div`
 `
 
 export const DetailLabel = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   color: ${({ theme }) => theme.colors.text3};
 `
 
 export const DetailValue = styled.span<{ $color?: string }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ $color, theme }) => $color ?? theme.colors.text};
 `
@@ -121,7 +122,7 @@ export const DetailBarRow = styled.div`
 `
 
 export const DetailBarLabel = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
   width: 40px;
   text-align: right;
@@ -151,9 +152,9 @@ export const DetailBarFill = styled.div<{ $width: number; $color: string }>`
 
 export const DetailBarAmount = styled.span`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: white;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  text-shadow: 0 1px 2px ${palette.black}66;
   white-space: nowrap;
 `
 

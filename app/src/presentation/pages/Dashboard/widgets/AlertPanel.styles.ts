@@ -17,14 +17,14 @@ export const Header = styled.div`
 `
 
 export const Title = styled.h4`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
   margin: 0;
 `
 
 export const BadgeCount = styled.span<{ $severity: AlertSeverity }>`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   padding: 2px 8px;
   border-radius: ${({ theme }) => theme.radii.pill};
@@ -109,7 +109,7 @@ export const AlertBody = styled.div`
 `
 
 export const AlertMessage = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   color: ${({ theme }) => theme.colors.text};
   line-height: 1.4;
 `
@@ -118,7 +118,7 @@ export const AlertDetail = styled.div`
   display: flex;
   gap: ${({ theme }) => theme.spacing[3]};
   margin-top: ${({ theme }) => theme.spacing[2]};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ theme }) => theme.colors.text3};
 `
@@ -134,7 +134,7 @@ export const AlertFooter = styled.div`
 `
 
 export const ExplainLink = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.palette.primary};
   white-space: nowrap;
 `
@@ -143,5 +143,5 @@ export const EmptyState = styled.div`
   text-align: center;
   padding: ${({ theme }) => theme.spacing[8]};
   color: ${({ theme }) => theme.colors.text3};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
 `

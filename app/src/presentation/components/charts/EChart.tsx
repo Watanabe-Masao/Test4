@@ -37,6 +37,7 @@ import { CanvasRenderer } from 'echarts/renderers'
 import type { EChartsOption } from 'echarts'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
+import { chartFontSize } from '@/presentation/theme/tokens'
 
 // ─── ECharts モジュール登録（tree-shaking 対応）───────────
 echarts.use([
@@ -69,7 +70,7 @@ function buildEChartsTheme(theme: AppTheme): Record<string, unknown> {
     textStyle: {
       fontFamily: theme.typography.fontFamily.primary,
       color: theme.colors.text3,
-      fontSize: 11,
+      fontSize: chartFontSize.tooltip,
     },
     title: {
       textStyle: { color: theme.colors.text2 },
@@ -77,7 +78,7 @@ function buildEChartsTheme(theme: AppTheme): Record<string, unknown> {
     legend: {
       textStyle: {
         color: theme.colors.text3,
-        fontSize: 10,
+        fontSize: chartFontSize.axis,
       },
     },
     tooltip: {
@@ -85,7 +86,7 @@ function buildEChartsTheme(theme: AppTheme): Record<string, unknown> {
       borderColor: theme.colors.border,
       textStyle: {
         color: theme.colors.text,
-        fontSize: 11,
+        fontSize: chartFontSize.tooltip,
         fontFamily: theme.typography.fontFamily.primary,
       },
     },
@@ -94,7 +95,7 @@ function buildEChartsTheme(theme: AppTheme): Record<string, unknown> {
       axisTick: { lineStyle: { color: theme.colors.border } },
       axisLabel: {
         color: theme.colors.text3,
-        fontSize: 10,
+        fontSize: chartFontSize.axis,
         fontFamily: theme.typography.fontFamily.mono,
       },
       splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3 } },
@@ -104,7 +105,7 @@ function buildEChartsTheme(theme: AppTheme): Record<string, unknown> {
       axisTick: { show: false },
       axisLabel: {
         color: theme.colors.text3,
-        fontSize: 10,
+        fontSize: chartFontSize.axis,
         fontFamily: theme.typography.fontFamily.mono,
       },
       splitLine: { lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' } },

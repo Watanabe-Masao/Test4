@@ -9,14 +9,14 @@ export const Section = styled.div`
 `
 
 export const SectionTitle = styled.h2`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
   margin-bottom: ${({ theme }) => theme.spacing[4]};
 `
 
 export const HelpText = styled.p`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   margin-bottom: ${({ theme }) => theme.spacing[4]};
 `
@@ -36,7 +36,7 @@ export const FieldRow = styled.div`
 `
 
 export const FieldLabel = styled.label`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text2};
   min-width: 160px;
@@ -48,7 +48,7 @@ export const Select = styled.select`
   border-radius: ${({ theme }) => theme.radii.md};
   background: ${({ theme }) => theme.colors.bg3};
   color: ${({ theme }) => theme.colors.text};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   cursor: pointer;
   min-width: 200px;
 
@@ -62,7 +62,7 @@ export const Badge = styled.span<{ $color?: string }>`
   display: inline-block;
   padding: 2px ${({ theme }) => theme.spacing[2]};
   border-radius: ${({ theme }) => theme.radii.pill};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
   background: ${({ $color, theme }) =>
     $color ? `${$color}20` : theme.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)'};
@@ -92,7 +92,7 @@ export const StatusLabel = styled.span`
 `
 
 export const StatusValue = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
@@ -109,7 +109,7 @@ export const PrimaryButton = styled.button`
   border: none;
   background: ${({ theme }) => theme.colors.palette.primary};
   color: ${({ theme }) => theme.colors.palette.white};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   border-radius: ${({ theme }) => theme.radii.md};
   cursor: pointer;
@@ -128,7 +128,7 @@ export const SecondaryButton = styled.button`
   border: 1px solid ${({ theme }) => theme.colors.border};
   background: transparent;
   color: ${({ theme }) => theme.colors.text2};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   border-radius: ${({ theme }) => theme.radii.md};
   cursor: pointer;
   &:hover {
@@ -189,7 +189,7 @@ export const MappingSummary = styled.div`
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.md};
   margin-bottom: ${({ theme }) => theme.spacing[4]};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
 `
 
 export const SummaryItem = styled.span`

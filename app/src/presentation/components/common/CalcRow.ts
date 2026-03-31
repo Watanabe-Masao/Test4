@@ -24,7 +24,7 @@ export const CalcRow = styled.div.attrs<{ $clickable?: boolean }>((props) =>
   justify-content: space-between;
   padding: ${({ theme }) => theme.spacing[3]} 0;
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   ${({ $clickable, theme }) =>
     $clickable &&
     `
@@ -59,12 +59,12 @@ export const CalcValue = styled.span`
 
 export const CalcHighlight = styled(CalcValue)<{ $color?: string }>`
   color: ${({ $color, theme }) => $color ?? theme.colors.palette.primary};
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
 `
 
 /** 在庫法/推定法のカードヘッダー下に表示する目的説明 */
 export const CalcPurpose = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
   padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[3]};
   background: ${({ theme }) => theme.colors.bg2};
@@ -82,7 +82,7 @@ export const CalcNullGuide = styled.div`
   background: ${({ theme }) => `${theme.colors.palette.warning}10`};
   border: 1px dashed ${({ theme }) => `${theme.colors.palette.warningDark}40`};
   border-radius: ${({ theme }) => theme.radii.md};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   color: ${({ theme }) => theme.colors.text2};
   margin: ${({ theme }) => theme.spacing[3]} 0;
 `
@@ -107,7 +107,7 @@ export const VarianceRow = styled.div<{ $severity?: 'low' | 'mid' | 'high' }>`
         : $severity === 'mid'
           ? theme.colors.palette.warningDark
           : theme.colors.palette.success};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
 `
 
 export const VarianceLabel = styled.span`

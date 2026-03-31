@@ -106,7 +106,7 @@ const Card = styled.div`
 `
 
 const CardTitle = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text3};
   margin-bottom: ${({ theme }) => theme.spacing[2]};
@@ -150,12 +150,12 @@ const SecondaryRow = styled.div`
 `
 
 const SecondaryLabel = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
 `
 
 const SecondaryValue = styled.span<{ $color?: string }>`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ $color, theme }) => $color ?? theme.colors.text};

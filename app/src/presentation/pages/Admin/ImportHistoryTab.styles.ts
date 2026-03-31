@@ -11,7 +11,7 @@ export const DetailCell = styled.td`
   padding-left: ${({ theme }) => theme.spacing[8]};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   color: ${({ theme }) => theme.colors.text3};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
 `
 
 export const ExpandButton = styled.button`
@@ -19,7 +19,7 @@ export const ExpandButton = styled.button`
   border: none;
   color: ${({ theme }) => theme.colors.text3};
   cursor: pointer;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   padding: 0 ${({ theme }) => theme.spacing[1]};
   &:hover {
     color: ${({ theme }) => theme.colors.text};
@@ -56,7 +56,7 @@ export const ValidationItem = styled.div<{ $level: string }>`
   padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[3]};
   margin-bottom: ${({ theme }) => theme.spacing[1]};
   border-radius: ${({ theme }) => theme.radii.md};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   background: ${({ $level }) =>
     $level === 'error'
       ? `${palette.dangerDark}1a`
@@ -73,7 +73,7 @@ export const ValidationItem = styled.div<{ $level: string }>`
 
 export const ValidationIcon = styled.span`
   flex-shrink: 0;
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
 `
 
 export const SummaryGrid = styled.div`
@@ -92,13 +92,13 @@ export const SummaryCard = styled.div`
 `
 
 export const SummaryValue = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xl};
+  font-size: ${({ theme }) => theme.typography.fontSize.title};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
 `
 
 export const SummaryLabel = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   margin-top: 2px;
 `
@@ -129,7 +129,7 @@ export const HistoryCard = styled.div`
 `
 
 export const HistoryTimestamp = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text};
   margin-bottom: ${({ theme }) => theme.spacing[2]};
@@ -138,7 +138,7 @@ export const HistoryTimestamp = styled.div`
 export const HistoryFileList = styled.ul`
   margin: 0;
   padding-left: ${({ theme }) => theme.spacing[5]};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text2};
   line-height: 1.8;
 `
@@ -147,7 +147,7 @@ export const HistoryFileBadge = styled.span`
   display: inline-block;
   padding: 0 ${({ theme }) => theme.spacing[2]};
   border-radius: ${({ theme }) => theme.radii.sm};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   background: ${({ theme }) => `${theme.colors.palette.primary}15`};
   color: ${({ theme }) => theme.colors.palette.primary};
   margin-left: ${({ theme }) => theme.spacing[2]};
@@ -162,7 +162,7 @@ export const DataVerifySection = styled.div`
 `
 
 export const DataVerifyTitle = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
   margin-bottom: ${({ theme }) => theme.spacing[3]};
@@ -172,7 +172,7 @@ export const DataVerifyGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: ${({ theme }) => theme.spacing[2]};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
 `
 
 export const DataVerifyLabel = styled.span`

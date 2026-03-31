@@ -5,7 +5,7 @@ export const Section = styled.section`
 `
 
 export const SectionTitle = styled.h2`
-  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-size: ${({ theme }) => theme.typography.fontSize.title};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
   margin-bottom: ${({ theme }) => theme.spacing[3]};
@@ -29,7 +29,7 @@ export const TableWrapper = styled.div`
 export const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
 `
 
 export const Th = styled.th<{ $align?: 'left' | 'right'; $sortable?: boolean }>`
@@ -109,7 +109,7 @@ export const EmptyState = styled.div`
   text-align: center;
   padding: ${({ theme }) => theme.spacing[8]};
   color: ${({ theme }) => theme.colors.text4};
-  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-size: ${({ theme }) => theme.typography.fontSize.title};
 `
 
 export const ChartWrapper = styled.div`
@@ -142,7 +142,7 @@ export const PivotGroupTh = styled.th`
   color: ${({ theme }) => theme.colors.text2};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   font-family: ${({ theme }) => theme.typography.fontFamily.primary};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   border-left: 2px solid ${({ theme }) => theme.colors.border};
   white-space: nowrap;
@@ -159,7 +159,7 @@ export const PivotSubTh = styled.th`
   color: ${({ theme }) => theme.colors.text3};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   font-family: ${({ theme }) => theme.typography.fontFamily.primary};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   white-space: nowrap;
 
@@ -201,7 +201,7 @@ export const DrillToggle = styled.span`
 export const ChildTr = styled.tr`
   background: ${({ theme }) => theme.colors.bg2};
   & > td {
-    font-size: ${({ theme }) => theme.typography.fontSize.xs};
+    font-size: ${({ theme }) => theme.typography.fontSize.micro};
     color: ${({ theme }) => theme.colors.text3};
     padding-top: 4px;
     padding-bottom: 4px;
@@ -225,20 +225,20 @@ export const ProgressCard = styled.div`
 `
 
 export const ProgressLabel = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   color: ${({ theme }) => theme.colors.text3};
   margin-bottom: ${({ theme }) => theme.spacing[1]};
 `
 
 export const ProgressValue = styled.div<{ $accent?: string }>`
-  font-size: ${({ theme }) => theme.typography.fontSize['2xl']};
+  font-size: ${({ theme }) => theme.typography.fontSize.heading};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ $accent, theme }) => $accent ?? theme.colors.text};
 `
 
 export const ProgressSub = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   margin-top: ${({ theme }) => theme.spacing[1]};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
@@ -273,7 +273,7 @@ export const TabBar = styled.div`
 
 export const TabButton = styled.button<{ $active: boolean; $color?: string }>`
   padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[3]};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ $active, theme }) =>
     $active ? theme.typography.fontWeight.bold : theme.typography.fontWeight.normal};
   color: ${({ $active, theme }) => ($active ? theme.colors.text : theme.colors.text3)};
@@ -295,7 +295,7 @@ export const ToggleRow = styled.label`
   display: inline-flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing[2]};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   color: ${({ theme }) => theme.colors.text3};
   cursor: pointer;
   user-select: none;

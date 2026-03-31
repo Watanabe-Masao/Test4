@@ -1,3 +1,4 @@
+import { chartFontSize } from '@/presentation/theme/tokens'
 /**
  * CategoryTimeHeatmap — カテゴリ×時間帯ヒートマップ
  *
@@ -157,7 +158,7 @@ export const CategoryTimeHeatmap = memo(function CategoryTimeHeatmap({
         data: hourLabels,
         axisLabel: {
           color: theme.colors.text3,
-          fontSize: 9,
+          fontSize: chartFontSize.axis - 1,
           fontFamily: theme.typography.fontFamily.mono,
         },
         axisLine: { lineStyle: { color: theme.colors.border } },
@@ -169,7 +170,7 @@ export const CategoryTimeHeatmap = memo(function CategoryTimeHeatmap({
         data: depts,
         axisLabel: {
           color: theme.colors.text,
-          fontSize: 10,
+          fontSize: chartFontSize.axis,
           fontFamily: theme.typography.fontFamily.primary,
           width: gridLeft - 8,
           overflow: 'truncate' as const,

@@ -26,7 +26,7 @@ export const FolderButton = styled.button`
   gap: ${({ theme }) => theme.spacing[1]};
   margin-top: ${({ theme }) => theme.spacing[2]};
   padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[3]};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.palette.primary};
   border: 1px solid ${({ theme }) => theme.colors.palette.primary};
   border-radius: ${({ theme }) => theme.radii.md};
@@ -47,13 +47,13 @@ export const Icon = styled.div`
 `
 
 export const MainText = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text2};
 `
 
 export const HintText = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   margin-top: ${({ theme }) => theme.spacing[2]};
 `

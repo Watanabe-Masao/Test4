@@ -21,7 +21,7 @@ export const Header = styled.header`
 `
 
 export const HeaderTitle = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
 `
@@ -93,7 +93,7 @@ export const Tab = styled.button<{ $active: boolean }>`
   flex: 1;
   text-align: center;
   padding: ${({ theme }) => theme.spacing[3]} 0;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text4)};
   border-bottom: 2px solid
@@ -145,7 +145,7 @@ export const KpiLabel = styled.span`
 
 export const KpiValue = styled.span<{ $color?: string }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-size: ${({ theme }) => theme.typography.fontSize.title};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ $color, theme }) => $color ?? theme.colors.text};
 `
@@ -182,7 +182,7 @@ export const KpiMiniLabel = styled.div`
 
 export const KpiMiniValue = styled.div<{ $color?: string }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ $color, theme }) => $color ?? theme.colors.text};
 `
@@ -196,7 +196,7 @@ export const ChartCard = styled.div`
 `
 
 export const ChartTitle = styled.h3`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text3};
   margin-bottom: ${({ theme }) => theme.spacing[3]};
@@ -230,7 +230,7 @@ export const DailyRow = styled.div<{ $isWeekend: boolean }>`
 export const DailyDay = styled.div`
   width: 40px;
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text2};
 `

@@ -290,7 +290,7 @@ export const StorePIComparisonChart = memo(function StorePIComparisonChart({
       <div style={{ marginBottom: 16 }}>
         <div
           style={{
-            fontSize: theme.typography.fontSize.xs,
+            fontSize: theme.typography.fontSize.micro,
             color: theme.colors.text3,
             marginBottom: 4,
             fontWeight: 600,
@@ -310,7 +310,7 @@ export const StorePIComparisonChart = memo(function StorePIComparisonChart({
         <div>
           <div
             style={{
-              fontSize: theme.typography.fontSize.xs,
+              fontSize: theme.typography.fontSize.micro,
               color: theme.colors.text3,
               marginBottom: 4,
               fontWeight: 600,

@@ -66,11 +66,13 @@ export const Handle = styled.div<{ $pos: number; $color: string; $zIndex?: numbe
   border: 2px solid ${({ theme }) => theme.colors.bg3};
   cursor: ew-resize;
   z-index: ${({ $zIndex }) => $zIndex ?? 2};
-  box-shadow: ${({ theme }) => theme.mode === 'dark' ? '0 1px 3px rgba(0,0,0,0.5)' : '0 1px 3px rgba(0,0,0,0.3)'};
+  box-shadow: ${({ theme }) =>
+    theme.mode === 'dark' ? '0 1px 3px rgba(0,0,0,0.5)' : '0 1px 3px rgba(0,0,0,0.3)'};
   transition: box-shadow 0.15s;
 
   &:hover {
-    box-shadow: ${({ theme }) => theme.mode === 'dark' ? '0 1px 6px rgba(0,0,0,0.6)' : '0 1px 6px rgba(0,0,0,0.4)'};
+    box-shadow: ${({ theme }) =>
+      theme.mode === 'dark' ? '0 1px 6px rgba(0,0,0,0.6)' : '0 1px 6px rgba(0,0,0,0.4)'};
   }
 `
 
@@ -87,7 +89,7 @@ export const PeriodLabel = styled.span<{ $color: string }>`
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
   white-space: nowrap;
 

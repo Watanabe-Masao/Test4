@@ -31,7 +31,7 @@ export const ChartWrapper = styled.div`
 `
 
 export const ChartTitle = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text2};
   margin-bottom: ${({ theme }) => theme.spacing[4]};
@@ -65,7 +65,7 @@ export const AnomalyBadge = styled.span<{ $type: 'high' | 'low' }>`
   display: inline-block;
   padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[3]};
   border-radius: ${({ theme }) => theme.radii.sm};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   background: ${({ $type, theme }) =>
     $type === 'high' ? `${theme.colors.palette.success}20` : `${theme.colors.palette.danger}20`};
@@ -96,7 +96,7 @@ export const ColorPickerLabel = styled.label`
   display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing[2]};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text2};
   font-family: ${({ theme }) => theme.typography.fontFamily.primary};
@@ -121,7 +121,7 @@ export const ColorInput = styled.input`
 `
 
 export const ColorPickerTitle = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text3};
   font-family: ${({ theme }) => theme.typography.fontFamily.primary};

@@ -1,3 +1,4 @@
+import { chartFontSize } from '@/presentation/theme/tokens'
 /**
  * CategoryBarChart — カテゴリ別売上棒グラフ
  *
@@ -210,7 +211,7 @@ export const CategoryBarChart = memo(function CategoryBarChart({
           position: 'right' as const,
           formatter: (p: { value: number }) =>
             metric === 'amount' ? cf.formatWithUnit(p.value) : `${p.value.toLocaleString()}点`,
-          fontSize: 10,
+          fontSize: chartFontSize.axis,
           color: theme.colors.text3,
         },
       },
@@ -318,7 +319,7 @@ export const CategoryBarChart = memo(function CategoryBarChart({
         <button
           style={{
             padding: '2px 8px',
-            fontSize: theme.typography.fontSize.xs,
+            fontSize: theme.typography.fontSize.micro,
             border: `1px solid ${theme.colors.border}`,
             borderRadius: theme.radii.sm,
             background: 'transparent',

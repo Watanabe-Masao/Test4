@@ -11,7 +11,7 @@ import { yenYAxis } from './echartsOptionBuilders'
 import { calculateYoYRatio } from '@/domain/calculations/utils'
 import { tooltipBase } from './builders/tooltip'
 import { valueYAxis } from './builders'
-import { palette } from '@/presentation/theme/tokens'
+import { palette, chartFontSize } from '@/presentation/theme/tokens'
 import type { EChartsOption } from './EChart'
 import type { LineMode } from './TimeSlotChartView'
 /** chartData の行型 */
@@ -344,7 +344,7 @@ export function buildTimeSlotChartOption(input: TimeSlotChartOptionInput): EChar
         label: {
           show: true,
           position: 'top' as const,
-          fontSize: 9,
+          fontSize: chartFontSize.axis - 1,
           color: `${barColor}cc`,
           fontWeight: 600 as const,
         },
@@ -360,7 +360,7 @@ export function buildTimeSlotChartOption(input: TimeSlotChartOptionInput): EChar
           symbolSize: 30,
           data: [{ coord: [`${peakHour}時`, peakValue], name: 'ピーク' }],
           itemStyle: { color: barColor },
-          label: { show: true, fontSize: 8, color: '#fff', formatter: 'Peak' },
+          label: { show: true, fontSize: chartFontSize.axis - 2, color: '#fff', formatter: 'Peak' },
         }
       : undefined
 
@@ -430,7 +430,7 @@ export function buildTimeSlotChartOption(input: TimeSlotChartOptionInput): EChar
         label: {
           show: true,
           position: 'bottom',
-          fontSize: 9,
+          fontSize: chartFontSize.axis - 1,
           color: `${slateColor}bb`,
           fontWeight: 500,
         },
@@ -448,7 +448,7 @@ export function buildTimeSlotChartOption(input: TimeSlotChartOptionInput): EChar
           symbolSize: 24,
           data: [{ coord: [`${prevPeakHour}時`, prevPeakVal], name: `${compLabel}Peak` }],
           itemStyle: { color: `${slateColor}99` },
-          label: { show: true, fontSize: 7, color: '#fff', formatter: 'Peak' },
+          label: { show: true, fontSize: chartFontSize.axis - 3, color: '#fff', formatter: 'Peak' },
         }
       }
     }
@@ -706,7 +706,7 @@ export function buildTimeSlotChartOption(input: TimeSlotChartOptionInput): EChar
       data: [...hours],
       axisLabel: {
         color: theme.colors.text3,
-        fontSize: 10,
+        fontSize: chartFontSize.axis,
         fontFamily: theme.typography.fontFamily.mono,
       },
       axisLine: { lineStyle: { color: theme.colors.border } },

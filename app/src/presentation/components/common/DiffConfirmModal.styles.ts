@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 
 export const Summary = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   color: ${({ theme }) => theme.colors.text2};
   margin-bottom: ${({ theme }) => theme.spacing[4]};
   line-height: 1.6;
@@ -28,13 +28,13 @@ export const DataTypeHeader = styled.div`
 `
 
 export const DataTypeName = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
 `
 
 export const Badge = styled.span<{ $type: 'insert' | 'modify' | 'remove' }>`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   padding: 1px ${({ theme }) => theme.spacing[2]};
   border-radius: ${({ theme }) => theme.radii.sm};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
@@ -65,7 +65,7 @@ export const ChangeRow = styled.div`
   display: grid;
   grid-template-columns: 80px 40px 1fr;
   gap: ${({ theme }) => theme.spacing[2]};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ theme }) => theme.colors.text3};
   padding: 2px 0;
@@ -104,7 +104,7 @@ export const Arrow = styled.span`
 `
 
 export const SectionLabel = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text4};
   text-transform: uppercase;
@@ -112,7 +112,7 @@ export const SectionLabel = styled.div`
 `
 
 export const HelpText = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
   margin-top: ${({ theme }) => theme.spacing[2]};
   line-height: 1.5;

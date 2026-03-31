@@ -104,10 +104,10 @@ function scanFile(filePath: string, pattern: RegExp): { relPath: string; violati
 // 既存ファイルを修正したら上限を下げること。
 
 /** hex 色違反を持つファイル数の上限 */
-const MAX_HEX_VIOLATING_FILES = 1
+const MAX_HEX_VIOLATING_FILES = 0
 
 /** rgba() 違反を持つファイル数の上限 */
-const MAX_RGBA_VIOLATING_FILES = 35
+const MAX_RGBA_VIOLATING_FILES = 0
 
 /** font-size 違反を持つファイル数の上限 */
 const MAX_FONT_VIOLATING_FILES = 0
@@ -185,7 +185,7 @@ describe('デザインシステムガード', () => {
   // ECharts option 内の fontSize: <数値> を検出。chartFontSize.* トークンを使用すべき。
 
   /** チャートファイルで fontSize ハードコードを持つファイル数の上限 */
-  const MAX_ECHARTS_FONT_FILES = 7
+  const MAX_ECHARTS_FONT_FILES = 0
 
   it('ECharts チャートの fontSize ハードコードが上限以下', () => {
     const chartDir = path.join(PRESENTATION_DIR, 'components', 'charts')
@@ -231,10 +231,10 @@ describe('デザインシステムガード', () => {
   })
 
   // ─── deprecated fontSize エイリアスガード ─────────────
-  // fontSize.xs/sm/base/lg/xl/2xl/3xl の使用を検出。ロールベース名を使用すべき。
+  // fontSize.micro/sm/base/lg/xl/2xl/3xl の使用を検出。ロールベース名を使用すべき。
 
   /** deprecated fontSize エイリアスを使用するファイル数の上限 */
-  const MAX_DEPRECATED_FONT_ALIAS_FILES = 120
+  const MAX_DEPRECATED_FONT_ALIAS_FILES = 0
 
   it('deprecated fontSize エイリアス使用が上限以下', () => {
     const allTsFiles = [
@@ -390,7 +390,7 @@ describe('デザインシステムガード', () => {
   // グローバル z-index (100以上) は theme.zIndex トークンを使用すべき。
 
   /** z-index ハードコード (100以上) を持つ .styles.ts ファイル数の上限 */
-  const MAX_ZINDEX_HARDCODE_FILES = 10
+  const MAX_ZINDEX_HARDCODE_FILES = 0
 
   it('グローバル z-index ハードコードが上限以下', () => {
     const allStyleFiles = collectFiles(PRESENTATION_DIR, '.styles.ts')

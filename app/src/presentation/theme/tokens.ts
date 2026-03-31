@@ -96,15 +96,6 @@ export const typography = {
     heading: '1.1rem',
     /** ヒーロー数値、KPI大表示 */
     display: '1.4rem',
-
-    // ── 後方互換エイリアス（deprecated: 新規コードでの使用禁止）──
-    xs: '0.55rem',
-    sm: '0.68rem',
-    base: '0.78rem',
-    lg: '0.9rem',
-    xl: '0.95rem',
-    '2xl': '1.1rem',
-    '3xl': '1.4rem',
   },
   fontWeight: {
     normal: 400,

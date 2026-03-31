@@ -23,7 +23,7 @@ export const ProgressFill = styled.div<{ $percent: number }>`
 `
 
 export const ProgressText = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
   display: flex;
   justify-content: space-between;

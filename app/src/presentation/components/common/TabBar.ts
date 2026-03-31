@@ -50,7 +50,7 @@ export const Tab = styled.button.attrs<{ $active: boolean }>((props) => ({
   background: ${({ $active, theme }) =>
     $active ? `${theme.colors.palette.primary}10` : 'transparent'};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text3)};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   cursor: pointer;
   border-radius: ${({ theme }) => theme.radii.md} ${({ theme }) => theme.radii.md} 0 0;

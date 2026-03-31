@@ -23,7 +23,7 @@ export {
 export type { OpfsReloadStrategy, OpfsCheckResult } from './opfsPersistence'
 
 // クエリランナー
-export { queryToObjects, queryScalar, buildWhereClause, storeIdFilter } from './queryRunner'
+export { queryToObjects, queryScalar, storeIdFilter } from './queryRunner'
 
 // クエリモジュール
 export {

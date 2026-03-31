@@ -17,7 +17,8 @@ export const CalendarDropdown = styled.div`
   background: ${({ theme }) => theme.colors.bg2};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
-  box-shadow: ${({ theme }) => theme.mode === 'dark' ? '0 8px 24px rgba(0,0,0,0.5)' : '0 8px 24px rgba(0,0,0,0.3)'};
+  box-shadow: ${({ theme }) =>
+    theme.mode === 'dark' ? '0 8px 24px rgba(0,0,0,0.5)' : '0 8px 24px rgba(0,0,0,0.3)'};
   padding: ${({ theme }) => theme.spacing[4]};
   min-width: 280px;
 `
@@ -32,7 +33,8 @@ export const DualPeriodPanel = styled.div`
   background: ${({ theme }) => theme.colors.bg2};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
-  box-shadow: ${({ theme }) => theme.mode === 'dark' ? '0 8px 24px rgba(0,0,0,0.5)' : '0 8px 24px rgba(0,0,0,0.3)'};
+  box-shadow: ${({ theme }) =>
+    theme.mode === 'dark' ? '0 8px 24px rgba(0,0,0,0.5)' : '0 8px 24px rgba(0,0,0,0.3)'};
   padding: ${({ theme }) => theme.spacing[4]};
   min-width: 580px;
   max-height: 90vh;
@@ -64,19 +66,19 @@ export const SectionHeader = styled.div`
 `
 
 export const SectionTitle = styled.span<{ $color?: string }>`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ $color, theme }) => $color ?? theme.colors.text};
 `
 
 export const SectionDateRange = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ theme }) => theme.colors.text2};
 `
 
 export const SectionDays = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
   margin-left: ${({ theme }) => theme.spacing[2]};
 `
@@ -89,7 +91,7 @@ export const CalendarHeader = styled.div`
 `
 
 export const CalendarLabel = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
   margin-bottom: ${({ theme }) => theme.spacing[2]};
 `
@@ -102,14 +104,16 @@ export const PresetRow = styled.div`
 `
 
 export const PresetChip = styled.button<{ $active?: boolean }>`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[3]};
   border-radius: ${({ theme }) => theme.radii.pill};
   border: 1px solid
     ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.border)};
   background: ${({ $active, theme }) =>
     $active
-      ? theme.mode === 'dark' ? `${theme.colors.palette.primary}33` : `${theme.colors.palette.primary}14`
+      ? theme.mode === 'dark'
+        ? `${theme.colors.palette.primary}33`
+        : `${theme.colors.palette.primary}14`
       : 'transparent'};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text3)};
   cursor: pointer;
@@ -123,7 +127,7 @@ export const PresetChip = styled.button<{ $active?: boolean }>`
 `
 
 export const RangeInfo = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ theme }) => theme.colors.text2};
   text-align: center;
@@ -148,7 +152,7 @@ export const DayPickerWrapper = styled.div`
     --rdp-day_button-height: 28px;
     --rdp-day_button-width: 32px;
     font-family: ${({ theme }) => theme.typography.fontFamily.primary};
-    font-size: ${({ theme }) => theme.typography.fontSize.xs};
+    font-size: ${({ theme }) => theme.typography.fontSize.micro};
     color: ${({ theme }) => theme.colors.text};
   }
 
@@ -184,14 +188,14 @@ export const DayPickerWrapper = styled.div`
 
   /* 月ヘッダー */
   .rdp-month_caption {
-    font-size: ${({ theme }) => theme.typography.fontSize.sm};
+    font-size: ${({ theme }) => theme.typography.fontSize.label};
     font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
     color: ${({ theme }) => theme.colors.text};
     padding: ${({ theme }) => theme.spacing[1]} 0;
   }
 
   .rdp-caption_label {
-    font-size: ${({ theme }) => theme.typography.fontSize.sm};
+    font-size: ${({ theme }) => theme.typography.fontSize.label};
     font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   }
 
@@ -210,7 +214,7 @@ export const DayPickerWrapper = styled.div`
   }
 
   .rdp-day_button {
-    font-size: ${({ theme }) => theme.typography.fontSize.xs};
+    font-size: ${({ theme }) => theme.typography.fontSize.micro};
     color: ${({ theme }) => theme.colors.text};
     border: none;
     border-radius: ${({ theme }) => theme.radii.sm};
@@ -227,7 +231,7 @@ export const DayPickerWrapper = styled.div`
   .rdp-range_start .rdp-day_button,
   .rdp-range_end .rdp-day_button {
     background: ${({ theme }) => theme.colors.palette.primary};
-    color: #fff;
+    color: ${({ theme }) => theme.colors.palette.white};
     font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
 
     &:hover {

@@ -20,7 +20,7 @@ export const Panel = styled.div`
 `
 
 export const PanelTitle = styled.h3`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
   margin-bottom: ${({ theme }) => theme.spacing[6]};
@@ -31,7 +31,7 @@ export const PanelGroup = styled.div`
 `
 
 export const PanelGroupTitle = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text3};
   text-transform: uppercase;
@@ -46,7 +46,7 @@ export const WidgetItem = styled.label<{ $isDragging?: boolean; $isOver?: boolea
   padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[3]};
   border-radius: ${({ theme }) => theme.radii.md};
   cursor: pointer;
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-family: ${({ theme }) => theme.typography.fontFamily.primary};
   color: ${({ theme }) => theme.colors.text};
   transition: background 0.15s;
@@ -70,7 +70,7 @@ export const Checkbox = styled.input`
 export type SizeBadgeSize = 'kpi' | 'half' | 'full'
 
 export const SizeBadge = styled.span<{ $size: SizeBadgeSize }>`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   padding: 1px ${({ theme }) => theme.spacing[2]};
   border-radius: ${({ theme }) => theme.radii.sm};
   background: ${({ $size, theme }) =>
@@ -116,7 +116,7 @@ export const ModeBtn = styled.button<{ $active: boolean }>`
   all: unset;
   cursor: pointer;
   padding: 4px 12px;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   border-radius: ${({ theme }) => theme.radii.sm};
   border: 1px solid
@@ -136,7 +136,7 @@ export const OrderItem = styled.div<{ $isDragging?: boolean; $isOver?: boolean }
   gap: ${({ theme }) => theme.spacing[3]};
   padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[3]};
   border-radius: ${({ theme }) => theme.radii.md};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-family: ${({ theme }) => theme.typography.fontFamily.primary};
   color: ${({ theme }) => theme.colors.text};
   opacity: ${({ $isDragging }) => ($isDragging ? 0.4 : 1)};
@@ -162,7 +162,7 @@ export const EmptyOrderMessage = styled.div`
 `
 
 export const OrderIndex = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   min-width: 20px;

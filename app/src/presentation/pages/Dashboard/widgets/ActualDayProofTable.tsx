@@ -119,7 +119,7 @@ export function ActualDayProofTable({ type, actualDayImpact }: ActualDayProofTab
             {customerImpact.toLocaleString('ja-JP')}人
           </span>
         </span>
-        <span style={{ fontSize: theme.typography.fontSize.xs, color: theme.colors.text4 }}>
+        <span style={{ fontSize: theme.typography.fontSize.micro, color: theme.colors.text4 }}>
           = Σ(加わった日) - Σ(失われた日)
         </span>
       </ShiftedDaySummary>

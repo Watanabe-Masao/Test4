@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { palette } from '@/presentation/theme/tokens'
 
 export const Wrapper = styled.div`
   width: 100%;
@@ -22,7 +23,7 @@ export const HeaderRow = styled.div`
 `
 
 export const Title = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text2};
 `
@@ -57,7 +58,9 @@ export const ViewBtn = styled.button<{ $active?: boolean }>`
     background: ${({ $active, theme }) =>
       $active
         ? theme.colors.palette.primary
-        : theme.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'};
+        : theme.mode === 'dark'
+          ? `${palette.white}14`
+          : `${palette.black}0f`};
   }
   &:focus-visible {
     outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
@@ -89,7 +92,9 @@ export const CompareChip = styled.button<{ $active?: boolean }>`
     background: ${({ $active, theme }) =>
       $active
         ? theme.colors.palette.info
-        : theme.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'};
+        : theme.mode === 'dark'
+          ? `${palette.white}14`
+          : `${palette.black}0f`};
   }
   &:focus-visible {
     outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
@@ -115,13 +120,13 @@ export const Metric = styled.div`
 `
 
 export const MetricLabel = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
   font-family: ${({ theme }) => theme.typography.fontFamily.primary};
 `
 
 export const MetricValue = styled.span<{ $color?: string }>`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ $color, theme }) => $color ?? theme.colors.text};
@@ -154,7 +159,7 @@ export const ProgressFill = styled.div<{ $pct: number; $color: string }>`
 export const ProgressLabel = styled.div`
   display: flex;
   justify-content: space-between;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ theme }) => theme.colors.text3};
 `

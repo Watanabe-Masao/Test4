@@ -41,11 +41,13 @@ export function useChartTheme() {
     fontFamily: theme.typography.fontFamily.primary,
     monoFamily: theme.typography.fontFamily.mono,
     fontSize: {
-      xs: 9,
-      sm: 10,
-      base: 11,
+      micro: 9,
+      label: 10,
+      body: 11,
     },
     isDark: theme.mode === 'dark',
+    // ─── 意味的カラー（業務概念 → 色） ──
+    semantic: theme.chart.semantic,
   }
 }
 

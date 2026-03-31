@@ -9,7 +9,7 @@ export const Section = styled.div`
 `
 
 export const SectionTitle = styled.h5`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
   margin-bottom: ${({ theme }) => theme.spacing[4]};
@@ -22,7 +22,7 @@ export const TableWrapper = styled.div`
 export const MTable = styled.table`
   width: 100%;
   border-collapse: collapse;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
 `
 
 export const MTh = styled.th`
@@ -50,7 +50,7 @@ export const MTd = styled.td<{ $color?: string; $bold?: boolean }>`
     text-align: left;
     font-family: inherit;
     font-weight: 600;
-    font-size: ${({ theme }) => theme.typography.fontSize.xs};
+    font-size: ${({ theme }) => theme.typography.fontSize.micro};
   }
 `
 
@@ -66,14 +66,14 @@ export const LoadingMsg = styled.div`
   padding: ${({ theme }) => theme.spacing[4]};
   text-align: center;
   color: ${({ theme }) => theme.colors.text4};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
 `
 
 export const ErrorMsg = styled.div`
   padding: ${({ theme }) => theme.spacing[4]};
   text-align: center;
   color: ${palette.danger};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
 `
 
 export const WarningMsg = styled.div`

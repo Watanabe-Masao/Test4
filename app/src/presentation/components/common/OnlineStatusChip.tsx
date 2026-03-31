@@ -29,7 +29,7 @@ const Chip = styled.button<{ $colorKey: 'warning' | 'info' | 'positive' }>`
   border-radius: 12px;
   background: ${({ theme }) => theme.colors.bg2};
   color: ${({ theme, $colorKey }) => theme.colors.palette[$colorKey]};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   cursor: pointer;
   user-select: none;
   white-space: nowrap;

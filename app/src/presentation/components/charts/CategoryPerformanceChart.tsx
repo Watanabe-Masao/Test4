@@ -1,3 +1,4 @@
+import { chartFontSize } from '@/presentation/theme/tokens'
 /**
  * カテゴリPI値・偏差値分析
  *
@@ -195,7 +196,7 @@ export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
       inverse: true,
       axisLabel: {
         color: theme.colors.text3,
-        fontSize: 8,
+        fontSize: chartFontSize.axis - 2,
         fontFamily: theme.typography.fontFamily.primary,
         width: 70,
         overflow: 'truncate' as const,
@@ -253,7 +254,7 @@ export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
           max: 80,
           axisLabel: {
             color: theme.colors.text3,
-            fontSize: 9,
+            fontSize: chartFontSize.axis - 1,
             fontFamily: theme.typography.fontFamily.mono,
           },
           axisLine: { lineStyle: { color: theme.colors.border } },
@@ -365,7 +366,7 @@ export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
         type: 'value' as const,
         axisLabel: {
           color: theme.colors.text3,
-          fontSize: 9,
+          fontSize: chartFontSize.axis - 1,
           fontFamily: theme.typography.fontFamily.mono,
         },
         axisLine: { lineStyle: { color: theme.colors.border } },

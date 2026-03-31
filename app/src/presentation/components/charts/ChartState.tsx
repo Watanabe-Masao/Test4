@@ -19,7 +19,7 @@ const StateContainer = styled.div<{ $height: number }>`
 
 const StateText = styled.div<{ $variant: 'error' | 'empty' }>`
   text-align: center;
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   color: ${({ $variant, theme }) =>
     $variant === 'error' ? theme.colors.text3 : theme.colors.text4};
   padding: ${({ theme }) => theme.spacing[8]};

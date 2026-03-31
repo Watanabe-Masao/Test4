@@ -36,7 +36,7 @@ export const Wrapper = styled.div<{ $accent?: string; $clickable?: boolean }>`
 `
 
 export const Label = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text3};
   text-transform: uppercase;
@@ -46,20 +46,20 @@ export const Label = styled.div`
 
 export const Value = styled.div`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.xl};
+  font-size: ${({ theme }) => theme.typography.fontSize.title};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
 `
 
 export const SubText = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text3};
   margin-top: ${({ theme }) => theme.spacing[2]};
 `
 
 /** Level 1: one-line formula always visible below the value */
 export const FormulaSummary = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ theme }) => theme.colors.text4};
   margin-top: ${({ theme }) => theme.spacing[1]};
@@ -72,7 +72,7 @@ export const TrendBadge = styled.span<{ $direction: 'up' | 'down' | 'flat' }>`
   display: inline-flex;
   align-items: center;
   gap: 2px;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   margin-left: ${({ theme }) => theme.spacing[2]};
   color: ${({ $direction, theme }) =>
@@ -99,7 +99,7 @@ export const MethodBadge = styled.span<{ $variant: 'actual' | 'estimated' }>`
   align-items: center;
   padding: 1px ${({ theme }) => theme.spacing[2]};
   border-radius: ${({ theme }) => theme.radii.sm};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   letter-spacing: 0.02em;
   margin-left: ${({ theme }) => theme.spacing[2]};
@@ -124,7 +124,7 @@ export const WarningBadge = styled.span<{
   align-items: center;
   padding: 1px ${({ theme }) => theme.spacing[2]};
   border-radius: ${({ theme }) => theme.radii.sm};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   letter-spacing: 0.02em;
   margin-left: ${({ theme }) => theme.spacing[2]};
@@ -155,7 +155,7 @@ export const ReferenceBadge = styled.span`
   align-items: center;
   padding: 1px ${({ theme }) => theme.spacing[2]};
   border-radius: ${({ theme }) => theme.radii.sm};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   letter-spacing: 0.02em;
   margin-left: ${({ theme }) => theme.spacing[2]};

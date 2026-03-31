@@ -40,7 +40,7 @@ export const MonthDisplay = styled.button`
   border-radius: ${({ theme }) => theme.radii.md};
   background: ${({ theme }) => theme.colors.palette.primary}10;
   color: ${({ theme }) => theme.colors.text};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   cursor: pointer;
   transition: all ${({ theme }) => theme.transitions.fast};
@@ -55,12 +55,12 @@ export const MonthDisplay = styled.button`
 export const PickerOverlay = styled.div`
   position: fixed;
   inset: 0;
-  z-index: 100;
+  z-index: ${({ theme }) => theme.zIndex.dropdown};
 `
 
 export const PickerDropdown = styled.div`
   position: absolute;
-  z-index: 101;
+  z-index: ${({ theme }) => theme.zIndex.dropdown + 1};
   background: ${({ theme }) => theme.colors.bg2};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
@@ -78,7 +78,7 @@ export const PickerHeader = styled.div`
 `
 
 export const YearLabel = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
 `
@@ -116,7 +116,7 @@ export const MonthCell = styled.button<{ $active?: boolean; $hasData?: boolean }
   background: ${({ $active, theme }) =>
     $active ? `${theme.colors.palette.primary}20` : 'transparent'};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text)};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ $active, theme }) =>
     $active ? theme.typography.fontWeight.bold : theme.typography.fontWeight.normal};
   cursor: pointer;
@@ -147,6 +147,6 @@ export const SwitchingOverlay = styled.div`
   display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing[1]};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
 `

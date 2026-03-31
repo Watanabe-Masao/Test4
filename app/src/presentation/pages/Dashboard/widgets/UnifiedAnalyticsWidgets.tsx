@@ -11,7 +11,8 @@
  * 4. 店舗×時間帯比較    : StoreHourlyChart
  * 5. 前年比較         : YoYChart
  */
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
+import { buildSalesAnalysisContext } from '@/application/models/SalesAnalysisContext'
 import {
   TimeSlotChart,
   HeatmapChart,
@@ -28,12 +29,19 @@ export const UnifiedTimeSlotWidget = memo(function UnifiedTimeSlotWidget({
 }: {
   ctx: WidgetContext
 }) {
+  const context = useMemo(
+    () =>
+      buildSalesAnalysisContext(
+        ctx.currentDateRange,
+        ctx.selectedStoreIds,
+        ctx.prevYearScope,
+      ),
+    [ctx.currentDateRange, ctx.selectedStoreIds, ctx.prevYearScope],
+  )
   return (
     <TimeSlotChart
       queryExecutor={ctx.queryExecutor}
-      currentDateRange={ctx.currentDateRange}
-      selectedStoreIds={ctx.selectedStoreIds}
-      prevYearScope={ctx.prevYearScope}
+      context={context}
       weatherPersist={ctx.weatherPersist}
     />
   )

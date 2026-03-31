@@ -27,7 +27,7 @@ export const Container = styled.div`
   position: fixed;
   bottom: ${({ theme }) => theme.spacing[8]};
   right: ${({ theme }) => theme.spacing[8]};
-  z-index: 3000;
+  z-index: ${({ theme }) => theme.zIndex.toast};
   display: flex;
   flex-direction: column-reverse;
   gap: ${({ theme }) => theme.spacing[3]};
@@ -40,7 +40,7 @@ export const ToastCard = styled.div<{ $level: ToastLevel; $dismissing: boolean }
   border-left: 3px solid ${({ $level }) => levelColors[$level]};
   border-radius: ${({ theme }) => theme.radii.md};
   padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[4]};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   color: ${({ theme }) => theme.colors.text};
   min-width: 280px;
   max-width: 420px;
@@ -48,7 +48,8 @@ export const ToastCard = styled.div<{ $level: ToastLevel; $dismissing: boolean }
   align-items: flex-start;
   gap: ${({ theme }) => theme.spacing[3]};
   pointer-events: auto;
-  box-shadow: ${({ theme }) => theme.mode === 'dark' ? '0 4px 12px rgba(0,0,0,0.3)' : '0 4px 12px rgba(0,0,0,0.15)'};
+  box-shadow: ${({ theme }) =>
+    theme.mode === 'dark' ? '0 4px 12px rgba(0,0,0,0.3)' : '0 4px 12px rgba(0,0,0,0.15)'};
   ${({ $dismissing }) =>
     $dismissing
       ? css`
@@ -111,7 +112,7 @@ export const HistoryToggle = styled.button<{ $hasUnread: boolean }>`
   position: fixed;
   bottom: ${({ theme }) => theme.spacing[8]};
   right: calc(${({ theme }) => theme.spacing[8]} + 440px);
-  z-index: 3001;
+  z-index: ${({ theme }) => theme.zIndex.toast + 1};
   width: 36px;
   height: 36px;
   border-radius: 50%;
@@ -122,7 +123,8 @@ export const HistoryToggle = styled.button<{ $hasUnread: boolean }>`
   justify-content: center;
   font-size: ${({ theme }) => theme.typography.fontSize.title};
   color: ${({ theme }) => theme.colors.text3};
-  box-shadow: ${({ theme }) => theme.mode === 'dark' ? '0 2px 8px rgba(0,0,0,0.25)' : '0 2px 8px rgba(0,0,0,0.12)'};
+  box-shadow: ${({ theme }) =>
+    theme.mode === 'dark' ? '0 2px 8px rgba(0,0,0,0.25)' : '0 2px 8px rgba(0,0,0,0.12)'};
   &:hover {
     background: ${({ theme }) => theme.colors.bg4};
     color: ${({ theme }) => theme.colors.text};
@@ -154,13 +156,14 @@ export const HistoryPanel = styled.div`
   position: fixed;
   bottom: calc(${({ theme }) => theme.spacing[8]} + 44px);
   right: ${({ theme }) => theme.spacing[8]};
-  z-index: 3002;
+  z-index: ${({ theme }) => theme.zIndex.toast + 2};
   width: 380px;
   max-height: 400px;
   background: ${({ theme }) => theme.colors.bg2};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
-  box-shadow: ${({ theme }) => theme.mode === 'dark' ? '0 8px 24px rgba(0,0,0,0.4)' : '0 8px 24px rgba(0,0,0,0.2)'};
+  box-shadow: ${({ theme }) =>
+    theme.mode === 'dark' ? '0 8px 24px rgba(0,0,0,0.4)' : '0 8px 24px rgba(0,0,0,0.2)'};
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -172,7 +175,7 @@ export const HistoryHeader = styled.div`
   justify-content: space-between;
   padding: ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[5]};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text};
 `
@@ -180,7 +183,7 @@ export const HistoryHeader = styled.div`
 export const HistoryClear = styled.button`
   all: unset;
   cursor: pointer;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   &:hover {
     color: ${({ theme }) => theme.colors.text2};
@@ -205,7 +208,7 @@ export const HistoryEntry = styled.div<{ $level: ToastLevel }>`
   gap: ${({ theme }) => theme.spacing[3]};
   padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[3]};
   border-radius: ${({ theme }) => theme.radii.md};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text2};
   border-left: 2px solid ${({ $level }) => levelColors[$level]};
   margin-bottom: ${({ theme }) => theme.spacing[1]};
@@ -232,5 +235,5 @@ export const EmptyHistory = styled.div`
   padding: ${({ theme }) => theme.spacing[10]};
   text-align: center;
   color: ${({ theme }) => theme.colors.text4};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
 `

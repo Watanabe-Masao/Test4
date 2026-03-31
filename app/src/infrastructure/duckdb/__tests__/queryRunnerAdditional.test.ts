@@ -8,7 +8,6 @@
  */
 import { describe, it, expect, vi } from 'vitest'
 import {
-  buildWhereClause,
   storeIdFilter,
   storeIdFilterWithAlias,
   queryToObjects,
@@ -133,14 +132,6 @@ describe('queryScalar', () => {
   })
 })
 
-// ── buildWhereClause の追加ケース ────────────────────────────────
-
-describe('buildWhereClause (additional)', () => {
-  it('先頭が null でも残りは結合される', () => {
-    const result = buildWhereClause([null, 'x = 1', 'y = 2'])
-    expect(result).toBe('WHERE x = 1 AND y = 2')
-  })
-})
 
 // ── storeIdFilter の追加ケース ────────────────────────────────────
 
