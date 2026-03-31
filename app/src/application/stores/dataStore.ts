@@ -25,8 +25,11 @@ export interface DataStore {
   /** authoritative version（currentMonthData 更新でインクリメント） */
   authoritativeDataVersion: number
 
-  // ─── Legacy State（互換 mirror — Phase 2B で legacyData に改名予定） ──
-  data: ImportedData
+  // ─── Legacy State（互換 mirror） ──────────────────────
+  /** legacy mirror: 旧コードの s.data 参照向け。正本は currentMonthData。 */
+  legacyData: ImportedData
+  /** legacy mirror alias: 旧コードの s.data 参照を壊さない互換 getter */
+  readonly data: ImportedData
   /** legacy: authoritativeDataVersion を使用してください */
   dataVersion: number
 
@@ -64,12 +67,12 @@ const initialData = createEmptyImportedData()
 type PrevYearPayload = Parameters<DataStore['setPrevYearAutoData']>[0]
 
 function applyPrevYearData(
-  state: { data: ImportedData; dataVersion: number },
+  state: { legacyData: ImportedData; dataVersion: number },
   payload: PrevYearPayload,
 ) {
   return {
-    data: {
-      ...state.data,
+    legacyData: {
+      ...state.legacyData,
       prevYearClassifiedSales: payload.prevYearClassifiedSales,
       prevYearCategoryTimeSales: payload.prevYearCategoryTimeSales,
       prevYearFlowers: payload.prevYearFlowers,
@@ -96,7 +99,10 @@ export const useDataStore = create<DataStore>()(
       authoritativeDataVersion: 0,
 
       // Legacy State
-      data: initialData,
+      legacyData: initialData,
+      get data() {
+        return this.legacyData
+      },
       dataVersion: 0,
 
       // Derived State
@@ -113,19 +119,19 @@ export const useDataStore = create<DataStore>()(
             // prevYear* は legacy mirror の既存値を維持
             const mergedLegacy = {
               ...legacy,
-              prevYearClassifiedSales: state.data.prevYearClassifiedSales,
-              prevYearCategoryTimeSales: state.data.prevYearCategoryTimeSales,
-              prevYearFlowers: state.data.prevYearFlowers,
-              prevYearPurchase: state.data.prevYearPurchase,
-              prevYearDirectProduce: state.data.prevYearDirectProduce,
-              prevYearInterStoreIn: state.data.prevYearInterStoreIn,
-              prevYearInterStoreOut: state.data.prevYearInterStoreOut,
+              prevYearClassifiedSales: state.legacyData.prevYearClassifiedSales,
+              prevYearCategoryTimeSales: state.legacyData.prevYearCategoryTimeSales,
+              prevYearFlowers: state.legacyData.prevYearFlowers,
+              prevYearPurchase: state.legacyData.prevYearPurchase,
+              prevYearDirectProduce: state.legacyData.prevYearDirectProduce,
+              prevYearInterStoreIn: state.legacyData.prevYearInterStoreIn,
+              prevYearInterStoreOut: state.legacyData.prevYearInterStoreOut,
             }
             const nextVersion = state.authoritativeDataVersion + 1
             return {
               currentMonthData: monthly,
               authoritativeDataVersion: nextVersion,
-              data: mergedLegacy,
+              legacyData: mergedLegacy,
               dataVersion: nextVersion,
             }
           },
@@ -147,7 +153,7 @@ export const useDataStore = create<DataStore>()(
             return {
               currentMonthData: monthly,
               authoritativeDataVersion: nextVersion,
-              data,
+              legacyData: data,
               dataVersion: nextVersion,
             }
           },
@@ -169,7 +175,7 @@ export const useDataStore = create<DataStore>()(
       updateInventory: (storeId, config) =>
         set(
           (state) => {
-            const newSettings = new Map(state.data.settings)
+            const newSettings = new Map(state.legacyData.settings)
             const merged = mergeInventoryConfig(newSettings.get(storeId), storeId, config)
             newSettings.set(storeId, merged)
             // currentMonthData も同期更新
@@ -180,7 +186,7 @@ export const useDataStore = create<DataStore>()(
             return {
               currentMonthData: updatedCurrentMonth,
               authoritativeDataVersion: nextVersion,
-              data: { ...state.data, settings: newSettings },
+              legacyData: { ...state.data, settings: newSettings },
               dataVersion: nextVersion,
             }
           },
@@ -193,7 +199,7 @@ export const useDataStore = create<DataStore>()(
           (state) => ({
             currentMonthData: null,
             authoritativeDataVersion: state.authoritativeDataVersion + 1,
-            data: initialData,
+            legacyData: initialData,
             dataVersion: state.authoritativeDataVersion + 1,
             storeResults: new Map(),
             storeExplanations: new Map(),
