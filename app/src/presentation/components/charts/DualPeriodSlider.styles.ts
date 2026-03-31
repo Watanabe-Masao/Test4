@@ -105,7 +105,7 @@ export const PeriodLabel = styled.span<{ $color: string }>`
 export const ResetBtn = styled.button`
   all: unset;
   cursor: pointer;
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   padding: 2px 6px;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ theme }) => theme.colors.text4};
@@ -127,7 +127,7 @@ export const ResetBtn = styled.button`
 export const TickRow = styled.div`
   position: relative;
   height: 12px;
-  font-size: 0.5rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
 `

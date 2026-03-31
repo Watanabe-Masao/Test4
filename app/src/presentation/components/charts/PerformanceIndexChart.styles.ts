@@ -36,7 +36,7 @@ export const ViewToggle = styled.div`
 export const ViewBtn = styled.button<{ $active?: boolean }>`
   all: unset;
   cursor: pointer;
-  font-size: 0.65rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   padding: 3px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.white : theme.colors.text3)};
@@ -66,7 +66,7 @@ export const StatsRow = styled.div`
 `
 
 export const StatChip = styled.div<{ $color: string }>`
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   padding: 2px 6px;
   border-radius: ${({ theme }) => theme.radii.sm};
   background: ${({ $color }) => $color}15;

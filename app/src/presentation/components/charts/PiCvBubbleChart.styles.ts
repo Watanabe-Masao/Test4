@@ -9,7 +9,7 @@ export const LegendRow = styled.div`
 `
 
 export const LegendItem = styled.span<{ $color: string }>`
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text3};
   display: flex;
   align-items: center;
@@ -27,7 +27,7 @@ export const LegendItem = styled.span<{ $color: string }>`
 
 export const QuadrantLabel = styled.div`
   position: absolute;
-  font-size: 0.55rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   opacity: 0.6;
   font-weight: 600;

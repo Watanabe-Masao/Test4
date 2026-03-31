@@ -17,7 +17,7 @@ export const Title = styled.div`
 `
 
 export const Subtitle = styled.div`
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   color: ${({ theme }) => theme.colors.text4};
   margin-bottom: ${({ theme }) => theme.spacing[4]};
 `

@@ -12,7 +12,7 @@ export const ViewToggle = styled.div`
 export const ViewBtn = styled.button<{ $active?: boolean }>`
   all: unset;
   cursor: pointer;
-  font-size: 0.65rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   padding: 3px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.white : theme.colors.text3)};
@@ -53,7 +53,7 @@ export const Sep = styled.span`
 `
 
 export const GroupLabel = styled.span`
-  font-size: 0.55rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   padding: 3px 0 3px 4px;
   cursor: default;

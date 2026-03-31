@@ -9,7 +9,7 @@ export const StatusTable = styled.div`
 `
 
 export const StatusBadge = styled.span<{ $color: string }>`
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   padding: 2px 8px;
   border-radius: 4px;
   background: ${({ $color }) => `${$color}18`};
@@ -25,7 +25,7 @@ export const HeatmapGrid = styled.div`
 export const HeatmapTable = styled.table`
   border-collapse: collapse;
   width: 100%;
-  font-size: 0.55rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
 `
 
 export const HeatmapTh = styled.th`
@@ -53,6 +53,6 @@ export const HeatmapCell = styled.td<{ $bg: string; $textColor: string }>`
   text-align: center;
   background: ${({ $bg }) => $bg};
   color: ${({ $textColor }) => $textColor};
-  font-size: 0.5rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   min-width: 32px;
 `

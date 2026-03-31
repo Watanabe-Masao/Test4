@@ -64,7 +64,8 @@ export const Badge = styled.span<{ $color?: string }>`
   border-radius: ${({ theme }) => theme.radii.pill};
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
-  background: ${({ $color }) => ($color ? `${$color}20` : 'rgba(255,255,255,0.1)')};
+  background: ${({ $color, theme }) =>
+    $color ? `${$color}20` : theme.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)'};
   color: ${({ $color, theme }) => $color ?? theme.colors.text3};
 `
 

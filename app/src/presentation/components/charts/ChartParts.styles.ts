@@ -16,7 +16,7 @@ export const ControlItem = styled.div`
 `
 
 export const ControlItemLabel = styled.span`
-  font-size: 0.5rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
   color: ${({ theme }) => theme.colors.text4};
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -31,7 +31,7 @@ export const ControlBtnGroup = styled.div`
 
 export const ToggleBtn = styled.button<{ $active: boolean }>`
   padding: 2px 10px;
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
   border: 1px solid
     ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.border)};
   border-radius: ${({ theme }) => theme.radii.sm};
@@ -65,6 +65,6 @@ export const ToggleBtn = styled.button<{ $active: boolean }>`
 export const ChartErrorMsg = styled.div`
   padding: 24px;
   text-align: center;
-  font-size: 0.75rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   color: ${({ theme }) => theme.colors.text3};
 `

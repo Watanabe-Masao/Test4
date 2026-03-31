@@ -68,7 +68,7 @@ export const MonthNavArrow = styled.button`
   background: transparent;
   color: ${({ theme }) => theme.colors.text3};
   cursor: pointer;
-  font-size: 14px;
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
   touch-action: manipulation;
   flex-shrink: 0;
 
@@ -151,7 +151,7 @@ export const YearArrow = styled.button`
   background: transparent;
   color: ${({ theme }) => theme.colors.text3};
   cursor: pointer;
-  font-size: 12px;
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
   touch-action: manipulation;
 
   &:hover {

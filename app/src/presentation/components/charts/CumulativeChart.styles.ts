@@ -5,7 +5,7 @@ export const SummaryRow = styled.div`
   gap: ${({ theme }) => theme.spacing[4]};
   margin-top: ${({ theme }) => theme.spacing[3]};
   padding: 0 ${({ theme }) => theme.spacing[2]};
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
 `
 
 export const SummaryItem = styled.div`

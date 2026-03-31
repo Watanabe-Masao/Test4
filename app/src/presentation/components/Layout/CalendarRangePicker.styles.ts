@@ -199,7 +199,7 @@ export const DayPickerWrapper = styled.div`
 
   /* 曜日ヘッダー */
   .rdp-weekday {
-    font-size: 0.55rem;
+    font-size: ${({ theme }) => theme.typography.fontSize.micro};
     color: ${({ theme }) => theme.colors.text4};
     font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
     width: 32px;

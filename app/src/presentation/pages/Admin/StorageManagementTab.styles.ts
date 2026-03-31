@@ -233,7 +233,7 @@ export const RawTd = styled.td<{ $sticky?: boolean; $zero?: boolean }>`
 export const ConfirmOverlay = styled.div`
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: ${({ theme }) => (theme.mode === 'dark' ? 'rgba(0,0,0,0.5)' : 'rgba(15,23,42,0.35)')};
   display: flex;
   align-items: center;
   justify-content: center;
