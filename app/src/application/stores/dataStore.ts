@@ -93,6 +93,20 @@ function applyPrevYearData(
         prevYearInterStoreOut: payload.prevYearInterStoreOut,
       }),
     },
+    data: {
+      ...state.legacyData,
+      prevYearClassifiedSales: payload.prevYearClassifiedSales,
+      prevYearCategoryTimeSales: payload.prevYearCategoryTimeSales,
+      prevYearFlowers: payload.prevYearFlowers,
+      ...(payload.prevYearPurchase && { prevYearPurchase: payload.prevYearPurchase }),
+      ...(payload.prevYearDirectProduce && {
+        prevYearDirectProduce: payload.prevYearDirectProduce,
+      }),
+      ...(payload.prevYearInterStoreIn && { prevYearInterStoreIn: payload.prevYearInterStoreIn }),
+      ...(payload.prevYearInterStoreOut && {
+        prevYearInterStoreOut: payload.prevYearInterStoreOut,
+      }),
+    },
     // 前年データは補足データのため dataVersion はインクリメントしない
     dataVersion: state.dataVersion,
   }
@@ -110,9 +124,7 @@ export const useDataStore = create<DataStore>()(
 
       // Legacy State
       legacyData: initialData,
-      get data() {
-        return this.legacyData
-      },
+      data: initialData,
       dataVersion: 0,
 
       // Derived State
@@ -141,6 +153,7 @@ export const useDataStore = create<DataStore>()(
               currentMonthData: monthly,
               authoritativeDataVersion: nextVersion,
               legacyData: mergedLegacy,
+              data: mergedLegacy,
               dataVersion: nextVersion,
             }
           },
@@ -175,8 +188,8 @@ export const useDataStore = create<DataStore>()(
               authoritativeDataVersion: nextAuth,
               comparisonDataVersion: nextComp,
               ...(newAppData.current
-                ? {
-                    legacyData: {
+                ? (() => {
+                    const ld = {
                       ...toLegacyImportedData({ current: newAppData.current, prevYear: null }),
                       prevYearClassifiedSales: state.legacyData.prevYearClassifiedSales,
                       prevYearCategoryTimeSales: state.legacyData.prevYearCategoryTimeSales,
@@ -185,9 +198,9 @@ export const useDataStore = create<DataStore>()(
                       prevYearDirectProduce: state.legacyData.prevYearDirectProduce,
                       prevYearInterStoreIn: state.legacyData.prevYearInterStoreIn,
                       prevYearInterStoreOut: state.legacyData.prevYearInterStoreOut,
-                    },
-                    dataVersion: nextAuth,
-                  }
+                    }
+                    return { legacyData: ld, data: ld, dataVersion: nextAuth }
+                  })()
                 : {}),
             }
           },
@@ -211,6 +224,7 @@ export const useDataStore = create<DataStore>()(
               currentMonthData: monthly,
               authoritativeDataVersion: nextVersion,
               legacyData: data,
+              data: data,
               dataVersion: nextVersion,
             }
           },
@@ -245,6 +259,7 @@ export const useDataStore = create<DataStore>()(
               currentMonthData: updatedCurrentMonth,
               authoritativeDataVersion: nextVersion,
               legacyData: { ...state.legacyData, settings: newSettings },
+              data: { ...state.legacyData, settings: newSettings },
               dataVersion: nextVersion,
             }
           },
