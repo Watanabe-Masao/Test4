@@ -107,7 +107,7 @@ function scanFile(filePath: string, pattern: RegExp): { relPath: string; violati
 const MAX_HEX_VIOLATING_FILES = 1
 
 /** rgba() 違反を持つファイル数の上限 */
-const MAX_RGBA_VIOLATING_FILES = 64
+const MAX_RGBA_VIOLATING_FILES = 38
 
 /** font-size 違反を持つファイル数の上限 */
 const MAX_FONT_VIOLATING_FILES = 73

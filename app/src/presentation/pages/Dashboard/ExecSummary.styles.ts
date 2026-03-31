@@ -14,13 +14,13 @@ export const ExecSummaryItem = styled.div<{ $accent: string; $clickable?: boolea
   border-top: 2px solid ${({ $accent }) => $accent};
   border-radius: ${({ theme }) => theme.radii.lg};
   padding: ${({ theme }) => `${theme.spacing[4]} ${theme.spacing[6]}`};
-  ${({ $clickable }) =>
+  ${({ $clickable, theme }) =>
     $clickable &&
     `
     cursor: pointer;
     transition: box-shadow 0.15s, transform 0.15s;
     &:hover {
-      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+      box-shadow: 0 2px 8px ${theme.mode === 'dark' ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.08)'};
       transform: translateY(-1px);
     }
   `}

@@ -84,8 +84,9 @@ export const ProjectionCard = styled.div<{ $highlight?: boolean }>`
   font-size: 0.6rem;
   padding: 4px 8px;
   background: ${({ $highlight, theme }) =>
-    $highlight ? 'rgba(99,102,241,0.1)' : theme.colors.bg2};
-  border: 1px solid ${({ $highlight }) => ($highlight ? 'rgba(99,102,241,0.3)' : 'transparent')};
+    $highlight ? `${theme.colors.palette.primary}18` : theme.colors.bg2};
+  border: 1px solid
+    ${({ $highlight, theme }) => ($highlight ? `${theme.colors.palette.primary}40` : 'transparent')};
   border-radius: ${({ theme }) => theme.radii.sm};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ theme }) => theme.colors.text2};

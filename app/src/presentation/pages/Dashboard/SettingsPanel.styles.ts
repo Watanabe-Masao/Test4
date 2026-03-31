@@ -8,7 +8,7 @@ import styled from 'styled-components'
 export const PanelOverlay = styled.div`
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: ${({ theme }) => (theme.mode === 'dark' ? 'rgba(0,0,0,0.5)' : 'rgba(15,23,42,0.35)')};
   z-index: ${({ theme }) => theme.zIndex.dropdown};
   display: flex;
   justify-content: flex-end;

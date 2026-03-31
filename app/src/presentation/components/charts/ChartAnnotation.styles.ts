@@ -16,7 +16,8 @@ export const Popover = styled.div<{ $ct: ChartTheme }>`
   font-size: ${(p) => p.$ct.fontSize.sm}px;
   font-family: ${(p) => p.$ct.fontFamily};
   color: ${(p) => p.$ct.text};
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 16px
+    ${({ theme }) => (theme.mode === 'dark' ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.1)')};
   max-width: 280px;
   line-height: 1.5;
   z-index: 1100;
