@@ -10,6 +10,7 @@ import { useUndoRedo } from '../useUndoRedo'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useUiStore } from '@/application/stores/uiStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
+import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
 
 // ── Setup ─────────────────────────────────────────────
 
@@ -142,6 +143,13 @@ describe('useUndoRedo', () => {
     })
 
     it('restores inventory settings after undo', () => {
+      // currentMonthData を設定（updateInventory は currentMonthData が必要）
+      act(() => {
+        useDataStore
+          .getState()
+          .setCurrentMonthData(createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }))
+      })
+
       const { result } = renderHook(() => useUndoRedo())
 
       // Save snapshot before inventory change
@@ -158,8 +166,7 @@ describe('useUndoRedo', () => {
       act(() => {
         result.current.undo()
       })
-      // The inventory for s1 was not in the snapshot, so it should be reset to null
-      const inv = useDataStore.getState().data.settings.get('s1')
+      const inv = useDataStore.getState().currentMonthData?.settings.get('s1')
       expect(inv?.openingInventory).toBeNull()
     })
   })

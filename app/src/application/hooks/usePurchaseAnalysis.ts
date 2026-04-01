@@ -7,7 +7,6 @@
  * @layer Application — facade hook
  */
 import { useMemo } from 'react'
-import type { ImportedData } from '@/domain/models/storeTypes'
 import type { DataRepository } from '@/domain/repositories'
 import type { DateRange } from '@/domain/models/CalendarDate'
 import type { CustomCategoryId } from '@/domain/constants/customCategories'
@@ -17,7 +16,6 @@ import { useDuckDB } from './useDuckDB'
 import { usePurchaseComparisonQuery } from './duckdb/usePurchaseComparisonQuery'
 
 export interface UsePurchaseAnalysisParams {
-  readonly data: ImportedData
   readonly targetYear: number
   readonly targetMonth: number
   readonly repo: DataRepository
@@ -33,7 +31,7 @@ export interface UsePurchaseAnalysisParams {
 export function usePurchaseAnalysis(
   params: UsePurchaseAnalysisParams,
 ): AsyncQueryResult<PurchaseComparisonResult> & { readonly isReady: boolean } {
-  const duck = useDuckDB(params.data, params.targetYear, params.targetMonth, params.repo)
+  const duck = useDuckDB(params.targetYear, params.targetMonth, params.repo)
 
   const result = usePurchaseComparisonQuery(
     duck.conn,

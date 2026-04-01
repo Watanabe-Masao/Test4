@@ -10,6 +10,7 @@ import { useDataStore } from '@/application/stores/dataStore'
 import { useUiStore } from '@/application/stores/uiStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import type { ImportedData } from '@/domain/models/storeTypes'
+import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
 
 // ── Mock useRepository ───────────────────────────────
 
@@ -111,13 +112,12 @@ describe('useMonthSwitcher', () => {
         await result.current.switchMonth(2025, 3)
       })
 
-      expect(useDataStore.getState().data.stores.size).toBe(1)
+      expect(useDataStore.getState().currentMonthData?.stores.size).toBe(1)
     })
 
     it('saves current data when hasData and repo is available', async () => {
-      const { createEmptyImportedData } = await import('@/domain/models')
       const dataWithRecords = {
-        ...createEmptyImportedData(),
+        ...createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
         classifiedSales: {
           records: [
             {
@@ -140,7 +140,7 @@ describe('useMonthSwitcher', () => {
         },
       }
       act(() => {
-        useDataStore.getState().setImportedData(dataWithRecords)
+        useDataStore.getState().setCurrentMonthData(dataWithRecords)
       })
       useSettingsStore.getState().updateSettings({ targetYear: 2025, targetMonth: 1 })
 

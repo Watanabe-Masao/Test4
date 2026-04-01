@@ -65,46 +65,60 @@ function buildCtsIndex(
   return idx
 }
 
+const EMPTY_RECORDS: readonly never[] = []
+
 export function RawDataTab() {
   const { format: fmtCurrency } = useCurrencyFormat()
-  const data = useDataStore((s) => s.data)
+  const current = useDataStore((s) => s.currentMonthData)
   const prevYear = useDataStore((s) => s.appData.prevYear)
   const [dataType, setDataType] = useState<RawDataType>('classifiedSales')
 
   const stores = useMemo(
-    () => Array.from(data.stores.values()).sort((a, b) => a.code.localeCompare(b.code)),
-    [data.stores],
+    () =>
+      current
+        ? Array.from(current.stores.values()).sort((a, b) => a.code.localeCompare(b.code))
+        : [],
+    [current],
   )
 
   // classifiedSales の集計（store → day → {sales, discount}）
-  const csAgg = useMemo(() => aggregateAllStores(data.classifiedSales), [data.classifiedSales])
+  const csAgg = useMemo(
+    () => (current ? aggregateAllStores(current.classifiedSales) : {}),
+    [current],
+  )
   const prevCsAgg = useMemo(
     () => (prevYear ? aggregateAllStores(prevYear.classifiedSales) : {}),
     [prevYear],
   )
 
   // flat records → StoreDayIndex に変換（RawDataTab 表示用）
-  const purchaseIdx = useMemo(() => indexByStoreDay(data.purchase.records), [data.purchase.records])
+  const purchaseIdx = useMemo(
+    () => indexByStoreDay(current?.purchase.records ?? EMPTY_RECORDS),
+    [current],
+  )
   const interStoreInIdx = useMemo(
-    () => indexByStoreDay(data.interStoreIn.records),
-    [data.interStoreIn.records],
+    () => indexByStoreDay(current?.interStoreIn.records ?? EMPTY_RECORDS),
+    [current],
   )
   const interStoreOutIdx = useMemo(
-    () => indexByStoreDay(data.interStoreOut.records),
-    [data.interStoreOut.records],
+    () => indexByStoreDay(current?.interStoreOut.records ?? EMPTY_RECORDS),
+    [current],
   )
-  const flowersIdx = useMemo(() => indexByStoreDay(data.flowers.records), [data.flowers.records])
+  const flowersIdx = useMemo(
+    () => indexByStoreDay(current?.flowers.records ?? EMPTY_RECORDS),
+    [current],
+  )
   const directProduceIdx = useMemo(
-    () => indexByStoreDay(data.directProduce.records),
-    [data.directProduce.records],
+    () => indexByStoreDay(current?.directProduce.records ?? EMPTY_RECORDS),
+    [current],
   )
   const consumablesIdx = useMemo(
-    () => indexByStoreDay(data.consumables.records),
-    [data.consumables.records],
+    () => indexByStoreDay(current?.consumables.records ?? EMPTY_RECORDS),
+    [current],
   )
   const ctsIdx = useMemo(
-    () => buildCtsIndex(data.categoryTimeSales.records),
-    [data.categoryTimeSales.records],
+    () => buildCtsIndex(current?.categoryTimeSales.records ?? EMPTY_RECORDS),
+    [current],
   )
 
   /** StoreDayIndex のソースを dataType に応じて返す */

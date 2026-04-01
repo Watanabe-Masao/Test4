@@ -679,7 +679,7 @@ describe('analyzeFlatRecords extended', () => {
 describe('analyzeClassifiedSales extended', () => {
   it('label がそのまま返る', () => {
     const data = buildTestData()
-    const result = analyzeClassifiedSales(data, 'カスタムラベル', false)
+    const result = analyzeClassifiedSales(data.classifiedSales, 'カスタムラベル', data.stores)
     expect(result.label).toBe('カスタムラベル')
   })
 
@@ -689,7 +689,7 @@ describe('analyzeClassifiedSales extended', () => {
         records: [makeCSRecord(1, '1', 10000), makeCSRecord(5, '2', 20000)],
       },
     })
-    const result = analyzeClassifiedSales(data, '売上', false)
+    const result = analyzeClassifiedSales(data.classifiedSales, '売上', data.stores)
     expect(result.hasCustomers).toBe(false)
   })
 
@@ -705,7 +705,7 @@ describe('analyzeClassifiedSales extended', () => {
         ],
       },
     })
-    const result = analyzeClassifiedSales(data, '分類別売上', false)
+    const result = analyzeClassifiedSales(data.classifiedSales, '分類別売上', data.stores)
     expect(result.storeCount).toBe(3)
     expect(result.dayRange).toEqual({ min: 1, max: 10 })
 
@@ -730,7 +730,7 @@ describe('analyzeClassifiedSales extended', () => {
       classifiedSales: { records: [makeCSRecord(1, '1', 10000)] },
       prevYearClassifiedSales: { records: [] },
     })
-    const result = analyzeClassifiedSales(data, '前年', true)
+    const result = analyzeClassifiedSales(data.prevYearClassifiedSales, '前年', data.stores)
     expect(result.storeCount).toBe(0)
     expect(result.totalRecords).toBe(0)
     expect(result.dayRange).toBeNull()
@@ -741,7 +741,7 @@ describe('analyzeClassifiedSales extended', () => {
       classifiedSales: { records: [] },
       prevYearClassifiedSales: { records: [makeCSRecord(5, '2', 8000)] },
     })
-    const result = analyzeClassifiedSales(data, '当年', false)
+    const result = analyzeClassifiedSales(data.classifiedSales, '当年', data.stores)
     expect(result.storeCount).toBe(0)
     expect(result.totalRecords).toBe(0)
   })
@@ -750,7 +750,7 @@ describe('analyzeClassifiedSales extended', () => {
     const data = buildTestData({
       classifiedSales: { records: [makeCSRecord(1, '99', 10000)] },
     })
-    const result = analyzeClassifiedSales(data, '売上', false)
+    const result = analyzeClassifiedSales(data.classifiedSales, '売上', data.stores)
     expect(result.perStore[0].storeName).toBe('店舗99')
   })
 
@@ -769,7 +769,7 @@ describe('analyzeClassifiedSales extended', () => {
         ],
       },
     })
-    const result = analyzeClassifiedSales(data, '売上', false)
+    const result = analyzeClassifiedSales(data.classifiedSales, '売上', data.stores)
     expect(result.storeCount).toBe(2)
     // totalRecords = store1(2) + store2(1) = 3
     expect(result.totalRecords).toBe(3)
@@ -781,7 +781,11 @@ describe('analyzeClassifiedSales extended', () => {
         records: [makeCSRecord(1, '1', 5000), makeCSRecord(10, '2', 8000)],
       },
     })
-    const result = analyzeClassifiedSales(data, '前年分類別売上', true)
+    const result = analyzeClassifiedSales(
+      data.prevYearClassifiedSales,
+      '前年分類別売上',
+      data.stores,
+    )
     const store1 = result.perStore.find((s) => s.storeId === '1')
     const store2 = result.perStore.find((s) => s.storeId === '2')
     expect(store1?.storeName).toBe('店舗A')
@@ -795,16 +799,7 @@ describe('buildDataOverview extended', () => {
   it('返却配列の順序が固定', () => {
     const overview = buildDataOverview(createEmptyImportedData())
     const labels = overview.map((e) => e.label)
-    expect(labels).toEqual([
-      '仕入',
-      '分類別売上',
-      '花',
-      '産直',
-      '店間入',
-      '店間出',
-      '消耗品',
-      '前年分類別売上',
-    ])
+    expect(labels).toEqual(['仕入', '分類別売上', '花', '産直', '店間入', '店間出', '消耗品'])
   })
 
   it('花の checkCustomers が有効（hasCustomers が反映される）', () => {
@@ -882,7 +877,12 @@ describe('buildDataOverview extended', () => {
         records: [makeCSRecord(1, '1', 8000)],
       },
     })
-    const overview = buildDataOverview(data)
+    // prevYear を別パラメータとして渡す
+    const prevYearInput = {
+      ...data,
+      classifiedSales: data.prevYearClassifiedSales,
+    }
+    const overview = buildDataOverview(data, prevYearInput)
 
     const purchaseEntry = overview.find((e) => e.label === '仕入')
     expect(purchaseEntry?.storeCount).toBe(2)

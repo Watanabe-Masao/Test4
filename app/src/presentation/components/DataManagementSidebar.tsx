@@ -17,6 +17,9 @@ import { Button } from '@/presentation/components/common/layout'
 import type { DiffConfirmResult } from '@/presentation/components/common/feedback'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import { detectDataMaxDay } from '@/application/services/dataDetection'
+import type { InventoryConfig } from '@/domain/models/record'
+
+const EMPTY_SETTINGS: ReadonlyMap<string, InventoryConfig> = new Map()
 import {
   SidebarSection,
   SectionLabel,
@@ -41,7 +44,7 @@ export function DataManagementSidebar({
   showSettingsExternal?: boolean
   onSettingsExternalClose?: () => void
 } = {}) {
-  const data = useDataStore((s) => s.data)
+  const current = useDataStore((s) => s.currentMonthData)
   const storeResultsSize = useDataStore((s) => s.storeResults.size)
   const { importFiles, validationMessages, pendingDiff, resolveDiff } = useImport()
   const { selectedStoreIds, stores, toggleStore, selectAllStores } = useStoreSelection()
@@ -52,8 +55,8 @@ export function DataManagementSidebar({
   // 自動バックアップ
   const backupTrigger = useMemo(
     () =>
-      `${data.stores.size}:${data.budget.size}:${data.settings.size}:${data.classifiedSales.records.length}`,
-    [data.stores.size, data.budget.size, data.settings.size, data.classifiedSales.records.length],
+      `${current?.stores.size ?? 0}:${current?.budget.size ?? 0}:${current?.settings.size ?? 0}:${current?.classifiedSales.records.length ?? 0}`,
+    [current],
   )
   const autoBackup = useAutoBackup(repo, backupTrigger)
 
@@ -95,7 +98,7 @@ export function DataManagementSidebar({
   )
 
   const daysInMonth = getDaysInMonth(settings.targetYear, settings.targetMonth)
-  const detectedMaxDay = useMemo(() => detectDataMaxDay(data), [data])
+  const detectedMaxDay = useMemo(() => (current ? detectDataMaxDay(current) : 0), [current])
   const hasNonBudgetData = detectedMaxDay > 0
 
   // 期間選択ストアへの双方向同期
@@ -170,7 +173,7 @@ export function DataManagementSidebar({
           <InventorySettingsSection
             stores={stores}
             settings={settings}
-            settingsMap={data.settings}
+            settingsMap={current?.settings ?? EMPTY_SETTINGS}
           />
         )}
 

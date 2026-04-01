@@ -21,14 +21,12 @@
  */
 import { useEffect, useRef, useCallback, useReducer } from 'react'
 import type { AsyncDuckDB, AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { ImportedData } from '@/domain/models/storeTypes'
 import type { DataRepository } from '@/domain/repositories'
 import { useDataStore } from '@/application/stores/dataStore'
 import { resetTables, loadMonth } from '@/infrastructure/duckdb/dataLoader'
 import { deleteMonth, deletePrevYearMonth } from '@/infrastructure/duckdb/deletePolicy'
 import { materializeSummary } from '@/infrastructure/duckdb/queries/storeDaySummary'
 import { acquireMutex } from '@/infrastructure/duckdb/loadCoordinator'
-import { toLegacyImportedData } from '@/domain/models/monthlyDataAdapter'
 import { duckdbReducer, INITIAL_DUCKDB_STATE } from './duckdbReducer'
 import { computeFingerprint, computeMonthFingerprint } from './duckdbFingerprint'
 import { useEngineLifecycle } from './useEngineLifecycle'
@@ -59,13 +57,14 @@ function monthKey(y: number, m: number): string {
 }
 
 export function useDuckDB(
-  data: ImportedData | undefined,
   year: number,
   month: number,
   repo?: DataRepository | null,
 ): DuckDBHookResult {
   const [state, dispatch] = useReducer(duckdbReducer, INITIAL_DUCKDB_STATE)
+  const currentMonthData = useDataStore((s) => s.currentMonthData)
   const prevYear = useDataStore((s) => s.appData.prevYear)
+  const dataVersion = useDataStore((s) => s.authoritativeDataVersion)
 
   const lastFingerprint = useRef<string>('')
   const isMounted = useRef(true)
@@ -90,13 +89,19 @@ export function useDuckDB(
   useEngineLifecycle(dispatch)
 
   // サブフック: IndexedDB 保存月監視
-  useStoredMonthsMonitor(repo, data, year, month, dispatch)
+  useStoredMonthsMonitor(repo, dataVersion, year, month, dispatch)
 
   // データロード（当月 + 過去月 — 差分ロード対応）
   const loadData = useCallback(async () => {
-    if (!state.conn || !state.db || !data) return
+    if (!state.conn || !state.db || !currentMonthData) return
 
-    const fingerprint = computeFingerprint(data, year, month, state.storedMonthsKey, prevYear)
+    const fingerprint = computeFingerprint(
+      currentMonthData,
+      year,
+      month,
+      state.storedMonthsKey,
+      prevYear,
+    )
     if (fingerprint === lastFingerprint.current) return
 
     // 新しい世代番号を発行。先行の loadData は次の await 後にこの値を検出して bail out する。
@@ -124,9 +129,24 @@ export function useDuckDB(
         loadedMonthsRef.current.clear()
         anyChanged = true
 
-        await loadMonth(state.conn, state.db, data, year, month)
+        await loadMonth(state.conn, state.db, currentMonthData, year, month)
         if (isStale()) return
-        loadedMonthsRef.current.set(monthKey(year, month), computeMonthFingerprint(data))
+        // 前年データがあれば追加ロード
+        if (prevYear) {
+          await loadMonth(
+            state.conn,
+            state.db,
+            prevYear,
+            prevYear.origin.year,
+            prevYear.origin.month,
+            true,
+          )
+          if (isStale()) return
+        }
+        loadedMonthsRef.current.set(
+          monthKey(year, month),
+          computeMonthFingerprint(currentMonthData),
+        )
 
         if (repo) {
           const storedMonths = await repo.listStoredMonths()
@@ -137,8 +157,7 @@ export function useDuckDB(
               const historicalData = await repo.loadMonthlyData(y, m)
               if (isStale()) return
               if (historicalData) {
-                const legacyData = toLegacyImportedData({ current: historicalData, prevYear: null })
-                await loadMonth(state.conn, state.db, legacyData, y, m)
+                await loadMonth(state.conn, state.db, historicalData, y, m)
                 if (isStale()) return
                 loadedMonthsRef.current.set(monthKey(y, m), computeMonthFingerprint(historicalData))
               }
@@ -151,7 +170,7 @@ export function useDuckDB(
         initialLoadDone.current = true
       } else {
         // ── 差分ロード: 変更された月のみ delete → insert ──
-        const currentMonthFp = computeMonthFingerprint(data)
+        const currentMonthFp = computeMonthFingerprint(currentMonthData)
         const curKey = monthKey(year, month)
 
         // 当月: フィンガープリントが変わったら再ロード
@@ -159,8 +178,20 @@ export function useDuckDB(
           await deleteMonth(state.conn, year, month)
           await deletePrevYearMonth(state.conn, year, month)
           if (isStale()) return
-          await loadMonth(state.conn, state.db, data, year, month)
+          await loadMonth(state.conn, state.db, currentMonthData, year, month)
           if (isStale()) return
+          // 前年データがあれば追加ロード
+          if (prevYear) {
+            await loadMonth(
+              state.conn,
+              state.db,
+              prevYear,
+              prevYear.origin.year,
+              prevYear.origin.month,
+              true,
+            )
+            if (isStale()) return
+          }
           loadedMonthsRef.current.set(curKey, currentMonthFp)
           anyChanged = true
         }
@@ -194,8 +225,7 @@ export function useDuckDB(
               const historicalData = await repo.loadMonthlyData(y, m)
               if (isStale()) return
               if (historicalData) {
-                const legacyData = toLegacyImportedData({ current: historicalData, prevYear: null })
-                await loadMonth(state.conn, state.db, legacyData, y, m)
+                await loadMonth(state.conn, state.db, historicalData, y, m)
                 if (isStale()) return
                 loadedMonthsRef.current.set(key, computeMonthFingerprint(historicalData))
                 anyChanged = true
@@ -230,13 +260,13 @@ export function useDuckDB(
         dispatch({ type: 'LOAD_END' })
       }
     }
-  }, [state.conn, state.db, data, year, month, repo, state.storedMonthsKey, prevYear])
+  }, [state.conn, state.db, currentMonthData, year, month, repo, state.storedMonthsKey, prevYear])
 
   useEffect(() => {
-    if (state.engineState === 'ready' && state.conn && state.db && data) {
+    if (state.engineState === 'ready' && state.conn && state.db && currentMonthData) {
       loadData()
     }
-  }, [state.engineState, state.conn, state.db, data, loadData])
+  }, [state.engineState, state.conn, state.db, currentMonthData, loadData])
 
   const isReady =
     state.engineState === 'ready' && !state.isLoading && !state.error && state.dataVersion > 0

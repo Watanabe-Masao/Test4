@@ -22,8 +22,6 @@ import type { AsyncDuckDB, AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DataRepository } from '@/domain/repositories'
 import { resetTables, loadMonth } from './dataLoader'
 import { SCHEMA_VERSION, SCHEMA_META_DDL } from './schemas'
-import { toLegacyImportedData } from '@/domain/models/monthlyDataAdapter'
-
 /** DB ファイル名（engine.ts の OPFS_DB_PATH 'opfs://shiire-arari.duckdb' に対応） */
 const OPFS_DB_FILENAME = 'shiire-arari.duckdb'
 
@@ -125,8 +123,7 @@ export async function rebuildFromIndexedDB(
     try {
       const monthlyData = await repo.loadMonthlyData(year, month)
       if (monthlyData) {
-        const data = toLegacyImportedData({ current: monthlyData, prevYear: null })
-        await loadMonth(conn, db, data, year, month)
+        await loadMonth(conn, db, monthlyData, year, month)
         monthCount += 1
       }
     } catch (err) {

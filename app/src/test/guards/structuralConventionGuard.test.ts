@@ -325,7 +325,7 @@ describe('ImportedData Migration Guard', () => {
    * ImportedData の direct import（非 type-only）の件数を凍結。
    * 新規 direct import を禁止し、既存件数を単調減少させる。
    */
-  const MAX_IMPORTED_DATA_DIRECT_IMPORTS = 14
+  const MAX_IMPORTED_DATA_DIRECT_IMPORTS = 9
 
   it('ImportedData の direct import 数が上限以下（増加禁止）', () => {
     const allFiles = collectTsFiles(SRC_DIR)
@@ -357,5 +357,84 @@ describe('ImportedData Migration Guard', () => {
         `新規 direct import は禁止。MonthlyData / AppData を使用してください。\n` +
         `違反ファイル:\n${violating.join('\n')}`,
     ).toBeLessThanOrEqual(MAX_IMPORTED_DATA_DIRECT_IMPORTS)
+  })
+
+  it('本番コードから s.data / s.dataVersion / s.legacyData セレクタが存在しない', () => {
+    const allFiles = collectTsFiles(SRC_DIR)
+    const BANNED_PATTERNS = [
+      /useDataStore\(\(s\)\s*=>\s*s\.data\b/,
+      /useDataStore\(\(s\)\s*=>\s*s\.dataVersion\b/,
+      /useDataStore\(\(s\)\s*=>\s*s\.legacyData\b/,
+    ]
+    const violations: string[] = []
+
+    for (const file of allFiles) {
+      const relPath = relativePath(file)
+      if (relPath.includes('__tests__/') || relPath.includes('.test.')) continue
+
+      const content = fs.readFileSync(file, 'utf-8')
+      for (const pattern of BANNED_PATTERNS) {
+        if (pattern.test(content)) {
+          violations.push(`${relPath}: ${pattern.source}`)
+        }
+      }
+    }
+
+    expect(
+      violations,
+      `s.data / s.dataVersion / s.legacyData セレクタが本番コードに存在:\n${violations.join('\n')}\n` +
+        `currentMonthData / appData / authoritativeDataVersion を使用してください`,
+    ).toEqual([])
+  })
+
+  it('setImportedData / setPrevYearAutoData の呼出が存在しない', () => {
+    const allFiles = collectTsFiles(SRC_DIR)
+    const BANNED = /\.(setImportedData|setPrevYearAutoData)\(/
+    const violations: string[] = []
+
+    for (const file of allFiles) {
+      const relPath = relativePath(file)
+      if (relPath.includes('__tests__/') || relPath.includes('.test.')) continue
+
+      const content = fs.readFileSync(file, 'utf-8')
+      if (BANNED.test(content)) {
+        violations.push(relPath)
+      }
+    }
+
+    expect(
+      violations,
+      `削除済み API が呼び出されています:\n${violations.join('\n')}\n` +
+        `setCurrentMonthData / setPrevYearMonthData を使用してください`,
+    ).toEqual([])
+  })
+
+  it('_calculationData が計算パイプライン外からアクセスされていない', () => {
+    const allFiles = collectTsFiles(SRC_DIR)
+    const PATTERN = /_calculationData/
+    // 計算パイプライン: これらのファイルのみアクセス許可
+    const ALLOWED = new Set([
+      'application/stores/dataStore.ts',
+      'application/hooks/useCalculation.ts',
+      'application/hooks/useExplanation.ts',
+    ])
+    const violations: string[] = []
+
+    for (const file of allFiles) {
+      const relPath = relativePath(file)
+      if (relPath.includes('__tests__/') || relPath.includes('.test.')) continue
+      if (ALLOWED.has(relPath)) continue
+
+      const content = fs.readFileSync(file, 'utf-8')
+      if (PATTERN.test(content)) {
+        violations.push(relPath)
+      }
+    }
+
+    expect(
+      violations,
+      `_calculationData が計算パイプライン外からアクセスされています:\n${violations.join('\n')}\n` +
+        `currentMonthData を使用してください。計算パイプラインの完全移行は別 PR で対応。`,
+    ).toEqual([])
   })
 })

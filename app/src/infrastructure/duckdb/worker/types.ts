@@ -4,7 +4,7 @@
  * メインスレッド ↔ Worker 間の通信プロトコル。
  * 既存の calculationWorker.ts の requestId パターンを踏襲する。
  */
-import type { ImportedData } from '@/domain/models/storeTypes'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
 
 // ── リクエスト ──
 
@@ -20,7 +20,7 @@ export interface ResetTablesRequest {
 
 export interface LoadMonthRequest {
   readonly type: 'loadMonth'
-  readonly data: ImportedData
+  readonly data: MonthlyData
   readonly year: number
   readonly month: number
   readonly requestId: number

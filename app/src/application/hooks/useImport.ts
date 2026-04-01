@@ -8,6 +8,8 @@ import { validateImportedData } from '@/application/usecases/import'
 import type { ImportSummary } from '@/application/usecases/import'
 import type { MonthlyData } from '@/domain/models/MonthlyData'
 import type { AppSettings, DataType } from '@/domain/models/storeTypes'
+import { createEmptyImportedData } from '@/domain/models/storeTypes'
+import { toLegacyImportedData } from '@/domain/models/monthlyDataAdapter'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import { rawFileStore } from '@/infrastructure/storage/rawFileStore'
 import {
@@ -31,7 +33,6 @@ export type { PendingDiffCheck }
 
 /** ファイルインポートフック */
 export function useImport() {
-  const data = useDataStore((s) => s.data)
   const validationMessages = useDataStore((s) => s.validationMessages)
   const isImporting = useUiStore((s) => s.isImporting)
   const settings = useSettingsStore((s) => s.settings)
@@ -96,7 +97,12 @@ export function useImport() {
         const result = await orchestrateImport(
           files,
           settingsRef.current,
-          useDataStore.getState().data,
+          (() => {
+            const cm = useDataStore.getState().currentMonthData
+            return cm
+              ? toLegacyImportedData({ current: cm, prevYear: null })
+              : createEmptyImportedData()
+          })(),
           effects,
           (current, total, filename) => setProgress({ current, total, filename }),
           overrideType,
@@ -161,7 +167,6 @@ export function useImport() {
     importFiles,
     isImporting,
     progress,
-    data,
     validationMessages,
     pendingDiff,
     resolveDiff,

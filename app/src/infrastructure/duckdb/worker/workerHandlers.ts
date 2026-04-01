@@ -15,7 +15,7 @@ import type {
 import { resetTables, loadMonth, deleteMonth, deletePrevYearMonth } from '../dataLoader'
 import type { LoadResult } from '../dataLoader'
 import { SCHEMA_VERSION, TABLE_NAMES } from '../schemas'
-import type { ImportedData } from '@/domain/models/storeTypes'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
 
 // ── 定数・ユーティリティ ──
 
@@ -122,7 +122,7 @@ export async function executeResetTables(conn: duckdb.AsyncDuckDBConnection): Pr
 export async function executeLoadMonth(
   conn: duckdb.AsyncDuckDBConnection,
   currentDb: duckdb.AsyncDuckDB,
-  data: ImportedData,
+  data: MonthlyData,
   year: number,
   month: number,
 ): Promise<LoadResult> {

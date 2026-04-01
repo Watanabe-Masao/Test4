@@ -21,7 +21,6 @@ import type { AutoImportState, AutoImportActions } from '@/application/hooks/dat
 import { useStoreSelection } from '@/application/hooks/ui'
 import { useToast } from './useToast'
 import { useDataSummary } from '@/application/hooks/useDataSummary'
-import { useDataStore } from '@/application/stores/dataStore'
 
 const uploadTypes: { type: DataType; label: string; multi?: boolean }[] = [
   { type: 'budget', label: '0_売上予算' },
@@ -118,10 +117,9 @@ interface ImportModalProps {
 }
 
 export function ImportModal({ onClose, autoBackup, autoImport }: ImportModalProps) {
-  const data = useDataStore((s) => s.data)
   const { importFiles, progress } = useImport()
   const showToast = useToast()
-  const { loadedTypes, maxDayByType } = useDataSummary(data)
+  const { loadedTypes, maxDayByType } = useDataSummary()
   useStoreSelection() // keep store selection reactive
 
   const [importStage, setImportStage] = useState<ImportStage>('idle')

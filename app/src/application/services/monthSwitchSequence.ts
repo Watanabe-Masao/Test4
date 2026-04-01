@@ -9,33 +9,23 @@ import { useDataStore } from '@/application/stores/dataStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { usePeriodSelectionStore } from '@/application/stores/periodSelectionStore'
 import { invalidateAfterStateChange } from './stateInvalidation'
-import { createEmptyImportedData } from '@/domain/models/storeTypes'
-import { toMonthlyData, toLegacyImportedData } from '@/domain/models/monthlyDataAdapter'
 
 /** Step 1: 現在のデータを IndexedDB に保存 */
 async function saveCurrentData(repo: DataRepository): Promise<void> {
-  const currentData = useDataStore.getState().data
+  const currentMonthData = useDataStore.getState().currentMonthData
+  if (!currentMonthData) return
   const { targetYear, targetMonth } = useSettingsStore.getState().settings
   const hasData =
-    currentData.classifiedSales.records.length > 0 || currentData.purchase.records.length > 0
+    currentMonthData.classifiedSales.records.length > 0 ||
+    currentMonthData.purchase.records.length > 0
   if (hasData && repo.isAvailable()) {
-    await repo.saveMonthlyData(
-      toMonthlyData(currentData, {
-        year: targetYear,
-        month: targetMonth,
-        importedAt: new Date().toISOString(),
-      }),
-      targetYear,
-      targetMonth,
-    )
+    await repo.saveMonthlyData(currentMonthData, targetYear, targetMonth)
   }
 }
 
 /** Step 2: ステートをリセット（空データ） */
 function resetState(): void {
-  useDataStore.getState().setImportedData(createEmptyImportedData())
-  useDataStore.getState().setStoreResults(new Map())
-  useDataStore.getState().setValidationMessages([])
+  useDataStore.getState().reset()
   invalidateAfterStateChange()
 }
 
@@ -55,9 +45,7 @@ async function loadNewMonthData(repo: DataRepository, year: number, month: numbe
   if (!repo.isAvailable()) return
   const monthlyData = await repo.loadMonthlyData(year, month)
   if (monthlyData) {
-    useDataStore
-      .getState()
-      .setImportedData(toLegacyImportedData({ current: monthlyData, prevYear: null }))
+    useDataStore.getState().setCurrentMonthData(monthlyData)
     invalidateAfterStateChange()
   }
 }

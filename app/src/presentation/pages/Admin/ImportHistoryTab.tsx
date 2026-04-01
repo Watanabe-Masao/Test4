@@ -29,8 +29,7 @@ const QUALITY_FAIR = 50
 
 // ─── インポート履歴タブ ────────────────────────────────
 export function ImportHistoryTab() {
-  const data = useDataStore((s) => s.data)
-  const prevYear = useDataStore((s) => s.appData.prevYear)
+  const current = useDataStore((s) => s.currentMonthData)
   const validationMessages = useDataStore((s) => s.validationMessages)
   const { settings } = useSettings()
   const repo = useRepository()
@@ -47,7 +46,7 @@ export function ImportHistoryTab() {
       .catch((err: unknown) => {
         console.warn('インポート履歴の読み込みに失敗:', err)
       })
-  }, [repo, settings.targetYear, settings.targetMonth, data])
+  }, [repo, settings.targetYear, settings.targetMonth, current])
 
   const toggleExpand = useCallback((label: string) => {
     setExpandedRows((prev) => {
@@ -69,18 +68,18 @@ export function ImportHistoryTab() {
     dataOverview: overview,
     categoryTimeSalesStats,
     prevYearCategoryTimeSalesStats,
-  } = useDataSummary(data, prevYear)
+  } = useDataSummary()
 
   // サマリー統計
   const loadedCount = overview.filter((d) => d.storeCount > 0).length
-  const totalStores = data.stores.size
+  const totalStores = current?.stores.size ?? 0
   const totalRecords = overview.reduce((s, d) => s + d.totalRecords, 0)
   const hasCustomerData = overview.some((d) => d.hasCustomers)
 
   // Map系データ
   const mapOverview = [
-    { label: '在庫設定', count: data.settings.size },
-    { label: '予算', count: data.budget.size },
+    { label: '在庫設定', count: current?.settings.size ?? 0 },
+    { label: '予算', count: current?.budget.size ?? 0 },
   ]
 
   // 全体の最大日数レンジ（品質スコア用）

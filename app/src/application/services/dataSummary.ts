@@ -1,7 +1,7 @@
 /**
  * データサマリー純粋関数群
  *
- * ImportedData から表示用のサマリー情報を算出する。
+ * MonthlyData / ImportedData から表示用のサマリー情報を算出する。
  * Presentation 層が .records を直接走査することを防ぐため、
  * ここで全てのレコード走査を集約する。
  */
@@ -10,8 +10,33 @@ import type {
   ClassifiedSalesData,
   CategoryTimeSalesData,
   DatedRecord,
+  PurchaseData,
+  SpecialSalesData,
+  TransferData,
+  CostInclusionData,
+  DepartmentKpiData,
 } from '@/domain/models/record'
-import type { ImportedData, DataType } from '@/domain/models/storeTypes'
+import type { DataType } from '@/domain/models/storeTypes'
+import type { InventoryConfig, BudgetData } from '@/domain/models/BudgetData'
+
+/**
+ * dataSummary の入力に必要な最小構造。
+ * MonthlyData と ImportedData の両方がこの型を満たす。
+ */
+export interface DataSummaryInput {
+  readonly stores: ReadonlyMap<string, Store>
+  readonly purchase: PurchaseData
+  readonly classifiedSales: ClassifiedSalesData
+  readonly categoryTimeSales: CategoryTimeSalesData
+  readonly flowers: SpecialSalesData
+  readonly directProduce: SpecialSalesData
+  readonly interStoreIn: TransferData
+  readonly interStoreOut: TransferData
+  readonly consumables: CostInclusionData
+  readonly departmentKpi: DepartmentKpiData
+  readonly settings: ReadonlyMap<string, InventoryConfig>
+  readonly budget: ReadonlyMap<string, BudgetData>
+}
 
 // ─── 型定義 ──────────────────────────────────────────
 
@@ -41,7 +66,7 @@ export interface StoreDayStats {
 // ─── 基本判定 ────────────────────────────────────────
 
 /** データが1つでも存在するか（NavBar 用） */
-export function computeHasAnyData(data: ImportedData): boolean {
+export function computeHasAnyData(data: DataSummaryInput): boolean {
   return (
     (data.purchase?.records?.length ?? 0) > 0 || (data.classifiedSales?.records?.length ?? 0) > 0
   )
@@ -50,7 +75,7 @@ export function computeHasAnyData(data: ImportedData): boolean {
 // ─── ロード状態 ──────────────────────────────────────
 
 /** ロード済みデータ種別の一覧（DataManagementSidebar 用） */
-export function computeLoadedTypes(data: ImportedData): ReadonlySet<DataType> {
+export function computeLoadedTypes(data: DataSummaryInput): ReadonlySet<DataType> {
   const types = new Set<DataType>()
   try {
     if (data.purchase?.records?.length > 0) types.add('purchase')
@@ -79,7 +104,7 @@ function maxDayOfRecords(records: readonly { readonly day: number }[]): number {
 }
 
 /** データ種別ごとの最大日（DataManagementSidebar 用） */
-export function computeMaxDayByType(data: ImportedData): ReadonlyMap<DataType, number> {
+export function computeMaxDayByType(data: DataSummaryInput): ReadonlyMap<DataType, number> {
   const m = new Map<DataType, number>()
   try {
     const recordTypes: [DataType, { readonly records: readonly { readonly day: number }[] }][] = [
@@ -210,11 +235,10 @@ export function analyzeFlatRecords<T extends DatedRecord>(
 
 /** ClassifiedSalesData から StoreDayStats を生成（ImportHistoryTab 用） */
 export function analyzeClassifiedSales(
-  data: ImportedData,
+  csData: ClassifiedSalesData,
   label: string,
-  isPrevYear: boolean,
+  stores: ReadonlyMap<string, Store>,
 ): StoreDayStats {
-  const csData = isPrevYear ? data.prevYearClassifiedSales : data.classifiedSales
   const records = csData.records
   if (records.length === 0) {
     return {
@@ -249,7 +273,7 @@ export function analyzeClassifiedSales(
     if (min < globalMin) globalMin = min
     if (max > globalMax) globalMax = max
     totalRecords += days.length
-    const store = data.stores.get(sid)
+    const store = stores.get(sid)
     perStore.push({
       storeId: sid,
       storeName: store?.name ?? `店舗${sid}`,
@@ -270,16 +294,22 @@ export function analyzeClassifiedSales(
 }
 
 /** 全データタイプの概要を構築（ImportHistoryTab 用） */
-export function buildDataOverview(data: ImportedData): StoreDayStats[] {
+export function buildDataOverview(
+  data: DataSummaryInput,
+  prevYear?: DataSummaryInput | null,
+): StoreDayStats[] {
   const stores = data.stores
-  return [
+  const result = [
     analyzeFlatRecords(data.purchase.records, '仕入', stores),
-    analyzeClassifiedSales(data, '分類別売上', false),
+    analyzeClassifiedSales(data.classifiedSales, '分類別売上', stores),
     analyzeFlatRecords(data.flowers.records, '花', stores, true),
     analyzeFlatRecords(data.directProduce.records, '産直', stores),
     analyzeFlatRecords(data.interStoreIn.records, '店間入', stores),
     analyzeFlatRecords(data.interStoreOut.records, '店間出', stores),
     analyzeFlatRecords(data.consumables.records, '消耗品', stores),
-    analyzeClassifiedSales(data, '前年分類別売上', true),
   ]
+  if (prevYear) {
+    result.push(analyzeClassifiedSales(prevYear.classifiedSales, '前年分類別売上', stores))
+  }
+  return result
 }

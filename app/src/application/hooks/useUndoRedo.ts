@@ -5,6 +5,8 @@ import { invalidateAfterStateChange } from '@/application/services/stateInvalida
 import type { InventoryConfig } from '@/domain/models/record'
 import type { AppSettings } from '@/domain/models/storeTypes'
 
+const EMPTY_SETTINGS: ReadonlyMap<string, InventoryConfig> = new Map()
+
 /**
  * Undo/Redo 対象のスナップショット
  * 設定変更とインベントリ変更のみを追跡（データインポートはundoしない）
@@ -25,8 +27,7 @@ const MAX_HISTORY = 50
  */
 export function useUndoRedo() {
   const settings = useSettingsStore((s) => s.settings)
-  // legacy mirror 経由: undo/redo は ImportedData レベルで動作するため
-  const dataSettings = useDataStore((s) => s.data.settings)
+  const dataSettings = useDataStore((s) => s.currentMonthData?.settings ?? EMPTY_SETTINGS)
 
   const undoStack = useRef<UndoSnapshot[]>([])
   const redoStack = useRef<UndoSnapshot[]>([])

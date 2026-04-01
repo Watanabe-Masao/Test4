@@ -7,13 +7,12 @@
  */
 import { useEffect } from 'react'
 import type { Dispatch } from 'react'
-import type { ImportedData } from '@/domain/models/storeTypes'
 import type { DataRepository } from '@/domain/repositories'
 import type { DuckDBAction } from './duckdbReducer'
 
 export function useStoredMonthsMonitor(
   repo: DataRepository | null | undefined,
-  data: ImportedData | undefined,
+  dataVersion: number,
   year: number,
   month: number,
   dispatch: Dispatch<DuckDBAction>,
@@ -41,5 +40,5 @@ export function useStoredMonthsMonitor(
     return () => {
       cancelled = true
     }
-  }, [repo, data, year, month, dispatch])
+  }, [repo, dataVersion, year, month, dispatch])
 }

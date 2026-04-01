@@ -23,7 +23,7 @@ import type {
   ParquetImportResult,
   ReportGenerateResult,
 } from './types'
-import type { ImportedData } from '@/domain/models/storeTypes'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
 import type { LoadResult } from '../dataLoader'
 
 export interface DuckDBWorkerClientOptions {
@@ -98,7 +98,7 @@ export class DuckDBWorkerClient {
   /**
    * 1ヶ月分のデータをロードする。
    */
-  async loadMonth(data: ImportedData, year: number, month: number): Promise<LoadResult> {
+  async loadMonth(data: MonthlyData, year: number, month: number): Promise<LoadResult> {
     return this._sendRequest<LoadResult>(
       { type: 'loadMonth', data, year, month, requestId: 0 },
       this._queryTimeout,
