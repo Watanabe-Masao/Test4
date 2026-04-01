@@ -141,6 +141,8 @@ export function InventorySettingsSection({
                       onCommit={(val) => {
                         const rate = val != null ? val / 100 : undefined
                         useDataStore.getState().updateInventory(s.id, { flowerCostRate: rate })
+                        calculationCache.clear()
+                        useUiStore.getState().invalidateCalculation()
                       }}
                     />
                   </InventoryRow>
@@ -157,6 +159,8 @@ export function InventorySettingsSection({
                         useDataStore
                           .getState()
                           .updateInventory(s.id, { directProduceCostRate: rate })
+                        calculationCache.clear()
+                        useUiStore.getState().invalidateCalculation()
                       }}
                     />
                   </InventoryRow>
