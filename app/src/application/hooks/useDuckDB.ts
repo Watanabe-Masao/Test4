@@ -65,7 +65,6 @@ export function useDuckDB(
   const currentMonthData = useDataStore((s) => s.currentMonthData)
   const prevYear = useDataStore((s) => s.appData.prevYear)
   const dataVersion = useDataStore((s) => s.authoritativeDataVersion)
-  const data = useDataStore((s) => s.data) // legacy: fingerprint 用
 
   const lastFingerprint = useRef<string>('')
   const isMounted = useRef(true)
@@ -96,7 +95,13 @@ export function useDuckDB(
   const loadData = useCallback(async () => {
     if (!state.conn || !state.db || !currentMonthData) return
 
-    const fingerprint = computeFingerprint(data, year, month, state.storedMonthsKey, prevYear)
+    const fingerprint = computeFingerprint(
+      currentMonthData,
+      year,
+      month,
+      state.storedMonthsKey,
+      prevYear,
+    )
     if (fingerprint === lastFingerprint.current) return
 
     // 新しい世代番号を発行。先行の loadData は次の await 後にこの値を検出して bail out する。
@@ -255,23 +260,13 @@ export function useDuckDB(
         dispatch({ type: 'LOAD_END' })
       }
     }
-  }, [
-    state.conn,
-    state.db,
-    currentMonthData,
-    data,
-    year,
-    month,
-    repo,
-    state.storedMonthsKey,
-    prevYear,
-  ])
+  }, [state.conn, state.db, currentMonthData, year, month, repo, state.storedMonthsKey, prevYear])
 
   useEffect(() => {
-    if (state.engineState === 'ready' && state.conn && state.db && data) {
+    if (state.engineState === 'ready' && state.conn && state.db && currentMonthData) {
       loadData()
     }
-  }, [state.engineState, state.conn, state.db, data, loadData])
+  }, [state.engineState, state.conn, state.db, currentMonthData, loadData])
 
   const isReady =
     state.engineState === 'ready' && !state.isLoading && !state.error && state.dataVersion > 0
