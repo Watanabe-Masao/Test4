@@ -38,7 +38,13 @@ export async function orchestrateImport(
   onProgress?: ProgressCallback,
   overrideType?: DataType,
 ): Promise<MonthlyImportResult> {
-  const currentData = currentMonthData ?? createEmptyMonthlyData({ year: settings.targetYear, month: settings.targetMonth, importedAt: '' })
+  const currentData =
+    currentMonthData ??
+    createEmptyMonthlyData({
+      year: settings.targetYear,
+      month: settings.targetMonth,
+      importedAt: '',
+    })
   const {
     summary,
     data: processedData,
