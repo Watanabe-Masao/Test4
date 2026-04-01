@@ -4,7 +4,6 @@ import type { ViewType } from '@/domain/models/storeTypes'
 import type { ThemeMode } from '@/presentation/theme'
 import { palette } from '@/presentation/theme/tokens'
 import { useCalculation } from '@/application/hooks/calculation'
-import { useDataStore } from '@/application/stores/dataStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useDataSummary } from '@/application/hooks/useDataSummary'
 import { useI18n } from '@/application/hooks/useI18n'
@@ -62,9 +61,8 @@ const ADMIN_PAGE = NAV_PAGES.find((p) => p.id === 'admin')
 /** 計算状態インジケーター */
 function CalcStatusBadge() {
   const { isCalculated, isComputing, storeResults } = useCalculation()
-  const data = useDataStore((s) => s.data)
   const settings = useSettingsStore((s) => s.settings)
-  const { hasAnyData: hasData } = useDataSummary(data)
+  const { hasAnyData: hasData } = useDataSummary()
   const { messages } = useI18n()
 
   if (!hasData) return null

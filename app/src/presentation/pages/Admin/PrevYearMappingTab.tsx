@@ -41,11 +41,9 @@ const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土']
 
 export function PrevYearMappingTab() {
   const { settings, updateSettings } = useSettings()
-  const data = useDataStore((s) => s.data)
-  const prevYear = useDataStore((s) => s.appData.prevYear)
   const { listMonths } = useStorageAdmin()
   const { targetYear, targetMonth } = settings
-  const { hasPrevYearData, prevYearDays } = useDataSummary(data, prevYear)
+  const { hasPrevYearData, prevYearDays } = useDataSummary()
 
   const [availableMonths, setAvailableMonths] = useState<{ year: number; month: number }[]>([])
 

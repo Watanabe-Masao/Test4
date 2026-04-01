@@ -1,13 +1,13 @@
 /**
  * データサマリーフック
  *
- * MonthlyData から各 Presentation コンポーネントが必要とする
+ * MonthlyData / ImportedData から各 Presentation コンポーネントが必要とする
  * サマリー情報を算出する。Presentation 層が .records を直接走査
  * することを防ぎ、全てのレコード走査をこのフック経由に集約する。
  */
 import { useMemo } from 'react'
 import type { DataType } from '@/domain/models/storeTypes'
-import type { MonthlyData } from '@/domain/models/MonthlyData'
+import { useDataStore } from '@/application/stores/dataStore'
 import {
   computeHasAnyData,
   computeLoadedTypes,
@@ -15,7 +15,6 @@ import {
   computeCtsRecordStats,
   computeRecordDays,
   buildDataOverview,
-  type DataSummaryInput,
   type RecordSetStats,
   type StoreDayStats,
 } from '@/application/services/dataSummary'
@@ -41,30 +40,51 @@ export interface DataSummary {
 
 export type { RecordSetStats, StoreDayStats }
 
+const EMPTY_TYPES: ReadonlySet<DataType> = new Set()
+const EMPTY_MAP: ReadonlyMap<DataType, number> = new Map()
+const EMPTY_DAYS: ReadonlySet<number> = new Set()
+const EMPTY_STATS: RecordSetStats = { recordCount: 0, storeCount: 0, dayRange: null }
+const EMPTY_OVERVIEW: readonly StoreDayStats[] = []
+
+const EMPTY_SUMMARY: DataSummary = {
+  hasAnyData: false,
+  loadedTypes: EMPTY_TYPES,
+  maxDayByType: EMPTY_MAP,
+  hasPrevYearData: false,
+  prevYearDays: EMPTY_DAYS,
+  categoryTimeSalesStats: EMPTY_STATS,
+  prevYearCategoryTimeSalesStats: EMPTY_STATS,
+  dataOverview: EMPTY_OVERVIEW,
+}
+
 /**
- * ImportedData からサマリー情報を算出するフック。
- * data 参照が変わった場合のみ再計算する。
- * prevYear は AppData.prevYear（MonthlyData）から供給する。
+ * store から currentMonthData / prevYear を読み取りサマリーを算出するフック。
+ * 引数不要 — store state が変わった場合のみ再計算する。
  */
-export function useDataSummary(data: DataSummaryInput, prevYear?: MonthlyData | null): DataSummary {
+export function useDataSummary(): DataSummary {
+  const current = useDataStore((s) => s.currentMonthData)
+  const prevYear = useDataStore((s) => s.appData.prevYear)
+
   return useMemo(() => {
-    const hasAnyData = computeHasAnyData(data)
-    const loadedTypes = computeLoadedTypes(data)
-    const maxDayByType = computeMaxDayByType(data)
+    if (!current) return EMPTY_SUMMARY
+
+    const hasAnyData = computeHasAnyData(current)
+    const loadedTypes = computeLoadedTypes(current)
+    const maxDayByType = computeMaxDayByType(current)
     const prevYearCS = prevYear?.classifiedSales
     const hasPrevYearData = (prevYearCS?.records?.length ?? 0) > 0
-    const prevYearDays = prevYearCS?.records ? computeRecordDays(prevYearCS) : new Set<number>()
-    const categoryTimeSalesStats = data.categoryTimeSales?.records
-      ? computeCtsRecordStats(data.categoryTimeSales)
-      : { recordCount: 0, storeCount: 0, dayRange: null }
+    const prevYearDays = prevYearCS?.records ? computeRecordDays(prevYearCS) : EMPTY_DAYS
+    const categoryTimeSalesStats = current.categoryTimeSales?.records
+      ? computeCtsRecordStats(current.categoryTimeSales)
+      : EMPTY_STATS
     const prevYearCTS = prevYear?.categoryTimeSales
     const prevYearCategoryTimeSalesStats = prevYearCTS?.records
       ? computeCtsRecordStats(prevYearCTS)
-      : { recordCount: 0, storeCount: 0, dayRange: null }
+      : EMPTY_STATS
     const dataOverview =
-      data.purchase?.records && data.classifiedSales?.records
-        ? buildDataOverview(data, prevYear)
-        : []
+      current.purchase?.records && current.classifiedSales?.records
+        ? buildDataOverview(current, prevYear)
+        : EMPTY_OVERVIEW
 
     return {
       hasAnyData,
@@ -76,5 +96,5 @@ export function useDataSummary(data: DataSummaryInput, prevYear?: MonthlyData | 
       prevYearCategoryTimeSalesStats,
       dataOverview,
     }
-  }, [data, prevYear])
+  }, [current, prevYear])
 }

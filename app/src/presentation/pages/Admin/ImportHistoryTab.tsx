@@ -30,7 +30,6 @@ const QUALITY_FAIR = 50
 // ─── インポート履歴タブ ────────────────────────────────
 export function ImportHistoryTab() {
   const data = useDataStore((s) => s.data)
-  const prevYear = useDataStore((s) => s.appData.prevYear)
   const validationMessages = useDataStore((s) => s.validationMessages)
   const { settings } = useSettings()
   const repo = useRepository()
@@ -69,7 +68,7 @@ export function ImportHistoryTab() {
     dataOverview: overview,
     categoryTimeSalesStats,
     prevYearCategoryTimeSalesStats,
-  } = useDataSummary(data, prevYear)
+  } = useDataSummary()
 
   // サマリー統計
   const loadedCount = overview.filter((d) => d.storeCount > 0).length
