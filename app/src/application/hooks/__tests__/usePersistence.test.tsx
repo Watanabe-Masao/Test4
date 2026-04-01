@@ -304,7 +304,6 @@ describe('usePersistence', () => {
         'overwrite',
         incoming,
         existing,
-        new Set(['classifiedSales']),
       )
       expect(applied).toBe(incoming)
     })
@@ -324,7 +323,6 @@ describe('usePersistence', () => {
         'keep-existing',
         incoming,
         existing,
-        new Set(['purchase']),
       )
       // keep-existing は既存データを基盤にするため、既存 stores が保持される
       expect(applied.stores.has('s1')).toBe(true)
