@@ -5,6 +5,7 @@
  */
 import type { DiffResult } from '@/domain/models/analysis'
 import type { AppSettings, DataType, ImportedData } from '@/domain/models/storeTypes'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
 import { processDroppedFiles, validateImportedData, extractRecordMonths } from './FileImportService'
 import type { ImportSummary, MonthPartitions, ProgressCallback } from './FileImportService'
 import type { DataRepository } from '@/domain/repositories'
@@ -30,7 +31,7 @@ export interface PendingDiffCheck {
 /** importFiles の結果 */
 export interface ImportResult {
   readonly summary: ImportSummary
-  readonly finalData: ImportedData | null
+  readonly finalData: MonthlyData | null
   readonly pendingDiff: PendingDiffCheck | null
   readonly detectedMaxDay: number
   readonly validationMessages: ReturnType<typeof validateImportedData> | null
@@ -39,7 +40,7 @@ export interface ImportResult {
 
 /** resolveDiff の結果 */
 export interface ResolveDiffResult {
-  readonly finalData: ImportedData
+  readonly finalData: MonthlyData
   readonly detectedMaxDay: number
   readonly validationMessages: ReturnType<typeof validateImportedData>
 }

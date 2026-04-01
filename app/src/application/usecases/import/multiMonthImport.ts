@@ -129,6 +129,8 @@ export async function orchestrateMultiMonth(
 
   const messages = validateImportedData(primaryData, summary)
   const detectedMaxDay = detectDataMaxDay(primaryData)
+  const origin = { year: targetYear, month: targetMonth, importedAt: new Date().toISOString() }
+  const monthly = toMonthlyData(primaryData, origin)
 
   // 各月のインポート履歴を保存
   for (const { year, month } of recordMonths) {
@@ -137,7 +139,7 @@ export async function orchestrateMultiMonth(
 
   return {
     summary,
-    finalData: primaryData,
+    finalData: monthly,
     pendingDiff: null,
     detectedMaxDay,
     validationMessages: messages,
@@ -186,8 +188,11 @@ export async function resolveMultiMonthDiff(
     }
   }
 
+  const origin = { year: targetYear, month: targetMonth, importedAt: new Date().toISOString() }
+  const monthly = toMonthlyData(primaryFinalData, origin)
+
   return {
-    finalData: primaryFinalData,
+    finalData: monthly,
     detectedMaxDay: detectDataMaxDay(primaryFinalData),
     validationMessages: validateImportedData(primaryFinalData, summary),
   }
