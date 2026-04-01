@@ -141,7 +141,9 @@ function PeriodDisplay() {
 function HeaderContext() {
   const { isCalculated, isComputing } = useCalculation()
   const { stores, selectedStoreIds } = useStoreSelection()
-  const hasPrevYear = useDataStore((s) => s.data.prevYearClassifiedSales.records.length > 0)
+  const hasPrevYear = useDataStore(
+    (s) => (s.appData.prevYear?.classifiedSales.records.length ?? 0) > 0,
+  )
   const theme = useTheme()
 
   const storeLabel =

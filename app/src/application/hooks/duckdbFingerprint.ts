@@ -5,20 +5,22 @@
  * storedMonthsKey で過去月の増減も検知する。
  */
 import type { ImportedData } from '@/domain/models/storeTypes'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
 
 export function computeFingerprint(
   data: ImportedData,
   year: number,
   month: number,
   storedMonthsKey: string,
+  prevYear?: MonthlyData | null,
 ): string {
   return [
     year,
     month,
     data.classifiedSales.records.length,
-    data.prevYearClassifiedSales.records.length,
+    prevYear?.classifiedSales.records.length ?? 0,
     data.categoryTimeSales.records.length,
-    data.prevYearCategoryTimeSales.records.length,
+    prevYear?.categoryTimeSales.records.length ?? 0,
     data.departmentKpi.records.length,
     Object.keys(data.purchase).length,
     Object.keys(data.flowers).length,
