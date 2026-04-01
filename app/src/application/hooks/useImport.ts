@@ -6,7 +6,8 @@ import { invalidateAfterStateChange } from '@/application/services/stateInvalida
 import { useRepository } from '../context/useRepository'
 import { validateImportedData } from '@/application/usecases/import'
 import type { ImportSummary } from '@/application/usecases/import'
-import type { AppSettings, DataType, ImportedData } from '@/domain/models/storeTypes'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
+import type { AppSettings, DataType } from '@/domain/models/storeTypes'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import { rawFileStore } from '@/infrastructure/storage/rawFileStore'
 import {
@@ -39,10 +40,6 @@ export function useImport() {
   const [pendingDiff, setPendingDiff] = useState<PendingDiffCheck | null>(null)
   const [saveError, setSaveError] = useState<string | null>(null)
 
-  // ref で最新の値を保持し、ステール・クロージャを回避
-  const dataRef = useRef<ImportedData>(data)
-  dataRef.current = data
-
   const settingsRef = useRef<AppSettings>(settings)
   settingsRef.current = settings
 
@@ -61,13 +58,12 @@ export function useImport() {
   /** インポート結果を state に反映する */
   const applyImportResult = useCallback(
     (
-      finalData: ImportedData,
+      finalData: MonthlyData,
       maxDay: number,
       messages: ReturnType<typeof validateImportedData>,
     ) => {
-      useDataStore.getState().setImportedData(finalData)
+      useDataStore.getState().setCurrentMonthData(finalData)
       invalidateAfterStateChange()
-      dataRef.current = finalData
       applyDataEndDay(maxDay)
       useDataStore.getState().setValidationMessages(messages)
     },
@@ -104,7 +100,7 @@ export function useImport() {
         const result = await orchestrateImport(
           files,
           settingsRef.current,
-          dataRef.current,
+          useDataStore.getState().data,
           effects,
           (current, total, filename) => setProgress({ current, total, filename }),
           overrideType,

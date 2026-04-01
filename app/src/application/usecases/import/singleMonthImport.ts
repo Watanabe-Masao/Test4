@@ -60,23 +60,18 @@ export async function orchestrateSingleMonth(
   const messages = validateImportedData(targetData, summary)
   const detectedMaxDay = detectDataMaxDay(targetData)
 
+  const origin = { year: targetYear, month: targetMonth, importedAt: new Date().toISOString() }
+  const monthly = toMonthlyData(targetData, origin)
+
   if (repo.isAvailable()) {
-    await repo.saveMonthlyData(
-      toMonthlyData(targetData, {
-        year: targetYear,
-        month: targetMonth,
-        importedAt: new Date().toISOString(),
-      }),
-      targetYear,
-      targetMonth,
-    )
+    await repo.saveMonthlyData(monthly, targetYear, targetMonth)
     saveSummaryCache(targetData, targetYear, targetMonth, repo)
     saveImportHistory(summary, targetYear, targetMonth, repo)
   }
 
   return {
     summary,
-    finalData: targetData,
+    finalData: monthly,
     pendingDiff: null,
     detectedMaxDay,
     validationMessages: messages,
@@ -102,23 +97,18 @@ export async function resolveSingleMonthDiff(
     finalData = mergeInsertsOnly(existingData, incomingData, importedTypes)
   }
 
+  const { targetYear, targetMonth } = settings
+  const origin = { year: targetYear, month: targetMonth, importedAt: new Date().toISOString() }
+  const monthly = toMonthlyData(finalData, origin)
+
   if (repo.isAvailable()) {
-    const { targetYear, targetMonth } = settings
-    await repo.saveMonthlyData(
-      toMonthlyData(finalData, {
-        year: targetYear,
-        month: targetMonth,
-        importedAt: new Date().toISOString(),
-      }),
-      targetYear,
-      targetMonth,
-    )
+    await repo.saveMonthlyData(monthly, targetYear, targetMonth)
     saveSummaryCache(finalData, targetYear, targetMonth, repo)
     saveImportHistory(summary, targetYear, targetMonth, repo)
   }
 
   return {
-    finalData,
+    finalData: monthly,
     detectedMaxDay: detectDataMaxDay(finalData),
     validationMessages: validateImportedData(finalData, summary),
   }
