@@ -12,7 +12,7 @@ import type {
   CategoryTimeSalesData,
   ClassifiedSalesData,
 } from '@/domain/models/record'
-import type { ImportedData } from '@/domain/models/storeTypes'
+import type { DataSummaryInput } from '@/application/services/dataSummary'
 import { categoryTimeSalesRecordKey, classifiedSalesRecordKey } from '@/domain/models/record'
 
 /** フラットレコードの一意キーを生成（storeId + day） */
@@ -71,7 +71,11 @@ function flattenDayEntry(entry: Record<string, unknown>, prefix = ''): Map<strin
 }
 
 /** 店名をルックアップ */
-function getStoreName(storeId: string, existing: ImportedData, incoming: ImportedData): string {
+function getStoreName(
+  storeId: string,
+  existing: DataSummaryInput,
+  incoming: DataSummaryInput,
+): string {
   return existing.stores.get(storeId)?.name ?? incoming.stores.get(storeId)?.name ?? storeId
 }
 
@@ -81,8 +85,8 @@ function diffFlatRecords(
   existingRecords: readonly DatedRecord[],
   incomingRecords: readonly DatedRecord[],
   dataType: string,
-  existingData: ImportedData,
-  incomingData: ImportedData,
+  existingData: DataSummaryInput,
+  incomingData: DataSummaryInput,
 ): DataTypeDiff {
   const inserts: FieldChange[] = []
   const modifications: FieldChange[] = []
@@ -343,7 +347,7 @@ function diffClassifiedSales(
 // ─── メイン差分計算 ──────────────────────────────────────
 
 /** フラットレコード系フィールド一覧 */
-const DIFFABLE_FIELDS: readonly { field: keyof ImportedData; type: string }[] = [
+const DIFFABLE_FIELDS: readonly { field: keyof DataSummaryInput; type: string }[] = [
   { field: 'purchase', type: 'purchase' },
   // classifiedSales は個別処理（下記 diffClassifiedSales）
   { field: 'interStoreIn', type: 'interStoreIn' },
@@ -362,8 +366,8 @@ const DIFFABLE_FIELDS: readonly { field: keyof ImportedData; type: string }[] = 
  * @returns 差分結果
  */
 export function calculateDiff(
-  existing: ImportedData,
-  incoming: ImportedData,
+  existing: DataSummaryInput,
+  incoming: DataSummaryInput,
   importedTypes: ReadonlySet<string>,
 ): DiffResult {
   const diffs: DataTypeDiff[] = []

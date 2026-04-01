@@ -409,7 +409,9 @@ describe('loadMonth with isPrevYear=true', () => {
     const dataWithBudget: MonthlyData = {
       ...data,
       budget: new Map([['s1', { total: 1000 } as never]]),
-      consumables: { records: [{ year: 2024, month: 1, day: 1, storeId: 's1', cost: 100, items: [] }] },
+      consumables: {
+        records: [{ year: 2024, month: 1, day: 1, storeId: 's1', cost: 100, items: [] }],
+      },
     }
     const result = await loadMonth(conn, db, dataWithBudget, 2024, 1, true)
     expect(result.rowCounts.consumables).toBe(0)
