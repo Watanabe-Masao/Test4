@@ -391,3 +391,37 @@ describe('LoadResult type', () => {
     expect(result.durationMs).toBe(100)
   })
 })
+
+// ── isPrevYear パラメータのテスト ──
+
+describe('loadMonth with isPrevYear=true', () => {
+  let conn: AsyncDuckDBConnection
+  let db: AsyncDuckDB
+  let data: MonthlyData
+
+  beforeEach(() => {
+    conn = createMockConn()
+    db = createMockDb()
+    data = createEmptyMonthlyData({ year: 2024, month: 1, importedAt: '' })
+  })
+
+  it('isPrevYear=true で当年のみテーブル（consumables/departmentKpi/budget/inventoryConfig）が 0 件', async () => {
+    const dataWithBudget: MonthlyData = {
+      ...data,
+      budget: new Map([['s1', { total: 1000 } as never]]),
+      consumables: { records: [{ year: 2024, month: 1, day: 1, storeId: 's1', cost: 100, items: [] }] },
+    }
+    const result = await loadMonth(conn, db, dataWithBudget, 2024, 1, true)
+    expect(result.rowCounts.consumables).toBe(0)
+    expect(result.rowCounts.department_kpi).toBe(0)
+    expect(result.rowCounts.budget).toBe(0)
+    expect(result.rowCounts.inventory_config).toBe(0)
+  })
+
+  it('isPrevYear=false（デフォルト）で当年テーブルが投入される', async () => {
+    const result = await loadMonth(conn, db, data, 2024, 1)
+    // 空データでも 0 件で正常終了
+    expect(result.rowCounts.consumables).toBe(0)
+    expect(result.rowCounts.budget).toBe(0)
+  })
+})

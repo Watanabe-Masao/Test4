@@ -194,6 +194,24 @@ describe('computeGlobalFingerprint', () => {
     const fp2 = computeGlobalFingerprint(data, mockSettings, 31)
     expect(fp1).toBe(fp2)
   })
+
+  it('prevYear パラメータ追加でフィンガープリントが変わる', () => {
+    const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
+    const prevYear = {
+      ...createEmptyMonthlyData({ year: 2024, month: 1, importedAt: '' }),
+      classifiedSales: { records: [makeCSRecord(1, 's1', 30000)] },
+    }
+    const fp1 = computeGlobalFingerprint(data, mockSettings, 31)
+    const fp2 = computeGlobalFingerprint(data, mockSettings, 31, prevYear)
+    expect(fp1).not.toBe(fp2)
+  })
+
+  it('prevYear=null と prevYear=undefined で同じ結果', () => {
+    const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
+    const fp1 = computeGlobalFingerprint(data, mockSettings, 31, null)
+    const fp2 = computeGlobalFingerprint(data, mockSettings, 31, undefined)
+    expect(fp1).toBe(fp2)
+  })
 })
 
 describe('CalculationCache', () => {
