@@ -4,7 +4,10 @@
  * 単月処理は singleMonthImport.ts、複数月処理は multiMonthImport.ts に委譲。
  * processDroppedFiles の結果を MonthlyImportBatch に変換してから内部に渡す。
  */
-import type { AppSettings, DataType, ImportedData } from '@/domain/models/storeTypes'
+import type { AppSettings, DataType } from '@/domain/models/storeTypes'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
+import { createEmptyImportedData } from '@/domain/models/storeTypes'
+import { toLegacyImportedData } from '@/domain/models/monthlyDataAdapter'
 import { processDroppedFiles } from './FileImportService'
 import type { ProgressCallback } from './FileImportService'
 import { toMonthlyImportBatch } from './monthlyBatchAdapter'
@@ -31,17 +34,21 @@ export type { ImportSideEffects } from './monthlyImportTypes'
 export async function orchestrateImport(
   files: FileList | File[],
   settings: AppSettings,
-  currentData: ImportedData,
+  currentMonthData: MonthlyData | null,
   effects: ImportSideEffects,
   onProgress?: ProgressCallback,
   overrideType?: DataType,
 ): Promise<MonthlyImportResult> {
+  // processDroppedFiles は infrastructure 層で ImportedData を要求する（Phase H で移行予定）
+  const legacyCurrentData = currentMonthData
+    ? toLegacyImportedData({ current: currentMonthData, prevYear: null })
+    : createEmptyImportedData()
   const {
     summary,
     data: processedData,
     detectedYearMonth,
     monthPartitions,
-  } = await processDroppedFiles(files, settings, currentData, onProgress, overrideType)
+  } = await processDroppedFiles(files, settings, legacyCurrentData, onProgress, overrideType)
 
   if (summary.successCount === 0) {
     return {

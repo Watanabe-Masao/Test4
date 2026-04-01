@@ -4,12 +4,10 @@ import { useUiStore } from '@/application/stores/uiStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { invalidateAfterStateChange } from '@/application/services/stateInvalidation'
 import { useRepository } from '../context/useRepository'
-import { validateImportedData } from '@/application/usecases/import'
 import type { ImportSummary } from '@/application/usecases/import'
+import type { ValidationMessage } from '@/domain/models/record'
 import type { MonthlyData } from '@/domain/models/MonthlyData'
 import type { AppSettings, DataType } from '@/domain/models/storeTypes'
-import { createEmptyImportedData } from '@/domain/models/storeTypes'
-import { toLegacyImportedData } from '@/domain/models/monthlyDataAdapter'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import { rawFileStore } from '@/infrastructure/storage/rawFileStore'
 import {
@@ -58,11 +56,11 @@ export function useImport() {
 
   /** インポート結果を state に反映する */
   const applyImportResult = useCallback(
-    (finalData: MonthlyData, maxDay: number, messages: ReturnType<typeof validateImportedData>) => {
+    (finalData: MonthlyData, maxDay: number, messages: readonly ValidationMessage[] | null) => {
       useDataStore.getState().setCurrentMonthData(finalData)
       invalidateAfterStateChange()
       applyDataEndDay(maxDay)
-      useDataStore.getState().setValidationMessages(messages)
+      if (messages) useDataStore.getState().setValidationMessages(messages)
     },
     [applyDataEndDay],
   )
@@ -97,12 +95,7 @@ export function useImport() {
         const result = await orchestrateImport(
           files,
           settingsRef.current,
-          (() => {
-            const cm = useDataStore.getState().currentMonthData
-            return cm
-              ? toLegacyImportedData({ current: cm, prevYear: null })
-              : createEmptyImportedData()
-          })(),
+          useDataStore.getState().currentMonthData,
           effects,
           (current, total, filename) => setProgress({ current, total, filename }),
           overrideType,
