@@ -10,7 +10,10 @@ import type {
 } from './DataTypes'
 import type { ClassifiedSalesData } from './ClassifiedSales'
 
-/** インポートされた全データの集約 */
+/**
+ * @deprecated MonthlyData を使用してください。
+ * ImportedData は infrastructure 内部（processDroppedFiles, storage）でのみ使用。
+ */
 export interface ImportedData {
   readonly stores: ReadonlyMap<string, Store>
   readonly suppliers: ReadonlyMap<string, { code: string; name: string }>
@@ -38,7 +41,7 @@ export interface ImportedData {
   readonly budget: ReadonlyMap<string, BudgetData>
 }
 
-/** 空のインポートデータ */
+/** @deprecated createEmptyMonthlyData を使用してください。 */
 export function createEmptyImportedData(): ImportedData {
   return {
     stores: new Map(),

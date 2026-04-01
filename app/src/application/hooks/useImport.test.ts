@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { mergeInsertsOnly } from './useImport'
+import { mergeInsertsOnly } from '@/application/usecases/import/importDataMerge'
 import { createEmptyImportedData } from '@/domain/models/storeTypes'
 import type { ImportedData } from '@/domain/models/storeTypes'
 
