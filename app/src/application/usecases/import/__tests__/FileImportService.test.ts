@@ -5,12 +5,12 @@ import {
   extractRecordMonths,
   filterDataForMonth,
 } from '../FileImportService'
-import { createEmptyImportedData } from '@/domain/models/storeTypes'
-import type { ImportedData } from '@/domain/models/storeTypes'
+import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
 import type { ImportSummary } from '../FileImportService'
 
-function makeData(overrides: Partial<ImportedData> = {}): ImportedData {
-  return { ...createEmptyImportedData(), ...overrides }
+function makeData(overrides: Partial<MonthlyData> = {}): MonthlyData {
+  return { ...createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }), ...overrides }
 }
 
 function makeCSRecord(day: number, storeId: string, salesAmount: number, d71 = 0) {
@@ -32,7 +32,7 @@ function makeCSRecord(day: number, storeId: string, salesAmount: number, d71 = 0
   }
 }
 
-function fullData(): ImportedData {
+function fullData(): MonthlyData {
   return makeData({
     stores: new Map([
       ['1', { id: '1', code: '0001', name: '店舗A' }],
@@ -675,7 +675,7 @@ describe('分類別売上 vs 時間帯売上 乖離チェック', () => {
 // ─── 花・産直の日付範囲チェック ──────────────────────────
 
 describe('花・産直の日付範囲チェック', () => {
-  function baseData(): ImportedData {
+  function baseData(): MonthlyData {
     return makeData({
       stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
       purchase: {

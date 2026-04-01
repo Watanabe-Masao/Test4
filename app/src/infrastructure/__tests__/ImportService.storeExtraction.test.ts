@@ -7,7 +7,7 @@
  */
 import { describe, it, expect } from 'vitest'
 import { processFileData } from '../ImportService'
-import { createEmptyImportedData } from '@/domain/models/storeTypes'
+import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
 import type { AppSettings } from '@/domain/models/storeTypes'
 
 const defaultSettings: AppSettings = {
@@ -49,7 +49,7 @@ describe('processFileData — 店舗抽出', () => {
       'initialSettings',
       rows,
       'settings.xlsx',
-      createEmptyImportedData(),
+      createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
       defaultSettings,
     )
 
@@ -76,7 +76,7 @@ describe('processFileData — 店舗抽出', () => {
       'budget',
       rows,
       'budget.xlsx',
-      createEmptyImportedData(),
+      createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
       defaultSettings,
     )
 
@@ -89,7 +89,7 @@ describe('processFileData — 店舗抽出', () => {
   })
 
   it('既存 stores がある場合、budget/settings の仮店舗で上書きしないこと', () => {
-    const existing = createEmptyImportedData()
+    const existing = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
     const existingWithStores = {
       ...existing,
       stores: new Map([['1', { id: '1', code: '0001', name: '本店' }]]),

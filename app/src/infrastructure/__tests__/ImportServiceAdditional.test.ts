@@ -25,8 +25,9 @@ import {
   createEmptyMonthPartitions,
   normalizeRecordStoreIds,
 } from '../ImportService'
-import { createEmptyImportedData } from '@/domain/models/storeTypes'
-import type { AppSettings, ImportedData } from '@/domain/models/storeTypes'
+import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
+import type { AppSettings } from '@/domain/models/storeTypes'
 
 const DEFAULT_SETTINGS: AppSettings = {
   targetYear: 2026,
@@ -85,7 +86,7 @@ describe('processFileData — departmentKpi', () => {
       'departmentKpi',
       rows,
       'dept_kpi.csv',
-      createEmptyImportedData(),
+      createEmptyMonthlyData({ year: 2026, month: 2, importedAt: '' }),
       DEFAULT_SETTINGS,
     )
     expect(data.departmentKpi.records).toHaveLength(1)
@@ -106,7 +107,7 @@ describe('processFileData — departmentKpi', () => {
       'departmentKpi',
       rows1,
       'dept_kpi1.csv',
-      createEmptyImportedData(),
+      createEmptyMonthlyData({ year: 2026, month: 2, importedAt: '' }),
       DEFAULT_SETTINGS,
     )
     ;({ data } = processFileData('departmentKpi', rows2, 'dept_kpi2.csv', data, DEFAULT_SETTINGS))
@@ -155,7 +156,7 @@ describe('processFileData — categoryTimeSales', () => {
       'categoryTimeSales',
       rows,
       'category_time.csv',
-      createEmptyImportedData(),
+      createEmptyMonthlyData({ year: 2026, month: 2, importedAt: '' }),
       DEFAULT_SETTINGS,
     )
     // data が返り、stores が Map であること
@@ -178,7 +179,7 @@ describe('processFileData — 警告生成', () => {
       'budget',
       validRows,
       'budget.csv',
-      createEmptyImportedData(),
+      createEmptyMonthlyData({ year: 2026, month: 2, importedAt: '' }),
       DEFAULT_SETTINGS,
     )
     // エラーにならず data を返すこと
@@ -191,11 +192,11 @@ describe('processFileData — 警告生成', () => {
 
 describe('processDroppedFiles', () => {
   it('ファイルなしの場合は空のサマリーを返す', async () => {
-    const result = await processDroppedFiles([], DEFAULT_SETTINGS, createEmptyImportedData())
+    const result = await processDroppedFiles([], DEFAULT_SETTINGS, createEmptyMonthlyData({ year: 2026, month: 2, importedAt: '' }))
     expect(result.summary.results).toHaveLength(0)
     expect(result.summary.successCount).toBe(0)
     expect(result.summary.failureCount).toBe(0)
-    // data は空の ImportedData 構造であること
+    // data は空の MonthlyData 構造であること
     expect(result.data.stores.size).toBe(0)
     // monthPartitions は空オブジェクトであること
     expect(result.monthPartitions).toEqual(expect.objectContaining({ purchase: {} }))
@@ -212,7 +213,7 @@ describe('processDroppedFiles', () => {
     const result = await processDroppedFiles(
       [fakeFile],
       DEFAULT_SETTINGS,
-      createEmptyImportedData(),
+      createEmptyMonthlyData({ year: 2026, month: 2, importedAt: '' }),
       undefined,
       undefined,
       mockParseFile,
@@ -234,7 +235,7 @@ describe('processDroppedFiles', () => {
     const result = await processDroppedFiles(
       [fakeFile],
       DEFAULT_SETTINGS,
-      createEmptyImportedData(),
+      createEmptyMonthlyData({ year: 2026, month: 2, importedAt: '' }),
       undefined,
       'budget',
       mockParseFile,
@@ -251,7 +252,7 @@ describe('processDroppedFiles', () => {
     const result = await processDroppedFiles(
       [fakeFile],
       DEFAULT_SETTINGS,
-      createEmptyImportedData(),
+      createEmptyMonthlyData({ year: 2026, month: 2, importedAt: '' }),
       undefined,
       'budget',
       mockParseFile,
@@ -274,7 +275,7 @@ describe('processDroppedFiles', () => {
     await processDroppedFiles(
       [fakeFile],
       DEFAULT_SETTINGS,
-      createEmptyImportedData(),
+      createEmptyMonthlyData({ year: 2026, month: 2, importedAt: '' }),
       onProgress,
       undefined,
       mockParseFile,
@@ -309,7 +310,7 @@ describe('processDroppedFiles', () => {
     const result = await processDroppedFiles(
       files,
       DEFAULT_SETTINGS,
-      createEmptyImportedData(),
+      createEmptyMonthlyData({ year: 2026, month: 2, importedAt: '' }),
       undefined,
       undefined,
       mockParseFile,
@@ -344,7 +345,7 @@ describe('processDroppedFiles', () => {
     const result = await processDroppedFiles(
       [fakeFile],
       DEFAULT_SETTINGS,
-      createEmptyImportedData(),
+      createEmptyMonthlyData({ year: 2026, month: 2, importedAt: '' }),
       undefined,
       undefined,
       mockParseFile,
@@ -367,7 +368,7 @@ describe('processDroppedFiles', () => {
     const result = await processDroppedFiles(
       [fakeFile],
       DEFAULT_SETTINGS,
-      createEmptyImportedData(),
+      createEmptyMonthlyData({ year: 2026, month: 2, importedAt: '' }),
       undefined,
       undefined,
       mockParseFile,
@@ -391,7 +392,7 @@ describe('processDroppedFiles', () => {
     const result = await processDroppedFiles(
       [fakeFile],
       DEFAULT_SETTINGS,
-      createEmptyImportedData(),
+      createEmptyMonthlyData({ year: 2026, month: 2, importedAt: '' }),
       undefined,
       undefined,
       mockParseFile,
@@ -434,7 +435,7 @@ describe('processDroppedFiles', () => {
     const result = await processDroppedFiles(
       files,
       DEFAULT_SETTINGS,
-      createEmptyImportedData(),
+      createEmptyMonthlyData({ year: 2026, month: 2, importedAt: '' }),
       undefined,
       undefined,
       mockParseFile,
@@ -491,14 +492,14 @@ describe('readAndDetect', () => {
 
 describe('normalizeRecordStoreIds (additional)', () => {
   it('stores が空の場合はデータをそのまま返す', () => {
-    const data = createEmptyImportedData()
+    const data = createEmptyMonthlyData({ year: 2026, month: 2, importedAt: '' })
     const result = normalizeRecordStoreIds(data)
     expect(result).toBe(data)
   })
 
   it('classifiedSales のみが変更された場合 categoryTimeSales は同一参照', () => {
-    const data: ImportedData = {
-      ...createEmptyImportedData(),
+    const data: MonthlyData = {
+      ...createEmptyMonthlyData({ year: 2026, month: 2, importedAt: '' }),
       stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
       classifiedSales: {
         records: [
@@ -548,7 +549,7 @@ describe('processDroppedFiles — 年月検出', () => {
     const result = await processDroppedFiles(
       [fakeFile],
       settings,
-      createEmptyImportedData(),
+      createEmptyMonthlyData({ year: 2026, month: 2, importedAt: '' }),
       undefined,
       undefined,
       mockParseFile,
@@ -573,7 +574,7 @@ describe('processDroppedFiles — 年月検出', () => {
     const result = await processDroppedFiles(
       [fakeFile],
       settings,
-      createEmptyImportedData(),
+      createEmptyMonthlyData({ year: 2026, month: 2, importedAt: '' }),
       undefined,
       undefined,
       mockParseFile,
@@ -607,7 +608,7 @@ describe('processDroppedFiles — 年月検出', () => {
     const result = await processDroppedFiles(
       [fakeFile],
       DEFAULT_SETTINGS,
-      createEmptyImportedData(),
+      createEmptyMonthlyData({ year: 2026, month: 2, importedAt: '' }),
       undefined,
       undefined,
       mockParseFile,

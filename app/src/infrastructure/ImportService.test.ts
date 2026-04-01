@@ -1,13 +1,14 @@
 import { describe, it, expect } from 'vitest'
-import { createEmptyImportedData, processFileData, normalizeRecordStoreIds } from './ImportService'
+import { processFileData, normalizeRecordStoreIds } from './ImportService'
 import { validateImportData, hasValidationErrors } from '@/application/usecases/import'
-import type { ImportedData } from './ImportService'
+import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
 import { createDefaultSettings } from '@/domain/constants/defaults'
 
 const DEFAULT_SETTINGS = createDefaultSettings()
 
-function emptyData(): ImportedData {
-  return createEmptyImportedData()
+function emptyData(): MonthlyData {
+  return createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
 }
 
 describe('processFileData', () => {
@@ -436,7 +437,7 @@ describe('validateImportData', () => {
   })
 
   it('仕入・分類別売上がある場合はエラーなし', () => {
-    const data: ImportedData = {
+    const data: MonthlyData = {
       ...emptyData(),
       purchase: {
         records: [
@@ -493,7 +494,7 @@ describe('validateImportData', () => {
   })
 
   it('在庫設定なしは警告', () => {
-    const data: ImportedData = {
+    const data: MonthlyData = {
       ...emptyData(),
       purchase: {
         records: [
@@ -535,7 +536,7 @@ describe('validateImportData', () => {
   })
 
   it('予算・売変なしは情報メッセージ', () => {
-    const data: ImportedData = {
+    const data: MonthlyData = {
       ...emptyData(),
       purchase: {
         records: [
@@ -595,7 +596,7 @@ describe('validateImportData', () => {
   })
 
   it('一部店舗の在庫設定不足は警告', () => {
-    const data: ImportedData = {
+    const data: MonthlyData = {
       ...emptyData(),
       purchase: {
         records: [
@@ -671,7 +672,7 @@ describe('hasValidationErrors', () => {
 
 describe('normalizeRecordStoreIds', () => {
   it('店舗名のまま残っている storeId を数値IDに解決する', () => {
-    const data: ImportedData = {
+    const data: MonthlyData = {
       ...emptyData(),
       stores: new Map([
         ['1', { id: '1', code: '0001', name: '店舗A' }],
@@ -726,7 +727,7 @@ describe('normalizeRecordStoreIds', () => {
   })
 
   it('categoryTimeSales の storeId も正規化する', () => {
-    const data: ImportedData = {
+    const data: MonthlyData = {
       ...emptyData(),
       stores: new Map([['3', { id: '3', code: '0003', name: '毎日屋土佐道路店' }]]),
       categoryTimeSales: {
@@ -753,7 +754,7 @@ describe('normalizeRecordStoreIds', () => {
   })
 
   it('全 storeId が正しい場合はデータを変更しない', () => {
-    const data: ImportedData = {
+    const data: MonthlyData = {
       ...emptyData(),
       stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
       classifiedSales: {
