@@ -13,7 +13,7 @@ import { AMOUNT_RECONCILIATION_TOLERANCE } from '@/domain/constants'
 /**
  * インポートデータのバリデーション
  */
-export function validateImportedData(
+export function validateImportData(
   data: DataSummaryInput,
   importSummary?: ImportSummary,
 ): readonly ValidationMessage[] {

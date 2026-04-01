@@ -5,7 +5,7 @@ export {
   aggregateStoreResults,
 } from '@/application/usecases/calculation'
 export {
-  validateImportedData,
+  validateImportData,
   hasValidationErrors,
   processDroppedFiles,
 } from '@/application/usecases/import'

@@ -4,7 +4,7 @@ import { useUiStore } from '@/application/stores/uiStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { calculateAllStores } from '@/application/usecases/calculation'
 import { calculationCache, computeCacheKey } from '../services/calculationCache'
-import { validateImportedData, hasValidationErrors } from '@/application/usecases/import'
+import { validateImportData, hasValidationErrors } from '@/application/usecases/import'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import { useWorkerCalculation } from '@/application/workers'
 
@@ -39,7 +39,7 @@ export function useCalculation() {
     const currentSettings = settingsRef.current
     const currentDays = getDaysInMonth(currentSettings.targetYear, currentSettings.targetMonth)
 
-    const messages = validateImportedData(currentData)
+    const messages = validateImportData(currentData)
     useDataStore.getState().setValidationMessages(messages)
 
     if (hasValidationErrors(messages)) {

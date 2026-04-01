@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import {
-  validateImportedData,
+  validateImportData,
   hasValidationErrors,
   extractRecordMonths,
   filterDataForMonth,
@@ -93,9 +93,9 @@ function fullData(): ImportedData {
   })
 }
 
-describe('validateImportedData', () => {
+describe('validateImportData', () => {
   it('空データは分類別売上エラー・仕入は警告', () => {
-    const messages = validateImportedData(makeData())
+    const messages = validateImportData(makeData())
     const errors = messages.filter((m) => m.level === 'error')
     const warnings = messages.filter((m) => m.level === 'warning')
     expect(errors).toHaveLength(1)
@@ -104,7 +104,7 @@ describe('validateImportedData', () => {
   })
 
   it('完全なデータではエラーなし', () => {
-    const messages = validateImportedData(fullData())
+    const messages = validateImportData(fullData())
     const errors = messages.filter((m) => m.level === 'error')
     expect(errors).toHaveLength(0)
   })
@@ -125,7 +125,7 @@ describe('validateImportedData', () => {
       },
       classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
     })
-    const messages = validateImportedData(data)
+    const messages = validateImportData(data)
     expect(messages.some((m) => m.level === 'warning' && m.message.includes('店舗'))).toBe(true)
   })
 
@@ -146,7 +146,7 @@ describe('validateImportedData', () => {
       },
       classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
     })
-    const messages = validateImportedData(data)
+    const messages = validateImportData(data)
     expect(messages.some((m) => m.level === 'warning' && m.message.includes('在庫設定'))).toBe(true)
   })
 
@@ -186,7 +186,7 @@ describe('validateImportedData', () => {
         ],
       ]),
     })
-    const messages = validateImportedData(data)
+    const messages = validateImportData(data)
     const warning = messages.find((m) => m.level === 'warning' && m.message.includes('1/3'))
     expect(warning).toBeTruthy()
   })
@@ -223,7 +223,7 @@ describe('validateImportedData', () => {
         ],
       ]),
     })
-    const messages = validateImportedData(data)
+    const messages = validateImportData(data)
     expect(messages.some((m) => m.level === 'info' && m.message.includes('予算'))).toBe(true)
   })
 
@@ -259,7 +259,7 @@ describe('validateImportedData', () => {
         ],
       ]),
     })
-    const messages = validateImportedData(data)
+    const messages = validateImportData(data)
     expect(messages.some((m) => m.level === 'warning' && m.message.includes('売変'))).toBe(true)
   })
 
@@ -272,7 +272,7 @@ describe('validateImportedData', () => {
       successCount: 1,
       failureCount: 1,
     }
-    const messages = validateImportedData(fullData(), summary)
+    const messages = validateImportData(fullData(), summary)
     expect(messages.some((m) => m.level === 'error' && m.message.includes('1件'))).toBe(true)
   })
 
@@ -290,7 +290,7 @@ describe('validateImportedData', () => {
       successCount: 1,
       failureCount: 0,
     }
-    const messages = validateImportedData(fullData(), summary)
+    const messages = validateImportData(fullData(), summary)
     expect(messages.some((m) => m.level === 'info' && m.message.includes('1件'))).toBe(true)
   })
 
@@ -308,7 +308,7 @@ describe('validateImportedData', () => {
       successCount: 1,
       failureCount: 0,
     }
-    const messages = validateImportedData(fullData(), summary)
+    const messages = validateImportData(fullData(), summary)
     expect(messages.some((m) => m.level === 'warning' && m.message.includes('スキップ'))).toBe(true)
   })
 
@@ -319,7 +319,7 @@ describe('validateImportedData', () => {
       failureCount: 0,
       skippedFiles: ['readme.txt', 'image.png'],
     }
-    const messages = validateImportedData(fullData(), summary)
+    const messages = validateImportData(fullData(), summary)
     expect(messages.some((m) => m.level === 'warning' && m.message.includes('2件'))).toBe(true)
   })
 
@@ -356,7 +356,7 @@ describe('validateImportedData', () => {
         ],
       ]),
     })
-    const messages = validateImportedData(data)
+    const messages = validateImportData(data)
     const dupWarning = messages.find(
       (m) => m.level === 'warning' && m.message.includes('重複レコード'),
     )
@@ -409,7 +409,7 @@ describe('validateImportedData', () => {
         ],
       ]),
     })
-    const messages = validateImportedData(data)
+    const messages = validateImportData(data)
     const dupWarning = messages.find(
       (m) => m.level === 'warning' && m.message.includes('重複レコード'),
     )
@@ -418,7 +418,7 @@ describe('validateImportedData', () => {
   })
 
   it('重複なしの正常データでは重複警告が出ない', () => {
-    const messages = validateImportedData(fullData())
+    const messages = validateImportData(fullData())
     const dupWarning = messages.find((m) => m.message.includes('重複レコード'))
     expect(dupWarning).toBeUndefined()
   })
@@ -475,7 +475,7 @@ describe('分類別売上 vs 時間帯売上 乖離チェック', () => {
         ],
       ]),
     })
-    const messages = validateImportedData(data)
+    const messages = validateImportData(data)
     expect(messages.find((m) => m.message.includes('乖離'))).toBeUndefined()
   })
 
@@ -512,7 +512,7 @@ describe('分類別売上 vs 時間帯売上 乖離チェック', () => {
         ],
       ]),
     })
-    const messages = validateImportedData(data)
+    const messages = validateImportData(data)
     const warning = messages.find((m) => m.message.includes('乖離'))
     expect(warning).toBeTruthy()
     expect(warning!.level).toBe('warning')
@@ -563,7 +563,7 @@ describe('分類別売上 vs 時間帯売上 乖離チェック', () => {
         ],
       ]),
     })
-    const messages = validateImportedData(data)
+    const messages = validateImportData(data)
     const warning = messages.find((m) => m.message.includes('乖離'))
     expect(warning).toBeTruthy()
     expect(warning!.details).toBeDefined()
@@ -621,7 +621,7 @@ describe('分類別売上 vs 時間帯売上 乖離チェック', () => {
         ],
       ]),
     })
-    const messages = validateImportedData(data)
+    const messages = validateImportData(data)
     const warning = messages.find((m) => m.message.includes('乖離'))
     expect(warning).toBeTruthy()
     const detailText = warning!.details!.join('\n')
@@ -665,7 +665,7 @@ describe('分類別売上 vs 時間帯売上 乖離チェック', () => {
         ],
       ]),
     })
-    const messages = validateImportedData(data)
+    const messages = validateImportData(data)
     const warning = messages.find((m) => m.message.includes('乖離'))
     // 0.6%乖離は0.01%超なので警告が出る
     expect(warning).toBeTruthy()
@@ -727,7 +727,7 @@ describe('花・産直の日付範囲チェック', () => {
         ],
       },
     }
-    const messages = validateImportedData(data)
+    const messages = validateImportData(data)
     const warning = messages.find(
       (m) => m.message.includes('花データ') && m.message.includes('取り込み忘れ'),
     )
@@ -746,7 +746,7 @@ describe('花・産直の日付範囲チェック', () => {
         ],
       },
     }
-    const messages = validateImportedData(data)
+    const messages = validateImportData(data)
     const warning = messages.find(
       (m) => m.message.includes('産直データ') && m.message.includes('取り込み忘れ'),
     )
@@ -765,21 +765,21 @@ describe('花・産直の日付範囲チェック', () => {
         ],
       },
     }
-    const messages = validateImportedData(data)
+    const messages = validateImportData(data)
     expect(
       messages.find((m) => m.message.includes('花データ') && m.message.includes('取り込み忘れ')),
     ).toBeUndefined()
   })
 
   it('花データが空の場合は警告なし', () => {
-    const messages = validateImportedData(baseData())
+    const messages = validateImportData(baseData())
     expect(
       messages.find((m) => m.message.includes('花データ') && m.message.includes('取り込み忘れ')),
     ).toBeUndefined()
   })
 })
 
-describe('validateImportedData: 境界値テスト', () => {
+describe('validateImportData: 境界値テスト', () => {
   it('classifiedSalesのみインポート + categoryTimeSalesなし → 乖離チェックスキップ', () => {
     const data = makeData({
       stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
@@ -814,7 +814,7 @@ describe('validateImportedData: 境界値テスト', () => {
         ],
       ]),
     })
-    const messages = validateImportedData(data)
+    const messages = validateImportData(data)
     expect(messages.find((m) => m.message.includes('乖離'))).toBeUndefined()
   })
 })

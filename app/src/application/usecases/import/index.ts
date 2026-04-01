@@ -1,5 +1,5 @@
 export {
-  validateImportedData,
+  validateImportData,
   hasValidationErrors,
   processDroppedFiles,
   extractRecordMonths,

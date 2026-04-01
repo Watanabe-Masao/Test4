@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { createEmptyImportedData, processFileData, normalizeRecordStoreIds } from './ImportService'
-import { validateImportedData, hasValidationErrors } from '@/application/usecases/import'
+import { validateImportData, hasValidationErrors } from '@/application/usecases/import'
 import type { ImportedData } from './ImportService'
 import { createDefaultSettings } from '@/domain/constants/defaults'
 
@@ -425,9 +425,9 @@ describe('processFileData', () => {
   })
 })
 
-describe('validateImportedData', () => {
+describe('validateImportData', () => {
   it('空データは分類別売上エラー・仕入は警告', () => {
-    const messages = validateImportedData(emptyData())
+    const messages = validateImportData(emptyData())
     const errors = messages.filter((m) => m.level === 'error')
     const warnings = messages.filter((m) => m.level === 'warning')
     expect(errors).toHaveLength(1)
@@ -487,7 +487,7 @@ describe('validateImportedData', () => {
         ],
       ]),
     }
-    const messages = validateImportedData(data)
+    const messages = validateImportData(data)
     const errors = messages.filter((m) => m.level === 'error')
     expect(errors).toHaveLength(0)
   })
@@ -529,7 +529,7 @@ describe('validateImportedData', () => {
       },
       stores: new Map([['1', { id: '1', code: '0001', name: 'A' }]]),
     }
-    const messages = validateImportedData(data)
+    const messages = validateImportData(data)
     const warnings = messages.filter((m) => m.level === 'warning')
     expect(warnings.some((w) => w.message.includes('在庫設定'))).toBe(true)
   })
@@ -586,7 +586,7 @@ describe('validateImportedData', () => {
         ],
       ]),
     }
-    const messages = validateImportedData(data)
+    const messages = validateImportData(data)
     const infos = messages.filter((m) => m.level === 'info')
     expect(infos.some((i) => i.message.includes('予算'))).toBe(true)
     // 売変なしは warning に昇格
@@ -649,7 +649,7 @@ describe('validateImportedData', () => {
         ],
       ]),
     }
-    const messages = validateImportedData(data)
+    const messages = validateImportData(data)
     const warnings = messages.filter((m) => m.level === 'warning')
     expect(warnings.some((w) => w.message.includes('1/2'))).toBe(true)
   })
