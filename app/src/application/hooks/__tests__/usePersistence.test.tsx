@@ -140,7 +140,7 @@ describe('usePersistence', () => {
       await waitFor(() => {
         expect(result.current.autoRestored).toBe(true)
       })
-      expect(useDataStore.getState().data.stores.size).toBe(1)
+      expect(useDataStore.getState().currentMonthData?.stores.size).toBe(1)
     })
 
     it('sets autoRestored true even when getSessionMeta returns null (no data to restore)', async () => {

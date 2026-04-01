@@ -112,7 +112,7 @@ describe('useMonthSwitcher', () => {
         await result.current.switchMonth(2025, 3)
       })
 
-      expect(useDataStore.getState().data.stores.size).toBe(1)
+      expect(useDataStore.getState().currentMonthData?.stores.size).toBe(1)
     })
 
     it('saves current data when hasData and repo is available', async () => {

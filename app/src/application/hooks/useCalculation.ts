@@ -10,7 +10,7 @@ import { useWorkerCalculation } from '@/application/workers'
 
 /** 計算実行フック（データ変更時に自動計算、Web Worker対応、キャッシュ付き） */
 export function useCalculation() {
-  const dataVersion = useDataStore((s) => s.dataVersion)
+  const dataVersion = useDataStore((s) => s.authoritativeDataVersion)
   const canCalculate = useDataStore(
     (s) => (s.currentMonthData?.classifiedSales.records.length ?? 0) > 0,
   )
@@ -34,7 +34,7 @@ export function useCalculation() {
 
   const calculate = useCallback(() => {
     // 呼び出し時点の値をスナップショットとして取得
-    const currentData = useDataStore.getState().data
+    const currentData = useDataStore.getState()._calculationData
     const currentSettings = settingsRef.current
     const currentDays = getDaysInMonth(currentSettings.targetYear, currentSettings.targetMonth)
 

@@ -147,9 +147,7 @@ describe('useUndoRedo', () => {
       act(() => {
         useDataStore
           .getState()
-          .setCurrentMonthData(
-            createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
-          )
+          .setCurrentMonthData(createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }))
       })
 
       const { result } = renderHook(() => useUndoRedo())

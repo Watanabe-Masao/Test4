@@ -10,7 +10,7 @@ describe('dataStore', () => {
 
   it('初期状態は空のデータ', () => {
     const state = useDataStore.getState()
-    expect(state.data.stores.size).toBe(0)
+    expect(state.currentMonthData?.stores.size ?? 0).toBe(0)
     expect(state.storeResults.size).toBe(0)
     expect(state.validationMessages).toEqual([])
   })
@@ -22,8 +22,8 @@ describe('dataStore', () => {
     }
     useDataStore.getState().setCurrentMonthData(data)
 
-    expect(useDataStore.getState().data.stores.size).toBe(1)
-    expect(useDataStore.getState().data.stores.get('s1')?.name).toBe('テスト店')
+    expect(useDataStore.getState().currentMonthData?.stores.size).toBe(1)
+    expect(useDataStore.getState().currentMonthData?.stores.get('s1')?.name).toBe('テスト店')
   })
 
   it('setStoreResults で計算結果を設定できる', () => {
@@ -77,17 +77,23 @@ describe('dataStore', () => {
   })
 
   it('updateInventory で在庫設定を更新できる', () => {
+    const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
+    useDataStore.getState().setCurrentMonthData(data)
+
     useDataStore.getState().updateInventory('s1', {
       openingInventory: 1000,
       closingInventory: 2000,
     })
 
-    const config = useDataStore.getState().data.settings.get('s1')
+    const config = useDataStore.getState().currentMonthData?.settings.get('s1')
     expect(config?.openingInventory).toBe(1000)
     expect(config?.closingInventory).toBe(2000)
   })
 
   it('updateInventory で既存設定を部分更新できる', () => {
+    const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
+    useDataStore.getState().setCurrentMonthData(data)
+
     useDataStore.getState().updateInventory('s1', {
       openingInventory: 1000,
     })
@@ -95,7 +101,7 @@ describe('dataStore', () => {
       closingInventory: 2000,
     })
 
-    const config = useDataStore.getState().data.settings.get('s1')
+    const config = useDataStore.getState().currentMonthData?.settings.get('s1')
     expect(config?.openingInventory).toBe(1000)
     expect(config?.closingInventory).toBe(2000)
   })
@@ -106,6 +112,6 @@ describe('dataStore', () => {
 
     useDataStore.getState().reset()
     expect(useDataStore.getState().validationMessages).toEqual([])
-    expect(useDataStore.getState().data.stores.size).toBe(0)
+    expect(useDataStore.getState().currentMonthData?.stores.size ?? 0).toBe(0)
   })
 })
