@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import type { AsyncDuckDB, AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { ImportedData } from '@/domain/models/storeTypes'
-import { createEmptyImportedData } from '@/domain/models/storeTypes'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
+import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
 import { TABLE_NAMES } from '../schemas'
 import { resetTables, deleteMonth, loadMonth } from '../dataLoader'
 import type { LoadResult } from '../dataLoader'
@@ -89,12 +89,12 @@ describe('deleteMonth', () => {
 describe('loadMonth', () => {
   let conn: AsyncDuckDBConnection
   let db: AsyncDuckDB
-  let data: ImportedData
+  let data: MonthlyData
 
   beforeEach(() => {
     conn = createMockConn()
     db = createMockDb()
-    data = createEmptyImportedData()
+    data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
   })
 
   it('returns a LoadResult with rowCounts and durationMs', async () => {
@@ -136,7 +136,7 @@ describe('loadMonth', () => {
     } as unknown as AsyncDuckDBConnection
 
     // Add records to trigger the insertClassifiedSales path
-    const dataWithRecords: ImportedData = {
+    const dataWithRecords: MonthlyData = {
       ...data,
       classifiedSales: {
         records: [
@@ -168,7 +168,7 @@ describe('loadMonth', () => {
     const dropMock = vi.mocked(db.dropFile)
 
     // Add purchase data to trigger at least one bulk insert
-    const dataWithPurchase: ImportedData = {
+    const dataWithPurchase: MonthlyData = {
       ...data,
       purchase: {
         records: [
@@ -195,7 +195,7 @@ describe('loadMonth', () => {
   })
 
   it('correctly processes special sales data', async () => {
-    const dataWithSpecial: ImportedData = {
+    const dataWithSpecial: MonthlyData = {
       ...data,
       flowers: {
         records: [
@@ -214,7 +214,7 @@ describe('loadMonth', () => {
   })
 
   it('correctly processes transfer data', async () => {
-    const dataWithTransfers: ImportedData = {
+    const dataWithTransfers: MonthlyData = {
       ...data,
       interStoreIn: {
         records: [
@@ -281,7 +281,7 @@ describe('loadMonth', () => {
   })
 
   it('correctly processes consumables data', async () => {
-    const dataWithConsumables: ImportedData = {
+    const dataWithConsumables: MonthlyData = {
       ...data,
       consumables: {
         records: [
@@ -310,7 +310,7 @@ describe('loadMonth', () => {
       ],
     ])
 
-    const dataWithBudget: ImportedData = { ...data, budget: budgetMap }
+    const dataWithBudget: MonthlyData = { ...data, budget: budgetMap }
     const result = await loadMonth(conn, db, dataWithBudget, 2025, 1)
     expect(result.rowCounts.budget).toBe(2)
   })
@@ -332,13 +332,13 @@ describe('loadMonth', () => {
       ],
     ])
 
-    const dataWithSettings: ImportedData = { ...data, settings: settingsMap }
+    const dataWithSettings: MonthlyData = { ...data, settings: settingsMap }
     const result = await loadMonth(conn, db, dataWithSettings, 2025, 1)
     expect(result.rowCounts.inventory_config).toBe(1)
   })
 
   it('correctly processes department KPI records', async () => {
-    const dataWithKpi: ImportedData = {
+    const dataWithKpi: MonthlyData = {
       ...data,
       departmentKpi: {
         records: [
