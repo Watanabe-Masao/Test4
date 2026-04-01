@@ -11,8 +11,6 @@ import { PersistenceContext } from '../context/persistenceContextDef'
 import { calculateDiff } from '@/application/services/diffCalculator'
 import type { DataSummaryInput } from '@/application/services/dataSummary'
 import type { DiffResult } from '@/domain/models/analysis'
-import type { ImportedData } from '@/domain/models/storeTypes'
-import { mergeInsertsOnly } from './useImport'
 
 // ─── 型定義 ──────────────────────────────────────────────
 
@@ -46,16 +44,15 @@ export interface PersistenceActions {
    * 差分がない or 既存データなしの場合は null を返す。
    */
   checkDiffBeforeImport: (
-    incoming: ImportedData,
+    incoming: DataSummaryInput,
     importedTypes: ReadonlySet<string>,
   ) => Promise<DiffResult | null>
   /** 差分確認の結果を処理する（overwrite → 新データで保存、keep-existing → 挿入のみ適用） */
   applyDiffDecision: (
     action: 'overwrite' | 'keep-existing',
-    incoming: ImportedData,
-    existing: ImportedData,
-    importedTypes: ReadonlySet<string>,
-  ) => ImportedData
+    incoming: DataSummaryInput,
+    existing: DataSummaryInput,
+  ) => DataSummaryInput
   /** 差分ダイアログを閉じる */
   dismissDiffDialog: () => void
   /** 当月データを削除 */
@@ -127,15 +124,10 @@ export function usePersistence(): PersistenceState & PersistenceActions {
   const applyDiffDecision = useCallback(
     (
       action: 'overwrite' | 'keep-existing',
-      incoming: ImportedData,
-      existing: ImportedData,
-      importedTypes: ReadonlySet<string>,
-    ): ImportedData => {
-      if (action === 'overwrite') {
-        return incoming
-      }
-      // keep-existing: 挿入のみマージ
-      return mergeInsertsOnly(existing, incoming, importedTypes)
+      incoming: DataSummaryInput,
+      existing: DataSummaryInput,
+    ): DataSummaryInput => {
+      return action === 'overwrite' ? incoming : existing
     },
     [],
   )

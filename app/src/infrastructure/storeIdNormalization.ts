@@ -3,8 +3,6 @@
  *
  * レコード系データの storeId を最終的な店舗マスタに基づいて正規化する。
  */
-import type { ImportedData } from '@/domain/models/storeTypes'
-
 /**
  * レコード系データ（classifiedSales / categoryTimeSales）の storeId を正規化する。
  *
@@ -13,7 +11,15 @@ import type { ImportedData } from '@/domain/models/storeTypes'
  * 店舗名がそのまま入るケースがある。全ファイル処理後に最終的な stores マップ
  * を使って storeId を正規化する。
  */
-export function normalizeRecordStoreIds(data: ImportedData): ImportedData {
+export function normalizeRecordStoreIds<
+  T extends {
+    readonly stores: ReadonlyMap<string, { readonly name: string }>
+    readonly classifiedSales: {
+      readonly records: readonly { readonly storeId: string; readonly storeName?: string }[]
+    }
+    readonly categoryTimeSales: { readonly records: readonly { readonly storeId: string }[] }
+  },
+>(data: T): T {
   if (data.stores.size === 0) return data
 
   // 店舗名 → 数値ID の逆引きマップを最終 stores から構築
