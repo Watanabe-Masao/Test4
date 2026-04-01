@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-31T16:53:43.699Z",
+  "timestamp": "2026-04-01T00:53:17.565Z",
   "wasmModules": [
     "budget-analysis",
     "core-utils",
@@ -38,8 +38,8 @@
       "build",
       "build-storybook",
       "build",
-      "test:e2e"
+      "build"
     ],
-    "directShellCommands": 2
+    "directShellCommands": 3
   }
 }
