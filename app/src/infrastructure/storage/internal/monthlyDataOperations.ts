@@ -1,7 +1,7 @@
 /**
  * IndexedDB 月次データ操作
  *
- * ImportedData の保存・読み込み・削除・サマリー取得。
+ * MonthlyData の保存・読み込み・削除・サマリー取得。
  * 全書き込み操作は単一トランザクションで原子的に実行される。
  */
 import type { ReadModifyWriteOp } from './dbHelpers'
@@ -80,5 +80,5 @@ export async function clearAllData(): Promise<void> {
 
 // ── サブモジュール re-export ──
 
-export { saveImportedData, saveDataSlice } from './monthlyDataSave'
-export { loadImportedData, loadMonthlySlice, getMonthDataSummary } from './monthlyDataLoad'
+export { saveMonthlyDataInternal, saveDataSlice } from './monthlyDataSave'
+export { loadMonthlyDataInternal, loadMonthlySlice, getMonthDataSummary } from './monthlyDataLoad'

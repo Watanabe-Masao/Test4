@@ -1,7 +1,8 @@
 /**
  * IndexedDB ストレージキー生成とフィールドマッピング
  */
-import type { ImportedData, StorageDataType } from '@/domain/models/storeTypes'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
+import type { StorageDataType } from '@/domain/models/storeTypes'
 
 /** 年月×データ種別からストレージキーを生成する */
 export function monthKey(year: number, month: number, dataType: StorageDataType): string {
@@ -19,7 +20,7 @@ export function importHistoryKey(year: number, month: number): string {
 }
 
 /** StoreDayIndex 系のフィールド名 → DataType マッピング */
-export const STORE_DAY_FIELDS: readonly { field: keyof ImportedData; type: StorageDataType }[] = [
+export const STORE_DAY_FIELDS: readonly { field: keyof MonthlyData; type: StorageDataType }[] = [
   { field: 'purchase', type: 'purchase' },
   // classifiedSales は配列形式のため STORE_DAY_FIELDS には含めない（個別処理）
   { field: 'interStoreIn', type: 'interStoreIn' },

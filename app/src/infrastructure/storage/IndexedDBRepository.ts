@@ -13,10 +13,9 @@ import type { ImportHistoryEntry } from '@/domain/models/analysis'
 import type { StoreDaySummaryCache } from '@/domain/models/record'
 import type { MonthlyData } from '@/domain/models/MonthlyData'
 import type { DataType, StorageDataType } from '@/domain/models/storeTypes'
-import { toLegacyImportedData, toMonthlyData } from '@/domain/models/monthlyDataAdapter'
 import {
-  saveImportedData,
-  loadImportedData,
+  saveMonthlyDataInternal,
+  loadMonthlyDataInternal,
   saveDataSlice as saveDataSliceInternal,
   loadMonthlySlice,
   getPersistedMeta,
@@ -37,22 +36,13 @@ export class IndexedDBRepository implements DataRepository {
   }
 
   async saveMonthlyData(data: MonthlyData, year: number, month: number): Promise<void> {
-    // TODO(Phase 2): dataStore が AppData に移行後、compat layer を削除
-    // 内部 storage は ImportedData ベース — adapter で互換変換
-    const legacy = toLegacyImportedData({ current: data, prevYear: null })
-    return saveImportedData(legacy, year, month)
+    return saveMonthlyDataInternal(data, year, month)
   }
 
   async loadMonthlyData(year: number, month: number): Promise<MonthlyData | null> {
-    const loaded = await loadImportedData(year, month)
+    const loaded = await loadMonthlyDataInternal(year, month)
     if (!loaded) return null
-    // provenance: envelope origin を優先、なければ session meta フォールバック
-    const origin = loaded.origin ?? {
-      year,
-      month,
-      importedAt: (await getPersistedMeta())?.savedAt ?? new Date().toISOString(),
-    }
-    return toMonthlyData(loaded.data, origin)
+    return loaded.data
   }
 
   async saveDataSlice(
@@ -61,9 +51,7 @@ export class IndexedDBRepository implements DataRepository {
     month: number,
     dataTypes: readonly DataType[],
   ): Promise<void> {
-    // TODO(Phase 2): compat layer 削除
-    const legacy = toLegacyImportedData({ current: data, prevYear: null })
-    return saveDataSliceInternal(legacy, year, month, dataTypes)
+    return saveDataSliceInternal(data, year, month, dataTypes)
   }
 
   async loadDataSlice<T>(

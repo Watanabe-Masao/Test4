@@ -1,17 +1,17 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import 'fake-indexeddb/auto'
 import {
-  saveImportedData,
-  loadImportedData,
+  saveMonthlyDataInternal,
+  loadMonthlyDataInternal,
   getPersistedMeta,
   clearMonthData,
   clearAllData,
   isIndexedDBAvailable,
   saveDataSlice,
 } from './IndexedDBStore'
-import { createEmptyImportedData } from '@/domain/models/storeTypes'
+import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
 import type { CategoryTimeSalesData, BudgetData } from '@/domain/models/record'
-import type { ImportedData } from '@/domain/models/storeTypes'
 
 function makeCSRecord(day: number, storeId: string, salesAmount: number, discount = 0) {
   return {
@@ -32,9 +32,11 @@ function makeCSRecord(day: number, storeId: string, salesAmount: number, discoun
   }
 }
 
-function makeTestData(overrides: Partial<ImportedData> = {}): ImportedData {
+const DEFAULT_ORIGIN = { year: 2026, month: 2, importedAt: '2026-02-01T00:00:00.000Z' }
+
+function makeTestData(overrides: Partial<MonthlyData> = {}): MonthlyData {
   return {
-    ...createEmptyImportedData(),
+    ...createEmptyMonthlyData(DEFAULT_ORIGIN),
     stores: new Map([
       ['1', { id: '1', code: '0001', name: '店舗A' }],
       ['2', { id: '2', code: '0002', name: '店舗B' }],
@@ -139,12 +141,12 @@ describe('isIndexedDBAvailable', () => {
   })
 })
 
-describe('saveImportedData / loadImportedData', () => {
+describe('saveMonthlyDataInternal / loadMonthlyDataInternal (MonthlyData)', () => {
   it('保存したデータを読み込める', async () => {
     const data = makeTestData()
-    await saveImportedData(data, 2026, 2)
+    await saveMonthlyDataInternal(data, 2026, 2)
 
-    const loaded = await loadImportedData(2026, 2)
+    const loaded = await loadMonthlyDataInternal(2026, 2)
 
     expect(loaded).not.toBeNull()
     expect(loaded!.data.stores.size).toBe(2)
@@ -155,9 +157,9 @@ describe('saveImportedData / loadImportedData', () => {
 
   it('分類別売上データが正しく復元される', async () => {
     const data = makeTestData()
-    await saveImportedData(data, 2026, 2)
+    await saveMonthlyDataInternal(data, 2026, 2)
 
-    const loaded = await loadImportedData(2026, 2)
+    const loaded = await loadMonthlyDataInternal(2026, 2)
 
     expect(loaded!.data.classifiedSales.records).toHaveLength(3)
     const store1Day1 = loaded!.data.classifiedSales.records.find(
@@ -173,9 +175,9 @@ describe('saveImportedData / loadImportedData', () => {
 
   it('仕入データの入れ子構造が復元される', async () => {
     const data = makeTestData()
-    await saveImportedData(data, 2026, 2)
+    await saveMonthlyDataInternal(data, 2026, 2)
 
-    const loaded = await loadImportedData(2026, 2)
+    const loaded = await loadMonthlyDataInternal(2026, 2)
 
     const entry = loaded!.data.purchase.records.find((r) => r.storeId === '1' && r.day === 1)
     expect(entry?.total.cost).toBe(10000)
@@ -184,9 +186,9 @@ describe('saveImportedData / loadImportedData', () => {
 
   it('在庫設定（Map）が復元される', async () => {
     const data = makeTestData()
-    await saveImportedData(data, 2026, 2)
+    await saveMonthlyDataInternal(data, 2026, 2)
 
-    const loaded = await loadImportedData(2026, 2)
+    const loaded = await loadMonthlyDataInternal(2026, 2)
 
     expect(loaded!.data.settings.size).toBe(1)
     expect(loaded!.data.settings.get('1')?.openingInventory).toBe(100000)
@@ -195,9 +197,9 @@ describe('saveImportedData / loadImportedData', () => {
 
   it('予算データ（Map<string, BudgetData>）が復元される', async () => {
     const data = makeTestData()
-    await saveImportedData(data, 2026, 2)
+    await saveMonthlyDataInternal(data, 2026, 2)
 
-    const loaded = await loadImportedData(2026, 2)
+    const loaded = await loadMonthlyDataInternal(2026, 2)
 
     expect(loaded!.data.budget.size).toBe(1)
     const budget = loaded!.data.budget.get('1')
@@ -208,9 +210,9 @@ describe('saveImportedData / loadImportedData', () => {
 
   it('異なる年月のデータは読み込まれない', async () => {
     const data = makeTestData()
-    await saveImportedData(data, 2026, 2)
+    await saveMonthlyDataInternal(data, 2026, 2)
 
-    const loaded = await loadImportedData(2026, 3) // 3月を指定
+    const loaded = await loadMonthlyDataInternal(2026, 3) // 3月を指定
     expect(loaded).toBeNull()
   })
 
@@ -218,51 +220,35 @@ describe('saveImportedData / loadImportedData', () => {
     const data1 = makeTestData({
       classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
     })
-    await saveImportedData(data1, 2026, 2)
+    await saveMonthlyDataInternal(data1, 2026, 2)
 
     const data2 = makeTestData({
       classifiedSales: { records: [makeCSRecord(1, '1', 99999)] },
     })
-    await saveImportedData(data2, 2026, 2)
+    await saveMonthlyDataInternal(data2, 2026, 2)
 
-    const loaded = await loadImportedData(2026, 2)
+    const loaded = await loadMonthlyDataInternal(2026, 2)
     const rec = loaded!.data.classifiedSales.records.find((r) => r.storeId === '1' && r.day === 1)
     expect(rec?.salesAmount).toBe(99999)
   })
 
   it('空のデータも保存・復元できる', async () => {
-    const data = createEmptyImportedData()
-    await saveImportedData(data, 2026, 1)
+    const data = createEmptyMonthlyData(DEFAULT_ORIGIN)
+    await saveMonthlyDataInternal(data, 2026, 1)
 
-    const loaded = await loadImportedData(2026, 1)
+    const loaded = await loadMonthlyDataInternal(2026, 1)
     expect(loaded).not.toBeNull()
     expect(loaded!.data.stores.size).toBe(0)
     expect(loaded!.data.classifiedSales.records).toHaveLength(0)
-  })
-
-  // ─── 前年分類別売上データの保持テスト ─────────────────────────
-
-  it('前年分類別売上データは DB に保存されない（実際の年月に通常データとして保存される）', async () => {
-    const data = makeTestData({
-      prevYearClassifiedSales: {
-        records: [makeCSRecord(1, '1', 45000), makeCSRecord(2, '1', 55000)],
-      },
-    })
-    await saveImportedData(data, 2026, 2)
-
-    const loaded = await loadImportedData(2026, 2)
-
-    // prevYearClassifiedSales は当月のDBエントリには含まれない
-    expect(loaded!.data.prevYearClassifiedSales.records).toHaveLength(0)
   })
 
   // ─── categoryTimeSales の保持テスト ─────────────────────
 
   it('categoryTimeSales データが保存・復元される', async () => {
     const data = makeTestData({ categoryTimeSales: TEST_CATEGORY_TIME_SALES })
-    await saveImportedData(data, 2026, 2)
+    await saveMonthlyDataInternal(data, 2026, 2)
 
-    const loaded = await loadImportedData(2026, 2)
+    const loaded = await loadMonthlyDataInternal(2026, 2)
 
     expect(loaded!.data.categoryTimeSales.records).toHaveLength(2)
     const r0 = loaded!.data.categoryTimeSales.records[0]
@@ -282,16 +268,16 @@ describe('saveImportedData / loadImportedData', () => {
 
   it('空の categoryTimeSales が正しく復元される', async () => {
     const data = makeTestData({ categoryTimeSales: { records: [] } })
-    await saveImportedData(data, 2026, 2)
+    await saveMonthlyDataInternal(data, 2026, 2)
 
-    const loaded = await loadImportedData(2026, 2)
+    const loaded = await loadMonthlyDataInternal(2026, 2)
 
     expect(loaded!.data.categoryTimeSales.records).toHaveLength(0)
   })
 
   it('categoryTimeSales を上書き保存できる', async () => {
     const data1 = makeTestData({ categoryTimeSales: TEST_CATEGORY_TIME_SALES })
-    await saveImportedData(data1, 2026, 2)
+    await saveMonthlyDataInternal(data1, 2026, 2)
 
     const updated: CategoryTimeSalesData = {
       records: [
@@ -310,9 +296,9 @@ describe('saveImportedData / loadImportedData', () => {
       ],
     }
     const data2 = makeTestData({ categoryTimeSales: updated })
-    await saveImportedData(data2, 2026, 2)
+    await saveMonthlyDataInternal(data2, 2026, 2)
 
-    const loaded = await loadImportedData(2026, 2)
+    const loaded = await loadMonthlyDataInternal(2026, 2)
 
     expect(loaded!.data.categoryTimeSales.records).toHaveLength(1)
     expect(loaded!.data.categoryTimeSales.records[0].storeId).toBe('3')
@@ -322,7 +308,7 @@ describe('saveImportedData / loadImportedData', () => {
 
 describe('getPersistedMeta', () => {
   it('保存後にメタデータが取得できる', async () => {
-    await saveImportedData(makeTestData(), 2026, 2)
+    await saveMonthlyDataInternal(makeTestData(), 2026, 2)
 
     const meta = await getPersistedMeta()
     expect(meta).not.toBeNull()
@@ -339,30 +325,30 @@ describe('getPersistedMeta', () => {
 
 describe('clearMonthData', () => {
   it('指定月のデータのみ削除される', async () => {
-    await saveImportedData(makeTestData(), 2026, 1)
-    await saveImportedData(makeTestData(), 2026, 2)
+    await saveMonthlyDataInternal(makeTestData(), 2026, 1)
+    await saveMonthlyDataInternal(makeTestData(), 2026, 2)
 
     await clearMonthData(2026, 1)
 
     // 1月は削除されたが、metaは2月を指しているのでloadは成功
-    const loaded2 = await loadImportedData(2026, 2)
+    const loaded2 = await loadMonthlyDataInternal(2026, 2)
     expect(loaded2).not.toBeNull()
   })
 
   it('categoryTimeSales も削除される', async () => {
     const data = makeTestData({ categoryTimeSales: TEST_CATEGORY_TIME_SALES })
-    await saveImportedData(data, 2026, 2)
+    await saveMonthlyDataInternal(data, 2026, 2)
 
     // データがあることを確認
-    const before = await loadImportedData(2026, 2)
+    const before = await loadMonthlyDataInternal(2026, 2)
     expect(before!.data.categoryTimeSales.records).toHaveLength(2)
 
     await clearMonthData(2026, 2)
 
     // 再保存してロード（clearMonthDataはmetaを消さないので再保存が必要）
-    const emptyData = createEmptyImportedData()
-    await saveImportedData(emptyData, 2026, 2)
-    const after = await loadImportedData(2026, 2)
+    const emptyData = createEmptyMonthlyData(DEFAULT_ORIGIN)
+    await saveMonthlyDataInternal(emptyData, 2026, 2)
+    const after = await loadMonthlyDataInternal(2026, 2)
     expect(after!.data.categoryTimeSales.records).toHaveLength(0)
   })
 
@@ -370,22 +356,22 @@ describe('clearMonthData', () => {
     const data = makeTestData({
       classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
     })
-    await saveImportedData(data, 2026, 2)
+    await saveMonthlyDataInternal(data, 2026, 2)
 
     await clearMonthData(2026, 2)
 
     // 再保存してロード
-    const emptyData = createEmptyImportedData()
-    await saveImportedData(emptyData, 2026, 2)
-    const after = await loadImportedData(2026, 2)
+    const emptyData = createEmptyMonthlyData(DEFAULT_ORIGIN)
+    await saveMonthlyDataInternal(emptyData, 2026, 2)
+    const after = await loadMonthlyDataInternal(2026, 2)
     expect(after!.data.classifiedSales.records).toHaveLength(0)
   })
 })
 
 describe('clearAllData', () => {
   it('全データが削除される', async () => {
-    await saveImportedData(makeTestData(), 2026, 1)
-    await saveImportedData(makeTestData(), 2026, 2)
+    await saveMonthlyDataInternal(makeTestData(), 2026, 1)
+    await saveMonthlyDataInternal(makeTestData(), 2026, 2)
 
     await clearAllData()
 
@@ -395,7 +381,7 @@ describe('clearAllData', () => {
 
   it('categoryTimeSales を含む全データが削除される', async () => {
     const data = makeTestData({ categoryTimeSales: TEST_CATEGORY_TIME_SALES })
-    await saveImportedData(data, 2026, 2)
+    await saveMonthlyDataInternal(data, 2026, 2)
 
     await clearAllData()
 
@@ -421,7 +407,7 @@ describe('saveDataSlice', () => {
         ],
       },
     })
-    await saveImportedData(original, 2026, 2)
+    await saveMonthlyDataInternal(original, 2026, 2)
 
     // classifiedSales のみ更新
     const updated = makeTestData({
@@ -441,7 +427,7 @@ describe('saveDataSlice', () => {
     })
     await saveDataSlice(updated, 2026, 2, ['classifiedSales'])
 
-    const loaded = await loadImportedData(2026, 2)
+    const loaded = await loadMonthlyDataInternal(2026, 2)
 
     // classifiedSales は更新されている
     const rec = loaded!.data.classifiedSales.records.find((r) => r.storeId === '1' && r.day === 1)
@@ -453,12 +439,12 @@ describe('saveDataSlice', () => {
 
   it('categoryTimeSales が saveDataSlice で保存される', async () => {
     const original = makeTestData({ categoryTimeSales: { records: [] } })
-    await saveImportedData(original, 2026, 2)
+    await saveMonthlyDataInternal(original, 2026, 2)
 
     const updated = makeTestData({ categoryTimeSales: TEST_CATEGORY_TIME_SALES })
     await saveDataSlice(updated, 2026, 2, ['categoryTimeSales'])
 
-    const loaded = await loadImportedData(2026, 2)
+    const loaded = await loadMonthlyDataInternal(2026, 2)
 
     expect(loaded!.data.categoryTimeSales.records).toHaveLength(2)
     expect(loaded!.data.categoryTimeSales.records[0].department.name).toBe('食品')
@@ -466,7 +452,7 @@ describe('saveDataSlice', () => {
 
   it('複数データ種別を同時に保存できる', async () => {
     const original = makeTestData()
-    await saveImportedData(original, 2026, 2)
+    await saveMonthlyDataInternal(original, 2026, 2)
 
     const updated = makeTestData({
       classifiedSales: { records: [makeCSRecord(1, '1', 88888)] },
@@ -486,7 +472,7 @@ describe('saveDataSlice', () => {
     })
     await saveDataSlice(updated, 2026, 2, ['classifiedSales', 'purchase', 'categoryTimeSales'])
 
-    const loaded = await loadImportedData(2026, 2)
+    const loaded = await loadMonthlyDataInternal(2026, 2)
 
     const rec = loaded!.data.classifiedSales.records.find((r) => r.storeId === '1' && r.day === 1)
     expect(rec?.salesAmount).toBe(88888)
@@ -497,7 +483,7 @@ describe('saveDataSlice', () => {
 
   it('saveDataSlice はメタデータを更新する', async () => {
     const data = makeTestData()
-    await saveImportedData(data, 2026, 2)
+    await saveMonthlyDataInternal(data, 2026, 2)
 
     const metaBefore = await getPersistedMeta()
     const savedAtBefore = metaBefore!.savedAt
@@ -516,7 +502,7 @@ describe('saveDataSlice', () => {
 
   it('stores / suppliers は常に更新される', async () => {
     const original = makeTestData()
-    await saveImportedData(original, 2026, 2)
+    await saveMonthlyDataInternal(original, 2026, 2)
 
     const updated = makeTestData({
       stores: new Map([
@@ -526,7 +512,7 @@ describe('saveDataSlice', () => {
     })
     await saveDataSlice(updated, 2026, 2, ['classifiedSales'])
 
-    const loaded = await loadImportedData(2026, 2)
+    const loaded = await loadMonthlyDataInternal(2026, 2)
 
     expect(loaded!.data.stores.get('1')?.name).toBe('店舗A_更新')
     expect(loaded!.data.stores.get('3')?.name).toBe('店舗C')
@@ -541,9 +527,9 @@ describe('data integrity', () => {
     const data = makeTestData({
       categoryTimeSales: TEST_CATEGORY_TIME_SALES,
     })
-    await saveImportedData(data, 2026, 2)
+    await saveMonthlyDataInternal(data, 2026, 2)
 
-    const loaded = await loadImportedData(2026, 2)
+    const loaded = await loadMonthlyDataInternal(2026, 2)
     expect(loaded).not.toBeNull()
 
     // 店舗
@@ -615,9 +601,9 @@ describe('data integrity', () => {
         records: [makeCSRecord(1, '1', 50000)],
       },
     })
-    await saveImportedData(data, 2026, 2)
+    await saveMonthlyDataInternal(data, 2026, 2)
 
-    const loaded = await loadImportedData(2026, 2)
+    const loaded = await loadMonthlyDataInternal(2026, 2)
     expect(loaded).not.toBeNull()
 
     // NaN と Infinity は 0 に正規化される
@@ -643,9 +629,9 @@ describe('data integrity', () => {
       ],
     ])
     const data = makeTestData({ budget: invalidBudget })
-    await saveImportedData(data, 2026, 2)
+    await saveMonthlyDataInternal(data, 2026, 2)
 
-    const loaded = await loadImportedData(2026, 2)
+    const loaded = await loadMonthlyDataInternal(2026, 2)
     expect(loaded).not.toBeNull()
 
     const budget = loaded!.data.budget.get('1')!
@@ -654,20 +640,6 @@ describe('data integrity', () => {
     expect(budget.daily.has(32)).toBe(false) // 32日は除外
   })
 
-  it('prevYearClassifiedSales と prevYearCategoryTimeSales は空で復元される', async () => {
-    const data = makeTestData({
-      prevYearClassifiedSales: {
-        records: [makeCSRecord(1, '1', 30000)],
-      },
-      prevYearCategoryTimeSales: TEST_CATEGORY_TIME_SALES,
-    })
-    await saveImportedData(data, 2026, 2)
-
-    const loaded = await loadImportedData(2026, 2)
-    expect(loaded).not.toBeNull()
-
-    // prevYear 系は DB に保存されない
-    expect(loaded!.data.prevYearClassifiedSales.records).toHaveLength(0)
-    expect(loaded!.data.prevYearCategoryTimeSales.records).toHaveLength(0)
-  })
+  // MonthlyData には prevYear* フィールドが存在しないため、前年データのテストは不要
+  // 前年データは別の年月の MonthlyData として保存される
 })
