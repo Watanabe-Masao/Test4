@@ -267,8 +267,7 @@ function StoreManagementTab() {
       if (storeEntry && current) {
         const updated = new Map(current.stores)
         updated.set(editingStore, { ...storeEntry, name: editName.trim() })
-        const legacy = useDataStore.getState().data
-        useDataStore.getState().setImportedData({ ...legacy, stores: updated })
+        useDataStore.getState().setCurrentMonthData({ ...current, stores: updated })
         calculationCache.clear()
         useUiStore.getState().invalidateCalculation()
       }

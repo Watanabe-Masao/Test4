@@ -9,7 +9,7 @@ import { useStoreSelection } from '../useStoreSelection'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useUiStore } from '@/application/stores/uiStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
-import { createEmptyImportedData } from '@/domain/models/storeTypes'
+import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
 
 // ── Setup ──────────────────────────────────────────────
 
@@ -99,11 +99,11 @@ describe('useStoreSelection', () => {
     it('shows store name when exactly one store selected and name exists', () => {
       // Set up store data with a named store
       const data = {
-        ...createEmptyImportedData(),
+        ...createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
         stores: new Map([['s1', { id: 's1', code: '001', name: 'テスト店' }]]),
       }
       act(() => {
-        useDataStore.getState().setImportedData(data)
+        useDataStore.getState().setCurrentMonthData(data)
       })
 
       const { result } = renderHook(() => useStoreSelection())
@@ -157,14 +157,14 @@ describe('useStoreSelection', () => {
   describe('stores', () => {
     it('exposes stores from dataStore', () => {
       const data = {
-        ...createEmptyImportedData(),
+        ...createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
         stores: new Map([
           ['s1', { id: 's1', code: '001', name: 'Store A' }],
           ['s2', { id: 's2', code: '002', name: 'Store B' }],
         ]),
       }
       act(() => {
-        useDataStore.getState().setImportedData(data)
+        useDataStore.getState().setCurrentMonthData(data)
       })
       const { result } = renderHook(() => useStoreSelection())
       expect(result.current.stores.size).toBe(2)

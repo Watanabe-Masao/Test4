@@ -8,7 +8,6 @@
  */
 import { type ReactNode, useReducer, useState, useEffect, useRef } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'
-import { toLegacyImportedData } from '@/domain/models/monthlyDataAdapter'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { invalidateAfterStateChange } from '@/application/services/stateInvalidation'
 import { useRepository } from './useRepository'
@@ -77,18 +76,13 @@ export function PersistenceProvider({ children }: Props) {
         if (cancelled) return
 
         if (currentMonthData) {
-          // store は ImportedData ベース — compat adapter 経由（Phase 2 完了まで維持）
-          useDataStore
-            .getState()
-            .setImportedData(toLegacyImportedData({ current: currentMonthData, prevYear: null }))
+          useDataStore.getState().setCurrentMonthData(currentMonthData)
           invalidateAfterStateChange()
         } else if (meta.year !== targetYear || meta.month !== targetMonth) {
           const restoredData = await repo.loadMonthlyData(meta.year, meta.month)
           if (cancelled) return
           if (restoredData) {
-            useDataStore
-              .getState()
-              .setImportedData(toLegacyImportedData({ current: restoredData, prevYear: null }))
+            useDataStore.getState().setCurrentMonthData(restoredData)
             useSettingsStore.getState().updateSettings({
               targetYear: meta.year,
               targetMonth: meta.month,

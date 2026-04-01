@@ -9,7 +9,7 @@ import { renderHook, act, waitFor } from '@testing-library/react'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useUiStore } from '@/application/stores/uiStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
-import { createEmptyImportedData } from '@/domain/models/storeTypes'
+import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
 
 // ── Mocks ────────────────────────────────────────────
 
@@ -67,10 +67,11 @@ beforeEach(() => {
 
 // ── Helpers ────────────────────────────────────────────
 
+const defaultOrigin = { year: 2025, month: 1, importedAt: '' }
+
 function makeDataWithRecords() {
-  const data = createEmptyImportedData()
   return {
-    ...data,
+    ...createEmptyMonthlyData(defaultOrigin),
     purchase: {
       records: [
         {
@@ -118,7 +119,7 @@ describe('useCalculation', () => {
     it('is false when classifiedSales is empty', () => {
       act(() => {
         const data = {
-          ...createEmptyImportedData(),
+          ...createEmptyMonthlyData(defaultOrigin),
           purchase: {
             records: [
               {
@@ -132,7 +133,7 @@ describe('useCalculation', () => {
             ],
           },
         }
-        useDataStore.getState().setImportedData(data)
+        useDataStore.getState().setCurrentMonthData(data)
       })
       const { result } = renderHook(() => useCalculation())
       expect(result.current.canCalculate).toBe(false)
@@ -140,7 +141,7 @@ describe('useCalculation', () => {
 
     it('is true when classifiedSales has data (purchase optional)', () => {
       act(() => {
-        useDataStore.getState().setImportedData(makeDataWithRecords() as never)
+        useDataStore.getState().setCurrentMonthData(makeDataWithRecords())
       })
       const { result } = renderHook(() => useCalculation())
       expect(result.current.canCalculate).toBe(true)
@@ -149,7 +150,7 @@ describe('useCalculation', () => {
     it('is true even without purchase data if classifiedSales exists', () => {
       act(() => {
         const data = {
-          ...createEmptyImportedData(),
+          ...createEmptyMonthlyData(defaultOrigin),
           classifiedSales: {
             records: [
               {
@@ -171,7 +172,7 @@ describe('useCalculation', () => {
             ],
           },
         }
-        useDataStore.getState().setImportedData(data as never)
+        useDataStore.getState().setCurrentMonthData(data)
       })
       const { result } = renderHook(() => useCalculation())
       expect(result.current.canCalculate).toBe(true)
@@ -224,7 +225,7 @@ describe('useCalculation', () => {
       vi.mocked(validateImportedData).mockReturnValue([])
 
       act(() => {
-        useDataStore.getState().setImportedData(makeDataWithRecords() as never)
+        useDataStore.getState().setCurrentMonthData(makeDataWithRecords())
       })
 
       const { result } = renderHook(() => useCalculation())
@@ -240,7 +241,7 @@ describe('useCalculation', () => {
       vi.mocked(calculateAllStores).mockReturnValue(new Map())
 
       act(() => {
-        useDataStore.getState().setImportedData(makeDataWithRecords() as never)
+        useDataStore.getState().setCurrentMonthData(makeDataWithRecords())
       })
 
       const { result } = renderHook(() => useCalculation())
@@ -256,7 +257,7 @@ describe('useCalculation', () => {
       vi.mocked(calculateAllStores).mockReturnValue(new Map())
 
       act(() => {
-        useDataStore.getState().setImportedData(makeDataWithRecords() as never)
+        useDataStore.getState().setCurrentMonthData(makeDataWithRecords())
       })
 
       const { result } = renderHook(() => useCalculation())
@@ -274,7 +275,7 @@ describe('useCalculation', () => {
       vi.mocked(calculateAllStores).mockReturnValue(new Map())
 
       act(() => {
-        useDataStore.getState().setImportedData(makeDataWithRecords() as never)
+        useDataStore.getState().setCurrentMonthData(makeDataWithRecords())
         useUiStore.getState().setImporting(true)
       })
 
@@ -290,7 +291,7 @@ describe('useCalculation', () => {
       vi.mocked(calculateAllStores).mockReturnValue(new Map())
 
       act(() => {
-        useDataStore.getState().setImportedData(makeDataWithRecords() as never)
+        useDataStore.getState().setCurrentMonthData(makeDataWithRecords())
         useUiStore.getState().setCalculated(true)
       })
 
@@ -305,7 +306,7 @@ describe('useCalculation', () => {
       vi.mocked(calculateAllStores).mockReturnValue(new Map())
 
       act(() => {
-        useDataStore.getState().setImportedData(makeDataWithRecords() as never)
+        useDataStore.getState().setCurrentMonthData(makeDataWithRecords())
       })
 
       renderHook(() => useCalculation())
