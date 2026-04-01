@@ -1,10 +1,10 @@
 {
-  "timestamp": "2026-03-30T12:54:36.205Z",
-  "totalAllowlistEntries": 51,
+  "timestamp": "2026-03-31T16:53:39.086Z",
+  "totalAllowlistEntries": 48,
   "categoryBreakdown": {
     "adapter": 10,
     "lifecycle": 2,
-    "structural": 39
+    "structural": 36
   },
   "frozenLists": [
     "presentationToInfrastructure",
@@ -17,7 +17,7 @@
   ],
   "frozenCount": 7,
   "activeLists": 14,
-  "vmFileCount": 25,
+  "vmFileCount": 28,
   "compatReexportCount": 2,
   "activeBridges": [
     {
@@ -34,7 +34,7 @@
     },
     {
       "path": "application/services/grossProfitBridge.ts",
-      "lines": 521
+      "lines": 473
     },
     {
       "path": "application/services/timeSlotBridge.ts",
@@ -111,13 +111,7 @@
       "file": "application/hooks/useTimeSlotData.ts",
       "memoCount": 21,
       "stateCount": 8,
-      "lineCount": 389
-    },
-    {
-      "file": "presentation/components/charts/IntegratedSalesChart.tsx",
-      "memoCount": 12,
-      "stateCount": 12,
-      "lineCount": 589
+      "lineCount": 384
     },
     {
       "file": "presentation/pages/Dashboard/widgets/useDrilldownData.ts",
@@ -126,55 +120,61 @@
       "lineCount": 413
     },
     {
+      "file": "presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx",
+      "memoCount": 15,
+      "stateCount": 5,
+      "lineCount": 517
+    },
+    {
       "file": "presentation/pages/CostDetail/useCostDetailData.ts",
       "memoCount": 13,
       "stateCount": 6,
       "lineCount": 210
     },
     {
-      "file": "presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx",
-      "memoCount": 14,
-      "stateCount": 5,
-      "lineCount": 489
-    },
-    {
       "file": "presentation/components/charts/CategoryBenchmarkChart.vm.ts",
       "memoCount": 10,
-      "stateCount": 8,
-      "lineCount": 470
-    },
-    {
-      "file": "presentation/components/charts/CategoryTrendChart.tsx",
-      "memoCount": 9,
-      "stateCount": 7,
-      "lineCount": 368
-    },
-    {
-      "file": "presentation/components/charts/DeptHourlyChart.tsx",
-      "memoCount": 10,
       "stateCount": 6,
-      "lineCount": 419
+      "lineCount": 327
     },
     {
       "file": "presentation/components/charts/TimeSlotChart.tsx",
       "memoCount": 10,
       "stateCount": 6,
-      "lineCount": 228
+      "lineCount": 209
+    },
+    {
+      "file": "presentation/components/charts/useCategoryTrendChartData.ts",
+      "memoCount": 9,
+      "stateCount": 7,
+      "lineCount": 225
+    },
+    {
+      "file": "presentation/components/charts/useDeptHourlyChartData.ts",
+      "memoCount": 10,
+      "stateCount": 6,
+      "lineCount": 244
     },
     {
       "file": "presentation/pages/Dashboard/widgets/HourlyChart.tsx",
       "memoCount": 10,
       "stateCount": 6,
       "lineCount": 514
+    },
+    {
+      "file": "presentation/components/charts/CategoryBoxPlotChart.vm.ts",
+      "memoCount": 8,
+      "stateCount": 7,
+      "lineCount": 256
     }
   ],
   "nearLimitFiles": [
     {
       "file": "application/hooks/useTimeSlotData.ts",
       "metric": "lines",
-      "actual": 389,
+      "actual": 384,
       "limit": 390,
-      "pct": 100
+      "pct": 98
     },
     {
       "file": "application/hooks/usePeriodAwareKpi.ts",
@@ -200,16 +200,16 @@
     {
       "file": "presentation/pages/Admin/RawDataTab.tsx",
       "metric": "useMemo",
-      "actual": 11,
-      "limit": 12,
+      "actual": 12,
+      "limit": 13,
       "pct": 92
     },
     {
       "file": "presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx",
       "metric": "useMemo",
-      "actual": 10,
-      "limit": 11,
-      "pct": 91
+      "actual": 11,
+      "limit": 12,
+      "pct": 92
     },
     {
       "file": "presentation/pages/Dashboard/widgets/HourlyChart.tsx",
@@ -223,13 +223,6 @@
       "metric": "lines",
       "actual": 401,
       "limit": 450,
-      "pct": 89
-    },
-    {
-      "file": "presentation/components/charts/IntegratedSalesChart.tsx",
-      "metric": "useMemo",
-      "actual": 8,
-      "limit": 9,
       "pct": 89
     },
     {
@@ -313,15 +306,15 @@
       }
     },
     "presentationMemoLimits": {
-      "count": 9,
+      "count": 8,
       "categories": {
-        "structural": 9
+        "structural": 8
       }
     },
     "presentationStateLimits": {
-      "count": 6,
+      "count": 4,
       "categories": {
-        "structural": 6
+        "structural": 4
       }
     },
     "largeComponentTier2": {
