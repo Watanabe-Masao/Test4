@@ -22,6 +22,7 @@ describe('正本化体系 統合ガード', () => {
     'salesFact',
     'discountFact',
     'factorDecomposition',
+    'freePeriod',
   ]
 
   it('全 readModels ディレクトリが存在する', () => {

@@ -44,7 +44,7 @@ describe('Exit KPI: 暫定構造在庫（原則単調減少）', () => {
       ? fs.readdirSync(readModelDir, { withFileTypes: true }).filter((d) => d.isDirectory()).length
       : 0
     // 現在 5 領域: purchaseCost, grossProfit, salesFact, discountFact, factorDecomposition
-    expect(dirs, '正本化済み readModel 領域数が減少しています').toBeGreaterThanOrEqual(5)
+    expect(dirs, '正本化済み readModel 領域数が減少しています').toBeGreaterThanOrEqual(6)
   })
 
   it('allowlist アクティブ件数 ≤ 50', () => {
