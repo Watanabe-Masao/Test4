@@ -125,7 +125,11 @@ describe('Performance Benchmark', () => {
       'classifiedSales',
       rows,
       '1_分類別売上.xlsx',
-      createEmptyMonthlyData({ year: DEFAULT_SETTINGS.targetYear, month: DEFAULT_SETTINGS.targetMonth, importedAt: '' }),
+      createEmptyMonthlyData({
+        year: DEFAULT_SETTINGS.targetYear,
+        month: DEFAULT_SETTINGS.targetMonth,
+        importedAt: '',
+      }),
       DEFAULT_SETTINGS,
     )
     const elapsed = performance.now() - start
@@ -141,7 +145,11 @@ describe('Performance Benchmark', () => {
       'purchase',
       rows,
       'shiire.xlsx',
-      createEmptyMonthlyData({ year: DEFAULT_SETTINGS.targetYear, month: DEFAULT_SETTINGS.targetMonth, importedAt: '' }),
+      createEmptyMonthlyData({
+        year: DEFAULT_SETTINGS.targetYear,
+        month: DEFAULT_SETTINGS.targetMonth,
+        importedAt: '',
+      }),
       DEFAULT_SETTINGS,
     )
     const elapsed = performance.now() - start
@@ -155,7 +163,11 @@ describe('Performance Benchmark', () => {
     const supplierCount = 10
 
     // Step 1: Import purchase data
-    let data = createEmptyMonthlyData({ year: DEFAULT_SETTINGS.targetYear, month: DEFAULT_SETTINGS.targetMonth, importedAt: '' })
+    let data = createEmptyMonthlyData({
+      year: DEFAULT_SETTINGS.targetYear,
+      month: DEFAULT_SETTINGS.targetMonth,
+      importedAt: '',
+    })
     const purchaseRows = generatePurchaseRows(storeCount, supplierCount, DAYS_IN_MONTH)
     ;({ data } = processFileData('purchase', purchaseRows, 'shiire.xlsx', data, DEFAULT_SETTINGS))
 
@@ -214,7 +226,11 @@ describe('Performance Benchmark', () => {
       'classifiedSales',
       rows,
       '1_分類別売上.xlsx',
-      createEmptyMonthlyData({ year: DEFAULT_SETTINGS.targetYear, month: DEFAULT_SETTINGS.targetMonth, importedAt: '' }),
+      createEmptyMonthlyData({
+        year: DEFAULT_SETTINGS.targetYear,
+        month: DEFAULT_SETTINGS.targetMonth,
+        importedAt: '',
+      }),
       DEFAULT_SETTINGS,
     )
     const elapsed = performance.now() - start

@@ -192,7 +192,11 @@ describe('processFileData — 警告生成', () => {
 
 describe('processDroppedFiles', () => {
   it('ファイルなしの場合は空のサマリーを返す', async () => {
-    const result = await processDroppedFiles([], DEFAULT_SETTINGS, createEmptyMonthlyData({ year: 2026, month: 2, importedAt: '' }))
+    const result = await processDroppedFiles(
+      [],
+      DEFAULT_SETTINGS,
+      createEmptyMonthlyData({ year: 2026, month: 2, importedAt: '' }),
+    )
     expect(result.summary.results).toHaveLength(0)
     expect(result.summary.successCount).toBe(0)
     expect(result.summary.failureCount).toBe(0)
