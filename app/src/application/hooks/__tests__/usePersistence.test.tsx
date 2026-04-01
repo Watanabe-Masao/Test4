@@ -300,11 +300,7 @@ describe('usePersistence', () => {
       }
       const existing = createEmptyImportedData()
 
-      const applied = result.current.applyDiffDecision(
-        'overwrite',
-        incoming,
-        existing,
-      )
+      const applied = result.current.applyDiffDecision('overwrite', incoming, existing)
       expect(applied).toBe(incoming)
     })
 
@@ -319,11 +315,7 @@ describe('usePersistence', () => {
       }
       const incoming = createEmptyImportedData()
 
-      const applied = result.current.applyDiffDecision(
-        'keep-existing',
-        incoming,
-        existing,
-      )
+      const applied = result.current.applyDiffDecision('keep-existing', incoming, existing)
       // keep-existing は既存データを基盤にするため、既存 stores が保持される
       expect(applied.stores.has('s1')).toBe(true)
     })

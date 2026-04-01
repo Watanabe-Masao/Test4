@@ -38,8 +38,8 @@ const EMPTY_SLICES: LegacyComparisonSlices = {
 }
 
 /**
- * ImportedData → MonthlyData に変換する。
- * prevYear* フィールドは捨てる（別月の MonthlyData として扱うため）。
+ * @deprecated infrastructure 境界の変換専用。新規コードでは MonthlyData を直接使用。
+ * ImportedData → MonthlyData に変換する。prevYear* フィールドは捨てる。
  */
 export function toMonthlyData(imported: ImportedData, origin: DataOrigin): MonthlyData {
   return {
@@ -78,10 +78,10 @@ export function toAppData(
 }
 
 /**
+ * @deprecated infrastructure 境界専用。新規コードでは使用しない。
  * AppData + LegacyComparisonSlices → ImportedData に変換する。
- * 互換レイヤー専用。新規コードでは使用しない。
  *
- * @throws appData.current が null の場合（保存対象がない状態での呼び出しは設計エラー）
+ * @throws appData.current が null の場合
  */
 export function toLegacyImportedData(
   appData: AppData,

@@ -1,6 +1,5 @@
-// バレル re-export（後方互換）— 実体は usecases/import/importDataMerge.ts
+// バレル re-export（後方互換）— 実体は monthlyDataMerge.ts
 export {
   DEFAULT_MERGE_ACTION,
-  buildMonthData,
-  mergeInsertsOnly,
-} from '@/application/usecases/import/importDataMerge'
+  mergeMonthlyData as buildMonthData,
+} from '@/application/usecases/import/monthlyDataMerge'
