@@ -10,10 +10,9 @@ import type { ReactNode } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useUiStore } from '@/application/stores/uiStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
-import { createEmptyImportedData } from '@/domain/models/storeTypes'
 import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
 import type { DiffResult } from '@/domain/models/analysis'
-import type { ImportedData } from '@/domain/models/storeTypes'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
 import type { PersistedSessionMeta } from '@/domain/repositories/DataRepository'
 
 // ── Mocks ─────────────────────────────────────────────
@@ -21,7 +20,7 @@ import type { PersistedSessionMeta } from '@/domain/repositories/DataRepository'
 const mockRepo = {
   isAvailable: vi.fn(() => true),
   saveMonthlyData: vi.fn(() => Promise.resolve()),
-  loadMonthlyData: vi.fn<() => Promise<ImportedData | null>>(() => Promise.resolve(null)),
+  loadMonthlyData: vi.fn<() => Promise<MonthlyData | null>>(() => Promise.resolve(null)),
   clearMonth: vi.fn(() => Promise.resolve()),
   clearAll: vi.fn(() => Promise.resolve()),
   getSessionMeta: vi.fn<() => Promise<PersistedSessionMeta | null>>(() => Promise.resolve(null)),
@@ -130,7 +129,7 @@ describe('usePersistence', () => {
         savedAt: '2025-03-01T00:00:00.000Z',
       })
       const data = {
-        ...createEmptyImportedData(),
+        ...createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
         stores: new Map([['s1', { id: 's1', code: '001', name: 'Loaded' }]]),
       }
       mockRepo.loadMonthlyData.mockResolvedValue(data)
@@ -219,7 +218,7 @@ describe('usePersistence', () => {
       let returned: DiffResult | null | undefined
       await act(async () => {
         returned = await result.current.checkDiffBeforeImport(
-          createEmptyImportedData(),
+          createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
           new Set(['purchase']),
         )
       })
@@ -235,7 +234,7 @@ describe('usePersistence', () => {
       let returned: DiffResult | null | undefined
       await act(async () => {
         returned = await result.current.checkDiffBeforeImport(
-          createEmptyImportedData(),
+          createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
           new Set(['purchase']),
         )
       })
@@ -244,7 +243,7 @@ describe('usePersistence', () => {
 
     it('returns null when diff does not need confirmation', async () => {
       mockRepo.isAvailable.mockReturnValue(true)
-      mockRepo.loadMonthlyData.mockResolvedValue(createEmptyImportedData())
+      mockRepo.loadMonthlyData.mockResolvedValue(createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }))
       vi.mocked(calculateDiff).mockReturnValue({
         needsConfirmation: false,
         diffs: [],
@@ -255,7 +254,7 @@ describe('usePersistence', () => {
       let returned: DiffResult | null | undefined
       await act(async () => {
         returned = await result.current.checkDiffBeforeImport(
-          createEmptyImportedData(),
+          createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
           new Set(['purchase']),
         )
       })
@@ -264,7 +263,7 @@ describe('usePersistence', () => {
 
     it('shows diff dialog and returns diff when confirmation needed', async () => {
       mockRepo.isAvailable.mockReturnValue(true)
-      mockRepo.loadMonthlyData.mockResolvedValue(createEmptyImportedData())
+      mockRepo.loadMonthlyData.mockResolvedValue(createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }))
 
       const fakeDiff: DiffResult = {
         needsConfirmation: true,
@@ -277,7 +276,7 @@ describe('usePersistence', () => {
       let returned: DiffResult | null | undefined
       await act(async () => {
         returned = await result.current.checkDiffBeforeImport(
-          createEmptyImportedData(),
+          createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
           new Set(['purchase']),
         )
       })
@@ -295,10 +294,10 @@ describe('usePersistence', () => {
       await waitFor(() => expect(result.current.autoRestored).toBe(true))
 
       const incoming = {
-        ...createEmptyImportedData(),
+        ...createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
         stores: new Map([['s1', { id: 's1', code: '001', name: 'New' }]]),
       }
-      const existing = createEmptyImportedData()
+      const existing = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
 
       const applied = result.current.applyDiffDecision('overwrite', incoming, existing)
       expect(applied).toBe(incoming)
@@ -310,10 +309,10 @@ describe('usePersistence', () => {
       await waitFor(() => expect(result.current.autoRestored).toBe(true))
 
       const existing = {
-        ...createEmptyImportedData(),
+        ...createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
         stores: new Map([['s1', { id: 's1', code: '001', name: 'Existing' }]]),
       }
-      const incoming = createEmptyImportedData()
+      const incoming = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
 
       const applied = result.current.applyDiffDecision('keep-existing', incoming, existing)
       // keep-existing は既存データを基盤にするため、既存 stores が保持される
@@ -324,7 +323,7 @@ describe('usePersistence', () => {
   describe('dismissDiffDialog', () => {
     it('clears showDiffDialog and diffResult', async () => {
       mockRepo.isAvailable.mockReturnValue(true)
-      mockRepo.loadMonthlyData.mockResolvedValue(createEmptyImportedData())
+      mockRepo.loadMonthlyData.mockResolvedValue(createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }))
       vi.mocked(calculateDiff).mockReturnValue({
         needsConfirmation: true,
         diffs: [],
@@ -333,7 +332,7 @@ describe('usePersistence', () => {
       const { result } = renderHook(() => usePersistence(), { wrapper: createWrapper() })
 
       await act(async () => {
-        await result.current.checkDiffBeforeImport(createEmptyImportedData(), new Set(['purchase']))
+        await result.current.checkDiffBeforeImport(createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }), new Set(['purchase']))
       })
       expect(result.current.showDiffDialog).toBe(true)
 
