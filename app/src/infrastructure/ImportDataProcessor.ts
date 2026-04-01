@@ -11,7 +11,8 @@ import type {
   CostInclusionData,
   InventoryConfig,
 } from '@/domain/models/record'
-import type { DataType, AppSettings, ImportedData } from '@/domain/models/storeTypes'
+import type { DataType, AppSettings } from '@/domain/models/storeTypes'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
 import { mergeClassifiedSalesData } from '@/domain/models/record'
 import { detectYearMonth } from './fileImport/dateParser'
 import { validateRawRows, STRUCTURAL_RULES } from './fileImport/importSchemas'
@@ -47,7 +48,7 @@ import type { MonthPartitions } from './ImportService'
 
 /** processFileData の戻り値 */
 export interface ProcessFileResult {
-  readonly data: ImportedData
+  readonly data: MonthlyData
   readonly detectedYearMonth?: { year: number; month: number }
   readonly partitions?: Partial<MonthPartitions>
   /** プロセッサの警告（ヘッダ不正、0件結果など） */
@@ -86,7 +87,7 @@ function combineMapPartitions<K, V>(partitioned: Record<string, ReadonlyMap<K, V
 /**
  * データ種別ごとのレコード数を返す（インポートサマリー用）
  */
-export function countDataRecords(data: ImportedData, type: DataType): number {
+export function countDataRecords(data: MonthlyData, type: DataType): number {
   switch (type) {
     case 'classifiedSales':
       return data.classifiedSales.records.length
@@ -137,7 +138,7 @@ function buildStoreCostRateMap(
  */
 function checkProcessorResult(
   type: DataType,
-  resultData: ImportedData,
+  resultData: MonthlyData,
   rows: readonly unknown[][],
   filename: string,
 ): string[] {
@@ -158,13 +159,13 @@ function checkProcessorResult(
 // ─── 公開関数 ────────────────────────────────────────
 
 /**
- * 単一ファイルのデータを処理し、既存のImportedDataにマージする
+ * 単一ファイルのデータを処理し、既存のMonthlyDataにマージする
  */
 export function processFileData(
   type: DataType,
   rows: readonly unknown[][],
   filename: string,
-  current: ImportedData,
+  current: MonthlyData,
   appSettings: AppSettings,
 ): ProcessFileResult {
   validateRawRows(type, rows, filename)
@@ -184,7 +185,7 @@ function processFileDataInner(
   type: DataType,
   rows: readonly unknown[][],
   filename: string,
-  current: ImportedData,
+  current: MonthlyData,
   appSettings: AppSettings,
 ): ProcessFileResult {
   const mutableStores = new Map(current.stores)

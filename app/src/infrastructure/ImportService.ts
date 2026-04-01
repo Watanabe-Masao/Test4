@@ -5,7 +5,8 @@
  * 個々のファイル処理は ImportDataProcessor に委譲する。
  * 型定義・パーティション操作は importTypes.ts に分割済み。
  */
-import type { DataType, AppSettings, ImportedData } from '@/domain/models/storeTypes'
+import type { DataType, AppSettings } from '@/domain/models/storeTypes'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
 import { readTabularFile } from './fileImport/tabularReader'
 import { detectFileType, getDataTypeName } from './fileImport/FileTypeDetector'
 import { ImportError } from './fileImport/errors'
@@ -31,6 +32,8 @@ export { processFileData, normalizeRecordStoreIds, countDataRecords } from './Im
 export type { ProcessFileResult } from './ImportDataProcessor'
 export type { ImportedData } from '@/domain/models/storeTypes'
 export { createEmptyImportedData } from '@/domain/models/storeTypes'
+export type { MonthlyData } from '@/domain/models/MonthlyData'
+export { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
 export {
   createEmptyMonthPartitions,
   detectYearMonthFromPartitionsOrRecords,
@@ -80,13 +83,13 @@ export async function readAndDetect(
 export async function processDroppedFiles(
   files: FileList | File[],
   appSettings: AppSettings,
-  currentData: ImportedData,
+  currentData: MonthlyData,
   onProgress?: ProgressCallback,
   overrideType?: DataType,
   parseFile?: (file: File) => Promise<unknown[][]>,
 ): Promise<{
   summary: ImportSummary
-  data: ImportedData
+  data: MonthlyData
   detectedYearMonth?: { year: number; month: number }
   monthPartitions: MonthPartitions
 }> {

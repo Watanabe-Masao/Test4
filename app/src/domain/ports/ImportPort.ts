@@ -7,11 +7,12 @@
  * 現時点では FileImportService が infrastructure のパーサーを使用しているが、
  * 将来的にはこの Port を通じて DI 可能にする。
  */
-import type { AppSettings, DataType, ImportedData } from '@/domain/models/storeTypes'
+import type { AppSettings, DataType } from '@/domain/models/storeTypes'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
 
 /** ファイルパース結果 */
 export interface ParseResult {
-  readonly data: ImportedData
+  readonly data: MonthlyData
   readonly detectedTypes: ReadonlySet<DataType>
   readonly warnings: readonly string[]
 }
@@ -25,13 +26,13 @@ export interface ValidationResult {
 
 /** ファイルインポートのポートインターフェース */
 export interface ImportPort {
-  /** ドロップされたファイル群をパースし、ImportedData に変換する */
+  /** ドロップされたファイル群をパースし、MonthlyData に変換する */
   parseFiles(
     files: FileList | File[],
     settings: AppSettings,
     overrideType?: DataType,
   ): Promise<ParseResult>
 
-  /** ImportedData のバリデーションを実行する */
-  validateData(data: ImportedData): ValidationResult
+  /** MonthlyData のバリデーションを実行する */
+  validateData(data: MonthlyData): ValidationResult
 }

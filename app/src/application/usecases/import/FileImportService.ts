@@ -1,5 +1,6 @@
 import type { BudgetData } from '@/domain/models/record'
-import type { DataType, AppSettings, ImportedData } from '@/domain/models/storeTypes'
+import type { DataType, AppSettings } from '@/domain/models/storeTypes'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
 import type { ImportSummary } from '@/domain/models/ImportResult'
 import { processDroppedFiles as processDroppedFilesImpl } from '@/infrastructure/ImportService'
 import type { MonthPartitions } from '@/infrastructure/ImportService'
@@ -30,12 +31,12 @@ export { validateImportData, hasValidationErrors } from './importValidation'
 export async function processDroppedFiles(
   files: FileList | File[],
   appSettings: AppSettings,
-  currentData: ImportedData,
+  currentData: MonthlyData,
   onProgress?: ProgressCallback,
   overrideType?: DataType,
 ): Promise<{
   summary: ImportSummary
-  data: ImportedData
+  data: MonthlyData
   detectedYearMonth?: { year: number; month: number }
   monthPartitions: MonthPartitions
 }> {
@@ -59,7 +60,7 @@ export async function processDroppedFiles(
  * 反映するため、正確なソースとして使用する。
  */
 export function extractRecordMonths(
-  data: ImportedData,
+  data: MonthlyData,
   partitions?: MonthPartitions,
 ): readonly { year: number; month: number }[] {
   const seen = new Set<string>()
@@ -125,21 +126,21 @@ function filterDatedRecords<
 }
 
 /**
- * ImportedData から指定年月のレコードのみを含む ImportedData を返す。
+ * MonthlyData から指定年月のレコードのみを含む MonthlyData を返す。
  * 全レコード系データを年月で厳密フィルタする。
  * - classifiedSales / categoryTimeSales: レコードの year/month で常にフィルタ
  * - DatedRecord 系 (purchase 等): パーティション優先、無ければ year/month フィルタ
  * - budget: パーティション優先、無ければそのまま維持（year/month フィールドを持たないため）
  */
 export function filterDataForMonth(
-  data: ImportedData,
+  data: MonthlyData,
   year: number,
   month: number,
   partitions?: MonthPartitions,
-): ImportedData {
+): MonthlyData {
   const mk = monthKey(year, month)
 
-  const base: ImportedData = {
+  const base: MonthlyData = {
     ...data,
     classifiedSales: {
       records: data.classifiedSales.records.filter((r) => r.year === year && r.month === month),

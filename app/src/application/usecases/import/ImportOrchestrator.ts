@@ -6,8 +6,7 @@
  */
 import type { AppSettings, DataType } from '@/domain/models/storeTypes'
 import type { MonthlyData } from '@/domain/models/MonthlyData'
-import { createEmptyImportedData } from '@/domain/models/storeTypes'
-import { toLegacyImportedData } from '@/domain/models/monthlyDataAdapter'
+import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
 import { processDroppedFiles } from './FileImportService'
 import type { ProgressCallback } from './FileImportService'
 import { toMonthlyImportBatch } from './monthlyBatchAdapter'
@@ -39,16 +38,13 @@ export async function orchestrateImport(
   onProgress?: ProgressCallback,
   overrideType?: DataType,
 ): Promise<MonthlyImportResult> {
-  // processDroppedFiles は infrastructure 層で ImportedData を要求する（Phase H で移行予定）
-  const legacyCurrentData = currentMonthData
-    ? toLegacyImportedData({ current: currentMonthData, prevYear: null })
-    : createEmptyImportedData()
+  const currentData = currentMonthData ?? createEmptyMonthlyData({ year: settings.targetYear, month: settings.targetMonth, importedAt: '' })
   const {
     summary,
     data: processedData,
     detectedYearMonth,
     monthPartitions,
-  } = await processDroppedFiles(files, settings, legacyCurrentData, onProgress, overrideType)
+  } = await processDroppedFiles(files, settings, currentData, onProgress, overrideType)
 
   if (summary.successCount === 0) {
     return {

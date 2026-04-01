@@ -10,7 +10,8 @@ import type {
   CostInclusionData,
   BudgetData,
 } from '@/domain/models/record'
-import type { DataType, ImportedData } from '@/domain/models/storeTypes'
+import type { DataType } from '@/domain/models/storeTypes'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
 
 // ─── 型定義 ──────────────────────────────────────────
 
@@ -75,7 +76,7 @@ export function createEmptyMonthPartitions(): MonthPartitions {
  * detectedYearMonth が未設定のときに使用するフォールバック。
  */
 export function detectYearMonthFromPartitionsOrRecords(
-  data: ImportedData,
+  data: MonthlyData,
   mp: MonthPartitions,
 ): { year: number; month: number } | undefined {
   const allKeys = new Set<string>()
