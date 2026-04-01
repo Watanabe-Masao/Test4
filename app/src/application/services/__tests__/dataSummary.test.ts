@@ -64,7 +64,9 @@ function makeCtsRecord(day: number, storeId: string) {
 
 describe('computeHasAnyData', () => {
   it('空データでは false', () => {
-    expect(computeHasAnyData(createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }))).toBe(false)
+    expect(
+      computeHasAnyData(createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })),
+    ).toBe(false)
   })
 
   it('仕入データありで true', () => {
@@ -106,7 +108,9 @@ describe('computeHasAnyData', () => {
 
 describe('computeLoadedTypes', () => {
   it('空データでは空セット', () => {
-    const types = computeLoadedTypes(createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }))
+    const types = computeLoadedTypes(
+      createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
+    )
     expect(types.size).toBe(0)
   })
 
@@ -193,7 +197,9 @@ describe('computeLoadedTypes', () => {
 
 describe('computeMaxDayByType', () => {
   it('空データでは空マップ', () => {
-    const result = computeMaxDayByType(createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }))
+    const result = computeMaxDayByType(
+      createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
+    )
     expect(result.size).toBe(0)
   })
 
@@ -421,7 +427,9 @@ describe('analyzeClassifiedSales', () => {
 
 describe('buildDataOverview', () => {
   it('空データでは 7 エントリ返却（prevYear なし）', () => {
-    const overview = buildDataOverview(createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }))
+    const overview = buildDataOverview(
+      createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
+    )
     expect(overview).toHaveLength(7)
     for (const entry of overview) {
       expect(entry.storeCount).toBe(0)
@@ -453,7 +461,9 @@ describe('buildDataOverview', () => {
   })
 
   it('全ラベルが含まれる（prevYear なし）', () => {
-    const overview = buildDataOverview(createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }))
+    const overview = buildDataOverview(
+      createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
+    )
     const labels = overview.map((e) => e.label)
     expect(labels).toContain('仕入')
     expect(labels).toContain('分類別売上')
