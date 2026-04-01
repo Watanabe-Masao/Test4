@@ -471,4 +471,15 @@ describe('buildDataOverview', () => {
     const labels = overview.map((e) => e.label)
     expect(labels).toContain('前年分類別売上')
   })
+
+  it('MonthlyData を DataSummaryInput として受け付ける', () => {
+    // MonthlyData は DataSummaryInput を満たす（ImportedData と同じフィールド構造）
+    // createEmptyImportedData() は DataSummaryInput を満たすため検証に使用
+    const monthly = createEmptyImportedData()
+    expect(computeHasAnyData(monthly)).toBe(false)
+    expect(computeLoadedTypes(monthly).size).toBe(0)
+    expect(computeMaxDayByType(monthly).size).toBe(0)
+    const overview = buildDataOverview(monthly)
+    expect(overview).toHaveLength(7)
+  })
 })

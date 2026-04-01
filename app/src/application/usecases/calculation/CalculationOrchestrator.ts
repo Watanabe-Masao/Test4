@@ -6,7 +6,8 @@
  * - storeAssembler: StoreResult組み立て
  * - aggregateResults: 全店集約
  */
-import type { AppSettings, StoreResult, ImportedData } from '@/domain/models/storeTypes'
+import type { AppSettings, StoreResult } from '@/domain/models/storeTypes'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
 import { buildDailyRecords } from './dailyBuilder'
 import { assembleStoreResult } from './storeAssembler'
 export { aggregateStoreResults } from './aggregateResults'
@@ -16,7 +17,7 @@ export { aggregateStoreResults } from './aggregateResults'
  */
 export function calculateStoreResult(
   storeId: string,
-  data: ImportedData,
+  data: MonthlyData,
   settings: AppSettings,
   daysInMonth: number,
 ): StoreResult {
@@ -31,7 +32,7 @@ export function calculateStoreResult(
  * 全店舗の計算結果を生成する
  */
 export function calculateAllStores(
-  data: ImportedData,
+  data: MonthlyData,
   settings: AppSettings,
   daysInMonth: number,
 ): ReadonlyMap<string, StoreResult> {

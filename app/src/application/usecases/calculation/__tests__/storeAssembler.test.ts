@@ -8,10 +8,11 @@
 import { describe, it, expect } from 'vitest'
 import { assembleStoreResult } from '../storeAssembler'
 import { ZERO_COST_PRICE_PAIR } from '@/domain/models/record'
-import { createEmptyImportedData } from '@/domain/models/storeTypes'
+import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
 import { createDefaultSettings } from '@/domain/constants/defaults'
 import type { DailyRecord } from '@/domain/models/record'
-import type { ImportedData, AppSettings } from '@/domain/models/storeTypes'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
+import type { AppSettings } from '@/domain/models/storeTypes'
 import type { MonthlyAccumulator } from '../types'
 
 const DEFAULT_SETTINGS: AppSettings = {
@@ -86,7 +87,7 @@ function makeAccumulator(overrides: Partial<MonthlyAccumulator> = {}): MonthlyAc
 describe('assembleStoreResult', () => {
   it('ゼロデータ: 全フィールドが安全に初期化される', () => {
     const acc = makeAccumulator()
-    const data = createEmptyImportedData()
+    const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
 
     const result = assembleStoreResult('1', acc, data, DEFAULT_SETTINGS, 28)
 
@@ -119,7 +120,7 @@ describe('assembleStoreResult', () => {
       elapsedDays: 1,
       daily,
     })
-    const data = createEmptyImportedData()
+    const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
 
     const result = assembleStoreResult('1', acc, data, DEFAULT_SETTINGS, 28)
 
@@ -140,7 +141,7 @@ describe('assembleStoreResult', () => {
       salesDays: 1,
       elapsedDays: 1,
     })
-    const data = createEmptyImportedData()
+    const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
 
     const result = assembleStoreResult('1', acc, data, DEFAULT_SETTINGS, 28)
 
@@ -162,7 +163,7 @@ describe('assembleStoreResult', () => {
         interDepartmentOut: { cost: -500, price: -650 },
       },
     })
-    const data = createEmptyImportedData()
+    const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
 
     const result = assembleStoreResult('1', acc, data, DEFAULT_SETTINGS, 28)
 
@@ -181,8 +182,8 @@ describe('assembleStoreResult', () => {
       salesDays: 5,
       elapsedDays: 5,
     })
-    const data: ImportedData = {
-      ...createEmptyImportedData(),
+    const data: MonthlyData = {
+      ...createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
       budget: new Map([['1', { storeId: '1', total: 2800000, daily: new Map() }]]),
     }
 
@@ -205,8 +206,8 @@ describe('assembleStoreResult', () => {
       salesDays: 2,
       elapsedDays: 2,
     })
-    const data: ImportedData = {
-      ...createEmptyImportedData(),
+    const data: MonthlyData = {
+      ...createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
       budget: new Map([['1', { storeId: '1', total: 6000000, daily }]]),
     }
 
@@ -218,8 +219,8 @@ describe('assembleStoreResult', () => {
 
   it('予算: 予算0の場合は空の budgetDaily', () => {
     const acc = makeAccumulator()
-    const data: ImportedData = {
-      ...createEmptyImportedData(),
+    const data: MonthlyData = {
+      ...createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
       budget: new Map([['1', { storeId: '1', total: 0, daily: new Map() }]]),
     }
 
@@ -260,7 +261,7 @@ describe('assembleStoreResult', () => {
       totalPurchasePrice: 43000,
       supplierTotals,
     })
-    const data = createEmptyImportedData()
+    const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
 
     const result = assembleStoreResult('1', acc, data, DEFAULT_SETTINGS, 28)
 
@@ -277,7 +278,7 @@ describe('assembleStoreResult', () => {
       salesDays: 1,
       elapsedDays: 1,
     })
-    const data = createEmptyImportedData()
+    const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
 
     const result = assembleStoreResult('1', acc, data, DEFAULT_SETTINGS, 28)
 
@@ -291,7 +292,7 @@ describe('assembleStoreResult', () => {
       totalSales: 0,
       totalCostInclusion: 1000,
     })
-    const data = createEmptyImportedData()
+    const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
 
     const result = assembleStoreResult('1', acc, data, DEFAULT_SETTINGS, 28)
 
@@ -304,7 +305,7 @@ describe('assembleStoreResult', () => {
       totalDiscount: 10000,
       hasDiscountData: true,
     })
-    const data = createEmptyImportedData()
+    const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
 
     const result = assembleStoreResult('1', acc, data, DEFAULT_SETTINGS, 28)
 
@@ -316,8 +317,8 @@ describe('assembleStoreResult', () => {
 
   it('粗利予算: settings に grossProfitBudget がある場合', () => {
     const acc = makeAccumulator({ totalSales: 100000 })
-    const data: ImportedData = {
-      ...createEmptyImportedData(),
+    const data: MonthlyData = {
+      ...createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
       settings: new Map([
         [
           '1',
@@ -345,7 +346,7 @@ describe('assembleStoreResult', () => {
       totalCustomers: 100,
       salesDays: 0,
     })
-    const data = createEmptyImportedData()
+    const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
 
     const result = assembleStoreResult('1', acc, data, DEFAULT_SETTINGS, 28)
 
@@ -361,8 +362,8 @@ describe('assembleStoreResult', () => {
 
     it('inventoryDate が対象月と一致 → grossProfitBudget が採用される', () => {
       const acc = makeAccumulator({ totalSales: 1000000, salesDays: 10, elapsedDays: 10 })
-      const data: ImportedData = {
-        ...createEmptyImportedData(),
+      const data: MonthlyData = {
+        ...createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
         settings: new Map([
           [
             '1',
@@ -388,8 +389,8 @@ describe('assembleStoreResult', () => {
 
     it('inventoryDate が対象月と不一致 → grossProfitBudget が 0 になる', () => {
       const acc = makeAccumulator({ totalSales: 1000000, salesDays: 10, elapsedDays: 10 })
-      const data: ImportedData = {
-        ...createEmptyImportedData(),
+      const data: MonthlyData = {
+        ...createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
         settings: new Map([
           [
             '1',
@@ -415,8 +416,8 @@ describe('assembleStoreResult', () => {
 
     it('inventoryDate が null → 後方互換で grossProfitBudget を採用', () => {
       const acc = makeAccumulator({ totalSales: 1000000, salesDays: 10, elapsedDays: 10 })
-      const data: ImportedData = {
-        ...createEmptyImportedData(),
+      const data: MonthlyData = {
+        ...createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
         settings: new Map([
           [
             '1',
@@ -444,7 +445,7 @@ describe('assembleStoreResult', () => {
   describe('observationPeriod integration', () => {
     it('ゼロデータ → status: undefined, warnings に obs_no_sales_data', () => {
       const acc = makeAccumulator()
-      const data = createEmptyImportedData()
+      const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
 
       const result = assembleStoreResult('1', acc, data, DEFAULT_SETTINGS, 30)
 
@@ -467,7 +468,7 @@ describe('assembleStoreResult', () => {
         elapsedDays: 3,
         daily,
       })
-      const data = createEmptyImportedData()
+      const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
 
       const result = assembleStoreResult('1', acc, data, DEFAULT_SETTINGS, 31)
 
@@ -491,7 +492,7 @@ describe('assembleStoreResult', () => {
         elapsedDays: 7,
         daily,
       })
-      const data = createEmptyImportedData()
+      const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
 
       const result = assembleStoreResult('1', acc, data, DEFAULT_SETTINGS, 30)
 
@@ -511,7 +512,7 @@ describe('assembleStoreResult', () => {
         elapsedDays: 15,
         daily,
       })
-      const data = createEmptyImportedData()
+      const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
 
       const result = assembleStoreResult('1', acc, data, DEFAULT_SETTINGS, 30)
 
@@ -534,7 +535,7 @@ describe('assembleStoreResult', () => {
         elapsedDays: 10,
         daily,
       })
-      const data = createEmptyImportedData()
+      const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
 
       const result = assembleStoreResult('1', acc, data, DEFAULT_SETTINGS, 31)
 
@@ -559,7 +560,7 @@ describe('assembleStoreResult', () => {
         elapsedDays: 7, // dailyBuilder: 仕入のみの日を含む
         daily,
       })
-      const data = createEmptyImportedData()
+      const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
 
       const result = assembleStoreResult('1', acc, data, DEFAULT_SETTINGS, 31)
 

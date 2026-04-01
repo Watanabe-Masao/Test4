@@ -3,7 +3,7 @@
  */
 import { describe, it, expect, beforeEach } from 'vitest'
 import { CalculationCache, computeFingerprint, computeGlobalFingerprint } from '../calculationCache'
-import { createEmptyImportedData } from '@/domain/models/storeTypes'
+import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
 import type { AppSettings, StoreResult } from '@/domain/models/storeTypes'
 
 const mockSettings: AppSettings = {
@@ -57,35 +57,35 @@ function makeCSRecord(day: number, storeId: string, salesAmount: number, discoun
 
 describe('computeFingerprint', () => {
   it('同じ入力に対して同じフィンガープリントを返す', () => {
-    const data = createEmptyImportedData()
+    const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
     const fp1 = computeFingerprint('s1', data, mockSettings, 31)
     const fp2 = computeFingerprint('s1', data, mockSettings, 31)
     expect(fp1).toBe(fp2)
   })
 
   it('異なる店舗IDで異なるフィンガープリントを返す', () => {
-    const data = createEmptyImportedData()
+    const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
     const fp1 = computeFingerprint('s1', data, mockSettings, 31)
     const fp2 = computeFingerprint('s2', data, mockSettings, 31)
     expect(fp1).not.toBe(fp2)
   })
 
   it('設定変更でフィンガープリントが変わる', () => {
-    const data = createEmptyImportedData()
+    const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
     const fp1 = computeFingerprint('s1', data, mockSettings, 31)
     const fp2 = computeFingerprint('s1', data, { ...mockSettings, defaultMarkupRate: 0.5 }, 31)
     expect(fp1).not.toBe(fp2)
   })
 
   it('月の日数変更でフィンガープリントが変わる', () => {
-    const data = createEmptyImportedData()
+    const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
     const fp1 = computeFingerprint('s1', data, mockSettings, 31)
     const fp2 = computeFingerprint('s1', data, mockSettings, 28)
     expect(fp1).not.toBe(fp2)
   })
 
   it('消耗品データ追加でフィンガープリントが変わる', () => {
-    const data1 = createEmptyImportedData()
+    const data1 = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
     const data2 = {
       ...data1,
       consumables: {
@@ -115,7 +115,7 @@ describe('computeFingerprint', () => {
   })
 
   it('花・産直データ追加でフィンガープリントが変わる', () => {
-    const data1 = createEmptyImportedData()
+    const data1 = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
     const data2 = {
       ...data1,
       flowers: {
@@ -128,7 +128,7 @@ describe('computeFingerprint', () => {
   })
 
   it('店間入出データ追加でフィンガープリントが変わる', () => {
-    const data1 = createEmptyImportedData()
+    const data1 = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
     const data2 = {
       ...data1,
       interStoreIn: {
@@ -161,7 +161,7 @@ describe('computeFingerprint', () => {
   })
 
   it('分類別売上データ追加でフィンガープリントが変わる', () => {
-    const data1 = createEmptyImportedData()
+    const data1 = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
     const data2 = {
       ...data1,
       classifiedSales: {
@@ -174,24 +174,42 @@ describe('computeFingerprint', () => {
   })
 
   it('前年分類別売上データ追加でフィンガープリントが変わる', () => {
-    const data1 = createEmptyImportedData()
-    const data2 = {
-      ...data1,
-      prevYearClassifiedSales: {
+    const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
+    const prevYear = {
+      ...createEmptyMonthlyData({ year: 2024, month: 1, importedAt: '' }),
+      classifiedSales: {
         records: [makeCSRecord(1, 's1', 50000)],
       },
     }
-    const fp1 = computeFingerprint('s1', data1, mockSettings, 31)
-    const fp2 = computeFingerprint('s1', data2, mockSettings, 31)
+    const fp1 = computeFingerprint('s1', data, mockSettings, 31)
+    const fp2 = computeFingerprint('s1', data, mockSettings, 31, prevYear)
     expect(fp1).not.toBe(fp2)
   })
 })
 
 describe('computeGlobalFingerprint', () => {
   it('店舗なしデータで一貫したフィンガープリントを返す', () => {
-    const data = createEmptyImportedData()
+    const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
     const fp1 = computeGlobalFingerprint(data, mockSettings, 31)
     const fp2 = computeGlobalFingerprint(data, mockSettings, 31)
+    expect(fp1).toBe(fp2)
+  })
+
+  it('prevYear パラメータ追加でフィンガープリントが変わる', () => {
+    const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
+    const prevYear = {
+      ...createEmptyMonthlyData({ year: 2024, month: 1, importedAt: '' }),
+      classifiedSales: { records: [makeCSRecord(1, 's1', 30000)] },
+    }
+    const fp1 = computeGlobalFingerprint(data, mockSettings, 31)
+    const fp2 = computeGlobalFingerprint(data, mockSettings, 31, prevYear)
+    expect(fp1).not.toBe(fp2)
+  })
+
+  it('prevYear=null と prevYear=undefined で同じ結果', () => {
+    const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
+    const fp1 = computeGlobalFingerprint(data, mockSettings, 31, null)
+    const fp2 = computeGlobalFingerprint(data, mockSettings, 31, undefined)
     expect(fp1).toBe(fp2)
   })
 })
@@ -209,7 +227,7 @@ describe('CalculationCache', () => {
   })
 
   it('store result をキャッシュ & 取得できる', () => {
-    const data = createEmptyImportedData()
+    const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
     const result = makeStoreResult('s1')
 
     cache.setStoreResult('s1', data, mockSettings, 31, result)
@@ -220,7 +238,7 @@ describe('CalculationCache', () => {
   })
 
   it('設定変更後はキャッシュミスになる', () => {
-    const data = createEmptyImportedData()
+    const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
     const result = makeStoreResult('s1')
 
     cache.setStoreResult('s1', data, mockSettings, 31, result)
@@ -230,7 +248,7 @@ describe('CalculationCache', () => {
   })
 
   it('global result をキャッシュ & 取得できる', () => {
-    const data = createEmptyImportedData()
+    const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
     const results = new Map([['s1', makeStoreResult('s1')]])
 
     cache.setGlobalResult(data, mockSettings, 31, results)
@@ -241,7 +259,7 @@ describe('CalculationCache', () => {
   })
 
   it('global result は設定変更でキャッシュミスになる', () => {
-    const data = createEmptyImportedData()
+    const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
     const results = new Map([['s1', makeStoreResult('s1')]])
 
     cache.setGlobalResult(data, mockSettings, 31, results)
@@ -251,7 +269,7 @@ describe('CalculationCache', () => {
   })
 
   it('clear でキャッシュが空になる', () => {
-    const data = createEmptyImportedData()
+    const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
     cache.setStoreResult('s1', data, mockSettings, 31, makeStoreResult('s1'))
     cache.setGlobalResult(data, mockSettings, 31, new Map())
 
@@ -283,7 +301,7 @@ describe('CalculationCache', () => {
   })
 
   it('setGlobalResult が個別キャッシュも更新する', () => {
-    const data = createEmptyImportedData()
+    const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
     const results = new Map([
       ['s1', makeStoreResult('s1')],
       ['s2', makeStoreResult('s2')],

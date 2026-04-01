@@ -16,10 +16,11 @@ import {
   calculateAllStores,
   aggregateStoreResults,
 } from '@/application/usecases/calculation/CalculationOrchestrator'
-import { createEmptyImportedData } from '@/domain/models/storeTypes'
+import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
 import { createDefaultSettings } from '@/domain/constants/defaults'
 import type { Explanation } from '@/domain/models/analysis'
-import type { ImportedData, StoreResult, AppSettings } from '@/domain/models/storeTypes'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
+import type { StoreResult, AppSettings } from '@/domain/models/storeTypes'
 
 const DEFAULT_SETTINGS: AppSettings = {
   ...createDefaultSettings(),
@@ -54,17 +55,17 @@ function makeCSRecord(
   }
 }
 
-function buildTestData(overrides: Partial<ImportedData> = {}): ImportedData {
+function buildTestData(overrides: Partial<MonthlyData> = {}): MonthlyData {
   return {
-    ...createEmptyImportedData(),
+    ...createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
     stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
     ...overrides,
   }
 }
 
-function buildMultiStoreTestData(overrides: Partial<ImportedData> = {}): ImportedData {
+function buildMultiStoreTestData(overrides: Partial<MonthlyData> = {}): MonthlyData {
   return {
-    ...createEmptyImportedData(),
+    ...createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
     stores: new Map([
       ['1', { id: '1', code: '0001', name: '店舗A' }],
       ['2', { id: '2', code: '0002', name: '店舗B' }],
@@ -74,7 +75,7 @@ function buildMultiStoreTestData(overrides: Partial<ImportedData> = {}): Importe
 }
 
 function makeStoreResult(
-  data: ImportedData,
+  data: MonthlyData,
   settings = DEFAULT_SETTINGS,
   storeId = '1',
 ): StoreResult {
@@ -130,8 +131,8 @@ describe('expandDailyEvidence: aggregate store path', () => {
 
   it('aggregate storeId でも storeIds が空なら自身のみ', () => {
     // stores が空の場合
-    const data: ImportedData = {
-      ...createEmptyImportedData(),
+    const data: MonthlyData = {
+      ...createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
       classifiedSales: { records: [makeCSRecord(1, 'aggregate', 50000)] },
     }
     const result = calculateStoreResult('aggregate', data, DEFAULT_SETTINGS, 28)

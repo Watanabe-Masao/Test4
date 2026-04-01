@@ -5,7 +5,7 @@
  * 整合性チェック、重複検出、日付範囲検証など。
  */
 import type { ValidationMessage } from '@/domain/models/record'
-import type { ImportedData } from '@/domain/models/storeTypes'
+import type { DataSummaryInput } from '@/application/services/dataSummary'
 import { classifiedSalesRecordKey, categoryTimeSalesRecordKey } from '@/domain/models/record'
 import type { ImportSummary } from './FileImportService'
 import { AMOUNT_RECONCILIATION_TOLERANCE } from '@/domain/constants'
@@ -14,7 +14,7 @@ import { AMOUNT_RECONCILIATION_TOLERANCE } from '@/domain/constants'
  * インポートデータのバリデーション
  */
 export function validateImportedData(
-  data: ImportedData,
+  data: DataSummaryInput,
   importSummary?: ImportSummary,
 ): readonly ValidationMessage[] {
   const messages: ValidationMessage[] = []

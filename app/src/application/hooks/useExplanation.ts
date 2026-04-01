@@ -36,8 +36,9 @@ export function useExplanations(
   return useMemo(() => {
     if (!currentResult) return new Map()
     // data はスナップショットで取得（購読ではなく useMemo 内で参照）
-    const calcData = useDataStore.getState()._calculationData
-    const base = generateExplanations(currentResult, calcData, settings)
+    const current = useDataStore.getState().currentMonthData
+    if (!current) return new Map()
+    const base = generateExplanations(currentResult, current, settings)
 
     // 前年予算比較の Explanation をマージ
     if (comparisonKpi.hasPrevYear && currentResult.budget > 0) {
@@ -48,7 +49,7 @@ export function useExplanations(
         storeId: currentResult.storeId,
         year: settings.targetYear,
         month: settings.targetMonth,
-        stores: calcData.stores,
+        stores: current.stores,
         dowGap: comparisonDowGap,
         averageDailySales: currentResult.averageDailySales,
       })

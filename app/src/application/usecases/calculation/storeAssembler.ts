@@ -5,7 +5,8 @@ import type {
   InventoryConfig,
   BudgetData,
 } from '@/domain/models/record'
-import type { AppSettings, StoreResult, ImportedData } from '@/domain/models/storeTypes'
+import type { AppSettings, StoreResult } from '@/domain/models/storeTypes'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
 import { ZERO_COST_PRICE_PAIR, addCostPricePairs } from '@/domain/models/record'
 // bridge 経由: 将来の dual-run compare を観測可能にする
 import {
@@ -115,7 +116,7 @@ function resolveBudget(
 export function assembleStoreResult(
   storeId: string,
   acc: MonthlyAccumulator,
-  data: ImportedData,
+  data: MonthlyData,
   settings: AppSettings,
   daysInMonth: number,
 ): StoreResult {

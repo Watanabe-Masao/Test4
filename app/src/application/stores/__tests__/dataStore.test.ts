@@ -114,4 +114,67 @@ describe('dataStore', () => {
     expect(useDataStore.getState().validationMessages).toEqual([])
     expect(useDataStore.getState().currentMonthData?.stores.size ?? 0).toBe(0)
   })
+
+  // ─── Step F: MonthlyData 移行で追加されたテスト ────────
+
+  it('setCurrentMonthData で authoritativeDataVersion がインクリメントされる', () => {
+    const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
+    expect(useDataStore.getState().authoritativeDataVersion).toBe(0)
+
+    useDataStore.getState().setCurrentMonthData(data)
+    expect(useDataStore.getState().authoritativeDataVersion).toBe(1)
+
+    useDataStore.getState().setCurrentMonthData(data)
+    expect(useDataStore.getState().authoritativeDataVersion).toBe(2)
+  })
+
+  it('setPrevYearMonthData で comparisonDataVersion がインクリメントされる', () => {
+    const prevYear = createEmptyMonthlyData({ year: 2024, month: 1, importedAt: '' })
+    expect(useDataStore.getState().comparisonDataVersion).toBe(0)
+
+    useDataStore.getState().setPrevYearMonthData(prevYear)
+    expect(useDataStore.getState().comparisonDataVersion).toBe(1)
+  })
+
+  it('reset で全バージョンが 0 に戻る', () => {
+    const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
+    useDataStore.getState().setCurrentMonthData(data)
+    useDataStore.getState().setPrevYearMonthData(data)
+    expect(useDataStore.getState().authoritativeDataVersion).toBeGreaterThan(0)
+    expect(useDataStore.getState().comparisonDataVersion).toBeGreaterThan(0)
+
+    useDataStore.getState().reset()
+    expect(useDataStore.getState().authoritativeDataVersion).toBe(0)
+    expect(useDataStore.getState().comparisonDataVersion).toBe(0)
+    expect(useDataStore.getState().currentMonthData).toBeNull()
+    expect(useDataStore.getState().appData.current).toBeNull()
+    expect(useDataStore.getState().appData.prevYear).toBeNull()
+  })
+
+  it('replaceAppData で current 変更時のみ authoritativeDataVersion が上がる', () => {
+    const m1 = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
+    const m2 = createEmptyMonthlyData({ year: 2025, month: 2, importedAt: '' })
+    useDataStore.getState().replaceAppData({ current: m1, prevYear: null })
+    const v1 = useDataStore.getState().authoritativeDataVersion
+
+    // 同じ current で prevYear だけ変更 → authoritativeDataVersion 不変
+    useDataStore.getState().replaceAppData({ current: m1, prevYear: m2 })
+    expect(useDataStore.getState().authoritativeDataVersion).toBe(v1)
+    expect(useDataStore.getState().comparisonDataVersion).toBeGreaterThan(0)
+
+    // current 変更 → authoritativeDataVersion インクリメント
+    useDataStore.getState().replaceAppData({ current: m2, prevYear: m2 })
+    expect(useDataStore.getState().authoritativeDataVersion).toBeGreaterThan(v1)
+  })
+
+  it('DataStore interface に ImportedData 関連プロパティが存在しない', () => {
+    const state = useDataStore.getState()
+    // Step F で削除済み: data, legacyData, dataVersion, _calculationData
+    expect('data' in state).toBe(false)
+    expect('legacyData' in state).toBe(false)
+    expect('dataVersion' in state).toBe(false)
+    expect('_calculationData' in state).toBe(false)
+    expect('setImportedData' in state).toBe(false)
+    expect('setPrevYearAutoData' in state).toBe(false)
+  })
 })

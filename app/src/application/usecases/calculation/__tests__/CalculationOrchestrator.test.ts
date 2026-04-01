@@ -4,8 +4,8 @@ import {
   calculateAllStores,
   aggregateStoreResults,
 } from '../CalculationOrchestrator'
-import { createEmptyImportedData } from '@/domain/models/storeTypes'
-import type { ImportedData } from '@/domain/models/storeTypes'
+import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
 import { createDefaultSettings } from '@/domain/constants/defaults'
 
 const DEFAULT_SETTINGS = createDefaultSettings()
@@ -37,9 +37,9 @@ function makeCSRecord(
   }
 }
 
-function buildTestData(overrides: Partial<ImportedData> = {}): ImportedData {
+function buildTestData(overrides: Partial<MonthlyData> = {}): MonthlyData {
   return {
-    ...createEmptyImportedData(),
+    ...createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
     stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
     ...overrides,
   }
@@ -453,8 +453,8 @@ describe('calculateStoreResult', () => {
 
 describe('calculateAllStores', () => {
   it('全店舗の結果を生成', () => {
-    const data: ImportedData = {
-      ...createEmptyImportedData(),
+    const data: MonthlyData = {
+      ...createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
       stores: new Map([
         ['1', { id: '1', code: '0001', name: '店舗A' }],
         ['2', { id: '2', code: '0002', name: '店舗B' }],
@@ -472,15 +472,19 @@ describe('calculateAllStores', () => {
   })
 
   it('空データでは空マップ', () => {
-    const results = calculateAllStores(createEmptyImportedData(), DEFAULT_SETTINGS, 28)
+    const results = calculateAllStores(
+      createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
+      DEFAULT_SETTINGS,
+      28,
+    )
     expect(results.size).toBe(0)
   })
 })
 
 describe('aggregateStoreResults', () => {
   it('複数店舗の合算', () => {
-    const data: ImportedData = {
-      ...createEmptyImportedData(),
+    const data: MonthlyData = {
+      ...createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
       stores: new Map([
         ['1', { id: '1', code: '0001', name: '店舗A' }],
         ['2', { id: '2', code: '0002', name: '店舗B' }],
@@ -521,8 +525,8 @@ describe('aggregateStoreResults', () => {
   })
 
   it('在庫法集計: 両店舗に在庫設定がある場合', () => {
-    const data: ImportedData = {
-      ...createEmptyImportedData(),
+    const data: MonthlyData = {
+      ...createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
       stores: new Map([
         ['1', { id: '1', code: '0001', name: '店舗A' }],
         ['2', { id: '2', code: '0002', name: '店舗B' }],
@@ -599,8 +603,8 @@ describe('aggregateStoreResults', () => {
   })
 
   it('aggregate の coreMarkupRate は移動コストを含む（storeAssembler と同一式）', () => {
-    const data: ImportedData = {
-      ...createEmptyImportedData(),
+    const data: MonthlyData = {
+      ...createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
       stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
       purchase: {
         records: [
@@ -783,8 +787,8 @@ describe('客数集計', () => {
   })
 
   it('aggregateStoreResults で客数が合算される', () => {
-    const data: ImportedData = {
-      ...createEmptyImportedData(),
+    const data: MonthlyData = {
+      ...createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
       stores: new Map([
         ['1', { id: '1', code: '0001', name: '店舗A' }],
         ['2', { id: '2', code: '0002', name: '店舗B' }],

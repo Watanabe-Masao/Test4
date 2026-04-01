@@ -11,10 +11,11 @@ import {
   generateMetricSummary,
 } from '../ExplanationService'
 import { calculateStoreResult } from '@/application/usecases/calculation/CalculationOrchestrator'
-import { createEmptyImportedData } from '@/domain/models/storeTypes'
+import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
 import { createDefaultSettings } from '@/domain/constants/defaults'
 import type { Explanation } from '@/domain/models/analysis'
-import type { ImportedData, StoreResult, AppSettings } from '@/domain/models/storeTypes'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
+import type { StoreResult, AppSettings } from '@/domain/models/storeTypes'
 
 const DEFAULT_SETTINGS: AppSettings = {
   ...createDefaultSettings(),
@@ -49,16 +50,16 @@ function makeCSRecord(
   }
 }
 
-function buildTestData(overrides: Partial<ImportedData> = {}): ImportedData {
+function buildTestData(overrides: Partial<MonthlyData> = {}): MonthlyData {
   return {
-    ...createEmptyImportedData(),
+    ...createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
     stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
     ...overrides,
   }
 }
 
 /** CalculationOrchestrator 経由で StoreResult を生成するヘルパー */
-function makeStoreResult(data: ImportedData, settings = DEFAULT_SETTINGS): StoreResult {
+function makeStoreResult(data: MonthlyData, settings = DEFAULT_SETTINGS): StoreResult {
   return calculateStoreResult('1', data, settings, 28)
 }
 

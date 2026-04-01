@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, act, waitFor } from '@testing-library/react'
 import { useWorkerCalculation, type WorkerCalculateResult } from '../useWorkerCalculation'
-import { createEmptyImportedData } from '@/domain/models/storeTypes'
+import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
 import type { AppSettings } from '@/domain/models/storeTypes'
 
 // Worker モック
@@ -92,7 +92,7 @@ describe('useWorkerCalculation', () => {
   it('calculateAsync がメッセージを Worker に送信する', async () => {
     const { result } = renderHook(() => useWorkerCalculation())
 
-    const data = createEmptyImportedData()
+    const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
 
     await waitFor(() => {
       expect(result.current.isWorkerAvailable).toBe(true)
@@ -115,7 +115,7 @@ describe('useWorkerCalculation', () => {
 
   it('Worker からの結果メッセージで Promise が resolve される', async () => {
     const { result } = renderHook(() => useWorkerCalculation())
-    const data = createEmptyImportedData()
+    const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
 
     await waitFor(() => {
       expect(result.current.isWorkerAvailable).toBe(true)
@@ -156,7 +156,7 @@ describe('useWorkerCalculation', () => {
 
   it('Worker からのエラーメッセージで Promise が reject される', async () => {
     const { result } = renderHook(() => useWorkerCalculation())
-    const data = createEmptyImportedData()
+    const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
 
     await waitFor(() => {
       expect(result.current.isWorkerAvailable).toBe(true)

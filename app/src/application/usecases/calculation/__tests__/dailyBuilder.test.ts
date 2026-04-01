@@ -1,12 +1,12 @@
 import { describe, it, expect } from 'vitest'
 import { buildDailyRecords } from '../dailyBuilder'
-import { createEmptyImportedData } from '@/domain/models/storeTypes'
-import type { ImportedData } from '@/domain/models/storeTypes'
+import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
 
 /* ── ヘルパー ───────────────────────────────── */
 
-function makeData(overrides: Partial<ImportedData> = {}): ImportedData {
-  return { ...createEmptyImportedData(), ...overrides }
+function makeData(overrides: Partial<MonthlyData> = {}): MonthlyData {
+  return { ...createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }), ...overrides }
 }
 
 function csRecord(day: number, storeId: string, salesAmount: number, d71 = 0) {

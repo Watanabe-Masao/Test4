@@ -34,7 +34,8 @@ export function useCalculation() {
 
   const calculate = useCallback(() => {
     // 呼び出し時点の値をスナップショットとして取得
-    const currentData = useDataStore.getState()._calculationData
+    const currentData = useDataStore.getState().currentMonthData
+    if (!currentData) return false
     const currentSettings = settingsRef.current
     const currentDays = getDaysInMonth(currentSettings.targetYear, currentSettings.targetMonth)
 

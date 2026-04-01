@@ -9,9 +9,9 @@ import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useRepository } from '../context/useRepository'
 import { PersistenceContext } from '../context/persistenceContextDef'
 import { calculateDiff } from '@/application/services/diffCalculator'
+import type { DataSummaryInput } from '@/application/services/dataSummary'
 import type { DiffResult } from '@/domain/models/analysis'
 import type { ImportedData } from '@/domain/models/storeTypes'
-import { toLegacyImportedData } from '@/domain/models/monthlyDataAdapter'
 import { mergeInsertsOnly } from './useImport'
 
 // ─── 型定義 ──────────────────────────────────────────────
@@ -102,7 +102,7 @@ export function usePersistence(): PersistenceState & PersistenceActions {
 
   const checkDiffBeforeImport = useCallback(
     async (
-      incoming: ImportedData,
+      incoming: DataSummaryInput,
       importedTypes: ReadonlySet<string>,
     ): Promise<DiffResult | null> => {
       if (!available) return null
@@ -110,10 +110,8 @@ export function usePersistence(): PersistenceState & PersistenceActions {
       const { targetYear, targetMonth } = settings
       const existingMonthly = await repo.loadMonthlyData(targetYear, targetMonth)
       if (!existingMonthly) return null
-      // diff 計算は ImportedData ベース — compat adapter 経由（Phase 2 完了まで維持）
-      const existing = toLegacyImportedData({ current: existingMonthly, prevYear: null })
 
-      const diff = calculateDiff(existing, incoming, importedTypes)
+      const diff = calculateDiff(existingMonthly, incoming, importedTypes)
       if (diff.needsConfirmation) {
         setDiffResult(diff)
         setShowDiffDialog(true)

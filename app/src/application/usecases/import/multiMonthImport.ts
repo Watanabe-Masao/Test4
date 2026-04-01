@@ -113,12 +113,13 @@ export async function orchestrateMultiMonth(
       const monthData = filterDataForMonth(processedData, year, month, monthPartitions)
       const existing = existingByMonth.get(mk) ?? null
       const finalData = buildMonthData(existing, monthData, DEFAULT_MERGE_ACTION)
-      await repo.saveMonthlyData(
-        toMonthlyData(finalData, { year, month, importedAt: new Date().toISOString() }),
+      const monthlyFinal = toMonthlyData(finalData, {
         year,
         month,
-      )
-      saveSummaryCache(finalData, year, month, repo)
+        importedAt: new Date().toISOString(),
+      })
+      await repo.saveMonthlyData(monthlyFinal, year, month)
+      saveSummaryCache(monthlyFinal, year, month, repo)
       if (mk === targetMk) primaryData = finalData
     }
   }
@@ -176,12 +177,13 @@ export async function resolveMultiMonthDiff(
       const monthData = filterDataForMonth(incomingData, year, month, monthPartitions)
       const existing = existingByMonth.get(mk) ?? null
       const finalData = buildMonthData(existing, monthData, action)
-      await repo.saveMonthlyData(
-        toMonthlyData(finalData, { year, month, importedAt: new Date().toISOString() }),
+      const monthlyFinal = toMonthlyData(finalData, {
         year,
         month,
-      )
-      saveSummaryCache(finalData, year, month, repo)
+        importedAt: new Date().toISOString(),
+      })
+      await repo.saveMonthlyData(monthlyFinal, year, month)
+      saveSummaryCache(monthlyFinal, year, month, repo)
     }
     for (const { year, month } of months) {
       saveImportHistory(summary, year, month, repo)
