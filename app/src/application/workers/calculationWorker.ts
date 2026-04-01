@@ -10,6 +10,7 @@
  */
 import type { AppSettings, StoreResult } from '@/domain/models/storeTypes'
 import type { MonthlyData } from '@/domain/models/MonthlyData'
+import type { CalculationFrame } from '@/domain/models/CalculationFrame'
 import { calculateAllStores } from '@/application/usecases/calculation'
 import { computeCacheKey } from '@/application/services/calculationCache'
 
@@ -20,7 +21,7 @@ export interface CalculateRequest {
   data: MonthlyData
   dataVersion: number
   settings: AppSettings
-  daysInMonth: number
+  frame: CalculationFrame
   requestId?: number
   /** メインスレッド側の最新キャッシュキー（キャッシュ判定用） */
   lastCacheKey?: string
@@ -62,10 +63,10 @@ self.onmessage = (event: MessageEvent<WorkerRequest>) => {
 
   if (type === 'calculate') {
     try {
-      const { data, dataVersion, settings, daysInMonth, requestId, lastCacheKey } = event.data
+      const { data, dataVersion, settings, frame, requestId, lastCacheKey } = event.data
 
       // Worker 内で軽量キャッシュキーを生成（O(1) — filter/serialize なし）
-      const cacheKey = computeCacheKey(dataVersion, settings, daysInMonth)
+      const cacheKey = computeCacheKey(dataVersion, settings, frame.daysInMonth)
 
       // メインスレッドから渡されたキャッシュキーと一致すればキャッシュヒット
       if (lastCacheKey && cacheKey === lastCacheKey) {
@@ -87,7 +88,7 @@ self.onmessage = (event: MessageEvent<WorkerRequest>) => {
       }
 
       // キャッシュミス: 計算実行
-      const results = calculateAllStores(data, settings, daysInMonth)
+      const results = calculateAllStores(data, settings, frame)
 
       // Worker 内部キャッシュを更新
       cachedCacheKey = cacheKey

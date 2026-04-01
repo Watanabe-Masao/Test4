@@ -10,10 +10,19 @@ import { processFileData } from '../ImportService'
 import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
 import { calculateAllStores } from '@/application/usecases/calculation'
 import { createDefaultSettings, getDaysInMonth } from '@/domain/constants/defaults'
+import type { CalculationFrame } from '@/domain/models/CalculationFrame'
 
 const DEFAULT_SETTINGS = createDefaultSettings()
 
 const DAYS_IN_MONTH = getDaysInMonth(DEFAULT_SETTINGS.targetYear, DEFAULT_SETTINGS.targetMonth)
+
+const benchFrame: CalculationFrame = {
+  targetYear: DEFAULT_SETTINGS.targetYear,
+  targetMonth: DEFAULT_SETTINGS.targetMonth,
+  daysInMonth: DAYS_IN_MONTH,
+  dataEndDay: null,
+  effectiveDays: DAYS_IN_MONTH,
+}
 
 /**
  * 分類別売上データ生成（classifiedSales 形式）
@@ -205,7 +214,7 @@ describe('Performance Benchmark', () => {
       budget: data.budget,
     }
     const calcStart = performance.now()
-    const results = calculateAllStores(monthlyData, DEFAULT_SETTINGS, DAYS_IN_MONTH)
+    const results = calculateAllStores(monthlyData, DEFAULT_SETTINGS, benchFrame)
     const calcElapsed = performance.now() - calcStart
 
     expect(results.size).toBe(storeCount)

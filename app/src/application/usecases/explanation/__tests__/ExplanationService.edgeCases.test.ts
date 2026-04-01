@@ -16,6 +16,15 @@ import {
   calculateAllStores,
   aggregateStoreResults,
 } from '@/application/usecases/calculation/CalculationOrchestrator'
+import type { CalculationFrame } from '@/domain/models/CalculationFrame'
+
+const testFrame = (daysInMonth = 28): CalculationFrame => ({
+  targetYear: 2025,
+  targetMonth: 1,
+  daysInMonth,
+  dataEndDay: null,
+  effectiveDays: daysInMonth,
+})
 import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
 import { createDefaultSettings } from '@/domain/constants/defaults'
 import type { Explanation } from '@/domain/models/analysis'
@@ -79,7 +88,7 @@ function makeStoreResult(
   settings = DEFAULT_SETTINGS,
   storeId = '1',
 ): StoreResult {
-  return calculateStoreResult(storeId, data, settings, 28)
+  return calculateStoreResult(storeId, data, settings, testFrame())
 }
 
 // ─── expandDailyEvidence: aggregate 分岐 ─────────────────────────
@@ -112,7 +121,7 @@ describe('expandDailyEvidence: aggregate store path', () => {
       },
     })
 
-    const storeResults = calculateAllStores(data, DEFAULT_SETTINGS, 28)
+    const storeResults = calculateAllStores(data, DEFAULT_SETTINGS, testFrame())
     const result = aggregateStoreResults([...storeResults.values()], 28)
     const explanations = generateExplanations(result, data, DEFAULT_SETTINGS)
 
@@ -135,7 +144,7 @@ describe('expandDailyEvidence: aggregate store path', () => {
       ...createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
       classifiedSales: { records: [makeCSRecord(1, 'aggregate', 50000)] },
     }
-    const result = calculateStoreResult('aggregate', data, DEFAULT_SETTINGS, 28)
+    const result = calculateStoreResult('aggregate', data, DEFAULT_SETTINGS, testFrame())
     const explanations = generateExplanations(result, data, DEFAULT_SETTINGS)
 
     const salesExpl = explanations.get('salesTotal')!
@@ -1325,7 +1334,7 @@ describe('expandDailyEvidence: multi-day multi-store aggregate', () => {
       },
     })
 
-    const storeResults = calculateAllStores(data, DEFAULT_SETTINGS, 28)
+    const storeResults = calculateAllStores(data, DEFAULT_SETTINGS, testFrame())
     const result = aggregateStoreResults([...storeResults.values()], 28)
     const explanations = generateExplanations(result, data, DEFAULT_SETTINGS)
 

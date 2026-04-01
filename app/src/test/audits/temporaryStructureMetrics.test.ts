@@ -97,19 +97,13 @@ describe('Exit KPI: 暫定構造在庫（原則単調減少）', () => {
       const content = fs.readFileSync(path.join(bridgeDir, file), 'utf-8')
       if (!content.includes('@deprecated')) activeCount++
     }
-    expect(
-      activeCount,
-      `active bridges: ${activeCount}/4`,
-    ).toBeLessThanOrEqual(4)
+    expect(activeCount, `active bridges: ${activeCount}/4`).toBeLessThanOrEqual(4)
   })
 
   it('互換 re-export ≤ 2', () => {
     const COMPAT_PATTERN = /後方互換|backward compat|バレル re-export/
     let count = 0
-    const checkFiles = [
-      'application/hooks/useImport.helpers.ts',
-      'infrastructure/ImportService.ts',
-    ]
+    const checkFiles = ['application/hooks/useImport.helpers.ts', 'infrastructure/ImportService.ts']
     for (const relPath of checkFiles) {
       const full = path.join(SRC_DIR, relPath)
       if (!fs.existsSync(full)) continue

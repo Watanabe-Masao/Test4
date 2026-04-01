@@ -9,6 +9,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { AppSettings, StoreResult } from '@/domain/models/storeTypes'
 import type { MonthlyData } from '@/domain/models/MonthlyData'
+import type { CalculationFrame } from '@/domain/models/CalculationFrame'
 import type { WorkerResponse } from './calculationWorker'
 import { calculateAllStores } from '@/application/usecases/calculation'
 import { computeCacheKey } from '@/application/services/calculationCache'
@@ -24,7 +25,7 @@ interface WorkerCalculationResult {
     data: MonthlyData,
     dataVersion: number,
     settings: AppSettings,
-    daysInMonth: number,
+    frame: CalculationFrame,
     lastCacheKey?: string,
   ) => Promise<WorkerCalculateResult>
   /** 計算中フラグ */
@@ -64,16 +65,16 @@ export function useWorkerCalculation(): WorkerCalculationResult {
       data: MonthlyData,
       dataVersion: number,
       settings: AppSettings,
-      daysInMonth: number,
+      frame: CalculationFrame,
       lastCacheKey?: string,
     ): Promise<WorkerCalculateResult> => {
       if (!worker) {
         // フォールバック: 同期計算 + cacheKey 生成
-        const cacheKey = computeCacheKey(dataVersion, settings, daysInMonth)
+        const cacheKey = computeCacheKey(dataVersion, settings, frame.daysInMonth)
         if (lastCacheKey && cacheKey === lastCacheKey) {
           return Promise.resolve({ cacheHit: true as const, cacheKey })
         }
-        const results = calculateAllStores(data, settings, daysInMonth)
+        const results = calculateAllStores(data, settings, frame)
         return Promise.resolve({ results, cacheKey })
       }
 
@@ -114,7 +115,7 @@ export function useWorkerCalculation(): WorkerCalculationResult {
           data,
           dataVersion,
           settings,
-          daysInMonth,
+          frame,
           requestId: thisRequestId,
           lastCacheKey,
         })
