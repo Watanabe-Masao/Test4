@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-01T09:52:39.769Z",
+  "timestamp": "2026-04-01T10:22:45.240Z",
   "totalAllowlistEntries": 48,
   "categoryBreakdown": {
     "adapter": 10,
@@ -111,7 +111,7 @@
       "file": "application/hooks/useTimeSlotData.ts",
       "memoCount": 21,
       "stateCount": 8,
-      "lineCount": 384
+      "lineCount": 387
     },
     {
       "file": "presentation/pages/Dashboard/widgets/useDrilldownData.ts",
@@ -165,16 +165,16 @@
       "file": "presentation/components/charts/CategoryBoxPlotChart.vm.ts",
       "memoCount": 8,
       "stateCount": 7,
-      "lineCount": 256
+      "lineCount": 259
     }
   ],
   "nearLimitFiles": [
     {
       "file": "application/hooks/useTimeSlotData.ts",
       "metric": "lines",
-      "actual": 384,
+      "actual": 387,
       "limit": 390,
-      "pct": 98
+      "pct": 99
     },
     {
       "file": "application/hooks/usePeriodAwareKpi.ts",

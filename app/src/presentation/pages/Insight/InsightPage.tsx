@@ -4,11 +4,14 @@ import { PageSkeleton } from '@/presentation/components/common/feedback'
 import { MetricBreakdownPanel } from '@/presentation/components/common/tables'
 import { PageWidgetContainer, UNIFIED_WIDGET_REGISTRY } from '@/presentation/components/widgets'
 import type { PageWidgetConfig } from '@/presentation/components/widgets'
+import type { Store } from '@/domain/models/Store'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useUnifiedWidgetContext } from '@/presentation/hooks/useUnifiedWidgetContext'
 import { EmptyState } from './InsightPage.styles'
 import { useInsightData } from './useInsightData'
 import { DEFAULT_INSIGHT_WIDGET_IDS } from './widgets'
+
+const EMPTY_STORES: ReadonlyMap<string, Store> = new Map()
 
 const INSIGHT_CONFIG: PageWidgetConfig = {
   pageKey: 'insight',
@@ -18,7 +21,7 @@ const INSIGHT_CONFIG: PageWidgetConfig = {
 }
 
 export function InsightPage() {
-  const dataStores = useDataStore((s) => s.data.stores)
+  const dataStores = useDataStore((s) => s.currentMonthData?.stores ?? EMPTY_STORES)
   const insightData = useInsightData()
   const { ctx, isComputing, storeName, explainMetric, setExplainMetric } = useUnifiedWidgetContext()
 

@@ -35,6 +35,7 @@ import {
 } from '@/application/queries/advanced'
 import { useChartTheme, useCurrencyFormatter } from './chartTheme'
 import { useI18n } from '@/application/hooks/useI18n'
+import type { Store } from '@/domain/models/Store'
 import { useDataStore } from '@/application/stores'
 
 // ── Types ──
@@ -67,6 +68,8 @@ export const ANALYSIS_AXIS_LABELS: Record<AnalysisAxis, string> = {
   date: '期間別',
 }
 
+const EMPTY_STORES: ReadonlyMap<string, Store> = new Map()
+
 // ── ViewModel Hook ──
 
 export function useCategoryBoxPlotChartVm({
@@ -77,7 +80,7 @@ export function useCategoryBoxPlotChartVm({
   const ct = useChartTheme()
   const currencyFmt = useCurrencyFormatter()
   const { messages } = useI18n()
-  const storesMap = useDataStore((s) => s.data.stores)
+  const storesMap = useDataStore((s) => s.currentMonthData?.stores ?? EMPTY_STORES)
 
   const storeNameMap = useMemo(() => {
     const m = new Map<string, string>()

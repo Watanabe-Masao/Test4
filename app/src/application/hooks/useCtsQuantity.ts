@@ -14,6 +14,8 @@ import { useMemo } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'
 import type { CategoryTimeSalesRecord } from '@/domain/models/DataTypes'
 
+const EMPTY_RECORDS: readonly CategoryTimeSalesRecord[] = []
+
 /** 当年販売点数の事前集計結果 */
 export interface CurrentCtsQuantity {
   /** 全店合計 */
@@ -61,7 +63,9 @@ export function useCtsQuantity(
   effectiveDay: number,
   selectedStoreIds: ReadonlySet<string>,
 ): CurrentCtsQuantity {
-  const ctsRecords = useDataStore((s) => s.data.categoryTimeSales.records)
+  const ctsRecords = useDataStore(
+    (s) => s.currentMonthData?.categoryTimeSales.records ?? EMPTY_RECORDS,
+  )
   const isAllStores = selectedStoreIds.size === 0
 
   return useMemo(

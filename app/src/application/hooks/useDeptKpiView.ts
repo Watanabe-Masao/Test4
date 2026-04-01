@@ -7,6 +7,7 @@
  */
 import { useMemo } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'
+import type { DepartmentKpiData } from '@/domain/models/record'
 import {
   buildDepartmentKpiIndex,
   type DepartmentKpiIndex,
@@ -14,7 +15,9 @@ import {
 
 export type { DepartmentKpiIndex }
 
+const EMPTY_KPI: DepartmentKpiData = { records: [] }
+
 export function useDeptKpiView(): DepartmentKpiIndex {
-  const departmentKpi = useDataStore((s) => s.data.departmentKpi)
+  const departmentKpi = useDataStore((s) => s.currentMonthData?.departmentKpi ?? EMPTY_KPI)
   return useMemo(() => buildDepartmentKpiIndex(departmentKpi), [departmentKpi])
 }

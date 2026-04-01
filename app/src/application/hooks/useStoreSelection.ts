@@ -4,11 +4,14 @@ import { useUiStore } from '@/application/stores/uiStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { aggregateStoreResults } from '@/application/usecases/calculation'
 import { getDaysInMonth } from '@/domain/constants/defaults'
+import type { Store } from '@/domain/models/Store'
 import type { StoreResult } from '@/domain/models/storeTypes'
+
+const EMPTY_STORES: ReadonlyMap<string, Store> = new Map()
 
 /** 店舗選択フック（複数選択対応） */
 export function useStoreSelection() {
-  const stores = useDataStore((s) => s.data.stores)
+  const stores = useDataStore((s) => s.currentMonthData?.stores ?? EMPTY_STORES)
   const storeResults = useDataStore((s) => s.storeResults)
   const selectedStoreIds = useUiStore((s) => s.selectedStoreIds)
   const settings = useSettingsStore((s) => s.settings)

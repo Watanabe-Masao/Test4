@@ -7,10 +7,13 @@ import type { PageWidgetConfig } from '@/presentation/components/widgets'
 import { useStoreSelection } from '@/application/hooks/ui'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
+import type { Store } from '@/domain/models/Store'
 import { useExport } from '@/application/hooks/useExport'
 import { useUnifiedWidgetContext } from '@/presentation/hooks/useUnifiedWidgetContext'
 import { ReportHeader, ReportDate, EmptyState, ExportBar, ExportButton } from './ReportsPage.styles'
 import { DEFAULT_REPORTS_WIDGET_IDS } from './widgets'
+
+const EMPTY_STORES: ReadonlyMap<string, Store> = new Map()
 
 const REPORTS_CONFIG: PageWidgetConfig = {
   pageKey: 'reports',
@@ -22,7 +25,7 @@ const REPORTS_CONFIG: PageWidgetConfig = {
 export function ReportsPage() {
   const { selectedResults, stores, isAllStores, selectedStoreIds } = useStoreSelection()
   const settings = useSettingsStore((s) => s.settings)
-  const dataStores = useDataStore((s) => s.data.stores)
+  const dataStores = useDataStore((s) => s.currentMonthData?.stores ?? EMPTY_STORES)
   const { exportDailySalesReport, exportMonthlyPLReport, exportStoreKpiReport } = useExport()
   const { ctx, isComputing, storeName, explainMetric, setExplainMetric } = useUnifiedWidgetContext()
 

@@ -25,6 +25,7 @@ const MAX_HISTORY = 50
  */
 export function useUndoRedo() {
   const settings = useSettingsStore((s) => s.settings)
+  // legacy mirror 経由: undo/redo は ImportedData レベルで動作するため
   const dataSettings = useDataStore((s) => s.data.settings)
 
   const undoStack = useRef<UndoSnapshot[]>([])

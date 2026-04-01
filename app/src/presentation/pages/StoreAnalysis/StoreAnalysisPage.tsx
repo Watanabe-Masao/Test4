@@ -12,10 +12,13 @@ import { PageSkeleton } from '@/presentation/components/common/feedback'
 import { MetricBreakdownPanel } from '@/presentation/components/common/tables'
 import { PageWidgetContainer, UNIFIED_WIDGET_REGISTRY } from '@/presentation/components/widgets'
 import type { PageWidgetConfig } from '@/presentation/components/widgets'
+import type { Store } from '@/domain/models/Store'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useUnifiedWidgetContext } from '@/presentation/hooks/useUnifiedWidgetContext'
 import { CurrencyUnitToggle } from '@/presentation/components/charts'
 import { DEFAULT_STORE_ANALYSIS_WIDGET_IDS } from './widgets'
+
+const EMPTY_STORES: ReadonlyMap<string, Store> = new Map()
 
 const STORE_ANALYSIS_CONFIG: PageWidgetConfig = {
   pageKey: 'storeAnalysis',
@@ -25,7 +28,7 @@ const STORE_ANALYSIS_CONFIG: PageWidgetConfig = {
 }
 
 export function StoreAnalysisPage() {
-  const dataStores = useDataStore((s) => s.data.stores)
+  const dataStores = useDataStore((s) => s.currentMonthData?.stores ?? EMPTY_STORES)
   const { ctx, isComputing, storeName, explainMetric, setExplainMetric } = useUnifiedWidgetContext()
 
   const handleExplainClose = useCallback(() => setExplainMetric(null), [setExplainMetric])

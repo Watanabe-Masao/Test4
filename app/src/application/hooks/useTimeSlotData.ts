@@ -33,6 +33,7 @@ import {
   type WeatherHourlyAvgInput,
   type WeatherPersister,
 } from '@/application/queries/weather'
+import type { Store } from '@/domain/models/Store'
 import type { StoreLocation } from '@/domain/models/record'
 import { useWeatherFallback } from './useWeatherFallback'
 import { useSettingsStore } from '@/application/stores/settingsStore'
@@ -59,6 +60,8 @@ export type {
   YoYData,
 } from '@/application/usecases/timeSlotDataLogic'
 export type { HierarchyOption } from '@/application/hooks/useHierarchySelection'
+
+const EMPTY_STORES: ReadonlyMap<string, Store> = new Map()
 
 // ── Helper ──
 
@@ -191,7 +194,7 @@ export function useTimeSlotData({
 
   // ── Weather ──
   const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
-  const allStoreIds = useDataStore((s) => s.data.stores)
+  const allStoreIds = useDataStore((s) => s.currentMonthData?.stores ?? EMPTY_STORES)
   const weatherStoreId = useMemo(() => {
     const ids = selectedStoreIds.size > 0 ? [...selectedStoreIds] : [...allStoreIds.keys()]
     return ids.find((id) => storeLocations[id]) ?? ids[0] ?? ''

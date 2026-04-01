@@ -8,6 +8,7 @@ import { useStoreSelection } from '@/application/hooks/ui'
 import type { ViewType } from '@/domain/models/storeTypes'
 import { VIEW_TO_PATH } from '@/application/navigation/viewMapping'
 import { palette } from '@/presentation/theme/tokens'
+import type { Store } from '@/domain/models/Store'
 import { useDataStore } from '@/application/stores/dataStore'
 import {
   CategoryHierarchyProvider,
@@ -36,13 +37,15 @@ import {
   WidgetWrapper,
 } from './DashboardPage.styles'
 
+const EMPTY_STORES: ReadonlyMap<string, Store> = new Map()
+
 // ─── Main Dashboard ──────────────────────────────────────
 
 export function DashboardPage() {
   const nav = useNavigate()
   const { stores } = useStoreSelection()
   const storeResults = useDataStore((s) => s.storeResults)
-  const dataStores = useDataStore((s) => s.data.stores)
+  const dataStores = useDataStore((s) => s.currentMonthData?.stores ?? EMPTY_STORES)
 
   const {
     ctx,

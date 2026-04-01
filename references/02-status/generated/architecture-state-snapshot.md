@@ -1,6 +1,6 @@
 # Architecture State Snapshot
 
-> Generated: 2026-04-01T09:52:39.769Z
+> Generated: 2026-04-01T10:22:45.240Z
 
 ## Allowlist Summary
 
@@ -99,7 +99,7 @@
 
 | ファイル | useMemo | useState | 行数 |
 |---|---|---|---|
-| application/hooks/useTimeSlotData.ts | 21 | 8 | 384 |
+| application/hooks/useTimeSlotData.ts | 21 | 8 | 387 |
 | presentation/pages/Dashboard/widgets/useDrilldownData.ts | 14 | 10 | 413 |
 | presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 15 | 5 | 517 |
 | presentation/pages/CostDetail/useCostDetailData.ts | 13 | 6 | 210 |
@@ -108,13 +108,13 @@
 | presentation/components/charts/useCategoryTrendChartData.ts | 9 | 7 | 225 |
 | presentation/components/charts/useDeptHourlyChartData.ts | 10 | 6 | 244 |
 | presentation/pages/Dashboard/widgets/HourlyChart.tsx | 10 | 6 | 514 |
-| presentation/components/charts/CategoryBoxPlotChart.vm.ts | 8 | 7 | 256 |
+| presentation/components/charts/CategoryBoxPlotChart.vm.ts | 8 | 7 | 259 |
 
 ## Near-Limit Files (≥80%)
 
 | ファイル | 指標 | 実測 | 上限 | % |
 |---|---|---|---|---|
-| application/hooks/useTimeSlotData.ts | lines | 384 | 390 | 98% |
+| application/hooks/useTimeSlotData.ts | lines | 387 | 390 | 99% |
 | application/hooks/usePeriodAwareKpi.ts | lines | 301 | 310 | 97% |
 | presentation/pages/CostDetail/useCostDetailData.ts | useMemo | 12 | 13 | 92% |
 | presentation/pages/Dashboard/widgets/useDrilldownData.ts | useMemo | 12 | 13 | 92% |
