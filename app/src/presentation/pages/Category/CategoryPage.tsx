@@ -4,6 +4,7 @@ import { PageSkeleton } from '@/presentation/components/common/feedback'
 import { MetricBreakdownPanel } from '@/presentation/components/common/tables'
 import { PageWidgetContainer, UNIFIED_WIDGET_REGISTRY } from '@/presentation/components/widgets'
 import type { PageWidgetConfig } from '@/presentation/components/widgets'
+import type { Store } from '@/domain/models/Store'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useSettings } from '@/application/hooks/ui'
@@ -13,6 +14,8 @@ import { EmptyState } from './CategoryPage.styles'
 import { CurrencyUnitToggle } from '@/presentation/components/charts'
 import { DEFAULT_CATEGORY_WIDGET_IDS } from './widgets'
 
+const EMPTY_STORES: ReadonlyMap<string, Store> = new Map()
+
 const CATEGORY_CONFIG: PageWidgetConfig = {
   pageKey: 'category',
   registry: UNIFIED_WIDGET_REGISTRY,
@@ -21,7 +24,7 @@ const CATEGORY_CONFIG: PageWidgetConfig = {
 }
 
 export function CategoryPage() {
-  const dataStores = useDataStore((s) => s.data.stores)
+  const dataStores = useDataStore((s) => s.currentMonthData?.stores ?? EMPTY_STORES)
   const settings = useSettingsStore((s) => s.settings)
   const { updateSettings } = useSettings()
   const { ctx, isComputing, storeName, explainMetric, setExplainMetric } = useUnifiedWidgetContext()

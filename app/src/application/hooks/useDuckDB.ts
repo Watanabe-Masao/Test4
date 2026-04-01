@@ -23,6 +23,7 @@ import { useEffect, useRef, useCallback, useReducer } from 'react'
 import type { AsyncDuckDB, AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { ImportedData } from '@/domain/models/storeTypes'
 import type { DataRepository } from '@/domain/repositories'
+import { useDataStore } from '@/application/stores/dataStore'
 import { resetTables, loadMonth } from '@/infrastructure/duckdb/dataLoader'
 import { deleteMonth, deletePrevYearMonth } from '@/infrastructure/duckdb/deletePolicy'
 import { materializeSummary } from '@/infrastructure/duckdb/queries/storeDaySummary'
@@ -64,6 +65,7 @@ export function useDuckDB(
   repo?: DataRepository | null,
 ): DuckDBHookResult {
   const [state, dispatch] = useReducer(duckdbReducer, INITIAL_DUCKDB_STATE)
+  const prevYear = useDataStore((s) => s.appData.prevYear)
 
   const lastFingerprint = useRef<string>('')
   const isMounted = useRef(true)
@@ -94,7 +96,7 @@ export function useDuckDB(
   const loadData = useCallback(async () => {
     if (!state.conn || !state.db || !data) return
 
-    const fingerprint = computeFingerprint(data, year, month, state.storedMonthsKey)
+    const fingerprint = computeFingerprint(data, year, month, state.storedMonthsKey, prevYear)
     if (fingerprint === lastFingerprint.current) return
 
     // 新しい世代番号を発行。先行の loadData は次の await 後にこの値を検出して bail out する。
@@ -228,7 +230,7 @@ export function useDuckDB(
         dispatch({ type: 'LOAD_END' })
       }
     }
-  }, [state.conn, state.db, data, year, month, repo, state.storedMonthsKey])
+  }, [state.conn, state.db, data, year, month, repo, state.storedMonthsKey, prevYear])
 
   useEffect(() => {
     if (state.engineState === 'ready' && state.conn && state.db && data) {

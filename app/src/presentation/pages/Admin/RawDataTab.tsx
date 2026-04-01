@@ -68,6 +68,7 @@ function buildCtsIndex(
 export function RawDataTab() {
   const { format: fmtCurrency } = useCurrencyFormat()
   const data = useDataStore((s) => s.data)
+  const prevYear = useDataStore((s) => s.appData.prevYear)
   const [dataType, setDataType] = useState<RawDataType>('classifiedSales')
 
   const stores = useMemo(
@@ -78,8 +79,8 @@ export function RawDataTab() {
   // classifiedSales の集計（store → day → {sales, discount}）
   const csAgg = useMemo(() => aggregateAllStores(data.classifiedSales), [data.classifiedSales])
   const prevCsAgg = useMemo(
-    () => aggregateAllStores(data.prevYearClassifiedSales),
-    [data.prevYearClassifiedSales],
+    () => (prevYear ? aggregateAllStores(prevYear.classifiedSales) : {}),
+    [prevYear],
   )
 
   // flat records → StoreDayIndex に変換（RawDataTab 表示用）

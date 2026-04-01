@@ -8,6 +8,7 @@ import { useDataStore } from '@/application/stores/dataStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useStoreSelection } from '@/application/hooks/ui'
 import type { PrevYearData } from '@/application/comparison/comparisonTypes'
+import type { Store } from '@/domain/models/Store'
 import { formatPercent } from '@/domain/formatting'
 import type { CostPricePair } from '@/domain/models/record'
 import { getPrevYearDailySales } from '@/application/comparison/comparisonAccessors'
@@ -56,6 +57,8 @@ const EMPTY_PREV_YEAR: PrevYearData = {
   totalDiscountEntries: [],
 }
 
+const EMPTY_STORES: ReadonlyMap<string, Store> = new Map()
+const EMPTY_SUPPLIERS: ReadonlyMap<string, { code: string; name: string }> = new Map()
 const EMPTY_SUPPLIER_KEYS: { code: string; name: string }[] = []
 const EMPTY_TRANSFER_KEYS: { key: string; from: string; to: string; label: string }[] = []
 
@@ -69,8 +72,8 @@ const DAILY_CONFIG: PageWidgetConfig = {
 export function DailyPage() {
   const nav = useNavigate()
   const { currentResult, storeName, stores } = useStoreSelection()
-  const suppliers = useDataStore((s) => s.data.suppliers)
-  const dataStores = useDataStore((s) => s.data.stores)
+  const suppliers = useDataStore((s) => s.currentMonthData?.suppliers ?? EMPTY_SUPPLIERS)
+  const dataStores = useDataStore((s) => s.currentMonthData?.stores ?? EMPTY_STORES)
   const settings = useSettingsStore((s) => s.settings)
   const { ctx, isComputing, explainMetric, setExplainMetric } = useUnifiedWidgetContext()
   const { format: fmtCurrency } = useCurrencyFormat()

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { createEmptyImportedData, getComparisonFields } from './ImportedData'
+import { createEmptyImportedData } from './ImportedData'
 
 describe('createEmptyImportedData', () => {
   it('全フィールドが空で初期化される', () => {
@@ -17,15 +17,5 @@ describe('createEmptyImportedData', () => {
     expect(data.consumables.records).toHaveLength(0)
     expect(data.settings.size).toBe(0)
     expect(data.budget.size).toBe(0)
-  })
-})
-
-describe('getComparisonFields', () => {
-  it('prevYear フィールドを comparison 名でアクセスできる', () => {
-    const data = createEmptyImportedData()
-    const fields = getComparisonFields(data)
-    expect(fields.comparisonClassifiedSales).toBe(data.prevYearClassifiedSales)
-    expect(fields.comparisonCategoryTimeSales).toBe(data.prevYearCategoryTimeSales)
-    expect(fields.comparisonFlowers).toBe(data.prevYearFlowers)
   })
 })

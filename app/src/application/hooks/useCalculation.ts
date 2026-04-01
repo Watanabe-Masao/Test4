@@ -11,7 +11,9 @@ import { useWorkerCalculation } from '@/application/workers'
 /** 計算実行フック（データ変更時に自動計算、Web Worker対応、キャッシュ付き） */
 export function useCalculation() {
   const dataVersion = useDataStore((s) => s.dataVersion)
-  const canCalculate = useDataStore((s) => s.data.classifiedSales.records.length > 0)
+  const canCalculate = useDataStore(
+    (s) => (s.currentMonthData?.classifiedSales.records.length ?? 0) > 0,
+  )
   const storeResults = useDataStore((s) => s.storeResults)
   const isImporting = useUiStore((s) => s.isImporting)
   const isCalculated = useUiStore((s) => s.isCalculated)

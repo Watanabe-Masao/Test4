@@ -4,11 +4,14 @@ import { PageSkeleton } from '@/presentation/components/common/feedback'
 import { MetricBreakdownPanel } from '@/presentation/components/common/tables'
 import { PageWidgetContainer, UNIFIED_WIDGET_REGISTRY } from '@/presentation/components/widgets'
 import type { PageWidgetConfig } from '@/presentation/components/widgets'
+import type { Store } from '@/domain/models/Store'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useUnifiedWidgetContext } from '@/presentation/hooks/useUnifiedWidgetContext'
 import { EmptyState } from './CostDetailPage.styles'
 import { useCostDetailData } from './useCostDetailData'
 import { DEFAULT_COST_DETAIL_WIDGET_IDS } from './widgets'
+
+const EMPTY_STORES: ReadonlyMap<string, Store> = new Map()
 
 const COST_DETAIL_CONFIG: PageWidgetConfig = {
   pageKey: 'costDetail',
@@ -18,7 +21,7 @@ const COST_DETAIL_CONFIG: PageWidgetConfig = {
 }
 
 export function CostDetailPage() {
-  const dataStores = useDataStore((s) => s.data.stores)
+  const dataStores = useDataStore((s) => s.currentMonthData?.stores ?? EMPTY_STORES)
   const costDetailData = useCostDetailData()
   const { ctx, isComputing, storeName, explainMetric, setExplainMetric } = useUnifiedWidgetContext()
 

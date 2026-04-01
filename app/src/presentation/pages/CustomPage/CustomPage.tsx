@@ -12,15 +12,18 @@ import { PageWidgetContainer, UNIFIED_WIDGET_REGISTRY } from '@/presentation/com
 import type { PageWidgetConfig } from '@/presentation/components/widgets'
 import { usePageStore } from '@/application/stores/pageStore'
 import { useUnifiedWidgetContext } from '@/presentation/hooks/useUnifiedWidgetContext'
+import type { Store } from '@/domain/models/Store'
 import { useDataStore } from '@/application/stores/dataStore'
 import { EmptyState } from './CustomPage.styles'
+
+const EMPTY_STORES: ReadonlyMap<string, Store> = new Map()
 
 export function CustomPage() {
   const { pageId } = useParams<{ pageId: string }>()
   const nav = useNavigate()
   const pages = usePageStore((s) => s.pages)
   const page = pages.find((p) => p.id === pageId)
-  const dataStores = useDataStore((s) => s.data.stores)
+  const dataStores = useDataStore((s) => s.currentMonthData?.stores ?? EMPTY_STORES)
 
   const { ctx, isComputing, storeName, explainMetric, setExplainMetric } = useUnifiedWidgetContext()
 

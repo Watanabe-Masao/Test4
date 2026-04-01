@@ -21,6 +21,7 @@ import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import { useDayDetailData, type PrevYearData } from '@/application/hooks/analytics'
 import { getPrevYearDailyValue } from '@/application/comparison/comparisonAccessors'
 import { useSettingsStore } from '@/application/stores/settingsStore'
+import type { Store } from '@/domain/models/Store'
 import { useDataStore } from '@/application/stores/dataStore'
 import {
   PinModalOverlay,
@@ -50,6 +51,7 @@ export type { CompMode }
 
 type ModalTab = 'sales' | 'hourly' | 'breakdown'
 
+const EMPTY_STORES: ReadonlyMap<string, Store> = new Map()
 const EMPTY_STORE_IDS: ReadonlySet<string> = new Set()
 
 interface DayDetailModalProps {
@@ -106,7 +108,7 @@ export function DayDetailModal({
 
   // 天気店舗選択（UI操作 — ユーザーが店舗を切り替えられる）
   const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
-  const storeMap = useDataStore((s) => s.data.stores)
+  const storeMap = useDataStore((s) => s.currentMonthData?.stores ?? EMPTY_STORES)
   const [weatherStoreOverride, setWeatherStoreOverride] = useState<string | null>(null)
 
   const weatherCandidates = useMemo(() => {

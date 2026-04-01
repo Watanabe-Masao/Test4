@@ -42,9 +42,10 @@ const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土']
 export function PrevYearMappingTab() {
   const { settings, updateSettings } = useSettings()
   const data = useDataStore((s) => s.data)
+  const prevYear = useDataStore((s) => s.appData.prevYear)
   const { listMonths } = useStorageAdmin()
   const { targetYear, targetMonth } = settings
-  const { hasPrevYearData, prevYearDays } = useDataSummary(data)
+  const { hasPrevYearData, prevYearDays } = useDataSummary(data, prevYear)
 
   const [availableMonths, setAvailableMonths] = useState<{ year: number; month: number }[]>([])
 
@@ -123,11 +124,7 @@ export function PrevYearMappingTab() {
 
   // 前年データを再読込（既存データをクリアして auto-load をトリガー）
   const handleReload = useCallback(() => {
-    useDataStore.getState().setPrevYearAutoData({
-      prevYearClassifiedSales: { records: [] },
-      prevYearCategoryTimeSales: { records: [] },
-      prevYearFlowers: { records: [] },
-    })
+    useDataStore.getState().setPrevYearMonthData(null)
     calculationCache.clear()
     useUiStore.getState().invalidateCalculation()
   }, [])
