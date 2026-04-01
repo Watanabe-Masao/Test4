@@ -409,21 +409,14 @@ describe('ImportedData Migration Guard', () => {
     ).toEqual([])
   })
 
-  it('_calculationData が計算パイプライン外からアクセスされていない', () => {
+  it('_calculationData が存在しない（削除済み）', () => {
     const allFiles = collectTsFiles(SRC_DIR)
     const PATTERN = /_calculationData/
-    // 計算パイプライン: これらのファイルのみアクセス許可
-    const ALLOWED = new Set([
-      'application/stores/dataStore.ts',
-      'application/hooks/useCalculation.ts',
-      'application/hooks/useExplanation.ts',
-    ])
     const violations: string[] = []
 
     for (const file of allFiles) {
       const relPath = relativePath(file)
       if (relPath.includes('__tests__/') || relPath.includes('.test.')) continue
-      if (ALLOWED.has(relPath)) continue
 
       const content = fs.readFileSync(file, 'utf-8')
       if (PATTERN.test(content)) {
@@ -433,8 +426,7 @@ describe('ImportedData Migration Guard', () => {
 
     expect(
       violations,
-      `_calculationData が計算パイプライン外からアクセスされています:\n${violations.join('\n')}\n` +
-        `currentMonthData を使用してください。計算パイプラインの完全移行は別 PR で対応。`,
+      `_calculationData は削除済みです。currentMonthData を使用してください:\n${violations.join('\n')}`,
     ).toEqual([])
   })
 })

@@ -3,11 +3,9 @@ import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 import type { StoreExplanations } from '@/domain/models/analysis'
 import type { ValidationMessage, InventoryConfig } from '@/domain/models/record'
-import type { ImportedData, StoreResult } from '@/domain/models/storeTypes'
+import type { StoreResult } from '@/domain/models/storeTypes'
 import type { MonthlyData, AppData } from '@/domain/models/MonthlyData'
 import { mergeInventoryConfig } from '@/domain/models/record'
-import { createEmptyImportedData } from '@/domain/models/storeTypes'
-import { toLegacyImportedData } from '@/domain/models/monthlyDataAdapter'
 
 // ─── Types ────────────────────────────────────────────
 export interface DataStore {
@@ -16,10 +14,6 @@ export interface DataStore {
   currentMonthData: MonthlyData | null
   authoritativeDataVersion: number
   comparisonDataVersion: number
-
-  // ─── Calculation Pipeline（計算パイプライン用） ────────
-  /** @internal 計算パイプライン用 ImportedData ミラー。直接読み取り禁止。 */
-  readonly _calculationData: ImportedData
 
   // ─── Derived State ──────────────────────────────────
   storeResults: ReadonlyMap<string, StoreResult>
@@ -37,23 +31,15 @@ export interface DataStore {
   reset: () => void
 }
 
-// ─── Initial values ──────────────────────────────────
-const initialCalcData = createEmptyImportedData()
-
 // ─── Store ────────────────────────────────────────────
 export const useDataStore = create<DataStore>()(
   devtools(
     (set) => ({
-      // Authoritative State
       appData: { current: null, prevYear: null },
       currentMonthData: null,
       authoritativeDataVersion: 0,
       comparisonDataVersion: 0,
 
-      // Calculation Pipeline
-      _calculationData: initialCalcData,
-
-      // Derived State
       storeResults: new Map(),
       storeExplanations: new Map(),
       validationMessages: [],
@@ -61,16 +47,11 @@ export const useDataStore = create<DataStore>()(
       // ─── Actions ──────────────────────────────────
       setCurrentMonthData: (monthly) =>
         set(
-          (state) => {
-            const calcData = toLegacyImportedData({ current: monthly, prevYear: null })
-            const nextVersion = state.authoritativeDataVersion + 1
-            return {
-              appData: { current: monthly, prevYear: state.appData.prevYear },
-              currentMonthData: monthly,
-              authoritativeDataVersion: nextVersion,
-              _calculationData: calcData,
-            }
-          },
+          (state) => ({
+            appData: { current: monthly, prevYear: state.appData.prevYear },
+            currentMonthData: monthly,
+            authoritativeDataVersion: state.authoritativeDataVersion + 1,
+          }),
           false,
           'setCurrentMonthData',
         ),
@@ -87,30 +68,18 @@ export const useDataStore = create<DataStore>()(
 
       replaceAppData: (newAppData) =>
         set(
-          (state) => {
-            const nextAuth =
+          (state) => ({
+            appData: newAppData,
+            currentMonthData: newAppData.current,
+            authoritativeDataVersion:
               newAppData.current !== state.appData.current
                 ? state.authoritativeDataVersion + 1
-                : state.authoritativeDataVersion
-            const nextComp =
+                : state.authoritativeDataVersion,
+            comparisonDataVersion:
               newAppData.prevYear !== state.appData.prevYear
                 ? state.comparisonDataVersion + 1
-                : state.comparisonDataVersion
-            return {
-              appData: newAppData,
-              currentMonthData: newAppData.current,
-              authoritativeDataVersion: nextAuth,
-              comparisonDataVersion: nextComp,
-              ...(newAppData.current
-                ? {
-                    _calculationData: toLegacyImportedData({
-                      current: newAppData.current,
-                      prevYear: null,
-                    }),
-                  }
-                : {}),
-            }
-          },
+                : state.comparisonDataVersion,
+          }),
           false,
           'replaceAppData',
         ),
@@ -133,12 +102,10 @@ export const useDataStore = create<DataStore>()(
             const updatedCurrentMonth = state.currentMonthData
               ? { ...state.currentMonthData, settings: newSettings }
               : null
-            const nextVersion = state.authoritativeDataVersion + 1
             return {
               appData: { current: updatedCurrentMonth, prevYear: state.appData.prevYear },
               currentMonthData: updatedCurrentMonth,
-              authoritativeDataVersion: nextVersion,
-              _calculationData: { ...state._calculationData, settings: newSettings },
+              authoritativeDataVersion: state.authoritativeDataVersion + 1,
             }
           },
           false,
@@ -152,7 +119,6 @@ export const useDataStore = create<DataStore>()(
             currentMonthData: null,
             authoritativeDataVersion: 0,
             comparisonDataVersion: 0,
-            _calculationData: initialCalcData,
             storeResults: new Map(),
             storeExplanations: new Map(),
             validationMessages: [],
