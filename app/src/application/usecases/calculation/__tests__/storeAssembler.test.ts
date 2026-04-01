@@ -8,10 +8,11 @@
 import { describe, it, expect } from 'vitest'
 import { assembleStoreResult } from '../storeAssembler'
 import { ZERO_COST_PRICE_PAIR } from '@/domain/models/record'
-import { createEmptyImportedData } from '@/domain/models/storeTypes'
+import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
 import { createDefaultSettings } from '@/domain/constants/defaults'
 import type { DailyRecord } from '@/domain/models/record'
-import type { ImportedData, AppSettings } from '@/domain/models/storeTypes'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
+import type { AppSettings } from '@/domain/models/storeTypes'
 import type { MonthlyAccumulator } from '../types'
 
 const DEFAULT_SETTINGS: AppSettings = {

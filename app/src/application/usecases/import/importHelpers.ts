@@ -4,14 +4,14 @@
  * ImportOrchestrator から抽出。サマリーキャッシュ保存とインポート履歴保存を担う。
  */
 import type { ImportHistoryEntry } from '@/domain/models/analysis'
-import type { ImportedData } from '@/domain/models/storeTypes'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import { buildStoreDaySummaryCache } from '@/application/usecases/calculation'
 import type { ImportSummary } from './FileImportService'
 import type { DataRepository } from '@/domain/repositories'
 
 export function saveSummaryCache(
-  data: ImportedData,
+  data: MonthlyData,
   year: number,
   month: number,
   repo: DataRepository,

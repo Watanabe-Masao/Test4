@@ -7,7 +7,8 @@
  * dataVersion ベースの軽量キャッシュキーでキャッシュヒット判定を行う。
  */
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { AppSettings, StoreResult, ImportedData } from '@/domain/models/storeTypes'
+import type { AppSettings, StoreResult } from '@/domain/models/storeTypes'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
 import type { WorkerResponse } from './calculationWorker'
 import { calculateAllStores } from '@/application/usecases/calculation'
 import { computeCacheKey } from '@/application/services/calculationCache'
@@ -20,7 +21,7 @@ export type WorkerCalculateResult =
 interface WorkerCalculationResult {
   /** Worker を使った非同期計算（cacheKey 付き結果を返す） */
   calculateAsync: (
-    data: ImportedData,
+    data: MonthlyData,
     dataVersion: number,
     settings: AppSettings,
     daysInMonth: number,
@@ -60,7 +61,7 @@ export function useWorkerCalculation(): WorkerCalculationResult {
 
   const calculateAsync = useCallback(
     (
-      data: ImportedData,
+      data: MonthlyData,
       dataVersion: number,
       settings: AppSettings,
       daysInMonth: number,

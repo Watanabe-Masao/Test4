@@ -10,7 +10,8 @@ import type {
   BreakdownDetail,
   BreakdownEntry,
 } from '@/domain/models/analysis'
-import type { StoreResult, ImportedData } from '@/domain/models/storeTypes'
+import type { StoreResult } from '@/domain/models/storeTypes'
+import type { ClassifiedSalesData } from '@/domain/models/ClassifiedSales'
 import { aggregateForStore, getDailyTotalCost } from '@/domain/models/record'
 import {
   inp,
@@ -27,7 +28,7 @@ import {
 export function registerSalesExplanations(
   map: Map<MetricId, Explanation>,
   result: StoreResult,
-  data: ImportedData,
+  data: { readonly stores: ReadonlyMap<string, unknown>; readonly classifiedSales: ClassifiedSalesData },
   scope: Explanation['scope'],
   storeId: string,
   allStoreIds: string[],

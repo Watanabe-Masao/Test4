@@ -4,31 +4,27 @@
  * MurmurHash3 を使用して入力データの堅牢なフィンガープリントを生成し、
  * StoreResult をキャッシュして不要な再計算を排除する。
  *
- * 従来の軽量サマリー（dayCount + 一部値）を MurmurHash に置き換え、
- * 完全一致保証に近い検出精度を実現する。
- *
  * - 店舗単位のキャッシュ: 設定変更時は影響を受ける店舗のみ再計算
  * - LRU 的な制限: 最大エントリ数を超えると古いものから削除
  * - Worker 対応: computeFingerprint / computeGlobalFingerprint は
  *   Worker 内でも呼び出し可能（副作用なし）
  */
-import type { ImportedData, AppSettings, StoreResult } from '@/domain/models/storeTypes'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
+import type { AppSettings, StoreResult } from '@/domain/models/storeTypes'
 import { hashData } from '@/domain/utilities/hash'
 
 // ─── フィンガープリント生成 ──────────────────────────────
 
 /**
  * 店舗別フィンガープリントを MurmurHash で生成する。
- * 入力データ全体をハッシュするため、従来の軽量サマリーと異なり
- * 値の変更を確実に検出できる。
  */
 export function computeFingerprint(
   storeId: string,
-  data: ImportedData,
+  data: MonthlyData,
   settings: AppSettings,
   daysInMonth: number,
+  prevYear?: MonthlyData | null,
 ): string {
-  // ハッシュ対象: 店舗固有データ + 設定
   const hashInput = {
     storeId,
     settings: {
@@ -41,9 +37,8 @@ export function computeFingerprint(
     daysInMonth,
     purchase: data.purchase.records.filter((r) => r.storeId === storeId),
     classifiedSales: data.classifiedSales.records.filter((r) => r.storeId === storeId),
-    prevYearClassifiedSales: data.prevYearClassifiedSales.records.filter(
-      (r) => r.storeId === storeId,
-    ),
+    prevYearClassifiedSales:
+      prevYear?.classifiedSales.records.filter((r) => r.storeId === storeId) ?? [],
     interStoreIn: data.interStoreIn.records.filter((r) => r.storeId === storeId),
     interStoreOut: data.interStoreOut.records.filter((r) => r.storeId === storeId),
     flowers: data.flowers.records.filter((r) => r.storeId === storeId),
@@ -61,16 +56,17 @@ export function computeFingerprint(
  * 全店舗分のフィンガープリントを結合した全体キーを生成する。
  */
 export function computeGlobalFingerprint(
-  data: ImportedData,
+  data: MonthlyData,
   settings: AppSettings,
   daysInMonth: number,
+  prevYear?: MonthlyData | null,
 ): string {
   const storeIds = Array.from(data.stores.keys()).sort()
 
-  // 各店舗のフィンガープリントを結合
-  const storeFps = storeIds.map((id) => computeFingerprint(id, data, settings, daysInMonth))
+  const storeFps = storeIds.map((id) =>
+    computeFingerprint(id, data, settings, daysInMonth, prevYear),
+  )
 
-  // グローバル設定とデータもハッシュ対象
   const globalInput = {
     storeFps,
     storeCount: storeIds.length,
@@ -81,9 +77,9 @@ export function computeGlobalFingerprint(
     defaultBudget: settings.defaultBudget,
     daysInMonth,
     csRecordCount: data.classifiedSales?.records?.length ?? 0,
-    pycsRecordCount: data.prevYearClassifiedSales?.records?.length ?? 0,
+    pycsRecordCount: prevYear?.classifiedSales?.records?.length ?? 0,
     ctsRecordCount: data.categoryTimeSales?.records?.length ?? 0,
-    pyctsRecordCount: data.prevYearCategoryTimeSales?.records?.length ?? 0,
+    pyctsRecordCount: prevYear?.categoryTimeSales?.records?.length ?? 0,
     dkpiRecordCount: data.departmentKpi?.records?.length ?? 0,
   }
 
@@ -95,7 +91,6 @@ export function computeGlobalFingerprint(
 
 /**
  * 計算結果に影響する設定フィールドだけをハッシュする。
- * AppSettings は小さいのでここだけの hash は十分軽量。
  */
 function buildSettingsFingerprint(settings: AppSettings): string {
   const hash = hashData({
@@ -120,7 +115,6 @@ function buildSettingsFingerprint(settings: AppSettings): string {
 
 /**
  * dataVersion + settings hash + daysInMonth で O(1) のキャッシュキーを生成する。
- * computeGlobalFingerprint の軽量代替。
  */
 export function computeCacheKey(
   dataVersion: number,
@@ -138,7 +132,6 @@ interface CacheEntry {
   timestamp: number
 }
 
-/** cacheKey ベースのグローバルキャッシュエントリ */
 interface GlobalCacheEntry {
   cacheKey: string
   result: ReadonlyMap<string, StoreResult>
@@ -152,21 +145,17 @@ export class CalculationCache {
   private storeCache = new Map<string, CacheEntry>()
   private globalFingerprint: string | null = null
   private globalResult: ReadonlyMap<string, StoreResult> | null = null
-  // cacheKey ベースのグローバルキャッシュ（Phase 2 追加）
   private globalCacheByKey = new Map<string, GlobalCacheEntry>()
   private currentCacheKey: string | null = null
 
-  /**
-   * キャッシュから店舗の計算結果を取得する。
-   * フィンガープリントが一致しない場合は null を返す。
-   */
   getStoreResult(
     storeId: string,
-    data: ImportedData,
+    data: MonthlyData,
     settings: AppSettings,
     daysInMonth: number,
+    prevYear?: MonthlyData | null,
   ): StoreResult | null {
-    const fp = computeFingerprint(storeId, data, settings, daysInMonth)
+    const fp = computeFingerprint(storeId, data, settings, daysInMonth, prevYear)
     const entry = this.storeCache.get(storeId)
     if (entry && entry.fingerprint === fp) {
       return entry.result
@@ -174,24 +163,21 @@ export class CalculationCache {
     return null
   }
 
-  /**
-   * 店舗の計算結果をキャッシュする。
-   */
   setStoreResult(
     storeId: string,
-    data: ImportedData,
+    data: MonthlyData,
     settings: AppSettings,
     daysInMonth: number,
     result: StoreResult,
+    prevYear?: MonthlyData | null,
   ): void {
-    const fp = computeFingerprint(storeId, data, settings, daysInMonth)
+    const fp = computeFingerprint(storeId, data, settings, daysInMonth, prevYear)
     this.storeCache.set(storeId, {
       fingerprint: fp,
       result,
       timestamp: Date.now(),
     })
 
-    // LRU 制限
     if (this.storeCache.size > MAX_ENTRIES) {
       let oldest: string | null = null
       let oldestTime = Infinity
@@ -205,26 +191,19 @@ export class CalculationCache {
     }
   }
 
-  /**
-   * 全店舗の結果をまとめてキャッシュチェックする。
-   * フィンガープリントが一致する場合にキャッシュ済み結果を返す。
-   */
   getGlobalResult(
-    data: ImportedData,
+    data: MonthlyData,
     settings: AppSettings,
     daysInMonth: number,
+    prevYear?: MonthlyData | null,
   ): ReadonlyMap<string, StoreResult> | null {
-    const fp = computeGlobalFingerprint(data, settings, daysInMonth)
+    const fp = computeGlobalFingerprint(data, settings, daysInMonth, prevYear)
     if (this.globalFingerprint === fp && this.globalResult) {
       return this.globalResult
     }
     return null
   }
 
-  /**
-   * フィンガープリント文字列でキャッシュチェックする。
-   * Worker から返されたフィンガープリントとの比較用。
-   */
   getGlobalResultByFingerprint(fingerprint: string): ReadonlyMap<string, StoreResult> | null {
     if (this.globalFingerprint === fingerprint && this.globalResult) {
       return this.globalResult
@@ -232,28 +211,21 @@ export class CalculationCache {
     return null
   }
 
-  /**
-   * 全店舗の結果をキャッシュする。
-   */
   setGlobalResult(
-    data: ImportedData,
+    data: MonthlyData,
     settings: AppSettings,
     daysInMonth: number,
     results: ReadonlyMap<string, StoreResult>,
+    prevYear?: MonthlyData | null,
   ): void {
-    this.globalFingerprint = computeGlobalFingerprint(data, settings, daysInMonth)
+    this.globalFingerprint = computeGlobalFingerprint(data, settings, daysInMonth, prevYear)
     this.globalResult = results
 
-    // 個別店舗キャッシュも更新
     for (const [storeId, result] of results) {
-      this.setStoreResult(storeId, data, settings, daysInMonth, result)
+      this.setStoreResult(storeId, data, settings, daysInMonth, result, prevYear)
     }
   }
 
-  /**
-   * フィンガープリント文字列付きで全店舗の結果をキャッシュする。
-   * Worker から返されたフィンガープリントを直接使用。
-   */
   setGlobalResultWithFingerprint(
     fingerprint: string,
     results: ReadonlyMap<string, StoreResult>,
@@ -262,19 +234,12 @@ export class CalculationCache {
     this.globalResult = results
   }
 
-  // ─── cacheKey ベース（Phase 2: O(1) lookup） ────────
+  // ─── cacheKey ベース（O(1) lookup） ────────
 
-  /**
-   * cacheKey で全店舗の計算結果を取得する。
-   * dataVersion + settings hash による O(1) の Map lookup。
-   */
   getGlobalResultByCacheKey(cacheKey: string): ReadonlyMap<string, StoreResult> | null {
     return this.globalCacheByKey.get(cacheKey)?.result ?? null
   }
 
-  /**
-   * cacheKey 付きで全店舗の結果をキャッシュする。
-   */
   setGlobalResultWithCacheKey(cacheKey: string, results: ReadonlyMap<string, StoreResult>): void {
     this.currentCacheKey = cacheKey
     this.globalCacheByKey.set(cacheKey, {
@@ -283,7 +248,6 @@ export class CalculationCache {
       timestamp: Date.now(),
     })
 
-    // LRU 制限
     if (this.globalCacheByKey.size > MAX_GLOBAL_ENTRIES) {
       let oldestKey: string | null = null
       let oldestTime = Infinity
@@ -297,12 +261,10 @@ export class CalculationCache {
     }
   }
 
-  /** 現在のキャッシュキー */
   get currentGlobalCacheKey(): string | null {
     return this.currentCacheKey
   }
 
-  /** キャッシュをクリアする */
   clear(): void {
     this.storeCache.clear()
     this.globalFingerprint = null
@@ -311,17 +273,14 @@ export class CalculationCache {
     this.currentCacheKey = null
   }
 
-  /** キャッシュされている店舗数 */
   get size(): number {
     return this.storeCache.size
   }
 
-  /** グローバルキャッシュが有効か */
   get hasGlobalCache(): boolean {
     return this.globalResult !== null
   }
 
-  /** 現在のグローバルフィンガープリント */
   get currentGlobalFingerprint(): string | null {
     return this.globalFingerprint
   }

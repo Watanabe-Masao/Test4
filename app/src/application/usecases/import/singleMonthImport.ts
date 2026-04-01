@@ -65,7 +65,7 @@ export async function orchestrateSingleMonth(
 
   if (repo.isAvailable()) {
     await repo.saveMonthlyData(monthly, targetYear, targetMonth)
-    saveSummaryCache(targetData, targetYear, targetMonth, repo)
+    saveSummaryCache(monthly, targetYear, targetMonth, repo)
     saveImportHistory(summary, targetYear, targetMonth, repo)
   }
 
@@ -103,7 +103,7 @@ export async function resolveSingleMonthDiff(
 
   if (repo.isAvailable()) {
     await repo.saveMonthlyData(monthly, targetYear, targetMonth)
-    saveSummaryCache(finalData, targetYear, targetMonth, repo)
+    saveSummaryCache(monthly, targetYear, targetMonth, repo)
     saveImportHistory(summary, targetYear, targetMonth, repo)
   }
 

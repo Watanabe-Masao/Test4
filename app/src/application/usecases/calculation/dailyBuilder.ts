@@ -4,7 +4,7 @@ import type {
   SupplierTotal,
   DailyRecord,
 } from '@/domain/models/record'
-import type { ImportedData } from '@/domain/models/storeTypes'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
 import {
   ZERO_COST_PRICE_PAIR,
   addCostPricePairs,
@@ -27,7 +27,7 @@ import {
  */
 export function buildDailyRecords(
   storeId: string,
-  data: ImportedData,
+  data: MonthlyData,
   daysInMonth: number,
 ): MonthlyAccumulator {
   // flat record 配列から StoreDayIndex を構築して O(1) ルックアップ

@@ -8,7 +8,8 @@
  * Vite が Worker をモジュールとしてバンドルするため、
  * 通常のインポートパス (@/) が利用可能。
  */
-import type { AppSettings, StoreResult, ImportedData } from '@/domain/models/storeTypes'
+import type { AppSettings, StoreResult } from '@/domain/models/storeTypes'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
 import { calculateAllStores } from '@/application/usecases/calculation'
 import { computeCacheKey } from '@/application/services/calculationCache'
 
@@ -16,7 +17,7 @@ import { computeCacheKey } from '@/application/services/calculationCache'
 
 export interface CalculateRequest {
   type: 'calculate'
-  data: ImportedData
+  data: MonthlyData
   dataVersion: number
   settings: AppSettings
   daysInMonth: number

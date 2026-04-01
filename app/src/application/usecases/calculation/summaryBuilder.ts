@@ -1,7 +1,7 @@
 /**
  * StoreDaySummary ビルダー
  *
- * ImportedData（分離ソース）から StoreDaySummaryIndex（結合済み参照データ）を構築する。
+ * MonthlyData（分離ソース）から StoreDaySummaryIndex（結合済み参照データ）を構築する。
  * dailyBuilder.ts と同じ結合ロジックを使用するが、出力はフラットな
  * JSON シリアライズ可能構造（Map/Set を使わない）。
  *
@@ -17,7 +17,7 @@ import type {
   StoreDaySummaryIndex,
   StoreDaySummaryCache,
 } from '@/domain/models/record'
-import type { ImportedData } from '@/domain/models/storeTypes'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
 import {
   ZERO_COST_PRICE_PAIR,
   ZERO_COST_INCLUSION_DAILY,
@@ -33,7 +33,7 @@ import { hashData } from '@/domain/utilities/hash'
  * （categoryTimeSales, departmentKpi, settings, budget は含まない
  *   — これらは StoreDaySummary の構築に使われないため）
  */
-export function computeSummaryFingerprint(data: ImportedData): string {
+export function computeSummaryFingerprint(data: MonthlyData): string {
   const input = {
     csRecordCount: data.classifiedSales.records.length,
     // classifiedSales の全レコードキーをハッシュするのは高コストなので、
@@ -116,7 +116,7 @@ function sumTransferAmounts(
  */
 function buildStoreDay(
   storeId: string,
-  data: ImportedData,
+  data: MonthlyData,
   daysInMonth: number,
   indices: ReturnType<typeof buildIndices>,
 ): { readonly [day: number]: StoreDaySummary } {
@@ -223,7 +223,7 @@ function buildStoreDay(
 }
 
 /** flat record 配列から O(1) ルックアップ用インデックスを一括構築する */
-function buildIndices(data: ImportedData) {
+function buildIndices(data: MonthlyData) {
   return {
     purchase: indexByStoreDay(data.purchase.records),
     interStoreIn: indexByStoreDay(data.interStoreIn.records),
@@ -235,11 +235,11 @@ function buildIndices(data: ImportedData) {
 }
 
 /**
- * ImportedData から StoreDaySummaryIndex を構築する。
+ * MonthlyData から StoreDaySummaryIndex を構築する。
  * 全店舗分のサマリーを生成する。
  */
 export function buildStoreDaySummaryIndex(
-  data: ImportedData,
+  data: MonthlyData,
   daysInMonth: number,
 ): StoreDaySummaryIndex {
   const result: Record<string, { readonly [day: number]: StoreDaySummary }> = {}
@@ -259,7 +259,7 @@ export function buildStoreDaySummaryIndex(
  * フィンガープリント付きのキャッシュエンベロープを返す。
  */
 export function buildStoreDaySummaryCache(
-  data: ImportedData,
+  data: MonthlyData,
   daysInMonth: number,
 ): StoreDaySummaryCache {
   return {

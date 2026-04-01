@@ -16,7 +16,7 @@ import type {
   BreakdownDetail,
   StoreExplanations,
 } from '@/domain/models/analysis'
-import type { StoreResult, ImportedData, AppSettings } from '@/domain/models/storeTypes'
+import type { StoreResult, AppSettings } from '@/domain/models/storeTypes'
 import { resolveFormulaDetail } from './formulaResolver'
 import { registerBudgetExplanations } from './budgetExplanations'
 import { registerSalesExplanations } from './salesExplanations'
@@ -30,7 +30,7 @@ export { generateTextSummary, generateMetricSummary } from './summaryGenerator'
  */
 export function generateExplanations(
   result: StoreResult,
-  data: ImportedData,
+  data: { readonly stores: ReadonlyMap<string, unknown> },
   settings: AppSettings,
 ): StoreExplanations {
   const { storeId } = result
