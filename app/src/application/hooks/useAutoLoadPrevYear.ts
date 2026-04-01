@@ -18,6 +18,7 @@ import type {
   PurchaseData,
   TransferData,
 } from '@/domain/models/record'
+import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
 
 // バレル re-export（後方互換）
 export { OVERFLOW_DAYS, adjacentMonth, mergeAdjacentMonthRecords }
@@ -35,8 +36,12 @@ export { OVERFLOW_DAYS, adjacentMonth, mergeAdjacentMonthRecords }
  * 全マージレコードの year/month は sourceYear/sourceMonth に正規化される。
  */
 export function useAutoLoadPrevYear(): void {
-  const hasPrevYearData = useDataStore((s) => s.data.prevYearClassifiedSales.records.length > 0)
-  const hasCurrentData = useDataStore((s) => s.data.classifiedSales.records.length > 0)
+  const hasPrevYearData = useDataStore(
+    (s) => (s.appData.prevYear?.classifiedSales.records.length ?? 0) > 0,
+  )
+  const hasCurrentData = useDataStore(
+    (s) => (s.appData.current?.classifiedSales.records.length ?? 0) > 0,
+  )
   const settings = useSettingsStore((s) => s.settings)
   const repo = useRepository()
 
@@ -120,14 +125,20 @@ export function useAutoLoadPrevYear(): void {
 
         if (cancelled) return
 
-        useDataStore.getState().setPrevYearAutoData({
-          prevYearClassifiedSales: { records: mergedCSRecords },
-          prevYearCategoryTimeSales: { records: mergedCTSRecords },
-          prevYearFlowers: prevFlowers ?? { records: [] },
-          prevYearPurchase: prevPurchase ?? { records: [] },
-          prevYearDirectProduce: prevDirectProduce ?? { records: [] },
-          prevYearInterStoreIn: prevInterStoreIn ?? { records: [] },
-          prevYearInterStoreOut: prevInterStoreOut ?? { records: [] },
+        const base = createEmptyMonthlyData({
+          year: sourceYear,
+          month: sourceMonth,
+          importedAt: new Date().toISOString(),
+        })
+        useDataStore.getState().setPrevYearMonthData({
+          ...base,
+          classifiedSales: { records: mergedCSRecords },
+          categoryTimeSales: { records: mergedCTSRecords },
+          flowers: prevFlowers ?? { records: [] },
+          purchase: prevPurchase ?? { records: [] },
+          directProduce: prevDirectProduce ?? { records: [] },
+          interStoreIn: prevInterStoreIn ?? { records: [] },
+          interStoreOut: prevInterStoreOut ?? { records: [] },
         })
         invalidateAfterStateChange()
       } catch {

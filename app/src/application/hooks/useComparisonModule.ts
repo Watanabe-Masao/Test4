@@ -102,7 +102,7 @@ export function useComparisonModule(
   elapsedDays: number | undefined,
   currentAverageDailySales: number,
 ): ComparisonModule {
-  const data = useDataStore((s) => s.data)
+  const prevYear = useDataStore((s) => s.appData.prevYear)
   const { selectedStoreIds, isAllStores } = useStoreSelection()
 
   // 1. ComparisonScope 構築
@@ -119,12 +119,12 @@ export function useComparisonModule(
   const inputs = useMemo(() => {
     if (!scope) return null
     const { year, month } = scope.sourceMonth
-    return prepareComparisonInputs(data, selectedStoreIds, isAllStores, {
+    return prepareComparisonInputs(prevYear, selectedStoreIds, isAllStores, {
       year,
       month,
       daysInMonth: new Date(year, month, 0).getDate(),
     })
-  }, [data, selectedStoreIds, isAllStores, scope])
+  }, [prevYear, selectedStoreIds, isAllStores, scope])
 
   // 4. 日別集計（PrevYearData 互換）
   const daily = useMemo((): PrevYearData => {
