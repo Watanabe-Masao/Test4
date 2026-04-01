@@ -124,11 +124,7 @@ export function PrevYearMappingTab() {
 
   // 前年データを再読込（既存データをクリアして auto-load をトリガー）
   const handleReload = useCallback(() => {
-    useDataStore.getState().setPrevYearAutoData({
-      prevYearClassifiedSales: { records: [] },
-      prevYearCategoryTimeSales: { records: [] },
-      prevYearFlowers: { records: [] },
-    })
+    useDataStore.getState().setPrevYearMonthData(null)
     calculationCache.clear()
     useUiStore.getState().invalidateCalculation()
   }, [])

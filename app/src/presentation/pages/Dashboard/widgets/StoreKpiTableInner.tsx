@@ -13,7 +13,10 @@ import { useDataStore } from '@/application/stores/dataStore'
 import { useUiStore } from '@/application/stores/uiStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { calculationCache } from '@/application/services/calculationCache'
+import type { InventoryConfig } from '@/domain/models/record'
 import type { WidgetContext } from './types'
+
+const EMPTY_SETTINGS: ReadonlyMap<string, InventoryConfig> = new Map()
 import { Button } from '@/presentation/components/common/layout'
 import { STableWrapper, STable, STd, ScrollWrapper } from '../DashboardPage.styles'
 import {
@@ -79,7 +82,7 @@ function EditableLandingCell({
 }
 
 export function StoreKpiTableInner({ ctx }: { ctx: WidgetContext }) {
-  const dataState = useDataStore((s) => s.data)
+  const dataSettings = useDataStore((s) => s.currentMonthData?.settings ?? EMPTY_SETTINGS)
   const { result: agg, allStoreResults, stores, fmtCurrency } = ctx
 
   // 店舗をコード順でソート
@@ -238,7 +241,7 @@ export function StoreKpiTableInner({ ctx }: { ctx: WidgetContext }) {
       : undefined
 
     // Editable values read from settings (not from calculated StoreResult)
-    const invConfig = storeId ? dataState.settings.get(storeId) : undefined
+    const invConfig = storeId ? dataSettings.get(storeId) : undefined
 
     // Tooltip content builders
     const closingInvTooltip =

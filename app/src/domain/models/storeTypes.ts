@@ -18,7 +18,7 @@ export type {
 export type { AppSettings, ViewType, DataType, StorageDataType, CustomCategory } from './Settings'
 export { CUSTOM_CATEGORIES } from './Settings'
 export type { ImportedData } from './ImportedData'
-export { createEmptyImportedData, getComparisonFields } from './ImportedData'
+export { createEmptyImportedData } from './ImportedData'
 export type { DataOrigin, DataEnvelope } from './DataOrigin'
 export { isEnvelope } from './DataOrigin'
 export type { MonthlyData, AppData } from './MonthlyData'

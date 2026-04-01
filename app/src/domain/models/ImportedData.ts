@@ -38,19 +38,6 @@ export interface ImportedData {
   readonly budget: ReadonlyMap<string, BudgetData>
 }
 
-/** 比較データアクセサ（comparison 統一名） */
-export function getComparisonFields(data: ImportedData) {
-  return {
-    comparisonClassifiedSales: data.prevYearClassifiedSales,
-    comparisonCategoryTimeSales: data.prevYearCategoryTimeSales,
-    comparisonFlowers: data.prevYearFlowers,
-    comparisonPurchase: data.prevYearPurchase,
-    comparisonDirectProduce: data.prevYearDirectProduce,
-    comparisonInterStoreIn: data.prevYearInterStoreIn,
-    comparisonInterStoreOut: data.prevYearInterStoreOut,
-  } as const
-}
-
 /** 空のインポートデータ */
 export function createEmptyImportedData(): ImportedData {
   return {
