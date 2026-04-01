@@ -9,15 +9,15 @@ import { renderHook, act } from '@testing-library/react'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useUiStore } from '@/application/stores/uiStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
-import type { ImportedData } from '@/domain/models/storeTypes'
 import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
 
 // ── Mock useRepository ───────────────────────────────
 
 const mockRepo = {
   isAvailable: vi.fn(() => true),
   saveMonthlyData: vi.fn(() => Promise.resolve()),
-  loadMonthlyData: vi.fn<() => Promise<ImportedData | null>>(() => Promise.resolve(null)),
+  loadMonthlyData: vi.fn<() => Promise<MonthlyData | null>>(() => Promise.resolve(null)),
   clearMonth: vi.fn(() => Promise.resolve()),
   clearAll: vi.fn(() => Promise.resolve()),
   listStoredMonths: vi.fn(() => Promise.resolve([])),
@@ -99,9 +99,8 @@ describe('useMonthSwitcher', () => {
     })
 
     it('sets loaded data when repo returns data', async () => {
-      const { createEmptyImportedData } = await import('@/domain/models')
       const loadedData = {
-        ...createEmptyImportedData(),
+        ...createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
         stores: new Map([['s1', { id: 's1', code: '001', name: 'Loaded' }]]),
       }
       mockRepo.loadMonthlyData.mockResolvedValueOnce(loadedData)

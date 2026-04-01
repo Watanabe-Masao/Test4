@@ -4,9 +4,9 @@
  * 既存 dataSummary.test.ts でカバーされていないエッジケース・境界条件を網羅する。
  */
 import { describe, it, expect } from 'vitest'
-import { createEmptyImportedData } from '@/domain/models/storeTypes'
+import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
 import type { Store, TransferDayEntry, CostInclusionRecord } from '@/domain/models/record'
-import type { ImportedData } from '@/domain/models/storeTypes'
 import {
   computeHasAnyData,
   computeLoadedTypes,
@@ -22,9 +22,9 @@ import type { SpecialSalesDayEntry, PurchaseDayEntry } from '@/domain/models/rec
 
 // ─── ヘルパー ──────────────────────────────────────────
 
-function buildTestData(overrides: Partial<ImportedData> = {}): ImportedData {
+function buildTestData(overrides: Partial<MonthlyData> = {}): MonthlyData {
   return {
-    ...createEmptyImportedData(),
+    ...createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
     stores: new Map<string, Store>([
       ['1', { id: '1', code: '0001', name: '店舗A' }],
       ['2', { id: '2', code: '0002', name: '店舗B' }],
@@ -725,21 +725,20 @@ describe('analyzeClassifiedSales extended', () => {
     expect(store3?.days).toBe(1)
   })
 
-  it('前年データが空で当年データがある場合、isPrevYear=true は空を返す', () => {
+  it('前年データが空で当年データがある場合、prevYear 空は空を返す', () => {
+    const prevYearCS = { records: [] as never[] }
     const data = buildTestData({
       classifiedSales: { records: [makeCSRecord(1, '1', 10000)] },
-      prevYearClassifiedSales: { records: [] },
     })
-    const result = analyzeClassifiedSales(data.prevYearClassifiedSales, '前年', data.stores)
+    const result = analyzeClassifiedSales(prevYearCS, '前年', data.stores)
     expect(result.storeCount).toBe(0)
     expect(result.totalRecords).toBe(0)
     expect(result.dayRange).toBeNull()
   })
 
-  it('当年データが空で前年データがある場合、isPrevYear=false は空を返す', () => {
+  it('当年データが空で前年データがある場合、当年は空を返す', () => {
     const data = buildTestData({
       classifiedSales: { records: [] },
-      prevYearClassifiedSales: { records: [makeCSRecord(5, '2', 8000)] },
     })
     const result = analyzeClassifiedSales(data.classifiedSales, '当年', data.stores)
     expect(result.storeCount).toBe(0)
@@ -776,16 +775,11 @@ describe('analyzeClassifiedSales extended', () => {
   })
 
   it('前年データの perStore に正しい storeName', () => {
-    const data = buildTestData({
-      prevYearClassifiedSales: {
-        records: [makeCSRecord(1, '1', 5000), makeCSRecord(10, '2', 8000)],
-      },
-    })
-    const result = analyzeClassifiedSales(
-      data.prevYearClassifiedSales,
-      '前年分類別売上',
-      data.stores,
-    )
+    const data = buildTestData({})
+    const prevYearCS = {
+      records: [makeCSRecord(1, '1', 5000), makeCSRecord(10, '2', 8000)],
+    }
+    const result = analyzeClassifiedSales(prevYearCS, '前年分類別売上', data.stores)
     const store1 = result.perStore.find((s) => s.storeId === '1')
     const store2 = result.perStore.find((s) => s.storeId === '2')
     expect(store1?.storeName).toBe('店舗A')
@@ -797,7 +791,7 @@ describe('analyzeClassifiedSales extended', () => {
 
 describe('buildDataOverview extended', () => {
   it('返却配列の順序が固定', () => {
-    const overview = buildDataOverview(createEmptyImportedData())
+    const overview = buildDataOverview(createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }))
     const labels = overview.map((e) => e.label)
     expect(labels).toEqual(['仕入', '分類別売上', '花', '産直', '店間入', '店間出', '消耗品'])
   })
@@ -873,15 +867,10 @@ describe('buildDataOverview extended', () => {
       interStoreIn: { records: [makeTransferDayEntry(2, '1')] },
       interStoreOut: { records: [makeTransferDayEntry(4, '2')] },
       consumables: { records: [makeCostInclusionRecord(6, '1', 500)] },
-      prevYearClassifiedSales: {
-        records: [makeCSRecord(1, '1', 8000)],
-      },
     })
-    // prevYear を別パラメータとして渡す
-    const prevYearInput = {
-      ...data,
-      classifiedSales: data.prevYearClassifiedSales,
-    }
+    const prevYearInput = buildTestData({
+      classifiedSales: { records: [makeCSRecord(1, '1', 8000)] },
+    })
     const overview = buildDataOverview(data, prevYearInput)
 
     const purchaseEntry = overview.find((e) => e.label === '仕入')

@@ -2,8 +2,8 @@
  * dataSummary 純粋関数のユニットテスト
  */
 import { describe, it, expect } from 'vitest'
-import { createEmptyImportedData } from '@/domain/models/storeTypes'
-import type { ImportedData } from '@/domain/models/storeTypes'
+import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
 import {
   computeHasAnyData,
   computeLoadedTypes,
@@ -15,9 +15,9 @@ import {
   buildDataOverview,
 } from '../dataSummary'
 
-function buildTestData(overrides: Partial<ImportedData> = {}): ImportedData {
+function buildTestData(overrides: Partial<MonthlyData> = {}): MonthlyData {
   return {
-    ...createEmptyImportedData(),
+    ...createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
     stores: new Map([
       ['1', { id: '1', code: '0001', name: '店舗A' }],
       ['2', { id: '2', code: '0002', name: '店舗B' }],
@@ -64,7 +64,7 @@ function makeCtsRecord(day: number, storeId: string) {
 
 describe('computeHasAnyData', () => {
   it('空データでは false', () => {
-    expect(computeHasAnyData(createEmptyImportedData())).toBe(false)
+    expect(computeHasAnyData(createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }))).toBe(false)
   })
 
   it('仕入データありで true', () => {
@@ -106,7 +106,7 @@ describe('computeHasAnyData', () => {
 
 describe('computeLoadedTypes', () => {
   it('空データでは空セット', () => {
-    const types = computeLoadedTypes(createEmptyImportedData())
+    const types = computeLoadedTypes(createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }))
     expect(types.size).toBe(0)
   })
 
@@ -193,7 +193,7 @@ describe('computeLoadedTypes', () => {
 
 describe('computeMaxDayByType', () => {
   it('空データでは空マップ', () => {
-    const result = computeMaxDayByType(createEmptyImportedData())
+    const result = computeMaxDayByType(createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }))
     expect(result.size).toBe(0)
   })
 
@@ -421,7 +421,7 @@ describe('analyzeClassifiedSales', () => {
 
 describe('buildDataOverview', () => {
   it('空データでは 7 エントリ返却（prevYear なし）', () => {
-    const overview = buildDataOverview(createEmptyImportedData())
+    const overview = buildDataOverview(createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }))
     expect(overview).toHaveLength(7)
     for (const entry of overview) {
       expect(entry.storeCount).toBe(0)
@@ -453,7 +453,7 @@ describe('buildDataOverview', () => {
   })
 
   it('全ラベルが含まれる（prevYear なし）', () => {
-    const overview = buildDataOverview(createEmptyImportedData())
+    const overview = buildDataOverview(createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }))
     const labels = overview.map((e) => e.label)
     expect(labels).toContain('仕入')
     expect(labels).toContain('分類別売上')
@@ -466,7 +466,7 @@ describe('buildDataOverview', () => {
   })
 
   it('prevYear 付きで前年ラベルが含まれる', () => {
-    const data = createEmptyImportedData()
+    const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
     const overview = buildDataOverview(data, data)
     const labels = overview.map((e) => e.label)
     expect(labels).toContain('前年分類別売上')
@@ -474,8 +474,8 @@ describe('buildDataOverview', () => {
 
   it('MonthlyData を DataSummaryInput として受け付ける', () => {
     // MonthlyData は DataSummaryInput を満たす（ImportedData と同じフィールド構造）
-    // createEmptyImportedData() は DataSummaryInput を満たすため検証に使用
-    const monthly = createEmptyImportedData()
+    // createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }) は DataSummaryInput を満たすため検証に使用
+    const monthly = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
     expect(computeHasAnyData(monthly)).toBe(false)
     expect(computeLoadedTypes(monthly).size).toBe(0)
     expect(computeMaxDayByType(monthly).size).toBe(0)

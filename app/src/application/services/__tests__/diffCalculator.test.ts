@@ -1,15 +1,15 @@
 import { describe, it, expect } from 'vitest'
 import { calculateDiff } from '../diffCalculator'
 import type { DiffResult } from '@/domain/models/analysis'
-import { createEmptyImportedData } from '@/domain/models/storeTypes'
+import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
 import type { FieldChange, DataTypeDiff } from '@/domain/models/analysis'
 import type { CategoryTimeSalesRecord, ClassifiedSalesRecord } from '@/domain/models/record'
-import type { ImportedData } from '@/domain/models/storeTypes'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
 
 // ─── ヘルパー関数 ────────────────────────────────────────
 
-function makeData(overrides: Partial<ImportedData> = {}): ImportedData {
-  return { ...createEmptyImportedData(), ...overrides }
+function makeData(overrides: Partial<MonthlyData> = {}): MonthlyData {
+  return { ...createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }), ...overrides }
 }
 
 function makeCSRecord(
