@@ -15,6 +15,7 @@ import { useDataStore } from '@/application/stores/dataStore'
 import { useRepository } from '../context/useRepository'
 import type { ComparisonScope } from '@/domain/models/ComparisonScope'
 import { loadComparisonDataAsync } from '@/application/comparison/loadComparisonDataAsync'
+import { comparisonResultToMonthlyData } from '@/application/comparison/loadComparisonDataAsync'
 
 // 型と純粋ロジックは comparisonLoadLogic.ts に分離済み
 export type { ComparisonLoadStatus } from '@/application/comparison/comparisonLoadLogic'
@@ -35,8 +36,12 @@ import {
  * 隣接月マージ済みデータを dataStore に書き込む。
  */
 export function useLoadComparisonData(scope: ComparisonScope | null): ComparisonLoadStatus {
-  const hasComparisonData = useDataStore((s) => s.data.prevYearClassifiedSales.records.length > 0)
-  const hasCurrentData = useDataStore((s) => s.data.classifiedSales.records.length > 0)
+  const hasComparisonData = useDataStore(
+    (s) => (s.appData.prevYear?.classifiedSales.records.length ?? 0) > 0,
+  )
+  const hasCurrentData = useDataStore(
+    (s) => (s.appData.current?.classifiedSales.records.length ?? 0) > 0,
+  )
   const repo = useRepository()
   const [loadStatus, dispatch] = useReducer(loadReducer, IDLE_STATUS)
   const prevScopeKey = useRef<string>('')
@@ -69,7 +74,8 @@ export function useLoadComparisonData(scope: ComparisonScope | null): Comparison
     )
       .then((result) => {
         if (cancelled || !result) return
-        useDataStore.getState().setPrevYearAutoData(result)
+        const monthly = comparisonResultToMonthlyData(result, source.year, source.month)
+        useDataStore.getState().setPrevYearMonthData(monthly)
       })
       .catch((err) => {
         if (!cancelled) {

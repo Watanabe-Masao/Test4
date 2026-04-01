@@ -5,7 +5,7 @@
  * SourceDataIndex, targetIds の準備を共通化する。
  * React 依存なし。
  */
-import type { ImportedData } from '@/domain/models/storeTypes'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
 import type { ClassifiedSalesDaySummary } from '@/domain/models/ClassifiedSales'
 import type { StoreDayIndex, SpecialSalesDayEntry } from '@/domain/models/record'
 import { aggregateAllStores, indexByStoreDay } from '@/domain/models/record'
@@ -32,11 +32,11 @@ interface RawInputs {
 
 /** raw 素材を準備する（allAgg + flowersIndex + targetIds） */
 function prepareRawInputs(
-  data: ImportedData,
+  prevYear: MonthlyData,
   selectedStoreIds: ReadonlySet<string>,
   isAllStores: boolean,
 ): RawInputs | null {
-  const prevYearCS = data.prevYearClassifiedSales
+  const prevYearCS = prevYear.classifiedSales
   if (prevYearCS.records.length === 0) return null
 
   const allAgg = aggregateAllStores(prevYearCS)
@@ -46,7 +46,7 @@ function prepareRawInputs(
   const targetIds = isAllStores ? allStoreIds : allStoreIds.filter((id) => selectedStoreIds.has(id))
   if (targetIds.length === 0) return null
 
-  const prevYearFlowers = data.prevYearFlowers
+  const prevYearFlowers = prevYear.flowers
   const flowersIndex =
     prevYearFlowers.records.length > 0 ? indexByStoreDay(prevYearFlowers.records) : undefined
 
@@ -56,24 +56,26 @@ function prepareRawInputs(
 /**
  * 比較集計に必要な入力データを準備する。
  *
- * 前年分類別売上が空、対象店舗がない、またはソース月が不明な場合は null を返す。
+ * 前年 MonthlyData が null、分類別売上が空、対象店舗がない場合は null を返す。
  * SourceDataIndex を構築し、allAgg のリナンバリング詳細を封じ込める。
  */
 export function prepareComparisonInputs(
-  data: ImportedData,
+  prevYear: MonthlyData | null,
   selectedStoreIds: ReadonlySet<string>,
   isAllStores: boolean,
   sourceMonthCtx: SourceMonthContext,
 ): ComparisonInputs | null {
-  const raw = prepareRawInputs(data, selectedStoreIds, isAllStores)
+  if (!prevYear) return null
+
+  const raw = prepareRawInputs(prevYear, selectedStoreIds, isAllStores)
   if (!raw) return null
 
-  const prevYearFlowers = data.prevYearFlowers
+  const prevYearFlowers = prevYear.flowers
   const flowersFullIndex =
     prevYearFlowers.records.length > 0 ? buildFlowersFullIndex(prevYearFlowers.records) : undefined
 
   // CTS（販売点数）インデックス構築
-  const prevYearCts = data.prevYearCategoryTimeSales
+  const prevYearCts = prevYear.categoryTimeSales
   const ctsIndex =
     prevYearCts.records.length > 0 ? indexCtsQuantityByStoreDay(prevYearCts.records) : undefined
   const ctsFullIndex =

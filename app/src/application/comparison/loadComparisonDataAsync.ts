@@ -16,6 +16,8 @@ import type {
 import type { QueryMonth } from '@/domain/models/ComparisonScope'
 import type { LoadAction } from './comparisonLoadLogic'
 import { mergeAdjacentMonthRecords, adjacentMonth } from './adjacentMonthUtils'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
+import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
 
 /** ロード結果（store 更新用データ） */
 export interface ComparisonLoadResult {
@@ -147,5 +149,20 @@ export async function loadComparisonDataAsync(
     prevYearClassifiedSales: { records: mergedCSRecords },
     prevYearCategoryTimeSales: { records: mergedCTSRecords },
     prevYearFlowers: prevFlowers ?? { records: [] },
+  }
+}
+
+/** ComparisonLoadResult → MonthlyData に変換する */
+export function comparisonResultToMonthlyData(
+  result: ComparisonLoadResult,
+  year: number,
+  month: number,
+): MonthlyData {
+  const base = createEmptyMonthlyData({ year, month, importedAt: new Date().toISOString() })
+  return {
+    ...base,
+    classifiedSales: result.prevYearClassifiedSales,
+    categoryTimeSales: result.prevYearCategoryTimeSales,
+    flowers: result.prevYearFlowers,
   }
 }
