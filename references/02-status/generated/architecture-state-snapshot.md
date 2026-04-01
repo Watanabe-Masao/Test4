@@ -1,6 +1,6 @@
 # Architecture State Snapshot
 
-> Generated: 2026-04-01T21:28:57.086Z
+> Generated: 2026-04-01T21:41:36.694Z
 
 ## Allowlist Summary
 
@@ -66,6 +66,7 @@
 - application/hooks/useExplanation.ts
 - application/hooks/useFactorDecomposition.ts
 - application/hooks/useFilterSelectors.ts
+- application/hooks/useFreePeriodAnalysis.ts
 - application/hooks/useGeocode.ts
 - application/hooks/useHierarchySelection.ts
 - application/hooks/useImport.ts
