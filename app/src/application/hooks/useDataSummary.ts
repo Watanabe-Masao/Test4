@@ -1,12 +1,12 @@
 /**
  * データサマリーフック
  *
- * ImportedData から各 Presentation コンポーネントが必要とする
+ * MonthlyData から各 Presentation コンポーネントが必要とする
  * サマリー情報を算出する。Presentation 層が .records を直接走査
  * することを防ぎ、全てのレコード走査をこのフック経由に集約する。
  */
 import { useMemo } from 'react'
-import type { ImportedData, DataType } from '@/domain/models/storeTypes'
+import type { DataType } from '@/domain/models/storeTypes'
 import type { MonthlyData } from '@/domain/models/MonthlyData'
 import {
   computeHasAnyData,
@@ -15,6 +15,7 @@ import {
   computeCtsRecordStats,
   computeRecordDays,
   buildDataOverview,
+  type DataSummaryInput,
   type RecordSetStats,
   type StoreDayStats,
 } from '@/application/services/dataSummary'
@@ -45,7 +46,7 @@ export type { RecordSetStats, StoreDayStats }
  * data 参照が変わった場合のみ再計算する。
  * prevYear は AppData.prevYear（MonthlyData）から供給する。
  */
-export function useDataSummary(data: ImportedData, prevYear?: MonthlyData | null): DataSummary {
+export function useDataSummary(data: DataSummaryInput, prevYear?: MonthlyData | null): DataSummary {
   return useMemo(() => {
     const hasAnyData = computeHasAnyData(data)
     const loadedTypes = computeLoadedTypes(data)
@@ -61,7 +62,9 @@ export function useDataSummary(data: ImportedData, prevYear?: MonthlyData | null
       ? computeCtsRecordStats(prevYearCTS)
       : { recordCount: 0, storeCount: 0, dayRange: null }
     const dataOverview =
-      data.purchase?.records && data.classifiedSales?.records ? buildDataOverview(data) : []
+      data.purchase?.records && data.classifiedSales?.records
+        ? buildDataOverview(data, prevYear)
+        : []
 
     return {
       hasAnyData,

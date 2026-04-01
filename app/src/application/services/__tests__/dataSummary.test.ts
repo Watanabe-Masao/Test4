@@ -370,7 +370,7 @@ describe('analyzeFlatRecords', () => {
 describe('analyzeClassifiedSales', () => {
   it('空データ', () => {
     const data = buildTestData()
-    const result = analyzeClassifiedSales(data, '分類別売上', false)
+    const result = analyzeClassifiedSales(data.classifiedSales, '分類別売上', data.stores)
     expect(result.storeCount).toBe(0)
     expect(result.totalRecords).toBe(0)
   })
@@ -385,19 +385,17 @@ describe('analyzeClassifiedSales', () => {
         ],
       },
     })
-    const result = analyzeClassifiedSales(data, '分類別売上', false)
+    const result = analyzeClassifiedSales(data.classifiedSales, '分類別売上', data.stores)
     expect(result.storeCount).toBe(2)
     expect(result.totalRecords).toBe(3) // day 1, day 5 for store 1 + day 1 for store 2
     expect(result.dayRange).toEqual({ min: 1, max: 5 })
   })
 
   it('前年データの分析', () => {
-    const data = buildTestData({
-      prevYearClassifiedSales: {
-        records: [makeCSRecord(3, '1', 8000), makeCSRecord(20, '2', 12000)],
-      },
-    })
-    const result = analyzeClassifiedSales(data, '前年分類別売上', true)
+    const prevYearCS = {
+      records: [makeCSRecord(3, '1', 8000), makeCSRecord(20, '2', 12000)],
+    }
+    const result = analyzeClassifiedSales(prevYearCS, '前年分類別売上', new Map())
     expect(result.storeCount).toBe(2)
     expect(result.dayRange).toEqual({ min: 3, max: 20 })
   })
@@ -412,7 +410,7 @@ describe('analyzeClassifiedSales', () => {
         ],
       },
     })
-    const result = analyzeClassifiedSales(data, '分類別売上', false)
+    const result = analyzeClassifiedSales(data.classifiedSales, '分類別売上', data.stores)
     expect(result.storeCount).toBe(1)
     // totalRecords = unique days per store, so store 1 has days {1, 5} = 2
     expect(result.totalRecords).toBe(2)
@@ -422,9 +420,9 @@ describe('analyzeClassifiedSales', () => {
 // ─── buildDataOverview ────────────────────────────────
 
 describe('buildDataOverview', () => {
-  it('空データでは 8 エントリ返却（全種別）', () => {
+  it('空データでは 7 エントリ返却（prevYear なし）', () => {
     const overview = buildDataOverview(createEmptyImportedData())
-    expect(overview).toHaveLength(8)
+    expect(overview).toHaveLength(7)
     for (const entry of overview) {
       expect(entry.storeCount).toBe(0)
       expect(entry.totalRecords).toBe(0)
@@ -454,7 +452,7 @@ describe('buildDataOverview', () => {
     expect(salesEntry?.storeCount).toBe(1)
   })
 
-  it('全ラベルが含まれる', () => {
+  it('全ラベルが含まれる（prevYear なし）', () => {
     const overview = buildDataOverview(createEmptyImportedData())
     const labels = overview.map((e) => e.label)
     expect(labels).toContain('仕入')
@@ -464,6 +462,13 @@ describe('buildDataOverview', () => {
     expect(labels).toContain('店間入')
     expect(labels).toContain('店間出')
     expect(labels).toContain('消耗品')
+    expect(labels).not.toContain('前年分類別売上')
+  })
+
+  it('prevYear 付きで前年ラベルが含まれる', () => {
+    const data = createEmptyImportedData()
+    const overview = buildDataOverview(data, data)
+    const labels = overview.map((e) => e.label)
     expect(labels).toContain('前年分類別売上')
   })
 })
