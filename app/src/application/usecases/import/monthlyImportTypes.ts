@@ -8,7 +8,8 @@
 import type { MonthlyData } from '@/domain/models/MonthlyData'
 import type { DiffResult } from '@/domain/models/analysis'
 import type { ImportSummary, MonthPartitions } from './FileImportService'
-import type { ImportSideEffects } from './ImportOrchestrator'
+import type { DataType } from '@/domain/models/storeTypes'
+import type { DataRepository } from '@/domain/repositories'
 import type { ValidationMessage } from '@/domain/models/record'
 
 /** 月別 MonthlyData のバッチ（processDroppedFiles → 月分割後） */
@@ -47,5 +48,15 @@ export interface MonthlyResolveDiffResult {
   readonly validationMessages: readonly ValidationMessage[]
 }
 
-// Re-export for convenience
-export type { ImportSideEffects }
+/** Orchestrator が必要とする外部操作（副作用の注入点） */
+export interface ImportSideEffects {
+  readonly repo: DataRepository
+  readonly saveRawFile: (
+    year: number,
+    month: number,
+    dataType: DataType,
+    file: File | Blob,
+    filename?: string,
+    relativePath?: string,
+  ) => Promise<void>
+}

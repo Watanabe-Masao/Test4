@@ -1,46 +1,51 @@
 /**
- * 単月インポートオーケストレーション
+ * 単月インポートオーケストレーション（MonthlyData ベース）
  *
  * ImportOrchestrator から抽出。単月のインポート実行と差分解決を担う。
  */
-import type { AppSettings, ImportedData } from '@/domain/models/storeTypes'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
+import type { AppSettings } from '@/domain/models/storeTypes'
 import { detectDataMaxDay } from '@/application/services/dataDetection'
 import { calculateDiff } from '@/application/services/diffCalculator'
-import { validateImportedData, filterDataForMonth } from './FileImportService'
-import type { ImportSummary, MonthPartitions } from './FileImportService'
-import { buildMonthData, mergeInsertsOnly } from './importDataMerge'
-import type { ImportResult, ResolveDiffResult, ImportSideEffects } from './ImportOrchestrator'
+import { validateImportedData } from './FileImportService'
+import type { ImportSummary } from './FileImportService'
+import { mergeMonthlyData, mergeMonthlyInsertsOnly } from './monthlyDataMerge'
+import type { MonthPartitions } from './FileImportService'
+import type {
+  MonthlyImportResult,
+  MonthlyPendingDiffCheck,
+  MonthlyResolveDiffResult,
+  ImportSideEffects,
+} from './monthlyImportTypes'
 import { saveSummaryCache, saveImportHistory } from './importHelpers'
-import { toMonthlyData, toLegacyImportedData } from '@/domain/models/monthlyDataAdapter'
 
 export async function orchestrateSingleMonth(
-  processedData: ImportedData,
+  incomingMonth: MonthlyData,
   monthPartitions: MonthPartitions,
   settings: AppSettings,
   importedTypes: ReadonlySet<string>,
   summary: ImportSummary,
   effects: ImportSideEffects,
   detectedYearMonth: { year: number; month: number } | null,
-): Promise<ImportResult> {
+): Promise<MonthlyImportResult> {
   const { repo } = effects
   const { targetYear, targetMonth } = settings
-
-  let targetData = filterDataForMonth(processedData, targetYear, targetMonth, monthPartitions)
 
   if (repo.isAvailable()) {
     try {
       const existingMonthly = await repo.loadMonthlyData(targetYear, targetMonth)
       if (existingMonthly) {
-        const existing = toLegacyImportedData({ current: existingMonthly, prevYear: null })
-        const diff = calculateDiff(existing, targetData, importedTypes)
+        const diff = calculateDiff(existingMonthly, incomingMonth, importedTypes)
         if (diff.needsConfirmation) {
+          const mk = `${targetYear}-${targetMonth}`
           return {
             summary,
             finalData: null,
             pendingDiff: {
               diffResult: diff,
-              incomingData: targetData,
-              existingData: existing,
+              incomingByMonth: new Map([[mk, incomingMonth]]),
+              existingByMonth: new Map([[mk, existingMonthly]]),
+              primaryMonthKey: mk,
               importedTypes,
               summary,
               monthPartitions,
@@ -50,23 +55,35 @@ export async function orchestrateSingleMonth(
             detectedYearMonth,
           }
         }
-        targetData = buildMonthData(existing, targetData, 'overwrite')
+        // diff 不要 → merge
+        const merged = mergeMonthlyData(existingMonthly, incomingMonth, 'overwrite')
+        return finalizeSingleMonth(merged, summary, effects, detectedYearMonth)
       }
     } catch {
       // ストレージエラーは無視
     }
   }
 
-  const messages = validateImportedData(targetData, summary)
-  const detectedMaxDay = detectDataMaxDay(targetData)
+  // 既存なし → incoming をそのまま使用
+  return finalizeSingleMonth(incomingMonth, summary, effects, detectedYearMonth)
+}
 
-  const origin = { year: targetYear, month: targetMonth, importedAt: new Date().toISOString() }
-  const monthly = toMonthlyData(targetData, origin)
+/** 単月の最終処理（validation + save + return） */
+async function finalizeSingleMonth(
+  monthly: MonthlyData,
+  summary: ImportSummary,
+  effects: ImportSideEffects,
+  detectedYearMonth: { year: number; month: number } | null,
+): Promise<MonthlyImportResult> {
+  const { repo } = effects
+  const { year, month } = monthly.origin
+  const messages = validateImportedData(monthly, summary)
+  const detectedMaxDay = detectDataMaxDay(monthly)
 
   if (repo.isAvailable()) {
-    await repo.saveMonthlyData(monthly, targetYear, targetMonth)
-    saveSummaryCache(monthly, targetYear, targetMonth, repo)
-    saveImportHistory(summary, targetYear, targetMonth, repo)
+    await repo.saveMonthlyData(monthly, year, month)
+    saveSummaryCache(monthly, year, month, repo)
+    saveImportHistory(summary, year, month, repo)
   }
 
   return {
@@ -80,36 +97,31 @@ export async function orchestrateSingleMonth(
 }
 
 export async function resolveSingleMonthDiff(
-  incomingData: ImportedData,
-  existingData: ImportedData,
-  importedTypes: ReadonlySet<string>,
+  pending: MonthlyPendingDiffCheck,
   action: 'overwrite' | 'keep-existing',
   settings: AppSettings,
-  summary: ImportSummary,
   effects: ImportSideEffects,
-): Promise<ResolveDiffResult> {
+): Promise<MonthlyResolveDiffResult> {
   const { repo } = effects
-
-  let finalData: ImportedData
-  if (action === 'overwrite') {
-    finalData = buildMonthData(existingData, incomingData, 'overwrite')
-  } else {
-    finalData = mergeInsertsOnly(existingData, incomingData, importedTypes)
-  }
-
   const { targetYear, targetMonth } = settings
-  const origin = { year: targetYear, month: targetMonth, importedAt: new Date().toISOString() }
-  const monthly = toMonthlyData(finalData, origin)
+  const mk = `${targetYear}-${targetMonth}`
+  const incoming = pending.incomingByMonth.get(mk)!
+  const existing = pending.existingByMonth.get(mk)!
+
+  const finalData =
+    action === 'overwrite'
+      ? mergeMonthlyData(existing, incoming, 'overwrite')
+      : mergeMonthlyInsertsOnly(existing, incoming, pending.importedTypes)
 
   if (repo.isAvailable()) {
-    await repo.saveMonthlyData(monthly, targetYear, targetMonth)
-    saveSummaryCache(monthly, targetYear, targetMonth, repo)
-    saveImportHistory(summary, targetYear, targetMonth, repo)
+    await repo.saveMonthlyData(finalData, targetYear, targetMonth)
+    saveSummaryCache(finalData, targetYear, targetMonth, repo)
+    saveImportHistory(pending.summary, targetYear, targetMonth, repo)
   }
 
   return {
-    finalData: monthly,
+    finalData,
     detectedMaxDay: detectDataMaxDay(finalData),
-    validationMessages: validateImportedData(finalData, summary),
+    validationMessages: validateImportedData(finalData, pending.summary),
   }
 }

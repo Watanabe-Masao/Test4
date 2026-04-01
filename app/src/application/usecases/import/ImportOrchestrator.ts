@@ -2,61 +2,26 @@
  * ImportOrchestrator — インポートのビジネスロジック（ファサード）
  *
  * 単月処理は singleMonthImport.ts、複数月処理は multiMonthImport.ts に委譲。
+ * processDroppedFiles の結果を MonthlyImportBatch に変換してから内部に渡す。
  */
-import type { DiffResult } from '@/domain/models/analysis'
 import type { AppSettings, DataType, ImportedData } from '@/domain/models/storeTypes'
-import type { MonthlyData } from '@/domain/models/MonthlyData'
-import { processDroppedFiles, validateImportedData, extractRecordMonths } from './FileImportService'
-import type { ImportSummary, MonthPartitions, ProgressCallback } from './FileImportService'
-import type { DataRepository } from '@/domain/repositories'
+import { processDroppedFiles } from './FileImportService'
+import type { ProgressCallback } from './FileImportService'
+import { toMonthlyImportBatch } from './monthlyBatchAdapter'
 import { orchestrateSingleMonth, resolveSingleMonthDiff } from './singleMonthImport'
 import { orchestrateMultiMonth, resolveMultiMonthDiff } from './multiMonthImport'
+import type {
+  MonthlyImportResult,
+  MonthlyPendingDiffCheck,
+  MonthlyResolveDiffResult,
+  ImportSideEffects,
+} from './monthlyImportTypes'
 
-// ─── 型定義 ──────────────────────────────────────────────
-
-/** 差分確認の保留情報（React非依存） */
-export interface PendingDiffCheck {
-  readonly diffResult: DiffResult
-  readonly incomingData: ImportedData
-  readonly existingData: ImportedData
-  readonly importedTypes: ReadonlySet<string>
-  readonly summary: ImportSummary
-  readonly monthPartitions: MonthPartitions
-  readonly multiMonth?: {
-    readonly months: readonly { year: number; month: number }[]
-    readonly existingByMonth: ReadonlyMap<string, ImportedData>
-  }
-}
-
-/** importFiles の結果 */
-export interface ImportResult {
-  readonly summary: ImportSummary
-  readonly finalData: MonthlyData | null
-  readonly pendingDiff: PendingDiffCheck | null
-  readonly detectedMaxDay: number
-  readonly validationMessages: ReturnType<typeof validateImportedData> | null
-  readonly detectedYearMonth: { year: number; month: number } | null
-}
-
-/** resolveDiff の結果 */
-export interface ResolveDiffResult {
-  readonly finalData: MonthlyData
-  readonly detectedMaxDay: number
-  readonly validationMessages: ReturnType<typeof validateImportedData>
-}
-
-/** Orchestrator が必要とする外部操作（副作用の注入点） */
-export interface ImportSideEffects {
-  readonly repo: DataRepository
-  readonly saveRawFile: (
-    year: number,
-    month: number,
-    dataType: DataType,
-    file: File | Blob,
-    filename?: string,
-    relativePath?: string,
-  ) => Promise<void>
-}
+// ─── Re-export 型（useImport 等の消費者向け） ──────────
+export type { MonthlyImportResult as ImportResult } from './monthlyImportTypes'
+export type { MonthlyResolveDiffResult as ResolveDiffResult } from './monthlyImportTypes'
+export type { MonthlyPendingDiffCheck as PendingDiffCheck } from './monthlyImportTypes'
+export type { ImportSideEffects } from './monthlyImportTypes'
 
 // ─── ImportOrchestrator ──────────────────────────────────
 
@@ -70,7 +35,7 @@ export async function orchestrateImport(
   effects: ImportSideEffects,
   onProgress?: ProgressCallback,
   overrideType?: DataType,
-): Promise<ImportResult> {
+): Promise<MonthlyImportResult> {
   const {
     summary,
     data: processedData,
@@ -121,31 +86,37 @@ export async function orchestrateImport(
           result.filename,
           result.relativePath,
         )
-        .catch((e) => {
+        .catch((e: unknown) => {
           console.warn('[ImportOrchestrator] saveRawFile failed:', e)
         })
     }
   }
 
-  // 複数月にまたがるデータかチェック
-  const recordMonths = extractRecordMonths(processedData, monthPartitions)
-  const isMultiMonth = recordMonths.length > 1
+  // processDroppedFiles の結果を月別 MonthlyData に変換
+  const batch = toMonthlyImportBatch(
+    processedData,
+    monthPartitions,
+    summary,
+    detectedYearMonth ?? null,
+  )
+  const isMultiMonth = batch.months.size > 1
 
   if (isMultiMonth) {
     return orchestrateMultiMonth(
-      processedData,
-      recordMonths,
-      monthPartitions,
+      batch,
       effectiveSettings,
       importedTypes,
-      summary,
       effects,
       detectedYearMonth ?? null,
     )
   }
 
+  // 単月: batch から当月の MonthlyData を取得（successCount > 0 なので必ず存在）
+  const targetKey = `${effectiveSettings.targetYear}-${effectiveSettings.targetMonth}`
+  const incomingMonth = batch.months.get(targetKey) ?? [...batch.months.values()][0]!
+
   return orchestrateSingleMonth(
-    processedData,
+    incomingMonth,
     monthPartitions,
     effectiveSettings,
     importedTypes,
@@ -159,33 +130,14 @@ export async function orchestrateImport(
  * 差分確認結果を適用し、最終データを返す。
  */
 export async function resolveImportDiff(
-  pending: PendingDiffCheck,
+  pending: MonthlyPendingDiffCheck,
   action: 'overwrite' | 'keep-existing',
   settings: AppSettings,
   effects: ImportSideEffects,
-): Promise<ResolveDiffResult> {
-  const { incomingData, existingData, importedTypes, summary, monthPartitions, multiMonth } =
-    pending
-
-  if (multiMonth) {
-    return resolveMultiMonthDiff(
-      incomingData,
-      multiMonth,
-      monthPartitions,
-      action,
-      settings,
-      summary,
-      effects,
-    )
+): Promise<MonthlyResolveDiffResult> {
+  if (pending.incomingByMonth.size > 1) {
+    return resolveMultiMonthDiff(pending, action, settings, effects)
   }
 
-  return resolveSingleMonthDiff(
-    incomingData,
-    existingData,
-    importedTypes,
-    action,
-    settings,
-    summary,
-    effects,
-  )
+  return resolveSingleMonthDiff(pending, action, settings, effects)
 }
