@@ -1,6 +1,6 @@
 # Architecture State Snapshot
 
-> Generated: 2026-04-01T20:56:27.540Z
+> Generated: 2026-04-01T21:01:24.960Z
 
 ## Allowlist Summary
 
@@ -47,6 +47,7 @@
 - application/hooks/duckdb/useStoreDailyMarkupRateQuery.ts
 - application/hooks/duckdb/useSummaryQueries.ts
 - application/hooks/duckdb/useYoyQueries.ts
+- application/hooks/useAnalysisInput.ts
 - application/hooks/useAnalyticsResolver.ts
 - application/hooks/useAppShortcuts.ts
 - application/hooks/useAutoBackup.ts
