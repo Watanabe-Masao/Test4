@@ -472,7 +472,11 @@ describe('calculateAllStores', () => {
   })
 
   it('空データでは空マップ', () => {
-    const results = calculateAllStores(createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }), DEFAULT_SETTINGS, 28)
+    const results = calculateAllStores(
+      createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
+      DEFAULT_SETTINGS,
+      28,
+    )
     expect(results.size).toBe(0)
   })
 })

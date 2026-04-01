@@ -174,15 +174,15 @@ describe('computeFingerprint', () => {
   })
 
   it('前年分類別売上データ追加でフィンガープリントが変わる', () => {
-    const data1 = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
-    const data2 = {
-      ...data1,
-      prevYearClassifiedSales: {
+    const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
+    const prevYear = {
+      ...createEmptyMonthlyData({ year: 2024, month: 1, importedAt: '' }),
+      classifiedSales: {
         records: [makeCSRecord(1, 's1', 50000)],
       },
     }
-    const fp1 = computeFingerprint('s1', data1, mockSettings, 31)
-    const fp2 = computeFingerprint('s1', data2, mockSettings, 31)
+    const fp1 = computeFingerprint('s1', data, mockSettings, 31)
+    const fp2 = computeFingerprint('s1', data, mockSettings, 31, prevYear)
     expect(fp1).not.toBe(fp2)
   })
 })

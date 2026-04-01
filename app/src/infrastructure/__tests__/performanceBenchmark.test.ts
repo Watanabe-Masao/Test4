@@ -8,6 +8,7 @@
 import { describe, it, expect } from 'vitest'
 import { processFileData } from '../ImportService'
 import { createEmptyImportedData } from '@/domain/models/storeTypes'
+import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
 import { calculateAllStores } from '@/application/usecases/calculation'
 import { createDefaultSettings, getDaysInMonth } from '@/domain/constants/defaults'
 
@@ -171,9 +172,29 @@ describe('Performance Benchmark', () => {
 
     expect(data.stores.size).toBe(storeCount)
 
-    // Step 3: Calculate all stores
+    // Step 3: Calculate all stores (convert ImportedData → MonthlyData)
+    const monthlyData = {
+      ...createEmptyMonthlyData({
+        year: DEFAULT_SETTINGS.targetYear,
+        month: DEFAULT_SETTINGS.targetMonth,
+        importedAt: '',
+      }),
+      stores: data.stores,
+      suppliers: data.suppliers,
+      purchase: data.purchase,
+      classifiedSales: data.classifiedSales,
+      interStoreIn: data.interStoreIn,
+      interStoreOut: data.interStoreOut,
+      flowers: data.flowers,
+      directProduce: data.directProduce,
+      consumables: data.consumables,
+      categoryTimeSales: data.categoryTimeSales,
+      departmentKpi: data.departmentKpi,
+      settings: data.settings,
+      budget: data.budget,
+    }
     const calcStart = performance.now()
-    const results = calculateAllStores(data, DEFAULT_SETTINGS, DAYS_IN_MONTH)
+    const results = calculateAllStores(monthlyData, DEFAULT_SETTINGS, DAYS_IN_MONTH)
     const calcElapsed = performance.now() - calcStart
 
     expect(results.size).toBe(storeCount)

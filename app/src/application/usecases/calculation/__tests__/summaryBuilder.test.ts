@@ -5,8 +5,8 @@ import {
   computeSummaryFingerprint,
 } from '../summaryBuilder'
 import { buildDailyRecords } from '../dailyBuilder'
-import { createEmptyImportedData } from '@/domain/models/storeTypes'
-import type { ImportedData } from '@/domain/models/storeTypes'
+import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
 
 // ─── テストヘルパー ──────────────────────────────────────
 
@@ -37,9 +37,9 @@ function makeCSRecord(
   }
 }
 
-function buildTestData(overrides: Partial<ImportedData> = {}): ImportedData {
+function buildTestData(overrides: Partial<MonthlyData> = {}): MonthlyData {
   return {
-    ...createEmptyImportedData(),
+    ...createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
     stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
     ...overrides,
   }
