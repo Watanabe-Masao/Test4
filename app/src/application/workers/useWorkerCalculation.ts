@@ -70,7 +70,7 @@ export function useWorkerCalculation(): WorkerCalculationResult {
     ): Promise<WorkerCalculateResult> => {
       if (!worker) {
         // フォールバック: 同期計算 + cacheKey 生成
-        const cacheKey = computeCacheKey(dataVersion, settings, frame.daysInMonth)
+        const cacheKey = computeCacheKey(dataVersion, settings, frame)
         if (lastCacheKey && cacheKey === lastCacheKey) {
           return Promise.resolve({ cacheHit: true as const, cacheKey })
         }

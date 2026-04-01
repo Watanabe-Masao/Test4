@@ -66,7 +66,7 @@ self.onmessage = (event: MessageEvent<WorkerRequest>) => {
       const { data, dataVersion, settings, frame, requestId, lastCacheKey } = event.data
 
       // Worker 内で軽量キャッシュキーを生成（O(1) — filter/serialize なし）
-      const cacheKey = computeCacheKey(dataVersion, settings, frame.daysInMonth)
+      const cacheKey = computeCacheKey(dataVersion, settings, frame)
 
       // メインスレッドから渡されたキャッシュキーと一致すればキャッシュヒット
       if (lastCacheKey && cacheKey === lastCacheKey) {

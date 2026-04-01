@@ -46,7 +46,7 @@ export function useCalculation() {
     }
 
     // cacheKey ベースの O(1) キャッシュチェック
-    const cacheKey = computeCacheKey(dataVersion, currentSettings, currentFrame.daysInMonth)
+    const cacheKey = computeCacheKey(dataVersion, currentSettings, currentFrame)
     const cached = calculationCache.getGlobalResultByCacheKey(cacheKey)
     if (cached) {
       useDataStore.getState().setStoreResults(cached)

@@ -5,6 +5,15 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { CalculationCache, computeFingerprint, computeGlobalFingerprint } from '../calculationCache'
 import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
 import type { AppSettings, StoreResult } from '@/domain/models/storeTypes'
+import type { CalculationFrame } from '@/domain/models/CalculationFrame'
+
+const testFrame = (daysInMonth = 31): CalculationFrame => ({
+  targetYear: 2024,
+  targetMonth: 1,
+  daysInMonth,
+  dataEndDay: null,
+  effectiveDays: daysInMonth,
+})
 
 const mockSettings: AppSettings = {
   targetYear: 2024,
@@ -58,29 +67,34 @@ function makeCSRecord(day: number, storeId: string, salesAmount: number, discoun
 describe('computeFingerprint', () => {
   it('同じ入力に対して同じフィンガープリントを返す', () => {
     const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
-    const fp1 = computeFingerprint('s1', data, mockSettings, 31)
-    const fp2 = computeFingerprint('s1', data, mockSettings, 31)
+    const fp1 = computeFingerprint('s1', data, mockSettings, testFrame())
+    const fp2 = computeFingerprint('s1', data, mockSettings, testFrame())
     expect(fp1).toBe(fp2)
   })
 
   it('異なる店舗IDで異なるフィンガープリントを返す', () => {
     const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
-    const fp1 = computeFingerprint('s1', data, mockSettings, 31)
-    const fp2 = computeFingerprint('s2', data, mockSettings, 31)
+    const fp1 = computeFingerprint('s1', data, mockSettings, testFrame())
+    const fp2 = computeFingerprint('s2', data, mockSettings, testFrame())
     expect(fp1).not.toBe(fp2)
   })
 
   it('設定変更でフィンガープリントが変わる', () => {
     const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
-    const fp1 = computeFingerprint('s1', data, mockSettings, 31)
-    const fp2 = computeFingerprint('s1', data, { ...mockSettings, defaultMarkupRate: 0.5 }, 31)
+    const fp1 = computeFingerprint('s1', data, mockSettings, testFrame())
+    const fp2 = computeFingerprint(
+      's1',
+      data,
+      { ...mockSettings, defaultMarkupRate: 0.5 },
+      testFrame(),
+    )
     expect(fp1).not.toBe(fp2)
   })
 
   it('月の日数変更でフィンガープリントが変わる', () => {
     const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
-    const fp1 = computeFingerprint('s1', data, mockSettings, 31)
-    const fp2 = computeFingerprint('s1', data, mockSettings, 28)
+    const fp1 = computeFingerprint('s1', data, mockSettings, testFrame())
+    const fp2 = computeFingerprint('s1', data, mockSettings, testFrame(28))
     expect(fp1).not.toBe(fp2)
   })
 
@@ -109,8 +123,8 @@ describe('computeFingerprint', () => {
         ],
       },
     }
-    const fp1 = computeFingerprint('s1', data1, mockSettings, 31)
-    const fp2 = computeFingerprint('s1', data2, mockSettings, 31)
+    const fp1 = computeFingerprint('s1', data1, mockSettings, testFrame())
+    const fp2 = computeFingerprint('s1', data2, mockSettings, testFrame())
     expect(fp1).not.toBe(fp2)
   })
 
@@ -122,8 +136,8 @@ describe('computeFingerprint', () => {
         records: [{ year: 2024, month: 1, day: 1, storeId: 's1', cost: 1000, price: 1200 }],
       },
     }
-    const fp1 = computeFingerprint('s1', data1, mockSettings, 31)
-    const fp2 = computeFingerprint('s1', data2, mockSettings, 31)
+    const fp1 = computeFingerprint('s1', data1, mockSettings, testFrame())
+    const fp2 = computeFingerprint('s1', data2, mockSettings, testFrame())
     expect(fp1).not.toBe(fp2)
   })
 
@@ -155,8 +169,8 @@ describe('computeFingerprint', () => {
         ],
       },
     }
-    const fp1 = computeFingerprint('s1', data1, mockSettings, 31)
-    const fp2 = computeFingerprint('s1', data2, mockSettings, 31)
+    const fp1 = computeFingerprint('s1', data1, mockSettings, testFrame())
+    const fp2 = computeFingerprint('s1', data2, mockSettings, testFrame())
     expect(fp1).not.toBe(fp2)
   })
 
@@ -168,8 +182,8 @@ describe('computeFingerprint', () => {
         records: [makeCSRecord(1, 's1', 10000, 500)],
       },
     }
-    const fp1 = computeFingerprint('s1', data1, mockSettings, 31)
-    const fp2 = computeFingerprint('s1', data2, mockSettings, 31)
+    const fp1 = computeFingerprint('s1', data1, mockSettings, testFrame())
+    const fp2 = computeFingerprint('s1', data2, mockSettings, testFrame())
     expect(fp1).not.toBe(fp2)
   })
 
@@ -181,8 +195,8 @@ describe('computeFingerprint', () => {
         records: [makeCSRecord(1, 's1', 50000)],
       },
     }
-    const fp1 = computeFingerprint('s1', data, mockSettings, 31)
-    const fp2 = computeFingerprint('s1', data, mockSettings, 31, prevYear)
+    const fp1 = computeFingerprint('s1', data, mockSettings, testFrame())
+    const fp2 = computeFingerprint('s1', data, mockSettings, testFrame(), prevYear)
     expect(fp1).not.toBe(fp2)
   })
 })
@@ -190,8 +204,8 @@ describe('computeFingerprint', () => {
 describe('computeGlobalFingerprint', () => {
   it('店舗なしデータで一貫したフィンガープリントを返す', () => {
     const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
-    const fp1 = computeGlobalFingerprint(data, mockSettings, 31)
-    const fp2 = computeGlobalFingerprint(data, mockSettings, 31)
+    const fp1 = computeGlobalFingerprint(data, mockSettings, testFrame())
+    const fp2 = computeGlobalFingerprint(data, mockSettings, testFrame())
     expect(fp1).toBe(fp2)
   })
 
@@ -201,15 +215,15 @@ describe('computeGlobalFingerprint', () => {
       ...createEmptyMonthlyData({ year: 2024, month: 1, importedAt: '' }),
       classifiedSales: { records: [makeCSRecord(1, 's1', 30000)] },
     }
-    const fp1 = computeGlobalFingerprint(data, mockSettings, 31)
-    const fp2 = computeGlobalFingerprint(data, mockSettings, 31, prevYear)
+    const fp1 = computeGlobalFingerprint(data, mockSettings, testFrame())
+    const fp2 = computeGlobalFingerprint(data, mockSettings, testFrame(), prevYear)
     expect(fp1).not.toBe(fp2)
   })
 
   it('prevYear=null と prevYear=undefined で同じ結果', () => {
     const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
-    const fp1 = computeGlobalFingerprint(data, mockSettings, 31, null)
-    const fp2 = computeGlobalFingerprint(data, mockSettings, 31, undefined)
+    const fp1 = computeGlobalFingerprint(data, mockSettings, testFrame(), null)
+    const fp2 = computeGlobalFingerprint(data, mockSettings, testFrame(), undefined)
     expect(fp1).toBe(fp2)
   })
 })
@@ -230,10 +244,10 @@ describe('CalculationCache', () => {
     const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
     const result = makeStoreResult('s1')
 
-    cache.setStoreResult('s1', data, mockSettings, 31, result)
+    cache.setStoreResult('s1', data, mockSettings, testFrame(), result)
     expect(cache.size).toBe(1)
 
-    const cached = cache.getStoreResult('s1', data, mockSettings, 31)
+    const cached = cache.getStoreResult('s1', data, mockSettings, testFrame())
     expect(cached).toBe(result)
   })
 
@@ -241,9 +255,14 @@ describe('CalculationCache', () => {
     const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
     const result = makeStoreResult('s1')
 
-    cache.setStoreResult('s1', data, mockSettings, 31, result)
+    cache.setStoreResult('s1', data, mockSettings, testFrame(), result)
 
-    const cached = cache.getStoreResult('s1', data, { ...mockSettings, defaultMarkupRate: 0.5 }, 31)
+    const cached = cache.getStoreResult(
+      's1',
+      data,
+      { ...mockSettings, defaultMarkupRate: 0.5 },
+      testFrame(),
+    )
     expect(cached).toBeNull()
   })
 
@@ -251,10 +270,10 @@ describe('CalculationCache', () => {
     const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
     const results = new Map([['s1', makeStoreResult('s1')]])
 
-    cache.setGlobalResult(data, mockSettings, 31, results)
+    cache.setGlobalResult(data, mockSettings, testFrame(), results)
     expect(cache.hasGlobalCache).toBe(true)
 
-    const cached = cache.getGlobalResult(data, mockSettings, 31)
+    const cached = cache.getGlobalResult(data, mockSettings, testFrame())
     expect(cached).toBe(results)
   })
 
@@ -262,16 +281,16 @@ describe('CalculationCache', () => {
     const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
     const results = new Map([['s1', makeStoreResult('s1')]])
 
-    cache.setGlobalResult(data, mockSettings, 31, results)
+    cache.setGlobalResult(data, mockSettings, testFrame(), results)
 
-    const cached = cache.getGlobalResult(data, { ...mockSettings, defaultBudget: 999 }, 31)
+    const cached = cache.getGlobalResult(data, { ...mockSettings, defaultBudget: 999 }, testFrame())
     expect(cached).toBeNull()
   })
 
   it('clear でキャッシュが空になる', () => {
     const data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
-    cache.setStoreResult('s1', data, mockSettings, 31, makeStoreResult('s1'))
-    cache.setGlobalResult(data, mockSettings, 31, new Map())
+    cache.setStoreResult('s1', data, mockSettings, testFrame(), makeStoreResult('s1'))
+    cache.setGlobalResult(data, mockSettings, testFrame(), new Map())
 
     cache.clear()
     expect(cache.size).toBe(0)
@@ -307,7 +326,7 @@ describe('CalculationCache', () => {
       ['s2', makeStoreResult('s2')],
     ])
 
-    cache.setGlobalResult(data, mockSettings, 31, results)
+    cache.setGlobalResult(data, mockSettings, testFrame(), results)
     expect(cache.size).toBe(2)
   })
 })
