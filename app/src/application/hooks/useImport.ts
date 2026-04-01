@@ -57,11 +57,7 @@ export function useImport() {
 
   /** インポート結果を state に反映する */
   const applyImportResult = useCallback(
-    (
-      finalData: MonthlyData,
-      maxDay: number,
-      messages: ReturnType<typeof validateImportedData>,
-    ) => {
+    (finalData: MonthlyData, maxDay: number, messages: ReturnType<typeof validateImportedData>) => {
       useDataStore.getState().setCurrentMonthData(finalData)
       invalidateAfterStateChange()
       applyDataEndDay(maxDay)
