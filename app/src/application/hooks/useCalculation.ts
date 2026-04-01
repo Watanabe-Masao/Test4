@@ -5,7 +5,7 @@ import { useSettingsStore } from '@/application/stores/settingsStore'
 import { calculateAllStores } from '@/application/usecases/calculation'
 import { calculationCache, computeCacheKey } from '../services/calculationCache'
 import { validateImportData, hasValidationErrors } from '@/application/usecases/import'
-import { getDaysInMonth } from '@/domain/constants/defaults'
+import { buildCalculationFrame } from '@/domain/models/CalculationFrame'
 import { useWorkerCalculation } from '@/application/workers'
 
 /** 計算実行フック（データ変更時に自動計算、Web Worker対応、キャッシュ付き） */
@@ -30,14 +30,13 @@ export function useCalculation() {
   // 計算エポック: 非同期結果の順序逆転を防止する
   const epochRef = useRef(0)
 
-  const daysInMonth = getDaysInMonth(settings.targetYear, settings.targetMonth)
+  const frame = buildCalculationFrame(settings)
 
   const calculate = useCallback(() => {
-    // 呼び出し時点の値をスナップショットとして取得
     const currentData = useDataStore.getState().currentMonthData
     if (!currentData) return false
     const currentSettings = settingsRef.current
-    const currentDays = getDaysInMonth(currentSettings.targetYear, currentSettings.targetMonth)
+    const currentFrame = buildCalculationFrame(currentSettings)
 
     const messages = validateImportData(currentData)
     useDataStore.getState().setValidationMessages(messages)
@@ -46,8 +45,8 @@ export function useCalculation() {
       return false
     }
 
-    // cacheKey ベースの O(1) キャッシュチェック（dataVersion はクロージャから直接参照）
-    const cacheKey = computeCacheKey(dataVersion, currentSettings, currentDays)
+    // cacheKey ベースの O(1) キャッシュチェック
+    const cacheKey = computeCacheKey(dataVersion, currentSettings, currentFrame)
     const cached = calculationCache.getGlobalResultByCacheKey(cacheKey)
     if (cached) {
       useDataStore.getState().setStoreResults(cached)
@@ -56,16 +55,13 @@ export function useCalculation() {
     }
 
     if (useWorker && isWorkerAvailable) {
-      // Web Worker 非同期計算
       const thisEpoch = ++epochRef.current
       const lastCacheKey = calculationCache.currentGlobalCacheKey ?? undefined
-      calculateAsync(currentData, dataVersion, currentSettings, currentDays, lastCacheKey)
+      calculateAsync(currentData, dataVersion, currentSettings, currentFrame, lastCacheKey)
         .then((result) => {
-          // エポックが一致しない場合は、より新しい計算が開始されているので結果を破棄
           if (epochRef.current !== thisEpoch) return
 
           if ('cacheHit' in result) {
-            // Worker がキャッシュヒットを検出: ローカルキャッシュから取得
             const localCached = calculationCache.getGlobalResultByCacheKey(result.cacheKey)
             if (localCached) {
               useDataStore.getState().setStoreResults(localCached)
@@ -74,15 +70,13 @@ export function useCalculation() {
             return
           }
 
-          // 新規計算結果: cacheKey 付きでキャッシュ
           calculationCache.setGlobalResultWithCacheKey(result.cacheKey, result.results)
           useDataStore.getState().setStoreResults(result.results)
           useUiStore.getState().setCalculated(true)
         })
         .catch(() => {
           if (epochRef.current !== thisEpoch) return
-          // Worker失敗時はフォールバック（スナップショット値を使用）
-          const results = calculateAllStores(currentData, currentSettings, currentDays)
+          const results = calculateAllStores(currentData, currentSettings, currentFrame)
           calculationCache.setGlobalResultWithCacheKey(cacheKey, results)
           useDataStore.getState().setStoreResults(results)
           useUiStore.getState().setCalculated(true)
@@ -91,7 +85,7 @@ export function useCalculation() {
     }
 
     // 同期フォールバック
-    const results = calculateAllStores(currentData, currentSettings, currentDays)
+    const results = calculateAllStores(currentData, currentSettings, currentFrame)
     calculationCache.setGlobalResultWithCacheKey(cacheKey, results)
     useDataStore.getState().setStoreResults(results)
     useUiStore.getState().setCalculated(true)
@@ -99,7 +93,6 @@ export function useCalculation() {
   }, [dataVersion, useWorker, isWorkerAvailable, calculateAsync])
 
   // データ変更時・設定変更時に自動計算
-  // dataVersion / settings を依存に含め、変更時に再計算を起動する
   useEffect(() => {
     if (!canCalculate || isImporting || isCalculated) return
     calculate()
@@ -110,7 +103,7 @@ export function useCalculation() {
     canCalculate,
     isCalculated,
     storeResults,
-    daysInMonth,
+    daysInMonth: frame.daysInMonth,
     isComputing,
     isWorkerAvailable,
     setUseWorker,

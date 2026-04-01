@@ -1,12 +1,12 @@
 # Architecture State Snapshot
 
-> Generated: 2026-04-01T19:11:18.988Z
+> Generated: 2026-04-01T21:59:21.877Z
 
 ## Allowlist Summary
 
 | 指標 | 値 |
 |---|---|
-| 総エントリ数 | 48 |
+| 総エントリ数 | 49 |
 | アクティブリスト数 | 14 |
 | 凍結リスト数 | 7 |
 | .vm.ts ファイル数 | 28 |
@@ -17,7 +17,7 @@
 | カテゴリ | 件数 |
 |---|---|
 | structural | 36 |
-| adapter | 10 |
+| adapter | 11 |
 | lifecycle | 2 |
 
 
@@ -47,6 +47,7 @@
 - application/hooks/duckdb/useStoreDailyMarkupRateQuery.ts
 - application/hooks/duckdb/useSummaryQueries.ts
 - application/hooks/duckdb/useYoyQueries.ts
+- application/hooks/useAnalysisInput.ts
 - application/hooks/useAnalyticsResolver.ts
 - application/hooks/useAppShortcuts.ts
 - application/hooks/useAutoBackup.ts
@@ -65,6 +66,7 @@
 - application/hooks/useExplanation.ts
 - application/hooks/useFactorDecomposition.ts
 - application/hooks/useFilterSelectors.ts
+- application/hooks/useFreePeriodAnalysis.ts
 - application/hooks/useGeocode.ts
 - application/hooks/useHierarchySelection.ts
 - application/hooks/useImport.ts
@@ -142,7 +144,7 @@
 
 | リスト名 | 件数 | カテゴリ内訳 |
 |---|---|---|
-| applicationToInfrastructure | 12 | adapter:10, lifecycle:2 |
+| applicationToInfrastructure | 13 | adapter:11, lifecycle:2 |
 | presentationMemoLimits | 8 | structural:8 |
 | domainLargeFiles | 7 | structural:7 |
 | presentationStateLimits | 4 | structural:4 |

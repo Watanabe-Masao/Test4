@@ -3,6 +3,7 @@ import { renderHook, act, waitFor } from '@testing-library/react'
 import { useWorkerCalculation, type WorkerCalculateResult } from '../useWorkerCalculation'
 import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
 import type { AppSettings } from '@/domain/models/storeTypes'
+import type { CalculationFrame } from '@/domain/models/CalculationFrame'
 
 // Worker モック
 let mockWorkerInstance: {
@@ -75,6 +76,14 @@ const mockSettings: AppSettings = {
   storeLocations: {},
 }
 
+const testFrame: CalculationFrame = {
+  targetYear: 2025,
+  targetMonth: 1,
+  daysInMonth: 31,
+  dataEndDay: null,
+  effectiveDays: 31,
+}
+
 describe('useWorkerCalculation', () => {
   it('Worker が初期化される', () => {
     renderHook(() => useWorkerCalculation())
@@ -100,7 +109,7 @@ describe('useWorkerCalculation', () => {
 
     // 非同期計算を開始 (resolve しないので await しない)
     act(() => {
-      result.current.calculateAsync(data, 1, mockSettings, 31)
+      result.current.calculateAsync(data, 1, mockSettings, testFrame)
     })
 
     expect(mockWorkerInstance.postMessage).toHaveBeenCalledWith({
@@ -108,8 +117,9 @@ describe('useWorkerCalculation', () => {
       data,
       dataVersion: 1,
       settings: mockSettings,
-      daysInMonth: 31,
+      frame: testFrame,
       requestId: expect.any(Number),
+      lastCacheKey: undefined,
     })
   })
 
@@ -124,7 +134,7 @@ describe('useWorkerCalculation', () => {
     let resolvedResult: WorkerCalculateResult | undefined
 
     await act(async () => {
-      const promise = result.current.calculateAsync(data, 1, mockSettings, 31)
+      const promise = result.current.calculateAsync(data, 1, mockSettings, testFrame)
 
       // postMessage で送信された requestId を取得
       const sentMsg = mockWorkerInstance.postMessage.mock.calls[0][0]
@@ -163,7 +173,7 @@ describe('useWorkerCalculation', () => {
     })
 
     await act(async () => {
-      const promise = result.current.calculateAsync(data, 1, mockSettings, 31)
+      const promise = result.current.calculateAsync(data, 1, mockSettings, testFrame)
 
       // postMessage で送信された requestId を取得
       const sentMsg = mockWorkerInstance.postMessage.mock.calls[0][0]

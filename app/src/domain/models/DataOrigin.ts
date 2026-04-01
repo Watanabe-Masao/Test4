@@ -16,6 +16,8 @@ export interface DataOrigin {
   readonly importedAt: string
   /** 元ファイル名（任意） */
   readonly sourceFile?: string
+  /** 取得元の種別（分析入力の来歴追跡用） */
+  readonly sourceType?: 'import' | 'restore' | 'autoLoad'
 }
 
 /**

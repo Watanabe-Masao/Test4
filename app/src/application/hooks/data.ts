@@ -19,6 +19,10 @@ export { useAutoImport } from './useAutoImport'
 export type { AutoImportState, AutoImportActions } from './useAutoImport'
 export { useDeviceSync } from './useDeviceSync'
 export type { SettingsCodeResult, SettingsImportResult } from './useDeviceSync'
+export { useAnalysisInput } from './useAnalysisInput'
+export type { AnalysisInput } from './useAnalysisInput'
+export { useComparisonInput } from './useComparisonInput'
+export type { ComparisonInput } from './useComparisonInput'
 export {
   useRawDailySummary,
   useRawDailyRecords,

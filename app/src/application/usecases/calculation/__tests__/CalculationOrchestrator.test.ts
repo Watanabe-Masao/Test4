@@ -7,8 +7,17 @@ import {
 import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
 import type { MonthlyData } from '@/domain/models/MonthlyData'
 import { createDefaultSettings } from '@/domain/constants/defaults'
+import type { CalculationFrame } from '@/domain/models/CalculationFrame'
 
 const DEFAULT_SETTINGS = createDefaultSettings()
+
+const testFrame = (daysInMonth = 31, dataEndDay: number | null = null): CalculationFrame => ({
+  targetYear: 2025,
+  targetMonth: 1,
+  daysInMonth,
+  dataEndDay,
+  effectiveDays: dataEndDay != null ? Math.min(dataEndDay, daysInMonth) : daysInMonth,
+})
 
 function makeCSRecord(
   day: number,
@@ -67,7 +76,7 @@ describe('calculateStoreResult', () => {
       },
     })
 
-    const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, 28)
+    const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, testFrame(28))
 
     expect(result.totalSales).toBe(15000)
     expect(result.totalCost).toBe(10000)
@@ -111,7 +120,7 @@ describe('calculateStoreResult', () => {
       ]),
     })
 
-    const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, 28)
+    const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, testFrame(28))
 
     // COGS = 100000 + 50000 - 120000 = 30000
     expect(result.invMethodCogs).toBe(30000)
@@ -140,7 +149,7 @@ describe('calculateStoreResult', () => {
       },
     })
 
-    const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, 28)
+    const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, testFrame(28))
 
     expect(result.invMethodCogs).toBeNull()
     expect(result.invMethodGrossProfit).toBeNull()
@@ -154,7 +163,7 @@ describe('calculateStoreResult', () => {
       },
     })
 
-    const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, 28)
+    const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, testFrame(28))
 
     expect(result.flowerSalesPrice).toBe(10000)
     expect(result.deliverySalesPrice).toBe(10000)
@@ -185,7 +194,7 @@ describe('calculateStoreResult', () => {
       },
     })
 
-    const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, 28)
+    const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, testFrame(28))
 
     // 売上納品原価 = 花(8000) + 産直(4250) = 12250
     expect(result.deliverySalesCost).toBe(12250)
@@ -230,7 +239,7 @@ describe('calculateStoreResult', () => {
       ]),
     })
 
-    const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, 28)
+    const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, testFrame(28))
 
     // 総仕入原価 = 仕入原価(30000) + 花原価(8000) = 38000
     expect(result.totalCost).toBe(38000)
@@ -263,7 +272,7 @@ describe('calculateStoreResult', () => {
       },
     })
 
-    const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, 28)
+    const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, testFrame(28))
 
     // コア値入率 = (40000 - 30000) / 40000 = 0.25
     expect(result.coreMarkupRate).toBeCloseTo(0.25, 4)
@@ -281,7 +290,7 @@ describe('calculateStoreResult', () => {
       },
     })
 
-    const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, 28)
+    const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, testFrame(28))
 
     expect(result.totalDiscount).toBe(5000)
     expect(result.grossSales).toBe(55000) // 50000 + 5000
@@ -308,7 +317,7 @@ describe('calculateStoreResult', () => {
       },
     })
 
-    const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, 28)
+    const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, testFrame(28))
 
     expect(result.totalCostInclusion).toBe(3000)
     expect(result.costInclusionRate).toBeCloseTo(3000 / 50000, 6)
@@ -377,7 +386,7 @@ describe('calculateStoreResult', () => {
       },
     })
 
-    const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, 28)
+    const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, testFrame(28))
 
     expect(result.transferDetails.interStoreIn.cost).toBe(5000)
     expect(result.transferDetails.interStoreIn.price).toBe(6500)
@@ -407,7 +416,7 @@ describe('calculateStoreResult', () => {
       ]),
     })
 
-    const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, 28)
+    const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, testFrame(28))
 
     expect(result.budget).toBe(6000000)
     expect(result.averageDailySales).toBeCloseTo(225000)
@@ -441,7 +450,7 @@ describe('calculateStoreResult', () => {
       },
     })
 
-    const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, 28)
+    const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, testFrame(28))
 
     expect(result.totalSales).toBe(45000)
     expect(result.totalCost).toBe(30000)
@@ -464,7 +473,7 @@ describe('calculateAllStores', () => {
       },
     }
 
-    const results = calculateAllStores(data, DEFAULT_SETTINGS, 28)
+    const results = calculateAllStores(data, DEFAULT_SETTINGS, testFrame(28))
 
     expect(results.size).toBe(2)
     expect(results.get('1')?.totalSales).toBe(10000)
@@ -475,7 +484,7 @@ describe('calculateAllStores', () => {
     const results = calculateAllStores(
       createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
       DEFAULT_SETTINGS,
-      28,
+      testFrame(28),
     )
     expect(results.size).toBe(0)
   })
@@ -514,7 +523,7 @@ describe('aggregateStoreResults', () => {
       },
     }
 
-    const allResults = calculateAllStores(data, DEFAULT_SETTINGS, 28)
+    const allResults = calculateAllStores(data, DEFAULT_SETTINGS, testFrame(28))
     const results = Array.from(allResults.values())
     const aggregated = aggregateStoreResults(results, 28)
 
@@ -584,7 +593,7 @@ describe('aggregateStoreResults', () => {
       ]),
     }
 
-    const allResults = calculateAllStores(data, DEFAULT_SETTINGS, 28)
+    const allResults = calculateAllStores(data, DEFAULT_SETTINGS, testFrame(28))
     const results = Array.from(allResults.values())
     const agg = aggregateStoreResults(results, 28)
 
@@ -644,7 +653,7 @@ describe('aggregateStoreResults', () => {
       },
     }
 
-    const allResults = calculateAllStores(data, DEFAULT_SETTINGS, 28)
+    const allResults = calculateAllStores(data, DEFAULT_SETTINGS, testFrame(28))
     const results = Array.from(allResults.values())
     expect(results).toHaveLength(1)
 
@@ -708,7 +717,7 @@ describe('dataEndDay による日数トリミング', () => {
     })
 
     const settings = { ...DEFAULT_SETTINGS, dataEndDay: 10 }
-    const result = calculateStoreResult('1', data, settings, 28)
+    const result = calculateStoreResult('1', data, settings, testFrame(28, 10))
 
     // day 15 のデータは除外される
     expect(result.totalSales).toBe(60000) // 10000 + 20000 + 30000
@@ -729,7 +738,7 @@ describe('dataEndDay による日数トリミング', () => {
     })
 
     const settings = { ...DEFAULT_SETTINGS, dataEndDay: null }
-    const result = calculateStoreResult('1', data, settings, 28)
+    const result = calculateStoreResult('1', data, settings, testFrame(28))
 
     expect(result.totalSales).toBe(60000)
     expect(result.daily.size).toBe(3)
@@ -743,7 +752,7 @@ describe('dataEndDay による日数トリミング', () => {
     })
 
     const settings = { ...DEFAULT_SETTINGS, dataEndDay: 31 }
-    const result = calculateStoreResult('1', data, settings, 28)
+    const result = calculateStoreResult('1', data, settings, testFrame(28, 31))
 
     // daysInMonth(28) でクランプされるので全データ含む
     expect(result.totalSales).toBe(30000)
@@ -765,7 +774,7 @@ describe('客数集計', () => {
       },
     })
 
-    const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, 28)
+    const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, testFrame(28))
 
     expect(result.totalCustomers).toBe(70)
     expect(result.averageCustomersPerDay).toBeCloseTo(35) // 70 / 2営業日
@@ -780,7 +789,7 @@ describe('客数集計', () => {
       },
     })
 
-    const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, 28)
+    const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, testFrame(28))
 
     expect(result.totalCustomers).toBe(0)
     expect(result.averageCustomersPerDay).toBe(0)
@@ -804,7 +813,7 @@ describe('客数集計', () => {
       },
     }
 
-    const allResults = calculateAllStores(data, DEFAULT_SETTINGS, 28)
+    const allResults = calculateAllStores(data, DEFAULT_SETTINGS, testFrame(28))
     const results = Array.from(allResults.values())
     const agg = aggregateStoreResults(results, 28)
 
@@ -831,7 +840,7 @@ describe('客数集計', () => {
     })
 
     const settings = { ...DEFAULT_SETTINGS, dataEndDay: 15 }
-    const result = calculateStoreResult('1', data, settings, 28)
+    const result = calculateStoreResult('1', data, settings, testFrame(28, 15))
 
     // day 20 は除外
     expect(result.totalCustomers).toBe(70) // 30 + 40

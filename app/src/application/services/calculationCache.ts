@@ -10,6 +10,7 @@
  *   Worker 内でも呼び出し可能（副作用なし）
  */
 import type { MonthlyData } from '@/domain/models/MonthlyData'
+import type { CalculationFrame } from '@/domain/models/CalculationFrame'
 import type { AppSettings, StoreResult } from '@/domain/models/storeTypes'
 import { hashData } from '@/domain/utilities/hash'
 
@@ -22,7 +23,7 @@ export function computeFingerprint(
   storeId: string,
   data: MonthlyData,
   settings: AppSettings,
-  daysInMonth: number,
+  frame: CalculationFrame,
   prevYear?: MonthlyData | null,
 ): string {
   const hashInput = {
@@ -34,7 +35,7 @@ export function computeFingerprint(
       defaultBudget: settings.defaultBudget,
       dataEndDay: settings.dataEndDay,
     },
-    daysInMonth,
+    frame,
     purchase: data.purchase.records.filter((r) => r.storeId === storeId),
     classifiedSales: data.classifiedSales.records.filter((r) => r.storeId === storeId),
     prevYearClassifiedSales:
@@ -58,14 +59,12 @@ export function computeFingerprint(
 export function computeGlobalFingerprint(
   data: MonthlyData,
   settings: AppSettings,
-  daysInMonth: number,
+  frame: CalculationFrame,
   prevYear?: MonthlyData | null,
 ): string {
   const storeIds = Array.from(data.stores.keys()).sort()
 
-  const storeFps = storeIds.map((id) =>
-    computeFingerprint(id, data, settings, daysInMonth, prevYear),
-  )
+  const storeFps = storeIds.map((id) => computeFingerprint(id, data, settings, frame, prevYear))
 
   const globalInput = {
     storeFps,
@@ -75,7 +74,7 @@ export function computeGlobalFingerprint(
     targetMonth: settings.targetMonth,
     defaultMarkupRate: settings.defaultMarkupRate,
     defaultBudget: settings.defaultBudget,
-    daysInMonth,
+    frame,
     csRecordCount: data.classifiedSales?.records?.length ?? 0,
     pycsRecordCount: prevYear?.classifiedSales?.records?.length ?? 0,
     ctsRecordCount: data.categoryTimeSales?.records?.length ?? 0,
@@ -114,14 +113,14 @@ function buildSettingsFingerprint(settings: AppSettings): string {
 }
 
 /**
- * dataVersion + settings hash + daysInMonth で O(1) のキャッシュキーを生成する。
+ * dataVersion + settings hash + frame で O(1) のキャッシュキーを生成する。
  */
 export function computeCacheKey(
   dataVersion: number,
   settings: AppSettings,
-  daysInMonth: number,
+  frame: CalculationFrame,
 ): string {
-  return `v${dataVersion}:s${buildSettingsFingerprint(settings)}:d${daysInMonth}`
+  return `v${dataVersion}:s${buildSettingsFingerprint(settings)}:d${frame.daysInMonth}:e${frame.effectiveDays}`
 }
 
 // ─── キャッシュストア ────────────────────────────────────
@@ -152,10 +151,10 @@ export class CalculationCache {
     storeId: string,
     data: MonthlyData,
     settings: AppSettings,
-    daysInMonth: number,
+    frame: CalculationFrame,
     prevYear?: MonthlyData | null,
   ): StoreResult | null {
-    const fp = computeFingerprint(storeId, data, settings, daysInMonth, prevYear)
+    const fp = computeFingerprint(storeId, data, settings, frame, prevYear)
     const entry = this.storeCache.get(storeId)
     if (entry && entry.fingerprint === fp) {
       return entry.result
@@ -167,11 +166,11 @@ export class CalculationCache {
     storeId: string,
     data: MonthlyData,
     settings: AppSettings,
-    daysInMonth: number,
+    frame: CalculationFrame,
     result: StoreResult,
     prevYear?: MonthlyData | null,
   ): void {
-    const fp = computeFingerprint(storeId, data, settings, daysInMonth, prevYear)
+    const fp = computeFingerprint(storeId, data, settings, frame, prevYear)
     this.storeCache.set(storeId, {
       fingerprint: fp,
       result,
@@ -194,10 +193,10 @@ export class CalculationCache {
   getGlobalResult(
     data: MonthlyData,
     settings: AppSettings,
-    daysInMonth: number,
+    frame: CalculationFrame,
     prevYear?: MonthlyData | null,
   ): ReadonlyMap<string, StoreResult> | null {
-    const fp = computeGlobalFingerprint(data, settings, daysInMonth, prevYear)
+    const fp = computeGlobalFingerprint(data, settings, frame, prevYear)
     if (this.globalFingerprint === fp && this.globalResult) {
       return this.globalResult
     }
@@ -214,15 +213,15 @@ export class CalculationCache {
   setGlobalResult(
     data: MonthlyData,
     settings: AppSettings,
-    daysInMonth: number,
+    frame: CalculationFrame,
     results: ReadonlyMap<string, StoreResult>,
     prevYear?: MonthlyData | null,
   ): void {
-    this.globalFingerprint = computeGlobalFingerprint(data, settings, daysInMonth, prevYear)
+    this.globalFingerprint = computeGlobalFingerprint(data, settings, frame, prevYear)
     this.globalResult = results
 
     for (const [storeId, result] of results) {
-      this.setStoreResult(storeId, data, settings, daysInMonth, result, prevYear)
+      this.setStoreResult(storeId, data, settings, frame, result, prevYear)
     }
   }
 

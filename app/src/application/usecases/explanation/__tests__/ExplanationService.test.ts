@@ -11,6 +11,7 @@ import {
   generateMetricSummary,
 } from '../ExplanationService'
 import { calculateStoreResult } from '@/application/usecases/calculation/CalculationOrchestrator'
+import type { CalculationFrame } from '@/domain/models/CalculationFrame'
 import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
 import { createDefaultSettings } from '@/domain/constants/defaults'
 import type { Explanation } from '@/domain/models/analysis'
@@ -60,7 +61,14 @@ function buildTestData(overrides: Partial<MonthlyData> = {}): MonthlyData {
 
 /** CalculationOrchestrator 経由で StoreResult を生成するヘルパー */
 function makeStoreResult(data: MonthlyData, settings = DEFAULT_SETTINGS): StoreResult {
-  return calculateStoreResult('1', data, settings, 28)
+  const frame: CalculationFrame = {
+    targetYear: 2025,
+    targetMonth: 1,
+    daysInMonth: 28,
+    dataEndDay: null,
+    effectiveDays: 28,
+  }
+  return calculateStoreResult('1', data, settings, frame)
 }
 
 // ─── generateExplanations ──────────────────────────────────

@@ -8,6 +8,7 @@
  */
 import type { AppSettings, StoreResult } from '@/domain/models/storeTypes'
 import type { MonthlyData } from '@/domain/models/MonthlyData'
+import type { CalculationFrame } from '@/domain/models/CalculationFrame'
 import { buildDailyRecords } from './dailyBuilder'
 import { assembleStoreResult } from './storeAssembler'
 export { aggregateStoreResults } from './aggregateResults'
@@ -19,13 +20,10 @@ export function calculateStoreResult(
   storeId: string,
   data: MonthlyData,
   settings: AppSettings,
-  daysInMonth: number,
+  frame: CalculationFrame,
 ): StoreResult {
-  // 取込データ有効末日: dataEndDay が設定されていれば、その日までのデータのみ集計
-  const effectiveDays =
-    settings.dataEndDay != null ? Math.min(settings.dataEndDay, daysInMonth) : daysInMonth
-  const acc = buildDailyRecords(storeId, data, effectiveDays)
-  return assembleStoreResult(storeId, acc, data, settings, daysInMonth)
+  const acc = buildDailyRecords(storeId, data, frame.effectiveDays)
+  return assembleStoreResult(storeId, acc, data, settings, frame.daysInMonth)
 }
 
 /**
@@ -34,12 +32,12 @@ export function calculateStoreResult(
 export function calculateAllStores(
   data: MonthlyData,
   settings: AppSettings,
-  daysInMonth: number,
+  frame: CalculationFrame,
 ): ReadonlyMap<string, StoreResult> {
   const results = new Map<string, StoreResult>()
 
   for (const [storeId] of data.stores) {
-    results.set(storeId, calculateStoreResult(storeId, data, settings, daysInMonth))
+    results.set(storeId, calculateStoreResult(storeId, data, settings, frame))
   }
 
   return results

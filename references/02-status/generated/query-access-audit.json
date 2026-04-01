@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-04-01T19:10:08.047Z",
+  "timestamp": "2026-04-01T21:58:32.490Z",
   "summary": {
-    "queryHandlers": 27,
+    "queryHandlers": 28,
     "正規経路_queryWithHandler": 29,
     "正規経路_comparisonAccessor": 8,
     "正規経路_facadeHook": 0,
@@ -64,6 +64,7 @@
       "application/queries/dept/DeptKpiTrendHandler.ts",
       "application/queries/features/DailyFeaturesHandler.ts",
       "application/queries/features/DowPatternHandler.ts",
+      "application/queries/freePeriodHandler.ts",
       "application/queries/purchase/StoreDailyMarkupRateHandler.ts",
       "application/queries/summary/AggregatedRatesHandler.ts",
       "application/queries/summary/DailyCumulativeHandler.ts",
