@@ -243,7 +243,9 @@ describe('usePersistence', () => {
 
     it('returns null when diff does not need confirmation', async () => {
       mockRepo.isAvailable.mockReturnValue(true)
-      mockRepo.loadMonthlyData.mockResolvedValue(createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }))
+      mockRepo.loadMonthlyData.mockResolvedValue(
+        createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
+      )
       vi.mocked(calculateDiff).mockReturnValue({
         needsConfirmation: false,
         diffs: [],
@@ -263,7 +265,9 @@ describe('usePersistence', () => {
 
     it('shows diff dialog and returns diff when confirmation needed', async () => {
       mockRepo.isAvailable.mockReturnValue(true)
-      mockRepo.loadMonthlyData.mockResolvedValue(createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }))
+      mockRepo.loadMonthlyData.mockResolvedValue(
+        createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
+      )
 
       const fakeDiff: DiffResult = {
         needsConfirmation: true,
@@ -323,7 +327,9 @@ describe('usePersistence', () => {
   describe('dismissDiffDialog', () => {
     it('clears showDiffDialog and diffResult', async () => {
       mockRepo.isAvailable.mockReturnValue(true)
-      mockRepo.loadMonthlyData.mockResolvedValue(createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }))
+      mockRepo.loadMonthlyData.mockResolvedValue(
+        createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
+      )
       vi.mocked(calculateDiff).mockReturnValue({
         needsConfirmation: true,
         diffs: [],
@@ -332,7 +338,10 @@ describe('usePersistence', () => {
       const { result } = renderHook(() => usePersistence(), { wrapper: createWrapper() })
 
       await act(async () => {
-        await result.current.checkDiffBeforeImport(createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }), new Set(['purchase']))
+        await result.current.checkDiffBeforeImport(
+          createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
+          new Set(['purchase']),
+        )
       })
       expect(result.current.showDiffDialog).toBe(true)
 

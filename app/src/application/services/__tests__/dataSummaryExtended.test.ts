@@ -791,7 +791,9 @@ describe('analyzeClassifiedSales extended', () => {
 
 describe('buildDataOverview extended', () => {
   it('返却配列の順序が固定', () => {
-    const overview = buildDataOverview(createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }))
+    const overview = buildDataOverview(
+      createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' }),
+    )
     const labels = overview.map((e) => e.label)
     expect(labels).toEqual(['仕入', '分類別売上', '花', '産直', '店間入', '店間出', '消耗品'])
   })
