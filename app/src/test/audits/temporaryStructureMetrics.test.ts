@@ -135,4 +135,37 @@ describe('Exit KPI: 暫定構造在庫（原則単調減少）', () => {
       `ImportedData direct import: ${violations.length}/0\n${violations.join('\n')}`,
     ).toBe(0)
   })
+
+  it('comparison 独自解決残件 = 0（presentation 層）', () => {
+    // presentation 層で buildComparisonScope を直接呼んだり、
+    // 比較先年月を独自計算して集約に使っている箇所を検出
+    const BANNED_PATTERNS = [
+      // buildComparisonScope を presentation 層から直接 import
+      /from\s+['"]@\/domain\/models\/ComparisonScope['"]/,
+      // 比較先の日付を独自計算して集約関数に渡すパターン
+      /aggregat.*prevYear.*year\s*-\s*1/,
+    ]
+    const ALLOWED_PATTERNS = [
+      /import type/, // type-only import は許可
+      /ComparisonScope\s*\|/, // union type 定義は許可
+    ]
+    const violations: string[] = []
+
+    for (const file of presFiles) {
+      const content = fs.readFileSync(file, 'utf-8')
+      for (const line of content.split('\n')) {
+        if (ALLOWED_PATTERNS.some((p) => p.test(line))) continue
+        if (BANNED_PATTERNS.some((p) => p.test(line))) {
+          violations.push(`${rel(file)}: ${line.trim().slice(0, 80)}`)
+          break
+        }
+      }
+    }
+
+    expect(
+      violations,
+      `presentation 層で比較先を独自解決しています:\n${violations.join('\n')}\n` +
+        `ComparisonScope は application 層（useComparisonModule）経由で取得してください`,
+    ).toEqual([])
+  })
 })
