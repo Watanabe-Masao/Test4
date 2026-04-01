@@ -9,13 +9,16 @@ import { backupExporter } from '../backupExporter'
 import type { DataRepository } from '@/domain/repositories'
 import type { ImportHistoryEntry } from '@/domain/models/analysis'
 import type { BudgetData } from '@/domain/models/record'
-import type { ImportedData, AppSettings } from '@/domain/models/storeTypes'
-import { createEmptyImportedData } from '@/domain/models/storeTypes'
+import type { AppSettings } from '@/domain/models/storeTypes'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
+import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
 import { createDefaultSettings } from '@/domain/constants/defaults'
 
-function createTestData(): ImportedData {
+const TEST_ORIGIN = { year: 2025, month: 1, importedAt: '2025-01-01T00:00:00.000Z' }
+
+function createTestData(): MonthlyData {
   return {
-    ...createEmptyImportedData(),
+    ...createEmptyMonthlyData(TEST_ORIGIN),
     stores: new Map([
       ['1', { id: '1', code: '0001', name: '本店' }],
       ['2', { id: '2', code: '0002', name: '支店A' }],
@@ -64,7 +67,7 @@ function createTestData(): ImportedData {
   }
 }
 
-function createMockRepo(data: ImportedData): DataRepository {
+function createMockRepo(data: MonthlyData): DataRepository {
   return {
     isAvailable: () => true,
     listStoredMonths: vi.fn().mockResolvedValue([{ year: 2025, month: 1 }]),
@@ -129,7 +132,7 @@ describe('backupExporter', () => {
   })
 
   describe('importBackup — Map 復元', () => {
-    let savedData: ImportedData | null = null
+    let savedData: MonthlyData | null = null
 
     beforeEach(() => {
       savedData = null
@@ -137,10 +140,10 @@ describe('backupExporter', () => {
 
     function createImportRepo() {
       return {
-        ...createMockRepo(createEmptyImportedData()),
+        ...createMockRepo(createEmptyMonthlyData(TEST_ORIGIN)),
         listStoredMonths: vi.fn().mockResolvedValue([]),
         loadMonthlyData: vi.fn().mockResolvedValue(null),
-        saveMonthlyData: vi.fn().mockImplementation(async (data: ImportedData) => {
+        saveMonthlyData: vi.fn().mockImplementation(async (data: MonthlyData) => {
           savedData = data
         }),
       } as unknown as DataRepository
@@ -302,7 +305,7 @@ describe('backupExporter', () => {
   describe('importBackup — Zod safeParse 境界検証', () => {
     function createImportRepoForSafeParse() {
       return {
-        ...createMockRepo(createEmptyImportedData()),
+        ...createMockRepo(createEmptyMonthlyData(TEST_ORIGIN)),
         listStoredMonths: vi.fn().mockResolvedValue([]),
         loadMonthlyData: vi.fn().mockResolvedValue(null),
         saveMonthlyData: vi.fn(),
@@ -364,7 +367,7 @@ describe('backupExporter', () => {
       const blob = await backupExporter.exportBackup(exportRepo, appSettings)
 
       const importRepo = {
-        ...createMockRepo(createEmptyImportedData()),
+        ...createMockRepo(createEmptyMonthlyData(TEST_ORIGIN)),
         listStoredMonths: vi.fn().mockResolvedValue([]),
         loadMonthlyData: vi.fn().mockResolvedValue(null),
         saveMonthlyData: vi.fn().mockResolvedValue(undefined),
@@ -388,7 +391,7 @@ describe('backupExporter', () => {
       })
       const blob = new Blob([v1Backup], { type: 'application/json' })
 
-      const importRepo = createMockRepo(createEmptyImportedData())
+      const importRepo = createMockRepo(createEmptyMonthlyData(TEST_ORIGIN))
       const result = await backupExporter.importBackup(blob, importRepo)
       expect(result.restoredAppSettings).toBeUndefined()
     })
@@ -421,7 +424,7 @@ describe('backupExporter', () => {
       const tampered = new Blob([JSON.stringify(parsed)], { type: 'application/json' })
 
       const importRepo = {
-        ...createMockRepo(createEmptyImportedData()),
+        ...createMockRepo(createEmptyMonthlyData(TEST_ORIGIN)),
         saveMonthlyData: vi.fn(),
       } as unknown as DataRepository
 
@@ -444,7 +447,7 @@ describe('backupExporter', () => {
             year: 2025,
             month: 1,
             data: {
-              ...createEmptyImportedData(),
+              ...createEmptyMonthlyData(TEST_ORIGIN),
               stores: {},
               suppliers: {},
               settings: {},
@@ -456,7 +459,7 @@ describe('backupExporter', () => {
       const blob = new Blob([v1Backup], { type: 'application/json' })
 
       const importRepo = {
-        ...createMockRepo(createEmptyImportedData()),
+        ...createMockRepo(createEmptyMonthlyData(TEST_ORIGIN)),
         listStoredMonths: vi.fn().mockResolvedValue([]),
         loadMonthlyData: vi.fn().mockResolvedValue(null),
         saveMonthlyData: vi.fn().mockResolvedValue(undefined),
@@ -527,7 +530,7 @@ describe('backupExporter', () => {
 
       const saveHistoryMock = vi.fn().mockResolvedValue(undefined)
       const importRepo = {
-        ...createMockRepo(createEmptyImportedData()),
+        ...createMockRepo(createEmptyMonthlyData(TEST_ORIGIN)),
         listStoredMonths: vi.fn().mockResolvedValue([]),
         loadMonthlyData: vi.fn().mockResolvedValue(null),
         saveMonthlyData: vi.fn().mockResolvedValue(undefined),
@@ -547,7 +550,7 @@ describe('backupExporter', () => {
       const blob = await backupExporter.exportBackup(exportRepo)
 
       const importRepo = {
-        ...createMockRepo(createEmptyImportedData()),
+        ...createMockRepo(createEmptyMonthlyData(TEST_ORIGIN)),
         listStoredMonths: vi.fn().mockResolvedValue([]),
         loadMonthlyData: vi.fn().mockResolvedValue(null),
         saveMonthlyData: vi.fn().mockResolvedValue(undefined),
@@ -565,12 +568,12 @@ describe('backupExporter', () => {
 
       const blob = await backupExporter.exportBackup(exportRepo)
 
-      let restoredData: ImportedData | null = null
+      let restoredData: MonthlyData | null = null
       const importRepo = {
-        ...createMockRepo(createEmptyImportedData()),
+        ...createMockRepo(createEmptyMonthlyData(TEST_ORIGIN)),
         listStoredMonths: vi.fn().mockResolvedValue([]),
         loadMonthlyData: vi.fn().mockResolvedValue(null),
-        saveMonthlyData: vi.fn().mockImplementation(async (data: ImportedData) => {
+        saveMonthlyData: vi.fn().mockImplementation(async (data: MonthlyData) => {
           restoredData = data
         }),
       } as unknown as DataRepository

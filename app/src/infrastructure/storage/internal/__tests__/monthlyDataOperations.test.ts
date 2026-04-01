@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import type { StorageDataType } from '@/domain/models/storeTypes'
-// createEmptyImportedData is available via mock setup
+// createEmptyMonthlyData is available via mock setup
 
 // ── Mock dbHelpers ──
 vi.mock('../dbHelpers', () => ({

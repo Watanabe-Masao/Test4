@@ -1,7 +1,7 @@
 // Infrastructure - 永続化
 export {
-  saveImportedData,
-  loadImportedData,
+  saveMonthlyDataInternal,
+  loadMonthlyDataInternal,
   getPersistedMeta,
   clearMonthData,
   clearAllData,

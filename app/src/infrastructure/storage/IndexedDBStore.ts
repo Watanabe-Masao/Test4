@@ -5,8 +5,8 @@
  * このファイルは既存の import パスを維持するための re-export のみを行う。
  */
 export {
-  saveImportedData,
-  loadImportedData,
+  saveMonthlyDataInternal,
+  loadMonthlyDataInternal,
   saveDataSlice,
   loadMonthlySlice,
   clearMonthData,

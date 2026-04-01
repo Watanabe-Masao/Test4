@@ -1,23 +1,23 @@
 /**
- * IndexedDB 月次データ保存（legacy 内部実装）
+ * IndexedDB 月次データ保存
  *
- * 内部的に ImportedData 形式で保存する。
- * public API は DataRepository (MonthlyData) → IndexedDBRepository (adapter) 経由。
- * TODO(Phase 2): storage 内部も MonthlyData に統一後、ImportedData 依存を解消
+ * MonthlyData 形式で保存する。
+ * public API は DataRepository (MonthlyData) → IndexedDBRepository 経由。
  */
 import type { PersistedMeta } from '@/domain/models/analysis'
-import type { ImportedData, DataType } from '@/domain/models/storeTypes'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
+import type { DataType } from '@/domain/models/storeTypes'
 import { dbBatchPutWithReadModify, STORE_MONTHLY, STORE_META } from './dbHelpers'
 import { monthKey, STORE_DAY_FIELDS } from './keys'
 import { wrapEnvelope, mapToObj, budgetToSerializable } from './serialization'
 import { sessionsReadModifyOp } from './metaOperations'
 
 /**
- * ImportedData を年月単位で IndexedDB に保存する。
+ * MonthlyData を年月単位で IndexedDB に保存する。
  * 単一トランザクションで原子的に全データ + メタデータを書き込む。
  */
-export async function saveImportedData(
-  data: ImportedData,
+export async function saveMonthlyDataInternal(
+  data: MonthlyData,
   year: number,
   month: number,
 ): Promise<void> {
@@ -103,7 +103,7 @@ export async function saveImportedData(
  * 単一トランザクションで原子的に書き込む。
  */
 export async function saveDataSlice(
-  data: ImportedData,
+  data: MonthlyData,
   year: number,
   month: number,
   dataTypes: readonly DataType[],

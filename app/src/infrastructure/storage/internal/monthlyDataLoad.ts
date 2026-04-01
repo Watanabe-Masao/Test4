@@ -1,33 +1,32 @@
 /**
- * IndexedDB 月次データ読み込み（legacy 内部実装）
+ * IndexedDB 月次データ読み込み
  *
- * 内部的に ImportedData 形式で読み込む。
- * public API は DataRepository (MonthlyData) → IndexedDBRepository (adapter) 経由。
- * TODO(Phase 2): storage 内部も MonthlyData に統一後、ImportedData 依存を解消
+ * MonthlyData 形式で読み込む。
+ * public API は DataRepository (MonthlyData) → IndexedDBRepository 経由。
  */
-import type { ImportedData, StorageDataType } from '@/domain/models/storeTypes'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
+import type { StorageDataType } from '@/domain/models/storeTypes'
 import type { BudgetData, InventoryConfig, Store } from '@/domain/models/record'
-import { createEmptyImportedData } from '@/domain/models/storeTypes'
+import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
 import { openDB, dbGet, STORE_MONTHLY } from './dbHelpers'
 import { monthKey, STORE_DAY_FIELDS, DATA_TYPE_LABELS } from './keys'
 import { unwrapEnvelope, budgetFromSerializable, validateLoadedData } from './serialization'
 
 /**
- * 指定年月の ImportedData を IndexedDB から読み込む。
+ * 指定年月の MonthlyData を IndexedDB から読み込む。
  * 単一 readonly トランザクションで全キーを一括取得し、一貫スナップショットを保証する。
  * 保存されていない場合は null を返す。
  * 基本的なスキーマ検証を行い、不整合があれば null を返す。
  */
-/** loadImportedData の戻り値（origin 付き） */
-export interface LoadedImportedData {
-  readonly data: ImportedData
-  readonly origin: import('@/domain/models/DataOrigin').DataOrigin | null
+/** loadMonthlyDataInternal の戻り値 */
+export interface LoadedMonthlyData {
+  readonly data: MonthlyData
 }
 
-export async function loadImportedData(
+export async function loadMonthlyDataInternal(
   year: number,
   month: number,
-): Promise<LoadedImportedData | null> {
+): Promise<LoadedMonthlyData | null> {
   // 読み取り対象のキーとエイリアスを定義
   type KeyAlias = { key: string; alias: string }
   const keysToRead: KeyAlias[] = [
@@ -63,7 +62,7 @@ export async function loadImportedData(
   const rawStoresEntry = rawData.get('stores')
   if (rawStoresEntry === undefined) return null
 
-  const base = createEmptyImportedData()
+  const base = createEmptyMonthlyData({ year: 0, month: 0, importedAt: '' })
   const result: Record<string, unknown> = { ...base }
 
   // StoreDayIndex 系 — envelope 対応（新旧どちらの形式も読める）
@@ -83,6 +82,11 @@ export async function loadImportedData(
 
   // provenance: 最初に見つかった envelope origin を保持
   let envelopeOrigin: import('@/domain/models/DataOrigin').DataOrigin | null = null
+  const fallbackOrigin: import('@/domain/models/DataOrigin').DataOrigin = {
+    year,
+    month,
+    importedAt: new Date().toISOString(),
+  }
 
   // stores — envelope unwrap
   const storesUnwrapped = unwrapEnvelope<Record<string, Store>>(rawStoresEntry, year, month)
@@ -205,7 +209,9 @@ export async function loadImportedData(
     return null
   }
 
-  return { data: result as unknown as ImportedData, origin: envelopeOrigin }
+  // Set origin from envelope provenance or fallback
+  result.origin = envelopeOrigin ?? fallbackOrigin
+  return { data: result as unknown as MonthlyData }
 }
 
 /**

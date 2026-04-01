@@ -23,19 +23,19 @@
  */
 import type { DataRepository } from '@/domain/repositories'
 import type { ImportHistoryEntry, RawDataManifest } from '@/domain/models/analysis'
-import type { ImportedData, AppSettings } from '@/domain/models/storeTypes'
+import type { AppSettings } from '@/domain/models/storeTypes'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
 import { z } from 'zod'
 import { writeFile, pruneOldFiles } from './folderAccess'
 import { rawFileStore } from './rawFileStore'
 import {
-  hydrateImportedData,
+  hydrateMonthlyData,
   computeSHA256,
   isCompressionSupported,
   compress,
   decompress,
   isGzipped,
 } from './backupFormat'
-import { toMonthlyData, toLegacyImportedData } from '@/domain/models/monthlyDataAdapter'
 
 /** バックアップファイルのフォーマットバージョン */
 const BACKUP_FORMAT_VERSION = 3
@@ -70,11 +70,16 @@ export interface BackupMeta {
   readonly checksum?: string
 }
 
-/** バックアップ内の月別データ */
+/**
+ * バックアップ内の月別データ。
+ * シリアライズ時は MonthlyData のフィールドが JSON 化される。
+ * 旧バックアップ（ImportedData 形式）も hydrateMonthlyData で読み込める。
+ */
 interface BackupMonthData {
   readonly year: number
   readonly month: number
-  readonly data: ImportedData
+  /** MonthlyData を JSON シリアライズした形式（旧 ImportedData 形式も互換） */
+  readonly data: MonthlyData
   /** v2+: インポート履歴 */
   readonly importHistory?: readonly ImportHistoryEntry[]
 }
@@ -115,12 +120,11 @@ class BackupExporter {
     for (const { year, month } of storedMonths) {
       const monthlyData = await repo.loadMonthlyData(year, month)
       if (monthlyData) {
-        const data = toLegacyImportedData({ current: monthlyData, prevYear: null })
         const importHistory = await repo.loadImportHistory(year, month)
         months.push({
           year,
           month,
-          data,
+          data: monthlyData,
           importHistory: importHistory.length > 0 ? importHistory : undefined,
         })
       }
@@ -279,16 +283,13 @@ class BackupExporter {
         }
 
         // JSON.parse で失われた Map を復元してから保存
-        const hydrated = hydrateImportedData(monthData.data)
-        await repo.saveMonthlyData(
-          toMonthlyData(hydrated, {
-            year: monthData.year,
-            month: monthData.month,
-            importedAt: new Date().toISOString(),
-          }),
-          monthData.year,
-          monthData.month,
-        )
+        // 旧 ImportedData 形式のバックアップも hydrateMonthlyData が対応（prevYear* を無視）
+        const hydrated = hydrateMonthlyData(monthData.data, {
+          year: monthData.year,
+          month: monthData.month,
+          importedAt: new Date().toISOString(),
+        })
+        await repo.saveMonthlyData(hydrated, monthData.year, monthData.month)
         monthsImported++
 
         // v2: インポート履歴を復元

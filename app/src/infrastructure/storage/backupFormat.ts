@@ -5,7 +5,8 @@
  * バックアップファイルのフォーマット処理を担当する純粋ユーティリティ。
  */
 import type { BudgetData } from '@/domain/models/record'
-import type { ImportedData } from '@/domain/models/storeTypes'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
+import type { DataOrigin } from '@/domain/models/DataOrigin'
 import { budgetFromSerializable } from './internal/serialization'
 
 // ─── JSON → Map 復元ヘルパー ─────────────────────────────
@@ -13,7 +14,7 @@ import { budgetFromSerializable } from './internal/serialization'
 /**
  * plain object → Map 変換。
  * JSON.parse の結果は plain object であり Map ではないため、
- * ImportedData の Map フィールドを復元する必要がある。
+ * MonthlyData の Map フィールドを復元する必要がある。
  */
 function objectToMap<V>(obj: unknown): Map<string, V> {
   if (obj instanceof Map) return obj as Map<string, V>
@@ -41,22 +42,33 @@ function hydrateBudgetMap(obj: unknown): Map<string, BudgetData> {
 }
 
 /**
- * JSON.parse の結果を正しい ImportedData に復元する。
+ * JSON.parse の結果を MonthlyData に復元する。
  * Map フィールド（stores, suppliers, settings, budget）を
  * plain object から Map に変換する。
+ * prevYear* フィールドは無視する（MonthlyData には存在しない）。
+ *
+ * 旧 ImportedData 形式のバックアップにも対応（prevYear* を読み飛ばす）。
  */
-export function hydrateImportedData(raw: unknown): ImportedData {
+export function hydrateMonthlyData(raw: unknown, origin: DataOrigin): MonthlyData {
   const base = raw as Record<string, unknown>
   return {
-    ...base,
+    origin,
     stores: objectToMap(base.stores),
     suppliers: objectToMap(base.suppliers),
     settings: objectToMap(base.settings),
     budget: hydrateBudgetMap(base.budget),
-    // prevYear系は空で初期化（useAutoLoadPrevYear が実際の年月から自動ロードする）
-    prevYearClassifiedSales: base.prevYearClassifiedSales ?? { records: [] },
-    prevYearCategoryTimeSales: base.prevYearCategoryTimeSales ?? { records: [] },
-  } as unknown as ImportedData
+    classifiedSales: (base.classifiedSales as MonthlyData['classifiedSales']) ?? { records: [] },
+    purchase: (base.purchase as MonthlyData['purchase']) ?? { records: [] },
+    interStoreIn: (base.interStoreIn as MonthlyData['interStoreIn']) ?? { records: [] },
+    interStoreOut: (base.interStoreOut as MonthlyData['interStoreOut']) ?? { records: [] },
+    flowers: (base.flowers as MonthlyData['flowers']) ?? { records: [] },
+    directProduce: (base.directProduce as MonthlyData['directProduce']) ?? { records: [] },
+    consumables: (base.consumables as MonthlyData['consumables']) ?? { records: [] },
+    categoryTimeSales: (base.categoryTimeSales as MonthlyData['categoryTimeSales']) ?? {
+      records: [],
+    },
+    departmentKpi: (base.departmentKpi as MonthlyData['departmentKpi']) ?? { records: [] },
+  }
 }
 
 // ─── SHA-256 チェックサム ──────────────────────────────
