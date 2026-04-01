@@ -11,7 +11,7 @@ import { PersistenceContext } from '../context/persistenceContextDef'
 import { calculateDiff } from '@/application/services/diffCalculator'
 import type { DiffResult } from '@/domain/models/analysis'
 import type { ImportedData } from '@/domain/models/storeTypes'
-import { toMonthlyData, toLegacyImportedData } from '@/domain/models/monthlyDataAdapter'
+import { toLegacyImportedData } from '@/domain/models/monthlyDataAdapter'
 import { mergeInsertsOnly } from './useImport'
 
 // ─── 型定義 ──────────────────────────────────────────────
@@ -78,7 +78,7 @@ export function usePersistenceState(): PersistenceStatusInfo {
 // ─── usePersistence: 既存互換 façade ───────────────────
 
 export function usePersistence(): PersistenceState & PersistenceActions {
-  const data = useDataStore((s) => s.data)
+  const currentMonthData = useDataStore((s) => s.currentMonthData)
   const settings = useSettingsStore((s) => s.settings)
   const repo = useRepository()
 
@@ -91,19 +91,14 @@ export function usePersistence(): PersistenceState & PersistenceActions {
   const status = usePersistenceState()
 
   const saveCurrentData = useCallback(async () => {
-    if (!available) return
+    if (!available || !currentMonthData) return
     setIsSaving(true)
     try {
-      const monthly = toMonthlyData(data, {
-        year: settings.targetYear,
-        month: settings.targetMonth,
-        importedAt: new Date().toISOString(),
-      })
-      await repo.saveMonthlyData(monthly, settings.targetYear, settings.targetMonth)
+      await repo.saveMonthlyData(currentMonthData, settings.targetYear, settings.targetMonth)
     } finally {
       setIsSaving(false)
     }
-  }, [available, repo, data, settings.targetYear, settings.targetMonth])
+  }, [available, repo, currentMonthData, settings.targetYear, settings.targetMonth])
 
   const checkDiffBeforeImport = useCallback(
     async (

@@ -11,6 +11,7 @@ import { useDataStore } from '@/application/stores/dataStore'
 import { useUiStore } from '@/application/stores/uiStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { createEmptyImportedData } from '@/domain/models/storeTypes'
+import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
 import type { DiffResult } from '@/domain/models/analysis'
 import type { ImportedData } from '@/domain/models/storeTypes'
 import type { PersistedSessionMeta } from '@/domain/repositories/DataRepository'
@@ -170,6 +171,10 @@ describe('usePersistence', () => {
     it('calls repo.saveMonthlyData with current data and year/month', async () => {
       mockRepo.isAvailable.mockReturnValue(true)
       useSettingsStore.getState().updateSettings({ targetYear: 2025, targetMonth: 7 })
+      // currentMonthData を設定（saveCurrentData は currentMonthData が null なら早期 return）
+      useDataStore
+        .getState()
+        .setCurrentMonthData(createEmptyMonthlyData({ year: 2025, month: 7, importedAt: '' }))
 
       const { result } = renderHook(() => usePersistence(), { wrapper: createWrapper() })
 

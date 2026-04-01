@@ -83,7 +83,7 @@ type TabType = 'categories' | 'stores' | 'history' | 'rawdata' | 'storage' | 'pr
 
 // ─── カテゴリ管理タブ ─────────────────────────────────────
 function CategoryManagementTab() {
-  const data = useDataStore((s) => s.data)
+  const current = useDataStore((s) => s.currentMonthData)
   const { settings, updateSettings } = useSettings()
   const [newCategoryName, setNewCategoryName] = useState('')
 
@@ -139,7 +139,7 @@ function CategoryManagementTab() {
     [settings.userCategoryLabels, settings.supplierCategoryMap, updateSettings],
   )
 
-  const suppliers = Array.from(data.suppliers.values())
+  const suppliers = current ? Array.from(current.suppliers.values()) : []
 
   return (
     <>
@@ -249,9 +249,9 @@ function CategoryManagementTab() {
 
 // ─── 店舗管理タブ ──────────────────────────────────────
 function StoreManagementTab() {
-  const data = useDataStore((s) => s.data)
+  const current = useDataStore((s) => s.currentMonthData)
   const { settings, updateSettings } = useSettings()
-  const stores = Array.from(data.stores.values())
+  const stores = current ? Array.from(current.stores.values()) : []
 
   const [editingStore, setEditingStore] = useState<string | null>(null)
   const [editName, setEditName] = useState('')
@@ -263,17 +263,18 @@ function StoreManagementTab() {
 
   const handleSaveEdit = useCallback(() => {
     if (editingStore && editName.trim()) {
-      const current = data.stores.get(editingStore)
-      if (current) {
-        const updated = new Map(data.stores)
-        updated.set(editingStore, { ...current, name: editName.trim() })
-        useDataStore.getState().setImportedData({ ...data, stores: updated })
+      const storeEntry = current?.stores.get(editingStore)
+      if (storeEntry && current) {
+        const updated = new Map(current.stores)
+        updated.set(editingStore, { ...storeEntry, name: editName.trim() })
+        const legacy = useDataStore.getState().data
+        useDataStore.getState().setImportedData({ ...legacy, stores: updated })
         calculationCache.clear()
         useUiStore.getState().invalidateCalculation()
       }
     }
     setEditingStore(null)
-  }, [editingStore, editName, data])
+  }, [editingStore, editName, current])
 
   const handleSaveLocation = useCallback(
     (storeId: string, loc: StoreLocation) => {
@@ -321,8 +322,8 @@ function StoreManagementTab() {
         </thead>
         <tbody>
           {stores.map((s) => {
-            const inv = data.settings.get(s.id)
-            const budget = data.budget.get(s.id)
+            const inv = current?.settings.get(s.id)
+            const budget = current?.budget.get(s.id)
             const isEditing = editingStore === s.id
             const loc = settings.storeLocations[s.id]
             return (
