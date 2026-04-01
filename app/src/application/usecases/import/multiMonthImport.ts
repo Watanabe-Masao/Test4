@@ -8,7 +8,7 @@ import type { MonthlyData } from '@/domain/models/MonthlyData'
 import type { AppSettings } from '@/domain/models/storeTypes'
 import { detectDataMaxDay } from '@/application/services/dataDetection'
 import { calculateDiff } from '@/application/services/diffCalculator'
-import { validateImportedData } from './FileImportService'
+import { validateImportData } from './FileImportService'
 import { mergeMonthlyData, DEFAULT_MERGE_ACTION } from './monthlyDataMerge'
 import type {
   MonthlyImportBatch,
@@ -127,7 +127,7 @@ export async function orchestrateMultiMonth(
     }
   }
 
-  const messages = validateImportedData(primaryMonthly, summary)
+  const messages = validateImportData(primaryMonthly, summary)
   const detectedMaxDay = detectDataMaxDay(primaryMonthly)
 
   // 各月のインポート履歴を保存
@@ -182,6 +182,6 @@ export async function resolveMultiMonthDiff(
   return {
     finalData: primaryMonthly,
     detectedMaxDay: detectDataMaxDay(primaryMonthly),
-    validationMessages: validateImportedData(primaryMonthly, summary),
+    validationMessages: validateImportData(primaryMonthly, summary),
   }
 }

@@ -19,7 +19,7 @@ export type ProgressCallback = (current: number, total: number, filename: string
 
 // ─── Validation (re-export from importValidation) ────────
 
-export { validateImportedData, hasValidationErrors } from './importValidation'
+export { validateImportData, hasValidationErrors } from './importValidation'
 
 // ─── File import (delegates to infrastructure) ───────────
 

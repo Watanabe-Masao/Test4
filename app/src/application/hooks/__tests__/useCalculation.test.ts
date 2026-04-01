@@ -48,13 +48,13 @@ vi.mock('@/application/usecases/calculation', () => ({
 }))
 
 vi.mock('@/application/usecases/import', () => ({
-  validateImportedData: vi.fn(() => []),
+  validateImportData: vi.fn(() => []),
   hasValidationErrors: vi.fn(() => false),
 }))
 
 import { useCalculation } from '../useCalculation'
 import { calculateAllStores } from '@/application/usecases/calculation'
-import { validateImportedData, hasValidationErrors } from '@/application/usecases/import'
+import { validateImportData, hasValidationErrors } from '@/application/usecases/import'
 
 // ── Setup ─────────────────────────────────────────────
 
@@ -222,7 +222,7 @@ describe('useCalculation', () => {
 
     it('calls calculateAllStores when worker is unavailable and no cache', () => {
       vi.mocked(hasValidationErrors).mockReturnValue(false)
-      vi.mocked(validateImportedData).mockReturnValue([])
+      vi.mocked(validateImportData).mockReturnValue([])
 
       act(() => {
         useDataStore.getState().setCurrentMonthData(makeDataWithRecords())

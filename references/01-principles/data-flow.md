@@ -232,4 +232,4 @@ UIが**やってはならない**こと:
 - 計算パイプラインは常に `classifiedSales` 由来の値（`StoreResult.totalSales`）に
   アンカーする
 - `FileImportService.ts`（`application/usecases/import/`。内部は `infrastructure/ImportService.ts` に委譲）の
-  `validateImportedData` で1%以上の乖離を警告表示
+  `validateImportData` で1%以上の乖離を警告表示

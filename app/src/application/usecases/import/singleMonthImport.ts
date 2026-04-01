@@ -7,7 +7,7 @@ import type { MonthlyData } from '@/domain/models/MonthlyData'
 import type { AppSettings } from '@/domain/models/storeTypes'
 import { detectDataMaxDay } from '@/application/services/dataDetection'
 import { calculateDiff } from '@/application/services/diffCalculator'
-import { validateImportedData } from './FileImportService'
+import { validateImportData } from './FileImportService'
 import type { ImportSummary } from './FileImportService'
 import { mergeMonthlyData, mergeMonthlyInsertsOnly } from './monthlyDataMerge'
 import type { MonthPartitions } from './FileImportService'
@@ -77,7 +77,7 @@ async function finalizeSingleMonth(
 ): Promise<MonthlyImportResult> {
   const { repo } = effects
   const { year, month } = monthly.origin
-  const messages = validateImportedData(monthly, summary)
+  const messages = validateImportData(monthly, summary)
   const detectedMaxDay = detectDataMaxDay(monthly)
 
   if (repo.isAvailable()) {
@@ -122,6 +122,6 @@ export async function resolveSingleMonthDiff(
   return {
     finalData,
     detectedMaxDay: detectDataMaxDay(finalData),
-    validationMessages: validateImportedData(finalData, pending.summary),
+    validationMessages: validateImportData(finalData, pending.summary),
   }
 }
