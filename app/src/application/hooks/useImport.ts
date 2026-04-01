@@ -31,7 +31,6 @@ export type { PendingDiffCheck }
 
 /** ファイルインポートフック */
 export function useImport() {
-  const data = useDataStore((s) => s.data)
   const validationMessages = useDataStore((s) => s.validationMessages)
   const isImporting = useUiStore((s) => s.isImporting)
   const settings = useSettingsStore((s) => s.settings)
@@ -161,7 +160,6 @@ export function useImport() {
     importFiles,
     isImporting,
     progress,
-    data,
     validationMessages,
     pendingDiff,
     resolveDiff,

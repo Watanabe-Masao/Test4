@@ -16,7 +16,6 @@ import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useStoreSelection } from '@/application/hooks/ui'
 import { usePeriodSelection } from '@/application/hooks/usePeriodResolver'
 import { usePurchaseAnalysis } from '@/application/hooks/usePurchaseAnalysis'
-import { useDataStore } from '@/application/stores/dataStore'
 import { useRepository } from '@/application/context/useRepository'
 import { deriveDowOffset, deriveEffectivePeriod2 } from '@/domain/models/PeriodSelection'
 import { ComparisonPresetToggle } from '@/presentation/components/Layout/ComparisonPresetToggle'
@@ -45,7 +44,6 @@ import { PurchaseVsSalesChart } from './PurchaseVsSalesChart'
 export function PurchaseAnalysisPage() {
   const { format: fmtCurrency } = useCurrencyFormat()
   const settings = useSettingsStore((s) => s.settings)
-  const data = useDataStore((s) => s.data)
   const repo = useRepository()
   const { selectedStoreIds, stores } = useStoreSelection()
   const { selection } = usePeriodSelection()
@@ -77,7 +75,6 @@ export function PurchaseAnalysisPage() {
   const effectivePeriod2 = useMemo(() => deriveEffectivePeriod2(selection), [selection])
 
   const { data: result, isLoading } = usePurchaseAnalysis({
-    data,
     targetYear,
     targetMonth,
     repo,

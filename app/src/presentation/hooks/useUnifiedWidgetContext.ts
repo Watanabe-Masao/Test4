@@ -59,7 +59,7 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
   const { isCalculated, isComputing, daysInMonth } = useCalculation()
   const { currentResult, selectedResults, storeName, stores, selectedStoreIds } =
     useStoreSelection()
-  const data = useDataStore((s) => s.data)
+  const currentMonthData = useDataStore((s) => s.currentMonthData)
   const storeResults = useDataStore((s) => s.storeResults)
   const settings = useSettingsStore((s) => s.settings)
   const periodSelection = usePeriodSelectionStore((s) => s.selection)
@@ -108,7 +108,10 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
   }, [])
 
   // データ存在範囲
-  const dataMaxDay = useMemo(() => detectDataMaxDay(data), [data])
+  const dataMaxDay = useMemo(
+    () => (currentMonthData ? detectDataMaxDay(currentMonthData) : 0),
+    [currentMonthData],
+  )
 
   // 部門KPIインデックス
   const deptKpiIndex = useDeptKpiView()
@@ -118,7 +121,6 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
 
   // DuckDB クエリコンテキスト（エンジン初期化 + queryExecutor + 天気永続化 + 前年仕入額）
   const duckCtx = useWidgetQueryContext(
-    data,
     targetYear,
     targetMonth,
     repo,
@@ -198,7 +200,7 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
       month: targetMonth,
       settings,
       prevYear: comparison.daily,
-      stores: data.stores,
+      stores,
       selectedStoreIds,
       explanations,
       onExplain: handleExplain,
@@ -254,7 +256,7 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
     targetMonth,
     settings,
     comparison,
-    data.stores,
+    stores,
     selectedStoreIds,
     explanations,
     handleExplain,

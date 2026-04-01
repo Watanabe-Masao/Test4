@@ -9,7 +9,6 @@ import { useStoragePersistence } from '@/application/hooks/useStoragePersistence
 import { useBackup } from '@/application/hooks/useBackup'
 import { useRepository } from '@/application/context/useRepository'
 import { useStorageDuck } from '@/application/hooks/useStorageDuck'
-import { useDataStore } from '@/application/stores/dataStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useDeviceSync } from '@/application/hooks/useDeviceSync'
 import {
@@ -26,7 +25,6 @@ import { Section, SectionTitle, LoadingText } from './StorageManagementTab.style
 export function StorageManagementTab() {
   const { loadSlice } = useStorageAdmin()
   const repo = useRepository()
-  const data = useDataStore((s) => s.data)
   const settings = useSettingsStore((s) => s.settings)
 
   const {
@@ -47,7 +45,7 @@ export function StorageManagementTab() {
   } = useDeviceSync()
 
   const { rawFileGroups, canRebuild, isRebuilding, lastRebuildResult, rebuildDuckDB } =
-    useStorageDuck(data, settings.targetYear, settings.targetMonth, repo)
+    useStorageDuck(settings.targetYear, settings.targetMonth, repo)
 
   const {
     months,

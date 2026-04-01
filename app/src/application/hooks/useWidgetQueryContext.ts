@@ -7,7 +7,6 @@
  *
  * @layer Application — orchestrator hook
  */
-import type { ImportedData } from '@/domain/models/storeTypes'
 import type { DateRange } from '@/domain/models/calendar'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 import type { WeatherPersister } from '@/application/queries/weather'
@@ -33,14 +32,13 @@ export interface WidgetQueryContext {
  * DuckDB 関連の全データを取得できる。
  */
 export function useWidgetQueryContext(
-  data: ImportedData | undefined,
   targetYear: number,
   targetMonth: number,
   repo: DataRepository | null,
   prevYearDateRange: DateRange | null | undefined,
 ): WidgetQueryContext {
   // DuckDB エンジン初期化
-  const duck = useDuckDB(data, targetYear, targetMonth, repo)
+  const duck = useDuckDB(targetYear, targetMonth, repo)
 
   // QueryExecutor — conn を隠蔽し QueryHandler 経由で実行する
   // dataVersion を deps に含めることで、データロード完了時に executor 参照が更新され、

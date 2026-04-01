@@ -21,7 +21,6 @@
  */
 import { useEffect, useRef, useCallback, useReducer } from 'react'
 import type { AsyncDuckDB, AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { ImportedData } from '@/domain/models/storeTypes'
 import type { DataRepository } from '@/domain/repositories'
 import { useDataStore } from '@/application/stores/dataStore'
 import { resetTables, loadMonth } from '@/infrastructure/duckdb/dataLoader'
@@ -59,12 +58,12 @@ function monthKey(y: number, m: number): string {
 }
 
 export function useDuckDB(
-  data: ImportedData | undefined,
   year: number,
   month: number,
   repo?: DataRepository | null,
 ): DuckDBHookResult {
   const [state, dispatch] = useReducer(duckdbReducer, INITIAL_DUCKDB_STATE)
+  const data = useDataStore((s) => s.data)
   const prevYear = useDataStore((s) => s.appData.prevYear)
 
   const lastFingerprint = useRef<string>('')
