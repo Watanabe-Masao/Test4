@@ -325,7 +325,7 @@ describe('ImportedData Migration Guard', () => {
    * ImportedData の direct import（非 type-only）の件数を凍結。
    * 新規 direct import を禁止し、既存件数を単調減少させる。
    */
-  const MAX_IMPORTED_DATA_DIRECT_IMPORTS = 8
+  const MAX_IMPORTED_DATA_DIRECT_IMPORTS = 6
 
   it('ImportedData の direct import 数が上限以下（増加禁止）', () => {
     const allFiles = collectTsFiles(SRC_DIR)
