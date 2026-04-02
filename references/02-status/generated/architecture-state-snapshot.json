@@ -1,8 +1,8 @@
 {
-  "timestamp": "2026-04-02T14:37:59.700Z",
-  "totalAllowlistEntries": 44,
+  "timestamp": "2026-04-02T16:02:50.609Z",
+  "totalAllowlistEntries": 42,
   "categoryBreakdown": {
-    "adapter": 7,
+    "adapter": 5,
     "lifecycle": 2,
     "structural": 35
   },
@@ -79,7 +79,6 @@
     "application/hooks/useExplanation.ts",
     "application/hooks/useFactorDecomposition.ts",
     "application/hooks/useFilterSelectors.ts",
-    "application/hooks/useFreePeriodAnalysis.ts",
     "application/hooks/useGeocode.ts",
     "application/hooks/useHierarchySelection.ts",
     "application/hooks/useImport.ts",
@@ -267,9 +266,9 @@
   ],
   "listSummary": {
     "applicationToInfrastructure": {
-      "count": 9,
+      "count": 7,
       "categories": {
-        "adapter": 7,
+        "adapter": 5,
         "lifecycle": 2
       }
     },
