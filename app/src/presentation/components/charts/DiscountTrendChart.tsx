@@ -5,8 +5,6 @@ import { useState, useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { useCurrencyFormat, toPct } from './chartTheme'
-// DualPeriodSlider は削除（親チャートの期間指定に統合）
-// useDualPeriodRange は削除（スライダー期間指定廃止）
 import type { DailyRecord, DiscountEntry } from '@/domain/models/record'
 import { DISCOUNT_TYPES } from '@/domain/models/record'
 import { formatPercent } from '@/domain/formatting'
