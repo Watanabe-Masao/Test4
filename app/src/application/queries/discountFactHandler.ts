@@ -11,7 +11,7 @@ import { buildDiscountFactReadModel } from '@/application/readModels/discountFac
 import type { DiscountFactInput, DiscountFactOutput } from '@/application/readModels/discountFact'
 
 export const discountFactHandler: QueryHandler<DiscountFactInput, DiscountFactOutput> = {
-  name: 'DiscountFact',
+  name: 'discountFact',
   async execute(conn, input) {
     const storeIds = input.storeIds ? [...input.storeIds].sort() : undefined
     const rows = await queryDiscountFact(
