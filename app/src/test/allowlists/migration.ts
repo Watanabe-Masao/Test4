@@ -12,17 +12,15 @@ export const cmpPrevYearDaily: readonly AllowlistEntry[] = [] as const
 /** INV-CMP-03: comparisonFrame.previous — 全件解消済み。凍結 */
 export const cmpFramePrevious: readonly AllowlistEntry[] = [] as const
 
-/** INV-CMP-08: dailyMapping の既存違反（構造的例外 — 封じ込め対象） */
+/** INV-CMP-08: dailyMapping の直接ループ（buildSameDowPoints 移行待ち） */
 export const cmpDailyMapping: readonly AllowlistEntry[] = [
   {
     path: 'presentation/pages/Dashboard/widgets/PrevYearBudgetDetailPanel.tsx',
     reason:
-      'sourceDate を比較サブシステムの未移行 interface に合わせるために保持。' +
-      'panel 側で比較先解決・時間スコープ判断はしていない（表示分岐のみ）。',
+      'dailyMapping.map() で日別行を直接構築。sourceDate は消滅済みだが、' +
+      'dailyMapping の直接ループが残存。buildSameDowPoints への移行で解消。',
     category: 'structural',
     removalCondition:
-      'PrevYearBudgetDetailPanel が sourceDate 非依存の ComparisonViewModel を受け取るようになった時。' +
-      '具体的には: comparison subsystem 移行完了後、panel の sourceDate 直接参照を禁止し、' +
-      'ComparisonScope / TemporalScope 由来の解決が application 層に一本化された時点で削除。',
+      'PrevYearBudgetDetailPanel が buildSameDowPoints() を使用するようになった時',
   },
 ] as const
