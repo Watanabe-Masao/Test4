@@ -24,6 +24,7 @@ import {
   buildPeriodLabels,
   buildBudgetDetailRows,
 } from './PrevYearBudgetDetailPanel.vm'
+import { buildSameDowPoints } from '@/application/comparison/comparisonTypes'
 import {
   Overlay,
   Panel,
@@ -131,23 +132,29 @@ export function PrevYearBudgetDetailPanel({
 
   const title = type === 'sameDow' ? '予算成長率（同曜日）' : '予算成長率（同日）'
 
+  // dailyMapping → comparison ポイント変換（buildSameDowPoints 経由）
+  const comparisonPoints = useMemo(() => {
+    const map = buildSameDowPoints(entry.dailyMapping)
+    return [...map.values()].sort((a, b) => a.currentDay - b.currentDay)
+  }, [entry.dailyMapping])
+
   const periodLabels = useMemo(
-    () => buildPeriodLabels(entry.dailyMapping, sourceYear, sourceMonth, targetYear, targetMonth),
-    [entry.dailyMapping, sourceYear, sourceMonth, targetYear, targetMonth],
+    () => buildPeriodLabels(comparisonPoints, sourceYear, sourceMonth, targetYear, targetMonth),
+    [comparisonPoints, sourceYear, sourceMonth, targetYear, targetMonth],
   )
 
-  // 日別データ + 週番号 — ViewModel 経由で構築（dailyMapping 直接ループ禁止）
+  // 日別データ + 週番号 — ViewModel 経由（comparison ポイントベース）
   const baseRows = useMemo(
     () =>
       buildBudgetDetailRows(
-        entry.dailyMapping,
+        comparisonPoints,
         budgetDaily,
         targetYear,
         targetMonth,
         weekNumber,
         getDow,
       ),
-    [entry.dailyMapping, budgetDaily, targetYear, targetMonth],
+    [comparisonPoints, budgetDaily, targetYear, targetMonth],
   )
 
   const weeklyTotals = useMemo(() => aggregateWeeklyTotals(baseRows), [baseRows])
