@@ -1,10 +1,14 @@
 import { useState, useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
-import { EChart } from './EChart'
-import { useChartTheme, useCurrencyFormatter, toPct } from './chartTheme'
+import { EChart } from '@/presentation/components/charts/EChart'
+import {
+  useChartTheme,
+  useCurrencyFormatter,
+  toPct,
+} from '@/presentation/components/charts/chartTheme'
 
-import { ChartCard } from './ChartCard'
+import { ChartCard } from '@/presentation/components/charts/ChartCard'
 import {
   ToggleRow,
   ViewToggle,

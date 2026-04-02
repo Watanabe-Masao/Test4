@@ -10,8 +10,12 @@
  * - 一言判断文（自動生成）
  */
 import { memo } from 'react'
-import { useChartTheme, useCurrencyFormatter, toPct } from './chartTheme'
-import { ChartCard } from './ChartCard'
+import {
+  useChartTheme,
+  useCurrencyFormatter,
+  toPct,
+} from '@/presentation/components/charts/chartTheme'
+import { ChartCard } from '@/presentation/components/charts/ChartCard'
 import {
   MetricsRow,
   Metric,
