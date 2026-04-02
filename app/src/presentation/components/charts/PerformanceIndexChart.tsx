@@ -77,6 +77,8 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
   const ct = useChartTheme()
   const theme = useTheme() as AppTheme
   const [view, setView] = useState<ViewType>('piAmount')
+  // 範囲選択状態（子チャートに期間を渡す用）
+  const [selectedRange, setSelectedRange] = useState<{ from: number; to: number } | null>(null)
   const { chartData, stats, piMa7, prevPiMa7, qtyPiMa7, prevQtyPiMa7 } = useMemo(
     () =>
       buildPerformanceData(
@@ -123,6 +125,50 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
     [onDayClick, view, data],
   )
 
+  // バークリックで範囲選択（1日分）
+  const handleBarClick = useCallback(
+    (params: Record<string, unknown>) => {
+      if (view === 'zScore' && onDayClick) {
+        handleClick(params)
+        return
+      }
+      const dataIndex = params.dataIndex as number | undefined
+      if (dataIndex == null) return
+      const entry = data[dataIndex]
+      if (!entry) return
+      setSelectedRange({ from: entry.day, to: entry.day })
+    },
+    [view, data, onDayClick, handleClick],
+  )
+
+  // ブラシ選択で範囲選択
+  const handleBrushEnd = useCallback(
+    (params: Record<string, unknown>) => {
+      const areas = (params as { areas?: { coordRange?: number[] }[] }).areas
+      if (!areas || areas.length === 0) return
+      const range = areas[0].coordRange
+      if (!range || range.length < 2) return
+      const startIdx = Math.max(0, Math.min(range[0], range[1]))
+      const endIdx = Math.min(data.length - 1, Math.max(range[0], range[1]))
+      const fromDay = data[startIdx]?.day
+      const toDay = data[endIdx]?.day
+      if (fromDay != null && toDay != null) {
+        setSelectedRange({ from: fromDay, to: toDay })
+      }
+    },
+    [data],
+  )
+
+  // 子チャートに渡す期間（選択範囲があればそれ、なければ月全体）
+  const childDateRange = useMemo((): DateRange | undefined => {
+    if (!currentDateRange) return undefined
+    if (!selectedRange) return currentDateRange
+    return {
+      from: { year, month, day: selectedRange.from },
+      to: { year, month, day: selectedRange.to },
+    }
+  }, [currentDateRange, selectedRange, year, month])
+
   const option = useMemo(
     () => buildPerformanceOption(data, view, ct, theme),
     [data, view, ct, theme],
@@ -163,10 +209,33 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
         </StatsRow>
       )}
 
+      {selectedRange && (
+        <div style={{ fontSize: 12, color: ct.text, marginBottom: 4, textAlign: 'right' }}>
+          選択範囲: {month}/{selectedRange.from}〜{month}/{selectedRange.to}
+          <button
+            onClick={() => setSelectedRange(null)}
+            style={{
+              marginLeft: 8,
+              fontSize: 11,
+              cursor: 'pointer',
+              background: 'none',
+              border: '1px solid currentColor',
+              borderRadius: 4,
+              padding: '1px 6px',
+              color: 'inherit',
+            }}
+          >
+            クリア
+          </button>
+        </div>
+      )}
+
       <EChart
         option={option}
         height={view === 'deviation' ? 280 : 320}
-        onClick={view === 'zScore' && onDayClick ? handleClick : undefined}
+        onClick={handleBarClick}
+        onBrushEnd={view === 'piAmount' || view === 'piQuantity' ? handleBrushEnd : undefined}
+        enableBrushClickEmulation={view === 'piAmount' || view === 'piQuantity'}
         ariaLabel="業績指数チャート"
       />
 
@@ -178,7 +247,7 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
       {queryExecutor?.isReady && currentDateRange && selectedStoreIds && (
         <CategoryPerformanceChart
           queryExecutor={queryExecutor}
-          currentDateRange={currentDateRange}
+          currentDateRange={childDateRange ?? currentDateRange}
           prevYearScope={prevYearScope}
           selectedStoreIds={selectedStoreIds}
           totalCustomers={totalCustomers ?? 0}
