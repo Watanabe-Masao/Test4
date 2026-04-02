@@ -1,12 +1,12 @@
 # Query Access Audit Report
 
-> Generated: 2026-04-02T10:44:56.553Z
+> Generated: 2026-04-02T11:17:07.039Z
 
 ## Route Summary
 
 | 経路種別 | 件数 | 状態 |
 |---|---|---|
-| QueryHandler 定義 | 28 | 基盤 |
+| QueryHandler 定義 | 30 | 基盤 |
 | useQueryWithHandler（正規） | 29 | 正規 |
 | comparisonAccessors（正規） | 8 | 正規 |
 | facade hook（正規） | 0 | 正規 |
@@ -70,6 +70,8 @@
 - application/queries/dept/DeptKpiTrendHandler.ts
 - application/queries/features/DailyFeaturesHandler.ts
 - application/queries/features/DowPatternHandler.ts
+- application/queries/freePeriodBudgetHandler.ts
+- application/queries/freePeriodDeptKPIHandler.ts
 - application/queries/freePeriodHandler.ts
 - application/queries/purchase/StoreDailyMarkupRateHandler.ts
 - application/queries/summary/AggregatedRatesHandler.ts
@@ -95,6 +97,6 @@
 - presentation/components/charts/WeatherAnalysisPanel.tsx
 - presentation/components/charts/WeatherCorrelationChart.tsx
 - presentation/components/charts/WeatherCorrelationChart.vm.ts
-- presentation/hooks/useUnifiedWidgetContext.ts
+- presentation/hooks/useQueryBundle.ts
 - presentation/pages/Dashboard/widgets/EtrnTestWidget.tsx
 - presentation/pages/Dashboard/widgets/WeatherWidget.tsx

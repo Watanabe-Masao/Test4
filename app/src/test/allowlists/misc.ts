@@ -10,7 +10,13 @@ export const dowCalcOverride: readonly AllowlistEntry[] = [] as const
 export const ctxHook: readonly AllowlistEntry[] = [
   {
     path: 'presentation/hooks/useUnifiedWidgetContext.ts',
-    reason: 'ctx 自体の構築元。useWeatherData を直接 import して ctx に供給する',
+    reason: 'ctx 自体の構築元（bundle hook を compose する）',
+    category: 'structural',
+    removalCondition: 'コンテキスト設計見直し時',
+  },
+  {
+    path: 'presentation/hooks/useQueryBundle.ts',
+    reason: 'ctx 構築の sub-bundle。useWeatherData を直接 import して ctx に供給する',
     category: 'structural',
     removalCondition: 'コンテキスト設計見直し時',
   },

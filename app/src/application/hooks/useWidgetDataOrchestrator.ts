@@ -39,6 +39,9 @@ export interface WidgetDataOrchestratorParams {
 
 // ── 出力（全正本の統合ビュー） ──
 
+/** readModel 名をキーとした個別エラーマップ */
+export type ReadModelErrors = Partial<Record<'purchaseCost' | 'salesFact' | 'discountFact', Error>>
+
 export interface WidgetDataOrchestratorResult {
   /** 仕入原価の複合正本 */
   readonly purchaseCost: PurchaseCostReadModel | null
@@ -48,7 +51,9 @@ export interface WidgetDataOrchestratorResult {
   readonly discountFact: DiscountFactReadModel | null
   /** ローディング状態（いずれかがロード中） */
   readonly isLoading: boolean
-  /** エラー（最初のエラー） */
+  /** 個別 readModel のエラー（障害分析用） */
+  readonly errors: ReadModelErrors
+  /** 最初のエラー（後方互換） */
   readonly error: Error | null
 }
 
@@ -63,8 +68,8 @@ export function useWidgetDataOrchestrator(
 ): WidgetDataOrchestratorResult {
   const { executor, dateFrom, dateTo, storeIds, dataVersion, isPrevYear } = params
 
-  // ── 入力を正本ごとに構築 ──
-  const purchaseCostInput = useMemo<PurchaseCostInput | null>(
+  // ── 入力を正本ごとに構築（共通ベースから派生） ──
+  const base = useMemo(
     () =>
       dataVersion > 0
         ? {
@@ -77,32 +82,19 @@ export function useWidgetDataOrchestrator(
     [dateFrom, dateTo, storeIds, dataVersion],
   )
 
+  const purchaseCostInput = useMemo<PurchaseCostInput | null>(
+    () => (base ? { ...base } : null),
+    [base],
+  )
+
   const salesFactInput = useMemo<SalesFactInput | null>(
-    () =>
-      dataVersion > 0
-        ? {
-            dateFrom,
-            dateTo,
-            storeIds: storeIds ? [...storeIds] : undefined,
-            isPrevYear: isPrevYear ?? false,
-            dataVersion,
-          }
-        : null,
-    [dateFrom, dateTo, storeIds, isPrevYear, dataVersion],
+    () => (base ? { ...base, isPrevYear: isPrevYear ?? false } : null),
+    [base, isPrevYear],
   )
 
   const discountFactInput = useMemo<DiscountFactInput | null>(
-    () =>
-      dataVersion > 0
-        ? {
-            dateFrom,
-            dateTo,
-            storeIds: storeIds ? [...storeIds] : undefined,
-            isPrevYear: isPrevYear ?? false,
-            dataVersion,
-          }
-        : null,
-    [dateFrom, dateTo, storeIds, isPrevYear, dataVersion],
+    () => (base ? { ...base, isPrevYear: isPrevYear ?? false } : null),
+    [base, isPrevYear],
   )
 
   // ── 3正本を並列取得 ──
@@ -124,24 +116,29 @@ export function useWidgetDataOrchestrator(
     error: dfError,
   } = useQueryWithHandler(executor, discountFactHandler, discountFactInput)
 
-  return useMemo(
-    () => ({
+  return useMemo(() => {
+    const errors: ReadModelErrors = {}
+    if (pcError) errors.purchaseCost = pcError
+    if (sfError) errors.salesFact = sfError
+    if (dfError) errors.discountFact = dfError
+
+    return {
       purchaseCost: purchaseCostData?.model ?? null,
       salesFact: salesFactData?.model ?? null,
       discountFact: discountFactData?.model ?? null,
       isLoading: pcLoading || sfLoading || dfLoading,
+      errors,
       error: pcError ?? sfError ?? dfError ?? null,
-    }),
-    [
-      purchaseCostData,
-      salesFactData,
-      discountFactData,
-      pcLoading,
-      sfLoading,
-      dfLoading,
-      pcError,
-      sfError,
-      dfError,
-    ],
-  )
+    }
+  }, [
+    purchaseCostData,
+    salesFactData,
+    discountFactData,
+    pcLoading,
+    sfLoading,
+    dfLoading,
+    pcError,
+    sfError,
+    dfError,
+  ])
 }
