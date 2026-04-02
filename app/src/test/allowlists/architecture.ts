@@ -44,18 +44,8 @@ export const applicationToInfrastructure: readonly AllowlistEntry[] = [
     category: 'adapter',
     removalCondition: 'i18n が adapter 層に移行されたとき',
   },
-  {
-    path: 'application/readModels/salesFact/readSalesFact.ts',
-    reason: '売上・販売点数の正本（infrastructure/duckdb/queries/ 経由で取得）',
-    category: 'adapter',
-    removalCondition: 'readModel が infra query を直接呼ばず QueryHandler 経由になった時',
-  },
-  {
-    path: 'application/readModels/discountFact/readDiscountFact.ts',
-    reason: '値引き（売変）の正本（infrastructure/duckdb/queries/ 経由で取得）',
-    category: 'adapter',
-    removalCondition: 'readModel が infra query を直接呼ばず QueryHandler 経由になった時',
-  },
+  // readSalesFact / readDiscountFact: pure builder 化完了。
+  // handler が infra query を呼び、readModel は raw data を受け取る形に変更済み。
   // readFreePeriodFact / BudgetFact / DeptKPI: pure builder 化完了。
   // handler が infra query を呼び、readModel は raw data を受け取る形に変更済み。
   // weatherAdapter: DI 化完了（useWeatherAdapter → AdapterContext 経由）。削除済み。

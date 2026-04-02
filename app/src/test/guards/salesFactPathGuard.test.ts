@@ -16,11 +16,10 @@ const SRC_DIR = path.resolve(__dirname, '../..')
 describe('売上ファクト正本ガード', () => {
   // ── 正本関数の存在確認 ──
 
-  it('readSalesFact が純関数として存在する', () => {
+  it('buildSalesFactReadModel が pure builder として存在する', () => {
     const file = path.join(SRC_DIR, 'application/readModels/salesFact/readSalesFact.ts')
     const content = fs.readFileSync(file, 'utf-8')
-    expect(content).toContain('export async function readSalesFact(')
-    expect(content).toContain('export const salesFactHandler')
+    expect(content).toContain('export function buildSalesFactReadModel(')
     expect(content).toContain('SalesFactReadModel.parse')
   })
 
