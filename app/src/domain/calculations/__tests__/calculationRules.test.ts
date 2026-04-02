@@ -474,7 +474,9 @@ describe('RULE-C1: Chart files のパーセント書式は toPct を経由する
       const usesToPct = /toPct\s*\(/.test(content)
       if (usesToPct) {
         const hasChartThemeImport =
-          /import\s+\{[^}]*toPct[^}]*\}\s+from\s+['"]\.\/chartTheme['"]/.test(content)
+          /import\s+\{[^}]*toPct[^}]*\}\s+from\s+['"](?:\.\/chartTheme|@\/presentation\/components\/charts\/chartTheme)['"]/.test(
+            content,
+          )
         const hasFormatPercentAlias = /import\s+\{[^}]*formatPercent\s+as\s+toPct[^}]*\}/.test(
           content,
         )
