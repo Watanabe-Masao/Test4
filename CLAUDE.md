@@ -389,8 +389,8 @@ CQRS + 契約ハイブリッド設計により、既存4層モデルの内側に
 | 値引き | `readDiscountFact()` | `discount-definition.md` | discountFactPathGuard (5) |
 | 要因分解 | `calculateFactorDecomposition()` | `authoritative-calculation-definition.md` | factorDecompositionPathGuard (5) |
 | 自由期間分析 | `readFreePeriodFact()` | `free-period-analysis-definition.md` | freePeriodPathGuard (7) |
-| 自由期間予算 | `readFreePeriodBudgetFact()` | `free-period-budget-kpi-contract.md` | — |
-| 自由期間部門KPI | `readFreePeriodDeptKPI()` | `free-period-budget-kpi-contract.md` | — |
+| 自由期間予算 | `readFreePeriodBudgetFact()` | `free-period-budget-kpi-contract.md` | freePeriodBudgetPathGuard (6) |
+| 自由期間部門KPI | `readFreePeriodDeptKPI()` | `free-period-budget-kpi-contract.md` | freePeriodDeptKPIPathGuard (4) |
 | 予算 | StoreResult（統一済み） | `budget-definition.md` | — |
 | KPI | StoreResult（統一済み） | `kpi-definition.md` | — |
 | PI値 | `calculateQuantityPI()` / `calculateAmountPI()` | `pi-value-definition.md` | — |
