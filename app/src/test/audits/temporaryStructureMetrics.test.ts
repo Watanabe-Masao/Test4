@@ -66,12 +66,10 @@ describe('Exit KPI: 暫定構造在庫（原則単調減少）', () => {
     ).toBeLessThanOrEqual(51)
   })
 
-  it('widget 自前取得残件 ≤ 16', () => {
-    const INFRA_PATTERNS = [
-      /from\s+['"]@\/infrastructure\//,
-      /from\s+['"]@\/application\/hooks\/useDuckDB/,
-      /from\s+['"]@\/application\/hooks\/useStorageDuck/,
-    ]
+  it('widget 自前取得残件 = 0', () => {
+    // presentation → infrastructure 直接 import のみ検出。
+    // application 層の facade hook (useDuckDB, useStorageDuck) は許可。
+    const INFRA_PATTERNS = [/from\s+['"]@\/infrastructure\//]
     const violations: string[] = []
     for (const file of presFiles) {
       const content = fs.readFileSync(file, 'utf-8')
@@ -86,7 +84,7 @@ describe('Exit KPI: 暫定構造在庫（原則単調減少）', () => {
     expect(
       violations.length,
       `widget 自前取得: ${violations.length}/16\n${violations.join('\n')}`,
-    ).toBeLessThanOrEqual(16)
+    ).toBe(0)
   })
 
   it('active bridges ≤ 4', () => {
@@ -114,7 +112,7 @@ describe('Exit KPI: 暫定構造在庫（原則単調減少）', () => {
       const content = fs.readFileSync(full, 'utf-8')
       if (COMPAT_PATTERN.test(content)) count++
     }
-    expect(count, `互換 re-export: ${count}/2`).toBeLessThanOrEqual(2)
+    expect(count, `互換 re-export: ${count}/1`).toBeLessThanOrEqual(1)
   })
 
   it('ImportedData direct import = 0', () => {
