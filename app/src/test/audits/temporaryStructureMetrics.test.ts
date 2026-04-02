@@ -47,7 +47,11 @@ describe('Exit KPI: 暫定構造在庫（原則単調減少）', () => {
     expect(dirs, '正本化済み readModel 領域数が減少しています').toBeGreaterThanOrEqual(6)
   })
 
-  it('allowlist アクティブ件数 ≤ 50', () => {
+  it('allowlist 総エントリ数 ≤ 51', () => {
+    // 「総エントリ数」= allowlists/*.ts 内の { reason: ... } の出現回数
+    // これは「許可リストに登録されている例外」の総数で、
+    // adapter / compat / legacy 含む全カテゴリの合計。
+    // 個別カテゴリ（アクティブ / adapter / compat）は snapshot で追跡する。
     const allowlistDir = path.join(SRC_DIR, 'test/allowlists')
     if (!fs.existsSync(allowlistDir)) return
     let count = 0
@@ -58,7 +62,7 @@ describe('Exit KPI: 暫定構造在庫（原則単調減少）', () => {
     }
     expect(
       count,
-      `allowlist アクティブ件数: ${count}/50。削減を継続してください`,
+      `allowlist 総エントリ数: ${count}/51。削減を継続してください`,
     ).toBeLessThanOrEqual(51)
   })
 

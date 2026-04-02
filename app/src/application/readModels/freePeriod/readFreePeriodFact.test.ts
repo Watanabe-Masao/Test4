@@ -68,4 +68,16 @@ describe('computeFreePeriodSummary', () => {
     const summary = computeFreePeriodSummary(rows)
     expect(summary.transactionValue).toBe(0)
   })
+
+  it('月跨ぎ（同じ day 番号でも dateKey が異なれば別日として集計）', () => {
+    const rows = [
+      makeRow({ storeId: 's1', dateKey: '2025-03-31', day: 31, sales: 10000 }),
+      makeRow({ storeId: 's1', dateKey: '2025-04-01', day: 1, sales: 15000 }),
+      makeRow({ storeId: 's1', dateKey: '2025-04-01', day: 1, sales: 5000 }),
+    ]
+    const summary = computeFreePeriodSummary(rows)
+    expect(summary.dayCount).toBe(2) // 3月31日 + 4月1日
+    expect(summary.totalSales).toBe(30000)
+    expect(summary.averageDailySales).toBe(15000)
+  })
 })

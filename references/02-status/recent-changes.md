@@ -41,7 +41,7 @@
 | KPI | baseline |
 |-----|----------|
 | 正本化 readModel 領域 | 6 |
-| allowlist アクティブ | 51 |
+| allowlist 総エントリ数 | 51 |
 | widget 自前取得 | ≤ 16 |
 | active bridges | ≤ 4 |
 | 互換 re-export | ≤ 2 |

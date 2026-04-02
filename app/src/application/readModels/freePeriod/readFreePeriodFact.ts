@@ -49,10 +49,10 @@ const DAILY_SQL = (where: string) => `
     cs.is_prev_year AS "isPrevYear"
   FROM classified_sales cs
   LEFT JOIN (
-    SELECT store_id, day, SUM(cost) AS cost, SUM(price) AS price
+    SELECT store_id, date_key, SUM(cost) AS cost, SUM(price) AS price
     FROM purchase
-    GROUP BY store_id, day
-  ) p ON cs.store_id = p.store_id AND cs.day = p.day
+    GROUP BY store_id, date_key
+  ) p ON cs.store_id = p.store_id AND cs.date_key = p.date_key
   ${where}
   GROUP BY cs.store_id, cs.date_key, cs.day, cs.is_prev_year, p.cost, p.price
   ORDER BY cs.date_key, cs.store_id
