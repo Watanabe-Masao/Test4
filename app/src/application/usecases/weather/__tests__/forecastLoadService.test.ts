@@ -8,7 +8,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import type { StoreLocation } from '@/domain/models/record'
 import type { WeatherPort } from '@/domain/ports/WeatherPort'
 
-vi.mock('@/application/adapters/weatherAdapter', () => ({
+vi.mock('@/infrastructure/adapters/weatherAdapter', () => ({
   weatherAdapter: {
     resolveEtrnStationByLocation: vi.fn(),
     fetchDailyWeather: vi.fn(),
@@ -21,7 +21,7 @@ vi.mock('@/application/adapters/weatherAdapter', () => ({
   } satisfies WeatherPort,
 }))
 
-import { weatherAdapter } from '@/application/adapters/weatherAdapter'
+import { weatherAdapter } from '@/infrastructure/adapters/weatherAdapter'
 import { loadForecastForStore } from '../ForecastLoadService'
 
 const mockAdapter = vi.mocked(weatherAdapter)
@@ -53,7 +53,7 @@ describe('loadForecastForStore', () => {
       resolvedWeekAreaCode: '130010',
     })
 
-    const result = await loadForecastForStore(BASE_LOCATION)
+    const result = await loadForecastForStore(weatherAdapter, BASE_LOCATION)
 
     expect(mockAdapter.resolveForecastOfficeByLocation).toHaveBeenCalledWith(35.6895, 139.6917)
     expect(mockAdapter.fetchWeeklyForecast).toHaveBeenCalledWith('130000', undefined)
@@ -72,7 +72,7 @@ describe('loadForecastForStore', () => {
       resolvedWeekAreaCode: '130010',
     })
 
-    await loadForecastForStore(CACHED_LOCATION)
+    await loadForecastForStore(weatherAdapter, CACHED_LOCATION)
 
     expect(mockAdapter.resolveForecastOfficeByLocation).not.toHaveBeenCalled()
     expect(mockAdapter.fetchWeeklyForecast).toHaveBeenCalledWith('130000', '130010')
@@ -81,7 +81,7 @@ describe('loadForecastForStore', () => {
   it('officeCode 解決失敗 → fetchWeeklyForecast は呼ばれず空配列を返す', async () => {
     mockAdapter.resolveForecastOfficeByLocation.mockResolvedValue(null)
 
-    const result = await loadForecastForStore(BASE_LOCATION)
+    const result = await loadForecastForStore(weatherAdapter, BASE_LOCATION)
 
     expect(mockAdapter.fetchWeeklyForecast).not.toHaveBeenCalled()
     expect(result.forecasts).toEqual([])
@@ -99,7 +99,7 @@ describe('loadForecastForStore', () => {
       resolvedWeekAreaCode: '130010',
     })
 
-    const result = await loadForecastForStore(locationWithOffice)
+    const result = await loadForecastForStore(weatherAdapter, locationWithOffice)
 
     expect(result.resolution).toEqual(
       expect.objectContaining({

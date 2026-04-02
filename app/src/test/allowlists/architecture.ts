@@ -71,12 +71,7 @@ export const applicationToInfrastructure: readonly AllowlistEntry[] = [
     category: 'adapter',
     removalCondition: 'クエリを infrastructure/duckdb/queries/ に移動後に削除',
   },
-  {
-    path: 'application/adapters/weatherAdapter.ts',
-    reason: 're-export bridge（WeatherLoadService/ForecastLoadService が使用中）',
-    category: 'adapter',
-    removalCondition: 'サービスが DI パラメータ経由に切替後に削除',
-  },
+  // weatherAdapter: DI 化完了（useWeatherAdapter → AdapterContext 経由）。削除済み。
   {
     path: 'application/lifecycle/useAppLifecycle.ts',
     reason: 'DuckDB エンジン状態の購読（App Lifecycle 統合に必要）',

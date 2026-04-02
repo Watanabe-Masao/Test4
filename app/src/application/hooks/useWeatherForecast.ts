@@ -11,6 +11,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import type { DailyForecast, ForecastAreaResolution } from '@/domain/models/record'
 import { loadForecastForStore } from '../usecases/weather/ForecastLoadService'
 import { useSettingsStore } from '../stores/settingsStore'
+import { useWeatherAdapter } from '@/application/context/useWeatherAdapter'
 
 export interface UseWeatherForecastResult {
   /** 週間天気予報（最大7日分） */
@@ -31,6 +32,7 @@ export interface UseWeatherForecastResult {
  * @param storeId 店舗ID
  */
 export function useWeatherForecast(storeId: string): UseWeatherForecastResult {
+  const weather = useWeatherAdapter()
   const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
   const updateSettings = useSettingsStore((s) => s.updateSettings)
   const [state, setState] = useState<{
@@ -55,7 +57,7 @@ export function useWeatherForecast(storeId: string): UseWeatherForecastResult {
 
     const run = async () => {
       try {
-        const result = await loadForecastForStore(location)
+        const result = await loadForecastForStore(weather, location)
 
         if (cancelled || seq !== seqRef.current) return
 

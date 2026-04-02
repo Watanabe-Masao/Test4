@@ -5,7 +5,7 @@
  * の流れで週間天気予報を取得する。AMeDAS に非依存。
  */
 import type { StoreLocation, DailyForecast, ForecastAreaResolution } from '@/domain/models/record'
-import { weatherAdapter } from '@/application/adapters/weatherAdapter'
+import type { WeatherPort } from '@/domain/ports/WeatherPort'
 
 /**
  * 店舗の位置情報から週間天気予報を取得する。
@@ -13,7 +13,10 @@ import { weatherAdapter } from '@/application/adapters/weatherAdapter'
  * 1. officeCode を解決（StoreLocation にキャッシュ済みなら skip）
  * 2. forecast API で週間予報を取得
  */
-export async function loadForecastForStore(location: StoreLocation): Promise<{
+export async function loadForecastForStore(
+  weather: WeatherPort,
+  location: StoreLocation,
+): Promise<{
   readonly forecasts: readonly DailyForecast[]
   readonly resolution: ForecastAreaResolution | null
 }> {
@@ -23,7 +26,7 @@ export async function loadForecastForStore(location: StoreLocation): Promise<{
 
   // 1. officeCode を解決
   if (!officeCode) {
-    const resolved = await weatherAdapter.resolveForecastOfficeByLocation(
+    const resolved = await weather.resolveForecastOfficeByLocation(
       location.latitude,
       location.longitude,
     )
@@ -41,7 +44,7 @@ export async function loadForecastForStore(location: StoreLocation): Promise<{
     officeCode,
     weekAreaCode ?? '(auto)',
   )
-  const result = await weatherAdapter.fetchWeeklyForecast(officeCode, weekAreaCode ?? undefined)
+  const result = await weather.fetchWeeklyForecast(officeCode, weekAreaCode ?? undefined)
 
   // weekAreaCode が未キャッシュの場合、レスポンスから取得した値を使う
   if (!weekAreaCode && result.resolvedWeekAreaCode) {
