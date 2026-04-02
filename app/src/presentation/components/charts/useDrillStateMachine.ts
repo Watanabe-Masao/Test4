@@ -162,6 +162,18 @@ export function useDrillStateMachine({ canDrill }: UseDrillStateMachineParams) {
   )
 
   const handleRangeToTimeSlot = useCallback(() => dispatch({ type: 'RANGE_TO_TIMESLOT' }), [])
+
+  /** ダブルクリック → 範囲選択 + 即座に時間帯チャートへ遷移 */
+  const handleDblClickToTimeSlot = useCallback(
+    (day: number) => {
+      if (!canDrill) return
+      dispatch({ type: 'DAY_RANGE_SELECT', start: day, end: day })
+      // 次の tick で RANGE_TO_TIMESLOT を dispatch（state 更新後に実行）
+      setTimeout(() => dispatch({ type: 'RANGE_TO_TIMESLOT' }), 0)
+    },
+    [canDrill],
+  )
+
   const handleRangeToDrilldown = useCallback(() => dispatch({ type: 'RANGE_TO_DRILLDOWN' }), [])
   const handleRangeCancel = useCallback(() => dispatch({ type: 'RANGE_CANCEL' }), [])
   const handleDrillToTimeSlot = useCallback(() => dispatch({ type: 'DRILL_TO_TIMESLOT' }), [])
@@ -211,6 +223,7 @@ export function useDrillStateMachine({ canDrill }: UseDrillStateMachineParams) {
     handleDayClick,
     handleDayRangeSelect,
     handleRangeToTimeSlot,
+    handleDblClickToTimeSlot,
     handleRangeToDrilldown,
     handleRangeCancel,
     handleDrillToTimeSlot,

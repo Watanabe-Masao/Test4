@@ -14,6 +14,44 @@
 > 注: v0.9.0〜v1.5.1 は開発初期に厳密な semver 運用が行われていなかった時期のバージョンです。
 > v1.6.0 以降は上記ポリシーに従います。
 
+## [v1.7.0] - 2026-04-02
+
+### アーキテクチャ改善
+
+- **God Hook 分割**: `useUnifiedWidgetContext`（49フィールド/29依存）を 3 bundle に分割（useComparisonBundle / useQueryBundle / useChartInteractionBundle）
+- **readModel pure builder 化**: 5 readModel を pure builder に変換し、app→infra 依存を 12→7 に削減
+- **comparison VM 共通基盤**: `ComparisonPoint` / `DailyYoYRow` / `aggregateContributions` を共通化
+- **Category チャート移動**: 35 ファイルを `features/category/ui/charts/` に移動（バレル re-export で後方互換維持）
+- **query-access audit 拡張**: features/ スキャン + bundle hook 検出を追加
+- **Orchestrator 改善**: `errors: Partial<Record<...>>` で個別 readModel エラー観測可能に
+
+### バグ修正
+
+- **前年客数=0**: flowers を `ClassifiedSalesDaySummary` に JOIN し、`getFlowers` 個別参照を `summary.customers` に統合
+- **PI値分析ラベル**: 点数PI選択時に金額PIラベルが表示されるバグを修正（series name を view-aware に変更）
+- **base path ハードコード**: SW / manifest / index.html の `/Test4/` をビルド時注入に変更
+
+### パフォーマンス
+
+- **日別点数クエリ並列化**: `DailyQuantityPairHandler` で当年+前年を `Promise.all` で並列取得（debounce 50ms × 2 の待ち時間を解消）
+
+### 新機能
+
+- **ダブルクリック→時間帯遷移**: 日別売上チャートでダブルクリック → 時間帯チャートに自動ドリルダウン
+- **free-period Explanation**: 自由期間分析の L1/L2 説明責任接続（5 MetricId + ビルダー）
+- **free-period Bundle Hook**: `useFreePeriodAnalysisBundle` で 3 readModel を 1 hook から並列取得
+
+### CI/CD
+
+- **failure artifact upload**: Playwright / coverage レポートを失敗時にアップロード
+- **permissions 最小化**: workflow レベルで `contents: read` を明示
+
+### レガシーコード削除
+
+- `useFreePeriodAnalysis.ts` 削除（`useFreePeriodAnalysisBundle` に完全置換）
+- `DiscountTrendChart` の dead import コメント削除
+- `purchaseComparisonKpi` の廃止済み関数コメント削除
+
 ## [v1.6.0] - 2026-03-31
 
 ### UI 改善

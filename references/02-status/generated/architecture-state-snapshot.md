@@ -1,12 +1,12 @@
 # Architecture State Snapshot
 
-> Generated: 2026-04-02T14:37:59.700Z
+> Generated: 2026-04-02T16:02:50.609Z
 
 ## Allowlist Summary
 
 | 指標 | 値 |
 |---|---|
-| 総エントリ数 | 44 |
+| 総エントリ数 | 42 |
 | アクティブリスト数 | 12 |
 | 凍結リスト数 | 9 |
 | .vm.ts ファイル数 | 28 |
@@ -17,7 +17,7 @@
 | カテゴリ | 件数 |
 |---|---|
 | structural | 35 |
-| adapter | 7 |
+| adapter | 5 |
 | lifecycle | 2 |
 
 
@@ -66,7 +66,6 @@
 - application/hooks/useExplanation.ts
 - application/hooks/useFactorDecomposition.ts
 - application/hooks/useFilterSelectors.ts
-- application/hooks/useFreePeriodAnalysis.ts
 - application/hooks/useGeocode.ts
 - application/hooks/useHierarchySelection.ts
 - application/hooks/useImport.ts
@@ -146,8 +145,8 @@
 
 | リスト名 | 件数 | カテゴリ内訳 |
 |---|---|---|
-| applicationToInfrastructure | 9 | adapter:7, lifecycle:2 |
 | presentationMemoLimits | 8 | structural:8 |
+| applicationToInfrastructure | 7 | adapter:5, lifecycle:2 |
 | domainLargeFiles | 7 | structural:7 |
 | presentationStateLimits | 4 | structural:4 |
 | useStateLimits | 3 | structural:3 |

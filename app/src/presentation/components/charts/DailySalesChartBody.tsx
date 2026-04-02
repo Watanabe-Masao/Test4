@@ -20,6 +20,8 @@ interface Props {
   onDayRangeSelect?: (startDay: number, endDay: number) => void
   /** シングルクリック → 日別ドリルダウン分析（ダブルクリックと判別） */
   onDayClick?: (day: number) => void
+  /** ダブルクリック → 時間帯チャートへ自動遷移 */
+  onDblClickToTimeSlot?: (day: number) => void
   weatherDaily?: readonly DailyWeatherSummary[]
   prevYearWeatherDaily?: readonly DailyWeatherSummary[]
   /** 同曜日比較時の日オフセット（前年天気の日番号ずらし用） */
@@ -45,6 +47,7 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
   wfLegendPayload,
   onDayRangeSelect,
   onDayClick,
+  onDblClickToTimeSlot,
   weatherDaily,
   prevYearWeatherDaily,
   dowOffset = 0,
@@ -159,11 +162,16 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
         clearTimeout(clickTimerRef.current)
         clickTimerRef.current = null
       }
-      if (!onDayRangeSelect) return
       const day = extractDay(params)
-      if (day != null) onDayRangeSelect(day, day)
+      if (day == null) return
+      // ダブルクリック → 時間帯チャートへ自動遷移
+      if (onDblClickToTimeSlot) {
+        onDblClickToTimeSlot(day)
+      } else if (onDayRangeSelect) {
+        onDayRangeSelect(day, day)
+      }
     },
-    [onDayRangeSelect, extractDay],
+    [onDayRangeSelect, onDblClickToTimeSlot, extractDay],
   )
 
   // ブラシ選択完了 → 日付範囲を通知

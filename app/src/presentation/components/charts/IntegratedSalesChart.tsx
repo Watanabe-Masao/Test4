@@ -110,6 +110,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
     handleDayClick,
     handleDayRangeSelect,
     handleRangeToTimeSlot,
+    handleDblClickToTimeSlot,
     handleRangeCancel,
     handleDrillToTimeSlot,
     handleBackToDaily,
@@ -193,6 +194,7 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
               budgetDaily={props.budgetDaily}
               onDayRangeSelect={canDrill ? handleDayRangeSelect : undefined}
               onDayClick={canDrill ? handleDayClick : undefined}
+              onDblClickToTimeSlot={canDrill ? handleDblClickToTimeSlot : undefined}
               weatherDaily={props.weatherDaily}
               prevYearWeatherDaily={props.prevYearWeatherDaily}
               dowOffset={props.dowOffset}

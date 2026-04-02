@@ -12,9 +12,9 @@ import type { QueryExecutor } from '@/application/queries/QueryPort'
 import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
 import { useMultiMovingAverage } from '@/application/hooks/useMultiMovingAverage'
 import {
-  dailyQuantityHandler,
-  type DailyQuantityInput,
-} from '@/application/queries/summary/DailyQuantityHandler'
+  dailyQuantityPairHandler,
+  type DailyQuantityPairInput,
+} from '@/application/queries/summary/DailyQuantityPairHandler'
 import { aggregateDailyQuantity } from './IntegratedSalesChartLogic'
 import { useDrillStateMachine } from './useDrillStateMachine'
 import { useIntegratedSalesContext } from './useIntegratedSalesContext'
@@ -65,37 +65,36 @@ export function useIntegratedSalesState(params: UseIntegratedSalesStateParams) {
     drillEnd: drill.drillEnd,
   })
 
-  // ── 日別点数データ（DuckDB 由来） ──
+  // ── 日別点数データ（DuckDB 由来、当年+前年を並列取得） ──
   const storeIds = useMemo(
     () => (selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined),
     [selectedStoreIds],
   )
-  const curQtyInput = useMemo<DailyQuantityInput | null>(() => {
-    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-    return { dateFrom: fromKey, dateTo: toKey, storeIds, isPrevYear: false }
-  }, [currentDateRange, storeIds])
   const prevYearDateRange = prevYearScope?.dateRange
-  const prevQtyInput = useMemo<DailyQuantityInput | null>(() => {
-    if (!prevYearDateRange) return null
-    const { fromKey, toKey } = dateRangeToKeys(prevYearDateRange)
-    return { dateFrom: fromKey, dateTo: toKey, storeIds, isPrevYear: true }
-  }, [prevYearDateRange, storeIds])
-  const { data: curQtyOut } = useQueryWithHandler(queryExecutor, dailyQuantityHandler, curQtyInput)
-  const { data: prevQtyOut } = useQueryWithHandler(
+  const qtyPairInput = useMemo<DailyQuantityPairInput | null>(() => {
+    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
+    const base: DailyQuantityPairInput = { dateFrom: fromKey, dateTo: toKey, storeIds }
+    if (prevYearDateRange) {
+      const { fromKey: pFrom, toKey: pTo } = dateRangeToKeys(prevYearDateRange)
+      return { ...base, prevDateFrom: pFrom, prevDateTo: pTo }
+    }
+    return base
+  }, [currentDateRange, storeIds, prevYearDateRange])
+  const { data: qtyPairOut } = useQueryWithHandler(
     queryExecutor,
-    dailyQuantityHandler,
-    prevQtyInput,
+    dailyQuantityPairHandler,
+    qtyPairInput,
   )
   const dailyQuantity = useMemo(
     () =>
       aggregateDailyQuantity(
-        curQtyOut?.records,
-        prevQtyOut?.records,
+        qtyPairOut?.current,
+        qtyPairOut?.prev,
         prevYearDateRange,
         currentDateRange,
         daysInMonth,
       ),
-    [curQtyOut, prevQtyOut, prevYearDateRange, currentDateRange, daysInMonth],
+    [qtyPairOut, prevYearDateRange, currentDateRange, daysInMonth],
   )
 
   // ── 移動平均 overlay ──
@@ -157,6 +156,7 @@ export function useIntegratedSalesState(params: UseIntegratedSalesStateParams) {
     handleDayClick: drill.handleDayClick,
     handleDayRangeSelect: drill.handleDayRangeSelect,
     handleRangeToTimeSlot: drill.handleRangeToTimeSlot,
+    handleDblClickToTimeSlot: drill.handleDblClickToTimeSlot,
     handleRangeToDrilldown: drill.handleRangeToDrilldown,
     handleRangeCancel: drill.handleRangeCancel,
     handleDrillToTimeSlot: drill.handleDrillToTimeSlot,

@@ -6,8 +6,8 @@ import type { StoreDayIndex, SpecialSalesDayEntry } from '@/domain/models/record
 
 // ── ヘルパー ──
 
-function makeSummary(sales: number): ClassifiedSalesDaySummary {
-  return { sales, discount: 0, discountEntries: ZERO_DISCOUNT_ENTRIES }
+function makeSummary(sales: number, customers = 100): ClassifiedSalesDaySummary {
+  return { sales, discount: 0, discountEntries: ZERO_DISCOUNT_ENTRIES, customers }
 }
 
 function makeFlower(

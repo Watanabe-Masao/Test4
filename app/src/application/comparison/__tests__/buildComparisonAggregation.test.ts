@@ -24,11 +24,12 @@ function makeAlignmentEntry(
   }
 }
 
-function makeSummary(sales: number, discount = 0): ClassifiedSalesDaySummary {
+function makeSummary(sales: number, discount = 0, customers = 0): ClassifiedSalesDaySummary {
   return {
     sales,
     discount,
     discountEntries: ZERO_DISCOUNT_ENTRIES,
+    customers,
   }
 }
 
@@ -79,7 +80,7 @@ describe('aggregateDailyByAlignment', () => {
 
   it('1店舗・1日の基本集計', () => {
     const allAgg: Record<string, Record<number, ClassifiedSalesDaySummary>> = {
-      S1: { 1: makeSummary(1000, -50) },
+      S1: { 1: makeSummary(1000, -50, 100) },
     }
     const flowers = makeFlowersIndex('S1', { 1: 100 })
     const alignment = [makeAlignmentEntry(2025, 3, 1, 2026, 3, 1)]
@@ -115,9 +116,9 @@ describe('aggregateDailyByAlignment', () => {
   it('複数日のマッピング（sourceDay ≠ targetDay）', () => {
     const allAgg: Record<string, Record<number, ClassifiedSalesDaySummary>> = {
       S1: {
-        5: makeSummary(500),
-        6: makeSummary(600),
-        7: makeSummary(700),
+        5: makeSummary(500, 0, 10),
+        6: makeSummary(600, 0, 20),
+        7: makeSummary(700, 0, 30),
       },
     }
     const flowers = makeFlowersIndex('S1', { 5: 10, 6: 20, 7: 30 })
@@ -220,7 +221,7 @@ describe('aggregateKpiByAlignment', () => {
 
   it('1店舗・1日の基本KPI集計', () => {
     const allAgg: Record<string, Record<number, ClassifiedSalesDaySummary>> = {
-      S1: { 5: makeSummary(2000) },
+      S1: { 5: makeSummary(2000, 0, 40) },
     }
     const flowers = makeFlowersIndex('S1', { 5: 40 })
     const alignment = [makeAlignmentEntry(2025, 3, 5, 2026, 3, 1)]
@@ -255,8 +256,8 @@ describe('aggregateKpiByAlignment', () => {
 
   it('複数店舗・複数日のKPI集計', () => {
     const allAgg: Record<string, Record<number, ClassifiedSalesDaySummary>> = {
-      S1: { 1: makeSummary(1000), 2: makeSummary(1500) },
-      S2: { 1: makeSummary(800), 2: makeSummary(1200) },
+      S1: { 1: makeSummary(1000, 0, 20), 2: makeSummary(1500, 0, 30) },
+      S2: { 1: makeSummary(800, 0, 15), 2: makeSummary(1200, 0, 25) },
     }
     const flowers: StoreDayIndex<SpecialSalesDayEntry> = {
       S1: {

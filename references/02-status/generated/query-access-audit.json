@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-04-02T14:36:49.388Z",
+  "timestamp": "2026-04-02T16:06:36.474Z",
   "summary": {
-    "queryHandlers": 30,
+    "queryHandlers": 33,
     "正規経路_queryWithHandler": 29,
     "正規経路_comparisonAccessor": 10,
     "正規経路_facadeHook": 4,
@@ -63,15 +63,18 @@
       "application/queries/cts/StoreCategoryPIHandler.ts",
       "application/queries/dailyRecords/DailyRecordsHandler.ts",
       "application/queries/dept/DeptKpiTrendHandler.ts",
+      "application/queries/discountFactHandler.ts",
       "application/queries/features/DailyFeaturesHandler.ts",
       "application/queries/features/DowPatternHandler.ts",
       "application/queries/freePeriodBudgetHandler.ts",
       "application/queries/freePeriodDeptKPIHandler.ts",
       "application/queries/freePeriodHandler.ts",
       "application/queries/purchase/StoreDailyMarkupRateHandler.ts",
+      "application/queries/salesFactHandler.ts",
       "application/queries/summary/AggregatedRatesHandler.ts",
       "application/queries/summary/DailyCumulativeHandler.ts",
       "application/queries/summary/DailyQuantityHandler.ts",
+      "application/queries/summary/DailyQuantityPairHandler.ts",
       "application/queries/summary/StoreDaySummaryHandler.ts",
       "application/queries/temporal/MovingAverageHandler.ts",
       "application/queries/weather/WeatherHourlyHandler.ts"

@@ -135,16 +135,45 @@ export interface ClassifiedSalesDaySummary {
   readonly discount: number
   /** 売変種別内訳 */
   readonly discountEntries: readonly DiscountEntry[]
+  /** 来店客数（flowers JOIN 由来。データなし時は 0） */
+  readonly customers: number
+}
+
+/** flowers レコードを storeId × day でインデックス化（客数 JOIN 用） */
+function buildFlowersCustomerIndex(flowers?: {
+  readonly records: readonly {
+    readonly storeId: string
+    readonly day: number
+    readonly customers?: number
+  }[]
+}): Record<string, Record<number, number>> {
+  if (!flowers || flowers.records.length === 0) return {}
+  const idx: Record<string, Record<number, number>> = {}
+  for (const r of flowers.records) {
+    if (!idx[r.storeId]) idx[r.storeId] = {}
+    idx[r.storeId][r.day] = (idx[r.storeId][r.day] ?? 0) + (r.customers ?? 0)
+  }
+  return idx
 }
 
 /**
  * 指定店舗の分類別売上を日別に集約する。
  * dailyBuilder が直接使用する。
+ *
+ * @param flowers 花データ（客数 JOIN 用。省略時は customers=0）
  */
 export function aggregateForStore(
   data: ClassifiedSalesData,
   storeId: string,
+  flowers?: {
+    readonly records: readonly {
+      readonly storeId: string
+      readonly day: number
+      readonly customers?: number
+    }[]
+  },
 ): Record<number, ClassifiedSalesDaySummary> {
+  const custIdx = buildFlowersCustomerIndex(flowers)
   const acc: Record<number, { sales: number; entries: DiscountEntry[] }> = {}
   for (const rec of data.records) {
     if (rec.storeId !== storeId) continue
@@ -157,10 +186,12 @@ export function aggregateForStore(
   }
   const result: Record<number, ClassifiedSalesDaySummary> = {}
   for (const [day, val] of Object.entries(acc)) {
-    result[Number(day)] = {
+    const d = Number(day)
+    result[d] = {
       sales: val.sales,
       discount: sumDiscountEntries(val.entries),
       discountEntries: val.entries,
+      customers: custIdx[storeId]?.[d] ?? 0,
     }
   }
   return result
@@ -169,10 +200,20 @@ export function aggregateForStore(
 /**
  * 全店舗の分類別売上を storeId → day → summary に集約する。
  * 複数箇所で呼ばれるため全店舗版も提供。
+ *
+ * @param flowers 花データ（客数 JOIN 用。省略時は customers=0）
  */
 export function aggregateAllStores(
   data: ClassifiedSalesData,
+  flowers?: {
+    readonly records: readonly {
+      readonly storeId: string
+      readonly day: number
+      readonly customers?: number
+    }[]
+  },
 ): Record<string, Record<number, ClassifiedSalesDaySummary>> {
+  const custIdx = buildFlowersCustomerIndex(flowers)
   const acc: Record<string, Record<number, { sales: number; entries: DiscountEntry[] }>> = {}
   for (const rec of data.records) {
     if (!acc[rec.storeId]) acc[rec.storeId] = {}
@@ -193,10 +234,12 @@ export function aggregateAllStores(
   for (const [storeId, days] of Object.entries(acc)) {
     result[storeId] = {}
     for (const [day, val] of Object.entries(days)) {
-      result[storeId][Number(day)] = {
+      const d = Number(day)
+      result[storeId][d] = {
         sales: val.sales,
         discount: sumDiscountEntries(val.entries),
         discountEntries: val.entries,
+        customers: custIdx[storeId]?.[d] ?? 0,
       }
     }
   }

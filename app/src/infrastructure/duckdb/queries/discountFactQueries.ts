@@ -48,9 +48,12 @@ export async function queryDiscountFact(
     SELECT
       cs.store_id,
       cs.day,
-      cs.dept_code, COALESCE(cs.dept_name, cs.dept_code) AS dept_name,
-      cs.line_code, COALESCE(cs.line_name, cs.line_code) AS line_name,
-      cs.klass_code, COALESCE(cs.klass_name, cs.klass_code) AS klass_name,
+      cs.department_name AS dept_code,
+      COALESCE(cs.department_name, '') AS dept_name,
+      COALESCE(cs.line_name, '') AS line_name,
+      COALESCE(cs.class_name, '') AS klass_name,
+      cs.line_name AS line_code,
+      cs.class_name AS klass_code,
       COALESCE(SUM(cs.discount_71), 0) AS discount_71,
       COALESCE(SUM(cs.discount_72), 0) AS discount_72,
       COALESCE(SUM(cs.discount_73), 0) AS discount_73,
@@ -58,9 +61,9 @@ export async function queryDiscountFact(
       COALESCE(SUM(cs.discount_71 + cs.discount_72 + cs.discount_73 + cs.discount_74), 0) AS discount_total
     FROM classified_sales cs
     ${where}
-    GROUP BY cs.store_id, cs.day, cs.dept_code, cs.dept_name,
-             cs.line_code, cs.line_name, cs.klass_code, cs.klass_name
-    ORDER BY cs.store_id, cs.day, cs.dept_code, cs.line_code, cs.klass_code`
+    GROUP BY cs.store_id, cs.day, cs.department_name,
+             cs.line_name, cs.class_name
+    ORDER BY cs.store_id, cs.day, cs.department_name, cs.line_name, cs.class_name`
 
   return queryToObjects<RawDiscountFactRow>(conn, sql)
 }

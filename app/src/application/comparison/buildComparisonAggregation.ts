@@ -80,9 +80,12 @@ function accumulateDailyValues(
 
       const sales = summary.sales ?? 0
       const discount = summary.discount ?? 0
-
-      const flowerEntry = sourceIndex.getFlowers(storeId, entry.sourceDate)
-      const customers = flowerEntry?.customers ?? 0
+      // customers: summary に JOIN 済みの値を使い、月跨ぎで 0 の場合は getFlowers にフォールバック
+      const summaryCustomers = summary.customers ?? 0
+      const customers =
+        summaryCustomers > 0
+          ? summaryCustomers
+          : (sourceIndex.getFlowers(storeId, entry.sourceDate)?.customers ?? 0)
 
       const ctsQuantity = sourceIndex.getCtsQuantity(storeId, entry.sourceDate)
 
@@ -262,8 +265,11 @@ export function aggregateKpiByAlignment(
       const sales = summary.sales ?? 0
       totalSales += sales
 
-      const flowerEntry = sourceIndex.getFlowers(storeId, entry.sourceDate)
-      const customers = flowerEntry?.customers ?? 0
+      const summaryCustomers = summary.customers ?? 0
+      const customers =
+        summaryCustomers > 0
+          ? summaryCustomers
+          : (sourceIndex.getFlowers(storeId, entry.sourceDate)?.customers ?? 0)
       totalCustomers += customers
 
       const ctsQty = sourceIndex.getCtsQuantity(storeId, entry.sourceDate)
@@ -353,9 +359,11 @@ export function aggregateMonthlyTotal(
       const summary = sourceIndex.getSummary(storeId, date)
       if (!summary) continue
       totalSales += summary.sales ?? 0
-
-      const flowerEntry = sourceIndex.getFlowers(storeId, date)
-      totalCustomers += flowerEntry?.customers ?? 0
+      const monthlySummaryCustomers = summary.customers ?? 0
+      totalCustomers +=
+        monthlySummaryCustomers > 0
+          ? monthlySummaryCustomers
+          : (sourceIndex.getFlowers(storeId, date)?.customers ?? 0)
 
       totalCtsQuantity += sourceIndex.getCtsQuantity(storeId, date)
     }
