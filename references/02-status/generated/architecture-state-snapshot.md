@@ -1,6 +1,6 @@
 # Architecture State Snapshot
 
-> Generated: 2026-04-02T11:17:59.000Z
+> Generated: 2026-04-02T12:56:18.361Z
 
 ## Allowlist Summary
 
@@ -105,12 +105,12 @@
 | presentation/pages/Dashboard/widgets/useDrilldownData.ts | 14 | 10 | 413 |
 | presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 15 | 5 | 517 |
 | presentation/pages/CostDetail/useCostDetailData.ts | 13 | 6 | 210 |
-| presentation/components/charts/CategoryBenchmarkChart.vm.ts | 10 | 6 | 327 |
 | presentation/components/charts/TimeSlotChart.tsx | 10 | 6 | 209 |
 | presentation/components/charts/useCategoryTrendChartData.ts | 9 | 7 | 225 |
 | presentation/components/charts/useDeptHourlyChartData.ts | 10 | 6 | 244 |
 | presentation/pages/Dashboard/widgets/HourlyChart.tsx | 10 | 6 | 514 |
-| presentation/components/charts/CategoryBoxPlotChart.vm.ts | 8 | 7 | 259 |
+| presentation/pages/Admin/RawDataTab.tsx | 13 | 2 | 335 |
+| presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx | 7 | 7 | 480 |
 
 ## Near-Limit Files (≥80%)
 

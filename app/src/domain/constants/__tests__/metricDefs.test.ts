@@ -54,6 +54,12 @@ const ALL_METRIC_IDS: MetricId[] = [
   'prevYearSameDowBudgetRatio',
   'prevYearSameDateBudgetRatio',
   'dowGapImpact',
+  // 自由期間分析系
+  'freePeriodTotalSales',
+  'freePeriodBudgetAchievement',
+  'freePeriodDiscountRate',
+  'freePeriodTransactionValue',
+  'freePeriodDeptSalesAchievement',
 ]
 
 describe('METRIC_DEFS', () => {

@@ -34,7 +34,7 @@ import {
   type BenchmarkMetric,
   type CategoryTrendPoint,
 } from '@/application/queries/advanced'
-import { useChartTheme, useCurrencyFormatter } from './chartTheme'
+import { useChartTheme, useCurrencyFormatter } from '@/presentation/components/charts/chartTheme'
 import { useI18n } from '@/application/hooks/useI18n'
 
 // ── re-export（後方互換） ──
@@ -63,16 +63,20 @@ export {
   getMetricDisplayName,
   extractTopCodes,
   resolveEffectiveAxis,
-} from './CategoryBenchmarkChartLogic'
+} from '@/features/category/ui/charts/CategoryBenchmarkChartLogic'
 
-import type { CategoryLevel, ViewMode, AnalysisAxis } from './CategoryBenchmarkChartLogic'
+import type {
+  CategoryLevel,
+  ViewMode,
+  AnalysisAxis,
+} from '@/features/category/ui/charts/CategoryBenchmarkChartLogic'
 import {
   computeKpis,
   extractTopCodes,
   getSubtitle,
   getTableMetricLabel,
   resolveEffectiveAxis,
-} from './CategoryBenchmarkChartLogic'
+} from '@/features/category/ui/charts/CategoryBenchmarkChartLogic'
 
 // ── Props ──
 

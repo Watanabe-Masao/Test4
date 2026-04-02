@@ -19,18 +19,22 @@ import {
   type CategoryDiscountInput,
 } from '@/application/queries/cts/CategoryDiscountHandler'
 import { DISCOUNT_TYPES } from '@/domain/models/record'
-import { useCurrencyFormat } from './chartTheme'
+import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { SegmentedControl } from '@/presentation/components/common/layout'
-import { ChartCard } from './ChartCard'
-import { ChartLoading, ChartEmpty } from './ChartState'
-import { EChart, type EChartsOption } from './EChart'
-import { standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
+import { ChartCard } from '@/presentation/components/charts/ChartCard'
+import { ChartLoading, ChartEmpty } from '@/presentation/components/charts/ChartState'
+import { EChart, type EChartsOption } from '@/presentation/components/charts/EChart'
+import {
+  standardGrid,
+  standardTooltip,
+  standardLegend,
+} from '@/presentation/components/charts/echartsOptionBuilders'
 import {
   CategoryDiscountTable,
   type SortKey,
   type SortDir,
   type DrillState,
-} from './CategoryDiscountTable'
+} from '@/features/category/ui/charts/CategoryDiscountTable'
 
 type Level = 'department' | 'line' | 'klass'
 

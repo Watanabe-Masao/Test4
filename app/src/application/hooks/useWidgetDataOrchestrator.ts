@@ -75,7 +75,7 @@ export function useWidgetDataOrchestrator(
         ? {
             dateFrom,
             dateTo,
-            storeIds: storeIds ? [...storeIds] : undefined,
+            storeIds: storeIds ? [...storeIds].sort() : undefined,
             dataVersion,
           }
         : null,

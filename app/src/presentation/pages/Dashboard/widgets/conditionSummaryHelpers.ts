@@ -8,6 +8,7 @@
 import { calculateAchievementRate, calculateYoYRatio } from '@/domain/calculations/utils'
 import { calculateMarkupRates } from '@/domain/calculations/markupRate'
 import { calculateDiscountRate } from '@/domain/calculations/estMethod'
+import { aggregateContributions } from '@/application/comparison/viewModels'
 import { computeGpAfterConsumableAmount, computeGpAfterConsumable } from './conditionSummaryUtils'
 import type { StoreResult } from '@/domain/models/storeTypes'
 import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/hooks/analytics'
@@ -106,19 +107,12 @@ export function extractLySales(
   if (!prevYear.hasPrevYear) return null
   if (!prevYearMonthlyKpi.hasPrevYear) return null
 
-  if (isElapsed && elapsedDays != null) {
-    // 経過モード: storeContributions から mappedDay <= elapsedDays の分だけ合算
-    const contributions = prevYearMonthlyKpi.sameDow.storeContributions.filter(
-      (c) => c.storeId === storeId && c.mappedDay <= elapsedDays,
-    )
-    return contributions.length > 0 ? contributions.reduce((s, c) => s + c.sales, 0) : null
-  }
-
-  // 月間モード: storeContributions の全日合計
-  const contributions = prevYearMonthlyKpi.sameDow.storeContributions.filter(
-    (c) => c.storeId === storeId,
-  )
-  return contributions.length > 0 ? contributions.reduce((s, c) => s + c.sales, 0) : null
+  const maxDay = isElapsed && elapsedDays != null ? elapsedDays : undefined
+  const agg = aggregateContributions(prevYearMonthlyKpi.sameDow.storeContributions, {
+    storeId,
+    maxDay,
+  })
+  return agg.count > 0 ? agg.sales : null
 }
 
 /**
@@ -134,18 +128,13 @@ export function extractLyDiscountRate(
 ): number | null {
   if (!prevYearMonthlyKpi.hasPrevYear) return null
 
-  const filter =
-    isElapsed && elapsedDays != null
-      ? (c: { storeId: string; mappedDay: number }) =>
-          c.storeId === storeId && c.mappedDay <= elapsedDays
-      : (c: { storeId: string }) => c.storeId === storeId
-
-  const contributions = prevYearMonthlyKpi.sameDow.storeContributions.filter(filter)
-  if (contributions.length === 0) return null
-
-  const totalSales = contributions.reduce((s, c) => s + c.sales, 0)
-  const totalDiscount = contributions.reduce((s, c) => s + c.discount, 0)
-  return calculateDiscountRate(totalSales, totalDiscount) * 100
+  const maxDay = isElapsed && elapsedDays != null ? elapsedDays : undefined
+  const agg = aggregateContributions(prevYearMonthlyKpi.sameDow.storeContributions, {
+    storeId,
+    maxDay,
+  })
+  if (agg.count === 0) return null
+  return calculateDiscountRate(agg.sales, agg.discount) * 100
 }
 
 // ─── Achievement / YoY Calculation ──────────────────────

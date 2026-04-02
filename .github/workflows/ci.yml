@@ -10,6 +10,9 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   # ── WASM ビルド（1回だけ、artifact で後続に配布） ──────────
   wasm-build:
@@ -85,6 +88,16 @@ jobs:
       - name: Test with coverage
         run: npx vitest run --coverage
 
+      - name: Upload coverage on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: app/coverage
+          retention-days: 7
+
+      # test-coverage でも build を回すのは、fast-gate とは別の依存状態で
+      # ビルドが通ることを確認するため（意図的な重複）
       - name: Type check & Build
         run: npm run build
 
@@ -131,10 +144,20 @@ jobs:
       - name: Build
         run: npm run build
 
+      # matrix で chromium / mobile-chrome を分割し、モバイル系の崩れを検出する
       - name: E2E tests (${{ matrix.project }})
         run: npx playwright test --project=${{ matrix.project }}
 
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ matrix.project }}
+          path: app/playwright-report
+          retention-days: 7
+
   # ── Pages ビルド（main push のみ、全ゲート通過後） ──────────
+  # VITE_JMA_PROXY_URL を含む本番条件での再ビルド（意図的な重複）
   pages-build:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [fast-gate, test-coverage, e2e]

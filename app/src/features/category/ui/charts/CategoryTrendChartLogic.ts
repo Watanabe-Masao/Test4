@@ -15,7 +15,7 @@
  */
 import type { CategoryDailyTrendRow } from '@/application/hooks/duckdb'
 import type { AppTheme } from '@/presentation/theme/theme'
-import type { EChartsOption } from './EChart'
+import type { EChartsOption } from '@/presentation/components/charts/EChart'
 import {
   yenYAxis,
   categoryXAxis,
@@ -23,8 +23,8 @@ import {
   standardTooltip,
   standardLegend,
   toCommaYen,
-} from './echartsOptionBuilders'
-import { toPct } from './chartTheme'
+} from '@/presentation/components/charts/echartsOptionBuilders'
+import { toPct } from '@/presentation/components/charts/chartTheme'
 
 // ─── Types ──────────────────────────────────────────
 

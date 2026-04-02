@@ -6,8 +6,8 @@
  * 部門/ライン/クラス階層切替、上位N件、曜日フィルタを内蔵。
  */
 import { memo } from 'react'
-import type { DuckQueryContext } from './SubAnalysisPanel'
-import { CategoryTrendChart } from './CategoryTrendChart'
+import type { DuckQueryContext } from '@/presentation/components/charts/SubAnalysisPanel'
+import { CategoryTrendChart } from '@/features/category/ui/charts/CategoryTrendChart'
 
 interface Props {
   readonly ctx: DuckQueryContext

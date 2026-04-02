@@ -10,8 +10,8 @@ import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 import type { DailyRecord, DailyWeatherSummary, DiscountEntry } from '@/domain/models/record'
 import { SubAnalysisPanel } from './SubAnalysisPanel'
-import { CategoryBarChart } from './CategoryBarChart'
-import { CategoryHierarchyExplorer } from './CategoryHierarchyExplorer'
+import { CategoryBarChart } from '@/features/category'
+import { CategoryHierarchyExplorer } from '@/features/category'
 
 export type SubTabKey = 'trend' | 'bar' | 'drilldown'
 

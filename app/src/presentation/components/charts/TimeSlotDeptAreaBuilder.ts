@@ -8,7 +8,7 @@
  */
 import type { AppTheme } from '@/presentation/theme/theme'
 import { palette } from '@/presentation/theme/tokens'
-import type { CategoryHourlyItem } from './CategoryTimeHeatmap'
+import type { CategoryHourlyItem } from '@/features/category'
 import type { EChartsOption } from './EChart'
 import { yenYAxis, standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
 import { valueYAxis, categoryXAxis } from './builders'

@@ -12,13 +12,20 @@ import { Fragment, memo, useMemo, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
-import { toPct } from './chartTheme'
-import { CategoryExplorerTable } from './CategoryExplorerTable'
+import { toPct } from '@/presentation/components/charts/chartTheme'
+import { CategoryExplorerTable } from '@/features/category/ui/charts/CategoryExplorerTable'
 import { ChartSkeleton } from '@/presentation/components/common/feedback'
-import { ChartHelpButton } from './ChartHeader'
-import { CHART_GUIDES } from './chartGuides'
-import type { HierarchyItem, SortKey, SortDir } from './categoryExplorerTypes'
-import { useCategoryHierarchyData, type HierarchyLevel } from './useCategoryHierarchyData'
+import { ChartHelpButton } from '@/presentation/components/charts/ChartHeader'
+import { CHART_GUIDES } from '@/presentation/components/charts/chartGuides'
+import type {
+  HierarchyItem,
+  SortKey,
+  SortDir,
+} from '@/presentation/components/charts/categoryExplorerTypes'
+import {
+  useCategoryHierarchyData,
+  type HierarchyLevel,
+} from '@/presentation/components/charts/useCategoryHierarchyData'
 import {
   Wrapper,
   BreadcrumbBar,
@@ -34,7 +41,7 @@ import {
   TabGroup,
   Tab,
   HeaderRow,
-} from './CategoryHierarchyExplorer.styles'
+} from '@/features/category/ui/charts/CategoryHierarchyExplorer.styles'
 
 interface Props {
   queryExecutor: QueryExecutor | null

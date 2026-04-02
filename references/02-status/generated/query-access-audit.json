@@ -1,8 +1,8 @@
 {
-  "timestamp": "2026-04-02T11:17:07.039Z",
+  "timestamp": "2026-04-02T12:55:36.102Z",
   "summary": {
     "queryHandlers": 30,
-    "正規経路_queryWithHandler": 29,
+    "正規経路_queryWithHandler": 21,
     "正規経路_comparisonAccessor": 8,
     "正規経路_facadeHook": 0,
     "要注意_executorDirect": 0,
@@ -13,14 +13,6 @@
   },
   "detail": {
     "queryWithHandler": [
-      "presentation/components/charts/CategoryBarChart.tsx",
-      "presentation/components/charts/CategoryBenchmarkChart.vm.ts",
-      "presentation/components/charts/CategoryBoxPlotChart.vm.ts",
-      "presentation/components/charts/CategoryDiscountChart.tsx",
-      "presentation/components/charts/CategoryHierarchyExplorer.tsx",
-      "presentation/components/charts/CategoryHourlyChart.tsx",
-      "presentation/components/charts/CategoryMixChart.tsx",
-      "presentation/components/charts/CategoryPerformanceChart.tsx",
       "presentation/components/charts/CumulativeChart.tsx",
       "presentation/components/charts/CvTimeSeriesChart.tsx",
       "presentation/components/charts/DeptTrendChart.tsx",

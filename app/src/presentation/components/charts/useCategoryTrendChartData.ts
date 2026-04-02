@@ -21,7 +21,7 @@ import {
   buildCategoryTrendOption,
   PREV_YEAR_SUFFIX,
   type TrendMetric,
-} from './CategoryTrendChartLogic'
+} from '@/features/category'
 import { useCurrencyFormatter } from './chartTheme'
 import { useI18n } from '@/application/hooks/useI18n'
 

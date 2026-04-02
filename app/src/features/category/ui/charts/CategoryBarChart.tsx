@@ -23,14 +23,21 @@ import {
   categoryDailyTrendHandler,
   type CategoryDailyTrendInput,
 } from '@/application/queries/cts/CategoryDailyTrendHandler'
-import { buildCategoryTrendData, type TrendMetric } from './CategoryTrendChartLogic'
+import {
+  buildCategoryTrendData,
+  type TrendMetric,
+} from '@/features/category/ui/charts/CategoryTrendChartLogic'
 import { formatPercent } from '@/domain/formatting'
-import { useCurrencyFormat } from './chartTheme'
+import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { SegmentedControl } from '@/presentation/components/common/layout'
-import { ChartCard } from './ChartCard'
-import { ChartLoading, ChartEmpty } from './ChartState'
-import { EChart, type EChartsOption } from './EChart'
-import { standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
+import { ChartCard } from '@/presentation/components/charts/ChartCard'
+import { ChartLoading, ChartEmpty } from '@/presentation/components/charts/ChartState'
+import { EChart, type EChartsOption } from '@/presentation/components/charts/EChart'
+import {
+  standardGrid,
+  standardTooltip,
+  standardLegend,
+} from '@/presentation/components/charts/echartsOptionBuilders'
 
 type Level = 'department' | 'line' | 'klass'
 

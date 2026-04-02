@@ -10,9 +10,13 @@ import { chartFontSize } from '@/presentation/theme/tokens'
 import { useState, useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
-import { EChart, type EChartsOption } from './EChart'
-import { standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
-import { toComma, toDevScore } from './chartTheme'
+import { EChart, type EChartsOption } from '@/presentation/components/charts/EChart'
+import {
+  standardGrid,
+  standardTooltip,
+  standardLegend,
+} from '@/presentation/components/charts/echartsOptionBuilders'
+import { toComma, toDevScore } from '@/presentation/components/charts/chartTheme'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
@@ -23,8 +27,14 @@ import {
 } from '@/application/queries/cts/LevelAggregationHandler'
 import { calculateStdDev } from '@/application/hooks/useStatistics'
 import { ChartSkeleton } from '@/presentation/components/common/feedback'
-import { ChartCard } from './ChartCard'
-import { ToggleRow, ViewToggle, ViewBtn, Sep, EmptyMsg } from './CategoryPerformanceChart.styles'
+import { ChartCard } from '@/presentation/components/charts/ChartCard'
+import {
+  ToggleRow,
+  ViewToggle,
+  ViewBtn,
+  Sep,
+  EmptyMsg,
+} from '@/features/category/ui/charts/CategoryPerformanceChart.styles'
 
 type ViewType = 'piRank' | 'deviation' | 'piQtyRank'
 type LevelType = 'department' | 'line' | 'klass'

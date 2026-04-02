@@ -17,14 +17,18 @@ import {
   categoryHourlyHandler,
   type CategoryHourlyInput,
 } from '@/application/queries/cts/CategoryHourlyHandler'
-import { HOUR_MIN, HOUR_MAX } from './HeatmapChart.helpers'
-import { buildCategoryHeatmapData } from './CategoryHourlyChartLogic'
+import { HOUR_MIN, HOUR_MAX } from '@/presentation/components/charts/HeatmapChart.helpers'
+import { buildCategoryHeatmapData } from '@/features/category/ui/charts/CategoryHourlyChartLogic'
 import { useI18n } from '@/application/hooks/useI18n'
 import { SegmentedControl } from '@/presentation/components/common/layout'
-import { ChartCard } from './ChartCard'
-import { ChartLoading, ChartError, ChartEmpty } from './ChartState'
-import { EChart, type EChartsOption } from './EChart'
-import { standardGrid, standardTooltip, toCommaYen } from './echartsOptionBuilders'
+import { ChartCard } from '@/presentation/components/charts/ChartCard'
+import { ChartLoading, ChartError, ChartEmpty } from '@/presentation/components/charts/ChartState'
+import { EChart, type EChartsOption } from '@/presentation/components/charts/EChart'
+import {
+  standardGrid,
+  standardTooltip,
+  toCommaYen,
+} from '@/presentation/components/charts/echartsOptionBuilders'
 import { chartFontSize } from '@/presentation/theme/tokens'
 import {
   ControlRow,
@@ -32,7 +36,7 @@ import {
   ChipLabel,
   SummaryRow,
   SummaryItem,
-} from './CategoryHourlyChart.styles'
+} from '@/features/category/ui/charts/CategoryHourlyChart.styles'
 
 type HierarchyLevel = 'department' | 'line' | 'klass'
 

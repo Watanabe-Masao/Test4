@@ -51,7 +51,8 @@ export function useFreePeriodAnalysis(
 
     const dateFrom = toDateString(frame.anchorRange.from)
     const dateTo = toDateString(frame.anchorRange.to)
-    const storeIds = frame.storeIds.length > 0 ? [...frame.storeIds] : undefined
+    // sort で順序差を吸収し、JSON.stringify ベースの cache key を安定化
+    const storeIds = frame.storeIds.length > 0 ? [...frame.storeIds].sort() : undefined
 
     const base: FreePeriodQueryInput = { dateFrom, dateTo, storeIds }
 

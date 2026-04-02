@@ -11,7 +11,7 @@ import { sc } from '@/presentation/theme/semanticColors'
 import { formatPercent } from '@/domain/formatting'
 import { calculateTransactionValue } from '@/domain/calculations/utils'
 import { getWeekRanges } from '@/application/hooks/calculation'
-import { buildSameDowPoints } from '@/application/comparison/comparisonTypes'
+import { toComparisonPointMap } from '@/application/comparison/viewModels'
 import type { WidgetContext } from '@/presentation/pages/Dashboard/widgets/types'
 import {
   STableWrapper,
@@ -33,7 +33,7 @@ export function renderDowAverage(ctx: WidgetContext): ReactNode {
   }
 
   // sameDow.dailyMapping から currentDay ベースの前年値マップを構築
-  const prevSameDowByDay = buildSameDowPoints(prevYearMonthlyKpi.sameDow.dailyMapping)
+  const prevSameDowByDay = toComparisonPointMap(prevYearMonthlyKpi.sameDow.dailyMapping)
 
   const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土']
   const buckets = Array.from({ length: 7 }, () => ({
@@ -157,7 +157,7 @@ export function renderWeeklySummary(ctx: WidgetContext): ReactNode {
   const { result: r, year, month, prevYear, prevYearMonthlyKpi, fmtCurrency } = ctx
 
   // sameDow.dailyMapping から currentDay ベースの前年値マップを構築
-  const prevSameDowByDay = buildSameDowPoints(prevYearMonthlyKpi.sameDow.dailyMapping)
+  const prevSameDowByDay = toComparisonPointMap(prevYearMonthlyKpi.sameDow.dailyMapping)
 
   const weekRanges = getWeekRanges(year, month)
   const summaries = weekRanges.map(({ weekNumber, startDay, endDay }) => {

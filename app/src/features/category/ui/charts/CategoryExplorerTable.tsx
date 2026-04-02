@@ -5,9 +5,13 @@
  * データ集約・ソート・フィルタは CategoryHierarchyExplorer が担当。
  */
 import { memo } from 'react'
-import { toComma, toPct } from './chartTheme'
+import { toComma, toPct } from '@/presentation/components/charts/chartTheme'
 import { sc } from '@/presentation/theme/semanticColors'
-import type { HierarchyItem, SortKey, SortDir } from './categoryExplorerTypes'
+import type {
+  HierarchyItem,
+  SortKey,
+  SortDir,
+} from '@/presentation/components/charts/categoryExplorerTypes'
 import {
   TreemapWrap,
   TreemapBlock,
@@ -37,7 +41,7 @@ import {
   ThWithTip,
   TipIcon,
   TipBubble,
-} from './CategoryHierarchyExplorer.styles'
+} from '@/features/category/ui/charts/CategoryHierarchyExplorer.styles'
 
 const COLORS = [
   '#6366f1',

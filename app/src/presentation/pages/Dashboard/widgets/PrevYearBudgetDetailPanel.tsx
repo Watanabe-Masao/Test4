@@ -24,7 +24,7 @@ import {
   buildPeriodLabels,
   buildBudgetDetailRows,
 } from './PrevYearBudgetDetailPanel.vm'
-import { buildSameDowPoints } from '@/application/comparison/comparisonTypes'
+import { toComparisonPoints } from '@/application/comparison/viewModels'
 import {
   Overlay,
   Panel,
@@ -132,11 +132,11 @@ export function PrevYearBudgetDetailPanel({
 
   const title = type === 'sameDow' ? '予算成長率（同曜日）' : '予算成長率（同日）'
 
-  // dailyMapping → comparison ポイント変換（buildSameDowPoints 経由）
-  const comparisonPoints = useMemo(() => {
-    const map = buildSameDowPoints(entry.dailyMapping)
-    return [...map.values()].sort((a, b) => a.currentDay - b.currentDay)
-  }, [entry.dailyMapping])
+  // dailyMapping → comparison ポイント変換（共通 VM 経由）
+  const comparisonPoints = useMemo(
+    () => toComparisonPoints(entry.dailyMapping),
+    [entry.dailyMapping],
+  )
 
   const periodLabels = useMemo(
     () => buildPeriodLabels(comparisonPoints, sourceYear, sourceMonth, targetYear, targetMonth),

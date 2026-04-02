@@ -12,9 +12,15 @@ import {
   type BoxPlotStats,
 } from '@/application/hooks/duckdb'
 import { EmptyState } from '@/presentation/components/common/layout'
-import { MapLegend, LegendItem } from './CategoryBoxPlotChart.styles'
-import type { ChartTheme, AnalysisAxis } from './CategoryBoxPlotChart.vm'
-import { StoreBreakdownChart, DateBreakdownChart } from './CategoryBoxPlotBreakdownCharts'
+import { MapLegend, LegendItem } from '@/features/category/ui/charts/CategoryBoxPlotChart.styles'
+import type {
+  ChartTheme,
+  AnalysisAxis,
+} from '@/features/category/ui/charts/CategoryBoxPlotChart.vm'
+import {
+  StoreBreakdownChart,
+  DateBreakdownChart,
+} from '@/features/category/ui/charts/CategoryBoxPlotBreakdownCharts'
 
 export function BoxPlotView({
   boxData,

@@ -7,13 +7,13 @@
 import { memo } from 'react'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
-import { DowPresetSelector } from './DowPresetSelector'
+import { DowPresetSelector } from '@/presentation/components/charts/DowPresetSelector'
 import { SegmentedControl } from '@/presentation/components/common/layout'
-import { ChartCard } from './ChartCard'
-import { ChartLoading, ChartError, ChartEmpty } from './ChartState'
-import { EChart } from './EChart'
-import { useCategoryTrendChartData } from './useCategoryTrendChartData'
-import type { TrendMetric } from './CategoryTrendChartLogic'
+import { ChartCard } from '@/presentation/components/charts/ChartCard'
+import { ChartLoading, ChartError, ChartEmpty } from '@/presentation/components/charts/ChartState'
+import { EChart } from '@/presentation/components/charts/EChart'
+import { useCategoryTrendChartData } from '@/presentation/components/charts/useCategoryTrendChartData'
+import type { TrendMetric } from '@/features/category/ui/charts/CategoryTrendChartLogic'
 import {
   ControlRow,
   ChipGroup,
@@ -24,7 +24,7 @@ import {
   BreadcrumbItem,
   BreadcrumbSep,
   YoYToggle,
-} from './CategoryTrendChart.styles'
+} from '@/features/category/ui/charts/CategoryTrendChart.styles'
 
 type HierarchyLevel = 'department' | 'line' | 'klass'
 

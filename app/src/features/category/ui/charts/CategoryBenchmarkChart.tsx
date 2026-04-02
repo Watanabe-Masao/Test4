@@ -20,7 +20,7 @@ import { memo } from 'react'
 import { ChartSkeleton } from '@/presentation/components/common/feedback'
 import { EmptyState } from '@/presentation/components/common/layout'
 import { palette } from '@/presentation/theme/tokens'
-import { ChartCard } from './ChartCard'
+import { ChartCard } from '@/presentation/components/charts/ChartCard'
 import {
   Controls,
   ControlGroup,
@@ -34,7 +34,7 @@ import {
   KpiValue,
   KpiSub,
   FilterSelect,
-} from './CategoryBenchmarkChart.styles'
+} from '@/features/category/ui/charts/CategoryBenchmarkChart.styles'
 import {
   type CategoryBenchmarkChartProps,
   type CategoryLevel,
@@ -45,9 +45,14 @@ import {
   VIEW_LABELS,
   ANALYSIS_AXIS_LABELS,
   BENCHMARK_METRIC_LABELS,
-} from './CategoryBenchmarkChart.vm'
+} from '@/features/category/ui/charts/CategoryBenchmarkChart.vm'
 import type { BenchmarkMetric } from '@/application/hooks/duckdb'
-import { ChartView, TableView, MapView, TrendView } from './CategoryBenchmarkSubViews'
+import {
+  ChartView,
+  TableView,
+  MapView,
+  TrendView,
+} from '@/features/category/ui/charts/CategoryBenchmarkSubViews'
 
 // ── Component ──
 

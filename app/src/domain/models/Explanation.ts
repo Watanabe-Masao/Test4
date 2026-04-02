@@ -82,6 +82,12 @@ export type MetricId =
   | 'prevYearSameDateBudgetRatio'
   // 曜日ギャップ
   | 'dowGapImpact'
+  // 自由期間分析系
+  | 'freePeriodTotalSales'
+  | 'freePeriodBudgetAchievement'
+  | 'freePeriodDiscountRate'
+  | 'freePeriodTransactionValue'
+  | 'freePeriodDeptSalesAchievement'
 
 // ─── MetricTokens ────────────────────────────────────────
 

@@ -8,9 +8,9 @@ import { chartFontSize } from '@/presentation/theme/tokens'
 import { memo, useMemo, useCallback } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
-import { EChart, type EChartsOption } from './EChart'
-import { standardTooltip } from './echartsOptionBuilders'
-import { useCurrencyFormat } from './chartTheme'
+import { EChart, type EChartsOption } from '@/presentation/components/charts/EChart'
+import { standardTooltip } from '@/presentation/components/charts/echartsOptionBuilders'
+import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 
 export interface CategoryHourlyItem {
   readonly code: string

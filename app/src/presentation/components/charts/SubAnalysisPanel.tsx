@@ -17,7 +17,7 @@ import { ChartCard } from './ChartCard'
 import { FactorDecompositionPanel } from './FactorDecompositionPanel'
 import { DiscountAnalysisPanel } from './DiscountAnalysisPanel'
 import { WeatherAnalysisPanel } from './WeatherAnalysisPanel'
-import { CategoryHeatmapPanel } from './CategoryHeatmapPanel'
+import { CategoryHeatmapPanel } from '@/features/category'
 
 /** DuckDB クエリに必要な共通コンテキスト */
 export interface DuckQueryContext {
