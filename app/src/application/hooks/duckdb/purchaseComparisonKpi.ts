@@ -89,9 +89,6 @@ export interface KpiTotals {
   readonly allPrevPrice: number
 }
 
-// computeKpiTotals は廃止済み。
-// KPI の仕入原価合計は readPurchaseCost の grandTotalCost から直接構築する。
-
 export function buildKpi(
   totals: KpiTotals,
   curSalesTotal: number,

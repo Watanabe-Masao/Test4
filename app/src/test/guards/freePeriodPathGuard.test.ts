@@ -66,7 +66,7 @@ describe('自由期間分析正本ガード', () => {
     expect(
       violations,
       `presentation 層が正本関数を直接 import しています:\n${violations.join('\n')}\n` +
-        `useFreePeriodAnalysis hook 経由で使用してください`,
+        `useFreePeriodAnalysisBundle hook 経由で使用してください`,
     ).toEqual([])
   })
 
