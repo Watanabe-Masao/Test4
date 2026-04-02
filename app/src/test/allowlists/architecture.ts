@@ -29,24 +29,14 @@ export const applicationToInfrastructure: readonly AllowlistEntry[] = [
     category: 'lifecycle',
     removalCondition: 'リカバリが adapter 層に移行されたとき',
   },
-  {
-    path: 'application/hooks/useImport.ts',
-    reason: 'ファイルインポート処理',
-    category: 'adapter',
-    removalCondition: 'インポートが adapter 層に完全移行されたとき',
-  },
+  // useImport: DI 化完了（rawFileStore → AdapterContext.rawFile 経由）。削除済み。
   {
     path: 'application/usecases/import/FileImportService.ts',
     reason: 'ファイルインポートサービス',
     category: 'adapter',
     removalCondition: 'インポートが adapter 層に完全移行されたとき',
   },
-  {
-    path: 'application/usecases/export/ExportService.ts',
-    reason: 'エクスポートサービス',
-    category: 'adapter',
-    removalCondition: 'エクスポートが adapter 層に完全移行されたとき',
-  },
+  // ExportService: DI 化完了（AdapterContext.export 経由）。useExport は Port のみ参照。
   {
     path: 'application/hooks/useI18n.ts',
     reason: 'i18n インフラ初期化',

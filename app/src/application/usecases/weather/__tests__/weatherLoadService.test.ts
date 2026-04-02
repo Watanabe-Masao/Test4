@@ -96,7 +96,14 @@ describe('loadEtrnHourlyForStore', () => {
     mockAdapter.resolveEtrnStationByLocation.mockResolvedValue(RESOLVED_STATION)
     mockAdapter.fetchHourlyRange.mockResolvedValue([])
 
-    const result = await loadEtrnHourlyForStore(weatherAdapter, 'store1', BASE_LOCATION, 2025, 1, [1, 2, 3])
+    const result = await loadEtrnHourlyForStore(
+      weatherAdapter,
+      'store1',
+      BASE_LOCATION,
+      2025,
+      1,
+      [1, 2, 3],
+    )
 
     // fetchHourlyRange が EtrnStation 単位で呼ばれること
     expect(mockAdapter.fetchHourlyRange).toHaveBeenCalledWith(
@@ -131,7 +138,14 @@ describe('loadEtrnHourlyForStore', () => {
   it('観測所解決失敗 → fetchHourlyRange は呼ばれず空配列を返す', async () => {
     mockAdapter.resolveEtrnStationByLocation.mockResolvedValue(null)
 
-    const result = await loadEtrnHourlyForStore(weatherAdapter, 'store1', BASE_LOCATION, 2025, 1, [1])
+    const result = await loadEtrnHourlyForStore(
+      weatherAdapter,
+      'store1',
+      BASE_LOCATION,
+      2025,
+      1,
+      [1],
+    )
 
     expect(mockAdapter.fetchHourlyRange).not.toHaveBeenCalled()
     expect(result.hourly).toEqual([])

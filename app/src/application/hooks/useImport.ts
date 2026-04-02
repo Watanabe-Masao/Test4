@@ -9,7 +9,8 @@ import type { ValidationMessage } from '@/domain/models/record'
 import type { MonthlyData } from '@/domain/models/MonthlyData'
 import type { AppSettings, DataType } from '@/domain/models/storeTypes'
 import { getDaysInMonth } from '@/domain/constants/defaults'
-import { rawFileStore } from '@/infrastructure/storage/rawFileStore'
+import { useContext } from 'react'
+import { AdapterContext } from '@/application/context/adapterContextDef'
 import {
   orchestrateImport,
   resolveImportDiff,
@@ -35,6 +36,8 @@ export function useImport() {
   const isImporting = useUiStore((s) => s.isImporting)
   const settings = useSettingsStore((s) => s.settings)
   const repo = useRepository()
+  const adapters = useContext(AdapterContext)
+  const rawFile = adapters?.rawFile
   const [progress, setProgress] = useState<ImportProgress | null>(null)
   const [pendingDiff, setPendingDiff] = useState<PendingDiffCheck | null>(null)
   const [saveError, setSaveError] = useState<string | null>(null)
@@ -87,9 +90,9 @@ export function useImport() {
         const effects: ImportSideEffects = {
           repo,
           saveRawFile: (year, month, dataType, file, filename, relativePath) =>
-            rawFileStore
-              .saveFile(year, month, dataType, file, filename, relativePath)
-              .then(() => {}),
+            rawFile
+              ? rawFile.saveFile(year, month, dataType, file, filename, relativePath).then(() => {})
+              : Promise.resolve(),
         }
 
         const result = await orchestrateImport(
@@ -138,7 +141,9 @@ export function useImport() {
       const effects: ImportSideEffects = {
         repo,
         saveRawFile: (year, month, dataType, file, filename, relativePath) =>
-          rawFileStore.saveFile(year, month, dataType, file, filename, relativePath).then(() => {}),
+          rawFile
+            ? rawFile.saveFile(year, month, dataType, file, filename, relativePath).then(() => {})
+            : Promise.resolve(),
       }
 
       resolveImportDiff(pendingDiff, action, settingsRef.current, effects)

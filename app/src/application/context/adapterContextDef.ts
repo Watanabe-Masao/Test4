@@ -10,11 +10,16 @@ import type { BackupPort } from '@/domain/ports/BackupPort'
 import type { FileSystemPort } from '@/domain/ports/FileSystemPort'
 import type { StoragePersistencePort } from '@/domain/ports/StoragePersistencePort'
 
+import type { ExportPort } from '@/domain/ports/ExportPort'
+import type { RawFilePort } from '@/domain/ports/RawFilePort'
+
 export interface AdapterSet {
   readonly weather: WeatherPort
   readonly backup: BackupPort
   readonly fileSystem: FileSystemPort
   readonly storagePersistence: StoragePersistencePort
+  readonly export: ExportPort
+  readonly rawFile: RawFilePort
 }
 
 /**
