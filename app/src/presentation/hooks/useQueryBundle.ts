@@ -53,7 +53,7 @@ export function useQueryBundle(
             executor: queryExecutor,
             dateFrom: `${targetYear}-${String(targetMonth).padStart(2, '0')}-01`,
             dateTo: `${targetYear}-${String(targetMonth).padStart(2, '0')}-${String(daysInMonth).padStart(2, '0')}`,
-            storeIds: selectedStoreIds.size > 0 ? Array.from(selectedStoreIds) : undefined,
+            storeIds: selectedStoreIds.size > 0 ? Array.from(selectedStoreIds).sort() : undefined,
             dataVersion: duckCtx.dataVersion,
           }
         : null,
