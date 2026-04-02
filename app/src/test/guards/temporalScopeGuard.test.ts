@@ -89,4 +89,32 @@ describe('時間スコープ意味論ガード', () => {
         `buildComparisonScope() factory を使用してください`,
     ).toEqual([])
   })
+
+  it('sourceDate 直接参照が PrevYearBudgetDetailPanel 以外に拡散していない', () => {
+    // sourceDate は比較サブシステム未移行の構造的例外として 1 ファイルのみ許可。
+    // 他ファイルへの拡散を防ぐ。
+    const ALLOWED = 'PrevYearBudgetDetailPanel'
+    const presFiles = collectTsFiles(path.join(SRC_DIR, 'presentation'))
+    const SOURCE_DATE_PATTERN = /\.sourceDate\b/
+    const violations: string[] = []
+
+    for (const file of presFiles) {
+      if (file.includes('__tests__') || file.includes('.test.')) continue
+      if (file.includes(ALLOWED)) continue
+      const content = fs.readFileSync(file, 'utf-8')
+      for (const line of content.split('\n')) {
+        if (line.trimStart().startsWith('//') || line.trimStart().startsWith('*')) continue
+        if (line.includes('import type')) continue
+        if (SOURCE_DATE_PATTERN.test(line)) {
+          violations.push(`${rel(file)}: ${line.trim().slice(0, 80)}`)
+        }
+      }
+    }
+
+    expect(
+      violations,
+      `sourceDate 直接参照が許可ファイル外に拡散:\n${violations.join('\n')}\n` +
+        `ComparisonScope 経由の解決を使用してください`,
+    ).toEqual([])
+  })
 })
