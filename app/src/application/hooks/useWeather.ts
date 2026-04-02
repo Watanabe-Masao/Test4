@@ -88,7 +88,7 @@ export function useWeatherData(year: number, month: number, storeId: string): Us
       cancelled = true
       clearTimeout(timerId)
     }
-  }, [year, month, storeId, location, reloadKey, storeLocations, updateSettings])
+  }, [weather, year, month, storeId, location, reloadKey, storeLocations, updateSettings])
 
   const daily = useMemo(() => state.etrnDaily, [state.etrnDaily])
 

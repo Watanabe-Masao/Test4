@@ -98,7 +98,7 @@ export function useWeatherForecast(storeId: string): UseWeatherForecastResult {
     return () => {
       cancelled = true
     }
-  }, [storeId, location, reloadKey, storeLocations, updateSettings])
+  }, [weather, storeId, location, reloadKey, storeLocations, updateSettings])
 
   const reload = useCallback(() => {
     setReloadKey((k) => k + 1)

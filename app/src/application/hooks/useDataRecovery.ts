@@ -59,7 +59,7 @@ export function useDataRecovery(
     } catch {
       setRawFileGroups([])
     }
-  }, [repo])
+  }, [repo, rawFile])
 
   useEffect(() => {
     refreshRawFiles()

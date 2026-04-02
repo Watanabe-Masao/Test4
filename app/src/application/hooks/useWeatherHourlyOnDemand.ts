@@ -121,7 +121,7 @@ export function useWeatherHourlyOnDemand(
           }))
         })
     },
-    [hourlyCache, storeId, location],
+    [hourlyCache, weather, storeId, location],
   )
 
   const fetchPrevHourly = useCallback(
@@ -155,7 +155,7 @@ export function useWeatherHourlyOnDemand(
           }))
         })
     },
-    [prevHourlyCache, storeId, policy, location],
+    [prevHourlyCache, weather, storeId, policy, location],
   )
 
   const resolvePrevDate = useCallback(
