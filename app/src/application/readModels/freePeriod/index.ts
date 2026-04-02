@@ -1,4 +1,4 @@
-export { readFreePeriodFact, computeFreePeriodSummary } from './readFreePeriodFact'
+export { readFreePeriodFact, computeFreePeriodSummary, prorateBudget } from './readFreePeriodFact'
 export type {
   FreePeriodReadModel,
   FreePeriodDailyRow,
