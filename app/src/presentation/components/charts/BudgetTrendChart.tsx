@@ -6,8 +6,8 @@ import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 
 import { SegmentedControl } from '@/presentation/components/common/layout'
-import { ChartCard } from './ChartCard'
-import { EChart, type EChartsOption } from './EChart'
+import { ChartCard } from '@/presentation/components/charts/ChartCard'
+import { EChart, type EChartsOption } from '@/presentation/components/charts/EChart'
 import {
   yenYAxis,
   standardGrid,
@@ -16,8 +16,8 @@ import {
   valueYAxis,
   lineDefaults,
   categoryXAxis,
-} from './builders'
-import { toCommaYen } from './echartsOptionBuilders'
+} from '@/presentation/components/charts/builders'
+import { toCommaYen } from '@/presentation/components/charts/echartsOptionBuilders'
 import { chartFontSize } from '@/presentation/theme/tokens'
 
 type ViewType = 'line' | 'diff' | 'rate'

@@ -4,16 +4,21 @@
 import { useState, useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
-import { toPct } from './chartTheme'
+import { toPct } from '@/presentation/components/charts/chartTheme'
 
 import type { DailyRecord } from '@/domain/models/record'
 import { calculateGrossProfitRate } from '@/domain/calculations/utils'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import { SegmentedControl } from '@/presentation/components/common/layout'
-import { ChartCard } from './ChartCard'
-import { EChart, type EChartsOption } from './EChart'
-import { yenYAxis, standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
-import { categoryXAxis, valueYAxis, lineDefaults } from './builders'
+import { ChartCard } from '@/presentation/components/charts/ChartCard'
+import { EChart, type EChartsOption } from '@/presentation/components/charts/EChart'
+import {
+  yenYAxis,
+  standardGrid,
+  standardTooltip,
+  standardLegend,
+} from '@/presentation/components/charts/echartsOptionBuilders'
+import { categoryXAxis, valueYAxis, lineDefaults } from '@/presentation/components/charts/builders'
 import { chartFontSize } from '@/presentation/theme/tokens'
 
 type GpView = 'amountRate' | 'rateOnly'
