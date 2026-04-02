@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-02T11:44:50.710Z",
+  "timestamp": "2026-04-02T11:52:47.365Z",
   "comparisonModuleFiles": [
     "application/comparison/ComparisonContext.ts",
     "application/comparison/adjacentMonthUtils.ts",
@@ -19,6 +19,7 @@
     "application/comparison/resolveComparisonRows.ts",
     "application/comparison/sourceDataIndex.ts",
     "application/comparison/viewModels/ComparisonViewTypes.ts",
+    "application/comparison/viewModels/aggregateStoreContributions.ts",
     "application/comparison/viewModels/buildComparisonPoints.ts",
     "application/comparison/viewModels/buildDailyYoYRows.ts",
     "application/comparison/viewModels/index.ts"
