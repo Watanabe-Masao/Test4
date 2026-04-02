@@ -68,6 +68,12 @@ export const applicationToInfrastructure: readonly AllowlistEntry[] = [
     category: 'adapter',
     removalCondition: 'クエリを infrastructure/duckdb/queries/ に移動後に削除',
   },
+  {
+    path: 'application/readModels/freePeriod/readFreePeriodDeptKPI.ts',
+    reason: '自由期間部門KPIの正本（DuckDB queryToObjects 直接使用）',
+    category: 'adapter',
+    removalCondition: 'クエリを infrastructure/duckdb/queries/ に移動後に削除',
+  },
   // weatherAdapter: DI 化完了（useWeatherAdapter → AdapterContext 経由）。削除済み。
   {
     path: 'application/lifecycle/useAppLifecycle.ts',

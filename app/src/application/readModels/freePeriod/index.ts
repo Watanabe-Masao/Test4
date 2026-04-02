@@ -11,6 +11,12 @@ export type {
   FreePeriodBudgetRow,
   FreePeriodBudgetQueryInput,
 } from './FreePeriodBudgetTypes'
+export { readFreePeriodDeptKPI, dateRangeToYearMonths } from './readFreePeriodDeptKPI'
+export type {
+  FreePeriodDeptKPIReadModel,
+  FreePeriodDeptKPIRow,
+  FreePeriodDeptKPIQueryInput,
+} from './FreePeriodDeptKPITypes'
 export {
   FreePeriodReadModel as FreePeriodReadModelSchema,
   FreePeriodDailyRow as FreePeriodDailyRowSchema,
