@@ -1,6 +1,46 @@
-# 直近の主要変更（#673-#837+）
+# 直近の主要変更（#673-#848+）
 
 > 更新日: 2026-04-02
+
+## v1.7.0 アーキテクチャ改善 + バグ修正（2026-04-02）
+
+### readModel pure builder 化（app→infra 12→7）
+
+5 readModel を pure builder に変換。handler が infra query を呼び、pure builder に渡す構造:
+- buildFreePeriodReadModel / buildFreePeriodBudgetReadModel / buildFreePeriodDeptKPIReadModel
+- buildSalesFactReadModel / buildDiscountFactReadModel
+
+### God Hook 分割
+
+useUnifiedWidgetContext（49フィールド/29依存）を 3 bundle に分割:
+- useComparisonBundle / useQueryBundle / useChartInteractionBundle
+
+### comparison VM 共通基盤
+
+- ComparisonPoint / DailyYoYRow / aggregateContributions を共通化
+- storeContributions 直接ループを全て共通 VM 経由に統合
+
+### Category チャート features/ 移動
+
+35 ファイルを features/category/ui/charts/ に移動。バレル re-export で後方互換。
+
+### 前年客数=0 バグ修正
+
+ClassifiedSalesDaySummary に customers を追加し、flowers を JOIN。
+getFlowers 個別参照 → summary.customers に統合。
+
+### query-access audit
+
+features/ スキャン + bundle hook 検出を追加。facadeHook: 0→4。
+
+### KPI
+
+- applicationToInfrastructure: 12 → 7
+- queryHandlers: 30 → 33
+- queryWithHandler: 21 → 29
+- facadeHook: 0 → 4
+
+---
 
 ## free-period 正本制度化 + 比較subsystem完全移行（2026-04-02）
 
