@@ -14,7 +14,7 @@ import { buildSalesFactReadModel } from '@/application/readModels/salesFact'
 import type { SalesFactInput, SalesFactOutput } from '@/application/readModels/salesFact'
 
 export const salesFactHandler: QueryHandler<SalesFactInput, SalesFactOutput> = {
-  name: 'SalesFact',
+  name: 'salesFact',
   async execute(conn, input) {
     const storeIds = input.storeIds ? [...input.storeIds].sort() : undefined
 
