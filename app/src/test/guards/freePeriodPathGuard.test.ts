@@ -66,10 +66,7 @@ describe('自由期間分析正本ガード', () => {
 
   it('presentation 層で比較先日付を独自計算しない', () => {
     const presFiles = collectTsFiles(path.join(SRC_DIR, 'presentation'))
-    const COMPARISON_PATTERNS = [
-      /buildComparisonScope/,
-      /buildFreePeriodFrame/,
-    ]
+    const COMPARISON_PATTERNS = [/buildComparisonScope/, /buildFreePeriodFrame/]
     const violations: string[] = []
 
     for (const file of presFiles) {

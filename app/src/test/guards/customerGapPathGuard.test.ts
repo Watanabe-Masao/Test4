@@ -25,8 +25,7 @@ describe('客数GAP 正本ガード', () => {
     // customerGap は (prevCustomers - currentCustomers) * transactionValue 系の計算。
     // presentation 層で独自に客数差を使って売上 impact を計算するパターンを検出。
     const presFiles = collectTsFiles(path.join(SRC_DIR, 'presentation'))
-    const GAP_INLINE_PATTERN =
-      /customerGap.*=.*prevYear.*customer|客数.*gap.*=.*\(.*-.*\).*\*/i
+    const GAP_INLINE_PATTERN = /customerGap.*=.*prevYear.*customer|客数.*gap.*=.*\(.*-.*\).*\*/i
     const violations: string[] = []
 
     for (const file of presFiles) {
