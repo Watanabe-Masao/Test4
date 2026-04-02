@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-02T11:16:56.604Z",
+  "timestamp": "2026-04-02T11:44:50.710Z",
   "comparisonModuleFiles": [
     "application/comparison/ComparisonContext.ts",
     "application/comparison/adjacentMonthUtils.ts",
@@ -17,7 +17,11 @@
     "application/comparison/dowOffset.ts",
     "application/comparison/loadComparisonDataAsync.ts",
     "application/comparison/resolveComparisonRows.ts",
-    "application/comparison/sourceDataIndex.ts"
+    "application/comparison/sourceDataIndex.ts",
+    "application/comparison/viewModels/ComparisonViewTypes.ts",
+    "application/comparison/viewModels/buildComparisonPoints.ts",
+    "application/comparison/viewModels/buildDailyYoYRows.ts",
+    "application/comparison/viewModels/index.ts"
   ],
   "accessorUsageSites": [
     "application/usecases/clipExport/buildClipBundle.ts",
