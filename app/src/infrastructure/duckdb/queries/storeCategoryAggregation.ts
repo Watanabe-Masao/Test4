@@ -46,11 +46,11 @@ interface StoreCategoryParams {
 function levelColumns(level: 'department' | 'line' | 'klass') {
   switch (level) {
     case 'department':
-      return { code: 'department_name', name: 'department_name' }
+      return { code: 'dept_code', name: 'dept_name' }
     case 'line':
-      return { code: 'line_name', name: 'line_name' }
+      return { code: 'line_code', name: 'line_name' }
     case 'klass':
-      return { code: 'class_name', name: 'class_name' }
+      return { code: 'klass_code', name: 'klass_name' }
   }
 }
 
