@@ -95,6 +95,11 @@ export interface MetricMeta {
 | `prevYearSameDowBudgetRatio` | sales | budget | achievement | 前年同曜日予算比 |
 | `prevYearSameDateBudgetRatio` | sales | budget | achievement | 前年同日予算比 |
 | `dowGapImpact` | sales | estimated | variance | 曜日ギャップ影響額 |
+| `freePeriodTotalSales` | sales | actual | value | 自由期間売上合計 |
+| `freePeriodBudgetAchievement` | sales | budget | achievement | 自由期間予算達成率 |
+| `freePeriodDiscountRate` | discount | actual | rate | 自由期間売変率 |
+| `freePeriodTransactionValue` | customer | actual | average | 自由期間客単価 |
+| `freePeriodDeptSalesAchievement` | sales | budget | achievement | 部門売上達成率（自由期間） |
 
 ### トークン活用例
 
