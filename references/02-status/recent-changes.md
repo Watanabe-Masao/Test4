@@ -1,6 +1,56 @@
-# 直近の主要変更（#673-#829+）
+# 直近の主要変更（#673-#832+）
 
-> 更新日: 2026-04-01
+> 更新日: 2026-04-02
+
+## adapter DI 化 + 正本ガード完全網羅（2026-04-02）
+
+### adapter 撤去（Phase 1）
+
+| 対象 | 変更 | allowlist |
+|------|------|----------|
+| weatherAdapter | re-export → AdapterContext.weather + useWeatherAdapter | -1 |
+| ExportService | direct import → AdapterContext.export | -1 |
+| useImport (rawFileStore) | direct import → AdapterContext.rawFile + RawFilePort | -1 |
+| useDataRecovery (rawFileStore) | direct import → AdapterContext.rawFile | removalCondition 具体化 |
+
+AdapterSet: 4 → 6 ports (weather/backup/fileSystem/storagePersistence/export/rawFile)
+
+### 正本ガード完全網羅
+
+| 正本 | ガード | テスト数 |
+|------|--------|---------|
+| 仕入原価 | purchaseCostPathGuard + importGuard | 24 |
+| 粗利 | grossProfitPathGuard | 6 |
+| 売上 | salesFactPathGuard | 5 |
+| 値引き | discountFactPathGuard | 5 |
+| 要因分解 | factorDecompositionPathGuard | 5 |
+| 自由期間 | freePeriodPathGuard | 7 |
+| PI値 | piValuePathGuard | 2 |
+| 客数GAP | customerGapPathGuard | 2 |
+| ComparisonScope | comparisonScopeGuard | 5 |
+| AnalysisFrame | analysisFrameGuard | 9 |
+| TemporalScope | temporalScopeGuard | 4 |
+
+### 比較サブシステム（Phase 3）
+
+- sourceDate 直接参照: presentation 層から消滅
+- dailyMapping 直接ループ: 1 件のみ残存（buildSameDowPoints 移行待ち）
+
+### KPI
+
+| 指標 | 値 |
+|------|---|
+| allowlist 総エントリ | 47 |
+| architecture allowlist | 10 |
+| widget 自前取得 | 0 |
+| active bridges | 4 |
+| 互換 re-export | 1 |
+| ImportedData direct import | 0 |
+| comparison 独自解決 | 0 |
+| 正本化 readModel | 6 |
+| ガードファイル | 29 |
+| ガードテスト | 262 |
+| 全テスト | 5017 |
 
 ## MonthlyData 移行完了 + 自由期間分析基盤（2026-04-01）
 
