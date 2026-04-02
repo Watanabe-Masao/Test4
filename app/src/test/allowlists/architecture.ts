@@ -25,7 +25,8 @@ export const applicationToInfrastructure: readonly AllowlistEntry[] = [
   },
   {
     path: 'application/hooks/useDataRecovery.ts',
-    reason: 'DuckDB recovery（rebuildFromIndexedDB/deleteDatabaseFile）— rawFileStore は Port 化済み',
+    reason:
+      'DuckDB recovery（rebuildFromIndexedDB/deleteDatabaseFile）— rawFileStore は Port 化済み',
     category: 'lifecycle',
     removalCondition: 'DuckDB recovery が engine boundary に閉じられたとき',
   },

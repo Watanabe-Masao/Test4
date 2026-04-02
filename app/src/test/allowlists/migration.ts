@@ -20,7 +20,6 @@ export const cmpDailyMapping: readonly AllowlistEntry[] = [
       'dailyMapping.map() で日別行を直接構築。sourceDate は消滅済みだが、' +
       'dailyMapping の直接ループが残存。buildSameDowPoints への移行で解消。',
     category: 'structural',
-    removalCondition:
-      'PrevYearBudgetDetailPanel が buildSameDowPoints() を使用するようになった時',
+    removalCondition: 'PrevYearBudgetDetailPanel が buildSameDowPoints() を使用するようになった時',
   },
 ] as const
