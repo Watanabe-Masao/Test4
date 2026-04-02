@@ -7,6 +7,7 @@
 import { calculateAchievementRate, calculateYoYRatio } from '@/domain/calculations/utils'
 import { calculateMarkupRates } from '@/domain/calculations/markupRate'
 import { calculateDiscountRate } from '@/domain/calculations/estMethod'
+import { indexContributionsByDay } from '@/application/comparison/viewModels'
 import type { StoreResult } from '@/domain/models/storeTypes'
 import type { PrevYearMonthlyKpi } from '@/application/hooks/analytics'
 import type { MetricKey } from './conditionSummaryTypes'
@@ -288,20 +289,18 @@ export function buildDailyYoYRows(
   if (!prevYearMonthlyKpi.hasPrevYear) return []
   const effectiveElapsed = elapsedDays ?? daysInMonth
 
-  // storeContributions から storeId × mappedDay でインデックス化
-  const prevByDay = new Map<number, number>()
-  for (const c of prevYearMonthlyKpi.sameDow.storeContributions) {
-    if (c.storeId === storeId) {
-      prevByDay.set(c.mappedDay, (prevByDay.get(c.mappedDay) ?? 0) + c.sales)
-    }
-  }
+  // 共通 VM 経由で日別集約
+  const prevDayIndex = indexContributionsByDay(
+    prevYearMonthlyKpi.sameDow.storeContributions,
+    storeId,
+  )
 
   const rows: DailyYoYRow[] = []
   let cumCurActual = 0
   let cumPrevActual = 0
   for (let day = 1; day <= effectiveElapsed; day++) {
     const curActual = sr.daily.get(day)?.sales ?? 0
-    const prevActual = prevByDay.get(day) ?? 0
+    const prevActual = prevDayIndex.get(day)?.sales ?? 0
     const diff = curActual - prevActual
     const yoy = prevActual > 0 ? calculateYoYRatio(curActual, prevActual) * 100 : 0
     cumCurActual += curActual
@@ -421,19 +420,11 @@ export function buildDailyDiscountRateYoYRows(
   if (!prevYearMonthlyKpi.hasPrevYear) return []
   const effectiveElapsed = elapsedDays ?? daysInMonth
 
-  // 前年: storeContributions から mappedDay 別に sales + discount を集約
-  const prevByDay = new Map<number, { sales: number; discount: number }>()
-  for (const c of prevYearMonthlyKpi.sameDow.storeContributions) {
-    if (c.storeId === storeId) {
-      const existing = prevByDay.get(c.mappedDay)
-      if (existing) {
-        existing.sales += c.sales
-        existing.discount += c.discount
-      } else {
-        prevByDay.set(c.mappedDay, { sales: c.sales, discount: c.discount })
-      }
-    }
-  }
+  // 共通 VM 経由で日別集約（sales + discount）
+  const prevDayIndex = indexContributionsByDay(
+    prevYearMonthlyKpi.sameDow.storeContributions,
+    storeId,
+  )
 
   const rows: DailyDiscountRateYoYRow[] = []
   let cumCurSales = 0
@@ -447,7 +438,7 @@ export function buildDailyDiscountRateYoYRows(
     const curDiscount = dailyRecord?.discountAbsolute ?? 0
     const curRate = calculateDiscountRate(curSales, curDiscount) * 100
 
-    const prev = prevByDay.get(day)
+    const prev = prevDayIndex.get(day)
     const prevSales = prev?.sales ?? 0
     const prevDiscount = prev?.discount ?? 0
     const prevRate = calculateDiscountRate(prevSales, prevDiscount) * 100

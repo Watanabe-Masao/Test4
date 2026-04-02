@@ -5,6 +5,7 @@
  */
 
 import { calculateDiscountRate } from '@/domain/calculations/estMethod'
+import { aggregateContributions } from '@/application/comparison/viewModels'
 import { computeGpBeforeConsumable } from './conditionSummaryUtils'
 import type { Store } from '@/domain/models/record'
 import type { StoreResult } from '@/domain/models/storeTypes'
@@ -183,14 +184,11 @@ export function buildTotalFromResult(
     }
     yoy = computeYoY(actual, ly, false)
   } else if (metric === 'discountRate' && prevYearMonthlyKpi.hasPrevYear) {
-    // 全店の前年売変率を storeContributions 全体から算出
-    const contributions = prevYearMonthlyKpi.sameDow.storeContributions.filter(
-      isElapsed && elapsedDays != null ? (c) => c.mappedDay <= elapsedDays : () => true,
-    )
-    if (contributions.length > 0) {
-      const totalSales = contributions.reduce((s, c) => s + c.sales, 0)
-      const totalDiscount = contributions.reduce((s, c) => s + c.discount, 0)
-      ly = calculateDiscountRate(totalSales, totalDiscount) * 100
+    // 共通 VM 経由で全店の前年売変率を算出
+    const maxDay = isElapsed && elapsedDays != null ? elapsedDays : undefined
+    const agg = aggregateContributions(prevYearMonthlyKpi.sameDow.storeContributions, { maxDay })
+    if (agg.count > 0) {
+      ly = calculateDiscountRate(agg.sales, agg.discount) * 100
       if (ly > 0) {
         yoy = computeYoY(actual, ly, true) // pp diff
       }
