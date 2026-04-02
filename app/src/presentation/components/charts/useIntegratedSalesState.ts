@@ -156,6 +156,7 @@ export function useIntegratedSalesState(params: UseIntegratedSalesStateParams) {
     handleDayClick: drill.handleDayClick,
     handleDayRangeSelect: drill.handleDayRangeSelect,
     handleRangeToTimeSlot: drill.handleRangeToTimeSlot,
+    handleDblClickToTimeSlot: drill.handleDblClickToTimeSlot,
     handleRangeToDrilldown: drill.handleRangeToDrilldown,
     handleRangeCancel: drill.handleRangeCancel,
     handleDrillToTimeSlot: drill.handleDrillToTimeSlot,

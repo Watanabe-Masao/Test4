@@ -32,6 +32,8 @@ interface Props {
   onDayRangeSelect?: (startDay: number, endDay: number) => void
   /** シングルクリック → 日別ドリルダウン分析 */
   onDayClick?: (day: number) => void
+  /** ダブルクリック → 時間帯チャートへ自動遷移 */
+  onDblClickToTimeSlot?: (day: number) => void
   /** 天気データ（X軸に天気アイコン+気温を表示） */
   weatherDaily?: readonly DailyWeatherSummary[]
   /** 前年天気データ（X軸に前年天気+気温線を表示） */
@@ -91,6 +93,7 @@ export const DailySalesChart = memo(function DailySalesChart({
   budgetDaily,
   onDayRangeSelect,
   onDayClick,
+  onDblClickToTimeSlot,
   weatherDaily,
   prevYearWeatherDaily,
   dowOffset,
@@ -219,6 +222,7 @@ export const DailySalesChart = memo(function DailySalesChart({
         wfLegendPayload={wfLegendPayload}
         onDayRangeSelect={onDayRangeSelect}
         onDayClick={onDayClick}
+        onDblClickToTimeSlot={onDblClickToTimeSlot}
         weatherDaily={weatherDaily}
         prevYearWeatherDaily={prevYearWeatherDaily}
         dowOffset={dowOffset}
