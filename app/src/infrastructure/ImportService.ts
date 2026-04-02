@@ -27,11 +27,9 @@ import type {
   MonthPartitions,
 } from './importTypes'
 
-// ─── Re-exports（後方互換） ─────────────────────────
+// ─── Re-exports ─────────────────────────
 export { processFileData, normalizeRecordStoreIds, countDataRecords } from './ImportDataProcessor'
 export type { ProcessFileResult } from './ImportDataProcessor'
-export type { ImportedData } from '@/domain/models/storeTypes'
-export { createEmptyImportedData } from '@/domain/models/storeTypes'
 export type { MonthlyData } from '@/domain/models/MonthlyData'
 export { createEmptyMonthlyData } from '@/domain/models/MonthlyData'
 export {

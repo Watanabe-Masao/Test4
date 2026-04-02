@@ -131,6 +131,77 @@ describe('parity invariant: summary.totalSales = Σ rows.sales', () => {
   })
 })
 
+// ── 不変条件: 期間分割和 ──
+
+describe('parity invariant: 期間分割和', () => {
+  it('Jan + Feb = Jan1〜FebEnd の合算と一致', () => {
+    const janRows = [
+      makeRow({ dateKey: '2025-01-15', day: 15, sales: 50000, customers: 200 }),
+      makeRow({ dateKey: '2025-01-31', day: 31, sales: 60000, customers: 250 }),
+    ]
+    const febRows = [
+      makeRow({ dateKey: '2025-02-10', day: 10, sales: 40000, customers: 180 }),
+      makeRow({ dateKey: '2025-02-28', day: 28, sales: 55000, customers: 220 }),
+    ]
+    const allRows = [...janRows, ...febRows]
+
+    const janSummary = computeFreePeriodSummary(janRows)
+    const febSummary = computeFreePeriodSummary(febRows)
+    const allSummary = computeFreePeriodSummary(allRows)
+
+    expect(allSummary.totalSales).toBe(janSummary.totalSales + febSummary.totalSales)
+    expect(allSummary.totalCustomers).toBe(janSummary.totalCustomers + febSummary.totalCustomers)
+    expect(allSummary.dayCount).toBe(janSummary.dayCount + febSummary.dayCount)
+  })
+})
+
+// ── 不変条件: 月末境界 ──
+
+describe('parity invariant: 月末境界', () => {
+  it('28/29/30/31 日の差でサマリー計算が壊れない', () => {
+    const feb28 = [makeRow({ dateKey: '2025-02-28', day: 28, sales: 10000 })]
+    const mar31 = [makeRow({ dateKey: '2025-03-31', day: 31, sales: 10000 })]
+    const apr30 = [makeRow({ dateKey: '2025-04-30', day: 30, sales: 10000 })]
+
+    expect(computeFreePeriodSummary(feb28).dayCount).toBe(1)
+    expect(computeFreePeriodSummary(mar31).dayCount).toBe(1)
+    expect(computeFreePeriodSummary(apr30).dayCount).toBe(1)
+    // 全て同じ sales なら averageDailySales も同じ
+    expect(computeFreePeriodSummary(feb28).averageDailySales).toBe(10000)
+    expect(computeFreePeriodSummary(mar31).averageDailySales).toBe(10000)
+    expect(computeFreePeriodSummary(apr30).averageDailySales).toBe(10000)
+  })
+
+  it('leap year 2月29日も正常処理', () => {
+    const leapDay = [makeRow({ dateKey: '2024-02-29', day: 29, sales: 12000 })]
+    const summary = computeFreePeriodSummary(leapDay)
+    expect(summary.dayCount).toBe(1)
+    expect(summary.totalSales).toBe(12000)
+  })
+})
+
+// ── 不変条件: 欠損とゼロの区別 ──
+
+describe('parity invariant: 欠損とゼロ', () => {
+  it('sales=0 の行はカウントに含まれる（欠損ではない）', () => {
+    const rows = [
+      makeRow({ dateKey: '2025-03-01', sales: 0, customers: 0 }),
+      makeRow({ dateKey: '2025-03-02', sales: 10000, customers: 50 }),
+    ]
+    const summary = computeFreePeriodSummary(rows)
+    expect(summary.dayCount).toBe(2) // 0 も 1 日としてカウント
+    expect(summary.storeCount).toBe(1)
+    expect(summary.totalSales).toBe(10000)
+    expect(summary.averageDailySales).toBe(5000) // 10000 / 2
+  })
+
+  it('budget なし = proratedBudget null（0 ではない）', () => {
+    const summary = computeFreePeriodSummary([makeRow()])
+    expect(summary.proratedBudget).toBeNull()
+    expect(summary.proratedBudget).not.toBe(0)
+  })
+})
+
 // ── prorateBudget ──
 
 describe('prorateBudget', () => {
