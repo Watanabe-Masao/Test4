@@ -79,6 +79,48 @@ export function computeEstimatedUnitPriceImpact(
   return safeDivide(adjustedSales, adjustedCustomers, 0) - prevTransactionValue
 }
 
+/** TableRow（panel 表示用） */
+export interface BudgetDetailRow {
+  readonly currentDay: number
+  readonly prevDay: number
+  readonly prevMonth: number
+  readonly prevYear: number
+  readonly prevSales: number
+  readonly prevCustomers: number
+  readonly prevCtsQuantity: number
+  readonly budget: number
+  readonly week: number
+  readonly dow: number
+}
+
+/**
+ * dailyMapping + budget → BudgetDetailRow[] を構築する。
+ * presentation が dailyMapping を直接ループすることを防ぐ。
+ */
+export function buildBudgetDetailRows(
+  dailyMapping: readonly {
+    prevDay: number
+    prevMonth: number
+    prevYear: number
+    currentDay: number
+    prevSales: number
+    prevCustomers: number
+    prevCtsQuantity: number
+  }[],
+  budgetDaily: ReadonlyMap<number, number>,
+  targetYear: number,
+  targetMonth: number,
+  weekNumberFn: (y: number, m: number, d: number) => number,
+  getDowFn: (y: number, m: number, d: number) => number,
+): readonly BudgetDetailRow[] {
+  return dailyMapping.map((row) => ({
+    ...row,
+    budget: budgetDaily.get(row.currentDay) ?? 0,
+    week: weekNumberFn(targetYear, targetMonth, row.currentDay),
+    dow: getDowFn(row.prevYear, row.prevMonth, row.prevDay),
+  }))
+}
+
 /** 期間ラベルを構築する */
 export function buildPeriodLabels(
   dailyMapping: readonly {

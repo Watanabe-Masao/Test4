@@ -12,14 +12,14 @@ export const cmpPrevYearDaily: readonly AllowlistEntry[] = [] as const
 /** INV-CMP-03: comparisonFrame.previous — 全件解消済み。凍結 */
 export const cmpFramePrevious: readonly AllowlistEntry[] = [] as const
 
-/** INV-CMP-08: dailyMapping の直接ループ（buildSameDowPoints 移行待ち） */
+/** INV-CMP-08: dailyMapping — ViewModel に集約済み。VM のみ許可 */
 export const cmpDailyMapping: readonly AllowlistEntry[] = [
   {
-    path: 'presentation/pages/Dashboard/widgets/PrevYearBudgetDetailPanel.tsx',
+    path: 'presentation/pages/Dashboard/widgets/PrevYearBudgetDetailPanel.vm.ts',
     reason:
-      'dailyMapping.map() で日別行を直接構築。sourceDate は消滅済みだが、' +
-      'dailyMapping の直接ループが残存。buildSameDowPoints への移行で解消。',
+      'buildBudgetDetailRows() で dailyMapping → TableRow 変換。' +
+      'Panel は VM 関数の結果を表示するだけ。dailyMapping の直接ループは VM に閉じ込められている。',
     category: 'structural',
-    removalCondition: 'PrevYearBudgetDetailPanel が buildSameDowPoints() を使用するようになった時',
+    removalCondition: 'dailyMapping が ComparisonScope.alignmentMap 経由に完全移行された時',
   },
 ] as const
