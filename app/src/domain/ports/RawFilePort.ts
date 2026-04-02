@@ -6,6 +6,15 @@
  */
 import type { DataType } from '@/domain/models/storeTypes'
 
+export interface RawFileEntry {
+  readonly filename: string
+  readonly dataType: string
+  readonly size: number
+  readonly savedAt: string
+  readonly relativePath?: string
+  readonly hash: string
+}
+
 export interface RawFilePort {
   saveFile(
     year: number,
@@ -15,4 +24,6 @@ export interface RawFilePort {
     filename?: string,
     relativePath?: string,
   ): Promise<unknown>
+
+  listFiles(year: number, month: number): Promise<readonly RawFileEntry[]>
 }
