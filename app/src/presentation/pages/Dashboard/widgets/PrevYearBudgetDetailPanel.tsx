@@ -22,6 +22,7 @@ import {
   computeEstimatedCustomerGap,
   computeEstimatedUnitPriceImpact,
   buildPeriodLabels,
+  buildBudgetDetailRows,
 } from './PrevYearBudgetDetailPanel.vm'
 import {
   Overlay,
@@ -108,18 +109,6 @@ function weekNumber(year: number, month: number, day: number): number {
   return Math.floor((day - 1 + mondayBased) / 7) + 1
 }
 
-interface TableRow {
-  readonly prevDay: number
-  readonly prevMonth: number
-  readonly prevYear: number
-  readonly currentDay: number
-  readonly prevSales: number
-  readonly prevCustomers: number
-  readonly budget: number
-  readonly week: number
-  readonly dow: number
-}
-
 // ── Component ──
 
 export function PrevYearBudgetDetailPanel({
@@ -147,15 +136,19 @@ export function PrevYearBudgetDetailPanel({
     [entry.dailyMapping, sourceYear, sourceMonth, targetYear, targetMonth],
   )
 
-  // 日別データ + 週番号
-  const baseRows: readonly TableRow[] = useMemo(() => {
-    return entry.dailyMapping.map((row) => ({
-      ...row,
-      budget: budgetDaily.get(row.currentDay) ?? 0,
-      week: weekNumber(targetYear, targetMonth, row.currentDay),
-      dow: getDow(row.prevYear, row.prevMonth, row.prevDay),
-    }))
-  }, [entry.dailyMapping, budgetDaily, targetYear, targetMonth])
+  // 日別データ + 週番号 — ViewModel 経由で構築（dailyMapping 直接ループ禁止）
+  const baseRows = useMemo(
+    () =>
+      buildBudgetDetailRows(
+        entry.dailyMapping,
+        budgetDaily,
+        targetYear,
+        targetMonth,
+        weekNumber,
+        getDow,
+      ),
+    [entry.dailyMapping, budgetDaily, targetYear, targetMonth],
+  )
 
   const weeklyTotals = useMemo(() => aggregateWeeklyTotals(baseRows), [baseRows])
 

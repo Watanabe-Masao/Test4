@@ -1,8 +1,8 @@
 {
-  "timestamp": "2026-04-02T07:01:11.350Z",
-  "totalAllowlistEntries": 45,
+  "timestamp": "2026-04-02T09:24:59.380Z",
+  "totalAllowlistEntries": 47,
   "categoryBreakdown": {
-    "adapter": 8,
+    "adapter": 10,
     "lifecycle": 2,
     "structural": 35
   },
@@ -266,9 +266,9 @@
   ],
   "listSummary": {
     "applicationToInfrastructure": {
-      "count": 10,
+      "count": 12,
       "categories": {
-        "adapter": 8,
+        "adapter": 10,
         "lifecycle": 2
       }
     },
