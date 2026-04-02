@@ -24,8 +24,10 @@ interface RouteCount {
   queryHandlers: string[]
   /** comparisonAccessors 経由（正規経路） */
   comparisonAccessor: string[]
-  /** facade hook 経由（useComparisonContext 等） */
+  /** facade / bundle hook 経由（useQueryBundle, useFreePeriodAnalysisBundle 等） */
   facadeHook: string[]
+  /** bundle hook 定義ファイル（実装側） */
+  bundleHookDef: string[]
   /** executor.execute() 直呼び（要注意） */
   executorDirect: string[]
   /** useAsyncQuery 直 import（互換経路） */
@@ -38,12 +40,30 @@ interface RouteCount {
   weatherInfraDirect: string[]
 }
 
+/** features/{feature}/ui/ 配下のファイルを収集する */
+function collectFeatureUiFiles(srcDir: string): string[] {
+  const featuresDir = path.join(srcDir, 'features')
+  if (!fs.existsSync(featuresDir)) return []
+  return fs
+    .readdirSync(featuresDir, { withFileTypes: true })
+    .filter((d) => d.isDirectory())
+    .flatMap((d) => {
+      const uiDir = path.join(featuresDir, d.name, 'ui')
+      return fs.existsSync(uiDir) ? collectTsFiles(uiDir) : []
+    })
+}
+
+/** bundle hook の検出パターン */
+const BUNDLE_HOOK_PATTERN =
+  /use(?:ComparisonContext|QueryBundle|ComparisonBundle|ChartInteractionBundle|FreePeriodAnalysisBundle)/
+
 function inventoryQueryRoutes(): RouteCount {
   const routes: RouteCount = {
     queryWithHandler: [],
     queryHandlers: [],
     comparisonAccessor: [],
     facadeHook: [],
+    bundleHookDef: [],
     executorDirect: [],
     asyncQueryDirect: [],
     infraDuckdbDirect: [],
@@ -58,8 +78,11 @@ function inventoryQueryRoutes(): RouteCount {
     routes.queryHandlers = allFiles.filter((f) => f.includes('Handler')).map((f) => rel(f))
   }
 
-  // 2. presentation/ のアクセスパターンを棚卸し
-  const presFiles = collectTsFiles(path.join(SRC_DIR, 'presentation'))
+  // 2. presentation/ + features/*/ui/ のアクセスパターンを棚卸し
+  const presFiles = [
+    ...collectTsFiles(path.join(SRC_DIR, 'presentation')),
+    ...collectFeatureUiFiles(SRC_DIR),
+  ]
   for (const file of presFiles) {
     const content = fs.readFileSync(file, 'utf-8')
     const relPath = rel(file)
@@ -70,7 +93,7 @@ function inventoryQueryRoutes(): RouteCount {
     if (/(?:getPrevYearDailyValue|getPrevYearDailySales)/.test(content)) {
       routes.comparisonAccessor.push(relPath)
     }
-    if (/useComparisonContext/.test(content)) {
+    if (BUNDLE_HOOK_PATTERN.test(content)) {
       routes.facadeHook.push(relPath)
     }
     if (/executor\.execute\(/.test(content)) {
@@ -101,6 +124,14 @@ function inventoryQueryRoutes(): RouteCount {
 
     if (/(?:getPrevYearDailyValue|getPrevYearDailySales)/.test(content)) {
       routes.comparisonAccessor.push(relPath)
+    }
+    // bundle hook 定義の検出
+    if (
+      /export function use(?:QueryBundle|ComparisonBundle|ChartInteractionBundle|FreePeriodAnalysisBundle)/.test(
+        content,
+      )
+    ) {
+      routes.bundleHookDef.push(relPath)
     }
   }
 
@@ -173,6 +204,7 @@ describe('Query Access Audit — クエリアクセス経路棚卸し', () => {
     const allFiles = [
       ...collectTsFiles(path.join(SRC_DIR, 'presentation')),
       ...collectTsFiles(path.join(SRC_DIR, 'application/hooks')),
+      ...collectFeatureUiFiles(SRC_DIR),
     ]
     for (const file of allFiles) {
       const content = fs.readFileSync(file, 'utf-8')
@@ -200,6 +232,7 @@ describe('Query Access Audit — クエリアクセス経路棚卸し', () => {
         正規経路_queryWithHandler: routes.queryWithHandler.length,
         正規経路_comparisonAccessor: routes.comparisonAccessor.length,
         正規経路_facadeHook: routes.facadeHook.length,
+        bundleHookDef: routes.bundleHookDef.length,
         要注意_executorDirect: routes.executorDirect.length,
         互換経路_asyncQueryDirect: routes.asyncQueryDirect.length,
         禁止経路_infraDuckdbDirect: routes.infraDuckdbDirect.length,
@@ -225,7 +258,8 @@ describe('Query Access Audit — クエリアクセス経路棚卸し', () => {
       `| QueryHandler 定義 | ${routes.queryHandlers.length} | 基盤 |`,
       `| useQueryWithHandler（正規） | ${routes.queryWithHandler.length} | 正規 |`,
       `| comparisonAccessors（正規） | ${routes.comparisonAccessor.length} | 正規 |`,
-      `| facade hook（正規） | ${routes.facadeHook.length} | 正規 |`,
+      `| facade / bundle hook 使用（正規） | ${routes.facadeHook.length} | 正規 |`,
+      `| bundle hook 定義 | ${routes.bundleHookDef.length} | 基盤 |`,
       `| executor.execute 直呼び（要注意） | ${routes.executorDirect.length} | 要注意 |`,
       `| useAsyncQuery 直 import（互換） | ${routes.asyncQueryDirect.length} | 互換 |`,
       `| infrastructure/duckdb 直 import（禁止） | ${routes.infraDuckdbDirect.length} | 禁止 |`,
