@@ -1,14 +1,14 @@
 # Architecture State Snapshot
 
-> Generated: 2026-04-02T09:24:59.380Z
+> Generated: 2026-04-02T10:13:00.625Z
 
 ## Allowlist Summary
 
 | 指標 | 値 |
 |---|---|
-| 総エントリ数 | 47 |
-| アクティブリスト数 | 13 |
-| 凍結リスト数 | 8 |
+| 総エントリ数 | 46 |
+| アクティブリスト数 | 12 |
+| 凍結リスト数 | 9 |
 | .vm.ts ファイル数 | 28 |
 | 互換 re-export 残数 | 2 |
 
@@ -16,7 +16,7 @@
 
 | カテゴリ | 件数 |
 |---|---|
-| structural | 35 |
+| structural | 34 |
 | adapter | 10 |
 | lifecycle | 2 |
 
@@ -139,6 +139,7 @@
 - largeComponentTier2
 - cmpPrevYearDaily
 - cmpFramePrevious
+- cmpDailyMapping
 - dowCalcOverride
 
 ## Per-List Detail
@@ -156,7 +157,6 @@
 | vmReactImport | 2 | structural:2 |
 | infraLargeFiles | 1 | structural:1 |
 | usecasesLargeFiles | 1 | structural:1 |
-| cmpDailyMapping | 1 | structural:1 |
 | sideEffectChain | 1 | structural:1 |
 | presentationToInfrastructure | 0 | - |
 | infrastructureToApplication | 0 | - |
@@ -165,4 +165,5 @@
 | largeComponentTier2 | 0 | - |
 | cmpPrevYearDaily | 0 | - |
 | cmpFramePrevious | 0 | - |
+| cmpDailyMapping | 0 | - |
 | dowCalcOverride | 0 | - |

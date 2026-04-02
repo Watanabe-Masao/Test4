@@ -2,28 +2,34 @@
 
 > 更新日: 2026-04-02
 
-## free-period Budget/KPI 正本化 + dailyMapping VM集約（2026-04-02）
+## free-period 正本制度化 + 比較subsystem完全移行（2026-04-02）
 
-### 自由期間 readModel 拡張
+### 自由期間 readModel + query infra分離
 
-| readModel | 内容 |
-|-----------|------|
-| readFreePeriodFact | 売上/仕入/客数/売変（既存） |
-| readFreePeriodBudgetFact | **新規**: 月予算→対象期間日割り按分 |
-| readFreePeriodDeptKPI | **新規**: 部門KPI の自由期間集約（売上加重平均） |
+| readModel | 内容 | ガード |
+|-----------|------|--------|
+| readFreePeriodFact | 売上/仕入/客数/売変 | freePeriodPathGuard (7) |
+| readFreePeriodBudgetFact | 月予算→日割り按分 | freePeriodBudgetPathGuard (5) |
+| readFreePeriodDeptKPI | 部門KPI 自由期間集約 | freePeriodDeptKPIPathGuard (4) |
 
-### dailyMapping 直接ループ撤去
+query 実装は infrastructure/duckdb/queries/ に分離済み。
+readModel は orchestration + Zod parse のみ。
 
-- PrevYearBudgetDetailPanel.tsx: `dailyMapping.map()` → `buildBudgetDetailRows()` (VM関数)
-- Panel 本体は表示のみ。比較意味論を UI から分離
+### 比較 subsystem 完全移行
+
+- cmpDailyMapping allowlist: **0**（全件解消）
+- PrevYearBudgetDetailPanel: buildSameDowPoints() 経由に移行
+- VM が dailyMapping shape を知らない
+- 比較意味論は application/comparison に完全に閉じた
 
 ### KPI
 
 | 指標 | 値 |
 |------|---|
-| テスト | 5029 |
-| ガード | 262 |
+| テスト | 5038 |
+| ガードファイル | 31 |
 | 自由期間 readModel | 3 |
+| cmpDailyMapping | **0** |
 | allowlist 総エントリ | 49 |
 
 ## adapter DI 化 + 正本ガード完全網羅（2026-04-02）

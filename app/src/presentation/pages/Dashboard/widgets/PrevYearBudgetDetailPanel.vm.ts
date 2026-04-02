@@ -79,6 +79,15 @@ export function computeEstimatedUnitPriceImpact(
   return safeDivide(adjustedSales, adjustedCustomers, 0) - prevTransactionValue
 }
 
+/** 比較ポイント型（comparison subsystem 由来） */
+interface ComparisonPoint {
+  readonly currentDay: number
+  readonly sourceDate: { readonly year: number; readonly month: number; readonly day: number }
+  readonly sales: number
+  readonly customers: number
+  readonly ctsQuantity: number
+}
+
 /** TableRow（panel 表示用） */
 export interface BudgetDetailRow {
   readonly currentDay: number
@@ -94,55 +103,50 @@ export interface BudgetDetailRow {
 }
 
 /**
- * dailyMapping + budget → BudgetDetailRow[] を構築する。
- * presentation が dailyMapping を直接ループすることを防ぐ。
+ * 比較ポイント + budget → BudgetDetailRow[] を構築する。
+ * dailyMapping shape を知らず、comparison subsystem が定義した
+ * 整形済みポイントデータのみを受け取る。
  */
 export function buildBudgetDetailRows(
-  dailyMapping: readonly {
-    prevDay: number
-    prevMonth: number
-    prevYear: number
-    currentDay: number
-    prevSales: number
-    prevCustomers: number
-    prevCtsQuantity: number
-  }[],
+  points: readonly ComparisonPoint[],
   budgetDaily: ReadonlyMap<number, number>,
   targetYear: number,
   targetMonth: number,
   weekNumberFn: (y: number, m: number, d: number) => number,
   getDowFn: (y: number, m: number, d: number) => number,
 ): readonly BudgetDetailRow[] {
-  return dailyMapping.map((row) => ({
-    ...row,
-    budget: budgetDaily.get(row.currentDay) ?? 0,
-    week: weekNumberFn(targetYear, targetMonth, row.currentDay),
-    dow: getDowFn(row.prevYear, row.prevMonth, row.prevDay),
+  return points.map((pt) => ({
+    currentDay: pt.currentDay,
+    prevDay: pt.sourceDate.day,
+    prevMonth: pt.sourceDate.month,
+    prevYear: pt.sourceDate.year,
+    prevSales: pt.sales,
+    prevCustomers: pt.customers,
+    prevCtsQuantity: pt.ctsQuantity,
+    budget: budgetDaily.get(pt.currentDay) ?? 0,
+    week: weekNumberFn(targetYear, targetMonth, pt.currentDay),
+    dow: getDowFn(pt.sourceDate.year, pt.sourceDate.month, pt.sourceDate.day),
   }))
 }
 
-/** 期間ラベルを構築する */
+/** 期間ラベルを構築する（comparison ポイントから） */
 export function buildPeriodLabels(
-  dailyMapping: readonly {
-    prevDay: number
-    prevMonth: number
-    prevYear: number
-    currentDay: number
-  }[],
+  points: readonly ComparisonPoint[],
   sourceYear: number,
   sourceMonth: number,
   targetYear: number,
   targetMonth: number,
 ): { prev: string; cur: string } {
-  if (dailyMapping.length === 0) {
+  if (points.length === 0) {
     return { prev: `${sourceYear}年${sourceMonth}月`, cur: `${targetYear}年${targetMonth}月` }
   }
-  const first = dailyMapping[0]
-  const last = dailyMapping[dailyMapping.length - 1]
+  const first = points[0]
+  const last = points[points.length - 1]
   const prev =
-    first.prevMonth === last.prevMonth && first.prevYear === last.prevYear
-      ? `${first.prevYear}年${first.prevMonth}月${first.prevDay}日〜${last.prevDay}日`
-      : `${first.prevYear}年${first.prevMonth}月${first.prevDay}日〜${last.prevYear}年${last.prevMonth}月${last.prevDay}日`
+    first.sourceDate.month === last.sourceDate.month &&
+    first.sourceDate.year === last.sourceDate.year
+      ? `${first.sourceDate.year}年${first.sourceDate.month}月${first.sourceDate.day}日〜${last.sourceDate.day}日`
+      : `${first.sourceDate.year}年${first.sourceDate.month}月${first.sourceDate.day}日〜${last.sourceDate.year}年${last.sourceDate.month}月${last.sourceDate.day}日`
   const cur = `${targetYear}年${targetMonth}月${first.currentDay}日〜${last.currentDay}日`
   return { prev, cur }
 }
