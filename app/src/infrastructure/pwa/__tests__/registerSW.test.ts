@@ -78,6 +78,9 @@ describe('registerServiceWorker', () => {
 
     registerServiceWorker()
 
-    expect(mockSW.register).toHaveBeenCalledWith('/Test4/sw.js', { updateViaCache: 'none' })
+    // import.meta.env.BASE_URL は vitest では '/' がデフォルト
+    expect(mockSW.register).toHaveBeenCalledWith(expect.stringContaining('sw.js'), {
+      updateViaCache: 'none',
+    })
   })
 })

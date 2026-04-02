@@ -6,16 +6,28 @@ import topLevelAwait from 'vite-plugin-top-level-await'
 import { resolve } from 'path'
 import { readFileSync, writeFileSync } from 'fs'
 
-/** ビルド時に public/sw.js の __BUILD_VERSION__ をタイムスタンプで置換するプラグイン */
+/** ビルド時に public/sw.js の __BUILD_VERSION__ と __BASE_PATH__ を置換するプラグイン */
 function swVersionPlugin(): Plugin {
+  const basePath = process.env.VITE_BASE_PATH ?? '/Test4/'
   return {
     name: 'sw-version',
     apply: 'build',
     writeBundle() {
+      // sw.js: バージョン + base path 置換
       const swPath = resolve(__dirname, 'dist/sw.js')
-      const content = readFileSync(swPath, 'utf-8')
+      const swContent = readFileSync(swPath, 'utf-8')
       const version = `build-${Date.now()}`
-      writeFileSync(swPath, content.replace("'__BUILD_VERSION__'", `'${version}'`))
+      writeFileSync(
+        swPath,
+        swContent
+          .replace("'__BUILD_VERSION__'", `'${version}'`)
+          .replace(/'__BASE_PATH__'/g, `'${basePath}'`),
+      )
+
+      // manifest.json: base path 置換
+      const manifestPath = resolve(__dirname, 'dist/manifest.json')
+      const manifestContent = readFileSync(manifestPath, 'utf-8')
+      writeFileSync(manifestPath, manifestContent.replace(/__BASE_PATH__/g, basePath))
     },
   }
 }

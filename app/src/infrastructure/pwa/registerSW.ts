@@ -32,7 +32,7 @@ export function registerServiceWorker(callbacks?: ServiceWorkerCallbacks): void 
 
   window.addEventListener('load', () => {
     navigator.serviceWorker
-      .register('/Test4/sw.js', { updateViaCache: 'none' })
+      .register(`${import.meta.env.BASE_URL}sw.js`, { updateViaCache: 'none' })
       .then((registration) => {
         // 定期的に SW の更新をチェック
         setInterval(() => {

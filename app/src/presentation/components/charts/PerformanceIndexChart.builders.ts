@@ -78,11 +78,13 @@ export type ViewType = 'piAmount' | 'piQuantity' | 'deviation' | 'zScore'
 
 export const PERF_LABELS: Record<string, string> = {
   pi: '金額PI値',
-  prevPi: '前年PI値',
+  prevPi: '前年金額PI値',
   piMa7: 'PI値(7日MA)',
   prevPiMa7: '前年PI値(7日MA)',
   quantityPi: '点数PI値',
+  prevQuantityPi: '前年点数PI値',
   quantityPiMa7: '点数PI値(7日MA)',
+  prevQuantityPiMa7: '前年点数PI値(7日MA)',
   salesDev: '売上',
   custDev: '客数',
   txDev: '客単価',
@@ -292,11 +294,16 @@ export function buildPerformanceOption(
     const prevPiKey = isQty ? 'prevQtyPi' : 'prevPi'
     const ma7Key = isQty ? 'qtyPiMa7' : 'piMa7'
     const prevMa7Key = isQty ? 'prevQtyPiMa7' : 'prevPiMa7'
+    // series name を view に応じて切り替え（PERF_LABELS のキーに対応）
+    const piSeriesName = isQty ? 'quantityPi' : 'pi'
+    const prevPiSeriesName = isQty ? 'prevQuantityPi' : 'prevPi'
+    const ma7SeriesName = isQty ? 'quantityPiMa7' : 'piMa7'
+    const prevMa7SeriesName = isQty ? 'prevQuantityPiMa7' : 'prevPiMa7'
     const hasPrev = data.some((e) => e[prevPiKey] != null)
     // 前年PI棒（当年棒と横並び）
     if (hasPrev) {
       series.push({
-        name: 'prevPi',
+        name: prevPiSeriesName,
         type: 'bar' as const,
         data: data.map((d) => ({ value: d[prevPiKey] })),
         barMaxWidth: 14,
@@ -315,7 +322,7 @@ export function buildPerformanceOption(
     })
     series.push(
       {
-        name: 'pi',
+        name: piSeriesName,
         type: 'bar' as const,
         data: data.map((d, i) => ({
           value: d[piKey],
@@ -326,7 +333,7 @@ export function buildPerformanceOption(
         itemStyle: { borderRadius: [3, 3, 0, 0] },
       },
       {
-        name: 'piMa7',
+        name: ma7SeriesName,
         type: 'line' as const,
         data: data.map((d) => d[ma7Key] ?? null),
         lineStyle: { color: ct.semantic.sales, width: 2.5 },
@@ -336,7 +343,7 @@ export function buildPerformanceOption(
         smooth: true,
       },
       {
-        name: 'prevPiMa7',
+        name: prevMa7SeriesName,
         type: 'line' as const,
         data: data.map((d) => d[prevMa7Key] ?? null),
         lineStyle: { color: ct.semantic.salesPrev, width: 1.5, type: 'dashed' as const },

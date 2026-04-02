@@ -7,8 +7,9 @@
  * - ビルド時にバージョンが注入され、デプロイごとに古いキャッシュを自動削除
  */
 
-// __BUILD_VERSION__ はビルド時に Vite プラグインで置換される
+// __BUILD_VERSION__ と __BASE_PATH__ はビルド時に Vite プラグインで置換される
 const CACHE_VERSION = '__BUILD_VERSION__'
+const BASE_PATH = '__BASE_PATH__'
 const STATIC_CACHE = `shiire-arari-static-${CACHE_VERSION}`
 const RUNTIME_CACHE = `shiire-arari-runtime-${CACHE_VERSION}`
 
@@ -19,15 +20,15 @@ const CACHE_EXCLUDES = ['/api/', '/auth/']
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(STATIC_CACHE).then((cache) => {
-      return cache.addAll([
-        '/Test4/',
-        '/Test4/index.html',
-      ])
-    }).then(() => {
-      // 新しい SW を即座にアクティブ化
-      return self.skipWaiting()
-    })
+    caches
+      .open(STATIC_CACHE)
+      .then((cache) => {
+        return cache.addAll([BASE_PATH, BASE_PATH + 'index.html'])
+      })
+      .then(() => {
+        // 新しい SW を即座にアクティブ化
+        return self.skipWaiting()
+      }),
   )
 })
 
@@ -35,16 +36,19 @@ self.addEventListener('install', (event) => {
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames
-          .filter((name) => name !== STATIC_CACHE && name !== RUNTIME_CACHE)
-          .map((name) => caches.delete(name))
-      )
-    }).then(() => {
-      // 既存のクライアントを即座に制御
-      return self.clients.claim()
-    })
+    caches
+      .keys()
+      .then((cacheNames) => {
+        return Promise.all(
+          cacheNames
+            .filter((name) => name !== STATIC_CACHE && name !== RUNTIME_CACHE)
+            .map((name) => caches.delete(name)),
+        )
+      })
+      .then(() => {
+        // 既存のクライアントを即座に制御
+        return self.clients.claim()
+      }),
   )
 })
 
@@ -69,7 +73,11 @@ self.addEventListener('fetch', (event) => {
           caches.open(STATIC_CACHE).then((cache) => cache.put(request, clone))
           return response
         })
-        .catch(() => caches.match('/Test4/index.html').then((r) => r || new Response('Offline', { status: 503 })))
+        .catch(() =>
+          caches
+            .match(BASE_PATH + 'index.html')
+            .then((r) => r || new Response('Offline', { status: 503 })),
+        ),
     )
     return
   }
@@ -88,7 +96,7 @@ self.addEventListener('fetch', (event) => {
           }
           return response
         })
-      })
+      }),
     )
     return
   }
@@ -105,6 +113,8 @@ self.addEventListener('fetch', (event) => {
         }
         return response
       })
-      .catch(() => caches.match(request).then((r) => r || new Response('Offline', { status: 503 })))
+      .catch(() =>
+        caches.match(request).then((r) => r || new Response('Offline', { status: 503 })),
+      ),
   )
 })
