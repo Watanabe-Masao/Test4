@@ -6,6 +6,7 @@
  * @guard F7 View は ViewModel のみ受け取る
  */
 import type { DowGapAnalysis, DowGapMethod } from '@/domain/models/ComparisonContext'
+import type { ComparisonPoint } from '@/application/comparison/viewModels'
 import { safeDivide } from '@/domain/calculations/utils'
 
 // ── 型定義 ──
@@ -77,15 +78,6 @@ export function computeEstimatedUnitPriceImpact(
   const adjustedCustomers = entryCustomers + estimatedCustomerGap
   if (adjustedCustomers <= 0) return 0
   return safeDivide(adjustedSales, adjustedCustomers, 0) - prevTransactionValue
-}
-
-/** 比較ポイント型（comparison subsystem 由来） */
-interface ComparisonPoint {
-  readonly currentDay: number
-  readonly sourceDate: { readonly year: number; readonly month: number; readonly day: number }
-  readonly sales: number
-  readonly customers: number
-  readonly ctsQuantity: number
 }
 
 /** TableRow（panel 表示用） */

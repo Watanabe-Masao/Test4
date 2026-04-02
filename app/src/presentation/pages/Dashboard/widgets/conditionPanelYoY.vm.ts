@@ -9,11 +9,9 @@ import { formatPercent } from '@/domain/formatting'
 import type { CurrencyFormatter } from '@/presentation/components/charts/chartTheme'
 import { calculateYoYRatio, calculateAchievementRate } from '@/domain/calculations/utils'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
-import {
-  type PrevYearData,
-  type PrevYearMonthlyKpi,
-  buildSameDowPoints,
-} from '@/application/comparison/comparisonTypes'
+import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/comparison/comparisonTypes'
+import { toComparisonPoints, type DailyYoYRow } from '@/application/comparison/viewModels'
+export type { DailyYoYRow } from '@/application/comparison/viewModels'
 import type { CurrentCtsQuantity } from './types'
 import { SIGNAL_COLORS, metricSignal } from './conditionSummaryUtils'
 
@@ -43,19 +41,12 @@ export function computeStorePrevCustomers(
     .reduce((sum, c) => sum + c.customers, 0)
 }
 
-export interface DailyYoYRow {
-  readonly day: number
-  readonly currentSales: number
-  readonly prevSales: number
-  readonly currentCustomers: number
-  readonly prevCustomers: number
-}
-
 /** Build daily YoY comparison rows (all-store aggregate) */
 export function buildDailyYoYRows(r: StoreResult, kpi: PrevYearMonthlyKpi): DailyYoYRow[] {
   if (!kpi.hasPrevYear) return []
 
-  const pointMap = buildSameDowPoints(kpi.sameDow.dailyMapping)
+  const points = toComparisonPoints(kpi.sameDow.dailyMapping)
+  const pointMap = new Map(points.map((p) => [p.currentDay, p]))
 
   const rows: DailyYoYRow[] = []
   const days = [...r.daily.entries()].sort(([a], [b]) => a - b)
