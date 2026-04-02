@@ -45,12 +45,20 @@ describe('自由期間分析正本ガード', () => {
     const presFiles = collectTsFiles(path.join(SRC_DIR, 'presentation'))
     const violations: string[] = []
 
+    const BANNED_PATTERNS = [
+      'readFreePeriodFact',
+      'freePeriodHandler',
+      '@/infrastructure/duckdb/queries/freePeriodFactQueries',
+    ]
+
     for (const file of presFiles) {
       const content = fs.readFileSync(file, 'utf-8')
-      if (content.includes('readFreePeriodFact') || content.includes('freePeriodHandler')) {
-        const relPath = rel(file)
-        if (!relPath.includes('__tests__') && !relPath.includes('.test.')) {
-          violations.push(relPath)
+      for (const pattern of BANNED_PATTERNS) {
+        if (content.includes(pattern)) {
+          const relPath = rel(file)
+          if (!relPath.includes('__tests__') && !relPath.includes('.test.')) {
+            violations.push(`${relPath}: ${pattern}`)
+          }
         }
       }
     }

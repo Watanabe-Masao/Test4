@@ -38,6 +38,7 @@ describe('売上ファクト正本ガード', () => {
   const BANNED_IMPORTS = [
     '@/infrastructure/duckdb/queries/categoryTimeSales',
     '@/infrastructure/duckdb/queries/timeSlots',
+    '@/infrastructure/duckdb/queries/salesFactQueries',
   ]
 
   /**

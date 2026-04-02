@@ -35,7 +35,10 @@ describe('値引きファクト正本ガード', () => {
   // ── presentation 層から旧 classified_sales クエリへの直接 import 禁止 ──
 
   /** presentation 層から直接 import してはならない旧クエリモジュール */
-  const BANNED_IMPORTS = ['@/infrastructure/duckdb/queries/classifiedSales']
+  const BANNED_IMPORTS = [
+    '@/infrastructure/duckdb/queries/classifiedSales',
+    '@/infrastructure/duckdb/queries/discountFactQueries',
+  ]
 
   /**
    * classified_sales の直接 import が許容される presentation ファイル。

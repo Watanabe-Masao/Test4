@@ -11,83 +11,14 @@
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { QueryHandler, BaseQueryInput } from '@/application/queries/QueryContract'
-import { queryToObjects, buildTypedWhere } from '@/infrastructure/duckdb/queryRunner'
-import type { WhereCondition } from '@/infrastructure/duckdb/queryRunner'
+import {
+  querySalesFactDaily,
+  querySalesFactHourly,
+} from '@/infrastructure/duckdb/queries/salesFactQueries'
 import {
   SalesFactReadModel,
-  SalesFactDailyRow,
-  SalesFactHourlyRow,
   type SalesFactReadModel as SalesFactReadModelType,
-  type SalesFactDailyRow as SalesFactDailyRowType,
-  type SalesFactHourlyRow as SalesFactHourlyRowType,
 } from './SalesFactTypes'
-
-// ── 内部クエリ ──
-
-function buildWhere(
-  dateFrom: string,
-  dateTo: string,
-  storeIds?: readonly string[],
-  isPrevYear = false,
-  alias = 'cts',
-): string {
-  const conditions: WhereCondition[] = [
-    { type: 'dateRange', column: 'date_key', from: dateFrom, to: dateTo, alias },
-    { type: 'boolean', column: 'is_prev_year', value: isPrevYear, alias },
-    { type: 'storeIds', storeIds: storeIds ? [...storeIds] : undefined, alias },
-  ]
-  return buildTypedWhere(conditions)
-}
-
-async function queryDailyFact(
-  conn: AsyncDuckDBConnection,
-  dateFrom: string,
-  dateTo: string,
-  storeIds?: readonly string[],
-  isPrevYear = false,
-): Promise<readonly SalesFactDailyRowType[]> {
-  const where = buildWhere(dateFrom, dateTo, storeIds, isPrevYear)
-  const sql = `
-    SELECT
-      cts.store_id,
-      cts.day,
-      cts.dow,
-      cts.dept_code, COALESCE(cts.dept_name, cts.dept_code) AS dept_name,
-      cts.line_code, COALESCE(cts.line_name, cts.line_code) AS line_name,
-      cts.klass_code, COALESCE(cts.klass_name, cts.klass_code) AS klass_name,
-      COALESCE(SUM(cts.total_amount), 0) AS total_amount,
-      COALESCE(SUM(cts.total_quantity), 0) AS total_quantity
-    FROM category_time_sales cts
-    ${where}
-    GROUP BY cts.store_id, cts.day, cts.dow,
-             cts.dept_code, cts.dept_name, cts.line_code, cts.line_name,
-             cts.klass_code, cts.klass_name
-    ORDER BY cts.store_id, cts.day, cts.dept_code, cts.line_code, cts.klass_code`
-  return queryToObjects<SalesFactDailyRowType>(conn, sql, SalesFactDailyRow)
-}
-
-async function queryHourlyFact(
-  conn: AsyncDuckDBConnection,
-  dateFrom: string,
-  dateTo: string,
-  storeIds?: readonly string[],
-  isPrevYear = false,
-): Promise<readonly SalesFactHourlyRowType[]> {
-  const where = buildWhere(dateFrom, dateTo, storeIds, isPrevYear, 'ts')
-  const sql = `
-    SELECT
-      ts.store_id,
-      ts.day,
-      ts.dept_code, ts.line_code, ts.klass_code,
-      ts.hour,
-      COALESCE(SUM(ts.amount), 0) AS amount,
-      COALESCE(SUM(ts.quantity), 0) AS quantity
-    FROM time_slots ts
-    ${where}
-    GROUP BY ts.store_id, ts.day, ts.dept_code, ts.line_code, ts.klass_code, ts.hour
-    ORDER BY ts.store_id, ts.day, ts.hour`
-  return queryToObjects<SalesFactHourlyRowType>(conn, sql, SalesFactHourlyRow)
-}
 
 // ── 純関数 + QueryHandler ──
 
@@ -110,8 +41,8 @@ export async function readSalesFact(
   const storeIds = input.storeIds ? [...input.storeIds] : undefined
 
   const [daily, hourly] = await Promise.all([
-    queryDailyFact(conn, input.dateFrom, input.dateTo, storeIds, input.isPrevYear),
-    queryHourlyFact(conn, input.dateFrom, input.dateTo, storeIds, input.isPrevYear),
+    querySalesFactDaily(conn, input.dateFrom, input.dateTo, storeIds, input.isPrevYear),
+    querySalesFactHourly(conn, input.dateFrom, input.dateTo, storeIds, input.isPrevYear),
   ])
 
   let grandTotalAmount = 0

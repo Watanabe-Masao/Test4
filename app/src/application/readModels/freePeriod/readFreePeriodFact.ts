@@ -7,67 +7,15 @@
  * @see references/01-principles/free-period-analysis-definition.md (予定)
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import { queryToObjects, buildTypedWhere } from '@/infrastructure/duckdb/queryRunner'
-import type { WhereCondition } from '@/infrastructure/duckdb/queryRunner'
+import { queryFreePeriodDaily } from '@/infrastructure/duckdb/queries/freePeriodFactQueries'
 import {
   FreePeriodReadModel,
-  FreePeriodDailyRow,
   FreePeriodSummary,
   type FreePeriodReadModel as FreePeriodReadModelType,
   type FreePeriodDailyRow as FreePeriodDailyRowType,
   type FreePeriodSummary as FreePeriodSummaryType,
   type FreePeriodQueryInput as FreePeriodQueryInputType,
 } from './FreePeriodTypes'
-
-// ── 内部クエリ ──
-
-function buildWhere(
-  dateFrom: string,
-  dateTo: string,
-  storeIds?: readonly string[],
-  isPrevYear = false,
-): string {
-  const conditions: WhereCondition[] = [
-    { type: 'dateRange', column: 'date_key', from: dateFrom, to: dateTo },
-    { type: 'boolean', column: 'is_prev_year', value: isPrevYear },
-    { type: 'storeIds', storeIds: storeIds ? [...storeIds] : undefined },
-  ]
-  return buildTypedWhere(conditions)
-}
-
-const DAILY_SQL = (where: string) => `
-  SELECT
-    cs.store_id AS "storeId",
-    cs.date_key AS "dateKey",
-    cs.day,
-    EXTRACT(DOW FROM cs.date_key::DATE)::INT AS "dow",
-    SUM(cs.sales_amount) AS "sales",
-    SUM(cs.customers) AS "customers",
-    COALESCE(p.cost, 0) AS "purchaseCost",
-    COALESCE(p.price, 0) AS "purchasePrice",
-    SUM(cs.discount_71 + cs.discount_72 + cs.discount_73 + cs.discount_74) AS "discount",
-    cs.is_prev_year AS "isPrevYear"
-  FROM classified_sales cs
-  LEFT JOIN (
-    SELECT store_id, date_key, SUM(cost) AS cost, SUM(price) AS price
-    FROM purchase
-    GROUP BY store_id, date_key
-  ) p ON cs.store_id = p.store_id AND cs.date_key = p.date_key
-  ${where}
-  GROUP BY cs.store_id, cs.date_key, cs.day, cs.is_prev_year, p.cost, p.price
-  ORDER BY cs.date_key, cs.store_id
-`
-
-async function queryDailyRows(
-  conn: AsyncDuckDBConnection,
-  dateFrom: string,
-  dateTo: string,
-  storeIds?: readonly string[],
-  isPrevYear = false,
-): Promise<readonly FreePeriodDailyRowType[]> {
-  const where = buildWhere(dateFrom, dateTo, storeIds, isPrevYear)
-  return queryToObjects(conn, DAILY_SQL(where), FreePeriodDailyRow)
-}
 
 // ── サマリー計算（純粋関数） ──
 
@@ -188,21 +136,23 @@ export async function readFreePeriodFact(
   conn: AsyncDuckDBConnection,
   input: FreePeriodQueryInputType,
 ): Promise<FreePeriodReadModelType> {
-  const currentRows = await queryDailyRows(
+  const storeIds = input.storeIds ? [...input.storeIds] : undefined
+
+  const currentRows = await queryFreePeriodDaily(
     conn,
     input.dateFrom,
     input.dateTo,
-    input.storeIds,
+    storeIds,
     false,
   )
 
   let comparisonRows: readonly FreePeriodDailyRowType[] = []
   if (input.comparisonDateFrom && input.comparisonDateTo) {
-    comparisonRows = await queryDailyRows(
+    comparisonRows = await queryFreePeriodDaily(
       conn,
       input.comparisonDateFrom,
       input.comparisonDateTo,
-      input.storeIds,
+      storeIds,
       true,
     )
   }

@@ -46,21 +46,21 @@ export const applicationToInfrastructure: readonly AllowlistEntry[] = [
   },
   {
     path: 'application/readModels/salesFact/readSalesFact.ts',
-    reason: '売上・販売点数の分析用正本（DuckDB queryRunner + buildTypedWhere 直接使用）',
+    reason: '売上・販売点数の正本（infrastructure/duckdb/queries/ 経由で取得）',
     category: 'adapter',
-    removalCondition: 'クエリを infrastructure/duckdb/queries/ に移動後に削除',
+    removalCondition: 'readModel が infra query を直接呼ばず QueryHandler 経由になった時',
   },
   {
     path: 'application/readModels/discountFact/readDiscountFact.ts',
-    reason: '値引き（売変）の分析用正本（DuckDB queryRunner + buildTypedWhere 直接使用）',
+    reason: '値引き（売変）の正本（infrastructure/duckdb/queries/ 経由で取得）',
     category: 'adapter',
-    removalCondition: 'クエリを infrastructure/duckdb/queries/ に移動後に削除',
+    removalCondition: 'readModel が infra query を直接呼ばず QueryHandler 経由になった時',
   },
   {
     path: 'application/readModels/freePeriod/readFreePeriodFact.ts',
-    reason: '自由期間分析の正本（DuckDB queryRunner + buildTypedWhere 直接使用）',
+    reason: '自由期間分析の正本（infrastructure/duckdb/queries/ 経由で取得）',
     category: 'adapter',
-    removalCondition: 'クエリを infrastructure/duckdb/queries/ に移動後に削除',
+    removalCondition: 'readModel が infra query を直接呼ばず QueryHandler 経由になった時',
   },
   {
     path: 'application/readModels/freePeriod/readFreePeriodBudgetFact.ts',
