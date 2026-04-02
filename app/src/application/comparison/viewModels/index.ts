@@ -7,3 +7,9 @@
 export type { ComparisonPoint, DailyYoYRow, StoreYoYRow } from './ComparisonViewTypes'
 export { toComparisonPoints, toComparisonPointMap } from './buildComparisonPoints'
 export { buildDailyYoYRows } from './buildDailyYoYRows'
+export type { ContributionAggregate } from './aggregateStoreContributions'
+export {
+  aggregateContributions,
+  indexContributionsByDay,
+  indexContributionsByStore,
+} from './aggregateStoreContributions'

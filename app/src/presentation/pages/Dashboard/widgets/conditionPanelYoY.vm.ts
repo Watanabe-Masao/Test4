@@ -10,7 +10,13 @@ import type { CurrencyFormatter } from '@/presentation/components/charts/chartTh
 import { calculateYoYRatio, calculateAchievementRate } from '@/domain/calculations/utils'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
 import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/comparison/comparisonTypes'
-import { toComparisonPoints, type DailyYoYRow } from '@/application/comparison/viewModels'
+import {
+  toComparisonPoints,
+  aggregateContributions,
+  indexContributionsByDay,
+  indexContributionsByStore,
+  type DailyYoYRow,
+} from '@/application/comparison/viewModels'
 export type { DailyYoYRow } from '@/application/comparison/viewModels'
 import type { CurrentCtsQuantity } from './types'
 import { SIGNAL_COLORS, metricSignal } from './conditionSummaryUtils'
@@ -24,9 +30,7 @@ export function computeStorePrevSales(
   maxDay?: number,
 ): number {
   if (!kpi.hasPrevYear) return 0
-  return kpi.sameDow.storeContributions
-    .filter((c) => c.storeId === storeId && (maxDay == null || c.mappedDay <= maxDay))
-    .reduce((sum, c) => sum + c.sales, 0)
+  return aggregateContributions(kpi.sameDow.storeContributions, { storeId, maxDay }).sales
 }
 
 /** Store-level prev-year customers from storeContributions, filtered by maxDay */
@@ -36,9 +40,7 @@ export function computeStorePrevCustomers(
   maxDay?: number,
 ): number {
   if (!kpi.hasPrevYear) return 0
-  return kpi.sameDow.storeContributions
-    .filter((c) => c.storeId === storeId && (maxDay == null || c.mappedDay <= maxDay))
-    .reduce((sum, c) => sum + c.customers, 0)
+  return aggregateContributions(kpi.sameDow.storeContributions, { storeId, maxDay }).customers
 }
 
 /** Build daily YoY comparison rows (all-store aggregate) */
@@ -74,15 +76,8 @@ export function buildStoreDailyYoYRows(
 ): DailyYoYRow[] {
   if (!kpi.hasPrevYear) return []
 
-  // 前年の日別データを storeContributions からstore単位で集計
-  const prevByDay = new Map<number, { sales: number; customers: number }>()
-  for (const c of kpi.sameDow.storeContributions) {
-    if (c.storeId !== storeId) continue
-    const e = prevByDay.get(c.mappedDay) ?? { sales: 0, customers: 0 }
-    e.sales += c.sales
-    e.customers += c.customers
-    prevByDay.set(c.mappedDay, e)
-  }
+  // 前年の日別データを共通 VM 経由で集計
+  const prevByDay = indexContributionsByDay(kpi.sameDow.storeContributions, storeId)
 
   const rows: DailyYoYRow[] = []
   const days = [...sr.daily.entries()].sort(([a], [b]) => a - b)
@@ -301,13 +296,16 @@ export function buildItemsYoYStoreDailyRows(
     }
   }
 
-  // 前年: prevYearMonthlyKpi.sameDow.storeContributions から日別合計（alignment 適用済み）
-  for (const contrib of prevYearMonthlyKpi.sameDow.storeContributions) {
-    if (storeId != null && contrib.storeId !== storeId) continue
-    if (contrib.mappedDay <= 0 || contrib.mappedDay > effectiveDay) continue
-    const e = dayMap.get(contrib.mappedDay) ?? { cur: 0, prev: 0 }
-    e.prev += contrib.ctsQuantity
-    dayMap.set(contrib.mappedDay, e)
+  // 前年: 共通 VM 経由で日別集約（alignment 適用済み）
+  const prevDayIndex = indexContributionsByDay(
+    prevYearMonthlyKpi.sameDow.storeContributions,
+    storeId ?? undefined,
+  )
+  for (const [day, agg] of prevDayIndex) {
+    if (day <= 0 || day > effectiveDay) continue
+    const e = dayMap.get(day) ?? { cur: 0, prev: 0 }
+    e.prev += agg.ctsQuantity
+    dayMap.set(day, e)
   }
 
   return [...dayMap.entries()]
@@ -328,29 +326,27 @@ export function buildItemsYoYDetailVm(
   effectiveDay: number,
 ): ItemsYoYDetailVm {
   const totalCurQty = currentCtsQuantity.total
-  // 前年合計: storeContributions の ctsQuantity を effectiveDay 以内で合算
-  let totalPrevQty = 0
-  for (const contrib of prevYearMonthlyKpi.sameDow.storeContributions) {
-    if (contrib.mappedDay <= 0 || contrib.mappedDay > effectiveDay) continue
-    totalPrevQty += contrib.ctsQuantity
-  }
+  // 前年合計: 共通 VM 経由で effectiveDay 以内を集約
+  const totalAgg = aggregateContributions(prevYearMonthlyKpi.sameDow.storeContributions, {
+    maxDay: effectiveDay,
+  })
+  const totalPrevQty = totalAgg.ctsQuantity
 
   const totalYoY = calculateAchievementRate(totalCurQty, totalPrevQty)
   const totalSig = totalPrevQty > 0 ? metricSignal(totalYoY, 'itemsYoY', effectiveConfig) : 'blue'
   const totalColor = SIGNAL_COLORS[totalSig]
 
-  // 前年の店舗別合計を storeContributions から集計
-  const prevByStore = new Map<string, number>()
-  for (const contrib of prevYearMonthlyKpi.sameDow.storeContributions) {
-    if (contrib.mappedDay <= 0 || contrib.mappedDay > effectiveDay) continue
-    prevByStore.set(contrib.storeId, (prevByStore.get(contrib.storeId) ?? 0) + contrib.ctsQuantity)
-  }
+  // 前年の店舗別合計を共通 VM 経由で集約
+  const prevByStoreAgg = indexContributionsByStore(
+    prevYearMonthlyKpi.sameDow.storeContributions,
+    effectiveDay,
+  )
 
   const storeRows = sortedStoreEntries.map(([storeId]) => {
     const store = stores.get(storeId)
     const storeName = store?.name ?? storeId
     const curQty = currentCtsQuantity.byStore.get(storeId) ?? 0
-    const prevQty = prevByStore.get(storeId) ?? 0
+    const prevQty = prevByStoreAgg.get(storeId)?.ctsQuantity ?? 0
     const storeYoY = calculateAchievementRate(curQty, prevQty)
     const sig = prevQty > 0 ? metricSignal(storeYoY, 'itemsYoY', effectiveConfig, storeId) : 'blue'
     const sigColor = SIGNAL_COLORS[sig]
