@@ -26,7 +26,7 @@ export const dailyQuantityPairHandler: QueryHandler<
   DailyQuantityPairInput,
   DailyQuantityPairOutput
 > = {
-  name: 'dailyQuantityPair',
+  name: 'DailyQuantityPair',
   async execute(
     conn: AsyncDuckDBConnection,
     input: DailyQuantityPairInput,

@@ -80,9 +80,7 @@ function accumulateDailyValues(
 
       const sales = summary.sales ?? 0
       const discount = summary.discount ?? 0
-
-      const flowerEntry = sourceIndex.getFlowers(storeId, entry.sourceDate)
-      const customers = flowerEntry?.customers ?? 0
+      const customers = summary.customers ?? 0
 
       const ctsQuantity = sourceIndex.getCtsQuantity(storeId, entry.sourceDate)
 
@@ -262,8 +260,7 @@ export function aggregateKpiByAlignment(
       const sales = summary.sales ?? 0
       totalSales += sales
 
-      const flowerEntry = sourceIndex.getFlowers(storeId, entry.sourceDate)
-      const customers = flowerEntry?.customers ?? 0
+      const customers = summary.customers ?? 0
       totalCustomers += customers
 
       const ctsQty = sourceIndex.getCtsQuantity(storeId, entry.sourceDate)
@@ -353,9 +350,7 @@ export function aggregateMonthlyTotal(
       const summary = sourceIndex.getSummary(storeId, date)
       if (!summary) continue
       totalSales += summary.sales ?? 0
-
-      const flowerEntry = sourceIndex.getFlowers(storeId, date)
-      totalCustomers += flowerEntry?.customers ?? 0
+      totalCustomers += summary.customers ?? 0
 
       totalCtsQuantity += sourceIndex.getCtsQuantity(storeId, date)
     }

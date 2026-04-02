@@ -39,7 +39,8 @@ function prepareRawInputs(
   const prevYearCS = prevYear.classifiedSales
   if (prevYearCS.records.length === 0) return null
 
-  const allAgg = aggregateAllStores(prevYearCS)
+  // flowers の customers を classified_sales 集約に JOIN する
+  const allAgg = aggregateAllStores(prevYearCS, prevYear.flowers)
   const allStoreIds = Object.keys(allAgg)
   if (allStoreIds.length === 0) return null
 
