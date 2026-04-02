@@ -4,13 +4,13 @@
 import { useState, useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
-import { toComma, toPct } from './chartTheme'
+import { toComma, toPct } from '@/presentation/components/charts/chartTheme'
 import type { CostPricePair, CategoryType } from '@/domain/models/record'
 import { CATEGORY_LABELS, CATEGORY_ORDER } from '@/domain/constants/categories'
 import { SegmentedControl } from '@/presentation/components/common/layout'
-import { ChartCard } from './ChartCard'
-import { EChart, type EChartsOption } from './EChart'
-import { standardTooltip } from './echartsOptionBuilders'
+import { ChartCard } from '@/presentation/components/charts/ChartCard'
+import { EChart, type EChartsOption } from '@/presentation/components/charts/EChart'
+import { standardTooltip } from '@/presentation/components/charts/echartsOptionBuilders'
 import { chartFontSize } from '@/presentation/theme/tokens'
 
 const CATEGORY_COLORS: Record<string, string> = {

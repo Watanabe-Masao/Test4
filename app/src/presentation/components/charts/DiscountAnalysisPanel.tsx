@@ -9,7 +9,7 @@ import type { DailyRecord } from '@/domain/models/record'
 import type { DiscountEntry } from '@/domain/models/record'
 import type { DuckQueryContext } from './SubAnalysisPanel'
 import { DiscountTrendChart } from './DiscountTrendChart'
-import { CategoryDiscountChart } from './CategoryDiscountChart'
+import { CategoryDiscountChart } from '@/features/category'
 import { useDrillDateRange } from '@/application/hooks/useDrillDateRange'
 
 interface Props {

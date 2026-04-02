@@ -8,12 +8,17 @@ import { useMemo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import type { CategoryBenchmarkScore, CategoryTrendPoint } from '@/application/hooks/duckdb'
-import { toPct } from './chartTheme'
+import { toPct } from '@/presentation/components/charts/chartTheme'
 import { EmptyState } from '@/presentation/components/common/layout'
 import { chartFontSize } from '@/presentation/theme/tokens'
-import { EChart, type EChartsOption } from './EChart'
-import { standardGrid, standardTooltip, standardLegend, toCommaYen } from './echartsOptionBuilders'
-import { categoryXAxis, valueYAxis, lineDefaults } from './builders'
+import { EChart, type EChartsOption } from '@/presentation/components/charts/EChart'
+import {
+  standardGrid,
+  standardTooltip,
+  standardLegend,
+  toCommaYen,
+} from '@/presentation/components/charts/echartsOptionBuilders'
+import { categoryXAxis, valueYAxis, lineDefaults } from '@/presentation/components/charts/builders'
 import {
   DataTable,
   Th,
@@ -23,7 +28,7 @@ import {
   MapLegend,
   LegendItem,
   MapQuadrantLabel,
-} from './CategoryBenchmarkChart.styles'
+} from '@/features/category/ui/charts/CategoryBenchmarkChart.styles'
 import {
   TYPE_LABELS,
   TYPE_COLORS,
@@ -34,7 +39,7 @@ import {
   buildTrendPivotData,
   buildNameMap,
   getMetricDisplayName,
-} from './CategoryBenchmarkChart.vm'
+} from '@/features/category/ui/charts/CategoryBenchmarkChart.vm'
 
 // ── ChartView (横棒グラフ) ──
 

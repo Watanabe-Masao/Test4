@@ -33,7 +33,7 @@ import {
   type CategoryBenchmarkTrendRow,
   type BoxPlotStats,
 } from '@/application/queries/advanced'
-import { useChartTheme, useCurrencyFormatter } from './chartTheme'
+import { useChartTheme, useCurrencyFormatter } from '@/presentation/components/charts/chartTheme'
 import { useI18n } from '@/application/hooks/useI18n'
 import type { Store } from '@/domain/models/Store'
 import { useDataStore } from '@/application/stores'

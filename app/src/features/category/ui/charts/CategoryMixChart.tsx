@@ -17,15 +17,22 @@ import {
   categoryMixWeeklyHandler,
   type CategoryMixWeeklyInput,
 } from '@/application/queries/advanced/CategoryMixWeeklyHandler'
-import { buildMixChartData, type CategoryMeta } from './CategoryMixChartLogic'
-import { toPct } from './chartTheme'
+import {
+  buildMixChartData,
+  type CategoryMeta,
+} from '@/features/category/ui/charts/CategoryMixChartLogic'
+import { toPct } from '@/presentation/components/charts/chartTheme'
 import { useI18n } from '@/application/hooks/useI18n'
 import { SegmentedControl } from '@/presentation/components/common/layout'
-import { ChartCard } from './ChartCard'
-import { ChartLoading, ChartError, ChartEmpty } from './ChartState'
-import { EChart, type EChartsOption } from './EChart'
-import { standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
-import { categoryXAxis, valueYAxis } from './builders'
+import { ChartCard } from '@/presentation/components/charts/ChartCard'
+import { ChartLoading, ChartError, ChartEmpty } from '@/presentation/components/charts/ChartState'
+import { EChart, type EChartsOption } from '@/presentation/components/charts/EChart'
+import {
+  standardGrid,
+  standardTooltip,
+  standardLegend,
+} from '@/presentation/components/charts/echartsOptionBuilders'
+import { categoryXAxis, valueYAxis } from '@/presentation/components/charts/builders'
 import {
   ControlRow,
   ChipGroup,
@@ -34,7 +41,7 @@ import {
   ShiftCard,
   ShiftName,
   ShiftValue,
-} from './CategoryMixChart.styles'
+} from '@/features/category/ui/charts/CategoryMixChart.styles'
 
 type HierarchyLevel = 'department' | 'line' | 'klass'
 

@@ -1,13 +1,7 @@
 /**
  * features/category — カテゴリ分析スライス
  */
-export {
-  CategoryTotalView,
-  CategoryComparisonView,
-  CompositionChart,
-  StoreComparisonCategoryBarChart,
-  StoreComparisonMarkupRadarChart,
-} from './ui'
+export * from './ui'
 export {
   computeCategoryTotals,
   computeRowMetrics,

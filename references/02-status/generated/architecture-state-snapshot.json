@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-02T11:53:49.890Z",
+  "timestamp": "2026-04-02T12:36:12.235Z",
   "totalAllowlistEntries": 47,
   "categoryBreakdown": {
     "adapter": 10,
@@ -136,12 +136,6 @@
       "lineCount": 210
     },
     {
-      "file": "presentation/components/charts/CategoryBenchmarkChart.vm.ts",
-      "memoCount": 10,
-      "stateCount": 6,
-      "lineCount": 327
-    },
-    {
       "file": "presentation/components/charts/TimeSlotChart.tsx",
       "memoCount": 10,
       "stateCount": 6,
@@ -166,10 +160,16 @@
       "lineCount": 514
     },
     {
-      "file": "presentation/components/charts/CategoryBoxPlotChart.vm.ts",
-      "memoCount": 8,
+      "file": "presentation/pages/Admin/RawDataTab.tsx",
+      "memoCount": 13,
+      "stateCount": 2,
+      "lineCount": 335
+    },
+    {
+      "file": "presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx",
+      "memoCount": 7,
       "stateCount": 7,
-      "lineCount": 259
+      "lineCount": 480
     }
   ],
   "nearLimitFiles": [

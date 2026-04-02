@@ -17,10 +17,10 @@ import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 import { buildSalesAnalysisContext } from '@/application/models/SalesAnalysisContext'
 import { buildRootNodeContext } from '@/application/models/AnalysisNodeContext'
-import { CategoryTrendChart } from './CategoryTrendChart'
-import { CategoryHierarchyExplorer } from './CategoryHierarchyExplorer'
-import { ChartCard } from './ChartCard'
-import { TabGroup, Tab } from './TimeSlotSalesChart.styles'
+import { CategoryTrendChart } from '@/features/category/ui/charts/CategoryTrendChart'
+import { CategoryHierarchyExplorer } from '@/features/category/ui/charts/CategoryHierarchyExplorer'
+import { ChartCard } from '@/presentation/components/charts/ChartCard'
+import { TabGroup, Tab } from '@/presentation/components/charts/TimeSlotSalesChart.styles'
 
 interface Props {
   readonly queryExecutor: QueryExecutor | null

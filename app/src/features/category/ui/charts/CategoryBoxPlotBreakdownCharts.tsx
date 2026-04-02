@@ -6,7 +6,7 @@
  */
 import { useState, useMemo } from 'react'
 import type { StoreBreakdownItem, DateBreakdownItem } from '@/application/hooks/duckdb'
-import type { ChartTheme } from './CategoryBoxPlotChart.vm'
+import type { ChartTheme } from '@/features/category/ui/charts/CategoryBoxPlotChart.vm'
 
 // ── StoreBreakdownChart ──
 

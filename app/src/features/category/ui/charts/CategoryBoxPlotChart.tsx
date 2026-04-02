@@ -8,7 +8,7 @@
 import { memo } from 'react'
 import { ChartSkeleton } from '@/presentation/components/common/feedback'
 import { EmptyState } from '@/presentation/components/common/layout'
-import { ChartCard } from './ChartCard'
+import { ChartCard } from '@/presentation/components/charts/ChartCard'
 import {
   Controls,
   ControlGroup,
@@ -17,7 +17,7 @@ import {
   ToggleBtn,
   ErrorMsg,
   FilterSelect,
-} from './CategoryBoxPlotChart.styles'
+} from '@/features/category/ui/charts/CategoryBoxPlotChart.styles'
 import {
   useCategoryBoxPlotChartVm,
   LEVEL_LABELS,
@@ -27,8 +27,8 @@ import {
   type CategoryLevel,
   type BoxMetric,
   type AnalysisAxis,
-} from './CategoryBoxPlotChart.vm'
-import { BoxPlotView } from './CategoryBoxPlotView'
+} from '@/features/category/ui/charts/CategoryBoxPlotChart.vm'
+import { BoxPlotView } from '@/features/category/ui/charts/CategoryBoxPlotView'
 
 // ── Main Component ──
 

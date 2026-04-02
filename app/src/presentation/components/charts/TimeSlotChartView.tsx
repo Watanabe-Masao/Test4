@@ -31,10 +31,10 @@ import {
 import { HierarchySelect } from './TimeSlotChart.styles'
 import { TimeSlotComparisonTable, TimeSlotWeatherTable } from './TimeSlotComparisonTable'
 import type { WeatherHourlyDisplay } from './TimeSlotComparisonTable'
-import { CategoryTimeHeatmap } from './CategoryTimeHeatmap'
+import { CategoryTimeHeatmap } from '@/features/category'
 import type { TimeSlotKpi } from '@/application/hooks/useTimeSlotData'
 import type { HierarchyOption } from '@/application/hooks/useHierarchySelection'
-import type { CategoryHourlyItem } from './CategoryTimeHeatmap'
+import type { CategoryHourlyItem } from '@/features/category'
 
 /** chartData の行型（Record<string, string | number | null> と互換） */
 interface ChartRow {

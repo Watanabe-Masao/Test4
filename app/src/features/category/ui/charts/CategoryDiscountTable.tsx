@@ -10,7 +10,7 @@ import type { CategoryDiscountOutput } from '@/application/queries/cts/CategoryD
 type CategoryDiscountRow = CategoryDiscountOutput['records'][number]
 import { DISCOUNT_TYPES } from '@/domain/models/record'
 import { formatPercent } from '@/domain/formatting'
-import type { useCurrencyFormat } from './chartTheme'
+import type { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 
 type Level = 'department' | 'line' | 'klass'
 

@@ -1,13 +1,13 @@
 # Query Access Audit Report
 
-> Generated: 2026-04-02T11:52:59.118Z
+> Generated: 2026-04-02T12:35:20.327Z
 
 ## Route Summary
 
 | 経路種別 | 件数 | 状態 |
 |---|---|---|
 | QueryHandler 定義 | 30 | 基盤 |
-| useQueryWithHandler（正規） | 29 | 正規 |
+| useQueryWithHandler（正規） | 21 | 正規 |
 | comparisonAccessors（正規） | 8 | 正規 |
 | facade hook（正規） | 0 | 正規 |
 | executor.execute 直呼び（要注意） | 0 | 要注意 |
@@ -18,14 +18,6 @@
 
 ### queryWithHandler
 
-- presentation/components/charts/CategoryBarChart.tsx
-- presentation/components/charts/CategoryBenchmarkChart.vm.ts
-- presentation/components/charts/CategoryBoxPlotChart.vm.ts
-- presentation/components/charts/CategoryDiscountChart.tsx
-- presentation/components/charts/CategoryHierarchyExplorer.tsx
-- presentation/components/charts/CategoryHourlyChart.tsx
-- presentation/components/charts/CategoryMixChart.tsx
-- presentation/components/charts/CategoryPerformanceChart.tsx
 - presentation/components/charts/CumulativeChart.tsx
 - presentation/components/charts/CvTimeSeriesChart.tsx
 - presentation/components/charts/DeptTrendChart.tsx

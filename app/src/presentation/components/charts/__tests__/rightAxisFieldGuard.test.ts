@@ -18,8 +18,12 @@ import * as fs from 'fs'
 import * as path from 'path'
 
 const CHARTS_DIR = path.resolve(__dirname, '..')
+const CATEGORY_CHARTS_DIR = path.resolve(__dirname, '../../../../features/category/ui/charts')
 
 function readChart(filename: string): string {
+  // Category 系ファイルは features/category/ui/charts/ に移動済み
+  const categoryPath = path.join(CATEGORY_CHARTS_DIR, filename)
+  if (fs.existsSync(categoryPath)) return fs.readFileSync(categoryPath, 'utf-8')
   return fs.readFileSync(path.join(CHARTS_DIR, filename), 'utf-8')
 }
 

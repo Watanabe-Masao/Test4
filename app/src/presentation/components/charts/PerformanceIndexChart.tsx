@@ -22,7 +22,7 @@ import {
   buildPerformanceOption,
   type ViewType,
 } from './PerformanceIndexChart.builders'
-import { CategoryPerformanceChart } from './CategoryPerformanceChart'
+import { CategoryPerformanceChart } from '@/features/category'
 import { StorePIComparisonChart } from './StorePIComparisonChart'
 
 const VIEW_LABELS: Record<ViewType, string> = {
