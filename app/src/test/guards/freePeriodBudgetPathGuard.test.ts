@@ -16,7 +16,7 @@ describe('自由期間予算 正本ガード', () => {
   it('readFreePeriodBudgetFact が存在し Zod parse を含む', () => {
     const file = path.join(SRC_DIR, 'application/readModels/freePeriod/readFreePeriodBudgetFact.ts')
     const content = fs.readFileSync(file, 'utf-8')
-    expect(content).toContain('export async function readFreePeriodBudgetFact(')
+    expect(content).toContain('export function buildFreePeriodBudgetReadModel(')
     expect(content).toContain('FreePeriodBudgetReadModel.parse')
   })
 

@@ -6,15 +6,12 @@
  *
  * @see references/01-principles/free-period-analysis-definition.md (予定)
  */
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import { queryFreePeriodDaily } from '@/infrastructure/duckdb/queries/freePeriodFactQueries'
 import {
   FreePeriodReadModel,
   FreePeriodSummary,
   type FreePeriodReadModel as FreePeriodReadModelType,
   type FreePeriodDailyRow as FreePeriodDailyRowType,
   type FreePeriodSummary as FreePeriodSummaryType,
-  type FreePeriodQueryInput as FreePeriodQueryInputType,
 } from './FreePeriodTypes'
 
 // ── サマリー計算（純粋関数） ──
@@ -127,36 +124,15 @@ export function prorateBudget(
 // ── 公開 API ──
 
 /**
- * 自由期間分析の唯一の read 関数。
+ * 自由期間分析の pure builder。
  *
- * DuckDB から日別行を取得し、期間サマリーを計算して返す。
- * 比較期間が指定されている場合は比較行も取得する。
+ * raw query 結果を受け取り、サマリー計算 + Zod parse して ReadModel を返す。
+ * infra query への依存はない（handler 側で取得済みのデータを渡す）。
  */
-export async function readFreePeriodFact(
-  conn: AsyncDuckDBConnection,
-  input: FreePeriodQueryInputType,
-): Promise<FreePeriodReadModelType> {
-  const storeIds = input.storeIds ? [...input.storeIds] : undefined
-
-  const currentRows = await queryFreePeriodDaily(
-    conn,
-    input.dateFrom,
-    input.dateTo,
-    storeIds,
-    false,
-  )
-
-  let comparisonRows: readonly FreePeriodDailyRowType[] = []
-  if (input.comparisonDateFrom && input.comparisonDateTo) {
-    comparisonRows = await queryFreePeriodDaily(
-      conn,
-      input.comparisonDateFrom,
-      input.comparisonDateTo,
-      storeIds,
-      true,
-    )
-  }
-
+export function buildFreePeriodReadModel(
+  currentRows: readonly FreePeriodDailyRowType[],
+  comparisonRows: readonly FreePeriodDailyRowType[],
+): FreePeriodReadModelType {
   const currentSummary = computeFreePeriodSummary(currentRows)
   const comparisonSummary =
     comparisonRows.length > 0 ? computeFreePeriodSummary(comparisonRows) : null

@@ -9,24 +9,33 @@
  * - gpRateBudget / gpRateActual / markupRate / discountRate: 売上加重平均
  * - salesAchievement: salesActual / salesBudget
  */
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import { queryFreePeriodDeptKPI } from '@/infrastructure/duckdb/queries/freePeriodDeptKPI'
 import {
   FreePeriodDeptKPIReadModel,
   FreePeriodDeptKPIRow,
   type FreePeriodDeptKPIReadModel as FreePeriodDeptKPIReadModelType,
-  type FreePeriodDeptKPIQueryInput as FreePeriodDeptKPIQueryInputType,
 } from './FreePeriodDeptKPITypes'
 
-/**
- * 自由期間部門KPIの唯一の read 関数。
- */
-export async function readFreePeriodDeptKPI(
-  conn: AsyncDuckDBConnection,
-  input: FreePeriodDeptKPIQueryInputType,
-): Promise<FreePeriodDeptKPIReadModelType> {
-  const rawRows = await queryFreePeriodDeptKPI(conn, input.yearMonths)
+/** raw dept KPI row の最小型（infra 型に依存しない） */
+export interface RawDeptKPIInput {
+  readonly deptCode: string
+  readonly deptName: string | null
+  readonly salesBudget: number
+  readonly salesActual: number
+  readonly gpRateBudget: number | null
+  readonly gpRateActual: number | null
+  readonly markupRate: number | null
+  readonly discountRate: number | null
+}
 
+/**
+ * 自由期間部門KPIの pure builder。
+ *
+ * raw query 結果を受け取り、salesAchievement 導出 + Zod parse して ReadModel を返す。
+ */
+export function buildFreePeriodDeptKPIReadModel(
+  rawRows: readonly RawDeptKPIInput[],
+  monthCount: number,
+): FreePeriodDeptKPIReadModelType {
   const rows = rawRows.map((r) =>
     FreePeriodDeptKPIRow.parse({
       ...r,
@@ -36,7 +45,7 @@ export async function readFreePeriodDeptKPI(
 
   return FreePeriodDeptKPIReadModel.parse({
     rows,
-    monthCount: input.yearMonths.length,
+    monthCount,
   })
 }
 

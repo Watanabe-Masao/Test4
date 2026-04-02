@@ -1,13 +1,13 @@
 /**
  * freePeriodDeptKPIHandler — 自由期間部門KPIの QueryHandler
  *
- * readFreePeriodDeptKPI を QueryHandler インターフェースでラップし、
- * useQueryWithHandler 経由で利用可能にする。
+ * infra query で raw データを取得し、pure builder で ReadModel を構築する。
  *
  * @layer Application — Query Handler
  */
 import type { QueryHandler } from './QueryContract'
-import { readFreePeriodDeptKPI } from '@/application/readModels/freePeriod'
+import { queryFreePeriodDeptKPI } from '@/infrastructure/duckdb/queries/freePeriodDeptKPI'
+import { buildFreePeriodDeptKPIReadModel } from '@/application/readModels/freePeriod'
 import type {
   FreePeriodDeptKPIQueryInput,
   FreePeriodDeptKPIReadModel,
@@ -18,5 +18,8 @@ export const freePeriodDeptKPIHandler: QueryHandler<
   FreePeriodDeptKPIReadModel
 > = {
   name: 'freePeriodDeptKPI',
-  execute: (conn, input) => readFreePeriodDeptKPI(conn, input),
+  async execute(conn, input) {
+    const rawRows = await queryFreePeriodDeptKPI(conn, input.yearMonths)
+    return buildFreePeriodDeptKPIReadModel(rawRows, input.yearMonths.length)
+  },
 }
