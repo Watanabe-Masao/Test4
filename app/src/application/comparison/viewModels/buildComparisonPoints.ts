@@ -21,3 +21,14 @@ export function toComparisonPoints(
   const map = buildSameDowPoints(dailyMapping)
   return [...map.values()].sort((a, b) => a.currentDay - b.currentDay)
 }
+
+/**
+ * DayMappingRow[] → Map<currentDay, ComparisonPoint> に変換。
+ *
+ * 日別ルックアップが必要な場合（曜日平均、週別サマリー等）に使用。
+ */
+export function toComparisonPointMap(
+  dailyMapping: readonly DayMappingRow[],
+): ReadonlyMap<number, ComparisonPoint> {
+  return buildSameDowPoints(dailyMapping)
+}

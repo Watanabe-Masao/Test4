@@ -5,5 +5,5 @@
  * Panel / Chart / Table ごとに個別実装しない。
  */
 export type { ComparisonPoint, DailyYoYRow, StoreYoYRow } from './ComparisonViewTypes'
-export { toComparisonPoints } from './buildComparisonPoints'
+export { toComparisonPoints, toComparisonPointMap } from './buildComparisonPoints'
 export { buildDailyYoYRows } from './buildDailyYoYRows'
