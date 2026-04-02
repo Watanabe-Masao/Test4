@@ -64,15 +64,15 @@ export const applicationToInfrastructure: readonly AllowlistEntry[] = [
   },
   {
     path: 'application/readModels/freePeriod/readFreePeriodBudgetFact.ts',
-    reason: '自由期間予算の正本（DuckDB queryRunner + buildTypedWhere 直接使用）',
+    reason: '自由期間予算の正本（infrastructure/duckdb/queries/ 経由で取得）',
     category: 'adapter',
-    removalCondition: 'クエリを infrastructure/duckdb/queries/ に移動後に削除',
+    removalCondition: 'readModel が infra query を直接呼ばず QueryHandler 経由になった時',
   },
   {
     path: 'application/readModels/freePeriod/readFreePeriodDeptKPI.ts',
-    reason: '自由期間部門KPIの正本（DuckDB queryToObjects 直接使用）',
+    reason: '自由期間部門KPIの正本（infrastructure/duckdb/queries/ 経由で取得）',
     category: 'adapter',
-    removalCondition: 'クエリを infrastructure/duckdb/queries/ に移動後に削除',
+    removalCondition: 'readModel が infra query を直接呼ばず QueryHandler 経由になった時',
   },
   // weatherAdapter: DI 化完了（useWeatherAdapter → AdapterContext 経由）。削除済み。
   {

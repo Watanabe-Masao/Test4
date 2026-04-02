@@ -10,45 +10,13 @@
  * - salesAchievement: salesActual / salesBudget
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import { queryToObjects } from '@/infrastructure/duckdb/queryRunner'
+import { queryFreePeriodDeptKPI } from '@/infrastructure/duckdb/queries/freePeriodDeptKPI'
 import {
   FreePeriodDeptKPIReadModel,
   FreePeriodDeptKPIRow,
   type FreePeriodDeptKPIReadModel as FreePeriodDeptKPIReadModelType,
   type FreePeriodDeptKPIQueryInput as FreePeriodDeptKPIQueryInputType,
 } from './FreePeriodDeptKPITypes'
-
-interface RawRow {
-  deptCode: string
-  deptName: string | null
-  salesBudget: number
-  salesActual: number
-  gpRateBudget: number | null
-  gpRateActual: number | null
-  markupRate: number | null
-  discountRate: number | null
-}
-
-function buildYearMonthFilter(yearMonths: readonly { year: number; month: number }[]): string {
-  if (yearMonths.length === 0) return 'FALSE'
-  return yearMonths.map(({ year, month }) => `(year = ${year} AND month = ${month})`).join(' OR ')
-}
-
-const DEPT_KPI_SQL = (filter: string) => `
-  SELECT
-    dept_code AS "deptCode",
-    dept_name AS "deptName",
-    SUM(sales_budget) AS "salesBudget",
-    SUM(sales_actual) AS "salesActual",
-    SUM(gp_rate_budget * sales_actual) / NULLIF(SUM(sales_actual), 0) AS "gpRateBudget",
-    SUM(gp_rate_actual * sales_actual) / NULLIF(SUM(sales_actual), 0) AS "gpRateActual",
-    SUM(markup_rate * sales_actual) / NULLIF(SUM(sales_actual), 0) AS "markupRate",
-    SUM(discount_rate * sales_actual) / NULLIF(SUM(sales_actual), 0) AS "discountRate"
-  FROM department_kpi
-  WHERE (${filter})
-  GROUP BY dept_code, dept_name
-  ORDER BY dept_code
-`
 
 /**
  * 自由期間部門KPIの唯一の read 関数。
@@ -57,8 +25,7 @@ export async function readFreePeriodDeptKPI(
   conn: AsyncDuckDBConnection,
   input: FreePeriodDeptKPIQueryInputType,
 ): Promise<FreePeriodDeptKPIReadModelType> {
-  const filter = buildYearMonthFilter(input.yearMonths)
-  const rawRows = await queryToObjects<RawRow>(conn, DEPT_KPI_SQL(filter))
+  const rawRows = await queryFreePeriodDeptKPI(conn, input.yearMonths)
 
   const rows = rawRows.map((r) =>
     FreePeriodDeptKPIRow.parse({

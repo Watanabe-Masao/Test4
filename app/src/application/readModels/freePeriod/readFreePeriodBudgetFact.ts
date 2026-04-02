@@ -12,34 +12,13 @@
  * @see references/01-principles/free-period-budget-kpi-contract.md
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import { queryToObjects, buildTypedWhere } from '@/infrastructure/duckdb/queryRunner'
-import type { WhereCondition } from '@/infrastructure/duckdb/queryRunner'
+import { queryFreePeriodBudget } from '@/infrastructure/duckdb/queries/freePeriodBudget'
 import {
   FreePeriodBudgetReadModel,
   FreePeriodBudgetRow,
   type FreePeriodBudgetReadModel as FreePeriodBudgetReadModelType,
   type FreePeriodBudgetQueryInput as FreePeriodBudgetQueryInputType,
 } from './FreePeriodBudgetTypes'
-
-// ── 内部クエリ ──
-
-const BUDGET_SQL = (where: string) => `
-  SELECT
-    b.store_id AS "storeId",
-    b.year,
-    b.month,
-    b.total AS "monthlyTotal"
-  FROM budget b
-  ${where}
-  ORDER BY b.store_id, b.year, b.month
-`
-
-interface RawBudgetRow {
-  storeId: string
-  year: number
-  month: number
-  monthlyTotal: number
-}
 
 // ── 日割り按分（純粋関数） ──
 
@@ -94,12 +73,7 @@ export async function readFreePeriodBudgetFact(
   conn: AsyncDuckDBConnection,
   input: FreePeriodBudgetQueryInputType,
 ): Promise<FreePeriodBudgetReadModelType> {
-  const conditions: WhereCondition[] = [
-    { type: 'storeIds', storeIds: input.storeIds ? [...input.storeIds] : undefined, alias: 'b' },
-  ]
-  const where = buildTypedWhere(conditions)
-
-  const rawRows = await queryToObjects<RawBudgetRow>(conn, BUDGET_SQL(where))
+  const rawRows = await queryFreePeriodBudget(conn, input.storeIds)
 
   // 店舗別に按分
   const storeMap = new Map<
