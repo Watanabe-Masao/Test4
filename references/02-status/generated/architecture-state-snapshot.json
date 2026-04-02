@@ -1,10 +1,10 @@
 {
-  "timestamp": "2026-04-02T10:45:58.045Z",
-  "totalAllowlistEntries": 46,
+  "timestamp": "2026-04-02T11:17:59.000Z",
+  "totalAllowlistEntries": 47,
   "categoryBreakdown": {
     "adapter": 10,
     "lifecycle": 2,
-    "structural": 34
+    "structural": 35
   },
   "frozenLists": [
     "presentationToInfrastructure",
@@ -358,9 +358,9 @@
       "categories": {}
     },
     "ctxHook": {
-      "count": 2,
+      "count": 3,
       "categories": {
-        "structural": 2
+        "structural": 3
       }
     },
     "vmReactImport": {

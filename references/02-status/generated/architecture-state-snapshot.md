@@ -1,12 +1,12 @@
 # Architecture State Snapshot
 
-> Generated: 2026-04-02T10:45:58.045Z
+> Generated: 2026-04-02T11:17:59.000Z
 
 ## Allowlist Summary
 
 | 指標 | 値 |
 |---|---|
-| 総エントリ数 | 46 |
+| 総エントリ数 | 47 |
 | アクティブリスト数 | 12 |
 | 凍結リスト数 | 9 |
 | .vm.ts ファイル数 | 28 |
@@ -16,7 +16,7 @@
 
 | カテゴリ | 件数 |
 |---|---|
-| structural | 34 |
+| structural | 35 |
 | adapter | 10 |
 | lifecycle | 2 |
 
@@ -152,8 +152,8 @@
 | presentationStateLimits | 4 | structural:4 |
 | useStateLimits | 3 | structural:3 |
 | hookLineLimits | 3 | structural:3 |
+| ctxHook | 3 | structural:3 |
 | useMemoLimits | 2 | structural:2 |
-| ctxHook | 2 | structural:2 |
 | vmReactImport | 2 | structural:2 |
 | infraLargeFiles | 1 | structural:1 |
 | usecasesLargeFiles | 1 | structural:1 |

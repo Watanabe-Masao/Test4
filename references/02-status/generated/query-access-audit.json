@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-04-02T10:44:56.553Z",
+  "timestamp": "2026-04-02T11:17:07.039Z",
   "summary": {
-    "queryHandlers": 28,
+    "queryHandlers": 30,
     "正規経路_queryWithHandler": 29,
     "正規経路_comparisonAccessor": 8,
     "正規経路_facadeHook": 0,
@@ -64,6 +64,8 @@
       "application/queries/dept/DeptKpiTrendHandler.ts",
       "application/queries/features/DailyFeaturesHandler.ts",
       "application/queries/features/DowPatternHandler.ts",
+      "application/queries/freePeriodBudgetHandler.ts",
+      "application/queries/freePeriodDeptKPIHandler.ts",
       "application/queries/freePeriodHandler.ts",
       "application/queries/purchase/StoreDailyMarkupRateHandler.ts",
       "application/queries/summary/AggregatedRatesHandler.ts",
@@ -91,7 +93,7 @@
       "presentation/components/charts/WeatherAnalysisPanel.tsx",
       "presentation/components/charts/WeatherCorrelationChart.tsx",
       "presentation/components/charts/WeatherCorrelationChart.vm.ts",
-      "presentation/hooks/useUnifiedWidgetContext.ts",
+      "presentation/hooks/useQueryBundle.ts",
       "presentation/pages/Dashboard/widgets/EtrnTestWidget.tsx",
       "presentation/pages/Dashboard/widgets/WeatherWidget.tsx"
     ],
