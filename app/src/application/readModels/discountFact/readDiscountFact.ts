@@ -8,13 +8,10 @@
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { QueryHandler, BaseQueryInput } from '@/application/queries/QueryContract'
-import { queryToObjects, buildTypedWhere } from '@/infrastructure/duckdb/queryRunner'
-import type { WhereCondition } from '@/infrastructure/duckdb/queryRunner'
+import { queryDiscountFact } from '@/infrastructure/duckdb/queries/discountFactQueries'
 import {
   DiscountFactReadModel,
-  DiscountFactRow,
   type DiscountFactReadModel as DiscountFactReadModelType,
-  type DiscountFactRow as DiscountFactRowType,
 } from './DiscountFactTypes'
 
 // ── 入力 + 出力型 ──
@@ -34,36 +31,14 @@ export async function readDiscountFact(
   conn: AsyncDuckDBConnection,
   input: DiscountFactInput,
 ): Promise<DiscountFactReadModelType> {
-  const conditions: WhereCondition[] = [
-    { type: 'dateRange', column: 'date_key', from: input.dateFrom, to: input.dateTo, alias: 'cs' },
-    { type: 'boolean', column: 'is_prev_year', value: input.isPrevYear ?? false, alias: 'cs' },
-    {
-      type: 'storeIds',
-      storeIds: input.storeIds ? [...input.storeIds] : undefined,
-      alias: 'cs',
-    },
-  ]
-  const where = buildTypedWhere(conditions)
-
-  const sql = `
-    SELECT
-      cs.store_id,
-      cs.day,
-      cs.dept_code, COALESCE(cs.dept_name, cs.dept_code) AS dept_name,
-      cs.line_code, COALESCE(cs.line_name, cs.line_code) AS line_name,
-      cs.klass_code, COALESCE(cs.klass_name, cs.klass_code) AS klass_name,
-      COALESCE(SUM(cs.discount_71), 0) AS discount_71,
-      COALESCE(SUM(cs.discount_72), 0) AS discount_72,
-      COALESCE(SUM(cs.discount_73), 0) AS discount_73,
-      COALESCE(SUM(cs.discount_74), 0) AS discount_74,
-      COALESCE(SUM(cs.discount_71 + cs.discount_72 + cs.discount_73 + cs.discount_74), 0) AS discount_total
-    FROM classified_sales cs
-    ${where}
-    GROUP BY cs.store_id, cs.day, cs.dept_code, cs.dept_name,
-             cs.line_code, cs.line_name, cs.klass_code, cs.klass_name
-    ORDER BY cs.store_id, cs.day, cs.dept_code, cs.line_code, cs.klass_code`
-
-  const rows = await queryToObjects<DiscountFactRowType>(conn, sql, DiscountFactRow)
+  const storeIds = input.storeIds ? [...input.storeIds] : undefined
+  const rows = await queryDiscountFact(
+    conn,
+    input.dateFrom,
+    input.dateTo,
+    storeIds,
+    input.isPrevYear ?? false,
+  )
 
   let grandTotal = 0
   let grandTotal71 = 0
