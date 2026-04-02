@@ -1,12 +1,12 @@
 /**
- * MonthlyData: ImportedData の後継型
+ * MonthlyData: アプリケーションのデータ正本型
  *
  * prevYear* フィールドを持たず、当年と前年は同じ MonthlyData 型で
  * origin.year / origin.month により区別する。
  * 「前年」は特別な概念ではなく、単に「別の月の MonthlyData」。
  *
- * ImportedData とは段階的に共存し、全参照が移行完了した後に
- * ImportedData を @deprecated → 削除する。
+ * ImportedData からの移行は完了（2026-04-01）。
+ * ImportedData は infrastructure adapter 用に残存。
  */
 import type { Store } from './Store'
 import type { InventoryConfig, BudgetData } from './BudgetData'

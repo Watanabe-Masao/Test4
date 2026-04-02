@@ -1,6 +1,52 @@
-# 直近の主要変更（#673-#730+）
+# 直近の主要変更（#673-#829+）
 
-> 更新日: 2026-03-30
+> 更新日: 2026-04-01
+
+## MonthlyData 移行完了 + 自由期間分析基盤（2026-04-01）
+
+### ImportedData → MonthlyData 構造移行
+
+| 達成事項 | 詳細 |
+|---------|------|
+| dataStore | ImportedData-free（data/legacyData/dataVersion/_calculationData 全削除） |
+| presentation 層 | `s.data` セレクタ **0**（ガードで禁止） |
+| 計算パイプライン | dailyBuilder/summaryBuilder/storeAssembler/Worker → MonthlyData |
+| import application 層 | orchestrator/singleMonth/multiMonth → MonthlyData 主語 |
+| import infrastructure 層 | processDroppedFiles/processFileData → MonthlyData |
+| storage / backup | IndexedDB 内部 + backup → MonthlyData |
+| 削除済み API | setImportedData, setPrevYearAutoData, getComparisonFields |
+| ImportedData direct import | **0**（ガードで禁止） |
+| ガード | 4 回帰防止テスト + Exit KPI audit |
+
+### 計算入口純粋化
+
+| 達成事項 | 詳細 |
+|---------|------|
+| CalculationFrame | `daysInMonth` hidden dependency を型 + factory に集約 |
+| 全入口 frame-aware | calculateAllStores / Worker / cache 全て CalculationFrame 経由 |
+| cache frame-aware | computeCacheKey / fingerprint 全て frame |
+
+### 自由期間分析基盤
+
+| 達成事項 | 詳細 |
+|---------|------|
+| AnalysisFrame | BaseAnalysisFrame + FreePeriodAnalysisFrame + TemporalAnalysisFrame 分離 |
+| FreePeriodReadModel | 6番目の正本化 readModel（Zod + DuckDB + JS summary） |
+| useFreePeriodAnalysis | AnalysisFrame → ComparisonScope → DuckDB → ReadModel パイプライン |
+| facade hooks | useAnalysisInput / useComparisonInput |
+| 定義文書 | free-period-analysis-definition.md + cache-responsibility.md |
+
+### 監視指標制度化
+
+| KPI | baseline |
+|-----|----------|
+| 正本化 readModel 領域 | 6 |
+| allowlist アクティブ | 51 |
+| widget 自前取得 | ≤ 16 |
+| active bridges | ≤ 4 |
+| 互換 re-export | ≤ 2 |
+| ImportedData direct import | 0 |
+| ComparisonScope 独自解決 | 0 |
 
 ## 正本化施策 完了（2026-03-30）
 

@@ -48,16 +48,18 @@
 
 ## 3. 後方互換コードの凍結式管理（@deprecated）
 
-残存を認めるが、新規追加は禁止。件数上限は **4**。
+残存を認めるが、新規追加は禁止。件数上限は **5**。
 
 | ファイル | 凍結理由 | 解除条件 |
 |---------|---------|---------|
 | domain/calculations/estMethod.ts | WASM dual-run bridge が old 関数名に依存 | WASM bridge 統合完了後 |
 | domain/calculations/discountImpact.ts | 同上 | WASM bridge 統合完了後 |
 | application/services/grossProfitBridge.ts | WASM dual-run bridge 本体 | WASM 統合完了後 |
-| domain/models/MonthlyData.ts | ImportedData との段階的共存 | 構造移行完了後 |
+| domain/models/ImportedData.ts | infrastructure 内部 + adapter 用（direct import = 0） | ImportedData 型完全削除後 |
+| domain/models/monthlyDataAdapter.ts | toLegacyImportedData / toMonthlyData adapter | ImportedData 型完全削除後 |
 
-**解消済み（このセッションで削除）:**
+**解消済み:**
+- ~~domain/models/MonthlyData.ts~~ — ImportedData 構造移行完了（2026-04-01）。MonthlyData は正本型として運用中
 - ~~tokens.ts~~ — deprecated alias 全廃により削除
 - ~~TimeSlotChart.tsx~~ — context prop 移行完了
 - ~~queryRunner.ts~~ — buildWhereClause 削除（呼び出し元0）
