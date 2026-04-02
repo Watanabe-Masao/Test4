@@ -10,6 +10,7 @@ import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import type { DailyWeatherSummary } from '@/domain/models/record'
 import { loadEtrnDailyForStore } from '../usecases/weather/WeatherLoadService'
 import { useSettingsStore } from '../stores/settingsStore'
+import { useWeatherAdapter } from '@/application/context/useWeatherAdapter'
 
 export interface UseWeatherResult {
   /** 日別天気サマリ（ETRN 由来） */
@@ -41,6 +42,7 @@ const INITIAL_STATE: WeatherState = {
  * ETRN から月単位の日別天気データを取得する。
  */
 export function useWeatherData(year: number, month: number, storeId: string): UseWeatherResult {
+  const weather = useWeatherAdapter()
   const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
   const updateSettings = useSettingsStore((s) => s.updateSettings)
   const [state, setState] = useState<WeatherState>(INITIAL_STATE)
@@ -61,7 +63,7 @@ export function useWeatherData(year: number, month: number, storeId: string): Us
 
       const run = async () => {
         try {
-          const result = await loadEtrnDailyForStore(storeId, location, year, month)
+          const result = await loadEtrnDailyForStore(weather, storeId, location, year, month)
           if (cancelled || seq !== seqRef.current) return
 
           // 解決された ETRN 観測所情報を StoreLocation にキャッシュ
@@ -101,7 +103,7 @@ export function useWeatherData(year: number, month: number, storeId: string): Us
 // ─── Helpers ────────────────────────────────────────
 
 function cacheResolvedStation(
-  location: Parameters<typeof loadEtrnDailyForStore>[1],
+  location: Parameters<typeof loadEtrnDailyForStore>[2],
   storeId: string,
   storeLocations: Readonly<Record<string, typeof location>>,
   updateSettings: (patch: Record<string, unknown>) => void,

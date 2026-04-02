@@ -15,8 +15,7 @@ import type {
   DailyWeatherSummary,
   HourlyWeatherRecord,
 } from '@/domain/models/record'
-import type { EtrnStation } from '@/domain/ports/WeatherPort'
-import { weatherAdapter } from '@/application/adapters/weatherAdapter'
+import type { EtrnStation, WeatherPort } from '@/domain/ports/WeatherPort'
 
 /** 天気データ取得の進捗状態 */
 export interface WeatherLoadProgress {
@@ -82,6 +81,7 @@ export interface EtrnHourlyLoadResult {
  * 解決結果は EtrnLoadResult に含まれるため、呼び出し側で StoreLocation にキャッシュすべき。
  */
 export async function loadEtrnDailyForStore(
+  weather: WeatherPort,
   storeId: string,
   location: StoreLocation,
   year: number,
@@ -102,7 +102,7 @@ export async function loadEtrnDailyForStore(
   if (isUnresolved || isA1Upgrade) {
     onProgress?.({ storeId, status: 'resolving', recordCount: 0 })
 
-    const etrnResult = await weatherAdapter.resolveEtrnStationByLocation(
+    const etrnResult = await weather.resolveEtrnStationByLocation(
       location.latitude,
       location.longitude,
     )
@@ -140,7 +140,7 @@ export async function loadEtrnDailyForStore(
 
   onProgress?.({ storeId, status: 'loading', recordCount: 0 })
 
-  const daily = await weatherAdapter.fetchDailyWeather(station, year, month)
+  const daily = await weather.fetchDailyWeather(station, year, month)
 
   console.debug('[Weather:Load] ETRN日別取得完了: %d日分', daily.length)
   onProgress?.({ storeId, status: 'done', recordCount: daily.length })
@@ -157,6 +157,7 @@ export async function loadEtrnDailyForStore(
  * ETRN 観測所が未解決の場合は逆ジオコーディング経由で解決する。
  */
 export async function loadEtrnHourlyForStore(
+  weather: WeatherPort,
   storeId: string,
   location: StoreLocation,
   year: number,
@@ -175,7 +176,7 @@ export async function loadEtrnHourlyForStore(
   if (isUnresolved || isA1Upgrade) {
     onProgress?.({ storeId, status: 'resolving', recordCount: 0 })
 
-    const etrnResult = await weatherAdapter.resolveEtrnStationByLocation(
+    const etrnResult = await weather.resolveEtrnStationByLocation(
       location.latitude,
       location.longitude,
     )
@@ -211,20 +212,14 @@ export async function loadEtrnHourlyForStore(
   // ETRN 時間別データを取得
   onProgress?.({ storeId, status: 'loading', recordCount: 0 })
 
-  const hourly = await weatherAdapter.fetchHourlyRange(
-    station,
-    year,
-    month,
-    days,
-    (completed, total) => {
-      onProgress?.({
-        storeId,
-        status: 'loading',
-        recordCount: completed * 23,
-        stationName: `${completed}/${total} 日`,
-      })
-    },
-  )
+  const hourly = await weather.fetchHourlyRange(station, year, month, days, (completed, total) => {
+    onProgress?.({
+      storeId,
+      status: 'loading',
+      recordCount: completed * 23,
+      stationName: `${completed}/${total} 日`,
+    })
+  })
 
   onProgress?.({ storeId, status: 'done', recordCount: hourly.length })
 

@@ -25,28 +25,18 @@ export const applicationToInfrastructure: readonly AllowlistEntry[] = [
   },
   {
     path: 'application/hooks/useDataRecovery.ts',
-    reason: 'IndexedDB リカバリ処理',
+    reason: 'DuckDB recovery（rebuildFromIndexedDB/deleteDatabaseFile）— rawFileStore は Port 化済み',
     category: 'lifecycle',
-    removalCondition: 'リカバリが adapter 層に移行されたとき',
+    removalCondition: 'DuckDB recovery が engine boundary に閉じられたとき',
   },
-  {
-    path: 'application/hooks/useImport.ts',
-    reason: 'ファイルインポート処理',
-    category: 'adapter',
-    removalCondition: 'インポートが adapter 層に完全移行されたとき',
-  },
+  // useImport: DI 化完了（rawFileStore → AdapterContext.rawFile 経由）。削除済み。
   {
     path: 'application/usecases/import/FileImportService.ts',
     reason: 'ファイルインポートサービス',
     category: 'adapter',
     removalCondition: 'インポートが adapter 層に完全移行されたとき',
   },
-  {
-    path: 'application/usecases/export/ExportService.ts',
-    reason: 'エクスポートサービス',
-    category: 'adapter',
-    removalCondition: 'エクスポートが adapter 層に完全移行されたとき',
-  },
+  // ExportService: DI 化完了（AdapterContext.export 経由）。useExport は Port のみ参照。
   {
     path: 'application/hooks/useI18n.ts',
     reason: 'i18n インフラ初期化',
@@ -71,12 +61,7 @@ export const applicationToInfrastructure: readonly AllowlistEntry[] = [
     category: 'adapter',
     removalCondition: 'クエリを infrastructure/duckdb/queries/ に移動後に削除',
   },
-  {
-    path: 'application/adapters/weatherAdapter.ts',
-    reason: 're-export bridge（WeatherLoadService/ForecastLoadService が使用中）',
-    category: 'adapter',
-    removalCondition: 'サービスが DI パラメータ経由に切替後に削除',
-  },
+  // weatherAdapter: DI 化完了（useWeatherAdapter → AdapterContext 経由）。削除済み。
   {
     path: 'application/lifecycle/useAppLifecycle.ts',
     reason: 'DuckDB エンジン状態の購読（App Lifecycle 統合に必要）',

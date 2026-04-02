@@ -9,7 +9,7 @@ import type { StoreLocation } from '@/domain/models/record'
 import type { WeatherPort, EtrnStation } from '@/domain/ports/WeatherPort'
 
 // weatherAdapter をモック
-vi.mock('@/application/adapters/weatherAdapter', () => ({
+vi.mock('@/infrastructure/adapters/weatherAdapter', () => ({
   weatherAdapter: {
     resolveEtrnStationByLocation: vi.fn(),
     fetchDailyWeather: vi.fn(),
@@ -22,7 +22,7 @@ vi.mock('@/application/adapters/weatherAdapter', () => ({
   } satisfies WeatherPort,
 }))
 
-import { weatherAdapter } from '@/application/adapters/weatherAdapter'
+import { weatherAdapter } from '@/infrastructure/adapters/weatherAdapter'
 import { loadEtrnDailyForStore, loadEtrnHourlyForStore } from '../WeatherLoadService'
 
 const mockAdapter = vi.mocked(weatherAdapter)
@@ -55,7 +55,7 @@ describe('loadEtrnDailyForStore', () => {
     mockAdapter.resolveEtrnStationByLocation.mockResolvedValue(RESOLVED_STATION)
     mockAdapter.fetchDailyWeather.mockResolvedValue([])
 
-    const result = await loadEtrnDailyForStore('store1', BASE_LOCATION, 2025, 1)
+    const result = await loadEtrnDailyForStore(weatherAdapter, 'store1', BASE_LOCATION, 2025, 1)
 
     // fetchDailyWeather が EtrnStation 単位で呼ばれること
     expect(mockAdapter.fetchDailyWeather).toHaveBeenCalledWith(RESOLVED_STATION, 2025, 1)
@@ -65,7 +65,7 @@ describe('loadEtrnDailyForStore', () => {
   it('観測所キャッシュ済み → resolve をスキップし fetchDailyWeather(station)', async () => {
     mockAdapter.fetchDailyWeather.mockResolvedValue([])
 
-    await loadEtrnDailyForStore('store1', CACHED_LOCATION, 2025, 3)
+    await loadEtrnDailyForStore(weatherAdapter, 'store1', CACHED_LOCATION, 2025, 3)
 
     // resolveEtrnStationByLocation は呼ばれない
     expect(mockAdapter.resolveEtrnStationByLocation).not.toHaveBeenCalled()
@@ -84,7 +84,7 @@ describe('loadEtrnDailyForStore', () => {
   it('観測所解決失敗 → fetchDailyWeather は呼ばれず空配列を返す', async () => {
     mockAdapter.resolveEtrnStationByLocation.mockResolvedValue(null)
 
-    const result = await loadEtrnDailyForStore('store1', BASE_LOCATION, 2025, 1)
+    const result = await loadEtrnDailyForStore(weatherAdapter, 'store1', BASE_LOCATION, 2025, 1)
 
     expect(mockAdapter.fetchDailyWeather).not.toHaveBeenCalled()
     expect(result.daily).toEqual([])
@@ -96,7 +96,14 @@ describe('loadEtrnHourlyForStore', () => {
     mockAdapter.resolveEtrnStationByLocation.mockResolvedValue(RESOLVED_STATION)
     mockAdapter.fetchHourlyRange.mockResolvedValue([])
 
-    const result = await loadEtrnHourlyForStore('store1', BASE_LOCATION, 2025, 1, [1, 2, 3])
+    const result = await loadEtrnHourlyForStore(
+      weatherAdapter,
+      'store1',
+      BASE_LOCATION,
+      2025,
+      1,
+      [1, 2, 3],
+    )
 
     // fetchHourlyRange が EtrnStation 単位で呼ばれること
     expect(mockAdapter.fetchHourlyRange).toHaveBeenCalledWith(
@@ -112,7 +119,7 @@ describe('loadEtrnHourlyForStore', () => {
   it('観測所キャッシュ済み → resolve をスキップし fetchHourlyRange(station)', async () => {
     mockAdapter.fetchHourlyRange.mockResolvedValue([])
 
-    await loadEtrnHourlyForStore('store1', CACHED_LOCATION, 2025, 3, [15])
+    await loadEtrnHourlyForStore(weatherAdapter, 'store1', CACHED_LOCATION, 2025, 3, [15])
 
     expect(mockAdapter.resolveEtrnStationByLocation).not.toHaveBeenCalled()
     expect(mockAdapter.fetchHourlyRange).toHaveBeenCalledWith(
@@ -131,7 +138,14 @@ describe('loadEtrnHourlyForStore', () => {
   it('観測所解決失敗 → fetchHourlyRange は呼ばれず空配列を返す', async () => {
     mockAdapter.resolveEtrnStationByLocation.mockResolvedValue(null)
 
-    const result = await loadEtrnHourlyForStore('store1', BASE_LOCATION, 2025, 1, [1])
+    const result = await loadEtrnHourlyForStore(
+      weatherAdapter,
+      'store1',
+      BASE_LOCATION,
+      2025,
+      1,
+      [1],
+    )
 
     expect(mockAdapter.fetchHourlyRange).not.toHaveBeenCalled()
     expect(result.hourly).toEqual([])

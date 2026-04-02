@@ -20,6 +20,8 @@ import { weatherAdapter } from '@/infrastructure/adapters/weatherAdapter'
 import { backupAdapter } from '@/infrastructure/adapters/backupAdapter'
 import { fileSystemAdapter } from '@/infrastructure/adapters/fileSystemAdapter'
 import { storagePersistenceAdapter } from '@/infrastructure/adapters/storagePersistenceAdapter'
+import { exportService } from '@/application/usecases/export/ExportService'
+import { rawFileStore } from '@/infrastructure/storage/rawFileStore'
 import type { AdapterSet } from '@/application/context/adapterContextDef'
 
 const adapters: AdapterSet = {
@@ -27,6 +29,8 @@ const adapters: AdapterSet = {
   backup: backupAdapter,
   fileSystem: fileSystemAdapter,
   storagePersistence: storagePersistenceAdapter,
+  export: exportService,
+  rawFile: rawFileStore,
 }
 import { ThemeToggleContext } from '@/appContextDefs'
 

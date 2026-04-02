@@ -19,7 +19,7 @@ vi.mock('@/infrastructure/weather', () => ({
   PREFECTURE_NAMES: {},
 }))
 
-import { weatherAdapter } from '../weatherAdapter'
+import { weatherAdapter } from '@/infrastructure/adapters/weatherAdapter'
 import {
   fetchEtrnDailyWeather,
   fetchEtrnHourlyRange,

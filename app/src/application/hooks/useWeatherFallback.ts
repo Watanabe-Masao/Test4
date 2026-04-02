@@ -12,6 +12,7 @@ import type { StoreLocation } from '@/domain/models/record'
 import { splitDateRangeByMonth } from '@/domain/models/calendar'
 import { loadEtrnHourlyForStore } from '@/application/usecases/weather/WeatherLoadService'
 import type { WeatherPersister } from '@/application/queries/weather'
+import { useWeatherAdapter } from '@/application/context/useWeatherAdapter'
 
 /**
  * DuckDB 天気データが空の場合に ETRN フォールバックを実行する。
@@ -32,6 +33,7 @@ export function useWeatherFallback(params: {
   /** ETRN 永続化成功後に呼ばれるコールバック（再クエリトリガー用） */
   readonly onRetry: () => void
 }): void {
+  const weather = useWeatherAdapter()
   const { duckQueryEmpty, storeId, location, dateRange, dateFrom, dateTo, persist, onRetry } =
     params
   const fetchedKeyRef = useRef('')
@@ -47,7 +49,7 @@ export function useWeatherFallback(params: {
 
     Promise.all(
       chunks.map((chunk) =>
-        loadEtrnHourlyForStore(storeId, location, chunk.year, chunk.month, chunk.days),
+        loadEtrnHourlyForStore(weather, storeId, location, chunk.year, chunk.month, chunk.days),
       ),
     )
       .then(async (results) => {

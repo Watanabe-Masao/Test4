@@ -5,7 +5,9 @@
  * DuckDB の再構築・キャッシュ削除を UI に提供する。
  */
 import { useState, useEffect, useCallback } from 'react'
-import { rawFileStore, type RawFileEntry } from '@/infrastructure/storage/rawFileStore'
+import { useContext } from 'react'
+import { AdapterContext } from '@/application/context/adapterContextDef'
+import type { RawFileEntry } from '@/domain/ports/RawFilePort'
 import {
   rebuildFromIndexedDB,
   deleteDatabaseFile,
@@ -33,12 +35,14 @@ export function useDataRecovery(
   clearDuckDBCache: () => Promise<boolean>
   refreshRawFiles: () => Promise<void>
 } {
+  const adapters = useContext(AdapterContext)
+  const rawFile = adapters?.rawFile
   const [rawFileGroups, setRawFileGroups] = useState<readonly RawFileGroup[]>([])
   const [isRebuilding, setIsRebuilding] = useState(false)
   const [lastRebuildResult, setLastRebuildResult] = useState<RebuildResult | null>(null)
 
   const refreshRawFiles = useCallback(async () => {
-    if (!repo) {
+    if (!repo || !rawFile) {
       setRawFileGroups([])
       return
     }
@@ -46,7 +50,7 @@ export function useDataRecovery(
       const storedMonths = await repo.listStoredMonths()
       const groups: RawFileGroup[] = []
       for (const { year, month } of storedMonths) {
-        const files = await rawFileStore.listFiles(year, month)
+        const files = await rawFile.listFiles(year, month)
         if (files.length > 0) {
           groups.push({ year, month, files })
         }

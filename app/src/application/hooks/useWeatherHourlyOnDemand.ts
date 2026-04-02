@@ -9,6 +9,7 @@ import type { AlignmentMode } from '@/domain/models/calendar'
 import type { HourlyWeatherRecord, StoreLocation } from '@/domain/models/record'
 import { loadEtrnHourlyForStore } from '@/application/usecases/weather/WeatherLoadService'
 import { useSettingsStore } from '@/application/stores/settingsStore'
+import { useWeatherAdapter } from '@/application/context/useWeatherAdapter'
 
 /** 時間別データの取得状態 */
 export interface HourlyFetchState {
@@ -84,6 +85,7 @@ export function useWeatherHourlyOnDemand(
   storeId: string,
   policy: AlignmentMode,
 ): UseWeatherHourlyOnDemandResult {
+  const weather = useWeatherAdapter()
   const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
   const location: StoreLocation | undefined = storeLocations[storeId]
 
@@ -101,7 +103,7 @@ export function useWeatherHourlyOnDemand(
         ...prev,
         [dateKey]: { status: 'loading', records: [] },
       }))
-      loadEtrnHourlyForStore(storeId, location, year, month, [day])
+      loadEtrnHourlyForStore(weather, storeId, location, year, month, [day])
         .then((result) => {
           setHourlyCache((prev) => ({
             ...prev,
@@ -135,7 +137,7 @@ export function useWeatherHourlyOnDemand(
         ...c,
         [dateKey]: { status: 'loading', records: [] },
       }))
-      loadEtrnHourlyForStore(storeId, location, prev.year, prev.month, [prev.day])
+      loadEtrnHourlyForStore(weather, storeId, location, prev.year, prev.month, [prev.day])
         .then((result) => {
           setPrevHourlyCache((c) => ({
             ...c,
