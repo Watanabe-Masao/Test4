@@ -210,13 +210,20 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
       )}
 
       {selectedRange && (
-        <div style={{ fontSize: 12, color: ct.text, marginBottom: 4, textAlign: 'right' }}>
+        <div
+          style={{
+            fontSize: ct.fontSize.body + 1,
+            color: ct.text,
+            marginBottom: 4,
+            textAlign: 'right',
+          }}
+        >
           選択範囲: {month}/{selectedRange.from}〜{month}/{selectedRange.to}
           <button
             onClick={() => setSelectedRange(null)}
             style={{
               marginLeft: 8,
-              fontSize: 11,
+              fontSize: ct.fontSize.body,
               cursor: 'pointer',
               background: 'none',
               border: '1px solid currentColor',
