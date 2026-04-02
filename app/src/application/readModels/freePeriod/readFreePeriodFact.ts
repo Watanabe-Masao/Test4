@@ -49,10 +49,10 @@ const DAILY_SQL = (where: string) => `
     cs.is_prev_year AS "isPrevYear"
   FROM classified_sales cs
   LEFT JOIN (
-    SELECT store_id, day, SUM(cost) AS cost, SUM(price) AS price
+    SELECT store_id, date_key, SUM(cost) AS cost, SUM(price) AS price
     FROM purchase
-    GROUP BY store_id, day
-  ) p ON cs.store_id = p.store_id AND cs.day = p.day
+    GROUP BY store_id, date_key
+  ) p ON cs.store_id = p.store_id AND cs.date_key = p.date_key
   ${where}
   GROUP BY cs.store_id, cs.date_key, cs.day, cs.is_prev_year, p.cost, p.price
   ORDER BY cs.date_key, cs.store_id
@@ -73,6 +73,7 @@ async function queryDailyRows(
 
 export function computeFreePeriodSummary(
   rows: readonly FreePeriodDailyRowType[],
+  budgetInfo?: { proratedBudget: number } | null,
 ): FreePeriodSummaryType {
   if (rows.length === 0) {
     return {
@@ -85,6 +86,8 @@ export function computeFreePeriodSummary(
       averageDailySales: 0,
       transactionValue: 0,
       discountRate: 0,
+      proratedBudget: null,
+      budgetAchievementRate: null,
     }
   }
 
@@ -110,6 +113,10 @@ export function computeFreePeriodSummary(
   const discountRate =
     totalSales + totalDiscount > 0 ? totalDiscount / (totalSales + totalDiscount) : 0
 
+  const proratedBudget = budgetInfo?.proratedBudget ?? null
+  const budgetAchievementRate =
+    proratedBudget != null && proratedBudget > 0 ? totalSales / proratedBudget : null
+
   return FreePeriodSummary.parse({
     storeCount: storeIds.size,
     dayCount,
@@ -120,7 +127,53 @@ export function computeFreePeriodSummary(
     averageDailySales,
     transactionValue,
     discountRate,
+    proratedBudget,
+    budgetAchievementRate,
   })
+}
+
+/**
+ * 月予算を対象期間に日割り按分する。
+ *
+ * 粒度契約:
+ * - budget.daily が存在 → 対象期間内の日別予算を合計
+ * - budget.daily が空 → budget.total / daysInMonth × 対象日数
+ * - 月跨ぎ → 各月独立に按分し合算
+ */
+export function prorateBudget(
+  monthlyBudgets: ReadonlyMap<string, { total: number; daily?: ReadonlyMap<number, number> }>,
+  dateKeys: ReadonlySet<string>,
+): number {
+  let total = 0
+
+  // dateKey → year-month でグループ化
+  const daysByMonth = new Map<string, number[]>()
+  for (const dk of dateKeys) {
+    const [y, m, d] = dk.split('-').map(Number)
+    const mk = `${y}-${m}`
+    const days = daysByMonth.get(mk)
+    if (days) days.push(d)
+    else daysByMonth.set(mk, [d])
+  }
+
+  for (const [mk, days] of daysByMonth) {
+    const budget = monthlyBudgets.get(mk)
+    if (!budget) continue
+
+    if (budget.daily && budget.daily.size > 0) {
+      // 日別予算があれば対象日のみ合算
+      for (const d of days) {
+        total += budget.daily.get(d) ?? 0
+      }
+    } else if (budget.total > 0) {
+      // 月予算を日割り
+      const [y, m] = mk.split('-').map(Number)
+      const daysInMonth = new Date(y, m, 0).getDate()
+      total += (budget.total / daysInMonth) * days.length
+    }
+  }
+
+  return total
 }
 
 // ── 公開 API ──

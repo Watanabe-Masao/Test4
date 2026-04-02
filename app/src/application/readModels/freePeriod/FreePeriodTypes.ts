@@ -71,6 +71,10 @@ export const FreePeriodSummary = z.object({
   transactionValue: z.number(),
   /** 売変率 */
   discountRate: z.number(),
+  /** 予算（日割り按分済み — null = 予算データなし） */
+  proratedBudget: z.number().nullable(),
+  /** 予算達成率（null = 予算なし） */
+  budgetAchievementRate: z.number().nullable(),
 })
 
 export type FreePeriodSummary = z.infer<typeof FreePeriodSummary>
