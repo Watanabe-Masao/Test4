@@ -72,5 +72,5 @@ export function useWeatherFallback(params: {
     return () => {
       cancelled = true
     }
-  }, [duckQueryEmpty, location, storeId, dateFrom, dateTo, dateRange, persist, onRetry])
+  }, [weather, duckQueryEmpty, location, storeId, dateFrom, dateTo, dateRange, persist, onRetry])
 }

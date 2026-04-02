@@ -125,7 +125,7 @@ export function useImport() {
         setProgress(null)
       }
     },
-    [repo, applyDetectedYearMonth, applyImportResult],
+    [repo, rawFile, applyDetectedYearMonth, applyImportResult],
   )
 
   /** 差分確認結果を適用する */
@@ -158,7 +158,7 @@ export function useImport() {
 
       setPendingDiff(null)
     },
-    [pendingDiff, repo, applyImportResult],
+    [pendingDiff, repo, rawFile, applyImportResult],
   )
 
   return {
