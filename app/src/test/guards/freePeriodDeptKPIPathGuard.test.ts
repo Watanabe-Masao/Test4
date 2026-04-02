@@ -16,7 +16,7 @@ describe('自由期間部門KPI 正本ガード', () => {
   it('readFreePeriodDeptKPI が存在し Zod parse を含む', () => {
     const file = path.join(SRC_DIR, 'application/readModels/freePeriod/readFreePeriodDeptKPI.ts')
     const content = fs.readFileSync(file, 'utf-8')
-    expect(content).toContain('export async function readFreePeriodDeptKPI(')
+    expect(content).toContain('export function buildFreePeriodDeptKPIReadModel(')
     expect(content).toContain('FreePeriodDeptKPIReadModel.parse')
   })
 

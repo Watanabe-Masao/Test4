@@ -1,10 +1,11 @@
 {
-  "timestamp": "2026-04-02T13:25:32.842Z",
+  "timestamp": "2026-04-02T14:36:49.388Z",
   "summary": {
     "queryHandlers": 30,
-    "正規経路_queryWithHandler": 21,
-    "正規経路_comparisonAccessor": 8,
-    "正規経路_facadeHook": 0,
+    "正規経路_queryWithHandler": 29,
+    "正規経路_comparisonAccessor": 10,
+    "正規経路_facadeHook": 4,
+    "bundleHookDef": 1,
     "要注意_executorDirect": 0,
     "互換経路_asyncQueryDirect": 0,
     "禁止経路_infraDuckdbDirect": 0,
@@ -33,7 +34,15 @@
       "presentation/components/widgets/types.ts",
       "presentation/pages/Dashboard/widgets/ConditionMatrixTable.tsx",
       "presentation/pages/Dashboard/widgets/ConditionSummaryBudgetDrill.tsx",
-      "presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx"
+      "presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx",
+      "features/category/ui/charts/CategoryBarChart.tsx",
+      "features/category/ui/charts/CategoryBenchmarkChart.vm.ts",
+      "features/category/ui/charts/CategoryBoxPlotChart.vm.ts",
+      "features/category/ui/charts/CategoryDiscountChart.tsx",
+      "features/category/ui/charts/CategoryHierarchyExplorer.tsx",
+      "features/category/ui/charts/CategoryHourlyChart.tsx",
+      "features/category/ui/charts/CategoryMixChart.tsx",
+      "features/category/ui/charts/CategoryPerformanceChart.tsx"
     ],
     "queryHandlers": [
       "application/queries/advanced/CategoryBenchmarkHandler.ts",
@@ -75,9 +84,19 @@
       "presentation/pages/Dashboard/widgets/calendarUtils.ts",
       "presentation/pages/Dashboard/widgets/useMonthlyCalendarState.ts",
       "presentation/pages/Forecast/ForecastPage.helpers.ts",
+      "features/budget/ui/InsightTabBudget.tsx",
+      "features/budget/ui/InsightTabBudget.vm.ts",
       "application/usecases/clipExport/buildClipBundle.ts"
     ],
-    "facadeHook": [],
+    "facadeHook": [
+      "presentation/hooks/useChartInteractionBundle.ts",
+      "presentation/hooks/useComparisonBundle.ts",
+      "presentation/hooks/useQueryBundle.ts",
+      "presentation/hooks/useUnifiedWidgetContext.ts"
+    ],
+    "bundleHookDef": [
+      "application/hooks/useFreePeriodAnalysisBundle.ts"
+    ],
     "executorDirect": [],
     "asyncQueryDirect": [],
     "infraDuckdbDirect": [],

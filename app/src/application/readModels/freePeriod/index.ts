@@ -1,5 +1,13 @@
-export { readFreePeriodFact, computeFreePeriodSummary, prorateBudget } from './readFreePeriodFact'
-export { readFreePeriodBudgetFact, prorateBudgetForPeriod } from './readFreePeriodBudgetFact'
+export {
+  buildFreePeriodReadModel,
+  computeFreePeriodSummary,
+  prorateBudget,
+} from './readFreePeriodFact'
+export {
+  buildFreePeriodBudgetReadModel,
+  prorateBudgetForPeriod,
+  type RawBudgetInput,
+} from './readFreePeriodBudgetFact'
 export type {
   FreePeriodReadModel,
   FreePeriodDailyRow,
@@ -11,7 +19,11 @@ export type {
   FreePeriodBudgetRow,
   FreePeriodBudgetQueryInput,
 } from './FreePeriodBudgetTypes'
-export { readFreePeriodDeptKPI, dateRangeToYearMonths } from './readFreePeriodDeptKPI'
+export {
+  buildFreePeriodDeptKPIReadModel,
+  dateRangeToYearMonths,
+  type RawDeptKPIInput,
+} from './readFreePeriodDeptKPI'
 export type {
   FreePeriodDeptKPIReadModel,
   FreePeriodDeptKPIRow,

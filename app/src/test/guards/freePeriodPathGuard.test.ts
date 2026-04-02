@@ -16,10 +16,10 @@ const SRC_DIR = path.resolve(__dirname, '../..')
 describe('自由期間分析正本ガード', () => {
   // ── 正本関数の存在確認 ──
 
-  it('readFreePeriodFact が存在し Zod parse を含む', () => {
+  it('buildFreePeriodReadModel が存在し Zod parse を含む', () => {
     const file = path.join(SRC_DIR, 'application/readModels/freePeriod/readFreePeriodFact.ts')
     const content = fs.readFileSync(file, 'utf-8')
-    expect(content).toContain('export async function readFreePeriodFact(')
+    expect(content).toContain('export function buildFreePeriodReadModel(')
     expect(content).toContain('FreePeriodReadModel.parse')
   })
 
@@ -36,7 +36,7 @@ describe('自由期間分析正本ガード', () => {
     const file = path.join(SRC_DIR, 'application/queries/freePeriodHandler.ts')
     const content = fs.readFileSync(file, 'utf-8')
     expect(content).toContain('freePeriodHandler')
-    expect(content).toContain('readFreePeriodFact')
+    expect(content).toContain('buildFreePeriodReadModel')
   })
 
   // ── presentation 層からの独自取得経路禁止 ──

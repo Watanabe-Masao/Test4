@@ -16,11 +16,10 @@ const SRC_DIR = path.resolve(__dirname, '../..')
 describe('値引きファクト正本ガード', () => {
   // ── 正本関数の存在確認 ──
 
-  it('readDiscountFact が純関数として存在する', () => {
+  it('buildDiscountFactReadModel が pure builder として存在する', () => {
     const file = path.join(SRC_DIR, 'application/readModels/discountFact/readDiscountFact.ts')
     const content = fs.readFileSync(file, 'utf-8')
-    expect(content).toContain('export async function readDiscountFact(')
-    expect(content).toContain('export const discountFactHandler')
+    expect(content).toContain('export function buildDiscountFactReadModel(')
     expect(content).toContain('DiscountFactReadModel.parse')
   })
 

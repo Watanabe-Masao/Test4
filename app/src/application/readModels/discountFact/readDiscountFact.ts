@@ -6,12 +6,11 @@
  *
  * @see references/01-principles/discount-definition.md
  */
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { QueryHandler, BaseQueryInput } from '@/application/queries/QueryContract'
-import { queryDiscountFact } from '@/infrastructure/duckdb/queries/discountFactQueries'
+import type { BaseQueryInput } from '@/application/queries/QueryContract'
 import {
   DiscountFactReadModel,
   type DiscountFactReadModel as DiscountFactReadModelType,
+  type DiscountFactRow as DiscountFactRowType,
 } from './DiscountFactTypes'
 
 // ── 入力 + 出力型 ──
@@ -25,21 +24,17 @@ export interface DiscountFactOutput {
   readonly model: DiscountFactReadModelType
 }
 
-// ── 純関数 ──
+// ── pure builder ──
 
-export async function readDiscountFact(
-  conn: AsyncDuckDBConnection,
-  input: DiscountFactInput,
-): Promise<DiscountFactReadModelType> {
-  const storeIds = input.storeIds ? [...input.storeIds] : undefined
-  const rows = await queryDiscountFact(
-    conn,
-    input.dateFrom,
-    input.dateTo,
-    storeIds,
-    input.isPrevYear ?? false,
-  )
-
+/**
+ * buildDiscountFactReadModel — 値引き正本の pure builder。
+ *
+ * raw query 結果を受け取り、集約 + Zod parse して ReadModel を返す。
+ */
+export function buildDiscountFactReadModel(
+  rows: readonly DiscountFactRowType[],
+  dataVersion: number,
+): DiscountFactReadModelType {
   let grandTotal = 0
   let grandTotal71 = 0
   let grandTotal72 = 0
@@ -62,22 +57,9 @@ export async function readDiscountFact(
     grandTotal74,
     meta: {
       missingPolicy: 'zero' as const,
-      dataVersion: input.dataVersion,
+      dataVersion,
     },
   })
-}
-
-// ── QueryHandler ──
-
-export const discountFactHandler: QueryHandler<DiscountFactInput, DiscountFactOutput> = {
-  name: 'DiscountFact',
-  async execute(
-    conn: AsyncDuckDBConnection,
-    input: DiscountFactInput,
-  ): Promise<DiscountFactOutput> {
-    const model = await readDiscountFact(conn, input)
-    return { model }
-  },
 }
 
 // ── 導出ヘルパー ──

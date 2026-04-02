@@ -1,13 +1,13 @@
 /**
  * freePeriodBudgetHandler — 自由期間予算の QueryHandler
  *
- * readFreePeriodBudgetFact を QueryHandler インターフェースでラップし、
- * useQueryWithHandler 経由で利用可能にする。
+ * infra query で raw データを取得し、pure builder で ReadModel を構築する。
  *
  * @layer Application — Query Handler
  */
 import type { QueryHandler } from './QueryContract'
-import { readFreePeriodBudgetFact } from '@/application/readModels/freePeriod'
+import { queryFreePeriodBudget } from '@/infrastructure/duckdb/queries/freePeriodBudget'
+import { buildFreePeriodBudgetReadModel } from '@/application/readModels/freePeriod'
 import type {
   FreePeriodBudgetQueryInput,
   FreePeriodBudgetReadModel,
@@ -18,5 +18,8 @@ export const freePeriodBudgetHandler: QueryHandler<
   FreePeriodBudgetReadModel
 > = {
   name: 'freePeriodBudget',
-  execute: (conn, input) => readFreePeriodBudgetFact(conn, input),
+  async execute(conn, input) {
+    const rawRows = await queryFreePeriodBudget(conn, input.storeIds)
+    return buildFreePeriodBudgetReadModel(rawRows, input)
+  },
 }

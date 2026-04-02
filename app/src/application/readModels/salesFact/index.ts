@@ -9,8 +9,7 @@ export type {
   SalesFactHourlyRow,
 } from './SalesFactTypes'
 export {
-  readSalesFact,
-  salesFactHandler,
+  buildSalesFactReadModel,
   toStoreSalesRows,
   toDailySalesRows,
   toHourlySalesRows,

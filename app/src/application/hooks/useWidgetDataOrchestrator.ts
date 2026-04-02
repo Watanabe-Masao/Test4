@@ -21,9 +21,11 @@ import type { QueryExecutor } from '@/application/queries/QueryPort'
 import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
 import { purchaseCostHandler, type PurchaseCostInput } from '@/application/readModels/purchaseCost'
 import type { PurchaseCostReadModel } from '@/application/readModels/purchaseCost'
-import { salesFactHandler, type SalesFactInput } from '@/application/readModels/salesFact'
+import { salesFactHandler } from '@/application/queries/salesFactHandler'
+import type { SalesFactInput } from '@/application/readModels/salesFact'
 import type { SalesFactReadModel } from '@/application/readModels/salesFact'
-import { discountFactHandler, type DiscountFactInput } from '@/application/readModels/discountFact'
+import { discountFactHandler } from '@/application/queries/discountFactHandler'
+import type { DiscountFactInput } from '@/application/readModels/discountFact'
 import type { DiscountFactReadModel } from '@/application/readModels/discountFact'
 
 // ── 入力パラメータ ──

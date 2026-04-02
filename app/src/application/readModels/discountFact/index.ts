@@ -4,8 +4,7 @@ export type {
   DiscountFactRow,
 } from './DiscountFactTypes'
 export {
-  readDiscountFact,
-  discountFactHandler,
+  buildDiscountFactReadModel,
   toStoreDiscountRows,
   toDailyDiscountRows,
   toDeptDiscountRows,

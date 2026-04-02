@@ -11,8 +11,6 @@
  *
  * @see references/01-principles/free-period-budget-kpi-contract.md
  */
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import { queryFreePeriodBudget } from '@/infrastructure/duckdb/queries/freePeriodBudget'
 import {
   FreePeriodBudgetReadModel,
   FreePeriodBudgetRow,
@@ -64,17 +62,23 @@ export function prorateBudgetForPeriod(
 
 // ── 公開 API ──
 
-/**
- * 自由期間予算の唯一の read 関数。
- *
- * DuckDB から月予算を取得し、対象期間に日割り按分して返す。
- */
-export async function readFreePeriodBudgetFact(
-  conn: AsyncDuckDBConnection,
-  input: FreePeriodBudgetQueryInputType,
-): Promise<FreePeriodBudgetReadModelType> {
-  const rawRows = await queryFreePeriodBudget(conn, input.storeIds)
+/** raw budget row の最小型（infra 型に依存しない） */
+export interface RawBudgetInput {
+  readonly storeId: string
+  readonly year: number
+  readonly month: number
+  readonly monthlyTotal: number
+}
 
+/**
+ * 自由期間予算の pure builder。
+ *
+ * raw query 結果を受け取り、日割り按分 + Zod parse して ReadModel を返す。
+ */
+export function buildFreePeriodBudgetReadModel(
+  rawRows: readonly RawBudgetInput[],
+  input: FreePeriodBudgetQueryInputType,
+): FreePeriodBudgetReadModelType {
   // 店舗別に按分
   const storeMap = new Map<
     string,

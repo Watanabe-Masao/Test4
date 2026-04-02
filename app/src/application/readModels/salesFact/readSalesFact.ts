@@ -1,26 +1,22 @@
 /**
- * readSalesFact — 売上・販売点数の唯一の分析用正本 read
+ * readSalesFact — 売上・販売点数の唯一の分析用正本 pure builder
  *
  * category_time_sales（日別×階層）+ time_slots（時間帯）を統合し、
  * SalesFactReadModel として構築・runtime 検証する。
  *
- * この1関数から全ての分析ビューを JS 集計で導出可能:
- *   店舗別 / 日別 / 曜日別 / 時間帯別 / 階層別 / ドリルダウン
+ * infra query への依存はない（handler 側で取得済みのデータを渡す）。
  *
  * @see references/01-principles/sales-definition.md
  */
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { QueryHandler, BaseQueryInput } from '@/application/queries/QueryContract'
-import {
-  querySalesFactDaily,
-  querySalesFactHourly,
-} from '@/infrastructure/duckdb/queries/salesFactQueries'
+import type { BaseQueryInput } from '@/application/queries/QueryContract'
 import {
   SalesFactReadModel,
   type SalesFactReadModel as SalesFactReadModelType,
+  type SalesFactDailyRow as SalesFactDailyRowType,
+  type SalesFactHourlyRow as SalesFactHourlyRowType,
 } from './SalesFactTypes'
 
-// ── 純関数 + QueryHandler ──
+// ── 入力 + 出力型 ──
 
 export interface SalesFactInput extends BaseQueryInput {
   readonly isPrevYear?: boolean
@@ -32,19 +28,15 @@ export interface SalesFactOutput {
 }
 
 /**
- * readSalesFact — 唯一の分析用正本 read（純関数）
+ * buildSalesFactReadModel — 唯一の分析用正本 pure builder
+ *
+ * raw query 結果を受け取り、集約 + Zod parse して ReadModel を返す。
  */
-export async function readSalesFact(
-  conn: AsyncDuckDBConnection,
-  input: SalesFactInput,
-): Promise<SalesFactReadModelType> {
-  const storeIds = input.storeIds ? [...input.storeIds] : undefined
-
-  const [daily, hourly] = await Promise.all([
-    querySalesFactDaily(conn, input.dateFrom, input.dateTo, storeIds, input.isPrevYear),
-    querySalesFactHourly(conn, input.dateFrom, input.dateTo, storeIds, input.isPrevYear),
-  ])
-
+export function buildSalesFactReadModel(
+  daily: readonly SalesFactDailyRowType[],
+  hourly: readonly SalesFactHourlyRowType[],
+  dataVersion: number,
+): SalesFactReadModelType {
   let grandTotalAmount = 0
   let grandTotalQuantity = 0
   for (const r of daily) {
@@ -59,20 +51,9 @@ export async function readSalesFact(
     grandTotalQuantity,
     meta: {
       missingPolicy: 'zero' as const,
-      dataVersion: input.dataVersion,
+      dataVersion,
     },
   })
-}
-
-/**
- * salesFactHandler — useQueryWithHandler 用の QueryHandler ラッパー
- */
-export const salesFactHandler: QueryHandler<SalesFactInput, SalesFactOutput> = {
-  name: 'SalesFact',
-  async execute(conn: AsyncDuckDBConnection, input: SalesFactInput): Promise<SalesFactOutput> {
-    const model = await readSalesFact(conn, input)
-    return { model }
-  },
 }
 
 // ── 導出ヘルパー ──
