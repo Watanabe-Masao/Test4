@@ -1,22 +1,23 @@
 {
-  "timestamp": "2026-04-02T04:56:16.651Z",
-  "totalAllowlistEntries": 49,
+  "timestamp": "2026-04-02T05:10:17.202Z",
+  "totalAllowlistEntries": 48,
   "categoryBreakdown": {
     "adapter": 11,
     "lifecycle": 2,
-    "structural": 36
+    "structural": 35
   },
   "frozenLists": [
     "presentationToInfrastructure",
     "infrastructureToApplication",
+    "presentationToUsecases",
     "presentationDuckdbHook",
     "largeComponentTier2",
     "cmpPrevYearDaily",
     "cmpFramePrevious",
     "dowCalcOverride"
   ],
-  "frozenCount": 7,
-  "activeLists": 14,
+  "frozenCount": 8,
+  "activeLists": 13,
   "vmFileCount": 28,
   "compatReexportCount": 2,
   "activeBridges": [
@@ -280,10 +281,8 @@
       "categories": {}
     },
     "presentationToUsecases": {
-      "count": 1,
-      "categories": {
-        "structural": 1
-      }
+      "count": 0,
+      "categories": {}
     },
     "presentationDuckdbHook": {
       "count": 0,

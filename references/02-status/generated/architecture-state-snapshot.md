@@ -1,14 +1,14 @@
 # Architecture State Snapshot
 
-> Generated: 2026-04-02T04:56:16.651Z
+> Generated: 2026-04-02T05:10:17.202Z
 
 ## Allowlist Summary
 
 | 指標 | 値 |
 |---|---|
-| 総エントリ数 | 49 |
-| アクティブリスト数 | 14 |
-| 凍結リスト数 | 7 |
+| 総エントリ数 | 48 |
+| アクティブリスト数 | 13 |
+| 凍結リスト数 | 8 |
 | .vm.ts ファイル数 | 28 |
 | 互換 re-export 残数 | 2 |
 
@@ -16,7 +16,7 @@
 
 | カテゴリ | 件数 |
 |---|---|
-| structural | 36 |
+| structural | 35 |
 | adapter | 11 |
 | lifecycle | 2 |
 
@@ -134,6 +134,7 @@
 
 - presentationToInfrastructure
 - infrastructureToApplication
+- presentationToUsecases
 - presentationDuckdbHook
 - largeComponentTier2
 - cmpPrevYearDaily
@@ -153,13 +154,13 @@
 | useMemoLimits | 2 | structural:2 |
 | ctxHook | 2 | structural:2 |
 | vmReactImport | 2 | structural:2 |
-| presentationToUsecases | 1 | structural:1 |
 | infraLargeFiles | 1 | structural:1 |
 | usecasesLargeFiles | 1 | structural:1 |
 | cmpDailyMapping | 1 | structural:1 |
 | sideEffectChain | 1 | structural:1 |
 | presentationToInfrastructure | 0 | - |
 | infrastructureToApplication | 0 | - |
+| presentationToUsecases | 0 | - |
 | presentationDuckdbHook | 0 | - |
 | largeComponentTier2 | 0 | - |
 | cmpPrevYearDaily | 0 | - |

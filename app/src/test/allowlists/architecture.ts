@@ -91,12 +91,5 @@ export const presentationToInfrastructure: readonly AllowlistEntry[] = [] as con
 /** infrastructure/ → application/（逆方向依存 — RawDataPort を domain/ に移動し全件解消。凍結） */
 export const infrastructureToApplication: readonly AllowlistEntry[] = [] as const
 
-/** presentation/ から application/usecases/ 直接参照 */
-export const presentationToUsecases: readonly AllowlistEntry[] = [
-  {
-    path: 'presentation/pages/Admin/ClearAllDataSection.tsx',
-    reason: '管理画面の特殊操作',
-    category: 'structural',
-    removalCondition: 'Admin 操作が hook 経由に移行されたとき',
-  },
-] as const
+/** presentation/ から application/usecases/ 直接参照（全件解消済み。凍結） */
+export const presentationToUsecases: readonly AllowlistEntry[] = [] as const
