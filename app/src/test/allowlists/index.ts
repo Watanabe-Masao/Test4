@@ -45,6 +45,9 @@ export { largeComponentTier2, infraLargeFiles, domainLargeFiles, usecasesLargeFi
 // Migration
 export { cmpPrevYearDaily, cmpFramePrevious, cmpDailyMapping } from './migration'
 
+// Performance (Screen Runtime)
+export { isPrevYearHandlers } from './performance'
+
 // Misc
 export {
   dowCalcOverride,

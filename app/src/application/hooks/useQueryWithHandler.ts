@@ -42,6 +42,7 @@ import { useState, useEffect, useRef, useMemo } from 'react'
 import type { QueryHandler, AsyncQueryResult } from '@/application/queries/QueryContract'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 import { queryProfiler } from '@/application/services/queryProfileService'
+import { canonicalizeQueryInput } from '@/application/queries/queryInputCanonical'
 
 /** Debounce delay to prevent rapid re-querying on cascading state updates */
 const QUERY_DEBOUNCE_MS = 50
@@ -94,8 +95,11 @@ export function useQueryWithHandler<TInput, TOutput>(
   const [error, setError] = useState<Error | null>(null)
   const seqRef = useRef(0)
 
-  // input を JSON で安定化（依存配列で参照比較を避ける）
-  const inputKey = useMemo(() => (input === null ? null : JSON.stringify(input)), [input])
+  // input を正規化 + JSON で安定化（INV-RUN-01: Semantic Determinism）
+  const inputKey = useMemo(
+    () => (input === null ? null : JSON.stringify(canonicalizeQueryInput(input))),
+    [input],
+  )
 
   // handler と input を ref で保持し、effect の依存配列を安定化
   const handlerRef = useRef(handler)

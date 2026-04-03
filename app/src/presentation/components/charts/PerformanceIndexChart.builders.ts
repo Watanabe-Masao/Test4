@@ -144,7 +144,7 @@ export function buildPerformanceData(
     const customers = rec?.customers ?? 0
     const discount = rec?.discountAbsolute ?? 0
     const cost = rec ? rec.totalCost : 0
-    const costInclusion = rec?.costInclusion.cost ?? 0
+    const costInclusion = rec?.costInclusion?.cost ?? 0
     const txValue = customers > 0 ? calculateTransactionValue(sales, customers) : null
     const discountRate = grossSales > 0 ? calculateShare(discount, grossSales) : 0
     const gpRate = sales > 0 ? calculateGrossProfitRate(sales - cost - costInclusion, sales) : 0
