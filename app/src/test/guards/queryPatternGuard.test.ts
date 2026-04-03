@@ -201,13 +201,12 @@ describe('INV-RUN-02: pair 化済み handler の base import 追跡', () => {
       console.log(`  対象:\n  ${violations.join('\n  ')}`)
     }
 
-    // Gate 3 完了時点: 残り消費側は単一呼び出し（比較なし）と dropdown 用途のみ。
-    // これらは pair handler への移行不要だが、増加は防止する。
+    // 全消費側が nonPairableConsumers に分類済み。新規の base handler import を防止する。
     expect(
       violations.length,
       `pair 化済み base handler の直接 import が増加しています。\n` +
         `pair handler を使用するか、nonPairableConsumers に登録してください。\n` +
         `対象:\n${violations.join('\n')}`,
-    ).toBeLessThanOrEqual(8)
+    ).toBeLessThanOrEqual(0)
   })
 })

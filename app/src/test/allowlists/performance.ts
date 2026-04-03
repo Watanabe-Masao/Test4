@@ -136,6 +136,7 @@ export const isPrevYearHandlers: readonly AllowlistEntry[] = [
  * 専用 handler または別のアプローチが必要。
  */
 export const nonPairableConsumers: readonly AllowlistEntry[] = [
+  // ── 比較パターンが pair handler と不適合 ──
   {
     path: 'presentation/components/charts/useCategoryTrendChartData.ts',
     reason: 'cur topN（ユーザー選択）≠ prev topN（100固定）— 非対称入力',
@@ -159,5 +160,55 @@ export const nonPairableConsumers: readonly AllowlistEntry[] = [
     reason: '14本のクエリ + fallback パターン（CTS 7系統 + Summary 3系統 + Weather 2系統）',
     category: 'structural',
     removalCondition: 'bundled query handler（fallback 統合型）の設計時に移行',
+  },
+  // ── 単一呼び出し（比較なし）— pair handler 移行不要 ──
+  {
+    path: 'presentation/components/charts/CumulativeChart.tsx',
+    reason: 'dailyCumulativeHandler 単一呼び出し（比較なし）',
+    category: 'structural',
+    removalCondition: '除去不要 — 比較なしの正当な base handler 使用',
+  },
+  {
+    path: 'presentation/components/charts/HeatmapChart.tsx',
+    reason:
+      'levelAggregationHandler × 3 ドロップダウン用（比較なし）。HourDowMatrix は pair 化済み',
+    category: 'structural',
+    removalCondition: '除去不要 — ドロップダウン候補取得は pair 不要',
+  },
+  {
+    path: 'presentation/components/charts/WeatherAnalysisPanel.tsx',
+    reason: 'storeDaySummaryHandler 単一呼び出し（比較なし）',
+    category: 'structural',
+    removalCondition: '除去不要 — 比較なしの正当な base handler 使用',
+  },
+  {
+    path: 'presentation/components/charts/useDeptHourlyChartData.ts',
+    reason: 'categoryHourlyHandler 単一呼び出し（比較なし）。hourlyAgg は pair 化済み',
+    category: 'structural',
+    removalCondition: '除去不要 — 比較なしの正当な base handler 使用',
+  },
+  {
+    path: 'features/category/ui/charts/CategoryHourlyChart.tsx',
+    reason: 'categoryHourlyHandler 単一呼び出し（比較なし）',
+    category: 'structural',
+    removalCondition: '除去不要 — 比較なしの正当な base handler 使用',
+  },
+  {
+    path: 'features/category/ui/charts/CategoryMixChart.tsx',
+    reason: 'categoryMixWeeklyHandler 単一呼び出し（比較なし）',
+    category: 'structural',
+    removalCondition: '除去不要 — 比較なしの正当な base handler 使用',
+  },
+  {
+    path: 'application/hooks/useClipExport.ts',
+    reason: 'queryExecutor.execute() 直接実行（useQueryWithHandler 不使用）。isPrevYear 手動制御',
+    category: 'structural',
+    removalCondition: 'useQueryWithHandler + pair handler への移行設計時に判断',
+  },
+  {
+    path: 'application/hooks/usePerformanceIndexPlan.ts',
+    reason: 'storeCategoryPIHandler 単一呼び出し（比較なし）。levelAggregation は pair 化済み',
+    category: 'structural',
+    removalCondition: '除去不要 — 比較なしの正当な base handler 使用',
   },
 ]

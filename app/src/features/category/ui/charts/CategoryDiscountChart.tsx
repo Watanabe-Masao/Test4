@@ -6,6 +6,9 @@
  *
  * ダブルクリックで下位レベルにドリルダウン（部門→ライン→クラス）。
  * 前年比較対応。
+ *
+ * @guard H5 visible-only query — collapsible 時、非表示で取得を抑制
+ * @guard H6 ChartCard は通知のみ — onVisibilityChange で visible 状態を受け取る
  */
 import { memo, useMemo, useState, useCallback } from 'react'
 import { useTheme } from 'styled-components'
@@ -93,6 +96,8 @@ export const CategoryDiscountChart = memo(function CategoryDiscountChart({
   const dtColors = useMemo(() => discountColors(theme), [theme])
   const [sortKey, setSortKey] = useState<SortKey>('discountTotal')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
+  // INV-RUN-05: collapsible 時の取得抑制（H5/H6）
+  const [visible, setVisible] = useState(true)
 
   const storeIds = useMemo(
     () => (selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined),
@@ -100,7 +105,9 @@ export const CategoryDiscountChart = memo(function CategoryDiscountChart({
   )
 
   // pair handler で当年+前年を並列取得
+  // INV-RUN-05: visible=false 時は input=null で取得を抑制
   const pairInput = useMemo<PairedInput<CategoryDiscountInput> | null>(() => {
+    if (!visible) return null
     const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
     const base: PairedInput<CategoryDiscountInput> = {
       dateFrom: fromKey,
@@ -114,7 +121,7 @@ export const CategoryDiscountChart = memo(function CategoryDiscountChart({
       return { ...base, comparisonDateFrom: pFrom, comparisonDateTo: pTo }
     }
     return base
-  }, [currentDateRange, prevYearScope, storeIds, drill.level, drill.parentFilter])
+  }, [visible, currentDateRange, prevYearScope, storeIds, drill.level, drill.parentFilter])
 
   const { data: pairOutput, isLoading } = useQueryWithHandler(
     queryExecutor,
@@ -388,6 +395,7 @@ export const CategoryDiscountChart = memo(function CategoryDiscountChart({
       title={title}
       subtitle="部門/ライン/クラス別の売変内訳（ダブルクリックでドリルダウン）"
       collapsible
+      onVisibilityChange={setVisible}
       toolbar={
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {drill.breadcrumbs.length > 0 && (

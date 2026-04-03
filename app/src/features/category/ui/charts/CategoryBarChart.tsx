@@ -11,6 +11,9 @@ import { chartFontSize } from '@/presentation/theme/tokens'
  * - 前年比較（前年位置マーカー + 前年比率表示）
  * - 金額/点数の指標切替
  * - TopN 表示件数切替
+ *
+ * @guard H5 visible-only query — collapsible 時、非表示で取得を抑制
+ * @guard H6 ChartCard は通知のみ — onVisibilityChange で visible 状態を受け取る
  */
 import { memo, useMemo, useState, useCallback } from 'react'
 import { useTheme } from 'styled-components'
@@ -105,6 +108,8 @@ export const CategoryBarChart = memo(function CategoryBarChart({
   const [drill, setDrill] = useState<DrillState>({ level: 'department', breadcrumbs: [] })
   const [metric, setMetric] = useState<TrendMetric>('amount')
   const [topN, setTopN] = useState('8')
+  // INV-RUN-05: collapsible 時の取得抑制（H5/H6）
+  const [visible, setVisible] = useState(true)
 
   const storeIds = useMemo(
     () => (selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined),
@@ -112,7 +117,9 @@ export const CategoryBarChart = memo(function CategoryBarChart({
   )
 
   // pair handler で当年+前年を並列取得
+  // INV-RUN-05: visible=false 時は input=null で取得を抑制
   const pairInput = useMemo<PairedInput<CategoryDailyTrendInput> | null>(() => {
+    if (!visible) return null
     const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
     const base: PairedInput<CategoryDailyTrendInput> = {
       dateFrom: fromKey,
@@ -128,7 +135,16 @@ export const CategoryBarChart = memo(function CategoryBarChart({
       return { ...base, comparisonDateFrom: pFrom, comparisonDateTo: pTo }
     }
     return base
-  }, [currentDateRange, prevYearScope, storeIds, drill.level, drill.deptCode, drill.lineCode, topN])
+  }, [
+    visible,
+    currentDateRange,
+    prevYearScope,
+    storeIds,
+    drill.level,
+    drill.deptCode,
+    drill.lineCode,
+    topN,
+  ])
 
   const { data: pairOutput, isLoading } = useQueryWithHandler(
     queryExecutor,
@@ -378,6 +394,7 @@ export const CategoryBarChart = memo(function CategoryBarChart({
       title={title}
       subtitle="期間内のカテゴリ別売上構成（ダブルクリックでドリルダウン）"
       collapsible
+      onVisibilityChange={setVisible}
       toolbar={toolbar}
     >
       {chart}
