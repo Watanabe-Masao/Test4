@@ -19,10 +19,9 @@ import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { AppTheme } from '@/presentation/theme/theme'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
-import {
-  categoryDailyTrendHandler,
-  type CategoryDailyTrendInput,
-} from '@/application/queries/cts/CategoryDailyTrendHandler'
+import { categoryDailyTrendPairHandler } from '@/application/queries/cts/CategoryDailyTrendPairHandler'
+import type { CategoryDailyTrendInput } from '@/application/queries/cts/CategoryDailyTrendHandler'
+import type { PairedInput } from '@/application/queries/createPairedHandler'
 import {
   buildCategoryTrendData,
   type TrendMetric,
@@ -112,10 +111,10 @@ export const CategoryBarChart = memo(function CategoryBarChart({
     [selectedStoreIds],
   )
 
-  // 当年クエリ
-  const input = useMemo<CategoryDailyTrendInput | null>(() => {
+  // pair handler で当年+前年を並列取得
+  const pairInput = useMemo<PairedInput<CategoryDailyTrendInput> | null>(() => {
     const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-    return {
+    const base: PairedInput<CategoryDailyTrendInput> = {
       dateFrom: fromKey,
       dateTo: toKey,
       storeIds,
@@ -124,35 +123,20 @@ export const CategoryBarChart = memo(function CategoryBarChart({
       deptCode: drill.deptCode,
       lineCode: drill.lineCode,
     }
-  }, [currentDateRange, storeIds, drill.level, drill.deptCode, drill.lineCode, topN])
-
-  const { data: output, isLoading } = useQueryWithHandler(
-    queryExecutor,
-    categoryDailyTrendHandler,
-    input,
-  )
-
-  // 前年クエリ
-  const prevInput = useMemo<CategoryDailyTrendInput | null>(() => {
-    if (!prevYearScope?.dateRange) return null
-    const { fromKey, toKey } = dateRangeToKeys(prevYearScope.dateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds,
-      level: drill.level,
-      topN: Number(topN),
-      deptCode: drill.deptCode,
-      lineCode: drill.lineCode,
-      isPrevYear: true,
+    if (prevYearScope?.dateRange) {
+      const { fromKey: pFrom, toKey: pTo } = dateRangeToKeys(prevYearScope.dateRange)
+      return { ...base, comparisonDateFrom: pFrom, comparisonDateTo: pTo }
     }
-  }, [prevYearScope, storeIds, drill.level, drill.deptCode, drill.lineCode, topN])
+    return base
+  }, [currentDateRange, prevYearScope, storeIds, drill.level, drill.deptCode, drill.lineCode, topN])
 
-  const { data: prevOutput } = useQueryWithHandler(
+  const { data: pairOutput, isLoading } = useQueryWithHandler(
     queryExecutor,
-    categoryDailyTrendHandler,
-    prevInput,
+    categoryDailyTrendPairHandler,
+    pairInput,
   )
+  const output = pairOutput?.current ?? null
+  const prevOutput = pairOutput?.comparison ?? null
 
   // 日次データを期間合算してカテゴリ別合計に変換
   const { categories, prevByCode } = useMemo(() => {

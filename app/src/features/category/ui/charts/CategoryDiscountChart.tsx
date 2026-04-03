@@ -14,10 +14,9 @@ import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { AppTheme } from '@/presentation/theme/theme'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
-import {
-  categoryDiscountHandler,
-  type CategoryDiscountInput,
-} from '@/application/queries/cts/CategoryDiscountHandler'
+import { categoryDiscountPairHandler } from '@/application/queries/cts/CategoryDiscountPairHandler'
+import type { CategoryDiscountInput } from '@/application/queries/cts/CategoryDiscountHandler'
+import type { PairedInput } from '@/application/queries/createPairedHandler'
 import { DISCOUNT_TYPES } from '@/domain/models/record'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { SegmentedControl } from '@/presentation/components/common/layout'
@@ -100,43 +99,30 @@ export const CategoryDiscountChart = memo(function CategoryDiscountChart({
     [selectedStoreIds],
   )
 
-  // 当年クエリ
-  const input = useMemo<CategoryDiscountInput | null>(() => {
+  // pair handler で当年+前年を並列取得
+  const pairInput = useMemo<PairedInput<CategoryDiscountInput> | null>(() => {
     const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-    return {
+    const base: PairedInput<CategoryDiscountInput> = {
       dateFrom: fromKey,
       dateTo: toKey,
       storeIds,
       level: drill.level,
       parentFilter: drill.parentFilter,
     }
-  }, [currentDateRange, storeIds, drill.level, drill.parentFilter])
-
-  const { data: output, isLoading } = useQueryWithHandler(
-    queryExecutor,
-    categoryDiscountHandler,
-    input,
-  )
-
-  // 前年クエリ
-  const prevInput = useMemo<CategoryDiscountInput | null>(() => {
-    if (!prevYearScope?.dateRange) return null
-    const { fromKey, toKey } = dateRangeToKeys(prevYearScope.dateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds,
-      level: drill.level,
-      isPrevYear: true,
-      parentFilter: drill.parentFilter,
+    if (prevYearScope?.dateRange) {
+      const { fromKey: pFrom, toKey: pTo } = dateRangeToKeys(prevYearScope.dateRange)
+      return { ...base, comparisonDateFrom: pFrom, comparisonDateTo: pTo }
     }
-  }, [prevYearScope, storeIds, drill.level, drill.parentFilter])
+    return base
+  }, [currentDateRange, prevYearScope, storeIds, drill.level, drill.parentFilter])
 
-  const { data: prevOutput } = useQueryWithHandler(
+  const { data: pairOutput, isLoading } = useQueryWithHandler(
     queryExecutor,
-    categoryDiscountHandler,
-    prevInput,
+    categoryDiscountPairHandler,
+    pairInput,
   )
+  const output = pairOutput?.current ?? null
+  const prevOutput = pairOutput?.comparison ?? null
 
   // 前年データを code → row で索引
   const prevByCode = useMemo(() => {

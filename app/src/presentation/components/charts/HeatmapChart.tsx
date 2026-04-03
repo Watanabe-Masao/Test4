@@ -17,10 +17,9 @@ import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { dateRangeToKeys } from '@/domain/models/calendar'
 import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
-import {
-  hourDowMatrixHandler,
-  type HourDowMatrixInput,
-} from '@/application/queries/cts/HourDowMatrixHandler'
+import { hourDowMatrixPairHandler } from '@/application/queries/cts/HourDowMatrixPairHandler'
+import type { HourDowMatrixInput } from '@/application/queries/cts/HourDowMatrixHandler'
+import type { PairedInput } from '@/application/queries/createPairedHandler'
 import {
   levelAggregationHandler,
   type LevelAggregationInput,
@@ -83,10 +82,10 @@ export const HeatmapChart = memo(function HeatmapChart({
 
   const prevYearRange = prevYearScope?.dateRange
 
-  // 当年 時間帯×曜日マトリクス
-  const matrixInput = useMemo<HourDowMatrixInput | null>(() => {
+  // pair handler で当年+前年の時間帯×曜日マトリクスを並列取得
+  const matrixPairInput = useMemo<PairedInput<HourDowMatrixInput> | null>(() => {
     const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-    return {
+    const base: PairedInput<HourDowMatrixInput> = {
       dateFrom: fromKey,
       dateTo: toKey,
       storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
@@ -94,36 +93,20 @@ export const HeatmapChart = memo(function HeatmapChart({
       lineCode: lineCode || undefined,
       klassCode: klassCode || undefined,
     }
-  }, [currentDateRange, selectedStoreIds, deptCode, lineCode, klassCode])
+    if (prevYearRange) {
+      const { fromKey: pFrom, toKey: pTo } = dateRangeToKeys(prevYearRange)
+      return { ...base, comparisonDateFrom: pFrom, comparisonDateTo: pTo }
+    }
+    return base
+  }, [currentDateRange, prevYearRange, selectedStoreIds, deptCode, lineCode, klassCode])
 
   const {
-    data: matrixOutput,
+    data: matrixPairOutput,
     isLoading,
     error,
-  } = useQueryWithHandler(queryExecutor, hourDowMatrixHandler, matrixInput)
-  const matrixRows = matrixOutput?.records ?? null
-
-  // 前年 時間帯×曜日マトリクス（前年比モード用）
-  const prevMatrixInput = useMemo<HourDowMatrixInput | null>(() => {
-    if (!prevYearRange) return null
-    const { fromKey, toKey } = dateRangeToKeys(prevYearRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
-      deptCode: deptCode || undefined,
-      lineCode: lineCode || undefined,
-      klassCode: klassCode || undefined,
-      isPrevYear: true,
-    }
-  }, [prevYearRange, selectedStoreIds, deptCode, lineCode, klassCode])
-
-  const { data: prevMatrixOutput } = useQueryWithHandler(
-    queryExecutor,
-    hourDowMatrixHandler,
-    prevMatrixInput,
-  )
-  const prevMatrixRows = prevMatrixOutput?.records ?? null
+  } = useQueryWithHandler(queryExecutor, hourDowMatrixPairHandler, matrixPairInput)
+  const matrixRows = matrixPairOutput?.current?.records ?? null
+  const prevMatrixRows = matrixPairOutput?.comparison?.records ?? null
 
   // 階層ドロップダウン
   const deptInput = useMemo<LevelAggregationInput | null>(() => {
