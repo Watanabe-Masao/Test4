@@ -222,6 +222,38 @@ describe('INV-RUN-02: pair handler count ラチェット', () => {
   })
 })
 
+// ── INV-RUN-04: Screen Plan Hook Count Ratchet ──
+
+describe('INV-RUN-04: Screen Plan hook count ラチェット', () => {
+  const plansDir = path.join(SRC_DIR, 'application/hooks/plans')
+  const hooksDir = path.join(SRC_DIR, 'application/hooks')
+
+  it('Screen Plan hook が減少していないこと', () => {
+    // plans/ ディレクトリ内の plan hook
+    const planFiles = fs.existsSync(plansDir)
+      ? collectTsFiles(plansDir).filter((f) => !f.endsWith('.test.ts') && f.includes('Plan'))
+      : []
+
+    // application/hooks/ 直下の plan hook（useCategoryBenchmarkPlan 等）
+    const directPlanFiles = collectTsFiles(hooksDir)
+      .filter((f) => !f.endsWith('.test.ts') && !f.includes('/plans/') && !f.includes('/duckdb/'))
+      .filter((f) => path.basename(f).includes('Plan'))
+
+    const totalPlanHooks = planFiles.length + directPlanFiles.length
+
+    console.log(
+      `[INV-RUN-04] Screen Plan hooks: ${totalPlanHooks} (plans/: ${planFiles.length}, direct: ${directPlanFiles.length})`,
+    )
+
+    // Gate 3 rollout: 19 plan hooks（plans/ 16 + direct 3）
+    // useIntegratedSalesPlan は presentation 層のためカウント外（plan-bridge）
+    expect(
+      totalPlanHooks,
+      `Screen Plan hook が減少しています。plan hook を削除しないでください。`,
+    ).toBeGreaterThanOrEqual(19)
+  })
+})
+
 // ── Gate 4: Base Handler Import Guard ──
 
 describe('INV-RUN-02: pair 化済み handler の base import 追跡', () => {

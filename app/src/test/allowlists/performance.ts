@@ -160,41 +160,17 @@ export const pairExceptionDesign: readonly AllowlistEntry[] = [
  * pair handler への移行は不要（比較意味論がない）。
  */
 export const pairJustifiedSingle: readonly AllowlistEntry[] = [
-  {
-    path: 'presentation/components/charts/CumulativeChart.tsx',
-    reason: 'dailyCumulativeHandler 単一呼び出し（比較なし）',
-    category: 'justified',
-    removalCondition: '除去不要 — 比較なしの正当な base handler 使用',
-  },
+  // ── 以下5件は plan hook 経由に移行済みのため除去 ──
+  // CumulativeChart.tsx → useCumulativeChartPlan 経由
+  // WeatherAnalysisPanel.tsx → useWeatherAnalysisPlan 経由
+  // useDeptHourlyChartData.ts → useDeptHourlyChartPlan 経由
+  // CategoryHourlyChart.tsx → useCategoryHourlyChartPlan 経由
+  // CategoryMixChart.tsx → useCategoryMixChartPlan 経由
   {
     path: 'application/hooks/useHeatmapPlan.ts',
     reason: 'levelAggregationHandler × 3 ドロップダウン用（比較なし）。plan hook が一元管理',
     category: 'justified',
     removalCondition: '除去不要 — ドロップダウン候補取得は pair 不要',
-  },
-  {
-    path: 'presentation/components/charts/WeatherAnalysisPanel.tsx',
-    reason: 'storeDaySummaryHandler 単一呼び出し（比較なし）',
-    category: 'justified',
-    removalCondition: '除去不要 — 比較なしの正当な base handler 使用',
-  },
-  {
-    path: 'presentation/components/charts/useDeptHourlyChartData.ts',
-    reason: 'categoryHourlyHandler 単一呼び出し（比較なし）。hourlyAgg は pair 化済み',
-    category: 'justified',
-    removalCondition: '除去不要 — 比較なしの正当な base handler 使用',
-  },
-  {
-    path: 'features/category/ui/charts/CategoryHourlyChart.tsx',
-    reason: 'categoryHourlyHandler 単一呼び出し（比較なし）',
-    category: 'justified',
-    removalCondition: '除去不要 — 比較なしの正当な base handler 使用',
-  },
-  {
-    path: 'features/category/ui/charts/CategoryMixChart.tsx',
-    reason: 'categoryMixWeeklyHandler 単一呼び出し（比較なし）',
-    category: 'justified',
-    removalCondition: '除去不要 — 比較なしの正当な base handler 使用',
   },
   {
     path: 'application/hooks/usePerformanceIndexPlan.ts',
@@ -214,7 +190,7 @@ export const nonPairableConsumers: readonly AllowlistEntry[] = [
 ]
 
 // ════════════════════════════════════════════════════════════════════
-// §3. presentation direct query 台帳（全22ファイル）
+// §3. presentation direct query 台帳（残存分）
 // ════════════════════════════════════════════════════════════════════
 
 /**
