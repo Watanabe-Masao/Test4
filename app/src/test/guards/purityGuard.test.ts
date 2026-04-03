@@ -650,7 +650,7 @@ describe('Platform 境界ガード', () => {
     const violations: string[] = []
 
     for (const file of files) {
-      const imports = extractImports(fs.readFileSync(file, 'utf-8'))
+      const imports = extractImports(file)
       for (const imp of imports) {
         if (imp.includes('features/') || imp.includes('@/features/')) {
           violations.push(`${rel(file)}: import '${imp}' — platform → features 逆依存`)
@@ -676,7 +676,7 @@ describe('Platform 境界ガード', () => {
     // Port 経由の import は許可（domain/ports/ から型を取得）
     // platform/ の直接 import は禁止
     for (const file of files) {
-      const imports = extractImports(fs.readFileSync(file, 'utf-8'))
+      const imports = extractImports(file)
       for (const imp of imports) {
         if (imp.includes('platform/') || imp.includes('@/platform/')) {
           violations.push(
