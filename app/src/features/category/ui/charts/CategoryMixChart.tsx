@@ -4,7 +4,7 @@
  * パイプライン:
  *   QueryHandler → CategoryMixChartLogic.ts → ECharts option → EChart
  *
- * @migration P5: useQueryWithHandler 経由に移行済み（旧: useDuckDBCategoryMixWeekly 直接 import）
+ * @migration P5: plan hook 経由に移行済み（旧: useDuckDBCategoryMixWeekly 直接 import）
  */
 import { useMemo, useState, useCallback, memo } from 'react'
 import { useTheme } from 'styled-components'
@@ -12,11 +12,10 @@ import type { DateRange } from '@/domain/models/calendar'
 import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { AppTheme } from '@/presentation/theme/theme'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
-import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
 import {
-  categoryMixWeeklyHandler,
+  useCategoryMixChartPlan,
   type CategoryMixWeeklyInput,
-} from '@/application/queries/advanced/CategoryMixWeeklyHandler'
+} from '@/application/hooks/plans/useCategoryMixChartPlan'
 import {
   buildMixChartData,
   type CategoryMeta,
@@ -110,11 +109,7 @@ export const CategoryMixChart = memo(function CategoryMixChart({
     }
   }, [currentDateRange, selectedStoreIds, level])
 
-  const {
-    data: output,
-    error,
-    isLoading,
-  } = useQueryWithHandler(queryExecutor, categoryMixWeeklyHandler, input)
+  const { data: output, error, isLoading } = useCategoryMixChartPlan(queryExecutor, input)
 
   const mixRows = output?.records ?? null
 

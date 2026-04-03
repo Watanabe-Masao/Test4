@@ -4,7 +4,7 @@
  * パイプライン:
  *   QueryHandler → FeatureChartLogic.ts → ECharts option → EChart
  *
- * @migration P5: useQueryWithHandler 経由に移行済み（旧: useDuckDBDailyFeatures 直接 import）
+ * @migration P5: plan hook 経由に移行済み（旧: useDuckDBDailyFeatures 直接 import）
  */
 import { useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'
@@ -12,11 +12,10 @@ import type { DateRange } from '@/domain/models/calendar'
 import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { AppTheme } from '@/presentation/theme/theme'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
-import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
 import {
-  dailyFeaturesHandler,
+  useFeatureChartPlan,
   type DailyFeaturesInput,
-} from '@/application/queries/features/DailyFeaturesHandler'
+} from '@/application/hooks/plans/useFeatureChartPlan'
 import {
   buildFeatureChartData,
   Z_SCORE_THRESHOLD,
@@ -130,11 +129,7 @@ export const FeatureChart = memo(function FeatureChart({
     }
   }, [currentDateRange, selectedStoreIds])
 
-  const {
-    data: output,
-    isLoading,
-    error,
-  } = useQueryWithHandler(queryExecutor, dailyFeaturesHandler, input)
+  const { data: output, isLoading, error } = useFeatureChartPlan(queryExecutor, input)
 
   const features = output?.records ?? null
 

@@ -8,17 +8,18 @@
  * スライダーで分析期間を変更可能。
  */
 /**
- * @migration P5: useQueryWithHandler 経由に移行済み（旧: useDuckDBConditionMatrix 直接 import）
+ * @migration P5: plan hook 経由に移行済み（旧: useDuckDBConditionMatrix 直接 import）
  */
 import { useMemo, memo } from 'react'
 import { palette } from '@/presentation/theme/tokens'
 import { formatPercent } from '@/domain/formatting'
 import { dateRangeDays } from '@/domain/models/calendar'
 import type { DateRange } from '@/domain/models/calendar'
-import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
 import {
-  conditionMatrixHandler,
+  useConditionMatrixPlan,
   type ConditionMatrixInput,
+} from '@/application/hooks/plans/useConditionMatrixPlan'
+import {
   buildConditionMatrix,
   type MatrixCell,
   type MatrixRowData,
@@ -140,11 +141,7 @@ export const ConditionMatrixTable = memo(function ConditionMatrixTable({
     [effectiveRange, selectedStoreIds],
   )
 
-  const {
-    data: output,
-    isLoading,
-    error,
-  } = useQueryWithHandler(queryExecutor, conditionMatrixHandler, conditionInput)
+  const { data: output, isLoading, error } = useConditionMatrixPlan(queryExecutor, conditionInput)
   const rawRows = output?.records ?? null
 
   // マトリクス構築

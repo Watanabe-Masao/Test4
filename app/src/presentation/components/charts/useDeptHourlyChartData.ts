@@ -11,14 +11,12 @@ import { HOUR_MIN, HOUR_MAX } from './HeatmapChart.helpers'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
-import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
 import {
-  categoryHourlyHandler,
+  useDeptHourlyChartPlan,
   type CategoryHourlyInput,
-} from '@/application/queries/cts/CategoryHourlyHandler'
-import { hourlyAggregationPairHandler } from '@/application/queries/cts/HourlyAggregationPairHandler'
-import type { HourlyAggregationInput } from '@/application/queries/cts/HourlyAggregationHandler'
-import type { PairedInput } from '@/application/queries/createPairedHandler'
+  type HourlyAggregationInput,
+  type PairedInput,
+} from '@/application/hooks/plans/useDeptHourlyChartPlan'
 import { useCurrencyFormatter } from './chartTheme'
 import {
   buildDeptHourlyData,
@@ -78,14 +76,6 @@ export function useDeptHourlyChartData(params: UseDeptHourlyChartDataParams) {
     }
   }, [currentDateRange, selectedStoreIds, drill.level, drill.deptCode, drill.lineCode])
 
-  const {
-    data: output,
-    error,
-    isLoading,
-  } = useQueryWithHandler(queryExecutor, categoryHourlyHandler, input)
-
-  const categoryHourlyRows = output?.records ?? null
-
   // ── 時間帯別点数データ（第2軸: quantity モード用 — pair handler） ──
   const storeIds = useMemo(
     () => (selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined),
@@ -107,11 +97,10 @@ export function useDeptHourlyChartData(params: UseDeptHourlyChartDataParams) {
     return base
   }, [currentDateRange, prevDateRange, storeIds, rightMode])
 
-  const { data: qtyPairOut } = useQueryWithHandler(
-    queryExecutor,
-    hourlyAggregationPairHandler,
-    qtyPairInput,
-  )
+  const { hourlyResult, qtyPairResult } = useDeptHourlyChartPlan(queryExecutor, input, qtyPairInput)
+  const { data: hourlyOutput, error, isLoading } = hourlyResult
+  const { data: qtyPairOut } = qtyPairResult
+  const categoryHourlyRows = hourlyOutput?.records ?? null
   const curQtyOut = qtyPairOut?.current ?? null
   const prevQtyOut = qtyPairOut?.comparison ?? null
 

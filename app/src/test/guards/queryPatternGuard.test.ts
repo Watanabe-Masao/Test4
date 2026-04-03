@@ -104,14 +104,13 @@ describe('INV-RUN-03: presentation 層の useQueryWithHandler 直接呼び出し
     // この数値は Gate 4 で 0 にすることが目標。
     console.log(`[INV-RUN-03] presentation direct query files: ${filesWithDirectQuery.length}`)
 
-    // 増加を防ぐために上限を設定。Gate 2: 30→27、Gate 3: HeatmapChart plan 化で 27→26。
-    // Gate 4: CategoryBenchmark/BoxPlot plan 化で 26→24、CvTimeSeries/PiCvBubble plan 化で 24→22。
+    // Gate 3 rollout: 22→3。残り3件は設計対応が必要（exception-design + plan-bridge）。
     expect(
       filesWithDirectQuery.length,
       `presentation 層の直接 query 呼び出しが増加しています。\n` +
         `Screen Plan hook 経由に移行してください。\n` +
         `対象:\n${filesWithDirectQuery.join('\n')}`,
-    ).toBeLessThanOrEqual(22)
+    ).toBeLessThanOrEqual(3)
   })
 })
 
@@ -257,6 +256,8 @@ describe('INV-RUN-02: pair 化済み handler の base import 追跡', () => {
       .filter((d) => fs.existsSync(d))
       .flatMap((d) => collectTsFiles(d))
       .filter((f) => !f.endsWith('.test.ts') && !f.endsWith('.test.tsx'))
+      // plan hooks は base handler の正規アクセスポイントのため除外
+      .filter((f) => !f.includes('/hooks/plans/'))
 
     const nonPairablePaths = new Set(nonPairableConsumers.map((e) => e.path))
 

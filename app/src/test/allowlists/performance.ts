@@ -218,66 +218,22 @@ export const nonPairableConsumers: readonly AllowlistEntry[] = [
 // ════════════════════════════════════════════════════════════════════
 
 /**
- * INV-RUN-03 の対象となる全22ファイルの分類台帳。
+ * INV-RUN-03 の対象となるファイルの分類台帳。
+ *
+ * Gate 3 rollout により 22件 → 3件に削減。
+ * 残り3件は全て設計対応が必要な項目。
  *
  * 分類:
- * - debt: plan hook 化で除去すべき（useQueryWithHandler を application 層に移動）
  * - exception-design: 複雑パターンのため専用設計が必要
  * - plan-bridge: 既に plan hook だが presentation 層に配置。application 層に移動すべき
- * - comment-only: コード使用なし（コメント/JSDoc 内の言及のみ）
- *
- * クラスター:
- * - category: カテゴリ分析系（高ROI、階層・比較の再利用多）
- * - time-slot: 時間帯・曜日分析系
- * - standalone: 単発チャート系（低影響、最後に対応）
- * - dashboard: ダッシュボード widget 系
- * - infra: 型定義・基盤コンポーネント
  */
 export const presentationDirectQueryAudit: readonly DirectQueryAuditEntry[] = [
-  // ── category cluster（優先度1: 高ROI）──
-  {
-    path: 'presentation/components/charts/useCategoryHierarchyData.ts',
-    cluster: 'category',
-    classification: 'debt',
-    reason: 'levelAggregationPairHandler + categoryHourlyPairHandler 2本。plan hook に集約可能',
-  },
   {
     path: 'presentation/components/charts/useCategoryTrendChartData.ts',
     cluster: 'category',
     classification: 'exception-design',
     reason: 'categoryDailyTrendHandler × 2（cur/prev topN 非対称）。専用 pair handler が先に必要',
   },
-  {
-    path: 'presentation/components/charts/useDeptHourlyChartData.ts',
-    cluster: 'category',
-    classification: 'debt',
-    reason: 'categoryHourlyHandler 単一呼び出し。plan hook に移動可能',
-  },
-  {
-    path: 'features/category/ui/charts/CategoryDiscountChart.tsx',
-    cluster: 'category',
-    classification: 'debt',
-    reason: 'categoryDiscountPairHandler 単一呼び出し + visibility guard。plan hook に移動可能',
-  },
-  {
-    path: 'features/category/ui/charts/CategoryBarChart.tsx',
-    cluster: 'category',
-    classification: 'debt',
-    reason: 'categoryDailyTrendPairHandler 単一呼び出し + visibility guard。plan hook に移動可能',
-  },
-  {
-    path: 'features/category/ui/charts/CategoryHourlyChart.tsx',
-    cluster: 'category',
-    classification: 'debt',
-    reason: 'categoryHourlyHandler 単一呼び出し。plan hook に移動可能',
-  },
-  {
-    path: 'features/category/ui/charts/CategoryMixChart.tsx',
-    cluster: 'category',
-    classification: 'debt',
-    reason: 'categoryMixWeeklyHandler 単一呼び出し。plan hook に移動可能',
-  },
-  // ── dashboard cluster（優先度2）──
   {
     path: 'presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx',
     cluster: 'dashboard',
@@ -286,92 +242,10 @@ export const presentationDirectQueryAudit: readonly DirectQueryAuditEntry[] = [
       'categoryTimeRecordsHandler × 3（cur + prev + fallback）。isPrevYear fallback パターンの専用設計が必要',
   },
   {
-    path: 'presentation/pages/Dashboard/widgets/ConditionMatrixTable.tsx',
-    cluster: 'dashboard',
-    classification: 'debt',
-    reason: 'conditionMatrixHandler 単一呼び出し。plan hook に移動可能',
-  },
-  {
-    path: 'presentation/pages/Dashboard/widgets/ConditionSummaryBudgetDrill.tsx',
-    cluster: 'dashboard',
-    classification: 'debt',
-    reason: 'storeDailyMarkupRateHandler 条件付き呼び出し（activeMetric=markupRate 時のみ）',
-  },
-  {
-    path: 'presentation/components/charts/FactorDecompositionPanel.tsx',
-    cluster: 'dashboard',
-    classification: 'debt',
-    reason: 'storeDaySummaryPairHandler 条件付き呼び出し（rightAxisMode 時のみ）',
-  },
-  // ── standalone cluster（優先度3: 低影響）──
-  {
-    path: 'presentation/components/charts/CumulativeChart.tsx',
-    cluster: 'standalone',
-    classification: 'debt',
-    reason: 'dailyCumulativeHandler 単一呼び出し。plan hook に移動可能',
-  },
-  {
-    path: 'presentation/components/charts/DowPatternChart.tsx',
-    cluster: 'standalone',
-    classification: 'debt',
-    reason: 'dowPatternHandler 単一呼び出し。plan hook に移動可能',
-  },
-  {
-    path: 'presentation/components/charts/DeptTrendChart.tsx',
-    cluster: 'standalone',
-    classification: 'debt',
-    reason: 'deptKpiTrendHandler 単一呼び出し。plan hook に移動可能',
-  },
-  {
-    path: 'presentation/components/charts/StoreHourlyChart.tsx',
-    cluster: 'standalone',
-    classification: 'debt',
-    reason: 'storeAggregationHandler 単一呼び出し。plan hook に移動可能',
-  },
-  {
-    path: 'presentation/components/charts/WeatherAnalysisPanel.tsx',
-    cluster: 'standalone',
-    classification: 'debt',
-    reason: 'storeDaySummaryHandler 単一呼び出し。plan hook に移動可能',
-  },
-  {
-    path: 'presentation/components/charts/FeatureChart.tsx',
-    cluster: 'standalone',
-    classification: 'debt',
-    reason: 'dailyFeaturesHandler 単一呼び出し。plan hook に移動可能',
-  },
-  {
-    path: 'presentation/components/charts/YoYChart.tsx',
-    cluster: 'standalone',
-    classification: 'debt',
-    reason: 'yoyDailyHandler 単一呼び出し（handler 自体が比較内蔵）。plan hook に移動可能',
-  },
-  // ── time-slot cluster ──
-  // 注: useTimeSlotData, useDayDetailData は application 層のため INV-RUN-03 対象外
-  // ── plan-bridge（plan hook だが presentation 層に配置）──
-  {
     path: 'presentation/components/charts/useIntegratedSalesPlan.ts',
     cluster: 'standalone',
     classification: 'plan-bridge',
-    reason: '既に Screen Plan hook だが presentation/ に配置。application/hooks/ に移動すべき',
-  },
-  // ── infra（コメント言及のみ、コード使用なし）──
-  {
-    path: 'presentation/components/widgets/PageWidgetContainer.tsx',
-    cluster: 'infra',
-    classification: 'comment-only',
-    reason: 'JSDoc コメント内の言及のみ。useQueryWithHandler の import/呼び出しなし',
-  },
-  {
-    path: 'presentation/components/widgets/types.ts',
-    cluster: 'infra',
-    classification: 'comment-only',
-    reason: 'JSDoc コメント内の言及のみ。useQueryWithHandler の import/呼び出しなし',
-  },
-  {
-    path: 'features/category/ui/charts/CategoryHierarchyExplorer.tsx',
-    cluster: 'category',
-    classification: 'comment-only',
-    reason: 'migration コメント内の言及のみ。クエリは useCategoryHierarchyData に委譲',
+    reason:
+      '既に Screen Plan hook だが presentation/ に配置。application/hooks/ への移動に層境界依存の解消が先に必要',
   },
 ]

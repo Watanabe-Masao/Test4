@@ -4,17 +4,16 @@
  * パイプライン:
  *   QueryHandler → DeptTrendChartLogic.ts → ECharts option → EChart
  *
- * @migration P5: useQueryWithHandler 経由に移行済み（旧: useDuckDBDeptKpiTrend 直接 import）
+ * @migration P5: plan hook 経由に移行済み（旧: useDuckDBDeptKpiTrend 直接 import）
  */
 import { useMemo, useState, memo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
-import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
 import {
-  deptKpiTrendHandler,
+  useDeptTrendChartPlan,
   type DeptKpiTrendInput,
-} from '@/application/queries/dept/DeptKpiTrendHandler'
+} from '@/application/hooks/plans/useDeptTrendChartPlan'
 import { buildDeptTrendData, type DeptTrendChartPoint } from './DeptTrendChartLogic'
 import { useI18n } from '@/application/hooks/useI18n'
 import { ChartCard } from './ChartCard'
@@ -133,11 +132,7 @@ export const DeptTrendChart = memo(function DeptTrendChart({
 
   const input = useMemo<DeptKpiTrendInput | null>(() => ({ yearMonths }), [yearMonths])
 
-  const {
-    data: output,
-    isLoading,
-    error,
-  } = useQueryWithHandler(queryExecutor, deptKpiTrendHandler, input)
+  const { data: output, isLoading, error } = useDeptTrendChartPlan(queryExecutor, input)
 
   const trendData = output?.records ?? null
 
