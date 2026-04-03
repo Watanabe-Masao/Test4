@@ -11,20 +11,18 @@ import {
 } from '@/infrastructure/duckdb/queries/aggregates/dailyAggregation'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 
-export interface DailyQuantityInput extends BaseQueryInput {
-  readonly isPrevYear?: boolean
-}
+export type DailyQuantityInput = BaseQueryInput
 
 export interface DailyQuantityOutput {
   readonly records: readonly DailyQuantityRow[]
 }
 
-export const dailyQuantityHandler: QueryHandler<DailyQuantityInput, DailyQuantityOutput> = {
+/** Internal: isPrevYear is injected at runtime */
+type ExecuteInput = DailyQuantityInput & { readonly isPrevYear?: boolean }
+
+export const dailyQuantityHandler: QueryHandler<ExecuteInput, DailyQuantityOutput> = {
   name: 'DailyQuantity',
-  async execute(
-    conn: AsyncDuckDBConnection,
-    input: DailyQuantityInput,
-  ): Promise<DailyQuantityOutput> {
+  async execute(conn: AsyncDuckDBConnection, input: ExecuteInput): Promise<DailyQuantityOutput> {
     const records = await queryDailyQuantity(conn, input)
     return { records }
   },

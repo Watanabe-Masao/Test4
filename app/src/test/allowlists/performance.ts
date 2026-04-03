@@ -45,32 +45,32 @@ export const isPrevYearHandlers: readonly AllowlistEntry[] = [
   {
     path: 'application/queries/summary/StoreDaySummaryHandler.ts',
     reason:
-      'pair 化+利用側移行済み（FactorDecompositionPanel）。useDayDetailData は fallback パターンのため不適合',
-    category: 'migration',
-    removalCondition: 'useDayDetailData の専用 handler 設計時に判断',
+      'dayDetailDataLogic が isPrevYear を直接渡す。pair 化済みだが fallback パターンで除去不可',
+    category: 'structural',
+    removalCondition:
+      '除去不要 — dayDetailDataLogic の fallback パターンが isPrevYear を必要とする',
   },
   {
     path: 'application/queries/cts/HourlyAggregationHandler.ts',
-    reason:
-      'pair 化+利用側移行済み（useDeptHourlyChartData）。useTimeSlotData は WoW 比較で isPrevYear=false のため不適合',
-    category: 'migration',
-    removalCondition: 'useTimeSlotData の WoW 比較対応設計時に判断',
+    reason: 'useTimeSlotData が WoW 比較で isPrevYear=false を直接渡す。pair 化済みだが除去不可',
+    category: 'structural',
+    removalCondition: '除去不要 — WoW 比較の isPrevYear=false は pair handler の意味論と異なる',
   },
-  // ── pair handler 導入済み（利用側に単一呼び出しのみ — pair 化不要） ──
+  // ── pair handler 導入済み（isPrevYear 型除去済み） ──
   // DailyCumulativeHandler — isPrevYear 型除去済み
   // AggregatedRatesHandler — isPrevYear 型除去済み
   {
     path: 'application/queries/cts/DistinctDayCountHandler.ts',
-    reason: 'pair 化済み。useTimeSlotData は WoW 比較で isPrevYear=false のため不適合',
-    category: 'migration',
-    removalCondition: 'useTimeSlotData の WoW 比較対応設計時に判断',
+    reason: 'useTimeSlotData が WoW 比較で isPrevYear=false を直接渡す。pair 化済みだが除去不可',
+    category: 'structural',
+    removalCondition: '除去不要 — WoW 比較の isPrevYear=false は pair handler の意味論と異なる',
   },
   // CategoryMixWeeklyHandler — isPrevYear 型除去済み
   // ── pair handler 導入済み（利用側が複雑パターン） ──
   {
     path: 'application/queries/cts/CategoryTimeRecordsHandler.ts',
-    reason: 'pair 化済み。YoYWaterfallChart/useDayDetailData は fallback パターンのため不適合',
-    category: 'migration',
+    reason: 'YoYWaterfallChart/useClipExport/dayDetailDataLogic が isPrevYear を直接渡す。除去不可',
+    category: 'structural',
     removalCondition: 'fallback パターンの専用 handler 設計時に判断',
   },
   // ── 構造的に pair handler に変換不可 ──
@@ -100,9 +100,9 @@ export const isPrevYearHandlers: readonly AllowlistEntry[] = [
   },
   {
     path: 'application/queries/summary/DailyQuantityHandler.ts',
-    reason: 'DailyQuantityPairHandler に置換済みだが isPrevYear が型に残る',
-    category: 'migration',
-    removalCondition: 'DailyQuantityPairHandler への完全移行',
+    reason: 'isPrevYear は公開 Input 型から除去済み。ExecuteInput 内部型で互換性を維持',
+    category: 'structural',
+    removalCondition: '除去不要 — ExecuteInput は handler 内部実装',
   },
 ]
 
