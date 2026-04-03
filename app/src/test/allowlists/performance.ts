@@ -124,12 +124,7 @@ export const isPrevYearHandlers: readonly AllowlistEntry[] = [
  */
 export const pairExceptionDesign: readonly AllowlistEntry[] = [
   // useCategoryTrendChartData.ts: useCategoryTrendPlan 経由に移行済み（非対称比較 plan）
-  {
-    path: 'presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx',
-    reason: '3本のクエリ + isPrevYear fallback パターン',
-    category: 'debt',
-    removalCondition: 'fallback 統合型の専用 handler 設計時に移行',
-  },
+  // YoYWaterfallChart.tsx: useYoYWaterfallPlan 経由に移行済み（fallback-aware plan）
   {
     path: 'application/hooks/useTimeSlotData.ts',
     reason: 'hourlyAgg/distinctDayCount: WoW 比較で isPrevYear=false。categoryHourly は移行済み',
@@ -191,22 +186,12 @@ export const nonPairableConsumers: readonly AllowlistEntry[] = [
 /**
  * INV-RUN-03 の対象となるファイルの分類台帳。
  *
- * Gate 3 rollout により 22件 → 3件に削減。bridge 解消 + 非対称比較 plan で 3件 → 1件。
- * 残り1件は設計対応が必要な項目（exception-design）。
+ * Gate 3 rollout: 22件 → 0件。全 presentation direct query を Screen Plan hook に移行完了。
  *
- * 分類:
- * - exception-design: 複雑パターンのため専用設計が必要
- *
- * 解消済み:
- * - useIntegratedSalesPlan.ts: application/hooks/plans/ に移動済み（plan-bridge 解消）
- * - useCategoryTrendChartData.ts: useCategoryTrendPlan 経由に移行済み（非対称比較 plan）
+ * 解消履歴:
+ * - 22→3: Gate 3 rollout (16 plan hooks + comment fixes)
+ * - 3→2: useIntegratedSalesPlan bridge 解消 (application/hooks/plans/ に移動)
+ * - 2→1: useCategoryTrendPlan (非対称比較 plan)
+ * - 1→0: useYoYWaterfallPlan (fallback-aware comparison plan)
  */
-export const presentationDirectQueryAudit: readonly DirectQueryAuditEntry[] = [
-  {
-    path: 'presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx',
-    cluster: 'dashboard',
-    classification: 'exception-design',
-    reason:
-      'categoryTimeRecordsHandler × 3（cur + prev + fallback）。isPrevYear fallback パターンの専用設計が必要',
-  },
-]
+export const presentationDirectQueryAudit: readonly DirectQueryAuditEntry[] = []
