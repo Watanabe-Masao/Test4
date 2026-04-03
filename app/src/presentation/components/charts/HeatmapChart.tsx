@@ -5,25 +5,14 @@
  * 売上日平均をヒートマップで表示する。セル色は売上額に比例し、
  * Z-score が 2 を超えるセルには赤枠の異常マーカーを付与する。
  *
- * 表示項目:
- * - 時間帯×曜日の売上日平均ヒートマップ
- * - Z-score 異常検出マーカー（|z| > 2）
- */
-/**
- * @migration P5: useQueryWithHandler 経由に移行済み（旧: useDuckDBHourDowMatrix + useDuckDBLevelAggregation 直接 import）
+ * @guard H1 Screen Plan 経由のみ
+ * @guard H2 比較は pair/bundle 契約
+ * @guard H4 component に acquisition logic 禁止
  */
 import { useState, useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
-import { dateRangeToKeys } from '@/domain/models/calendar'
-import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
-import { hourDowMatrixPairHandler } from '@/application/queries/cts/HourDowMatrixPairHandler'
-import type { HourDowMatrixInput } from '@/application/queries/cts/HourDowMatrixHandler'
-import type { PairedInput } from '@/application/queries/createPairedHandler'
-import {
-  levelAggregationHandler,
-  type LevelAggregationInput,
-} from '@/application/queries/cts/LevelAggregationHandler'
+import { useHeatmapPlan } from '@/application/hooks/useHeatmapPlan'
 import { useChartTheme, useCurrencyFormatter, toPct } from './chartTheme'
 import { palette } from '@/presentation/theme/tokens'
 import { useI18n } from '@/application/hooks/useI18n'
@@ -80,88 +69,23 @@ export const HeatmapChart = memo(function HeatmapChart({
   const [lineCode, setLineCode] = useState('')
   const [klassCode, setKlassCode] = useState('')
 
-  const prevYearRange = prevYearScope?.dateRange
+  // Screen Plan: 全クエリを一元管理
+  const plan = useHeatmapPlan({
+    executor: queryExecutor,
+    currentDateRange,
+    selectedStoreIds,
+    prevYearScope,
+    deptCode,
+    lineCode,
+    klassCode,
+  })
 
-  // pair handler で当年+前年の時間帯×曜日マトリクスを並列取得
-  const matrixPairInput = useMemo<PairedInput<HourDowMatrixInput> | null>(() => {
-    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-    const base: PairedInput<HourDowMatrixInput> = {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
-      deptCode: deptCode || undefined,
-      lineCode: lineCode || undefined,
-      klassCode: klassCode || undefined,
-    }
-    if (prevYearRange) {
-      const { fromKey: pFrom, toKey: pTo } = dateRangeToKeys(prevYearRange)
-      return { ...base, comparisonDateFrom: pFrom, comparisonDateTo: pTo }
-    }
-    return base
-  }, [currentDateRange, prevYearRange, selectedStoreIds, deptCode, lineCode, klassCode])
-
-  const {
-    data: matrixPairOutput,
-    isLoading,
-    error,
-  } = useQueryWithHandler(queryExecutor, hourDowMatrixPairHandler, matrixPairInput)
-  const matrixRows = matrixPairOutput?.current?.records ?? null
-  const prevMatrixRows = matrixPairOutput?.comparison?.records ?? null
-
-  // 階層ドロップダウン
-  const deptInput = useMemo<LevelAggregationInput | null>(() => {
-    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
-      level: 'department' as const,
-    }
-  }, [currentDateRange, selectedStoreIds])
-
-  const { data: deptOutput } = useQueryWithHandler(
-    queryExecutor,
-    levelAggregationHandler,
-    deptInput,
-  )
-  const departments = deptOutput?.records ?? null
-
-  const lineInput = useMemo<LevelAggregationInput | null>(() => {
-    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
-      level: 'line' as const,
-      deptCode: deptCode || undefined,
-    }
-  }, [currentDateRange, selectedStoreIds, deptCode])
-
-  const { data: lineOutput } = useQueryWithHandler(
-    queryExecutor,
-    levelAggregationHandler,
-    lineInput,
-  )
-  const lines = lineOutput?.records ?? null
-
-  const klassInput = useMemo<LevelAggregationInput | null>(() => {
-    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
-      level: 'klass' as const,
-      deptCode: deptCode || undefined,
-      lineCode: lineCode || undefined,
-    }
-  }, [currentDateRange, selectedStoreIds, deptCode, lineCode])
-
-  const { data: klassOutput } = useQueryWithHandler(
-    queryExecutor,
-    levelAggregationHandler,
-    klassInput,
-  )
-  const klasses = klassOutput?.records ?? null
+  const { isLoading, error } = plan
+  const matrixRows = plan.matrix.data?.current?.records ?? null
+  const prevMatrixRows = plan.matrix.data?.comparison?.records ?? null
+  const departments = plan.departments?.records ?? null
+  const lines = plan.lines?.records ?? null
+  const klasses = plan.klasses?.records ?? null
 
   const heatmapData = useMemo(
     () => (matrixRows ? buildHeatmapData(matrixRows) : null),

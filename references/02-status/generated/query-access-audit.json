@@ -1,10 +1,10 @@
 {
-  "timestamp": "2026-04-03T07:15:30.176Z",
+  "timestamp": "2026-04-03T07:30:22.731Z",
   "summary": {
     "queryHandlers": 47,
     "pairHandlers": 13,
-    "screenPlanHooks": 2,
-    "正規経路_queryWithHandler": 27,
+    "screenPlanHooks": 3,
+    "正規経路_queryWithHandler": 26,
     "正規経路_comparisonAccessor": 10,
     "正規経路_facadeHook": 4,
     "bundleHookDef": 1,
@@ -22,7 +22,6 @@
       "presentation/components/charts/DowPatternChart.tsx",
       "presentation/components/charts/FactorDecompositionPanel.tsx",
       "presentation/components/charts/FeatureChart.tsx",
-      "presentation/components/charts/HeatmapChart.tsx",
       "presentation/components/charts/PiCvBubbleChart.tsx",
       "presentation/components/charts/StoreHourlyChart.tsx",
       "presentation/components/charts/WeatherAnalysisPanel.tsx",
@@ -109,6 +108,7 @@
       "application/queries/summary/StoreDaySummaryPairHandler.ts"
     ],
     "screenPlanHooks": [
+      "application/hooks/useHeatmapPlan.ts",
       "application/hooks/usePerformanceIndexPlan.ts",
       "presentation/components/charts/useIntegratedSalesPlan.ts"
     ],

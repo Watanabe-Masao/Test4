@@ -147,9 +147,9 @@ export const nonPairableConsumers: readonly AllowlistEntry[] = [
     removalCondition: '除去不要 — 比較なしの正当な base handler 使用',
   },
   {
-    path: 'presentation/components/charts/HeatmapChart.tsx',
+    path: 'application/hooks/useHeatmapPlan.ts',
     reason:
-      'levelAggregationHandler × 3 ドロップダウン用（比較なし）。HourDowMatrix は pair 化済み',
+      'levelAggregationHandler × 3 ドロップダウン用（比較なし）。plan hook が一元管理',
     category: 'structural',
     removalCondition: '除去不要 — ドロップダウン候補取得は pair 不要',
   },

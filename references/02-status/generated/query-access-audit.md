@@ -1,6 +1,6 @@
 # Query Access Audit Report
 
-> Generated: 2026-04-03T07:15:30.176Z
+> Generated: 2026-04-03T07:30:22.731Z
 
 ## Route Summary
 
@@ -8,8 +8,8 @@
 |---|---|---|
 | QueryHandler 定義 | 47 | 基盤 |
 | PairedQueryHandler（pair 化済み） | 13 | 基盤 |
-| Screen Plan hook（plan 化済み） | 2 | 基盤 |
-| useQueryWithHandler（正規） | 27 | 正規 |
+| Screen Plan hook（plan 化済み） | 3 | 基盤 |
+| useQueryWithHandler（正規） | 26 | 正規 |
 | comparisonAccessors（正規） | 10 | 正規 |
 | facade / bundle hook 使用（正規） | 4 | 正規 |
 | bundle hook 定義 | 1 | 基盤 |
@@ -27,7 +27,6 @@
 - presentation/components/charts/DowPatternChart.tsx
 - presentation/components/charts/FactorDecompositionPanel.tsx
 - presentation/components/charts/FeatureChart.tsx
-- presentation/components/charts/HeatmapChart.tsx
 - presentation/components/charts/PiCvBubbleChart.tsx
 - presentation/components/charts/StoreHourlyChart.tsx
 - presentation/components/charts/WeatherAnalysisPanel.tsx
@@ -117,6 +116,7 @@
 
 ### screenPlanHooks
 
+- application/hooks/useHeatmapPlan.ts
 - application/hooks/usePerformanceIndexPlan.ts
 - presentation/components/charts/useIntegratedSalesPlan.ts
 
