@@ -148,8 +148,7 @@ export const nonPairableConsumers: readonly AllowlistEntry[] = [
   },
   {
     path: 'application/hooks/useHeatmapPlan.ts',
-    reason:
-      'levelAggregationHandler × 3 ドロップダウン用（比較なし）。plan hook が一元管理',
+    reason: 'levelAggregationHandler × 3 ドロップダウン用（比較なし）。plan hook が一元管理',
     category: 'structural',
     removalCondition: '除去不要 — ドロップダウン候補取得は pair 不要',
   },
