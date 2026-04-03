@@ -69,6 +69,32 @@
 
 ---
 
+## 3.1. WASM Dual-Run Exit Criteria
+
+WASM dual-run bridge（estMethod.ts, discountImpact.ts, grossProfitBridge.ts）の
+削除には以下の全条件を満たす必要がある。
+
+| 基準 | 閾値 | 現在値 | 測定方法 |
+|------|------|--------|---------|
+| mismatch rate | < 0.1% | 観測中 | observation test の mismatch / total |
+| null mismatch count | 0 | 観測中 | JS=null, WASM≠null または逆のケース数 |
+| observation duration | ≥ 30日 | 観測中 | 最初の observation pass からの経過日数 |
+| fallback rate | 0% | 観測中 | WASM 不可で JS fallback した割合 |
+| observation test coverage | 全5テスト pass | 観測中 | test/observation/*.test.ts |
+
+**収束プロセス:**
+1. 全 observation test が pass 状態を 30 日間維持
+2. mismatch rate が 0.1% 未満であることを確認
+3. WASM-only trial test が pass であることを確認
+4. bridge コード（§3 の 3 ファイル）を削除し、WASM を authoritative に昇格
+5. frozen-list §3 から当該エントリを削除
+
+**中止条件:**
+- mismatch rate > 1% が 7 日間連続 → WASM 実装のバグを修正するまで dual-run を継続
+- null mismatch が 1 件でも発生 → 即座に調査（silent data loss の兆候）
+
+---
+
 ## 4. 運用ルール
 
 | 種類 | 内容 |

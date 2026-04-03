@@ -95,10 +95,10 @@ function countMissingDays(
   specialRows: readonly { day: number }[],
   transferRows: readonly { day: number }[],
 ): { purchase: number; deliverySales: number; transfers: number; composite: number } {
-  const fromDay = Number(dateFrom.split('-')[2])
-  const toDay = Number(dateTo.split('-')[2])
-  const totalDays = toDay - fromDay + 1
-  if (totalDays <= 0) return { purchase: 0, deliverySales: 0, transfers: 0, composite: 0 }
+  // ISO 日付キーベースで全日数を列挙（月跨ぎ対応）
+  const from = new Date(dateFrom + 'T00:00:00')
+  const to = new Date(dateTo + 'T00:00:00')
+  if (from > to) return { purchase: 0, deliverySales: 0, transfers: 0, composite: 0 }
 
   const purchaseDays = new Set(purchaseRows.map((r) => r.day))
   const specialDays = new Set(specialRows.map((r) => r.day))
@@ -108,14 +108,17 @@ function countMissingDays(
   let deliveryMissing = 0
   let transfersMissing = 0
   let compositeMissing = 0
-  for (let d = fromDay; d <= toDay; d++) {
-    const pMiss = !purchaseDays.has(d)
-    const dMiss = !specialDays.has(d)
-    const tMiss = !transferDays.has(d)
+  const cursor = new Date(from)
+  while (cursor <= to) {
+    const dayOfMonth = cursor.getDate()
+    const pMiss = !purchaseDays.has(dayOfMonth)
+    const dMiss = !specialDays.has(dayOfMonth)
+    const tMiss = !transferDays.has(dayOfMonth)
     if (pMiss) purchaseMissing++
     if (dMiss) deliveryMissing++
     if (tMiss) transfersMissing++
     if (pMiss && dMiss && tMiss) compositeMissing++
+    cursor.setDate(cursor.getDate() + 1)
   }
   return {
     purchase: purchaseMissing,
@@ -276,6 +279,7 @@ export async function readPurchaseCost(
     inventoryPurchaseCost,
     inventoryPurchasePrice,
     meta: {
+      usedFallback: false,
       missingPolicy: 'zero' as const,
       rounding: {
         amountMethod: 'round' as const,

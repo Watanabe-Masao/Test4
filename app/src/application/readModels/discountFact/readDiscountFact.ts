@@ -56,6 +56,7 @@ export function buildDiscountFactReadModel(
     grandTotal73,
     grandTotal74,
     meta: {
+      usedFallback: false,
       missingPolicy: 'zero' as const,
       dataVersion,
     },

@@ -9,19 +9,34 @@
  */
 
 /**
+ * セット意味論を持つフィールド名の一覧。
+ * これらのフィールドの配列値はソートされる（順序に意味がない）。
+ * それ以外の配列は順序を保持する。
+ */
+const SET_SEMANTIC_FIELDS = new Set(['storeIds', 'dow', 'extraMetrics'])
+
+/**
  * 任意のオブジェクトを正規化し、意味的に同一の入力が
  * JSON.stringify で同じ文字列を生成するようにする。
  *
  * - オブジェクトのキーをアルファベット順にソート（再帰的）
- * - 配列のプリミティブ要素をソート
+ * - セット意味論フィールドの配列のみソート（storeIds, dow 等）
  * - undefined フィールドを除去
  * - 空配列を undefined に正規化（[] → 除去）
  */
 export function canonicalizeQueryInput<T>(input: T): T {
-  return canonicalize(input) as T
+  return canonicalize(input, null) as T
 }
 
-function canonicalize(value: unknown): unknown {
+function sortPrimitiveArray(arr: readonly unknown[]): unknown[] {
+  return [...arr].sort((a, b) => {
+    if (typeof a === 'string' && typeof b === 'string') return a.localeCompare(b)
+    if (typeof a === 'number' && typeof b === 'number') return a - b
+    return String(a).localeCompare(String(b))
+  })
+}
+
+function canonicalize(value: unknown, fieldName: string | null): unknown {
   if (value === null || value === undefined) return value
   if (typeof value !== 'object') return value
 
@@ -30,21 +45,21 @@ function canonicalize(value: unknown): unknown {
     const allPrimitive = value.every(
       (v) => typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean',
     )
-    if (allPrimitive) {
-      return [...value].sort((a, b) => {
-        if (typeof a === 'string' && typeof b === 'string') return a.localeCompare(b)
-        if (typeof a === 'number' && typeof b === 'number') return a - b
-        return String(a).localeCompare(String(b))
-      })
+    if (allPrimitive && fieldName != null && SET_SEMANTIC_FIELDS.has(fieldName)) {
+      return sortPrimitiveArray(value)
     }
-    return value.map(canonicalize)
+    if (allPrimitive) {
+      // 順序を保持（セット意味論でないフィールド）
+      return [...value]
+    }
+    return value.map((v) => canonicalize(v, null))
   }
 
   const obj = value as Record<string, unknown>
   const sorted: Record<string, unknown> = {}
   const keys = Object.keys(obj).sort()
   for (const key of keys) {
-    const v = canonicalize(obj[key])
+    const v = canonicalize(obj[key], key)
     if (v !== undefined) {
       sorted[key] = v
     }

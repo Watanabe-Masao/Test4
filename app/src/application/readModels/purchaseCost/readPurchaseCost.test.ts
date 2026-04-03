@@ -64,6 +64,7 @@ function makeMultiStoreModel(): PurchaseCostReadModelType {
     inventoryPurchaseCost: 600_000,
     inventoryPurchasePrice: 770_000,
     meta: {
+      usedFallback: false,
       missingPolicy: 'zero' as const,
       rounding: {
         amountMethod: 'round' as const,
@@ -112,6 +113,7 @@ function makeTestModel(overrides?: Partial<PurchaseCostReadModelType>): Purchase
     inventoryPurchaseCost: purchase.totalCost + transfers.totalCost,
     inventoryPurchasePrice: purchase.totalPrice + transfers.totalPrice,
     meta: {
+      usedFallback: false,
       missingPolicy: 'zero' as const,
       rounding: {
         amountMethod: 'round' as const,
