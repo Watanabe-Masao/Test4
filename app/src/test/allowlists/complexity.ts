@@ -53,40 +53,12 @@ export const presentationMemoLimits: readonly QuantitativeAllowlistEntry[] = [
   // useDrilldownData.ts — useDrilldownRecords に 10 useMemo を分離。useMemo 2 個に削減
   // RawDataTab.tsx — buildAllIndices 統合（12→4 useMemo）。許可リスト卒業
   // YoYWaterfallChart.tsx — buildDateRanges + buildPeriodAggregates 統合（11→6 useMemo）。許可リスト卒業
-  {
-    path: 'presentation/pages/Dashboard/widgets/HourlyChart.tsx',
-    reason: '時間帯別チャート。複数集計ビュー',
-    category: 'structural',
-    removalCondition: 'ロジック分離時',
-    limit: 10,
-    lifecycle: 'active-debt',
-  },
+  // HourlyChart.tsx — buildHourlyDataSets + buildPaddedDataSets + buildSelectedDetail 統合（9→5 useMemo）。許可リスト卒業
   // useDuckDBTimeSlotData.ts — バレル化完了（2026-03-23）: application/hooks/useTimeSlotData.ts へ移設
-  {
-    path: 'presentation/components/charts/DailySalesChartBody.tsx',
-    reason: '日別売上チャート。複数シリーズ + MA overlay 構築',
-    category: 'structural',
-    removalCondition: 'builders 分離時',
-    limit: 9,
-    lifecycle: 'active-debt',
-  },
+  // DailySalesChartBody.tsx — buildWeatherContext 統合（8→6 useMemo）。許可リスト卒業
   // useIntegratedSalesState.ts — useMemo 許可リスト削除済み（drill reducer + context 分離完了）
-  {
-    path: 'presentation/pages/Dashboard/widgets/DrilldownWaterfall.tsx',
-    reason: 'ウォーターフォール計算',
-    category: 'structural',
-    removalCondition: 'ロジック分離時',
-    limit: 8,
-    lifecycle: 'active-debt',
-  },
-  {
-    path: 'presentation/components/charts/TimeSlotChart.tsx',
-    reason: 'タイムスロットチャートの集計',
-    category: 'structural',
-    removalCondition: 'ロジック分離時',
-    limit: 8,
-    lifecycle: 'active-debt',
-  },
+  // DrilldownWaterfall.tsx — buildRecordAggregates 統合（7→5 useMemo）。許可リスト卒業
+  // TimeSlotChart.tsx — module constants + weather/hours 一括構築（8→3 useMemo）。許可リスト卒業
 ] as const
 
 /** presentation/ の useState 上限の個別例外（G5 横展開） */
@@ -118,14 +90,7 @@ export const hookLineLimits: readonly QuantitativeAllowlistEntry[] = [
     limit: 300,
     lifecycle: 'permanent',
   },
-  {
-    path: 'application/hooks/usePeriodAwareKpi.ts',
-    reason: '期間対応 KPI hook',
-    category: 'structural',
-    removalCondition: 'KPI hook のリファクタリング時',
-    limit: 310,
-    lifecycle: 'active-debt',
-  },
+  // usePeriodAwareKpi.ts — 300行（デフォルト上限以下）。許可リスト卒業
   // useTimeSlotData.ts — useTimeSlotPlan に query orchestration を分離。133 行に削減
   // useTimeSlotPlan.ts: useTimeSlotWeatherPlan に天気サブプランを分離。320→240行
   {

@@ -2,7 +2,6 @@
  * usePeriodAwareKpi — 期間連動 KPI フック
  *
  * periodSelection の period1 / period2 に連動して KPI 値を再集計する。
- *
  * ## データフロー（period1 / period2 共通パイプライン）
  *
  * 1. DuckDB: store_day_summary から生データを取得（テーブルA: period1, テーブルB: period2）

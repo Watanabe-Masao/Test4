@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 import { useSettingsStore } from '@/application/stores'
 import { useUiStore } from '@/application/stores'
 import type { AppSettings } from '@/domain/models/storeTypes'
+import { loadJson } from '@/application/adapters/uiPersistenceAdapter'
 
 /** 設定管理フック (Zustand ストア版) */
 export function useSettings() {
@@ -25,17 +26,14 @@ export function useSettings() {
 
 /** localStorageから設定を復元する (Zustand persist が自動処理するため非推奨) */
 export function loadSettingsFromStorage(): Partial<AppSettings> | null {
-  try {
-    const stored = localStorage.getItem('shiire-arari-settings')
-    if (stored) {
-      const parsed = JSON.parse(stored)
-      // Zustand persist format: { state: { settings: ... } }
-      if (parsed?.state?.settings) return parsed.state.settings
-      // Legacy format: direct settings object
-      return parsed
+  return loadJson<Partial<AppSettings> | null>('shiire-arari-settings', null, (raw) => {
+    const parsed = raw as Record<string, unknown> | null
+    // Zustand persist format: { state: { settings: ... } }
+    if (parsed?.state && typeof parsed.state === 'object') {
+      const state = parsed.state as Record<string, unknown>
+      if (state.settings) return state.settings as Partial<AppSettings>
     }
-  } catch {
-    // パース失敗時は無視
-  }
-  return null
+    // Legacy format: direct settings object
+    return parsed as Partial<AppSettings> | null
+  })
 }

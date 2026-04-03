@@ -145,6 +145,26 @@ describe('Structural Convention Guard', () => {
     expect(violations).toEqual([])
   })
 
+  it('全 feature slice に manifest.ts が存在する', () => {
+    const featuresDir = path.join(SRC_DIR, 'features')
+    if (!fs.existsSync(featuresDir)) return
+
+    const sliceDirs = fs
+      .readdirSync(featuresDir, { withFileTypes: true })
+      .filter((e) => e.isDirectory())
+      .map((e) => e.name)
+
+    const violations: string[] = []
+    for (const slice of sliceDirs) {
+      const manifestPath = path.join(featuresDir, slice, 'manifest.ts')
+      if (!fs.existsSync(manifestPath)) {
+        violations.push(`features/${slice}/manifest.ts が存在しません`)
+      }
+    }
+
+    expect(violations, `manifest.ts 未作成:\n${violations.join('\n')}`).toEqual([])
+  })
+
   // ─── 仮実装ファイル検出ガード ──────────────────────────
 
   it('_prototypes/ 外に Demo/Prototype ファイルが存在しない', () => {

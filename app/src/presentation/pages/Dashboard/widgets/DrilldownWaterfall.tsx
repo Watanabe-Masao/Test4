@@ -21,7 +21,8 @@ import {
 } from '@/domain/calculations/utils'
 import { decompose2, decompose3, decompose5 } from '@/application/hooks/calculation'
 import { CategoryFactorBreakdown } from './CategoryFactorBreakdown'
-import { decomposePriceMix, recordsToCategoryQtyAmt } from './categoryFactorUtils'
+import { recordsToCategoryQtyAmt } from './categoryFactorUtils'
+import { buildRecordAggregates } from './DrilldownWaterfall.builders'
 import type { CategoryTimeSalesRecord } from '@/domain/models/record'
 import { DetailSectionTitle } from '../DashboardPage.styles'
 import { sc } from '@/presentation/theme/semanticColors'
@@ -71,22 +72,11 @@ export function DrilldownWaterfall({
   const [viewMode, setViewMode] = useState<ViewMode>('factor')
   const [decompLevel, setDecompLevel] = useState<DecompLevel | null>(null)
 
-  // Aggregate total quantity from day records
-  const curTotalQty = useMemo(
-    () => dayRecords.reduce((s, r) => s + r.totalQuantity, 0),
-    [dayRecords],
+  // 3 useMemo → 1: curTotalQty + prevTotalQty + priceMix を一括計算
+  const { curTotalQty, prevTotalQty, hasQuantity, priceMix } = useMemo(
+    () => buildRecordAggregates(dayRecords, prevDayRecords),
+    [dayRecords, prevDayRecords],
   )
-  const prevTotalQty = useMemo(
-    () => prevDayRecords.reduce((s, r) => s + r.totalQuantity, 0),
-    [prevDayRecords],
-  )
-  const hasQuantity = curTotalQty > 0 && prevTotalQty > 0
-
-  // Price/Mix decomposition
-  const priceMix = useMemo(() => {
-    if (dayRecords.length === 0 || prevDayRecords.length === 0) return null
-    return decomposePriceMix(dayRecords, prevDayRecords)
-  }, [dayRecords, prevDayRecords])
 
   // Available decomposition levels
   const maxLevel: DecompLevel = priceMix ? 5 : hasQuantity ? 3 : 2

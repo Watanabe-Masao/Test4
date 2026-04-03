@@ -20,12 +20,13 @@ import {
 import { DetailSectionTitle } from '../DashboardPage.styles'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
+import { buildCumulativeData } from './HourlyChart.logic'
 import {
-  buildHourlyData,
-  computeSelectedData,
-  buildHourCategoryDetail,
-  buildCumulativeData,
-} from './HourlyChart.logic'
+  buildHourlyDataSets,
+  buildPaddedDataSets,
+  buildSelectedDetail,
+  buildWeatherHourlyMap,
+} from './HourlyChart.builders'
 import {
   HourlySection,
   HourlyChartContainer,
@@ -85,8 +86,13 @@ export const HourlyChart = memo(function HourlyChart({
   const [hoveredHour, setHoveredHour] = useState<number | null>(null)
   const [selectedHours, setSelectedHours] = useState<Set<number>>(new Set())
   const [hourlyMode, setHourlyMode] = useState<HourlyMode>('actual')
-  const actualHourlyData = useMemo(() => buildHourlyData(dayRecords), [dayRecords])
-  const prevHourlyData = useMemo(() => buildHourlyData(prevDayRecords), [prevDayRecords])
+
+  // 3 useMemo → 1: actualData + prevData + allHours を一括構築
+  const dataSets = useMemo(
+    () => buildHourlyDataSets(dayRecords, prevDayRecords),
+    [dayRecords, prevDayRecords],
+  )
+  const { actualData: actualHourlyData, prevData: prevHourlyData, allHours } = dataSets
 
   const hasPrevData = prevHourlyData.length > 0
   const hourlyData = hourlyMode === 'prev' && hasPrevData ? prevHourlyData : actualHourlyData
@@ -94,22 +100,11 @@ export const HourlyChart = memo(function HourlyChart({
   const displayWeatherHourly =
     hourlyMode === 'prev' && hasPrevData ? prevWeatherHourly : weatherHourly
 
-  const allHours = useMemo(() => {
-    const hrs = new Set<number>()
-    for (const d of actualHourlyData) hrs.add(d.hour)
-    for (const d of prevHourlyData) hrs.add(d.hour)
-    return [...hrs].sort((a, b) => a - b)
-  }, [actualHourlyData, prevHourlyData])
-
-  const paddedData = useMemo(() => {
-    const map = new Map(hourlyData.map((d) => [d.hour, d]))
-    return allHours.map((h) => map.get(h) ?? { hour: h, amount: 0, quantity: 0 })
-  }, [hourlyData, allHours])
-
-  const paddedRef = useMemo(() => {
-    const map = new Map(refData.map((d) => [d.hour, d]))
-    return allHours.map((h) => map.get(h) ?? { hour: h, amount: 0, quantity: 0 })
-  }, [refData, allHours])
+  // 2 useMemo → 1: paddedData + paddedRef を一括構築
+  const { paddedData, paddedRef } = useMemo(
+    () => buildPaddedDataSets(hourlyData, refData, allHours),
+    [hourlyData, refData, allHours],
+  )
 
   // Toggle hour selection (multi-select)
   const toggleHour = useCallback((hour: number) => {
@@ -133,15 +128,10 @@ export const HourlyChart = memo(function HourlyChart({
     setSelectedHours(new Set())
   }, [])
 
-  // Aggregate selected hours data
-  const selectedData = useMemo(
-    () => computeSelectedData(selectedHours, paddedData),
-    [selectedHours, paddedData],
-  )
-
-  const hourDetail = useMemo(
-    () => buildHourCategoryDetail(selectedHours, dayRecords, prevDayRecords, hourlyMode),
-    [dayRecords, prevDayRecords, selectedHours, hourlyMode],
+  // 2 useMemo → 1: selectedData + hourDetail を一括構築
+  const { selectedData, hourDetail } = useMemo(
+    () => buildSelectedDetail(selectedHours, paddedData, dayRecords, prevDayRecords, hourlyMode),
+    [selectedHours, paddedData, dayRecords, prevDayRecords, hourlyMode],
   )
 
   const totalAmt = paddedData.reduce((s, d) => s + d.amount, 0)
@@ -173,12 +163,10 @@ export const HourlyChart = memo(function HourlyChart({
   const pxY = useCallback((pct: number) => chartH * (1 - pct / 100), [chartH])
 
   // ── 天気データマップ（ツールチップ用） ──
-  const weatherMap = useMemo(() => {
-    if (!displayWeatherHourly || displayWeatherHourly.length === 0) return null
-    const m = new Map<number, HourlyWeatherRecord>()
-    for (const w of displayWeatherHourly) m.set(w.hour, w)
-    return m
-  }, [displayWeatherHourly])
+  const weatherMap = useMemo(
+    () => buildWeatherHourlyMap(displayWeatherHourly),
+    [displayWeatherHourly],
+  )
 
   if (paddedData.length === 0 && prevHourlyData.length === 0) return null
   if (paddedData.length === 0) return null

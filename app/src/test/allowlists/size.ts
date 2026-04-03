@@ -32,13 +32,7 @@ export const domainLargeFiles: readonly AllowlistEntry[] = [
     removalCondition: '分割時',
     lifecycle: 'permanent',
   },
-  {
-    path: 'application/query-bridge/rawAggregation.ts',
-    reason: 'Raw 集計（application/query-bridge/ へ移動済み）',
-    category: 'structural',
-    removalCondition: '分割時',
-    lifecycle: 'active-debt',
-  },
+  // rawAggregation.ts — application/query-bridge/ へ移動済みで domain guard 対象外。orphan 削除
   {
     path: 'domain/models/ComparisonScope.ts',
     reason: '比較スコープモデル',

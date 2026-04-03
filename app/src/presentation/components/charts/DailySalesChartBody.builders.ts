@@ -10,6 +10,7 @@ import type { DailySalesDataResult } from './useDailySalesData'
 import type { MovingAverageOverlays } from '@/application/hooks/useMultiMovingAverage'
 import {
   buildWeatherMap,
+  deriveCompStartDateKey,
   buildXLabels,
   buildWeatherRichStyles,
   buildRightAxisSeries,
@@ -25,6 +26,26 @@ import {
 import type { ViewType } from './DailySalesChartBody'
 
 export { buildWeatherMap }
+
+/**
+ * 天気マップ関連の 3 useMemo を統合する。
+ * weatherMap + compStartKey + prevWeatherMap を一括構築。
+ */
+export function buildWeatherContext(
+  weatherDaily: readonly import('@/domain/models/record').DailyWeatherSummary[] | undefined,
+  prevYearWeatherDaily: readonly import('@/domain/models/record').DailyWeatherSummary[] | undefined,
+  dowOffset: number,
+  year: number | undefined,
+  month: number | undefined,
+): {
+  weatherMap: ReadonlyMap<number, DayWeatherInfo>
+  prevWeatherMap: ReadonlyMap<number, DayWeatherInfo>
+} {
+  const weatherMap = buildWeatherMap(weatherDaily)
+  const compStartKey = deriveCompStartDateKey(dowOffset, year, month)
+  const prevWeatherMap = buildWeatherMap(prevYearWeatherDaily, dowOffset, compStartKey)
+  return { weatherMap, prevWeatherMap }
+}
 
 /** option 生成の本体 */
 export function buildOption(

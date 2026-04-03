@@ -4,8 +4,8 @@ import { EChart } from './EChart'
 import type { DailySalesDataResult } from './useDailySalesData'
 import type { DailyWeatherSummary } from '@/domain/models/record'
 import type { ChartTheme } from './chartTheme'
-import { deriveCompStartDateKey, type RightAxisMode } from './DailySalesChartBodyLogic'
-import { buildWeatherMap, buildOption, buildMAOverlay } from './DailySalesChartBody.builders'
+import type { RightAxisMode } from './DailySalesChartBodyLogic'
+import { buildWeatherContext, buildOption, buildMAOverlay } from './DailySalesChartBody.builders'
 
 /** 後方互換 re-export — 正本は domain/models/ChartViewMode.ts */
 export type { ViewType } from '@/domain/models/ChartViewMode'
@@ -62,14 +62,10 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
 }: Props) {
   const days = useMemo(() => data.map((d) => d.day), [data])
 
-  const weatherMap = useMemo(() => buildWeatherMap(weatherDaily), [weatherDaily])
-  const compStartKey = useMemo(
-    () => deriveCompStartDateKey(dowOffset, year, month),
-    [dowOffset, year, month],
-  )
-  const prevWeatherMap = useMemo(
-    () => buildWeatherMap(prevYearWeatherDaily, dowOffset, compStartKey),
-    [prevYearWeatherDaily, dowOffset, compStartKey],
+  // 3 useMemo → 1: weatherMap + prevWeatherMap を一括構築
+  const { weatherMap, prevWeatherMap } = useMemo(
+    () => buildWeatherContext(weatherDaily, prevYearWeatherDaily, dowOffset, year, month),
+    [weatherDaily, prevYearWeatherDaily, dowOffset, year, month],
   )
   const hasWeather = weatherMap.size > 0
   const hasPrevWeather = prevWeatherMap.size > 0

@@ -41,6 +41,13 @@ interface Props {
   readonly weatherPersist?: WeatherPersister | null
 }
 
+// ── Module-level constants（useMemo 削減） ──
+const EMPTY_STORE_IDS = new Set<string>()
+const DUMMY_DATE_RANGE: DateRange = {
+  from: { year: 2000, month: 1, day: 1 },
+  to: { year: 2000, month: 1, day: 1 },
+}
+
 // ── Component ──
 
 export const TimeSlotChart = memo(function TimeSlotChart({
@@ -60,37 +67,36 @@ export const TimeSlotChart = memo(function TimeSlotChart({
   const [chartMode, setChartMode] = useState<'overview' | 'department'>('overview')
   const [deptViewMode, setDeptViewMode] = useState<DeptViewMode>('stacked')
 
-  // dateRange / storeIds がない場合は空のダミーで hook を呼ぶ（hooks の呼び出し順序を維持）
-  const emptyStoreIds = useMemo(() => new Set<string>(), [])
-  const dummyDateRange = useMemo<DateRange>(
-    () => ({ from: { year: 2000, month: 1, day: 1 }, to: { year: 2000, month: 1, day: 1 } }),
-    [],
-  )
   const hasRequiredProps = dateRange != null && storeIds != null
 
   const d = useTimeSlotData({
     queryExecutor: hasRequiredProps ? queryExecutor : null,
-    currentDateRange: dateRange ?? dummyDateRange,
-    selectedStoreIds: storeIds ?? emptyStoreIds,
+    currentDateRange: dateRange ?? DUMMY_DATE_RANGE,
+    selectedStoreIds: storeIds ?? EMPTY_STORE_IDS,
     prevYearScope,
     weatherPersist,
   })
 
   const showPrev = d.hasPrev && d.showPrev
 
-  // 天気データを表示モデルに変換（weatherCode の解釈は domain 層で完結）
-  const curWeatherForTable = useMemo(
-    () => toWeatherHourlyDisplayList(d.curWeatherAvg),
-    [d.curWeatherAvg],
-  )
-  const prevWeatherForTable = useMemo(
-    () => toWeatherHourlyDisplayList(d.prevWeatherAvg),
-    [d.prevWeatherAvg],
+  // 2 useMemo → 1: 天気表示モデル一括構築
+  const { curWeatherForTable, prevWeatherForTable } = useMemo(
+    () => ({
+      curWeatherForTable: toWeatherHourlyDisplayList(d.curWeatherAvg),
+      prevWeatherForTable: toWeatherHourlyDisplayList(d.prevWeatherAvg),
+    }),
+    [d.curWeatherAvg, d.prevWeatherAvg],
   )
 
-  const hours = useMemo(() => d.chartData.map((r) => String(r.hour)), [d.chartData])
-  const curWeatherMap = useMemo(() => buildWeatherMap(d.curWeatherAvg), [d.curWeatherAvg])
-  const prevWeatherMap = useMemo(() => buildWeatherMap(d.prevWeatherAvg), [d.prevWeatherAvg])
+  // 3 useMemo → 1: hours + weatherMaps 一括構築
+  const { hours, curWeatherMap, prevWeatherMap } = useMemo(
+    () => ({
+      hours: d.chartData.map((r) => String(r.hour)),
+      curWeatherMap: buildWeatherMap(d.curWeatherAvg),
+      prevWeatherMap: buildWeatherMap(d.prevWeatherAvg),
+    }),
+    [d.chartData, d.curWeatherAvg, d.prevWeatherAvg],
+  )
   const hasWeatherData = curWeatherMap.size > 0
 
   // ECharts option — 純粋関数で構築

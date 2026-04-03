@@ -9,6 +9,7 @@
 import { useCallback, useEffect, useRef, useReducer } from 'react'
 import { useFileSystemAdapter } from '@/application/context/useAdapters'
 import { autoImportReducer, createInitialAutoImportState } from './autoImportReducer'
+import { loadJson, saveJson, loadRaw, saveRaw } from '@/application/adapters/uiPersistenceAdapter'
 
 /** インポート対象の拡張子 */
 const IMPORTABLE_EXTENSIONS = ['.xlsx', '.xls', '.csv'] as const
@@ -21,24 +22,14 @@ function fileFingerprint(name: string, size: number, lastModified: number): stri
   return `${name}|${size}|${lastModified}`
 }
 
-/** 処理済みファイル指紋を localStorage から復元する */
+/** 処理済みファイル指紋を adapter 経由で復元する */
 function loadProcessedFingerprints(): Set<string> {
-  try {
-    const raw = localStorage.getItem(PROCESSED_FILES_KEY)
-    if (!raw) return new Set()
-    return new Set(JSON.parse(raw) as string[])
-  } catch {
-    return new Set()
-  }
+  return new Set(loadJson<string[]>(PROCESSED_FILES_KEY, []))
 }
 
-/** 処理済みファイル指紋を localStorage に保存する */
+/** 処理済みファイル指紋を adapter 経由で保存する */
 function saveProcessedFingerprints(fingerprints: Set<string>): void {
-  try {
-    localStorage.setItem(PROCESSED_FILES_KEY, JSON.stringify([...fingerprints]))
-  } catch {
-    // ストレージ容量超過は無視（RAMのみで動作を継続）
-  }
+  saveJson(PROCESSED_FILES_KEY, [...fingerprints])
 }
 
 /** 定期スキャン間隔（5分） */
@@ -78,11 +69,7 @@ export interface AutoImportActions {
 }
 
 function loadInitialAutoSync(): boolean {
-  try {
-    return localStorage.getItem(AUTO_SYNC_ENABLED_KEY) === 'true'
-  } catch {
-    return false
-  }
+  return loadRaw(AUTO_SYNC_ENABLED_KEY) === 'true'
 }
 
 export function useAutoImport(
@@ -182,11 +169,7 @@ export function useAutoImport(
 
   const setAutoSync = useCallback((enabled: boolean) => {
     dispatch({ type: 'SET_AUTO_SYNC', enabled })
-    try {
-      localStorage.setItem(AUTO_SYNC_ENABLED_KEY, String(enabled))
-    } catch {
-      // ignore
-    }
+    saveRaw(AUTO_SYNC_ENABLED_KEY, String(enabled))
   }, [])
 
   // 定期自動同期: フォルダ設定済み & 自動同期ON の場合、5分ごとにスキャン
