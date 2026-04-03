@@ -99,13 +99,13 @@ describe('INV-RUN-03: presentation 層の useQueryWithHandler 直接呼び出し
     console.log(`[INV-RUN-03] presentation direct query files: ${filesWithDirectQuery.length}`)
 
     // 増加を防ぐために上限を設定。Gate 2: 30→27、Gate 3: HeatmapChart plan 化で 27→26。
-    // Gate 4: CategoryBenchmark/BoxPlot plan 化で 26→24。
+    // Gate 4: CategoryBenchmark/BoxPlot plan 化で 26→24、CvTimeSeries/PiCvBubble plan 化で 24→22。
     expect(
       filesWithDirectQuery.length,
       `presentation 層の直接 query 呼び出しが増加しています。\n` +
         `Screen Plan hook 経由に移行してください。\n` +
         `対象:\n${filesWithDirectQuery.join('\n')}`,
-    ).toBeLessThanOrEqual(24)
+    ).toBeLessThanOrEqual(22)
   })
 })
 

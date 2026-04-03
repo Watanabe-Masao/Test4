@@ -7,20 +7,14 @@
  * 3. SKU×時間CVヒートマップ — カテゴリ×日付のCV値をセル色で表示
  *
  * PI↑CV↓=定番化 / PI↑CV↑=プロモ / PI↓CV↑=需要崩れ を判定。
+ *
+ * @guard H1 Screen Plan 経由のみ
+ * @guard H4 component に acquisition logic 禁止
  */
 import { useState, useMemo, memo } from 'react'
 import type { DateRange } from '@/domain/models/calendar'
-import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
-import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
-import {
-  categoryBenchmarkHandler,
-  type CategoryBenchmarkInput,
-} from '@/application/queries/advanced/CategoryBenchmarkHandler'
-import {
-  categoryBenchmarkTrendHandler,
-  type CategoryBenchmarkTrendInput,
-} from '@/application/queries/advanced/CategoryBenchmarkTrendHandler'
+import { useCategoryBenchmarkPlan } from '@/application/hooks/useCategoryBenchmarkPlan'
 import {
   buildCategoryBenchmarkScores,
   buildCategoryTrendData,
@@ -75,38 +69,20 @@ export const CvTimeSeriesChart = memo(function CvTimeSeriesChart({
   const [overlay, setOverlay] = useState<OverlayMode>('both')
   const [topN, setTopN] = useState(5)
 
-  const benchmarkInput = useMemo<CategoryBenchmarkInput | null>(() => {
-    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
-      level,
-    }
-  }, [currentDateRange, selectedStoreIds, level])
-
-  const benchmarkResult = useQueryWithHandler(
-    queryExecutor,
-    categoryBenchmarkHandler,
-    benchmarkInput,
-  )
-
-  const trendInput = useMemo<CategoryBenchmarkTrendInput | null>(() => {
-    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
-      level,
-    }
-  }, [currentDateRange, selectedStoreIds, level])
-
-  const trendResult = useQueryWithHandler(queryExecutor, categoryBenchmarkTrendHandler, trendInput)
+  // Screen Plan: categoryBenchmark + categoryBenchmarkTrend + hierarchy を一元管理
+  const plan = useCategoryBenchmarkPlan({
+    executor: queryExecutor,
+    currentDateRange,
+    selectedStoreIds,
+    level,
+    parentDeptCode: '',
+    parentLineCode: '',
+  })
 
   const storeCount = selectedStoreIds.size || 0
 
-  const benchmarkRows = benchmarkResult.data?.records ?? null
-  const trendRows = trendResult.data?.records ?? null
+  const benchmarkRows = plan.benchmarkData.data?.records ?? null
+  const trendRows = plan.trendData.data?.records ?? null
 
   const topCodes = useMemo(() => {
     if (!benchmarkRows || benchmarkRows.length === 0) return []
@@ -129,7 +105,7 @@ export const CvTimeSeriesChart = memo(function CvTimeSeriesChart({
     [trendPoints, topCodes, salesByDateCode],
   )
 
-  const isLoading = benchmarkResult.isLoading || trendResult.isLoading
+  const isLoading = plan.isLoading
 
   if (isLoading) {
     return (
@@ -139,7 +115,7 @@ export const CvTimeSeriesChart = memo(function CvTimeSeriesChart({
     )
   }
 
-  if (benchmarkResult.error || trendResult.error) {
+  if (plan.error) {
     return (
       <ChartCard title="CV時系列分析">
         <ChartErrorMsg>データの取得に失敗しました</ChartErrorMsg>

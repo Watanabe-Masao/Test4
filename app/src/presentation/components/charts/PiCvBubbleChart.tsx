@@ -1,17 +1,15 @@
 /**
  * PI-CV マップ（バブルチャート） (ECharts)
+ *
+ * @guard H1 Screen Plan 経由のみ
+ * @guard H4 component に acquisition logic 禁止
  */
 import { useState, useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import type { DateRange } from '@/domain/models/calendar'
-import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
-import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
-import {
-  categoryBenchmarkHandler,
-  type CategoryBenchmarkInput,
-} from '@/application/queries/advanced/CategoryBenchmarkHandler'
+import { useCategoryBenchmarkPlan } from '@/application/hooks/useCategoryBenchmarkPlan'
 import { buildCategoryBenchmarkScores, type ProductType } from '@/application/queries/advanced'
 import { ChartCard } from './ChartCard'
 import { ChartLoading, ChartError, ChartEmpty } from './ChartState'
@@ -54,20 +52,19 @@ export const PiCvBubbleChart = memo(function PiCvBubbleChart({
   const [bubbleSize, setBubbleSize] = useState<BubbleSizeMetric>('sales')
   const [level, setLevel] = useState<HierarchyLevel>('department')
 
-  const input = useMemo<CategoryBenchmarkInput | null>(() => {
-    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
-      level,
-    }
-  }, [currentDateRange, selectedStoreIds, level])
+  // Screen Plan: categoryBenchmark + hierarchy を一元管理
+  const plan = useCategoryBenchmarkPlan({
+    executor: queryExecutor,
+    currentDateRange,
+    selectedStoreIds,
+    level,
+    parentDeptCode: '',
+    parentLineCode: '',
+  })
 
-  const benchmarkResult = useQueryWithHandler(queryExecutor, categoryBenchmarkHandler, input)
   const storeCount = selectedStoreIds.size || 0
 
-  const benchmarkRows = benchmarkResult.data?.records ?? null
+  const benchmarkRows = plan.benchmarkData.data?.records ?? null
 
   const scores = useMemo(() => {
     if (!benchmarkRows || benchmarkRows.length === 0) return []
@@ -167,14 +164,14 @@ export const PiCvBubbleChart = memo(function PiCvBubbleChart({
     }
   }, [scatterData, medians, piMetric, bubbleSize, theme])
 
-  if (benchmarkResult.isLoading) {
+  if (plan.isLoading) {
     return (
       <ChartCard title="PI-CV マップ">
         <ChartLoading />
       </ChartCard>
     )
   }
-  if (benchmarkResult.error) {
+  if (plan.error) {
     return (
       <ChartCard title="PI-CV マップ">
         <ChartError message="データの取得に失敗しました" />
