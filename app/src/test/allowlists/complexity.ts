@@ -13,14 +13,7 @@ export const useMemoLimits: readonly QuantitativeAllowlistEntry[] = [
     limit: 8,
     lifecycle: 'permanent',
   },
-  {
-    path: 'application/hooks/useTimeSlotData.ts',
-    reason: 'TimeSlot orchestrator。前年天気 ETRN fallback 追加により prevWeatherKeys memo が必要',
-    category: 'structural',
-    removalCondition: 'weather fallback を WeatherHourlyAvgHandler 内蔵に移行する時',
-    limit: 8,
-    lifecycle: 'active-debt',
-  },
+  // useTimeSlotData.ts — useTimeSlotPlan に query orchestration を分離。useMemo 3 個以下に削減
 ] as const
 
 /** useState 上限の個別例外 */
@@ -41,14 +34,15 @@ export const useStateLimits: readonly QuantitativeAllowlistEntry[] = [
     limit: 7,
     lifecycle: 'permanent',
   },
+  // useTimeSlotData.ts — useTimeSlotPlan に weather retry state を分離。useState 5 個に削減
+  // ただし import 行で +1 カウントされ合計 6。default limit (6) と一致するため許可リスト維持
   {
     path: 'application/hooks/useTimeSlotData.ts',
-    reason:
-      'タイムスロット orchestrator。実質 state 7 個（cur/prev weather retry 含む）+ import 行でカウント +1',
+    reason: 'UI state 5 個 + import 行カウント = 6。plan 分離後の最小構成',
     category: 'structural',
-    removalCondition: 'weather fallback を WeatherHourlyAvgHandler 内蔵に移行する時',
-    limit: 9,
-    lifecycle: 'active-debt',
+    removalCondition: 'guard が import 行を除外するようになったとき',
+    limit: 7,
+    lifecycle: 'permanent',
   },
 ] as const
 
@@ -179,13 +173,14 @@ export const hookLineLimits: readonly QuantitativeAllowlistEntry[] = [
     limit: 310,
     lifecycle: 'active-debt',
   },
+  // useTimeSlotData.ts — useTimeSlotPlan に query orchestration を分離。133 行に削減
   {
-    path: 'application/hooks/useTimeSlotData.ts',
+    path: 'application/hooks/plans/useTimeSlotPlan.ts',
     reason:
-      'TimeSlot orchestrator。10 useQueryWithHandler + cur/prev weather ETRN fallback + 12 useMemo input',
+      'TimeSlot query plan。10 useQueryWithHandler + weather ETRN fallback + WoW/YoY routing を集約',
     category: 'structural',
-    removalCondition: 'query input 構築を sub-hook に分離する時',
-    limit: 390,
+    removalCondition: 'query 系統ごとの sub-plan 分割時',
+    limit: 320,
     lifecycle: 'active-debt',
   },
 ] as const

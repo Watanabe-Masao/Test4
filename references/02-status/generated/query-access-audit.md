@@ -1,6 +1,6 @@
 # Query Access Audit Report
 
-> Generated: 2026-04-03T11:49:56.438Z
+> Generated: 2026-04-03T12:18:05.434Z
 
 ## Route Summary
 
@@ -8,7 +8,7 @@
 |---|---|---|
 | QueryHandler 定義 | 47 | 基盤 |
 | PairedQueryHandler（pair 化済み） | 13 | 基盤 |
-| Screen Plan hook（plan 化済み） | 23 | 基盤 |
+| Screen Plan hook（plan 化済み） | 24 | 基盤 |
 | useQueryWithHandler（正規） | 0 | 正規 |
 | comparisonAccessors（正規） | 10 | 正規 |
 | facade / bundle hook 使用（正規） | 4 | 正規 |
@@ -103,6 +103,7 @@
 - application/hooks/plans/useFeatureChartPlan.ts
 - application/hooks/plans/useIntegratedSalesPlan.ts
 - application/hooks/plans/useStoreHourlyChartPlan.ts
+- application/hooks/plans/useTimeSlotPlan.ts
 - application/hooks/plans/useWeatherAnalysisPlan.ts
 - application/hooks/plans/useYoYChartPlan.ts
 - application/hooks/plans/useYoYWaterfallPlan.ts

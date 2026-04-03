@@ -1,12 +1,12 @@
 # Architecture State Snapshot
 
-> Generated: 2026-04-03T11:49:56.371Z
+> Generated: 2026-04-03T12:18:47.629Z
 
 ## Allowlist Summary
 
 | 指標 | 値 |
 |---|---|
-| 総エントリ数 | 42 |
+| 総エントリ数 | 41 |
 | アクティブリスト数 | 12 |
 | 凍結リスト数 | 9 |
 | .vm.ts ファイル数 | 28 |
@@ -16,7 +16,7 @@
 
 | カテゴリ | 件数 |
 |---|---|
-| structural | 35 |
+| structural | 34 |
 | adapter | 5 |
 | lifecycle | 2 |
 
@@ -48,6 +48,7 @@
 - application/hooks/duckdb/useSummaryQueries.ts
 - application/hooks/duckdb/useYoyQueries.ts
 - application/hooks/plans/useIntegratedSalesPlan.ts
+- application/hooks/plans/useTimeSlotPlan.ts
 - application/hooks/useAnalysisInput.ts
 - application/hooks/useAnalyticsResolver.ts
 - application/hooks/useAppShortcuts.ts
@@ -101,9 +102,9 @@
 
 | ファイル | useMemo | useState | 行数 |
 |---|---|---|---|
-| application/hooks/useTimeSlotData.ts | 20 | 8 | 369 |
 | presentation/pages/Dashboard/widgets/useDrilldownData.ts | 14 | 10 | 413 |
 | presentation/pages/CostDetail/useCostDetailData.ts | 13 | 6 | 210 |
+| application/hooks/plans/useTimeSlotPlan.ts | 15 | 3 | 313 |
 | presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 12 | 5 | 465 |
 | presentation/components/charts/TimeSlotChart.tsx | 10 | 6 | 209 |
 | presentation/pages/Dashboard/widgets/HourlyChart.tsx | 10 | 6 | 514 |
@@ -116,15 +117,14 @@
 
 | ファイル | 指標 | 実測 | 上限 | % |
 |---|---|---|---|---|
+| application/hooks/plans/useTimeSlotPlan.ts | lines | 313 | 320 | 98% |
 | application/hooks/usePeriodAwareKpi.ts | lines | 301 | 310 | 97% |
-| application/hooks/useTimeSlotData.ts | lines | 369 | 390 | 95% |
 | presentation/pages/CostDetail/useCostDetailData.ts | useMemo | 12 | 13 | 92% |
 | presentation/pages/Dashboard/widgets/useDrilldownData.ts | useMemo | 12 | 13 | 92% |
 | presentation/pages/Admin/RawDataTab.tsx | useMemo | 12 | 13 | 92% |
 | presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | useMemo | 11 | 12 | 92% |
 | presentation/pages/Dashboard/widgets/HourlyChart.tsx | useMemo | 9 | 10 | 90% |
 | application/hooks/duckdb/categoryBenchmarkLogic.ts | lines | 401 | 450 | 89% |
-| application/hooks/useTimeSlotData.ts | useMemo | 7 | 8 | 88% |
 | presentation/pages/Dashboard/widgets/DrilldownWaterfall.tsx | useMemo | 7 | 8 | 88% |
 | presentation/components/charts/TimeSlotChart.tsx | useMemo | 7 | 8 | 88% |
 | presentation/pages/Dashboard/widgets/useMonthlyCalendarState.ts | useState | 9 | 11 | 82% |
@@ -153,8 +153,8 @@
 | useStateLimits | 3 | structural:3 |
 | hookLineLimits | 3 | structural:3 |
 | ctxHook | 3 | structural:3 |
-| useMemoLimits | 2 | structural:2 |
 | vmReactImport | 2 | structural:2 |
+| useMemoLimits | 1 | structural:1 |
 | infraLargeFiles | 1 | structural:1 |
 | usecasesLargeFiles | 1 | structural:1 |
 | sideEffectChain | 1 | structural:1 |

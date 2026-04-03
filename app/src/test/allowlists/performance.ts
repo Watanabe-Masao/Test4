@@ -138,13 +138,7 @@ export const isPrevYearHandlers: readonly AllowlistEntry[] = [
 export const pairExceptionDesign: readonly AllowlistEntry[] = [
   // useCategoryTrendChartData.ts: useCategoryTrendPlan 経由に移行済み（非対称比較 plan）
   // YoYWaterfallChart.tsx: useYoYWaterfallPlan 経由に移行済み（fallback-aware plan）
-  {
-    path: 'application/hooks/useTimeSlotData.ts',
-    reason: 'hourlyAgg/distinctDayCount: WoW 比較で isPrevYear=false。categoryHourly は移行済み',
-    category: 'debt',
-    removalCondition: 'WoW 比較対応の比較 handler 設計時に移行',
-    lifecycle: 'active-debt',
-  },
+  // useTimeSlotData.ts: useTimeSlotPlan 経由に移行済み（WoW comparison plan）
   {
     path: 'application/hooks/duckdb/useDayDetailData.ts',
     reason: '14本のクエリ + fallback パターン（CTS 7系統 + Summary 3系統 + Weather 2系統）',

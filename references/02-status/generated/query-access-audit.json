@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-04-03T11:49:56.438Z",
+  "timestamp": "2026-04-03T12:18:05.434Z",
   "summary": {
     "queryHandlers": 47,
     "pairHandlers": 13,
-    "screenPlanHooks": 23,
+    "screenPlanHooks": 24,
     "正規経路_queryWithHandler": 0,
     "正規経路_comparisonAccessor": 10,
     "正規経路_facadeHook": 4,
@@ -97,6 +97,7 @@
       "application/hooks/plans/useFeatureChartPlan.ts",
       "application/hooks/plans/useIntegratedSalesPlan.ts",
       "application/hooks/plans/useStoreHourlyChartPlan.ts",
+      "application/hooks/plans/useTimeSlotPlan.ts",
       "application/hooks/plans/useWeatherAnalysisPlan.ts",
       "application/hooks/plans/useYoYChartPlan.ts",
       "application/hooks/plans/useYoYWaterfallPlan.ts",

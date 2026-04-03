@@ -250,7 +250,8 @@ describe('INV-RUN-04: Screen Plan hook count ラチェット', () => {
     expect(
       totalPlanHooks,
       `Screen Plan hook が減少しています。plan hook を削除しないでください。`,
-    ).toBeGreaterThanOrEqual(22)
+      // P2-3: useTimeSlotPlan 追加 → 22→23
+    ).toBeGreaterThanOrEqual(23)
   })
 })
 
