@@ -1,10 +1,10 @@
 {
-  "timestamp": "2026-04-03T12:18:47.629Z",
-  "totalAllowlistEntries": 41,
+  "timestamp": "2026-04-03T12:31:06.307Z",
+  "totalAllowlistEntries": 40,
   "categoryBreakdown": {
     "adapter": 5,
     "lifecycle": 2,
-    "structural": 34
+    "structural": 33
   },
   "frozenLists": [
     "presentationToInfrastructure",
@@ -19,7 +19,7 @@
   ],
   "frozenCount": 9,
   "activeLists": 12,
-  "vmFileCount": 28,
+  "vmFileCount": 27,
   "compatReexportCount": 2,
   "activeBridges": [
     {
@@ -308,9 +308,9 @@
       }
     },
     "presentationStateLimits": {
-      "count": 4,
+      "count": 3,
       "categories": {
-        "structural": 4
+        "structural": 3
       }
     },
     "largeComponentTier2": {
