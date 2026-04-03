@@ -144,13 +144,14 @@ export const presentationStateLimits: readonly QuantitativeAllowlistEntry[] = [
 
 /** hook ファイル行数上限の個別例外 */
 export const hookLineLimits: readonly QuantitativeAllowlistEntry[] = [
+  // categoryBenchmarkLogic.ts: categoryBenchmarkByDate.ts に日別算出を分離。450→274行
   {
     path: 'application/hooks/duckdb/categoryBenchmarkLogic.ts',
-    reason: 'DuckDB ベンチマーク計算ロジック',
+    reason: 'DuckDB ベンチマーク計算ロジック（日別算出を分離済み）',
     category: 'structural',
-    removalCondition: 'ロジック分割時',
-    limit: 450,
-    lifecycle: 'active-debt',
+    removalCondition: 'さらなる分割時',
+    limit: 300,
+    lifecycle: 'permanent',
   },
   {
     path: 'application/hooks/usePeriodAwareKpi.ts',
@@ -161,13 +162,14 @@ export const hookLineLimits: readonly QuantitativeAllowlistEntry[] = [
     lifecycle: 'active-debt',
   },
   // useTimeSlotData.ts — useTimeSlotPlan に query orchestration を分離。133 行に削減
+  // useTimeSlotPlan.ts: useTimeSlotWeatherPlan に天気サブプランを分離。320→240行
   {
     path: 'application/hooks/plans/useTimeSlotPlan.ts',
     reason:
-      'TimeSlot query plan。10 useQueryWithHandler + weather ETRN fallback + WoW/YoY routing を集約',
+      'TimeSlot query plan。8 useQueryWithHandler + WoW/YoY routing（天気は sub-plan に分離）',
     category: 'structural',
-    removalCondition: 'query 系統ごとの sub-plan 分割時',
-    limit: 320,
-    lifecycle: 'active-debt',
+    removalCondition: 'さらなる sub-plan 分割時',
+    limit: 260,
+    lifecycle: 'permanent',
   },
 ] as const
