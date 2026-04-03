@@ -1,13 +1,13 @@
 # Query Access Audit Report
 
-> Generated: 2026-04-03T03:44:47.590Z
+> Generated: 2026-04-03T04:36:25.258Z
 
 ## Route Summary
 
 | 経路種別 | 件数 | 状態 |
 |---|---|---|
-| QueryHandler 定義 | 35 | 基盤 |
-| PairedQueryHandler（pair 化済み） | 1 | 基盤 |
+| QueryHandler 定義 | 47 | 基盤 |
+| PairedQueryHandler（pair 化済み） | 13 | 基盤 |
 | Screen Plan hook（plan 化済み） | 2 | 基盤 |
 | useQueryWithHandler（正規） | 27 | 正規 |
 | comparisonAccessors（正規） | 10 | 正規 |
@@ -55,20 +55,29 @@
 - application/queries/advanced/CategoryBenchmarkTrendHandler.ts
 - application/queries/advanced/CategoryHierarchyHandler.ts
 - application/queries/advanced/CategoryMixWeeklyHandler.ts
+- application/queries/advanced/CategoryMixWeeklyPairHandler.ts
 - application/queries/advanced/ConditionMatrixHandler.ts
 - application/queries/comparison/YoyDailyHandler.ts
 - application/queries/createPairedHandler.ts
 - application/queries/cts/CategoryDailyTrendHandler.ts
+- application/queries/cts/CategoryDailyTrendPairHandler.ts
 - application/queries/cts/CategoryDiscountHandler.ts
+- application/queries/cts/CategoryDiscountPairHandler.ts
 - application/queries/cts/CategoryHourlyHandler.ts
+- application/queries/cts/CategoryHourlyPairHandler.ts
 - application/queries/cts/CategoryTimeRecordsHandler.ts
+- application/queries/cts/CategoryTimeRecordsPairHandler.ts
 - application/queries/cts/DistinctDayCountHandler.ts
+- application/queries/cts/DistinctDayCountPairHandler.ts
 - application/queries/cts/HourDowMatrixHandler.ts
+- application/queries/cts/HourDowMatrixPairHandler.ts
 - application/queries/cts/HourlyAggregationHandler.ts
+- application/queries/cts/HourlyAggregationPairHandler.ts
 - application/queries/cts/LevelAggregationHandler.ts
 - application/queries/cts/LevelAggregationPairHandler.ts
 - application/queries/cts/StoreAggregationHandler.ts
 - application/queries/cts/StoreCategoryPIHandler.ts
+- application/queries/cts/StoreCategoryPIPairHandler.ts
 - application/queries/dailyRecords/DailyRecordsHandler.ts
 - application/queries/dept/DeptKpiTrendHandler.ts
 - application/queries/discountFactHandler.ts
@@ -80,16 +89,31 @@
 - application/queries/purchase/StoreDailyMarkupRateHandler.ts
 - application/queries/salesFactHandler.ts
 - application/queries/summary/AggregatedRatesHandler.ts
+- application/queries/summary/AggregatedRatesPairHandler.ts
 - application/queries/summary/DailyCumulativeHandler.ts
+- application/queries/summary/DailyCumulativePairHandler.ts
 - application/queries/summary/DailyQuantityHandler.ts
 - application/queries/summary/DailyQuantityPairHandler.ts
 - application/queries/summary/StoreDaySummaryHandler.ts
+- application/queries/summary/StoreDaySummaryPairHandler.ts
 - application/queries/temporal/MovingAverageHandler.ts
 - application/queries/weather/WeatherHourlyHandler.ts
 
 ### pairHandlers
 
+- application/queries/advanced/CategoryMixWeeklyPairHandler.ts
+- application/queries/cts/CategoryDailyTrendPairHandler.ts
+- application/queries/cts/CategoryDiscountPairHandler.ts
+- application/queries/cts/CategoryHourlyPairHandler.ts
+- application/queries/cts/CategoryTimeRecordsPairHandler.ts
+- application/queries/cts/DistinctDayCountPairHandler.ts
+- application/queries/cts/HourDowMatrixPairHandler.ts
+- application/queries/cts/HourlyAggregationPairHandler.ts
 - application/queries/cts/LevelAggregationPairHandler.ts
+- application/queries/cts/StoreCategoryPIPairHandler.ts
+- application/queries/summary/AggregatedRatesPairHandler.ts
+- application/queries/summary/DailyCumulativePairHandler.ts
+- application/queries/summary/StoreDaySummaryPairHandler.ts
 
 ### screenPlanHooks
 

@@ -106,3 +106,29 @@ describe('INV-RUN-03: presentation 層の useQueryWithHandler 直接呼び出し
     ).toBeLessThanOrEqual(27)
   })
 })
+
+// ── INV-RUN-02: Pair Handler Count Ratchet ──
+
+describe('INV-RUN-02: pair handler count ラチェット', () => {
+  const queriesDir = path.join(SRC_DIR, 'application/queries')
+
+  it('createPairedHandler で生成された pair handler が減少していないこと', () => {
+    const allFiles = collectTsFiles(queriesDir).filter((f) => !f.endsWith('.test.ts'))
+
+    let pairHandlerCount = 0
+    for (const file of allFiles) {
+      const content = fs.readFileSync(file, 'utf-8')
+      if (content.includes('createPairedHandler(') && !file.endsWith('createPairedHandler.ts')) {
+        pairHandlerCount++
+      }
+    }
+
+    console.log(`[INV-RUN-02] pair handler count: ${pairHandlerCount}`)
+
+    // Gate 3: 13 pair handler（既存 1 + 新規 12）。MovingAverageHandler は BaseQueryInput 非準拠のためスキップ。
+    expect(
+      pairHandlerCount,
+      `pair handler が減少しています。createPairedHandler で生成された handler を削除しないでください。`,
+    ).toBeGreaterThanOrEqual(13)
+  })
+})

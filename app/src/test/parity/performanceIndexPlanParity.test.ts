@@ -18,14 +18,9 @@
  */
 import { describe, it, expect } from 'vitest'
 import { buildCategoryRows } from '@/features/category/ui/charts/CategoryPerformanceChart.builders'
-import {
-  buildStorePIData,
-  buildHeatmapData,
-} from '@/presentation/components/charts/StorePIComparisonChart.builders'
-import { calculateAmountPI, calculateQuantityPI } from '@/domain/calculations/piValue'
+import { buildStorePIData } from '@/presentation/components/charts/StorePIComparisonChart.builders'
 import { calculateStdDev } from '@/application/hooks/useStatistics'
 import { toDevScore } from '@/presentation/components/charts/chartTheme'
-import { safeDivide } from '@/domain/calculations/utils'
 import type { LevelAggregationRow } from '@/application/queries/cts/LevelAggregationHandler'
 import type { StoreResult } from '@/domain/models/StoreResult'
 import type { Store } from '@/domain/models/Store'
@@ -47,14 +42,11 @@ function makeAggRows(count: number, prevYear: boolean = false): readonly LevelAg
 function makeStoreResults(count: number): ReadonlyMap<string, StoreResult> {
   const map = new Map<string, StoreResult>()
   for (let i = 0; i < count; i++) {
-    map.set(
-      `S${i + 1}`,
-      {
-        totalSales: (count - i) * 1000000,
-        totalCustomers: 500 + i * 10,
-        totalQuantity: (count - i) * 300,
-      } as unknown as StoreResult,
-    )
+    map.set(`S${i + 1}`, {
+      totalSales: (count - i) * 1000000,
+      totalCustomers: 500 + i * 10,
+      totalQuantity: (count - i) * 300,
+    } as unknown as StoreResult)
   }
   return map
 }
@@ -91,8 +83,7 @@ function normalizeCategoryOutput(
     topCode: rows[0]?.code ?? null,
     topPiAmount: rows[0]?.piAmount ?? null,
     prevNonNullCount: rows.filter((r) => r.prevPiAmount !== null).length,
-    deviationRange:
-      devs.length > 0 ? { min: Math.min(...devs), max: Math.max(...devs) } : null,
+    deviationRange: devs.length > 0 ? { min: Math.min(...devs), max: Math.max(...devs) } : null,
   }
 }
 
@@ -106,9 +97,7 @@ interface StoreParitySnapshot {
 function normalizeStorePIOutput(
   entries: readonly { storeId: string; piAmount: number }[],
 ): StoreParitySnapshot {
-  const sorted = entries.every(
-    (e, i) => i === 0 || entries[i - 1].piAmount >= e.piAmount,
-  )
+  const sorted = entries.every((e, i) => i === 0 || entries[i - 1].piAmount >= e.piAmount)
   return {
     entryCount: entries.length,
     topStoreId: entries[0]?.storeId ?? null,
@@ -170,10 +159,7 @@ function oldPathCategoryRows(
   return rows.slice(0, topN)
 }
 
-function oldPathStorePIData(
-  allStoreResults: ReadonlyMap<string, StoreResult>,
-  stores: ReadonlyMap<string, Store>,
-) {
+function oldPathStorePIData(allStoreResults: ReadonlyMap<string, StoreResult>) {
   // 旧: Math.round((sales / customers) * 1000)
   const entries: { storeId: string; piAmount: number }[] = []
   for (const [storeId, result] of allStoreResults) {
@@ -197,8 +183,18 @@ describe('PerformanceIndex Plan Parity — old/new 差分実行比較', () => {
     const prevRecords = makeAggRows(25, true)
 
     it('件数: old と new で一致する（TopN = 20）', () => {
-      const oldRows = oldPathCategoryRows(curRecords, prevRecords, TOTAL_CUSTOMERS, PREV_TOTAL_CUSTOMERS)
-      const newRows = buildCategoryRows(curRecords, prevRecords, TOTAL_CUSTOMERS, PREV_TOTAL_CUSTOMERS)
+      const oldRows = oldPathCategoryRows(
+        curRecords,
+        prevRecords,
+        TOTAL_CUSTOMERS,
+        PREV_TOTAL_CUSTOMERS,
+      )
+      const newRows = buildCategoryRows(
+        curRecords,
+        prevRecords,
+        TOTAL_CUSTOMERS,
+        PREV_TOTAL_CUSTOMERS,
+      )
 
       const oldSnap = normalizeCategoryOutput(oldRows)
       const newSnap = normalizeCategoryOutput(newRows)
@@ -207,8 +203,18 @@ describe('PerformanceIndex Plan Parity — old/new 差分実行比較', () => {
     })
 
     it('先頭要素の code が一致する', () => {
-      const oldRows = oldPathCategoryRows(curRecords, prevRecords, TOTAL_CUSTOMERS, PREV_TOTAL_CUSTOMERS)
-      const newRows = buildCategoryRows(curRecords, prevRecords, TOTAL_CUSTOMERS, PREV_TOTAL_CUSTOMERS)
+      const oldRows = oldPathCategoryRows(
+        curRecords,
+        prevRecords,
+        TOTAL_CUSTOMERS,
+        PREV_TOTAL_CUSTOMERS,
+      )
+      const newRows = buildCategoryRows(
+        curRecords,
+        prevRecords,
+        TOTAL_CUSTOMERS,
+        PREV_TOTAL_CUSTOMERS,
+      )
 
       expect(normalizeCategoryOutput(newRows).topCode).toBe(
         normalizeCategoryOutput(oldRows).topCode,
@@ -216,8 +222,18 @@ describe('PerformanceIndex Plan Parity — old/new 差分実行比較', () => {
     })
 
     it('先頭要素の piAmount が一致する', () => {
-      const oldRows = oldPathCategoryRows(curRecords, prevRecords, TOTAL_CUSTOMERS, PREV_TOTAL_CUSTOMERS)
-      const newRows = buildCategoryRows(curRecords, prevRecords, TOTAL_CUSTOMERS, PREV_TOTAL_CUSTOMERS)
+      const oldRows = oldPathCategoryRows(
+        curRecords,
+        prevRecords,
+        TOTAL_CUSTOMERS,
+        PREV_TOTAL_CUSTOMERS,
+      )
+      const newRows = buildCategoryRows(
+        curRecords,
+        prevRecords,
+        TOTAL_CUSTOMERS,
+        PREV_TOTAL_CUSTOMERS,
+      )
 
       // old: (amount / customers) * 1000 → new: calculateAmountPI (safeDivide * 1000)
       // 整数除算ではないので exact match が期待できる
@@ -227,8 +243,18 @@ describe('PerformanceIndex Plan Parity — old/new 差分実行比較', () => {
     })
 
     it('prevPiAmount 非 null 件数が一致する', () => {
-      const oldRows = oldPathCategoryRows(curRecords, prevRecords, TOTAL_CUSTOMERS, PREV_TOTAL_CUSTOMERS)
-      const newRows = buildCategoryRows(curRecords, prevRecords, TOTAL_CUSTOMERS, PREV_TOTAL_CUSTOMERS)
+      const oldRows = oldPathCategoryRows(
+        curRecords,
+        prevRecords,
+        TOTAL_CUSTOMERS,
+        PREV_TOTAL_CUSTOMERS,
+      )
+      const newRows = buildCategoryRows(
+        curRecords,
+        prevRecords,
+        TOTAL_CUSTOMERS,
+        PREV_TOTAL_CUSTOMERS,
+      )
 
       expect(normalizeCategoryOutput(newRows).prevNonNullCount).toBe(
         normalizeCategoryOutput(oldRows).prevNonNullCount,
@@ -236,13 +262,28 @@ describe('PerformanceIndex Plan Parity — old/new 差分実行比較', () => {
     })
 
     it('prevPiAmount 非 null 件数 > 0（prev データがある場合）', () => {
-      const newRows = buildCategoryRows(curRecords, prevRecords, TOTAL_CUSTOMERS, PREV_TOTAL_CUSTOMERS)
+      const newRows = buildCategoryRows(
+        curRecords,
+        prevRecords,
+        TOTAL_CUSTOMERS,
+        PREV_TOTAL_CUSTOMERS,
+      )
       expect(normalizeCategoryOutput(newRows).prevNonNullCount).toBeGreaterThan(0)
     })
 
     it('deviation range が一致する', () => {
-      const oldRows = oldPathCategoryRows(curRecords, prevRecords, TOTAL_CUSTOMERS, PREV_TOTAL_CUSTOMERS)
-      const newRows = buildCategoryRows(curRecords, prevRecords, TOTAL_CUSTOMERS, PREV_TOTAL_CUSTOMERS)
+      const oldRows = oldPathCategoryRows(
+        curRecords,
+        prevRecords,
+        TOTAL_CUSTOMERS,
+        PREV_TOTAL_CUSTOMERS,
+      )
+      const newRows = buildCategoryRows(
+        curRecords,
+        prevRecords,
+        TOTAL_CUSTOMERS,
+        PREV_TOTAL_CUSTOMERS,
+      )
 
       const oldRange = normalizeCategoryOutput(oldRows).deviationRange
       const newRange = normalizeCategoryOutput(newRows).deviationRange
@@ -272,7 +313,7 @@ describe('PerformanceIndex Plan Parity — old/new 差分実行比較', () => {
     const stores = makeStores(storeCount)
 
     it('件数が一致する', () => {
-      const oldEntries = oldPathStorePIData(storeResults, stores)
+      const oldEntries = oldPathStorePIData(storeResults)
       const newEntries = buildStorePIData(storeResults, stores, 'piAmount')
 
       expect(normalizeStorePIOutput(newEntries).entryCount).toBe(
@@ -281,7 +322,7 @@ describe('PerformanceIndex Plan Parity — old/new 差分実行比較', () => {
     })
 
     it('先頭店舗が一致する（最高 PI）', () => {
-      const oldEntries = oldPathStorePIData(storeResults, stores)
+      const oldEntries = oldPathStorePIData(storeResults)
       const newEntries = buildStorePIData(storeResults, stores, 'piAmount')
 
       expect(normalizeStorePIOutput(newEntries).topStoreId).toBe(
@@ -290,7 +331,7 @@ describe('PerformanceIndex Plan Parity — old/new 差分実行比較', () => {
     })
 
     it('先頭 piAmount が一致する', () => {
-      const oldEntries = oldPathStorePIData(storeResults, stores)
+      const oldEntries = oldPathStorePIData(storeResults)
       const newEntries = buildStorePIData(storeResults, stores, 'piAmount')
 
       expect(normalizeStorePIOutput(newEntries).topPiAmount).toBe(
@@ -311,7 +352,7 @@ describe('PerformanceIndex Plan Parity — old/new 差分実行比較', () => {
         totalQuantity: 0,
       } as unknown as StoreResult)
 
-      const oldEntries = oldPathStorePIData(withZero, stores)
+      const oldEntries = oldPathStorePIData(withZero)
       const newEntries = buildStorePIData(withZero, stores, 'piAmount')
 
       // S99 は除外されるので件数は元と同じ
