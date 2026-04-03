@@ -49,31 +49,10 @@ export const useStateLimits: readonly QuantitativeAllowlistEntry[] = [
 /** presentation/ の useMemo 上限の個別例外（G5 横展開） */
 export const presentationMemoLimits: readonly QuantitativeAllowlistEntry[] = [
   // useCostDetailData.ts — useCostDetailTransfer + useCostDetailCostInclusion に分離。useMemo 2 個に削減
-  {
-    path: 'presentation/pages/Dashboard/widgets/useDrilldownRecords.ts',
-    reason: 'ドリルダウンのフィルタ済みレコード＋アイテム構築（useDrilldownData から分離）',
-    category: 'structural',
-    removalCondition: 'さらなるロジック分離時',
-    limit: 11,
-    lifecycle: 'active-debt',
-  },
+  // useDrilldownRecords.ts — builder 分離完了（10→3 useMemo）。許可リスト卒業
   // useDrilldownData.ts — useDrilldownRecords に 10 useMemo を分離。useMemo 2 個に削減
-  {
-    path: 'presentation/pages/Admin/RawDataTab.tsx',
-    reason: '管理画面のデータ表示タブ。多数のフィルタ＋集計（CTS タブ追加）',
-    category: 'structural',
-    removalCondition: 'ロジック分離時',
-    limit: 13,
-    lifecycle: 'active-debt',
-  },
-  {
-    path: 'presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx',
-    reason: '複合比較チャート。要因分解＋比較期間の二重集計（CTS 診断追加）',
-    category: 'structural',
-    removalCondition: 'ロジック分離時',
-    limit: 12,
-    lifecycle: 'active-debt',
-  },
+  // RawDataTab.tsx — buildAllIndices 統合（12→4 useMemo）。許可リスト卒業
+  // YoYWaterfallChart.tsx — buildDateRanges + buildPeriodAggregates 統合（11→6 useMemo）。許可リスト卒業
   {
     path: 'presentation/pages/Dashboard/widgets/HourlyChart.tsx',
     reason: '時間帯別チャート。複数集計ビュー',
@@ -132,14 +111,7 @@ export const presentationStateLimits: readonly QuantitativeAllowlistEntry[] = [
     limit: 9,
     lifecycle: 'permanent',
   },
-  {
-    path: 'presentation/pages/Dashboard/widgets/useDrilldownData.ts',
-    reason: 'ドリルダウンの多段操作状態（8 useState + import = 9）',
-    category: 'structural',
-    removalCondition: 'useState 削減時',
-    limit: 10,
-    lifecycle: 'active-debt',
-  },
+  // useDrilldownData.ts — sortState/segInteraction の複合化（9→7 useState）。許可リスト卒業
 ] as const
 
 /** hook ファイル行数上限の個別例外 */

@@ -333,7 +333,10 @@ describe('Presentation Isolation Guard', () => {
       /prevYearCategoryTimeSales\.records/,
     ]
     // RawDataTab はソースファイル値をそのまま表示する管理画面のため例外
-    const CTS_RAW_ALLOWLIST = new Set(['presentation/pages/Admin/RawDataTab.tsx'])
+    const CTS_RAW_ALLOWLIST = new Set([
+      'presentation/pages/Admin/RawDataTab.tsx',
+      'presentation/pages/Admin/RawDataTabBuilders.ts',
+    ])
 
     for (const file of files) {
       if (CTS_RAW_ALLOWLIST.has(relativePath(file))) continue

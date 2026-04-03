@@ -7,25 +7,17 @@
  * 前週比モード: 選択期間の7日前と比較。
  */
 import { useState, useMemo, memo } from 'react'
-// DualPeriodSlider はページレベルに統合済み（C-3/C-4）
-import {
-  calculateItemsPerCustomer,
-  calculateAveragePricePerItem,
-} from '@/domain/calculations/utils'
 import { formatPercent } from '@/domain/formatting'
 import type { DateRange } from '@/domain/models/calendar'
 import { useYoYWaterfallPlan } from '@/application/hooks/plans/useYoYWaterfallPlan'
-import {
-  calculatePrevCtsDateRange,
-  aggregatePeriodCurSales,
-  aggregatePeriodPrevSales,
-  calculatePISummary,
-} from './YoYWaterfallChart.logic'
 import { CategoryFactorBreakdown } from './CategoryFactorBreakdown'
-import { decomposePriceMix } from './categoryFactorUtils'
-import { aggregateTotalQuantity } from './YoYWaterfallChart.vm'
 import type { WidgetContext, ComparisonMode } from './types'
 import { wowPrevRange, comparisonLabels } from './types'
+import {
+  buildDateRanges,
+  buildPeriodAggregates,
+  buildPISummary,
+} from './YoYWaterfallChart.builders'
 import {
   Wrapper,
   Title,
@@ -88,38 +80,31 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
 
   // ── 共通パイプライン: CTS から当年/比較期間のデータを統一取得 ──
 
-  // 当年 CTS 日付範囲（embedded 時は親から、通常はスライダー連動）
-  const curDateRange: DateRange = useMemo(
-    () =>
-      overrideDateRange ?? {
-        from: { year: ctx.year, month: ctx.month, day: dayStart },
-        to: { year: ctx.year, month: ctx.month, day: dayEnd },
-      },
-    [overrideDateRange, ctx.year, ctx.month, dayStart, dayEnd],
-  )
-
-  // 比較期間 CTS 日付範囲（前年比: dowOffset 調整済み / 前週比: -7日）
   const dowOffset = ctx.comparisonScope?.dowOffset ?? 0
-  const prevCtsDateRange: DateRange | undefined = useMemo(
+
+  // 日付範囲（2→1 useMemo に集約）
+  const { curDateRange, prevCtsDateRange } = useMemo(
     () =>
-      calculatePrevCtsDateRange(
-        activeCompMode,
-        canWoW,
-        ctx.year,
-        ctx.month,
+      buildDateRanges({
+        overrideDateRange,
+        year: ctx.year,
+        month: ctx.month,
         dayStart,
         dayEnd,
+        activeCompMode,
+        canWoW,
         dowOffset,
-        wowRange.prevStart,
-        wowRange.prevEnd,
-      ),
+        wowPrevStart: wowRange.prevStart,
+        wowPrevEnd: wowRange.prevEnd,
+      }),
     [
-      activeCompMode,
-      canWoW,
+      overrideDateRange,
       ctx.year,
       ctx.month,
       dayStart,
       dayEnd,
+      activeCompMode,
+      canWoW,
       dowOffset,
       wowRange.prevStart,
       wowRange.prevEnd,
@@ -138,27 +123,24 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
   const periodCTS = plan.currentRecords
   const periodPrevCTS = plan.comparisonRecords
 
-  // ── CTS から売上合計を導出（部門内訳と同一データソース） ──
-  const periodCurSales = useMemo(
-    () => aggregatePeriodCurSales(periodCTS, r.daily, dayStart, dayEnd),
-    [periodCTS, r.daily, dayStart, dayEnd],
-  )
-
-  const periodPrevSales = useMemo(
+  // ── CTS から売上・数量・Price/Mix を一括導出（5→1 useMemo に集約） ──
+  const agg = useMemo(
     () =>
-      aggregatePeriodPrevSales(
+      buildPeriodAggregates({
+        periodCTS,
         periodPrevCTS,
         activeCompMode,
-        r.daily,
-        prevYear.daily,
+        daily: r.daily,
+        prevDaily: prevYear.daily,
         dayStart,
         dayEnd,
-        wowRange.prevStart,
-        wowRange.prevEnd,
-        ctx.year,
-        ctx.month,
-      ),
+        wowPrevStart: wowRange.prevStart,
+        wowPrevEnd: wowRange.prevEnd,
+        year: ctx.year,
+        month: ctx.month,
+      }),
     [
+      periodCTS,
       periodPrevCTS,
       activeCompMode,
       r.daily,
@@ -171,18 +153,7 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
       ctx.month,
     ],
   )
-
-  // Aggregate total quantity from filtered CTS records (vm 関数に委譲)
-  const curTotalQty = useMemo(() => aggregateTotalQuantity(periodCTS), [periodCTS])
-  const prevTotalQty = useMemo(() => aggregateTotalQuantity(periodPrevCTS), [periodPrevCTS])
-
-  const hasQuantity = curTotalQty > 0 && prevTotalQty > 0
-
-  // Price/Mix decomposition of unit price change
-  const priceMix = useMemo(() => {
-    if (periodCTS.length === 0 || periodPrevCTS.length === 0) return null
-    return decomposePriceMix(periodCTS, periodPrevCTS)
-  }, [periodCTS, periodPrevCTS])
+  const { periodCurSales, periodPrevSales, curTotalQty, prevTotalQty, priceMix, hasQuantity } = agg
 
   // Available decomposition levels
   const maxLevel: DecompLevel = priceMix ? 5 : hasQuantity ? 3 : 2
@@ -260,7 +231,7 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
   // PI値・点単価（3要素以上の分解時に表示）
   const piSummary = useMemo(
     () =>
-      calculatePISummary(
+      buildPISummary({
         activeLevel,
         hasQuantity,
         prevCust,
@@ -269,9 +240,7 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
         curTotalQty,
         prevSales,
         curSales,
-        calculateItemsPerCustomer,
-        calculateAveragePricePerItem,
-      ),
+      }),
     [activeLevel, hasQuantity, prevCust, curCust, prevTotalQty, curTotalQty, prevSales, curSales],
   )
 
