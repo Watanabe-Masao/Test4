@@ -4,10 +4,11 @@
  * widgetIds の初期化・永続化・自動注入・active widget 解決を担う。
  * D&D や settings panel などの UI 操作は DashboardPage に残す。
  */
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useEffect } from 'react'
 import type { UnifiedWidgetContext, WidgetDef } from '@/presentation/components/widgets'
 import { UNIFIED_WIDGET_MAP } from '@/presentation/components/widgets'
 import { loadLayout, saveLayout, autoInjectDataWidgets } from './widgets/widgetLayout'
+import { resolveAutoInjectCandidates, commitAutoInjectedIds } from './widgets/widgetAutoInject'
 
 interface UseDashboardLayoutParams {
   ctx: UnifiedWidgetContext | null
@@ -48,16 +49,20 @@ export function useDashboardLayout(params: UseDashboardLayoutParams) {
 
   const [widgetIds, setWidgetIds] = useState(() => loadLayoutWithAutoInject(injectCtx))
 
-  // inject context が変化したら再注入を試みる
-  // autoInjectDataWidgets は localStorage で冪等性を保証するため、条件変化時のみ実際に注入される
-  const injectedForCtx = useMemo(
-    () => autoInjectDataWidgets(widgetIds, injectCtx),
+  // inject context が変化したら再注入候補を pure に判定する（副作用なし）
+  const candidateIds = useMemo(
+    () => resolveAutoInjectCandidates(widgetIds, injectCtx),
     [widgetIds, injectCtx],
   )
-  const effectiveIds = injectedForCtx ?? widgetIds
-  if (injectedForCtx) {
-    saveLayout(injectedForCtx)
-  }
+  const effectiveIds = candidateIds.length > 0 ? [...widgetIds, ...candidateIds] : widgetIds
+
+  // 副作用（localStorage 書き込み + layout 保存）は effect で行う
+  useEffect(() => {
+    if (candidateIds.length > 0) {
+      commitAutoInjectedIds(candidateIds)
+      saveLayout([...widgetIds, ...candidateIds])
+    }
+  }, [candidateIds, widgetIds])
 
   const handleApplyLayout = useCallback((ids: string[]) => {
     setWidgetIds(ids)
