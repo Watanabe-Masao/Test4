@@ -5,27 +5,13 @@
  * .tsx 側は描画のみに集中する。
  *
  * @guard F7 View は ViewModel のみ受け取る
- */
-/**
- * @migration P5: useQueryWithHandler 経由に移行済み
+ * @guard H1 Screen Plan 経由のみ
+ * @guard H4 component に acquisition logic 禁止
  */
 import { useState, useMemo, useCallback } from 'react'
 import type { DateRange } from '@/domain/models/calendar'
-import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
-import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
-import {
-  categoryBenchmarkHandler,
-  type CategoryBenchmarkInput,
-} from '@/application/queries/advanced/CategoryBenchmarkHandler'
-import {
-  categoryBenchmarkTrendHandler,
-  type CategoryBenchmarkTrendInput,
-} from '@/application/queries/advanced/CategoryBenchmarkTrendHandler'
-import {
-  categoryHierarchyHandler,
-  type CategoryHierarchyInput,
-} from '@/application/queries/advanced/CategoryHierarchyHandler'
+import { useCategoryBenchmarkPlan } from '@/application/hooks/useCategoryBenchmarkPlan'
 import {
   buildCategoryBenchmarkScores,
   buildCategoryTrendData,
@@ -184,79 +170,22 @@ export function useCategoryBenchmarkChartVm(
   const isSingleStore = selectedStoreIds.size === 1
   const effectiveAxis = resolveEffectiveAxis(analysisAxis, isSingleStore)
 
-  // QueryHandler inputs
-  const deptHierarchyInput = useMemo<CategoryHierarchyInput | null>(() => {
-    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
-      level: 'department' as const,
-    }
-  }, [currentDateRange, selectedStoreIds])
+  // Screen Plan: 全クエリを一元管理
+  const plan = useCategoryBenchmarkPlan({
+    executor: queryExecutor,
+    currentDateRange,
+    selectedStoreIds,
+    level,
+    parentDeptCode,
+    parentLineCode,
+  })
 
-  const lineHierarchyInput = useMemo<CategoryHierarchyInput | null>(() => {
-    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
-      level: 'line' as const,
-      parentDeptCode: parentDeptCode || undefined,
-    }
-  }, [currentDateRange, selectedStoreIds, parentDeptCode])
-
-  const benchmarkInput = useMemo<CategoryBenchmarkInput | null>(() => {
-    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
-      level,
-      parentDeptCode: parentDeptCode || undefined,
-      parentLineCode: parentLineCode || undefined,
-    }
-  }, [currentDateRange, selectedStoreIds, level, parentDeptCode, parentLineCode])
-
-  const trendInput = useMemo<CategoryBenchmarkTrendInput | null>(() => {
-    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
-      level,
-      parentDeptCode: parentDeptCode || undefined,
-      parentLineCode: parentLineCode || undefined,
-    }
-  }, [currentDateRange, selectedStoreIds, level, parentDeptCode, parentLineCode])
-
-  const { data: deptOutput } = useQueryWithHandler(
-    queryExecutor,
-    categoryHierarchyHandler,
-    deptHierarchyInput,
-  )
-  const deptList = deptOutput?.records ?? null
-
-  const { data: lineOutput } = useQueryWithHandler(
-    queryExecutor,
-    categoryHierarchyHandler,
-    lineHierarchyInput,
-  )
-  const lineList = lineOutput?.records ?? null
-
-  const {
-    data: benchmarkOutput,
-    error,
-    isLoading,
-  } = useQueryWithHandler(queryExecutor, categoryBenchmarkHandler, benchmarkInput)
-  const rawRows = benchmarkOutput?.records ?? null
-
-  const { data: trendOutput } = useQueryWithHandler(
-    queryExecutor,
-    categoryBenchmarkTrendHandler,
-    trendInput,
-  )
-  const trendRows = trendOutput?.records ?? null
+  const { isLoading } = plan
+  const error = plan.error
+  const deptList = plan.deptList?.records ?? null
+  const lineList = plan.lineList?.records ?? null
+  const rawRows = plan.benchmarkData.data?.records ?? null
+  const trendRows = plan.trendData.data?.records ?? null
 
   const totalStoreCount = selectedStoreIds.size
 

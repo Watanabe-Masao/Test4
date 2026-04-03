@@ -1,6 +1,6 @@
 # Query Access Audit Report
 
-> Generated: 2026-04-03T07:30:22.731Z
+> Generated: 2026-04-03T09:31:44.854Z
 
 ## Route Summary
 
@@ -8,8 +8,8 @@
 |---|---|---|
 | QueryHandler 定義 | 47 | 基盤 |
 | PairedQueryHandler（pair 化済み） | 13 | 基盤 |
-| Screen Plan hook（plan 化済み） | 3 | 基盤 |
-| useQueryWithHandler（正規） | 26 | 正規 |
+| Screen Plan hook（plan 化済み） | 4 | 基盤 |
+| useQueryWithHandler（正規） | 24 | 正規 |
 | comparisonAccessors（正規） | 10 | 正規 |
 | facade / bundle hook 使用（正規） | 4 | 正規 |
 | bundle hook 定義 | 1 | 基盤 |
@@ -41,8 +41,6 @@
 - presentation/pages/Dashboard/widgets/ConditionSummaryBudgetDrill.tsx
 - presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx
 - features/category/ui/charts/CategoryBarChart.tsx
-- features/category/ui/charts/CategoryBenchmarkChart.vm.ts
-- features/category/ui/charts/CategoryBoxPlotChart.vm.ts
 - features/category/ui/charts/CategoryDiscountChart.tsx
 - features/category/ui/charts/CategoryHierarchyExplorer.tsx
 - features/category/ui/charts/CategoryHourlyChart.tsx
@@ -116,6 +114,7 @@
 
 ### screenPlanHooks
 
+- application/hooks/useCategoryBenchmarkPlan.ts
 - application/hooks/useHeatmapPlan.ts
 - application/hooks/usePerformanceIndexPlan.ts
 - presentation/components/charts/useIntegratedSalesPlan.ts
