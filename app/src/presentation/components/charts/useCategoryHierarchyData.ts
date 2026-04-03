@@ -8,16 +8,14 @@
  * このフックはデータ取得と変換に集中する。
  *
  * @guard G5 hook ≤300行
- * @guard H1 Screen Plan 経由のみ
- * @guard H2 比較は pair/bundle 契約 — levelAggregationPairHandler + categoryHourlyPairHandler
+ * @guard H1 Screen Plan 経由のみ — useCategoryHierarchyPlan
+ * @guard H2 比較は pair/bundle 契約 — plan hook 内部で pair handler を使用
  */
 import { useMemo } from 'react'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
-import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
-import { levelAggregationPairHandler } from '@/application/queries/cts/LevelAggregationPairHandler'
-import { categoryHourlyPairHandler } from '@/application/queries/cts/CategoryHourlyPairHandler'
+import { useCategoryHierarchyPlan } from '@/application/hooks/plans/useCategoryHierarchyPlan'
 import type { PairedInput } from '@/application/queries/createPairedHandler'
 import type { LevelAggregationInput } from '@/application/queries/cts/LevelAggregationHandler'
 import type { CategoryHourlyInput } from '@/application/queries/cts/CategoryHourlyHandler'
@@ -89,9 +87,12 @@ export function useCategoryHierarchyData(params: UseCategoryHierarchyDataParams)
     [currentDateRange, prevYearDateRange, storeIdsList, currentLevel, filter],
   )
 
-  // ── クエリ実行（4本 → 2本の pair handler） ──
-  const levelPair = useQueryWithHandler(queryExecutor, levelAggregationPairHandler, levelPairInput)
-  const hourlyPair = useQueryWithHandler(queryExecutor, categoryHourlyPairHandler, hourlyPairInput)
+  // ── クエリ実行（plan hook 経由） ──
+  const { levelPair, hourlyPair } = useCategoryHierarchyPlan(
+    queryExecutor,
+    levelPairInput,
+    hourlyPairInput,
+  )
 
   const curLevelData = levelPair.data?.current?.records ?? null
   const curHourlyData = hourlyPair.data?.current?.records ?? null

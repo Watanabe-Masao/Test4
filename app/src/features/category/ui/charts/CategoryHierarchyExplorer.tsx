@@ -6,7 +6,7 @@
  * テーブル描画は CategoryExplorerTable に委譲。
  */
 /**
- * @migration P5: useQueryWithHandler 経由に移行済み（旧: useDuckDBLevelAggregation + useDuckDBCategoryHourly 直接 import）
+ * @migration P5: query hook 経由に移行済み（旧: useDuckDBLevelAggregation + useDuckDBCategoryHourly 直接 import）
  */
 import { Fragment, memo, useMemo, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'

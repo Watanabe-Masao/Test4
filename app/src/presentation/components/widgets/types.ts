@@ -79,7 +79,7 @@ export interface UnifiedWidgetContext {
   readonly dataMaxDay?: number
   readonly elapsedDays?: number | undefined
   readonly monthlyHistory?: readonly MonthlyDataPoint[]
-  /** QueryExecutor — DuckDB クエリの標準経路 A（@see useQueryWithHandler） */
+  /** QueryExecutor — DuckDB クエリの標準経路 A */
   readonly queryExecutor?: QueryExecutor | null
   /** DuckDB データロード済みバージョン（useMemo 依存配列用、0 = 未ロード） */
   readonly duckDataVersion?: number

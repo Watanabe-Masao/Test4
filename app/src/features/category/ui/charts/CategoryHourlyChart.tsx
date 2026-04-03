@@ -4,7 +4,7 @@
  * パイプライン:
  *   QueryHandler → CategoryHourlyChartLogic.ts → ECharts heatmap option → EChart
  *
- * @migration P5: useQueryWithHandler 経由に移行済み（旧: useDuckDBCategoryHourly 直接 import）
+ * @migration P5: plan hook 経由に移行済み（旧: useDuckDBCategoryHourly 直接 import）
  */
 import { useMemo, useState, useCallback, memo } from 'react'
 import { useTheme } from 'styled-components'
@@ -12,11 +12,10 @@ import type { DateRange } from '@/domain/models/calendar'
 import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { AppTheme } from '@/presentation/theme/theme'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
-import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
 import {
-  categoryHourlyHandler,
+  useCategoryHourlyChartPlan,
   type CategoryHourlyInput,
-} from '@/application/queries/cts/CategoryHourlyHandler'
+} from '@/application/hooks/plans/useCategoryHourlyChartPlan'
 import { HOUR_MIN, HOUR_MAX } from '@/presentation/components/charts/HeatmapChart.helpers'
 import { buildCategoryHeatmapData } from '@/features/category/ui/charts/CategoryHourlyChartLogic'
 import { useI18n } from '@/application/hooks/useI18n'
@@ -166,11 +165,7 @@ export const CategoryHourlyChart = memo(function CategoryHourlyChart({
     }
   }, [currentDateRange, selectedStoreIds, level])
 
-  const {
-    data: output,
-    error,
-    isLoading,
-  } = useQueryWithHandler(queryExecutor, categoryHourlyHandler, input)
+  const { data: output, error, isLoading } = useCategoryHourlyChartPlan(queryExecutor, input)
 
   const hourlyRows = output?.records ?? null
 

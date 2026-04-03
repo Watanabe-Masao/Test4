@@ -21,10 +21,11 @@ import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { AppTheme } from '@/presentation/theme/theme'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
-import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
-import { categoryDailyTrendPairHandler } from '@/application/queries/cts/CategoryDailyTrendPairHandler'
-import type { CategoryDailyTrendInput } from '@/application/queries/cts/CategoryDailyTrendHandler'
-import type { PairedInput } from '@/application/queries/createPairedHandler'
+import {
+  useCategoryBarChartPlan,
+  type CategoryDailyTrendInput,
+  type PairedInput,
+} from '@/application/hooks/plans/useCategoryBarChartPlan'
 import {
   buildCategoryTrendData,
   type TrendMetric,
@@ -146,11 +147,7 @@ export const CategoryBarChart = memo(function CategoryBarChart({
     topN,
   ])
 
-  const { data: pairOutput, isLoading } = useQueryWithHandler(
-    queryExecutor,
-    categoryDailyTrendPairHandler,
-    pairInput,
-  )
+  const { data: pairOutput, isLoading } = useCategoryBarChartPlan(queryExecutor, pairInput)
   const output = pairOutput?.current ?? null
   const prevOutput = pairOutput?.comparison ?? null
 

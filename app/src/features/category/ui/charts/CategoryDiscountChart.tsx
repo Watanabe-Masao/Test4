@@ -16,10 +16,11 @@ import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { AppTheme } from '@/presentation/theme/theme'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
-import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
-import { categoryDiscountPairHandler } from '@/application/queries/cts/CategoryDiscountPairHandler'
-import type { CategoryDiscountInput } from '@/application/queries/cts/CategoryDiscountHandler'
-import type { PairedInput } from '@/application/queries/createPairedHandler'
+import {
+  useCategoryDiscountChartPlan,
+  type CategoryDiscountInput,
+  type PairedInput,
+} from '@/application/hooks/plans/useCategoryDiscountChartPlan'
 import { DISCOUNT_TYPES } from '@/domain/models/record'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { SegmentedControl } from '@/presentation/components/common/layout'
@@ -123,11 +124,7 @@ export const CategoryDiscountChart = memo(function CategoryDiscountChart({
     return base
   }, [visible, currentDateRange, prevYearScope, storeIds, drill.level, drill.parentFilter])
 
-  const { data: pairOutput, isLoading } = useQueryWithHandler(
-    queryExecutor,
-    categoryDiscountPairHandler,
-    pairInput,
-  )
+  const { data: pairOutput, isLoading } = useCategoryDiscountChartPlan(queryExecutor, pairInput)
   const output = pairOutput?.current ?? null
   const prevOutput = pairOutput?.comparison ?? null
 

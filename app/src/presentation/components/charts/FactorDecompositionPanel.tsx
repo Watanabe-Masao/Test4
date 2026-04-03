@@ -8,16 +8,17 @@
  * データソース: DuckDB store_day_summary（当期 + 前年）。
  */
 /**
- * @migration P5: useQueryWithHandler 経由に移行済み（旧: useDuckDBStoreDaySummary 直接 import）
+ * @migration P5: plan hook 経由に移行済み（旧: useDuckDBStoreDaySummary 直接 import）
  */
 import { useState, useMemo, memo } from 'react'
 import styled, { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { dateRangeToKeys } from '@/domain/models/calendar'
-import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
-import { storeDaySummaryPairHandler } from '@/application/queries/summary/StoreDaySummaryPairHandler'
-import type { StoreDaySummaryInput } from '@/application/queries/summary/StoreDaySummaryHandler'
-import type { PairedInput } from '@/application/queries/createPairedHandler'
+import {
+  useFactorDecompositionPlan,
+  type StoreDaySummaryInput,
+  type PairedInput,
+} from '@/application/hooks/plans/useFactorDecompositionPlan'
 import type { DuckQueryContext } from './SubAnalysisPanel'
 import { decompose2, decompose3 } from '@/application/services/factorDecompositionBridge'
 import { EChart, type EChartsOption } from './EChart'
@@ -135,11 +136,7 @@ export const FactorDecompositionPanel = memo(function FactorDecompositionPanel({
     return base
   }, [currentDateRange, prevDateRange, selectedStoreIds])
 
-  const { data: pairOutput } = useQueryWithHandler(
-    queryExecutor,
-    storeDaySummaryPairHandler,
-    pairInput,
-  )
+  const { data: pairOutput } = useFactorDecompositionPlan(queryExecutor, pairInput)
   const curRows = pairOutput?.current?.records ?? null
   const prevRows = pairOutput?.comparison?.records ?? null
 

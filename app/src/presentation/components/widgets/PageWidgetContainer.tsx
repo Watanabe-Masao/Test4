@@ -35,7 +35,7 @@ import {
  * DuckDB 依存ウィジェット（size !== 'kpi'）の描画前に
  * queryExecutor の readiness をチェックし、未準備ならスケルトンを表示する。
  *
- * ウィジェット内部の useQueryWithHandler による個別ローディングは引き続き機能するが、
+ * ウィジェット内部の query hook による個別ローディングは引き続き機能するが、
  * DuckDB エンジン自体が未初期化の段階ではウィジェット内部の hook が実行できないため、
  * この層で先にガードする。
  */

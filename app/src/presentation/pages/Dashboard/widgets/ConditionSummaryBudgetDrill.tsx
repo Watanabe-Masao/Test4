@@ -20,11 +20,10 @@ import {
 } from './ConditionSummaryEnhanced.vm'
 import { StoreRow, StoreTableHeader } from './ConditionSummaryEnhancedRows'
 import { ConditionSummaryDailyModal } from './ConditionSummaryDailyModal'
-import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
 import {
-  storeDailyMarkupRateHandler,
+  useConditionBudgetDrillPlan,
   type StoreDailyMarkupRateInput,
-} from '@/application/queries/purchase'
+} from '@/application/hooks/plans/useConditionBudgetDrillPlan'
 import { dateRangeToKeys } from '@/domain/models/calendar'
 import {
   TotalSection,
@@ -125,11 +124,7 @@ export const ConditionSummaryBudgetDrill = memo(function ConditionSummaryBudgetD
     return { dateFrom: fromKey, dateTo: toKey, storeId: dailyStoreId }
   }, [dailyStoreId, activeMetric, ctx.prevYearScope])
 
-  const { data: markupOutput } = useQueryWithHandler(
-    ctx.queryExecutor,
-    storeDailyMarkupRateHandler,
-    markupInput,
-  )
+  const { data: markupOutput } = useConditionBudgetDrillPlan(ctx.queryExecutor, markupInput)
 
   const effectiveMarkupYoYRows = useMemo(() => {
     const markupData = markupOutput?.data

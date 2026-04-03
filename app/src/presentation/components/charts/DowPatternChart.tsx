@@ -4,7 +4,7 @@
  * パイプライン:
  *   QueryHandler → DowPatternChartLogic.ts → ECharts option → EChart
  *
- * @migration P5: useQueryWithHandler 経由に移行済み（旧: useDuckDBDowPattern 直接 import）
+ * @migration P5: plan hook 経由に移行済み（旧: useDuckDBDowPattern 直接 import）
  */
 import { useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'
@@ -12,11 +12,10 @@ import type { DateRange } from '@/domain/models/calendar'
 import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { AppTheme } from '@/presentation/theme/theme'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
-import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
 import {
-  dowPatternHandler,
+  useDowPatternChartPlan,
   type DowPatternInput,
-} from '@/application/queries/features/DowPatternHandler'
+} from '@/application/hooks/plans/useDowPatternChartPlan'
 import { buildDowPatternData, type DowChartDataPoint } from './DowPatternChartLogic'
 import { useCurrencyFormatter, toPct } from './chartTheme'
 import { useI18n } from '@/application/hooks/useI18n'
@@ -93,11 +92,7 @@ export const DowPatternChart = memo(function DowPatternChart({
     }
   }, [currentDateRange, selectedStoreIds])
 
-  const {
-    data: output,
-    error,
-    isLoading,
-  } = useQueryWithHandler(queryExecutor, dowPatternHandler, input)
+  const { data: output, error, isLoading } = useDowPatternChartPlan(queryExecutor, input)
 
   const rows = output?.records ?? null
 

@@ -5,7 +5,7 @@
  * 売上・客数データは DuckDB store_day_summary から取得。
  */
 /**
- * @migration P5: useQueryWithHandler 経由に移行済み（旧: useDuckDBStoreDaySummary 直接 import）
+ * @migration P5: plan hook 経由に移行済み（旧: useDuckDBStoreDaySummary 直接 import）
  */
 import { useMemo, memo } from 'react'
 import styled from 'styled-components'
@@ -13,11 +13,10 @@ import type { DailyWeatherSummary } from '@/domain/models/record'
 import type { DailySalesForCorrelation } from '@/application/hooks/useWeatherCorrelation'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import { dateRangeToKeys } from '@/domain/models/calendar'
-import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
 import {
-  storeDaySummaryHandler,
+  useWeatherAnalysisPlan,
   type StoreDaySummaryInput,
-} from '@/application/queries/summary/StoreDaySummaryHandler'
+} from '@/application/hooks/plans/useWeatherAnalysisPlan'
 import type { DuckQueryContext } from './SubAnalysisPanel'
 import { WeatherCorrelationChart } from './WeatherCorrelationChart'
 
@@ -41,7 +40,7 @@ export const WeatherAnalysisPanel = memo(function WeatherAnalysisPanel({
     }
   }, [currentDateRange, selectedStoreIds])
 
-  const { data: output } = useQueryWithHandler(queryExecutor, storeDaySummaryHandler, input)
+  const { data: output } = useWeatherAnalysisPlan(queryExecutor, input)
   const dailyRows = output?.records ?? null
 
   const { year, month } = currentDateRange.from

@@ -6,18 +6,17 @@
  * パイプライン:
  *   QueryHandler → CumulativeChartLogic.ts → ECharts option → EChart
  *
- * @migration P5: useQueryWithHandler 経由に移行済み（旧: useDuckDBDailyCumulative 直接 import）
+ * @migration P5: plan hook 経由に移行済み（旧: useDuckDBDailyCumulative 直接 import）
  */
 import { useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'
 import type { DateRange } from '@/domain/models/calendar'
 import type { AppTheme } from '@/presentation/theme/theme'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
-import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
 import {
-  dailyCumulativeHandler,
+  useCumulativeChartPlan,
   type DailyCumulativeInput,
-} from '@/application/queries/summary/DailyCumulativeHandler'
+} from '@/application/hooks/plans/useCumulativeChartPlan'
 import { dateRangeToKeys } from '@/domain/models/calendar'
 import {
   buildCumulativeChartData,
@@ -127,11 +126,7 @@ export const CumulativeChart = memo(function CumulativeChart({
     }
   }, [currentDateRange, selectedStoreIds])
 
-  const {
-    data: output,
-    error,
-    isLoading,
-  } = useQueryWithHandler(queryExecutor, dailyCumulativeHandler, input)
+  const { data: output, error, isLoading } = useCumulativeChartPlan(queryExecutor, input)
   const rows = output?.records ?? null
 
   const chartData = useMemo(() => (rows ? buildCumulativeChartData(rows) : []), [rows])

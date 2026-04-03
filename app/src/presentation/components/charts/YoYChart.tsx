@@ -8,7 +8,7 @@
  *   - 日次比較: 当年売上線 + 前年売上線（破線）+ 差分棒グラフ
  *   - ウォーターフォール: 前年→当年の累積差分を滝グラフで表示
  *
- * @migration P5: useQueryWithHandler 経由に移行済み（旧: useDuckDBYoyDaily 直接 import）
+ * @migration P5: plan hook 経由に移行済み（旧: useDuckDBYoyDaily 直接 import）
  */
 import { useState, useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'
@@ -17,11 +17,7 @@ import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { ComparisonScope, AlignmentMode } from '@/domain/models/ComparisonScope'
 import type { AppTheme } from '@/presentation/theme/theme'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
-import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
-import {
-  yoyDailyHandler,
-  type YoyDailyInput,
-} from '@/application/queries/comparison/YoyDailyHandler'
+import { useYoYChartPlan, type YoyDailyInput } from '@/application/hooks/plans/useYoYChartPlan'
 import {
   buildYoYChartData,
   buildYoYWaterfallData,
@@ -191,11 +187,7 @@ export const YoYChart = memo(function YoYChart({
     }
   }, [scopePeriod1, scopePeriod2, scopeAlignmentMode, selectedStoreIds, prevYearDateRange])
 
-  const {
-    data: output,
-    isLoading,
-    error,
-  } = useQueryWithHandler(queryExecutor, yoyDailyHandler, input)
+  const { data: output, isLoading, error } = useYoYChartPlan(queryExecutor, input)
 
   const rows = output?.records ?? null
 

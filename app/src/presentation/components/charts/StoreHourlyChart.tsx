@@ -4,7 +4,7 @@
  * パイプライン:
  *   QueryHandler → StoreHourlyChartLogic.ts → ECharts option → EChart
  *
- * @migration P5: useQueryWithHandler 経由に移行済み（旧: useDuckDBStoreAggregation 直接 import）
+ * @migration P5: plan hook 経由に移行済み（旧: useDuckDBStoreAggregation 直接 import）
  */
 import { useState, useMemo, memo, useCallback } from 'react'
 import { useTheme } from 'styled-components'
@@ -13,11 +13,10 @@ import type { DateRange } from '@/domain/models/calendar'
 import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { AppTheme } from '@/presentation/theme/theme'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
-import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
 import {
-  storeAggregationHandler,
+  useStoreHourlyChartPlan,
   type StoreAggregationInput,
-} from '@/application/queries/cts/StoreAggregationHandler'
+} from '@/application/hooks/plans/useStoreHourlyChartPlan'
 import { useCurrencyFormatter, toPct } from './chartTheme'
 import {
   buildStoreHourlyData,
@@ -115,11 +114,7 @@ export const StoreHourlyChart = memo(function StoreHourlyChart({
     }
   }, [currentDateRange, selectedStoreIds])
 
-  const {
-    data: output,
-    error,
-    isLoading,
-  } = useQueryWithHandler(queryExecutor, storeAggregationHandler, input)
+  const { data: output, error, isLoading } = useStoreHourlyChartPlan(queryExecutor, input)
 
   const storeRows = output?.records ?? null
 
