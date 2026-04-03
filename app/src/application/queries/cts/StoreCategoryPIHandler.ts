@@ -13,7 +13,6 @@ import {
 
 export interface StoreCategoryPIInput extends BaseQueryInput {
   readonly level: 'department' | 'line' | 'klass'
-  readonly isPrevYear?: boolean
 }
 
 export interface StoreCategoryPIRow {
@@ -31,25 +30,26 @@ export interface StoreCategoryPIOutput {
   readonly storeCustomers: ReadonlyMap<string, number>
 }
 
-export const storeCategoryPIHandler: QueryHandler<StoreCategoryPIInput, StoreCategoryPIOutput> = {
+/** Internal: isPrevYear is injected by createPairedHandler at runtime */
+type ExecuteInput = StoreCategoryPIInput & { readonly isPrevYear?: boolean }
+
+export const storeCategoryPIHandler: QueryHandler<ExecuteInput, StoreCategoryPIOutput> = {
   name: 'StoreCategoryPI',
-  async execute(
-    conn: AsyncDuckDBConnection,
-    input: StoreCategoryPIInput,
-  ): Promise<StoreCategoryPIOutput> {
+  async execute(conn: AsyncDuckDBConnection, input: ExecuteInput): Promise<StoreCategoryPIOutput> {
+    const isPrevYear = input.isPrevYear ?? false
     const [catRows, custRows] = await Promise.all([
       queryStoreCategoryAggregation(conn, {
         dateFrom: input.dateFrom,
         dateTo: input.dateTo,
         storeIds: input.storeIds,
         level: input.level,
-        isPrevYear: input.isPrevYear ?? false,
+        isPrevYear,
       }),
       queryStoreCustomers(conn, {
         dateFrom: input.dateFrom,
         dateTo: input.dateTo,
         storeIds: input.storeIds,
-        isPrevYear: input.isPrevYear ?? false,
+        isPrevYear,
       }),
     ])
 

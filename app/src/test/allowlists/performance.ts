@@ -24,25 +24,14 @@ export const isPrevYearHandlers: readonly AllowlistEntry[] = [
     category: 'migration',
     removalCondition: '全利用側が PairHandler に移行完了後に isPrevYear 型を除去',
   },
-  {
-    path: 'application/queries/cts/HourDowMatrixHandler.ts',
-    reason: 'pair 化+利用側移行済み（HeatmapChart）',
-    category: 'migration',
-    removalCondition: '全利用側が PairHandler に移行完了後に isPrevYear 型を除去',
-  },
+  // HourDowMatrixHandler — isPrevYear 型除去済み
   {
     path: 'application/queries/cts/CategoryDiscountHandler.ts',
     reason: 'pair 化+利用側移行済み（CategoryDiscountChart）',
     category: 'migration',
     removalCondition: '全利用側が PairHandler に移行完了後に isPrevYear 型を除去',
   },
-  {
-    path: 'application/queries/cts/CategoryDailyTrendHandler.ts',
-    reason:
-      'pair 化+利用側移行済み（CategoryBarChart）。useCategoryTrendChartData は topN 非対称のため不適合',
-    category: 'migration',
-    removalCondition: 'useCategoryTrendChartData の専用 handler 設計時に判断',
-  },
+  // CategoryDailyTrendHandler — isPrevYear 型除去済み
   {
     path: 'application/queries/cts/StoreCategoryPIHandler.ts',
     reason: 'pair 化+利用側移行済み（usePerformanceIndexPlan）',
@@ -64,30 +53,15 @@ export const isPrevYearHandlers: readonly AllowlistEntry[] = [
     removalCondition: 'useTimeSlotData の WoW 比較対応設計時に判断',
   },
   // ── pair handler 導入済み（利用側に単一呼び出しのみ — pair 化不要） ──
-  {
-    path: 'application/queries/summary/DailyCumulativeHandler.ts',
-    reason: 'pair 化済み。CumulativeChart は単一呼び出し（比較なし）のため pair 不要',
-    category: 'migration',
-    removalCondition: 'CumulativeChart に比較機能が追加された場合に pair handler 移行',
-  },
-  {
-    path: 'application/queries/summary/AggregatedRatesHandler.ts',
-    reason: 'pair 化済み。利用側未特定',
-    category: 'migration',
-    removalCondition: '利用側移行時に判断',
-  },
+  // DailyCumulativeHandler — isPrevYear 型除去済み
+  // AggregatedRatesHandler — isPrevYear 型除去済み
   {
     path: 'application/queries/cts/DistinctDayCountHandler.ts',
     reason: 'pair 化済み。useTimeSlotData は WoW 比較で isPrevYear=false のため不適合',
     category: 'migration',
     removalCondition: 'useTimeSlotData の WoW 比較対応設計時に判断',
   },
-  {
-    path: 'application/queries/advanced/CategoryMixWeeklyHandler.ts',
-    reason: 'pair 化済み。CategoryMixChart は単一呼び出し（比較なし）のため pair 不要',
-    category: 'migration',
-    removalCondition: 'CategoryMixChart に比較機能が追加された場合に pair handler 移行',
-  },
+  // CategoryMixWeeklyHandler — isPrevYear 型除去済み
   // ── pair handler 導入済み（利用側が複雑パターン） ──
   {
     path: 'application/queries/cts/CategoryTimeRecordsHandler.ts',

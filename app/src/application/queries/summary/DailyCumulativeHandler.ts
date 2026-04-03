@@ -11,9 +11,7 @@ import {
 } from '@/infrastructure/duckdb/queries/aggregates/dailyAggregation'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 
-export interface DailyCumulativeInput extends BaseQueryInput {
-  readonly isPrevYear?: boolean
-}
+export type DailyCumulativeInput = BaseQueryInput
 
 export interface DailyCumulativeOutput {
   readonly records: readonly DailyCumulativeRow[]

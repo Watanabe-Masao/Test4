@@ -65,8 +65,8 @@ describe('Exit KPI: 暫定構造在庫（原則単調減少）', () => {
     }
     expect(
       count,
-      `allowlist 総エントリ数: ${count}/74。削減を継続してください`,
-    ).toBeLessThanOrEqual(74)
+      `allowlist 総エントリ数: ${count}/69。削減を継続してください`,
+    ).toBeLessThanOrEqual(69)
   })
 
   it('widget 自前取得残件 = 0', () => {
