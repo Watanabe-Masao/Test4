@@ -11,7 +11,10 @@ export { CategoryTrendChart } from './CategoryTrendChart'
 export { CategoryMixChart } from './CategoryMixChart'
 export { CategoryBenchmarkChart } from './CategoryBenchmarkChart'
 export { CategoryBoxPlotChart } from './CategoryBoxPlotChart'
-export { CategoryPerformanceChart } from './CategoryPerformanceChart'
+export {
+  CategoryPerformanceChart,
+  type LevelType as CategoryLevelType,
+} from './CategoryPerformanceChart'
 export { CategoryHourlyChart } from './CategoryHourlyChart'
 
 // ── 補助コンポーネント ──

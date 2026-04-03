@@ -4,6 +4,9 @@
  * ドリル状態マシンは useDrillStateMachine に、
  * 分析文脈構築は useIntegratedSalesContext に分離。
  * 本 hook は日別点数クエリと移動平均 overlay を担う。
+ *
+ * @guard H1 Screen Plan 経由のみ — IntegratedSales 系列の query 取得を一元管理
+ * @guard H2 比較は pair/bundle 契約 — dailyQuantityPairHandler で cur/prev 一括取得
  */
 import { useState, useMemo } from 'react'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
@@ -29,6 +32,23 @@ interface UseIntegratedSalesStateParams {
   readonly year: number
   readonly month: number
   readonly daysInMonth: number
+}
+
+/**
+ * 日別点数クエリの入力を構築（純粋関数）。
+ */
+export function buildQtyPairInput(
+  currentDateRange: DateRange,
+  storeIds: readonly string[] | undefined,
+  prevYearDateRange: DateRange | undefined,
+): DailyQuantityPairInput {
+  const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
+  const base: DailyQuantityPairInput = { dateFrom: fromKey, dateTo: toKey, storeIds }
+  if (prevYearDateRange) {
+    const { fromKey: pFrom, toKey: pTo } = dateRangeToKeys(prevYearDateRange)
+    return { ...base, prevDateFrom: pFrom, prevDateTo: pTo }
+  }
+  return base
 }
 
 export function useIntegratedSalesState(params: UseIntegratedSalesStateParams) {
@@ -71,15 +91,10 @@ export function useIntegratedSalesState(params: UseIntegratedSalesStateParams) {
     [selectedStoreIds],
   )
   const prevYearDateRange = prevYearScope?.dateRange
-  const qtyPairInput = useMemo<DailyQuantityPairInput | null>(() => {
-    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-    const base: DailyQuantityPairInput = { dateFrom: fromKey, dateTo: toKey, storeIds }
-    if (prevYearDateRange) {
-      const { fromKey: pFrom, toKey: pTo } = dateRangeToKeys(prevYearDateRange)
-      return { ...base, prevDateFrom: pFrom, prevDateTo: pTo }
-    }
-    return base
-  }, [currentDateRange, storeIds, prevYearDateRange])
+  const qtyPairInput = useMemo(
+    () => buildQtyPairInput(currentDateRange, storeIds, prevYearDateRange),
+    [currentDateRange, storeIds, prevYearDateRange],
+  )
   const { data: qtyPairOut } = useQueryWithHandler(
     queryExecutor,
     dailyQuantityPairHandler,

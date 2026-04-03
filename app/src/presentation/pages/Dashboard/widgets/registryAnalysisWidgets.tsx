@@ -82,11 +82,12 @@ export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
     isVisible: () => false, // PerformanceIndexChart に統合済み — 非表示
     render: (ctx) => (
       <CategoryPerformanceChart
-        queryExecutor={ctx.queryExecutor}
-        currentDateRange={ctx.currentDateRange}
+        categoryData={null}
+        isLoading={false}
         prevYearScope={ctx.prevYearScope}
-        selectedStoreIds={ctx.selectedStoreIds}
         totalCustomers={ctx.result.totalCustomers}
+        level="department"
+        onLevelChange={() => {}}
       />
     ),
   },

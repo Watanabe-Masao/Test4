@@ -2,10 +2,10 @@ import { chartFontSize } from '@/presentation/theme/tokens'
 /**
  * カテゴリPI値・偏差値分析
  *
- * queryLevelAggregation で階層別集約データを取得し、
  * PI値（金額PI / 点数PI）と偏差値を算出して横棒チャートで表示する。
+ * データは親の Screen Plan hook (usePerformanceIndexPlan) から props で受け取る。
  *
- * @migration P5: useQueryWithHandler 経由に移行済み（旧: useDuckDBLevelAggregation 直接 import）
+ * @guard H4 component に acquisition logic 禁止
  */
 import { useState, useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'
@@ -16,16 +16,11 @@ import {
   standardTooltip,
   standardLegend,
 } from '@/presentation/components/charts/echartsOptionBuilders'
-import { toComma, toDevScore } from '@/presentation/components/charts/chartTheme'
-import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
-import { dateRangeToKeys } from '@/domain/models/calendar'
-import type { QueryExecutor } from '@/application/queries/QueryPort'
-import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
-import {
-  levelAggregationHandler,
-  type LevelAggregationInput,
-} from '@/application/queries/cts/LevelAggregationHandler'
-import { calculateStdDev } from '@/application/hooks/useStatistics'
+import { toComma } from '@/presentation/components/charts/chartTheme'
+import type { PrevYearScope } from '@/domain/models/calendar'
+import type { PairedQueryOutput } from '@/application/queries/PairedQueryContract'
+import type { LevelAggregationOutput } from '@/application/queries/cts/LevelAggregationHandler'
+import { buildCategoryRows } from './CategoryPerformanceChart.builders'
 import { ChartSkeleton } from '@/presentation/components/common/feedback'
 import { ChartCard } from '@/presentation/components/charts/ChartCard'
 import {
@@ -37,7 +32,7 @@ import {
 } from '@/features/category/ui/charts/CategoryPerformanceChart.styles'
 
 type ViewType = 'piRank' | 'deviation' | 'piQtyRank'
-type LevelType = 'department' | 'line' | 'klass'
+export type LevelType = 'department' | 'line' | 'klass'
 
 const VIEW_LABELS: Record<ViewType, string> = {
   piRank: '金額PI値',
@@ -52,11 +47,12 @@ const LEVEL_LABELS: Record<LevelType, string> = {
 }
 
 interface Props {
-  queryExecutor: QueryExecutor | null
-  currentDateRange: DateRange
+  categoryData: PairedQueryOutput<LevelAggregationOutput> | null
+  isLoading: boolean
   prevYearScope?: PrevYearScope
-  selectedStoreIds: ReadonlySet<string>
   totalCustomers: number
+  level: LevelType
+  onLevelChange: (level: LevelType) => void
 }
 
 const ALL_LABELS: Record<string, string> = {
@@ -68,125 +64,28 @@ const ALL_LABELS: Record<string, string> = {
   qtyDeviation: '点数PI偏差値',
 }
 
-interface CategoryRow {
-  code: string
-  name: string
-  amount: number
-  quantity: number
-  piAmount: number
-  piQty: number
-  prevPiAmount: number | null
-  prevPiQty: number | null
-  deviation: number | null
-  qtyDeviation: number | null
-}
-
 export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
-  queryExecutor,
-  currentDateRange,
+  categoryData,
+  isLoading,
   prevYearScope,
-  selectedStoreIds,
   totalCustomers,
+  level,
+  onLevelChange,
 }: Props) {
-  const prevYearDateRange = prevYearScope?.dateRange
   const prevTotalCustomers = prevYearScope?.totalCustomers ?? 0
   const theme = useTheme() as AppTheme
   const [view, setView] = useState<ViewType>('piRank')
-  const [level, setLevel] = useState<LevelType>('department')
 
-  // QueryHandler: 当年レベル別集約
-  const curInput = useMemo<LevelAggregationInput | null>(() => {
-    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
-      level,
-    }
-  }, [currentDateRange, selectedStoreIds, level])
+  const curRecords = categoryData?.current.records ?? null
+  const prevRecords = categoryData?.comparison?.records ?? null
 
-  const curAgg = useQueryWithHandler(queryExecutor, levelAggregationHandler, curInput)
-
-  // QueryHandler: 前年レベル別集約
-  const prevInput = useMemo<LevelAggregationInput | null>(() => {
-    if (!prevYearDateRange) return null
-    const { fromKey, toKey } = dateRangeToKeys(prevYearDateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
-      level,
-      isPrevYear: true,
-    }
-  }, [prevYearDateRange, selectedStoreIds, level])
-
-  const prevAgg = useQueryWithHandler(queryExecutor, levelAggregationHandler, prevInput)
-
-  const curRecords = curAgg.data?.records ?? null
-  const prevRecords = prevAgg.data?.records ?? null
-
-  const categoryRows = useMemo(() => {
-    if (!curRecords || curRecords.length === 0 || totalCustomers <= 0) return []
-
-    const prevMap = new Map<string, { amount: number; quantity: number }>()
-    if (prevRecords && prevTotalCustomers > 0) {
-      for (const row of prevRecords) {
-        prevMap.set(row.code, { amount: row.amount, quantity: row.quantity })
-      }
-    }
-
-    const rows: CategoryRow[] = []
-    const piAmounts: number[] = []
-    const piQtys: number[] = []
-
-    for (const entry of curRecords) {
-      const piAmount = (entry.amount / totalCustomers) * 1000
-      const piQty = (entry.quantity / totalCustomers) * 1000
-
-      let prevPiAmount: number | null = null
-      let prevPiQty: number | null = null
-      if (prevTotalCustomers > 0) {
-        const prev = prevMap.get(entry.code)
-        if (prev) {
-          prevPiAmount = (prev.amount / prevTotalCustomers) * 1000
-          prevPiQty = (prev.quantity / prevTotalCustomers) * 1000
-        }
-      }
-
-      piAmounts.push(piAmount)
-      piQtys.push(piQty)
-
-      rows.push({
-        code: entry.code,
-        name: entry.name || entry.code,
-        amount: entry.amount,
-        quantity: entry.quantity,
-        piAmount,
-        piQty,
-        prevPiAmount,
-        prevPiQty,
-        deviation: null,
-        qtyDeviation: null,
-      })
-    }
-
-    // Compute deviation scores
-    const amtStat = calculateStdDev(piAmounts)
-    const qtyStat = calculateStdDev(piQtys)
-
-    for (const row of rows) {
-      if (amtStat.stdDev > 0) {
-        row.deviation = toDevScore((row.piAmount - amtStat.mean) / amtStat.stdDev)
-      }
-      if (qtyStat.stdDev > 0) {
-        row.qtyDeviation = toDevScore((row.piQty - qtyStat.mean) / qtyStat.stdDev)
-      }
-    }
-
-    // Sort by piAmount descending, limit to top 20
-    rows.sort((a, b) => b.piAmount - a.piAmount)
-    return rows.slice(0, 20)
-  }, [curRecords, prevRecords, totalCustomers, prevTotalCustomers])
+  const categoryRows = useMemo(
+    () =>
+      curRecords
+        ? buildCategoryRows(curRecords, prevRecords, totalCustomers, prevTotalCustomers)
+        : [],
+    [curRecords, prevRecords, totalCustomers, prevTotalCustomers],
+  )
 
   const names = categoryRows.map((r) => r.name)
 
@@ -410,7 +309,7 @@ export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
   }, [categoryRows, names, view, theme])
 
   // Loading state
-  if (curAgg.isLoading) {
+  if (isLoading) {
     return (
       <ChartCard title="カテゴリPI値・偏差値分析" ariaLabel="カテゴリ実績チャート">
         <ChartSkeleton height="360px" />
@@ -450,7 +349,7 @@ export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
           <Sep>|</Sep>
           <ViewToggle>
             {(Object.keys(LEVEL_LABELS) as LevelType[]).map((l) => (
-              <ViewBtn key={l} $active={level === l} onClick={() => setLevel(l)}>
+              <ViewBtn key={l} $active={level === l} onClick={() => onLevelChange(l)}>
                 {LEVEL_LABELS[l]}
               </ViewBtn>
             ))}

@@ -2,22 +2,17 @@
  * StorePIComparisonChart — 店舗別・カテゴリ別PI値比較
  *
  * 1. 店舗別PI値の横棒グラフ（allStoreResults から計算）
- * 2. カテゴリ×店舗のPI値ヒートマップ（DuckDB クエリ）
+ * 2. カテゴリ×店舗のPI値ヒートマップ（plan hook から受け取り）
+ *
+ * @guard H4 component に acquisition logic 禁止
  */
 import { memo, useMemo, useState } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
-import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
-import { dateRangeToKeys } from '@/domain/models/calendar'
-import type { QueryExecutor } from '@/application/queries/QueryPort'
 import type { StoreResult } from '@/domain/models/StoreResult'
 import type { Store } from '@/domain/models/Store'
-import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
-import {
-  storeCategoryPIHandler,
-  type StoreCategoryPIInput,
-} from '@/application/queries/cts/StoreCategoryPIHandler'
-import { safeDivide } from '@/domain/calculations/utils'
+import type { StoreCategoryPIOutput } from '@/application/queries/cts/StoreCategoryPIHandler'
+import { buildStorePIData, buildHeatmapData } from './StorePIComparisonChart.builders'
 import { useCurrencyFormat } from './chartTheme'
 import { chartFontSize } from '@/presentation/theme/tokens'
 import { SegmentedControl } from '@/presentation/components/common/layout'
@@ -51,60 +46,34 @@ const STORE_COLORS = [
   '#14b8a6',
 ]
 
+export type StorePILevel = Level
+
 interface Props {
   readonly allStoreResults: ReadonlyMap<string, StoreResult>
   readonly stores: ReadonlyMap<string, Store>
-  readonly queryExecutor: QueryExecutor | null
-  readonly currentDateRange: DateRange
-  readonly selectedStoreIds: ReadonlySet<string>
-  readonly prevYearScope?: PrevYearScope
+  readonly catOutput: StoreCategoryPIOutput | null
+  readonly catIsLoading: boolean
+  readonly level: Level
+  readonly onLevelChange: (level: Level) => void
 }
 
 export const StorePIComparisonChart = memo(function StorePIComparisonChart({
   allStoreResults,
   stores,
-  queryExecutor,
-  currentDateRange,
-  selectedStoreIds,
+  catOutput,
+  catIsLoading,
+  level,
+  onLevelChange,
 }: Props) {
   const theme = useTheme() as AppTheme
   const cf = useCurrencyFormat()
   const [metric, setMetric] = useState<Metric>('piAmount')
-  const [level, setLevel] = useState<Level>('department')
 
   // ── 店舗別PI値（allStoreResults から即座に計算） ──
-  const storePIData = useMemo(() => {
-    const entries: { storeId: string; name: string; piAmount: number; piQty: number }[] = []
-    for (const [storeId, result] of allStoreResults) {
-      if (result.totalCustomers <= 0) continue
-      entries.push({
-        storeId,
-        name: stores.get(storeId)?.name ?? storeId,
-        piAmount: Math.round(safeDivide(result.totalSales, result.totalCustomers, 0) * 1000),
-        piQty:
-          'totalQuantity' in result && typeof result.totalQuantity === 'number'
-            ? Math.round(safeDivide(result.totalQuantity, result.totalCustomers, 0) * 1000)
-            : 0,
-      })
-    }
-    return entries.sort((a, b) =>
-      metric === 'piAmount' ? b.piAmount - a.piAmount : b.piQty - a.piQty,
-    )
-  }, [allStoreResults, stores, metric])
-
-  // ── カテゴリ×店舗PI値（DuckDB クエリ） ──
-  const storeIds = useMemo(
-    () => (selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined),
-    [selectedStoreIds],
+  const storePIData = useMemo(
+    () => buildStorePIData(allStoreResults, stores, metric),
+    [allStoreResults, stores, metric],
   )
-
-  const catInput = useMemo<StoreCategoryPIInput | null>(() => {
-    if (!queryExecutor?.isReady) return null
-    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-    return { dateFrom: fromKey, dateTo: toKey, storeIds, level }
-  }, [queryExecutor, currentDateRange, storeIds, level])
-
-  const { data: catOutput } = useQueryWithHandler(queryExecutor, storeCategoryPIHandler, catInput)
 
   // ── 店舗別PI棒グラフ ──
   const storeBarOption = useMemo((): object => {
@@ -156,41 +125,14 @@ export const StorePIComparisonChart = memo(function StorePIComparisonChart({
   }, [storePIData, metric, theme, cf])
 
   // ── カテゴリ×店舗ヒートマップ ──
+  const heatmap = useMemo(
+    () => (catOutput?.records.length ? buildHeatmapData(catOutput, stores, metric) : null),
+    [catOutput, stores, metric],
+  )
+
   const heatmapOption = useMemo((): object => {
-    if (!catOutput?.records.length) return {}
-    const records = catOutput.records
-
-    // カテゴリ一覧（全店合算でソート）
-    const catTotals = new Map<string, number>()
-    for (const r of records) {
-      const val = metric === 'piAmount' ? r.piAmount : r.piQty
-      catTotals.set(r.name, (catTotals.get(r.name) ?? 0) + val)
-    }
-    const categories = [...catTotals.entries()]
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 10)
-      .map(([name]) => name)
-
-    // 店舗一覧
-    const storeIdSet = new Set(records.map((r) => r.storeId))
-    const storeList = [...storeIdSet].map((id) => ({
-      id,
-      name: stores.get(id)?.name ?? id,
-    }))
-
-    const catIdx = new Map(categories.map((c, i) => [c, i]))
-
-    let maxVal = 0
-    const heatData: [number, number, number][] = []
-    for (const r of records) {
-      const ci = catIdx.get(r.name)
-      if (ci == null) continue
-      const si = storeList.findIndex((s) => s.id === r.storeId)
-      if (si < 0) continue
-      const val = Math.round(metric === 'piAmount' ? r.piAmount : r.piQty)
-      heatData.push([ci, si, val])
-      if (val > maxVal) maxVal = val
-    }
+    if (!heatmap) return {}
+    const { categories, storeList, heatData, maxVal } = heatmap
 
     return {
       grid: { left: 80, right: 20, top: 10, bottom: 30, containLabel: false },
@@ -208,7 +150,7 @@ export const StorePIComparisonChart = memo(function StorePIComparisonChart({
       },
       xAxis: {
         type: 'category' as const,
-        data: categories,
+        data: [...categories],
         axisLabel: {
           color: theme.colors.text3,
           fontSize: chartFontSize.axis,
@@ -236,7 +178,7 @@ export const StorePIComparisonChart = memo(function StorePIComparisonChart({
       series: [
         {
           type: 'heatmap' as const,
-          data: heatData,
+          data: [...heatData],
           itemStyle: { borderWidth: 1, borderColor: theme.colors.bg },
           label: {
             show: true,
@@ -254,12 +196,12 @@ export const StorePIComparisonChart = memo(function StorePIComparisonChart({
         },
       ],
     }
-  }, [catOutput, stores, metric, theme, cf])
+  }, [heatmap, metric, theme, cf])
 
   if (storePIData.length < 2) return null
 
   const storeBarH = Math.max(150, storePIData.length * 32 + 40)
-  const storeCount = catOutput ? new Set(catOutput.records.map((r) => r.storeId)).size : 0
+  const storeCount = heatmap ? heatmap.storeList.length : 0
   const heatmapH = Math.max(150, storeCount * 32 + 50)
 
   return (
@@ -279,7 +221,7 @@ export const StorePIComparisonChart = memo(function StorePIComparisonChart({
           <SegmentedControl
             options={LEVEL_OPTIONS}
             value={level}
-            onChange={setLevel}
+            onChange={onLevelChange}
             ariaLabel="階層"
             layoutId="store-pi-level"
           />
@@ -324,10 +266,10 @@ export const StorePIComparisonChart = memo(function StorePIComparisonChart({
             ariaLabel="カテゴリ×店舗PI値"
           />
         </div>
-      ) : queryExecutor?.isReady ? (
+      ) : catIsLoading ? (
         <ChartLoading />
       ) : (
-        <ChartEmpty message="DuckDB未準備" />
+        <ChartEmpty message="カテゴリデータなし" />
       )}
     </ChartCard>
   )

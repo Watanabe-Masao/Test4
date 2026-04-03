@@ -93,16 +93,16 @@ describe('INV-RUN-03: presentation 層の useQueryWithHandler 直接呼び出し
       }
     }
 
-    // Gate 1 時点: 現状の数を記録。Gate 2 以降で減少を追跡。
+    // Gate 2: CategoryPerformanceChart (-2), StorePIComparisonChart (-1) が plan 化済み
     // この数値は Gate 4 で 0 にすることが目標。
     console.log(`[INV-RUN-03] presentation direct query files: ${filesWithDirectQuery.length}`)
 
-    // 現時点では violation ではなく tracking。増加を防ぐために上限を設定。
+    // 増加を防ぐために上限を設定。Gate 2 で 30 → 27 に引き下げ。
     expect(
       filesWithDirectQuery.length,
       `presentation 層の直接 query 呼び出しが増加しています。\n` +
         `Screen Plan hook 経由に移行してください。\n` +
         `対象:\n${filesWithDirectQuery.join('\n')}`,
-    ).toBeLessThanOrEqual(30)
+    ).toBeLessThanOrEqual(27)
   })
 })

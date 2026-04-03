@@ -22,8 +22,9 @@ import {
   buildPerformanceOption,
   type ViewType,
 } from './PerformanceIndexChart.builders'
-import { CategoryPerformanceChart } from '@/features/category'
-import { StorePIComparisonChart } from './StorePIComparisonChart'
+import { CategoryPerformanceChart, type CategoryLevelType } from '@/features/category'
+import { StorePIComparisonChart, type StorePILevel } from './StorePIComparisonChart'
+import { usePerformanceIndexPlan } from '@/application/hooks/usePerformanceIndexPlan'
 
 const VIEW_LABELS: Record<ViewType, string> = {
   piAmount: '金額PI',
@@ -79,6 +80,9 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
   const [view, setView] = useState<ViewType>('piAmount')
   // 範囲選択状態（子チャートに期間を渡す用）
   const [selectedRange, setSelectedRange] = useState<{ from: number; to: number } | null>(null)
+  // 子チャートの階層レベル状態（plan hook に渡す）
+  const [categoryLevel, setCategoryLevel] = useState<CategoryLevelType>('department')
+  const [storePILevel, setStorePILevel] = useState<StorePILevel>('department')
   const { chartData, stats, piMa7, prevPiMa7, qtyPiMa7, prevQtyPiMa7 } = useMemo(
     () =>
       buildPerformanceData(
@@ -169,6 +173,17 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
     }
   }, [currentDateRange, selectedRange, year, month])
 
+  // Screen Plan: 子チャートの DuckDB クエリを一元管理
+  const plan = usePerformanceIndexPlan({
+    executor: queryExecutor ?? null,
+    categoryDateRange: childDateRange ?? currentDateRange!,
+    currentDateRange: currentDateRange!,
+    prevYearScope,
+    selectedStoreIds: selectedStoreIds ?? new Set(),
+    categoryLevel,
+    storePILevel,
+  })
+
   const option = useMemo(
     () => buildPerformanceOption(data, view, ct, theme),
     [data, view, ct, theme],
@@ -251,32 +266,28 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
       )}
 
       {/* カテゴリ別PI値ランキング（子チャート） */}
-      {queryExecutor?.isReady && currentDateRange && selectedStoreIds && (
+      {currentDateRange && selectedStoreIds && (
         <CategoryPerformanceChart
-          queryExecutor={queryExecutor}
-          currentDateRange={childDateRange ?? currentDateRange}
+          categoryData={plan.categoryPerformance.data}
+          isLoading={plan.categoryPerformance.isLoading}
           prevYearScope={prevYearScope}
-          selectedStoreIds={selectedStoreIds}
           totalCustomers={totalCustomers ?? 0}
+          level={categoryLevel}
+          onLevelChange={setCategoryLevel}
         />
       )}
 
       {/* 店舗別・カテゴリ別PI値比較（子チャート） */}
-      {allStoreResults &&
-        stores &&
-        allStoreResults.size >= 2 &&
-        queryExecutor?.isReady &&
-        currentDateRange &&
-        selectedStoreIds && (
-          <StorePIComparisonChart
-            allStoreResults={allStoreResults}
-            stores={stores}
-            queryExecutor={queryExecutor}
-            currentDateRange={currentDateRange}
-            selectedStoreIds={selectedStoreIds}
-            prevYearScope={prevYearScope}
-          />
-        )}
+      {allStoreResults && stores && allStoreResults.size >= 2 && (
+        <StorePIComparisonChart
+          allStoreResults={allStoreResults}
+          stores={stores}
+          catOutput={plan.storeCategoryPI.data}
+          catIsLoading={plan.storeCategoryPI.isLoading}
+          level={storePILevel}
+          onLevelChange={setStorePILevel}
+        />
+      )}
     </ChartCard>
   )
 })
