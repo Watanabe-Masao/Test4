@@ -470,6 +470,8 @@ describe('P6-3: 退役済み re-export ファイルが復活していない', ()
     'application/usecases/dailySalesTransform.ts',
     'presentation/pages/Admin/useMonthDataManagement.ts',
     'presentation/pages/Insight/InsightTabBudget.vm.ts',
+    'presentation/components/charts/IntegratedSalesChartLogic.ts',
+    'application/hooks/duckdb/useJsAggregationQueries.ts',
   ]
 
   it('退役済み re-export ファイルが存在しない', () => {

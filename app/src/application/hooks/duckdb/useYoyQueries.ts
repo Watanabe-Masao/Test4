@@ -14,7 +14,7 @@ import {
   type YoyCategoryRow,
 } from '@/infrastructure/duckdb/queries/yoyComparison'
 import { useAsyncQuery, toDateKeys, storeIdsToArray, type AsyncQueryResult } from './useAsyncQuery'
-import { useJsYoyDaily } from './useJsAggregationQueries'
+import { useJsYoyDaily } from './useJsSalesCompQueries'
 
 /** 日別前年比較（JS計算版に移行済み） */
 export function useDuckDBYoyDaily(

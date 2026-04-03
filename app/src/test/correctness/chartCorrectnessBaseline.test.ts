@@ -10,7 +10,7 @@
  */
 import { describe, it, expect } from 'vitest'
 import { buildPerformanceData } from '@/presentation/components/charts/PerformanceIndexChart.builders'
-import { aggregateDailyQuantity } from '@/presentation/components/charts/IntegratedSalesChartLogic'
+import { aggregateDailyQuantity } from '@/application/hooks/plans/integratedSalesAggregation'
 import { calculateAmountPI, calculateQuantityPI } from '@/domain/calculations/piValue'
 import { calculateStdDev } from '@/application/hooks/useStatistics'
 import { buildCategoryRows } from '@/features/category/ui/charts/CategoryPerformanceChart.builders'

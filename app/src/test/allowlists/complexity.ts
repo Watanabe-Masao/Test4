@@ -10,7 +10,7 @@ export const useMemoLimits: readonly QuantitativeAllowlistEntry[] = [
     reason: 'comparison 層の集約 hook。分割は過剰',
     category: 'structural',
     removalCondition: '比較モジュールのリファクタリング時',
-    limit: 8,
+    limit: 7,
     lifecycle: 'permanent',
   },
   // useTimeSlotData.ts — useTimeSlotPlan に query orchestration を分離。useMemo 3 個以下に削減
@@ -23,7 +23,7 @@ export const useStateLimits: readonly QuantitativeAllowlistEntry[] = [
     reason: '永続化ステートの管理（usePersistenceState の正本共有分を含む）',
     category: 'structural',
     removalCondition: 'persistence hook のリファクタリング時',
-    limit: 8,
+    limit: 6,
     lifecycle: 'permanent',
   },
   {
@@ -94,7 +94,7 @@ export const presentationMemoLimits: readonly QuantitativeAllowlistEntry[] = [
     reason: '日別売上チャート。複数シリーズ + MA overlay 構築',
     category: 'structural',
     removalCondition: 'builders 分離時',
-    limit: 10,
+    limit: 9,
     lifecycle: 'active-debt',
   },
   // useIntegratedSalesState.ts — useMemo 許可リスト削除済み（drill reducer + context 分離完了）
