@@ -19,6 +19,8 @@ export {
   type LevelAggregationRow,
 } from './LevelAggregationHandler'
 
+export { levelAggregationPairHandler } from './LevelAggregationPairHandler'
+
 export {
   categoryHourlyHandler,
   type CategoryHourlyInput,

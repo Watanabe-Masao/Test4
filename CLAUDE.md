@@ -280,9 +280,10 @@ cd app && npm run dev             # Vite 開発サーバー
 - パーセント小数第2位（`formatPercent`）、金額整数（`formatCurrency`）
 - Prettier: `semi: false` / `singleQuote: true` / `printWidth: 100`
 
-## 設計原則 — 7カテゴリ
+## 設計原則 — 8カテゴリ
 
 詳細・適用例は `references/01-principles/design-principles.md` を参照。管理責任: architecture。
+H カテゴリの詳細は `references/01-principles/safe-performance-principles.md` を参照。
 
 | カテゴリ | 要点 |
 |---------|------|
@@ -293,6 +294,7 @@ cd app && npm run dev             # Vite 開発サーバー
 | **E. 型安全と欠損処理** | 境界で検証（E1）、依存配列省略禁止（E2）、sourceDate 保持（E3）、欠損は `== null`（E4） |
 | **F. コード構造規約** | バレル後方互換（F1）、文字列カタログ（F2）、全パターン同一（F3）、パス配置（F4）、Contract 管理（F5）、文脈継承（F6）、View に raw 禁止（F7）、正本保護（F8）、Raw=唯一真実源（F9） |
 | **G. 機械的防御** | テストに書く（G1）、エラー伝播（G2）、警告黙殺禁止（G3）、テスト用export禁止（G4）、サイズ上限（G5/G6）、キャッシュ≤本体（G7） |
+| **H. Screen Runtime** | Screen Plan 経由のみ（H1）、比較は pair/bundle 契約（H2）、query input 正規化必須（H3）、component に acquisition logic 禁止（H4）、visible-only は plan 宣言（H5）、ChartCard は通知のみ（H6） |
 
 **制約の変更:** 「邪魔だから」は理由にならない。「別の仕組みで防がれるようになった」は理由になる。
 

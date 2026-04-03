@@ -236,4 +236,47 @@ export const GUARD_TAG_REGISTRY: Record<string, GuardTagDef> = {
       'ViewType と PAGE_REGISTRY の standard ids が不一致だと型安全が崩壊する',
     ],
   },
+  // ═══ H: Screen Runtime ═══
+  H1: {
+    name: 'Screen Plan 経由のみ',
+    examples: [
+      'ad-hoc 最適化が散在し取得責務が分散する',
+      'Screen Plan を経由しない個別最適化が hidden fetch を生む',
+    ],
+  },
+  H2: {
+    name: '比較は pair/bundle 契約',
+    examples: [
+      'isPrevYear フラグの単発取得で current/prev の片側だけ失敗し比較意味論が壊れる',
+      'pair 化されていない handler で comparison の loading/error が独立管理になる',
+    ],
+  },
+  H3: {
+    name: 'query input 正規化必須',
+    examples: [
+      'storeIds の順序違いで同じ query が別物扱いされ cache miss が発生する',
+      'undefined と空配列の差異で不要な再実行が起きる',
+    ],
+  },
+  H4: {
+    name: 'component に acquisition logic 禁止',
+    examples: [
+      '子チャートの mount 順が取得順を決め waterfall が発生する',
+      'chart component 内で PI 計算すると render のたびに再計算が走る',
+    ],
+  },
+  H5: {
+    name: 'visible-only は plan 宣言',
+    examples: [
+      'collapsible ChartCard 内で無条件に query が発火し帯域を浪費する',
+      'visible-only query が required query を隠蔽し必須データが欠落する',
+    ],
+  },
+  H6: {
+    name: 'ChartCard は通知のみ',
+    examples: [
+      'UI コンポーネントに取得制御が混入し責務が肥大化する',
+      'ChartCard が query enable を直接制御すると取得判断が UI 層に漏れる',
+    ],
+  },
 } as const
