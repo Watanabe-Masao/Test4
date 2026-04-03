@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-03T05:20:14.252Z",
+  "timestamp": "2026-04-03T05:38:22.422Z",
   "totalAllowlistEntries": 42,
   "categoryBreakdown": {
     "adapter": 5,
@@ -112,9 +112,9 @@
   "complexityHotspots": [
     {
       "file": "application/hooks/useTimeSlotData.ts",
-      "memoCount": 21,
+      "memoCount": 20,
       "stateCount": 8,
-      "lineCount": 387
+      "lineCount": 372
     },
     {
       "file": "presentation/pages/Dashboard/widgets/useDrilldownData.ts",
@@ -173,18 +173,18 @@
   ],
   "nearLimitFiles": [
     {
-      "file": "application/hooks/useTimeSlotData.ts",
-      "metric": "lines",
-      "actual": 387,
-      "limit": 390,
-      "pct": 99
-    },
-    {
       "file": "application/hooks/usePeriodAwareKpi.ts",
       "metric": "lines",
       "actual": 301,
       "limit": 310,
       "pct": 97
+    },
+    {
+      "file": "application/hooks/useTimeSlotData.ts",
+      "metric": "lines",
+      "actual": 372,
+      "limit": 390,
+      "pct": 95
     },
     {
       "file": "presentation/pages/CostDetail/useCostDetailData.ts",
