@@ -1,13 +1,14 @@
 /**
  * useDrilldownData - CategoryDrilldown のデータ計算・状態管理フック
  *
- * CategoryDrilldown コンポーネントから全ての useState / useMemo / useCallback と
+ * CategoryDrilldown コンポーネントから全ての状態・メモ化・コールバックと
  * 導出値の計算ロジックを抽出し、UI は描画のみに専念させる。
+ *
+ * フィルタ済みレコードとドリルアイテムの構築は useDrilldownRecords に分離。
  */
 import { useState, useMemo, useCallback } from 'react'
 import type { CategoryTimeSalesRecord } from '@/domain/models/record'
 import {
-  filterByHierarchy,
   getHierarchyLevel,
   type HierarchyFilter,
 } from '@/presentation/components/charts/categoryHierarchyHooks'
@@ -15,7 +16,6 @@ import { toComma } from '@/presentation/components/charts/chartTheme'
 import { formatPercent } from '@/domain/formatting'
 import { calculateAchievementRate, calculateYoYRatio } from '@/domain/calculations/utils'
 import {
-  buildDrillItems,
   fmtSen,
   type DrillItem,
   type MetricKey,
@@ -23,7 +23,8 @@ import {
   type SortKey,
   type SortDir,
 } from './drilldownUtils'
-import { buildBreadcrumb, buildLevelColorMap, sortDrillItems } from './useDrilldownDataLogic'
+import { buildBreadcrumb, sortDrillItems } from './useDrilldownDataLogic'
+import { useDrilldownRecords } from './useDrilldownRecords'
 
 export type { DrillItem, CompareMode, SortKey }
 
@@ -130,77 +131,20 @@ export function useDrilldownData(props: CategoryDrilldownProps) {
 
   const breadcrumb = useMemo(() => buildBreadcrumb(filter), [filter])
 
-  /* ── フィルタ済みレコード ────────────────── */
+  /* ── フィルタ済みレコード + ドリルアイテム（sub-hook） ── */
 
-  const dayFiltered = useMemo(() => filterByHierarchy(records, filter), [records, filter])
-  const dayFilteredYoYPrev = useMemo(
-    () => (hasPrevYear ? filterByHierarchy(prevRecords, filter) : []),
-    [hasPrevYear, prevRecords, filter],
-  )
-  const dayFilteredWoWPrev = useMemo(
-    () => (hasWoW ? filterByHierarchy(wowRecords ?? [], filter) : []),
-    [hasWoW, wowRecords, filter],
-  )
-  const cumFiltered = useMemo(() => filterByHierarchy(cumRecords, filter), [cumRecords, filter])
-  const cumFilteredYoYPrev = useMemo(
-    () => (hasPrevYear ? filterByHierarchy(cumPrevRecords, filter) : []),
-    [hasPrevYear, cumPrevRecords, filter],
-  )
-
-  /* ── カラーマップ ────────────────────────── */
-
-  const levelColorMap = useMemo(
-    () => buildLevelColorMap(records, cumRecords, cumFiltered, dayFiltered, currentLevel),
-    [records, cumRecords, cumFiltered, dayFiltered, currentLevel],
-  )
-
-  /* ── ドリルアイテム ──────────────────────── */
-
-  // YoY items
-  const dayItemsYoY = useMemo(
-    () =>
-      buildDrillItems(
-        dayFiltered,
-        dayFilteredYoYPrev,
-        currentLevel,
-        metric,
-        levelColorMap,
-        hasPrevYear,
-      ),
-    [dayFiltered, dayFilteredYoYPrev, currentLevel, metric, levelColorMap, hasPrevYear],
-  )
-  const cumItemsYoY = useMemo(
-    () =>
-      buildDrillItems(
-        cumFiltered,
-        cumFilteredYoYPrev,
-        currentLevel,
-        metric,
-        levelColorMap,
-        hasPrevYear,
-      ),
-    [cumFiltered, cumFilteredYoYPrev, currentLevel, metric, levelColorMap, hasPrevYear],
-  )
-  // WoW items（当日のみ、累計は対象外）
-  const dayItemsWoW = useMemo(
-    () =>
-      hasWoW
-        ? buildDrillItems(
-            dayFiltered,
-            dayFilteredWoWPrev,
-            currentLevel,
-            metric,
-            levelColorMap,
-            true,
-          )
-        : [],
-    [dayFiltered, dayFilteredWoWPrev, currentLevel, metric, levelColorMap, hasWoW],
-  )
-  const wowItemMap = useMemo(() => {
-    const map = new Map<string, DrillItem>()
-    for (const it of dayItemsWoW) map.set(it.code, it)
-    return map
-  }, [dayItemsWoW])
+  const { dayItemsYoY, cumItemsYoY, dayItemsWoW, wowItemMap } = useDrilldownRecords({
+    records,
+    prevRecords,
+    cumRecords,
+    cumPrevRecords,
+    wowRecords: wowRecords ?? [],
+    filter,
+    currentLevel,
+    metric,
+    hasPrevYear,
+    hasWoW,
+  })
 
   /* ── テーブル・ツリーマップ用アクティブ items ─ */
 

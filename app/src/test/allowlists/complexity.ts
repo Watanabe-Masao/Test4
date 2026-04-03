@@ -48,22 +48,16 @@ export const useStateLimits: readonly QuantitativeAllowlistEntry[] = [
 
 /** presentation/ の useMemo 上限の個別例外（G5 横展開） */
 export const presentationMemoLimits: readonly QuantitativeAllowlistEntry[] = [
+  // useCostDetailData.ts — useCostDetailTransfer + useCostDetailCostInclusion に分離。useMemo 2 個に削減
   {
-    path: 'presentation/pages/CostDetail/useCostDetailData.ts',
-    reason: '仕入詳細データの多段集計（helpers に 5 関数抽出済み）',
+    path: 'presentation/pages/Dashboard/widgets/useDrilldownRecords.ts',
+    reason: 'ドリルダウンのフィルタ済みレコード＋アイテム構築（useDrilldownData から分離）',
     category: 'structural',
     removalCondition: 'さらなるロジック分離時',
-    limit: 13,
+    limit: 11,
     lifecycle: 'active-debt',
   },
-  {
-    path: 'presentation/pages/Dashboard/widgets/useDrilldownData.ts',
-    reason: 'ドリルダウンの多段集計（logic に 3 関数抽出済み）',
-    category: 'structural',
-    removalCondition: 'さらなるロジック分離時',
-    limit: 13,
-    lifecycle: 'active-debt',
-  },
+  // useDrilldownData.ts — useDrilldownRecords に 10 useMemo を分離。useMemo 2 個に削減
   {
     path: 'presentation/pages/Admin/RawDataTab.tsx',
     reason: '管理画面のデータ表示タブ。多数のフィルタ＋集計（CTS タブ追加）',
@@ -140,10 +134,10 @@ export const presentationStateLimits: readonly QuantitativeAllowlistEntry[] = [
   },
   {
     path: 'presentation/pages/Dashboard/widgets/useDrilldownData.ts',
-    reason: 'ドリルダウンの多段操作状態',
+    reason: 'ドリルダウンの多段操作状態（8 useState + import = 9）',
     category: 'structural',
-    removalCondition: 'ロジック分離時',
-    limit: 11,
+    removalCondition: 'useState 削減時',
+    limit: 10,
     lifecycle: 'active-debt',
   },
 ] as const
