@@ -1,13 +1,13 @@
 # Query Access Audit Report
 
-> Generated: 2026-04-02T16:06:36.474Z
+> Generated: 2026-04-03T02:39:17.460Z
 
 ## Route Summary
 
 | 経路種別 | 件数 | 状態 |
 |---|---|---|
-| QueryHandler 定義 | 33 | 基盤 |
-| useQueryWithHandler（正規） | 29 | 正規 |
+| QueryHandler 定義 | 35 | 基盤 |
+| useQueryWithHandler（正規） | 27 | 正規 |
 | comparisonAccessors（正規） | 10 | 正規 |
 | facade / bundle hook 使用（正規） | 4 | 正規 |
 | bundle hook 定義 | 1 | 基盤 |
@@ -28,7 +28,6 @@
 - presentation/components/charts/HeatmapChart.tsx
 - presentation/components/charts/PiCvBubbleChart.tsx
 - presentation/components/charts/StoreHourlyChart.tsx
-- presentation/components/charts/StorePIComparisonChart.tsx
 - presentation/components/charts/WeatherAnalysisPanel.tsx
 - presentation/components/charts/YoYChart.tsx
 - presentation/components/charts/useCategoryHierarchyData.ts
@@ -47,7 +46,6 @@
 - features/category/ui/charts/CategoryHierarchyExplorer.tsx
 - features/category/ui/charts/CategoryHourlyChart.tsx
 - features/category/ui/charts/CategoryMixChart.tsx
-- features/category/ui/charts/CategoryPerformanceChart.tsx
 
 ### queryHandlers
 
@@ -57,6 +55,7 @@
 - application/queries/advanced/CategoryMixWeeklyHandler.ts
 - application/queries/advanced/ConditionMatrixHandler.ts
 - application/queries/comparison/YoyDailyHandler.ts
+- application/queries/createPairedHandler.ts
 - application/queries/cts/CategoryDailyTrendHandler.ts
 - application/queries/cts/CategoryDiscountHandler.ts
 - application/queries/cts/CategoryHourlyHandler.ts
@@ -65,6 +64,7 @@
 - application/queries/cts/HourDowMatrixHandler.ts
 - application/queries/cts/HourlyAggregationHandler.ts
 - application/queries/cts/LevelAggregationHandler.ts
+- application/queries/cts/LevelAggregationPairHandler.ts
 - application/queries/cts/StoreAggregationHandler.ts
 - application/queries/cts/StoreCategoryPIHandler.ts
 - application/queries/dailyRecords/DailyRecordsHandler.ts
