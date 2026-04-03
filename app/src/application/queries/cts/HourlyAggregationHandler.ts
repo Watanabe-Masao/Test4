@@ -7,12 +7,13 @@ import type { QueryHandler, BaseQueryInput } from '../QueryContract'
 import { queryHourlyAggregation } from '@/infrastructure/duckdb/queries/ctsHourlyQueries'
 import type { HourlyAggregationRow } from '@/domain/models/CtsQueryContracts'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import type { PrevYearFlag } from '../comparisonQueryScope'
 
 export interface HourlyAggregationInput extends BaseQueryInput {
   readonly deptCode?: string
   readonly lineCode?: string
   readonly klassCode?: string
-  readonly isPrevYear?: boolean
+  readonly isPrevYear?: PrevYearFlag
 }
 
 export interface HourlyAggregationOutput {

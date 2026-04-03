@@ -10,6 +10,7 @@
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { QueryHandler, BaseQueryInput } from './QueryContract'
 import type { PairedQueryInput, PairedQueryOutput, PairedQueryHandler } from './PairedQueryContract'
+import { type PrevYearFlag, CURRENT_SCOPE, COMPARISON_SCOPE } from './comparisonQueryScope'
 
 /** pair 化された handler の入力型 */
 export type PairedInput<TBase extends BaseQueryInput> = TBase & PairedQueryInput
@@ -26,7 +27,7 @@ export type PairedInput<TBase extends BaseQueryInput> = TBase & PairedQueryInput
  * - DailyQuantityPairHandler は既存実装を維持（alignPrevYearDay があるため）
  */
 export function createPairedHandler<TBase extends BaseQueryInput, TOutput>(
-  base: QueryHandler<TBase & { readonly isPrevYear?: boolean }, TOutput>,
+  base: QueryHandler<TBase & { readonly isPrevYear?: PrevYearFlag }, TOutput>,
   options?: { readonly name?: string },
 ): PairedQueryHandler<PairedInput<TBase>, TOutput> {
   return {
@@ -38,9 +39,9 @@ export function createPairedHandler<TBase extends BaseQueryInput, TOutput>(
     ): Promise<PairedQueryOutput<TOutput>> {
       const { comparisonDateFrom, comparisonDateTo, ...rest } = input
 
-      // current 側: isPrevYear = false
-      const currentInput = { ...rest, isPrevYear: false } as TBase & {
-        readonly isPrevYear?: boolean
+      // current 側
+      const currentInput = { ...rest, isPrevYear: CURRENT_SCOPE } as TBase & {
+        readonly isPrevYear?: PrevYearFlag
       }
       const currentPromise = base.execute(conn, currentInput)
 
@@ -51,8 +52,8 @@ export function createPairedHandler<TBase extends BaseQueryInput, TOutput>(
               ...rest,
               dateFrom: comparisonDateFrom,
               dateTo: comparisonDateTo,
-              isPrevYear: true,
-            } as TBase & { readonly isPrevYear?: boolean })
+              isPrevYear: COMPARISON_SCOPE,
+            } as TBase & { readonly isPrevYear?: PrevYearFlag })
           : Promise.resolve(null)
 
       const [current, comparison] = await Promise.all([currentPromise, comparisonPromise])

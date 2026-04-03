@@ -12,6 +12,7 @@ import type { YoyDailyRow } from '@/infrastructure/duckdb/queries/yoyComparison'
 import { computeYoyDailyV2 } from '@/application/hooks/duckdb/jsAggregationLogic'
 import type { CompareModeV2 } from '@/application/comparison/comparisonTypes'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import { CURRENT_SCOPE, COMPARISON_SCOPE } from '../comparisonQueryScope'
 
 export interface YoyDailyInput {
   /** 当期の日付範囲 */
@@ -38,13 +39,13 @@ export const yoyDailyHandler: QueryHandler<YoyDailyInput, YoyDailyOutput> = {
         dateFrom: input.curDateFrom,
         dateTo: input.curDateTo,
         storeIds: input.storeIds,
-        isPrevYear: false,
+        isPrevYear: CURRENT_SCOPE,
       }),
       queryStoreDaySummary(conn, {
         dateFrom: input.prevDateFrom,
         dateTo: input.prevDateTo,
         storeIds: input.storeIds,
-        isPrevYear: true,
+        isPrevYear: COMPARISON_SCOPE,
       }),
     ])
 

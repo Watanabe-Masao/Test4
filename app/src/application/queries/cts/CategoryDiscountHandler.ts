@@ -10,6 +10,7 @@ import {
   type CategoryDiscountRow,
 } from '@/infrastructure/duckdb/queries/categoryDiscount'
 import type { BaseQueryInput } from '@/application/queries/QueryContract'
+import type { PrevYearFlag } from '../comparisonQueryScope'
 
 export interface CategoryDiscountInput extends BaseQueryInput {
   readonly level: 'department' | 'line' | 'klass'
@@ -22,7 +23,7 @@ export interface CategoryDiscountOutput {
 }
 
 /** Internal: isPrevYear is injected by createPairedHandler at runtime */
-type ExecuteInput = CategoryDiscountInput & { readonly isPrevYear?: boolean }
+type ExecuteInput = CategoryDiscountInput & { readonly isPrevYear?: PrevYearFlag }
 
 export const categoryDiscountHandler: QueryHandler<ExecuteInput, CategoryDiscountOutput> = {
   name: 'CategoryDiscount',

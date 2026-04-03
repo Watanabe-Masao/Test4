@@ -10,6 +10,7 @@ import {
   type DailyQuantityRow,
 } from '@/infrastructure/duckdb/queries/aggregates/dailyAggregation'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import type { PrevYearFlag } from '../comparisonQueryScope'
 
 export type DailyQuantityInput = BaseQueryInput
 
@@ -18,7 +19,7 @@ export interface DailyQuantityOutput {
 }
 
 /** Internal: isPrevYear is injected at runtime */
-type ExecuteInput = DailyQuantityInput & { readonly isPrevYear?: boolean }
+type ExecuteInput = DailyQuantityInput & { readonly isPrevYear?: PrevYearFlag }
 
 export const dailyQuantityHandler: QueryHandler<ExecuteInput, DailyQuantityOutput> = {
   name: 'DailyQuantity',

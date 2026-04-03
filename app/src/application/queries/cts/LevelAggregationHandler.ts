@@ -9,6 +9,7 @@ import {
   type LevelAggregationRow,
 } from '@/infrastructure/duckdb/queries/ctsHierarchyQueries'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import type { PrevYearFlag } from '../comparisonQueryScope'
 
 export interface LevelAggregationInput extends BaseQueryInput {
   readonly level: 'department' | 'line' | 'klass'
@@ -23,7 +24,7 @@ export interface LevelAggregationOutput {
 }
 
 /** Internal: isPrevYear is injected by createPairedHandler at runtime */
-type ExecuteInput = LevelAggregationInput & { readonly isPrevYear?: boolean }
+type ExecuteInput = LevelAggregationInput & { readonly isPrevYear?: PrevYearFlag }
 
 export const levelAggregationHandler: QueryHandler<ExecuteInput, LevelAggregationOutput> = {
   name: 'LevelAggregation',

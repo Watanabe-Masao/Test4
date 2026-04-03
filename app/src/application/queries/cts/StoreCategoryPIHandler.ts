@@ -5,6 +5,7 @@
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { QueryHandler, BaseQueryInput } from '@/application/queries/QueryContract'
+import type { PrevYearFlag } from '../comparisonQueryScope'
 import { calculateQuantityPI, calculateAmountPI } from '@/domain/calculations/piValue'
 import {
   queryStoreCategoryAggregation,
@@ -31,7 +32,7 @@ export interface StoreCategoryPIOutput {
 }
 
 /** Internal: isPrevYear is injected by createPairedHandler at runtime */
-type ExecuteInput = StoreCategoryPIInput & { readonly isPrevYear?: boolean }
+type ExecuteInput = StoreCategoryPIInput & { readonly isPrevYear?: PrevYearFlag }
 
 export const storeCategoryPIHandler: QueryHandler<ExecuteInput, StoreCategoryPIOutput> = {
   name: 'StoreCategoryPI',

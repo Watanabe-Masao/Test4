@@ -8,9 +8,10 @@ import type { QueryHandler, BaseQueryInput } from '../QueryContract'
 import { queryCategoryTimeRecords } from '@/infrastructure/duckdb/queries/ctsHierarchyQueries'
 import type { CategoryTimeSalesRecord } from '@/domain/models/record'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import type { PrevYearFlag } from '../comparisonQueryScope'
 
 export interface CategoryTimeRecordsInput extends BaseQueryInput {
-  readonly isPrevYear?: boolean
+  readonly isPrevYear?: PrevYearFlag
 }
 
 export interface CategoryTimeRecordsOutput {
