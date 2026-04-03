@@ -1,10 +1,10 @@
 {
-  "timestamp": "2026-04-03T07:30:22.731Z",
+  "timestamp": "2026-04-03T09:31:44.854Z",
   "summary": {
     "queryHandlers": 47,
     "pairHandlers": 13,
-    "screenPlanHooks": 3,
-    "正規経路_queryWithHandler": 26,
+    "screenPlanHooks": 4,
+    "正規経路_queryWithHandler": 24,
     "正規経路_comparisonAccessor": 10,
     "正規経路_facadeHook": 4,
     "bundleHookDef": 1,
@@ -36,8 +36,6 @@
       "presentation/pages/Dashboard/widgets/ConditionSummaryBudgetDrill.tsx",
       "presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx",
       "features/category/ui/charts/CategoryBarChart.tsx",
-      "features/category/ui/charts/CategoryBenchmarkChart.vm.ts",
-      "features/category/ui/charts/CategoryBoxPlotChart.vm.ts",
       "features/category/ui/charts/CategoryDiscountChart.tsx",
       "features/category/ui/charts/CategoryHierarchyExplorer.tsx",
       "features/category/ui/charts/CategoryHourlyChart.tsx",
@@ -108,6 +106,7 @@
       "application/queries/summary/StoreDaySummaryPairHandler.ts"
     ],
     "screenPlanHooks": [
+      "application/hooks/useCategoryBenchmarkPlan.ts",
       "application/hooks/useHeatmapPlan.ts",
       "application/hooks/usePerformanceIndexPlan.ts",
       "presentation/components/charts/useIntegratedSalesPlan.ts"

@@ -6,6 +6,7 @@
  * @guard H3 query input 正規化必須 — canonicalize 統合を検証
  * @guard H2 比較は pair/bundle 契約 — isPrevYear handler 数を追跡
  * @guard H4 component に acquisition logic 禁止 — presentation direct query 数を追跡
+ * @guard H5 visible-only query は plan でのみ宣言 — collapsible hidden fetch 防止
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
@@ -98,12 +99,13 @@ describe('INV-RUN-03: presentation 層の useQueryWithHandler 直接呼び出し
     console.log(`[INV-RUN-03] presentation direct query files: ${filesWithDirectQuery.length}`)
 
     // 増加を防ぐために上限を設定。Gate 2: 30→27、Gate 3: HeatmapChart plan 化で 27→26。
+    // Gate 4: CategoryBenchmark/BoxPlot plan 化で 26→24。
     expect(
       filesWithDirectQuery.length,
       `presentation 層の直接 query 呼び出しが増加しています。\n` +
         `Screen Plan hook 経由に移行してください。\n` +
         `対象:\n${filesWithDirectQuery.join('\n')}`,
-    ).toBeLessThanOrEqual(26)
+    ).toBeLessThanOrEqual(24)
   })
 })
 
@@ -208,5 +210,50 @@ describe('INV-RUN-02: pair 化済み handler の base import 追跡', () => {
         `pair handler を使用するか、nonPairableConsumers に登録してください。\n` +
         `対象:\n${violations.join('\n')}`,
     ).toBeLessThanOrEqual(0)
+  })
+})
+
+// ── INV-RUN-05: Hidden Fetch Guard ──
+
+describe('INV-RUN-05: collapsible ChartCard の hidden fetch 防止', () => {
+  const presentationDir = path.join(SRC_DIR, 'presentation')
+  const featuresDir = path.join(SRC_DIR, 'features')
+
+  it('collapsible + useQueryWithHandler を持つ component は onVisibilityChange を実装している', () => {
+    const presentationFiles = collectTsFiles(presentationDir).filter((f) => f.endsWith('.tsx'))
+    const featureUiFiles = fs.existsSync(featuresDir)
+      ? collectTsFiles(featuresDir)
+          .filter((f) => f.includes('/ui/'))
+          .filter((f) => f.endsWith('.tsx'))
+      : []
+
+    const allFiles = [...presentationFiles, ...featureUiFiles].filter(
+      (f) => !f.endsWith('.test.tsx'),
+    )
+
+    const violations: string[] = []
+    for (const file of allFiles) {
+      const content = fs.readFileSync(file, 'utf-8')
+      const hasCollapsible = content.includes('collapsible')
+      const hasDirectQuery = content.includes('useQueryWithHandler')
+
+      if (hasCollapsible && hasDirectQuery) {
+        const hasVisibilityChange = content.includes('onVisibilityChange')
+        if (!hasVisibilityChange) {
+          violations.push(rel(file))
+        }
+      }
+    }
+
+    console.log(
+      `[INV-RUN-05] collapsible + useQueryWithHandler の component: ${violations.length === 0 ? '全件 onVisibilityChange 実装済み' : violations.length + ' 件の違反'}`,
+    )
+
+    expect(
+      violations,
+      `collapsible ChartCard 内で useQueryWithHandler を呼ぶ component が onVisibilityChange を実装していません。\n` +
+        `折りたたみ時のデータ取得抑制（INV-RUN-05）を実装してください。\n` +
+        `対象:\n${violations.join('\n')}`,
+    ).toEqual([])
   })
 })
