@@ -6,13 +6,35 @@
 export interface AllowlistEntry {
   readonly path: string
   readonly reason: string
-  readonly category: 'adapter' | 'bridge' | 'lifecycle' | 'legacy' | 'structural' | 'migration'
+  readonly category:
+    | 'adapter'
+    | 'bridge'
+    | 'lifecycle'
+    | 'legacy'
+    | 'structural'
+    | 'migration'
+    | 'debt'
+    | 'justified'
   readonly removalCondition: string
 }
 
 /** 数量型の許可リストエントリ（ファイルごとの数値上限） */
 export interface QuantitativeAllowlistEntry extends AllowlistEntry {
   readonly limit: number
+}
+
+/** presentation direct query の rollout クラスター */
+export type RolloutCluster = 'category' | 'time-slot' | 'standalone' | 'dashboard' | 'infra'
+
+/** presentation direct query の分類 */
+export type DirectQueryClassification = 'debt' | 'exception-design' | 'plan-bridge' | 'comment-only'
+
+/** presentation 層の useQueryWithHandler 台帳エントリ */
+export interface DirectQueryAuditEntry {
+  readonly path: string
+  readonly cluster: RolloutCluster
+  readonly classification: DirectQueryClassification
+  readonly reason: string
 }
 
 /** AllowlistEntry[] から path の Set を構築する */

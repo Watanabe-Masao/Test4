@@ -12,7 +12,13 @@ import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
 import { SRC_DIR, collectTsFiles, rel } from '../guardTestHelpers'
-import { isPrevYearHandlers, nonPairableConsumers } from '../allowlists'
+import {
+  isPrevYearHandlers,
+  nonPairableConsumers,
+  pairExceptionDesign,
+  pairJustifiedSingle,
+  presentationDirectQueryAudit,
+} from '../allowlists'
 
 // ── INV-RUN-01: Canonical Integration ──
 
@@ -106,6 +112,88 @@ describe('INV-RUN-03: presentation 層の useQueryWithHandler 直接呼び出し
         `Screen Plan hook 経由に移行してください。\n` +
         `対象:\n${filesWithDirectQuery.join('\n')}`,
     ).toBeLessThanOrEqual(22)
+  })
+})
+
+// ── INV-RUN-03: Direct Query Audit Coverage ──
+
+describe('INV-RUN-03: presentation direct query 台帳の整合性', () => {
+  const presentationDir = path.join(SRC_DIR, 'presentation')
+  const featuresDir = path.join(SRC_DIR, 'features')
+
+  it('台帳が実際の検出ファイルと一致する', () => {
+    const presentationFiles = collectTsFiles(presentationDir)
+    const featureUiFiles = fs.existsSync(featuresDir)
+      ? collectTsFiles(featuresDir).filter((f) => f.includes('/ui/'))
+      : []
+
+    const allFiles = [...presentationFiles, ...featureUiFiles].filter(
+      (f) => !f.endsWith('.test.ts') && !f.endsWith('.test.tsx'),
+    )
+
+    const actualFiles = new Set<string>()
+    for (const file of allFiles) {
+      const content = fs.readFileSync(file, 'utf-8')
+      if (content.includes('useQueryWithHandler')) {
+        actualFiles.add(rel(file))
+      }
+    }
+
+    const auditPaths = new Set(presentationDirectQueryAudit.map((e) => e.path))
+
+    const missingInAudit = [...actualFiles].filter((f) => !auditPaths.has(f))
+    const staleInAudit = [...auditPaths].filter((p) => !actualFiles.has(p))
+
+    expect(
+      missingInAudit,
+      `台帳に未登録のファイルがあります:\n${missingInAudit.join('\n')}`,
+    ).toEqual([])
+
+    expect(
+      staleInAudit,
+      `台帳に存在するが検出されないファイルがあります:\n${staleInAudit.join('\n')}`,
+    ).toEqual([])
+  })
+
+  it('分類サマリを出力する', () => {
+    const debt = presentationDirectQueryAudit.filter((e) => e.classification === 'debt')
+    const exception = presentationDirectQueryAudit.filter(
+      (e) => e.classification === 'exception-design',
+    )
+    const planBridge = presentationDirectQueryAudit.filter(
+      (e) => e.classification === 'plan-bridge',
+    )
+    const commentOnly = presentationDirectQueryAudit.filter(
+      (e) => e.classification === 'comment-only',
+    )
+
+    console.log(
+      `[INV-RUN-03 audit] debt: ${debt.length}, exception-design: ${exception.length}, plan-bridge: ${planBridge.length}, comment-only: ${commentOnly.length}`,
+    )
+
+    // 分類の合計は台帳のエントリ数と一致する
+    expect(debt.length + exception.length + planBridge.length + commentOnly.length).toBe(
+      presentationDirectQueryAudit.length,
+    )
+  })
+})
+
+// ── INV-RUN-02: pair handler 消費側の3分類整合性 ──
+
+describe('INV-RUN-02: pair handler 消費側の3分類整合性', () => {
+  it('nonPairableConsumers は pairExceptionDesign + pairJustifiedSingle の合算', () => {
+    const expected = [...pairExceptionDesign, ...pairJustifiedSingle].map((e) => e.path).sort()
+    const actual = [...nonPairableConsumers].map((e) => e.path).sort()
+    expect(actual).toEqual(expected)
+  })
+
+  it('分類サマリを出力する', () => {
+    console.log(
+      `[INV-RUN-02 pair] exception-design: ${pairExceptionDesign.length}, justified-single: ${pairJustifiedSingle.length}`,
+    )
+    expect(pairExceptionDesign.length + pairJustifiedSingle.length).toBe(
+      nonPairableConsumers.length,
+    )
   })
 })
 

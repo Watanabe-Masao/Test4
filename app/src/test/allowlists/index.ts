@@ -16,7 +16,13 @@
  */
 
 // Types & builders
-export type { AllowlistEntry, QuantitativeAllowlistEntry } from './types'
+export type {
+  AllowlistEntry,
+  QuantitativeAllowlistEntry,
+  RolloutCluster,
+  DirectQueryClassification,
+  DirectQueryAuditEntry,
+} from './types'
 export { buildAllowlistSet, buildQuantitativeAllowlist } from './types'
 
 // Architecture
@@ -46,7 +52,13 @@ export { largeComponentTier2, infraLargeFiles, domainLargeFiles, usecasesLargeFi
 export { cmpPrevYearDaily, cmpFramePrevious, cmpDailyMapping } from './migration'
 
 // Performance (Screen Runtime)
-export { isPrevYearHandlers, nonPairableConsumers } from './performance'
+export {
+  isPrevYearHandlers,
+  nonPairableConsumers,
+  pairExceptionDesign,
+  pairJustifiedSingle,
+  presentationDirectQueryAudit,
+} from './performance'
 
 // Misc
 export {
