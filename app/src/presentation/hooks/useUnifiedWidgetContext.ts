@@ -5,10 +5,11 @@
  * ページ固有のデータ（insightData, costDetailData 等）は
  * 各ページから追加で注入する。
  *
- * 内部は 3 つの bundle hook に分割されている:
- *   useComparisonBundle  — 比較サブシステム
- *   useQueryBundle       — DuckDB / readModels / 天気
- *   useChartInteractionBundle — 月次履歴 / CTS / チャート期間
+ * 内部は 4 つの context slice に分割されている:
+ *   useComparisonSlice       — 比較期間・モード
+ *   useQuerySlice            — query 実行・readModel アクセス
+ *   useWeatherSlice          — 天気データ
+ *   useChartInteractionSlice — 月次履歴 / CTS / チャート期間
  */
 import { useState, useCallback, useMemo } from 'react'
 import type { UnifiedWidgetContext } from '@/presentation/components/widgets'
@@ -23,9 +24,10 @@ import { detectDataMaxDay } from '@/application/services/dataDetection'
 import { useDeptKpiView } from '@/application/hooks/useDeptKpiView'
 import { usePeriodSelectionStore } from '@/application/stores/periodSelectionStore'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
-import { useComparisonBundle } from './useComparisonBundle'
-import { useQueryBundle } from './useQueryBundle'
-import { useChartInteractionBundle } from './useChartInteractionBundle'
+import { useComparisonSlice } from './slices/useComparisonSlice'
+import { useQuerySlice } from './slices/useQuerySlice'
+import { useWeatherSlice } from './slices/useWeatherSlice'
+import { useChartInteractionSlice } from './slices/useChartInteractionSlice'
 
 interface UseUnifiedWidgetContextResult {
   /** 統一コンテキスト（currentResult が null の場合は null） */
@@ -59,26 +61,34 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
   const targetYear = settings.targetYear
   const targetMonth = settings.targetMonth
 
-  // ── 比較 bundle ──
-  const comparison = useComparisonBundle(
+  // ── 比較 slice ──
+  const comparison = useComparisonSlice(
     periodSelection,
     currentResult?.elapsedDays,
     currentResult?.averageDailySales ?? 0,
   )
 
-  // ── クエリ / readModels / 天気 bundle ──
-  const query = useQueryBundle(
+  // ── クエリ / readModels slice ──
+  const query = useQuerySlice(
     targetYear,
     targetMonth,
     daysInMonth,
     selectedStoreIds,
-    stores,
     repo,
     comparison.prevYearScope?.dateRange,
   )
 
-  // ── チャート操作 / 月次履歴 / CTS bundle ──
-  const chart = useChartInteractionBundle(
+  // ── 天気 slice ──
+  const weather = useWeatherSlice(
+    targetYear,
+    targetMonth,
+    selectedStoreIds,
+    stores,
+    comparison.prevYearScope?.dateRange,
+  )
+
+  // ── チャート操作 slice ──
+  const chart = useChartInteractionSlice(
     repo,
     targetYear,
     targetMonth,
@@ -161,22 +171,24 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
       elapsedDays: r.elapsedDays,
       onPrevYearDetail: handlePrevYearDetail,
 
-      // 比較 bundle
+      // 比較 slice
       prevYearMonthlyKpi: comparison.kpi,
       comparisonScope: comparison.scope,
       dowGap: comparison.dowGap,
 
-      // クエリ bundle
+      // クエリ slice
       queryExecutor: query.queryExecutor,
       duckDataVersion: query.duckDataVersion,
       loadedMonthCount: query.loadedMonthCount,
       weatherPersist: query.weatherPersist,
       prevYearStoreCostPrice: query.prevYearStoreCostPrice,
       readModels: query.readModels,
-      weatherDaily: query.weatherDaily,
-      prevYearWeatherDaily: query.prevYearWeatherDaily,
 
-      // チャート操作 bundle
+      // 天気 slice
+      weatherDaily: weather.weatherDaily,
+      prevYearWeatherDaily: weather.prevYearWeatherDaily,
+
+      // チャート操作 slice
       monthlyHistory: chart.monthlyHistory,
       currentCtsQuantity: chart.currentCtsQuantity,
       chartPeriodProps: chart.chartPeriodProps,
@@ -204,6 +216,7 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
     dataMaxDay,
     handlePrevYearDetail,
     query,
+    weather,
     chart,
     selectedResults,
     storeNames,

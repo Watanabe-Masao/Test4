@@ -1,14 +1,15 @@
 /**
- * DuckDB クエリ / readModels / 天気データ bundle
+ * useQuerySlice — query 実行・readModel アクセス slice
  *
- * queryExecutor、正本化 readModels、天気データを統合して返す。
- * useUnifiedWidgetContext から分離し、クエリ関連の依存を局所化する。
+ * queryExecutor と正本化 readModels を統合して返す。
+ * useUnifiedWidgetContext の context slice としてクエリ関連の依存を局所化する。
+ *
+ * 天気データは useWeatherSlice に分離済み。
  */
 import { useMemo } from 'react'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 import type { WeatherPersister } from '@/application/queries/weather'
 import type { DateRange } from '@/domain/models/calendar'
-import type { Store } from '@/domain/models/record'
 import type { DataRepository } from '@/domain/repositories/DataRepository'
 import { useWidgetQueryContext } from '@/application/hooks/useWidgetQueryContext'
 import {
@@ -16,31 +17,24 @@ import {
   type WidgetDataOrchestratorParams,
   type WidgetDataOrchestratorResult,
 } from '@/application/hooks/useWidgetDataOrchestrator'
-import { useWeatherData } from '@/application/hooks/useWeather'
-import { useWeatherStoreId } from '@/application/hooks/useWeatherStoreId'
-import { usePrevYearWeather } from '@/application/hooks/usePrevYearWeather'
-import type { DailyWeatherSummary } from '@/domain/models/WeatherData'
 
-export interface QueryBundle {
+export interface QuerySlice {
   readonly queryExecutor: QueryExecutor | null
   readonly weatherPersist: WeatherPersister | null
   readonly duckDataVersion: number
   readonly loadedMonthCount: number
   readonly prevYearStoreCostPrice: ReadonlyMap<string, { cost: number; price: number }> | undefined
   readonly readModels: WidgetDataOrchestratorResult
-  readonly weatherDaily: readonly DailyWeatherSummary[]
-  readonly prevYearWeatherDaily: readonly DailyWeatherSummary[]
 }
 
-export function useQueryBundle(
+export function useQuerySlice(
   targetYear: number,
   targetMonth: number,
   daysInMonth: number,
   selectedStoreIds: ReadonlySet<string>,
-  stores: ReadonlyMap<string, Store>,
   repo: DataRepository | null,
   prevYearDateRange: DateRange | null | undefined,
-): QueryBundle {
+): QuerySlice {
   // DuckDB クエリコンテキスト
   const duckCtx = useWidgetQueryContext(targetYear, targetMonth, repo, prevYearDateRange ?? null)
   const { queryExecutor, weatherPersist, prevYearStoreCostPrice } = duckCtx
@@ -68,16 +62,6 @@ export function useQueryBundle(
     },
   )
 
-  // 天気データ
-  const weatherStoreId = useWeatherStoreId(selectedStoreIds, stores)
-  const { daily: weatherDaily } = useWeatherData(targetYear, targetMonth, weatherStoreId)
-  const prevYearWeatherDaily = usePrevYearWeather({
-    prevYearDateRange: prevYearDateRange ?? undefined,
-    targetYear,
-    targetMonth,
-    weatherStoreId,
-  })
-
   return useMemo(
     () => ({
       queryExecutor,
@@ -86,8 +70,6 @@ export function useQueryBundle(
       loadedMonthCount: duckCtx.loadedMonthCount,
       prevYearStoreCostPrice,
       readModels,
-      weatherDaily: weatherDaily ?? [],
-      prevYearWeatherDaily: prevYearWeatherDaily ?? [],
     }),
     [
       queryExecutor,
@@ -96,8 +78,6 @@ export function useQueryBundle(
       duckCtx.loadedMonthCount,
       prevYearStoreCostPrice,
       readModels,
-      weatherDaily,
-      prevYearWeatherDaily,
     ],
   )
 }

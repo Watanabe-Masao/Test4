@@ -10,8 +10,8 @@
  * - 月跨ぎ時に sourceDate.month が currentDay の月と異なるケースを見落とす
  */
 import { describe, it, expect } from 'vitest'
-import type { DayMappingRow } from '@/application/comparison/comparisonTypes'
-import { buildSameDowPoints } from '@/application/comparison/comparisonTypes'
+import type { DayMappingRow } from '@/features/comparison/application/comparisonTypes'
+import { buildSameDowPoints } from '@/features/comparison/application/comparisonTypes'
 
 /** テスト用: 最小の DayMappingRow を構築 */
 function row(

@@ -12,7 +12,7 @@
 | `app/src/domain/calculations/__tests__/calculationRules.test.ts` | invariant-guardian | 7件 | safeDivide, calculateTransactionValue, overflowDay, fmtSen, formatPercent, toPct |
 | `app/src/presentation/components/charts/__tests__/divisorRules.test.ts` | invariant-guardian | 8件 | computeDivisor, filterByStore, countDistinctDays, 正規ロケーション, 網羅性 |
 | `app/src/domain/calculations/__tests__/factorDecomposition.test.ts` | invariant-guardian | 30件 | シャープリー恒等式（2/3/5要素）、2↔3↔5 一貫性 |
-| `app/src/application/comparison/__tests__/buildComparisonAggregation.test.ts` | invariant-guardian | 34件 | aggregateKpiByAlignment 集約不変条件（売上・客数合計一致、マッピング範囲、ソート順） |
+| `app/src/features/comparison/application/__tests__/buildComparisonAggregation.test.ts` | invariant-guardian | 34件 | aggregateKpiByAlignment 集約不変条件（売上・客数合計一致、マッピング範囲、ソート順） |
 | `app/src/application/usecases/explanation/__tests__/prevYearBudgetExplanation.test.ts` | invariant-guardian | 9件 | 前年予算 Explanation 不変条件（breakdown 合計一致、evidenceRefs 網羅性、無効入力） |
 | `app/src/domain/calculations/__tests__/conditionResolver.test.ts` | invariant-guardian | — | conditionResolver 条件判定ロジック |
 | `app/src/domain/calculations/__tests__/dowGapAnalysis.test.ts` | invariant-guardian | — | 曜日ギャップ分析の不変条件 |
@@ -23,7 +23,7 @@
 | `app/src/test/guards/purityGuard.test.ts` | architecture | 10件 | Domain純粋性、Presentation描画専用、Engine境界、率再計算禁止、facade責務混在、許可リスト増加防止 |
 | `app/src/test/comparisonMigrationGuard.test.ts` | architecture | 9件 | 旧 day/offset 比較パターン禁止、ComparisonFrame 新規使用禁止、dailyMapping 独自変換禁止 |
 | `app/src/domain/models/__tests__/ComparisonScopeInvariant.test.ts` | invariant-guardian | 3件 | ComparisonScope 意味論（候補窓、位置ベース、1:1対応） |
-| `app/src/application/comparison/__tests__/sameDowPoint.test.ts` | invariant-guardian | 7件 | SameDowPoint sourceDate 保持、月跨ぎ・年跨ぎ、合計整合性 |
+| `app/src/features/comparison/application/__tests__/sameDowPoint.test.ts` | invariant-guardian | 7件 | SameDowPoint sourceDate 保持、月跨ぎ・年跨ぎ、合計整合性 |
 | `app/src/test/guards/purchaseCostPathGuard.test.ts` | architecture | 5件 | 仕入原価取得経路3層防御（import禁止・集計逸脱禁止・正本一貫性） |
 | `app/src/application/hooks/duckdb/usePurchaseComparisonQuery.test.ts` | invariant-guardian | 18件 | ピボット一貫性不変条件、KPI-ピボット値一致、buildDailyPivot 動作検証 |
 | `app/src/application/readModels/purchaseCost/readPurchaseCost.test.ts` | invariant-guardian | 21件 | 仕入原価プロセス正当性（正本値・計算式・使用方法・変換ヘルパー・店舗別導出） |

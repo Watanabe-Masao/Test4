@@ -67,10 +67,7 @@ export const WIDGET_OWNERSHIP = {
     owner: 'shared',
     reason: '天気-売上相関は外部データ連携で単一 feature に帰属しない',
   },
-  'chart-etrn-test': {
-    owner: 'shared',
-    reason: 'ETRN 取得テストは外部 API インフラ検証',
-  },
+  // chart-etrn-test: Sprint 3 で retirement
 
   // ─── Analysis ─────────────────────────────────────────
   'analysis-waterfall': {

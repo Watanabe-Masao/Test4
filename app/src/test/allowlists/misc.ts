@@ -6,48 +6,31 @@ import type { AllowlistEntry } from './types'
 /** DOW 計算オーバーライド許可（全件解消済み。凍結） */
 export const dowCalcOverride: readonly AllowlistEntry[] = [] as const
 
-/** ctx 提供データの重複取得許可（useWeatherData 等を ctx 経由ではなく直接 import する例外） */
+/**
+ * ctx 提供データの重複取得許可（useWeatherData 等を ctx 経由ではなく直接 import する例外）
+ *
+ * Sprint 3 で context slice 化。useQueryBundle → useQuerySlice + useWeatherSlice に分離。
+ * slices/ 配下は guard の除外パスで許可。
+ */
 export const ctxHook: readonly AllowlistEntry[] = [
   {
     path: 'presentation/hooks/useUnifiedWidgetContext.ts',
-    reason: 'ctx 自体の構築元（bundle hook を compose する）',
+    reason: 'ctx 自体の構築元（slice hook を compose する）',
     category: 'structural',
     removalCondition: 'コンテキスト設計見直し時',
     lifecycle: 'permanent',
   },
-  {
-    path: 'presentation/hooks/useQueryBundle.ts',
-    reason: 'ctx 構築の sub-bundle。useWeatherData を直接 import して ctx に供給する',
-    category: 'structural',
-    removalCondition: 'コンテキスト設計見直し時',
-    lifecycle: 'permanent',
-  },
-  {
-    path: 'presentation/pages/Dashboard/widgets/EtrnTestWidget.tsx',
-    reason: 'ETRN テストウィジェット。ctx 非経由で直接データ取得（デバッグ用途で維持）',
-    category: 'structural',
-    removalCondition: 'テストウィジェット廃止時',
-    lifecycle: 'retirement',
-  },
+  // useQueryBundle: slices/useQuerySlice + slices/useWeatherSlice に分離。guard 除外パスで許可。
+  // EtrnTestWidget: retirement 完了（Sprint 3 で廃止）。
 ] as const
 
-/** VM ファイルでの React import 許可 */
-export const vmReactImport: readonly AllowlistEntry[] = [
-  {
-    path: 'presentation/components/charts/CategoryBenchmarkChart.vm.ts',
-    reason: 'VM 内で useState/useMemo を使用',
-    category: 'structural',
-    removalCondition: 'React hooks が VM から分離されたとき',
-    lifecycle: 'permanent',
-  },
-  {
-    path: 'presentation/components/charts/CategoryBoxPlotChart.vm.ts',
-    reason: 'VM 内で useState/useMemo を使用',
-    category: 'structural',
-    removalCondition: 'React hooks が VM から分離されたとき',
-    lifecycle: 'permanent',
-  },
-] as const
+/**
+ * VM ファイルでの React import 許可
+ *
+ * CategoryBenchmarkChart.vm.ts / CategoryBoxPlotChart.vm.ts は features/category/ui/charts/ に
+ * 移動済み。features/ は codePatternGuard のスキャン対象外のため、allowlist エントリ不要。
+ */
+export const vmReactImport: readonly AllowlistEntry[] = [] as const
 
 /** domain/infrastructure での React import 除外ディレクトリ */
 export const reactImportExcludeDirs: readonly AllowlistEntry[] = [
