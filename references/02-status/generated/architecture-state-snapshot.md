@@ -1,6 +1,6 @@
 # Architecture State Snapshot
 
-> Generated: 2026-04-03T09:32:32.773Z
+> Generated: 2026-04-03T11:49:56.371Z
 
 ## Allowlist Summary
 
@@ -47,6 +47,7 @@
 - application/hooks/duckdb/useStoreDailyMarkupRateQuery.ts
 - application/hooks/duckdb/useSummaryQueries.ts
 - application/hooks/duckdb/useYoyQueries.ts
+- application/hooks/plans/useIntegratedSalesPlan.ts
 - application/hooks/useAnalysisInput.ts
 - application/hooks/useAnalyticsResolver.ts
 - application/hooks/useAppShortcuts.ts
@@ -102,13 +103,13 @@
 |---|---|---|---|
 | application/hooks/useTimeSlotData.ts | 20 | 8 | 369 |
 | presentation/pages/Dashboard/widgets/useDrilldownData.ts | 14 | 10 | 413 |
-| presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 15 | 5 | 517 |
 | presentation/pages/CostDetail/useCostDetailData.ts | 13 | 6 | 210 |
+| presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 12 | 5 | 465 |
 | presentation/components/charts/TimeSlotChart.tsx | 10 | 6 | 209 |
-| presentation/components/charts/useCategoryTrendChartData.ts | 9 | 7 | 225 |
 | presentation/pages/Dashboard/widgets/HourlyChart.tsx | 10 | 6 | 514 |
-| presentation/components/charts/useDeptHourlyChartData.ts | 9 | 6 | 247 |
+| presentation/components/charts/useDeptHourlyChartData.ts | 9 | 6 | 236 |
 | presentation/pages/Admin/RawDataTab.tsx | 13 | 2 | 335 |
+| presentation/components/charts/useCategoryTrendChartData.ts | 7 | 7 | 183 |
 | presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx | 7 | 7 | 480 |
 
 ## Near-Limit Files (≥80%)

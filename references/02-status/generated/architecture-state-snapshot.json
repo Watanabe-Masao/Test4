@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-03T09:32:32.773Z",
+  "timestamp": "2026-04-03T11:49:56.371Z",
   "totalAllowlistEntries": 42,
   "categoryBreakdown": {
     "adapter": 5,
@@ -60,6 +60,7 @@
     "application/hooks/duckdb/useStoreDailyMarkupRateQuery.ts",
     "application/hooks/duckdb/useSummaryQueries.ts",
     "application/hooks/duckdb/useYoyQueries.ts",
+    "application/hooks/plans/useIntegratedSalesPlan.ts",
     "application/hooks/useAnalysisInput.ts",
     "application/hooks/useAnalyticsResolver.ts",
     "application/hooks/useAppShortcuts.ts",
@@ -123,28 +124,22 @@
       "lineCount": 413
     },
     {
-      "file": "presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx",
-      "memoCount": 15,
-      "stateCount": 5,
-      "lineCount": 517
-    },
-    {
       "file": "presentation/pages/CostDetail/useCostDetailData.ts",
       "memoCount": 13,
       "stateCount": 6,
       "lineCount": 210
     },
     {
+      "file": "presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx",
+      "memoCount": 12,
+      "stateCount": 5,
+      "lineCount": 465
+    },
+    {
       "file": "presentation/components/charts/TimeSlotChart.tsx",
       "memoCount": 10,
       "stateCount": 6,
       "lineCount": 209
-    },
-    {
-      "file": "presentation/components/charts/useCategoryTrendChartData.ts",
-      "memoCount": 9,
-      "stateCount": 7,
-      "lineCount": 225
     },
     {
       "file": "presentation/pages/Dashboard/widgets/HourlyChart.tsx",
@@ -156,13 +151,19 @@
       "file": "presentation/components/charts/useDeptHourlyChartData.ts",
       "memoCount": 9,
       "stateCount": 6,
-      "lineCount": 247
+      "lineCount": 236
     },
     {
       "file": "presentation/pages/Admin/RawDataTab.tsx",
       "memoCount": 13,
       "stateCount": 2,
       "lineCount": 335
+    },
+    {
+      "file": "presentation/components/charts/useCategoryTrendChartData.ts",
+      "memoCount": 7,
+      "stateCount": 7,
+      "lineCount": 183
     },
     {
       "file": "presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx",
