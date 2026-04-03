@@ -93,14 +93,7 @@ export const presentationMemoLimits: readonly QuantitativeAllowlistEntry[] = [
 export const presentationStateLimits: readonly QuantitativeAllowlistEntry[] = [
   // useIntegratedSalesState.ts — useState 許可リスト削除済み（drill reducer 統合完了）
   // useMonthDataManagement.ts — features/storage-admin/ に移動完了。re-export 退役済み
-  {
-    path: 'presentation/pages/Dashboard/widgets/useMonthlyCalendarState.ts',
-    reason: 'カレンダー操作状態（ピン・範囲選択・hover 等）— MonthlyCalendar.tsx から hook に抽出',
-    category: 'structural',
-    removalCondition: 'useState 削減時（ピン状態と範囲状態の分離等）',
-    limit: 11,
-    lifecycle: 'active-debt',
-  },
+  // useMonthlyCalendarState.ts — pinDialog 複合化 + ranges 複合化（10→6 useState）。許可リスト卒業
   // CategoryBenchmarkChart.vm.ts — useState 許可リスト削除済み（drill state 統合 + Logic 分離完了）
   // useDuckDBTimeSlotData.ts — バレル化完了（2026-03-23）: presentation 側の useState は 0 に
   {

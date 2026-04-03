@@ -16,14 +16,45 @@ export function useMonthlyCalendarState(ctx: WidgetContext) {
 
   // ── State ──
   const [pins, setPins] = useState<Map<number, number>>(new Map())
-  const [pinDay, setPinDay] = useState<number | null>(null)
+  const [pinDialog, setPinDialog] = useState<{ day: number | null; input: string }>({
+    day: null,
+    input: '',
+  })
   const [detailDay, setDetailDay] = useState<number | null>(null)
-  const [inputVal, setInputVal] = useState('')
-  const [rangeAStart, setRangeAStart] = useState<string>('')
-  const [rangeAEnd, setRangeAEnd] = useState<string>('')
-  const [rangeBStart, setRangeBStart] = useState<string>('')
-  const [rangeBEnd, setRangeBEnd] = useState<string>('')
+  const [ranges, setRanges] = useState<{
+    aStart: string
+    aEnd: string
+    bStart: string
+    bEnd: string
+  }>({ aStart: '', aEnd: '', bStart: '', bEnd: '' })
   const [hoveredDay, setHoveredDay] = useState<number | null>(null)
+
+  // Derived accessors for backward compatibility
+  const pinDay = pinDialog.day
+  const inputVal = pinDialog.input
+  const rangeAStart = ranges.aStart
+  const rangeAEnd = ranges.aEnd
+  const rangeBStart = ranges.bStart
+  const rangeBEnd = ranges.bEnd
+
+  const setPinDay = useCallback(
+    (day: number | null) => setPinDialog((prev) => ({ ...prev, day })),
+    [],
+  )
+  const setInputVal = useCallback(
+    (input: string) => setPinDialog((prev) => ({ ...prev, input })),
+    [],
+  )
+  const setRangeAStart = useCallback(
+    (v: string) => setRanges((prev) => ({ ...prev, aStart: v })),
+    [],
+  )
+  const setRangeAEnd = useCallback((v: string) => setRanges((prev) => ({ ...prev, aEnd: v })), [])
+  const setRangeBStart = useCallback(
+    (v: string) => setRanges((prev) => ({ ...prev, bStart: v })),
+    [],
+  )
+  const setRangeBEnd = useCallback((v: string) => setRanges((prev) => ({ ...prev, bEnd: v })), [])
 
   // ── ドラッグ期間選択（useRef で state 上限を回避） ──
   const dragRef = useRef<{ active: boolean; target: 'A' | 'B'; anchorDay: number | null }>({
@@ -160,19 +191,16 @@ export function useMonthlyCalendarState(ctx: WidgetContext) {
     rangeB.start != null && rangeB.end != null && day >= rangeB.start && day <= rangeB.end
 
   const handleRangeClear = () => {
-    setRangeAStart('')
-    setRangeAEnd('')
-    setRangeBStart('')
-    setRangeBEnd('')
+    setRanges({ aStart: '', aEnd: '', bStart: '', bEnd: '' })
   }
 
   const handleRangeSwap = () => {
-    const tmpS = rangeAStart,
-      tmpE = rangeAEnd
-    setRangeAStart(rangeBStart)
-    setRangeAEnd(rangeBEnd)
-    setRangeBStart(tmpS)
-    setRangeBEnd(tmpE)
+    setRanges((prev) => ({
+      aStart: prev.bStart,
+      aEnd: prev.bEnd,
+      bStart: prev.aStart,
+      bEnd: prev.aEnd,
+    }))
   }
 
   // ── Pins & intervals ──
@@ -182,30 +210,31 @@ export function useMonthlyCalendarState(ctx: WidgetContext) {
     intervals.find((iv) => day >= iv.startDay && day <= iv.endDay)
 
   const handleOpenPin = (day: number) => {
-    setPinDay(day)
-    setInputVal(pins.has(day) ? String(pins.get(day)) : '')
+    setPinDialog({ day, input: pins.has(day) ? String(pins.get(day)) : '' })
   }
 
   const handlePinConfirm = () => {
-    if (pinDay == null) return
-    const val = Number(inputVal.replace(/,/g, ''))
+    if (pinDialog.day == null) return
+    const val = Number(pinDialog.input.replace(/,/g, ''))
     if (isNaN(val) || val < 0) return
+    const confirmDay = pinDialog.day
     setPins((prev) => {
       const next = new Map(prev)
-      next.set(pinDay, val)
+      next.set(confirmDay, val)
       return next
     })
-    setPinDay(null)
+    setPinDialog({ day: null, input: '' })
   }
 
   const handlePinRemove = () => {
-    if (pinDay == null) return
+    if (pinDialog.day == null) return
+    const removeDay = pinDialog.day
     setPins((prev) => {
       const next = new Map(prev)
-      next.delete(pinDay)
+      next.delete(removeDay)
       return next
     })
-    setPinDay(null)
+    setPinDialog({ day: null, input: '' })
   }
 
   return {

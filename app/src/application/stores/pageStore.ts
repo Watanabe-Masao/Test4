@@ -9,6 +9,7 @@
  */
 import { create } from 'zustand'
 import { z } from 'zod'
+import { loadJson, saveJson, removeKey } from '@/application/adapters/uiPersistenceAdapter'
 
 export interface CustomPage {
   /** 一意識別子 */
@@ -48,28 +49,19 @@ function generateId(): string {
 }
 
 function loadPages(): CustomPage[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return []
-    const parsed = JSON.parse(raw)
-    if (!Array.isArray(parsed)) return []
-    const result = z.array(CustomPageSchema).safeParse(parsed)
+  return loadJson<CustomPage[]>(STORAGE_KEY, [], (raw) => {
+    if (!Array.isArray(raw)) return null
+    const result = z.array(CustomPageSchema).safeParse(raw)
     if (!result.success) {
       console.warn('[pageStore] hydration schema mismatch:', result.error.message)
-      return []
+      return null
     }
     return result.data
-  } catch {
-    return []
-  }
+  })
 }
 
 function savePages(pages: readonly CustomPage[]): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(pages))
-  } catch {
-    // ignore
-  }
+  saveJson(STORAGE_KEY, pages)
 }
 
 export const usePageStore = create<PageStoreState>((set, get) => ({
@@ -94,11 +86,7 @@ export const usePageStore = create<PageStoreState>((set, get) => ({
     set({ pages: next })
     savePages(next)
     // レイアウトも削除
-    try {
-      localStorage.removeItem(`widget_layout_custom_${id}_v1`)
-    } catch {
-      // ignore
-    }
+    removeKey(`widget_layout_custom_${id}_v1`)
   },
 
   renamePage: (id, label) => {

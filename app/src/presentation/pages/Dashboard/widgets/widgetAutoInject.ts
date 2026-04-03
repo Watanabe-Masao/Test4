@@ -2,26 +2,21 @@
  * widgetAutoInject — データ駆動ウィジェットの自動注入ロジック。
  * widgetLayout.ts から分離。localStorage ベースの冪等性を保証する。
  */
+import { loadJson, saveJson } from '@/application/adapters/uiPersistenceAdapter'
 import { WIDGET_REGISTRY } from './registry'
 import { WIDGET_ID_MIGRATION } from './widgetMigration'
 
 const AUTO_INJECTED_KEY = 'dashboard_auto_injected_v3'
 
 function getAutoInjectedIds(): Set<string> {
-  try {
-    const raw = localStorage.getItem(AUTO_INJECTED_KEY)
-    return raw ? new Set(JSON.parse(raw) as string[]) : new Set()
-  } catch {
-    return new Set()
-  }
+  const arr = loadJson<string[]>(AUTO_INJECTED_KEY, [], (raw) =>
+    Array.isArray(raw) ? (raw as string[]) : null,
+  )
+  return new Set(arr)
 }
 
 function saveAutoInjectedIds(ids: Set<string>): void {
-  try {
-    localStorage.setItem(AUTO_INJECTED_KEY, JSON.stringify([...ids]))
-  } catch {
-    // ignore
-  }
+  saveJson(AUTO_INJECTED_KEY, [...ids])
 }
 
 /** DuckDB 専用ウィジェットIDかどうか判定する（統合済みは除外） */
