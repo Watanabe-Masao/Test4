@@ -5,6 +5,7 @@
  */
 import { describe, it, expect } from 'vitest'
 import { buildPlanInputs, type PerformanceIndexPlanParams } from './usePerformanceIndexPlan'
+import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 
@@ -107,5 +108,56 @@ describe('buildPlanInputs', () => {
     // storeCatPI uses full month
     expect(storeCatInput!.dateFrom).toBe('2025-03-01')
     expect(storeCatInput!.dateTo).toBe('2025-03-31')
+  })
+})
+
+// ── old/new path equivalence: plan が旧 inline 取得と同じ入力を生成する ──
+
+describe('buildPlanInputs — old/new 等価性検証', () => {
+  /**
+   * 旧コード（CategoryPerformanceChart 内の inline 取得）:
+   *   dateRangeToKeys(currentDateRange) → { fromKey, toKey }
+   *   useQueryWithHandler(executor, handler, { dateFrom: fromKey, dateTo: toKey, storeIds, level, isPrevYear: false })
+   *   useQueryWithHandler(executor, handler, { dateFrom: prevFrom, dateTo: prevTo, storeIds, level, isPrevYear: true })
+   *
+   * 新コード（plan 経由の pair handler）:
+   *   buildPlanInputs → { dateFrom, dateTo, storeIds, level, comparisonDateFrom, comparisonDateTo }
+   *   useQueryWithHandler(executor, pairHandler, pairedInput)
+   *
+   * pair handler 内部で isPrevYear=false/true に分解するため、
+   * dateFrom/dateTo と comparisonDateFrom/To が旧コードの2回呼び出しに対応する。
+   */
+  it('plan の categoryInput.dateFrom/dateTo は旧コードの cur 呼び出しと一致', () => {
+    const { categoryInput } = buildPlanInputs(makeParams({ prevYearScope }))
+    // 旧コード: dateRangeToKeys(currentDateRange) → { fromKey, toKey }
+    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
+    expect(categoryInput!.dateFrom).toBe(fromKey)
+    expect(categoryInput!.dateTo).toBe(toKey)
+  })
+
+  it('plan の comparisonDateFrom/To は旧コードの prev 呼び出しと一致', () => {
+    const { categoryInput } = buildPlanInputs(makeParams({ prevYearScope }))
+    // 旧コード: dateRangeToKeys(prevYearScope.dateRange) → { fromKey, toKey }
+    const { fromKey: prevFrom, toKey: prevTo } = dateRangeToKeys(prevYearScope.dateRange)
+    expect(categoryInput!.comparisonDateFrom).toBe(prevFrom)
+    expect(categoryInput!.comparisonDateTo).toBe(prevTo)
+  })
+
+  it('plan の storeCatInput は旧コードの storeCategoryPIHandler 呼び出しと一致', () => {
+    const { storeCatInput } = buildPlanInputs(
+      makeParams({ storePILevel: 'klass', selectedStoreIds: new Set(['S1']) }),
+    )
+    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
+    expect(storeCatInput!.dateFrom).toBe(fromKey)
+    expect(storeCatInput!.dateTo).toBe(toKey)
+    expect(storeCatInput!.storeIds).toEqual(['S1'])
+    expect(storeCatInput!.level).toBe('klass')
+  })
+
+  it('storeIds 変換: Set → Array は旧コードの [...selectedStoreIds] と同一', () => {
+    const storeSet = new Set(['S3', 'S1', 'S2'])
+    const { categoryInput } = buildPlanInputs(makeParams({ selectedStoreIds: storeSet }))
+    // 旧コード: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined
+    expect(categoryInput!.storeIds).toEqual([...storeSet])
   })
 })

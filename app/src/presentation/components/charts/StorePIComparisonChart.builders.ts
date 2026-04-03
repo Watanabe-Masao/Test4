@@ -82,14 +82,15 @@ export function buildHeatmapData(
   }))
 
   const catIdx = new Map(categories.map((c, i) => [c, i]))
+  const storeIdx = new Map(storeList.map((s, i) => [s.id, i]))
 
   let maxVal = 0
   const heatData: [number, number, number][] = []
   for (const r of records) {
     const ci = catIdx.get(r.name)
     if (ci == null) continue
-    const si = storeList.findIndex((s) => s.id === r.storeId)
-    if (si < 0) continue
+    const si = storeIdx.get(r.storeId)
+    if (si == null) continue
     const val = Math.round(metric === 'piAmount' ? r.piAmount : r.piQty)
     heatData.push([ci, si, val])
     if (val > maxVal) maxVal = val

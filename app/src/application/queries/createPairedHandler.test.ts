@@ -40,6 +40,16 @@ describe('createPairedHandler', () => {
     expect(paired.name).toBe('CustomPair')
   })
 
+  it('exposes baseName for audit and detection', () => {
+    const paired = createPairedHandler(mockHandler)
+    expect(paired.baseName).toBe('TestHandler')
+  })
+
+  it('baseName is consistent regardless of custom name', () => {
+    const paired = createPairedHandler(mockHandler, { name: 'CustomPair' })
+    expect(paired.baseName).toBe('TestHandler')
+  })
+
   it('executes current only when no comparison dates', async () => {
     const paired = createPairedHandler(mockHandler)
     const result = await paired.execute(mockConn, {

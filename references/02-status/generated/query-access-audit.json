@@ -1,7 +1,9 @@
 {
-  "timestamp": "2026-04-03T02:45:50.856Z",
+  "timestamp": "2026-04-03T03:39:31.817Z",
   "summary": {
     "queryHandlers": 35,
+    "pairHandlers": 1,
+    "screenPlanHooks": 2,
     "正規経路_queryWithHandler": 27,
     "正規経路_comparisonAccessor": 10,
     "正規経路_facadeHook": 4,
@@ -28,7 +30,7 @@
       "presentation/components/charts/useCategoryHierarchyData.ts",
       "presentation/components/charts/useCategoryTrendChartData.ts",
       "presentation/components/charts/useDeptHourlyChartData.ts",
-      "presentation/components/charts/useIntegratedSalesState.ts",
+      "presentation/components/charts/useIntegratedSalesPlan.ts",
       "presentation/components/widgets/PageWidgetContainer.tsx",
       "presentation/components/widgets/types.ts",
       "presentation/pages/Dashboard/widgets/ConditionMatrixTable.tsx",
@@ -78,6 +80,13 @@
       "application/queries/summary/StoreDaySummaryHandler.ts",
       "application/queries/temporal/MovingAverageHandler.ts",
       "application/queries/weather/WeatherHourlyHandler.ts"
+    ],
+    "pairHandlers": [
+      "application/queries/cts/LevelAggregationPairHandler.ts"
+    ],
+    "screenPlanHooks": [
+      "application/hooks/usePerformanceIndexPlan.ts",
+      "presentation/components/charts/useIntegratedSalesPlan.ts"
     ],
     "comparisonAccessor": [
       "presentation/pages/Daily/DailyPage.tsx",

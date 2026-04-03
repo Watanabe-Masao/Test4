@@ -1,12 +1,14 @@
 # Query Access Audit Report
 
-> Generated: 2026-04-03T02:45:50.856Z
+> Generated: 2026-04-03T03:39:31.817Z
 
 ## Route Summary
 
 | 経路種別 | 件数 | 状態 |
 |---|---|---|
 | QueryHandler 定義 | 35 | 基盤 |
+| PairedQueryHandler（pair 化済み） | 1 | 基盤 |
+| Screen Plan hook（plan 化済み） | 2 | 基盤 |
 | useQueryWithHandler（正規） | 27 | 正規 |
 | comparisonAccessors（正規） | 10 | 正規 |
 | facade / bundle hook 使用（正規） | 4 | 正規 |
@@ -33,7 +35,7 @@
 - presentation/components/charts/useCategoryHierarchyData.ts
 - presentation/components/charts/useCategoryTrendChartData.ts
 - presentation/components/charts/useDeptHourlyChartData.ts
-- presentation/components/charts/useIntegratedSalesState.ts
+- presentation/components/charts/useIntegratedSalesPlan.ts
 - presentation/components/widgets/PageWidgetContainer.tsx
 - presentation/components/widgets/types.ts
 - presentation/pages/Dashboard/widgets/ConditionMatrixTable.tsx
@@ -84,6 +86,15 @@
 - application/queries/summary/StoreDaySummaryHandler.ts
 - application/queries/temporal/MovingAverageHandler.ts
 - application/queries/weather/WeatherHourlyHandler.ts
+
+### pairHandlers
+
+- application/queries/cts/LevelAggregationPairHandler.ts
+
+### screenPlanHooks
+
+- application/hooks/usePerformanceIndexPlan.ts
+- presentation/components/charts/useIntegratedSalesPlan.ts
 
 ### comparisonAccessor
 

@@ -22,6 +22,10 @@ interface RouteCount {
   queryWithHandler: string[]
   /** QueryHandler 定義（application/queries/handlers/） */
   queryHandlers: string[]
+  /** PairedQueryHandler 定義（createPairedHandler 利用 + baseName 付き） */
+  pairHandlers: string[]
+  /** Screen Plan hook 定義（application/hooks/use*Plan.ts） */
+  screenPlanHooks: string[]
   /** comparisonAccessors 経由（正規経路） */
   comparisonAccessor: string[]
   /** facade / bundle hook 経由（useQueryBundle, useFreePeriodAnalysisBundle 等） */
@@ -61,6 +65,8 @@ function inventoryQueryRoutes(): RouteCount {
   const routes: RouteCount = {
     queryWithHandler: [],
     queryHandlers: [],
+    pairHandlers: [],
+    screenPlanHooks: [],
     comparisonAccessor: [],
     facadeHook: [],
     bundleHookDef: [],
@@ -76,6 +82,35 @@ function inventoryQueryRoutes(): RouteCount {
   if (fs.existsSync(queriesDir)) {
     const allFiles = collectTsFiles(queriesDir)
     routes.queryHandlers = allFiles.filter((f) => f.includes('Handler')).map((f) => rel(f))
+
+    // PairedQueryHandler 検出（createPairedHandler を利用して baseName を持つ handler）
+    for (const file of allFiles) {
+      const content = fs.readFileSync(file, 'utf-8')
+      if (/createPairedHandler\(/.test(content) && !file.endsWith('createPairedHandler.ts')) {
+        routes.pairHandlers.push(rel(file))
+      }
+    }
+  }
+
+  // 1.5. Screen Plan hook 検出（application/hooks/ + presentation/ + features/ の use*Plan.ts）
+  const planSearchRoots = [
+    path.join(SRC_DIR, 'application/hooks'),
+    path.join(SRC_DIR, 'presentation'),
+    ...(fs.existsSync(path.join(SRC_DIR, 'features'))
+      ? fs
+          .readdirSync(path.join(SRC_DIR, 'features'), { withFileTypes: true })
+          .filter((d) => d.isDirectory())
+          .map((d) => path.join(SRC_DIR, 'features', d.name))
+      : []),
+  ]
+  for (const root of planSearchRoots) {
+    if (!fs.existsSync(root)) continue
+    for (const file of collectTsFiles(root)) {
+      const basename = path.basename(file, '.ts')
+      if (/^use\w+Plan$/.test(basename) && !file.includes('.test.')) {
+        routes.screenPlanHooks.push(rel(file))
+      }
+    }
   }
 
   // 2. presentation/ + features/*/ui/ のアクセスパターンを棚卸し
@@ -229,6 +264,8 @@ describe('Query Access Audit — クエリアクセス経路棚卸し', () => {
       timestamp: new Date().toISOString(),
       summary: {
         queryHandlers: routes.queryHandlers.length,
+        pairHandlers: routes.pairHandlers.length,
+        screenPlanHooks: routes.screenPlanHooks.length,
         正規経路_queryWithHandler: routes.queryWithHandler.length,
         正規経路_comparisonAccessor: routes.comparisonAccessor.length,
         正規経路_facadeHook: routes.facadeHook.length,
@@ -256,6 +293,8 @@ describe('Query Access Audit — クエリアクセス経路棚卸し', () => {
       '| 経路種別 | 件数 | 状態 |',
       '|---|---|---|',
       `| QueryHandler 定義 | ${routes.queryHandlers.length} | 基盤 |`,
+      `| PairedQueryHandler（pair 化済み） | ${routes.pairHandlers.length} | 基盤 |`,
+      `| Screen Plan hook（plan 化済み） | ${routes.screenPlanHooks.length} | 基盤 |`,
       `| useQueryWithHandler（正規） | ${routes.queryWithHandler.length} | 正規 |`,
       `| comparisonAccessors（正規） | ${routes.comparisonAccessor.length} | 正規 |`,
       `| facade / bundle hook 使用（正規） | ${routes.facadeHook.length} | 正規 |`,

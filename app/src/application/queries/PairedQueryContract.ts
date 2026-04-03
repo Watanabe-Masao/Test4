@@ -7,7 +7,7 @@
  * @invariant INV-RUN-02 Comparison Integrity
  * @see references/01-principles/safe-performance-principles.md
  */
-import type { BaseQueryInput } from './QueryContract'
+import type { BaseQueryInput, QueryHandler } from './QueryContract'
 
 /**
  * 比較期間付きの入力。current の日付範囲に加え、
@@ -25,4 +25,16 @@ export interface PairedQueryInput extends BaseQueryInput {
 export interface PairedQueryOutput<T> {
   readonly current: T
   readonly comparison: T | null
+}
+
+/**
+ * PairedQueryHandler — pair 化された handler の型。
+ * baseName を持つことで、監査・自動検出で pair handler を識別可能にする。
+ */
+export interface PairedQueryHandler<TInput extends PairedQueryInput, TOutput> extends QueryHandler<
+  TInput,
+  PairedQueryOutput<TOutput>
+> {
+  /** pair 化元の handler 名（監査・検出用） */
+  readonly baseName: string
 }

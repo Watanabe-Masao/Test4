@@ -13,8 +13,12 @@ import { buildPerformanceData } from '@/presentation/components/charts/Performan
 import { aggregateDailyQuantity } from '@/presentation/components/charts/IntegratedSalesChartLogic'
 import { calculateAmountPI, calculateQuantityPI } from '@/domain/calculations/piValue'
 import { calculateStdDev } from '@/application/hooks/useStatistics'
+import { buildCategoryRows } from '@/features/category/ui/charts/CategoryPerformanceChart.builders'
+import { buildStorePIData } from '@/presentation/components/charts/StorePIComparisonChart.builders'
 import type { DailyRecord } from '@/domain/models/DailyRecord'
 import type { DateRange } from '@/domain/models/calendar'
+import type { StoreResult } from '@/domain/models/StoreResult'
+import type { Store } from '@/domain/models/Store'
 
 // ── テストデータファクトリ ──
 
@@ -45,6 +49,11 @@ function makeDailyMap(
   return map
 }
 
+/**
+ * prevYearDaily のキーは buildPerformanceData 内で
+ * toDateKeyFromParts(year, month, d) — つまり当年キーで参照される。
+ * よって Map のキーも当年で作る。
+ */
 function makePrevYearMap(
   year: number,
   month: number,
@@ -66,7 +75,8 @@ describe('PerformanceIndexChart.builders baseline', () => {
   const month = 3
   const daysInMonth = 31
   const daily = makeDailyMap(daysInMonth)
-  const prevYearDaily = makePrevYearMap(year - 1, month, daysInMonth)
+  // キーは当年形式 — buildPerformanceData は toDateKeyFromParts(year, month, d) で参照
+  const prevYearDaily = makePrevYearMap(year, month, daysInMonth)
 
   it('chartData has one row per day in month', () => {
     const result = buildPerformanceData(daily, daysInMonth, year, month, prevYearDaily)
@@ -75,20 +85,22 @@ describe('PerformanceIndexChart.builders baseline', () => {
 
   it('every row has non-null PI when customers > 0', () => {
     const result = buildPerformanceData(daily, daysInMonth, year, month, prevYearDaily)
-    for (const row of result.chartData) {
-      expect(row.pi).not.toBeNull()
-      expect(row.pi).toBeGreaterThan(0)
-    }
+    const nonNullPi = result.chartData.filter((r) => r.pi !== null)
+    // 全日にデータがあるので全日分 PI が非 null
+    expect(nonNullPi).toHaveLength(daysInMonth)
+    // day 1: sales=101000, customers=50 → PI = (101000/50)*1000 = 2020000
+    expect(result.chartData[0].pi).toBe(2020000)
   })
 
   it('prev year PI is populated when prevYearDaily is provided', () => {
-    // prevYearDaily keys must match previous year: YYYY-MM-DD format
-    const prevMap = makePrevYearMap(year - 1, month, daysInMonth)
+    const prevMap = makePrevYearMap(year, month, daysInMonth)
     const result = buildPerformanceData(daily, daysInMonth, year, month, prevMap)
-    // prevPi depends on matching dateKey format — count non-null entries
     const withPrev = result.chartData.filter((r) => r.prevPi !== null)
-    // At least some days should have prev data when keys align
-    expect(withPrev.length).toBeGreaterThanOrEqual(0)
+    // 全日に prev データがあるので全日分 prevPi が非 null
+    expect(withPrev).toHaveLength(daysInMonth)
+    // prevPi の値チェック: day 1 → sales=90900, customers=45 → (90900/45)*1000
+    const day1PrevPi = result.chartData[0].prevPi!
+    expect(day1PrevPi).toBeCloseTo((90900 / 45) * 1000, 0)
   })
 
   it('stats contain valid mean and stdDev', () => {
@@ -104,13 +116,14 @@ describe('PerformanceIndexChart.builders baseline', () => {
     expect(result.prevPiMa7).toHaveLength(daysInMonth)
   })
 
-  it('deviation scores are in 0-100 range when present', () => {
+  it('deviation scores are in 0-100 range and present for all days with data', () => {
     const result = buildPerformanceData(daily, daysInMonth, year, month, prevYearDaily)
-    for (const row of result.chartData) {
-      if (row.salesDev !== null) {
-        expect(row.salesDev).toBeGreaterThanOrEqual(0)
-        expect(row.salesDev).toBeLessThanOrEqual(100)
-      }
+    const withDev = result.chartData.filter((r) => r.salesDev !== null)
+    // 全日に sales > 0 のデータがあるので deviation が算出される
+    expect(withDev).toHaveLength(daysInMonth)
+    for (const row of withDev) {
+      expect(row.salesDev).toBeGreaterThanOrEqual(0)
+      expect(row.salesDev).toBeLessThanOrEqual(100)
     }
   })
 
@@ -224,8 +237,10 @@ describe('aggregateDailyQuantity baseline', () => {
       31,
     )
     expect(result).toBeDefined()
-    // prev should have at least one entry after alignment
-    expect(result!.prev.size).toBeGreaterThanOrEqual(0)
+    // prevRecords に day=2 のデータがあるのでアラインメント後 1件以上
+    expect(result!.prev.size).toBeGreaterThan(0)
+    // day 2 にマッピングされた値が 80
+    expect(result!.prev.get(2)).toBe(80)
   })
 
   it('filters out days beyond daysInMonth', () => {
@@ -235,18 +250,21 @@ describe('aggregateDailyQuantity baseline', () => {
   })
 })
 
-// ── CategoryPerformanceChart inline calculations baseline ──
+// ── CategoryPerformanceChart builders baseline ──
 
-describe('CategoryPerformanceChart calculation patterns', () => {
-  it('PI calculation: amount / totalCustomers * 1000', () => {
+describe('CategoryPerformanceChart builders baseline', () => {
+  it('PI calculation matches domain function', () => {
+    // inline: (amount / totalCustomers) * 1000
+    // builder: calculateAmountPI(amount, totalCustomers)
     const amount = 500000
     const totalCustomers = 1000
-    const piAmount = (amount / totalCustomers) * 1000
-    expect(piAmount).toBe(500000)
+    const inline = (amount / totalCustomers) * 1000
+    const domain = calculateAmountPI(amount, totalCustomers)
+    expect(inline).toBe(500000)
+    expect(domain).toBe(inline)
   })
 
   it('deviation score from z-score is in valid range', () => {
-    // toDevScore formula: z * 10 + 50, clamped to 0-100
     const zScores = [-3, -2, -1, 0, 1, 2, 3]
     for (const z of zScores) {
       const dev = Math.min(100, Math.max(0, z * 10 + 50))
@@ -255,29 +273,83 @@ describe('CategoryPerformanceChart calculation patterns', () => {
     }
   })
 
-  it('TopN selection preserves order', () => {
+  it('TopN selection: top element is highest, count is 20', () => {
     const items = Array.from({ length: 30 }, (_, i) => ({
       code: `C${i}`,
       piAmount: (30 - i) * 100,
     }))
     const top20 = items.sort((a, b) => b.piAmount - a.piAmount).slice(0, 20)
     expect(top20).toHaveLength(20)
+    expect(top20[0].code).toBe('C0')
     expect(top20[0].piAmount).toBe(3000)
+    expect(top20[19].code).toBe('C19')
     expect(top20[19].piAmount).toBe(1100)
+  })
+
+  it('buildCategoryRows produces correct PI from domain functions', () => {
+    const rows = buildCategoryRows(
+      [
+        {
+          code: 'A',
+          name: 'Cat A',
+          amount: 500000,
+          quantity: 200,
+          childCount: 1,
+          handledDayCount: 30,
+          totalDayCount: 31,
+        },
+      ],
+      null,
+      1000, // totalCustomers
+      0,
+    )
+    expect(rows).toHaveLength(1)
+    expect(rows[0].piAmount).toBe(calculateAmountPI(500000, 1000))
+    expect(rows[0].piQty).toBe(calculateQuantityPI(200, 1000))
+    expect(rows[0].prevPiAmount).toBeNull()
+  })
+
+  it('buildCategoryRows includes prev PI when comparison data exists', () => {
+    const cur = [
+      {
+        code: 'A',
+        name: 'Cat A',
+        amount: 500000,
+        quantity: 200,
+        childCount: 1,
+        handledDayCount: 30,
+        totalDayCount: 31,
+      },
+    ]
+    const prev = [
+      {
+        code: 'A',
+        name: 'Cat A',
+        amount: 400000,
+        quantity: 150,
+        childCount: 1,
+        handledDayCount: 30,
+        totalDayCount: 31,
+      },
+    ]
+    const rows = buildCategoryRows(cur, prev, 1000, 900)
+    expect(rows).toHaveLength(1)
+    expect(rows[0].prevPiAmount).toBe(calculateAmountPI(400000, 900))
+    expect(rows[0].prevPiQty).toBe(calculateQuantityPI(150, 900))
   })
 })
 
-// ── StorePIComparisonChart inline calculations baseline ──
+// ── StorePIComparisonChart builders baseline ──
 
-describe('StorePIComparisonChart calculation patterns', () => {
-  it('store PI: Math.round(sales / customers * 1000)', () => {
+describe('StorePIComparisonChart builders baseline', () => {
+  it('store PI: Math.round(safeDivide(sales, customers, 0) * 1000)', () => {
     const sales = 1234567
     const customers = 500
     const pi = Math.round((sales / customers) * 1000)
     expect(pi).toBe(2469134)
   })
 
-  it('heatmap top10 category extraction', () => {
+  it('heatmap top10: first category is highest PI', () => {
     const records = Array.from({ length: 15 }, (_, i) => ({
       code: `CAT${i}`,
       name: `Category ${i}`,
@@ -292,6 +364,8 @@ describe('StorePIComparisonChart calculation patterns', () => {
     const top10 = sorted.slice(0, 10)
     expect(top10).toHaveLength(10)
     expect(top10[0][0]).toBe('CAT0')
+    expect(top10[0][1]).toBe(750) // (15 - 0) * 50
+    expect(top10[9][0]).toBe('CAT9')
   })
 
   it('handles zero customers without division error', () => {
@@ -299,5 +373,33 @@ describe('StorePIComparisonChart calculation patterns', () => {
     const customers = 0
     const pi = customers > 0 ? Math.round((sales / customers) * 1000) : 0
     expect(pi).toBe(0)
+  })
+
+  it('buildStorePIData sorts by metric and excludes zero-customer stores', () => {
+    const storeResults = new Map<string, StoreResult>()
+    storeResults.set('S1', {
+      totalSales: 2000000,
+      totalCustomers: 500,
+      totalQuantity: 100,
+    } as unknown as StoreResult)
+    storeResults.set('S2', {
+      totalSales: 1000000,
+      totalCustomers: 500,
+      totalQuantity: 200,
+    } as unknown as StoreResult)
+    storeResults.set('S3', {
+      totalSales: 500000,
+      totalCustomers: 0,
+      totalQuantity: 50,
+    } as unknown as StoreResult)
+    const stores = new Map<string, Store>([
+      ['S1', { name: 'Store A' } as unknown as Store],
+      ['S2', { name: 'Store B' } as unknown as Store],
+      ['S3', { name: 'Store C' } as unknown as Store],
+    ])
+    const result = buildStorePIData(storeResults, stores, 'piAmount')
+    expect(result).toHaveLength(2) // S3 excluded (0 customers)
+    expect(result[0].storeId).toBe('S1') // higher piAmount first
+    expect(result[0].piAmount).toBe(Math.round((2000000 / 500) * 1000))
   })
 })
