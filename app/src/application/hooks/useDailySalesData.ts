@@ -6,11 +6,7 @@
  */
 import { useMemo } from 'react'
 import type { DailyRecord } from '@/domain/models/record'
-import {
-  buildBaseDayItems,
-  buildWaterfallData,
-  createDowFilter,
-} from '@/application/usecases/dailySalesTransform'
+import { buildBaseDayItems, buildWaterfallData, createDowFilter } from '@/features/sales'
 
 /* ── Types ─────────────────────────────────── */
 

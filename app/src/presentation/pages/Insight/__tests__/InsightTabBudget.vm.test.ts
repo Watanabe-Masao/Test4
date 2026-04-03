@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildBudgetTableRows } from '../InsightTabBudget.vm'
+import { buildBudgetTableRows } from '@/features/budget'
 import type { DailyRecord } from '@/domain/models/record'
 
 function makeDaily(day: number, overrides: Partial<DailyRecord> = {}): [number, DailyRecord] {
