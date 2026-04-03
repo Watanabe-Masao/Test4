@@ -1,6 +1,10 @@
 # Safety-First Architecture 改善計画
 
 > **目的:** ルール違反を検知する仕組みから、危険な形に入りにくい構造への移行。
+>
+> **関連文書:**
+> - `references/01-principles/critical-path-safety-map.md` — Safety Tier 分類
+> - `references/01-principles/modular-monolith-evolution.md` — 4層 × 縦スライスのモジュラーモノリス進化計画
 
 ## 改善の3本柱
 
