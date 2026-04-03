@@ -16,10 +16,9 @@ import {
   categoryHourlyHandler,
   type CategoryHourlyInput,
 } from '@/application/queries/cts/CategoryHourlyHandler'
-import {
-  hourlyAggregationHandler,
-  type HourlyAggregationInput,
-} from '@/application/queries/cts/HourlyAggregationHandler'
+import { hourlyAggregationPairHandler } from '@/application/queries/cts/HourlyAggregationPairHandler'
+import type { HourlyAggregationInput } from '@/application/queries/cts/HourlyAggregationHandler'
+import type { PairedInput } from '@/application/queries/createPairedHandler'
 import { useCurrencyFormatter } from './chartTheme'
 import {
   buildDeptHourlyData,
@@ -87,30 +86,34 @@ export function useDeptHourlyChartData(params: UseDeptHourlyChartDataParams) {
 
   const categoryHourlyRows = output?.records ?? null
 
-  // ── 時間帯別点数データ（第2軸: quantity モード用） ──
+  // ── 時間帯別点数データ（第2軸: quantity モード用 — pair handler） ──
   const storeIds = useMemo(
     () => (selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined),
     [selectedStoreIds],
   )
-  const qtyInput = useMemo<HourlyAggregationInput | null>(() => {
+  const prevDateRange = prevYearScope?.dateRange
+  const qtyPairInput = useMemo<PairedInput<HourlyAggregationInput> | null>(() => {
     if (rightMode !== 'quantity') return null
     const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-    return { dateFrom: fromKey, dateTo: toKey, storeIds, isPrevYear: false }
-  }, [currentDateRange, storeIds, rightMode])
+    const base: PairedInput<HourlyAggregationInput> = {
+      dateFrom: fromKey,
+      dateTo: toKey,
+      storeIds,
+    }
+    if (prevDateRange) {
+      const { fromKey: pFrom, toKey: pTo } = dateRangeToKeys(prevDateRange)
+      return { ...base, comparisonDateFrom: pFrom, comparisonDateTo: pTo }
+    }
+    return base
+  }, [currentDateRange, prevDateRange, storeIds, rightMode])
 
-  const prevDateRange = prevYearScope?.dateRange
-  const prevQtyInput = useMemo<HourlyAggregationInput | null>(() => {
-    if (rightMode !== 'quantity' || !prevDateRange) return null
-    const { fromKey, toKey } = dateRangeToKeys(prevDateRange)
-    return { dateFrom: fromKey, dateTo: toKey, storeIds, isPrevYear: true }
-  }, [prevDateRange, storeIds, rightMode])
-
-  const { data: curQtyOut } = useQueryWithHandler(queryExecutor, hourlyAggregationHandler, qtyInput)
-  const { data: prevQtyOut } = useQueryWithHandler(
+  const { data: qtyPairOut } = useQueryWithHandler(
     queryExecutor,
-    hourlyAggregationHandler,
-    prevQtyInput,
+    hourlyAggregationPairHandler,
+    qtyPairInput,
   )
+  const curQtyOut = qtyPairOut?.current ?? null
+  const prevQtyOut = qtyPairOut?.comparison ?? null
 
   // 天気・点数 → hourMap
   const overlayByHour = useMemo(() => {

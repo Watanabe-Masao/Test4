@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-03T05:13:05.159Z",
+  "timestamp": "2026-04-03T05:20:14.252Z",
   "totalAllowlistEntries": 42,
   "categoryBreakdown": {
     "adapter": 5,
@@ -147,16 +147,16 @@
       "lineCount": 225
     },
     {
-      "file": "presentation/components/charts/useDeptHourlyChartData.ts",
-      "memoCount": 10,
-      "stateCount": 6,
-      "lineCount": 244
-    },
-    {
       "file": "presentation/pages/Dashboard/widgets/HourlyChart.tsx",
       "memoCount": 10,
       "stateCount": 6,
       "lineCount": 514
+    },
+    {
+      "file": "presentation/components/charts/useDeptHourlyChartData.ts",
+      "memoCount": 9,
+      "stateCount": 6,
+      "lineCount": 247
     },
     {
       "file": "presentation/pages/Admin/RawDataTab.tsx",

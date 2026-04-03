@@ -1,6 +1,6 @@
 # Architecture State Snapshot
 
-> Generated: 2026-04-03T05:13:05.159Z
+> Generated: 2026-04-03T05:20:14.252Z
 
 ## Allowlist Summary
 
@@ -106,8 +106,8 @@
 | presentation/pages/CostDetail/useCostDetailData.ts | 13 | 6 | 210 |
 | presentation/components/charts/TimeSlotChart.tsx | 10 | 6 | 209 |
 | presentation/components/charts/useCategoryTrendChartData.ts | 9 | 7 | 225 |
-| presentation/components/charts/useDeptHourlyChartData.ts | 10 | 6 | 244 |
 | presentation/pages/Dashboard/widgets/HourlyChart.tsx | 10 | 6 | 514 |
+| presentation/components/charts/useDeptHourlyChartData.ts | 9 | 6 | 247 |
 | presentation/pages/Admin/RawDataTab.tsx | 13 | 2 | 335 |
 | presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx | 7 | 7 | 480 |
 
