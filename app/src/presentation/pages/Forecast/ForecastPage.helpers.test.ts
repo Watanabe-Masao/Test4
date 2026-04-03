@@ -15,7 +15,7 @@ import {
   type DailyDecompEntry,
 } from './ForecastPage.helpers'
 import type { PrevYearData } from '@/application/hooks/analytics'
-import type { WeeklySummary } from '@/application/hooks/useForecast'
+import type { WeeklySummary } from '@/features/forecast'
 
 describe('buildDowCustomerAverages', () => {
   it('曜日は指定された year/month に基づいて正しく割り当てられる', () => {

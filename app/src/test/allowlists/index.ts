@@ -18,6 +18,7 @@
 // Types & builders
 export type {
   AllowlistEntry,
+  AllowlistLifecycle,
   QuantitativeAllowlistEntry,
   RolloutCluster,
   DirectQueryClassification,

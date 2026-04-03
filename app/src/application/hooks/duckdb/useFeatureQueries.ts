@@ -12,7 +12,8 @@ import {
   type DowPatternRow,
 } from '@/infrastructure/duckdb/queries/features'
 import type { AsyncQueryResult } from './useAsyncQuery'
-import { useJsDailyFeatures, useJsDowPattern, useJsHourlyProfile } from './useJsAggregationQueries'
+import { useJsDailyFeatures, useJsDowPattern } from './useJsFeatureQueries'
+import { useJsHourlyProfile } from './useJsSalesCompQueries'
 
 /** 日別売上特徴量ベクトル（JS計算版に移行済み） */
 export function useDuckDBDailyFeatures(

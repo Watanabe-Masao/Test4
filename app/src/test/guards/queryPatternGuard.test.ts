@@ -11,7 +11,7 @@
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
-import { SRC_DIR, collectTsFiles, rel } from '../guardTestHelpers'
+import { SRC_DIR, collectTsFiles, extractImports, rel } from '../guardTestHelpers'
 import {
   isPrevYearHandlers,
   nonPairableConsumers,
@@ -104,13 +104,13 @@ describe('INV-RUN-03: presentation 層の useQueryWithHandler 直接呼び出し
     // この数値は Gate 4 で 0 にすることが目標。
     console.log(`[INV-RUN-03] presentation direct query files: ${filesWithDirectQuery.length}`)
 
-    // Gate 3 rollout: 22→3。残り3件は設計対応が必要（exception-design + plan-bridge）。
+    // Gate 3 完了: 22→0。全 presentation direct query を Screen Plan hook に移行完了。
     expect(
       filesWithDirectQuery.length,
       `presentation 層の直接 query 呼び出しが増加しています。\n` +
         `Screen Plan hook 経由に移行してください。\n` +
         `対象:\n${filesWithDirectQuery.join('\n')}`,
-    ).toBeLessThanOrEqual(3)
+    ).toBe(0)
   })
 })
 
@@ -245,12 +245,13 @@ describe('INV-RUN-04: Screen Plan hook count ラチェット', () => {
       `[INV-RUN-04] Screen Plan hooks: ${totalPlanHooks} (plans/: ${planFiles.length}, direct: ${directPlanFiles.length})`,
     )
 
-    // Gate 3 rollout: 19 plan hooks（plans/ 16 + direct 3）
-    // useIntegratedSalesPlan は presentation 層のためカウント外（plan-bridge）
+    // Gate 3 完了: 22 plan hooks（plans/ 19 + direct 3）
+    // useIntegratedSalesPlan + useCategoryTrendPlan + useYoYWaterfallPlan を plans/ に追加済み
     expect(
       totalPlanHooks,
       `Screen Plan hook が減少しています。plan hook を削除しないでください。`,
-    ).toBeGreaterThanOrEqual(19)
+      // P2-3: useTimeSlotPlan 追加 → 22→23
+    ).toBeGreaterThanOrEqual(23)
   })
 })
 
@@ -375,6 +376,115 @@ describe('INV-RUN-05: collapsible ChartCard の hidden fetch 防止', () => {
       `collapsible ChartCard 内で useQueryWithHandler を呼ぶ component が onVisibilityChange を実装していません。\n` +
         `折りたたみ時のデータ取得抑制（INV-RUN-05）を実装してください。\n` +
         `対象:\n${violations.join('\n')}`,
+    ).toEqual([])
+  })
+})
+
+// ── P6-2: Plan-Bridge Prohibition Guard ──
+
+describe('P6-2: Screen Plan hook が presentation 層を import しない', () => {
+  const plansDir = path.join(SRC_DIR, 'application/hooks/plans')
+  const hooksDir = path.join(SRC_DIR, 'application/hooks')
+
+  it('plans/ ディレクトリの hook が @/presentation/ を import しない', () => {
+    if (!fs.existsSync(plansDir)) return
+
+    const planFiles = collectTsFiles(plansDir)
+    const violations: string[] = []
+
+    for (const file of planFiles) {
+      const imports = extractImports(file)
+      for (const imp of imports) {
+        if (imp.startsWith('@/presentation/')) {
+          violations.push(`${rel(file)}: ${imp}`)
+        }
+      }
+    }
+
+    expect(
+      violations,
+      `plan hook が presentation 層を import しています。\n` +
+        `plan hook は application 層に閉じてください（H1 原則）。\n` +
+        `対象:\n${violations.join('\n')}`,
+    ).toEqual([])
+  })
+
+  it('application/hooks/ 直下の plan hook が @/presentation/ を import しない', () => {
+    const directPlanFiles = collectTsFiles(hooksDir)
+      .filter((f) => !f.includes('/plans/') && !f.includes('/duckdb/'))
+      .filter((f) => path.basename(f).includes('Plan'))
+
+    const violations: string[] = []
+
+    for (const file of directPlanFiles) {
+      const imports = extractImports(file)
+      for (const imp of imports) {
+        if (imp.startsWith('@/presentation/')) {
+          violations.push(`${rel(file)}: ${imp}`)
+        }
+      }
+    }
+
+    expect(
+      violations,
+      `plan hook が presentation 層を import しています。\n` + `対象:\n${violations.join('\n')}`,
+    ).toEqual([])
+  })
+})
+
+// ── P6-2: Plan Hook Infrastructure Isolation Guard ──
+
+describe('P6-2: Screen Plan hook が infrastructure 層を import しない', () => {
+  const plansDir = path.join(SRC_DIR, 'application/hooks/plans')
+
+  it('plans/ ディレクトリの hook が @/infrastructure/ を import しない', () => {
+    if (!fs.existsSync(plansDir)) return
+
+    const planFiles = collectTsFiles(plansDir)
+    const violations: string[] = []
+
+    for (const file of planFiles) {
+      const imports = extractImports(file)
+      for (const imp of imports) {
+        if (imp.startsWith('@/infrastructure/')) {
+          violations.push(`${rel(file)}: ${imp}`)
+        }
+      }
+    }
+
+    expect(
+      violations,
+      `plan hook が infrastructure 層を import しています。\n` +
+        `plan hook は application + domain 層のみ参照可能です。\n` +
+        `対象:\n${violations.join('\n')}`,
+    ).toEqual([])
+  })
+})
+
+// ── P6-3: Compat Re-export Prohibition Guard ──
+
+describe('P6-3: 退役済み re-export ファイルが復活していない', () => {
+  const retiredFiles = [
+    'application/hooks/useForecast.ts',
+    'application/hooks/useBudgetChartData.ts',
+    'application/usecases/dailySalesTransform.ts',
+    'presentation/pages/Admin/useMonthDataManagement.ts',
+    'presentation/pages/Insight/InsightTabBudget.vm.ts',
+    'presentation/components/charts/IntegratedSalesChartLogic.ts',
+    'application/hooks/duckdb/useJsAggregationQueries.ts',
+  ]
+
+  it('退役済み re-export ファイルが存在しない', () => {
+    const existing: string[] = []
+    for (const file of retiredFiles) {
+      if (fs.existsSync(path.join(SRC_DIR, file))) {
+        existing.push(file)
+      }
+    }
+
+    expect(
+      existing,
+      `退役済み re-export ファイルが復活しています:\n${existing.join('\n')}`,
     ).toEqual([])
   })
 })

@@ -14,7 +14,7 @@ import {
 } from '@/infrastructure/duckdb/queries/storeDaySummary'
 import type { DailyCumulativeRow } from '@/infrastructure/duckdb/queries/aggregates/dailyAggregation'
 import { useAsyncQuery, toDateKeys, storeIdsToArray, type AsyncQueryResult } from './useAsyncQuery'
-import { useJsDailyCumulative } from './useJsAggregationQueries'
+import { useJsDailyCumulative } from './useJsSalesCompQueries'
 
 /** 日別累積売上（SQL 集約版に委譲） */
 export function useDuckDBDailyCumulative(

@@ -1,6 +1,6 @@
 # Query Access Audit Report
 
-> Generated: 2026-04-03T09:31:44.854Z
+> Generated: 2026-04-03T12:31:06.320Z
 
 ## Route Summary
 
@@ -8,8 +8,8 @@
 |---|---|---|
 | QueryHandler 定義 | 47 | 基盤 |
 | PairedQueryHandler（pair 化済み） | 13 | 基盤 |
-| Screen Plan hook（plan 化済み） | 4 | 基盤 |
-| useQueryWithHandler（正規） | 24 | 正規 |
+| Screen Plan hook（plan 化済み） | 24 | 基盤 |
+| useQueryWithHandler（正規） | 0 | 正規 |
 | comparisonAccessors（正規） | 10 | 正規 |
 | facade / bundle hook 使用（正規） | 4 | 正規 |
 | bundle hook 定義 | 1 | 基盤 |
@@ -18,33 +18,6 @@
 | infrastructure/duckdb 直 import（禁止） | 0 | 禁止 |
 
 ## Detail
-
-### queryWithHandler
-
-- presentation/components/charts/CumulativeChart.tsx
-- presentation/components/charts/CvTimeSeriesChart.tsx
-- presentation/components/charts/DeptTrendChart.tsx
-- presentation/components/charts/DowPatternChart.tsx
-- presentation/components/charts/FactorDecompositionPanel.tsx
-- presentation/components/charts/FeatureChart.tsx
-- presentation/components/charts/PiCvBubbleChart.tsx
-- presentation/components/charts/StoreHourlyChart.tsx
-- presentation/components/charts/WeatherAnalysisPanel.tsx
-- presentation/components/charts/YoYChart.tsx
-- presentation/components/charts/useCategoryHierarchyData.ts
-- presentation/components/charts/useCategoryTrendChartData.ts
-- presentation/components/charts/useDeptHourlyChartData.ts
-- presentation/components/charts/useIntegratedSalesPlan.ts
-- presentation/components/widgets/PageWidgetContainer.tsx
-- presentation/components/widgets/types.ts
-- presentation/pages/Dashboard/widgets/ConditionMatrixTable.tsx
-- presentation/pages/Dashboard/widgets/ConditionSummaryBudgetDrill.tsx
-- presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx
-- features/category/ui/charts/CategoryBarChart.tsx
-- features/category/ui/charts/CategoryDiscountChart.tsx
-- features/category/ui/charts/CategoryHierarchyExplorer.tsx
-- features/category/ui/charts/CategoryHourlyChart.tsx
-- features/category/ui/charts/CategoryMixChart.tsx
 
 ### queryHandlers
 
@@ -114,6 +87,26 @@
 
 ### screenPlanHooks
 
+- application/hooks/plans/useCategoryBarChartPlan.ts
+- application/hooks/plans/useCategoryDiscountChartPlan.ts
+- application/hooks/plans/useCategoryHierarchyPlan.ts
+- application/hooks/plans/useCategoryHourlyChartPlan.ts
+- application/hooks/plans/useCategoryMixChartPlan.ts
+- application/hooks/plans/useCategoryTrendPlan.ts
+- application/hooks/plans/useConditionBudgetDrillPlan.ts
+- application/hooks/plans/useConditionMatrixPlan.ts
+- application/hooks/plans/useCumulativeChartPlan.ts
+- application/hooks/plans/useDeptHourlyChartPlan.ts
+- application/hooks/plans/useDeptTrendChartPlan.ts
+- application/hooks/plans/useDowPatternChartPlan.ts
+- application/hooks/plans/useFactorDecompositionPlan.ts
+- application/hooks/plans/useFeatureChartPlan.ts
+- application/hooks/plans/useIntegratedSalesPlan.ts
+- application/hooks/plans/useStoreHourlyChartPlan.ts
+- application/hooks/plans/useTimeSlotPlan.ts
+- application/hooks/plans/useWeatherAnalysisPlan.ts
+- application/hooks/plans/useYoYChartPlan.ts
+- application/hooks/plans/useYoYWaterfallPlan.ts
 - application/hooks/useCategoryBenchmarkPlan.ts
 - application/hooks/useHeatmapPlan.ts
 - application/hooks/usePerformanceIndexPlan.ts

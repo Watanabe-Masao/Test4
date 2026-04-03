@@ -25,8 +25,13 @@ export {
   decompose5,
   decomposePriceMix,
 } from '@/application/services/factorDecompositionBridge'
-export { useForecast, useWeekRanges } from './useForecast'
-export type { ForecastInput, ForecastResult, WeeklySummary, DayOfWeekAverage } from './useForecast'
+export { useForecast, useWeekRanges } from '@/features/forecast'
+export type {
+  ForecastInput,
+  ForecastResult,
+  WeeklySummary,
+  DayOfWeekAverage,
+} from '@/features/forecast'
 // bridge 経由: forecast も dual-run compare を観測可能にする
 export { calculateForecast, getWeekRanges } from '@/application/services/forecastBridge'
 export { useEstimatedInventory, useEstimatedInventoryDetails } from './useInventoryEstimation'
@@ -42,8 +47,8 @@ export type {
   SensitivityResult,
   ElasticityResult,
 } from './useSensitivity'
-export { useBudgetChartData } from './useBudgetChartData'
-export type { BudgetChartDataPoint } from './useBudgetChartData'
+export { useBudgetChartData } from '@/features/budget'
+export type { BudgetChartDataPoint } from '@/features/budget'
 export { usePinIntervals } from './usePinIntervals'
 export type { PinInterval } from './usePinIntervals'
 export { calculatePinIntervals } from '@/domain/calculations/pinIntervals'

@@ -7,7 +7,9 @@ import type { ChartTheme } from './chartTheme'
 import { deriveCompStartDateKey, type RightAxisMode } from './DailySalesChartBodyLogic'
 import { buildWeatherMap, buildOption, buildMAOverlay } from './DailySalesChartBody.builders'
 
-export type ViewType = 'standard' | 'cumulative' | 'difference' | 'rate'
+/** 後方互換 re-export — 正本は domain/models/ChartViewMode.ts */
+export type { ViewType } from '@/domain/models/ChartViewMode'
+import type { ViewType } from '@/domain/models/ChartViewMode'
 
 interface Props {
   data: DailySalesDataResult['data']

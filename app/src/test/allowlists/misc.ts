@@ -13,18 +13,21 @@ export const ctxHook: readonly AllowlistEntry[] = [
     reason: 'ctx 自体の構築元（bundle hook を compose する）',
     category: 'structural',
     removalCondition: 'コンテキスト設計見直し時',
+    lifecycle: 'permanent',
   },
   {
     path: 'presentation/hooks/useQueryBundle.ts',
     reason: 'ctx 構築の sub-bundle。useWeatherData を直接 import して ctx に供給する',
     category: 'structural',
     removalCondition: 'コンテキスト設計見直し時',
+    lifecycle: 'permanent',
   },
   {
     path: 'presentation/pages/Dashboard/widgets/EtrnTestWidget.tsx',
     reason: 'ETRN テストウィジェット。ctx 非経由で直接データ取得（デバッグ用途で維持）',
     category: 'structural',
     removalCondition: 'テストウィジェット廃止時',
+    lifecycle: 'retirement',
   },
 ] as const
 
@@ -35,12 +38,14 @@ export const vmReactImport: readonly AllowlistEntry[] = [
     reason: 'VM 内で useState/useMemo を使用',
     category: 'structural',
     removalCondition: 'React hooks が VM から分離されたとき',
+    lifecycle: 'permanent',
   },
   {
     path: 'presentation/components/charts/CategoryBoxPlotChart.vm.ts',
     reason: 'VM 内で useState/useMemo を使用',
     category: 'structural',
     removalCondition: 'React hooks が VM から分離されたとき',
+    lifecycle: 'permanent',
   },
 ] as const
 
@@ -51,6 +56,7 @@ export const reactImportExcludeDirs: readonly AllowlistEntry[] = [
     reason: 'React Context を使用するため除外',
     category: 'structural',
     removalCondition: 'i18n が React 非依存になったとき',
+    lifecycle: 'permanent',
   },
 ] as const
 
@@ -61,5 +67,6 @@ export const sideEffectChain: readonly AllowlistEntry[] = [
     reason: '.then() 2行のみ — 分離は過剰',
     category: 'structural',
     removalCondition: '副作用チェーンが増えたとき',
+    lifecycle: 'permanent',
   },
 ] as const

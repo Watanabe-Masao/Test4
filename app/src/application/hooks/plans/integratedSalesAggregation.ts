@@ -1,13 +1,14 @@
 /**
- * IntegratedSalesChart — 純粋ロジック層
+ * integratedSalesAggregation — 日別点数データの集約ロジック
  *
- * 日別点数データの集約ロジック。React 非依存。副作用なし。
+ * React 非依存。副作用なし。純粋関数のみ。
+ * presentation/components/charts/IntegratedSalesChartLogic.ts から移動。
  *
  * @guard G5 hook ≤300行 — 純粋関数を分離
  */
 import type { DateRange } from '@/domain/models/calendar'
 import { alignPrevYearDay } from '@/application/services/temporal/prevYearAlignment'
-import type { DailyQuantityData } from './useDailySalesData'
+import type { DailyQuantityData } from '@/application/hooks/useDailySalesData'
 
 interface QuantityRecord {
   readonly dateKey: string

@@ -13,20 +13,14 @@ import {
   calculateAveragePricePerItem,
 } from '@/domain/calculations/utils'
 import { formatPercent } from '@/domain/formatting'
-import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
-import {
-  categoryTimeRecordsHandler,
-  type CategoryTimeRecordsInput,
-} from '@/application/queries/cts'
 import type { DateRange } from '@/domain/models/calendar'
-import { dateRangeToKeys } from '@/domain/models/calendar'
+import { useYoYWaterfallPlan } from '@/application/hooks/plans/useYoYWaterfallPlan'
 import {
   calculatePrevCtsDateRange,
   aggregatePeriodCurSales,
   aggregatePeriodPrevSales,
   calculatePISummary,
 } from './YoYWaterfallChart.logic'
-import type { CategoryTimeSalesRecord } from '@/domain/models/record'
 import { CategoryFactorBreakdown } from './CategoryFactorBreakdown'
 import { decomposePriceMix } from './categoryFactorUtils'
 import { aggregateTotalQuantity } from './YoYWaterfallChart.vm'
@@ -52,8 +46,6 @@ import {
   PISummaryRow,
   WaterfallBarChart,
 } from './YoYWaterfallChart.subcomponents'
-
-const EMPTY_RECORDS: readonly CategoryTimeSalesRecord[] = []
 
 interface YoYWaterfallProps {
   readonly ctx: WidgetContext
@@ -136,59 +128,15 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
 
   const prevIsPrevYear = activeCompMode !== 'wow'
 
-  // CTS クエリ発行（当年 + 比較期間） — QueryHandler 経由
-  const curCtsInput = useMemo<CategoryTimeRecordsInput | null>(() => {
-    const { fromKey, toKey } = dateRangeToKeys(curDateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: ctx.selectedStoreIds.size > 0 ? [...ctx.selectedStoreIds] : undefined,
-    }
-  }, [curDateRange, ctx.selectedStoreIds])
-
-  const prevCtsInput = useMemo<CategoryTimeRecordsInput | null>(() => {
-    if (!prevCtsDateRange) return null
-    const { fromKey, toKey } = dateRangeToKeys(prevCtsDateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: ctx.selectedStoreIds.size > 0 ? [...ctx.selectedStoreIds] : undefined,
-      isPrevYear: prevIsPrevYear,
-    }
-  }, [prevCtsDateRange, ctx.selectedStoreIds, prevIsPrevYear])
-
-  const prevCtsFallbackInput = useMemo<CategoryTimeRecordsInput | null>(() => {
-    if (!prevCtsDateRange || !prevIsPrevYear) return null
-    const { fromKey, toKey } = dateRangeToKeys(prevCtsDateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: ctx.selectedStoreIds.size > 0 ? [...ctx.selectedStoreIds] : undefined,
-    }
-  }, [prevCtsDateRange, ctx.selectedStoreIds, prevIsPrevYear])
-
-  const { data: curCtsOutput } = useQueryWithHandler(
-    ctx.queryExecutor,
-    categoryTimeRecordsHandler,
-    curCtsInput,
-  )
-  const periodCTS = curCtsOutput?.records ?? EMPTY_RECORDS
-
-  const { data: prevCtsOutput } = useQueryWithHandler(
-    ctx.queryExecutor,
-    categoryTimeRecordsHandler,
-    prevCtsInput,
-  )
-  // フォールバック: 前年データが is_prev_year=false で格納されている場合
-  const { data: prevCtsFallbackOutput } = useQueryWithHandler(
-    ctx.queryExecutor,
-    categoryTimeRecordsHandler,
-    prevCtsFallbackInput,
-  )
-  const periodPrevCTS =
-    prevIsPrevYear && (prevCtsOutput?.records ?? []).length === 0
-      ? (prevCtsFallbackOutput?.records ?? EMPTY_RECORDS)
-      : (prevCtsOutput?.records ?? EMPTY_RECORDS)
+  // ── Screen Query Plan（fallback-aware comparison） ──
+  const plan = useYoYWaterfallPlan(ctx.queryExecutor, {
+    curDateRange,
+    prevDateRange: prevCtsDateRange,
+    selectedStoreIds: ctx.selectedStoreIds,
+    isPrevYear: prevIsPrevYear,
+  })
+  const periodCTS = plan.currentRecords
+  const periodPrevCTS = plan.comparisonRecords
 
   // ── CTS から売上合計を導出（部門内訳と同一データソース） ──
   const periodCurSales = useMemo(

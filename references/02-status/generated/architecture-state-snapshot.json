@@ -1,10 +1,10 @@
 {
-  "timestamp": "2026-04-03T09:32:32.773Z",
-  "totalAllowlistEntries": 42,
+  "timestamp": "2026-04-03T12:31:06.307Z",
+  "totalAllowlistEntries": 40,
   "categoryBreakdown": {
     "adapter": 5,
     "lifecycle": 2,
-    "structural": 35
+    "structural": 33
   },
   "frozenLists": [
     "presentationToInfrastructure",
@@ -19,7 +19,7 @@
   ],
   "frozenCount": 9,
   "activeLists": 12,
-  "vmFileCount": 28,
+  "vmFileCount": 27,
   "compatReexportCount": 2,
   "activeBridges": [
     {
@@ -60,6 +60,8 @@
     "application/hooks/duckdb/useStoreDailyMarkupRateQuery.ts",
     "application/hooks/duckdb/useSummaryQueries.ts",
     "application/hooks/duckdb/useYoyQueries.ts",
+    "application/hooks/plans/useIntegratedSalesPlan.ts",
+    "application/hooks/plans/useTimeSlotPlan.ts",
     "application/hooks/useAnalysisInput.ts",
     "application/hooks/useAnalyticsResolver.ts",
     "application/hooks/useAppShortcuts.ts",
@@ -111,22 +113,10 @@
   ],
   "complexityHotspots": [
     {
-      "file": "application/hooks/useTimeSlotData.ts",
-      "memoCount": 20,
-      "stateCount": 8,
-      "lineCount": 369
-    },
-    {
       "file": "presentation/pages/Dashboard/widgets/useDrilldownData.ts",
       "memoCount": 14,
       "stateCount": 10,
       "lineCount": 413
-    },
-    {
-      "file": "presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx",
-      "memoCount": 15,
-      "stateCount": 5,
-      "lineCount": 517
     },
     {
       "file": "presentation/pages/CostDetail/useCostDetailData.ts",
@@ -135,16 +125,22 @@
       "lineCount": 210
     },
     {
+      "file": "application/hooks/plans/useTimeSlotPlan.ts",
+      "memoCount": 15,
+      "stateCount": 3,
+      "lineCount": 313
+    },
+    {
+      "file": "presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx",
+      "memoCount": 12,
+      "stateCount": 5,
+      "lineCount": 465
+    },
+    {
       "file": "presentation/components/charts/TimeSlotChart.tsx",
       "memoCount": 10,
       "stateCount": 6,
       "lineCount": 209
-    },
-    {
-      "file": "presentation/components/charts/useCategoryTrendChartData.ts",
-      "memoCount": 9,
-      "stateCount": 7,
-      "lineCount": 225
     },
     {
       "file": "presentation/pages/Dashboard/widgets/HourlyChart.tsx",
@@ -156,13 +152,19 @@
       "file": "presentation/components/charts/useDeptHourlyChartData.ts",
       "memoCount": 9,
       "stateCount": 6,
-      "lineCount": 247
+      "lineCount": 236
     },
     {
       "file": "presentation/pages/Admin/RawDataTab.tsx",
       "memoCount": 13,
       "stateCount": 2,
       "lineCount": 335
+    },
+    {
+      "file": "presentation/components/charts/useCategoryTrendChartData.ts",
+      "memoCount": 7,
+      "stateCount": 7,
+      "lineCount": 183
     },
     {
       "file": "presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx",
@@ -173,18 +175,18 @@
   ],
   "nearLimitFiles": [
     {
+      "file": "application/hooks/plans/useTimeSlotPlan.ts",
+      "metric": "lines",
+      "actual": 313,
+      "limit": 320,
+      "pct": 98
+    },
+    {
       "file": "application/hooks/usePeriodAwareKpi.ts",
       "metric": "lines",
       "actual": 301,
       "limit": 310,
       "pct": 97
-    },
-    {
-      "file": "application/hooks/useTimeSlotData.ts",
-      "metric": "lines",
-      "actual": 369,
-      "limit": 390,
-      "pct": 95
     },
     {
       "file": "presentation/pages/CostDetail/useCostDetailData.ts",
@@ -227,13 +229,6 @@
       "actual": 401,
       "limit": 450,
       "pct": 89
-    },
-    {
-      "file": "application/hooks/useTimeSlotData.ts",
-      "metric": "useMemo",
-      "actual": 7,
-      "limit": 8,
-      "pct": 88
     },
     {
       "file": "presentation/pages/Dashboard/widgets/DrilldownWaterfall.tsx",
@@ -289,9 +284,9 @@
       "categories": {}
     },
     "useMemoLimits": {
-      "count": 2,
+      "count": 1,
       "categories": {
-        "structural": 2
+        "structural": 1
       }
     },
     "useStateLimits": {
@@ -313,9 +308,9 @@
       }
     },
     "presentationStateLimits": {
-      "count": 4,
+      "count": 3,
       "categories": {
-        "structural": 4
+        "structural": 3
       }
     },
     "largeComponentTier2": {
