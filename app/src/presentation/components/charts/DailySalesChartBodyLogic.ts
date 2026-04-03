@@ -14,8 +14,9 @@ import { chartFontSize, palette } from '@/presentation/theme/tokens'
 
 // ── 右軸モード ──
 
-/** 日別チャートの右軸に表示するデータの種類 */
-export type RightAxisMode = 'quantity' | 'customers' | 'discount' | 'temperature'
+/** 後方互換 re-export — 正本は domain/models/ChartViewMode.ts */
+export type { RightAxisMode } from '@/domain/models/ChartViewMode'
+import type { RightAxisMode } from '@/domain/models/ChartViewMode'
 
 export const RIGHT_AXIS_OPTIONS: { mode: RightAxisMode; label: string }[] = [
   { mode: 'quantity', label: '点数' },

@@ -196,12 +196,14 @@ export const nonPairableConsumers: readonly AllowlistEntry[] = [
 /**
  * INV-RUN-03 の対象となるファイルの分類台帳。
  *
- * Gate 3 rollout により 22件 → 3件に削減。
- * 残り3件は全て設計対応が必要な項目。
+ * Gate 3 rollout により 22件 → 3件に削減。さらに bridge 解消で 3件 → 2件。
+ * 残り2件は全て設計対応が必要な項目（exception-design）。
  *
  * 分類:
  * - exception-design: 複雑パターンのため専用設計が必要
- * - plan-bridge: 既に plan hook だが presentation 層に配置。application 層に移動すべき
+ *
+ * 解消済み:
+ * - useIntegratedSalesPlan.ts: application/hooks/plans/ に移動済み（plan-bridge 解消）
  */
 export const presentationDirectQueryAudit: readonly DirectQueryAuditEntry[] = [
   {
@@ -216,12 +218,5 @@ export const presentationDirectQueryAudit: readonly DirectQueryAuditEntry[] = [
     classification: 'exception-design',
     reason:
       'categoryTimeRecordsHandler × 3（cur + prev + fallback）。isPrevYear fallback パターンの専用設計が必要',
-  },
-  {
-    path: 'presentation/components/charts/useIntegratedSalesPlan.ts',
-    cluster: 'standalone',
-    classification: 'plan-bridge',
-    reason:
-      '既に Screen Plan hook だが presentation/ に配置。application/hooks/ への移動に層境界依存の解消が先に必要',
   },
 ]
