@@ -27,6 +27,8 @@ interface ChartCardProps {
   readonly collapsible?: boolean
   /** 折りたたみの初期状態（デフォルト: false = 開） */
   readonly defaultCollapsed?: boolean
+  /** 表示状態の変化を通知する（H6: ChartCard は通知のみ。取得判断は Application 層） */
+  readonly onVisibilityChange?: (visible: boolean) => void
   readonly children: ReactNode
 }
 
@@ -40,10 +42,17 @@ export function ChartCard({
   variant,
   collapsible,
   defaultCollapsed = false,
+  onVisibilityChange,
   children,
 }: ChartCardProps) {
   const [collapsed, setCollapsed] = useState(defaultCollapsed)
-  const toggleCollapse = useCallback(() => setCollapsed((c) => !c), [])
+  const toggleCollapse = useCallback(() => {
+    setCollapsed((c) => {
+      const next = !c
+      onVisibilityChange?.(!next)
+      return next
+    })
+  }, [onVisibilityChange])
 
   return (
     <CardShell aria-label={ariaLabel ?? title} $variant={variant}>

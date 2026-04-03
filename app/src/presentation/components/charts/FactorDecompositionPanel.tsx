@@ -15,10 +15,9 @@ import styled, { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { dateRangeToKeys } from '@/domain/models/calendar'
 import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
-import {
-  storeDaySummaryHandler,
-  type StoreDaySummaryInput,
-} from '@/application/queries/summary/StoreDaySummaryHandler'
+import { storeDaySummaryPairHandler } from '@/application/queries/summary/StoreDaySummaryPairHandler'
+import type { StoreDaySummaryInput } from '@/application/queries/summary/StoreDaySummaryHandler'
+import type { PairedInput } from '@/application/queries/createPairedHandler'
 import type { DuckQueryContext } from './SubAnalysisPanel'
 import { decompose2, decompose3 } from '@/application/services/factorDecompositionBridge'
 import { EChart, type EChartsOption } from './EChart'
@@ -120,34 +119,29 @@ export const FactorDecompositionPanel = memo(function FactorDecompositionPanel({
   const theme = useTheme() as AppTheme
   const [level, setLevel] = useState<DecompLevel>(2)
 
-  // 当期日別データ
-  const curInput = useMemo<StoreDaySummaryInput | null>(() => {
-    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
-    }
-  }, [currentDateRange, selectedStoreIds])
-
-  const { data: curOutput } = useQueryWithHandler(queryExecutor, storeDaySummaryHandler, curInput)
-  const curRows = curOutput?.records ?? null
-
-  // 前年日別データ
+  // pair handler で当期+前年日別データを並列取得
   const prevDateRange = prevYearScope?.dateRange
-  const prevInput = useMemo<StoreDaySummaryInput | null>(() => {
-    if (!prevDateRange) return null
-    const { fromKey, toKey } = dateRangeToKeys(prevDateRange)
-    return {
+  const pairInput = useMemo<PairedInput<StoreDaySummaryInput> | null>(() => {
+    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
+    const base: PairedInput<StoreDaySummaryInput> = {
       dateFrom: fromKey,
       dateTo: toKey,
       storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
-      isPrevYear: true,
     }
-  }, [prevDateRange, selectedStoreIds])
+    if (prevDateRange) {
+      const { fromKey: pFrom, toKey: pTo } = dateRangeToKeys(prevDateRange)
+      return { ...base, comparisonDateFrom: pFrom, comparisonDateTo: pTo }
+    }
+    return base
+  }, [currentDateRange, prevDateRange, selectedStoreIds])
 
-  const { data: prevOutput } = useQueryWithHandler(queryExecutor, storeDaySummaryHandler, prevInput)
-  const prevRows = prevOutput?.records ?? null
+  const { data: pairOutput } = useQueryWithHandler(
+    queryExecutor,
+    storeDaySummaryPairHandler,
+    pairInput,
+  )
+  const curRows = pairOutput?.current?.records ?? null
+  const prevRows = pairOutput?.comparison?.records ?? null
 
   // 3要素が使用可能か（点数データの存在確認）
   const hasQuantity = useMemo(() => {

@@ -1,27 +1,26 @@
 /**
  * useCategoryHierarchyData — カテゴリ階層データの取得・組み立て
  *
- * 4本のクエリ（当年/前年 × level/hourly）を実行し、
+ * 2本の pair handler（level/hourly）で当年+前年を並列取得し、
  * HierarchyItem 配列を組み立てる。ソートも担う。
  *
  * UI 操作（filter/sort state）はコンポーネント側に残し、
  * このフックはデータ取得と変換に集中する。
  *
  * @guard G5 hook ≤300行
+ * @guard H1 Screen Plan 経由のみ
+ * @guard H2 比較は pair/bundle 契約 — levelAggregationPairHandler + categoryHourlyPairHandler
  */
 import { useMemo } from 'react'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
-import {
-  levelAggregationHandler,
-  type LevelAggregationInput,
-} from '@/application/queries/cts/LevelAggregationHandler'
-import {
-  categoryHourlyHandler,
-  type CategoryHourlyInput,
-} from '@/application/queries/cts/CategoryHourlyHandler'
+import { levelAggregationPairHandler } from '@/application/queries/cts/LevelAggregationPairHandler'
+import { categoryHourlyPairHandler } from '@/application/queries/cts/CategoryHourlyPairHandler'
+import type { PairedInput } from '@/application/queries/createPairedHandler'
+import type { LevelAggregationInput } from '@/application/queries/cts/LevelAggregationHandler'
+import type { CategoryHourlyInput } from '@/application/queries/cts/CategoryHourlyHandler'
 import { findCoreTime, findTurnaroundHour } from './timeSlotUtils'
 import type { HierarchyItem, SortKey, SortDir } from './categoryExplorerTypes'
 
@@ -60,74 +59,44 @@ export function useCategoryHierarchyData(params: UseCategoryHierarchyDataParams)
   } = params
   const prevYearDateRange = prevYearScope?.dateRange
 
-  // ── クエリ入力構築 ──
+  // ── クエリ入力構築（pair handler 用） ──
   const storeIdsList = useMemo(
     () => (selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined),
     [selectedStoreIds],
   )
 
-  const curLevelInput = useMemo<LevelAggregationInput | null>(() => {
-    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: storeIdsList,
-      level: currentLevel,
-      deptCode: filter.departmentCode,
-      lineCode: filter.lineCode,
-    }
-  }, [currentDateRange, storeIdsList, currentLevel, filter.departmentCode, filter.lineCode])
+  const levelPairInput = useMemo(
+    () =>
+      buildHierarchyPairInput(
+        currentDateRange,
+        prevYearDateRange,
+        storeIdsList,
+        currentLevel,
+        filter,
+      ),
+    [currentDateRange, prevYearDateRange, storeIdsList, currentLevel, filter],
+  )
 
-  const curHourlyInput = useMemo<CategoryHourlyInput | null>(() => {
-    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: storeIdsList,
-      level: currentLevel,
-      deptCode: filter.departmentCode,
-      lineCode: filter.lineCode,
-    }
-  }, [currentDateRange, storeIdsList, currentLevel, filter.departmentCode, filter.lineCode])
+  const hourlyPairInput = useMemo(
+    () =>
+      buildHierarchyHourlyPairInput(
+        currentDateRange,
+        prevYearDateRange,
+        storeIdsList,
+        currentLevel,
+        filter,
+      ),
+    [currentDateRange, prevYearDateRange, storeIdsList, currentLevel, filter],
+  )
 
-  const prevLevelInput = useMemo<LevelAggregationInput | null>(() => {
-    if (!prevYearDateRange) return null
-    const { fromKey, toKey } = dateRangeToKeys(prevYearDateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: storeIdsList,
-      level: currentLevel,
-      deptCode: filter.departmentCode,
-      lineCode: filter.lineCode,
-      isPrevYear: true,
-    }
-  }, [prevYearDateRange, storeIdsList, currentLevel, filter.departmentCode, filter.lineCode])
+  // ── クエリ実行（4本 → 2本の pair handler） ──
+  const levelPair = useQueryWithHandler(queryExecutor, levelAggregationPairHandler, levelPairInput)
+  const hourlyPair = useQueryWithHandler(queryExecutor, categoryHourlyPairHandler, hourlyPairInput)
 
-  const prevHourlyInput = useMemo<CategoryHourlyInput | null>(() => {
-    if (!prevYearDateRange) return null
-    const { fromKey, toKey } = dateRangeToKeys(prevYearDateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: storeIdsList,
-      level: currentLevel,
-      deptCode: filter.departmentCode,
-      lineCode: filter.lineCode,
-      isPrevYear: true,
-    }
-  }, [prevYearDateRange, storeIdsList, currentLevel, filter.departmentCode, filter.lineCode])
-
-  // ── クエリ実行 ──
-  const curLevelAgg = useQueryWithHandler(queryExecutor, levelAggregationHandler, curLevelInput)
-  const curHourly = useQueryWithHandler(queryExecutor, categoryHourlyHandler, curHourlyInput)
-  const prevLevelAgg = useQueryWithHandler(queryExecutor, levelAggregationHandler, prevLevelInput)
-  const prevHourly = useQueryWithHandler(queryExecutor, categoryHourlyHandler, prevHourlyInput)
-
-  const curLevelData = curLevelAgg.data?.records ?? null
-  const curHourlyData = curHourly.data?.records ?? null
-  const prevLevelData = prevLevelAgg.data?.records ?? null
-  const prevHourlyData = prevHourly.data?.records ?? null
+  const curLevelData = levelPair.data?.current?.records ?? null
+  const curHourlyData = hourlyPair.data?.current?.records ?? null
+  const prevLevelData = levelPair.data?.comparison?.records ?? null
+  const prevHourlyData = hourlyPair.data?.comparison?.records ?? null
 
   const hasPrevYear = (prevLevelData?.length ?? 0) > 0
 
@@ -273,6 +242,60 @@ export function useCategoryHierarchyData(params: UseCategoryHierarchyDataParams)
     items,
     sortedItems,
     hasPrevYear,
-    isLoading: curLevelAgg.isLoading,
+    isLoading: levelPair.isLoading,
   }
+}
+
+// ── Pure input builders（テスト対象） ──
+
+/**
+ * LevelAggregation pair handler 用の入力を構築する純粋関数。
+ */
+export function buildHierarchyPairInput(
+  currentDateRange: DateRange,
+  prevYearDateRange: DateRange | undefined,
+  storeIds: readonly string[] | undefined,
+  level: HierarchyLevel,
+  filter: HierarchyFilter,
+): PairedInput<LevelAggregationInput> {
+  const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
+  const base: PairedInput<LevelAggregationInput> = {
+    dateFrom: fromKey,
+    dateTo: toKey,
+    storeIds,
+    level,
+    deptCode: filter.departmentCode,
+    lineCode: filter.lineCode,
+  }
+  if (prevYearDateRange) {
+    const { fromKey: pFrom, toKey: pTo } = dateRangeToKeys(prevYearDateRange)
+    return { ...base, comparisonDateFrom: pFrom, comparisonDateTo: pTo }
+  }
+  return base
+}
+
+/**
+ * CategoryHourly pair handler 用の入力を構築する純粋関数。
+ */
+export function buildHierarchyHourlyPairInput(
+  currentDateRange: DateRange,
+  prevYearDateRange: DateRange | undefined,
+  storeIds: readonly string[] | undefined,
+  level: HierarchyLevel,
+  filter: HierarchyFilter,
+): PairedInput<CategoryHourlyInput> {
+  const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
+  const base: PairedInput<CategoryHourlyInput> = {
+    dateFrom: fromKey,
+    dateTo: toKey,
+    storeIds,
+    level,
+    deptCode: filter.departmentCode,
+    lineCode: filter.lineCode,
+  }
+  if (prevYearDateRange) {
+    const { fromKey: pFrom, toKey: pTo } = dateRangeToKeys(prevYearDateRange)
+    return { ...base, comparisonDateFrom: pFrom, comparisonDateTo: pTo }
+  }
+  return base
 }

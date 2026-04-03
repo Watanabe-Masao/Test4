@@ -16,23 +16,21 @@ export interface LevelAggregationInput extends BaseQueryInput {
   readonly lineCode?: string
   readonly klassCode?: string
   readonly dow?: readonly number[]
-  readonly isPrevYear?: boolean
 }
 
 export interface LevelAggregationOutput {
   readonly records: readonly LevelAggregationRow[]
 }
 
-export const levelAggregationHandler: QueryHandler<LevelAggregationInput, LevelAggregationOutput> =
-  {
-    name: 'LevelAggregation',
-    async execute(
-      conn: AsyncDuckDBConnection,
-      input: LevelAggregationInput,
-    ): Promise<LevelAggregationOutput> {
-      const records = await queryLevelAggregation(conn, input)
-      return { records }
-    },
-  }
+/** Internal: isPrevYear is injected by createPairedHandler at runtime */
+type ExecuteInput = LevelAggregationInput & { readonly isPrevYear?: boolean }
+
+export const levelAggregationHandler: QueryHandler<ExecuteInput, LevelAggregationOutput> = {
+  name: 'LevelAggregation',
+  async execute(conn: AsyncDuckDBConnection, input: ExecuteInput): Promise<LevelAggregationOutput> {
+    const records = await queryLevelAggregation(conn, input)
+    return { records }
+  },
+}
 
 export type { LevelAggregationRow }

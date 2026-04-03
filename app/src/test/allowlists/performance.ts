@@ -11,100 +11,79 @@ import type { AllowlistEntry } from './types'
  * createPairedHandler で pair 化されたら除去する。
  */
 export const isPrevYearHandlers: readonly AllowlistEntry[] = [
+  // ── pair handler 導入済み（利用側移行も完了） ──
   {
     path: 'application/queries/cts/LevelAggregationHandler.ts',
-    reason: 'LevelAggregationPairHandler 導入済み。利用側移行後に isPrevYear を除去',
-    category: 'migration',
-    removalCondition: 'CategoryPerformanceChart が PairHandler に移行完了',
-  },
-  {
-    path: 'application/queries/cts/HourlyAggregationHandler.ts',
-    reason: 'pair 化対象（Gate 3）',
-    category: 'migration',
-    removalCondition: 'createPairedHandler で pair 化完了',
-  },
-  {
-    path: 'application/queries/cts/HourDowMatrixHandler.ts',
-    reason: 'pair 化対象（Gate 3）',
-    category: 'migration',
-    removalCondition: 'createPairedHandler で pair 化完了',
-  },
-  {
-    path: 'application/queries/cts/CategoryTimeRecordsHandler.ts',
-    reason: 'pair 化対象（Gate 3）',
-    category: 'migration',
-    removalCondition: 'createPairedHandler で pair 化完了',
+    reason:
+      'isPrevYear は公開 Input 型から除去済み。ExecuteInput 内部型で createPairedHandler 互換性を維持',
+    category: 'structural',
+    removalCondition: '除去不要 — ExecuteInput は handler 内部実装',
   },
   {
     path: 'application/queries/cts/CategoryHourlyHandler.ts',
-    reason: 'pair 化対象（Gate 3）',
-    category: 'migration',
-    removalCondition: 'createPairedHandler で pair 化完了',
+    reason:
+      'isPrevYear は公開 Input 型から除去済み。ExecuteInput 内部型で createPairedHandler 互換性を維持',
+    category: 'structural',
+    removalCondition: '除去不要 — ExecuteInput は handler 内部実装',
   },
-  {
-    path: 'application/queries/cts/CategoryDailyTrendHandler.ts',
-    reason: 'pair 化対象（Gate 3）',
-    category: 'migration',
-    removalCondition: 'createPairedHandler で pair 化完了',
-  },
-  {
-    path: 'application/queries/cts/StoreCategoryPIHandler.ts',
-    reason: 'pair 化対象（Gate 3）',
-    category: 'migration',
-    removalCondition: 'createPairedHandler で pair 化完了',
-  },
+  // HourDowMatrixHandler — isPrevYear 型除去済み
   {
     path: 'application/queries/cts/CategoryDiscountHandler.ts',
-    reason: 'pair 化対象（Gate 3）',
-    category: 'migration',
-    removalCondition: 'createPairedHandler で pair 化完了',
+    reason:
+      'isPrevYear は公開 Input 型から除去済み。ExecuteInput 内部型で createPairedHandler 互換性を維持',
+    category: 'structural',
+    removalCondition: '除去不要 — ExecuteInput は handler 内部実装',
   },
+  // CategoryDailyTrendHandler — isPrevYear 型除去済み
   {
-    path: 'application/queries/summary/DailyQuantityHandler.ts',
-    reason: 'DailyQuantityPairHandler に置換済みだが isPrevYear が型に残る',
-    category: 'migration',
-    removalCondition: 'DailyQuantityPairHandler への完全移行',
-  },
-  {
-    path: 'application/queries/summary/DailyCumulativeHandler.ts',
-    reason: 'pair 化対象（Gate 3）',
-    category: 'migration',
-    removalCondition: 'createPairedHandler で pair 化完了',
+    path: 'application/queries/cts/StoreCategoryPIHandler.ts',
+    reason:
+      'isPrevYear は公開 Input 型から除去済み。ExecuteInput 内部型で createPairedHandler 互換性を維持',
+    category: 'structural',
+    removalCondition: '除去不要 — ExecuteInput は handler 内部実装',
   },
   {
     path: 'application/queries/summary/StoreDaySummaryHandler.ts',
-    reason: 'pair 化対象（Gate 3）',
-    category: 'migration',
-    removalCondition: 'createPairedHandler で pair 化完了',
+    reason:
+      'dayDetailDataLogic が isPrevYear を直接渡す。pair 化済みだが fallback パターンで除去不可',
+    category: 'structural',
+    removalCondition:
+      '除去不要 — dayDetailDataLogic の fallback パターンが isPrevYear を必要とする',
   },
   {
-    path: 'application/queries/summary/AggregatedRatesHandler.ts',
-    reason: 'pair 化対象（Gate 3）',
-    category: 'migration',
-    removalCondition: 'createPairedHandler で pair 化完了',
+    path: 'application/queries/cts/HourlyAggregationHandler.ts',
+    reason: 'useTimeSlotData が WoW 比較で isPrevYear=false を直接渡す。pair 化済みだが除去不可',
+    category: 'structural',
+    removalCondition: '除去不要 — WoW 比較の isPrevYear=false は pair handler の意味論と異なる',
   },
+  // ── pair handler 導入済み（isPrevYear 型除去済み） ──
+  // DailyCumulativeHandler — isPrevYear 型除去済み
+  // AggregatedRatesHandler — isPrevYear 型除去済み
   {
     path: 'application/queries/cts/DistinctDayCountHandler.ts',
-    reason: 'pair 化対象（Gate 3）',
-    category: 'migration',
-    removalCondition: 'createPairedHandler で pair 化完了',
+    reason: 'useTimeSlotData が WoW 比較で isPrevYear=false を直接渡す。pair 化済みだが除去不可',
+    category: 'structural',
+    removalCondition: '除去不要 — WoW 比較の isPrevYear=false は pair handler の意味論と異なる',
   },
+  // CategoryMixWeeklyHandler — isPrevYear 型除去済み
+  // ── pair handler 導入済み（利用側が複雑パターン） ──
+  {
+    path: 'application/queries/cts/CategoryTimeRecordsHandler.ts',
+    reason: 'YoYWaterfallChart/useClipExport/dayDetailDataLogic が isPrevYear を直接渡す。除去不可',
+    category: 'structural',
+    removalCondition: 'fallback パターンの専用 handler 設計時に判断',
+  },
+  // ── 構造的に pair handler に変換不可 ──
   {
     path: 'application/queries/temporal/MovingAverageHandler.ts',
-    reason: 'pair 化対象（Gate 3）',
-    category: 'migration',
-    removalCondition: 'createPairedHandler で pair 化完了',
-  },
-  {
-    path: 'application/queries/advanced/CategoryMixWeeklyHandler.ts',
-    reason: 'pair 化対象（Gate 3）',
-    category: 'migration',
-    removalCondition: 'createPairedHandler で pair 化完了',
+    reason: 'BaseQueryInput 非準拠（RollingAnalysisFrame 使用）。createPairedHandler 不適合',
+    category: 'structural',
+    removalCondition: 'MovingAverage 専用 pair handler の設計時に判断',
   },
   {
     path: 'application/queries/comparison/YoyDailyHandler.ts',
     reason: '比較専用 handler。pair 化はこの handler の責務と重複するため要検討',
-    category: 'migration',
+    category: 'structural',
     removalCondition: 'comparison semantics 統一時に判断',
   },
   {
@@ -118,5 +97,96 @@ export const isPrevYearHandlers: readonly AllowlistEntry[] = [
     reason: '既存の専用 pair handler。alignPrevYearDay があるため createPairedHandler に置換しない',
     category: 'structural',
     removalCondition: '除去不要 — 専用 pair handler として維持',
+  },
+  {
+    path: 'application/queries/summary/DailyQuantityHandler.ts',
+    reason: 'isPrevYear は公開 Input 型から除去済み。ExecuteInput 内部型で互換性を維持',
+    category: 'structural',
+    removalCondition: '除去不要 — ExecuteInput は handler 内部実装',
+  },
+]
+
+/**
+ * pair handler に移行できない消費側の分類。
+ * Gate 4 enforcement guard が例外として認識する。
+ *
+ * @invariant INV-RUN-02 — これらは比較意味論が createPairedHandler と合致しないため、
+ * 専用 handler または別のアプローチが必要。
+ */
+export const nonPairableConsumers: readonly AllowlistEntry[] = [
+  // ── 比較パターンが pair handler と不適合 ──
+  {
+    path: 'presentation/components/charts/useCategoryTrendChartData.ts',
+    reason: 'cur topN（ユーザー選択）≠ prev topN（100固定）— 非対称入力',
+    category: 'structural',
+    removalCondition: '専用 pair handler（topN 分離型）の設計時に移行',
+  },
+  {
+    path: 'presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx',
+    reason: '3本のクエリ + isPrevYear fallback パターン',
+    category: 'structural',
+    removalCondition: 'fallback 統合型の専用 handler 設計時に移行',
+  },
+  {
+    path: 'application/hooks/useTimeSlotData.ts',
+    reason: 'hourlyAgg/distinctDayCount: WoW 比較で isPrevYear=false。categoryHourly は移行済み',
+    category: 'structural',
+    removalCondition: 'WoW 比較対応の比較 handler 設計時に移行',
+  },
+  {
+    path: 'application/hooks/duckdb/useDayDetailData.ts',
+    reason: '14本のクエリ + fallback パターン（CTS 7系統 + Summary 3系統 + Weather 2系統）',
+    category: 'structural',
+    removalCondition: 'bundled query handler（fallback 統合型）の設計時に移行',
+  },
+  // ── 単一呼び出し（比較なし）— pair handler 移行不要 ──
+  {
+    path: 'presentation/components/charts/CumulativeChart.tsx',
+    reason: 'dailyCumulativeHandler 単一呼び出し（比較なし）',
+    category: 'structural',
+    removalCondition: '除去不要 — 比較なしの正当な base handler 使用',
+  },
+  {
+    path: 'application/hooks/useHeatmapPlan.ts',
+    reason:
+      'levelAggregationHandler × 3 ドロップダウン用（比較なし）。plan hook が一元管理',
+    category: 'structural',
+    removalCondition: '除去不要 — ドロップダウン候補取得は pair 不要',
+  },
+  {
+    path: 'presentation/components/charts/WeatherAnalysisPanel.tsx',
+    reason: 'storeDaySummaryHandler 単一呼び出し（比較なし）',
+    category: 'structural',
+    removalCondition: '除去不要 — 比較なしの正当な base handler 使用',
+  },
+  {
+    path: 'presentation/components/charts/useDeptHourlyChartData.ts',
+    reason: 'categoryHourlyHandler 単一呼び出し（比較なし）。hourlyAgg は pair 化済み',
+    category: 'structural',
+    removalCondition: '除去不要 — 比較なしの正当な base handler 使用',
+  },
+  {
+    path: 'features/category/ui/charts/CategoryHourlyChart.tsx',
+    reason: 'categoryHourlyHandler 単一呼び出し（比較なし）',
+    category: 'structural',
+    removalCondition: '除去不要 — 比較なしの正当な base handler 使用',
+  },
+  {
+    path: 'features/category/ui/charts/CategoryMixChart.tsx',
+    reason: 'categoryMixWeeklyHandler 単一呼び出し（比較なし）',
+    category: 'structural',
+    removalCondition: '除去不要 — 比較なしの正当な base handler 使用',
+  },
+  {
+    path: 'application/hooks/useClipExport.ts',
+    reason: 'queryExecutor.execute() 直接実行（useQueryWithHandler 不使用）。isPrevYear 手動制御',
+    category: 'structural',
+    removalCondition: 'useQueryWithHandler + pair handler への移行設計時に判断',
+  },
+  {
+    path: 'application/hooks/usePerformanceIndexPlan.ts',
+    reason: 'storeCategoryPIHandler 単一呼び出し（比較なし）。levelAggregation は pair 化済み',
+    category: 'structural',
+    removalCondition: '除去不要 — 比較なしの正当な base handler 使用',
   },
 ]

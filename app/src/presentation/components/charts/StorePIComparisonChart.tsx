@@ -5,6 +5,7 @@
  * 2. カテゴリ×店舗のPI値ヒートマップ（plan hook から受け取り）
  *
  * @guard H4 component に acquisition logic 禁止
+ * @guard H6 ChartCard は通知のみ — onVisibilityChange で親に伝達
  */
 import { memo, useMemo, useState } from 'react'
 import { useTheme } from 'styled-components'
@@ -55,6 +56,8 @@ interface Props {
   readonly catIsLoading: boolean
   readonly level: Level
   readonly onLevelChange: (level: Level) => void
+  /** @guard H6 ChartCard は通知のみ — 親 plan hook が取得判断に利用 */
+  readonly onVisibilityChange?: (visible: boolean) => void
 }
 
 export const StorePIComparisonChart = memo(function StorePIComparisonChart({
@@ -64,6 +67,7 @@ export const StorePIComparisonChart = memo(function StorePIComparisonChart({
   catIsLoading,
   level,
   onLevelChange,
+  onVisibilityChange,
 }: Props) {
   const theme = useTheme() as AppTheme
   const cf = useCurrencyFormat()
@@ -209,6 +213,7 @@ export const StorePIComparisonChart = memo(function StorePIComparisonChart({
       title="店舗別・カテゴリ別PI値比較"
       subtitle="PI = 売上÷客数×1000（店舗間の販売効率比較）"
       collapsible
+      onVisibilityChange={onVisibilityChange}
       toolbar={
         <div style={{ display: 'flex', gap: 8 }}>
           <SegmentedControl

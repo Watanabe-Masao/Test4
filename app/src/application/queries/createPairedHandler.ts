@@ -9,7 +9,7 @@
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { QueryHandler, BaseQueryInput } from './QueryContract'
-import type { PairedQueryInput, PairedQueryOutput } from './PairedQueryContract'
+import type { PairedQueryInput, PairedQueryOutput, PairedQueryHandler } from './PairedQueryContract'
 
 /** pair 化された handler の入力型 */
 export type PairedInput<TBase extends BaseQueryInput> = TBase & PairedQueryInput
@@ -28,9 +28,10 @@ export type PairedInput<TBase extends BaseQueryInput> = TBase & PairedQueryInput
 export function createPairedHandler<TBase extends BaseQueryInput, TOutput>(
   base: QueryHandler<TBase & { readonly isPrevYear?: boolean }, TOutput>,
   options?: { readonly name?: string },
-): QueryHandler<PairedInput<TBase>, PairedQueryOutput<TOutput>> {
+): PairedQueryHandler<PairedInput<TBase>, TOutput> {
   return {
     name: options?.name ?? `${base.name}Pair`,
+    baseName: base.name,
     async execute(
       conn: AsyncDuckDBConnection,
       input: PairedInput<TBase>,

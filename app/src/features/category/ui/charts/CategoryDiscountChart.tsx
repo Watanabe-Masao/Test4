@@ -6,6 +6,9 @@
  *
  * ダブルクリックで下位レベルにドリルダウン（部門→ライン→クラス）。
  * 前年比較対応。
+ *
+ * @guard H5 visible-only query — collapsible 時、非表示で取得を抑制
+ * @guard H6 ChartCard は通知のみ — onVisibilityChange で visible 状態を受け取る
  */
 import { memo, useMemo, useState, useCallback } from 'react'
 import { useTheme } from 'styled-components'
@@ -14,10 +17,9 @@ import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { AppTheme } from '@/presentation/theme/theme'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
-import {
-  categoryDiscountHandler,
-  type CategoryDiscountInput,
-} from '@/application/queries/cts/CategoryDiscountHandler'
+import { categoryDiscountPairHandler } from '@/application/queries/cts/CategoryDiscountPairHandler'
+import type { CategoryDiscountInput } from '@/application/queries/cts/CategoryDiscountHandler'
+import type { PairedInput } from '@/application/queries/createPairedHandler'
 import { DISCOUNT_TYPES } from '@/domain/models/record'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { SegmentedControl } from '@/presentation/components/common/layout'
@@ -94,49 +96,40 @@ export const CategoryDiscountChart = memo(function CategoryDiscountChart({
   const dtColors = useMemo(() => discountColors(theme), [theme])
   const [sortKey, setSortKey] = useState<SortKey>('discountTotal')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
+  // INV-RUN-05: collapsible 時の取得抑制（H5/H6）
+  const [visible, setVisible] = useState(true)
 
   const storeIds = useMemo(
     () => (selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined),
     [selectedStoreIds],
   )
 
-  // 当年クエリ
-  const input = useMemo<CategoryDiscountInput | null>(() => {
+  // pair handler で当年+前年を並列取得
+  // INV-RUN-05: visible=false 時は input=null で取得を抑制
+  const pairInput = useMemo<PairedInput<CategoryDiscountInput> | null>(() => {
+    if (!visible) return null
     const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-    return {
+    const base: PairedInput<CategoryDiscountInput> = {
       dateFrom: fromKey,
       dateTo: toKey,
       storeIds,
       level: drill.level,
       parentFilter: drill.parentFilter,
     }
-  }, [currentDateRange, storeIds, drill.level, drill.parentFilter])
-
-  const { data: output, isLoading } = useQueryWithHandler(
-    queryExecutor,
-    categoryDiscountHandler,
-    input,
-  )
-
-  // 前年クエリ
-  const prevInput = useMemo<CategoryDiscountInput | null>(() => {
-    if (!prevYearScope?.dateRange) return null
-    const { fromKey, toKey } = dateRangeToKeys(prevYearScope.dateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds,
-      level: drill.level,
-      isPrevYear: true,
-      parentFilter: drill.parentFilter,
+    if (prevYearScope?.dateRange) {
+      const { fromKey: pFrom, toKey: pTo } = dateRangeToKeys(prevYearScope.dateRange)
+      return { ...base, comparisonDateFrom: pFrom, comparisonDateTo: pTo }
     }
-  }, [prevYearScope, storeIds, drill.level, drill.parentFilter])
+    return base
+  }, [visible, currentDateRange, prevYearScope, storeIds, drill.level, drill.parentFilter])
 
-  const { data: prevOutput } = useQueryWithHandler(
+  const { data: pairOutput, isLoading } = useQueryWithHandler(
     queryExecutor,
-    categoryDiscountHandler,
-    prevInput,
+    categoryDiscountPairHandler,
+    pairInput,
   )
+  const output = pairOutput?.current ?? null
+  const prevOutput = pairOutput?.comparison ?? null
 
   // 前年データを code → row で索引
   const prevByCode = useMemo(() => {
@@ -402,6 +395,7 @@ export const CategoryDiscountChart = memo(function CategoryDiscountChart({
       title={title}
       subtitle="部門/ライン/クラス別の売変内訳（ダブルクリックでドリルダウン）"
       collapsible
+      onVisibilityChange={setVisible}
       toolbar={
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {drill.breadcrumbs.length > 0 && (

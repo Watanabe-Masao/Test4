@@ -10,9 +10,7 @@ import {
 } from '@/infrastructure/duckdb/queries/storeDaySummary'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 
-export interface AggregatedRatesInput extends BaseQueryInput {
-  readonly isPrevYear?: boolean
-}
+export type AggregatedRatesInput = BaseQueryInput
 
 export type AggregatedRatesOutput = AggregatedRatesRow | null
 

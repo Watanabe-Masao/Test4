@@ -11,7 +11,7 @@ import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
 import { SRC_DIR, collectTsFiles, rel } from '../guardTestHelpers'
-import { isPrevYearHandlers } from '../allowlists'
+import { isPrevYearHandlers, nonPairableConsumers } from '../allowlists'
 
 // ── INV-RUN-01: Canonical Integration ──
 
@@ -97,12 +97,116 @@ describe('INV-RUN-03: presentation 層の useQueryWithHandler 直接呼び出し
     // この数値は Gate 4 で 0 にすることが目標。
     console.log(`[INV-RUN-03] presentation direct query files: ${filesWithDirectQuery.length}`)
 
-    // 増加を防ぐために上限を設定。Gate 2 で 30 → 27 に引き下げ。
+    // 増加を防ぐために上限を設定。Gate 2: 30→27、Gate 3: HeatmapChart plan 化で 27→26。
     expect(
       filesWithDirectQuery.length,
       `presentation 層の直接 query 呼び出しが増加しています。\n` +
         `Screen Plan hook 経由に移行してください。\n` +
         `対象:\n${filesWithDirectQuery.join('\n')}`,
-    ).toBeLessThanOrEqual(27)
+    ).toBeLessThanOrEqual(26)
+  })
+})
+
+// ── INV-RUN-02: Pair Handler Count Ratchet ──
+
+describe('INV-RUN-02: pair handler count ラチェット', () => {
+  const queriesDir = path.join(SRC_DIR, 'application/queries')
+
+  it('createPairedHandler で生成された pair handler が減少していないこと', () => {
+    const allFiles = collectTsFiles(queriesDir).filter((f) => !f.endsWith('.test.ts'))
+
+    let pairHandlerCount = 0
+    for (const file of allFiles) {
+      const content = fs.readFileSync(file, 'utf-8')
+      if (content.includes('createPairedHandler(') && !file.endsWith('createPairedHandler.ts')) {
+        pairHandlerCount++
+      }
+    }
+
+    console.log(`[INV-RUN-02] pair handler count: ${pairHandlerCount}`)
+
+    // Gate 3: 13 pair handler（既存 1 + 新規 12）。MovingAverageHandler は BaseQueryInput 非準拠のためスキップ。
+    expect(
+      pairHandlerCount,
+      `pair handler が減少しています。createPairedHandler で生成された handler を削除しないでください。`,
+    ).toBeGreaterThanOrEqual(13)
+  })
+})
+
+// ── Gate 4: Base Handler Import Guard ──
+
+describe('INV-RUN-02: pair 化済み handler の base import 追跡', () => {
+  /**
+   * pair handler が存在するのに base handler を直接 import している消費側ファイルを検出する。
+   * 許容リスト（nonPairableConsumers）に登録された例外を除き、増加を防止する。
+   */
+  const pairableHandlerNames = [
+    'hourlyAggregationHandler',
+    'hourDowMatrixHandler',
+    'categoryTimeRecordsHandler',
+    'categoryHourlyHandler',
+    'categoryDailyTrendHandler',
+    'storeCategoryPIHandler',
+    'categoryDiscountHandler',
+    'storeDaySummaryHandler',
+    'aggregatedRatesHandler',
+    'distinctDayCountHandler',
+    'categoryMixWeeklyHandler',
+    'dailyCumulativeHandler',
+    'levelAggregationHandler',
+  ]
+
+  it('pair 化済み base handler を直接 import する消費側が増加していないこと', () => {
+    const dirs = [
+      path.join(SRC_DIR, 'presentation'),
+      path.join(SRC_DIR, 'features'),
+      path.join(SRC_DIR, 'application/hooks'),
+    ]
+
+    const allFiles = dirs
+      .filter((d) => fs.existsSync(d))
+      .flatMap((d) => collectTsFiles(d))
+      .filter((f) => !f.endsWith('.test.ts') && !f.endsWith('.test.tsx'))
+
+    const nonPairablePaths = new Set(nonPairableConsumers.map((e) => e.path))
+
+    const violations: string[] = []
+    for (const file of allFiles) {
+      const relPath = rel(file)
+      if (nonPairablePaths.has(relPath)) continue
+      if (file.endsWith('PairHandler.ts')) continue
+
+      const content = fs.readFileSync(file, 'utf-8')
+      // コメント行を除去してから検査
+      const codeOnly = content
+        .split('\n')
+        .filter((line) => !line.trimStart().startsWith('*') && !line.trimStart().startsWith('//'))
+        .join('\n')
+      for (const handler of pairableHandlerNames) {
+        // import 文の中で base handler を直接 import しているか検出
+        // import { handler } from '...' または import { handler, ... } from '...'
+        if (
+          codeOnly.includes(`import`) &&
+          new RegExp(`\\b${handler}\\b`).test(codeOnly) &&
+          // from '...Handler' パスからの import を検出（re-export や型 import も含む）
+          codeOnly.includes(`Handler`)
+        ) {
+          violations.push(`${relPath}: ${handler}`)
+        }
+      }
+    }
+
+    console.log(`[Gate 4] base handler 直接 import 消費側: ${violations.length}`)
+    if (violations.length > 0) {
+      console.log(`  対象:\n  ${violations.join('\n  ')}`)
+    }
+
+    // 全消費側が nonPairableConsumers に分類済み。新規の base handler import を防止する。
+    expect(
+      violations.length,
+      `pair 化済み base handler の直接 import が増加しています。\n` +
+        `pair handler を使用するか、nonPairableConsumers に登録してください。\n` +
+        `対象:\n${violations.join('\n')}`,
+    ).toBeLessThanOrEqual(0)
   })
 })

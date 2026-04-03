@@ -24,10 +24,9 @@ import {
   levelAggregationHandler,
   type LevelAggregationInput,
 } from '@/application/queries/cts/LevelAggregationHandler'
-import {
-  categoryHourlyHandler,
-  type CategoryHourlyInput,
-} from '@/application/queries/cts/CategoryHourlyHandler'
+import { categoryHourlyPairHandler } from '@/application/queries/cts/CategoryHourlyPairHandler'
+import type { CategoryHourlyInput } from '@/application/queries/cts/CategoryHourlyHandler'
+import type { PairedInput } from '@/application/queries/createPairedHandler'
 import {
   weatherHourlyAvgHandler,
   type WeatherHourlyAvgInput,
@@ -137,7 +136,6 @@ export function useTimeSlotData({
       ...toKeys(currentDateRange),
       storeIds,
       level: 'department' as const,
-      isPrevYear: false,
     }),
     [currentDateRange, storeIds],
   )
@@ -149,7 +147,6 @@ export function useTimeSlotData({
       storeIds,
       level: 'line' as const,
       deptCode,
-      isPrevYear: false,
     }
   }, [currentDateRange, storeIds, deptCode])
 
@@ -161,36 +158,24 @@ export function useTimeSlotData({
       level: 'klass' as const,
       deptCode: deptCode || undefined,
       lineCode: lineCode || undefined,
-      isPrevYear: false,
     }
   }, [currentDateRange, storeIds, deptCode, lineCode])
 
   const heatmapLevel = deptCode ? (lineCode ? 'klass' : 'line') : 'department'
-  const categoryHourlyInput = useMemo<CategoryHourlyInput>(
-    () => ({
+  const pyRange = compMode === 'yoy' ? prevYearScope?.dateRange : undefined
+  const categoryHourlyPairInput = useMemo<PairedInput<CategoryHourlyInput>>(() => {
+    const base: PairedInput<CategoryHourlyInput> = {
       ...toKeys(currentDateRange),
       storeIds,
       level: heatmapLevel as 'department' | 'line' | 'klass',
       ...hierarchy,
-      isPrevYear: false,
-    }),
-    [currentDateRange, storeIds, heatmapLevel, hierarchy],
-  )
-
-  const pyRange = compMode === 'yoy' ? prevYearScope?.dateRange : undefined
-  const prevCatHourlyInput = useMemo<CategoryHourlyInput | null>(
-    () =>
-      pyRange
-        ? {
-            ...toKeys(pyRange),
-            storeIds,
-            level: heatmapLevel as 'department' | 'line' | 'klass',
-            ...hierarchy,
-            isPrevYear: true,
-          }
-        : null,
-    [pyRange, storeIds, heatmapLevel, hierarchy],
-  )
+    }
+    if (pyRange) {
+      const prev = toKeys(pyRange)
+      return { ...base, comparisonDateFrom: prev.dateFrom, comparisonDateTo: prev.dateTo }
+    }
+    return base
+  }, [currentDateRange, pyRange, storeIds, heatmapLevel, hierarchy])
 
   // ── Weather ──
   const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
@@ -250,16 +235,13 @@ export function useTimeSlotData({
   const { data: deptOut } = useQueryWithHandler(queryExecutor, levelAggregationHandler, deptInput)
   const { data: lineOut } = useQueryWithHandler(queryExecutor, levelAggregationHandler, lineInput)
   const { data: klassOut } = useQueryWithHandler(queryExecutor, levelAggregationHandler, klassInput)
-  const { data: catHourlyOut } = useQueryWithHandler(
+  const { data: catHourlyPairOut } = useQueryWithHandler(
     queryExecutor,
-    categoryHourlyHandler,
-    categoryHourlyInput,
+    categoryHourlyPairHandler,
+    categoryHourlyPairInput,
   )
-  const { data: prevCatHourlyOut } = useQueryWithHandler(
-    queryExecutor,
-    categoryHourlyHandler,
-    prevCatHourlyInput,
-  )
+  const catHourlyOut = catHourlyPairOut?.current ?? null
+  const prevCatHourlyOut = catHourlyPairOut?.comparison ?? null
   const { data: curWeatherOut } = useQueryWithHandler(
     queryExecutor,
     weatherHourlyAvgHandler,

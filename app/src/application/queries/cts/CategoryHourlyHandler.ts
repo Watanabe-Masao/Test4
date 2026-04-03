@@ -15,19 +15,18 @@ export interface CategoryHourlyInput extends BaseQueryInput {
   readonly deptCode?: string
   readonly lineCode?: string
   readonly klassCode?: string
-  readonly isPrevYear?: boolean
 }
 
 export interface CategoryHourlyOutput {
   readonly records: readonly CategoryHourlyRow[]
 }
 
-export const categoryHourlyHandler: QueryHandler<CategoryHourlyInput, CategoryHourlyOutput> = {
+/** Internal: isPrevYear is injected by createPairedHandler at runtime */
+type ExecuteInput = CategoryHourlyInput & { readonly isPrevYear?: boolean }
+
+export const categoryHourlyHandler: QueryHandler<ExecuteInput, CategoryHourlyOutput> = {
   name: 'CategoryHourly',
-  async execute(
-    conn: AsyncDuckDBConnection,
-    input: CategoryHourlyInput,
-  ): Promise<CategoryHourlyOutput> {
+  async execute(conn: AsyncDuckDBConnection, input: ExecuteInput): Promise<CategoryHourlyOutput> {
     const records = await queryCategoryHourly(conn, input)
     return { records }
   },

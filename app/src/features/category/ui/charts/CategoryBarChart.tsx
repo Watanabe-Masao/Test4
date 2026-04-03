@@ -11,6 +11,9 @@ import { chartFontSize } from '@/presentation/theme/tokens'
  * - 前年比較（前年位置マーカー + 前年比率表示）
  * - 金額/点数の指標切替
  * - TopN 表示件数切替
+ *
+ * @guard H5 visible-only query — collapsible 時、非表示で取得を抑制
+ * @guard H6 ChartCard は通知のみ — onVisibilityChange で visible 状態を受け取る
  */
 import { memo, useMemo, useState, useCallback } from 'react'
 import { useTheme } from 'styled-components'
@@ -19,10 +22,9 @@ import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { AppTheme } from '@/presentation/theme/theme'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
-import {
-  categoryDailyTrendHandler,
-  type CategoryDailyTrendInput,
-} from '@/application/queries/cts/CategoryDailyTrendHandler'
+import { categoryDailyTrendPairHandler } from '@/application/queries/cts/CategoryDailyTrendPairHandler'
+import type { CategoryDailyTrendInput } from '@/application/queries/cts/CategoryDailyTrendHandler'
+import type { PairedInput } from '@/application/queries/createPairedHandler'
 import {
   buildCategoryTrendData,
   type TrendMetric,
@@ -106,16 +108,20 @@ export const CategoryBarChart = memo(function CategoryBarChart({
   const [drill, setDrill] = useState<DrillState>({ level: 'department', breadcrumbs: [] })
   const [metric, setMetric] = useState<TrendMetric>('amount')
   const [topN, setTopN] = useState('8')
+  // INV-RUN-05: collapsible 時の取得抑制（H5/H6）
+  const [visible, setVisible] = useState(true)
 
   const storeIds = useMemo(
     () => (selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined),
     [selectedStoreIds],
   )
 
-  // 当年クエリ
-  const input = useMemo<CategoryDailyTrendInput | null>(() => {
+  // pair handler で当年+前年を並列取得
+  // INV-RUN-05: visible=false 時は input=null で取得を抑制
+  const pairInput = useMemo<PairedInput<CategoryDailyTrendInput> | null>(() => {
+    if (!visible) return null
     const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-    return {
+    const base: PairedInput<CategoryDailyTrendInput> = {
       dateFrom: fromKey,
       dateTo: toKey,
       storeIds,
@@ -124,35 +130,29 @@ export const CategoryBarChart = memo(function CategoryBarChart({
       deptCode: drill.deptCode,
       lineCode: drill.lineCode,
     }
-  }, [currentDateRange, storeIds, drill.level, drill.deptCode, drill.lineCode, topN])
-
-  const { data: output, isLoading } = useQueryWithHandler(
-    queryExecutor,
-    categoryDailyTrendHandler,
-    input,
-  )
-
-  // 前年クエリ
-  const prevInput = useMemo<CategoryDailyTrendInput | null>(() => {
-    if (!prevYearScope?.dateRange) return null
-    const { fromKey, toKey } = dateRangeToKeys(prevYearScope.dateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds,
-      level: drill.level,
-      topN: Number(topN),
-      deptCode: drill.deptCode,
-      lineCode: drill.lineCode,
-      isPrevYear: true,
+    if (prevYearScope?.dateRange) {
+      const { fromKey: pFrom, toKey: pTo } = dateRangeToKeys(prevYearScope.dateRange)
+      return { ...base, comparisonDateFrom: pFrom, comparisonDateTo: pTo }
     }
-  }, [prevYearScope, storeIds, drill.level, drill.deptCode, drill.lineCode, topN])
+    return base
+  }, [
+    visible,
+    currentDateRange,
+    prevYearScope,
+    storeIds,
+    drill.level,
+    drill.deptCode,
+    drill.lineCode,
+    topN,
+  ])
 
-  const { data: prevOutput } = useQueryWithHandler(
+  const { data: pairOutput, isLoading } = useQueryWithHandler(
     queryExecutor,
-    categoryDailyTrendHandler,
-    prevInput,
+    categoryDailyTrendPairHandler,
+    pairInput,
   )
+  const output = pairOutput?.current ?? null
+  const prevOutput = pairOutput?.comparison ?? null
 
   // 日次データを期間合算してカテゴリ別合計に変換
   const { categories, prevByCode } = useMemo(() => {
@@ -394,6 +394,7 @@ export const CategoryBarChart = memo(function CategoryBarChart({
       title={title}
       subtitle="期間内のカテゴリ別売上構成（ダブルクリックでドリルダウン）"
       collapsible
+      onVisibilityChange={setVisible}
       toolbar={toolbar}
     >
       {chart}

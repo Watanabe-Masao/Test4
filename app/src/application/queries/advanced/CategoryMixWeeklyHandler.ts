@@ -12,7 +12,6 @@ import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 
 export interface CategoryMixWeeklyInput extends BaseQueryInput {
   readonly level: 'department' | 'line' | 'klass'
-  readonly isPrevYear?: boolean
 }
 
 export interface CategoryMixWeeklyOutput {

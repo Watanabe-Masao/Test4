@@ -14,7 +14,6 @@ export interface HourDowMatrixInput extends BaseQueryInput {
   readonly deptCode?: string
   readonly lineCode?: string
   readonly klassCode?: string
-  readonly isPrevYear?: boolean
 }
 
 export interface HourDowMatrixOutput {

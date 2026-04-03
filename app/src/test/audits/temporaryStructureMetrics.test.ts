@@ -53,6 +53,7 @@ describe('Exit KPI: 暫定構造在庫（原則単調減少）', () => {
     // adapter / compat / legacy 含む全カテゴリの合計。
     // 個別カテゴリ（アクティブ / adapter / compat）は snapshot で追跡する。
     // Gate 1 で performance.ts (18 entries: isPrevYear handler 棚卸し) を追加。
+    // Gate 3 で nonPairableConsumers (4+8 entries: 構造的 pair 不可 + 単一呼び出し) を追加。
     // Gate 3 の pair 化で migration カテゴリを段階的に削減予定。
     const allowlistDir = path.join(SRC_DIR, 'test/allowlists')
     if (!fs.existsSync(allowlistDir)) return
@@ -64,8 +65,8 @@ describe('Exit KPI: 暫定構造在庫（原則単調減少）', () => {
     }
     expect(
       count,
-      `allowlist 総エントリ数: ${count}/62。削減を継続してください`,
-    ).toBeLessThanOrEqual(62)
+      `allowlist 総エントリ数: ${count}/69。削減を継続してください`,
+    ).toBeLessThanOrEqual(69)
   })
 
   it('widget 自前取得残件 = 0', () => {
