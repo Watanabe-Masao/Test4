@@ -43,13 +43,7 @@ export const reactImportExcludeDirs: readonly AllowlistEntry[] = [
   },
 ] as const
 
-/** useEffect 副作用チェーン許可 */
+/** useEffect 副作用チェーン許可（全件解消済み。凍結） */
 export const sideEffectChain: readonly AllowlistEntry[] = [
-  {
-    path: 'application/hooks/useLoadComparisonData.ts',
-    reason: '.then() 2行のみ — 分離は過剰',
-    category: 'structural',
-    removalCondition: '副作用チェーンが増えたとき',
-    lifecycle: 'permanent',
-  },
+  // useLoadComparisonData.ts: .then()/.catch() を async/await に変換済み
 ] as const

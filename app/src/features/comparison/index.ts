@@ -34,6 +34,19 @@ export type {
   ContributionAggregate,
 } from './application/viewModels'
 
+// 公開 API: Domain 型
+export type {
+  ComparisonWindow,
+  YoYWindow,
+  WoWWindow,
+  FallbackAwareWindow,
+  SingleWindow,
+} from './domain/comparisonWindow'
+export { isComparisonWindow } from './domain/comparisonWindow'
+
+export type { ComparisonProvenance, MappingKind } from './domain/comparisonProvenance'
+export { createProvenance, createFallbackProvenance } from './domain/comparisonProvenance'
+
 // 公開 API: Facade hook
 export { useComparisonModule } from './application/hooks/useComparisonModule'
 export type { ComparisonModule } from './application/hooks/useComparisonModule'

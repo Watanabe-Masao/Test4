@@ -139,20 +139,8 @@ export const pairExceptionDesign: readonly AllowlistEntry[] = [
   // useCategoryTrendChartData.ts: useCategoryTrendPlan 経由に移行済み（非対称比較 plan）
   // YoYWaterfallChart.tsx: useYoYWaterfallPlan 経由に移行済み（fallback-aware plan）
   // useTimeSlotData.ts: useTimeSlotPlan 経由に移行済み（WoW comparison plan）
-  {
-    path: 'application/hooks/duckdb/useDayDetailData.ts',
-    reason: '14本のクエリ + fallback パターン（CTS 7系統 + Summary 3系統 + Weather 2系統）',
-    category: 'debt',
-    removalCondition: 'bundled query handler（fallback 統合型）の設計時に移行',
-    lifecycle: 'active-debt',
-  },
-  {
-    path: 'application/hooks/useClipExport.ts',
-    reason: 'queryExecutor.execute() 直接実行（useQueryWithHandler 不使用）。isPrevYear 手動制御',
-    category: 'debt',
-    removalCondition: 'useQueryWithHandler + pair handler への移行設計時に判断',
-    lifecycle: 'active-debt',
-  },
+  // useDayDetailData.ts: useDayDetailPlan 経由に移行済み（14本 bundled query plan）
+  // useClipExport.ts: useClipExportPlan 経由に移行済み（useQueryWithHandler 事前取得）
 ]
 
 /**
