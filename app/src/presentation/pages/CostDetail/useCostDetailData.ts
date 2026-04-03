@@ -2,19 +2,10 @@ import { useState, useMemo } from 'react'
 import { useCalculation } from '@/application/hooks/calculation'
 import { useStoreSelection } from '@/application/hooks/ui'
 import { useSettingsStore } from '@/application/stores/settingsStore'
-import {
-  aggregateFlows,
-  buildTransferPivot,
-  aggregateByItem,
-  aggregateByAccount,
-  buildPurchasePivot,
-  buildFlowGroups,
-  buildPairDailyData,
-  calculateDailyTotals,
-  buildItemDetailData,
-  buildDailyCostInclusionData,
-} from './useCostDetailData.helpers'
+import { buildPurchasePivot } from './useCostDetailData.helpers'
 import type { ActiveTab, TransferType, CostInclusionViewMode } from './useCostDetailData.types'
+import { useCostDetailTransfer } from './useCostDetailTransfer'
+import { useCostDetailCostInclusion } from './useCostDetailCostInclusion'
 
 // Re-export types for external consumers
 export type {
@@ -64,38 +55,13 @@ export function useCostDetailData() {
     [currentResult],
   )
 
-  // ─── Transfer data ──────────────────────────────────
+  // ─── Transfer data (sub-hook) ───────────────────────
   const isInterStore = transferType === 'interStore'
   const inField = isInterStore ? ('interStoreIn' as const) : ('interDepartmentIn' as const)
   const outField = isInterStore ? ('interStoreOut' as const) : ('interDepartmentOut' as const)
 
-  const flows = useMemo(
-    () => (days.length > 0 ? aggregateFlows(days, inField, outField, stores) : []),
-    [days, inField, outField, stores],
-  )
-
-  const groupedFlows = useMemo(() => buildFlowGroups(flows), [flows])
-
-  const maxFlowCost = useMemo(
-    () => (flows.length === 0 ? 1 : Math.max(...flows.map((f) => Math.abs(f.cost)), 1)),
-    [flows],
-  )
-
-  const pairDailyData = useMemo(
-    () => buildPairDailyData(selectedPair, days, inField, outField),
-    [selectedPair, days, inField, outField],
-  )
-
-  const dailyTotals = useMemo(
-    () => calculateDailyTotals(days, inField, outField),
-    [days, inField, outField],
-  )
-
-  // ─── Transfer pivot data (store × date matrix) ──────
-  const transferPivot = useMemo(
-    () => buildTransferPivot(days, inField, outField, stores),
-    [days, inField, outField, stores],
-  )
+  const { flows, groupedFlows, maxFlowCost, pairDailyData, dailyTotals, transferPivot } =
+    useCostDetailTransfer(days, inField, outField, stores, selectedPair)
 
   // ─── Purchase pivot data (category × date matrix) ──
   const purchasePivot = useMemo(
@@ -103,14 +69,9 @@ export function useCostDetailData() {
     [days, settings.supplierCategoryMap],
   )
 
-  // ─── CostInclusion data ────────────────────────────────
-  const itemAggregates = useMemo(() => aggregateByItem(days), [days])
-  const accountAggregates = useMemo(() => aggregateByAccount(itemAggregates), [itemAggregates])
-
-  const itemDetailData = useMemo(
-    () => buildItemDetailData(selectedItem, selectedResults, stores),
-    [selectedItem, selectedResults, stores],
-  )
+  // ─── CostInclusion data (sub-hook) ─────────────────
+  const { itemAggregates, accountAggregates, itemDetailData, dailyCostInclusionData } =
+    useCostDetailCostInclusion(days, selectedItem, selectedResults, stores)
 
   // ─── Derived values (computed once per render) ──────
   const typeIn = currentResult
@@ -137,8 +98,6 @@ export function useCostDetailData() {
   const totalSales = currentResult?.totalSales ?? 0
   const maxItemCost = itemAggregates.length > 0 ? itemAggregates[0].totalCost : 1
   const maxAccountCost = accountAggregates.length > 0 ? accountAggregates[0].totalCost : 1
-
-  const dailyCostInclusionData = useMemo(() => buildDailyCostInclusionData(days), [days])
 
   const hasCostInclusionData = totalCostInclusionAmount > 0 || itemAggregates.length > 0
 
