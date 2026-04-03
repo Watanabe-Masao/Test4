@@ -72,6 +72,8 @@ export const SalesFactReadModel = z.object({
 
   /** メタデータ */
   meta: z.object({
+    /** フォールバックが発生したか（現状は常に false — 将来の拡張点） */
+    usedFallback: z.boolean(),
     missingPolicy: z.literal('zero'),
     dataVersion: z.number(),
   }),

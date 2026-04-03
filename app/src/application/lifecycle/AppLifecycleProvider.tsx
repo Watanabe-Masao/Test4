@@ -9,7 +9,7 @@
  */
 import type { ReactNode } from 'react'
 import { usePersistenceState } from '@/application/hooks/usePersistence'
-import { useAppLifecycle } from './useAppLifecycle'
+import { useAppLifecycle } from '@/application/runtime-adapters/useAppLifecycle'
 import { AppLifecycleContext } from './appLifecycleContextDef'
 
 interface Props {

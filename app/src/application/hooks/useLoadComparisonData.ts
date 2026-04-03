@@ -64,20 +64,20 @@ export function useLoadComparisonData(scope: ComparisonScope | null): Comparison
 
     let cancelled = false
 
-    loadComparisonDataAsync(
-      repo,
-      source.year,
-      source.month,
-      scope.queryRanges,
-      dispatch,
-      () => cancelled,
-    )
-      .then((result) => {
+    const run = async () => {
+      try {
+        const result = await loadComparisonDataAsync(
+          repo,
+          source.year,
+          source.month,
+          scope.queryRanges,
+          dispatch,
+          () => cancelled,
+        )
         if (cancelled || !result) return
         const monthly = comparisonResultToMonthlyData(result, source.year, source.month)
         useDataStore.getState().setPrevYearMonthData(monthly)
-      })
-      .catch((err) => {
+      } catch (err) {
         if (!cancelled) {
           dispatch({
             type: 'error',
@@ -86,7 +86,9 @@ export function useLoadComparisonData(scope: ComparisonScope | null): Comparison
             error: err instanceof Error ? err.message : 'Unknown error loading comparison data',
           })
         }
-      })
+      }
+    }
+    void run()
 
     return () => {
       cancelled = true

@@ -9,6 +9,7 @@ import {
   type CategoryHourlyRow,
 } from '@/infrastructure/duckdb/queries/ctsHourlyQueries'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import type { PrevYearFlag } from '../comparisonQueryScope'
 
 export interface CategoryHourlyInput extends BaseQueryInput {
   readonly level: 'department' | 'line' | 'klass'
@@ -22,7 +23,7 @@ export interface CategoryHourlyOutput {
 }
 
 /** Internal: isPrevYear is injected by createPairedHandler at runtime */
-type ExecuteInput = CategoryHourlyInput & { readonly isPrevYear?: boolean }
+type ExecuteInput = CategoryHourlyInput & { readonly isPrevYear?: PrevYearFlag }
 
 export const categoryHourlyHandler: QueryHandler<ExecuteInput, CategoryHourlyOutput> = {
   name: 'CategoryHourly',

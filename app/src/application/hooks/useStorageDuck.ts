@@ -7,8 +7,8 @@
  * @layer Application — facade hook
  */
 import type { DataRepository } from '@/domain/repositories'
-import { useDuckDB } from './useDuckDB'
-import { useDataRecovery } from './useDataRecovery'
+import { useDuckDB } from '@/application/runtime-adapters/useDuckDB'
+import { useDataRecovery } from '@/application/runtime-adapters/useDataRecovery'
 
 export function useStorageDuck(targetYear: number, targetMonth: number, repo: DataRepository) {
   const { conn, db } = useDuckDB(targetYear, targetMonth, repo)

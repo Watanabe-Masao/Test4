@@ -1,16 +1,19 @@
 /**
  * useDrilldownRecords — フィルタ済みレコードとドリルアイテムの構築
  *
- * useDrilldownData から filtering + item building の 10 useMemo を分離。
+ * useDrilldownData から filtering + item building を分離。
+ * 計算は pure builder に委譲し、useMemo は 3 個に集約。
  * @guard G5 useMemo 上限分離
  */
 import { useMemo } from 'react'
 import type { CategoryTimeSalesRecord } from '@/domain/models/record'
+import type { HierarchyFilter } from '@/presentation/components/charts/categoryHierarchyHooks'
+import type { DrillItem, MetricKey } from './drilldownUtils'
 import {
-  filterByHierarchy,
-  type HierarchyFilter,
-} from '@/presentation/components/charts/categoryHierarchyHooks'
-import { buildDrillItems, type DrillItem, type MetricKey } from './drilldownUtils'
+  buildFilteredRecords,
+  buildDrilldownItems,
+  type DrilldownFilteredRecords,
+} from './useDrilldownRecordsBuilders'
 import { buildLevelColorMap } from './useDrilldownDataLogic'
 
 type DrillLevel = 'department' | 'line' | 'klass'
@@ -50,75 +53,39 @@ export function useDrilldownRecords(params: DrilldownRecordsParams): DrilldownRe
     hasWoW,
   } = params
 
-  /* ── フィルタ済みレコード ────────────────── */
+  /* ── フィルタ済みレコード（5→1 useMemo に集約） ── */
 
-  const dayFiltered = useMemo(() => filterByHierarchy(records, filter), [records, filter])
-  const dayFilteredYoYPrev = useMemo(
-    () => (hasPrevYear ? filterByHierarchy(prevRecords, filter) : []),
-    [hasPrevYear, prevRecords, filter],
-  )
-  const dayFilteredWoWPrev = useMemo(
-    () => (hasWoW ? filterByHierarchy(wowRecords, filter) : []),
-    [hasWoW, wowRecords, filter],
-  )
-  const cumFiltered = useMemo(() => filterByHierarchy(cumRecords, filter), [cumRecords, filter])
-  const cumFilteredYoYPrev = useMemo(
-    () => (hasPrevYear ? filterByHierarchy(cumPrevRecords, filter) : []),
-    [hasPrevYear, cumPrevRecords, filter],
+  const filtered: DrilldownFilteredRecords = useMemo(
+    () =>
+      buildFilteredRecords(
+        { records, prevRecords, cumRecords, cumPrevRecords, wowRecords },
+        filter,
+        hasPrevYear,
+        hasWoW,
+      ),
+    [records, prevRecords, cumRecords, cumPrevRecords, wowRecords, filter, hasPrevYear, hasWoW],
   )
 
-  /* ── カラーマップ ────────────────────────── */
+  /* ── カラーマップ ── */
 
   const levelColorMap = useMemo(
-    () => buildLevelColorMap(records, cumRecords, cumFiltered, dayFiltered, currentLevel),
-    [records, cumRecords, cumFiltered, dayFiltered, currentLevel],
-  )
-
-  /* ── ドリルアイテム ──────────────────────── */
-
-  const dayItemsYoY = useMemo(
     () =>
-      buildDrillItems(
-        dayFiltered,
-        dayFilteredYoYPrev,
+      buildLevelColorMap(
+        records,
+        cumRecords,
+        filtered.cumFiltered,
+        filtered.dayFiltered,
         currentLevel,
-        metric,
-        levelColorMap,
-        hasPrevYear,
       ),
-    [dayFiltered, dayFilteredYoYPrev, currentLevel, metric, levelColorMap, hasPrevYear],
+    [records, cumRecords, filtered.cumFiltered, filtered.dayFiltered, currentLevel],
   )
-  const cumItemsYoY = useMemo(
-    () =>
-      buildDrillItems(
-        cumFiltered,
-        cumFilteredYoYPrev,
-        currentLevel,
-        metric,
-        levelColorMap,
-        hasPrevYear,
-      ),
-    [cumFiltered, cumFilteredYoYPrev, currentLevel, metric, levelColorMap, hasPrevYear],
-  )
-  const dayItemsWoW = useMemo(
-    () =>
-      hasWoW
-        ? buildDrillItems(
-            dayFiltered,
-            dayFilteredWoWPrev,
-            currentLevel,
-            metric,
-            levelColorMap,
-            true,
-          )
-        : [],
-    [dayFiltered, dayFilteredWoWPrev, currentLevel, metric, levelColorMap, hasWoW],
-  )
-  const wowItemMap = useMemo(() => {
-    const map = new Map<string, DrillItem>()
-    for (const it of dayItemsWoW) map.set(it.code, it)
-    return map
-  }, [dayItemsWoW])
 
-  return { dayItemsYoY, cumItemsYoY, dayItemsWoW, wowItemMap, levelColorMap }
+  /* ── ドリルアイテム（4→1 useMemo に集約） ── */
+
+  const items = useMemo(
+    () => buildDrilldownItems(filtered, currentLevel, metric, levelColorMap, hasPrevYear, hasWoW),
+    [filtered, currentLevel, metric, levelColorMap, hasPrevYear, hasWoW],
+  )
+
+  return { ...items, levelColorMap }
 }

@@ -50,6 +50,7 @@ export function buildSalesFactReadModel(
     grandTotalAmount,
     grandTotalQuantity,
     meta: {
+      usedFallback: false,
       missingPolicy: 'zero' as const,
       dataVersion,
     },

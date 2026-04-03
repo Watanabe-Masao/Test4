@@ -284,6 +284,9 @@ cd app && npm run dev             # Vite 開発サーバー
 
 詳細・適用例は `references/01-principles/design-principles.md` を参照。管理責任: architecture。
 H カテゴリの詳細は `references/01-principles/safe-performance-principles.md` を参照。
+Safety Tier 分類は `references/01-principles/critical-path-safety-map.md` を参照。
+安全設計改善計画は `references/03-guides/safety-first-architecture-plan.md` を参照。
+モジュラーモノリス進化は `references/01-principles/modular-monolith-evolution.md` を参照。
 
 | カテゴリ | 要点 |
 |---------|------|

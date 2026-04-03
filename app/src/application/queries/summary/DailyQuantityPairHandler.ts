@@ -10,6 +10,7 @@ import {
   type DailyQuantityRow,
 } from '@/infrastructure/duckdb/queries/aggregates/dailyAggregation'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import { CURRENT_SCOPE, COMPARISON_SCOPE } from '../comparisonQueryScope'
 
 export interface DailyQuantityPairInput extends BaseQueryInput {
   /** 前年の日付範囲（null = 前年なし） */
@@ -35,7 +36,7 @@ export const dailyQuantityPairHandler: QueryHandler<
       dateFrom: input.dateFrom,
       dateTo: input.dateTo,
       storeIds: input.storeIds ? [...input.storeIds] : undefined,
-      isPrevYear: false,
+      isPrevYear: CURRENT_SCOPE,
     })
 
     const prevPromise =
@@ -44,7 +45,7 @@ export const dailyQuantityPairHandler: QueryHandler<
             dateFrom: input.prevDateFrom,
             dateTo: input.prevDateTo,
             storeIds: input.storeIds ? [...input.storeIds] : undefined,
-            isPrevYear: true,
+            isPrevYear: COMPARISON_SCOPE,
           })
         : Promise.resolve([] as DailyQuantityRow[])
 

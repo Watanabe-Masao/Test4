@@ -8,7 +8,7 @@ import type { WidgetDef, WidgetContext } from './types'
 import { UnifiedHeatmapWidget, UnifiedStoreHourlyWidget } from './UnifiedAnalyticsWidgets'
 import { isTimeSeriesVisible, isStoreComparisonVisible } from './widgetVisibility'
 import { WeatherWidget } from './WeatherWidget'
-import { EtrnTestWidget } from './EtrnTestWidget'
+// EtrnTestWidget: Sprint 3 で retirement（ctx 非経由のデバッグ用途。廃止）
 
 /**
  * 前年の日別近似原価マップを構築する。
@@ -135,11 +135,5 @@ export const WIDGETS_CHART: readonly WidgetDef[] = [
     size: 'full',
     render: (ctx) => <WeatherWidget ctx={ctx} />,
   },
-  {
-    id: 'chart-etrn-test',
-    label: 'ETRN 取得テスト',
-    group: '外部データ',
-    size: 'full',
-    render: (ctx) => <EtrnTestWidget ctx={ctx} />,
-  },
+  // chart-etrn-test: Sprint 3 で retirement（デバッグ用途のため廃止）
 ]

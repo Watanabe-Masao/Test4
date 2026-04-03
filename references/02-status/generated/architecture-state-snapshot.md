@@ -1,14 +1,14 @@
 # Architecture State Snapshot
 
-> Generated: 2026-04-03T12:31:06.307Z
+> Generated: 2026-04-03T20:18:43.958Z
 
 ## Allowlist Summary
 
 | 指標 | 値 |
 |---|---|
-| 総エントリ数 | 40 |
-| アクティブリスト数 | 12 |
-| 凍結リスト数 | 9 |
+| 総エントリ数 | 26 |
+| アクティブリスト数 | 8 |
+| 凍結リスト数 | 13 |
 | .vm.ts ファイル数 | 27 |
 | 互換 re-export 残数 | 2 |
 
@@ -16,9 +16,8 @@
 
 | カテゴリ | 件数 |
 |---|---|
-| structural | 33 |
-| adapter | 5 |
-| lifecycle | 2 |
+| structural | 25 |
+| adapter | 1 |
 
 
 ## Active Bridges
@@ -38,7 +37,6 @@
 - application/hooks/duckdb/useDailyRecordQueries.ts
 - application/hooks/duckdb/useDeptKpiQueries.ts
 - application/hooks/duckdb/useFeatureQueries.ts
-- application/hooks/duckdb/useJsAggregationQueries.ts
 - application/hooks/duckdb/useJsFeatureQueries.ts
 - application/hooks/duckdb/useJsSalesCompQueries.ts
 - application/hooks/duckdb/useMetricsQueries.ts
@@ -49,6 +47,7 @@
 - application/hooks/duckdb/useYoyQueries.ts
 - application/hooks/plans/useIntegratedSalesPlan.ts
 - application/hooks/plans/useTimeSlotPlan.ts
+- application/hooks/plans/useTimeSlotWeatherPlan.ts
 - application/hooks/useAnalysisInput.ts
 - application/hooks/useAnalyticsResolver.ts
 - application/hooks/useAppShortcuts.ts
@@ -57,13 +56,10 @@
 - application/hooks/useAutoLoadPrevYear.ts
 - application/hooks/useBackup.ts
 - application/hooks/useCalculation.ts
+- application/hooks/useClipExport.ts
 - application/hooks/useComparisonContext.ts
-- application/hooks/useComparisonModule.ts
-- application/hooks/useDataRecovery.ts
 - application/hooks/useDeviceSync.ts
 - application/hooks/useDrillAction.ts
-- application/hooks/useDuckDB.ts
-- application/hooks/useEngineLifecycle.ts
 - application/hooks/useEtrnStationSearch.ts
 - application/hooks/useExplanation.ts
 - application/hooks/useFactorDecomposition.ts
@@ -81,7 +77,6 @@
 - application/hooks/usePrevYearWeather.ts
 - application/hooks/usePurchaseAnalysis.ts
 - application/hooks/useQueryWithHandler.ts
-- application/hooks/useRawDataFetch.ts
 - application/hooks/useRouteSync.ts
 - application/hooks/useSensitivity.ts
 - application/hooks/useSettings.ts
@@ -102,9 +97,6 @@
 
 | ファイル | useMemo | useState | 行数 |
 |---|---|---|---|
-| presentation/pages/Dashboard/widgets/useDrilldownData.ts | 14 | 10 | 413 |
-| presentation/pages/CostDetail/useCostDetailData.ts | 13 | 6 | 210 |
-| application/hooks/plans/useTimeSlotPlan.ts | 15 | 3 | 313 |
 | presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 12 | 5 | 465 |
 | presentation/components/charts/TimeSlotChart.tsx | 10 | 6 | 209 |
 | presentation/pages/Dashboard/widgets/HourlyChart.tsx | 10 | 6 | 514 |
@@ -112,23 +104,26 @@
 | presentation/pages/Admin/RawDataTab.tsx | 13 | 2 | 335 |
 | presentation/components/charts/useCategoryTrendChartData.ts | 7 | 7 | 183 |
 | presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx | 7 | 7 | 480 |
+| presentation/pages/Dashboard/widgets/useMonthlyCalendarState.ts | 4 | 10 | 266 |
+| presentation/components/charts/periodFilterHooks.ts | 5 | 8 | 241 |
+| presentation/pages/Dashboard/widgets/useDrilldownRecords.ts | 13 | 0 | 125 |
 
 ## Near-Limit Files (≥80%)
 
 | ファイル | 指標 | 実測 | 上限 | % |
 |---|---|---|---|---|
-| application/hooks/plans/useTimeSlotPlan.ts | lines | 313 | 320 | 98% |
 | application/hooks/usePeriodAwareKpi.ts | lines | 301 | 310 | 97% |
-| presentation/pages/CostDetail/useCostDetailData.ts | useMemo | 12 | 13 | 92% |
-| presentation/pages/Dashboard/widgets/useDrilldownData.ts | useMemo | 12 | 13 | 92% |
+| application/hooks/plans/useTimeSlotPlan.ts | lines | 241 | 260 | 93% |
+| application/hooks/duckdb/categoryBenchmarkLogic.ts | lines | 275 | 300 | 92% |
 | presentation/pages/Admin/RawDataTab.tsx | useMemo | 12 | 13 | 92% |
 | presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | useMemo | 11 | 12 | 92% |
+| presentation/pages/Dashboard/widgets/useDrilldownRecords.ts | useMemo | 10 | 11 | 91% |
 | presentation/pages/Dashboard/widgets/HourlyChart.tsx | useMemo | 9 | 10 | 90% |
-| application/hooks/duckdb/categoryBenchmarkLogic.ts | lines | 401 | 450 | 89% |
+| presentation/components/charts/DailySalesChartBody.tsx | useMemo | 8 | 9 | 89% |
 | presentation/pages/Dashboard/widgets/DrilldownWaterfall.tsx | useMemo | 7 | 8 | 88% |
 | presentation/components/charts/TimeSlotChart.tsx | useMemo | 7 | 8 | 88% |
 | presentation/pages/Dashboard/widgets/useMonthlyCalendarState.ts | useState | 9 | 11 | 82% |
-| presentation/components/charts/DailySalesChartBody.tsx | useMemo | 8 | 10 | 80% |
+| presentation/pages/Dashboard/widgets/useDrilldownData.ts | useState | 8 | 10 | 80% |
 
 ## Frozen Lists
 
@@ -137,33 +132,37 @@
 - presentationToUsecases
 - presentationDuckdbHook
 - largeComponentTier2
+- infraLargeFiles
+- usecasesLargeFiles
 - cmpPrevYearDaily
 - cmpFramePrevious
 - cmpDailyMapping
 - dowCalcOverride
+- vmReactImport
+- sideEffectChain
 
 ## Per-List Detail
 
 | リスト名 | 件数 | カテゴリ内訳 |
 |---|---|---|
-| presentationMemoLimits | 8 | structural:8 |
-| applicationToInfrastructure | 7 | adapter:5, lifecycle:2 |
+| presentationMemoLimits | 7 | structural:7 |
 | domainLargeFiles | 7 | structural:7 |
 | useStateLimits | 3 | structural:3 |
 | hookLineLimits | 3 | structural:3 |
 | presentationStateLimits | 3 | structural:3 |
-| ctxHook | 3 | structural:3 |
-| vmReactImport | 2 | structural:2 |
+| applicationToInfrastructure | 1 | adapter:1 |
 | useMemoLimits | 1 | structural:1 |
-| infraLargeFiles | 1 | structural:1 |
-| usecasesLargeFiles | 1 | structural:1 |
-| sideEffectChain | 1 | structural:1 |
+| ctxHook | 1 | structural:1 |
 | presentationToInfrastructure | 0 | - |
 | infrastructureToApplication | 0 | - |
 | presentationToUsecases | 0 | - |
 | presentationDuckdbHook | 0 | - |
 | largeComponentTier2 | 0 | - |
+| infraLargeFiles | 0 | - |
+| usecasesLargeFiles | 0 | - |
 | cmpPrevYearDaily | 0 | - |
 | cmpFramePrevious | 0 | - |
 | cmpDailyMapping | 0 | - |
 | dowCalcOverride | 0 | - |
+| vmReactImport | 0 | - |
+| sideEffectChain | 0 | - |

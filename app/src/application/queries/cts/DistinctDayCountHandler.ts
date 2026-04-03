@@ -7,9 +7,10 @@
 import type { QueryHandler, BaseQueryInput } from '../QueryContract'
 import { queryDistinctDayCount } from '@/infrastructure/duckdb/queries/categoryTimeSales'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import type { PrevYearFlag } from '../comparisonQueryScope'
 
 export interface DistinctDayCountInput extends BaseQueryInput {
-  readonly isPrevYear?: boolean
+  readonly isPrevYear?: PrevYearFlag
 }
 
 export interface DistinctDayCountOutput {

@@ -121,6 +121,10 @@ describe('Structural Convention Guard', () => {
       if (relPath.startsWith('features/')) continue
       // テスト・stories は対象外
       if (relPath.includes('__tests__/') || relPath.startsWith('stories/')) continue
+      // @temporary backward-compat re-exports は対象外（移行完了時に削除）
+      if (relPath.startsWith('application/comparison/')) continue
+      // useComparisonModule re-export（features/comparison/ 移行の一部）
+      if (relPath === 'application/hooks/useComparisonModule.ts') continue
 
       const imports = extractImports(file)
       for (const imp of imports) {
@@ -219,6 +223,8 @@ describe('Structural Convention Guard', () => {
       const relPath = relativePath(file)
       if (CTX_HOOK_ALLOWLIST.has(relPath)) continue
       if (relPath.includes('_prototypes/')) continue
+      // context slice はctx 構築の一部（useWeatherSlice 等が直接 import するのは正当）
+      if (relPath.startsWith('presentation/hooks/slices/')) continue
 
       const content = fs.readFileSync(file, 'utf-8')
       for (const hook of CTX_PROVIDED_HOOKS) {

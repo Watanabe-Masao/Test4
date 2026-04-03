@@ -1,6 +1,6 @@
 # Query Access Audit Report
 
-> Generated: 2026-04-03T12:31:06.320Z
+> Generated: 2026-04-03T20:18:42.155Z
 
 ## Route Summary
 
@@ -8,10 +8,10 @@
 |---|---|---|
 | QueryHandler 定義 | 47 | 基盤 |
 | PairedQueryHandler（pair 化済み） | 13 | 基盤 |
-| Screen Plan hook（plan 化済み） | 24 | 基盤 |
+| Screen Plan hook（plan 化済み） | 27 | 基盤 |
 | useQueryWithHandler（正規） | 0 | 正規 |
 | comparisonAccessors（正規） | 10 | 正規 |
-| facade / bundle hook 使用（正規） | 4 | 正規 |
+| facade / bundle hook 使用（正規） | 5 | 正規 |
 | bundle hook 定義 | 1 | 基盤 |
 | executor.execute 直呼び（要注意） | 0 | 要注意 |
 | useAsyncQuery 直 import（互換） | 0 | 互換 |
@@ -93,9 +93,11 @@
 - application/hooks/plans/useCategoryHourlyChartPlan.ts
 - application/hooks/plans/useCategoryMixChartPlan.ts
 - application/hooks/plans/useCategoryTrendPlan.ts
+- application/hooks/plans/useClipExportPlan.ts
 - application/hooks/plans/useConditionBudgetDrillPlan.ts
 - application/hooks/plans/useConditionMatrixPlan.ts
 - application/hooks/plans/useCumulativeChartPlan.ts
+- application/hooks/plans/useDayDetailPlan.ts
 - application/hooks/plans/useDeptHourlyChartPlan.ts
 - application/hooks/plans/useDeptTrendChartPlan.ts
 - application/hooks/plans/useDowPatternChartPlan.ts
@@ -104,6 +106,7 @@
 - application/hooks/plans/useIntegratedSalesPlan.ts
 - application/hooks/plans/useStoreHourlyChartPlan.ts
 - application/hooks/plans/useTimeSlotPlan.ts
+- application/hooks/plans/useTimeSlotWeatherPlan.ts
 - application/hooks/plans/useWeatherAnalysisPlan.ts
 - application/hooks/plans/useYoYChartPlan.ts
 - application/hooks/plans/useYoYWaterfallPlan.ts
@@ -127,9 +130,10 @@
 
 ### facadeHook
 
-- presentation/hooks/useChartInteractionBundle.ts
-- presentation/hooks/useComparisonBundle.ts
-- presentation/hooks/useQueryBundle.ts
+- presentation/hooks/slices/useChartInteractionSlice.ts
+- presentation/hooks/slices/useComparisonSlice.ts
+- presentation/hooks/slices/useQuerySlice.ts
+- presentation/hooks/slices/useWeatherSlice.ts
 - presentation/hooks/useUnifiedWidgetContext.ts
 
 ### bundleHookDef
@@ -141,6 +145,5 @@
 - presentation/components/charts/WeatherAnalysisPanel.tsx
 - presentation/components/charts/WeatherCorrelationChart.tsx
 - presentation/components/charts/WeatherCorrelationChart.vm.ts
-- presentation/hooks/useQueryBundle.ts
-- presentation/pages/Dashboard/widgets/EtrnTestWidget.tsx
+- presentation/hooks/slices/useWeatherSlice.ts
 - presentation/pages/Dashboard/widgets/WeatherWidget.tsx

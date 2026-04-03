@@ -108,13 +108,31 @@ export function useDrilldownData(props: CategoryDrilldownProps) {
   /* ── State ───────────────────────────────── */
 
   const [filter, setFilter] = useState<HierarchyFilter>({})
-  const [sortKey, setSortKey] = useState<SortKey>('amount')
-  const [sortDir, setSortDir] = useState<SortDir>('desc')
+  const [sortState, setSortState] = useState<{ key: SortKey; dir: SortDir }>({
+    key: 'amount',
+    dir: 'desc',
+  })
   const [metric, setMetric] = useState<MetricKey>('amount')
   const [compare, setCompare] = useState<CompareMode>('daily')
-  const [hoveredSeg, setHoveredSeg] = useState<string | null>(null)
-  const [segTooltip, setSegTooltip] = useState<SegTooltipState | null>(null)
+  const [segInteraction, setSegInteraction] = useState<{
+    hovered: string | null
+    tooltip: SegTooltipState | null
+  }>({ hovered: null, tooltip: null })
   const [drillSourceRow, setDrillSourceRow] = useState<'actual' | 'prev' | 'wow'>('actual')
+
+  // Derived accessors for sort state
+  const sortKey = sortState.key
+  const sortDir = sortState.dir
+  const hoveredSeg = segInteraction.hovered
+  const segTooltip = segInteraction.tooltip
+  const setHoveredSeg = useCallback(
+    (seg: string | null) => setSegInteraction((prev) => ({ ...prev, hovered: seg })),
+    [],
+  )
+  const setSegTooltip = useCallback(
+    (tip: SegTooltipState | null) => setSegInteraction((prev) => ({ ...prev, tooltip: tip })),
+    [],
+  )
 
   /* ── 導出値 ──────────────────────────────── */
 
@@ -183,16 +201,13 @@ export function useDrilldownData(props: CategoryDrilldownProps) {
     [currentLevel],
   )
 
-  const handleSort = useCallback(
-    (key: SortKey) => {
-      if (sortKey === key) setSortDir((d) => (d === 'desc' ? 'asc' : 'desc'))
-      else {
-        setSortKey(key)
-        setSortDir('desc')
-      }
-    },
-    [sortKey],
-  )
+  const handleSort = useCallback((key: SortKey) => {
+    setSortState((prev) =>
+      prev.key === key
+        ? { ...prev, dir: prev.dir === 'desc' ? 'asc' : 'desc' }
+        : { key, dir: 'desc' },
+    )
+  }, [])
 
   const handleRowSelect = useCallback((period: CompareMode, row: 'actual' | 'prev' | 'wow') => {
     setCompare(period)

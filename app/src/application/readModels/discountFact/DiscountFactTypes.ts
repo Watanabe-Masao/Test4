@@ -49,6 +49,8 @@ export const DiscountFactReadModel = z.object({
   grandTotal73: z.number(),
   grandTotal74: z.number(),
   meta: z.object({
+    /** フォールバックが発生したか（現状は常に false — 将来の拡張点） */
+    usedFallback: z.boolean(),
     missingPolicy: z.literal('zero'),
     dataVersion: z.number(),
   }),

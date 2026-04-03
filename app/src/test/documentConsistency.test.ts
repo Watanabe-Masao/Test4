@@ -215,6 +215,27 @@ describe('Design principle consistency', () => {
   })
 })
 
+// ─── Safety-First Architecture 文書整合 ───────────────
+
+describe('Safety-first architecture document consistency', () => {
+  const safetyDocs = [
+    'references/03-guides/safety-first-architecture-plan.md',
+    'references/01-principles/critical-path-safety-map.md',
+    'references/01-principles/modular-monolith-evolution.md',
+  ] as const
+
+  it('all safety-first architecture documents exist', () => {
+    const missing = safetyDocs.filter((p) => !fileExists(p))
+    expect(missing).toEqual([])
+  })
+
+  it('CLAUDE.md references all safety-first documents', () => {
+    const claudeMd = readFile('CLAUDE.md')
+    const missing = safetyDocs.filter((p) => !claudeMd.includes(p))
+    expect(missing).toEqual([])
+  })
+})
+
 // ─── 不変条件カタログ ↔ ガードテスト対応表 ──────────────
 
 describe('Invariant catalog ↔ guard test map consistency', () => {

@@ -4,6 +4,7 @@
  * ダッシュボードのレイアウト永続化・デフォルト構成。
  * マイグレーションは widgetMigration.ts、自動注入は widgetAutoInject.ts に分離。
  */
+import { loadJson, saveJson } from '@/application/adapters/uiPersistenceAdapter'
 import { WIDGET_REGISTRY } from './registry'
 import type { WidgetDef } from './types'
 import { migrateWidgetIds } from './widgetMigration'
@@ -36,23 +37,14 @@ export const DEFAULT_WIDGET_IDS: string[] = [
 const STORAGE_KEY = 'dashboard_layout_v14'
 
 export function loadLayout(): string[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return DEFAULT_WIDGET_IDS
-    const parsed = JSON.parse(raw) as string[]
-    if (!Array.isArray(parsed)) return DEFAULT_WIDGET_IDS
-    const migrated = migrateWidgetIds(parsed)
-    const valid = migrated.filter((id) => getWidgetMap().has(id))
-    return valid.length > 0 ? valid : DEFAULT_WIDGET_IDS
-  } catch {
-    return DEFAULT_WIDGET_IDS
-  }
+  const parsed = loadJson<string[]>(STORAGE_KEY, DEFAULT_WIDGET_IDS, (raw) =>
+    Array.isArray(raw) ? (raw as string[]) : null,
+  )
+  const migrated = migrateWidgetIds(parsed)
+  const valid = migrated.filter((id) => getWidgetMap().has(id))
+  return valid.length > 0 ? valid : DEFAULT_WIDGET_IDS
 }
 
 export function saveLayout(ids: string[]): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(ids))
-  } catch {
-    // ignore
-  }
+  saveJson(STORAGE_KEY, ids)
 }

@@ -1,14 +1,12 @@
 import { useState, useCallback, useMemo } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
-import { aggregateAllStores, indexByStoreDay } from '@/domain/models/record'
 import type {
   PurchaseDayEntry,
   TransferDayEntry,
   SpecialSalesDayEntry,
   CostInclusionRecord,
   StoreDayIndex,
-  CategoryTimeSalesRecord,
 } from '@/domain/models/record'
 import { Section, SectionTitle, HelpText, EmptyState } from './AdminShared'
 import {
@@ -20,6 +18,7 @@ import {
   DataChip,
   TotalRow,
 } from './RawDataTab.styles'
+import { buildAllIndices, type RawDataIndices } from './RawDataTabBuilders'
 
 type RawDataType =
   | 'classifiedSales'
@@ -52,21 +51,6 @@ const RAW_DATA_LABELS: Record<RawDataType, string> = {
   categoryTimeSales: '時間帯売上（CTS）',
 }
 
-/** CTS レコードを store×day の売上合計に集約 */
-function buildCtsIndex(
-  records: readonly CategoryTimeSalesRecord[],
-): StoreDayIndex<{ amount: number }> {
-  const idx: Record<string, Record<number, { amount: number }>> = {}
-  for (const rec of records) {
-    const store = (idx[rec.storeId] ??= {})
-    const existing = store[rec.day]
-    store[rec.day] = { amount: (existing?.amount ?? 0) + rec.totalAmount }
-  }
-  return idx
-}
-
-const EMPTY_RECORDS: readonly never[] = []
-
 export function RawDataTab() {
   const { format: fmtCurrency } = useCurrencyFormat()
   const current = useDataStore((s) => s.currentMonthData)
@@ -81,44 +65,10 @@ export function RawDataTab() {
     [current],
   )
 
-  // classifiedSales の集計（store → day → {sales, discount}）
-  const csAgg = useMemo(
-    () => (current ? aggregateAllStores(current.classifiedSales) : {}),
-    [current],
-  )
-  const prevCsAgg = useMemo(
-    () => (prevYear ? aggregateAllStores(prevYear.classifiedSales) : {}),
-    [prevYear],
-  )
-
-  // flat records → StoreDayIndex に変換（RawDataTab 表示用）
-  const purchaseIdx = useMemo(
-    () => indexByStoreDay(current?.purchase.records ?? EMPTY_RECORDS),
-    [current],
-  )
-  const interStoreInIdx = useMemo(
-    () => indexByStoreDay(current?.interStoreIn.records ?? EMPTY_RECORDS),
-    [current],
-  )
-  const interStoreOutIdx = useMemo(
-    () => indexByStoreDay(current?.interStoreOut.records ?? EMPTY_RECORDS),
-    [current],
-  )
-  const flowersIdx = useMemo(
-    () => indexByStoreDay(current?.flowers.records ?? EMPTY_RECORDS),
-    [current],
-  )
-  const directProduceIdx = useMemo(
-    () => indexByStoreDay(current?.directProduce.records ?? EMPTY_RECORDS),
-    [current],
-  )
-  const consumablesIdx = useMemo(
-    () => indexByStoreDay(current?.consumables.records ?? EMPTY_RECORDS),
-    [current],
-  )
-  const ctsIdx = useMemo(
-    () => buildCtsIndex(current?.categoryTimeSales.records ?? EMPTY_RECORDS),
-    [current],
+  // 全 index を一括構築（9 useMemo → 1 useMemo に集約）
+  const indices: RawDataIndices = useMemo(
+    () => buildAllIndices(current, prevYear),
+    [current, prevYear],
   )
 
   /** StoreDayIndex のソースを dataType に応じて返す */
@@ -126,93 +76,84 @@ export function RawDataTab() {
     switch (dataType) {
       case 'classifiedSales':
       case 'classifiedDiscount':
-        return csAgg as StoreDayIndex<unknown>
+        return indices.csAgg as StoreDayIndex<unknown>
       case 'customers':
-        return flowersIdx as StoreDayIndex<unknown>
+        return indices.flowersIdx as StoreDayIndex<unknown>
       case 'purchase_price':
       case 'purchase_cost':
-        return purchaseIdx as StoreDayIndex<unknown>
+        return indices.purchaseIdx as StoreDayIndex<unknown>
       case 'prevYearClassifiedSales':
       case 'prevYearClassifiedDiscount':
-        return prevCsAgg as StoreDayIndex<unknown>
+        return indices.prevCsAgg as StoreDayIndex<unknown>
       case 'interStoreIn':
-        return interStoreInIdx as StoreDayIndex<unknown>
+        return indices.interStoreInIdx as StoreDayIndex<unknown>
       case 'interStoreOut':
-        return interStoreOutIdx as StoreDayIndex<unknown>
+        return indices.interStoreOutIdx as StoreDayIndex<unknown>
       case 'flowers':
-        return flowersIdx as StoreDayIndex<unknown>
+        return indices.flowersIdx as StoreDayIndex<unknown>
       case 'directProduce':
-        return directProduceIdx as StoreDayIndex<unknown>
+        return indices.directProduceIdx as StoreDayIndex<unknown>
       case 'consumables':
-        return consumablesIdx as StoreDayIndex<unknown>
+        return indices.consumablesIdx as StoreDayIndex<unknown>
       case 'categoryTimeSales':
-        return ctsIdx as StoreDayIndex<unknown>
+        return indices.ctsIdx as StoreDayIndex<unknown>
       default:
         return {}
     }
-  }, [
-    dataType,
-    csAgg,
-    prevCsAgg,
-    purchaseIdx,
-    interStoreInIdx,
-    interStoreOutIdx,
-    flowersIdx,
-    directProduceIdx,
-    consumablesIdx,
-    ctsIdx,
-  ])
+  }, [dataType, indices])
 
   /** 各セルの数値を取得 */
   const extractValue = useCallback(
     (storeId: string, day: number): number => {
       switch (dataType) {
         case 'classifiedSales':
-          return csAgg[storeId]?.[day]?.sales ?? 0
+          return indices.csAgg[storeId]?.[day]?.sales ?? 0
         case 'classifiedDiscount':
-          return csAgg[storeId]?.[day]?.discount ?? 0
+          return indices.csAgg[storeId]?.[day]?.discount ?? 0
         case 'customers':
-          return (flowersIdx[storeId]?.[day] as SpecialSalesDayEntry | undefined)?.customers ?? 0
+          return (
+            (indices.flowersIdx[storeId]?.[day] as SpecialSalesDayEntry | undefined)?.customers ?? 0
+          )
         case 'purchase_price':
-          return (purchaseIdx[storeId]?.[day] as PurchaseDayEntry | undefined)?.total?.price ?? 0
+          return (
+            (indices.purchaseIdx[storeId]?.[day] as PurchaseDayEntry | undefined)?.total?.price ?? 0
+          )
         case 'purchase_cost':
-          return (purchaseIdx[storeId]?.[day] as PurchaseDayEntry | undefined)?.total?.cost ?? 0
+          return (
+            (indices.purchaseIdx[storeId]?.[day] as PurchaseDayEntry | undefined)?.total?.cost ?? 0
+          )
         case 'prevYearClassifiedSales':
-          return prevCsAgg[storeId]?.[day]?.sales ?? 0
+          return indices.prevCsAgg[storeId]?.[day]?.sales ?? 0
         case 'prevYearClassifiedDiscount':
-          return prevCsAgg[storeId]?.[day]?.discount ?? 0
+          return indices.prevCsAgg[storeId]?.[day]?.discount ?? 0
         case 'interStoreIn': {
-          const entry = interStoreInIdx[storeId]?.[day] as TransferDayEntry | undefined
+          const entry = indices.interStoreInIdx[storeId]?.[day] as TransferDayEntry | undefined
           return entry?.interStoreIn?.reduce((s, r) => s + r.price, 0) ?? 0
         }
         case 'interStoreOut': {
-          const entry = interStoreOutIdx[storeId]?.[day] as TransferDayEntry | undefined
+          const entry = indices.interStoreOutIdx[storeId]?.[day] as TransferDayEntry | undefined
           return entry?.interStoreOut?.reduce((s, r) => s + r.price, 0) ?? 0
         }
         case 'flowers':
-          return (flowersIdx[storeId]?.[day] as SpecialSalesDayEntry | undefined)?.price ?? 0
+          return (
+            (indices.flowersIdx[storeId]?.[day] as SpecialSalesDayEntry | undefined)?.price ?? 0
+          )
         case 'directProduce':
-          return (directProduceIdx[storeId]?.[day] as SpecialSalesDayEntry | undefined)?.price ?? 0
+          return (
+            (indices.directProduceIdx[storeId]?.[day] as SpecialSalesDayEntry | undefined)?.price ??
+            0
+          )
         case 'consumables':
-          return (consumablesIdx[storeId]?.[day] as CostInclusionRecord | undefined)?.cost ?? 0
+          return (
+            (indices.consumablesIdx[storeId]?.[day] as CostInclusionRecord | undefined)?.cost ?? 0
+          )
         case 'categoryTimeSales':
-          return (ctsIdx[storeId]?.[day] as { amount: number } | undefined)?.amount ?? 0
+          return (indices.ctsIdx[storeId]?.[day] as { amount: number } | undefined)?.amount ?? 0
         default:
           return 0
       }
     },
-    [
-      dataType,
-      csAgg,
-      prevCsAgg,
-      purchaseIdx,
-      interStoreInIdx,
-      interStoreOutIdx,
-      flowersIdx,
-      directProduceIdx,
-      consumablesIdx,
-      ctsIdx,
-    ],
+    [dataType, indices],
   )
 
   // 対象データの日付範囲を計算

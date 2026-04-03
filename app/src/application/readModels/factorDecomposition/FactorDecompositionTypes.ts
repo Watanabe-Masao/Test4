@@ -55,6 +55,8 @@ export const FactorDecompositionReadModel = z.object({
   /** 不変条件: |effectsSum - salesDelta| < tolerance */
   invariantSatisfied: z.boolean(),
   meta: z.object({
+    /** フォールバックが発生したか（JS fallback 使用時に true） */
+    usedFallback: z.boolean(),
     /** Rust authoritative 計算を使用したか */
     authoritative: z.boolean(),
     tolerance: z.number(),

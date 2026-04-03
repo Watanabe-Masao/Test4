@@ -57,9 +57,9 @@ function collectFeatureUiFiles(srcDir: string): string[] {
     })
 }
 
-/** bundle hook の検出パターン */
+/** bundle/slice hook の検出パターン */
 const BUNDLE_HOOK_PATTERN =
-  /use(?:ComparisonContext|QueryBundle|ComparisonBundle|ChartInteractionBundle|FreePeriodAnalysisBundle)/
+  /use(?:ComparisonContext|QueryBundle|QuerySlice|ComparisonBundle|ComparisonSlice|ChartInteractionBundle|ChartInteractionSlice|WeatherSlice|FreePeriodAnalysisBundle)/
 
 function inventoryQueryRoutes(): RouteCount {
   const routes: RouteCount = {
@@ -162,7 +162,7 @@ function inventoryQueryRoutes(): RouteCount {
     }
     // bundle hook 定義の検出
     if (
-      /export function use(?:QueryBundle|ComparisonBundle|ChartInteractionBundle|FreePeriodAnalysisBundle)/.test(
+      /export function use(?:QueryBundle|QuerySlice|ComparisonBundle|ComparisonSlice|ChartInteractionBundle|ChartInteractionSlice|WeatherSlice|FreePeriodAnalysisBundle)/.test(
         content,
       )
     ) {

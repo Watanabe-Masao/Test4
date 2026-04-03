@@ -28,7 +28,7 @@ vi.mock('@/infrastructure/duckdb/engine', () => ({
   }),
 }))
 
-import { useAppLifecycle } from '../useAppLifecycle'
+import { useAppLifecycle } from '@/application/runtime-adapters/useAppLifecycle'
 
 // ── Helpers ────────────────────────────────────────────
 

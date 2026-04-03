@@ -103,7 +103,7 @@ function makeTestModel(): SalesFactReadModelType {
     ],
     grandTotalAmount: 1_400_000,
     grandTotalQuantity: 630,
-    meta: { missingPolicy: 'zero', dataVersion: 1 },
+    meta: { usedFallback: false, missingPolicy: 'zero', dataVersion: 1 },
   }
 }
 

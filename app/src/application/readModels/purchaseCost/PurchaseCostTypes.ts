@@ -99,6 +99,8 @@ export const PurchaseCostReadModel = z.object({
 
   /** メタデータ: この値が何者かを runtime でも固定する */
   meta: z.object({
+    /** フォールバックが発生したか（現状は常に false — 将来の拡張点） */
+    usedFallback: z.boolean(),
     /** 欠損時の扱い: 0 として集計（欠損日はスキップしない） */
     missingPolicy: z.literal('zero'),
     /** 丸め規約: 金額は整数円(Math.round)、率は小数(raw) */

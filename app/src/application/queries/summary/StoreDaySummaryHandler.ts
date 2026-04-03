@@ -9,9 +9,10 @@ import {
   type StoreDaySummaryRow,
 } from '@/infrastructure/duckdb/queries/storeDaySummary'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import type { PrevYearFlag } from '../comparisonQueryScope'
 
 export interface StoreDaySummaryInput extends BaseQueryInput {
-  readonly isPrevYear?: boolean
+  readonly isPrevYear?: PrevYearFlag
 }
 
 export interface StoreDaySummaryOutput {

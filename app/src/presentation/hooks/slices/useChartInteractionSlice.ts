@@ -1,8 +1,8 @@
 /**
- * チャート操作 / 月次履歴 / CTS 販売点数 bundle
+ * useChartInteractionSlice — チャート操作状態 slice
  *
  * monthlyHistory、currentCtsQuantity、chartPeriodProps を統合して返す。
- * useUnifiedWidgetContext から分離し、チャート操作関連の依存を局所化する。
+ * useUnifiedWidgetContext の context slice としてチャート操作関連の依存を局所化する。
  */
 import { useMemo } from 'react'
 import {
@@ -18,13 +18,13 @@ import type { StoreResult } from '@/domain/models/storeTypes'
 import type { DataRepository } from '@/domain/repositories/DataRepository'
 import type { ComparisonPreset } from '@/domain/models/PeriodSelection'
 
-export interface ChartInteractionBundle {
+export interface ChartInteractionSlice {
   readonly monthlyHistory: readonly MonthlyDataPoint[]
   readonly currentCtsQuantity: CurrentCtsQuantity | undefined
   readonly chartPeriodProps: ChartPeriodProps
 }
 
-export function useChartInteractionBundle(
+export function useChartInteractionSlice(
   repo: DataRepository | null,
   targetYear: number,
   targetMonth: number,
@@ -33,7 +33,7 @@ export function useChartInteractionBundle(
   selectedStoreIds: ReadonlySet<string>,
   currentResult: StoreResult | null,
   activePreset: ComparisonPreset,
-): ChartInteractionBundle {
+): ChartInteractionSlice {
   // 過去月データ（季節性分析用）
   const historicalMonths = useMonthlyHistory(repo, targetYear, targetMonth)
   const currentMonthlyPoint = useMemo(() => {

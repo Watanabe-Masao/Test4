@@ -142,5 +142,8 @@ export function buildFreePeriodReadModel(
     comparisonRows,
     currentSummary,
     comparisonSummary,
+    meta: {
+      usedFallback: false,
+    },
   })
 }

@@ -2,26 +2,21 @@
  * widgetAutoInject — データ駆動ウィジェットの自動注入ロジック。
  * widgetLayout.ts から分離。localStorage ベースの冪等性を保証する。
  */
+import { loadJson, saveJson } from '@/application/adapters/uiPersistenceAdapter'
 import { WIDGET_REGISTRY } from './registry'
 import { WIDGET_ID_MIGRATION } from './widgetMigration'
 
 const AUTO_INJECTED_KEY = 'dashboard_auto_injected_v3'
 
 function getAutoInjectedIds(): Set<string> {
-  try {
-    const raw = localStorage.getItem(AUTO_INJECTED_KEY)
-    return raw ? new Set(JSON.parse(raw) as string[]) : new Set()
-  } catch {
-    return new Set()
-  }
+  const arr = loadJson<string[]>(AUTO_INJECTED_KEY, [], (raw) =>
+    Array.isArray(raw) ? (raw as string[]) : null,
+  )
+  return new Set(arr)
 }
 
 function saveAutoInjectedIds(ids: Set<string>): void {
-  try {
-    localStorage.setItem(AUTO_INJECTED_KEY, JSON.stringify([...ids]))
-  } catch {
-    // ignore
-  }
+  saveJson(AUTO_INJECTED_KEY, [...ids])
 }
 
 /** DuckDB 専用ウィジェットIDかどうか判定する（統合済みは除外） */
@@ -38,21 +33,23 @@ const DUCKDB_TIMESERIES_WIDGET_IDS = new Set([
   'analysis-category-pi',
 ])
 
+interface AutoInjectContext {
+  readonly prevYearHasPrevYear: boolean
+  readonly storeCount: number
+  readonly hasDiscountData?: boolean
+  readonly isDuckDBReady?: boolean
+}
+
 /**
- * データ有無に応じてウィジェットを自動注入する。
- * 初回のみ追加し、ユーザーが削除した場合は再注入しない。
+ * 注入候補を純粋に判定する（副作用なし）。
+ * localStorage の読み取りは行うが、書き込みは行わない。
  *
- * @returns 更新後の widgetIds（変更なしなら null）
+ * @returns 注入候補の widget ID 配列（空なら注入不要）
  */
-export function autoInjectDataWidgets(
+export function resolveAutoInjectCandidates(
   currentIds: string[],
-  ctx: {
-    prevYearHasPrevYear: boolean
-    storeCount: number
-    hasDiscountData?: boolean
-    isDuckDBReady?: boolean
-  },
-): string[] | null {
+  ctx: AutoInjectContext,
+): string[] {
   const seen = getAutoInjectedIds()
   // 旧 DuckDB ID も注入済みとして扱う（重複注入防止）
   for (const [oldId, newId] of WIDGET_ID_MIGRATION) {
@@ -80,11 +77,32 @@ export function autoInjectDataWidgets(
     return true
   })
 
-  if (candidates.length === 0) return null
+  return candidates.map((c) => c.id)
+}
 
-  const newSeen = new Set(seen)
-  for (const c of candidates) newSeen.add(c.id)
-  saveAutoInjectedIds(newSeen)
+/**
+ * 注入結果を localStorage に記録する（副作用）。
+ * resolveAutoInjectCandidates の結果を受けて effect 内で呼ぶ。
+ */
+export function commitAutoInjectedIds(candidateIds: string[]): void {
+  if (candidateIds.length === 0) return
+  const seen = getAutoInjectedIds()
+  for (const id of candidateIds) seen.add(id)
+  saveAutoInjectedIds(seen)
+}
 
-  return [...currentIds, ...candidates.map((c) => c.id)]
+/**
+ * データ有無に応じてウィジェットを自動注入する。
+ * 初回のみ追加し、ユーザーが削除した場合は再注入しない。
+ *
+ * @returns 更新後の widgetIds（変更なしなら null）
+ */
+export function autoInjectDataWidgets(
+  currentIds: string[],
+  ctx: AutoInjectContext,
+): string[] | null {
+  const candidateIds = resolveAutoInjectCandidates(currentIds, ctx)
+  if (candidateIds.length === 0) return null
+  commitAutoInjectedIds(candidateIds)
+  return [...currentIds, ...candidateIds]
 }

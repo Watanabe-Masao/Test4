@@ -74,7 +74,7 @@ function makeTestModel(): DiscountFactReadModelType {
     grandTotal72: 15_500,
     grandTotal73: 9_000,
     grandTotal74: 4_500,
-    meta: { missingPolicy: 'zero', dataVersion: 1 },
+    meta: { usedFallback: false, missingPolicy: 'zero', dataVersion: 1 },
   }
 }
 

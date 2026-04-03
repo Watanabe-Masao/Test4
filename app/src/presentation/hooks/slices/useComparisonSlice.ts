@@ -1,8 +1,8 @@
 /**
- * 比較サブシステム bundle
+ * useComparisonSlice — 比較期間・モード slice
  *
  * comparison scope / prevYear / dowGap / kpi を統合して返す。
- * useUnifiedWidgetContext から分離し、比較関連の依存を局所化する。
+ * useUnifiedWidgetContext の context slice として比較関連の依存を局所化する。
  */
 import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/hooks/analytics'
 import { useComparisonModule } from '@/application/hooks/useComparisonModule'
@@ -11,7 +11,7 @@ import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
 import type { PrevYearScope } from '@/domain/models/ComparisonScope'
 import type { PeriodSelection } from '@/domain/models/PeriodSelection'
 
-export interface ComparisonBundle {
+export interface ComparisonSlice {
   readonly daily: PrevYearData
   readonly kpi: PrevYearMonthlyKpi
   readonly scope: ComparisonScope | null
@@ -19,11 +19,11 @@ export interface ComparisonBundle {
   readonly prevYearScope: PrevYearScope | undefined
 }
 
-export function useComparisonBundle(
+export function useComparisonSlice(
   periodSelection: PeriodSelection,
   elapsedDays: number | undefined,
   averageDailySales: number,
-): ComparisonBundle {
+): ComparisonSlice {
   const comparison = useComparisonModule(periodSelection, elapsedDays, averageDailySales)
   return comparison
 }

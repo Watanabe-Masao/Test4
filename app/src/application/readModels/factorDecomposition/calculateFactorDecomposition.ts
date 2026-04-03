@@ -41,6 +41,7 @@ export function calculateFactorDecomposition(
   const salesDelta = input.curSales - input.prevSales
   let effects: Record<string, number>
   let effectsSum: number
+  let usedFallback = false
 
   if (input.level === 'two') {
     const result = decompose2(
@@ -87,6 +88,7 @@ export function calculateFactorDecomposition(
       effectsSum = result.custEffect + result.qtyEffect + result.priceEffect + result.mixEffect
     } else {
       // 5要素分解が成立しない場合（カテゴリデータ不足）→ 3要素にフォールバック
+      usedFallback = true
       const fallback = decompose3(
         input.prevSales,
         input.curSales,
@@ -115,6 +117,7 @@ export function calculateFactorDecomposition(
     effectsSum,
     invariantSatisfied,
     meta: {
+      usedFallback,
       authoritative: true,
       tolerance: SHAPLEY_TOLERANCE,
     },

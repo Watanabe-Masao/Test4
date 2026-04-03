@@ -14,6 +14,7 @@
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { QueryHandler } from '@/application/queries/QueryContract'
+import type { PrevYearFlag } from '../comparisonQueryScope'
 import type { DailySeriesPoint } from '@/application/services/temporal/DailySeriesTypes'
 import type {
   RollingAnalysisFrame,
@@ -36,7 +37,7 @@ export interface MovingAverageInput {
   readonly frame: RollingAnalysisFrame
   readonly policy: MovingAverageMissingnessPolicy
   /** 前年データを取得する場合 true */
-  readonly isPrevYear?: boolean
+  readonly isPrevYear?: PrevYearFlag
   /** 追加メトリック（frame.metric に加えて計算する） */
   readonly extraMetrics?: readonly string[]
 }

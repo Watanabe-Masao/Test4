@@ -12,7 +12,7 @@ import type { DateRange } from '@/domain/models/CalendarDate'
 import type { CustomCategoryId } from '@/domain/constants/customCategories'
 import type { PurchaseComparisonResult } from '@/domain/models/PurchaseComparison'
 import type { AsyncQueryResult } from './duckdb/useAsyncQuery'
-import { useDuckDB } from './useDuckDB'
+import { useDuckDB } from '@/application/runtime-adapters/useDuckDB'
 import { usePurchaseComparisonQuery } from './duckdb/usePurchaseComparisonQuery'
 
 export interface UsePurchaseAnalysisParams {

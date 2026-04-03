@@ -90,6 +90,11 @@ export const FreePeriodReadModel = z.object({
   currentSummary: FreePeriodSummary,
   /** 比較期サマリー（比較なしなら null） */
   comparisonSummary: FreePeriodSummary.nullable(),
+  /** メタデータ */
+  meta: z.object({
+    /** フォールバックが発生したか（現状は常に false — 将来の拡張点） */
+    usedFallback: z.boolean(),
+  }),
 })
 
 export type FreePeriodReadModel = z.infer<typeof FreePeriodReadModel>

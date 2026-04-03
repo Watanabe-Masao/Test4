@@ -1,13 +1,13 @@
 /**
  * useTimeSlotPlan — TimeSlotChart の Screen Query Plan
  *
- * 10 本の useQueryWithHandler + weather ETRN fallback + WoW/YoY comparison routing を
- * 単一の plan hook に集約する。UI state・derivation は useTimeSlotData に残す。
+ * 10 本の useQueryWithHandler + WoW/YoY comparison routing を管理する。
+ * 天気データ取得 + ETRN fallback は useTimeSlotWeatherPlan に委譲。
  *
  * @guard H1 Screen Plan 経由のみ
  * @guard H4 component に acquisition logic 禁止
  */
-import { useState, useMemo } from 'react'
+import { useMemo } from 'react'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import { dateRangeToKeys } from '@/domain/models/CalendarDate'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
@@ -30,18 +30,10 @@ import { categoryHourlyPairHandler } from '@/application/queries/cts/CategoryHou
 import type { CategoryHourlyInput } from '@/application/queries/cts/CategoryHourlyHandler'
 import type { CategoryHourlyRow } from '@/application/queries/cts/CategoryHourlyHandler'
 import type { PairedInput } from '@/application/queries/createPairedHandler'
-import {
-  weatherHourlyAvgHandler,
-  type WeatherHourlyAvgInput,
-  type WeatherPersister,
-} from '@/application/queries/weather'
+import type { WeatherPersister } from '@/application/queries/weather'
 import type { HourlyWeatherAvgRow } from '@/application/queries/weather/WeatherHourlyHandler'
-import type { Store } from '@/domain/models/Store'
-import type { StoreLocation } from '@/domain/models/record'
-import { useWeatherFallback } from '@/application/hooks/useWeatherFallback'
-import { useSettingsStore } from '@/application/stores/settingsStore'
-import { useDataStore } from '@/application/stores/dataStore'
 import { buildWowRange } from '@/application/usecases/timeSlotDataLogic'
+import { useTimeSlotWeatherPlan } from './useTimeSlotWeatherPlan'
 
 // ── Types ──
 
@@ -84,8 +76,6 @@ export interface TimeSlotPlanResult {
   readonly error: Error | null
 }
 
-const EMPTY_STORES: ReadonlyMap<string, Store> = new Map()
-
 // ── Helpers ──
 
 function toKeys(range: DateRange): { dateFrom: string; dateTo: string } {
@@ -114,6 +104,7 @@ export function useTimeSlotPlan(params: TimeSlotPlanParams): TimeSlotPlanResult 
   const wowRange = useMemo(() => buildWowRange(currentDateRange), [currentDateRange])
   const compRange = compMode === 'wow' ? wowRange : prevYearScope?.dateRange
   const compIsPrevYear = compMode === 'yoy'
+  const prevDateRange = compMode === 'yoy' ? prevYearScope?.dateRange : undefined
 
   // ── Query Inputs ──
   const storeIds = storeIdsArray(selectedStoreIds)
@@ -187,39 +178,7 @@ export function useTimeSlotPlan(params: TimeSlotPlanParams): TimeSlotPlanResult 
     return base
   }, [currentDateRange, pyRange, storeIds, heatmapLevel, hierarchy])
 
-  // ── Weather Inputs ──
-  const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
-  const allStoreIds = useDataStore((s) => s.currentMonthData?.stores ?? EMPTY_STORES)
-  const weatherStoreId = useMemo(() => {
-    const ids = selectedStoreIds.size > 0 ? [...selectedStoreIds] : [...allStoreIds.keys()]
-    return ids.find((id) => storeLocations[id]) ?? ids[0] ?? ''
-  }, [selectedStoreIds, allStoreIds, storeLocations])
-
-  const prevDateRange = compMode === 'yoy' ? prevYearScope?.dateRange : undefined
-  const [prevWeatherRetry, setPrevWeatherRetry] = useState(0)
-  const prevWeatherInput = useMemo<WeatherHourlyAvgInput | null>(() => {
-    if (!prevDateRange) return null
-    return {
-      storeId: weatherStoreId,
-      ...toKeys(prevDateRange),
-      ...(prevWeatherRetry > 0 ? { _v: prevWeatherRetry } : {}),
-    }
-  }, [weatherStoreId, prevDateRange, prevWeatherRetry])
-
-  const weatherKeys = useMemo(() => toKeys(currentDateRange), [currentDateRange])
-  const location: StoreLocation | undefined = storeLocations[weatherStoreId]
-
-  const [weatherRetry, setWeatherRetry] = useState(0)
-  const curWeatherInput = useMemo<WeatherHourlyAvgInput>(
-    () => ({
-      storeId: weatherStoreId,
-      ...weatherKeys,
-      ...(weatherRetry > 0 ? { _v: weatherRetry } : {}),
-    }),
-    [weatherStoreId, weatherKeys, weatherRetry],
-  )
-
-  // ── QueryHandler Queries ──
+  // ── Query Execution ──
 
   const {
     data: curHourlyOut,
@@ -249,45 +208,14 @@ export function useTimeSlotPlan(params: TimeSlotPlanParams): TimeSlotPlanResult 
     categoryHourlyPairHandler,
     categoryHourlyPairInput,
   )
-  const { data: curWeatherOut } = useQueryWithHandler(
-    queryExecutor,
-    weatherHourlyAvgHandler,
-    curWeatherInput,
-  )
-  const { data: prevWeatherOut } = useQueryWithHandler(
-    queryExecutor,
-    weatherHourlyAvgHandler,
-    prevWeatherInput,
-  )
 
-  // ── Weather ETRN Fallback ──
-  const duckQueryEmpty = curWeatherOut === null ? null : (curWeatherOut.records ?? []).length === 0
-  useWeatherFallback({
-    duckQueryEmpty,
-    storeId: weatherStoreId,
-    location,
-    dateRange: currentDateRange,
-    dateFrom: weatherKeys.dateFrom,
-    dateTo: weatherKeys.dateTo,
-    persist: weatherPersist,
-    onRetry: () => setWeatherRetry((v) => v + 1),
-  })
-
-  const prevDuckQueryEmpty =
-    prevWeatherOut === null ? null : (prevWeatherOut.records ?? []).length === 0
-  const prevWeatherKeys = useMemo(
-    () => (prevDateRange ? toKeys(prevDateRange) : null),
-    [prevDateRange],
-  )
-  useWeatherFallback({
-    duckQueryEmpty: prevDuckQueryEmpty,
-    storeId: weatherStoreId,
-    location,
-    dateRange: prevDateRange ?? currentDateRange,
-    dateFrom: prevWeatherKeys?.dateFrom ?? '',
-    dateTo: prevWeatherKeys?.dateTo ?? '',
-    persist: weatherPersist,
-    onRetry: () => setPrevWeatherRetry((v) => v + 1),
+  // ── Weather (sub-plan) ──
+  const { curWeatherAvg, prevWeatherAvg } = useTimeSlotWeatherPlan({
+    queryExecutor,
+    currentDateRange,
+    selectedStoreIds,
+    prevDateRange,
+    weatherPersist,
   })
 
   // ── Unwrap ──
@@ -304,8 +232,8 @@ export function useTimeSlotPlan(params: TimeSlotPlanParams): TimeSlotPlanResult 
     klassRecords: klassOut?.records,
     categoryHourlyData: catHourlyOut?.records ?? null,
     prevCategoryHourlyData: prevCatHourlyOut?.records ?? null,
-    curWeatherAvg: curWeatherOut?.records ?? null,
-    prevWeatherAvg: prevWeatherOut?.records ?? null,
+    curWeatherAvg,
+    prevWeatherAvg,
     isLoading,
     error: error ?? null,
   }

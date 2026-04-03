@@ -7,16 +7,19 @@
 
 ### ファイル構成
 
-| ファイル | 管理対象 | エントリ数 |
-|---|---|---|
-| `allowlists/architecture.ts` | レイヤー境界例外 | 7 |
-| `allowlists/duckdb.ts` | DuckDB hook 直接使用（全件卒業済み） | 0 |
-| `allowlists/complexity.ts` | useMemo/useState/行数上限の例外 | 20 |
-| `allowlists/size.ts` | ファイルサイズ上限の例外 | 9 |
-| `allowlists/migration.ts` | 比較アクセスパターン凍結管理（全件解消。凍結） | 0 |
-| `allowlists/misc.ts` | VM React import、ctx hook 等 | 7 |
-| `allowlists/types.ts` | 型定義 | — |
-| `allowlists/index.ts` | バレル re-export | — |
+> **件数の一次情報源:** `architectureStateAudit.test.ts` の snapshot 出力を参照。
+
+| ファイル | 管理対象 |
+|---|---|
+| `allowlists/architecture.ts` | レイヤー境界例外 |
+| `allowlists/duckdb.ts` | DuckDB hook 直接使用（凍結） |
+| `allowlists/complexity.ts` | useMemo/useState/行数上限の例外 |
+| `allowlists/size.ts` | ファイルサイズ上限の例外 |
+| `allowlists/performance.ts` | Screen Runtime（isPrevYear, pair handler） |
+| `allowlists/migration.ts` | 比較アクセスパターン（凍結） |
+| `allowlists/misc.ts` | VM React import、ctx hook 等 |
+| `allowlists/types.ts` | 型定義 |
+| `allowlists/index.ts` | バレル re-export |
 
 ## 型定義
 
@@ -43,6 +46,17 @@ interface QuantitativeAllowlistEntry extends AllowlistEntry {
 | `legacy` | 次回改修時に解消すべきもの | 大型コンポーネント Tier 2 |
 | `structural` | 構造上不可避な正当な例外 | domain 300行超ファイル |
 | `migration` | 移行完了待ち（V2比較/QueryHandler等） | DuckDB hook 直接使用 |
+
+### Lifecycle 分類（allowlist エントリ単位）
+
+| lifecycle | 意味 | 削除 |
+|---|---|---|
+| `permanent` | 構造的必然（DI adapter, 固有複雑性） | アーキテクチャ変更が必要 |
+| `active-debt` | 設計作業が必要（リファクタリング, 分割, plan hook 化） | 改善計画で対応 |
+| `retirement` | 互換 re-export, 移行ブリッジ | 条件達成で削除 |
+
+> **改善計画との対応:** `references/03-guides/safety-first-architecture-plan.md` の
+> Allowlist 改善計画セクションで Phase 別の削減目標を定義。
 
 ## エントリの追加手順
 
@@ -85,11 +99,11 @@ After:  Chart → useQueryWithHandler(ctx.queryExecutor, xxxHandler, input) → 
 4. guard テストの `MAX_ALLOWLIST_SIZE` を減らす
 5. テスト通過を確認
 
-### 現在の状態（2026-03-23）
+### 現在の状態
 
-- **移行完了:** 22 chart + 2 page
-- **残:** 1 件（useUnifiedWidgetContext.ts, bridge）
-- **作成済み handler:** 20 件（`application/queries/` 配下）
+- **移行完了:** QueryHandler + facade hook への移行完了
+- **作成済み handler:** `application/queries/` 配下に集約済み
+- **最新件数:** `architectureStateAudit.test.ts` の snapshot 出力を参照
 
 ### admin 操作の分離
 
