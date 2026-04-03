@@ -1,7 +1,9 @@
 /**
- * i18n フックの application 層ブリッジ
+ * i18n フックの後方互換 re-export
  *
- * presentation 層から infrastructure/i18n への直接依存を避けるための re-export。
+ * 実体は application/runtime-adapters/useI18n.ts に移動済み。
+ * presentation/ の多数のファイルがこのパスから import しているため、
+ * re-export を維持する。
  */
-export { useI18n } from '@/infrastructure/i18n'
-export type { I18nContextValue } from '@/infrastructure/i18n/i18nContextDef'
+export { useI18n } from '@/application/runtime-adapters/useI18n'
+export type { I18nContextValue } from '@/application/runtime-adapters/useI18n'

@@ -8,7 +8,7 @@
 import { useEffect, useRef } from 'react'
 import type { Dispatch } from 'react'
 import { getDuckDBEngine } from '@/infrastructure/duckdb/engine'
-import type { DuckDBAction } from './duckdbReducer'
+import type { DuckDBAction } from '@/application/hooks/duckdbReducer'
 
 export function useEngineLifecycle(dispatch: Dispatch<DuckDBAction>): void {
   const isMounted = useRef(true)

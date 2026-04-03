@@ -64,6 +64,8 @@ describe('Layer Boundary Guard', () => {
       if (rel.startsWith('application/hooks/duckdb/')) continue
       // QueryHandler: infrastructure のクエリを呼ぶのが設計上の役割
       if (rel.startsWith('application/queries/')) continue
+      // Runtime adapters: runtime 境界として infrastructure 依存を集約
+      if (rel.startsWith('application/runtime-adapters/')) continue
       if (APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST.has(rel)) continue
 
       const imports = extractImports(file)

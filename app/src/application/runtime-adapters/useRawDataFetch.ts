@@ -22,7 +22,11 @@ import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models/CalendarDate'
 import type { ValidatedFetchResult, DataValidation } from '@/domain/models/DataFetchResult'
 import { validateRecords } from '@/domain/models/DataFetchResult'
-import { useAsyncQuery, toDateKeys, storeIdsToArray } from './duckdb/useAsyncQuery'
+import {
+  useAsyncQuery,
+  toDateKeys,
+  storeIdsToArray,
+} from '@/application/hooks/duckdb/useAsyncQuery'
 import type { StoreDaySummaryRow } from '@/infrastructure/duckdb/queries/storeDaySummary'
 import { queryStoreDaySummary } from '@/infrastructure/duckdb/queries/storeDaySummary'
 import type { DailyRecordRow } from '@/infrastructure/duckdb/queries/dailyRecords'

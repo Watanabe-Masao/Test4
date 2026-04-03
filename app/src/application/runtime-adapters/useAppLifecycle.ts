@@ -13,12 +13,15 @@
  * 6. ready
  */
 import { useSyncExternalStore } from 'react'
-import type { AppLifecycleStatus, AppLifecyclePhase } from './appLifecycleContract'
-import { isBlockingPhase } from './appLifecycleContract'
+import type {
+  AppLifecycleStatus,
+  AppLifecyclePhase,
+} from '@/application/lifecycle/appLifecycleContract'
+import { isBlockingPhase } from '@/application/lifecycle/appLifecycleContract'
 import type { PersistenceStatusInfo } from '@/application/hooks/usePersistence'
 import { getDuckDBEngine } from '@/infrastructure/duckdb/engine'
 import type { DuckDBEngineState } from '@/infrastructure/duckdb/engine'
-import { subscribeSwUpdate, getSwUpdateSnapshot } from './swUpdateSignal'
+import { subscribeSwUpdate, getSwUpdateSnapshot } from '@/application/lifecycle/swUpdateSignal'
 
 // ─── DuckDB エンジン状態の購読 ────────────────────────────
 

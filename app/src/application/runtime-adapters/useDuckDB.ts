@@ -27,10 +27,10 @@ import { resetTables, loadMonth } from '@/infrastructure/duckdb/dataLoader'
 import { deleteMonth, deletePrevYearMonth } from '@/infrastructure/duckdb/deletePolicy'
 import { materializeSummary } from '@/infrastructure/duckdb/queries/storeDaySummary'
 import { acquireMutex } from '@/infrastructure/duckdb/loadCoordinator'
-import { duckdbReducer, INITIAL_DUCKDB_STATE } from './duckdbReducer'
-import { computeFingerprint, computeMonthFingerprint } from './duckdbFingerprint'
+import { duckdbReducer, INITIAL_DUCKDB_STATE } from '@/application/hooks/duckdbReducer'
+import { computeFingerprint, computeMonthFingerprint } from '@/application/hooks/duckdbFingerprint'
 import { useEngineLifecycle } from './useEngineLifecycle'
-import { useStoredMonthsMonitor } from './useStoredMonthsMonitor'
+import { useStoredMonthsMonitor } from '@/application/hooks/useStoredMonthsMonitor'
 
 export interface DuckDBHookResult {
   /** エンジン初期化済み + データロード完了 + エラーなし */

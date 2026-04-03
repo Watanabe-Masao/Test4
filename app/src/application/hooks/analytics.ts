@@ -1,8 +1,8 @@
 /**
  * 分析系フック — 統計・比較・DuckDB・ドリル・解析
  */
-export { useDuckDB } from './useDuckDB'
-export type { DuckDBHookResult } from './useDuckDB'
+export { useDuckDB } from '@/application/runtime-adapters/useDuckDB'
+export type { DuckDBHookResult } from '@/application/runtime-adapters/useDuckDB'
 export {
   useDuckDBHourlyAggregation,
   useDuckDBLevelAggregation,
