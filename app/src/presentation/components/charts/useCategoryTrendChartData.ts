@@ -3,18 +3,15 @@
  *
  * CategoryTrendChart.tsx から分離。
  * 状態管理・クエリ・データ変換を担い、UI は CategoryTrendChart に残す。
+ *
+ * @migration P5: plan hook — useCategoryTrendPlan 経由でクエリ取得
  */
 import { useMemo, useState, useCallback } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
-import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
-import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
-import {
-  categoryDailyTrendHandler,
-  type CategoryDailyTrendInput,
-} from '@/application/queries/cts/CategoryDailyTrendHandler'
+import { useCategoryTrendPlan } from '@/application/hooks/plans/useCategoryTrendPlan'
 import {
   buildCategoryTrendData,
   buildPrevYearTrendData,
@@ -78,61 +75,22 @@ export function useCategoryTrendChartData(params: UseCategoryTrendChartDataParam
     [selectedDows],
   )
 
-  const input = useMemo<CategoryDailyTrendInput | null>(() => {
-    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
-      level,
-      topN,
-      deptCode: drill.deptCode,
-      lineCode: drill.lineCode,
-      dow: dowParam,
-    }
-  }, [currentDateRange, selectedStoreIds, level, topN, drill.deptCode, drill.lineCode, dowParam])
-
-  const {
-    data: output,
-    error,
-    isLoading,
-  } = useQueryWithHandler(queryExecutor, categoryDailyTrendHandler, input)
-
-  const trendRows = output?.records ?? null
-
-  // ── 前年クエリ（showYoY 時のみ） ──
+  // ── Screen Query Plan（非対称比較: current topN ≠ prev topN） ──
   const prevYearDateRange = prevYearScope?.dateRange
-  const hasPrevYearData = showYoY && prevYearDateRange != null
-  const prevInput = useMemo<CategoryDailyTrendInput | null>(() => {
-    if (!hasPrevYearData || !prevYearDateRange) return null
-    const { fromKey, toKey } = dateRangeToKeys(prevYearDateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
-      level,
-      topN: 100,
-      deptCode: drill.deptCode,
-      lineCode: drill.lineCode,
-      dow: dowParam,
-      isPrevYear: true,
-    }
-  }, [
-    hasPrevYearData,
-    prevYearDateRange,
+  const plan = useCategoryTrendPlan(queryExecutor, {
+    currentDateRange,
     selectedStoreIds,
     level,
-    drill.deptCode,
-    drill.lineCode,
-    dowParam,
-  ])
-
-  const { data: prevOutput } = useQueryWithHandler(
-    queryExecutor,
-    categoryDailyTrendHandler,
-    prevInput,
-  )
-  const prevTrendRows = prevOutput?.records ?? null
+    topN,
+    deptCode: drill.deptCode,
+    lineCode: drill.lineCode,
+    dow: dowParam,
+    prevYearDateRange,
+    showYoY,
+  })
+  const trendRows = plan.currentData?.records ?? null
+  const prevTrendRows = plan.prevData?.records ?? null
+  const { error, isLoading } = plan
 
   const emptyExcluded = useMemo(() => new Set<string>(), [])
   const { chartData, categories } = useMemo(

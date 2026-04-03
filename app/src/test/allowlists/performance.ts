@@ -123,12 +123,7 @@ export const isPrevYearHandlers: readonly AllowlistEntry[] = [
  * 標準 pair handler ではなく専用の比較設計が必要。
  */
 export const pairExceptionDesign: readonly AllowlistEntry[] = [
-  {
-    path: 'presentation/components/charts/useCategoryTrendChartData.ts',
-    reason: 'cur topN（ユーザー選択）≠ prev topN（100固定）— 非対称入力',
-    category: 'debt',
-    removalCondition: '専用 pair handler（topN 分離型）の設計時に移行',
-  },
+  // useCategoryTrendChartData.ts: useCategoryTrendPlan 経由に移行済み（非対称比較 plan）
   {
     path: 'presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx',
     reason: '3本のクエリ + isPrevYear fallback パターン',
@@ -196,22 +191,17 @@ export const nonPairableConsumers: readonly AllowlistEntry[] = [
 /**
  * INV-RUN-03 の対象となるファイルの分類台帳。
  *
- * Gate 3 rollout により 22件 → 3件に削減。さらに bridge 解消で 3件 → 2件。
- * 残り2件は全て設計対応が必要な項目（exception-design）。
+ * Gate 3 rollout により 22件 → 3件に削減。bridge 解消 + 非対称比較 plan で 3件 → 1件。
+ * 残り1件は設計対応が必要な項目（exception-design）。
  *
  * 分類:
  * - exception-design: 複雑パターンのため専用設計が必要
  *
  * 解消済み:
  * - useIntegratedSalesPlan.ts: application/hooks/plans/ に移動済み（plan-bridge 解消）
+ * - useCategoryTrendChartData.ts: useCategoryTrendPlan 経由に移行済み（非対称比較 plan）
  */
 export const presentationDirectQueryAudit: readonly DirectQueryAuditEntry[] = [
-  {
-    path: 'presentation/components/charts/useCategoryTrendChartData.ts',
-    cluster: 'category',
-    classification: 'exception-design',
-    reason: 'categoryDailyTrendHandler × 2（cur/prev topN 非対称）。専用 pair handler が先に必要',
-  },
   {
     path: 'presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx',
     cluster: 'dashboard',

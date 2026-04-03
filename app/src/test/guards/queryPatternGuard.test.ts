@@ -104,13 +104,13 @@ describe('INV-RUN-03: presentation 層の useQueryWithHandler 直接呼び出し
     // この数値は Gate 4 で 0 にすることが目標。
     console.log(`[INV-RUN-03] presentation direct query files: ${filesWithDirectQuery.length}`)
 
-    // Gate 3 rollout: 22→3→2。残り2件は設計対応が必要（exception-design）。
+    // Gate 3 rollout: 22→3→2→1。残り1件は設計対応が必要（exception-design）。
     expect(
       filesWithDirectQuery.length,
       `presentation 層の直接 query 呼び出しが増加しています。\n` +
         `Screen Plan hook 経由に移行してください。\n` +
         `対象:\n${filesWithDirectQuery.join('\n')}`,
-    ).toBeLessThanOrEqual(2)
+    ).toBeLessThanOrEqual(1)
   })
 })
 
@@ -245,12 +245,12 @@ describe('INV-RUN-04: Screen Plan hook count ラチェット', () => {
       `[INV-RUN-04] Screen Plan hooks: ${totalPlanHooks} (plans/: ${planFiles.length}, direct: ${directPlanFiles.length})`,
     )
 
-    // Gate 3 rollout: 20 plan hooks（plans/ 17 + direct 3）
-    // useIntegratedSalesPlan を plans/ に移動済み（plan-bridge 解消）
+    // Gate 3 rollout: 21 plan hooks（plans/ 18 + direct 3）
+    // useIntegratedSalesPlan + useCategoryTrendPlan を plans/ に追加済み
     expect(
       totalPlanHooks,
       `Screen Plan hook が減少しています。plan hook を削除しないでください。`,
-    ).toBeGreaterThanOrEqual(20)
+    ).toBeGreaterThanOrEqual(21)
   })
 })
 
