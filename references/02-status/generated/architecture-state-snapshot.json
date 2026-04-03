@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-03T06:56:17.821Z",
+  "timestamp": "2026-04-03T07:01:13.551Z",
   "totalAllowlistEntries": 42,
   "categoryBreakdown": {
     "adapter": 5,
@@ -114,7 +114,7 @@
       "file": "application/hooks/useTimeSlotData.ts",
       "memoCount": 20,
       "stateCount": 8,
-      "lineCount": 372
+      "lineCount": 369
     },
     {
       "file": "presentation/pages/Dashboard/widgets/useDrilldownData.ts",
@@ -182,7 +182,7 @@
     {
       "file": "application/hooks/useTimeSlotData.ts",
       "metric": "lines",
-      "actual": 372,
+      "actual": 369,
       "limit": 390,
       "pct": 95
     },

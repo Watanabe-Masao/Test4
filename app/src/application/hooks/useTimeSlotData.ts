@@ -136,7 +136,6 @@ export function useTimeSlotData({
       ...toKeys(currentDateRange),
       storeIds,
       level: 'department' as const,
-      isPrevYear: false,
     }),
     [currentDateRange, storeIds],
   )
@@ -148,7 +147,6 @@ export function useTimeSlotData({
       storeIds,
       level: 'line' as const,
       deptCode,
-      isPrevYear: false,
     }
   }, [currentDateRange, storeIds, deptCode])
 
@@ -160,7 +158,6 @@ export function useTimeSlotData({
       level: 'klass' as const,
       deptCode: deptCode || undefined,
       lineCode: lineCode || undefined,
-      isPrevYear: false,
     }
   }, [currentDateRange, storeIds, deptCode, lineCode])
 

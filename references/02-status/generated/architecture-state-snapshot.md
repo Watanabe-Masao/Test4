@@ -1,6 +1,6 @@
 # Architecture State Snapshot
 
-> Generated: 2026-04-03T06:56:17.821Z
+> Generated: 2026-04-03T07:01:13.551Z
 
 ## Allowlist Summary
 
@@ -100,7 +100,7 @@
 
 | ファイル | useMemo | useState | 行数 |
 |---|---|---|---|
-| application/hooks/useTimeSlotData.ts | 20 | 8 | 372 |
+| application/hooks/useTimeSlotData.ts | 20 | 8 | 369 |
 | presentation/pages/Dashboard/widgets/useDrilldownData.ts | 14 | 10 | 413 |
 | presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 15 | 5 | 517 |
 | presentation/pages/CostDetail/useCostDetailData.ts | 13 | 6 | 210 |
@@ -116,7 +116,7 @@
 | ファイル | 指標 | 実測 | 上限 | % |
 |---|---|---|---|---|
 | application/hooks/usePeriodAwareKpi.ts | lines | 301 | 310 | 97% |
-| application/hooks/useTimeSlotData.ts | lines | 372 | 390 | 95% |
+| application/hooks/useTimeSlotData.ts | lines | 369 | 390 | 95% |
 | presentation/pages/CostDetail/useCostDetailData.ts | useMemo | 12 | 13 | 92% |
 | presentation/pages/Dashboard/widgets/useDrilldownData.ts | useMemo | 12 | 13 | 92% |
 | presentation/pages/Admin/RawDataTab.tsx | useMemo | 12 | 13 | 92% |

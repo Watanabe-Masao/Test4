@@ -14,29 +14,33 @@ export const isPrevYearHandlers: readonly AllowlistEntry[] = [
   // ── pair handler 導入済み（利用側移行も完了） ──
   {
     path: 'application/queries/cts/LevelAggregationHandler.ts',
-    reason: 'pair 化+利用側移行済み（useCategoryHierarchyData, usePerformanceIndexPlan）',
-    category: 'migration',
-    removalCondition: '全利用側が PairHandler に移行完了後に isPrevYear 型を除去',
+    reason:
+      'isPrevYear は公開 Input 型から除去済み。ExecuteInput 内部型で createPairedHandler 互換性を維持',
+    category: 'structural',
+    removalCondition: '除去不要 — ExecuteInput は handler 内部実装',
   },
   {
     path: 'application/queries/cts/CategoryHourlyHandler.ts',
-    reason: 'pair 化+利用側移行済み（useCategoryHierarchyData, useTimeSlotData）',
-    category: 'migration',
-    removalCondition: '全利用側が PairHandler に移行完了後に isPrevYear 型を除去',
+    reason:
+      'isPrevYear は公開 Input 型から除去済み。ExecuteInput 内部型で createPairedHandler 互換性を維持',
+    category: 'structural',
+    removalCondition: '除去不要 — ExecuteInput は handler 内部実装',
   },
   // HourDowMatrixHandler — isPrevYear 型除去済み
   {
     path: 'application/queries/cts/CategoryDiscountHandler.ts',
-    reason: 'pair 化+利用側移行済み（CategoryDiscountChart）',
-    category: 'migration',
-    removalCondition: '全利用側が PairHandler に移行完了後に isPrevYear 型を除去',
+    reason:
+      'isPrevYear は公開 Input 型から除去済み。ExecuteInput 内部型で createPairedHandler 互換性を維持',
+    category: 'structural',
+    removalCondition: '除去不要 — ExecuteInput は handler 内部実装',
   },
   // CategoryDailyTrendHandler — isPrevYear 型除去済み
   {
     path: 'application/queries/cts/StoreCategoryPIHandler.ts',
-    reason: 'pair 化+利用側移行済み（usePerformanceIndexPlan）',
-    category: 'migration',
-    removalCondition: '全利用側が PairHandler に移行完了後に isPrevYear 型を除去',
+    reason:
+      'isPrevYear は公開 Input 型から除去済み。ExecuteInput 内部型で createPairedHandler 互換性を維持',
+    category: 'structural',
+    removalCondition: '除去不要 — ExecuteInput は handler 内部実装',
   },
   {
     path: 'application/queries/summary/StoreDaySummaryHandler.ts',
