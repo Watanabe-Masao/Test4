@@ -25,6 +25,7 @@ export const isPrevYearHandlers: readonly AllowlistEntry[] = [
       'isPrevYear は公開 Input 型から除去済み。ExecuteInput 内部型で createPairedHandler 互換性を維持',
     category: 'structural',
     removalCondition: '除去不要 — ExecuteInput は handler 内部実装',
+    lifecycle: 'permanent',
   },
   {
     path: 'application/queries/cts/CategoryHourlyHandler.ts',
@@ -32,6 +33,7 @@ export const isPrevYearHandlers: readonly AllowlistEntry[] = [
       'isPrevYear は公開 Input 型から除去済み。ExecuteInput 内部型で createPairedHandler 互換性を維持',
     category: 'structural',
     removalCondition: '除去不要 — ExecuteInput は handler 内部実装',
+    lifecycle: 'permanent',
   },
   // HourDowMatrixHandler — isPrevYear 型除去済み
   {
@@ -40,6 +42,7 @@ export const isPrevYearHandlers: readonly AllowlistEntry[] = [
       'isPrevYear は公開 Input 型から除去済み。ExecuteInput 内部型で createPairedHandler 互換性を維持',
     category: 'structural',
     removalCondition: '除去不要 — ExecuteInput は handler 内部実装',
+    lifecycle: 'permanent',
   },
   // CategoryDailyTrendHandler — isPrevYear 型除去済み
   {
@@ -48,6 +51,7 @@ export const isPrevYearHandlers: readonly AllowlistEntry[] = [
       'isPrevYear は公開 Input 型から除去済み。ExecuteInput 内部型で createPairedHandler 互換性を維持',
     category: 'structural',
     removalCondition: '除去不要 — ExecuteInput は handler 内部実装',
+    lifecycle: 'permanent',
   },
   {
     path: 'application/queries/summary/StoreDaySummaryHandler.ts',
@@ -56,12 +60,14 @@ export const isPrevYearHandlers: readonly AllowlistEntry[] = [
     category: 'structural',
     removalCondition:
       '除去不要 — dayDetailDataLogic の fallback パターンが isPrevYear を必要とする',
+    lifecycle: 'permanent',
   },
   {
     path: 'application/queries/cts/HourlyAggregationHandler.ts',
     reason: 'useTimeSlotData が WoW 比較で isPrevYear=false を直接渡す。pair 化済みだが除去不可',
     category: 'structural',
     removalCondition: '除去不要 — WoW 比較の isPrevYear=false は pair handler の意味論と異なる',
+    lifecycle: 'permanent',
   },
   // ── pair handler 導入済み（isPrevYear 型除去済み） ──
   // DailyCumulativeHandler — isPrevYear 型除去済み
@@ -71,6 +77,7 @@ export const isPrevYearHandlers: readonly AllowlistEntry[] = [
     reason: 'useTimeSlotData が WoW 比較で isPrevYear=false を直接渡す。pair 化済みだが除去不可',
     category: 'structural',
     removalCondition: '除去不要 — WoW 比較の isPrevYear=false は pair handler の意味論と異なる',
+    lifecycle: 'permanent',
   },
   // CategoryMixWeeklyHandler — isPrevYear 型除去済み
   // ── pair handler 導入済み（利用側が複雑パターン） ──
@@ -79,6 +86,7 @@ export const isPrevYearHandlers: readonly AllowlistEntry[] = [
     reason: 'YoYWaterfallChart/useClipExport/dayDetailDataLogic が isPrevYear を直接渡す。除去不可',
     category: 'structural',
     removalCondition: 'fallback パターンの専用 handler 設計時に判断',
+    lifecycle: 'permanent',
   },
   // ── 構造的に pair handler に変換不可 ──
   {
@@ -86,30 +94,35 @@ export const isPrevYearHandlers: readonly AllowlistEntry[] = [
     reason: 'BaseQueryInput 非準拠（RollingAnalysisFrame 使用）。createPairedHandler 不適合',
     category: 'structural',
     removalCondition: 'MovingAverage 専用 pair handler の設計時に判断',
+    lifecycle: 'permanent',
   },
   {
     path: 'application/queries/comparison/YoyDailyHandler.ts',
     reason: '比較専用 handler。pair 化はこの handler の責務と重複するため要検討',
     category: 'structural',
     removalCondition: 'comparison semantics 統一時に判断',
+    lifecycle: 'permanent',
   },
   {
     path: 'application/queries/createPairedHandler.ts',
     reason: 'pair ファクトリ自体が isPrevYear を内部で使用（設計上必要）',
     category: 'structural',
     removalCondition: '除去不要 — ファクトリの内部実装',
+    lifecycle: 'permanent',
   },
   {
     path: 'application/queries/summary/DailyQuantityPairHandler.ts',
     reason: '既存の専用 pair handler。alignPrevYearDay があるため createPairedHandler に置換しない',
     category: 'structural',
     removalCondition: '除去不要 — 専用 pair handler として維持',
+    lifecycle: 'permanent',
   },
   {
     path: 'application/queries/summary/DailyQuantityHandler.ts',
     reason: 'isPrevYear は公開 Input 型から除去済み。ExecuteInput 内部型で互換性を維持',
     category: 'structural',
     removalCondition: '除去不要 — ExecuteInput は handler 内部実装',
+    lifecycle: 'permanent',
   },
 ]
 
@@ -130,18 +143,21 @@ export const pairExceptionDesign: readonly AllowlistEntry[] = [
     reason: 'hourlyAgg/distinctDayCount: WoW 比較で isPrevYear=false。categoryHourly は移行済み',
     category: 'debt',
     removalCondition: 'WoW 比較対応の比較 handler 設計時に移行',
+    lifecycle: 'active-debt',
   },
   {
     path: 'application/hooks/duckdb/useDayDetailData.ts',
     reason: '14本のクエリ + fallback パターン（CTS 7系統 + Summary 3系統 + Weather 2系統）',
     category: 'debt',
     removalCondition: 'bundled query handler（fallback 統合型）の設計時に移行',
+    lifecycle: 'active-debt',
   },
   {
     path: 'application/hooks/useClipExport.ts',
     reason: 'queryExecutor.execute() 直接実行（useQueryWithHandler 不使用）。isPrevYear 手動制御',
     category: 'debt',
     removalCondition: 'useQueryWithHandler + pair handler への移行設計時に判断',
+    lifecycle: 'active-debt',
   },
 ]
 
@@ -161,12 +177,14 @@ export const pairJustifiedSingle: readonly AllowlistEntry[] = [
     reason: 'levelAggregationHandler × 3 ドロップダウン用（比較なし）。plan hook が一元管理',
     category: 'justified',
     removalCondition: '除去不要 — ドロップダウン候補取得は pair 不要',
+    lifecycle: 'permanent',
   },
   {
     path: 'application/hooks/usePerformanceIndexPlan.ts',
     reason: 'storeCategoryPIHandler 単一呼び出し（比較なし）。levelAggregation は pair 化済み',
     category: 'justified',
     removalCondition: '除去不要 — 比較なしの正当な base handler 使用',
+    lifecycle: 'permanent',
   },
 ]
 

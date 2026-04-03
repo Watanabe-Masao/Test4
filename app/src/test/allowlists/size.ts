@@ -13,6 +13,7 @@ export const infraLargeFiles: readonly AllowlistEntry[] = [
     reason: '仕入比較クエリ',
     category: 'structural',
     removalCondition: '分割時',
+    lifecycle: 'active-debt',
   },
 ] as const
 
@@ -23,42 +24,49 @@ export const domainLargeFiles: readonly AllowlistEntry[] = [
     reason: 'メトリック定義一覧',
     category: 'structural',
     removalCondition: '分割時',
+    lifecycle: 'permanent',
   },
   {
     path: 'domain/constants/metricResolver.ts',
     reason: 'メトリック解決',
     category: 'structural',
     removalCondition: '分割時',
+    lifecycle: 'permanent',
   },
   {
     path: 'domain/models/PeriodSelection.ts',
     reason: '期間選択モデル',
     category: 'structural',
     removalCondition: '分割時',
+    lifecycle: 'permanent',
   },
   {
     path: 'application/query-bridge/rawAggregation.ts',
     reason: 'Raw 集計（application/query-bridge/ へ移動済み）',
     category: 'structural',
     removalCondition: '分割時',
+    lifecycle: 'active-debt',
   },
   {
     path: 'domain/models/ComparisonScope.ts',
     reason: '比較スコープモデル',
     category: 'structural',
     removalCondition: '分割時',
+    lifecycle: 'permanent',
   },
   {
     path: 'domain/calculations/algorithms/advancedForecast.ts',
     reason: '高度予測アルゴリズム',
     category: 'structural',
     removalCondition: '分割時',
+    lifecycle: 'permanent',
   },
   {
     path: 'domain/constants/formulaRegistryBusiness.ts',
     reason: '数式レジストリ',
     category: 'structural',
     removalCondition: '分割時',
+    lifecycle: 'permanent',
   },
 ] as const
 
@@ -69,5 +77,6 @@ export const usecasesLargeFiles: readonly AllowlistEntry[] = [
     reason: 'インポートバリデーション',
     category: 'structural',
     removalCondition: '分割時',
+    lifecycle: 'active-debt',
   },
 ] as const

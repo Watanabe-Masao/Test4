@@ -2,6 +2,14 @@
  * ガードテスト許可リスト — 型定義・ビルダー
  */
 
+/**
+ * 構造負債のライフサイクル分類。
+ * - permanent: 構造上の理由で恒久的に残す（DI adapter, inherent complexity 等）
+ * - retirement: 条件付きで除去可能（compat re-export, migration 等）
+ * - active-debt: 設計作業が必要（専用比較設計, hotspot 分解等）
+ */
+export type AllowlistLifecycle = 'permanent' | 'retirement' | 'active-debt'
+
 /** カテゴリ型の許可リストエントリ（ファイルパスの例外） */
 export interface AllowlistEntry {
   readonly path: string
@@ -16,6 +24,8 @@ export interface AllowlistEntry {
     | 'debt'
     | 'justified'
   readonly removalCondition: string
+  /** 構造負債のライフサイクル。未指定は active-debt 扱い。 */
+  readonly lifecycle?: AllowlistLifecycle
 }
 
 /** 数量型の許可リストエントリ（ファイルごとの数値上限） */

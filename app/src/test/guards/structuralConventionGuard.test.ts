@@ -13,6 +13,24 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { SRC_DIR, collectTsFiles, extractImports, rel as relativePath } from '../guardTestHelpers'
 import { ctxHook, buildAllowlistSet } from '../allowlists'
+import type { AllowlistEntry, QuantitativeAllowlistEntry } from '../allowlists'
+import {
+  applicationToInfrastructure,
+  useMemoLimits,
+  useStateLimits,
+  hookLineLimits,
+  presentationMemoLimits,
+  presentationStateLimits,
+  vmReactImport,
+  reactImportExcludeDirs,
+  sideEffectChain,
+  infraLargeFiles,
+  domainLargeFiles,
+  usecasesLargeFiles,
+  isPrevYearHandlers,
+  pairExceptionDesign,
+  pairJustifiedSingle,
+} from '../allowlists'
 
 // ─── ctx 提供データの重複取得禁止 ────────────────────────
 
@@ -428,5 +446,65 @@ describe('ImportedData Migration Guard', () => {
       violations,
       `_calculationData は削除済みです。currentMonthData を使用してください:\n${violations.join('\n')}`,
     ).toEqual([])
+  })
+})
+
+// ─── 許可リスト lifecycle 分類の完全性 ─────────────────────
+
+describe('P0-2: 全許可リストエントリに lifecycle が付与されている', () => {
+  const ALL_LISTS: { name: string; entries: readonly AllowlistEntry[] }[] = [
+    { name: 'applicationToInfrastructure', entries: applicationToInfrastructure },
+    { name: 'useMemoLimits', entries: useMemoLimits },
+    { name: 'useStateLimits', entries: useStateLimits },
+    { name: 'hookLineLimits', entries: hookLineLimits },
+    { name: 'presentationMemoLimits', entries: presentationMemoLimits },
+    { name: 'presentationStateLimits', entries: presentationStateLimits },
+    { name: 'ctxHook', entries: ctxHook },
+    { name: 'vmReactImport', entries: vmReactImport },
+    { name: 'reactImportExcludeDirs', entries: reactImportExcludeDirs },
+    { name: 'sideEffectChain', entries: sideEffectChain },
+    { name: 'infraLargeFiles', entries: infraLargeFiles },
+    { name: 'domainLargeFiles', entries: domainLargeFiles },
+    { name: 'usecasesLargeFiles', entries: usecasesLargeFiles },
+    { name: 'isPrevYearHandlers', entries: isPrevYearHandlers },
+    { name: 'pairExceptionDesign', entries: pairExceptionDesign },
+    { name: 'pairJustifiedSingle', entries: pairJustifiedSingle },
+  ]
+
+  it('未分類エントリが 0 件', () => {
+    const unclassified: string[] = []
+    for (const list of ALL_LISTS) {
+      for (const entry of list.entries) {
+        if (!entry.lifecycle) {
+          unclassified.push(`${list.name}: ${entry.path}`)
+        }
+      }
+    }
+
+    expect(
+      unclassified,
+      `lifecycle が未設定のエントリがあります:\n${unclassified.join('\n')}`,
+    ).toEqual([])
+  })
+
+  it('分類サマリを出力する', () => {
+    let permanent = 0
+    let retirement = 0
+    let activeDebt = 0
+    let total = 0
+    for (const list of ALL_LISTS) {
+      for (const entry of list.entries) {
+        total++
+        if (entry.lifecycle === 'permanent') permanent++
+        else if (entry.lifecycle === 'retirement') retirement++
+        else if (entry.lifecycle === 'active-debt') activeDebt++
+      }
+    }
+
+    console.log(
+      `[P0-2] lifecycle 分類: permanent=${permanent}, retirement=${retirement}, active-debt=${activeDebt}, total=${total}`,
+    )
+
+    expect(permanent + retirement + activeDebt).toBe(total)
   })
 })

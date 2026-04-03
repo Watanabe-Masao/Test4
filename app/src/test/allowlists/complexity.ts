@@ -11,6 +11,7 @@ export const useMemoLimits: readonly QuantitativeAllowlistEntry[] = [
     category: 'structural',
     removalCondition: '比較モジュールのリファクタリング時',
     limit: 8,
+    lifecycle: 'permanent',
   },
   {
     path: 'application/hooks/useTimeSlotData.ts',
@@ -18,6 +19,7 @@ export const useMemoLimits: readonly QuantitativeAllowlistEntry[] = [
     category: 'structural',
     removalCondition: 'weather fallback を WeatherHourlyAvgHandler 内蔵に移行する時',
     limit: 8,
+    lifecycle: 'active-debt',
   },
 ] as const
 
@@ -29,6 +31,7 @@ export const useStateLimits: readonly QuantitativeAllowlistEntry[] = [
     category: 'structural',
     removalCondition: 'persistence hook のリファクタリング時',
     limit: 8,
+    lifecycle: 'permanent',
   },
   {
     path: 'application/hooks/useAutoBackup.ts',
@@ -36,6 +39,7 @@ export const useStateLimits: readonly QuantitativeAllowlistEntry[] = [
     category: 'structural',
     removalCondition: 'backup hook のリファクタリング時',
     limit: 7,
+    lifecycle: 'permanent',
   },
   {
     path: 'application/hooks/useTimeSlotData.ts',
@@ -44,6 +48,7 @@ export const useStateLimits: readonly QuantitativeAllowlistEntry[] = [
     category: 'structural',
     removalCondition: 'weather fallback を WeatherHourlyAvgHandler 内蔵に移行する時',
     limit: 9,
+    lifecycle: 'active-debt',
   },
 ] as const
 
@@ -55,6 +60,7 @@ export const presentationMemoLimits: readonly QuantitativeAllowlistEntry[] = [
     category: 'structural',
     removalCondition: 'さらなるロジック分離時',
     limit: 13,
+    lifecycle: 'active-debt',
   },
   {
     path: 'presentation/pages/Dashboard/widgets/useDrilldownData.ts',
@@ -62,6 +68,7 @@ export const presentationMemoLimits: readonly QuantitativeAllowlistEntry[] = [
     category: 'structural',
     removalCondition: 'さらなるロジック分離時',
     limit: 13,
+    lifecycle: 'active-debt',
   },
   {
     path: 'presentation/pages/Admin/RawDataTab.tsx',
@@ -69,6 +76,7 @@ export const presentationMemoLimits: readonly QuantitativeAllowlistEntry[] = [
     category: 'structural',
     removalCondition: 'ロジック分離時',
     limit: 13,
+    lifecycle: 'active-debt',
   },
   {
     path: 'presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx',
@@ -76,6 +84,7 @@ export const presentationMemoLimits: readonly QuantitativeAllowlistEntry[] = [
     category: 'structural',
     removalCondition: 'ロジック分離時',
     limit: 12,
+    lifecycle: 'active-debt',
   },
   {
     path: 'presentation/pages/Dashboard/widgets/HourlyChart.tsx',
@@ -83,6 +92,7 @@ export const presentationMemoLimits: readonly QuantitativeAllowlistEntry[] = [
     category: 'structural',
     removalCondition: 'ロジック分離時',
     limit: 10,
+    lifecycle: 'active-debt',
   },
   // useDuckDBTimeSlotData.ts — バレル化完了（2026-03-23）: application/hooks/useTimeSlotData.ts へ移設
   {
@@ -91,6 +101,7 @@ export const presentationMemoLimits: readonly QuantitativeAllowlistEntry[] = [
     category: 'structural',
     removalCondition: 'builders 分離時',
     limit: 10,
+    lifecycle: 'active-debt',
   },
   // useIntegratedSalesState.ts — useMemo 許可リスト削除済み（drill reducer + context 分離完了）
   {
@@ -99,6 +110,7 @@ export const presentationMemoLimits: readonly QuantitativeAllowlistEntry[] = [
     category: 'structural',
     removalCondition: 'ロジック分離時',
     limit: 8,
+    lifecycle: 'active-debt',
   },
   {
     path: 'presentation/components/charts/TimeSlotChart.tsx',
@@ -106,6 +118,7 @@ export const presentationMemoLimits: readonly QuantitativeAllowlistEntry[] = [
     category: 'structural',
     removalCondition: 'ロジック分離時',
     limit: 8,
+    lifecycle: 'active-debt',
   },
 ] as const
 
@@ -118,6 +131,7 @@ export const presentationStateLimits: readonly QuantitativeAllowlistEntry[] = [
     category: 'structural',
     removalCondition: 'useState 削減時',
     limit: 9,
+    lifecycle: 'permanent',
   },
   {
     path: 'presentation/pages/Dashboard/widgets/useMonthlyCalendarState.ts',
@@ -125,6 +139,7 @@ export const presentationStateLimits: readonly QuantitativeAllowlistEntry[] = [
     category: 'structural',
     removalCondition: 'useState 削減時（ピン状態と範囲状態の分離等）',
     limit: 11,
+    lifecycle: 'active-debt',
   },
   // CategoryBenchmarkChart.vm.ts — useState 許可リスト削除済み（drill state 統合 + Logic 分離完了）
   // useDuckDBTimeSlotData.ts — バレル化完了（2026-03-23）: presentation 側の useState は 0 に
@@ -134,6 +149,7 @@ export const presentationStateLimits: readonly QuantitativeAllowlistEntry[] = [
     category: 'structural',
     removalCondition: 'ロジック分離時',
     limit: 9,
+    lifecycle: 'permanent',
   },
   {
     path: 'presentation/pages/Dashboard/widgets/useDrilldownData.ts',
@@ -141,6 +157,7 @@ export const presentationStateLimits: readonly QuantitativeAllowlistEntry[] = [
     category: 'structural',
     removalCondition: 'ロジック分離時',
     limit: 11,
+    lifecycle: 'active-debt',
   },
 ] as const
 
@@ -152,6 +169,7 @@ export const hookLineLimits: readonly QuantitativeAllowlistEntry[] = [
     category: 'structural',
     removalCondition: 'ロジック分割時',
     limit: 450,
+    lifecycle: 'active-debt',
   },
   {
     path: 'application/hooks/usePeriodAwareKpi.ts',
@@ -159,6 +177,7 @@ export const hookLineLimits: readonly QuantitativeAllowlistEntry[] = [
     category: 'structural',
     removalCondition: 'KPI hook のリファクタリング時',
     limit: 310,
+    lifecycle: 'active-debt',
   },
   {
     path: 'application/hooks/useTimeSlotData.ts',
@@ -167,5 +186,6 @@ export const hookLineLimits: readonly QuantitativeAllowlistEntry[] = [
     category: 'structural',
     removalCondition: 'query input 構築を sub-hook に分離する時',
     limit: 390,
+    lifecycle: 'active-debt',
   },
 ] as const
