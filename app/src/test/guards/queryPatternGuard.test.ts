@@ -11,7 +11,7 @@ import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
 import { SRC_DIR, collectTsFiles, rel } from '../guardTestHelpers'
-import { isPrevYearHandlers } from '../allowlists'
+import { isPrevYearHandlers, nonPairableConsumers } from '../allowlists'
 
 // ── INV-RUN-01: Canonical Integration ──
 
@@ -130,5 +130,84 @@ describe('INV-RUN-02: pair handler count ラチェット', () => {
       pairHandlerCount,
       `pair handler が減少しています。createPairedHandler で生成された handler を削除しないでください。`,
     ).toBeGreaterThanOrEqual(13)
+  })
+})
+
+// ── Gate 4: Base Handler Import Guard ──
+
+describe('INV-RUN-02: pair 化済み handler の base import 追跡', () => {
+  /**
+   * pair handler が存在するのに base handler を直接 import している消費側ファイルを検出する。
+   * 許容リスト（nonPairableConsumers）に登録された例外を除き、増加を防止する。
+   */
+  const pairableHandlerNames = [
+    'hourlyAggregationHandler',
+    'hourDowMatrixHandler',
+    'categoryTimeRecordsHandler',
+    'categoryHourlyHandler',
+    'categoryDailyTrendHandler',
+    'storeCategoryPIHandler',
+    'categoryDiscountHandler',
+    'storeDaySummaryHandler',
+    'aggregatedRatesHandler',
+    'distinctDayCountHandler',
+    'categoryMixWeeklyHandler',
+    'dailyCumulativeHandler',
+    'levelAggregationHandler',
+  ]
+
+  it('pair 化済み base handler を直接 import する消費側が増加していないこと', () => {
+    const dirs = [
+      path.join(SRC_DIR, 'presentation'),
+      path.join(SRC_DIR, 'features'),
+      path.join(SRC_DIR, 'application/hooks'),
+    ]
+
+    const allFiles = dirs
+      .filter((d) => fs.existsSync(d))
+      .flatMap((d) => collectTsFiles(d))
+      .filter((f) => !f.endsWith('.test.ts') && !f.endsWith('.test.tsx'))
+
+    const nonPairablePaths = new Set(nonPairableConsumers.map((e) => e.path))
+
+    const violations: string[] = []
+    for (const file of allFiles) {
+      const relPath = rel(file)
+      if (nonPairablePaths.has(relPath)) continue
+      if (file.endsWith('PairHandler.ts')) continue
+
+      const content = fs.readFileSync(file, 'utf-8')
+      // コメント行を除去してから検査
+      const codeOnly = content
+        .split('\n')
+        .filter((line) => !line.trimStart().startsWith('*') && !line.trimStart().startsWith('//'))
+        .join('\n')
+      for (const handler of pairableHandlerNames) {
+        // import 文の中で base handler を直接 import しているか検出
+        // import { handler } from '...' または import { handler, ... } from '...'
+        if (
+          codeOnly.includes(`import`) &&
+          new RegExp(`\\b${handler}\\b`).test(codeOnly) &&
+          // from '...Handler' パスからの import を検出（re-export や型 import も含む）
+          codeOnly.includes(`Handler`)
+        ) {
+          violations.push(`${relPath}: ${handler}`)
+        }
+      }
+    }
+
+    console.log(`[Gate 4] base handler 直接 import 消費側: ${violations.length}`)
+    if (violations.length > 0) {
+      console.log(`  対象:\n  ${violations.join('\n  ')}`)
+    }
+
+    // Gate 3 完了時点: 残り消費側は単一呼び出し（比較なし）と dropdown 用途のみ。
+    // これらは pair handler への移行不要だが、増加は防止する。
+    expect(
+      violations.length,
+      `pair 化済み base handler の直接 import が増加しています。\n` +
+        `pair handler を使用するか、nonPairableConsumers に登録してください。\n` +
+        `対象:\n${violations.join('\n')}`,
+    ).toBeLessThanOrEqual(8)
   })
 })

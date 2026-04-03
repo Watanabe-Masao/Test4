@@ -46,7 +46,7 @@ export { largeComponentTier2, infraLargeFiles, domainLargeFiles, usecasesLargeFi
 export { cmpPrevYearDaily, cmpFramePrevious, cmpDailyMapping } from './migration'
 
 // Performance (Screen Runtime)
-export { isPrevYearHandlers } from './performance'
+export { isPrevYearHandlers, nonPairableConsumers } from './performance'
 
 // Misc
 export {
