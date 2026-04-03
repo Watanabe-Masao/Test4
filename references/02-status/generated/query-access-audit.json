@@ -1,17 +1,17 @@
 {
-  "timestamp": "2026-04-03T12:31:06.320Z",
+  "timestamp": "2026-04-03T20:18:42.155Z",
   "summary": {
     "queryHandlers": 47,
     "pairHandlers": 13,
-    "screenPlanHooks": 24,
+    "screenPlanHooks": 27,
     "正規経路_queryWithHandler": 0,
     "正規経路_comparisonAccessor": 10,
-    "正規経路_facadeHook": 4,
+    "正規経路_facadeHook": 5,
     "bundleHookDef": 1,
     "要注意_executorDirect": 0,
     "互換経路_asyncQueryDirect": 0,
     "禁止経路_infraDuckdbDirect": 0,
-    "weather_applicationHook": 6,
+    "weather_applicationHook": 5,
     "禁止経路_weatherInfraDirect": 0
   },
   "detail": {
@@ -87,9 +87,11 @@
       "application/hooks/plans/useCategoryHourlyChartPlan.ts",
       "application/hooks/plans/useCategoryMixChartPlan.ts",
       "application/hooks/plans/useCategoryTrendPlan.ts",
+      "application/hooks/plans/useClipExportPlan.ts",
       "application/hooks/plans/useConditionBudgetDrillPlan.ts",
       "application/hooks/plans/useConditionMatrixPlan.ts",
       "application/hooks/plans/useCumulativeChartPlan.ts",
+      "application/hooks/plans/useDayDetailPlan.ts",
       "application/hooks/plans/useDeptHourlyChartPlan.ts",
       "application/hooks/plans/useDeptTrendChartPlan.ts",
       "application/hooks/plans/useDowPatternChartPlan.ts",
@@ -98,6 +100,7 @@
       "application/hooks/plans/useIntegratedSalesPlan.ts",
       "application/hooks/plans/useStoreHourlyChartPlan.ts",
       "application/hooks/plans/useTimeSlotPlan.ts",
+      "application/hooks/plans/useTimeSlotWeatherPlan.ts",
       "application/hooks/plans/useWeatherAnalysisPlan.ts",
       "application/hooks/plans/useYoYChartPlan.ts",
       "application/hooks/plans/useYoYWaterfallPlan.ts",
@@ -119,9 +122,10 @@
       "application/usecases/clipExport/buildClipBundle.ts"
     ],
     "facadeHook": [
-      "presentation/hooks/useChartInteractionBundle.ts",
-      "presentation/hooks/useComparisonBundle.ts",
-      "presentation/hooks/useQueryBundle.ts",
+      "presentation/hooks/slices/useChartInteractionSlice.ts",
+      "presentation/hooks/slices/useComparisonSlice.ts",
+      "presentation/hooks/slices/useQuerySlice.ts",
+      "presentation/hooks/slices/useWeatherSlice.ts",
       "presentation/hooks/useUnifiedWidgetContext.ts"
     ],
     "bundleHookDef": [
@@ -134,8 +138,7 @@
       "presentation/components/charts/WeatherAnalysisPanel.tsx",
       "presentation/components/charts/WeatherCorrelationChart.tsx",
       "presentation/components/charts/WeatherCorrelationChart.vm.ts",
-      "presentation/hooks/useQueryBundle.ts",
-      "presentation/pages/Dashboard/widgets/EtrnTestWidget.tsx",
+      "presentation/hooks/slices/useWeatherSlice.ts",
       "presentation/pages/Dashboard/widgets/WeatherWidget.tsx"
     ],
     "weatherInfraDirect": []
