@@ -58,28 +58,26 @@ describe('buildStorePIData', () => {
     expect(data[0].storeId).toBe('S1')
   })
 
-  it('piQty でソート順が変わる', () => {
-    const results = new Map<string, StoreResult>()
-    // S1: piAmount high, piQty low
-    results.set('S1', {
-      totalSales: 2000000,
-      totalCustomers: 500,
-      totalQuantity: 100,
-    } as unknown as StoreResult)
-    // S2: piAmount low, piQty high
-    results.set('S2', {
-      totalSales: 500000,
-      totalCustomers: 500,
-      totalQuantity: 1000,
-    } as unknown as StoreResult)
-
+  it('piQty でソート順が変わる（ctsQuantityByStore 経由）', () => {
+    const results = makeStoreMap(
+      ['S1', { totalSales: 2000000, totalCustomers: 500 }],
+      ['S2', { totalSales: 500000, totalCustomers: 500 }],
+    )
     const stores = makeStoresMap(['S1', 'Store A'], ['S2', 'Store B'])
+    const ctsQty = new Map([
+      ['S1', 100],
+      ['S2', 1000],
+    ])
 
-    const byAmount = buildStorePIData(results, stores, 'piAmount')
+    const byAmount = buildStorePIData(results, stores, 'piAmount', ctsQty)
     expect(byAmount[0].storeId).toBe('S1')
 
-    const byQty = buildStorePIData(results, stores, 'piQty')
+    const byQty = buildStorePIData(results, stores, 'piQty', ctsQty)
     expect(byQty[0].storeId).toBe('S2')
+    // S2: 1000 / 500 * 1000 = 2000
+    expect(byQty[0].piQty).toBe(2000)
+    // S1: 100 / 500 * 1000 = 200
+    expect(byQty[1].piQty).toBe(200)
   })
 
   it('空の allStoreResults → 空配列', () => {

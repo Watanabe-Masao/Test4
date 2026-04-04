@@ -69,6 +69,7 @@ export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
         allStoreResults={ctx.allStoreResults}
         stores={ctx.stores}
         dailyQuantity={ctx.currentCtsQuantity.byDay}
+        ctsQuantityByStore={ctx.currentCtsQuantity.byStore}
       />
     ),
   },

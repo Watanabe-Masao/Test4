@@ -56,6 +56,8 @@ interface Props {
   readonly catIsLoading: boolean
   readonly level: Level
   readonly onLevelChange: (level: Level) => void
+  /** CTS 由来の店舗別販売点数（点数PI計算用） */
+  readonly ctsQuantityByStore?: ReadonlyMap<string, number>
   /** @guard H6 ChartCard は通知のみ — 親 plan hook が取得判断に利用 */
   readonly onVisibilityChange?: (visible: boolean) => void
 }
@@ -67,6 +69,7 @@ export const StorePIComparisonChart = memo(function StorePIComparisonChart({
   catIsLoading,
   level,
   onLevelChange,
+  ctsQuantityByStore,
   onVisibilityChange,
 }: Props) {
   const theme = useTheme() as AppTheme
@@ -75,8 +78,8 @@ export const StorePIComparisonChart = memo(function StorePIComparisonChart({
 
   // ── 店舗別PI値（allStoreResults から即座に計算） ──
   const storePIData = useMemo(
-    () => buildStorePIData(allStoreResults, stores, metric),
-    [allStoreResults, stores, metric],
+    () => buildStorePIData(allStoreResults, stores, metric, ctsQuantityByStore),
+    [allStoreResults, stores, metric, ctsQuantityByStore],
   )
 
   // ── 店舗別PI棒グラフ ──
