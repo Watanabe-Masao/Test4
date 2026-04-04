@@ -63,22 +63,27 @@ function prepareRawInputs(
  * 前年 MonthlyData が null、分類別売上が空、対象店舗がない場合は null を返す。
  * SourceDataIndex を構築し、allAgg のリナンバリング詳細を封じ込める。
  */
+/**
+ * @param adjacentFlowersRecords 隣接月の花レコード（リナンバリングなし）。
+ *   flowersFullIndex に追加して cross-month の客数参照を可能にする。
+ */
 export function prepareComparisonInputs(
   prevYear: MonthlyData | null,
   selectedStoreIds: ReadonlySet<string>,
   isAllStores: boolean,
   sourceMonthCtx: SourceMonthContext,
+  adjacentFlowersRecords?: readonly SpecialSalesDayEntry[],
 ): ComparisonInputs | null {
   if (!prevYear) return null
 
   const raw = prepareRawInputs(prevYear, selectedStoreIds, isAllStores)
   if (!raw) return null
 
+  // flowersFullIndex: ソース月 + 隣接月の花レコードを統合（cross-month 客数参照用）
   const prevYearFlowers = prevYear.flowers
+  const allFlowersForFullIndex = [...prevYearFlowers.records, ...(adjacentFlowersRecords ?? [])]
   const flowersFullIndex =
-    prevYearFlowers.records.length > 0
-      ? buildFlowersFullIndex(prevYearFlowers.records, sourceMonthCtx)
-      : undefined
+    allFlowersForFullIndex.length > 0 ? buildFlowersFullIndex(allFlowersForFullIndex) : undefined
 
   // CTS（販売点数）インデックス構築
   const prevYearCts = prevYear.categoryTimeSales

@@ -25,6 +25,8 @@ export interface ComparisonLoadResult {
   readonly prevYearClassifiedSales: { records: ClassifiedSalesRecord[] }
   readonly prevYearCategoryTimeSales: { records: CategoryTimeSalesRecord[] }
   readonly prevYearFlowers: SpecialSalesData
+  /** 隣接月の花レコード（リナンバリングなし、flowersFullIndex 構築用） */
+  readonly adjacentFlowersRecords: readonly SpecialSalesDayEntry[]
 }
 
 /** 比較データを IndexedDB から非同期ロードし、マージ済みデータを返す */
@@ -136,7 +138,7 @@ export async function loadComparisonDataAsync(
 
   if (isCancelled()) return null
 
-  // 花データ（客数）— classifiedSales/CTS と同様に隣接月もロード・マージ
+  // 花データ（客数）— ソース月のみ。隣接月は flowersFullIndex 用に別途保持
   const prevFlowers = await repo.loadDataSlice<SpecialSalesData>(sourceYear, sourceMonth, 'flowers')
   if (isCancelled()) return null
   const prevPrevFlowers = await repo.loadDataSlice<SpecialSalesData>(
@@ -152,15 +154,11 @@ export async function loadComparisonDataAsync(
   )
   if (isCancelled()) return null
 
-  const mergedFlowersRecords = mergeAdjacentMonthRecords<SpecialSalesDayEntry>(
-    prevFlowers?.records ?? [],
-    prevPrevFlowers?.records,
-    prevNextFlowers?.records,
-    sourceYear,
-    sourceMonth,
-    daysInSourceMonth,
-    daysInPrevMonth,
-  )
+  // 隣接月の花レコードはリナンバリングせず原形で保持（flowersFullIndex 構築用）
+  const adjacentFlowersRecords: SpecialSalesDayEntry[] = [
+    ...(prevPrevFlowers?.records ?? []),
+    ...(prevNextFlowers?.records ?? []),
+  ]
 
   dispatch({
     type: 'success',
@@ -171,7 +169,8 @@ export async function loadComparisonDataAsync(
   return {
     prevYearClassifiedSales: { records: mergedCSRecords },
     prevYearCategoryTimeSales: { records: mergedCTSRecords },
-    prevYearFlowers: { records: mergedFlowersRecords },
+    prevYearFlowers: prevFlowers ?? { records: [] },
+    adjacentFlowersRecords,
   }
 }
 
@@ -188,4 +187,11 @@ export function comparisonResultToMonthlyData(
     categoryTimeSales: result.prevYearCategoryTimeSales,
     flowers: result.prevYearFlowers,
   }
+}
+
+/** 隣接月の花レコードを取得する */
+export function getAdjacentFlowersRecords(
+  result: ComparisonLoadResult,
+): readonly SpecialSalesDayEntry[] {
+  return result.adjacentFlowersRecords
 }

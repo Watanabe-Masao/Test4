@@ -11,7 +11,10 @@ import type { PeriodSelection } from '@/domain/models/PeriodSelection'
 import type { ComparisonScope } from '@/domain/models/ComparisonScope'
 import { buildComparisonScope } from '@/domain/models/ComparisonScope'
 import type { ComparisonLoadStatus } from '@/application/hooks/useLoadComparisonData'
-import { useLoadComparisonData } from '@/application/hooks/useLoadComparisonData'
+import {
+  useLoadComparisonData,
+  getStoredAdjacentFlowersRecords,
+} from '@/application/hooks/useLoadComparisonData'
 import type {
   PrevYearData,
   PrevYearMonthlyKpi,
@@ -119,11 +122,13 @@ export function useComparisonModule(
   const inputs = useMemo(() => {
     if (!scope) return null
     const { year, month } = scope.sourceMonth
-    return prepareComparisonInputs(prevYear, selectedStoreIds, isAllStores, {
-      year,
-      month,
-      daysInMonth: new Date(year, month, 0).getDate(),
-    })
+    return prepareComparisonInputs(
+      prevYear,
+      selectedStoreIds,
+      isAllStores,
+      { year, month, daysInMonth: new Date(year, month, 0).getDate() },
+      getStoredAdjacentFlowersRecords(),
+    )
   }, [prevYear, selectedStoreIds, isAllStores, scope])
 
   // 4. 日別集計（PrevYearData 互換）

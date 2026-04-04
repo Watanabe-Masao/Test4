@@ -14,8 +14,21 @@ import { useEffect, useReducer, useRef } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useRepository } from '../context/useRepository'
 import type { ComparisonScope } from '@/domain/models/ComparisonScope'
-import { loadComparisonDataAsync } from '@/application/comparison/loadComparisonDataAsync'
-import { comparisonResultToMonthlyData } from '@/application/comparison/loadComparisonDataAsync'
+import {
+  loadComparisonDataAsync,
+  comparisonResultToMonthlyData,
+  getAdjacentFlowersRecords,
+} from '@/application/comparison/loadComparisonDataAsync'
+import type { SpecialSalesDayEntry } from '@/domain/models/record'
+
+// 隣接月の花レコード（cross-month 客数参照用）。
+// useComparisonModule から参照される。comparison data ロード時に更新。
+let _adjacentFlowersRecords: readonly SpecialSalesDayEntry[] = []
+
+/** 隣接月の花レコードを取得する（useComparisonModule 用） */
+export function getStoredAdjacentFlowersRecords(): readonly SpecialSalesDayEntry[] {
+  return _adjacentFlowersRecords
+}
 
 // 型と純粋ロジックは comparisonLoadLogic.ts に分離済み
 export type { ComparisonLoadStatus } from '@/application/comparison/comparisonLoadLogic'
@@ -76,6 +89,7 @@ export function useLoadComparisonData(scope: ComparisonScope | null): Comparison
         )
         if (cancelled || !result) return
         const monthly = comparisonResultToMonthlyData(result, source.year, source.month)
+        _adjacentFlowersRecords = getAdjacentFlowersRecords(result)
         useDataStore.getState().setPrevYearMonthData(monthly)
       } catch (err) {
         if (!cancelled) {
