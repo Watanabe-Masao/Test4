@@ -42,6 +42,12 @@ export type {
 export { summarizeImportPlan } from './ScopeResolution'
 export type { RawFileRecord, RawDataManifest } from './RawData'
 export type {
+  ImportExecution,
+  ImportedArtifact,
+  MonthAttribution,
+  SaveRawArtifactRequest,
+} from './ImportProvenance'
+export type {
   ThresholdSet,
   ThresholdDirection,
   ThresholdUnit,

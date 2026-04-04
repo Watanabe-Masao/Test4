@@ -53,6 +53,8 @@ export interface ProcessFileResult {
   readonly partitions?: Partial<MonthPartitions>
   /** プロセッサの警告（ヘッダ不正、0件結果など） */
   readonly warnings?: readonly string[]
+  /** この処理で追加されたレコード数（差分。呼び出し側で算出して付与） */
+  readonly importedCount?: number
 }
 
 // ─── 内部ヘルパー ────────────────────────────────────

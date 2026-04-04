@@ -33,10 +33,12 @@ export function saveImportHistory(
   year: number,
   month: number,
   repo: DataRepository,
+  importId?: string,
 ): void {
   if (!repo.isAvailable()) return
   const entry: ImportHistoryEntry = {
     importedAt: new Date().toISOString(),
+    ...(importId ? { importId } : {}),
     files: summary.results
       .filter((r) => r.ok)
       .map((r) => ({
@@ -45,6 +47,7 @@ export function saveImportHistory(
         type: r.type,
         typeName: r.typeName,
         rowCount: r.rowCount,
+        importedCount: r.rowCount,
       })),
     successCount: summary.successCount,
     failureCount: summary.failureCount,

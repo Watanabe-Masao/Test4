@@ -27,6 +27,8 @@ export async function orchestrateSingleMonth(
   summary: ImportSummary,
   effects: ImportSideEffects,
   detectedYearMonth: { year: number; month: number } | null,
+  monthSummary?: ImportSummary,
+  importId?: string,
 ): Promise<MonthlyImportResult> {
   const { repo } = effects
   const { targetYear, targetMonth } = settings
@@ -57,15 +59,29 @@ export async function orchestrateSingleMonth(
         }
         // diff 不要 → merge
         const merged = mergeMonthlyData(existingMonthly, incomingMonth, 'overwrite')
-        return finalizeSingleMonth(merged, summary, effects, detectedYearMonth)
+        return finalizeSingleMonth(
+          merged,
+          summary,
+          effects,
+          detectedYearMonth,
+          monthSummary,
+          importId,
+        )
       }
-    } catch {
-      // ストレージエラーは無視
+    } catch (err) {
+      console.warn('[singleMonthImport] 既存データ読み込み失敗:', err)
     }
   }
 
   // 既存なし → incoming をそのまま使用
-  return finalizeSingleMonth(incomingMonth, summary, effects, detectedYearMonth)
+  return finalizeSingleMonth(
+    incomingMonth,
+    summary,
+    effects,
+    detectedYearMonth,
+    monthSummary,
+    importId,
+  )
 }
 
 /** 単月の最終処理（validation + save + return） */
@@ -74,6 +90,8 @@ async function finalizeSingleMonth(
   summary: ImportSummary,
   effects: ImportSideEffects,
   detectedYearMonth: { year: number; month: number } | null,
+  monthSummary?: ImportSummary,
+  importId?: string,
 ): Promise<MonthlyImportResult> {
   const { repo } = effects
   const { year, month } = monthly.origin
@@ -83,7 +101,7 @@ async function finalizeSingleMonth(
   if (repo.isAvailable()) {
     await repo.saveMonthlyData(monthly, year, month)
     saveSummaryCache(monthly, year, month, repo)
-    saveImportHistory(summary, year, month, repo)
+    saveImportHistory(monthSummary ?? summary, year, month, repo, importId)
   }
 
   return {

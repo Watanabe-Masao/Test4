@@ -76,14 +76,18 @@ export function prepareComparisonInputs(
 
   const prevYearFlowers = prevYear.flowers
   const flowersFullIndex =
-    prevYearFlowers.records.length > 0 ? buildFlowersFullIndex(prevYearFlowers.records) : undefined
+    prevYearFlowers.records.length > 0
+      ? buildFlowersFullIndex(prevYearFlowers.records, sourceMonthCtx)
+      : undefined
 
   // CTS（販売点数）インデックス構築
   const prevYearCts = prevYear.categoryTimeSales
   const ctsIndex =
     prevYearCts.records.length > 0 ? indexCtsQuantityByStoreDay(prevYearCts.records) : undefined
   const ctsFullIndex =
-    prevYearCts.records.length > 0 ? buildCtsFullIndex(prevYearCts.records) : undefined
+    prevYearCts.records.length > 0
+      ? buildCtsFullIndex(prevYearCts.records, sourceMonthCtx)
+      : undefined
 
   const sourceIndex = buildSourceDataIndex(
     raw.allAgg,

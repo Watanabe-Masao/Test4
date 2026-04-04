@@ -47,6 +47,33 @@ export type CtsStoreDayIndex = Record<string, Record<number, number>>
 // ── 内部: リナンバリング変換 ──
 
 /**
+ * リナンバリング日番号を実カレンダー日付に逆変換する。
+ *
+ * resolveSourceDay の逆変換。fullIndex 構築時に使用。
+ * - day ≤ 0 → 前月
+ * - 1 ≤ day ≤ daysInMonth → 当月
+ * - day > daysInMonth → 翌月
+ */
+function renumberedDayToCalendar(
+  day: number,
+  ctx: SourceMonthContext,
+): { year: number; month: number; day: number } {
+  if (day >= 1 && day <= ctx.daysInMonth) {
+    return { year: ctx.year, month: ctx.month, day }
+  }
+  if (day > ctx.daysInMonth) {
+    const nextMonth = ctx.month === 12 ? 1 : ctx.month + 1
+    const nextYear = ctx.month === 12 ? ctx.year + 1 : ctx.year
+    return { year: nextYear, month: nextMonth, day: day - ctx.daysInMonth }
+  }
+  // day ≤ 0 → 前月
+  const prevMonth = ctx.month === 1 ? 12 : ctx.month - 1
+  const prevYear = ctx.month === 1 ? ctx.year - 1 : ctx.year
+  const daysInPrevMonth = new Date(prevYear, prevMonth, 0).getDate()
+  return { year: prevYear, month: prevMonth, day: day + daysInPrevMonth }
+}
+
+/**
  * CalendarDate を allAgg のリナンバリング日番号に変換する。
  *
  * allAgg は mergeAdjacentMonthRecords により以下のリナンバリング済み:
@@ -128,13 +155,24 @@ export function buildSourceDataIndex(
   }
 }
 
-/** 花レコード配列から storeId:year-month-day キーの完全マップを構築する */
+/**
+ * 花レコード配列から storeId:year-month-day キーの完全マップを構築する。
+ *
+ * ctx を渡すとリナンバリング済み day を実カレンダー日付に逆変換する。
+ * mergeAdjacentMonthRecords でマージ済みのレコードに対して使う場合は ctx 必須。
+ */
 export function buildFlowersFullIndex(
   records: readonly SpecialSalesDayEntry[],
+  ctx?: SourceMonthContext,
 ): ReadonlyMap<string, SpecialSalesDayEntry> {
   const map = new Map<string, SpecialSalesDayEntry>()
   for (const r of records) {
-    map.set(`${r.storeId}:${r.year}-${r.month}-${r.day}`, r)
+    if (ctx) {
+      const cal = renumberedDayToCalendar(r.day, ctx)
+      map.set(`${r.storeId}:${cal.year}-${cal.month}-${cal.day}`, r)
+    } else {
+      map.set(`${r.storeId}:${r.year}-${r.month}-${r.day}`, r)
+    }
   }
   return map
 }
@@ -158,13 +196,22 @@ export function indexCtsQuantityByStoreDay(
 /**
  * CTS レコードから storeId:year-month-day キーの完全マップを構築する。
  * 月跨ぎ参照用。同一キーの複数カテゴリの totalQuantity を合算する。
+ *
+ * ctx を渡すとリナンバリング済み day を実カレンダー日付に逆変換する。
  */
 export function buildCtsFullIndex(
   records: readonly CategoryTimeSalesRecord[],
+  ctx?: SourceMonthContext,
 ): ReadonlyMap<string, number> {
   const map = new Map<string, number>()
   for (const r of records) {
-    const key = `${r.storeId}:${r.year}-${r.month}-${r.day}`
+    let key: string
+    if (ctx) {
+      const cal = renumberedDayToCalendar(r.day, ctx)
+      key = `${r.storeId}:${cal.year}-${cal.month}-${cal.day}`
+    } else {
+      key = `${r.storeId}:${r.year}-${r.month}-${r.day}`
+    }
     map.set(key, (map.get(key) ?? 0) + r.totalQuantity)
   }
   return map

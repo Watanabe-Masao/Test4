@@ -7,6 +7,11 @@
  */
 import type { DataType, AppSettings } from '@/domain/models/storeTypes'
 import type { MonthlyData } from '@/domain/models/MonthlyData'
+import type {
+  ImportExecution,
+  ImportedArtifact,
+  MonthAttribution,
+} from '@/domain/models/ImportProvenance'
 import { readTabularFile } from './fileImport/tabularReader'
 import { detectFileType, getDataTypeName } from './fileImport/FileTypeDetector'
 import { ImportError } from './fileImport/errors'
@@ -44,6 +49,11 @@ export type {
   ProgressCallback,
   MonthPartitions,
 } from './importTypes'
+export type {
+  ImportExecution,
+  ImportedArtifact,
+  MonthAttribution,
+} from '@/domain/models/ImportProvenance'
 
 // ─── 公開関数 ────────────────────────────────────────
 
@@ -90,9 +100,16 @@ export async function processDroppedFiles(
   data: MonthlyData
   detectedYearMonth?: { year: number; month: number }
   monthPartitions: MonthPartitions
+  execution: ImportExecution
 }> {
   const fileArray = Array.from(files)
   const results: FileImportResult[] = []
+  const artifacts: ImportedArtifact[] = []
+  const importId =
+    typeof crypto !== 'undefined' && crypto.randomUUID
+      ? crypto.randomUUID()
+      : `import-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+  const importedAt = new Date().toISOString()
   let data = currentData
   let effectiveSettings = appSettings
   let detectedYearMonth: { year: number; month: number } | undefined
@@ -140,8 +157,12 @@ export async function processDroppedFiles(
         }
       }
 
+      // 差分ベース importedCount: processFileData の前後で件数を比較
+      const beforeCount = countDataRecords(data, type)
       const result = processFileData(type, rows, file.name, data, effectiveSettings)
       data = result.data
+      const afterCount = countDataRecords(result.data, type)
+      const importedCount = Math.max(0, afterCount - beforeCount)
 
       // ハッシュをレジストリに登録
       const ym = result.detectedYearMonth ?? detectedYearMonth
@@ -176,8 +197,45 @@ export async function processDroppedFiles(
         if (p.budget) mp = { ...mp, budget: mergeMapPartitions(mp.budget, p.budget) }
       }
 
-      // レコード数をサマリーに含める（バリデーション用途）
-      const rowCount = countDataRecords(result.data, type)
+      // month attribution を構築
+      const attributions: MonthAttribution[] = []
+      if (result.partitions) {
+        // パーティションキーから寄与月を取得
+        const monthKeys = new Set<string>()
+        const p = result.partitions
+        if (p.purchase) for (const mk of Object.keys(p.purchase)) monthKeys.add(mk)
+        if (p.flowers) for (const mk of Object.keys(p.flowers)) monthKeys.add(mk)
+        if (p.directProduce) for (const mk of Object.keys(p.directProduce)) monthKeys.add(mk)
+        if (p.interStoreIn) for (const mk of Object.keys(p.interStoreIn)) monthKeys.add(mk)
+        if (p.interStoreOut) for (const mk of Object.keys(p.interStoreOut)) monthKeys.add(mk)
+        if (p.consumables) for (const mk of Object.keys(p.consumables)) monthKeys.add(mk)
+        if (p.budget) for (const mk of Object.keys(p.budget)) monthKeys.add(mk)
+        for (const mk of monthKeys) {
+          const parts = mk.split('-')
+          if (parts.length === 2) {
+            attributions.push({
+              year: Number(parts[0]),
+              month: Number(parts[1]),
+              importedCount, // TODO: per-month count（Phase 3 で精緻化）
+              isDuplicate: false,
+            })
+          }
+        }
+      }
+      if (attributions.length === 0 && ym) {
+        attributions.push({
+          year: ym.year,
+          month: ym.month,
+          importedCount,
+          isDuplicate: !!duplicateWarning,
+        })
+      }
+
+      const artifactId =
+        typeof crypto !== 'undefined' && crypto.randomUUID
+          ? crypto.randomUUID()
+          : `artifact-${Date.now()}-${i}-${Math.random().toString(36).slice(2, 8)}`
+
       const rp = file.webkitRelativePath || undefined
       results.push({
         ok: true,
@@ -185,10 +243,24 @@ export async function processDroppedFiles(
         relativePath: rp,
         type,
         typeName,
-        rowCount,
+        rowCount: importedCount,
         warnings: duplicateWarning
           ? [...(result.warnings ?? []), duplicateWarning]
           : result.warnings,
+      })
+
+      artifacts.push({
+        artifactId,
+        filename: file.name,
+        relativePath: rp,
+        dataType: type,
+        hash: fileHash,
+        size: file.size,
+        ok: true,
+        warnings: duplicateWarning
+          ? [...(result.warnings ?? []), duplicateWarning]
+          : result.warnings,
+        attributions,
       })
     } catch (err) {
       const message =
@@ -203,6 +275,18 @@ export async function processDroppedFiles(
         type: null,
         typeName: null,
         error: message,
+      })
+
+      artifacts.push({
+        artifactId: `artifact-err-${Date.now()}-${i}`,
+        filename: file.name,
+        relativePath: rp,
+        dataType: overrideType ?? ('unknown' as DataType),
+        hash: '',
+        size: file.size,
+        ok: false,
+        error: message,
+        attributions: [],
       })
     }
   }
@@ -219,10 +303,17 @@ export async function processDroppedFiles(
     detectedYearMonth = detectYearMonthFromPartitionsOrRecords(data, mp)
   }
 
+  const execution: ImportExecution = {
+    importId,
+    importedAt,
+    artifacts,
+  }
+
   return {
     summary: { results, successCount, failureCount },
     data,
     detectedYearMonth,
     monthPartitions: mp,
+    execution,
   }
 }

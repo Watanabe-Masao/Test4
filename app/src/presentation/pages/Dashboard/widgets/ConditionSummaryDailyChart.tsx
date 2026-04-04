@@ -198,8 +198,8 @@ export function DailyRateChart({
   const chartW = W - PL - PR
   const chartH = H - PT - PB
 
-  // 累計平均率を算出
-  const cumAvgRates = rows.map((r) => (r.day > 0 ? r.cumActual / r.day : 0))
+  // 率メトリクス: cumActual は累計原量から再計算済みの率なのでそのまま使用
+  const cumAvgRates = rows.map((r) => (r.day > 0 ? r.cumActual : 0))
 
   // 前年比データ
   const hasPrevData =

@@ -24,12 +24,15 @@ export interface CurrentCtsQuantity {
   readonly byStore: ReadonlyMap<string, number>
   /** 日別合計（key = day number） */
   readonly byDay: ReadonlyMap<number, number>
+  /** 店舗×日別（key = `${storeId}:${day}`） */
+  readonly byStoreDay: ReadonlyMap<string, number>
 }
 
 const EMPTY_CTS: CurrentCtsQuantity = {
   total: 0,
   byStore: new Map(),
   byDay: new Map(),
+  byStoreDay: new Map(),
 }
 
 /** CTS レコードを effectiveDay・店舗でスコープし集計する純粋関数 */
@@ -43,14 +46,17 @@ export function aggregateCurrentCts(
   let total = 0
   const byStore = new Map<string, number>()
   const byDay = new Map<number, number>()
+  const byStoreDay = new Map<string, number>()
   for (const r of records) {
     if (r.day > effectiveDay || r.day <= 0) continue
     if (!isAllStores && !selectedStoreIds.has(r.storeId)) continue
     total += r.totalQuantity
     byStore.set(r.storeId, (byStore.get(r.storeId) ?? 0) + r.totalQuantity)
     byDay.set(r.day, (byDay.get(r.day) ?? 0) + r.totalQuantity)
+    const sdKey = `${r.storeId}:${r.day}`
+    byStoreDay.set(sdKey, (byStoreDay.get(sdKey) ?? 0) + r.totalQuantity)
   }
-  return { total, byStore, byDay }
+  return { total, byStore, byDay, byStoreDay }
 }
 
 /**

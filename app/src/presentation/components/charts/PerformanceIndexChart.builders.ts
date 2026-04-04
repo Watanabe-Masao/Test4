@@ -104,7 +104,10 @@ export function buildPerformanceData(
   daysInMonth: number,
   year: number,
   month: number,
-  prevYearDaily: ReadonlyMap<string, { sales: number; discount: number; customers?: number }>,
+  prevYearDaily: ReadonlyMap<
+    string,
+    { sales: number; discount: number; customers?: number; ctsQuantity?: number }
+  >,
   dailyQuantity?: ReadonlyMap<number, number>,
 ): {
   chartData: PerformanceRow[]
@@ -155,8 +158,9 @@ export function buildPerformanceData(
     const prev = prevYearDaily.get(toDateKeyFromParts(year, month, d))
     const prevCustomers = prev?.customers ?? 0
     const prevPi = prevCustomers > 0 ? safeDivide(prev?.sales ?? 0, prevCustomers, 0) * 1000 : null
-    // TODO: 前年点数PI — 前年の日別点数データが必要（現状は null）
-    const prevQtyPi: number | null = null
+    const prevCtsQty = prev?.ctsQuantity ?? 0
+    const prevQtyPi =
+      prevCustomers > 0 && prevCtsQty > 0 ? calculateQuantityPI(prevCtsQty, prevCustomers) : null
 
     if (sales > 0) salesValues.push(sales)
     if (customers > 0) customerValues.push(customers)
