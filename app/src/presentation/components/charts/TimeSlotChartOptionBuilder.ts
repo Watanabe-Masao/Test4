@@ -79,7 +79,7 @@ function buildTimeSlotTooltip(
     ...tooltipBase(theme),
     formatter: (params: unknown) => {
       const items = params as TooltipItem[]
-      if (!Array.isArray(items) || items.length === 0) return ''
+      if (!Array.isArray(items) || items.length === 0 || !items[0]) return ''
       const title = items[0].axisValue ?? items[0].name ?? ''
       const byName = new Map<string, number>()
       for (const item of items) {
