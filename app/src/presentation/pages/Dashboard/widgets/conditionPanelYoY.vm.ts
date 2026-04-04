@@ -283,14 +283,10 @@ export function buildItemsYoYStoreDailyRows(
       }
     }
   } else {
-    // 店舗単位の日別データは byDay に含まれないため、byStore の合計を使い
-    // 日別内訳は storeContributions から当年日付をヒントにする
-    // ただし currentCtsQuantity には日×店舗の粒度がないため、
-    // storeContributions を使って日別を構築する必要はない。
-    // → currentCtsQuantity に byStoreDay がない場合は全店日別で代替
-    // TODO: 将来的に byStoreDay を追加すれば完全な店舗別日別が可能
-    for (const [day, qty] of currentCtsQuantity.byDay) {
-      if (day > 0 && day <= effectiveDay) {
+    // 店舗×日別の粒度で当年データを取得
+    for (let day = 1; day <= effectiveDay; day++) {
+      const qty = currentCtsQuantity.byStoreDay.get(`${storeId}:${day}`) ?? 0
+      if (qty > 0) {
         dayMap.set(day, { cur: qty, prev: 0 })
       }
     }

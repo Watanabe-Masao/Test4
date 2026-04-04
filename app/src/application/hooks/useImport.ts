@@ -41,6 +41,7 @@ export function useImport() {
   const [progress, setProgress] = useState<ImportProgress | null>(null)
   const [pendingDiff, setPendingDiff] = useState<PendingDiffCheck | null>(null)
   const [saveError, setSaveError] = useState<string | null>(null)
+  const [isResolving, setIsResolving] = useState(false)
 
   const settingsRef = useRef<AppSettings>(settings)
   settingsRef.current = settings
@@ -131,7 +132,7 @@ export function useImport() {
   /** 差分確認結果を適用する */
   const resolveDiff = useCallback(
     (action: 'overwrite' | 'keep-existing' | 'cancel') => {
-      if (!pendingDiff) return
+      if (!pendingDiff || isResolving) return
 
       if (action === 'cancel') {
         setPendingDiff(null)
@@ -146,19 +147,22 @@ export function useImport() {
             : Promise.resolve(),
       }
 
+      setIsResolving(true)
       resolveImportDiff(pendingDiff, action, settingsRef.current, effects)
         .then((result) => {
           applyImportResult(result.finalData, result.detectedMaxDay, result.validationMessages)
+          setPendingDiff(null)
         })
         .catch((e) => {
           const msg = e instanceof Error ? e.message : 'データ保存に失敗しました'
           console.error('[useImport] resolveDiff failed:', e)
           setSaveError(msg)
         })
-
-      setPendingDiff(null)
+        .finally(() => {
+          setIsResolving(false)
+        })
     },
-    [pendingDiff, repo, rawFile, applyImportResult],
+    [pendingDiff, isResolving, repo, rawFile, applyImportResult],
   )
 
   return {
@@ -168,6 +172,7 @@ export function useImport() {
     validationMessages,
     pendingDiff,
     resolveDiff,
+    isResolving,
     saveError,
   }
 }

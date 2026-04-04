@@ -50,8 +50,8 @@ function buildOption(
       trigger: 'axis',
       formatter: (params: unknown) => {
         const items = params as { name: string; value: number }[]
-        if (!Array.isArray(items) || items.length === 0) return ''
-        return `${items[0].name}曜日<br/>平均売上: ${toCommaYen(items[0].value)}`
+        if (!Array.isArray(items) || items.length === 0 || !items[0]) return ''
+        return `${items[0].name ?? ''}曜日<br/>平均売上: ${toCommaYen(items[0].value)}`
       },
     },
     xAxis: categoryXAxis(labels, theme),

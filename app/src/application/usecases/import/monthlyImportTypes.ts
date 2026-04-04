@@ -7,6 +7,7 @@
  */
 import type { MonthlyData } from '@/domain/models/MonthlyData'
 import type { DiffResult } from '@/domain/models/analysis'
+import type { ImportExecution } from '@/domain/models/ImportProvenance'
 import type { ImportSummary, MonthPartitions } from './FileImportService'
 import type { DataType } from '@/domain/models/storeTypes'
 import type { DataRepository } from '@/domain/repositories'
@@ -18,6 +19,10 @@ export interface MonthlyImportBatch {
   readonly detectedYearMonth: { year: number; month: number } | null
   readonly monthPartitions: MonthPartitions
   readonly summary: ImportSummary
+  /** インポート実行の正本記録（Phase 2 で追加） */
+  readonly execution: ImportExecution
+  /** 月別に分離されたサマリー（月ごとの履歴保存用） */
+  readonly summaryByMonth: ReadonlyMap<string, ImportSummary>
 }
 
 /** 差分確認の保留情報（MonthlyData ベース） */

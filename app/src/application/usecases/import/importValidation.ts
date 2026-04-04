@@ -161,23 +161,25 @@ function validateStoreReferences(data: DataSummaryInput): ValidationMessage[] {
   const d7 = checkRecordStoreIds(data.consumables.records, '消耗品データ')
   if (d7) unknownDetails.push(d7)
 
-  if (unknownStoreIds.size > 0) {
-    messages.push({
-      level: 'warning',
-      message: `${unknownStoreIds.size}件の未登録店舗IDがデータに含まれています`,
-      details: unknownDetails,
-    })
-  }
-
   for (const [sid] of data.settings) {
     if (!storeIds.has(sid)) {
+      unknownStoreIds.add(sid)
       unknownDetails.push(`在庫設定: 店舗ID ${sid}`)
     }
   }
   for (const [sid] of data.budget) {
     if (!storeIds.has(sid)) {
+      unknownStoreIds.add(sid)
       unknownDetails.push(`予算データ: 店舗ID ${sid}`)
     }
+  }
+
+  if (unknownDetails.length > 0) {
+    messages.push({
+      level: 'warning',
+      message: `${unknownStoreIds.size}件の未登録店舗IDがデータに含まれています`,
+      details: unknownDetails,
+    })
   }
 
   return messages

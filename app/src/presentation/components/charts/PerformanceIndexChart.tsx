@@ -38,7 +38,10 @@ interface Props {
   daysInMonth: number
   year: number
   month: number
-  prevYearDaily?: ReadonlyMap<string, { sales: number; discount: number; customers?: number }>
+  prevYearDaily?: ReadonlyMap<
+    string,
+    { sales: number; discount: number; customers?: number; ctsQuantity?: number }
+  >
   /** 日クリック時コールバック（異常値バーのクリックでナビゲーション） */
   onDayClick?: (day: number) => void
   /** DuckDB 接続（カテゴリPI値ランキング子チャート用） */

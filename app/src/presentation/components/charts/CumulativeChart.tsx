@@ -60,8 +60,8 @@ function buildOption(
       trigger: 'axis',
       formatter: (params: unknown) => {
         const items = params as { name: string; seriesName: string; value: number; color: string }[]
-        if (!Array.isArray(items) || items.length === 0) return ''
-        const header = `<div style="font-weight:600;margin-bottom:4px">${items[0].name}</div>`
+        if (!Array.isArray(items) || items.length === 0 || !items[0]) return ''
+        const header = `<div style="font-weight:600;margin-bottom:4px">${items[0].name ?? ''}</div>`
         const rows = items
           .map(
             (item) =>

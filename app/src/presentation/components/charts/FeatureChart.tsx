@@ -53,7 +53,7 @@ function buildOption(chartData: readonly FeatureChartDataPoint[], theme: AppThem
       trigger: 'axis',
       formatter: (params: unknown) => {
         const items = params as { seriesName: string; value: number | null; color: string }[]
-        if (!Array.isArray(items) || items.length === 0) return ''
+        if (!Array.isArray(items) || items.length === 0 || !items[0]) return ''
         const header = `<div style="font-weight:600;margin-bottom:4px">${(items[0] as { name?: string }).name ?? ''}</div>`
         const rows = items
           .filter((item) => item.value != null && item.value !== 0)

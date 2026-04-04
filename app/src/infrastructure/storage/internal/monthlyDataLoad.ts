@@ -58,9 +58,14 @@ export async function loadMonthlyDataInternal(
     })
   })()
 
-  // stores キーの存在で当該年月にデータが保存されているかを判定する。
+  // 当該年月にデータが保存されているか判定: いずれかのキーに値があれば存在とみなす
   const rawStoresEntry = rawData.get('stores')
-  if (rawStoresEntry === undefined) return null
+  if (rawStoresEntry === undefined) {
+    const hasAnyData = Array.from(rawData.values()).some((v) => v !== undefined)
+    if (!hasAnyData) return null
+    // stores キーのみ欠損しているが他にデータがある場合は続行（stores は空 Map になる）
+    console.warn(`[monthlyDataLoad] ${year}-${month}: stores key missing but other data exists`)
+  }
 
   const base = createEmptyMonthlyData({ year: 0, month: 0, importedAt: '' })
   const result: Record<string, unknown> = { ...base }

@@ -311,7 +311,10 @@ function RateTable({
       </thead>
       <tbody>
         {rows.map((r) => {
-          const cumAvg = r.day > 0 ? r.cumActual / r.day : 0
+          // 率メトリクス: cumActual は累計原量から再計算済みの率なのでそのまま表示
+          // 金額メトリクス: cumActual / day で累計平均を算出
+          const isRate = metric === 'markupRate' || metric === 'gpRate' || metric === 'discountRate'
+          const cumDisplay = isRate ? r.cumActual : r.day > 0 ? r.cumActual / r.day : 0
           const diffColor = rateDiffColor(r.achievement)
           const cumDiffColor = rateDiffColor(r.cumAchievement)
           return (
@@ -329,15 +332,15 @@ function RateTable({
               )}
               {hasBudget ? (
                 <>
-                  <DailyTd $group>{fmtValue(r.budget, true)}</DailyTd>
-                  <DailyTd $bold>{r.day > 0 ? fmtValue(cumAvg, true) : '—'}</DailyTd>
+                  <DailyTd $group>{fmtValue(r.cumBudget, true)}</DailyTd>
+                  <DailyTd $bold>{r.day > 0 ? fmtValue(cumDisplay, true) : '—'}</DailyTd>
                   <DailyTd $color={cumDiffColor} $bold>
                     {r.cumAchievement >= 0 ? '+' : ''}
                     {r.cumAchievement.toFixed(2)}pt
                   </DailyTd>
                 </>
               ) : (
-                <DailyTd $group>{r.day > 0 ? fmtValue(cumAvg, true) : '—'}</DailyTd>
+                <DailyTd $group>{r.day > 0 ? fmtValue(cumDisplay, true) : '—'}</DailyTd>
               )}
             </DailyTr>
           )

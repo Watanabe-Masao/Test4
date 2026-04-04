@@ -2,6 +2,7 @@ import type { BudgetData } from '@/domain/models/record'
 import type { DataType, AppSettings } from '@/domain/models/storeTypes'
 import type { MonthlyData } from '@/domain/models/MonthlyData'
 import type { ImportSummary } from '@/domain/models/ImportResult'
+import type { ImportExecution } from '@/domain/models/ImportProvenance'
 import { processDroppedFiles as processDroppedFilesImpl } from '@/infrastructure/ImportService'
 import type { MonthPartitions } from '@/infrastructure/ImportService'
 import { monthKey } from '@/infrastructure/fileImport/dateParser'
@@ -9,6 +10,11 @@ import { monthKey } from '@/infrastructure/fileImport/dateParser'
 // Re-export partition types
 export type { MonthPartitions } from '@/infrastructure/ImportService'
 export { createEmptyMonthPartitions } from '@/infrastructure/ImportService'
+export type {
+  ImportExecution,
+  ImportedArtifact,
+  MonthAttribution,
+} from '@/infrastructure/ImportService'
 
 // ─── Types ───────────────────────────────────────────────
 // 型定義は domain/models/ImportResult.ts に移動済み（@guard A4）。
@@ -39,6 +45,7 @@ export async function processDroppedFiles(
   data: MonthlyData
   detectedYearMonth?: { year: number; month: number }
   monthPartitions: MonthPartitions
+  execution: ImportExecution
 }> {
   return processDroppedFilesImpl(files, appSettings, currentData, onProgress, overrideType)
 }

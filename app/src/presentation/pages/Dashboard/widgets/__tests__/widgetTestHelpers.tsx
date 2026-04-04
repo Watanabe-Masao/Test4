@@ -285,7 +285,7 @@ export function makeWidgetContext(overrides: Partial<WidgetContext> = {}): Widge
       alignmentMap: [],
       sourceMonth: { year: 2025, month: 2 },
     },
-    currentCtsQuantity: { total: 0, byStore: new Map(), byDay: new Map() },
+    currentCtsQuantity: { total: 0, byStore: new Map(), byDay: new Map(), byStoreDay: new Map() },
     ...overrides,
   }
 }

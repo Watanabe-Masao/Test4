@@ -72,7 +72,7 @@ export function currencyTooltip(
     ...tooltipBase(theme),
     formatter: (params: unknown) => {
       const items = params as TooltipParam[]
-      if (!Array.isArray(items) || items.length === 0) return ''
+      if (!Array.isArray(items) || items.length === 0 || !items[0]) return ''
       const title = items[0].axisValue ?? items[0].name ?? ''
       let html = `<div style="font-weight:600;margin-bottom:4px">${title}</div>`
       for (const item of items) {
@@ -101,7 +101,7 @@ export function percentTooltip(
     ...tooltipBase(theme),
     formatter: (params: unknown) => {
       const items = params as TooltipParam[]
-      if (!Array.isArray(items) || items.length === 0) return ''
+      if (!Array.isArray(items) || items.length === 0 || !items[0]) return ''
       const title = items[0].axisValue ?? items[0].name ?? ''
       let html = `<div style="font-weight:600;margin-bottom:4px">${title}</div>`
       for (const item of items) {
@@ -132,7 +132,7 @@ export function multiSeriesTooltip(
     ...tooltipBase(theme),
     formatter: (params: unknown) => {
       const items = params as TooltipParam[]
-      if (!Array.isArray(items) || items.length === 0) return ''
+      if (!Array.isArray(items) || items.length === 0 || !items[0]) return ''
       const title = items[0].axisValue ?? items[0].name ?? ''
       let html = `<div style="font-weight:600;margin-bottom:4px">${title}</div>`
       for (const item of items) {

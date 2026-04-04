@@ -2,7 +2,10 @@
  * バックアップエクスポーター/インポーター
  *
  * アプリケーションデータをJSON形式のバックアップファイルとしてエクスポート・インポートする。
- * 元ファイル（rawFiles）+ メタデータ + 設定をバンドルして保存する。
+ * 月次データ + メタデータ + 設定をバンドルして保存する。
+ *
+ * 注意: rawManifest は元ファイルのメタデータ（ファイル名・ハッシュ・サイズ）のみ。
+ * 元ファイルの Blob 本体はバックアップに含まれない。
  *
  * フォーマット v2:
  * - AppSettings（アプリ全体設定）を含む
@@ -161,9 +164,16 @@ class BackupExporter {
       return value
     }
 
-    // months JSON のチェックサムを計算
-    const monthsJson = JSON.stringify(months, mapReplacer)
-    const checksum = await computeSHA256(monthsJson)
+    // チェックサム対象を backup 全体に拡張（months + appSettings + rawManifest）
+    const checksumPayload = JSON.stringify(
+      {
+        months,
+        appSettings: appSettings ?? null,
+        rawManifest: rawManifest.length > 0 ? rawManifest : null,
+      },
+      mapReplacer,
+    )
+    const checksum = await computeSHA256(checksumPayload)
 
     const backup: BackupFile = {
       meta: {
@@ -244,23 +254,37 @@ class BackupExporter {
       }
     }
 
-    // v2: SHA-256 チェックサム検証
+    // v2+: SHA-256 チェックサム検証
+    // v3 は全体（months + appSettings + rawManifest）、v2 は months のみ。両方試行する。
     if (backup.meta.checksum) {
       const mapReplacer = (_key: string, value: unknown) => {
         if (value instanceof Map) return Object.fromEntries(value)
         return value
       }
-      const monthsJson = JSON.stringify(backup.months, mapReplacer)
-      const computed = await computeSHA256(monthsJson)
-      if (computed !== backup.meta.checksum) {
-        return {
-          monthsImported: 0,
-          monthsSkipped: 0,
-          errors: [
-            `Checksum mismatch: backup may be corrupted (expected ${backup.meta.checksum.slice(0, 8)}..., got ${computed.slice(0, 8)}...)`,
-          ],
-          importHistoryRestored: 0,
-          rawManifestRestored: 0,
+      // v3 全体チェックサム
+      const fullPayload = JSON.stringify(
+        {
+          months: backup.months,
+          appSettings: backup.appSettings ?? null,
+          rawManifest: backup.rawManifest ?? null,
+        },
+        mapReplacer,
+      )
+      const fullChecksum = await computeSHA256(fullPayload)
+      if (fullChecksum !== backup.meta.checksum) {
+        // v2 後方互換: months のみのチェックサムも試行
+        const monthsJson = JSON.stringify(backup.months, mapReplacer)
+        const monthsChecksum = await computeSHA256(monthsJson)
+        if (monthsChecksum !== backup.meta.checksum) {
+          return {
+            monthsImported: 0,
+            monthsSkipped: 0,
+            errors: [
+              `Checksum mismatch: backup may be corrupted (expected ${backup.meta.checksum.slice(0, 8)}..., got ${fullChecksum.slice(0, 8)}...)`,
+            ],
+            importHistoryRestored: 0,
+            rawManifestRestored: 0,
+          }
         }
       }
     }

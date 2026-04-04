@@ -50,6 +50,7 @@ export async function orchestrateImport(
     data: processedData,
     detectedYearMonth,
     monthPartitions,
+    execution,
   } = await processDroppedFiles(files, settings, currentData, onProgress, overrideType)
 
   if (summary.successCount === 0) {
@@ -80,24 +81,34 @@ export async function orchestrateImport(
       .map((r) => r.type),
   )
 
-  // 原本ファイルを保存（fire-and-forget）
-  const { targetYear: saveYear, targetMonth: saveMonth } = effectiveSettings
+  // 原本ファイルを保存（fire-and-forget）— artifact ベースで各月に紐づけ
   const fileArray = Array.from(files)
-  for (let i = 0; i < summary.results.length; i++) {
-    const result = summary.results[i]
-    if (result.ok && result.type && fileArray[i]) {
-      effects
-        .saveRawFile(
-          saveYear,
-          saveMonth,
-          result.type,
-          fileArray[i],
-          result.filename,
-          result.relativePath,
-        )
-        .catch((e: unknown) => {
-          console.warn('[ImportOrchestrator] saveRawFile failed:', e)
-        })
+  for (let i = 0; i < execution.artifacts.length; i++) {
+    const artifact = execution.artifacts[i]
+    if (artifact.ok && fileArray[i]) {
+      const attributedMonths = artifact.attributions.map((a) => ({
+        year: a.year,
+        month: a.month,
+      }))
+      // attributedMonths が空の場合は effectiveSettings の対象月を使用
+      const months =
+        attributedMonths.length > 0
+          ? attributedMonths
+          : [{ year: effectiveSettings.targetYear, month: effectiveSettings.targetMonth }]
+      for (const { year: saveYear, month: saveMonth } of months) {
+        effects
+          .saveRawFile(
+            saveYear,
+            saveMonth,
+            artifact.dataType,
+            fileArray[i],
+            artifact.filename,
+            artifact.relativePath,
+          )
+          .catch((e: unknown) => {
+            console.warn('[ImportOrchestrator] saveRawFile failed:', e)
+          })
+      }
     }
   }
 
@@ -107,6 +118,7 @@ export async function orchestrateImport(
     monthPartitions,
     summary,
     detectedYearMonth ?? null,
+    execution,
   )
   const isMultiMonth = batch.months.size > 1
 
@@ -123,6 +135,7 @@ export async function orchestrateImport(
   // 単月: batch から当月の MonthlyData を取得（successCount > 0 なので必ず存在）
   const targetKey = `${effectiveSettings.targetYear}-${effectiveSettings.targetMonth}`
   const incomingMonth = batch.months.get(targetKey) ?? [...batch.months.values()][0]!
+  const monthSummary = batch.summaryByMonth.get(targetKey)
 
   return orchestrateSingleMonth(
     incomingMonth,
@@ -132,6 +145,8 @@ export async function orchestrateImport(
     summary,
     effects,
     detectedYearMonth ?? null,
+    monthSummary,
+    execution.importId,
   )
 }
 

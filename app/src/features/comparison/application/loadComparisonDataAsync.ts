@@ -12,6 +12,7 @@ import type {
   CategoryTimeSalesData,
   CategoryTimeSalesRecord,
   SpecialSalesData,
+  SpecialSalesDayEntry,
 } from '@/domain/models/record'
 import type { QueryMonth } from '@/domain/models/ComparisonScope'
 import type { LoadAction } from './comparisonLoadLogic'
@@ -135,9 +136,31 @@ export async function loadComparisonDataAsync(
 
   if (isCancelled()) return null
 
-  // 花データ（客数）
+  // 花データ（客数）— classifiedSales/CTS と同様に隣接月もロード・マージ
   const prevFlowers = await repo.loadDataSlice<SpecialSalesData>(sourceYear, sourceMonth, 'flowers')
   if (isCancelled()) return null
+  const prevPrevFlowers = await repo.loadDataSlice<SpecialSalesData>(
+    prev.year,
+    prev.month,
+    'flowers',
+  )
+  if (isCancelled()) return null
+  const prevNextFlowers = await repo.loadDataSlice<SpecialSalesData>(
+    next.year,
+    next.month,
+    'flowers',
+  )
+  if (isCancelled()) return null
+
+  const mergedFlowersRecords = mergeAdjacentMonthRecords<SpecialSalesDayEntry>(
+    prevFlowers?.records ?? [],
+    prevPrevFlowers?.records,
+    prevNextFlowers?.records,
+    sourceYear,
+    sourceMonth,
+    daysInSourceMonth,
+    daysInPrevMonth,
+  )
 
   dispatch({
     type: 'success',
@@ -148,7 +171,7 @@ export async function loadComparisonDataAsync(
   return {
     prevYearClassifiedSales: { records: mergedCSRecords },
     prevYearCategoryTimeSales: { records: mergedCTSRecords },
-    prevYearFlowers: prevFlowers ?? { records: [] },
+    prevYearFlowers: { records: mergedFlowersRecords },
   }
 }
 

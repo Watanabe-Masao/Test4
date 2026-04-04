@@ -40,8 +40,8 @@ export async function orchestrateMultiMonth(
           existingByMonth.set(mk, monthlyData)
         }
       }
-    } catch {
-      // ストレージエラーは無視
+    } catch (err) {
+      console.warn('[multiMonthImport] 既存データ読み込み失敗:', err)
     }
   }
 
@@ -130,10 +130,12 @@ export async function orchestrateMultiMonth(
   const messages = validateImportData(primaryMonthly, summary)
   const detectedMaxDay = detectDataMaxDay(primaryMonthly)
 
-  // 各月のインポート履歴を保存
+  // 各月のインポート履歴を保存（月別 summary があればそれを使用）
+  const importId = batch.execution.importId
   for (const [mk] of incomingByMonth) {
     const [y, m] = mk.split('-').map(Number)
-    saveImportHistory(summary, y, m, repo)
+    const monthSummary = batch.summaryByMonth.get(mk) ?? summary
+    saveImportHistory(monthSummary, y, m, repo, importId)
   }
 
   return {

@@ -47,11 +47,16 @@ export interface ImportHistoryFile {
   readonly relativePath?: string
   readonly type: string | null
   readonly typeName: string | null
+  /** マージ後累計（importedCount が差分ベースの正確な値） */
   readonly rowCount?: number
+  /** その月にこのファイルから追加されたレコード数 */
+  readonly importedCount?: number
 }
 
 /** インポート履歴の1回分の記録 */
 export interface ImportHistoryEntry {
+  /** import 操作の一意識別子（冪等 restore 用） */
+  readonly importId?: string
   /** ISO 8601 取込日時 */
   readonly importedAt: string
   /** 取り込まれたファイル */
