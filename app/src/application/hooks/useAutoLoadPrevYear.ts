@@ -141,8 +141,8 @@ export function useAutoLoadPrevYear(): void {
           interStoreOut: prevInterStoreOut ?? { records: [] },
         })
         invalidateAfterStateChange()
-      } catch {
-        // IndexedDB エラー時は静かに無視
+      } catch (e) {
+        console.warn('[useAutoLoadPrevYear] Failed to load previous year data:', e)
       }
     })()
 
