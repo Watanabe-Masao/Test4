@@ -13,7 +13,7 @@
 ## 現在の健全性サマリー
 
 <!-- GENERATED:START architecture-health-summary -->
-**Watch** | 前回比: Flat | Hard Gate: PASS
+**RISK** | 前回比: Flat | Hard Gate: FAIL
 
 | 指標 | 状態 | 詳細 |
 |---|---|---|
@@ -25,10 +25,11 @@
 | 性能 | OK | 6443/7000 / 2214/2500 / 919/1000 |
 
 **Next:**
+- Doc 更新義務違反数 を budget 0 以下に修正する
 - Active Bridge 数 を 5 → 3 に削減する（残 2）
 - 上限間近ファイル 2 件を分割検討する
 
-> 生成: 2026-04-04T08:03:52.719Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-04T08:46:52.876Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 現状スナップショット

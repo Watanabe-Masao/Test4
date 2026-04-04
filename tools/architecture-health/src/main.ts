@@ -20,6 +20,7 @@ import { collectFromGuards } from './collectors/guard-collector.js'
 import { collectFromDocs } from './collectors/doc-collector.js'
 import { collectFromBundle } from './collectors/bundle-collector.js'
 import { collectObligations, reportObligationDetails } from './collectors/obligation-collector.js'
+import { collectFromCiTiming } from './collectors/ci-timing-collector.js'
 import { evaluate } from './evaluator.js'
 import {
   assessOverall,
@@ -75,10 +76,13 @@ const docKpis = collectFromDocs(repoRoot)
 console.error('[collect] bundle...')
 const bundleKpis = collectFromBundle(repoRoot)
 
+console.error('[collect] ci-timing...')
+const ciTimingKpis = collectFromCiTiming(repoRoot)
+
 console.error('[collect] obligations...')
 const obligationKpis = collectObligations(repoRoot, { base })
 
-const allKpis = [...snapshotKpis, ...guardKpis, ...docKpis, ...bundleKpis, ...obligationKpis]
+const allKpis = [...snapshotKpis, ...guardKpis, ...docKpis, ...bundleKpis, ...ciTimingKpis, ...obligationKpis]
 console.error(`[collect] done — ${allKpis.length} KPIs`)
 
 // ---------------------------------------------------------------------------
@@ -190,6 +194,8 @@ if (actions.length > 0) {
   }
 }
 
-if (!s.hardGatePass) {
+// generate モードでは exit しない（obligation は開発途中で発火するため）
+// --check / --pr-comment のみ exit 1
+if (!s.hardGatePass && (isCheck || isPrComment)) {
   process.exit(1)
 }

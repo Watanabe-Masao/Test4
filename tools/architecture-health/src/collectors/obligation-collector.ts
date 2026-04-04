@@ -81,6 +81,27 @@ export const OBLIGATION_MAP: readonly ObligationRule[] = [
     label: '設計原則変更時は principles.json 確認が必要',
     check: { type: 'file_modified', file: 'docs/contracts/principles.json' },
   },
+  // --- health ツール変更 → generated docs 再生成必須 ---
+  {
+    pathPattern: 'tools/architecture-health/',
+    obligationId: 'obligation.health-tool.regenerate',
+    label: 'Health ツール変更時は docs:generate 再実行が必要',
+    check: { type: 'health_regenerated' },
+  },
+  // --- health rules 変更 → health.json 再生成必須 ---
+  {
+    pathPattern: 'tools/architecture-health/src/config/',
+    obligationId: 'obligation.health-config.regenerate',
+    label: 'Health ルール/リンク変更時は health.json 再生成が必要',
+    check: { type: 'health_regenerated' },
+  },
+  // --- generated/** の手編集禁止 ---
+  {
+    pathPattern: 'references/02-status/generated/',
+    obligationId: 'obligation.generated.no-manual-edit',
+    label: 'Generated ファイルは手編集禁止（docs:generate で再生成すること）',
+    check: { type: 'health_regenerated' },
+  },
 ] as const
 
 // ---------------------------------------------------------------------------
