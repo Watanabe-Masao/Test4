@@ -7,7 +7,7 @@
 | **総合評価** | **RISK** |
 | 前回比 | Flat |
 | リリース影響 | Yes |
-| 最終更新 | 2026-04-04T08:44:36.548Z |
+| 最終更新 | 2026-04-04T08:46:52.876Z |
 
 ## Hard Gate
 
@@ -42,12 +42,6 @@
 - 状態: 5 / budget 3（67% 超過）
 - ファイル: `app/src/application/services/budgetAnalysisBridge.ts`
 - 定義書: `references/02-status/technical-debt-roadmap.md #後方互換負債`
-
-## Recent Changes
-
-| 指標 | 前回 | 今回 | 変化 |
-|---|---|---|---|
-| Doc 更新義務違反数 | 3 | 1 | -2 + |
 
 ## Recommended Actions
 

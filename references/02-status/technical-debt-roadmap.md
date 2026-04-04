@@ -29,7 +29,7 @@
 - Active Bridge 数 を 5 → 3 に削減する（残 2）
 - 上限間近ファイル 2 件を分割検討する
 
-> 生成: 2026-04-04T08:44:36.548Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-04T08:46:52.876Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 現状スナップショット
