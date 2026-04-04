@@ -2,6 +2,7 @@
 import { create } from 'zustand'
 import { z } from 'zod'
 import { devtools, persist } from 'zustand/middleware'
+import { getZustandStorage } from '@/application/adapters/uiPersistenceAdapter'
 
 // ─── Types ────────────────────────────────────────────
 export type CurrencyUnit = 'sen' | 'yen'
@@ -71,10 +72,11 @@ export const useUiStore = create<UiStore>()(
       }),
       {
         name: 'shiire-arari-ui',
-        // Set のシリアライズ/デシリアライズ対応
+        // Set のシリアライズ/デシリアライズ対応（adapter 経由）
         storage: {
           getItem: (name) => {
-            const raw = localStorage.getItem(name)
+            const backend = getZustandStorage()
+            const raw = backend.getItem(name)
             if (!raw) return null
             try {
               const parsed = JSON.parse(raw)
@@ -114,9 +116,13 @@ export const useUiStore = create<UiStore>()(
                   : [],
               },
             }
-            localStorage.setItem(name, JSON.stringify(serialized))
+            const backend = getZustandStorage()
+            backend.setItem(name, JSON.stringify(serialized))
           },
-          removeItem: (name) => localStorage.removeItem(name),
+          removeItem: (name) => {
+            const backend = getZustandStorage()
+            backend.removeItem(name)
+          },
         },
         partialize: (state) =>
           ({
