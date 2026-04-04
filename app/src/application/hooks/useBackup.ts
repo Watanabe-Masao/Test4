@@ -64,8 +64,9 @@ export function useBackup(repo: DataRepository | null): {
         const result = await backupAdapter.importBackup(file, repo, {
           overwriteExisting: overwrite,
         })
-        // v2: AppSettings が含まれていれば復元する
-        if (result.restoredAppSettings) {
+        // v2: AppSettings が含まれ、かつ月データが1件以上復元された場合のみ設定を適用する。
+        // overwrite=false で全月スキップ時に設定だけ変わるのを防ぐ。
+        if (result.restoredAppSettings && result.monthsImported > 0) {
           useSettingsStore.getState().updateSettings(result.restoredAppSettings)
         }
         setLastImportResult(result)

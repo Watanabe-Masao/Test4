@@ -14,6 +14,7 @@ import {
 } from './dbHelpers'
 import { monthKey, summaryKey, importHistoryKey, STORE_DAY_FIELDS } from './keys'
 import type { SessionEntry } from './metaOperations'
+import { rawFileStore } from '../rawFileStore'
 
 /**
  * 指定年月のデータを全て削除する。
@@ -35,6 +36,12 @@ export async function clearMonthData(year: number, month: number): Promise<void>
   deleteEntries.push({ storeName: STORE_MONTHLY, key: summaryKey(year, month) })
   // importHistory も削除
   deleteEntries.push({ storeName: STORE_MONTHLY, key: importHistoryKey(year, month) })
+
+  // rawFileStore / datasetRegistry のメタデータも削除
+  // rawFile のキーパターン: rawFile:{year}-{month}:{dataType} および rawFile:meta:{year}-{month}
+  // dataset のキーパターン: dataset:{year}-{month}
+  deleteEntries.push({ storeName: STORE_META, key: `dataset:${year}-${month}` })
+  deleteEntries.push({ storeName: STORE_META, key: `rawFile:meta:${year}-${month}` })
 
   // lastSession が当該年月の場合のみ条件付き削除
   const conditionalDeletes = [
@@ -62,6 +69,12 @@ export async function clearMonthData(year: number, month: number): Promise<void>
   ]
 
   await dbAtomicDeleteWithReadModify(deleteEntries, conditionalDeletes, readModifyOps)
+
+  // rawFile の個別 Blob キー（rawFile:{year}-{month}:{dataType}）も削除する。
+  // メタキーは上の atomic delete で消済みだが、個別 Blob は dataType が動的なため別途削除。
+  rawFileStore.clearMonth(year, month).catch((e) => {
+    console.warn('[clearMonthData] rawFileStore.clearMonth failed:', e)
+  })
 }
 
 /**
@@ -75,6 +88,15 @@ export async function clearAllData(): Promise<void> {
   }))
   deleteEntries.push({ storeName: STORE_META, key: 'lastSession' })
   deleteEntries.push({ storeName: STORE_META, key: 'sessions' })
+
+  // STORE_META から rawFile:* と dataset:* キーも全削除
+  const metaKeys = await dbGetAllKeys(STORE_META)
+  for (const key of metaKeys) {
+    if (key.startsWith('rawFile:') || key.startsWith('dataset:')) {
+      deleteEntries.push({ storeName: STORE_META, key })
+    }
+  }
+
   await dbBatchDelete(deleteEntries)
 }
 

@@ -27,7 +27,13 @@ export function toMonthlyImportBatch(
   summary: ImportSummary,
   detectedYearMonth: { year: number; month: number } | null,
 ): MonthlyImportBatch {
-  const recordMonths = extractRecordMonths(processedData, monthPartitions)
+  let recordMonths = extractRecordMonths(processedData, monthPartitions)
+
+  // settings-only import 等でレコード月が検出されない場合、detectedYearMonth をフォールバック
+  if (recordMonths.length === 0 && detectedYearMonth) {
+    recordMonths = [{ year: detectedYearMonth.year, month: detectedYearMonth.month }]
+  }
+
   const months = new Map<string, MonthlyData>()
 
   for (const { year, month } of recordMonths) {
