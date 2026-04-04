@@ -2,9 +2,34 @@
 
 > 管理責任: documentation-steward ロール。
 > 起点: Sprint 1（guardTagRegistry 分離、allowlists/ 分割、CONTRIBUTING.md URL 整合）
-> 作成日: 2026-03-23
+> 作成日: 2026-03-23 / 更新日: 2026-04-04
+>
+> **現在値（件数・残数・hotspot）は generated snapshot を正本とする。**
+> 本ドキュメントは方針・優先順位・判断理由を記録する。
+> 件数の一次情報源: `references/02-status/generated/architecture-health.json`
 
 ---
+
+## 現在の健全性サマリー
+
+<!-- GENERATED:START architecture-health-summary -->
+**Watch** | 前回比: Flat | Hard Gate: PASS
+
+| 指標 | 状態 | 詳細 |
+|---|---|---|
+| 例外圧 | OK | 15/20 / 0/0 / 7/10 |
+| 後方互換負債 | WARN | 5/3 / 2/3 |
+| 複雑性圧 | OK | 2/5 / 10/10 / 27/30 |
+| 境界健全性 | OK | 0/0 / 0/0 |
+| ガード強度 | OK | 31/30 / 0/5 |
+| 性能 | OK | 6443/7000 / 2214/2500 / 919/1000 |
+
+**Next:**
+- Active Bridge 数 を 5 → 3 に削減する（残 2）
+- 上限間近ファイル 2 件を分割検討する
+
+> 生成: 2026-04-04T08:03:52.719Z — 正本: `references/02-status/generated/architecture-health.json`
+<!-- GENERATED:END architecture-health-summary -->
 
 ## 現状スナップショット
 

@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "設計原則体系の唯一正本。CLAUDE.md, references/README.md, CONTRIBUTING.md, documentConsistency.test.ts はこの JSON を参照・検証する。",
+  "taxonomy": "A-H+Q",
+  "categories": [
+    { "id": "A", "title": "層境界", "tags": ["A1", "A2", "A3", "A4", "A5", "A6"] },
+    { "id": "B", "title": "実行エンジン境界", "tags": ["B1", "B2", "B3"] },
+    { "id": "C", "title": "純粋性と責務分離", "tags": ["C1", "C2", "C3", "C4", "C5", "C6", "C7"] },
+    { "id": "D", "title": "数学的不変条件", "tags": ["D1", "D2", "D3"] },
+    { "id": "E", "title": "型安全と欠損処理", "tags": ["E1", "E2", "E3", "E4"] },
+    { "id": "F", "title": "コード構造規約", "tags": ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9"] },
+    { "id": "G", "title": "機械的防御", "tags": ["G1", "G2", "G3", "G4", "G5", "G6", "G7"] },
+    { "id": "H", "title": "Screen Runtime", "tags": ["H1", "H2", "H3", "H4", "H5", "H6"] },
+    { "id": "Q", "title": "Query Access Architecture", "tags": ["Q3", "Q4"] }
+  ],
+  "obsoleteTerms": [
+    "19 の設計原則",
+    "19の設計原則",
+    "13 禁止事項",
+    "13禁止事項",
+    "7カテゴリ A-G",
+    "7 カテゴリ A-G",
+    "設計思想 19",
+    "A1-G7"
+  ]
+}

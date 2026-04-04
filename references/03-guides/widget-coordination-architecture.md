@@ -1,29 +1,65 @@
 # ウィジェット連動アーキテクチャ
 
-> 本ドキュメントは、個別最適で作られたグラフ群を連動させるための
-> **契約・状態モデル・イベント標準・再計算境界** を定義する。
+> 本ドキュメントは、ウィジェット間連動の理想図だけでなく、
+> **現在の標準実装パターン** を示す。
 >
-> 前提: グラフの見た目やライブラリを共通化するのではなく、
-> **連動の入力契約を先に揃える** ことが目的。
+> 特に以下を対象とする:
+> - 共通 context の受け渡し
+> - Screen Plan による query orchestration
+> - Controller / View / OptionBuilder の責務分離
+> - 連動イベントの標準化
+>
+> 実行時データ経路の全体像は `references/03-guides/runtime-data-path.md` を参照。
 
-## 現状分析
+## この文書でいう「標準」
 
-### 既にある土台
+現時点の標準パターンは 1 つではない。���の 2 系統を使い分ける。
+
+1. **共通 readModel 配布系** — `useWidgetDataOrchestrator` が取得系 readModel を統合配布
+2. **screen-specific plan 系** — `useXxxPlan` + `useQueryWithHandler` ��画面固有の query を束ねる
+
+時間帯分析・包含型分析ユニットは、後者の標準実装である。
+
+## 現在の標準化状況
+
+### すでに標準化されているもの
 
 | 仕組み | 位置 | 役割 |
 |---|---|---|
-| `useUnifiedWidgetContext` | presentation/hooks | 全ウィジェットへの共通データ供給 |
-| `CrossChartSelectionContext` | presentation/components/charts | ウィジェット間選択・ドリルスルー |
-| Zustand stores (5個) | application/stores | グローバル状態管理 |
-| `useComparisonModule` | application/hooks | 比較データの唯一の供給元 |
-| architectureGuard | test | 重複取得・境界違反の抑止 |
+| `useUnifiedWidgetContext` | presentation/hooks | presentation 側の共通入口 |
+| `useQuerySlice` | presentation/hooks/slices | query 関連依存の局所化 |
+| `useWidgetQueryContext` | application/hooks | QueryExecutor / DuckDB readiness |
+| `useWidgetDataOrchestrator` | application/hooks | 取得系 readModel の統合配布 |
+| `useQueryWithHandler` | application/hooks | 標準 query access（cache / profiling） |
+| `useXxxPlan` | application/hooks/plans | Screen Plan（query orchestration） |
+| `CrossChartSelectionContext` | presentation/components/charts | ウィジェット間 Focus 連動 |
 
-### 現状の問題
+### まだ併存しているもの
 
-1. **データ取得がグラフ内に分散**: TimeSlotChart, HeatmapChart 等は内部で DuckDB を直接クエリ
-2. **状態解釈がグラフ内に分散**: 各グラフが `compMode`, `hierarchy`, `viewMode` を独自管理
-3. **ViewModel 変換が未統一**: 天気・カテゴリ等のドメイン値解釈が UI に漏れていた
-4. **連動イベントの粒度が粗い**: `CrossChartSelectionContext` は highlight/drillThrough のみ
+- 共通 readModel 配布で十分な系列と、Screen Plan で束ねる方が自然な系列が併存
+- 一部のウィジェットは旧 props 互換を維持中（暫定互換 → 包含型コンテナ移行で段階的に解消）
+
+### 標準実装リファレンス: TimeSlotChart
+
+`TimeSlotChart` 系は、screen-specific plan パターンの代表実装である。
+
+```
+TimeSlotChart.tsx                  // Controller
+  → useTimeSlotData.ts            // UI state + hierarchy state + derivation
+  → useTimeSlotPlan.ts            // Screen Query Plan
+  → useQueryWithHandler.ts        // 標準 query access
+  → QueryHandler 群               // HourlyAggregation, DistinctDayCount, etc.
+  → TimeSlotChartView.tsx         // View
+  → TimeSlotChartOptionBuilder.ts // 表示構築
+```
+
+**原則:**
+- component に acquisition logic を書かない
+- comparison routing は plan に閉じる
+- View は raw query 値を直接解釈しない
+- 新規の複雑画面はこの構造を優先する
+
+## 以下は元の設計仕様（更新中）
 
 ---
 

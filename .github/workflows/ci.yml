@@ -63,6 +63,34 @@ jobs:
       - name: Guard tests (structural constraints)
         run: npm run test:guards
 
+  # ── Gate 1.5: docs-health（fast-gate 後に並列 — 生成差分検出 + health 判定） ──
+  docs-health:
+    needs: [wasm-build, fast-gate]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: wasm-pkg
+          path: wasm
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - run: npm ci
+
+      - name: Build (for bundle size collection)
+        run: npm run build
+
+      - name: Docs check (generated freshness + health gate)
+        run: npm run docs:check
+
   # ── Gate 2: テスト + カバレッジ + Storybook（fast-gate 後に並列） ──
   test-coverage:
     needs: [wasm-build, fast-gate]
@@ -160,7 +188,7 @@ jobs:
   # VITE_JMA_PROXY_URL を含む本番条件での再ビルド（意図的な重複）
   pages-build:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [fast-gate, test-coverage, e2e]
+    needs: [fast-gate, docs-health, test-coverage, e2e]
     runs-on: ubuntu-latest
     defaults:
       run:

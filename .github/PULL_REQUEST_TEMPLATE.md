@@ -46,6 +46,30 @@
 - [ ] チャートコンポーネントを追加
 - [ ] パフォーマンス計測を実施
 
+## Doc impact
+
+> 変更がドキュメントに影響する場合はチェックし、対応してください。
+> `documentConsistency.test.ts` が CI で整合性を検証します。
+
+- [ ] ドキュメント影響なし
+- [ ] README.md / CONTRIBUTING.md 更新
+- [ ] CLAUDE.md 更新（設計原則・ルーティング・CI 等）
+- [ ] roles/ 更新（ROLE.md / SKILL.md）
+- [ ] references/ 更新（原則・ガイド・ステータス）
+- [ ] docs/contracts/ 更新（principles.json / project-metadata.json）
+- [ ] CHANGELOG.md 更新
+- [ ] open-issues.md 更新
+
+**パスベースの更新義務（該当する場合は確認必須）:**
+
+| 変更パス | 確認すべきドキュメント |
+|---|---|
+| `.github/workflows/**` | CLAUDE.md CI セクション, CONTRIBUTING.md CI セクション |
+| `roles/**` | CLAUDE.md ルーティング表 |
+| `references/01-principles/**` | docs/contracts/principles.json |
+| `app/package.json` (version) | docs/contracts/project-metadata.json, CHANGELOG.md |
+| `wasm/**` | README.md, CONTRIBUTING.md（WASM ��提） |
+
 ## 禁止事項の確認
 
 - [ ] コンパイラ警告を `_` や `eslint-disable` で黙らせていない

@@ -9,6 +9,7 @@
 - **Node.js 22 以上**
 - npm（Node.js に同梱）
 - Git
+- **Rust + wasm-pack**（WASM モジュールのビルドに必要）
 
 ### 手順
 
@@ -17,13 +18,19 @@
 git clone <repository-url>
 cd Test4
 
-# 2. 依存パッケージをインストール
+# 2. WASM モジュールをビルド（初回 or wasm/ 変更時のみ）
 cd app
+npm run build:wasm
+
+# 3. 依存パッケージをインストール
 npm install
 
-# 3. 開発サーバーを起動
+# 4. 開発サーバーを起動
 npm run dev
 ```
+
+> **注:** `package.json` は `file:../wasm/.../pkg` 依存を含むため、
+> WASM ビルドを行わずに `npm install` すると失敗する場合があります。
 
 開発サーバーは `http://localhost:5173/Test4/` で起動します。
 
@@ -33,7 +40,7 @@ npm run dev
 
 1. **CLAUDE.md** — プロジェクト構成・設計原則・コマンド一覧（全体マップ）
 2. **app/src/features/README.md** — 縦スライス構成と feature ルール
-3. **references/01-principles/design-principles.md** — 7カテゴリの設計原則
+3. **references/01-principles/design-principles.md** — 9カテゴリ（A-H + Q）の設計原則
 4. **references/02-status/features-migration-status.md** — 現在の移行状況
 5. **app/src/test/guards/** — guard テストの一覧を眺めて制約を把握
 
@@ -109,12 +116,23 @@ fix(calculations): decompose5 のシャープリー恒等式不整合を修正
 PR を作成すると、以下の CI パイプラインが自動実行されます。
 **全てのチェックが通過しないとマージできません。**
 
-1. `npm run lint` -- ESLint（エラー 0 必須）
-2. `npm run format:check` -- Prettier フォーマットチェック
-3. `npm run build` -- tsc -b + vite build（TypeScript strict mode）
-4. `npm run build-storybook` -- Storybook ビルド（型・import 健全性）
-5. `npx vitest run --coverage` -- テスト + カバレッジ（lines 55%）
-6. `npm run test:e2e` -- Playwright E2E テスト
+CI は `wasm-build` → `fast-gate` → (`test-coverage` + `e2e`) の依存構造で実行されます。
+PR マージに必要なゲート:
+
+**fast-gate（高速ゲート）:**
+1. `npm run lint` — ESLint（エラー 0 必須）
+2. `npm run format:check` — Prettier フォーマットチェック
+3. `npm run build` — tsc -b + vite build（TypeScript strict mode）
+4. `npm run test:guards` — ガードテスト（構造制約の即時検証）
+
+**test-coverage（fast-gate 後に並列実行）:**
+5. `npx vitest run --coverage` — テスト + カバレッジ（lines 55%）
+6. `npm run build-storybook` — Storybook ビルド（型・import 健全性）
+
+**e2e（fast-gate 後に並列実行）:**
+7. `npm run test:e2e` — Playwright E2E テスト
+
+> CI の全体構成（pages-build, deploy 含む）は `CLAUDE.md` と `.github/workflows/ci.yml` を参照。
 
 ### 2. PR 作成前のローカル確認
 
@@ -133,7 +151,9 @@ npm run lint && npm run format:check && npm run build && npm test
 
 ## 設計原則
 
-本プロジェクトは 19 の設計原則に基づいています。`CLAUDE.md` の「設計思想」セクションに詳細があります。
+本プロジェクトは 9 カテゴリ（A-H + Q）の設計原則に基づいています。
+カテゴリ一覧と要約は `CLAUDE.md` の「設計原則」セクション、
+詳細・適用例は `references/01-principles/design-principles.md` を参照してください。
 
 主要な原則:
 - **機械的アーキテクチャ検証**: `guards/layerBoundaryGuard.test.ts` がレイヤー間依存を自動検証
@@ -200,6 +220,6 @@ npm run test:coverage
 
 ## 参考ドキュメント
 
-- **`CLAUDE.md`**: 設計思想 19 原則・13 禁止事項・コーディング規約・アーキテクチャルールの詳細
+- **`CLAUDE.md`**: 設計原則 9 カテゴリ（A-H + Q）・コーディング規約・アーキテクチャルールの詳細
 - **`roles/`**: ロール定義（マルチロール開発体制の責務・スキル・連携）
 - **`references/`**: 共有参照資料（計算エンジン・データモデル・セキュリティ等）

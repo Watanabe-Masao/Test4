@@ -189,7 +189,7 @@ app/src/
 ├── application/      # アプリケーション層（hooks, stores, usecases, queries, workers, services/temporal）
 ├── infrastructure/   # インフラ層（DuckDB, storage, export, i18n, pwa）
 ├── presentation/     # プレゼンテーション層（components, pages, theme）
-├── features/         # 縦スライス（sales/, category/, shared/ — 段階的移行中）
+├── features/         # 縦スライス（13モジュール: budget, category, clip-export, comparison, cost-detail, forecast, purchase, reports, sales, shared, storage-admin, time-slot, weather）
 ├── stories/          # Storybook
 └── test/             # ガードテスト・共有インフラ
     ├── guardTestHelpers.ts   # 共有ヘルパー（collectTsFiles, rel 等）
@@ -199,25 +199,42 @@ app/src/
     │   ├── complexity.ts     #   行数・useMemo 制限
     │   ├── duckdb.ts         #   DuckDB hook
     │   ├── size.ts           #   ファイルサイズ
+    │   ├── performance.ts    #   パフォーマンス制限
     │   ├── migration.ts      #   比較移行
     │   └── misc.ts           #   その他
     ├── calculationCanonRegistry.ts  # domain/calculations/ 全ファイル分類
-    ├── guards/               # 構造制約ガード（22ファイル / 213テスト）
-    │   ├── layerBoundaryGuard.test.ts
-    │   ├── presentationIsolationGuard.test.ts
-    │   ├── structuralConventionGuard.test.ts
-    │   ├── codePatternGuard.test.ts
-    │   ├── sizeGuard.test.ts
-    │   ├── purityGuard.test.ts
-    │   ├── temporalRollingGuard.test.ts
-    │   ├── purchaseCostPathGuard.test.ts
-    │   ├── purchaseCostImportGuard.test.ts
-    │   ├── grossProfitPathGuard.test.ts
-    │   ├── salesFactPathGuard.test.ts
-    │   ├── discountFactPathGuard.test.ts
-    │   ├── factorDecompositionPathGuard.test.ts
+    ├── guards/               # 構造制約ガード（30ファイル / 269テスト）
+    │   ├── analysisFrameGuard.test.ts
     │   ├── calculationCanonGuard.test.ts
-    │   └── canonicalizationSystemGuard.test.ts
+    │   ├── canonicalizationSystemGuard.test.ts
+    │   ├── codePatternGuard.test.ts
+    │   ├── comparisonScopeGuard.test.ts
+    │   ├── customerGapPathGuard.test.ts
+    │   ├── discountFactPathGuard.test.ts
+    │   ├── dualRunExitCriteriaGuard.test.ts
+    │   ├── factorDecompositionPathGuard.test.ts
+    │   ├── fallbackMetadataGuard.test.ts
+    │   ├── freePeriodBudgetPathGuard.test.ts
+    │   ├── freePeriodDeptKPIPathGuard.test.ts
+    │   ├── freePeriodPathGuard.test.ts
+    │   ├── grossProfitConsistencyGuard.test.ts
+    │   ├── grossProfitPathGuard.test.ts
+    │   ├── layerBoundaryGuard.test.ts
+    │   ├── oldPathImportGuard.test.ts
+    │   ├── pageMetaGuard.test.ts
+    │   ├── piValuePathGuard.test.ts
+    │   ├── presentationIsolationGuard.test.ts
+    │   ├── purchaseCostImportGuard.test.ts
+    │   ├── purchaseCostPathGuard.test.ts
+    │   ├── purityGuard.test.ts
+    │   ├── queryPatternGuard.test.ts
+    │   ├── renderSideEffectGuard.test.ts
+    │   ├── salesFactPathGuard.test.ts
+    │   ├── sizeGuard.test.ts
+    │   ├── structuralConventionGuard.test.ts
+    │   ├── temporalRollingGuard.test.ts
+    │   ├── temporalScopeGuard.test.ts
+    │   └── topologyGuard.test.ts
     ├── audits/               # アーキテクチャ監査
     ├── temporal/             # temporal path テスト
     └── observation/          # 観測テスト（WASM 二重実行）
@@ -253,22 +270,36 @@ cd app && npm run build:wasm      # WASM モジュールビルド
 cd app && npm run storybook       # Storybook 開発サーバー
 cd app && npm run build-storybook # Storybook ビルド
 cd app && npm run dev             # Vite 開発サーバー
+cd app && npm run docs:generate   # health 収集 + generated section 更新
+cd app && npm run docs:check      # 生成差分未反映を検出（CI で使用）
+cd app && npm run health          # architecture health 単体実行
+cd app && npm run health:check    # health 判定のみ（書き込みなし）
 ```
 
-### CI パイプライン（3ジョブ構成）
+### CI パイプライン
 
-**fast-gate（高速ゲート — 最初に実行）:**
+CI は `wasm-build` → `fast-gate` → (`docs-health` + `test-coverage` + `e2e`) の依存構造で実行される。
+`wasm-build` が WASM モジュールを artifact として配布し、後続ジョブが利用する。
+
+**wasm-build（前段 — WASM artifact 生成）:**
+0. `wasm-pack build` — 全 WASM モジュール（factor-decomposition, gross-profit, budget-analysis, forecast, time-slot, statistics, core-utils）
+
+**fast-gate（高速ゲート — wasm-build 後に実行）:**
 1. `npm run lint` — ESLint（**エラー0必須**）
 2. `npm run format:check` — Prettier（**準拠必須**）
 3. `npm run build` — tsc -b + vite build（**strict mode**）
 4. `npm run test:guards` — ガードテスト（**構造制約の即時検証**）
 
+**docs-health（fast-gate 後に並列実行 — 生成差分検出 + health 判定）:**
+5. `npm run build` — バンドルサイズ収集のためのビルド
+6. `npm run docs:check` — generated section の鮮度検証 + hard gate 判定
+
 **test-coverage（fast-gate 後に並列実行）:**
-5. `npx vitest run --coverage` — vitest + カバレッジ（**lines 55%**）
-6. `npm run build-storybook` — Storybook ビルド（**ストーリーの型・import 健全性**）
+7. `npx vitest run --coverage` — vitest + カバレッジ（**lines 55%**）
+8. `npm run build-storybook` — Storybook ビルド（**ストーリーの型・import 健全性**）
 
 **e2e（fast-gate 後に並列実行）:**
-7. `npm run test:e2e` — Playwright E2E（**全シナリオ通過**）
+9. `npm run test:e2e` — Playwright E2E（**全シナリオ通過**）
 
 ## コーディング規約
 
@@ -279,6 +310,52 @@ cd app && npm run dev             # Vite 開発サーバー
 - `any` 禁止（lint エラー）、`readonly` 推奨
 - パーセント小数第2位（`formatPercent`）、金額整数（`formatCurrency`）
 - Prettier: `semi: false` / `singleQuote: true` / `printWidth: 100`
+
+## ドキュメント運用原則
+
+ドキュメントはコードの一部であり、品質保証の一部であり、運用の一部である。
+「書く文化」ではなく「通過条件」として扱う。
+
+### 3層分離
+
+| 層 | 内容 | 更新主体 |
+|---|---|---|
+| **定義層** | 原則・正本定義・受け入れ基準・invariant | 人（変わりにくい） |
+| **実態層** | health metrics・snapshot・coverage・bundle size | 機械（`docs:generate`） |
+| **判断層** | roadmap・tradeoff・判断理由・移行方針 | 人（方針のみ） |
+
+### 鉄則
+
+- **prose に現在値を書かない** — 件数・残数・bridge 数・bundle size は全て generated section に寄せる
+- **generated section が古ければ CI が落ちる** — `docs:check` が差分を検出して fail
+- **パス変更に doc 更新義務がある** — obligation map が自動検出（`tools/architecture-health/src/collectors/obligation-collector.ts`）
+- **文書にも API を持たせる** — 全 KPI に `id` / `docRefs` / `implRefs` があり、定義書・guard・実装ファイルと双方向にリンク
+
+### Obligation Map（パス → 更新義務）
+
+| 変更パス | 更新義務 |
+|---|---|
+| `app/src/test/allowlists/` | health regeneration |
+| `app/src/application/readModels/` | 定義書リンク確認 |
+| `app/src/test/guards/` | health regeneration |
+| `app/src/domain/calculations/` | calculationCanonRegistry 確認 |
+| `.github/workflows/` | project-metadata.json 確認 |
+| `wasm/` | setup docs 確認 |
+| `references/01-principles/` | principles.json 確認 |
+
+### 正本構造
+
+```
+docs/contracts/*.json     �� 構造化正本（principles, project-metadata）
+    ↓ 入力
+tools/architecture-health/ ← 収集 → 評価 → 生成
+    ↓ 出力
+references/02-status/generated/
+  architecture-health.json ← KPI 正本（全指標 + docRefs + implRefs）
+  architecture-health.md   �� ビュー（人間可読レポート）
+    ↓ 埋め込み
+CLAUDE.md / technical-debt-roadmap.md の generated section
+```
 
 ## 設計原則 — 8カテゴリ
 
@@ -298,6 +375,7 @@ Safety Tier 分類は `references/01-principles/critical-path-safety-map.md` を
 | **F. コード構造規約** | バレル後方互換（F1）、文字列カタログ（F2）、全パターン同一（F3）、パス配置（F4）、Contract 管理（F5）、文脈継承（F6）、View に raw 禁止（F7）、正本保護（F8）、Raw=唯一真実源（F9） |
 | **G. 機械的防御** | テストに書く（G1）、エラー伝播（G2）、警告黙殺禁止（G3）、テスト用export禁止（G4）、サイズ上限（G5/G6）、キャッシュ≤本体（G7） |
 | **H. Screen Runtime** | Screen Plan 経由のみ（H1）、比較は pair/bundle 契約（H2）、query input 正規化必須（H3）、component に acquisition logic 禁止（H4）、visible-only は plan 宣言（H5）、ChartCard は通知のみ（H6） |
+| **Q. Query Access Architecture** | Chart は DuckDB hook 直接 import 禁止（Q3）、alignment-aware access は handler/resolver に閉じる（Q4） |
 
 **制約の変更:** 「邪魔だから」は理由にならない。「別の仕組みで防がれるようになった」は理由になる。
 
@@ -381,45 +459,105 @@ CQRS + 契約ハイブリッド設計により、既存4層モデルの内側に
 - **移動原価:** IN + OUT の全方向を含める（IN のみは二重計上になるため禁止）
 - **ガード:** `purchaseCostPathGuard.test.ts`（4層9テスト）+ `purchaseCostImportGuard.test.ts`（15テスト）で保証
 
+## 実行時データ経路（実装の主経路）
+
+実装上の主経路は 2 本に整理すると理解しやすい。
+詳細は `references/03-guides/runtime-data-path.md` を参照。
+
+### 1. 正本 lane（業務値の意味を確定する経路）
+
+```
+infra query → QueryHandler → pure builder → readModel / calculateModel → widget が消費
+```
+
+- **handler** は acquisition orchestration を担う（例: `salesFactHandler.ts`）
+- **pure builder** は値の意味と runtime 契約（Zod parse）を担う（例: `buildSalesFactReadModel()`）
+- handler 側に業務意味論を持ち込まない
+
+### 2. Screen Plan lane（画面固有の取得・比較を束ねる経路）
+
+```
+Controller → application hook → Screen Plan → useQueryWithHandler → QueryHandler 群 → View
+```
+
+- **Screen Plan**（`useXxxPlan`）が comparison routing・query orchestration を管理
+- **useQueryWithHandler** が debounce / cache / stale discard / profiling を担う標準経路
+- component に acquisition logic を書かない
+
+### presentation 側の共通入口
+
+`useUnifiedWidgetContext` → comparison slice / query slice / weather slice / chart interaction slice
+`query slice` → `useWidgetQueryContext` / `useWidgetDataOrchestrator`
+
+### 現在値の参照先
+
+allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は prose ではなく
+`references/02-status/generated/architecture-health.json` を正本とする。
+詳細レポート: `references/02-status/generated/architecture-health.md`
+
+<!-- GENERATED:START architecture-health-summary -->
+**Watch** | 前回比: Flat | Hard Gate: PASS
+
+| 指標 | 状態 | 詳細 |
+|---|---|---|
+| 例外圧 | OK | 15/20 / 0/0 / 7/10 |
+| 後方互換負債 | WARN | 5/3 / 2/3 |
+| 複雑性圧 | OK | 2/5 / 10/10 / 27/30 |
+| 境界健全性 | OK | 0/0 / 0/0 |
+| ガード強度 | OK | 31/30 / 0/5 |
+| 性能 | OK | 6443/7000 / 2214/2500 / 919/1000 |
+
+**Next:**
+- Active Bridge 数 を 5 → 3 に削減する（残 2）
+- 上限間近ファイル 2 件を分割検討する
+
+> 生成: 2026-04-04T08:03:52.719Z — 正本: `references/02-status/generated/architecture-health.json`
+<!-- GENERATED:END architecture-health-summary -->
+
 ## 正本化体系（readModels）
 
-全ての業務値は `application/readModels/` に正本化されている。
+主要な業務値は `application/readModels/` に正本化されている。
 定義書は `references/01-principles/` を参照。
+
+ただし、実装上の取得経路は次の 2 系統を持つ:
+1. **共通正本系** — `useWidgetDataOrchestrator` が取得系 readModel を統合配布
+2. **画面固有集約系** — `useXxxPlan` + `useQueryWithHandler` で画面固有の比較・階層・補助系列を束ねる
 
 | 正本 | ReadModel | 定義書 | パスガード |
 |------|-----------|--------|-----------|
-| 仕入原価 | `readPurchaseCost()` | `purchase-cost-definition.md` | purchaseCostPathGuard (9) + importGuard (15) |
-| 粗利 | `calculateGrossProfit()` | `gross-profit-definition.md` | grossProfitPathGuard (6) |
-| 売上・販売点数 | `readSalesFact()` | `sales-definition.md` | salesFactPathGuard (5) |
-| 値引き | `readDiscountFact()` | `discount-definition.md` | discountFactPathGuard (5) |
-| 要因分解 | `calculateFactorDecomposition()` | `authoritative-calculation-definition.md` | factorDecompositionPathGuard (5) |
-| 自由期間分析 | `readFreePeriodFact()` | `free-period-analysis-definition.md` | freePeriodPathGuard (7) |
-| 自由期間予算 | `readFreePeriodBudgetFact()` | `free-period-budget-kpi-contract.md` | freePeriodBudgetPathGuard (6) |
-| 自由期間部門KPI | `readFreePeriodDeptKPI()` | `free-period-budget-kpi-contract.md` | freePeriodDeptKPIPathGuard (4) |
+| 仕入原価 | `readPurchaseCost()` | `purchase-cost-definition.md` | purchaseCostPathGuard + importGuard |
+| 粗利 | `calculateGrossProfit()` | `gross-profit-definition.md` | grossProfitPathGuard + consistencyGuard |
+| 売上・販売点数 | `readSalesFact()` | `sales-definition.md` | salesFactPathGuard |
+| 値引き | `readDiscountFact()` | `discount-definition.md` | discountFactPathGuard |
+| 要因分解 | `calculateFactorDecomposition()` | `authoritative-calculation-definition.md` | factorDecompositionPathGuard |
+| 自由期間分析 | `readFreePeriodFact()` | `free-period-analysis-definition.md` | freePeriodPathGuard |
+| 自由期間予算 | `readFreePeriodBudgetFact()` | `free-period-budget-kpi-contract.md` | freePeriodBudgetPathGuard |
+| 自由期間部門KPI | `readFreePeriodDeptKPI()` | `free-period-budget-kpi-contract.md` | freePeriodDeptKPIPathGuard |
 | 予算 | StoreResult（統一済み） | `budget-definition.md` | — |
 | KPI | StoreResult（統一済み） | `kpi-definition.md` | — |
-| PI値 | `calculateQuantityPI()` / `calculateAmountPI()` | `pi-value-definition.md` | — |
-| 客数GAP | `calculateCustomerGap()` | `customer-gap-definition.md` | — |
+| PI値 | `calculateQuantityPI()` / `calculateAmountPI()` | `pi-value-definition.md` | piValuePathGuard |
+| 客数GAP | `calculateCustomerGap()` | `customer-gap-definition.md` | customerGapPathGuard |
 
-- **widget orchestrator:** `useWidgetDataOrchestrator` が 3正本を `UnifiedWidgetContext.readModels` 経由で全 widget に配布
-- **体系統合ガード:** `canonicalizationSystemGuard.test.ts` (6テスト) — 全 readModel ディレクトリ・定義書・CLAUDE.md 参照を検証
+- **体系統合ガード:** `canonicalizationSystemGuard.test.ts` — 全 readModel ディレクトリ・定義書・CLAUDE.md 参照を検証
 - **計算レジストリ:** `calculationCanonRegistry.ts` + `calculationCanonGuard.test.ts` — domain/calculations/ 全ファイルの分類管理
-- **Zod 契約:** 全 queryToObjects に46型 + readModels の .parse() fail fast + domain/calculations 必須14/14 + 検討7/9
+- **Zod 契約:** 全 queryToObjects に46型 + readModels の .parse() fail fast + domain/calculations 必須13/13 + 検討7/9
 - **不変条件:** `invariant-catalog.md` に INV-CANON-01〜16 として16件の正本化不変条件を登録
 - **正本化原則:** `references/01-principles/canonicalization-principles.md` — 7原則 + 禁止事項
 - **正本化マップ:** `references/01-principles/calculation-canonicalization-map.md` — domain/calculations/ 全ファイルの分類
 
-## 直近の主要変更（#673-#730+）
+## 直近の主要変更（#673-#848+）
 
 詳細は `references/02-status/recent-changes.md` を参照。
 
-- **正本化体系完成**: 全5正本にパスガード + 体系統合ガード（22ファイル/213テスト）。Zod 契約は必須14/14 + 検討7/9。INV-CANON-01〜16 を不変条件カタログに登録
+- **v1.7.0 アーキテクチャ改善**: readModel pure builder 化（5モデル）、God Hook 3分割、Category チャート features/ 移行（35ファイル）
+- **正本化体系完成**: 全正本にパスガード + 体系統合ガード（30ファイル/269テスト）。Zod 契約は必須13/13 + 検討7/9。INV-CANON-01〜16 を不変条件カタログに登録
 - **widget orchestrator 統合**: `useWidgetDataOrchestrator` を `UnifiedWidgetContext.readModels` に統合。3正本（purchaseCost/salesFact/discountFact）を全 widget に配布
 - **仕入原価正本化**: 3独立正本（通常仕入・売上納品・移動原価）を `readPurchaseCost` に統合。旧7クエリ廃止。取得経路ガード4層防御
-- **粗利計算正本化**: 4種の粗利を `calculateGrossProfit` に統一。conditionSummaryUtils の4関数を正本経由に置換。2層構造（計算層 vs 利用層）を文書化
+- **粗利計算正本化**: 4種の粗利を `calculateGrossProfit` に統一。2層構造（計算層 vs 利用層）を文書化
 - **Temporal Phase 0-5**: 移動平均 overlay の最小統合。policy は `references/03-guides/temporal-analysis-policy.md`
 - **P5/DuckDB 収束**: QueryHandler 移行完了、buildTypedWhere 完全移行
-- **Guard 強化**: temporalRollingGuard / purityGuard / codePatternGuard / 正本化ガード群追加
+- **Guard 大幅強化**: 22→30ファイル（+analysisFrame, comparisonScope, customerGap, dualRunExitCriteria, fallbackMetadata, grossProfitConsistency, oldPathImport, pageMeta, piValue, queryPattern, renderSideEffect, temporalScope, topology）
+- **ドキュメント整合性基盤**: `docs/contracts/` に構造化データ（principles.json, project-metadata.json）導入。documentConsistency.test.ts で機械検証
 
 ## Explanation（説明責任）
 
