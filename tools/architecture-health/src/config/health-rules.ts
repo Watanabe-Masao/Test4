@@ -38,6 +38,12 @@ export const HEALTH_RULES: readonly HealthRule[] = [
   { id: 'perf.bundle.mainJsKb', type: 'soft_gate', operator: 'lte', target: 2500 },
   { id: 'perf.bundle.vendorEchartsKb', type: 'info', operator: 'lte', target: 1000 },
 
+  // --- Build Perf ---
+  { id: 'perf.build.app.seconds', type: 'soft_gate', operator: 'lte', target: 120 },
+  { id: 'perf.test.guards.seconds', type: 'soft_gate', operator: 'lte', target: 30 },
+  { id: 'perf.test.coverage.seconds', type: 'soft_gate', operator: 'lte', target: 300 },
+  { id: 'perf.test.e2e.seconds', type: 'soft_gate', operator: 'lte', target: 300 },
+
   // --- Obligation ---
   { id: 'docs.obligation.violations', type: 'hard_gate', operator: 'eq', target: 0 },
 ] as const

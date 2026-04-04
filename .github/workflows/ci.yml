@@ -86,7 +86,16 @@ jobs:
       - run: npm ci
 
       - name: Build (for bundle size collection)
-        run: npm run build
+        run: |
+          START=$(date +%s)
+          npm run build
+          echo "HEALTH_BUILD_SECONDS=$(( $(date +%s) - START ))" >> "$GITHUB_ENV"
+
+      - name: Guard tests (timing capture)
+        run: |
+          START=$(date +%s)
+          npm run test:guards
+          echo "HEALTH_GUARDS_SECONDS=$(( $(date +%s) - START ))" >> "$GITHUB_ENV"
 
       - name: Docs check (generated freshness + health gate)
         run: npm run docs:check

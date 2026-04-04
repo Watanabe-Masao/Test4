@@ -1,16 +1,14 @@
 /**
- * docs:check — health gate 判定 + 構造整合性チェック
+ * docs:check — live 再計算 + committed 正本との意味比較
  *
- * CI で実行する。以下を検証する:
- *   1. health gate（hard gate 通過）
- *   2. generated section マーカーの存在と対の整合性
- *   3. architecture-health.json の schemaVersion と KPI 件数の妥当性
+ * 2段階で検証する:
+ *   A. live 再計算: 全 collector を実行し、health gate を判定
+ *   B. 意味比較: committed architecture-health.json と live 結果を比較
+ *      - 各 KPI の id / value / status が一致するか
+ *      - generated section の要約本文が一致するか
+ *      - byte diff ではなく意味 diff（timestamp 等の環境差異は無視）
  *
- * バイト単位の diff 比較は行わない。
- * タイムスタンプやバンドルサイズは環境依存で変動するため、
- * 「構造が正しいか」「gate を通過するか」だけを CI で検証する。
- *
- * 開発者の責務: `npm run docs:generate` を実行し、結果をコミットする。
+ * これにより、`npm run docs:generate` を忘れると CI は落ちる。
  */
 import { readFileSync, existsSync } from 'node:fs'
 import { resolve, dirname } from 'node:path'
@@ -19,81 +17,58 @@ import { collectFromSnapshot } from './collectors/snapshot-collector.js'
 import { collectFromGuards } from './collectors/guard-collector.js'
 import { collectFromDocs } from './collectors/doc-collector.js'
 import { collectFromBundle } from './collectors/bundle-collector.js'
+import { collectObligations } from './collectors/obligation-collector.js'
 import { evaluate } from './evaluator.js'
+import {
+  assessOverall,
+  buildCompositeIndicators,
+  detectTopRisks,
+  generateRecommendations,
+} from './diagnostics.js'
+import { renderCertificateInline } from './renderers/certificate-renderer.js'
+import { HEALTH_RULES } from './config/health-rules.js'
+import type { HealthReport } from './types.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const repoRoot = resolve(__dirname, '../../..')
-
 const errors: string[] = []
 
 // ---------------------------------------------------------------------------
-// 1. Health gate 判定
+// A. Live 再計算
 // ---------------------------------------------------------------------------
-console.log('[docs:check] Collecting health KPIs...')
+console.log('[docs:check] Live recalculation...')
 
 const snapshotKpis = collectFromSnapshot(repoRoot)
 const guardKpis = collectFromGuards(repoRoot)
 const docKpis = collectFromDocs(repoRoot)
 const bundleKpis = collectFromBundle(repoRoot)
+const obligationKpis = collectObligations(repoRoot)
 
-const allKpis = [...snapshotKpis, ...guardKpis, ...docKpis, ...bundleKpis]
+const allKpis = [
+  ...snapshotKpis,
+  ...guardKpis,
+  ...docKpis,
+  ...bundleKpis,
+  ...obligationKpis,
+]
 console.log(`[docs:check] ${allKpis.length} KPIs collected`)
 
-const report = evaluate(allKpis)
+const liveReport = evaluate(allKpis)
 
-if (!report.summary.hardGatePass) {
-  console.error('[docs:check] Hard gate FAILED')
-  for (const kpi of report.kpis) {
+// --- Hard gate 判定 ---
+if (!liveReport.summary.hardGatePass) {
+  for (const kpi of liveReport.kpis) {
     if (kpi.status === 'fail') {
       errors.push(`Hard gate fail: ${kpi.id} = ${kpi.value} (budget: ${kpi.budget})`)
     }
   }
 }
-
-console.log(`[docs:check] Hard gate: ${report.summary.hardGatePass ? 'PASS' : 'FAIL'}`)
-
-// ---------------------------------------------------------------------------
-// 2. Generated section マーカーの整合性
-// ---------------------------------------------------------------------------
-console.log('[docs:check] Checking generated section markers...')
-
-const SECTION_FILES = [
-  { path: 'CLAUDE.md', sectionId: 'architecture-health-summary' },
-  { path: 'references/02-status/technical-debt-roadmap.md', sectionId: 'architecture-health-summary' },
-] as const
-
-for (const { path, sectionId } of SECTION_FILES) {
-  const absPath = resolve(repoRoot, path)
-  if (!existsSync(absPath)) {
-    errors.push(`Missing file: ${path}`)
-    continue
-  }
-  const content = readFileSync(absPath, 'utf-8')
-  const startTag = `<!-- GENERATED:START ${sectionId} -->`
-  const endTag = `<!-- GENERATED:END ${sectionId} -->`
-
-  if (!content.includes(startTag)) {
-    errors.push(`Missing start marker in ${path}: ${startTag}`)
-  }
-  if (!content.includes(endTag)) {
-    errors.push(`Missing end marker in ${path}: ${endTag}`)
-  }
-
-  // マーカー間にコンテンツがあるか
-  const startIdx = content.indexOf(startTag)
-  const endIdx = content.indexOf(endTag)
-  if (startIdx >= 0 && endIdx >= 0) {
-    const between = content.slice(startIdx + startTag.length, endIdx).trim()
-    if (between.length === 0) {
-      errors.push(`Empty generated section in ${path}: ${sectionId}`)
-    }
-  }
-}
+console.log(`[docs:check] Hard gate: ${liveReport.summary.hardGatePass ? 'PASS' : 'FAIL'}`)
 
 // ---------------------------------------------------------------------------
-// 3. architecture-health.json の存在と妥当性
+// B. Committed 正本との意味比較
 // ---------------------------------------------------------------------------
-console.log('[docs:check] Checking architecture-health.json...')
+console.log('[docs:check] Semantic diff against committed health.json...')
 
 const healthJsonPath = resolve(
   repoRoot,
@@ -101,40 +76,141 @@ const healthJsonPath = resolve(
 )
 
 if (!existsSync(healthJsonPath)) {
-  errors.push('Missing: references/02-status/generated/architecture-health.json')
+  errors.push('Missing: architecture-health.json — run `npm run docs:generate`')
 } else {
-  try {
-    const healthJson = JSON.parse(readFileSync(healthJsonPath, 'utf-8'))
-    if (healthJson.schemaVersion !== '1.0.0') {
-      errors.push(`Unexpected schemaVersion: ${healthJson.schemaVersion}`)
+  const committed: HealthReport = JSON.parse(readFileSync(healthJsonPath, 'utf-8'))
+
+  // --- KPI の id / value / status を比較 ---
+  const liveMap = new Map(liveReport.kpis.map((k) => [k.id, k]))
+  const committedMap = new Map(committed.kpis.map((k) => [k.id, k]))
+
+  // live にあるが committed にない KPI
+  for (const [id] of liveMap) {
+    if (!committedMap.has(id)) {
+      errors.push(`KPI missing from committed: ${id} — regenerate required`)
     }
-    if (!healthJson.kpis || healthJson.kpis.length === 0) {
-      errors.push('architecture-health.json has no KPIs')
+  }
+
+  // committed にあるが live にない KPI（環境差異で bundle が増減する場合は許容）
+  // ただし snapshot/guard/docs 系は必須
+  const REQUIRED_PREFIXES = ['allowlist.', 'compat.', 'complexity.', 'boundary.', 'guard.', 'docs.']
+  for (const [id] of committedMap) {
+    if (!liveMap.has(id) && REQUIRED_PREFIXES.some((p) => id.startsWith(p))) {
+      errors.push(`Required KPI missing from live: ${id}`)
     }
-    if (!healthJson.summary) {
-      errors.push('architecture-health.json has no summary')
+  }
+
+  // value / status の不一致（構造系 KPI のみ — perf は環境差異を許容）
+  for (const [id, liveKpi] of liveMap) {
+    const committedKpi = committedMap.get(id)
+    if (!committedKpi) continue
+
+    // perf 系は value の差異を許容（環境依存）
+    if (id.startsWith('perf.')) continue
+    // obligation は CI 環境で git history が異なるため許容
+    if (id.startsWith('docs.obligation')) continue
+
+    if (liveKpi.value !== committedKpi.value) {
+      errors.push(
+        `KPI drift: ${id} — committed: ${committedKpi.value}, live: ${liveKpi.value}`,
+      )
     }
-  } catch (e) {
-    errors.push(`Invalid JSON in architecture-health.json: ${e}`)
+    if (liveKpi.status !== committedKpi.status) {
+      errors.push(
+        `Status drift: ${id} — committed: ${committedKpi.status}, live: ${liveKpi.status}`,
+      )
+    }
   }
 }
 
 // ---------------------------------------------------------------------------
-// 4. certificate の存在
+// C. Generated section マーカー + 本文の整合性
+// ---------------------------------------------------------------------------
+console.log('[docs:check] Checking generated sections...')
+
+const SECTION_FILES = [
+  'CLAUDE.md',
+  'references/02-status/technical-debt-roadmap.md',
+] as const
+
+const SECTION_ID = 'architecture-health-summary'
+
+// live でインライン内容を生成し、committed と比較（timestamp 行を除外）
+const assessment = assessOverall(liveReport)
+const indicators = buildCompositeIndicators(liveReport)
+const risks = detectTopRisks(liveReport)
+const actions = generateRecommendations(liveReport)
+const hardGateRules = HEALTH_RULES.filter((r) => r.type === 'hard_gate')
+const hardGateDetails = hardGateRules.map((rule) => {
+  const kpi = liveReport.kpis.find((k) => k.id === rule.id)
+  return { label: kpi?.label ?? rule.id, pass: kpi?.status !== 'fail' }
+})
+const liveInline = renderCertificateInline({
+  report: liveReport,
+  assessment,
+  indicators,
+  risks,
+  changes: [],
+  actions,
+  hardGateDetails,
+})
+
+/** timestamp 行と perf 数値を正規化して比較用テキストを作る */
+function normalize(text: string): string {
+  return text
+    .split('\n')
+    .filter((line) => !line.startsWith('> 生成:')) // timestamp 行を除外
+    .map((line) => line.replace(/\d{4,}/g, 'N'))    // 大きな数値を正規化（perf値）
+    .join('\n')
+    .trim()
+}
+
+for (const file of SECTION_FILES) {
+  const absPath = resolve(repoRoot, file)
+  if (!existsSync(absPath)) {
+    errors.push(`Missing file: ${file}`)
+    continue
+  }
+  const content = readFileSync(absPath, 'utf-8')
+  const startTag = `<!-- GENERATED:START ${SECTION_ID} -->`
+  const endTag = `<!-- GENERATED:END ${SECTION_ID} -->`
+
+  const startIdx = content.indexOf(startTag)
+  const endIdx = content.indexOf(endTag)
+
+  if (startIdx === -1 || endIdx === -1) {
+    errors.push(`Missing generated section markers in ${file}`)
+    continue
+  }
+
+  const committedSection = content.slice(startIdx + startTag.length, endIdx).trim()
+  if (committedSection.length === 0) {
+    errors.push(`Empty generated section in ${file}`)
+    continue
+  }
+
+  // 正規化して比較
+  if (normalize(committedSection) !== normalize(liveInline)) {
+    errors.push(`Generated section stale in ${file} — content differs from live calculation`)
+  }
+}
+
+// ---------------------------------------------------------------------------
+// D. Certificate の存在
 // ---------------------------------------------------------------------------
 const certPath = resolve(
   repoRoot,
   'references/02-status/generated/architecture-health-certificate.md',
 )
 if (!existsSync(certPath)) {
-  errors.push('Missing: references/02-status/generated/architecture-health-certificate.md')
+  errors.push('Missing: architecture-health-certificate.md — run `npm run docs:generate`')
 }
 
 // ---------------------------------------------------------------------------
 // Result
 // ---------------------------------------------------------------------------
+console.log('')
 if (errors.length > 0) {
-  console.error('')
   console.error(`[docs:check] FAIL — ${errors.length} error(s):`)
   for (const err of errors) {
     console.error(`  ✗ ${err}`)
@@ -144,5 +220,4 @@ if (errors.length > 0) {
   process.exit(1)
 }
 
-console.log('')
-console.log('[docs:check] PASS — health gate passed, all generated docs are structurally valid.')
+console.log('[docs:check] PASS — health gate passed, KPIs match committed, sections valid.')
