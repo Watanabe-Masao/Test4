@@ -37,9 +37,10 @@ export const DEFAULT_WIDGET_IDS: string[] = [
 const STORAGE_KEY = 'dashboard_layout_v14'
 
 export function loadLayout(): string[] {
-  const parsed = loadJson<string[]>(STORAGE_KEY, DEFAULT_WIDGET_IDS, (raw) =>
+  const parsed = loadJson<string[] | null>(STORAGE_KEY, null, (raw) =>
     Array.isArray(raw) ? (raw as string[]) : null,
   )
+  if (!parsed) return DEFAULT_WIDGET_IDS
   const migrated = migrateWidgetIds(parsed)
   const valid = migrated.filter((id) => getWidgetMap().has(id))
   return valid.length > 0 ? valid : DEFAULT_WIDGET_IDS

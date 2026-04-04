@@ -1,15 +1,22 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { autoInjectDataWidgets, getWidgetMap } from '../widgetLayout'
+import { setStorageBackend, resetStorageBackend } from '@/application/adapters/uiPersistenceAdapter'
 
-// localStorage モック
+// adapter 経由のストレージモック
 const storage = new Map<string, string>()
 beforeEach(() => {
   storage.clear()
-  vi.stubGlobal('localStorage', {
+  setStorageBackend({
     getItem: (key: string) => storage.get(key) ?? null,
     setItem: (key: string, value: string) => storage.set(key, value),
-    removeItem: (key: string) => storage.delete(key),
+    removeItem: (key: string) => {
+      storage.delete(key)
+    },
   })
+})
+
+afterEach(() => {
+  resetStorageBackend()
 })
 
 const NO_DATA = {
