@@ -211,10 +211,26 @@ export function aggregateDailyByAlignment(
     }),
   )
 
+  // データ整合性検証: 売上があるのに客数/点数がない異常を検出
+  const dataIntegrityWarnings: string[] = []
+  if (totals.totalSales > 0 && totals.totalCustomers === 0) {
+    const msg =
+      '[データ整合性エラー] 前年売上データはありますが客数データがありません。前年の花データ（客数）がインポートされているか確認してください。'
+    dataIntegrityWarnings.push(msg)
+    console.error(msg)
+  }
+  if (totals.totalSales > 0 && totals.totalCtsQuantity === 0) {
+    const msg =
+      '[データ整合性エラー] 前年売上データはありますが販売点数データがありません。前年のCTSデータがインポートされているか確認してください。'
+    dataIntegrityWarnings.push(msg)
+    console.error(msg)
+  }
+
   return {
     hasPrevYear: true,
     daily: dailyWithEntries,
     ...totals,
+    ...(dataIntegrityWarnings.length > 0 ? { dataIntegrityWarnings } : {}),
   }
 }
 

@@ -258,4 +258,6 @@ export interface PrevYearData {
   readonly discountRate: number
   /** 経過日数分の売変種別内訳合計 */
   readonly totalDiscountEntries: readonly DiscountEntry[]
+  /** データ整合性警告（売上あり客数なし等の異常検出） */
+  readonly dataIntegrityWarnings?: readonly string[]
 }

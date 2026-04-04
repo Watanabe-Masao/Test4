@@ -262,6 +262,14 @@ export function assembleStoreResult(
     metricWarnings.set('observationPeriod', observationPeriod.warnings)
   }
 
+  // データ整合性検証: 売上があるのに客数がない場合はエラー
+  if (acc.totalSales > 0 && acc.totalCustomers === 0) {
+    const msg =
+      '[データ整合性エラー] 売上データはありますが客数データがありません。花データ（客数）がインポートされているか確認してください。PI値・客単価が計算できません。'
+    metricWarnings.set('totalCustomers', [msg])
+    console.error(msg)
+  }
+
   // 粗利予算分析（在庫法粗利 → 推定法マージンの順でフォールバック）
   const effectiveGrossProfit = invResult.grossProfit ?? estResult.margin
   const gpBudgetAnalysis = calculateGrossProfitBudget({
