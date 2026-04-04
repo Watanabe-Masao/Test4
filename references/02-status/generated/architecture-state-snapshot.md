@@ -1,14 +1,14 @@
 # Architecture State Snapshot
 
-> Generated: 2026-04-03T20:18:43.958Z
+> Generated: 2026-04-04T03:20:22.332Z
 
 ## Allowlist Summary
 
 | 指標 | 値 |
 |---|---|
-| 総エントリ数 | 26 |
-| アクティブリスト数 | 8 |
-| 凍結リスト数 | 13 |
+| 総エントリ数 | 15 |
+| アクティブリスト数 | 7 |
+| 凍結リスト数 | 14 |
 | .vm.ts ファイル数 | 27 |
 | 互換 re-export 残数 | 2 |
 
@@ -16,7 +16,7 @@
 
 | カテゴリ | 件数 |
 |---|---|
-| structural | 25 |
+| structural | 14 |
 | adapter | 1 |
 
 
@@ -97,33 +97,23 @@
 
 | ファイル | useMemo | useState | 行数 |
 |---|---|---|---|
-| presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 12 | 5 | 465 |
-| presentation/components/charts/TimeSlotChart.tsx | 10 | 6 | 209 |
-| presentation/pages/Dashboard/widgets/HourlyChart.tsx | 10 | 6 | 514 |
 | presentation/components/charts/useDeptHourlyChartData.ts | 9 | 6 | 236 |
-| presentation/pages/Admin/RawDataTab.tsx | 13 | 2 | 335 |
+| presentation/pages/Dashboard/widgets/HourlyChart.tsx | 9 | 6 | 502 |
+| presentation/components/charts/TimeSlotChart.tsx | 8 | 6 | 215 |
 | presentation/components/charts/useCategoryTrendChartData.ts | 7 | 7 | 183 |
 | presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx | 7 | 7 | 480 |
-| presentation/pages/Dashboard/widgets/useMonthlyCalendarState.ts | 4 | 10 | 266 |
+| presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 9 | 5 | 434 |
 | presentation/components/charts/periodFilterHooks.ts | 5 | 8 | 241 |
-| presentation/pages/Dashboard/widgets/useDrilldownRecords.ts | 13 | 0 | 125 |
+| presentation/pages/Insight/useInsightData.ts | 5 | 7 | 217 |
+| application/hooks/useMetricBreakdown.ts | 7 | 5 | 282 |
+| presentation/pages/Dashboard/widgets/DayDetailModal.tsx | 7 | 4 | 343 |
 
 ## Near-Limit Files (≥80%)
 
 | ファイル | 指標 | 実測 | 上限 | % |
 |---|---|---|---|---|
-| application/hooks/usePeriodAwareKpi.ts | lines | 301 | 310 | 97% |
 | application/hooks/plans/useTimeSlotPlan.ts | lines | 241 | 260 | 93% |
 | application/hooks/duckdb/categoryBenchmarkLogic.ts | lines | 275 | 300 | 92% |
-| presentation/pages/Admin/RawDataTab.tsx | useMemo | 12 | 13 | 92% |
-| presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | useMemo | 11 | 12 | 92% |
-| presentation/pages/Dashboard/widgets/useDrilldownRecords.ts | useMemo | 10 | 11 | 91% |
-| presentation/pages/Dashboard/widgets/HourlyChart.tsx | useMemo | 9 | 10 | 90% |
-| presentation/components/charts/DailySalesChartBody.tsx | useMemo | 8 | 9 | 89% |
-| presentation/pages/Dashboard/widgets/DrilldownWaterfall.tsx | useMemo | 7 | 8 | 88% |
-| presentation/components/charts/TimeSlotChart.tsx | useMemo | 7 | 8 | 88% |
-| presentation/pages/Dashboard/widgets/useMonthlyCalendarState.ts | useState | 9 | 11 | 82% |
-| presentation/pages/Dashboard/widgets/useDrilldownData.ts | useState | 8 | 10 | 80% |
 
 ## Frozen Lists
 
@@ -131,6 +121,7 @@
 - infrastructureToApplication
 - presentationToUsecases
 - presentationDuckdbHook
+- presentationMemoLimits
 - largeComponentTier2
 - infraLargeFiles
 - usecasesLargeFiles
@@ -145,18 +136,18 @@
 
 | リスト名 | 件数 | カテゴリ内訳 |
 |---|---|---|
-| presentationMemoLimits | 7 | structural:7 |
-| domainLargeFiles | 7 | structural:7 |
+| domainLargeFiles | 6 | structural:6 |
 | useStateLimits | 3 | structural:3 |
-| hookLineLimits | 3 | structural:3 |
-| presentationStateLimits | 3 | structural:3 |
+| hookLineLimits | 2 | structural:2 |
 | applicationToInfrastructure | 1 | adapter:1 |
 | useMemoLimits | 1 | structural:1 |
+| presentationStateLimits | 1 | structural:1 |
 | ctxHook | 1 | structural:1 |
 | presentationToInfrastructure | 0 | - |
 | infrastructureToApplication | 0 | - |
 | presentationToUsecases | 0 | - |
 | presentationDuckdbHook | 0 | - |
+| presentationMemoLimits | 0 | - |
 | largeComponentTier2 | 0 | - |
 | infraLargeFiles | 0 | - |
 | usecasesLargeFiles | 0 | - |

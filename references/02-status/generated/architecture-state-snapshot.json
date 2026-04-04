@@ -1,15 +1,16 @@
 {
-  "timestamp": "2026-04-03T20:18:43.958Z",
-  "totalAllowlistEntries": 26,
+  "timestamp": "2026-04-04T03:20:22.332Z",
+  "totalAllowlistEntries": 15,
   "categoryBreakdown": {
     "adapter": 1,
-    "structural": 25
+    "structural": 14
   },
   "frozenLists": [
     "presentationToInfrastructure",
     "infrastructureToApplication",
     "presentationToUsecases",
     "presentationDuckdbHook",
+    "presentationMemoLimits",
     "largeComponentTier2",
     "infraLargeFiles",
     "usecasesLargeFiles",
@@ -20,8 +21,8 @@
     "vmReactImport",
     "sideEffectChain"
   ],
-  "frozenCount": 13,
-  "activeLists": 8,
+  "frozenCount": 14,
+  "activeLists": 7,
   "vmFileCount": 27,
   "compatReexportCount": 2,
   "activeBridges": [
@@ -112,34 +113,22 @@
   ],
   "complexityHotspots": [
     {
-      "file": "presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx",
-      "memoCount": 12,
-      "stateCount": 5,
-      "lineCount": 465
-    },
-    {
-      "file": "presentation/components/charts/TimeSlotChart.tsx",
-      "memoCount": 10,
-      "stateCount": 6,
-      "lineCount": 209
-    },
-    {
-      "file": "presentation/pages/Dashboard/widgets/HourlyChart.tsx",
-      "memoCount": 10,
-      "stateCount": 6,
-      "lineCount": 514
-    },
-    {
       "file": "presentation/components/charts/useDeptHourlyChartData.ts",
       "memoCount": 9,
       "stateCount": 6,
       "lineCount": 236
     },
     {
-      "file": "presentation/pages/Admin/RawDataTab.tsx",
-      "memoCount": 13,
-      "stateCount": 2,
-      "lineCount": 335
+      "file": "presentation/pages/Dashboard/widgets/HourlyChart.tsx",
+      "memoCount": 9,
+      "stateCount": 6,
+      "lineCount": 502
+    },
+    {
+      "file": "presentation/components/charts/TimeSlotChart.tsx",
+      "memoCount": 8,
+      "stateCount": 6,
+      "lineCount": 215
     },
     {
       "file": "presentation/components/charts/useCategoryTrendChartData.ts",
@@ -154,10 +143,10 @@
       "lineCount": 480
     },
     {
-      "file": "presentation/pages/Dashboard/widgets/useMonthlyCalendarState.ts",
-      "memoCount": 4,
-      "stateCount": 10,
-      "lineCount": 266
+      "file": "presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx",
+      "memoCount": 9,
+      "stateCount": 5,
+      "lineCount": 434
     },
     {
       "file": "presentation/components/charts/periodFilterHooks.ts",
@@ -166,20 +155,25 @@
       "lineCount": 241
     },
     {
-      "file": "presentation/pages/Dashboard/widgets/useDrilldownRecords.ts",
-      "memoCount": 13,
-      "stateCount": 0,
-      "lineCount": 125
+      "file": "presentation/pages/Insight/useInsightData.ts",
+      "memoCount": 5,
+      "stateCount": 7,
+      "lineCount": 217
+    },
+    {
+      "file": "application/hooks/useMetricBreakdown.ts",
+      "memoCount": 7,
+      "stateCount": 5,
+      "lineCount": 282
+    },
+    {
+      "file": "presentation/pages/Dashboard/widgets/DayDetailModal.tsx",
+      "memoCount": 7,
+      "stateCount": 4,
+      "lineCount": 343
     }
   ],
   "nearLimitFiles": [
-    {
-      "file": "application/hooks/usePeriodAwareKpi.ts",
-      "metric": "lines",
-      "actual": 301,
-      "limit": 310,
-      "pct": 97
-    },
     {
       "file": "application/hooks/plans/useTimeSlotPlan.ts",
       "metric": "lines",
@@ -193,69 +187,6 @@
       "actual": 275,
       "limit": 300,
       "pct": 92
-    },
-    {
-      "file": "presentation/pages/Admin/RawDataTab.tsx",
-      "metric": "useMemo",
-      "actual": 12,
-      "limit": 13,
-      "pct": 92
-    },
-    {
-      "file": "presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx",
-      "metric": "useMemo",
-      "actual": 11,
-      "limit": 12,
-      "pct": 92
-    },
-    {
-      "file": "presentation/pages/Dashboard/widgets/useDrilldownRecords.ts",
-      "metric": "useMemo",
-      "actual": 10,
-      "limit": 11,
-      "pct": 91
-    },
-    {
-      "file": "presentation/pages/Dashboard/widgets/HourlyChart.tsx",
-      "metric": "useMemo",
-      "actual": 9,
-      "limit": 10,
-      "pct": 90
-    },
-    {
-      "file": "presentation/components/charts/DailySalesChartBody.tsx",
-      "metric": "useMemo",
-      "actual": 8,
-      "limit": 9,
-      "pct": 89
-    },
-    {
-      "file": "presentation/pages/Dashboard/widgets/DrilldownWaterfall.tsx",
-      "metric": "useMemo",
-      "actual": 7,
-      "limit": 8,
-      "pct": 88
-    },
-    {
-      "file": "presentation/components/charts/TimeSlotChart.tsx",
-      "metric": "useMemo",
-      "actual": 7,
-      "limit": 8,
-      "pct": 88
-    },
-    {
-      "file": "presentation/pages/Dashboard/widgets/useMonthlyCalendarState.ts",
-      "metric": "useState",
-      "actual": 9,
-      "limit": 11,
-      "pct": 82
-    },
-    {
-      "file": "presentation/pages/Dashboard/widgets/useDrilldownData.ts",
-      "metric": "useState",
-      "actual": 8,
-      "limit": 10,
-      "pct": 80
     }
   ],
   "listSummary": {
@@ -294,21 +225,19 @@
       }
     },
     "hookLineLimits": {
-      "count": 3,
+      "count": 2,
       "categories": {
-        "structural": 3
+        "structural": 2
       }
     },
     "presentationMemoLimits": {
-      "count": 7,
-      "categories": {
-        "structural": 7
-      }
+      "count": 0,
+      "categories": {}
     },
     "presentationStateLimits": {
-      "count": 3,
+      "count": 1,
       "categories": {
-        "structural": 3
+        "structural": 1
       }
     },
     "largeComponentTier2": {
@@ -320,9 +249,9 @@
       "categories": {}
     },
     "domainLargeFiles": {
-      "count": 7,
+      "count": 6,
       "categories": {
-        "structural": 7
+        "structural": 6
       }
     },
     "usecasesLargeFiles": {
