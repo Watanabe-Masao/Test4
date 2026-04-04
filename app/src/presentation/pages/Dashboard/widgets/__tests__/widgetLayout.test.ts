@@ -1,16 +1,23 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { loadLayout, saveLayout, DEFAULT_WIDGET_IDS, getWidgetMap } from '../widgetLayout'
 import { UNIFIED_WIDGET_MAP } from '@/presentation/components/widgets'
+import { setStorageBackend, resetStorageBackend } from '@/application/adapters/uiPersistenceAdapter'
 
-// localStorage モック
+// adapter 経由のストレージモック
 const storage = new Map<string, string>()
 beforeEach(() => {
   storage.clear()
-  vi.stubGlobal('localStorage', {
+  setStorageBackend({
     getItem: (key: string) => storage.get(key) ?? null,
     setItem: (key: string, value: string) => storage.set(key, value),
-    removeItem: (key: string) => storage.delete(key),
+    removeItem: (key: string) => {
+      storage.delete(key)
+    },
   })
+})
+
+afterEach(() => {
+  resetStorageBackend()
 })
 
 const STORAGE_KEY = 'dashboard_layout_v14'
@@ -87,7 +94,7 @@ describe('saveLayout', () => {
   })
 
   it('localStorage.setItem が例外を投げても crash しない', () => {
-    vi.stubGlobal('localStorage', {
+    setStorageBackend({
       getItem: () => null,
       setItem: () => {
         throw new Error('QuotaExceededError')
