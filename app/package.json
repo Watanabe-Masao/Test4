@@ -24,7 +24,9 @@
     "test:e2e:ui": "playwright test --ui",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "test:visual": "playwright test visual-regression"
+    "test:visual": "playwright test visual-regression",
+    "health": "npx tsx ../tools/architecture-health/src/main.ts",
+    "health:check": "npx tsx ../tools/architecture-health/src/main.ts --check"
   },
   "dependencies": {
     "@duckdb/duckdb-wasm": "^1.33.1-dev18.0",

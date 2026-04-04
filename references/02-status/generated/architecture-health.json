@@ -1,0 +1,372 @@
+{
+  "schemaVersion": "1.0.0",
+  "timestamp": "2026-04-04T07:45:50.117Z",
+  "kpis": [
+    {
+      "id": "allowlist.total",
+      "label": "許可リスト総エントリ数",
+      "category": "allowlist",
+      "value": 15,
+      "unit": "count",
+      "status": "ok",
+      "owner": "architecture",
+      "docRefs": [
+        {
+          "kind": "source",
+          "path": "references/02-status/generated/architecture-state-snapshot.json",
+          "section": "totalAllowlistEntries"
+        },
+        {
+          "kind": "definition",
+          "path": "references/03-guides/allowlist-management.md"
+        },
+        {
+          "kind": "roadmap",
+          "path": "references/02-status/technical-debt-roadmap.md"
+        }
+      ],
+      "implRefs": [
+        "app/src/test/allowlists/"
+      ],
+      "budget": 20
+    },
+    {
+      "id": "allowlist.frozen.nonZero",
+      "label": "Frozen リスト非ゼロ",
+      "category": "allowlist",
+      "value": 0,
+      "unit": "count",
+      "status": "ok",
+      "owner": "architecture",
+      "docRefs": [
+        {
+          "kind": "source",
+          "path": "references/02-status/generated/architecture-state-snapshot.json",
+          "section": "frozenLists"
+        },
+        {
+          "kind": "guard",
+          "path": "app/src/test/guards/layerBoundaryGuard.test.ts"
+        }
+      ],
+      "implRefs": [
+        "app/src/test/allowlists/"
+      ],
+      "budget": 0
+    },
+    {
+      "id": "allowlist.active.count",
+      "label": "Active リスト数",
+      "category": "allowlist",
+      "value": 7,
+      "unit": "count",
+      "status": "ok",
+      "owner": "architecture",
+      "docRefs": [
+        {
+          "kind": "source",
+          "path": "references/02-status/generated/architecture-state-snapshot.json",
+          "section": "activeLists"
+        }
+      ],
+      "implRefs": [
+        "app/src/test/allowlists/"
+      ],
+      "budget": 10
+    },
+    {
+      "id": "compat.bridge.count",
+      "label": "Active Bridge 数",
+      "category": "compatibility_debt",
+      "value": 5,
+      "unit": "count",
+      "status": "warn",
+      "owner": "architecture",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "references/02-status/technical-debt-roadmap.md",
+          "section": "後方互換負債"
+        },
+        {
+          "kind": "source",
+          "path": "references/02-status/generated/architecture-state-snapshot.json",
+          "section": "activeBridges"
+        },
+        {
+          "kind": "roadmap",
+          "path": "references/02-status/open-issues.md"
+        }
+      ],
+      "implRefs": [
+        "app/src/application/services/budgetAnalysisBridge.ts",
+        "app/src/application/services/factorDecompositionBridge.ts",
+        "app/src/application/services/forecastBridge.ts",
+        "app/src/application/services/grossProfitBridge.ts",
+        "app/src/application/services/timeSlotBridge.ts"
+      ],
+      "budget": 3
+    },
+    {
+      "id": "compat.reexport.count",
+      "label": "後方互換 re-export 数",
+      "category": "compatibility_debt",
+      "value": 2,
+      "unit": "count",
+      "status": "ok",
+      "owner": "architecture",
+      "docRefs": [
+        {
+          "kind": "source",
+          "path": "references/02-status/generated/architecture-state-snapshot.json",
+          "section": "compatReexportCount"
+        }
+      ],
+      "implRefs": [],
+      "budget": 3
+    },
+    {
+      "id": "complexity.hotspot.count",
+      "label": "複雑性ホットスポット数",
+      "category": "complexity",
+      "value": 10,
+      "unit": "count",
+      "status": "ok",
+      "owner": "architecture",
+      "docRefs": [
+        {
+          "kind": "source",
+          "path": "references/02-status/generated/architecture-state-snapshot.json",
+          "section": "complexityHotspots"
+        },
+        {
+          "kind": "roadmap",
+          "path": "references/02-status/open-issues.md",
+          "section": "R-4"
+        }
+      ],
+      "implRefs": [
+        "app/src/presentation/components/charts/useDeptHourlyChartData.ts",
+        "app/src/presentation/pages/Dashboard/widgets/HourlyChart.tsx",
+        "app/src/presentation/components/charts/TimeSlotChart.tsx",
+        "app/src/presentation/components/charts/useCategoryTrendChartData.ts",
+        "app/src/presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx",
+        "app/src/presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx",
+        "app/src/presentation/components/charts/periodFilterHooks.ts",
+        "app/src/presentation/pages/Insight/useInsightData.ts",
+        "app/src/application/hooks/useMetricBreakdown.ts",
+        "app/src/presentation/pages/Dashboard/widgets/DayDetailModal.tsx"
+      ],
+      "budget": 10
+    },
+    {
+      "id": "complexity.nearLimit.count",
+      "label": "上限間近ファイル数",
+      "category": "complexity",
+      "value": 2,
+      "unit": "count",
+      "status": "ok",
+      "owner": "architecture",
+      "docRefs": [
+        {
+          "kind": "source",
+          "path": "references/02-status/generated/architecture-state-snapshot.json",
+          "section": "nearLimitFiles"
+        }
+      ],
+      "implRefs": [
+        "app/src/application/hooks/plans/useTimeSlotPlan.ts",
+        "app/src/application/hooks/duckdb/categoryBenchmarkLogic.ts"
+      ],
+      "budget": 5
+    },
+    {
+      "id": "complexity.vm.count",
+      "label": "ViewModel ファイル数",
+      "category": "complexity",
+      "value": 27,
+      "unit": "count",
+      "status": "ok",
+      "owner": "architecture",
+      "docRefs": [
+        {
+          "kind": "source",
+          "path": "references/02-status/generated/architecture-state-snapshot.json",
+          "section": "vmFileCount"
+        }
+      ],
+      "implRefs": [],
+      "budget": 30
+    },
+    {
+      "id": "boundary.presentationToInfra",
+      "label": "Presentation→Infrastructure 違反",
+      "category": "boundary",
+      "value": 0,
+      "unit": "count",
+      "status": "ok",
+      "owner": "architecture",
+      "docRefs": [
+        {
+          "kind": "guard",
+          "path": "app/src/test/guards/layerBoundaryGuard.test.ts"
+        },
+        {
+          "kind": "definition",
+          "path": "references/01-principles/design-principles.md",
+          "section": "A1"
+        }
+      ],
+      "implRefs": [
+        "app/src/test/allowlists/architecture.ts"
+      ],
+      "budget": 0
+    },
+    {
+      "id": "boundary.infraToApplication",
+      "label": "Infrastructure→Application 違反",
+      "category": "boundary",
+      "value": 0,
+      "unit": "count",
+      "status": "ok",
+      "owner": "architecture",
+      "docRefs": [
+        {
+          "kind": "guard",
+          "path": "app/src/test/guards/layerBoundaryGuard.test.ts"
+        },
+        {
+          "kind": "definition",
+          "path": "references/01-principles/design-principles.md",
+          "section": "A1"
+        }
+      ],
+      "implRefs": [
+        "app/src/test/allowlists/architecture.ts"
+      ],
+      "budget": 0
+    },
+    {
+      "id": "guard.files.count",
+      "label": "ガードテストファイル数",
+      "category": "guard",
+      "value": 31,
+      "unit": "count",
+      "status": "ok",
+      "owner": "architecture",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "CLAUDE.md",
+          "section": "ガードテスト"
+        },
+        {
+          "kind": "guard",
+          "path": "app/src/test/guards/"
+        }
+      ],
+      "implRefs": [
+        "app/src/test/guards/analysisFrameGuard.test.ts",
+        "app/src/test/guards/calculationCanonGuard.test.ts",
+        "app/src/test/guards/canonicalizationSystemGuard.test.ts",
+        "app/src/test/guards/codePatternGuard.test.ts",
+        "app/src/test/guards/comparisonScopeGuard.test.ts",
+        "app/src/test/guards/customerGapPathGuard.test.ts",
+        "app/src/test/guards/discountFactPathGuard.test.ts",
+        "app/src/test/guards/dualRunExitCriteriaGuard.test.ts",
+        "app/src/test/guards/factorDecompositionPathGuard.test.ts",
+        "app/src/test/guards/fallbackMetadataGuard.test.ts",
+        "app/src/test/guards/freePeriodBudgetPathGuard.test.ts",
+        "app/src/test/guards/freePeriodDeptKPIPathGuard.test.ts",
+        "app/src/test/guards/freePeriodPathGuard.test.ts",
+        "app/src/test/guards/grossProfitConsistencyGuard.test.ts",
+        "app/src/test/guards/grossProfitPathGuard.test.ts",
+        "app/src/test/guards/layerBoundaryGuard.test.ts",
+        "app/src/test/guards/oldPathImportGuard.test.ts",
+        "app/src/test/guards/pageMetaGuard.test.ts",
+        "app/src/test/guards/piValuePathGuard.test.ts",
+        "app/src/test/guards/presentationIsolationGuard.test.ts",
+        "app/src/test/guards/purchaseCostImportGuard.test.ts",
+        "app/src/test/guards/purchaseCostPathGuard.test.ts",
+        "app/src/test/guards/purityGuard.test.ts",
+        "app/src/test/guards/queryPatternGuard.test.ts",
+        "app/src/test/guards/renderSideEffectGuard.test.ts",
+        "app/src/test/guards/salesFactPathGuard.test.ts",
+        "app/src/test/guards/sizeGuard.test.ts",
+        "app/src/test/guards/structuralConventionGuard.test.ts",
+        "app/src/test/guards/temporalRollingGuard.test.ts",
+        "app/src/test/guards/temporalScopeGuard.test.ts",
+        "app/src/test/guards/topologyGuard.test.ts"
+      ],
+      "budget": 30
+    },
+    {
+      "id": "guard.reviewOnlyTags.count",
+      "label": "レビュー専用タグ数",
+      "category": "guard",
+      "value": 0,
+      "unit": "count",
+      "status": "ok",
+      "owner": "architecture",
+      "docRefs": [
+        {
+          "kind": "source",
+          "path": "app/src/test/guardTagRegistry.ts",
+          "section": "REVIEW_ONLY_TAGS"
+        }
+      ],
+      "implRefs": [
+        "app/src/test/guardTagRegistry.ts"
+      ],
+      "budget": 5
+    },
+    {
+      "id": "docs.obsoleteTerms.count",
+      "label": "廃止用語残存数",
+      "category": "docs",
+      "value": 0,
+      "unit": "count",
+      "status": "ok",
+      "owner": "documentation-steward",
+      "docRefs": [
+        {
+          "kind": "source",
+          "path": "docs/contracts/principles.json",
+          "section": "obsoleteTerms"
+        },
+        {
+          "kind": "guard",
+          "path": "app/src/test/documentConsistency.test.ts"
+        }
+      ],
+      "implRefs": [],
+      "budget": 0
+    },
+    {
+      "id": "docs.generatedSections.stale",
+      "label": "Generated section 未更新",
+      "category": "docs",
+      "value": 0,
+      "unit": "count",
+      "status": "ok",
+      "owner": "documentation-steward",
+      "docRefs": [
+        {
+          "kind": "guard",
+          "path": "app/src/test/documentConsistency.test.ts"
+        }
+      ],
+      "implRefs": [
+        "tools/architecture-health/src/renderers/section-updater.ts"
+      ],
+      "budget": 0
+    }
+  ],
+  "summary": {
+    "totalKpis": 14,
+    "ok": 13,
+    "warn": 1,
+    "fail": 0,
+    "hardGatePass": true
+  }
+}
