@@ -22,7 +22,11 @@ import {
   buildPerformanceOption,
   type ViewType,
 } from './PerformanceIndexChart.builders'
-import { CategoryPerformanceChart, type CategoryLevelType } from '@/features/category'
+import {
+  CategoryPerformanceChart,
+  type CategoryLevelType,
+  type CategoryDrillDownInfo,
+} from '@/features/category'
 import { StorePIComparisonChart, type StorePILevel } from './StorePIComparisonChart'
 import { usePerformanceIndexPlan } from '@/application/hooks/usePerformanceIndexPlan'
 
@@ -89,6 +93,65 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
   // 子チャートの階層レベル状態（plan hook に渡す）
   const [categoryLevel, setCategoryLevel] = useState<CategoryLevelType>('department')
   const [storePILevel, setStorePILevel] = useState<StorePILevel>('department')
+
+  // カテゴリドリルダウン状態
+  interface DrillState {
+    deptCode?: string
+    deptName?: string
+    lineCode?: string
+    lineName?: string
+  }
+  const [drillState, setDrillState] = useState<DrillState>({})
+
+  const handleCategoryDrillDown = useCallback((info: CategoryDrillDownInfo) => {
+    if (info.level === 'department') {
+      setDrillState({ deptCode: info.code, deptName: info.name })
+      setCategoryLevel('line')
+    } else if (info.level === 'line') {
+      setDrillState((prev) => ({
+        ...prev,
+        lineCode: info.code,
+        lineName: info.name,
+      }))
+      setCategoryLevel('klass')
+    }
+  }, [])
+
+  const handleCategoryLevelChange = useCallback((newLevel: CategoryLevelType) => {
+    // レベル変更時はドリルダウン状態をリセット
+    setDrillState({})
+    setCategoryLevel(newLevel)
+  }, [])
+
+  const categoryBreadcrumbs = useMemo(() => {
+    const crumbs: { label: string; onClick: () => void }[] = []
+    if (drillState.deptCode) {
+      crumbs.push({
+        label: '全部門',
+        onClick: () => {
+          setDrillState({})
+          setCategoryLevel('department')
+        },
+      })
+      crumbs.push({
+        label: drillState.deptName ?? drillState.deptCode,
+        onClick: () => {
+          setDrillState((prev) => ({
+            deptCode: prev.deptCode,
+            deptName: prev.deptName,
+          }))
+          setCategoryLevel('line')
+        },
+      })
+    }
+    if (drillState.lineCode) {
+      crumbs.push({
+        label: drillState.lineName ?? drillState.lineCode,
+        onClick: () => {}, // 現在地なのでクリック不要
+      })
+    }
+    return crumbs
+  }, [drillState])
   const { chartData, stats, piMa7, prevPiMa7, qtyPiMa7, prevQtyPiMa7 } = useMemo(
     () =>
       buildPerformanceData(
@@ -188,6 +251,8 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
     selectedStoreIds: selectedStoreIds ?? new Set(),
     categoryLevel,
     storePILevel,
+    categoryDeptCode: drillState.deptCode,
+    categoryLineCode: drillState.lineCode,
   })
 
   const option = useMemo(
@@ -279,7 +344,9 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
           prevYearScope={prevYearScope}
           totalCustomers={totalCustomers ?? 0}
           level={categoryLevel}
-          onLevelChange={setCategoryLevel}
+          onLevelChange={handleCategoryLevelChange}
+          onDrillDown={handleCategoryDrillDown}
+          breadcrumbs={categoryBreadcrumbs}
         />
       )}
 

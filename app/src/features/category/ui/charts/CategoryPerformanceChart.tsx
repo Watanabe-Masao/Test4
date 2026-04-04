@@ -7,7 +7,7 @@ import { chartFontSize } from '@/presentation/theme/tokens'
  *
  * @guard H4 component に acquisition logic 禁止
  */
-import { useState, useMemo, memo } from 'react'
+import { useState, useMemo, useCallback, memo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { EChart, type EChartsOption } from '@/presentation/components/charts/EChart'
@@ -46,6 +46,13 @@ const LEVEL_LABELS: Record<LevelType, string> = {
   klass: 'クラス',
 }
 
+/** ドリルダウン情報 */
+export interface CategoryDrillDownInfo {
+  readonly code: string
+  readonly name: string
+  readonly level: LevelType
+}
+
 interface Props {
   categoryData: PairedQueryOutput<LevelAggregationOutput> | null
   isLoading: boolean
@@ -53,6 +60,10 @@ interface Props {
   totalCustomers: number
   level: LevelType
   onLevelChange: (level: LevelType) => void
+  /** カテゴリダブルクリック時のドリルダウンコールバック */
+  onDrillDown?: (info: CategoryDrillDownInfo) => void
+  /** ドリルダウンのパンくず（表示用） */
+  breadcrumbs?: readonly { readonly label: string; readonly onClick: () => void }[]
 }
 
 const ALL_LABELS: Record<string, string> = {
@@ -71,6 +82,8 @@ export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
   totalCustomers,
   level,
   onLevelChange,
+  onDrillDown,
+  breadcrumbs,
 }: Props) {
   const prevTotalCustomers = prevYearScope?.totalCustomers ?? 0
   const theme = useTheme() as AppTheme
@@ -88,6 +101,20 @@ export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
   )
 
   const names = categoryRows.map((r) => r.name)
+
+  // ダブルクリックでドリルダウン（klass レベルでは不可）
+  const canDrillDown = level !== 'klass' && onDrillDown != null
+  const handleDblClick = useCallback(
+    (params: Record<string, unknown>) => {
+      if (!canDrillDown || !onDrillDown) return
+      const dataIndex = params.dataIndex as number | undefined
+      if (dataIndex == null) return
+      const row = categoryRows[dataIndex]
+      if (!row) return
+      onDrillDown({ code: row.code, name: row.name, level })
+    },
+    [canDrillDown, onDrillDown, categoryRows, level],
+  )
 
   const chartHeight = Math.max(300, categoryRows.length * 28 + 40)
 
@@ -357,9 +384,54 @@ export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
         </ToggleRow>
       }
     >
+      {breadcrumbs && breadcrumbs.length > 0 && (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 4,
+            fontSize: theme.typography.fontSize.micro,
+            color: theme.colors.text3,
+            marginBottom: 4,
+          }}
+        >
+          {breadcrumbs.map((bc, i) => (
+            <span key={i}>
+              {i > 0 && <span style={{ margin: '0 2px' }}> &gt; </span>}
+              <button
+                onClick={bc.onClick}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: theme.colors.palette.primary,
+                  cursor: 'pointer',
+                  padding: '0 2px',
+                  fontSize: 'inherit',
+                  textDecoration: 'underline',
+                }}
+              >
+                {bc.label}
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+      {canDrillDown && (
+        <div
+          style={{
+            fontSize: theme.typography.fontSize.micro,
+            color: theme.colors.text4,
+            textAlign: 'right',
+            marginBottom: 2,
+          }}
+        >
+          ダブルクリックでドリルダウン
+        </div>
+      )}
       <EChart
         option={option as EChartsOption}
         height={chartHeight}
+        onDblClick={canDrillDown ? handleDblClick : undefined}
         ariaLabel="カテゴリ実績チャート"
       />
     </ChartCard>

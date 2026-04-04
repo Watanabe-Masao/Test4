@@ -42,6 +42,10 @@ export interface PerformanceIndexPlanParams {
   readonly selectedStoreIds: ReadonlySet<string>
   readonly categoryLevel: Level
   readonly storePILevel: Level
+  /** ドリルダウンフィルタ: 部門コード */
+  readonly categoryDeptCode?: string
+  /** ドリルダウンフィルタ: ラインコード */
+  readonly categoryLineCode?: string
 }
 
 export interface PerformanceIndexPlanResult {
@@ -78,6 +82,8 @@ export function buildPlanInputs(params: PerformanceIndexPlanParams): {
       dateTo: toKey,
       storeIds,
       level: params.categoryLevel,
+      deptCode: params.categoryDeptCode,
+      lineCode: params.categoryLineCode,
     }
 
     if (prevYearScope) {
@@ -118,6 +124,8 @@ export function usePerformanceIndexPlan(
     selectedStoreIds,
     categoryLevel,
     storePILevel,
+    categoryDeptCode,
+    categoryLineCode,
   } = params
 
   const { categoryInput, storeCatInput } = useMemo(
@@ -130,6 +138,8 @@ export function usePerformanceIndexPlan(
         selectedStoreIds,
         categoryLevel,
         storePILevel,
+        categoryDeptCode,
+        categoryLineCode,
       }),
     [
       executor,
@@ -139,6 +149,8 @@ export function usePerformanceIndexPlan(
       selectedStoreIds,
       categoryLevel,
       storePILevel,
+      categoryDeptCode,
+      categoryLineCode,
     ],
   )
 

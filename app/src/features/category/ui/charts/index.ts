@@ -14,6 +14,7 @@ export { CategoryBoxPlotChart } from './CategoryBoxPlotChart'
 export {
   CategoryPerformanceChart,
   type LevelType as CategoryLevelType,
+  type CategoryDrillDownInfo,
 } from './CategoryPerformanceChart'
 export { CategoryHourlyChart } from './CategoryHourlyChart'
 
