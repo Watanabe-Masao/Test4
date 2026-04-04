@@ -13,19 +13,22 @@
 ## 現在の健全性サマリー
 
 <!-- GENERATED:START architecture-health-summary -->
-| 区分 | OK | WARN | FAIL |
-|---|---|---|---|
-| 許可リスト | 3 | 0 | 0 |
-| 後方互換負債 | 1 | 1 | 0 |
-| 複雑性 | 3 | 0 | 0 |
-| 層境界 | 2 | 0 | 0 |
-| ガードテスト | 2 | 0 | 0 |
-| ドキュメント整合 | 3 | 0 | 0 |
-| バンドル性能 | 4 | 0 | 0 |
+**Watch** | 前回比: Flat | Hard Gate: PASS
 
-**Hard Gate: PASS** — 合計 19 KPI (OK 18 / WARN 1 / FAIL 0)
+| 指標 | 状態 | 詳細 |
+|---|---|---|
+| 例外圧 | OK | 15/20 / 0/0 / 7/10 |
+| 後方互換負債 | WARN | 5/3 / 2/3 |
+| 複雑性圧 | OK | 2/5 / 10/10 / 27/30 |
+| 境界健全性 | OK | 0/0 / 0/0 |
+| ガード強度 | OK | 31/30 / 0/5 |
+| 性能 | OK | 6443/7000 / 2214/2500 / 919/1000 |
 
-> 生成日時: 2026-04-04T07:57:56.947Z — 正本: `references/02-status/generated/architecture-health.json`
+**Next:**
+- Active Bridge 数 を 5 → 3 に削減する（残 2）
+- 上限間近ファイル 2 件を分割検討する
+
+> 生成: 2026-04-04T08:03:52.719Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 現状スナップショット

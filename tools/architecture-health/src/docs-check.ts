@@ -39,6 +39,7 @@ console.log('[docs:check] Checking for uncommitted generated changes...')
 const GENERATED_PATHS = [
   'references/02-status/generated/architecture-health.json',
   'references/02-status/generated/architecture-health.md',
+  'references/02-status/generated/architecture-health-certificate.md',
   'CLAUDE.md',
   'references/02-status/technical-debt-roadmap.md',
 ]

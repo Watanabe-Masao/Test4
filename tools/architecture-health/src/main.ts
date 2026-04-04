@@ -13,7 +13,7 @@
  *   npm run docs:check       # generate → git diff --exit-code
  */
 import { resolve, dirname } from 'node:path'
-import { readFileSync, existsSync, writeFileSync } from 'node:fs'
+import { readFileSync, existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { collectFromSnapshot } from './collectors/snapshot-collector.js'
 import { collectFromGuards } from './collectors/guard-collector.js'
@@ -21,11 +21,20 @@ import { collectFromDocs } from './collectors/doc-collector.js'
 import { collectFromBundle } from './collectors/bundle-collector.js'
 import { collectObligations, reportObligationDetails } from './collectors/obligation-collector.js'
 import { evaluate } from './evaluator.js'
+import {
+  assessOverall,
+  buildCompositeIndicators,
+  detectTopRisks,
+  detectRecentChanges,
+  generateRecommendations,
+} from './diagnostics.js'
 import { renderJson } from './renderers/json-renderer.js'
-import { renderMd, renderInlineSection } from './renderers/md-renderer.js'
+import { renderMd } from './renderers/md-renderer.js'
+import { renderCertificate, renderCertificateInline } from './renderers/certificate-renderer.js'
 import { updateGeneratedSections } from './renderers/section-updater.js'
 import { renderPrComment } from './renderers/pr-comment-renderer.js'
 import type { HealthReport } from './types.js'
+import { HEALTH_RULES } from './config/health-rules.js'
 
 const args = new Set(process.argv.slice(2))
 const isCheck = args.has('--check')
@@ -79,7 +88,37 @@ console.error('[evaluate] applying rules...')
 const report = evaluate(allKpis)
 
 // ---------------------------------------------------------------------------
-// 3. PR コメントモード
+// 3. 診断
+// ---------------------------------------------------------------------------
+console.error('[diagnose] building certificate...')
+const assessment = assessOverall(report, previousReport)
+const indicators = buildCompositeIndicators(report, previousReport)
+const risks = detectTopRisks(report)
+const changes = detectRecentChanges(report, previousReport)
+const actions = generateRecommendations(report, previousReport)
+
+// Hard gate details
+const hardGateRules = HEALTH_RULES.filter((r) => r.type === 'hard_gate')
+const hardGateDetails = hardGateRules.map((rule) => {
+  const kpi = report.kpis.find((k) => k.id === rule.id)
+  return {
+    label: kpi?.label ?? rule.id,
+    pass: kpi?.status !== 'fail',
+  }
+})
+
+const certificateInput = {
+  report,
+  assessment,
+  indicators,
+  risks,
+  changes,
+  actions,
+  hardGateDetails,
+}
+
+// ---------------------------------------------------------------------------
+// 4. PR コメントモード
 // ---------------------------------------------------------------------------
 if (isPrComment) {
   const obligations = reportObligationDetails(repoRoot, { base })
@@ -89,17 +128,20 @@ if (isPrComment) {
 }
 
 // ---------------------------------------------------------------------------
-// 4. 生成
+// 5. 生成
 // ---------------------------------------------------------------------------
 if (!isCheck) {
   const jsonPath = renderJson(report, repoRoot)
-  console.error(`[render] JSON → ${jsonPath}`)
+  console.error(`[render] JSON       → ${jsonPath}`)
 
   const mdPath = renderMd(report, repoRoot)
-  console.error(`[render] MD   → ${mdPath}`)
+  console.error(`[render] Detail MD  → ${mdPath}`)
 
-  // Generated section 更新
-  const inlineContent = renderInlineSection(report)
+  const certPath = renderCertificate(certificateInput, repoRoot)
+  console.error(`[render] Certificate → ${certPath}`)
+
+  // Generated section 更新（健康診断書のインライン版）
+  const inlineContent = renderCertificateInline(certificateInput)
   const results = updateGeneratedSections(repoRoot, [
     {
       filePath: 'CLAUDE.md',
@@ -121,37 +163,33 @@ if (!isCheck) {
 }
 
 // ---------------------------------------------------------------------------
-// 5. サマリー出力
+// 6. サマリー出力
 // ---------------------------------------------------------------------------
 const s = report.summary
 console.error('')
-console.error('=== Architecture Health Summary ===')
+console.error(`=== ${assessment.verdict} | ${assessment.trend} ===`)
 console.error(`  KPIs:      ${s.totalKpis}`)
 console.error(`  OK:        ${s.ok}`)
 console.error(`  WARN:      ${s.warn}`)
 console.error(`  FAIL:      ${s.fail}`)
 console.error(`  Hard Gate: ${s.hardGatePass ? 'PASS' : 'FAIL'}`)
 
-if (s.warn > 0) {
+if (risks.length > 0) {
   console.error('')
-  console.error('Warnings:')
-  for (const kpi of report.kpis) {
-    if (kpi.status === 'warn') {
-      console.error(`  ⚠ ${kpi.id}: ${kpi.value} (budget: ${kpi.budget})`)
-    }
+  console.error('Top risks:')
+  for (const risk of risks) {
+    console.error(`  - ${risk.label}: ${risk.reason}`)
+  }
+}
+
+if (actions.length > 0) {
+  console.error('')
+  console.error('Recommended:')
+  for (const action of actions) {
+    console.error(`  ${action.action}`)
   }
 }
 
 if (!s.hardGatePass) {
-  console.error('')
-  console.error('Hard gate failures:')
-  for (const kpi of report.kpis) {
-    if (kpi.status === 'fail') {
-      console.error(`  ✗ ${kpi.id}: ${kpi.value} (budget: ${kpi.budget})`)
-    }
-  }
   process.exit(1)
 }
-
-console.error('')
-console.error('All hard gates passed.')
