@@ -188,7 +188,7 @@ describe('Reference path validity', () => {
 // ─── 設計原則の整合性 ───────────────────────────────────
 
 describe('Design principle consistency', () => {
-  it('CLAUDE.md contains all 7 design principle categories (A-G)', () => {
+  it('CLAUDE.md contains all 9 design principle categories (A-H + Q)', () => {
     const claudeMd = readFile('CLAUDE.md')
 
     const expectedCategories = [
@@ -199,6 +199,7 @@ describe('Design principle consistency', () => {
       'E. 型安全と欠損処理',
       'F. コード構造規約',
       'G. 機械的防御',
+      'H. Screen Runtime',
     ]
 
     for (const cat of expectedCategories) {
@@ -649,5 +650,184 @@ describe('後方互換コード監視', () => {
       const full = path.join(srcDir, rel)
       expect(fs.existsSync(full), `KNOWN_DEPRECATED のファイルが存在しません: ${rel}`).toBe(true)
     }
+  })
+})
+
+// ─── 構造化データ（docs/contracts/）ベースの整合性検証 ──────
+
+describe('Structured source consistency (docs/contracts/)', () => {
+  const principles = JSON.parse(readFile('docs/contracts/principles.json'))
+  const metadata = JSON.parse(readFile('docs/contracts/project-metadata.json'))
+
+  // ── 設計原則 taxonomy ──────────────────────────────────
+
+  it('CLAUDE.md の設計原則カテゴリが principles.json と一致する', () => {
+    const claudeMd = readFile('CLAUDE.md')
+    for (const cat of principles.categories) {
+      expect(
+        claudeMd,
+        `CLAUDE.md に設計原則カテゴリ "${cat.id}. ${cat.title}" が見つかりません`,
+      ).toContain(`${cat.id}. ${cat.title}`)
+    }
+  })
+
+  it('references/README.md の taxonomy が principles.json と一致する', () => {
+    const refReadme = readFile('references/README.md')
+    const taxonomy = principles.taxonomy
+    expect(refReadme, `references/README.md に taxonomy "${taxonomy}" が見つかりません`).toContain(
+      taxonomy.replace('+', ' + '),
+    )
+  })
+
+  it('guardTagRegistry.ts の全カテゴリ ID が principles.json に存在する', () => {
+    const registryContent = readFile('app/src/test/guardTagRegistry.ts')
+    const idPattern = /^\s+([A-Z])\d+:/gm
+    const registryCategories = new Set<string>()
+    let match
+    while ((match = idPattern.exec(registryContent)) !== null) {
+      registryCategories.add(match[1])
+    }
+
+    const principleIds = new Set(principles.categories.map((c: { id: string }) => c.id))
+
+    const missing = [...registryCategories].filter((id) => !principleIds.has(id))
+    expect(
+      missing,
+      `guardTagRegistry に存在するが principles.json に未定義のカテゴリ: ${missing.join(', ')}`,
+    ).toEqual([])
+  })
+
+  // ── 旧語彙検出 ────────────────────────────────────────
+
+  it('主要文書に旧体系の語彙が残っていない', () => {
+    const docsToCheck = [
+      'CLAUDE.md',
+      'CONTRIBUTING.md',
+      'references/README.md',
+      'references/01-principles/design-principles.md',
+    ]
+
+    const violations: string[] = []
+    for (const doc of docsToCheck) {
+      const content = readFile(doc)
+      for (const term of principles.obsoleteTerms) {
+        if (content.includes(term)) {
+          violations.push(`${doc}: 旧語彙 "${term}" が残っています`)
+        }
+      }
+    }
+
+    expect(violations, violations.join('\n')).toEqual([])
+  })
+
+  // ── バージョン一致 ────────────────────────────────────
+
+  it('package.json version が project-metadata.json と一致する', () => {
+    const pkgJson = JSON.parse(readFile('app/package.json'))
+    expect(
+      pkgJson.version,
+      `package.json version "${pkgJson.version}" != metadata "${metadata.appVersion}"`,
+    ).toBe(metadata.appVersion)
+  })
+
+  it('CHANGELOG.md 最新バージョンが project-metadata.json と一致する', () => {
+    const changelog = readFile('CHANGELOG.md')
+    const versionPattern = /## \[v([\d.]+)\]/
+    const match = versionPattern.exec(changelog)
+    expect(match).not.toBeNull()
+    expect(
+      match![1],
+      `CHANGELOG.md 最新 "v${match![1]}" != metadata "${metadata.appVersion}"`,
+    ).toBe(metadata.appVersion)
+  })
+
+  // ── WASM 前提の記載確認 ────────────────────────────────
+
+  it('必須文書に WASM 前提が記載されている', () => {
+    const missing: string[] = []
+    for (const doc of metadata.docsRequiringWasmMention) {
+      const content = readFile(doc)
+      if (
+        !content.includes('wasm') &&
+        !content.includes('WASM') &&
+        !content.includes('build:wasm')
+      ) {
+        missing.push(doc)
+      }
+    }
+    expect(
+      missing,
+      `WASM 前提の記載がない文書: ${missing.join(', ')}\nWASM ビルドが npm install の前提であることを明記してください。`,
+    ).toEqual([])
+  })
+
+  // ── CI ジョブ一致 ──────────────────────────────────────
+
+  it('ci.yml のジョブ名が project-metadata.json と一致する', () => {
+    const ciYml = readFile('.github/workflows/ci.yml')
+    const missing: string[] = []
+    for (const job of metadata.ciJobs) {
+      // ci.yml では "jobname:" のパターンでジョブ定義される
+      if (!ciYml.includes(`${job}:`)) {
+        missing.push(job)
+      }
+    }
+    expect(missing, `ci.yml に存在しない CI ジョブ: ${missing.join(', ')}`).toEqual([])
+  })
+
+  // ── references/ 件数の直書き禁止 ──────────────────────
+
+  it('references/README.md に壊れやすい件数直書きがない', () => {
+    const refReadme = readFile('references/README.md')
+    // ファイル数カラムがあるのは許容するが、実態と一致していることを検証
+    const countPattern = /\|\s*`(\d+-[^`]+\/)`\s*\|[^|]+\|\s*(\d+)\+?\s*\|/g
+    let match
+    const discrepancies: string[] = []
+    while ((match = countPattern.exec(refReadme)) !== null) {
+      const dir = match[1]
+      const claimed = parseInt(match[2], 10)
+      const fullDir = path.join(ROOT_DIR, 'references', dir)
+      if (fs.existsSync(fullDir)) {
+        const actual = fs.readdirSync(fullDir).filter((f) => f.endsWith('.md')).length
+        if (actual > claimed + 5 || actual < claimed - 5) {
+          discrepancies.push(`references/${dir}: 記載 ${claimed}, 実態 ${actual}（差が大きい）`)
+        }
+      }
+    }
+    expect(discrepancies, discrepancies.join('\n')).toEqual([])
+  })
+})
+
+// ─── open-issues.md 状態整合 ────────────────────────────
+
+describe('open-issues.md state consistency', () => {
+  it('解決済み ID が現在の課題セクションに重複していない', () => {
+    const content = readFile('references/02-status/open-issues.md')
+    if (!content) return
+
+    // 解決済みセクションから ID を抽出
+    const resolvedSection = content.split(/##.*解決済み|##.*アーカイブ|##.*Resolved/i)[1] ?? ''
+    const resolvedIds = new Set<string>()
+    const idPattern = /\b([CSR]-\d+)\b/g
+    let match
+    while ((match = idPattern.exec(resolvedSection)) !== null) {
+      resolvedIds.add(match[1])
+    }
+
+    if (resolvedIds.size === 0) return
+
+    // 現在の課題セクション（解決済みより前の部分）
+    const currentSection = content.split(/##.*解決済み|##.*アーカイブ|##.*Resolved/i)[0] ?? ''
+    const duplicates: string[] = []
+    for (const id of resolvedIds) {
+      if (currentSection.includes(id)) {
+        duplicates.push(id)
+      }
+    }
+
+    expect(
+      duplicates,
+      `解決済み ID が現在の課題セクションに残っています: ${duplicates.join(', ')}`,
+    ).toEqual([])
   })
 })

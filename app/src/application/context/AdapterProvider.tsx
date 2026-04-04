@@ -1,7 +1,8 @@
 /**
- * AdapterProvider — 4 ポートアダプターを Context 経由で供給する
+ * AdapterProvider — AdapterSet を Context 経由で供給する
  *
- * application/adapters/ の実装を集約し、消費者は useXxxAdapter() hook で取得する。
+ * domain/ports/* に対応する adapter 実装を集約し、
+ * 消費者は useXxxAdapter() hook で取得する。
  * テストでは mock adapter を注入可能。
  */
 import type { ReactNode } from 'react'

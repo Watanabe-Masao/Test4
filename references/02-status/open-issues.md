@@ -1,7 +1,7 @@
 # 課題管理
 
 > 管理責任: documentation-steward ロール。
-> 更新日: 2026-03-30
+> 更新日: 2026-04-04
 
 課題を3分類し、不要なアクセスを最小化する。
 
@@ -12,7 +12,7 @@
 | # | 課題 | 優先度 | 詳細 |
 |---|---|---|---|
 | C-1 | Presentation 層のテストカバレッジ不足 | **High** | presentation/ の 243 TSX ファイルのうち約 95% にテストなし。coverage 対象外に設定されている。E2E は 5 spec のみで業務フローの検証が不足 |
-| C-2 | @deprecated ファイル数が上限超過 | Medium | KNOWN_DEPRECATED 12 件 > 上限 9 件。WASM authoritative 昇格後に estMethod.ts / discountImpact.ts を削除すれば 10 件に減少するが、さらに 1 件の削除が必要 |
+| ~~C-2~~ | ~~@deprecated ファイル数が上限超過~~ | ~~解決済み~~ | KNOWN_DEPRECATED 5 件 = 上限 5 件。documentConsistency.test.ts で自動検証中 |
 
 ## 2. 将来のリスク（いま壊れていないが放置すると問題になる）
 
@@ -38,14 +38,13 @@
 | # | タスク | 見積り | 効果 |
 |---|---|---|---|
 | 1 | **WASM wasm-only trial 実行**（4 engine: factorDecomposition → budgetAnalysis → forecast → grossProfit） | 各 1-2 週 | authoritative 昇格、deprecated 2 件自動削除 |
-| ~~2~~ | ~~P5 Bridge 卒業~~ | — | **解決済み**: presentationDuckdbHook 0件、bridge 0件（2026-03-29 確認） |
-| 3 | **timeSlot 観測テスト作成**: compare 計画策定 + timeSlotObservation.test.ts | 1 週 | 第 5 engine を promotion-candidate に |
+| 2 | **timeSlot 観測テスト作成**: compare 計画策定 + timeSlotObservation.test.ts | 1 週 | 第 5 engine を promotion-candidate に |
 
 ### 次スプリント
 
 | # | タスク | 見積り | 効果 |
 |---|---|---|---|
-| 4 | **R-10 設計判断**: DualPeriodSlider 廃止 + ComparisonScope 一元化の設計 | 2-4 週 | 14 ファイルの日付計算バグリスク解消 |
+| ~~4~~ | ~~**R-10 設計判断**: DualPeriodSlider 廃止~~ | ~~解決済み~~ | 全11チャートから内蔵 Slider 削除済み（R-10 解決済み） |
 | 5 | **Phase 6**: 残 500行超コンポーネントの .vm.ts 抽出 | 1-2 週 | complexity allowlist 削減 |
 | 6 | **テストカバレッジ強化**: Presentation 層のコンポーネントテスト追加、coverage 閾値 55→70% | 継続 | 品質基盤 |
 
@@ -55,7 +54,7 @@
 |---|---|---|---|
 | 7 | guard カバレッジ拡大（REVIEW_ONLY_TAGS 11→5 以下） | 継続 | 機械検証範囲拡大 |
 | 8 | E2E テスト拡充（業務フローカバー） | 継続 | リグレッション防止 |
-| 9 | R-9 ロールシステム軽量化 | 設計判断後 | AI セッション効率化 |
+| 9 | ロールシステム軽量化（リスク項目参照） | 設計判断後 | AI セッション効率化 |
 
 ## 4. 解決済みの課題（アーカイブ）
 

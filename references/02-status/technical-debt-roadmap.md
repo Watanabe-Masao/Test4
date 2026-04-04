@@ -2,7 +2,11 @@
 
 > 管理責任: documentation-steward ロール。
 > 起点: Sprint 1（guardTagRegistry 分離、allowlists/ 分割、CONTRIBUTING.md URL 整合）
-> 作成日: 2026-03-23
+> 作成日: 2026-03-23 / 更新日: 2026-04-04
+>
+> **現在値（件数・残数・hotspot）は generated snapshot を正本とする。**
+> 本ドキュメントは方針・優先順位・判断理由を記録する。
+> 件数の一次情報源: `references/02-status/generated/architecture-state-snapshot.md` / `.json`
 
 ---
 

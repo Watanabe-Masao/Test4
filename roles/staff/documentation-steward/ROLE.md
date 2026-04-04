@@ -98,7 +98,7 @@ pm-business からタスク完了の報告を受けたとき、documentation-ste
 | ROLE.md の連携プロトコル | 連携先のロールが実在するか |
 | guard-test-map.md | テストファイルが実在し、記載のルールを検証しているか |
 | metric-id-registry.md | `domain/models/Explanation.ts` の MetricId と一致するか |
-| design-principles.md | CLAUDE.md の設計原則 A1-G7 と一致するか |
+| design-principles.md | CLAUDE.md の設計原則 A1-H6 + Q3-Q4 と一致するか |
 | open-issues.md | 課題ステータスがコードの実態と一致するか |
 
 ## 参照ドキュメント

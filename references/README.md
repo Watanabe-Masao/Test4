@@ -6,10 +6,10 @@
 
 | ディレクトリ | 内容 | ファイル数 |
 |---|---|---|
-| `01-principles/` | 設計原則・制約・正本定義書（Engine 境界、正本化原則、業務値定義） | 22 |
-| `02-status/` | 進捗・品質状態（maturity, promotion, 品質監査, 課題管理） | 8+ |
-| `03-guides/` | 実装ガイド・リファレンス（API, データモデル, ガードテスト, 不変条件） | 28 |
-| `99-archive/` | 旧文書の圧縮要約（現行では参照しない） | 1 |
+| `01-principles/` | 設計原則・制約・正本定義書（Engine 境界、正本化原則、業務値定義） | 29 |
+| `02-status/` | 進捗・品質状態（maturity, promotion, 品質監査, 課題管理） | 11+ |
+| `03-guides/` | 実装ガイド・リファレンス（API, データモデル, ガードテスト, 不変条件） | 30 |
+| `99-archive/` | 旧文書の圧縮要約（現行では参照しない） | 4 |
 
 ## 正本一覧
 
@@ -17,8 +17,8 @@
 
 | テーマ | 正本 |
 |---|---|
-| 設計原則 25 項目（7 カテゴリ A-G） | `01-principles/design-principles.md` |
-| 設計原則が兼ねる禁止事項 | CLAUDE.md §設計原則（A1-G7 の各項目が禁止事項を兼ねる） |
+| 設計原則 9 カテゴリ A-H + Q（48 タグ） | `01-principles/design-principles.md` |
+| 設計原則が兼ねる禁止事項 | CLAUDE.md §設計原則（A1-H6 + Q3-Q4 の各項目が禁止事項を兼ねる） |
 | Engine 境界・3 エンジン定義 | `01-principles/engine-boundary-policy.md` |
 | JS vs DuckDB 責務 | `01-principles/engine-responsibility.md` |
 | データパイプライン整合性 | `01-principles/data-pipeline-integrity.md` |

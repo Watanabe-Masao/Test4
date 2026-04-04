@@ -13,6 +13,10 @@
 
 > 注: v0.9.0〜v1.5.1 は開発初期に厳密な semver 運用が行われていなかった時期のバージョンです。
 > v1.6.0 以降は上記ポリシーに従います。
+>
+> **役割分担:** 本ファイルはリリース単位の要約。
+> 内部向けの詳細変更記��は `references/02-status/recent-changes.md` を参照。
+> `docs/contracts/project-metadata.json` の `appVersion` と最新バージョンを一致させること。
 
 ## [v1.7.0] - 2026-04-02
 
