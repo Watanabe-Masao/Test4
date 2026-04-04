@@ -835,7 +835,9 @@ describe('Generated section integrity', () => {
 
   it('obligation map のパスパターンが実在するディレクトリに対応する', () => {
     // obligation-collector.ts の OBLIGATION_MAP を検証
-    const obligationSrc = readFile('tools/architecture-health/src/collectors/obligation-collector.ts')
+    const obligationSrc = readFile(
+      'tools/architecture-health/src/collectors/obligation-collector.ts',
+    )
     if (!obligationSrc) return
     const patterns = [...obligationSrc.matchAll(/pathPattern:\s*'([^']+)'/g)].map((m) => m[1])
     const missing: string[] = []
