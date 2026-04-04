@@ -28,23 +28,24 @@ export interface HeatmapData {
 
 /**
  * allStoreResults から店舗別 PI データを構築し metric でソート。
+ *
+ * @param ctsQuantityByStore CTS 由来の店舗別販売点数（useCtsQuantity.byStore）
  */
 export function buildStorePIData(
   allStoreResults: ReadonlyMap<string, StoreResult>,
   stores: ReadonlyMap<string, Store>,
   metric: Metric,
+  ctsQuantityByStore?: ReadonlyMap<string, number>,
 ): readonly StorePIEntry[] {
   const entries: StorePIEntry[] = []
   for (const [storeId, result] of allStoreResults) {
     if (result.totalCustomers <= 0) continue
+    const qty = ctsQuantityByStore?.get(storeId) ?? 0
     entries.push({
       storeId,
       name: stores.get(storeId)?.name ?? storeId,
       piAmount: Math.round(safeDivide(result.totalSales, result.totalCustomers, 0) * 1000),
-      piQty:
-        'totalQuantity' in result && typeof result.totalQuantity === 'number'
-          ? Math.round(safeDivide(result.totalQuantity, result.totalCustomers, 0) * 1000)
-          : 0,
+      piQty: Math.round(safeDivide(qty, result.totalCustomers, 0) * 1000),
     })
   }
   return entries.sort((a, b) =>
