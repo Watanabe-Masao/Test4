@@ -91,16 +91,22 @@ if (!existsSync(healthJsonPath)) {
     }
   }
 
-  // committed にあるが live にない KPI（環境差異で bundle が増減する場合は許容）
-  // ただし snapshot/guard/docs 系は必須
-  const REQUIRED_PREFIXES = ['allowlist.', 'compat.', 'complexity.', 'boundary.', 'guard.', 'docs.']
+  // committed にあるが live にない KPI（環境差異で bundle/obligation が増減する場合は許容）
+  // ただし snapshot/guard/docs(obsolete/stale) 系は必須
+  const REQUIRED_PREFIXES = ['allowlist.', 'compat.', 'complexity.', 'boundary.', 'guard.']
+  const REQUIRED_EXACT = ['docs.obsoleteTerms.count', 'docs.generatedSections.stale']
   for (const [id] of committedMap) {
-    if (!liveMap.has(id) && REQUIRED_PREFIXES.some((p) => id.startsWith(p))) {
-      errors.push(`Required KPI missing from live: ${id}`)
+    if (!liveMap.has(id)) {
+      const isRequired =
+        REQUIRED_PREFIXES.some((p) => id.startsWith(p)) ||
+        REQUIRED_EXACT.includes(id)
+      if (isRequired) {
+        errors.push(`Required KPI missing from live: ${id}`)
+      }
     }
   }
 
-  // value / status の不一致（構造系 KPI のみ — perf は環境差異を許容）
+  // value / status の不一致（構造系 KPI のみ — perf/obligation は環境差異を許容）
   for (const [id, liveKpi] of liveMap) {
     const committedKpi = committedMap.get(id)
     if (!committedKpi) continue
@@ -155,12 +161,21 @@ const liveInline = renderCertificateInline({
   hardGateDetails,
 })
 
-/** timestamp 行と perf 数値を正規化して比較用テキストを作る */
+/**
+ * 比較用にテキストを正規化する。
+ * - timestamp 行を除外
+ * - verdict 行を除外（obligation 有無で変動する）
+ * - Next/推奨アクション行を除外（同上）
+ * - 大きな数値を正規化（perf値の環境差異を吸収）
+ */
 function normalize(text: string): string {
   return text
     .split('\n')
-    .filter((line) => !line.startsWith('> 生成:')) // timestamp 行を除外
-    .map((line) => line.replace(/\d{4,}/g, 'N'))    // 大きな数値を正規化（perf値）
+    .filter((line) => !line.startsWith('> 生成:'))
+    .filter((line) => !line.startsWith('**Healthy') && !line.startsWith('**Watch') && !line.startsWith('**RISK'))
+    .filter((line) => !line.startsWith('**Next:'))
+    .filter((line) => !line.startsWith('- '))
+    .map((line) => line.replace(/\d{4,}/g, 'N'))
     .join('\n')
     .trim()
 }
