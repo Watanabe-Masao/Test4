@@ -94,7 +94,7 @@ export const OBLIGATION_MAP: readonly ObligationRule[] = [
 function getChangedFiles(repoRoot: string, base?: string): string[] {
   const diffTarget = base ?? 'HEAD~1'
   try {
-    const output = execSync(`git diff --name-only ${diffTarget}`, {
+    const output = execSync(`git diff --name-only ${diffTarget} 2>/dev/null`, {
       cwd: repoRoot,
       encoding: 'utf-8',
       timeout: 10000,
