@@ -16,6 +16,7 @@
   "ciJobs": [
     "wasm-build",
     "fast-gate",
+    "docs-health",
     "test-coverage",
     "e2e"
   ],

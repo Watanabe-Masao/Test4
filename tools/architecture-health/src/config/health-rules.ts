@@ -33,10 +33,11 @@ export const HEALTH_RULES: readonly HealthRule[] = [
   { id: 'boundary.presentationToInfra', type: 'hard_gate', operator: 'eq', target: 0 },
   { id: 'boundary.infraToApplication', type: 'hard_gate', operator: 'eq', target: 0 },
 
-  // --- Build Perf (Phase 3 で追加予定) ---
-  // { id: 'perf.build.app.seconds', type: 'trend_gate', operator: 'lte', target: 60 },
-  // { id: 'perf.test.fastGate.seconds', type: 'trend_gate', operator: 'lte', target: 120 },
+  // --- Bundle Perf ---
+  { id: 'perf.bundle.totalJsKb', type: 'soft_gate', operator: 'lte', target: 7000 },
+  { id: 'perf.bundle.mainJsKb', type: 'soft_gate', operator: 'lte', target: 2500 },
+  { id: 'perf.bundle.vendorEchartsKb', type: 'info', operator: 'lte', target: 1000 },
 
-  // --- Bundle Perf (Phase 3 で追加予定) ---
-  // { id: 'perf.bundle.totalJsKb', type: 'soft_gate', operator: 'lte', target: 2000 },
+  // --- Obligation ---
+  { id: 'docs.obligation.violations', type: 'hard_gate', operator: 'eq', target: 0 },
 ] as const

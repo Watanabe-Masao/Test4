@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-04T07:45:50.117Z",
+  "timestamp": "2026-04-04T07:57:56.947Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -360,11 +360,99 @@
         "tools/architecture-health/src/renderers/section-updater.ts"
       ],
       "budget": 0
+    },
+    {
+      "id": "perf.bundle.totalJsKb",
+      "label": "JS バンドル合計サイズ",
+      "category": "bundle_perf",
+      "value": 6443,
+      "unit": "kb",
+      "status": "ok",
+      "owner": "architecture",
+      "docRefs": [
+        {
+          "kind": "source",
+          "path": "app/dist/assets/",
+          "section": "*.js"
+        }
+      ],
+      "implRefs": [
+        "app/vite.config.ts"
+      ],
+      "budget": 7000
+    },
+    {
+      "id": "perf.bundle.mainJsKb",
+      "label": "メインバンドルサイズ",
+      "category": "bundle_perf",
+      "value": 2214,
+      "unit": "kb",
+      "status": "ok",
+      "owner": "architecture",
+      "docRefs": [
+        {
+          "kind": "source",
+          "path": "app/dist/assets/",
+          "section": "index-*.js"
+        }
+      ],
+      "implRefs": [
+        "app/vite.config.ts"
+      ],
+      "budget": 2500
+    },
+    {
+      "id": "perf.bundle.vendorEchartsKb",
+      "label": "ECharts バンドルサイズ",
+      "category": "bundle_perf",
+      "value": 919,
+      "unit": "kb",
+      "status": "ok",
+      "owner": "architecture",
+      "docRefs": [
+        {
+          "kind": "source",
+          "path": "app/dist/assets/",
+          "section": "vendor-echarts-*.js"
+        }
+      ],
+      "implRefs": [
+        "app/vite.config.ts"
+      ],
+      "budget": 1000
+    },
+    {
+      "id": "perf.bundle.cssKb",
+      "label": "CSS 合計サイズ",
+      "category": "bundle_perf",
+      "value": 0,
+      "unit": "kb",
+      "status": "ok",
+      "owner": "architecture",
+      "docRefs": [],
+      "implRefs": []
+    },
+    {
+      "id": "docs.obligation.violations",
+      "label": "Doc 更新義務違反数",
+      "category": "docs",
+      "value": 0,
+      "unit": "count",
+      "status": "ok",
+      "owner": "documentation-steward",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "tools/architecture-health/src/collectors/obligation-collector.ts"
+        }
+      ],
+      "implRefs": [],
+      "budget": 0
     }
   ],
   "summary": {
-    "totalKpis": 14,
-    "ok": 13,
+    "totalKpis": 19,
+    "ok": 18,
     "warn": 1,
     "fail": 0,
     "hardGatePass": true

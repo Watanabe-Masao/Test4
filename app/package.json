@@ -26,7 +26,10 @@
     "build-storybook": "storybook build",
     "test:visual": "playwright test visual-regression",
     "health": "npx tsx ../tools/architecture-health/src/main.ts",
-    "health:check": "npx tsx ../tools/architecture-health/src/main.ts --check"
+    "health:check": "npx tsx ../tools/architecture-health/src/main.ts --check",
+    "health:pr-comment": "npx tsx ../tools/architecture-health/src/main.ts --pr-comment",
+    "docs:generate": "npx tsx ../tools/architecture-health/src/main.ts",
+    "docs:check": "npx tsx ../tools/architecture-health/src/docs-check.ts"
   },
   "dependencies": {
     "@duckdb/duckdb-wasm": "^1.33.1-dev18.0",

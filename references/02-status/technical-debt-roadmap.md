@@ -20,11 +20,12 @@
 | 複雑性 | 3 | 0 | 0 |
 | 層境界 | 2 | 0 | 0 |
 | ガードテスト | 2 | 0 | 0 |
-| ドキュメント整合 | 2 | 0 | 0 |
+| ドキュメント整合 | 3 | 0 | 0 |
+| バンドル性能 | 4 | 0 | 0 |
 
-**Hard Gate: PASS** — 合計 14 KPI (OK 13 / WARN 1 / FAIL 0)
+**Hard Gate: PASS** — 合計 19 KPI (OK 18 / WARN 1 / FAIL 0)
 
-> 生成日時: 2026-04-04T07:45:50.117Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成日時: 2026-04-04T07:57:56.947Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 現状スナップショット

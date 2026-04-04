@@ -798,6 +798,57 @@ describe('Structured source consistency (docs/contracts/)', () => {
   })
 })
 
+// ─── Generated section 整合 ─────────────────────────────
+
+describe('Generated section integrity', () => {
+  const GENERATED_SECTION_FILES = [
+    'CLAUDE.md',
+    'references/02-status/technical-debt-roadmap.md',
+  ] as const
+
+  it('generated section のマーカーが正しく対になっている', () => {
+    const broken: string[] = []
+    for (const file of GENERATED_SECTION_FILES) {
+      const content = readFile(file)
+      if (!content) continue
+      const starts = (content.match(/<!-- GENERATED:START /g) ?? []).length
+      const ends = (content.match(/<!-- GENERATED:END /g) ?? []).length
+      if (starts !== ends) {
+        broken.push(`${file}: START=${starts}, END=${ends}`)
+      }
+      if (starts === 0) {
+        broken.push(`${file}: generated section が存在しない`)
+      }
+    }
+    expect(broken, broken.join('\n')).toEqual([])
+  })
+
+  it('architecture-health.json が存在し有効な JSON である', () => {
+    const healthJson = readFile('references/02-status/generated/architecture-health.json')
+    expect(healthJson, 'architecture-health.json が存在しない').toBeTruthy()
+    const parsed = JSON.parse(healthJson)
+    expect(parsed.schemaVersion).toBe('1.0.0')
+    expect(parsed.kpis.length).toBeGreaterThan(0)
+    expect(parsed.summary).toBeDefined()
+    expect(parsed.summary.hardGatePass).toBe(true)
+  })
+
+  it('obligation map のパスパターンが実在するディレクトリに対応する', () => {
+    // obligation-collector.ts の OBLIGATION_MAP を検証
+    const obligationSrc = readFile('tools/architecture-health/src/collectors/obligation-collector.ts')
+    if (!obligationSrc) return
+    const patterns = [...obligationSrc.matchAll(/pathPattern:\s*'([^']+)'/g)].map((m) => m[1])
+    const missing: string[] = []
+    for (const p of patterns) {
+      const fullPath = path.join(ROOT_DIR, p)
+      if (!fs.existsSync(fullPath)) {
+        missing.push(p)
+      }
+    }
+    expect(missing, `存在しないパスパターン: ${missing.join(', ')}`).toEqual([])
+  })
+})
+
 // ─── open-issues.md 状態整合 ────────────────────────────
 
 describe('open-issues.md state consistency', () => {

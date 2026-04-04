@@ -112,4 +112,32 @@ export const DOC_LINKS: Readonly<Record<string, DocLinkEntry>> = {
     ],
     implRefs: ['app/src/test/allowlists/architecture.ts'],
   },
+
+  // --- Bundle Perf ---
+  'perf.bundle.totalJsKb': {
+    docRefs: [
+      { kind: 'source', path: 'app/dist/assets/', section: '*.js' },
+    ],
+    implRefs: ['app/vite.config.ts'],
+  },
+  'perf.bundle.mainJsKb': {
+    docRefs: [
+      { kind: 'source', path: 'app/dist/assets/', section: 'index-*.js' },
+    ],
+    implRefs: ['app/vite.config.ts'],
+  },
+  'perf.bundle.vendorEchartsKb': {
+    docRefs: [
+      { kind: 'source', path: 'app/dist/assets/', section: 'vendor-echarts-*.js' },
+    ],
+    implRefs: ['app/vite.config.ts'],
+  },
+
+  // --- Obligation ---
+  'docs.obligation.violations': {
+    docRefs: [
+      { kind: 'definition', path: 'tools/architecture-health/src/collectors/obligation-collector.ts' },
+    ],
+    implRefs: [],
+  },
 }
