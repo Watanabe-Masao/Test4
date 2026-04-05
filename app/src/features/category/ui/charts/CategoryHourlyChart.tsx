@@ -15,7 +15,7 @@ import type { QueryExecutor } from '@/application/queries/QueryPort'
 import {
   useCategoryHourlyChartPlan,
   type CategoryHourlyInput,
-} from '@/application/hooks/plans/useCategoryHourlyChartPlan'
+} from '@/features/category'
 import { HOUR_MIN, HOUR_MAX } from '@/presentation/components/charts/HeatmapChart.helpers'
 import { buildCategoryHeatmapData } from '@/features/category/ui/charts/CategoryHourlyChartLogic'
 import { useI18n } from '@/application/hooks/useI18n'

@@ -14,4 +14,11 @@ export {
   type CategoryChartItem,
   type PieMode,
   type ChartView,
+  useCategoryBarChartPlan,
+  useCategoryDiscountChartPlan,
+  useCategoryHourlyChartPlan,
+  useCategoryMixChartPlan,
+  useCategoryTrendPlan,
+  type CategoryTrendPlanResult,
+  useCategoryHierarchyPlan,
 } from './application'

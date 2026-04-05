@@ -166,4 +166,21 @@ describe('no-new-debt guard', () => {
       ).toBeLessThanOrEqual(MAX_DEPRECATED)
     })
   })
+
+  describe('shared plan hooks の件数凍結', () => {
+    it('application/hooks/plans/ の plan ファイル数が凍結上限を超えない', () => {
+      const plansDir = path.join(SRC_DIR, 'application/hooks/plans')
+      if (!fs.existsSync(plansDir)) return
+
+      const planFiles = collectTsFiles(plansDir).filter((f) => /Plan\.ts$/.test(f))
+      // 2026-04-05 時点で 24 plan + 1 hierarchy plan = 25 ファイル。
+      // 新規 plan は features/ に作ること。shared への追加は禁止。
+      const MAX_SHARED_PLANS = 25
+      expect(
+        planFiles.length,
+        `shared plan hooks が凍結上限（${MAX_SHARED_PLANS}）を超えています（${planFiles.length} 件）。` +
+          '新規 plan は features/<feature>/application/plans/ に作成してください。',
+      ).toBeLessThanOrEqual(MAX_SHARED_PLANS)
+    })
+  })
 })

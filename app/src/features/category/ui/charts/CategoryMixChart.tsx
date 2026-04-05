@@ -12,10 +12,7 @@ import type { DateRange } from '@/domain/models/calendar'
 import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { AppTheme } from '@/presentation/theme/theme'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
-import {
-  useCategoryMixChartPlan,
-  type CategoryMixWeeklyInput,
-} from '@/application/hooks/plans/useCategoryMixChartPlan'
+import { useCategoryMixChartPlan, type CategoryMixWeeklyInput } from '@/features/category'
 import {
   buildMixChartData,
   type CategoryMeta,

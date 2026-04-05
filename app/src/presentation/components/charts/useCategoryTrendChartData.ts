@@ -11,7 +11,7 @@ import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
-import { useCategoryTrendPlan } from '@/application/hooks/plans/useCategoryTrendPlan'
+import { useCategoryTrendPlan } from '@/features/category'
 import {
   buildCategoryTrendData,
   buildPrevYearTrendData,
