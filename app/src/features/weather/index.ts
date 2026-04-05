@@ -38,4 +38,5 @@ export {
   useWeatherStoreId,
   useWeatherHourlyOnDemand,
   useWeatherAnalysisPlan,
+  type StoreDaySummaryInput,
 } from './application'
