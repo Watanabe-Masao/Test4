@@ -139,7 +139,11 @@ export interface ClassifiedSalesDaySummary {
   readonly customers: number
 }
 
-/** flowers レコードを storeId × day でインデックス化（客数 JOIN 用） */
+/** flowers レコードを storeId × day でインデックス化（客数 JOIN 用）
+ *
+ * 花データは storeId × day で 1 レコードが正規形。
+ * 重複レコードが存在する場合は last-write-wins で上書きする（二重計上防止）。
+ */
 function buildFlowersCustomerIndex(flowers?: {
   readonly records: readonly {
     readonly storeId: string
@@ -151,7 +155,7 @@ function buildFlowersCustomerIndex(flowers?: {
   const idx: Record<string, Record<number, number>> = {}
   for (const r of flowers.records) {
     if (!idx[r.storeId]) idx[r.storeId] = {}
-    idx[r.storeId][r.day] = (idx[r.storeId][r.day] ?? 0) + (r.customers ?? 0)
+    idx[r.storeId][r.day] = r.customers ?? 0
   }
   return idx
 }

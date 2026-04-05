@@ -164,6 +164,30 @@ export interface SpecialSalesData {
   readonly records: readonly SpecialSalesDayEntry[]
 }
 
+/** SpecialSalesDayEntry の一意キーを生成する（storeId × year × month × day） */
+export function specialSalesRecordKey(rec: SpecialSalesDayEntry): string {
+  return `${rec.year}\t${rec.month}\t${rec.day}\t${rec.storeId}`
+}
+
+/**
+ * 2つの SpecialSalesData をマージする。
+ * 同一キー（storeId × year × month × day）のレコードは後者（incoming）で上書き。
+ * 重複レコードの客数二重計上を防止する。
+ */
+export function mergeSpecialSalesData(
+  existing: SpecialSalesData,
+  incoming: SpecialSalesData,
+): SpecialSalesData {
+  const map = new Map<string, SpecialSalesDayEntry>()
+  for (const rec of existing.records) {
+    map.set(specialSalesRecordKey(rec), rec)
+  }
+  for (const rec of incoming.records) {
+    map.set(specialSalesRecordKey(rec), rec)
+  }
+  return { records: [...map.values()] }
+}
+
 // ─── 消耗品 ──────────────────────────────────────────
 
 /** 消耗品日別レコード */

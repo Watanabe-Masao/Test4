@@ -62,6 +62,7 @@ function drillReducer(state: DrillState, action: DrillAction): DrillState {
         clickedDay: isToggleOff ? null : action.day,
         subTab: isToggleOff ? 'trend' : 'drilldown',
         drillEnd: null,
+        pendingRange: null,
       }
     }
     case 'DAY_RANGE_SELECT':
