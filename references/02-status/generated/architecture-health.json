@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-05T13:49:34.197Z",
+  "timestamp": "2026-04-05T13:58:18.810Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -78,9 +78,9 @@
       "id": "compat.bridge.count",
       "label": "Active Bridge 数",
       "category": "compatibility_debt",
-      "value": 5,
+      "value": 0,
       "unit": "count",
-      "status": "warn",
+      "status": "ok",
       "owner": "architecture",
       "docRefs": [
         {
@@ -153,9 +153,9 @@
         "app/src/presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx",
         "app/src/presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx",
         "app/src/presentation/components/charts/periodFilterHooks.ts",
+        "app/src/presentation/components/charts/PerformanceIndexChart.tsx",
         "app/src/presentation/pages/Insight/useInsightData.ts",
-        "app/src/application/hooks/useMetricBreakdown.ts",
-        "app/src/presentation/pages/Dashboard/widgets/DayDetailModal.tsx"
+        "app/src/application/hooks/useMetricBreakdown.ts"
       ],
       "budget": 10
     },
@@ -452,8 +452,8 @@
   ],
   "summary": {
     "totalKpis": 19,
-    "ok": 18,
-    "warn": 1,
+    "ok": 19,
+    "warn": 0,
     "fail": 0,
     "hardGatePass": true
   }

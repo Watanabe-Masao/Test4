@@ -1,5 +1,5 @@
 /**
- * WASM dual-run compare E2E テスト
+ * WASM E2E テスト
  *
  * 検証対象:
  * 1. 本番ビルドで WASM 関連エラーがコンソールに出ないこと
@@ -7,12 +7,11 @@
  * 3. localStorage による executionMode 切替が機能すること
  *
  * 注: E2E は `npm run preview`（本番ビルド）で実行される。
- * DEV のみの WASM 初期化・dual-run compare は本番では無効。
- * DEV 環境での観測は references/03-guides/wasm-dual-run-runbook.md を参照。
+ * 全 5 engine は WASM authoritative に昇格済み（2026-04-05）。
  */
 import { test, expect } from '@playwright/test'
 
-test.describe('WASM dual-run: 本番ビルド安全性', () => {
+test.describe('WASM: 本番ビルド安全性', () => {
   test('WASM 関連のコンソールエラーが出ないこと', async ({ page }) => {
     const errors: string[] = []
     page.on('console', (msg) => {
@@ -58,14 +57,7 @@ test.describe('WASM dual-run: 本番ビルド安全性', () => {
     await page.reload()
     await expect(page.locator('#root')).toBeVisible()
 
-    // dual-run-compare モードを設定（本番では ts-only にフォールバック）
-    await page.evaluate(() => {
-      localStorage.setItem('factorDecomposition.executionMode', 'dual-run-compare')
-    })
-    await page.reload()
-    await expect(page.locator('#root')).toBeVisible()
-
-    // wasm-only モードを設定（WASM 未初期化なので TS フォールバック）
+    // wasm-only モードを設定
     await page.evaluate(() => {
       localStorage.setItem('factorDecomposition.executionMode', 'wasm-only')
     })

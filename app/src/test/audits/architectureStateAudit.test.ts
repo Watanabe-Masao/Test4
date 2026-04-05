@@ -113,12 +113,19 @@ function countCompatReexports(): number {
 }
 
 // ── Helper: アクティブ Bridge ファイルの棚卸し ──
+// dual-run compare コードを含む bridge のみカウントする。
+// authoritative 昇格済み bridge（WASM + TS fallback のみ）は含めない。
 function inventoryBridgeFiles(): Array<{ path: string; lines: number }> {
   const servicesDir = path.join(SRC_DIR, 'application/services')
   if (!fs.existsSync(servicesDir)) return []
   const files = collectTsFiles(servicesDir)
   return files
     .filter((f) => /Bridge\.ts$/.test(f))
+    .filter((f) => {
+      const content = fs.readFileSync(f, 'utf-8')
+      // dual-run compare の痕跡: getExecutionMode or recordCall import
+      return content.includes('getExecutionMode') || content.includes('recordCall')
+    })
     .map((f) => ({
       path: rel(f),
       lines: fs.readFileSync(f, 'utf-8').split('\n').length,

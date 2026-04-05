@@ -1,6 +1,6 @@
 # Architecture State Snapshot
 
-> Generated: 2026-04-04T03:20:22.332Z
+> Generated: 2026-04-05T13:55:42.081Z
 
 ## Allowlist Summary
 
@@ -22,11 +22,6 @@
 
 ## Active Bridges
 
-- application/services/budgetAnalysisBridge.ts (194 lines)
-- application/services/factorDecompositionBridge.ts (322 lines)
-- application/services/forecastBridge.ts (437 lines)
-- application/services/grossProfitBridge.ts (473 lines)
-- application/services/timeSlotBridge.ts (174 lines)
 
 ## Facade Hooks
 
@@ -104,9 +99,9 @@
 | presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx | 7 | 7 | 480 |
 | presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 9 | 5 | 434 |
 | presentation/components/charts/periodFilterHooks.ts | 5 | 8 | 241 |
+| presentation/components/charts/PerformanceIndexChart.tsx | 6 | 6 | 368 |
 | presentation/pages/Insight/useInsightData.ts | 5 | 7 | 217 |
 | application/hooks/useMetricBreakdown.ts | 7 | 5 | 282 |
-| presentation/pages/Dashboard/widgets/DayDetailModal.tsx | 7 | 4 | 343 |
 
 ## Near-Limit Files (≥80%)
 

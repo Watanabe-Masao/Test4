@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-04T03:20:22.332Z",
+  "timestamp": "2026-04-05T13:55:42.081Z",
   "totalAllowlistEntries": 15,
   "categoryBreakdown": {
     "adapter": 1,
@@ -25,28 +25,7 @@
   "activeLists": 7,
   "vmFileCount": 27,
   "compatReexportCount": 2,
-  "activeBridges": [
-    {
-      "path": "application/services/budgetAnalysisBridge.ts",
-      "lines": 194
-    },
-    {
-      "path": "application/services/factorDecompositionBridge.ts",
-      "lines": 322
-    },
-    {
-      "path": "application/services/forecastBridge.ts",
-      "lines": 437
-    },
-    {
-      "path": "application/services/grossProfitBridge.ts",
-      "lines": 473
-    },
-    {
-      "path": "application/services/timeSlotBridge.ts",
-      "lines": 174
-    }
-  ],
+  "activeBridges": [],
   "facadeHooks": [
     "application/hooks/duckdb/useAdvancedQueries.ts",
     "application/hooks/duckdb/useAsyncQuery.ts",
@@ -155,6 +134,12 @@
       "lineCount": 241
     },
     {
+      "file": "presentation/components/charts/PerformanceIndexChart.tsx",
+      "memoCount": 6,
+      "stateCount": 6,
+      "lineCount": 368
+    },
+    {
       "file": "presentation/pages/Insight/useInsightData.ts",
       "memoCount": 5,
       "stateCount": 7,
@@ -165,12 +150,6 @@
       "memoCount": 7,
       "stateCount": 5,
       "lineCount": 282
-    },
-    {
-      "file": "presentation/pages/Dashboard/widgets/DayDetailModal.tsx",
-      "memoCount": 7,
-      "stateCount": 4,
-      "lineCount": 343
     }
   ],
   "nearLimitFiles": [

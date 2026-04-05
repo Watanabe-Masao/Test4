@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-05T13:49:34.197Z
+> Generated: 2026-04-05T13:58:18.810Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -9,8 +9,8 @@
 | 指標 | 値 |
 |---|---|
 | Total KPIs | 19 |
-| OK | 18 |
-| WARN | 1 |
+| OK | 19 |
+| WARN | 0 |
 | FAIL | 0 |
 | Hard Gate | PASS |
 
@@ -26,7 +26,7 @@
 
 | ID | 指標 | 値 | 状態 |
 |---|---|---|---|
-| compat.bridge.count | Active Bridge 数 | 5 / 3 | WARN |
+| compat.bridge.count | Active Bridge 数 | 0 / 3 | OK |
 | compat.reexport.count | 後方互換 re-export 数 | 2 / 3 | OK |
 
 ## 複雑性
