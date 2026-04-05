@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-05T18:45:09.285Z
+> Generated: 2026-04-05T20:47:59.972Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -9,10 +9,10 @@
 | 指標 | 値 |
 |---|---|
 | Total KPIs | 19 |
-| OK | 18 |
+| OK | 19 |
 | WARN | 0 |
-| FAIL | 1 |
-| Hard Gate | FAIL |
+| FAIL | 0 |
+| Hard Gate | PASS |
 
 ## 許可リスト
 
@@ -48,7 +48,7 @@
 
 | ID | 指標 | 値 | 状態 |
 |---|---|---|---|
-| guard.files.count | ガードテストファイル数 | 33 / 30 | OK |
+| guard.files.count | ガードテストファイル数 | 34 / 30 | OK |
 | guard.reviewOnlyTags.count | レビュー専用タグ数 | 0 / 5 | OK |
 
 ## ドキュメント整合
@@ -57,7 +57,7 @@
 |---|---|---|---|
 | docs.obsoleteTerms.count | 廃止用語残存数 | 0 / 0 | OK |
 | docs.generatedSections.stale | Generated section 未更新 | 0 / 0 | OK |
-| docs.obligation.violations | Doc 更新義務違反数 | 1 / 0 | FAIL |
+| docs.obligation.violations | Doc 更新義務違反数 | 0 / 0 | OK |
 
 ## バンドル性能
 

@@ -135,6 +135,41 @@ export async function queryStoreDaySummary(
   return queryToObjects<StoreDaySummaryRow>(conn, sql, StoreDaySummaryRowSchema)
 }
 
+// ── 客数クエリ（CustomerFact 用） ──
+
+export const CustomerDailyRowSchema = z.object({
+  storeId: z.string(),
+  day: z.number(),
+  customers: z.number(),
+})
+
+export interface CustomerDailyRow {
+  readonly storeId: string
+  readonly day: number
+  readonly customers: number
+}
+
+/**
+ * 店舗×日の客数を取得する（CustomerFact readModel 用）
+ *
+ * store_day_summary.customers は flowers JOIN 済みの値。
+ * customers > 0 の行のみ返す（0 は導出側で補完）。
+ *
+ * @see references/01-principles/customer-definition.md
+ */
+export async function queryCustomerDaily(
+  conn: AsyncDuckDBConnection,
+  params: SummaryFilterParams,
+): Promise<readonly CustomerDailyRow[]> {
+  const where = summaryWhereClause(params)
+  const sql = `
+    SELECT store_id, day, customers
+    FROM store_day_summary
+    ${where}
+    ORDER BY store_id, day`
+  return queryToObjects<CustomerDailyRow>(conn, sql, CustomerDailyRowSchema)
+}
+
 /**
  * 期間集約レート（売上合計・仕入合計・売変率等）
  */

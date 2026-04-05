@@ -497,7 +497,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 詳細レポート: `references/02-status/generated/architecture-health.md`
 
 <!-- GENERATED:START architecture-health-summary -->
-**RISK** | 前回比: Flat | Hard Gate: FAIL
+**Healthy** | 前回比: Flat | Hard Gate: PASS
 
 | 指標 | 状態 | 詳細 |
 |---|---|---|
@@ -505,13 +505,11 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 | 後方互換負債 | OK | 0/3 / 2/3 |
 | 複雑性圧 | OK | 0/5 / 10/10 / 27/30 |
 | 境界健全性 | OK | 0/0 / 0/0 |
-| ガード強度 | OK | 33/30 / 0/5 |
+| ガード強度 | OK | 34/30 / 0/5 |
 | 性能 | OK | 6443/7000 / 2214/2500 / 919/1000 |
 
-**Next:**
-- Doc 更新義務違反数 を budget 0 以下に修正する
 
-> 生成: 2026-04-05T18:45:09.285Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-05T20:47:59.972Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）
@@ -529,6 +527,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 | 粗利 | `calculateGrossProfit()` | `gross-profit-definition.md` | grossProfitPathGuard + consistencyGuard |
 | 売上・販売点数 | `readSalesFact()` | `sales-definition.md` | salesFactPathGuard |
 | 値引き | `readDiscountFact()` | `discount-definition.md` | discountFactPathGuard |
+| 客数 | `readCustomerFact()` | `customer-definition.md` | customerFactPathGuard |
 | 要因分解 | `calculateFactorDecomposition()` | `authoritative-calculation-definition.md` | factorDecompositionPathGuard |
 | 自由期間分析 | `readFreePeriodFact()` | `free-period-analysis-definition.md` | freePeriodPathGuard |
 | 自由期間予算 | `readFreePeriodBudgetFact()` | `free-period-budget-kpi-contract.md` | freePeriodBudgetPathGuard |
