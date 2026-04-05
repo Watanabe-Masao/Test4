@@ -30,6 +30,8 @@ import type { WeatherPersister } from '@/application/queries/weather'
 import type { HourlyWeatherAvgRow } from '@/application/queries/weather/WeatherHourlyHandler'
 import type { LevelAggregationRow } from '@/application/queries/cts/LevelAggregationHandler'
 import { buildWowRange } from '@/application/usecases/timeSlotDataLogic'
+import type { ComparisonProvenance } from '@/domain/models/ComparisonWindow'
+import { currentOnly, yoyWindow, wowWindow } from '@/domain/models/ComparisonWindow'
 import { useTimeSlotWeatherPlan } from './useTimeSlotWeatherPlan'
 import { useTimeSlotHierarchyPlan } from './useTimeSlotHierarchyPlan'
 
@@ -63,6 +65,9 @@ export interface TimeSlotPlanResult {
   readonly prevCategoryHourlyData: readonly CategoryHourlyRow[] | null
   readonly curWeatherAvg: readonly HourlyWeatherAvgRow[] | null
   readonly prevWeatherAvg: readonly HourlyWeatherAvgRow[] | null
+  // ── Provenance ──
+  readonly comparisonProvenance: ComparisonProvenance
+  // ── Status ──
   readonly isLoading: boolean
   readonly error: Error | null
 }
@@ -184,6 +189,14 @@ export function useTimeSlotPlan(params: TimeSlotPlanParams): TimeSlotPlanResult 
     weatherPersist,
   })
 
+  // ── Comparison Provenance ──
+  const comparisonProvenance = useMemo<ComparisonProvenance>(() => {
+    if (!compRange) return { window: currentOnly(), comparisonAvailable: false }
+    const win =
+      compMode === 'wow' ? wowWindow(compRange) : yoyWindow(compRange, prevYearScope?.dowOffset)
+    return { window: win, comparisonAvailable: compHourlyOut != null }
+  }, [compMode, compRange, prevYearScope?.dowOffset, compHourlyOut])
+
   // ── Unwrap ──
   const catHourlyOut = catHourlyPairOut?.current ?? null
   const prevCatHourlyOut = catHourlyPairOut?.comparison ?? null
@@ -200,6 +213,7 @@ export function useTimeSlotPlan(params: TimeSlotPlanParams): TimeSlotPlanResult 
     prevCategoryHourlyData: prevCatHourlyOut?.records ?? null,
     curWeatherAvg,
     prevWeatherAvg,
+    comparisonProvenance,
     isLoading,
     error: error ?? null,
   }
