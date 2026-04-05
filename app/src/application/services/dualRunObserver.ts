@@ -11,15 +11,6 @@
  */
 
 type FnName =
-  // grossProfit
-  | 'calculateInvMethod'
-  | 'calculateEstMethod'
-  | 'calculateCoreSales'
-  | 'calculateDiscountRate'
-  | 'calculateDiscountImpact'
-  | 'calculateMarkupRates'
-  | 'calculateTransferTotals'
-  | 'calculateInventoryCost'
   // timeSlot
   | 'findCoreTime'
   | 'findTurnaroundHour'
@@ -67,14 +58,6 @@ function makeFnStats(): FnStats {
 const stats: Record<FnName, FnStats> = {
   // factorDecomposition
   // grossProfit
-  calculateInvMethod: makeFnStats(),
-  calculateEstMethod: makeFnStats(),
-  calculateCoreSales: makeFnStats(),
-  calculateDiscountRate: makeFnStats(),
-  calculateDiscountImpact: makeFnStats(),
-  calculateMarkupRates: makeFnStats(),
-  calculateTransferTotals: makeFnStats(),
-  calculateInventoryCost: makeFnStats(),
   // budgetAnalysis
   // forecast
   // timeSlot

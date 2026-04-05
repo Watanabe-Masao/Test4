@@ -52,9 +52,9 @@
 
 | ファイル | 凍結理由 | 解除条件 |
 |---------|---------|---------|
-| domain/calculations/estMethod.ts | WASM dual-run bridge が old 関数名に依存 | WASM bridge 統合完了後 |
-| domain/calculations/discountImpact.ts | 同上 | WASM bridge 統合完了後 |
-| application/services/grossProfitBridge.ts | WASM dual-run bridge 本体 | WASM 統合完了後 |
+| ~~domain/calculations/estMethod.ts~~ | ~~WASM dual-run bridge が old 関数名に依存~~ | ~~WASM bridge 統合完了後~~ — **解消**（2026-04-05 grossProfit authoritative 昇格） |
+| ~~domain/calculations/discountImpact.ts~~ | ~~同上~~ | ~~WASM bridge 統合完了後~~ — **解消**（2026-04-05） |
+| ~~application/services/grossProfitBridge.ts~~ | ~~WASM dual-run bridge 本体~~ | ~~WASM 統合完了後~~ — **解消**（2026-04-05 簡素化完了） |
 | domain/models/ImportedData.ts | infrastructure 内部 + adapter 用（direct import = 0） | ImportedData 型完全削除後 |
 | domain/models/monthlyDataAdapter.ts | toLegacyImportedData / toMonthlyData adapter | ImportedData 型完全削除後 |
 

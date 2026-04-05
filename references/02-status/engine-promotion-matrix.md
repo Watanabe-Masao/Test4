@@ -12,7 +12,7 @@
 | Engine | Current State | Compare | Rust | WASM | Observation | Blocker | Next Action | Risk | Rollback Ready |
 |---|---|---|---|---|---|---|---|---|---|
 | factorDecomposition | **authoritative** ✅ | ✅ | ✅ | ✅ | ✅ 18 pass | — | 完了（2026-04-05 昇格） | — | — |
-| grossProfit | **promotion-candidate** | ✅ | ✅ | ✅ | ✅ 16 pass | なし | wasm-only trial 実行 | Low | ✅ |
+| grossProfit | **authoritative** ✅ | ✅ | ✅ | ✅ | ✅ 16 pass | — | 完了（2026-04-05 昇格） | — | — |
 | budgetAnalysis | **authoritative** ✅ | ✅ | ✅ | ✅ | ✅ 12 pass | — | 完了（2026-04-05 昇格） | — | — |
 | forecast | **authoritative** ✅ | ✅ | ✅ | ✅ | ✅ 21 pass | — | 完了（2026-04-05 昇格） | — | — |
 | timeSlot | **bridge-ready** | - | ✅ | ✅ | 未作成 | 観測テスト | compare 計画 + 観測テスト作成 | Medium | ✅ |
@@ -138,7 +138,7 @@
 ────────────────────────────────────────────────────
 
 factorDecomposition  [authoritative] ✅  ← 完了（2026-04-05）
-grossProfit          [promotion-candidate] ✅  →  wasm-only trial  →  authoritative
+grossProfit          [authoritative] ✅  ← 完了（2026-04-05）
 budgetAnalysis       [authoritative] ✅  ← 完了（2026-04-05）
 forecast             [authoritative] ✅  ← 完了（2026-04-05）
 timeSlot             [bridge-ready]            →  compare-ready  →  observation  →  promotion-candidate

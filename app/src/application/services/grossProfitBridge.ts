@@ -1,17 +1,18 @@
 /**
- * grossProfit モード切替ディスパッチャ (Bridge)
+ * grossProfit WASM authoritative bridge
  *
- * factorDecompositionBridge と同一パターン。
- * 3モードディスパッチ:
- *   - ts-only: TS 実装のみ
- *   - wasm-only: WASM のみ（初期化未完了時は TS フォールバック）
- *   - dual-run-compare: 両方実行→結果比較→差分ログ→TS 結果を返却
+ * WASM が ready なら WASM 実装を使用し、未初期化時は TS にフォールバックする。
+ * public API と import path は従来と同一。
  *
- * bridge の責務: mode dispatch, fallback, dual-run compare, logging
- * bridge に含めないもの: metrics, timings, cache, mode persistence, error policy
+ * 対象: 8 authoritative single-store core 関数 + 2 CalculationResult 版
  *
- * 対象: 8 authoritative single-store core 関数
- * 対象外: safeDivide 等のユーティリティ、aggregation/divisor 系
+ * 類型 C:
+ *   - numeric core は WASM authoritative
+ *   - calculateEstMethodWithStatus: status/warnings は TS authoritative
+ *   - calculateDiscountImpact: CalculationResult は TS authoritative
+ *
+ * @see references/02-status/engine-promotion-matrix.md — authoritative
+ * @see references/02-status/promotion-criteria.md — 昇格基準
  */
 import {
   calculateInvMethod as calculateInvMethodTS,
@@ -36,19 +37,15 @@ import type {
   TransferTotalsResult,
 } from '@/domain/calculations/grossProfit'
 import type { CalculationResult } from '@/domain/models/CalculationResult'
-import { getExecutionMode, getWasmModuleState, getGrossProfitWasmExports } from './wasmEngine'
-import type { WasmState, ExecutionMode } from './wasmEngine'
+import { getGrossProfitWasmExports } from './wasmEngine'
 import {
   calculateInvMethodWasm,
-  calculateEstMethodWasm,
   calculateCoreSalesWasm,
   calculateDiscountRateWasm,
-  calculateDiscountImpactWasm,
   calculateMarkupRatesWasm,
   calculateTransferTotalsWasm,
   calculateInventoryCostWasm,
 } from './grossProfitWasm'
-import { recordCall, recordMismatch, recordNullMismatch } from './dualRunObserver'
 
 // Re-export types for consumer convenience
 export type {
@@ -64,145 +61,58 @@ export type {
   TransferTotalsResult,
 }
 
-/* ── dual-run 差分ログフォーマット ────────────── */
-
-type GrossProfitFnName =
-  | 'calculateInvMethod'
-  | 'calculateEstMethod'
-  | 'calculateCoreSales'
-  | 'calculateDiscountRate'
-  | 'calculateDiscountImpact'
-  | 'calculateMarkupRates'
-  | 'calculateTransferTotals'
-  | 'calculateInventoryCost'
-
-export interface GrossProfitMismatchLog {
-  readonly function: GrossProfitFnName
-  readonly inputSummary: Record<string, number | null | undefined>
-  readonly tsResult: Record<string, number | null>
-  readonly wasmResult: Record<string, number | null>
-  readonly diffs: Record<string, number>
-  readonly maxAbsDiff: number
-  readonly invariantTs: 'ok' | 'violated'
-  readonly invariantWasm: 'ok' | 'violated'
-  readonly wasmState: WasmState
-  readonly executionMode: ExecutionMode
-}
-
-/* ── 内部ヘルパー ─────────────────────────────── */
-
 function isWasmReady(): boolean {
   return getGrossProfitWasmExports() !== null
 }
 
-function isDualRun(): boolean {
-  return import.meta.env.DEV && getExecutionMode() === 'dual-run-compare' && isWasmReady()
+/* ── numeric core: WASM authoritative ────────── */
+
+export function calculateInvMethod(input: InvMethodInput): InvMethodResult {
+  if (isWasmReady()) return calculateInvMethodWasm(input)
+  return calculateInvMethodTS(input)
 }
 
-function compareNumericResults(
-  fnName: GrossProfitFnName,
-  tsFields: Record<string, number | null>,
-  wasmFields: Record<string, number | null>,
-  inputSummary: Record<string, number | null | undefined>,
-  invariantChecker?: (fields: Record<string, number | null>) => 'ok' | 'violated',
-): void {
-  let hasNullMismatch = false
-  const diffs: Record<string, number> = {}
-  let maxAbsDiff = 0
-
-  for (const key of Object.keys(tsFields)) {
-    const tsVal = tsFields[key]
-    const wasmVal = wasmFields[key]
-
-    if (tsVal === null && wasmVal === null) {
-      continue
-    }
-    if (tsVal === null || wasmVal === null) {
-      hasNullMismatch = true
-      continue
-    }
-    const diff = wasmVal - tsVal
-    diffs[key] = diff
-    maxAbsDiff = Math.max(maxAbsDiff, Math.abs(diff))
-  }
-
-  if (hasNullMismatch) {
-    console.warn(`[grossProfit dual-run null mismatch] ${fnName}:`, {
-      tsFields,
-      wasmFields,
-    })
-    recordNullMismatch(fnName)
-    return
-  }
-
-  const invariantTs = invariantChecker ? invariantChecker(tsFields) : 'ok'
-  const invariantWasm = invariantChecker ? invariantChecker(wasmFields) : 'ok'
-
-  if (maxAbsDiff > 1e-10 || invariantTs === 'violated' || invariantWasm === 'violated') {
-    const log: GrossProfitMismatchLog = {
-      function: fnName,
-      inputSummary,
-      tsResult: tsFields,
-      wasmResult: wasmFields,
-      diffs,
-      maxAbsDiff,
-      invariantTs,
-      invariantWasm,
-      wasmState: getWasmModuleState('grossProfit'),
-      executionMode: getExecutionMode(),
-    }
-    console.warn('[grossProfit dual-run mismatch]', log)
-    recordMismatch(
-      fnName,
-      maxAbsDiff,
-      invariantTs,
-      invariantWasm,
-      inputSummary as Record<string, number | undefined>,
-    )
-  }
+export function calculateCoreSales(
+  totalSales: number,
+  deliverySales: number,
+  deliveryCost: number,
+): ReturnType<typeof calculateCoreSalesTS> {
+  if (isWasmReady()) return calculateCoreSalesWasm(totalSales, deliverySales, deliveryCost)
+  return calculateCoreSalesTS(totalSales, deliverySales, deliveryCost)
 }
 
-/* ── 公開関数 ─────────────────────────────────── */
+export function calculateDiscountRate(totalDiscountAmount: number, totalSales: number): number {
+  if (isWasmReady()) return calculateDiscountRateWasm(totalDiscountAmount, totalSales)
+  return calculateDiscountRateTS(totalDiscountAmount, totalSales)
+}
+
+export function calculateMarkupRates(input: MarkupRateInput): MarkupRateResult {
+  if (isWasmReady()) return calculateMarkupRatesWasm(input)
+  return calculateMarkupRatesTS(input)
+}
+
+export function calculateTransferTotals(input: TransferTotalsInput): TransferTotalsResult {
+  if (isWasmReady()) return calculateTransferTotalsWasm(input)
+  return calculateTransferTotalsTS(input)
+}
+
+export function calculateInventoryCost(totalCost: number, deliverySalesCost: number): number {
+  if (isWasmReady()) return calculateInventoryCostWasm(totalCost, deliverySalesCost)
+  return calculateInventoryCostTS(totalCost, deliverySalesCost)
+}
+
+/* ── CalculationResult 版: status/warnings は TS authoritative ── */
 
 /**
- * 在庫法粗利計算
+ * 推定法マージン計算（CalculationResult 版）
+ *
+ * Status/warnings は TS authoritative。WASM は numerics のみ。
+ * TS が常に実行される。
  */
-export function calculateInvMethod(input: InvMethodInput): InvMethodResult {
-  if (import.meta.env.DEV) recordCall('calculateInvMethod')
-  const mode = getExecutionMode()
-
-  if (mode === 'ts-only' || !isWasmReady()) {
-    return calculateInvMethodTS(input)
-  }
-
-  if (mode === 'wasm-only') {
-    return calculateInvMethodWasm(input)
-  }
-
-  // dual-run-compare
-  const tsResult = calculateInvMethodTS(input)
-  if (isDualRun()) {
-    const wasmResult = calculateInvMethodWasm(input)
-    compareNumericResults(
-      'calculateInvMethod',
-      {
-        cogs: tsResult.cogs,
-        grossProfit: tsResult.grossProfit,
-        grossProfitRate: tsResult.grossProfitRate,
-      },
-      {
-        cogs: wasmResult.cogs,
-        grossProfit: wasmResult.grossProfit,
-        grossProfitRate: wasmResult.grossProfitRate,
-      },
-      {
-        openingInventory: input.openingInventory,
-        closingInventory: input.closingInventory,
-        totalSales: input.totalSales,
-      },
-    )
-  }
-  return tsResult
+export function calculateEstMethodWithStatus(
+  input: EstMethodInput,
+): CalculationResult<EstMethodResult> {
+  return calculateEstMethodWithStatusTS(input)
 }
 
 /**
@@ -213,257 +123,22 @@ export function calculateInvMethod(input: InvMethodInput): InvMethodResult {
 export function calculateEstMethod(input: EstMethodInput): EstMethodResult {
   const result = calculateEstMethodWithStatus(input)
   if (result.value != null) return result.value
-  // 後方互換: invalid 時はゼロフォールバック
   return { grossSales: 0, cogs: 0, margin: 0, marginRate: 0, closingInventory: null }
-}
-
-/**
- * コア売上計算
- */
-export function calculateCoreSales(
-  totalSales: number,
-  deliverySales: number,
-  deliveryCost: number,
-): ReturnType<typeof calculateCoreSalesTS> {
-  if (import.meta.env.DEV) recordCall('calculateCoreSales')
-  const mode = getExecutionMode()
-
-  if (mode === 'ts-only' || !isWasmReady()) {
-    return calculateCoreSalesTS(totalSales, deliverySales, deliveryCost)
-  }
-
-  if (mode === 'wasm-only') {
-    return calculateCoreSalesWasm(totalSales, deliverySales, deliveryCost)
-  }
-
-  // dual-run-compare
-  const tsResult = calculateCoreSalesTS(totalSales, deliverySales, deliveryCost)
-  if (isDualRun()) {
-    const wasmResult = calculateCoreSalesWasm(totalSales, deliverySales, deliveryCost)
-    // boolean exact match check
-    if (tsResult.isOverDelivery !== wasmResult.isOverDelivery) {
-      console.warn('[grossProfit dual-run null mismatch] calculateCoreSales:', {
-        tsIsOverDelivery: tsResult.isOverDelivery,
-        wasmIsOverDelivery: wasmResult.isOverDelivery,
-      })
-      recordNullMismatch('calculateCoreSales')
-    }
-    compareNumericResults(
-      'calculateCoreSales',
-      { coreSales: tsResult.coreSales, overDeliveryAmount: tsResult.overDeliveryAmount },
-      { coreSales: wasmResult.coreSales, overDeliveryAmount: wasmResult.overDeliveryAmount },
-      { totalSales, deliverySales, deliveryCost },
-    )
-  }
-  return tsResult
-}
-
-/**
- * 売変率計算
- */
-export function calculateDiscountRate(totalDiscountAmount: number, totalSales: number): number {
-  if (import.meta.env.DEV) recordCall('calculateDiscountRate')
-  const mode = getExecutionMode()
-
-  if (mode === 'ts-only' || !isWasmReady()) {
-    return calculateDiscountRateTS(totalDiscountAmount, totalSales)
-  }
-
-  if (mode === 'wasm-only') {
-    return calculateDiscountRateWasm(totalDiscountAmount, totalSales)
-  }
-
-  // dual-run-compare
-  const tsResult = calculateDiscountRateTS(totalDiscountAmount, totalSales)
-  if (isDualRun()) {
-    const wasmResult = calculateDiscountRateWasm(totalDiscountAmount, totalSales)
-    compareNumericResults(
-      'calculateDiscountRate',
-      { rate: tsResult },
-      { rate: wasmResult },
-      { totalDiscountAmount, totalSales },
-    )
-  }
-  return tsResult
-}
-
-/**
- * 売変ロス原価計算
- */
-export function calculateDiscountImpact(
-  input: DiscountImpactInput,
-): CalculationResult<DiscountImpactResult> {
-  if (import.meta.env.DEV) recordCall('calculateDiscountImpact')
-  const mode = getExecutionMode()
-
-  const defaultFallback: DiscountImpactResult = { discountLossCost: 0 }
-
-  if (mode === 'ts-only' || !isWasmReady()) {
-    return calculateDiscountImpactWithStatusTS(input)
-  }
-
-  if (mode === 'wasm-only') {
-    const wasmResult = calculateDiscountImpactWasm(input)
-    return { status: 'ok', value: wasmResult, warnings: [] }
-  }
-
-  // dual-run-compare
-  const tsStatusResult = calculateDiscountImpactWithStatusTS(input)
-  const tsValue = tsStatusResult.value ?? defaultFallback
-  if (isDualRun()) {
-    const wasmResult = calculateDiscountImpactWasm(input)
-    compareNumericResults(
-      'calculateDiscountImpact',
-      { discountLossCost: tsValue.discountLossCost },
-      { discountLossCost: wasmResult.discountLossCost },
-      {
-        coreSales: input.coreSales,
-        markupRate: input.markupRate,
-        discountRate: input.discountRate,
-      },
-    )
-  }
-  return tsStatusResult
-}
-
-/**
- * 値入率計算
- */
-export function calculateMarkupRates(input: MarkupRateInput): MarkupRateResult {
-  if (import.meta.env.DEV) recordCall('calculateMarkupRates')
-  const mode = getExecutionMode()
-
-  if (mode === 'ts-only' || !isWasmReady()) {
-    return calculateMarkupRatesTS(input)
-  }
-
-  if (mode === 'wasm-only') {
-    return calculateMarkupRatesWasm(input)
-  }
-
-  // dual-run-compare
-  const tsResult = calculateMarkupRatesTS(input)
-  if (isDualRun()) {
-    const wasmResult = calculateMarkupRatesWasm(input)
-    compareNumericResults(
-      'calculateMarkupRates',
-      { averageMarkupRate: tsResult.averageMarkupRate, coreMarkupRate: tsResult.coreMarkupRate },
-      {
-        averageMarkupRate: wasmResult.averageMarkupRate,
-        coreMarkupRate: wasmResult.coreMarkupRate,
-      },
-      { purchasePrice: input.purchasePrice, purchaseCost: input.purchaseCost },
-    )
-  }
-  return tsResult
-}
-
-/**
- * 移動合計計算
- */
-export function calculateTransferTotals(input: TransferTotalsInput): TransferTotalsResult {
-  if (import.meta.env.DEV) recordCall('calculateTransferTotals')
-  const mode = getExecutionMode()
-
-  if (mode === 'ts-only' || !isWasmReady()) {
-    return calculateTransferTotalsTS(input)
-  }
-
-  if (mode === 'wasm-only') {
-    return calculateTransferTotalsWasm(input)
-  }
-
-  // dual-run-compare
-  const tsResult = calculateTransferTotalsTS(input)
-  if (isDualRun()) {
-    const wasmResult = calculateTransferTotalsWasm(input)
-    compareNumericResults(
-      'calculateTransferTotals',
-      { transferPrice: tsResult.transferPrice, transferCost: tsResult.transferCost },
-      { transferPrice: wasmResult.transferPrice, transferCost: wasmResult.transferCost },
-      { interStoreInPrice: input.interStoreInPrice, interStoreOutPrice: input.interStoreOutPrice },
-    )
-  }
-  return tsResult
-}
-
-/**
- * 在庫仕入原価計算
- */
-export function calculateInventoryCost(totalCost: number, deliverySalesCost: number): number {
-  if (import.meta.env.DEV) recordCall('calculateInventoryCost')
-  const mode = getExecutionMode()
-
-  if (mode === 'ts-only' || !isWasmReady()) {
-    return calculateInventoryCostTS(totalCost, deliverySalesCost)
-  }
-
-  if (mode === 'wasm-only') {
-    return calculateInventoryCostWasm(totalCost, deliverySalesCost)
-  }
-
-  // dual-run-compare
-  const tsResult = calculateInventoryCostTS(totalCost, deliverySalesCost)
-  if (isDualRun()) {
-    const wasmResult = calculateInventoryCostWasm(totalCost, deliverySalesCost)
-    compareNumericResults(
-      'calculateInventoryCost',
-      { inventoryCost: tsResult },
-      { inventoryCost: wasmResult },
-      { totalCost, deliverySalesCost },
-    )
-  }
-  return tsResult
-}
-
-/* ── CalculationResult 版（TS authoritative — status/warnings の正本） ── */
-
-/**
- * 推定法マージン計算（CalculationResult 版）
- *
- * Status/warnings は TS authoritative。WASM は数値検証のみ（dual-run 時）。
- */
-export function calculateEstMethodWithStatus(
-  input: EstMethodInput,
-): CalculationResult<EstMethodResult> {
-  if (import.meta.env.DEV) recordCall('calculateEstMethod')
-
-  const tsStatusResult = calculateEstMethodWithStatusTS(input)
-
-  // dual-run: 数値比較のみ（status/warnings は TS が権威）
-  if (isDualRun() && tsStatusResult.value) {
-    const wasmResult = calculateEstMethodWasm(input)
-    compareNumericResults(
-      'calculateEstMethod',
-      {
-        grossSales: tsStatusResult.value.grossSales,
-        cogs: tsStatusResult.value.cogs,
-        margin: tsStatusResult.value.margin,
-        marginRate: tsStatusResult.value.marginRate,
-        closingInventory: tsStatusResult.value.closingInventory,
-      },
-      {
-        grossSales: wasmResult.grossSales,
-        cogs: wasmResult.cogs,
-        margin: wasmResult.margin,
-        marginRate: wasmResult.marginRate,
-        closingInventory: wasmResult.closingInventory,
-      },
-      {
-        coreSales: input.coreSales,
-        discountRate: input.discountRate,
-        markupRate: input.markupRate,
-      },
-    )
-  }
-
-  return tsStatusResult
 }
 
 /**
  * 売変ロス原価計算（CalculationResult 版）
  *
- * calculateDiscountImpact が既に CalculationResult を返すため、エイリアスとして維持。
+ * Status/warnings は TS authoritative。
+ */
+export function calculateDiscountImpact(
+  input: DiscountImpactInput,
+): CalculationResult<DiscountImpactResult> {
+  return calculateDiscountImpactWithStatusTS(input)
+}
+
+/**
+ * 売変ロス原価計算（CalculationResult 版 — エイリアス）
  */
 export function calculateDiscountImpactWithStatus(
   input: DiscountImpactInput,
