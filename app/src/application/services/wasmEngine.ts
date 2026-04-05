@@ -5,7 +5,7 @@
  * 対応モジュール: factorDecomposition, grossProfit, budgetAnalysis, forecast, timeSlot
  *
  * 保証:
- * 1. WASM 未初期化でも UI は通常どおり動く（PROD: ts-only、DEV: dual-run-compare）
+ * 1. WASM 未初期化でも UI は通常どおり動く（PROD: ts-only、DEV: wasm-only）
  * 2. 初期化失敗時も TS 実装へ確実にフォールバック（state → 'error' → 以降 TS 固定）
  * 3. モード切替が render 順に影響しない（bridge は同期関数）
  * 4. 初期化は UI イベントループをブロックしない（非同期）
@@ -22,7 +22,7 @@ export const WASM_MODULE_NAMES = [
 ] as const
 
 export type WasmModuleName = (typeof WASM_MODULE_NAMES)[number]
-export type ExecutionMode = 'ts-only' | 'wasm-only' | 'dual-run-compare'
+export type ExecutionMode = 'ts-only' | 'wasm-only'
 
 /* ── 内部状態 ─────────────────────────────────── */
 
@@ -243,12 +243,8 @@ export function getWasmAvailability(): AvailabilityState<Record<WasmModuleName, 
 
 /**
  * 実行モードを取得する。
- * DEV ビルド以外では 'dual-run-compare' を 'ts-only' にフォールバックする。
  */
 export function getExecutionMode(): ExecutionMode {
-  if (!import.meta.env.DEV && currentMode === 'dual-run-compare') {
-    return 'ts-only'
-  }
   return currentMode
 }
 
@@ -270,15 +266,14 @@ export function setExecutionMode(mode: ExecutionMode): void {
 function loadModeFromStorage(): void {
   try {
     const stored = localStorage.getItem('factorDecomposition.executionMode')
-    if (stored === 'ts-only' || stored === 'wasm-only' || stored === 'dual-run-compare') {
+    if (stored === 'ts-only' || stored === 'wasm-only') {
       currentMode = stored
     } else if (import.meta.env.DEV) {
-      currentMode = 'dual-run-compare'
+      currentMode = 'wasm-only'
     }
   } catch {
-    // localStorage unavailable — DEV ではそれでも compare を有効化
     if (import.meta.env.DEV) {
-      currentMode = 'dual-run-compare'
+      currentMode = 'wasm-only'
     }
   }
 }
