@@ -92,14 +92,5 @@ export const hookLineLimits: readonly QuantitativeAllowlistEntry[] = [
   },
   // usePeriodAwareKpi.ts — 300行（デフォルト上限以下）。許可リスト卒業
   // useTimeSlotData.ts — useTimeSlotPlan に query orchestration を分離。133 行に削減
-  // useTimeSlotPlan.ts: useTimeSlotWeatherPlan に天気サブプランを分離。320→240行
-  {
-    path: 'application/hooks/plans/useTimeSlotPlan.ts',
-    reason:
-      'TimeSlot query plan。8 useQueryWithHandler + WoW/YoY routing（天気は sub-plan に分離）',
-    category: 'structural',
-    removalCondition: 'さらなる sub-plan 分割時',
-    limit: 260,
-    lifecycle: 'permanent',
-  },
+  // useTimeSlotPlan.ts: hierarchy + weather sub-plan 分離で 206 行。デフォルト上限 300 行以下。許可リスト卒業
 ] as const

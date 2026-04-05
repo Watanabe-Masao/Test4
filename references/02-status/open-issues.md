@@ -1,7 +1,7 @@
 # 課題管理
 
 > 管理責任: documentation-steward ロール。
-> 更新日: 2026-04-04
+> 更新日: 2026-04-05
 
 課題を3分類し、不要なアクセスを最小化する。
 
@@ -37,8 +37,9 @@
 
 | # | タスク | 見積り | 効果 |
 |---|---|---|---|
-| 1 | **WASM wasm-only trial 実行**（4 engine: factorDecomposition → budgetAnalysis → forecast → grossProfit） | 各 1-2 週 | authoritative 昇格、deprecated 2 件自動削除 |
-| 2 | **timeSlot 観測テスト作成**: compare 計画策定 + timeSlotObservation.test.ts | 1 週 | 第 5 engine を promotion-candidate に |
+| ~~1~~ | ~~**WASM wasm-only trial 実行**~~ | ~~解決済み~~ | 全 5 engine authoritative 昇格完了（2026-04-05）。dual-run infrastructure 全面退役 |
+| ~~2~~ | ~~**timeSlot 観測テスト作成**~~ | ~~解決済み~~ | timeSlot authoritative 昇格完了。25 不変条件テスト維持 |
+| 3 | **ComparisonWindow 契約の波及**: useClipExportPlan 等の他 plan hook に comparisonProvenance を追加 | 1-2 週 | 比較由来の追跡を全 plan に拡大 |
 
 ### 次スプリント
 
@@ -68,6 +69,11 @@
 | — | AsyncState<T> 統一 | 2026-03-29 | error 型統一、adapter 付き共通型 |
 | — | usePersistence Provider 化 | 2026-03-29 | module-scope state → Context |
 | — | useAutoImport timing 修正 | 2026-03-29 | processed フラグを成功後に移動 |
+| — | WASM 全 5 engine authoritative 昇格 | 2026-04-05 | bridge 簡素化（計 1,426→431 行）、dual-run infrastructure 全面退役（~5,500 行削減） |
+| — | 判定基盤の再同期 | 2026-04-05 | bridge 用語二重定義解消、safety-first plan 進捗反映、frozen-list exit criteria 正本統一 |
+| — | ComparisonWindow 契約型 | 2026-04-05 | domain/models/ComparisonWindow.ts 新設、useTimeSlotPlan に provenance 導入 |
+| — | near-limit 2→0 | 2026-04-05 | useTimeSlotHierarchyPlan 抽出、categoryBenchmarkTrend 抽出 |
+| — | 1 人運用モデル固定化 | 2026-04-05 | noNewDebtGuard 新設、Green/Yellow/Red 判定基準制度化 |
 | — | Port 型 domain/ 移動 | 2026-03-29 | application/ports/ 全廃、6 Port を domain/ports/ に移動 |
 | — | Adapter infrastructure/ 移動 | 2026-03-29 | 4 adapter 実装を正しい層に配置、allowlist 13→10 |
 | — | AdapterProvider DI | 2026-03-29 | 6 hook を Context 経由に切替 |

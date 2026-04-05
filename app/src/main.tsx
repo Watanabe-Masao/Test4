@@ -20,10 +20,6 @@ if (import.meta.env.DEV) {
   import('@/application/services/wasmEngine').then(({ initAllWasmModules }) => {
     initAllWasmModules()
   })
-  import('@/application/services/dualRunObserver').then(({ dualRunStatsHandler }) => {
-    // DevTools: __dualRunStats() / __dualRunStats('reset') / __dualRunStats('log')
-    ;(window as unknown as Record<string, unknown>).__dualRunStats = dualRunStatsHandler
-  })
   import('@/application/services/observationEntry').then(({ runObservationHandler }) => {
     // E2E observation: __runObservation({ engine: '...', data: {...} })
     ;(window as unknown as Record<string, unknown>).__runObservation = runObservationHandler

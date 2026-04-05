@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-04T08:46:52.876Z
+> Generated: 2026-04-05T14:32:57.857Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -9,16 +9,16 @@
 | 指標 | 値 |
 |---|---|
 | Total KPIs | 19 |
-| OK | 17 |
-| WARN | 1 |
-| FAIL | 1 |
-| Hard Gate | FAIL |
+| OK | 19 |
+| WARN | 0 |
+| FAIL | 0 |
+| Hard Gate | PASS |
 
 ## 許可リスト
 
 | ID | 指標 | 値 | 状態 |
 |---|---|---|---|
-| allowlist.total | 許可リスト総エントリ数 | 15 / 20 | OK |
+| allowlist.total | 許可リスト総エントリ数 | 14 / 20 | OK |
 | allowlist.frozen.nonZero | Frozen リスト非ゼロ | 0 / 0 | OK |
 | allowlist.active.count | Active リスト数 | 7 / 10 | OK |
 
@@ -26,7 +26,7 @@
 
 | ID | 指標 | 値 | 状態 |
 |---|---|---|---|
-| compat.bridge.count | Active Bridge 数 | 5 / 3 | WARN |
+| compat.bridge.count | Active Bridge 数 | 0 / 3 | OK |
 | compat.reexport.count | 後方互換 re-export 数 | 2 / 3 | OK |
 
 ## 複雑性
@@ -34,7 +34,7 @@
 | ID | 指標 | 値 | 状態 |
 |---|---|---|---|
 | complexity.hotspot.count | 複雑性ホットスポット数 | 10 / 10 | OK |
-| complexity.nearLimit.count | 上限間近ファイル数 | 2 / 5 | OK |
+| complexity.nearLimit.count | 上限間近ファイル数 | 0 / 5 | OK |
 | complexity.vm.count | ViewModel ファイル数 | 27 / 30 | OK |
 
 ## 層境界
@@ -48,7 +48,7 @@
 
 | ID | 指標 | 値 | 状態 |
 |---|---|---|---|
-| guard.files.count | ガードテストファイル数 | 31 / 30 | OK |
+| guard.files.count | ガードテストファイル数 | 32 / 30 | OK |
 | guard.reviewOnlyTags.count | レビュー専用タグ数 | 0 / 5 | OK |
 
 ## ドキュメント整合
@@ -57,7 +57,7 @@
 |---|---|---|---|
 | docs.obsoleteTerms.count | 廃止用語残存数 | 0 / 0 | OK |
 | docs.generatedSections.stale | Generated section 未更新 | 0 / 0 | OK |
-| docs.obligation.violations | Doc 更新義務違反数 | 1 / 0 | FAIL |
+| docs.obligation.violations | Doc 更新義務違反数 | 0 / 0 | OK |
 
 ## バンドル性能
 

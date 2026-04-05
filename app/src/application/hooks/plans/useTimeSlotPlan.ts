@@ -1,8 +1,9 @@
 /**
  * useTimeSlotPlan — TimeSlotChart の Screen Query Plan
  *
- * 10 本の useQueryWithHandler + WoW/YoY comparison routing を管理する。
- * 天気データ取得 + ETRN fallback は useTimeSlotWeatherPlan に委譲。
+ * WoW/YoY comparison routing + hourly aggregation + category hourly pair を管理��る。
+ * 階層ドリルスルーは useTimeSlotHierarchyPlan に委譲。
+ * 天気データ取得は useTimeSlotWeatherPlan に委譲。
  *
  * @guard H1 Screen Plan 経由のみ
  * @guard H4 component に acquisition logic 禁止
@@ -21,19 +22,18 @@ import {
   distinctDayCountHandler,
   type DistinctDayCountInput,
 } from '@/application/queries/cts/DistinctDayCountHandler'
-import {
-  levelAggregationHandler,
-  type LevelAggregationInput,
-  type LevelAggregationRow,
-} from '@/application/queries/cts/LevelAggregationHandler'
 import { categoryHourlyPairHandler } from '@/application/queries/cts/CategoryHourlyPairHandler'
 import type { CategoryHourlyInput } from '@/application/queries/cts/CategoryHourlyHandler'
 import type { CategoryHourlyRow } from '@/application/queries/cts/CategoryHourlyHandler'
 import type { PairedInput } from '@/application/queries/createPairedHandler'
 import type { WeatherPersister } from '@/application/queries/weather'
 import type { HourlyWeatherAvgRow } from '@/application/queries/weather/WeatherHourlyHandler'
+import type { LevelAggregationRow } from '@/application/queries/cts/LevelAggregationHandler'
 import { buildWowRange } from '@/application/usecases/timeSlotDataLogic'
+import type { ComparisonProvenance } from '@/domain/models/ComparisonWindow'
+import { currentOnly, yoyWindow, wowWindow } from '@/domain/models/ComparisonWindow'
 import { useTimeSlotWeatherPlan } from './useTimeSlotWeatherPlan'
+import { useTimeSlotHierarchyPlan } from './useTimeSlotHierarchyPlan'
 
 // ── Types ──
 
@@ -45,9 +45,7 @@ export interface TimeSlotPlanParams {
   readonly selectedStoreIds: ReadonlySet<string>
   readonly prevYearScope?: PrevYearScope
   readonly weatherPersist?: WeatherPersister | null
-  /** comparison mode — plan が WoW/YoY routing を制御する */
   readonly compMode: CompMode
-  /** hierarchy filter（dept/line/klass） */
   readonly hierarchy: {
     readonly deptCode?: string
     readonly lineCode?: string
@@ -56,21 +54,19 @@ export interface TimeSlotPlanParams {
 }
 
 export interface TimeSlotPlanResult {
-  // ── Hourly Aggregation ──
   readonly currentHourly: readonly HourlyAggregationRow[] | null
   readonly compHourly: readonly HourlyAggregationRow[] | null
   readonly currentDayCount: number | null
   readonly compDayCount: number | null
-  // ── Hierarchy (dept/line/klass records) ──
   readonly deptRecords: readonly LevelAggregationRow[] | undefined
   readonly lineRecords: readonly LevelAggregationRow[] | undefined
   readonly klassRecords: readonly LevelAggregationRow[] | undefined
-  // ── Category Hourly (pair) ──
   readonly categoryHourlyData: readonly CategoryHourlyRow[] | null
   readonly prevCategoryHourlyData: readonly CategoryHourlyRow[] | null
-  // ── Weather ──
   readonly curWeatherAvg: readonly HourlyWeatherAvgRow[] | null
   readonly prevWeatherAvg: readonly HourlyWeatherAvgRow[] | null
+  // ── Provenance ──
+  readonly comparisonProvenance: ComparisonProvenance
   // ── Status ──
   readonly isLoading: boolean
   readonly error: Error | null
@@ -129,40 +125,11 @@ export function useTimeSlotPlan(params: TimeSlotPlanParams): TimeSlotPlanResult 
     return { ...toKeys(compRange), storeIds, isPrevYear: compIsPrevYear }
   }, [compRange, storeIds, compIsPrevYear])
 
-  const deptCode = hierarchy.deptCode
-  const lineCode = hierarchy.lineCode
-
-  const deptInput = useMemo<LevelAggregationInput>(
-    () => ({
-      ...toKeys(currentDateRange),
-      storeIds,
-      level: 'department' as const,
-    }),
-    [currentDateRange, storeIds],
-  )
-
-  const lineInput = useMemo<LevelAggregationInput | null>(() => {
-    if (!deptCode) return null
-    return {
-      ...toKeys(currentDateRange),
-      storeIds,
-      level: 'line' as const,
-      deptCode,
-    }
-  }, [currentDateRange, storeIds, deptCode])
-
-  const klassInput = useMemo<LevelAggregationInput | null>(() => {
-    if (!deptCode && !lineCode) return null
-    return {
-      ...toKeys(currentDateRange),
-      storeIds,
-      level: 'klass' as const,
-      deptCode: deptCode || undefined,
-      lineCode: lineCode || undefined,
-    }
-  }, [currentDateRange, storeIds, deptCode, lineCode])
-
-  const heatmapLevel = deptCode ? (lineCode ? 'klass' : 'line') : 'department'
+  const heatmapLevel = hierarchy.deptCode
+    ? hierarchy.lineCode
+      ? 'klass'
+      : 'line'
+    : 'department'
   const pyRange = compMode === 'yoy' ? prevYearScope?.dateRange : undefined
   const categoryHourlyPairInput = useMemo<PairedInput<CategoryHourlyInput>>(() => {
     const base: PairedInput<CategoryHourlyInput> = {
@@ -200,16 +167,20 @@ export function useTimeSlotPlan(params: TimeSlotPlanParams): TimeSlotPlanResult 
     distinctDayCountHandler,
     compDayCountInput,
   )
-  const { data: deptOut } = useQueryWithHandler(queryExecutor, levelAggregationHandler, deptInput)
-  const { data: lineOut } = useQueryWithHandler(queryExecutor, levelAggregationHandler, lineInput)
-  const { data: klassOut } = useQueryWithHandler(queryExecutor, levelAggregationHandler, klassInput)
   const { data: catHourlyPairOut } = useQueryWithHandler(
     queryExecutor,
     categoryHourlyPairHandler,
     categoryHourlyPairInput,
   )
 
-  // ── Weather (sub-plan) ──
+  // ── Sub-plans ──
+  const { deptRecords, lineRecords, klassRecords } = useTimeSlotHierarchyPlan({
+    queryExecutor,
+    currentDateRange,
+    selectedStoreIds,
+    hierarchy,
+  })
+
   const { curWeatherAvg, prevWeatherAvg } = useTimeSlotWeatherPlan({
     queryExecutor,
     currentDateRange,
@@ -217,6 +188,14 @@ export function useTimeSlotPlan(params: TimeSlotPlanParams): TimeSlotPlanResult 
     prevDateRange,
     weatherPersist,
   })
+
+  // ── Comparison Provenance ──
+  const comparisonProvenance = useMemo<ComparisonProvenance>(() => {
+    if (!compRange) return { window: currentOnly(), comparisonAvailable: false }
+    const win =
+      compMode === 'wow' ? wowWindow(compRange) : yoyWindow(compRange, prevYearScope?.dowOffset)
+    return { window: win, comparisonAvailable: compHourlyOut != null }
+  }, [compMode, compRange, prevYearScope?.dowOffset, compHourlyOut])
 
   // ── Unwrap ──
   const catHourlyOut = catHourlyPairOut?.current ?? null
@@ -227,13 +206,14 @@ export function useTimeSlotPlan(params: TimeSlotPlanParams): TimeSlotPlanResult 
     compHourly: compHourlyOut?.records ?? null,
     currentDayCount: curDayCountOut?.count ?? null,
     compDayCount: compDayCountOut?.count ?? null,
-    deptRecords: deptOut?.records,
-    lineRecords: lineOut?.records,
-    klassRecords: klassOut?.records,
+    deptRecords,
+    lineRecords,
+    klassRecords,
     categoryHourlyData: catHourlyOut?.records ?? null,
     prevCategoryHourlyData: prevCatHourlyOut?.records ?? null,
     curWeatherAvg,
     prevWeatherAvg,
+    comparisonProvenance,
     isLoading,
     error: error ?? null,
   }

@@ -1,19 +1,18 @@
 /**
- * budgetAnalysis 自動観測ハーネス
+ * budgetAnalysis 不変条件テスト（authoritative）
  *
- * 2 関数 × 4 フィクスチャで dual-run compare pipeline を自動検証する。
+ * budgetAnalysis は WASM authoritative に昇格済み。
+ * 2 関数 × 4 フィクスチャで不変条件を検証する。
+ *
+ * @see references/02-status/engine-promotion-matrix.md — authoritative
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import {
   calculateBudgetAnalysis as calculateBudgetAnalysisDirect,
   calculateGrossProfitBudget as calculateGrossProfitBudgetDirect,
 } from '@/domain/calculations/budgetAnalysis'
-import { setExecutionMode } from '@/application/services/wasmEngine'
 import * as wasmEngine from '@/application/services/wasmEngine'
-import { resetObserver, buildRunResult } from './observationRunner'
-import { judgeObservation } from './observationAssertions'
-import { buildJsonReport } from './observationReport'
-import { ALL_FIXTURES, type BudgetAnalysisFixture } from './fixtures/budgetAnalysisFixtures'
+import { ALL_FIXTURES } from './fixtures/budgetAnalysisFixtures'
 
 /* ── WASM mock: TS passthrough ── */
 
@@ -31,8 +30,6 @@ import {
   calculateGrossProfitBudgetWasm,
 } from '@/application/services/budgetAnalysisWasm'
 
-const EXPECTED_FUNCTIONS = ['calculateBudgetAnalysis', 'calculateGrossProfitBudget'] as const
-
 function setupCleanMocks(): void {
   vi.mocked(calculateBudgetAnalysisWasm).mockImplementation((input) =>
     calculateBudgetAnalysisDirect(input),
@@ -42,55 +39,31 @@ function setupCleanMocks(): void {
   )
 }
 
-function runAllFunctions(f: BudgetAnalysisFixture): void {
-  calculateBudgetAnalysis(f.budgetAnalysis)
-  calculateGrossProfitBudget(f.grossProfitBudget)
-}
-
 /* ── テスト ── */
 
-describe('budgetAnalysis 自動観測ハーネス', () => {
+describe('budgetAnalysis 不変条件テスト（authoritative）', () => {
   beforeEach(() => {
-    resetObserver()
-    setExecutionMode('dual-run-compare')
-    vi.spyOn(wasmEngine, 'getWasmModuleState').mockReturnValue('ready')
     vi.spyOn(wasmEngine, 'getBudgetAnalysisWasmExports').mockReturnValue(
       {} as ReturnType<typeof wasmEngine.getBudgetAnalysisWasmExports>,
     )
-    vi.spyOn(console, 'warn').mockImplementation(() => {})
     setupCleanMocks()
   })
 
   for (const fixture of ALL_FIXTURES) {
     describe(`fixture: ${fixture.name}`, () => {
-      it('全 2 関数が呼ばれ、verdict が clean', () => {
-        runAllFunctions(fixture)
-        const result = buildRunResult('budgetAnalysis', fixture.name)
-        expect(result.summary.totalCalls).toBeGreaterThanOrEqual(2)
-        expect(result.summary.verdict).toBe('clean')
+      it('calculateBudgetAnalysis: WASM 経由で呼ばれる', () => {
+        calculateBudgetAnalysis(fixture.budgetAnalysis)
+        expect(calculateBudgetAnalysisWasm).toHaveBeenCalled()
       })
 
-      it('expected call coverage を満たす', () => {
-        runAllFunctions(fixture)
-        const result = buildRunResult('budgetAnalysis', fixture.name)
-        const judgment = judgeObservation(result, EXPECTED_FUNCTIONS)
-        expect(judgment.status).not.toBe('fail')
-      })
-
-      it('JSON report が生成できる', () => {
-        runAllFunctions(fixture)
-        const result = buildRunResult('budgetAnalysis', fixture.name)
-        const judgment = judgeObservation(result, EXPECTED_FUNCTIONS)
-        const report = buildJsonReport(result, judgment, EXPECTED_FUNCTIONS)
-        expect(report.engine).toBe('budgetAnalysis')
-        expect(report.fixture).toBe(fixture.name)
-        expect(report.status).not.toBe('fail')
-        expect(Object.keys(report.callCounts)).toHaveLength(2)
+      it('calculateGrossProfitBudget: WASM 経由で呼ばれる', () => {
+        calculateGrossProfitBudget(fixture.grossProfitBudget)
+        expect(calculateGrossProfitBudgetWasm).toHaveBeenCalled()
       })
     })
   }
 
-  describe('全フィクスチャ横断: invariant 保持', () => {
+  describe('不変条件', () => {
     it('B-INV-1: remainingBudget = budget - totalSales', () => {
       const f = ALL_FIXTURES[0] // normal
       const result = calculateBudgetAnalysis(f.budgetAnalysis)
@@ -103,26 +76,24 @@ describe('budgetAnalysis 自動観測ハーネス', () => {
       expect(Number.isFinite(result.budgetAchievementRate)).toBe(true)
       expect(Number.isFinite(result.budgetProgressRate)).toBe(true)
     })
+
+    it('dailyCumulative は TS から補完される', () => {
+      const f = ALL_FIXTURES[0]
+      const result = calculateBudgetAnalysis(f.budgetAnalysis)
+      // WASM は dailyCumulative: {} を返すが、bridge が TS から補完する
+      const keys = Object.keys(result.dailyCumulative)
+      expect(keys.length).toBeGreaterThan(0)
+    })
   })
 
-  describe('mismatch 検出の動作確認', () => {
-    it('WASM が異なる値を返す → mismatch 検出', () => {
-      vi.mocked(calculateBudgetAnalysisWasm).mockReturnValue({
-        budgetAchievementRate: 99999,
-        budgetProgressRate: 99999,
-        budgetElapsedRate: 99999,
-        budgetProgressGap: 99999,
-        budgetVariance: 99999,
-        averageDailySales: 99999,
-        projectedSales: 99999,
-        projectedAchievement: 99999,
-        requiredDailySales: 99999,
-        remainingBudget: 99999,
-        dailyCumulative: {},
-      })
-      calculateBudgetAnalysis(ALL_FIXTURES[0].budgetAnalysis)
-      const result = buildRunResult('budgetAnalysis', 'mismatch-test')
-      expect(result.summary.totalMismatches).toBeGreaterThan(0)
+  describe('TS フォールバック', () => {
+    it('WASM 未初期化時は TS にフォールバック', () => {
+      vi.spyOn(wasmEngine, 'getBudgetAnalysisWasmExports').mockReturnValue(null)
+      vi.mocked(calculateBudgetAnalysisWasm).mockClear()
+      const f = ALL_FIXTURES[0]
+      const result = calculateBudgetAnalysis(f.budgetAnalysis)
+      expect(calculateBudgetAnalysisWasm).not.toHaveBeenCalled()
+      expect(result.remainingBudget).toBe(f.budgetAnalysis.budget - f.budgetAnalysis.totalSales)
     })
   })
 })

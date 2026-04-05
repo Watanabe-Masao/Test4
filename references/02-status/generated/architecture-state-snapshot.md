@@ -1,12 +1,12 @@
 # Architecture State Snapshot
 
-> Generated: 2026-04-04T03:20:22.332Z
+> Generated: 2026-04-05T14:12:39.108Z
 
 ## Allowlist Summary
 
 | 指標 | 値 |
 |---|---|
-| 総エントリ数 | 15 |
+| 総エントリ数 | 14 |
 | アクティブリスト数 | 7 |
 | 凍結リスト数 | 14 |
 | .vm.ts ファイル数 | 27 |
@@ -16,17 +16,12 @@
 
 | カテゴリ | 件数 |
 |---|---|
-| structural | 14 |
+| structural | 13 |
 | adapter | 1 |
 
 
 ## Active Bridges
 
-- application/services/budgetAnalysisBridge.ts (194 lines)
-- application/services/factorDecompositionBridge.ts (322 lines)
-- application/services/forecastBridge.ts (437 lines)
-- application/services/grossProfitBridge.ts (473 lines)
-- application/services/timeSlotBridge.ts (174 lines)
 
 ## Facade Hooks
 
@@ -46,6 +41,7 @@
 - application/hooks/duckdb/useSummaryQueries.ts
 - application/hooks/duckdb/useYoyQueries.ts
 - application/hooks/plans/useIntegratedSalesPlan.ts
+- application/hooks/plans/useTimeSlotHierarchyPlan.ts
 - application/hooks/plans/useTimeSlotPlan.ts
 - application/hooks/plans/useTimeSlotWeatherPlan.ts
 - application/hooks/useAnalysisInput.ts
@@ -104,16 +100,14 @@
 | presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx | 7 | 7 | 480 |
 | presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 9 | 5 | 434 |
 | presentation/components/charts/periodFilterHooks.ts | 5 | 8 | 241 |
+| presentation/components/charts/PerformanceIndexChart.tsx | 6 | 6 | 368 |
 | presentation/pages/Insight/useInsightData.ts | 5 | 7 | 217 |
 | application/hooks/useMetricBreakdown.ts | 7 | 5 | 282 |
-| presentation/pages/Dashboard/widgets/DayDetailModal.tsx | 7 | 4 | 343 |
 
 ## Near-Limit Files (≥80%)
 
 | ファイル | 指標 | 実測 | 上限 | % |
 |---|---|---|---|---|
-| application/hooks/plans/useTimeSlotPlan.ts | lines | 241 | 260 | 93% |
-| application/hooks/duckdb/categoryBenchmarkLogic.ts | lines | 275 | 300 | 92% |
 
 ## Frozen Lists
 
@@ -138,9 +132,9 @@
 |---|---|---|
 | domainLargeFiles | 6 | structural:6 |
 | useStateLimits | 3 | structural:3 |
-| hookLineLimits | 2 | structural:2 |
 | applicationToInfrastructure | 1 | adapter:1 |
 | useMemoLimits | 1 | structural:1 |
+| hookLineLimits | 1 | structural:1 |
 | presentationStateLimits | 1 | structural:1 |
 | ctxHook | 1 | structural:1 |
 | presentationToInfrastructure | 0 | - |
