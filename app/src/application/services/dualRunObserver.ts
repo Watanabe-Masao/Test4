@@ -20,12 +20,6 @@ type FnName =
   | 'calculateMarkupRates'
   | 'calculateTransferTotals'
   | 'calculateInventoryCost'
-  // forecast
-  | 'calculateStdDev'
-  | 'detectAnomalies'
-  | 'calculateWMA'
-  | 'linearRegression'
-  | 'analyzeTrend'
   // timeSlot
   | 'findCoreTime'
   | 'findTurnaroundHour'
@@ -83,11 +77,6 @@ const stats: Record<FnName, FnStats> = {
   calculateInventoryCost: makeFnStats(),
   // budgetAnalysis
   // forecast
-  calculateStdDev: makeFnStats(),
-  detectAnomalies: makeFnStats(),
-  calculateWMA: makeFnStats(),
-  linearRegression: makeFnStats(),
-  analyzeTrend: makeFnStats(),
   // timeSlot
   findCoreTime: makeFnStats(),
   findTurnaroundHour: makeFnStats(),

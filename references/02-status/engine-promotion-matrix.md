@@ -14,7 +14,7 @@
 | factorDecomposition | **authoritative** ✅ | ✅ | ✅ | ✅ | ✅ 18 pass | — | 完了（2026-04-05 昇格） | — | — |
 | grossProfit | **promotion-candidate** | ✅ | ✅ | ✅ | ✅ 16 pass | なし | wasm-only trial 実行 | Low | ✅ |
 | budgetAnalysis | **authoritative** ✅ | ✅ | ✅ | ✅ | ✅ 12 pass | — | 完了（2026-04-05 昇格） | — | — |
-| forecast | **promotion-candidate** | ✅ | ✅ | ✅ | ✅ 9 pass | なし | wasm-only trial 実行 | Low | ✅ |
+| forecast | **authoritative** ✅ | ✅ | ✅ | ✅ | ✅ 21 pass | — | 完了（2026-04-05 昇格） | — | — |
 | timeSlot | **bridge-ready** | - | ✅ | ✅ | 未作成 | 観測テスト | compare 計画 + 観測テスト作成 | Medium | ✅ |
 
 ---
@@ -92,15 +92,16 @@
 | 項目 | 状態 |
 |---|---|
 | 関数数 | 5 pure（Date 非依存）+ 5 Date 依存（compare 対象外） |
-| maturity | **promotion-candidate** ✅ |
-| compare | 実装済み。bridge test 通過 |
+| maturity | **authoritative** ✅（2026-04-05 昇格） |
+| compare | 不要（authoritative 昇格済み。dual-run compare 削除） |
 | Rust crate | `wasm/forecast/` — cargo test 全通過（77 テスト） |
 | WASM | wasm-pack build 済み。forecastBridge.ts + forecastWasm.ts 接続済み |
-| observer | FnName 5 件登録済み。DevTools アクセス可 |
-| observation test | 9 テスト pass（2026-03-29 確認） |
+| observer | FnName 削除済み（authoritative のため観測不要） |
+| observation test | 21 テスト pass — 不変条件テストとして維持 |
 | invariant tests | F-INV-1〜13 + F-BIZ-1〜4（TS）、F-INV-1/2/3/8/10/12/13 + finiteness（Rust） |
 | cross-validation | TS golden fixture との一致確認済み |
 | edge cases | 空入力 / 単一値 / 極値 / 負値 / 未ソート入力カバー済み |
+| 類型 | B — pure 5 は WASM authoritative、Date-dependent 5 は TS 直接委譲 |
 
 **Blocker:** なし。全条件クリア済み。
 
@@ -139,7 +140,7 @@
 factorDecomposition  [authoritative] ✅  ← 完了（2026-04-05）
 grossProfit          [promotion-candidate] ✅  →  wasm-only trial  →  authoritative
 budgetAnalysis       [authoritative] ✅  ← 完了（2026-04-05）
-forecast             [promotion-candidate] ✅  →  wasm-only trial  →  authoritative
+forecast             [authoritative] ✅  ← 完了（2026-04-05）
 timeSlot             [bridge-ready]            →  compare-ready  →  observation  →  promotion-candidate
 ```
 
