@@ -15,13 +15,23 @@ test.describe('ダッシュボード', () => {
     await expect(page.locator('#root')).toBeVisible()
   })
 
-  test('ナビゲーションでページ遷移できる', async ({ page }) => {
+  test('ナビゲーションでページ遷移できる', async ({ page }, testInfo) => {
     await page.goto('/')
+    const isMobile = testInfo.project.name === 'mobile-chrome'
 
-    // カテゴリページへ遷移（aria-label は NavBar/BottomNav 両方で設定される）
-    const categoryBtn = page.locator('button[aria-label="カテゴリ"]')
-    await expect(categoryBtn).toBeVisible()
-    await categoryBtn.click()
+    if (isMobile) {
+      // BottomNav: aria-label はページレジストリの label を使用
+      const nav = page.locator('nav[aria-label="モバイルナビゲーション"]')
+      const categoryBtn = nav.locator('button[aria-label="カテゴリ"]')
+      await expect(categoryBtn).toBeVisible()
+      await categoryBtn.click()
+    } else {
+      // NavBar: aria-label は i18n メッセージを使用。アイコンで特定する
+      const nav = page.locator('nav[aria-label="メインナビゲーション"]')
+      const categoryBtn = nav.locator('button:has-text("📁")')
+      await expect(categoryBtn).toBeVisible()
+      await categoryBtn.click()
+    }
     await expect(page).toHaveURL(/#\/category/)
   })
 
