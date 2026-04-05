@@ -50,15 +50,19 @@ export interface WoWWindow {
  */
 export type ComparisonWindow = CurrentOnlyWindow | YoYWindow | WoWWindow
 
-// ── Provenance ──
+// ── Plan Provenance ──
 
 /**
- * ComparisonProvenance — plan output に付与される比較由来情報
+ * PlanComparisonProvenance — plan output に付与される比較由来情報
  *
  * consumer（Chart VM 等）が「このデータはどの比較窓で取得されたか」を
  * 参照できるようにする。計算を再実行せずに由来を追跡する。
+ *
+ * ## 棲み分け
+ * - PlanComparisonProvenance (本型): plan が「何を要求したか」
+ * - DataComparisonProvenance (features/comparison): result が「何を返したか」
  */
-export interface ComparisonProvenance {
+export interface PlanComparisonProvenance {
   /** 要求された比較窓 */
   readonly window: ComparisonWindow
   /** 比較データが実際に取得できたか */

@@ -44,7 +44,7 @@ export type {
 } from './domain/comparisonWindow'
 export { isComparisonWindow } from './domain/comparisonWindow'
 
-export type { ComparisonProvenance, MappingKind } from './domain/comparisonProvenance'
+export type { DataComparisonProvenance, MappingKind } from './domain/comparisonProvenance'
 export { createProvenance, createFallbackProvenance } from './domain/comparisonProvenance'
 
 // 公開 API: Facade hook
