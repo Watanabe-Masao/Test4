@@ -77,8 +77,9 @@ WASM dual-run bridge の削除は `promotion-criteria.md` を正本とする。
 **対象:** 5 WASM engine（factorDecomposition, grossProfit, budgetAnalysis, forecast, timeSlot）
 
 **現況（2026-04-05）:**
-- 4 engine（factorDecomposition, grossProfit, budgetAnalysis, forecast）: **promotion-candidate**（blocker なし）
-- 1 engine（timeSlot）: **bridge-ready**（compare 計画 + 観測テスト作成が必要）
+- 全 5 engine: **authoritative** ✅（2026-04-05 昇格完了）
+- dual-run infrastructure 全面退役済み（dualRunObserver, 3-mode dispatch 削除）
+- `compat.bridge.count = 0`
 - 詳細は `engine-promotion-matrix.md` を参照
 
 **昇格���件（`promotion-criteria.md` より）:**
