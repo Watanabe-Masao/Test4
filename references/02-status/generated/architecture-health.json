@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-05T20:47:59.972Z",
+  "timestamp": "2026-04-05T20:52:33.561Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 34,
+      "value": 35,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -267,6 +267,7 @@
       "implRefs": [
         "app/src/test/guards/analysisFrameGuard.test.ts",
         "app/src/test/guards/calculationCanonGuard.test.ts",
+        "app/src/test/guards/canonicalInputGuard.test.ts",
         "app/src/test/guards/canonicalizationSystemGuard.test.ts",
         "app/src/test/guards/codePatternGuard.test.ts",
         "app/src/test/guards/comparisonScopeGuard.test.ts",
