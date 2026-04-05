@@ -19,11 +19,15 @@ test.describe('インポートフロー', () => {
     expect(errors).toHaveLength(0)
   })
 
-  test('管理ページに遷移できる', async ({ page }) => {
+  test('管理ページに遷移できる', async ({ page }, testInfo) => {
     await page.goto('/')
 
-    // aria-label は NavBar/BottomNav 両方で設定される
-    const adminBtn = page.locator('button[aria-label="管理"]')
+    // NavBar と BottomNav の両方に管理ボタンが存在するため、nav を特定してスコープする
+    const isMobile = testInfo.project.name === 'mobile-chrome'
+    const nav = isMobile
+      ? page.locator('nav[aria-label="モバイルナビゲーション"]')
+      : page.locator('nav[aria-label="メインナビゲーション"]')
+    const adminBtn = nav.locator('button[aria-label="管理"]')
     await expect(adminBtn).toBeVisible()
     await adminBtn.click()
     await expect(page).toHaveURL(/#\/admin/)
