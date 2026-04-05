@@ -159,6 +159,11 @@ export function useDuckDB(
               if (historicalData) {
                 await loadMonth(state.conn, state.db, historicalData, y, m)
                 if (isStale()) return
+                // 前年月なら is_prev_year=true でも追加ロード
+                if (y === year - 1) {
+                  await loadMonth(state.conn, state.db, historicalData, y, m, true)
+                  if (isStale()) return
+                }
                 loadedMonthsRef.current.set(monthKey(y, m), computeMonthFingerprint(historicalData))
               }
             } catch {
@@ -227,6 +232,12 @@ export function useDuckDB(
               if (historicalData) {
                 await loadMonth(state.conn, state.db, historicalData, y, m)
                 if (isStale()) return
+                // 前年月に該当する歴史月は is_prev_year=true でも追加ロード
+                // （DuckDB の比較クエリが is_prev_year=true で検索するため）
+                if (y === year - 1) {
+                  await loadMonth(state.conn, state.db, historicalData, y, m, true)
+                  if (isStale()) return
+                }
                 loadedMonthsRef.current.set(key, computeMonthFingerprint(historicalData))
                 anyChanged = true
               }
