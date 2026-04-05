@@ -10,6 +10,8 @@
  */
 import { useMemo } from 'react'
 import type { DateRange } from '@/domain/models/calendar'
+import type { PlanComparisonProvenance } from '@/domain/models/ComparisonWindow'
+import { currentOnly, yoyWindow, wowWindow } from '@/domain/models/ComparisonWindow'
 import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { CategoryTimeSalesRecord } from '@/domain/models/record'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
@@ -36,6 +38,7 @@ export interface YoYWaterfallPlanResult {
   readonly currentRecords: readonly CategoryTimeSalesRecord[]
   readonly comparisonRecords: readonly CategoryTimeSalesRecord[]
   readonly comparisonSource: ComparisonSource
+  readonly comparisonProvenance: PlanComparisonProvenance
   readonly isLoading: boolean
 }
 
@@ -113,10 +116,17 @@ export function useYoYWaterfallPlan(
     }
   }, [prevDateRange, prevOutput, isPrevYear, fallbackOutput])
 
+  const comparisonProvenance = useMemo<PlanComparisonProvenance>(() => {
+    if (!prevDateRange) return { window: currentOnly(), comparisonAvailable: false }
+    const win = isPrevYear ? yoyWindow(prevDateRange) : wowWindow(prevDateRange)
+    return { window: win, comparisonAvailable: comparisonSource !== 'none' }
+  }, [prevDateRange, isPrevYear, comparisonSource])
+
   return {
     currentRecords,
     comparisonRecords,
     comparisonSource,
+    comparisonProvenance,
     isLoading: curLoading || prevLoading || fallbackLoading,
   }
 }

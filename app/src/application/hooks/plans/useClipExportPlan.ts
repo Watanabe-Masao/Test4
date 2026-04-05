@@ -11,6 +11,8 @@ import { useMemo } from 'react'
 import type { DateRange } from '@/domain/models/CalendarDate'
 import { dateRangeToKeys } from '@/domain/models/CalendarDate'
 import type { CategoryTimeSalesRecord } from '@/domain/models/record'
+import type { PlanComparisonProvenance } from '@/domain/models/ComparisonWindow'
+import { yoyWindow } from '@/domain/models/ComparisonWindow'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
 import {
@@ -27,6 +29,7 @@ export interface ClipExportPlanInput {
 export interface ClipExportPlanResult {
   readonly currentCtsRecords: readonly CategoryTimeSalesRecord[]
   readonly prevCtsRecords: readonly CategoryTimeSalesRecord[]
+  readonly comparisonProvenance: PlanComparisonProvenance
 }
 
 const EMPTY_RECORDS: readonly CategoryTimeSalesRecord[] = []
@@ -64,8 +67,17 @@ export function useClipExportPlan(
   const curResult = useQueryWithHandler(executor, categoryTimeRecordsHandler, curInput)
   const prevResult = useQueryWithHandler(executor, categoryTimeRecordsHandler, prevInput)
 
+  const comparisonProvenance = useMemo<PlanComparisonProvenance>(
+    () => ({
+      window: yoyWindow(prevDateRange),
+      comparisonAvailable: prevResult.data != null,
+    }),
+    [prevDateRange, prevResult.data],
+  )
+
   return {
     currentCtsRecords: curResult.data?.records ?? EMPTY_RECORDS,
     prevCtsRecords: prevResult.data?.records ?? EMPTY_RECORDS,
+    comparisonProvenance,
   }
 }

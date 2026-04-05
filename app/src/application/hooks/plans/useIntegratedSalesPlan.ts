@@ -13,6 +13,8 @@
  */
 import { useMemo } from 'react'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
+import type { PlanComparisonProvenance } from '@/domain/models/ComparisonWindow'
+import { currentOnly, yoyWindow } from '@/domain/models/ComparisonWindow'
 import { dateRangeToKeys } from '@/domain/models/CalendarDate'
 import type { RightAxisMode, ViewType } from '@/domain/models/ChartViewMode'
 import type { AnalysisMetric } from '@/domain/models/temporal'
@@ -47,6 +49,7 @@ export interface DailyQuantityData {
 export interface IntegratedSalesPlanResult {
   readonly dailyQuantity: DailyQuantityData | undefined
   readonly maOverlays: MovingAverageOverlays
+  readonly comparisonProvenance: PlanComparisonProvenance
 }
 
 /**
@@ -124,5 +127,13 @@ export function useIntegratedSalesPlan(
     showMovingAverage && dailyView === 'standard',
   )
 
-  return { dailyQuantity, maOverlays }
+  const comparisonProvenance = useMemo<PlanComparisonProvenance>(() => {
+    if (!prevYearDateRange) return { window: currentOnly(), comparisonAvailable: false }
+    return {
+      window: yoyWindow(prevYearDateRange, prevYearScope?.dowOffset),
+      comparisonAvailable: qtyPairOut?.prev != null,
+    }
+  }, [prevYearDateRange, prevYearScope?.dowOffset, qtyPairOut])
+
+  return { dailyQuantity, maOverlays, comparisonProvenance }
 }

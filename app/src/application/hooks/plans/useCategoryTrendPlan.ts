@@ -10,6 +10,8 @@
  */
 import { useMemo } from 'react'
 import type { DateRange } from '@/domain/models/calendar'
+import type { PlanComparisonProvenance } from '@/domain/models/ComparisonWindow'
+import { currentOnly, yoyWindow } from '@/domain/models/ComparisonWindow'
 import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
@@ -39,6 +41,7 @@ export interface CategoryTrendPlanInput {
 export interface CategoryTrendPlanResult {
   readonly currentData: CategoryDailyTrendOutput | null
   readonly prevData: CategoryDailyTrendOutput | null
+  readonly comparisonProvenance: PlanComparisonProvenance
   readonly isLoading: boolean
   readonly error: Error | null
 }
@@ -100,9 +103,17 @@ export function useCategoryTrendPlan(
     prevInput,
   )
 
+  const comparisonProvenance = useMemo<PlanComparisonProvenance>(() => {
+    if (!hasPrevYear || !prevYearDateRange) {
+      return { window: currentOnly(), comparisonAvailable: false }
+    }
+    return { window: yoyWindow(prevYearDateRange), comparisonAvailable: prevData != null }
+  }, [hasPrevYear, prevYearDateRange, prevData])
+
   return {
     currentData: currentData ?? null,
     prevData: prevData ?? null,
+    comparisonProvenance,
     isLoading: currentLoading || prevLoading,
     error: error ?? null,
   }

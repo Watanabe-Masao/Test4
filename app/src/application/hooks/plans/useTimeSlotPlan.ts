@@ -30,7 +30,7 @@ import type { WeatherPersister } from '@/application/queries/weather'
 import type { HourlyWeatherAvgRow } from '@/application/queries/weather/WeatherHourlyHandler'
 import type { LevelAggregationRow } from '@/application/queries/cts/LevelAggregationHandler'
 import { buildWowRange } from '@/application/usecases/timeSlotDataLogic'
-import type { ComparisonProvenance } from '@/domain/models/ComparisonWindow'
+import type { PlanComparisonProvenance } from '@/domain/models/ComparisonWindow'
 import { currentOnly, yoyWindow, wowWindow } from '@/domain/models/ComparisonWindow'
 import { useTimeSlotWeatherPlan } from './useTimeSlotWeatherPlan'
 import { useTimeSlotHierarchyPlan } from './useTimeSlotHierarchyPlan'
@@ -66,7 +66,7 @@ export interface TimeSlotPlanResult {
   readonly curWeatherAvg: readonly HourlyWeatherAvgRow[] | null
   readonly prevWeatherAvg: readonly HourlyWeatherAvgRow[] | null
   // ── Provenance ──
-  readonly comparisonProvenance: ComparisonProvenance
+  readonly comparisonProvenance: PlanComparisonProvenance
   // ── Status ──
   readonly isLoading: boolean
   readonly error: Error | null
@@ -186,7 +186,7 @@ export function useTimeSlotPlan(params: TimeSlotPlanParams): TimeSlotPlanResult 
   })
 
   // ── Comparison Provenance ──
-  const comparisonProvenance = useMemo<ComparisonProvenance>(() => {
+  const comparisonProvenance = useMemo<PlanComparisonProvenance>(() => {
     if (!compRange) return { window: currentOnly(), comparisonAvailable: false }
     const win =
       compMode === 'wow' ? wowWindow(compRange) : yoyWindow(compRange, prevYearScope?.dowOffset)

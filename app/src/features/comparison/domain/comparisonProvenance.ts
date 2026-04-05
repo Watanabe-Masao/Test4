@@ -12,8 +12,16 @@ export type MappingKind =
   | 'wow' // 前週比較
   | 'custom-offset' // カスタムオフセット
 
-/** 比較データの出自情報 */
-export interface ComparisonProvenance {
+/**
+ * DataComparisonProvenance — 比較データの出自情報
+ *
+ * 比較結果の事実を追跡する。plan-level の PlanComparisonProvenance
+ * (domain/models/ComparisonWindow.ts) とは棲み分け。
+ *
+ * - PlanComparisonProvenance: plan が「何を要求したか」
+ * - DataComparisonProvenance (本型): result が「何を返したか」
+ */
+export interface DataComparisonProvenance {
   /** 比較元の日付（ISO 形式: YYYY-MM-DD） */
   readonly sourceDate: string
   /** マッピング種別 */
@@ -26,11 +34,25 @@ export interface ComparisonProvenance {
   readonly confidence: number
 }
 
+/** CompareModeV2 → MappingKind の変換 */
+export function toMappingKind(
+  compareMode: 'sameDate' | 'sameDayOfWeek' | 'prevMonth',
+): MappingKind {
+  switch (compareMode) {
+    case 'sameDate':
+      return 'same-date'
+    case 'sameDayOfWeek':
+      return 'same-dow'
+    case 'prevMonth':
+      return 'same-date'
+  }
+}
+
 /** デフォルトの provenance（フォールバックなし、最大信頼度） */
 export function createProvenance(
   sourceDate: string,
   mappingKind: MappingKind,
-): ComparisonProvenance {
+): DataComparisonProvenance {
   return {
     sourceDate,
     mappingKind,
@@ -44,7 +66,7 @@ export function createFallbackProvenance(
   sourceDate: string,
   mappingKind: MappingKind,
   reason: string,
-): ComparisonProvenance {
+): DataComparisonProvenance {
   return {
     sourceDate,
     mappingKind,

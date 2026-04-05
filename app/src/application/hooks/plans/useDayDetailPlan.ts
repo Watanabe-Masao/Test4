@@ -11,6 +11,8 @@
  * @guard H2 比較は pair/bundle 契約
  */
 import { useMemo } from 'react'
+import type { PlanComparisonProvenance } from '@/domain/models/ComparisonWindow'
+import { yoyWindow } from '@/domain/models/ComparisonWindow'
 import { categoryTimeRecordsHandler } from '@/application/queries/cts/CategoryTimeRecordsHandler'
 import { storeDaySummaryHandler } from '@/application/queries/summary/StoreDaySummaryHandler'
 import { weatherHourlyHandler } from '@/application/queries/weather/WeatherHourlyHandler'
@@ -42,6 +44,7 @@ export interface DayDetailPlanResult {
   readonly cumPrevRecords: readonly CategoryTimeSalesRecord[]
   readonly weatherHourly: readonly HourlyWeatherRecord[] | undefined
   readonly prevWeatherHourly: readonly HourlyWeatherRecord[] | undefined
+  readonly comparisonProvenance: PlanComparisonProvenance
 }
 
 export function useDayDetailPlan(
@@ -121,6 +124,14 @@ export function useDayDetailPlan(
   const weatherResult = useQueryWithHandler(queryExecutor, weatherHourlyHandler, weather.cur)
   const prevWeatherResult = useQueryWithHandler(queryExecutor, weatherHourlyHandler, weather.prev)
 
+  const comparisonProvenance = useMemo<PlanComparisonProvenance>(
+    () => ({
+      window: yoyWindow(ranges.prevDayRange),
+      comparisonAvailable: prevDayResult.data != null || prevDayFallback.data != null,
+    }),
+    [ranges.prevDayRange, prevDayResult.data, prevDayFallback.data],
+  )
+
   return {
     daySummary,
     prevDaySummary,
@@ -131,5 +142,6 @@ export function useDayDetailPlan(
     cumPrevRecords,
     weatherHourly: weatherResult.data?.records ?? undefined,
     prevWeatherHourly: prevWeatherResult.data?.records ?? undefined,
+    comparisonProvenance,
   }
 }
