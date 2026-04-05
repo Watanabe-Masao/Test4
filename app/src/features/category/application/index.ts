@@ -16,9 +16,13 @@ export {
 
 // ── Plan Hooks (feature ownership) ──
 export { useCategoryBarChartPlan } from './plans/useCategoryBarChartPlan'
+export type { CategoryDailyTrendInput, PairedInput } from './plans/useCategoryBarChartPlan'
 export { useCategoryDiscountChartPlan } from './plans/useCategoryDiscountChartPlan'
+export type { CategoryDiscountInput } from './plans/useCategoryDiscountChartPlan'
 export { useCategoryHourlyChartPlan } from './plans/useCategoryHourlyChartPlan'
+export type { CategoryHourlyInput } from './plans/useCategoryHourlyChartPlan'
 export { useCategoryMixChartPlan } from './plans/useCategoryMixChartPlan'
+export type { CategoryMixWeeklyInput } from './plans/useCategoryMixChartPlan'
 export { useCategoryTrendPlan } from './plans/useCategoryTrendPlan'
 export type { CategoryTrendPlanResult } from './plans/useCategoryTrendPlan'
 export { useCategoryHierarchyPlan } from './plans/useCategoryHierarchyPlan'
