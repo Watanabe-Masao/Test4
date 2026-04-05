@@ -37,4 +37,5 @@ export {
   useWeatherFallback,
   useWeatherStoreId,
   useWeatherHourlyOnDemand,
+  useWeatherAnalysisPlan,
 } from './application'

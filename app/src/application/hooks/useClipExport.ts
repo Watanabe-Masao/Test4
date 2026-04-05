@@ -14,7 +14,7 @@ import type { QueryExecutor } from '@/application/queries/QueryPort'
 import type { DateRange } from '@/domain/models/CalendarDate'
 import { buildClipBundle } from '@/application/usecases/clipExport/buildClipBundle'
 import { downloadClipHtml } from '@/application/usecases/clipExport/downloadClipHtml'
-import { useClipExportPlan } from '@/application/hooks/plans/useClipExportPlan'
+import { useClipExportPlan } from '@/features/clip-export'
 
 interface ClipExportParams {
   readonly result: StoreResult

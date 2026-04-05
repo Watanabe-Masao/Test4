@@ -13,3 +13,12 @@ export {
   type PieMode,
   type ChartView,
 } from './categoryData'
+
+// ── Plan Hooks (feature ownership) ──
+export { useCategoryBarChartPlan } from './plans/useCategoryBarChartPlan'
+export { useCategoryDiscountChartPlan } from './plans/useCategoryDiscountChartPlan'
+export { useCategoryHourlyChartPlan } from './plans/useCategoryHourlyChartPlan'
+export { useCategoryMixChartPlan } from './plans/useCategoryMixChartPlan'
+export { useCategoryTrendPlan } from './plans/useCategoryTrendPlan'
+export type { CategoryTrendPlanResult } from './plans/useCategoryTrendPlan'
+export { useCategoryHierarchyPlan } from './plans/useCategoryHierarchyPlan'

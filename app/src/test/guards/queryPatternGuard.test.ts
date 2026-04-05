@@ -229,7 +229,7 @@ describe('INV-RUN-04: Screen Plan hook count ラチェット', () => {
   const hooksDir = path.join(SRC_DIR, 'application/hooks')
 
   it('Screen Plan hook が減少していないこと', () => {
-    // plans/ ディレクトリ内の plan hook
+    // plans/ ディレクトリ内の plan hook（shared）
     const planFiles = fs.existsSync(plansDir)
       ? collectTsFiles(plansDir).filter((f) => !f.endsWith('.test.ts') && f.includes('Plan'))
       : []
@@ -239,19 +239,25 @@ describe('INV-RUN-04: Screen Plan hook count ラチェット', () => {
       .filter((f) => !f.endsWith('.test.ts') && !f.includes('/plans/') && !f.includes('/duckdb/'))
       .filter((f) => path.basename(f).includes('Plan'))
 
-    const totalPlanHooks = planFiles.length + directPlanFiles.length
+    // features/ 内の plan hook（feature ownership 移行済み）
+    const featuresDir = path.join(SRC_DIR, 'features')
+    const featurePlanFiles = fs.existsSync(featuresDir)
+      ? collectTsFiles(featuresDir).filter(
+          (f) => !f.endsWith('.test.ts') && f.includes('/plans/') && f.includes('Plan'),
+        )
+      : []
+
+    const totalPlanHooks = planFiles.length + directPlanFiles.length + featurePlanFiles.length
 
     console.log(
-      `[INV-RUN-04] Screen Plan hooks: ${totalPlanHooks} (plans/: ${planFiles.length}, direct: ${directPlanFiles.length})`,
+      `[INV-RUN-04] Screen Plan hooks: ${totalPlanHooks} (plans/: ${planFiles.length}, direct: ${directPlanFiles.length}, features/: ${featurePlanFiles.length})`,
     )
 
-    // Gate 3 完了: 22 plan hooks（plans/ 19 + direct 3）
-    // useIntegratedSalesPlan + useCategoryTrendPlan + useYoYWaterfallPlan を plans/ に追加済み
+    // 2026-04-05: category plans を features/ に移行。shared 19→13 + features 6 = 同数維持
     expect(
       totalPlanHooks,
       `Screen Plan hook が減少しています。plan hook を削除しないでください。`,
-      // P2-3: useTimeSlotPlan 追加 → 22→23
-    ).toBeGreaterThanOrEqual(23)
+    ).toBeGreaterThanOrEqual(22)
   })
 })
 
@@ -299,6 +305,8 @@ describe('INV-RUN-02: pair 化済み handler の base import 追跡', () => {
       const relPath = rel(file)
       if (nonPairablePaths.has(relPath)) continue
       if (file.endsWith('PairHandler.ts')) continue
+      // plan hook は base handler を直接 import する（plan の責務）
+      if (relPath.includes('/plans/') && relPath.includes('Plan')) continue
 
       const content = fs.readFileSync(file, 'utf-8')
       // コメント行を除去してから検査

@@ -25,7 +25,7 @@ import {
   useCategoryBarChartPlan,
   type CategoryDailyTrendInput,
   type PairedInput,
-} from '@/application/hooks/plans/useCategoryBarChartPlan'
+} from '@/features/category'
 import {
   buildCategoryTrendData,
   type TrendMetric,

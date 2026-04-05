@@ -13,10 +13,7 @@ import type { DailyWeatherSummary } from '@/domain/models/record'
 import type { DailySalesForCorrelation } from '@/application/hooks/useWeatherCorrelation'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import { dateRangeToKeys } from '@/domain/models/calendar'
-import {
-  useWeatherAnalysisPlan,
-  type StoreDaySummaryInput,
-} from '@/application/hooks/plans/useWeatherAnalysisPlan'
+import { useWeatherAnalysisPlan, type StoreDaySummaryInput } from '@/features/weather'
 import type { DuckQueryContext } from './SubAnalysisPanel'
 import { WeatherCorrelationChart } from './WeatherCorrelationChart'
 

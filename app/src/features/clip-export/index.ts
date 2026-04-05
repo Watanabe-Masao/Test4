@@ -10,5 +10,9 @@
  */
 
 // ─── Application（hooks / usecases） ──────────────────
-export { useClipExport, buildClipBundle, downloadClipHtml } from './application'
-export type { BuildClipBundleParams } from './application'
+export { useClipExport, buildClipBundle, downloadClipHtml, useClipExportPlan } from './application'
+export type {
+  BuildClipBundleParams,
+  ClipExportPlanInput,
+  ClipExportPlanResult,
+} from './application'

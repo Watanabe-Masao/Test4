@@ -20,7 +20,7 @@ import {
   useCategoryDiscountChartPlan,
   type CategoryDiscountInput,
   type PairedInput,
-} from '@/application/hooks/plans/useCategoryDiscountChartPlan'
+} from '@/features/category'
 import { DISCOUNT_TYPES } from '@/domain/models/record'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { SegmentedControl } from '@/presentation/components/common/layout'

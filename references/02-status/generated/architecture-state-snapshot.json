@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-05T17:28:35.240Z",
+  "timestamp": "2026-04-05T18:15:32.118Z",
   "totalAllowlistEntries": 14,
   "categoryBreakdown": {
     "adapter": 1,
@@ -43,9 +43,6 @@
     "application/hooks/duckdb/useSummaryQueries.ts",
     "application/hooks/duckdb/useYoyQueries.ts",
     "application/hooks/plans/useIntegratedSalesPlan.ts",
-    "application/hooks/plans/useTimeSlotHierarchyPlan.ts",
-    "application/hooks/plans/useTimeSlotPlan.ts",
-    "application/hooks/plans/useTimeSlotWeatherPlan.ts",
     "application/hooks/useAnalysisInput.ts",
     "application/hooks/useAnalyticsResolver.ts",
     "application/hooks/useAppShortcuts.ts",
