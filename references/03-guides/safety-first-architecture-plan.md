@@ -460,3 +460,45 @@ allowlist 件数だけでは評価しない。見るべき指標:
 | `KNOWN_DEPRECATED` の WASM 起因残件数 | 減少 |
 | `architectureStateAudit` の hotspot / bridge / facade hook 数 | 縮小 |
 | day-only / implicit fallback / render-time side effect が critical path から消える | 達成 |
+
+---
+
+## 1人運用モデル: AI 主体 + 人間例外承認
+
+### Green / Yellow / Red 判定
+
+AI + 人間 1 名運用において、人間の出番を最小化するための機械判定基準。
+
+| 判定 | 条件 | AI の行動 | 人間の行動 |
+|------|------|-----------|-----------|
+| **Green** | Hard Gate PASS, WARN=0, guard 全 pass | 自動進行 | 不要 |
+| **Yellow** | Hard Gate PASS だが WARN >= 1 | 進行 + 要約通知 | 通知確認のみ |
+| **Red** | Hard Gate FAIL, または以下の Red 条件に該当 | **停止、人間承認待ち** | 判断・承認 |
+
+### Red 条件（人間承認必須）
+
+以下は AI だけでは進行せず、必ず人間承認を取る:
+
+- `docs.obligation.violations > 0`（Hard Gate FAIL）
+- principles 変更（`references/01-principles/` 配下の変更）
+- 新規 frozen / allowlist / bridge 追加
+- authoritative 昇格（`promotion-criteria.md` に明記済み）
+- Hard Gate fail override
+- 不可逆移行（ファイル削除、型の breaking change）
+
+### No-New-Debt ルール
+
+以下は **新規追加禁止**。`noNewDebtGuard.test.ts` で機械的に検証:
+
+| 禁止対象 | guard |
+|----------|-------|
+| dual-run compare コード（getExecutionMode / recordCall） | noNewDebtGuard |
+| dualRunObserver.ts の復活 | noNewDebtGuard |
+| ExecutionMode への dual-run-compare 再導入 | noNewDebtGuard |
+| presentation 層からの wasmEngine 直接 import | noNewDebtGuard |
+
+### 運用ルール
+
+- health の current value は prose に書かず generated section から自動埋め込み
+- 例外・凍結の新規追加には理由と exit trigger を必須化
+- `docs:generate` + `docs:check` は PR ごとに実行（CI fast-gate で強制）
