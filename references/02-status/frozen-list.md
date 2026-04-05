@@ -71,27 +71,43 @@
 
 ## 3.1. WASM Dual-Run Exit Criteria
 
-WASM dual-run bridge（estMethod.ts, discountImpact.ts, grossProfitBridge.ts）の
-削除には以下の全条件を満たす必要がある。
+WASM dual-run bridge の削除は `promotion-criteria.md` を正本とする。
+以下は要約。詳細な遷移条件・停止条件・rollback 手順は正本を参照。
 
-| 基準 | 閾値 | 現在値 | 測定方法 |
-|------|------|--------|---------|
-| mismatch rate | < 0.1% | 観測中 | observation test の mismatch / total |
-| null mismatch count | 0 | 観測中 | JS=null, WASM≠null または逆のケース数 |
-| observation duration | ≥ 30日 | 観測中 | 最初の observation pass からの経過日数 |
-| fallback rate | 0% | 観測中 | WASM 不可で JS fallback した割合 |
-| observation test coverage | 全5テスト pass | 観測中 | test/observation/*.test.ts |
+**対象:** 5 WASM engine（factorDecomposition, grossProfit, budgetAnalysis, forecast, timeSlot）
+
+**現況（2026-04-05）:**
+- 4 engine（factorDecomposition, grossProfit, budgetAnalysis, forecast）: **promotion-candidate**（blocker なし）
+- 1 engine（timeSlot）: **bridge-ready**（compare 計画 + 観測テスト作成が必要）
+- 詳細は `engine-promotion-matrix.md` を参照
+
+**昇格���件（`promotion-criteria.md` より）:**
+
+| 基準 | 閾値 | 測定方法 |
+|------|------|---------|
+| mismatch rate | 0%（numeric-within-tolerance は許容） | observation test |
+| null mismatch count | 0 | observation test |
+| invariant violation | 0 | observation test |
+| fallback rate | 0% | observation test |
+| observation test coverage | 全テスト pass | test/observation/*.test.ts |
+| rollback | 正常動作確認済み | wasm-only trial |
+
+> **注:** 時間ベース条件（「N 日間維持」等）は必須にしない（`promotion-criteria.md` §備考）。
+> 固定フィクスチャ群 + 主要経路 coverage + 自動判定を根拠とする。
 
 **収束プロセス:**
-1. 全 observation test が pass 状態を 30 日間維持
-2. mismatch rate が 0.1% 未満であることを確認
-3. WASM-only trial test が pass であることを確認
-4. bridge コード（§3 の 3 ファイル）を削除し、WASM を authoritative に昇格
+1. `promotion-criteria.md` の promotion-candidate 条件を全て満たすことを確認
+2. wasm-only trial を実行し、停止条件に抵触しないことを確認
+3. **人間が authoritative 昇格を承認**（`promotion-criteria.md` §authoritative: 必須）
+4. bridge コードを削除し、WASM を authoritative に昇格
 5. frozen-list §3 から当該エントリを削除
+6. `engine-promotion-matrix.md` を更新
 
-**中止条件:**
-- mismatch rate > 1% が 7 日間連続 → WASM 実装のバグを修正するまで dual-run を継続
-- null mismatch が 1 件でも発生 → 即座に調査（silent data loss の兆候）
+**停止条件（`promotion-criteria.md` より）:**
+- invariant violation → 即停止
+- null mismatch → 即停止・調査（silent data loss の兆候）
+- numeric-over-tolerance → 原則停止（例外は原因明確 + 業務影響なしの場合のみ）
+- rollback 不全 → promotion-candidate 判定で NG
 
 ---
 

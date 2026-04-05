@@ -496,7 +496,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 詳細レポート: `references/02-status/generated/architecture-health.md`
 
 <!-- GENERATED:START architecture-health-summary -->
-**RISK** | 前回比: Flat | Hard Gate: FAIL
+**Watch** | 前回比: Improved | Hard Gate: PASS
 
 | 指標 | 状態 | 詳細 |
 |---|---|---|
@@ -505,14 +505,13 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 | 複雑性圧 | OK | 2/5 / 10/10 / 27/30 |
 | 境界健全性 | OK | 0/0 / 0/0 |
 | ガード強度 | OK | 31/30 / 0/5 |
-| 性能 | OK | 6443/7000 / 2214/2500 / 919/1000 |
+| 性能 | OK |  |
 
 **Next:**
-- Doc 更新義務違反数 を budget 0 以下に修正する
 - Active Bridge 数 を 5 → 3 に削減する（残 2）
 - 上限間近ファイル 2 件を分割検討する
 
-> 生成: 2026-04-04T08:46:52.876Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-05T12:13:40.045Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）

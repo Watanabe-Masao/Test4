@@ -33,8 +33,9 @@ describe('dual-run exit criteria guard', () => {
 
     expect(content).toContain('Exit Criteria')
     expect(content).toContain('mismatch rate')
-    expect(content).toContain('observation duration')
+    expect(content).toContain('null mismatch')
     expect(content).toContain('fallback rate')
+    expect(content).toContain('promotion-criteria.md')
   })
 
   it('全 dual-run bridge ファイルが @deprecated マーカーを持つ', () => {
