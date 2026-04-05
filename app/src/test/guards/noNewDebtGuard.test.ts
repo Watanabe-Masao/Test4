@@ -173,9 +173,9 @@ describe('no-new-debt guard', () => {
       if (!fs.existsSync(plansDir)) return
 
       const planFiles = collectTsFiles(plansDir).filter((f) => /Plan\.ts$/.test(f))
-      // 2026-04-05 時点で 24 plan + 1 hierarchy plan = 25 ファイル。
-      // 新規 plan は features/ に作ること。shared への追加は禁止。
-      const MAX_SHARED_PLANS = 25
+      // category/time-slot/clip-export/weather plans を features/ に移行済み。
+      // 残り 13 は generic/cross-cutting。これ以上増やさない。
+      const MAX_SHARED_PLANS = 13
       expect(
         planFiles.length,
         `shared plan hooks が凍結上限（${MAX_SHARED_PLANS}）を超えています（${planFiles.length} 件）。` +
