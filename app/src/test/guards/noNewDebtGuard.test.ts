@@ -90,4 +90,30 @@ describe('no-new-debt guard', () => {
       ).toEqual([])
     })
   })
+
+  describe('comparison plan の provenance 必須化', () => {
+    it('prevYearScope/compMode を持つ plan hook は PlanComparisonProvenance を返す', () => {
+      const plansDir = path.join(SRC_DIR, 'application/hooks/plans')
+      if (!fs.existsSync(plansDir)) return
+
+      const planFiles = collectTsFiles(plansDir).filter((f) => /Plan\.ts$/.test(f))
+      const violations: string[] = []
+
+      for (const file of planFiles) {
+        const content = fs.readFileSync(file, 'utf-8')
+        const hasComparison =
+          content.includes('prevYearScope') ||
+          content.includes('compMode') ||
+          content.includes('isPrevYear')
+        if (hasComparison && !content.includes('PlanComparisonProvenance')) {
+          violations.push(rel(file))
+        }
+      }
+
+      expect(
+        violations,
+        `以下の comparison plan に PlanComparisonProvenance がありません:\n${violations.join('\n')}`,
+      ).toEqual([])
+    })
+  })
 })

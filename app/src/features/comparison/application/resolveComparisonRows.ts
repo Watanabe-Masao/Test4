@@ -21,6 +21,11 @@
 import type { CompareModeV2, MatchableRow, ResolvedComparisonRow } from './comparisonTypes'
 import { resolveRequestedCompareDateKey } from './comparisonRules'
 import { buildComparisonIndex } from './comparisonIndex'
+import {
+  toMappingKind,
+  createProvenance,
+  createFallbackProvenance,
+} from '../domain/comparisonProvenance'
 
 function makeAlignmentKey(
   storeId: string,
@@ -68,6 +73,8 @@ export function resolveComparisonRows(
       currentCustomers: cur.customers,
     }
 
+    const mappingKind = toMappingKind(compareMode)
+
     if (matches.length === 0) {
       return {
         ...baseFields,
@@ -75,6 +82,11 @@ export function resolveComparisonRows(
         compareSales: null,
         compareCustomers: null,
         status: 'missing_previous' as const,
+        provenance: createFallbackProvenance(
+          requestedCompareDateKey,
+          mappingKind,
+          'No matching comparison date',
+        ),
       }
     }
 
@@ -85,6 +97,11 @@ export function resolveComparisonRows(
         compareSales: null,
         compareCustomers: null,
         status: 'ambiguous_previous' as const,
+        provenance: createFallbackProvenance(
+          requestedCompareDateKey,
+          mappingKind,
+          `Multiple matches found (${matches.length})`,
+        ),
       }
     }
 
@@ -95,6 +112,7 @@ export function resolveComparisonRows(
       compareSales: prev.sales,
       compareCustomers: prev.customers,
       status: 'matched' as const,
+      provenance: createProvenance(prev.dateKey, mappingKind),
     }
   })
 }

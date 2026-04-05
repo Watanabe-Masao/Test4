@@ -16,6 +16,7 @@
  *   └── daily: Map<DateKey, PrevYearDailyEntry>
  */
 import type { DiscountEntry } from '@/domain/models/record'
+import type { DataComparisonProvenance } from '../domain/comparisonProvenance'
 
 // ── 月間 KPI 型 ──
 
@@ -238,6 +239,8 @@ export interface ResolvedComparisonRow {
   readonly currentCustomers: number | null
   readonly compareCustomers: number | null
   readonly status: MatchStatus
+  /** 比較データの出自情報（resolver が生成） */
+  readonly provenance?: DataComparisonProvenance
 }
 
 /** 日別比較データ（経過日数分のキャップ付き合計を含む） */

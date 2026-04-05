@@ -34,6 +34,20 @@ export interface DataComparisonProvenance {
   readonly confidence: number
 }
 
+/** CompareModeV2 → MappingKind の変換 */
+export function toMappingKind(
+  compareMode: 'sameDate' | 'sameDayOfWeek' | 'prevMonth',
+): MappingKind {
+  switch (compareMode) {
+    case 'sameDate':
+      return 'same-date'
+    case 'sameDayOfWeek':
+      return 'same-dow'
+    case 'prevMonth':
+      return 'same-date'
+  }
+}
+
 /** デフォルトの provenance（フォールバックなし、最大信頼度） */
 export function createProvenance(
   sourceDate: string,
