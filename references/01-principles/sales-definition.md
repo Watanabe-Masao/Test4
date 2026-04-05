@@ -101,14 +101,39 @@ storeId × date × deptCode × lineCode × klassCode × hour
 
 ## 8. 販売系基礎正本群における位置づけ
 
-`readSalesFact()` は **SalesQuantityFact** として、販売系基礎正本群の中心に位置する。
+### 概念モデル
 
-| 正本 | 責務 | 時間帯 |
-|------|------|--------|
-| **SalesQuantityFact** (`readSalesFact`) | 売上金額 + 販売点数 | ✅ あり |
-| **CustomerFact** (`readCustomerFact`) | 来店客数 | ❌ なし |
-| **DiscountFact** (`readDiscountFact`) | 値引き 4 種別 | ❌ なし |
+販売系基礎正本群は以下の **4 つの概念的に独立した正本** から構成される:
 
-- PI値・客数GAP・客単価は、SalesQuantityFact + CustomerFact の canonical input set で計算する
-- 値引率は、SalesQuantityFact + DiscountFact で計算する
+| 正本 | 責務 | 時間帯 | 正本入口 |
+|------|------|--------|----------|
+| **SalesFact** (売上金額) | 売上金額 | ✅ あり | `readSalesFact()` |
+| **QuantityFact** (販売点数) | 販売点数 | ✅ あり | `readSalesFact()` |
+| **CustomerFact** (来店客数) | 来店客数 | ❌ なし | `readCustomerFact()` |
+| **DiscountFact** (値引き) | 値引き 4 種別 (71/72/73/74) | ❌ なし | `readDiscountFact()` |
+
+### 物理実装
+
+SalesFact と QuantityFact は **概念的には独立** だが、以下の理由により
+**物理 ReadModel (`readSalesFact()`) は統合したまま維持**:
+
+1. **ソースが同一**: DuckDB `category_time_sales` テーブルの同一行に `total_amount` と `total_quantity` が共存
+2. **粒度が完全一致**: storeId × date × dept/line/klass × hour
+3. **消費者の 60% が両方を同時に使用**: PI値・客数GAP・客単価の計算
+4. **分割するとクエリが 2 倍**: 同一テーブルへの同一 WHERE 句のクエリを 2 回実行することになる
+
+```
+概念モデル:               物理実装:
+SalesFact (金額)  ─┐      readSalesFact()
+                   ├──→   { grandTotalAmount, grandTotalQuantity,
+QuantityFact (点数) ─┘       daily[].totalAmount, daily[].totalQuantity }
+```
+
+### 指標計算との関係
+
+- PI値: **QuantityFact** (readSalesFact.grandTotalQuantity) + CustomerFact → `calculateQuantityPI`
+- 金額PI値: **SalesFact** (readSalesFact.grandTotalAmount) + CustomerFact → `calculateAmountPI`
+- 客数GAP: **SalesFact** + **QuantityFact** + CustomerFact → `calculateCustomerGap`
+- 値引率: **SalesFact** + DiscountFact → `calculateDiscountRate`
+- 粗利: **SalesFact** + PurchaseCost → `calculateGrossProfit`
 - 詳細は `canonical-input-sets.md` を参照
