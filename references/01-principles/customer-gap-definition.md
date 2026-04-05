@@ -64,3 +64,18 @@ calculateCustomerGap(input: CustomerGapInput): CustomerGapResult | null
 - **Zod 契約:** `CustomerGapInputSchema` / `CustomerGapResultSchema`
 - **テスト:** `domain/calculations/__tests__/customerGap.test.ts` (9テスト)
 - **利用箇所:** `conditionSummaryCardBuilders.ts` — KPIカード（点数客数GAP / 金額客数GAP）
+
+## 7. 入力正本セット
+
+> 詳細は `canonical-input-sets.md` を参照。
+
+| 入力 | 正本 |
+|------|------|
+| 当期売上 / 点数 | `SalesFactReadModel` |
+| 前年売上 / 点数 | `SalesFactReadModel` (前年期間) |
+| 当期客数 | `CustomerFact` |
+| 前年客数 | `CustomerFact` (前年期間) |
+
+- 入力の組み立ては `buildCustomerGapCanonicalInput(...)` 経由
+- StoreResult / PrevYearData を分析入力に直結しない
+- presentation での独自前年比計算は禁止

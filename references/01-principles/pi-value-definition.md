@@ -66,3 +66,16 @@ PI値は「来店客1,000人あたりの購買指標」。
 - `StoreCategoryPIHandler` はこれらの関数を使用する
 - presentation 層で独自に ×1000 しない
 - **利用箇所:** `categoryBenchmarkLogic.ts`, `StoreCategoryPIHandler.ts`, `PerformanceIndexChart.builders.ts`
+
+## 6. 入力正本セット
+
+> 詳細は `canonical-input-sets.md` を参照。
+
+| 入力 | 正本 |
+|------|------|
+| 販売点数 / 売上金額 | `SalesFactReadModel` (grandTotalQuantity / grandTotalAmount) |
+| 来店客数 | `CustomerFact` (grandTotalCustomers) |
+
+- 入力の組み立ては `buildPICanonicalInput(salesFact, customerFact, scope)` 経由
+- StoreResult.totalCustomers を分析入力に直結しない
+- presentation での独自比率計算は禁止
