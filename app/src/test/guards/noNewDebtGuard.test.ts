@@ -54,10 +54,7 @@ describe('no-new-debt guard', () => {
 
     it('dualRunObserver.ts が存在しない（退役済み）', () => {
       const observerPath = path.join(SRC_DIR, 'application/services/dualRunObserver.ts')
-      expect(
-        fs.existsSync(observerPath),
-        'dualRunObserver.ts は退役済み。復活禁止。',
-      ).toBe(false)
+      expect(fs.existsSync(observerPath), 'dualRunObserver.ts は退役済み。復活禁止。').toBe(false)
     })
   })
 

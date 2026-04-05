@@ -54,9 +54,7 @@ export function calculateBudgetAnalysis(input: BudgetAnalysisInput): BudgetAnaly
  *
  * 全フィールドが scalar のため、WASM が ready なら WASM のみ。
  */
-export function calculateGrossProfitBudget(
-  input: GrossProfitBudgetInput,
-): GrossProfitBudgetResult {
+export function calculateGrossProfitBudget(input: GrossProfitBudgetInput): GrossProfitBudgetResult {
   if (isWasmReady()) return calculateGrossProfitBudgetWasm(input)
   return calculateGrossProfitBudgetTS(input)
 }

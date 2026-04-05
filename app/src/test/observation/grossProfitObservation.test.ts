@@ -112,7 +112,10 @@ describe('grossProfit 不変条件テスト（authoritative）', () => {
       })
 
       it('calculateInventoryCost: WASM 経由で呼ばれる', () => {
-        calculateInventoryCost(fixture.inventoryCost.totalCost, fixture.inventoryCost.deliverySalesCost)
+        calculateInventoryCost(
+          fixture.inventoryCost.totalCost,
+          fixture.inventoryCost.deliverySalesCost,
+        )
         expect(calculateInventoryCostWasm).toHaveBeenCalled()
       })
     })
