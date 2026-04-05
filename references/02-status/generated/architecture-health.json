@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-05T20:52:33.561Z",
+  "timestamp": "2026-04-05T20:54:39.760Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 35,
+      "value": 36,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -296,6 +296,7 @@
         "app/src/test/guards/renderSideEffectGuard.test.ts",
         "app/src/test/guards/salesFactPathGuard.test.ts",
         "app/src/test/guards/sizeGuard.test.ts",
+        "app/src/test/guards/storeResultAnalysisInputGuard.test.ts",
         "app/src/test/guards/structuralConventionGuard.test.ts",
         "app/src/test/guards/temporalRollingGuard.test.ts",
         "app/src/test/guards/temporalScopeGuard.test.ts",
