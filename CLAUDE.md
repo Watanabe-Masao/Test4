@@ -203,7 +203,7 @@ app/src/
     │   ├── migration.ts      #   比較移行
     │   └── misc.ts           #   その他
     ├── calculationCanonRegistry.ts  # domain/calculations/ 全ファイル分類
-    ├── guards/               # 構造制約ガード（30ファイル / 269テスト）
+    ├── guards/               # 構造制約ガード（31ファイル / 332テスト）
     │   ├── analysisFrameGuard.test.ts
     │   ├── calculationCanonGuard.test.ts
     │   ├── canonicalizationSystemGuard.test.ts
@@ -219,6 +219,7 @@ app/src/
     │   ├── freePeriodPathGuard.test.ts
     │   ├── grossProfitConsistencyGuard.test.ts
     │   ├── grossProfitPathGuard.test.ts
+    │   ├── noNewDebtGuard.test.ts
     │   ├── layerBoundaryGuard.test.ts
     │   ├── oldPathImportGuard.test.ts
     │   ├── pageMetaGuard.test.ts
@@ -237,7 +238,7 @@ app/src/
     │   └── topologyGuard.test.ts
     ├── audits/               # アーキテクチャ監査
     ├── temporal/             # temporal path テスト
-    └── observation/          # 観測テスト（WASM 二重実行）
+    └── observation/          # WASM 不変条件テスト（全 5 engine authoritative）
 ```
 
 ### レイヤー間の依存ルール
@@ -433,7 +434,7 @@ CQRS + 契約ハイブリッド設計により、既存4層モデルの内側に
 
 | Engine | 実装 | 制約 |
 |--------|------|------|
-| **Authoritative** | `domain/calculations/` | pure only。staging area であり Application の一部ではない |
+| **Authoritative** | `domain/calculations/` + WASM（全 5 engine authoritative） | pure only。WASM が ready なら WASM、そうでなければ TS fallback |
 | **Application** | TypeScript（hooks, stores, usecases） | pure+authoritative を新規実装しない |
 | **Exploration** | DuckDB SQL | 正式値の唯一定義元にしない |
 
@@ -508,7 +509,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 | 性能 | OK | 6443/7000 / 2214/2500 / 919/1000 |
 
 
-> 生成: 2026-04-05T14:26:23.374Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-05T14:32:57.857Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）
@@ -555,6 +556,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 - **P5/DuckDB 収束**: QueryHandler 移行完了、buildTypedWhere 完全移行
 - **Guard 大幅強化**: 22→30ファイル（+analysisFrame, comparisonScope, customerGap, dualRunExitCriteria, fallbackMetadata, grossProfitConsistency, oldPathImport, pageMeta, piValue, queryPattern, renderSideEffect, temporalScope, topology）
 - **ドキュメント整合性基盤**: `docs/contracts/` に構造化データ（principles.json, project-metadata.json）導入。documentConsistency.test.ts で機械検証
+- **進化安全の再構成（2026-04-05）**: WASM 全 5 engine を authoritative に昇格（bridge 1,426→431 行）。dual-run infrastructure 全面退役（~5,500 行削減）。ComparisonWindow 契約型導入。near-limit 2→0。noNewDebtGuard + Green/Yellow/Red 1 人運用モデル。Health: RISK → Healthy
 
 ## Explanation（説明責任）
 

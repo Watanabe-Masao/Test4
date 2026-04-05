@@ -1,10 +1,91 @@
 # 直近の主要変更（#673-#848+）
 
-> 更新日: 2026-04-04
+> 更新日: 2026-04-05
 >
 > **役割分担:** 本ドキュメントは内部向けの詳細変更記録。
 > リリース単位の要約は `CHANGELOG.md` を参照。
 > 同じ内容を二重管理しないこと。
+
+## 進化安全の再構成 — WASM authoritative 昇格 + dual-run 退役（2026-04-05）
+
+### 概要
+
+repo の「運用安全は強いが進化安全が弱い」状態を解消するための構造改善。
+6 Phase を 1 セッションで完遂。Health を RISK → Healthy に改善。
+
+### Phase 0: 判定基盤の再同期
+
+- `technical-debt-roadmap.md` の "bridge" 用語二重定義を解消。allowlist bridge category（0 件）と WASM dual-run bridge（5 件）を明確に区別
+- `safety-first-architecture-plan.md` の Phase 1 (runtime-adapters) / Phase 2 (context 4-slice化) を完了マーク。Phase 3 の allowlist 削減完了を反映
+- `frozen-list.md` §3.1 の exit criteria を `promotion-criteria.md` に正本統一。時間ベース条件を推奨証拠期間に格下げ
+- `docs:generate` で generated sections を最新化。Hard Gate: FAIL → PASS
+
+### Phase 1: WASM 5 engine authoritative 昇格
+
+全 5 engine の bridge を 3-mode dispatch（ts-only / wasm-only / dual-run-compare）から WASM authoritative + TS fallback に簡素化。
+
+| Engine | 類型 | Bridge 行数 | Observation |
+|---|---|---|---|
+| factorDecomposition | A（pure math） | 322 → 96 | 17 pass → 18 invariant |
+| budgetAnalysis | B（WASM core + TS dailyCumulative 補完） | 194 → 65 | 15 pass → 12 invariant |
+| forecast | B（pure 5 WASM / Date-dependent 5 TS 委譲） | 437 → 125 | 9 pass → 21 invariant |
+| grossProfit | C（numerics WASM / status TS authoritative） | 473 → 145 | 16 pass → 30 invariant |
+| timeSlot | A（pure math） | 174 → 36 | 25 pass → invariant 書き換え |
+
+Bridge 3 類型:
+- **A**: `isWasmReady() ? wasm() ?? ts() : ts()` — 全関数同形
+- **B**: WASM core + TS 補助値（dailyCumulative 等）/ 非対象関数は TS 直接委譲
+- **C**: numeric core は WASM authoritative、status/warnings は TS authoritative を維持
+
+### Phase 2: dual-run infrastructure 全面退役
+
+- `dualRunObserver.ts` (207 行) 退役 — 全 FnName 削除済み
+- `wasmEngine.ts`: ExecutionMode を `ts-only | wasm-only` の 2 モードに簡素化。DEV default を `wasm-only` に変更
+- `main.tsx`: `__dualRunStats` DevTools 登録削除
+- 旧 bridge unit test 7 ファイル削除（dual-run 前提のテスト、計 2,470 行）
+- observation harness 3 ファイル削除（observationRunner / Assertions / Report、計 397 行）
+- E2E: `dual-run-observation.spec.ts` + utils 6 ファイル + `playwright.observation.config.ts` 退役
+- `architectureStateAudit.ts`: bridge count を dual-run compare コード有無で判定するよう変更
+
+### Phase 3: ComparisonWindow 契約型導入
+
+- `domain/models/ComparisonWindow.ts` 新設:
+  - `ComparisonWindow`: `CurrentOnlyWindow | YoYWindow | WoWWindow` の discriminated union
+  - `ComparisonProvenance`: window + comparisonAvailable で比較由来を追跡
+  - ファクトリ関数: `currentOnly()`, `yoyWindow()`, `wowWindow()`
+- `useTimeSlotPlan.ts` の output に `comparisonProvenance` を追加
+- 既存の `MatchStatus` / `ResolvedComparisonRow`（比較結果の事実）とは棲み分け
+
+### Phase 4: near-limit 2→0 解消
+
+- `useTimeSlotPlan.ts`: hierarchy drill-through クエリを `useTimeSlotHierarchyPlan.ts` に抽出（241 → 206 行）
+- `categoryBenchmarkLogic.ts`: `buildCategoryTrendData` を `categoryBenchmarkTrend.ts` に抽出（274 → 207 行）
+- `useTimeSlotPlan.ts` を hookLineLimits 許可リストから卒業
+
+### Phase 5: 1 人運用モデル固定化
+
+- `noNewDebtGuard.test.ts` 新設（5 テスト）:
+  - dual-run compare コード再導入禁止
+  - `dualRunObserver.ts` 復活禁止
+  - `dual-run-compare` mode 再導入禁止
+  - presentation 層の wasmEngine 直接 import 禁止
+- `dualRunExitCriteriaGuard.test.ts` を退役状態維持ガードに更新
+- `safety-first-architecture-plan.md` に Green/Yellow/Red 判定基準 + No-New-Debt ルールを追記
+
+### KPI 変化
+
+| 指標 | Before | After |
+|---|---|---|
+| Health status | RISK | **Healthy** |
+| Hard Gate | FAIL | **PASS** |
+| `compat.bridge.count` | 5 (WARN) | **0** |
+| `docs.obligation.violations` | 1 (FAIL) | **0** |
+| `complexity.nearLimit.count` | 2 | **0** |
+| guard files | 37 | **38** (+noNewDebtGuard) |
+| guard tests | 327 | **332** |
+| net コード削減 | — | **~5,500 行** |
+
+---
 
 ## v1.7.0 アーキテクチャ改善 + バグ修正（2026-04-02）
 
