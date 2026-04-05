@@ -22,7 +22,8 @@ test.describe('インポートフロー', () => {
   test('管理ページに遷移できる', async ({ page }) => {
     await page.goto('/')
 
-    const adminBtn = page.locator('button[title="管理"]')
+    // aria-label は NavBar/BottomNav 両方で設定される
+    const adminBtn = page.locator('button[aria-label="管理"]')
     await expect(adminBtn).toBeVisible()
     await adminBtn.click()
     await expect(page).toHaveURL(/#\/admin/)

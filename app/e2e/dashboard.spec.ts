@@ -18,18 +18,20 @@ test.describe('ダッシュボード', () => {
   test('ナビゲーションでページ遷移できる', async ({ page }) => {
     await page.goto('/')
 
-    // カテゴリページへ遷移
-    const categoryBtn = page.locator('button[title="カテゴリ"]')
+    // カテゴリページへ遷移（aria-label は NavBar/BottomNav 両方で設定される）
+    const categoryBtn = page.locator('button[aria-label="カテゴリ"]')
     await expect(categoryBtn).toBeVisible()
     await categoryBtn.click()
     await expect(page).toHaveURL(/#\/category/)
   })
 
-  test('テーマ切り替えが動作する', async ({ page }) => {
+  test('テーマ切り替えが動作する', async ({ page }, testInfo) => {
+    // テーマボタンは desktop NavBar にのみ存在（BottomNav には非表示）
+    test.skip(testInfo.project.name === 'mobile-chrome', 'テーマボタンはデスクトップのみ')
     await page.goto('/')
 
     // テーマトグルボタンをクリック
-    const themeBtn = page.locator('button[title*="モード"]')
+    const themeBtn = page.locator('button[aria-label*="モード"]')
     await expect(themeBtn).toBeVisible()
     await themeBtn.click()
     // ボタンが引き続き表示されていることを確認
