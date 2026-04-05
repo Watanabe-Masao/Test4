@@ -13,7 +13,7 @@
 ## 現在の健全性サマリー
 
 <!-- GENERATED:START architecture-health-summary -->
-**Watch** | 前回比: Improved | Hard Gate: PASS
+**Watch** | 前回比: Flat | Hard Gate: PASS
 
 | 指標 | 状態 | 詳細 |
 |---|---|---|
@@ -22,13 +22,13 @@
 | 複雑性圧 | OK | 2/5 / 10/10 / 27/30 |
 | 境界健全性 | OK | 0/0 / 0/0 |
 | ガード強度 | OK | 31/30 / 0/5 |
-| 性能 | OK |  |
+| 性能 | OK | 6443/7000 / 2214/2500 / 919/1000 |
 
 **Next:**
 - Active Bridge 数 を 5 → 3 に削減する（残 2）
 - 上限間近ファイル 2 件を分割検討する
 
-> 生成: 2026-04-05T12:13:40.045Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-05T13:09:01.175Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 現状スナップショット

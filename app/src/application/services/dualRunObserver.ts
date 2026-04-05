@@ -11,11 +11,6 @@
  */
 
 type FnName =
-  // factorDecomposition
-  | 'decompose2'
-  | 'decompose3'
-  | 'decompose5'
-  | 'decomposePriceMix'
   // grossProfit
   | 'calculateInvMethod'
   | 'calculateEstMethod'
@@ -80,10 +75,6 @@ function makeFnStats(): FnStats {
 
 const stats: Record<FnName, FnStats> = {
   // factorDecomposition
-  decompose2: makeFnStats(),
-  decompose3: makeFnStats(),
-  decompose5: makeFnStats(),
-  decomposePriceMix: makeFnStats(),
   // grossProfit
   calculateInvMethod: makeFnStats(),
   calculateEstMethod: makeFnStats(),

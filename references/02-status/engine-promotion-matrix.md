@@ -11,7 +11,7 @@
 
 | Engine | Current State | Compare | Rust | WASM | Observation | Blocker | Next Action | Risk | Rollback Ready |
 |---|---|---|---|---|---|---|---|---|---|
-| factorDecomposition | **promotion-candidate** | ✅ | ✅ | ✅ | ✅ 17 pass | なし | wasm-only trial 実行 | Low | ✅ |
+| factorDecomposition | **authoritative** ✅ | ✅ | ✅ | ✅ | ✅ 18 pass | — | 完了（2026-04-05 昇格） | — | — |
 | grossProfit | **promotion-candidate** | ✅ | ✅ | ✅ | ✅ 16 pass | なし | wasm-only trial 実行 | Low | ✅ |
 | budgetAnalysis | **promotion-candidate** | ✅ | ✅ | ✅ | ✅ 15 pass | なし | wasm-only trial 実行 | Low | ✅ |
 | forecast | **promotion-candidate** | ✅ | ✅ | ✅ | ✅ 9 pass | なし | wasm-only trial 実行 | Low | ✅ |
@@ -26,12 +26,12 @@
 | 項目 | 状態 |
 |---|---|
 | 関数数 | 4（decompose2, decompose3, decompose5, decomposePriceMix） |
-| maturity | **promotion-candidate** ✅ |
-| compare | 実装済み。bridge test 通過 |
+| maturity | **authoritative** ✅（2026-04-05 昇格） |
+| compare | 不要（authoritative 昇格済み。dual-run compare 削除） |
 | Rust crate | `wasm/factor-decomposition/` — cargo test 全通過 |
 | WASM | wasm-pack build 済み。wasmEngine.ts 接続済み |
-| observer | FnName 4 件登録済み。DevTools アクセス可 |
-| observation test | 17 テスト pass（2026-03-29 確認） |
+| observer | FnName 削除済み（authoritative のため観測不要） |
+| observation test | 18 テスト pass — 不変条件テストとして維持 |
 | invariant tests | decomposition sum identity（effects 合計 = delta） |
 | cross-validation | TS golden fixture との一致確認済み |
 | edge cases | ゼロ / 負値 / NaN / 大値カバー済み |
@@ -135,7 +135,7 @@
 現在                                            目標
 ────────────────────────────────────────────────────
 
-factorDecomposition  [promotion-candidate] ✅  →  wasm-only trial  →  authoritative
+factorDecomposition  [authoritative] ✅  ← 完了（2026-04-05）
 grossProfit          [promotion-candidate] ✅  →  wasm-only trial  →  authoritative
 budgetAnalysis       [promotion-candidate] ✅  →  wasm-only trial  →  authoritative
 forecast             [promotion-candidate] ✅  →  wasm-only trial  →  authoritative

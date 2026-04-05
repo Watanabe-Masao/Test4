@@ -1,15 +1,15 @@
 /**
- * WASM-Only Trial テスト
+ * WASM Authoritative Trial テスト
  *
- * wasm-only モードのディスパッチ・フォールバック・ロールバックを検証。
+ * WASM authoritative bridge のディスパッチ・フォールバックを検証。
  * factorDecomposition engine を代表として使用。
  *
- * promotion-criteria.md の「wasm-only trial 開始条件」に対応:
- * - wasm-only mode auto tests pass
- * - Rollback is confirmed
+ * promotion-criteria.md の「authoritative 条件」に対応:
+ * - WASM ready → WASM 実装が使われる
+ * - WASM error → TS にフォールバック
+ * - 結果の数学的正確性（Shapley 恒等式）
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { setExecutionMode } from '@/application/services/wasmEngine'
 import * as wasmEngine from '@/application/services/wasmEngine'
 import { decompose2 as decompose2TS } from '@/domain/calculations/factorDecomposition'
 
@@ -22,20 +22,14 @@ vi.mock('@/application/services/factorDecompositionWasm', () => ({
 import { decompose2 } from '@/application/services/factorDecompositionBridge'
 import { decompose2Wasm } from '@/application/services/factorDecompositionWasm'
 
-function setupWasmReady() {
-  vi.spyOn(wasmEngine, 'getWasmModuleState').mockReturnValue('ready')
-  vi.spyOn(wasmEngine, 'getWasmExports').mockReturnValue({} as never)
-}
-
-describe('WASM-Only Trial', () => {
+describe('WASM Authoritative Trial', () => {
   beforeEach(() => {
-    vi.spyOn(console, 'warn').mockImplementation(() => {})
-    setupWasmReady()
+    vi.restoreAllMocks()
   })
 
-  describe('wasm-only モード: WASM 経由で実行される', () => {
+  describe('WASM ready → WASM 経由で実行される', () => {
     beforeEach(() => {
-      setExecutionMode('wasm-only')
+      vi.spyOn(wasmEngine, 'getWasmModuleState').mockReturnValue('ready')
       vi.mocked(decompose2Wasm).mockImplementation((ps, cs, pc, cc) => decompose2TS(ps, cs, pc, cc))
     })
 
@@ -53,12 +47,10 @@ describe('WASM-Only Trial', () => {
     })
   })
 
-  describe('wasm-only + WASM error → TS フォールバック', () => {
+  describe('WASM error → TS フォールバック', () => {
     beforeEach(() => {
-      vi.clearAllMocks()
-      setExecutionMode('wasm-only')
       vi.spyOn(wasmEngine, 'getWasmModuleState').mockReturnValue('error')
-      vi.spyOn(wasmEngine, 'getWasmExports').mockReturnValue(null)
+      vi.mocked(decompose2Wasm).mockClear()
     })
 
     it('WASM error 時は TS にフォールバックし WASM は呼ばれない', () => {
@@ -66,18 +58,22 @@ describe('WASM-Only Trial', () => {
       expect(result).not.toBeNull()
       expect(decompose2Wasm).not.toHaveBeenCalled()
     })
+
+    it('フォールバック結果も Shapley 恒等式を満たす', () => {
+      const result = decompose2(100000, 120000, 500, 480)
+      expect(result!.custEffect + result!.ticketEffect).toBeCloseTo(20000, 0)
+    })
   })
 
-  describe('rollback: wasm-only → ts-only', () => {
-    it('モード切替後は TS のみ使用、結果は同一', () => {
-      setupWasmReady()
-      setExecutionMode('wasm-only')
+  describe('WASM ready ↔ error 切替: 結果は同一', () => {
+    it('WASM → TS フォールバックで結果が変わらない', () => {
+      vi.spyOn(wasmEngine, 'getWasmModuleState').mockReturnValue('ready')
       vi.mocked(decompose2Wasm).mockImplementation((ps, cs, pc, cc) => decompose2TS(ps, cs, pc, cc))
 
       const r1 = decompose2(100000, 120000, 500, 480)
       expect(r1).not.toBeNull()
 
-      setExecutionMode('ts-only')
+      vi.spyOn(wasmEngine, 'getWasmModuleState').mockReturnValue('error')
       vi.mocked(decompose2Wasm).mockClear()
 
       const r2 = decompose2(100000, 120000, 500, 480)
