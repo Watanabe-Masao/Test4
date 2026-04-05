@@ -203,12 +203,14 @@ app/src/
     │   ├── migration.ts      #   比較移行
     │   └── misc.ts           #   その他
     ├── calculationCanonRegistry.ts  # domain/calculations/ 全ファイル分類
-    ├── guards/               # 構造制約ガード（31ファイル / 332テスト）
+    ├── guards/               # 構造制約ガード（36ファイル / 368テスト）
     │   ├── analysisFrameGuard.test.ts
     │   ├── calculationCanonGuard.test.ts
+    │   ├── canonicalInputGuard.test.ts
     │   ├── canonicalizationSystemGuard.test.ts
     │   ├── codePatternGuard.test.ts
     │   ├── comparisonScopeGuard.test.ts
+    │   ├── customerFactPathGuard.test.ts
     │   ├── customerGapPathGuard.test.ts
     │   ├── discountFactPathGuard.test.ts
     │   ├── dualRunExitCriteriaGuard.test.ts
@@ -232,6 +234,7 @@ app/src/
     │   ├── renderSideEffectGuard.test.ts
     │   ├── salesFactPathGuard.test.ts
     │   ├── sizeGuard.test.ts
+    │   ├── storeResultAnalysisInputGuard.test.ts
     │   ├── structuralConventionGuard.test.ts
     │   ├── temporalRollingGuard.test.ts
     │   ├── temporalScopeGuard.test.ts
@@ -497,7 +500,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 詳細レポート: `references/02-status/generated/architecture-health.md`
 
 <!-- GENERATED:START architecture-health-summary -->
-**Healthy** | 前回比: Flat | Hard Gate: PASS
+**RISK** | 前回比: Flat | Hard Gate: FAIL
 
 | 指標 | 状態 | 詳細 |
 |---|---|---|
@@ -508,8 +511,10 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 | ガード強度 | OK | 36/30 / 0/5 |
 | 性能 | OK | 6443/7000 / 2214/2500 / 919/1000 |
 
+**Next:**
+- Doc 更新義務違反数 を budget 0 以下に修正する
 
-> 生成: 2026-04-05T20:54:39.760Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-05T21:02:35.494Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）

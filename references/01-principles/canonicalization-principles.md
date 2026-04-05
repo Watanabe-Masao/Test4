@@ -102,11 +102,12 @@ flat な totalCost だけでは用途別の組み合わせができない。
 | 粗利 | 計算 | `calculateGrossProfit()` | ✅ | grossProfitPathGuard (6) |
 | 売上 | 取得 | `readSalesFact()` | ✅ | salesFactPathGuard (5) |
 | 値引き | 取得 | `readDiscountFact()` | ✅ | discountFactPathGuard (5) |
+| 客数 | 取得 | `readCustomerFact()` | ✅ | customerFactPathGuard (5) |
 | 要因分解 | 計算 | `calculateFactorDecomposition()` | ✅ | factorDecompositionPathGuard (5) |
-| PI値 | 計算 | `calculateQuantityPI()` / `calculateAmountPI()` | ✅ | — |
-| 客数GAP | 計算 | `calculateCustomerGap()` | ✅ | — |
+| PI値 | 計算 | `calculateQuantityPI()` / `calculateAmountPI()` | ✅ | canonicalInputGuard (6) |
+| 客数GAP | 計算 | `calculateCustomerGap()` | ✅ | canonicalInputGuard (6) |
 
-**widget orchestrator:** `useWidgetDataOrchestrator` が取得系3正本を `UnifiedWidgetContext.readModels` 経由で全 widget に配布。
+**widget orchestrator:** `useWidgetDataOrchestrator` が取得系4正本（purchaseCost, salesFact, discountFact, customerFact）を `UnifiedWidgetContext.readModels` 経由で全 widget に配布。
 
 **体系統合ガード:** `canonicalizationSystemGuard.test.ts` が全 readModel ディレクトリ・定義書・レジストリ・CLAUDE.md 参照を検証。
 

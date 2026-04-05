@@ -327,7 +327,7 @@ bridge ファイルは WASM authoritative + TS fallback の薄い wrapper とし
 | 1 | ~~Phase 0~~ | **完了** ✅ — Safety Tier 分類、正本一本化 |
 | 2 | ~~Phase 1~~ | **完了** ✅ — runtime-adapters/ に 8 ファイル移動済み |
 | 3 | ~~Phase 2~~ | **完了** ✅ — 4 slice 化済み（ctxHook 1件 permanent） |
-| 4 | Phase 3 | **進行中** — isPrevYearHandlers=0, pairExceptionDesign=0 達成。残: Window 契約型 + provenance |
+| 4 | ~~Phase 3~~ | **完了** ✅ — ComparisonWindow 契約型導入、PlanComparisonProvenance 全 plan 展開、DataComparisonProvenance resolver 接続済み |
 | 5 | Phase 4 | 未着手 — アルゴリズム安全強化 |
 | 6 | Phase 5 | 未着手 — UI persistence 解消 |
 | 7 | ~~Phase 6~~ | **完了** ✅ — 全 5 engine authoritative、dual-run infrastructure 退役 |
