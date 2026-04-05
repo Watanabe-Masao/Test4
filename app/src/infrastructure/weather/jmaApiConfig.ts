@@ -7,6 +7,9 @@
  * - 開発環境: Vite dev server のプロキシ (/jma-api → www.jma.go.jp)
  * - 本番環境: 環境変数 VITE_JMA_PROXY_URL で指定した CORS プロキシ
  * - フォールバック: 直接アクセス（CORS でブロックされる可能性あり）
+ *
+ * Weather 有効/無効の判定は adapter 層（weatherAdapter.ts）で行う。
+ * この関数は URL 解決のみを担当する。
  */
 
 /** JMA API のベース URL を返す (www.jma.go.jp — 予報・AMeDAS 用) */

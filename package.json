@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "scripts": {
+    "setup": "node scripts/check-deps.js && npm run build:wasm && cd app && npm install",
+    "build:wasm": "cd app && npm run build:wasm",
+    "check:deps": "node scripts/check-deps.js"
+  }
+}
