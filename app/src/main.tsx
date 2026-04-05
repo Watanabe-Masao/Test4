@@ -15,21 +15,11 @@ if (import.meta.env.PROD) {
   registerServiceWorker({ onUpdateApplying: notifySwUpdate })
 }
 
-// WASM: factorDecomposition エンジン初期化 + 観測ヘルパー登録（DEV のみ）
+// WASM: 全モジュール初期化 + 観測ヘルパー登録（DEV のみ）
 if (import.meta.env.DEV) {
-  import('@/application/services/wasmEngine').then(
-    ({
-      initFactorDecompositionWasm,
-      initGrossProfitWasm,
-      initBudgetAnalysisWasm,
-      initForecastWasm,
-    }) => {
-      initFactorDecompositionWasm()
-      initGrossProfitWasm()
-      initBudgetAnalysisWasm()
-      initForecastWasm()
-    },
-  )
+  import('@/application/services/wasmEngine').then(({ initAllWasmModules }) => {
+    initAllWasmModules()
+  })
   import('@/application/services/dualRunObserver').then(({ dualRunStatsHandler }) => {
     // DevTools: __dualRunStats() / __dualRunStats('reset') / __dualRunStats('log')
     ;(window as unknown as Record<string, unknown>).__dualRunStats = dualRunStatsHandler

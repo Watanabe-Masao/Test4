@@ -13,12 +13,15 @@
  */
 
 export type WasmState = 'idle' | 'loading' | 'ready' | 'error'
-export type WasmModuleName =
-  | 'factorDecomposition'
-  | 'grossProfit'
-  | 'budgetAnalysis'
-  | 'forecast'
-  | 'timeSlot'
+export const WASM_MODULE_NAMES = [
+  'factorDecomposition',
+  'grossProfit',
+  'budgetAnalysis',
+  'forecast',
+  'timeSlot',
+] as const
+
+export type WasmModuleName = (typeof WASM_MODULE_NAMES)[number]
 export type ExecutionMode = 'ts-only' | 'wasm-only' | 'dual-run-compare'
 
 /* ── 内部状態 ─────────────────────────────────── */
@@ -182,6 +185,58 @@ export function getForecastWasmExports(): typeof import('forecast-wasm') | null 
 
 export function getTimeSlotWasmExports(): typeof import('time-slot-wasm') | null {
   return timeSlotWasmExports
+}
+
+/* ── 一括初期化 ──────────────────────────────── */
+
+const initFns: Record<WasmModuleName, () => Promise<void>> = {
+  factorDecomposition: initFactorDecompositionWasm,
+  grossProfit: initGrossProfitWasm,
+  budgetAnalysis: initBudgetAnalysisWasm,
+  forecast: initForecastWasm,
+  timeSlot: initTimeSlotWasm,
+}
+
+/**
+ * 全 WASM モジュールを並列初期化する。
+ * main.tsx から呼び出し、モジュール一覧と初期化の不一致を防ぐ。
+ */
+export async function initAllWasmModules(): Promise<void> {
+  await Promise.allSettled(WASM_MODULE_NAMES.map((name) => initFns[name]()))
+}
+
+/* ── Availability 統合 ───────────────────────── */
+
+import type { AvailabilityState } from '@/domain/models/Availability'
+
+/**
+ * WASM エンジン全体の AvailabilityState を返す。
+ *
+ * - 全 ready → 'ready'
+ * - 一部 error → 'degraded'
+ * - 全 error → 'failed'
+ * - 全 idle → 'disabled'（PROD で未初期化）
+ */
+export function getWasmAvailability(): AvailabilityState<Record<WasmModuleName, WasmState>> {
+  const states = getAllWasmStates()
+  const values = Object.values(states)
+
+  if (values.every((s) => s === 'ready')) {
+    return { status: 'ready', data: states }
+  }
+  if (values.every((s) => s === 'error')) {
+    return { status: 'failed', data: states, reason: 'All WASM modules failed to initialize' }
+  }
+  if (values.some((s) => s === 'error')) {
+    const failed = Object.entries(states)
+      .filter(([, s]) => s === 'error')
+      .map(([n]) => n)
+    return { status: 'degraded', data: states, reason: `Failed modules: ${failed.join(', ')}` }
+  }
+  if (values.every((s) => s === 'idle')) {
+    return { status: 'disabled', data: states, reason: 'WASM not initialized' }
+  }
+  return { status: 'degraded', data: states, reason: 'Some modules still loading' }
 }
 
 /* ── モード管理 ───────────────────────────────── */

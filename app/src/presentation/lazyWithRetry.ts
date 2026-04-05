@@ -22,8 +22,10 @@ export function lazyWithRetry<T extends ComponentType<Record<string, unknown>>>(
       }
 
       // チャンク読込エラーの場合のみリロード
-      const message = error instanceof Error ? error.message : String(error)
+      const isError = error instanceof Error
+      const message = isError ? error.message : String(error)
       const isChunkError =
+        (isError && error.name === 'ChunkLoadError') ||
         message.includes('Failed to fetch dynamically imported module') ||
         message.includes('Loading chunk') ||
         message.includes('Loading CSS chunk')

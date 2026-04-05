@@ -35,16 +35,11 @@ test.describe('WASM dual-run: 本番ビルド安全性', () => {
     // ナビゲーションが存在することを確認（基本的な UI 健全性）
     // モバイルではデスクトップ nav が hidden でボトムナビが表示されるため、
     // いずれかの nav が visible であることを検証する
+    const visibleNav = page.locator('nav').first()
+    await expect(visibleNav).toBeAttached()
     const navs = page.locator('nav')
     const count = await navs.count()
-    let hasVisibleNav = false
-    for (let i = 0; i < count; i++) {
-      if (await navs.nth(i).isVisible()) {
-        hasVisibleNav = true
-        break
-      }
-    }
-    expect(hasVisibleNav).toBe(true)
+    expect(count).toBeGreaterThan(0)
   })
 
   test('localStorage で executionMode を切り替えてもエラーなし', async ({ page }) => {

@@ -26,6 +26,9 @@ const APPROVED_ROOT_FILES = [
   /^App\.tsx$/,
   /^App\.test\.tsx$/,
   /^AppProviders\.tsx$/,
+  /^BootstrapProviders\.tsx$/,
+  /^DomainProviders\.tsx$/,
+  /^UiProviders\.tsx$/,
   /^appContextDefs\.ts$/,
   /^main\.tsx$/,
   /\.d\.ts$/, // 型宣言ファイル

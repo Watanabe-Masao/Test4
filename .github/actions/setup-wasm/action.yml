@@ -25,9 +25,9 @@ runs:
         key: ${{ runner.os }}-cargo-${{ hashFiles('wasm/*/Cargo.lock') }}
         restore-keys: ${{ runner.os }}-cargo-
 
-    - name: Install wasm-pack
+    - name: Install wasm-pack (pinned version)
       shell: bash
-      run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+      run: cargo install wasm-pack@0.13.1 --locked
 
     - name: Build WASM modules
       shell: bash

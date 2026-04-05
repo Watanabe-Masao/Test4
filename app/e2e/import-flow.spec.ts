@@ -23,9 +23,8 @@ test.describe('インポートフロー', () => {
     await page.goto('/')
 
     const adminBtn = page.locator('button[title="管理"]')
-    if (await adminBtn.isVisible()) {
-      await adminBtn.click()
-      await expect(page).toHaveURL(/#\/admin/)
-    }
+    await expect(adminBtn).toBeVisible()
+    await adminBtn.click()
+    await expect(page).toHaveURL(/#\/admin/)
   })
 })

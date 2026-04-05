@@ -20,10 +20,9 @@ test.describe('ダッシュボード', () => {
 
     // カテゴリページへ遷移
     const categoryBtn = page.locator('button[title="カテゴリ"]')
-    if (await categoryBtn.isVisible()) {
-      await categoryBtn.click()
-      await expect(page).toHaveURL(/#\/category/)
-    }
+    await expect(categoryBtn).toBeVisible()
+    await categoryBtn.click()
+    await expect(page).toHaveURL(/#\/category/)
   })
 
   test('テーマ切り替えが動作する', async ({ page }) => {
@@ -31,11 +30,10 @@ test.describe('ダッシュボード', () => {
 
     // テーマトグルボタンをクリック
     const themeBtn = page.locator('button[title*="モード"]')
-    if (await themeBtn.isVisible()) {
-      await themeBtn.click()
-      // ボタンテキストが変わることを確認
-      await expect(themeBtn).toBeVisible()
-    }
+    await expect(themeBtn).toBeVisible()
+    await themeBtn.click()
+    // ボタンが引き続き表示されていることを確認
+    await expect(themeBtn).toBeVisible()
   })
 })
 

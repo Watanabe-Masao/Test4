@@ -8,7 +8,7 @@ import { readFileSync, writeFileSync } from 'fs'
 
 /** ビルド時に public/sw.js の __BUILD_VERSION__ と __BASE_PATH__ を置換するプラグイン */
 function swVersionPlugin(): Plugin {
-  const basePath = process.env.VITE_BASE_PATH ?? '/Test4/'
+  const basePath = process.env.VITE_BASE_PATH ?? '/'
   return {
     name: 'sw-version',
     apply: 'build',
@@ -16,18 +16,26 @@ function swVersionPlugin(): Plugin {
       // sw.js: バージョン + base path 置換
       const swPath = resolve(__dirname, 'dist/sw.js')
       const swContent = readFileSync(swPath, 'utf-8')
-      const version = `build-${Date.now()}`
-      writeFileSync(
-        swPath,
-        swContent
-          .replace("'__BUILD_VERSION__'", `'${version}'`)
-          .replace(/'__BASE_PATH__'/g, `'${basePath}'`),
-      )
+      const version =
+        process.env.GITHUB_SHA?.slice(0, 8) ??
+        process.env.COMMIT_SHA?.slice(0, 8) ??
+        `dev-${Date.now()}`
+      const swReplaced = swContent
+        .replace("'__BUILD_VERSION__'", `'${version}'`)
+        .replace(/'__BASE_PATH__'/g, `'${basePath}'`)
+      if (swReplaced.includes("'__BUILD_VERSION__'") || swReplaced.includes("'__BASE_PATH__'")) {
+        throw new Error('[swVersionPlugin] Unreplaced placeholders found in sw.js')
+      }
+      writeFileSync(swPath, swReplaced)
 
       // manifest.json: base path 置換
       const manifestPath = resolve(__dirname, 'dist/manifest.json')
       const manifestContent = readFileSync(manifestPath, 'utf-8')
-      writeFileSync(manifestPath, manifestContent.replace(/__BASE_PATH__/g, basePath))
+      const manifestReplaced = manifestContent.replace(/__BASE_PATH__/g, basePath)
+      if (manifestReplaced.includes('__BASE_PATH__')) {
+        throw new Error('[swVersionPlugin] Unreplaced placeholders found in manifest.json')
+      }
+      writeFileSync(manifestPath, manifestReplaced)
     },
   }
 }
@@ -35,7 +43,7 @@ function swVersionPlugin(): Plugin {
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), wasm(), topLevelAwait(), swVersionPlugin()],
-  base: process.env.VITE_BASE_PATH ?? '/Test4/',
+  base: process.env.VITE_BASE_PATH ?? '/',
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),

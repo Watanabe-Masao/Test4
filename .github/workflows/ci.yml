@@ -220,6 +220,7 @@ jobs:
       - name: Production build
         run: npm run build
         env:
+          VITE_BASE_PATH: '/${{ github.event.repository.name }}/'
           VITE_JMA_PROXY_URL: ${{ secrets.VITE_JMA_PROXY_URL }}
 
       - uses: actions/upload-pages-artifact@v3
