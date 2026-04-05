@@ -27,6 +27,9 @@ import type { SalesFactReadModel } from '@/application/readModels/salesFact'
 import { discountFactHandler } from '@/application/queries/discountFactHandler'
 import type { DiscountFactInput } from '@/application/readModels/discountFact'
 import type { DiscountFactReadModel } from '@/application/readModels/discountFact'
+import { customerFactHandler } from '@/application/readModels/customerFact'
+import type { CustomerFactInput } from '@/application/readModels/customerFact'
+import type { CustomerFactReadModel } from '@/application/readModels/customerFact'
 
 // ── 入力パラメータ ──
 
@@ -42,7 +45,9 @@ export interface WidgetDataOrchestratorParams {
 // ── 出力（全正本の統合ビュー） ──
 
 /** readModel 名をキーとした個別エラーマップ */
-export type ReadModelErrors = Partial<Record<'purchaseCost' | 'salesFact' | 'discountFact', Error>>
+export type ReadModelErrors = Partial<
+  Record<'purchaseCost' | 'salesFact' | 'discountFact' | 'customerFact', Error>
+>
 
 export interface WidgetDataOrchestratorResult {
   /** 仕入原価の複合正本 */
@@ -51,6 +56,8 @@ export interface WidgetDataOrchestratorResult {
   readonly salesFact: SalesFactReadModel | null
   /** 値引きの分析正本 */
   readonly discountFact: DiscountFactReadModel | null
+  /** 客数の分析正本 */
+  readonly customerFact: CustomerFactReadModel | null
   /** ローディング状態（いずれかがロード中） */
   readonly isLoading: boolean
   /** 個別 readModel のエラー（障害分析用） */
@@ -99,7 +106,12 @@ export function useWidgetDataOrchestrator(
     [base, isPrevYear],
   )
 
-  // ── 3正本を並列取得 ──
+  const customerFactInput = useMemo<CustomerFactInput | null>(
+    () => (base ? { ...base, isPrevYear: isPrevYear ?? false } : null),
+    [base, isPrevYear],
+  )
+
+  // ── 4正本を並列取得 ──
   const {
     data: purchaseCostData,
     isLoading: pcLoading,
@@ -118,29 +130,40 @@ export function useWidgetDataOrchestrator(
     error: dfError,
   } = useQueryWithHandler(executor, discountFactHandler, discountFactInput)
 
+  const {
+    data: customerFactData,
+    isLoading: cfLoading,
+    error: cfError,
+  } = useQueryWithHandler(executor, customerFactHandler, customerFactInput)
+
   return useMemo(() => {
     const errors: ReadModelErrors = {}
     if (pcError) errors.purchaseCost = pcError
     if (sfError) errors.salesFact = sfError
     if (dfError) errors.discountFact = dfError
+    if (cfError) errors.customerFact = cfError
 
     return {
       purchaseCost: purchaseCostData?.model ?? null,
       salesFact: salesFactData?.model ?? null,
       discountFact: discountFactData?.model ?? null,
-      isLoading: pcLoading || sfLoading || dfLoading,
+      customerFact: customerFactData?.model ?? null,
+      isLoading: pcLoading || sfLoading || dfLoading || cfLoading,
       errors,
-      error: pcError ?? sfError ?? dfError ?? null,
+      error: pcError ?? sfError ?? dfError ?? cfError ?? null,
     }
   }, [
     purchaseCostData,
     salesFactData,
     discountFactData,
+    customerFactData,
     pcLoading,
     sfLoading,
     dfLoading,
+    cfLoading,
     pcError,
     sfError,
     dfError,
+    cfError,
   ])
 }

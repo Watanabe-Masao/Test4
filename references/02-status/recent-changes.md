@@ -81,9 +81,54 @@ Bridge 3 類型:
 | `compat.bridge.count` | 5 (WARN) | **0** |
 | `docs.obligation.violations` | 1 (FAIL) | **0** |
 | `complexity.nearLimit.count` | 2 | **0** |
-| guard files | 37 | **38** (+noNewDebtGuard) |
-| guard tests | 327 | **332** |
+| guard files | 37 | **42** (+noNewDebtGuard, dataIntegrityGuard, customerFactPathGuard, canonicalInputGuard, storeResultAnalysisInputGuard) |
+| guard tests | 327 | **368** |
 | net コード削減 | — | **~5,500 行** |
+| shared plan hooks | 25 | **13** (category/time-slot/clip-export/weather を features/ に移行) |
+| features/ plan hooks | 0 | **11** |
+| orchestrator readModels | 3 | **4** (+customerFact) |
+
+---
+
+## 販売系基礎正本群の設計移行（2026-04-05）
+
+### Phase 0: 用語固定 + 定義書
+
+- `customer-definition.md` 新設 — 正本源 (flowers) と唯一入口 (readCustomerFact) を分離
+- `canonical-input-sets.md` 新設 — 指標ごとの入力正本 + 粒度 + 禁止事項
+- `sales-definition.md` / `pi-value-definition.md` / `customer-gap-definition.md` 改訂
+
+### Phase 1: CustomerFact readModel 導入
+
+- `readCustomerFact.ts` — pure builder + QueryHandler + 3 導出 helper
+- `CustomerFactTypes.ts` — Zod スキーマ
+- `queryCustomerDaily()` — store_day_summary.customers の軽量クエリ
+- `useWidgetDataOrchestrator` — 3 → 4 readModel 並列取得
+
+### Phase 2: canonical input builders
+
+- `piCanonicalInput.ts` — buildGrandTotalPI / buildStorePIResults
+- `customerGapCanonicalInput.ts` — buildAndCalculateCustomerGap
+- `canonicalInputGuard.test.ts` — presentation での PI 直計算禁止
+
+### Phase 3: StoreResult 分析依存の縮退
+
+- `storeResultAnalysisInputGuard.test.ts` — .totalCustomers の新規分析利用禁止 (ratchet ≤16)
+
+### バグ修正
+
+- 前年客数2倍計上 — `buildFlowersCustomerIndex` を last-write-wins に変更
+- 複数日選択後の単日クリック — DAY_CLICK で pendingRange=null
+- 時間帯分析の前年データ欠落 — 歴史月を isPrevYear=true でも DuckDB にロード
+- データ整合性ガード 18 テスト — 4 パターンの構造的再発防止
+
+### Feature ownership 移行
+
+- category 6 plans → features/category/application/plans/
+- time-slot 3 plans → features/time-slot/application/plans/
+- clip-export 1 plan → features/clip-export/application/plans/
+- weather 1 plan → features/weather/application/plans/
+- shared plan 凍結 (≤13), UnifiedWidgetContext 凍結 (≤47), @deprecated 凍結 (≤7)
 
 ---
 

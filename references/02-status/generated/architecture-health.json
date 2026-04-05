@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-05T18:17:06.053Z",
+  "timestamp": "2026-04-05T21:03:49.879Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 33,
+      "value": 36,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -267,9 +267,11 @@
       "implRefs": [
         "app/src/test/guards/analysisFrameGuard.test.ts",
         "app/src/test/guards/calculationCanonGuard.test.ts",
+        "app/src/test/guards/canonicalInputGuard.test.ts",
         "app/src/test/guards/canonicalizationSystemGuard.test.ts",
         "app/src/test/guards/codePatternGuard.test.ts",
         "app/src/test/guards/comparisonScopeGuard.test.ts",
+        "app/src/test/guards/customerFactPathGuard.test.ts",
         "app/src/test/guards/customerGapPathGuard.test.ts",
         "app/src/test/guards/dataIntegrityGuard.test.ts",
         "app/src/test/guards/discountFactPathGuard.test.ts",
@@ -294,6 +296,7 @@
         "app/src/test/guards/renderSideEffectGuard.test.ts",
         "app/src/test/guards/salesFactPathGuard.test.ts",
         "app/src/test/guards/sizeGuard.test.ts",
+        "app/src/test/guards/storeResultAnalysisInputGuard.test.ts",
         "app/src/test/guards/structuralConventionGuard.test.ts",
         "app/src/test/guards/temporalRollingGuard.test.ts",
         "app/src/test/guards/temporalScopeGuard.test.ts",
@@ -437,9 +440,9 @@
       "id": "docs.obligation.violations",
       "label": "Doc 更新義務違反数",
       "category": "docs",
-      "value": 0,
+      "value": 1,
       "unit": "count",
-      "status": "ok",
+      "status": "fail",
       "owner": "documentation-steward",
       "docRefs": [
         {
@@ -453,9 +456,9 @@
   ],
   "summary": {
     "totalKpis": 19,
-    "ok": 19,
+    "ok": 18,
     "warn": 0,
-    "fail": 0,
-    "hardGatePass": true
+    "fail": 1,
+    "hardGatePass": false
   }
 }

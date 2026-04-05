@@ -98,3 +98,17 @@ storeId × date × deptCode × lineCode × klassCode × hour
 - `domain/models/StoreResult.ts` — 売上の集計済み正本（totalSales 等）
 - `infrastructure/duckdb/queries/categoryTimeSales.ts` — CTS クエリ（readSalesFact 内部で使用）
 - `infrastructure/duckdb/queries/ctsHourlyQueries.ts` — 時間帯集計（readSalesFact 内部で使用）
+
+## 8. 販売系基礎正本群における位置づけ
+
+`readSalesFact()` は **SalesQuantityFact** として、販売系基礎正本群の中心に位置する。
+
+| 正本 | 責務 | 時間帯 |
+|------|------|--------|
+| **SalesQuantityFact** (`readSalesFact`) | 売上金額 + 販売点数 | ✅ あり |
+| **CustomerFact** (`readCustomerFact`) | 来店客数 | ❌ なし |
+| **DiscountFact** (`readDiscountFact`) | 値引き 4 種別 | ❌ なし |
+
+- PI値・客数GAP・客単価は、SalesQuantityFact + CustomerFact の canonical input set で計算する
+- 値引率は、SalesQuantityFact + DiscountFact で計算する
+- 詳細は `canonical-input-sets.md` を参照

@@ -21,6 +21,7 @@ const CRITICAL_READ_MODELS = [
   'grossProfit/GrossProfitTypes.ts',
   'factorDecomposition/FactorDecompositionTypes.ts',
   'freePeriod/FreePeriodTypes.ts',
+  'customerFact/CustomerFactTypes.ts',
 ] as const
 
 describe('fallback metadata guard', () => {
