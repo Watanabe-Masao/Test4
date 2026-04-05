@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-04-05T13:55:42.081Z",
-  "totalAllowlistEntries": 15,
+  "timestamp": "2026-04-05T14:12:39.108Z",
+  "totalAllowlistEntries": 14,
   "categoryBreakdown": {
     "adapter": 1,
-    "structural": 14
+    "structural": 13
   },
   "frozenLists": [
     "presentationToInfrastructure",
@@ -43,6 +43,7 @@
     "application/hooks/duckdb/useSummaryQueries.ts",
     "application/hooks/duckdb/useYoyQueries.ts",
     "application/hooks/plans/useIntegratedSalesPlan.ts",
+    "application/hooks/plans/useTimeSlotHierarchyPlan.ts",
     "application/hooks/plans/useTimeSlotPlan.ts",
     "application/hooks/plans/useTimeSlotWeatherPlan.ts",
     "application/hooks/useAnalysisInput.ts",
@@ -152,22 +153,7 @@
       "lineCount": 282
     }
   ],
-  "nearLimitFiles": [
-    {
-      "file": "application/hooks/plans/useTimeSlotPlan.ts",
-      "metric": "lines",
-      "actual": 241,
-      "limit": 260,
-      "pct": 93
-    },
-    {
-      "file": "application/hooks/duckdb/categoryBenchmarkLogic.ts",
-      "metric": "lines",
-      "actual": 275,
-      "limit": 300,
-      "pct": 92
-    }
-  ],
+  "nearLimitFiles": [],
   "listSummary": {
     "applicationToInfrastructure": {
       "count": 1,
@@ -204,9 +190,9 @@
       }
     },
     "hookLineLimits": {
-      "count": 2,
+      "count": 1,
       "categories": {
-        "structural": 2
+        "structural": 1
       }
     },
     "presentationMemoLimits": {

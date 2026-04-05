@@ -1,12 +1,12 @@
 # Architecture State Snapshot
 
-> Generated: 2026-04-05T13:55:42.081Z
+> Generated: 2026-04-05T14:12:39.108Z
 
 ## Allowlist Summary
 
 | 指標 | 値 |
 |---|---|
-| 総エントリ数 | 15 |
+| 総エントリ数 | 14 |
 | アクティブリスト数 | 7 |
 | 凍結リスト数 | 14 |
 | .vm.ts ファイル数 | 27 |
@@ -16,7 +16,7 @@
 
 | カテゴリ | 件数 |
 |---|---|
-| structural | 14 |
+| structural | 13 |
 | adapter | 1 |
 
 
@@ -41,6 +41,7 @@
 - application/hooks/duckdb/useSummaryQueries.ts
 - application/hooks/duckdb/useYoyQueries.ts
 - application/hooks/plans/useIntegratedSalesPlan.ts
+- application/hooks/plans/useTimeSlotHierarchyPlan.ts
 - application/hooks/plans/useTimeSlotPlan.ts
 - application/hooks/plans/useTimeSlotWeatherPlan.ts
 - application/hooks/useAnalysisInput.ts
@@ -107,8 +108,6 @@
 
 | ファイル | 指標 | 実測 | 上限 | % |
 |---|---|---|---|---|
-| application/hooks/plans/useTimeSlotPlan.ts | lines | 241 | 260 | 93% |
-| application/hooks/duckdb/categoryBenchmarkLogic.ts | lines | 275 | 300 | 92% |
 
 ## Frozen Lists
 
@@ -133,9 +132,9 @@
 |---|---|---|
 | domainLargeFiles | 6 | structural:6 |
 | useStateLimits | 3 | structural:3 |
-| hookLineLimits | 2 | structural:2 |
 | applicationToInfrastructure | 1 | adapter:1 |
 | useMemoLimits | 1 | structural:1 |
+| hookLineLimits | 1 | structural:1 |
 | presentationStateLimits | 1 | structural:1 |
 | ctxHook | 1 | structural:1 |
 | presentationToInfrastructure | 0 | - |

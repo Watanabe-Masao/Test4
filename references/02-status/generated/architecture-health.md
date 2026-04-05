@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-05T13:58:18.810Z
+> Generated: 2026-04-05T14:12:49.946Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -18,7 +18,7 @@
 
 | ID | 指標 | 値 | 状態 |
 |---|---|---|---|
-| allowlist.total | 許可リスト総エントリ数 | 15 / 20 | OK |
+| allowlist.total | 許可リスト総エントリ数 | 14 / 20 | OK |
 | allowlist.frozen.nonZero | Frozen リスト非ゼロ | 0 / 0 | OK |
 | allowlist.active.count | Active リスト数 | 7 / 10 | OK |
 
@@ -34,7 +34,7 @@
 | ID | 指標 | 値 | 状態 |
 |---|---|---|---|
 | complexity.hotspot.count | 複雑性ホットスポット数 | 10 / 10 | OK |
-| complexity.nearLimit.count | 上限間近ファイル数 | 2 / 5 | OK |
+| complexity.nearLimit.count | 上限間近ファイル数 | 0 / 5 | OK |
 | complexity.vm.count | ViewModel ファイル数 | 27 / 30 | OK |
 
 ## 層境界
