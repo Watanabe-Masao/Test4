@@ -43,9 +43,7 @@ function storeIdsArray(ids: ReadonlySet<string>): readonly string[] | undefined 
   return ids.size > 0 ? [...ids] : undefined
 }
 
-export function useTimeSlotHierarchyPlan(
-  params: TimeSlotHierarchyParams,
-): TimeSlotHierarchyResult {
+export function useTimeSlotHierarchyPlan(params: TimeSlotHierarchyParams): TimeSlotHierarchyResult {
   const { queryExecutor, currentDateRange, selectedStoreIds, hierarchy } = params
   const storeIds = storeIdsArray(selectedStoreIds)
   const deptCode = hierarchy.deptCode

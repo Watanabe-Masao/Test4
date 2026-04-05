@@ -125,11 +125,7 @@ export function useTimeSlotPlan(params: TimeSlotPlanParams): TimeSlotPlanResult 
     return { ...toKeys(compRange), storeIds, isPrevYear: compIsPrevYear }
   }, [compRange, storeIds, compIsPrevYear])
 
-  const heatmapLevel = hierarchy.deptCode
-    ? hierarchy.lineCode
-      ? 'klass'
-      : 'line'
-    : 'department'
+  const heatmapLevel = hierarchy.deptCode ? (hierarchy.lineCode ? 'klass' : 'line') : 'department'
   const pyRange = compMode === 'yoy' ? prevYearScope?.dateRange : undefined
   const categoryHourlyPairInput = useMemo<PairedInput<CategoryHourlyInput>>(() => {
     const base: PairedInput<CategoryHourlyInput> = {

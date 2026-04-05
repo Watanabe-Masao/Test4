@@ -43,10 +43,7 @@ describe('dual-run retirement guard', () => {
       }
     }
 
-    expect(
-      missing,
-      `以下の不変条件テストが存在しません:\n${missing.join('\n')}`,
-    ).toEqual([])
+    expect(missing, `以下の不変条件テストが存在しません:\n${missing.join('\n')}`).toEqual([])
   })
 
   it('frozen-list.md §3 の @deprecated エントリ数が上限（5）を超えない', () => {
@@ -74,13 +71,7 @@ describe('dual-run retirement guard', () => {
     const matrixPath = path.join(ROOT_DIR, 'references/02-status/engine-promotion-matrix.md')
     const content = fs.readFileSync(matrixPath, 'utf-8')
 
-    const engines = [
-      'factorDecomposition',
-      'grossProfit',
-      'budgetAnalysis',
-      'forecast',
-      'timeSlot',
-    ]
+    const engines = ['factorDecomposition', 'grossProfit', 'budgetAnalysis', 'forecast', 'timeSlot']
     const missing: string[] = []
     for (const engine of engines) {
       const pattern = new RegExp(`${engine}.*authoritative`, 'i')
