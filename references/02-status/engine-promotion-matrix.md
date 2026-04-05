@@ -13,7 +13,7 @@
 |---|---|---|---|---|---|---|---|---|---|
 | factorDecomposition | **authoritative** ✅ | ✅ | ✅ | ✅ | ✅ 18 pass | — | 完了（2026-04-05 昇格） | — | — |
 | grossProfit | **promotion-candidate** | ✅ | ✅ | ✅ | ✅ 16 pass | なし | wasm-only trial 実行 | Low | ✅ |
-| budgetAnalysis | **promotion-candidate** | ✅ | ✅ | ✅ | ✅ 15 pass | なし | wasm-only trial 実行 | Low | ✅ |
+| budgetAnalysis | **authoritative** ✅ | ✅ | ✅ | ✅ | ✅ 12 pass | — | 完了（2026-04-05 昇格） | — | — |
 | forecast | **promotion-candidate** | ✅ | ✅ | ✅ | ✅ 9 pass | なし | wasm-only trial 実行 | Low | ✅ |
 | timeSlot | **bridge-ready** | - | ✅ | ✅ | 未作成 | 観測テスト | compare 計画 + 観測テスト作成 | Medium | ✅ |
 
@@ -68,15 +68,16 @@
 | 項目 | 状態 |
 |---|---|
 | 関数数 | 2（calculateBudgetAnalysis, calculateGrossProfitBudget） |
-| maturity | **promotion-candidate** ✅ |
-| compare | 実装済み。bridge test 通過 |
+| maturity | **authoritative** ✅（2026-04-05 昇格） |
+| compare | 不要（authoritative 昇格済み。dual-run compare 削除） |
 | Rust crate | `wasm/budget-analysis/` — cargo test 全通過 |
 | WASM | wasm-pack build 済み。wasmEngine.ts 接続済み |
-| observer | FnName 2 件登録済み。DevTools アクセス可 |
-| observation test | 15 テスト pass（2026-03-29 確認） |
+| observer | FnName 削除済み（authoritative のため観測不要） |
+| observation test | 12 テスト pass — 不変条件テストとして維持 |
 | invariant tests | B-INV-1〜5（残予算、進捗率、累計単調性等） |
 | cross-validation | TS golden fixture との一致確認済み |
 | edge cases | ゼロ予算 / ゼロ売上 / 月末境界カバー済み |
+| 類型 | B — scalar は WASM authoritative、dailyCumulative は TS 補完 |
 
 **Blocker:** なし。全条件クリア済み。
 
@@ -137,7 +138,7 @@
 
 factorDecomposition  [authoritative] ✅  ← 完了（2026-04-05）
 grossProfit          [promotion-candidate] ✅  →  wasm-only trial  →  authoritative
-budgetAnalysis       [promotion-candidate] ✅  →  wasm-only trial  →  authoritative
+budgetAnalysis       [authoritative] ✅  ← 完了（2026-04-05）
 forecast             [promotion-candidate] ✅  →  wasm-only trial  →  authoritative
 timeSlot             [bridge-ready]            →  compare-ready  →  observation  →  promotion-candidate
 ```

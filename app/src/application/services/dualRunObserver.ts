@@ -20,9 +20,6 @@ type FnName =
   | 'calculateMarkupRates'
   | 'calculateTransferTotals'
   | 'calculateInventoryCost'
-  // budgetAnalysis
-  | 'calculateBudgetAnalysis'
-  | 'calculateGrossProfitBudget'
   // forecast
   | 'calculateStdDev'
   | 'detectAnomalies'
@@ -85,8 +82,6 @@ const stats: Record<FnName, FnStats> = {
   calculateTransferTotals: makeFnStats(),
   calculateInventoryCost: makeFnStats(),
   // budgetAnalysis
-  calculateBudgetAnalysis: makeFnStats(),
-  calculateGrossProfitBudget: makeFnStats(),
   // forecast
   calculateStdDev: makeFnStats(),
   detectAnomalies: makeFnStats(),
