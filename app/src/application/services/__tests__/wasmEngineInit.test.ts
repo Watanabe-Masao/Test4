@@ -53,9 +53,9 @@ describe('wasmEngine 初期化', () => {
     expect(getWasmModuleState('factorDecomposition')).toBe('ready')
   })
 
-  it('DEV 環境 + localStorage 未設定 → dual-run-compare がデフォルト', async () => {
+  it('DEV 環境 + localStorage 未設定 → wasm-only がデフォルト', async () => {
     const { getExecutionMode } = await import('@/application/services/wasmEngine')
-    // vitest は DEV=true で動作する
-    expect(getExecutionMode()).toBe('dual-run-compare')
+    // vitest は DEV=true で動作する。全 engine authoritative 昇格後は wasm-only がデフォルト
+    expect(getExecutionMode()).toBe('wasm-only')
   })
 })

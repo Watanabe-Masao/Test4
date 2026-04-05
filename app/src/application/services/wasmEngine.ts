@@ -59,7 +59,7 @@ export async function initFactorDecompositionWasm(): Promise<void> {
     wasmExports = wasm
     moduleStates.factorDecomposition = 'ready'
     if (import.meta.env.DEV) {
-      console.info('[wasmEngine] factorDecomposition ready — dual-run compare available')
+      console.info('[wasmEngine] factorDecomposition ready — WASM authoritative ready')
     }
   } catch (e) {
     moduleStates.factorDecomposition = 'error'
@@ -84,7 +84,7 @@ export async function initGrossProfitWasm(): Promise<void> {
     grossProfitWasmExports = wasm
     moduleStates.grossProfit = 'ready'
     if (import.meta.env.DEV) {
-      console.info('[wasmEngine] grossProfit ready — dual-run compare available')
+      console.info('[wasmEngine] grossProfit ready — WASM authoritative ready')
     }
   } catch (e) {
     moduleStates.grossProfit = 'error'
@@ -105,7 +105,7 @@ export async function initBudgetAnalysisWasm(): Promise<void> {
     budgetAnalysisWasmExports = wasm
     moduleStates.budgetAnalysis = 'ready'
     if (import.meta.env.DEV) {
-      console.info('[wasmEngine] budgetAnalysis ready — dual-run compare available')
+      console.info('[wasmEngine] budgetAnalysis ready — WASM authoritative ready')
     }
   } catch (e) {
     moduleStates.budgetAnalysis = 'error'
@@ -126,7 +126,7 @@ export async function initForecastWasm(): Promise<void> {
     forecastWasmExports = wasm
     moduleStates.forecast = 'ready'
     if (import.meta.env.DEV) {
-      console.info('[wasmEngine] forecast ready — dual-run compare available')
+      console.info('[wasmEngine] forecast ready — WASM authoritative ready')
     }
   } catch (e) {
     moduleStates.forecast = 'error'
@@ -147,7 +147,7 @@ export async function initTimeSlotWasm(): Promise<void> {
     timeSlotWasmExports = wasm
     moduleStates.timeSlot = 'ready'
     if (import.meta.env.DEV) {
-      console.info('[wasmEngine] timeSlot ready — dual-run compare available')
+      console.info('[wasmEngine] timeSlot ready — WASM authoritative ready')
     }
   } catch (e) {
     moduleStates.timeSlot = 'error'
