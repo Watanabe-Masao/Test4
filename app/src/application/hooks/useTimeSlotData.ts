@@ -23,7 +23,7 @@ import {
   computeYoYData,
   computeInsights,
 } from '@/application/usecases/timeSlotDataLogic'
-import { useTimeSlotPlan } from '@/application/hooks/plans/useTimeSlotPlan'
+import { useTimeSlotPlan } from '@/features/time-slot'
 
 // Re-export types for consumers
 export type {

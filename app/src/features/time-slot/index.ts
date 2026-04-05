@@ -14,4 +14,10 @@
 export { findCoreTime, findTurnaroundHour } from './domain'
 
 // ─── Application（hooks / plans） ──────────────────────
-export { useTimeSlotData, useTimeSlotPlan, useTimeSlotWeatherPlan } from './application'
+export {
+  useTimeSlotData,
+  useTimeSlotPlan,
+  useTimeSlotWeatherPlan,
+  useTimeSlotHierarchyPlan,
+} from './application'
+export type { TimeSlotPlanParams, TimeSlotPlanResult, CompMode } from './application'

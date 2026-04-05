@@ -1,6 +1,6 @@
 # Architecture State Snapshot
 
-> Generated: 2026-04-05T17:37:59.022Z
+> Generated: 2026-04-05T18:15:32.118Z
 
 ## Allowlist Summary
 
@@ -41,9 +41,6 @@
 - application/hooks/duckdb/useSummaryQueries.ts
 - application/hooks/duckdb/useYoyQueries.ts
 - application/hooks/plans/useIntegratedSalesPlan.ts
-- application/hooks/plans/useTimeSlotHierarchyPlan.ts
-- application/hooks/plans/useTimeSlotPlan.ts
-- application/hooks/plans/useTimeSlotWeatherPlan.ts
 - application/hooks/useAnalysisInput.ts
 - application/hooks/useAnalyticsResolver.ts
 - application/hooks/useAppShortcuts.ts
