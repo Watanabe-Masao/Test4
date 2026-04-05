@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-05T15:34:07.762Z",
+  "timestamp": "2026-04-05T17:28:48.054Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 32,
+      "value": 33,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -271,6 +271,7 @@
         "app/src/test/guards/codePatternGuard.test.ts",
         "app/src/test/guards/comparisonScopeGuard.test.ts",
         "app/src/test/guards/customerGapPathGuard.test.ts",
+        "app/src/test/guards/dataIntegrityGuard.test.ts",
         "app/src/test/guards/discountFactPathGuard.test.ts",
         "app/src/test/guards/dualRunExitCriteriaGuard.test.ts",
         "app/src/test/guards/factorDecompositionPathGuard.test.ts",
@@ -436,9 +437,9 @@
       "id": "docs.obligation.violations",
       "label": "Doc 更新義務違反数",
       "category": "docs",
-      "value": 2,
+      "value": 0,
       "unit": "count",
-      "status": "fail",
+      "status": "ok",
       "owner": "documentation-steward",
       "docRefs": [
         {
@@ -452,9 +453,9 @@
   ],
   "summary": {
     "totalKpis": 19,
-    "ok": 18,
+    "ok": 19,
     "warn": 0,
-    "fail": 1,
-    "hardGatePass": false
+    "fail": 0,
+    "hardGatePass": true
   }
 }
