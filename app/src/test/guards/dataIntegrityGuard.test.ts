@@ -249,3 +249,57 @@ describe('Pattern 4: 安全な構造が崩れないことの保護', () => {
     })
   })
 })
+
+// ── Pattern 5: 前年データ二重投入の防止 ──
+
+describe('Pattern 5: 前年データ二重投入の防止', () => {
+  const duckContent = fs.readFileSync(
+    path.join(SRC_DIR, 'application/runtime-adapters/useDuckDB.ts'),
+    'utf-8',
+  )
+
+  it('初回ロードの歴史月ループで prevYear 二重投入ガードがある', () => {
+    // prevYear prop で既にロード済みの月を歴史月ループで再投入しないこと
+    // alreadyLoadedAsPrev チェックが初回ロードパスに存在すること
+    const initialLoadSection = duckContent.match(
+      /initialLoadDone\.current\s*\)[\s\S]*?initialLoadDone\.current\s*=\s*true/,
+    )?.[0]
+    expect(
+      initialLoadSection,
+      '初回ロードセクションが見つかりません',
+    ).toBeDefined()
+    expect(
+      initialLoadSection!.includes('alreadyLoadedAsPrev'),
+      '初回ロードの歴史月ループに prevYear 二重投入ガード (alreadyLoadedAsPrev) がありません。' +
+        'prevYear prop と歴史月ループで同一月が isPrevYear=true で2回 INSERT され、' +
+        '売上7日MA(前年)等の全比較期指標が2倍になります。',
+    ).toBe(true)
+  })
+
+  it('差分ロードの歴史月ループでも prevYear 二重投入ガードがある', () => {
+    // 差分ロードパスにも同じガードが存在すること
+    const diffLoadSection = duckContent.match(
+      /新規・変更月をロード[\s\S]*?anyChanged\s*=\s*true\s*\n\s*}/,
+    )?.[0]
+    if (!diffLoadSection) return // 差分ロードセクションが見つからない場合はスキップ
+    // y === year - 1 の分岐がある場合、alreadyLoadedAsPrev ガードも必須
+    if (diffLoadSection.includes('y === year - 1')) {
+      expect(
+        diffLoadSection.includes('alreadyLoadedAsPrev'),
+        '差分ロードの歴史月ループに prevYear 二重投入ガード (alreadyLoadedAsPrev) がありません。',
+      ).toBe(true)
+    }
+  })
+
+  it('alreadyLoadedAsPrev が prevYear.origin の year/month を比較している', () => {
+    // ガードが prevYear.origin.year と prevYear.origin.month を参照していること
+    expect(
+      duckContent.includes('prevYear.origin.year'),
+      'alreadyLoadedAsPrev が prevYear.origin.year を参照していません',
+    ).toBe(true)
+    expect(
+      duckContent.includes('prevYear.origin.month'),
+      'alreadyLoadedAsPrev が prevYear.origin.month を参照していません',
+    ).toBe(true)
+  })
+})
