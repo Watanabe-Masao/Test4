@@ -1,6 +1,6 @@
 # Query Access Audit Report
 
-> Generated: 2026-04-04T03:20:22.317Z
+> Generated: 2026-04-06T00:34:31.277Z
 
 ## Route Summary
 
@@ -8,7 +8,7 @@
 |---|---|---|
 | QueryHandler 定義 | 47 | 基盤 |
 | PairedQueryHandler（pair 化済み） | 13 | 基盤 |
-| Screen Plan hook（plan 化済み） | 27 | 基盤 |
+| Screen Plan hook（plan 化済み） | 28 | 基盤 |
 | useQueryWithHandler（正規） | 0 | 正規 |
 | comparisonAccessors（正規） | 10 | 正規 |
 | facade / bundle hook 使用（正規） | 5 | 正規 |
@@ -87,13 +87,6 @@
 
 ### screenPlanHooks
 
-- application/hooks/plans/useCategoryBarChartPlan.ts
-- application/hooks/plans/useCategoryDiscountChartPlan.ts
-- application/hooks/plans/useCategoryHierarchyPlan.ts
-- application/hooks/plans/useCategoryHourlyChartPlan.ts
-- application/hooks/plans/useCategoryMixChartPlan.ts
-- application/hooks/plans/useCategoryTrendPlan.ts
-- application/hooks/plans/useClipExportPlan.ts
 - application/hooks/plans/useConditionBudgetDrillPlan.ts
 - application/hooks/plans/useConditionMatrixPlan.ts
 - application/hooks/plans/useCumulativeChartPlan.ts
@@ -105,15 +98,23 @@
 - application/hooks/plans/useFeatureChartPlan.ts
 - application/hooks/plans/useIntegratedSalesPlan.ts
 - application/hooks/plans/useStoreHourlyChartPlan.ts
-- application/hooks/plans/useTimeSlotPlan.ts
-- application/hooks/plans/useTimeSlotWeatherPlan.ts
-- application/hooks/plans/useWeatherAnalysisPlan.ts
 - application/hooks/plans/useYoYChartPlan.ts
 - application/hooks/plans/useYoYWaterfallPlan.ts
 - application/hooks/useCategoryBenchmarkPlan.ts
 - application/hooks/useHeatmapPlan.ts
 - application/hooks/usePerformanceIndexPlan.ts
 - presentation/components/charts/useIntegratedSalesPlan.ts
+- features/category/application/plans/useCategoryBarChartPlan.ts
+- features/category/application/plans/useCategoryDiscountChartPlan.ts
+- features/category/application/plans/useCategoryHierarchyPlan.ts
+- features/category/application/plans/useCategoryHourlyChartPlan.ts
+- features/category/application/plans/useCategoryMixChartPlan.ts
+- features/category/application/plans/useCategoryTrendPlan.ts
+- features/clip-export/application/plans/useClipExportPlan.ts
+- features/time-slot/application/plans/useTimeSlotHierarchyPlan.ts
+- features/time-slot/application/plans/useTimeSlotPlan.ts
+- features/time-slot/application/plans/useTimeSlotWeatherPlan.ts
+- features/weather/application/plans/useWeatherAnalysisPlan.ts
 
 ### comparisonAccessor
 

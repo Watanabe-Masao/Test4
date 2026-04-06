@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-04T03:20:33.610Z",
+  "timestamp": "2026-04-06T00:34:54.464Z",
   "wasmModules": [
     "budget-analysis",
     "core-utils",
@@ -26,7 +26,12 @@
     "test:e2e:ui",
     "storybook",
     "build-storybook",
-    "test:visual"
+    "test:visual",
+    "health",
+    "health:check",
+    "health:pr-comment",
+    "docs:generate",
+    "docs:check"
   ],
   "ci": {
     "wasmBuildDirectCalls": 0,
@@ -35,6 +40,9 @@
       "format:check",
       "build",
       "test:guards",
+      "build",
+      "test:guards",
+      "docs:check",
       "build",
       "build-storybook",
       "build",
