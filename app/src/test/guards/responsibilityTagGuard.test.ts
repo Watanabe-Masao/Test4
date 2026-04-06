@@ -54,7 +54,7 @@ describe('G8-R: 責務タグカバレッジ', () => {
 
   // ★ 現在の未分類数。タグ付けしたらこの数を減らす。
   // ★ 新規ファイル追加で増えたら CI 失敗。
-  const UNCLASSIFIED_SNAPSHOT = 613
+  const UNCLASSIFIED_SNAPSHOT = 613 // builders.ts 追加で +1 ファイル、タグ付き +1 → 差分 0
 
   it('未分類ファイル数が増えていない（新規ファイルは登録必須）', () => {
     const unclassified: string[] = []

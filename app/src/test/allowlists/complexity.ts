@@ -59,6 +59,14 @@ export const presentationMemoLimits: readonly QuantitativeAllowlistEntry[] = [
   // useIntegratedSalesState.ts — useMemo 許可リスト削除済み（drill reducer + context 分離完了）
   // DrilldownWaterfall.tsx — buildRecordAggregates 統合（7→5 useMemo）。許可リスト卒業
   // TimeSlotChart.tsx — module constants + weather/hours 一括構築（8→3 useMemo）。許可リスト卒業
+  {
+    path: 'presentation/pages/Weather/WeatherPage.tsx',
+    reason: '天気ページのサマリー計算 + フィルタ。useMemo 7 個',
+    category: 'structural',
+    removalCondition: 'サマリー計算を純粋関数に分離時',
+    limit: 8,
+    lifecycle: 'active-debt',
+  },
 ] as const
 
 /** presentation/ の useState 上限の個別例外（G5 横展開） */
@@ -84,10 +92,10 @@ export const combinedHookComplexityLimits: readonly QuantitativeAllowlistEntry[]
   {
     path: 'presentation/pages/Weather/WeatherPage.tsx',
     reason:
-      '天気ページの複合 UI（相関・予報・オーバーレイ + 曜日フィルタ）。useMemo 6 + useCallback 9 = 15',
+      '天気ページの複合 UI（相関・予報・オーバーレイ + 曜日フィルタ）。useMemo 7 + useCallback 9 = 16',
     category: 'structural',
     removalCondition: '天気系 hook の分離時',
-    limit: 16,
+    limit: 17,
     lifecycle: 'active-debt',
   },
   {

@@ -156,11 +156,15 @@ export const RESPONSIBILITY_REGISTRY: Readonly<Record<string, ResponsibilityEntr
     verifiedAt: '2026-04-06',
   },
   'presentation/pages/Weather/WeatherTemperatureChart.tsx': {
-    tags: ['R:chart-view', 'R:chart-option', 'R:state-machine'],
+    tags: ['R:chart-view', 'R:state-machine'],
+    verifiedAt: '2026-04-06',
+  },
+  'presentation/pages/Weather/WeatherTemperatureChart.builders.ts': {
+    tags: ['R:chart-option'],
     verifiedAt: '2026-04-06',
   },
   'presentation/pages/Weather/WeatherDetailSection.tsx': {
-    tags: ['R:widget', 'R:state-machine', 'R:transform'],
+    tags: ['R:widget', 'R:state-machine'],
     verifiedAt: '2026-04-06',
   },
   'presentation/pages/Weather/WeatherCalendarView.tsx': {

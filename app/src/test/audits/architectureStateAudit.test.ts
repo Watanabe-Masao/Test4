@@ -306,6 +306,7 @@ describe('Architecture State Audit — 構造状態スナップショット', ()
     const expectedFrozen = [
       'presentationToInfrastructure',
       'infrastructureToApplication',
+      'largeComponentTier2',
       'cmpPrevYearDaily',
       'cmpFramePrevious',
     ]
