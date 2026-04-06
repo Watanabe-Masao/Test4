@@ -76,14 +76,7 @@ export const presentationStateLimits: readonly QuantitativeAllowlistEntry[] = [
   // useMonthlyCalendarState.ts — pinDialog 複合化 + ranges 複合化（10→6 useState）。許可リスト卒業
   // CategoryBenchmarkChart.vm.ts — useState 許可リスト削除済み（drill state 統合 + Logic 分離完了）
   // useDuckDBTimeSlotData.ts — バレル化完了（2026-03-23）: presentation 側の useState は 0 に
-  {
-    path: 'presentation/components/charts/periodFilterHooks.ts',
-    reason: '期間フィルタの操作状態',
-    category: 'structural',
-    removalCondition: 'ロジック分離時',
-    limit: 9,
-    lifecycle: 'permanent',
-  },
+  // periodFilterHooks.ts — useHierarchyDropdown 分離で useState 9→5。許可リスト卒業
   // useDrilldownData.ts — sortState/segInteraction の複合化（9→7 useState）。許可リスト卒業
 ] as const
 
