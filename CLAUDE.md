@@ -546,15 +546,15 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 
 | 指標 | 状態 | 詳細 |
 |---|---|---|
-| 例外圧 | OK | 14/20 / 0/0 / 7/10 |
+| 例外圧 | OK | 15/20 / 0/0 / 8/10 |
 | 後方互換負債 | OK | 0/3 / 2/3 |
 | 複雑性圧 | OK | 0/5 / 10/10 / 27/30 |
 | 境界健全性 | OK | 0/0 / 0/0 |
 | ガード強度 | OK | 38/30 / 0/5 |
-| 性能 | OK | 6488/7000 / 2218/2500 / 919/1000 |
+| 性能 | OK | 6489/7000 / 2218/2500 / 919/1000 |
 
 
-> 生成: 2026-04-06T13:54:41.307Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-06T17:55:11.826Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）

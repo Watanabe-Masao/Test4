@@ -1,12 +1,12 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-06T13:54:41.307Z",
+  "timestamp": "2026-04-06T17:55:11.826Z",
   "kpis": [
     {
       "id": "allowlist.total",
       "label": "許可リスト総エントリ数",
       "category": "allowlist",
-      "value": 14,
+      "value": 15,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -58,7 +58,7 @@
       "id": "allowlist.active.count",
       "label": "Active リスト数",
       "category": "allowlist",
-      "value": 7,
+      "value": 8,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -146,6 +146,7 @@
         }
       ],
       "implRefs": [
+        "app/src/presentation/pages/Weather/WeatherPage.tsx",
         "app/src/presentation/components/charts/useDeptHourlyChartData.ts",
         "app/src/presentation/pages/Dashboard/widgets/HourlyChart.tsx",
         "app/src/presentation/components/charts/TimeSlotChart.tsx",
@@ -154,8 +155,7 @@
         "app/src/presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx",
         "app/src/presentation/components/charts/periodFilterHooks.ts",
         "app/src/presentation/components/charts/PerformanceIndexChart.tsx",
-        "app/src/presentation/pages/Insight/useInsightData.ts",
-        "app/src/application/hooks/useMetricBreakdown.ts"
+        "app/src/presentation/pages/Insight/useInsightData.ts"
       ],
       "budget": 10
     },
@@ -371,7 +371,7 @@
       "id": "perf.bundle.totalJsKb",
       "label": "JS バンドル合計サイズ",
       "category": "bundle_perf",
-      "value": 6488,
+      "value": 6489,
       "unit": "kb",
       "status": "ok",
       "owner": "architecture",
