@@ -119,7 +119,7 @@ describe('G8-R: 責務タグカバレッジ', () => {
     expect(true).toBe(true)
   })
 
-  it('変更されたファイルのタグ日付が更新されている（スルー防止）', () => {
+  it('変更されたファイルの責務が再検証されている（スルー防止）', () => {
     // git diff で変更されたファイルを取得（CI: HEAD~1、ローカル: HEAD）
     let changedFiles: string[] = []
     try {
@@ -138,23 +138,23 @@ describe('G8-R: 責務タグカバレッジ', () => {
     }
 
     const today = new Date().toISOString().slice(0, 10)
-    const staleEntries: string[] = []
+    const unverified: string[] = []
 
     for (const changed of changedFiles) {
       const entry = RESPONSIBILITY_REGISTRY[changed]
       if (!entry) continue // 未分類ファイルは対象外（別テストで管理）
 
-      // タグ付きファイルが変更されたのに updatedAt が今日でない → stale
-      if (entry.updatedAt !== today) {
-        staleEntries.push(`${changed}: updatedAt=${entry.updatedAt} (今日: ${today})`)
+      // タグ付きファイルが変更されたのに verifiedAt が今日でない → 未検証
+      if (entry.verifiedAt !== today) {
+        unverified.push(`${changed}: verifiedAt=${entry.verifiedAt} (今日: ${today})`)
       }
     }
 
     expect(
-      staleEntries,
-      `タグ付きファイルが変更されましたが updatedAt が更新されていません。\n` +
-        `ファイルの責務を確認し、タグの妥当性を確認した上で updatedAt を今日に更新してください:\n` +
-        `${staleEntries.join('\n')}`,
+      unverified,
+      `タグ付きファイルが変更されましたが責務の再検証がされていません。\n` +
+        `ファイルの中身を確認し、R: タグが正しいか検証した上で verifiedAt を今日に更新してください:\n` +
+        `${unverified.join('\n')}`,
     ).toEqual([])
   })
 })
