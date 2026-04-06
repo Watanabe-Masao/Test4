@@ -15,6 +15,7 @@ import * as path from 'path'
 import { SRC_DIR, collectTsFiles, rel } from '../guardTestHelpers'
 import { readResponsibilityTags, validateTags } from '../responsibilityTagRegistry'
 import { TAG_EXPECTATIONS } from '../responsibilityTagExpectations'
+import { CURRENT_EPOCH, readEpoch, getUnknownChanges } from '../architectureEpoch'
 import type { ResponsibilityTag } from '../responsibilityTagRegistry'
 
 /** 対象ディレクトリ */
@@ -151,6 +152,41 @@ describe('G8-R: 責務タグカバレッジ', () => {
     if (mismatches.length > 0) {
       console.log(`\n[タグ不一致] ${mismatches.length} 件 — タグの見直しまたは分離を検討:`)
       for (const m of mismatches) console.log(`  ${m}`)
+    }
+
+    expect(true).toBe(true)
+  })
+
+  it('古い epoch のファイルを検出（アーキテクチャ進化に追従していないコード）', () => {
+    let outdated = 0
+    let current = 0
+
+    for (const file of files) {
+      const tags = readResponsibilityTags(file)
+      if (!tags) continue // 未分類は別管理
+
+      const content = fs.readFileSync(file, 'utf-8')
+      const epoch = readEpoch(content)
+
+      if (epoch < CURRENT_EPOCH) {
+        outdated++
+      } else {
+        current++
+      }
+    }
+
+    const total = outdated + current
+    const currentPct = total > 0 ? ((current / total) * 100).toFixed(1) : '0'
+
+    console.log(
+      `\n[epoch] 現行 ${current}/${total} (${currentPct}%) | 旧世代 ${outdated} | CURRENT_EPOCH=${CURRENT_EPOCH}`,
+    )
+
+    if (outdated > 0) {
+      // 旧世代のファイルが「知らない変更」を報告
+      const unknownChanges = getUnknownChanges(0) // epoch 0 が知らない変更
+      console.log(`  旧世代ファイルが知らない変更:`)
+      for (const c of unknownChanges) console.log(`    - ${c}`)
     }
 
     expect(true).toBe(true)

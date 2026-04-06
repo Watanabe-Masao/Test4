@@ -8,6 +8,7 @@
  * option 構築は WeatherTemperatureChart.builders.ts に分離。
  *
  * @responsibility R:chart-view, R:state-machine
+ * @epoch 1
  */
 import { memo, useMemo, useCallback, useState, useRef } from 'react'
 import { EChart, type EChartsOption } from '@/presentation/components/charts/EChart'
