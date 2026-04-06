@@ -137,10 +137,21 @@ describe('G8-R: 責務タグカバレッジ', () => {
       return
     }
 
-    const today = new Date().toISOString().slice(0, 10)
     const unverified: string[] = []
 
     const targetSet = new Set(files.map((f) => rel(f)))
+
+    // レジストリファイル自体の diff を取得（どのエントリが更新されたか判定用）
+    let registryDiff = ''
+    try {
+      const diffTarget = process.env.CI ? 'HEAD~1' : 'HEAD'
+      registryDiff = execSync(
+        `git diff ${diffTarget} -- app/src/test/responsibilityTagRegistry.ts`,
+        { cwd: path.resolve(SRC_DIR, '..'), encoding: 'utf-8' },
+      )
+    } catch {
+      // 差分取得失敗時はスキップ
+    }
 
     for (const changed of changedFiles) {
       // 対象ディレクトリ外のファイルはスキップ
@@ -150,11 +161,15 @@ describe('G8-R: 責務タグカバレッジ', () => {
       if (!entry) {
         // 未分類ファイルが変更された → タグ登録を要求
         unverified.push(`${changed}: 未分類 → R: タグを登録してください`)
-      } else if (entry.verifiedAt !== today) {
-        // タグ付きファイルが変更されたのに verifiedAt が今日でない → 再検証を要求
-        unverified.push(
-          `${changed}: verifiedAt=${entry.verifiedAt} → 責務を再検証して今日に更新してください`,
-        )
+      } else {
+        // タグ付きファイルが変更された → レジストリの該当エントリも更新されているか
+        // ファイルパスがレジストリの diff に含まれていれば、エントリが更新された証跡
+        const pathInRegistry = changed.replace(/'/g, "\\'")
+        if (!registryDiff.includes(pathInRegistry)) {
+          unverified.push(
+            `${changed}: ファイルが変更されましたが責務タグの再検証がありません → verifiedAt を更新してください`,
+          )
+        }
       }
     }
 
