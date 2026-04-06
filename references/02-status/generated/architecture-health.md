@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-06T13:54:41.307Z
+> Generated: 2026-04-06T17:55:11.826Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -18,9 +18,9 @@
 
 | ID | 指標 | 値 | 状態 |
 |---|---|---|---|
-| allowlist.total | 許可リスト総エントリ数 | 14 / 20 | OK |
+| allowlist.total | 許可リスト総エントリ数 | 15 / 20 | OK |
 | allowlist.frozen.nonZero | Frozen リスト非ゼロ | 0 / 0 | OK |
-| allowlist.active.count | Active リスト数 | 7 / 10 | OK |
+| allowlist.active.count | Active リスト数 | 8 / 10 | OK |
 
 ## 後方互換負債
 
@@ -63,7 +63,7 @@
 
 | ID | 指標 | 値 | 状態 |
 |---|---|---|---|
-| perf.bundle.totalJsKb | JS バンドル合計サイズ | 6488 / 7000 | OK |
+| perf.bundle.totalJsKb | JS バンドル合計サイズ | 6489 / 7000 | OK |
 | perf.bundle.mainJsKb | メインバンドルサイズ | 2218 / 2500 | OK |
 | perf.bundle.vendorEchartsKb | ECharts バンドルサイズ | 919 / 1000 | OK |
 | perf.bundle.cssKb | CSS 合計サイズ | 0 | OK |
