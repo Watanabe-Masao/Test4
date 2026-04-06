@@ -27,6 +27,7 @@ const EXPECTED_VIEW_TYPES: readonly ViewType[] = [
   'cost-detail',
   'purchase-analysis',
   'reports',
+  'weather',
   'admin',
 ]
 

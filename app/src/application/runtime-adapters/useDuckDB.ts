@@ -160,9 +160,14 @@ export function useDuckDB(
                 await loadMonth(state.conn, state.db, historicalData, y, m)
                 if (isStale()) return
                 // 前年月なら is_prev_year=true でも追加ロード
+                // ただし prevYear prop で既にロード済みの月は二重投入しない
                 if (y === year - 1) {
-                  await loadMonth(state.conn, state.db, historicalData, y, m, true)
-                  if (isStale()) return
+                  const alreadyLoadedAsPrev =
+                    prevYear && y === prevYear.origin.year && m === prevYear.origin.month
+                  if (!alreadyLoadedAsPrev) {
+                    await loadMonth(state.conn, state.db, historicalData, y, m, true)
+                    if (isStale()) return
+                  }
                 }
                 loadedMonthsRef.current.set(monthKey(y, m), computeMonthFingerprint(historicalData))
               }
@@ -233,10 +238,14 @@ export function useDuckDB(
                 await loadMonth(state.conn, state.db, historicalData, y, m)
                 if (isStale()) return
                 // 前年月に該当する歴史月は is_prev_year=true でも追加ロード
-                // （DuckDB の比較クエリが is_prev_year=true で検索するため）
+                // ただし prevYear prop で既にロード済みの月は二重投入しない
                 if (y === year - 1) {
-                  await loadMonth(state.conn, state.db, historicalData, y, m, true)
-                  if (isStale()) return
+                  const alreadyLoadedAsPrev =
+                    prevYear && y === prevYear.origin.year && m === prevYear.origin.month
+                  if (!alreadyLoadedAsPrev) {
+                    await loadMonth(state.conn, state.db, historicalData, y, m, true)
+                    if (isStale()) return
+                  }
                 }
                 loadedMonthsRef.current.set(key, computeMonthFingerprint(historicalData))
                 anyChanged = true

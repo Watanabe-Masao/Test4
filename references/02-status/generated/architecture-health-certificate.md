@@ -4,21 +4,21 @@
 
 | 項目 | 値 |
 |---|---|
-| **総合評価** | **RISK** |
-| 前回比 | Flat |
-| リリース影響 | Yes |
-| 最終更新 | 2026-04-05T21:50:54.848Z |
+| **総合評価** | **Healthy** |
+| 前回比 | Improved |
+| リリース影響 | No |
+| 最終更新 | 2026-04-06T04:32:57.413Z |
 
 ## Hard Gate
 
-**FAIL**
+**PASS** — 全ゲート通過
 
 - PASS: Frozen リスト非ゼロ
 - PASS: 廃止用語残存数
 - PASS: Generated section 未更新
 - PASS: Presentation→Infrastructure 違反
 - PASS: Infrastructure→Application 違反
-- FAIL: Doc 更新義務違反数
+- PASS: Doc 更新義務違反数
 
 ## Health Metrics
 
@@ -29,18 +29,13 @@
 | **複雑性圧** | OK | 上限間近ファイル数: 0/5 / 複雑性ホットスポット数: 10/10 / ViewModel ファイル数: 27/30 |
 | **境界健全性** | OK | Presentation→Infrastructure 違反: 0/0 / Infrastructure→Application 違反: 0/0 |
 | **ガード強度** | OK | ガードテストファイル数: 36/30 / レビュー専用タグ数: 0/5 |
-| **性能** | OK | JS バンドル合計サイズ: 6443/7000 / メインバンドルサイズ: 2214/2500 / ECharts バンドルサイズ: 919/1000 |
+| **性能** | OK | JS バンドル合計サイズ: 6470/7000 / メインバンドルサイズ: 2218/2500 / ECharts バンドルサイズ: 919/1000 |
 
-## Top Risks
+## Recent Changes
 
-**1. Doc 更新義務違反数**
-- 状態: 1 / budget 0（100% 超過）
-- ファイル: `—`
-- 定義書: `tools/architecture-health/src/collectors/obligation-collector.ts`
-
-## Recommended Actions
-
-1. Doc 更新義務違反数 を budget 0 以下に修正する
+| 指標 | 前回 | 今回 | 変化 |
+|---|---|---|---|
+| Doc 更新義務違反数 | 2 | 0 | -2 + |
 
 ---
 

@@ -43,6 +43,9 @@ const PurchaseAnalysisPage = lazyWithRetry(() =>
 const ReportsPage = lazyWithRetry(() =>
   import('@/presentation/pages/Reports/ReportsPage').then((m) => ({ default: m.ReportsPage })),
 )
+const WeatherPage = lazyWithRetry(() =>
+  import('@/presentation/pages/Weather/WeatherPage').then((m) => ({ default: m.WeatherPage })),
+)
 const AdminPage = lazyWithRetry(() =>
   import('@/presentation/pages/Admin/AdminPage').then((m) => ({ default: m.AdminPage })),
 )
@@ -71,6 +74,7 @@ export const PAGE_COMPONENT_MAP: Record<PageId, ComponentType> = {
   'cost-detail': CostDetailPage,
   'purchase-analysis': PurchaseAnalysisPage,
   reports: ReportsPage,
+  weather: WeatherPage,
   admin: AdminPage,
   custom: CustomPage,
 }
