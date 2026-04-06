@@ -373,15 +373,57 @@ Safety Tier 分類は `references/01-principles/critical-path-safety-map.md` を
 |---------|------|
 | **A. 層境界** | 4層依存ルール（A1）、Domain 純粋（A2）、Presentation 描画専用（A3）、契約は Domain 定義（A4）、DI は App.tsx のみ（A5）、load 3段階分離（A6） |
 | **B. 実行エンジン境界** | Authoritative 計算は domain/calculations のみ（B1）、JS/SQL 二重実装禁止（B2）、率は domain で算出（B3） |
-| **C. 純粋性と責務分離** | 1ファイル=1変更理由（C1）、pure 1仕様軸（C2）、store は state のみ（C3）、描画純粋（C4）、最小セレクタ（C5）、facade は orchestration のみ（C6）、同義API併存禁止（C7） |
+| **C. 純粋性と責務分離** | 1ファイル=1変更理由（C1）、pure 1仕様軸（C2）、store は state のみ（C3）、描画純粋（C4）、最小セレクタ（C5）、facade は orchestration のみ（C6）、同義API併存禁止（C7）、**1文説明テスト（C8）**、**現実把握優先（C9）** |
 | **D. 数学的不変条件** | 要因分解合計=売上差（D1）、引数無視再計算禁止（D2）、不変条件はテストで守る（D3） |
 | **E. 型安全と欠損処理** | 境界で検証（E1）、依存配列省略禁止（E2）、sourceDate 保持（E3）、欠損は `== null`（E4） |
 | **F. コード構造規約** | バレル後方互換（F1）、文字列カタログ（F2）、全パターン同一（F3）、パス配置（F4）、Contract 管理（F5）、文脈継承（F6）、View に raw 禁止（F7）、正本保護（F8）、Raw=唯一真実源（F9） |
-| **G. 機械的防御** | テストに書く（G1）、エラー伝播（G2）、警告黙殺禁止（G3）、テスト用export禁止（G4）、サイズ上限（G5/G6）、キャッシュ≤本体（G7） |
+| **G. 機械的防御** | テストに書く（G1）、エラー伝播（G2）、警告黙殺禁止（G3）、テスト用export禁止（G4）、サイズ上限（G5/G6）、キャッシュ≤本体（G7）、**責務分離ガード（G8）** |
 | **H. Screen Runtime** | Screen Plan 経由のみ（H1）、比較は pair/bundle 契約（H2）、query input 正規化必須（H3）、component に acquisition logic 禁止（H4）、visible-only は plan 宣言（H5）、ChartCard は通知のみ（H6） |
 | **Q. Query Access Architecture** | Chart は DuckDB hook 直接 import 禁止（Q3）、alignment-aware access は handler/resolver に閉じる（Q4） |
 
 **制約の変更:** 「邪魔だから」は理由にならない。「別の仕組みで防がれるようになった」は理由になる。
+
+### C8: 1 文説明テスト — 責務の判定基準
+
+> **このインスタンスの責務を「〜を担う」の 1 文で説明できるか？**
+
+- 説明に **AND** が入ったら分離候補
+- 行数ではなく **変更理由の数** で判定する（600 行でも変更理由 1 つなら OK、10 行でも 2 つなら分離候補）
+- 分割すればいいという問題ではない。適切なインスタンスで構成され、責務が広がりすぎていないかが重要
+- 「この意味を説明できる粒度」が正しい粒度
+
+詳細・24 パターンカタログ: `references/03-guides/responsibility-separation-catalog.md`
+
+### C9: 現実把握優先 — 嘘の分類より正直な未分類
+
+> **1 番大事なのは現実を正しく把握すること。**
+
+- 自動推定で全ファイルにタグを振ると「嘘の単一責務」が生まれる
+- 正確に分類できないものは未分類のまま残す
+- 未分類の数を正確に把握し、増えないことを CI で保証する
+- 段階的に正確な分類を増やし、未分類を減らす
+- 形式的チェック（ファイルが触られたか）より実効性のある機械的検出を優先する
+
+### G8: 責務分離ガード — 機械的に検出して強制する
+
+> **「気をつける」で終わらせない。「通らない」にする。**
+
+7 種の機械検出（`responsibilitySeparationGuard.test.ts`）:
+
+| ガード | 検出対象 | 上限 |
+|---|---|---|
+| P2 | presentation/ の getState() | 0（allowlist 管理） |
+| P7 | module-scope let | 0（allowlist 管理） |
+| P8 | useMemo + useCallback 合計 | ≤12 |
+| P10 | features/ の useMemo / useState | ≤7 / ≤6 |
+| P12 | domain/models/ の export 数 | ≤8 |
+| P17 | storeIds 正規化の散在ファイル数 | ≤27（集約） |
+| P18 | fallback 定数密度 | ≤7/file |
+
+R: 責務タグレジストリ（`responsibilityTagGuard.test.ts`）:
+- 未分類 SNAPSHOT = 617。増えたら CI 失敗
+- 分類時は複数タグ可（AND の可視化）
+- 既存は徐々にタグ付け。新規は登録必須
 
 ## アーキテクチャ進化計画（要約）
 
@@ -500,7 +542,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 詳細レポート: `references/02-status/generated/architecture-health.md`
 
 <!-- GENERATED:START architecture-health-summary -->
-**Healthy** | 前回比: Flat | Hard Gate: PASS
+**Healthy** | 前回比: Improved | Hard Gate: PASS
 
 | 指標 | 状態 | 詳細 |
 |---|---|---|
@@ -512,7 +554,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 | 性能 | OK | 6488/7000 / 2218/2500 / 919/1000 |
 
 
-> 生成: 2026-04-06T13:43:15.411Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-06T13:54:41.307Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）
