@@ -116,13 +116,8 @@ export const OBLIGATION_MAP: readonly ObligationRule[] = [
     label: 'DuckDB スキーマ変更時は型境界契約の確認が必要',
     check: { type: 'file_modified', file: 'references/03-guides/duckdb-type-boundary-contract.md' },
   },
-  // --- 新規 hook/コンポーネント追加 → 責務分離カタログ確認 ---
-  {
-    pathPattern: 'app/src/application/hooks/',
-    obligationId: 'obligation.hooks.responsibility',
-    label: 'Hook 追加/変更時は責務分離カタログを確認（AND テスト）',
-    check: { type: 'file_modified', file: 'references/03-guides/responsibility-separation-catalog.md' },
-  },
+  // Hook の責務分離は obligation ではなくガードテストで強制する
+  // → responsibilitySeparationGuard.test.ts (G8: useMemo+useCallback 合計上限)
   // --- health rules 変更 → health.json 再生成必須 ---
   {
     pathPattern: 'tools/architecture-health/src/config/',

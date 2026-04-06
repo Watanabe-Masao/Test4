@@ -211,6 +211,13 @@ export const GUARD_TAG_REGISTRY: Record<string, GuardTagDef> = {
     name: 'キャッシュは本体より複雑にしない',
     examples: ['キャッシュ処理が本体より複雑になると保守コストが逆転する'],
   },
+  G8: {
+    name: '責務分離（AND テスト）',
+    examples: [
+      'useMemo+useCallback 合計 ≤12 を超えると責務が AND で繋がっている兆候（P8）',
+      'features/ にも useMemo ≤7、useState ≤6 を適用して全層カバレッジを確保（P10）',
+    ],
+  },
 
   // ═══ Q: Query Access Architecture ═══
   Q3: {

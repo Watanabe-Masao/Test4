@@ -44,6 +44,9 @@ export {
   hookLineLimits,
   presentationMemoLimits,
   presentationStateLimits,
+  combinedHookComplexityLimits,
+  featuresMemoLimits,
+  featuresStateLimits,
 } from './complexity'
 
 // Size

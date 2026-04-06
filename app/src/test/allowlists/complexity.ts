@@ -79,6 +79,98 @@ export const presentationStateLimits: readonly QuantitativeAllowlistEntry[] = [
   // useDrilldownData.ts — sortState/segInteraction の複合化（9→7 useState）。許可リスト卒業
 ] as const
 
+/** useMemo+useCallback 合計上限の個別例外（責務分離 P8 ガード） */
+export const combinedHookComplexityLimits: readonly QuantitativeAllowlistEntry[] = [
+  {
+    path: 'presentation/pages/Weather/WeatherPage.tsx',
+    reason: '天気ページの複合 UI（相関・予報・オーバーレイ）。useMemo 5 + useCallback 8 = 13',
+    category: 'structural',
+    removalCondition: '天気系 hook の分離時',
+    limit: 14,
+    lifecycle: 'active-debt',
+  },
+  {
+    path: 'presentation/pages/Dashboard/widgets/useMonthlyCalendarState.ts',
+    reason: 'カレンダー操作の状態機械。useMemo 3 + useCallback 10 = 13',
+    category: 'structural',
+    removalCondition: 'useReducer 統合時',
+    limit: 14,
+    lifecycle: 'active-debt',
+  },
+  {
+    path: 'features/cost-detail/application/useCostDetailData.ts',
+    reason: 'コスト明細の複数集計パス。useMemo 12 + useCallback 0 = 12',
+    category: 'structural',
+    removalCondition: '集計ロジックの pure 関数分離時',
+    limit: 13,
+    lifecycle: 'active-debt',
+  },
+] as const
+
+/** features/ の useMemo 上限の個別例外（責務分離カバレッジ拡大） */
+export const featuresMemoLimits: readonly QuantitativeAllowlistEntry[] = [
+  {
+    path: 'features/cost-detail/application/useCostDetailData.ts',
+    reason: 'コスト明細の複数集計パス。useMemo 12 個',
+    category: 'structural',
+    removalCondition: '集計ロジックの pure 関数分離時',
+    limit: 13,
+    lifecycle: 'active-debt',
+  },
+  {
+    path: 'features/comparison/application/hooks/useComparisonModule.ts',
+    reason: '比較モジュール集約。useMemo 6 個',
+    category: 'structural',
+    removalCondition: '比較モジュールのリファクタリング時',
+    limit: 7,
+    lifecycle: 'permanent',
+  },
+] as const
+
+/** features/ の useState 上限の個別例外（責務分離カバレッジ拡大） */
+export const featuresStateLimits: readonly QuantitativeAllowlistEntry[] = [
+  {
+    path: 'features/storage-admin/application/useMonthDataManagement.ts',
+    reason: '月次データ管理の状態（dialog + import + validation）。useState 8 個',
+    category: 'structural',
+    removalCondition: 'useReducer 統合時',
+    limit: 9,
+    lifecycle: 'active-debt',
+  },
+  {
+    path: 'features/storage-admin/ui/StorageDataViewers.tsx',
+    reason: 'ストレージ閲覧の UI 状態（expand + filter + sort）。useState 7 個',
+    category: 'structural',
+    removalCondition: 'useReducer 統合時',
+    limit: 8,
+    lifecycle: 'active-debt',
+  },
+  {
+    path: 'features/category/ui/charts/CategoryBenchmarkChart.vm.ts',
+    reason: 'ベンチマークチャートの操作状態（drill + level + topN）。useState 6 個',
+    category: 'structural',
+    removalCondition: 'useReducer 統合時',
+    limit: 7,
+    lifecycle: 'active-debt',
+  },
+  {
+    path: 'features/category/ui/charts/CategoryBoxPlotChart.vm.ts',
+    reason: '箱ひげ図の操作状態（drill + filter + sort + mode）。useState 7 個',
+    category: 'structural',
+    removalCondition: 'useReducer 統合時',
+    limit: 8,
+    lifecycle: 'active-debt',
+  },
+  {
+    path: 'features/cost-detail/application/useCostDetailData.ts',
+    reason: 'コスト明細の複合状態。useState 6 個',
+    category: 'structural',
+    removalCondition: 'useReducer 統合時',
+    limit: 7,
+    lifecycle: 'active-debt',
+  },
+] as const
+
 /** hook ファイル行数上限の個別例外 */
 export const hookLineLimits: readonly QuantitativeAllowlistEntry[] = [
   // categoryBenchmarkLogic.ts: categoryBenchmarkByDate.ts に日別算出を分離。450→274行
