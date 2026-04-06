@@ -29,13 +29,13 @@ export function renderDetailRow(
   year: number,
   month: number,
   onDayClick: (dateKey: string) => void,
-  selectedDay: number | null,
+  selectedDays: ReadonlySet<number>,
 ) {
   const dayNum = Number(d.dateKey.split('-')[2])
   const dow = new Date(year, month - 1, dayNum).getDay()
   const cat = categorizeWeatherCode(d.dominantWeatherCode)
   const prevCat = prev ? categorizeWeatherCode(prev.dominantWeatherCode) : null
-  const isSelected = selectedDay === dayNum
+  const isSelected = selectedDays.has(dayNum)
   const sub = { fontSize: '0.6rem', color: '#9ca3af', display: 'block' } as const
   return (
     <tr

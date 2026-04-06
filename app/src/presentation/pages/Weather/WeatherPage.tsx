@@ -20,7 +20,7 @@ import { ForecastBadge } from '@/presentation/components/common/ForecastBadge'
 import { HourlyWeatherModal } from '@/presentation/pages/Dashboard/widgets/HourlyWeatherModal'
 import { WeatherTemperatureChart } from './WeatherTemperatureChart'
 import { InlineLocationSetup } from './InlineLocationSetup'
-import { renderDetailRow } from './WeatherDetailRow'
+import { WeatherDetailSection } from './WeatherDetailSection'
 import { computeMonthSummary, computeDaySummary, type WeatherSummaryResult } from './weatherSummary'
 import {
   Page,
@@ -39,8 +39,6 @@ import {
   SummaryValue,
   SummaryUnit,
   SummaryCaption,
-  TableWrapper,
-  DetailTable,
   SetupBox,
   Spinner,
   LoadingBox,
@@ -241,13 +239,15 @@ export const WeatherPage = memo(function WeatherPage() {
   const { hourlyCache, prevHourlyCache, fetchHourly, fetchPrevHourly, resolvePrevDate } =
     useWeatherHourlyOnDemand(selectedStoreId, 'sameDate')
 
-  const [selectedDay, setSelectedDay] = useState<number | null>(null)
-  const [modalDate, setModalDate] = useState<string | null>(null)
-  const [modalForecast, setModalForecast] = useState<DailyForecast | null>(null)
+  const [selectedDays, setSelectedDays] = useState<ReadonlySet<number>>(new Set())
+  const [uiState, setUiState] = useState<{
+    modalDate: string | null
+    modalForecast: DailyForecast | null
+  }>({ modalDate: null, modalForecast: null })
 
   // 月ナビ
   const goPrev = useCallback(() => {
-    setSelectedDay(null)
+    setSelectedDays(new Set())
     setMonth((m) => {
       if (m === 1) {
         setYear((y) => y - 1)
@@ -257,7 +257,7 @@ export const WeatherPage = memo(function WeatherPage() {
     })
   }, [setYear])
   const goNext = useCallback(() => {
-    setSelectedDay(null)
+    setSelectedDays(new Set())
     setMonth((m) => {
       if (m === 12) {
         setYear((y) => y + 1)
@@ -267,17 +267,29 @@ export const WeatherPage = memo(function WeatherPage() {
     })
   }, [setYear])
 
-  // シングルクリック → サマリー切替のみ
+  // シングルクリック → トグル選択
   const handleChartDayClick = useCallback((dateKey: string) => {
     const dayNum = Number(dateKey.split('-')[2])
-    setSelectedDay((prev) => (prev === dayNum ? null : dayNum))
+    setSelectedDays((prev) => {
+      const next = new Set(prev)
+      if (next.has(dayNum)) next.delete(dayNum)
+      else next.add(dayNum)
+      return next
+    })
+  }, [])
+
+  // ドラッグ範囲選択
+  const handleDayRangeSelect = useCallback((startDay: number, endDay: number) => {
+    const next = new Set<number>()
+    for (let d = startDay; d <= endDay; d++) next.add(d)
+    setSelectedDays(next)
   }, [])
 
   // ダブルクリック → 時間帯モーダル起動
   const handleChartDayDblClick = useCallback(
     (dateKey: string) => {
-      setModalDate(dateKey)
-      setModalForecast(null)
+      setUiState((s) => ({ ...s, modalDate: dateKey, modalForecast: null }))
+
       fetchHourly(dateKey, year, month)
       fetchPrevHourly(dateKey)
     },
@@ -286,8 +298,8 @@ export const WeatherPage = memo(function WeatherPage() {
 
   const handleForecastClick = useCallback(
     (f: DailyForecast) => {
-      setModalDate(f.dateKey)
-      setModalForecast(f)
+      setUiState((s) => ({ ...s, modalDate: f.dateKey, modalForecast: f }))
+
       fetchPrevHourly(f.dateKey)
     },
     [fetchPrevHourly],
@@ -307,16 +319,26 @@ export const WeatherPage = memo(function WeatherPage() {
   const prevMonthSummary = useMemo(() => computeMonthSummary(prevYearDaily), [prevYearDaily])
 
   const selectedDaySummary = useMemo<WeatherSummaryResult | null>(() => {
-    if (selectedDay == null) return null
-    const d = daily.find((r) => Number(r.dateKey.split('-')[2]) === selectedDay)
-    return d ? computeDaySummary(d) : null
-  }, [daily, selectedDay])
+    if (selectedDays.size === 0) return null
+    if (selectedDays.size === 1) {
+      const day = [...selectedDays][0]
+      const d = daily.find((r) => Number(r.dateKey.split('-')[2]) === day)
+      return d ? computeDaySummary(d) : null
+    }
+    const filtered = daily.filter((r) => selectedDays.has(Number(r.dateKey.split('-')[2])))
+    return computeMonthSummary(filtered)
+  }, [daily, selectedDays])
 
   const prevDaySummary = useMemo<WeatherSummaryResult | null>(() => {
-    if (selectedDay == null) return null
-    const d = prevYearDaily.find((r) => Number(r.dateKey.split('-')[2]) === selectedDay)
-    return d ? computeDaySummary(d) : null
-  }, [prevYearDaily, selectedDay])
+    if (selectedDays.size === 0) return null
+    if (selectedDays.size === 1) {
+      const day = [...selectedDays][0]
+      const d = prevYearDaily.find((r) => Number(r.dateKey.split('-')[2]) === day)
+      return d ? computeDaySummary(d) : null
+    }
+    const filtered = prevYearDaily.filter((r) => selectedDays.has(Number(r.dateKey.split('-')[2])))
+    return computeMonthSummary(filtered)
+  }, [prevYearDaily, selectedDays])
 
   // 予報分離
   const observedKeys = useMemo(() => new Set(daily.map((d) => d.dateKey)), [daily])
@@ -326,13 +348,13 @@ export const WeatherPage = memo(function WeatherPage() {
   )
 
   // モーダル
-  const modalHourly = modalDate ? hourlyCache[modalDate] : undefined
-  const modalPrevHourly = modalDate ? prevHourlyCache[modalDate] : undefined
-  const modalPrevDate = modalDate ? resolvePrevDate(modalDate) : null
+  const modalHourly = uiState.modalDate ? hourlyCache[uiState.modalDate] : undefined
+  const modalPrevHourly = uiState.modalDate ? prevHourlyCache[uiState.modalDate] : undefined
+  const modalPrevDate = uiState.modalDate ? resolvePrevDate(uiState.modalDate) : null
   const showModal =
-    modalDate &&
+    uiState.modalDate &&
     ((modalHourly?.status === 'done' && modalHourly.records.length > 0) ||
-      (modalForecast &&
+      (uiState.modalForecast &&
         (modalPrevHourly?.status === 'done' || modalPrevHourly?.status === 'loading')))
 
   return (
@@ -443,9 +465,16 @@ export const WeatherPage = memo(function WeatherPage() {
                         <SummarySection
                           summary={selectedDaySummary}
                           prevSummary={prevDaySummary}
-                          label={`${month}月${selectedDay}日`}
+                          label={
+                            selectedDays.size === 1
+                              ? `${month}月${[...selectedDays][0]}日`
+                              : `選択: ${selectedDays.size}日間`
+                          }
                         />
-                        <NavBtn onClick={() => setSelectedDay(null)} style={{ fontSize: '0.7rem' }}>
+                        <NavBtn
+                          onClick={() => setSelectedDays(new Set())}
+                          style={{ fontSize: '0.7rem' }}
+                        >
                           ✕ 選択解除
                         </NavBtn>
                       </motion.div>
@@ -463,9 +492,10 @@ export const WeatherPage = memo(function WeatherPage() {
                 prevYearDaily={prevYearDaily.length > 0 ? prevYearDaily : undefined}
                 year={year}
                 month={month}
-                selectedDay={selectedDay}
+                selectedDays={selectedDays}
                 onDayClick={handleChartDayClick}
                 onDayDblClick={handleChartDayDblClick}
+                onDayRangeSelect={handleDayRangeSelect}
               />
             </div>
 
@@ -480,7 +510,7 @@ export const WeatherPage = memo(function WeatherPage() {
                       <ForecastCell
                         key={f.dateKey}
                         variants={staggerItem}
-                        $active={modalDate === f.dateKey}
+                        $active={uiState.modalDate === f.dateKey}
                         onClick={() => handleForecastClick(f)}
                       >
                         <DayLabelText>{dayNum}日</DayLabelText>
@@ -492,57 +522,28 @@ export const WeatherPage = memo(function WeatherPage() {
               </>
             )}
 
-            {/* 日別詳細テーブル（前年比較付き） */}
-            <SectionLabel>📋 日別詳細データ（前年比較）</SectionLabel>
-            <TableWrapper>
-              <DetailTable>
-                <thead>
-                  <tr>
-                    <th>日付</th>
-                    <th>天気</th>
-                    <th>平均</th>
-                    <th>最高</th>
-                    <th>最低</th>
-                    <th>降水量</th>
-                    <th>湿度</th>
-                    <th>日照</th>
-                    <th style={{ textAlign: 'left' }}>概況</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {daily.map((d) => {
-                    const dayNum = Number(d.dateKey.split('-')[2])
-                    const prev = prevYearDaily.find(
-                      (p) => Number(p.dateKey.split('-')[2]) === dayNum,
-                    )
-                    return renderDetailRow(
-                      d,
-                      prev ?? null,
-                      year,
-                      month,
-                      handleChartDayClick,
-                      selectedDay,
-                    )
-                  })}
-                </tbody>
-              </DetailTable>
-            </TableWrapper>
+            {/* 日別詳細 — テーブル / カレンダー切替 + 曜日フィルタ */}
+            <WeatherDetailSection
+              daily={daily}
+              prevYearDaily={prevYearDaily}
+              year={year}
+              month={month}
+              selectedDays={selectedDays}
+              onDayClick={handleChartDayClick}
+            />
           </motion.div>
         )}
       </AnimatePresence>
 
-      {modalDate && showModal && (
+      {uiState.modalDate && showModal && (
         <HourlyWeatherModal
-          dateKey={modalDate}
+          dateKey={uiState.modalDate}
           records={modalHourly?.status === 'done' ? modalHourly.records : undefined}
           prevYearRecords={modalPrevHourly?.status === 'done' ? modalPrevHourly.records : undefined}
           prevYearDateKey={modalPrevDate?.dateKey}
           comparisonPolicy="sameDate"
-          forecast={modalForecast ?? undefined}
-          onClose={() => {
-            setModalDate(null)
-            setModalForecast(null)
-          }}
+          forecast={uiState.modalForecast ?? undefined}
+          onClose={() => setUiState((s) => ({ ...s, modalDate: null, modalForecast: null }))}
         />
       )}
     </Page>

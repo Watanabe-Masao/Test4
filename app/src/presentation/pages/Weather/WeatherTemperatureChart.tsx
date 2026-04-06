@@ -6,8 +6,7 @@
  * 天気ページ専用。売上データへの依存なし。
  */
 import { memo, useMemo, useCallback, useState } from 'react'
-import type { EChartsOption } from 'echarts'
-import { EChart } from '@/presentation/components/charts/EChart'
+import { EChart, type EChartsOption } from '@/presentation/components/charts/EChart'
 import { useChartTheme } from '@/presentation/components/charts/chartTheme'
 import type { DailyWeatherSummary } from '@/domain/models/record'
 import { categorizeWeatherCode } from '@/domain/weather/weatherAggregation'
@@ -29,9 +28,10 @@ interface Props {
   readonly prevYearDaily?: readonly DailyWeatherSummary[]
   readonly year: number
   readonly month: number
-  readonly selectedDay?: number | null
+  readonly selectedDays?: ReadonlySet<number>
   readonly onDayClick?: (dateKey: string) => void
   readonly onDayDblClick?: (dateKey: string) => void
+  readonly onDayRangeSelect?: (startDay: number, endDay: number) => void
 }
 
 const METRIC_OPTIONS: readonly { key: ChartRightMetric; label: string }[] = [
@@ -45,9 +45,10 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
   prevYearDaily,
   year,
   month,
-  selectedDay,
+  selectedDays,
   onDayClick,
   onDayDblClick,
+  onDayRangeSelect,
 }: Props) {
   const [rightMetric, setRightMetric] = useState<ChartRightMetric>('precipitation')
   const ct = useChartTheme()
@@ -63,7 +64,7 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
     return map
   }, [prevYearDaily])
 
-  const option = useMemo<EChartsOption>(() => {
+  const option = useMemo(() => {
     if (daily.length === 0) return {}
 
     const days: string[] = []
@@ -141,23 +142,9 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
     }
     const rightAxisMax = rightMetric === 'humidity' ? 100 * 4 : rightCeil * 4
 
-    // Selected day markLine
-    const selectedDayIndex = selectedDay != null ? dayNumbers.indexOf(selectedDay) : -1
-
-    const markLineData =
-      selectedDayIndex >= 0
-        ? [
-            {
-              xAxis: selectedDayIndex,
-              lineStyle: {
-                color: ct.colors.primary,
-                width: 2,
-                type: 'solid' as const,
-              },
-              label: { show: false },
-            },
-          ]
-        : []
+    // Selected days highlight
+    const selectedSet = selectedDays ?? new Set<number>()
+    const isSelected = (idx: number) => selectedSet.has(dayNumbers[idx])
 
     // Build legend data
     const legendData = ['最高気温', '平均気温', '最低気温', rightLabel]
@@ -301,14 +288,14 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
           symbol: 'circle',
           symbolSize: 4,
           smooth: true,
-          markLine:
-            markLineData.length > 0
-              ? {
+          ...(selectedSet.size > 0
+            ? {
+                markArea: {
                   silent: true,
-                  symbol: 'none',
-                  data: markLineData,
-                }
-              : undefined,
+                  data: buildMarkAreaRanges(dayNumbers, selectedSet),
+                },
+              }
+            : {}),
         },
         // Current year average temperature
         {
@@ -339,8 +326,7 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
           yAxisIndex: 1,
           data: rightData.map((v, i) => ({
             value: v,
-            itemStyle:
-              selectedDayIndex === i ? { color: '#2563eb', borderRadius: [2, 2, 0, 0] } : undefined,
+            itemStyle: isSelected(i) ? { color: '#2563eb', borderRadius: [2, 2, 0, 0] } : undefined,
           })),
           itemStyle: {
             color: {
@@ -429,7 +415,7 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
           : []),
       ],
     }
-  }, [daily, year, month, ct, prevYearMap, selectedDay, rightMetric])
+  }, [daily, year, month, ct, prevYearMap, selectedDays, rightMetric])
 
   const extractDateKey = useCallback(
     (params: Record<string, unknown>) => {
@@ -458,6 +444,40 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
     [onDayDblClick, extractDateKey],
   )
 
+  const handleBrushEnd = useMemo(() => {
+    if (!onDayRangeSelect) return undefined
+    return (params: Record<string, unknown>) => {
+      const areas = (params as { areas?: { coordRange?: number[] }[] }).areas
+      if (!areas || areas.length === 0) return
+      const range = areas[0].coordRange
+      if (!range || range.length < 2) return
+      const startIdx = Math.max(0, Math.min(range[0], range[1]))
+      const endIdx = Math.min(daily.length - 1, Math.max(range[0], range[1]))
+      const startDay = Number(daily[startIdx]?.dateKey?.split('-')[2])
+      const endDay = Number(daily[endIdx]?.dateKey?.split('-')[2])
+      if (startDay > 0 && endDay > 0) onDayRangeSelect(startDay, endDay)
+    }
+  }, [onDayRangeSelect, daily])
+
+  // ブラシ設定追加
+  const brushOption = useMemo(() => {
+    if (!onDayRangeSelect) return option
+    return {
+      ...option,
+      brush: {
+        toolbox: [],
+        xAxisIndex: 0,
+        brushStyle: {
+          borderWidth: 1,
+          color: 'rgba(59,130,246,0.12)',
+          borderColor: 'rgba(59,130,246,0.4)',
+        },
+        throttleType: 'debounce' as const,
+        throttleDelay: 100,
+      },
+    }
+  }, [option, onDayRangeSelect])
+
   if (daily.length === 0) return null
 
   return (
@@ -483,12 +503,34 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
         ))}
       </div>
       <EChart
-        option={option}
+        option={brushOption as EChartsOption}
         height={440}
         onClick={handleClick}
         onDblClick={handleDblClick}
+        onBrushEnd={handleBrushEnd}
         ariaLabel="月間気温推移チャート"
       />
     </div>
   )
 })
+
+/** 選択日セットから連続範囲の markArea データを生成 */
+function buildMarkAreaRanges(dayNumbers: number[], selected: ReadonlySet<number>): unknown[][] {
+  const style = { color: 'rgba(59,130,246,0.08)' }
+  const areas: unknown[][] = []
+  let rangeStart = -1
+  for (let i = 0; i < dayNumbers.length; i++) {
+    if (selected.has(dayNumbers[i])) {
+      if (rangeStart < 0) rangeStart = i
+    } else {
+      if (rangeStart >= 0) {
+        areas.push([{ xAxis: rangeStart }, { xAxis: i - 1, itemStyle: style }])
+        rangeStart = -1
+      }
+    }
+  }
+  if (rangeStart >= 0) {
+    areas.push([{ xAxis: rangeStart }, { xAxis: dayNumbers.length - 1, itemStyle: style }])
+  }
+  return areas
+}
