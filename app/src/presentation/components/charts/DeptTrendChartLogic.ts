@@ -9,6 +9,7 @@
  *   - 粗利率・売上の月次チャートデータ構築
  *
  * @guard G5 hook ≤300行 — 純粋関数を分離
+ * @responsibility R:calculation
  */
 import type { DeptKpiMonthlyTrendRow } from '@/application/hooks/duckdb'
 

@@ -3,6 +3,7 @@
  *
  * react-refresh/only-export-components 対応のため、
  * createContext と型定義を .ts ファイルに分離。
+ * @responsibility R:context
  */
 import { createContext } from 'react'
 

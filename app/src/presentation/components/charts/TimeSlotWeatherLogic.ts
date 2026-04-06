@@ -9,6 +9,7 @@
  * - AM/PM サマリのツールチップテキスト構築
  *
  * @guard G5 hook ≤300行 — 純粋関数を分離
+ * @responsibility R:calculation
  */
 import { toWeatherDisplay } from '@/domain/weather/weatherAggregation'
 import type { HourlyWeatherAvgRow } from '@/application/hooks/duckdb'

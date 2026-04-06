@@ -3,6 +3,7 @@
  *
  * DuckDB SQL 集約または JS 純粋関数で売上比較データを算出する。
  * useJsAggregationQueries.ts から分割。
+ * @responsibility R:query-exec
  */
 import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'

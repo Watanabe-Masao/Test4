@@ -5,6 +5,7 @@
  * React 非依存。副作用なし。
  *
  * @guard G5 hook ≤300行 — 純粋関数を分離
+ * @responsibility R:calculation
  */
 import type { DailyCumulativeRow } from '@/application/hooks/duckdb'
 

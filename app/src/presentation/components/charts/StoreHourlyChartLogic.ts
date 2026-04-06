@@ -11,6 +11,7 @@
  *   - 金額/構成比モードのデータ変換
  *
  * @guard G5 hook ≤300行 — 純粋関数を分離
+ * @responsibility R:calculation
  */
 import type { StoreAggregationRow } from '@/application/hooks/duckdb'
 import { STORE_COLORS } from './chartTheme'

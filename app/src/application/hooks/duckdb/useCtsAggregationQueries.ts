@@ -3,6 +3,7 @@
  *
  * 時間帯別集約・店舗別集約・曜日マトリクス・日数カウント・曜日除数。
  * useCtsQueries.ts から分割。
+ * @responsibility R:query-exec
  */
 import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'

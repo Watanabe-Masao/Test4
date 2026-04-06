@@ -5,6 +5,7 @@
  * useUnifiedWidgetContext の context slice としてクエリ関連の依存を局所化する。
  *
  * 天気データは useWeatherSlice に分離済み。
+ * @responsibility R:context
  */
 import { useMemo } from 'react'
 import type { QueryExecutor } from '@/application/queries/QueryPort'

@@ -5,6 +5,7 @@
  * 右軸シリーズビルダーはモジュール化し、他チャートからも再利用可能。
  *
  * @guard G5 hook ≤300行 — 純粋関数を分離
+ * @responsibility R:calculation
  */
 import type { DailyWeatherSummary } from '@/domain/models/record'
 import { categorizeWeatherCode } from '@/domain/weather/weatherAggregation'

@@ -9,6 +9,7 @@
  *   - 全曜日平均、最多/最少曜日、CV を算出
  *
  * @guard G5 hook ≤300行 — 純粋関数を分離
+ * @responsibility R:calculation
  */
 import type { DowPatternRow } from '@/application/hooks/duckdb'
 import { coefficientOfVariation } from '@/application/query-bridge/rawAggregation'

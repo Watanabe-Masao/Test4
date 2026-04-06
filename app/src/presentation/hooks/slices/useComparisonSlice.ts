@@ -3,6 +3,7 @@
  *
  * comparison scope / prevYear / dowGap / kpi を統合して返す。
  * useUnifiedWidgetContext の context slice として比較関連の依存を局所化する。
+ * @responsibility R:context
  */
 import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/hooks/analytics'
 import { useComparisonModule } from '@/application/hooks/useComparisonModule'

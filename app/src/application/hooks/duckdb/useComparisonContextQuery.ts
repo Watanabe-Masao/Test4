@@ -6,6 +6,7 @@
  *
  * application/hooks/duckdb/ 配下に配置することで
  * infrastructure 直接参照の許可リストに含まれる。
+ * @responsibility R:query-exec
  */
 import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'

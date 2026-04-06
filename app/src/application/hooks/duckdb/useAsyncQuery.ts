@@ -1,5 +1,6 @@
 /**
  * 汎用非同期 DuckDB クエリフック + 共通ヘルパー
+ * @responsibility R:query-exec
  */
 import { useState, useEffect, useRef } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'

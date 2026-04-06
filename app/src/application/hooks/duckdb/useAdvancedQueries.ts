@@ -2,6 +2,7 @@
  * 高度分析クエリフック群
  *
  * データ構築ロジックは categoryBenchmarkLogic.ts / categoryBoxPlotLogic.ts に分離。
+ * @responsibility R:query-exec
  */
 import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'

@@ -3,6 +3,7 @@
  *
  * Phase 3 移行済み: 日別特徴量・曜日パターンは JS 計算版に委譲。
  * DuckDB は生データ取得のみ。統計計算は rawAggregation.ts で実行。
+ * @responsibility R:query-exec
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models/calendar'

@@ -10,6 +10,7 @@
  *   - サマリー集計（合計・成長率）
  *
  * @guard G5 hook ≤300行 — 純粋関数を分離
+ * @responsibility R:calculation
  */
 import type { YoyDailyRow } from '@/application/hooks/duckdb'
 

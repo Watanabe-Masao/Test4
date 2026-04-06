@@ -3,6 +3,7 @@
  *
  * 各チャートの目的・読み方・注目ポイントを定義する。
  * ChartHelpButton と組み合わせてインラインヘルプを表示する。
+ * @responsibility R:utility
  */
 
 export interface ChartGuide {

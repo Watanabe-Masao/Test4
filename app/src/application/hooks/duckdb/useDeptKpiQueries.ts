@@ -3,6 +3,7 @@
  *
  * SQL は加重合計（numerator）のみ返し、
  * 率の算出は domain/calculations の safeDivide 経由で行う（@guard B3）。
+ * @responsibility R:query-exec
  */
 import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'

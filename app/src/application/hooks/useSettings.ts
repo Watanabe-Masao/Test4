@@ -4,7 +4,8 @@ import { useUiStore } from '@/application/stores'
 import type { AppSettings } from '@/domain/models/storeTypes'
 import { loadJson } from '@/application/adapters/uiPersistenceAdapter'
 
-/** 設定管理フック (Zustand ストア版) */
+/** 設定管理フック (Zustand ストア版)  * @responsibility R:persistence
+ */
 export function useSettings() {
   const settings = useSettingsStore((s) => s.settings)
   const zustandUpdate = useSettingsStore((s) => s.updateSettings)
