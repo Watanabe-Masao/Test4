@@ -49,7 +49,7 @@ describe('G8-R: 責務タグカバレッジ', () => {
 
   // ★ 現在の未分類数。タグ付けしたらこの数を減らす。
   // ★ 新規ファイル追加でタグなしなら CI 失敗。
-  const UNCLASSIFIED_SNAPSHOT = 613
+  const UNCLASSIFIED_SNAPSHOT = 612
 
   it('未分類ファイル数が増えていない（新規ファイルは @responsibility 必須）', () => {
     const unclassified: string[] = []
