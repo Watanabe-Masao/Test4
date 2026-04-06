@@ -12,7 +12,7 @@ import { memo, useState, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
-import { useWeatherWithPrevYear } from '@/application/hooks/useWeatherWithPrevYear'
+import { useWeatherTriple } from '@/application/hooks/useWeatherTriple'
 import { useWeatherForecast } from '@/application/hooks/useWeatherForecast'
 import { useWeatherHourlyOnDemand } from '@/application/hooks/useWeatherHourlyOnDemand'
 import type { DailyForecast, StoreLocation } from '@/domain/models/record'
@@ -88,13 +88,17 @@ export const WeatherPage = memo(function WeatherPage() {
 
   const location = storeLocations[selectedStoreId]
 
-  // 当年 + 前年天気データ取得（application hook 経由で year-1 計算を閉じ込める）
-  const { current: weatherResult, prevYearDaily } = useWeatherWithPrevYear(
-    year,
-    month,
-    selectedStoreId,
-  )
-  const { daily, isLoading, error, reload } = weatherResult
+  // 3ヶ月天気データ取得（前月+当月+翌月 + 前年）
+  const weatherTriple = useWeatherTriple(year, month, selectedStoreId)
+  const {
+    combined,
+    prevYearCombined,
+    boundaries,
+    currentMonthDaily: daily,
+    isLoading,
+    reload,
+  } = weatherTriple
+  const error = null // useWeatherTriple doesn't expose individual errors yet
   const { forecasts } = useWeatherForecast(selectedStoreId)
   const { hourlyCache, prevHourlyCache, fetchHourly, fetchPrevHourly, resolvePrevDate } =
     useWeatherHourlyOnDemand(selectedStoreId, 'sameDate')
@@ -126,6 +130,16 @@ export const WeatherPage = memo(function WeatherPage() {
       return m + 1
     })
   }, [setYear])
+
+  // スクロールによる月シフト
+  const handleMonthScroll = useCallback(
+    (direction: -1 | 1) => {
+      setSelectedDays(new Set())
+      if (direction === -1) goPrev()
+      else goNext()
+    },
+    [goPrev, goNext],
+  )
 
   // シングルクリック → トグル選択
   const handleChartDayClick = useCallback((dateKey: string) => {
@@ -174,9 +188,18 @@ export const WeatherPage = memo(function WeatherPage() {
     [selectedStoreId, storeLocations, updateSettings],
   )
 
+  // 当月の前年データ（prevYearCombined から当月分をフィルタ）
+  const prevYearCurrentMonth = useMemo(() => {
+    const mStr = String(month).padStart(2, '0')
+    return prevYearCombined.filter((d) => d.dateKey.slice(5, 7) === mStr)
+  }, [prevYearCombined, month])
+
   // サマリー: 選択日 or 月間
   const monthSummary = useMemo(() => computeMonthSummary(daily), [daily])
-  const prevMonthSummary = useMemo(() => computeMonthSummary(prevYearDaily), [prevYearDaily])
+  const prevMonthSummary = useMemo(
+    () => computeMonthSummary(prevYearCurrentMonth),
+    [prevYearCurrentMonth],
+  )
 
   const selectedDaySummary = useMemo<WeatherSummaryResult | null>(() => {
     if (selectedDays.size === 0) return null
@@ -193,12 +216,14 @@ export const WeatherPage = memo(function WeatherPage() {
     if (selectedDays.size === 0) return null
     if (selectedDays.size === 1) {
       const day = [...selectedDays][0]
-      const d = prevYearDaily.find((r) => Number(r.dateKey.split('-')[2]) === day)
+      const d = prevYearCurrentMonth.find((r) => Number(r.dateKey.split('-')[2]) === day)
       return d ? computeDaySummary(d) : null
     }
-    const filtered = prevYearDaily.filter((r) => selectedDays.has(Number(r.dateKey.split('-')[2])))
+    const filtered = prevYearCurrentMonth.filter((r) =>
+      selectedDays.has(Number(r.dateKey.split('-')[2])),
+    )
     return computeMonthSummary(filtered)
-  }, [prevYearDaily, selectedDays])
+  }, [prevYearCurrentMonth, selectedDays])
 
   // 予報分離
   const observedKeys = useMemo(() => new Set(daily.map((d) => d.dateKey)), [daily])
@@ -348,14 +373,16 @@ export const WeatherPage = memo(function WeatherPage() {
             <SectionLabel>📈 気温チャート（ダブルクリックで時間帯詳細）</SectionLabel>
             <div style={{ marginBottom: 24 }}>
               <WeatherTemperatureChart
-                daily={daily}
-                prevYearDaily={prevYearDaily.length > 0 ? prevYearDaily : undefined}
+                daily={combined}
+                prevYearDaily={prevYearCombined.length > 0 ? prevYearCombined : undefined}
                 year={year}
                 month={month}
                 selectedDays={selectedDays}
                 onDayClick={handleChartDayClick}
                 onDayDblClick={handleChartDayDblClick}
                 onDayRangeSelect={handleDayRangeSelect}
+                monthBoundaries={boundaries}
+                onMonthChange={handleMonthScroll}
               />
             </div>
 
@@ -385,7 +412,7 @@ export const WeatherPage = memo(function WeatherPage() {
             {/* 日別詳細 — テーブル / カレンダー切替 + 曜日フィルタ */}
             <WeatherDetailSection
               daily={daily}
-              prevYearDaily={prevYearDaily}
+              prevYearDaily={prevYearCurrentMonth}
               year={year}
               month={month}
               selectedDays={selectedDays}

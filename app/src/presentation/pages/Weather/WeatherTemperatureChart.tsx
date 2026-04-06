@@ -5,8 +5,9 @@
  * X軸に天気アイコン付き。日クリック・選択日ハイライト対応。
  * 天気ページ専用。売上データへの依存なし。
  */
-import { memo, useMemo, useCallback, useState } from 'react'
+import { memo, useMemo, useCallback, useState, useRef } from 'react'
 import { EChart, type EChartsOption } from '@/presentation/components/charts/EChart'
+import { detectCenterMonth, calcInitialZoomRange } from './weatherChartNavigation'
 import { useChartTheme } from '@/presentation/components/charts/chartTheme'
 import type { DailyWeatherSummary } from '@/domain/models/record'
 import { categorizeWeatherCode } from '@/domain/weather/weatherAggregation'
@@ -32,6 +33,10 @@ interface Props {
   readonly onDayClick?: (dateKey: string) => void
   readonly onDayDblClick?: (dateKey: string) => void
   readonly onDayRangeSelect?: (startDay: number, endDay: number) => void
+  /** 3ヶ月連続スクロール: 月境界情報 */
+  readonly monthBoundaries?: import('@/application/hooks/useWeatherTriple').MonthBoundaries
+  /** 月の中心がシフトしたときに発火 */
+  readonly onMonthChange?: (direction: -1 | 1) => void
 }
 
 const METRIC_OPTIONS: readonly { key: ChartRightMetric; label: string }[] = [
@@ -49,6 +54,8 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
   onDayClick,
   onDayDblClick,
   onDayRangeSelect,
+  monthBoundaries,
+  onMonthChange,
 }: Props) {
   const [rightMetric, setRightMetric] = useState<ChartRightMetric>('precipitation')
   const ct = useChartTheme()
@@ -64,26 +71,31 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
     return map
   }, [prevYearDaily])
 
+  // 初期 zoom 範囲（3ヶ月モード時のみ使用）
+  const initialZoom = useMemo(
+    () => (monthBoundaries ? calcInitialZoomRange(monthBoundaries) : null),
+    [monthBoundaries],
+  )
+  const zoomStart = initialZoom?.start ?? 0
+  const zoomEnd = initialZoom?.end ?? 100
+
   const option = useMemo(() => {
     if (daily.length === 0) return {}
 
     const days: string[] = []
     const dayNumbers: number[] = []
-    const dateKeys: string[] = []
 
     for (const d of daily) {
       const day = Number(d.dateKey.split('-')[2])
-      const dow = new Date(year, month - 1, day).getDay()
+      const dMonth = Number(d.dateKey.slice(5, 7))
+      const dYear = Number(d.dateKey.slice(0, 4))
+      const dow = new Date(dYear, dMonth - 1, day).getDay()
       const dowLabel = ['日', '月', '火', '水', '木', '金', '土'][dow]
       const icon = WEATHER_ICONS[categorizeWeatherCode(d.dominantWeatherCode)]
-      const prevDay = prevYearMap?.get(day)
-      const prevIcon = prevDay
-        ? WEATHER_ICONS[categorizeWeatherCode(prevDay.dominantWeatherCode)]
-        : ''
-      const prevLine = prevIcon ? `\n{prev|${prevIcon}}` : ''
-      days.push(`${day}(${dowLabel})\n{icon|${icon}}${prevLine}`)
+      // 月初日には月名ラベルを追加
+      const monthPrefix = day === 1 ? `{monthLabel|${dMonth}月}\n` : ''
+      days.push(`${monthPrefix}${day}(${dowLabel})\n{icon|${icon}}`)
       dayNumbers.push(day)
-      dateKeys.push(d.dateKey)
     }
 
     const maxTemps = daily.map((d) => d.temperatureMax)
@@ -210,6 +222,13 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
               lineHeight: 14,
               align: 'center',
               color: '#9ca3af',
+            },
+            monthLabel: {
+              fontSize: 11,
+              fontWeight: 'bold',
+              color: '#3b82f6',
+              lineHeight: 16,
+              align: 'center',
             },
           },
         },
@@ -414,6 +433,21 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
             ]
           : []),
       ],
+      // 3ヶ月連続スクロール: dataZoom inside mode
+      ...(monthBoundaries
+        ? {
+            dataZoom: [
+              {
+                type: 'inside',
+                xAxisIndex: 0,
+                start: zoomStart,
+                end: zoomEnd,
+                zoomLock: true, // ズーム禁止（スクロールのみ）
+                moveOnMouseWheel: true,
+              },
+            ],
+          }
+        : {}),
     }
   }, [daily, year, month, ct, prevYearMap, selectedDays, rightMetric])
 
@@ -458,6 +492,22 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
       if (startDay > 0 && endDay > 0) onDayRangeSelect(startDay, endDay)
     }
   }, [onDayRangeSelect, daily])
+
+  // dataZoom → 月シフト検出（debounce 300ms）
+  const monthShiftTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const handleDataZoom = useCallback(
+    (params: Record<string, unknown>) => {
+      if (!onMonthChange || !monthBoundaries) return
+      const start = (params['start'] as number) ?? 0
+      const end = (params['end'] as number) ?? 100
+      if (monthShiftTimerRef.current) clearTimeout(monthShiftTimerRef.current)
+      monthShiftTimerRef.current = setTimeout(() => {
+        const dir = detectCenterMonth(start, end, monthBoundaries)
+        if (dir !== 0) onMonthChange(dir)
+      }, 300)
+    },
+    [onMonthChange, monthBoundaries],
+  )
 
   // ブラシ設定追加
   const brushOption = useMemo(() => {
@@ -506,6 +556,7 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
         option={brushOption as EChartsOption}
         height={440}
         onClick={handleClick}
+        onDataZoom={monthBoundaries ? handleDataZoom : undefined}
         onDblClick={handleDblClick}
         onBrushEnd={handleBrushEnd}
         ariaLabel="月間気温推移チャート"
