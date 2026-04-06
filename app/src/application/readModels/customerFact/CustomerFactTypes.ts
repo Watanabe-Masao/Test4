@@ -28,7 +28,7 @@ export type CustomerFactQueryInput = z.infer<typeof CustomerFactQueryInput>
 export const CustomerFactDailyRow = z.object({
   storeId: z.string(),
   day: z.number(),
-  customers: z.number(),
+  customers: z.coerce.number().default(0),
 })
 
 export type CustomerFactDailyRow = z.infer<typeof CustomerFactDailyRow>
@@ -40,7 +40,7 @@ export const CustomerFactReadModel = z.object({
   daily: z.array(CustomerFactDailyRow),
 
   /** 全体合計 — INV: grandTotalCustomers = Σ daily[].customers */
-  grandTotalCustomers: z.number(),
+  grandTotalCustomers: z.coerce.number().default(0),
 
   /** メタデータ */
   meta: z.object({

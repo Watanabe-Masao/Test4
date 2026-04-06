@@ -46,8 +46,9 @@ export function buildCustomerFactReadModel(
   const daily: CustomerFactDailyRowType[] = []
 
   for (const r of rows) {
-    daily.push({ storeId: r.storeId, day: r.day, customers: r.customers })
-    grandTotalCustomers += r.customers
+    const customers = r.customers ?? 0
+    daily.push({ storeId: r.storeId, day: r.day, customers })
+    grandTotalCustomers += customers
   }
 
   return CustomerFactReadModel.parse({
