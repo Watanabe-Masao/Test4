@@ -22,7 +22,12 @@ import { WeatherTemperatureChart } from './WeatherTemperatureChart'
 import { InlineLocationSetup } from './InlineLocationSetup'
 import { WeatherDetailSection } from './WeatherDetailSection'
 import { WeatherSummarySection } from './WeatherSummarySection'
-import { computeMonthSummary, computeDaySummary, type WeatherSummaryResult } from './weatherSummary'
+import {
+  computeMonthSummary,
+  computeDaySummary,
+  filterPrevYearForComparison,
+  type WeatherSummaryResult,
+} from './weatherSummary'
 import {
   Page,
   Header,
@@ -190,43 +195,10 @@ export const WeatherPage = memo(function WeatherPage() {
   )
 
   // 当月の前年データ（comparisonMode に応じて同日 or 同曜日でフィルタ）
-  const prevYearCurrentMonth = useMemo(() => {
-    if (uiState.comparisonMode === 'sameDow') {
-      // 同曜日: 当年の各日の曜日に一致する前年の日を選択
-      const currentDows = new Map<number, number>() // day → dow
-      for (const d of daily) {
-        const day = Number(d.dateKey.split('-')[2])
-        currentDows.set(day, new Date(year, month - 1, day).getDay())
-      }
-      // 前年の同月で、当年と同じ曜日の日を日数分だけ取得
-      const mStr = String(month).padStart(2, '0')
-      const prevMonthDays = prevYearCombined.filter((d) => d.dateKey.slice(5, 7) === mStr)
-      const dowCounts = new Map<number, number>() // dow → 必要数
-      for (const dow of currentDows.values()) {
-        dowCounts.set(dow, (dowCounts.get(dow) ?? 0) + 1)
-      }
-      const result: typeof prevMonthDays = []
-      const usedPerDow = new Map<number, number>()
-      for (const d of prevMonthDays) {
-        const day = Number(d.dateKey.split('-')[2])
-        const dow = new Date(year - 1, month - 1, day).getDay()
-        const needed = dowCounts.get(dow) ?? 0
-        const used = usedPerDow.get(dow) ?? 0
-        if (used < needed) {
-          result.push(d)
-          usedPerDow.set(dow, used + 1)
-        }
-      }
-      return result
-    }
-    // 同日: 当年に存在する日番号のみ
-    const currentDays = new Set(daily.map((d) => Number(d.dateKey.split('-')[2])))
-    const mStr = String(month).padStart(2, '0')
-    return prevYearCombined.filter((d) => {
-      if (d.dateKey.slice(5, 7) !== mStr) return false
-      return currentDays.has(Number(d.dateKey.split('-')[2]))
-    })
-  }, [prevYearCombined, month, daily, year, uiState.comparisonMode])
+  const prevYearCurrentMonth = useMemo(
+    () => filterPrevYearForComparison(daily, prevYearCombined, month, uiState.comparisonMode),
+    [daily, prevYearCombined, month, uiState.comparisonMode],
+  )
 
   // サマリー: 選択日 or 月間
   const monthSummary = useMemo(() => computeMonthSummary(daily), [daily])
