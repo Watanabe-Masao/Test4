@@ -149,6 +149,24 @@ export const RESPONSIBILITY_REGISTRY: Readonly<Record<string, ResponsibilityEntr
   // ★ 登録時は中身を確認し、正直にタグを付ける。
   // ★ 複数タグ = AND = 分離候補として可視化される。
   // ★ ファイルを変更したら verifiedAt を当日に更新する（責務を再検証した証跡）。
+
+  // ── Weather ──
+  'presentation/pages/Weather/WeatherPage.tsx': {
+    tags: ['R:page', 'R:data-fetch', 'R:state-machine'],
+    verifiedAt: '2026-04-06',
+  },
+  'presentation/pages/Weather/WeatherTemperatureChart.tsx': {
+    tags: ['R:chart-view', 'R:chart-option'],
+    verifiedAt: '2026-04-06',
+  },
+  'presentation/pages/Weather/WeatherDetailSection.tsx': {
+    tags: ['R:widget'],
+    verifiedAt: '2026-04-06',
+  },
+  'presentation/pages/Weather/WeatherCalendarView.tsx': {
+    tags: ['R:chart-view'],
+    verifiedAt: '2026-04-06',
+  },
 }
 
 // ─── 解決関数 ─────────────────────────────────────────

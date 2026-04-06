@@ -54,7 +54,7 @@ describe('G8-R: 責務タグカバレッジ', () => {
 
   // ★ 現在の未分類数。タグ付けしたらこの数を減らす。
   // ★ 新規ファイル追加で増えたら CI 失敗。
-  const UNCLASSIFIED_SNAPSHOT = 617
+  const UNCLASSIFIED_SNAPSHOT = 613
 
   it('未分類ファイル数が増えていない（新規ファイルは登録必須）', () => {
     const unclassified: string[] = []
@@ -140,20 +140,28 @@ describe('G8-R: 責務タグカバレッジ', () => {
     const today = new Date().toISOString().slice(0, 10)
     const unverified: string[] = []
 
-    for (const changed of changedFiles) {
-      const entry = RESPONSIBILITY_REGISTRY[changed]
-      if (!entry) continue // 未分類ファイルは対象外（別テストで管理）
+    const targetSet = new Set(files.map((f) => rel(f)))
 
-      // タグ付きファイルが変更されたのに verifiedAt が今日でない → 未検証
-      if (entry.verifiedAt !== today) {
-        unverified.push(`${changed}: verifiedAt=${entry.verifiedAt} (今日: ${today})`)
+    for (const changed of changedFiles) {
+      // 対象ディレクトリ外のファイルはスキップ
+      if (!targetSet.has(changed)) continue
+
+      const entry = RESPONSIBILITY_REGISTRY[changed]
+      if (!entry) {
+        // 未分類ファイルが変更された → タグ登録を要求
+        unverified.push(`${changed}: 未分類 → R: タグを登録してください`)
+      } else if (entry.verifiedAt !== today) {
+        // タグ付きファイルが変更されたのに verifiedAt が今日でない → 再検証を要求
+        unverified.push(
+          `${changed}: verifiedAt=${entry.verifiedAt} → 責務を再検証して今日に更新してください`,
+        )
       }
     }
 
     expect(
       unverified,
-      `タグ付きファイルが変更されましたが責務の再検証がされていません。\n` +
-        `ファイルの中身を確認し、R: タグが正しいか検証した上で verifiedAt を今日に更新してください:\n` +
+      `変更されたファイルの責務が検証されていません。\n` +
+        `ファイルの中身を確認し、responsibilityTagRegistry.ts に R: タグを登録（または verifiedAt を更新）してください:\n` +
         `${unverified.join('\n')}`,
     ).toEqual([])
   })
