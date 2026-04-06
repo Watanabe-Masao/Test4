@@ -54,7 +54,7 @@ describe('G8-R: 責務タグカバレッジ', () => {
 
   // ★ 現在の未分類数。タグ付けしたらこの数を減らす。
   // ★ 新規ファイル追加で増えたら CI 失敗。
-  const UNCLASSIFIED_SNAPSHOT = 617
+  const UNCLASSIFIED_SNAPSHOT = 613
 
   it('未分類ファイル数が増えていない（新規ファイルは登録必須）', () => {
     const unclassified: string[] = []
@@ -137,23 +137,46 @@ describe('G8-R: 責務タグカバレッジ', () => {
       return
     }
 
-    const today = new Date().toISOString().slice(0, 10)
     const unverified: string[] = []
 
-    for (const changed of changedFiles) {
-      const entry = RESPONSIBILITY_REGISTRY[changed]
-      if (!entry) continue // 未分類ファイルは対象外（別テストで管理）
+    const targetSet = new Set(files.map((f) => rel(f)))
 
-      // タグ付きファイルが変更されたのに verifiedAt が今日でない → 未検証
-      if (entry.verifiedAt !== today) {
-        unverified.push(`${changed}: verifiedAt=${entry.verifiedAt} (今日: ${today})`)
+    // レジストリファイル自体の diff を取得（どのエントリが更新されたか判定用）
+    let registryDiff = ''
+    try {
+      const diffTarget = process.env.CI ? 'HEAD~1' : 'HEAD'
+      registryDiff = execSync(
+        `git diff ${diffTarget} -- app/src/test/responsibilityTagRegistry.ts`,
+        { cwd: path.resolve(SRC_DIR, '..'), encoding: 'utf-8' },
+      )
+    } catch {
+      // 差分取得失敗時はスキップ
+    }
+
+    for (const changed of changedFiles) {
+      // 対象ディレクトリ外のファイルはスキップ
+      if (!targetSet.has(changed)) continue
+
+      const entry = RESPONSIBILITY_REGISTRY[changed]
+      if (!entry) {
+        // 未分類ファイルが変更された → タグ登録を要求
+        unverified.push(`${changed}: 未分類 → R: タグを登録してください`)
+      } else {
+        // タグ付きファイルが変更された → レジストリの該当エントリも更新されているか
+        // ファイルパスがレジストリの diff に含まれていれば、エントリが更新された証跡
+        const pathInRegistry = changed.replace(/'/g, "\\'")
+        if (!registryDiff.includes(pathInRegistry)) {
+          unverified.push(
+            `${changed}: ファイルが変更されましたが責務タグの再検証がありません → verifiedAt を更新してください`,
+          )
+        }
       }
     }
 
     expect(
       unverified,
-      `タグ付きファイルが変更されましたが責務の再検証がされていません。\n` +
-        `ファイルの中身を確認し、R: タグが正しいか検証した上で verifiedAt を今日に更新してください:\n` +
+      `変更されたファイルの責務が検証されていません。\n` +
+        `ファイルの中身を確認し、responsibilityTagRegistry.ts に R: タグを登録（または verifiedAt を更新）してください:\n` +
         `${unverified.join('\n')}`,
     ).toEqual([])
   })
