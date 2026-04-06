@@ -21,6 +21,7 @@ import { ForecastBadge } from '@/presentation/components/common/ForecastBadge'
 import { HourlyWeatherModal } from '@/presentation/pages/Dashboard/widgets/HourlyWeatherModal'
 import { WeatherTemperatureChart } from './WeatherTemperatureChart'
 import { InlineLocationSetup } from './InlineLocationSetup'
+import { DowPresetSelector } from '@/presentation/components/charts/DowPresetSelector'
 import { WeatherDetailSection } from './WeatherDetailSection'
 import { WeatherSummarySection } from './WeatherSummarySection'
 import { computeMonthSummary, computeDaySummary, type WeatherSummaryResult } from './weatherSummary'
@@ -105,6 +106,8 @@ export const WeatherPage = memo(function WeatherPage() {
     useWeatherHourlyOnDemand(selectedStoreId, 'sameDate')
 
   const [selectedDays, setSelectedDays] = useState<ReadonlySet<number>>(new Set())
+  const [selectedDows, setSelectedDows] = useState<number[]>([])
+  const handleDowChange = useCallback((dows: number[]) => setSelectedDows(dows), [])
   const [uiState, setUiState] = useState<{
     modalDate: string | null
     modalForecast: DailyForecast | null
@@ -244,11 +247,8 @@ export const WeatherPage = memo(function WeatherPage() {
   const modalHourly = uiState.modalDate ? hourlyCache[uiState.modalDate] : undefined
   const modalPrevHourly = uiState.modalDate ? prevHourlyCache[uiState.modalDate] : undefined
   const modalPrevDate = uiState.modalDate ? resolvePrevDate(uiState.modalDate) : null
-  const showModal =
-    uiState.modalDate &&
-    ((modalHourly?.status === 'done' && modalHourly.records.length > 0) ||
-      (uiState.modalForecast &&
-        (modalPrevHourly?.status === 'done' || modalPrevHourly?.status === 'loading')))
+  // モーダルは dateKey があれば即表示（中身はローディング → データ到着で更新）
+  const showModal = !!uiState.modalDate
 
   return (
     <Page>
@@ -397,6 +397,9 @@ export const WeatherPage = memo(function WeatherPage() {
                 onDayRangeSelect={handleDayRangeSelect}
                 monthBoundaries={boundaries}
                 onMonthChange={handleMonthScroll}
+                headerExtra={
+                  <DowPresetSelector selectedDows={selectedDows} onChange={handleDowChange} />
+                }
               />
             </div>
 
@@ -431,6 +434,7 @@ export const WeatherPage = memo(function WeatherPage() {
               month={month}
               selectedDays={selectedDays}
               onDayClick={handleChartDayClick}
+              selectedDows={selectedDows}
             />
           </motion.div>
         )}

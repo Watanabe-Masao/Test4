@@ -83,10 +83,11 @@ export const presentationStateLimits: readonly QuantitativeAllowlistEntry[] = [
 export const combinedHookComplexityLimits: readonly QuantitativeAllowlistEntry[] = [
   {
     path: 'presentation/pages/Weather/WeatherPage.tsx',
-    reason: '天気ページの複合 UI（相関・予報・オーバーレイ）。useMemo 5 + useCallback 8 = 13',
+    reason:
+      '天気ページの複合 UI（相関・予報・オーバーレイ + 曜日フィルタ）。useMemo 5 + useCallback 9 = 14',
     category: 'structural',
     removalCondition: '天気系 hook の分離時',
-    limit: 14,
+    limit: 15,
     lifecycle: 'active-debt',
   },
   {

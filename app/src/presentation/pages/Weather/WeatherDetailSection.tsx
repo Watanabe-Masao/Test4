@@ -3,9 +3,8 @@
  *
  * WeatherPage の行数制限（R12: 600行）対応のため分離。
  */
-import { memo, useMemo, useCallback, useState } from 'react'
+import { memo, useMemo, useState } from 'react'
 import type { DailyWeatherSummary } from '@/domain/models/record'
-import { DowPresetSelector } from '@/presentation/components/charts/DowPresetSelector'
 import { renderDetailRow } from './WeatherDetailRow'
 import { WeatherCalendarView } from './WeatherCalendarView'
 import { SectionLabel, NavBtn, TableWrapper, DetailTable } from './WeatherPage.styles'
@@ -17,6 +16,8 @@ interface Props {
   readonly month: number
   readonly selectedDays: ReadonlySet<number>
   readonly onDayClick: (dateKey: string) => void
+  /** 曜日フィルタ（チャートヘッダから共有） */
+  readonly selectedDows: readonly number[]
 }
 
 export const WeatherDetailSection = memo(function WeatherDetailSection({
@@ -26,8 +27,8 @@ export const WeatherDetailSection = memo(function WeatherDetailSection({
   month,
   selectedDays,
   onDayClick,
+  selectedDows,
 }: Props) {
-  const [selectedDows, setSelectedDows] = useState<number[]>([])
   const [detailView, setDetailView] = useState<'table' | 'calendar'>('table')
 
   const filteredDaily = useMemo(() => {
@@ -38,8 +39,6 @@ export const WeatherDetailSection = memo(function WeatherDetailSection({
       return selectedDows.includes(dow)
     })
   }, [daily, selectedDows, year, month])
-
-  const handleDowChange = useCallback((dows: number[]) => setSelectedDows(dows), [])
 
   return (
     <>
@@ -53,7 +52,6 @@ export const WeatherDetailSection = memo(function WeatherDetailSection({
         }}
       >
         <SectionLabel style={{ marginBottom: 0 }}>📋 日別詳細データ</SectionLabel>
-        <DowPresetSelector selectedDows={selectedDows} onChange={handleDowChange} />
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 4 }}>
           {(['table', 'calendar'] as const).map((v) => (
             <NavBtn

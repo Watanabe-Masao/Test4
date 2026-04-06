@@ -35,6 +35,8 @@ interface Props {
   readonly monthBoundaries?: import('@/application/hooks/useWeatherTriple').MonthBoundaries
   /** 月の中心がシフトしたときに発火 */
   readonly onMonthChange?: (direction: -1 | 1) => void
+  /** ヘッダ行に追加表示する要素（曜日フィルタ等） */
+  readonly headerExtra?: React.ReactNode
 }
 
 const METRIC_OPTIONS: readonly { key: ChartRightMetric; label: string }[] = [
@@ -52,6 +54,7 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
   onDayRangeSelect,
   monthBoundaries,
   onMonthChange,
+  headerExtra,
 }: Props) {
   const [rightMetric, setRightMetric] = useState<ChartRightMetric>('precipitation')
   const ct = useChartTheme()
@@ -85,7 +88,12 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
       const icon = WEATHER_ICONS[categorizeWeatherCode(d.dominantWeatherCode)]
       // 月初日には月名ラベルを追加
       const monthPrefix = day === 1 ? `{monthLabel|${dMonth}月}\n` : ''
-      days.push(`${monthPrefix}${day}(${dowLabel})\n{icon|${icon}}`)
+      // 前年天気アイコン（あれば 2 段目に表示）
+      const prevDay = prevYearMap?.get(day)
+      const prevIcon = prevDay
+        ? `\n{prev|${WEATHER_ICONS[categorizeWeatherCode(prevDay.dominantWeatherCode)]}}`
+        : ''
+      days.push(`${monthPrefix}${day}(${dowLabel})\n{icon|${icon}}${prevIcon}`)
       dayNumbers.push(day)
     }
 
@@ -143,7 +151,8 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
       rightInterval = 20
       rightCeil = 100 // 湿度は 0-100%
     }
-    const rightAxisMax = rightMetric === 'humidity' ? 100 * 4 : rightCeil * 4
+    // 棒グラフを下半分に収める（* 2 で下 50% に表示）
+    const rightAxisMax = rightMetric === 'humidity' ? 100 * 2 : rightCeil * 2
 
     // Selected days highlight
     const selectedSet = selectedDays ?? new Set<number>()
@@ -523,25 +532,36 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
 
   return (
     <div style={{ width: '100%' }}>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 4, marginBottom: 4 }}>
-        {METRIC_OPTIONS.map(({ key, label }) => (
-          <button
-            key={key}
-            onClick={() => setRightMetric(key)}
-            style={{
-              padding: '2px 10px',
-              fontSize: '0.7rem',
-              borderRadius: 4,
-              border: `1px solid ${rightMetric === key ? 'transparent' : '#d1d5db'}`,
-              background: rightMetric === key ? '#3b82f6' : '#f9fafb',
-              color: rightMetric === key ? '#fff' : '#374151',
-              fontWeight: rightMetric === key ? 700 : 400,
-              cursor: 'pointer',
-            }}
-          >
-            {label}
-          </button>
-        ))}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          marginBottom: 4,
+          flexWrap: 'wrap',
+        }}
+      >
+        {headerExtra}
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: 4 }}>
+          {METRIC_OPTIONS.map(({ key, label }) => (
+            <button
+              key={key}
+              onClick={() => setRightMetric(key)}
+              style={{
+                padding: '2px 10px',
+                fontSize: '0.7rem',
+                borderRadius: 4,
+                border: `1px solid ${rightMetric === key ? 'transparent' : '#d1d5db'}`,
+                background: rightMetric === key ? '#3b82f6' : '#f9fafb',
+                color: rightMetric === key ? '#fff' : '#374151',
+                fontWeight: rightMetric === key ? 700 : 400,
+                cursor: 'pointer',
+              }}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
       <EChart
         option={brushOption as EChartsOption}
