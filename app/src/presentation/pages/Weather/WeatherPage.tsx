@@ -15,6 +15,7 @@ import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useWeatherTriple } from '@/application/hooks/useWeatherTriple'
 import { useWeatherForecast } from '@/application/hooks/useWeatherForecast'
 import { useWeatherHourlyOnDemand } from '@/application/hooks/useWeatherHourlyOnDemand'
+import { useComparisonScope } from '@/features/comparison'
 import type { DailyForecast, StoreLocation } from '@/domain/models/record'
 import { ForecastBadge } from '@/presentation/components/common/ForecastBadge'
 import { HourlyWeatherModal } from '@/presentation/pages/Dashboard/widgets/HourlyWeatherModal'
@@ -107,8 +108,11 @@ export const WeatherPage = memo(function WeatherPage() {
   const [uiState, setUiState] = useState<{
     modalDate: string | null
     modalForecast: DailyForecast | null
-    comparisonMode: 'sameDate' | 'sameDow'
-  }>({ modalDate: null, modalForecast: null, comparisonMode: 'sameDate' })
+  }>({ modalDate: null, modalForecast: null })
+
+  // 比較スコープ（ヘッダーと同じ alignmentPolicy を使用）
+  const alignmentPolicy = useSettingsStore((s) => s.settings.alignmentPolicy)
+  const comparisonScope = useComparisonScope(year, month, alignmentPolicy)
 
   // 月ナビ
   const goPrev = useCallback(() => {
@@ -189,44 +193,14 @@ export const WeatherPage = memo(function WeatherPage() {
     [selectedStoreId, storeLocations, updateSettings],
   )
 
-  // 当月の前年データ（comparisonMode に応じて同日 or 同曜日でフィルタ）
+  // 当月の前年データ（comparisonScope の日付範囲でフィルタ）
   const prevYearCurrentMonth = useMemo(() => {
-    if (uiState.comparisonMode === 'sameDow') {
-      // 同曜日: 当年の各日の曜日に一致する前年の日を選択
-      const currentDows = new Map<number, number>() // day → dow
-      for (const d of daily) {
-        const day = Number(d.dateKey.split('-')[2])
-        currentDows.set(day, new Date(year, month - 1, day).getDay())
-      }
-      // 前年の同月で、当年と同じ曜日の日を日数分だけ取得
-      const mStr = String(month).padStart(2, '0')
-      const prevMonthDays = prevYearCombined.filter((d) => d.dateKey.slice(5, 7) === mStr)
-      const dowCounts = new Map<number, number>() // dow → 必要数
-      for (const dow of currentDows.values()) {
-        dowCounts.set(dow, (dowCounts.get(dow) ?? 0) + 1)
-      }
-      const result: typeof prevMonthDays = []
-      const usedPerDow = new Map<number, number>()
-      for (const d of prevMonthDays) {
-        const day = Number(d.dateKey.split('-')[2])
-        const dow = new Date(year - 1, month - 1, day).getDay()
-        const needed = dowCounts.get(dow) ?? 0
-        const used = usedPerDow.get(dow) ?? 0
-        if (used < needed) {
-          result.push(d)
-          usedPerDow.set(dow, used + 1)
-        }
-      }
-      return result
-    }
-    // 同日: 当年に存在する日番号のみ
-    const currentDays = new Set(daily.map((d) => Number(d.dateKey.split('-')[2])))
-    const mStr = String(month).padStart(2, '0')
-    return prevYearCombined.filter((d) => {
-      if (d.dateKey.slice(5, 7) !== mStr) return false
-      return currentDays.has(Number(d.dateKey.split('-')[2]))
-    })
-  }, [prevYearCombined, month, daily, year, uiState.comparisonMode])
+    if (!comparisonScope) return []
+    const { from, to } = comparisonScope.dateRange
+    const fromKey = `${from.year}-${String(from.month).padStart(2, '0')}-${String(from.day).padStart(2, '0')}`
+    const toKey = `${to.year}-${String(to.month).padStart(2, '0')}-${String(to.day).padStart(2, '0')}`
+    return prevYearCombined.filter((d) => d.dateKey >= fromKey && d.dateKey <= toKey)
+  }, [comparisonScope, prevYearCombined])
 
   // サマリー: 選択日 or 月間
   const monthSummary = useMemo(() => computeMonthSummary(daily), [daily])
@@ -351,30 +325,13 @@ export const WeatherPage = memo(function WeatherPage() {
             exit="exit"
             transition={fadeTransition}
           >
-            {/* 前年比較モード切替 */}
-            <div style={{ display: 'flex', gap: 4, marginBottom: 8 }}>
-              {(
-                [
-                  ['sameDate', '前年同月'],
-                  ['sameDow', '前年同曜日'],
-                ] as const
-              ).map(([key, label]) => (
-                <NavBtn
-                  key={key}
-                  onClick={() => setUiState((s) => ({ ...s, comparisonMode: key }))}
-                  style={{
-                    padding: '4px 12px',
-                    fontSize: '0.75rem',
-                    fontWeight: uiState.comparisonMode === key ? 700 : 400,
-                    background: uiState.comparisonMode === key ? '#3b82f6' : undefined,
-                    color: uiState.comparisonMode === key ? '#fff' : undefined,
-                    borderColor: uiState.comparisonMode === key ? 'transparent' : undefined,
-                  }}
-                >
-                  {label}
-                </NavBtn>
-              ))}
-            </div>
+            {/* 比較モード表示（ヘッダーの設定に連動） */}
+            {comparisonScope && (
+              <StationBadge style={{ marginBottom: 8, display: 'inline-block' }}>
+                比較: {alignmentPolicy === 'sameDayOfWeek' ? '前年同曜日' : '前年同日'}
+                {comparisonScope.dowOffset > 0 && ` (${comparisonScope.dowOffset}日ずれ)`}
+              </StationBadge>
+            )}
 
             {/* サマリー: 月間（常時） + 選択日（日クリック時に並列表示） */}
             <AnimatePresence mode="wait">

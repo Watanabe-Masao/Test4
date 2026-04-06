@@ -88,3 +88,55 @@ export function computeDaySummary(d: DailyWeatherSummary): WeatherSummaryResult 
     weatherText: d.weatherTextDay ?? d.weatherTextNight,
   }
 }
+
+/**
+ * 前年比較用フィルタ — 当年の日付範囲に合わせて前年データを選択
+ *
+ * comparisonScopeGuard 対応: 前年の年計算（year-1）を presentation 層から隔離。
+ * dateKey ベースで年を解決するため、year 引数は不要。
+ */
+export function filterPrevYearForComparison(
+  currentDaily: readonly DailyWeatherSummary[],
+  prevYearAll: readonly DailyWeatherSummary[],
+  month: number,
+  mode: 'sameDate' | 'sameDow',
+): readonly DailyWeatherSummary[] {
+  const mStr = String(month).padStart(2, '0')
+  const prevMonthDays = prevYearAll.filter((d) => d.dateKey.slice(5, 7) === mStr)
+
+  if (mode === 'sameDow') {
+    // 当年の各日の曜日を収集
+    const dowCounts = new Map<number, number>()
+    for (const d of currentDaily) {
+      const dateKey = d.dateKey
+      const dow = new Date(
+        Number(dateKey.slice(0, 4)),
+        Number(dateKey.slice(5, 7)) - 1,
+        Number(dateKey.slice(8, 10)),
+      ).getDay()
+      dowCounts.set(dow, (dowCounts.get(dow) ?? 0) + 1)
+    }
+    // 前年の同月で、同じ曜日の日を必要数だけ取得
+    const result: DailyWeatherSummary[] = []
+    const usedPerDow = new Map<number, number>()
+    for (const d of prevMonthDays) {
+      const dateKey = d.dateKey
+      const dow = new Date(
+        Number(dateKey.slice(0, 4)),
+        Number(dateKey.slice(5, 7)) - 1,
+        Number(dateKey.slice(8, 10)),
+      ).getDay()
+      const needed = dowCounts.get(dow) ?? 0
+      const used = usedPerDow.get(dow) ?? 0
+      if (used < needed) {
+        result.push(d)
+        usedPerDow.set(dow, used + 1)
+      }
+    }
+    return result
+  }
+
+  // sameDate: 当年に存在する日番号のみ
+  const currentDays = new Set(currentDaily.map((d) => Number(d.dateKey.split('-')[2])))
+  return prevMonthDays.filter((d) => currentDays.has(Number(d.dateKey.split('-')[2])))
+}
