@@ -14,6 +14,8 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { SRC_DIR, collectTsFiles, rel } from '../guardTestHelpers'
 import { readResponsibilityTags, validateTags } from '../responsibilityTagRegistry'
+import { TAG_EXPECTATIONS } from '../responsibilityTagExpectations'
+import type { ResponsibilityTag } from '../responsibilityTagRegistry'
 
 /** 対象ディレクトリ */
 const TARGET_DIRS = [
@@ -112,6 +114,43 @@ describe('G8-R: 責務タグカバレッジ', () => {
       for (const [tag, count] of Object.entries(tagCounts).sort((a, b) => b[1] - a[1])) {
         console.log(`  ${tag}: ${count}`)
       }
+    }
+
+    expect(true).toBe(true)
+  })
+
+  it('タグと実態の不一致を検出（単一タグファイルのみ）', () => {
+    const mismatches: string[] = []
+
+    for (const file of files) {
+      const tags = readResponsibilityTags(file)
+      if (!tags || tags.length !== 1) continue // 単一タグのみ対象
+
+      const tag = tags[0] as ResponsibilityTag
+      const exp = TAG_EXPECTATIONS[tag]
+      if (!exp) continue
+
+      const content = fs.readFileSync(file, 'utf-8')
+      const memo = (content.match(/\buseMemo\s*\(/g) || []).length
+      const cb = (content.match(/\buseCallback\s*\(/g) || []).length
+      const state = (content.match(/\buseState\b/g) || []).length
+      const lineCount = content.split('\n').length
+
+      const issues: string[] = []
+      if (memo > exp.memoMax) issues.push(`useMemo ${memo}>${exp.memoMax}`)
+      if (cb > exp.callbackMax) issues.push(`useCallback ${cb}>${exp.callbackMax}`)
+      if (state > exp.stateMax) issues.push(`useState ${state}>${exp.stateMax}`)
+      if (lineCount > exp.lineMax) issues.push(`${lineCount}行>${exp.lineMax}`)
+
+      if (issues.length > 0) {
+        mismatches.push(`${rel(file)} [${tag}]: ${issues.join(', ')}`)
+      }
+    }
+
+    // 情報出力（CI は落とさない — 黄色信号として報告）
+    if (mismatches.length > 0) {
+      console.log(`\n[タグ不一致] ${mismatches.length} 件 — タグの見直しまたは分離を検討:`)
+      for (const m of mismatches) console.log(`  ${m}`)
     }
 
     expect(true).toBe(true)
