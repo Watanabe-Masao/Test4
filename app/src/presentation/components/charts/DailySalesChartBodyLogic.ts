@@ -97,12 +97,13 @@ export function pluck(arr: readonly Record<string, unknown>[], key: string): (nu
 
 const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土'] as const
 
+/** WeatherBadge と同じ絵文字を使用 */
 const WEATHER_ICONS: Record<WeatherCategory, string> = {
-  sunny: '☀',
-  cloudy: '☁',
-  rainy: '☂',
-  snowy: '❄',
-  other: '—',
+  sunny: '\u2600\uFE0F', // ☀️
+  cloudy: '\u2601\uFE0F', // ☁️
+  rainy: '\uD83C\uDF27\uFE0F', // 🌧️
+  snowy: '\u2744\uFE0F', // ❄️
+  other: '\uD83C\uDF00', // 🌀
 }
 
 const WEATHER_COLORS: Record<WeatherCategory, string> = {
