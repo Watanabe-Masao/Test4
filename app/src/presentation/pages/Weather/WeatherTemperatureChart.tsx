@@ -63,7 +63,12 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
       const dow = new Date(year, month - 1, day).getDay()
       const dowLabel = ['日', '月', '火', '水', '木', '金', '土'][dow]
       const icon = WEATHER_ICONS[categorizeWeatherCode(d.dominantWeatherCode)]
-      days.push(`${day}(${dowLabel})\n{icon|${icon}}`)
+      const prevDay = prevYearMap?.get(day)
+      const prevIcon = prevDay
+        ? WEATHER_ICONS[categorizeWeatherCode(prevDay.dominantWeatherCode)]
+        : ''
+      const prevLine = prevIcon ? `\n{prev|${prevIcon}}` : ''
+      days.push(`${day}(${dowLabel})\n{icon|${icon}}${prevLine}`)
       dayNumbers.push(day)
       dateKeys.push(d.dateKey)
     }
@@ -80,9 +85,11 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
       const v = prevYearMap?.get(day)?.temperatureAvg
       return v != null ? Math.round(v * 10) / 10 : null
     })
+    const prevPrecip = dayNumbers.map((day) => prevYearMap?.get(day)?.precipitationTotal ?? null)
 
-    // Compute max precipitation for axis scaling
-    const maxPrecip = Math.max(...precip, 1)
+    // Compute max precipitation for axis scaling (include prev year)
+    const allPrecip = [...precip, ...prevPrecip.filter((v): v is number => v != null)]
+    const maxPrecip = Math.max(...allPrecip, 1)
 
     // Compute temperature range for the offset trick
     const allTemps = [...maxTemps, ...minTemps]
@@ -114,11 +121,17 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
     // Build legend data
     const legendData = ['最高気温', '平均気温', '最低気温', '降水量']
     if (prevYearMap) {
-      legendData.push('前年最高', '前年平均', '前年最低')
+      legendData.push('前年降水', '前年最高', '前年平均', '前年最低')
     }
 
     return {
-      grid: { top: 40, right: 60, bottom: 60, left: 50, containLabel: false },
+      grid: {
+        top: 40,
+        right: 60,
+        bottom: prevYearMap ? 80 : 60,
+        left: 50,
+        containLabel: false,
+      },
       tooltip: {
         trigger: 'axis',
         backgroundColor: ct.bg2,
@@ -138,7 +151,8 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
           for (const item of items) {
             if (item.seriesName === 'band') continue
             if (item.value == null) continue
-            const unit = item.seriesName === '降水量' ? 'mm' : '\u00B0C'
+            const unit =
+              item.seriesName === '降水量' || item.seriesName === '前年降水' ? 'mm' : '\u00B0C'
             html += `${item.marker} ${item.seriesName}: <b>${item.value}${unit}</b><br/>`
           }
           return html
@@ -162,6 +176,12 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
               fontSize: 14,
               lineHeight: 18,
               align: 'center',
+            },
+            prev: {
+              fontSize: 11,
+              lineHeight: 14,
+              align: 'center',
+              color: '#9ca3af',
             },
           },
         },
@@ -302,6 +322,26 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
           },
           barMaxWidth: 16,
         },
+        // Previous year precipitation (dashed outline bars)
+        ...(prevYearMap
+          ? [
+              {
+                name: '前年降水',
+                type: 'bar' as const,
+                yAxisIndex: 1,
+                data: prevPrecip,
+                itemStyle: {
+                  color: 'transparent',
+                  borderColor: 'rgba(59, 130, 246, 0.35)',
+                  borderWidth: 1,
+                  borderType: 'dashed' as const,
+                  borderRadius: [2, 2, 0, 0],
+                },
+                barMaxWidth: 16,
+                barGap: '-100%',
+              },
+            ]
+          : []),
         // Previous year lines (dashed, lighter)
         ...(prevYearMap
           ? [
@@ -364,10 +404,10 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
   if (daily.length === 0) return null
 
   return (
-    <div style={{ maxWidth: 1400, margin: '0 auto' }}>
+    <div style={{ width: '100%' }}>
       <EChart
         option={option}
-        height={360}
+        height={440}
         onClick={onDayClick ? handleClick : undefined}
         ariaLabel="月間気温推移チャート"
       />

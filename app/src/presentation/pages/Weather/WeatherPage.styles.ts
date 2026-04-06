@@ -9,10 +9,11 @@ import { motion } from 'framer-motion'
 import { sc } from '@/presentation/theme/semanticColors'
 
 export const Page = styled.div`
-  max-width: 1400px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: 100%;
   padding: ${({ theme }) => theme.spacing[4]};
   overflow-x: hidden;
+  box-sizing: border-box;
 `
 
 export const Header = styled.div`
