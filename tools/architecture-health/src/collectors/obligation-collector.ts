@@ -88,6 +88,34 @@ export const OBLIGATION_MAP: readonly ObligationRule[] = [
     label: 'Health ツール変更時は docs:generate 再実行が必要',
     check: { type: 'health_regenerated' },
   },
+  // --- DuckDB ロード順序変更 → ドキュメント更新必須 ---
+  {
+    pathPattern: 'app/src/application/runtime-adapters/useDuckDB.ts',
+    obligationId: 'obligation.duckdb-loading.doc',
+    label: 'DuckDB ロード順序変更時はデータロード順序図の更新が必要',
+    check: { type: 'file_modified', file: 'references/03-guides/duckdb-data-loading-sequence.md' },
+  },
+  // --- チャートデータフロー変更 → マップ更新必須 ---
+  {
+    pathPattern: 'app/src/application/hooks/plans/',
+    obligationId: 'obligation.chart-plan.doc',
+    label: 'Screen Plan 変更時はチャートデータフローマップの更新が必要',
+    check: { type: 'file_modified', file: 'references/03-guides/chart-data-flow-map.md' },
+  },
+  // --- ページレジストリ変更 → チェックリスト確認 ---
+  {
+    pathPattern: 'app/src/application/navigation/pageRegistry.ts',
+    obligationId: 'obligation.page-registry.doc',
+    label: 'ページレジストリ変更時は新規ページチェックリストの確認が必要',
+    check: { type: 'file_modified', file: 'references/03-guides/new-page-checklist.md' },
+  },
+  // --- DuckDB スキーマ変更 → 型境界契約確認 ---
+  {
+    pathPattern: 'app/src/infrastructure/duckdb/schemas.ts',
+    obligationId: 'obligation.duckdb-schema.doc',
+    label: 'DuckDB スキーマ変更時は型境界契約の確認が必要',
+    check: { type: 'file_modified', file: 'references/03-guides/duckdb-type-boundary-contract.md' },
+  },
   // --- health rules 変更 → health.json 再生成必須 ---
   {
     pathPattern: 'tools/architecture-health/src/config/',
