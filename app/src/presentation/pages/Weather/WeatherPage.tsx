@@ -15,12 +15,12 @@ import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useWeatherWithPrevYear } from '@/application/hooks/useWeatherWithPrevYear'
 import { useWeatherForecast } from '@/application/hooks/useWeatherForecast'
 import { useWeatherHourlyOnDemand } from '@/application/hooks/useWeatherHourlyOnDemand'
-import type { DailyForecast, DailyWeatherSummary, StoreLocation } from '@/domain/models/record'
-import { categorizeWeatherCode } from '@/domain/weather/weatherAggregation'
+import type { DailyForecast, StoreLocation } from '@/domain/models/record'
 import { ForecastBadge } from '@/presentation/components/common/ForecastBadge'
 import { HourlyWeatherModal } from '@/presentation/pages/Dashboard/widgets/HourlyWeatherModal'
 import { WeatherTemperatureChart } from './WeatherTemperatureChart'
 import { InlineLocationSetup } from './InlineLocationSetup'
+import { renderDetailRow } from './WeatherDetailRow'
 import { computeMonthSummary, computeDaySummary, type WeatherSummaryResult } from './weatherSummary'
 import {
   Page,
@@ -314,10 +314,6 @@ export const WeatherPage = memo(function WeatherPage() {
     return d ? computeDaySummary(d) : null
   }, [prevYearDaily, selectedDay])
 
-  const activeSummary = selectedDaySummary ?? monthSummary
-  const activePrevSummary = selectedDaySummary ? prevDaySummary : prevMonthSummary
-  const summaryLabel = selectedDay != null ? `${month}月${selectedDay}日の天気` : '月間サマリ'
-
   // 予報分離
   const observedKeys = useMemo(() => new Set(daily.map((d) => d.dateKey)), [daily])
   const futureForecasts = useMemo(
@@ -410,30 +406,47 @@ export const WeatherPage = memo(function WeatherPage() {
             exit="exit"
             transition={fadeTransition}
           >
-            {/* サマリー（月間 or 選択日） */}
+            {/* サマリー: 月間（常時） + 選択日（日クリック時に並列表示） */}
             <AnimatePresence mode="wait">
-              {activeSummary && (
+              {monthSummary && (
                 <motion.div
-                  key={selectedDay ?? 'month'}
+                  key="summary"
                   variants={fadeSlideVariants}
                   initial="initial"
                   animate="animate"
                   exit="exit"
                   transition={{ duration: 0.2 }}
                 >
-                  <SummarySection
-                    summary={activeSummary}
-                    prevSummary={activePrevSummary}
-                    label={summaryLabel}
-                  />
-                  {selectedDay != null && (
-                    <NavBtn
-                      onClick={() => setSelectedDay(null)}
-                      style={{ marginBottom: 16, fontSize: '0.7rem' }}
-                    >
-                      ✕ 選択解除（月間サマリに戻る）
-                    </NavBtn>
-                  )}
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: selectedDaySummary ? '1fr 1fr' : '1fr',
+                      gap: 24,
+                      marginBottom: 16,
+                    }}
+                  >
+                    <SummarySection
+                      summary={monthSummary}
+                      prevSummary={prevMonthSummary}
+                      label="月間サマリ"
+                    />
+                    {selectedDaySummary && (
+                      <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.25 }}
+                      >
+                        <SummarySection
+                          summary={selectedDaySummary}
+                          prevSummary={prevDaySummary}
+                          label={`${month}月${selectedDay}日`}
+                        />
+                        <NavBtn onClick={() => setSelectedDay(null)} style={{ fontSize: '0.7rem' }}>
+                          ✕ 選択解除
+                        </NavBtn>
+                      </motion.div>
+                    )}
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -474,8 +487,8 @@ export const WeatherPage = memo(function WeatherPage() {
               </>
             )}
 
-            {/* 日別詳細テーブル */}
-            <SectionLabel>📋 日別詳細データ</SectionLabel>
+            {/* 日別詳細テーブル（前年比較付き） */}
+            <SectionLabel>📋 日別詳細データ（前年比較）</SectionLabel>
             <TableWrapper>
               <DetailTable>
                 <thead>
@@ -487,15 +500,25 @@ export const WeatherPage = memo(function WeatherPage() {
                     <th>最低</th>
                     <th>降水量</th>
                     <th>湿度</th>
-                    <th>風速</th>
                     <th>日照</th>
                     <th style={{ textAlign: 'left' }}>概況</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {daily.map((d) =>
-                    renderDetailRow(d, year, month, handleChartDayClick, selectedDay),
-                  )}
+                  {daily.map((d) => {
+                    const dayNum = Number(d.dateKey.split('-')[2])
+                    const prev = prevYearDaily.find(
+                      (p) => Number(p.dateKey.split('-')[2]) === dayNum,
+                    )
+                    return renderDetailRow(
+                      d,
+                      prev ?? null,
+                      year,
+                      month,
+                      handleChartDayClick,
+                      selectedDay,
+                    )
+                  })}
                 </tbody>
               </DetailTable>
             </TableWrapper>
@@ -520,60 +543,3 @@ export const WeatherPage = memo(function WeatherPage() {
     </Page>
   )
 })
-
-// ── Detail Table Row ──
-
-const WEATHER_ICON_MAP: Record<string, string> = {
-  sunny: '☀',
-  cloudy: '☁',
-  rainy: '☂',
-  snowy: '❄',
-  other: '—',
-}
-
-function renderDetailRow(
-  d: DailyWeatherSummary,
-  year: number,
-  month: number,
-  onDayClick: (dateKey: string) => void,
-  selectedDay: number | null,
-) {
-  const dayNum = Number(d.dateKey.split('-')[2])
-  const dow = new Date(year, month - 1, dayNum).getDay()
-  const cat = categorizeWeatherCode(d.dominantWeatherCode)
-  const isSelected = selectedDay === dayNum
-  const dowLabels = ['日', '月', '火', '水', '木', '金', '土']
-  return (
-    <tr
-      key={d.dateKey}
-      onClick={() => onDayClick(d.dateKey)}
-      style={{
-        cursor: 'pointer',
-        background: isSelected ? 'var(--color-bg3, #f3f4f6)' : undefined,
-      }}
-    >
-      <td style={{ color: dow === 0 || dow === 6 ? '#ef4444' : undefined }}>
-        {dayNum}({dowLabels[dow]})
-      </td>
-      <td style={{ textAlign: 'center', fontSize: '1rem' }}>{WEATHER_ICON_MAP[cat]}</td>
-      <td>{d.temperatureAvg.toFixed(1)}°</td>
-      <td style={{ color: '#ef4444' }}>{d.temperatureMax.toFixed(1)}°</td>
-      <td style={{ color: '#3b82f6' }}>{d.temperatureMin.toFixed(1)}°</td>
-      <td>{d.precipitationTotal.toFixed(1)}mm</td>
-      <td>{d.humidityAvg.toFixed(0)}%</td>
-      <td>{d.windSpeedMax.toFixed(1)}m/s</td>
-      <td>{d.sunshineTotalHours.toFixed(1)}h</td>
-      <td
-        style={{
-          textAlign: 'left',
-          fontSize: '0.65rem',
-          maxWidth: 200,
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-        }}
-      >
-        {d.weatherTextDay ?? d.weatherTextNight ?? ''}
-      </td>
-    </tr>
-  )
-}
