@@ -188,11 +188,15 @@ export const WeatherPage = memo(function WeatherPage() {
     [selectedStoreId, storeLocations, updateSettings],
   )
 
-  // 当月の前年データ（prevYearCombined から当月分をフィルタ）
+  // 当月の前年データ（当年に存在する日のみフィルタ — 範囲を合わせて公平に比較）
   const prevYearCurrentMonth = useMemo(() => {
+    const currentDays = new Set(daily.map((d) => Number(d.dateKey.split('-')[2])))
     const mStr = String(month).padStart(2, '0')
-    return prevYearCombined.filter((d) => d.dateKey.slice(5, 7) === mStr)
-  }, [prevYearCombined, month])
+    return prevYearCombined.filter((d) => {
+      if (d.dateKey.slice(5, 7) !== mStr) return false
+      return currentDays.has(Number(d.dateKey.split('-')[2]))
+    })
+  }, [prevYearCombined, month, daily])
 
   // サマリー: 選択日 or 月間
   const monthSummary = useMemo(() => computeMonthSummary(daily), [daily])
