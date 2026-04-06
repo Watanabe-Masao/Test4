@@ -6,6 +6,8 @@
  * - 複数タグ: AND の可視化（情報出力）。
  *
  * @guard G8 責務分離（責務タグカバレッジ）
+ * @guard C8 1文説明テスト（複数タグ = AND = 分離候補）
+ * @guard C9 現実把握優先（未分類は正直に残す）
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
