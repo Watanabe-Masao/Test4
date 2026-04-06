@@ -27,8 +27,6 @@ export type ChartRightMetric = 'precipitation' | 'sunshine' | 'humidity'
 interface Props {
   readonly daily: readonly DailyWeatherSummary[]
   readonly prevYearDaily?: readonly DailyWeatherSummary[]
-  readonly year: number
-  readonly month: number
   readonly selectedDays?: ReadonlySet<number>
   readonly onDayClick?: (dateKey: string) => void
   readonly onDayDblClick?: (dateKey: string) => void
@@ -48,8 +46,6 @@ const METRIC_OPTIONS: readonly { key: ChartRightMetric; label: string }[] = [
 export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
   daily,
   prevYearDaily,
-  year,
-  month,
   selectedDays,
   onDayClick,
   onDayDblClick,
@@ -71,15 +67,10 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
     return map
   }, [prevYearDaily])
 
-  // 初期 zoom 範囲（3ヶ月モード時のみ使用）
-  const initialZoom = useMemo(
-    () => (monthBoundaries ? calcInitialZoomRange(monthBoundaries) : null),
-    [monthBoundaries],
-  )
-  const zoomStart = initialZoom?.start ?? 0
-  const zoomEnd = initialZoom?.end ?? 100
-
   const option = useMemo(() => {
+    const zoom = monthBoundaries ? calcInitialZoomRange(monthBoundaries) : null
+    const zoomStart = zoom?.start ?? 0
+    const zoomEnd = zoom?.end ?? 100
     if (daily.length === 0) return {}
 
     const days: string[] = []
@@ -449,7 +440,7 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
           }
         : {}),
     }
-  }, [daily, year, month, ct, prevYearMap, selectedDays, rightMetric])
+  }, [daily, ct, prevYearMap, selectedDays, rightMetric, monthBoundaries])
 
   const extractDateKey = useCallback(
     (params: Record<string, unknown>) => {
