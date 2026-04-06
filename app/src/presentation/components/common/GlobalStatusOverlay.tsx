@@ -5,6 +5,7 @@
  * error フェーズは non-blocking だが、ユーザーにエラーを通知するため常に表示する。
  *
  * UI は application が決めた意味を描画するだけ。状態の生成・判断を行わない。
+ * @responsibility R:widget
  */
 import { useAppLifecycleContext } from '@/application/lifecycle'
 import type { AppLifecyclePhase } from '@/application/lifecycle'

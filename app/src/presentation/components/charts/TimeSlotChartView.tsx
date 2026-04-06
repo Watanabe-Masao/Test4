@@ -5,6 +5,7 @@
  * DailySalesChart → DailySalesChartBody と同じ Controller / View パターン。
  *
  * Props は完全に ViewModel — weatherCode 等のドメイン値を含まない。
+ * @responsibility R:chart-view
  */
 import { memo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'

@@ -7,6 +7,7 @@
  * @see PeriodFilter.tsx — 設計ルール (RULE-1〜RULE-6) の詳細
  * @see periodFilterUtils.ts — 純粋関数群
  * @see divisorRules.test.ts — アーキテクチャガードテスト
+ * @responsibility R:state-machine
  */
 import { useState, useMemo, useCallback } from 'react'
 import type { CategoryTimeSalesRecord } from '@/domain/models/record'

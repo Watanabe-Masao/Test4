@@ -3,6 +3,7 @@
  *
  * IntegratedSalesChart から分離。600行制限対応。
  * AnimatePresence による切替フェードを含む。
+ * @responsibility R:chart-view
  */
 import { memo } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'

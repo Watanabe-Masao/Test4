@@ -1,5 +1,6 @@
 /**
  * CV折れ線グラフビュー (ECharts) — CvTimeSeriesChart のサブコンポーネント
+ * @responsibility R:chart-view
  */
 import { useMemo } from 'react'
 import { useTheme } from 'styled-components'

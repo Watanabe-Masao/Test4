@@ -46,7 +46,8 @@ interface Props {
     string,
     { sales: number; discount: number; customers?: number; ctsQuantity?: number }
   >
-  /** 日クリック時コールバック（異常値バーのクリックでナビゲーション） */
+  /** 日クリック時コールバック（異常値バーのクリックでナビゲーション）  * @responsibility R:chart-view
+   */
   onDayClick?: (day: number) => void
   /** DuckDB 接続（カテゴリPI値ランキング子チャート用） */
   queryExecutor?: QueryExecutor | null

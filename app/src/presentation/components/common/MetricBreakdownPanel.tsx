@@ -7,6 +7,7 @@
  *
  * @see useMetricBreakdown.ts — データ変換・状態管理フック
  * @see MetricBreakdownPanel.styles.ts — スタイル定義
+ * @responsibility R:widget
  */
 import React from 'react'
 import type { Explanation, MetricId } from '@/domain/models/analysis'

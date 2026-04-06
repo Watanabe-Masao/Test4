@@ -3,6 +3,7 @@
  *
  * 複数のチャート間でカテゴリ・時間帯・店舗の選択状態を共有し、
  * 一方のチャートでの操作が他方のチャートに伝播する統合的な分析体験を実現する。
+ * @responsibility R:context
  */
 import { useState, useMemo, useCallback, type ReactNode } from 'react'
 import { CrossChartSelectionContext, INITIAL_STATE } from './crossChartSelectionContextDef'

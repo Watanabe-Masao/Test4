@@ -9,6 +9,7 @@
  * - 継承中の条件表示（ContextTag）
  * - ドリルダウン元の明示（drillLabel）
  * - slideDown アニメーション
+ * @responsibility R:chart-view
  */
 import { forwardRef, type ReactNode } from 'react'
 import type { ContainedRole } from './ContainedAnalysisPanel.styles'

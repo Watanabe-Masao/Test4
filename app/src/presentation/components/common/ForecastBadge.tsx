@@ -4,6 +4,7 @@
  * WeatherBadge（実測値）との視覚的区別:
  *   - WeatherBadge: WMO コード + 実測気温
  *   - ForecastBadge: 気象庁予報コード + 予報気温 + 降水確率 + 信頼度
+ * @responsibility R:widget
  */
 import { memo } from 'react'
 import styled from 'styled-components'

@@ -1,5 +1,6 @@
 /**
  * レイアウト・構造コンポーネント
+ * @responsibility R:utility
  */
 export { Button } from './Button'
 export { Card, CardTitle } from './Card'

@@ -9,6 +9,7 @@
  *   - ウォーターフォール: 前年→当年の累積差分を滝グラフで表示
  *
  * @migration P5: plan hook 経由に移行済み（旧: useDuckDBYoyDaily 直接 import）
+ * @responsibility R:chart-view
  */
 import { useState, useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'

@@ -3,6 +3,7 @@
  *
  * チャートごとに個別実装されていた3状態を統合。
  * ChartCard 内で使用する。
+ * @responsibility R:chart-view
  */
 import styled from 'styled-components'
 import { ChartSkeleton } from '@/presentation/components/common/feedback'

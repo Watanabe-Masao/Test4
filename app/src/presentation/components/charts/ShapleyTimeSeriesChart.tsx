@@ -1,5 +1,6 @@
 /**
  * シャープリー分解 時系列チャート (ECharts)
+ * @responsibility R:chart-view
  */
 import { memo, useMemo, useState, useCallback } from 'react'
 import { useTheme } from 'styled-components'

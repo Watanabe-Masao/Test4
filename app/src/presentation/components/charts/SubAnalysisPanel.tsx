@@ -6,6 +6,7 @@
  *
  * ChartCard variant="section" を使用し、親カードとデザインを統一。
  * DuckQueryContext: DuckDB 接続 + フィルタ条件の共通型。
+ * @responsibility R:chart-view
  */
 import { memo } from 'react'
 import styled, { keyframes } from 'styled-components'

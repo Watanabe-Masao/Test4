@@ -1,5 +1,6 @@
 /**
  * データ表示コンポーネント
+ * @responsibility R:utility
  */
 export { KpiCard, KpiGrid } from './KpiCard'
 export { MetricBreakdownPanel } from './MetricBreakdownPanel'

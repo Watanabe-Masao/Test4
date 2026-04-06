@@ -8,6 +8,7 @@
  * @guard H1 Screen Plan 経由のみ
  * @guard H2 比較は pair/bundle 契約
  * @guard H4 component に acquisition logic 禁止
+ * @responsibility R:chart-view
  */
 import { useState, useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'

@@ -3,6 +3,7 @@
  *
  * 各チャートで重複していた HeaderRow / Title / ViewToggle / ViewBtn を
  * 一箇所に集約。既存チャートはこのコンポーネントを利用する形に段階的に移行。
+ * @responsibility R:chart-view
  */
 import { useState, useCallback } from 'react'
 import type { ChartGuide } from './chartGuides'

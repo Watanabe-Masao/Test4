@@ -158,7 +158,8 @@ export function ImportSummaryCard({
         ))}
       </FileList>
 
-      {/* スキップ行・警告の詳細表示 */}
+      {/* スキップ行・警告の詳細表示  * @responsibility R:form
+       */}
       {summary.results.map((r: FileImportResult, i: number) => {
         const hasSkipped = r.skippedRows && r.skippedRows.length > 0
         const hasWarnings = r.warnings && r.warnings.length > 0

@@ -4,6 +4,7 @@
  * 対象年月を前月/翌月ボタンまたは直接入力で切り替える。
  * 年月変更は計算結果・前年比較・予算分析など全体に影響するため、
  * 視認性の高い位置に配置し、現在の対象年月を常に明示する。
+ * @responsibility R:widget
  */
 import { useCallback, useState } from 'react'
 import { useSettings } from '@/application/hooks/useSettings'

@@ -1,4 +1,5 @@
-/** DailySalesChart 描画コンポーネント — ECharts による日別チャート描画のみを担う */
+/** DailySalesChart 描画コンポーネント — ECharts による日別チャート描画のみを担う  * @responsibility R:chart-view
+ */
 import { memo, useMemo, useRef, useCallback } from 'react'
 import { EChart } from './EChart'
 import type { DailySalesDataResult } from './useDailySalesData'

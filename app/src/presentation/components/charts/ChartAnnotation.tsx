@@ -8,6 +8,7 @@
  * <ChartAnnotation ct={ct} content="目標粗利率。この線を超えれば健全な水準。">
  *   <span>目標 30%</span>
  * </ChartAnnotation>
+ * @responsibility R:chart-view
  */
 import { useState, type ReactNode } from 'react'
 import {

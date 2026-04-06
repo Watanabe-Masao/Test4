@@ -12,6 +12,7 @@
  * - 右軸モードに応じてサブ分析パネルを動的配置
  *
  * 状態管理・データ取得は useIntegratedSalesState に分離。
+ * @responsibility R:chart-view
  */
 import { memo, useMemo } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'

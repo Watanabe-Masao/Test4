@@ -23,7 +23,8 @@ import {
 
 interface ErrorBoundaryProps {
   children: ReactNode
-  /** カスタムフォールバックUI */
+  /** カスタムフォールバックUI  * @responsibility R:widget
+   */
   fallback?: ReactNode | ((error: Error, reset: () => void) => ReactNode)
   /** エラー発生時コールバック */
   onError?: (error: Error, errorInfo: ErrorInfo) => void

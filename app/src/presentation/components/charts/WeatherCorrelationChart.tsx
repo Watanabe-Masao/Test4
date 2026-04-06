@@ -1,5 +1,6 @@
 /**
  * 天気-売上 相関チャート (ECharts)
+ * @responsibility R:chart-view
  */
 import { useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'

@@ -26,7 +26,8 @@ import { createFmt, AGG_LABELS } from './EstimatedInventoryDetailChart.helpers'
 import type { ViewMode } from './EstimatedInventoryDetailChart.helpers'
 import { chartFontSize } from '@/presentation/theme/tokens'
 
-/* ------------------------------------------------------------------ */
+/* ------------------------------------------------------------------  * @responsibility R:chart-view
+ */
 /*  props                                                              */
 /* ------------------------------------------------------------------ */
 

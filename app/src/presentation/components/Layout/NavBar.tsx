@@ -38,7 +38,8 @@ type NavLabelKey =
   | 'reports'
   | 'admin'
 
-/** PageMeta.id → i18n nav message key */
+/** PageMeta.id → i18n nav message key  * @responsibility R:layout
+ */
 const NAV_LABEL_KEY: Record<string, NavLabelKey> = {
   dashboard: 'dashboard',
   'store-analysis': 'storeAnalysis',

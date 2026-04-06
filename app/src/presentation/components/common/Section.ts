@@ -4,6 +4,7 @@ import styled from 'styled-components'
  * 共通セクション / セクションタイトルコンポーネント
  *
  * ページ内のセクション区切りに使う共通スタイル。
+ * @responsibility R:utility
  */
 
 export const Section = styled.section`

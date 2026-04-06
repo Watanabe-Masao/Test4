@@ -3,6 +3,7 @@
  *
  * DeptHourlyChart.tsx から分離。
  * 状態管理・クエリ・データ変換を担い、UI は DeptHourlyChart に残す。
+ * @responsibility R:orchestration
  */
 import React, { useState, useMemo, useCallback } from 'react'
 import { useTheme } from 'styled-components'

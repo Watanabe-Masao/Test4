@@ -5,6 +5,7 @@
  * 状態管理・クエリ・データ変換を担い、UI は CategoryTrendChart に残す。
  *
  * @migration P5: plan hook — useCategoryTrendPlan 経由でクエリ取得
+ * @responsibility R:orchestration
  */
 import { useMemo, useState, useCallback } from 'react'
 import { useTheme } from 'styled-components'

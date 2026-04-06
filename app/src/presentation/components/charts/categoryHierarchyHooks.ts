@@ -3,6 +3,7 @@
  *
  * react-refresh/only-export-components 対応のため、
  * コンポーネント（Provider）とフック・ユーティリティを別ファイルに分離。
+ * @responsibility R:context
  */
 import { useContext } from 'react'
 import type { CategoryTimeSalesRecord } from '@/domain/models/record'

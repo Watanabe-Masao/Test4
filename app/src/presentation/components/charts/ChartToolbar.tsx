@@ -3,6 +3,7 @@
  *
  * SegmentedControl、Chip群、Slider 等を水平配置する。
  * ChartCard の toolbar prop に渡して使用。
+ * @responsibility R:chart-view
  */
 import type { ReactNode } from 'react'
 import { ToolbarRow, ToolbarGroup, ToolbarLabel } from './ChartToolbar.styles'

@@ -6,6 +6,7 @@
  *
  * DuckDB 依存ウィジェット（size !== 'kpi'）は queryExecutor の readiness を
  * チェックし、未準備の場合は ChartSkeleton を表示する。
+ * @responsibility R:widget
  */
 import { useState, useCallback, useRef, memo, type ReactNode } from 'react'
 import { ChartErrorBoundary } from '@/presentation/components/common/feedback'

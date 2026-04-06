@@ -18,7 +18,8 @@ interface Props {
   start: number
   end: number
   onChange: (start: number, end: number) => void
-  /** 取込データ有効期間（経過日数）。超過時に警告表示 */
+  /** 取込データ有効期間（経過日数）。超過時に警告表示  * @responsibility R:chart-view
+   */
   elapsedDays?: number
 }
 

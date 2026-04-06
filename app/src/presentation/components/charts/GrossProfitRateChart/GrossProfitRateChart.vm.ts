@@ -5,6 +5,7 @@
  * ECharts に渡すデータ構造と閾値判定ロジックを分離する。
  *
  * @guard F7 View は ViewModel のみ受け取る
+ * @responsibility R:transform
  */
 import type { DailyRecord } from '@/domain/models/record'
 import { calculateGrossProfitRate } from '@/domain/calculations/utils'
