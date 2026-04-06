@@ -51,6 +51,7 @@ export {
   toMappingKind,
 } from './domain/comparisonProvenance'
 
-// 公開 API: Facade hook
+// 公開 API: Facade hooks
 export { useComparisonModule } from './application/hooks/useComparisonModule'
 export type { ComparisonModule } from './application/hooks/useComparisonModule'
+export { useComparisonScope } from './application/hooks/useComparisonScope'

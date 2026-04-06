@@ -15,6 +15,7 @@ import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useWeatherTriple } from '@/application/hooks/useWeatherTriple'
 import { useWeatherForecast } from '@/application/hooks/useWeatherForecast'
 import { useWeatherHourlyOnDemand } from '@/application/hooks/useWeatherHourlyOnDemand'
+import { useComparisonScope } from '@/features/comparison'
 import type { DailyForecast, StoreLocation } from '@/domain/models/record'
 import { ForecastBadge } from '@/presentation/components/common/ForecastBadge'
 import { HourlyWeatherModal } from '@/presentation/pages/Dashboard/widgets/HourlyWeatherModal'
@@ -22,12 +23,7 @@ import { WeatherTemperatureChart } from './WeatherTemperatureChart'
 import { InlineLocationSetup } from './InlineLocationSetup'
 import { WeatherDetailSection } from './WeatherDetailSection'
 import { WeatherSummarySection } from './WeatherSummarySection'
-import {
-  computeMonthSummary,
-  computeDaySummary,
-  filterPrevYearForComparison,
-  type WeatherSummaryResult,
-} from './weatherSummary'
+import { computeMonthSummary, computeDaySummary, type WeatherSummaryResult } from './weatherSummary'
 import {
   Page,
   Header,
@@ -112,8 +108,11 @@ export const WeatherPage = memo(function WeatherPage() {
   const [uiState, setUiState] = useState<{
     modalDate: string | null
     modalForecast: DailyForecast | null
-    comparisonMode: 'sameDate' | 'sameDow'
-  }>({ modalDate: null, modalForecast: null, comparisonMode: 'sameDate' })
+  }>({ modalDate: null, modalForecast: null })
+
+  // 比較スコープ（ヘッダーと同じ alignmentPolicy を使用）
+  const alignmentPolicy = useSettingsStore((s) => s.settings.alignmentPolicy)
+  const comparisonScope = useComparisonScope(year, month, alignmentPolicy)
 
   // 月ナビ
   const goPrev = useCallback(() => {
@@ -194,11 +193,14 @@ export const WeatherPage = memo(function WeatherPage() {
     [selectedStoreId, storeLocations, updateSettings],
   )
 
-  // 当月の前年データ（comparisonMode に応じて同日 or 同曜日でフィルタ）
-  const prevYearCurrentMonth = useMemo(
-    () => filterPrevYearForComparison(daily, prevYearCombined, month, uiState.comparisonMode),
-    [daily, prevYearCombined, month, uiState.comparisonMode],
-  )
+  // 当月の前年データ（comparisonScope の日付範囲でフィルタ）
+  const prevYearCurrentMonth = useMemo(() => {
+    if (!comparisonScope) return []
+    const { from, to } = comparisonScope.dateRange
+    const fromKey = `${from.year}-${String(from.month).padStart(2, '0')}-${String(from.day).padStart(2, '0')}`
+    const toKey = `${to.year}-${String(to.month).padStart(2, '0')}-${String(to.day).padStart(2, '0')}`
+    return prevYearCombined.filter((d) => d.dateKey >= fromKey && d.dateKey <= toKey)
+  }, [comparisonScope, prevYearCombined])
 
   // サマリー: 選択日 or 月間
   const monthSummary = useMemo(() => computeMonthSummary(daily), [daily])
@@ -323,30 +325,13 @@ export const WeatherPage = memo(function WeatherPage() {
             exit="exit"
             transition={fadeTransition}
           >
-            {/* 前年比較モード切替 */}
-            <div style={{ display: 'flex', gap: 4, marginBottom: 8 }}>
-              {(
-                [
-                  ['sameDate', '前年同月'],
-                  ['sameDow', '前年同曜日'],
-                ] as const
-              ).map(([key, label]) => (
-                <NavBtn
-                  key={key}
-                  onClick={() => setUiState((s) => ({ ...s, comparisonMode: key }))}
-                  style={{
-                    padding: '4px 12px',
-                    fontSize: '0.75rem',
-                    fontWeight: uiState.comparisonMode === key ? 700 : 400,
-                    background: uiState.comparisonMode === key ? '#3b82f6' : undefined,
-                    color: uiState.comparisonMode === key ? '#fff' : undefined,
-                    borderColor: uiState.comparisonMode === key ? 'transparent' : undefined,
-                  }}
-                >
-                  {label}
-                </NavBtn>
-              ))}
-            </div>
+            {/* 比較モード表示（ヘッダーの設定に連動） */}
+            {comparisonScope && (
+              <StationBadge style={{ marginBottom: 8, display: 'inline-block' }}>
+                比較: {alignmentPolicy === 'sameDayOfWeek' ? '前年同曜日' : '前年同日'}
+                {comparisonScope.dowOffset > 0 && ` (${comparisonScope.dowOffset}日ずれ)`}
+              </StationBadge>
+            )}
 
             {/* サマリー: 月間（常時） + 選択日（日クリック時に並列表示） */}
             <AnimatePresence mode="wait">

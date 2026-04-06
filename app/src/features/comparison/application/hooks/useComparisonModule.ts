@@ -160,10 +160,7 @@ export function useComparisonModule(
     [kpi, currentAverageDailySales, periodSelection],
   )
 
-  // 7. 前年スコープ（DuckDB日付範囲 + 客数）
-  // scope が存在すれば日付範囲を提供する。daily.hasPrevYear に依存しない。
-  // IndexedDB に前年データがなくても DuckDB に前年データがある場合があるため、
-  // DuckDB ベースのチャート（TimeSlotChart 等）が前年データを取得できるようにする。
+  // 7. 前年スコープ（日付解決は useComparisonScope と同じロジック）
   const prevYearScope = useMemo((): PrevYearScope | undefined => {
     if (!scope) return undefined
     return {
