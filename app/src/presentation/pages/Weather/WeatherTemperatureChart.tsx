@@ -151,8 +151,8 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
       rightInterval = 20
       rightCeil = 100 // 湿度は 0-100%
     }
-    // 棒グラフを下半分に収める（* 2 で下 50% に表示）
-    const rightAxisMax = rightMetric === 'humidity' ? 100 * 2 : rightCeil * 2
+    // 軸の最大値は実データ範囲に合わせる（目盛りが無駄に広がらない）
+    const rightAxisMax = rightCeil
 
     // Selected days highlight
     const selectedSet = selectedDays ?? new Set<number>()
@@ -256,7 +256,7 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
           axisLabel: {
             fontSize: 10,
             color: ct.textMuted,
-            formatter: (v: number) => (v <= rightCeil ? `${v}` : ''),
+            formatter: '{value}',
           },
           splitLine: { show: false },
         },
