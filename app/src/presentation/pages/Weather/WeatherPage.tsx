@@ -246,7 +246,7 @@ export const WeatherPage = memo(function WeatherPage() {
       selectedDayNumbers.has(Number(r.dateKey.split('-')[2])),
     )
     return computeMonthSummary(filtered)
-  }, [prevYearCurrentMonth, selectedDays])
+  }, [prevYearCurrentMonth, selectedDayNumbers])
 
   // 予報分離
   const observedKeys = useMemo(() => new Set(daily.map((d) => d.dateKey)), [daily])
