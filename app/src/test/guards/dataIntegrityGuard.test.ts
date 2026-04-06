@@ -264,10 +264,7 @@ describe('Pattern 5: 前年データ二重投入の防止', () => {
     const initialLoadSection = duckContent.match(
       /initialLoadDone\.current\s*\)[\s\S]*?initialLoadDone\.current\s*=\s*true/,
     )?.[0]
-    expect(
-      initialLoadSection,
-      '初回ロードセクションが見つかりません',
-    ).toBeDefined()
+    expect(initialLoadSection, '初回ロードセクションが見つかりません').toBeDefined()
     expect(
       initialLoadSection!.includes('alreadyLoadedAsPrev'),
       '初回ロードの歴史月ループに prevYear 二重投入ガード (alreadyLoadedAsPrev) がありません。' +

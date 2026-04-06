@@ -29,6 +29,7 @@ export type ViewType =
   | 'cost-detail'
   | 'purchase-analysis'
   | 'reports'
+  | 'weather'
   | 'admin'
 
 // ── PageMeta 型 ──

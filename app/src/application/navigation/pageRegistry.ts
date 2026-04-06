@@ -106,6 +106,20 @@ export const PAGE_REGISTRY: readonly PageMeta[] = [
     navOrder: 6,
     navDividerAfter: true,
   },
+  // 外部データ
+  {
+    id: 'weather',
+    pathPattern: '/weather',
+    kind: 'standard',
+    category: 'analysis',
+    label: '天気',
+    icon: '🌤',
+    navVisible: true,
+    mobileNavVisible: false,
+    shortcutIndex: undefined,
+    navOrder: 7,
+    navDividerAfter: true,
+  },
   // 出力
   {
     id: 'reports',
@@ -117,7 +131,7 @@ export const PAGE_REGISTRY: readonly PageMeta[] = [
     navVisible: true,
     mobileNavVisible: false,
     shortcutIndex: 6,
-    navOrder: 7,
+    navOrder: 8,
   },
   // 管理（NavBar 下部に配置）
   {

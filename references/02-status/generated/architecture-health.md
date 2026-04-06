@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-06T01:33:28.398Z
+> Generated: 2026-04-06T04:32:23.481Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -9,10 +9,10 @@
 | 指標 | 値 |
 |---|---|
 | Total KPIs | 19 |
-| OK | 19 |
+| OK | 18 |
 | WARN | 0 |
-| FAIL | 0 |
-| Hard Gate | PASS |
+| FAIL | 1 |
+| Hard Gate | FAIL |
 
 ## 許可リスト
 
@@ -57,14 +57,14 @@
 |---|---|---|---|
 | docs.obsoleteTerms.count | 廃止用語残存数 | 0 / 0 | OK |
 | docs.generatedSections.stale | Generated section 未更新 | 0 / 0 | OK |
-| docs.obligation.violations | Doc 更新義務違反数 | 0 / 0 | OK |
+| docs.obligation.violations | Doc 更新義務違反数 | 2 / 0 | FAIL |
 
 ## バンドル性能
 
 | ID | 指標 | 値 | 状態 |
 |---|---|---|---|
-| perf.bundle.totalJsKb | JS バンドル合計サイズ | 6447 / 7000 | OK |
-| perf.bundle.mainJsKb | メインバンドルサイズ | 2217 / 2500 | OK |
+| perf.bundle.totalJsKb | JS バンドル合計サイズ | 6470 / 7000 | OK |
+| perf.bundle.mainJsKb | メインバンドルサイズ | 2218 / 2500 | OK |
 | perf.bundle.vendorEchartsKb | ECharts バンドルサイズ | 919 / 1000 | OK |
 | perf.bundle.cssKb | CSS 合計サイズ | 0 | OK |
 
