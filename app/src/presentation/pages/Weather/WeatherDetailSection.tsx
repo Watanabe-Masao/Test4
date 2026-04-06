@@ -14,7 +14,7 @@ interface Props {
   readonly prevYearDaily: readonly DailyWeatherSummary[]
   readonly year: number
   readonly month: number
-  readonly selectedDays: ReadonlySet<number>
+  readonly selectedDays: ReadonlySet<string>
   readonly onDayClick: (dateKey: string) => void
   /** 曜日フィルタ（チャートヘッダから共有） */
   readonly selectedDows: readonly number[]

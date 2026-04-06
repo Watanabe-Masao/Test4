@@ -27,10 +27,11 @@ export type ChartRightMetric = 'precipitation' | 'sunshine' | 'humidity'
 interface Props {
   readonly daily: readonly DailyWeatherSummary[]
   readonly prevYearDaily?: readonly DailyWeatherSummary[]
-  readonly selectedDays?: ReadonlySet<number>
+  readonly selectedDays?: ReadonlySet<string>
   readonly onDayClick?: (dateKey: string) => void
   readonly onDayDblClick?: (dateKey: string) => void
-  readonly onDayRangeSelect?: (startDay: number, endDay: number) => void
+  /** ドラッグ範囲選択（インデックスベース） */
+  readonly onDayRangeSelect?: (startIdx: number, endIdx: number) => void
   /** 3ヶ月連続スクロール: 月境界情報 */
   readonly monthBoundaries?: import('@/application/hooks/useWeatherTriple').MonthBoundaries
   /** 月の中心がシフトしたときに発火 */
@@ -86,14 +87,15 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
       const dow = new Date(dYear, dMonth - 1, day).getDay()
       const dowLabel = ['日', '月', '火', '水', '木', '金', '土'][dow]
       const icon = WEATHER_ICONS[categorizeWeatherCode(d.dominantWeatherCode)]
-      // 月初日には月名ラベルを追加
-      const monthPrefix = day === 1 ? `{monthLabel|${dMonth}月}\n` : ''
+      // 月初日には日付の前に月名を添える（段差なし）
+      const dayLabel =
+        day === 1 ? `{monthLabel|${dMonth}月}${day}(${dowLabel})` : `${day}(${dowLabel})`
       // 前年天気アイコン（あれば 2 段目に表示）
       const prevDay = prevYearMap?.get(day)
       const prevIcon = prevDay
         ? `\n{prev|${WEATHER_ICONS[categorizeWeatherCode(prevDay.dominantWeatherCode)]}}`
         : ''
-      days.push(`${monthPrefix}${day}(${dowLabel})\n{icon|${icon}}${prevIcon}`)
+      days.push(`${dayLabel}\n{icon|${icon}}${prevIcon}`)
       dayNumbers.push(day)
     }
 
@@ -154,9 +156,9 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
     // 軸の最大値は実データ範囲に合わせる（目盛りが無駄に広がらない）
     const rightAxisMax = rightCeil
 
-    // Selected days highlight
-    const selectedSet = selectedDays ?? new Set<number>()
-    const isSelected = (idx: number) => selectedSet.has(dayNumbers[idx])
+    // Selected days highlight (dateKey ベース)
+    const selectedSet = selectedDays ?? new Set<string>()
+    const isSelected = (idx: number) => selectedSet.has(daily[idx]?.dateKey ?? '')
 
     // Build legend data
     const legendData = ['最高気温', '平均気温', '最低気温', rightLabel]
@@ -311,7 +313,7 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
             ? {
                 markArea: {
                   silent: true,
-                  data: buildMarkAreaRanges(dayNumbers, selectedSet),
+                  data: buildMarkAreaRanges(daily, selectedSet),
                 },
               }
             : {}),
@@ -487,9 +489,7 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
       if (!range || range.length < 2) return
       const startIdx = Math.max(0, Math.min(range[0], range[1]))
       const endIdx = Math.min(daily.length - 1, Math.max(range[0], range[1]))
-      const startDay = Number(daily[startIdx]?.dateKey?.split('-')[2])
-      const endDay = Number(daily[endIdx]?.dateKey?.split('-')[2])
-      if (startDay > 0 && endDay > 0) onDayRangeSelect(startDay, endDay)
+      if (startIdx <= endIdx) onDayRangeSelect(startIdx, endIdx)
     }
   }, [onDayRangeSelect, daily])
 
@@ -576,13 +576,16 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
   )
 })
 
-/** 選択日セットから連続範囲の markArea データを生成 */
-function buildMarkAreaRanges(dayNumbers: number[], selected: ReadonlySet<number>): unknown[][] {
+/** 選択日セット(dateKey)から連続範囲の markArea データを生成 */
+function buildMarkAreaRanges(
+  daily: readonly { dateKey: string }[],
+  selected: ReadonlySet<string>,
+): unknown[][] {
   const style = { color: 'rgba(59,130,246,0.08)' }
   const areas: unknown[][] = []
   let rangeStart = -1
-  for (let i = 0; i < dayNumbers.length; i++) {
-    if (selected.has(dayNumbers[i])) {
+  for (let i = 0; i < daily.length; i++) {
+    if (selected.has(daily[i].dateKey)) {
       if (rangeStart < 0) rangeStart = i
     } else {
       if (rangeStart >= 0) {
@@ -592,7 +595,7 @@ function buildMarkAreaRanges(dayNumbers: number[], selected: ReadonlySet<number>
     }
   }
   if (rangeStart >= 0) {
-    areas.push([{ xAxis: rangeStart }, { xAxis: dayNumbers.length - 1, itemStyle: style }])
+    areas.push([{ xAxis: rangeStart }, { xAxis: daily.length - 1, itemStyle: style }])
   }
   return areas
 }

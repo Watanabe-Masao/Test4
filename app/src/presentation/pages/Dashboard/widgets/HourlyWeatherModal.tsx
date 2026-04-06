@@ -4,7 +4,7 @@
  * 実測日: 当年の時間別データ + 前年の破線重ね合わせ
  * 予報日: 前年の時間別データをメイングラフ + 当日の予報サマリをカード表示
  */
-import { memo, useMemo } from 'react'
+import { memo, useMemo, useState } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { Modal } from '@/presentation/components/common/Modal'
@@ -51,13 +51,25 @@ interface Props {
   readonly onClose: () => void
 }
 
+type HourlyRightMetric = 'precipitation' | 'sunshine' | 'humidity'
+
 interface ChartPoint {
   readonly hour: string
   readonly temperature?: number
   readonly precipitation?: number
+  readonly sunshine?: number
+  readonly humidity?: number
   readonly prevTemperature?: number
   readonly prevPrecipitation?: number
+  readonly prevSunshine?: number
+  readonly prevHumidity?: number
 }
+
+const HOURLY_METRIC_OPTIONS: readonly { key: HourlyRightMetric; label: string }[] = [
+  { key: 'precipitation', label: '降水量' },
+  { key: 'sunshine', label: '日照' },
+  { key: 'humidity', label: '湿度' },
+]
 
 function buildSummary(records: readonly HourlyWeatherRecord[]) {
   if (records.length === 0) return null
@@ -82,6 +94,7 @@ export const HourlyWeatherModal = memo(function HourlyWeatherModal({
   onClose,
 }: Props) {
   const theme = useTheme() as AppTheme
+  const [rightMetric, setRightMetric] = useState<HourlyRightMetric>('precipitation')
   const isForecastMode = !!forecast && (!records || records.length === 0)
   const hasPrev = prevYearRecords && prevYearRecords.length > 0
   const hasRecords = records && records.length > 0
@@ -101,8 +114,12 @@ export const HourlyWeatherModal = memo(function HourlyWeatherModal({
           hour: `${String(r.hour).padStart(2, '0')}時`,
           temperature: r.temperature,
           precipitation: r.precipitation,
+          sunshine: r.sunshineDuration / 60, // 秒→分
+          humidity: r.humidity,
           prevTemperature: prev?.temperature,
           prevPrecipitation: prev?.precipitation,
+          prevSunshine: prev ? prev.sunshineDuration / 60 : undefined,
+          prevHumidity: prev?.humidity,
         }
       })
     }
@@ -112,6 +129,8 @@ export const HourlyWeatherModal = memo(function HourlyWeatherModal({
         hour: `${String(r.hour).padStart(2, '0')}時`,
         prevTemperature: r.temperature,
         prevPrecipitation: r.precipitation,
+        prevSunshine: r.sunshineDuration / 60,
+        prevHumidity: r.humidity,
       }))
     }
     return []
@@ -132,16 +151,37 @@ export const HourlyWeatherModal = memo(function HourlyWeatherModal({
   const option = useMemo((): EChartsOption => {
     const hours = chartData.map((d) => d.hour)
 
+    // 右軸メトリック設定
+    const rightLabel =
+      rightMetric === 'sunshine'
+        ? '日照(分)'
+        : rightMetric === 'humidity'
+          ? '湿度(%)'
+          : '降水量(mm)'
+    const rightUnit = rightMetric === 'sunshine' ? '分' : rightMetric === 'humidity' ? '%' : 'mm'
+    const getRightValue = (d: ChartPoint) =>
+      rightMetric === 'sunshine'
+        ? d.sunshine
+        : rightMetric === 'humidity'
+          ? d.humidity
+          : d.precipitation
+    const getPrevRightValue = (d: ChartPoint) =>
+      rightMetric === 'sunshine'
+        ? d.prevSunshine
+        : rightMetric === 'humidity'
+          ? d.prevHumidity
+          : d.prevPrecipitation
+
     type SeriesItem = Record<string, unknown>
     const seriesList: SeriesItem[] = []
 
-    // 当年降水量（実測日のみ）
+    // 当年右軸データ（実測日のみ）
     if (hasRecords) {
       seriesList.push({
-        name: '降水量',
+        name: rightLabel,
         type: 'bar',
         yAxisIndex: 1,
-        data: chartData.map((d) => d.precipitation ?? null),
+        data: chartData.map((d) => getRightValue(d) ?? null),
         itemStyle: { color: '#3b82f6', opacity: 0.3 },
       })
     }
@@ -182,13 +222,14 @@ export const HourlyWeatherModal = memo(function HourlyWeatherModal({
       })
     }
 
-    // 前年降水量
+    // 前年右軸データ
     if (hasPrev || isForecastMode) {
+      const prevRightLabel = isForecastMode ? `前年実績${rightLabel}` : `前年${rightLabel}`
       seriesList.push({
-        name: isForecastMode ? '前年実績降水量' : '前年降水量',
+        name: prevRightLabel,
         type: 'bar',
         yAxisIndex: 1,
-        data: chartData.map((d) => d.prevPrecipitation ?? null),
+        data: chartData.map((d) => getPrevRightValue(d) ?? null),
         itemStyle: { color: '#3b82f6', opacity: isForecastMode ? 0.3 : 0.15 },
       })
     }
@@ -208,10 +249,9 @@ export const HourlyWeatherModal = memo(function HourlyWeatherModal({
           }
           for (const p of items) {
             if (p.value == null) continue
-            const unit = p.seriesName.includes('気温')
-              ? `${(p.value as number).toFixed(1)}\u00B0C`
-              : `${(p.value as number).toFixed(1)}mm`
-            html += `${p.marker} ${p.seriesName}: ${unit}<br/>`
+            const isTemp = p.seriesName.includes('気温')
+            const unitStr = isTemp ? '\u00B0C' : rightUnit
+            html += `${p.marker} ${p.seriesName}: ${(p.value as number).toFixed(1)}${unitStr}<br/>`
           }
           return html
         },
@@ -243,11 +283,11 @@ export const HourlyWeatherModal = memo(function HourlyWeatherModal({
         },
         {
           type: 'value' as const,
-          name: 'mm',
+          name: rightUnit,
           axisLabel: {
             color: theme.colors.text3,
             fontSize: 10,
-            formatter: (v: number) => `${v}mm`,
+            formatter: (v: number) => `${v}${rightUnit}`,
           },
           axisLine: { show: false },
           axisTick: { show: false },
@@ -256,7 +296,7 @@ export const HourlyWeatherModal = memo(function HourlyWeatherModal({
       ],
       series: seriesList,
     }
-  }, [chartData, hasRecords, hasPrev, isForecastMode, theme])
+  }, [chartData, hasRecords, hasPrev, isForecastMode, theme, rightMetric])
 
   const modalTitle = prevDayLabel
     ? `${dayLabel}${isForecastMode ? ' の予報' : ' の時間別天気'} vs ${prevDayLabel}（${policyLabel}）`
@@ -269,6 +309,26 @@ export const HourlyWeatherModal = memo(function HourlyWeatherModal({
 
       {chartData.length > 0 && (
         <>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 4, marginBottom: 4 }}>
+            {HOURLY_METRIC_OPTIONS.map(({ key, label }) => (
+              <button
+                key={key}
+                onClick={() => setRightMetric(key)}
+                style={{
+                  padding: '2px 10px',
+                  fontSize: '0.7rem',
+                  borderRadius: 4,
+                  border: `1px solid ${rightMetric === key ? 'transparent' : '#d1d5db'}`,
+                  background: rightMetric === key ? '#3b82f6' : '#f9fafb',
+                  color: rightMetric === key ? '#fff' : '#374151',
+                  fontWeight: rightMetric === key ? 700 : 400,
+                  cursor: 'pointer',
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
           <ChartContainer>
             <EChart option={option} height={250} ariaLabel="時間別天気チャート" />
           </ChartContainer>
