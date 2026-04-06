@@ -5,7 +5,7 @@
  * X軸に天気アイコン付き。日クリック・選択日ハイライト対応。
  * 天気ページ専用。売上データへの依存なし。
  */
-import { memo, useMemo, useCallback } from 'react'
+import { memo, useMemo, useCallback, useState } from 'react'
 import type { EChartsOption } from 'echarts'
 import { EChart } from '@/presentation/components/charts/EChart'
 import { useChartTheme } from '@/presentation/components/charts/chartTheme'
@@ -13,13 +13,16 @@ import type { DailyWeatherSummary } from '@/domain/models/record'
 import { categorizeWeatherCode } from '@/domain/weather/weatherAggregation'
 import type { WeatherCategory } from '@/domain/models/record'
 
+/** WeatherBadge と同じ絵文字を使用 */
 const WEATHER_ICONS: Readonly<Record<WeatherCategory, string>> = {
-  sunny: '\u2600',
-  cloudy: '\u2601',
-  rainy: '\u2602',
-  snowy: '\u2744',
-  other: '\u2014',
+  sunny: '\u2600\uFE0F', // ☀️
+  cloudy: '\u2601\uFE0F', // ☁️
+  rainy: '\uD83C\uDF27\uFE0F', // 🌧️
+  snowy: '\u2744\uFE0F', // ❄️
+  other: '\uD83C\uDF00', // 🌀
 }
+
+export type ChartRightMetric = 'precipitation' | 'sunshine' | 'humidity'
 
 interface Props {
   readonly daily: readonly DailyWeatherSummary[]
@@ -28,7 +31,14 @@ interface Props {
   readonly month: number
   readonly selectedDay?: number | null
   readonly onDayClick?: (dateKey: string) => void
+  readonly onDayDblClick?: (dateKey: string) => void
 }
+
+const METRIC_OPTIONS: readonly { key: ChartRightMetric; label: string }[] = [
+  { key: 'precipitation', label: '降水量' },
+  { key: 'sunshine', label: '日照' },
+  { key: 'humidity', label: '湿度' },
+]
 
 export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
   daily,
@@ -37,7 +47,9 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
   month,
   selectedDay,
   onDayClick,
+  onDayDblClick,
 }: Props) {
+  const [rightMetric, setRightMetric] = useState<ChartRightMetric>('precipitation')
   const ct = useChartTheme()
 
   // Build a map from day number to prevYear data for alignment
@@ -77,6 +89,8 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
     const minTemps = daily.map((d) => d.temperatureMin)
     const avgTemps = daily.map((d) => Math.round(d.temperatureAvg * 10) / 10)
     const precip = daily.map((d) => d.precipitationTotal)
+    const sunshine = daily.map((d) => d.sunshineTotalHours)
+    const humidity = daily.map((d) => d.humidityAvg)
 
     // Previous year data aligned by day number
     const prevMaxTemps = dayNumbers.map((day) => prevYearMap?.get(day)?.temperatureMax ?? null)
@@ -86,19 +100,46 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
       return v != null ? Math.round(v * 10) / 10 : null
     })
     const prevPrecip = dayNumbers.map((day) => prevYearMap?.get(day)?.precipitationTotal ?? null)
+    const prevSunshine = dayNumbers.map((day) => prevYearMap?.get(day)?.sunshineTotalHours ?? null)
+    const prevHumidity = dayNumbers.map((day) => prevYearMap?.get(day)?.humidityAvg ?? null)
 
-    // Compute max precipitation for axis scaling (include prev year)
-    const allPrecip = [...precip, ...prevPrecip.filter((v): v is number => v != null)]
-    const maxPrecip = Math.max(...allPrecip, 1)
+    // Right metric data + axis config
+    const rightData =
+      rightMetric === 'sunshine' ? sunshine : rightMetric === 'humidity' ? humidity : precip
+    const rightPrevData =
+      rightMetric === 'sunshine'
+        ? prevSunshine
+        : rightMetric === 'humidity'
+          ? prevHumidity
+          : prevPrecip
+    const rightLabel =
+      rightMetric === 'sunshine' ? '日照時間' : rightMetric === 'humidity' ? '湿度' : '降水量'
+    const rightUnit = rightMetric === 'sunshine' ? 'h' : rightMetric === 'humidity' ? '%' : 'mm'
+    const rightPrevLabel = `前年${rightLabel}`
 
-    // Compute temperature range for the offset trick
+    // Axis scaling
+    const allRight = [...rightData, ...rightPrevData.filter((v): v is number => v != null)]
+    const maxRight = Math.max(...allRight, 1)
+
+    // Compute temperature range
     const allTemps = [...maxTemps, ...minTemps]
     const tempAxisMin = Math.floor(Math.min(...allTemps) - 3)
     const tempAxisMax = Math.ceil(Math.max(...allTemps) + 3)
-    // Precipitation axis: we want bars at the bottom of the chart.
-    // Use a normal (non-inverse) right axis with min=0 and max scaled so
-    // precipitation values occupy roughly the bottom 25% of the chart.
-    const precipAxisMax = Math.max(maxPrecip * 4, 10)
+
+    // Right Y axis: 降水量は 50mm 刻み、日照は 5h 刻み、湿度は 20% 刻み
+    let rightInterval: number
+    let rightCeil: number
+    if (rightMetric === 'precipitation') {
+      rightInterval = 50
+      rightCeil = Math.ceil(maxRight / 50) * 50 || 50
+    } else if (rightMetric === 'sunshine') {
+      rightInterval = 5
+      rightCeil = Math.ceil(maxRight / 5) * 5 || 5
+    } else {
+      rightInterval = 20
+      rightCeil = 100 // 湿度は 0-100%
+    }
+    const rightAxisMax = rightMetric === 'humidity' ? 100 * 4 : rightCeil * 4
 
     // Selected day markLine
     const selectedDayIndex = selectedDay != null ? dayNumbers.indexOf(selectedDay) : -1
@@ -119,9 +160,9 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
         : []
 
     // Build legend data
-    const legendData = ['最高気温', '平均気温', '最低気温', '降水量']
+    const legendData = ['最高気温', '平均気温', '最低気温', rightLabel]
     if (prevYearMap) {
-      legendData.push('前年降水', '前年最高', '前年平均', '前年最低')
+      legendData.push(rightPrevLabel, '前年最高', '前年平均', '前年最低')
     }
 
     return {
@@ -151,8 +192,8 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
           for (const item of items) {
             if (item.seriesName === 'band') continue
             if (item.value == null) continue
-            const unit =
-              item.seriesName === '降水量' || item.seriesName === '前年降水' ? 'mm' : '\u00B0C'
+            const isRight = item.seriesName === rightLabel || item.seriesName === rightPrevLabel
+            const unit = isRight ? rightUnit : '\u00B0C'
             html += `${item.marker} ${item.seriesName}: <b>${item.value}${unit}</b><br/>`
           }
           return html
@@ -199,16 +240,17 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
         },
         {
           type: 'value',
-          name: '降水量 (mm)',
+          name: `${rightLabel} (${rightUnit})`,
           nameTextStyle: { fontSize: 10, color: ct.textMuted },
           nameLocation: 'start',
           position: 'right',
           min: 0,
-          max: precipAxisMax,
+          max: rightAxisMax,
+          interval: rightInterval,
           axisLabel: {
             fontSize: 10,
             color: ct.textMuted,
-            formatter: (v: number) => (v <= maxPrecip ? `${v}` : ''),
+            formatter: (v: number) => (v <= rightCeil ? `${v}` : ''),
           },
           splitLine: { show: false },
         },
@@ -290,21 +332,15 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
           symbolSize: 4,
           smooth: true,
         },
-        // Precipitation bars (normal axis, grows from bottom up)
+        // 右軸バー — 当年（左）+ 前年（右）横並び
         {
-          name: '降水量',
+          name: rightLabel,
           type: 'bar',
           yAxisIndex: 1,
-          data: precip.map((v, i) => ({
+          data: rightData.map((v, i) => ({
             value: v,
             itemStyle:
-              selectedDayIndex === i
-                ? {
-                    color: ct.colors.primary,
-                    borderRadius: [2, 2, 0, 0],
-                    opacity: 1,
-                  }
-                : undefined,
+              selectedDayIndex === i ? { color: '#2563eb', borderRadius: [2, 2, 0, 0] } : undefined,
           })),
           itemStyle: {
             color: {
@@ -314,31 +350,37 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
               x2: 0,
               y2: 0,
               colorStops: [
-                { offset: 0, color: 'rgba(59, 130, 246, 0.2)' },
-                { offset: 1, color: 'rgba(59, 130, 246, 0.7)' },
+                { offset: 0, color: 'rgba(59, 130, 246, 0.15)' },
+                { offset: 1, color: 'rgba(59, 130, 246, 0.6)' },
               ],
             },
             borderRadius: [2, 2, 0, 0],
           },
-          barMaxWidth: 16,
+          barMaxWidth: 12,
         },
-        // Previous year precipitation (dashed outline bars)
+        // 前年バー（隣に並べる、色を変えて区別）
         ...(prevYearMap
           ? [
               {
-                name: '前年降水',
+                name: rightPrevLabel,
                 type: 'bar' as const,
                 yAxisIndex: 1,
-                data: prevPrecip,
+                data: rightPrevData,
                 itemStyle: {
-                  color: 'transparent',
-                  borderColor: 'rgba(59, 130, 246, 0.35)',
-                  borderWidth: 1,
-                  borderType: 'dashed' as const,
+                  color: {
+                    type: 'linear' as const,
+                    x: 0,
+                    y: 1,
+                    x2: 0,
+                    y2: 0,
+                    colorStops: [
+                      { offset: 0, color: 'rgba(147, 197, 253, 0.15)' },
+                      { offset: 1, color: 'rgba(147, 197, 253, 0.5)' },
+                    ],
+                  },
                   borderRadius: [2, 2, 0, 0],
                 },
-                barMaxWidth: 16,
-                barGap: '-100%',
+                barMaxWidth: 12,
               },
             ]
           : []),
@@ -387,28 +429,64 @@ export const WeatherTemperatureChart = memo(function WeatherTemperatureChart({
           : []),
       ],
     }
-  }, [daily, year, month, ct, prevYearMap, selectedDay])
+  }, [daily, year, month, ct, prevYearMap, selectedDay, rightMetric])
+
+  const extractDateKey = useCallback(
+    (params: Record<string, unknown>) => {
+      const dataIndex = params['dataIndex']
+      if (typeof dataIndex !== 'number' || dataIndex < 0 || dataIndex >= daily.length) return null
+      return daily[dataIndex].dateKey
+    },
+    [daily],
+  )
 
   const handleClick = useCallback(
     (params: Record<string, unknown>) => {
       if (!onDayClick) return
-      const dataIndex = params['dataIndex']
-      if (typeof dataIndex !== 'number') return
-      if (dataIndex < 0 || dataIndex >= daily.length) return
-      const dateKey = daily[dataIndex].dateKey
-      onDayClick(dateKey)
+      const dateKey = extractDateKey(params)
+      if (dateKey) onDayClick(dateKey)
     },
-    [onDayClick, daily],
+    [onDayClick, extractDateKey],
+  )
+
+  const handleDblClick = useCallback(
+    (params: Record<string, unknown>) => {
+      if (!onDayDblClick) return
+      const dateKey = extractDateKey(params)
+      if (dateKey) onDayDblClick(dateKey)
+    },
+    [onDayDblClick, extractDateKey],
   )
 
   if (daily.length === 0) return null
 
   return (
     <div style={{ width: '100%' }}>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 4, marginBottom: 4 }}>
+        {METRIC_OPTIONS.map(({ key, label }) => (
+          <button
+            key={key}
+            onClick={() => setRightMetric(key)}
+            style={{
+              padding: '2px 10px',
+              fontSize: '0.7rem',
+              borderRadius: 4,
+              border: `1px solid ${rightMetric === key ? 'transparent' : '#d1d5db'}`,
+              background: rightMetric === key ? '#3b82f6' : '#f9fafb',
+              color: rightMetric === key ? '#fff' : '#374151',
+              fontWeight: rightMetric === key ? 700 : 400,
+              cursor: 'pointer',
+            }}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
       <EChart
         option={option}
         height={440}
-        onClick={onDayClick ? handleClick : undefined}
+        onClick={handleClick}
+        onDblClick={handleDblClick}
         ariaLabel="月間気温推移チャート"
       />
     </div>

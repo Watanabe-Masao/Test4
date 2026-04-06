@@ -267,11 +267,15 @@ export const WeatherPage = memo(function WeatherPage() {
     })
   }, [setYear])
 
-  // チャートの日クリック → サマリー切替 + モーダル起動
-  const handleChartDayClick = useCallback(
+  // シングルクリック → サマリー切替のみ
+  const handleChartDayClick = useCallback((dateKey: string) => {
+    const dayNum = Number(dateKey.split('-')[2])
+    setSelectedDay((prev) => (prev === dayNum ? null : dayNum))
+  }, [])
+
+  // ダブルクリック → 時間帯モーダル起動
+  const handleChartDayDblClick = useCallback(
     (dateKey: string) => {
-      const dayNum = Number(dateKey.split('-')[2])
-      setSelectedDay((prev) => (prev === dayNum ? null : dayNum))
       setModalDate(dateKey)
       setModalForecast(null)
       fetchHourly(dateKey, year, month)
@@ -452,7 +456,7 @@ export const WeatherPage = memo(function WeatherPage() {
             </AnimatePresence>
 
             {/* 気温推移チャート（天気アイコン統合、クリックで時間帯モーダル） */}
-            <SectionLabel>📈 気温・降水量チャート</SectionLabel>
+            <SectionLabel>📈 気温チャート（ダブルクリックで時間帯詳細）</SectionLabel>
             <div style={{ marginBottom: 24 }}>
               <WeatherTemperatureChart
                 daily={daily}
@@ -461,6 +465,7 @@ export const WeatherPage = memo(function WeatherPage() {
                 month={month}
                 selectedDay={selectedDay}
                 onDayClick={handleChartDayClick}
+                onDayDblClick={handleChartDayDblClick}
               />
             </div>
 

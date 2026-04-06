@@ -6,12 +6,13 @@
 import type { DailyWeatherSummary } from '@/domain/models/record'
 import { categorizeWeatherCode } from '@/domain/weather/weatherAggregation'
 
+/** WeatherBadge と同じ絵文字を使用 */
 const WEATHER_ICON_MAP: Record<string, string> = {
-  sunny: '☀',
-  cloudy: '☁',
-  rainy: '☂',
-  snowy: '❄',
-  other: '—',
+  sunny: '\u2600\uFE0F', // ☀️
+  cloudy: '\u2601\uFE0F', // ☁️
+  rainy: '\uD83C\uDF27\uFE0F', // 🌧️
+  snowy: '\u2744\uFE0F', // ❄️
+  other: '\uD83C\uDF00', // 🌀
 }
 
 const DOW = ['日', '月', '火', '水', '木', '金', '土']
