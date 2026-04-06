@@ -44,6 +44,9 @@ export {
   hookLineLimits,
   presentationMemoLimits,
   presentationStateLimits,
+  combinedHookComplexityLimits,
+  featuresMemoLimits,
+  featuresStateLimits,
 } from './complexity'
 
 // Size
@@ -60,6 +63,15 @@ export {
   pairJustifiedSingle,
   presentationDirectQueryAudit,
 } from './performance'
+
+// Responsibility Separation
+export {
+  presentationGetStateLimits,
+  moduleScopeLetLimits,
+  domainModelExportLimits,
+  STORE_IDS_NORMALIZATION_MAX_FILES,
+  fallbackConstantDensityLimits,
+} from './responsibility'
 
 // Misc
 export {

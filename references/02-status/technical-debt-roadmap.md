@@ -21,11 +21,11 @@
 | 後方互換負債 | OK | 0/3 / 2/3 |
 | 複雑性圧 | OK | 0/5 / 10/10 / 27/30 |
 | 境界健全性 | OK | 0/0 / 0/0 |
-| ガード強度 | OK | 36/30 / 0/5 |
+| ガード強度 | OK | 38/30 / 0/5 |
 | 性能 | OK | 6488/7000 / 2218/2500 / 919/1000 |
 
 
-> 生成: 2026-04-06T12:45:08.155Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-06T13:54:41.307Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 現状スナップショット

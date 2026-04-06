@@ -106,6 +106,22 @@ export const GUARD_TAG_REGISTRY: Record<string, GuardTagDef> = {
     name: '同義 API/action の併存禁止',
     examples: ['名前が違うが中身が同じ action が増えると保守コストが倍増'],
   },
+  C8: {
+    name: '1 文説明テスト',
+    examples: [
+      '責務を「〜を担う」の 1 文で説明できなければ分離候補',
+      '説明に AND が入ったら複数責務が混在している',
+      '行数ではなく変更理由の数で判定する',
+    ],
+  },
+  C9: {
+    name: '現実把握優先',
+    examples: [
+      '自動推定で全ファイルにタグを振ると嘘の単一責務が生まれる',
+      '正確に分類できないものは未分類のまま残す',
+      '形式的チェックより実効性のある機械的検出を優先する',
+    ],
+  },
   // ═══ D: 数学的不変条件 ═══
   D1: {
     name: '要因分解の合計は売上差に完全一致',
@@ -210,6 +226,18 @@ export const GUARD_TAG_REGISTRY: Record<string, GuardTagDef> = {
   G7: {
     name: 'キャッシュは本体より複雑にしない',
     examples: ['キャッシュ処理が本体より複雑になると保守コストが逆転する'],
+  },
+  G8: {
+    name: '責務分離（AND テスト）',
+    examples: [
+      'P2: presentation で getState() を直接呼ぶと Store 構造に依存する',
+      'P7: module-scope let はテスト困難なグローバル状態を生む',
+      'P8: useMemo+useCallback 合計 ≤12 を超えると責務が AND で繋がっている',
+      'P10: features/ にも useMemo ≤7、useState ≤6 を適用して全層カバレッジを確保',
+      'P12: domain/models に export 8+ あると型と utility が同居している',
+      'P17: storeIds 正規化パターンのコピペが増えると変更時に N 箇所修正が必要',
+      'P18: fallback 定数が 7+ 個あると初期値戦略が分散している',
+    ],
   },
 
   // ═══ Q: Query Access Architecture ═══
