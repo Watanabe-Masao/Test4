@@ -110,7 +110,7 @@ describe('buildWeatherMap', () => {
       const map = buildWeatherMap(data, 0)
       expect(map.has(1)).toBe(true)
       expect(map.get(1)?.category).toBe('sunny')
-      expect(map.get(1)?.icon).toBe('☀')
+      expect(map.get(1)?.icon).toBe('☀️')
     })
 
     it('code=0 と code=1 は同じ sunny カテゴリになる', () => {
