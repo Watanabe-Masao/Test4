@@ -11,7 +11,11 @@ import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
 import { SRC_DIR, collectTsFiles, rel } from '../guardTestHelpers'
-import { isClassified, getResponsibilityTags, RESPONSIBILITY_REGISTRY } from '../responsibilityTagRegistry'
+import {
+  isClassified,
+  getResponsibilityTags,
+  RESPONSIBILITY_REGISTRY,
+} from '../responsibilityTagRegistry'
 
 /** 対象ディレクトリ */
 const TARGET_DIRS = [
@@ -100,7 +104,9 @@ describe('G8-R: 責務タグカバレッジ', () => {
     const total = files.length
     const coverage = total > 0 ? ((classified / total) * 100).toFixed(1) : '0'
 
-    console.log(`\n[責務タグ] 分類済み ${classified}/${total} (${coverage}%) | 未分類 ${unclassified} | 複数タグ(AND) ${multiTag}`)
+    console.log(
+      `\n[責務タグ] 分類済み ${classified}/${total} (${coverage}%) | 未分類 ${unclassified} | 複数タグ(AND) ${multiTag}`,
+    )
     if (Object.keys(tagCounts).length > 0) {
       for (const [tag, count] of Object.entries(tagCounts).sort((a, b) => b[1] - a[1])) {
         console.log(`  ${tag}: ${count}`)

@@ -233,9 +233,7 @@ describe('G8-P12: domain/models/ の export function/const が上限以下', () 
       const content = fs.readFileSync(file, 'utf-8')
       const relPath = rel(file)
       // export function / export const をカウント（type-only export は除外）
-      const count = (
-        content.match(/^export\s+(function|const)\s+/gm) || []
-      ).length
+      const count = (content.match(/^export\s+(function|const)\s+/gm) || []).length
       const limit = allowlist[relPath] ?? DEFAULT_EXPORT_LIMIT
 
       if (count >= limit) {
