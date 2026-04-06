@@ -333,54 +333,37 @@ export const WeatherPage = memo(function WeatherPage() {
               </StationBadge>
             )}
 
-            {/* サマリー: 月間（常時） + 選択日（日クリック時に並列表示） */}
+            {/* サマリー: 月間 ↔ 日別（チャートクリックでインプレース切替） */}
             <AnimatePresence mode="wait">
-              {monthSummary && (
+              {(selectedDaySummary ?? monthSummary) && (
                 <motion.div
-                  key="summary"
+                  key={selectedDaySummary ? 'day' : 'month'}
                   variants={fadeSlideVariants}
                   initial="initial"
                   animate="animate"
                   exit="exit"
                   transition={{ duration: 0.2 }}
+                  style={{ marginBottom: 16 }}
                 >
-                  <div
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: selectedDaySummary ? '1fr 1fr' : '1fr',
-                      gap: 24,
-                      marginBottom: 16,
-                    }}
-                  >
-                    <WeatherSummarySection
-                      summary={monthSummary}
-                      prevSummary={prevMonthSummary}
-                      label="月間サマリ"
-                    />
-                    {selectedDaySummary && (
-                      <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.25 }}
-                      >
-                        <WeatherSummarySection
-                          summary={selectedDaySummary}
-                          prevSummary={prevDaySummary}
-                          label={
-                            selectedDays.size === 1
-                              ? `${month}月${[...selectedDays][0]}日`
-                              : `選択: ${selectedDays.size}日間`
-                          }
-                        />
-                        <NavBtn
-                          onClick={() => setSelectedDays(new Set())}
-                          style={{ fontSize: '0.7rem' }}
-                        >
-                          ✕ 選択解除
-                        </NavBtn>
-                      </motion.div>
-                    )}
-                  </div>
+                  <WeatherSummarySection
+                    summary={selectedDaySummary ?? monthSummary!}
+                    prevSummary={selectedDaySummary ? prevDaySummary : prevMonthSummary}
+                    label={
+                      selectedDaySummary
+                        ? selectedDays.size === 1
+                          ? `${month}月${[...selectedDays][0]}日`
+                          : `選択: ${selectedDays.size}日間`
+                        : '月間サマリ'
+                    }
+                  />
+                  {selectedDaySummary && (
+                    <NavBtn
+                      onClick={() => setSelectedDays(new Set())}
+                      style={{ fontSize: '0.7rem', marginTop: 4 }}
+                    >
+                      ✕ 月間サマリに戻す
+                    </NavBtn>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
