@@ -151,6 +151,8 @@ interface EChartProps {
   readonly onDblClick?: (params: Record<string, unknown>) => void
   /** ブラシ選択完了イベント */
   readonly onBrushEnd?: (params: Record<string, unknown>) => void
+  /** dataZoom イベント（スクロール・ズーム操作） */
+  readonly onDataZoom?: (params: Record<string, unknown>) => void
   /** ブラシモード中のクリック検出を有効にする（単一grid + category軸チャート専用） */
   readonly enableBrushClickEmulation?: boolean
   /** ブラシ選択後にハイライトを維持する（pendingRange 表示中など） */
@@ -165,6 +167,7 @@ export const EChart = memo(function EChart({
   onClick,
   onDblClick,
   onBrushEnd,
+  onDataZoom,
   enableBrushClickEmulation,
   keepBrushSelection,
   ariaLabel,
@@ -289,6 +292,19 @@ export const EChart = memo(function EChart({
       chart.off('brushEnd', handler)
     }
   }, [onBrushEnd, keepBrushSelection])
+
+  // dataZoom イベント（スクロール・ズーム操作）
+  useEffect(() => {
+    const chart = chartRef.current
+    if (!chart || !onDataZoom) return
+    const handler = (params: unknown) => {
+      ;(onDataZoom as (p: unknown) => void)(params)
+    }
+    chart.on('datazoom', handler)
+    return () => {
+      chart.off('datazoom', handler)
+    }
+  }, [onDataZoom])
 
   // keepBrushSelection が false に戻ったらハイライトをクリアし、ブラシモードを再起動
   useEffect(() => {
