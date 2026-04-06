@@ -153,10 +153,10 @@ export const WeatherPage = memo(function WeatherPage() {
   const handleChartDayClick = useCallback((dateKey: string) => {
     const dayNum = Number(dateKey.split('-')[2])
     setSelectedDays((prev) => {
-      const next = new Set(prev)
-      if (next.has(dayNum)) next.delete(dayNum)
-      else next.add(dayNum)
-      return next
+      // 既に同じ日だけが選択されている → 解除（月間サマリに戻る）
+      if (prev.size === 1 && prev.has(dayNum)) return new Set()
+      // それ以外 → その日だけを選択（切替）
+      return new Set([dayNum])
     })
   }, [])
 
