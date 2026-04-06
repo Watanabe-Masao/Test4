@@ -6,8 +6,11 @@
  * - 複数タグ: AND の可視化（情報出力）。
  *
  * @guard G8 責務分離（責務タグカバレッジ）
+ * @guard C8 1文説明テスト（複数タグ = AND = 分離候補）
+ * @guard C9 現実把握優先（未分類は正直に残す）
  */
 import { describe, it, expect } from 'vitest'
+import { execSync } from 'child_process'
 import * as fs from 'fs'
 import * as path from 'path'
 import { SRC_DIR, collectTsFiles, rel } from '../guardTestHelpers'
@@ -114,5 +117,44 @@ describe('G8-R: 責務タグカバレッジ', () => {
     }
 
     expect(true).toBe(true)
+  })
+
+  it('変更されたファイルの責務が再検証されている（スルー防止）', () => {
+    // git diff で変更されたファイルを取得（CI: HEAD~1、ローカル: HEAD）
+    let changedFiles: string[] = []
+    try {
+      const diffTarget = process.env.CI ? 'HEAD~1' : 'HEAD'
+      const output = execSync(`git diff --name-only ${diffTarget}`, {
+        cwd: path.resolve(SRC_DIR, '..'),
+        encoding: 'utf-8',
+      }).trim()
+      changedFiles = output
+        .split('\n')
+        .filter(Boolean)
+        .map((f) => f.replace(/^app\/src\//, ''))
+    } catch {
+      // git diff が失敗した場合はスキップ（初回コミット等）
+      return
+    }
+
+    const today = new Date().toISOString().slice(0, 10)
+    const unverified: string[] = []
+
+    for (const changed of changedFiles) {
+      const entry = RESPONSIBILITY_REGISTRY[changed]
+      if (!entry) continue // 未分類ファイルは対象外（別テストで管理）
+
+      // タグ付きファイルが変更されたのに verifiedAt が今日でない → 未検証
+      if (entry.verifiedAt !== today) {
+        unverified.push(`${changed}: verifiedAt=${entry.verifiedAt} (今日: ${today})`)
+      }
+    }
+
+    expect(
+      unverified,
+      `タグ付きファイルが変更されましたが責務の再検証がされていません。\n` +
+        `ファイルの中身を確認し、R: タグが正しいか検証した上で verifiedAt を今日に更新してください:\n` +
+        `${unverified.join('\n')}`,
+    ).toEqual([])
   })
 })

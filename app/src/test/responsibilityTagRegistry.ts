@@ -130,21 +130,25 @@ export const RESPONSIBILITY_TAG_DEFS: Record<ResponsibilityTag, ResponsibilityTa
 export interface ResponsibilityEntry {
   /** 責務タグ（複数 = AND = 分離候補） */
   readonly tags: readonly ResponsibilityTag[]
+  /** 責務の妥当性を最後に検証した日付（YYYY-MM-DD）。ファイル変更時に必ず再検証する */
+  readonly verifiedAt: string
 }
 
 /**
  * 手動で正確に分類されたファイルのレジストリ。
  *
  * キー: src/ 相対パス
- * 値: 確認済みの責務タグ（複数可）
+ * 値: 確認済みの責務タグ（複数可）+ 確認日
  *
  * ここに載っていないファイルは「未分類」。
  * 新規ファイルはここに登録しないと CI が落ちる。
+ * ファイルを変更したら verifiedAt を更新しないと CI が落ちる。
  */
 export const RESPONSIBILITY_REGISTRY: Readonly<Record<string, ResponsibilityEntry>> = {
   // ★ 既存ファイルは徐々にここに登録していく。
   // ★ 登録時は中身を確認し、正直にタグを付ける。
   // ★ 複数タグ = AND = 分離候補として可視化される。
+  // ★ ファイルを変更したら verifiedAt を当日に更新する（責務を再検証した証跡）。
 }
 
 // ─── 解決関数 ─────────────────────────────────────────
