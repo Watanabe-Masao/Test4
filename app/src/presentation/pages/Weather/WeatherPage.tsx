@@ -4,24 +4,24 @@
  * 売上データなしで単独表示可能。ETRN（気象庁過去の気象データ検索）から
  * 月別の日別天気データを取得し、詳細な気象情報を閲覧する。
  *
- * 店舗の位置情報が未設定の場合はインラインで設定可能。
+ * サマリー: グラフ未選択 → 月間、日クリック → その日の詳細+前年比較
+ * グラフ: 天気アイコン統合、クリックで時間帯モーダル起動
+ * 日別グリッド不要（チャートに統合済み）
  */
 import { memo, useState, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
-import { useWeatherData } from '@/application/hooks/useWeather'
+import { useWeatherWithPrevYear } from '@/application/hooks/useWeatherWithPrevYear'
 import { useWeatherForecast } from '@/application/hooks/useWeatherForecast'
 import { useWeatherHourlyOnDemand } from '@/application/hooks/useWeatherHourlyOnDemand'
-import type { DailyForecast, StoreLocation } from '@/domain/models/record'
+import type { DailyForecast, DailyWeatherSummary, StoreLocation } from '@/domain/models/record'
 import { categorizeWeatherCode } from '@/domain/weather/weatherAggregation'
-import type { WeatherCategory } from '@/domain/models/record'
-import { WeatherBadge } from '@/presentation/components/common/WeatherBadge'
 import { ForecastBadge } from '@/presentation/components/common/ForecastBadge'
 import { HourlyWeatherModal } from '@/presentation/pages/Dashboard/widgets/HourlyWeatherModal'
 import { WeatherTemperatureChart } from './WeatherTemperatureChart'
 import { InlineLocationSetup } from './InlineLocationSetup'
-import { computeMonthSummary } from './weatherSummary'
+import { computeMonthSummary, computeDaySummary, type WeatherSummaryResult } from './weatherSummary'
 import {
   Page,
   Header,
@@ -32,7 +32,6 @@ import {
   MonthLabel,
   SectionLabel,
   Grid,
-  DayCell,
   ForecastCell,
   DayLabelText,
   SummaryGrid,
@@ -42,7 +41,6 @@ import {
   SummaryCaption,
   TableWrapper,
   DetailTable,
-  PrecipBar,
   SetupBox,
   Spinner,
   LoadingBox,
@@ -69,9 +67,7 @@ const staggerItem = {
   animate: { opacity: 1, scale: 1 },
 }
 
-// ── Constants ──
-
-const WEATHER_ICONS: Record<WeatherCategory, string> = {
+const WEATHER_ICONS: Record<string, string> = {
   sunny: '☀',
   cloudy: '☁',
   rainy: '☂',
@@ -79,7 +75,133 @@ const WEATHER_ICONS: Record<WeatherCategory, string> = {
   other: '—',
 }
 
-const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土'] as const
+// ── Summary Section ──
+
+function SummarySection({
+  summary,
+  prevSummary,
+  label,
+}: {
+  summary: WeatherSummaryResult
+  prevSummary?: WeatherSummaryResult | null
+  label: string
+}) {
+  const diff = (cur: number, prev: number | undefined) => {
+    if (prev == null) return null
+    const d = cur - prev
+    return d >= 0 ? `+${d.toFixed(1)}` : d.toFixed(1)
+  }
+
+  return (
+    <>
+      <SectionLabel>
+        {summary.weatherCategory
+          ? `${WEATHER_ICONS[summary.weatherCategory] ?? ''} ${label}`
+          : `📊 ${label}`}
+        {summary.weatherText && (
+          <span style={{ fontWeight: 400, opacity: 0.7, marginLeft: 8 }}>
+            {summary.weatherText}
+          </span>
+        )}
+      </SectionLabel>
+      <SummaryGrid variants={staggerContainer} initial="initial" animate="animate">
+        <SummaryCard variants={staggerItem} $accent="#f59e0b">
+          <SummaryValue>
+            {summary.avgTemp.toFixed(1)}
+            <SummaryUnit>°C</SummaryUnit>
+          </SummaryValue>
+          <SummaryCaption>
+            平均気温{' '}
+            {prevSummary && (
+              <span style={{ opacity: 0.6 }}>
+                (前年 {prevSummary.avgTemp.toFixed(1)}° {diff(summary.avgTemp, prevSummary.avgTemp)}
+                )
+              </span>
+            )}
+          </SummaryCaption>
+        </SummaryCard>
+        <SummaryCard variants={staggerItem} $accent="#ef4444">
+          <SummaryValue>
+            {summary.maxTemp.toFixed(1)}
+            <SummaryUnit>°C</SummaryUnit>
+          </SummaryValue>
+          <SummaryCaption>
+            最高気温{' '}
+            {prevSummary && (
+              <span style={{ opacity: 0.6 }}>(前年 {prevSummary.maxTemp.toFixed(1)}°)</span>
+            )}
+          </SummaryCaption>
+        </SummaryCard>
+        <SummaryCard variants={staggerItem} $accent="#3b82f6">
+          <SummaryValue>
+            {summary.minTemp.toFixed(1)}
+            <SummaryUnit>°C</SummaryUnit>
+          </SummaryValue>
+          <SummaryCaption>
+            最低気温{' '}
+            {prevSummary && (
+              <span style={{ opacity: 0.6 }}>(前年 {prevSummary.minTemp.toFixed(1)}°)</span>
+            )}
+          </SummaryCaption>
+        </SummaryCard>
+        <SummaryCard variants={staggerItem} $accent="#3b82f6">
+          <SummaryValue>
+            {summary.totalPrecip.toFixed(1)}
+            <SummaryUnit>mm</SummaryUnit>
+          </SummaryValue>
+          <SummaryCaption>
+            {summary.totalDays === 1 ? '降水量' : '総降水量'}{' '}
+            {prevSummary && (
+              <span style={{ opacity: 0.6 }}>(前年 {prevSummary.totalPrecip.toFixed(1)}mm)</span>
+            )}
+          </SummaryCaption>
+        </SummaryCard>
+        <SummaryCard variants={staggerItem} $accent="#f59e0b">
+          <SummaryValue>
+            {summary.sunshineHours.toFixed(1)}
+            <SummaryUnit>h</SummaryUnit>
+          </SummaryValue>
+          <SummaryCaption>
+            日照時間{' '}
+            {prevSummary && (
+              <span style={{ opacity: 0.6 }}>(前年 {prevSummary.sunshineHours.toFixed(1)}h)</span>
+            )}
+          </SummaryCaption>
+        </SummaryCard>
+        {summary.totalDays > 1 ? (
+          <SummaryCard variants={staggerItem} $accent="#10b981">
+            <SummaryValue>
+              {summary.sunnyDays}
+              <SummaryUnit> / {summary.totalDays}日</SummaryUnit>
+            </SummaryValue>
+            <SummaryCaption>
+              ☀{summary.sunnyDays} ☁{summary.cloudyDays} ☂{summary.rainyDays}
+              {prevSummary && prevSummary.totalDays > 1 && (
+                <span style={{ opacity: 0.6 }}>
+                  {' '}
+                  (前年 ☀{prevSummary.sunnyDays} ☁{prevSummary.cloudyDays} ☂{prevSummary.rainyDays})
+                </span>
+              )}
+            </SummaryCaption>
+          </SummaryCard>
+        ) : (
+          <SummaryCard variants={staggerItem} $accent="#10b981">
+            <SummaryValue>
+              {summary.avgHumidity.toFixed(0)}
+              <SummaryUnit>%</SummaryUnit>
+            </SummaryValue>
+            <SummaryCaption>
+              湿度{' '}
+              {prevSummary && (
+                <span style={{ opacity: 0.6 }}>(前年 {prevSummary.avgHumidity.toFixed(0)}%)</span>
+              )}
+            </SummaryCaption>
+          </SummaryCard>
+        )}
+      </SummaryGrid>
+    </>
+  )
+}
 
 // ── Main Page ──
 
@@ -92,7 +214,6 @@ export const WeatherPage = memo(function WeatherPage() {
   const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
   const updateSettings = useSettingsStore((s) => s.updateSettings)
 
-  // 店舗リスト: MonthlyData があればそこから、なければ storeLocations のキーから
   const storeEntries = useMemo<readonly [string, string][]>(() => {
     if (currentMonthData?.stores) {
       return Array.from(currentMonthData.stores.entries()).map(([id, s]) => [id, s.name ?? id])
@@ -109,17 +230,24 @@ export const WeatherPage = memo(function WeatherPage() {
 
   const location = storeLocations[selectedStoreId]
 
-  // 天気データ取得
-  const { daily, isLoading, error, reload } = useWeatherData(year, month, selectedStoreId)
+  // 当年 + 前年天気データ取得（application hook 経由で year-1 計算を閉じ込める）
+  const { current: weatherResult, prevYearDaily } = useWeatherWithPrevYear(
+    year,
+    month,
+    selectedStoreId,
+  )
+  const { daily, isLoading, error, reload } = weatherResult
   const { forecasts } = useWeatherForecast(selectedStoreId)
   const { hourlyCache, prevHourlyCache, fetchHourly, fetchPrevHourly, resolvePrevDate } =
     useWeatherHourlyOnDemand(selectedStoreId, 'sameDate')
 
+  const [selectedDay, setSelectedDay] = useState<number | null>(null)
   const [modalDate, setModalDate] = useState<string | null>(null)
   const [modalForecast, setModalForecast] = useState<DailyForecast | null>(null)
 
   // 月ナビ
   const goPrev = useCallback(() => {
+    setSelectedDay(null)
     setMonth((m) => {
       if (m === 1) {
         setYear((y) => y - 1)
@@ -129,6 +257,7 @@ export const WeatherPage = memo(function WeatherPage() {
     })
   }, [setYear])
   const goNext = useCallback(() => {
+    setSelectedDay(null)
     setMonth((m) => {
       if (m === 12) {
         setYear((y) => y + 1)
@@ -138,8 +267,11 @@ export const WeatherPage = memo(function WeatherPage() {
     })
   }, [setYear])
 
-  const handleDayClick = useCallback(
+  // チャートの日クリック → サマリー切替 + モーダル起動
+  const handleChartDayClick = useCallback(
     (dateKey: string) => {
+      const dayNum = Number(dateKey.split('-')[2])
+      setSelectedDay((prev) => (prev === dayNum ? null : dayNum))
       setModalDate(dateKey)
       setModalForecast(null)
       fetchHourly(dateKey, year, month)
@@ -166,18 +298,32 @@ export const WeatherPage = memo(function WeatherPage() {
     [selectedStoreId, storeLocations, updateSettings],
   )
 
-  // 月間サマリ
-  const summary = useMemo(() => computeMonthSummary(daily), [daily])
+  // サマリー: 選択日 or 月間
+  const monthSummary = useMemo(() => computeMonthSummary(daily), [daily])
+  const prevMonthSummary = useMemo(() => computeMonthSummary(prevYearDaily), [prevYearDaily])
 
-  // 実測/予報分離
+  const selectedDaySummary = useMemo<WeatherSummaryResult | null>(() => {
+    if (selectedDay == null) return null
+    const d = daily.find((r) => Number(r.dateKey.split('-')[2]) === selectedDay)
+    return d ? computeDaySummary(d) : null
+  }, [daily, selectedDay])
+
+  const prevDaySummary = useMemo<WeatherSummaryResult | null>(() => {
+    if (selectedDay == null) return null
+    const d = prevYearDaily.find((r) => Number(r.dateKey.split('-')[2]) === selectedDay)
+    return d ? computeDaySummary(d) : null
+  }, [prevYearDaily, selectedDay])
+
+  const activeSummary = selectedDaySummary ?? monthSummary
+  const activePrevSummary = selectedDaySummary ? prevDaySummary : prevMonthSummary
+  const summaryLabel = selectedDay != null ? `${month}月${selectedDay}日の天気` : '月間サマリ'
+
+  // 予報分離
   const observedKeys = useMemo(() => new Set(daily.map((d) => d.dateKey)), [daily])
   const futureForecasts = useMemo(
     () => forecasts.filter((f) => !observedKeys.has(f.dateKey)),
     [forecasts, observedKeys],
   )
-
-  // 降水量最大値（バー表示スケール用）
-  const maxPrecip = useMemo(() => Math.max(...daily.map((d) => d.precipitationTotal), 1), [daily])
 
   // モーダル
   const modalHourly = modalDate ? hourlyCache[modalDate] : undefined
@@ -226,7 +372,6 @@ export const WeatherPage = memo(function WeatherPage() {
       </Header>
 
       <AnimatePresence mode="wait">
-        {/* 位置情報未設定 */}
         {!location && (
           <SetupBox
             key="setup"
@@ -245,7 +390,6 @@ export const WeatherPage = memo(function WeatherPage() {
           </SetupBox>
         )}
 
-        {/* ローディング */}
         {location && isLoading && daily.length === 0 && (
           <LoadingBox key="loading">
             <Spinner />
@@ -255,10 +399,8 @@ export const WeatherPage = memo(function WeatherPage() {
           </LoadingBox>
         )}
 
-        {/* エラー */}
         {location && error && <ErrorText key="error">{error}</ErrorText>}
 
-        {/* メインコンテンツ */}
         {location && daily.length > 0 && (
           <motion.div
             key={`${year}-${month}`}
@@ -268,100 +410,46 @@ export const WeatherPage = memo(function WeatherPage() {
             exit="exit"
             transition={fadeTransition}
           >
-            {/* 月間サマリカード */}
-            {summary && (
-              <>
-                <SectionLabel>📊 月間サマリ</SectionLabel>
-                <SummaryGrid variants={staggerContainer} initial="initial" animate="animate">
-                  <SummaryCard variants={staggerItem} $accent="#f59e0b">
-                    <SummaryValue>
-                      {summary.avgTemp.toFixed(1)}
-                      <SummaryUnit>°C</SummaryUnit>
-                    </SummaryValue>
-                    <SummaryCaption>平均気温</SummaryCaption>
-                  </SummaryCard>
-                  <SummaryCard variants={staggerItem} $accent="#ef4444">
-                    <SummaryValue>
-                      {summary.maxTemp.toFixed(1)}
-                      <SummaryUnit>°C</SummaryUnit>
-                    </SummaryValue>
-                    <SummaryCaption>最高気温</SummaryCaption>
-                  </SummaryCard>
-                  <SummaryCard variants={staggerItem} $accent="#3b82f6">
-                    <SummaryValue>
-                      {summary.minTemp.toFixed(1)}
-                      <SummaryUnit>°C</SummaryUnit>
-                    </SummaryValue>
-                    <SummaryCaption>最低気温</SummaryCaption>
-                  </SummaryCard>
-                  <SummaryCard variants={staggerItem} $accent="#3b82f6">
-                    <SummaryValue>
-                      {summary.totalPrecip.toFixed(1)}
-                      <SummaryUnit>mm</SummaryUnit>
-                    </SummaryValue>
-                    <SummaryCaption>総降水量</SummaryCaption>
-                  </SummaryCard>
-                  <SummaryCard variants={staggerItem} $accent="#f59e0b">
-                    <SummaryValue>
-                      {summary.sunshineHours.toFixed(1)}
-                      <SummaryUnit>h</SummaryUnit>
-                    </SummaryValue>
-                    <SummaryCaption>日照時間</SummaryCaption>
-                  </SummaryCard>
-                  <SummaryCard variants={staggerItem} $accent="#10b981">
-                    <SummaryValue>
-                      {summary.sunnyDays}
-                      <SummaryUnit> / {daily.length}日</SummaryUnit>
-                    </SummaryValue>
-                    <SummaryCaption>
-                      ☀{summary.sunnyDays} ☁{summary.cloudyDays} ☂{summary.rainyDays}
-                    </SummaryCaption>
-                  </SummaryCard>
-                </SummaryGrid>
-              </>
-            )}
+            {/* サマリー（月間 or 選択日） */}
+            <AnimatePresence mode="wait">
+              {activeSummary && (
+                <motion.div
+                  key={selectedDay ?? 'month'}
+                  variants={fadeSlideVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                  transition={{ duration: 0.2 }}
+                >
+                  <SummarySection
+                    summary={activeSummary}
+                    prevSummary={activePrevSummary}
+                    label={summaryLabel}
+                  />
+                  {selectedDay != null && (
+                    <NavBtn
+                      onClick={() => setSelectedDay(null)}
+                      style={{ marginBottom: 16, fontSize: '0.7rem' }}
+                    >
+                      ✕ 選択解除（月間サマリに戻る）
+                    </NavBtn>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-            {/* 気温推移チャート */}
+            {/* 気温推移チャート（天気アイコン統合、クリックで時間帯モーダル） */}
             <SectionLabel>📈 気温・降水量チャート</SectionLabel>
-            <div
-              style={{
-                marginBottom: 24,
-                borderRadius: 8,
-                overflow: 'hidden',
-                border: '1px solid var(--color-border, #e5e7eb)',
-              }}
-            >
-              <WeatherTemperatureChart daily={daily} year={year} month={month} />
+            <div style={{ marginBottom: 24 }}>
+              <WeatherTemperatureChart
+                daily={daily}
+                prevYearDaily={prevYearDaily.length > 0 ? prevYearDaily : undefined}
+                year={year}
+                month={month}
+                selectedDay={selectedDay}
+                onDayClick={handleChartDayClick}
+              />
             </div>
-
-            {/* 日別天気グリッド */}
-            <SectionLabel>🗓 日別天気（タップで時間帯詳細）</SectionLabel>
-            <Grid variants={staggerContainer} initial="initial" animate="animate">
-              {daily.map((d) => {
-                const dayNum = Number(d.dateKey.split('-')[2])
-                const dow = new Date(year, month - 1, dayNum).getDay()
-                return (
-                  <DayCell
-                    key={d.dateKey}
-                    variants={staggerItem}
-                    $active={modalDate === d.dateKey}
-                    onClick={() => handleDayClick(d.dateKey)}
-                    layout
-                  >
-                    <DayLabelText $weekend={dow === 0 || dow === 6}>
-                      {dayNum}({DOW_LABELS[dow]})
-                    </DayLabelText>
-                    <WeatherBadge
-                      weatherCode={d.dominantWeatherCode}
-                      temperature={d.temperatureAvg}
-                      temperatureMax={d.temperatureMax}
-                      temperatureMin={d.temperatureMin}
-                      compact
-                    />
-                  </DayCell>
-                )
-              })}
-            </Grid>
 
             {/* 予報グリッド */}
             {futureForecasts.length > 0 && (
@@ -401,51 +489,13 @@ export const WeatherPage = memo(function WeatherPage() {
                     <th>湿度</th>
                     <th>風速</th>
                     <th>日照</th>
-                    <th style={{ textAlign: 'left' }}>天気概況</th>
+                    <th style={{ textAlign: 'left' }}>概況</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {daily.map((d) => {
-                    const dayNum = Number(d.dateKey.split('-')[2])
-                    const dow = new Date(year, month - 1, dayNum).getDay()
-                    const cat = categorizeWeatherCode(d.dominantWeatherCode)
-                    const precipPct = (d.precipitationTotal / maxPrecip) * 60
-                    return (
-                      <tr
-                        key={d.dateKey}
-                        onClick={() => handleDayClick(d.dateKey)}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        <td style={{ color: dow === 0 || dow === 6 ? '#ef4444' : undefined }}>
-                          {dayNum}({DOW_LABELS[dow]})
-                        </td>
-                        <td style={{ textAlign: 'center', fontSize: '1rem' }}>
-                          {WEATHER_ICONS[cat]}
-                        </td>
-                        <td>{d.temperatureAvg.toFixed(1)}°</td>
-                        <td style={{ color: '#ef4444' }}>{d.temperatureMax.toFixed(1)}°</td>
-                        <td style={{ color: '#3b82f6' }}>{d.temperatureMin.toFixed(1)}°</td>
-                        <td>
-                          {d.precipitationTotal > 0 && <PrecipBar $pct={precipPct} />}
-                          {d.precipitationTotal.toFixed(1)}
-                        </td>
-                        <td>{d.humidityAvg.toFixed(0)}%</td>
-                        <td>{d.windSpeedMax.toFixed(1)}m/s</td>
-                        <td>{d.sunshineTotalHours.toFixed(1)}h</td>
-                        <td
-                          style={{
-                            textAlign: 'left',
-                            fontSize: '0.65rem',
-                            maxWidth: 200,
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                          }}
-                        >
-                          {d.weatherTextDay ?? d.weatherTextNight ?? ''}
-                        </td>
-                      </tr>
-                    )
-                  })}
+                  {daily.map((d) =>
+                    renderDetailRow(d, year, month, handleChartDayClick, selectedDay),
+                  )}
                 </tbody>
               </DetailTable>
             </TableWrapper>
@@ -453,7 +503,6 @@ export const WeatherPage = memo(function WeatherPage() {
         )}
       </AnimatePresence>
 
-      {/* 時間帯モーダル */}
       {modalDate && showModal && (
         <HourlyWeatherModal
           dateKey={modalDate}
@@ -471,3 +520,60 @@ export const WeatherPage = memo(function WeatherPage() {
     </Page>
   )
 })
+
+// ── Detail Table Row ──
+
+const WEATHER_ICON_MAP: Record<string, string> = {
+  sunny: '☀',
+  cloudy: '☁',
+  rainy: '☂',
+  snowy: '❄',
+  other: '—',
+}
+
+function renderDetailRow(
+  d: DailyWeatherSummary,
+  year: number,
+  month: number,
+  onDayClick: (dateKey: string) => void,
+  selectedDay: number | null,
+) {
+  const dayNum = Number(d.dateKey.split('-')[2])
+  const dow = new Date(year, month - 1, dayNum).getDay()
+  const cat = categorizeWeatherCode(d.dominantWeatherCode)
+  const isSelected = selectedDay === dayNum
+  const dowLabels = ['日', '月', '火', '水', '木', '金', '土']
+  return (
+    <tr
+      key={d.dateKey}
+      onClick={() => onDayClick(d.dateKey)}
+      style={{
+        cursor: 'pointer',
+        background: isSelected ? 'var(--color-bg3, #f3f4f6)' : undefined,
+      }}
+    >
+      <td style={{ color: dow === 0 || dow === 6 ? '#ef4444' : undefined }}>
+        {dayNum}({dowLabels[dow]})
+      </td>
+      <td style={{ textAlign: 'center', fontSize: '1rem' }}>{WEATHER_ICON_MAP[cat]}</td>
+      <td>{d.temperatureAvg.toFixed(1)}°</td>
+      <td style={{ color: '#ef4444' }}>{d.temperatureMax.toFixed(1)}°</td>
+      <td style={{ color: '#3b82f6' }}>{d.temperatureMin.toFixed(1)}°</td>
+      <td>{d.precipitationTotal.toFixed(1)}mm</td>
+      <td>{d.humidityAvg.toFixed(0)}%</td>
+      <td>{d.windSpeedMax.toFixed(1)}m/s</td>
+      <td>{d.sunshineTotalHours.toFixed(1)}h</td>
+      <td
+        style={{
+          textAlign: 'left',
+          fontSize: '0.65rem',
+          maxWidth: 200,
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+        }}
+      >
+        {d.weatherTextDay ?? d.weatherTextNight ?? ''}
+      </td>
+    </tr>
+  )
+}
