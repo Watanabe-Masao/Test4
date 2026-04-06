@@ -1,14 +1,14 @@
 # Architecture State Snapshot
 
-> Generated: 2026-04-06T00:34:44.710Z
+> Generated: 2026-04-06T17:29:03.239Z
 
 ## Allowlist Summary
 
 | 指標 | 値 |
 |---|---|
-| 総エントリ数 | 14 |
-| アクティブリスト数 | 7 |
-| 凍結リスト数 | 14 |
+| 総エントリ数 | 15 |
+| アクティブリスト数 | 8 |
+| 凍結リスト数 | 13 |
 | .vm.ts ファイル数 | 27 |
 | 互換 re-export 残数 | 2 |
 
@@ -16,7 +16,7 @@
 
 | カテゴリ | 件数 |
 |---|---|
-| structural | 13 |
+| structural | 14 |
 | adapter | 1 |
 
 
@@ -84,12 +84,14 @@
 - application/hooks/useWeatherForecast.ts
 - application/hooks/useWeatherHourlyOnDemand.ts
 - application/hooks/useWeatherStoreId.ts
+- application/hooks/useWeatherTriple.ts
 - application/hooks/useWidgetQueryContext.ts
 
 ## Complexity Hotspots (Top 10)
 
 | ファイル | useMemo | useState | 行数 |
 |---|---|---|---|
+| presentation/pages/Weather/WeatherPage.tsx | 10 | 7 | 457 |
 | presentation/components/charts/useDeptHourlyChartData.ts | 9 | 6 | 236 |
 | presentation/pages/Dashboard/widgets/HourlyChart.tsx | 9 | 6 | 502 |
 | presentation/components/charts/TimeSlotChart.tsx | 8 | 6 | 215 |
@@ -99,7 +101,6 @@
 | presentation/components/charts/periodFilterHooks.ts | 5 | 8 | 241 |
 | presentation/components/charts/PerformanceIndexChart.tsx | 6 | 6 | 368 |
 | presentation/pages/Insight/useInsightData.ts | 5 | 7 | 217 |
-| application/hooks/useMetricBreakdown.ts | 7 | 5 | 282 |
 
 ## Near-Limit Files (≥80%)
 
@@ -113,7 +114,6 @@
 - presentationToUsecases
 - presentationDuckdbHook
 - presentationMemoLimits
-- largeComponentTier2
 - infraLargeFiles
 - usecasesLargeFiles
 - cmpPrevYearDaily
@@ -133,13 +133,13 @@
 | useMemoLimits | 1 | structural:1 |
 | hookLineLimits | 1 | structural:1 |
 | presentationStateLimits | 1 | structural:1 |
+| largeComponentTier2 | 1 | structural:1 |
 | ctxHook | 1 | structural:1 |
 | presentationToInfrastructure | 0 | - |
 | infrastructureToApplication | 0 | - |
 | presentationToUsecases | 0 | - |
 | presentationDuckdbHook | 0 | - |
 | presentationMemoLimits | 0 | - |
-| largeComponentTier2 | 0 | - |
 | infraLargeFiles | 0 | - |
 | usecasesLargeFiles | 0 | - |
 | cmpPrevYearDaily | 0 | - |

@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-04-06T00:34:44.710Z",
-  "totalAllowlistEntries": 14,
+  "timestamp": "2026-04-06T17:29:03.239Z",
+  "totalAllowlistEntries": 15,
   "categoryBreakdown": {
     "adapter": 1,
-    "structural": 13
+    "structural": 14
   },
   "frozenLists": [
     "presentationToInfrastructure",
@@ -11,7 +11,6 @@
     "presentationToUsecases",
     "presentationDuckdbHook",
     "presentationMemoLimits",
-    "largeComponentTier2",
     "infraLargeFiles",
     "usecasesLargeFiles",
     "cmpPrevYearDaily",
@@ -21,8 +20,8 @@
     "vmReactImport",
     "sideEffectChain"
   ],
-  "frozenCount": 14,
-  "activeLists": 7,
+  "frozenCount": 13,
+  "activeLists": 8,
   "vmFileCount": 27,
   "compatReexportCount": 2,
   "activeBridges": [],
@@ -86,9 +85,16 @@
     "application/hooks/useWeatherForecast.ts",
     "application/hooks/useWeatherHourlyOnDemand.ts",
     "application/hooks/useWeatherStoreId.ts",
+    "application/hooks/useWeatherTriple.ts",
     "application/hooks/useWidgetQueryContext.ts"
   ],
   "complexityHotspots": [
+    {
+      "file": "presentation/pages/Weather/WeatherPage.tsx",
+      "memoCount": 10,
+      "stateCount": 7,
+      "lineCount": 457
+    },
     {
       "file": "presentation/components/charts/useDeptHourlyChartData.ts",
       "memoCount": 9,
@@ -142,12 +148,6 @@
       "memoCount": 5,
       "stateCount": 7,
       "lineCount": 217
-    },
-    {
-      "file": "application/hooks/useMetricBreakdown.ts",
-      "memoCount": 7,
-      "stateCount": 5,
-      "lineCount": 282
     }
   ],
   "nearLimitFiles": [],
@@ -203,8 +203,10 @@
       }
     },
     "largeComponentTier2": {
-      "count": 0,
-      "categories": {}
+      "count": 1,
+      "categories": {
+        "structural": 1
+      }
     },
     "infraLargeFiles": {
       "count": 0,
