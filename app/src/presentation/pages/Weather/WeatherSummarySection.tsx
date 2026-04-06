@@ -1,26 +1,12 @@
 /**
- * WeatherSummarySection — 月間/日別サマリー表示（当年+前年の上下2段）
+ * WeatherSummarySection — 天気サマリー表示（テーブルレイアウト）
  *
- * 当年の値を上段、前年の値を下段に配置してレイアウト崩れを防止。
- * 差分表示（+/-）付き。
+ * カードの auto-fill グリッドだとウィンドウ幅で崩れるため、
+ * 固定列のテーブル風レイアウトで当年+前年を上下配置。
  */
+import styled from 'styled-components'
+import { sc } from '@/presentation/theme/semanticColors'
 import type { WeatherSummaryResult } from './weatherSummary'
-import {
-  SectionLabel,
-  SummaryGrid,
-  SummaryCard,
-  SummaryValue,
-  SummaryUnit,
-  SummaryCaption,
-} from './WeatherPage.styles'
-
-const staggerContainer = {
-  animate: { transition: { staggerChildren: 0.04 } },
-}
-const staggerItem = {
-  initial: { opacity: 0, scale: 0.9 },
-  animate: { opacity: 1, scale: 1 },
-}
 
 const WEATHER_ICONS: Record<string, string> = {
   sunny: '☀',
@@ -30,56 +16,94 @@ const WEATHER_ICONS: Record<string, string> = {
   other: '—',
 }
 
-interface SummaryItemDef {
-  readonly label: string
-  readonly accent: string
-  readonly cur: (s: WeatherSummaryResult) => string
-  readonly unit: string
-  readonly prev?: (s: WeatherSummaryResult) => string
-  readonly diff?: (cur: WeatherSummaryResult, prev: WeatherSummaryResult) => string
+// ── Styled ──
+
+const Wrapper = styled.div`
+  margin-bottom: ${({ theme }) => theme.spacing[3]};
+`
+
+const Label = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.text3};
+  margin-bottom: ${({ theme }) => theme.spacing[1]};
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`
+
+const Row = styled.div`
+  display: flex;
+  gap: ${({ theme }) => theme.spacing[2]};
+  margin-bottom: ${({ theme }) => theme.spacing[1]};
+  flex-wrap: wrap;
+`
+
+const Cell = styled.div<{ $accent?: string; $muted?: boolean }>`
+  flex: 1 1 0;
+  min-width: 100px;
+  max-width: 200px;
+  padding: 8px 12px;
+  border-radius: ${({ theme }) => theme.radii.sm};
+  background: ${({ theme }) => theme.colors.bg2};
+  border-top: 3px solid ${({ $accent }) => $accent ?? 'transparent'};
+  text-align: center;
+  ${({ $muted }) => ($muted ? 'opacity: 0.65;' : '')}
+`
+
+const Value = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.title};
+  font-weight: 700;
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  color: ${({ theme }) => theme.colors.text};
+  line-height: 1.2;
+`
+
+const Unit = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
+  font-weight: 400;
+  opacity: 0.6;
+`
+
+const Caption = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.micro};
+  color: ${({ theme }) => theme.colors.text3};
+  margin-top: 2px;
+`
+
+const Diff = styled.span<{ $positive?: boolean }>`
+  color: ${({ $positive }) => ($positive ? sc.positive : sc.negative)};
+  font-weight: 600;
+`
+
+// ── Data ──
+
+interface MetricDef {
+  label: string
+  accent: string
+  value: (s: WeatherSummaryResult) => number
+  unit: string
+  format?: (n: number) => string
 }
 
-const ITEMS: readonly SummaryItemDef[] = [
-  {
-    label: '平均気温',
-    accent: '#f59e0b',
-    cur: (s) => s.avgTemp.toFixed(1),
-    unit: '°C',
-    prev: (s) => s.avgTemp.toFixed(1),
-    diff: (c, p) => {
-      const d = c.avgTemp - p.avgTemp
-      return d >= 0 ? `+${d.toFixed(1)}` : d.toFixed(1)
-    },
-  },
-  {
-    label: '最高気温',
-    accent: '#ef4444',
-    cur: (s) => s.maxTemp.toFixed(1),
-    unit: '°C',
-    prev: (s) => s.maxTemp.toFixed(1),
-  },
-  {
-    label: '最低気温',
-    accent: '#3b82f6',
-    cur: (s) => s.minTemp.toFixed(1),
-    unit: '°C',
-    prev: (s) => s.minTemp.toFixed(1),
-  },
-  {
-    label: '降水量',
-    accent: '#3b82f6',
-    cur: (s) => s.totalPrecip.toFixed(1),
-    unit: 'mm',
-    prev: (s) => s.totalPrecip.toFixed(1),
-  },
-  {
-    label: '日照時間',
-    accent: '#f59e0b',
-    cur: (s) => s.sunshineHours.toFixed(1),
-    unit: 'h',
-    prev: (s) => s.sunshineHours.toFixed(1),
-  },
+const METRICS: readonly MetricDef[] = [
+  { label: '平均気温', accent: '#f59e0b', value: (s) => s.avgTemp, unit: '°C' },
+  { label: '最高気温', accent: '#ef4444', value: (s) => s.maxTemp, unit: '°C' },
+  { label: '最低気温', accent: '#3b82f6', value: (s) => s.minTemp, unit: '°C' },
+  { label: '降水量', accent: '#3b82f6', value: (s) => s.totalPrecip, unit: 'mm' },
+  { label: '日照時間', accent: '#f59e0b', value: (s) => s.sunshineHours, unit: 'h' },
 ]
+
+function fmt(n: number): string {
+  return n.toFixed(1)
+}
+
+function diffStr(cur: number, prev: number): string {
+  const d = cur - prev
+  return d >= 0 ? `+${d.toFixed(1)}` : d.toFixed(1)
+}
+
+// ── Component ──
 
 interface Props {
   readonly summary: WeatherSummaryResult
@@ -91,96 +115,81 @@ export function WeatherSummarySection({ summary, prevSummary, label }: Props) {
   const icon = summary.weatherCategory ? (WEATHER_ICONS[summary.weatherCategory] ?? '') : '📊'
 
   return (
-    <>
-      <SectionLabel>
+    <Wrapper>
+      <Label>
         {icon} {label}
         {summary.weatherText && (
-          <span style={{ fontWeight: 400, opacity: 0.7, marginLeft: 8 }}>
-            {summary.weatherText}
-          </span>
+          <span style={{ fontWeight: 400, opacity: 0.7 }}>{summary.weatherText}</span>
         )}
-      </SectionLabel>
+      </Label>
 
       {/* 当年 */}
-      <SummaryGrid variants={staggerContainer} initial="initial" animate="animate">
-        {ITEMS.map((item) => (
-          <SummaryCard key={item.label} variants={staggerItem} $accent={item.accent}>
-            <SummaryValue>
-              {item.cur(summary)}
-              <SummaryUnit>{item.unit}</SummaryUnit>
-            </SummaryValue>
-            <SummaryCaption>{item.label}</SummaryCaption>
-          </SummaryCard>
+      <Row>
+        {METRICS.map((m) => (
+          <Cell key={m.label} $accent={m.accent}>
+            <Value>
+              {fmt(m.value(summary))}
+              <Unit>{m.unit}</Unit>
+            </Value>
+            <Caption>{m.label}</Caption>
+          </Cell>
         ))}
         {summary.totalDays > 1 ? (
-          <SummaryCard variants={staggerItem} $accent="#10b981">
-            <SummaryValue>
+          <Cell $accent="#10b981">
+            <Value>
               {summary.sunnyDays}
-              <SummaryUnit> / {summary.totalDays}日</SummaryUnit>
-            </SummaryValue>
-            <SummaryCaption>
+              <Unit> / {summary.totalDays}日</Unit>
+            </Value>
+            <Caption>
               ☀{summary.sunnyDays} ☁{summary.cloudyDays} ☂{summary.rainyDays}
-            </SummaryCaption>
-          </SummaryCard>
+            </Caption>
+          </Cell>
         ) : (
-          <SummaryCard variants={staggerItem} $accent="#10b981">
-            <SummaryValue>
+          <Cell $accent="#10b981">
+            <Value>
               {summary.avgHumidity.toFixed(0)}
-              <SummaryUnit>%</SummaryUnit>
-            </SummaryValue>
-            <SummaryCaption>湿度</SummaryCaption>
-          </SummaryCard>
+              <Unit>%</Unit>
+            </Value>
+            <Caption>湿度</Caption>
+          </Cell>
         )}
-      </SummaryGrid>
+      </Row>
 
-      {/* 前年（ある場合のみ） */}
+      {/* 前年 */}
       {prevSummary && (
         <>
-          <SectionLabel style={{ opacity: 0.6, fontSize: '0.7rem' }}>📊 前年同月</SectionLabel>
-          <SummaryGrid variants={staggerContainer} initial="initial" animate="animate">
-            {ITEMS.map((item) => {
-              const diffText = item.diff ? item.diff(summary, prevSummary) : null
+          <Label style={{ opacity: 0.5, fontSize: '0.7rem', marginTop: 4 }}>📊 前年</Label>
+          <Row>
+            {METRICS.map((m) => {
+              const cur = m.value(summary)
+              const prev = m.value(prevSummary)
+              const diff = diffStr(cur, prev)
               return (
-                <SummaryCard
-                  key={item.label}
-                  variants={staggerItem}
-                  $accent={item.accent}
-                  style={{ opacity: 0.7 }}
-                >
-                  <SummaryValue style={{ fontSize: '1rem' }}>
-                    {item.prev?.(prevSummary) ?? '—'}
-                    <SummaryUnit>{item.unit}</SummaryUnit>
-                  </SummaryValue>
-                  <SummaryCaption>
-                    {item.label}
-                    {diffText && (
-                      <span
-                        style={{
-                          marginLeft: 4,
-                          color: diffText.startsWith('+') ? '#10b981' : '#ef4444',
-                        }}
-                      >
-                        ({diffText})
-                      </span>
-                    )}
-                  </SummaryCaption>
-                </SummaryCard>
+                <Cell key={m.label} $accent={m.accent} $muted>
+                  <Value>
+                    {fmt(prev)}
+                    <Unit>{m.unit}</Unit>
+                  </Value>
+                  <Caption>
+                    {m.label} <Diff $positive={cur >= prev}>({diff})</Diff>
+                  </Caption>
+                </Cell>
               )
             })}
             {prevSummary.totalDays > 1 && (
-              <SummaryCard variants={staggerItem} $accent="#10b981" style={{ opacity: 0.7 }}>
-                <SummaryValue style={{ fontSize: '1rem' }}>
+              <Cell $accent="#10b981" $muted>
+                <Value>
                   {prevSummary.sunnyDays}
-                  <SummaryUnit> / {prevSummary.totalDays}日</SummaryUnit>
-                </SummaryValue>
-                <SummaryCaption>
+                  <Unit> / {prevSummary.totalDays}日</Unit>
+                </Value>
+                <Caption>
                   ☀{prevSummary.sunnyDays} ☁{prevSummary.cloudyDays} ☂{prevSummary.rainyDays}
-                </SummaryCaption>
-              </SummaryCard>
+                </Caption>
+              </Cell>
             )}
-          </SummaryGrid>
+          </Row>
         </>
       )}
-    </>
+    </Wrapper>
   )
 }
