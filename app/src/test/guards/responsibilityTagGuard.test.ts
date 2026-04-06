@@ -10,6 +10,7 @@
  * @guard C9 現実把握優先（未分類は正直に残す）
  */
 import { describe, it, expect } from 'vitest'
+import { execSync } from 'child_process'
 import * as fs from 'fs'
 import * as path from 'path'
 import { SRC_DIR, collectTsFiles, rel } from '../guardTestHelpers'
@@ -116,5 +117,44 @@ describe('G8-R: 責務タグカバレッジ', () => {
     }
 
     expect(true).toBe(true)
+  })
+
+  it('変更されたファイルのタグ日付が更新されている（スルー防止）', () => {
+    // git diff で変更されたファイルを取得（CI: HEAD~1、ローカル: HEAD）
+    let changedFiles: string[] = []
+    try {
+      const diffTarget = process.env.CI ? 'HEAD~1' : 'HEAD'
+      const output = execSync(`git diff --name-only ${diffTarget}`, {
+        cwd: path.resolve(SRC_DIR, '..'),
+        encoding: 'utf-8',
+      }).trim()
+      changedFiles = output
+        .split('\n')
+        .filter(Boolean)
+        .map((f) => f.replace(/^app\/src\//, ''))
+    } catch {
+      // git diff が失敗した場合はスキップ（初回コミット等）
+      return
+    }
+
+    const today = new Date().toISOString().slice(0, 10)
+    const staleEntries: string[] = []
+
+    for (const changed of changedFiles) {
+      const entry = RESPONSIBILITY_REGISTRY[changed]
+      if (!entry) continue // 未分類ファイルは対象外（別テストで管理）
+
+      // タグ付きファイルが変更されたのに updatedAt が今日でない → stale
+      if (entry.updatedAt !== today) {
+        staleEntries.push(`${changed}: updatedAt=${entry.updatedAt} (今日: ${today})`)
+      }
+    }
+
+    expect(
+      staleEntries,
+      `タグ付きファイルが変更されましたが updatedAt が更新されていません。\n` +
+        `ファイルの責務を確認し、タグの妥当性を確認した上で updatedAt を今日に更新してください:\n` +
+        `${staleEntries.join('\n')}`,
+    ).toEqual([])
   })
 })
