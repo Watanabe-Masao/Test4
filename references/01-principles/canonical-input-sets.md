@@ -5,7 +5,26 @@
 複合指標（PI値、客数GAP、客単価、値引率等）が「どの正本を入力にするか」を一意に固定する。
 画面・plan・handler で入力をその場で組み立てることを禁止し、canonical input builder 経由に一本化する。
 
-## 2. 原則
+## 2. 販売系基礎正本群の概念モデル
+
+```
+販売系正本群
+├── SalesFact (売上金額)      ─┐ 物理 ReadModel は readSalesFact() に統合
+├── QuantityFact (販売点数)    ─┘ （ソース同一・粒度同一のため）
+├── DiscountFact (売変)
+│   ├── 71 (見切り)
+│   ├── 72 (値下げ)
+│   ├── 73 (特売)
+│   └── 74 (その他)
+└── CustomerFact (客数)
+```
+
+- SalesFact と QuantityFact は概念的には独立だが、物理的には同一 ReadModel
+- DiscountFact は 4 種別を独立軸で保持
+- CustomerFact は時間帯を持たない
+- 詳細は `sales-definition.md` §8 を参照
+
+## 3. 原則
 
 - **取得の正本** (readModel) と **計算の正本** (calculateModel) は混ぜない
 - 複合指標の入力は **canonical input builder** で粒度合わせまで完了させる
@@ -18,7 +37,7 @@
 
 | 項目 | 値 |
 |------|---|
-| 入力正本 | `SalesFactReadModel.totalQuantity` + `CustomerFact.customers` |
+| 入力正本 | **QuantityFact** (`readSalesFact().grandTotalQuantity`) + **CustomerFact** (`.grandTotalCustomers`) |
 | 入力 builder | `buildPICanonicalInput(salesFact, customerFact, scope)` |
 | 粒度 | store / store×day / comparison window |
 | 前年比較の整列 | ComparisonWindow で scope を固定 |
@@ -29,7 +48,7 @@
 
 | 項目 | 値 |
 |------|---|
-| 入力正本 | `SalesFactReadModel.totalAmount` + `CustomerFact.customers` |
+| 入力正本 | **SalesFact** (`readSalesFact().grandTotalAmount`) + **CustomerFact** (`.grandTotalCustomers`) |
 | 入力 builder | `buildPICanonicalInput(salesFact, customerFact, scope)` |
 | 粒度 | store / store×day / comparison window |
 | 前年比較の整列 | 同上 |
@@ -55,7 +74,7 @@
 
 | 項目 | 値 |
 |------|---|
-| 入力正本 | `SalesFactReadModel.totalAmount` + `CustomerFact.customers` |
+| 入力正本 | **SalesFact** (`readSalesFact().grandTotalAmount`) + **CustomerFact** (`.grandTotalCustomers`) |
 | 入力 builder | `buildTransactionValueCanonicalInput(salesFact, customerFact)` |
 | 粒度 | store |
 | fallback | customers=0 → null |

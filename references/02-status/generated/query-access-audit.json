@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-04-04T03:20:22.317Z",
+  "timestamp": "2026-04-06T00:34:31.277Z",
   "summary": {
     "queryHandlers": 47,
     "pairHandlers": 13,
-    "screenPlanHooks": 27,
+    "screenPlanHooks": 28,
     "正規経路_queryWithHandler": 0,
     "正規経路_comparisonAccessor": 10,
     "正規経路_facadeHook": 5,
@@ -81,13 +81,6 @@
       "application/queries/summary/StoreDaySummaryPairHandler.ts"
     ],
     "screenPlanHooks": [
-      "application/hooks/plans/useCategoryBarChartPlan.ts",
-      "application/hooks/plans/useCategoryDiscountChartPlan.ts",
-      "application/hooks/plans/useCategoryHierarchyPlan.ts",
-      "application/hooks/plans/useCategoryHourlyChartPlan.ts",
-      "application/hooks/plans/useCategoryMixChartPlan.ts",
-      "application/hooks/plans/useCategoryTrendPlan.ts",
-      "application/hooks/plans/useClipExportPlan.ts",
       "application/hooks/plans/useConditionBudgetDrillPlan.ts",
       "application/hooks/plans/useConditionMatrixPlan.ts",
       "application/hooks/plans/useCumulativeChartPlan.ts",
@@ -99,15 +92,23 @@
       "application/hooks/plans/useFeatureChartPlan.ts",
       "application/hooks/plans/useIntegratedSalesPlan.ts",
       "application/hooks/plans/useStoreHourlyChartPlan.ts",
-      "application/hooks/plans/useTimeSlotPlan.ts",
-      "application/hooks/plans/useTimeSlotWeatherPlan.ts",
-      "application/hooks/plans/useWeatherAnalysisPlan.ts",
       "application/hooks/plans/useYoYChartPlan.ts",
       "application/hooks/plans/useYoYWaterfallPlan.ts",
       "application/hooks/useCategoryBenchmarkPlan.ts",
       "application/hooks/useHeatmapPlan.ts",
       "application/hooks/usePerformanceIndexPlan.ts",
-      "presentation/components/charts/useIntegratedSalesPlan.ts"
+      "presentation/components/charts/useIntegratedSalesPlan.ts",
+      "features/category/application/plans/useCategoryBarChartPlan.ts",
+      "features/category/application/plans/useCategoryDiscountChartPlan.ts",
+      "features/category/application/plans/useCategoryHierarchyPlan.ts",
+      "features/category/application/plans/useCategoryHourlyChartPlan.ts",
+      "features/category/application/plans/useCategoryMixChartPlan.ts",
+      "features/category/application/plans/useCategoryTrendPlan.ts",
+      "features/clip-export/application/plans/useClipExportPlan.ts",
+      "features/time-slot/application/plans/useTimeSlotHierarchyPlan.ts",
+      "features/time-slot/application/plans/useTimeSlotPlan.ts",
+      "features/time-slot/application/plans/useTimeSlotWeatherPlan.ts",
+      "features/weather/application/plans/useWeatherAnalysisPlan.ts"
     ],
     "comparisonAccessor": [
       "presentation/pages/Daily/DailyPage.tsx",
