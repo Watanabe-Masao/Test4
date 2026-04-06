@@ -214,8 +214,13 @@ export const GUARD_TAG_REGISTRY: Record<string, GuardTagDef> = {
   G8: {
     name: '責務分離（AND テスト）',
     examples: [
-      'useMemo+useCallback 合計 ≤12 を超えると責務が AND で繋がっている兆候（P8）',
-      'features/ にも useMemo ≤7、useState ≤6 を適用して全層カバレッジを確保（P10）',
+      'P2: presentation で getState() を直接呼ぶと Store 構造に依存する',
+      'P7: module-scope let はテスト困難なグローバル状態を生む',
+      'P8: useMemo+useCallback 合計 ≤12 を超えると責務が AND で繋がっている',
+      'P10: features/ にも useMemo ≤7、useState ≤6 を適用して全層カバレッジを確保',
+      'P12: domain/models に export 8+ あると型と utility が同居している',
+      'P17: storeIds 正規化パターンのコピペが増えると変更時に N 箇所修正が必要',
+      'P18: fallback 定数が 7+ 個あると初期値戦略が分散している',
     ],
   },
 

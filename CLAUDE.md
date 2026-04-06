@@ -512,7 +512,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 | 性能 | OK | 6488/7000 / 2218/2500 / 919/1000 |
 
 
-> 生成: 2026-04-06T13:02:26.578Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-06T13:16:54.478Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）
