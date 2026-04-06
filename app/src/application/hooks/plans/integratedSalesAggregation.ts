@@ -5,6 +5,8 @@
  * presentation/components/charts/IntegratedSalesChartLogic.ts から移動。
  *
  * @guard G5 hook ≤300行 — 純粋関数を分離
+ *
+ * @responsibility R:calculation
  */
 import type { DateRange } from '@/domain/models/calendar'
 import { alignPrevYearDay } from '@/application/services/temporal/prevYearAlignment'
@@ -18,6 +20,8 @@ interface QuantityRecord {
 /**
  * DuckDB 由来の点数レコードを日別 Map に集約する。
  * 前年データは曜日アラインメント済みの日に配置する。
+ *
+ * @responsibility R:calculation
  */
 export function aggregateDailyQuantity(
   curRecords: readonly QuantityRecord[] | undefined,

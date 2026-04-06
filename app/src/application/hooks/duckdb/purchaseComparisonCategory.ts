@@ -7,6 +7,7 @@
  *
  * @see readPurchaseCost.ts — 正本 read
  * @see purchase-cost-definition.md — 正本定義
+ * @responsibility R:calculation
  */
 import type {
   SupplierComparisonRow,
@@ -27,7 +28,9 @@ import {
 } from './purchaseComparisonKpi'
 import type { PurchaseCostReadModel } from '@/application/readModels/purchaseCost/PurchaseCostTypes'
 
-/** 取引先別の集計中間構造 */
+/** 取引先別の集計中間構造  *
+ * @responsibility R:calculation
+ */
 interface SupplierAccum {
   curCost: number
   curPrice: number
@@ -39,6 +42,8 @@ interface SupplierAccum {
  * ReadModel + 名前マップ + special/transfers から取引先別・カテゴリ別データを構築する。
  *
  * 仕入原価の正本は ReadModel の purchase.rows。queryPurchaseBySupplier は廃止済み。
+ *
+ * @responsibility R:calculation
  */
 export function buildSupplierAndCategoryData(
   curModel: PurchaseCostReadModel,

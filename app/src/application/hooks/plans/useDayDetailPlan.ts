@@ -9,6 +9,8 @@
  *
  * @guard H1 Screen Plan 経由のみ
  * @guard H2 比較は pair/bundle 契約
+ *
+ * @responsibility R:query-plan
  */
 import { useMemo } from 'react'
 import type { PlanComparisonProvenance } from '@/domain/models/ComparisonWindow'
@@ -31,7 +33,9 @@ import {
 import type { DaySummary } from '../duckdb/dayDetailDataLogic'
 import type { CategoryTimeSalesRecord, HourlyWeatherRecord } from '@/domain/models/record'
 
-/** resolveDayDetailRanges の戻り値型 */
+/** resolveDayDetailRanges の戻り値型  *
+ * @responsibility R:query-plan
+ */
 type DayDetailRanges = ReturnType<typeof resolveDayDetailRanges>
 
 export interface DayDetailPlanResult {

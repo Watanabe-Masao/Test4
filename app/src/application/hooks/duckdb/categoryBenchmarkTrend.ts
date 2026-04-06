@@ -5,10 +5,14 @@
  * 日別トレンドデータの構築を担う。
  *
  * @guard G5 hook ≤300行
+ *
+ * @responsibility R:calculation
  */
 import type { CategoryBenchmarkTrendRow } from '@/infrastructure/duckdb/queries/advancedAnalytics'
 
-/** 日別トレンドデータのポイント */
+/** 日別トレンドデータのポイント  *
+ * @responsibility R:calculation
+ */
 export interface CategoryTrendPoint {
   readonly dateKey: string
   readonly code: string
@@ -16,12 +20,16 @@ export interface CategoryTrendPoint {
   readonly avgShare: number
   readonly cv: number
   readonly stability: number
-  /** 複合スコア: avgShare × stability（ソート・プロット用の絶対値） */
+  /** 複合スコア: avgShare × stability（ソート・プロット用の絶対値）  *
+   * @responsibility R:calculation
+   */
   readonly compositeScore: number
 }
 
 /**
  * 日別トレンドデータ構築
+ *
+ * @responsibility R:calculation
  */
 export function buildCategoryTrendData(
   rows: readonly CategoryBenchmarkTrendRow[],

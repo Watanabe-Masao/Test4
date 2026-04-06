@@ -5,6 +5,8 @@
  * React 依存なし — テスト可能な純粋関数のみ。
  *
  * @guard G5 hook ≤300行 — 純粋関数を分離
+ *
+ * @responsibility R:calculation
  */
 import type { CalendarDate, DateRange } from '@/domain/models/CalendarDate'
 import { toDateKey, dateRangeToKeys } from '@/domain/models/CalendarDate'
@@ -19,21 +21,29 @@ import type { AsyncQueryResult } from '@/application/queries/QueryContract'
 
 // ── 型定義 ──
 
-/** 天気候補店舗 */
+/** 天気候補店舗  *
+ * @responsibility R:calculation
+ */
 export interface WeatherCandidate {
   readonly id: string
   readonly name: string
 }
 
-/** 日別集約サマリー（DuckDB store_day_summary 由来） */
+/** 日別集約サマリー（DuckDB store_day_summary 由来）  *
+ * @responsibility R:calculation
+ */
 export interface DaySummary {
   readonly sales: number
   readonly customers: number
 }
 
-/** useDayDetailData の戻り値 */
+/** useDayDetailData の戻り値  *
+ * @responsibility R:calculation
+ */
 export interface DayDetailData {
-  /** 前年対応日（UI のラベル表示用） */
+  /** 前年対応日（UI のラベル表示用）  *
+   * @responsibility R:calculation
+   */
   readonly prevDate: CalendarDate
   readonly prevDateKey: string
 
@@ -53,7 +63,9 @@ export interface DayDetailData {
   readonly prevWeatherHourly: readonly HourlyWeatherRecord[] | undefined
 }
 
-/** useDayDetailData のパラメータ */
+/** useDayDetailData のパラメータ  *
+ * @responsibility R:calculation
+ */
 export interface DayDetailDataParams {
   readonly queryExecutor: import('@/application/queries/QueryPort').QueryExecutor | null
   readonly dataVersion: number
@@ -70,7 +82,9 @@ export const ZERO_SUMMARY: DaySummary = { sales: 0, customers: 0 }
 
 // ── 純粋関数: 日付範囲の計算 ──
 
-/** 日別詳細に必要な全日付範囲を一括計算する */
+/** 日別詳細に必要な全日付範囲を一括計算する  *
+ * @responsibility R:calculation
+ */
 export function resolveDayDetailRanges(
   year: number,
   month: number,
@@ -158,7 +172,9 @@ export function buildWeatherInput(
 
 // ── 集約ヘルパー ──
 
-/** isPrevYear=true の結果が空なら isPrevYear=false のフォールバックを使う */
+/** isPrevYear=true の結果が空なら isPrevYear=false のフォールバックを使う  *
+ * @responsibility R:calculation
+ */
 export function selectCtsWithFallback(
   primary: AsyncQueryResult<{ readonly records: readonly CategoryTimeSalesRecord[] }>,
   fallback: AsyncQueryResult<{ readonly records: readonly CategoryTimeSalesRecord[] }>,
@@ -167,7 +183,9 @@ export function selectCtsWithFallback(
   return primaryData.length > 0 ? primaryData : (fallback.data?.records ?? EMPTY_RECORDS)
 }
 
-/** StoreDaySummaryRow[] を店舗横断で集約して DaySummary に変換する */
+/** StoreDaySummaryRow[] を店舗横断で集約して DaySummary に変換する  *
+ * @responsibility R:calculation
+ */
 export function aggregateSummary(
   rows: readonly StoreDaySummaryRow[] | null | undefined,
 ): DaySummary | null {

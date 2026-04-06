@@ -194,4 +194,12 @@ export const hookLineLimits: readonly QuantitativeAllowlistEntry[] = [
   // usePeriodAwareKpi.ts — 300行（デフォルト上限以下）。許可リスト卒業
   // useTimeSlotData.ts — useTimeSlotPlan に query orchestration を分離。133 行に削減
   // useTimeSlotPlan.ts: hierarchy + weather sub-plan 分離で 206 行。デフォルト上限 300 行以下。許可リスト卒業
+  {
+    path: 'application/hooks/duckdb/purchaseComparisonCategory.ts',
+    reason: '@responsibility タグ追加で 302 行。純粋関数のみ',
+    category: 'structural',
+    removalCondition: '空行整理時',
+    limit: 305,
+    lifecycle: 'active-debt',
+  },
 ] as const

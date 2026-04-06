@@ -5,11 +5,15 @@
  * 構成比ベースのスコア算出、タイプ分類、日別トレンド構築を担う。
  *
  * @guard G5 hook ≤300行 — 純粋関数を分離
+ *
+ * @responsibility R:calculation
  */
 import type { CategoryBenchmarkRow } from '@/infrastructure/duckdb/queries/advancedAnalytics'
 import { calculateAmountPI, calculateQuantityPI } from '@/domain/calculations/piValue'
 
-/** ベンチマーク指標の種類 */
+/** ベンチマーク指標の種類  *
+ * @responsibility R:calculation
+ */
 export type BenchmarkMetric = 'share' | 'salesPi' | 'quantityPi'
 
 export interface CategoryBenchmarkScore {
@@ -17,33 +21,55 @@ export interface CategoryBenchmarkScore {
   readonly name: string
   readonly totalSales: number
   readonly scoreSum: number
-  /** 実効店舗数（選択全店舗数。販売0店舗を含む） */
+  /** 実効店舗数（選択全店舗数。販売0店舗を含む）  *
+   * @responsibility R:calculation
+   */
   readonly storeCount: number
-  /** 実販売店舗数（実際に売上がある店舗数） */
+  /** 実販売店舗数（実際に売上がある店舗数）  *
+   * @responsibility R:calculation
+   */
   readonly activeStoreCount: number
-  /** 総合指数 (0-100): 平均値の正規化値 */
+  /** 総合指数 (0-100): 平均値の正規化値  *
+   * @responsibility R:calculation
+   */
   readonly index: number
-  /** バラツキ: 変動係数 CV (低=均一、高=偏り) */
+  /** バラツキ: 変動係数 CV (低=均一、高=偏り)  *
+   * @responsibility R:calculation
+   */
   readonly variance: number
-  /** カバー率: 実販売店舗数 / 全店舗数 (0-1) */
+  /** カバー率: 実販売店舗数 / 全店舗数 (0-1)  *
+   * @responsibility R:calculation
+   */
   readonly dominance: number
-  /** 安定度: 1 - CV/2 (0-1, 高=安定) */
+  /** 安定度: 1 - CV/2 (0-1, 高=安定)  *
+   * @responsibility R:calculation
+   */
   readonly stability: number
-  /** 平均値: 使用メトリックの全店舗平均（構成比の場合は0-1、PIの場合は実数） */
+  /** 平均値: 使用メトリックの全店舗平均（構成比の場合は0-1、PIの場合は実数）  *
+   * @responsibility R:calculation
+   */
   readonly avgShare: number
-  /** 商品力タイプ */
+  /** 商品力タイプ  *
+   * @responsibility R:calculation
+   */
   readonly productType: ProductType
-  /** 使用されたメトリック */
+  /** 使用されたメトリック  *
+   * @responsibility R:calculation
+   */
   readonly metric: BenchmarkMetric
 }
 
-/** 商品力4タイプ分類 */
+/** 商品力4タイプ分類  *
+ * @responsibility R:calculation
+ */
 export type ProductType = 'flagship' | 'regional' | 'standard' | 'unstable'
 
 /**
  * CV ベースのタイプ分類
  * - highIndex (>=50): データセット内で相対的に高い構成比
  * - lowVariance (CV < 0.5): 店舗間で安定した構成比
+ *
+ * @responsibility R:calculation
  */
 export function classifyProductType(index: number, cv: number): ProductType {
   const highIndex = index >= 50
@@ -56,6 +82,8 @@ export function classifyProductType(index: number, cv: number): ProductType {
 
 /**
  * カテゴリスコア算出（構成比 or PI値ベース）
+ *
+ * @responsibility R:calculation
  */
 export function buildCategoryBenchmarkScores(
   rows: readonly CategoryBenchmarkRow[],

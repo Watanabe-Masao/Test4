@@ -6,6 +6,8 @@
  *
  * @guard F7 View は ViewModel のみ受け取る
  * @guard G5 hook ≤300行 — 純粋関数を分離
+ *
+ * @responsibility R:transform
  */
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import type { DataPoint } from './BudgetVsActualChart.builders'
@@ -34,6 +36,8 @@ export interface EnrichedDataPoint extends DataPoint {
 
 /**
  * 予算進捗率・着地予想を計算する。
+ *
+ * @responsibility R:transform
  */
 export function computeBudgetProgress(
   data: readonly DataPoint[],
@@ -67,6 +71,8 @@ export function computeBudgetProgress(
 /**
  * 進捗率に基づくステータス色を返す。
  * >=100% 緑, >=90% 黄, <90% 赤
+ *
+ * @responsibility R:transform
  */
 export function getProgressStatusColor(rate: number): StatusColor {
   if (rate >= 1.0) return 'success'
@@ -76,6 +82,8 @@ export function getProgressStatusColor(rate: number): StatusColor {
 
 /**
  * 前年累積マップを構築する（prevYearDiff ビュー用）。
+ *
+ * @responsibility R:transform
  */
 export function buildPrevYearCumMap(
   prevYearDaily: ReadonlyMap<string, { sales: number }> | undefined,
@@ -95,6 +103,8 @@ export function buildPrevYearCumMap(
 
 /**
  * 差分・達成率を含む拡張データを構築する。
+ *
+ * @responsibility R:transform
  */
 export function enrichChartData(
   data: readonly DataPoint[],
@@ -117,6 +127,8 @@ export function enrichChartData(
 
 /**
  * 前年比較のサマリー指標を計算する。
+ *
+ * @responsibility R:transform
  */
 export function computePrevYearComparison(
   currentActual: number,

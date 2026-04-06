@@ -3,6 +3,8 @@
  *
  * purchaseComparisonBuilders.ts から分割。
  * 日別データとカテゴリ×日別ピボットテーブルの構築を担う。
+ *
+ * @responsibility R:calculation
  */
 import type {
   CategoryComparisonRow,
@@ -18,7 +20,9 @@ import type {
   SalesDailyRow,
 } from '@/infrastructure/duckdb/queries/purchaseComparison'
 
-/** 日別仕入集計行（ReadModel の toDailyCostRows から導出） */
+/** 日別仕入集計行（ReadModel の toDailyCostRows から導出）  *
+ * @responsibility R:calculation
+ */
 interface DailyCostRow {
   readonly day: number
   readonly totalCost: number
@@ -56,7 +60,9 @@ export function buildDailyData(
 
 // ── カテゴリ別日別ピボット構築 ──
 
-/** 内部用: 当期/前期の集計マップ型 */
+/** 内部用: 当期/前期の集計マップ型  *
+ * @responsibility R:calculation
+ */
 interface DayCellAccum {
   cost: number
   price: number

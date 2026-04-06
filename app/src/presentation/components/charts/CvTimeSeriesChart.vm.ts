@@ -5,6 +5,8 @@
  * React / styled-components に依存しない純粋関数群。
  *
  * @guard F7 View は ViewModel のみ受け取る
+ *
+ * @responsibility R:transform
  */
 import type { CategoryTrendPoint, CategoryBenchmarkTrendRow } from '@/application/hooks/duckdb'
 
@@ -81,7 +83,9 @@ export function detectTrendStatus(points: readonly CategoryTrendPoint[]): TrendS
   return 'stable'
 }
 
-/** CV値 → ヒートマップ色 (緑=低CV=安定、赤=高CV=不安定) */
+/** CV値 → ヒートマップ色 (緑=低CV=安定、赤=高CV=不安定)  *
+ * @responsibility R:transform
+ */
 export function cvToColor(cv: number, maxCv: number): { bg: string; text: string } {
   const ratio = Math.min(cv / Math.max(maxCv, 0.01), 1)
   if (ratio < 0.25) return { bg: 'rgba(34,197,94,0.25)', text: '#166534' }

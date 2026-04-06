@@ -2,6 +2,8 @@
  * useAutoImport の状態管理リデューサー（純粋関数）
  *
  * 7個の useState を1つの useReducer に集約する。
+ *
+ * @responsibility R:reducer
  */
 
 export interface AutoImportReducerState {

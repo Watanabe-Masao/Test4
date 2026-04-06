@@ -4,13 +4,17 @@
  * 相関分析結果を ECharts 描画データに変換する。
  *
  * @guard F7 View は ViewModel のみ受け取る
+ *
+ * @responsibility R:transform
  */
 import type { DailyWeatherSummary } from '@/domain/models/record'
 import type { DailySalesForCorrelation } from '@/application/hooks/useWeatherCorrelation'
 import type { CorrelationResult } from '@/application/hooks/useWeatherCorrelation'
 import { normalizeMinMax } from '@/application/hooks/useWeatherCorrelation'
 
-/** タイムラインチャートの1点 */
+/** タイムラインチャートの1点  *
+ * @responsibility R:transform
+ */
 export interface TimelineDataPoint {
   readonly dateKey: string
   readonly day: number
@@ -19,7 +23,9 @@ export interface TimelineDataPoint {
   readonly precipNorm: number | null
 }
 
-/** 相関の強さ判定 */
+/** 相関の強さ判定  *
+ * @responsibility R:transform
+ */
 export function getCorrelationStrength(r: number): 'strong' | 'moderate' | 'weak' {
   const abs = Math.abs(r)
   if (abs >= 0.6) return 'strong'
@@ -27,7 +33,9 @@ export function getCorrelationStrength(r: number): 'strong' | 'moderate' | 'weak
   return 'weak'
 }
 
-/** 相関係数のラベル */
+/** 相関係数のラベル  *
+ * @responsibility R:transform
+ */
 export function formatCorrelationLabel(label: string, result: CorrelationResult): string {
   const sign = result.r >= 0 ? '+' : ''
   return `${label}: r=${sign}${result.r.toFixed(3)} (n=${result.n})`
@@ -37,6 +45,8 @@ export function formatCorrelationLabel(label: string, result: CorrelationResult)
  * 日別天気・売上データをタイムライン描画用に変換する。
  *
  * 両系列を 0-100 に正規化し、同一 X 軸で重ね描きできるようにする。
+ *
+ * @responsibility R:transform
  */
 export function buildTimelineData(
   weatherDaily: readonly DailyWeatherSummary[],

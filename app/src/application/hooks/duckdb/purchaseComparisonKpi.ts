@@ -3,9 +3,13 @@
  *
  * purchaseComparisonBuilders.ts から分割。
  * 共有定数・ユーティリティ関数・KPI 計算・店舗比較を担う。
+ *
+ * @responsibility R:calculation
  */
 import type { StoreComparisonRow, PurchaseComparisonKpi } from '@/domain/models/PurchaseComparison'
-/** 店舗別仕入原価行（ReadModel の toStoreCostRows から導出） */
+/** 店舗別仕入原価行（ReadModel の toStoreCostRows から導出）  *
+ * @responsibility R:calculation
+ */
 interface StoreRow {
   readonly storeId: string
   readonly totalCost: number

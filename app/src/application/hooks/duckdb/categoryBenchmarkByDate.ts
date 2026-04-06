@@ -6,6 +6,8 @@
  * 安定度・バラツキに基づく商品力スコアを計算する。
  *
  * @guard G5 hook ≤300行 — 純粋関数を分離
+ *
+ * @responsibility R:calculation
  */
 import type {
   CategoryBenchmarkRow,
@@ -20,6 +22,8 @@ import { classifyProductType } from './categoryBenchmarkLogic'
  * 日別の売上構成比の変動から安定度を算出する。
  * buildCategoryBenchmarkScores が店舗間バラツキを見るのに対し、
  * この関数は時系列バラツキ（日次変動）を見る。
+ *
+ * @responsibility R:calculation
  */
 export function buildCategoryBenchmarkScoresByDate(
   trendRows: readonly CategoryBenchmarkTrendRow[],
