@@ -105,7 +105,7 @@ export const WeatherPage = memo(function WeatherPage() {
   const { hourlyCache, prevHourlyCache, fetchHourly, fetchPrevHourly, resolvePrevDate } =
     useWeatherHourlyOnDemand(selectedStoreId, 'sameDate')
 
-  const [selectedDays, setSelectedDays] = useState<ReadonlySet<number>>(new Set())
+  const [selectedDays, setSelectedDays] = useState<ReadonlySet<string>>(new Set())
   const [selectedDows, setSelectedDows] = useState<number[]>([])
   const handleDowChange = useCallback((dows: number[]) => setSelectedDows(dows), [])
   const [uiState, setUiState] = useState<{
@@ -151,21 +151,24 @@ export const WeatherPage = memo(function WeatherPage() {
 
   // シングルクリック → トグル選択
   const handleChartDayClick = useCallback((dateKey: string) => {
-    const dayNum = Number(dateKey.split('-')[2])
     setSelectedDays((prev) => {
-      const next = new Set(prev)
-      if (next.has(dayNum)) next.delete(dayNum)
-      else next.add(dayNum)
-      return next
+      if (prev.size === 1 && prev.has(dateKey)) return new Set()
+      return new Set([dateKey])
     })
   }, [])
 
-  // ドラッグ範囲選択
-  const handleDayRangeSelect = useCallback((startDay: number, endDay: number) => {
-    const next = new Set<number>()
-    for (let d = startDay; d <= endDay; d++) next.add(d)
-    setSelectedDays(next)
-  }, [])
+  // ドラッグ範囲選択（dateKey ベース）
+  const handleDayRangeSelect = useCallback(
+    (startIdx: number, endIdx: number) => {
+      const allDaily = combined.length > 0 ? combined : daily
+      const next = new Set<string>()
+      for (let i = startIdx; i <= endIdx && i < allDaily.length; i++) {
+        next.add(allDaily[i].dateKey)
+      }
+      setSelectedDays(next)
+    },
+    [combined, daily],
+  )
 
   // ダブルクリック → 時間帯モーダル起動
   const handleChartDayDblClick = useCallback(
@@ -212,29 +215,38 @@ export const WeatherPage = memo(function WeatherPage() {
     [prevYearCurrentMonth],
   )
 
+  // 選択日の日番号セット（サマリー計算 + ラベル用）
+  const selectedDayNumbers = useMemo(() => {
+    const nums = new Set<number>()
+    for (const dk of selectedDays) nums.add(Number(dk.split('-')[2]))
+    return nums
+  }, [selectedDays])
+
   const selectedDaySummary = useMemo<WeatherSummaryResult | null>(() => {
     if (selectedDays.size === 0) return null
+    // combined（3ヶ月）から dateKey で検索
+    const allDaily = combined.length > 0 ? combined : daily
     if (selectedDays.size === 1) {
-      const day = [...selectedDays][0]
-      const d = daily.find((r) => Number(r.dateKey.split('-')[2]) === day)
+      const dk = [...selectedDays][0]
+      const d = allDaily.find((r) => r.dateKey === dk)
       return d ? computeDaySummary(d) : null
     }
-    const filtered = daily.filter((r) => selectedDays.has(Number(r.dateKey.split('-')[2])))
+    const filtered = allDaily.filter((r) => selectedDays.has(r.dateKey))
     return computeMonthSummary(filtered)
-  }, [daily, selectedDays])
+  }, [combined, daily, selectedDays])
 
   const prevDaySummary = useMemo<WeatherSummaryResult | null>(() => {
-    if (selectedDays.size === 0) return null
-    if (selectedDays.size === 1) {
-      const day = [...selectedDays][0]
+    if (selectedDayNumbers.size === 0) return null
+    if (selectedDayNumbers.size === 1) {
+      const day = [...selectedDayNumbers][0]
       const d = prevYearCurrentMonth.find((r) => Number(r.dateKey.split('-')[2]) === day)
       return d ? computeDaySummary(d) : null
     }
     const filtered = prevYearCurrentMonth.filter((r) =>
-      selectedDays.has(Number(r.dateKey.split('-')[2])),
+      selectedDayNumbers.has(Number(r.dateKey.split('-')[2])),
     )
     return computeMonthSummary(filtered)
-  }, [prevYearCurrentMonth, selectedDays])
+  }, [prevYearCurrentMonth, selectedDayNumbers])
 
   // 予報分離
   const observedKeys = useMemo(() => new Set(daily.map((d) => d.dateKey)), [daily])
@@ -351,7 +363,12 @@ export const WeatherPage = memo(function WeatherPage() {
                     label={
                       selectedDaySummary
                         ? selectedDays.size === 1
-                          ? `${month}月${[...selectedDays][0]}日`
+                          ? (() => {
+                              const dk = [...selectedDays][0]
+                              const m = Number(dk.split('-')[1])
+                              const d = Number(dk.split('-')[2])
+                              return `${m}月${d}日`
+                            })()
                           : `選択: ${selectedDays.size}日間`
                         : '月間サマリ'
                     }

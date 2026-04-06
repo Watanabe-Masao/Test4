@@ -84,7 +84,7 @@ interface Props {
   readonly prevYearDaily: readonly DailyWeatherSummary[]
   readonly year: number
   readonly month: number
-  readonly selectedDays: ReadonlySet<number>
+  readonly selectedDays: ReadonlySet<string>
   readonly onDayClick: (dateKey: string) => void
 }
 
@@ -133,7 +133,7 @@ export const WeatherCalendarView = memo(function WeatherCalendarView({
         return (
           <DayCell
             key={d.dateKey}
-            $selected={selectedDays.has(dayNum)}
+            $selected={selectedDays.has(d.dateKey)}
             onClick={() => onDayClick(d.dateKey)}
           >
             <DayNum $weekend={dow === 0 || dow === 6}>{dayNum}</DayNum>

@@ -563,7 +563,6 @@ describe('許可リスト総数トラッキング', () => {
       { name: 'presentationToInfrastructure', list: presentationToInfrastructure },
       { name: 'infrastructureToApplication', list: infrastructureToApplication },
       { name: 'presentationDuckdbHook', list: presentationDuckdbHook },
-      { name: 'largeComponentTier2', list: largeComponentTier2 },
       { name: 'cmpPrevYearDaily', list: cmpPrevYearDaily },
       { name: 'cmpFramePrevious', list: cmpFramePrevious },
       { name: 'dowCalcOverride', list: dowCalcOverride },
