@@ -21,6 +21,7 @@ import { ForecastBadge } from '@/presentation/components/common/ForecastBadge'
 import { HourlyWeatherModal } from '@/presentation/pages/Dashboard/widgets/HourlyWeatherModal'
 import { WeatherTemperatureChart } from './WeatherTemperatureChart'
 import { InlineLocationSetup } from './InlineLocationSetup'
+import { DowPresetSelector } from '@/presentation/components/charts/DowPresetSelector'
 import { WeatherDetailSection } from './WeatherDetailSection'
 import { WeatherSummarySection } from './WeatherSummarySection'
 import { computeMonthSummary, computeDaySummary, type WeatherSummaryResult } from './weatherSummary'
@@ -105,6 +106,8 @@ export const WeatherPage = memo(function WeatherPage() {
     useWeatherHourlyOnDemand(selectedStoreId, 'sameDate')
 
   const [selectedDays, setSelectedDays] = useState<ReadonlySet<number>>(new Set())
+  const [selectedDows, setSelectedDows] = useState<number[]>([])
+  const handleDowChange = useCallback((dows: number[]) => setSelectedDows(dows), [])
   const [uiState, setUiState] = useState<{
     modalDate: string | null
     modalForecast: DailyForecast | null
@@ -244,11 +247,8 @@ export const WeatherPage = memo(function WeatherPage() {
   const modalHourly = uiState.modalDate ? hourlyCache[uiState.modalDate] : undefined
   const modalPrevHourly = uiState.modalDate ? prevHourlyCache[uiState.modalDate] : undefined
   const modalPrevDate = uiState.modalDate ? resolvePrevDate(uiState.modalDate) : null
-  const showModal =
-    uiState.modalDate &&
-    ((modalHourly?.status === 'done' && modalHourly.records.length > 0) ||
-      (uiState.modalForecast &&
-        (modalPrevHourly?.status === 'done' || modalPrevHourly?.status === 'loading')))
+  // モーダルは dateKey があれば即表示（中身はローディング → データ到着で更新）
+  const showModal = !!uiState.modalDate
 
   return (
     <Page>
@@ -333,54 +333,37 @@ export const WeatherPage = memo(function WeatherPage() {
               </StationBadge>
             )}
 
-            {/* サマリー: 月間（常時） + 選択日（日クリック時に並列表示） */}
+            {/* サマリー: 月間 ↔ 日別（チャートクリックでインプレース切替） */}
             <AnimatePresence mode="wait">
-              {monthSummary && (
+              {(selectedDaySummary ?? monthSummary) && (
                 <motion.div
-                  key="summary"
+                  key={selectedDaySummary ? 'day' : 'month'}
                   variants={fadeSlideVariants}
                   initial="initial"
                   animate="animate"
                   exit="exit"
                   transition={{ duration: 0.2 }}
+                  style={{ marginBottom: 16 }}
                 >
-                  <div
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: selectedDaySummary ? '1fr 1fr' : '1fr',
-                      gap: 24,
-                      marginBottom: 16,
-                    }}
-                  >
-                    <WeatherSummarySection
-                      summary={monthSummary}
-                      prevSummary={prevMonthSummary}
-                      label="月間サマリ"
-                    />
-                    {selectedDaySummary && (
-                      <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.25 }}
-                      >
-                        <WeatherSummarySection
-                          summary={selectedDaySummary}
-                          prevSummary={prevDaySummary}
-                          label={
-                            selectedDays.size === 1
-                              ? `${month}月${[...selectedDays][0]}日`
-                              : `選択: ${selectedDays.size}日間`
-                          }
-                        />
-                        <NavBtn
-                          onClick={() => setSelectedDays(new Set())}
-                          style={{ fontSize: '0.7rem' }}
-                        >
-                          ✕ 選択解除
-                        </NavBtn>
-                      </motion.div>
-                    )}
-                  </div>
+                  <WeatherSummarySection
+                    summary={selectedDaySummary ?? monthSummary!}
+                    prevSummary={selectedDaySummary ? prevDaySummary : prevMonthSummary}
+                    label={
+                      selectedDaySummary
+                        ? selectedDays.size === 1
+                          ? `${month}月${[...selectedDays][0]}日`
+                          : `選択: ${selectedDays.size}日間`
+                        : '月間サマリ'
+                    }
+                  />
+                  {selectedDaySummary && (
+                    <NavBtn
+                      onClick={() => setSelectedDays(new Set())}
+                      style={{ fontSize: '0.7rem', marginTop: 4 }}
+                    >
+                      ✕ 月間サマリに戻す
+                    </NavBtn>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
@@ -397,6 +380,9 @@ export const WeatherPage = memo(function WeatherPage() {
                 onDayRangeSelect={handleDayRangeSelect}
                 monthBoundaries={boundaries}
                 onMonthChange={handleMonthScroll}
+                headerExtra={
+                  <DowPresetSelector selectedDows={selectedDows} onChange={handleDowChange} />
+                }
               />
             </div>
 
@@ -431,6 +417,7 @@ export const WeatherPage = memo(function WeatherPage() {
               month={month}
               selectedDays={selectedDays}
               onDayClick={handleChartDayClick}
+              selectedDows={selectedDows}
             />
           </motion.div>
         )}

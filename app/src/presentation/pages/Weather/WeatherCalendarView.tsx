@@ -49,6 +49,7 @@ const DayCell = styled.div<{ $selected?: boolean; $empty?: boolean }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   transition: all 0.15s;
   ${({ $empty }) => ($empty ? 'visibility: hidden;' : '')}
+  border: 1px solid ${({ theme }) => theme.colors.border ?? '#e5e7eb'};
   ${({ $selected, theme }) =>
     $selected
       ? `background: ${theme.colors.bg3}; outline: 2px solid ${theme.colors.palette.primary};`
