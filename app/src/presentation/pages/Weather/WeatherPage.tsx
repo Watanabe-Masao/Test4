@@ -21,6 +21,7 @@ import { HourlyWeatherModal } from '@/presentation/pages/Dashboard/widgets/Hourl
 import { WeatherTemperatureChart } from './WeatherTemperatureChart'
 import { InlineLocationSetup } from './InlineLocationSetup'
 import { WeatherDetailSection } from './WeatherDetailSection'
+import { WeatherSummarySection } from './WeatherSummarySection'
 import { computeMonthSummary, computeDaySummary, type WeatherSummaryResult } from './weatherSummary'
 import {
   Page,
@@ -34,11 +35,6 @@ import {
   Grid,
   ForecastCell,
   DayLabelText,
-  SummaryGrid,
-  SummaryCard,
-  SummaryValue,
-  SummaryUnit,
-  SummaryCaption,
   SetupBox,
   Spinner,
   LoadingBox,
@@ -63,142 +59,6 @@ const staggerContainer = {
 const staggerItem = {
   initial: { opacity: 0, scale: 0.9 },
   animate: { opacity: 1, scale: 1 },
-}
-
-const WEATHER_ICONS: Record<string, string> = {
-  sunny: '☀',
-  cloudy: '☁',
-  rainy: '☂',
-  snowy: '❄',
-  other: '—',
-}
-
-// ── Summary Section ──
-
-function SummarySection({
-  summary,
-  prevSummary,
-  label,
-}: {
-  summary: WeatherSummaryResult
-  prevSummary?: WeatherSummaryResult | null
-  label: string
-}) {
-  const diff = (cur: number, prev: number | undefined) => {
-    if (prev == null) return null
-    const d = cur - prev
-    return d >= 0 ? `+${d.toFixed(1)}` : d.toFixed(1)
-  }
-
-  return (
-    <>
-      <SectionLabel>
-        {summary.weatherCategory
-          ? `${WEATHER_ICONS[summary.weatherCategory] ?? ''} ${label}`
-          : `📊 ${label}`}
-        {summary.weatherText && (
-          <span style={{ fontWeight: 400, opacity: 0.7, marginLeft: 8 }}>
-            {summary.weatherText}
-          </span>
-        )}
-      </SectionLabel>
-      <SummaryGrid variants={staggerContainer} initial="initial" animate="animate">
-        <SummaryCard variants={staggerItem} $accent="#f59e0b">
-          <SummaryValue>
-            {summary.avgTemp.toFixed(1)}
-            <SummaryUnit>°C</SummaryUnit>
-          </SummaryValue>
-          <SummaryCaption>
-            平均気温{' '}
-            {prevSummary && (
-              <span style={{ opacity: 0.6 }}>
-                (前年 {prevSummary.avgTemp.toFixed(1)}° {diff(summary.avgTemp, prevSummary.avgTemp)}
-                )
-              </span>
-            )}
-          </SummaryCaption>
-        </SummaryCard>
-        <SummaryCard variants={staggerItem} $accent="#ef4444">
-          <SummaryValue>
-            {summary.maxTemp.toFixed(1)}
-            <SummaryUnit>°C</SummaryUnit>
-          </SummaryValue>
-          <SummaryCaption>
-            最高気温{' '}
-            {prevSummary && (
-              <span style={{ opacity: 0.6 }}>(前年 {prevSummary.maxTemp.toFixed(1)}°)</span>
-            )}
-          </SummaryCaption>
-        </SummaryCard>
-        <SummaryCard variants={staggerItem} $accent="#3b82f6">
-          <SummaryValue>
-            {summary.minTemp.toFixed(1)}
-            <SummaryUnit>°C</SummaryUnit>
-          </SummaryValue>
-          <SummaryCaption>
-            最低気温{' '}
-            {prevSummary && (
-              <span style={{ opacity: 0.6 }}>(前年 {prevSummary.minTemp.toFixed(1)}°)</span>
-            )}
-          </SummaryCaption>
-        </SummaryCard>
-        <SummaryCard variants={staggerItem} $accent="#3b82f6">
-          <SummaryValue>
-            {summary.totalPrecip.toFixed(1)}
-            <SummaryUnit>mm</SummaryUnit>
-          </SummaryValue>
-          <SummaryCaption>
-            {summary.totalDays === 1 ? '降水量' : '総降水量'}{' '}
-            {prevSummary && (
-              <span style={{ opacity: 0.6 }}>(前年 {prevSummary.totalPrecip.toFixed(1)}mm)</span>
-            )}
-          </SummaryCaption>
-        </SummaryCard>
-        <SummaryCard variants={staggerItem} $accent="#f59e0b">
-          <SummaryValue>
-            {summary.sunshineHours.toFixed(1)}
-            <SummaryUnit>h</SummaryUnit>
-          </SummaryValue>
-          <SummaryCaption>
-            日照時間{' '}
-            {prevSummary && (
-              <span style={{ opacity: 0.6 }}>(前年 {prevSummary.sunshineHours.toFixed(1)}h)</span>
-            )}
-          </SummaryCaption>
-        </SummaryCard>
-        {summary.totalDays > 1 ? (
-          <SummaryCard variants={staggerItem} $accent="#10b981">
-            <SummaryValue>
-              {summary.sunnyDays}
-              <SummaryUnit> / {summary.totalDays}日</SummaryUnit>
-            </SummaryValue>
-            <SummaryCaption>
-              ☀{summary.sunnyDays} ☁{summary.cloudyDays} ☂{summary.rainyDays}
-              {prevSummary && prevSummary.totalDays > 1 && (
-                <span style={{ opacity: 0.6 }}>
-                  {' '}
-                  (前年 ☀{prevSummary.sunnyDays} ☁{prevSummary.cloudyDays} ☂{prevSummary.rainyDays})
-                </span>
-              )}
-            </SummaryCaption>
-          </SummaryCard>
-        ) : (
-          <SummaryCard variants={staggerItem} $accent="#10b981">
-            <SummaryValue>
-              {summary.avgHumidity.toFixed(0)}
-              <SummaryUnit>%</SummaryUnit>
-            </SummaryValue>
-            <SummaryCaption>
-              湿度{' '}
-              {prevSummary && (
-                <span style={{ opacity: 0.6 }}>(前年 {prevSummary.avgHumidity.toFixed(0)}%)</span>
-              )}
-            </SummaryCaption>
-          </SummaryCard>
-        )}
-      </SummaryGrid>
-    </>
-  )
 }
 
 // ── Main Page ──
@@ -451,7 +311,7 @@ export const WeatherPage = memo(function WeatherPage() {
                       marginBottom: 16,
                     }}
                   >
-                    <SummarySection
+                    <WeatherSummarySection
                       summary={monthSummary}
                       prevSummary={prevMonthSummary}
                       label="月間サマリ"
@@ -462,7 +322,7 @@ export const WeatherPage = memo(function WeatherPage() {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.25 }}
                       >
-                        <SummarySection
+                        <WeatherSummarySection
                           summary={selectedDaySummary}
                           prevSummary={prevDaySummary}
                           label={
