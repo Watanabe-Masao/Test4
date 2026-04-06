@@ -25,7 +25,7 @@
 | 性能 | OK | 6488/7000 / 2218/2500 / 919/1000 |
 
 
-> 生成: 2026-04-06T13:35:06.479Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-06T13:43:15.411Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 現状スナップショット

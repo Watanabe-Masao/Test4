@@ -1,9 +1,9 @@
 /**
- * 責務タグガード — 全 hook/コンポーネントが R: タグで分類されていることを保証
+ * 責務タグガード — 未分類ファイル数の管理と新規ファイルの強制分類
  *
- * - タグなし → 未分類 → 新規ファイルは CI 失敗
- * - 既存の未分類は UNCLASSIFIED_BUDGET 以下であること
- * - タグ付きファイルは 1 タグ（1 責務）であること
+ * - 既存の未分類: SNAPSHOT で管理。減少のみ許可。
+ * - 新規ファイル: レジストリ未登録なら CI 失敗。
+ * - 複数タグ: AND の可視化（情報出力）。
  *
  * @guard G8 責務分離（責務タグカバレッジ）
  */
@@ -11,9 +11,9 @@ import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
 import { SRC_DIR, collectTsFiles, rel } from '../guardTestHelpers'
-import { resolveResponsibilityTag } from '../responsibilityTagRegistry'
+import { isClassified, getResponsibilityTags, RESPONSIBILITY_REGISTRY } from '../responsibilityTagRegistry'
 
-/** 対象ディレクトリ（hook/コンポーネント/ページ/features） */
+/** 対象ディレクトリ */
 const TARGET_DIRS = [
   'application/hooks',
   'presentation/components',
@@ -22,7 +22,6 @@ const TARGET_DIRS = [
   'features',
 ]
 
-/** index.ts（バレル）を除外するフィルタ */
 const isTarget = (file: string) =>
   !file.includes('.test.') &&
   !file.includes('.stories.') &&
@@ -31,14 +30,12 @@ const isTarget = (file: string) =>
   !file.endsWith('/index.ts') &&
   !file.endsWith('/index.tsx')
 
-/** 全対象ファイルを収集 */
 function collectTargetFiles(): string[] {
   const all: string[] = []
   for (const dir of TARGET_DIRS) {
     const absDir = path.join(SRC_DIR, dir)
     if (!fs.existsSync(absDir)) continue
-    const files = collectTsFiles(absDir)
-    for (const f of files) {
+    for (const f of collectTsFiles(absDir)) {
       if (isTarget(f)) all.push(f)
     }
   }
@@ -48,72 +45,66 @@ function collectTargetFiles(): string[] {
 describe('G8-R: 責務タグカバレッジ', () => {
   const files = collectTargetFiles()
 
-  it('全対象ファイルが R: タグで分類されている（未分類の予算管理）', () => {
-    const unclassified: string[] = []
+  // ★ 現在の未分類数。タグ付けしたらこの数を減らす。
+  // ★ 新規ファイル追加で増えたら CI 失敗。
+  const UNCLASSIFIED_SNAPSHOT = 617
 
+  it('未分類ファイル数が増えていない（新規ファイルは登録必須）', () => {
+    const unclassified: string[] = []
     for (const file of files) {
-      const relPath = rel(file)
-      const tag = resolveResponsibilityTag(relPath)
-      if (tag === null) {
-        unclassified.push(relPath)
-      }
+      if (!isClassified(rel(file))) unclassified.push(rel(file))
     }
 
-    // 現在の未分類数を予算として記録。
-    // 新規ファイル追加時に未分類が増えたら CI 失敗。
-    // 既存ファイルにタグを付けて徐々に減らす。
-    const UNCLASSIFIED_BUDGET = unclassified.length
-
-    // 予算 0 なら全分類完了。0 より大きい場合はスナップショットで管理。
-    // 新規ファイルがタグなしで追加されると budget を超えて CI 失敗。
     expect(
       unclassified.length,
-      `未分類ファイルが予算(${UNCLASSIFIED_BUDGET})を超えています。\n` +
+      `未分類が増加 (${unclassified.length} > ${UNCLASSIFIED_SNAPSHOT})。\n` +
         `新規ファイルは responsibilityTagRegistry.ts に R: タグを登録してください。\n` +
-        `未分類一覧:\n${unclassified.join('\n')}`,
-    ).toBeLessThanOrEqual(UNCLASSIFIED_BUDGET)
+        `未登録の新規ファイル（直近追加分を確認）:\n` +
+        `${unclassified.slice(-10).join('\n')}`,
+    ).toBeLessThanOrEqual(UNCLASSIFIED_SNAPSHOT)
   })
 
-  it('未分類ファイル数のスナップショット（減少のみ許可）', () => {
-    let unclassifiedCount = 0
-    for (const file of files) {
-      if (resolveResponsibilityTag(rel(file)) === null) unclassifiedCount++
+  it('レジストリに存在するが実ファイルがないエントリがない（陳腐化防止）', () => {
+    const relPaths = new Set(files.map((f) => rel(f)))
+    const stale: string[] = []
+    for (const key of Object.keys(RESPONSIBILITY_REGISTRY)) {
+      if (!relPaths.has(key)) stale.push(key)
     }
 
-    // ★ この数値が現在の未分類数。タグ付けしたら減らす。増えたら CI 失敗。
-    const SNAPSHOT = 0
-    if (SNAPSHOT > 0) {
-      expect(
-        unclassifiedCount,
-        `未分類が増加しています (${unclassifiedCount} > ${SNAPSHOT})。` +
-          `新規ファイルには R: タグを付けてください`,
-      ).toBeLessThanOrEqual(SNAPSHOT)
-    }
+    expect(
+      stale,
+      `レジストリに実ファイルがないエントリ:\n${stale.join('\n')}\n` +
+        '→ responsibilityTagRegistry.ts から削除してください',
+    ).toEqual([])
   })
 
-  it('タグ付きファイルの分布サマリー（情報出力）', () => {
+  it('分類状況サマリー（情報出力）', () => {
     const tagCounts: Record<string, number> = {}
+    let classified = 0
     let unclassified = 0
+    let multiTag = 0
 
     for (const file of files) {
-      const tag = resolveResponsibilityTag(rel(file))
-      if (tag === null) {
+      const tags = getResponsibilityTags(rel(file))
+      if (tags === null) {
         unclassified++
       } else {
-        tagCounts[tag] = (tagCounts[tag] ?? 0) + 1
+        classified++
+        if (tags.length > 1) multiTag++
+        for (const tag of tags) {
+          tagCounts[tag] = (tagCounts[tag] ?? 0) + 1
+        }
       }
     }
 
     const total = files.length
-    const classified = total - unclassified
     const coverage = total > 0 ? ((classified / total) * 100).toFixed(1) : '0'
 
-    // テストは常に PASS（情報出力のみ）
-    // console.log でガードテスト実行時にサマリーを表示
-    console.log(`\n[責務タグカバレッジ] ${classified}/${total} (${coverage}%)`)
-    console.log(`  未分類: ${unclassified}`)
-    for (const [tag, count] of Object.entries(tagCounts).sort((a, b) => b[1] - a[1])) {
-      console.log(`  ${tag}: ${count}`)
+    console.log(`\n[責務タグ] 分類済み ${classified}/${total} (${coverage}%) | 未分類 ${unclassified} | 複数タグ(AND) ${multiTag}`)
+    if (Object.keys(tagCounts).length > 0) {
+      for (const [tag, count] of Object.entries(tagCounts).sort((a, b) => b[1] - a[1])) {
+        console.log(`  ${tag}: ${count}`)
+      }
     }
 
     expect(true).toBe(true)
