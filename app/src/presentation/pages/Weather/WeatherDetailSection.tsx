@@ -2,6 +2,8 @@
  * WeatherDetailSection — 日別詳細セクション（テーブル/カレンダー切替 + 曜日フィルタ）
  *
  * WeatherPage の行数制限（R12: 600行）対応のため分離。
+ *
+ * @responsibility R:widget, R:state-machine
  */
 import { memo, useState } from 'react'
 import type { DailyWeatherSummary } from '@/domain/models/record'

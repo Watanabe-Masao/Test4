@@ -3,6 +3,8 @@
  *
  * WeatherTemperatureChart から option 構築ロジックを分離。
  * 純粋関数のみ。React 依存なし。
+ *
+ * @responsibility R:chart-option
  */
 import type { DailyWeatherSummary, WeatherCategory } from '@/domain/models/record'
 import { categorizeWeatherCode } from '@/domain/weather/weatherAggregation'

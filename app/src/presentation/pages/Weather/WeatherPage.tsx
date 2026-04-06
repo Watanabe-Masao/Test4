@@ -7,6 +7,8 @@
  * サマリー: グラフ未選択 → 月間、日クリック → その日の詳細+前年比較
  * グラフ: 天気アイコン統合、クリックで時間帯モーダル起動
  * 日別グリッド不要（チャートに統合済み）
+ *
+ * @responsibility R:page, R:data-fetch, R:state-machine
  */
 import { memo, useState, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'

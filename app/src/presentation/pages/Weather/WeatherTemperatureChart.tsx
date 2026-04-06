@@ -6,6 +6,8 @@
  * 天気ページ専用。売上データへの依存なし。
  *
  * option 構築は WeatherTemperatureChart.builders.ts に分離。
+ *
+ * @responsibility R:chart-view, R:state-machine
  */
 import { memo, useMemo, useCallback, useState, useRef } from 'react'
 import { EChart, type EChartsOption } from '@/presentation/components/charts/EChart'
