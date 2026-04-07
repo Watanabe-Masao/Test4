@@ -294,6 +294,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: 'application/ から infrastructure/ を直接 import する（許可された経路以外）',
       imports: ['@/infrastructure/'],
     },
+    relationships: {
+      enables: ['AR-STRUCT-PRES-ISOLATION'],
+    },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
     migrationPath: {
       steps: [
@@ -319,6 +322,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     outdatedPattern: {
       description: 'application/ から presentation/ を import する',
       imports: ['@/presentation/'],
+    },
+    relationships: {
+      dependsOn: ['AR-A1-DOMAIN'],
     },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
     migrationPath: {
@@ -407,6 +413,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     outdatedPattern: {
       description: 'infrastructure/ から application/ を import する',
       imports: ['@/application/'],
+    },
+    relationships: {
+      dependsOn: ['AR-A1-DOMAIN'],
     },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
     migrationPath: {
@@ -511,6 +520,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     outdatedPattern: {
       description: 'eslint-disable / @ts-ignore / @ts-expect-error コメントを追加する',
       codeSignals: ['eslint-disable', '@ts-ignore', '@ts-expect-error'],
+    },
+    decisionCriteria: {
+      when: 'eslint-disable や @ts-ignore を追加しようとしたとき',
+      exceptions: 'ライブラリ制約（ECharts 等）や非標準 HTML 属性の場合は G3_ALLOWLIST に追加可能',
+      escalation: '根本原因を修正する。型を正しく定義する',
     },
     detection: { type: 'regex', severity: 'gate', baseline: 0 },
     migrationPath: {
@@ -617,6 +631,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: '1 つの hook ファイルに大量の useMemo を詰め込む',
     },
     thresholds: { memoMax: 7 },
+    decisionCriteria: {
+      when: 'hook の useMemo が 7 を超えそうなとき',
+      exceptions: 'allowlists/complexity.ts に理由・lifecycle・removalCondition を記載すれば個別上限を設定可能',
+      escalation: 'hook を分割するか、pure builder に計算を抽出する',
+    },
     detection: { type: 'count', severity: 'gate' },
     migrationPath: {
       steps: [
@@ -643,6 +662,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: '1 つの hook に大量の useState を詰め込む',
     },
     thresholds: { stateMax: 6 },
+    decisionCriteria: {
+      when: 'hook の useState が 6 を超えそうなとき',
+      exceptions: 'allowlists/complexity.ts に登録可能。useReducer 統合も検討',
+      escalation: '状態管理 hook を分割するか useReducer に統合する',
+    },
     detection: { type: 'count', severity: 'gate' },
     migrationPath: {
       steps: [
@@ -695,6 +719,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: '1 つのコンポーネントファイルに全ての描画ロジックを詰め込む',
     },
     thresholds: { lineMax: 600 },
+    decisionCriteria: {
+      when: 'コンポーネントが 600 行を超えそうなとき',
+      exceptions: 'allowlists/size.ts の Tier 2 に登録可能（次回改修時に分割義務）',
+      escalation: '子コンポーネントに分割。状態は hook に抽出',
+    },
     detection: { type: 'count', severity: 'gate' },
     migrationPath: {
       steps: [
@@ -796,6 +825,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: 'facade 内で if/switch による条件分岐を多用する',
     },
     thresholds: { branchMax: 5 },
+    decisionCriteria: {
+      when: 'facade ファイルに if/switch を追加しようとしたとき',
+      exceptions: '分岐が 5 以下なら許容。超える場合は呼び出し先に委譲',
+      escalation: 'Strategy パターンを検討する',
+    },
     detection: { type: 'count', severity: 'gate' },
     migrationPath: {
       steps: [
@@ -828,6 +862,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '@/infrastructure/duckdb/queries/timeSlots',
         '@/infrastructure/duckdb/queries/salesFactQueries',
       ],
+    },
+    decisionCriteria: {
+      when: '売上データを取得するコードを書くとき',
+      exceptions: 'application 層の salesFactHandler 直接使用は許容',
+      escalation: 'readSalesFact() または useWidgetDataOrchestrator 経由に変更',
     },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
     migrationPath: {
@@ -880,6 +919,15 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     outdatedPattern: {
       description: '独自の粗利計算や旧関数を使用する',
     },
+    decisionCriteria: {
+      when: '粗利を取得・計算するコードを書くとき',
+      exceptions: '例外なし。全ての粗利は calculateGrossProfit → getEffectiveGrossProfit の 2 層構造を使う',
+      escalation: '独自計算を発見したら即座に正本関数に置き換える',
+    },
+    relationships: {
+      dependsOn: ['AR-STRUCT-PURITY'],
+      enables: ['AR-PATH-GROSS-PROFIT-CONSISTENCY'],
+    },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
     migrationPath: {
       steps: [
@@ -910,6 +958,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     },
     outdatedPattern: {
       description: '旧 queryPurchaseTotal 等 7 関数の使用（廃止済み）',
+    },
+    relationships: {
+      enables: ['AR-STRUCT-CANONICALIZATION'],
     },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
     migrationPath: {
@@ -1089,6 +1140,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     outdatedPattern: {
       description: '独自の要因分解計算やインラインのシャープリー値計算',
     },
+    relationships: {
+      dependsOn: ['AR-STRUCT-PURITY'],
+    },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
     migrationPath: {
       steps: [
@@ -1150,6 +1204,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     why: '未登録ファイルは正本化体系の管理外となり品質保証が及ばない',
     correctPattern: { description: '新規ファイル追加時に calculationCanonRegistry.ts に分類を登録する' },
     outdatedPattern: { description: 'domain/calculations/ にファイルを追加してレジストリに未登録' },
+    decisionCriteria: {
+      when: 'domain/calculations/ にファイルを追加・変更するとき',
+      exceptions: '例外なし。全ファイルが calculationCanonRegistry に登録必須',
+      escalation: 'required なら Zod 契約も追加。不明なら review 分類で登録',
+    },
     detection: { type: 'must-include', severity: 'gate' },
     migrationPath: { steps: ['1. calculationCanonRegistry.ts に分類を追加（required/review/not-needed）', '2. required なら Zod 契約を追加'], effort: 'trivial', priority: 1 },
   },
@@ -1176,6 +1235,10 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     doc: 'references/01-principles/canonicalization-principles.md',
     correctPattern: { description: 'readModels/ に配置、Zod 契約、パスガード、定義書を揃える' },
     outdatedPattern: { description: '正本化手順を省略して readModel を追加する' },
+    relationships: {
+      dependsOn: ['AR-STRUCT-CALC-CANON', 'AR-STRUCT-FALLBACK-METADATA'],
+      enables: ['AR-PATH-SALES', 'AR-PATH-DISCOUNT', 'AR-PATH-CUSTOMER'],
+    },
     detection: { type: 'custom', severity: 'gate' },
     migrationPath: { steps: ['1. readModels/ に配置', '2. Zod 契約追加', '3. パスガード追加', '4. 定義書作成'], effort: 'medium', priority: 1 },
   },
@@ -1241,6 +1304,14 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     why: '移行後に旧パスの import が増えると移行が巻き戻る',
     correctPattern: { description: 'features/<feature>/ 経由で import する' },
     outdatedPattern: { description: '旧パス（application/hooks/ 等）経由で移行済みモジュールを import する' },
+    decisionCriteria: {
+      when: 'features/ に移行済みモジュールを import するとき',
+      exceptions: '移行中の過渡期のみ旧パス許容。移行完了後は禁止',
+      escalation: 'features/<feature>/ のパスに変更する',
+    },
+    relationships: {
+      dependsOn: ['AR-STRUCT-TOPOLOGY'],
+    },
     detection: { type: 'import', severity: 'gate' },
     migrationPath: { steps: ['1. 旧パスの import を features/<feature>/ のパスに変更'], effort: 'trivial', priority: 1 },
   },
@@ -1302,6 +1373,15 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     why: 'クエリパターンの統一は保守性とキャッシュの一貫性を保証する',
     correctPattern: { description: 'QueryHandler + useQueryWithHandler 経由。input は正規化必須' },
     outdatedPattern: { description: 'コンポーネント内で直接クエリを組み立て実行する' },
+    decisionCriteria: {
+      when: 'DuckDB クエリを追加・変更するとき',
+      exceptions: '例外なし。全クエリは QueryHandler + useQueryWithHandler 経由',
+      escalation: 'コンポーネントで直接クエリを組み立てていたら handler に移行',
+    },
+    relationships: {
+      dependsOn: ['AR-A1-PRES-INFRA'],
+      enables: ['AR-STRUCT-ANALYSIS-FRAME', 'AR-STRUCT-COMPARISON-SCOPE'],
+    },
     detection: { type: 'custom', severity: 'gate' },
     migrationPath: { steps: ['1. クエリ実行を QueryHandler に移行', '2. useQueryWithHandler 経由に変更', '3. input 正規化を追加'], effort: 'medium', priority: 2 },
   },
@@ -1328,6 +1408,14 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     doc: 'references/03-guides/responsibility-separation-catalog.md',
     correctPattern: { description: 'P2/P7/P8/P10/P12/P17/P18 の各上限を遵守。超えたら分割' },
     outdatedPattern: { description: '上限を超える useMemo/useState/export/let を持つファイル' },
+    decisionCriteria: {
+      when: 'hook/コンポーネントの useMemo/useState が上限に近づいたとき',
+      exceptions: 'allowlists/responsibility.ts に理由付きで登録可能',
+      escalation: 'hook の分割を検討。responsibility-separation-catalog.md の 24 パターンを参照',
+    },
+    relationships: {
+      enables: ['AR-G5-HOOK-MEMO', 'AR-G5-HOOK-STATE', 'AR-G6-COMPONENT'],
+    },
     detection: { type: 'custom', severity: 'gate' },
     migrationPath: { steps: ['1. 違反パターンを特定（P2〜P18）', '2. 超過している hook を分割または allowlist に登録'], effort: 'small', priority: 3 },
   },
@@ -1380,6 +1468,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     doc: 'references/01-principles/temporal-scope-semantics.md',
     correctPattern: { description: 'sameDate と sameDow は排他。予算比較に alignment を持ち込まない' },
     outdatedPattern: { description: 'sameDate と sameDow を同一コンテキストで混在使用する' },
+    decisionCriteria: {
+      when: '期間比較のクエリ入力を構築するとき',
+      exceptions: '例外なし。sameDate と sameDow は排他',
+      escalation: '比較モードを確認し、適切なスコープを選択する',
+    },
     detection: { type: 'custom', severity: 'gate' },
     migrationPath: { steps: ['1. sameDate/sameDow の混在を分離', '2. 比較モードごとに適切なスコープを選択'], effort: 'medium', priority: 2 },
   },
@@ -1421,6 +1514,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     doc: 'references/03-guides/responsibility-separation-catalog.md',
     correctPattern: { description: '確信がないファイルには @responsibility を付けない。未分類数を正確に把握する' },
     outdatedPattern: { description: '分類のカバレッジを上げるために不正確なタグを付ける' },
+    decisionCriteria: {
+      when: '@responsibility タグを付けようとするとき',
+      exceptions: '確信がある場合のみタグ付け。不明なら未分類のまま残す',
+      escalation: '未分類のまま残して UNCLASSIFIED_BASELINE で管理する',
+    },
     detection: { type: 'custom', severity: 'gate' },
     migrationPath: { steps: ['1. 未分類ファイルを確認', '2. 責務が明確なものだけタグ付け', '3. 不明なものは未分類のまま残す'], effort: 'trivial', priority: 3 },
   },
@@ -1447,6 +1545,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     why: 'チャートは描画に専念。データ取得は plan/handler 経由で行う',
     correctPattern: { description: 'useWidgetQueryContext / useWidgetDataOrchestrator 経由でデータを受け取る' },
     outdatedPattern: { description: 'Chart コンポーネントから useDuckDB* hook を直接 import する', imports: ['useDuckDB'] },
+    decisionCriteria: {
+      when: 'Chart コンポーネントでデータ取得が必要になったとき',
+      exceptions: '例外なし。Chart は描画に専念',
+      escalation: 'plan hook または useWidgetQueryContext 経由でデータを受け取る',
+    },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
     migrationPath: { steps: ['1. DuckDB hook の import を削除', '2. plan hook 経由でデータを受け取るよう変更'], effort: 'small', priority: 2 },
   },
@@ -1528,6 +1631,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: '計算ファイルに React hooks や副作用を含む',
     },
     thresholds: { memoMax: 0, callbackMax: 0, stateMax: 0, lineMax: 400 },
+    decisionCriteria: {
+      when: 'domain/calculations/ のファイルに React hooks を追加しようとしたとき',
+      exceptions: '例外なし。calculation は純粋関数でなければならない',
+      escalation: 'hooks は application 層に移動する',
+    },
     detection: { type: 'must-not-coexist', severity: 'gate' },
     migrationPath: {
       steps: ['1. React hooks の import を削除', '2. 副作用がある場合は application 層に移動', '3. 純粋な入力→出力の関数として維持'],
@@ -1758,6 +1866,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: 'ユーティリティに React hooks や副作用を含む',
     },
     thresholds: { memoMax: 0, callbackMax: 0, stateMax: 0, lineMax: 300 },
+    relationships: {
+      dependsOn: ['AR-A1-DOMAIN'],
+    },
     detection: { type: 'must-not-coexist', severity: 'gate' },
     migrationPath: {
       steps: ['1. React hooks を使っているなら R:utility → R:orchestration にタグ変更', '2. hooks を使わない純粋関数なら hooks を別ファイルに抽出'],
@@ -1873,6 +1984,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: 'バレルに関数定義や変数宣言を含む',
     },
     thresholds: { memoMax: 0, callbackMax: 0, stateMax: 0, lineMax: 50 },
+    relationships: {
+      conflicts: ['AR-TAG-CALCULATION'],
+    },
     detection: { type: 'must-only', severity: 'gate' },
     migrationPath: {
       steps: ['1. 関数定義や変数宣言を別ファイルに移動', '2. barrel は export 文のみに'],

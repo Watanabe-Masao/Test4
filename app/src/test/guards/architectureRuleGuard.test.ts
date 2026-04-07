@@ -149,6 +149,28 @@ describe('Architecture Rule Registry', () => {
     expect(invalid, invalid.join('\n')).toEqual([])
   })
 
+  it('allowlist 卒業候補の検出（情報出力）', () => {
+    const allowlistDir = path.resolve(__dirname, '../allowlists')
+    const files = fs.readdirSync(allowlistDir).filter((f) => f.endsWith('.ts') && f !== 'types.ts')
+    const candidates: string[] = []
+
+    for (const file of files) {
+      const content = fs.readFileSync(path.join(allowlistDir, file), 'utf-8')
+      // 空配列のエクスポートを検出（卒業済み）
+      const emptyArrays = content.matchAll(/export const (\w+).*?=\s*\[\s*\]\s*as const/g)
+      for (const match of emptyArrays) {
+        candidates.push(`${file}: ${match[1]} は空（卒業済み — 削除可能）`)
+      }
+    }
+
+    if (candidates.length > 0) {
+      console.log(`\n[allowlist 卒業候補] ${candidates.length} 件:`)
+      for (const c of candidates) console.log(`  ${c}`)
+    }
+
+    expect(true).toBe(true)
+  })
+
   it('ルール数サマリー', () => {
     const byType = new Map<string, number>()
     let withMigration = 0
