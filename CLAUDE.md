@@ -194,6 +194,7 @@ app/src/
 └── test/             # ガードテスト・共有インフラ
     ├── guardTestHelpers.ts   # 共有ヘルパー（collectTsFiles, rel 等）
     ├── guardTagRegistry.ts   # ガードタグのメタデータ管理
+    ├── architectureRules.ts  # Architecture Rule 定義（統一ガードフォーマット）
     ├── allowlists/           # 許可リスト（カテゴリ別分割）
     │   ├── architecture.ts   #   層境界ルール
     │   ├── complexity.ts     #   行数・useMemo 制限
@@ -203,8 +204,9 @@ app/src/
     │   ├── migration.ts      #   比較移行
     │   └── misc.ts           #   その他
     ├── calculationCanonRegistry.ts  # domain/calculations/ 全ファイル分類
-    ├── guards/               # 構造制約ガード（36ファイル / 368テスト）
+    ├── guards/               # 構造制約ガード（39ファイル / 316テスト）
     │   ├── analysisFrameGuard.test.ts
+    │   ├── architectureRuleGuard.test.ts
     │   ├── calculationCanonGuard.test.ts
     │   ├── canonicalInputGuard.test.ts
     │   ├── canonicalizationSystemGuard.test.ts
@@ -212,6 +214,7 @@ app/src/
     │   ├── comparisonScopeGuard.test.ts
     │   ├── customerFactPathGuard.test.ts
     │   ├── customerGapPathGuard.test.ts
+    │   ├── dataIntegrityGuard.test.ts
     │   ├── discountFactPathGuard.test.ts
     │   ├── dualRunExitCriteriaGuard.test.ts
     │   ├── factorDecompositionPathGuard.test.ts
@@ -221,8 +224,8 @@ app/src/
     │   ├── freePeriodPathGuard.test.ts
     │   ├── grossProfitConsistencyGuard.test.ts
     │   ├── grossProfitPathGuard.test.ts
-    │   ├── noNewDebtGuard.test.ts
     │   ├── layerBoundaryGuard.test.ts
+    │   ├── noNewDebtGuard.test.ts
     │   ├── oldPathImportGuard.test.ts
     │   ├── pageMetaGuard.test.ts
     │   ├── piValuePathGuard.test.ts
@@ -232,6 +235,8 @@ app/src/
     │   ├── purityGuard.test.ts
     │   ├── queryPatternGuard.test.ts
     │   ├── renderSideEffectGuard.test.ts
+    │   ├── responsibilitySeparationGuard.test.ts
+    │   ├── responsibilityTagGuard.test.ts
     │   ├── salesFactPathGuard.test.ts
     │   ├── sizeGuard.test.ts
     │   ├── storeResultAnalysisInputGuard.test.ts
@@ -421,9 +426,28 @@ Safety Tier 分類は `references/01-principles/critical-path-safety-map.md` を
 | P18 | fallback 定数密度 | ≤7/file |
 
 R: 責務タグレジストリ（`responsibilityTagGuard.test.ts`）:
-- 未分類 SNAPSHOT = 617。増えたら CI 失敗
+- 未分類 SNAPSHOT = 400。増えたら CI 失敗
 - 分類時は複数タグ可（AND の可視化）
 - 既存は徐々にタグ付け。新規は登録必須
+
+### Architecture Rule — 統一ガードフォーマット
+
+> **ガードが「禁止」と「導き」の両方を持つ。**
+
+各ルールが「禁止パターン」「あるべき姿」「なぜ」「ドキュメント」をセットで定義する。
+ルール定義: `app/src/test/architectureRules.ts`
+整合性検証: `app/src/test/guards/architectureRuleGuard.test.ts`
+
+| detection.type | 意味 | 例 |
+|---|---|---|
+| `import` | 禁止 import | presentation → wasmEngine |
+| `regex` | 禁止コードパターン | getExecutionMode |
+| `count` | 数値上限 | useMemo ≤ 12 |
+| `must-include` | 必ず含む | `R:calculation` → Zod parse |
+| `must-only` | これ以外禁止 | `R:barrel` → re-export のみ |
+| `co-change` | A→B 共変更 | readModel 型 → Zod schema |
+| `must-not-coexist` | 同居禁止 | useState と SQL query |
+| `custom` | 特殊ロジック | テスト側で実装 |
 
 ## アーキテクチャ進化計画（要約）
 
@@ -600,9 +624,10 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 - **粗利計算正本化**: 4種の粗利を `calculateGrossProfit` に統一。2層構造（計算層 vs 利用層）を文書化
 - **Temporal Phase 0-5**: 移動平均 overlay の最小統合。policy は `references/03-guides/temporal-analysis-policy.md`
 - **P5/DuckDB 収束**: QueryHandler 移行完了、buildTypedWhere 完全移行
-- **Guard 大幅強化**: 22→30ファイル（+analysisFrame, comparisonScope, customerGap, dualRunExitCriteria, fallbackMetadata, grossProfitConsistency, oldPathImport, pageMeta, piValue, queryPattern, renderSideEffect, temporalScope, topology）
+- **Guard 大幅強化**: 22→39ファイル。analysisFrame, comparisonScope, customerGap, dualRunExitCriteria, fallbackMetadata, grossProfitConsistency, oldPathImport, pageMeta, piValue, queryPattern, renderSideEffect, temporalScope, topology, dataIntegrity, responsibilitySeparation, responsibilityTag, architectureRule
 - **ドキュメント整合性基盤**: `docs/contracts/` に構造化データ（principles.json, project-metadata.json）導入。documentConsistency.test.ts で機械検証
 - **進化安全の再構成（2026-04-05）**: WASM 全 5 engine を authoritative に昇格（bridge 1,426→431 行）。dual-run infrastructure 全面退役（~5,500 行削減）。ComparisonWindow 契約型導入。near-limit 2→0。noNewDebtGuard + Green/Yellow/Red 1 人運用モデル。Health: RISK → Healthy
+- **Architecture Rule 導入（2026-04-07）**: 統一ガードフォーマット。「禁止」「あるべき姿」「なぜ」「ドキュメント」をセットで定義。8種の detection type（import/regex/count/must-include/must-only/co-change/must-not-coexist/custom）。architectureEpoch.ts 廃止、epoch は ArchitectureRule.epoch に統合。責務タグ（C8/C9/G8）+ TAG_EXPECTATIONS + 責務分離カタログ24パターン
 
 ## Explanation（説明責任）
 
