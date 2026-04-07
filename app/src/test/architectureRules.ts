@@ -2207,7 +2207,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     doc: 'references/03-guides/responsibility-separation-catalog.md',
     what: 'chart-option は ECharts オプション構築のみ。React hooks を含まない',
     why: 'オプション構築は純粋関数であるべき。React 依存を持つと再利用性が下がる',
-    doc: 'references/03-guides/responsibility-separation-catalog.md',
     correctPattern: {
       description: 'useMemo ≤ 2, useCallback = 0, useState = 0, 600 行以内',
     },
