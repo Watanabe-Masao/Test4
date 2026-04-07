@@ -7,10 +7,12 @@
  *
  * @see references/02-status/frozen-list.md §3.1
  * @see references/02-status/engine-promotion-matrix.md
+ * ルール定義: architectureRules.ts (AR-STRUCT-DUAL-RUN-EXIT)
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 const ROOT_DIR = path.resolve(__dirname, '../../../../')
 const SRC_DIR = path.resolve(__dirname, '../..')

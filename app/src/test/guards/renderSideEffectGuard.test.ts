@@ -6,11 +6,13 @@
  *
  * @guard A3 Presentation 描画専用
  * @guard H4 component に acquisition logic 禁止
+ * ルール定義: architectureRules.ts (AR-STRUCT-RENDER-SIDE-EFFECT)
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
 import { SRC_DIR, collectTsFiles, rel } from '../guardTestHelpers'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 /** presentation/ 内で localStorage/sessionStorage 直接使用が許可されたファイル */
 const ALLOWLIST = new Set([

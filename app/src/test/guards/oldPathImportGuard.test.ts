@@ -6,10 +6,12 @@
  *
  * @guard F4 配置はパスで決まる
  * @guard F1 バレルで後方互換
+ * ルール定義: architectureRules.ts (AR-MIG-OLD-PATH)
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import { SRC_DIR, collectTsFiles, rel } from '../guardTestHelpers'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 /**
  * 移行済み feature と旧パスのマッピング。

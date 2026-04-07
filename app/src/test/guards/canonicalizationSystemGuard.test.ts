@@ -5,10 +5,12 @@
  * 旧経路の新規利用を禁止し、正本化体系の維持を保証する。
  *
  * @see references/01-principles/canonicalization-principles.md
+ * ルール定義: architectureRules.ts (AR-STRUCT-CANONICALIZATION)
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 const SRC_DIR = path.resolve(__dirname, '../..')
 const REFS_DIR = path.resolve(SRC_DIR, '../../references/01-principles')

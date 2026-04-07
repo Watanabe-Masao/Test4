@@ -7,8 +7,12 @@
  * @guard G1 テストに書く
  */
 import { describe, it, expect } from 'vitest'
+import * as fs from 'fs'
+import * as path from 'path'
 import { ARCHITECTURE_RULES } from '../architectureRules'
 import { GUARD_TAG_REGISTRY } from '../guardTagRegistry'
+
+const PROJECT_ROOT = path.resolve(__dirname, '../../../..')
 
 describe('Architecture Rule Registry', () => {
   it('全ルール ID が一意', () => {
@@ -93,6 +97,37 @@ describe('Architecture Rule Registry', () => {
     }
 
     expect(invalid, invalid.join('\n')).toEqual([])
+  })
+
+  it('doc 参照が全て実在するファイルを指す', () => {
+    const invalid: string[] = []
+
+    for (const rule of ARCHITECTURE_RULES) {
+      if (!rule.doc) continue
+      const docPath = path.join(PROJECT_ROOT, rule.doc)
+      if (!fs.existsSync(docPath)) {
+        invalid.push(`${rule.id}: doc "${rule.doc}" が存在しない`)
+      }
+    }
+
+    expect(invalid, invalid.join('\n')).toEqual([])
+  })
+
+  it('doc 参照カバレッジ（情報出力）', () => {
+    const withDoc = ARCHITECTURE_RULES.filter((r) => r.doc).length
+    const total = ARCHITECTURE_RULES.length
+    const docs = new Set(ARCHITECTURE_RULES.filter((r) => r.doc).map((r) => r.doc!))
+
+    console.log(
+      `[doc カバレッジ] ${withDoc}/${total} ルールが doc 参照あり | ` +
+        `${docs.size} 種類のドキュメントを参照`,
+    )
+    for (const doc of [...docs].sort()) {
+      const count = ARCHITECTURE_RULES.filter((r) => r.doc === doc).length
+      console.log(`  ${doc}: ${count} ルール`)
+    }
+
+    expect(true).toBe(true)
   })
 
   it('ルール数サマリー', () => {

@@ -6,11 +6,13 @@
  *
  * @guard A3 Presentation は描画専用
  * @guard B2 JS/SQL 二重実装禁止
+ * ルール定義: architectureRules.ts (AR-STRUCT-PRES-ISOLATION)
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
 import { SRC_DIR, collectTsFiles, extractImports, rel as relativePath } from '../guardTestHelpers'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 import {
   presentationToInfrastructure,
   presentationDuckdbHook,

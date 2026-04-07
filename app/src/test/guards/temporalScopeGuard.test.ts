@@ -6,11 +6,13 @@
  * elapsedDays cap の誤用を検出する。
  *
  * @see references/01-principles/temporal-scope-semantics.md
+ * ルール定義: architectureRules.ts (AR-STRUCT-TEMPORAL-SCOPE)
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
 import { collectTsFiles, rel } from '../guardTestHelpers'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 const SRC_DIR = path.resolve(__dirname, '../..')
 

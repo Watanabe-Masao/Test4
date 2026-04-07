@@ -7,11 +7,13 @@
  * @guard H2 比較は pair/bundle 契約 — isPrevYear handler 数を追跡
  * @guard H4 component に acquisition logic 禁止 — presentation direct query 数を追跡
  * @guard H5 visible-only query は plan でのみ宣言 — collapsible hidden fetch 防止
+ * ルール定義: architectureRules.ts (AR-STRUCT-QUERY-PATTERN)
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
 import { SRC_DIR, collectTsFiles, extractImports, rel } from '../guardTestHelpers'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 import {
   isPrevYearHandlers,
   nonPairableConsumers,

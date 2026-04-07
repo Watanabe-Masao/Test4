@@ -253,6 +253,14 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       imports: ['@/application/', '@/infrastructure/', '@/presentation/'],
     },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
+    decisionCriteria: {
+      when: 'domain/ のファイルが外部層のモジュールを必要としたとき',
+      exceptions: '例外なし。domain/ は純粋でなければならない',
+      escalation: '外部データが必要なら domain/ に interface を定義し、application/ で実装を注入する',
+    },
+    relationships: {
+      enables: ['AR-TAG-CALCULATION', 'AR-TAG-UTILITY', 'AR-TAG-REDUCER', 'AR-STRUCT-PURITY'],
+    },
     migrationPath: {
       steps: [
         '1. 外部層への import を特定',
@@ -273,6 +281,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     doc: 'references/01-principles/design-principles.md',
     correctPattern: {
       description: 'adapter パターンまたは allowlists/architecture.ts に正当理由を記載する。DuckDB hooks / QueryHandler / runtime-adapters は構造的に許容',
+    },
+    decisionCriteria: {
+      when: 'application/ から infrastructure/ を import しようとしたとき',
+      exceptions: 'hooks/duckdb/ / queries/ / runtime-adapters/ は構造的に許容。それ以外は allowlist に正当理由が必要',
+      escalation: 'architecture ロールに相談。adapter パターンへの移行を検討',
     },
     outdatedPattern: {
       description: 'application/ から infrastructure/ を直接 import する（許可された経路以外）',
@@ -326,6 +339,15 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     correctPattern: {
       description: 'application/ の hook 経由でデータを取得する。useQueryWithHandler を推奨',
       imports: ['@/application/hooks/'],
+    },
+    decisionCriteria: {
+      when: 'presentation/ から infrastructure/ を import しようとしたとき',
+      exceptions: 'import type は許容（実行時依存を生まない）。value import は allowlist に正当理由が必要',
+      escalation: 'application/ に hook を作成し、presentation/ はそれを使う',
+    },
+    relationships: {
+      dependsOn: ['AR-A1-DOMAIN'],
+      enables: ['AR-STRUCT-PRES-ISOLATION', 'AR-STRUCT-RENDER-SIDE-EFFECT'],
     },
     outdatedPattern: {
       description: 'presentation/ から infrastructure/ を value import する',
@@ -864,6 +886,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: 'readPurchaseCost() / usePurchaseCost() 経由で取得',
       imports: ['@/application/readModels/purchaseCost/readPurchaseCost'],
     },
+    decisionCriteria: {
+      when: '仕入原価データが必要になったとき',
+      exceptions: 'application 層の purchaseCostHandler / readPurchaseCost() の直接使用は許容',
+      escalation: '旧 7 関数（queryPurchaseTotal 等）は廃止済み。復活禁止',
+    },
     outdatedPattern: {
       description: '旧 queryPurchaseTotal 等 7 関数の使用（廃止済み）',
     },
@@ -1080,6 +1107,263 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 1,
     },
+  },
+
+  // ── 構造・純粋性・移行ガード由来 ──
+
+  {
+    id: 'AR-STRUCT-ANALYSIS-FRAME',
+    guardTags: ['H3'],
+    epoch: 1,
+    what: 'AnalysisFrame / CalculationFrame が分析の唯一の入口',
+    why: '分析フレームを経由しないクエリはキャッシュキーの不整合や期間スコープの矛盾を招く',
+    correctPattern: { description: 'AnalysisFrame / CalculationFrame 経由でクエリ入力を構築する' },
+    outdatedPattern: { description: 'presentation/ で直接クエリ入力を組み立てる' },
+    detection: { type: 'custom', severity: 'gate' },
+    migrationPath: { steps: ['1. 直接クエリ入力の構築を AnalysisFrame 経由に変更'], effort: 'small', priority: 2 },
+  },
+
+  {
+    id: 'AR-STRUCT-CALC-CANON',
+    guardTags: ['G1'],
+    epoch: 1,
+    what: 'domain/calculations/ の全ファイルが CALCULATION_CANON_REGISTRY に登録されている',
+    why: '未登録ファイルは正本化体系の管理外となり品質保証が及ばない',
+    correctPattern: { description: '新規ファイル追加時に calculationCanonRegistry.ts に分類を登録する' },
+    outdatedPattern: { description: 'domain/calculations/ にファイルを追加してレジストリに未登録' },
+    detection: { type: 'must-include', severity: 'gate' },
+    migrationPath: { steps: ['1. calculationCanonRegistry.ts に分類を追加（required/review/not-needed）', '2. required なら Zod 契約を追加'], effort: 'trivial', priority: 1 },
+  },
+
+  {
+    id: 'AR-STRUCT-CANONICAL-INPUT',
+    guardTags: ['G1', 'D1'],
+    epoch: 1,
+    what: 'PI値・客数GAPは正本 input builder 経由でのみ計算する',
+    why: 'presentation/ でのインライン計算は不変条件を破壊する',
+    correctPattern: { description: 'canonical input builder を使用して正本関数に渡す' },
+    outdatedPattern: { description: 'presentation/ で独自に PI値や GAP を計算する' },
+    detection: { type: 'regex', severity: 'gate', baseline: 0 },
+    migrationPath: { steps: ['1. インライン計算を削除', '2. canonical input builder 経由に変更'], effort: 'small', priority: 2 },
+  },
+
+  {
+    id: 'AR-STRUCT-CANONICALIZATION',
+    guardTags: ['G1'],
+    epoch: 1,
+    what: '全 readModel と calculation canonical が正本化原則に従っている',
+    why: '正本化体系の整合性が崩れると、異なる経路で異なる値が計算される',
+    doc: 'references/01-principles/canonicalization-principles.md',
+    correctPattern: { description: 'readModels/ に配置、Zod 契約、パスガード、定義書を揃える' },
+    outdatedPattern: { description: '正本化手順を省略して readModel を追加する' },
+    detection: { type: 'custom', severity: 'gate' },
+    migrationPath: { steps: ['1. readModels/ に配置', '2. Zod 契約追加', '3. パスガード追加', '4. 定義書作成'], effort: 'medium', priority: 1 },
+  },
+
+  {
+    id: 'AR-STRUCT-COMPARISON-SCOPE',
+    guardTags: ['H2'],
+    epoch: 1,
+    what: 'ComparisonScope は buildComparisonScope() のみで生成する',
+    why: 'ad-hoc な比較スコープ生成はペア/バンドル契約の一貫性を破壊する',
+    correctPattern: { description: 'buildComparisonScope() factory 経由で生成する' },
+    outdatedPattern: { description: 'presentation/ で直接 ComparisonScope を構築する' },
+    detection: { type: 'import', severity: 'gate', baseline: 0 },
+    migrationPath: { steps: ['1. 直接構築を削除', '2. buildComparisonScope() に置き換え'], effort: 'small', priority: 2 },
+  },
+
+  {
+    id: 'AR-STRUCT-DATA-INTEGRITY',
+    guardTags: ['G1'],
+    epoch: 1,
+    what: '既知のバグパターン（二重計上、is_prev_year 不整合、state リセット漏れ）を防止する',
+    why: '過去に発生したバグの再発を機械的に防止する',
+    correctPattern: { description: '定義書の集計ルールに従い、state リセットを忘れない' },
+    outdatedPattern: { description: '二重計上、DuckDB is_prev_year の不整合、state リセット漏れ' },
+    detection: { type: 'custom', severity: 'gate' },
+    migrationPath: { steps: ['1. 二重計上: 集約サブクエリ経由にする', '2. state リセット: useEffect のクリーンアップで確実にリセット'], effort: 'small', priority: 1 },
+  },
+
+  {
+    id: 'AR-STRUCT-DUAL-RUN-EXIT',
+    guardTags: ['G1'],
+    epoch: 1,
+    what: 'WASM 全 5 engine が authoritative に昇格済み。dual-run は退役',
+    why: 'dual-run infrastructure は全面退役済み。復活させない',
+    doc: 'references/03-guides/safety-first-architecture-plan.md',
+    correctPattern: { description: 'WASM ready なら WASM、そうでなければ TS fallback の 2 モード' },
+    outdatedPattern: { description: 'dual-run-compare モードの復活やブリッジコードの追加' },
+    detection: { type: 'custom', severity: 'gate' },
+    migrationPath: { steps: ['1. dual-run 関連コードを発見したら削除'], effort: 'trivial', priority: 1 },
+  },
+
+  {
+    id: 'AR-STRUCT-FALLBACK-METADATA',
+    guardTags: ['G1'],
+    epoch: 1,
+    what: 'クリティカルな readModel は usedFallback フィールドを持つ',
+    why: 'サイレントフォールバックは計算結果の信頼性を損なう',
+    correctPattern: { description: 'readModel に usedFallback: boolean を含め、フォールバック時に true を設定する' },
+    outdatedPattern: { description: 'フォールバックの発生を隠蔽する' },
+    detection: { type: 'must-include', severity: 'gate' },
+    migrationPath: { steps: ['1. readModel 型に usedFallback を追加', '2. builder でフォールバック判定を実装'], effort: 'small', priority: 2 },
+  },
+
+  {
+    id: 'AR-MIG-OLD-PATH',
+    guardTags: ['F4', 'F1'],
+    epoch: 1,
+    what: 'features/ に移行済みのモジュールは旧パス経由の新規 import を受け付けない',
+    why: '移行後に旧パスの import が増えると移行が巻き戻る',
+    correctPattern: { description: 'features/<feature>/ 経由で import する' },
+    outdatedPattern: { description: '旧パス（application/hooks/ 等）経由で移行済みモジュールを import する' },
+    detection: { type: 'import', severity: 'gate' },
+    migrationPath: { steps: ['1. 旧パスの import を features/<feature>/ のパスに変更'], effort: 'trivial', priority: 1 },
+  },
+
+  {
+    id: 'AR-STRUCT-PAGE-META',
+    guardTags: ['F10'],
+    epoch: 1,
+    what: 'PAGE_REGISTRY と PAGE_COMPONENT_MAP が整合している',
+    why: 'ページメタデータの不整合はナビゲーション・breadcrumb の不具合を招く',
+    correctPattern: { description: 'PAGE_REGISTRY にメタデータを追加し、routes.tsx の PAGE_COMPONENT_MAP と一致させる' },
+    outdatedPattern: { description: 'PAGE_REGISTRY なしでページを追加する' },
+    detection: { type: 'co-change', severity: 'gate' },
+    migrationPath: { steps: ['1. PAGE_REGISTRY にエントリ追加', '2. routes.tsx の PAGE_COMPONENT_MAP と整合確認'], effort: 'trivial', priority: 1 },
+  },
+
+  {
+    id: 'AR-STRUCT-PRES-ISOLATION',
+    guardTags: ['A3', 'B2'],
+    epoch: 1,
+    what: 'presentation 層は描画専用。infrastructure 直接アクセスや JS/SQL 二重実装を禁止',
+    why: 'presentation にデータ取得が混入すると責務が曖昧になりテストが困難になる',
+    doc: 'references/01-principles/design-principles.md',
+    correctPattern: { description: 'application/ の hook 経由でデータを取得。SQL は infrastructure 層に閉じる' },
+    outdatedPattern: { description: 'presentation/ から DuckDB クエリを直接実行する' },
+    detection: { type: 'import', severity: 'gate', baseline: 0 },
+    migrationPath: { steps: ['1. infrastructure/ への直接 import を削除', '2. application/hooks/ の hook 経由に変更'], effort: 'small', priority: 1 },
+  },
+
+  {
+    id: 'AR-STRUCT-PURITY',
+    guardTags: ['A2', 'B1', 'C3'],
+    epoch: 1,
+    what: 'domain/ は純粋（副作用なし・async なし）、率は domain で算出',
+    why: 'domain の純粋性はテスト容易性・移植性・正確性の基盤',
+    doc: 'references/01-principles/design-principles.md',
+    correctPattern: { description: 'domain/ は同期純粋関数のみ。async/副作用は application 層に置く' },
+    outdatedPattern: { description: 'domain/ に async 関数や副作用を含む' },
+    detection: { type: 'must-not-coexist', severity: 'gate' },
+    decisionCriteria: {
+      when: 'domain/ に async 関数や外部 API 呼び出しを追加しようとしたとき',
+      exceptions: '例外なし。domain/ は純粋でなければならない',
+      escalation: 'async は application/ に、外部 API は infrastructure/ に配置する',
+    },
+    relationships: {
+      dependsOn: ['AR-A1-DOMAIN'],
+      enables: ['AR-PATH-GROSS-PROFIT', 'AR-PATH-FACTOR-DECOMPOSITION', 'AR-PATH-PI-VALUE'],
+    },
+    migrationPath: { steps: ['1. async を application 層に移動', '2. 副作用を infrastructure 層に移動', '3. domain は純粋関数のみに'], effort: 'medium', priority: 1 },
+  },
+
+  {
+    id: 'AR-STRUCT-QUERY-PATTERN',
+    guardTags: ['H2', 'H3', 'H4'],
+    epoch: 1,
+    what: 'クエリは正規化入力・pair/bundle 契約・handler 経由で実行する',
+    why: 'クエリパターンの統一は保守性とキャッシュの一貫性を保証する',
+    correctPattern: { description: 'QueryHandler + useQueryWithHandler 経由。input は正規化必須' },
+    outdatedPattern: { description: 'コンポーネント内で直接クエリを組み立て実行する' },
+    detection: { type: 'custom', severity: 'gate' },
+    migrationPath: { steps: ['1. クエリ実行を QueryHandler に移行', '2. useQueryWithHandler 経由に変更', '3. input 正規化を追加'], effort: 'medium', priority: 2 },
+  },
+
+  {
+    id: 'AR-STRUCT-RENDER-SIDE-EFFECT',
+    guardTags: ['A3', 'H4'],
+    epoch: 1,
+    what: 'presentation/ は localStorage/sessionStorage を直接使用しない',
+    why: 'ストレージ操作は副作用であり presentation 層の責務外',
+    correctPattern: { description: 'uiPersistenceAdapter 経由でストレージにアクセスする' },
+    outdatedPattern: { description: 'localStorage.getItem / sessionStorage.setItem を直接呼ぶ', codeSignals: ['localStorage.', 'sessionStorage.'] },
+    detection: { type: 'regex', severity: 'gate', baseline: 0 },
+    migrationPath: { steps: ['1. localStorage/sessionStorage の直接呼び出しを削除', '2. uiPersistenceAdapter 経由に変更'], effort: 'small', priority: 2 },
+  },
+
+  {
+    id: 'AR-STRUCT-RESP-SEPARATION',
+    guardTags: ['G8'],
+    epoch: 1,
+    what: '責務分離の 7 種の数値制約を機械的に強制する',
+    why: '「気をつける」で終わらせない。「通らない」にする',
+    doc: 'references/03-guides/responsibility-separation-catalog.md',
+    correctPattern: { description: 'P2/P7/P8/P10/P12/P17/P18 の各上限を遵守。超えたら分割' },
+    outdatedPattern: { description: '上限を超える useMemo/useState/export/let を持つファイル' },
+    detection: { type: 'custom', severity: 'gate' },
+    migrationPath: { steps: ['1. 違反パターンを特定（P2〜P18）', '2. 超過している hook を分割または allowlist に登録'], effort: 'small', priority: 3 },
+  },
+
+  {
+    id: 'AR-STRUCT-STORE-RESULT-INPUT',
+    guardTags: ['G1'],
+    epoch: 1,
+    what: 'StoreResult.totalCustomers を分析入力に使わない（CustomerFact を使う）',
+    why: 'StoreResult の totalCustomers は表示用集計値であり分析精度が異なる',
+    correctPattern: { description: 'readCustomerFact() から CustomerFact を取得して分析に使う' },
+    outdatedPattern: { description: 'StoreResult.totalCustomers を分析・計算の入力に使用する' },
+    detection: { type: 'regex', severity: 'gate', baseline: 0 },
+    migrationPath: { steps: ['1. StoreResult.totalCustomers の参照を削除', '2. readCustomerFact() に置き換え'], effort: 'small', priority: 2 },
+  },
+
+  {
+    id: 'AR-STRUCT-CONVENTION',
+    guardTags: ['F1', 'F4', 'F9'],
+    epoch: 1,
+    what: 'バレル re-export、feature slice 依存、コンテキストデータの重複禁止',
+    why: 'コード構造規約の一貫性が保守性を保証する',
+    correctPattern: { description: 'バレルは re-export のみ。feature 間は shared/ 経由。ctx data は重複しない' },
+    outdatedPattern: { description: 'バレルにロジック、feature 間の直接依存、ctx の重複データ' },
+    detection: { type: 'custom', severity: 'gate' },
+    migrationPath: { steps: ['1. バレルからロジックを抽出', '2. feature 間依存を shared/ 経由に変更'], effort: 'small', priority: 3 },
+  },
+
+  {
+    id: 'AR-STRUCT-TEMPORAL-ROLLING',
+    guardTags: ['G1'],
+    epoch: 1,
+    what: 'ローリング計算パスの逆流を禁止（UI/hooks/comparison への逆流なし）',
+    why: 'temporal ロジックの逆流はデータフローの一方向性を破壊する',
+    correctPattern: { description: 'temporal 計算は一方向。結果は hook 経由で消費のみ' },
+    outdatedPattern: { description: 'temporal 計算結果を UI や比較ロジックに逆流させる' },
+    detection: { type: 'import', severity: 'gate' },
+    migrationPath: { steps: ['1. 逆流 import を削除', '2. 結果は hook 経由で受け取る'], effort: 'small', priority: 2 },
+  },
+
+  {
+    id: 'AR-STRUCT-TEMPORAL-SCOPE',
+    guardTags: ['G1'],
+    epoch: 1,
+    what: '期間スコープの分離ルール（sameDate/sameDow 混在禁止等）',
+    why: '期間スコープの混在は比較結果の信頼性を損なう',
+    doc: 'references/01-principles/temporal-scope-semantics.md',
+    correctPattern: { description: 'sameDate と sameDow は排他。予算比較に alignment を持ち込まない' },
+    outdatedPattern: { description: 'sameDate と sameDow を同一コンテキストで混在使用する' },
+    detection: { type: 'custom', severity: 'gate' },
+    migrationPath: { steps: ['1. sameDate/sameDow の混在を分離', '2. 比較モードごとに適切なスコープを選択'], effort: 'medium', priority: 2 },
+  },
+
+  {
+    id: 'AR-STRUCT-TOPOLOGY',
+    guardTags: ['F4'],
+    epoch: 1,
+    what: 'src/ 直下は承認済みディレクトリのみ（domain/application/infrastructure/presentation/features/stories/test）',
+    why: '未承認ディレクトリの追加は層構造の破壊を招く',
+    correctPattern: { description: '新機能は features/<feature>/ に配置。共通は既存 4 層に配置' },
+    outdatedPattern: { description: 'src/ 直下に新規ディレクトリを作成する' },
+    detection: { type: 'custom', severity: 'gate' },
+    migrationPath: { steps: ['1. 新規ディレクトリを features/<feature>/ または既存層に移動'], effort: 'trivial', priority: 1 },
   },
 
   // ── 責務タグ別の閾値（TAG_EXPECTATIONS 由来） ──

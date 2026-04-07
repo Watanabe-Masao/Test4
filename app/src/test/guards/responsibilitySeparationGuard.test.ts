@@ -5,11 +5,13 @@
  * 24 パターンのうち、機械的に検出可能なものをガード化する。
  *
  * @guard G8 責務分離（P2/P7/P8/P10/P12/P17/P18）
+ * ルール定義: architectureRules.ts (AR-STRUCT-RESP-SEPARATION)
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
 import { SRC_DIR, collectTsFiles, rel, isCommentLine } from '../guardTestHelpers'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 import {
   combinedHookComplexityLimits,
   featuresMemoLimits,

@@ -13,6 +13,8 @@ export type AllowlistLifecycle = 'permanent' | 'retirement' | 'active-debt'
 /** カテゴリ型の許可リストエントリ（ファイルパスの例外） */
 export interface AllowlistEntry {
   readonly path: string
+  /** どの Architecture Rule の例外か（例: 'AR-G5-HOOK-MEMO'） */
+  readonly ruleId?: string
   readonly reason: string
   readonly category:
     | 'adapter'

@@ -5,6 +5,7 @@
  * routes.tsx の PAGE_COMPONENT_MAP との一致も検証。
  *
  * @guard F10 ページ正本の整合性
+ * ルール定義: architectureRules.ts (AR-STRUCT-PAGE-META)
  */
 import { describe, it, expect } from 'vitest'
 import {
@@ -16,6 +17,7 @@ import {
 } from '@/application/navigation/pageRegistry'
 import type { ViewType } from '@/domain/models/PageMeta'
 import { PAGE_COMPONENT_MAP } from '@/presentation/routes'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 // ── ViewType の全メンバー（domain/models/PageMeta.ts の定義と一致させる） ──
 const EXPECTED_VIEW_TYPES: readonly ViewType[] = [
