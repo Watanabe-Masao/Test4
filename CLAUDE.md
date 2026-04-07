@@ -435,6 +435,8 @@ R: 責務タグレジストリ（`responsibilityTagGuard.test.ts`）:
 
 > **ガードが「禁止」と「導き」の両方を持つ。ルールは書かれるのではなく、育つ。**
 
+詳細な運用ガイド: `references/03-guides/architecture-rule-system.md`
+
 各ルールが「禁止パターン」「あるべき姿」「なぜ」「ドキュメント」をセットで定義する。
 ルール定義: `app/src/test/architectureRules.ts`
 整合性検証: `app/src/test/guards/architectureRuleGuard.test.ts`
