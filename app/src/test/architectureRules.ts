@@ -97,6 +97,12 @@ export interface ArchitectureRule {
   readonly confidence?: 'high' | 'medium' | 'low'
   /** いつこのルールが不要になるか（反証可能性） */
   readonly sunsetCondition?: string
+  /** ルールの再点検ポリシー（時間軸の導入） */
+  readonly reviewPolicy?: {
+    readonly owner: string // 'solo-maintainer' | 'ai-system'
+    readonly lastReviewedAt: string // YYYY-MM-DD
+    readonly reviewCadenceDays: number // 再点検間隔（日数）
+  }
   /** experimental ルールの出口（昇格 / 撤回の対称性） */
   readonly lifecyclePolicy?: {
     readonly introducedAt: string // 導入日（YYYY-MM-DD）

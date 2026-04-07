@@ -244,6 +244,73 @@ describe('Architecture Rule Registry', () => {
     expect(violations, violations.join('\n')).toEqual([])
   })
 
+  it('experimental / deprecated ルールは reviewPolicy を持つ', () => {
+    const violations: string[] = []
+
+    for (const rule of ARCHITECTURE_RULES) {
+      if (
+        (rule.maturity === 'experimental' || rule.maturity === 'deprecated') &&
+        !rule.reviewPolicy
+      ) {
+        violations.push(
+          `${rule.id}: ${rule.maturity} なのに reviewPolicy が未設定。owner / lastReviewedAt / reviewCadenceDays を定義すべき`,
+        )
+      }
+    }
+
+    expect(violations, violations.join('\n')).toEqual([])
+  })
+
+  it('review overdue のルールを検出する', () => {
+    const now = Date.now()
+    const overdue: string[] = []
+
+    for (const rule of ARCHITECTURE_RULES) {
+      if (!rule.reviewPolicy?.lastReviewedAt) continue
+      const lastReviewed = new Date(rule.reviewPolicy.lastReviewedAt).getTime()
+      const cadence = rule.reviewPolicy.reviewCadenceDays
+      const elapsed = Math.floor((now - lastReviewed) / (1000 * 60 * 60 * 24))
+      if (elapsed > cadence) {
+        overdue.push(`${rule.id}: review overdue（${elapsed} 日経過、cadence: ${cadence} 日）`)
+      }
+    }
+
+    if (overdue.length > 0) {
+      console.log(`\n[review overdue] ${overdue.length} 件:`)
+      for (const o of overdue) console.log(`  ${o}`)
+      console.log('  → lastReviewedAt を更新するか、ルールの見直しを実施してください')
+    }
+
+    expect(true).toBe(true)
+  })
+
+  it('sunsetCondition + 長期未レビューのルールを検出する', () => {
+    const now = Date.now()
+    const stale: string[] = []
+
+    for (const rule of ARCHITECTURE_RULES) {
+      if (!rule.sunsetCondition) continue
+      if (!rule.reviewPolicy?.lastReviewedAt) {
+        stale.push(`${rule.id}: sunsetCondition ありだが reviewPolicy なし`)
+        continue
+      }
+      const lastReviewed = new Date(rule.reviewPolicy.lastReviewedAt).getTime()
+      const elapsed = Math.floor((now - lastReviewed) / (1000 * 60 * 60 * 24))
+      if (elapsed > 60) {
+        stale.push(
+          `${rule.id}: sunsetCondition ありで ${elapsed} 日未レビュー。条件達成を確認すべき`,
+        )
+      }
+    }
+
+    if (stale.length > 0) {
+      console.log(`\n[sunset + 長期未レビュー] ${stale.length} 件:`)
+      for (const s of stale) console.log(`  ${s}`)
+    }
+
+    expect(true).toBe(true)
+  })
+
   it('experimental ルールの観測期間超過を検出', () => {
     const now = Date.now()
     const overdue: string[] = []
