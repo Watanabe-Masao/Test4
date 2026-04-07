@@ -8,7 +8,8 @@ function isAcceptedFile(name: string): boolean {
   return ACCEPT_EXTENSIONS.some((ext) => lower.endsWith(ext))
 }
 
-/** readEntries は1回で最大100件しか返さないため、空になるまで繰り返す */
+/** readEntries は1回で最大100件しか返さないため、空になるまで繰り返す  * @responsibility R:form
+ */
 function readAllEntries(reader: FileSystemDirectoryReader): Promise<FileSystemEntry[]> {
   return new Promise((resolve, reject) => {
     const all: FileSystemEntry[] = []

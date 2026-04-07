@@ -3,6 +3,8 @@
  *
  * 9個の useState を1つの useReducer に集約し、
  * 状態遷移を明示的なアクションで管理する。
+ *
+ * @responsibility R:reducer
  */
 import type { AsyncDuckDB, AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 

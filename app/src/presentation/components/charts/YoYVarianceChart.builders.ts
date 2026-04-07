@@ -2,6 +2,8 @@
  * YoYVarianceChart — ECharts オプションビルダー
  *
  * 純粋関数のみ。コンポーネント本体から分離（C1: 1ファイル = 1変更理由）。
+ *
+ * @responsibility R:chart-option
  */
 import type { EChartsOption } from 'echarts'
 import type { AppTheme } from '@/presentation/theme/theme'
@@ -42,12 +44,16 @@ export const allLabels: Record<string, string> = {
   txValueGrowthMa7: '客単価成長率(7日MA)',
 }
 
-/** NaN → null */
+/** NaN → null  *
+ * @responsibility R:chart-option
+ */
 export function maToNull(values: number[]): (number | null)[] {
   return values.map((v) => (isNaN(v) ? null : v))
 }
 
-/** ECharts tooltip formatter for all views */
+/** ECharts tooltip formatter for all views  *
+ * @responsibility R:chart-option
+ */
 export function buildTooltipFormatter(view: ViewType): (params: unknown) => string {
   return (params: unknown) => {
     const items = params as { seriesName: string; value: unknown; marker: string }[]
@@ -81,7 +87,9 @@ export function buildTooltipFormatter(view: ViewType): (params: unknown) => stri
   }
 }
 
-/** Build ECharts option for salesGap view */
+/** Build ECharts option for salesGap view  *
+ * @responsibility R:chart-option
+ */
 export function buildSalesGapOption(
   data: Record<string, unknown>[],
   ct: ChartTheme,
@@ -158,7 +166,9 @@ export function buildSalesGapOption(
   }
 }
 
-/** Build ECharts option for multiGap view */
+/** Build ECharts option for multiGap view  *
+ * @responsibility R:chart-option
+ */
 export function buildMultiGapOption(
   data: Record<string, unknown>[],
   ct: ChartTheme,
@@ -246,7 +256,9 @@ export function buildMultiGapOption(
   }
 }
 
-/** Build ECharts option for growthRate view */
+/** Build ECharts option for growthRate view  *
+ * @responsibility R:chart-option
+ */
 export function buildGrowthRateOption(
   data: Record<string, unknown>[],
   growthKeys: { sales: string; customer: string; txValue: string },

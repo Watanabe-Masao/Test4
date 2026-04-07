@@ -1,5 +1,6 @@
 /**
  * コアチャートコンポーネント
+ * @responsibility R:utility
  */
 export { DailySalesChart } from './DailySalesChart'
 export { IntegratedSalesChart } from './IntegratedSalesChart'

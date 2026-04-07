@@ -5,6 +5,8 @@
  *
  * @guard F7 View は ViewModel のみ受け取る
  * @guard G5 hook ≤300行 — 純粋関数を分離
+ *
+ * @responsibility R:transform
  */
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import {
@@ -56,6 +58,8 @@ export interface YoYVarianceData {
  * - 売上・売変・客数の差分と累積差分
  * - 日別/累積成長率（売上・客数・客単価）
  * - 7日移動平均成長率
+ *
+ * @responsibility R:transform
  */
 export function aggregateYoYVarianceData(
   daily: ReadonlyMap<number, DailyRecord>,

@@ -5,6 +5,7 @@
  *
  * react-refresh/only-export-components 対応のため、
  * コンポーネントとフックを別ファイルに分離。
+ * @responsibility R:state-machine
  */
 import { useState, useCallback } from 'react'
 import { useSettingsStore } from '@/application/stores/settingsStore'

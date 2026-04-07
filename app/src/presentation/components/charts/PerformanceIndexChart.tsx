@@ -1,4 +1,9 @@
-import { useCallback, useState, useMemo, memo } from 'react'
+/**
+ * PerformanceIndexChart — PI値/偏差値/Zスコア分析チャート
+ *
+ * @responsibility R:chart-view
+ */
+import { useCallback, useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { EChart } from './EChart'
@@ -22,13 +27,10 @@ import {
   buildPerformanceOption,
   type ViewType,
 } from './PerformanceIndexChart.builders'
-import {
-  CategoryPerformanceChart,
-  type CategoryLevelType,
-  type CategoryDrillDownInfo,
-} from '@/features/category'
-import { StorePIComparisonChart, type StorePILevel } from './StorePIComparisonChart'
+import { CategoryPerformanceChart } from '@/features/category'
+import { StorePIComparisonChart } from './StorePIComparisonChart'
 import { usePerformanceIndexPlan } from '@/application/hooks/usePerformanceIndexPlan'
+import { usePerformanceIndexState } from './usePerformanceIndexState'
 
 const VIEW_LABELS: Record<ViewType, string> = {
   piAmount: '金額PI',
@@ -46,7 +48,8 @@ interface Props {
     string,
     { sales: number; discount: number; customers?: number; ctsQuantity?: number }
   >
-  /** 日クリック時コールバック（異常値バーのクリックでナビゲーション） */
+  /** 日クリック時コールバック（異常値バーのクリックでナビゲーション）  * @responsibility R:chart-view
+   */
   onDayClick?: (day: number) => void
   /** DuckDB 接続（カテゴリPI値ランキング子チャート用） */
   queryExecutor?: QueryExecutor | null
@@ -87,71 +90,21 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
 }: Props) {
   const ct = useChartTheme()
   const theme = useTheme() as AppTheme
-  const [view, setView] = useState<ViewType>('piAmount')
-  // 範囲選択状態（子チャートに期間を渡す用）
-  const [selectedRange, setSelectedRange] = useState<{ from: number; to: number } | null>(null)
-  // 子チャートの階層レベル状態（plan hook に渡す）
-  const [categoryLevel, setCategoryLevel] = useState<CategoryLevelType>('department')
-  const [storePILevel, setStorePILevel] = useState<StorePILevel>('department')
 
-  // カテゴリドリルダウン状態
-  interface DrillState {
-    deptCode?: string
-    deptName?: string
-    lineCode?: string
-    lineName?: string
-  }
-  const [drillState, setDrillState] = useState<DrillState>({})
-
-  const handleCategoryDrillDown = useCallback((info: CategoryDrillDownInfo) => {
-    if (info.level === 'department') {
-      setDrillState({ deptCode: info.code, deptName: info.name })
-      setCategoryLevel('line')
-    } else if (info.level === 'line') {
-      setDrillState((prev) => ({
-        ...prev,
-        lineCode: info.code,
-        lineName: info.name,
-      }))
-      setCategoryLevel('klass')
-    }
-  }, [])
-
-  const handleCategoryLevelChange = useCallback((newLevel: CategoryLevelType) => {
-    // レベル変更時はドリルダウン状態をリセット
-    setDrillState({})
-    setCategoryLevel(newLevel)
-  }, [])
-
-  const categoryBreadcrumbs = useMemo(() => {
-    const crumbs: { label: string; onClick: () => void }[] = []
-    if (drillState.deptCode) {
-      crumbs.push({
-        label: '全部門',
-        onClick: () => {
-          setDrillState({})
-          setCategoryLevel('department')
-        },
-      })
-      crumbs.push({
-        label: drillState.deptName ?? drillState.deptCode,
-        onClick: () => {
-          setDrillState((prev) => ({
-            deptCode: prev.deptCode,
-            deptName: prev.deptName,
-          }))
-          setCategoryLevel('line')
-        },
-      })
-    }
-    if (drillState.lineCode) {
-      crumbs.push({
-        label: drillState.lineName ?? drillState.lineCode,
-        onClick: () => {}, // 現在地なのでクリック不要
-      })
-    }
-    return crumbs
-  }, [drillState])
+  // UI state（分離済み）
+  const {
+    view,
+    setView,
+    selectedRange,
+    setSelectedRange,
+    categoryLevel,
+    storePILevel,
+    setStorePILevel,
+    drillState,
+    handleCategoryDrillDown,
+    handleCategoryLevelChange,
+    categoryBreadcrumbs,
+  } = usePerformanceIndexState()
   const { chartData, stats, piMa7, prevPiMa7, qtyPiMa7, prevQtyPiMa7 } = useMemo(
     () =>
       buildPerformanceData(

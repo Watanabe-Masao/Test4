@@ -4,6 +4,8 @@
  * 店舗別PI値計算とヒートマップデータ整形を純粋関数で完結。
  *
  * @guard H4 component に acquisition logic 禁止 — 導出は builders で一度だけ
+ *
+ * @responsibility R:chart-option
  */
 import { safeDivide } from '@/domain/calculations/utils'
 import type { StoreResult } from '@/domain/models/StoreResult'
@@ -30,6 +32,8 @@ export interface HeatmapData {
  * allStoreResults から店舗別 PI データを構築し metric でソート。
  *
  * @param ctsQuantityByStore CTS 由来の店舗別販売点数（useCtsQuantity.byStore）
+ *
+ * @responsibility R:chart-option
  */
 export function buildStorePIData(
   allStoreResults: ReadonlyMap<string, StoreResult>,
@@ -56,6 +60,8 @@ export function buildStorePIData(
 /**
  * StoreCategoryPIOutput からヒートマップ用データを構築。
  * カテゴリ Top10 抽出 + [catIdx, storeIdx, value] 整形。
+ *
+ * @responsibility R:chart-option
  */
 export function buildHeatmapData(
   catOutput: StoreCategoryPIOutput,

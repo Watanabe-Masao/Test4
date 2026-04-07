@@ -5,18 +5,26 @@
  * 5期間比較マトリクスに変換する純粋関数群。
  *
  * @guard G5 hook ≤300行 — 純粋関数を分離
+ *
+ * @responsibility R:calculation
  */
 import type { ConditionMatrixRow } from '@/infrastructure/duckdb'
 
-/** マトリクスセル: 比率 + シグナル判定用の実値 */
+/** マトリクスセル: 比率 + シグナル判定用の実値  *
+ * @responsibility R:calculation
+ */
 export interface MatrixCell {
-  /** 比率（1.0 = 変化なし、> 1 = 増加、< 1 = 減少）。比較不能時は null */
+  /** 比率（1.0 = 変化なし、> 1 = 増加、< 1 = 減少）。比較不能時は null  *
+   * @responsibility R:calculation
+   */
   readonly ratio: number | null
   readonly current: number
   readonly comparison: number
 }
 
-/** 1行分のマトリクスデータ（全指標列を持つ） */
+/** 1行分のマトリクスデータ（全指標列を持つ）  *
+ * @responsibility R:calculation
+ */
 export interface MatrixRowData {
   readonly label: string
   readonly sales: MatrixCell
@@ -27,16 +35,22 @@ export interface MatrixRowData {
   readonly totalCost: MatrixCell
 }
 
-/** トレンド方向 */
+/** トレンド方向  *
+ * @responsibility R:calculation
+ */
 export type TrendDirection = 'up' | 'down' | 'flat'
 
-/** トレンド方向セル */
+/** トレンド方向セル  *
+ * @responsibility R:calculation
+ */
 export interface TrendDirectionCell {
   readonly direction: TrendDirection
   readonly ratio: number | null
 }
 
-/** トレンド方向行 */
+/** トレンド方向行  *
+ * @responsibility R:calculation
+ */
 export interface TrendDirectionRow {
   readonly label: string
   readonly sales: TrendDirectionCell
@@ -47,13 +61,17 @@ export interface TrendDirectionRow {
   readonly totalCost: TrendDirectionCell
 }
 
-/** 全体のマトリクス結果 */
+/** 全体のマトリクス結果  *
+ * @responsibility R:calculation
+ */
 export interface ConditionMatrixResult {
   readonly yoy: MatrixRowData
   readonly wow: MatrixRowData
   readonly trendRatio: MatrixRowData
   readonly trendDirection: TrendDirectionRow
-  /** トレンドの各半期間の日数（曜日バイアス警告判定用） */
+  /** トレンドの各半期間の日数（曜日バイアス警告判定用）  *
+   * @responsibility R:calculation
+   */
   readonly trendHalfDays: number
 }
 
@@ -137,6 +155,8 @@ function toDirectionCell(c: MatrixCell): TrendDirectionCell {
  *
  * @param rows     全店舗分のクエリ結果
  * @param totalDays 全体の期間日数（トレンド半期間の計算用）
+ *
+ * @responsibility R:calculation
  */
 export function buildConditionMatrix(
   rows: readonly ConditionMatrixRow[],

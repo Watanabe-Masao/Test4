@@ -124,7 +124,8 @@ export function DataManagementSidebar({
   return (
     <>
       <Sidebar title="データ管理">
-        {/* オンライン/オフラインステータス + インポートボタン */}
+        {/* オンライン/オフラインステータス + インポートボタン  * @responsibility R:form
+         */}
         <SidebarSection>
           <TopRow>
             <OnlineStatusChip

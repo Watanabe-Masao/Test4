@@ -7,6 +7,7 @@
  *
  * @guard H1 Screen Plan 経由のみ — useIntegratedSalesPlan がクエリを一元管理
  * @guard H2 比較は pair/bundle 契約 — dailyQuantityPairHandler で cur/prev 一括取得
+ * @responsibility R:state-machine
  */
 import { useState } from 'react'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'

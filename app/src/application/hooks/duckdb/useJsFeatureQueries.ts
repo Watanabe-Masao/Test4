@@ -3,6 +3,7 @@
  *
  * DuckDB から生データを取得し、JS 純粋関数で統計量を算出する。
  * useJsAggregationQueries.ts から分割。
+ * @responsibility R:query-exec
  */
 import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'

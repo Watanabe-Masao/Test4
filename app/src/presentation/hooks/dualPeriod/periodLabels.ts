@@ -5,6 +5,7 @@
  * チャート側で「前年」「前期」「比較」などを独自に付けない。
  *
  * @see references/01-principles/dual-period-definition.md
+ * @responsibility R:utility
  */
 import type { ComparisonPreset } from '@/domain/models/PeriodSelection'
 

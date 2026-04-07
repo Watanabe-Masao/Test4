@@ -7,6 +7,8 @@
  * サマリー: グラフ未選択 → 月間、日クリック → その日の詳細+前年比較
  * グラフ: 天気アイコン統合、クリックで時間帯モーダル起動
  * 日別グリッド不要（チャートに統合済み）
+ *
+ * @responsibility R:page, R:data-fetch, R:state-machine
  */
 import { memo, useState, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -108,6 +110,17 @@ export const WeatherPage = memo(function WeatherPage() {
   const [selectedDays, setSelectedDays] = useState<ReadonlySet<string>>(new Set())
   const [selectedDows, setSelectedDows] = useState<number[]>([])
   const handleDowChange = useCallback((dows: number[]) => setSelectedDows(dows), [])
+
+  // 曜日フィルタ適用済み daily（テーブル表示用）
+  const filteredDaily = useMemo(() => {
+    if (selectedDows.length === 0) return daily
+    return daily.filter((d) => {
+      const dayNum = Number(d.dateKey.split('-')[2])
+      const dow = new Date(year, month - 1, dayNum).getDay()
+      return selectedDows.includes(dow)
+    })
+  }, [daily, selectedDows, year, month])
+
   const [uiState, setUiState] = useState<{
     modalDate: string | null
     modalForecast: DailyForecast | null
@@ -428,13 +441,12 @@ export const WeatherPage = memo(function WeatherPage() {
 
             {/* 日別詳細 — テーブル / カレンダー切替 + 曜日フィルタ */}
             <WeatherDetailSection
-              daily={daily}
+              daily={filteredDaily}
               prevYearDaily={prevYearCurrentMonth}
               year={year}
               month={month}
               selectedDays={selectedDays}
               onDayClick={handleChartDayClick}
-              selectedDows={selectedDows}
             />
           </motion.div>
         )}

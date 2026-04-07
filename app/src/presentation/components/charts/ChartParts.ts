@@ -2,6 +2,7 @@
  * チャート共通パーツ
  *
  * チャートコンポーネントで共通する styled-components と定数。
+ * @responsibility R:utility
  */
 
 // ── Styled Components（styles ファイルから re-export） ──

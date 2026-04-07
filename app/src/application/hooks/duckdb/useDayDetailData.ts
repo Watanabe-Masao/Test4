@@ -15,6 +15,7 @@
  * 本フックは日付範囲の計算（純粋関数）と plan 結果の組み立てのみ。
  *
  * @guard H1 Screen Plan 経由のみ
+ * @responsibility R:query-exec
  */
 import { useMemo } from 'react'
 import { resolveDayDetailRanges } from './dayDetailDataLogic'

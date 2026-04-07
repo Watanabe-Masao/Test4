@@ -3,6 +3,7 @@
  *
  * MonthlyData のレコード数ベースで軽量に変更を判定する。
  * storedMonthsKey で過去月の増減も検知する。
+ * @responsibility R:utility
  */
 import type { MonthlyData } from '@/domain/models/MonthlyData'
 

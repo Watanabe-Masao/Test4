@@ -3,6 +3,7 @@
  *
  * 日〜土のトグルボタンを提供し、複数曜日の選択/解除を行う。
  * DailySalesChart や CategoryTrendChart 等のチャートで共用する。
+ * @responsibility R:chart-view
  */
 import { useCallback, memo } from 'react'
 import { Row, Label, Chip, ResetChip } from './DowPresetSelector.styles'

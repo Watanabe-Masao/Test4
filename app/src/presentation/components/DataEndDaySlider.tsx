@@ -28,7 +28,8 @@ export function DataEndDaySlider({
   readonly detectedMaxDay: number
   readonly settings: AppSettings
   readonly updateSettings: (patch: Partial<AppSettings>) => void
-  /** 期間選択ストアへの同期（Application 層でスコーピング） */
+  /** 期間選択ストアへの同期（Application 層でスコーピング）  * @responsibility R:form
+   */
   readonly onPeriodEndDayChange?: (endDay: number) => void
 }) {
   const currentEndDay =

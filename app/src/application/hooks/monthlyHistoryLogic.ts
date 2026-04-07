@@ -5,6 +5,7 @@
  * StoreDaySummaryIndex の成分率集約を担う。
  *
  * @guard G5 hook ≤300行 — 純粋関数を分離
+ * @responsibility R:calculation
  */
 import type { MonthlyDataPoint } from '@/application/services/forecastBridge'
 import type { StoreDaySummaryIndex } from '@/domain/models/record'

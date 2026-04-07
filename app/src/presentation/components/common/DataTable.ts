@@ -5,6 +5,7 @@ import styled from 'styled-components'
  *
  * AnalysisPage, DashboardPage (TableWidgets) などで共通利用する
  * ベーステーブルコンポーネント。
+ * @responsibility R:utility
  */
 
 export const DataTableWrapper = styled.div`

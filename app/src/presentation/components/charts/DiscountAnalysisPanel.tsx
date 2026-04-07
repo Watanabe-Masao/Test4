@@ -3,6 +3,7 @@
  *
  * 日別売変推移（DiscountTrendChart）+ カテゴリ別売変分析（CategoryDiscountChart）。
  * 日別チャートの日付クリックまたは範囲ドラッグでカテゴリ別にドリルダウン。
+ * @responsibility R:chart-view
  */
 import { memo, useState, useCallback, useMemo } from 'react'
 import type { DailyRecord } from '@/domain/models/record'

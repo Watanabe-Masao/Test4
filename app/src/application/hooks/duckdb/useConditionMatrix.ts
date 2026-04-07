@@ -3,6 +3,7 @@
  *
  * 純粋関数は conditionMatrixLogic.ts に分離。
  * このファイルは DuckDB クエリ実行の薄いラッパーのみ。
+ * @responsibility R:query-exec
  */
 import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'

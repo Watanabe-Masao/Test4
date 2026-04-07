@@ -5,6 +5,7 @@
  * CategoryHourlyItem[] から部門×時間帯の積み上げ面グラフを生成する。
  * lineMode に応じて第2軸オーバーレイ（点数/累積構成比/気温/降水量）を追加。
  * 純粋関数。React 非依存。
+ * @responsibility R:chart-option
  */
 import type { AppTheme } from '@/presentation/theme/theme'
 import { palette } from '@/presentation/theme/tokens'

@@ -7,6 +7,8 @@
  *
  * @guard H1 Screen Plan 経由のみ
  * @guard H4 component に acquisition logic 禁止
+ *
+ * @responsibility R:query-plan
  */
 import { useMemo } from 'react'
 import type { DateRange } from '@/domain/models/calendar'
@@ -23,14 +25,18 @@ import {
 
 const EMPTY_RECORDS: readonly CategoryTimeSalesRecord[] = []
 
-/** fallback 解決結果 — UI は comparisonSource を表示判断に使える */
+/** fallback 解決結果 — UI は comparisonSource を表示判断に使える  *
+ * @responsibility R:query-plan
+ */
 export type ComparisonSource = 'primary' | 'fallback' | 'none'
 
 export interface YoYWaterfallPlanInput {
   readonly curDateRange: DateRange
   readonly prevDateRange: DateRange | undefined
   readonly selectedStoreIds: ReadonlySet<string>
-  /** YoY=true, WoW=false */
+  /** YoY=true, WoW=false  *
+   * @responsibility R:query-plan
+   */
   readonly isPrevYear: boolean
 }
 

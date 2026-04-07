@@ -41,7 +41,8 @@ export function Modal({
   children: ReactNode
   footer?: ReactNode
   onClose: () => void
-  /** モーダル幅: sm(400px) / md(480px) / lg(640px) */
+  /** モーダル幅: sm(400px) / md(480px) / lg(640px)  * @responsibility R:widget
+   */
   size?: ModalSize
 }) {
   const titleId = useId()

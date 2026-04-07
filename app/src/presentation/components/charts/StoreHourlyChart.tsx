@@ -5,6 +5,7 @@
  *   QueryHandler → StoreHourlyChartLogic.ts → ECharts option → EChart
  *
  * @migration P5: plan hook 経由に移行済み（旧: useDuckDBStoreAggregation 直接 import）
+ * @responsibility R:chart-view
  */
 import { useState, useMemo, memo, useCallback } from 'react'
 import { useTheme } from 'styled-components'

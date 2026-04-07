@@ -2,6 +2,7 @@
  * ページ横断ウィジェットレイアウト管理
  *
  * ページごとに独立した localStorage キーでレイアウトを永続化する。
+ * @responsibility R:utility
  */
 import type { PageKey, WidgetDef } from './types'
 

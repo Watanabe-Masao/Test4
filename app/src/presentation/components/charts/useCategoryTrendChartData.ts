@@ -5,8 +5,9 @@
  * 状態管理・クエリ・データ変換を担い、UI は CategoryTrendChart に残す。
  *
  * @migration P5: plan hook — useCategoryTrendPlan 経由でクエリ取得
+ * @responsibility R:orchestration
  */
-import { useMemo, useState, useCallback } from 'react'
+import { useMemo, useCallback } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
@@ -17,19 +18,10 @@ import {
   buildPrevYearTrendData,
   buildCategoryTrendOption,
   PREV_YEAR_SUFFIX,
-  type TrendMetric,
 } from '@/features/category'
 import { useCurrencyFormatter } from './chartTheme'
 import { useI18n } from '@/application/hooks/useI18n'
-
-type HierarchyLevel = 'department' | 'line' | 'klass'
-
-interface DrillState {
-  readonly deptCode?: string
-  readonly deptName?: string
-  readonly lineCode?: string
-  readonly lineName?: string
-}
+import { useCategoryTrendDrillState } from './useCategoryTrendDrillState'
 
 interface UseCategoryTrendChartDataParams {
   readonly queryExecutor: QueryExecutor | null
@@ -38,7 +30,8 @@ interface UseCategoryTrendChartDataParams {
   readonly prevYearScope?: PrevYearScope
 }
 
-export type { HierarchyLevel, DrillState, TrendMetric }
+export type { HierarchyLevel, DrillState } from './useCategoryTrendDrillState'
+export type { TrendMetric } from '@/features/category'
 
 export function useCategoryTrendChartData(params: UseCategoryTrendChartDataParams) {
   const { queryExecutor, currentDateRange, selectedStoreIds, prevYearScope } = params
@@ -47,28 +40,9 @@ export function useCategoryTrendChartData(params: UseCategoryTrendChartDataParam
   const fmt = useCurrencyFormatter()
   const { messages } = useI18n()
 
-  const [level, setLevel] = useState<HierarchyLevel>('department')
-  const [topN, setTopN] = useState<number>(8)
-  const [selectedDows, setSelectedDows] = useState<number[]>([])
-  const [drill, setDrill] = useState<DrillState>({})
-  const [metric, setMetric] = useState<TrendMetric>('amount')
-  const [showYoY, setShowYoY] = useState(false)
-
-  const handleDowChange = useCallback((dows: number[]) => setSelectedDows(dows), [])
-  const handleLevelChange = useCallback((newLevel: HierarchyLevel) => {
-    setLevel(newLevel)
-    setDrill({})
-  }, [])
-
-  const handleBreadcrumbClick = useCallback((targetLevel: 'root' | 'department') => {
-    if (targetLevel === 'root') {
-      setDrill({})
-      setLevel('department')
-    } else {
-      setDrill((prev) => ({ deptCode: prev.deptCode, deptName: prev.deptName }))
-      setLevel('line')
-    }
-  }, [])
+  // drill + UI state
+  const drillState = useCategoryTrendDrillState()
+  const { level, topN, selectedDows, drill, metric, showYoY, setDrill, setLevel } = drillState
 
   const dowParam = useMemo(
     () => (selectedDows.length > 0 ? selectedDows : undefined),
@@ -152,16 +126,8 @@ export function useCategoryTrendChartData(params: UseCategoryTrendChartDataParam
     // theme / formatting
     fmt,
     errorMessage: messages.errors.dataFetchFailed,
-    // state
-    level,
-    topN,
-    setTopN,
-    selectedDows,
-    drill,
-    metric,
-    setMetric,
-    showYoY,
-    setShowYoY,
+    // state (spread drill state)
+    ...drillState,
     // data
     chartData,
     categories,
@@ -174,9 +140,6 @@ export function useCategoryTrendChartData(params: UseCategoryTrendChartDataParam
     isQuantityMode,
     canDrill,
     // handlers
-    handleDowChange,
-    handleLevelChange,
-    handleBreadcrumbClick,
     handleChartClick,
   }
 }

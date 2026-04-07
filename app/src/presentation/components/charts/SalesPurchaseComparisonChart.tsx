@@ -40,7 +40,8 @@ interface Props {
   rangeEnd?: number
 }
 
-/** ECharts sub-component for chart rendering */
+/** ECharts sub-component for chart rendering  * @responsibility R:chart-view
+ */
 function SalesCompChart({
   chartData,
   visibleEntries,

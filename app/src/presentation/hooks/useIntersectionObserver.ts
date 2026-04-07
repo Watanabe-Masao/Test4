@@ -3,6 +3,7 @@
  *
  * 画面外のウィジェットを遅延レンダリングするためのフック。
  * 要素がビューポートに入ったときに初めてレンダリングを開始する。
+ * @responsibility R:utility
  */
 import { useRef, useState, useEffect, useCallback } from 'react'
 

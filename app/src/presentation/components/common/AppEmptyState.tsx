@@ -3,6 +3,7 @@
  *
  * variant に応じた文言を messages.ts から取得し描画する。
  * UI は application が決めた意味を表示するだけ。
+ * @responsibility R:widget
  */
 import styled from 'styled-components'
 import { useI18n } from '@/application/hooks/useI18n'

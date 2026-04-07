@@ -4,6 +4,7 @@
  * useIntegratedSalesState.ts から分離。
  * SalesAnalysisContext / AnalysisNodeContext の構築と
  * drill 用 DateRange の解決を担う。
+ * @responsibility R:orchestration
  */
 import { useMemo } from 'react'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'

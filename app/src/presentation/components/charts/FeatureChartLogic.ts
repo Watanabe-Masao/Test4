@@ -10,6 +10,7 @@
  *   - 異常日（|Z| >= 閾値）を検出
  *
  * @guard G5 hook ≤300行 — 純粋関数を分離
+ * @responsibility R:calculation
  */
 import type { DailyFeatureRow } from '@/application/hooks/duckdb'
 

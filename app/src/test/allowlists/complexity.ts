@@ -59,6 +59,7 @@ export const presentationMemoLimits: readonly QuantitativeAllowlistEntry[] = [
   // useIntegratedSalesState.ts — useMemo 許可リスト削除済み（drill reducer + context 分離完了）
   // DrilldownWaterfall.tsx — buildRecordAggregates 統合（7→5 useMemo）。許可リスト卒業
   // TimeSlotChart.tsx — module constants + weather/hours 一括構築（8→3 useMemo）。許可リスト卒業
+  // WeatherPage.tsx — G8-P8 合計 allowlist で管理。個別 useMemo 許可リスト卒業
 ] as const
 
 /** presentation/ の useState 上限の個別例外（G5 横展開） */
@@ -68,14 +69,7 @@ export const presentationStateLimits: readonly QuantitativeAllowlistEntry[] = [
   // useMonthlyCalendarState.ts — pinDialog 複合化 + ranges 複合化（10→6 useState）。許可リスト卒業
   // CategoryBenchmarkChart.vm.ts — useState 許可リスト削除済み（drill state 統合 + Logic 分離完了）
   // useDuckDBTimeSlotData.ts — バレル化完了（2026-03-23）: presentation 側の useState は 0 に
-  {
-    path: 'presentation/components/charts/periodFilterHooks.ts',
-    reason: '期間フィルタの操作状態',
-    category: 'structural',
-    removalCondition: 'ロジック分離時',
-    limit: 9,
-    lifecycle: 'permanent',
-  },
+  // periodFilterHooks.ts — useHierarchyDropdown 分離で useState 9→5。許可リスト卒業
   // useDrilldownData.ts — sortState/segInteraction の複合化（9→7 useState）。許可リスト卒業
 ] as const
 
@@ -84,10 +78,10 @@ export const combinedHookComplexityLimits: readonly QuantitativeAllowlistEntry[]
   {
     path: 'presentation/pages/Weather/WeatherPage.tsx',
     reason:
-      '天気ページの複合 UI（相関・予報・オーバーレイ + 曜日フィルタ）。useMemo 6 + useCallback 9 = 15',
+      '天気ページの複合 UI（相関・予報・オーバーレイ + 曜日フィルタ）。useMemo 7 + useCallback 9 = 16',
     category: 'structural',
     removalCondition: '天気系 hook の分離時',
-    limit: 16,
+    limit: 17,
     lifecycle: 'active-debt',
   },
   {
@@ -186,4 +180,12 @@ export const hookLineLimits: readonly QuantitativeAllowlistEntry[] = [
   // usePeriodAwareKpi.ts — 300行（デフォルト上限以下）。許可リスト卒業
   // useTimeSlotData.ts — useTimeSlotPlan に query orchestration を分離。133 行に削減
   // useTimeSlotPlan.ts: hierarchy + weather sub-plan 分離で 206 行。デフォルト上限 300 行以下。許可リスト卒業
+  {
+    path: 'application/hooks/duckdb/purchaseComparisonCategory.ts',
+    reason: '@responsibility タグ追加で 302 行。純粋関数のみ',
+    category: 'structural',
+    removalCondition: '空行整理時',
+    limit: 305,
+    lifecycle: 'active-debt',
+  },
 ] as const

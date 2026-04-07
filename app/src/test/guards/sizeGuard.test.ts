@@ -15,6 +15,7 @@ import {
   hookLineLimits,
   presentationMemoLimits,
   presentationStateLimits,
+  combinedHookComplexityLimits,
   largeComponentTier2,
   infraLargeFiles,
   domainLargeFiles,
@@ -82,6 +83,9 @@ describe('R11: hooks/ の useState 呼び出しが上限以下', () => {
 
 // ─── G5 横展開: presentation/ の useMemo / useState 上限 ─────
 
+// G8-P8 の合計 allowlist に載っているファイルは個別チェック免除（重複排除）
+const combinedAllowlistPaths = buildQuantitativeAllowlist(combinedHookComplexityLimits)
+
 describe('G5: presentation/ の useMemo 呼び出しが上限以下', () => {
   const presDir = path.join(SRC_DIR, 'presentation')
   const allowlist = buildQuantitativeAllowlist(presentationMemoLimits)
@@ -92,8 +96,10 @@ describe('G5: presentation/ の useMemo 呼び出しが上限以下', () => {
 
     for (const file of files) {
       if (file.includes('.test.')) continue
-      const content = fs.readFileSync(file, 'utf-8')
       const relPath = rel(file)
+      // G8-P8 合計 allowlist に載っているファイルは免除（合計で管理）
+      if (combinedAllowlistPaths[relPath] != null) continue
+      const content = fs.readFileSync(file, 'utf-8')
       const count = (content.match(/\buseMemo\s*\(/g) || []).length
       const limit = allowlist[relPath] ?? 7
 
@@ -118,8 +124,10 @@ describe('G5: presentation/ の useState 呼び出しが上限以下', () => {
 
     for (const file of files) {
       if (file.includes('.test.')) continue
-      const content = fs.readFileSync(file, 'utf-8')
       const relPath = rel(file)
+      // G8-P8 合計 allowlist に載っているファイルは免除（合計で管理）
+      if (combinedAllowlistPaths[relPath] != null) continue
+      const content = fs.readFileSync(file, 'utf-8')
       const count = (content.match(/\buseState\b/g) || []).length
       const limit = allowlist[relPath] ?? PRESENTATION_STATE_LIMIT
 

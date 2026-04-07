@@ -1,5 +1,6 @@
 /**
  * 粗利額累計推移チャート (ECharts)
+ * @responsibility R:chart-view
  */
 import { useState, useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'

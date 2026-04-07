@@ -5,6 +5,7 @@
  * 長押し（500ms）でコールバックを発火し、データ再取得などに利用。
  *
  * 旧 OnlineStatusChip を置き換え。navigator.onLine は常に true のため廃止。
+ * @responsibility R:widget
  */
 import { useCallback, useRef, useEffect } from 'react'
 import styled from 'styled-components'

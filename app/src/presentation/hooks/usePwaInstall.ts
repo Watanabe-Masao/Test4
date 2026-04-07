@@ -4,6 +4,7 @@
  * - beforeinstallprompt イベントをキャプチャし、
  *   ユーザーの任意のタイミングでインストールを促すことができる。
  * - インストール状態を追跡する。
+ * @responsibility R:utility
  */
 import { useState, useEffect, useCallback, useRef } from 'react'
 

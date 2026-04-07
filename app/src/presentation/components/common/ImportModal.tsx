@@ -3,6 +3,7 @@
  *
  * サイドバーのインポートボタンから開く。
  * FileDropZone + UploadCard + ImportProgress をモーダル内に配置。
+ * @responsibility R:form
  */
 import { useCallback, useState, useMemo } from 'react'
 import { Modal } from './Modal'

@@ -9,6 +9,7 @@
  * - 過去3ヶ月: 当月含む直近3ヶ月
  * - 過去6ヶ月: 当月含む直近6ヶ月
  * - 全期間: ロードされた全データ範囲
+ * @responsibility R:chart-view
  */
 import { useCallback, useMemo } from 'react'
 import type { DateRange, CalendarDate } from '@/domain/models/calendar'

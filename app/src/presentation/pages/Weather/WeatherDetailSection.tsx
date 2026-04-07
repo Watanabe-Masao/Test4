@@ -2,8 +2,10 @@
  * WeatherDetailSection — 日別詳細セクション（テーブル/カレンダー切替 + 曜日フィルタ）
  *
  * WeatherPage の行数制限（R12: 600行）対応のため分離。
+ *
+ * @responsibility R:widget, R:state-machine
  */
-import { memo, useMemo, useState } from 'react'
+import { memo, useState } from 'react'
 import type { DailyWeatherSummary } from '@/domain/models/record'
 import { renderDetailRow } from './WeatherDetailRow'
 import { WeatherCalendarView } from './WeatherCalendarView'
@@ -16,8 +18,6 @@ interface Props {
   readonly month: number
   readonly selectedDays: ReadonlySet<string>
   readonly onDayClick: (dateKey: string) => void
-  /** 曜日フィルタ（チャートヘッダから共有） */
-  readonly selectedDows: readonly number[]
 }
 
 export const WeatherDetailSection = memo(function WeatherDetailSection({
@@ -27,18 +27,8 @@ export const WeatherDetailSection = memo(function WeatherDetailSection({
   month,
   selectedDays,
   onDayClick,
-  selectedDows,
 }: Props) {
   const [detailView, setDetailView] = useState<'table' | 'calendar'>('table')
-
-  const filteredDaily = useMemo(() => {
-    if (selectedDows.length === 0) return daily
-    return daily.filter((d) => {
-      const dayNum = Number(d.dateKey.split('-')[2])
-      const dow = new Date(year, month - 1, dayNum).getDay()
-      return selectedDows.includes(dow)
-    })
-  }, [daily, selectedDows, year, month])
 
   return (
     <>
@@ -73,7 +63,7 @@ export const WeatherDetailSection = memo(function WeatherDetailSection({
       </div>
       {detailView === 'calendar' ? (
         <WeatherCalendarView
-          daily={filteredDaily}
+          daily={daily}
           prevYearDaily={prevYearDaily}
           year={year}
           month={month}
@@ -97,7 +87,7 @@ export const WeatherDetailSection = memo(function WeatherDetailSection({
               </tr>
             </thead>
             <tbody>
-              {filteredDaily.map((d) => {
+              {daily.map((d) => {
                 const dayNum = Number(d.dateKey.split('-')[2])
                 const prev = prevYearDaily.find((p) => Number(p.dateKey.split('-')[2]) === dayNum)
                 return renderDetailRow(d, prev ?? null, year, month, onDayClick, selectedDays)

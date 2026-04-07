@@ -28,7 +28,8 @@ import {
   DrillLink,
 } from './CausalChainExplorer.styles'
 
-/** ColorHint → 実際の CUD 安全色に変換 */
+/** ColorHint → 実際の CUD 安全色に変換  * @responsibility R:chart-view
+ */
 function resolveColor(hint: ColorHint): string {
   switch (hint) {
     case 'positive':

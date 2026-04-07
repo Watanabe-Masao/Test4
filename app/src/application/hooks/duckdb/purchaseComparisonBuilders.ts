@@ -5,6 +5,8 @@
  * - purchaseComparisonKpi.ts: ユーティリティ・KPI・店舗構築
  * - purchaseComparisonCategory.ts: 取引先・カテゴリ別データ構築
  * - purchaseComparisonDaily.ts: 日別データ・ピボット構築
+ *
+ * @responsibility R:barrel
  */
 export {
   toDateKey,

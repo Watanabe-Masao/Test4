@@ -4,6 +4,7 @@ import styled from 'styled-components'
  * 計算結果を「ラベル: 値」形式で表示する行コンポーネント群。
  * Insight（損益構造）、Reports（P&Lカード）で共通利用。
  * $clickable を指定すると MetricBreakdownPanel 連携用のホバーエフェクトが付く。
+ * @responsibility R:utility
  */
 
 export const CalcRow = styled.div.attrs<{ $clickable?: boolean }>((props) =>

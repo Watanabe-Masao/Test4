@@ -10,6 +10,7 @@
  * - period2 変更: setPeriod2 → activePreset が 'custom' に切り替わる
  * - 月跨ぎ: from が対象月より前なら day=1、to が後なら day=月末
  * - 対象月と異なる年月の period の場合もスライダーは日(day)部分のみ制御
+ * @responsibility R:state-machine
  */
 import { useState, useCallback } from 'react'
 import { useSettingsStore } from '@/application/stores/settingsStore'

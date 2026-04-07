@@ -3,6 +3,7 @@
  *
  * queryStoreCostPrice を application 層でラップし、
  * Presentation → Infrastructure の直接依存を解消する。
+ * @responsibility R:query-exec
  */
 import { useState, useEffect, useRef } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'

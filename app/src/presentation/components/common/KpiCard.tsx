@@ -16,7 +16,8 @@ import type { WarningSeverity } from '@/domain/constants'
 
 export { KpiGrid } from './KpiCard.styles'
 
-/** KpiCard に渡す warning 情報 */
+/** KpiCard に渡す warning 情報  * @responsibility R:widget
+ */
 export interface KpiWarningInfo {
   /** 最も深刻な severity */
   readonly severity: WarningSeverity

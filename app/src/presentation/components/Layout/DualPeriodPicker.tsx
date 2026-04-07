@@ -18,6 +18,7 @@
  * │ 2025-03-01 〜 2025-03-31   │
  * │ [前年同月] [前年同曜日] ... │
  * └─────────────────────────────┘
+ * @responsibility R:layout
  */
 import { useCallback, useMemo, useState } from 'react'
 import { DayPicker } from 'react-day-picker'

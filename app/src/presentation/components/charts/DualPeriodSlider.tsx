@@ -12,6 +12,7 @@
  * - HTML range input ではなく、div + pointer events で実装
  * - ピクセル座標 → 日数 の変換は trackRef の幅で算出
  * - DayRangeSlider と同じ Props パターン（min/max/start/end/onChange）を2セット
+ * @responsibility R:chart-view
  */
 import { memo, useRef, useCallback, useState } from 'react'
 import {

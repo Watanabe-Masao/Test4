@@ -1,5 +1,6 @@
 /**
  * 統合タイムライン (ECharts) — 売上・仕入・粗利・売変の連動分析
+ * @responsibility R:chart-view
  */
 import { useMemo, useState, memo } from 'react'
 import { useTheme } from 'styled-components'

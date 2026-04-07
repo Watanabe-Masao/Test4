@@ -7,6 +7,7 @@
  *   差分 — 前年差累計ウォーターフォール
  *
  * 状態管理とデータフック呼び出しを担い、描画は DailySalesChartBody に委譲する。
+ * @responsibility R:chart-view
  */
 import { useState, useCallback, memo } from 'react'
 import { ChartCard } from './ChartCard'

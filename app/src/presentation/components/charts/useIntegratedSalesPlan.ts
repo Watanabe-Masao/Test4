@@ -3,6 +3,7 @@
  *
  * 実体は application/hooks/plans/useIntegratedSalesPlan.ts に移動。
  * Screen Query Plan は Application 層の責務。
+ * @responsibility R:query-plan
  */
 export {
   useIntegratedSalesPlan,

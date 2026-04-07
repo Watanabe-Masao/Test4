@@ -43,7 +43,8 @@ interface Props {
   data: readonly DataPoint[]
   budget: number
   showPrevYear?: boolean
-  /** 営業日数（着地見込み計算用） */
+  /** 営業日数（着地見込み計算用）  * @responsibility R:chart-view
+   */
   salesDays?: number
   /** 月の総日数 */
   daysInMonth?: number

@@ -2,6 +2,8 @@
  * DailySalesChartBody — ECharts オプションビルダー
  *
  * 純粋関数のみ。コンポーネント本体から分離（C1: 1ファイル = 1変更理由）。
+ *
+ * @responsibility R:chart-option
  */
 import type { EChartsOption } from 'echarts'
 import { standardGrid, lineDefaults } from './builders'
@@ -30,6 +32,8 @@ export { buildWeatherMap }
 /**
  * 天気マップ関連の 3 useMemo を統合する。
  * weatherMap + compStartKey + prevWeatherMap を一括構築。
+ *
+ * @responsibility R:chart-option
  */
 export function buildWeatherContext(
   weatherDaily: readonly import('@/domain/models/record').DailyWeatherSummary[] | undefined,
@@ -47,7 +51,9 @@ export function buildWeatherContext(
   return { weatherMap, prevWeatherMap }
 }
 
-/** option 生成の本体 */
+/** option 生成の本体  *
+ * @responsibility R:chart-option
+ */
 export function buildOption(
   data: DailySalesDataResult['data'],
   view: ViewType,
@@ -443,7 +449,9 @@ export function buildOption(
   }
 }
 
-/** 移動平均 overlay series を baseOption に追加する */
+/** 移動平均 overlay series を baseOption に追加する  *
+ * @responsibility R:chart-option
+ */
 export function buildMAOverlay(
   baseOption: EChartsOption,
   maOverlays: MovingAverageOverlays,

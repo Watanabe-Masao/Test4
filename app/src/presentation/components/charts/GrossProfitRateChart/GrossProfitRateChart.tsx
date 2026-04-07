@@ -3,6 +3,7 @@
  *
  * 描画のみ。データ変換は GrossProfitRateChart.vm.ts に委譲。
  * 期間選択はページレベルの DualPeriodSlider から props で受け取る。
+ * @responsibility R:chart-view
  */
 import { memo, useMemo } from 'react'
 import { useTheme } from 'styled-components'

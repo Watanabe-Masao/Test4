@@ -5,6 +5,8 @@
  * カテゴリベンチマークデータから箱ひげ図統計量と店舗/日別ブレイクダウンを構築する。
  *
  * @guard G5 hook ≤300行 — 純粋関数を分離
+ *
+ * @responsibility R:calculation
  */
 import type {
   CategoryBenchmarkRow,
@@ -12,7 +14,9 @@ import type {
 } from '@/infrastructure/duckdb/queries/advancedAnalytics'
 import { buildCategoryBenchmarkScores } from './categoryBenchmarkLogic'
 
-/** 箱ひげ図の統計量 */
+/** 箱ひげ図の統計量  *
+ * @responsibility R:calculation
+ */
 export interface BoxPlotStats {
   readonly code: string
   readonly name: string
@@ -25,7 +29,9 @@ export interface BoxPlotStats {
   readonly count: number
 }
 
-/** 四分位数を算出 */
+/** 四分位数を算出  *
+ * @responsibility R:calculation
+ */
 export function quantile(sorted: readonly number[], q: number): number {
   if (sorted.length === 0) return 0
   if (sorted.length === 1) return sorted[0]
@@ -38,6 +44,8 @@ export function quantile(sorted: readonly number[], q: number): number {
 
 /**
  * カテゴリベンチマーク行から箱ひげ図データを構築する
+ *
+ * @responsibility R:calculation
  */
 export function buildBoxPlotData(
   rows: readonly CategoryBenchmarkRow[],
@@ -92,7 +100,9 @@ export function buildBoxPlotData(
   return results
 }
 
-/** 店舗別の値（ドリルダウン用） */
+/** 店舗別の値（ドリルダウン用）  *
+ * @responsibility R:calculation
+ */
 export interface StoreBreakdownItem {
   readonly storeId: string
   readonly value: number
@@ -100,6 +110,8 @@ export interface StoreBreakdownItem {
 
 /**
  * 指定カテゴリの店舗別値を抽出する（箱ひげ図ドリルダウン用）
+ *
+ * @responsibility R:calculation
  */
 export function buildStoreBreakdown(
   rows: readonly CategoryBenchmarkRow[],
@@ -120,6 +132,8 @@ export function buildStoreBreakdown(
 
 /**
  * 日別の箱ひげ図データを構築する（期間内の日別変動を分析）
+ *
+ * @responsibility R:calculation
  */
 export function buildBoxPlotDataByDate(
   trendRows: readonly CategoryBenchmarkTrendRow[],
@@ -172,7 +186,9 @@ export function buildBoxPlotDataByDate(
   return results
 }
 
-/** 日別の値（ドリルダウン用） */
+/** 日別の値（ドリルダウン用）  *
+ * @responsibility R:calculation
+ */
 export interface DateBreakdownItem {
   readonly dateKey: string
   readonly value: number
@@ -180,6 +196,8 @@ export interface DateBreakdownItem {
 
 /**
  * 指定カテゴリの日別合計値を抽出する（箱ひげ図ドリルダウン用）
+ *
+ * @responsibility R:calculation
  */
 export function buildDateBreakdown(
   trendRows: readonly CategoryBenchmarkTrendRow[],
