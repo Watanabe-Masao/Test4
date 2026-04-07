@@ -5,11 +5,13 @@
  * 含まれていない場合、このテストが失敗する。
  *
  * @invariant INV-CANON-17 Fallback Transparency
+ * ルール定義: architectureRules.ts (AR-STRUCT-FALLBACK-METADATA)
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
 import { SRC_DIR } from '../guardTestHelpers'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 const READ_MODELS_DIR = path.join(SRC_DIR, 'application/readModels')
 

@@ -5,11 +5,13 @@
  * 未分類のファイルが追加された場合、このテストが失敗する。
  *
  * @see references/01-principles/calculation-canonicalization-map.md
+ * ルール定義: architectureRules.ts (AR-STRUCT-CALC-CANON)
  */
 import { describe, it, expect } from 'vitest'
 import * as path from 'path'
 import { collectTsFiles } from '../guardTestHelpers'
 import { CALCULATION_CANON_REGISTRY } from '../calculationCanonRegistry'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 const SRC_DIR = path.resolve(__dirname, '../..')
 const CALC_DIR = path.join(SRC_DIR, 'domain/calculations')

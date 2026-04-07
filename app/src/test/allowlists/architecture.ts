@@ -16,6 +16,7 @@ export const applicationToInfrastructure: readonly AllowlistEntry[] = [
   // useImport: DI 化完了（rawFileStore → AdapterContext.rawFile 経由）。削除済み。
   {
     path: 'application/usecases/import/FileImportService.ts',
+    ruleId: 'AR-A1-APP-INFRA',
     reason: 'ファイルインポートサービス',
     category: 'adapter',
     removalCondition: 'インポートが adapter 層に完全移行されたとき',
@@ -29,11 +30,11 @@ export const applicationToInfrastructure: readonly AllowlistEntry[] = [
   // weatherAdapter: DI 化完了（useWeatherAdapter → AdapterContext 経由）。削除済み。
 ] as const
 
-/** presentation/ → infrastructure/（Phase 3 で全件解消済み。凍結） */
+/** presentation/ → infrastructure/（卒業済み — baseline: 0 達成） */
 export const presentationToInfrastructure: readonly AllowlistEntry[] = [] as const
 
-/** infrastructure/ → application/（逆方向依存 — RawDataPort を domain/ に移動し全件解消。凍結） */
+/** infrastructure/ → application/（卒業済み — baseline: 0 達成） */
 export const infrastructureToApplication: readonly AllowlistEntry[] = [] as const
 
-/** presentation/ から application/usecases/ 直接参照（全件解消済み。凍結） */
+/** presentation/ → usecases/（卒業済み — baseline: 0 達成） */
 export const presentationToUsecases: readonly AllowlistEntry[] = [] as const

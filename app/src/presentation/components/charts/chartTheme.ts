@@ -6,7 +6,9 @@ import { palette } from '@/presentation/theme/tokens'
 import { useUiStore } from '@/application/stores/uiStore'
 import { formatPercent, formatCurrency } from '@/domain/formatting'
 
-/** チャート用のテーマカラーを取得するフック  * @responsibility R:utility
+/**
+ * チャート用のテーマカラーを取得するフック
+ * @responsibility R:context
  */
 export function useChartTheme() {
   const theme = useTheme() as AppTheme

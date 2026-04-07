@@ -11,10 +11,12 @@
  * @guard D3 率メトリクスの累計は原量から domain 関数で再計算（率の合算禁止）
  * @guard C6 facade は orchestration のみ
  * @guard C3 store は state 反映のみ
+ * ルール定義: architectureRules.ts (AR-STRUCT-PURITY)
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 import {
   SRC_DIR,
   collectTsFiles,

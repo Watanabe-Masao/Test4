@@ -4,11 +4,13 @@
  * readFreePeriodBudgetFact が唯一の自由期間予算取得経路。
  *
  * @see references/01-principles/free-period-budget-kpi-contract.md
+ * ルール定義: architectureRules.ts (AR-PATH-FREE-PERIOD-BUDGET)
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
 import { collectTsFiles, rel } from '../guardTestHelpers'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 const SRC_DIR = path.resolve(__dirname, '../..')
 

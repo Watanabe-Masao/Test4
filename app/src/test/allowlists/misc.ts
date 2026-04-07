@@ -15,6 +15,7 @@ export const dowCalcOverride: readonly AllowlistEntry[] = [] as const
 export const ctxHook: readonly AllowlistEntry[] = [
   {
     path: 'presentation/hooks/useUnifiedWidgetContext.ts',
+    ruleId: 'AR-STRUCT-CONVENTION',
     reason: 'ctx 自体の構築元（slice hook を compose する）',
     category: 'structural',
     removalCondition: 'コンテキスト設計見直し時',
@@ -36,6 +37,7 @@ export const vmReactImport: readonly AllowlistEntry[] = [] as const
 export const reactImportExcludeDirs: readonly AllowlistEntry[] = [
   {
     path: 'infrastructure/i18n',
+    ruleId: 'AR-STRUCT-PURITY',
     reason: 'React Context を使用するため除外',
     category: 'structural',
     removalCondition: 'i18n が React 非依存になったとき',

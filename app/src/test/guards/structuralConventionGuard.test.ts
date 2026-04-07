@@ -7,6 +7,7 @@
  * @guard F1 バレルで後方互換
  * @guard F4 配置はパスで決まる
  * @guard F9 Raw データは唯一の真実源
+ * ルール定義: architectureRules.ts (AR-STRUCT-CONVENTION)
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
@@ -14,6 +15,7 @@ import * as path from 'path'
 import { SRC_DIR, collectTsFiles, extractImports, rel as relativePath } from '../guardTestHelpers'
 import { ctxHook, buildAllowlistSet } from '../allowlists'
 import type { AllowlistEntry } from '../allowlists'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 import {
   applicationToInfrastructure,
   useMemoLimits,

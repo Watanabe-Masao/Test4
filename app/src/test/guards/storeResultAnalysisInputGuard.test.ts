@@ -8,11 +8,13 @@
  * @see references/01-principles/customer-definition.md
  * @see references/01-principles/canonical-input-sets.md
  * @guard G1 テストに書く
+ * ルール定義: architectureRules.ts (AR-STRUCT-STORE-RESULT-INPUT)
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
 import { collectTsFiles, rel } from '../guardTestHelpers'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 const SRC_DIR = path.resolve(__dirname, '../..')
 

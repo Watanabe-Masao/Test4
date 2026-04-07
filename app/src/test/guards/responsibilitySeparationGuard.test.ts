@@ -5,11 +5,13 @@
  * 24 パターンのうち、機械的に検出可能なものをガード化する。
  *
  * @guard G8 責務分離（P2/P7/P8/P10/P12/P17/P18）
+ * ルール定義: architectureRules.ts (AR-STRUCT-RESP-SEPARATION)
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
-import { SRC_DIR, collectTsFiles, rel, isCommentLine } from '../guardTestHelpers'
+import { SRC_DIR, collectTsFiles, rel, isCommentLine, stripComments } from '../guardTestHelpers'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 import {
   combinedHookComplexityLimits,
   featuresMemoLimits,
@@ -120,8 +122,9 @@ describe('G8-P8: useMemo + useCallback 合計が上限以下', () => {
       if (file.includes('.test.')) continue
       const content = fs.readFileSync(file, 'utf-8')
       const relPath = rel(file)
-      const memoCount = (content.match(/\buseMemo\s*\(/g) || []).length
-      const cbCount = (content.match(/\buseCallback\s*\(/g) || []).length
+      const code = stripComments(content)
+      const memoCount = (code.match(/\buseMemo\s*\(/g) || []).length
+      const cbCount = (code.match(/\buseCallback\s*\(/g) || []).length
       const total = memoCount + cbCount
       const limit = allowlist[relPath] ?? COMBINED_DEFAULT_LIMIT
 
@@ -174,7 +177,7 @@ describe('G8-P10: features/ の useMemo が上限以下', () => {
       if (file.includes('.test.')) continue
       const content = fs.readFileSync(file, 'utf-8')
       const relPath = rel(file)
-      const count = (content.match(/\buseMemo\s*\(/g) || []).length
+      const count = (stripComments(content).match(/\buseMemo\s*\(/g) || []).length
       const limit = allowlist[relPath] ?? 7
 
       if (count >= limit) {
@@ -202,7 +205,7 @@ describe('G8-P10: features/ の useState が上限以下', () => {
       if (file.includes('.test.')) continue
       const content = fs.readFileSync(file, 'utf-8')
       const relPath = rel(file)
-      const count = (content.match(/\buseState\b/g) || []).length
+      const count = (stripComments(content).match(/\buseState\b/g) || []).length
       const limit = allowlist[relPath] ?? 6
 
       if (count >= limit) {

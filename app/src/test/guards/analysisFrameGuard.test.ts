@@ -3,6 +3,7 @@
  *
  * AnalysisFrame / CalculationFrame が分析入力の唯一入口。
  * cache key の一意性と fingerprint の安定性を保証する。
+ * ルール定義: architectureRules.ts (AR-STRUCT-ANALYSIS-FRAME)
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
@@ -47,6 +48,7 @@ describe('AnalysisFrame 正本ガード', () => {
 
 import { computeAnalysisFrameKey } from '@/domain/models/analysisFrameFingerprint'
 import type { FreePeriodAnalysisFrame } from '@/domain/models/AnalysisFrame'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 function makeFrame(overrides: Partial<FreePeriodAnalysisFrame> = {}): FreePeriodAnalysisFrame {
   return {

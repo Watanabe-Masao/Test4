@@ -7,6 +7,7 @@ import type { QuantitativeAllowlistEntry } from './types'
 export const useMemoLimits: readonly QuantitativeAllowlistEntry[] = [
   {
     path: 'application/hooks/useComparisonModule.ts',
+    ruleId: 'AR-G5-HOOK-MEMO',
     reason: 'comparison 層の集約 hook。分割は過剰',
     category: 'structural',
     removalCondition: '比較モジュールのリファクタリング時',
@@ -20,6 +21,7 @@ export const useMemoLimits: readonly QuantitativeAllowlistEntry[] = [
 export const useStateLimits: readonly QuantitativeAllowlistEntry[] = [
   {
     path: 'application/hooks/usePersistence.ts',
+    ruleId: 'AR-G5-HOOK-STATE',
     reason: '永続化ステートの管理（usePersistenceState の正本共有分を含む）',
     category: 'structural',
     removalCondition: 'persistence hook のリファクタリング時',
@@ -28,6 +30,7 @@ export const useStateLimits: readonly QuantitativeAllowlistEntry[] = [
   },
   {
     path: 'application/hooks/useAutoBackup.ts',
+    ruleId: 'AR-G5-HOOK-STATE',
     reason: '自動バックアップのステート管理',
     category: 'structural',
     removalCondition: 'backup hook のリファクタリング時',
@@ -38,6 +41,7 @@ export const useStateLimits: readonly QuantitativeAllowlistEntry[] = [
   // ただし import 行で +1 カウントされ合計 6。default limit (6) と一致するため許可リスト維持
   {
     path: 'application/hooks/useTimeSlotData.ts',
+    ruleId: 'AR-G5-HOOK-STATE',
     reason: 'UI state 5 個 + import 行カウント = 6。plan 分離後の最小構成',
     category: 'structural',
     removalCondition: 'guard が import 行を除外するようになったとき',
@@ -77,6 +81,7 @@ export const presentationStateLimits: readonly QuantitativeAllowlistEntry[] = [
 export const combinedHookComplexityLimits: readonly QuantitativeAllowlistEntry[] = [
   {
     path: 'presentation/pages/Weather/WeatherPage.tsx',
+    ruleId: 'AR-STRUCT-RESP-SEPARATION',
     reason:
       '天気ページの複合 UI（相関・予報・オーバーレイ + 曜日フィルタ）。useMemo 7 + useCallback 9 = 16',
     category: 'structural',
@@ -86,6 +91,7 @@ export const combinedHookComplexityLimits: readonly QuantitativeAllowlistEntry[]
   },
   {
     path: 'presentation/pages/Dashboard/widgets/useMonthlyCalendarState.ts',
+    ruleId: 'AR-STRUCT-RESP-SEPARATION',
     reason: 'カレンダー操作の状態機械。useMemo 3 + useCallback 10 = 13',
     category: 'structural',
     removalCondition: 'useReducer 統合時',
@@ -94,6 +100,7 @@ export const combinedHookComplexityLimits: readonly QuantitativeAllowlistEntry[]
   },
   {
     path: 'features/cost-detail/application/useCostDetailData.ts',
+    ruleId: 'AR-STRUCT-RESP-SEPARATION',
     reason: 'コスト明細の複数集計パス。useMemo 12 + useCallback 0 = 12',
     category: 'structural',
     removalCondition: '集計ロジックの pure 関数分離時',
@@ -106,6 +113,7 @@ export const combinedHookComplexityLimits: readonly QuantitativeAllowlistEntry[]
 export const featuresMemoLimits: readonly QuantitativeAllowlistEntry[] = [
   {
     path: 'features/cost-detail/application/useCostDetailData.ts',
+    ruleId: 'AR-G5-HOOK-MEMO',
     reason: 'コスト明細の複数集計パス。useMemo 12 個',
     category: 'structural',
     removalCondition: '集計ロジックの pure 関数分離時',
@@ -114,6 +122,7 @@ export const featuresMemoLimits: readonly QuantitativeAllowlistEntry[] = [
   },
   {
     path: 'features/comparison/application/hooks/useComparisonModule.ts',
+    ruleId: 'AR-G5-HOOK-MEMO',
     reason: '比較モジュール集約。useMemo 6 個',
     category: 'structural',
     removalCondition: '比較モジュールのリファクタリング時',
@@ -126,6 +135,7 @@ export const featuresMemoLimits: readonly QuantitativeAllowlistEntry[] = [
 export const featuresStateLimits: readonly QuantitativeAllowlistEntry[] = [
   {
     path: 'features/storage-admin/application/useMonthDataManagement.ts',
+    ruleId: 'AR-G5-HOOK-STATE',
     reason: '月次データ管理の状態（dialog + import + validation）。useState 8 個',
     category: 'structural',
     removalCondition: 'useReducer 統合時',
@@ -134,6 +144,7 @@ export const featuresStateLimits: readonly QuantitativeAllowlistEntry[] = [
   },
   {
     path: 'features/storage-admin/ui/StorageDataViewers.tsx',
+    ruleId: 'AR-G5-HOOK-STATE',
     reason: 'ストレージ閲覧の UI 状態（expand + filter + sort）。useState 7 個',
     category: 'structural',
     removalCondition: 'useReducer 統合時',
@@ -142,6 +153,7 @@ export const featuresStateLimits: readonly QuantitativeAllowlistEntry[] = [
   },
   {
     path: 'features/category/ui/charts/CategoryBenchmarkChart.vm.ts',
+    ruleId: 'AR-G5-HOOK-STATE',
     reason: 'ベンチマークチャートの操作状態（drill + level + topN）。useState 6 個',
     category: 'structural',
     removalCondition: 'useReducer 統合時',
@@ -150,6 +162,7 @@ export const featuresStateLimits: readonly QuantitativeAllowlistEntry[] = [
   },
   {
     path: 'features/category/ui/charts/CategoryBoxPlotChart.vm.ts',
+    ruleId: 'AR-G5-HOOK-STATE',
     reason: '箱ひげ図の操作状態（drill + filter + sort + mode）。useState 7 個',
     category: 'structural',
     removalCondition: 'useReducer 統合時',
@@ -158,6 +171,7 @@ export const featuresStateLimits: readonly QuantitativeAllowlistEntry[] = [
   },
   {
     path: 'features/cost-detail/application/useCostDetailData.ts',
+    ruleId: 'AR-G5-HOOK-STATE',
     reason: 'コスト明細の複合状態。useState 6 個',
     category: 'structural',
     removalCondition: 'useReducer 統合時',
@@ -171,6 +185,7 @@ export const hookLineLimits: readonly QuantitativeAllowlistEntry[] = [
   // categoryBenchmarkLogic.ts: categoryBenchmarkByDate.ts に日別算出を分離。450→274行
   {
     path: 'application/hooks/duckdb/categoryBenchmarkLogic.ts',
+    ruleId: 'AR-G5-HOOK-LINES',
     reason: 'DuckDB ベンチマーク計算ロジック（日別算出を分離済み）',
     category: 'structural',
     removalCondition: 'さらなる分割時',
@@ -182,6 +197,7 @@ export const hookLineLimits: readonly QuantitativeAllowlistEntry[] = [
   // useTimeSlotPlan.ts: hierarchy + weather sub-plan 分離で 206 行。デフォルト上限 300 行以下。許可リスト卒業
   {
     path: 'application/hooks/duckdb/purchaseComparisonCategory.ts',
+    ruleId: 'AR-G5-HOOK-LINES',
     reason: '@responsibility タグ追加で 302 行。純粋関数のみ',
     category: 'structural',
     removalCondition: '空行整理時',

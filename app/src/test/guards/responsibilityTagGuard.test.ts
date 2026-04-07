@@ -2,8 +2,9 @@
  * 責務タグガード — @responsibility タグによるファイル分類の強制
  *
  * - 全対象ファイルの @responsibility タグをスキャンして分類状況を管理
- * - 未分類の SNAPSHOT を超えたら CI 失敗（新規ファイルはタグ必須）
+ * - 未分類数が前回より増えたら CI 失敗（ratchet-down: 減少のみ許可）
  * - 不正なタグ名を検出
+ * - タグと実態の不一致を frozen count で管理
  *
  * @guard G8 責務分離（責務タグカバレッジ）
  * @guard C8 1文説明テスト（複数タグ = AND = 分離候補）
@@ -12,10 +13,9 @@
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
-import { SRC_DIR, collectTsFiles, rel } from '../guardTestHelpers'
+import { SRC_DIR, collectTsFiles, rel, stripComments } from '../guardTestHelpers'
 import { readResponsibilityTags, validateTags } from '../responsibilityTagRegistry'
-import { TAG_EXPECTATIONS } from '../responsibilityTagExpectations'
-import { CURRENT_EPOCH, readEpoch, getUnknownChanges } from '../architectureEpoch'
+import { getRuleByResponsibilityTag } from '../architectureRules'
 import type { ResponsibilityTag } from '../responsibilityTagRegistry'
 
 /** 対象ディレクトリ */
@@ -50,22 +50,32 @@ function collectTargetFiles(): string[] {
 describe('G8-R: 責務タグカバレッジ', () => {
   const files = collectTargetFiles()
 
-  // ★ 現在の未分類数。タグ付けしたらこの数を減らす。
-  // ★ 新規ファイル追加でタグなしなら CI 失敗。
-  const UNCLASSIFIED_SNAPSHOT = 400
+  // ── ratchet-down ベースライン ──
+  // 実測値がこれより減ったら、この数字を下げてコミットする。
+  // 増えたら CI 失敗。放置しても悪化しない。
+  const UNCLASSIFIED_BASELINE = 400
+  const TAG_MISMATCH_BASELINE = 48
 
-  it('未分類ファイル数が増えていない（新規ファイルは @responsibility 必須）', () => {
+  it('未分類ファイル数が増えていない（ratchet-down）', () => {
     const unclassified: string[] = []
     for (const file of files) {
       if (readResponsibilityTags(file) === null) unclassified.push(rel(file))
     }
 
+    // ratchet-down: 減ったらベースラインを更新するよう促す
+    if (unclassified.length < UNCLASSIFIED_BASELINE) {
+      console.log(
+        `\n[ratchet-down] 未分類が ${UNCLASSIFIED_BASELINE} → ${unclassified.length} に減少。` +
+          `\nUNCLASSIFIED_BASELINE を ${unclassified.length} に更新してください。`,
+      )
+    }
+
     expect(
       unclassified.length,
-      `未分類が増加 (${unclassified.length} > ${UNCLASSIFIED_SNAPSHOT})。\n` +
+      `未分類が増加 (${unclassified.length} > ${UNCLASSIFIED_BASELINE})。\n` +
         `新規ファイルは JSDoc に @responsibility R:xxx を追加してください。\n` +
         `未分類の末尾:\n${unclassified.slice(-10).join('\n')}`,
-    ).toBeLessThanOrEqual(UNCLASSIFIED_SNAPSHOT)
+    ).toBeLessThanOrEqual(UNCLASSIFIED_BASELINE)
   })
 
   it('@responsibility タグに不正なタグ名がない', () => {
@@ -120,75 +130,56 @@ describe('G8-R: 責務タグカバレッジ', () => {
     expect(true).toBe(true)
   })
 
-  it('タグと実態の不一致を検出（単一タグファイルのみ）', () => {
+  it('タグと実態の不一致が増えていない（ratchet-down）', () => {
     const mismatches: string[] = []
 
     for (const file of files) {
       const tags = readResponsibilityTags(file)
-      if (!tags || tags.length !== 1) continue // 単一タグのみ対象
+      if (!tags || tags.length !== 1) continue
 
       const tag = tags[0] as ResponsibilityTag
-      const exp = TAG_EXPECTATIONS[tag]
-      if (!exp) continue
+      const rule = getRuleByResponsibilityTag(tag)
+      if (!rule?.thresholds) continue
 
+      const t = rule.thresholds
       const content = fs.readFileSync(file, 'utf-8')
-      const memo = (content.match(/\buseMemo\s*\(/g) || []).length
-      const cb = (content.match(/\buseCallback\s*\(/g) || []).length
-      const state = (content.match(/\buseState\b/g) || []).length
+      const code = stripComments(content)
+      const memo = (code.match(/\buseMemo\s*\(/g) || []).length
+      const cb = (code.match(/\buseCallback\s*\(/g) || []).length
+      const state = (code.match(/\buseState\b/g) || []).length
       const lineCount = content.split('\n').length
 
       const issues: string[] = []
-      if (memo > exp.memoMax) issues.push(`useMemo ${memo}>${exp.memoMax}`)
-      if (cb > exp.callbackMax) issues.push(`useCallback ${cb}>${exp.callbackMax}`)
-      if (state > exp.stateMax) issues.push(`useState ${state}>${exp.stateMax}`)
-      if (lineCount > exp.lineMax) issues.push(`${lineCount}行>${exp.lineMax}`)
+      if (t.memoMax !== undefined && memo > t.memoMax) issues.push(`useMemo ${memo}>${t.memoMax}`)
+      if (t.callbackMax !== undefined && cb > t.callbackMax)
+        issues.push(`useCallback ${cb}>${t.callbackMax}`)
+      if (t.stateMax !== undefined && state > t.stateMax)
+        issues.push(`useState ${state}>${t.stateMax}`)
+      if (t.lineMax !== undefined && lineCount > t.lineMax)
+        issues.push(`${lineCount}行>${t.lineMax}`)
 
       if (issues.length > 0) {
-        mismatches.push(`${rel(file)} [${tag}]: ${issues.join(', ')}`)
+        mismatches.push(`${rel(file)} [${tag}] (${rule.id}): ${issues.join(', ')}`)
       }
     }
 
-    // 情報出力（CI は落とさない — 黄色信号として報告）
     if (mismatches.length > 0) {
-      console.log(`\n[タグ不一致] ${mismatches.length} 件 — タグの見直しまたは分離を検討:`)
+      console.log(`\n[タグ不一致] ${mismatches.length} 件:`)
       for (const m of mismatches) console.log(`  ${m}`)
     }
 
-    expect(true).toBe(true)
-  })
-
-  it('古い epoch のファイルを検出（アーキテクチャ進化に追従していないコード）', () => {
-    let outdated = 0
-    let current = 0
-
-    for (const file of files) {
-      const tags = readResponsibilityTags(file)
-      if (!tags) continue // 未分類は別管理
-
-      const content = fs.readFileSync(file, 'utf-8')
-      const epoch = readEpoch(content)
-
-      if (epoch < CURRENT_EPOCH) {
-        outdated++
-      } else {
-        current++
-      }
+    if (mismatches.length < TAG_MISMATCH_BASELINE) {
+      console.log(
+        `\n[ratchet-down] タグ不一致が ${TAG_MISMATCH_BASELINE} → ${mismatches.length} に減少。` +
+          `\nTAG_MISMATCH_BASELINE を ${mismatches.length} に更新してください。`,
+      )
     }
 
-    const total = outdated + current
-    const currentPct = total > 0 ? ((current / total) * 100).toFixed(1) : '0'
-
-    console.log(
-      `\n[epoch] 現行 ${current}/${total} (${currentPct}%) | 旧世代 ${outdated} | CURRENT_EPOCH=${CURRENT_EPOCH}`,
-    )
-
-    if (outdated > 0) {
-      // 旧世代のファイルが「知らない変更」を報告
-      const unknownChanges = getUnknownChanges(0) // epoch 0 が知らない変更
-      console.log(`  旧世代ファイルが知らない変更:`)
-      for (const c of unknownChanges) console.log(`    - ${c}`)
-    }
-
-    expect(true).toBe(true)
+    expect(
+      mismatches.length,
+      `タグ不一致が増加 (${mismatches.length} > ${TAG_MISMATCH_BASELINE})。\n` +
+        `タグの見直しまたはファイルの分離を検討してください。\n` +
+        `不一致:\n${mismatches.join('\n')}`,
+    ).toBeLessThanOrEqual(TAG_MISMATCH_BASELINE)
   })
 })
