@@ -453,6 +453,7 @@ R: 責務タグレジストリ（`responsibilityTagGuard.test.ts`）:
 | `custom` | 特殊ロジック | テスト側で実装 |
 
 **84 ルール / 全 39 ガードが参照 / 全ルールに migrationPath + doc + decisionCriteria**
+**ruleClass: invariant(23) / default(32) / heuristic(29)**
 
 各ルールが持つ情報:
 - `what` / `why` / `doc` — 学習コスト削減（27 ドキュメント参照）

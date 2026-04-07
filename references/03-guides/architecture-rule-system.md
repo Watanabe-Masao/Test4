@@ -293,6 +293,50 @@ const count = (stripComments(content).match(/\buseState\b/g) || []).length
 **新しいルールは `experimental` + `warn` から始める。** パターンが安定し、
 違反の検出が正確であることを確認してから `stable` + `gate` に昇格する。
 
+### ruleClass — ルールの性質を 3 層に分ける
+
+| ruleClass | 性質 | severity | 例 |
+|---|---|---|---|
+| `invariant` (23) | 絶対壊してはいけない | gate | 層境界、domain 純粋性、正本経路 |
+| `default` (32) | 強い原則だが例外あり | gate + allowlist | 責務分離、クエリパターン、co-change |
+| `heuristic` (29) | 品質傾向の観測 | 原則 warn | useMemo 数、行数、タグ閾値 |
+
+**運用ルール:**
+- heuristic は原則 gate にしない（品質の傾向を見るためのもの）
+- invariant は説明責任よりも破壊防止を優先
+- 数値閾値は heuristic に寄せる
+
+### confidence — ルールの確信度
+
+| confidence | 意味 | 制約 |
+|---|---|---|
+| `high` | 確立されたパターン。例外は稀 | gate 可 |
+| `medium` | 妥当だが検証中の側面あり | gate 可（注意深く） |
+| `low` | 仮説段階。検証が必要 | **gate 禁止** |
+
+### sunsetCondition — いつこのルールが不要になるか
+
+反証可能性の実装。各ルールに「このルールが不要になる条件」を定義する。
+
+例: `'presentation から直接 query 実行経路が消滅した'`
+
+sunsetCondition が定義されたルールは定期的に条件達成を確認する。
+
+### lifecyclePolicy — experimental ルールの出口（昇格 / 撤回の対称性）
+
+experimental ルールには **昇格条件と撤回条件の両方** を必須化する。
+
+```typescript
+lifecyclePolicy: {
+  promoteIf: ['検出精度 > 95%', 'false positive < 3 件', '実害防止の実績あり'],
+  withdrawIf: ['permanent 例外 > 5 件', '実害と結びつかない', '別ルールで代替可能'],
+}
+```
+
+**CI ガード:**
+- experimental + lifecyclePolicy 未設定 → CI 失敗
+- 様子見のルールが惰性で残ることを防ぐ
+
 これにより **設計が安定する前のルール化による硬直化を防ぐ**。
 
 ### 自動検出される健全性シグナル

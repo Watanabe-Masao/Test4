@@ -89,6 +89,19 @@ export interface ArchitectureRule {
     readonly enables?: readonly string[] // 守ると有効になるルール
     readonly conflicts?: readonly string[] // 同時適用不可
   }
+
+  // ── ルール統治（壊れ方の制御） ──
+  /** ルールの性質。invariant=絶対、default=原則+例外、heuristic=観測 */
+  readonly ruleClass?: 'invariant' | 'default' | 'heuristic'
+  /** ルールの確信度。low + gate の組み合わせは禁止 */
+  readonly confidence?: 'high' | 'medium' | 'low'
+  /** いつこのルールが不要になるか（反証可能性） */
+  readonly sunsetCondition?: string
+  /** experimental ルールの出口（昇格 / 撤回の対称性） */
+  readonly lifecyclePolicy?: {
+    readonly promoteIf: readonly string[] // gate 化する条件
+    readonly withdrawIf: readonly string[] // 撤回する条件
+  }
 }
 
 // ─── ルール定義 ──────────────────────────────────────────
@@ -98,6 +111,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-001',
+    ruleClass: 'invariant',
     guardTags: ['G1'],
     epoch: 1,
     what: 'bridge ファイルに dual-run compare コードの再導入を禁止する',
@@ -134,6 +148,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-002',
+    ruleClass: 'invariant',
     guardTags: ['G1', 'A3'],
     epoch: 1,
     what: 'presentation 層が wasmEngine を直接 import することを禁止する',
@@ -169,6 +184,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-003',
+    ruleClass: 'default',
     guardTags: ['G1', 'C1'],
     epoch: 1,
     doc: 'references/03-guides/widget-coordination-architecture.md',
@@ -204,6 +220,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-004',
+    ruleClass: 'default',
     guardTags: ['G1'],
     epoch: 1,
     doc: 'references/03-guides/coding-conventions.md',
@@ -239,6 +256,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-005',
+    ruleClass: 'default',
     guardTags: ['G1', 'H1'],
     epoch: 1,
     doc: 'references/01-principles/modular-monolith-evolution.md',
@@ -274,6 +292,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-A1-DOMAIN',
+    ruleClass: 'invariant',
     guardTags: ['A1', 'A2'],
     epoch: 1,
     what: 'domain/ は外部層に依存しない（純粋なビジネスロジック）',
@@ -316,6 +335,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-A1-APP-INFRA',
+    ruleClass: 'invariant',
     guardTags: ['A1'],
     epoch: 1,
     what: 'application/ は infrastructure/ に直接依存しない',
@@ -352,6 +372,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-A1-APP-PRES',
+    ruleClass: 'invariant',
     guardTags: ['A1'],
     epoch: 1,
     what: 'application/ は presentation/ に依存しない',
@@ -386,6 +407,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-A1-PRES-INFRA',
+    ruleClass: 'invariant',
     guardTags: ['A1', 'A3', 'A5'],
     epoch: 1,
     what: 'presentation/ は infrastructure/ に直接依存しない',
@@ -426,6 +448,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-A1-PRES-USECASE',
+    ruleClass: 'invariant',
     guardTags: ['A1', 'A3'],
     epoch: 1,
     doc: 'references/01-principles/design-principles.md',
@@ -460,6 +483,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-A1-INFRA-APP',
+    ruleClass: 'invariant',
     guardTags: ['A1'],
     epoch: 1,
     what: 'infrastructure/ は application/ に依存しない',
@@ -494,6 +518,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-A1-INFRA-PRES',
+    ruleClass: 'invariant',
     guardTags: ['A1'],
     epoch: 1,
     what: 'infrastructure/ は presentation/ に依存しない',
@@ -526,6 +551,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-G4-INTERNAL',
+    ruleClass: 'default',
     guardTags: ['G4'],
     epoch: 1,
     doc: 'references/03-guides/coding-conventions.md',
@@ -557,6 +583,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-C3-STORE',
+    ruleClass: 'default',
     guardTags: ['C3'],
     epoch: 1,
     what: 'store action 内に業務ロジック（算術式）を埋め込まない',
@@ -588,6 +615,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-G3-SUPPRESS',
+    ruleClass: 'default',
     guardTags: ['G3', 'E2'],
     epoch: 1,
     doc: 'references/03-guides/coding-conventions.md',
@@ -619,6 +647,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-E4-TRUTHINESS',
+    ruleClass: 'default',
     guardTags: ['E4'],
     epoch: 1,
     doc: 'references/03-guides/coding-conventions.md',
@@ -650,6 +679,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-C5-SELECTOR',
+    ruleClass: 'default',
     guardTags: ['C5'],
     epoch: 1,
     doc: 'references/01-principles/design-principles.md',
@@ -681,6 +711,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-G2-EMPTY-CATCH',
+    ruleClass: 'default',
     guardTags: ['G2'],
     epoch: 1,
     doc: 'references/03-guides/coding-conventions.md',
@@ -713,6 +744,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-G5-HOOK-MEMO',
+    ruleClass: 'heuristic',
     guardTags: ['G5'],
     epoch: 1,
     doc: 'references/03-guides/responsibility-separation-catalog.md',
@@ -749,6 +781,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-G5-HOOK-STATE',
+    ruleClass: 'heuristic',
     guardTags: ['G5'],
     epoch: 1,
     doc: 'references/03-guides/responsibility-separation-catalog.md',
@@ -784,6 +817,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-G5-HOOK-LINES',
+    ruleClass: 'heuristic',
     guardTags: ['G5'],
     epoch: 1,
     doc: 'references/03-guides/responsibility-separation-catalog.md',
@@ -816,6 +850,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-G6-COMPONENT',
+    ruleClass: 'heuristic',
     guardTags: ['G6'],
     epoch: 1,
     doc: 'references/03-guides/responsibility-separation-catalog.md',
@@ -850,6 +885,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-G5-DOMAIN-LINES',
+    ruleClass: 'heuristic',
     guardTags: ['G5', 'A2'],
     epoch: 1,
     doc: 'references/03-guides/coding-conventions.md',
@@ -880,6 +916,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-G5-INFRA-LINES',
+    ruleClass: 'heuristic',
     guardTags: ['G5'],
     epoch: 1,
     doc: 'references/03-guides/coding-conventions.md',
@@ -907,6 +944,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-G5-USECASE-LINES',
+    ruleClass: 'heuristic',
     guardTags: ['G5'],
     epoch: 1,
     doc: 'references/03-guides/coding-conventions.md',
@@ -937,6 +975,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-C6-FACADE',
+    ruleClass: 'heuristic',
     guardTags: ['C6'],
     epoch: 1,
     doc: 'references/01-principles/design-principles.md',
@@ -970,6 +1009,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-PATH-SALES',
+    ruleClass: 'invariant',
     guardTags: ['F9'],
     epoch: 1,
     what: '売上データは readSalesFact / salesFactHandler 経由でのみ取得する',
@@ -1011,6 +1051,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-PATH-DISCOUNT',
+    ruleClass: 'invariant',
     guardTags: ['F9'],
     epoch: 1,
     what: '値引きデータは readDiscountFact / discountFactHandler 経由でのみ取得する',
@@ -1041,6 +1082,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-PATH-GROSS-PROFIT',
+    ruleClass: 'invariant',
     guardTags: ['F9', 'D1'],
     epoch: 1,
     what: '粗利計算は calculateGrossProfit 経由でのみ実行する',
@@ -1077,6 +1119,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-PATH-PURCHASE-COST',
+    ruleClass: 'invariant',
     guardTags: ['F9'],
     epoch: 1,
     what: '仕入原価は readPurchaseCost 経由でのみ取得する',
@@ -1112,6 +1155,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-PATH-CUSTOMER',
+    ruleClass: 'invariant',
     guardTags: ['F9'],
     epoch: 1,
     what: '客数データは readCustomerFact 経由でのみ取得する',
@@ -1143,6 +1187,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-PATH-CUSTOMER-GAP',
+    ruleClass: 'invariant',
     guardTags: ['F9', 'D1'],
     epoch: 1,
     what: '客数 GAP は calculateCustomerGap 経由でのみ計算する',
@@ -1174,6 +1219,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-PATH-PI-VALUE',
+    ruleClass: 'invariant',
     guardTags: ['F9', 'D1'],
     epoch: 1,
     what: 'PI 値は calculateQuantityPI / calculateAmountPI 経由でのみ計算する',
@@ -1208,6 +1254,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-PATH-FREE-PERIOD',
+    ruleClass: 'invariant',
     guardTags: ['F9'],
     epoch: 1,
     what: '自由期間分析データは readFreePeriodFact 経由でのみ取得する',
@@ -1238,6 +1285,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-PATH-FREE-PERIOD-BUDGET',
+    ruleClass: 'invariant',
     guardTags: ['F9'],
     epoch: 1,
     what: '自由期間予算は readFreePeriodBudgetFact 経由でのみ取得する',
@@ -1268,6 +1316,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-PATH-FREE-PERIOD-DEPT-KPI',
+    ruleClass: 'invariant',
     guardTags: ['F9'],
     epoch: 1,
     what: '自由期間部門 KPI は readFreePeriodDeptKPI 経由でのみ取得する',
@@ -1298,6 +1347,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-PATH-FACTOR-DECOMPOSITION',
+    ruleClass: 'invariant',
     guardTags: ['F9', 'D1', 'D2'],
     epoch: 1,
     what: '要因分解は calculateFactorDecomposition 経由でのみ実行する',
@@ -1333,6 +1383,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-PATH-GROSS-PROFIT-CONSISTENCY',
+    ruleClass: 'invariant',
     guardTags: ['F9', 'D1'],
     epoch: 1,
     what: '粗利計算の一貫性を保証する（全経路で同一値）',
@@ -1369,6 +1420,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-STRUCT-ANALYSIS-FRAME',
+    ruleClass: 'default',
     guardTags: ['H3'],
     epoch: 1,
     doc: 'references/01-principles/safe-performance-principles.md',
@@ -1394,6 +1446,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-STRUCT-CALC-CANON',
+    ruleClass: 'default',
     guardTags: ['G1'],
     epoch: 1,
     doc: 'references/01-principles/calculation-canonicalization-map.md',
@@ -1424,6 +1477,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-CANON-ZOD-REQUIRED',
+    ruleClass: 'default',
     guardTags: ['G1', 'E1'],
     epoch: 1,
     doc: 'references/01-principles/canonicalization-principles.md',
@@ -1456,6 +1510,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-CANON-ZOD-REVIEW',
+    ruleClass: 'default',
     guardTags: ['G1', 'E1'],
     epoch: 1,
     doc: 'references/01-principles/canonicalization-principles.md',
@@ -1486,6 +1541,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-STRUCT-CANONICAL-INPUT',
+    ruleClass: 'default',
     guardTags: ['G1', 'D1'],
     epoch: 1,
     doc: 'references/01-principles/canonical-input-sets.md',
@@ -1508,6 +1564,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-STRUCT-CANONICALIZATION',
+    ruleClass: 'default',
     guardTags: ['G1', 'E3', 'F5', 'F8'],
     epoch: 1,
     what: '全 readModel と calculation canonical が正本化原則に従っている',
@@ -1541,6 +1598,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-STRUCT-COMPARISON-SCOPE',
+    ruleClass: 'default',
     guardTags: ['H2'],
     epoch: 1,
     doc: 'references/01-principles/safe-performance-principles.md',
@@ -1566,6 +1624,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-STRUCT-DATA-INTEGRITY',
+    ruleClass: 'default',
     guardTags: ['G1', 'E1'],
     epoch: 1,
     doc: 'references/03-guides/invariant-catalog.md',
@@ -1594,6 +1653,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-STRUCT-DUAL-RUN-EXIT',
+    ruleClass: 'default',
     guardTags: ['G1'],
     epoch: 1,
     what: 'WASM 全 5 engine が authoritative に昇格済み。dual-run は退役',
@@ -1616,6 +1676,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-STRUCT-FALLBACK-METADATA',
+    ruleClass: 'default',
     guardTags: ['G1'],
     epoch: 1,
     doc: 'references/03-guides/invariant-catalog.md',
@@ -1640,6 +1701,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-MIG-OLD-PATH',
+    ruleClass: 'default',
     guardTags: ['F4', 'F1'],
     epoch: 1,
     doc: 'references/01-principles/modular-monolith-evolution.md',
@@ -1667,6 +1729,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-STRUCT-PAGE-META',
+    ruleClass: 'default',
     guardTags: ['F10'],
     epoch: 1,
     doc: 'references/03-guides/new-page-checklist.md',
@@ -1692,6 +1755,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-STRUCT-PRES-ISOLATION',
+    ruleClass: 'default',
     guardTags: ['A3', 'B2'],
     epoch: 1,
     what: 'presentation 層は描画専用。infrastructure 直接アクセスや JS/SQL 二重実装を禁止',
@@ -1722,6 +1786,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-STRUCT-PURITY',
+    ruleClass: 'invariant',
     guardTags: ['A2', 'B1', 'C3', 'A6', 'B3', 'D3'],
     epoch: 1,
     what: 'domain/ は純粋（副作用なし・async なし）、率は domain で算出',
@@ -1759,6 +1824,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-STRUCT-QUERY-PATTERN',
+    ruleClass: 'default',
     guardTags: ['H2', 'H3', 'H4', 'H5'],
     epoch: 1,
     doc: 'references/01-principles/safe-performance-principles.md',
@@ -1793,6 +1859,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-STRUCT-RENDER-SIDE-EFFECT',
+    ruleClass: 'default',
     guardTags: ['A3', 'H4'],
     epoch: 1,
     doc: 'references/01-principles/design-principles.md',
@@ -1824,6 +1891,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-STRUCT-RESP-SEPARATION',
+    ruleClass: 'default',
     guardTags: ['G8'],
     epoch: 1,
     what: '責務分離の 7 種の数値制約を機械的に強制する',
@@ -1852,6 +1920,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-STRUCT-STORE-RESULT-INPUT',
+    ruleClass: 'default',
     guardTags: ['G1'],
     epoch: 1,
     doc: 'references/01-principles/customer-definition.md',
@@ -1877,6 +1946,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-STRUCT-CONVENTION',
+    ruleClass: 'default',
     guardTags: ['F1', 'F4', 'F9', 'F2', 'F3', 'F6'],
     epoch: 1,
     doc: 'references/03-guides/coding-conventions.md',
@@ -1901,6 +1971,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-STRUCT-TEMPORAL-ROLLING',
+    ruleClass: 'default',
     guardTags: ['G1'],
     epoch: 1,
     doc: 'references/03-guides/temporal-analysis-policy.md',
@@ -1926,6 +1997,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-STRUCT-TEMPORAL-SCOPE',
+    ruleClass: 'default',
     guardTags: ['G1'],
     epoch: 1,
     what: '期間スコープの分離ルール（sameDate/sameDow 混在禁止等）',
@@ -1953,6 +2025,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-STRUCT-TOPOLOGY',
+    ruleClass: 'invariant',
     guardTags: ['F4'],
     epoch: 1,
     doc: 'references/01-principles/modular-monolith-evolution.md',
@@ -1977,6 +2050,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-C7-NO-DUAL-API',
+    ruleClass: 'default',
     guardTags: ['C7'],
     epoch: 1,
     doc: 'references/01-principles/design-principles.md',
@@ -2007,6 +2081,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-C9-HONEST-UNCLASSIFIED',
+    ruleClass: 'heuristic',
     guardTags: ['C9'],
     epoch: 1,
     what: '正確に分類できないファイルは未分類のまま残す（嘘の分類より正直な未分類）',
@@ -2035,6 +2110,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-G7-CACHE-BODY',
+    ruleClass: 'heuristic',
     guardTags: ['G7'],
     epoch: 1,
     doc: 'references/01-principles/cache-responsibility.md',
@@ -2057,6 +2133,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-Q3-CHART-NO-DUCKDB',
+    ruleClass: 'default',
     guardTags: ['Q3'],
     epoch: 1,
     doc: 'references/01-principles/safe-performance-principles.md',
@@ -2087,6 +2164,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-Q4-ALIGNMENT-HANDLER',
+    ruleClass: 'default',
     guardTags: ['Q4'],
     epoch: 1,
     doc: 'references/01-principles/safe-performance-principles.md',
@@ -2114,6 +2192,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-TAG-SELECTION-GUIDE',
+    ruleClass: 'heuristic',
     guardTags: ['C8', 'C9'],
     epoch: 1,
     doc: 'references/03-guides/responsibility-separation-catalog.md',
@@ -2168,6 +2247,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-TAG-CHART-VIEW',
+    ruleClass: 'heuristic',
     guardTags: ['C8', 'G8', 'C4', 'F7'],
     responsibilityTags: ['R:chart-view'],
     epoch: 1,
@@ -2201,6 +2281,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-TAG-CHART-OPTION',
+    ruleClass: 'heuristic',
     guardTags: ['C8', 'G8'],
     responsibilityTags: ['R:chart-option'],
     epoch: 1,
@@ -2233,6 +2314,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-TAG-CALCULATION',
+    ruleClass: 'heuristic',
     guardTags: ['C8', 'B1', 'C2'],
     responsibilityTags: ['R:calculation'],
     epoch: 1,
@@ -2268,6 +2350,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-TAG-TRANSFORM',
+    ruleClass: 'heuristic',
     guardTags: ['C8'],
     responsibilityTags: ['R:transform'],
     epoch: 1,
@@ -2299,6 +2382,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-TAG-STATE-MACHINE',
+    ruleClass: 'heuristic',
     guardTags: ['C8', 'C3'],
     responsibilityTags: ['R:state-machine'],
     epoch: 1,
@@ -2327,6 +2411,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-TAG-QUERY-PLAN',
+    ruleClass: 'heuristic',
     guardTags: ['C8', 'H1'],
     responsibilityTags: ['R:query-plan'],
     epoch: 1,
@@ -2359,6 +2444,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-TAG-QUERY-EXEC',
+    ruleClass: 'heuristic',
     guardTags: ['C8'],
     responsibilityTags: ['R:query-exec'],
     epoch: 1,
@@ -2391,6 +2477,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-TAG-WIDGET',
+    ruleClass: 'heuristic',
     guardTags: ['C8', 'H6'],
     responsibilityTags: ['R:widget'],
     epoch: 1,
@@ -2423,6 +2510,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-TAG-PAGE',
+    ruleClass: 'heuristic',
     guardTags: ['C8'],
     responsibilityTags: ['R:page'],
     epoch: 1,
@@ -2455,6 +2543,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-TAG-FORM',
+    ruleClass: 'heuristic',
     guardTags: ['C8'],
     responsibilityTags: ['R:form'],
     epoch: 1,
@@ -2483,6 +2572,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-TAG-LAYOUT',
+    ruleClass: 'heuristic',
     guardTags: ['C8'],
     responsibilityTags: ['R:layout'],
     epoch: 1,
@@ -2511,6 +2601,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-TAG-ORCHESTRATION',
+    ruleClass: 'heuristic',
     guardTags: ['C8', 'C6'],
     responsibilityTags: ['R:orchestration'],
     epoch: 1,
@@ -2543,6 +2634,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-TAG-UTILITY',
+    ruleClass: 'heuristic',
     guardTags: ['C8', 'A2'],
     responsibilityTags: ['R:utility'],
     epoch: 1,
@@ -2577,6 +2669,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-TAG-CONTEXT',
+    ruleClass: 'heuristic',
     guardTags: ['C8'],
     responsibilityTags: ['R:context'],
     epoch: 1,
@@ -2605,6 +2698,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-TAG-PERSISTENCE',
+    ruleClass: 'heuristic',
     guardTags: ['C8'],
     responsibilityTags: ['R:persistence'],
     epoch: 1,
@@ -2633,6 +2727,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-TAG-ADAPTER',
+    ruleClass: 'heuristic',
     guardTags: ['C8', 'A4'],
     responsibilityTags: ['R:adapter'],
     epoch: 1,
@@ -2661,6 +2756,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-TAG-REDUCER',
+    ruleClass: 'heuristic',
     guardTags: ['C8'],
     responsibilityTags: ['R:reducer'],
     epoch: 1,
@@ -2695,6 +2791,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-TAG-BARREL',
+    ruleClass: 'heuristic',
     guardTags: ['C8', 'F1'],
     responsibilityTags: ['R:barrel'],
     epoch: 1,

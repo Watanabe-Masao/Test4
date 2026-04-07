@@ -230,6 +230,47 @@ describe('Architecture Rule Registry', () => {
     expect(violations, violations.join('\n')).toEqual([])
   })
 
+  it('experimental ルールは lifecyclePolicy（昇格条件 + 撤回条件）を持つ', () => {
+    const violations: string[] = []
+
+    for (const rule of ARCHITECTURE_RULES) {
+      if (rule.maturity === 'experimental' && !rule.lifecyclePolicy) {
+        violations.push(
+          `${rule.id}: experimental なのに lifecyclePolicy が未設定。昇格条件と撤回条件を定義すべき`,
+        )
+      }
+    }
+
+    expect(violations, violations.join('\n')).toEqual([])
+  })
+
+  it('confidence: low のルールが gate で運用されていない', () => {
+    const violations: string[] = []
+
+    for (const rule of ARCHITECTURE_RULES) {
+      if (rule.confidence === 'low' && rule.detection.severity === 'gate') {
+        violations.push(`${rule.id}: confidence: low なのに gate。確信度が上がるまで warn にすべき`)
+      }
+    }
+
+    expect(violations, violations.join('\n')).toEqual([])
+  })
+
+  it('ruleClass 分布（情報出力）', () => {
+    const invariant = ARCHITECTURE_RULES.filter((r) => r.ruleClass === 'invariant').length
+    const defaultR = ARCHITECTURE_RULES.filter((r) => r.ruleClass === 'default').length
+    const heuristic = ARCHITECTURE_RULES.filter((r) => r.ruleClass === 'heuristic').length
+    const unset = ARCHITECTURE_RULES.filter((r) => !r.ruleClass).length
+    const withSunset = ARCHITECTURE_RULES.filter((r) => r.sunsetCondition).length
+
+    console.log(
+      `[ruleClass] invariant: ${invariant} | default: ${defaultR} | heuristic: ${heuristic} | unset: ${unset}`,
+    )
+    console.log(`[sunsetCondition] ${withSunset}/${ARCHITECTURE_RULES.length} ルールに設定済み`)
+
+    expect(true).toBe(true)
+  })
+
   it('deprecated ルールが存在しない（存在したら削除を促す）', () => {
     const deprecated = ARCHITECTURE_RULES.filter((r) => r.maturity === 'deprecated')
 
