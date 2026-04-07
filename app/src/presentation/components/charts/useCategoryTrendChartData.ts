@@ -119,7 +119,7 @@ export function useCategoryTrendChartData(params: UseCategoryTrendChartDataParam
         setLevel('klass')
       }
     },
-    [canDrill, categories, level],
+    [canDrill, categories, level, setDrill, setLevel],
   )
 
   return {

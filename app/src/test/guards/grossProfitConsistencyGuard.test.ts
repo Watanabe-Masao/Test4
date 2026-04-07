@@ -21,7 +21,6 @@ import {
   computeGpAfterConsumableAmount,
 } from '@/presentation/pages/Dashboard/widgets/conditionSummaryUtils'
 import type { StoreResult } from '@/domain/models/storeTypes'
-import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 // ── テストデータ ──
 

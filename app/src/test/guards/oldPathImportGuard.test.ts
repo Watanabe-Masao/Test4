@@ -11,7 +11,6 @@
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import { SRC_DIR, collectTsFiles, rel } from '../guardTestHelpers'
-import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 /**
  * 移行済み feature と旧パスのマッピング。

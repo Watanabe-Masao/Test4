@@ -13,7 +13,6 @@ import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
 import { SRC_DIR, collectTsFiles, extractImports, rel } from '../guardTestHelpers'
-import { getRuleById, formatViolationMessage } from '../architectureRules'
 import {
   isPrevYearHandlers,
   nonPairableConsumers,

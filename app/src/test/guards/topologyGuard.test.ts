@@ -10,7 +10,6 @@
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import { SRC_DIR } from '../guardTestHelpers'
-import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 /** src/ 直下に許可されたディレクトリ */
 const APPROVED_DIRECTORIES = new Set([

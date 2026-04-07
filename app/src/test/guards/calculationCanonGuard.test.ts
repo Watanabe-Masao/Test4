@@ -11,7 +11,6 @@ import { describe, it, expect } from 'vitest'
 import * as path from 'path'
 import { collectTsFiles } from '../guardTestHelpers'
 import { CALCULATION_CANON_REGISTRY } from '../calculationCanonRegistry'
-import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 const SRC_DIR = path.resolve(__dirname, '../..')
 const CALC_DIR = path.join(SRC_DIR, 'domain/calculations')

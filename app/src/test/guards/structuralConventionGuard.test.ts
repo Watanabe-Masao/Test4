@@ -15,7 +15,6 @@ import * as path from 'path'
 import { SRC_DIR, collectTsFiles, extractImports, rel as relativePath } from '../guardTestHelpers'
 import { ctxHook, buildAllowlistSet } from '../allowlists'
 import type { AllowlistEntry } from '../allowlists'
-import { getRuleById, formatViolationMessage } from '../architectureRules'
 import {
   applicationToInfrastructure,
   useMemoLimits,
