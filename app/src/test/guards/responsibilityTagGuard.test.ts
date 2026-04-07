@@ -13,7 +13,7 @@
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
-import { SRC_DIR, collectTsFiles, rel, isCommentLine } from '../guardTestHelpers'
+import { SRC_DIR, collectTsFiles, rel, stripComments } from '../guardTestHelpers'
 import { readResponsibilityTags, validateTags } from '../responsibilityTagRegistry'
 import { getRuleByResponsibilityTag } from '../architectureRules'
 import type { ResponsibilityTag } from '../responsibilityTagRegistry'
@@ -143,14 +143,10 @@ describe('G8-R: 責務タグカバレッジ', () => {
 
       const t = rule.thresholds
       const content = fs.readFileSync(file, 'utf-8')
-      // コメント行を除外してからカウント（JSDoc 内の "useState" 等の誤検出防止）
-      const codeLines = content
-        .split('\n')
-        .filter((line) => !isCommentLine(line))
-        .join('\n')
-      const memo = (codeLines.match(/\buseMemo\s*\(/g) || []).length
-      const cb = (codeLines.match(/\buseCallback\s*\(/g) || []).length
-      const state = (codeLines.match(/\buseState\b/g) || []).length
+      const code = stripComments(content)
+      const memo = (code.match(/\buseMemo\s*\(/g) || []).length
+      const cb = (code.match(/\buseCallback\s*\(/g) || []).length
+      const state = (code.match(/\buseState\b/g) || []).length
       const lineCount = content.split('\n').length
 
       const issues: string[] = []

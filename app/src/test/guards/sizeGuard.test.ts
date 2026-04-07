@@ -10,7 +10,7 @@
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
-import { SRC_DIR, collectTsFiles, rel } from '../guardTestHelpers'
+import { SRC_DIR, collectTsFiles, rel, stripComments } from '../guardTestHelpers'
 import { getRuleById, formatViolationMessage } from '../architectureRules'
 import {
   useMemoLimits,
@@ -42,7 +42,7 @@ describe('R11: hooks/ の useMemo 呼び出しが上限以下', () => {
     for (const file of files) {
       const content = fs.readFileSync(file, 'utf-8')
       const relPath = rel(file)
-      const count = (content.match(/\buseMemo\s*\(/g) || []).length
+      const count = (stripComments(content).match(/\buseMemo\s*\(/g) || []).length
       const limit = allowlist[relPath] ?? rule.thresholds!.memoMax!
 
       if (count >= limit) {
@@ -69,7 +69,7 @@ describe('R11: hooks/ の useState 呼び出しが上限以下', () => {
     for (const file of files) {
       const content = fs.readFileSync(file, 'utf-8')
       const relPath = rel(file)
-      const count = (content.match(/\buseState\b/g) || []).length
+      const count = (stripComments(content).match(/\buseState\b/g) || []).length
       const limit = allowlist[relPath] ?? rule.thresholds!.stateMax!
 
       if (count >= limit) {
@@ -100,7 +100,7 @@ describe('G5: presentation/ の useMemo 呼び出しが上限以下', () => {
       const relPath = rel(file)
       if (combinedAllowlistPaths[relPath] != null) continue
       const content = fs.readFileSync(file, 'utf-8')
-      const count = (content.match(/\buseMemo\s*\(/g) || []).length
+      const count = (stripComments(content).match(/\buseMemo\s*\(/g) || []).length
       const limit = allowlist[relPath] ?? memoRule.thresholds!.memoMax!
 
       if (count >= limit) {
@@ -127,7 +127,7 @@ describe('G5: presentation/ の useState 呼び出しが上限以下', () => {
       const relPath = rel(file)
       if (combinedAllowlistPaths[relPath] != null) continue
       const content = fs.readFileSync(file, 'utf-8')
-      const count = (content.match(/\buseState\b/g) || []).length
+      const count = (stripComments(content).match(/\buseState\b/g) || []).length
       const limit = allowlist[relPath] ?? PRESENTATION_STATE_LIMIT
 
       if (count >= limit) {

@@ -98,6 +98,14 @@ export function isCommentLine(line: string): boolean {
   )
 }
 
+/** コメント行を除外したコード部分のみを返す（hooks カウントの偽陽性防止） */
+export function stripComments(content: string): string {
+  return content
+    .split('\n')
+    .filter((line) => !isCommentLine(line))
+    .join('\n')
+}
+
 /** 文字列リテラルを除去する（パターン検出の偽陽性防止用） */
 export function stripStrings(line: string): string {
   return line

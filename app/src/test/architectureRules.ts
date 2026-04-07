@@ -1907,6 +1907,59 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationPath: { steps: ['1. alignment 判定をコンポーネントから handler に移動'], effort: 'small', priority: 2 },
   },
 
+  // ── タグ選択ガイド ──
+
+  {
+    id: 'AR-TAG-SELECTION-GUIDE',
+    guardTags: ['C8', 'C9'],
+    epoch: 1,
+    doc: 'references/03-guides/responsibility-separation-catalog.md',
+    what: '@responsibility タグはファイルの特徴に基づいて正確に選択する',
+    why: '不正確なタグは TAG_EXPECTATIONS との不一致を生み、ガードの信頼性を損なう',
+    correctPattern: {
+      description: 'ファイルの特徴から適切なタグを判定する',
+      example: [
+        'JSX を返す + チャート描画 → R:chart-view',
+        'ECharts option 構築のみ（React なし） → R:chart-option',
+        'domain/calculations/ の純粋関数 → R:calculation',
+        'use*Plan hook（クエリ入力組み立て） → R:query-plan',
+        'useQueryWithHandler 呼び出し → R:query-exec',
+        'ブラウザ API ラップ（IntersectionObserver, PWA 等） → R:adapter',
+        'Context.Provider + 値提供 → R:context',
+        'useReducer の reducer 関数（純粋） → R:reducer',
+        'export { } from のみ → R:barrel',
+        'データ変換の純粋関数（React なし） → R:transform',
+        'useState 主体の状態管理 → R:state-machine',
+        '複数 hook の組み立て（useState なし） → R:orchestration',
+        'ページコンポーネント（route 先） → R:page',
+        'ウィジェット（ダッシュボード部品） → R:widget',
+        'フォーム入力処理 → R:form',
+        'レイアウト構造（Header, NavBar 等） → R:layout',
+        'localStorage/DB 操作 → R:persistence',
+        '上記に当てはまらない純粋関数 → R:utility',
+      ].join('\n'),
+    },
+    outdatedPattern: {
+      description: 'ファイルの特徴を確認せずに R:utility を付ける（最も多い誤分類パターン）',
+    },
+    decisionCriteria: {
+      when: '新規ファイルに @responsibility タグを付けるとき、または既存タグを見直すとき',
+      exceptions: '確信がない場合はタグを付けない（C9: 嘘の分類より正直な未分類）',
+      escalation: 'correctPattern.example の判定テーブルに従う。複数該当する場合は複数タグ（AND）を付ける',
+    },
+    detection: { type: 'custom', severity: 'warn' },
+    migrationPath: {
+      steps: [
+        '1. ファイルの import を確認（React あり? hooks あり? JSX あり?）',
+        '2. correctPattern.example の判定テーブルに照合',
+        '3. 該当するタグに変更。複数該当なら AND（分離候補）',
+        '4. 確信がなければ未分類のまま残す',
+      ],
+      effort: 'trivial',
+      priority: 2,
+    },
+  },
+
   // ── 責務タグ別の閾値（TAG_EXPECTATIONS 由来） ──
 
   {
