@@ -339,6 +339,30 @@ lifecyclePolicy: {
 
 これにより **設計が安定する前のルール化による硬直化を防ぐ**。
 
+### reviewPolicy — ルールに時計を持たせる
+
+> 撤回条件より先に、撤回を忘れない仕組みを入れること。
+
+```typescript
+reviewPolicy: {
+  owner: 'solo-maintainer',
+  lastReviewedAt: '2026-04-07',
+  reviewCadenceDays: 90,
+}
+```
+
+**運用ルール:**
+- experimental / deprecated: reviewPolicy **必須**（CI で強制）
+- stable: reviewPolicy は任意だが推奨
+- `today - lastReviewedAt > reviewCadenceDays` → review overdue として warn
+- sunsetCondition があるのに 60 日以上未レビュー → 条件達成を確認すべきと warn
+
+**効果:**
+- sunsetCondition がただの文章で終わらない
+- experimental が惰性で残りにくくなる
+- stale rule を機械的に炙れる
+- AI が古い rule を盲信するリスクを下げられる
+
 ### 自動検出される健全性シグナル
 
 | シグナル | 検出方法 | 閾値 | 対処 |

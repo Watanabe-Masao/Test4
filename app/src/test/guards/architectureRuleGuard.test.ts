@@ -171,6 +171,30 @@ describe('Architecture Rule Registry', () => {
     expect(true).toBe(true)
   })
 
+  it('allowlist の active-debt に renewalCount > 2 がない', () => {
+    const allowlistDir = path.resolve(__dirname, '../allowlists')
+    const files = fs.readdirSync(allowlistDir).filter((f) => f.endsWith('.ts') && f !== 'types.ts')
+    const overRenewed: string[] = []
+
+    for (const file of files) {
+      const content = fs.readFileSync(path.join(allowlistDir, file), 'utf-8')
+      // renewalCount を持つエントリを検出
+      for (const match of content.matchAll(/path:\s*'([^']+)'[\s\S]*?renewalCount:\s*(\d+)/g)) {
+        const count = Number(match[2])
+        if (count > 2) {
+          overRenewed.push(`${file}: ${match[1]} (renewalCount: ${count})`)
+        }
+      }
+    }
+
+    if (overRenewed.length > 0) {
+      console.log(`\n[renewalCount > 2] ${overRenewed.length} 件 — ルール見直しを検討:`)
+      for (const o of overRenewed) console.log(`  ${o}`)
+    }
+
+    expect(true).toBe(true)
+  })
+
   // ── ルール健全性評価 ──
 
   it('例外圧が高いルールを検出（ルール見直し候補）', () => {
@@ -244,6 +268,97 @@ describe('Architecture Rule Registry', () => {
     expect(violations, violations.join('\n')).toEqual([])
   })
 
+  it('experimental / deprecated ルールは reviewPolicy を持つ', () => {
+    const violations: string[] = []
+
+    for (const rule of ARCHITECTURE_RULES) {
+      if (
+        (rule.maturity === 'experimental' || rule.maturity === 'deprecated') &&
+        !rule.reviewPolicy
+      ) {
+        violations.push(
+          `${rule.id}: ${rule.maturity} なのに reviewPolicy が未設定。owner / lastReviewedAt / reviewCadenceDays を定義すべき`,
+        )
+      }
+    }
+
+    expect(violations, violations.join('\n')).toEqual([])
+  })
+
+  it('review overdue のルールを検出する', () => {
+    const now = Date.now()
+    const overdue: string[] = []
+
+    for (const rule of ARCHITECTURE_RULES) {
+      if (!rule.reviewPolicy?.lastReviewedAt) continue
+      const lastReviewed = new Date(rule.reviewPolicy.lastReviewedAt).getTime()
+      const cadence = rule.reviewPolicy.reviewCadenceDays
+      const elapsed = Math.floor((now - lastReviewed) / (1000 * 60 * 60 * 24))
+      if (elapsed > cadence) {
+        overdue.push(`${rule.id}: review overdue（${elapsed} 日経過、cadence: ${cadence} 日）`)
+      }
+    }
+
+    if (overdue.length > 0) {
+      console.log(`\n[review overdue] ${overdue.length} 件:`)
+      for (const o of overdue) console.log(`  ${o}`)
+      console.log('  → lastReviewedAt を更新するか、ルールの見直しを実施してください')
+    }
+
+    expect(true).toBe(true)
+  })
+
+  it('sunsetCondition + 長期未レビューのルールを検出する', () => {
+    const now = Date.now()
+    const stale: string[] = []
+
+    for (const rule of ARCHITECTURE_RULES) {
+      if (!rule.sunsetCondition) continue
+      if (!rule.reviewPolicy?.lastReviewedAt) {
+        stale.push(`${rule.id}: sunsetCondition ありだが reviewPolicy なし`)
+        continue
+      }
+      const lastReviewed = new Date(rule.reviewPolicy.lastReviewedAt).getTime()
+      const elapsed = Math.floor((now - lastReviewed) / (1000 * 60 * 60 * 24))
+      if (elapsed > 60) {
+        stale.push(
+          `${rule.id}: sunsetCondition ありで ${elapsed} 日未レビュー。条件達成を確認すべき`,
+        )
+      }
+    }
+
+    if (stale.length > 0) {
+      console.log(`\n[sunset + 長期未レビュー] ${stale.length} 件:`)
+      for (const s of stale) console.log(`  ${s}`)
+    }
+
+    expect(true).toBe(true)
+  })
+
+  it('experimental ルールの観測期間超過を検出', () => {
+    const now = Date.now()
+    const overdue: string[] = []
+
+    for (const rule of ARCHITECTURE_RULES) {
+      if (rule.maturity !== 'experimental' || !rule.lifecyclePolicy?.introducedAt) continue
+      const introduced = new Date(rule.lifecyclePolicy.introducedAt).getTime()
+      const deadlineDays = rule.lifecyclePolicy.observeForDays ?? 90
+      const elapsed = Math.floor((now - introduced) / (1000 * 60 * 60 * 24))
+      if (elapsed > deadlineDays) {
+        overdue.push(
+          `${rule.id}: 観測期間 ${deadlineDays} 日を ${elapsed - deadlineDays} 日超過。stable に昇格するか deprecated で撤回すべき`,
+        )
+      }
+    }
+
+    if (overdue.length > 0) {
+      console.log(`\n[観測期間超過] ${overdue.length} 件:`)
+      for (const o of overdue) console.log(`  ${o}`)
+    }
+
+    expect(true).toBe(true)
+  })
+
   it('confidence: low のルールが gate で運用されていない', () => {
     const violations: string[] = []
 
@@ -267,6 +382,41 @@ describe('Architecture Rule Registry', () => {
       `[ruleClass] invariant: ${invariant} | default: ${defaultR} | heuristic: ${heuristic} | unset: ${unset}`,
     )
     console.log(`[sunsetCondition] ${withSunset}/${ARCHITECTURE_RULES.length} ルールに設定済み`)
+
+    // heuristic + gate の近限（ratchet-down で warn 化を促す）
+    const HEURISTIC_GATE_NEAR_LIMIT = 30
+    const heuristicGate = ARCHITECTURE_RULES.filter(
+      (r) => r.ruleClass === 'heuristic' && r.detection.severity === 'gate',
+    )
+    console.log(
+      `[heuristic+gate] ${heuristicGate.length}/${HEURISTIC_GATE_NEAR_LIMIT} (近限: ${HEURISTIC_GATE_NEAR_LIMIT})`,
+    )
+    if (heuristicGate.length > 0) {
+      console.log(`  対象:`)
+      for (const r of heuristicGate.slice(0, 5)) console.log(`    ${r.id}`)
+      if (heuristicGate.length > 5) console.log(`    ...他 ${heuristicGate.length - 5} 件`)
+    }
+
+    // heuristic + gate は増やさない（ratchet-down）
+    expect(
+      heuristicGate.length,
+      `heuristic+gate が近限 ${HEURISTIC_GATE_NEAR_LIMIT} を超えています (${heuristicGate.length} 件)。` +
+        `\nheuristic ルールは原則 warn に。gate が必要なら ruleClass を default に昇格してください。`,
+    ).toBeLessThanOrEqual(HEURISTIC_GATE_NEAR_LIMIT)
+
+    expect(true).toBe(true)
+  })
+
+  it('sunsetCondition 付きルールのレビュー候補（情報出力）', () => {
+    const withSunset = ARCHITECTURE_RULES.filter((r) => r.sunsetCondition)
+
+    if (withSunset.length > 0) {
+      console.log(`\n[sunsetCondition レビュー] ${withSunset.length} 件:`)
+      for (const r of withSunset) {
+        console.log(`  ${r.id}: ${r.sunsetCondition}`)
+      }
+      console.log('  → 上記の条件が達成されていれば deprecated に変更して次回削除')
+    }
 
     expect(true).toBe(true)
   })
