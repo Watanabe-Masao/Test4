@@ -130,6 +130,25 @@ describe('Architecture Rule Registry', () => {
     expect(true).toBe(true)
   })
 
+  it('allowlist の ruleId が全て有効な Architecture Rule を指す', () => {
+    const allIds = new Set(ARCHITECTURE_RULES.map((r) => r.id))
+    const allowlistDir = path.resolve(__dirname, '../allowlists')
+    const files = fs.readdirSync(allowlistDir).filter((f) => f.endsWith('.ts') && f !== 'types.ts')
+    const invalid: string[] = []
+
+    for (const file of files) {
+      const content = fs.readFileSync(path.join(allowlistDir, file), 'utf-8')
+      const ruleIdMatches = content.matchAll(/ruleId:\s*'([^']+)'/g)
+      for (const match of ruleIdMatches) {
+        if (!allIds.has(match[1])) {
+          invalid.push(`${file}: ruleId '${match[1]}' は存在しないルール`)
+        }
+      }
+    }
+
+    expect(invalid, invalid.join('\n')).toEqual([])
+  })
+
   it('ルール数サマリー', () => {
     const byType = new Map<string, number>()
     let withMigration = 0

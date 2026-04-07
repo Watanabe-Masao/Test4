@@ -16,6 +16,7 @@ export const applicationToInfrastructure: readonly AllowlistEntry[] = [
   // useImport: DI 化完了（rawFileStore → AdapterContext.rawFile 経由）。削除済み。
   {
     path: 'application/usecases/import/FileImportService.ts',
+    ruleId: 'AR-A1-APP-INFRA',
     reason: 'ファイルインポートサービス',
     category: 'adapter',
     removalCondition: 'インポートが adapter 層に完全移行されたとき',

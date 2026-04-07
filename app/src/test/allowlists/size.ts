@@ -14,6 +14,7 @@ export const infraLargeFiles: readonly AllowlistEntry[] = [] as const
 export const domainLargeFiles: readonly AllowlistEntry[] = [
   {
     path: 'domain/constants/metricDefs.ts',
+    ruleId: 'AR-G5-DOMAIN-LINES',
     reason: 'メトリック定義一覧',
     category: 'structural',
     removalCondition: '分割時',
@@ -21,6 +22,7 @@ export const domainLargeFiles: readonly AllowlistEntry[] = [
   },
   {
     path: 'domain/constants/metricResolver.ts',
+    ruleId: 'AR-G5-DOMAIN-LINES',
     reason: 'メトリック解決',
     category: 'structural',
     removalCondition: '分割時',
@@ -28,6 +30,7 @@ export const domainLargeFiles: readonly AllowlistEntry[] = [
   },
   {
     path: 'domain/models/PeriodSelection.ts',
+    ruleId: 'AR-G5-DOMAIN-LINES',
     reason: '期間選択モデル',
     category: 'structural',
     removalCondition: '分割時',
@@ -36,6 +39,7 @@ export const domainLargeFiles: readonly AllowlistEntry[] = [
   // rawAggregation.ts — application/query-bridge/ へ移動済みで domain guard 対象外。orphan 削除
   {
     path: 'domain/models/ComparisonScope.ts',
+    ruleId: 'AR-G5-DOMAIN-LINES',
     reason: '比較スコープモデル',
     category: 'structural',
     removalCondition: '分割時',
@@ -43,6 +47,7 @@ export const domainLargeFiles: readonly AllowlistEntry[] = [
   },
   {
     path: 'domain/calculations/algorithms/advancedForecast.ts',
+    ruleId: 'AR-G5-DOMAIN-LINES',
     reason: '高度予測アルゴリズム',
     category: 'structural',
     removalCondition: '分割時',
@@ -50,6 +55,7 @@ export const domainLargeFiles: readonly AllowlistEntry[] = [
   },
   {
     path: 'domain/constants/formulaRegistryBusiness.ts',
+    ruleId: 'AR-G5-DOMAIN-LINES',
     reason: '数式レジストリ',
     category: 'structural',
     removalCondition: '分割時',
