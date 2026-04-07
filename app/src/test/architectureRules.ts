@@ -155,6 +155,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     id: 'AR-003',
     guardTags: ['G1', 'C1'],
     epoch: 1,
+    doc: 'references/03-guides/widget-coordination-architecture.md',
     what: 'UnifiedWidgetContext のフィールド数を凍結し shared hub の肥大化を防ぐ',
     why: '共有コンテキストが肥大化すると全ウィジェットの結合度が上がり変更コストが増大する',
     correctPattern: {
@@ -184,6 +185,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     id: 'AR-004',
     guardTags: ['G1'],
     epoch: 1,
+    doc: 'references/03-guides/coding-conventions.md',
     what: '@deprecated wrapper の新規追加を禁止する',
     why: 'deprecated wrapper が増えると間接層が膨張し削除可能性の追跡が困難になる',
     correctPattern: {
@@ -213,6 +215,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     id: 'AR-005',
     guardTags: ['G1', 'H1'],
     epoch: 1,
+    doc: 'references/01-principles/modular-monolith-evolution.md',
     what: 'application/hooks/plans/ の shared plan hook 数を凍結する',
     why: 'category/time-slot 等は features/ に移行済み。共有 plan hook の増加は feature slice 原則に反する',
     correctPattern: {
@@ -331,7 +334,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-A1-PRES-INFRA',
-    guardTags: ['A1', 'A3'],
+    guardTags: ['A1', 'A3', 'A5'],
     epoch: 1,
     what: 'presentation/ は infrastructure/ に直接依存しない',
     why: 'presentation は描画専用。データ取得は application 層の hook を経由する',
@@ -369,6 +372,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     id: 'AR-A1-PRES-USECASE',
     guardTags: ['A1', 'A3'],
     epoch: 1,
+    doc: 'references/01-principles/design-principles.md',
     what: 'presentation/ は application/usecases/ を直接 import しない',
     why: 'usecase はデータ構築の内部実装。presentation は hook 経由でのみアクセスする',
     correctPattern: {
@@ -447,6 +451,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     id: 'AR-G4-INTERNAL',
     guardTags: ['G4'],
     epoch: 1,
+    doc: 'references/03-guides/coding-conventions.md',
     what: 'hooks/ に @internal export を作らない',
     why: 'テスト用 export は本番 API を汚染する。テストは public API 経由で行う',
     correctPattern: {
@@ -495,8 +500,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-G3-SUPPRESS',
-    guardTags: ['G3'],
+    guardTags: ['G3', 'E2'],
     epoch: 1,
+    doc: 'references/03-guides/coding-conventions.md',
     what: 'コンパイラ警告を黙殺しない（eslint-disable / @ts-ignore 禁止）',
     why: '警告を黙殺すると型安全性やリント規約が形骸化する',
     correctPattern: {
@@ -522,6 +528,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     id: 'AR-E4-TRUTHINESS',
     guardTags: ['E4'],
     epoch: 1,
+    doc: 'references/03-guides/coding-conventions.md',
     what: '数値フィールドの truthiness チェックを禁止する',
     why: '0 が有効値のフィールドで !value を使うと欠損扱いされ計算が狂う',
     correctPattern: {
@@ -547,6 +554,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     id: 'AR-C5-SELECTOR',
     guardTags: ['C5'],
     epoch: 1,
+    doc: 'references/01-principles/design-principles.md',
     what: 'Zustand store はセレクタ付きで呼ぶ',
     why: 'セレクタなしの store 呼び出しは全フィールドの変更で再レンダリングが発生する',
     correctPattern: {
@@ -572,6 +580,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     id: 'AR-G2-EMPTY-CATCH',
     guardTags: ['G2'],
     epoch: 1,
+    doc: 'references/03-guides/coding-conventions.md',
     what: '空の catch ブロックでエラーを握り潰さない',
     why: 'エラーを無視するとデバッグ不能な不具合につながる',
     correctPattern: {
@@ -598,6 +607,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     id: 'AR-G5-HOOK-MEMO',
     guardTags: ['G5'],
     epoch: 1,
+    doc: 'references/03-guides/responsibility-separation-catalog.md',
     what: 'application/hooks/ の useMemo 呼び出しを上限以下に保つ',
     why: 'useMemo が多いファイルは複数の導出値を抱えており責務が混在している',
     correctPattern: {
@@ -623,6 +633,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     id: 'AR-G5-HOOK-STATE',
     guardTags: ['G5'],
     epoch: 1,
+    doc: 'references/03-guides/responsibility-separation-catalog.md',
     what: 'application/hooks/ の useState 呼び出しを上限以下に保つ',
     why: 'useState が多いファイルは複数の状態責務を抱えており God Hook の兆候',
     correctPattern: {
@@ -648,6 +659,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     id: 'AR-G5-HOOK-LINES',
     guardTags: ['G5'],
     epoch: 1,
+    doc: 'references/03-guides/responsibility-separation-catalog.md',
     what: 'application/hooks/ のファイルを 300 行以下に保つ',
     why: '長い hook ファイルは複数の責務を持つ兆候。分割して単一責務を維持する',
     correctPattern: {
@@ -673,6 +685,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     id: 'AR-G6-COMPONENT',
     guardTags: ['G6'],
     epoch: 1,
+    doc: 'references/03-guides/responsibility-separation-catalog.md',
     what: 'presentation/ の .tsx コンポーネントを 600 行以下に保つ',
     why: '大きなコンポーネントは描画・状態・ロジックが混在している兆候',
     correctPattern: {
@@ -698,6 +711,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     id: 'AR-G5-DOMAIN-LINES',
     guardTags: ['G5', 'A2'],
     epoch: 1,
+    doc: 'references/03-guides/coding-conventions.md',
     what: 'domain/ のファイルを 300 行以下に保つ',
     why: 'domain/ は純粋関数。短く保つことでテスト容易性と可読性を維持する',
     correctPattern: {
@@ -722,6 +736,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     id: 'AR-G5-INFRA-LINES',
     guardTags: ['G5'],
     epoch: 1,
+    doc: 'references/03-guides/coding-conventions.md',
     what: 'infrastructure/ のファイルを 400 行以下に保つ',
     why: 'インフラ層のファイルが大きくなると外部依存の影響範囲が広がる',
     correctPattern: {
@@ -746,6 +761,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     id: 'AR-G5-USECASE-LINES',
     guardTags: ['G5'],
     epoch: 1,
+    doc: 'references/03-guides/coding-conventions.md',
     what: 'application/usecases/ のファイルを 400 行以下に保つ',
     why: 'usecase が肥大化するとデータ構築の責務が不明確になる',
     correctPattern: {
@@ -770,6 +786,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     id: 'AR-C6-FACADE',
     guardTags: ['C6'],
     epoch: 1,
+    doc: 'references/01-principles/design-principles.md',
     what: 'facade ファイルの分岐を 5 以下に保つ（orchestration のみ）',
     why: 'facade に分岐ロジックが混入すると単なる委譲ではなくなり責務が曖昧になる',
     correctPattern: {
@@ -1060,7 +1077,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-PATH-FACTOR-DECOMPOSITION',
-    guardTags: ['F9', 'D1'],
+    guardTags: ['F9', 'D1', 'D2'],
     epoch: 1,
     what: '要因分解は calculateFactorDecomposition 経由でのみ実行する',
     why: '要因分解の合計値は実際の売上差に完全一致しなければならない（D1 不変条件）',
@@ -1115,6 +1132,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     id: 'AR-STRUCT-ANALYSIS-FRAME',
     guardTags: ['H3'],
     epoch: 1,
+    doc: 'references/01-principles/safe-performance-principles.md',
     what: 'AnalysisFrame / CalculationFrame が分析の唯一の入口',
     why: '分析フレームを経由しないクエリはキャッシュキーの不整合や期間スコープの矛盾を招く',
     correctPattern: { description: 'AnalysisFrame / CalculationFrame 経由でクエリ入力を構築する' },
@@ -1127,6 +1145,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     id: 'AR-STRUCT-CALC-CANON',
     guardTags: ['G1'],
     epoch: 1,
+    doc: 'references/01-principles/calculation-canonicalization-map.md',
     what: 'domain/calculations/ の全ファイルが CALCULATION_CANON_REGISTRY に登録されている',
     why: '未登録ファイルは正本化体系の管理外となり品質保証が及ばない',
     correctPattern: { description: '新規ファイル追加時に calculationCanonRegistry.ts に分類を登録する' },
@@ -1139,6 +1158,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     id: 'AR-STRUCT-CANONICAL-INPUT',
     guardTags: ['G1', 'D1'],
     epoch: 1,
+    doc: 'references/01-principles/canonical-input-sets.md',
     what: 'PI値・客数GAPは正本 input builder 経由でのみ計算する',
     why: 'presentation/ でのインライン計算は不変条件を破壊する',
     correctPattern: { description: 'canonical input builder を使用して正本関数に渡す' },
@@ -1149,7 +1169,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-STRUCT-CANONICALIZATION',
-    guardTags: ['G1'],
+    guardTags: ['G1', 'E3', 'F5', 'F8'],
     epoch: 1,
     what: '全 readModel と calculation canonical が正本化原則に従っている',
     why: '正本化体系の整合性が崩れると、異なる経路で異なる値が計算される',
@@ -1164,6 +1184,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     id: 'AR-STRUCT-COMPARISON-SCOPE',
     guardTags: ['H2'],
     epoch: 1,
+    doc: 'references/01-principles/safe-performance-principles.md',
     what: 'ComparisonScope は buildComparisonScope() のみで生成する',
     why: 'ad-hoc な比較スコープ生成はペア/バンドル契約の一貫性を破壊する',
     correctPattern: { description: 'buildComparisonScope() factory 経由で生成する' },
@@ -1174,8 +1195,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-STRUCT-DATA-INTEGRITY',
-    guardTags: ['G1'],
+    guardTags: ['G1', 'E1'],
     epoch: 1,
+    doc: 'references/03-guides/invariant-catalog.md',
     what: '既知のバグパターン（二重計上、is_prev_year 不整合、state リセット漏れ）を防止する',
     why: '過去に発生したバグの再発を機械的に防止する',
     correctPattern: { description: '定義書の集計ルールに従い、state リセットを忘れない' },
@@ -1201,6 +1223,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     id: 'AR-STRUCT-FALLBACK-METADATA',
     guardTags: ['G1'],
     epoch: 1,
+    doc: 'references/03-guides/invariant-catalog.md',
     what: 'クリティカルな readModel は usedFallback フィールドを持つ',
     why: 'サイレントフォールバックは計算結果の信頼性を損なう',
     correctPattern: { description: 'readModel に usedFallback: boolean を含め、フォールバック時に true を設定する' },
@@ -1213,6 +1236,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     id: 'AR-MIG-OLD-PATH',
     guardTags: ['F4', 'F1'],
     epoch: 1,
+    doc: 'references/01-principles/modular-monolith-evolution.md',
     what: 'features/ に移行済みのモジュールは旧パス経由の新規 import を受け付けない',
     why: '移行後に旧パスの import が増えると移行が巻き戻る',
     correctPattern: { description: 'features/<feature>/ 経由で import する' },
@@ -1225,6 +1249,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     id: 'AR-STRUCT-PAGE-META',
     guardTags: ['F10'],
     epoch: 1,
+    doc: 'references/03-guides/new-page-checklist.md',
     what: 'PAGE_REGISTRY と PAGE_COMPONENT_MAP が整合している',
     why: 'ページメタデータの不整合はナビゲーション・breadcrumb の不具合を招く',
     correctPattern: { description: 'PAGE_REGISTRY にメタデータを追加し、routes.tsx の PAGE_COMPONENT_MAP と一致させる' },
@@ -1248,7 +1273,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-STRUCT-PURITY',
-    guardTags: ['A2', 'B1', 'C3'],
+    guardTags: ['A2', 'B1', 'C3', 'A6', 'B3', 'D3'],
     epoch: 1,
     what: 'domain/ は純粋（副作用なし・async なし）、率は domain で算出',
     why: 'domain の純粋性はテスト容易性・移植性・正確性の基盤',
@@ -1270,8 +1295,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-STRUCT-QUERY-PATTERN',
-    guardTags: ['H2', 'H3', 'H4'],
+    guardTags: ['H2', 'H3', 'H4', 'H5'],
     epoch: 1,
+    doc: 'references/01-principles/safe-performance-principles.md',
     what: 'クエリは正規化入力・pair/bundle 契約・handler 経由で実行する',
     why: 'クエリパターンの統一は保守性とキャッシュの一貫性を保証する',
     correctPattern: { description: 'QueryHandler + useQueryWithHandler 経由。input は正規化必須' },
@@ -1284,6 +1310,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     id: 'AR-STRUCT-RENDER-SIDE-EFFECT',
     guardTags: ['A3', 'H4'],
     epoch: 1,
+    doc: 'references/01-principles/design-principles.md',
     what: 'presentation/ は localStorage/sessionStorage を直接使用しない',
     why: 'ストレージ操作は副作用であり presentation 層の責務外',
     correctPattern: { description: 'uiPersistenceAdapter 経由でストレージにアクセスする' },
@@ -1309,6 +1336,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     id: 'AR-STRUCT-STORE-RESULT-INPUT',
     guardTags: ['G1'],
     epoch: 1,
+    doc: 'references/01-principles/customer-definition.md',
     what: 'StoreResult.totalCustomers を分析入力に使わない（CustomerFact を使う）',
     why: 'StoreResult の totalCustomers は表示用集計値であり分析精度が異なる',
     correctPattern: { description: 'readCustomerFact() から CustomerFact を取得して分析に使う' },
@@ -1319,8 +1347,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-STRUCT-CONVENTION',
-    guardTags: ['F1', 'F4', 'F9'],
+    guardTags: ['F1', 'F4', 'F9', 'F2', 'F3', 'F6'],
     epoch: 1,
+    doc: 'references/03-guides/coding-conventions.md',
     what: 'バレル re-export、feature slice 依存、コンテキストデータの重複禁止',
     why: 'コード構造規約の一貫性が保守性を保証する',
     correctPattern: { description: 'バレルは re-export のみ。feature 間は shared/ 経由。ctx data は重複しない' },
@@ -1333,6 +1362,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     id: 'AR-STRUCT-TEMPORAL-ROLLING',
     guardTags: ['G1'],
     epoch: 1,
+    doc: 'references/03-guides/temporal-analysis-policy.md',
     what: 'ローリング計算パスの逆流を禁止（UI/hooks/comparison への逆流なし）',
     why: 'temporal ロジックの逆流はデータフローの一方向性を破壊する',
     correctPattern: { description: 'temporal 計算は一方向。結果は hook 経由で消費のみ' },
@@ -1358,6 +1388,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     id: 'AR-STRUCT-TOPOLOGY',
     guardTags: ['F4'],
     epoch: 1,
+    doc: 'references/01-principles/modular-monolith-evolution.md',
     what: 'src/ 直下は承認済みディレクトリのみ（domain/application/infrastructure/presentation/features/stories/test）',
     why: '未承認ディレクトリの追加は層構造の破壊を招く',
     correctPattern: { description: '新機能は features/<feature>/ に配置。共通は既存 4 層に配置' },
@@ -1366,11 +1397,78 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationPath: { steps: ['1. 新規ディレクトリを features/<feature>/ または既存層に移動'], effort: 'trivial', priority: 1 },
   },
 
+  // ── 追加ルール（未参照タグのカバー） ──
+
+  {
+    id: 'AR-C7-NO-DUAL-API',
+    guardTags: ['C7'],
+    epoch: 1,
+    doc: 'references/01-principles/design-principles.md',
+    what: '同義の API を併存させない（1 つの責務に 1 つの API）',
+    why: '同じことをする 2 つの関数が存在すると、どちらを使うべきか判断コストが発生する',
+    correctPattern: { description: '旧 API を @deprecated にして新 API に一本化。併存期間は最短にする' },
+    outdatedPattern: { description: '同じ目的の関数を 2 つ export する（例: getData と fetchData）' },
+    detection: { type: 'custom', severity: 'gate' },
+    migrationPath: { steps: ['1. 旧 API を @deprecated にする', '2. 呼び出し元を新 API に移行', '3. 旧 API を削除'], effort: 'small', priority: 2 },
+  },
+
+  {
+    id: 'AR-C9-HONEST-UNCLASSIFIED',
+    guardTags: ['C9'],
+    epoch: 1,
+    what: '正確に分類できないファイルは未分類のまま残す（嘘の分類より正直な未分類）',
+    why: '自動推定で全ファイルにタグを振ると「嘘の単一責務」が生まれ、信頼性が損なわれる',
+    doc: 'references/03-guides/responsibility-separation-catalog.md',
+    correctPattern: { description: '確信がないファイルには @responsibility を付けない。未分類数を正確に把握する' },
+    outdatedPattern: { description: '分類のカバレッジを上げるために不正確なタグを付ける' },
+    detection: { type: 'custom', severity: 'gate' },
+    migrationPath: { steps: ['1. 未分類ファイルを確認', '2. 責務が明確なものだけタグ付け', '3. 不明なものは未分類のまま残す'], effort: 'trivial', priority: 3 },
+  },
+
+  {
+    id: 'AR-G7-CACHE-BODY',
+    guardTags: ['G7'],
+    epoch: 1,
+    doc: 'references/01-principles/cache-responsibility.md',
+    what: 'キャッシュコードは本体コード以下に保つ',
+    why: 'キャッシュ最適化が本体より複雑になると保守コストが逆転する',
+    correctPattern: { description: 'キャッシュ行数 ≤ 本体行数。超えたらキャッシュ戦略を見直す' },
+    outdatedPattern: { description: 'キャッシュ制御（invalidation, memo, dedup）が本体より大きい' },
+    detection: { type: 'count', severity: 'warn' },
+    migrationPath: { steps: ['1. キャッシュ行数と本体行数を比較', '2. 超過していたらキャッシュ戦略を簡素化'], effort: 'medium', priority: 4 },
+  },
+
+  {
+    id: 'AR-Q3-CHART-NO-DUCKDB',
+    guardTags: ['Q3'],
+    epoch: 1,
+    doc: 'references/01-principles/safe-performance-principles.md',
+    what: 'Chart コンポーネントは DuckDB hook を直接 import しない',
+    why: 'チャートは描画に専念。データ取得は plan/handler 経由で行う',
+    correctPattern: { description: 'useWidgetQueryContext / useWidgetDataOrchestrator 経由でデータを受け取る' },
+    outdatedPattern: { description: 'Chart コンポーネントから useDuckDB* hook を直接 import する', imports: ['useDuckDB'] },
+    detection: { type: 'import', severity: 'gate', baseline: 0 },
+    migrationPath: { steps: ['1. DuckDB hook の import を削除', '2. plan hook 経由でデータを受け取るよう変更'], effort: 'small', priority: 2 },
+  },
+
+  {
+    id: 'AR-Q4-ALIGNMENT-HANDLER',
+    guardTags: ['Q4'],
+    epoch: 1,
+    doc: 'references/01-principles/safe-performance-principles.md',
+    what: 'alignment-aware access は handler/resolver に閉じる',
+    why: 'alignment ロジックが散在すると比較結果の一貫性が失われる',
+    correctPattern: { description: 'QueryHandler または resolver 内でのみ alignment を処理する' },
+    outdatedPattern: { description: 'コンポーネントや hook で直接 alignment を判定する' },
+    detection: { type: 'custom', severity: 'gate' },
+    migrationPath: { steps: ['1. alignment 判定をコンポーネントから handler に移動'], effort: 'small', priority: 2 },
+  },
+
   // ── 責務タグ別の閾値（TAG_EXPECTATIONS 由来） ──
 
   {
     id: 'AR-TAG-CHART-VIEW',
-    guardTags: ['C8', 'G8'],
+    guardTags: ['C8', 'G8', 'C4', 'F7'],
     responsibilityTags: ['R:chart-view'],
     epoch: 1,
     what: 'chart-view は描画に専念する。状態・計算を持ちすぎない',
@@ -1396,6 +1494,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     guardTags: ['C8', 'G8'],
     responsibilityTags: ['R:chart-option'],
     epoch: 1,
+    doc: 'references/03-guides/responsibility-separation-catalog.md',
     what: 'chart-option は ECharts オプション構築のみ。React hooks を含まない',
     why: 'オプション構築は純粋関数であるべき。React 依存を持つと再利用性が下がる',
     doc: 'references/03-guides/responsibility-separation-catalog.md',
@@ -1416,7 +1515,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
 
   {
     id: 'AR-TAG-CALCULATION',
-    guardTags: ['C8', 'B1'],
+    guardTags: ['C8', 'B1', 'C2'],
     responsibilityTags: ['R:calculation'],
     epoch: 1,
     what: 'calculation は純粋関数。React hooks を一切含まない',
@@ -1442,6 +1541,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     guardTags: ['C8'],
     responsibilityTags: ['R:transform'],
     epoch: 1,
+    doc: 'references/03-guides/responsibility-separation-catalog.md',
     what: 'transform はデータ変換のみ。状態を持たない',
     why: 'データ変換は純粋関数であるべき。状態を持つと副作用が混入する',
     correctPattern: {
@@ -1464,6 +1564,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     guardTags: ['C8', 'C3'],
     responsibilityTags: ['R:state-machine'],
     epoch: 1,
+    doc: 'references/03-guides/responsibility-separation-catalog.md',
     what: 'state-machine は状態管理に専念する。短く保つ',
     why: '状態管理が肥大化すると状態遷移の追跡が困難になる',
     correctPattern: {
@@ -1486,6 +1587,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     guardTags: ['C8', 'H1'],
     responsibilityTags: ['R:query-plan'],
     epoch: 1,
+    doc: 'references/01-principles/safe-performance-principles.md',
     what: 'query-plan はクエリ入力の組み立てのみ。実行しない',
     why: 'クエリの組み立てと実行を分離することで、テスト容易性と再利用性を保証する',
     correctPattern: {
@@ -1508,6 +1610,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     guardTags: ['C8'],
     responsibilityTags: ['R:query-exec'],
     epoch: 1,
+    doc: 'references/03-guides/runtime-data-path.md',
     what: 'query-exec はクエリ実行とキャッシュ管理に専念する',
     why: 'クエリ実行にビジネスロジックが混入すると責務が不明確になる',
     correctPattern: {
@@ -1530,6 +1633,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     guardTags: ['C8', 'H6'],
     responsibilityTags: ['R:widget'],
     epoch: 1,
+    doc: 'references/03-guides/widget-coordination-architecture.md',
     what: 'widget は通知と表示の統合点。過度に状態を持たない',
     why: 'ウィジェットが状態を持ちすぎると再利用性が下がり、テストが困難になる',
     correctPattern: {
@@ -1552,6 +1656,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     guardTags: ['C8'],
     responsibilityTags: ['R:page'],
     epoch: 1,
+    doc: 'references/03-guides/new-page-checklist.md',
     what: 'page は統合点。hooks 数は多いが行数は抑える',
     why: 'ページは子コンポーネントの組み立て。ロジックは hooks に委譲する',
     correctPattern: {
@@ -1574,6 +1679,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     guardTags: ['C8'],
     responsibilityTags: ['R:form'],
     epoch: 1,
+    doc: 'references/03-guides/responsibility-separation-catalog.md',
     what: 'form は入力処理に専念する',
     why: 'フォームにビジネスロジックが混入すると変更理由が増える',
     correctPattern: {
@@ -1596,6 +1702,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     guardTags: ['C8'],
     responsibilityTags: ['R:layout'],
     epoch: 1,
+    doc: 'references/03-guides/responsibility-separation-catalog.md',
     what: 'layout はレイアウト構造のみ。ビジネスロジックを持たない',
     why: 'レイアウトにロジックが混入すると UI の再構成が困難になる',
     correctPattern: {
@@ -1618,6 +1725,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     guardTags: ['C8', 'C6'],
     responsibilityTags: ['R:orchestration'],
     epoch: 1,
+    doc: 'references/03-guides/runtime-data-path.md',
     what: 'orchestration は hook の組み立てのみ。状態を直接持たない',
     why: 'オーケストレーションが状態を持つと facade が God Object 化する',
     correctPattern: {
@@ -1640,6 +1748,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     guardTags: ['C8', 'A2'],
     responsibilityTags: ['R:utility'],
     epoch: 1,
+    doc: 'references/03-guides/coding-conventions.md',
     what: 'utility は純粋関数。React hooks を一切含まない',
     why: 'ユーティリティはフレームワーク非依存。どの層からも安全に呼べる',
     correctPattern: {
@@ -1662,6 +1771,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     guardTags: ['C8'],
     responsibilityTags: ['R:context'],
     epoch: 1,
+    doc: 'references/03-guides/responsibility-separation-catalog.md',
     what: 'context は値の提供のみ。過度なロジックを持たない',
     why: 'Context Provider が肥大化すると再レンダリング範囲が広がる',
     correctPattern: {
@@ -1684,6 +1794,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     guardTags: ['C8'],
     responsibilityTags: ['R:persistence'],
     epoch: 1,
+    doc: 'references/03-guides/responsibility-separation-catalog.md',
     what: 'persistence は永続化操作に専念する',
     why: '永続化にビジネスロジックが混入するとデータ層の責務が不明確になる',
     correctPattern: {
@@ -1706,6 +1817,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     guardTags: ['C8', 'A4'],
     responsibilityTags: ['R:adapter'],
     epoch: 1,
+    doc: 'references/03-guides/responsibility-separation-catalog.md',
     what: 'adapter は外部 API との変換のみ。小さく保つ',
     why: 'アダプタが肥大化すると外部依存の影響範囲が広がる',
     correctPattern: {
@@ -1728,6 +1840,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     guardTags: ['C8'],
     responsibilityTags: ['R:reducer'],
     epoch: 1,
+    doc: 'references/03-guides/responsibility-separation-catalog.md',
     what: 'reducer は純粋な状態遷移関数。hooks を含まない',
     why: 'reducer は (state, action) => state の純粋関数であるべき',
     correctPattern: {
@@ -1750,6 +1863,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     guardTags: ['C8', 'F1'],
     responsibilityTags: ['R:barrel'],
     epoch: 1,
+    doc: 'references/03-guides/coding-conventions.md',
     what: 'barrel は re-export のみ。ロジックを含まない',
     why: 'バレルにロジックが混入すると import 解決が複雑化し tree-shaking を阻害する',
     correctPattern: {
