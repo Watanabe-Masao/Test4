@@ -8,9 +8,11 @@
  * ルール定義: architectureRules.ts (AR-STRUCT-RESP-SEPARATION)
  */
 import { describe, it, expect } from 'vitest'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 import * as fs from 'fs'
 import * as path from 'path'
 import { SRC_DIR, collectTsFiles, rel, isCommentLine, stripComments } from '../guardTestHelpers'
+
 import {
   combinedHookComplexityLimits,
   featuresMemoLimits,
@@ -22,6 +24,8 @@ import {
   fallbackConstantDensityLimits,
   buildQuantitativeAllowlist,
 } from '../allowlists'
+
+const rule = getRuleById('AR-STRUCT-RESP-SEPARATION')!
 
 // ─── P2: presentation/ の getState() 直接アクセス禁止 ─────────
 
@@ -49,10 +53,7 @@ describe('G8-P2: presentation/ で getState() を直接呼ばない', () => {
       }
     }
 
-    expect(
-      violations,
-      `presentation で getState() を直接呼んでいます — 責務分離カタログ P2 を参照。callback props 経由に移行してください:\n${violations.join('\n')}`,
-    ).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 })
 
@@ -90,18 +91,12 @@ describe('G8-P7: module-scope let を使わない', () => {
 
   it('application/ に module-scope let がない', () => {
     const violations = scanDir('application')
-    expect(
-      violations,
-      `module-scope let を検出 — 責務分離カタログ P7 を参照。WeakMap/クラス/DI に移行してください:\n${violations.join('\n')}`,
-    ).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   it('presentation/ に module-scope let がない', () => {
     const violations = scanDir('presentation')
-    expect(
-      violations,
-      `module-scope let を検出 — 責務分離カタログ P7 を参照:\n${violations.join('\n')}`,
-    ).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 })
 
@@ -138,26 +133,17 @@ describe('G8-P8: useMemo + useCallback 合計が上限以下', () => {
 
   it('application/hooks/ の useMemo + useCallback 合計が上限以下', () => {
     const violations = scanDir('application/hooks')
-    expect(
-      violations,
-      `hook 複雑度(useMemo+useCallback)が上限超過 — 責務分離カタログ P8 を参照:\n${violations.join('\n')}`,
-    ).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   it('presentation/ の useMemo + useCallback 合計が上限以下', () => {
     const violations = scanDir('presentation')
-    expect(
-      violations,
-      `presentation 複雑度(useMemo+useCallback)が上限超過 — 責務分離カタログ P8 を参照:\n${violations.join('\n')}`,
-    ).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   it('features/ の useMemo + useCallback 合計が上限以下', () => {
     const violations = scanDir('features')
-    expect(
-      violations,
-      `features 複雑度(useMemo+useCallback)が上限超過 — 責務分離カタログ P8 を参照:\n${violations.join('\n')}`,
-    ).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 })
 
@@ -184,10 +170,7 @@ describe('G8-P10: features/ の useMemo が上限以下', () => {
       }
     }
 
-    expect(
-      violations,
-      `features useMemo 過多 — 責務分離カタログ P3/P10 を参照:\n${violations.join('\n')}`,
-    ).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 })
 
@@ -212,10 +195,7 @@ describe('G8-P10: features/ の useState が上限以下', () => {
       }
     }
 
-    expect(
-      violations,
-      `features useState 過多 — 責務分離カタログ P3/P10 を参照:\n${violations.join('\n')}`,
-    ).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 })
 
@@ -243,10 +223,7 @@ describe('G8-P12: domain/models/ の export function/const が上限以下', () 
       }
     }
 
-    expect(
-      violations,
-      `domain/models で型と utility が同居 — 責務分離カタログ P12 を参照。関数を別ファイルに分離してください:\n${violations.join('\n')}`,
-    ).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 })
 
@@ -273,8 +250,8 @@ describe('G8-P17: storeIds 正規化パターンの散在が上限以下', () =>
 
     expect(
       filesWithPattern.size,
-      `storeIds 正規化パターンが ${filesWithPattern.size} ファイルに散在 (上限: ${STORE_IDS_NORMALIZATION_MAX_FILES})。` +
-        `normalizeQueryParams() への統合を検討 — 責務分離カタログ P17 を参照\n` +
+      `[${rule.id}] storeIds 正規化パターンが ${filesWithPattern.size} ファイルに散在 (上限: ${STORE_IDS_NORMALIZATION_MAX_FILES})。` +
+        `normalizeQueryParams() への統合を検討\n` +
         `該当: ${[...filesWithPattern].join(', ')}`,
     ).toBeLessThanOrEqual(STORE_IDS_NORMALIZATION_MAX_FILES)
   })
@@ -308,25 +285,16 @@ describe('G8-P18: fallback 定数の密度が上限以下', () => {
 
   it('application/ の fallback 定数密度が上限以下', () => {
     const violations = scanDir('application')
-    expect(
-      violations,
-      `fallback 定数が過密 — 責務分離カタログ P18 を参照。共通モジュールに集約するか、型のデフォルト値に統合してください:\n${violations.join('\n')}`,
-    ).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   it('presentation/ の fallback 定数密度が上限以下', () => {
     const violations = scanDir('presentation')
-    expect(
-      violations,
-      `fallback 定数が過密 — 責務分離カタログ P18 を参照:\n${violations.join('\n')}`,
-    ).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   it('features/ の fallback 定数密度が上限以下', () => {
     const violations = scanDir('features')
-    expect(
-      violations,
-      `fallback 定数が過密 — 責務分離カタログ P18 を参照:\n${violations.join('\n')}`,
-    ).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 })

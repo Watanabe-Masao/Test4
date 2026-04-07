@@ -15,7 +15,11 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { SRC_DIR, collectTsFiles, rel, stripComments } from '../guardTestHelpers'
 import { readResponsibilityTags, validateTags } from '../responsibilityTagRegistry'
-import { getRuleByResponsibilityTag } from '../architectureRules'
+import {
+  getRuleByResponsibilityTag,
+  getRuleById,
+  formatViolationMessage,
+} from '../architectureRules'
 import type { ResponsibilityTag } from '../responsibilityTagRegistry'
 
 /** 対象ディレクトリ */
@@ -49,6 +53,7 @@ function collectTargetFiles(): string[] {
 
 describe('G8-R: 責務タグカバレッジ', () => {
   const files = collectTargetFiles()
+  const rule = getRuleById('AR-C9-HONEST-UNCLASSIFIED')!
 
   // ── ratchet-down ベースライン ──
   // 実測値がこれより減ったら、この数字を下げてコミットする。
@@ -72,9 +77,7 @@ describe('G8-R: 責務タグカバレッジ', () => {
 
     expect(
       unclassified.length,
-      `未分類が増加 (${unclassified.length} > ${UNCLASSIFIED_BASELINE})。\n` +
-        `新規ファイルは JSDoc に @responsibility R:xxx を追加してください。\n` +
-        `未分類の末尾:\n${unclassified.slice(-10).join('\n')}`,
+      formatViolationMessage(rule, unclassified.slice(-10)),
     ).toBeLessThanOrEqual(UNCLASSIFIED_BASELINE)
   })
 
@@ -89,11 +92,7 @@ describe('G8-R: 責務タグカバレッジ', () => {
       }
     }
 
-    expect(
-      invalid,
-      `不正な @responsibility タグが見つかりました:\n${invalid.join('\n')}\n` +
-        'responsibilityTagRegistry.ts の ResponsibilityTag を確認してください',
-    ).toEqual([])
+    expect(invalid, formatViolationMessage(rule, invalid)).toEqual([])
   })
 
   it('分類状況サマリー（情報出力）', () => {
@@ -175,11 +174,8 @@ describe('G8-R: 責務タグカバレッジ', () => {
       )
     }
 
-    expect(
-      mismatches.length,
-      `タグ不一致が増加 (${mismatches.length} > ${TAG_MISMATCH_BASELINE})。\n` +
-        `タグの見直しまたはファイルの分離を検討してください。\n` +
-        `不一致:\n${mismatches.join('\n')}`,
-    ).toBeLessThanOrEqual(TAG_MISMATCH_BASELINE)
+    expect(mismatches.length, formatViolationMessage(rule, mismatches)).toBeLessThanOrEqual(
+      TAG_MISMATCH_BASELINE,
+    )
   })
 })

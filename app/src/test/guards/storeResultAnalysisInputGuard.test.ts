@@ -14,6 +14,7 @@ import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
 import { collectTsFiles, rel } from '../guardTestHelpers'
+import { getRuleById, formatViolationMessage, checkRatchetDown } from '../architectureRules'
 
 const SRC_DIR = path.resolve(__dirname, '../..')
 
@@ -43,6 +44,8 @@ const TOTAL_CUSTOMERS_ALLOWLIST = new Set([
 ])
 
 describe('StoreResult analysis input guard', () => {
+  const rule = getRuleById('AR-STRUCT-STORE-RESULT-INPUT')!
+
   it('presentation 層の .totalCustomers 新規利用が allowlist に含まれていること', () => {
     const presentationDir = path.join(SRC_DIR, 'presentation')
     if (!fs.existsSync(presentationDir)) return
@@ -58,21 +61,15 @@ describe('StoreResult analysis input guard', () => {
       }
     }
 
-    expect(
-      violations,
-      `presentation 層で .totalCustomers の新規利用が検出されました。\n` +
-        `分析入力には CustomerFact (readCustomerFact) を使用してください。\n` +
-        `KPI 表示用途なら TOTAL_CUSTOMERS_ALLOWLIST に追加してください。\n` +
-        violations.join('\n'),
-    ).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   it('allowlist の件数が増加していないこと（ratchet）', () => {
     const MAX_ALLOWLIST = 16
     expect(
       TOTAL_CUSTOMERS_ALLOWLIST.size,
-      `TOTAL_CUSTOMERS_ALLOWLIST が凍結上限（${MAX_ALLOWLIST}）を超えています。` +
-        `新規利用は CustomerFact 経由にしてください。`,
+      `[${rule.id}] ${rule.what}\nallowlist: ${TOTAL_CUSTOMERS_ALLOWLIST.size} (上限: ${MAX_ALLOWLIST})`,
     ).toBeLessThanOrEqual(MAX_ALLOWLIST)
+    checkRatchetDown(rule, TOTAL_CUSTOMERS_ALLOWLIST.size, 'allowlist')
   })
 })

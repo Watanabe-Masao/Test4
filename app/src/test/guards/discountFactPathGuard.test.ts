@@ -11,10 +11,13 @@ import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
 import { collectTsFiles, rel } from '../guardTestHelpers'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 const SRC_DIR = path.resolve(__dirname, '../..')
 
 describe('値引きファクト正本ガード', () => {
+  const rule = getRuleById('AR-PATH-DISCOUNT')!
+
   // ── 正本関数の存在確認 ──
 
   it('buildDiscountFactReadModel が pure builder として存在する', () => {
@@ -66,11 +69,7 @@ describe('値引きファクト正本ガード', () => {
       }
     }
 
-    expect(
-      violations,
-      `presentation 層から旧値引きクエリへの直接 import:\n${violations.join('\n')}\n` +
-        '→ readDiscountFact / useWidgetDataOrchestrator 経由に切り替えてください',
-    ).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   // ── useWidgetDataOrchestrator が discountFactHandler を統合していること ──

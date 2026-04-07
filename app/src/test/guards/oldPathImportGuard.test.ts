@@ -11,6 +11,7 @@
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import { SRC_DIR, collectTsFiles, rel } from '../guardTestHelpers'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 /**
  * 移行済み feature と旧パスのマッピング。
@@ -32,14 +33,16 @@ const MIGRATED_FEATURES: {
 const RE_EXPORT_DIRS = ['application/comparison/']
 
 describe('Old Path Import Guard', () => {
-  for (const rule of MIGRATED_FEATURES) {
-    it(`${rule.feature}: 旧パス (${rule.oldPathPrefix}) の import 数が ${rule.maxImports} 以下`, () => {
+  const rule = getRuleById('AR-MIG-OLD-PATH')!
+
+  for (const feature of MIGRATED_FEATURES) {
+    it(`${feature.feature}: 旧パス (${feature.oldPathPrefix}) の import 数が ${feature.maxImports} 以下`, () => {
       const allFiles = collectTsFiles(SRC_DIR)
       const violations: string[] = []
       let count = 0
 
       const pattern = new RegExp(
-        `from '${rule.oldPathPrefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`,
+        `from '${feature.oldPathPrefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`,
       )
 
       for (const file of allFiles) {
@@ -47,7 +50,7 @@ describe('Old Path Import Guard', () => {
         // re-export ハブ自身は除外
         if (RE_EXPORT_DIRS.some((d) => relPath.startsWith(d))) continue
         // features/ 内部は除外（barrel 経由の内部 import）
-        if (relPath.startsWith(`features/${rule.feature}/`)) continue
+        if (relPath.startsWith(`features/${feature.feature}/`)) continue
         // テストは除外
         if (relPath.includes('__tests__/') || relPath.startsWith('test/')) continue
 
@@ -58,12 +61,9 @@ describe('Old Path Import Guard', () => {
         }
       }
 
-      expect(
-        count,
-        `${rule.oldPathPrefix} の import: ${count}/${rule.maxImports}。\n` +
-          `新規 import 禁止。@/features/${rule.feature} barrel を使用してください。\n` +
-          `ファイル:\n${violations.join('\n')}`,
-      ).toBeLessThanOrEqual(rule.maxImports)
+      expect(count, formatViolationMessage(rule, violations)).toBeLessThanOrEqual(
+        feature.maxImports,
+      )
     })
   }
 
@@ -82,6 +82,6 @@ describe('Old Path Import Guard', () => {
       }
     }
 
-    expect(violations).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 })

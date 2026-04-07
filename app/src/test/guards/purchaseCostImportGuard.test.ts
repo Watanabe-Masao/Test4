@@ -13,6 +13,9 @@
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
+import { getRuleById } from '../architectureRules'
+
+const rule = getRuleById('AR-PATH-PURCHASE-COST')!
 
 const SRC_DIR = path.resolve(__dirname, '../..')
 
@@ -33,9 +36,10 @@ describe('ファイル判別が正しいこと', () => {
     const content = fs.readFileSync(registryFile, 'utf-8')
 
     for (const type of REQUIRED_PURCHASE_TYPES) {
-      expect(content.includes(`type: '${type}'`), `FILE_TYPE_REGISTRY に '${type}' が未登録`).toBe(
-        true,
-      )
+      expect(
+        content.includes(`type: '${type}'`),
+        `[${rule.id}] FILE_TYPE_REGISTRY に '${type}' が未登録`,
+      ).toBe(true)
     }
   })
 
@@ -52,14 +56,14 @@ describe('ファイル判別が正しいこと', () => {
 
       expect(
         block.includes('filenamePatterns:') && !block.includes('filenamePatterns: []'),
-        `'${type}' の filenamePatterns が空`,
+        `[${rule.id}] '${type}' の filenamePatterns が空`,
       ).toBe(true)
     }
   })
 
   it('FileTypeDetector のテストが存在する', () => {
     const testFile = path.join(SRC_DIR, 'infrastructure/fileImport/FileTypeDetector.test.ts')
-    expect(fs.existsSync(testFile), 'FileTypeDetector.test.ts が存在しない').toBe(true)
+    expect(fs.existsSync(testFile), `[${rule.id}] FileTypeDetector.test.ts が存在しない`).toBe(true)
   })
 })
 
@@ -78,9 +82,10 @@ describe('パースが正しいこと', () => {
   it('全仕入関連データ型に対応する Processor が存在する', () => {
     for (const [type, processorPath] of Object.entries(PROCESSOR_MAP)) {
       const fullPath = path.join(SRC_DIR, processorPath)
-      expect(fs.existsSync(fullPath), `'${type}' の Processor ${processorPath} が存在しない`).toBe(
-        true,
-      )
+      expect(
+        fs.existsSync(fullPath),
+        `[${rule.id}] '${type}' の Processor ${processorPath} が存在しない`,
+      ).toBe(true)
     }
   })
 
@@ -89,7 +94,7 @@ describe('パースが正しいこと', () => {
     for (const processorPath of uniqueProcessors) {
       const testPath = processorPath.replace('.ts', '.test.ts')
       const fullPath = path.join(SRC_DIR, testPath)
-      expect(fs.existsSync(fullPath), `${testPath} が存在しない`).toBe(true)
+      expect(fs.existsSync(fullPath), `[${rule.id}] ${testPath} が存在しない`).toBe(true)
     }
   })
 
@@ -119,7 +124,7 @@ describe('DuckDB 格納が正しいこと', () => {
     for (const fn of REQUIRED_INSERT_FUNCTIONS) {
       expect(
         content.includes(`export async function ${fn}`),
-        `tableInserts に ${fn} が存在しない`,
+        `[${rule.id}] tableInserts に ${fn} が存在しない`,
       ).toBe(true)
     }
   })
@@ -129,7 +134,7 @@ describe('DuckDB 格納が正しいこと', () => {
     const content = fs.readFileSync(loaderFile, 'utf-8')
 
     for (const fn of REQUIRED_INSERT_FUNCTIONS) {
-      expect(content.includes(fn), `dataLoader が ${fn} を呼び出していない`).toBe(true)
+      expect(content.includes(fn), `[${rule.id}] dataLoader が ${fn} を呼び出していない`).toBe(true)
     }
   })
 
@@ -210,7 +215,10 @@ describe('正本化パスが正しいこと', () => {
 
     for (const file of files) {
       const fullPath = path.join(SRC_DIR, file)
-      expect(fs.existsSync(fullPath), `チェーン構成ファイル ${file} が存在しない`).toBe(true)
+      expect(
+        fs.existsSync(fullPath),
+        `[${rule.id}] チェーン構成ファイル ${file} が存在しない`,
+      ).toBe(true)
     }
   })
 })

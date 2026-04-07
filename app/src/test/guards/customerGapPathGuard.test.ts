@@ -11,10 +11,13 @@ import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
 import { collectTsFiles } from '../guardTestHelpers'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 const SRC_DIR = path.resolve(__dirname, '../..')
 
 describe('客数GAP 正本ガード', () => {
+  const rule = getRuleById('AR-PATH-CUSTOMER-GAP')!
+
   it('calculateCustomerGap が domain/calculations に存在する', () => {
     const file = path.join(SRC_DIR, 'domain/calculations/customerGap.ts')
     expect(fs.existsSync(file), 'customerGap.ts が存在しない').toBe(true)
@@ -41,10 +44,6 @@ describe('客数GAP 正本ガード', () => {
       }
     }
 
-    expect(
-      violations,
-      `客数GAP の独自計算が検出されました:\n${violations.join('\n')}\n` +
-        `calculateCustomerGap を使用してください`,
-    ).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 })
