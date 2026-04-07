@@ -15,6 +15,7 @@ import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
 import { SRC_DIR, collectTsFiles, collectTestFiles, rel } from '../guardTestHelpers'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 import {
   vmReactImport,
   reactImportExcludeDirs,
@@ -41,7 +42,9 @@ describe('R3: hooks/ に @internal export がない', () => {
       }
     }
 
-    expect(violations, `@internal export が検出されました:\n${violations.join('\n')}`).toEqual([])
+    expect(violations, formatViolationMessage(getRuleById('AR-G4-INTERNAL')!, violations)).toEqual(
+      [],
+    )
   })
 })
 
@@ -117,10 +120,7 @@ describe('R7: stores/ の set() コールバック内に算術式がない', () 
       }
     }
 
-    expect(
-      violations,
-      `store action 内の算術式が検出されました:\n${violations.join('\n')}`,
-    ).toEqual([])
+    expect(violations, formatViolationMessage(getRuleById('AR-C3-STORE')!, violations)).toEqual([])
   })
 })
 
@@ -354,12 +354,9 @@ describe('E4: domain/calculations/ で数値の truthiness チェックがない
       }
     }
 
-    expect(
-      violations,
-      `数値フィールドの truthiness チェック（E4 違反）:\n` +
-        `0 が有効値のフィールドで !value を使うと欠損扱いされます。== null を使用してください。\n` +
-        violations.join('\n'),
-    ).toEqual([])
+    expect(violations, formatViolationMessage(getRuleById('AR-E4-TRUTHINESS')!, violations)).toEqual(
+      [],
+    )
   })
 })
 
@@ -401,12 +398,9 @@ describe('G3: ソースコードに eslint-disable / @ts-ignore がない', () =
       }
     }
 
-    expect(
-      violations,
-      `コンパイラ警告の抑制が検出されました（G3 違反）:\n` +
-        `eslint-disable / @ts-ignore / @ts-expect-error は禁止です。\n` +
-        violations.join('\n'),
-    ).toEqual([])
+    expect(violations, formatViolationMessage(getRuleById('AR-G3-SUPPRESS')!, violations)).toEqual(
+      [],
+    )
   })
 
   it('G3 許可リストは 2 件以下', () => {
@@ -565,12 +559,9 @@ describe('C5: Zustand store はセレクタ付きで呼ぶ', () => {
       }
     }
 
-    expect(
-      violations,
-      `セレクタなしの store 呼び出しが検出されました（C5 違反）:\n` +
-        `useDataStore((s) => s.field) のようにセレクタを指定してください。\n` +
-        violations.join('\n'),
-    ).toEqual([])
+    expect(violations, formatViolationMessage(getRuleById('AR-C5-SELECTOR')!, violations)).toEqual(
+      [],
+    )
   })
 })
 
@@ -606,9 +597,7 @@ describe('G2: 空の catch ブロックが存在しない', () => {
 
     expect(
       violations,
-      `空の catch ハンドラが検出されました（G2 違反）:\n` +
-        `catch 内でエラーを握り潰さないでください。最低でも console.warn を入れてください。\n` +
-        violations.join('\n'),
+      formatViolationMessage(getRuleById('AR-G2-EMPTY-CATCH')!, violations),
     ).toEqual([])
   })
 })

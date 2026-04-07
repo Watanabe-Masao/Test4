@@ -287,6 +287,106 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     detection: { type: 'import', severity: 'gate', baseline: 0 },
   },
 
+  // ── codePatternGuard 由来 ──
+
+  {
+    id: 'AR-G4-INTERNAL',
+    guardTags: ['G4'],
+    epoch: 1,
+    what: 'hooks/ に @internal export を作らない',
+    why: 'テスト用 export は本番 API を汚染する。テストは public API 経由で行う',
+    correctPattern: {
+      description: 'public API のみを export する。内部関数はファイル内に閉じる',
+    },
+    outdatedPattern: {
+      description: '@internal コメント付きの export を作成する',
+      codeSignals: ['@internal'],
+    },
+    detection: { type: 'regex', severity: 'gate', baseline: 0 },
+  },
+
+  {
+    id: 'AR-C3-STORE',
+    guardTags: ['C3'],
+    epoch: 1,
+    what: 'store action 内に業務ロジック（算術式）を埋め込まない',
+    why: 'store は state の反映のみ。計算は domain 層に委譲する',
+    doc: 'references/01-principles/design-principles.md',
+    correctPattern: {
+      description: 'store action は set() で値を反映するだけ。算術計算は domain/calculations/ で行う',
+    },
+    outdatedPattern: {
+      description: 'set() コールバック内で (a) + (b) のような算術代入を行う',
+    },
+    detection: { type: 'regex', severity: 'gate', baseline: 0 },
+  },
+
+  {
+    id: 'AR-G3-SUPPRESS',
+    guardTags: ['G3'],
+    epoch: 1,
+    what: 'コンパイラ警告を黙殺しない（eslint-disable / @ts-ignore 禁止）',
+    why: '警告を黙殺すると型安全性やリント規約が形骸化する',
+    correctPattern: {
+      description: '根本原因を修正する。どうしても必要な���合は allowlist に正当理由を記載',
+    },
+    outdatedPattern: {
+      description: 'eslint-disable / @ts-ignore / @ts-expect-error コメントを追加する',
+      codeSignals: ['eslint-disable', '@ts-ignore', '@ts-expect-error'],
+    },
+    detection: { type: 'regex', severity: 'gate', baseline: 0 },
+  },
+
+  {
+    id: 'AR-E4-TRUTHINESS',
+    guardTags: ['E4'],
+    epoch: 1,
+    what: '数値フィールドの truthiness チェックを禁止する',
+    why: '0 が有効値のフィールドで !value を使うと欠損扱いされ計算が狂う',
+    correctPattern: {
+      description: '欠損判定は value == null を使う',
+      example: 'if (result.salesAmount == null) { /* 欠損 */ }',
+    },
+    outdatedPattern: {
+      description: '!result.numericField のような truthiness チェック',
+      codeSignals: ['!result.', '!entry.', '!data.'],
+    },
+    detection: { type: 'regex', severity: 'gate', baseline: 0 },
+  },
+
+  {
+    id: 'AR-C5-SELECTOR',
+    guardTags: ['C5'],
+    epoch: 1,
+    what: 'Zustand store はセレクタ付きで呼ぶ',
+    why: 'セレクタなしの store 呼び出しは全フィールドの変更で再レンダリングが発生する',
+    correctPattern: {
+      description: 'useDataStore((s) => s.field) のようにセレクタを指定する',
+      example: 'const field = useDataStore((s) => s.field)',
+    },
+    outdatedPattern: {
+      description: 'useDataStore() のようにセレクタなしで呼ぶ',
+      codeSignals: ['useDataStore()', 'useSettingsStore()', 'useUiStore()'],
+    },
+    detection: { type: 'regex', severity: 'gate', baseline: 0 },
+  },
+
+  {
+    id: 'AR-G2-EMPTY-CATCH',
+    guardTags: ['G2'],
+    epoch: 1,
+    what: '空の catch ブロックでエラーを握り潰さない',
+    why: 'エラーを無視するとデバッグ不能な不具合につながる',
+    correctPattern: {
+      description: 'catch 内で最低でも console.warn を入れるか、エラーを伝播する',
+    },
+    outdatedPattern: {
+      description: '.catch(() => {}) のような空のエラーハンドラ',
+      codeSignals: ['.catch(() => {})'],
+    },
+    detection: { type: 'regex', severity: 'gate', baseline: 0 },
+  },
+
   // ── sizeGuard 由来 ──
 
   {
