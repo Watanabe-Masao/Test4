@@ -26,12 +26,17 @@ export type DetectionType =
   | 'must-not-coexist' // A と B は同居禁止（useState と SQL 等）
   | 'custom' // 上記に当てはまらない特殊検出
 
+/** ルールの成熟度。新しいルールは experimental から始め、安定したら stable に昇格する */
+export type RuleMaturity = 'experimental' | 'stable' | 'deprecated'
+
 export interface ArchitectureRule {
   // ── 識別 ──
   readonly id: string
   readonly guardTags: readonly string[]
   readonly responsibilityTags?: readonly string[]
   readonly epoch?: number
+  /** ルールの成熟度。未指定は stable 扱い */
+  readonly maturity?: RuleMaturity
 
   // ── 定義 ──
   readonly what: string

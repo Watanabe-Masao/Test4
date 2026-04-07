@@ -171,6 +171,76 @@ describe('Architecture Rule Registry', () => {
     expect(true).toBe(true)
   })
 
+  // ── ルール健全性評価 ──
+
+  it('例外圧が高いルールを検出（ルール見直し候補）', () => {
+    const allowlistDir = path.resolve(__dirname, '../allowlists')
+    const files = fs.readdirSync(allowlistDir).filter((f) => f.endsWith('.ts') && f !== 'types.ts')
+
+    // ruleId ごとの例外数を集計
+    const exceptionCount = new Map<string, number>()
+    for (const file of files) {
+      const content = fs.readFileSync(path.join(allowlistDir, file), 'utf-8')
+      for (const match of content.matchAll(/ruleId:\s*'([^']+)'/g)) {
+        exceptionCount.set(match[1], (exceptionCount.get(match[1]) ?? 0) + 1)
+      }
+    }
+
+    const EXCEPTION_PRESSURE_THRESHOLD = 10
+    const highPressure: string[] = []
+
+    for (const [ruleId, count] of exceptionCount) {
+      if (count >= EXCEPTION_PRESSURE_THRESHOLD) {
+        const rule = ARCHITECTURE_RULES.find((r) => r.id === ruleId)
+        highPressure.push(`${ruleId}: ${count} 件の例外（${rule?.what ?? '不明'}）`)
+      }
+    }
+
+    if (highPressure.length > 0) {
+      console.log(
+        `\n[例外圧 警告] ${highPressure.length} ルールが閾値 ${EXCEPTION_PRESSURE_THRESHOLD} 以上:`,
+      )
+      for (const h of highPressure) console.log(`  ${h}`)
+      console.log('  → ルール自体が現実に合っていない可能性。見直しを検討')
+    }
+
+    // 例外圧レポート（全ルール）
+    const sorted = [...exceptionCount.entries()].sort((a, b) => b[1] - a[1])
+    if (sorted.length > 0) {
+      console.log(`\n[例外圧レポート] ruleId 別の例外数:`)
+      for (const [ruleId, count] of sorted) {
+        console.log(`  ${ruleId}: ${count}`)
+      }
+    }
+
+    expect(true).toBe(true)
+  })
+
+  it('experimental ルールが gate で運用されていない', () => {
+    const violations: string[] = []
+
+    for (const rule of ARCHITECTURE_RULES) {
+      if (rule.maturity === 'experimental' && rule.detection.severity === 'gate') {
+        violations.push(
+          `${rule.id}: experimental なのに gate。パターンが安定するまで warn にすべき`,
+        )
+      }
+    }
+
+    expect(violations, violations.join('\n')).toEqual([])
+  })
+
+  it('deprecated ルールが存在しない（存在したら削除を促す）', () => {
+    const deprecated = ARCHITECTURE_RULES.filter((r) => r.maturity === 'deprecated')
+
+    if (deprecated.length > 0) {
+      console.log(`\n[deprecated ルール] ${deprecated.length} 件 — 削除を検討:`)
+      for (const r of deprecated) console.log(`  ${r.id}: ${r.what}`)
+    }
+
+    expect(true).toBe(true)
+  })
+
   it('ルール数サマリー', () => {
     const byType = new Map<string, number>()
     let withMigration = 0
@@ -183,11 +253,15 @@ describe('Architecture Rule Registry', () => {
       if (rule.relationships) withRelationships++
     }
 
+    const experimental = ARCHITECTURE_RULES.filter((r) => r.maturity === 'experimental').length
+    const deprecated = ARCHITECTURE_RULES.filter((r) => r.maturity === 'deprecated').length
+    const stable = ARCHITECTURE_RULES.length - experimental - deprecated
+
     const summary = [...byType.entries()]
       .map(([type, count]) => `  ${type}: ${count}`)
       .join('\n')
     console.log(
-      `[Architecture Rules] ${ARCHITECTURE_RULES.length} rules\n${summary}\n` +
+      `[Architecture Rules] ${ARCHITECTURE_RULES.length} rules (stable: ${stable}, experimental: ${experimental}, deprecated: ${deprecated})\n${summary}\n` +
         `  migrationPath: ${withMigration} | decisionCriteria: ${withDecision} | relationships: ${withRelationships}`,
     )
   })
