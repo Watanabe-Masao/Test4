@@ -257,9 +257,7 @@ describe('Architecture Rule Registry', () => {
     const deprecated = ARCHITECTURE_RULES.filter((r) => r.maturity === 'deprecated').length
     const stable = ARCHITECTURE_RULES.length - experimental - deprecated
 
-    const summary = [...byType.entries()]
-      .map(([type, count]) => `  ${type}: ${count}`)
-      .join('\n')
+    const summary = [...byType.entries()].map(([type, count]) => `  ${type}: ${count}`).join('\n')
     console.log(
       `[Architecture Rules] ${ARCHITECTURE_RULES.length} rules (stable: ${stable}, experimental: ${experimental}, deprecated: ${deprecated})\n${summary}\n` +
         `  migrationPath: ${withMigration} | decisionCriteria: ${withDecision} | relationships: ${withRelationships}`,

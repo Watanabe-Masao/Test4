@@ -354,9 +354,10 @@ describe('E4: domain/calculations/ で数値の truthiness チェックがない
       }
     }
 
-    expect(violations, formatViolationMessage(getRuleById('AR-E4-TRUTHINESS')!, violations)).toEqual(
-      [],
-    )
+    expect(
+      violations,
+      formatViolationMessage(getRuleById('AR-E4-TRUTHINESS')!, violations),
+    ).toEqual([])
   })
 })
 
