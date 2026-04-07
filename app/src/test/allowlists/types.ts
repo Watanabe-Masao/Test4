@@ -28,6 +28,13 @@ export interface AllowlistEntry {
   readonly removalCondition: string
   /** 構造負債のライフサイクル。未指定は active-debt 扱い。 */
   readonly lifecycle?: AllowlistLifecycle
+  // ── 時間軸（Temporal Governance） ──
+  /** 例外の作成日（YYYY-MM-DD） */
+  readonly createdAt?: string
+  /** 有効期限（active-debt のみ推奨） */
+  readonly expiresAt?: string
+  /** 延長回数（2 超でルール review 強制） */
+  readonly renewalCount?: number
 }
 
 /** 数量型の許可リストエントリ（ファイルごとの数値上限） */

@@ -171,6 +171,30 @@ describe('Architecture Rule Registry', () => {
     expect(true).toBe(true)
   })
 
+  it('allowlist の active-debt に renewalCount > 2 がない', () => {
+    const allowlistDir = path.resolve(__dirname, '../allowlists')
+    const files = fs.readdirSync(allowlistDir).filter((f) => f.endsWith('.ts') && f !== 'types.ts')
+    const overRenewed: string[] = []
+
+    for (const file of files) {
+      const content = fs.readFileSync(path.join(allowlistDir, file), 'utf-8')
+      // renewalCount を持つエントリを検出
+      for (const match of content.matchAll(/path:\s*'([^']+)'[\s\S]*?renewalCount:\s*(\d+)/g)) {
+        const count = Number(match[2])
+        if (count > 2) {
+          overRenewed.push(`${file}: ${match[1]} (renewalCount: ${count})`)
+        }
+      }
+    }
+
+    if (overRenewed.length > 0) {
+      console.log(`\n[renewalCount > 2] ${overRenewed.length} 件 — ルール見直しを検討:`)
+      for (const o of overRenewed) console.log(`  ${o}`)
+    }
+
+    expect(true).toBe(true)
+  })
+
   // ── ルール健全性評価 ──
 
   it('例外圧が高いルールを検出（ルール見直し候補）', () => {

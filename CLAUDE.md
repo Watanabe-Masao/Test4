@@ -643,7 +643,9 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 - **ドキュメント整合性基盤**: `docs/contracts/` に構造化データ（principles.json, project-metadata.json）導入。documentConsistency.test.ts で機械検証
 - **進化安全の再構成（2026-04-05）**: WASM 全 5 engine を authoritative に昇格（bridge 1,426→431 行）。dual-run infrastructure 全面退役（~5,500 行削減）。ComparisonWindow 契約型導入。near-limit 2→0。noNewDebtGuard + Green/Yellow/Red 1 人運用モデル。Health: RISK → Healthy
 - **Architecture Rule 導入（2026-04-07）**: 統一ガードフォーマット。「禁止」「あるべき姿」「なぜ」「ドキュメント」をセットで定義。8種の detection type。architectureEpoch.ts + responsibilityTagExpectations.ts 廃止 → architectureRules.ts に統合。タグ別閾値（18 タグ）+ noNewDebtGuard（5 ルール）= 計 23 ルール。ratchet-down 方式で未分類・タグ不一致を管理
+- **Architecture Rule 導入（2026-04-07）**: 統一ガードフォーマット。「禁止」「あるべき姿」「なぜ」「ドキュメント」をセットで定義。8種の detection type。architectureEpoch.ts + responsibilityTagExpectations.ts 廃止 → architectureRules.ts に統合。タグ別閾値（18 タグ）+ noNewDebtGuard（5 ルール）= 計 23 ルール。ratchet-down 方式で未分類・タグ不一致を管理
 - **Architecture Rule 昇華（2026-04-07）**: 84 ルール / 全 39 ガード統合 / 全ルールに migrationPath + doc + decisionCriteria。maturity（experimental/stable/deprecated）+ 例外圧検出 + ratchet-down 自動進行。全 guard タグ（50+）をルールでカバー。27 ドキュメント双方向リンク。allowlist に ruleId フィールド追加。運用ガイド: `references/03-guides/architecture-rule-system.md`
+- **Temporal Governance（2026-04-07）**: reviewPolicy（owner/lastReviewedAt/reviewCadenceDays）でルールに時計を持たせる。ruleClass（invariant/default/heuristic）+ confidence + sunsetCondition + lifecyclePolicy。「疑い、捨て、置き換える」思想を制度化。allowlist に createdAt/expiresAt/renewalCount
 
 ## Explanation（説明責任）
 
