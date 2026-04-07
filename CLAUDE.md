@@ -458,7 +458,7 @@ R: 責務タグレジストリ（`responsibilityTagGuard.test.ts`）:
 - `outdatedPattern` / `codeSignals` — 検出
 - `migrationPath` (81/81) — 修正手順 + 工数 + 優先度
 - `decisionCriteria` (81/81) — 判断の脱属人化
-- `relationships` (15) — ルール間の因果関係
+- `relationships` (43) — ルール間の因果関係
 - `thresholds` / `baseline` — 数値管理（ratchet-down）
 
 ## アーキテクチャ進化計画（要約）

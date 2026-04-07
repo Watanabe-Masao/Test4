@@ -280,14 +280,14 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: 'domain/ から application/ / infrastructure/ / presentation/ を import する',
       imports: ['@/application/', '@/infrastructure/', '@/presentation/'],
     },
+    relationships: {
+      enables: ['AR-STRUCT-PURITY', 'AR-TAG-CALCULATION', 'AR-TAG-UTILITY', 'AR-TAG-REDUCER', 'AR-TAG-TRANSFORM'],
+    },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
     decisionCriteria: {
       when: 'domain/ のファイルが外部層のモジュールを必要としたとき',
       exceptions: '例外なし。domain/ は純粋でなければならない',
       escalation: '外部データが必要なら domain/ に interface を定義し、application/ で実装を注入する',
-    },
-    relationships: {
-      enables: ['AR-TAG-CALCULATION', 'AR-TAG-UTILITY', 'AR-TAG-REDUCER', 'AR-STRUCT-PURITY'],
     },
     migrationPath: {
       steps: [
@@ -320,7 +320,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       imports: ['@/infrastructure/'],
     },
     relationships: {
-      enables: ['AR-STRUCT-PRES-ISOLATION'],
+      dependsOn: ['AR-A1-DOMAIN'],
     },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
     migrationPath: {
@@ -348,13 +348,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: 'application/ から presentation/ を import する',
       imports: ['@/presentation/'],
     },
-    relationships: {
-      dependsOn: ['AR-A1-DOMAIN'],
-    },
     decisionCriteria: {
       when: 'application/ から presentation/ の型を参照したいとき',
       exceptions: '例外なし。依存方向は逆',
       escalation: '共有型は domain/ に定義する',
+    },
+    relationships: {
+      dependsOn: ['AR-A1-DOMAIN'],
     },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
     migrationPath: {
@@ -384,13 +384,12 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: 'import type は許容（実行時依存を生まない）。value import は allowlist に正当理由が必要',
       escalation: 'application/ に hook を作成し、presentation/ はそれを使う',
     },
-    relationships: {
-      dependsOn: ['AR-A1-DOMAIN'],
-      enables: ['AR-STRUCT-PRES-ISOLATION', 'AR-STRUCT-RENDER-SIDE-EFFECT'],
-    },
     outdatedPattern: {
       description: 'presentation/ から infrastructure/ を value import する',
       imports: ['@/infrastructure/'],
+    },
+    relationships: {
+      enables: ['AR-STRUCT-PRES-ISOLATION', 'AR-STRUCT-RENDER-SIDE-EFFECT', 'AR-Q3-CHART-NO-DUCKDB'],
     },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
     migrationPath: {
@@ -423,6 +422,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: 'import type は許容',
       escalation: 'application/hooks/ の hook 経由に変更',
     },
+    relationships: {
+      dependsOn: ['AR-A1-PRES-INFRA'],
+    },
     detection: { type: 'import', severity: 'gate', baseline: 1 },
     migrationPath: {
       steps: [
@@ -449,13 +451,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: 'infrastructure/ から application/ を import する',
       imports: ['@/application/'],
     },
-    relationships: {
-      dependsOn: ['AR-A1-DOMAIN'],
-    },
     decisionCriteria: {
       when: 'infrastructure/ から application/ の型を使いたいとき',
       exceptions: '例外なし',
       escalation: '必要な型は domain/ に契約として定義',
+    },
+    relationships: {
+      dependsOn: ['AR-A1-DOMAIN'],
     },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
     migrationPath: {
@@ -487,6 +489,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       when: 'infrastructure/ から presentation/ を参照しようとしたとき',
       exceptions: '例外なし',
       escalation: '共有データは domain/ 経由',
+    },
+    relationships: {
+      dependsOn: ['AR-A1-DOMAIN'],
     },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
     migrationPath: {
@@ -706,6 +711,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: 'allowlists/complexity.ts に理由・lifecycle・removalCondition を記載すれば個別上限を設定可能',
       escalation: 'hook を分割するか、pure builder に計算を抽出する',
     },
+    relationships: {
+      dependsOn: ['AR-STRUCT-RESP-SEPARATION'],
+    },
     detection: { type: 'count', severity: 'gate' },
     migrationPath: {
       steps: [
@@ -736,6 +744,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       when: 'hook の useState が 6 を超えそうなとき',
       exceptions: 'allowlists/complexity.ts に登録可能。useReducer 統合も検討',
       escalation: '状態管理 hook を分割するか useReducer に統合する',
+    },
+    relationships: {
+      dependsOn: ['AR-STRUCT-RESP-SEPARATION'],
     },
     detection: { type: 'count', severity: 'gate' },
     migrationPath: {
@@ -798,6 +809,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       when: 'コンポーネントが 600 行を超えそうなとき',
       exceptions: 'allowlists/size.ts の Tier 2 に登録可能（次回改修時に分割義務）',
       escalation: '子コンポーネントに分割。状態は hook に抽出',
+    },
+    relationships: {
+      dependsOn: ['AR-STRUCT-RESP-SEPARATION'],
     },
     detection: { type: 'count', severity: 'gate' },
     migrationPath: {
@@ -958,6 +972,10 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: 'application 層の salesFactHandler 直接使用は許容',
       escalation: 'readSalesFact() または useWidgetDataOrchestrator 経由に変更',
     },
+    relationships: {
+      dependsOn: ['AR-STRUCT-CANONICALIZATION'],
+      enables: ['AR-PATH-GROSS-PROFIT', 'AR-PATH-PI-VALUE', 'AR-PATH-FACTOR-DECOMPOSITION'],
+    },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
     migrationPath: {
       steps: [
@@ -988,6 +1006,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       when: '値引きデータを取得するとき',
       exceptions: 'application 層の discountFactHandler 直接使用は許容',
       escalation: 'readDiscountFact() 経由に変更',
+    },
+    relationships: {
+      dependsOn: ['AR-STRUCT-CANONICALIZATION'],
     },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
     migrationPath: {
@@ -1055,7 +1076,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: '旧 queryPurchaseTotal 等 7 関数の使用（廃止済み）',
     },
     relationships: {
-      enables: ['AR-STRUCT-CANONICALIZATION'],
+      dependsOn: ['AR-STRUCT-CANONICALIZATION'],
+      enables: ['AR-PATH-GROSS-PROFIT'],
     },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
     migrationPath: {
@@ -1088,6 +1110,10 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: 'application 層の customerFactHandler 直接使用は許容',
       escalation: 'readCustomerFact() 経由に変更',
     },
+    relationships: {
+      dependsOn: ['AR-STRUCT-CANONICALIZATION'],
+      enables: ['AR-PATH-PI-VALUE', 'AR-PATH-CUSTOMER-GAP'],
+    },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
     migrationPath: {
       steps: [
@@ -1118,6 +1144,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       when: '客数差を計算するとき',
       exceptions: '例外なし',
       escalation: 'calculateCustomerGap() を使用',
+    },
+    relationships: {
+      dependsOn: ['AR-PATH-CUSTOMER'],
     },
     detection: { type: 'regex', severity: 'gate', baseline: 0 },
     migrationPath: {
@@ -1150,6 +1179,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: '例外なし。0 除算ガードが組み込まれている',
       escalation: 'calculateQuantityPI() / calculateAmountPI() を使用',
     },
+    relationships: {
+      dependsOn: ['AR-PATH-SALES', 'AR-PATH-CUSTOMER'],
+    },
     detection: { type: 'regex', severity: 'gate', baseline: 0 },
     migrationPath: {
       steps: [
@@ -1179,6 +1211,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       when: '自由期間分析データを取得するとき',
       exceptions: 'application 層の freePeriodHandler 直接使用は許容',
       escalation: 'readFreePeriodFact() 経由に変更',
+    },
+    relationships: {
+      dependsOn: ['AR-STRUCT-CANONICALIZATION'],
     },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
     migrationPath: {
@@ -1210,6 +1245,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: 'application 層の handler 直接使用は許容',
       escalation: 'readFreePeriodBudgetFact() 経由に変更',
     },
+    relationships: {
+      dependsOn: ['AR-PATH-FREE-PERIOD'],
+    },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
     migrationPath: {
       steps: [
@@ -1240,6 +1278,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: 'application 層の handler 直接使用は許容',
       escalation: 'readFreePeriodDeptKPI() 経由に変更',
     },
+    relationships: {
+      dependsOn: ['AR-PATH-FREE-PERIOD'],
+    },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
     migrationPath: {
       steps: [
@@ -1265,13 +1306,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     outdatedPattern: {
       description: '独自の要因分解計算やインラインのシャープリー値計算',
     },
-    relationships: {
-      dependsOn: ['AR-STRUCT-PURITY'],
-    },
     decisionCriteria: {
       when: '要因分解を実行するとき',
       exceptions: '例外なし。シャープリー恒等式の不変条件を破壊する',
       escalation: 'calculateFactorDecomposition() を使用',
+    },
+    relationships: {
+      dependsOn: ['AR-STRUCT-PURITY', 'AR-PATH-SALES'],
     },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
     migrationPath: {
@@ -1303,6 +1344,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: '例外なし。全経路で同一値でなければならない',
       escalation: 'calculateGrossProfit → getEffectiveGrossProfit の 2 層構造を使用',
     },
+    relationships: {
+      dependsOn: ['AR-PATH-GROSS-PROFIT'],
+    },
     detection: { type: 'custom', severity: 'gate', baseline: 0 },
     migrationPath: {
       steps: [
@@ -1331,6 +1375,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: '例外なし',
       escalation: 'AnalysisFrame / CalculationFrame 経由で構築',
     },
+    relationships: {
+      dependsOn: ['AR-STRUCT-QUERY-PATTERN'],
+    },
     detection: { type: 'custom', severity: 'gate' },
     migrationPath: { steps: ['1. 直接クエリ入力の構築を AnalysisFrame 経由に変更'], effort: 'small', priority: 2 },
   },
@@ -1348,6 +1395,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       when: 'domain/calculations/ にファイルを追加・変更するとき',
       exceptions: '例外なし。全ファイルが calculationCanonRegistry に登録必須',
       escalation: 'required なら Zod 契約も追加。不明なら review 分類で登録',
+    },
+    relationships: {
+      dependsOn: ['AR-A1-DOMAIN'],
     },
     detection: { type: 'must-include', severity: 'gate' },
     migrationPath: { steps: ['1. calculationCanonRegistry.ts に分類を追加（required/review/not-needed）', '2. required なら Zod 契約を追加'], effort: 'trivial', priority: 1 },
@@ -1380,14 +1430,14 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     doc: 'references/01-principles/canonicalization-principles.md',
     correctPattern: { description: 'readModels/ に配置、Zod 契約、パスガード、定義書を揃える' },
     outdatedPattern: { description: '正本化手順を省略して readModel を追加する' },
-    relationships: {
-      dependsOn: ['AR-STRUCT-CALC-CANON', 'AR-STRUCT-FALLBACK-METADATA'],
-      enables: ['AR-PATH-SALES', 'AR-PATH-DISCOUNT', 'AR-PATH-CUSTOMER'],
-    },
     decisionCriteria: {
       when: '新しい readModel を追加するとき',
       exceptions: '例外なし。正本化手順を全て実施する',
       escalation: 'readModels/ 配置 → Zod 契約 → パスガード → 定義書',
+    },
+    relationships: {
+      dependsOn: ['AR-STRUCT-CALC-CANON', 'AR-STRUCT-FALLBACK-METADATA'],
+      enables: ['AR-PATH-SALES', 'AR-PATH-DISCOUNT', 'AR-PATH-GROSS-PROFIT', 'AR-PATH-PURCHASE-COST', 'AR-PATH-CUSTOMER', 'AR-PATH-FREE-PERIOD'],
     },
     detection: { type: 'custom', severity: 'gate' },
     migrationPath: { steps: ['1. readModels/ に配置', '2. Zod 契約追加', '3. パスガード追加', '4. 定義書作成'], effort: 'medium', priority: 1 },
@@ -1407,6 +1457,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: '例外なし',
       escalation: 'buildComparisonScope() factory を使用',
     },
+    relationships: {
+      dependsOn: ['AR-STRUCT-QUERY-PATTERN'],
+    },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
     migrationPath: { steps: ['1. 直接構築を削除', '2. buildComparisonScope() に置き換え'], effort: 'small', priority: 2 },
   },
@@ -1424,6 +1477,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       when: '集計クエリや state リセットを書くとき',
       exceptions: '例外なし',
       escalation: '二重計上チェック、is_prev_year 整合確認、useEffect クリーンアップ確認',
+    },
+    relationships: {
+      dependsOn: ['AR-STRUCT-CANONICALIZATION'],
     },
     detection: { type: 'custom', severity: 'gate' },
     migrationPath: { steps: ['1. 二重計上: 集約サブクエリ経由にする', '2. state リセット: useEffect のクリーンアップで確実にリセット'], effort: 'small', priority: 1 },
@@ -1518,6 +1574,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: '例外なし',
       escalation: 'application/hooks/ の hook 経由',
     },
+    relationships: {
+      dependsOn: ['AR-A1-PRES-INFRA'],
+    },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
     migrationPath: { steps: ['1. infrastructure/ への直接 import を削除', '2. application/hooks/ の hook 経由に変更'], effort: 'small', priority: 1 },
   },
@@ -1531,15 +1590,15 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     doc: 'references/01-principles/design-principles.md',
     correctPattern: { description: 'domain/ は同期純粋関数のみ。async/副作用は application 層に置く' },
     outdatedPattern: { description: 'domain/ に async 関数や副作用を含む' },
+    relationships: {
+      dependsOn: ['AR-A1-DOMAIN'],
+      enables: ['AR-PATH-GROSS-PROFIT', 'AR-PATH-FACTOR-DECOMPOSITION', 'AR-PATH-PI-VALUE', 'AR-PATH-CUSTOMER-GAP'],
+    },
     detection: { type: 'must-not-coexist', severity: 'gate' },
     decisionCriteria: {
       when: 'domain/ に async 関数や外部 API 呼び出しを追加しようとしたとき',
       exceptions: '例外なし。domain/ は純粋でなければならない',
       escalation: 'async は application/ に、外部 API は infrastructure/ に配置する',
-    },
-    relationships: {
-      dependsOn: ['AR-A1-DOMAIN'],
-      enables: ['AR-PATH-GROSS-PROFIT', 'AR-PATH-FACTOR-DECOMPOSITION', 'AR-PATH-PI-VALUE'],
     },
     migrationPath: { steps: ['1. async を application 層に移動', '2. 副作用を infrastructure 層に移動', '3. domain は純粋関数のみに'], effort: 'medium', priority: 1 },
   },
@@ -1560,7 +1619,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     },
     relationships: {
       dependsOn: ['AR-A1-PRES-INFRA'],
-      enables: ['AR-STRUCT-ANALYSIS-FRAME', 'AR-STRUCT-COMPARISON-SCOPE'],
+      enables: ['AR-STRUCT-ANALYSIS-FRAME', 'AR-STRUCT-COMPARISON-SCOPE', 'AR-STRUCT-TEMPORAL-SCOPE'],
     },
     detection: { type: 'custom', severity: 'gate' },
     migrationPath: { steps: ['1. クエリ実行を QueryHandler に移行', '2. useQueryWithHandler 経由に変更', '3. input 正規化を追加'], effort: 'medium', priority: 2 },
@@ -1579,6 +1638,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       when: 'presentation/ でストレージにアクセスしたいとき',
       exceptions: '例外なし',
       escalation: 'uiPersistenceAdapter 経由',
+    },
+    relationships: {
+      dependsOn: ['AR-A1-PRES-INFRA'],
     },
     detection: { type: 'regex', severity: 'gate', baseline: 0 },
     migrationPath: { steps: ['1. localStorage/sessionStorage の直接呼び出しを削除', '2. uiPersistenceAdapter 経由に変更'], effort: 'small', priority: 2 },
@@ -1619,6 +1681,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: '表示用途のみ StoreResult.totalCustomers 許容',
       escalation: '分析には readCustomerFact() を使用',
     },
+    relationships: {
+      dependsOn: ['AR-PATH-CUSTOMER'],
+    },
     detection: { type: 'regex', severity: 'gate', baseline: 0 },
     migrationPath: { steps: ['1. StoreResult.totalCustomers の参照を削除', '2. readCustomerFact() に置き換え'], effort: 'small', priority: 2 },
   },
@@ -1655,6 +1720,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: '例外なし',
       escalation: 'hook 経由で結果を消費する。逆流禁止',
     },
+    relationships: {
+      dependsOn: ['AR-STRUCT-TEMPORAL-SCOPE'],
+    },
     detection: { type: 'import', severity: 'gate' },
     migrationPath: { steps: ['1. 逆流 import を削除', '2. 結果は hook 経由で受け取る'], effort: 'small', priority: 2 },
   },
@@ -1672,6 +1740,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       when: '期間比較のクエリ入力を構築するとき',
       exceptions: '例外なし。sameDate と sameDow は排他',
       escalation: '比較モードを確認し、適切なスコープを選択する',
+    },
+    relationships: {
+      dependsOn: ['AR-STRUCT-QUERY-PATTERN'],
     },
     detection: { type: 'custom', severity: 'gate' },
     migrationPath: { steps: ['1. sameDate/sameDow の混在を分離', '2. 比較モードごとに適切なスコープを選択'], effort: 'medium', priority: 2 },
@@ -1765,6 +1836,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: '例外なし。Chart は描画に専念',
       escalation: 'plan hook または useWidgetQueryContext 経由でデータを受け取る',
     },
+    relationships: {
+      dependsOn: ['AR-A1-PRES-INFRA'],
+    },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
     migrationPath: { steps: ['1. DuckDB hook の import を削除', '2. plan hook 経由でデータを受け取るよう変更'], effort: 'small', priority: 2 },
   },
@@ -1782,6 +1856,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       when: '比較データの alignment を処理するとき',
       exceptions: '例外なし',
       escalation: 'handler/resolver 内でのみ alignment を処理',
+    },
+    relationships: {
+      dependsOn: ['AR-STRUCT-QUERY-PATTERN'],
     },
     detection: { type: 'custom', severity: 'gate' },
     migrationPath: { steps: ['1. alignment 判定をコンポーネントから handler に移動'], effort: 'small', priority: 2 },
@@ -1866,6 +1943,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: '例外なし。calculation は純粋関数でなければならない',
       escalation: 'hooks は application 層に移動する',
     },
+    relationships: {
+      dependsOn: ['AR-A1-DOMAIN'],
+    },
     detection: { type: 'must-not-coexist', severity: 'gate' },
     migrationPath: {
       steps: ['1. React hooks の import を削除', '2. 副作用がある場合は application 層に移動', '3. 純粋な入力→出力の関数として維持'],
@@ -1893,6 +1973,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       when: 'データ変換ファイルに state を追加したいとき',
       exceptions: '例外なし。transform は純粋関数',
       escalation: 'state は hook に移動',
+    },
+    relationships: {
+      dependsOn: ['AR-A1-DOMAIN'],
     },
     detection: { type: 'count', severity: 'gate' },
     migrationPath: {
@@ -2141,13 +2224,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: 'ユーティリティに React hooks や副作用を含む',
     },
     thresholds: { memoMax: 0, callbackMax: 0, stateMax: 0, lineMax: 300 },
-    relationships: {
-      dependsOn: ['AR-A1-DOMAIN'],
-    },
     decisionCriteria: {
       when: 'utility ファイルに React hooks を追加したいとき',
       exceptions: '例外なし。utility は純粋関数',
       escalation: 'R:utility → R:orchestration にタグ変更するか hooks を別ファイルに抽出',
+    },
+    relationships: {
+      dependsOn: ['AR-A1-DOMAIN'],
     },
     detection: { type: 'must-not-coexist', severity: 'gate' },
     migrationPath: {
@@ -2261,6 +2344,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: '例外なし。reducer は純粋関数',
       escalation: 'hooks は hook ファイルに分離',
     },
+    relationships: {
+      dependsOn: ['AR-A1-DOMAIN'],
+    },
     detection: { type: 'must-not-coexist', severity: 'gate' },
     migrationPath: {
       steps: ['1. React hooks が混入していれば別ファイルに抽出', '2. reducer は (state, action) => state のみ'],
@@ -2284,13 +2370,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: 'バレルに関数定義や変数宣言を含む',
     },
     thresholds: { memoMax: 0, callbackMax: 0, stateMax: 0, lineMax: 50 },
-    relationships: {
-      conflicts: ['AR-TAG-CALCULATION'],
-    },
     decisionCriteria: {
       when: 'barrel にロジックを追加したいとき',
       exceptions: '例外なし。barrel は re-export のみ',
       escalation: 'ロジックは別ファイルに移動',
+    },
+    relationships: {
+      conflicts: ['AR-TAG-CALCULATION'],
     },
     detection: { type: 'must-only', severity: 'gate' },
     migrationPath: {
