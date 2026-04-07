@@ -166,6 +166,257 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       baseline: 13,
     },
   },
+  // ── layerBoundaryGuard 由来 ──
+
+  {
+    id: 'AR-A1-DOMAIN',
+    guardTags: ['A1', 'A2'],
+    epoch: 1,
+    what: 'domain/ は外部層に依存しない（純粋なビジネスロジック）',
+    why: 'domain/ がフレームワークやインフラに依存すると、テスト容易性と移植性が失われる',
+    doc: 'references/01-principles/design-principles.md',
+    correctPattern: {
+      description: 'domain/ は domain/ 内のみ import する。外部データが必要なら契約（interface）を domain/ に定義する',
+    },
+    outdatedPattern: {
+      description: 'domain/ から application/ / infrastructure/ / presentation/ を import する',
+      imports: ['@/application/', '@/infrastructure/', '@/presentation/'],
+    },
+    detection: { type: 'import', severity: 'gate', baseline: 0 },
+  },
+
+  {
+    id: 'AR-A1-APP-INFRA',
+    guardTags: ['A1'],
+    epoch: 1,
+    what: 'application/ は infrastructure/ に直接依存しない',
+    why: 'application 層はドメインロジックの調停を行う。インフラ詳細は adapter パターンで隠蔽する',
+    doc: 'references/01-principles/design-principles.md',
+    correctPattern: {
+      description: 'adapter パターンまたは allowlists/architecture.ts に正当理由を記載する。DuckDB hooks / QueryHandler / runtime-adapters は構造的に許容',
+    },
+    outdatedPattern: {
+      description: 'application/ から infrastructure/ を直接 import する（許可された経路以外）',
+      imports: ['@/infrastructure/'],
+    },
+    detection: { type: 'import', severity: 'gate', baseline: 0 },
+  },
+
+  {
+    id: 'AR-A1-APP-PRES',
+    guardTags: ['A1'],
+    epoch: 1,
+    what: 'application/ は presentation/ に依存しない',
+    why: '依存方向は Presentation → Application。逆方向は循環依存を生む',
+    doc: 'references/01-principles/design-principles.md',
+    correctPattern: {
+      description: 'application/ から presentation/ への依存を削除し、依存方向を逆転する',
+    },
+    outdatedPattern: {
+      description: 'application/ から presentation/ を import する',
+      imports: ['@/presentation/'],
+    },
+    detection: { type: 'import', severity: 'gate', baseline: 0 },
+  },
+
+  {
+    id: 'AR-A1-PRES-INFRA',
+    guardTags: ['A1', 'A3'],
+    epoch: 1,
+    what: 'presentation/ は infrastructure/ に直接依存しない',
+    why: 'presentation は描画専用。データ取得は application 層の hook を経由する',
+    doc: 'references/01-principles/design-principles.md',
+    correctPattern: {
+      description: 'application/ の hook 経由でデータを取得する。useQueryWithHandler を推奨',
+      imports: ['@/application/hooks/'],
+    },
+    outdatedPattern: {
+      description: 'presentation/ から infrastructure/ を value import する',
+      imports: ['@/infrastructure/'],
+    },
+    detection: { type: 'import', severity: 'gate', baseline: 0 },
+  },
+
+  {
+    id: 'AR-A1-PRES-USECASE',
+    guardTags: ['A1', 'A3'],
+    epoch: 1,
+    what: 'presentation/ は application/usecases/ を直接 import しない',
+    why: 'usecase はデータ構築の内部実装。presentation は hook 経由でのみアクセスする',
+    correctPattern: {
+      description: 'application/ の hook 経由でデータを取得する',
+    },
+    outdatedPattern: {
+      description: 'presentation/ から application/usecases/ を value import する',
+      imports: ['@/application/usecases/'],
+    },
+    detection: { type: 'import', severity: 'gate', baseline: 1 },
+  },
+
+  {
+    id: 'AR-A1-INFRA-APP',
+    guardTags: ['A1'],
+    epoch: 1,
+    what: 'infrastructure/ は application/ に依存しない',
+    why: 'infrastructure/ は domain/ のみに依存する。application/ への依存は循環を生む',
+    doc: 'references/01-principles/design-principles.md',
+    correctPattern: {
+      description: '依存を domain/ 経由の契約（interface）に変更する',
+    },
+    outdatedPattern: {
+      description: 'infrastructure/ から application/ を import する',
+      imports: ['@/application/'],
+    },
+    detection: { type: 'import', severity: 'gate', baseline: 0 },
+  },
+
+  {
+    id: 'AR-A1-INFRA-PRES',
+    guardTags: ['A1'],
+    epoch: 1,
+    what: 'infrastructure/ は presentation/ に依存しない',
+    why: 'infrastructure/ と presentation/ は直接依存しない。application/ を経由する',
+    doc: 'references/01-principles/design-principles.md',
+    correctPattern: {
+      description: 'infrastructure/ から presentation/ への依存を削除する',
+    },
+    outdatedPattern: {
+      description: 'infrastructure/ から presentation/ を import する',
+      imports: ['@/presentation/'],
+    },
+    detection: { type: 'import', severity: 'gate', baseline: 0 },
+  },
+
+  // ── sizeGuard 由来 ──
+
+  {
+    id: 'AR-G5-HOOK-MEMO',
+    guardTags: ['G5'],
+    epoch: 1,
+    what: 'application/hooks/ の useMemo 呼び出しを上限以下に保つ',
+    why: 'useMemo が多いファイルは複数の導出値を抱えており責務が混在している',
+    correctPattern: {
+      description: 'useMemo ≤ 7。超える場合は hook を分割するか allowlists/complexity.ts に正当理由を記載',
+    },
+    outdatedPattern: {
+      description: '1 つの hook ファイルに大量の useMemo を詰め込む',
+    },
+    thresholds: { memoMax: 7 },
+    detection: { type: 'count', severity: 'gate' },
+  },
+
+  {
+    id: 'AR-G5-HOOK-STATE',
+    guardTags: ['G5'],
+    epoch: 1,
+    what: 'application/hooks/ の useState 呼び出しを上限以下に保つ',
+    why: 'useState が多いファイルは複数の状態責務を抱えており God Hook の兆候',
+    correctPattern: {
+      description: 'useState ≤ 6。超える場合は状態管理を分離するか allowlists/complexity.ts に正当理由を記載',
+    },
+    outdatedPattern: {
+      description: '1 つの hook に大量の useState を詰め込む',
+    },
+    thresholds: { stateMax: 6 },
+    detection: { type: 'count', severity: 'gate' },
+  },
+
+  {
+    id: 'AR-G5-HOOK-LINES',
+    guardTags: ['G5'],
+    epoch: 1,
+    what: 'application/hooks/ のファイルを 300 行以下に保つ',
+    why: '長い hook ファイルは複数の責務を持つ兆候。分割して単一責務を維持する',
+    correctPattern: {
+      description: '300 行以下。超える場合は hook を分割するか allowlists/complexity.ts に正当理由を記載',
+    },
+    outdatedPattern: {
+      description: '1 つの hook ファイルに大量のロジックを詰め込む',
+    },
+    thresholds: { lineMax: 300 },
+    detection: { type: 'count', severity: 'gate' },
+  },
+
+  {
+    id: 'AR-G6-COMPONENT',
+    guardTags: ['G6'],
+    epoch: 1,
+    what: 'presentation/ の .tsx コンポーネントを 600 行以下に保つ',
+    why: '大きなコンポーネントは描画・状態・ロジックが混在している兆候',
+    correctPattern: {
+      description: '600 行以下。超える場合は子コンポーネントに分割する',
+    },
+    outdatedPattern: {
+      description: '1 つのコンポーネントファイルに全ての描画ロジックを詰め込む',
+    },
+    thresholds: { lineMax: 600 },
+    detection: { type: 'count', severity: 'gate' },
+  },
+
+  {
+    id: 'AR-G5-DOMAIN-LINES',
+    guardTags: ['G5', 'A2'],
+    epoch: 1,
+    what: 'domain/ のファイルを 300 行以下に保つ',
+    why: 'domain/ は純粋関数。短く保つことでテスト容易性と可読性を維持する',
+    correctPattern: {
+      description: '300 行以下。超える場合は関数を分割する',
+    },
+    outdatedPattern: {
+      description: '1 つの domain ファイルに大量の関数を詰め込む',
+    },
+    thresholds: { lineMax: 300 },
+    detection: { type: 'count', severity: 'gate' },
+  },
+
+  {
+    id: 'AR-G5-INFRA-LINES',
+    guardTags: ['G5'],
+    epoch: 1,
+    what: 'infrastructure/ のファイルを 400 行以下に保つ',
+    why: 'インフラ層のファイルが大きくなると外部依存の影響範囲が広がる',
+    correctPattern: {
+      description: '400 行以下。超える場合は adapter を分割する',
+    },
+    outdatedPattern: {
+      description: '1 つのインフラファイルに大量のクエリや処理を詰め込む',
+    },
+    thresholds: { lineMax: 400 },
+    detection: { type: 'count', severity: 'gate' },
+  },
+
+  {
+    id: 'AR-G5-USECASE-LINES',
+    guardTags: ['G5'],
+    epoch: 1,
+    what: 'application/usecases/ のファイルを 400 行以下に保つ',
+    why: 'usecase が肥大化するとデータ構築の責務が不明確になる',
+    correctPattern: {
+      description: '400 行以下。超える場合は usecase を分割する',
+    },
+    outdatedPattern: {
+      description: '1 つの usecase に大量のインデックス構築を詰め込む',
+    },
+    thresholds: { lineMax: 400 },
+    detection: { type: 'count', severity: 'gate' },
+  },
+
+  {
+    id: 'AR-C6-FACADE',
+    guardTags: ['C6'],
+    epoch: 1,
+    what: 'facade ファイルの分岐を 5 以下に保つ（orchestration のみ）',
+    why: 'facade に分岐ロジックが混入すると単なる委譲ではなくなり責務が曖昧になる',
+    correctPattern: {
+      description: 'facade は hook の組み立てのみ。分岐は呼び出し先に委譲する',
+    },
+    outdatedPattern: {
+      description: 'facade 内で if/switch による条件分岐を多用する',
+    },
+    thresholds: { branchMax: 5 },
+    detection: { type: 'count', severity: 'gate' },
+  },
+
   // ── 責務タグ別の閾値（TAG_EXPECTATIONS 由来） ──
 
   {
