@@ -426,7 +426,8 @@ Safety Tier 分類は `references/01-principles/critical-path-safety-map.md` を
 | P18 | fallback 定数密度 | ≤7/file |
 
 R: 責務タグレジストリ（`responsibilityTagGuard.test.ts`）:
-- 未分類 SNAPSHOT = 400。増えたら CI 失敗
+- 未分類 BASELINE = 400（ratchet-down: 減少のみ許可。減ったらベースライン更新を促す）
+- タグ不一致 BASELINE = 51（ratchet-down: 同上）
 - 分類時は複数タグ可（AND の可視化）
 - 既存は徐々にタグ付け。新規は登録必須
 

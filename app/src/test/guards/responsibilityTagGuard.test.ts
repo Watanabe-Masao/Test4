@@ -2,8 +2,9 @@
  * 責務タグガード — @responsibility タグによるファイル分類の強制
  *
  * - 全対象ファイルの @responsibility タグをスキャンして分類状況を管理
- * - 未分類の SNAPSHOT を超えたら CI 失敗（新規ファイルはタグ必須）
+ * - 未分類数が前回より増えたら CI 失敗（ratchet-down: 減少のみ許可）
  * - 不正なタグ名を検出
+ * - タグと実態の不一致を frozen count で管理
  *
  * @guard G8 責務分離（責務タグカバレッジ）
  * @guard C8 1文説明テスト（複数タグ = AND = 分離候補）
@@ -49,22 +50,32 @@ function collectTargetFiles(): string[] {
 describe('G8-R: 責務タグカバレッジ', () => {
   const files = collectTargetFiles()
 
-  // ★ 現在の未分類数。タグ付けしたらこの数を減らす。
-  // ★ 新規ファイル追加でタグなしなら CI 失敗。
-  const UNCLASSIFIED_SNAPSHOT = 400
+  // ── ratchet-down ベースライン ──
+  // 実測値がこれより減ったら、この数字を下げてコミットする。
+  // 増えたら CI 失敗。放置しても悪化しない。
+  const UNCLASSIFIED_BASELINE = 400
+  const TAG_MISMATCH_BASELINE = 51
 
-  it('未分類ファイル数が増えていない（新規ファイルは @responsibility 必須）', () => {
+  it('未分類ファイル数が増えていない（ratchet-down）', () => {
     const unclassified: string[] = []
     for (const file of files) {
       if (readResponsibilityTags(file) === null) unclassified.push(rel(file))
     }
 
+    // ratchet-down: 減ったらベースラインを更新するよう促す
+    if (unclassified.length < UNCLASSIFIED_BASELINE) {
+      console.log(
+        `\n[ratchet-down] 未分類が ${UNCLASSIFIED_BASELINE} → ${unclassified.length} に減少。` +
+          `\nUNCLASSIFIED_BASELINE を ${unclassified.length} に更新してください。`,
+      )
+    }
+
     expect(
       unclassified.length,
-      `未分類が増加 (${unclassified.length} > ${UNCLASSIFIED_SNAPSHOT})。\n` +
+      `未分類が増加 (${unclassified.length} > ${UNCLASSIFIED_BASELINE})。\n` +
         `新規ファイルは JSDoc に @responsibility R:xxx を追加してください。\n` +
         `未分類の末尾:\n${unclassified.slice(-10).join('\n')}`,
-    ).toBeLessThanOrEqual(UNCLASSIFIED_SNAPSHOT)
+    ).toBeLessThanOrEqual(UNCLASSIFIED_BASELINE)
   })
 
   it('@responsibility タグに不正なタグ名がない', () => {
@@ -119,12 +130,12 @@ describe('G8-R: 責務タグカバレッジ', () => {
     expect(true).toBe(true)
   })
 
-  it('タグと実態の不一致を検出（単一タグファイルのみ）', () => {
+  it('タグと実態の不一致が増えていない（ratchet-down）', () => {
     const mismatches: string[] = []
 
     for (const file of files) {
       const tags = readResponsibilityTags(file)
-      if (!tags || tags.length !== 1) continue // 単一タグのみ対象
+      if (!tags || tags.length !== 1) continue
 
       const tag = tags[0] as ResponsibilityTag
       const exp = TAG_EXPECTATIONS[tag]
@@ -147,13 +158,24 @@ describe('G8-R: 責務タグカバレッジ', () => {
       }
     }
 
-    // 情報出力（CI は落とさない — 黄色信号として報告）
     if (mismatches.length > 0) {
-      console.log(`\n[タグ不一致] ${mismatches.length} 件 — タグの見直しまたは分離を検討:`)
+      console.log(`\n[タグ不一致] ${mismatches.length} 件:`)
       for (const m of mismatches) console.log(`  ${m}`)
     }
 
-    expect(true).toBe(true)
-  })
+    // ratchet-down: 減ったらベースラインを更新するよう促す
+    if (mismatches.length < TAG_MISMATCH_BASELINE) {
+      console.log(
+        `\n[ratchet-down] タグ不一致が ${TAG_MISMATCH_BASELINE} → ${mismatches.length} に減少。` +
+          `\nTAG_MISMATCH_BASELINE を ${mismatches.length} に更新してください。`,
+      )
+    }
 
+    expect(
+      mismatches.length,
+      `タグ不一致が増加 (${mismatches.length} > ${TAG_MISMATCH_BASELINE})。\n` +
+        `タグの見直しまたはファイルの分離を検討してください。\n` +
+        `不一致:\n${mismatches.join('\n')}`,
+    ).toBeLessThanOrEqual(TAG_MISMATCH_BASELINE)
+  })
 })
