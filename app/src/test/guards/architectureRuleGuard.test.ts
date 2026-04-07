@@ -62,15 +62,57 @@ describe('Architecture Rule Registry', () => {
     expect(incomplete, incomplete.join('\n')).toEqual([])
   })
 
+  it('migrationPath がある場合は steps が空でない', () => {
+    const invalid: string[] = []
+
+    for (const rule of ARCHITECTURE_RULES) {
+      if (rule.migrationPath && rule.migrationPath.steps.length === 0) {
+        invalid.push(`${rule.id}: migrationPath.steps が空`)
+      }
+    }
+
+    expect(invalid, invalid.join('\n')).toEqual([])
+  })
+
+  it('relationships の参照先ルールが全て存在する', () => {
+    const allIds = new Set(ARCHITECTURE_RULES.map((r) => r.id))
+    const invalid: string[] = []
+
+    for (const rule of ARCHITECTURE_RULES) {
+      if (!rule.relationships) continue
+      const refs = [
+        ...(rule.relationships.dependsOn ?? []),
+        ...(rule.relationships.enables ?? []),
+        ...(rule.relationships.conflicts ?? []),
+      ]
+      for (const ref of refs) {
+        if (!allIds.has(ref)) {
+          invalid.push(`${rule.id}: relationships が存在しないルール "${ref}" を参照`)
+        }
+      }
+    }
+
+    expect(invalid, invalid.join('\n')).toEqual([])
+  })
+
   it('ルール数サマリー', () => {
     const byType = new Map<string, number>()
+    let withMigration = 0
+    let withDecision = 0
+    let withRelationships = 0
     for (const rule of ARCHITECTURE_RULES) {
       byType.set(rule.detection.type, (byType.get(rule.detection.type) ?? 0) + 1)
+      if (rule.migrationPath) withMigration++
+      if (rule.decisionCriteria) withDecision++
+      if (rule.relationships) withRelationships++
     }
 
     const summary = [...byType.entries()]
       .map(([type, count]) => `  ${type}: ${count}`)
       .join('\n')
-    console.log(`[Architecture Rules] ${ARCHITECTURE_RULES.length} rules\n${summary}`)
+    console.log(
+      `[Architecture Rules] ${ARCHITECTURE_RULES.length} rules\n${summary}\n` +
+        `  migrationPath: ${withMigration} | decisionCriteria: ${withDecision} | relationships: ${withRelationships}`,
+    )
   })
 })

@@ -1,8 +1,12 @@
 /**
- * Architecture Rule — 統一ガードフォーマット
+ * Architecture Rule — 実行可能なアーキテクチャ仕様
  *
- * 各ルールが「禁止」「あるべき姿」「なぜ」「ドキュメント」をセットで定義する。
- * AI が検出 → 修正 → 理解のサイクルを 1 箇所で完結できるようにする。
+ * 各ルールが「禁止」「あるべき姿」「なぜ」「修正手順」「判断基準」「因果関係」を
+ * セットで定義する。AI が検出 → 判断 → 修正 → 蓄積のサイクルを
+ * 1 箇所で完結できるようにする。
+ *
+ * **ルールは書かれるのではなく、育つ。**
+ * 毎セッションの修正・判断がルールに蓄積され、次のセッションがより賢くなる。
  *
  * ルールはデータ層。検出ロジックはテストファイルに残す。
  *
@@ -58,6 +62,27 @@ export interface ArchitectureRule {
     readonly type: DetectionType
     readonly severity: 'gate' | 'warn'
     readonly baseline?: number
+  }
+
+  // ── 修正手順（自動改善用） ──
+  readonly migrationPath?: {
+    readonly steps: readonly string[]
+    readonly effort: 'trivial' | 'small' | 'medium'
+    readonly priority: number // 低い = 先にやる
+  }
+
+  // ── 判断基準（脱属人化） ──
+  readonly decisionCriteria?: {
+    readonly when: string // いつこのルールが適用されるか
+    readonly exceptions: string // 例外が許容される条件
+    readonly escalation: string // 判断に迷ったときの行動
+  }
+
+  // ── ルール間の因果関係 ──
+  readonly relationships?: {
+    readonly dependsOn?: readonly string[] // 前提ルール
+    readonly enables?: readonly string[] // 守ると有効になるルール
+    readonly conflicts?: readonly string[] // 同時適用不可
   }
 }
 
