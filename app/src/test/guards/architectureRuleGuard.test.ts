@@ -244,6 +244,30 @@ describe('Architecture Rule Registry', () => {
     expect(violations, violations.join('\n')).toEqual([])
   })
 
+  it('experimental ルールの観測期間超過を検出', () => {
+    const now = Date.now()
+    const overdue: string[] = []
+
+    for (const rule of ARCHITECTURE_RULES) {
+      if (rule.maturity !== 'experimental' || !rule.lifecyclePolicy?.introducedAt) continue
+      const introduced = new Date(rule.lifecyclePolicy.introducedAt).getTime()
+      const deadlineDays = rule.lifecyclePolicy.observeForDays ?? 90
+      const elapsed = Math.floor((now - introduced) / (1000 * 60 * 60 * 24))
+      if (elapsed > deadlineDays) {
+        overdue.push(
+          `${rule.id}: 観測期間 ${deadlineDays} 日を ${elapsed - deadlineDays} 日超過。stable に昇格するか deprecated で撤回すべき`,
+        )
+      }
+    }
+
+    if (overdue.length > 0) {
+      console.log(`\n[観測期間超過] ${overdue.length} 件:`)
+      for (const o of overdue) console.log(`  ${o}`)
+    }
+
+    expect(true).toBe(true)
+  })
+
   it('confidence: low のルールが gate で運用されていない', () => {
     const violations: string[] = []
 
@@ -267,6 +291,41 @@ describe('Architecture Rule Registry', () => {
       `[ruleClass] invariant: ${invariant} | default: ${defaultR} | heuristic: ${heuristic} | unset: ${unset}`,
     )
     console.log(`[sunsetCondition] ${withSunset}/${ARCHITECTURE_RULES.length} ルールに設定済み`)
+
+    // heuristic + gate の近限（ratchet-down で warn 化を促す）
+    const HEURISTIC_GATE_NEAR_LIMIT = 30
+    const heuristicGate = ARCHITECTURE_RULES.filter(
+      (r) => r.ruleClass === 'heuristic' && r.detection.severity === 'gate',
+    )
+    console.log(
+      `[heuristic+gate] ${heuristicGate.length}/${HEURISTIC_GATE_NEAR_LIMIT} (近限: ${HEURISTIC_GATE_NEAR_LIMIT})`,
+    )
+    if (heuristicGate.length > 0) {
+      console.log(`  対象:`)
+      for (const r of heuristicGate.slice(0, 5)) console.log(`    ${r.id}`)
+      if (heuristicGate.length > 5) console.log(`    ...他 ${heuristicGate.length - 5} 件`)
+    }
+
+    // heuristic + gate は増やさない（ratchet-down）
+    expect(
+      heuristicGate.length,
+      `heuristic+gate が近限 ${HEURISTIC_GATE_NEAR_LIMIT} を超えています (${heuristicGate.length} 件)。` +
+        `\nheuristic ルールは原則 warn に。gate が必要なら ruleClass を default に昇格してください。`,
+    ).toBeLessThanOrEqual(HEURISTIC_GATE_NEAR_LIMIT)
+
+    expect(true).toBe(true)
+  })
+
+  it('sunsetCondition 付きルールのレビュー候補（情報出力）', () => {
+    const withSunset = ARCHITECTURE_RULES.filter((r) => r.sunsetCondition)
+
+    if (withSunset.length > 0) {
+      console.log(`\n[sunsetCondition レビュー] ${withSunset.length} 件:`)
+      for (const r of withSunset) {
+        console.log(`  ${r.id}: ${r.sunsetCondition}`)
+      }
+      console.log('  → 上記の条件が達成されていれば deprecated に変更して次回削除')
+    }
 
     expect(true).toBe(true)
   })

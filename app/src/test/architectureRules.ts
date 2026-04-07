@@ -99,6 +99,8 @@ export interface ArchitectureRule {
   readonly sunsetCondition?: string
   /** experimental ルールの出口（昇格 / 撤回の対称性） */
   readonly lifecyclePolicy?: {
+    readonly introducedAt: string // 導入日（YYYY-MM-DD）
+    readonly observeForDays: number // 観測期間（日数）
     readonly promoteIf: readonly string[] // gate 化する条件
     readonly withdrawIf: readonly string[] // 撤回する条件
   }
