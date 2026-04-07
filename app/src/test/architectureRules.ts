@@ -1404,6 +1404,49 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    id: 'AR-CANON-ZOD-REQUIRED',
+    guardTags: ['G1', 'E1'],
+    epoch: 1,
+    doc: 'references/01-principles/canonicalization-principles.md',
+    what: 'required 分類の domain/calculations/ ファイルは Zod 入出力契約を持つ',
+    why: 'Zod 契約なしの計算は型安全な境界検証が欠落し、実行時エラーを招く',
+    correctPattern: { description: 'z.object(...).parse() で入力を検証し、結果型を Zod schema で定義する' },
+    outdatedPattern: { description: 'required 分類なのに Zod parse がないファイル' },
+    decisionCriteria: {
+      when: 'domain/calculations/ の required ファイルを変更するとき',
+      exceptions: '例外なし。required は全て Zod 契約必須（現在 13/13 達成済み）',
+      escalation: 'Zod schema を追加してから機能を追加する',
+    },
+    relationships: {
+      dependsOn: ['AR-STRUCT-CALC-CANON'],
+      enables: ['AR-PATH-GROSS-PROFIT', 'AR-PATH-FACTOR-DECOMPOSITION'],
+    },
+    detection: { type: 'must-include', severity: 'gate', baseline: 0 },
+    migrationPath: { steps: ['1. 入力型の Zod schema を定義', '2. 関数の先頭で .parse() を呼ぶ', '3. 出力型の Zod schema を定義'], effort: 'small', priority: 1 },
+  },
+
+  {
+    id: 'AR-CANON-ZOD-REVIEW',
+    guardTags: ['G1', 'E1'],
+    epoch: 1,
+    doc: 'references/01-principles/canonicalization-principles.md',
+    what: 'review 分類の Zod 未済ファイルを段階的に解消する',
+    why: 'review 分類の Zod 化が進むと正本化体系の信頼性が向上する',
+    correctPattern: { description: 'review ファイルに Zod 契約を追加し zodAdded: true に更新する' },
+    outdatedPattern: { description: 'review 分類で zodAdded: false のまま放置する' },
+    decisionCriteria: {
+      when: 'review 分類のファイルを変更するとき',
+      exceptions: '出力型が外部定義（domain/models）に依存する場合は外部スキーマ整備後に対応',
+      escalation: '可能なら Zod 契約を追加し zodAdded を true に更新する',
+    },
+    relationships: {
+      dependsOn: ['AR-STRUCT-CALC-CANON'],
+    },
+    detection: { type: 'count', severity: 'gate', baseline: 3 },
+    migrationPath: { steps: ['1. review ファイルの入出力を分析', '2. Zod schema を定義', '3. zodAdded: true に更新', '4. baseline を減らす'], effort: 'small', priority: 3 },
+  },
+
+  {
     id: 'AR-STRUCT-CANONICAL-INPUT',
     guardTags: ['G1', 'D1'],
     epoch: 1,
@@ -2413,6 +2456,25 @@ export function getRuleByResponsibilityTag(tag: string): ArchitectureRule | unde
  * 違反メッセージを統一フォーマットで生成する。
  * テストの expect メッセージとして使う。
  */
+/**
+ * ratchet-down チェック: 実測値がベースラインを下回ったら更新を促す。
+ * テストの expect 後に呼ぶ。
+ */
+export function checkRatchetDown(
+  rule: ArchitectureRule,
+  actual: number,
+  baselineKey: string,
+): void {
+  const baseline = rule.detection.baseline
+  if (baseline === undefined) return
+  if (actual < baseline) {
+    console.log(
+      `\n[ratchet-down] ${rule.id}: ${baselineKey} が ${baseline} → ${actual} に減少。` +
+        `\narchitectureRules.ts の ${rule.id} の baseline を ${actual} に更新してください。`,
+    )
+  }
+}
+
 export function formatViolationMessage(
   rule: ArchitectureRule,
   violations: readonly string[],
@@ -2424,6 +2486,15 @@ export function formatViolationMessage(
   ]
   if (rule.doc) {
     lines.push(`参照: ${rule.doc}`)
+  }
+  if (rule.migrationPath) {
+    lines.push(`修正手順:`)
+    for (const step of rule.migrationPath.steps) {
+      lines.push(`  ${step}`)
+    }
+  }
+  if (rule.decisionCriteria) {
+    lines.push(`例外条件: ${rule.decisionCriteria.exceptions}`)
   }
   if (violations.length > 0) {
     lines.push(`違反:`)

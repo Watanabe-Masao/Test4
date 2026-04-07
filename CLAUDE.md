@@ -450,15 +450,15 @@ R: 責務タグレジストリ（`responsibilityTagGuard.test.ts`）:
 | `must-not-coexist` | 同居禁止 | useState と SQL query |
 | `custom` | 特殊ロジック | テスト側で実装 |
 
-**81 ルール / 全 39 ガードが参照 / 全ルールに migrationPath + doc**
+**83 ルール / 全 39 ガードが参照 / 全ルールに migrationPath + doc + decisionCriteria**
 
 各ルールが持つ情報:
 - `what` / `why` / `doc` — 学習コスト削減（27 ドキュメント参照）
 - `correctPattern` / `example` — 自己修復
 - `outdatedPattern` / `codeSignals` — 検出
-- `migrationPath` (81/81) — 修正手順 + 工数 + 優先度
-- `decisionCriteria` (81/81) — 判断の脱属人化
-- `relationships` (43) — ルール間の因果関係
+- `migrationPath` (83/83) — 修正手順 + 工数 + 優先度
+- `decisionCriteria` (83/83) — 判断の脱属人化
+- `relationships` (45) — ルール間の因果関係
 - `thresholds` / `baseline` — 数値管理（ratchet-down）
 
 ## アーキテクチャ進化計画（要約）

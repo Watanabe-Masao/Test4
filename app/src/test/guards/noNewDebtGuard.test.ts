@@ -13,7 +13,7 @@ import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
 import { collectTsFiles, rel } from '../guardTestHelpers'
-import { getRuleById, formatViolationMessage } from '../architectureRules'
+import { getRuleById, formatViolationMessage, checkRatchetDown } from '../architectureRules'
 
 const SRC_DIR = path.resolve(__dirname, '../..')
 
@@ -140,6 +140,7 @@ describe('no-new-debt guard', () => {
           `正しいパターン: ${rule.correctPattern.description}\n` +
           `フィールド数: ${fieldCount} (上限: ${rule.detection.baseline})`,
       ).toBeLessThanOrEqual(rule.detection.baseline!)
+      checkRatchetDown(rule, fieldCount, 'fieldCount')
     })
   })
 
@@ -167,6 +168,7 @@ describe('no-new-debt guard', () => {
           `正しいパターン: ${rule.correctPattern.description}\n` +
           `@deprecated: ${deprecatedCount} (上限: ${rule.detection.baseline})`,
       ).toBeLessThanOrEqual(rule.detection.baseline!)
+      checkRatchetDown(rule, deprecatedCount, '@deprecated')
     })
   })
 
@@ -184,6 +186,7 @@ describe('no-new-debt guard', () => {
           `正しいパターン: ${rule.correctPattern.description}\n` +
           `plan 数: ${planFiles.length} (上限: ${rule.detection.baseline})`,
       ).toBeLessThanOrEqual(rule.detection.baseline!)
+      checkRatchetDown(rule, planFiles.length, 'planFiles')
     })
   })
 })
