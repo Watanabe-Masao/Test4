@@ -580,7 +580,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 詳細レポート: `references/02-status/generated/architecture-health.md`
 
 <!-- GENERATED:START architecture-health-summary -->
-**Healthy** | 前回比: Improved | Hard Gate: PASS
+**Healthy** | 前回比: Flat | Hard Gate: PASS
 
 | 指標 | 状態 | 詳細 |
 |---|---|---|
@@ -588,11 +588,11 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 | 後方互換負債 | OK | 0/3 / 2/3 |
 | 複雑性圧 | OK | 0/5 / 10/10 / 27/30 |
 | 境界健全性 | OK | 0/0 / 0/0 |
-| ガード強度 | OK | 38/30 / 0/5 |
-| 性能 | OK | 6490/7000 / 2218/2500 / 919/1000 |
+| ガード強度 | OK | 39/30 / 0/5 |
+| 性能 | OK | 6492/7000 / 2219/2500 / 919/1000 |
 
 
-> 生成: 2026-04-06T19:04:57.480Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-07T07:45:09.716Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）
