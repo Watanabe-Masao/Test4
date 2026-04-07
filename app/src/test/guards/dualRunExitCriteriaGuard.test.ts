@@ -12,6 +12,7 @@
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 const ROOT_DIR = path.resolve(__dirname, '../../../../')
 const SRC_DIR = path.resolve(__dirname, '../..')
@@ -26,6 +27,8 @@ const INVARIANT_TESTS = [
 ] as const
 
 describe('dual-run retirement guard', () => {
+  const rule = getRuleById('AR-STRUCT-DUAL-RUN-EXIT')!
+
   it('frozen-list.md に WASM exit criteria セクションが存在する', () => {
     const frozenListPath = path.join(ROOT_DIR, 'references/02-status/frozen-list.md')
     const content = fs.readFileSync(frozenListPath, 'utf-8')
@@ -44,7 +47,7 @@ describe('dual-run retirement guard', () => {
       }
     }
 
-    expect(missing, `以下の不変条件テストが存在しません:\n${missing.join('\n')}`).toEqual([])
+    expect(missing, formatViolationMessage(rule, missing)).toEqual([])
   })
 
   it('frozen-list.md §3 の @deprecated エントリ数が上限（5）を超えない', () => {
@@ -64,7 +67,7 @@ describe('dual-run retirement guard', () => {
 
     expect(
       tableRows.length,
-      `@deprecated エントリが上限 ${MAX_DEPRECATED} を超えています (${tableRows.length} 件)`,
+      `[${rule.id}] @deprecated エントリが上限 ${MAX_DEPRECATED} を超えています (${tableRows.length} 件)`,
     ).toBeLessThanOrEqual(MAX_DEPRECATED)
   })
 
@@ -81,9 +84,6 @@ describe('dual-run retirement guard', () => {
       }
     }
 
-    expect(
-      missing,
-      `以下の engine が authoritative として記録されていません:\n${missing.join('\n')}`,
-    ).toEqual([])
+    expect(missing, formatViolationMessage(rule, missing)).toEqual([])
   })
 })

@@ -12,6 +12,8 @@
  * ルール定義: architectureRules.ts (AR-PATH-GROSS-PROFIT-CONSISTENCY)
  */
 import { describe, it, expect } from 'vitest'
+// Architecture Rule: AR-PATH-GROSS-PROFIT-CONSISTENCY
+// This guard uses value comparison (toBeCloseTo) rather than violation arrays
 import { getEffectiveGrossProfitRate, getEffectiveGrossProfit } from '@/domain/calculations/utils'
 import { grossProfitFromStoreResult } from '@/application/readModels/grossProfit/calculateGrossProfit'
 import {

@@ -12,10 +12,12 @@ import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
 import { collectTsFiles, rel, extractValueImports } from '../guardTestHelpers'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 const SRC_DIR = path.resolve(__dirname, '../..')
 
 describe('要因分解正本ガード', () => {
+  const rule = getRuleById('AR-PATH-FACTOR-DECOMPOSITION')!
   // ── 正本関数の存在確認 ──
 
   it('calculateFactorDecomposition が存在する', () => {
@@ -73,11 +75,7 @@ describe('要因分解正本ガード', () => {
       }
     }
 
-    expect(
-      violations,
-      `factorDecomposition 直接 import の許可リスト外使用:\n${violations.join('\n')}\n` +
-        '→ calculateFactorDecomposition() 経由に切り替えるか、許可リストに追加してください',
-    ).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   // ── presentation 層の要因分解利用が bridge 経由であること ──
@@ -98,10 +96,7 @@ describe('要因分解正本ガード', () => {
       }
     }
 
-    expect(
-      violations,
-      `presentation 層から domain/calculations/factorDecomposition への直接 import:\n${violations.join('\n')}`,
-    ).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   // ── 定義書の存在確認 ──

@@ -11,10 +11,13 @@ import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
 import { collectTsFiles, rel } from '../guardTestHelpers'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 const SRC_DIR = path.resolve(__dirname, '../..')
 
 describe('粗利計算正本ガード', () => {
+  const rule = getRuleById('AR-PATH-GROSS-PROFIT')!
+
   // ── 正本関数の存在確認 ──
 
   it('calculateGrossProfit が純関数として存在する', () => {
@@ -87,11 +90,7 @@ describe('粗利計算正本ガード', () => {
       }
     }
 
-    expect(
-      violations,
-      `presentation 層で粗利のインライン計算を検出:\n${violations.join('\n')}\n` +
-        '→ grossProfitFromStoreResult() 経由に切り替えてください',
-    ).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   // ── getEffectiveGrossProfitRate の利用箇所凍結 ──
@@ -116,7 +115,7 @@ describe('粗利計算正本ガード', () => {
     }
     expect(
       count,
-      `getEffectiveGrossProfitRate の利用ファイル数が ${GET_EFFECTIVE_GP_RATE_MAX_FILES} を超過（現在 ${count}）\n` +
+      `[${rule.id}] getEffectiveGrossProfitRate の利用ファイル数が ${GET_EFFECTIVE_GP_RATE_MAX_FILES} を超過（現在 ${count}）\n` +
         '→ 新規利用は grossProfitFromStoreResult() 経由に切り替えてください',
     ).toBeLessThanOrEqual(GET_EFFECTIVE_GP_RATE_MAX_FILES)
   })
@@ -137,7 +136,7 @@ describe('粗利計算正本ガード', () => {
     }
     expect(
       count,
-      `getEffectiveGrossProfit の利用ファイル数が ${GET_EFFECTIVE_GP_AMOUNT_MAX_FILES} を超過（現在 ${count}）\n` +
+      `[${rule.id}] getEffectiveGrossProfit の利用ファイル数が ${GET_EFFECTIVE_GP_AMOUNT_MAX_FILES} を超過（現在 ${count}）\n` +
         '→ 新規利用は grossProfitFromStoreResult() 経由に切り替えてください',
     ).toBeLessThanOrEqual(GET_EFFECTIVE_GP_AMOUNT_MAX_FILES)
   })
@@ -165,11 +164,7 @@ describe('粗利計算正本ガード', () => {
         violations.push(relPath)
       }
     }
-    expect(
-      violations,
-      `raw GP fallback パターン検出:\n${violations.join('\n')}\n` +
-        '→ getEffectiveGrossProfit() を使用してください',
-    ).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   // ── 定義書の存在確認 ──

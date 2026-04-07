@@ -16,8 +16,10 @@
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
+import { getRuleById } from '../architectureRules'
 
 const SRC_DIR = path.resolve(__dirname, '../..')
+const rule = getRuleById('AR-STRUCT-DATA-INTEGRITY')!
 
 // ── Pattern 1: データ二重計上の防止 ──
 
@@ -30,12 +32,12 @@ describe('Pattern 1: データ二重計上の防止', () => {
       )
       const funcMatch = content.match(/function buildFlowersCustomerIndex[\s\S]*?^}/m)
       if (!funcMatch) {
-        expect.fail('buildFlowersCustomerIndex が見つかりません')
+        expect.fail(`[${rule.id}] buildFlowersCustomerIndex が見つかりません`)
         return
       }
       expect(
         funcMatch[0].includes('+='),
-        'buildFlowersCustomerIndex で += 加算が検出。' +
+        `[${rule.id}] buildFlowersCustomerIndex で += 加算が検出。` +
           'flowers は storeId × day = 1 レコードが正規形。上書き (=) にすべき。',
       ).toBe(false)
     })
@@ -46,7 +48,7 @@ describe('Pattern 1: データ二重計上の防止', () => {
       if (!funcMatch) return
       expect(
         funcMatch[0].includes('+='),
-        'indexByStoreDay で += が検出。lookup index は上書きにすべき。',
+        `[${rule.id}] indexByStoreDay で += が検出。lookup index は上書きにすべき。`,
       ).toBe(false)
     })
   })
@@ -100,7 +102,7 @@ describe('Pattern 2: DuckDB is_prev_year 不整合の防止', () => {
     if (historicalLoadSection) {
       expect(
         historicalLoadSection.includes('true'),
-        '歴史月ロードで isPrevYear=true が見つかりません',
+        `[${rule.id}] 歴史月ロードで isPrevYear=true が見つかりません`,
       ).toBe(true)
     }
   })
@@ -136,12 +138,12 @@ describe('Pattern 3: 状態マシンのクリア漏れ防止', () => {
     // DAY_CLICK case の中で pendingRange: null が設定されていること
     const dayClickCase = content.match(/case 'DAY_CLICK'[\s\S]*?(?=case '|default:)/)?.[0]
     if (!dayClickCase) {
-      expect.fail('DAY_CLICK case が見つかりません')
+      expect.fail(`[${rule.id}] DAY_CLICK case が見つかりません`)
       return
     }
     expect(
       dayClickCase.includes('pendingRange: null') || dayClickCase.includes('pendingRange:null'),
-      'DAY_CLICK で pendingRange がクリアされていません。' +
+      `[${rule.id}] DAY_CLICK で pendingRange がクリアされていません。` +
         '複数日選択後の単日クリックで範囲選択が残るバグの原因になります。',
     ).toBe(true)
   })
@@ -192,14 +194,14 @@ describe('Pattern 4: 安全な構造が崩れないことの保護', () => {
       // ctsRows と tsRows の両方に is_prev_year を設定していること
       const insertFunc = content.match(/function insertCategoryTimeSales[\s\S]*?^}/m)?.[0]
       if (!insertFunc) {
-        expect.fail('insertCategoryTimeSales が見つかりません')
+        expect.fail(`[${rule.id}] insertCategoryTimeSales が見つかりません`)
         return
       }
       const isPrevYearOccurrences = (insertFunc.match(/is_prev_year/g) || []).length
       // ctsRows と tsRows の両方で設定 = 最低2回
       expect(
         isPrevYearOccurrences,
-        'insertCategoryTimeSales で is_prev_year の設定が不足しています（CTS + TS の2箇所必要）',
+        `[${rule.id}] insertCategoryTimeSales で is_prev_year の設定が不足しています（CTS + TS の2箇所必要）`,
       ).toBeGreaterThanOrEqual(2)
     })
   })
@@ -265,10 +267,10 @@ describe('Pattern 5: 前年データ二重投入の防止', () => {
     const initialLoadSection = duckContent.match(
       /initialLoadDone\.current\s*\)[\s\S]*?initialLoadDone\.current\s*=\s*true/,
     )?.[0]
-    expect(initialLoadSection, '初回ロードセクションが見つかりません').toBeDefined()
+    expect(initialLoadSection, `[${rule.id}] 初回ロードセクションが見つかりません`).toBeDefined()
     expect(
       initialLoadSection!.includes('alreadyLoadedAsPrev'),
-      '初回ロードの歴史月ループに prevYear 二重投入ガード (alreadyLoadedAsPrev) がありません。' +
+      `[${rule.id}] 初回ロードの歴史月ループに prevYear 二重投入ガード (alreadyLoadedAsPrev) がありません。` +
         'prevYear prop と歴史月ループで同一月が isPrevYear=true で2回 INSERT され、' +
         '売上7日MA(前年)等の全比較期指標が2倍になります。',
     ).toBe(true)
@@ -284,7 +286,7 @@ describe('Pattern 5: 前年データ二重投入の防止', () => {
     if (diffLoadSection.includes('y === year - 1')) {
       expect(
         diffLoadSection.includes('alreadyLoadedAsPrev'),
-        '差分ロードの歴史月ループに prevYear 二重投入ガード (alreadyLoadedAsPrev) がありません。',
+        `[${rule.id}] 差分ロードの歴史月ループに prevYear 二重投入ガード (alreadyLoadedAsPrev) がありません。`,
       ).toBe(true)
     }
   })
@@ -293,11 +295,11 @@ describe('Pattern 5: 前年データ二重投入の防止', () => {
     // ガードが prevYear.origin.year と prevYear.origin.month を参照していること
     expect(
       duckContent.includes('prevYear.origin.year'),
-      'alreadyLoadedAsPrev が prevYear.origin.year を参照していません',
+      `[${rule.id}] alreadyLoadedAsPrev が prevYear.origin.year を参照していません`,
     ).toBe(true)
     expect(
       duckContent.includes('prevYear.origin.month'),
-      'alreadyLoadedAsPrev が prevYear.origin.month を参照していません',
+      `[${rule.id}] alreadyLoadedAsPrev が prevYear.origin.month を参照していません`,
     ).toBe(true)
   })
 })

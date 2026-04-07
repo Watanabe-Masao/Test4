@@ -12,10 +12,12 @@ import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
 import { collectTsFiles, rel } from '../guardTestHelpers'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 const SRC_DIR = path.resolve(__dirname, '../..')
 
 describe('canonical input guard', () => {
+  const rule = getRuleById('AR-STRUCT-CANONICAL-INPUT')!
   describe('canonical input builder が存在する', () => {
     it('piCanonicalInput.ts が存在する', () => {
       const filePath = path.join(SRC_DIR, 'application/canonicalInputs/piCanonicalInput.ts')
@@ -50,12 +52,7 @@ describe('canonical input guard', () => {
         }
       }
 
-      expect(
-        violations,
-        `presentation 層で PI 計算を直接 import しています。` +
-          `canonical input builder (buildGrandTotalPI / buildStorePIResults) を使用してください:\n` +
-          violations.join('\n'),
-      ).toEqual([])
+      expect(violations, formatViolationMessage(rule, violations)).toEqual([])
     })
   })
 

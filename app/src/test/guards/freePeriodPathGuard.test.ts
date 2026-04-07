@@ -11,10 +11,13 @@ import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
 import { collectTsFiles, rel } from '../guardTestHelpers'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 const SRC_DIR = path.resolve(__dirname, '../..')
 
 describe('自由期間分析正本ガード', () => {
+  const rule = getRuleById('AR-PATH-FREE-PERIOD')!
+
   // ── 正本関数の存在確認 ──
 
   it('buildFreePeriodReadModel が存在し Zod parse を含む', () => {
@@ -64,11 +67,7 @@ describe('自由期間分析正本ガード', () => {
       }
     }
 
-    expect(
-      violations,
-      `presentation 層が正本関数を直接 import しています:\n${violations.join('\n')}\n` +
-        `useFreePeriodAnalysisBundle hook 経由で使用してください`,
-    ).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   // ── ComparisonScope 経由の比較強制 ──
@@ -91,11 +90,7 @@ describe('自由期間分析正本ガード', () => {
       }
     }
 
-    expect(
-      violations,
-      `presentation 層が比較/分析フレームを直接構築しています:\n${violations.join('\n')}\n` +
-        `application 層の hook 経由で構築してください`,
-    ).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   // ── 定義文書の存在確認 ──

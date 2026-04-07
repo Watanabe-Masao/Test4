@@ -14,6 +14,9 @@ import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
 import { collectTsFiles, rel } from '../guardTestHelpers'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
+
+const rule = getRuleById('AR-PATH-PURCHASE-COST')!
 
 const SRC_DIR = path.resolve(__dirname, '../..')
 
@@ -46,11 +49,7 @@ describe('仕入原価取得経路ガード', () => {
       }
     }
 
-    expect(
-      violations,
-      `presentation 層が旧購買系クエリを直接参照:\n${violations.join('\n')}\n` +
-        '→ usePurchaseCost() 経由に切り替えてください',
-    ).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   // ── Layer 2: 集計経路ガード ──
@@ -89,11 +88,7 @@ describe('仕入原価取得経路ガード', () => {
       }
     }
 
-    expect(
-      violations,
-      `正当な集計元以外で仕入原価の独自集計を検出:\n${violations.join('\n')}\n` +
-        '→ readPurchaseCost の ReadModel から値を取得してください',
-    ).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   // ── Layer 3: 複合正本の一貫性ガード ──

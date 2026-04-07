@@ -10,6 +10,7 @@
  * ルール定義: architectureRules.ts (AR-STRUCT-QUERY-PATTERN)
  */
 import { describe, it, expect } from 'vitest'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 import * as fs from 'fs'
 import * as path from 'path'
 import { SRC_DIR, collectTsFiles, extractImports, rel } from '../guardTestHelpers'
@@ -20,6 +21,8 @@ import {
   pairJustifiedSingle,
   presentationDirectQueryAudit,
 } from '../allowlists'
+
+const rule = getRuleById('AR-STRUCT-QUERY-PATTERN')!
 
 // ── INV-RUN-01: Canonical Integration ──
 
@@ -59,10 +62,7 @@ describe('INV-RUN-02: isPrevYear handler 棚卸し', () => {
     const allowedPaths = new Set(isPrevYearHandlers.map((e) => e.path))
     const unexpected = filesWithIsPrevYear.filter((f) => !allowedPaths.has(f))
 
-    expect(
-      unexpected,
-      `許容リストにない isPrevYear handler が検出されました:\n${unexpected.join('\n')}`,
-    ).toEqual([])
+    expect(unexpected, formatViolationMessage(rule, unexpected)).toEqual([])
   })
 
   it('許容リストの handler は実在する', () => {
@@ -73,7 +73,7 @@ describe('INV-RUN-02: isPrevYear handler 棚卸し', () => {
         missing.push(entry.path)
       }
     }
-    expect(missing, `許容リストに存在しないファイルがあります:\n${missing.join('\n')}`).toEqual([])
+    expect(missing, formatViolationMessage(rule, missing)).toEqual([])
   })
 })
 
@@ -106,12 +106,7 @@ describe('INV-RUN-03: presentation 層の useQueryWithHandler 直接呼び出し
     console.log(`[INV-RUN-03] presentation direct query files: ${filesWithDirectQuery.length}`)
 
     // Gate 3 完了: 22→0。全 presentation direct query を Screen Plan hook に移行完了。
-    expect(
-      filesWithDirectQuery.length,
-      `presentation 層の直接 query 呼び出しが増加しています。\n` +
-        `Screen Plan hook 経由に移行してください。\n` +
-        `対象:\n${filesWithDirectQuery.join('\n')}`,
-    ).toBe(0)
+    expect(filesWithDirectQuery.length, formatViolationMessage(rule, filesWithDirectQuery)).toBe(0)
   })
 })
 
@@ -144,15 +139,9 @@ describe('INV-RUN-03: presentation direct query 台帳の整合性', () => {
     const missingInAudit = [...actualFiles].filter((f) => !auditPaths.has(f))
     const staleInAudit = [...auditPaths].filter((p) => !actualFiles.has(p))
 
-    expect(
-      missingInAudit,
-      `台帳に未登録のファイルがあります:\n${missingInAudit.join('\n')}`,
-    ).toEqual([])
+    expect(missingInAudit, formatViolationMessage(rule, missingInAudit)).toEqual([])
 
-    expect(
-      staleInAudit,
-      `台帳に存在するが検出されないファイルがあります:\n${staleInAudit.join('\n')}`,
-    ).toEqual([])
+    expect(staleInAudit, formatViolationMessage(rule, staleInAudit)).toEqual([])
   })
 
   it('分類サマリを出力する', () => {
@@ -184,6 +173,8 @@ describe('INV-RUN-02: pair handler 消費側の3分類整合性', () => {
   it('nonPairableConsumers は pairExceptionDesign + pairJustifiedSingle の合算', () => {
     const expected = [...pairExceptionDesign, ...pairJustifiedSingle].map((e) => e.path).sort()
     const actual = [...nonPairableConsumers].map((e) => e.path).sort()
+    const violations = actual.filter((p) => !expected.includes(p))
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
     expect(actual).toEqual(expected)
   })
 
@@ -218,7 +209,7 @@ describe('INV-RUN-02: pair handler count ラチェット', () => {
     // Gate 3: 13 pair handler（既存 1 + 新規 12）。MovingAverageHandler は BaseQueryInput 非準拠のためスキップ。
     expect(
       pairHandlerCount,
-      `pair handler が減少しています。createPairedHandler で生成された handler を削除しないでください。`,
+      formatViolationMessage(rule, [`pairHandlerCount: ${pairHandlerCount} (expected >= 13)`]),
     ).toBeGreaterThanOrEqual(13)
   })
 })
@@ -257,7 +248,7 @@ describe('INV-RUN-04: Screen Plan hook count ラチェット', () => {
     // 2026-04-05: category plans を features/ に移行。shared 19→13 + features 6 = 同数維持
     expect(
       totalPlanHooks,
-      `Screen Plan hook が減少しています。plan hook を削除しないでください。`,
+      formatViolationMessage(rule, [`totalPlanHooks: ${totalPlanHooks} (expected >= 22)`]),
     ).toBeGreaterThanOrEqual(22)
   })
 })
@@ -335,12 +326,7 @@ describe('INV-RUN-02: pair 化済み handler の base import 追跡', () => {
     }
 
     // 全消費側が nonPairableConsumers に分類済み。新規の base handler import を防止する。
-    expect(
-      violations.length,
-      `pair 化済み base handler の直接 import が増加しています。\n` +
-        `pair handler を使用するか、nonPairableConsumers に登録してください。\n` +
-        `対象:\n${violations.join('\n')}`,
-    ).toBeLessThanOrEqual(0)
+    expect(violations.length, formatViolationMessage(rule, violations)).toBeLessThanOrEqual(0)
   })
 })
 
@@ -380,12 +366,7 @@ describe('INV-RUN-05: collapsible ChartCard の hidden fetch 防止', () => {
       `[INV-RUN-05] collapsible + useQueryWithHandler の component: ${violations.length === 0 ? '全件 onVisibilityChange 実装済み' : violations.length + ' 件の違反'}`,
     )
 
-    expect(
-      violations,
-      `collapsible ChartCard 内で useQueryWithHandler を呼ぶ component が onVisibilityChange を実装していません。\n` +
-        `折りたたみ時のデータ取得抑制（INV-RUN-05）を実装してください。\n` +
-        `対象:\n${violations.join('\n')}`,
-    ).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 })
 
@@ -410,12 +391,7 @@ describe('P6-2: Screen Plan hook が presentation 層を import しない', () =
       }
     }
 
-    expect(
-      violations,
-      `plan hook が presentation 層を import しています。\n` +
-        `plan hook は application 層に閉じてください（H1 原則）。\n` +
-        `対象:\n${violations.join('\n')}`,
-    ).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   it('application/hooks/ 直下の plan hook が @/presentation/ を import しない', () => {
@@ -434,10 +410,7 @@ describe('P6-2: Screen Plan hook が presentation 層を import しない', () =
       }
     }
 
-    expect(
-      violations,
-      `plan hook が presentation 層を import しています。\n` + `対象:\n${violations.join('\n')}`,
-    ).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 })
 
@@ -461,12 +434,7 @@ describe('P6-2: Screen Plan hook が infrastructure 層を import しない', ()
       }
     }
 
-    expect(
-      violations,
-      `plan hook が infrastructure 層を import しています。\n` +
-        `plan hook は application + domain 層のみ参照可能です。\n` +
-        `対象:\n${violations.join('\n')}`,
-    ).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 })
 
@@ -491,9 +459,6 @@ describe('P6-3: 退役済み re-export ファイルが復活していない', ()
       }
     }
 
-    expect(
-      existing,
-      `退役済み re-export ファイルが復活しています:\n${existing.join('\n')}`,
-    ).toEqual([])
+    expect(existing, formatViolationMessage(rule, existing)).toEqual([])
   })
 })
