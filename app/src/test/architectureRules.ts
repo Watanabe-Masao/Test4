@@ -769,6 +769,319 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     },
   },
 
+  // ── パスガード由来（正本取得経路の保護） ──
+
+  {
+    id: 'AR-PATH-SALES',
+    guardTags: ['F9'],
+    epoch: 1,
+    what: '売上データは readSalesFact / salesFactHandler 経由でのみ取得する',
+    why: '旧クエリの直接利用は正本の一貫性を破壊する',
+    doc: 'references/01-principles/sales-definition.md',
+    correctPattern: {
+      description: 'readSalesFact() または useWidgetDataOrchestrator 経由で取得',
+      imports: ['@/application/readModels/salesFact/readSalesFact'],
+    },
+    outdatedPattern: {
+      description: 'presentation/ から categoryTimeSales / timeSlots / salesFactQueries を直接 import',
+      imports: [
+        '@/infrastructure/duckdb/queries/categoryTimeSales',
+        '@/infrastructure/duckdb/queries/timeSlots',
+        '@/infrastructure/duckdb/queries/salesFactQueries',
+      ],
+    },
+    detection: { type: 'import', severity: 'gate', baseline: 0 },
+    migrationPath: {
+      steps: [
+        '1. 旧クエリへの import を削除',
+        '2. readSalesFact() または useWidgetDataOrchestrator 経由に変更',
+        '3. SalesFactReadModel 型を使用',
+      ],
+      effort: 'small',
+      priority: 2,
+    },
+  },
+
+  {
+    id: 'AR-PATH-DISCOUNT',
+    guardTags: ['F9'],
+    epoch: 1,
+    what: '値引きデータは readDiscountFact / discountFactHandler 経由でのみ取得する',
+    why: '旧クエリの直接利用は正本の一貫性を破壊する',
+    doc: 'references/01-principles/discount-definition.md',
+    correctPattern: {
+      description: 'readDiscountFact() または useWidgetDataOrchestrator 経由で取得',
+      imports: ['@/application/readModels/discountFact/readDiscountFact'],
+    },
+    outdatedPattern: {
+      description: 'presentation/ から旧値引きクエリを直接 import',
+    },
+    detection: { type: 'import', severity: 'gate', baseline: 0 },
+    migrationPath: {
+      steps: [
+        '1. 旧クエリへの import を削除',
+        '2. readDiscountFact() 経由に変更',
+      ],
+      effort: 'small',
+      priority: 2,
+    },
+  },
+
+  {
+    id: 'AR-PATH-GROSS-PROFIT',
+    guardTags: ['F9', 'D1'],
+    epoch: 1,
+    what: '粗利計算は calculateGrossProfit 経由でのみ実行する',
+    why: '粗利の計算方法が散在すると不変条件（売上−原価=粗利）が破壊される',
+    doc: 'references/01-principles/gross-profit-definition.md',
+    correctPattern: {
+      description: 'calculateGrossProfit() で全 4 種の粗利を統一的に計算',
+      imports: ['@/domain/calculations/grossProfit'],
+    },
+    outdatedPattern: {
+      description: '独自の粗利計算や旧関数を使用する',
+    },
+    detection: { type: 'import', severity: 'gate', baseline: 0 },
+    migrationPath: {
+      steps: [
+        '1. 独自の粗利計算を削除',
+        '2. calculateGrossProfit() に置き換え',
+        '3. GrossProfitResult 型を使用',
+      ],
+      effort: 'small',
+      priority: 1,
+    },
+  },
+
+  {
+    id: 'AR-PATH-PURCHASE-COST',
+    guardTags: ['F9'],
+    epoch: 1,
+    what: '仕入原価は readPurchaseCost 経由でのみ取得する',
+    why: '3 独立正本（通常仕入・売上納品・移動原価）の一貫性を保証する',
+    doc: 'references/01-principles/purchase-cost-definition.md',
+    correctPattern: {
+      description: 'readPurchaseCost() / usePurchaseCost() 経由で取得',
+      imports: ['@/application/readModels/purchaseCost/readPurchaseCost'],
+    },
+    outdatedPattern: {
+      description: '旧 queryPurchaseTotal 等 7 関数の使用（廃止済み）',
+    },
+    detection: { type: 'import', severity: 'gate', baseline: 0 },
+    migrationPath: {
+      steps: [
+        '1. 旧クエリ関数の呼び出しを削除',
+        '2. readPurchaseCost() に置き換え',
+        '3. PurchaseCostReadModel 型を使用',
+      ],
+      effort: 'small',
+      priority: 1,
+    },
+  },
+
+  {
+    id: 'AR-PATH-CUSTOMER',
+    guardTags: ['F9'],
+    epoch: 1,
+    what: '客数データは readCustomerFact 経由でのみ取得する',
+    why: '客数の正本が散在すると集計の一貫性が失われる',
+    doc: 'references/01-principles/customer-definition.md',
+    correctPattern: {
+      description: 'readCustomerFact() 経由で取得',
+      imports: ['@/application/readModels/customerFact/readCustomerFact'],
+    },
+    outdatedPattern: {
+      description: 'presentation/ から旧客数クエリを直接 import',
+    },
+    detection: { type: 'import', severity: 'gate', baseline: 0 },
+    migrationPath: {
+      steps: [
+        '1. 旧クエリへの import を削除',
+        '2. readCustomerFact() 経由に変更',
+      ],
+      effort: 'small',
+      priority: 2,
+    },
+  },
+
+  {
+    id: 'AR-PATH-CUSTOMER-GAP',
+    guardTags: ['F9', 'D1'],
+    epoch: 1,
+    what: '客数 GAP は calculateCustomerGap 経由でのみ計算する',
+    why: 'インライン計算は GAP の定義（昨対差）との不整合を生む',
+    doc: 'references/01-principles/customer-gap-definition.md',
+    correctPattern: {
+      description: 'calculateCustomerGap() を使用',
+      imports: ['@/domain/calculations/customerGap'],
+    },
+    outdatedPattern: {
+      description: 'インラインで客数差を計算する（例: current - previous）',
+      codeSignals: ['customers.*-.*customers', 'customerCount.*-'],
+    },
+    detection: { type: 'regex', severity: 'gate', baseline: 0 },
+    migrationPath: {
+      steps: [
+        '1. インラインの差分計算を削除',
+        '2. calculateCustomerGap() に置き換え',
+      ],
+      effort: 'trivial',
+      priority: 2,
+    },
+  },
+
+  {
+    id: 'AR-PATH-PI-VALUE',
+    guardTags: ['F9', 'D1'],
+    epoch: 1,
+    what: 'PI 値は calculateQuantityPI / calculateAmountPI 経由でのみ計算する',
+    why: 'インラインの除算は 0 除算ガードの欠落やフォーマット不統一を招く',
+    doc: 'references/01-principles/pi-value-definition.md',
+    correctPattern: {
+      description: 'calculateQuantityPI() / calculateAmountPI() を使用',
+      imports: ['@/domain/calculations/piValue'],
+    },
+    outdatedPattern: {
+      description: 'インラインで売上÷客数の除算を行う',
+      codeSignals: ['sales.*\\/.*customers', 'amount.*\\/.*count'],
+    },
+    detection: { type: 'regex', severity: 'gate', baseline: 0 },
+    migrationPath: {
+      steps: [
+        '1. インラインの除算を削除',
+        '2. calculateQuantityPI() / calculateAmountPI() に置き換え',
+      ],
+      effort: 'trivial',
+      priority: 2,
+    },
+  },
+
+  {
+    id: 'AR-PATH-FREE-PERIOD',
+    guardTags: ['F9'],
+    epoch: 1,
+    what: '自由期間分析データは readFreePeriodFact 経由でのみ取得する',
+    why: '自由期間の正本が散在すると期間スコープの一貫性が失われる',
+    doc: 'references/01-principles/free-period-analysis-definition.md',
+    correctPattern: {
+      description: 'readFreePeriodFact() / freePeriodHandler 経由で取得',
+      imports: ['@/application/readModels/freePeriod/readFreePeriodFact'],
+    },
+    outdatedPattern: {
+      description: 'presentation/ から旧自由期間クエリを直接 import',
+    },
+    detection: { type: 'import', severity: 'gate', baseline: 0 },
+    migrationPath: {
+      steps: [
+        '1. 旧クエリへの import を削除',
+        '2. readFreePeriodFact() 経由に変更',
+      ],
+      effort: 'small',
+      priority: 2,
+    },
+  },
+
+  {
+    id: 'AR-PATH-FREE-PERIOD-BUDGET',
+    guardTags: ['F9'],
+    epoch: 1,
+    what: '自由期間予算は readFreePeriodBudgetFact 経由でのみ取得する',
+    why: '予算データの取得経路を統一し、集計の一貫性を保証する',
+    doc: 'references/01-principles/free-period-budget-kpi-contract.md',
+    correctPattern: {
+      description: 'readFreePeriodBudgetFact() 経由で取得',
+      imports: ['@/application/readModels/freePeriodBudget/readFreePeriodBudgetFact'],
+    },
+    outdatedPattern: {
+      description: '旧予算クエリを直接利用',
+    },
+    detection: { type: 'import', severity: 'gate', baseline: 0 },
+    migrationPath: {
+      steps: [
+        '1. 旧クエリへの import を削除',
+        '2. readFreePeriodBudgetFact() 経由に変更',
+      ],
+      effort: 'small',
+      priority: 2,
+    },
+  },
+
+  {
+    id: 'AR-PATH-FREE-PERIOD-DEPT-KPI',
+    guardTags: ['F9'],
+    epoch: 1,
+    what: '自由期間部門 KPI は readFreePeriodDeptKPI 経由でのみ取得する',
+    why: '部門 KPI の取得経路を統一し、集計の一貫性を保証する',
+    doc: 'references/01-principles/free-period-budget-kpi-contract.md',
+    correctPattern: {
+      description: 'readFreePeriodDeptKPI() 経由で取得',
+      imports: ['@/application/readModels/freePeriodDeptKPI/readFreePeriodDeptKPI'],
+    },
+    outdatedPattern: {
+      description: '旧部門 KPI クエリを直接利用',
+    },
+    detection: { type: 'import', severity: 'gate', baseline: 0 },
+    migrationPath: {
+      steps: [
+        '1. 旧クエリへの import を削除',
+        '2. readFreePeriodDeptKPI() 経由に変更',
+      ],
+      effort: 'small',
+      priority: 2,
+    },
+  },
+
+  {
+    id: 'AR-PATH-FACTOR-DECOMPOSITION',
+    guardTags: ['F9', 'D1'],
+    epoch: 1,
+    what: '要因分解は calculateFactorDecomposition 経由でのみ実行する',
+    why: '要因分解の合計値は実際の売上差に完全一致しなければならない（D1 不変条件）',
+    doc: 'references/01-principles/authoritative-calculation-definition.md',
+    correctPattern: {
+      description: 'calculateFactorDecomposition() を使用。WASM ready なら WASM、そうでなければ TS fallback',
+      imports: ['@/domain/calculations/factorDecomposition'],
+    },
+    outdatedPattern: {
+      description: '独自の要因分解計算やインラインのシャープリー値計算',
+    },
+    detection: { type: 'import', severity: 'gate', baseline: 0 },
+    migrationPath: {
+      steps: [
+        '1. 独自の要因分解計算を削除',
+        '2. calculateFactorDecomposition() に置き換え',
+        '3. FactorDecompositionResult 型を使用',
+      ],
+      effort: 'small',
+      priority: 1,
+    },
+  },
+
+  {
+    id: 'AR-PATH-GROSS-PROFIT-CONSISTENCY',
+    guardTags: ['F9', 'D1'],
+    epoch: 1,
+    what: '粗利計算の一貫性を保証する（全経路で同一値）',
+    why: '異なる経路で粗利を取得すると値の不整合が発生する',
+    doc: 'references/01-principles/gross-profit-definition.md',
+    correctPattern: {
+      description: 'calculateGrossProfit → getEffectiveGrossProfit → grossProfitFromStoreResult の 2 層構造',
+    },
+    outdatedPattern: {
+      description: '独自の粗利取得関数を作成する',
+    },
+    detection: { type: 'custom', severity: 'gate', baseline: 0 },
+    migrationPath: {
+      steps: [
+        '1. 粗利を取得している箇所を特定',
+        '2. calculateGrossProfit() の 2 層構造に従っているか確認',
+        '3. 独自経路があれば getEffectiveGrossProfit / grossProfitFromStoreResult に移行',
+      ],
+      effort: 'small',
+      priority: 1,
+    },
+  },
+
   // ── 責務タグ別の閾値（TAG_EXPECTATIONS 由来） ──
 
   {

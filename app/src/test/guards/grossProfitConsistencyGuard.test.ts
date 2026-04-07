@@ -9,6 +9,7 @@
  *   3. conditionSummaryUtils の wrapper（UI 向け）
  *
  * これらが同一の StoreResult に対して同じ値を返すことを保証する。
+ * ルール定義: architectureRules.ts (AR-PATH-GROSS-PROFIT-CONSISTENCY)
  */
 import { describe, it, expect } from 'vitest'
 import { getEffectiveGrossProfitRate, getEffectiveGrossProfit } from '@/domain/calculations/utils'
@@ -20,6 +21,7 @@ import {
   computeGpAfterConsumableAmount,
 } from '@/presentation/pages/Dashboard/widgets/conditionSummaryUtils'
 import type { StoreResult } from '@/domain/models/storeTypes'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 // ── テストデータ ──
 

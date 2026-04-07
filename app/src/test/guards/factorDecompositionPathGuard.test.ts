@@ -6,11 +6,13 @@
  * 許可リスト以外で禁止する。
  *
  * @see references/01-principles/authoritative-calculation-definition.md
+ * ルール定義: architectureRules.ts (AR-PATH-FACTOR-DECOMPOSITION)
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
 import { collectTsFiles, rel, extractValueImports } from '../guardTestHelpers'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 const SRC_DIR = path.resolve(__dirname, '../..')
 

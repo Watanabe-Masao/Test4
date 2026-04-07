@@ -5,11 +5,13 @@
  * presentation 層からの旧クエリ直接利用を禁止する。
  *
  * @see references/01-principles/discount-definition.md
+ * ルール定義: architectureRules.ts (AR-PATH-DISCOUNT)
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
 import { collectTsFiles, rel } from '../guardTestHelpers'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 const SRC_DIR = path.resolve(__dirname, '../..')
 
