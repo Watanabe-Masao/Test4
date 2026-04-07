@@ -164,7 +164,7 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
       if (!entry) return
       setSelectedRange({ from: entry.day, to: entry.day })
     },
-    [view, data, onDayClick, handleClick],
+    [view, data, onDayClick, handleClick, setSelectedRange],
   )
 
   // ブラシ選択で範囲選択
@@ -182,7 +182,7 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
         setSelectedRange({ from: fromDay, to: toDay })
       }
     },
-    [data],
+    [data, setSelectedRange],
   )
 
   // 子チャートに渡す期間（選択範囲があればそれ、なければ月全体）

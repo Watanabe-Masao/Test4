@@ -48,7 +48,6 @@ describe('AnalysisFrame 正本ガード', () => {
 
 import { computeAnalysisFrameKey } from '@/domain/models/analysisFrameFingerprint'
 import type { FreePeriodAnalysisFrame } from '@/domain/models/AnalysisFrame'
-import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 function makeFrame(overrides: Partial<FreePeriodAnalysisFrame> = {}): FreePeriodAnalysisFrame {
   return {
