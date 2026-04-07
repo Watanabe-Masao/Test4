@@ -105,6 +105,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: 'bridge 内で getExecutionMode / recordCall / recordMismatch を使用する',
       codeSignals: ['getExecutionMode', 'recordCall', 'recordMismatch', 'dual-run-compare'],
     },
+    decisionCriteria: {
+      when: 'bridge ファイルを変更するとき',
+      exceptions: '例外なし。dual-run は退役済み',
+      escalation: '該当コードを発見したら即削除',
+    },
     detection: {
       type: 'regex',
       severity: 'gate',
@@ -134,6 +139,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     outdatedPattern: {
       description: 'presentation/ から wasmEngine を import する',
       imports: ['wasmEngine'],
+    },
+    decisionCriteria: {
+      when: 'presentation/ で計算結果が必要なとき',
+      exceptions: '例外なし',
+      escalation: 'application/hooks/ の hook 経由に変更',
     },
     detection: {
       type: 'import',
@@ -165,6 +175,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: 'UnifiedWidgetContext に readonly フィールドを追加する',
     },
     thresholds: { fieldMax: 47 },
+    decisionCriteria: {
+      when: 'UnifiedWidgetContext にフィールドを追加したいとき',
+      exceptions: '全ウィジェット共通のフィールドのみ許容',
+      escalation: 'feature slice のローカル context に配置',
+    },
     detection: {
       type: 'count',
       severity: 'gate',
@@ -195,6 +210,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: 'application/services/ や domain/ に @deprecated を追加する',
       codeSignals: ['@deprecated'],
     },
+    decisionCriteria: {
+      when: '互換性のために wrapper を作りたいとき',
+      exceptions: '例外なし。呼び出し元を直接新 API に移行する',
+      escalation: '既存 @deprecated の呼び出し元移行を優先',
+    },
     detection: {
       type: 'count',
       severity: 'gate',
@@ -223,6 +243,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     },
     outdatedPattern: {
       description: 'application/hooks/plans/ に新規 *Plan.ts を追加する',
+    },
+    decisionCriteria: {
+      when: '新しい plan hook を作りたいとき',
+      exceptions: 'cross-cutting（全ページ共通）の plan のみ shared に配置可能',
+      escalation: 'features/<feature>/application/plans/ に配置',
     },
     detection: {
       type: 'count',
@@ -326,6 +351,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     relationships: {
       dependsOn: ['AR-A1-DOMAIN'],
     },
+    decisionCriteria: {
+      when: 'application/ から presentation/ の型を参照したいとき',
+      exceptions: '例外なし。依存方向は逆',
+      escalation: '共有型は domain/ に定義する',
+    },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
     migrationPath: {
       steps: [
@@ -388,6 +418,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: 'presentation/ から application/usecases/ を value import する',
       imports: ['@/application/usecases/'],
     },
+    decisionCriteria: {
+      when: 'presentation/ から usecase の関数を直接呼びたいとき',
+      exceptions: 'import type は許容',
+      escalation: 'application/hooks/ の hook 経由に変更',
+    },
     detection: { type: 'import', severity: 'gate', baseline: 1 },
     migrationPath: {
       steps: [
@@ -417,6 +452,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     relationships: {
       dependsOn: ['AR-A1-DOMAIN'],
     },
+    decisionCriteria: {
+      when: 'infrastructure/ から application/ の型を使いたいとき',
+      exceptions: '例外なし',
+      escalation: '必要な型は domain/ に契約として定義',
+    },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
     migrationPath: {
       steps: [
@@ -442,6 +482,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     outdatedPattern: {
       description: 'infrastructure/ から presentation/ を import する',
       imports: ['@/presentation/'],
+    },
+    decisionCriteria: {
+      when: 'infrastructure/ から presentation/ を参照しようとしたとき',
+      exceptions: '例外なし',
+      escalation: '共有データは domain/ 経由',
     },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
     migrationPath: {
@@ -470,6 +515,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: '@internal コメント付きの export を作成する',
       codeSignals: ['@internal'],
     },
+    decisionCriteria: {
+      when: 'テストのために内部関数を export したいとき',
+      exceptions: '例外なし',
+      escalation: 'public API 経由でテストする',
+    },
     detection: { type: 'regex', severity: 'gate', baseline: 0 },
     migrationPath: {
       steps: [
@@ -494,6 +544,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     },
     outdatedPattern: {
       description: 'set() コールバック内で (a) + (b) のような算術代入を行う',
+    },
+    decisionCriteria: {
+      when: 'store action 内で計算が必要なとき',
+      exceptions: '例外なし',
+      escalation: 'domain/calculations/ で計算し結果を set() する',
     },
     detection: { type: 'regex', severity: 'gate', baseline: 0 },
     migrationPath: {
@@ -553,6 +608,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: '!result.numericField のような truthiness チェック',
       codeSignals: ['!result.', '!entry.', '!data.'],
     },
+    decisionCriteria: {
+      when: '数値フィールドの存在チェックを書くとき',
+      exceptions: '例外なし',
+      escalation: '!value を value == null に書き換え',
+    },
     detection: { type: 'regex', severity: 'gate', baseline: 0 },
     migrationPath: {
       steps: [
@@ -579,6 +639,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: 'useDataStore() のようにセレクタなしで呼ぶ',
       codeSignals: ['useDataStore()', 'useSettingsStore()', 'useUiStore()'],
     },
+    decisionCriteria: {
+      when: 'Zustand store を使うとき',
+      exceptions: '例外なし',
+      escalation: 'セレクタを指定して必要なフィールドのみ購読',
+    },
     detection: { type: 'regex', severity: 'gate', baseline: 0 },
     migrationPath: {
       steps: [
@@ -603,6 +668,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     outdatedPattern: {
       description: '.catch(() => {}) のような空のエラーハンドラ',
       codeSignals: ['.catch(() => {})'],
+    },
+    decisionCriteria: {
+      when: 'catch ブロックを書くとき',
+      exceptions: '例外なし',
+      escalation: '最低でも console.warn(error) を入れる',
     },
     detection: { type: 'regex', severity: 'gate', baseline: 0 },
     migrationPath: {
@@ -693,6 +763,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: '1 つの hook ファイルに大量のロジックを詰め込む',
     },
     thresholds: { lineMax: 300 },
+    decisionCriteria: {
+      when: 'hook ファイルが 300 行に近づいたとき',
+      exceptions: 'allowlists/complexity.ts に登録可能',
+      escalation: 'hook の分割を検討',
+    },
     detection: { type: 'count', severity: 'gate' },
     migrationPath: {
       steps: [
@@ -750,6 +825,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: '1 つの domain ファイルに大量の関数を詰め込む',
     },
     thresholds: { lineMax: 300 },
+    decisionCriteria: {
+      when: 'domain ファイルが 300 行に近づいたとき',
+      exceptions: 'allowlists/size.ts に登録可能（permanent のみ）',
+      escalation: '関数を別ファイルに分割',
+    },
     detection: { type: 'count', severity: 'gate' },
     migrationPath: {
       steps: [
@@ -775,6 +855,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: '1 つのインフラファイルに大量のクエリや処理を詰め込む',
     },
     thresholds: { lineMax: 400 },
+    decisionCriteria: {
+      when: 'infrastructure ファイルが 400 行に近づいたとき',
+      exceptions: 'allowlists/size.ts に登録可能',
+      escalation: 'クエリやアダプタを分割',
+    },
     detection: { type: 'count', severity: 'gate' },
     migrationPath: {
       steps: [
@@ -800,6 +885,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: '1 つの usecase に大量のインデックス構築を詰め込む',
     },
     thresholds: { lineMax: 400 },
+    decisionCriteria: {
+      when: 'usecase ファイルが 400 行に近づいたとき',
+      exceptions: 'allowlists/size.ts に登録可能',
+      escalation: 'usecase を分割',
+    },
     detection: { type: 'count', severity: 'gate' },
     migrationPath: {
       steps: [
@@ -893,6 +983,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     },
     outdatedPattern: {
       description: 'presentation/ から旧値引きクエリを直接 import',
+    },
+    decisionCriteria: {
+      when: '値引きデータを取得するとき',
+      exceptions: 'application 層の discountFactHandler 直接使用は許容',
+      escalation: 'readDiscountFact() 経由に変更',
     },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
     migrationPath: {
@@ -988,6 +1083,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     outdatedPattern: {
       description: 'presentation/ から旧客数クエリを直接 import',
     },
+    decisionCriteria: {
+      when: '客数データを取得するとき',
+      exceptions: 'application 層の customerFactHandler 直接使用は許容',
+      escalation: 'readCustomerFact() 経由に変更',
+    },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
     migrationPath: {
       steps: [
@@ -1013,6 +1113,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     outdatedPattern: {
       description: 'インラインで客数差を計算する（例: current - previous）',
       codeSignals: ['customers.*-.*customers', 'customerCount.*-'],
+    },
+    decisionCriteria: {
+      when: '客数差を計算するとき',
+      exceptions: '例外なし',
+      escalation: 'calculateCustomerGap() を使用',
     },
     detection: { type: 'regex', severity: 'gate', baseline: 0 },
     migrationPath: {
@@ -1040,6 +1145,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: 'インラインで売上÷客数の除算を行う',
       codeSignals: ['sales.*\\/.*customers', 'amount.*\\/.*count'],
     },
+    decisionCriteria: {
+      when: 'PI 値（売上÷客数）を計算するとき',
+      exceptions: '例外なし。0 除算ガードが組み込まれている',
+      escalation: 'calculateQuantityPI() / calculateAmountPI() を使用',
+    },
     detection: { type: 'regex', severity: 'gate', baseline: 0 },
     migrationPath: {
       steps: [
@@ -1064,6 +1174,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     },
     outdatedPattern: {
       description: 'presentation/ から旧自由期間クエリを直接 import',
+    },
+    decisionCriteria: {
+      when: '自由期間分析データを取得するとき',
+      exceptions: 'application 層の freePeriodHandler 直接使用は許容',
+      escalation: 'readFreePeriodFact() 経由に変更',
     },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
     migrationPath: {
@@ -1090,6 +1205,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     outdatedPattern: {
       description: '旧予算クエリを直接利用',
     },
+    decisionCriteria: {
+      when: '自由期間予算データを取得するとき',
+      exceptions: 'application 層の handler 直接使用は許容',
+      escalation: 'readFreePeriodBudgetFact() 経由に変更',
+    },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
     migrationPath: {
       steps: [
@@ -1114,6 +1234,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     },
     outdatedPattern: {
       description: '旧部門 KPI クエリを直接利用',
+    },
+    decisionCriteria: {
+      when: '自由期間部門 KPI を取得するとき',
+      exceptions: 'application 層の handler 直接使用は許容',
+      escalation: 'readFreePeriodDeptKPI() 経由に変更',
     },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
     migrationPath: {
@@ -1143,6 +1268,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     relationships: {
       dependsOn: ['AR-STRUCT-PURITY'],
     },
+    decisionCriteria: {
+      when: '要因分解を実行するとき',
+      exceptions: '例外なし。シャープリー恒等式の不変条件を破壊する',
+      escalation: 'calculateFactorDecomposition() を使用',
+    },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
     migrationPath: {
       steps: [
@@ -1168,6 +1298,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     outdatedPattern: {
       description: '独自の粗利取得関数を作成する',
     },
+    decisionCriteria: {
+      when: '粗利を取得する経路を選ぶとき',
+      exceptions: '例外なし。全経路で同一値でなければならない',
+      escalation: 'calculateGrossProfit → getEffectiveGrossProfit の 2 層構造を使用',
+    },
     detection: { type: 'custom', severity: 'gate', baseline: 0 },
     migrationPath: {
       steps: [
@@ -1191,6 +1326,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     why: '分析フレームを経由しないクエリはキャッシュキーの不整合や期間スコープの矛盾を招く',
     correctPattern: { description: 'AnalysisFrame / CalculationFrame 経由でクエリ入力を構築する' },
     outdatedPattern: { description: 'presentation/ で直接クエリ入力を組み立てる' },
+    decisionCriteria: {
+      when: 'クエリ入力を構築するとき',
+      exceptions: '例外なし',
+      escalation: 'AnalysisFrame / CalculationFrame 経由で構築',
+    },
     detection: { type: 'custom', severity: 'gate' },
     migrationPath: { steps: ['1. 直接クエリ入力の構築を AnalysisFrame 経由に変更'], effort: 'small', priority: 2 },
   },
@@ -1222,6 +1362,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     why: 'presentation/ でのインライン計算は不変条件を破壊する',
     correctPattern: { description: 'canonical input builder を使用して正本関数に渡す' },
     outdatedPattern: { description: 'presentation/ で独自に PI値や GAP を計算する' },
+    decisionCriteria: {
+      when: 'PI値・客数GAPの入力を構築するとき',
+      exceptions: '例外なし',
+      escalation: 'canonical input builder 経由に変更',
+    },
     detection: { type: 'regex', severity: 'gate', baseline: 0 },
     migrationPath: { steps: ['1. インライン計算を削除', '2. canonical input builder 経由に変更'], effort: 'small', priority: 2 },
   },
@@ -1239,6 +1384,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       dependsOn: ['AR-STRUCT-CALC-CANON', 'AR-STRUCT-FALLBACK-METADATA'],
       enables: ['AR-PATH-SALES', 'AR-PATH-DISCOUNT', 'AR-PATH-CUSTOMER'],
     },
+    decisionCriteria: {
+      when: '新しい readModel を追加するとき',
+      exceptions: '例外なし。正本化手順を全て実施する',
+      escalation: 'readModels/ 配置 → Zod 契約 → パスガード → 定義書',
+    },
     detection: { type: 'custom', severity: 'gate' },
     migrationPath: { steps: ['1. readModels/ に配置', '2. Zod 契約追加', '3. パスガード追加', '4. 定義書作成'], effort: 'medium', priority: 1 },
   },
@@ -1252,6 +1402,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     why: 'ad-hoc な比較スコープ生成はペア/バンドル契約の一貫性を破壊する',
     correctPattern: { description: 'buildComparisonScope() factory 経由で生成する' },
     outdatedPattern: { description: 'presentation/ で直接 ComparisonScope を構築する' },
+    decisionCriteria: {
+      when: '比較スコープを生成するとき',
+      exceptions: '例外なし',
+      escalation: 'buildComparisonScope() factory を使用',
+    },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
     migrationPath: { steps: ['1. 直接構築を削除', '2. buildComparisonScope() に置き換え'], effort: 'small', priority: 2 },
   },
@@ -1265,6 +1420,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     why: '過去に発生したバグの再発を機械的に防止する',
     correctPattern: { description: '定義書の集計ルールに従い、state リセットを忘れない' },
     outdatedPattern: { description: '二重計上、DuckDB is_prev_year の不整合、state リセット漏れ' },
+    decisionCriteria: {
+      when: '集計クエリや state リセットを書くとき',
+      exceptions: '例外なし',
+      escalation: '二重計上チェック、is_prev_year 整合確認、useEffect クリーンアップ確認',
+    },
     detection: { type: 'custom', severity: 'gate' },
     migrationPath: { steps: ['1. 二重計上: 集約サブクエリ経由にする', '2. state リセット: useEffect のクリーンアップで確実にリセット'], effort: 'small', priority: 1 },
   },
@@ -1278,6 +1438,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     doc: 'references/03-guides/safety-first-architecture-plan.md',
     correctPattern: { description: 'WASM ready なら WASM、そうでなければ TS fallback の 2 モード' },
     outdatedPattern: { description: 'dual-run-compare モードの復活やブリッジコードの追加' },
+    decisionCriteria: {
+      when: 'WASM 関連コードを変更するとき',
+      exceptions: '例外なし。dual-run は退役済み',
+      escalation: 'ts-only | wasm-only の 2 モードのみ',
+    },
     detection: { type: 'custom', severity: 'gate' },
     migrationPath: { steps: ['1. dual-run 関連コードを発見したら削除'], effort: 'trivial', priority: 1 },
   },
@@ -1291,6 +1456,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     why: 'サイレントフォールバックは計算結果の信頼性を損なう',
     correctPattern: { description: 'readModel に usedFallback: boolean を含め、フォールバック時に true を設定する' },
     outdatedPattern: { description: 'フォールバックの発生を隠蔽する' },
+    decisionCriteria: {
+      when: 'readModel を新規作成するとき',
+      exceptions: '非クリティカルな readModel は省略可能',
+      escalation: 'usedFallback: boolean を追加',
+    },
     detection: { type: 'must-include', severity: 'gate' },
     migrationPath: { steps: ['1. readModel 型に usedFallback を追加', '2. builder でフォールバック判定を実装'], effort: 'small', priority: 2 },
   },
@@ -1325,6 +1495,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     why: 'ページメタデータの不整合はナビゲーション・breadcrumb の不具合を招く',
     correctPattern: { description: 'PAGE_REGISTRY にメタデータを追加し、routes.tsx の PAGE_COMPONENT_MAP と一致させる' },
     outdatedPattern: { description: 'PAGE_REGISTRY なしでページを追加する' },
+    decisionCriteria: {
+      when: '新規ページを追加するとき',
+      exceptions: '例外なし',
+      escalation: 'PAGE_REGISTRY と routes.tsx の PAGE_COMPONENT_MAP を両方更新',
+    },
     detection: { type: 'co-change', severity: 'gate' },
     migrationPath: { steps: ['1. PAGE_REGISTRY にエントリ追加', '2. routes.tsx の PAGE_COMPONENT_MAP と整合確認'], effort: 'trivial', priority: 1 },
   },
@@ -1338,6 +1513,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     doc: 'references/01-principles/design-principles.md',
     correctPattern: { description: 'application/ の hook 経由でデータを取得。SQL は infrastructure 層に閉じる' },
     outdatedPattern: { description: 'presentation/ から DuckDB クエリを直接実行する' },
+    decisionCriteria: {
+      when: 'presentation/ でデータ取得したいとき',
+      exceptions: '例外なし',
+      escalation: 'application/hooks/ の hook 経由',
+    },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
     migrationPath: { steps: ['1. infrastructure/ への直接 import を削除', '2. application/hooks/ の hook 経由に変更'], effort: 'small', priority: 1 },
   },
@@ -1395,6 +1575,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     why: 'ストレージ操作は副作用であり presentation 層の責務外',
     correctPattern: { description: 'uiPersistenceAdapter 経由でストレージにアクセスする' },
     outdatedPattern: { description: 'localStorage.getItem / sessionStorage.setItem を直接呼ぶ', codeSignals: ['localStorage.', 'sessionStorage.'] },
+    decisionCriteria: {
+      when: 'presentation/ でストレージにアクセスしたいとき',
+      exceptions: '例外なし',
+      escalation: 'uiPersistenceAdapter 経由',
+    },
     detection: { type: 'regex', severity: 'gate', baseline: 0 },
     migrationPath: { steps: ['1. localStorage/sessionStorage の直接呼び出しを削除', '2. uiPersistenceAdapter 経由に変更'], effort: 'small', priority: 2 },
   },
@@ -1429,6 +1614,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     why: 'StoreResult の totalCustomers は表示用集計値であり分析精度が異なる',
     correctPattern: { description: 'readCustomerFact() から CustomerFact を取得して分析に使う' },
     outdatedPattern: { description: 'StoreResult.totalCustomers を分析・計算の入力に使用する' },
+    decisionCriteria: {
+      when: '分析で客数が必要なとき',
+      exceptions: '表示用途のみ StoreResult.totalCustomers 許容',
+      escalation: '分析には readCustomerFact() を使用',
+    },
     detection: { type: 'regex', severity: 'gate', baseline: 0 },
     migrationPath: { steps: ['1. StoreResult.totalCustomers の参照を削除', '2. readCustomerFact() に置き換え'], effort: 'small', priority: 2 },
   },
@@ -1442,6 +1632,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     why: 'コード構造規約の一貫性が保守性を保証する',
     correctPattern: { description: 'バレルは re-export のみ。feature 間は shared/ 経由。ctx data は重複しない' },
     outdatedPattern: { description: 'バレルにロジック、feature 間の直接依存、ctx の重複データ' },
+    decisionCriteria: {
+      when: 'バレル・feature 依存・ctx データを変更するとき',
+      exceptions: '例外なし',
+      escalation: 'バレルは re-export のみ。feature 間は shared/ 経由',
+    },
     detection: { type: 'custom', severity: 'gate' },
     migrationPath: { steps: ['1. バレルからロジックを抽出', '2. feature 間依存を shared/ 経由に変更'], effort: 'small', priority: 3 },
   },
@@ -1455,6 +1650,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     why: 'temporal ロジックの逆流はデータフローの一方向性を破壊する',
     correctPattern: { description: 'temporal 計算は一方向。結果は hook 経由で消費のみ' },
     outdatedPattern: { description: 'temporal 計算結果を UI や比較ロジックに逆流させる' },
+    decisionCriteria: {
+      when: 'temporal 計算結果を使うとき',
+      exceptions: '例外なし',
+      escalation: 'hook 経由で結果を消費する。逆流禁止',
+    },
     detection: { type: 'import', severity: 'gate' },
     migrationPath: { steps: ['1. 逆流 import を削除', '2. 結果は hook 経由で受け取る'], effort: 'small', priority: 2 },
   },
@@ -1486,6 +1686,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     why: '未承認ディレクトリの追加は層構造の破壊を招く',
     correctPattern: { description: '新機能は features/<feature>/ に配置。共通は既存 4 層に配置' },
     outdatedPattern: { description: 'src/ 直下に新規ディレクトリを作成する' },
+    decisionCriteria: {
+      when: 'src/ に新規ディレクトリを作りたいとき',
+      exceptions: '例外なし。承認済みディレクトリのみ',
+      escalation: 'features/<feature>/ または既存 4 層に配置',
+    },
     detection: { type: 'custom', severity: 'gate' },
     migrationPath: { steps: ['1. 新規ディレクトリを features/<feature>/ または既存層に移動'], effort: 'trivial', priority: 1 },
   },
@@ -1501,6 +1706,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     why: '同じことをする 2 つの関数が存在すると、どちらを使うべきか判断コストが発生する',
     correctPattern: { description: '旧 API を @deprecated にして新 API に一本化。併存期間は最短にする' },
     outdatedPattern: { description: '同じ目的の関数を 2 つ export する（例: getData と fetchData）' },
+    decisionCriteria: {
+      when: '既存機能の代替 API を作りたいとき',
+      exceptions: '移行期間中のみ併存許容（@deprecated 付き）',
+      escalation: '旧 API の呼び出し元を新 API に移行してから旧を削除',
+    },
     detection: { type: 'custom', severity: 'gate' },
     migrationPath: { steps: ['1. 旧 API を @deprecated にする', '2. 呼び出し元を新 API に移行', '3. 旧 API を削除'], effort: 'small', priority: 2 },
   },
@@ -1532,6 +1742,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     why: 'キャッシュ最適化が本体より複雑になると保守コストが逆転する',
     correctPattern: { description: 'キャッシュ行数 ≤ 本体行数。超えたらキャッシュ戦略を見直す' },
     outdatedPattern: { description: 'キャッシュ制御（invalidation, memo, dedup）が本体より大きい' },
+    decisionCriteria: {
+      when: 'キャッシュ最適化を追加するとき',
+      exceptions: 'パフォーマンス要件が明確な場合は許容',
+      escalation: 'キャッシュ行数が本体を超えたら戦略を見直す',
+    },
     detection: { type: 'count', severity: 'warn' },
     migrationPath: { steps: ['1. キャッシュ行数と本体行数を比較', '2. 超過していたらキャッシュ戦略を簡素化'], effort: 'medium', priority: 4 },
   },
@@ -1563,6 +1778,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     why: 'alignment ロジックが散在すると比較結果の一貫性が失われる',
     correctPattern: { description: 'QueryHandler または resolver 内でのみ alignment を処理する' },
     outdatedPattern: { description: 'コンポーネントや hook で直接 alignment を判定する' },
+    decisionCriteria: {
+      when: '比較データの alignment を処理するとき',
+      exceptions: '例外なし',
+      escalation: 'handler/resolver 内でのみ alignment を処理',
+    },
     detection: { type: 'custom', severity: 'gate' },
     migrationPath: { steps: ['1. alignment 判定をコンポーネントから handler に移動'], effort: 'small', priority: 2 },
   },
@@ -1584,6 +1804,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: 'チャートコンポーネント内にデータ取得・状態管理・計算ロジックを混在させる',
     },
     thresholds: { memoMax: 4, callbackMax: 4, stateMax: 2, lineMax: 400 },
+    decisionCriteria: {
+      when: 'チャートコンポーネントに状態管理やデータ取得を追加したいとき',
+      exceptions: 'useMemo ≤ 4, useCallback ≤ 4, useState ≤ 2 の範囲内なら許容',
+      escalation: '超える場合は use*ChartState hook に状態を抽出し、データ取得は plan hook 経由に変更',
+    },
     detection: { type: 'count', severity: 'gate' },
     migrationPath: {
       steps: ['1. チャートの状態管理が混在しているか確認', '2. 状態管理は use*ChartState hook に抽出', '3. データ取得は plan hook 経由に変更'],
@@ -1608,6 +1833,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: 'オプション構築ファイルに useState や useCallback を含む',
     },
     thresholds: { memoMax: 2, callbackMax: 0, stateMax: 0, lineMax: 600 },
+    decisionCriteria: {
+      when: 'チャートオプション構築ファイルに hooks を追加したいとき',
+      exceptions: 'useMemo ≤ 2 のみ許容。useState/useCallback は禁止',
+      escalation: 'hooks は chart-view 側に配置する',
+    },
     detection: { type: 'count', severity: 'gate' },
     migrationPath: {
       steps: ['1. useState/useCallback があれば hook に抽出', '2. オプション構築は純粋関数として維持', '3. React 依存を排除'],
@@ -1659,6 +1889,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: '変換ファイルに useState や副作用を含む',
     },
     thresholds: { memoMax: 2, callbackMax: 0, stateMax: 0, lineMax: 300 },
+    decisionCriteria: {
+      when: 'データ変換ファイルに state を追加したいとき',
+      exceptions: '例外なし。transform は純粋関数',
+      escalation: 'state は hook に移動',
+    },
     detection: { type: 'count', severity: 'gate' },
     migrationPath: {
       steps: ['1. useState があれば hook に抽出', '2. データ変換は純粋関数として維持'],
@@ -1682,6 +1917,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: '状態管理ファイルに描画ロジックやデータ取得を混在させる',
     },
     thresholds: { memoMax: 3, callbackMax: 12, stateMax: 8, lineMax: 200 },
+    decisionCriteria: {
+      when: '状態管理ファイルが 200 行を超えそうなとき',
+      exceptions: '例外なし',
+      escalation: '状態遷移のみに専念させる。描画ロジックは分離',
+    },
     detection: { type: 'count', severity: 'gate' },
     migrationPath: {
       steps: ['1. 200 行を超えていたら描画ロジックとの分離を確認', '2. 状態遷移のみに専念させる'],
@@ -1705,6 +1945,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: 'plan ファイル内でクエリを実行する、または状態を持つ',
     },
     thresholds: { memoMax: 5, callbackMax: 0, stateMax: 0, lineMax: 200 },
+    decisionCriteria: {
+      when: 'plan ファイルにクエリ実行を追加したいとき',
+      exceptions: '例外なし。plan は入力の組み立てのみ',
+      escalation: '実行は useQueryWithHandler に委譲',
+    },
     detection: { type: 'count', severity: 'gate' },
     migrationPath: {
       steps: ['1. useState/useCallback があれば別 hook に抽出', '2. plan はクエリ入力の組み立てのみに専念', '3. 実行ロジックは useQueryWithHandler に委譲'],
@@ -1728,6 +1973,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: 'クエリ実行ファイルに計算ロジックや描画を含む',
     },
     thresholds: { memoMax: 3, callbackMax: 1, stateMax: 1, lineMax: 300 },
+    decisionCriteria: {
+      when: 'クエリ実行ファイルにビジネスロジックを追加したいとき',
+      exceptions: '例外なし',
+      escalation: '計算は domain 層に委譲',
+    },
     detection: { type: 'count', severity: 'gate' },
     migrationPath: {
       steps: ['1. ビジネスロジックが混入していないか確認', '2. 計算は domain 層に委譲', '3. キャッシュ管理のみに専念'],
@@ -1751,6 +2001,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: 'ウィジェット内にデータ取得・計算・状態管理を詰め込む',
     },
     thresholds: { memoMax: 4, callbackMax: 4, stateMax: 3, lineMax: 400 },
+    decisionCriteria: {
+      when: 'ウィジェットにデータ取得を追加したいとき',
+      exceptions: '例外なし',
+      escalation: 'plan hook 経由でデータを受け取る',
+    },
     detection: { type: 'count', severity: 'gate' },
     migrationPath: {
       steps: ['1. データ取得が混在していれば plan hook に抽出', '2. 計算ロジックは domain 層に委譲', '3. 表示と通知のみに専念'],
@@ -1774,6 +2029,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: 'ページ内にインライン計算や長いレンダリングロジックを含む',
     },
     thresholds: { memoMax: 8, callbackMax: 10, stateMax: 8, lineMax: 500 },
+    decisionCriteria: {
+      when: 'ページファイルが 500 行を超えそうなとき',
+      exceptions: '例外なし',
+      escalation: '子コンポーネントに分割。ロジックは hook に委譲',
+    },
     detection: { type: 'count', severity: 'gate' },
     migrationPath: {
       steps: ['1. インライン計算を hook に抽出', '2. 長いレンダリングロジックを子コンポーネントに分割', '3. ページは組み立てのみ'],
@@ -1797,6 +2057,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: 'フォーム内に計算ロジックやデータ取得を含む',
     },
     thresholds: { memoMax: 3, callbackMax: 6, stateMax: 6, lineMax: 300 },
+    decisionCriteria: {
+      when: 'フォームにビジネスロジックを追加したいとき',
+      exceptions: '例外なし',
+      escalation: 'ロジックは hook に抽出',
+    },
     detection: { type: 'count', severity: 'gate' },
     migrationPath: {
       steps: ['1. ビジネスロジックを hook に抽出', '2. フォームは入力処理に専念'],
@@ -1820,6 +2085,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: 'レイアウト内にデータ取得や状態管理を含む',
     },
     thresholds: { memoMax: 2, callbackMax: 3, stateMax: 3, lineMax: 300 },
+    decisionCriteria: {
+      when: 'レイアウトにデータ取得を追加したいとき',
+      exceptions: '例外なし',
+      escalation: 'hook に抽出',
+    },
     detection: { type: 'count', severity: 'gate' },
     migrationPath: {
       steps: ['1. データ取得や状態管理が混在していれば hook に抽出', '2. レイアウトは構造のみ'],
@@ -1843,6 +2113,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: 'オーケストレーション hook 内で useState や副作用を直接管理する',
     },
     thresholds: { memoMax: 8, callbackMax: 2, stateMax: 0, lineMax: 300 },
+    decisionCriteria: {
+      when: 'orchestration hook に useState を追加したいとき',
+      exceptions: '例外なし。orchestration は組み立てのみ',
+      escalation: '状態管理は別 hook に分離',
+    },
     detection: { type: 'count', severity: 'gate' },
     migrationPath: {
       steps: ['1. useState があれば状態管理 hook に抽出', '2. 副作用は呼び出し先に委譲', '3. orchestration は hook の組み立てのみ'],
@@ -1869,6 +2144,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     relationships: {
       dependsOn: ['AR-A1-DOMAIN'],
     },
+    decisionCriteria: {
+      when: 'utility ファイルに React hooks を追加したいとき',
+      exceptions: '例外なし。utility は純粋関数',
+      escalation: 'R:utility → R:orchestration にタグ変更するか hooks を別ファイルに抽出',
+    },
     detection: { type: 'must-not-coexist', severity: 'gate' },
     migrationPath: {
       steps: ['1. React hooks を使っているなら R:utility → R:orchestration にタグ変更', '2. hooks を使わない純粋関数なら hooks を別ファイルに抽出'],
@@ -1892,6 +2172,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: 'Context 内にビジネスロジックや複雑な計算を含む',
     },
     thresholds: { memoMax: 3, callbackMax: 3, stateMax: 3, lineMax: 200 },
+    decisionCriteria: {
+      when: 'Context にロジックを追加したいとき',
+      exceptions: '例外なし',
+      escalation: 'ロジックは hook に抽出。Context は値の提供のみ',
+    },
     detection: { type: 'count', severity: 'gate' },
     migrationPath: {
       steps: ['1. ビジネスロジックを hook に抽出', '2. Context は値の提供のみ'],
@@ -1915,6 +2200,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: '永続化ファイルに計算ロジックや UI 制御を含む',
     },
     thresholds: { memoMax: 3, callbackMax: 6, stateMax: 6, lineMax: 300 },
+    decisionCriteria: {
+      when: '永続化ファイルに計算を追加したいとき',
+      exceptions: '例外なし',
+      escalation: '計算は domain 層に委譲',
+    },
     detection: { type: 'count', severity: 'gate' },
     migrationPath: {
       steps: ['1. 計算ロジックを domain 層に抽出', '2. 永続化操作に専念'],
@@ -1938,6 +2228,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: 'アダプタにビジネスロジックや状態管理を含む',
     },
     thresholds: { memoMax: 1, callbackMax: 2, stateMax: 1, lineMax: 200 },
+    decisionCriteria: {
+      when: 'アダプタにビジネスロジックを追加したいとき',
+      exceptions: '例外なし',
+      escalation: 'ロジックは呼び出し元に移動',
+    },
     detection: { type: 'count', severity: 'gate' },
     migrationPath: {
       steps: ['1. ビジネスロジックを抽出', '2. 外部 API との変換のみに専念'],
@@ -1961,6 +2256,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: 'reducer に React hooks や副作用を含む',
     },
     thresholds: { memoMax: 0, callbackMax: 0, stateMax: 0, lineMax: 200 },
+    decisionCriteria: {
+      when: 'reducer に hooks を追加したいとき',
+      exceptions: '例外なし。reducer は純粋関数',
+      escalation: 'hooks は hook ファイルに分離',
+    },
     detection: { type: 'must-not-coexist', severity: 'gate' },
     migrationPath: {
       steps: ['1. React hooks が混入していれば別ファイルに抽出', '2. reducer は (state, action) => state のみ'],
@@ -1986,6 +2286,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     thresholds: { memoMax: 0, callbackMax: 0, stateMax: 0, lineMax: 50 },
     relationships: {
       conflicts: ['AR-TAG-CALCULATION'],
+    },
+    decisionCriteria: {
+      when: 'barrel にロジックを追加したいとき',
+      exceptions: '例外なし。barrel は re-export のみ',
+      escalation: 'ロジックは別ファイルに移動',
     },
     detection: { type: 'must-only', severity: 'gate' },
     migrationPath: {
