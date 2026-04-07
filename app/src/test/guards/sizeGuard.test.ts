@@ -313,9 +313,7 @@ describe('R5: facade ファイルの分岐が 5 以下', () => {
       }
 
       if (branchCount > rule.thresholds!.branchMax!) {
-        violations.push(
-          `${rel(file)}: 分岐 ${branchCount}回 (上限: ${rule.thresholds!.branchMax})`,
-        )
+        violations.push(`${rel(file)}: 分岐 ${branchCount}回 (上限: ${rule.thresholds!.branchMax})`)
       }
     }
 
