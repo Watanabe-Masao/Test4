@@ -32,12 +32,16 @@ describe('Architecture Rule Registry', () => {
     expect(invalid, invalid.join('\n')).toEqual([])
   })
 
-  it('gate severity のルールは baseline を持つ', () => {
+  it('gate severity + count 型のルールは baseline または thresholds を持つ', () => {
     const missing: string[] = []
 
     for (const rule of ARCHITECTURE_RULES) {
-      if (rule.detection.severity === 'gate' && rule.detection.baseline === undefined) {
-        missing.push(`${rule.id}: gate severity だが baseline が未定義`)
+      if (rule.detection.severity === 'gate' && rule.detection.type === 'count') {
+        const hasBaseline = rule.detection.baseline !== undefined
+        const hasThresholds = rule.thresholds !== undefined
+        if (!hasBaseline && !hasThresholds) {
+          missing.push(`${rule.id}: gate+count だが baseline も thresholds もない`)
+        }
       }
     }
 

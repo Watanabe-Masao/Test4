@@ -15,7 +15,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { SRC_DIR, collectTsFiles, rel } from '../guardTestHelpers'
 import { readResponsibilityTags, validateTags } from '../responsibilityTagRegistry'
-import { TAG_EXPECTATIONS } from '../responsibilityTagExpectations'
+import { getRuleByResponsibilityTag } from '../architectureRules'
 import type { ResponsibilityTag } from '../responsibilityTagRegistry'
 
 /** 対象ディレクトリ */
@@ -138,9 +138,10 @@ describe('G8-R: 責務タグカバレッジ', () => {
       if (!tags || tags.length !== 1) continue
 
       const tag = tags[0] as ResponsibilityTag
-      const exp = TAG_EXPECTATIONS[tag]
-      if (!exp) continue
+      const rule = getRuleByResponsibilityTag(tag)
+      if (!rule?.thresholds) continue
 
+      const t = rule.thresholds
       const content = fs.readFileSync(file, 'utf-8')
       const memo = (content.match(/\buseMemo\s*\(/g) || []).length
       const cb = (content.match(/\buseCallback\s*\(/g) || []).length
@@ -148,13 +149,16 @@ describe('G8-R: 責務タグカバレッジ', () => {
       const lineCount = content.split('\n').length
 
       const issues: string[] = []
-      if (memo > exp.memoMax) issues.push(`useMemo ${memo}>${exp.memoMax}`)
-      if (cb > exp.callbackMax) issues.push(`useCallback ${cb}>${exp.callbackMax}`)
-      if (state > exp.stateMax) issues.push(`useState ${state}>${exp.stateMax}`)
-      if (lineCount > exp.lineMax) issues.push(`${lineCount}行>${exp.lineMax}`)
+      if (t.memoMax !== undefined && memo > t.memoMax) issues.push(`useMemo ${memo}>${t.memoMax}`)
+      if (t.callbackMax !== undefined && cb > t.callbackMax)
+        issues.push(`useCallback ${cb}>${t.callbackMax}`)
+      if (t.stateMax !== undefined && state > t.stateMax)
+        issues.push(`useState ${state}>${t.stateMax}`)
+      if (t.lineMax !== undefined && lineCount > t.lineMax)
+        issues.push(`${lineCount}行>${t.lineMax}`)
 
       if (issues.length > 0) {
-        mismatches.push(`${rel(file)} [${tag}]: ${issues.join(', ')}`)
+        mismatches.push(`${rel(file)} [${tag}] (${rule.id}): ${issues.join(', ')}`)
       }
     }
 
@@ -163,7 +167,6 @@ describe('G8-R: 責務タグカバレッジ', () => {
       for (const m of mismatches) console.log(`  ${m}`)
     }
 
-    // ratchet-down: 減ったらベースラインを更新するよう促す
     if (mismatches.length < TAG_MISMATCH_BASELINE) {
       console.log(
         `\n[ratchet-down] タグ不一致が ${TAG_MISMATCH_BASELINE} → ${mismatches.length} に減少。` +

@@ -628,7 +628,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 - **Guard 大幅強化**: 22→39ファイル。analysisFrame, comparisonScope, customerGap, dualRunExitCriteria, fallbackMetadata, grossProfitConsistency, oldPathImport, pageMeta, piValue, queryPattern, renderSideEffect, temporalScope, topology, dataIntegrity, responsibilitySeparation, responsibilityTag, architectureRule
 - **ドキュメント整合性基盤**: `docs/contracts/` に構造化データ（principles.json, project-metadata.json）導入。documentConsistency.test.ts で機械検証
 - **進化安全の再構成（2026-04-05）**: WASM 全 5 engine を authoritative に昇格（bridge 1,426→431 行）。dual-run infrastructure 全面退役（~5,500 行削減）。ComparisonWindow 契約型導入。near-limit 2→0。noNewDebtGuard + Green/Yellow/Red 1 人運用モデル。Health: RISK → Healthy
-- **Architecture Rule 導入（2026-04-07）**: 統一ガードフォーマット。「禁止」「あるべき姿」「なぜ」「ドキュメント」をセットで定義。8種の detection type（import/regex/count/must-include/must-only/co-change/must-not-coexist/custom）。architectureEpoch.ts 廃止、epoch は ArchitectureRule.epoch に統合。責務タグ（C8/C9/G8）+ TAG_EXPECTATIONS + 責務分離カタログ24パターン
+- **Architecture Rule 導入（2026-04-07）**: 統一ガードフォーマット。「禁止」「あるべき姿」「なぜ」「ドキュメント」をセットで定義。8種の detection type。architectureEpoch.ts + responsibilityTagExpectations.ts 廃止 → architectureRules.ts に統合。タグ別閾値（18 タグ）+ noNewDebtGuard（5 ルール）= 計 23 ルール。ratchet-down 方式で未分類・タグ不一致を管理
 
 ## Explanation（説明責任）
 

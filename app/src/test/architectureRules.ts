@@ -166,6 +166,316 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       baseline: 13,
     },
   },
+  // ── 責務タグ別の閾値（TAG_EXPECTATIONS 由来） ──
+
+  {
+    id: 'AR-TAG-CHART-VIEW',
+    guardTags: ['C8', 'G8'],
+    responsibilityTags: ['R:chart-view'],
+    epoch: 1,
+    what: 'chart-view は描画に専念する。状態・計算を持ちすぎない',
+    why: 'チャート描画と状態管理が混在すると変更理由が 2 つになる',
+    doc: 'references/03-guides/responsibility-separation-catalog.md',
+    correctPattern: {
+      description: 'useMemo ≤ 4, useCallback ≤ 4, useState ≤ 2, 400 行以内',
+    },
+    outdatedPattern: {
+      description: 'チャートコンポーネント内にデータ取得・状態管理・計算ロジックを混在させる',
+    },
+    thresholds: { memoMax: 4, callbackMax: 4, stateMax: 2, lineMax: 400 },
+    detection: { type: 'count', severity: 'gate' },
+  },
+
+  {
+    id: 'AR-TAG-CHART-OPTION',
+    guardTags: ['C8', 'G8'],
+    responsibilityTags: ['R:chart-option'],
+    epoch: 1,
+    what: 'chart-option は ECharts オプション構築のみ。React hooks を含まない',
+    why: 'オプション構築は純粋関数であるべき。React 依存を持つと再利用性が下がる',
+    doc: 'references/03-guides/responsibility-separation-catalog.md',
+    correctPattern: {
+      description: 'useMemo ≤ 2, useCallback = 0, useState = 0, 600 行以内',
+    },
+    outdatedPattern: {
+      description: 'オプション構築ファイルに useState や useCallback を含む',
+    },
+    thresholds: { memoMax: 2, callbackMax: 0, stateMax: 0, lineMax: 600 },
+    detection: { type: 'count', severity: 'gate' },
+  },
+
+  {
+    id: 'AR-TAG-CALCULATION',
+    guardTags: ['C8', 'B1'],
+    responsibilityTags: ['R:calculation'],
+    epoch: 1,
+    what: 'calculation は純粋関数。React hooks を一切含まない',
+    why: '計算ロジックはフレームワーク非依存。テスト容易性と再利用性を保証する',
+    doc: 'references/01-principles/engine-boundary-policy.md',
+    correctPattern: {
+      description: 'useMemo = 0, useCallback = 0, useState = 0, 400 行以内。純粋な入力→出力',
+    },
+    outdatedPattern: {
+      description: '計算ファイルに React hooks や副作用を含む',
+    },
+    thresholds: { memoMax: 0, callbackMax: 0, stateMax: 0, lineMax: 400 },
+    detection: { type: 'must-not-coexist', severity: 'gate' },
+  },
+
+  {
+    id: 'AR-TAG-TRANSFORM',
+    guardTags: ['C8'],
+    responsibilityTags: ['R:transform'],
+    epoch: 1,
+    what: 'transform はデータ変換のみ。状態を持たない',
+    why: 'データ変換は純粋関数であるべき。状態を持つと副作用が混入する',
+    correctPattern: {
+      description: 'useMemo ≤ 2, useCallback = 0, useState = 0, 300 行以内',
+    },
+    outdatedPattern: {
+      description: '変換ファイルに useState や副作用を含む',
+    },
+    thresholds: { memoMax: 2, callbackMax: 0, stateMax: 0, lineMax: 300 },
+    detection: { type: 'count', severity: 'gate' },
+  },
+
+  {
+    id: 'AR-TAG-STATE-MACHINE',
+    guardTags: ['C8', 'C3'],
+    responsibilityTags: ['R:state-machine'],
+    epoch: 1,
+    what: 'state-machine は状態管理に専念する。短く保つ',
+    why: '状態管理が肥大化すると状態遷移の追跡が困難になる',
+    correctPattern: {
+      description: 'useMemo ≤ 3, useCallback ≤ 12, useState ≤ 8, 200 行以内',
+    },
+    outdatedPattern: {
+      description: '状態管理ファイルに描画ロジックやデータ取得を混在させる',
+    },
+    thresholds: { memoMax: 3, callbackMax: 12, stateMax: 8, lineMax: 200 },
+    detection: { type: 'count', severity: 'gate' },
+  },
+
+  {
+    id: 'AR-TAG-QUERY-PLAN',
+    guardTags: ['C8', 'H1'],
+    responsibilityTags: ['R:query-plan'],
+    epoch: 1,
+    what: 'query-plan はクエリ入力の組み立てのみ。実行しない',
+    why: 'クエリの組み立てと実行を分離することで、テスト容易性と再利用性を保証する',
+    correctPattern: {
+      description: 'useMemo ≤ 5, useCallback = 0, useState = 0, 200 行以内',
+    },
+    outdatedPattern: {
+      description: 'plan ファイル内でクエリを実行する、または状態を持つ',
+    },
+    thresholds: { memoMax: 5, callbackMax: 0, stateMax: 0, lineMax: 200 },
+    detection: { type: 'count', severity: 'gate' },
+  },
+
+  {
+    id: 'AR-TAG-QUERY-EXEC',
+    guardTags: ['C8'],
+    responsibilityTags: ['R:query-exec'],
+    epoch: 1,
+    what: 'query-exec はクエリ実行とキャッシュ管理に専念する',
+    why: 'クエリ実行にビジネスロジックが混入すると責務が不明確になる',
+    correctPattern: {
+      description: 'useMemo ≤ 3, useCallback ≤ 1, useState ≤ 1, 300 行以内',
+    },
+    outdatedPattern: {
+      description: 'クエリ実行ファイルに計算ロジックや描画を含む',
+    },
+    thresholds: { memoMax: 3, callbackMax: 1, stateMax: 1, lineMax: 300 },
+    detection: { type: 'count', severity: 'gate' },
+  },
+
+  {
+    id: 'AR-TAG-WIDGET',
+    guardTags: ['C8', 'H6'],
+    responsibilityTags: ['R:widget'],
+    epoch: 1,
+    what: 'widget は通知と表示の統合点。過度に状態を持たない',
+    why: 'ウィジェットが状態を持ちすぎると再利用性が下がり、テストが困難になる',
+    correctPattern: {
+      description: 'useMemo ≤ 4, useCallback ≤ 4, useState ≤ 3, 400 行以内',
+    },
+    outdatedPattern: {
+      description: 'ウィジェット内にデータ取得・計算・状態管理を詰め込む',
+    },
+    thresholds: { memoMax: 4, callbackMax: 4, stateMax: 3, lineMax: 400 },
+    detection: { type: 'count', severity: 'gate' },
+  },
+
+  {
+    id: 'AR-TAG-PAGE',
+    guardTags: ['C8'],
+    responsibilityTags: ['R:page'],
+    epoch: 1,
+    what: 'page は統合点。hooks 数は多いが行数は抑える',
+    why: 'ページは子コンポーネントの組み立て。ロジックは hooks に委譲する',
+    correctPattern: {
+      description: 'useMemo ≤ 8, useCallback ≤ 10, useState ≤ 8, 500 行以内',
+    },
+    outdatedPattern: {
+      description: 'ページ内にインライン計算や長いレンダリングロジックを含む',
+    },
+    thresholds: { memoMax: 8, callbackMax: 10, stateMax: 8, lineMax: 500 },
+    detection: { type: 'count', severity: 'gate' },
+  },
+
+  {
+    id: 'AR-TAG-FORM',
+    guardTags: ['C8'],
+    responsibilityTags: ['R:form'],
+    epoch: 1,
+    what: 'form は入力処理に専念する',
+    why: 'フォームにビジネスロジックが混入すると変更理由が増える',
+    correctPattern: {
+      description: 'useMemo ≤ 3, useCallback ≤ 6, useState ≤ 6, 300 行以内',
+    },
+    outdatedPattern: {
+      description: 'フォーム内に計算ロジックやデータ取得を含む',
+    },
+    thresholds: { memoMax: 3, callbackMax: 6, stateMax: 6, lineMax: 300 },
+    detection: { type: 'count', severity: 'gate' },
+  },
+
+  {
+    id: 'AR-TAG-LAYOUT',
+    guardTags: ['C8'],
+    responsibilityTags: ['R:layout'],
+    epoch: 1,
+    what: 'layout はレイアウト構造のみ。ビジネスロジックを持たない',
+    why: 'レイアウトにロジックが混入すると UI の再構成が困難になる',
+    correctPattern: {
+      description: 'useMemo ≤ 2, useCallback ≤ 3, useState ≤ 3, 300 行以内',
+    },
+    outdatedPattern: {
+      description: 'レイアウト内にデータ取得や状態管理を含む',
+    },
+    thresholds: { memoMax: 2, callbackMax: 3, stateMax: 3, lineMax: 300 },
+    detection: { type: 'count', severity: 'gate' },
+  },
+
+  {
+    id: 'AR-TAG-ORCHESTRATION',
+    guardTags: ['C8', 'C6'],
+    responsibilityTags: ['R:orchestration'],
+    epoch: 1,
+    what: 'orchestration は hook の組み立てのみ。状態を直接持たない',
+    why: 'オーケストレーションが状態を持つと facade が God Object 化する',
+    correctPattern: {
+      description: 'useMemo ≤ 8, useCallback ≤ 2, useState = 0, 300 行以内',
+    },
+    outdatedPattern: {
+      description: 'オーケストレーション hook 内で useState や副作用を直接管理する',
+    },
+    thresholds: { memoMax: 8, callbackMax: 2, stateMax: 0, lineMax: 300 },
+    detection: { type: 'count', severity: 'gate' },
+  },
+
+  {
+    id: 'AR-TAG-UTILITY',
+    guardTags: ['C8', 'A2'],
+    responsibilityTags: ['R:utility'],
+    epoch: 1,
+    what: 'utility は純粋関数。React hooks を一切含まない',
+    why: 'ユーティリティはフレームワーク非依存。どの層からも安全に呼べる',
+    correctPattern: {
+      description: 'useMemo = 0, useCallback = 0, useState = 0, 300 行以内',
+    },
+    outdatedPattern: {
+      description: 'ユーティリティに React hooks や副作用を含む',
+    },
+    thresholds: { memoMax: 0, callbackMax: 0, stateMax: 0, lineMax: 300 },
+    detection: { type: 'must-not-coexist', severity: 'gate' },
+  },
+
+  {
+    id: 'AR-TAG-CONTEXT',
+    guardTags: ['C8'],
+    responsibilityTags: ['R:context'],
+    epoch: 1,
+    what: 'context は値の提供のみ。過度なロジックを持たない',
+    why: 'Context Provider が肥大化すると再レンダリング範囲が広がる',
+    correctPattern: {
+      description: 'useMemo ≤ 3, useCallback ≤ 3, useState ≤ 3, 200 行以内',
+    },
+    outdatedPattern: {
+      description: 'Context 内にビジネスロジックや複雑な計算を含む',
+    },
+    thresholds: { memoMax: 3, callbackMax: 3, stateMax: 3, lineMax: 200 },
+    detection: { type: 'count', severity: 'gate' },
+  },
+
+  {
+    id: 'AR-TAG-PERSISTENCE',
+    guardTags: ['C8'],
+    responsibilityTags: ['R:persistence'],
+    epoch: 1,
+    what: 'persistence は永続化操作に専念する',
+    why: '永続化にビジネスロジックが混入するとデータ層の責務が不明確になる',
+    correctPattern: {
+      description: 'useMemo ≤ 3, useCallback ≤ 6, useState ≤ 6, 300 行以内',
+    },
+    outdatedPattern: {
+      description: '永続化ファイルに計算ロジックや UI 制御を含む',
+    },
+    thresholds: { memoMax: 3, callbackMax: 6, stateMax: 6, lineMax: 300 },
+    detection: { type: 'count', severity: 'gate' },
+  },
+
+  {
+    id: 'AR-TAG-ADAPTER',
+    guardTags: ['C8', 'A4'],
+    responsibilityTags: ['R:adapter'],
+    epoch: 1,
+    what: 'adapter は外部 API との変換のみ。小さく保つ',
+    why: 'アダプタが肥大化すると外部依存の影響範囲が広がる',
+    correctPattern: {
+      description: 'useMemo ≤ 1, useCallback ≤ 2, useState ≤ 1, 200 行以内',
+    },
+    outdatedPattern: {
+      description: 'アダプタにビジネスロジックや状態管理を含む',
+    },
+    thresholds: { memoMax: 1, callbackMax: 2, stateMax: 1, lineMax: 200 },
+    detection: { type: 'count', severity: 'gate' },
+  },
+
+  {
+    id: 'AR-TAG-REDUCER',
+    guardTags: ['C8'],
+    responsibilityTags: ['R:reducer'],
+    epoch: 1,
+    what: 'reducer は純粋な状態遷移関数。hooks を含まない',
+    why: 'reducer は (state, action) => state の純粋関数であるべき',
+    correctPattern: {
+      description: 'useMemo = 0, useCallback = 0, useState = 0, 200 行以内',
+    },
+    outdatedPattern: {
+      description: 'reducer に React hooks や副作用を含む',
+    },
+    thresholds: { memoMax: 0, callbackMax: 0, stateMax: 0, lineMax: 200 },
+    detection: { type: 'must-not-coexist', severity: 'gate' },
+  },
+
+  {
+    id: 'AR-TAG-BARREL',
+    guardTags: ['C8', 'F1'],
+    responsibilityTags: ['R:barrel'],
+    epoch: 1,
+    what: 'barrel は re-export のみ。ロジックを含まない',
+    why: 'バレルにロジックが混入すると import 解決が複雑化し tree-shaking を阻害する',
+    correctPattern: {
+      description: 'useMemo = 0, useCallback = 0, useState = 0, 50 行以内。export 文のみ',
+    },
+    outdatedPattern: {
+      description: 'バレルに関数定義や変数宣言を含む',
+    },
+    thresholds: { memoMax: 0, callbackMax: 0, stateMax: 0, lineMax: 50 },
+    detection: { type: 'must-only', severity: 'gate' },
+  },
 ] as const satisfies readonly ArchitectureRule[]
 
 // ─── Lookup 関数 ─────────────────────────────────────────
@@ -182,6 +492,10 @@ export function getRulesByGuardTag(tag: string): readonly ArchitectureRule[] {
 
 export function getRulesByDetectionType(type: DetectionType): readonly ArchitectureRule[] {
   return ARCHITECTURE_RULES.filter((r) => r.detection.type === type)
+}
+
+export function getRuleByResponsibilityTag(tag: string): ArchitectureRule | undefined {
+  return ARCHITECTURE_RULES.find((r) => r.responsibilityTags?.includes(tag))
 }
 
 // ─── メッセージフォーマット ──────────────────────────────
