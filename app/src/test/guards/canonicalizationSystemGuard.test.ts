@@ -12,6 +12,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 
 const SRC_DIR = path.resolve(__dirname, '../..')
+
 const REFS_DIR = path.resolve(SRC_DIR, '../../references/01-principles')
 
 describe('正本化体系 統合ガード', () => {

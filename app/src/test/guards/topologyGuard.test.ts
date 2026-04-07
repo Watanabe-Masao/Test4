@@ -10,6 +10,9 @@
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import { SRC_DIR } from '../guardTestHelpers'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
+
+const rule = getRuleById('AR-STRUCT-TOPOLOGY')!
 
 /** src/ 直下に許可されたディレクトリ */
 const APPROVED_DIRECTORIES = new Set([
@@ -49,7 +52,7 @@ describe('Topology Guard', () => {
       }
     }
 
-    expect(violations, `未承認ディレクトリ:\n${violations.join('\n')}`).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   it('src/ 直下のファイルが承認パターンに一致する', () => {
@@ -64,6 +67,6 @@ describe('Topology Guard', () => {
       }
     }
 
-    expect(violations, `未承認ルートファイル:\n${violations.join('\n')}`).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 })

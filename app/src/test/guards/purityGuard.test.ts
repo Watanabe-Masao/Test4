@@ -24,6 +24,9 @@ import {
   isCommentLine,
   stripStrings,
 } from '../guardTestHelpers'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
+
+const rule = getRuleById('AR-STRUCT-PURITY')!
 
 // ─── 3-A: Domain 純粋性ガード ────────────────────────────
 
@@ -160,7 +163,7 @@ describe('Engine 境界ガード', () => {
       }
     }
 
-    expect(violations, `Engine 境界違反が検出されました:\n${violations.join('\n')}`).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   it('*.vm.ts / *Logic.ts に Zustand/immer import がない', () => {
@@ -184,7 +187,7 @@ describe('Engine 境界ガード', () => {
       }
     }
 
-    expect(violations, `VM/Logic に state 管理 import:\n${violations.join('\n')}`).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   it('application/usecases/ に React hook import がない', () => {
@@ -205,7 +208,7 @@ describe('Engine 境界ガード', () => {
       }
     }
 
-    expect(violations, `usecases/ に React hook import:\n${violations.join('\n')}`).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 })
 
@@ -282,7 +285,7 @@ describe('facade/hook 責務混在ガード', () => {
       }
     }
 
-    expect(violations, `facade にデータ変換が混入しています:\n${violations.join('\n')}`).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 })
 

@@ -18,6 +18,9 @@ import {
   dowCalcOverride,
   buildAllowlistSet,
 } from '../allowlists'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
+
+const rule = getRuleById('AR-STRUCT-PRES-ISOLATION')!
 
 // ─── 許可リスト（allowlists.ts から構築） ────────────────
 
@@ -378,7 +381,7 @@ describe('Q3: presentation/ は QueryExecutor と useAsyncQuery を直接使用�
       }
     }
 
-    expect(violations, `executor.execute() 直接呼び出し:\n${violations.join('\n')}`).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   it('presentation/ で useAsyncQuery を直接 import しない', () => {
@@ -405,6 +408,6 @@ describe('Q3: presentation/ は QueryExecutor と useAsyncQuery を直接使用�
       }
     }
 
-    expect(violations, `useAsyncQuery 直接 import:\n${violations.join('\n')}`).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 })

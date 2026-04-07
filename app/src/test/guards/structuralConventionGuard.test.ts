@@ -32,6 +32,9 @@ import {
   pairExceptionDesign,
   pairJustifiedSingle,
 } from '../allowlists'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
+
+const rule = getRuleById('AR-STRUCT-CONVENTION')!
 
 // ─── ctx 提供データの重複取得禁止 ────────────────────────
 
@@ -163,7 +166,7 @@ describe('Structural Convention Guard', () => {
       }
     }
 
-    expect(violations, `manifest.ts 未作成:\n${violations.join('\n')}`).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   // ─── 仮実装ファイル検出ガード ──────────────────────────
@@ -256,7 +259,7 @@ describe('Structural Convention Guard', () => {
       }
     }
 
-    expect(violations, `ctx 提供データの重複取得:\n${violations.join('\n')}`).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   // ─── サブ分析パネルのデータソースガード ────────────────
@@ -330,7 +333,7 @@ describe('Widget Ownership Guard', () => {
       }
     }
 
-    expect(violations, `未登録 widget:\n${violations.join('\n')}`).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   it('ownership manifest に登録されているが registry に存在しない orphan がない', async () => {
@@ -346,7 +349,7 @@ describe('Widget Ownership Guard', () => {
       }
     }
 
-    expect(violations, `orphan widget:\n${violations.join('\n')}`).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   it('shared widget には理由が記載されている', async () => {

@@ -11,8 +11,10 @@ import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
 import { collectTsFiles } from '../guardTestHelpers'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 const SRC_DIR = path.resolve(__dirname, '../..')
+const rule = getRuleById('AR-PATH-PI-VALUE')!
 
 describe('PI値 正本ガード', () => {
   it('calculateQuantityPI / calculateAmountPI が domain/calculations に存在する', () => {
@@ -43,10 +45,6 @@ describe('PI値 正本ガード', () => {
       }
     }
 
-    expect(
-      violations,
-      `PI 値の独自計算が検出されました:\n${violations.join('\n')}\n` +
-        `calculateQuantityPI / calculateAmountPI を使用してください`,
-    ).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 })
