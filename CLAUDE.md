@@ -194,7 +194,7 @@ app/src/
 └── test/             # ガードテスト・共有インフラ
     ├── guardTestHelpers.ts   # 共有ヘルパー（collectTsFiles, rel 等）
     ├── guardTagRegistry.ts   # ガードタグのメタデータ管理
-    ├── architectureRules.ts  # Architecture Rule 定義（81 ルール — 実行可能なアーキテクチャ仕様）
+    ├── architectureRules.ts  # Architecture Rule 定義（84 ルール — 実行可能なアーキテクチャ仕様）
     ├── allowlists/           # 許可リスト（カテゴリ別分割）
     │   ├── architecture.ts   #   層境界ルール
     │   ├── complexity.ts     #   行数・useMemo 制限
@@ -452,14 +452,14 @@ R: 責務タグレジストリ（`responsibilityTagGuard.test.ts`）:
 | `must-not-coexist` | 同居禁止 | useState と SQL query |
 | `custom` | 特殊ロジック | テスト側で実装 |
 
-**83 ルール / 全 39 ガードが参照 / 全ルールに migrationPath + doc + decisionCriteria**
+**84 ルール / 全 39 ガードが参照 / 全ルールに migrationPath + doc + decisionCriteria**
 
 各ルールが持つ情報:
 - `what` / `why` / `doc` — 学習コスト削減（27 ドキュメント参照）
 - `correctPattern` / `example` — 自己修復
 - `outdatedPattern` / `codeSignals` — 検出
-- `migrationPath` (83/83) — 修正手順 + 工数 + 優先度
-- `decisionCriteria` (83/83) — 判断の脱属人化
+- `migrationPath` (84/84) — 修正手順 + 工数 + 優先度
+- `decisionCriteria` (84/84) — 判断の脱属人化
 - `relationships` (45) — ルール間の因果関係
 - `thresholds` / `baseline` — 数値管理（ratchet-down）
 
@@ -642,7 +642,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 - **ドキュメント整合性基盤**: `docs/contracts/` に構造化データ（principles.json, project-metadata.json）導入。documentConsistency.test.ts で機械検証
 - **進化安全の再構成（2026-04-05）**: WASM 全 5 engine を authoritative に昇格（bridge 1,426→431 行）。dual-run infrastructure 全面退役（~5,500 行削減）。ComparisonWindow 契約型導入。near-limit 2→0。noNewDebtGuard + Green/Yellow/Red 1 人運用モデル。Health: RISK → Healthy
 - **Architecture Rule 導入（2026-04-07）**: 統一ガードフォーマット。「禁止」「あるべき姿」「なぜ」「ドキュメント」をセットで定義。8種の detection type。architectureEpoch.ts + responsibilityTagExpectations.ts 廃止 → architectureRules.ts に統合。タグ別閾値（18 タグ）+ noNewDebtGuard（5 ルール）= 計 23 ルール。ratchet-down 方式で未分類・タグ不一致を管理
-- **Architecture Rule 昇華（2026-04-07）**: 81 ルール / 全 39 ガード統合 / 全ルールに migrationPath + doc。3 拡張フィールド（migrationPath/decisionCriteria/relationships）。全 guard タグ（50+）をルールでカバー。27 ドキュメント双方向リンク。allowlist に ruleId フィールド追加
+- **Architecture Rule 昇華（2026-04-07）**: 84 ルール / 全 39 ガード統合 / 全ルールに migrationPath + doc + decisionCriteria。maturity（experimental/stable/deprecated）+ 例外圧検出 + ratchet-down 自動進行。全 guard タグ（50+）をルールでカバー。27 ドキュメント双方向リンク。allowlist に ruleId フィールド追加。運用ガイド: `references/03-guides/architecture-rule-system.md`
 
 ## Explanation（説明責任）
 
