@@ -13,6 +13,7 @@ export const useMemoLimits: readonly QuantitativeAllowlistEntry[] = [
     removalCondition: '比較モジュールのリファクタリング時',
     limit: 7,
     lifecycle: 'permanent',
+    createdAt: '2026-04-08',
   },
   // useTimeSlotData.ts — useTimeSlotPlan に query orchestration を分離。useMemo 3 個以下に削減
 ] as const
@@ -27,6 +28,7 @@ export const useStateLimits: readonly QuantitativeAllowlistEntry[] = [
     removalCondition: 'persistence hook のリファクタリング時',
     limit: 6,
     lifecycle: 'permanent',
+    createdAt: '2026-04-08',
   },
   {
     path: 'application/hooks/useAutoBackup.ts',
@@ -36,6 +38,7 @@ export const useStateLimits: readonly QuantitativeAllowlistEntry[] = [
     removalCondition: 'backup hook のリファクタリング時',
     limit: 7,
     lifecycle: 'permanent',
+    createdAt: '2026-04-08',
   },
   // useTimeSlotData.ts — useTimeSlotPlan に weather retry state を分離。useState 5 個に削減
   // ただし import 行で +1 カウントされ合計 6。default limit (6) と一致するため許可リスト維持
@@ -47,6 +50,7 @@ export const useStateLimits: readonly QuantitativeAllowlistEntry[] = [
     removalCondition: 'guard が import 行を除外するようになったとき',
     limit: 7,
     lifecycle: 'permanent',
+    createdAt: '2026-04-08',
   },
 ] as const
 
@@ -88,6 +92,7 @@ export const combinedHookComplexityLimits: readonly QuantitativeAllowlistEntry[]
     removalCondition: '天気系 hook の分離時',
     limit: 17,
     lifecycle: 'active-debt',
+    createdAt: '2026-04-08',
   },
   {
     path: 'presentation/pages/Dashboard/widgets/useMonthlyCalendarState.ts',
@@ -97,6 +102,7 @@ export const combinedHookComplexityLimits: readonly QuantitativeAllowlistEntry[]
     removalCondition: 'useReducer 統合時',
     limit: 14,
     lifecycle: 'active-debt',
+    createdAt: '2026-04-08',
   },
   {
     path: 'features/cost-detail/application/useCostDetailData.ts',
@@ -106,6 +112,7 @@ export const combinedHookComplexityLimits: readonly QuantitativeAllowlistEntry[]
     removalCondition: '集計ロジックの pure 関数分離時',
     limit: 13,
     lifecycle: 'active-debt',
+    createdAt: '2026-04-08',
   },
 ] as const
 
@@ -119,6 +126,7 @@ export const featuresMemoLimits: readonly QuantitativeAllowlistEntry[] = [
     removalCondition: '集計ロジックの pure 関数分離時',
     limit: 13,
     lifecycle: 'active-debt',
+    createdAt: '2026-04-08',
   },
   {
     path: 'features/comparison/application/hooks/useComparisonModule.ts',
@@ -128,6 +136,7 @@ export const featuresMemoLimits: readonly QuantitativeAllowlistEntry[] = [
     removalCondition: '比較モジュールのリファクタリング時',
     limit: 7,
     lifecycle: 'permanent',
+    createdAt: '2026-04-08',
   },
 ] as const
 
@@ -141,6 +150,7 @@ export const featuresStateLimits: readonly QuantitativeAllowlistEntry[] = [
     removalCondition: 'useReducer 統合時',
     limit: 9,
     lifecycle: 'active-debt',
+    createdAt: '2026-04-08',
   },
   {
     path: 'features/storage-admin/ui/StorageDataViewers.tsx',
@@ -150,6 +160,7 @@ export const featuresStateLimits: readonly QuantitativeAllowlistEntry[] = [
     removalCondition: 'useReducer 統合時',
     limit: 8,
     lifecycle: 'active-debt',
+    createdAt: '2026-04-08',
   },
   {
     path: 'features/category/ui/charts/CategoryBenchmarkChart.vm.ts',
@@ -159,6 +170,7 @@ export const featuresStateLimits: readonly QuantitativeAllowlistEntry[] = [
     removalCondition: 'useReducer 統合時',
     limit: 7,
     lifecycle: 'active-debt',
+    createdAt: '2026-04-08',
   },
   {
     path: 'features/category/ui/charts/CategoryBoxPlotChart.vm.ts',
@@ -168,6 +180,7 @@ export const featuresStateLimits: readonly QuantitativeAllowlistEntry[] = [
     removalCondition: 'useReducer 統合時',
     limit: 8,
     lifecycle: 'active-debt',
+    createdAt: '2026-04-08',
   },
   {
     path: 'features/cost-detail/application/useCostDetailData.ts',
@@ -177,6 +190,7 @@ export const featuresStateLimits: readonly QuantitativeAllowlistEntry[] = [
     removalCondition: 'useReducer 統合時',
     limit: 7,
     lifecycle: 'active-debt',
+    createdAt: '2026-04-08',
   },
 ] as const
 
@@ -191,6 +205,7 @@ export const hookLineLimits: readonly QuantitativeAllowlistEntry[] = [
     removalCondition: 'さらなる分割時',
     limit: 300,
     lifecycle: 'permanent',
+    createdAt: '2026-04-08',
   },
   // usePeriodAwareKpi.ts — 300行（デフォルト上限以下）。許可リスト卒業
   // useTimeSlotData.ts — useTimeSlotPlan に query orchestration を分離。133 行に削減
@@ -203,5 +218,6 @@ export const hookLineLimits: readonly QuantitativeAllowlistEntry[] = [
     removalCondition: '空行整理時',
     limit: 305,
     lifecycle: 'active-debt',
+    createdAt: '2026-04-08',
   },
 ] as const

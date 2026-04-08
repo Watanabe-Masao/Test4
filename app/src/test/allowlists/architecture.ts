@@ -21,6 +21,7 @@ export const applicationToInfrastructure: readonly AllowlistEntry[] = [
     category: 'adapter',
     removalCondition: 'インポートが adapter 層に完全移行されたとき',
     lifecycle: 'permanent',
+    createdAt: '2026-04-08',
   },
   // ExportService: DI 化完了（AdapterContext.export 経由）。useExport は Port のみ参照。
   // readSalesFact / readDiscountFact: pure builder 化完了。

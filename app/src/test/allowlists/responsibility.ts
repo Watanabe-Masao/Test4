@@ -16,6 +16,7 @@ export const presentationGetStateLimits: readonly QuantitativeAllowlistEntry[] =
     removalCondition: 'callback props 経由に移行時',
     limit: 13,
     lifecycle: 'active-debt',
+    createdAt: '2026-04-08',
   },
   {
     path: 'presentation/pages/Dashboard/widgets/StoreKpiTableInner.tsx',
@@ -25,6 +26,7 @@ export const presentationGetStateLimits: readonly QuantitativeAllowlistEntry[] =
     removalCondition: 'callback props 経由に移行時',
     limit: 6,
     lifecycle: 'active-debt',
+    createdAt: '2026-04-08',
   },
   {
     path: 'presentation/pages/Admin/AdminPage.tsx',
@@ -34,6 +36,7 @@ export const presentationGetStateLimits: readonly QuantitativeAllowlistEntry[] =
     removalCondition: 'callback props 経由に移行時',
     limit: 3,
     lifecycle: 'active-debt',
+    createdAt: '2026-04-08',
   },
   {
     path: 'presentation/pages/Admin/PrevYearMappingTab.tsx',
@@ -43,6 +46,7 @@ export const presentationGetStateLimits: readonly QuantitativeAllowlistEntry[] =
     removalCondition: 'callback props 経由に移行時',
     limit: 3,
     lifecycle: 'active-debt',
+    createdAt: '2026-04-08',
   },
   {
     path: 'presentation/pages/Dashboard/widgets/ExecSummaryBarWidget.tsx',
@@ -52,6 +56,7 @@ export const presentationGetStateLimits: readonly QuantitativeAllowlistEntry[] =
     removalCondition: 'callback props 経由に移行時',
     limit: 3,
     lifecycle: 'active-debt',
+    createdAt: '2026-04-08',
   },
   {
     path: 'presentation/pages/Dashboard/widgets/conditionSummaryUtils.ts',
@@ -61,6 +66,7 @@ export const presentationGetStateLimits: readonly QuantitativeAllowlistEntry[] =
     removalCondition: 'callback props 経由に移行時',
     limit: 2,
     lifecycle: 'active-debt',
+    createdAt: '2026-04-08',
   },
   {
     path: 'presentation/pages/CostDetail/useCostDetailData.helpers.ts',
@@ -70,6 +76,7 @@ export const presentationGetStateLimits: readonly QuantitativeAllowlistEntry[] =
     removalCondition: 'callback props 経由に移行時',
     limit: 2,
     lifecycle: 'active-debt',
+    createdAt: '2026-04-08',
   },
 ] as const
 
@@ -84,6 +91,7 @@ export const moduleScopeLetLimits: readonly QuantitativeAllowlistEntry[] = [
     removalCondition: 'クラスまたは WeakRef ベースに移行時',
     limit: 7,
     lifecycle: 'permanent',
+    createdAt: '2026-04-08',
   },
   {
     path: 'application/workers/calculationWorker.ts',
@@ -93,6 +101,7 @@ export const moduleScopeLetLimits: readonly QuantitativeAllowlistEntry[] = [
     removalCondition: 'Worker 再設計時',
     limit: 3,
     lifecycle: 'permanent',
+    createdAt: '2026-04-08',
   },
   {
     path: 'presentation/components/charts/EChart.tsx',
@@ -102,6 +111,7 @@ export const moduleScopeLetLimits: readonly QuantitativeAllowlistEntry[] = [
     removalCondition: 'WeakMap ベースに移行時',
     limit: 3,
     lifecycle: 'active-debt',
+    createdAt: '2026-04-08',
   },
   {
     path: 'application/adapters/uiPersistenceAdapter.ts',
@@ -111,6 +121,7 @@ export const moduleScopeLetLimits: readonly QuantitativeAllowlistEntry[] = [
     removalCondition: 'DI コンテナ導入時',
     limit: 2,
     lifecycle: 'permanent',
+    createdAt: '2026-04-08',
   },
   {
     path: 'application/lifecycle/swUpdateSignal.ts',
@@ -120,6 +131,7 @@ export const moduleScopeLetLimits: readonly QuantitativeAllowlistEntry[] = [
     removalCondition: 'SW 再設計時',
     limit: 2,
     lifecycle: 'permanent',
+    createdAt: '2026-04-08',
   },
   {
     path: 'application/hooks/useLoadComparisonData.ts',
@@ -129,6 +141,7 @@ export const moduleScopeLetLimits: readonly QuantitativeAllowlistEntry[] = [
     removalCondition: 'WeakMap ベースに移行時',
     limit: 2,
     lifecycle: 'active-debt',
+    createdAt: '2026-04-08',
   },
   {
     path: 'presentation/pages/Dashboard/widgets/widgetLayout.ts',
@@ -138,6 +151,7 @@ export const moduleScopeLetLimits: readonly QuantitativeAllowlistEntry[] = [
     removalCondition: 'application 層に移動時',
     limit: 2,
     lifecycle: 'active-debt',
+    createdAt: '2026-04-08',
   },
 ] as const
 
@@ -152,6 +166,7 @@ export const domainModelExportLimits: readonly QuantitativeAllowlistEntry[] = [
     removalCondition: 'ビルダーを別ファイルに分離時',
     limit: 11,
     lifecycle: 'active-debt',
+    createdAt: '2026-04-08',
   },
   {
     path: 'domain/models/AsyncState.ts',
@@ -161,6 +176,7 @@ export const domainModelExportLimits: readonly QuantitativeAllowlistEntry[] = [
     removalCondition: 'ヘルパーを別ファイルに分離時',
     limit: 11,
     lifecycle: 'active-debt',
+    createdAt: '2026-04-08',
   },
   {
     path: 'domain/models/CalendarDate.ts',
@@ -170,6 +186,7 @@ export const domainModelExportLimits: readonly QuantitativeAllowlistEntry[] = [
     removalCondition: '変換関数を別ファイルに分離時',
     limit: 10,
     lifecycle: 'active-debt',
+    createdAt: '2026-04-08',
   },
   {
     path: 'domain/models/DaySerial.ts',
@@ -179,6 +196,7 @@ export const domainModelExportLimits: readonly QuantitativeAllowlistEntry[] = [
     removalCondition: '変換関数を別ファイルに分離時',
     limit: 9,
     lifecycle: 'active-debt',
+    createdAt: '2026-04-08',
   },
 ] as const
 
@@ -198,6 +216,7 @@ export const fallbackConstantDensityLimits: readonly QuantitativeAllowlistEntry[
     removalCondition: '初期値を共通モジュールに集約時',
     limit: 18,
     lifecycle: 'active-debt',
+    createdAt: '2026-04-08',
   },
   {
     path: 'application/usecases/calculation/dailyBuilder.ts',
@@ -207,6 +226,7 @@ export const fallbackConstantDensityLimits: readonly QuantitativeAllowlistEntry[
     removalCondition: '初期値を型のデフォルトに統合時',
     limit: 14,
     lifecycle: 'active-debt',
+    createdAt: '2026-04-08',
   },
   {
     path: 'presentation/pages/Daily/DailyPage.tsx',
@@ -216,6 +236,7 @@ export const fallbackConstantDensityLimits: readonly QuantitativeAllowlistEntry[
     removalCondition: '空状態を共通モジュールに集約時',
     limit: 14,
     lifecycle: 'active-debt',
+    createdAt: '2026-04-08',
   },
   {
     path: 'features/comparison/application/hooks/useComparisonModule.ts',
@@ -225,6 +246,7 @@ export const fallbackConstantDensityLimits: readonly QuantitativeAllowlistEntry[
     removalCondition: '初期値を型のデフォルトに統合時',
     limit: 12,
     lifecycle: 'active-debt',
+    createdAt: '2026-04-08',
   },
   {
     path: 'features/comparison/application/comparisonProjections.ts',
@@ -234,6 +256,7 @@ export const fallbackConstantDensityLimits: readonly QuantitativeAllowlistEntry[
     removalCondition: '初期値を型のデフォルトに統合時',
     limit: 10,
     lifecycle: 'active-debt',
+    createdAt: '2026-04-08',
   },
   {
     path: 'application/usecases/calculation/summaryBuilder.ts',
@@ -243,6 +266,7 @@ export const fallbackConstantDensityLimits: readonly QuantitativeAllowlistEntry[
     removalCondition: '初期値を型のデフォルトに統合時',
     limit: 10,
     lifecycle: 'active-debt',
+    createdAt: '2026-04-08',
   },
   {
     path: 'presentation/pages/Admin/RawDataTabBuilders.ts',
@@ -252,6 +276,7 @@ export const fallbackConstantDensityLimits: readonly QuantitativeAllowlistEntry[
     removalCondition: '空状態を共通モジュールに集約時',
     limit: 9,
     lifecycle: 'active-debt',
+    createdAt: '2026-04-08',
   },
   {
     path: 'application/usecases/calculation/collectionAggregator.ts',
@@ -261,6 +286,7 @@ export const fallbackConstantDensityLimits: readonly QuantitativeAllowlistEntry[
     removalCondition: '初期値を型のデフォルトに統合時',
     limit: 8,
     lifecycle: 'active-debt',
+    createdAt: '2026-04-08',
   },
   {
     path: 'application/hooks/plans/useDayDetailPlan.ts',
@@ -270,5 +296,6 @@ export const fallbackConstantDensityLimits: readonly QuantitativeAllowlistEntry[
     removalCondition: '初期値を型のデフォルトに統合時',
     limit: 8,
     lifecycle: 'active-debt',
+    createdAt: '2026-04-08',
   },
 ] as const

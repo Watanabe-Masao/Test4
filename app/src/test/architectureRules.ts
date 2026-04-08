@@ -152,6 +152,12 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 1,
     },
+    sunsetCondition: 'bridge パターンが存在しなくなった',
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 90,
+    },
   },
 
   {
@@ -187,6 +193,12 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       ],
       effort: 'small',
       priority: 1,
+    },
+    sunsetCondition: 'presentation → wasmEngine の経路が構造的に存在しなくなった',
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 90,
     },
   },
 
@@ -224,6 +236,12 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'medium',
       priority: 3,
     },
+    sunsetCondition: 'UnifiedWidgetContext が feature slice に完全分割された',
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 60,
+    },
   },
 
   {
@@ -260,6 +278,12 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 2,
     },
+    sunsetCondition: 'deprecated が全て削除された',
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 60,
+    },
   },
 
   {
@@ -294,6 +318,12 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       ],
       effort: 'trivial',
       priority: 1,
+    },
+    sunsetCondition: 'shared plan が全て features/ に移行された',
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 60,
     },
   },
   // ── layerBoundaryGuard 由来 ──
@@ -339,6 +369,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'medium',
       priority: 1,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 90,
+    },
   },
 
   {
@@ -376,6 +411,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'medium',
       priority: 2,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 90,
+    },
   },
 
   {
@@ -410,6 +450,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       ],
       effort: 'small',
       priority: 1,
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 90,
     },
   },
 
@@ -452,6 +497,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 1,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 90,
+    },
   },
 
   {
@@ -486,6 +536,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       ],
       effort: 'small',
       priority: 2,
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 90,
     },
   },
 
@@ -522,6 +577,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'medium',
       priority: 1,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 90,
+    },
   },
 
   {
@@ -552,6 +612,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       steps: ['1. presentation/ への import を削除', '2. 共有データは domain/ の型経由で参照'],
       effort: 'small',
       priority: 1,
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 90,
     },
   },
 
@@ -587,6 +652,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'trivial',
       priority: 1,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 60,
+    },
   },
 
   {
@@ -618,6 +688,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       ],
       effort: 'small',
       priority: 2,
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 60,
     },
   },
 
@@ -651,6 +726,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 1,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 60,
+    },
   },
 
   {
@@ -682,6 +762,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       ],
       effort: 'trivial',
       priority: 1,
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 60,
     },
   },
 
@@ -715,6 +800,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'trivial',
       priority: 1,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 60,
+    },
   },
 
   {
@@ -745,6 +835,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       ],
       effort: 'trivial',
       priority: 1,
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 60,
     },
   },
 
@@ -785,6 +880,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 3,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 45,
+    },
   },
 
   {
@@ -821,6 +921,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 3,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 45,
+    },
   },
 
   {
@@ -853,6 +958,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       ],
       effort: 'small',
       priority: 3,
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 45,
     },
   },
 
@@ -889,6 +999,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'medium',
       priority: 3,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 45,
+    },
   },
 
   {
@@ -920,6 +1035,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 3,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 45,
+    },
   },
 
   {
@@ -947,6 +1067,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       steps: ['1. クエリやアダプタを責務ごとに分割', '2. 共通処理は infrastructure/shared/ に抽出'],
       effort: 'small',
       priority: 3,
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 45,
     },
   },
 
@@ -979,6 +1104,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 3,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 45,
+    },
   },
 
   {
@@ -1010,6 +1140,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       ],
       effort: 'small',
       priority: 2,
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 45,
     },
   },
 
@@ -1055,6 +1190,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 2,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 90,
+    },
   },
 
   {
@@ -1085,6 +1225,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       steps: ['1. 旧クエリへの import を削除', '2. readDiscountFact() 経由に変更'],
       effort: 'small',
       priority: 2,
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 90,
     },
   },
 
@@ -1123,6 +1268,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 1,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 90,
+    },
   },
 
   {
@@ -1159,6 +1309,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 1,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 90,
+    },
   },
 
   {
@@ -1191,6 +1346,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 2,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 90,
+    },
   },
 
   {
@@ -1222,6 +1382,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       steps: ['1. インラインの差分計算を削除', '2. calculateCustomerGap() に置き換え'],
       effort: 'trivial',
       priority: 2,
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 90,
     },
   },
 
@@ -1258,6 +1423,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'trivial',
       priority: 2,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 90,
+    },
   },
 
   {
@@ -1288,6 +1458,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       steps: ['1. 旧クエリへの import を削除', '2. readFreePeriodFact() 経由に変更'],
       effort: 'small',
       priority: 2,
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 90,
     },
   },
 
@@ -1320,6 +1495,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 2,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 90,
+    },
   },
 
   {
@@ -1350,6 +1530,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       steps: ['1. 旧クエリへの import を削除', '2. readFreePeriodDeptKPI() 経由に変更'],
       effort: 'small',
       priority: 2,
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 90,
     },
   },
 
@@ -1387,6 +1572,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 1,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 90,
+    },
   },
 
   {
@@ -1422,6 +1612,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 1,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 90,
+    },
   },
 
   // ── 構造・純粋性・移行ガード由来 ──
@@ -1449,6 +1644,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       steps: ['1. 直接クエリ入力の構築を AnalysisFrame 経由に変更'],
       effort: 'small',
       priority: 2,
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 60,
     },
   },
 
@@ -1480,6 +1680,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       ],
       effort: 'trivial',
       priority: 1,
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 60,
     },
   },
 
@@ -1514,6 +1719,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 1,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 60,
+    },
   },
 
   {
@@ -1545,6 +1755,12 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 3,
     },
+    sunsetCondition: 'review 分類の Zod 未済が 0 になった',
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 60,
+    },
   },
 
   {
@@ -1567,6 +1783,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       steps: ['1. インライン計算を削除', '2. canonical input builder 経由に変更'],
       effort: 'small',
       priority: 2,
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 60,
     },
   },
 
@@ -1602,6 +1823,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'medium',
       priority: 1,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 60,
+    },
   },
 
   {
@@ -1627,6 +1853,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       steps: ['1. 直接構築を削除', '2. buildComparisonScope() に置き換え'],
       effort: 'small',
       priority: 2,
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 60,
     },
   },
 
@@ -1657,6 +1888,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 1,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 60,
+    },
   },
 
   {
@@ -1679,6 +1915,12 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       steps: ['1. dual-run 関連コードを発見したら削除'],
       effort: 'trivial',
       priority: 1,
+    },
+    sunsetCondition: 'dual-run 関連コードが完全に削除された',
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 60,
     },
   },
 
@@ -1704,6 +1946,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       steps: ['1. readModel 型に usedFallback を追加', '2. builder でフォールバック判定を実装'],
       effort: 'small',
       priority: 2,
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 60,
     },
   },
 
@@ -1733,6 +1980,12 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'trivial',
       priority: 1,
     },
+    sunsetCondition: 'features/ 移行が 100% 完了した',
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 60,
+    },
   },
 
   {
@@ -1758,6 +2011,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       steps: ['1. PAGE_REGISTRY にエントリ追加', '2. routes.tsx の PAGE_COMPONENT_MAP と整合確認'],
       effort: 'trivial',
       priority: 1,
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 60,
     },
   },
 
@@ -1789,6 +2047,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       ],
       effort: 'small',
       priority: 1,
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 60,
     },
   },
 
@@ -1828,6 +2091,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'medium',
       priority: 1,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 90,
+    },
   },
 
   {
@@ -1863,6 +2131,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'medium',
       priority: 2,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 60,
+    },
   },
 
   {
@@ -1895,6 +2168,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 2,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 60,
+    },
   },
 
   {
@@ -1924,6 +2202,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 3,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 60,
+    },
   },
 
   {
@@ -1950,6 +2233,12 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 2,
     },
+    sunsetCondition: 'StoreResult.totalCustomers が削除された',
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 60,
+    },
   },
 
   {
@@ -1974,6 +2263,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       steps: ['1. バレルからロジックを抽出', '2. feature 間依存を shared/ 経由に変更'],
       effort: 'small',
       priority: 3,
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 60,
     },
   },
 
@@ -2000,6 +2294,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       steps: ['1. 逆流 import を削除', '2. 結果は hook 経由で受け取る'],
       effort: 'small',
       priority: 2,
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 60,
     },
   },
 
@@ -2029,6 +2328,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'medium',
       priority: 2,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 60,
+    },
   },
 
   {
@@ -2051,6 +2355,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       steps: ['1. 新規ディレクトリを features/<feature>/ または既存層に移動'],
       effort: 'trivial',
       priority: 1,
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 90,
     },
   },
 
@@ -2085,6 +2394,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 2,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 60,
+    },
   },
 
   {
@@ -2114,6 +2428,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'trivial',
       priority: 3,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 45,
+    },
   },
 
   {
@@ -2136,6 +2455,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       steps: ['1. キャッシュ行数と本体行数を比較', '2. 超過していたらキャッシュ戦略を簡素化'],
       effort: 'medium',
       priority: 4,
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 45,
     },
   },
 
@@ -2168,6 +2492,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 2,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 60,
+    },
   },
 
   {
@@ -2193,6 +2522,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       steps: ['1. alignment 判定をコンポーネントから handler に移動'],
       effort: 'small',
       priority: 2,
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 60,
     },
   },
 
@@ -2249,6 +2583,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'trivial',
       priority: 2,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 45,
+    },
   },
 
   // ── 責務タグ別の閾値（TAG_EXPECTATIONS 由来） ──
@@ -2285,6 +2624,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 3,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 45,
+    },
   },
 
   {
@@ -2317,6 +2661,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       ],
       effort: 'small',
       priority: 3,
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 45,
     },
   },
 
@@ -2354,6 +2703,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 2,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 45,
+    },
   },
 
   {
@@ -2386,6 +2740,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'trivial',
       priority: 3,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 45,
+    },
   },
 
   {
@@ -2414,6 +2773,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       steps: ['1. 200 行を超えていたら描画ロジックとの分離を確認', '2. 状態遷移のみに専念させる'],
       effort: 'small',
       priority: 3,
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 45,
     },
   },
 
@@ -2448,6 +2812,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 2,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 45,
+    },
   },
 
   {
@@ -2480,6 +2849,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       ],
       effort: 'small',
       priority: 3,
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 45,
     },
   },
 
@@ -2514,6 +2888,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 3,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 45,
+    },
   },
 
   {
@@ -2547,6 +2926,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'medium',
       priority: 4,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 45,
+    },
   },
 
   {
@@ -2576,6 +2960,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 3,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 45,
+    },
   },
 
   {
@@ -2604,6 +2993,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       steps: ['1. データ取得や状態管理が混在していれば hook に抽出', '2. レイアウトは構造のみ'],
       effort: 'small',
       priority: 3,
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 45,
     },
   },
 
@@ -2637,6 +3031,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       ],
       effort: 'small',
       priority: 2,
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 45,
     },
   },
 
@@ -2673,6 +3072,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 2,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 45,
+    },
   },
 
   {
@@ -2701,6 +3105,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       steps: ['1. ビジネスロジックを hook に抽出', '2. Context は値の提供のみ'],
       effort: 'small',
       priority: 3,
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 45,
     },
   },
 
@@ -2731,6 +3140,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 3,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 45,
+    },
   },
 
   {
@@ -2759,6 +3173,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       steps: ['1. ビジネスロジックを抽出', '2. 外部 API との変換のみに専念'],
       effort: 'trivial',
       priority: 3,
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 45,
     },
   },
 
@@ -2795,6 +3214,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'trivial',
       priority: 2,
     },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 45,
+    },
   },
 
   {
@@ -2826,6 +3250,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       steps: ['1. 関数定義や変数宣言を別ファイルに移動', '2. barrel は export 文のみに'],
       effort: 'trivial',
       priority: 1,
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-08',
+      reviewCadenceDays: 45,
     },
   },
 ] as const satisfies readonly ArchitectureRule[]

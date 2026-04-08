@@ -195,6 +195,30 @@ describe('Architecture Rule Registry', () => {
     expect(true).toBe(true)
   })
 
+  it('active-debt の allowlist エントリは createdAt を持つ', () => {
+    const allowlistDir = path.resolve(__dirname, '../allowlists')
+    const files = fs.readdirSync(allowlistDir).filter((f) => f.endsWith('.ts') && f !== 'types.ts')
+    const missing: string[] = []
+
+    for (const file of files) {
+      const content = fs.readFileSync(path.join(allowlistDir, file), 'utf-8')
+      // active-debt エントリで createdAt がないものを検出
+      const entries = [
+        ...content.matchAll(/path:\s*'([^']+)'[\s\S]*?lifecycle:\s*'active-debt'[\s\S]*?\}/g),
+      ]
+      for (const entry of entries) {
+        if (!entry[0].includes('createdAt:')) {
+          missing.push(`${file}: ${entry[1]} — active-debt なのに createdAt なし`)
+        }
+      }
+    }
+
+    expect(
+      missing,
+      `active-debt の allowlist エントリに createdAt が必要です:\n${missing.join('\n')}`,
+    ).toEqual([])
+  })
+
   // ── ルール健全性評価 ──
 
   it('例外圧が高いルールを検出（ルール見直し候補）', () => {
