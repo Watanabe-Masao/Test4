@@ -93,6 +93,7 @@ export const combinedHookComplexityLimits: readonly QuantitativeAllowlistEntry[]
     limit: 17,
     lifecycle: 'active-debt',
     createdAt: '2026-04-08',
+    renewalCount: 0,
   },
   {
     path: 'presentation/pages/Dashboard/widgets/useMonthlyCalendarState.ts',
@@ -103,6 +104,7 @@ export const combinedHookComplexityLimits: readonly QuantitativeAllowlistEntry[]
     limit: 14,
     lifecycle: 'active-debt',
     createdAt: '2026-04-08',
+    renewalCount: 0,
   },
   {
     path: 'features/cost-detail/application/useCostDetailData.ts',
@@ -113,6 +115,7 @@ export const combinedHookComplexityLimits: readonly QuantitativeAllowlistEntry[]
     limit: 13,
     lifecycle: 'active-debt',
     createdAt: '2026-04-08',
+    renewalCount: 0,
   },
 ] as const
 
@@ -127,6 +130,7 @@ export const featuresMemoLimits: readonly QuantitativeAllowlistEntry[] = [
     limit: 13,
     lifecycle: 'active-debt',
     createdAt: '2026-04-08',
+    renewalCount: 0,
   },
   {
     path: 'features/comparison/application/hooks/useComparisonModule.ts',
@@ -151,6 +155,7 @@ export const featuresStateLimits: readonly QuantitativeAllowlistEntry[] = [
     limit: 9,
     lifecycle: 'active-debt',
     createdAt: '2026-04-08',
+    renewalCount: 0,
   },
   {
     path: 'features/storage-admin/ui/StorageDataViewers.tsx',
@@ -161,6 +166,7 @@ export const featuresStateLimits: readonly QuantitativeAllowlistEntry[] = [
     limit: 8,
     lifecycle: 'active-debt',
     createdAt: '2026-04-08',
+    renewalCount: 0,
   },
   {
     path: 'features/category/ui/charts/CategoryBenchmarkChart.vm.ts',
@@ -171,6 +177,7 @@ export const featuresStateLimits: readonly QuantitativeAllowlistEntry[] = [
     limit: 7,
     lifecycle: 'active-debt',
     createdAt: '2026-04-08',
+    renewalCount: 0,
   },
   {
     path: 'features/category/ui/charts/CategoryBoxPlotChart.vm.ts',
@@ -181,6 +188,7 @@ export const featuresStateLimits: readonly QuantitativeAllowlistEntry[] = [
     limit: 8,
     lifecycle: 'active-debt',
     createdAt: '2026-04-08',
+    renewalCount: 0,
   },
   {
     path: 'features/cost-detail/application/useCostDetailData.ts',
@@ -191,6 +199,7 @@ export const featuresStateLimits: readonly QuantitativeAllowlistEntry[] = [
     limit: 7,
     lifecycle: 'active-debt',
     createdAt: '2026-04-08',
+    renewalCount: 0,
   },
 ] as const
 
@@ -219,5 +228,6 @@ export const hookLineLimits: readonly QuantitativeAllowlistEntry[] = [
     limit: 305,
     lifecycle: 'active-debt',
     createdAt: '2026-04-08',
+    renewalCount: 0,
   },
 ] as const

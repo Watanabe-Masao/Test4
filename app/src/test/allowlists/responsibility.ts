@@ -17,6 +17,7 @@ export const presentationGetStateLimits: readonly QuantitativeAllowlistEntry[] =
     limit: 13,
     lifecycle: 'active-debt',
     createdAt: '2026-04-08',
+    renewalCount: 0,
   },
   {
     path: 'presentation/pages/Dashboard/widgets/StoreKpiTableInner.tsx',
@@ -27,6 +28,7 @@ export const presentationGetStateLimits: readonly QuantitativeAllowlistEntry[] =
     limit: 6,
     lifecycle: 'active-debt',
     createdAt: '2026-04-08',
+    renewalCount: 0,
   },
   {
     path: 'presentation/pages/Admin/AdminPage.tsx',
@@ -37,6 +39,7 @@ export const presentationGetStateLimits: readonly QuantitativeAllowlistEntry[] =
     limit: 3,
     lifecycle: 'active-debt',
     createdAt: '2026-04-08',
+    renewalCount: 0,
   },
   {
     path: 'presentation/pages/Admin/PrevYearMappingTab.tsx',
@@ -47,6 +50,7 @@ export const presentationGetStateLimits: readonly QuantitativeAllowlistEntry[] =
     limit: 3,
     lifecycle: 'active-debt',
     createdAt: '2026-04-08',
+    renewalCount: 0,
   },
   {
     path: 'presentation/pages/Dashboard/widgets/ExecSummaryBarWidget.tsx',
@@ -57,6 +61,7 @@ export const presentationGetStateLimits: readonly QuantitativeAllowlistEntry[] =
     limit: 3,
     lifecycle: 'active-debt',
     createdAt: '2026-04-08',
+    renewalCount: 0,
   },
   {
     path: 'presentation/pages/Dashboard/widgets/conditionSummaryUtils.ts',
@@ -67,6 +72,7 @@ export const presentationGetStateLimits: readonly QuantitativeAllowlistEntry[] =
     limit: 2,
     lifecycle: 'active-debt',
     createdAt: '2026-04-08',
+    renewalCount: 0,
   },
   {
     path: 'presentation/pages/CostDetail/useCostDetailData.helpers.ts',
@@ -77,6 +83,7 @@ export const presentationGetStateLimits: readonly QuantitativeAllowlistEntry[] =
     limit: 2,
     lifecycle: 'active-debt',
     createdAt: '2026-04-08',
+    renewalCount: 0,
   },
 ] as const
 
@@ -112,6 +119,7 @@ export const moduleScopeLetLimits: readonly QuantitativeAllowlistEntry[] = [
     limit: 3,
     lifecycle: 'active-debt',
     createdAt: '2026-04-08',
+    renewalCount: 0,
   },
   {
     path: 'application/adapters/uiPersistenceAdapter.ts',
@@ -142,6 +150,7 @@ export const moduleScopeLetLimits: readonly QuantitativeAllowlistEntry[] = [
     limit: 2,
     lifecycle: 'active-debt',
     createdAt: '2026-04-08',
+    renewalCount: 0,
   },
   {
     path: 'presentation/pages/Dashboard/widgets/widgetLayout.ts',
@@ -152,6 +161,7 @@ export const moduleScopeLetLimits: readonly QuantitativeAllowlistEntry[] = [
     limit: 2,
     lifecycle: 'active-debt',
     createdAt: '2026-04-08',
+    renewalCount: 0,
   },
 ] as const
 
@@ -167,6 +177,7 @@ export const domainModelExportLimits: readonly QuantitativeAllowlistEntry[] = [
     limit: 11,
     lifecycle: 'active-debt',
     createdAt: '2026-04-08',
+    renewalCount: 0,
   },
   {
     path: 'domain/models/AsyncState.ts',
@@ -177,6 +188,7 @@ export const domainModelExportLimits: readonly QuantitativeAllowlistEntry[] = [
     limit: 11,
     lifecycle: 'active-debt',
     createdAt: '2026-04-08',
+    renewalCount: 0,
   },
   {
     path: 'domain/models/CalendarDate.ts',
@@ -187,6 +199,7 @@ export const domainModelExportLimits: readonly QuantitativeAllowlistEntry[] = [
     limit: 10,
     lifecycle: 'active-debt',
     createdAt: '2026-04-08',
+    renewalCount: 0,
   },
   {
     path: 'domain/models/DaySerial.ts',
@@ -197,6 +210,7 @@ export const domainModelExportLimits: readonly QuantitativeAllowlistEntry[] = [
     limit: 9,
     lifecycle: 'active-debt',
     createdAt: '2026-04-08',
+    renewalCount: 0,
   },
 ] as const
 
@@ -217,6 +231,7 @@ export const fallbackConstantDensityLimits: readonly QuantitativeAllowlistEntry[
     limit: 18,
     lifecycle: 'active-debt',
     createdAt: '2026-04-08',
+    renewalCount: 0,
   },
   {
     path: 'application/usecases/calculation/dailyBuilder.ts',
@@ -227,6 +242,7 @@ export const fallbackConstantDensityLimits: readonly QuantitativeAllowlistEntry[
     limit: 14,
     lifecycle: 'active-debt',
     createdAt: '2026-04-08',
+    renewalCount: 0,
   },
   {
     path: 'presentation/pages/Daily/DailyPage.tsx',
@@ -237,6 +253,7 @@ export const fallbackConstantDensityLimits: readonly QuantitativeAllowlistEntry[
     limit: 14,
     lifecycle: 'active-debt',
     createdAt: '2026-04-08',
+    renewalCount: 0,
   },
   {
     path: 'features/comparison/application/hooks/useComparisonModule.ts',
@@ -247,6 +264,7 @@ export const fallbackConstantDensityLimits: readonly QuantitativeAllowlistEntry[
     limit: 12,
     lifecycle: 'active-debt',
     createdAt: '2026-04-08',
+    renewalCount: 0,
   },
   {
     path: 'features/comparison/application/comparisonProjections.ts',
@@ -257,6 +275,7 @@ export const fallbackConstantDensityLimits: readonly QuantitativeAllowlistEntry[
     limit: 10,
     lifecycle: 'active-debt',
     createdAt: '2026-04-08',
+    renewalCount: 0,
   },
   {
     path: 'application/usecases/calculation/summaryBuilder.ts',
@@ -267,6 +286,7 @@ export const fallbackConstantDensityLimits: readonly QuantitativeAllowlistEntry[
     limit: 10,
     lifecycle: 'active-debt',
     createdAt: '2026-04-08',
+    renewalCount: 0,
   },
   {
     path: 'presentation/pages/Admin/RawDataTabBuilders.ts',
@@ -277,6 +297,7 @@ export const fallbackConstantDensityLimits: readonly QuantitativeAllowlistEntry[
     limit: 9,
     lifecycle: 'active-debt',
     createdAt: '2026-04-08',
+    renewalCount: 0,
   },
   {
     path: 'application/usecases/calculation/collectionAggregator.ts',
@@ -287,6 +308,7 @@ export const fallbackConstantDensityLimits: readonly QuantitativeAllowlistEntry[
     limit: 8,
     lifecycle: 'active-debt',
     createdAt: '2026-04-08',
+    renewalCount: 0,
   },
   {
     path: 'application/hooks/plans/useDayDetailPlan.ts',
@@ -297,5 +319,6 @@ export const fallbackConstantDensityLimits: readonly QuantitativeAllowlistEntry[
     limit: 8,
     lifecycle: 'active-debt',
     createdAt: '2026-04-08',
+    renewalCount: 0,
   },
 ] as const
