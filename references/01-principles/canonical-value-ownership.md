@@ -77,6 +77,11 @@
 CustomerFact 経由に変更が必要。presentation 層では UnifiedWidgetContext
 または plan hook 経由で受け取る。
 
+**移行前提条件:**
+- `StoreResult.totalCustomers` と `CustomerFact.grandTotalCustomers` の値一致を検証するテストが必要
+- Props の型変更 + 呼び出し元の変更が伴う（単純な置換ではない）
+- application 層で CustomerFact を widget context 経由で配布済み（`readModels.customerFact`）
+
 | ファイル | 用途 | 優先度 |
 |---|---|---|
 | conditionPanelCustomerGap.tsx | `calculateCustomerGap()` の直接入力 | P1 |
