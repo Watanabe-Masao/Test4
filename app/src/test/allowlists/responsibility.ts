@@ -19,17 +19,7 @@ export const presentationGetStateLimits: readonly QuantitativeAllowlistEntry[] =
     createdAt: '2026-04-08',
     renewalCount: 0,
   },
-  {
-    path: 'presentation/pages/Dashboard/widgets/StoreKpiTableInner.tsx',
-    ruleId: 'AR-STRUCT-RESP-SEPARATION',
-    reason: 'KPI テーブルの store 直接アクセス。getState 5 回',
-    category: 'structural',
-    removalCondition: 'callback props 経由に移行時',
-    limit: 6,
-    lifecycle: 'active-debt',
-    createdAt: '2026-04-08',
-    renewalCount: 0,
-  },
+  // StoreKpiTableInner.tsx — Zustand selector 経由に移行。getState 0 回。許可リスト卒業
   // AdminPage.tsx — Zustand selector 経由に移行。getState 0 回。許可リスト卒業
   // PrevYearMappingTab.tsx — Zustand selector 経由に移行。getState 0 回。許可リスト卒業
   // ExecSummaryBarWidget.tsx — Zustand selector 経由に移行。getState 0 回。許可リスト卒業
@@ -60,17 +50,7 @@ export const moduleScopeLetLimits: readonly QuantitativeAllowlistEntry[] = [
     lifecycle: 'permanent',
     createdAt: '2026-04-08',
   },
-  {
-    path: 'presentation/components/charts/EChart.tsx',
-    ruleId: 'AR-STRUCT-RESP-SEPARATION',
-    reason: 'ECharts インスタンスキャッシュ。module let 2 個',
-    category: 'structural',
-    removalCondition: 'WeakMap ベースに移行時',
-    limit: 3,
-    lifecycle: 'active-debt',
-    createdAt: '2026-04-08',
-    renewalCount: 0,
-  },
+  // EChart.tsx — Set<string> ベースに移行。module let 0 個。許可リスト卒業
   {
     path: 'application/adapters/uiPersistenceAdapter.ts',
     ruleId: 'AR-STRUCT-RESP-SEPARATION',
@@ -91,28 +71,8 @@ export const moduleScopeLetLimits: readonly QuantitativeAllowlistEntry[] = [
     lifecycle: 'permanent',
     createdAt: '2026-04-08',
   },
-  {
-    path: 'application/hooks/useLoadComparisonData.ts',
-    ruleId: 'AR-STRUCT-RESP-SEPARATION',
-    reason: '比較データの隣接月キャッシュ。module let 1 個',
-    category: 'structural',
-    removalCondition: 'WeakMap ベースに移行時',
-    limit: 2,
-    lifecycle: 'active-debt',
-    createdAt: '2026-04-08',
-    renewalCount: 0,
-  },
-  {
-    path: 'presentation/pages/Dashboard/widgets/widgetLayout.ts',
-    ruleId: 'AR-STRUCT-RESP-SEPARATION',
-    reason: 'ウィジェットレイアウトの localStorage キャッシュ。module let 1 個',
-    category: 'structural',
-    removalCondition: 'application 層に移動時',
-    limit: 2,
-    lifecycle: 'active-debt',
-    createdAt: '2026-04-08',
-    renewalCount: 0,
-  },
+  // useLoadComparisonData.ts — const object ベースに移行。module let 0 個。許可リスト卒業
+  // widgetLayout.ts — const object ベースに移行。module let 0 個。許可リスト卒業
 ] as const
 
 // ─── P12: domain/models/ の export 過多 ──────────────────────
