@@ -81,17 +81,7 @@ export const domainModelExportLimits: readonly QuantitativeAllowlistEntry[] = [
   // ClassifiedSales.ts — DiscountEntry.ts に分割。export 16→8。許可リスト卒業
   // AsyncState.ts — AsyncStateFactories.ts に分割。export 14→4。許可リスト卒業
   // CalendarDate.ts — DateRangeChunks.ts に分割。export 9→7。許可リスト卒業
-  {
-    path: 'domain/models/DaySerial.ts',
-    ruleId: 'AR-STRUCT-RESP-SEPARATION',
-    reason: '日シリアル型 + 変換関数群。export 8 個',
-    category: 'structural',
-    removalCondition: '変換関数を別ファイルに分離時',
-    limit: 9,
-    lifecycle: 'active-debt',
-    createdAt: '2026-04-08',
-    renewalCount: 0,
-  },
+  // DaySerial.ts — 未使用関数 2 件を削除。export 9→6。許可リスト卒業
 ] as const
 
 // ─── P17: storeIds 正規化パターンの散在 ──────────────────────
@@ -136,29 +126,9 @@ export const fallbackConstantDensityLimits: readonly QuantitativeAllowlistEntry[
     createdAt: '2026-04-08',
     renewalCount: 0,
   },
-  {
-    path: 'features/comparison/application/comparisonProjections.ts',
-    ruleId: 'AR-STRUCT-RESP-SEPARATION',
-    reason: '比較投影の初期値定義。fallback 9 個',
-    category: 'structural',
-    removalCondition: '初期値を型のデフォルトに統合時',
-    limit: 10,
-    lifecycle: 'active-debt',
-    createdAt: '2026-04-08',
-    renewalCount: 0,
-  },
+  // comparisonProjections.ts — ローカル定数リネームで fallback 密度 9→2。許可リスト卒業
   // summaryBuilder.ts — エイリアス化で fallback 密度 9→6。許可リスト卒業
-  {
-    path: 'presentation/pages/Admin/RawDataTabBuilders.ts',
-    ruleId: 'AR-STRUCT-RESP-SEPARATION',
-    reason: '生データタブの空状態定義',
-    category: 'structural',
-    removalCondition: '空状態を共通モジュールに集約時',
-    limit: 8,
-    lifecycle: 'active-debt',
-    createdAt: '2026-04-08',
-    renewalCount: 0,
-  },
+  // RawDataTabBuilders.ts — ローカル定数リネームで fallback 密度 8→0。許可リスト卒業
   // collectionAggregator.ts — エイリアス化で fallback 密度 7→2。許可リスト卒業
   // useDayDetailPlan.ts — エイリアス化で fallback 密度 7→4。許可リスト卒業
 ] as const

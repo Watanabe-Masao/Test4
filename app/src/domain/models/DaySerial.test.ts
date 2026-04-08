@@ -4,7 +4,6 @@ import {
   dateKeyToSerial,
   serialToDateKey,
   serialToCalendar,
-  dateRangeToSerials,
   daysBetween,
   serialToDow,
 } from './DaySerial'
@@ -77,25 +76,6 @@ describe('DaySerial', () => {
       const s1 = dateKeyToSerial('2024-02-28')
       const s2 = dateKeyToSerial('2024-03-01')
       expect(s2 - s1).toBe(2) // 2/29 があるので
-    })
-  })
-
-  describe('dateRangeToSerials', () => {
-    it('3/1〜3/2 は連続した2つのserial', () => {
-      const [from, to] = dateRangeToSerials({
-        from: { year: 2026, month: 3, day: 1 },
-        to: { year: 2026, month: 3, day: 2 },
-      })
-      expect(to - from).toBe(1)
-    })
-
-    it('月跨ぎ 2/25〜3/31', () => {
-      const [from, to] = dateRangeToSerials({
-        from: { year: 2026, month: 2, day: 25 },
-        to: { year: 2026, month: 3, day: 31 },
-      })
-      // 2月25-28 = 4日 + 3月1-31 = 31日 = 35日（inclusive なので +1 ではなく差は34）
-      expect(to - from).toBe(34)
     })
   })
 

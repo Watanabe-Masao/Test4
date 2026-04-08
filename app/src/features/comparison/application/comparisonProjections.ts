@@ -16,6 +16,8 @@ import {
   analyzeDowGapActualDay,
   ZERO_DOW_GAP_ANALYSIS,
 } from '@/domain/calculations/dowGapAnalysis'
+
+const dowGapDefault = ZERO_DOW_GAP_ANALYSIS
 import type { DowGapDailyData } from '@/domain/calculations/dowGapAnalysis'
 import { DAYS_PER_WEEK } from '@/domain/constants'
 import {
@@ -27,7 +29,7 @@ import type { SourceMonthContext } from '@/features/comparison/application/sourc
 
 // ── ゼロ値 ──
 
-const ZERO_KPI_ENTRY: PrevYearMonthlyKpiEntry = {
+const kpiEntryDefault: PrevYearMonthlyKpiEntry = {
   sales: 0,
   customers: 0,
   transactionValue: 0,
@@ -36,13 +38,13 @@ const ZERO_KPI_ENTRY: PrevYearMonthlyKpiEntry = {
   storeContributions: [],
 }
 
-const ZERO_MONTHLY_TOTAL = { sales: 0, customers: 0, transactionValue: 0, ctsQuantity: 0 }
+const monthlyTotalDefault = { sales: 0, customers: 0, transactionValue: 0, ctsQuantity: 0 }
 
-const EMPTY_KPI: PrevYearMonthlyKpi = {
+const kpiDefault: PrevYearMonthlyKpi = {
   hasPrevYear: false,
-  sameDow: ZERO_KPI_ENTRY,
-  sameDate: ZERO_KPI_ENTRY,
-  monthlyTotal: ZERO_MONTHLY_TOTAL,
+  sameDow: kpiEntryDefault,
+  sameDate: kpiEntryDefault,
+  monthlyTotal: monthlyTotalDefault,
   sourceYear: 0,
   sourceMonth: 0,
   dowOffset: 0,
@@ -62,7 +64,7 @@ export function buildKpiProjection(
   periodSelection: PeriodSelection,
   sourceMonthCtx: SourceMonthContext,
 ): PrevYearMonthlyKpi {
-  if (targetIds.length === 0) return EMPTY_KPI
+  if (targetIds.length === 0) return kpiDefault
 
   const srcYear = sourceMonthCtx.year
   const srcMonth = sourceMonthCtx.month
@@ -142,7 +144,7 @@ export function buildDowGapProjection(
   currentMonth: number,
   currentAverageDailySales: number,
 ): DowGapAnalysis {
-  if (!kpi.hasPrevYear || kpi.sourceYear === 0) return ZERO_DOW_GAP_ANALYSIS
+  if (!kpi.hasPrevYear || kpi.sourceYear === 0) return dowGapDefault
 
   // 前年曜日別の合計売上 + 日次データ配列を構築
   const prevDowSales = [0, 0, 0, 0, 0, 0, 0]

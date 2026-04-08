@@ -18,8 +18,7 @@
  * s2 - s1  // → 6（6日間の差）
  * ```
  */
-import type { CalendarDate, DateKey, DateRange } from './CalendarDate'
-import { toDateKey } from './CalendarDate'
+import type { CalendarDate, DateKey } from './CalendarDate'
 
 /** 2000-01-01 を基準日(0)とした連続整数。Branded Type で型安全。 */
 export type DaySerial = number & { readonly __brand: 'DaySerial' }
@@ -78,34 +77,7 @@ export function serialToCalendar(serial: DaySerial): CalendarDate {
 
 // ── DateRange との統合 ──
 
-/**
- * DateRange → [fromSerial, toSerial] (inclusive)
- *
- * 範囲フィルタに使用:
- *   serial >= fromSerial && serial <= toSerial
- */
-export function dateRangeToSerials(range: DateRange): [DaySerial, DaySerial] {
-  return [calendarToSerial(range.from), calendarToSerial(range.to)]
-}
-
-/**
- * DateRange → fromDateKey, toDateKey, fromSerial, toSerial をまとめて返す
- *
- * DuckDB クエリ（dateKey）と JS フィルタ（serial）の両方で使う場合に便利。
- */
-export function dateRangeToBounds(range: DateRange): {
-  fromKey: DateKey
-  toKey: DateKey
-  fromSerial: DaySerial
-  toSerial: DaySerial
-} {
-  return {
-    fromKey: toDateKey(range.from),
-    toKey: toDateKey(range.to),
-    fromSerial: calendarToSerial(range.from),
-    toSerial: calendarToSerial(range.to),
-  }
-}
+// dateRangeToSerials / dateRangeToBounds — 利用箇所なし。削除済み
 
 // ── ユーティリティ ──
 
