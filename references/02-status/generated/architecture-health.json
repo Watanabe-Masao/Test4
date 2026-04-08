@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-08T05:31:28.989Z",
+  "timestamp": "2026-04-08T06:43:36.805Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -443,9 +443,9 @@
       "id": "docs.obligation.violations",
       "label": "Doc 更新義務違反数",
       "category": "docs",
-      "value": 0,
+      "value": 1,
       "unit": "count",
-      "status": "ok",
+      "status": "fail",
       "owner": "documentation-steward",
       "docRefs": [
         {
@@ -557,13 +557,59 @@
         "app/src/test/allowlists/misc.ts"
       ],
       "budget": 33
+    },
+    {
+      "id": "efficacy.rules.withProtectedHarm.count",
+      "label": "protectedHarm 設定済みルール数",
+      "category": "guard",
+      "value": 24,
+      "unit": "count",
+      "status": "ok",
+      "owner": "architecture",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "references/01-principles/architecture-rule-feasibility.md"
+        }
+      ],
+      "implRefs": [
+        "app/src/test/architectureRules.ts"
+      ]
+    },
+    {
+      "id": "efficacy.rules.highNoise.count",
+      "label": "高例外圧ルール数（≥10 件）",
+      "category": "guard",
+      "value": 1,
+      "unit": "count",
+      "status": "ok",
+      "owner": "architecture",
+      "docRefs": [],
+      "implRefs": [
+        "app/src/test/allowlists/"
+      ],
+      "budget": 3
+    },
+    {
+      "id": "efficacy.allowlist.renewalTotal",
+      "label": "renewalCount 合計",
+      "category": "allowlist",
+      "value": 0,
+      "unit": "count",
+      "status": "ok",
+      "owner": "architecture",
+      "docRefs": [],
+      "implRefs": [
+        "app/src/test/allowlists/"
+      ],
+      "budget": 10
     }
   ],
   "summary": {
-    "totalKpis": 25,
-    "ok": 25,
+    "totalKpis": 28,
+    "ok": 27,
     "warn": 0,
-    "fail": 0,
-    "hardGatePass": true
+    "fail": 1,
+    "hardGatePass": false
   }
 }
