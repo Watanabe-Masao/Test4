@@ -432,6 +432,15 @@ R: 責務タグレジストリ（`responsibilityTagGuard.test.ts`）:
 - 分類時は複数タグ可（AND の可視化）
 - 既存は徐々にタグ付け。新規は登録必須
 
+### Adaptive Architecture Governance (AAG)
+
+本プロジェクトのアーキテクチャ品質は **AAG** により機械的に保証・進化される。
+詳細: `references/01-principles/adaptive-architecture-governance.md`
+進化方針: `references/01-principles/adaptive-governance-evolution.md`
+
+AAG は「発見 → 蓄積 → 評価」の 3 層サイクルでルール自体を継続的に改善する。
+ルールは仮説であり、回避が生まれたらルールを疑う。
+
 ### Architecture Rule — 実行可能なアーキテクチャ仕様
 
 > **ガードが「禁止」と「導き」の両方を持つ。ルールは書かれるのではなく、育つ。**
@@ -582,7 +591,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 詳細レポート: `references/02-status/generated/architecture-health.md`
 
 <!-- GENERATED:START architecture-health-summary -->
-**Healthy** | 前回比: Improved | Hard Gate: PASS
+**Healthy** | 前回比: Flat | Hard Gate: PASS
 
 | 指標 | 状態 | 詳細 |
 |---|---|---|
@@ -596,7 +605,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 | Rule Efficacy | OK | 24 / 0/3 / 0/10 |
 
 
-> 生成: 2026-04-08T15:30:25.293Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-08T15:39:04.042Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）
