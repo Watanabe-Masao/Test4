@@ -115,7 +115,7 @@ export function buildDowCustomerAverages(
 ): DowCustomerAvg[] {
   const buckets = DOW_LABELS.map((dow) => ({
     dow,
-    totalCustomers: 0,
+    custTotal: 0,
     totalSales: 0,
     totalPrevCustomers: 0,
     totalPrevSales: 0,
@@ -125,7 +125,7 @@ export function buildDowCustomerAverages(
   for (const e of entries) {
     const dow = new Date(year, month - 1, e.day).getDay()
     const b = buckets[dow]
-    b.totalCustomers += e.customers
+    b.custTotal += e.customers
     b.totalSales += e.sales
     b.totalPrevCustomers += e.prevCustomers
     b.totalPrevSales += e.prevSales
@@ -134,8 +134,8 @@ export function buildDowCustomerAverages(
 
   return buckets.map((b) => ({
     dow: b.dow,
-    avgCustomers: Math.round(safeDivide(b.totalCustomers, b.count)),
-    avgTxValue: calculateTransactionValue(b.totalSales, b.totalCustomers),
+    avgCustomers: Math.round(safeDivide(b.custTotal, b.count)),
+    avgTxValue: calculateTransactionValue(b.totalSales, b.custTotal),
     prevAvgCustomers: Math.round(safeDivide(b.totalPrevCustomers, b.count)),
     prevAvgTxValue: calculateTransactionValue(b.totalPrevSales, b.totalPrevCustomers),
     count: b.count,

@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-08T14:20:21.373Z
+> Generated: 2026-04-08T14:34:26.431Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
