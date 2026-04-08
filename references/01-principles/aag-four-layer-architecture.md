@@ -2,18 +2,25 @@
 
 ## 概要
 
-AAG 自体をプロダクトコードと同じ 4 層で設計する。
+AAG を 4 層で設計する。プロダクトコードの 4 層と混同しないよう AAG 固有の名称を使う。
 
 ```
-Presentation（入口）→ Application（判断）→ Domain（思想）← Infrastructure（検出）
+Response（入口）→ Judgment（判断）→ Principles（思想）← Detection（検出）
 ```
 
-思想は Domain に置く。検出手段は Infrastructure に閉じる。
-AAG の入口は Presentation に置く。
+思想は Principles に置く。検出手段は Detection に閉じる。
+AAG の入口は Response に置く。
+
+| AAG 層 | プロダクトコードとの対応 | 役割 |
+|--------|----------------------|------|
+| **Principles** | Domain に相当 | 何を守るか。なぜ守るか。どんな害を防ぐか |
+| **Judgment** | Application に相当 | この状況で何をすべきかに変換する |
+| **Detection** | Infrastructure に相当 | どうやって観測するか。改善・交換可能 |
+| **Response** | Presentation に相当 | 違反時に必要最小限の判断材料を返す |
 
 ## 層の定義と現在のファイルマッピング
 
-### Domain — 思想
+### Principles — 思想
 
 > 「何を守りたいか」「なぜ守るか」「どんな害を防ぐか」
 
@@ -29,7 +36,7 @@ AAG の意味そのものを置く層。変更頻度が最も低い。
 | `references/01-principles/design-principles.md` | 設計原則 A-H+Q |
 | Guard tag の意味定義（`guardTagRegistry.ts`） | タグの意味 |
 
-### Application — 判断
+### Judgment — 判断
 
 > 「この状況で何をすべきかに変換する」
 
@@ -45,7 +52,7 @@ Domain の思想を、具体的な判断・運用に変換する層。
 | `obligation-collector.ts` の判定ロジック | 義務の判定 |
 | `health-rules.ts` の評価基準 | KPI の閾値判断 |
 
-### Infrastructure — 検出
+### Detection — 検出
 
 > 「どうやって観測するか」
 
@@ -60,7 +67,7 @@ Domain の思想を、具体的な判断・運用に変換する層。
 | `app/src/test/audits/` | アーキテクチャ監査 |
 | Allowlist ファイル群 | 例外の実装管理 |
 
-### Presentation — 入口
+### Response — 入口
 
 > 「違反時に必要最小限の判断材料を返す」
 
@@ -76,17 +83,17 @@ AAG の正式入口。違反時に初めて出会う UI。
 
 ## 4 層の原則
 
-1. **Domain は安定する。** what/why は変わりにくい。ここが AAG の資産
-2. **Infrastructure は進化する。** regex → AST → 型情報。ここにコストを投じる
-3. **Application は Domain と Infrastructure を接続する。** 判断ロジックはここに閉じる
-4. **Presentation は薄く、必要十分にする。** 情報を渡しすぎない。作業を前に進める
+1. **Principles は安定する。** what/why は変わりにくい。ここが AAG の資産
+2. **Detection は進化する。** regex → AST → 型情報。ここにコストを投じる
+3. **Judgment は Principles と Detection を接続する。** 判断ロジックはここに閉じる
+4. **Response は薄く、必要十分にする。** 情報を渡しすぎない。作業を前に進める
 
-## 違反時レスポンスの標準フォーマット（Presentation 層）
+## 違反時レスポンスの標準フォーマット（Response 層）
 
 | # | 項目 | 情報源（層） |
 |---|------|------------|
-| 1 | **何が止まったか** | Application (`entrypointSummary`) |
-| 2 | **なぜ止まったか** | Domain (`why`) |
-| 3 | **今やること** | Application (`migrationPath.steps`) |
-| 4 | **例外がありうるか** | Application (`decisionCriteria.exceptions`) |
-| 5 | **深掘り先** | Domain (`doc`) |
+| 1 | **何が止まったか** | Judgment (`entrypointSummary`) |
+| 2 | **なぜ止まったか** | Principles (`why`) |
+| 3 | **今やること** | Judgment (`migrationPath.steps`) |
+| 4 | **例外がありうるか** | Judgment (`decisionCriteria.exceptions`) |
+| 5 | **深掘り先** | Principles (`doc`) |
