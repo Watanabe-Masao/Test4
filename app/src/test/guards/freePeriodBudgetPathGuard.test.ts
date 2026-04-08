@@ -10,10 +10,13 @@ import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
 import { collectTsFiles, rel } from '../guardTestHelpers'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 const SRC_DIR = path.resolve(__dirname, '../..')
 
 describe('自由期間予算 正本ガード', () => {
+  const rule = getRuleById('AR-PATH-FREE-PERIOD-BUDGET')!
+
   it('readFreePeriodBudgetFact が存在し Zod parse を含む', () => {
     const file = path.join(SRC_DIR, 'application/readModels/freePeriod/readFreePeriodBudgetFact.ts')
     const content = fs.readFileSync(file, 'utf-8')
@@ -39,7 +42,7 @@ describe('自由期間予算 正本ガード', () => {
         violations.push(rel(file))
       }
     }
-    expect(violations).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   it('prorateBudgetForPeriod が純粋関数として存在する', () => {

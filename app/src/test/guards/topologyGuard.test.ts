@@ -12,7 +12,6 @@ import * as fs from 'fs'
 import { SRC_DIR } from '../guardTestHelpers'
 import { getRuleById, formatViolationMessage } from '../architectureRules'
 
-const rule = getRuleById('AR-STRUCT-TOPOLOGY')!
 
 /** src/ 直下に許可されたディレクトリ */
 const APPROVED_DIRECTORIES = new Set([
@@ -39,6 +38,8 @@ const APPROVED_ROOT_FILES = [
 ]
 
 describe('Topology Guard', () => {
+  const rule = getRuleById('AR-STRUCT-TOPOLOGY')!
+
   it('src/ 直下に未承認のディレクトリが存在しない', () => {
     const entries = fs.readdirSync(SRC_DIR, { withFileTypes: true })
     const dirs = entries.filter((e) => e.isDirectory()).map((e) => e.name)

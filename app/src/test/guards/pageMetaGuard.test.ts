@@ -8,6 +8,7 @@
  * ルール定義: architectureRules.ts (AR-STRUCT-PAGE-META)
  */
 import { describe, it, expect } from 'vitest'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 import {
   PAGE_REGISTRY,
   REDIRECT_REGISTRY,
@@ -33,23 +34,37 @@ const EXPECTED_VIEW_TYPES: readonly ViewType[] = [
 ]
 
 describe('pageMetaGuard', () => {
+  const rule = getRuleById('AR-STRUCT-PAGE-META')!
+
   // ── 1. navVisible なページは pathPattern を持つ ──
   it('navVisible ページは pathPattern を持つ', () => {
     const violations = PAGE_REGISTRY.filter((p) => p.navVisible && !p.pathPattern)
-    expect(violations.map((p) => p.id)).toEqual([])
+    expect(
+      violations.map((p) => p.id),
+      formatViolationMessage(
+        rule,
+        violations.map((p) => p.id),
+      ),
+    ).toEqual([])
   })
 
   // ── 2. shortcutIndex は重複しない ──
   it('shortcutIndex は重複しない', () => {
     const indices = PAGE_REGISTRY.filter((p) => p.shortcutIndex != null).map((p) => p.shortcutIndex)
     const duplicates = indices.filter((v, i) => indices.indexOf(v) !== i)
-    expect(duplicates).toEqual([])
+    expect(duplicates, formatViolationMessage(rule, duplicates.map(String))).toEqual([])
   })
 
   // ── 3. mobileNavVisible は navVisible の subset ──
   it('mobileNavVisible: true → navVisible: true', () => {
     const violations = PAGE_REGISTRY.filter((p) => p.mobileNavVisible && !p.navVisible)
-    expect(violations.map((p) => p.id)).toEqual([])
+    expect(
+      violations.map((p) => p.id),
+      formatViolationMessage(
+        rule,
+        violations.map((p) => p.id),
+      ),
+    ).toEqual([])
   })
 
   // ── 4. REDIRECT_REGISTRY.from は standard pathPattern と衝突しない ──
@@ -58,7 +73,13 @@ describe('pageMetaGuard', () => {
       PAGE_REGISTRY.filter((p) => p.kind === 'standard').map((p) => p.pathPattern),
     )
     const conflicts = REDIRECT_REGISTRY.filter((r) => standardPaths.has(r.from))
-    expect(conflicts.map((r) => r.from)).toEqual([])
+    expect(
+      conflicts.map((r) => r.from),
+      formatViolationMessage(
+        rule,
+        conflicts.map((r) => r.from),
+      ),
+    ).toEqual([])
   })
 
   // ── 5. preloadTargets の各 id は PAGE_REGISTRY に存在する ──
@@ -72,7 +93,7 @@ describe('pageMetaGuard', () => {
         }
       }
     }
-    expect(missing).toEqual([])
+    expect(missing, formatViolationMessage(rule, missing)).toEqual([])
   })
 
   // ── 6. preloadTargets に self-reference がない ──
@@ -84,14 +105,14 @@ describe('pageMetaGuard', () => {
         violations.push(`self-reference: ${page.id}`)
       }
     }
-    expect(violations).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   // ── 7. navOrder は重複しない ──
   it('navOrder は重複しない', () => {
     const orders = PAGE_REGISTRY.map((p) => p.navOrder)
     const duplicates = orders.filter((v, i) => orders.indexOf(v) !== i)
-    expect(duplicates).toEqual([])
+    expect(duplicates, formatViolationMessage(rule, duplicates.map(String))).toEqual([])
   })
 
   // ── 7b. mobile nav の相対順序は desktop nav と一致 ──
@@ -117,8 +138,8 @@ describe('pageMetaGuard', () => {
     const missingInComponents = [...registryIds].filter((id) => !componentIds.has(id))
     const extraInComponents = [...componentIds].filter((id) => !registryIds.has(id))
 
-    expect(missingInComponents).toEqual([])
-    expect(extraInComponents).toEqual([])
+    expect(missingInComponents, formatViolationMessage(rule, missingInComponents)).toEqual([])
+    expect(extraInComponents, formatViolationMessage(rule, extraInComponents)).toEqual([])
   })
 
   // ── 9. ViewType と registry standard ids の一致 ──
@@ -132,13 +153,13 @@ describe('pageMetaGuard', () => {
   it('PAGE_REGISTRY の id は一意', () => {
     const ids = PAGE_REGISTRY.map((p) => p.id)
     const duplicates = ids.filter((v, i) => ids.indexOf(v) !== i)
-    expect(duplicates).toEqual([])
+    expect(duplicates, formatViolationMessage(rule, duplicates)).toEqual([])
   })
 
   // ── 追加: pathPattern は一意 ──
   it('PAGE_REGISTRY の pathPattern は一意', () => {
     const patterns = PAGE_REGISTRY.map((p) => p.pathPattern)
     const duplicates = patterns.filter((v, i) => patterns.indexOf(v) !== i)
-    expect(duplicates).toEqual([])
+    expect(duplicates, formatViolationMessage(rule, duplicates)).toEqual([])
   })
 })

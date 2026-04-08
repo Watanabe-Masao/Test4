@@ -12,10 +12,13 @@ import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
 import { collectTsFiles, rel } from '../guardTestHelpers'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 const SRC_DIR = path.resolve(__dirname, '../..')
 
 describe('CustomerFact path guard', () => {
+  const rule = getRuleById('AR-PATH-CUSTOMER')!
+
   it('readCustomerFact の実装が存在する', () => {
     const filePath = path.join(SRC_DIR, 'application/readModels/customerFact/readCustomerFact.ts')
     expect(fs.existsSync(filePath), 'readCustomerFact.ts が存在しません').toBe(true)
@@ -50,10 +53,7 @@ describe('CustomerFact path guard', () => {
       }
     }
 
-    expect(
-      violations,
-      `presentation 層が queryCustomerDaily を直接 import しています:\n${violations.join('\n')}`,
-    ).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   it('定義書が存在する', () => {

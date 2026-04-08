@@ -12,10 +12,13 @@ import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
 import { collectTsFiles, rel } from '../guardTestHelpers'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 const SRC_DIR = path.resolve(__dirname, '../..')
 
 describe('ComparisonScope 正本ガード', () => {
+  const rule = getRuleById('AR-STRUCT-COMPARISON-SCOPE')!
+
   // ── 正本関数の存在確認 ──
 
   it('buildComparisonScope が唯一の factory として存在する', () => {
@@ -51,11 +54,7 @@ describe('ComparisonScope 正本ガード', () => {
       }
     }
 
-    expect(
-      violations,
-      `presentation 層が buildComparisonScope を直接使用:\n${violations.join('\n')}\n` +
-        `useComparisonModule 経由で取得してください`,
-    ).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   it('presentation 層で prevYear の年月を独自計算しない', () => {
@@ -84,11 +83,7 @@ describe('ComparisonScope 正本ガード', () => {
       }
     }
 
-    expect(
-      violations,
-      `presentation 層で比較先年月を独自計算:\n${violations.join('\n')}\n` +
-        `ComparisonScope 経由で解決してください`,
-    ).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   // ── 無スコープ命名の検出（temporal-scope-semantics 準拠） ──
@@ -126,10 +121,6 @@ describe('ComparisonScope 正本ガード', () => {
       }
     }
 
-    expect(
-      violations,
-      `無スコープの比較変数名が検出されました:\n${violations.join('\n')}\n` +
-        `sameDateXxx / sameDowXxx / monthlyTotalXxx を使用してください`,
-    ).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 })

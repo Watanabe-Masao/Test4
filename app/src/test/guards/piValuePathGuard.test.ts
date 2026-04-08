@@ -14,9 +14,10 @@ import { collectTsFiles } from '../guardTestHelpers'
 import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 const SRC_DIR = path.resolve(__dirname, '../..')
-const rule = getRuleById('AR-PATH-PI-VALUE')!
 
 describe('PI値 正本ガード', () => {
+  const rule = getRuleById('AR-PATH-PI-VALUE')!
+
   it('calculateQuantityPI / calculateAmountPI が domain/calculations に存在する', () => {
     const file = path.join(SRC_DIR, 'domain/calculations/piValue.ts')
     expect(fs.existsSync(file), 'piValue.ts が存在しない').toBe(true)

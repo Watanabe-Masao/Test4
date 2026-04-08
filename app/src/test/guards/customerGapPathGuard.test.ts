@@ -14,9 +14,10 @@ import { collectTsFiles } from '../guardTestHelpers'
 import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 const SRC_DIR = path.resolve(__dirname, '../..')
-const rule = getRuleById('AR-PATH-CUSTOMER-GAP')!
 
 describe('客数GAP 正本ガード', () => {
+  const rule = getRuleById('AR-PATH-CUSTOMER-GAP')!
+
   it('calculateCustomerGap が domain/calculations に存在する', () => {
     const file = path.join(SRC_DIR, 'domain/calculations/customerGap.ts')
     expect(fs.existsSync(file), 'customerGap.ts が存在しない').toBe(true)

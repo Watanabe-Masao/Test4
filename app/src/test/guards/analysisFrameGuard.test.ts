@@ -8,39 +8,56 @@
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
+import { getRuleById } from '../architectureRules'
 
 const SRC_DIR = path.resolve(__dirname, '../..')
 
 describe('AnalysisFrame 正本ガード', () => {
+  const rule = getRuleById('AR-STRUCT-ANALYSIS-FRAME')!
+
   it('AnalysisFrame 型が domain/models に存在する', () => {
     const file = path.join(SRC_DIR, 'domain/models/AnalysisFrame.ts')
-    expect(fs.existsSync(file)).toBe(true)
+    expect(fs.existsSync(file), `[${rule.id}] ${file} が存在しません`).toBe(true)
     const content = fs.readFileSync(file, 'utf-8')
-    expect(content).toContain('BaseAnalysisFrame')
-    expect(content).toContain('FreePeriodAnalysisFrame')
-    expect(content).toContain('TemporalAnalysisFrame')
+    expect(content, `[${rule.id}] BaseAnalysisFrame が定義されていません`).toContain(
+      'BaseAnalysisFrame',
+    )
+    expect(content, `[${rule.id}] FreePeriodAnalysisFrame が定義されていません`).toContain(
+      'FreePeriodAnalysisFrame',
+    )
+    expect(content, `[${rule.id}] TemporalAnalysisFrame が定義されていません`).toContain(
+      'TemporalAnalysisFrame',
+    )
   })
 
   it('CalculationFrame 型と factory が存在する', () => {
     const file = path.join(SRC_DIR, 'domain/models/CalculationFrame.ts')
-    expect(fs.existsSync(file)).toBe(true)
+    expect(fs.existsSync(file), `[${rule.id}] ${file} が存在しません`).toBe(true)
     const content = fs.readFileSync(file, 'utf-8')
-    expect(content).toContain('export interface CalculationFrame')
-    expect(content).toContain('export function buildCalculationFrame')
+    expect(content, `[${rule.id}] CalculationFrame interface が定義されていません`).toContain(
+      'export interface CalculationFrame',
+    )
+    expect(content, `[${rule.id}] buildCalculationFrame が定義されていません`).toContain(
+      'export function buildCalculationFrame',
+    )
   })
 
   it('analysisFrameFingerprint が存在する', () => {
     const file = path.join(SRC_DIR, 'domain/models/analysisFrameFingerprint.ts')
-    expect(fs.existsSync(file)).toBe(true)
+    expect(fs.existsSync(file), `[${rule.id}] ${file} が存在しません`).toBe(true)
     const content = fs.readFileSync(file, 'utf-8')
-    expect(content).toContain('export function computeAnalysisFrameKey')
+    expect(content, `[${rule.id}] computeAnalysisFrameKey が定義されていません`).toContain(
+      'export function computeAnalysisFrameKey',
+    )
   })
 
   it('buildFreePeriodFrame factory が存在する', () => {
     const file = path.join(SRC_DIR, 'domain/models/buildFreePeriodFrame.ts')
-    expect(fs.existsSync(file)).toBe(true)
+    expect(fs.existsSync(file), `[${rule.id}] ${file} が存在しません`).toBe(true)
     const content = fs.readFileSync(file, 'utf-8')
-    expect(content).toContain('export function buildFreePeriodFrame')
+    expect(content, `[${rule.id}] buildFreePeriodFrame が定義されていません`).toContain(
+      'export function buildFreePeriodFrame',
+    )
   })
 })
 

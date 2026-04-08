@@ -75,7 +75,7 @@ describe('Render Side-Effect Guard', () => {
       }
     }
 
-    expect(violations).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   it('許可リストのファイルが実在する（orphan 検出）', () => {
@@ -87,6 +87,6 @@ describe('Render Side-Effect Guard', () => {
       }
     }
 
-    expect(orphans).toEqual([])
+    expect(orphans, formatViolationMessage(rule, orphans)).toEqual([])
   })
 })

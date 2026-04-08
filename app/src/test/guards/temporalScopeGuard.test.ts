@@ -12,10 +12,13 @@ import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
 import { collectTsFiles, rel } from '../guardTestHelpers'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 const SRC_DIR = path.resolve(__dirname, '../..')
 
 describe('時間スコープ意味論ガード', () => {
+  const rule = getRuleById('AR-STRUCT-TEMPORAL-SCOPE')!
+
   const allFiles = collectTsFiles(SRC_DIR).filter(
     (f) => !f.includes('__tests__') && !f.includes('.test.') && !f.includes('.stories.'),
   )
@@ -37,11 +40,7 @@ describe('時間スコープ意味論ガード', () => {
       }
     }
 
-    expect(
-      violations,
-      `sameDate 値を予算の分母/分子に直接使用:\n${violations.join('\n')}\n` +
-        `予算比較には monthlyTotal または elapsed-adjusted を使用してください`,
-    ).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   it('elapsedDays を月間固定値（daysInMonth）として使わない', () => {
@@ -59,11 +58,7 @@ describe('時間スコープ意味論ガード', () => {
       }
     }
 
-    expect(
-      violations,
-      `elapsedDays を daysInMonth と同一視:\n${violations.join('\n')}\n` +
-        `elapsedDays は cap であり、月の日数とは別概念です`,
-    ).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   it('buildComparisonScope が ComparisonScope の唯一の factory', () => {
@@ -84,11 +79,7 @@ describe('時間スコープ意味論ガード', () => {
       }
     }
 
-    expect(
-      violations,
-      `ComparisonScope の手動構築が検出されました:\n${violations.join('\n')}\n` +
-        `buildComparisonScope() factory を使用してください`,
-    ).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   it('sourceDate 直接参照が PrevYearBudgetDetailPanel 以外に拡散していない', () => {
@@ -112,10 +103,6 @@ describe('時間スコープ意味論ガード', () => {
       }
     }
 
-    expect(
-      violations,
-      `sourceDate 直接参照が許可ファイル外に拡散:\n${violations.join('\n')}\n` +
-        `ComparisonScope 経由の解決を使用してください`,
-    ).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 })

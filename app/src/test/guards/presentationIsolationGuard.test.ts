@@ -44,7 +44,7 @@ describe('Presentation Isolation Guard', () => {
       }
     }
 
-    expect(violations).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   it('presentation/ は domain/calculations/ のビジネス計算関数を直接 import しない', () => {
@@ -85,7 +85,7 @@ describe('Presentation Isolation Guard', () => {
       }
     }
 
-    expect(violations).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   it('presentation/ は比較コンテキストの内部モジュールを直接 import しない', () => {
@@ -116,7 +116,7 @@ describe('Presentation Isolation Guard', () => {
       }
     }
 
-    expect(violations).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   it('storage/ は duckdb/queries/ に依存しない（DuckDB → IndexedDB 書き戻し禁止）', () => {
@@ -136,7 +136,7 @@ describe('Presentation Isolation Guard', () => {
       }
     }
 
-    expect(violations).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   it('presentation/ は duckdb/ を直接 import しない（DevTools 除く）', () => {
@@ -159,7 +159,7 @@ describe('Presentation Isolation Guard', () => {
       }
     }
 
-    expect(violations).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   // ─── CQRS Contract Guards（Phase 2） ──────────────────
@@ -192,7 +192,7 @@ describe('Presentation Isolation Guard', () => {
       }
     }
 
-    expect(violations).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   it('application/usecases/calculation/ は infrastructure/duckdb/ に依存しない（Command は Query に依存しない）', () => {
@@ -212,7 +212,7 @@ describe('Presentation Isolation Guard', () => {
       }
     }
 
-    expect(violations).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   // ─── Migration Countdown（DuckDB直接参照の段階的廃止）──
@@ -261,13 +261,16 @@ describe('Presentation Isolation Guard', () => {
       }
     }
 
-    expect(violations).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   it('presentation/ の DuckDB フック許可リストは増やさない（移行時に減らすのみ）', () => {
     // 許可リストのサイズ上限。移行が進むにつれてこの数値を減らしていく。
     const MAX_ALLOWLIST_SIZE = 0
-    expect(PRESENTATION_DUCKDB_HOOK_ALLOWLIST.size).toBeLessThanOrEqual(MAX_ALLOWLIST_SIZE)
+    expect(
+      PRESENTATION_DUCKDB_HOOK_ALLOWLIST.size,
+      `[${rule.id}] allowlist size ${PRESENTATION_DUCKDB_HOOK_ALLOWLIST.size} exceeds max ${MAX_ALLOWLIST_SIZE}`,
+    ).toBeLessThanOrEqual(MAX_ALLOWLIST_SIZE)
   })
 
   it('DuckDB フック許可リストのファイルが実在する', () => {
@@ -356,7 +359,7 @@ describe('Presentation Isolation Guard', () => {
       }
     }
 
-    expect(violations).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 })
 

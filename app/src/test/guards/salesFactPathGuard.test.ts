@@ -11,10 +11,13 @@ import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
 import { collectTsFiles, rel } from '../guardTestHelpers'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 const SRC_DIR = path.resolve(__dirname, '../..')
 
 describe('売上ファクト正本ガード', () => {
+  const rule = getRuleById('AR-PATH-SALES')!
+
   // ── 正本関数の存在確認 ──
 
   it('buildSalesFactReadModel が pure builder として存在する', () => {
@@ -66,11 +69,7 @@ describe('売上ファクト正本ガード', () => {
       }
     }
 
-    expect(
-      violations,
-      `presentation 層から旧売上クエリへの直接 import:\n${violations.join('\n')}\n` +
-        '→ readSalesFact / useWidgetDataOrchestrator 経由に切り替えてください',
-    ).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   // ── useWidgetDataOrchestrator が salesFactHandler を統合していること ──

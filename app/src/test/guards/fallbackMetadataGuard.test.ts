@@ -11,6 +11,7 @@ import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
 import { SRC_DIR } from '../guardTestHelpers'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 const READ_MODELS_DIR = path.join(SRC_DIR, 'application/readModels')
 
@@ -26,14 +27,15 @@ const CRITICAL_READ_MODELS = [
 ] as const
 
 describe('fallback metadata guard', () => {
+  const rule = getRuleById('AR-STRUCT-FALLBACK-METADATA')!
+
   it.each(CRITICAL_READ_MODELS)('%s の Zod 契約に usedFallback フィールドが存在する', (relPath) => {
     const filePath = path.join(READ_MODELS_DIR, relPath)
     const content = fs.readFileSync(filePath, 'utf-8')
 
     expect(
       content,
-      `${relPath} に usedFallback フィールドがありません。\n` +
-        'meta: z.object({ usedFallback: z.boolean(), ... }) を追加してください',
+      `[${rule.id}] ${relPath} に usedFallback フィールドがありません。\n正しいパターン: ${rule.correctPattern.description}`,
     ).toContain('usedFallback')
   })
 
@@ -57,11 +59,7 @@ describe('fallback metadata guard', () => {
       }
     }
 
-    expect(
-      missing,
-      `以下の builder が usedFallback を設定していません:\n${missing.join('\n')}\n` +
-        '→ meta: { usedFallback: false, ... } を追加してください',
-    ).toEqual([])
+    expect(missing, formatViolationMessage(rule, missing)).toEqual([])
   })
 
   it('新しい readModel ディレクトリが追加されたら検査対象に含まれている', () => {
@@ -76,10 +74,6 @@ describe('fallback metadata guard', () => {
     const knownSet = new Set(knownDirs)
     const untracked = dirs.filter((d) => !knownSet.has(d))
 
-    expect(
-      untracked,
-      `新しい readModel ディレクトリが検査対象に含まれていません:\n${untracked.join('\n')}\n` +
-        '→ CRITICAL_READ_MODELS に追加してください',
-    ).toEqual([])
+    expect(untracked, formatViolationMessage(rule, untracked)).toEqual([])
   })
 })

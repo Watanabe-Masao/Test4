@@ -10,12 +10,14 @@
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
+import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 const SRC_DIR = path.resolve(__dirname, '../..')
 
 const REFS_DIR = path.resolve(SRC_DIR, '../../references/01-principles')
 
 describe('正本化体系 統合ガード', () => {
+  const rule = getRuleById('AR-STRUCT-CANONICALIZATION')!
   // ── 全 readModels の存在確認 ──
 
   const REQUIRED_READ_MODELS = [
@@ -58,7 +60,7 @@ describe('正本化体系 統合ガード', () => {
         violations.push(`${name}: 実装ファイル（read*.ts or calculate*.ts）がない`)
       }
     }
-    expect(violations, violations.join('\n')).toEqual([])
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   // ── 全定義書の存在確認 ──
@@ -85,7 +87,7 @@ describe('正本化体系 統合ガード', () => {
         missing.push(name)
       }
     }
-    expect(missing, `定義書が不足:\n${missing.join('\n')}`).toEqual([])
+    expect(missing, formatViolationMessage(rule, missing)).toEqual([])
   })
 
   // ── 新規 domain/calculations ファイルがレジストリに登録されていること ──
