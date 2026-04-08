@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-08T11:11:11.004Z",
+  "timestamp": "2026-04-08T11:21:06.642Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -372,7 +372,7 @@
       "id": "perf.bundle.totalJsKb",
       "label": "JS バンドル合計サイズ",
       "category": "bundle_perf",
-      "value": 6493,
+      "value": 6495,
       "unit": "kb",
       "status": "ok",
       "owner": "architecture",
@@ -392,7 +392,7 @@
       "id": "perf.bundle.mainJsKb",
       "label": "メインバンドルサイズ",
       "category": "bundle_perf",
-      "value": 2219,
+      "value": 2220,
       "unit": "kb",
       "status": "ok",
       "owner": "architecture",
@@ -526,7 +526,7 @@
       "id": "temporal.allowlist.activeDebt.count",
       "label": "active-debt 例外数",
       "category": "allowlist",
-      "value": 13,
+      "value": 10,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -538,13 +538,13 @@
         "app/src/test/allowlists/size.ts",
         "app/src/test/allowlists/misc.ts"
       ],
-      "budget": 13
+      "budget": 10
     },
     {
       "id": "temporal.allowlist.activeDebt.withCreatedAt",
       "label": "active-debt で createdAt 設定済み",
       "category": "allowlist",
-      "value": 13,
+      "value": 10,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -556,7 +556,7 @@
         "app/src/test/allowlists/size.ts",
         "app/src/test/allowlists/misc.ts"
       ],
-      "budget": 13
+      "budget": 10
     },
     {
       "id": "efficacy.rules.withProtectedHarm.count",
