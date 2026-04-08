@@ -29,6 +29,17 @@ export type DetectionType =
 /** ルールの成熟度。新しいルールは experimental から始め、安定したら stable に昇格する */
 export type RuleMaturity = 'experimental' | 'stable' | 'deprecated'
 
+/**
+ * AAG 縦スライス — 関心ごとの完結したルール群
+ * 各スライスが Domain/Application/Infrastructure/Presentation の 4 層を持つ
+ */
+export type AagSlice =
+  | 'layer-boundary' // 層境界、依存方向、描画専用原則
+  | 'canonicalization' // 正本経路、readModel、Zod、path guard
+  | 'query-runtime' // QueryHandler、AnalysisFrame、ComparisonScope
+  | 'responsibility-separation' // size / hook complexity / responsibility tags
+  | 'governance-ops' // allowlist、health、obligation、generated docs
+
 export interface ArchitectureRule {
   // ── 識別 ──
   readonly id: string
@@ -108,6 +119,18 @@ export interface ArchitectureRule {
     readonly lastReviewedAt: string // YYYY-MM-DD
     readonly reviewCadenceDays: number // 再点検間隔（日数）
   }
+  // ── 違反時入口（Presentation 層） ──
+  /** 違反時の運用区分: now=今すぐ直す / debt=構造負債管理 / review=観測 */
+  /** ルールが属する関心スライス */
+  readonly slice?: AagSlice
+  readonly fixNow?: 'now' | 'debt' | 'review'
+  /** 違反時に最初に返す 1 行要約 */
+  readonly entrypointSummary?: string
+  /** 深掘り先の第一候補（doc と異なる場合） */
+  readonly deepDiveDoc?: string
+  /** よくある誤解 */
+  readonly commonMistakes?: readonly string[]
+
   /** experimental ルールの出口（昇格 / 撤回の対称性） */
   readonly lifecyclePolicy?: {
     readonly introducedAt: string // 導入日（YYYY-MM-DD）
@@ -123,6 +146,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   // ── noNewDebtGuard 由来 ──
 
   {
+    fixNow: 'now',
+    slice: 'governance-ops',
     id: 'AR-001',
     ruleClass: 'invariant',
     guardTags: ['G1'],
@@ -166,6 +191,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'layer-boundary',
     id: 'AR-002',
     ruleClass: 'invariant',
     guardTags: ['G1', 'A3'],
@@ -208,6 +235,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'governance-ops',
     id: 'AR-003',
     ruleClass: 'default',
     guardTags: ['G1', 'C1'],
@@ -250,6 +279,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'governance-ops',
     id: 'AR-004',
     ruleClass: 'default',
     guardTags: ['G1'],
@@ -292,6 +323,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'governance-ops',
     id: 'AR-005',
     ruleClass: 'default',
     guardTags: ['G1', 'H1'],
@@ -334,6 +367,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   // ── layerBoundaryGuard 由来 ──
 
   {
+    fixNow: 'now',
+    slice: 'layer-boundary',
     id: 'AR-A1-DOMAIN',
     ruleClass: 'invariant',
     guardTags: ['A1', 'A2'],
@@ -389,6 +424,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'layer-boundary',
     id: 'AR-A1-APP-INFRA',
     ruleClass: 'invariant',
     guardTags: ['A1'],
@@ -434,6 +471,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'layer-boundary',
     id: 'AR-A1-APP-PRES',
     ruleClass: 'invariant',
     guardTags: ['A1'],
@@ -475,6 +514,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'layer-boundary',
     id: 'AR-A1-PRES-INFRA',
     ruleClass: 'invariant',
     guardTags: ['A1', 'A3', 'A5'],
@@ -524,6 +565,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'layer-boundary',
     id: 'AR-A1-PRES-USECASE',
     ruleClass: 'invariant',
     guardTags: ['A1', 'A3'],
@@ -564,6 +607,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'layer-boundary',
     id: 'AR-A1-INFRA-APP',
     ruleClass: 'invariant',
     guardTags: ['A1'],
@@ -607,6 +652,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'layer-boundary',
     id: 'AR-A1-INFRA-PRES',
     ruleClass: 'invariant',
     guardTags: ['A1'],
@@ -646,6 +693,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   // ── codePatternGuard 由来 ──
 
   {
+    fixNow: 'now',
+    slice: 'governance-ops',
     id: 'AR-G4-INTERNAL',
     ruleClass: 'default',
     guardTags: ['G4'],
@@ -683,6 +732,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'governance-ops',
     id: 'AR-C3-STORE',
     ruleClass: 'default',
     guardTags: ['C3'],
@@ -720,6 +771,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'governance-ops',
     id: 'AR-G3-SUPPRESS',
     ruleClass: 'default',
     guardTags: ['G3', 'E2'],
@@ -758,6 +811,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'governance-ops',
     id: 'AR-E4-TRUTHINESS',
     ruleClass: 'default',
     guardTags: ['E4'],
@@ -798,6 +853,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'governance-ops',
     id: 'AR-C5-SELECTOR',
     ruleClass: 'default',
     guardTags: ['C5'],
@@ -836,6 +893,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'governance-ops',
     id: 'AR-G2-EMPTY-CATCH',
     ruleClass: 'default',
     guardTags: ['G2'],
@@ -875,6 +934,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   // ── sizeGuard 由来 ──
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-G5-HOOK-MEMO',
     ruleClass: 'heuristic',
     guardTags: ['G5'],
@@ -917,6 +978,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-G5-HOOK-STATE',
     ruleClass: 'heuristic',
     guardTags: ['G5'],
@@ -958,6 +1021,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-G5-HOOK-LINES',
     ruleClass: 'heuristic',
     guardTags: ['G5'],
@@ -996,6 +1061,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-G6-COMPONENT',
     ruleClass: 'heuristic',
     guardTags: ['G6'],
@@ -1036,6 +1103,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-G5-DOMAIN-LINES',
     ruleClass: 'heuristic',
     guardTags: ['G5', 'A2'],
@@ -1072,6 +1141,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-G5-INFRA-LINES',
     ruleClass: 'heuristic',
     guardTags: ['G5'],
@@ -1105,6 +1176,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-G5-USECASE-LINES',
     ruleClass: 'heuristic',
     guardTags: ['G5'],
@@ -1141,6 +1214,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-C6-FACADE',
     ruleClass: 'heuristic',
     guardTags: ['C6'],
@@ -1180,6 +1255,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   // ── パスガード由来（正本取得経路の保護） ──
 
   {
+    fixNow: 'now',
+    slice: 'canonicalization',
     id: 'AR-PATH-SALES',
     ruleClass: 'invariant',
     guardTags: ['F9'],
@@ -1228,6 +1305,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'canonicalization',
     id: 'AR-PATH-DISCOUNT',
     ruleClass: 'invariant',
     guardTags: ['F9'],
@@ -1264,6 +1343,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'canonicalization',
     id: 'AR-PATH-GROSS-PROFIT',
     ruleClass: 'invariant',
     guardTags: ['F9', 'D1'],
@@ -1309,6 +1390,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'canonicalization',
     id: 'AR-PATH-PURCHASE-COST',
     ruleClass: 'invariant',
     guardTags: ['F9'],
@@ -1351,6 +1434,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'canonicalization',
     id: 'AR-PATH-CUSTOMER',
     ruleClass: 'invariant',
     guardTags: ['F9'],
@@ -1389,6 +1474,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'canonicalization',
     id: 'AR-PATH-CUSTOMER-GAP',
     ruleClass: 'invariant',
     guardTags: ['F9', 'D1'],
@@ -1427,6 +1514,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'canonicalization',
     id: 'AR-PATH-PI-VALUE',
     ruleClass: 'invariant',
     guardTags: ['F9', 'D1'],
@@ -1468,6 +1557,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'canonicalization',
     id: 'AR-PATH-FREE-PERIOD',
     ruleClass: 'invariant',
     guardTags: ['F9'],
@@ -1504,6 +1595,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'canonicalization',
     id: 'AR-PATH-FREE-PERIOD-BUDGET',
     ruleClass: 'invariant',
     guardTags: ['F9'],
@@ -1540,6 +1633,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'canonicalization',
     id: 'AR-PATH-FREE-PERIOD-DEPT-KPI',
     ruleClass: 'invariant',
     guardTags: ['F9'],
@@ -1576,6 +1671,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'canonicalization',
     id: 'AR-PATH-FACTOR-DECOMPOSITION',
     ruleClass: 'invariant',
     guardTags: ['F9', 'D1', 'D2'],
@@ -1618,6 +1715,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'canonicalization',
     id: 'AR-PATH-GROSS-PROFIT-CONSISTENCY',
     ruleClass: 'invariant',
     guardTags: ['F9', 'D1'],
@@ -1660,6 +1759,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   // ── 構造・純粋性・移行ガード由来 ──
 
   {
+    fixNow: 'review',
+    slice: 'query-runtime',
     id: 'AR-STRUCT-ANALYSIS-FRAME',
     ruleClass: 'default',
     guardTags: ['H3'],
@@ -1691,6 +1792,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'review',
+    slice: 'canonicalization',
     id: 'AR-STRUCT-CALC-CANON',
     ruleClass: 'default',
     guardTags: ['G1'],
@@ -1727,6 +1830,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'review',
+    slice: 'canonicalization',
     id: 'AR-CANON-ZOD-REQUIRED',
     ruleClass: 'default',
     guardTags: ['G1', 'E1'],
@@ -1765,6 +1870,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'review',
+    slice: 'canonicalization',
     id: 'AR-CANON-ZOD-REVIEW',
     ruleClass: 'default',
     guardTags: ['G1', 'E1'],
@@ -1802,6 +1909,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'review',
+    slice: 'canonicalization',
     id: 'AR-STRUCT-CANONICAL-INPUT',
     ruleClass: 'default',
     guardTags: ['G1', 'D1'],
@@ -1830,6 +1939,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'review',
+    slice: 'canonicalization',
     id: 'AR-STRUCT-CANONICALIZATION',
     ruleClass: 'default',
     guardTags: ['G1', 'E3', 'F5', 'F8'],
@@ -1870,6 +1981,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'review',
+    slice: 'query-runtime',
     id: 'AR-STRUCT-COMPARISON-SCOPE',
     ruleClass: 'default',
     guardTags: ['H2'],
@@ -1901,6 +2014,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'review',
+    slice: 'governance-ops',
     id: 'AR-STRUCT-DATA-INTEGRITY',
     ruleClass: 'default',
     guardTags: ['G1', 'E1'],
@@ -1936,6 +2051,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'review',
+    slice: 'governance-ops',
     id: 'AR-STRUCT-DUAL-RUN-EXIT',
     ruleClass: 'default',
     guardTags: ['G1'],
@@ -1965,6 +2082,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'review',
+    slice: 'canonicalization',
     id: 'AR-STRUCT-FALLBACK-METADATA',
     ruleClass: 'default',
     guardTags: ['G1'],
@@ -1995,6 +2114,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'governance-ops',
     id: 'AR-MIG-OLD-PATH',
     ruleClass: 'default',
     guardTags: ['F4', 'F1'],
@@ -2029,6 +2150,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'review',
+    slice: 'governance-ops',
     id: 'AR-STRUCT-PAGE-META',
     ruleClass: 'default',
     guardTags: ['F10'],
@@ -2060,6 +2183,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'layer-boundary',
     id: 'AR-STRUCT-PRES-ISOLATION',
     ruleClass: 'default',
     guardTags: ['A3', 'B2'],
@@ -2096,6 +2221,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'layer-boundary',
     id: 'AR-STRUCT-PURITY',
     ruleClass: 'invariant',
     guardTags: ['A2', 'B1', 'C3', 'A6', 'B3', 'D3'],
@@ -2140,6 +2267,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'query-runtime',
     id: 'AR-STRUCT-QUERY-PATTERN',
     ruleClass: 'default',
     guardTags: ['H2', 'H3', 'H4', 'H5'],
@@ -2181,6 +2310,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'review',
+    slice: 'layer-boundary',
     id: 'AR-STRUCT-RENDER-SIDE-EFFECT',
     ruleClass: 'default',
     guardTags: ['A3', 'H4'],
@@ -2219,6 +2350,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-STRUCT-RESP-SEPARATION',
     ruleClass: 'default',
     guardTags: ['G8'],
@@ -2265,6 +2398,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   // ─── AR-STRUCT-RESP-SEPARATION の下位 7 ルール ───────────────
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-RESP-STORE-COUPLING',
     ruleClass: 'default',
     guardTags: ['G8'],
@@ -2297,6 +2432,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-RESP-MODULE-STATE',
     ruleClass: 'default',
     guardTags: ['G8'],
@@ -2327,6 +2464,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-RESP-HOOK-COMPLEXITY',
     ruleClass: 'heuristic',
     guardTags: ['G8'],
@@ -2357,6 +2496,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-RESP-FEATURE-COMPLEXITY',
     ruleClass: 'heuristic',
     guardTags: ['G8'],
@@ -2389,6 +2530,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-RESP-EXPORT-DENSITY',
     ruleClass: 'heuristic',
     guardTags: ['G8'],
@@ -2419,6 +2562,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-RESP-NORMALIZATION',
     ruleClass: 'heuristic',
     guardTags: ['G8'],
@@ -2445,6 +2590,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-RESP-FALLBACK-SPREAD',
     ruleClass: 'heuristic',
     guardTags: ['G8'],
@@ -2477,6 +2624,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'canonicalization',
     id: 'AR-STRUCT-STORE-RESULT-INPUT',
     ruleClass: 'default',
     guardTags: ['G1'],
@@ -2509,6 +2658,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'governance-ops',
     id: 'AR-STRUCT-CONVENTION',
     ruleClass: 'default',
     guardTags: ['F1', 'F4', 'F9', 'F2', 'F3', 'F6'],
@@ -2548,6 +2699,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   // ─── AR-STRUCT-CONVENTION の下位 3 ルール ────────────────────
 
   {
+    fixNow: 'debt',
+    slice: 'governance-ops',
     id: 'AR-CONVENTION-BARREL',
     ruleClass: 'default',
     guardTags: ['F1', 'F9'],
@@ -2574,6 +2727,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'governance-ops',
     id: 'AR-CONVENTION-FEATURE-BOUNDARY',
     ruleClass: 'default',
     guardTags: ['F4'],
@@ -2600,6 +2755,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'governance-ops',
     id: 'AR-CONVENTION-CONTEXT-SINGLE-SOURCE',
     ruleClass: 'default',
     guardTags: ['F2', 'F3', 'F6'],
@@ -2608,7 +2765,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     why: 'ウィジェットが ctx の提供データを独自に取得するとデータの不一致が生じる',
     doc: 'references/03-guides/coding-conventions.md',
     correctPattern: { description: 'ctx.result / ctx.prevYear 等を使う' },
-    outdatedPattern: { description: 'ウィジェットが ctx 提供済みデータの hook を独自に呼び出している' },
+    outdatedPattern: {
+      description: 'ウィジェットが ctx 提供済みデータの hook を独自に呼び出している',
+    },
     decisionCriteria: {
       when: 'ウィジェットやチャートがデータを必要とするとき',
       exceptions: 'ctx に含まれないデータのみ独自取得可',
@@ -2626,6 +2785,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'review',
+    slice: 'query-runtime',
     id: 'AR-STRUCT-TEMPORAL-ROLLING',
     ruleClass: 'default',
     guardTags: ['G1'],
@@ -2657,6 +2818,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'review',
+    slice: 'query-runtime',
     id: 'AR-STRUCT-TEMPORAL-SCOPE',
     ruleClass: 'default',
     guardTags: ['G1'],
@@ -2690,6 +2853,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'layer-boundary',
     id: 'AR-STRUCT-TOPOLOGY',
     ruleClass: 'invariant',
     guardTags: ['F4'],
@@ -2720,6 +2885,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   // ── 追加ルール（未参照タグのカバー） ──
 
   {
+    fixNow: 'now',
+    slice: 'governance-ops',
     id: 'AR-C7-NO-DUAL-API',
     ruleClass: 'default',
     guardTags: ['C7'],
@@ -2756,6 +2923,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'review',
+    slice: 'responsibility-separation',
     id: 'AR-C9-HONEST-UNCLASSIFIED',
     ruleClass: 'heuristic',
     guardTags: ['C9'],
@@ -2790,6 +2959,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'review',
+    slice: 'responsibility-separation',
     id: 'AR-G7-CACHE-BODY',
     ruleClass: 'heuristic',
     guardTags: ['G7'],
@@ -2818,6 +2989,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'review',
+    slice: 'query-runtime',
     id: 'AR-Q3-CHART-NO-DUCKDB',
     ruleClass: 'default',
     guardTags: ['Q3'],
@@ -2855,6 +3028,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'review',
+    slice: 'query-runtime',
     id: 'AR-Q4-ALIGNMENT-HANDLER',
     ruleClass: 'default',
     guardTags: ['Q4'],
@@ -2888,6 +3063,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   // ── タグ選択ガイド ──
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-TAG-SELECTION-GUIDE',
     ruleClass: 'heuristic',
     guardTags: ['C8', 'C9'],
@@ -2948,6 +3125,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   // ── 責務タグ別の閾値（TAG_EXPECTATIONS 由来） ──
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-TAG-CHART-VIEW',
     ruleClass: 'heuristic',
     guardTags: ['C8', 'G8', 'C4', 'F7'],
@@ -2987,6 +3166,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-TAG-CHART-OPTION',
     ruleClass: 'heuristic',
     guardTags: ['C8', 'G8'],
@@ -3025,6 +3206,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-TAG-CALCULATION',
     ruleClass: 'heuristic',
     guardTags: ['C8', 'B1', 'C2'],
@@ -3066,6 +3249,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-TAG-TRANSFORM',
     ruleClass: 'heuristic',
     guardTags: ['C8'],
@@ -3103,6 +3288,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-TAG-STATE-MACHINE',
     ruleClass: 'heuristic',
     guardTags: ['C8', 'C3'],
@@ -3137,6 +3324,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-TAG-QUERY-PLAN',
     ruleClass: 'heuristic',
     guardTags: ['C8', 'H1'],
@@ -3175,6 +3364,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-TAG-QUERY-EXEC',
     ruleClass: 'heuristic',
     guardTags: ['C8'],
@@ -3213,6 +3404,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-TAG-WIDGET',
     ruleClass: 'heuristic',
     guardTags: ['C8', 'H6'],
@@ -3251,6 +3444,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-TAG-PAGE',
     ruleClass: 'heuristic',
     guardTags: ['C8'],
@@ -3289,6 +3484,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-TAG-FORM',
     ruleClass: 'heuristic',
     guardTags: ['C8'],
@@ -3323,6 +3520,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-TAG-LAYOUT',
     ruleClass: 'heuristic',
     guardTags: ['C8'],
@@ -3357,6 +3556,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-TAG-ORCHESTRATION',
     ruleClass: 'heuristic',
     guardTags: ['C8', 'C6'],
@@ -3395,6 +3596,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-TAG-UTILITY',
     ruleClass: 'heuristic',
     guardTags: ['C8', 'A2'],
@@ -3435,6 +3638,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-TAG-CONTEXT',
     ruleClass: 'heuristic',
     guardTags: ['C8'],
@@ -3469,6 +3674,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-TAG-PERSISTENCE',
     ruleClass: 'heuristic',
     guardTags: ['C8'],
@@ -3503,6 +3710,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-TAG-ADAPTER',
     ruleClass: 'heuristic',
     guardTags: ['C8', 'A4'],
@@ -3537,6 +3746,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-TAG-REDUCER',
     ruleClass: 'heuristic',
     guardTags: ['C8'],
@@ -3577,6 +3788,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-TAG-BARREL',
     ruleClass: 'heuristic',
     guardTags: ['C8', 'F1'],
@@ -3659,17 +3872,36 @@ export function checkRatchetDown(
   }
 }
 
+/**
+ * AAG 標準違反レスポンス生成器
+ *
+ * 違反時に返す 5 項目:
+ * 1. 何が止まったか（entrypointSummary || what）
+ * 2. なぜ止まったか（why）
+ * 3. 今やること（migrationPath.steps）
+ * 4. 例外がありうるか（decisionCriteria.exceptions）
+ * 5. 深掘り先（deepDiveDoc || doc）
+ *
+ * @see references/01-principles/aag-four-layer-architecture.md
+ */
 export function formatViolationMessage(
   rule: ArchitectureRule,
   violations: readonly string[],
 ): string {
-  const lines = [
-    `[${rule.id}] ${rule.what}`,
-    `理由: ${rule.why}`,
-    `正しいパターン: ${rule.correctPattern.description}`,
-  ]
+  const fixLabel =
+    rule.fixNow === 'now'
+      ? '⚡ 今すぐ修正'
+      : rule.fixNow === 'debt'
+        ? '📋 構造負債として管理'
+        : rule.fixNow === 'review'
+          ? '🔍 観測・レビュー対象'
+          : ''
+
+  const lines = [`[${rule.id}] ${rule.entrypointSummary ?? rule.what}`]
+  if (fixLabel) lines.push(fixLabel)
+  lines.push(`理由: ${rule.why}`, `正しいパターン: ${rule.correctPattern.description}`)
   if (rule.doc) {
-    lines.push(`参照: ${rule.doc}`)
+    lines.push(`参照: ${rule.deepDiveDoc ?? rule.doc}`)
   }
   if (rule.migrationPath) {
     lines.push(`修正手順:`)
