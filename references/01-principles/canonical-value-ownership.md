@@ -68,6 +68,42 @@
 3. **除去条件が満たされたら legacy 経路を削除し status: accepted に変更**
 4. **新規利用は全て新正本経由**（guard で強制）
 
+## totalCustomers 移行の詳細（coexist → accepted）
+
+旧経路 16 件の分類:
+
+### 計算入力（移行必須 — 11 件）
+
+CustomerFact 経由に変更が必要。presentation 層では UnifiedWidgetContext
+または plan hook 経由で受け取る。
+
+| ファイル | 用途 | 優先度 |
+|---|---|---|
+| conditionPanelCustomerGap.tsx | `calculateCustomerGap()` の直接入力 | P1 |
+| conditionSummaryCardBuilders.ts | `calculateCustomerGap()` + YoY 比率 | P1 |
+| StorePIComparisonChart.builders.ts | PI 値の除数 | P1 |
+| ConditionSummary.tsx | YoY 比率 + 客単価計算 | P2 |
+| conditionPanelYoY.vm.ts | YoY 比率計算 | P2 |
+| ExecSummaryBarWidget.tsx | YoY 比率 + 客単価 | P2 |
+| PlanActualForecast.tsx | YoY 比率 + 日次平均 + 予測計算 | P2 |
+| KpiTabContent.tsx | YoY 比率 + 客単価 + 日次平均 | P2 |
+| ForecastPage.helpers.ts | バケット集計の除数 | P3 |
+| useInsightData.ts | YoY/比率計算の下流入力 | P3 |
+| SensitivityDashboard.tsx | PI 弾力性シミュレーション | P3 |
+
+### 表示のみ（StoreResult 維持可 — 5 件）
+
+表示用途のみ。StoreResult.totalCustomers を使い続けて問題なし。
+移行完了後に allowlist から除外。
+
+| ファイル | 用途 |
+|---|---|
+| DataTableWidgets.tsx | 条件付きレンダリング（> 0 チェック） |
+| conditionPanelSalesDetail.tsx | ViewModel 経由で表示 |
+| conditionPanelSalesDetail.vm.ts | ローカライズ文字列に変換 |
+| conditionSummaryUtils.ts | 内訳表示用に整形 |
+| registryAnalysisWidgets.tsx | 子コンポーネントに props で渡す |
+
 ## guard との接続
 
 | guard | 保護する値 | 検出内容 |
