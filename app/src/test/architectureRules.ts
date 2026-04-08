@@ -29,6 +29,17 @@ export type DetectionType =
 /** ルールの成熟度。新しいルールは experimental から始め、安定したら stable に昇格する */
 export type RuleMaturity = 'experimental' | 'stable' | 'deprecated'
 
+/**
+ * AAG 縦スライス — 関心ごとの完結したルール群
+ * 各スライスが Domain/Application/Infrastructure/Presentation の 4 層を持つ
+ */
+export type AagSlice =
+  | 'layer-boundary' // 層境界、依存方向、描画専用原則
+  | 'canonicalization' // 正本経路、readModel、Zod、path guard
+  | 'query-runtime' // QueryHandler、AnalysisFrame、ComparisonScope
+  | 'responsibility-separation' // size / hook complexity / responsibility tags
+  | 'governance-ops' // allowlist、health、obligation、generated docs
+
 export interface ArchitectureRule {
   // ── 識別 ──
   readonly id: string
@@ -88,6 +99,7 @@ export interface ArchitectureRule {
     readonly dependsOn?: readonly string[] // 前提ルール
     readonly enables?: readonly string[] // 守ると有効になるルール
     readonly conflicts?: readonly string[] // 同時適用不可
+    readonly splitInto?: readonly string[] // 下位ルールへの分割（傘ルール用）
   }
 
   // ── ルール統治（壊れ方の制御） ──
@@ -107,6 +119,18 @@ export interface ArchitectureRule {
     readonly lastReviewedAt: string // YYYY-MM-DD
     readonly reviewCadenceDays: number // 再点検間隔（日数）
   }
+  // ── 違反時入口（Presentation 層） ──
+  /** 違反時の運用区分: now=今すぐ直す / debt=構造負債管理 / review=観測 */
+  /** ルールが属する関心スライス */
+  readonly slice?: AagSlice
+  readonly fixNow?: 'now' | 'debt' | 'review'
+  /** 違反時に最初に返す 1 行要約 */
+  readonly entrypointSummary?: string
+  /** 深掘り先の第一候補（doc と異なる場合） */
+  readonly deepDiveDoc?: string
+  /** よくある誤解 */
+  readonly commonMistakes?: readonly string[]
+
   /** experimental ルールの出口（昇格 / 撤回の対称性） */
   readonly lifecyclePolicy?: {
     readonly introducedAt: string // 導入日（YYYY-MM-DD）
@@ -122,6 +146,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   // ── noNewDebtGuard 由来 ──
 
   {
+    fixNow: 'now',
+    slice: 'governance-ops',
     id: 'AR-001',
     ruleClass: 'invariant',
     guardTags: ['G1'],
@@ -165,6 +191,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'layer-boundary',
     id: 'AR-002',
     ruleClass: 'invariant',
     guardTags: ['G1', 'A3'],
@@ -207,6 +235,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'governance-ops',
     id: 'AR-003',
     ruleClass: 'default',
     guardTags: ['G1', 'C1'],
@@ -249,6 +279,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'governance-ops',
     id: 'AR-004',
     ruleClass: 'default',
     guardTags: ['G1'],
@@ -291,6 +323,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'governance-ops',
     id: 'AR-005',
     ruleClass: 'default',
     guardTags: ['G1', 'H1'],
@@ -333,6 +367,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   // ── layerBoundaryGuard 由来 ──
 
   {
+    fixNow: 'now',
+    slice: 'layer-boundary',
     id: 'AR-A1-DOMAIN',
     ruleClass: 'invariant',
     guardTags: ['A1', 'A2'],
@@ -388,6 +424,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'layer-boundary',
     id: 'AR-A1-APP-INFRA',
     ruleClass: 'invariant',
     guardTags: ['A1'],
@@ -433,6 +471,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'layer-boundary',
     id: 'AR-A1-APP-PRES',
     ruleClass: 'invariant',
     guardTags: ['A1'],
@@ -474,6 +514,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'layer-boundary',
     id: 'AR-A1-PRES-INFRA',
     ruleClass: 'invariant',
     guardTags: ['A1', 'A3', 'A5'],
@@ -523,6 +565,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'layer-boundary',
     id: 'AR-A1-PRES-USECASE',
     ruleClass: 'invariant',
     guardTags: ['A1', 'A3'],
@@ -563,6 +607,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'layer-boundary',
     id: 'AR-A1-INFRA-APP',
     ruleClass: 'invariant',
     guardTags: ['A1'],
@@ -606,6 +652,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'layer-boundary',
     id: 'AR-A1-INFRA-PRES',
     ruleClass: 'invariant',
     guardTags: ['A1'],
@@ -645,6 +693,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   // ── codePatternGuard 由来 ──
 
   {
+    fixNow: 'now',
+    slice: 'governance-ops',
     id: 'AR-G4-INTERNAL',
     ruleClass: 'default',
     guardTags: ['G4'],
@@ -682,6 +732,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'governance-ops',
     id: 'AR-C3-STORE',
     ruleClass: 'default',
     guardTags: ['C3'],
@@ -719,6 +771,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'governance-ops',
     id: 'AR-G3-SUPPRESS',
     ruleClass: 'default',
     guardTags: ['G3', 'E2'],
@@ -757,6 +811,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'governance-ops',
     id: 'AR-E4-TRUTHINESS',
     ruleClass: 'default',
     guardTags: ['E4'],
@@ -797,6 +853,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'governance-ops',
     id: 'AR-C5-SELECTOR',
     ruleClass: 'default',
     guardTags: ['C5'],
@@ -835,6 +893,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'governance-ops',
     id: 'AR-G2-EMPTY-CATCH',
     ruleClass: 'default',
     guardTags: ['G2'],
@@ -874,6 +934,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   // ── sizeGuard 由来 ──
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-G5-HOOK-MEMO',
     ruleClass: 'heuristic',
     guardTags: ['G5'],
@@ -916,6 +978,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-G5-HOOK-STATE',
     ruleClass: 'heuristic',
     guardTags: ['G5'],
@@ -957,6 +1021,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-G5-HOOK-LINES',
     ruleClass: 'heuristic',
     guardTags: ['G5'],
@@ -995,6 +1061,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-G6-COMPONENT',
     ruleClass: 'heuristic',
     guardTags: ['G6'],
@@ -1035,6 +1103,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-G5-DOMAIN-LINES',
     ruleClass: 'heuristic',
     guardTags: ['G5', 'A2'],
@@ -1071,6 +1141,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-G5-INFRA-LINES',
     ruleClass: 'heuristic',
     guardTags: ['G5'],
@@ -1104,6 +1176,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-G5-USECASE-LINES',
     ruleClass: 'heuristic',
     guardTags: ['G5'],
@@ -1140,6 +1214,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-C6-FACADE',
     ruleClass: 'heuristic',
     guardTags: ['C6'],
@@ -1179,6 +1255,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   // ── パスガード由来（正本取得経路の保護） ──
 
   {
+    fixNow: 'now',
+    slice: 'canonicalization',
     id: 'AR-PATH-SALES',
     ruleClass: 'invariant',
     guardTags: ['F9'],
@@ -1227,6 +1305,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'canonicalization',
     id: 'AR-PATH-DISCOUNT',
     ruleClass: 'invariant',
     guardTags: ['F9'],
@@ -1263,6 +1343,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'canonicalization',
     id: 'AR-PATH-GROSS-PROFIT',
     ruleClass: 'invariant',
     guardTags: ['F9', 'D1'],
@@ -1308,6 +1390,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'canonicalization',
     id: 'AR-PATH-PURCHASE-COST',
     ruleClass: 'invariant',
     guardTags: ['F9'],
@@ -1350,6 +1434,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'canonicalization',
     id: 'AR-PATH-CUSTOMER',
     ruleClass: 'invariant',
     guardTags: ['F9'],
@@ -1388,6 +1474,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'canonicalization',
     id: 'AR-PATH-CUSTOMER-GAP',
     ruleClass: 'invariant',
     guardTags: ['F9', 'D1'],
@@ -1426,6 +1514,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'canonicalization',
     id: 'AR-PATH-PI-VALUE',
     ruleClass: 'invariant',
     guardTags: ['F9', 'D1'],
@@ -1467,6 +1557,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'canonicalization',
     id: 'AR-PATH-FREE-PERIOD',
     ruleClass: 'invariant',
     guardTags: ['F9'],
@@ -1503,6 +1595,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'canonicalization',
     id: 'AR-PATH-FREE-PERIOD-BUDGET',
     ruleClass: 'invariant',
     guardTags: ['F9'],
@@ -1539,6 +1633,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'canonicalization',
     id: 'AR-PATH-FREE-PERIOD-DEPT-KPI',
     ruleClass: 'invariant',
     guardTags: ['F9'],
@@ -1575,6 +1671,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'canonicalization',
     id: 'AR-PATH-FACTOR-DECOMPOSITION',
     ruleClass: 'invariant',
     guardTags: ['F9', 'D1', 'D2'],
@@ -1617,6 +1715,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'canonicalization',
     id: 'AR-PATH-GROSS-PROFIT-CONSISTENCY',
     ruleClass: 'invariant',
     guardTags: ['F9', 'D1'],
@@ -1659,6 +1759,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   // ── 構造・純粋性・移行ガード由来 ──
 
   {
+    fixNow: 'review',
+    slice: 'query-runtime',
     id: 'AR-STRUCT-ANALYSIS-FRAME',
     ruleClass: 'default',
     guardTags: ['H3'],
@@ -1690,6 +1792,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'review',
+    slice: 'canonicalization',
     id: 'AR-STRUCT-CALC-CANON',
     ruleClass: 'default',
     guardTags: ['G1'],
@@ -1726,6 +1830,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'review',
+    slice: 'canonicalization',
     id: 'AR-CANON-ZOD-REQUIRED',
     ruleClass: 'default',
     guardTags: ['G1', 'E1'],
@@ -1764,6 +1870,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'review',
+    slice: 'canonicalization',
     id: 'AR-CANON-ZOD-REVIEW',
     ruleClass: 'default',
     guardTags: ['G1', 'E1'],
@@ -1801,6 +1909,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'review',
+    slice: 'canonicalization',
     id: 'AR-STRUCT-CANONICAL-INPUT',
     ruleClass: 'default',
     guardTags: ['G1', 'D1'],
@@ -1829,6 +1939,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'review',
+    slice: 'canonicalization',
     id: 'AR-STRUCT-CANONICALIZATION',
     ruleClass: 'default',
     guardTags: ['G1', 'E3', 'F5', 'F8'],
@@ -1869,6 +1981,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'review',
+    slice: 'query-runtime',
     id: 'AR-STRUCT-COMPARISON-SCOPE',
     ruleClass: 'default',
     guardTags: ['H2'],
@@ -1900,6 +2014,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'review',
+    slice: 'governance-ops',
     id: 'AR-STRUCT-DATA-INTEGRITY',
     ruleClass: 'default',
     guardTags: ['G1', 'E1'],
@@ -1935,6 +2051,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'review',
+    slice: 'governance-ops',
     id: 'AR-STRUCT-DUAL-RUN-EXIT',
     ruleClass: 'default',
     guardTags: ['G1'],
@@ -1964,6 +2082,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'review',
+    slice: 'canonicalization',
     id: 'AR-STRUCT-FALLBACK-METADATA',
     ruleClass: 'default',
     guardTags: ['G1'],
@@ -1994,6 +2114,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'governance-ops',
     id: 'AR-MIG-OLD-PATH',
     ruleClass: 'default',
     guardTags: ['F4', 'F1'],
@@ -2028,6 +2150,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'review',
+    slice: 'governance-ops',
     id: 'AR-STRUCT-PAGE-META',
     ruleClass: 'default',
     guardTags: ['F10'],
@@ -2059,6 +2183,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'layer-boundary',
     id: 'AR-STRUCT-PRES-ISOLATION',
     ruleClass: 'default',
     guardTags: ['A3', 'B2'],
@@ -2095,6 +2221,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'layer-boundary',
     id: 'AR-STRUCT-PURITY',
     ruleClass: 'invariant',
     guardTags: ['A2', 'B1', 'C3', 'A6', 'B3', 'D3'],
@@ -2139,6 +2267,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'query-runtime',
     id: 'AR-STRUCT-QUERY-PATTERN',
     ruleClass: 'default',
     guardTags: ['H2', 'H3', 'H4', 'H5'],
@@ -2180,6 +2310,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'review',
+    slice: 'layer-boundary',
     id: 'AR-STRUCT-RENDER-SIDE-EFFECT',
     ruleClass: 'default',
     guardTags: ['A3', 'H4'],
@@ -2218,11 +2350,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-STRUCT-RESP-SEPARATION',
     ruleClass: 'default',
     guardTags: ['G8'],
     epoch: 1,
-    what: '責務分離の 7 種の数値制約を機械的に強制する',
+    what: '責務分離の 7 種の数値制約を機械的に強制する（傘ルール → 下位 7 ルールに分割済み）',
     why: '「気をつける」で終わらせない。「通らない」にする',
     doc: 'references/03-guides/responsibility-separation-catalog.md',
     correctPattern: { description: 'P2/P7/P8/P10/P12/P17/P18 の各上限を遵守。超えたら分割' },
@@ -2234,6 +2368,15 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     },
     relationships: {
       enables: ['AR-G5-HOOK-MEMO', 'AR-G5-HOOK-STATE', 'AR-G6-COMPONENT'],
+      splitInto: [
+        'AR-RESP-STORE-COUPLING',
+        'AR-RESP-MODULE-STATE',
+        'AR-RESP-HOOK-COMPLEXITY',
+        'AR-RESP-FEATURE-COMPLEXITY',
+        'AR-RESP-EXPORT-DENSITY',
+        'AR-RESP-NORMALIZATION',
+        'AR-RESP-FALLBACK-SPREAD',
+      ],
     },
     detection: { type: 'custom', severity: 'gate' },
     migrationPath: {
@@ -2252,7 +2395,237 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     },
   },
 
+  // ─── AR-STRUCT-RESP-SEPARATION の下位 7 ルール ───────────────
+
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
+    id: 'AR-RESP-STORE-COUPLING',
+    ruleClass: 'default',
+    guardTags: ['G8'],
+    epoch: 1,
+    what: 'presentation 層で getState() を直接呼ばない（P2）',
+    why: 'Store への直接結合は描画層の独立性を破壊する',
+    doc: 'references/03-guides/responsibility-separation-catalog.md',
+    correctPattern: { description: 'Zustand selector hook または callback props 経由でアクセス' },
+    outdatedPattern: {
+      description: 'useDataStore.getState() / useUiStore.getState() の直接呼び出し',
+    },
+    decisionCriteria: {
+      when: 'presentation 層から store のデータや action が必要なとき',
+      exceptions: 'allowlists/responsibility.ts presentationGetStateLimits に登録可能',
+      escalation: 'callback props パターンまたは Zustand selector に変更',
+    },
+    relationships: { dependsOn: ['AR-STRUCT-RESP-SEPARATION'] },
+    detection: { type: 'custom', severity: 'gate' },
+    migrationPath: {
+      steps: [
+        '1. getState() 呼び出しを特定',
+        '2. Zustand selector (useStore(s => s.action)) に置換',
+        '3. 複数 action は親コンポーネントで callback にまとめる',
+      ],
+      effort: 'small',
+      priority: 2,
+    },
+    protectedHarm: { prevents: ['presentation 層の store 直接結合', 'テスト困難な副作用'] },
+    reviewPolicy: { owner: 'solo-maintainer', lastReviewedAt: '2026-04-08', reviewCadenceDays: 90 },
+  },
+
+  {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
+    id: 'AR-RESP-MODULE-STATE',
+    ruleClass: 'default',
+    guardTags: ['G8'],
+    epoch: 1,
+    what: 'module-scope let（グローバル変数）を禁止する（P7）',
+    why: 'module-scope の可変状態はテスト困難で副作用の温床',
+    doc: 'references/03-guides/responsibility-separation-catalog.md',
+    correctPattern: { description: 'const object / WeakMap / useRef / Zustand store' },
+    outdatedPattern: { description: 'let _cache = null; let _initialized = false;' },
+    decisionCriteria: {
+      when: 'モジュールレベルでキャッシュやフラグが必要なとき',
+      exceptions: 'allowlists/responsibility.ts moduleScopeLetLimits に登録可能',
+      escalation: 'const { cache: null } パターンまたは Zustand atom に変更',
+    },
+    relationships: { dependsOn: ['AR-STRUCT-RESP-SEPARATION'] },
+    detection: { type: 'custom', severity: 'gate' },
+    migrationPath: {
+      steps: [
+        '1. module-scope let を特定',
+        '2. const object パターンに変換: const holder = { value: null }',
+        '3. React 内なら useRef、永続なら Zustand store',
+      ],
+      effort: 'small',
+      priority: 3,
+    },
+    protectedHarm: { prevents: ['グローバル変数の散在', 'テスト間の状態リーク'] },
+    reviewPolicy: { owner: 'solo-maintainer', lastReviewedAt: '2026-04-08', reviewCadenceDays: 90 },
+  },
+
+  {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
+    id: 'AR-RESP-HOOK-COMPLEXITY',
+    ruleClass: 'heuristic',
+    guardTags: ['G8'],
+    epoch: 1,
+    what: 'useMemo + useCallback の合計を上限以下に保つ（P8）',
+    why: 'hook の合計数は責務の複雑性を示す。12 を超えたら分割候補',
+    doc: 'references/03-guides/responsibility-separation-catalog.md',
+    correctPattern: { description: 'sub-hook 抽出で合計 ≤12。thin wrapper は plain function 化' },
+    outdatedPattern: { description: 'useMemo + useCallback が 12 を超えるコンポーネント/hook' },
+    decisionCriteria: {
+      when: 'useMemo/useCallback を追加して合計が 12 に近づいたとき',
+      exceptions: 'allowlists/complexity.ts combinedHookComplexityLimits に登録可能',
+      escalation: 'useWeatherDaySelection のような sub-hook に関連 hooks を抽出',
+    },
+    relationships: { dependsOn: ['AR-STRUCT-RESP-SEPARATION'] },
+    detection: { type: 'count', severity: 'gate', baseline: 0 },
+    migrationPath: {
+      steps: [
+        '1. useMemo + useCallback の合計を計測',
+        '2. thin wrapper useCallback を plain function 化',
+        '3. 関連する state + handler を sub-hook に抽出',
+      ],
+      effort: 'medium',
+      priority: 3,
+    },
+    protectedHarm: { prevents: ['God Hook の発生', 'レンダリング依存配列の爆発'] },
+    reviewPolicy: { owner: 'solo-maintainer', lastReviewedAt: '2026-04-08', reviewCadenceDays: 90 },
+  },
+
+  {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
+    id: 'AR-RESP-FEATURE-COMPLEXITY',
+    ruleClass: 'heuristic',
+    guardTags: ['G8'],
+    epoch: 1,
+    what: 'features/ の useMemo/useState を上限以下に保つ（P10）',
+    why: 'feature hook の複雑性を制御し、責務の肥大化を防ぐ',
+    doc: 'references/03-guides/responsibility-separation-catalog.md',
+    correctPattern: {
+      description: 'useMemo ≤7 / useState ≤6。超えたら builder 抽出 or useReducer',
+    },
+    outdatedPattern: { description: 'features/ 内で useMemo/useState が上限を超えるファイル' },
+    decisionCriteria: {
+      when: 'features/ の hook に useMemo/useState を追加するとき',
+      exceptions: 'allowlists/complexity.ts featuresMemoLimits / featuresStateLimits に登録可能',
+      escalation: 'useMemo → builder 関数抽出。useState → useReducer 統合',
+    },
+    relationships: { dependsOn: ['AR-STRUCT-RESP-SEPARATION'] },
+    detection: { type: 'count', severity: 'gate', baseline: 0 },
+    migrationPath: {
+      steps: [
+        '1. features/ の useMemo/useState 数を計測',
+        '2. 関連する useMemo を 1 つに統合（destructuring で分配）',
+        '3. 関連する useState を useReducer に統合',
+      ],
+      effort: 'small',
+      priority: 3,
+    },
+    protectedHarm: { prevents: ['feature hook の責務肥大化'] },
+    reviewPolicy: { owner: 'solo-maintainer', lastReviewedAt: '2026-04-08', reviewCadenceDays: 90 },
+  },
+
+  {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
+    id: 'AR-RESP-EXPORT-DENSITY',
+    ruleClass: 'heuristic',
+    guardTags: ['G8'],
+    epoch: 1,
+    what: 'domain/models/ の export 数を上限以下に保つ（P12）',
+    why: 'export 過多はモデルの責務混在を示す。型と操作を分離すべき',
+    doc: 'references/03-guides/responsibility-separation-catalog.md',
+    correctPattern: { description: 'export ≤8。超えたら操作関数を別ファイルに分離' },
+    outdatedPattern: { description: 'domain/models/ で export が 8 を超えるファイル' },
+    decisionCriteria: {
+      when: 'domain/models/ に export を追加するとき',
+      exceptions: 'allowlists/responsibility.ts domainModelExportLimits に登録可能',
+      escalation: 'DiscountEntry.ts / AsyncStateFactories.ts のようにファイル分割',
+    },
+    relationships: { dependsOn: ['AR-STRUCT-RESP-SEPARATION'] },
+    detection: { type: 'count', severity: 'gate', baseline: 0 },
+    migrationPath: {
+      steps: [
+        '1. export 数を計測',
+        '2. 操作関数（builder/aggregator）を別ファイルに抽出',
+        '3. 型定義のみを元ファイルに残す',
+      ],
+      effort: 'small',
+      priority: 3,
+    },
+    protectedHarm: { prevents: ['モデルの責務肥大化', '変更理由の複数化'] },
+    reviewPolicy: { owner: 'solo-maintainer', lastReviewedAt: '2026-04-08', reviewCadenceDays: 90 },
+  },
+
+  {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
+    id: 'AR-RESP-NORMALIZATION',
+    ruleClass: 'heuristic',
+    guardTags: ['G8'],
+    epoch: 1,
+    what: 'storeIds 正規化パターンの散在を上限以下に保つ（P17）',
+    why: '正規化ロジックの重複はデータ不整合の温床',
+    doc: 'references/03-guides/responsibility-separation-catalog.md',
+    correctPattern: { description: '正規化は集約モジュールで一元管理' },
+    outdatedPattern: { description: 'storeIds 正規化が複数ファイルにコピーされている' },
+    decisionCriteria: {
+      when: 'storeIds の正規化が必要なとき',
+      exceptions: '散在ファイル数が STORE_IDS_NORMALIZATION_MAX_FILES 以下',
+      escalation: '正規化を共通ユーティリティに集約',
+    },
+    relationships: { dependsOn: ['AR-STRUCT-RESP-SEPARATION'] },
+    detection: { type: 'count', severity: 'gate', baseline: 0 },
+    migrationPath: {
+      steps: ['1. 散在ファイルを特定', '2. 共通ユーティリティに集約'],
+      effort: 'medium',
+      priority: 4,
+    },
+    protectedHarm: { prevents: ['正規化ロジックの重複', 'データ不整合'] },
+    reviewPolicy: { owner: 'solo-maintainer', lastReviewedAt: '2026-04-08', reviewCadenceDays: 90 },
+  },
+
+  {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
+    id: 'AR-RESP-FALLBACK-SPREAD',
+    ruleClass: 'heuristic',
+    guardTags: ['G8'],
+    epoch: 1,
+    what: 'fallback 定数密度を上限以下に保つ（P18）',
+    why: 'ZERO_/EMPTY_/IDLE_ 定数の散在は初期値管理の責務分散を示す',
+    doc: 'references/03-guides/responsibility-separation-catalog.md',
+    correctPattern: {
+      description: 'ファイルあたり ≤7。超えたらローカルエイリアスまたは共通モジュールに集約',
+    },
+    outdatedPattern: { description: 'DUMMY_/EMPTY_/ZERO_/IDLE_ が 7 を超えるファイル' },
+    decisionCriteria: {
+      when: 'fallback 定数を追加するとき',
+      exceptions: 'allowlists/responsibility.ts fallbackConstantDensityLimits に登録可能',
+      escalation: 'ローカルエイリアス化（const zeroPair = ZERO_COST_PRICE_PAIR）',
+    },
+    relationships: { dependsOn: ['AR-STRUCT-RESP-SEPARATION'] },
+    detection: { type: 'regex', severity: 'gate', baseline: 0 },
+    migrationPath: {
+      steps: [
+        '1. ZERO_/EMPTY_ パターンの出現数を計測',
+        '2. 重複定数をローカルエイリアスに置換',
+        '3. 共通定数は application/constants/ に集約',
+      ],
+      effort: 'small',
+      priority: 3,
+    },
+    protectedHarm: { prevents: ['初期値管理の責務分散', 'fallback 忘れによるランタイムエラー'] },
+    reviewPolicy: { owner: 'solo-maintainer', lastReviewedAt: '2026-04-08', reviewCadenceDays: 90 },
+  },
+
+  {
+    fixNow: 'debt',
+    slice: 'canonicalization',
     id: 'AR-STRUCT-STORE-RESULT-INPUT',
     ruleClass: 'default',
     guardTags: ['G1'],
@@ -2285,12 +2658,14 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'governance-ops',
     id: 'AR-STRUCT-CONVENTION',
     ruleClass: 'default',
     guardTags: ['F1', 'F4', 'F9', 'F2', 'F3', 'F6'],
     epoch: 1,
     doc: 'references/03-guides/coding-conventions.md',
-    what: 'バレル re-export、feature slice 依存、コンテキストデータの重複禁止',
+    what: 'バレル re-export、feature slice 依存、コンテキストデータの重複禁止（傘ルール → 下位 3 ルールに分割済み）',
     why: 'コード構造規約の一貫性が保守性を保証する',
     correctPattern: {
       description: 'バレルは re-export のみ。feature 間は shared/ 経由。ctx data は重複しない',
@@ -2300,6 +2675,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       when: 'バレル・feature 依存・ctx データを変更するとき',
       exceptions: '例外なし',
       escalation: 'バレルは re-export のみ。feature 間は shared/ 経由',
+    },
+    relationships: {
+      splitInto: [
+        'AR-CONVENTION-BARREL',
+        'AR-CONVENTION-FEATURE-BOUNDARY',
+        'AR-CONVENTION-CONTEXT-SINGLE-SOURCE',
+      ],
     },
     detection: { type: 'custom', severity: 'gate' },
     migrationPath: {
@@ -2314,7 +2696,97 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     },
   },
 
+  // ─── AR-STRUCT-CONVENTION の下位 3 ルール ────────────────────
+
   {
+    fixNow: 'debt',
+    slice: 'governance-ops',
+    id: 'AR-CONVENTION-BARREL',
+    ruleClass: 'default',
+    guardTags: ['F1', 'F9'],
+    epoch: 1,
+    what: 'バレルは re-export のみ。ロジック・計算・副作用を含まない',
+    why: 'バレルにロジックが混入すると import 解決と tree-shaking が崩壊する',
+    doc: 'references/03-guides/coding-conventions.md',
+    correctPattern: { description: 'export { foo } from "./foo" のみ' },
+    outdatedPattern: { description: 'バレルファイルに関数定義や計算ロジックが含まれている' },
+    decisionCriteria: {
+      when: 'バレルファイル（index.ts）を変更するとき',
+      exceptions: 'type re-export は許容',
+      escalation: 'ロジックを専用ファイルに抽出し re-export のみにする',
+    },
+    relationships: { dependsOn: ['AR-STRUCT-CONVENTION'] },
+    detection: { type: 'must-only', severity: 'gate' },
+    migrationPath: {
+      steps: ['1. バレルから関数/const 定義を別ファイルに移動', '2. re-export に置き換え'],
+      effort: 'small',
+      priority: 2,
+    },
+    protectedHarm: { prevents: ['import 解決の循環', 'tree-shaking 崩壊'] },
+    reviewPolicy: { owner: 'solo-maintainer', lastReviewedAt: '2026-04-08', reviewCadenceDays: 90 },
+  },
+
+  {
+    fixNow: 'debt',
+    slice: 'governance-ops',
+    id: 'AR-CONVENTION-FEATURE-BOUNDARY',
+    ruleClass: 'default',
+    guardTags: ['F4'],
+    epoch: 1,
+    what: 'feature 間の直接依存を禁止。shared/ 経由のみ',
+    why: 'feature 間の直接依存は topology を崩壊させ循環依存の温床になる',
+    doc: 'references/03-guides/coding-conventions.md',
+    correctPattern: { description: 'features/A → shared/ → features/B' },
+    outdatedPattern: { description: 'features/ 配下が別の features/ を直接 import' },
+    decisionCriteria: {
+      when: 'feature モジュール間でコードを共有するとき',
+      exceptions: '例外なし。必ず shared/ に共通化する',
+      escalation: '共通コードを shared/ に抽出',
+    },
+    relationships: { dependsOn: ['AR-STRUCT-CONVENTION'] },
+    detection: { type: 'import', severity: 'gate' },
+    migrationPath: {
+      steps: ['1. features/ 間の直接 import を特定', '2. 共通部分を shared/ に抽出'],
+      effort: 'medium',
+      priority: 2,
+    },
+    protectedHarm: { prevents: ['feature 間の循環依存', 'topology 崩壊'] },
+    reviewPolicy: { owner: 'solo-maintainer', lastReviewedAt: '2026-04-08', reviewCadenceDays: 90 },
+  },
+
+  {
+    fixNow: 'debt',
+    slice: 'governance-ops',
+    id: 'AR-CONVENTION-CONTEXT-SINGLE-SOURCE',
+    ruleClass: 'default',
+    guardTags: ['F2', 'F3', 'F6'],
+    epoch: 1,
+    what: 'ctx 提供データの独自取得を禁止。コンテキストから受け取る',
+    why: 'ウィジェットが ctx の提供データを独自に取得するとデータの不一致が生じる',
+    doc: 'references/03-guides/coding-conventions.md',
+    correctPattern: { description: 'ctx.result / ctx.prevYear 等を使う' },
+    outdatedPattern: {
+      description: 'ウィジェットが ctx 提供済みデータの hook を独自に呼び出している',
+    },
+    decisionCriteria: {
+      when: 'ウィジェットやチャートがデータを必要とするとき',
+      exceptions: 'ctx に含まれないデータのみ独自取得可',
+      escalation: 'ctx に必要なデータを追加し ctx 経由で受け取る',
+    },
+    relationships: { dependsOn: ['AR-STRUCT-CONVENTION'] },
+    detection: { type: 'regex', severity: 'gate' },
+    migrationPath: {
+      steps: ['1. 独自 hook 呼び出しを特定', '2. ctx に同等データがあれば ctx 経由に変更'],
+      effort: 'small',
+      priority: 3,
+    },
+    protectedHarm: { prevents: ['データの不一致', 'キャッシュの二重管理'] },
+    reviewPolicy: { owner: 'solo-maintainer', lastReviewedAt: '2026-04-08', reviewCadenceDays: 90 },
+  },
+
+  {
+    fixNow: 'review',
+    slice: 'query-runtime',
     id: 'AR-STRUCT-TEMPORAL-ROLLING',
     ruleClass: 'default',
     guardTags: ['G1'],
@@ -2346,6 +2818,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'review',
+    slice: 'query-runtime',
     id: 'AR-STRUCT-TEMPORAL-SCOPE',
     ruleClass: 'default',
     guardTags: ['G1'],
@@ -2379,6 +2853,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'now',
+    slice: 'layer-boundary',
     id: 'AR-STRUCT-TOPOLOGY',
     ruleClass: 'invariant',
     guardTags: ['F4'],
@@ -2409,6 +2885,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   // ── 追加ルール（未参照タグのカバー） ──
 
   {
+    fixNow: 'now',
+    slice: 'governance-ops',
     id: 'AR-C7-NO-DUAL-API',
     ruleClass: 'default',
     guardTags: ['C7'],
@@ -2445,6 +2923,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'review',
+    slice: 'responsibility-separation',
     id: 'AR-C9-HONEST-UNCLASSIFIED',
     ruleClass: 'heuristic',
     guardTags: ['C9'],
@@ -2479,6 +2959,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'review',
+    slice: 'responsibility-separation',
     id: 'AR-G7-CACHE-BODY',
     ruleClass: 'heuristic',
     guardTags: ['G7'],
@@ -2507,6 +2989,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'review',
+    slice: 'query-runtime',
     id: 'AR-Q3-CHART-NO-DUCKDB',
     ruleClass: 'default',
     guardTags: ['Q3'],
@@ -2544,6 +3028,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'review',
+    slice: 'query-runtime',
     id: 'AR-Q4-ALIGNMENT-HANDLER',
     ruleClass: 'default',
     guardTags: ['Q4'],
@@ -2577,6 +3063,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   // ── タグ選択ガイド ──
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-TAG-SELECTION-GUIDE',
     ruleClass: 'heuristic',
     guardTags: ['C8', 'C9'],
@@ -2637,6 +3125,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   // ── 責務タグ別の閾値（TAG_EXPECTATIONS 由来） ──
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-TAG-CHART-VIEW',
     ruleClass: 'heuristic',
     guardTags: ['C8', 'G8', 'C4', 'F7'],
@@ -2676,6 +3166,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-TAG-CHART-OPTION',
     ruleClass: 'heuristic',
     guardTags: ['C8', 'G8'],
@@ -2714,6 +3206,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-TAG-CALCULATION',
     ruleClass: 'heuristic',
     guardTags: ['C8', 'B1', 'C2'],
@@ -2755,6 +3249,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-TAG-TRANSFORM',
     ruleClass: 'heuristic',
     guardTags: ['C8'],
@@ -2792,6 +3288,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-TAG-STATE-MACHINE',
     ruleClass: 'heuristic',
     guardTags: ['C8', 'C3'],
@@ -2826,6 +3324,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-TAG-QUERY-PLAN',
     ruleClass: 'heuristic',
     guardTags: ['C8', 'H1'],
@@ -2864,6 +3364,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-TAG-QUERY-EXEC',
     ruleClass: 'heuristic',
     guardTags: ['C8'],
@@ -2902,6 +3404,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-TAG-WIDGET',
     ruleClass: 'heuristic',
     guardTags: ['C8', 'H6'],
@@ -2940,6 +3444,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-TAG-PAGE',
     ruleClass: 'heuristic',
     guardTags: ['C8'],
@@ -2978,6 +3484,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-TAG-FORM',
     ruleClass: 'heuristic',
     guardTags: ['C8'],
@@ -3012,6 +3520,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-TAG-LAYOUT',
     ruleClass: 'heuristic',
     guardTags: ['C8'],
@@ -3046,6 +3556,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-TAG-ORCHESTRATION',
     ruleClass: 'heuristic',
     guardTags: ['C8', 'C6'],
@@ -3084,6 +3596,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-TAG-UTILITY',
     ruleClass: 'heuristic',
     guardTags: ['C8', 'A2'],
@@ -3124,6 +3638,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-TAG-CONTEXT',
     ruleClass: 'heuristic',
     guardTags: ['C8'],
@@ -3158,6 +3674,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-TAG-PERSISTENCE',
     ruleClass: 'heuristic',
     guardTags: ['C8'],
@@ -3192,6 +3710,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-TAG-ADAPTER',
     ruleClass: 'heuristic',
     guardTags: ['C8', 'A4'],
@@ -3226,6 +3746,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-TAG-REDUCER',
     ruleClass: 'heuristic',
     guardTags: ['C8'],
@@ -3266,6 +3788,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   },
 
   {
+    fixNow: 'debt',
+    slice: 'responsibility-separation',
     id: 'AR-TAG-BARREL',
     ruleClass: 'heuristic',
     guardTags: ['C8', 'F1'],
@@ -3348,17 +3872,36 @@ export function checkRatchetDown(
   }
 }
 
+/**
+ * AAG 標準違反レスポンス生成器
+ *
+ * 違反時に返す 5 項目:
+ * 1. 何が止まったか（entrypointSummary || what）
+ * 2. なぜ止まったか（why）
+ * 3. 今やること（migrationPath.steps）
+ * 4. 例外がありうるか（decisionCriteria.exceptions）
+ * 5. 深掘り先（deepDiveDoc || doc）
+ *
+ * @see references/01-principles/aag-four-layer-architecture.md
+ */
 export function formatViolationMessage(
   rule: ArchitectureRule,
   violations: readonly string[],
 ): string {
-  const lines = [
-    `[${rule.id}] ${rule.what}`,
-    `理由: ${rule.why}`,
-    `正しいパターン: ${rule.correctPattern.description}`,
-  ]
+  const fixLabel =
+    rule.fixNow === 'now'
+      ? '⚡ 今すぐ修正'
+      : rule.fixNow === 'debt'
+        ? '📋 構造負債として管理'
+        : rule.fixNow === 'review'
+          ? '🔍 観測・レビュー対象'
+          : ''
+
+  const lines = [`[${rule.id}] ${rule.entrypointSummary ?? rule.what}`]
+  if (fixLabel) lines.push(fixLabel)
+  lines.push(`理由: ${rule.why}`, `正しいパターン: ${rule.correctPattern.description}`)
   if (rule.doc) {
-    lines.push(`参照: ${rule.doc}`)
+    lines.push(`参照: ${rule.deepDiveDoc ?? rule.doc}`)
   }
   if (rule.migrationPath) {
     lines.push(`修正手順:`)
@@ -3376,4 +3919,110 @@ export function formatViolationMessage(
     }
   }
   return lines.join('\n')
+}
+
+// ── AAG 統一レスポンス構造（Phase 3） ──────────────────────────
+
+/**
+ * AAG 統一レスポンス — guard / obligation / health / pre-commit 共通
+ *
+ * どこで止まっても同じ情報構造で返る。
+ * @see references/01-principles/aag-four-layer-architecture.md
+ */
+export interface AagResponse {
+  /** 情報源: guard / obligation / health / pre-commit */
+  readonly source: 'guard' | 'obligation' | 'health' | 'pre-commit'
+  /** 運用区分 */
+  readonly fixNow: 'now' | 'debt' | 'review'
+  /** 関心スライス */
+  readonly slice: AagSlice | null
+  /** 1. 何が止まったか */
+  readonly summary: string
+  /** 2. なぜ止まったか */
+  readonly reason: string
+  /** 3. 今やること */
+  readonly steps: readonly string[]
+  /** 4. 例外がありうるか */
+  readonly exceptions: string | null
+  /** 5. 深掘り先 */
+  readonly deepDive: string | null
+  /** 違反の詳細一覧 */
+  readonly violations: readonly string[]
+}
+
+/** ArchitectureRule + 違反一覧 → AagResponse */
+export function buildAagResponse(
+  rule: ArchitectureRule,
+  violations: readonly string[],
+  source: AagResponse['source'] = 'guard',
+): AagResponse {
+  return {
+    source,
+    fixNow: rule.fixNow ?? 'debt',
+    slice: rule.slice ?? null,
+    summary: rule.entrypointSummary ?? rule.what,
+    reason: rule.why,
+    steps: rule.migrationPath?.steps ?? [],
+    exceptions: rule.decisionCriteria?.exceptions ?? null,
+    deepDive: rule.deepDiveDoc ?? rule.doc ?? null,
+    violations,
+  }
+}
+
+/** AagResponse → 人間可読文字列（テスト出力・PR コメント・pre-commit 共通） */
+export function renderAagResponse(resp: AagResponse): string {
+  const fixLabel =
+    resp.fixNow === 'now' ? '⚡ 今すぐ修正'
+    : resp.fixNow === 'debt' ? '📋 構造負債として管理'
+    : '🔍 観測・レビュー対象'
+
+  const sliceLabel = resp.slice ? ` [${resp.slice}]` : ''
+
+  const lines = [
+    `${fixLabel}${sliceLabel}`,
+    `  ${resp.summary}`,
+    `  理由: ${resp.reason}`,
+  ]
+
+  if (resp.steps.length > 0) {
+    lines.push('  対応:')
+    for (const step of resp.steps) lines.push(`    ${step}`)
+  }
+
+  if (resp.exceptions) {
+    lines.push(`  例外: ${resp.exceptions}`)
+  }
+
+  if (resp.deepDive) {
+    lines.push(`  詳細: ${resp.deepDive}`)
+  }
+
+  if (resp.violations.length > 0) {
+    lines.push('  違反:')
+    for (const v of resp.violations) lines.push(`    ${v}`)
+  }
+
+  return lines.join('\n')
+}
+
+/** Obligation 違反用の AagResponse 生成（rule を持たないケース） */
+export function buildObligationResponse(
+  obligationId: string,
+  label: string,
+  triggerPath: string,
+): AagResponse {
+  return {
+    source: 'obligation',
+    fixNow: 'now',
+    slice: 'governance-ops',
+    summary: label,
+    reason: `${triggerPath} が変更されたため、関連ドキュメントの更新が必要`,
+    steps: [
+      '1. cd app && npm run docs:generate',
+      '2. git add references/02-status/generated/ CLAUDE.md',
+    ],
+    exceptions: null,
+    deepDive: 'tools/architecture-health/src/collectors/obligation-collector.ts',
+    violations: [`obligation: ${obligationId}`],
+  }
 }

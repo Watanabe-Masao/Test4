@@ -5,7 +5,14 @@
  * 24 パターンのうち、機械的に検出可能なものをガード化する。
  *
  * @guard G8 責務分離（P2/P7/P8/P10/P12/P17/P18）
- * ルール定義: architectureRules.ts (AR-STRUCT-RESP-SEPARATION)
+ * ルール定義: architectureRules.ts
+ *   AR-RESP-STORE-COUPLING (P2)
+ *   AR-RESP-MODULE-STATE (P7)
+ *   AR-RESP-HOOK-COMPLEXITY (P8)
+ *   AR-RESP-FEATURE-COMPLEXITY (P10)
+ *   AR-RESP-EXPORT-DENSITY (P12)
+ *   AR-RESP-NORMALIZATION (P17)
+ *   AR-RESP-FALLBACK-SPREAD (P18)
  */
 import { describe, it, expect } from 'vitest'
 import { getRuleById, formatViolationMessage } from '../architectureRules'
@@ -25,7 +32,15 @@ import {
   buildQuantitativeAllowlist,
 } from '../allowlists'
 
-const rule = getRuleById('AR-STRUCT-RESP-SEPARATION')!
+// 傘ルール（後方互換）+ 各パターンの個別ルール
+const ruleP2 = getRuleById('AR-RESP-STORE-COUPLING')!
+const ruleP7 = getRuleById('AR-RESP-MODULE-STATE')!
+const ruleP8 = getRuleById('AR-RESP-HOOK-COMPLEXITY')!
+const ruleP10Memo = getRuleById('AR-RESP-FEATURE-COMPLEXITY')!
+const ruleP10State = getRuleById('AR-RESP-FEATURE-COMPLEXITY')!
+const ruleP12 = getRuleById('AR-RESP-EXPORT-DENSITY')!
+const ruleP17 = getRuleById('AR-RESP-NORMALIZATION')!
+const ruleP18 = getRuleById('AR-RESP-FALLBACK-SPREAD')!
 
 // ─── P2: presentation/ の getState() 直接アクセス禁止 ─────────
 
@@ -53,7 +68,7 @@ describe('G8-P2: presentation/ で getState() を直接呼ばない', () => {
       }
     }
 
-    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
+    expect(violations, formatViolationMessage(ruleP2, violations)).toEqual([])
   })
 })
 
@@ -91,12 +106,12 @@ describe('G8-P7: module-scope let を使わない', () => {
 
   it('application/ に module-scope let がない', () => {
     const violations = scanDir('application')
-    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
+    expect(violations, formatViolationMessage(ruleP7, violations)).toEqual([])
   })
 
   it('presentation/ に module-scope let がない', () => {
     const violations = scanDir('presentation')
-    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
+    expect(violations, formatViolationMessage(ruleP7, violations)).toEqual([])
   })
 })
 
@@ -133,17 +148,17 @@ describe('G8-P8: useMemo + useCallback 合計が上限以下', () => {
 
   it('application/hooks/ の useMemo + useCallback 合計が上限以下', () => {
     const violations = scanDir('application/hooks')
-    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
+    expect(violations, formatViolationMessage(ruleP8, violations)).toEqual([])
   })
 
   it('presentation/ の useMemo + useCallback 合計が上限以下', () => {
     const violations = scanDir('presentation')
-    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
+    expect(violations, formatViolationMessage(ruleP8, violations)).toEqual([])
   })
 
   it('features/ の useMemo + useCallback 合計が上限以下', () => {
     const violations = scanDir('features')
-    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
+    expect(violations, formatViolationMessage(ruleP8, violations)).toEqual([])
   })
 })
 
@@ -170,7 +185,7 @@ describe('G8-P10: features/ の useMemo が上限以下', () => {
       }
     }
 
-    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
+    expect(violations, formatViolationMessage(ruleP10Memo, violations)).toEqual([])
   })
 })
 
@@ -195,7 +210,7 @@ describe('G8-P10: features/ の useState が上限以下', () => {
       }
     }
 
-    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
+    expect(violations, formatViolationMessage(ruleP10State, violations)).toEqual([])
   })
 })
 
@@ -223,7 +238,7 @@ describe('G8-P12: domain/models/ の export function/const が上限以下', () 
       }
     }
 
-    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
+    expect(violations, formatViolationMessage(ruleP12, violations)).toEqual([])
   })
 })
 
@@ -250,7 +265,7 @@ describe('G8-P17: storeIds 正規化パターンの散在が上限以下', () =>
 
     expect(
       filesWithPattern.size,
-      `[${rule.id}] storeIds 正規化パターンが ${filesWithPattern.size} ファイルに散在 (上限: ${STORE_IDS_NORMALIZATION_MAX_FILES})。` +
+      `[${ruleP17.id}] storeIds 正規化パターンが ${filesWithPattern.size} ファイルに散在 (上限: ${STORE_IDS_NORMALIZATION_MAX_FILES})。` +
         `normalizeQueryParams() への統合を検討\n` +
         `該当: ${[...filesWithPattern].join(', ')}`,
     ).toBeLessThanOrEqual(STORE_IDS_NORMALIZATION_MAX_FILES)
@@ -285,16 +300,16 @@ describe('G8-P18: fallback 定数の密度が上限以下', () => {
 
   it('application/ の fallback 定数密度が上限以下', () => {
     const violations = scanDir('application')
-    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
+    expect(violations, formatViolationMessage(ruleP18, violations)).toEqual([])
   })
 
   it('presentation/ の fallback 定数密度が上限以下', () => {
     const violations = scanDir('presentation')
-    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
+    expect(violations, formatViolationMessage(ruleP18, violations)).toEqual([])
   })
 
   it('features/ の fallback 定数密度が上限以下', () => {
     const violations = scanDir('features')
-    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
+    expect(violations, formatViolationMessage(ruleP18, violations)).toEqual([])
   })
 })

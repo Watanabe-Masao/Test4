@@ -6,7 +6,7 @@
 
 | ディレクトリ | 内容 | ファイル数 |
 |---|---|---|
-| `01-principles/` | 設計原則・制約・正本定義書（Engine 境界、正本化原則、業務値定義、AAG） | 35 |
+| `01-principles/` | 設計原則・制約・正本定義書（Engine 境界、正本化原則、業務値定義、AAG） | 38 |
 | `02-status/` | 進捗・品質状態（maturity, promotion, 品質監査, 課題管理） | 11+ |
 | `03-guides/` | 実装ガイド・リファレンス（API, データモデル, ガードテスト, 不変条件, 責務分離） | 39 |
 | `99-archive/` | 旧文書の圧縮要約（現行では参照しない） | 4 |
@@ -77,6 +77,9 @@
 | `03-guides/guard-test-map.md` | ガードテスト対応表 |
 | `03-guides/active-debt-refactoring-plan.md` | Active-Debt リファクタリング計画 |
 | `01-principles/architecture-rule-feasibility.md` | ルール導入の実現可能性評価 |
+| `01-principles/aag-four-layer-architecture.md` | AAG 4 層（Principles/Judgment/Detection/Response） |
+| `01-principles/aag-operational-classification.md` | 運用区分表（即修正/構造負債/観測 × 94 ルール） |
+| `01-principles/aag-rule-splitting-plan.md` | ルール分割計画（例外圧 → protected harm ベース分割） |
 
 ### 正本化（Canonicalization）
 

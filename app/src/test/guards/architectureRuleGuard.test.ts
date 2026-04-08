@@ -408,7 +408,7 @@ describe('Architecture Rule Registry', () => {
     console.log(`[sunsetCondition] ${withSunset}/${ARCHITECTURE_RULES.length} ルールに設定済み`)
 
     // heuristic + gate の近限（ratchet-down で warn 化を促す）
-    const HEURISTIC_GATE_NEAR_LIMIT = 30
+    const HEURISTIC_GATE_NEAR_LIMIT = 32
     const heuristicGate = ARCHITECTURE_RULES.filter(
       (r) => r.ruleClass === 'heuristic' && r.detection.severity === 'gate',
     )

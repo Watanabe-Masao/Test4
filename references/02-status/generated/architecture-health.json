@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-08T15:39:04.042Z",
+  "timestamp": "2026-04-08T18:39:37.254Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -460,7 +460,7 @@
       "id": "temporal.rules.reviewPolicy.count",
       "label": "reviewPolicy 設定済みルール数",
       "category": "guard",
-      "value": 84,
+      "value": 94,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -473,7 +473,7 @@
       "implRefs": [
         "app/src/test/architectureRules.ts"
       ],
-      "budget": 84
+      "budget": 91
     },
     {
       "id": "temporal.rules.sunsetCondition.count",
@@ -512,7 +512,7 @@
       "id": "temporal.rules.heuristicGate.count",
       "label": "heuristic + gate ルール数",
       "category": "guard",
-      "value": 27,
+      "value": 32,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -520,7 +520,7 @@
       "implRefs": [
         "app/src/test/architectureRules.ts"
       ],
-      "budget": 27
+      "budget": 32
     },
     {
       "id": "temporal.allowlist.activeDebt.count",
@@ -562,7 +562,7 @@
       "id": "efficacy.rules.withProtectedHarm.count",
       "label": "protectedHarm 設定済みルール数",
       "category": "guard",
-      "value": 24,
+      "value": 34,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",

@@ -139,7 +139,7 @@ export const HEALTH_RULES: readonly HealthRule[] = [
     id: "temporal.rules.heuristicGate.count",
     type: "soft_gate",
     operator: "lte",
-    target: 27,
+    target: 32,
   },
   {
     id: "temporal.allowlist.activeDebt.count",
@@ -152,7 +152,7 @@ export const HEALTH_RULES: readonly HealthRule[] = [
     id: "temporal.rules.reviewPolicy.count",
     type: "soft_gate",
     operator: "gte",
-    target: 84,
+    target: 91,
   },
   {
     id: "temporal.rules.sunsetCondition.count",

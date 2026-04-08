@@ -22,7 +22,7 @@ export const presentationGetStateLimits: readonly QuantitativeAllowlistEntry[] =
 export const moduleScopeLetLimits: readonly QuantitativeAllowlistEntry[] = [
   {
     path: 'application/services/wasmEngine.ts',
-    ruleId: 'AR-STRUCT-RESP-SEPARATION',
+    ruleId: 'AR-RESP-MODULE-STATE',
     reason: 'WASM エンジンのシングルトン管理。module let 6 個',
     category: 'structural',
     removalCondition: 'クラスまたは WeakRef ベースに移行時',
@@ -32,7 +32,7 @@ export const moduleScopeLetLimits: readonly QuantitativeAllowlistEntry[] = [
   },
   {
     path: 'application/workers/calculationWorker.ts',
-    ruleId: 'AR-STRUCT-RESP-SEPARATION',
+    ruleId: 'AR-RESP-MODULE-STATE',
     reason: 'Worker のシングルトン状態。module let 2 個',
     category: 'structural',
     removalCondition: 'Worker 再設計時',
@@ -43,7 +43,7 @@ export const moduleScopeLetLimits: readonly QuantitativeAllowlistEntry[] = [
   // EChart.tsx — Set<string> ベースに移行。module let 0 個。許可リスト卒業
   {
     path: 'application/adapters/uiPersistenceAdapter.ts',
-    ruleId: 'AR-STRUCT-RESP-SEPARATION',
+    ruleId: 'AR-RESP-MODULE-STATE',
     reason: 'UI 永続化アダプタのキャッシュ。module let 1 個',
     category: 'structural',
     removalCondition: 'DI コンテナ導入時',
@@ -53,7 +53,7 @@ export const moduleScopeLetLimits: readonly QuantitativeAllowlistEntry[] = [
   },
   {
     path: 'application/lifecycle/swUpdateSignal.ts',
-    ruleId: 'AR-STRUCT-RESP-SEPARATION',
+    ruleId: 'AR-RESP-MODULE-STATE',
     reason: 'SW 更新シグナルのフラグ。module let 1 個',
     category: 'structural',
     removalCondition: 'SW 再設計時',

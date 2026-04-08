@@ -7,7 +7,10 @@
  * @guard F1 バレルで後方互換
  * @guard F4 配置はパスで決まる
  * @guard F9 Raw データは唯一の真実源
- * ルール定義: architectureRules.ts (AR-STRUCT-CONVENTION)
+ * ルール定義: architectureRules.ts
+ *   AR-CONVENTION-BARREL (F1/F9)
+ *   AR-CONVENTION-FEATURE-BOUNDARY (F4)
+ *   AR-CONVENTION-CONTEXT-SINGLE-SOURCE (F2/F3/F6)
  */
 import { describe, it, expect } from 'vitest'
 import { getRuleById, formatViolationMessage } from '../architectureRules'
@@ -35,6 +38,9 @@ import {
 } from '../allowlists'
 
 const rule = getRuleById('AR-STRUCT-CONVENTION')!
+const ruleBarrel = getRuleById('AR-CONVENTION-BARREL')!
+const ruleFeatureBoundary = getRuleById('AR-CONVENTION-FEATURE-BOUNDARY')!
+const ruleContextSource = getRuleById('AR-CONVENTION-CONTEXT-SINGLE-SOURCE')!
 
 // ─── ctx 提供データの重複取得禁止 ────────────────────────
 
@@ -102,7 +108,7 @@ describe('Structural Convention Guard', () => {
       }
     }
 
-    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
+    expect(violations, formatViolationMessage(ruleFeatureBoundary, violations)).toEqual([])
   })
 
   it('features/ への外部 import は barrel 経由のみ（deep import 禁止）', () => {
@@ -146,7 +152,7 @@ describe('Structural Convention Guard', () => {
       }
     }
 
-    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
+    expect(violations, formatViolationMessage(ruleBarrel, violations)).toEqual([])
   })
 
   it('全 feature slice に manifest.ts が存在する', () => {
@@ -259,7 +265,7 @@ describe('Structural Convention Guard', () => {
       }
     }
 
-    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
+    expect(violations, formatViolationMessage(ruleContextSource, violations)).toEqual([])
   })
 
   // ─── サブ分析パネルのデータソースガード ────────────────
@@ -289,7 +295,7 @@ describe('Structural Convention Guard', () => {
       }
     }
 
-    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
+    expect(violations, formatViolationMessage(ruleContextSource, violations)).toEqual([])
   })
 })
 
