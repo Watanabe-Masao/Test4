@@ -12,14 +12,7 @@
  * 正本は architecture-health.json。この文書はビュー。
  */
 import { writeFileSync, mkdirSync } from 'node:fs'
-
-/** Hard Gate FAIL 時の修正手順マッピング（AAG Response 層） */
-const GATE_FIX_HINTS: Record<string, string> = {
-  'docs.obligation.violations': '`cd app && npm run docs:generate` を実行してコミット',
-  'docs.generatedSections.stale': '`cd app && npm run docs:generate` を実行してコミット',
-  'boundary.presentationToInfra': 'presentation → infrastructure の直接 import を削除',
-  'boundary.infraToApplication': 'infrastructure → application の import を削除',
-}
+import { AAG_FIX_HINTS } from '../config/aag-fix-hints.js'
 import { resolve, dirname } from 'node:path'
 import type { HealthReport, HealthKpi } from '../types.js'
 import type {
@@ -98,9 +91,9 @@ export function renderCertificate(input: CertificateInput, repoRoot: string): st
     lines.push(`- ${icon}: ${gate.label}`)
     // AAG Response: FAIL 時に修正手順を案内
     if (!gate.pass) {
-      const hint = GATE_FIX_HINTS[gate.kpiId ?? '']
+      const hint = AAG_FIX_HINTS[gate.kpiId ?? '']
       if (hint) {
-        lines.push(`  - ⚡ 対応: ${hint}`)
+        lines.push(`  - ⚡ 対応: ${hint.action}`)
       }
     }
   }

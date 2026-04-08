@@ -37,8 +37,9 @@ import {
   pairJustifiedSingle,
 } from '../allowlists'
 
-const rule = getRuleById('AR-STRUCT-CONVENTION')!
 const ruleBarrel = getRuleById('AR-CONVENTION-BARREL')!
+// 汎用参照（manifest, prototype, widget ownership 等で使用）
+const rule = ruleBarrel
 const ruleFeatureBoundary = getRuleById('AR-CONVENTION-FEATURE-BOUNDARY')!
 const ruleContextSource = getRuleById('AR-CONVENTION-CONTEXT-SINGLE-SOURCE')!
 

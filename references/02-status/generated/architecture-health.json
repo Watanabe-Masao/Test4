@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-08T19:09:45.923Z",
+  "timestamp": "2026-04-08T21:16:23.734Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -460,7 +460,7 @@
       "id": "temporal.rules.reviewPolicy.count",
       "label": "reviewPolicy 設定済みルール数",
       "category": "guard",
-      "value": 94,
+      "value": 92,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -473,7 +473,7 @@
       "implRefs": [
         "app/src/test/architectureRules.ts"
       ],
-      "budget": 91
+      "budget": 92
     },
     {
       "id": "temporal.rules.sunsetCondition.count",
@@ -562,7 +562,7 @@
       "id": "efficacy.rules.withProtectedHarm.count",
       "label": "protectedHarm 設定済みルール数",
       "category": "guard",
-      "value": 34,
+      "value": 33,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",

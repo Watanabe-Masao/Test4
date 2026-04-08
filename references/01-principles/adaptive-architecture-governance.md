@@ -1,5 +1,16 @@
 # Adaptive Architecture Governance (AAG)
 
+> **この文書が AAG の唯一の入口。** 他の AAG 文書は全てここから参照する。
+
+| 目的 | 参照先 |
+|------|--------|
+| AAG の全体像を知りたい | **この文書** |
+| 4 層の詳細 | `aag-four-layer-architecture.md` |
+| 94 ルールの運用区分 | `aag-operational-classification.md` |
+| ルール分割の原則 | `aag-rule-splitting-plan.md` |
+| 進化の 3 層サイクル | `adaptive-governance-evolution.md` |
+| Phase 4〜6 の実装計画 | `references/03-guides/aag-phase4-6-plan.md` |
+
 ## 概要
 
 **Adaptive Architecture Governance (AAG)** は、仕入荒利管理システムの
@@ -145,7 +156,7 @@ Response（入口）→ Judgment（判断）→ Principles（思想）← Detect
 
 | 要素 | 責務 | 層 | ファイル |
 |------|------|---|---------|
-| **Architecture Rule** | ルール定義（94 ルール / fixNow / slice） | Principles + Judgment | `app/src/test/architectureRules.ts` |
+| **Architecture Rule** | ルール定義（92 ルール / fixNow / slice） | Principles + Judgment | `app/src/test/architectureRules.ts` |
 | **Guard Test** | ルールの機械的検出と強制 | Detection | `app/src/test/guards/` (39+ files) |
 | **Allowlist** | 例外管理（lifecycle + retentionReason） | Judgment | `app/src/test/allowlists/` |
 | **Health KPI** | 28 指標のダッシュボード + Hard Gate | Detection | `tools/architecture-health/` |
@@ -173,6 +184,32 @@ Response（入口）→ Judgment（判断）→ Principles（思想）← Detect
 4. **回避が生まれたらルールを疑う。** 人を責めず、仕組みを直す
 5. **ブロックするだけでなく解決する。** pre-commit hook は自動修復を試行
 6. **Response は薄く、必要十分にする。** 情報を渡しすぎない。作業を前に進める
+7. **ルール自身がルールの品質基準を満たす。** コードに品質を求めるなら、ルールにも同じ品質を求める
+
+### 第 7 原則の具体化
+
+> ルールを作る側が、ルールが求める品質基準を自ら満たしていなければ、
+> そのルールは信頼されない。
+
+AAG のコード・文書・構造に適用する品質基準:
+
+| プロダクトコードの基準 | AAG への適用 |
+|---------------------|------------|
+| **デッドコード禁止** | 使われていないフィールド・ルール・文書は削除する |
+| **DRY** | 同じ情報を 2 箇所に書かない。hints / 定義 / 判断基準は 1 箇所に集約する |
+| **不要な抽象化禁止** | 傘ルール（下位ルールと重複する抽象）は作らない |
+| **1 ファイル = 1 変更理由 (C1)** | 1 ルール = 1 つの防ぎたい害。複数の害を束ねない |
+| **テストで守る (G1)** | ルールの品質も guard で検証する（fixNow 未設定 = 0、slice 未設定 = 0） |
+| **必要である理由を述べられること** | why / protectedHarm が空のルールは存在理由が不明。削除候補 |
+
+### AAG 自己品質チェックリスト
+
+ルールやフィールドを追加する前に確認する:
+
+- [ ] **このルール/フィールドがないと何が壊れるか** を 1 文で述べられるか？
+- [ ] **既存のルール/フィールドで代替できないか？** 新設より既存の改善が優先
+- [ ] **追加した瞬間から使われるか？** 「将来使うかもしれない」は追加理由にならない
+- [ ] **メンテナンスコストに見合うか？** 94 ルール × 新フィールド = メンテナンス負債
 
 ## 3 層サイクル
 
