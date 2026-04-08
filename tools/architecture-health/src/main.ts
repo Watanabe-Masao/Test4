@@ -21,6 +21,7 @@ import { collectFromDocs } from './collectors/doc-collector.js'
 import { collectFromBundle } from './collectors/bundle-collector.js'
 import { collectObligations, reportObligationDetails } from './collectors/obligation-collector.js'
 import { collectFromCiTiming } from './collectors/ci-timing-collector.js'
+import { collectFromTemporalGovernance } from './collectors/temporal-governance-collector.js'
 import { evaluate } from './evaluator.js'
 import {
   assessOverall,
@@ -82,7 +83,10 @@ const ciTimingKpis = collectFromCiTiming(repoRoot)
 console.error('[collect] obligations...')
 const obligationKpis = collectObligations(repoRoot, { base })
 
-const allKpis = [...snapshotKpis, ...guardKpis, ...docKpis, ...bundleKpis, ...ciTimingKpis, ...obligationKpis]
+console.error('[collect] temporal governance...')
+const temporalKpis = collectFromTemporalGovernance(repoRoot)
+
+const allKpis = [...snapshotKpis, ...guardKpis, ...docKpis, ...bundleKpis, ...ciTimingKpis, ...obligationKpis, ...temporalKpis]
 console.error(`[collect] done — ${allKpis.length} KPIs`)
 
 // ---------------------------------------------------------------------------

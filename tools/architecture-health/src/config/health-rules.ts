@@ -46,4 +46,9 @@ export const HEALTH_RULES: readonly HealthRule[] = [
 
   // --- Obligation ---
   { id: 'docs.obligation.violations', type: 'hard_gate', operator: 'eq', target: 0 },
+
+  // --- Temporal Governance ---
+  { id: 'temporal.rules.reviewOverdue.count', type: 'info', operator: 'lte', target: 5 },
+  { id: 'temporal.rules.heuristicGate.count', type: 'soft_gate', operator: 'lte', target: 30 },
+  { id: 'temporal.allowlist.activeDebt.count', type: 'info', operator: 'lte', target: 40 },
 ] as const

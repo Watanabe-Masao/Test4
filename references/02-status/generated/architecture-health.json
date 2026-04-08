@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-07T11:04:03.350Z",
+  "timestamp": "2026-04-08T04:48:48.876Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -443,9 +443,9 @@
       "id": "docs.obligation.violations",
       "label": "Doc 更新義務違反数",
       "category": "docs",
-      "value": 0,
+      "value": 3,
       "unit": "count",
-      "status": "ok",
+      "status": "fail",
       "owner": "documentation-steward",
       "docRefs": [
         {
@@ -455,13 +455,112 @@
       ],
       "implRefs": [],
       "budget": 0
+    },
+    {
+      "id": "temporal.rules.reviewPolicy.count",
+      "label": "reviewPolicy 設定済みルール数",
+      "category": "guard",
+      "value": 84,
+      "unit": "count",
+      "status": "ok",
+      "owner": "architecture",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "references/03-guides/architecture-rule-system.md"
+        }
+      ],
+      "implRefs": [
+        "app/src/test/architectureRules.ts"
+      ]
+    },
+    {
+      "id": "temporal.rules.sunsetCondition.count",
+      "label": "sunsetCondition 設定済みルール数",
+      "category": "guard",
+      "value": 9,
+      "unit": "count",
+      "status": "ok",
+      "owner": "architecture",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "references/01-principles/architecture-rule-feasibility.md"
+        }
+      ],
+      "implRefs": [
+        "app/src/test/architectureRules.ts"
+      ]
+    },
+    {
+      "id": "temporal.rules.reviewOverdue.count",
+      "label": "review overdue ルール数",
+      "category": "guard",
+      "value": 0,
+      "unit": "count",
+      "status": "ok",
+      "owner": "architecture",
+      "docRefs": [],
+      "implRefs": [
+        "app/src/test/architectureRules.ts"
+      ],
+      "budget": 5
+    },
+    {
+      "id": "temporal.rules.heuristicGate.count",
+      "label": "heuristic + gate ルール数",
+      "category": "guard",
+      "value": 27,
+      "unit": "count",
+      "status": "ok",
+      "owner": "architecture",
+      "docRefs": [],
+      "implRefs": [
+        "app/src/test/architectureRules.ts"
+      ],
+      "budget": 30
+    },
+    {
+      "id": "temporal.allowlist.activeDebt.count",
+      "label": "active-debt 例外数",
+      "category": "allowlist",
+      "value": 33,
+      "unit": "count",
+      "status": "ok",
+      "owner": "architecture",
+      "docRefs": [],
+      "implRefs": [
+        "app/src/test/allowlists/architecture.ts",
+        "app/src/test/allowlists/complexity.ts",
+        "app/src/test/allowlists/responsibility.ts",
+        "app/src/test/allowlists/size.ts",
+        "app/src/test/allowlists/misc.ts"
+      ],
+      "budget": 40
+    },
+    {
+      "id": "temporal.allowlist.activeDebt.withCreatedAt",
+      "label": "active-debt で createdAt 設定済み",
+      "category": "allowlist",
+      "value": 33,
+      "unit": "count",
+      "status": "ok",
+      "owner": "architecture",
+      "docRefs": [],
+      "implRefs": [
+        "app/src/test/allowlists/architecture.ts",
+        "app/src/test/allowlists/complexity.ts",
+        "app/src/test/allowlists/responsibility.ts",
+        "app/src/test/allowlists/size.ts",
+        "app/src/test/allowlists/misc.ts"
+      ]
     }
   ],
   "summary": {
-    "totalKpis": 19,
-    "ok": 19,
+    "totalKpis": 25,
+    "ok": 24,
     "warn": 0,
-    "fail": 0,
-    "hardGatePass": true
+    "fail": 1,
+    "hardGatePass": false
   }
 }
