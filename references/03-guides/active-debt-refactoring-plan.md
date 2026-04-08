@@ -1,130 +1,136 @@
-# Active-Debt リファクタリング計画（v2 — 残り 20 件）
+# Active-Debt リファクタリング計画（v3 — 残り 7 件）
 
 ## 進捗
 
-| Phase | 内容 | 結果 | 状態 |
-|-------|------|------|------|
-| ~~A~~ | Limit 縮小 | ratchet 予防 | **完了** |
-| ~~C-1~~ | getState 小規模 5 件 | -5 | **完了** |
-| ~~B~~ | Export 分割 3 件 | -3 | **完了** |
-| ~~C-2~~ | StoreKpiTableInner getState | -1 | **完了** |
-| ~~D-4~~ | module-scope let 3 件 | -3 | **完了** |
-| **合計実績** | | **33 → 20 (−13)** | |
+| Phase | active-debt | 変化 | 状態 |
+|-------|------------|------|------|
+| 開始時 | 33 | — | — |
+| A〜G-4 | **7** | **-26** | **完了** |
+
+## 残り 7 件の分析
+
+### 実行可能（コード変更で解消可能）: 4 件
+
+| # | ファイル | 種別 | Guard計測 | limit | 最小修正 | 工数 | リスク |
+|---|---------|------|---------|-------|---------|------|--------|
+| 1 | WeatherPage.tsx | combined | 17 | 17 | useWeatherDaySelection 抽出 | L | LOW |
+| 2 | InventorySettingsSection.tsx | getState | 12 | 13 | 親から callback props | L | MED-HIGH |
+| 3 | useCostDetailData.ts | useMemo | 12 | 13 | flow builders 抽出 | M | MEDIUM |
+| 4 | useMonthDataManagement.ts | useState | 6 | 7 | delete workflow useReducer | S | LOW |
+
+### Guard 制約上の限界: 3 件
+
+| # | ファイル | 種別 | Guard計測 | limit | 状況 |
+|---|---------|------|---------|-------|------|
+| 5 | useCostDetailData.ts | combined | 12 | 13 | #3 と同一ファイル。#3 修正で同時解消 |
+| 6 | CategoryBenchmarkChart.vm.ts | useState | 6 | 7 | Guard が import 行を計上。default 以下 |
+| 7 | useCostDetailData.ts | useState | 6 | 7 | 同上。default 以下 |
+
+**#5 は #3 修正で自動解消。#6, #7 は guard 改善（import 除外）まで維持。**
 
 ---
 
-## 残り 20 件の内訳
+## Phase H: WeatherPage hook 抽出
 
-### グループ 1: Hook 複雑性 (9 件) — コード変更必須
+### H-1: useWeatherDaySelection.ts 新設
 
-| ファイル | 種別 | 実測 | limit | default | 工数 |
-|---------|------|------|-------|---------|------|
-| WeatherPage.tsx | combined | 19 | 17 | 12 | **L** |
-| useMonthlyCalendarState.ts | combined | 13 | 14 | 12 | **M** |
-| useCostDetailData.ts | combined | 12 | 13 | 12 | S |
-| useCostDetailData.ts | useMemo | 12 | 13 | 7 | M |
-| useMonthDataManagement.ts | useState | 6 | 7 | 6 | S |
-| StorageDataViewers.tsx | useState | 7 | 8 | 6 | M |
-| CategoryBenchmarkChart.vm.ts | useState | 6 | 7 | 6 | S |
-| CategoryBoxPlotChart.vm.ts | useState | 7 | 8 | 6 | S |
-| useCostDetailData.ts | useState | 6 | 7 | 6 | S |
+**抽出対象（WeatherPage.tsx から移動）:**
+- useState: selectedDays, selectedDows (2 個)
+- useCallback: handleDowChange, goPrev, goNext, handleMonthScroll,
+  handleChartDayClick, handleDayRangeSelect (6 個)
 
-### グループ 2: getState 残り (1 件)
+**WeatherPage に残す:**
+- useState: uiState (modal 状態)
+- useMemo: filteredDaily, prevYearCurrentMonth, monthSummary,
+  prevMonthSummary, selectedDaySummary 等 (7 個)
+- useCallback: handleChartDayDblClick, handleForecastClick,
+  handleLocationSave (3 個)
 
-| ファイル | getState | limit | 工数 |
-|---------|----------|-------|------|
-| InventorySettingsSection.tsx | 12 | 13 | **L** |
+**期待結果:** combined 17→9 (default 12 以下) → allowlist 削除
 
-### グループ 3: Fallback 定数密度 (9 件)
+**リスク: LOW**
+- 抽出対象は selectedDays/selectedDows に閉じた操作
+- 描画ロジックとの循環依存なし
+- 子コンポーネントへの props 変更なし
 
-| ファイル | 実測 | limit | default | 工数 |
-|---------|------|-------|---------|------|
-| useDataSummary.ts | 15 | 18 | 7 | S |
-| dailyBuilder.ts | 11 | 14 | 7 | S |
-| DailyPage.tsx | 11 | 14 | 7 | S |
-| useComparisonModule.ts | 10 | 12 | 7 | S |
-| comparisonProjections.ts | 9 | 10 | 7 | S |
-| summaryBuilder.ts | 9 | 10 | 7 | S |
-| RawDataTabBuilders.ts | 8 | 8 | 7 | S |
-| collectionAggregator.ts | 7 | 8 | 7 | S |
-| useDayDetailPlan.ts | 7 | 8 | 7 | S |
-
-### グループ 4: Export 残り (1 件)
-
-| ファイル | 実測 | limit | default | 工数 |
-|---------|------|-------|---------|------|
-| DaySerial.ts | 8 | 9 | 8 | S |
+**工数: L**（handler 間の依存整理 + テスト確認）
 
 ---
 
-## Phase E: Fallback 定数の共通モジュール集約
+## Phase I: InventorySettingsSection getState 移行
 
-**目標:** 重複する EMPTY_/ZERO_ 定数を共通モジュールに集約し、密度を default 以下に。
+### I-1: 親コンポーネントに callback props を追加
 
-### E-1: 共通定数モジュール新設
-- `application/constants/zeroDefaults.ts` を新設
-  - `ZERO_COST_PRICE_PAIR`: dailyBuilder, summaryBuilder, collectionAggregator で重複
-  - `ZERO_DISCOUNT_ENTRIES`: 既に DiscountEntry.ts に存在 → re-import
-  - `ZERO_COST_INCLUSION_DAILY`: dailyBuilder, summaryBuilder で重複
-- `application/constants/emptyCollections.ts` を新設
-  - `EMPTY_MAP`, `EMPTY_STORES`, `EMPTY_RECORDS` 等
+**現在のパターン（6 対の getState）:**
+```
+useDataStore.getState().updateInventory(id, field)
+useUiStore.getState().invalidateCalculation()
+```
 
-### E-2: 各ファイルから定数を削除・import に変更
-- 対象: dailyBuilder, summaryBuilder, collectionAggregator, useDayDetailPlan (4 件)
-- **期待:** 4 件のエントリ削除。残り 3 件は limit 縮小で ratchet
-- **工数:** M
+**提案パターン:**
+```
+// 親（呼び出し元）で:
+const updateInventory = useDataStore(s => s.updateInventory)
+const invalidateCalculation = useUiStore(s => s.invalidateCalculation)
+const onInventoryUpdate = (id, cfg) => {
+  updateInventory(id, cfg)
+  calculationCache.clear()
+  invalidateCalculation()
+}
 
-### E-3: DailyPage/useDataSummary の空状態集約
-- DailyPage.tsx: EMPTY_PREV_YEAR 等を emptyCollections から import
-- useDataSummary.ts: EMPTY_OVERVIEW 等を emptyCollections から import
-- **期待:** 2 件のエントリ削除
-- **工数:** M
+// InventorySettingsSection に props で渡す:
+<InventorySettingsSection onInventoryUpdate={onInventoryUpdate} ... />
+```
 
-**Phase E 合計:** active-debt -6〜8 件
+**期待結果:** getState 12→0 → allowlist 削除
 
----
+**リスク: MEDIUM-HIGH**
+- コンポーネント API の変更（props 追加）
+- 呼び出し元の特定と更新が必要
 
-## Phase F: InventorySettingsSection の getState 除去
-
-**目標:** 12 件の getState() を専用 hook に移行。
-
-### F-1: useInventoryActions hook 新設
-- `useInventoryActions(storeId)` を新設
-  - updateInventory, setBudget, setGPBudget 等を Zustand selector 経由で提供
-  - 全 getState() を hook 内で selector 化
-- InventorySettingsSection.tsx の getState() を全て除去
-- **期待:** allowlist エントリ削除
-- **工数:** L（12 箇所の getState 置換 + テスト）
-
-**Phase F 合計:** active-debt -1 件
+**工数: L**
 
 ---
 
-## Phase G: Hook 複雑性の段階的削減
+## Phase J: useCostDetailData useMemo 削減
 
-### G-1: useMonthlyCalendarState (combined 13 → ≤12)
-- range 操作の 4 useCallback を useReducer に統合
-- **期待:** 13→9 combined → allowlist エントリ削除
-- **工数:** M
+### J-1: flow aggregation を builder に抽出
 
-### G-2: WeatherPage (combined 19 → ≤12)
-- `useWeatherDaySelection.ts` を新設（day/range state + handlers）
-- `useWeatherForecasts.ts` を新設（forecast useMemo + handlers）
-- **期待:** 19→10 combined → allowlist エントリ削除
-- **工数:** L
+**抽出対象（3 useMemo → 1 useMemo + external builder）:**
+- flows = aggregateFlows(days, inField, outField, stores)
+- groupedFlows = buildFlowGroups(flows, stores)
+- maxFlowCost = max(flows)
 
-### G-3: useCostDetailData useMemo 削減
-- 集計ロジックを pure builder 関数に抽出
-- **期待:** useMemo 12→6 → featuresMemo エントリ削除
-- **工数:** M
+→ 1 つの useMemo で `buildFlowData(days, inField, outField, stores)` を呼び出し
 
-### G-4: features useState 5 件
-- CategoryBenchmarkChart/BoxPlot: drill state を useReducer に統合
-- StorageDataViewers: preview 状態を子コンポーネントに分離
-- **期待:** 3〜5 件のエントリ削除
-- **工数:** S〜M
+**期待結果:** useMemo 12→10 → featuresMemoLimits 削除 + combinedLimits 削除
 
-**Phase G 合計:** active-debt -5〜8 件
+**リスク: MEDIUM**（memo identity がセレクタに影響する可能性）
+
+**工数: M**
+
+---
+
+## Phase K: useMonthDataManagement useReducer 統合
+
+### K-1: delete workflow を useReducer に統合
+
+**現在:**
+```
+const [deleteTarget, setDeleteTarget] = useState(null)
+const [deleting, setDeleting] = useState(false)
+```
+
+**提案:**
+```
+const [deleteOp, dispatchDelete] = useReducer(deleteReducer, { target: null, deleting: false })
+```
+
+**期待結果:** useState guard 計測 6→5 → allowlist 削除
+
+**リスク: LOW**
+
+**工数: S**
 
 ---
 
@@ -132,21 +138,9 @@
 
 | 順番 | Phase | 削減 | 工数 | 理由 |
 |------|-------|------|------|------|
-| 1 | **E-1/E-2** | -4 | M | 最もコスパが良い（定数移動のみ） |
-| 2 | **G-1** | -1 | M | 1 ファイルで完結、useReducer パターン |
-| 3 | **E-3** | -2 | M | E-1 の延長 |
-| 4 | **G-4** | -3〜5 | S〜M | features の小規模改善 |
-| 5 | **F** | -1 | L | 影響範囲大だが確実 |
-| 6 | **G-2** | -1 | L | 最大の技術負債、慎重に |
-| 7 | **G-3** | -1 | M | useCostDetailData 統合改善 |
+| 1 | **K** (useMonthDataManagement) | -1 | S | 最小工数で 1 件解消 |
+| 2 | **J** (useCostDetailData) | -2 | M | 2 エントリ同時解消（combined + useMemo） |
+| 3 | **H** (WeatherPage) | -1 | L | 最大の技術負債 |
+| 4 | **I** (InventorySettings) | -1 | L | API 変更あり、慎重に |
 
-**最終目標:** active-debt 20 → 5〜7
-
----
-
-## 完了条件
-
-- active-debt ≤ 10 を達成
-- 全 guard テスト pass
-- health: Healthy | Hard Gate PASS
-- 計画ドキュメントを実績で更新
+**最終目標:** active-debt 7 → 2（#6, #7 の import 計上問題のみ残留）
