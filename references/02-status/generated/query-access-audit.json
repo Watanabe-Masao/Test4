@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-06T00:34:31.277Z",
+  "timestamp": "2026-04-08T08:09:10.467Z",
   "summary": {
     "queryHandlers": 47,
     "pairHandlers": 13,
@@ -11,7 +11,7 @@
     "要注意_executorDirect": 0,
     "互換経路_asyncQueryDirect": 0,
     "禁止経路_infraDuckdbDirect": 0,
-    "weather_applicationHook": 5,
+    "weather_applicationHook": 6,
     "禁止経路_weatherInfraDirect": 0
   },
   "detail": {
@@ -140,7 +140,8 @@
       "presentation/components/charts/WeatherCorrelationChart.tsx",
       "presentation/components/charts/WeatherCorrelationChart.vm.ts",
       "presentation/hooks/slices/useWeatherSlice.ts",
-      "presentation/pages/Dashboard/widgets/WeatherWidget.tsx"
+      "presentation/pages/Dashboard/widgets/WeatherWidget.tsx",
+      "presentation/pages/Weather/WeatherPage.tsx"
     ],
     "weatherInfraDirect": []
   }

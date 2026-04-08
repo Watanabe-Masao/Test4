@@ -1,14 +1,14 @@
 # Architecture State Snapshot
 
-> Generated: 2026-04-06T17:29:03.239Z
+> Generated: 2026-04-08T08:10:03.616Z
 
 ## Allowlist Summary
 
 | 指標 | 値 |
 |---|---|
-| 総エントリ数 | 15 |
-| アクティブリスト数 | 8 |
-| 凍結リスト数 | 13 |
+| 総エントリ数 | 14 |
+| アクティブリスト数 | 6 |
+| 凍結リスト数 | 15 |
 | .vm.ts ファイル数 | 27 |
 | 互換 re-export 残数 | 2 |
 
@@ -16,7 +16,7 @@
 
 | カテゴリ | 件数 |
 |---|---|
-| structural | 14 |
+| structural | 13 |
 | adapter | 1 |
 
 
@@ -91,21 +91,22 @@
 
 | ファイル | useMemo | useState | 行数 |
 |---|---|---|---|
-| presentation/pages/Weather/WeatherPage.tsx | 10 | 7 | 457 |
-| presentation/components/charts/useDeptHourlyChartData.ts | 9 | 6 | 236 |
+| presentation/pages/Weather/WeatherPage.tsx | 11 | 7 | 469 |
 | presentation/pages/Dashboard/widgets/HourlyChart.tsx | 9 | 6 | 502 |
-| presentation/components/charts/TimeSlotChart.tsx | 8 | 6 | 215 |
-| presentation/components/charts/useCategoryTrendChartData.ts | 7 | 7 | 183 |
-| presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx | 7 | 7 | 480 |
+| presentation/components/charts/TimeSlotChart.tsx | 8 | 6 | 216 |
+| presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx | 7 | 7 | 484 |
 | presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 9 | 5 | 434 |
-| presentation/components/charts/periodFilterHooks.ts | 5 | 8 | 241 |
-| presentation/components/charts/PerformanceIndexChart.tsx | 6 | 6 | 368 |
 | presentation/pages/Insight/useInsightData.ts | 5 | 7 | 217 |
+| application/hooks/useMetricBreakdown.ts | 7 | 5 | 282 |
+| presentation/pages/Dashboard/widgets/DayDetailModal.tsx | 7 | 4 | 343 |
+| presentation/components/charts/CvTimeSeriesChart.tsx | 5 | 5 | 247 |
+| presentation/pages/Dashboard/widgets/DrilldownWaterfall.tsx | 7 | 3 | 440 |
 
 ## Near-Limit Files (≥80%)
 
 | ファイル | 指標 | 実測 | 上限 | % |
 |---|---|---|---|---|
+| application/hooks/duckdb/purchaseComparisonCategory.ts | lines | 303 | 305 | 99% |
 
 ## Frozen Lists
 
@@ -114,6 +115,8 @@
 - presentationToUsecases
 - presentationDuckdbHook
 - presentationMemoLimits
+- presentationStateLimits
+- largeComponentTier2
 - infraLargeFiles
 - usecasesLargeFiles
 - cmpPrevYearDaily
@@ -129,17 +132,17 @@
 |---|---|---|
 | domainLargeFiles | 6 | structural:6 |
 | useStateLimits | 3 | structural:3 |
+| hookLineLimits | 2 | structural:2 |
 | applicationToInfrastructure | 1 | adapter:1 |
 | useMemoLimits | 1 | structural:1 |
-| hookLineLimits | 1 | structural:1 |
-| presentationStateLimits | 1 | structural:1 |
-| largeComponentTier2 | 1 | structural:1 |
 | ctxHook | 1 | structural:1 |
 | presentationToInfrastructure | 0 | - |
 | infrastructureToApplication | 0 | - |
 | presentationToUsecases | 0 | - |
 | presentationDuckdbHook | 0 | - |
 | presentationMemoLimits | 0 | - |
+| presentationStateLimits | 0 | - |
+| largeComponentTier2 | 0 | - |
 | infraLargeFiles | 0 | - |
 | usecasesLargeFiles | 0 | - |
 | cmpPrevYearDaily | 0 | - |
