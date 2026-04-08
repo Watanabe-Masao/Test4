@@ -1,14 +1,11 @@
 #!/bin/sh
-# pre-commit hook — obligation map の局所チェック + 自動再生成
+# pre-commit hook — AAG obligation + 自動再生成
 #
 # guard / allowlist / health ツールの変更がステージングされている場合、
 # architecture-health.json も同時にステージングされていなければ
 # docs:generate を自動実行してステージングに追加する。
 #
-# 「気をつける」で終わらせない。「通らない」にする。（G8）
-# 「ブロックするだけでなく解決する」（Adaptive Governance）
-#
-# CI の docs:check が最終ゲート。このフックは摩擦を最小化する。
+# AAG Response 層: 影響スライスを表示し、修正手順を案内する。
 #
 # セットアップ:
 #   cp tools/git-hooks/pre-commit .git/hooks/pre-commit
@@ -47,13 +44,24 @@ if echo "$STAGED" | grep -q "^${HEALTH_JSON}"; then
   exit 0
 fi
 
+# ── 影響スライスの推定（AAG Response 層） ──
+SLICES=""
+echo "$STAGED" | grep -q "app/src/domain/\|app/src/infrastructure/" && SLICES="${SLICES} layer-boundary"
+echo "$STAGED" | grep -q "readModels/\|calculations/\|canonicalization\|definition" && SLICES="${SLICES} canonicalization"
+echo "$STAGED" | grep -q "queries/\|QueryHandler\|AnalysisFrame\|ComparisonScope" && SLICES="${SLICES} query-runtime"
+echo "$STAGED" | grep -q "responsibility\|allowlists/complexity\|useMemo\|useState" && SLICES="${SLICES} responsibility-separation"
+echo "$STAGED" | grep -q "allowlists/\|guards/\|architecture-health\|obligation" && SLICES="${SLICES} governance-ops"
+
 # 自動再生成を試行
 echo ""
-echo "⚡ Obligation detected — running docs:generate automatically..."
+echo "⚡ AAG Obligation [governance-ops]"
+echo "  docs:generate を自動実行中..."
+if [ -n "$SLICES" ]; then
+  echo "  影響スライス:${SLICES}"
+fi
 echo ""
 
 if (cd app && npm run docs:generate --silent 2>/dev/null); then
-  # 生成されたファイルをステージングに追加
   git add \
     "${HEALTH_JSON}" \
     "references/02-status/generated/architecture-health.md" \
@@ -62,13 +70,14 @@ if (cd app && npm run docs:generate --silent 2>/dev/null); then
     "references/02-status/technical-debt-roadmap.md" \
     2>/dev/null
 
-  echo "  ✓ docs:generate 完了。生成ファイルをステージングに追加しました。"
+  echo "  ✓ 完了。生成ファイルをステージングに追加しました。"
   echo ""
   exit 0
 else
   echo ""
-  echo "  ✗ docs:generate に失敗しました。手動で実行してください:"
-  echo "    cd app && npm run docs:generate"
+  echo "  ✗ docs:generate に失敗しました。"
+  echo "  対応: cd app && npm run docs:generate"
+  echo "  詳細: tools/architecture-health/src/collectors/obligation-collector.ts"
   echo ""
   exit 1
 fi

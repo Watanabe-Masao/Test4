@@ -250,6 +250,20 @@ describe('Architecture Rule Registry', () => {
       )
       for (const h of highPressure) console.log(`  ${h}`)
       console.log('  → ルール自体が現実に合っていない可能性。見直しを検討')
+
+      // AAG Response 形式で出力
+      for (const [ruleId, count] of exceptionCount) {
+        if (count < EXCEPTION_PRESSURE_THRESHOLD) continue
+        const rule = ARCHITECTURE_RULES.find((r) => r.id === ruleId)
+        if (!rule) continue
+        console.log(
+          `\n  🔍 観測・レビュー対象 [${rule.slice ?? 'unknown'}]` +
+            `\n    ${ruleId}: 例外 ${count} 件 — 分割を検討` +
+            `\n    理由: ${rule.why}` +
+            `\n    詳細: ${rule.doc ?? ''}` +
+            `\n    参考: references/01-principles/aag-rule-splitting-plan.md`,
+        )
+      }
     }
 
     // 例外圧レポート（全ルール）
@@ -477,5 +491,48 @@ describe('Architecture Rule Registry', () => {
       `[Architecture Rules] ${ARCHITECTURE_RULES.length} rules (stable: ${stable}, experimental: ${experimental}, deprecated: ${deprecated})\n${summary}\n` +
         `  migrationPath: ${withMigration} | decisionCriteria: ${withDecision} | relationships: ${withRelationships}`,
     )
+  })
+
+  it('入口品質サマリー（情報出力）', () => {
+    // fixNow 分布
+    const fixDist = { now: 0, debt: 0, review: 0, unset: 0 }
+    for (const r of ARCHITECTURE_RULES) {
+      const key = r.fixNow ?? 'unset'
+      fixDist[key as keyof typeof fixDist]++
+    }
+    console.log(
+      `[fixNow] now: ${fixDist.now} | debt: ${fixDist.debt} | review: ${fixDist.review} | unset: ${fixDist.unset}`,
+    )
+
+    // slice 分布
+    const sliceDist: Record<string, number> = {}
+    for (const r of ARCHITECTURE_RULES) {
+      const s = r.slice ?? 'unset'
+      sliceDist[s] = (sliceDist[s] ?? 0) + 1
+    }
+    const sliceLines = Object.entries(sliceDist)
+      .sort((a, b) => b[1] - a[1])
+      .map(([s, c]) => `  ${s}: ${c}`)
+      .join('\n')
+    console.log(`[slice]\n${sliceLines}`)
+
+    // entrypointSummary カバレッジ
+    const withSummary = ARCHITECTURE_RULES.filter((r) => r.entrypointSummary).length
+    const withMigration = ARCHITECTURE_RULES.filter(
+      (r) => r.migrationPath && r.migrationPath.steps.length > 0,
+    ).length
+    const withExceptions = ARCHITECTURE_RULES.filter((r) => r.decisionCriteria?.exceptions).length
+    const withDoc = ARCHITECTURE_RULES.filter((r) => r.doc).length
+    console.log(
+      `[入口品質] entrypointSummary: ${withSummary}/${ARCHITECTURE_RULES.length} | ` +
+        `migrationPath: ${withMigration}/${ARCHITECTURE_RULES.length} | ` +
+        `exceptions: ${withExceptions}/${ARCHITECTURE_RULES.length} | ` +
+        `doc: ${withDoc}/${ARCHITECTURE_RULES.length}`,
+    )
+
+    // fixNow 未設定は 0 であること
+    expect(fixDist.unset).toBe(0)
+    // slice 未設定は 0 であること
+    expect(sliceDist['unset'] ?? 0).toBe(0)
   })
 })
