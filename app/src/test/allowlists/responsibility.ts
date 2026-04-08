@@ -118,39 +118,9 @@ export const moduleScopeLetLimits: readonly QuantitativeAllowlistEntry[] = [
 // ─── P12: domain/models/ の export 過多 ──────────────────────
 
 export const domainModelExportLimits: readonly QuantitativeAllowlistEntry[] = [
-  {
-    path: 'domain/models/ClassifiedSales.ts',
-    ruleId: 'AR-STRUCT-RESP-SEPARATION',
-    reason: '分類売上の型 + ビルダー群。export 10 個',
-    category: 'structural',
-    removalCondition: 'ビルダーを別ファイルに分離時',
-    limit: 11,
-    lifecycle: 'active-debt',
-    createdAt: '2026-04-08',
-    renewalCount: 0,
-  },
-  {
-    path: 'domain/models/AsyncState.ts',
-    ruleId: 'AR-STRUCT-RESP-SEPARATION',
-    reason: '非同期状態の型 + ヘルパー群。export 10 個',
-    category: 'structural',
-    removalCondition: 'ヘルパーを別ファイルに分離時',
-    limit: 11,
-    lifecycle: 'active-debt',
-    createdAt: '2026-04-08',
-    renewalCount: 0,
-  },
-  {
-    path: 'domain/models/CalendarDate.ts',
-    ruleId: 'AR-STRUCT-RESP-SEPARATION',
-    reason: '日付型 + 変換関数群。export 9 個',
-    category: 'structural',
-    removalCondition: '変換関数を別ファイルに分離時',
-    limit: 10,
-    lifecycle: 'active-debt',
-    createdAt: '2026-04-08',
-    renewalCount: 0,
-  },
+  // ClassifiedSales.ts — DiscountEntry.ts に分割。export 16→8。許可リスト卒業
+  // AsyncState.ts — AsyncStateFactories.ts に分割。export 14→4。許可リスト卒業
+  // CalendarDate.ts — DateRangeChunks.ts に分割。export 9→7。許可リスト卒業
   {
     path: 'domain/models/DaySerial.ts',
     ruleId: 'AR-STRUCT-RESP-SEPARATION',

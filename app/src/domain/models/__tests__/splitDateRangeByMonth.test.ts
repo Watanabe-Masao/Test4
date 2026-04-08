@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { splitDateRangeByMonth } from '../CalendarDate'
+import { splitDateRangeByMonth } from '../DateRangeChunks'
 
 describe('splitDateRangeByMonth', () => {
   it('同月の場合はチャンク1つ', () => {

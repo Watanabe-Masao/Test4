@@ -3,7 +3,7 @@ import type { CategoryType } from './CategoryType'
 import type { SupplierTotal } from './Supplier'
 import type { DailyRecord } from './DailyRecord'
 import type { TransferDetails } from './TransferDetail'
-import type { DiscountEntry } from './ClassifiedSales'
+import type { DiscountEntry } from './DiscountEntry'
 import type { ObservationPeriod } from './ObservationPeriod'
 
 // ────────────────────────────────────────────────────────

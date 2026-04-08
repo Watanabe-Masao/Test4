@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-08T09:57:11.074Z",
+  "timestamp": "2026-04-08T10:22:17.983Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -526,7 +526,7 @@
       "id": "temporal.allowlist.activeDebt.count",
       "label": "active-debt 例外数",
       "category": "allowlist",
-      "value": 27,
+      "value": 24,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -538,13 +538,13 @@
         "app/src/test/allowlists/size.ts",
         "app/src/test/allowlists/misc.ts"
       ],
-      "budget": 27
+      "budget": 24
     },
     {
       "id": "temporal.allowlist.activeDebt.withCreatedAt",
       "label": "active-debt で createdAt 設定済み",
       "category": "allowlist",
-      "value": 27,
+      "value": 24,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -556,7 +556,7 @@
         "app/src/test/allowlists/size.ts",
         "app/src/test/allowlists/misc.ts"
       ],
-      "budget": 27
+      "budget": 24
     },
     {
       "id": "efficacy.rules.withProtectedHarm.count",

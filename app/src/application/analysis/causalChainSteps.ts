@@ -6,7 +6,7 @@
 import type { TwoFactorResult } from '@/domain/calculations/factorDecomposition'
 import type { DiscountEntry } from '@/domain/models/record'
 import type { StoreResult } from '@/domain/models/storeTypes'
-import type { DiscountType } from '@/domain/models/ClassifiedSales'
+import type { DiscountType } from '@/domain/models/DiscountEntry'
 import type { CausalChainPrevInput } from './causalChain'
 import type { CausalStep, CausalFactor } from '@/domain/formatting/causalChainFormatters'
 import {
