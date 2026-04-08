@@ -4,21 +4,21 @@
 
 | 項目 | 値 |
 |---|---|
-| **総合評価** | **RISK** |
-| 前回比 | Flat |
-| リリース影響 | Yes |
-| 最終更新 | 2026-04-08T21:16:05.723Z |
+| **総合評価** | **Healthy** |
+| 前回比 | Improved |
+| リリース影響 | No |
+| 最終更新 | 2026-04-08T21:16:23.734Z |
 
 ## Hard Gate
 
-**FAIL**
+**PASS** — 全ゲート通過
 
 - PASS: Frozen リスト非ゼロ
 - PASS: 廃止用語残存数
 - PASS: Generated section 未更新
 - PASS: Presentation→Infrastructure 違反
 - PASS: Infrastructure→Application 違反
-- FAIL: Doc 更新義務違反数
+- PASS: Doc 更新義務違反数
 - PASS: review overdue ルール数
 
 ## Health Metrics
@@ -34,16 +34,11 @@
 | **Temporal Governance** | OK | review overdue ルール数: 0/0 / heuristic + gate ルール数: 32/32 / active-debt 例外数: 1/1 / reviewPolicy 設定済みルール数: 92/92 / sunsetCondition 設定済みルール数: 9/9 / active-debt で createdAt 設定済み: 1/1 |
 | **Rule Efficacy** | OK | protectedHarm 設定済みルール数: 33 / 高例外圧ルール数（≥10 件）: 0/3 / renewalCount 合計: 0/10 |
 
-## Top Risks
+## Recent Changes
 
-**1. Doc 更新義務違反数**
-- 状態: 1 / budget 0（100% 超過）
-- ファイル: `—`
-- 定義書: `tools/architecture-health/src/collectors/obligation-collector.ts`
-
-## Recommended Actions
-
-1. Doc 更新義務違反数 を budget 0 以下に修正する
+| 指標 | 前回 | 今回 | 変化 |
+|---|---|---|---|
+| Doc 更新義務違反数 | 1 | 0 | -1 + |
 
 ---
 
