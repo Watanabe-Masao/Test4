@@ -20,6 +20,7 @@ import {
 } from '../DashboardPage.styles'
 import { WarningBanner } from './ExecSummaryBarWidget.styles'
 import type { WidgetContext } from './types'
+import { extractPrevYearCustomerCount } from './conditionSummaryUtils'
 
 type SummaryTab = 'sales' | 'costProfit' | 'customers'
 
@@ -31,6 +32,8 @@ const TABS: { key: SummaryTab; label: string }[] = [
 
 export function ExecSummaryBarWidget(ctx: WidgetContext) {
   const { result: r, prevYear, onExplain, fmtCurrency } = ctx
+  const curCustomers = ctx.readModels?.customerFact?.grandTotalCustomers ?? 0
+  const prevCustomers = extractPrevYearCustomerCount(prevYear)
   const updateSettings = useSettingsStore((s) => s.updateSettings)
   const invalidateCalculation = useUiStore((s) => s.invalidateCalculation)
   const [tab, setTab] = useState<SummaryTab>('sales')
@@ -253,15 +256,14 @@ export function ExecSummaryBarWidget(ctx: WidgetContext) {
         )}
 
         {tab === 'customers' &&
-          r.totalCustomers > 0 &&
+          curCustomers > 0 &&
           (() => {
-            const txValue = calculateTransactionValue(r.totalSales, r.totalCustomers)
-            const pyCustomers = prevYear.totalCustomers
+            const txValue = calculateTransactionValue(r.totalSales, curCustomers)
             const custRatio =
-              prevYear.hasPrevYear && pyCustomers > 0 ? r.totalCustomers / pyCustomers : null
+              prevYear.hasPrevYear && prevCustomers > 0 ? curCustomers / prevCustomers : null
             const pyTxValue =
-              prevYear.hasPrevYear && pyCustomers > 0
-                ? calculateTransactionValue(prevYear.totalSales, pyCustomers)
+              prevYear.hasPrevYear && prevCustomers > 0
+                ? calculateTransactionValue(prevYear.totalSales, prevCustomers)
                 : null
             return (
               <ExecSummaryBar>
@@ -273,7 +275,7 @@ export function ExecSummaryBarWidget(ctx: WidgetContext) {
                   <ExecSummaryHint>根拠</ExecSummaryHint>
                   <ExecSummaryLabel>客数・客単価</ExecSummaryLabel>
                   <ExecSummarySub>
-                    客数: {fmtCurrency(r.totalCustomers)}人 / 日平均:{' '}
+                    客数: {fmtCurrency(curCustomers)}人 / 日平均:{' '}
                     {fmtCurrency(r.averageCustomersPerDay)}人
                   </ExecSummarySub>
                   <ExecSummaryValue>{fmtCurrency(txValue)}円</ExecSummaryValue>
@@ -289,7 +291,7 @@ export function ExecSummaryBarWidget(ctx: WidgetContext) {
               </ExecSummaryBar>
             )
           })()}
-        {tab === 'customers' && r.totalCustomers === 0 && (
+        {tab === 'customers' && curCustomers === 0 && (
           <ExecSummarySub>客数データなし</ExecSummarySub>
         )}
       </ExecSummaryTabContent>

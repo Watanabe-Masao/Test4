@@ -23,20 +23,27 @@ export type KpiTabContentProps = {
   readonly elapsedBudget: number
   readonly prevYear: PrevYearData
   readonly settings: AppSettings
+  readonly curTotalCustomers: number
+  readonly prevTotalCustomers: number
 }
 
-export function KpiTabContent({ r, elapsedBudget, prevYear, settings }: KpiTabContentProps) {
+export function KpiTabContent({
+  r,
+  elapsedBudget,
+  prevYear,
+  settings,
+  curTotalCustomers,
+  prevTotalCustomers,
+}: KpiTabContentProps) {
   const { format: fmtCurrency } = useCurrencyFormat()
   const elapsedDiff = r.totalSales - elapsedBudget
   const pyRatio =
     prevYear.hasPrevYear && prevYear.totalSales > 0 ? r.totalSales / prevYear.totalSales : null
   const pyCustomerRatio =
-    prevYear.hasPrevYear && prevYear.totalCustomers > 0
-      ? r.totalCustomers / prevYear.totalCustomers
-      : null
-  const txValue = calculateTransactionValue(r.totalSales, r.totalCustomers)
+    prevYear.hasPrevYear && prevTotalCustomers > 0 ? curTotalCustomers / prevTotalCustomers : null
+  const txValue = calculateTransactionValue(r.totalSales, curTotalCustomers)
   const prevTxValue = prevYear.hasPrevYear
-    ? calculateTransactionValue(prevYear.totalSales, prevYear.totalCustomers)
+    ? calculateTransactionValue(prevYear.totalSales, prevTotalCustomers)
     : null
 
   return (
@@ -125,10 +132,10 @@ export function KpiTabContent({ r, elapsedBudget, prevYear, settings }: KpiTabCo
       <KpiCardWrapper>
         <KpiRow>
           <KpiLabel>客数</KpiLabel>
-          <KpiValue>{fmtCurrency(r.totalCustomers)}</KpiValue>
+          <KpiValue>{fmtCurrency(curTotalCustomers)}</KpiValue>
         </KpiRow>
         <KpiSub>客単価: {fmtCurrency(txValue)}</KpiSub>
-        <KpiSub>日平均客数: {fmtCurrency(safeDivide(r.totalCustomers, r.elapsedDays))}</KpiSub>
+        <KpiSub>日平均客数: {fmtCurrency(safeDivide(curTotalCustomers, r.elapsedDays))}</KpiSub>
         {prevYear.hasPrevYear && (
           <>
             <KpiDivider />

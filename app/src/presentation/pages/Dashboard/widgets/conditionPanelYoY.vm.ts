@@ -191,12 +191,15 @@ export function buildCustomerYoYDetailVm(
   stores: ReadonlyMap<string, Store>,
   result: StoreResult,
   effectiveConfig: ConditionSummaryConfig,
-  prevYear: PrevYearData,
+  _prevYear: PrevYearData,
   prevYearMonthlyKpi: PrevYearMonthlyKpi,
   dataMaxDay: number | undefined,
+  curTotalCustomers: number,
+  prevTotalCustomers: number,
+  storeCustomerMap?: ReadonlyMap<string, number>,
 ): CustomerYoYDetailVm {
-  const prevTotal = prevYear.totalCustomers
-  const yoyTotal = calculateYoYRatio(result.totalCustomers, prevTotal)
+  const prevTotal = prevTotalCustomers
+  const yoyTotal = calculateYoYRatio(curTotalCustomers, prevTotal)
   const totalSig = metricSignal(yoyTotal, 'customerYoY', effectiveConfig)
   const totalColor = SIGNAL_COLORS[totalSig]
 
@@ -206,7 +209,8 @@ export function buildCustomerYoYDetailVm(
     const store = stores.get(storeId)
     const storeName = store?.name ?? storeId
     const prevStoreCustomers = computeStorePrevCustomers(prevYearMonthlyKpi, storeId, dataMaxDay)
-    const storeYoY = calculateYoYRatio(sr.totalCustomers, prevStoreCustomers)
+    const storeCur = storeCustomerMap?.get(storeId) ?? 0
+    const storeYoY = calculateYoYRatio(storeCur, prevStoreCustomers)
     const sig =
       prevStoreCustomers > 0
         ? metricSignal(storeYoY, 'customerYoY', effectiveConfig, sr.storeId)
@@ -217,7 +221,7 @@ export function buildCustomerYoYDetailVm(
       storeId,
       storeName,
       sigColor,
-      currentCustomersStr: `${sr.totalCustomers.toLocaleString()}人`,
+      currentCustomersStr: `${storeCur.toLocaleString()}人`,
       prevCustomersStr: prevStoreCustomers > 0 ? `${prevStoreCustomers.toLocaleString()}人` : '—',
       yoyStr: prevStoreCustomers > 0 ? formatPercent(storeYoY, 2) : '—',
       hasPrev: prevStoreCustomers > 0,
@@ -226,7 +230,7 @@ export function buildCustomerYoYDetailVm(
 
   return {
     storeRows,
-    totalCurrentStr: `${result.totalCustomers.toLocaleString()}人`,
+    totalCurrentStr: `${curTotalCustomers.toLocaleString()}人`,
     totalPrevStr: `${prevTotal.toLocaleString()}人`,
     totalYoYStr: formatPercent(yoyTotal, 2),
     totalColor,
