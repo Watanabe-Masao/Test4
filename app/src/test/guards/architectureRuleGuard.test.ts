@@ -516,16 +516,14 @@ describe('Architecture Rule Registry', () => {
       .join('\n')
     console.log(`[slice]\n${sliceLines}`)
 
-    // entrypointSummary カバレッジ
-    const withSummary = ARCHITECTURE_RULES.filter((r) => r.entrypointSummary).length
+    // 入口品質カバレッジ
     const withMigration = ARCHITECTURE_RULES.filter(
       (r) => r.migrationPath && r.migrationPath.steps.length > 0,
     ).length
     const withExceptions = ARCHITECTURE_RULES.filter((r) => r.decisionCriteria?.exceptions).length
     const withDoc = ARCHITECTURE_RULES.filter((r) => r.doc).length
     console.log(
-      `[入口品質] entrypointSummary: ${withSummary}/${ARCHITECTURE_RULES.length} | ` +
-        `migrationPath: ${withMigration}/${ARCHITECTURE_RULES.length} | ` +
+      `[入口品質] migrationPath: ${withMigration}/${ARCHITECTURE_RULES.length} | ` +
         `exceptions: ${withExceptions}/${ARCHITECTURE_RULES.length} | ` +
         `doc: ${withDoc}/${ARCHITECTURE_RULES.length}`,
     )

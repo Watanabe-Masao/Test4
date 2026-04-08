@@ -1,5 +1,16 @@
 # Adaptive Architecture Governance (AAG)
 
+> **この文書が AAG の唯一の入口。** 他の AAG 文書は全てここから参照する。
+
+| 目的 | 参照先 |
+|------|--------|
+| AAG の全体像を知りたい | **この文書** |
+| 4 層の詳細 | `aag-four-layer-architecture.md` |
+| 94 ルールの運用区分 | `aag-operational-classification.md` |
+| ルール分割の原則 | `aag-rule-splitting-plan.md` |
+| 進化の 3 層サイクル | `adaptive-governance-evolution.md` |
+| Phase 4〜6 の実装計画 | `references/03-guides/aag-phase4-6-plan.md` |
+
 ## 概要
 
 **Adaptive Architecture Governance (AAG)** は、仕入荒利管理システムの

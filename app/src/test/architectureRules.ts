@@ -119,17 +119,11 @@ export interface ArchitectureRule {
     readonly lastReviewedAt: string // YYYY-MM-DD
     readonly reviewCadenceDays: number // 再点検間隔（日数）
   }
-  // ── 違反時入口（Presentation 層） ──
-  /** 違反時の運用区分: now=今すぐ直す / debt=構造負債管理 / review=観測 */
+  // ── AAG 4層（Response / Judgment） ──
   /** ルールが属する関心スライス */
   readonly slice?: AagSlice
+  /** 違反時の運用区分: now=今すぐ直す / debt=構造負債管理 / review=観測 */
   readonly fixNow?: 'now' | 'debt' | 'review'
-  /** 違反時に最初に返す 1 行要約 */
-  readonly entrypointSummary?: string
-  /** 深掘り先の第一候補（doc と異なる場合） */
-  readonly deepDiveDoc?: string
-  /** よくある誤解 */
-  readonly commonMistakes?: readonly string[]
 
   /** experimental ルールの出口（昇格 / 撤回の対称性） */
   readonly lifecyclePolicy?: {
@@ -3876,11 +3870,11 @@ export function checkRatchetDown(
  * AAG 標準違反レスポンス生成器
  *
  * 違反時に返す 5 項目:
- * 1. 何が止まったか（entrypointSummary || what）
+ * 1. 何が止まったか（what）
  * 2. なぜ止まったか（why）
  * 3. 今やること（migrationPath.steps）
  * 4. 例外がありうるか（decisionCriteria.exceptions）
- * 5. 深掘り先（deepDiveDoc || doc）
+ * 5. 深掘り先（doc）
  *
  * @see references/01-principles/aag-four-layer-architecture.md
  */
@@ -3897,11 +3891,11 @@ export function formatViolationMessage(
           ? '🔍 観測・レビュー対象'
           : ''
 
-  const lines = [`[${rule.id}] ${rule.entrypointSummary ?? rule.what}`]
+  const lines = [`[${rule.id}] ${rule.what}`]
   if (fixLabel) lines.push(fixLabel)
   lines.push(`理由: ${rule.why}`, `正しいパターン: ${rule.correctPattern.description}`)
   if (rule.doc) {
-    lines.push(`参照: ${rule.deepDiveDoc ?? rule.doc}`)
+    lines.push(`参照: ${rule.doc}`)
   }
   if (rule.migrationPath) {
     lines.push(`修正手順:`)
@@ -3960,11 +3954,11 @@ export function buildAagResponse(
     source,
     fixNow: rule.fixNow ?? 'debt',
     slice: rule.slice ?? null,
-    summary: rule.entrypointSummary ?? rule.what,
+    summary: rule.what,
     reason: rule.why,
     steps: rule.migrationPath?.steps ?? [],
     exceptions: rule.decisionCriteria?.exceptions ?? null,
-    deepDive: rule.deepDiveDoc ?? rule.doc ?? null,
+    deepDive: rule.doc ?? null,
     violations,
   }
 }

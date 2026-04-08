@@ -4,27 +4,7 @@
 import type { HealthReport, HealthKpi } from '../types.js'
 import type { ObligationRule } from '../collectors/obligation-collector.js'
 
-/**
- * KPI → 修正手順のマッピング（AAG Response 層）
- * Hard Gate FAIL 時に PR コメントで修正手順を案内する
- */
-const KPI_FIX_HINTS: Record<string, { action: string; doc?: string }> = {
-  'docs.obligation.violations': {
-    action: '`cd app && npm run docs:generate` を実行してコミット',
-    doc: 'tools/architecture-health/src/collectors/obligation-collector.ts',
-  },
-  'docs.generatedSections.stale': {
-    action: '`cd app && npm run docs:generate` を実行してコミット',
-  },
-  'boundary.presentationToInfra': {
-    action: 'presentation → infrastructure の直接 import を削除',
-    doc: 'references/01-principles/design-principles.md',
-  },
-  'boundary.infraToApplication': {
-    action: 'infrastructure → application の import を削除',
-    doc: 'references/01-principles/design-principles.md',
-  },
-}
+import { AAG_FIX_HINTS } from '../config/aag-fix-hints.js'
 
 const STATUS_EMOJI: Record<string, string> = {
   ok: '✅',
@@ -58,7 +38,7 @@ export function renderPrComment(
     for (const kpi of hardFails) {
       lines.push(`- **${kpi.label}**: ${kpi.value} (budget: ${kpi.budget})`)
       // AAG Response: KPI に対応する修正手順を表示
-      const fixHint = KPI_FIX_HINTS[kpi.id]
+      const fixHint = AAG_FIX_HINTS[kpi.id]
       if (fixHint) {
         lines.push(`  - ⚡ **対応**: ${fixHint.action}`)
         if (fixHint.doc) lines.push(`  - 📄 ${fixHint.doc}`)
