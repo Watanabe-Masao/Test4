@@ -339,6 +339,7 @@ CI は `wasm-build` → `fast-gate` → (`docs-health` + `test-coverage` + `e2e`
 - **generated section が古ければ CI が落ちる** — `docs:check` が差分を検出して fail
 - **パス変更に doc 更新義務がある** — obligation map が自動検出（`tools/architecture-health/src/collectors/obligation-collector.ts`）
 - **文書にも API を持たせる** — 全 KPI に `id` / `docRefs` / `implRefs` があり、定義書・guard・実装ファイルと双方向にリンク
+- **guard / allowlist を変更したら `cd app && npm run docs:generate` を実行してからコミットする** — pre-commit hook（`tools/git-hooks/pre-commit`）が未実行を検出してブロック
 
 ### Obligation Map（パス → 更新義務）
 
@@ -581,7 +582,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 詳細レポート: `references/02-status/generated/architecture-health.md`
 
 <!-- GENERATED:START architecture-health-summary -->
-**Healthy** | 前回比: Improved | Hard Gate: PASS
+**Healthy** | 前回比: Flat | Hard Gate: PASS
 
 | 指標 | 状態 | 詳細 |
 |---|---|---|
@@ -597,7 +598,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 **Next:**
 - 上限間近ファイル 1 件を分割検討する
 
-> 生成: 2026-04-08T08:36:43.179Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-08T08:47:31.635Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）

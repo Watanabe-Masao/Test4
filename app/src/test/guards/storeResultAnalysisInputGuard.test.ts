@@ -70,3 +70,4 @@ describe('StoreResult analysis input guard', () => {
     checkRatchetDown(rule, TOTAL_CUSTOMERS_ALLOWLIST.size, 'allowlist')
   })
 })
+# test
