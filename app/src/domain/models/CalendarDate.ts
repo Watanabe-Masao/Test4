@@ -79,16 +79,7 @@ export function getDow(date: CalendarDate): number {
   return new Date(date.year, date.month - 1, date.day).getDay()
 }
 
-/**
- * CalendarDate を YYYY-MM-DD 形式の文字列に変換する（表示用）。
- *
- * toDateKey と同じ出力だが、意図が異なる:
- * - toDateKey: インデックスキー生成（内部用）
- * - formatCalendarDate: 表示ラベル生成（UI用）
- */
-export function formatCalendarDate(date: CalendarDate): string {
-  return toDateKey(date)
-}
+// formatCalendarDate は toDateKey と同一出力のため統合。toDateKey を使用すること
 
 /**
  * 2つの CalendarDate が同じ日かどうかを比較する。
@@ -120,61 +111,4 @@ export function dateRangeToKeys(range: DateRange): { fromKey: DateKey; toKey: Da
   }
 }
 
-/** 月別の日リスト（splitDateRangeByMonth の出力単位） */
-export interface MonthDayChunk {
-  readonly year: number
-  readonly month: number
-  readonly days: readonly number[]
-}
-
-/**
- * DateRange を月別の日リストに分割する。
- *
- * loadEtrnHourlyForStore 等の単月 API に渡すため、
- * 月跨ぎの日付範囲を月ごとのチャンクに分割する。
- *
- * @example
- * // 同月
- * splitDateRangeByMonth({2026,3,1}, {2026,3,15})
- * // → [{year:2026, month:3, days:[1..15]}]
- *
- * // 月跨ぎ
- * splitDateRangeByMonth({2026,1,29}, {2026,2,3})
- * // → [{year:2026, month:1, days:[29,30,31]}, {year:2026, month:2, days:[1,2,3]}]
- */
-export function splitDateRangeByMonth(
-  from: CalendarDate,
-  to: CalendarDate,
-): readonly MonthDayChunk[] {
-  const chunks: MonthDayChunk[] = []
-
-  let curYear = from.year
-  let curMonth = from.month
-  let curDay = from.day
-
-  while (
-    curYear < to.year ||
-    (curYear === to.year && curMonth < to.month) ||
-    (curYear === to.year && curMonth === to.month && curDay <= to.day)
-  ) {
-    const lastDayOfMonth = new Date(curYear, curMonth, 0).getDate()
-    const endDay = curYear === to.year && curMonth === to.month ? to.day : lastDayOfMonth
-
-    const days: number[] = []
-    for (let d = curDay; d <= endDay; d++) days.push(d)
-
-    if (days.length > 0) {
-      chunks.push({ year: curYear, month: curMonth, days })
-    }
-
-    // 次の月の1日へ
-    curMonth++
-    if (curMonth > 12) {
-      curMonth = 1
-      curYear++
-    }
-    curDay = 1
-  }
-
-  return chunks
-}
+// MonthDayChunk / splitDateRangeByMonth は DateRangeChunks.ts に分離

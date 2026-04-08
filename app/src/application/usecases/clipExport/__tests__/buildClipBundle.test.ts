@@ -9,7 +9,7 @@ import type { BuildClipBundleParams } from '../buildClipBundle'
 import type { CategoryTimeSalesRecord, DailyRecord } from '@/domain/models/record'
 import type { StoreResult } from '@/domain/models/storeTypes'
 import type { PrevYearData, PrevYearDailyEntry } from '@/application/hooks/analytics'
-import type { DiscountEntry } from '@/domain/models/ClassifiedSales'
+import type { DiscountEntry } from '@/domain/models/DiscountEntry'
 
 // ─── テストヘルパー ──────────────────────────────────────
 

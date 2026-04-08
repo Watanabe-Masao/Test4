@@ -3,7 +3,7 @@ import { aggregateDailyByAlignment, aggregateKpiByAlignment } from '../buildComp
 import { buildSourceDataIndex, type SourceMonthContext } from '../sourceDataIndex'
 import type { AlignmentEntry } from '@/domain/models/ComparisonScope'
 import type { ClassifiedSalesDaySummary } from '@/domain/models/ClassifiedSales'
-import { ZERO_DISCOUNT_ENTRIES } from '@/domain/models/ClassifiedSales'
+import { ZERO_DISCOUNT_ENTRIES } from '@/domain/models/DiscountEntry'
 import type { StoreDayIndex, SpecialSalesDayEntry } from '@/domain/models/record'
 
 // ── ヘルパー ──

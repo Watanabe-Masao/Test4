@@ -23,11 +23,11 @@ import type { SpecialSalesDayEntry } from '@/domain/models/record'
 
 // 隣接月の花レコード（cross-month 客数参照用）。
 // useComparisonModule から参照される。comparison data ロード時に更新。
-let _adjacentFlowersRecords: readonly SpecialSalesDayEntry[] = []
+const _adjacentFlowersStore: { records: readonly SpecialSalesDayEntry[] } = { records: [] }
 
 /** 隣接月の花レコードを取得する（useComparisonModule 用） */
 export function getStoredAdjacentFlowersRecords(): readonly SpecialSalesDayEntry[] {
-  return _adjacentFlowersRecords
+  return _adjacentFlowersStore.records
 }
 
 // 型と純粋ロジックは comparisonLoadLogic.ts に分離済み
@@ -89,7 +89,7 @@ export function useLoadComparisonData(scope: ComparisonScope | null): Comparison
         )
         if (cancelled || !result) return
         const monthly = comparisonResultToMonthlyData(result, source.year, source.month)
-        _adjacentFlowersRecords = getAdjacentFlowersRecords(result)
+        _adjacentFlowersStore.records = getAdjacentFlowersRecords(result)
         useDataStore.getState().setPrevYearMonthData(monthly)
       } catch (err) {
         if (!cancelled) {

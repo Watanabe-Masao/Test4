@@ -125,16 +125,13 @@ function buildEChartsTheme(theme: AppTheme): Record<string, unknown> {
 
 const THEME_DARK = 'shiire-dark'
 const THEME_LIGHT = 'shiire-light'
-let registeredDark = false
-let registeredLight = false
+const registeredThemes = new Set<string>()
 
 function ensureThemeRegistered(theme: AppTheme): string {
   const name = theme.mode === 'dark' ? THEME_DARK : THEME_LIGHT
-  const registered = theme.mode === 'dark' ? registeredDark : registeredLight
-  if (!registered) {
+  if (!registeredThemes.has(name)) {
     echarts.registerTheme(name, buildEChartsTheme(theme))
-    if (theme.mode === 'dark') registeredDark = true
-    else registeredLight = true
+    registeredThemes.add(name)
   }
   return name
 }

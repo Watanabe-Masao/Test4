@@ -14,12 +14,12 @@ export { WIDGET_ID_MIGRATION, migrateWidgetIds } from './widgetMigration'
 export { autoInjectDataWidgets } from './widgetAutoInject'
 
 /** Lazy-initialized widget map (avoids TLA race with WIDGET_REGISTRY) */
-let _widgetMap: Map<string, WidgetDef> | null = null
+const _widgetMapHolder: { cache: Map<string, WidgetDef> | null } = { cache: null }
 export function getWidgetMap(): Map<string, WidgetDef> {
-  if (!_widgetMap) {
-    _widgetMap = new Map(WIDGET_REGISTRY.map((w) => [w.id, w]))
+  if (!_widgetMapHolder.cache) {
+    _widgetMapHolder.cache = new Map(WIDGET_REGISTRY.map((w) => [w.id, w]))
   }
-  return _widgetMap
+  return _widgetMapHolder.cache
 }
 
 export const DEFAULT_WIDGET_IDS: string[] = [

@@ -15,7 +15,7 @@
  * - 売変内訳（discountEntries）は配列だが要素数固定（4種）のため含める
  */
 
-import type { DiscountEntry } from './ClassifiedSales'
+import type { DiscountEntry } from './DiscountEntry'
 
 /** 店舗×日の結合済みサマリーレコード */
 export interface StoreDaySummary {

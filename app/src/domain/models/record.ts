@@ -40,19 +40,19 @@ export {
   mergeCategoryTimeSalesData,
 } from './DataTypes'
 export type {
-  DiscountType,
-  DiscountTypeDef,
-  DiscountEntry,
   ClassifiedSalesRecord,
   ClassifiedSalesData,
   ClassifiedSalesDaySummary,
 } from './ClassifiedSales'
+export type { DiscountType, DiscountTypeDef, DiscountEntry } from './DiscountEntry'
 export {
   DISCOUNT_TYPES,
   ZERO_DISCOUNT_ENTRIES,
   extractDiscountEntries,
   sumDiscountEntries,
   addDiscountEntries,
+} from './DiscountEntry'
+export {
   classifiedSalesRecordKey,
   aggregateForStore,
   aggregateAllStores,

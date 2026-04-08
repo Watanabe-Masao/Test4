@@ -19,72 +19,12 @@ export const presentationGetStateLimits: readonly QuantitativeAllowlistEntry[] =
     createdAt: '2026-04-08',
     renewalCount: 0,
   },
-  {
-    path: 'presentation/pages/Dashboard/widgets/StoreKpiTableInner.tsx',
-    ruleId: 'AR-STRUCT-RESP-SEPARATION',
-    reason: 'KPI テーブルの store 直接アクセス。getState 5 回',
-    category: 'structural',
-    removalCondition: 'callback props 経由に移行時',
-    limit: 6,
-    lifecycle: 'active-debt',
-    createdAt: '2026-04-08',
-    renewalCount: 0,
-  },
-  {
-    path: 'presentation/pages/Admin/AdminPage.tsx',
-    ruleId: 'AR-STRUCT-RESP-SEPARATION',
-    reason: '管理画面の store アクセス。getState 2 回',
-    category: 'structural',
-    removalCondition: 'callback props 経由に移行時',
-    limit: 3,
-    lifecycle: 'active-debt',
-    createdAt: '2026-04-08',
-    renewalCount: 0,
-  },
-  {
-    path: 'presentation/pages/Admin/PrevYearMappingTab.tsx',
-    ruleId: 'AR-STRUCT-RESP-SEPARATION',
-    reason: '前年マッピングの store アクセス。getState 2 回',
-    category: 'structural',
-    removalCondition: 'callback props 経由に移行時',
-    limit: 3,
-    lifecycle: 'active-debt',
-    createdAt: '2026-04-08',
-    renewalCount: 0,
-  },
-  {
-    path: 'presentation/pages/Dashboard/widgets/ExecSummaryBarWidget.tsx',
-    ruleId: 'AR-STRUCT-RESP-SEPARATION',
-    reason: 'サマリーバーの store アクセス。getState 2 回',
-    category: 'structural',
-    removalCondition: 'callback props 経由に移行時',
-    limit: 3,
-    lifecycle: 'active-debt',
-    createdAt: '2026-04-08',
-    renewalCount: 0,
-  },
-  {
-    path: 'presentation/pages/Dashboard/widgets/conditionSummaryUtils.ts',
-    ruleId: 'AR-STRUCT-RESP-SEPARATION',
-    reason: '条件サマリーの store アクセス。getState 1 回',
-    category: 'structural',
-    removalCondition: 'callback props 経由に移行時',
-    limit: 2,
-    lifecycle: 'active-debt',
-    createdAt: '2026-04-08',
-    renewalCount: 0,
-  },
-  {
-    path: 'presentation/pages/CostDetail/useCostDetailData.helpers.ts',
-    ruleId: 'AR-STRUCT-RESP-SEPARATION',
-    reason: 'コスト明細ヘルパーの store アクセス。getState 1 回',
-    category: 'structural',
-    removalCondition: 'callback props 経由に移行時',
-    limit: 2,
-    lifecycle: 'active-debt',
-    createdAt: '2026-04-08',
-    renewalCount: 0,
-  },
+  // StoreKpiTableInner.tsx — Zustand selector 経由に移行。getState 0 回。許可リスト卒業
+  // AdminPage.tsx — Zustand selector 経由に移行。getState 0 回。許可リスト卒業
+  // PrevYearMappingTab.tsx — Zustand selector 経由に移行。getState 0 回。許可リスト卒業
+  // ExecSummaryBarWidget.tsx — Zustand selector 経由に移行。getState 0 回。許可リスト卒業
+  // conditionSummaryUtils.ts — userCategoryLabels を引数で受け取る pure function に変更。許可リスト卒業
+  // useCostDetailData.helpers.ts — userCategoryLabels を引数で受け取る pure function に変更。許可リスト卒業
 ] as const
 
 // ─── P7: module-scope let（グローバル変数） ──────────────────
@@ -110,17 +50,7 @@ export const moduleScopeLetLimits: readonly QuantitativeAllowlistEntry[] = [
     lifecycle: 'permanent',
     createdAt: '2026-04-08',
   },
-  {
-    path: 'presentation/components/charts/EChart.tsx',
-    ruleId: 'AR-STRUCT-RESP-SEPARATION',
-    reason: 'ECharts インスタンスキャッシュ。module let 2 個',
-    category: 'structural',
-    removalCondition: 'WeakMap ベースに移行時',
-    limit: 3,
-    lifecycle: 'active-debt',
-    createdAt: '2026-04-08',
-    renewalCount: 0,
-  },
+  // EChart.tsx — Set<string> ベースに移行。module let 0 個。許可リスト卒業
   {
     path: 'application/adapters/uiPersistenceAdapter.ts',
     ruleId: 'AR-STRUCT-RESP-SEPARATION',
@@ -141,66 +71,16 @@ export const moduleScopeLetLimits: readonly QuantitativeAllowlistEntry[] = [
     lifecycle: 'permanent',
     createdAt: '2026-04-08',
   },
-  {
-    path: 'application/hooks/useLoadComparisonData.ts',
-    ruleId: 'AR-STRUCT-RESP-SEPARATION',
-    reason: '比較データの隣接月キャッシュ。module let 1 個',
-    category: 'structural',
-    removalCondition: 'WeakMap ベースに移行時',
-    limit: 2,
-    lifecycle: 'active-debt',
-    createdAt: '2026-04-08',
-    renewalCount: 0,
-  },
-  {
-    path: 'presentation/pages/Dashboard/widgets/widgetLayout.ts',
-    ruleId: 'AR-STRUCT-RESP-SEPARATION',
-    reason: 'ウィジェットレイアウトの localStorage キャッシュ。module let 1 個',
-    category: 'structural',
-    removalCondition: 'application 層に移動時',
-    limit: 2,
-    lifecycle: 'active-debt',
-    createdAt: '2026-04-08',
-    renewalCount: 0,
-  },
+  // useLoadComparisonData.ts — const object ベースに移行。module let 0 個。許可リスト卒業
+  // widgetLayout.ts — const object ベースに移行。module let 0 個。許可リスト卒業
 ] as const
 
 // ─── P12: domain/models/ の export 過多 ──────────────────────
 
 export const domainModelExportLimits: readonly QuantitativeAllowlistEntry[] = [
-  {
-    path: 'domain/models/ClassifiedSales.ts',
-    ruleId: 'AR-STRUCT-RESP-SEPARATION',
-    reason: '分類売上の型 + ビルダー群。export 10 個',
-    category: 'structural',
-    removalCondition: 'ビルダーを別ファイルに分離時',
-    limit: 11,
-    lifecycle: 'active-debt',
-    createdAt: '2026-04-08',
-    renewalCount: 0,
-  },
-  {
-    path: 'domain/models/AsyncState.ts',
-    ruleId: 'AR-STRUCT-RESP-SEPARATION',
-    reason: '非同期状態の型 + ヘルパー群。export 10 個',
-    category: 'structural',
-    removalCondition: 'ヘルパーを別ファイルに分離時',
-    limit: 11,
-    lifecycle: 'active-debt',
-    createdAt: '2026-04-08',
-    renewalCount: 0,
-  },
-  {
-    path: 'domain/models/CalendarDate.ts',
-    ruleId: 'AR-STRUCT-RESP-SEPARATION',
-    reason: '日付型 + 変換関数群。export 9 個',
-    category: 'structural',
-    removalCondition: '変換関数を別ファイルに分離時',
-    limit: 10,
-    lifecycle: 'active-debt',
-    createdAt: '2026-04-08',
-    renewalCount: 0,
-  },
+  // ClassifiedSales.ts — DiscountEntry.ts に分割。export 16→8。許可リスト卒業
+  // AsyncState.ts — AsyncStateFactories.ts に分割。export 14→4。許可リスト卒業
+  // CalendarDate.ts — DateRangeChunks.ts に分割。export 9→7。許可リスト卒業
   {
     path: 'domain/models/DaySerial.ts',
     ruleId: 'AR-STRUCT-RESP-SEPARATION',
@@ -291,10 +171,10 @@ export const fallbackConstantDensityLimits: readonly QuantitativeAllowlistEntry[
   {
     path: 'presentation/pages/Admin/RawDataTabBuilders.ts',
     ruleId: 'AR-STRUCT-RESP-SEPARATION',
-    reason: '生データタブの空状態定義。fallback 8 個',
+    reason: '生データタブの空状態定義',
     category: 'structural',
     removalCondition: '空状態を共通モジュールに集約時',
-    limit: 9,
+    limit: 8,
     lifecycle: 'active-debt',
     createdAt: '2026-04-08',
     renewalCount: 0,
@@ -302,7 +182,7 @@ export const fallbackConstantDensityLimits: readonly QuantitativeAllowlistEntry[
   {
     path: 'application/usecases/calculation/collectionAggregator.ts',
     ruleId: 'AR-STRUCT-RESP-SEPARATION',
-    reason: 'コレクション集約の初期値定義。fallback 7 個',
+    reason: 'コレクション集約の初期値定義',
     category: 'structural',
     removalCondition: '初期値を型のデフォルトに統合時',
     limit: 8,
@@ -313,7 +193,7 @@ export const fallbackConstantDensityLimits: readonly QuantitativeAllowlistEntry[
   {
     path: 'application/hooks/plans/useDayDetailPlan.ts',
     ruleId: 'AR-STRUCT-RESP-SEPARATION',
-    reason: '日次詳細 plan の初期値定義。fallback 7 個',
+    reason: '日次詳細 plan の初期値定義',
     category: 'structural',
     removalCondition: '初期値を型のデフォルトに統合時',
     limit: 8,

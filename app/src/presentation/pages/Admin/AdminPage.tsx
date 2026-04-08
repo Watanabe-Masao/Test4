@@ -250,6 +250,8 @@ function CategoryManagementTab() {
 // ─── 店舗管理タブ ──────────────────────────────────────
 function StoreManagementTab() {
   const current = useDataStore((s) => s.currentMonthData)
+  const setCurrentMonthData = useDataStore((s) => s.setCurrentMonthData)
+  const invalidateCalculation = useUiStore((s) => s.invalidateCalculation)
   const { settings, updateSettings } = useSettings()
   const stores = current ? Array.from(current.stores.values()) : []
 
@@ -267,13 +269,13 @@ function StoreManagementTab() {
       if (storeEntry && current) {
         const updated = new Map(current.stores)
         updated.set(editingStore, { ...storeEntry, name: editName.trim() })
-        useDataStore.getState().setCurrentMonthData({ ...current, stores: updated })
+        setCurrentMonthData({ ...current, stores: updated })
         calculationCache.clear()
-        useUiStore.getState().invalidateCalculation()
+        invalidateCalculation()
       }
     }
     setEditingStore(null)
-  }, [editingStore, editName, current])
+  }, [editingStore, editName, current, setCurrentMonthData, invalidateCalculation])
 
   const handleSaveLocation = useCallback(
     (storeId: string, loc: StoreLocation) => {

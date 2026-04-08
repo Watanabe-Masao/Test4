@@ -10,7 +10,7 @@ import {
   isUserCategory,
 } from '@/domain/constants/customCategories'
 import { CATEGORY_COLORS, CUSTOM_CATEGORY_COLORS } from '@/presentation/pages/Category/categoryData'
-import { useSettingsStore } from '@/application/stores/settingsStore'
+
 import type {
   FlowEntry,
   FlowGroup,
@@ -219,6 +219,7 @@ export function aggregateByAccount(items: ItemAggregate[]): AccountAggregate[] {
 export function buildPurchasePivot(
   days: [number, DailyRecord][],
   supplierCategoryMap: Readonly<Partial<Record<string, CustomCategory>>>,
+  userCategoryLabels?: Readonly<Record<string, string>>,
 ): PurchasePivotData {
   // --- 列定義 ---
   // 標準カテゴリを取得するためのマッピング
@@ -285,7 +286,7 @@ export function buildPurchasePivot(
       }
     }
 
-    const userCategoryLabels = useSettingsStore.getState().settings.userCategoryLabels ?? {}
+    const resolvedLabels = userCategoryLabels ?? {}
     for (const cc of PRESET_CATEGORY_DEFS) {
       if (!customCatHasData.has(cc.id as CustomCategory)) continue
       customColumns.push({
@@ -301,7 +302,7 @@ export function buildPurchasePivot(
       if (!isUserCategory(id)) continue
       customColumns.push({
         key: id,
-        label: userCategoryLabels[id] ?? id.replace('user:', ''),
+        label: resolvedLabels[id] ?? id.replace('user:', ''),
         color: '#14b8a6',
         isCustom: true,
       })

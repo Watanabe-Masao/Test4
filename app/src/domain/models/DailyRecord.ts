@@ -1,6 +1,6 @@
 import type { CostPricePair } from './CostPricePair'
 import type { CostInclusionDailyRecord } from './CostInclusionItem'
-import type { DiscountEntry } from './ClassifiedSales'
+import type { DiscountEntry } from './DiscountEntry'
 
 /** 移動明細行（from → to のペア別集計） */
 export interface TransferBreakdownEntry {

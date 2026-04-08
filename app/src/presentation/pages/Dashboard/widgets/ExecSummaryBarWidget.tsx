@@ -31,6 +31,8 @@ const TABS: { key: SummaryTab; label: string }[] = [
 
 export function ExecSummaryBarWidget(ctx: WidgetContext) {
   const { result: r, prevYear, onExplain, fmtCurrency } = ctx
+  const updateSettings = useSettingsStore((s) => s.updateSettings)
+  const invalidateCalculation = useUiStore((s) => s.invalidateCalculation)
   const [tab, setTab] = useState<SummaryTab>('sales')
 
   const pyRatio =
@@ -54,12 +56,12 @@ export function ExecSummaryBarWidget(ctx: WidgetContext) {
     (e: React.MouseEvent) => {
       e.stopPropagation()
       if (r.purchaseMaxDay > 0) {
-        useSettingsStore.getState().updateSettings({ dataEndDay: r.purchaseMaxDay })
+        updateSettings({ dataEndDay: r.purchaseMaxDay })
         calculationCache.clear()
-        useUiStore.getState().invalidateCalculation()
+        invalidateCalculation()
       }
     },
-    [r.purchaseMaxDay],
+    [r.purchaseMaxDay, updateSettings, invalidateCalculation],
   )
 
   return (

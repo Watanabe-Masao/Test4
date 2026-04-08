@@ -83,6 +83,9 @@ function EditableLandingCell({
 
 export function StoreKpiTableInner({ ctx }: { ctx: WidgetContext }) {
   const dataSettings = useDataStore((s) => s.currentMonthData?.settings ?? EMPTY_SETTINGS)
+  const updateInventory = useDataStore((s) => s.updateInventory)
+  const invalidateCalculation = useUiStore((s) => s.invalidateCalculation)
+  const updateSettings = useSettingsStore((s) => s.updateSettings)
   const { result: agg, allStoreResults, stores, fmtCurrency } = ctx
 
   // 店舗をコード順でソート
@@ -103,18 +106,21 @@ export function StoreKpiTableInner({ ctx }: { ctx: WidgetContext }) {
 
   const handleInventoryChange = useCallback(
     (storeId: string, field: 'closingInventory' | 'openingInventory', val: number | null) => {
-      useDataStore.getState().updateInventory(storeId, { [field]: val })
+      updateInventory(storeId, { [field]: val })
       calculationCache.clear()
-      useUiStore.getState().invalidateCalculation()
+      invalidateCalculation()
     },
-    [],
+    [updateInventory, invalidateCalculation],
   )
 
-  const handleGPBudgetChange = useCallback((storeId: string, val: number | null) => {
-    useDataStore.getState().updateInventory(storeId, { grossProfitBudget: val })
-    calculationCache.clear()
-    useUiStore.getState().invalidateCalculation()
-  }, [])
+  const handleGPBudgetChange = useCallback(
+    (storeId: string, val: number | null) => {
+      updateInventory(storeId, { grossProfitBudget: val })
+      calculationCache.clear()
+      invalidateCalculation()
+    },
+    [updateInventory, invalidateCalculation],
+  )
 
   // 観測品質チェック
   const observationWarning =
@@ -129,11 +135,11 @@ export function StoreKpiTableInner({ ctx }: { ctx: WidgetContext }) {
 
   const handleFilterToPurchase = useCallback(() => {
     if (agg.purchaseMaxDay > 0) {
-      useSettingsStore.getState().updateSettings({ dataEndDay: agg.purchaseMaxDay })
+      updateSettings({ dataEndDay: agg.purchaseMaxDay })
       calculationCache.clear()
-      useUiStore.getState().invalidateCalculation()
+      invalidateCalculation()
     }
-  }, [agg.purchaseMaxDay])
+  }, [agg.purchaseMaxDay, updateSettings, invalidateCalculation])
 
   const handleExportCsv = useCallback(() => {
     const headers = [

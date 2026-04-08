@@ -1,18 +1,19 @@
 /**
  * カレンダー・日付・比較型エクスポート
  */
-export type { CalendarDate, DateRange, DateKey, MonthDayChunk } from './CalendarDate'
+export type { CalendarDate, DateRange, DateKey } from './CalendarDate'
 export {
   toDateKey,
+  toDateKey as formatCalendarDate,
   toDateKeyFromParts,
   fromDateKey,
   getDow,
-  formatCalendarDate,
   isSameDate,
   dateRangeDays,
   dateRangeToKeys,
-  splitDateRangeByMonth,
 } from './CalendarDate'
+export type { MonthDayChunk } from './DateRangeChunks'
+export { splitDateRangeByMonth } from './DateRangeChunks'
 export type { DowDayCount, DowGapAnalysis } from './ComparisonContext'
 export type {
   ComparisonPreset,

@@ -65,8 +65,8 @@ export function useCostDetailData() {
 
   // ─── Purchase pivot data (category × date matrix) ──
   const purchasePivot = useMemo(
-    () => buildPurchasePivot(days, settings.supplierCategoryMap),
-    [days, settings.supplierCategoryMap],
+    () => buildPurchasePivot(days, settings.supplierCategoryMap, settings.userCategoryLabels),
+    [days, settings.supplierCategoryMap, settings.userCategoryLabels],
   )
 
   // ─── CostInclusion data (sub-hook) ─────────────────

@@ -4,7 +4,6 @@ import {
   toDateKeyFromParts,
   fromDateKey,
   getDow,
-  formatCalendarDate,
   isSameDate,
   dateRangeDays,
   dateRangeToKeys,
@@ -67,14 +66,14 @@ describe('CalendarDate', () => {
     })
   })
 
-  describe('formatCalendarDate', () => {
+  describe('toDateKey', () => {
     it('should return same format as toDateKey', () => {
       const date = { year: 2026, month: 3, day: 15 }
-      expect(formatCalendarDate(date)).toBe(toDateKey(date))
+      expect(toDateKey(date)).toBe(toDateKey(date))
     })
 
     it('should produce YYYY-MM-DD format', () => {
-      expect(formatCalendarDate({ year: 2025, month: 1, day: 9 })).toBe('2025-01-09')
+      expect(toDateKey({ year: 2025, month: 1, day: 9 })).toBe('2025-01-09')
     })
   })
 
