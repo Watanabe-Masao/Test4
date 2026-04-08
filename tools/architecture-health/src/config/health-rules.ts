@@ -145,7 +145,7 @@ export const HEALTH_RULES: readonly HealthRule[] = [
     id: "temporal.allowlist.activeDebt.count",
     type: "soft_gate",
     operator: "lte",
-    target: 20,
+    target: 16,
   },
   // 減少禁止: baseline を下回ったら fail
   {
@@ -164,7 +164,7 @@ export const HEALTH_RULES: readonly HealthRule[] = [
     id: "temporal.allowlist.activeDebt.withCreatedAt",
     type: "soft_gate",
     operator: "gte",
-    target: 20,
+    target: 16,
   },
   // --- Rule Efficacy ---
   {

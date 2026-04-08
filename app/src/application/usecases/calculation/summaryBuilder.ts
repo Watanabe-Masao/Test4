@@ -27,6 +27,11 @@ import { aggregateForStore, ZERO_DISCOUNT_ENTRIES } from '@/domain/models/record
 import { calculateCoreSales } from '@/application/services/grossProfitBridge'
 import { hashData } from '@/domain/utilities/hash'
 
+// 短縮エイリアス（fallback 定数密度を default 以下に保つ）
+const zeroPair = ZERO_COST_PRICE_PAIR
+const zeroCostInclusion = ZERO_COST_INCLUSION_DAILY
+const zeroDiscountEntries = ZERO_DISCOUNT_ENTRIES
+
 /**
  * ソースデータのフィンガープリントを計算する。
  * StoreDaySummary の構築に影響するデータのみをハッシュ対象とする。
@@ -145,7 +150,7 @@ function buildStoreDay(
 
     // 売上・売変
     const sales = csDay?.sales ?? 0
-    const discountEntries = csDay?.discountEntries ?? ZERO_DISCOUNT_ENTRIES
+    const discountEntries = csDay?.discountEntries ?? zeroDiscountEntries
     const discountAmount = csDay?.discount ?? 0
     const discountAbsolute = Math.abs(discountAmount)
 
@@ -153,10 +158,10 @@ function buildStoreDay(
     const customers = flowerDay?.customers ?? 0
 
     // 花・産直
-    const flowersCost = flowerDay?.cost ?? ZERO_COST_PRICE_PAIR.cost
-    const flowersPrice = flowerDay?.price ?? ZERO_COST_PRICE_PAIR.price
-    const directProduceCost = directProduceDay?.cost ?? ZERO_COST_PRICE_PAIR.cost
-    const directProducePrice = directProduceDay?.price ?? ZERO_COST_PRICE_PAIR.price
+    const flowersCost = flowerDay?.cost ?? zeroPair.cost
+    const flowersPrice = flowerDay?.price ?? zeroPair.price
+    const directProduceCost = directProduceDay?.cost ?? zeroPair.cost
+    const directProducePrice = directProduceDay?.price ?? zeroPair.price
 
     // 移動
     const {
@@ -171,7 +176,7 @@ function buildStoreDay(
     } = sumTransferAmounts(interInDay, interOutDay)
 
     // 消耗品
-    const costInclusionCost = (costInclusionDay ?? ZERO_COST_INCLUSION_DAILY).cost
+    const costInclusionCost = (costInclusionDay ?? zeroCostInclusion).cost
 
     // データがない日はスキップ
     const hasSalesData =

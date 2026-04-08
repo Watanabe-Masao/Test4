@@ -113,17 +113,7 @@ export const fallbackConstantDensityLimits: readonly QuantitativeAllowlistEntry[
     createdAt: '2026-04-08',
     renewalCount: 0,
   },
-  {
-    path: 'application/usecases/calculation/dailyBuilder.ts',
-    ruleId: 'AR-STRUCT-RESP-SEPARATION',
-    reason: '日次ビルダーの初期値定義。fallback 13 個',
-    category: 'structural',
-    removalCondition: '初期値を型のデフォルトに統合時',
-    limit: 14,
-    lifecycle: 'active-debt',
-    createdAt: '2026-04-08',
-    renewalCount: 0,
-  },
+  // dailyBuilder.ts — エイリアス化で fallback 密度 13→6。許可リスト卒業
   {
     path: 'presentation/pages/Daily/DailyPage.tsx',
     ruleId: 'AR-STRUCT-RESP-SEPARATION',
@@ -157,17 +147,7 @@ export const fallbackConstantDensityLimits: readonly QuantitativeAllowlistEntry[
     createdAt: '2026-04-08',
     renewalCount: 0,
   },
-  {
-    path: 'application/usecases/calculation/summaryBuilder.ts',
-    ruleId: 'AR-STRUCT-RESP-SEPARATION',
-    reason: 'サマリービルダーの初期値定義。fallback 9 個',
-    category: 'structural',
-    removalCondition: '初期値を型のデフォルトに統合時',
-    limit: 10,
-    lifecycle: 'active-debt',
-    createdAt: '2026-04-08',
-    renewalCount: 0,
-  },
+  // summaryBuilder.ts — エイリアス化で fallback 密度 9→6。許可リスト卒業
   {
     path: 'presentation/pages/Admin/RawDataTabBuilders.ts',
     ruleId: 'AR-STRUCT-RESP-SEPARATION',
@@ -179,26 +159,6 @@ export const fallbackConstantDensityLimits: readonly QuantitativeAllowlistEntry[
     createdAt: '2026-04-08',
     renewalCount: 0,
   },
-  {
-    path: 'application/usecases/calculation/collectionAggregator.ts',
-    ruleId: 'AR-STRUCT-RESP-SEPARATION',
-    reason: 'コレクション集約の初期値定義',
-    category: 'structural',
-    removalCondition: '初期値を型のデフォルトに統合時',
-    limit: 8,
-    lifecycle: 'active-debt',
-    createdAt: '2026-04-08',
-    renewalCount: 0,
-  },
-  {
-    path: 'application/hooks/plans/useDayDetailPlan.ts',
-    ruleId: 'AR-STRUCT-RESP-SEPARATION',
-    reason: '日次詳細 plan の初期値定義',
-    category: 'structural',
-    removalCondition: '初期値を型のデフォルトに統合時',
-    limit: 8,
-    lifecycle: 'active-debt',
-    createdAt: '2026-04-08',
-    renewalCount: 0,
-  },
+  // collectionAggregator.ts — エイリアス化で fallback 密度 7→2。許可リスト卒業
+  // useDayDetailPlan.ts — エイリアス化で fallback 密度 7→4。許可リスト卒業
 ] as const

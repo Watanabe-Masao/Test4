@@ -33,6 +33,9 @@ import {
 import type { DaySummary } from '../duckdb/dayDetailDataLogic'
 import type { CategoryTimeSalesRecord, HourlyWeatherRecord } from '@/domain/models/record'
 
+const emptyRecords = EMPTY_RECORDS
+const zeroSummary = ZERO_SUMMARY
+
 /** resolveDayDetailRanges の戻り値型  *
  * @responsibility R:query-plan
  */
@@ -118,11 +121,11 @@ export function useDayDetailPlan(
     storeDaySummaryHandler,
     summary.prevFallback,
   )
-  const daySummary = aggregateSummary(curSummaryResult.data?.records) ?? ZERO_SUMMARY
+  const daySummary = aggregateSummary(curSummaryResult.data?.records) ?? zeroSummary
   const prevDaySummary =
     aggregateSummary(prevSummaryResult.data?.records) ??
     aggregateSummary(prevSummaryFallback.data?.records) ??
-    ZERO_SUMMARY
+    zeroSummary
 
   // ── Weather クエリ実行 ──
   const weatherResult = useQueryWithHandler(queryExecutor, weatherHourlyHandler, weather.cur)
@@ -139,10 +142,10 @@ export function useDayDetailPlan(
   return {
     daySummary,
     prevDaySummary,
-    dayRecords: dayResult.data?.records ?? EMPTY_RECORDS,
+    dayRecords: dayResult.data?.records ?? emptyRecords,
     prevDayRecords,
-    wowPrevDayRecords: wowResult.data?.records ?? EMPTY_RECORDS,
-    cumRecords: cumResult.data?.records ?? EMPTY_RECORDS,
+    wowPrevDayRecords: wowResult.data?.records ?? emptyRecords,
+    cumRecords: cumResult.data?.records ?? emptyRecords,
     cumPrevRecords,
     weatherHourly: weatherResult.data?.records ?? undefined,
     prevWeatherHourly: prevWeatherResult.data?.records ?? undefined,
