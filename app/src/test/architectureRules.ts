@@ -3920,3 +3920,109 @@ export function formatViolationMessage(
   }
   return lines.join('\n')
 }
+
+// ── AAG 統一レスポンス構造（Phase 3） ──────────────────────────
+
+/**
+ * AAG 統一レスポンス — guard / obligation / health / pre-commit 共通
+ *
+ * どこで止まっても同じ情報構造で返る。
+ * @see references/01-principles/aag-four-layer-architecture.md
+ */
+export interface AagResponse {
+  /** 情報源: guard / obligation / health / pre-commit */
+  readonly source: 'guard' | 'obligation' | 'health' | 'pre-commit'
+  /** 運用区分 */
+  readonly fixNow: 'now' | 'debt' | 'review'
+  /** 関心スライス */
+  readonly slice: AagSlice | null
+  /** 1. 何が止まったか */
+  readonly summary: string
+  /** 2. なぜ止まったか */
+  readonly reason: string
+  /** 3. 今やること */
+  readonly steps: readonly string[]
+  /** 4. 例外がありうるか */
+  readonly exceptions: string | null
+  /** 5. 深掘り先 */
+  readonly deepDive: string | null
+  /** 違反の詳細一覧 */
+  readonly violations: readonly string[]
+}
+
+/** ArchitectureRule + 違反一覧 → AagResponse */
+export function buildAagResponse(
+  rule: ArchitectureRule,
+  violations: readonly string[],
+  source: AagResponse['source'] = 'guard',
+): AagResponse {
+  return {
+    source,
+    fixNow: rule.fixNow ?? 'debt',
+    slice: rule.slice ?? null,
+    summary: rule.entrypointSummary ?? rule.what,
+    reason: rule.why,
+    steps: rule.migrationPath?.steps ?? [],
+    exceptions: rule.decisionCriteria?.exceptions ?? null,
+    deepDive: rule.deepDiveDoc ?? rule.doc ?? null,
+    violations,
+  }
+}
+
+/** AagResponse → 人間可読文字列（テスト出力・PR コメント・pre-commit 共通） */
+export function renderAagResponse(resp: AagResponse): string {
+  const fixLabel =
+    resp.fixNow === 'now' ? '⚡ 今すぐ修正'
+    : resp.fixNow === 'debt' ? '📋 構造負債として管理'
+    : '🔍 観測・レビュー対象'
+
+  const sliceLabel = resp.slice ? ` [${resp.slice}]` : ''
+
+  const lines = [
+    `${fixLabel}${sliceLabel}`,
+    `  ${resp.summary}`,
+    `  理由: ${resp.reason}`,
+  ]
+
+  if (resp.steps.length > 0) {
+    lines.push('  対応:')
+    for (const step of resp.steps) lines.push(`    ${step}`)
+  }
+
+  if (resp.exceptions) {
+    lines.push(`  例外: ${resp.exceptions}`)
+  }
+
+  if (resp.deepDive) {
+    lines.push(`  詳細: ${resp.deepDive}`)
+  }
+
+  if (resp.violations.length > 0) {
+    lines.push('  違反:')
+    for (const v of resp.violations) lines.push(`    ${v}`)
+  }
+
+  return lines.join('\n')
+}
+
+/** Obligation 違反用の AagResponse 生成（rule を持たないケース） */
+export function buildObligationResponse(
+  obligationId: string,
+  label: string,
+  triggerPath: string,
+): AagResponse {
+  return {
+    source: 'obligation',
+    fixNow: 'now',
+    slice: 'governance-ops',
+    summary: label,
+    reason: `${triggerPath} が変更されたため、関連ドキュメントの更新が必要`,
+    steps: [
+      '1. cd app && npm run docs:generate',
+      '2. git add references/02-status/generated/ CLAUDE.md',
+    ],
+    exceptions: null,
+    deepDive: 'tools/architecture-health/src/collectors/obligation-collector.ts',
+    violations: [`obligation: ${obligationId}`],
+  }
+}
