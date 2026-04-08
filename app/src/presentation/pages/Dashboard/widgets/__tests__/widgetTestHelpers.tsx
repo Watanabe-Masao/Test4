@@ -181,10 +181,26 @@ export function makePrevYear(
   }
 }
 
+/** readModels モックを result.totalCustomers から導出 */
+function makeReadModels(totalCustomers: number): WidgetContext['readModels'] {
+  return {
+    customerFact: { grandTotalCustomers: totalCustomers } as NonNullable<
+      NonNullable<WidgetContext['readModels']>['customerFact']
+    >,
+    purchaseCost: null,
+    salesFact: null,
+    discountFact: null,
+    isLoading: false,
+    errors: {},
+    error: null,
+  }
+}
+
 /** 最小限の WidgetContext を作成 */
 export function makeWidgetContext(overrides: Partial<WidgetContext> = {}): WidgetContext {
+  const result = overrides.result ?? makeStoreResult()
   return {
-    result: makeStoreResult(),
+    result,
     daysInMonth: 28,
     targetRate: 0.25,
     warningRate: 0.23,
@@ -286,6 +302,7 @@ export function makeWidgetContext(overrides: Partial<WidgetContext> = {}): Widge
       sourceMonth: { year: 2025, month: 2 },
     },
     currentCtsQuantity: { total: 0, byStore: new Map(), byDay: new Map(), byStoreDay: new Map() },
+    readModels: makeReadModels(result.totalCustomers),
     ...overrides,
   }
 }
