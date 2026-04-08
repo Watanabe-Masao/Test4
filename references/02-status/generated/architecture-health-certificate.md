@@ -7,7 +7,7 @@
 | **総合評価** | **Healthy** |
 | 前回比 | Flat |
 | リリース影響 | No |
-| 最終更新 | 2026-04-08T05:26:35.813Z |
+| 最終更新 | 2026-04-08T05:31:28.989Z |
 
 ## Hard Gate
 
@@ -31,6 +31,7 @@
 | **境界健全性** | OK | Presentation→Infrastructure 違反: 0/0 / Infrastructure→Application 違反: 0/0 |
 | **ガード強度** | OK | ガードテストファイル数: 39/30 / レビュー専用タグ数: 0/5 |
 | **性能** | OK | JS バンドル合計サイズ: 6492/7000 / メインバンドルサイズ: 2219/2500 / ECharts バンドルサイズ: 919/1000 |
+| **Temporal Governance** | OK | review overdue ルール数: 0/0 / heuristic + gate ルール数: 27/27 / active-debt 例外数: 33/33 / reviewPolicy 設定済みルール数: 84/84 / sunsetCondition 設定済みルール数: 9/9 / active-debt で createdAt 設定済み: 33/33 |
 
 ---
 

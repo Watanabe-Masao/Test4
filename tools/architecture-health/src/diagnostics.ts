@@ -115,6 +115,17 @@ const INDICATOR_GROUPS: readonly { name: string; ids: readonly string[] }[] = [
     name: '性能',
     ids: ['perf.bundle.totalJsKb', 'perf.bundle.mainJsKb', 'perf.bundle.vendorEchartsKb'],
   },
+  {
+    name: 'Temporal Governance',
+    ids: [
+      'temporal.rules.reviewOverdue.count',
+      'temporal.rules.heuristicGate.count',
+      'temporal.allowlist.activeDebt.count',
+      'temporal.rules.reviewPolicy.count',
+      'temporal.rules.sunsetCondition.count',
+      'temporal.allowlist.activeDebt.withCreatedAt',
+    ],
+  },
 ] as const
 
 export function buildCompositeIndicators(
