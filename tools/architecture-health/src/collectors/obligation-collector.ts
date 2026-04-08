@@ -190,7 +190,18 @@ export function collectObligations(
         break
     }
 
-    if (!satisfied) violations++
+    if (!satisfied) {
+      violations++
+      // AAG Response: 違反の修正手順を標準エラーに出力
+      if (process.env.AAG_VERBOSE !== '0') {
+        console.error(
+          `  ⚡ AAG Obligation [governance-ops]\n` +
+            `    ${rule.label}\n` +
+            `    対応: cd app && npm run docs:generate\n` +
+            `    詳細: ${rule.pathPattern} の変更が検出されました`,
+        )
+      }
+    }
   }
 
   kpis.push({
