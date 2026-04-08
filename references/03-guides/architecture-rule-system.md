@@ -274,6 +274,10 @@ const count = (stripComments(content).match(/\buseState\b/g) || []).length
 | UNCLASSIFIED_BASELINE | 400 |
 | TAG_MISMATCH_BASELINE | 48 |
 | Zod review 未済 baseline | 3 |
+| **Health KPI 数** | 28 |
+| **protectedHarm 設定済み** | 24 |
+| **reviewPolicy 設定済み** | 84/84 (100%) |
+| **sunsetCondition 設定済み** | 9 |
 
 ## ルール健全性評価
 
@@ -384,6 +388,38 @@ reviewPolicy: {
 **判断基準**: 例外の `lifecycle` を見る。
 - `permanent` が多い → ルールが粗すぎる（構造的に必要な例外）
 - `active-debt` が多い → ルールは正しいが改善が追いついていない
+
+### Evidence Governance（ルールの有効性評価）
+
+> 良いルールとは、守られているルールではなく、害を減らしているルールである。
+
+#### protectedHarm — このルールが防いでいる害
+
+```typescript
+protectedHarm: {
+  prevents: ['domain 純粋性崩壊', 'テストモック必要化', '計算信頼性低下'],
+}
+```
+
+ルールの価値を「見た目の整然さ」ではなく「何の害を防いでいるか」で評価する。
+protectedHarm が定義されていないルールは、存在意義が曖昧。
+
+#### efficacy KPI — ルールが効いているかの指標
+
+| KPI | 意味 | 閾値 |
+|---|---|---|
+| `efficacy.rules.withProtectedHarm.count` | protectedHarm 設定済みルール数 | info |
+| `efficacy.rules.highNoise.count` | 例外 10 件以上のルール数 | info (≤3) |
+| `efficacy.allowlist.renewalTotal` | renewalCount 合計 | info (≤10) |
+
+#### ルールの 4 類型
+
+| 類型 | 特徴 | 対処 |
+|---|---|---|
+| **Effective** | 違反少・例外少・過去に実害防止 | 維持 |
+| **Noisy** | 違反多・例外多・修正が実害に結びつかない | ルール見直し or 分割 |
+| **Dormant** | 違反ゼロが長期間・代替ルールあり | sunset 検討 |
+| **Structural Hotspot** | 同じ path で何度も引っかかる | ルールではなく構造を修正 |
 
 ### ルールのライフサイクル
 
