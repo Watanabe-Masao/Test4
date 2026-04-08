@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-08T05:24:32.302Z
+> Generated: 2026-04-08T05:26:35.813Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -21,8 +21,8 @@
 | allowlist.total | 許可リスト総エントリ数 | 15 / 20 | OK |
 | allowlist.frozen.nonZero | Frozen リスト非ゼロ | 0 / 0 | OK |
 | allowlist.active.count | Active リスト数 | 8 / 10 | OK |
-| temporal.allowlist.activeDebt.count | active-debt 例外数 | 33 / 40 | OK |
-| temporal.allowlist.activeDebt.withCreatedAt | active-debt で createdAt 設定済み | 33 | OK |
+| temporal.allowlist.activeDebt.count | active-debt 例外数 | 33 / 33 | OK |
+| temporal.allowlist.activeDebt.withCreatedAt | active-debt で createdAt 設定済み | 33 / 33 | OK |
 
 ## 後方互換負債
 
@@ -52,10 +52,10 @@
 |---|---|---|---|
 | guard.files.count | ガードテストファイル数 | 39 / 30 | OK |
 | guard.reviewOnlyTags.count | レビュー専用タグ数 | 0 / 5 | OK |
-| temporal.rules.reviewPolicy.count | reviewPolicy 設定済みルール数 | 84 | OK |
-| temporal.rules.sunsetCondition.count | sunsetCondition 設定済みルール数 | 9 | OK |
-| temporal.rules.reviewOverdue.count | review overdue ルール数 | 0 / 5 | OK |
-| temporal.rules.heuristicGate.count | heuristic + gate ルール数 | 27 / 30 | OK |
+| temporal.rules.reviewPolicy.count | reviewPolicy 設定済みルール数 | 84 / 84 | OK |
+| temporal.rules.sunsetCondition.count | sunsetCondition 設定済みルール数 | 9 / 9 | OK |
+| temporal.rules.reviewOverdue.count | review overdue ルール数 | 0 / 0 | OK |
+| temporal.rules.heuristicGate.count | heuristic + gate ルール数 | 27 / 27 | OK |
 
 ## ドキュメント整合
 

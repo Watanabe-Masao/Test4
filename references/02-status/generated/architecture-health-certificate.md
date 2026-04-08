@@ -7,7 +7,7 @@
 | **総合評価** | **Healthy** |
 | 前回比 | Flat |
 | リリース影響 | No |
-| 最終更新 | 2026-04-08T05:24:32.302Z |
+| 最終更新 | 2026-04-08T05:26:35.813Z |
 
 ## Hard Gate
 
@@ -19,6 +19,7 @@
 - PASS: Presentation→Infrastructure 違反
 - PASS: Infrastructure→Application 違反
 - PASS: Doc 更新義務違反数
+- PASS: review overdue ルール数
 
 ## Health Metrics
 

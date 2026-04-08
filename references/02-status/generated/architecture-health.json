@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-08T05:24:32.302Z",
+  "timestamp": "2026-04-08T05:26:35.813Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -472,7 +472,8 @@
       ],
       "implRefs": [
         "app/src/test/architectureRules.ts"
-      ]
+      ],
+      "budget": 84
     },
     {
       "id": "temporal.rules.sunsetCondition.count",
@@ -490,7 +491,8 @@
       ],
       "implRefs": [
         "app/src/test/architectureRules.ts"
-      ]
+      ],
+      "budget": 9
     },
     {
       "id": "temporal.rules.reviewOverdue.count",
@@ -504,7 +506,7 @@
       "implRefs": [
         "app/src/test/architectureRules.ts"
       ],
-      "budget": 5
+      "budget": 0
     },
     {
       "id": "temporal.rules.heuristicGate.count",
@@ -518,7 +520,7 @@
       "implRefs": [
         "app/src/test/architectureRules.ts"
       ],
-      "budget": 30
+      "budget": 27
     },
     {
       "id": "temporal.allowlist.activeDebt.count",
@@ -536,7 +538,7 @@
         "app/src/test/allowlists/size.ts",
         "app/src/test/allowlists/misc.ts"
       ],
-      "budget": 40
+      "budget": 33
     },
     {
       "id": "temporal.allowlist.activeDebt.withCreatedAt",
@@ -553,7 +555,8 @@
         "app/src/test/allowlists/responsibility.ts",
         "app/src/test/allowlists/size.ts",
         "app/src/test/allowlists/misc.ts"
-      ]
+      ],
+      "budget": 33
     }
   ],
   "summary": {

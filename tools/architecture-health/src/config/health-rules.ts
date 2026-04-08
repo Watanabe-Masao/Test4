@@ -47,8 +47,13 @@ export const HEALTH_RULES: readonly HealthRule[] = [
   // --- Obligation ---
   { id: 'docs.obligation.violations', type: 'hard_gate', operator: 'eq', target: 0 },
 
-  // --- Temporal Governance ---
-  { id: 'temporal.rules.reviewOverdue.count', type: 'info', operator: 'lte', target: 5 },
-  { id: 'temporal.rules.heuristicGate.count', type: 'soft_gate', operator: 'lte', target: 30 },
-  { id: 'temporal.allowlist.activeDebt.count', type: 'info', operator: 'lte', target: 40 },
+  // --- Temporal Governance (ratchet-down) ---
+  // 増加禁止: baseline を超えたら fail
+  { id: 'temporal.rules.reviewOverdue.count', type: 'hard_gate', operator: 'eq', target: 0 },
+  { id: 'temporal.rules.heuristicGate.count', type: 'soft_gate', operator: 'lte', target: 27 },
+  { id: 'temporal.allowlist.activeDebt.count', type: 'soft_gate', operator: 'lte', target: 33 },
+  // 減少禁止: baseline を下回ったら fail
+  { id: 'temporal.rules.reviewPolicy.count', type: 'soft_gate', operator: 'gte', target: 84 },
+  { id: 'temporal.rules.sunsetCondition.count', type: 'info', operator: 'gte', target: 9 },
+  { id: 'temporal.allowlist.activeDebt.withCreatedAt', type: 'soft_gate', operator: 'gte', target: 33 },
 ] as const
