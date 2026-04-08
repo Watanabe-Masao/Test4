@@ -3972,17 +3972,15 @@ export function buildAagResponse(
 /** AagResponse → 人間可読文字列（テスト出力・PR コメント・pre-commit 共通） */
 export function renderAagResponse(resp: AagResponse): string {
   const fixLabel =
-    resp.fixNow === 'now' ? '⚡ 今すぐ修正'
-    : resp.fixNow === 'debt' ? '📋 構造負債として管理'
-    : '🔍 観測・レビュー対象'
+    resp.fixNow === 'now'
+      ? '⚡ 今すぐ修正'
+      : resp.fixNow === 'debt'
+        ? '📋 構造負債として管理'
+        : '🔍 観測・レビュー対象'
 
   const sliceLabel = resp.slice ? ` [${resp.slice}]` : ''
 
-  const lines = [
-    `${fixLabel}${sliceLabel}`,
-    `  ${resp.summary}`,
-    `  理由: ${resp.reason}`,
-  ]
+  const lines = [`${fixLabel}${sliceLabel}`, `  ${resp.summary}`, `  理由: ${resp.reason}`]
 
   if (resp.steps.length > 0) {
     lines.push('  対応:')
