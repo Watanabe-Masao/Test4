@@ -20,6 +20,7 @@ export const ctxHook: readonly AllowlistEntry[] = [
     category: 'structural',
     removalCondition: 'コンテキスト設計見直し時',
     lifecycle: 'permanent',
+    createdAt: '2026-04-08',
   },
   // useQueryBundle: slices/useQuerySlice + slices/useWeatherSlice に分離。guard 除外パスで許可。
   // EtrnTestWidget: retirement 完了（Sprint 3 で廃止）。
@@ -42,6 +43,7 @@ export const reactImportExcludeDirs: readonly AllowlistEntry[] = [
     category: 'structural',
     removalCondition: 'i18n が React 非依存になったとき',
     lifecycle: 'permanent',
+    createdAt: '2026-04-08',
   },
 ] as const
 

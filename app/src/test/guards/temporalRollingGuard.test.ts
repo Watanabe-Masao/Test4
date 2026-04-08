@@ -9,6 +9,7 @@ import { describe, it, expect } from 'vitest'
 import { getRuleById, formatViolationMessage } from '../architectureRules'
 import * as fs from 'fs'
 import * as path from 'path'
+
 import {
   SRC_DIR,
   collectTsFiles,

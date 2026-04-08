@@ -13,6 +13,7 @@ import { collectTsFiles } from '../guardTestHelpers'
 import { CALCULATION_CANON_REGISTRY } from '../calculationCanonRegistry'
 
 const SRC_DIR = path.resolve(__dirname, '../..')
+
 const CALC_DIR = path.join(SRC_DIR, 'domain/calculations')
 
 describe('domain/calculations/ 正本化分類ガード', () => {

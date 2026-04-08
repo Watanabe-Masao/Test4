@@ -13,6 +13,7 @@ import * as path from 'path'
 import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 const SRC_DIR = path.resolve(__dirname, '../..')
+
 const REFS_DIR = path.resolve(SRC_DIR, '../../references/01-principles')
 
 describe('正本化体系 統合ガード', () => {
