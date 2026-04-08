@@ -92,40 +92,10 @@ export const STORE_IDS_NORMALIZATION_MAX_FILES = 27
 // ─── P18: fallback 定数密度（DUMMY_/EMPTY_/ZERO_/IDLE_ per file） ──
 
 export const fallbackConstantDensityLimits: readonly QuantitativeAllowlistEntry[] = [
-  {
-    path: 'application/hooks/useDataSummary.ts',
-    ruleId: 'AR-STRUCT-RESP-SEPARATION',
-    reason: 'データサマリーの初期値定義。fallback 17 個',
-    category: 'structural',
-    removalCondition: '初期値を共通モジュールに集約時',
-    limit: 18,
-    lifecycle: 'active-debt',
-    createdAt: '2026-04-08',
-    renewalCount: 0,
-  },
+  // useDataSummary.ts — ローカル定数リネームで fallback 密度 17→0。許可リスト卒業
   // dailyBuilder.ts — エイリアス化で fallback 密度 13→6。許可リスト卒業
-  {
-    path: 'presentation/pages/Daily/DailyPage.tsx',
-    ruleId: 'AR-STRUCT-RESP-SEPARATION',
-    reason: '日次ページの空状態定義。fallback 13 個',
-    category: 'structural',
-    removalCondition: '空状態を共通モジュールに集約時',
-    limit: 14,
-    lifecycle: 'active-debt',
-    createdAt: '2026-04-08',
-    renewalCount: 0,
-  },
-  {
-    path: 'features/comparison/application/hooks/useComparisonModule.ts',
-    ruleId: 'AR-STRUCT-RESP-SEPARATION',
-    reason: '比較モジュールの初期値定義。fallback 11 個',
-    category: 'structural',
-    removalCondition: '初期値を型のデフォルトに統合時',
-    limit: 12,
-    lifecycle: 'active-debt',
-    createdAt: '2026-04-08',
-    renewalCount: 0,
-  },
+  // DailyPage.tsx — ローカル定数リネームで fallback 密度 13→0。許可リスト卒業
+  // useComparisonModule.ts — ローカル定数リネーム + エイリアスで fallback 密度 11→2。許可リスト卒業
   // comparisonProjections.ts — ローカル定数リネームで fallback 密度 9→2。許可リスト卒業
   // summaryBuilder.ts — エイリアス化で fallback 密度 9→6。許可リスト卒業
   // RawDataTabBuilders.ts — ローカル定数リネームで fallback 密度 8→0。許可リスト卒業

@@ -40,21 +40,21 @@ export interface DataSummary {
 
 export type { RecordSetStats, StoreDayStats }
 
-const EMPTY_TYPES: ReadonlySet<DataType> = new Set()
-const EMPTY_MAP: ReadonlyMap<DataType, number> = new Map()
-const EMPTY_DAYS: ReadonlySet<number> = new Set()
-const EMPTY_STATS: RecordSetStats = { recordCount: 0, storeCount: 0, dayRange: null }
-const EMPTY_OVERVIEW: readonly StoreDayStats[] = []
+const noTypes: ReadonlySet<DataType> = new Set()
+const noMaxDay: ReadonlyMap<DataType, number> = new Map()
+const noDays: ReadonlySet<number> = new Set()
+const noStats: RecordSetStats = { recordCount: 0, storeCount: 0, dayRange: null }
+const noOverview: readonly StoreDayStats[] = []
 
-const EMPTY_SUMMARY: DataSummary = {
+const defaultSummary: DataSummary = {
   hasAnyData: false,
-  loadedTypes: EMPTY_TYPES,
-  maxDayByType: EMPTY_MAP,
+  loadedTypes: noTypes,
+  maxDayByType: noMaxDay,
   hasPrevYearData: false,
-  prevYearDays: EMPTY_DAYS,
-  categoryTimeSalesStats: EMPTY_STATS,
-  prevYearCategoryTimeSalesStats: EMPTY_STATS,
-  dataOverview: EMPTY_OVERVIEW,
+  prevYearDays: noDays,
+  categoryTimeSalesStats: noStats,
+  prevYearCategoryTimeSalesStats: noStats,
+  dataOverview: noOverview,
 }
 
 /**
@@ -66,25 +66,25 @@ export function useDataSummary(): DataSummary {
   const prevYear = useDataStore((s) => s.appData.prevYear)
 
   return useMemo(() => {
-    if (!current) return EMPTY_SUMMARY
+    if (!current) return defaultSummary
 
     const hasAnyData = computeHasAnyData(current)
     const loadedTypes = computeLoadedTypes(current)
     const maxDayByType = computeMaxDayByType(current)
     const prevYearCS = prevYear?.classifiedSales
     const hasPrevYearData = (prevYearCS?.records?.length ?? 0) > 0
-    const prevYearDays = prevYearCS?.records ? computeRecordDays(prevYearCS) : EMPTY_DAYS
+    const prevYearDays = prevYearCS?.records ? computeRecordDays(prevYearCS) : noDays
     const categoryTimeSalesStats = current.categoryTimeSales?.records
       ? computeCtsRecordStats(current.categoryTimeSales)
-      : EMPTY_STATS
+      : noStats
     const prevYearCTS = prevYear?.categoryTimeSales
     const prevYearCategoryTimeSalesStats = prevYearCTS?.records
       ? computeCtsRecordStats(prevYearCTS)
-      : EMPTY_STATS
+      : noStats
     const dataOverview =
       current.purchase?.records && current.classifiedSales?.records
         ? buildDataOverview(current, prevYear)
-        : EMPTY_OVERVIEW
+        : noOverview
 
     return {
       hasAnyData,

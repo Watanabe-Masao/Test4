@@ -23,6 +23,8 @@ import type {
 import type { PrevYearScope } from '@/domain/models/ComparisonScope'
 import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
 import { ZERO_DISCOUNT_ENTRIES } from '@/domain/models/record'
+
+const zeroDiscountEntries = ZERO_DISCOUNT_ENTRIES
 import { prepareComparisonInputs } from '@/features/comparison/application/comparisonDataPrep'
 import { aggregateDailyByAlignment } from '@/features/comparison/application/buildComparisonAggregation'
 import {
@@ -50,7 +52,7 @@ export interface ComparisonModule {
 
 // ── ゼロ値 ──
 
-const EMPTY_DAILY: PrevYearData = {
+const dailyDefault: PrevYearData = {
   hasPrevYear: false,
   daily: new Map(),
   totalSales: 0,
@@ -59,10 +61,10 @@ const EMPTY_DAILY: PrevYearData = {
   totalCtsQuantity: 0,
   grossSales: 0,
   discountRate: 0,
-  totalDiscountEntries: ZERO_DISCOUNT_ENTRIES,
+  totalDiscountEntries: zeroDiscountEntries,
 }
 
-const ZERO_KPI_ENTRY: PrevYearMonthlyKpiEntry = {
+const kpiEntryDefault: PrevYearMonthlyKpiEntry = {
   sales: 0,
   customers: 0,
   transactionValue: 0,
@@ -71,17 +73,17 @@ const ZERO_KPI_ENTRY: PrevYearMonthlyKpiEntry = {
   storeContributions: [],
 }
 
-const EMPTY_KPI: PrevYearMonthlyKpi = {
+const kpiDefault: PrevYearMonthlyKpi = {
   hasPrevYear: false,
-  sameDow: ZERO_KPI_ENTRY,
-  sameDate: ZERO_KPI_ENTRY,
+  sameDow: kpiEntryDefault,
+  sameDate: kpiEntryDefault,
   monthlyTotal: { sales: 0, customers: 0, transactionValue: 0, ctsQuantity: 0 },
   sourceYear: 0,
   sourceMonth: 0,
   dowOffset: 0,
 }
 
-const IDLE_STATUS: ComparisonLoadStatus = {
+const idleStatus: ComparisonLoadStatus = {
   status: 'idle',
   requestedRanges: [],
   loadedRanges: [],
@@ -133,13 +135,13 @@ export function useComparisonModule(
 
   // 4. 日別集計（PrevYearData 互換）
   const daily = useMemo((): PrevYearData => {
-    if (!scope || !inputs) return EMPTY_DAILY
+    if (!scope || !inputs) return dailyDefault
     return aggregateDailyByAlignment(inputs.sourceIndex, inputs.targetIds, scope.alignmentMap)
   }, [scope, inputs])
 
   // 5. 月間KPI集計（PrevYearMonthlyKpi 互換）
   const kpi = useMemo((): PrevYearMonthlyKpi => {
-    if (!scope || !inputs) return EMPTY_KPI
+    if (!scope || !inputs) return kpiDefault
     const { year, month } = scope.sourceMonth
     return buildKpiProjection(inputs.sourceIndex, inputs.targetIds, scope, periodSelection, {
       year,
@@ -172,7 +174,7 @@ export function useComparisonModule(
 
   return {
     scope,
-    loadStatus: scope ? loadStatus : IDLE_STATUS,
+    loadStatus: scope ? loadStatus : idleStatus,
     daily,
     kpi,
     dowGap,
