@@ -117,29 +117,9 @@ export const featuresMemoLimits: readonly QuantitativeAllowlistEntry[] = [
 export const featuresStateLimits: readonly QuantitativeAllowlistEntry[] = [
   // useMonthDataManagement.ts — deleteTarget+deleting を 1 state に統合。useState 5→4。許可リスト卒業
   // StorageDataViewers.tsx — async state 統合で useState 6→2。許可リスト卒業
-  {
-    path: 'features/category/ui/charts/CategoryBenchmarkChart.vm.ts',
-    ruleId: 'AR-G5-HOOK-STATE',
-    reason: 'ベンチマーク操作状態。useState 5 個 + import 行',
-    category: 'structural',
-    removalCondition: 'guard が import 行を除外するようになったとき',
-    limit: 7,
-    lifecycle: 'active-debt',
-    createdAt: '2026-04-08',
-    renewalCount: 0,
-  },
+  // CategoryBenchmarkChart.vm.ts — guard の import 行除外で useState 6→5 (< 6)。許可リスト卒業
   // CategoryBoxPlotChart.vm.ts — drill hierarchy 統合で useState 6→4。許可リスト卒業
-  {
-    path: 'features/cost-detail/application/useCostDetailData.ts',
-    ruleId: 'AR-G5-HOOK-STATE',
-    reason: 'コスト明細の複合状態。useState 5 個 + import 行',
-    category: 'structural',
-    removalCondition: 'guard が import 行を除外するようになったとき',
-    limit: 7,
-    lifecycle: 'active-debt',
-    createdAt: '2026-04-08',
-    renewalCount: 0,
-  },
+  // useCostDetailData.ts (useState) — guard の import 行除外で useState 6→5 (< 6)。許可リスト卒業
 ] as const
 
 /** hook ファイル行数上限の個別例外 */
