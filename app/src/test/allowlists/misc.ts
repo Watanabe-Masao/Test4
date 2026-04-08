@@ -15,7 +15,7 @@ export const dowCalcOverride: readonly AllowlistEntry[] = [] as const
 export const ctxHook: readonly AllowlistEntry[] = [
   {
     path: 'presentation/hooks/useUnifiedWidgetContext.ts',
-    ruleId: 'AR-STRUCT-CONVENTION',
+    ruleId: 'AR-CONVENTION-CONTEXT-SINGLE-SOURCE',
     reason: 'ctx 自体の構築元（slice hook を compose する）',
     category: 'structural',
     removalCondition: 'コンテキスト設計見直し時',

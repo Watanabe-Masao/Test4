@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-08T18:12:34.597Z",
+  "timestamp": "2026-04-08T18:21:36.970Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -460,7 +460,7 @@
       "id": "temporal.rules.reviewPolicy.count",
       "label": "reviewPolicy 設定済みルール数",
       "category": "guard",
-      "value": 91,
+      "value": 94,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -562,7 +562,7 @@
       "id": "efficacy.rules.withProtectedHarm.count",
       "label": "protectedHarm 設定済みルール数",
       "category": "guard",
-      "value": 31,
+      "value": 34,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",

@@ -2514,7 +2514,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     guardTags: ['F1', 'F4', 'F9', 'F2', 'F3', 'F6'],
     epoch: 1,
     doc: 'references/03-guides/coding-conventions.md',
-    what: 'バレル re-export、feature slice 依存、コンテキストデータの重複禁止',
+    what: 'バレル re-export、feature slice 依存、コンテキストデータの重複禁止（傘ルール → 下位 3 ルールに分割済み）',
     why: 'コード構造規約の一貫性が保守性を保証する',
     correctPattern: {
       description: 'バレルは re-export のみ。feature 間は shared/ 経由。ctx data は重複しない',
@@ -2524,6 +2524,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       when: 'バレル・feature 依存・ctx データを変更するとき',
       exceptions: '例外なし',
       escalation: 'バレルは re-export のみ。feature 間は shared/ 経由',
+    },
+    relationships: {
+      splitInto: [
+        'AR-CONVENTION-BARREL',
+        'AR-CONVENTION-FEATURE-BOUNDARY',
+        'AR-CONVENTION-CONTEXT-SINGLE-SOURCE',
+      ],
     },
     detection: { type: 'custom', severity: 'gate' },
     migrationPath: {
@@ -2536,6 +2543,86 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       lastReviewedAt: '2026-04-08',
       reviewCadenceDays: 60,
     },
+  },
+
+  // ─── AR-STRUCT-CONVENTION の下位 3 ルール ────────────────────
+
+  {
+    id: 'AR-CONVENTION-BARREL',
+    ruleClass: 'default',
+    guardTags: ['F1', 'F9'],
+    epoch: 1,
+    what: 'バレルは re-export のみ。ロジック・計算・副作用を含まない',
+    why: 'バレルにロジックが混入すると import 解決と tree-shaking が崩壊する',
+    doc: 'references/03-guides/coding-conventions.md',
+    correctPattern: { description: 'export { foo } from "./foo" のみ' },
+    outdatedPattern: { description: 'バレルファイルに関数定義や計算ロジックが含まれている' },
+    decisionCriteria: {
+      when: 'バレルファイル（index.ts）を変更するとき',
+      exceptions: 'type re-export は許容',
+      escalation: 'ロジックを専用ファイルに抽出し re-export のみにする',
+    },
+    relationships: { dependsOn: ['AR-STRUCT-CONVENTION'] },
+    detection: { type: 'must-only', severity: 'gate' },
+    migrationPath: {
+      steps: ['1. バレルから関数/const 定義を別ファイルに移動', '2. re-export に置き換え'],
+      effort: 'small',
+      priority: 2,
+    },
+    protectedHarm: { prevents: ['import 解決の循環', 'tree-shaking 崩壊'] },
+    reviewPolicy: { owner: 'solo-maintainer', lastReviewedAt: '2026-04-08', reviewCadenceDays: 90 },
+  },
+
+  {
+    id: 'AR-CONVENTION-FEATURE-BOUNDARY',
+    ruleClass: 'default',
+    guardTags: ['F4'],
+    epoch: 1,
+    what: 'feature 間の直接依存を禁止。shared/ 経由のみ',
+    why: 'feature 間の直接依存は topology を崩壊させ循環依存の温床になる',
+    doc: 'references/03-guides/coding-conventions.md',
+    correctPattern: { description: 'features/A → shared/ → features/B' },
+    outdatedPattern: { description: 'features/ 配下が別の features/ を直接 import' },
+    decisionCriteria: {
+      when: 'feature モジュール間でコードを共有するとき',
+      exceptions: '例外なし。必ず shared/ に共通化する',
+      escalation: '共通コードを shared/ に抽出',
+    },
+    relationships: { dependsOn: ['AR-STRUCT-CONVENTION'] },
+    detection: { type: 'import', severity: 'gate' },
+    migrationPath: {
+      steps: ['1. features/ 間の直接 import を特定', '2. 共通部分を shared/ に抽出'],
+      effort: 'medium',
+      priority: 2,
+    },
+    protectedHarm: { prevents: ['feature 間の循環依存', 'topology 崩壊'] },
+    reviewPolicy: { owner: 'solo-maintainer', lastReviewedAt: '2026-04-08', reviewCadenceDays: 90 },
+  },
+
+  {
+    id: 'AR-CONVENTION-CONTEXT-SINGLE-SOURCE',
+    ruleClass: 'default',
+    guardTags: ['F2', 'F3', 'F6'],
+    epoch: 1,
+    what: 'ctx 提供データの独自取得を禁止。コンテキストから受け取る',
+    why: 'ウィジェットが ctx の提供データを独自に取得するとデータの不一致が生じる',
+    doc: 'references/03-guides/coding-conventions.md',
+    correctPattern: { description: 'ctx.result / ctx.prevYear 等を使う' },
+    outdatedPattern: { description: 'ウィジェットが ctx 提供済みデータの hook を独自に呼び出している' },
+    decisionCriteria: {
+      when: 'ウィジェットやチャートがデータを必要とするとき',
+      exceptions: 'ctx に含まれないデータのみ独自取得可',
+      escalation: 'ctx に必要なデータを追加し ctx 経由で受け取る',
+    },
+    relationships: { dependsOn: ['AR-STRUCT-CONVENTION'] },
+    detection: { type: 'regex', severity: 'gate' },
+    migrationPath: {
+      steps: ['1. 独自 hook 呼び出しを特定', '2. ctx に同等データがあれば ctx 経由に変更'],
+      effort: 'small',
+      priority: 3,
+    },
+    protectedHarm: { prevents: ['データの不一致', 'キャッシュの二重管理'] },
+    reviewPolicy: { owner: 'solo-maintainer', lastReviewedAt: '2026-04-08', reviewCadenceDays: 90 },
   },
 
   {
