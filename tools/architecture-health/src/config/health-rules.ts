@@ -152,7 +152,7 @@ export const HEALTH_RULES: readonly HealthRule[] = [
     id: "temporal.rules.reviewPolicy.count",
     type: "soft_gate",
     operator: "gte",
-    target: 91,
+    target: 92,
   },
   {
     id: "temporal.rules.sunsetCondition.count",

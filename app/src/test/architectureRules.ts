@@ -99,7 +99,6 @@ export interface ArchitectureRule {
     readonly dependsOn?: readonly string[] // 前提ルール
     readonly enables?: readonly string[] // 守ると有効になるルール
     readonly conflicts?: readonly string[] // 同時適用不可
-    readonly splitInto?: readonly string[] // 下位ルールへの分割（傘ルール用）
   }
 
   // ── ルール統治（壊れ方の制御） ──
@@ -951,9 +950,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         'allowlists/complexity.ts に理由・lifecycle・removalCondition を記載すれば個別上限を設定可能',
       escalation: 'hook を分割するか、pure builder に計算を抽出する',
     },
-    relationships: {
-      dependsOn: ['AR-STRUCT-RESP-SEPARATION'],
-    },
+    relationships: {},
     detection: { type: 'count', severity: 'gate' },
     migrationPath: {
       steps: [
@@ -994,9 +991,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: 'allowlists/complexity.ts に登録可能。useReducer 統合も検討',
       escalation: '状態管理 hook を分割するか useReducer に統合する',
     },
-    relationships: {
-      dependsOn: ['AR-STRUCT-RESP-SEPARATION'],
-    },
+    relationships: {},
     detection: { type: 'count', severity: 'gate' },
     migrationPath: {
       steps: [
@@ -1076,9 +1071,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: 'allowlists/size.ts の Tier 2 に登録可能（次回改修時に分割義務）',
       escalation: '子コンポーネントに分割。状態は hook に抽出',
     },
-    relationships: {
-      dependsOn: ['AR-STRUCT-RESP-SEPARATION'],
-    },
+    relationships: {},
     detection: { type: 'count', severity: 'gate' },
     migrationPath: {
       steps: [
@@ -2343,53 +2336,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     },
   },
 
-  {
-    fixNow: 'debt',
-    slice: 'responsibility-separation',
-    id: 'AR-STRUCT-RESP-SEPARATION',
-    ruleClass: 'default',
-    guardTags: ['G8'],
-    epoch: 1,
-    what: '責務分離の 7 種の数値制約を機械的に強制する（傘ルール → 下位 7 ルールに分割済み）',
-    why: '「気をつける」で終わらせない。「通らない」にする',
-    doc: 'references/03-guides/responsibility-separation-catalog.md',
-    correctPattern: { description: 'P2/P7/P8/P10/P12/P17/P18 の各上限を遵守。超えたら分割' },
-    outdatedPattern: { description: '上限を超える useMemo/useState/export/let を持つファイル' },
-    decisionCriteria: {
-      when: 'hook/コンポーネントの useMemo/useState が上限に近づいたとき',
-      exceptions: 'allowlists/responsibility.ts に理由付きで登録可能',
-      escalation: 'hook の分割を検討。responsibility-separation-catalog.md の 24 パターンを参照',
-    },
-    relationships: {
-      enables: ['AR-G5-HOOK-MEMO', 'AR-G5-HOOK-STATE', 'AR-G6-COMPONENT'],
-      splitInto: [
-        'AR-RESP-STORE-COUPLING',
-        'AR-RESP-MODULE-STATE',
-        'AR-RESP-HOOK-COMPLEXITY',
-        'AR-RESP-FEATURE-COMPLEXITY',
-        'AR-RESP-EXPORT-DENSITY',
-        'AR-RESP-NORMALIZATION',
-        'AR-RESP-FALLBACK-SPREAD',
-      ],
-    },
-    detection: { type: 'custom', severity: 'gate' },
-    migrationPath: {
-      steps: [
-        '1. 違反パターンを特定（P2〜P18）',
-        '2. 超過している hook を分割または allowlist に登録',
-      ],
-      effort: 'small',
-      priority: 3,
-    },
-    protectedHarm: { prevents: ['God Hook / God Component の発生', '変更理由の複数化'] },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 60,
-    },
-  },
-
-  // ─── AR-STRUCT-RESP-SEPARATION の下位 7 ルール ───────────────
+  // ─── 責務分離ルール（旧 AR-STRUCT-RESP-SEPARATION を 7 分割） ─
 
   {
     fixNow: 'debt',
@@ -2410,7 +2357,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: 'allowlists/responsibility.ts presentationGetStateLimits に登録可能',
       escalation: 'callback props パターンまたは Zustand selector に変更',
     },
-    relationships: { dependsOn: ['AR-STRUCT-RESP-SEPARATION'] },
     detection: { type: 'custom', severity: 'gate' },
     migrationPath: {
       steps: [
@@ -2442,7 +2388,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: 'allowlists/responsibility.ts moduleScopeLetLimits に登録可能',
       escalation: 'const { cache: null } パターンまたは Zustand atom に変更',
     },
-    relationships: { dependsOn: ['AR-STRUCT-RESP-SEPARATION'] },
     detection: { type: 'custom', severity: 'gate' },
     migrationPath: {
       steps: [
@@ -2474,7 +2419,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: 'allowlists/complexity.ts combinedHookComplexityLimits に登録可能',
       escalation: 'useWeatherDaySelection のような sub-hook に関連 hooks を抽出',
     },
-    relationships: { dependsOn: ['AR-STRUCT-RESP-SEPARATION'] },
     detection: { type: 'count', severity: 'gate', baseline: 0 },
     migrationPath: {
       steps: [
@@ -2508,7 +2452,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: 'allowlists/complexity.ts featuresMemoLimits / featuresStateLimits に登録可能',
       escalation: 'useMemo → builder 関数抽出。useState → useReducer 統合',
     },
-    relationships: { dependsOn: ['AR-STRUCT-RESP-SEPARATION'] },
     detection: { type: 'count', severity: 'gate', baseline: 0 },
     migrationPath: {
       steps: [
@@ -2540,7 +2483,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: 'allowlists/responsibility.ts domainModelExportLimits に登録可能',
       escalation: 'DiscountEntry.ts / AsyncStateFactories.ts のようにファイル分割',
     },
-    relationships: { dependsOn: ['AR-STRUCT-RESP-SEPARATION'] },
     detection: { type: 'count', severity: 'gate', baseline: 0 },
     migrationPath: {
       steps: [
@@ -2572,7 +2514,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: '散在ファイル数が STORE_IDS_NORMALIZATION_MAX_FILES 以下',
       escalation: '正規化を共通ユーティリティに集約',
     },
-    relationships: { dependsOn: ['AR-STRUCT-RESP-SEPARATION'] },
     detection: { type: 'count', severity: 'gate', baseline: 0 },
     migrationPath: {
       steps: ['1. 散在ファイルを特定', '2. 共通ユーティリティに集約'],
@@ -2602,7 +2543,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: 'allowlists/responsibility.ts fallbackConstantDensityLimits に登録可能',
       escalation: 'ローカルエイリアス化（const zeroPair = ZERO_COST_PRICE_PAIR）',
     },
-    relationships: { dependsOn: ['AR-STRUCT-RESP-SEPARATION'] },
     detection: { type: 'regex', severity: 'gate', baseline: 0 },
     migrationPath: {
       steps: [
@@ -2651,46 +2591,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     },
   },
 
-  {
-    fixNow: 'debt',
-    slice: 'governance-ops',
-    id: 'AR-STRUCT-CONVENTION',
-    ruleClass: 'default',
-    guardTags: ['F1', 'F4', 'F9', 'F2', 'F3', 'F6'],
-    epoch: 1,
-    doc: 'references/03-guides/coding-conventions.md',
-    what: 'バレル re-export、feature slice 依存、コンテキストデータの重複禁止（傘ルール → 下位 3 ルールに分割済み）',
-    why: 'コード構造規約の一貫性が保守性を保証する',
-    correctPattern: {
-      description: 'バレルは re-export のみ。feature 間は shared/ 経由。ctx data は重複しない',
-    },
-    outdatedPattern: { description: 'バレルにロジック、feature 間の直接依存、ctx の重複データ' },
-    decisionCriteria: {
-      when: 'バレル・feature 依存・ctx データを変更するとき',
-      exceptions: '例外なし',
-      escalation: 'バレルは re-export のみ。feature 間は shared/ 経由',
-    },
-    relationships: {
-      splitInto: [
-        'AR-CONVENTION-BARREL',
-        'AR-CONVENTION-FEATURE-BOUNDARY',
-        'AR-CONVENTION-CONTEXT-SINGLE-SOURCE',
-      ],
-    },
-    detection: { type: 'custom', severity: 'gate' },
-    migrationPath: {
-      steps: ['1. バレルからロジックを抽出', '2. feature 間依存を shared/ 経由に変更'],
-      effort: 'small',
-      priority: 3,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 60,
-    },
-  },
-
-  // ─── AR-STRUCT-CONVENTION の下位 3 ルール ────────────────────
+  // ─── 構造規約ルール（旧 AR-STRUCT-CONVENTION を 3 分割） ──────
 
   {
     fixNow: 'debt',
@@ -2709,7 +2610,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: 'type re-export は許容',
       escalation: 'ロジックを専用ファイルに抽出し re-export のみにする',
     },
-    relationships: { dependsOn: ['AR-STRUCT-CONVENTION'] },
     detection: { type: 'must-only', severity: 'gate' },
     migrationPath: {
       steps: ['1. バレルから関数/const 定義を別ファイルに移動', '2. re-export に置き換え'],
@@ -2737,7 +2637,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: '例外なし。必ず shared/ に共通化する',
       escalation: '共通コードを shared/ に抽出',
     },
-    relationships: { dependsOn: ['AR-STRUCT-CONVENTION'] },
     detection: { type: 'import', severity: 'gate' },
     migrationPath: {
       steps: ['1. features/ 間の直接 import を特定', '2. 共通部分を shared/ に抽出'],
@@ -2767,7 +2666,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: 'ctx に含まれないデータのみ独自取得可',
       escalation: 'ctx に必要なデータを追加し ctx 経由で受け取る',
     },
-    relationships: { dependsOn: ['AR-STRUCT-CONVENTION'] },
     detection: { type: 'regex', severity: 'gate' },
     migrationPath: {
       steps: ['1. 独自 hook 呼び出しを特定', '2. ctx に同等データがあれば ctx 経由に変更'],

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-08T21:04:12.345Z",
+  "timestamp": "2026-04-08T21:09:55.438Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -443,9 +443,9 @@
       "id": "docs.obligation.violations",
       "label": "Doc 更新義務違反数",
       "category": "docs",
-      "value": 1,
+      "value": 0,
       "unit": "count",
-      "status": "fail",
+      "status": "ok",
       "owner": "documentation-steward",
       "docRefs": [
         {
@@ -460,7 +460,7 @@
       "id": "temporal.rules.reviewPolicy.count",
       "label": "reviewPolicy 設定済みルール数",
       "category": "guard",
-      "value": 94,
+      "value": 92,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -473,7 +473,7 @@
       "implRefs": [
         "app/src/test/architectureRules.ts"
       ],
-      "budget": 91
+      "budget": 92
     },
     {
       "id": "temporal.rules.sunsetCondition.count",
@@ -562,7 +562,7 @@
       "id": "efficacy.rules.withProtectedHarm.count",
       "label": "protectedHarm 設定済みルール数",
       "category": "guard",
-      "value": 34,
+      "value": 33,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -607,9 +607,9 @@
   ],
   "summary": {
     "totalKpis": 28,
-    "ok": 27,
+    "ok": 28,
     "warn": 0,
-    "fail": 1,
-    "hardGatePass": false
+    "fail": 0,
+    "hardGatePass": true
   }
 }
