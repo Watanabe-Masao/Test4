@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-08T15:39:04.042Z
+> Generated: 2026-04-08T18:12:34.597Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -53,11 +53,11 @@
 |---|---|---|---|
 | guard.files.count | ガードテストファイル数 | 39 / 30 | OK |
 | guard.reviewOnlyTags.count | レビュー専用タグ数 | 0 / 5 | OK |
-| temporal.rules.reviewPolicy.count | reviewPolicy 設定済みルール数 | 84 / 84 | OK |
+| temporal.rules.reviewPolicy.count | reviewPolicy 設定済みルール数 | 91 / 91 | OK |
 | temporal.rules.sunsetCondition.count | sunsetCondition 設定済みルール数 | 9 / 9 | OK |
 | temporal.rules.reviewOverdue.count | review overdue ルール数 | 0 / 0 | OK |
-| temporal.rules.heuristicGate.count | heuristic + gate ルール数 | 27 / 27 | OK |
-| efficacy.rules.withProtectedHarm.count | protectedHarm 設定済みルール数 | 24 | OK |
+| temporal.rules.heuristicGate.count | heuristic + gate ルール数 | 32 / 32 | OK |
+| efficacy.rules.withProtectedHarm.count | protectedHarm 設定済みルール数 | 31 | OK |
 | efficacy.rules.highNoise.count | 高例外圧ルール数（≥10 件） | 0 / 3 | OK |
 
 ## ドキュメント整合

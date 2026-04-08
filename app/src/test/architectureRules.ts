@@ -88,6 +88,7 @@ export interface ArchitectureRule {
     readonly dependsOn?: readonly string[] // 前提ルール
     readonly enables?: readonly string[] // 守ると有効になるルール
     readonly conflicts?: readonly string[] // 同時適用不可
+    readonly splitInto?: readonly string[] // 下位ルールへの分割（傘ルール用）
   }
 
   // ── ルール統治（壊れ方の制御） ──
@@ -2222,7 +2223,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     ruleClass: 'default',
     guardTags: ['G8'],
     epoch: 1,
-    what: '責務分離の 7 種の数値制約を機械的に強制する',
+    what: '責務分離の 7 種の数値制約を機械的に強制する（傘ルール → 下位 7 ルールに分割済み）',
     why: '「気をつける」で終わらせない。「通らない」にする',
     doc: 'references/03-guides/responsibility-separation-catalog.md',
     correctPattern: { description: 'P2/P7/P8/P10/P12/P17/P18 の各上限を遵守。超えたら分割' },
@@ -2234,6 +2235,15 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     },
     relationships: {
       enables: ['AR-G5-HOOK-MEMO', 'AR-G5-HOOK-STATE', 'AR-G6-COMPONENT'],
+      splitInto: [
+        'AR-RESP-STORE-COUPLING',
+        'AR-RESP-MODULE-STATE',
+        'AR-RESP-HOOK-COMPLEXITY',
+        'AR-RESP-FEATURE-COMPLEXITY',
+        'AR-RESP-EXPORT-DENSITY',
+        'AR-RESP-NORMALIZATION',
+        'AR-RESP-FALLBACK-SPREAD',
+      ],
     },
     detection: { type: 'custom', severity: 'gate' },
     migrationPath: {
@@ -2250,6 +2260,220 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       lastReviewedAt: '2026-04-08',
       reviewCadenceDays: 60,
     },
+  },
+
+  // ─── AR-STRUCT-RESP-SEPARATION の下位 7 ルール ───────────────
+
+  {
+    id: 'AR-RESP-STORE-COUPLING',
+    ruleClass: 'default',
+    guardTags: ['G8'],
+    epoch: 1,
+    what: 'presentation 層で getState() を直接呼ばない（P2）',
+    why: 'Store への直接結合は描画層の独立性を破壊する',
+    doc: 'references/03-guides/responsibility-separation-catalog.md',
+    correctPattern: { description: 'Zustand selector hook または callback props 経由でアクセス' },
+    outdatedPattern: {
+      description: 'useDataStore.getState() / useUiStore.getState() の直接呼び出し',
+    },
+    decisionCriteria: {
+      when: 'presentation 層から store のデータや action が必要なとき',
+      exceptions: 'allowlists/responsibility.ts presentationGetStateLimits に登録可能',
+      escalation: 'callback props パターンまたは Zustand selector に変更',
+    },
+    relationships: { dependsOn: ['AR-STRUCT-RESP-SEPARATION'] },
+    detection: { type: 'custom', severity: 'gate' },
+    migrationPath: {
+      steps: [
+        '1. getState() 呼び出しを特定',
+        '2. Zustand selector (useStore(s => s.action)) に置換',
+        '3. 複数 action は親コンポーネントで callback にまとめる',
+      ],
+      effort: 'small',
+      priority: 2,
+    },
+    protectedHarm: { prevents: ['presentation 層の store 直接結合', 'テスト困難な副作用'] },
+    reviewPolicy: { owner: 'solo-maintainer', lastReviewedAt: '2026-04-08', reviewCadenceDays: 90 },
+  },
+
+  {
+    id: 'AR-RESP-MODULE-STATE',
+    ruleClass: 'default',
+    guardTags: ['G8'],
+    epoch: 1,
+    what: 'module-scope let（グローバル変数）を禁止する（P7）',
+    why: 'module-scope の可変状態はテスト困難で副作用の温床',
+    doc: 'references/03-guides/responsibility-separation-catalog.md',
+    correctPattern: { description: 'const object / WeakMap / useRef / Zustand store' },
+    outdatedPattern: { description: 'let _cache = null; let _initialized = false;' },
+    decisionCriteria: {
+      when: 'モジュールレベルでキャッシュやフラグが必要なとき',
+      exceptions: 'allowlists/responsibility.ts moduleScopeLetLimits に登録可能',
+      escalation: 'const { cache: null } パターンまたは Zustand atom に変更',
+    },
+    relationships: { dependsOn: ['AR-STRUCT-RESP-SEPARATION'] },
+    detection: { type: 'custom', severity: 'gate' },
+    migrationPath: {
+      steps: [
+        '1. module-scope let を特定',
+        '2. const object パターンに変換: const holder = { value: null }',
+        '3. React 内なら useRef、永続なら Zustand store',
+      ],
+      effort: 'small',
+      priority: 3,
+    },
+    protectedHarm: { prevents: ['グローバル変数の散在', 'テスト間の状態リーク'] },
+    reviewPolicy: { owner: 'solo-maintainer', lastReviewedAt: '2026-04-08', reviewCadenceDays: 90 },
+  },
+
+  {
+    id: 'AR-RESP-HOOK-COMPLEXITY',
+    ruleClass: 'heuristic',
+    guardTags: ['G8'],
+    epoch: 1,
+    what: 'useMemo + useCallback の合計を上限以下に保つ（P8）',
+    why: 'hook の合計数は責務の複雑性を示す。12 を超えたら分割候補',
+    doc: 'references/03-guides/responsibility-separation-catalog.md',
+    correctPattern: { description: 'sub-hook 抽出で合計 ≤12。thin wrapper は plain function 化' },
+    outdatedPattern: { description: 'useMemo + useCallback が 12 を超えるコンポーネント/hook' },
+    decisionCriteria: {
+      when: 'useMemo/useCallback を追加して合計が 12 に近づいたとき',
+      exceptions: 'allowlists/complexity.ts combinedHookComplexityLimits に登録可能',
+      escalation: 'useWeatherDaySelection のような sub-hook に関連 hooks を抽出',
+    },
+    relationships: { dependsOn: ['AR-STRUCT-RESP-SEPARATION'] },
+    detection: { type: 'count', severity: 'gate', baseline: 0 },
+    migrationPath: {
+      steps: [
+        '1. useMemo + useCallback の合計を計測',
+        '2. thin wrapper useCallback を plain function 化',
+        '3. 関連する state + handler を sub-hook に抽出',
+      ],
+      effort: 'medium',
+      priority: 3,
+    },
+    protectedHarm: { prevents: ['God Hook の発生', 'レンダリング依存配列の爆発'] },
+    reviewPolicy: { owner: 'solo-maintainer', lastReviewedAt: '2026-04-08', reviewCadenceDays: 90 },
+  },
+
+  {
+    id: 'AR-RESP-FEATURE-COMPLEXITY',
+    ruleClass: 'heuristic',
+    guardTags: ['G8'],
+    epoch: 1,
+    what: 'features/ の useMemo/useState を上限以下に保つ（P10）',
+    why: 'feature hook の複雑性を制御し、責務の肥大化を防ぐ',
+    doc: 'references/03-guides/responsibility-separation-catalog.md',
+    correctPattern: {
+      description: 'useMemo ≤7 / useState ≤6。超えたら builder 抽出 or useReducer',
+    },
+    outdatedPattern: { description: 'features/ 内で useMemo/useState が上限を超えるファイル' },
+    decisionCriteria: {
+      when: 'features/ の hook に useMemo/useState を追加するとき',
+      exceptions: 'allowlists/complexity.ts featuresMemoLimits / featuresStateLimits に登録可能',
+      escalation: 'useMemo → builder 関数抽出。useState → useReducer 統合',
+    },
+    relationships: { dependsOn: ['AR-STRUCT-RESP-SEPARATION'] },
+    detection: { type: 'count', severity: 'gate', baseline: 0 },
+    migrationPath: {
+      steps: [
+        '1. features/ の useMemo/useState 数を計測',
+        '2. 関連する useMemo を 1 つに統合（destructuring で分配）',
+        '3. 関連する useState を useReducer に統合',
+      ],
+      effort: 'small',
+      priority: 3,
+    },
+    protectedHarm: { prevents: ['feature hook の責務肥大化'] },
+    reviewPolicy: { owner: 'solo-maintainer', lastReviewedAt: '2026-04-08', reviewCadenceDays: 90 },
+  },
+
+  {
+    id: 'AR-RESP-EXPORT-DENSITY',
+    ruleClass: 'heuristic',
+    guardTags: ['G8'],
+    epoch: 1,
+    what: 'domain/models/ の export 数を上限以下に保つ（P12）',
+    why: 'export 過多はモデルの責務混在を示す。型と操作を分離すべき',
+    doc: 'references/03-guides/responsibility-separation-catalog.md',
+    correctPattern: { description: 'export ≤8。超えたら操作関数を別ファイルに分離' },
+    outdatedPattern: { description: 'domain/models/ で export が 8 を超えるファイル' },
+    decisionCriteria: {
+      when: 'domain/models/ に export を追加するとき',
+      exceptions: 'allowlists/responsibility.ts domainModelExportLimits に登録可能',
+      escalation: 'DiscountEntry.ts / AsyncStateFactories.ts のようにファイル分割',
+    },
+    relationships: { dependsOn: ['AR-STRUCT-RESP-SEPARATION'] },
+    detection: { type: 'count', severity: 'gate', baseline: 0 },
+    migrationPath: {
+      steps: [
+        '1. export 数を計測',
+        '2. 操作関数（builder/aggregator）を別ファイルに抽出',
+        '3. 型定義のみを元ファイルに残す',
+      ],
+      effort: 'small',
+      priority: 3,
+    },
+    protectedHarm: { prevents: ['モデルの責務肥大化', '変更理由の複数化'] },
+    reviewPolicy: { owner: 'solo-maintainer', lastReviewedAt: '2026-04-08', reviewCadenceDays: 90 },
+  },
+
+  {
+    id: 'AR-RESP-NORMALIZATION',
+    ruleClass: 'heuristic',
+    guardTags: ['G8'],
+    epoch: 1,
+    what: 'storeIds 正規化パターンの散在を上限以下に保つ（P17）',
+    why: '正規化ロジックの重複はデータ不整合の温床',
+    doc: 'references/03-guides/responsibility-separation-catalog.md',
+    correctPattern: { description: '正規化は集約モジュールで一元管理' },
+    outdatedPattern: { description: 'storeIds 正規化が複数ファイルにコピーされている' },
+    decisionCriteria: {
+      when: 'storeIds の正規化が必要なとき',
+      exceptions: '散在ファイル数が STORE_IDS_NORMALIZATION_MAX_FILES 以下',
+      escalation: '正規化を共通ユーティリティに集約',
+    },
+    relationships: { dependsOn: ['AR-STRUCT-RESP-SEPARATION'] },
+    detection: { type: 'count', severity: 'gate', baseline: 0 },
+    migrationPath: {
+      steps: ['1. 散在ファイルを特定', '2. 共通ユーティリティに集約'],
+      effort: 'medium',
+      priority: 4,
+    },
+    protectedHarm: { prevents: ['正規化ロジックの重複', 'データ不整合'] },
+    reviewPolicy: { owner: 'solo-maintainer', lastReviewedAt: '2026-04-08', reviewCadenceDays: 90 },
+  },
+
+  {
+    id: 'AR-RESP-FALLBACK-SPREAD',
+    ruleClass: 'heuristic',
+    guardTags: ['G8'],
+    epoch: 1,
+    what: 'fallback 定数密度を上限以下に保つ（P18）',
+    why: 'ZERO_/EMPTY_/IDLE_ 定数の散在は初期値管理の責務分散を示す',
+    doc: 'references/03-guides/responsibility-separation-catalog.md',
+    correctPattern: {
+      description: 'ファイルあたり ≤7。超えたらローカルエイリアスまたは共通モジュールに集約',
+    },
+    outdatedPattern: { description: 'DUMMY_/EMPTY_/ZERO_/IDLE_ が 7 を超えるファイル' },
+    decisionCriteria: {
+      when: 'fallback 定数を追加するとき',
+      exceptions: 'allowlists/responsibility.ts fallbackConstantDensityLimits に登録可能',
+      escalation: 'ローカルエイリアス化（const zeroPair = ZERO_COST_PRICE_PAIR）',
+    },
+    relationships: { dependsOn: ['AR-STRUCT-RESP-SEPARATION'] },
+    detection: { type: 'regex', severity: 'gate', baseline: 0 },
+    migrationPath: {
+      steps: [
+        '1. ZERO_/EMPTY_ パターンの出現数を計測',
+        '2. 重複定数をローカルエイリアスに置換',
+        '3. 共通定数は application/constants/ に集約',
+      ],
+      effort: 'small',
+      priority: 3,
+    },
+    protectedHarm: { prevents: ['初期値管理の責務分散', 'fallback 忘れによるランタイムエラー'] },
+    reviewPolicy: { owner: 'solo-maintainer', lastReviewedAt: '2026-04-08', reviewCadenceDays: 90 },
   },
 
   {
