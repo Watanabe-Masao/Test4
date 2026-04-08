@@ -40,9 +40,67 @@ export type AagSlice =
   | 'responsibility-separation' // size / hook complexity / responsibility tags
   | 'governance-ops' // allowlist、health、obligation、generated docs
 
+/**
+ * 設計原則 ID — CLAUDE.md §設計原則 の A1〜H6 + Q3〜Q4
+ * ルールがどの思想から生まれたかを辿るトレーサビリティ
+ */
+export type PrincipleId =
+  | 'A1'
+  | 'A2'
+  | 'A3'
+  | 'A4'
+  | 'A5'
+  | 'A6'
+  | 'B1'
+  | 'B2'
+  | 'B3'
+  | 'C1'
+  | 'C2'
+  | 'C3'
+  | 'C4'
+  | 'C5'
+  | 'C6'
+  | 'C7'
+  | 'C8'
+  | 'C9'
+  | 'D1'
+  | 'D2'
+  | 'D3'
+  | 'E1'
+  | 'E2'
+  | 'E3'
+  | 'E4'
+  | 'F1'
+  | 'F2'
+  | 'F3'
+  | 'F4'
+  | 'F5'
+  | 'F6'
+  | 'F7'
+  | 'F8'
+  | 'F9'
+  | 'G1'
+  | 'G2'
+  | 'G3'
+  | 'G4'
+  | 'G5'
+  | 'G6'
+  | 'G7'
+  | 'G8'
+  | 'H1'
+  | 'H2'
+  | 'H3'
+  | 'H4'
+  | 'H5'
+  | 'H6'
+  | 'Q3'
+  | 'Q4'
+
 export interface ArchitectureRule {
   // ── 識別 ──
   readonly id: string
+  /** どの設計原則から生まれたか（トレーサビリティ） */
+  readonly principleRefs?: readonly PrincipleId[]
   readonly guardTags: readonly string[]
   readonly responsibilityTags?: readonly string[]
   readonly epoch?: number
@@ -142,6 +200,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'now',
     slice: 'governance-ops',
     id: 'AR-001',
+    principleRefs: ['G1'],
     ruleClass: 'invariant',
     guardTags: ['G1'],
     epoch: 1,
@@ -187,6 +246,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'now',
     slice: 'layer-boundary',
     id: 'AR-002',
+    principleRefs: ['A1', 'B1'],
     ruleClass: 'invariant',
     guardTags: ['G1', 'A3'],
     epoch: 1,
@@ -231,6 +291,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'governance-ops',
     id: 'AR-003',
+    principleRefs: ['C1', 'A5'],
     ruleClass: 'default',
     guardTags: ['G1', 'C1'],
     epoch: 1,
@@ -275,6 +336,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'now',
     slice: 'governance-ops',
     id: 'AR-004',
+    principleRefs: ['G1'],
     ruleClass: 'default',
     guardTags: ['G1'],
     epoch: 1,
@@ -319,6 +381,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'governance-ops',
     id: 'AR-005',
+    principleRefs: ['H1'],
     ruleClass: 'default',
     guardTags: ['G1', 'H1'],
     epoch: 1,
@@ -363,6 +426,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'now',
     slice: 'layer-boundary',
     id: 'AR-A1-DOMAIN',
+    principleRefs: ['A1', 'A2'],
     ruleClass: 'invariant',
     guardTags: ['A1', 'A2'],
     epoch: 1,
@@ -420,6 +484,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'now',
     slice: 'layer-boundary',
     id: 'AR-A1-APP-INFRA',
+    principleRefs: ['A1'],
     ruleClass: 'invariant',
     guardTags: ['A1'],
     epoch: 1,
@@ -467,6 +532,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'now',
     slice: 'layer-boundary',
     id: 'AR-A1-APP-PRES',
+    principleRefs: ['A1'],
     ruleClass: 'invariant',
     guardTags: ['A1'],
     epoch: 1,
@@ -510,6 +576,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'now',
     slice: 'layer-boundary',
     id: 'AR-A1-PRES-INFRA',
+    principleRefs: ['A1', 'A3'],
     ruleClass: 'invariant',
     guardTags: ['A1', 'A3', 'A5'],
     epoch: 1,
@@ -561,6 +628,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'now',
     slice: 'layer-boundary',
     id: 'AR-A1-PRES-USECASE',
+    principleRefs: ['A1'],
     ruleClass: 'invariant',
     guardTags: ['A1', 'A3'],
     epoch: 1,
@@ -603,6 +671,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'now',
     slice: 'layer-boundary',
     id: 'AR-A1-INFRA-APP',
+    principleRefs: ['A1'],
     ruleClass: 'invariant',
     guardTags: ['A1'],
     epoch: 1,
@@ -648,6 +717,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'now',
     slice: 'layer-boundary',
     id: 'AR-A1-INFRA-PRES',
+    principleRefs: ['A1'],
     ruleClass: 'invariant',
     guardTags: ['A1'],
     epoch: 1,
@@ -689,6 +759,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'now',
     slice: 'governance-ops',
     id: 'AR-G4-INTERNAL',
+    principleRefs: ['G4'],
     ruleClass: 'default',
     guardTags: ['G4'],
     epoch: 1,
@@ -728,6 +799,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'now',
     slice: 'governance-ops',
     id: 'AR-C3-STORE',
+    principleRefs: ['C3'],
     ruleClass: 'default',
     guardTags: ['C3'],
     epoch: 1,
@@ -767,6 +839,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'now',
     slice: 'governance-ops',
     id: 'AR-G3-SUPPRESS',
+    principleRefs: ['G3'],
     ruleClass: 'default',
     guardTags: ['G3', 'E2'],
     epoch: 1,
@@ -807,6 +880,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'now',
     slice: 'governance-ops',
     id: 'AR-E4-TRUTHINESS',
+    principleRefs: ['E4'],
     ruleClass: 'default',
     guardTags: ['E4'],
     epoch: 1,
@@ -849,6 +923,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'now',
     slice: 'governance-ops',
     id: 'AR-C5-SELECTOR',
+    principleRefs: ['C5'],
     ruleClass: 'default',
     guardTags: ['C5'],
     epoch: 1,
@@ -889,6 +964,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'now',
     slice: 'governance-ops',
     id: 'AR-G2-EMPTY-CATCH',
+    principleRefs: ['G2'],
     ruleClass: 'default',
     guardTags: ['G2'],
     epoch: 1,
@@ -930,6 +1006,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-G5-HOOK-MEMO',
+    principleRefs: ['G5', 'C8'],
     ruleClass: 'heuristic',
     guardTags: ['G5'],
     epoch: 1,
@@ -972,6 +1049,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-G5-HOOK-STATE',
+    principleRefs: ['G5', 'C8'],
     ruleClass: 'heuristic',
     guardTags: ['G5'],
     epoch: 1,
@@ -1013,6 +1091,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-G5-HOOK-LINES',
+    principleRefs: ['G5'],
     ruleClass: 'heuristic',
     guardTags: ['G5'],
     epoch: 1,
@@ -1053,6 +1132,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-G6-COMPONENT',
+    principleRefs: ['G6'],
     ruleClass: 'heuristic',
     guardTags: ['G6'],
     epoch: 1,
@@ -1093,6 +1173,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-G5-DOMAIN-LINES',
+    principleRefs: ['G5'],
     ruleClass: 'heuristic',
     guardTags: ['G5', 'A2'],
     epoch: 1,
@@ -1131,6 +1212,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-G5-INFRA-LINES',
+    principleRefs: ['G5'],
     ruleClass: 'heuristic',
     guardTags: ['G5'],
     epoch: 1,
@@ -1166,6 +1248,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-G5-USECASE-LINES',
+    principleRefs: ['G5'],
     ruleClass: 'heuristic',
     guardTags: ['G5'],
     epoch: 1,
@@ -1204,6 +1287,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-C6-FACADE',
+    principleRefs: ['C6'],
     ruleClass: 'heuristic',
     guardTags: ['C6'],
     epoch: 1,
@@ -1245,6 +1329,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'now',
     slice: 'canonicalization',
     id: 'AR-PATH-SALES',
+    principleRefs: ['B1', 'F8'],
     ruleClass: 'invariant',
     guardTags: ['F9'],
     epoch: 1,
@@ -1295,6 +1380,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'now',
     slice: 'canonicalization',
     id: 'AR-PATH-DISCOUNT',
+    principleRefs: ['B1', 'F8'],
     ruleClass: 'invariant',
     guardTags: ['F9'],
     epoch: 1,
@@ -1333,6 +1419,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'now',
     slice: 'canonicalization',
     id: 'AR-PATH-GROSS-PROFIT',
+    principleRefs: ['B1', 'B3'],
     ruleClass: 'invariant',
     guardTags: ['F9', 'D1'],
     epoch: 1,
@@ -1380,6 +1467,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'now',
     slice: 'canonicalization',
     id: 'AR-PATH-PURCHASE-COST',
+    principleRefs: ['B1', 'F8'],
     ruleClass: 'invariant',
     guardTags: ['F9'],
     epoch: 1,
@@ -1424,6 +1512,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'now',
     slice: 'canonicalization',
     id: 'AR-PATH-CUSTOMER',
+    principleRefs: ['B1', 'F8'],
     ruleClass: 'invariant',
     guardTags: ['F9'],
     epoch: 1,
@@ -1464,6 +1553,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'now',
     slice: 'canonicalization',
     id: 'AR-PATH-CUSTOMER-GAP',
+    principleRefs: ['B1', 'D1'],
     ruleClass: 'invariant',
     guardTags: ['F9', 'D1'],
     epoch: 1,
@@ -1504,6 +1594,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'now',
     slice: 'canonicalization',
     id: 'AR-PATH-PI-VALUE',
+    principleRefs: ['B1'],
     ruleClass: 'invariant',
     guardTags: ['F9', 'D1'],
     epoch: 1,
@@ -1547,6 +1638,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'now',
     slice: 'canonicalization',
     id: 'AR-PATH-FREE-PERIOD',
+    principleRefs: ['B1'],
     ruleClass: 'invariant',
     guardTags: ['F9'],
     epoch: 1,
@@ -1585,6 +1677,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'now',
     slice: 'canonicalization',
     id: 'AR-PATH-FREE-PERIOD-BUDGET',
+    principleRefs: ['B1'],
     ruleClass: 'invariant',
     guardTags: ['F9'],
     epoch: 1,
@@ -1623,6 +1716,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'now',
     slice: 'canonicalization',
     id: 'AR-PATH-FREE-PERIOD-DEPT-KPI',
+    principleRefs: ['B1'],
     ruleClass: 'invariant',
     guardTags: ['F9'],
     epoch: 1,
@@ -1661,6 +1755,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'now',
     slice: 'canonicalization',
     id: 'AR-PATH-FACTOR-DECOMPOSITION',
+    principleRefs: ['B1', 'D1'],
     ruleClass: 'invariant',
     guardTags: ['F9', 'D1', 'D2'],
     epoch: 1,
@@ -1705,6 +1800,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'now',
     slice: 'canonicalization',
     id: 'AR-PATH-GROSS-PROFIT-CONSISTENCY',
+    principleRefs: ['B1', 'D3'],
     ruleClass: 'invariant',
     guardTags: ['F9', 'D1'],
     epoch: 1,
@@ -1749,6 +1845,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'review',
     slice: 'query-runtime',
     id: 'AR-STRUCT-ANALYSIS-FRAME',
+    principleRefs: ['H1'],
     ruleClass: 'default',
     guardTags: ['H3'],
     epoch: 1,
@@ -1782,6 +1879,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'review',
     slice: 'canonicalization',
     id: 'AR-STRUCT-CALC-CANON',
+    principleRefs: ['B1'],
     ruleClass: 'default',
     guardTags: ['G1'],
     epoch: 1,
@@ -1820,6 +1918,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'review',
     slice: 'canonicalization',
     id: 'AR-CANON-ZOD-REQUIRED',
+    principleRefs: ['E1', 'F5'],
     ruleClass: 'default',
     guardTags: ['G1', 'E1'],
     epoch: 1,
@@ -1860,6 +1959,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'review',
     slice: 'canonicalization',
     id: 'AR-CANON-ZOD-REVIEW',
+    principleRefs: ['E1'],
     ruleClass: 'default',
     guardTags: ['G1', 'E1'],
     epoch: 1,
@@ -1899,6 +1999,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'review',
     slice: 'canonicalization',
     id: 'AR-STRUCT-CANONICAL-INPUT',
+    principleRefs: ['B1', 'E1'],
     ruleClass: 'default',
     guardTags: ['G1', 'D1'],
     epoch: 1,
@@ -1929,6 +2030,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'review',
     slice: 'canonicalization',
     id: 'AR-STRUCT-CANONICALIZATION',
+    principleRefs: ['B1', 'E1', 'F5'],
     ruleClass: 'default',
     guardTags: ['G1', 'E3', 'F5', 'F8'],
     epoch: 1,
@@ -1971,6 +2073,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'review',
     slice: 'query-runtime',
     id: 'AR-STRUCT-COMPARISON-SCOPE',
+    principleRefs: ['H2'],
     ruleClass: 'default',
     guardTags: ['H2'],
     epoch: 1,
@@ -2004,6 +2107,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'review',
     slice: 'governance-ops',
     id: 'AR-STRUCT-DATA-INTEGRITY',
+    principleRefs: ['D3', 'E1'],
     ruleClass: 'default',
     guardTags: ['G1', 'E1'],
     epoch: 1,
@@ -2041,6 +2145,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'review',
     slice: 'governance-ops',
     id: 'AR-STRUCT-DUAL-RUN-EXIT',
+    principleRefs: ['B1'],
     ruleClass: 'default',
     guardTags: ['G1'],
     epoch: 1,
@@ -2072,6 +2177,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'review',
     slice: 'canonicalization',
     id: 'AR-STRUCT-FALLBACK-METADATA',
+    principleRefs: ['E3'],
     ruleClass: 'default',
     guardTags: ['G1'],
     epoch: 1,
@@ -2104,6 +2210,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'governance-ops',
     id: 'AR-MIG-OLD-PATH',
+    principleRefs: ['F4'],
     ruleClass: 'default',
     guardTags: ['F4', 'F1'],
     epoch: 1,
@@ -2140,6 +2247,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'review',
     slice: 'governance-ops',
     id: 'AR-STRUCT-PAGE-META',
+    principleRefs: ['F4'],
     ruleClass: 'default',
     guardTags: ['F10'],
     epoch: 1,
@@ -2173,6 +2281,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'layer-boundary',
     id: 'AR-STRUCT-PRES-ISOLATION',
+    principleRefs: ['A3', 'H4'],
     ruleClass: 'default',
     guardTags: ['A3', 'B2'],
     epoch: 1,
@@ -2211,6 +2320,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'now',
     slice: 'layer-boundary',
     id: 'AR-STRUCT-PURITY',
+    principleRefs: ['A2', 'C2'],
     ruleClass: 'invariant',
     guardTags: ['A2', 'B1', 'C3', 'A6', 'B3', 'D3'],
     epoch: 1,
@@ -2257,6 +2367,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'query-runtime',
     id: 'AR-STRUCT-QUERY-PATTERN',
+    principleRefs: ['H1', 'H3'],
     ruleClass: 'default',
     guardTags: ['H2', 'H3', 'H4', 'H5'],
     epoch: 1,
@@ -2300,6 +2411,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'review',
     slice: 'layer-boundary',
     id: 'AR-STRUCT-RENDER-SIDE-EFFECT',
+    principleRefs: ['A3'],
     ruleClass: 'default',
     guardTags: ['A3', 'H4'],
     epoch: 1,
@@ -2342,6 +2454,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-RESP-STORE-COUPLING',
+    principleRefs: ['A3', 'C1'],
     ruleClass: 'default',
     guardTags: ['G8'],
     epoch: 1,
@@ -2375,6 +2488,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-RESP-MODULE-STATE',
+    principleRefs: ['C1', 'G8'],
     ruleClass: 'default',
     guardTags: ['G8'],
     epoch: 1,
@@ -2406,6 +2520,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-RESP-HOOK-COMPLEXITY',
+    principleRefs: ['C1', 'C8', 'G5'],
     ruleClass: 'heuristic',
     guardTags: ['G8'],
     epoch: 1,
@@ -2437,6 +2552,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-RESP-FEATURE-COMPLEXITY',
+    principleRefs: ['C1', 'G5'],
     ruleClass: 'heuristic',
     guardTags: ['G8'],
     epoch: 1,
@@ -2470,6 +2586,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-RESP-EXPORT-DENSITY',
+    principleRefs: ['C1', 'C8'],
     ruleClass: 'heuristic',
     guardTags: ['G8'],
     epoch: 1,
@@ -2501,6 +2618,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-RESP-NORMALIZATION',
+    principleRefs: ['C1', 'G8'],
     ruleClass: 'heuristic',
     guardTags: ['G8'],
     epoch: 1,
@@ -2528,6 +2646,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-RESP-FALLBACK-SPREAD',
+    principleRefs: ['C1', 'G8'],
     ruleClass: 'heuristic',
     guardTags: ['G8'],
     epoch: 1,
@@ -2561,6 +2680,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'canonicalization',
     id: 'AR-STRUCT-STORE-RESULT-INPUT',
+    principleRefs: ['B1'],
     ruleClass: 'default',
     guardTags: ['G1'],
     epoch: 1,
@@ -2597,6 +2717,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'governance-ops',
     id: 'AR-CONVENTION-BARREL',
+    principleRefs: ['F1', 'F9'],
     ruleClass: 'default',
     guardTags: ['F1', 'F9'],
     epoch: 1,
@@ -2624,6 +2745,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'governance-ops',
     id: 'AR-CONVENTION-FEATURE-BOUNDARY',
+    principleRefs: ['F4'],
     ruleClass: 'default',
     guardTags: ['F4'],
     epoch: 1,
@@ -2651,6 +2773,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'governance-ops',
     id: 'AR-CONVENTION-CONTEXT-SINGLE-SOURCE',
+    principleRefs: ['F2', 'F3', 'F6'],
     ruleClass: 'default',
     guardTags: ['F2', 'F3', 'F6'],
     epoch: 1,
@@ -2680,6 +2803,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'review',
     slice: 'query-runtime',
     id: 'AR-STRUCT-TEMPORAL-ROLLING',
+    principleRefs: ['H1'],
     ruleClass: 'default',
     guardTags: ['G1'],
     epoch: 1,
@@ -2713,6 +2837,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'review',
     slice: 'query-runtime',
     id: 'AR-STRUCT-TEMPORAL-SCOPE',
+    principleRefs: ['H1'],
     ruleClass: 'default',
     guardTags: ['G1'],
     epoch: 1,
@@ -2748,6 +2873,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'now',
     slice: 'layer-boundary',
     id: 'AR-STRUCT-TOPOLOGY',
+    principleRefs: ['A1'],
     ruleClass: 'invariant',
     guardTags: ['F4'],
     epoch: 1,
@@ -2780,6 +2906,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'now',
     slice: 'governance-ops',
     id: 'AR-C7-NO-DUAL-API',
+    principleRefs: ['C7'],
     ruleClass: 'default',
     guardTags: ['C7'],
     epoch: 1,
@@ -2818,6 +2945,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'review',
     slice: 'responsibility-separation',
     id: 'AR-C9-HONEST-UNCLASSIFIED',
+    principleRefs: ['C9'],
     ruleClass: 'heuristic',
     guardTags: ['C9'],
     epoch: 1,
@@ -2854,6 +2982,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'review',
     slice: 'responsibility-separation',
     id: 'AR-G7-CACHE-BODY',
+    principleRefs: ['G7'],
     ruleClass: 'heuristic',
     guardTags: ['G7'],
     epoch: 1,
@@ -2884,6 +3013,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'review',
     slice: 'query-runtime',
     id: 'AR-Q3-CHART-NO-DUCKDB',
+    principleRefs: ['Q3', 'A3'],
     ruleClass: 'default',
     guardTags: ['Q3'],
     epoch: 1,
@@ -2923,6 +3053,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'review',
     slice: 'query-runtime',
     id: 'AR-Q4-ALIGNMENT-HANDLER',
+    principleRefs: ['Q4'],
     ruleClass: 'default',
     guardTags: ['Q4'],
     epoch: 1,
@@ -2958,6 +3089,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-TAG-SELECTION-GUIDE',
+    principleRefs: ['C8'],
     ruleClass: 'heuristic',
     guardTags: ['C8', 'C9'],
     epoch: 1,
@@ -3020,6 +3152,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-TAG-CHART-VIEW',
+    principleRefs: ['C1', 'C8'],
     ruleClass: 'heuristic',
     guardTags: ['C8', 'G8', 'C4', 'F7'],
     responsibilityTags: ['R:chart-view'],
@@ -3061,6 +3194,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-TAG-CHART-OPTION',
+    principleRefs: ['C1'],
     ruleClass: 'heuristic',
     guardTags: ['C8', 'G8'],
     responsibilityTags: ['R:chart-option'],
@@ -3101,6 +3235,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-TAG-CALCULATION',
+    principleRefs: ['A2', 'C2'],
     ruleClass: 'heuristic',
     guardTags: ['C8', 'B1', 'C2'],
     responsibilityTags: ['R:calculation'],
@@ -3144,6 +3279,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-TAG-TRANSFORM',
+    principleRefs: ['C1'],
     ruleClass: 'heuristic',
     guardTags: ['C8'],
     responsibilityTags: ['R:transform'],
@@ -3183,6 +3319,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-TAG-STATE-MACHINE',
+    principleRefs: ['C1'],
     ruleClass: 'heuristic',
     guardTags: ['C8', 'C3'],
     responsibilityTags: ['R:state-machine'],
@@ -3219,6 +3356,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-TAG-QUERY-PLAN',
+    principleRefs: ['H1', 'C1'],
     ruleClass: 'heuristic',
     guardTags: ['C8', 'H1'],
     responsibilityTags: ['R:query-plan'],
@@ -3259,6 +3397,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-TAG-QUERY-EXEC',
+    principleRefs: ['C1'],
     ruleClass: 'heuristic',
     guardTags: ['C8'],
     responsibilityTags: ['R:query-exec'],
@@ -3299,6 +3438,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-TAG-WIDGET',
+    principleRefs: ['C1', 'H6'],
     ruleClass: 'heuristic',
     guardTags: ['C8', 'H6'],
     responsibilityTags: ['R:widget'],
@@ -3339,6 +3479,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-TAG-PAGE',
+    principleRefs: ['C1'],
     ruleClass: 'heuristic',
     guardTags: ['C8'],
     responsibilityTags: ['R:page'],
@@ -3379,6 +3520,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-TAG-FORM',
+    principleRefs: ['C1'],
     ruleClass: 'heuristic',
     guardTags: ['C8'],
     responsibilityTags: ['R:form'],
@@ -3415,6 +3557,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-TAG-LAYOUT',
+    principleRefs: ['C1'],
     ruleClass: 'heuristic',
     guardTags: ['C8'],
     responsibilityTags: ['R:layout'],
@@ -3451,6 +3594,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-TAG-ORCHESTRATION',
+    principleRefs: ['C6'],
     ruleClass: 'heuristic',
     guardTags: ['C8', 'C6'],
     responsibilityTags: ['R:orchestration'],
@@ -3491,6 +3635,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-TAG-UTILITY',
+    principleRefs: ['A2'],
     ruleClass: 'heuristic',
     guardTags: ['C8', 'A2'],
     responsibilityTags: ['R:utility'],
@@ -3533,6 +3678,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-TAG-CONTEXT',
+    principleRefs: ['C1', 'F6'],
     ruleClass: 'heuristic',
     guardTags: ['C8'],
     responsibilityTags: ['R:context'],
@@ -3569,6 +3715,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-TAG-PERSISTENCE',
+    principleRefs: ['C1'],
     ruleClass: 'heuristic',
     guardTags: ['C8'],
     responsibilityTags: ['R:persistence'],
@@ -3605,6 +3752,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-TAG-ADAPTER',
+    principleRefs: ['C1'],
     ruleClass: 'heuristic',
     guardTags: ['C8', 'A4'],
     responsibilityTags: ['R:adapter'],
@@ -3641,6 +3789,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-TAG-REDUCER',
+    principleRefs: ['C2'],
     ruleClass: 'heuristic',
     guardTags: ['C8'],
     responsibilityTags: ['R:reducer'],
@@ -3683,6 +3832,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-TAG-BARREL',
+    principleRefs: ['F1'],
     ruleClass: 'heuristic',
     guardTags: ['C8', 'F1'],
     responsibilityTags: ['R:barrel'],
