@@ -534,3 +534,37 @@ describe('Architecture Rule Registry', () => {
     expect(sliceDist['unset'] ?? 0).toBe(0)
   })
 })
+
+// ─── AAG 自己品質ガード（第 7 原則） ──────────────────────────
+
+describe('AAG Self-Quality: ルール自身がルールの品質基準を満たす', () => {
+  it('全ルールに why がある（存在理由が不明なルールは削除候補）', () => {
+    const missing = ARCHITECTURE_RULES.filter((r) => !r.why || r.why.trim() === '')
+    expect(missing.map((r) => r.id)).toEqual([])
+  })
+
+  it('全ルールに doc がある（深掘り先がないルールは根拠不明）', () => {
+    const missing = ARCHITECTURE_RULES.filter((r) => !r.doc)
+    expect(missing.map((r) => r.id)).toEqual([])
+  })
+
+  it('全ルールに migrationPath がある（直し方がわからないルールは運用できない）', () => {
+    const missing = ARCHITECTURE_RULES.filter(
+      (r) => !r.migrationPath || r.migrationPath.steps.length === 0,
+    )
+    expect(missing.map((r) => r.id)).toEqual([])
+  })
+
+  it('全ルールに decisionCriteria がある（判断基準がないルールは属人化する）', () => {
+    const missing = ARCHITECTURE_RULES.filter((r) => !r.decisionCriteria)
+    expect(missing.map((r) => r.id)).toEqual([])
+  })
+
+  it('deprecated ルールが残存していない（不要なルールは削除する）', () => {
+    const deprecated = ARCHITECTURE_RULES.filter((r) => r.maturity === 'deprecated')
+    expect(
+      deprecated.map((r) => r.id),
+      '不要になったルールは deprecated ではなく削除してください',
+    ).toEqual([])
+  })
+})
