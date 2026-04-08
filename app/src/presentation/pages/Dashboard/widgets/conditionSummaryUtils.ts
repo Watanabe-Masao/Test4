@@ -15,7 +15,6 @@ import {
   isUserCategory,
 } from '@/domain/constants/customCategories'
 import { CATEGORY_ORDER, CATEGORY_LABELS } from '@/domain/constants/categories'
-import { useSettingsStore } from '@/application/stores/settingsStore'
 
 // ─── Signal Types ───────────────────────────────────────
 
@@ -159,6 +158,7 @@ const CUSTOM_CROSS_COLORS: Record<PresetCategoryId, string> = {
 export function buildCrossMult(
   sr: StoreResult,
   supplierCategoryMap: Readonly<Partial<Record<string, CustomCategory>>>,
+  userCategoryLabels?: Readonly<Record<string, string>>,
 ): CategoryCrossRow[] {
   // 1. 標準カテゴリ
   const items: { label: string; cost: number; price: number; color: string }[] = []
@@ -183,7 +183,7 @@ export function buildCrossMult(
       price: existing.price + st.price,
     })
   }
-  const userCategoryLabels = useSettingsStore.getState().settings.userCategoryLabels ?? {}
+  const resolvedLabels = userCategoryLabels ?? {}
   for (const cc of PRESET_CATEGORY_DEFS) {
     const pair = customAgg.get(cc.id as CustomCategory)
     if (!pair || (pair.cost === 0 && pair.price === 0)) continue
@@ -198,7 +198,7 @@ export function buildCrossMult(
   for (const [id, pair] of customAgg) {
     if (!isUserCategory(id) || (pair.cost === 0 && pair.price === 0)) continue
     items.push({
-      label: userCategoryLabels[id] ?? id.replace('user:', ''),
+      label: resolvedLabels[id] ?? id.replace('user:', ''),
       cost: pair.cost,
       price: pair.price,
       color: '#14b8a6',

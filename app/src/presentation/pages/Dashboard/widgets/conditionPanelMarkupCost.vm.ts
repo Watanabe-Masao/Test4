@@ -89,7 +89,7 @@ export function buildMarkupRateDetailVm(
   const storeRows = sortedStoreEntries.map(([storeId, sr]) => {
     const store = stores.get(storeId)
     const storeName = store?.name ?? storeId
-    const crossRows = buildCrossMult(sr, settings.supplierCategoryMap)
+    const crossRows = buildCrossMult(sr, settings.supplierCategoryMap, settings.userCategoryLabels)
     const sig = markupSignal(sr.averageMarkupRate, sr.storeId)
     const sigColor = SIGNAL_COLORS[sig]
 
