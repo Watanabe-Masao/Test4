@@ -59,6 +59,17 @@ function makeStores(count: number): ReadonlyMap<string, Store> {
   return map
 }
 
+/** StoreResult から storeCustomerMap を抽出（parity 比較用） */
+function extractStoreCustomerMap(
+  storeResults: ReadonlyMap<string, StoreResult>,
+): ReadonlyMap<string, number> {
+  const map = new Map<string, number>()
+  for (const [id, sr] of storeResults) {
+    map.set(id, sr.totalCustomers)
+  }
+  return map
+}
+
 // ── Normalizers: 比較しやすい形に正規化 ──
 
 interface CategoryParitySnapshot {
@@ -311,10 +322,11 @@ describe('PerformanceIndex Plan Parity — old/new 差分実行比較', () => {
     const storeCount = 8
     const storeResults = makeStoreResults(storeCount)
     const stores = makeStores(storeCount)
+    const customerMap = extractStoreCustomerMap(storeResults)
 
     it('件数が一致する', () => {
       const oldEntries = oldPathStorePIData(storeResults)
-      const newEntries = buildStorePIData(storeResults, stores, 'piAmount')
+      const newEntries = buildStorePIData(storeResults, stores, 'piAmount', undefined, customerMap)
 
       expect(normalizeStorePIOutput(newEntries).entryCount).toBe(
         normalizeStorePIOutput(oldEntries).entryCount,
@@ -323,7 +335,7 @@ describe('PerformanceIndex Plan Parity — old/new 差分実行比較', () => {
 
     it('先頭店舗が一致する（最高 PI）', () => {
       const oldEntries = oldPathStorePIData(storeResults)
-      const newEntries = buildStorePIData(storeResults, stores, 'piAmount')
+      const newEntries = buildStorePIData(storeResults, stores, 'piAmount', undefined, customerMap)
 
       expect(normalizeStorePIOutput(newEntries).topStoreId).toBe(
         normalizeStorePIOutput(oldEntries).topStoreId,
@@ -332,7 +344,7 @@ describe('PerformanceIndex Plan Parity — old/new 差分実行比較', () => {
 
     it('先頭 piAmount が一致する', () => {
       const oldEntries = oldPathStorePIData(storeResults)
-      const newEntries = buildStorePIData(storeResults, stores, 'piAmount')
+      const newEntries = buildStorePIData(storeResults, stores, 'piAmount', undefined, customerMap)
 
       expect(normalizeStorePIOutput(newEntries).topPiAmount).toBe(
         normalizeStorePIOutput(oldEntries).topPiAmount,
@@ -340,7 +352,7 @@ describe('PerformanceIndex Plan Parity — old/new 差分実行比較', () => {
     })
 
     it('ソート順が正しい（piAmount 降順）', () => {
-      const newEntries = buildStorePIData(storeResults, stores, 'piAmount')
+      const newEntries = buildStorePIData(storeResults, stores, 'piAmount', undefined, customerMap)
       expect(normalizeStorePIOutput(newEntries).sortOrderValid).toBe(true)
     })
 
@@ -351,9 +363,16 @@ describe('PerformanceIndex Plan Parity — old/new 差分実行比較', () => {
         totalCustomers: 0,
         totalQuantity: 0,
       } as unknown as StoreResult)
+      const withZeroCustomerMap = extractStoreCustomerMap(withZero)
 
       const oldEntries = oldPathStorePIData(withZero)
-      const newEntries = buildStorePIData(withZero, stores, 'piAmount')
+      const newEntries = buildStorePIData(
+        withZero,
+        stores,
+        'piAmount',
+        undefined,
+        withZeroCustomerMap,
+      )
 
       // S99 は除外されるので件数は元と同じ
       expect(normalizeStorePIOutput(newEntries).entryCount).toBe(storeCount)

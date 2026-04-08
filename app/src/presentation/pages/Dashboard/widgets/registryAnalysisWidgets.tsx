@@ -11,6 +11,7 @@ import {
 import type { WidgetDef } from './types'
 import { WaterfallChartWidget } from './WaterfallChart'
 import { GrossProfitHeatmapWidget } from './GrossProfitHeatmap'
+import { toStoreCustomerRows } from '@/application/readModels/customerFact'
 
 // ── 分析・可視化 ──
 export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
@@ -68,8 +69,13 @@ export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
         totalCustomers={ctx.result.totalCustomers}
         allStoreResults={ctx.allStoreResults}
         stores={ctx.stores}
-        dailyQuantity={ctx.currentCtsQuantity.byDay}
-        ctsQuantityByStore={ctx.currentCtsQuantity.byStore}
+        dailyQuantity={ctx.currentCtsQuantity?.byDay}
+        ctsQuantityByStore={ctx.currentCtsQuantity?.byStore}
+        storeCustomerMap={
+          ctx.readModels?.customerFact
+            ? toStoreCustomerRows(ctx.readModels.customerFact)
+            : undefined
+        }
       />
     ),
   },

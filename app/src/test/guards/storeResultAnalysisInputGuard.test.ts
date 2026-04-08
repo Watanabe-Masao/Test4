@@ -26,16 +26,13 @@ const SRC_DIR = path.resolve(__dirname, '../..')
  */
 const TOTAL_CUSTOMERS_ALLOWLIST = new Set([
   'presentation/components/charts/SensitivityDashboard.tsx',
-  'presentation/components/charts/StorePIComparisonChart.builders.ts',
   'presentation/pages/Dashboard/widgets/ConditionSummary.tsx',
   'presentation/pages/Dashboard/widgets/DataTableWidgets.tsx',
   'presentation/pages/Dashboard/widgets/ExecSummaryBarWidget.tsx',
   'presentation/pages/Dashboard/widgets/PlanActualForecast.tsx',
-  'presentation/pages/Dashboard/widgets/conditionPanelCustomerGap.tsx',
   'presentation/pages/Dashboard/widgets/conditionPanelSalesDetail.tsx',
   'presentation/pages/Dashboard/widgets/conditionPanelSalesDetail.vm.ts',
   'presentation/pages/Dashboard/widgets/conditionPanelYoY.vm.ts',
-  'presentation/pages/Dashboard/widgets/conditionSummaryCardBuilders.ts',
   'presentation/pages/Dashboard/widgets/conditionSummaryUtils.ts',
   'presentation/pages/Dashboard/widgets/registryAnalysisWidgets.tsx',
   'presentation/pages/Forecast/ForecastPage.helpers.ts',
@@ -65,7 +62,7 @@ describe('StoreResult analysis input guard', () => {
   })
 
   it('allowlist の件数が増加していないこと（ratchet）', () => {
-    const MAX_ALLOWLIST = 16
+    const MAX_ALLOWLIST = 13
     expect(
       TOTAL_CUSTOMERS_ALLOWLIST.size,
       `[${rule.id}] ${rule.what}\nallowlist: ${TOTAL_CUSTOMERS_ALLOWLIST.size} (上限: ${MAX_ALLOWLIST})`,

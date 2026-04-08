@@ -15,7 +15,7 @@ import {
 } from './conditionPanelYoY'
 import { TxValueDetailTable } from './conditionPanelSalesDetail'
 import { CustomerGapDetailTable } from './conditionPanelCustomerGap'
-import type { DisplayMode } from './conditionSummaryUtils'
+import { extractPrevYearCustomerCount, type DisplayMode } from './conditionSummaryUtils'
 import {
   DrillOverlay,
   DrillPanel,
@@ -156,18 +156,21 @@ export function YoYDrillOverlay({
               fmtCurrency={ctx.fmtCurrency}
             />
           )}
-          {(yoyDrill === 'qtyCustomerGap' || yoyDrill === 'amtCustomerGap') && (
-            <CustomerGapDetailTable
-              gapType={yoyDrill === 'qtyCustomerGap' ? 'quantity' : 'amount'}
-              sortedStoreEntries={sortedStoreEntries}
-              stores={ctx.stores}
-              result={ctx.result}
-              prevYear={ctx.prevYear}
-              currentCtsQuantity={currentCtsQuantity}
-              prevYearMonthlyKpi={ctx.prevYearMonthlyKpi}
-              effectiveDay={effectiveDay}
-            />
-          )}
+          {(yoyDrill === 'qtyCustomerGap' || yoyDrill === 'amtCustomerGap') &&
+            ctx.readModels?.customerFact && (
+              <CustomerGapDetailTable
+                gapType={yoyDrill === 'qtyCustomerGap' ? 'quantity' : 'amount'}
+                sortedStoreEntries={sortedStoreEntries}
+                stores={ctx.stores}
+                result={ctx.result}
+                customerFact={ctx.readModels.customerFact}
+                prevTotalCustomers={extractPrevYearCustomerCount(ctx.prevYear)}
+                prevTotalSales={ctx.prevYear.totalSales}
+                currentCtsQuantity={currentCtsQuantity}
+                prevYearMonthlyKpi={ctx.prevYearMonthlyKpi}
+                effectiveDay={effectiveDay}
+              />
+            )}
           {yoyDrill === 'requiredPace' && (
             <RequiredPaceContent
               ctx={ctx}

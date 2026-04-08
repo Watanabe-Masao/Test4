@@ -360,6 +360,10 @@ export interface BuildYoYCardsInput {
   readonly prevYearTotalCost?: number
   readonly elapsedDays: number
   readonly daysInMonth: number
+  /** CustomerFact 経由の当年客数（正本） */
+  readonly curTotalCustomers: number
+  /** 前年客数（PrevYearData 経由） */
+  readonly prevTotalCustomers: number
 }
 
 /** 前年比系のカードデータを構築する */
@@ -374,6 +378,8 @@ export function buildYoYCards(input: BuildYoYCardsInput): readonly YoYCardSummar
     prevYearTotalCost,
     elapsedDays,
     daysInMonth,
+    curTotalCustomers,
+    prevTotalCustomers,
   } = input
   const cards: YoYCardSummary[] = []
 
@@ -381,15 +387,15 @@ export function buildYoYCards(input: BuildYoYCardsInput): readonly YoYCardSummar
   if (
     isMetricEnabled(config, 'customerYoY') &&
     prevYear.hasPrevYear &&
-    prevYear.totalCustomers > 0 &&
-    r.totalCustomers > 0
+    prevTotalCustomers > 0 &&
+    curTotalCustomers > 0
   ) {
-    const custYoY = r.totalCustomers / prevYear.totalCustomers
+    const custYoY = curTotalCustomers / prevTotalCustomers
     cards.push({
       key: 'customerYoY',
       label: '客数前年比',
       value: formatPercent(custYoY, 2),
-      sub: `${r.totalCustomers.toLocaleString()}人 / 前年${prevYear.totalCustomers.toLocaleString()}人`,
+      sub: `${curTotalCustomers.toLocaleString()}人 / 前年${prevTotalCustomers.toLocaleString()}人`,
       signalColor: SIGNAL_COLORS[metricSignal(custYoY, 'customerYoY', config)],
       metricId: 'totalCustomers',
       detailBreakdown: 'customerYoY',
@@ -419,11 +425,11 @@ export function buildYoYCards(input: BuildYoYCardsInput): readonly YoYCardSummar
   if (
     isMetricEnabled(config, 'txValue') &&
     prevYear.hasPrevYear &&
-    r.totalCustomers > 0 &&
-    prevYear.totalCustomers > 0
+    curTotalCustomers > 0 &&
+    prevTotalCustomers > 0
   ) {
     const txValue = r.transactionValue
-    const prevTxValue = calculateTransactionValue(prevYear.totalSales, prevYear.totalCustomers)
+    const prevTxValue = calculateTransactionValue(prevYear.totalSales, prevTotalCustomers)
     const txYoY = prevTxValue > 0 ? txValue / prevTxValue : null
     const fmtTx = (v: number) =>
       `${v.toLocaleString('ja-JP', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}円`
@@ -484,14 +490,14 @@ export function buildYoYCards(input: BuildYoYCardsInput): readonly YoYCardSummar
   // 前年比客数GAP（点数・金額）— 正本関数 calculateCustomerGap 経由
   if (
     prevYear.hasPrevYear &&
-    r.totalCustomers > 0 &&
-    prevYear.totalCustomers > 0 &&
+    curTotalCustomers > 0 &&
+    prevTotalCustomers > 0 &&
     ctsCurrentQty > 0 &&
     ctsPrevQty > 0
   ) {
     const gap = calculateCustomerGap({
-      curCustomers: r.totalCustomers,
-      prevCustomers: prevYear.totalCustomers,
+      curCustomers: curTotalCustomers,
+      prevCustomers: prevTotalCustomers,
       curQuantity: ctsCurrentQty,
       prevQuantity: ctsPrevQty,
       curSales: r.totalSales,

@@ -17,6 +17,7 @@ import {
   computeTrend,
   computeRateTrend,
 } from './ConditionSummaryEnhanced.vm'
+import { extractPrevYearCustomerCount } from './conditionSummaryUtils'
 import { formatPercent } from '@/domain/formatting'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
 import { useSettingsStore } from '@/application/stores/settingsStore'
@@ -164,6 +165,8 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
       prevYearTotalCost,
       elapsedDays: effectiveDay,
       daysInMonth: calendarDaysInMonth,
+      curTotalCustomers: ctx.readModels?.customerFact?.grandTotalCustomers ?? 0,
+      prevTotalCustomers: extractPrevYearCustomerCount(ctx.prevYear),
     })
     // Trend computation (last 7 days vs previous 7 days)
     const trends = new Map<string, { direction: 'up' | 'down' | 'flat'; ratio: string }>()
@@ -251,6 +254,7 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
     calendarDaysInMonth,
     ctx.fmtCurrency,
     ctx.prevYear,
+    ctx.readModels?.customerFact?.grandTotalCustomers,
     effectiveConfig,
     currentCtsQuantity,
     hasMultipleStores,

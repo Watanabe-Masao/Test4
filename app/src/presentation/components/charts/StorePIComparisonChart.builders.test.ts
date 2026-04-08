@@ -33,12 +33,13 @@ function makeStoresMap(...entries: [string, string][]): ReadonlyMap<string, Stor
 
 describe('buildStorePIData', () => {
   it('正常ケース: 2店舗の PI 計算', () => {
-    const results = makeStoreMap(
-      ['S1', { totalSales: 1000000, totalCustomers: 500 }],
-      ['S2', { totalSales: 2000000, totalCustomers: 800 }],
-    )
+    const results = makeStoreMap(['S1', { totalSales: 1000000 }], ['S2', { totalSales: 2000000 }])
     const stores = makeStoresMap(['S1', 'Store A'], ['S2', 'Store B'])
-    const data = buildStorePIData(results, stores, 'piAmount')
+    const customerMap = new Map([
+      ['S1', 500],
+      ['S2', 800],
+    ])
+    const data = buildStorePIData(results, stores, 'piAmount', undefined, customerMap)
 
     expect(data).toHaveLength(2)
     // S1: 1000000 / 500 * 1000 = 2000000
@@ -47,32 +48,34 @@ describe('buildStorePIData', () => {
   })
 
   it('customers=0 の店舗は除外', () => {
-    const results = makeStoreMap(
-      ['S1', { totalSales: 1000000, totalCustomers: 500 }],
-      ['S2', { totalSales: 500000, totalCustomers: 0 }],
-    )
+    const results = makeStoreMap(['S1', { totalSales: 1000000 }], ['S2', { totalSales: 500000 }])
     const stores = makeStoresMap(['S1', 'Store A'], ['S2', 'Store B'])
-    const data = buildStorePIData(results, stores, 'piAmount')
+    const customerMap = new Map([
+      ['S1', 500],
+      ['S2', 0],
+    ])
+    const data = buildStorePIData(results, stores, 'piAmount', undefined, customerMap)
 
     expect(data).toHaveLength(1)
     expect(data[0].storeId).toBe('S1')
   })
 
   it('piQty でソート順が変わる（ctsQuantityByStore 経由）', () => {
-    const results = makeStoreMap(
-      ['S1', { totalSales: 2000000, totalCustomers: 500 }],
-      ['S2', { totalSales: 500000, totalCustomers: 500 }],
-    )
+    const results = makeStoreMap(['S1', { totalSales: 2000000 }], ['S2', { totalSales: 500000 }])
     const stores = makeStoresMap(['S1', 'Store A'], ['S2', 'Store B'])
     const ctsQty = new Map([
       ['S1', 100],
       ['S2', 1000],
     ])
+    const customerMap = new Map([
+      ['S1', 500],
+      ['S2', 500],
+    ])
 
-    const byAmount = buildStorePIData(results, stores, 'piAmount', ctsQty)
+    const byAmount = buildStorePIData(results, stores, 'piAmount', ctsQty, customerMap)
     expect(byAmount[0].storeId).toBe('S1')
 
-    const byQty = buildStorePIData(results, stores, 'piQty', ctsQty)
+    const byQty = buildStorePIData(results, stores, 'piQty', ctsQty, customerMap)
     expect(byQty[0].storeId).toBe('S2')
     // S2: 1000 / 500 * 1000 = 2000
     expect(byQty[0].piQty).toBe(2000)
@@ -86,9 +89,17 @@ describe('buildStorePIData', () => {
   })
 
   it('store 名が見つからない場合は storeId をフォールバック', () => {
-    const results = makeStoreMap(['S1', { totalSales: 1000000, totalCustomers: 500 }])
-    const data = buildStorePIData(results, new Map(), 'piAmount')
+    const results = makeStoreMap(['S1', { totalSales: 1000000 }])
+    const customerMap = new Map([['S1', 500]])
+    const data = buildStorePIData(results, new Map(), 'piAmount', undefined, customerMap)
     expect(data[0].name).toBe('S1')
+  })
+
+  it('storeCustomerMap 未指定時は全店除外（客数 0 扱い）', () => {
+    const results = makeStoreMap(['S1', { totalSales: 1000000 }])
+    const stores = makeStoresMap(['S1', 'Store A'])
+    const data = buildStorePIData(results, stores, 'piAmount')
+    expect(data).toEqual([])
   })
 })
 
