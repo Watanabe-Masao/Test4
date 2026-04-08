@@ -12,6 +12,7 @@ import type { WidgetDef } from './types'
 import { WaterfallChartWidget } from './WaterfallChart'
 import { GrossProfitHeatmapWidget } from './GrossProfitHeatmap'
 import { toStoreCustomerRows } from '@/application/readModels/customerFact'
+import { extractPrevYearCustomerCount } from './conditionSummaryUtils'
 
 // ── 分析・可視化 ──
 export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
@@ -66,7 +67,7 @@ export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
         currentDateRange={ctx.currentDateRange}
         prevYearScope={ctx.prevYearScope}
         selectedStoreIds={ctx.selectedStoreIds}
-        totalCustomers={ctx.result.totalCustomers}
+        totalCustomers={ctx.readModels?.customerFact?.grandTotalCustomers ?? 0}
         allStoreResults={ctx.allStoreResults}
         stores={ctx.stores}
         dailyQuantity={ctx.currentCtsQuantity?.byDay}
@@ -92,7 +93,7 @@ export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
         categoryData={null}
         isLoading={false}
         prevYearScope={ctx.prevYearScope}
-        totalCustomers={ctx.result.totalCustomers}
+        totalCustomers={ctx.readModels?.customerFact?.grandTotalCustomers ?? 0}
         level="department"
         onLevelChange={() => {}}
       />
@@ -105,19 +106,19 @@ export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
     group: '要因分析',
     size: 'full',
     linkTo: { view: 'insight', tab: 'decomposition' },
-    render: ({ result: r, prevYear }) => (
+    render: (ctx) => (
       <CausalChainExplorer
-        result={r}
+        result={ctx.result}
         prevYearData={
-          prevYear.hasPrevYear
+          ctx.prevYear.hasPrevYear
             ? {
                 grossProfitRate: null,
                 costRate: null,
-                discountRate: prevYear.discountRate,
+                discountRate: ctx.prevYear.discountRate,
                 costInclusionRate: null,
-                discountEntries: prevYear.totalDiscountEntries,
-                totalSales: prevYear.totalSales,
-                totalCustomers: prevYear.totalCustomers,
+                discountEntries: ctx.prevYear.totalDiscountEntries,
+                totalSales: ctx.prevYear.totalSales,
+                totalCustomers: extractPrevYearCustomerCount(ctx.prevYear),
               }
             : undefined
         }
@@ -129,7 +130,12 @@ export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
     label: '感度分析ダッシュボード',
     group: '予測・シミュレーション',
     size: 'full',
-    render: ({ result: r }) => <SensitivityDashboard result={r} />,
+    render: (ctx) => (
+      <SensitivityDashboard
+        result={ctx.result}
+        customerCount={ctx.readModels?.customerFact?.grandTotalCustomers}
+      />
+    ),
   },
   {
     id: 'analysis-regression-insight',

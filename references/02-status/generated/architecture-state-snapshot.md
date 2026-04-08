@@ -1,6 +1,6 @@
 # Architecture State Snapshot
 
-> Generated: 2026-04-08T14:34:24.531Z
+> Generated: 2026-04-08T14:58:32.087Z
 
 ## Allowlist Summary
 
@@ -96,7 +96,7 @@
 | presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx | 7 | 7 | 484 |
 | presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 9 | 5 | 434 |
 | presentation/pages/Weather/WeatherPage.tsx | 9 | 5 | 411 |
-| presentation/pages/Insight/useInsightData.ts | 5 | 7 | 217 |
+| presentation/pages/Insight/useInsightData.ts | 5 | 7 | 221 |
 | application/hooks/useMetricBreakdown.ts | 7 | 5 | 282 |
 | presentation/pages/Dashboard/widgets/DayDetailModal.tsx | 7 | 4 | 343 |
 | presentation/components/charts/CvTimeSeriesChart.tsx | 5 | 5 | 247 |

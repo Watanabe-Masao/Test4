@@ -30,7 +30,6 @@ const TOTAL_CUSTOMERS_ALLOWLIST = new Set([
   'presentation/pages/Dashboard/widgets/conditionPanelSalesDetail.tsx',
   'presentation/pages/Dashboard/widgets/conditionPanelSalesDetail.vm.ts',
   'presentation/pages/Dashboard/widgets/conditionSummaryUtils.ts',
-  'presentation/pages/Dashboard/widgets/registryAnalysisWidgets.tsx',
   'presentation/pages/Insight/useInsightData.ts',
   'presentation/pages/Mobile/MobileDashboardPage.tsx',
 ])
@@ -57,7 +56,7 @@ describe('StoreResult analysis input guard', () => {
   })
 
   it('allowlist の件数が増加していないこと（ratchet）', () => {
-    const MAX_ALLOWLIST = 8
+    const MAX_ALLOWLIST = 7
     expect(
       TOTAL_CUSTOMERS_ALLOWLIST.size,
       `[${rule.id}] ${rule.what}\nallowlist: ${TOTAL_CUSTOMERS_ALLOWLIST.size} (上限: ${MAX_ALLOWLIST})`,
