@@ -115,26 +115,64 @@ AAG はこの問題に対して **3 層の防御** を提供する:
 弱さを知り、弱さの意味を理解し、弱さの改善タイミングを見極める。
 これ自体が AAG の適応能力である。
 
+## 4 層アーキテクチャ（Principles / Judgment / Detection / Response）
+
+AAG 自体を 4 層 + 5 縦スライスのマトリクスで設計する。
+詳細: `references/01-principles/aag-four-layer-architecture.md`
+
+```
+Response（入口）→ Judgment（判断）→ Principles（思想）← Detection（検出）
+```
+
+| 層 | 役割 |
+|---|------|
+| **Principles** | 何を守るか。なぜ守るか。変更頻度が最も低い |
+| **Judgment** | この状況で何をすべきか。fixNow / migrationPath / decisionCriteria |
+| **Detection** | どうやって観測するか。regex → AST → 型。改善・交換可能 |
+| **Response** | 違反時に必要最小限の判断材料を返す。AAG の正式入口 |
+
+### 5 縦スライス
+
+| スライス | ルール数 | 関心 |
+|---------|---------|------|
+| `layer-boundary` | 12 | 層境界、依存方向、描画専用原則 |
+| `canonicalization` | 19 | 正本経路、readModel、Zod、path guard |
+| `query-runtime` | 7 | QueryHandler、AnalysisFrame、ComparisonScope |
+| `responsibility-separation` | 33 | size / hook complexity / responsibility tags |
+| `governance-ops` | 23 | allowlist、health、obligation、conventions |
+
 ## 構成要素
 
-| 要素 | 責務 | ファイル |
-|------|------|---------|
-| **Architecture Rule** | ルールの定義（what/why/detection/migrationPath） | `app/src/test/architectureRules.ts` |
-| **Guard Test** | ルールの機械的検出と強制 | `app/src/test/guards/` (39 files) |
-| **Allowlist** | 既知の例外管理（lifecycle + retentionReason） | `app/src/test/allowlists/` |
-| **Health KPI** | 28 指標のダッシュボード + Hard Gate | `tools/architecture-health/` |
-| **Obligation Map** | パス変更 → ドキュメント更新義務の自動検出 | `obligation-collector.ts` |
-| **Pre-commit Hook** | 義務違反の事前検出 + 自動再生成 | `tools/git-hooks/pre-commit` |
-| **Ratchet-down** | 改善の不可逆化（baseline は下がる一方） | health-rules.ts の target |
-| **Discovery Review** | 定期的な現実観察と新パターン発見 | 制度（月1回） |
+| 要素 | 責務 | 層 | ファイル |
+|------|------|---|---------|
+| **Architecture Rule** | ルール定義（94 ルール / fixNow / slice） | Principles + Judgment | `app/src/test/architectureRules.ts` |
+| **Guard Test** | ルールの機械的検出と強制 | Detection | `app/src/test/guards/` (39+ files) |
+| **Allowlist** | 例外管理（lifecycle + retentionReason） | Judgment | `app/src/test/allowlists/` |
+| **Health KPI** | 28 指標のダッシュボード + Hard Gate | Detection | `tools/architecture-health/` |
+| **Obligation Map** | パス変更 → ドキュメント更新義務の自動検出 | Detection | `obligation-collector.ts` |
+| **Pre-commit Hook** | 義務違反の事前検出 + 自動再生成 | Detection + Response | `tools/git-hooks/pre-commit` |
+| **Ratchet-down** | 改善の不可逆化（baseline は下がる一方） | Judgment | health-rules.ts の target |
+| **AagResponse** | 統一違反レスポンス構造 | Response | `architectureRules.ts` |
+| **Discovery Review** | 定期的な現実観察と新パターン発見 | Principles | 制度（月1回） |
+
+## 運用区分
+
+詳細: `references/01-principles/aag-operational-classification.md`
+
+| 区分 | ルール数 | 方針 |
+|------|---------|------|
+| **⚡ 即修正 (now)** | 31 | hard gate。今の diff で直す |
+| **📋 構造負債 (debt)** | 45 | 新規悪化は止める。既存は allowlist + ratchet-down |
+| **🔍 観測 (review)** | 18 | 即 fail にしない。Discovery Review の入力 |
 
 ## 設計原則
 
 1. **ルールは仮説である。** 検証され、棄却されうる
-2. **ルールの目的を正本にし、検出手段は交換可能にする。** what/why は安定、detection は進化
+2. **Principles を正本にし、Detection は交換可能にする。** what/why は安定、検出手段は進化
 3. **改善は不可逆にする。** ratchet-down で一方向の進行を機械的に強制
 4. **回避が生まれたらルールを疑う。** 人を責めず、仕組みを直す
 5. **ブロックするだけでなく解決する。** pre-commit hook は自動修復を試行
+6. **Response は薄く、必要十分にする。** 情報を渡しすぎない。作業を前に進める
 
 ## 3 層サイクル
 
@@ -147,6 +185,39 @@ AAG はこの問題に対して **3 層の防御** を提供する:
 詳細: `references/01-principles/adaptive-governance-evolution.md`
 
 ## バージョン履歴
+
+### v3.0.0 — 2026-04-08: AAG 4 層アーキテクチャ + ルール分割
+
+**4 層の確立:**
+- Principles（思想）/ Judgment（判断）/ Detection（検出）/ Response（入口）
+- プロダクトコードの 4 層と独立した AAG 固有の名称
+- `aag-four-layer-architecture.md` に定義 + ファイルマッピング
+
+**5 縦スライス:**
+- layer-boundary (12) / canonicalization (19) / query-runtime (7) /
+  responsibility-separation (33) / governance-ops (23)
+- 全 94 ルールに `slice` フィールドを設定
+
+**運用区分（fixNow）:**
+- 全 94 ルールに now (31) / debt (45) / review (18) を設定
+- `aag-operational-classification.md` に 84→94 ルールの 3 分類を文書化
+
+**ルール分割:**
+- AR-STRUCT-RESP-SEPARATION → 7 下位ルール（P2/P7/P8/P10/P12/P17/P18）
+- AR-STRUCT-CONVENTION → 3 下位ルール（バレル/feature境界/context重複）
+- 例外圧の可視化: MODULE-STATE に 4 件集中、他は 0
+- `aag-rule-splitting-plan.md` に分割原則と判断フローを文書化
+
+**統一レスポンス（Phase 3）:**
+- `AagResponse` インターフェース: source/fixNow/slice/summary/reason/steps/exceptions/deepDive
+- `buildAagResponse()` + `renderAagResponse()` で guard/obligation/health/pre-commit 共通
+- `buildObligationResponse()` で obligation 違反用レスポンスも統一
+- `formatViolationMessage()` を AAG 標準レスポンス生成器に昇格
+
+**AAG の本質を文書化:**
+- 「ルールではなく文化を育てる」
+- AI との対話インターフェースとしてのドキュメント
+- AI の弱点「動くが意図に反するコード」への 3 層防御
 
 ### v2.1.0 — 2026-04-08: Governance 自己改善
 
@@ -210,6 +281,9 @@ AAG はこの問題に対して **3 層の防御** を提供する:
 | 文書 | 内容 |
 |------|------|
 | `references/01-principles/adaptive-governance-evolution.md` | 進化の設計原則（3層サイクル） |
+| `references/01-principles/aag-four-layer-architecture.md` | 4 層定義（Principles/Judgment/Detection/Response） |
+| `references/01-principles/aag-operational-classification.md` | 運用区分表（即修正/構造負債/観測 × 94 ルール） |
+| `references/01-principles/aag-rule-splitting-plan.md` | ルール分割計画（例外圧 → protected harm ベース） |
 | `references/03-guides/architecture-rule-system.md` | Architecture Rule の運用ガイド |
 | `references/03-guides/allowlist-management.md` | Allowlist 管理ガイド |
 | `references/03-guides/active-debt-refactoring-plan.md` | Active-Debt リファクタリング計画 |
