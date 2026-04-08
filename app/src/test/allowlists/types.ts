@@ -10,6 +10,23 @@
  */
 export type AllowlistLifecycle = 'permanent' | 'retirement' | 'active-debt'
 
+/**
+ * 残留理由の構造化分類。
+ * Discovery Review で「この分類はまだ正しいか？」を検証する。
+ *
+ * - display-only: 表示用途のみ。分析入力ではない
+ * - no-readmodels: 正本（readModels）へのアクセス経路が未配線
+ * - detection-limit: guard 検出精度の限界（ローカル変数名、コメント等の誤検知）
+ * - structural: 構造的複雑性。リファクタリングが必要
+ * - fallback: 正本未提供時の安全な fallback 経路
+ */
+export type RetentionReason =
+  | 'display-only'
+  | 'no-readmodels'
+  | 'detection-limit'
+  | 'structural'
+  | 'fallback'
+
 /** カテゴリ型の許可リストエントリ（ファイルパスの例外） */
 export interface AllowlistEntry {
   readonly path: string
@@ -28,6 +45,11 @@ export interface AllowlistEntry {
   readonly removalCondition: string
   /** 構造負債のライフサイクル。未指定は active-debt 扱い。 */
   readonly lifecycle?: AllowlistLifecycle
+  /**
+   * 残留理由の構造化分類。Discovery Review の棚卸しで使用。
+   * @see references/01-principles/adaptive-governance-evolution.md
+   */
+  readonly retentionReason?: RetentionReason
   // ── 時間軸（Temporal Governance） ──
   /** 例外の作成日（YYYY-MM-DD） */
   readonly createdAt?: string

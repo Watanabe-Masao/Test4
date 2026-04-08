@@ -1,11 +1,14 @@
 #!/bin/sh
-# pre-commit hook — obligation map の局所チェック
+# pre-commit hook — obligation map の局所チェック + 自動再生成
 #
 # guard / allowlist / health ツールの変更がステージングされている場合、
-# architecture-health.json も同時にステージングされていなければ警告する。
-# 「気をつける」で終わらせない。「通らない」にする。（G8）
+# architecture-health.json も同時にステージングされていなければ
+# docs:generate を自動実行してステージングに追加する。
 #
-# CI の docs:check が最終ゲートだが、push 前に検出することで手戻りを防ぐ。
+# 「気をつける」で終わらせない。「通らない」にする。（G8）
+# 「ブロックするだけでなく解決する」（Adaptive Governance）
+#
+# CI の docs:check が最終ゲート。このフックは摩擦を最小化する。
 #
 # セットアップ:
 #   cp tools/git-hooks/pre-commit .git/hooks/pre-commit
@@ -22,7 +25,6 @@ fi
 
 # health regeneration が必要なパスパターン（obligation-collector.ts と同期）
 NEED_HEALTH_REGEN=0
-TRIGGERED_PATHS=""
 
 for pattern in \
   "app/src/test/allowlists/" \
@@ -32,7 +34,7 @@ for pattern in \
   "references/02-status/generated/"; do
   if echo "$STAGED" | grep -q "^${pattern}"; then
     NEED_HEALTH_REGEN=1
-    TRIGGERED_PATHS="${TRIGGERED_PATHS}\n  - ${pattern}*"
+    break
   fi
 done
 
@@ -40,24 +42,33 @@ if [ "$NEED_HEALTH_REGEN" = "0" ]; then
   exit 0
 fi
 
-# architecture-health.json がステージングされているか
+# architecture-health.json がステージングされていれば OK
 if echo "$STAGED" | grep -q "^${HEALTH_JSON}"; then
   exit 0
 fi
 
+# 自動再生成を試行
 echo ""
-echo "⚠ Obligation violation detected — health regeneration required"
+echo "⚡ Obligation detected — running docs:generate automatically..."
 echo ""
-echo "  以下のパスが変更されています:"
-echo "$TRIGGERED_PATHS" | sed '/^$/d'
-echo ""
-echo "  しかし ${HEALTH_JSON} がステージングされていません。"
-echo ""
-echo "  修正方法:"
-echo "    cd app && npm run docs:generate"
-echo "    git add ${HEALTH_JSON} CLAUDE.md references/02-status/generated/ references/02-status/technical-debt-roadmap.md"
-echo ""
-echo "  スキップ（CI で検証する場合）:"
-echo "    git commit --no-verify"
-echo ""
-exit 1
+
+if (cd app && npm run docs:generate --silent 2>/dev/null); then
+  # 生成されたファイルをステージングに追加
+  git add \
+    "${HEALTH_JSON}" \
+    "references/02-status/generated/architecture-health.md" \
+    "references/02-status/generated/architecture-health-certificate.md" \
+    "CLAUDE.md" \
+    "references/02-status/technical-debt-roadmap.md" \
+    2>/dev/null
+
+  echo "  ✓ docs:generate 完了。生成ファイルをステージングに追加しました。"
+  echo ""
+  exit 0
+else
+  echo ""
+  echo "  ✗ docs:generate に失敗しました。手動で実行してください:"
+  echo "    cd app && npm run docs:generate"
+  echo ""
+  exit 1
+fi

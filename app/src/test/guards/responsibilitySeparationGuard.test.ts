@@ -187,7 +187,7 @@ describe('G8-P10: features/ の useState が上限以下', () => {
       if (file.includes('.test.')) continue
       const content = fs.readFileSync(file, 'utf-8')
       const relPath = rel(file)
-      const count = (stripComments(content).match(/\buseState\b/g) || []).length
+      const count = (stripComments(content).match(/\buseState\s*[<(]/g) || []).length
       const limit = allowlist[relPath] ?? 6
 
       if (count >= limit) {

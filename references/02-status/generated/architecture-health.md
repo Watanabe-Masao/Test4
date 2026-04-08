@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-08T14:58:33.593Z
+> Generated: 2026-04-08T15:30:25.293Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -21,8 +21,8 @@
 | allowlist.total | 許可リスト総エントリ数 | 13 / 20 | OK |
 | allowlist.frozen.nonZero | Frozen リスト非ゼロ | 0 / 0 | OK |
 | allowlist.active.count | Active リスト数 | 6 / 10 | OK |
-| temporal.allowlist.activeDebt.count | active-debt 例外数 | 3 / 3 | OK |
-| temporal.allowlist.activeDebt.withCreatedAt | active-debt で createdAt 設定済み | 3 / 3 | OK |
+| temporal.allowlist.activeDebt.count | active-debt 例外数 | 1 / 1 | OK |
+| temporal.allowlist.activeDebt.withCreatedAt | active-debt で createdAt 設定済み | 1 / 1 | OK |
 | efficacy.allowlist.renewalTotal | renewalCount 合計 | 0 / 10 | OK |
 
 ## 後方互換負債
