@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-04-08T08:10:03.616Z",
-  "totalAllowlistEntries": 14,
+  "timestamp": "2026-04-08T09:29:52.266Z",
+  "totalAllowlistEntries": 13,
   "categoryBreakdown": {
     "adapter": 1,
-    "structural": 13
+    "structural": 12
   },
   "frozenLists": [
     "presentationToInfrastructure",
@@ -152,15 +152,7 @@
       "lineCount": 440
     }
   ],
-  "nearLimitFiles": [
-    {
-      "file": "application/hooks/duckdb/purchaseComparisonCategory.ts",
-      "metric": "lines",
-      "actual": 303,
-      "limit": 305,
-      "pct": 99
-    }
-  ],
+  "nearLimitFiles": [],
   "listSummary": {
     "applicationToInfrastructure": {
       "count": 1,
@@ -197,9 +189,9 @@
       }
     },
     "hookLineLimits": {
-      "count": 2,
+      "count": 1,
       "categories": {
-        "structural": 2
+        "structural": 1
       }
     },
     "presentationMemoLimits": {

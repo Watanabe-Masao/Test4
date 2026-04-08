@@ -1,12 +1,12 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-08T08:47:31.635Z",
+  "timestamp": "2026-04-08T09:29:53.674Z",
   "kpis": [
     {
       "id": "allowlist.total",
       "label": "許可リスト総エントリ数",
       "category": "allowlist",
-      "value": 14,
+      "value": 13,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -163,7 +163,7 @@
       "id": "complexity.nearLimit.count",
       "label": "上限間近ファイル数",
       "category": "complexity",
-      "value": 1,
+      "value": 0,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -175,7 +175,7 @@
         }
       ],
       "implRefs": [
-        "app/src/application/hooks/duckdb/purchaseComparisonCategory.ts"
+        "app/src/test/allowlists/size.ts"
       ],
       "budget": 5
     },
@@ -526,7 +526,7 @@
       "id": "temporal.allowlist.activeDebt.count",
       "label": "active-debt 例外数",
       "category": "allowlist",
-      "value": 33,
+      "value": 32,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -538,13 +538,13 @@
         "app/src/test/allowlists/size.ts",
         "app/src/test/allowlists/misc.ts"
       ],
-      "budget": 33
+      "budget": 32
     },
     {
       "id": "temporal.allowlist.activeDebt.withCreatedAt",
       "label": "active-debt で createdAt 設定済み",
       "category": "allowlist",
-      "value": 33,
+      "value": 32,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -556,7 +556,7 @@
         "app/src/test/allowlists/size.ts",
         "app/src/test/allowlists/misc.ts"
       ],
-      "budget": 33
+      "budget": 32
     },
     {
       "id": "efficacy.rules.withProtectedHarm.count",

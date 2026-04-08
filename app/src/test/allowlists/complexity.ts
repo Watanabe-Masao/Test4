@@ -149,10 +149,10 @@ export const featuresStateLimits: readonly QuantitativeAllowlistEntry[] = [
   {
     path: 'features/storage-admin/application/useMonthDataManagement.ts',
     ruleId: 'AR-G5-HOOK-STATE',
-    reason: '月次データ管理の状態（dialog + import + validation）。useState 8 個',
+    reason: '月次データ管理の状態（dialog + import + validation）',
     category: 'structural',
     removalCondition: 'useReducer 統合時',
-    limit: 9,
+    limit: 7,
     lifecycle: 'active-debt',
     createdAt: '2026-04-08',
     renewalCount: 0,
@@ -160,7 +160,7 @@ export const featuresStateLimits: readonly QuantitativeAllowlistEntry[] = [
   {
     path: 'features/storage-admin/ui/StorageDataViewers.tsx',
     ruleId: 'AR-G5-HOOK-STATE',
-    reason: 'ストレージ閲覧の UI 状態（expand + filter + sort）。useState 7 個',
+    reason: 'ストレージ閲覧の UI 状態（expand + filter + sort）',
     category: 'structural',
     removalCondition: 'useReducer 統合時',
     limit: 8,
@@ -171,7 +171,7 @@ export const featuresStateLimits: readonly QuantitativeAllowlistEntry[] = [
   {
     path: 'features/category/ui/charts/CategoryBenchmarkChart.vm.ts',
     ruleId: 'AR-G5-HOOK-STATE',
-    reason: 'ベンチマークチャートの操作状態（drill + level + topN）。useState 6 個',
+    reason: 'ベンチマークチャートの操作状態（drill + level + topN）',
     category: 'structural',
     removalCondition: 'useReducer 統合時',
     limit: 7,
@@ -182,7 +182,7 @@ export const featuresStateLimits: readonly QuantitativeAllowlistEntry[] = [
   {
     path: 'features/category/ui/charts/CategoryBoxPlotChart.vm.ts',
     ruleId: 'AR-G5-HOOK-STATE',
-    reason: '箱ひげ図の操作状態（drill + filter + sort + mode）。useState 7 個',
+    reason: '箱ひげ図の操作状態（drill + filter + sort + mode）',
     category: 'structural',
     removalCondition: 'useReducer 統合時',
     limit: 8,
@@ -193,7 +193,7 @@ export const featuresStateLimits: readonly QuantitativeAllowlistEntry[] = [
   {
     path: 'features/cost-detail/application/useCostDetailData.ts',
     ruleId: 'AR-G5-HOOK-STATE',
-    reason: 'コスト明細の複合状態。useState 6 個',
+    reason: 'コスト明細の複合状態',
     category: 'structural',
     removalCondition: 'useReducer 統合時',
     limit: 7,
@@ -219,15 +219,5 @@ export const hookLineLimits: readonly QuantitativeAllowlistEntry[] = [
   // usePeriodAwareKpi.ts — 300行（デフォルト上限以下）。許可リスト卒業
   // useTimeSlotData.ts — useTimeSlotPlan に query orchestration を分離。133 行に削減
   // useTimeSlotPlan.ts: hierarchy + weather sub-plan 分離で 206 行。デフォルト上限 300 行以下。許可リスト卒業
-  {
-    path: 'application/hooks/duckdb/purchaseComparisonCategory.ts',
-    ruleId: 'AR-G5-HOOK-LINES',
-    reason: '@responsibility タグ追加で 302 行。純粋関数のみ',
-    category: 'structural',
-    removalCondition: '空行整理時',
-    limit: 305,
-    lifecycle: 'active-debt',
-    createdAt: '2026-04-08',
-    renewalCount: 0,
-  },
+  // purchaseComparisonCategory.ts — groupCategoryRows を purchaseComparisonKpi.ts に分離。303→286 行。許可リスト卒業
 ] as const

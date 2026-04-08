@@ -1,12 +1,12 @@
 # Architecture State Snapshot
 
-> Generated: 2026-04-08T08:10:03.616Z
+> Generated: 2026-04-08T09:29:52.266Z
 
 ## Allowlist Summary
 
 | 指標 | 値 |
 |---|---|
-| 総エントリ数 | 14 |
+| 総エントリ数 | 13 |
 | アクティブリスト数 | 6 |
 | 凍結リスト数 | 15 |
 | .vm.ts ファイル数 | 27 |
@@ -16,7 +16,7 @@
 
 | カテゴリ | 件数 |
 |---|---|
-| structural | 13 |
+| structural | 12 |
 | adapter | 1 |
 
 
@@ -106,7 +106,6 @@
 
 | ファイル | 指標 | 実測 | 上限 | % |
 |---|---|---|---|---|
-| application/hooks/duckdb/purchaseComparisonCategory.ts | lines | 303 | 305 | 99% |
 
 ## Frozen Lists
 
@@ -132,9 +131,9 @@
 |---|---|---|
 | domainLargeFiles | 6 | structural:6 |
 | useStateLimits | 3 | structural:3 |
-| hookLineLimits | 2 | structural:2 |
 | applicationToInfrastructure | 1 | adapter:1 |
 | useMemoLimits | 1 | structural:1 |
+| hookLineLimits | 1 | structural:1 |
 | ctxHook | 1 | structural:1 |
 | presentationToInfrastructure | 0 | - |
 | infrastructureToApplication | 0 | - |

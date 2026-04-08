@@ -23,6 +23,7 @@ import {
   categoryLabel,
   categoryColor,
   markupRate,
+  groupCategoryRows,
   SPECIAL_SALES_CATEGORY_MAP,
   type KpiTotals,
 } from './purchaseComparisonKpi'
@@ -282,21 +283,4 @@ export function buildSupplierAndCategoryData(
   byCategory.sort((a, b) => b.currentCost - a.currentCost)
 
   return { bySupplier, byCategory, categorySuppliers }
-}
-
-// ── ヘルパー ──
-
-function groupCategoryRows(
-  rows: readonly { categoryKey: string; cost: number; price: number }[],
-): Map<string, { cost: number; price: number }> {
-  const map = new Map<string, { cost: number; price: number }>()
-  for (const r of rows) {
-    const existing = map.get(r.categoryKey)
-    if (existing) {
-      map.set(r.categoryKey, { cost: existing.cost + r.cost, price: existing.price + r.price })
-    } else {
-      map.set(r.categoryKey, { cost: r.cost, price: r.price })
-    }
-  }
-  return map
 }
