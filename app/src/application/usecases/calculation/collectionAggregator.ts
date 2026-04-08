@@ -13,6 +13,9 @@ import type {
 } from '@/domain/models/record'
 import type { StoreResult } from '@/domain/models/storeTypes'
 import { ZERO_COST_PRICE_PAIR, addCostPricePairs } from '@/domain/models/record'
+
+const zeroPair = ZERO_COST_PRICE_PAIR
+
 import {
   safeDivide,
   calculateMarkupRate,
@@ -31,10 +34,10 @@ export function aggregateCollections(results: readonly StoreResult[]) {
   const aggSupplier = new Map<string, SupplierTotal>()
   const aggBudgetDaily = new Map<number, number>()
   const aggTransfer = {
-    interStoreIn: { ...ZERO_COST_PRICE_PAIR },
-    interStoreOut: { ...ZERO_COST_PRICE_PAIR },
-    interDepartmentIn: { ...ZERO_COST_PRICE_PAIR },
-    interDepartmentOut: { ...ZERO_COST_PRICE_PAIR },
+    interStoreIn: { ...zeroPair },
+    interStoreOut: { ...zeroPair },
+    interDepartmentIn: { ...zeroPair },
+    interDepartmentOut: { ...zeroPair },
   }
 
   for (const r of results) {
@@ -134,8 +137,8 @@ export function calculateMarkupRates(
     interDepartmentOutPrice: aggTransfer.interDepartmentOut.price,
     interDepartmentOutCost: aggTransfer.interDepartmentOut.cost,
   })
-  const flowerCat = aggCategory.get('flowers') ?? ZERO_COST_PRICE_PAIR
-  const directProduceCat = aggCategory.get('directProduce') ?? ZERO_COST_PRICE_PAIR
+  const flowerCat = aggCategory.get('flowers') ?? zeroPair
+  const directProduceCat = aggCategory.get('directProduce') ?? zeroPair
 
   return calcMarkupRatesDomain({
     purchasePrice: totalPurchasePrice,

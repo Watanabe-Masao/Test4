@@ -32,29 +32,28 @@ export function RawDataViewer({
   const typesWithData = summary.filter(
     (s) => s.recordCount > 0 && STORE_DAY_TYPES.includes(s.dataType),
   )
-  const [selectedType, setSelectedType] = useState<StorageDataType | null>(null)
-  const [rawData, setRawData] = useState<Record<string, Record<string, unknown>> | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [viewer, setViewer] = useState<{
+    selectedType: StorageDataType | null
+    rawData: Record<string, Record<string, unknown>> | null
+    loading: boolean
+  }>({ selectedType: null, rawData: null, loading: false })
+  const { selectedType, rawData, loading } = viewer
 
   const handleSelectType = useCallback(
     async (dataType: StorageDataType) => {
-      if (selectedType === dataType) {
-        setSelectedType(null)
-        setRawData(null)
+      if (viewer.selectedType === dataType) {
+        setViewer({ selectedType: null, rawData: null, loading: false })
         return
       }
-      setSelectedType(dataType)
-      setLoading(true)
+      setViewer({ selectedType: dataType, rawData: null, loading: true })
       try {
         const data = await loadSlice<Record<string, Record<string, unknown>>>(year, month, dataType)
-        setRawData(data)
+        setViewer((prev) => ({ ...prev, rawData: data, loading: false }))
       } catch {
-        setRawData(null)
-      } finally {
-        setLoading(false)
+        setViewer((prev) => ({ ...prev, rawData: null, loading: false }))
       }
     },
-    [year, month, selectedType, loadSlice],
+    [year, month, viewer.selectedType, loadSlice],
   )
 
   if (typesWithData.length === 0) return null
@@ -157,17 +156,19 @@ export function CTSViewer({
   label: string
   loadSlice: LoadSliceFn
 }) {
-  const [expanded, setExpanded] = useState(false)
-  const [records, setRecords] = useState<readonly PreviewRecord[]>([])
-  const [loading, setLoading] = useState(false)
+  const [cts, setCts] = useState<{
+    expanded: boolean
+    records: readonly PreviewRecord[]
+    loading: boolean
+  }>({ expanded: false, records: [], loading: false })
+  const { expanded, records, loading } = cts
 
   const handleToggle = useCallback(async () => {
-    if (expanded) {
-      setExpanded(false)
+    if (cts.expanded) {
+      setCts((prev) => ({ ...prev, expanded: false }))
       return
     }
-    setExpanded(true)
-    setLoading(true)
+    setCts((prev) => ({ ...prev, expanded: true, loading: true }))
     try {
       const data = await loadSlice<{
         records: {
@@ -181,14 +182,14 @@ export function CTSViewer({
         }[]
       }>(year, month, dataType)
       if (data?.records) {
-        setRecords(transformCtsPreview(data.records))
+        setCts((prev) => ({ ...prev, records: transformCtsPreview(data.records), loading: false }))
+      } else {
+        setCts((prev) => ({ ...prev, loading: false }))
       }
     } catch {
-      setRecords([])
-    } finally {
-      setLoading(false)
+      setCts((prev) => ({ ...prev, records: [], loading: false }))
     }
-  }, [year, month, dataType, expanded, loadSlice])
+  }, [year, month, dataType, cts.expanded, loadSlice])
 
   return (
     <div style={{ marginTop: 8 }}>

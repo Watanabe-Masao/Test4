@@ -163,6 +163,8 @@ export function MobileDashboardPage() {
             elapsedBudget={elapsedBudget}
             prevYear={prevYear}
             settings={settings}
+            curTotalCustomers={r.totalCustomers}
+            prevTotalCustomers={prevYear.totalCustomers}
           />
         )}
 

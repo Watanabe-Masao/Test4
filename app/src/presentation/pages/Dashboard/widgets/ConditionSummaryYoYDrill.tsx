@@ -16,6 +16,7 @@ import {
 import { TxValueDetailTable } from './conditionPanelSalesDetail'
 import { CustomerGapDetailTable } from './conditionPanelCustomerGap'
 import { extractPrevYearCustomerCount, type DisplayMode } from './conditionSummaryUtils'
+import { toStoreCustomerRows } from '@/application/readModels/customerFact'
 import {
   DrillOverlay,
   DrillPanel,
@@ -110,7 +111,7 @@ export function YoYDrillOverlay({
           </DrillCloseBtn>
         </DrillHeader>
         <DrillBody>
-          {yoyDrill === 'customerYoY' && (
+          {yoyDrill === 'customerYoY' && ctx.readModels?.customerFact && (
             <CustomerYoYDetailTable
               sortedStoreEntries={sortedStoreEntries}
               stores={ctx.stores}
@@ -122,6 +123,9 @@ export function YoYDrillOverlay({
               prevYear={ctx.prevYear}
               prevYearMonthlyKpi={ctx.prevYearMonthlyKpi}
               dataMaxDay={ctx.dataMaxDay}
+              curTotalCustomers={ctx.readModels.customerFact.grandTotalCustomers}
+              prevTotalCustomers={extractPrevYearCustomerCount(ctx.prevYear)}
+              storeCustomerMap={toStoreCustomerRows(ctx.readModels.customerFact)}
             />
           )}
           {yoyDrill === 'txValue' && (

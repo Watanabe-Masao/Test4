@@ -21,7 +21,7 @@ function buildCtsIndex(
   return idx
 }
 
-const EMPTY_RECORDS: readonly never[] = []
+const noRecords: readonly never[] = []
 
 export interface RawDataIndices {
   readonly csAgg: StoreDayIndex<{ sales: number; discount: number }>
@@ -43,12 +43,12 @@ export function buildAllIndices(
   return {
     csAgg: current ? aggregateAllStores(current.classifiedSales) : {},
     prevCsAgg: prevYear ? aggregateAllStores(prevYear.classifiedSales) : {},
-    purchaseIdx: indexByStoreDay(current?.purchase.records ?? EMPTY_RECORDS),
-    interStoreInIdx: indexByStoreDay(current?.interStoreIn.records ?? EMPTY_RECORDS),
-    interStoreOutIdx: indexByStoreDay(current?.interStoreOut.records ?? EMPTY_RECORDS),
-    flowersIdx: indexByStoreDay(current?.flowers.records ?? EMPTY_RECORDS),
-    directProduceIdx: indexByStoreDay(current?.directProduce.records ?? EMPTY_RECORDS),
-    consumablesIdx: indexByStoreDay(current?.consumables.records ?? EMPTY_RECORDS),
-    ctsIdx: buildCtsIndex(current?.categoryTimeSales.records ?? EMPTY_RECORDS),
+    purchaseIdx: indexByStoreDay(current?.purchase.records ?? noRecords),
+    interStoreInIdx: indexByStoreDay(current?.interStoreIn.records ?? noRecords),
+    interStoreOutIdx: indexByStoreDay(current?.interStoreOut.records ?? noRecords),
+    flowersIdx: indexByStoreDay(current?.flowers.records ?? noRecords),
+    directProduceIdx: indexByStoreDay(current?.directProduce.records ?? noRecords),
+    consumablesIdx: indexByStoreDay(current?.consumables.records ?? noRecords),
+    ctsIdx: buildCtsIndex(current?.categoryTimeSales.records ?? noRecords),
   }
 }

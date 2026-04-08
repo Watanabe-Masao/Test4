@@ -35,7 +35,11 @@ export type InsightTab = 'budget' | 'grossProfit' | 'forecast' | 'decomposition'
 export type ChartMode = 'budget-vs-actual' | 'prev-year' | 'all-three'
 export type ViewMode = 'total' | 'comparison'
 
-export function useInsightData() {
+export function useInsightData(opts?: {
+  /** CustomerFact 由来の客数（指定時は StoreResult 集計値より優先） */
+  curCustomerCount?: number
+  prevCustomerCount?: number
+}) {
   const { format: fmtCurrency } = useCurrencyFormat()
   const { daysInMonth } = useCalculation()
   const { currentResult, selectedResults, storeName, stores } = useStoreSelection()
@@ -147,10 +151,10 @@ export function useInsightData() {
   const actualGrossProfit = r ? getEffectiveGrossProfit(r) : 0
   const actualGrossProfitRate = r ? getEffectiveGrossProfitRate(r) : 0
 
-  const totalCustomers = r?.totalCustomers ?? 0
+  const totalCustomers = opts?.curCustomerCount ?? r?.totalCustomers ?? 0
   const avgDailyCustomers = r?.averageCustomersPerDay ?? 0
   const avgTxValue = r ? calculateTransactionValue(r.totalSales, totalCustomers) : 0
-  const prevTotalCustomers = prevYear.totalCustomers
+  const prevTotalCustomers = opts?.prevCustomerCount ?? prevYear.totalCustomers
   const customerYoY =
     prevTotalCustomers > 0 ? calculateYoYRatio(totalCustomers, prevTotalCustomers) : 0
   const prevAvgTxValue = calculateTransactionValue(prevYear.totalSales, prevTotalCustomers)

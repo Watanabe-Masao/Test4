@@ -29,7 +29,7 @@ export function useMonthlyCalendarState(ctx: WidgetContext) {
   }>({ aStart: '', aEnd: '', bStart: '', bEnd: '' })
   const [hoveredDay, setHoveredDay] = useState<number | null>(null)
 
-  // Derived accessors for backward compatibility
+  // Derived accessors
   const pinDay = pinDialog.day
   const inputVal = pinDialog.input
   const rangeAStart = ranges.aStart
@@ -37,24 +37,13 @@ export function useMonthlyCalendarState(ctx: WidgetContext) {
   const rangeBStart = ranges.bStart
   const rangeBEnd = ranges.bEnd
 
-  const setPinDay = useCallback(
-    (day: number | null) => setPinDialog((prev) => ({ ...prev, day })),
-    [],
-  )
-  const setInputVal = useCallback(
-    (input: string) => setPinDialog((prev) => ({ ...prev, input })),
-    [],
-  )
-  const setRangeAStart = useCallback(
-    (v: string) => setRanges((prev) => ({ ...prev, aStart: v })),
-    [],
-  )
-  const setRangeAEnd = useCallback((v: string) => setRanges((prev) => ({ ...prev, aEnd: v })), [])
-  const setRangeBStart = useCallback(
-    (v: string) => setRanges((prev) => ({ ...prev, bStart: v })),
-    [],
-  )
-  const setRangeBEnd = useCallback((v: string) => setRanges((prev) => ({ ...prev, bEnd: v })), [])
+  // 軽量セッター（input onChange 用 — useCallback 不要）
+  const setPinDay = (day: number | null) => setPinDialog((prev) => ({ ...prev, day }))
+  const setInputVal = (input: string) => setPinDialog((prev) => ({ ...prev, input }))
+  const setRangeAStart = (v: string) => setRanges((prev) => ({ ...prev, aStart: v }))
+  const setRangeAEnd = (v: string) => setRanges((prev) => ({ ...prev, aEnd: v }))
+  const setRangeBStart = (v: string) => setRanges((prev) => ({ ...prev, bStart: v }))
+  const setRangeBEnd = (v: string) => setRanges((prev) => ({ ...prev, bEnd: v }))
 
   // ── ドラッグ期間選択（useRef で state 上限を回避） ──
   const dragRef = useRef<{ active: boolean; target: 'A' | 'B'; anchorDay: number | null }>({
@@ -63,36 +52,25 @@ export function useMonthlyCalendarState(ctx: WidgetContext) {
     anchorDay: null,
   })
 
-  const handleDragStart = useCallback(
-    (day: number, target: 'A' | 'B') => {
-      dragRef.current = { active: true, target, anchorDay: day }
-      if (target === 'A') {
-        setRangeAStart(String(day))
-        setRangeAEnd(String(day))
-      } else {
-        setRangeBStart(String(day))
-        setRangeBEnd(String(day))
-      }
-    },
-    [setRangeAStart, setRangeAEnd, setRangeBStart, setRangeBEnd],
-  )
+  const handleDragStart = useCallback((day: number, target: 'A' | 'B') => {
+    dragRef.current = { active: true, target, anchorDay: day }
+    const s = String(day)
+    setRanges((prev) =>
+      target === 'A' ? { ...prev, aStart: s, aEnd: s } : { ...prev, bStart: s, bEnd: s },
+    )
+  }, [])
 
-  const handleDragEnter = useCallback(
-    (day: number) => {
-      const d = dragRef.current
-      if (!d.active || d.anchorDay == null) return
-      const start = Math.min(d.anchorDay, day)
-      const end = Math.max(d.anchorDay, day)
-      if (d.target === 'A') {
-        setRangeAStart(String(start))
-        setRangeAEnd(String(end))
-      } else {
-        setRangeBStart(String(start))
-        setRangeBEnd(String(end))
-      }
-    },
-    [setRangeAStart, setRangeAEnd, setRangeBStart, setRangeBEnd],
-  )
+  const handleDragEnter = useCallback((day: number) => {
+    const d = dragRef.current
+    if (!d.active || d.anchorDay == null) return
+    const start = String(Math.min(d.anchorDay, day))
+    const end = String(Math.max(d.anchorDay, day))
+    setRanges((prev) =>
+      d.target === 'A'
+        ? { ...prev, aStart: start, aEnd: end }
+        : { ...prev, bStart: start, bEnd: end },
+    )
+  }, [])
 
   const handleDragEnd = useCallback(() => {
     dragRef.current = { ...dragRef.current, active: false }

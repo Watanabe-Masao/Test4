@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-08T10:29:19.223Z",
+  "timestamp": "2026-04-08T14:58:32.087Z",
   "totalAllowlistEntries": 13,
   "categoryBreakdown": {
     "adapter": 1,
@@ -92,12 +92,6 @@
   ],
   "complexityHotspots": [
     {
-      "file": "presentation/pages/Weather/WeatherPage.tsx",
-      "memoCount": 11,
-      "stateCount": 7,
-      "lineCount": 469
-    },
-    {
       "file": "presentation/pages/Dashboard/widgets/HourlyChart.tsx",
       "memoCount": 9,
       "stateCount": 6,
@@ -122,10 +116,16 @@
       "lineCount": 434
     },
     {
+      "file": "presentation/pages/Weather/WeatherPage.tsx",
+      "memoCount": 9,
+      "stateCount": 5,
+      "lineCount": 411
+    },
+    {
       "file": "presentation/pages/Insight/useInsightData.ts",
       "memoCount": 5,
       "stateCount": 7,
-      "lineCount": 217
+      "lineCount": 221
     },
     {
       "file": "application/hooks/useMetricBreakdown.ts",

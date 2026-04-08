@@ -213,6 +213,9 @@ export function CustomerYoYDetailTable({
   prevYear,
   prevYearMonthlyKpi,
   dataMaxDay,
+  curTotalCustomers,
+  prevTotalCustomers,
+  storeCustomerMap,
 }: CustomerYoYDetailProps) {
   const [dailyStoreId, setDailyStoreId] = useState<string | null>(null)
   const [dailyMode, setDailyMode] = useState<'cumulative' | 'daily'>('cumulative')
@@ -228,8 +231,22 @@ export function CustomerYoYDetailTable({
         prevYear,
         prevYearMonthlyKpi,
         dataMaxDay,
+        curTotalCustomers,
+        prevTotalCustomers,
+        storeCustomerMap,
       ),
-    [sortedStoreEntries, stores, result, effectiveConfig, prevYear, prevYearMonthlyKpi, dataMaxDay],
+    [
+      sortedStoreEntries,
+      stores,
+      result,
+      effectiveConfig,
+      prevYear,
+      prevYearMonthlyKpi,
+      dataMaxDay,
+      curTotalCustomers,
+      prevTotalCustomers,
+      storeCustomerMap,
+    ],
   )
 
   const handleStoreClick = useCallback((storeId: string) => {

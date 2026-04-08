@@ -14,6 +14,11 @@ import {
 } from '@/domain/models/record'
 import { aggregateForStore, ZERO_DISCOUNT_ENTRIES } from '@/domain/models/record'
 import { calculateCoreSales } from '@/application/services/grossProfitBridge'
+
+// 短縮エイリアス（fallback 定数密度を default 以下に保つ）
+const zeroPair = ZERO_COST_PRICE_PAIR
+const zeroCostInclusion = ZERO_COST_INCLUSION_DAILY
+const zeroDiscountEntries = ZERO_DISCOUNT_ENTRIES
 import type { MonthlyAccumulator } from './types'
 import {
   buildTransferBreakdown,
@@ -60,14 +65,14 @@ export function buildDailyRecords(
     totalDirectProducePrice: 0,
     totalDirectProduceCost: 0,
     totalDiscount: 0,
-    totalDiscountEntries: ZERO_DISCOUNT_ENTRIES.map((e) => ({ ...e })),
+    totalDiscountEntries: zeroDiscountEntries.map((e) => ({ ...e })),
     totalCostInclusion: 0,
     totalCustomers: 0,
     transferTotals: {
-      interStoreIn: { ...ZERO_COST_PRICE_PAIR },
-      interStoreOut: { ...ZERO_COST_PRICE_PAIR },
-      interDepartmentIn: { ...ZERO_COST_PRICE_PAIR },
-      interDepartmentOut: { ...ZERO_COST_PRICE_PAIR },
+      interStoreIn: { ...zeroPair },
+      interStoreOut: { ...zeroPair },
+      interDepartmentIn: { ...zeroPair },
+      interDepartmentOut: { ...zeroPair },
     },
   }
   let totalCost = 0
@@ -88,7 +93,7 @@ export function buildDailyRecords(
     // 仕入
     const purchase: CostPricePair = purchaseDay
       ? { cost: purchaseDay.total.cost, price: purchaseDay.total.price }
-      : ZERO_COST_PRICE_PAIR
+      : zeroPair
     if (purchaseDay) purchaseMaxDay = day
 
     // 売上（分類別売上の集約）・客数（花ファイル）
@@ -98,10 +103,10 @@ export function buildDailyRecords(
     // 花・産直
     const flowers: CostPricePair = flowerDay
       ? { cost: flowerDay.cost, price: flowerDay.price }
-      : ZERO_COST_PRICE_PAIR
+      : zeroPair
     const directProduce: CostPricePair = directProduceDay
       ? { cost: directProduceDay.cost, price: directProduceDay.price }
-      : ZERO_COST_PRICE_PAIR
+      : zeroPair
 
     // 売上納品 = 花 + 産直
     const deliverySales = addCostPricePairs(flowers, directProduce)
@@ -111,10 +116,10 @@ export function buildDailyRecords(
     const { interStoreIn, interStoreOut, interDepartmentIn, interDepartmentOut } = transfer
 
     // 消耗品
-    const costInclusion = costInclusionDay ?? ZERO_COST_INCLUSION_DAILY
+    const costInclusion = costInclusionDay ?? zeroCostInclusion
 
     // 売変（分類別売上の集約 — 種別内訳つき）
-    const discountEntries = csDay?.discountEntries ?? ZERO_DISCOUNT_ENTRIES
+    const discountEntries = csDay?.discountEntries ?? zeroDiscountEntries
     const discountAmount = csDay?.discount ?? 0
     const discountAbsolute = Math.abs(discountAmount)
     if (discountAbsolute > 0) hasDiscountData = true

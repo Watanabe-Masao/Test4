@@ -45,7 +45,7 @@ type ExpandableColumn =
   | 'interDepartmentIn'
   | 'interDepartmentOut'
 
-const EMPTY_PREV_YEAR: PrevYearData = {
+const noPrevYear: PrevYearData = {
   hasPrevYear: false,
   daily: new Map(),
   totalSales: 0,
@@ -57,10 +57,10 @@ const EMPTY_PREV_YEAR: PrevYearData = {
   totalDiscountEntries: [],
 }
 
-const EMPTY_STORES: ReadonlyMap<string, Store> = new Map()
-const EMPTY_SUPPLIERS: ReadonlyMap<string, { code: string; name: string }> = new Map()
-const EMPTY_SUPPLIER_KEYS: { code: string; name: string }[] = []
-const EMPTY_TRANSFER_KEYS: { key: string; from: string; to: string; label: string }[] = []
+const noStores: ReadonlyMap<string, Store> = new Map()
+const noSuppliers: ReadonlyMap<string, { code: string; name: string }> = new Map()
+const noSupplierKeys: { code: string; name: string }[] = []
+const noTransferKeys: { key: string; from: string; to: string; label: string }[] = []
 
 const DAILY_CONFIG: PageWidgetConfig = {
   pageKey: 'daily',
@@ -72,12 +72,12 @@ const DAILY_CONFIG: PageWidgetConfig = {
 export function DailyPage() {
   const nav = useNavigate()
   const { currentResult, storeName, stores } = useStoreSelection()
-  const suppliers = useDataStore((s) => s.currentMonthData?.suppliers ?? EMPTY_SUPPLIERS)
-  const dataStores = useDataStore((s) => s.currentMonthData?.stores ?? EMPTY_STORES)
+  const suppliers = useDataStore((s) => s.currentMonthData?.suppliers ?? noSuppliers)
+  const dataStores = useDataStore((s) => s.currentMonthData?.stores ?? noStores)
   const settings = useSettingsStore((s) => s.settings)
   const { ctx, isComputing, explainMetric, setExplainMetric } = useUnifiedWidgetContext()
   const { format: fmtCurrency } = useCurrencyFormat()
-  const prevYear: PrevYearData = ctx?.prevYear ?? EMPTY_PREV_YEAR
+  const prevYear: PrevYearData = ctx?.prevYear ?? noPrevYear
 
   const handleExplainClose = useCallback(() => setExplainMetric(null), [setExplainMetric])
   const handleExplain = useCallback(
@@ -101,9 +101,7 @@ export function DailyPage() {
 
   const supplierKeys = useMemo(
     () =>
-      isPurchaseExpanded && days.length > 0
-        ? collectSupplierKeys(days, suppliers)
-        : EMPTY_SUPPLIER_KEYS,
+      isPurchaseExpanded && days.length > 0 ? collectSupplierKeys(days, suppliers) : noSupplierKeys,
     [isPurchaseExpanded, days, suppliers],
   )
 
@@ -111,28 +109,28 @@ export function DailyPage() {
     () =>
       isInterStoreInExpanded && days.length > 0
         ? collectTransferKeys(days, 'interStoreIn', stores)
-        : EMPTY_TRANSFER_KEYS,
+        : noTransferKeys,
     [isInterStoreInExpanded, days, stores],
   )
   const interStoreOutKeys = useMemo(
     () =>
       isInterStoreOutExpanded && days.length > 0
         ? collectTransferKeys(days, 'interStoreOut', stores)
-        : EMPTY_TRANSFER_KEYS,
+        : noTransferKeys,
     [isInterStoreOutExpanded, days, stores],
   )
   const interDeptInKeys = useMemo(
     () =>
       isInterDeptInExpanded && days.length > 0
         ? collectTransferKeys(days, 'interDepartmentIn', stores)
-        : EMPTY_TRANSFER_KEYS,
+        : noTransferKeys,
     [isInterDeptInExpanded, days, stores],
   )
   const interDeptOutKeys = useMemo(
     () =>
       isInterDeptOutExpanded && days.length > 0
         ? collectTransferKeys(days, 'interDepartmentOut', stores)
-        : EMPTY_TRANSFER_KEYS,
+        : noTransferKeys,
     [isInterDeptOutExpanded, days, stores],
   )
 

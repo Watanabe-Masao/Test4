@@ -39,6 +39,9 @@ export interface SalesYoYDetailProps extends DetailPanelProps {
 export interface CustomerYoYDetailProps extends DetailPanelProps {
   readonly prevYear: PrevYearData
   readonly prevYearMonthlyKpi: PrevYearMonthlyKpi
+  readonly curTotalCustomers: number
+  readonly prevTotalCustomers: number
+  readonly storeCustomerMap?: ReadonlyMap<string, number>
 }
 
 export interface TxValueDetailProps extends DetailPanelProps {

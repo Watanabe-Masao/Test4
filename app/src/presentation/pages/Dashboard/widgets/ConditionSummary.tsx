@@ -11,7 +11,9 @@ import {
   type DisplayMode,
   SIGNAL_COLORS,
   metricSignal,
+  extractPrevYearCustomerCount,
 } from './conditionSummaryUtils'
+import { toStoreCustomerRows } from '@/application/readModels/customerFact'
 import {
   Wrapper,
   TitleRow,
@@ -117,6 +119,8 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
   // ConditionSummaryEnhanced に吸収済みのため、ここでは表示しない
 
   const prevYear = ctx.prevYear
+  const curCustomers = ctx.readModels?.customerFact?.grandTotalCustomers ?? 0
+  const prevCustomers = extractPrevYearCustomerCount(prevYear)
 
   const items: ConditionItem[] = []
 
@@ -126,14 +130,14 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
   if (
     isMetricEnabled(effectiveConfig, 'customerYoY') &&
     prevYear.hasPrevYear &&
-    prevYear.totalCustomers > 0 &&
-    r.totalCustomers > 0
+    prevCustomers > 0 &&
+    curCustomers > 0
   ) {
-    const custYoY = r.totalCustomers / prevYear.totalCustomers
+    const custYoY = curCustomers / prevCustomers
     items.push({
       label: '客数前年比',
       value: formatPercent(custYoY, 2),
-      sub: `${r.totalCustomers.toLocaleString()}人 / 前年${prevYear.totalCustomers.toLocaleString()}人`,
+      sub: `${curCustomers.toLocaleString()}人 / 前年${prevCustomers.toLocaleString()}人`,
       signal: metricSignal(custYoY, 'customerYoY', effectiveConfig),
       metricId: 'totalCustomers',
       detailBreakdown: 'customerYoY',
@@ -159,11 +163,11 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
   if (
     isMetricEnabled(effectiveConfig, 'txValue') &&
     prevYear.hasPrevYear &&
-    r.totalCustomers > 0 &&
-    prevYear.totalCustomers > 0
+    curCustomers > 0 &&
+    prevCustomers > 0
   ) {
     const txValue = r.transactionValue
-    const prevTxValue = calculateTransactionValue(prevYear.totalSales, prevYear.totalCustomers)
+    const prevTxValue = calculateTransactionValue(prevYear.totalSales, prevCustomers)
     const txYoY = prevTxValue > 0 ? txValue / prevTxValue : null
     const fmtTx = (v: number) =>
       `${v.toLocaleString('ja-JP', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}円`
@@ -281,6 +285,13 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
                 prevYear={ctx.prevYear}
                 prevYearMonthlyKpi={ctx.prevYearMonthlyKpi}
                 dataMaxDay={ctx.dataMaxDay}
+                curTotalCustomers={curCustomers}
+                prevTotalCustomers={prevCustomers}
+                storeCustomerMap={
+                  ctx.readModels?.customerFact
+                    ? toStoreCustomerRows(ctx.readModels.customerFact)
+                    : undefined
+                }
               />
             ) : breakdownItem.detailBreakdown === 'txValue' ? (
               <TxValueDetailTable

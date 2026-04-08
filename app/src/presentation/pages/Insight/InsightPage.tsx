@@ -22,8 +22,11 @@ const INSIGHT_CONFIG: PageWidgetConfig = {
 
 export function InsightPage() {
   const dataStores = useDataStore((s) => s.currentMonthData?.stores ?? EMPTY_STORES)
-  const insightData = useInsightData()
   const { ctx, isComputing, storeName, explainMetric, setExplainMetric } = useUnifiedWidgetContext()
+  const insightData = useInsightData({
+    curCustomerCount: ctx?.readModels?.customerFact?.grandTotalCustomers,
+    prevCustomerCount: undefined, // prevYear customerFact は未配布
+  })
 
   const handleExplainClose = useCallback(() => setExplainMetric(null), [setExplainMetric])
 

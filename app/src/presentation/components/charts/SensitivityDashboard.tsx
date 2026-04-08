@@ -57,6 +57,8 @@ interface SavedScenario {
 
 interface Props {
   result: StoreResult
+  /** CustomerFact 由来の客数（指定時は StoreResult の集計値より優先） */
+  customerCount?: number
 }
 
 interface SliderConfig {
@@ -130,7 +132,10 @@ const SLIDER_CONFIGS: SliderConfig[] = [
   },
 ]
 
-export const SensitivityDashboard = memo(function SensitivityDashboard({ result }: Props) {
+export const SensitivityDashboard = memo(function SensitivityDashboard({
+  result,
+  customerCount,
+}: Props) {
   const [deltas, setDeltas] = useState<SensitivityDeltas>({
     discountRateDelta: 0,
     customersDelta: 0,
@@ -143,15 +148,16 @@ export const SensitivityDashboard = memo(function SensitivityDashboard({ result 
   const sensitivity = useSensitivityAnalysis(base, deltas)
   const elasticity = useElasticity(base)
 
-  // ベース値
+  // ベース値（customerCount が指定されていれば CustomerFact 正本を優先）
+  const effectiveCustomers = customerCount ?? base.totalCustomers
   const baseValues: BaseValues = useMemo(
     () => ({
       discountRate: calculateShare(base.totalDiscount, base.grossSales),
-      customers: base.totalCustomers,
-      txValue: safeDivide(base.totalSales, base.totalCustomers, 0),
+      customers: effectiveCustomers,
+      txValue: safeDivide(base.totalSales, effectiveCustomers, 0),
       costRate: safeDivide(base.totalCost, base.grossSales, 0),
     }),
-    [base],
+    [base, effectiveCustomers],
   )
 
   const handleSliderChange = useCallback((key: keyof SensitivityDeltas, value: number) => {
@@ -201,9 +207,9 @@ export const SensitivityDashboard = memo(function SensitivityDashboard({ result 
 
   // 計算根拠用の中間値
   const simValues = useMemo(() => {
-    const simCustomers = base.totalCustomers * (1 + deltas.customersDelta)
+    const simCustomers = effectiveCustomers * (1 + deltas.customersDelta)
     const simTxValue =
-      safeDivide(base.totalSales, base.totalCustomers, 0) * (1 + deltas.transactionValueDelta)
+      safeDivide(base.totalSales, effectiveCustomers, 0) * (1 + deltas.transactionValueDelta)
     const simSales = simCustomers * simTxValue
     const baseDiscountRate = calculateShare(base.totalDiscount, base.grossSales)
     const simDiscountRate = baseDiscountRate + deltas.discountRateDelta
@@ -225,7 +231,7 @@ export const SensitivityDashboard = memo(function SensitivityDashboard({ result 
       simCostRate,
       simDiscountRate,
     }
-  }, [base, deltas])
+  }, [base, deltas, effectiveCustomers])
 
   return (
     <ChartCard

@@ -13,6 +13,7 @@ import {
   getEffectiveGrossProfit,
 } from '@/application/readModels/grossProfit'
 import type { WidgetContext } from './types'
+import { extractPrevYearCustomerCount } from './conditionSummaryUtils'
 import {
   ExecGrid,
   ExecColumn,
@@ -43,6 +44,8 @@ function forecastWarningMessage(status: WidgetContext['observationStatus']): str
 export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
   const r = ctx.result
   const { daysInMonth, fmtCurrency } = ctx
+  const curCustomers = ctx.readModels?.customerFact?.grandTotalCustomers ?? 0
+  const prevCustomers = extractPrevYearCustomerCount(ctx.prevYear)
 
   let elapsedBudget = 0
   for (let d = 1; d <= r.elapsedDays; d++) {
@@ -145,21 +148,20 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
                 </>
               )
             })()}
-          {r.totalCustomers > 0 &&
+          {curCustomers > 0 &&
             (() => {
-              const txValue = calculateTransactionValue(r.totalSales, r.totalCustomers)
-              const pyCustomers = ctx.prevYear.totalCustomers
+              const txValue = calculateTransactionValue(r.totalSales, curCustomers)
               const pyTxValue =
-                pyCustomers > 0
-                  ? calculateTransactionValue(ctx.prevYear.totalSales, pyCustomers)
+                prevCustomers > 0
+                  ? calculateTransactionValue(ctx.prevYear.totalSales, prevCustomers)
                   : null
-              const custRatio = pyCustomers > 0 ? r.totalCustomers / pyCustomers : null
+              const custRatio = prevCustomers > 0 ? curCustomers / prevCustomers : null
               return (
                 <>
                   <ExecDividerLine />
                   <ExecMetric
                     label="期中客数"
-                    value={`${fmtCurrency(r.totalCustomers)}人`}
+                    value={`${fmtCurrency(curCustomers)}人`}
                     sub={`日平均: ${fmtCurrency(r.averageCustomersPerDay)}人`}
                   />
                   <ExecMetric
@@ -265,12 +267,12 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
             value={formatPercent(r.projectedGPAchievement)}
             formula={`着地粗利 ÷ 月間粗利予算 = ${fmtCurrency(r.projectedGrossProfit)} ÷ ${fmtCurrency(r.grossProfitBudget)}`}
           />
-          {r.totalCustomers > 0 &&
+          {curCustomers > 0 &&
             r.salesDays > 0 &&
             (() => {
-              const avgDailyCustomers = r.totalCustomers / r.salesDays
+              const avgDailyCustomers = curCustomers / r.salesDays
               const projectedCustomers = Math.round(
-                r.totalCustomers + avgDailyCustomers * remainingDays,
+                curCustomers + avgDailyCustomers * remainingDays,
               )
               const projectedTxValue = calculateTransactionValue(
                 r.projectedSales,
@@ -282,7 +284,7 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
                   <ExecMetric
                     label="月末客数着地"
                     value={`${fmtCurrency(projectedCustomers)}人`}
-                    formula={`実績${fmtCurrency(r.totalCustomers)}人 + 日平均${fmtCurrency(avgDailyCustomers)}人 × 残${remainingDays}日`}
+                    formula={`実績${fmtCurrency(curCustomers)}人 + 日平均${fmtCurrency(avgDailyCustomers)}人 × 残${remainingDays}日`}
                   />
                   <ExecMetric
                     label="着地客単価"

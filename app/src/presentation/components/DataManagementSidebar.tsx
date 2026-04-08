@@ -1,5 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'
+import { useUiStore } from '@/application/stores/uiStore'
+import { calculationCache } from '@/application/services/calculationCache'
 import { useImport, useAutoBackup, useAutoImport } from '@/application/hooks/data'
 import { useStoreSelection, useSettings } from '@/application/hooks/ui'
 import { useRepository } from '@/application/context/useRepository'
@@ -46,6 +48,16 @@ export function DataManagementSidebar({
 } = {}) {
   const current = useDataStore((s) => s.currentMonthData)
   const storeResultsSize = useDataStore((s) => s.storeResults.size)
+  const updateInventory = useDataStore((s) => s.updateInventory)
+  const invalidateCalculation = useUiStore((s) => s.invalidateCalculation)
+  const handleInventoryUpdate = (
+    storeId: string,
+    config: Partial<import('@/domain/models/record').InventoryConfig>,
+  ) => {
+    updateInventory(storeId, config)
+    calculationCache.clear()
+    invalidateCalculation()
+  }
   const { importFiles, validationMessages, pendingDiff, resolveDiff } = useImport()
   const { selectedStoreIds, stores, toggleStore, selectAllStores } = useStoreSelection()
   const { settings, updateSettings } = useSettings()
@@ -175,6 +187,7 @@ export function DataManagementSidebar({
             stores={stores}
             settings={settings}
             settingsMap={current?.settings ?? EMPTY_SETTINGS}
+            onInventoryUpdate={handleInventoryUpdate}
           />
         )}
 

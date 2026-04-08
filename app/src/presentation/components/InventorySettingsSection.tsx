@@ -1,7 +1,4 @@
 import { useState } from 'react'
-import { useDataStore } from '@/application/stores/dataStore'
-import { useUiStore } from '@/application/stores/uiStore'
-import { calculationCache } from '@/application/services/calculationCache'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import type { Store, InventoryConfig } from '@/domain/models/record'
 import type { AppSettings } from '@/domain/models/storeTypes'
@@ -24,10 +21,12 @@ export function InventorySettingsSection({
   stores,
   settings,
   settingsMap,
+  onInventoryUpdate,
 }: {
   readonly stores: ReadonlyMap<string, Store>
   readonly settings: AppSettings
   readonly settingsMap: ReadonlyMap<string, InventoryConfig>
+  readonly onInventoryUpdate: (storeId: string, config: Partial<InventoryConfig>) => void
 }) {
   const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(new Set())
   const toggleCollapse = (id: string) =>
@@ -75,11 +74,7 @@ export function InventorySettingsSection({
                     <BlurCommitInput
                       value={cfg?.openingInventory}
                       placeholder="機首在庫"
-                      onCommit={(val) => {
-                        useDataStore.getState().updateInventory(s.id, { openingInventory: val })
-                        calculationCache.clear()
-                        useUiStore.getState().invalidateCalculation()
-                      }}
+                      onCommit={(val) => onInventoryUpdate(s.id, { openingInventory: val })}
                     />
                   </InventoryRow>
                   <InventoryRow>
@@ -87,11 +82,7 @@ export function InventorySettingsSection({
                     <BlurCommitInput
                       value={cfg?.productInventory}
                       placeholder="商品在庫"
-                      onCommit={(val) => {
-                        useDataStore.getState().updateInventory(s.id, { productInventory: val })
-                        calculationCache.clear()
-                        useUiStore.getState().invalidateCalculation()
-                      }}
+                      onCommit={(val) => onInventoryUpdate(s.id, { productInventory: val })}
                     />
                   </InventoryRow>
                   <InventoryRow>
@@ -99,13 +90,7 @@ export function InventorySettingsSection({
                     <BlurCommitInput
                       value={cfg?.costInclusionInventory}
                       placeholder="原価算入費在庫"
-                      onCommit={(val) => {
-                        useDataStore
-                          .getState()
-                          .updateInventory(s.id, { costInclusionInventory: val })
-                        calculationCache.clear()
-                        useUiStore.getState().invalidateCalculation()
-                      }}
+                      onCommit={(val) => onInventoryUpdate(s.id, { costInclusionInventory: val })}
                     />
                   </InventoryRow>
                   <InventoryRow>
@@ -124,11 +109,7 @@ export function InventorySettingsSection({
                       placeholder="末日"
                       min={1}
                       max={daysInMo}
-                      onCommit={(val) => {
-                        useDataStore.getState().updateInventory(s.id, { closingInventoryDay: val })
-                        calculationCache.clear()
-                        useUiStore.getState().invalidateCalculation()
-                      }}
+                      onCommit={(val) => onInventoryUpdate(s.id, { closingInventoryDay: val })}
                     />
                     <InventoryLabel style={{ minWidth: 'auto' }}>日</InventoryLabel>
                   </InventoryDayRow>
@@ -140,9 +121,7 @@ export function InventorySettingsSection({
                       placeholder={`${settings.flowerCostRate * 100}`}
                       onCommit={(val) => {
                         const rate = val != null ? val / 100 : undefined
-                        useDataStore.getState().updateInventory(s.id, { flowerCostRate: rate })
-                        calculationCache.clear()
-                        useUiStore.getState().invalidateCalculation()
+                        onInventoryUpdate(s.id, { flowerCostRate: rate })
                       }}
                     />
                   </InventoryRow>
@@ -156,11 +135,7 @@ export function InventorySettingsSection({
                       placeholder={`${settings.directProduceCostRate * 100}`}
                       onCommit={(val) => {
                         const rate = val != null ? val / 100 : undefined
-                        useDataStore
-                          .getState()
-                          .updateInventory(s.id, { directProduceCostRate: rate })
-                        calculationCache.clear()
-                        useUiStore.getState().invalidateCalculation()
+                        onInventoryUpdate(s.id, { directProduceCostRate: rate })
                       }}
                     />
                   </InventoryRow>

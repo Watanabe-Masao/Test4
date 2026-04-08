@@ -74,12 +74,16 @@ export function useCategoryBoxPlotChartVm({
     return m
   }, [storesMap])
 
-  const [level, setLevel] = useState<CategoryLevel>('department')
+  const [drill, setDrill] = useState<{
+    level: CategoryLevel
+    parentDeptCode: string
+    parentLineCode: string
+  }>({ level: 'department', parentDeptCode: '', parentLineCode: '' })
   const [minStores, setMinStores] = useState(2)
   const [boxMetric, setBoxMetric] = useState<BoxMetric>('sales')
   const [analysisAxis, setAnalysisAxis] = useState<AnalysisAxis>('store')
-  const [parentDeptCode, setParentDeptCode] = useState<string>('')
-  const [parentLineCode, setParentLineCode] = useState<string>('')
+
+  const { level, parentDeptCode, parentLineCode } = drill
 
   const isSingleStore = selectedStoreIds.size === 1
   const effectiveAxis: AnalysisAxis = isSingleStore ? 'date' : analysisAxis
@@ -132,22 +136,21 @@ export function useCategoryBoxPlotChartVm({
       : `カテゴリ別 店舗間${BOX_METRIC_LABELS[boxMetric]}の分布`
 
   const handleLevelChange = (l: CategoryLevel) => {
-    setLevel(l)
-    if (l === 'department') {
-      setParentDeptCode('')
-      setParentLineCode('')
-    } else if (l === 'line') {
-      setParentLineCode('')
-    }
+    setDrill(
+      l === 'department'
+        ? { level: l, parentDeptCode: '', parentLineCode: '' }
+        : l === 'line'
+          ? { level: l, parentDeptCode: drill.parentDeptCode, parentLineCode: '' }
+          : { ...drill, level: l },
+    )
   }
 
   const handleDeptChange = (value: string) => {
-    setParentDeptCode(value)
-    setParentLineCode('')
+    setDrill((prev) => ({ ...prev, parentDeptCode: value, parentLineCode: '' }))
   }
 
   const handleLineChange = (value: string) => {
-    setParentLineCode(value)
+    setDrill((prev) => ({ ...prev, parentLineCode: value }))
   }
 
   return {
