@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-08T11:41:27.182Z",
+  "timestamp": "2026-04-08T13:58:11.334Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -146,11 +146,11 @@
         }
       ],
       "implRefs": [
-        "app/src/presentation/pages/Weather/WeatherPage.tsx",
         "app/src/presentation/pages/Dashboard/widgets/HourlyChart.tsx",
         "app/src/presentation/components/charts/TimeSlotChart.tsx",
         "app/src/presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx",
         "app/src/presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx",
+        "app/src/presentation/pages/Weather/WeatherPage.tsx",
         "app/src/presentation/pages/Insight/useInsightData.ts",
         "app/src/application/hooks/useMetricBreakdown.ts",
         "app/src/presentation/pages/Dashboard/widgets/DayDetailModal.tsx",
@@ -372,7 +372,7 @@
       "id": "perf.bundle.totalJsKb",
       "label": "JS バンドル合計サイズ",
       "category": "bundle_perf",
-      "value": 6495,
+      "value": 6494,
       "unit": "kb",
       "status": "ok",
       "owner": "architecture",
@@ -392,7 +392,7 @@
       "id": "perf.bundle.mainJsKb",
       "label": "メインバンドルサイズ",
       "category": "bundle_perf",
-      "value": 2220,
+      "value": 2219,
       "unit": "kb",
       "status": "ok",
       "owner": "architecture",
@@ -526,7 +526,7 @@
       "id": "temporal.allowlist.activeDebt.count",
       "label": "active-debt 例外数",
       "category": "allowlist",
-      "value": 5,
+      "value": 3,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -538,13 +538,13 @@
         "app/src/test/allowlists/size.ts",
         "app/src/test/allowlists/misc.ts"
       ],
-      "budget": 5
+      "budget": 3
     },
     {
       "id": "temporal.allowlist.activeDebt.withCreatedAt",
       "label": "active-debt で createdAt 設定済み",
       "category": "allowlist",
-      "value": 5,
+      "value": 3,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -556,7 +556,7 @@
         "app/src/test/allowlists/size.ts",
         "app/src/test/allowlists/misc.ts"
       ],
-      "budget": 5
+      "budget": 3
     },
     {
       "id": "efficacy.rules.withProtectedHarm.count",

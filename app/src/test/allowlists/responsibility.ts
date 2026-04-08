@@ -8,17 +8,7 @@ import type { QuantitativeAllowlistEntry } from './types'
 // ─── P2: presentation/ の getState() 直接アクセス ──────────────
 
 export const presentationGetStateLimits: readonly QuantitativeAllowlistEntry[] = [
-  {
-    path: 'presentation/components/InventorySettingsSection.tsx',
-    ruleId: 'AR-STRUCT-RESP-SEPARATION',
-    reason: '在庫設定の store 直接操作。getState 12 回',
-    category: 'structural',
-    removalCondition: 'callback props 経由に移行時',
-    limit: 13,
-    lifecycle: 'active-debt',
-    createdAt: '2026-04-08',
-    renewalCount: 0,
-  },
+  // InventorySettingsSection.tsx — onInventoryUpdate callback props に移行。getState 0 回。許可リスト卒業
   // StoreKpiTableInner.tsx — Zustand selector 経由に移行。getState 0 回。許可リスト卒業
   // AdminPage.tsx — Zustand selector 経由に移行。getState 0 回。許可リスト卒業
   // PrevYearMappingTab.tsx — Zustand selector 経由に移行。getState 0 回。許可リスト卒業

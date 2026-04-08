@@ -27,6 +27,7 @@ import { DowPresetSelector } from '@/presentation/components/charts/DowPresetSel
 import { WeatherDetailSection } from './WeatherDetailSection'
 import { WeatherSummarySection } from './WeatherSummarySection'
 import { computeMonthSummary, computeDaySummary, type WeatherSummaryResult } from './weatherSummary'
+import { useWeatherDaySelection } from './useWeatherDaySelection'
 import {
   Page,
   Header,
@@ -107,19 +108,21 @@ export const WeatherPage = memo(function WeatherPage() {
   const { hourlyCache, prevHourlyCache, fetchHourly, fetchPrevHourly, resolvePrevDate } =
     useWeatherHourlyOnDemand(selectedStoreId, 'sameDate')
 
-  const [selectedDays, setSelectedDays] = useState<ReadonlySet<string>>(new Set())
-  const [selectedDows, setSelectedDows] = useState<number[]>([])
-  const handleDowChange = useCallback((dows: number[]) => setSelectedDows(dows), [])
-
-  // 曜日フィルタ適用済み daily（テーブル表示用）
-  const filteredDaily = useMemo(() => {
-    if (selectedDows.length === 0) return daily
-    return daily.filter((d) => {
-      const dayNum = Number(d.dateKey.split('-')[2])
-      const dow = new Date(year, month - 1, dayNum).getDay()
-      return selectedDows.includes(dow)
-    })
-  }, [daily, selectedDows, year, month])
+  // 日選択・ナビゲーション状態（sub-hook に抽出済み）
+  const daySelection = useWeatherDaySelection(daily, combined, year, month, setYear, setMonth)
+  const {
+    selectedDays,
+    setSelectedDays,
+    selectedDows,
+    handleDowChange,
+    filteredDaily,
+    goPrev,
+    goNext,
+    handleMonthScroll,
+    handleChartDayClick,
+    handleDayRangeSelect,
+    selectedDayNumbers,
+  } = daySelection
 
   const [uiState, setUiState] = useState<{
     modalDate: string | null
@@ -129,59 +132,6 @@ export const WeatherPage = memo(function WeatherPage() {
   // 比較スコープ（ヘッダーと同じ alignmentPolicy を使用）
   const alignmentPolicy = useSettingsStore((s) => s.settings.alignmentPolicy)
   const comparisonScope = useComparisonScope(year, month, alignmentPolicy)
-
-  // 月ナビ
-  const goPrev = useCallback(() => {
-    setSelectedDays(new Set())
-    setMonth((m) => {
-      if (m === 1) {
-        setYear((y) => y - 1)
-        return 12
-      }
-      return m - 1
-    })
-  }, [setYear])
-  const goNext = useCallback(() => {
-    setSelectedDays(new Set())
-    setMonth((m) => {
-      if (m === 12) {
-        setYear((y) => y + 1)
-        return 1
-      }
-      return m + 1
-    })
-  }, [setYear])
-
-  // スクロールによる月シフト
-  const handleMonthScroll = useCallback(
-    (direction: -1 | 1) => {
-      setSelectedDays(new Set())
-      if (direction === -1) goPrev()
-      else goNext()
-    },
-    [goPrev, goNext],
-  )
-
-  // シングルクリック → トグル選択
-  const handleChartDayClick = useCallback((dateKey: string) => {
-    setSelectedDays((prev) => {
-      if (prev.size === 1 && prev.has(dateKey)) return new Set()
-      return new Set([dateKey])
-    })
-  }, [])
-
-  // ドラッグ範囲選択（dateKey ベース）
-  const handleDayRangeSelect = useCallback(
-    (startIdx: number, endIdx: number) => {
-      const allDaily = combined.length > 0 ? combined : daily
-      const next = new Set<string>()
-      for (let i = startIdx; i <= endIdx && i < allDaily.length; i++) {
-        next.add(allDaily[i].dateKey)
-      }
-      setSelectedDays(next)
-    },
-    [combined, daily],
-  )
 
   // ダブルクリック → 時間帯モーダル起動
   const handleChartDayDblClick = useCallback(
@@ -228,13 +178,6 @@ export const WeatherPage = memo(function WeatherPage() {
     [prevYearCurrentMonth],
   )
 
-  // 選択日の日番号セット（サマリー計算 + ラベル用）
-  const selectedDayNumbers = useMemo(() => {
-    const nums = new Set<number>()
-    for (const dk of selectedDays) nums.add(Number(dk.split('-')[2]))
-    return nums
-  }, [selectedDays])
-
   const selectedDaySummary = useMemo<WeatherSummaryResult | null>(() => {
     if (selectedDays.size === 0) return null
     // combined（3ヶ月）から dateKey で検索
@@ -261,12 +204,11 @@ export const WeatherPage = memo(function WeatherPage() {
     return computeMonthSummary(filtered)
   }, [prevYearCurrentMonth, selectedDayNumbers])
 
-  // 予報分離
-  const observedKeys = useMemo(() => new Set(daily.map((d) => d.dateKey)), [daily])
-  const futureForecasts = useMemo(
-    () => forecasts.filter((f) => !observedKeys.has(f.dateKey)),
-    [forecasts, observedKeys],
-  )
+  // 予報分離（observed を内包して 1 useMemo に統合）
+  const futureForecasts = useMemo(() => {
+    const observed = new Set(daily.map((d) => d.dateKey))
+    return forecasts.filter((f) => !observed.has(f.dateKey))
+  }, [daily, forecasts])
 
   // モーダル
   const modalHourly = uiState.modalDate ? hourlyCache[uiState.modalDate] : undefined

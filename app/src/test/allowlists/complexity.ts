@@ -83,18 +83,7 @@ export const presentationStateLimits: readonly QuantitativeAllowlistEntry[] = [
 
 /** useMemo+useCallback 合計上限の個別例外（責務分離 P8 ガード） */
 export const combinedHookComplexityLimits: readonly QuantitativeAllowlistEntry[] = [
-  {
-    path: 'presentation/pages/Weather/WeatherPage.tsx',
-    ruleId: 'AR-STRUCT-RESP-SEPARATION',
-    reason:
-      '天気ページの複合 UI（相関・予報・オーバーレイ + 曜日フィルタ）。useMemo 7 + useCallback 9 = 16',
-    category: 'structural',
-    removalCondition: '天気系 hook の分離時',
-    limit: 17,
-    lifecycle: 'active-debt',
-    createdAt: '2026-04-08',
-    renewalCount: 0,
-  },
+  // WeatherPage.tsx — useWeatherDaySelection 抽出で combined 17→13。許可リスト卒業
   // useMonthlyCalendarState.ts — thin wrapper useCallback 6件を plain function 化。combined 13→7。許可リスト卒業
   // useCostDetailData.ts — flows+items useMemo 統合で combined 12→9。許可リスト卒業
 ] as const
