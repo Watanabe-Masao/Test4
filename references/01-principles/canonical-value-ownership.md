@@ -32,7 +32,7 @@
 |---|---|---|---|---|---|---|---|---|
 | 売上・販売点数 | direct fact | `readSalesFact()` | 同左 | accepted | 0 | — | salesFactPathGuard | sales-definition.md |
 | 値引き | direct fact | `readDiscountFact()` | 同左 | accepted | 0 | — | discountFactPathGuard | discount-definition.md |
-| 客数 | direct fact | `readCustomerFact()` | 同左 | coexist | 16 | `StoreResult.totalCustomers` の分析参照が 0 になった | customerFactPathGuard + storeResultAnalysisInputGuard | customer-definition.md |
+| 客数 | direct fact | `readCustomerFact()` | 同左 | coexist | 13 | `StoreResult.totalCustomers` の分析参照が 0 になった | customerFactPathGuard + storeResultAnalysisInputGuard | customer-definition.md |
 | 自由期間分析 | direct fact | `readFreePeriodFact()` | 同左 | accepted | 0 | — | freePeriodPathGuard | free-period-analysis-definition.md |
 | 自由期間予算 | direct fact | `readFreePeriodBudgetFact()` | 同左 | accepted | 0 | — | freePeriodBudgetPathGuard | free-period-budget-kpi-contract.md |
 | 自由期間部門KPI | direct fact | `readFreePeriodDeptKPI()` | 同左 | accepted | 0 | — | freePeriodDeptKPIPathGuard | free-period-budget-kpi-contract.md |
@@ -59,7 +59,7 @@
 |---|---|---|---|---|---|---|---|---|
 | 予算 | composite | StoreResult（統一済み） | 同左 | accepted | 0 | — | — | budget-definition.md |
 | KPI | composite | StoreResult（統一済み） | 同左 | accepted | 0 | — | — | kpi-definition.md |
-| totalCustomers | direct fact | `StoreResult.totalCustomers` | `readCustomerFact()` | coexist | 16 | 分析用途の `.totalCustomers` 参照が 0 | storeResultAnalysisInputGuard | customer-definition.md |
+| totalCustomers | direct fact | `StoreResult.totalCustomers` | `readCustomerFact()` | coexist | 13 | 分析用途の `.totalCustomers` 参照が 0 | storeResultAnalysisInputGuard | customer-definition.md |
 
 ## coexist の管理ルール
 
@@ -82,12 +82,12 @@ CustomerFact 経由に変更が必要。presentation 層では UnifiedWidgetCont
 - Props の型変更 + 呼び出し元の変更が伴う（単純な置換ではない）
 - application 層で CustomerFact を widget context 経由で配布済み（`readModels.customerFact`）
 
-| ファイル | 用途 | 優先度 |
-|---|---|---|
-| conditionPanelCustomerGap.tsx | `calculateCustomerGap()` の直接入力 | P1 |
-| conditionSummaryCardBuilders.ts | `calculateCustomerGap()` + YoY 比率 | P1 |
-| StorePIComparisonChart.builders.ts | PI 値の除数 | P1 |
-| ConditionSummary.tsx | YoY 比率 + 客単価計算 | P2 |
+| ファイル | 用途 | 優先度 | status |
+|---|---|---|---|
+| conditionPanelCustomerGap.tsx | `calculateCustomerGap()` の直接入力 | P1 | **done** |
+| conditionSummaryCardBuilders.ts | `calculateCustomerGap()` + YoY 比率 | P1 | **done** |
+| StorePIComparisonChart.builders.ts | PI 値の除数 | P1 | **done** |
+| ConditionSummary.tsx | YoY 比率 + 客単価計算 | P2 | pending |
 | conditionPanelYoY.vm.ts | YoY 比率計算 | P2 |
 | ExecSummaryBarWidget.tsx | YoY 比率 + 客単価 | P2 |
 | PlanActualForecast.tsx | YoY 比率 + 日次平均 + 予測計算 | P2 |

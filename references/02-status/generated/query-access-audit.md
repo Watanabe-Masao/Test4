@@ -1,6 +1,6 @@
 # Query Access Audit Report
 
-> Generated: 2026-04-06T00:34:31.277Z
+> Generated: 2026-04-08T08:09:10.467Z
 
 ## Route Summary
 
@@ -148,3 +148,4 @@
 - presentation/components/charts/WeatherCorrelationChart.vm.ts
 - presentation/hooks/slices/useWeatherSlice.ts
 - presentation/pages/Dashboard/widgets/WeatherWidget.tsx
+- presentation/pages/Weather/WeatherPage.tsx

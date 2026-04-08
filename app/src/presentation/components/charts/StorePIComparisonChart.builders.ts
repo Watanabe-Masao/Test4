@@ -32,6 +32,7 @@ export interface HeatmapData {
  * allStoreResults から店舗別 PI データを構築し metric でソート。
  *
  * @param ctsQuantityByStore CTS 由来の店舗別販売点数（useCtsQuantity.byStore）
+ * @param storeCustomerMap CustomerFact 由来の店舗別客数（toStoreCustomerRows 経由）
  *
  * @responsibility R:chart-option
  */
@@ -40,16 +41,18 @@ export function buildStorePIData(
   stores: ReadonlyMap<string, Store>,
   metric: Metric,
   ctsQuantityByStore?: ReadonlyMap<string, number>,
+  storeCustomerMap?: ReadonlyMap<string, number>,
 ): readonly StorePIEntry[] {
   const entries: StorePIEntry[] = []
   for (const [storeId, result] of allStoreResults) {
-    if (result.totalCustomers <= 0) continue
+    const customers = storeCustomerMap?.get(storeId) ?? 0
+    if (customers <= 0) continue
     const qty = ctsQuantityByStore?.get(storeId) ?? 0
     entries.push({
       storeId,
       name: stores.get(storeId)?.name ?? storeId,
-      piAmount: Math.round(safeDivide(result.totalSales, result.totalCustomers, 0) * 1000),
-      piQty: Math.round(safeDivide(qty, result.totalCustomers, 0) * 1000),
+      piAmount: Math.round(safeDivide(result.totalSales, customers, 0) * 1000),
+      piQty: Math.round(safeDivide(qty, customers, 0) * 1000),
     })
   }
   return entries.sort((a, b) =>

@@ -397,7 +397,12 @@ describe('StorePIComparisonChart builders baseline', () => {
       ['S2', { name: 'Store B' } as unknown as Store],
       ['S3', { name: 'Store C' } as unknown as Store],
     ])
-    const result = buildStorePIData(storeResults, stores, 'piAmount')
+    const customerMap = new Map([
+      ['S1', 500],
+      ['S2', 500],
+      ['S3', 0],
+    ])
+    const result = buildStorePIData(storeResults, stores, 'piAmount', undefined, customerMap)
     expect(result).toHaveLength(2) // S3 excluded (0 customers)
     expect(result[0].storeId).toBe('S1') // higher piAmount first
     expect(result[0].piAmount).toBe(Math.round((2000000 / 500) * 1000))

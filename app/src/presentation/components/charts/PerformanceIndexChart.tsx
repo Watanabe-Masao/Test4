@@ -64,6 +64,8 @@ interface Props {
   dailyQuantity?: ReadonlyMap<number, number>
   /** 店舗別販売点数データ（CTS 由来、店舗別点数PI計算用） */
   ctsQuantityByStore?: ReadonlyMap<string, number>
+  /** CustomerFact 由来の店舗別客数（PI値の除数） */
+  storeCustomerMap?: ReadonlyMap<string, number>
 }
 
 const EMPTY_PREV_YEAR: ReadonlyMap<
@@ -87,6 +89,7 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
   stores,
   dailyQuantity,
   ctsQuantityByStore,
+  storeCustomerMap,
 }: Props) {
   const ct = useChartTheme()
   const theme = useTheme() as AppTheme
@@ -313,6 +316,7 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
           level={storePILevel}
           onLevelChange={setStorePILevel}
           ctsQuantityByStore={ctsQuantityByStore}
+          storeCustomerMap={storeCustomerMap}
         />
       )}
     </ChartCard>

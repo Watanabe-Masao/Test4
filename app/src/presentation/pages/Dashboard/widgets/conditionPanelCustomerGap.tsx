@@ -10,7 +10,9 @@ import { calculateCustomerGap } from '@/domain/calculations/customerGap'
 import type { CustomerGapResult } from '@/domain/calculations/customerGap'
 import type { StoreResult } from '@/domain/models/storeTypes'
 import type { Store } from '@/domain/models/record'
-import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/comparison/comparisonTypes'
+import type { PrevYearMonthlyKpi } from '@/application/comparison/comparisonTypes'
+import type { CustomerFactReadModel } from '@/application/readModels/customerFact'
+import { toStoreCustomerRows } from '@/application/readModels/customerFact'
 import {
   aggregateContributions,
   indexContributionsByStore,
@@ -41,7 +43,9 @@ interface CustomerGapDetailProps {
   readonly sortedStoreEntries: readonly [string, StoreResult][]
   readonly stores: ReadonlyMap<string, Store>
   readonly result: StoreResult
-  readonly prevYear: PrevYearData
+  readonly customerFact: CustomerFactReadModel
+  readonly prevTotalCustomers: number
+  readonly prevTotalSales: number
   readonly currentCtsQuantity: CurrentCtsQuantity
   readonly prevYearMonthlyKpi: PrevYearMonthlyKpi
   readonly effectiveDay: number
@@ -66,7 +70,9 @@ export function CustomerGapDetailTable({
   sortedStoreEntries,
   stores,
   result,
-  prevYear,
+  customerFact,
+  prevTotalCustomers,
+  prevTotalSales,
   currentCtsQuantity,
   prevYearMonthlyKpi,
   effectiveDay,
@@ -79,28 +85,40 @@ export function CustomerGapDetailTable({
     [prevYearMonthlyKpi, effectiveDay],
   )
 
+  // CustomerFact → 店舗別客数マップ
+  const storeCustomerMap = useMemo(() => toStoreCustomerRows(customerFact), [customerFact])
+
   // Total gap（共通 VM 経由で全店集約）
   const totalGap = useMemo(() => {
-    if (!prevYear.hasPrevYear || prevYear.totalCustomers <= 0) return null
+    if (prevTotalCustomers <= 0) return null
     const totalCurQty = currentCtsQuantity.total
     const totalAgg = aggregateContributions(prevYearMonthlyKpi.sameDow.storeContributions, {
       maxDay: effectiveDay,
     })
     const totalPrevQty = totalAgg.ctsQuantity
     return calculateCustomerGap({
-      curCustomers: result.totalCustomers,
-      prevCustomers: prevYear.totalCustomers,
+      curCustomers: customerFact.grandTotalCustomers,
+      prevCustomers: prevTotalCustomers,
       curQuantity: totalCurQty,
       prevQuantity: totalPrevQty,
       curSales: result.totalSales,
-      prevSales: prevYear.totalSales,
+      prevSales: prevTotalSales,
     })
-  }, [result, prevYear, currentCtsQuantity, prevYearMonthlyKpi, effectiveDay])
+  }, [
+    result,
+    customerFact,
+    prevTotalCustomers,
+    prevTotalSales,
+    currentCtsQuantity,
+    prevYearMonthlyKpi,
+    effectiveDay,
+  ])
 
   // Per-store gaps
   const storeRows = useMemo<readonly StoreGapRow[]>(() => {
     return sortedStoreEntries.map(([storeId, sr]) => {
       const storeName = stores.get(storeId)?.name ?? storeId
+      const curCustomers = storeCustomerMap.get(storeId) ?? 0
       const prevCustomers = computeStorePrevCustomers(prevYearMonthlyKpi, storeId, effectiveDay)
       const prevSales = computeStorePrevSales(prevYearMonthlyKpi, storeId, effectiveDay)
       const curQty = currentCtsQuantity.byStore.get(storeId) ?? 0
@@ -108,7 +126,7 @@ export function CustomerGapDetailTable({
       const gap =
         prevCustomers > 0 && prevQty > 0 && prevSales > 0
           ? calculateCustomerGap({
-              curCustomers: sr.totalCustomers,
+              curCustomers,
               prevCustomers,
               curQuantity: curQty,
               prevQuantity: prevQty,
@@ -121,6 +139,7 @@ export function CustomerGapDetailTable({
   }, [
     sortedStoreEntries,
     stores,
+    storeCustomerMap,
     prevYearMonthlyKpi,
     effectiveDay,
     currentCtsQuantity,

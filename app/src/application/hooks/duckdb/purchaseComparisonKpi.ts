@@ -152,3 +152,21 @@ export function buildStoreData(
   byStore.sort((a, b) => b.currentCost - a.currentCost)
   return byStore
 }
+
+// ── カテゴリ行集約 ──
+
+/** categoryKey ごとに cost/price を集約する */
+export function groupCategoryRows(
+  rows: readonly { categoryKey: string; cost: number; price: number }[],
+): Map<string, { cost: number; price: number }> {
+  const map = new Map<string, { cost: number; price: number }>()
+  for (const r of rows) {
+    const existing = map.get(r.categoryKey)
+    if (existing) {
+      map.set(r.categoryKey, { cost: existing.cost + r.cost, price: existing.price + r.price })
+    } else {
+      map.set(r.categoryKey, { cost: r.cost, price: r.price })
+    }
+  }
+  return map
+}

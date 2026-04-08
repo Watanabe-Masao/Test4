@@ -369,6 +369,8 @@ describe('ConditionSummaryEnhanced.vm 不変条件', () => {
         fmtCurrency,
         elapsedDays: 15,
         daysInMonth: 30,
+        curTotalCustomers: 0,
+        prevTotalCustomers: 0,
       }
     }
 
