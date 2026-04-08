@@ -13,8 +13,10 @@ export function useMonthDataManagement() {
   const [months, setMonths] = useState<MonthEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [expandedMonths, setExpandedMonths] = useState<Set<string>>(new Set())
-  const [deleteTarget, setDeleteTarget] = useState<{ year: number; month: number } | null>(null)
-  const [deleting, setDeleting] = useState(false)
+  const [deleteOp, setDeleteOp] = useState<{
+    target: { year: number; month: number } | null
+    deleting: boolean
+  }>({ target: null, deleting: false })
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -49,28 +51,29 @@ export function useMonthDataManagement() {
   }, [])
 
   const handleDelete = useCallback(async () => {
-    if (!deleteTarget) return
-    setDeleting(true)
+    if (!deleteOp.target) return
+    setDeleteOp((prev) => ({ ...prev, deleting: true }))
     try {
-      await deleteMonth(deleteTarget.year, deleteTarget.month)
-      setDeleteTarget(null)
+      await deleteMonth(deleteOp.target.year, deleteOp.target.month)
+      setDeleteOp({ target: null, deleting: false })
       await loadData()
     } catch {
       // ignore
     } finally {
-      setDeleting(false)
+      setDeleteOp((prev) => ({ ...prev, deleting: false }))
     }
-  }, [deleteTarget, loadData, deleteMonth])
+  }, [deleteOp.target, loadData, deleteMonth])
 
   return {
     months,
     loading,
     expandedMonths,
-    deleteTarget,
-    deleting,
+    deleteTarget: deleteOp.target,
+    deleting: deleteOp.deleting,
     loadData,
     toggleExpand,
-    setDeleteTarget,
+    setDeleteTarget: (target: { year: number; month: number } | null) =>
+      setDeleteOp((prev) => ({ ...prev, target })),
     handleDelete,
   }
 }

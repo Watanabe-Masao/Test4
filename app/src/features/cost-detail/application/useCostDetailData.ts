@@ -69,17 +69,14 @@ export function useCostDetailData() {
   const inField = isInterStore ? ('interStoreIn' as const) : ('interDepartmentIn' as const)
   const outField = isInterStore ? ('interStoreOut' as const) : ('interDepartmentOut' as const)
 
-  const flows = useMemo(
-    () => (days.length > 0 ? aggregateFlows(days, inField, outField, stores) : []),
-    [days, inField, outField, stores],
-  )
-
-  const groupedFlows = useMemo(() => buildFlowGroups(flows), [flows])
-
-  const maxFlowCost = useMemo(
-    () => (flows.length === 0 ? 1 : Math.max(...flows.map((f) => Math.abs(f.cost)), 1)),
-    [flows],
-  )
+  const { flows, groupedFlows, maxFlowCost } = useMemo(() => {
+    const f = days.length > 0 ? aggregateFlows(days, inField, outField, stores) : []
+    return {
+      flows: f,
+      groupedFlows: buildFlowGroups(f),
+      maxFlowCost: f.length === 0 ? 1 : Math.max(...f.map((v) => Math.abs(v.cost)), 1),
+    }
+  }, [days, inField, outField, stores])
 
   const pairDailyData = useMemo(
     () => buildPairDailyData(selectedPair, days, inField, outField),
@@ -104,8 +101,10 @@ export function useCostDetailData() {
   )
 
   // ─── CostInclusion data ────────────────────────────────
-  const itemAggregates = useMemo(() => aggregateByItem(days), [days])
-  const accountAggregates = useMemo(() => aggregateByAccount(itemAggregates), [itemAggregates])
+  const { itemAggregates, accountAggregates } = useMemo(() => {
+    const items = aggregateByItem(days)
+    return { itemAggregates: items, accountAggregates: aggregateByAccount(items) }
+  }, [days])
 
   const itemDetailData = useMemo(
     () => buildItemDetailData(selectedItem, selectedResults, stores),

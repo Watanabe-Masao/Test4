@@ -96,17 +96,7 @@ export const combinedHookComplexityLimits: readonly QuantitativeAllowlistEntry[]
     renewalCount: 0,
   },
   // useMonthlyCalendarState.ts — thin wrapper useCallback 6件を plain function 化。combined 13→7。許可リスト卒業
-  {
-    path: 'features/cost-detail/application/useCostDetailData.ts',
-    ruleId: 'AR-STRUCT-RESP-SEPARATION',
-    reason: 'コスト明細の複数集計パス。useMemo 12 + useCallback 0 = 12',
-    category: 'structural',
-    removalCondition: '集計ロジックの pure 関数分離時',
-    limit: 13,
-    lifecycle: 'active-debt',
-    createdAt: '2026-04-08',
-    renewalCount: 0,
-  },
+  // useCostDetailData.ts — flows+items useMemo 統合で combined 12→9。許可リスト卒業
 ] as const
 
 /** features/ の useMemo 上限の個別例外（責務分離カバレッジ拡大） */
@@ -114,10 +104,10 @@ export const featuresMemoLimits: readonly QuantitativeAllowlistEntry[] = [
   {
     path: 'features/cost-detail/application/useCostDetailData.ts',
     ruleId: 'AR-G5-HOOK-MEMO',
-    reason: 'コスト明細の複数集計パス。useMemo 12 個',
+    reason: 'コスト明細の集計パス。useMemo 9 個 (flows+items 統合済み)',
     category: 'structural',
-    removalCondition: '集計ロジックの pure 関数分離時',
-    limit: 13,
+    removalCondition: 'さらなる builder 抽出時',
+    limit: 10,
     lifecycle: 'active-debt',
     createdAt: '2026-04-08',
     renewalCount: 0,
@@ -136,17 +126,7 @@ export const featuresMemoLimits: readonly QuantitativeAllowlistEntry[] = [
 
 /** features/ の useState 上限の個別例外（責務分離カバレッジ拡大） */
 export const featuresStateLimits: readonly QuantitativeAllowlistEntry[] = [
-  {
-    path: 'features/storage-admin/application/useMonthDataManagement.ts',
-    ruleId: 'AR-G5-HOOK-STATE',
-    reason: '月次データ管理の状態。useState 5 個 + import 行',
-    category: 'structural',
-    removalCondition: 'guard が import 行を除外するようになったとき',
-    limit: 7,
-    lifecycle: 'active-debt',
-    createdAt: '2026-04-08',
-    renewalCount: 0,
-  },
+  // useMonthDataManagement.ts — deleteTarget+deleting を 1 state に統合。useState 5→4。許可リスト卒業
   // StorageDataViewers.tsx — async state 統合で useState 6→2。許可リスト卒業
   {
     path: 'features/category/ui/charts/CategoryBenchmarkChart.vm.ts',
