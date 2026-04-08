@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-08T05:31:28.989Z
+> Generated: 2026-04-08T06:43:36.805Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -8,11 +8,11 @@
 
 | 指標 | 値 |
 |---|---|
-| Total KPIs | 25 |
-| OK | 25 |
+| Total KPIs | 28 |
+| OK | 27 |
 | WARN | 0 |
-| FAIL | 0 |
-| Hard Gate | PASS |
+| FAIL | 1 |
+| Hard Gate | FAIL |
 
 ## 許可リスト
 
@@ -23,6 +23,7 @@
 | allowlist.active.count | Active リスト数 | 8 / 10 | OK |
 | temporal.allowlist.activeDebt.count | active-debt 例外数 | 33 / 33 | OK |
 | temporal.allowlist.activeDebt.withCreatedAt | active-debt で createdAt 設定済み | 33 / 33 | OK |
+| efficacy.allowlist.renewalTotal | renewalCount 合計 | 0 / 10 | OK |
 
 ## 後方互換負債
 
@@ -56,6 +57,8 @@
 | temporal.rules.sunsetCondition.count | sunsetCondition 設定済みルール数 | 9 / 9 | OK |
 | temporal.rules.reviewOverdue.count | review overdue ルール数 | 0 / 0 | OK |
 | temporal.rules.heuristicGate.count | heuristic + gate ルール数 | 27 / 27 | OK |
+| efficacy.rules.withProtectedHarm.count | protectedHarm 設定済みルール数 | 24 | OK |
+| efficacy.rules.highNoise.count | 高例外圧ルール数（≥10 件） | 1 / 3 | OK |
 
 ## ドキュメント整合
 
@@ -63,7 +66,7 @@
 |---|---|---|---|
 | docs.obsoleteTerms.count | 廃止用語残存数 | 0 / 0 | OK |
 | docs.generatedSections.stale | Generated section 未更新 | 0 / 0 | OK |
-| docs.obligation.violations | Doc 更新義務違反数 | 0 / 0 | OK |
+| docs.obligation.violations | Doc 更新義務違反数 | 1 / 0 | FAIL |
 
 ## バンドル性能
 
@@ -111,5 +114,6 @@
 | docs.obligation.violations | definition | tools/architecture-health/src/collectors/obligation-collector.ts |
 | temporal.rules.reviewPolicy.count | definition | references/03-guides/architecture-rule-system.md |
 | temporal.rules.sunsetCondition.count | definition | references/01-principles/architecture-rule-feasibility.md |
+| efficacy.rules.withProtectedHarm.count | definition | references/01-principles/architecture-rule-feasibility.md |
 
 </details>

@@ -97,6 +97,10 @@ export interface ArchitectureRule {
   readonly confidence?: 'high' | 'medium' | 'low'
   /** いつこのルールが不要になるか（反証可能性） */
   readonly sunsetCondition?: string
+  /** このルールが防いでいる害（efficacy 評価の根拠） */
+  readonly protectedHarm?: {
+    readonly prevents: readonly string[]
+  }
   /** ルールの再点検ポリシー（時間軸の導入） */
   readonly reviewPolicy?: {
     readonly owner: string // 'solo-maintainer' | 'ai-system'
@@ -369,6 +373,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'medium',
       priority: 1,
     },
+    protectedHarm: {
+      prevents: [
+        'domain が外部層に依存し純粋性が崩壊',
+        'テストにモックが必要になる',
+        '計算結果の信頼性低下',
+      ],
+    },
     reviewPolicy: {
       owner: 'solo-maintainer',
       lastReviewedAt: '2026-04-08',
@@ -411,6 +422,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'medium',
       priority: 2,
     },
+    protectedHarm: {
+      prevents: ['application と infrastructure の密結合', 'インフラ変更時の影響範囲拡大'],
+    },
     reviewPolicy: {
       owner: 'solo-maintainer',
       lastReviewedAt: '2026-04-08',
@@ -451,6 +465,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 1,
     },
+    protectedHarm: { prevents: ['application と presentation の循環依存', 'ビルド順序の破壊'] },
     reviewPolicy: {
       owner: 'solo-maintainer',
       lastReviewedAt: '2026-04-08',
@@ -496,6 +511,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       ],
       effort: 'small',
       priority: 1,
+    },
+    protectedHarm: {
+      prevents: ['presentation からの直接データ取得', '取得ロジックの散在', 'テスト困難化'],
     },
     reviewPolicy: {
       owner: 'solo-maintainer',
@@ -577,6 +595,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'medium',
       priority: 1,
     },
+    protectedHarm: {
+      prevents: ['infrastructure から application への逆方向依存', '循環依存の発生'],
+    },
     reviewPolicy: {
       owner: 'solo-maintainer',
       lastReviewedAt: '2026-04-08',
@@ -613,6 +634,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 1,
     },
+    protectedHarm: { prevents: ['infrastructure と presentation の直接結合'] },
     reviewPolicy: {
       owner: 'solo-maintainer',
       lastReviewedAt: '2026-04-08',
@@ -726,6 +748,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 1,
     },
+    protectedHarm: { prevents: ['型安全性の形骸化', 'lint 規約の無効化', 'バグの隠蔽'] },
     reviewPolicy: {
       owner: 'solo-maintainer',
       lastReviewedAt: '2026-04-08',
@@ -762,6 +785,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       ],
       effort: 'trivial',
       priority: 1,
+    },
+    protectedHarm: {
+      prevents: ['0 が有効値のフィールドで欠損扱い', '金額ゼロの正当な取引が消える'],
     },
     reviewPolicy: {
       owner: 'solo-maintainer',
@@ -800,6 +826,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'trivial',
       priority: 1,
     },
+    protectedHarm: { prevents: ['全フィールド変更で再レンダリング', 'パフォーマンス劣化'] },
     reviewPolicy: {
       owner: 'solo-maintainer',
       lastReviewedAt: '2026-04-08',
@@ -836,6 +863,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'trivial',
       priority: 1,
     },
+    protectedHarm: { prevents: ['エラーの握り潰し', 'デバッグ不能な不具合'] },
     reviewPolicy: {
       owner: 'solo-maintainer',
       lastReviewedAt: '2026-04-08',
@@ -1190,6 +1218,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 2,
     },
+    protectedHarm: { prevents: ['売上データの不整合', '旧クエリと新正本の値の乖離'] },
     reviewPolicy: {
       owner: 'solo-maintainer',
       lastReviewedAt: '2026-04-08',
@@ -1268,6 +1297,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 1,
     },
+    protectedHarm: {
+      prevents: ['粗利計算の散在', '売上−原価=粗利の不変条件破壊', '店舗間の粗利不整合'],
+    },
     reviewPolicy: {
       owner: 'solo-maintainer',
       lastReviewedAt: '2026-04-08',
@@ -1309,6 +1341,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 1,
     },
+    protectedHarm: { prevents: ['仕入原価の二重計上', '移動原価の方向ミス（IN のみで OUT 漏れ）'] },
     reviewPolicy: {
       owner: 'solo-maintainer',
       lastReviewedAt: '2026-04-08',
@@ -1346,6 +1379,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 2,
     },
+    protectedHarm: { prevents: ['客数集計の不一致', 'PI 値計算への不正確な入力'] },
     reviewPolicy: {
       owner: 'solo-maintainer',
       lastReviewedAt: '2026-04-08',
@@ -1383,6 +1417,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'trivial',
       priority: 2,
     },
+    protectedHarm: { prevents: ['客数 GAP の定義不一致', 'インライン計算による精度劣化'] },
     reviewPolicy: {
       owner: 'solo-maintainer',
       lastReviewedAt: '2026-04-08',
@@ -1423,6 +1458,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'trivial',
       priority: 2,
     },
+    protectedHarm: { prevents: ['0 除算ガードの欠落', 'PI 値フォーマットの不統一'] },
     reviewPolicy: {
       owner: 'solo-maintainer',
       lastReviewedAt: '2026-04-08',
@@ -1572,6 +1608,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 1,
     },
+    protectedHarm: { prevents: ['要因分解の合計値が売上差と不一致（D1 不変条件違反）'] },
     reviewPolicy: {
       owner: 'solo-maintainer',
       lastReviewedAt: '2026-04-08',
@@ -1823,6 +1860,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'medium',
       priority: 1,
     },
+    protectedHarm: { prevents: ['readModel の体系的品質保証の欠落', '異なる経路で異なる値'] },
     reviewPolicy: {
       owner: 'solo-maintainer',
       lastReviewedAt: '2026-04-08',
@@ -1888,6 +1926,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 1,
     },
+    protectedHarm: { prevents: ['二重計上', 'DuckDB is_prev_year 不整合', 'state リセット漏れ'] },
     reviewPolicy: {
       owner: 'solo-maintainer',
       lastReviewedAt: '2026-04-08',
@@ -2091,6 +2130,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'medium',
       priority: 1,
     },
+    protectedHarm: { prevents: ['domain に副作用が混入', '計算の再現性喪失', 'WASM 移行の阻害'] },
     reviewPolicy: {
       owner: 'solo-maintainer',
       lastReviewedAt: '2026-04-08',
@@ -2131,6 +2171,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'medium',
       priority: 2,
     },
+    protectedHarm: { prevents: ['クエリ入力の不正規化', 'キャッシュの不整合', '比較結果の不一致'] },
     reviewPolicy: {
       owner: 'solo-maintainer',
       lastReviewedAt: '2026-04-08',
@@ -2168,6 +2209,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 2,
     },
+    protectedHarm: { prevents: ['描画時のストレージ副作用', 'SSR 互換性の喪失'] },
     reviewPolicy: {
       owner: 'solo-maintainer',
       lastReviewedAt: '2026-04-08',
@@ -2202,6 +2244,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 3,
     },
+    protectedHarm: { prevents: ['God Hook / God Component の発生', '変更理由の複数化'] },
     reviewPolicy: {
       owner: 'solo-maintainer',
       lastReviewedAt: '2026-04-08',
@@ -2492,6 +2535,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       effort: 'small',
       priority: 2,
     },
+    protectedHarm: { prevents: ['チャートにデータ取得責務が混入', 'テスト困難化'] },
     reviewPolicy: {
       owner: 'solo-maintainer',
       lastReviewedAt: '2026-04-08',

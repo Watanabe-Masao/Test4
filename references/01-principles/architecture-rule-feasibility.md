@@ -63,13 +63,85 @@ maturity lifecycle（experimental → stable → deprecated）と例外圧検出
 reviewPolicy（owner / lastReviewedAt / reviewCadenceDays）は、
 「正しさを疑い続ける制度」の実装である。
 
+### 7. ルールの価値は害の削減で測る
+
+> 良いルールとは、守られているルールではなく、害を減らしているルールである。
+> ルールの成熟は、定義の精密さやレビュー頻度ではなく、
+> 誤修正・再発・例外依存を実際に減らせているかで判断する。
+
+protectedHarm（このルールが防いでいる具体的な害）と
+efficacy 指標（高例外圧・renewal 合計・dormant ルール）は、
+「制度が整っているか」ではなく「制度が成果に結びついているか」を測る仕組みである。
+
 ### 整然さではなく現実適合
 
 整然としていることは価値ではない。現実に適合していることが価値である。
 ルールはコードを美しくするためではなく、
 誤判断・誤修正・誤集約を減らすために存在する。
 
-## 解決する課題
+## 残存する構造的抜け穴
+
+本システムは「法・監査・台帳」として成熟しているが、
+「感覚・学習・政治・代謝」にはまだ弱点がある。
+
+### 1. 「健康」と「目的達成」のズレ
+
+governance health（review overdue なし、baseline 内）は測れるが、
+プロダクト価値や開発成果との直結はまだ弱い。
+→ 将来: revert 率、再発率、incident-rule 対応などの Outcome Health 層
+
+### 2. 免疫系が新規性を攻撃する危険
+
+rule system は「壊す変更」だけでなく「見慣れない変更」も攻撃しうる。
+experimental + warn で緩和しているが、探索的な突然変異を潰すリスクは残る。
+→ 将来: quarantine mode（observation-only の隔離期間）
+
+### 3. review の儀式化
+
+lastReviewedAt は更新されるが中身を見ていない可能性。
+→ 将来: review を日付ではなく差分付き判断履歴（decision + rationale + evidence）に
+
+### 4. 例外の「身分化」
+
+active-debt が居座り、permanent が神聖化される。
+renewalCount はあるが、実際に消す圧力がまだ弱い。
+→ 将来: 退出予算（N 回延長で fail、M 日で escalation）
+
+### 5. 法律はあるが政治がない
+
+rule は優先順位の対立（correctness vs migration-speed vs local-simplicity）を内包するが、
+その調停制度がない。
+→ 将来: tradeoffPriority を rule に持たせる
+
+### 6. 記憶はあるが学習が弱い
+
+createdAt / reviewPolicy / health は記録に強いが、
+「前の失敗がどう rule に反映されたか」「rule が不要だったケース」の学習機構がない。
+→ 将来: incident-to-rule lineage（bornFromIncident / reinforcedBy / invalidatedBy）
+
+### 7. 中央統治に寄りすぎる
+
+局所的な痛みや工夫が中央に吸い上がるまで遅い。
+→ 将来: local adaptation channel（hotspot 自動エスカレーション）
+
+### 8. all-green の自己欺瞞
+
+指標は全部 OK だが現場はつらい、という状態を検出できない。
+→ 将来: green-but-painful audit（guard を通ったが苦しかった変更の収集）
+
+### 対処の優先順位
+
+上記 8 つは全て正しいが、全てを同時に入れると制度の複雑性が爆発する。
+対処順は以下の通り:
+
+1. **Evidence Governance**（protectedHarm + efficacy KPI）← **実装済み**
+2. review の差分化（decision log）
+3. 例外の退出予算
+4. Outcome Health 層
+5. tradeoffPriority
+6. quarantine mode
+7. incident-to-rule lineage
+8. local adaptation / green-but-painful audit
 
 **1 人 + AI 開発において、PR レビューアが不在の状態で
 アーキテクチャの設計品質をどう維持するか。**
