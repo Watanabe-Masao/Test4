@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-08T04:48:48.876Z",
+  "timestamp": "2026-04-08T05:31:28.989Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -443,9 +443,9 @@
       "id": "docs.obligation.violations",
       "label": "Doc 更新義務違反数",
       "category": "docs",
-      "value": 3,
+      "value": 0,
       "unit": "count",
-      "status": "fail",
+      "status": "ok",
       "owner": "documentation-steward",
       "docRefs": [
         {
@@ -472,7 +472,8 @@
       ],
       "implRefs": [
         "app/src/test/architectureRules.ts"
-      ]
+      ],
+      "budget": 84
     },
     {
       "id": "temporal.rules.sunsetCondition.count",
@@ -490,7 +491,8 @@
       ],
       "implRefs": [
         "app/src/test/architectureRules.ts"
-      ]
+      ],
+      "budget": 9
     },
     {
       "id": "temporal.rules.reviewOverdue.count",
@@ -504,7 +506,7 @@
       "implRefs": [
         "app/src/test/architectureRules.ts"
       ],
-      "budget": 5
+      "budget": 0
     },
     {
       "id": "temporal.rules.heuristicGate.count",
@@ -518,7 +520,7 @@
       "implRefs": [
         "app/src/test/architectureRules.ts"
       ],
-      "budget": 30
+      "budget": 27
     },
     {
       "id": "temporal.allowlist.activeDebt.count",
@@ -536,7 +538,7 @@
         "app/src/test/allowlists/size.ts",
         "app/src/test/allowlists/misc.ts"
       ],
-      "budget": 40
+      "budget": 33
     },
     {
       "id": "temporal.allowlist.activeDebt.withCreatedAt",
@@ -553,14 +555,15 @@
         "app/src/test/allowlists/responsibility.ts",
         "app/src/test/allowlists/size.ts",
         "app/src/test/allowlists/misc.ts"
-      ]
+      ],
+      "budget": 33
     }
   ],
   "summary": {
     "totalKpis": 25,
-    "ok": 24,
+    "ok": 25,
     "warn": 0,
-    "fail": 1,
-    "hardGatePass": false
+    "fail": 0,
+    "hardGatePass": true
   }
 }

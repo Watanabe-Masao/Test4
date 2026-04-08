@@ -18,6 +18,7 @@ import { collectFromGuards } from './collectors/guard-collector.js'
 import { collectFromDocs } from './collectors/doc-collector.js'
 import { collectFromBundle } from './collectors/bundle-collector.js'
 import { collectObligations } from './collectors/obligation-collector.js'
+import { collectFromTemporalGovernance } from './collectors/temporal-governance-collector.js'
 import { evaluate } from './evaluator.js'
 import {
   assessOverall,
@@ -43,6 +44,7 @@ const guardKpis = collectFromGuards(repoRoot)
 const docKpis = collectFromDocs(repoRoot)
 const bundleKpis = collectFromBundle(repoRoot)
 const obligationKpis = collectObligations(repoRoot)
+const temporalKpis = collectFromTemporalGovernance(repoRoot)
 
 const allKpis = [
   ...snapshotKpis,
@@ -50,6 +52,7 @@ const allKpis = [
   ...docKpis,
   ...bundleKpis,
   ...obligationKpis,
+  ...temporalKpis,
 ]
 console.log(`[docs:check] ${allKpis.length} KPIs collected`)
 
