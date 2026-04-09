@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-09T00:23:51.048Z
+> Generated: 2026-04-09T00:33:07.307Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -9,8 +9,8 @@
 | 指標 | 値 |
 |---|---|
 | Total KPIs | 24 |
-| OK | 24 |
-| WARN | 0 |
+| OK | 23 |
+| WARN | 1 |
 | FAIL | 0 |
 | Hard Gate | PASS |
 
@@ -21,8 +21,8 @@
 | allowlist.total | 許可リスト総エントリ数 | 13 / 20 | OK |
 | allowlist.frozen.nonZero | Frozen リスト非ゼロ | 0 / 0 | OK |
 | allowlist.active.count | Active リスト数 | 6 / 10 | OK |
-| temporal.allowlist.activeDebt.count | active-debt 例外数 | 1 / 1 | OK |
-| temporal.allowlist.activeDebt.withCreatedAt | active-debt で createdAt 設定済み | 1 / 1 | OK |
+| temporal.allowlist.activeDebt.count | active-debt 例外数 | 0 / 1 | OK |
+| temporal.allowlist.activeDebt.withCreatedAt | active-debt で createdAt 設定済み | 0 / 1 | WARN |
 | efficacy.allowlist.renewalTotal | renewalCount 合計 | 0 / 10 | OK |
 
 ## 後方互換負債

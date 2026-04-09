@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-09T00:23:51.048Z",
+  "timestamp": "2026-04-09T00:33:07.307Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -455,7 +455,7 @@
       "id": "temporal.allowlist.activeDebt.count",
       "label": "active-debt 例外数",
       "category": "allowlist",
-      "value": 1,
+      "value": 0,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -473,9 +473,9 @@
       "id": "temporal.allowlist.activeDebt.withCreatedAt",
       "label": "active-debt で createdAt 設定済み",
       "category": "allowlist",
-      "value": 1,
+      "value": 0,
       "unit": "count",
-      "status": "ok",
+      "status": "warn",
       "owner": "architecture",
       "docRefs": [],
       "implRefs": [
@@ -536,8 +536,8 @@
   ],
   "summary": {
     "totalKpis": 24,
-    "ok": 24,
-    "warn": 0,
+    "ok": 23,
+    "warn": 1,
     "fail": 0,
     "hardGatePass": true
   }

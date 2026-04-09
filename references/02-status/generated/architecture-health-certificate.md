@@ -4,10 +4,10 @@
 
 | 項目 | 値 |
 |---|---|
-| **総合評価** | **Healthy** |
+| **総合評価** | **Watch** |
 | 前回比 | Flat |
 | リリース影響 | No |
-| 最終更新 | 2026-04-09T00:23:51.048Z |
+| 最終更新 | 2026-04-09T00:33:07.307Z |
 
 ## Hard Gate
 
@@ -31,8 +31,19 @@
 | **境界健全性** | OK | Presentation→Infrastructure 違反: 0/0 / Infrastructure→Application 違反: 0/0 |
 | **ガード強度** | OK | ガードテストファイル数: 39/30 / レビュー専用タグ数: 0/5 |
 | **性能** | OK |  |
-| **Temporal Governance** | OK | review overdue ルール数: 0/0 / heuristic + gate ルール数: 32/32 / active-debt 例外数: 1/1 / reviewPolicy 設定済みルール数: 92/92 / sunsetCondition 設定済みルール数: 9/9 / active-debt で createdAt 設定済み: 1/1 |
+| **Temporal Governance** | WARN | review overdue ルール数: 0/0 / heuristic + gate ルール数: 32/32 / active-debt 例外数: 0/1 / reviewPolicy 設定済みルール数: 92/92 / sunsetCondition 設定済みルール数: 9/9 / active-debt で createdAt 設定済み: 0/1 |
 | **Rule Efficacy** | OK | protectedHarm 設定済みルール数: 33 / 高例外圧ルール数（≥10 件）: 0/3 / renewalCount 合計: 0/10 |
+
+## Top Risks
+
+**1. active-debt で createdAt 設定済み**
+- 状態: 0 / budget 1（-100% 超過）
+- ファイル: `app/src/test/allowlists/architecture.ts`
+- 定義書: `—`
+
+## Recommended Actions
+
+1. active-debt で createdAt 設定済み を 0 → 1 に削減する（残 -1）
 
 ---
 

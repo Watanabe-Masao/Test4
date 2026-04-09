@@ -2,18 +2,9 @@ import { useState, useMemo } from 'react'
 import { useCalculation } from '@/application/hooks/calculation'
 import { useStoreSelection } from '@/application/hooks/ui'
 import { useSettingsStore } from '@/application/stores/settingsStore'
-import {
-  aggregateFlows,
-  buildTransferPivot,
-  aggregateByItem,
-  aggregateByAccount,
-  buildPurchasePivot,
-  buildFlowGroups,
-  buildPairDailyData,
-  calculateDailyTotals,
-  buildItemDetailData,
-  buildDailyCostInclusionData,
-} from './useCostDetailData.helpers'
+import { buildPurchasePivot } from './useCostDetailData.helpers'
+import { useCostDetailTransfer } from './useCostDetailTransfer'
+import { useCostDetailCostInclusion } from './useCostDetailCostInclusion'
 import type { ActiveTab, TransferType, CostInclusionViewMode } from './useCostDetailData.types'
 
 // Re-export types for external consumers
@@ -64,35 +55,17 @@ export function useCostDetailData() {
     [currentResult],
   )
 
-  // ─── Transfer data ──────────────────────────────────
+  // ─── Transfer data (delegated) ───���─────────────────
   const isInterStore = transferType === 'interStore'
   const inField = isInterStore ? ('interStoreIn' as const) : ('interDepartmentIn' as const)
   const outField = isInterStore ? ('interStoreOut' as const) : ('interDepartmentOut' as const)
 
-  const { flows, groupedFlows, maxFlowCost } = useMemo(() => {
-    const f = days.length > 0 ? aggregateFlows(days, inField, outField, stores) : []
-    return {
-      flows: f,
-      groupedFlows: buildFlowGroups(f),
-      maxFlowCost: f.length === 0 ? 1 : Math.max(...f.map((v) => Math.abs(v.cost)), 1),
-    }
-  }, [days, inField, outField, stores])
+  const { flows, groupedFlows, maxFlowCost, pairDailyData, dailyTotals, transferPivot } =
+    useCostDetailTransfer(days, inField, outField, stores, selectedPair)
 
-  const pairDailyData = useMemo(
-    () => buildPairDailyData(selectedPair, days, inField, outField),
-    [selectedPair, days, inField, outField],
-  )
-
-  const dailyTotals = useMemo(
-    () => calculateDailyTotals(days, inField, outField),
-    [days, inField, outField],
-  )
-
-  // ─── Transfer pivot data (store × date matrix) ──────
-  const transferPivot = useMemo(
-    () => buildTransferPivot(days, inField, outField, stores),
-    [days, inField, outField, stores],
-  )
+  // ─��─ CostInclusion data (delegated) ────────────────
+  const { itemAggregates, accountAggregates, itemDetailData, dailyCostInclusionData } =
+    useCostDetailCostInclusion(days, selectedItem, selectedResults, stores)
 
   // ─── Purchase pivot data (category × date matrix) ──
   const purchasePivot = useMemo(
@@ -100,18 +73,7 @@ export function useCostDetailData() {
     [days, settings.supplierCategoryMap, settings.userCategoryLabels],
   )
 
-  // ─── CostInclusion data ────────────────────────────────
-  const { itemAggregates, accountAggregates } = useMemo(() => {
-    const items = aggregateByItem(days)
-    return { itemAggregates: items, accountAggregates: aggregateByAccount(items) }
-  }, [days])
-
-  const itemDetailData = useMemo(
-    () => buildItemDetailData(selectedItem, selectedResults, stores),
-    [selectedItem, selectedResults, stores],
-  )
-
-  // ─── Derived values (computed once per render) ──────
+  // ──��� Derived values (computed once per render) ──────
   const typeIn = currentResult
     ? isInterStore
       ? currentResult.transferDetails.interStoreIn
@@ -137,11 +99,9 @@ export function useCostDetailData() {
   const maxItemCost = itemAggregates.length > 0 ? itemAggregates[0].totalCost : 1
   const maxAccountCost = accountAggregates.length > 0 ? accountAggregates[0].totalCost : 1
 
-  const dailyCostInclusionData = useMemo(() => buildDailyCostInclusionData(days), [days])
-
   const hasCostInclusionData = totalCostInclusionAmount > 0 || itemAggregates.length > 0
 
-  // ─── Handlers ───────────────────────────────────────
+  // ─── Handlers ───────────���───────────────────────────
   const handleTransferTypeChange = (type: TransferType) => {
     setTransferType(type)
     setSelectedPair(null)
