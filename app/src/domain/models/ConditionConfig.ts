@@ -37,6 +37,8 @@ export type ConditionMetricId =
   | 'totalCost'
   | 'requiredPace'
   | 'dailySales'
+  | 'qtyCustomerGap'
+  | 'amtCustomerGap'
 
 /** メトリクスレジストリエントリ（コード内定義、不変） */
 export interface ConditionMetricDef {

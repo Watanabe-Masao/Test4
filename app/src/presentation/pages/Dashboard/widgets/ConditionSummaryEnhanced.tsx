@@ -59,6 +59,8 @@ const YOY_DRILL_IDS: ReadonlySet<string> = new Set([
   'totalCost',
   'qtyCustomerGap',
   'amtCustomerGap',
+  'qtyCustomerGap',
+  'amtCustomerGap',
 ])
 
 // ─── Component ──────────────────────────────────────────

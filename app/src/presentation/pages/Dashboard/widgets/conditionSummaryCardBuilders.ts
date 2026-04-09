@@ -474,7 +474,12 @@ export function buildYoYCards(input: BuildYoYCardsInput): readonly YoYCardSummar
   }
 
   // 総仕入前年比
-  if (r.totalCost > 0 && prevYearTotalCost != null && prevYearTotalCost > 0) {
+  if (
+    isMetricEnabled(config, 'totalCost') &&
+    r.totalCost > 0 &&
+    prevYearTotalCost != null &&
+    prevYearTotalCost > 0
+  ) {
     const costYoY = r.totalCost / prevYearTotalCost
     cards.push({
       key: 'totalCost',
@@ -489,6 +494,7 @@ export function buildYoYCards(input: BuildYoYCardsInput): readonly YoYCardSummar
 
   // 前年比客数GAP（点数・金額）— 正本関数 calculateCustomerGap 経由
   if (
+    isMetricEnabled(config, 'qtyCustomerGap') &&
     prevYear.hasPrevYear &&
     curTotalCustomers > 0 &&
     prevTotalCustomers > 0 &&
@@ -510,7 +516,7 @@ export function buildYoYCards(input: BuildYoYCardsInput): readonly YoYCardSummar
         label: '点数客数GAP',
         value: fmtGap(gap.quantityCustomerGap),
         sub: `点数${formatPercent(gap.quantityYoY)} − 客数${formatPercent(gap.customerYoY)}`,
-        signalColor: gap.quantityCustomerGap >= 0 ? SIGNAL_COLORS.blue : SIGNAL_COLORS.red,
+        signalColor: SIGNAL_COLORS[metricSignal(gap.quantityCustomerGap, 'qtyCustomerGap', config)],
         metricId: null,
         detailBreakdown: 'qtyCustomerGap',
       })
@@ -519,7 +525,7 @@ export function buildYoYCards(input: BuildYoYCardsInput): readonly YoYCardSummar
         label: '金額客数GAP',
         value: fmtGap(gap.amountCustomerGap),
         sub: `金額${formatPercent(gap.salesYoY)} − 客数${formatPercent(gap.customerYoY)}`,
-        signalColor: gap.amountCustomerGap >= 0 ? SIGNAL_COLORS.blue : SIGNAL_COLORS.red,
+        signalColor: SIGNAL_COLORS[metricSignal(gap.amountCustomerGap, 'amtCustomerGap', config)],
         metricId: null,
         detailBreakdown: 'amtCustomerGap',
       })
