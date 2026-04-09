@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-09T08:59:39.575Z
+> Generated: 2026-04-09T09:30:01.559Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -70,7 +70,7 @@
 |---|---|---|---|
 | docs.obsoleteTerms.count | 廃止用語残存数 | 0 / 0 | OK |
 | docs.generatedSections.stale | Generated section 未更新 | 0 / 0 | OK |
-| docs.obligation.violations | Doc 更新義務違反数 | 1 / 0 | FAIL |
+| docs.obligation.violations | Doc 更新義務違反数 | 2 / 0 | FAIL |
 
 ## バンドル性能
 

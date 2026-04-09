@@ -19,7 +19,14 @@ const SRC_DIR = path.resolve(__dirname, '../..')
 const rule = getRuleById('AR-DOC-STATIC-NUMBER')!
 
 // ── 4 層の必須ディレクトリ ────────────────────────────────────
-const REQUIRED_LAYER_DIRS = ['domain', 'application', 'infrastructure', 'presentation', 'features', 'test']
+const REQUIRED_LAYER_DIRS = [
+  'domain',
+  'application',
+  'infrastructure',
+  'presentation',
+  'features',
+  'test',
+]
 
 // ── allowlists/ の必須ファイル ────────────────────────────────
 const REQUIRED_ALLOWLIST_FILES = [

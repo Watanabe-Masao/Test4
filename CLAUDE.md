@@ -608,8 +608,9 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 **Next:**
 - Doc 更新義務違反数 を budget 0 以下に修正する
 - active-debt で createdAt 設定済み を 0 → 1 に削減する（残 -1）
+- Doc 更新義務違反数 が悪化（1 → 2）— 原因を調査する
 
-> 生成: 2026-04-09T08:59:39.575Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-09T09:30:01.559Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）

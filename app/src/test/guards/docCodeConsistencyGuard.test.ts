@@ -121,7 +121,9 @@ describe('Doc-Code Consistency Guard: 定義書と実装の整合性', () => {
       }
 
       // ディレクトリ内のファイルを走査（ファイル名 or 関数宣言で検索）
-      const files = fs.readdirSync(searchDir).filter((f) => f.endsWith('.ts') && !f.includes('.test.'))
+      const files = fs
+        .readdirSync(searchDir)
+        .filter((f) => f.endsWith('.ts') && !f.includes('.test.'))
       let found = false
       for (const file of files) {
         // ファイル名に関数名を含む（readSalesFact.ts 等）
