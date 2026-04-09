@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-09T11:26:49.571Z",
+  "timestamp": "2026-04-09T11:55:54.834Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -427,7 +427,7 @@
       "id": "perf.bundle.totalJsKb",
       "label": "JS バンドル合計サイズ",
       "category": "bundle_perf",
-      "value": 6495,
+      "value": 6496,
       "unit": "kb",
       "status": "ok",
       "owner": "architecture",
@@ -447,7 +447,7 @@
       "id": "perf.bundle.mainJsKb",
       "label": "メインバンドルサイズ",
       "category": "bundle_perf",
-      "value": 2224,
+      "value": 2225,
       "unit": "kb",
       "status": "ok",
       "owner": "architecture",
@@ -498,7 +498,7 @@
       "id": "docs.obligation.violations",
       "label": "Doc 更新義務違反数",
       "category": "docs",
-      "value": 2,
+      "value": 1,
       "unit": "count",
       "status": "fail",
       "owner": "documentation-steward",
