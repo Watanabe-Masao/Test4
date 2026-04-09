@@ -3882,10 +3882,10 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
   {
     id: 'AR-DOC-STATIC-NUMBER',
     principleRefs: ['G1'],
-    ruleClass: 'heuristic',
+    ruleClass: 'default',
     guardTags: ['G1', 'F8'],
     slice: 'governance-ops',
-    fixNow: 'review',
+    fixNow: 'now',
     epoch: 1,
     doc: 'references/01-principles/adaptive-architecture-governance.md',
     what: '文書中のハードコード数値は generated section か例外リストで管理する',
