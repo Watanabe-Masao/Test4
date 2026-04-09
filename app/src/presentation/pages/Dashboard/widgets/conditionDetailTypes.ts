@@ -47,6 +47,8 @@ export interface CustomerYoYDetailProps extends DetailPanelProps {
 export interface TxValueDetailProps extends DetailPanelProps {
   readonly expandedStore: string | null
   readonly onExpandToggle: (storeId: string) => void
+  readonly storeCustomerMap?: ReadonlyMap<string, number>
+  readonly grandTotalCustomers?: number
 }
 
 export interface DailySalesDetailProps extends DetailPanelProps {

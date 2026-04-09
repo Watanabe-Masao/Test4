@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-08T21:51:44.003Z
+> Generated: 2026-04-09T00:49:58.340Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -10,9 +10,9 @@
 |---|---|
 | Total KPIs | 28 |
 | OK | 27 |
-| WARN | 0 |
-| FAIL | 1 |
-| Hard Gate | FAIL |
+| WARN | 1 |
+| FAIL | 0 |
+| Hard Gate | PASS |
 
 ## 許可リスト
 
@@ -21,8 +21,8 @@
 | allowlist.total | 許可リスト総エントリ数 | 13 / 20 | OK |
 | allowlist.frozen.nonZero | Frozen リスト非ゼロ | 0 / 0 | OK |
 | allowlist.active.count | Active リスト数 | 6 / 10 | OK |
-| temporal.allowlist.activeDebt.count | active-debt 例外数 | 1 / 1 | OK |
-| temporal.allowlist.activeDebt.withCreatedAt | active-debt で createdAt 設定済み | 1 / 1 | OK |
+| temporal.allowlist.activeDebt.count | active-debt 例外数 | 0 / 1 | OK |
+| temporal.allowlist.activeDebt.withCreatedAt | active-debt で createdAt 設定済み | 0 / 1 | WARN |
 | efficacy.allowlist.renewalTotal | renewalCount 合計 | 0 / 10 | OK |
 
 ## 後方互換負債
@@ -66,7 +66,7 @@
 |---|---|---|---|
 | docs.obsoleteTerms.count | 廃止用語残存数 | 0 / 0 | OK |
 | docs.generatedSections.stale | Generated section 未更新 | 0 / 0 | OK |
-| docs.obligation.violations | Doc 更新義務違反数 | 2 / 0 | FAIL |
+| docs.obligation.violations | Doc 更新義務違反数 | 0 / 0 | OK |
 
 ## バンドル性能
 

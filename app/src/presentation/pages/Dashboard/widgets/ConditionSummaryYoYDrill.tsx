@@ -15,7 +15,8 @@ import {
 } from './conditionPanelYoY'
 import { TxValueDetailTable } from './conditionPanelSalesDetail'
 import { CustomerGapDetailTable } from './conditionPanelCustomerGap'
-import { extractPrevYearCustomerCount, type DisplayMode } from './conditionSummaryUtils'
+import type { DisplayMode } from './conditionSummaryUtils'
+import { extractPrevYearCustomerCount } from '@/features/comparison'
 import { toStoreCustomerRows } from '@/application/readModels/customerFact'
 import {
   DrillOverlay,

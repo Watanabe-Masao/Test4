@@ -11,8 +11,8 @@ import {
   type DisplayMode,
   SIGNAL_COLORS,
   metricSignal,
-  extractPrevYearCustomerCount,
 } from './conditionSummaryUtils'
+import { extractPrevYearCustomerCount } from '@/features/comparison'
 import { toStoreCustomerRows } from '@/application/readModels/customerFact'
 import {
   Wrapper,

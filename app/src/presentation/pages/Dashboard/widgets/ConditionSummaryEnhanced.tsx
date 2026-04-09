@@ -17,7 +17,7 @@ import {
   computeTrend,
   computeRateTrend,
 } from './ConditionSummaryEnhanced.vm'
-import { extractPrevYearCustomerCount } from './conditionSummaryUtils'
+import { extractPrevYearCustomerCount } from '@/features/comparison'
 import { formatPercent } from '@/domain/formatting'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
 import { useSettingsStore } from '@/application/stores/settingsStore'

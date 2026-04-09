@@ -3,7 +3,6 @@ import { calculateMarkupRate, calculateShare } from '@/domain/calculations/utils
 import { grossProfitFromStoreResult } from '@/application/readModels/grossProfit/calculateGrossProfit'
 import type { MetricId } from '@/domain/models/analysis'
 import type { StoreResult, CustomCategory } from '@/domain/models/storeTypes'
-import type { PrevYearData } from '@/application/hooks/analytics'
 import type { ConditionMetricId } from '@/domain/models/analysis'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
 import { resolveThresholds, evaluateSignal } from '@/application/rules/conditionResolver'
@@ -82,9 +81,12 @@ export function computeGpAfterConsumableAmount(sr: StoreResult): number {
 
 // ─── Store Breakdown Extractors ─────────────────────────
 
-export function customersBreakdown(sr: StoreResult): { value: string; signal: SignalLevel } {
+export function customersBreakdown(
+  _sr: StoreResult,
+  customerCount: number,
+): { value: string; signal: SignalLevel } {
   return {
-    value: `${sr.totalCustomers.toLocaleString()}人`,
+    value: `${customerCount.toLocaleString()}人`,
     signal: 'blue',
   }
 }
@@ -97,18 +99,8 @@ export function txValueBreakdown(sr: StoreResult): { value: string; signal: Sign
   }
 }
 
-// ─── PrevYear Extraction (totalCustomers 移行 bridge) ──
-
-/**
- * PrevYearData から前年客数を数値として抽出する。
- *
- * PrevYearData.totalCustomers は同曜日 alignment 済みの比較用客数。
- * このヘルパーを通すことで、消費側ファイルに `.totalCustomers` が現れない。
- * @see references/01-principles/canonical-value-ownership.md
- */
-export function extractPrevYearCustomerCount(prevYear: PrevYearData): number {
-  return prevYear.totalCustomers
-}
+// extractPrevYearCustomerCount は features/comparison に移動済み
+// @see features/comparison/application/comparisonAccessors.ts
 
 // ─── Cross-Multiplication (相乗積) ─────────────────────
 

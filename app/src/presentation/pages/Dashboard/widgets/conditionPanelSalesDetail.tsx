@@ -52,11 +52,21 @@ export function TxValueDetailTable({
   result,
   expandedStore,
   onExpandToggle,
+  storeCustomerMap,
+  grandTotalCustomers,
 }: TxValueDetailProps) {
   const { format: fmtCurrency } = useCurrencyFormat()
   const vm = useMemo(
-    () => buildTxValueDetailVm(sortedStoreEntries, stores, result, fmtCurrency),
-    [sortedStoreEntries, stores, result, fmtCurrency],
+    () =>
+      buildTxValueDetailVm(
+        sortedStoreEntries,
+        stores,
+        result,
+        fmtCurrency,
+        storeCustomerMap,
+        grandTotalCustomers,
+      ),
+    [sortedStoreEntries, stores, result, fmtCurrency, storeCustomerMap, grandTotalCustomers],
   )
 
   const TX_COLS = '1.2fr 1fr 1fr 1fr'
@@ -71,7 +81,7 @@ export function TxValueDetailTable({
           </TotalCell>
           <TotalCell $align="center">
             <SmallLabel>客数</SmallLabel>
-            <BigValue>{vm.totalCustomersStr}</BigValue>
+            <BigValue>{vm.totalCustStr}</BigValue>
           </TotalCell>
           <TotalCell $align="right">
             <SmallLabel>客単価</SmallLabel>

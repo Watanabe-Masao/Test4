@@ -13,7 +13,7 @@ import {
   getEffectiveGrossProfit,
 } from '@/application/readModels/grossProfit'
 import type { WidgetContext } from './types'
-import { extractPrevYearCustomerCount } from './conditionSummaryUtils'
+import { extractPrevYearCustomerCount } from '@/features/comparison'
 import {
   ExecGrid,
   ExecColumn,

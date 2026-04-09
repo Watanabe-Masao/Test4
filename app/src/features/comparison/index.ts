@@ -16,7 +16,11 @@ export type {
 } from './application/comparisonTypes'
 
 // 公開 API: アクセサ
-export { getPrevYearDailyValue, getPrevYearDailySales } from './application/comparisonAccessors'
+export {
+  getPrevYearDailyValue,
+  getPrevYearDailySales,
+  extractPrevYearCustomerCount,
+} from './application/comparisonAccessors'
 
 // 公開 API: ViewModel
 export {

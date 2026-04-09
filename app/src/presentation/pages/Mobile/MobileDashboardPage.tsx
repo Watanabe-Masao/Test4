@@ -10,7 +10,7 @@ import { useCalculation } from '@/application/hooks/calculation'
 import { useStoreSelection, useMonthSwitcher } from '@/application/hooks/ui'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { usePeriodSelectionStore } from '@/application/stores/periodSelectionStore'
-import { useComparisonModule } from '@/application/hooks/useComparisonModule'
+import { useComparisonModule, extractPrevYearCustomerCount } from '@/features/comparison'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import { KpiTabContent } from './KpiTabContent'
 import { ChartTabContent } from './ChartTabContent'
@@ -55,6 +55,14 @@ export function MobileDashboardPage() {
   const { isSwitching, goToPrevMonth, goToNextMonth } = useMonthSwitcher()
   const { targetYear, targetMonth } = settings
   const r = currentResult
+
+  // daily から客数集計（CustomerFact 正本ではないが Mobile では十分）
+  const curTotalCustomers = useMemo(() => {
+    if (!r) return 0
+    let sum = 0
+    for (const [, rec] of r.daily) sum += rec.customers ?? 0
+    return sum
+  }, [r])
 
   // 日別売上データ
   const dailySalesData = useMemo(() => {
@@ -163,8 +171,8 @@ export function MobileDashboardPage() {
             elapsedBudget={elapsedBudget}
             prevYear={prevYear}
             settings={settings}
-            curTotalCustomers={r.totalCustomers}
-            prevTotalCustomers={prevYear.totalCustomers}
+            curTotalCustomers={curTotalCustomers}
+            prevTotalCustomers={extractPrevYearCustomerCount(prevYear)}
           />
         )}
 
