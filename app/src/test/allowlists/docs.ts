@@ -75,6 +75,11 @@ export const DOC_STATIC_NUMBER_EXCEPTIONS: readonly DocStaticNumberException[] =
     pattern: '第 8 原則',
     reason: '序数: 原則の番号であり件数ではない',
   },
+  {
+    fileName: 'adaptive-architecture-governance.md',
+    pattern: '第 9 原則',
+    reason: '序数: 原則の番号であり件数ではない',
+  },
 
   // ── aag-operational-classification.md: 運用区分見出し ──
   // これらはセクション見出しに含まれるルール数。

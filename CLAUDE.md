@@ -609,7 +609,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 - Doc 更新義務違反数 を budget 0 以下に修正する
 - active-debt で createdAt 設定済み を 0 → 1 に削減する（残 -1）
 
-> 生成: 2026-04-09T08:50:46.030Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-09T08:59:39.575Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）
@@ -663,7 +663,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 - **Architecture Rule 昇華（2026-04-07）**: 84 ルール / 全 39 ガード統合 / 全ルールに migrationPath + doc + decisionCriteria。maturity（experimental/stable/deprecated）+ 例外圧検出 + ratchet-down 自動進行。全 guard タグ（50+）をルールでカバー。27 ドキュメント双方向リンク。allowlist に ruleId フィールド追加。運用ガイド: `references/03-guides/architecture-rule-system.md`
 - **Temporal Governance（2026-04-07）**: reviewPolicy（owner/lastReviewedAt/reviewCadenceDays）でルールに時計を持たせる。ruleClass（invariant/default/heuristic）+ confidence + sunsetCondition + lifecyclePolicy。「疑い、捨て、置き換える」思想を制度化。allowlist に createdAt/expiresAt/renewalCount
 - **AAG v3.2.0（2026-04-09）**: principles.json 正本昇格（原則メタデータ追加）。Principle Coverage 50/50 達成 + 双方向リンク検証テスト 3 件追加。Active-debt 0 達成（useCostDetailData sub-hook 分離）。totalCustomers allowlist 7→0（presentation 層から完全排除）。Fix hints 4→17。Discovery Review チェックリスト作成。Pre-commit hook slice 別サマリ
-- **AAG v4.3.0（2026-04-09）**: 統一レスポンス（renderAagResponse）を全入口（guard/obligation/pre-commit）に適用。fixNow をラベルから分岐ロジックに昇格（now=修正手順/debt=allowlist誘導/review=Discovery Review）。SLICE_GUIDANCE で 5 スライスに 1 行誘導文。入口品質の自己監視テスト 2 件。guard-collector に総ルール数 + fixNow 分布 KPI 追加
+- **AAG v4.3.0（2026-04-09）**: 統一レスポンス（renderAagResponse）を全入口（guard/obligation/pre-commit）に適用。fixNow をラベルから分岐ロジックに昇格（now=修正手順/debt=allowlist誘導/review=Discovery Review）。SLICE_GUIDANCE で 5 スライスに 1 行誘導文。入口品質の自己監視テスト 2 件。guard-collector に総ルール数 + fixNow 分布 KPI 追加。第 9 原則「ドキュメント自体が品質管理対象」: doc-registry.json（94 文書）+ docRegistryGuard + docCodeConsistencyGuard + docStaticNumberGuard + projectStructureGuard。obligation で references/ 新文書追加時の doc-registry.json 更新を入口で強制
 
 ## Explanation（説明責任）
 
