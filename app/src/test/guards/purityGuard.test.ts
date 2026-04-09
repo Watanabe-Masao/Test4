@@ -425,6 +425,33 @@ describe('C3 拡張: store に storage 副作用を持ち込まない', () => {
         '\n  → store は state 反映のみ。永続化は uiPersistenceAdapter 経由で外部から行ってください。',
     ).toEqual([])
   })
+
+  it('persist を使う store は createUiPersistOptions または STORAGE_KEYS を import していること', () => {
+    const files = collectTsFiles(storesDir)
+    const violations: string[] = []
+
+    for (const file of files) {
+      const content = fs.readFileSync(file, 'utf-8')
+      // persist を import していないファイルはスキップ
+      if (!/\bpersist\b/.test(content)) continue
+      // persist を import しているが実際に使っていない場合もスキップ
+      if (!/\bpersist\s*\(/.test(content)) continue
+
+      const hasAdapterImport =
+        content.includes('createUiPersistOptions') || content.includes('STORAGE_KEYS')
+      if (!hasAdapterImport) {
+        violations.push(
+          `${rel(file)}: persist() を使用していますが uiPersistenceAdapter (createUiPersistOptions / STORAGE_KEYS) を import していません`,
+        )
+      }
+    }
+
+    expect(
+      violations,
+      formatViolationMessage(rule, violations) +
+        '\n  → persist store は createUiPersistOptions(STORAGE_KEYS.XXX) 経由で永続化してください。',
+    ).toEqual([])
+  })
 })
 
 // ─── D3: 率メトリクスの累計は原量から再計算（率の合算禁止） ──

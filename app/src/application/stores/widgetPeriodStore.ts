@@ -16,6 +16,7 @@
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
 import type { DateRange } from '@/domain/models/CalendarDate'
+import { createUiPersistOptions, STORAGE_KEYS } from '@/application/adapters/uiPersistenceAdapter'
 
 /** ウィジェット個別の期間オーバーライド設定 */
 export interface WidgetPeriodOverride {
@@ -94,7 +95,7 @@ export const useWidgetPeriodStore = create<WidgetPeriodStore>()(
         resetAll: () => set({ overrides: new Map() }, false, 'resetAll'),
       }),
       {
-        name: 'shiire-arari-widget-period-overrides',
+        ...createUiPersistOptions(STORAGE_KEYS.WIDGET_PERIOD_OVERRIDES),
         partialize: (state) => {
           // Map → Object for JSON serialization
           const obj: Record<string, WidgetPeriodOverride> = {}

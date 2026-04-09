@@ -4,6 +4,7 @@ import { devtools, persist } from 'zustand/middleware'
 import type { AppSettings, CustomCategory } from '@/domain/models/storeTypes'
 import { createDefaultSettings } from '@/domain/constants/defaults'
 import { LEGACY_LABEL_TO_ID } from '@/domain/constants/customCategories'
+import { createUiPersistOptions, STORAGE_KEYS } from '@/application/adapters/uiPersistenceAdapter'
 
 /** 旧ラベル（日本語）→ 新ID への自動マイグレーション */
 function migrateSupplierCategoryMap(
@@ -49,7 +50,7 @@ export const useSettingsStore = create<SettingsStore>()(
         reset: () => set({ settings: createDefaultSettings() }, false, 'reset'),
       }),
       {
-        name: 'shiire-arari-settings',
+        ...createUiPersistOptions(STORAGE_KEYS.SETTINGS),
         partialize: (state) => {
           // targetYear/targetMonth は persist しない（起動時は常に当月）
           const persisted = { ...state.settings }

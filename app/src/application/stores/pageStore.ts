@@ -10,7 +10,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { z } from 'zod'
-import { STORAGE_KEYS } from '@/application/adapters/uiPersistenceAdapter'
+import { createUiPersistOptions, STORAGE_KEYS } from '@/application/adapters/uiPersistenceAdapter'
 
 export interface CustomPage {
   /** 一意識別子 */
@@ -79,7 +79,7 @@ export const usePageStore = create<PageStoreState>()(
       },
     }),
     {
-      name: STORAGE_KEYS.CUSTOM_PAGES,
+      ...createUiPersistOptions(STORAGE_KEYS.CUSTOM_PAGES),
       merge: (persisted, current) => {
         const stored = persisted as { pages?: unknown }
         if (!stored?.pages) return current

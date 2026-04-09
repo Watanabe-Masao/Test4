@@ -592,7 +592,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 詳細レポート: `references/02-status/generated/architecture-health.md`
 
 <!-- GENERATED:START architecture-health-summary -->
-**Watch** | 前回比: Improved | Hard Gate: PASS
+**Watch** | 前回比: Flat | Hard Gate: PASS
 
 | 指標 | 状態 | 詳細 |
 |---|---|---|
@@ -608,7 +608,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 **Next:**
 - active-debt で createdAt 設定済み を 0 → 1 に削減する（残 -1）
 
-> 生成: 2026-04-09T11:58:33.350Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-09T18:00:47.402Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）

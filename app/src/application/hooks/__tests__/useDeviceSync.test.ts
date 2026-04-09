@@ -1,66 +1,104 @@
 /**
  * useDeviceSync テスト
  *
- * decodeSettingsCode の Zod バリデーションと encodeSettingsCode の往復検証。
+ * decodeSettingsCode / encodeSettingsCode の実挙動を直接検証する。
  */
 import { describe, it, expect } from 'vitest'
+import { decodeSettingsCode, encodeSettingsCode } from '../useDeviceSync'
+import { createDefaultSettings } from '@/domain/constants/defaults'
 
-// 内部関数をテストするため、モジュールから直接 import できないので
-// エンコード・デコードのロジックを再現してテストする
+describe('decodeSettingsCode', () => {
+  it('正常な設定コードをデコードして Partial<AppSettings> を返す', () => {
+    const settings = createDefaultSettings()
+    const { code } = encodeSettingsCode(settings)
+    const decoded = decodeSettingsCode(code)
 
-const SETTINGS_CODE_PREFIX = 'SHIIRE_SETTINGS:'
-
-function unicodeToBase64(str: string): string {
-  const bytes = new TextEncoder().encode(str)
-  let binary = ''
-  for (const b of bytes) {
-    binary += String.fromCharCode(b)
-  }
-  return btoa(binary)
-}
-
-function makeCode(obj: unknown): string {
-  return SETTINGS_CODE_PREFIX + unicodeToBase64(JSON.stringify(obj))
-}
-
-// importFromText のテストのため、フック内部の decodeSettingsCode を間接的にテストする
-// decodeSettingsCode は export されていないので、エンコード結果を直接渡す
-
-describe('useDeviceSync — decodeSettingsCode バリデーション', () => {
-  it('正常な設定コードがプレフィックス付きで生成される', () => {
-    const validSettings = {
-      targetGrossProfitRate: 0.25,
-      warningThreshold: 0.23,
-      defaultBudget: 6450000,
-    }
-    const code = makeCode(validSettings)
-    expect(code.startsWith(SETTINGS_CODE_PREFIX)).toBe(true)
+    expect(decoded.targetGrossProfitRate).toBe(0.25)
+    expect(decoded.defaultBudget).toBe(6_450_000)
+    expect(decoded.alignmentPolicy).toBe('sameDayOfWeek')
   })
 
-  it('不正なプレフィックスを持つコードは拒否されるべき形式', () => {
-    const badCode = 'INVALID_PREFIX:' + unicodeToBase64('{}')
-    expect(badCode.startsWith(SETTINGS_CODE_PREFIX)).toBe(false)
+  it('targetYear / targetMonth はエンコード時に除外される', () => {
+    const settings = createDefaultSettings()
+    const { code } = encodeSettingsCode(settings)
+    const decoded = decodeSettingsCode(code)
+
+    expect(decoded).not.toHaveProperty('targetYear')
+    expect(decoded).not.toHaveProperty('targetMonth')
   })
 
-  it('配列をエンコードした場合でもプレフィックスは付くが型チェックで弾かれるべき', () => {
-    const code = makeCode([1, 2, 3])
-    expect(code.startsWith(SETTINGS_CODE_PREFIX)).toBe(true)
-    // decodeSettingsCode 内で Array.isArray チェックにより reject される
+  it('未知キーは Zod によりストリップされる', () => {
+    const settings = createDefaultSettings()
+    const transferable: Record<string, unknown> = { ...settings, unknownField: 'bad' }
+    delete transferable.targetYear
+    delete transferable.targetMonth
+    const json = JSON.stringify(transferable)
+    const bytes = new TextEncoder().encode(json)
+    let binary = ''
+    for (const b of bytes) binary += String.fromCharCode(b)
+    const code = 'SHIIRE_SETTINGS:' + btoa(binary)
+
+    const decoded = decodeSettingsCode(code)
+    expect(decoded).not.toHaveProperty('unknownField')
+    expect(decoded.targetGrossProfitRate).toBe(0.25)
   })
 
-  it('未知キーのみのオブジェクトは空オブジェクトにストリップされる', () => {
-    // Zod .partial() は未知キーを strip するため、
-    // 未知キーのみの場合は {} が返される
-    const unknownOnly = { unknownField: 'value', anotherUnknown: 42 }
-    const code = makeCode(unknownOnly)
-    expect(code.startsWith(SETTINGS_CODE_PREFIX)).toBe(true)
+  it('不正なプレフィックスで Error をスローする', () => {
+    expect(() => decodeSettingsCode('INVALID:abc')).toThrow('SHIIRE_SETTINGS:')
   })
 
-  it('型不一致のフィールドは Zod で reject される', () => {
-    // targetGrossProfitRate に string を入れると Zod が reject する
-    const badTypes = { targetGrossProfitRate: 'not-a-number' }
-    const code = makeCode(badTypes)
-    expect(code.startsWith(SETTINGS_CODE_PREFIX)).toBe(true)
-    // decodeSettingsCode 内の Zod safeParse が失敗してエラーを投げる
+  it('配列を渡すと Error をスローする', () => {
+    const json = JSON.stringify([1, 2, 3])
+    const bytes = new TextEncoder().encode(json)
+    let binary = ''
+    for (const b of bytes) binary += String.fromCharCode(b)
+    const code = 'SHIIRE_SETTINGS:' + btoa(binary)
+
+    expect(() => decodeSettingsCode(code)).toThrow('不正')
+  })
+
+  it('型不一致フィールドがあると Error をスローする', () => {
+    const json = JSON.stringify({ targetGrossProfitRate: 'not-a-number' })
+    const bytes = new TextEncoder().encode(json)
+    let binary = ''
+    for (const b of bytes) binary += String.fromCharCode(b)
+    const code = 'SHIIRE_SETTINGS:' + btoa(binary)
+
+    expect(() => decodeSettingsCode(code)).toThrow('不正')
+  })
+
+  it('壊れた Base64 で Error をスローする', () => {
+    expect(() => decodeSettingsCode('SHIIRE_SETTINGS:!!!invalid-base64!!!')).toThrow()
+  })
+
+  it('空オブジェクトは空の Partial を返す（エラーにならない）', () => {
+    const json = JSON.stringify({})
+    const bytes = new TextEncoder().encode(json)
+    let binary = ''
+    for (const b of bytes) binary += String.fromCharCode(b)
+    const code = 'SHIIRE_SETTINGS:' + btoa(binary)
+
+    const decoded = decodeSettingsCode(code)
+    expect(Object.keys(decoded)).toHaveLength(0)
+  })
+})
+
+describe('encodeSettingsCode', () => {
+  it('プレフィックス付きのコードとバイトサイズを返す', () => {
+    const settings = createDefaultSettings()
+    const result = encodeSettingsCode(settings)
+
+    expect(result.code.startsWith('SHIIRE_SETTINGS:')).toBe(true)
+    expect(result.byteSize).toBeGreaterThan(0)
+  })
+
+  it('encode → decode のラウンドトリップで値が保持される', () => {
+    const settings = createDefaultSettings()
+    const { code } = encodeSettingsCode(settings)
+    const decoded = decodeSettingsCode(code)
+
+    expect(decoded.warningThreshold).toBe(settings.warningThreshold)
+    expect(decoded.flowerCostRate).toBe(settings.flowerCostRate)
+    expect(decoded.supplierCategoryMap).toEqual(settings.supplierCategoryMap)
   })
 })

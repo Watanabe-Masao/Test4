@@ -39,6 +39,12 @@ export const STORAGE_KEYS = {
   SETTINGS: 'shiire-arari-settings',
   /** WASM 実行モード */
   EXECUTION_MODE: 'factorDecomposition.executionMode',
+  /** Zustand UI ストア */
+  UI: 'shiire-arari-ui',
+  /** Zustand ウィジェット期間オーバーライド */
+  WIDGET_PERIOD_OVERRIDES: 'shiire-arari-widget-period-overrides',
+  /** Zustand 期間選択 */
+  PERIOD_SELECTION: 'shiire-arari-period-selection',
 } as const
 
 /** localStorage 互換の最小インターフェース（テスト用モック対応） */
@@ -131,5 +137,29 @@ export function getZustandStorage(): StorageBackend {
     getItem: (key) => _backend.getItem(key),
     setItem: (key, value) => _backend.setItem(key, value),
     removeItem: (key) => _backend.removeItem(key),
+  }
+}
+
+/* ── Zustand persist 共通ファクトリ ───────────────────── */
+
+import { createJSONStorage } from 'zustand/middleware'
+
+/**
+ * 全 persist store 共通の永続化オプションを返すファクトリ。
+ *
+ * - storage backend を uiPersistenceAdapter 経由に統一
+ * - テスト時の setStorageBackend() が全 persist store に一括で効く
+ * - 追加オプション（merge, partialize 等）はスプレッドで上書き可能
+ *
+ * @example
+ * persist(
+ *   (set) => ({ ... }),
+ *   { ...createUiPersistOptions(STORAGE_KEYS.SETTINGS), merge: ... },
+ * )
+ */
+export function createUiPersistOptions(name: string) {
+  return {
+    name,
+    storage: createJSONStorage(() => getZustandStorage()),
   }
 }

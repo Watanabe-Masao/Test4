@@ -2,7 +2,7 @@
 import { create } from 'zustand'
 import { z } from 'zod'
 import { devtools, persist } from 'zustand/middleware'
-import { getZustandStorage } from '@/application/adapters/uiPersistenceAdapter'
+import { getZustandStorage, STORAGE_KEYS } from '@/application/adapters/uiPersistenceAdapter'
 
 // ─── Types ────────────────────────────────────────────
 export type CurrencyUnit = 'sen' | 'yen'
@@ -71,7 +71,7 @@ export const useUiStore = create<UiStore>()(
           ),
       }),
       {
-        name: 'shiire-arari-ui',
+        name: STORAGE_KEYS.UI,
         // Set のシリアライズ/デシリアライズ対応（adapter 経由）
         storage: {
           getItem: (name) => {
