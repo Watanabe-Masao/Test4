@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-09T01:15:27.440Z",
+  "timestamp": "2026-04-09T03:31:33.348Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -328,6 +328,57 @@
       "budget": 5
     },
     {
+      "id": "guard.rules.total",
+      "label": "総 Architecture Rule 数",
+      "category": "guard",
+      "value": 92,
+      "unit": "count",
+      "status": "ok",
+      "owner": "architecture",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "references/03-guides/architecture-rule-system.md"
+        }
+      ],
+      "implRefs": [
+        "app/src/test/architectureRules.ts"
+      ]
+    },
+    {
+      "id": "guard.rules.fixNow.now",
+      "label": "fixNow=now ルール数（即修正）",
+      "category": "guard",
+      "value": 33,
+      "unit": "count",
+      "status": "ok",
+      "owner": "architecture",
+      "docRefs": [],
+      "implRefs": []
+    },
+    {
+      "id": "guard.rules.fixNow.debt",
+      "label": "fixNow=debt ルール数（構造負債）",
+      "category": "guard",
+      "value": 43,
+      "unit": "count",
+      "status": "ok",
+      "owner": "architecture",
+      "docRefs": [],
+      "implRefs": []
+    },
+    {
+      "id": "guard.rules.fixNow.review",
+      "label": "fixNow=review ルール数（観測）",
+      "category": "guard",
+      "value": 18,
+      "unit": "count",
+      "status": "ok",
+      "owner": "architecture",
+      "docRefs": [],
+      "implRefs": []
+    },
+    {
       "id": "docs.obsoleteTerms.count",
       "label": "廃止用語残存数",
       "category": "docs",
@@ -606,8 +657,8 @@
     }
   ],
   "summary": {
-    "totalKpis": 28,
-    "ok": 27,
+    "totalKpis": 32,
+    "ok": 31,
     "warn": 1,
     "fail": 0,
     "hardGatePass": true

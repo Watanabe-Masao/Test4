@@ -45,5 +45,59 @@ export function collectFromGuards(repoRoot: string): HealthKpi[] {
     implRefs: ['app/src/test/guardTagRegistry.ts'],
   })
 
+  // --- Architecture Rules total count ---
+  const rulesPath = resolve(repoRoot, 'app/src/test/architectureRules.ts')
+  const rulesContent = readFileSync(rulesPath, 'utf-8')
+  const ruleIdMatches = rulesContent.match(/id: 'AR-/g) || []
+  kpis.push({
+    id: 'guard.rules.total',
+    label: '総 Architecture Rule 数',
+    category: 'guard',
+    value: ruleIdMatches.length,
+    unit: 'count',
+    status: 'ok',
+    owner: 'architecture',
+    docRefs: [{ kind: 'definition', path: 'references/03-guides/architecture-rule-system.md' }],
+    implRefs: ['app/src/test/architectureRules.ts'],
+  })
+
+  // --- fixNow distribution ---
+  const fixNowNow = (rulesContent.match(/fixNow: 'now'/g) || []).length
+  const fixNowDebt = (rulesContent.match(/fixNow: 'debt'/g) || []).length
+  const fixNowReview = (rulesContent.match(/fixNow: 'review'/g) || []).length
+  kpis.push({
+    id: 'guard.rules.fixNow.now',
+    label: 'fixNow=now ルール数（即修正）',
+    category: 'guard',
+    value: fixNowNow,
+    unit: 'count',
+    status: 'ok',
+    owner: 'architecture',
+    docRefs: [],
+    implRefs: [],
+  })
+  kpis.push({
+    id: 'guard.rules.fixNow.debt',
+    label: 'fixNow=debt ルール数（構造負債）',
+    category: 'guard',
+    value: fixNowDebt,
+    unit: 'count',
+    status: 'ok',
+    owner: 'architecture',
+    docRefs: [],
+    implRefs: [],
+  })
+  kpis.push({
+    id: 'guard.rules.fixNow.review',
+    label: 'fixNow=review ルール数（観測）',
+    category: 'guard',
+    value: fixNowReview,
+    unit: 'count',
+    status: 'ok',
+    owner: 'architecture',
+    docRefs: [],
+    implRefs: [],
+  })
+
   return kpis
 }

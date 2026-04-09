@@ -7,7 +7,7 @@
 | **総合評価** | **Watch** |
 | 前回比 | Improved |
 | リリース影響 | No |
-| 最終更新 | 2026-04-09T01:15:27.440Z |
+| 最終更新 | 2026-04-09T03:31:33.348Z |
 
 ## Hard Gate
 
@@ -53,5 +53,5 @@
 
 ---
 
-*正本: `references/02-status/generated/architecture-health.json` — 28 KPIs*
+*正本: `references/02-status/generated/architecture-health.json` — 32 KPIs*
 *詳細: `references/02-status/generated/architecture-health.md`*

@@ -192,13 +192,17 @@ export function collectObligations(
 
     if (!satisfied) {
       violations++
-      // AAG Response: 違反の修正手順を標準エラーに出力
+      // AAG Response 統一フォーマット（renderAagResponse 互換）
       if (process.env.AAG_VERBOSE !== '0') {
         console.error(
-          `  ⚡ AAG Obligation [governance-ops]\n` +
-            `    ${rule.label}\n` +
-            `    対応: cd app && npm run docs:generate\n` +
-            `    詳細: ${rule.pathPattern} の変更が検出されました`,
+          `⚡ 今すぐ修正 [governance-ops]\n` +
+            `  ${rule.label}\n` +
+            `  理由: ${rule.pathPattern} の変更が検出されたため、関連ドキュメントの更新が必要\n` +
+            `  方向: docs:generate / rule review で対応する\n` +
+            `  修正手順:\n` +
+            `    1. cd app && npm run docs:generate\n` +
+            `    2. git add references/02-status/generated/ CLAUDE.md\n` +
+            `  詳細: tools/architecture-health/src/collectors/obligation-collector.ts`,
         )
       }
     }
