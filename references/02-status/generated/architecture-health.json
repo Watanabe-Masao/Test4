@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-09T09:30:01.559Z",
+  "timestamp": "2026-04-09T11:26:49.571Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -447,7 +447,7 @@
       "id": "perf.bundle.mainJsKb",
       "label": "メインバンドルサイズ",
       "category": "bundle_perf",
-      "value": 2219,
+      "value": 2224,
       "unit": "kb",
       "status": "ok",
       "owner": "architecture",

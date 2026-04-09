@@ -68,6 +68,34 @@ describe('weatherAdapter', () => {
     })
   })
 
+  describe('fetchDailyWeather — precNo 欠損', () => {
+    it('precNo が undefined の場合はエラーをスローする', async () => {
+      const stationWithoutPrecNo: EtrnStation = {
+        stationType: 's1',
+        blockNo: '47662',
+        stationName: '東京',
+      }
+
+      await expect(weatherAdapter.fetchDailyWeather(stationWithoutPrecNo, 2025, 1)).rejects.toThrow(
+        'precNo is missing',
+      )
+    })
+  })
+
+  describe('fetchHourlyRange — precNo 欠損', () => {
+    it('precNo が undefined の場合はエラーをスローする', async () => {
+      const stationWithoutPrecNo: EtrnStation = {
+        stationType: 's1',
+        blockNo: '47662',
+        stationName: '東京',
+      }
+
+      await expect(
+        weatherAdapter.fetchHourlyRange(stationWithoutPrecNo, 2025, 1, [1, 2]),
+      ).rejects.toThrow('precNo is missing')
+    })
+  })
+
   describe('fetchWeeklyForecast', () => {
     it('infrastructure の fetchWeeklyForecast をそのまま返す', async () => {
       mockFetchForecast.mockResolvedValue({

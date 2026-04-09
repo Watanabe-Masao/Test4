@@ -10,12 +10,11 @@ import { darkTheme, lightTheme, GlobalStyle } from '@/presentation/theme'
 import type { ThemeMode } from '@/presentation/theme'
 import { I18nProvider } from '@/infrastructure/i18n'
 import { ThemeToggleContext } from '@/appContextDefs'
+import { loadRaw, saveRaw, STORAGE_KEYS } from '@/application/adapters/uiPersistenceAdapter'
 
 function getInitialTheme(): ThemeMode {
-  if (typeof window !== 'undefined') {
-    const saved = localStorage.getItem('theme')
-    if (saved === 'dark' || saved === 'light') return saved
-  }
+  const saved = loadRaw(STORAGE_KEYS.THEME)
+  if (saved === 'dark' || saved === 'light') return saved
   return 'dark'
 }
 
@@ -29,7 +28,7 @@ export function BootstrapProviders({ children }: Props) {
   const toggleTheme = useCallback(() => {
     setThemeMode((prev) => {
       const next = prev === 'dark' ? 'light' : 'dark'
-      localStorage.setItem('theme', next)
+      saveRaw(STORAGE_KEYS.THEME, next)
       return next
     })
   }, [])

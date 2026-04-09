@@ -76,26 +76,24 @@ export const BUILTIN_PRESETS: readonly LayoutPreset[] = [
 
 export const PRESET_MAP = new Map(BUILTIN_PRESETS.map((p) => [p.id, p]))
 
-const PRESET_STORAGE_KEY = 'dashboard_active_preset'
-const CUSTOM_PRESETS_KEY = 'dashboard_custom_presets_v1'
+import {
+  loadRaw,
+  saveRaw,
+  removeKey,
+  loadJson,
+  saveJson,
+  STORAGE_KEYS,
+} from '@/application/adapters/uiPersistenceAdapter'
 
 export function loadActivePreset(): string | null {
-  try {
-    return localStorage.getItem(PRESET_STORAGE_KEY)
-  } catch {
-    return null
-  }
+  return loadRaw(STORAGE_KEYS.DASHBOARD_ACTIVE_PRESET)
 }
 
 export function saveActivePreset(presetId: string | null): void {
-  try {
-    if (presetId) {
-      localStorage.setItem(PRESET_STORAGE_KEY, presetId)
-    } else {
-      localStorage.removeItem(PRESET_STORAGE_KEY)
-    }
-  } catch {
-    // ignore
+  if (presetId) {
+    saveRaw(STORAGE_KEYS.DASHBOARD_ACTIVE_PRESET, presetId)
+  } else {
+    removeKey(STORAGE_KEYS.DASHBOARD_ACTIVE_PRESET)
   }
 }
 
@@ -109,29 +107,19 @@ interface CustomPresetData {
 }
 
 export function loadCustomPresets(): LayoutPreset[] {
-  try {
-    const raw = localStorage.getItem(CUSTOM_PRESETS_KEY)
-    if (!raw) return []
-    const parsed = JSON.parse(raw) as CustomPresetData[]
-    if (!Array.isArray(parsed)) return []
-    return parsed.map((p) => ({ ...p, isCustom: true }))
-  } catch {
-    return []
-  }
+  return loadJson<CustomPresetData[]>(STORAGE_KEYS.DASHBOARD_CUSTOM_PRESETS, [], (raw) =>
+    Array.isArray(raw) ? (raw as CustomPresetData[]) : null,
+  ).map((p) => ({ ...p, isCustom: true }))
 }
 
 export function saveCustomPresets(presets: LayoutPreset[]): void {
-  try {
-    const data: CustomPresetData[] = presets.map((p) => ({
-      id: p.id,
-      label: p.label,
-      description: p.description,
-      widgetIds: [...p.widgetIds],
-    }))
-    localStorage.setItem(CUSTOM_PRESETS_KEY, JSON.stringify(data))
-  } catch {
-    // ignore
-  }
+  const data: CustomPresetData[] = presets.map((p) => ({
+    id: p.id,
+    label: p.label,
+    description: p.description,
+    widgetIds: [...p.widgetIds],
+  }))
+  saveJson(STORAGE_KEYS.DASHBOARD_CUSTOM_PRESETS, data)
 }
 
 export function addCustomPreset(

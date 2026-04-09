@@ -8,6 +8,7 @@
  * アプリレベルで設定転送の仕組みを提供する。
  */
 import { useState, useCallback } from 'react'
+import { z } from 'zod'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useUiStore } from '@/application/stores/uiStore'
 import type { AppSettings } from '@/domain/models/storeTypes'
@@ -69,7 +70,42 @@ function encodeSettingsCode(settings: AppSettings): SettingsCodeResult {
 }
 
 /**
+ * 転送可能な AppSettings フィールドの Zod スキーマ。
+ * targetYear / targetMonth はデバイス固有のため除外。
+ * 未知キーは strip される（strict ではなく passthrough でもない）。
+ */
+const TransferableSettingsSchema = z
+  .object({
+    targetGrossProfitRate: z.number(),
+    warningThreshold: z.number(),
+    flowerCostRate: z.number(),
+    directProduceCostRate: z.number(),
+    defaultMarkupRate: z.number(),
+    defaultBudget: z.number(),
+    dataEndDay: z.number().nullable(),
+    gpDiffBlueThreshold: z.number(),
+    gpDiffYellowThreshold: z.number(),
+    gpDiffRedThreshold: z.number(),
+    discountBlueThreshold: z.number(),
+    discountYellowThreshold: z.number(),
+    discountRedThreshold: z.number(),
+    supplierCategoryMap: z.record(z.string(), z.string()),
+    userCategoryLabels: z.record(z.string(), z.string()),
+    prevYearSourceYear: z.number().nullable(),
+    prevYearSourceMonth: z.number().nullable(),
+    prevYearDowOffset: z.number().nullable(),
+    alignmentPolicy: z.enum(['sameDate', 'sameDayOfWeek']),
+    conditionConfig: z.object({
+      global: z.record(z.string(), z.unknown()),
+      storeOverrides: z.record(z.string(), z.unknown()),
+    }),
+    storeLocations: z.record(z.string(), z.unknown()),
+  })
+  .partial()
+
+/**
  * テキストコードから AppSettings（部分）をデコードする。
+ * Zod スキーマで未知キー除去と型検証を行う。
  */
 function decodeSettingsCode(code: string): Partial<AppSettings> {
   const trimmed = code.trim()
@@ -78,12 +114,16 @@ function decodeSettingsCode(code: string): Partial<AppSettings> {
   }
   const base64 = trimmed.slice(SETTINGS_CODE_PREFIX.length)
   const json = base64ToUnicode(base64)
-  const parsed = JSON.parse(json) as Partial<AppSettings>
+  const raw: unknown = JSON.parse(json)
   // 基本的な型チェック
-  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+  if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) {
     throw new Error('設定コードの形式が不正です。')
   }
-  return parsed
+  const result = TransferableSettingsSchema.safeParse(raw)
+  if (!result.success) {
+    throw new Error(`設定コードの内容が不正です: ${result.error.issues[0]?.message ?? '型不一致'}`)
+  }
+  return result.data as Partial<AppSettings>
 }
 
 export function useDeviceSync() {

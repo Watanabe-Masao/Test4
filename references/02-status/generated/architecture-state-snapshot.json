@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-08T21:15:56.193Z",
+  "timestamp": "2026-04-09T11:23:23.634Z",
   "totalAllowlistEntries": 13,
   "categoryBreakdown": {
     "adapter": 1,
@@ -125,7 +125,7 @@
       "file": "presentation/pages/Insight/useInsightData.ts",
       "memoCount": 5,
       "stateCount": 7,
-      "lineCount": 221
+      "lineCount": 222
     },
     {
       "file": "application/hooks/useMetricBreakdown.ts",

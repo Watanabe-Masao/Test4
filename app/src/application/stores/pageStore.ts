@@ -3,13 +3,14 @@
  *
  * ユーザーがページの追加・削除・名前変更を行えるようにする。
  * 各ページは独自の名前とウィジェットレイアウトを持つ。
- * localStorage で永続化。
+ * 永続化は Zustand persist middleware 経由（C3: store は state 反映のみ）。
  *
  * @guard C3 store は state 反映のみ
  */
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 import { z } from 'zod'
-import { loadJson, saveJson, removeKey } from '@/application/adapters/uiPersistenceAdapter'
+import { STORAGE_KEYS } from '@/application/adapters/uiPersistenceAdapter'
 
 export interface CustomPage {
   /** 一意識別子 */
@@ -42,62 +43,53 @@ interface PageStoreState {
   updatePageDefaults: (id: string, widgetIds: string[]) => void
 }
 
-const STORAGE_KEY = 'custom_pages_v1'
-
 function generateId(): string {
   return `page_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
 }
 
-function loadPages(): CustomPage[] {
-  return loadJson<CustomPage[]>(STORAGE_KEY, [], (raw) => {
-    if (!Array.isArray(raw)) return null
-    const result = z.array(CustomPageSchema).safeParse(raw)
-    if (!result.success) {
-      console.warn('[pageStore] hydration schema mismatch:', result.error.message)
-      return null
-    }
-    return result.data
-  })
-}
+export const usePageStore = create<PageStoreState>()(
+  persist(
+    (set, get) => ({
+      pages: [],
 
-function savePages(pages: readonly CustomPage[]): void {
-  saveJson(STORAGE_KEY, pages)
-}
+      addPage: (label, defaultWidgetIds = []) => {
+        const id = generateId()
+        const newPage: CustomPage = {
+          id,
+          label,
+          defaultWidgetIds,
+          path: `/custom/${id}`,
+        }
+        set({ pages: [...get().pages, newPage] })
+        return newPage
+      },
 
-export const usePageStore = create<PageStoreState>((set, get) => ({
-  pages: loadPages(),
+      removePage: (id) => {
+        set({ pages: get().pages.filter((p) => p.id !== id) })
+      },
 
-  addPage: (label, defaultWidgetIds = []) => {
-    const id = generateId()
-    const newPage: CustomPage = {
-      id,
-      label,
-      defaultWidgetIds,
-      path: `/custom/${id}`,
-    }
-    const next = [...get().pages, newPage]
-    set({ pages: next })
-    savePages(next)
-    return newPage
-  },
+      renamePage: (id, label) => {
+        set({ pages: get().pages.map((p) => (p.id === id ? { ...p, label } : p)) })
+      },
 
-  removePage: (id) => {
-    const next = get().pages.filter((p) => p.id !== id)
-    set({ pages: next })
-    savePages(next)
-    // レイアウトも削除
-    removeKey(`widget_layout_custom_${id}_v1`)
-  },
-
-  renamePage: (id, label) => {
-    const next = get().pages.map((p) => (p.id === id ? { ...p, label } : p))
-    set({ pages: next })
-    savePages(next)
-  },
-
-  updatePageDefaults: (id, widgetIds) => {
-    const next = get().pages.map((p) => (p.id === id ? { ...p, defaultWidgetIds: widgetIds } : p))
-    set({ pages: next })
-    savePages(next)
-  },
-}))
+      updatePageDefaults: (id, widgetIds) => {
+        set({
+          pages: get().pages.map((p) => (p.id === id ? { ...p, defaultWidgetIds: widgetIds } : p)),
+        })
+      },
+    }),
+    {
+      name: STORAGE_KEYS.CUSTOM_PAGES,
+      merge: (persisted, current) => {
+        const stored = persisted as { pages?: unknown }
+        if (!stored?.pages) return current
+        const result = z.array(CustomPageSchema).safeParse(stored.pages)
+        if (!result.success) {
+          console.warn('[pageStore] hydration schema mismatch:', result.error.message)
+          return current
+        }
+        return { ...current, pages: result.data }
+      },
+    },
+  ),
+)
