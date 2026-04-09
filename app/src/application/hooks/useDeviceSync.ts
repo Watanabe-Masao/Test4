@@ -58,7 +58,7 @@ function base64ToUnicode(base64: string): string {
  * AppSettings を転送用テキストコードにエンコードする。
  * targetYear / targetMonth は転送先で意味が異なるため除外する。
  */
-function encodeSettingsCode(settings: AppSettings): SettingsCodeResult {
+export function encodeSettingsCode(settings: AppSettings): SettingsCodeResult {
   // 年月はデバイス固有なので除外
   const transferable: Record<string, unknown> = { ...settings }
   delete transferable.targetYear
@@ -107,7 +107,7 @@ const TransferableSettingsSchema = z
  * テキストコードから AppSettings（部分）をデコードする。
  * Zod スキーマで未知キー除去と型検証を行う。
  */
-function decodeSettingsCode(code: string): Partial<AppSettings> {
+export function decodeSettingsCode(code: string): Partial<AppSettings> {
   const trimmed = code.trim()
   if (!trimmed.startsWith(SETTINGS_CODE_PREFIX)) {
     throw new Error('無効な設定コードです。SHIIRE_SETTINGS: で始まるコードを入力してください。')

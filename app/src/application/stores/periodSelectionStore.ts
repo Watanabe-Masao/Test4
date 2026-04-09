@@ -26,6 +26,7 @@ import { devtools, persist } from 'zustand/middleware'
 import type { DateRange } from '@/domain/models/CalendarDate'
 import type { PeriodSelection, ComparisonPreset } from '@/domain/models/PeriodSelection'
 import { applyPreset, createDefaultPeriodSelection } from '@/domain/models/PeriodSelection'
+import { createUiPersistOptions, STORAGE_KEYS } from '@/application/adapters/uiPersistenceAdapter'
 
 // ─── Types ────────────────────────────────────────────
 
@@ -134,7 +135,7 @@ export const usePeriodSelectionStore = create<PeriodSelectionStore>()(
           ),
       }),
       {
-        name: 'shiire-arari-period-selection',
+        ...createUiPersistOptions(STORAGE_KEYS.PERIOD_SELECTION),
         partialize: (state) => ({ selection: state.selection }),
         merge: (persisted, current) => {
           const stored = persisted as { selection?: Partial<PeriodSelection> }
