@@ -34,9 +34,7 @@ const registry: DocRegistry = JSON.parse(
   fs.readFileSync(path.join(PROJECT_ROOT, 'docs/contracts/doc-registry.json'), 'utf-8'),
 )
 
-const allRegisteredPaths = new Set(
-  registry.categories.flatMap((c) => c.docs.map((d) => d.path)),
-)
+const allRegisteredPaths = new Set(registry.categories.flatMap((c) => c.docs.map((d) => d.path)))
 
 describe('Doc Registry Guard: ドキュメントレジストリの整合性', () => {
   it('レジストリに登録された全文書が存在する', () => {
@@ -71,10 +69,9 @@ describe('Doc Registry Guard: ドキュメントレジストリの整合性', ()
       console.log(`\n[Doc Registry] 01-principles/ の未登録 .md:`)
       for (const f of unregistered) console.log(`  ${f}`)
     }
-    expect(
-      unregistered.length,
-      formatViolationMessage(rule, unregistered),
-    ).toBeLessThanOrEqual(UNREGISTERED_BASELINE)
+    expect(unregistered.length, formatViolationMessage(rule, unregistered)).toBeLessThanOrEqual(
+      UNREGISTERED_BASELINE,
+    )
   })
 
   it('references/03-guides/ の .md がレジストリに登録されている', () => {
@@ -97,10 +94,9 @@ describe('Doc Registry Guard: ドキュメントレジストリの整合性', ()
       console.log(`\n[Doc Registry] 03-guides/ の未登録 .md:`)
       for (const f of unregistered) console.log(`  ${f}`)
     }
-    expect(
-      unregistered.length,
-      formatViolationMessage(rule, unregistered),
-    ).toBeLessThanOrEqual(UNREGISTERED_BASELINE)
+    expect(unregistered.length, formatViolationMessage(rule, unregistered)).toBeLessThanOrEqual(
+      UNREGISTERED_BASELINE,
+    )
   })
 
   it('references/README.md がレジストリの全カテゴリを参照している', () => {
@@ -120,6 +116,50 @@ describe('Doc Registry Guard: ドキュメントレジストリの整合性', ()
         }
       }
     }
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
+  })
+
+  it('CLAUDE.md が参照する子ドキュメントが全て実在する', () => {
+    const claudeMd = fs.readFileSync(path.join(PROJECT_ROOT, 'CLAUDE.md'), 'utf-8')
+    // `references/...` や `docs/contracts/...` のパスを抽出
+    const refPattern = /`(references\/[^`]+\.(?:md|json))`/g
+    const contractPattern = /`(docs\/contracts\/[^`]+\.json)`/g
+    const violations: string[] = []
+    let match: RegExpExecArray | null
+
+    while ((match = refPattern.exec(claudeMd)) !== null) {
+      const refPath = match[1]
+      if (!fs.existsSync(path.join(PROJECT_ROOT, refPath))) {
+        violations.push(`CLAUDE.md → ${refPath} がリンク切れ`)
+      }
+    }
+    while ((match = contractPattern.exec(claudeMd)) !== null) {
+      const refPath = match[1]
+      if (!fs.existsSync(path.join(PROJECT_ROOT, refPath))) {
+        violations.push(`CLAUDE.md → ${refPath} がリンク切れ`)
+      }
+    }
+
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
+  })
+
+  it('AAG 正本文書が参照する子ドキュメントが全て実在する', () => {
+    const aagPath = path.join(
+      PROJECT_ROOT,
+      'references/01-principles/adaptive-architecture-governance.md',
+    )
+    const content = fs.readFileSync(aagPath, 'utf-8')
+    const refPattern = /`(references\/[^`]+\.(?:md|json))`/g
+    const violations: string[] = []
+    let match: RegExpExecArray | null
+
+    while ((match = refPattern.exec(content)) !== null) {
+      const refPath = match[1]
+      if (!fs.existsSync(path.join(PROJECT_ROOT, refPath))) {
+        violations.push(`AAG 正本 → ${refPath} がリンク切れ`)
+      }
+    }
+
     expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 })

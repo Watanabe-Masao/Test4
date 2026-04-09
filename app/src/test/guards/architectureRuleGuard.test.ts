@@ -733,4 +733,34 @@ describe('AAG Entry Quality: 入口品質の自己監視', () => {
       expect(SLICE_GUIDANCE[slice], `SLICE_GUIDANCE に ${slice} がない`).toBeTruthy()
     }
   })
+
+  it('tools 側レンダラが app 側と同じ出力契約を持つ（drift 検出）', () => {
+    // tools/architecture-health/src/aag-response.ts のレンダラが
+    // app/src/test/architectureRules.ts の renderAagResponse と同じ出力を返すことを検証
+    const toolsRendererPath = path.join(
+      PROJECT_ROOT,
+      'tools/architecture-health/src/aag-response.ts',
+    )
+    const content = fs.readFileSync(toolsRendererPath, 'utf-8')
+
+    // 出力フォーマットの契約キーワードが一致していること
+    const contractKeywords = [
+      '⚡ 今すぐ修正',
+      '📋 構造負債として管理',
+      '🔍 観測・レビュー対象',
+      '方向:',
+      '修正手順:',
+      '対応: allowlist に登録して計画的に返済する',
+      '対応: コード修正不要。Discovery Review で評価する',
+      '解消手順（返済時）:',
+      'レビュー先:',
+    ]
+
+    const missing = contractKeywords.filter((kw) => !content.includes(kw))
+    expect(
+      missing,
+      `tools 側レンダラに出力契約キーワードが不足: ${missing.join(', ')}\n` +
+        `app 側 renderAagResponse() と tools/aag-response.ts の出力を一致させてください`,
+    ).toEqual([])
+  })
 })

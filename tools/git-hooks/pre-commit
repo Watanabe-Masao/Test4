@@ -75,9 +75,15 @@ npx tsx tools/aag-render-cli.ts \
   "1. docs:generate を自動実行中..." \
   "2. 生成ファイルをステージングに追加" \
   2>/dev/null || {
-  # CLI が使えない場合のフォールバック（npm 未インストール等）
+  # CLI が使えない場合のフォールバック — 統一フォーマット互換で最低限の情報を返す
   echo "⚡ 今すぐ修正 [governance-ops]"
   echo "  generated docs が古くなっている"
+  echo "  理由: guard/allowlist/health ツールの変更が検出された"
+  echo "  方向: docs:generate / rule review で対応する"
+  echo "  修正手順:"
+  echo "    1. cd app && npm run docs:generate"
+  echo "    2. git add references/02-status/generated/ CLAUDE.md"
+  echo "  詳細: tools/architecture-health/src/collectors/obligation-collector.ts"
 }
 
 if [ -n "$SLICE_DETAIL" ]; then
