@@ -55,9 +55,6 @@ describe('Project Structure Guard: プロジェクト構成の整合性', () => 
       .map((d) => d.name)
       .sort()
 
-    const structureDoc = path.join(PROJECT_ROOT, 'references/02-status/project-structure.md')
-    const content = fs.readFileSync(structureDoc, 'utf-8')
-
     // CLAUDE.md の features/ 記述も確認
     const claudeMd = fs.readFileSync(path.join(PROJECT_ROOT, 'CLAUDE.md'), 'utf-8')
 
