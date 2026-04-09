@@ -20,7 +20,7 @@ import {
 } from '../DashboardPage.styles'
 import { WarningBanner } from './ExecSummaryBarWidget.styles'
 import type { WidgetContext } from './types'
-import { extractPrevYearCustomerCount } from './conditionSummaryUtils'
+import { extractPrevYearCustomerCount } from '@/features/comparison'
 
 type SummaryTab = 'sales' | 'costProfit' | 'customers'
 

@@ -12,7 +12,7 @@ import type { WidgetDef } from './types'
 import { WaterfallChartWidget } from './WaterfallChart'
 import { GrossProfitHeatmapWidget } from './GrossProfitHeatmap'
 import { toStoreCustomerRows } from '@/application/readModels/customerFact'
-import { extractPrevYearCustomerCount } from './conditionSummaryUtils'
+import { extractPrevYearCustomerCount } from '@/features/comparison'
 
 // ── 分析・可視化 ──
 export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [

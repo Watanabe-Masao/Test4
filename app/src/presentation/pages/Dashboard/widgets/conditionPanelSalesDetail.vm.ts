@@ -43,7 +43,7 @@ export interface TxValueDailyRowVm {
 export interface TxValueDetailVm {
   readonly storeRows: readonly TxValueStoreRowVm[]
   readonly totalSalesStr: string
-  readonly totalCustomersStr: string
+  readonly totalCustStr: string
   readonly totalTxStr: string
 }
 
@@ -52,11 +52,14 @@ export function buildTxValueDetailVm(
   stores: ReadonlyMap<string, Store>,
   result: StoreResult,
   fmtCurrency: CurrencyFormatter,
+  storeCustomerMap?: ReadonlyMap<string, number>,
+  grandTotalCustomers?: number,
 ): TxValueDetailVm {
   const storeRows = sortedStoreEntries.map(([storeId, sr]) => {
     const store = stores.get(storeId)
     const storeName = store?.name ?? storeId
-    const storeTx = sr.transactionValue
+    const storeCustomers = storeCustomerMap?.get(storeId) ?? 0
+    const storeTx = storeCustomers > 0 ? calculateTransactionValue(sr.totalSales, storeCustomers) : sr.transactionValue
 
     const days = [...sr.daily.entries()].sort(([a], [b]) => a - b)
     const dailyRows = days.map(([day, dr]) => {
@@ -75,17 +78,18 @@ export function buildTxValueDetailVm(
       storeId,
       storeName,
       salesStr: fmtCurrency(sr.totalSales),
-      customersStr: `${sr.totalCustomers.toLocaleString()}人`,
+      customersStr: `${storeCustomers.toLocaleString()}人`,
       txStr: formatTxValue(storeTx),
       dailyRows,
     }
   })
 
+  const totalCust = grandTotalCustomers ?? 0
   return {
     storeRows,
     totalSalesStr: fmtCurrency(result.totalSales),
-    totalCustomersStr: `${result.totalCustomers.toLocaleString()}人`,
-    totalTxStr: formatTxValue(result.transactionValue),
+    totalCustStr: `${totalCust.toLocaleString()}人`,
+    totalTxStr: formatTxValue(totalCust > 0 ? calculateTransactionValue(result.totalSales, totalCust) : result.transactionValue),
   }
 }
 

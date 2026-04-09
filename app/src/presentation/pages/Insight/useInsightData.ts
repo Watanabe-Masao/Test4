@@ -4,6 +4,7 @@ import { useStoreSelection } from '@/application/hooks/ui'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { usePeriodSelectionStore } from '@/application/stores/periodSelectionStore'
 import { useComparisonModule } from '@/application/hooks/useComparisonModule'
+import { extractPrevYearCustomerCount } from '@/features/comparison'
 import { formatPercent } from '@/domain/formatting'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import {
@@ -151,10 +152,10 @@ export function useInsightData(opts?: {
   const actualGrossProfit = r ? getEffectiveGrossProfit(r) : 0
   const actualGrossProfitRate = r ? getEffectiveGrossProfitRate(r) : 0
 
-  const totalCustomers = opts?.curCustomerCount ?? r?.totalCustomers ?? 0
+  const totalCustomers = opts?.curCustomerCount ?? 0
   const avgDailyCustomers = r?.averageCustomersPerDay ?? 0
   const avgTxValue = r ? calculateTransactionValue(r.totalSales, totalCustomers) : 0
-  const prevTotalCustomers = opts?.prevCustomerCount ?? prevYear.totalCustomers
+  const prevTotalCustomers = opts?.prevCustomerCount ?? extractPrevYearCustomerCount(prevYear)
   const customerYoY =
     prevTotalCustomers > 0 ? calculateYoYRatio(totalCustomers, prevTotalCustomers) : 0
   const prevAvgTxValue = calculateTransactionValue(prevYear.totalSales, prevTotalCustomers)

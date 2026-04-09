@@ -24,14 +24,15 @@ const SRC_DIR = path.resolve(__dirname, '../..')
  * これらは段階的に CustomerFact 経由に移行する。
  * 新規追加は禁止。移行完了時にエントリを削除する。
  */
-const TOTAL_CUSTOMERS_ALLOWLIST = new Set([
-  'presentation/components/charts/SensitivityDashboard.tsx',
-  'presentation/pages/Dashboard/widgets/DataTableWidgets.tsx',
-  'presentation/pages/Dashboard/widgets/conditionPanelSalesDetail.tsx',
-  'presentation/pages/Dashboard/widgets/conditionPanelSalesDetail.vm.ts',
-  'presentation/pages/Dashboard/widgets/conditionSummaryUtils.ts',
-  'presentation/pages/Insight/useInsightData.ts',
-  'presentation/pages/Mobile/MobileDashboardPage.tsx',
+const TOTAL_CUSTOMERS_ALLOWLIST = new Set<string>([
+  // 全 7 エントリ移行完了:
+  // - SensitivityDashboard: customerCount ?? 0 (CustomerFact 正本フォールバック)
+  // - DataTableWidgets: ctx.readModels?.customerFact?.grandTotalCustomers 経由
+  // - conditionPanelSalesDetail.vm: storeCustomerMap / grandTotalCustomers 引数追加
+  // - conditionPanelSalesDetail.tsx: VM 経由（.totalCustomers 不参照）
+  // - conditionSummaryUtils: extractPrevYearCustomerCount を features/comparison に移動
+  // - useInsightData: opts 必須化 + extractPrevYearCustomerCount
+  // - MobileDashboardPage: daily 集計 + extractPrevYearCustomerCount
 ])
 
 describe('StoreResult analysis input guard', () => {
@@ -56,7 +57,7 @@ describe('StoreResult analysis input guard', () => {
   })
 
   it('allowlist の件数が増加していないこと（ratchet）', () => {
-    const MAX_ALLOWLIST = 7
+    const MAX_ALLOWLIST = 0
     expect(
       TOTAL_CUSTOMERS_ALLOWLIST.size,
       `[${rule.id}] ${rule.what}\nallowlist: ${TOTAL_CUSTOMERS_ALLOWLIST.size} (上限: ${MAX_ALLOWLIST})`,

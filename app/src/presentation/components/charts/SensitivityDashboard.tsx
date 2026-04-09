@@ -148,8 +148,8 @@ export const SensitivityDashboard = memo(function SensitivityDashboard({
   const sensitivity = useSensitivityAnalysis(base, deltas)
   const elasticity = useElasticity(base)
 
-  // ベース値（customerCount が指定されていれば CustomerFact 正本を優先）
-  const effectiveCustomers = customerCount ?? base.totalCustomers
+  // ベース値（CustomerFact 正本から取得した客数を使用）
+  const effectiveCustomers = customerCount ?? 0
   const baseValues: BaseValues = useMemo(
     () => ({
       discountRate: calculateShare(base.totalDiscount, base.grossSales),

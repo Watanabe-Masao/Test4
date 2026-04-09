@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-09T00:33:07.307Z
+> Generated: 2026-04-09T00:49:58.340Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -8,8 +8,8 @@
 
 | 指標 | 値 |
 |---|---|
-| Total KPIs | 24 |
-| OK | 23 |
+| Total KPIs | 28 |
+| OK | 27 |
 | WARN | 1 |
 | FAIL | 0 |
 | Hard Gate | PASS |
@@ -68,6 +68,15 @@
 | docs.generatedSections.stale | Generated section 未更新 | 0 / 0 | OK |
 | docs.obligation.violations | Doc 更新義務違反数 | 0 / 0 | OK |
 
+## バンドル性能
+
+| ID | 指標 | 値 | 状態 |
+|---|---|---|---|
+| perf.bundle.totalJsKb | JS バンドル合計サイズ | 6495 / 7000 | OK |
+| perf.bundle.mainJsKb | メインバンドルサイズ | 2219 / 2500 | OK |
+| perf.bundle.vendorEchartsKb | ECharts バンドルサイズ | 919 / 1000 | OK |
+| perf.bundle.cssKb | CSS 合計サイズ | 0 | OK |
+
 ## Doc Links
 
 <details>
@@ -99,6 +108,9 @@
 | docs.obsoleteTerms.count | source | docs/contracts/principles.json #obsoleteTerms |
 | docs.obsoleteTerms.count | guard | app/src/test/documentConsistency.test.ts |
 | docs.generatedSections.stale | guard | app/src/test/documentConsistency.test.ts |
+| perf.bundle.totalJsKb | source | app/dist/assets/ #*.js |
+| perf.bundle.mainJsKb | source | app/dist/assets/ #index-*.js |
+| perf.bundle.vendorEchartsKb | source | app/dist/assets/ #vendor-echarts-*.js |
 | docs.obligation.violations | definition | tools/architecture-health/src/collectors/obligation-collector.ts |
 | temporal.rules.reviewPolicy.count | definition | references/03-guides/architecture-rule-system.md |
 | temporal.rules.sunsetCondition.count | definition | references/01-principles/architecture-rule-feasibility.md |

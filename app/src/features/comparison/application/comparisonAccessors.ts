@@ -48,3 +48,14 @@ export function getPrevYearDailySales(
 ): number {
   return getPrevYearDailyValue(prevYear, year, month, day)?.sales ?? 0
 }
+
+/**
+ * PrevYearData から前年客数を数値として抽出する。
+ *
+ * PrevYearData.totalCustomers は同曜日 alignment 済みの比較用客数。
+ * このヘルパーを通すことで、消費側に `.totalCustomers` が現れない。
+ * @see references/01-principles/customer-definition.md
+ */
+export function extractPrevYearCustomerCount(prevYear: PrevYearData): number {
+  return prevYear.totalCustomers
+}
