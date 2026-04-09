@@ -49,6 +49,9 @@
 | Engine 昇格基準 | `02-status/promotion-criteria.md` |
 | 品質監査レポート | `02-status/quality-audit-latest.md` |
 | 技術的負債ロードマップ | `02-status/technical-debt-roadmap.md` |
+| 直近の主要変更 | `02-status/recent-changes.md` |
+| プロジェクト構成 | `02-status/project-structure.md` |
+| Discovery Review チェックリスト | `03-guides/discovery-review-checklist.md` |
 | ガードテスト対応表 | `03-guides/guard-test-map.md` |
 | 許可リスト運用 | `03-guides/allowlist-management.md` |
 | DuckDB アーキテクチャ・Query Access Rules（Q1-Q6） | `03-guides/duckdb-architecture.md` |
