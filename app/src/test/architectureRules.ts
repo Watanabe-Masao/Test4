@@ -40,6 +40,15 @@ export type AagSlice =
   | 'responsibility-separation' // size / hook complexity / responsibility tags
   | 'governance-ops' // allowlist、health、obligation、generated docs
 
+/** slice ごとの短い誘導文 — 違反時に「向かう先」を 1 行で示す */
+export const SLICE_GUIDANCE: Readonly<Record<AagSlice, string>> = {
+  'layer-boundary': 'hook / adapter / interface 経由に変更する',
+  canonicalization: 'readModel / 正本関数 / path guard 経由に変更する',
+  'query-runtime': 'QueryHandler / AnalysisFrame 経由に変更する',
+  'responsibility-separation': '責務分離（分割 or active-debt）で対応する',
+  'governance-ops': 'docs:generate / rule review で対応する',
+}
+
 /**
  * 設計原則 ID — CLAUDE.md §設計原則 の A1〜H6 + Q3〜Q4
  * ルールがどの思想から生まれたかを辿るトレーサビリティ
@@ -3930,37 +3939,8 @@ export function formatViolationMessage(
   rule: ArchitectureRule,
   violations: readonly string[],
 ): string {
-  const fixLabel =
-    rule.fixNow === 'now'
-      ? '⚡ 今すぐ修正'
-      : rule.fixNow === 'debt'
-        ? '📋 構造負債として管理'
-        : rule.fixNow === 'review'
-          ? '🔍 観測・レビュー対象'
-          : ''
-
-  const lines = [`[${rule.id}] ${rule.what}`]
-  if (fixLabel) lines.push(fixLabel)
-  lines.push(`理由: ${rule.why}`, `正しいパターン: ${rule.correctPattern.description}`)
-  if (rule.doc) {
-    lines.push(`参照: ${rule.doc}`)
-  }
-  if (rule.migrationPath) {
-    lines.push(`修正手順:`)
-    for (const step of rule.migrationPath.steps) {
-      lines.push(`  ${step}`)
-    }
-  }
-  if (rule.decisionCriteria) {
-    lines.push(`例外条件: ${rule.decisionCriteria.exceptions}`)
-  }
-  if (violations.length > 0) {
-    lines.push(`違反:`)
-    for (const v of violations) {
-      lines.push(`  ${v}`)
-    }
-  }
-  return lines.join('\n')
+  // AAG 統一レスポンス経由で出力（全入口共通フォーマット）
+  return `[${rule.id}] ${renderAagResponse(buildAagResponse(rule, violations))}`
 }
 
 // ── AAG 統一レスポンス構造（Phase 3） ──────────────────────────
@@ -4021,25 +4001,55 @@ export function renderAagResponse(resp: AagResponse): string {
         : '🔍 観測・レビュー対象'
 
   const sliceLabel = resp.slice ? ` [${resp.slice}]` : ''
+  const guidance = resp.slice ? SLICE_GUIDANCE[resp.slice] : null
 
   const lines = [`${fixLabel}${sliceLabel}`, `  ${resp.summary}`, `  理由: ${resp.reason}`]
 
-  if (resp.steps.length > 0) {
-    lines.push('  対応:')
-    for (const step of resp.steps) lines.push(`    ${step}`)
+  if (guidance) {
+    lines.push(`  方向: ${guidance}`)
+  }
+
+  // fixNow ごとに返す内容の性格を分ける
+  switch (resp.fixNow) {
+    case 'now':
+      // この diff で直す手順を短く返す
+      if (resp.steps.length > 0) {
+        lines.push('  修正手順:')
+        for (const step of resp.steps) lines.push(`    ${step}`)
+      }
+      break
+    case 'debt':
+      // allowlist / active-debt / removalCondition 側へ誘導
+      lines.push('  対応: allowlist に登録して計画的に返済する')
+      if (resp.steps.length > 0) {
+        lines.push('  解消手順（返済時）:')
+        for (const step of resp.steps) lines.push(`    ${step}`)
+      }
+      break
+    case 'review':
+      // コード修正ではなく、レビューや見直しに回す
+      lines.push('  対応: コード修正不要。Discovery Review で評価する')
+      if (resp.deepDive) {
+        lines.push(`  レビュー先: ${resp.deepDive}`)
+      }
+      break
   }
 
   if (resp.exceptions) {
     lines.push(`  例外: ${resp.exceptions}`)
   }
 
-  if (resp.deepDive) {
+  if (resp.fixNow !== 'review' && resp.deepDive) {
     lines.push(`  詳細: ${resp.deepDive}`)
   }
 
   if (resp.violations.length > 0) {
-    lines.push('  違反:')
-    for (const v of resp.violations) lines.push(`    ${v}`)
+    const maxShow = resp.fixNow === 'review' ? 3 : resp.violations.length
+    lines.push(`  違反 (${resp.violations.length} 件):`)
+    for (const v of resp.violations.slice(0, maxShow)) lines.push(`    ${v}`)
+    if (resp.violations.length > maxShow) {
+      lines.push(`    ... 他 ${resp.violations.length - maxShow} 件`)
+    }
   }
 
   return lines.join('\n')

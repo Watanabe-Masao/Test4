@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-09T01:15:27.440Z
+> Generated: 2026-04-09T03:28:58.156Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -8,11 +8,11 @@
 
 | 指標 | 値 |
 |---|---|
-| Total KPIs | 28 |
-| OK | 27 |
+| Total KPIs | 32 |
+| OK | 30 |
 | WARN | 1 |
-| FAIL | 0 |
-| Hard Gate | PASS |
+| FAIL | 1 |
+| Hard Gate | FAIL |
 
 ## 許可リスト
 
@@ -53,6 +53,10 @@
 |---|---|---|---|
 | guard.files.count | ガードテストファイル数 | 39 / 30 | OK |
 | guard.reviewOnlyTags.count | レビュー専用タグ数 | 0 / 5 | OK |
+| guard.rules.total | 総 Architecture Rule 数 | 92 | OK |
+| guard.rules.fixNow.now | fixNow=now ルール数（即修正） | 33 | OK |
+| guard.rules.fixNow.debt | fixNow=debt ルール数（構造負債） | 43 | OK |
+| guard.rules.fixNow.review | fixNow=review ルール数（観測） | 18 | OK |
 | temporal.rules.reviewPolicy.count | reviewPolicy 設定済みルール数 | 92 / 92 | OK |
 | temporal.rules.sunsetCondition.count | sunsetCondition 設定済みルール数 | 9 / 9 | OK |
 | temporal.rules.reviewOverdue.count | review overdue ルール数 | 0 / 0 | OK |
@@ -66,7 +70,7 @@
 |---|---|---|---|
 | docs.obsoleteTerms.count | 廃止用語残存数 | 0 / 0 | OK |
 | docs.generatedSections.stale | Generated section 未更新 | 0 / 0 | OK |
-| docs.obligation.violations | Doc 更新義務違反数 | 0 / 0 | OK |
+| docs.obligation.violations | Doc 更新義務違反数 | 3 / 0 | FAIL |
 
 ## バンドル性能
 
@@ -105,6 +109,7 @@
 | guard.files.count | definition | CLAUDE.md #ガードテスト |
 | guard.files.count | guard | app/src/test/guards/ |
 | guard.reviewOnlyTags.count | source | app/src/test/guardTagRegistry.ts #REVIEW_ONLY_TAGS |
+| guard.rules.total | definition | references/03-guides/architecture-rule-system.md |
 | docs.obsoleteTerms.count | source | docs/contracts/principles.json #obsoleteTerms |
 | docs.obsoleteTerms.count | guard | app/src/test/documentConsistency.test.ts |
 | docs.generatedSections.stale | guard | app/src/test/documentConsistency.test.ts |

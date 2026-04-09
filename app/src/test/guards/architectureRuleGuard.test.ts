@@ -9,7 +9,7 @@
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
-import { ARCHITECTURE_RULES } from '../architectureRules'
+import { ARCHITECTURE_RULES, SLICE_GUIDANCE, type AagSlice } from '../architectureRules'
 import { GUARD_TAG_REGISTRY } from '../guardTagRegistry'
 
 const PROJECT_ROOT = path.resolve(__dirname, '../../../..')
@@ -691,5 +691,46 @@ describe('AAG Traceability: 思想とルールの整合性', () => {
     const principleSet = new Set(ALL_PRINCIPLES)
     const inTypeButNotJson = [...allUsed].filter((id) => !principleSet.has(id))
     expect(inTypeButNotJson, 'PrincipleId にあるが principles.json にない').toEqual([])
+  })
+})
+
+// ─── 入口品質: AAG Response 統一フォーマットの運用監視 ────────────
+
+describe('AAG Entry Quality: 入口品質の自己監視', () => {
+  it('手書き AAG レスポンスの残件数（ratchet-down）', () => {
+    // AAG Response 統一フォーマットに移行済みでない手書き出力を検出
+    // "⚡ AAG" パターン（renderAagResponse 経由でない独自フォーマット）
+    const toolsDir = path.join(PROJECT_ROOT, 'tools')
+    const files = [
+      path.join(toolsDir, 'git-hooks/pre-commit'),
+      path.join(toolsDir, 'architecture-health/src/collectors/obligation-collector.ts'),
+    ]
+    let handwritten = 0
+    for (const file of files) {
+      if (!fs.existsSync(file)) continue
+      const content = fs.readFileSync(file, 'utf-8')
+      // renderAagResponse 互換フォーマット（"⚡ 今すぐ修正"）は OK
+      // 旧フォーマット（"⚡ AAG"）は手書き残件
+      const oldPattern = (content.match(/⚡ AAG /g) || []).length
+      handwritten += oldPattern
+    }
+    // BASELINE: 0（全入口が統一フォーマットに移行済み）
+    expect(
+      handwritten,
+      `手書き AAG レスポンスが ${handwritten} 件残っています。renderAagResponse 互換フォーマットに移行してください`,
+    ).toBe(0)
+  })
+
+  it('SLICE_GUIDANCE が全スライスをカバーしている', () => {
+    const slices: AagSlice[] = [
+      'layer-boundary',
+      'canonicalization',
+      'query-runtime',
+      'responsibility-separation',
+      'governance-ops',
+    ]
+    for (const slice of slices) {
+      expect(SLICE_GUIDANCE[slice], `SLICE_GUIDANCE に ${slice} がない`).toBeTruthy()
+    }
   })
 })
