@@ -380,6 +380,53 @@ describe('C3: store は state 反映のみ', () => {
   })
 })
 
+// ─── C3 拡張: store に storage 副作用を持ち込まない ─────────
+
+describe('C3 拡張: store に storage 副作用を持ち込まない', () => {
+  const storesDir = path.join(SRC_DIR, 'application/stores')
+
+  it('stores/ で localStorage / sessionStorage / saveJson / loadJson / removeKey を直接使用しない', () => {
+    const files = collectTsFiles(storesDir)
+    const violations: string[] = []
+
+    const STORAGE_SIDE_EFFECT_PATTERNS = [
+      /\blocalStorage\s*\./,
+      /\bsessionStorage\s*\./,
+      /\bsaveJson\s*\(/,
+      /\bloadJson\s*\(/,
+      /\bremoveKey\s*\(/,
+      /\bsaveRaw\s*\(/,
+      /\bloadRaw\s*\(/,
+    ]
+
+    for (const file of files) {
+      const content = fs.readFileSync(file, 'utf-8')
+      const lines = content.split('\n')
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i]
+        if (isCommentLine(line)) continue
+        // import 文は除外（型や定数の import は許可）
+        if (/^\s*import\s/.test(line)) continue
+
+        const codePart = stripStrings(line)
+        for (const pattern of STORAGE_SIDE_EFFECT_PATTERNS) {
+          if (pattern.test(codePart)) {
+            violations.push(`${rel(file)}:${i + 1}: ${line.trim()}`)
+            break
+          }
+        }
+      }
+    }
+
+    expect(
+      violations,
+      formatViolationMessage(rule, violations) +
+        '\n  → store は state 反映のみ。永続化は uiPersistenceAdapter 経由で外部から行ってください。',
+    ).toEqual([])
+  })
+})
+
 // ─── D3: 率メトリクスの累計は原量から再計算（率の合算禁止） ──
 
 describe('D3: 率メトリクスの累計計算ガード', () => {

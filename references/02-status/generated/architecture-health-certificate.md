@@ -7,7 +7,7 @@
 | **総合評価** | **RISK** |
 | 前回比 | Flat |
 | リリース影響 | Yes |
-| 最終更新 | 2026-04-09T09:30:01.559Z |
+| 最終更新 | 2026-04-09T11:26:49.571Z |
 
 ## Hard Gate
 
@@ -30,7 +30,7 @@
 | **複雑性圧** | OK | 上限間近ファイル数: 0/5 / 複雑性ホットスポット数: 10/10 / ViewModel ファイル数: 27/30 |
 | **境界健全性** | OK | Presentation→Infrastructure 違反: 0/0 / Infrastructure→Application 違反: 0/0 |
 | **ガード強度** | OK | ガードテストファイル数: 43/30 / レビュー専用タグ数: 0/5 |
-| **性能** | OK | JS バンドル合計サイズ: 6495/7000 / メインバンドルサイズ: 2219/2500 / ECharts バンドルサイズ: 919/1000 |
+| **性能** | OK | JS バンドル合計サイズ: 6495/7000 / メインバンドルサイズ: 2224/2500 (+5) / ECharts バンドルサイズ: 919/1000 |
 | **Temporal Governance** | WARN | review overdue ルール数: 0/0 / heuristic + gate ルール数: 32/32 / active-debt 例外数: 0/1 / reviewPolicy 設定済みルール数: 93/92 / sunsetCondition 設定済みルール数: 9/9 / active-debt で createdAt 設定済み: 0/1 |
 | **Rule Efficacy** | OK | protectedHarm 設定済みルール数: 33 / 高例外圧ルール数（≥10 件）: 0/3 / renewalCount 合計: 0/10 |
 
@@ -50,13 +50,12 @@
 
 | 指標 | 前回 | 今回 | 変化 |
 |---|---|---|---|
-| Doc 更新義務違反数 | 1 | 2 | +1 ! |
+| メインバンドルサイズ | 2219 | 2224 | +5 ! |
 
 ## Recommended Actions
 
 1. Doc 更新義務違反数 を budget 0 以下に修正する
 2. active-debt で createdAt 設定済み を 0 → 1 に削減する（残 -1）
-3. Doc 更新義務違反数 が悪化（1 → 2）— 原因を調査する
 
 ---
 

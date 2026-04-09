@@ -1,16 +1,45 @@
 /**
  * uiPersistenceAdapter — UI 永続化の統一アダプター
  *
- * pageStore / widgetLayout / widgetAutoInject が個別に localStorage を
- * 操作していたパターンを統一する。
+ * アプリ内の全 localStorage 操作を一箇所に集約する。
  *
  * 責務:
  *   - localStorage の読み書きを一箇所に集約
  *   - schema version 管理 + safe fallback
  *   - テスト時のモック差し替え容易化
+ *   - 永続化キーの一覧管理（STORAGE_KEYS）
  *
  * @guard C3 store は state 反映のみ（永続化ロジックをストアから分離）
  */
+
+/**
+ * アプリ全体で使用される localStorage キーの一覧。
+ * 新しいキーを追加する場合は必ずここに登録する。
+ */
+export const STORAGE_KEYS = {
+  /** カスタムページ一覧 */
+  CUSTOM_PAGES: 'custom_pages_v1',
+  /** ダッシュボード レイアウト（レガシー） */
+  DASHBOARD_LAYOUT: 'dashboard_layout_v12',
+  /** ダッシュボード レイアウト（新版） */
+  DASHBOARD_LAYOUT_V14: 'dashboard_layout_v14',
+  /** マルチページ widget レイアウト（ページキーを含む） */
+  widgetLayout: (pageKey: string) => `widget_layout_${pageKey}_v1` as const,
+  /** ダッシュボード アクティブプリセット */
+  DASHBOARD_ACTIVE_PRESET: 'dashboard_active_preset',
+  /** ダッシュボード カスタムプリセット */
+  DASHBOARD_CUSTOM_PRESETS: 'dashboard_custom_presets_v1',
+  /** ダッシュボード 自動注入済みウィジェット */
+  DASHBOARD_AUTO_INJECTED: 'dashboard_auto_injected_v3',
+  /** テーマ（dark / light） */
+  THEME: 'theme',
+  /** ロケール（ja / en） */
+  LOCALE: 'shiire-arari-locale',
+  /** Zustand 設定ストア */
+  SETTINGS: 'shiire-arari-settings',
+  /** WASM 実行モード */
+  EXECUTION_MODE: 'factorDecomposition.executionMode',
+} as const
 
 /** localStorage 互換の最小インターフェース（テスト用モック対応） */
 export interface StorageBackend {

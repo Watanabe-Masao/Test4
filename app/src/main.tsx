@@ -3,6 +3,8 @@ import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import { registerServiceWorker } from '@/infrastructure/pwa'
 import { notifySwUpdate } from '@/application/lifecycle/swUpdateSignal'
+// 副作用: ページ削除時の widget レイアウト クリーンアップ
+import '@/application/adapters/pageStoreCleanupEffect'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

@@ -20,10 +20,6 @@ const rule = getRuleById('AR-STRUCT-RENDER-SIDE-EFFECT')!
 const ALLOWLIST = new Set([
   // chunk reload retry のループ防止フラグ（sessionStorage）
   'presentation/lazyWithRetry.ts',
-  // ダッシュボードプリセット（localStorage）— adapter 移行予定
-  'presentation/pages/Dashboard/widgets/layoutPresets.ts',
-  // マルチページ widget レイアウト（localStorage）— adapter 移行予定
-  'presentation/components/widgets/widgetLayout.ts',
 ])
 
 const SIDE_EFFECT_PATTERNS = [/\blocalStorage\s*\./, /\bsessionStorage\s*\./]

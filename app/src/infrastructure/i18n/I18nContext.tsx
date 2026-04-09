@@ -39,7 +39,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   const t = useCallback((template: string, params?: Record<string, string | number>) => {
     if (!params) return template
     return Object.entries(params).reduce(
-      (result, [key, value]) => result.replace(`{${key}}`, String(value)),
+      (result, [key, value]) => result.replaceAll(`{${key}}`, String(value)),
       template,
     )
   }, [])

@@ -31,7 +31,10 @@ export const weatherAdapter: WeatherPort = {
 
   // EtrnStation → 低レベル引数に展開
   async fetchDailyWeather(station: EtrnStation, year: number, month: number) {
-    return fetchEtrnDailyWeather(station.precNo!, station.blockNo, station.stationType, year, month)
+    if (station.precNo == null) {
+      throw new Error(`[weatherAdapter] precNo is missing for station "${station.stationName}"`)
+    }
+    return fetchEtrnDailyWeather(station.precNo, station.blockNo, station.stationType, year, month)
   },
 
   async fetchHourlyRange(
@@ -41,8 +44,11 @@ export const weatherAdapter: WeatherPort = {
     days: readonly number[],
     onProgress?: HourlyProgressCallback,
   ) {
+    if (station.precNo == null) {
+      throw new Error(`[weatherAdapter] precNo is missing for station "${station.stationName}"`)
+    }
     return fetchEtrnHourlyRange(
-      station.precNo!,
+      station.precNo,
       station.blockNo,
       station.stationType,
       year,

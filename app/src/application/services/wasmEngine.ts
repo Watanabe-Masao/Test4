@@ -4,6 +4,21 @@
  * WASM モジュールの初期化・状態管理・モード切替を担当する。
  * 対応モジュール: factorDecomposition, grossProfit, budgetAnalysis, forecast, timeSlot
  *
+ * ## 初期化経路
+ *
+ * - **DEV:** `main.tsx` が `initAllWasmModules()` を非同期呼び出し。
+ *   全 5 モジュールが並列で初期化される。モードは `wasm-only`（localStorage 未設定時）。
+ * - **PROD:** WASM は初期化されない（`initAllWasmModules` は呼ばれない）。
+ *   モードは `ts-only` 固定。Bridge は同期関数のため、WASM 未 ready なら TS fallback を返す。
+ * - **E2E (Playwright):** DEV ビルドと同じ経路で WASM が初期化される。
+ *   Observation テストは `window.__runObservation` 経由で WASM 直接呼び出しを検証する。
+ *
+ * ## Fallback ポリシー
+ *
+ * 各 bridge（例: `factorDecompositionBridge.ts`）は `getWasmModuleState(name)` を
+ * チェックし、`'ready'` なら WASM、それ以外なら TS 実装を使う。
+ * `getExecutionMode()` が `'ts-only'` なら WASM は常にスキップされる。
+ *
  * 保証:
  * 1. WASM 未初期化でも UI は通常どおり動く（PROD: ts-only、DEV: wasm-only）
  * 2. 初期化失敗時も TS 実装へ確実にフォールバック（state → 'error' → 以降 TS 固定）
@@ -248,33 +263,25 @@ export function getExecutionMode(): ExecutionMode {
   return currentMode
 }
 
+import { loadRaw, saveRaw, STORAGE_KEYS } from '@/application/adapters/uiPersistenceAdapter'
+
 /**
  * 実行モードを設定する。
  * localStorage にも永続化する（DEV 環境での切替用）。
  */
 export function setExecutionMode(mode: ExecutionMode): void {
   currentMode = mode
-  try {
-    localStorage.setItem('factorDecomposition.executionMode', mode)
-  } catch {
-    // localStorage unavailable — ignore
-  }
+  saveRaw(STORAGE_KEYS.EXECUTION_MODE, mode)
 }
 
 /* ── 初期化時に localStorage から設定を読み込む ── */
 
 function loadModeFromStorage(): void {
-  try {
-    const stored = localStorage.getItem('factorDecomposition.executionMode')
-    if (stored === 'ts-only' || stored === 'wasm-only') {
-      currentMode = stored
-    } else if (import.meta.env.DEV) {
-      currentMode = 'wasm-only'
-    }
-  } catch {
-    if (import.meta.env.DEV) {
-      currentMode = 'wasm-only'
-    }
+  const stored = loadRaw(STORAGE_KEYS.EXECUTION_MODE)
+  if (stored === 'ts-only' || stored === 'wasm-only') {
+    currentMode = stored
+  } else if (import.meta.env.DEV) {
+    currentMode = 'wasm-only'
   }
 }
 

@@ -53,6 +53,22 @@ describe('I18nContext', () => {
     expect(localStorage.getItem('shiire-arari-locale')).toBe('en')
   })
 
+  it('同一プレースホルダが複数回出現しても全て置換される', () => {
+    const { result } = renderHook(() => useI18n(), { wrapper })
+    const formatted = result.current.t('{name}さんの{name}レポート', { name: '田中' })
+    expect(formatted).toBe('田中さんの田中レポート')
+  })
+
+  it('複数の異なるプレースホルダを正しく置換する', () => {
+    const { result } = renderHook(() => useI18n(), { wrapper })
+    const formatted = result.current.t('{year}年{month}月{day}日', {
+      year: 2026,
+      month: 4,
+      day: 9,
+    })
+    expect(formatted).toBe('2026年4月9日')
+  })
+
   it('I18nProvider なしで useI18n を使うとエラー', () => {
     expect(() => {
       renderHook(() => useI18n())

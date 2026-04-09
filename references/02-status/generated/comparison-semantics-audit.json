@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-08T08:08:54.052Z",
+  "timestamp": "2026-04-09T11:23:43.462Z",
   "comparisonModuleFiles": [
     "application/comparison/ComparisonContext.ts",
     "application/comparison/adjacentMonthUtils.ts",
@@ -32,6 +32,7 @@
     "features/budget/ui/InsightTabBudget.tsx",
     "features/budget/ui/InsightTabBudget.tsx",
     "features/comparison/index.ts",
+    "features/comparison/index.ts",
     "presentation/pages/Daily/DailyPage.tsx",
     "presentation/pages/Daily/DailyPage.tsx",
     "presentation/pages/Dashboard/widgets/AlertPanel.tsx",
@@ -53,5 +54,5 @@
     "presentation/pages/Forecast/ForecastPage.helpers.ts",
     "presentation/pages/Forecast/ForecastPage.helpers.ts"
   ],
-  "accessorUsageCount": 27
+  "accessorUsageCount": 28
 }
