@@ -13,7 +13,7 @@
  *   npm run docs:check       # generate → git diff --exit-code
  */
 import { resolve, dirname } from 'node:path'
-import { readFileSync, existsSync } from 'node:fs'
+import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { collectFromSnapshot } from './collectors/snapshot-collector.js'
 import { collectFromGuards } from './collectors/guard-collector.js'
@@ -189,7 +189,36 @@ if (!isCheck) {
       content: ruleStatsContent,
     },
   ])
-  for (const r of [...results, ...ruleStatsResults]) {
+
+  // プロジェクト構成の generated sections（features/ + guards/）
+  const featuresDir = resolve(repoRoot, 'app/src/features')
+  const featureModules = readdirSync(featuresDir)
+    .filter((f: string) => statSync(resolve(featuresDir, f)).isDirectory())
+    .sort()
+  const featuresContent = featureModules.map((m: string) => `- ${m}`).join('\n') +
+    `\n\n> ${featureModules.length} モジュール — 生成: ${new Date().toISOString()}`
+
+  const guardsDir = resolve(repoRoot, 'app/src/test/guards')
+  const guardFilesList = readdirSync(guardsDir)
+    .filter((f: string) => f.endsWith('.test.ts'))
+    .sort()
+  const guardsContent = guardFilesList.map((f: string) => `- \`${f}\``).join('\n') +
+    `\n\n> ${guardFilesList.length} ファイル — 生成: ${new Date().toISOString()}`
+
+  const structureResults = updateGeneratedSections(repoRoot, [
+    {
+      filePath: 'references/02-status/project-structure.md',
+      sectionId: 'features-list',
+      content: featuresContent,
+    },
+    {
+      filePath: 'references/02-status/project-structure.md',
+      sectionId: 'guard-files-list',
+      content: guardsContent,
+    },
+  ])
+
+  for (const r of [...results, ...ruleStatsResults, ...structureResults]) {
     console.error(`[section] ${r.file} #${r.sectionId}: ${r.status}`)
   }
 } else {
