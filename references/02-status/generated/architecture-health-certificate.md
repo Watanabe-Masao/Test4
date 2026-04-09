@@ -5,9 +5,9 @@
 | 項目 | 値 |
 |---|---|
 | **総合評価** | **RISK** |
-| 前回比 | Regressed |
+| 前回比 | Flat |
 | リリース影響 | Yes |
-| 最終更新 | 2026-04-09T03:28:58.156Z |
+| 最終更新 | 2026-04-09T03:29:29.579Z |
 
 ## Hard Gate
 
@@ -37,7 +37,7 @@
 ## Top Risks
 
 **1. Doc 更新義務違反数**
-- 状態: 3 / budget 0（300% 超過）
+- 状態: 1 / budget 0（100% 超過）
 - ファイル: `—`
 - 定義書: `tools/architecture-health/src/collectors/obligation-collector.ts`
 
@@ -50,13 +50,12 @@
 
 | 指標 | 前回 | 今回 | 変化 |
 |---|---|---|---|
-| Doc 更新義務違反数 | 0 | 3 | +3 ! |
+| Doc 更新義務違反数 | 3 | 1 | -2 + |
 
 ## Recommended Actions
 
 1. Doc 更新義務違反数 を budget 0 以下に修正する
 2. active-debt で createdAt 設定済み を 0 → 1 に削減する（残 -1）
-3. Doc 更新義務違反数 が悪化（0 → 3）— 原因を調査する
 
 ---
 

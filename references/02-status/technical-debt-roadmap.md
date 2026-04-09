@@ -13,7 +13,7 @@
 ## 現在の健全性サマリー
 
 <!-- GENERATED:START architecture-health-summary -->
-**RISK** | 前回比: Regressed | Hard Gate: FAIL
+**RISK** | 前回比: Flat | Hard Gate: FAIL
 
 | 指標 | 状態 | 詳細 |
 |---|---|---|
@@ -29,9 +29,8 @@
 **Next:**
 - Doc 更新義務違反数 を budget 0 以下に修正する
 - active-debt で createdAt 設定済み を 0 → 1 に削減する（残 -1）
-- Doc 更新義務違反数 が悪化（0 → 3）— 原因を調査する
 
-> 生成: 2026-04-09T03:28:58.156Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-09T03:29:29.579Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 現状スナップショット
