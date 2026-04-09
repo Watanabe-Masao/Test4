@@ -60,7 +60,7 @@ describe('Doc Registry Guard: ドキュメントレジストリの整合性', ()
     const unregistered = actualFiles.filter((f) => !allRegisteredPaths.has(f))
 
     // 未登録ファイルを検出（ratchet-down）
-    const UNREGISTERED_BASELINE = 4 // 初期値。減少のみ許可
+    const UNREGISTERED_BASELINE = 0
     if (unregistered.length < UNREGISTERED_BASELINE) {
       console.log(
         `\n[ratchet-down] 未登録文書が ${UNREGISTERED_BASELINE} → ${unregistered.length} に減少。` +
@@ -86,7 +86,7 @@ describe('Doc Registry Guard: ドキュメントレジストリの整合性', ()
 
     const unregistered = actualFiles.filter((f) => !allRegisteredPaths.has(f))
 
-    const UNREGISTERED_BASELINE = 22 // 初期値。漏れを可視化して段階的に登録
+    const UNREGISTERED_BASELINE = 0
     if (unregistered.length < UNREGISTERED_BASELINE) {
       console.log(
         `\n[ratchet-down] 未登録文書が ${UNREGISTERED_BASELINE} → ${unregistered.length} に減少。` +
