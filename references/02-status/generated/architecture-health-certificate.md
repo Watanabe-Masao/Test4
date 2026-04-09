@@ -7,7 +7,7 @@
 | **総合評価** | **RISK** |
 | 前回比 | Flat |
 | リリース影響 | Yes |
-| 最終更新 | 2026-04-09T08:15:29.678Z |
+| 最終更新 | 2026-04-09T08:17:56.273Z |
 
 ## Hard Gate
 
@@ -31,7 +31,7 @@
 | **境界健全性** | OK | Presentation→Infrastructure 違反: 0/0 / Infrastructure→Application 違反: 0/0 |
 | **ガード強度** | OK | ガードテストファイル数: 40/30 / レビュー専用タグ数: 0/5 |
 | **性能** | OK | JS バンドル合計サイズ: 6495/7000 / メインバンドルサイズ: 2219/2500 / ECharts バンドルサイズ: 919/1000 |
-| **Temporal Governance** | WARN | review overdue ルール数: 0/0 / heuristic + gate ルール数: 32/32 / active-debt 例外数: 0/1 / reviewPolicy 設定済みルール数: 92/92 / sunsetCondition 設定済みルール数: 9/9 / active-debt で createdAt 設定済み: 0/1 |
+| **Temporal Governance** | WARN | review overdue ルール数: 0/0 / heuristic + gate ルール数: 32/32 / active-debt 例外数: 0/1 / reviewPolicy 設定済みルール数: 93/92 (+1) / sunsetCondition 設定済みルール数: 9/9 / active-debt で createdAt 設定済み: 0/1 |
 | **Rule Efficacy** | OK | protectedHarm 設定済みルール数: 33 / 高例外圧ルール数（≥10 件）: 0/3 / renewalCount 合計: 0/10 |
 
 ## Top Risks
@@ -45,6 +45,14 @@
 - 状態: 0 / budget 1（-100% 超過）
 - ファイル: `app/src/test/allowlists/architecture.ts`
 - 定義書: `—`
+
+## Recent Changes
+
+| 指標 | 前回 | 今回 | 変化 |
+|---|---|---|---|
+| 総 Architecture Rule 数 | 92 | 93 | +1 ! |
+| fixNow=review ルール数（観測） | 18 | 19 | +1 ! |
+| reviewPolicy 設定済みルール数 | 92 | 93 | +1 ! |
 
 ## Recommended Actions
 
