@@ -3903,7 +3903,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         'バージョン履歴のスナップショット、設計原則の定義（C1: 1ファイル=1変更理由）、構造定義（4層/5スライス）',
       escalation: 'generated section に寄せるか EXCEPTIONS に理由付きで登録',
     },
-    detection: { type: 'regex', severity: 'info' },
+    detection: { type: 'regex', severity: 'gate' },
     migrationPath: {
       steps: [
         '1. 数値を generated section に移動するか、件数を除去して定性表現に変更',
