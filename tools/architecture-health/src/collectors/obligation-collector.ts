@@ -10,6 +10,7 @@ import { execSync } from 'node:child_process'
 import { readFileSync, existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import type { HealthKpi } from '../types.js'
+import { renderAagResponse, buildObligationResponse } from '../aag-response.js'
 
 // ---------------------------------------------------------------------------
 // Obligation Map — パスパターン → 更新義務のある doc/action
@@ -192,18 +193,10 @@ export function collectObligations(
 
     if (!satisfied) {
       violations++
-      // AAG Response 統一フォーマット（renderAagResponse 互換）
+      // 単一描画経路: aag-response.ts の renderAagResponse() を経由
       if (process.env.AAG_VERBOSE !== '0') {
-        console.error(
-          `⚡ 今すぐ修正 [governance-ops]\n` +
-            `  ${rule.label}\n` +
-            `  理由: ${rule.pathPattern} の変更が検出されたため、関連ドキュメントの更新が必要\n` +
-            `  方向: docs:generate / rule review で対応する\n` +
-            `  修正手順:\n` +
-            `    1. cd app && npm run docs:generate\n` +
-            `    2. git add references/02-status/generated/ CLAUDE.md\n` +
-            `  詳細: tools/architecture-health/src/collectors/obligation-collector.ts`,
-        )
+        const resp = buildObligationResponse(rule.label, rule.pathPattern)
+        console.error(renderAagResponse(resp))
       }
     }
   }

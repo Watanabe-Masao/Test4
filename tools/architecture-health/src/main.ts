@@ -163,7 +163,33 @@ if (!isCheck) {
     },
   ])
 
-  for (const r of results) {
+  // AAG 正本文書のルール統計 generated section
+  const allKpis = report.kpis
+  const ruleTotal = allKpis.find((k) => k.id === 'guard.rules.total')?.value ?? '?'
+  const fixNow = allKpis.find((k) => k.id === 'guard.rules.fixNow.now')?.value ?? '?'
+  const fixDebt = allKpis.find((k) => k.id === 'guard.rules.fixNow.debt')?.value ?? '?'
+  const fixReview = allKpis.find((k) => k.id === 'guard.rules.fixNow.review')?.value ?? '?'
+  const guardFiles = allKpis.find((k) => k.id === 'guard.files.count')?.value ?? '?'
+  const ruleStatsContent = [
+    `| 指標 | 値 |`,
+    `|------|-----|`,
+    `| 総ルール数 | ${ruleTotal} |`,
+    `| fixNow=now（即修正） | ${fixNow} |`,
+    `| fixNow=debt（構造負債） | ${fixDebt} |`,
+    `| fixNow=review（観測） | ${fixReview} |`,
+    `| ガードテストファイル | ${guardFiles} |`,
+    ``,
+    `> 生成: ${new Date().toISOString()} — 正本: \`app/src/test/architectureRules.ts\``,
+  ].join('\n')
+
+  const ruleStatsResults = updateGeneratedSections(repoRoot, [
+    {
+      filePath: 'references/01-principles/adaptive-architecture-governance.md',
+      sectionId: 'aag-rule-stats',
+      content: ruleStatsContent,
+    },
+  ])
+  for (const r of [...results, ...ruleStatsResults]) {
     console.error(`[section] ${r.file} #${r.sectionId}: ${r.status}`)
   }
 } else {
