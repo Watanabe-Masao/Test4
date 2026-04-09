@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-09T08:08:26.455Z",
+  "timestamp": "2026-04-09T08:15:29.678Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 39,
+      "value": 40,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -276,6 +276,7 @@
         "app/src/test/guards/customerGapPathGuard.test.ts",
         "app/src/test/guards/dataIntegrityGuard.test.ts",
         "app/src/test/guards/discountFactPathGuard.test.ts",
+        "app/src/test/guards/docStaticNumberGuard.test.ts",
         "app/src/test/guards/dualRunExitCriteriaGuard.test.ts",
         "app/src/test/guards/factorDecompositionPathGuard.test.ts",
         "app/src/test/guards/fallbackMetadataGuard.test.ts",

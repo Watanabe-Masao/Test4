@@ -208,9 +208,9 @@ Response（入口）→ Judgment（判断）→ Principles（思想）← Detect
 | fixNow=now（即修正） | 33 |
 | fixNow=debt（構造負債） | 43 |
 | fixNow=review（観測） | 18 |
-| ガードテストファイル | 39 |
+| ガードテストファイル | 40 |
 
-> 生成: 2026-04-09T08:08:26.459Z — 正本: `app/src/test/architectureRules.ts`
+> 生成: 2026-04-09T08:15:29.683Z — 正本: `app/src/test/architectureRules.ts`
 <!-- GENERATED:END aag-rule-stats -->
 
 ## 運用区分

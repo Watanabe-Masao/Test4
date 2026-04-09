@@ -27,7 +27,7 @@ app/src/test/
 ├── calculationCanonRegistry.ts   ← domain/calculations/ 分類
 ├── allowlists/                   ← 例外管理（ruleId で紐づけ）
 │   └── types.ts                  ← AllowlistEntry 型（ruleId フィールド付き）
-└── guards/                       ← ガードテスト（39 ファイル、全て architectureRules 参照）
+└── guards/                       ← ガードテスト（全て architectureRules 参照）
     └── architectureRuleGuard.test.ts  ← ルール自体の整合性検証
 ```
 

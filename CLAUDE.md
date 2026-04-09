@@ -204,7 +204,7 @@ app/src/
     │   ├── migration.ts      #   比較移行
     │   └── misc.ts           #   その他
     ├── calculationCanonRegistry.ts  # domain/calculations/ 全ファイル分類
-    ├── guards/               # 構造制約ガード（39ファイル / 316テスト）
+    ├── guards/               # 構造制約ガード（件数は generated section 参照）
     │   ├── analysisFrameGuard.test.ts
     │   ├── architectureRuleGuard.test.ts
     │   ├── calculationCanonGuard.test.ts
@@ -551,7 +551,7 @@ CQRS + 契約ハイブリッド設計により、既存4層モデルの内側に
 - **Application 層:** `purchaseCostHandler` / `readPurchaseCost()` の直接使用を許容
 - **禁止:** 旧クエリ（queryPurchaseTotal 等7関数）は廃止済み。復活禁止
 - **移動原価:** IN + OUT の全方向を含める（IN のみは二重計上になるため禁止）
-- **ガード:** `purchaseCostPathGuard.test.ts`（4層9テスト）+ `purchaseCostImportGuard.test.ts`（15テスト）で保証
+- **ガード:** `purchaseCostPathGuard.test.ts` + `purchaseCostImportGuard.test.ts` で保証
 
 ## 実行時データ経路（実装の主経路）
 
@@ -590,7 +590,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 詳細レポート: `references/02-status/generated/architecture-health.md`
 
 <!-- GENERATED:START architecture-health-summary -->
-**RISK** | 前回比: Regressed | Hard Gate: FAIL
+**RISK** | 前回比: Flat | Hard Gate: FAIL
 
 | 指標 | 状態 | 詳細 |
 |---|---|---|
@@ -598,7 +598,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 | 後方互換負債 | OK | 0/3 / 2/3 |
 | 複雑性圧 | OK | 0/5 / 10/10 / 27/30 |
 | 境界健全性 | OK | 0/0 / 0/0 |
-| ガード強度 | OK | 39/30 / 0/5 |
+| ガード強度 | OK | 40/30 / 0/5 |
 | 性能 | OK | 6495/7000 / 2219/2500 / 919/1000 |
 | Temporal Governance | WARN | 0/0 / 32/32 / 0/1 / 92/92 / 9/9 / 0/1 |
 | Rule Efficacy | OK | 33 / 0/3 / 0/10 |
@@ -606,9 +606,8 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 **Next:**
 - Doc 更新義務違反数 を budget 0 以下に修正する
 - active-debt で createdAt 設定済み を 0 → 1 に削減する（残 -1）
-- Doc 更新義務違反数 が悪化（0 → 1）— 原因を調査する
 
-> 生成: 2026-04-09T08:08:26.455Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-09T08:15:29.678Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）
@@ -638,9 +637,9 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 
 - **体系統合ガード:** `canonicalizationSystemGuard.test.ts` — 全 readModel ディレクトリ・定義書・CLAUDE.md 参照を検証
 - **計算レジストリ:** `calculationCanonRegistry.ts` + `calculationCanonGuard.test.ts` — domain/calculations/ 全ファイルの分類管理
-- **Zod 契約:** 全 queryToObjects に46型 + readModels の .parse() fail fast + domain/calculations 必須13/13 + 検討7/9
-- **不変条件:** `invariant-catalog.md` に INV-CANON-01〜16 として16件の正本化不変条件を登録
-- **正本化原則:** `references/01-principles/canonicalization-principles.md` — 7原則 + 禁止事項
+- **Zod 契約:** 全 queryToObjects + readModels の .parse() fail fast + domain/calculations Zod 適用
+- **不変条件:** `invariant-catalog.md` に正本化不変条件を登録
+- **正本化原則:** `references/01-principles/canonicalization-principles.md`
 - **正本化マップ:** `references/01-principles/calculation-canonicalization-map.md` — domain/calculations/ 全ファイルの分類
 
 ## 直近の主要変更（#673-#848+）
