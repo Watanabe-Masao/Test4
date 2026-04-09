@@ -1,10 +1,40 @@
 # 直近の主要変更（#673-#848+）
 
-> 更新日: 2026-04-05
+> 更新日: 2026-04-09
 >
 > **役割分担:** 本ドキュメントは内部向けの詳細変更記録。
 > リリース単位の要約は `CHANGELOG.md` を参照。
 > 同じ内容を二重管理しないこと。
+
+## AAG v3.2.0 — 正本昇格 + 双方向検証 + Discovery Review（2026-04-09）
+
+### 概要
+
+AAG v3.1.0 の「次のステップ」を完了。principles.json を正本に昇格し、
+思想→原則→ルールのトレーサビリティを双方向検証で機械保証。
+技術的負債（active-debt, totalCustomers）を解消し、
+Discovery Review による月次品質点検を制度化。
+
+### 正本昇格 + トレーサビリティ完成
+
+- principles.json: 各原則にタイトル・カテゴリ別 doc 参照を追加（tags → principles 構造）
+- ALL_PRINCIPLES を principles.json から動的生成（ハードコード廃止）
+- Principle Coverage: 42/50 → 50/50（8原則の principleRefs を既存ルールに追加）
+- 双方向リンク検証テスト 3 件追加（ガードテスト 421 → 424）
+
+### 技術的負債の解消
+
+- Active-debt: 1 → 0（useCostDetailData useMemo 9→2、transfer/costInclusion sub-hook 分離）
+- totalCustomers allowlist: 7 → 0（presentation 層から `.totalCustomers` 完全排除）
+- extractPrevYearCustomerCount を features/comparison に移動
+
+### AAG 運用基盤
+
+- Pre-commit hook: 影響スライス別ファイル数表示
+- Fix hints: 4 → 17（docs/boundary/allowlist/complexity/guard/perf/temporal）
+- Discovery Review チェックリスト: 26 項目（`references/03-guides/discovery-review-checklist.md`）
+
+---
 
 ## 進化安全の再構成 — WASM authoritative 昇格 + dual-run 退役（2026-04-05）
 

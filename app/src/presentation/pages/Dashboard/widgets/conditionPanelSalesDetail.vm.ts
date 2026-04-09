@@ -59,7 +59,10 @@ export function buildTxValueDetailVm(
     const store = stores.get(storeId)
     const storeName = store?.name ?? storeId
     const storeCustomers = storeCustomerMap?.get(storeId) ?? 0
-    const storeTx = storeCustomers > 0 ? calculateTransactionValue(sr.totalSales, storeCustomers) : sr.transactionValue
+    const storeTx =
+      storeCustomers > 0
+        ? calculateTransactionValue(sr.totalSales, storeCustomers)
+        : sr.transactionValue
 
     const days = [...sr.daily.entries()].sort(([a], [b]) => a - b)
     const dailyRows = days.map(([day, dr]) => {
@@ -89,7 +92,11 @@ export function buildTxValueDetailVm(
     storeRows,
     totalSalesStr: fmtCurrency(result.totalSales),
     totalCustStr: `${totalCust.toLocaleString()}人`,
-    totalTxStr: formatTxValue(totalCust > 0 ? calculateTransactionValue(result.totalSales, totalCust) : result.transactionValue),
+    totalTxStr: formatTxValue(
+      totalCust > 0
+        ? calculateTransactionValue(result.totalSales, totalCust)
+        : result.transactionValue,
+    ),
   }
 }
 

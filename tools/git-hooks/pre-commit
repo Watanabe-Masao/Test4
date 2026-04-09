@@ -45,21 +45,35 @@ if echo "$STAGED" | grep -q "^${HEALTH_JSON}"; then
 fi
 
 # ── 影響スライスの推定（AAG Response 層） ──
-SLICES=""
-echo "$STAGED" | grep -q "app/src/domain/\|app/src/infrastructure/" && SLICES="${SLICES} layer-boundary"
-echo "$STAGED" | grep -q "readModels/\|calculations/\|canonicalization\|definition" && SLICES="${SLICES} canonicalization"
-echo "$STAGED" | grep -q "queries/\|QueryHandler\|AnalysisFrame\|ComparisonScope" && SLICES="${SLICES} query-runtime"
-echo "$STAGED" | grep -q "responsibility\|allowlists/complexity\|useMemo\|useState" && SLICES="${SLICES} responsibility-separation"
-echo "$STAGED" | grep -q "allowlists/\|guards/\|architecture-health\|obligation" && SLICES="${SLICES} governance-ops"
+count_matches() {
+  echo "$STAGED" | grep -c "$1" 2>/dev/null || echo 0
+}
+
+SLICE_LINES=""
+N=$(count_matches "app/src/domain/\|app/src/infrastructure/")
+[ "$N" -gt 0 ] && SLICE_LINES="${SLICE_LINES}\n    layer-boundary        (${N} files)"
+
+N=$(count_matches "readModels/\|calculations/\|canonicalization\|definition")
+[ "$N" -gt 0 ] && SLICE_LINES="${SLICE_LINES}\n    canonicalization       (${N} files)"
+
+N=$(count_matches "queries/\|QueryHandler\|AnalysisFrame\|ComparisonScope")
+[ "$N" -gt 0 ] && SLICE_LINES="${SLICE_LINES}\n    query-runtime          (${N} files)"
+
+N=$(count_matches "responsibility\|allowlists/complexity\|useMemo\|useState")
+[ "$N" -gt 0 ] && SLICE_LINES="${SLICE_LINES}\n    responsibility-sep     (${N} files)"
+
+N=$(count_matches "allowlists/\|guards/\|architecture-health\|obligation")
+[ "$N" -gt 0 ] && SLICE_LINES="${SLICE_LINES}\n    governance-ops         (${N} files)"
 
 # 自動再生成を試行
 echo ""
-echo "⚡ AAG Obligation [governance-ops]"
-echo "  docs:generate を自動実行中..."
-if [ -n "$SLICES" ]; then
-  echo "  影響スライス:${SLICES}"
+echo "--- AAG Obligation ---"
+if [ -n "$SLICE_LINES" ]; then
+  echo "  Affected slices:"
+  printf "%b\n" "$SLICE_LINES"
 fi
 echo ""
+echo "  Running docs:generate..."
 
 if (cd app && npm run docs:generate --silent 2>/dev/null); then
   git add \
@@ -70,14 +84,16 @@ if (cd app && npm run docs:generate --silent 2>/dev/null); then
     "references/02-status/technical-debt-roadmap.md" \
     2>/dev/null
 
-  echo "  ✓ 完了。生成ファイルをステージングに追加しました。"
+  echo "  OK — generated files staged."
+  echo "----------------------"
   echo ""
   exit 0
 else
   echo ""
-  echo "  ✗ docs:generate に失敗しました。"
-  echo "  対応: cd app && npm run docs:generate"
-  echo "  詳細: tools/architecture-health/src/collectors/obligation-collector.ts"
+  echo "  FAIL — docs:generate failed."
+  echo "  Fix: cd app && npm run docs:generate"
+  echo "  Ref: tools/architecture-health/src/collectors/obligation-collector.ts"
+  echo "----------------------"
   echo ""
   exit 1
 fi

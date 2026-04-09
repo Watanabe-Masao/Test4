@@ -5,9 +5,9 @@
 | 項目 | 値 |
 |---|---|
 | **総合評価** | **Watch** |
-| 前回比 | Flat |
+| 前回比 | Improved |
 | リリース影響 | No |
-| 最終更新 | 2026-04-09T00:49:58.340Z |
+| 最終更新 | 2026-04-09T01:15:27.440Z |
 
 ## Hard Gate
 
@@ -40,6 +40,12 @@
 - 状態: 0 / budget 1（-100% 超過）
 - ファイル: `app/src/test/allowlists/architecture.ts`
 - 定義書: `—`
+
+## Recent Changes
+
+| 指標 | 前回 | 今回 | 変化 |
+|---|---|---|---|
+| Doc 更新義務違反数 | 1 | 0 | -1 + |
 
 ## Recommended Actions
 
