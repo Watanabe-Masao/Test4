@@ -194,7 +194,7 @@ app/src/
 └── test/             # ガードテスト・共有インフラ
     ├── guardTestHelpers.ts   # 共有ヘルパー（collectTsFiles, rel 等）
     ├── guardTagRegistry.ts   # ガードタグのメタデータ管理
-    ├── architectureRules.ts  # Architecture Rule 定義（84 ルール — 実行可能なアーキテクチャ仕様）
+    ├── architectureRules.ts  # Architecture Rule 定義（実行可能なアーキテクチャ仕様）
     ├── allowlists/           # 許可リスト（カテゴリ別分割）
     │   ├── architecture.ts   #   層境界ルール
     │   ├── complexity.ts     #   行数・useMemo 制限
@@ -462,8 +462,7 @@ AAG は「発見 → 蓄積 → 評価」の 3 層サイクルでルール自体
 | `must-not-coexist` | 同居禁止 | useState と SQL query |
 | `custom` | 特殊ロジック | テスト側で実装 |
 
-**84 ルール / 全 39 ガードが参照 / 全ルールに migrationPath + doc + decisionCriteria**
-**ruleClass: invariant(23) / default(32) / heuristic(29)**
+**全ルールに migrationPath + doc + decisionCriteria（件数は generated section 参照）**
 
 各ルールが持つ情報:
 - `what` / `why` / `doc` — 学習コスト削減（27 ドキュメント参照）
@@ -591,7 +590,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 詳細レポート: `references/02-status/generated/architecture-health.md`
 
 <!-- GENERATED:START architecture-health-summary -->
-**Watch** | 前回比: Flat | Hard Gate: PASS
+**RISK** | 前回比: Regressed | Hard Gate: FAIL
 
 | 指標 | 状態 | 詳細 |
 |---|---|---|
@@ -605,9 +604,11 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 | Rule Efficacy | OK | 33 / 0/3 / 0/10 |
 
 **Next:**
+- Doc 更新義務違反数 を budget 0 以下に修正する
 - active-debt で createdAt 設定済み を 0 → 1 に削減する（残 -1）
+- Doc 更新義務違反数 が悪化（0 → 1）— 原因を調査する
 
-> 生成: 2026-04-09T08:01:01.404Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-09T08:08:26.455Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）
