@@ -3876,6 +3876,48 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       reviewCadenceDays: 45,
     },
   },
+
+  // ── 文書品質（governance-ops） ────────────────────────────────
+
+  {
+    id: 'AR-DOC-STATIC-NUMBER',
+    principleRefs: ['G1'],
+    ruleClass: 'default',
+    guardTags: ['G1', 'F8'],
+    slice: 'governance-ops',
+    fixNow: 'now',
+    epoch: 1,
+    doc: 'references/01-principles/adaptive-architecture-governance.md',
+    what: '文書中のハードコード数値は generated section か例外リストで管理する',
+    why: '静的数値は code と乖離して嘘になる。drift を機械的に検出する',
+    correctPattern: {
+      description: '件数は generated section から自動埋め込み。例外は理由付きで EXCEPTIONS に登録',
+    },
+    outdatedPattern: {
+      description: '文書に「N ルール」「N テスト」等をハードコードする',
+      codeSignals: ['ルール', 'テスト', 'ガード', 'KPI'],
+    },
+    decisionCriteria: {
+      when: '文書にルール数やテスト数を書きたいとき',
+      exceptions:
+        'バージョン履歴のスナップショット、設計原則の定義（C1: 1ファイル=1変更理由）、構造定義（4層/5スライス）',
+      escalation: 'generated section に寄せるか EXCEPTIONS に理由付きで登録',
+    },
+    detection: { type: 'regex', severity: 'info' },
+    migrationPath: {
+      steps: [
+        '1. 数値を generated section に移動するか、件数を除去して定性表現に変更',
+        '2. 除去できない場合は EXCEPTIONS に理由付きで追加',
+      ],
+      effort: 'trivial',
+      priority: 3,
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-09',
+      reviewCadenceDays: 90,
+    },
+  },
 ] as const satisfies readonly ArchitectureRule[]
 
 // ─── Lookup 関数 ─────────────────────────────────────────

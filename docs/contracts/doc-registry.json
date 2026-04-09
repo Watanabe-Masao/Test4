@@ -1,0 +1,136 @@
+{
+  "$comment": "ドキュメントレジストリ — 全正本文書の構造化正本。references/README.md はこの JSON のビュー。",
+  "categories": [
+    {
+      "id": "definition",
+      "title": "業務値定義書",
+      "docs": [
+        { "path": "references/01-principles/purchase-cost-definition.md", "label": "仕入原価の正本定義" },
+        { "path": "references/01-principles/gross-profit-definition.md", "label": "粗利の正本定義" },
+        { "path": "references/01-principles/sales-definition.md", "label": "売上の正本定義" },
+        { "path": "references/01-principles/discount-definition.md", "label": "値引きの正本定義" },
+        { "path": "references/01-principles/customer-definition.md", "label": "客数の正本定義" },
+        { "path": "references/01-principles/budget-definition.md", "label": "予算の正本定義" },
+        { "path": "references/01-principles/kpi-definition.md", "label": "KPIの正本定義" },
+        { "path": "references/01-principles/pi-value-definition.md", "label": "PI値の正本定義" },
+        { "path": "references/01-principles/customer-gap-definition.md", "label": "客数GAPの正本定義" },
+        { "path": "references/01-principles/authoritative-calculation-definition.md", "label": "Authoritative計算の定義" },
+        { "path": "references/01-principles/free-period-analysis-definition.md", "label": "自由期間分析の定義" },
+        { "path": "references/01-principles/free-period-budget-kpi-contract.md", "label": "自由期間予算KPI契約" }
+      ]
+    },
+    {
+      "id": "aag",
+      "title": "AAG（Adaptive Architecture Governance）",
+      "docs": [
+        { "path": "references/01-principles/adaptive-architecture-governance.md", "label": "AAG 正本" },
+        { "path": "references/01-principles/adaptive-governance-evolution.md", "label": "進化の設計" },
+        { "path": "references/01-principles/aag-four-layer-architecture.md", "label": "AAG 4 層" },
+        { "path": "references/01-principles/aag-operational-classification.md", "label": "運用区分表" },
+        { "path": "references/01-principles/aag-rule-splitting-plan.md", "label": "ルール分割計画" },
+        { "path": "references/01-principles/architecture-rule-feasibility.md", "label": "ルール導入評価" },
+        { "path": "references/03-guides/architecture-rule-system.md", "label": "ルール運用ガイド" },
+        { "path": "references/03-guides/allowlist-management.md", "label": "Allowlist 管理ガイド" },
+        { "path": "references/03-guides/guard-test-map.md", "label": "ガードテスト対応表" },
+        { "path": "references/03-guides/discovery-review-checklist.md", "label": "Discovery Review チェックリスト" },
+        { "path": "references/03-guides/aag-phase4-6-plan.md", "label": "AAG Phase 4-6 計画" },
+        { "path": "references/03-guides/active-debt-refactoring-plan.md", "label": "Active-Debt リファクタリング計画" },
+        { "path": "references/03-guides/legacy-governance-retirement.md", "label": "レガシーガバナンス廃止" }
+      ]
+    },
+    {
+      "id": "canonicalization",
+      "title": "正本化（Canonicalization）",
+      "docs": [
+        { "path": "references/01-principles/canonicalization-principles.md", "label": "正本化原則" },
+        { "path": "references/01-principles/canonical-value-ownership.md", "label": "値の所有権台帳" },
+        { "path": "references/01-principles/canonical-input-sets.md", "label": "正本入力セット" },
+        { "path": "references/01-principles/calculation-canonicalization-map.md", "label": "計算分類マップ" }
+      ]
+    },
+    {
+      "id": "architecture",
+      "title": "アーキテクチャ設計",
+      "docs": [
+        { "path": "references/01-principles/design-principles.md", "label": "設計原則 A-H+Q" },
+        { "path": "references/01-principles/safe-performance-principles.md", "label": "Screen Runtime (H)" },
+        { "path": "references/01-principles/critical-path-safety-map.md", "label": "Safety Tier" },
+        { "path": "references/01-principles/engine-boundary-policy.md", "label": "Engine 境界" },
+        { "path": "references/01-principles/engine-responsibility.md", "label": "JS vs DuckDB 責務" },
+        { "path": "references/01-principles/data-flow.md", "label": "データフロー 4 段階" },
+        { "path": "references/01-principles/data-pipeline-integrity.md", "label": "パイプライン整合性" },
+        { "path": "references/01-principles/temporal-scope-semantics.md", "label": "期間スコープ" },
+        { "path": "references/01-principles/modular-monolith-evolution.md", "label": "モジュラーモノリス" },
+        { "path": "references/01-principles/uiux-principles.md", "label": "UI/UX 4 原則" },
+        { "path": "references/01-principles/domain-ratio-primitives.md", "label": "ドメイン率プリミティブ" },
+        { "path": "references/01-principles/observation-period-spec.md", "label": "観測期間仕様" },
+        { "path": "references/01-principles/app-lifecycle-principles.md", "label": "アプリライフサイクル原則" },
+        { "path": "references/01-principles/cache-responsibility.md", "label": "キャッシュ責務" },
+        { "path": "references/01-principles/dual-period-definition.md", "label": "2 期間比較の定義" },
+        { "path": "references/01-principles/monthly-data-architecture.md", "label": "月次データ構造" }
+      ]
+    },
+    {
+      "id": "guides",
+      "title": "実装ガイド",
+      "docs": [
+        { "path": "references/03-guides/coding-conventions.md", "label": "コーディング規約" },
+        { "path": "references/03-guides/runtime-data-path.md", "label": "実行時データ経路" },
+        { "path": "references/03-guides/responsibility-separation-catalog.md", "label": "責務分離カタログ" },
+        { "path": "references/03-guides/invariant-catalog.md", "label": "不変条件カタログ" },
+        { "path": "references/03-guides/metric-id-registry.md", "label": "MetricId レジストリ" },
+        { "path": "references/03-guides/explanation-architecture.md", "label": "Explanation アーキテクチャ" },
+        { "path": "references/03-guides/compare-conventions.md", "label": "比較共通規約" },
+        { "path": "references/03-guides/new-page-checklist.md", "label": "新規ページチェックリスト" },
+        { "path": "references/03-guides/extension-playbook.md", "label": "拡張プレイブック" },
+        { "path": "references/03-guides/pr-review-checklist.md", "label": "PR レビューチェックリスト" },
+        { "path": "references/03-guides/duckdb-architecture.md", "label": "DuckDB アーキテクチャ" },
+        { "path": "references/03-guides/calculation-engine.md", "label": "計算エンジン" },
+        { "path": "references/03-guides/weather-architecture.md", "label": "天気データ基盤" },
+        { "path": "references/03-guides/widget-coordination-architecture.md", "label": "ウィジェット連携" },
+        { "path": "references/03-guides/temporal-analysis-policy.md", "label": "Temporal 分析ポリシー" },
+        { "path": "references/03-guides/api.md", "label": "API リファレンス" },
+        { "path": "references/03-guides/app-lifecycle-implementation.md", "label": "ライフサイクル実装" },
+        { "path": "references/03-guides/authoritative-display-rules.md", "label": "Authoritative 表示ルール" },
+        { "path": "references/03-guides/chart-data-flow-map.md", "label": "チャートデータフローマップ" },
+        { "path": "references/03-guides/cloudflare-worker-setup.md", "label": "Cloudflare Worker セットアップ" },
+        { "path": "references/03-guides/data-model-layers.md", "label": "データモデル層" },
+        { "path": "references/03-guides/data-models.md", "label": "データモデル詳細" },
+        { "path": "references/03-guides/duckdb-data-loading-sequence.md", "label": "データロード順序図" },
+        { "path": "references/03-guides/duckdb-type-boundary-contract.md", "label": "型境界契約" },
+        { "path": "references/03-guides/faq.md", "label": "FAQ" },
+        { "path": "references/03-guides/file-import-guide.md", "label": "ファイルインポートガイド" },
+        { "path": "references/03-guides/operations.md", "label": "運用ガイド" },
+        { "path": "references/03-guides/purchase-cost-unification-plan.md", "label": "仕入原価統合計画" },
+        { "path": "references/03-guides/rollback-policy.md", "label": "ロールバックポリシー" },
+        { "path": "references/03-guides/safety-first-architecture-plan.md", "label": "安全設計改善計画" },
+        { "path": "references/03-guides/security.md", "label": "セキュリティ" },
+        { "path": "references/03-guides/ui-components.md", "label": "UI コンポーネント" },
+        { "path": "references/03-guides/wasm-dual-run-runbook.md", "label": "WASM 二重実行ランブック" },
+        { "path": "references/03-guides/widget-readmodel-migration.md", "label": "Widget ReadModel 移行" }
+      ]
+    },
+    {
+      "id": "status",
+      "title": "進捗・品質状態",
+      "docs": [
+        { "path": "references/02-status/technical-debt-roadmap.md", "label": "技術的負債ロードマップ" },
+        { "path": "references/02-status/quality-audit-latest.md", "label": "品質監査レポート" },
+        { "path": "references/02-status/recent-changes.md", "label": "直近の主要変更" },
+        { "path": "references/02-status/project-structure.md", "label": "プロジェクト構成" },
+        { "path": "references/02-status/generated/architecture-health.json", "label": "Health KPI 正本" },
+        { "path": "references/02-status/generated/architecture-health.md", "label": "Health レポート" },
+        { "path": "references/02-status/generated/architecture-health-certificate.md", "label": "健康診断書" }
+      ]
+    },
+    {
+      "id": "contracts",
+      "title": "構造化正本（JSON）",
+      "docs": [
+        { "path": "docs/contracts/principles.json", "label": "設計原則体系" },
+        { "path": "docs/contracts/project-metadata.json", "label": "プロジェクトメタデータ" },
+        { "path": "docs/contracts/doc-registry.json", "label": "ドキュメントレジストリ（本ファイル）" }
+      ]
+    }
+  ]
+}

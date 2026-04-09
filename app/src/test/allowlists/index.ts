@@ -73,6 +73,10 @@ export {
   fallbackConstantDensityLimits,
 } from './responsibility'
 
+// Docs (文書品質 — コード品質とは分離管理)
+export { DOC_STATIC_NUMBER_EXCEPTIONS } from './docs'
+export type { DocStaticNumberException } from './docs'
+
 // Misc
 export {
   dowCalcOverride,

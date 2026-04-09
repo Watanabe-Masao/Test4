@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-09T03:31:33.348Z",
+  "timestamp": "2026-04-09T08:59:39.575Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 39,
+      "value": 43,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -276,6 +276,9 @@
         "app/src/test/guards/customerGapPathGuard.test.ts",
         "app/src/test/guards/dataIntegrityGuard.test.ts",
         "app/src/test/guards/discountFactPathGuard.test.ts",
+        "app/src/test/guards/docCodeConsistencyGuard.test.ts",
+        "app/src/test/guards/docRegistryGuard.test.ts",
+        "app/src/test/guards/docStaticNumberGuard.test.ts",
         "app/src/test/guards/dualRunExitCriteriaGuard.test.ts",
         "app/src/test/guards/factorDecompositionPathGuard.test.ts",
         "app/src/test/guards/fallbackMetadataGuard.test.ts",
@@ -290,6 +293,7 @@
         "app/src/test/guards/pageMetaGuard.test.ts",
         "app/src/test/guards/piValuePathGuard.test.ts",
         "app/src/test/guards/presentationIsolationGuard.test.ts",
+        "app/src/test/guards/projectStructureGuard.test.ts",
         "app/src/test/guards/purchaseCostImportGuard.test.ts",
         "app/src/test/guards/purchaseCostPathGuard.test.ts",
         "app/src/test/guards/purityGuard.test.ts",
@@ -331,7 +335,7 @@
       "id": "guard.rules.total",
       "label": "総 Architecture Rule 数",
       "category": "guard",
-      "value": 92,
+      "value": 93,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -349,7 +353,7 @@
       "id": "guard.rules.fixNow.now",
       "label": "fixNow=now ルール数（即修正）",
       "category": "guard",
-      "value": 33,
+      "value": 34,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -494,9 +498,9 @@
       "id": "docs.obligation.violations",
       "label": "Doc 更新義務違反数",
       "category": "docs",
-      "value": 0,
+      "value": 1,
       "unit": "count",
-      "status": "ok",
+      "status": "fail",
       "owner": "documentation-steward",
       "docRefs": [
         {
@@ -511,7 +515,7 @@
       "id": "temporal.rules.reviewPolicy.count",
       "label": "reviewPolicy 設定済みルール数",
       "category": "guard",
-      "value": 92,
+      "value": 93,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -658,9 +662,9 @@
   ],
   "summary": {
     "totalKpis": 32,
-    "ok": 31,
+    "ok": 30,
     "warn": 1,
-    "fail": 0,
-    "hardGatePass": true
+    "fail": 1,
+    "hardGatePass": false
   }
 }

@@ -49,6 +49,9 @@
 | Engine 昇格基準 | `02-status/promotion-criteria.md` |
 | 品質監査レポート | `02-status/quality-audit-latest.md` |
 | 技術的負債ロードマップ | `02-status/technical-debt-roadmap.md` |
+| 直近の主要変更 | `02-status/recent-changes.md` |
+| プロジェクト構成 | `02-status/project-structure.md` |
+| Discovery Review チェックリスト | `03-guides/discovery-review-checklist.md` |
 | ガードテスト対応表 | `03-guides/guard-test-map.md` |
 | 許可リスト運用 | `03-guides/allowlist-management.md` |
 | DuckDB アーキテクチャ・Query Access Rules（Q1-Q6） | `03-guides/duckdb-architecture.md` |
@@ -76,6 +79,7 @@
 | `03-guides/allowlist-management.md` | Allowlist 管理ガイド |
 | `03-guides/guard-test-map.md` | ガードテスト対応表 |
 | `03-guides/active-debt-refactoring-plan.md` | Active-Debt リファクタリング計画 |
+| `03-guides/aag-phase4-6-plan.md` | AAG Phase 4-6 実装計画 |
 | `01-principles/architecture-rule-feasibility.md` | ルール導入の実現可能性評価 |
 | `01-principles/aag-four-layer-architecture.md` | AAG 4 層（Principles/Judgment/Detection/Response） |
 | `01-principles/aag-operational-classification.md` | 運用区分表（即修正/構造負債/観測 × 94 ルール） |

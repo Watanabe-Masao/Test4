@@ -183,6 +183,8 @@ ROLE.md と SKILL.md は以下の5層で思想を構造化する:
 
 ## プロジェクト構成
 
+詳細は `references/02-status/project-structure.md` を参照（正本）。
+
 ```
 app/src/
 ├── domain/           # ドメイン層（フレームワーク非依存、純粋関数）
@@ -194,7 +196,7 @@ app/src/
 └── test/             # ガードテスト・共有インフラ
     ├── guardTestHelpers.ts   # 共有ヘルパー（collectTsFiles, rel 等）
     ├── guardTagRegistry.ts   # ガードタグのメタデータ管理
-    ├── architectureRules.ts  # Architecture Rule 定義（84 ルール — 実行可能なアーキテクチャ仕様）
+    ├── architectureRules.ts  # Architecture Rule 定義（実行可能なアーキテクチャ仕様）
     ├── allowlists/           # 許可リスト（カテゴリ別分割）
     │   ├── architecture.ts   #   層境界ルール
     │   ├── complexity.ts     #   行数・useMemo 制限
@@ -204,7 +206,7 @@ app/src/
     │   ├── migration.ts      #   比較移行
     │   └── misc.ts           #   その他
     ├── calculationCanonRegistry.ts  # domain/calculations/ 全ファイル分類
-    ├── guards/               # 構造制約ガード（39ファイル / 316テスト）
+    ├── guards/               # 構造制約ガード（件数は generated section 参照）
     │   ├── analysisFrameGuard.test.ts
     │   ├── architectureRuleGuard.test.ts
     │   ├── calculationCanonGuard.test.ts
@@ -462,8 +464,7 @@ AAG は「発見 → 蓄積 → 評価」の 3 層サイクルでルール自体
 | `must-not-coexist` | 同居禁止 | useState と SQL query |
 | `custom` | 特殊ロジック | テスト側で実装 |
 
-**84 ルール / 全 39 ガードが参照 / 全ルールに migrationPath + doc + decisionCriteria**
-**ruleClass: invariant(23) / default(32) / heuristic(29)**
+**全ルールに migrationPath + doc + decisionCriteria（件数は generated section 参照）**
 
 各ルールが持つ情報:
 - `what` / `why` / `doc` — 学習コスト削減（27 ドキュメント参照）
@@ -552,7 +553,7 @@ CQRS + 契約ハイブリッド設計により、既存4層モデルの内側に
 - **Application 層:** `purchaseCostHandler` / `readPurchaseCost()` の直接使用を許容
 - **禁止:** 旧クエリ（queryPurchaseTotal 等7関数）は廃止済み。復活禁止
 - **移動原価:** IN + OUT の全方向を含める（IN のみは二重計上になるため禁止）
-- **ガード:** `purchaseCostPathGuard.test.ts`（4層9テスト）+ `purchaseCostImportGuard.test.ts`（15テスト）で保証
+- **ガード:** `purchaseCostPathGuard.test.ts` + `purchaseCostImportGuard.test.ts` で保証
 
 ## 実行時データ経路（実装の主経路）
 
@@ -591,7 +592,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 詳細レポート: `references/02-status/generated/architecture-health.md`
 
 <!-- GENERATED:START architecture-health-summary -->
-**Watch** | 前回比: Improved | Hard Gate: PASS
+**RISK** | 前回比: Flat | Hard Gate: FAIL
 
 | 指標 | 状態 | 詳細 |
 |---|---|---|
@@ -599,15 +600,16 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 | 後方互換負債 | OK | 0/3 / 2/3 |
 | 複雑性圧 | OK | 0/5 / 10/10 / 27/30 |
 | 境界健全性 | OK | 0/0 / 0/0 |
-| ガード強度 | OK | 39/30 / 0/5 |
+| ガード強度 | OK | 43/30 / 0/5 |
 | 性能 | OK | 6495/7000 / 2219/2500 / 919/1000 |
-| Temporal Governance | WARN | 0/0 / 32/32 / 0/1 / 92/92 / 9/9 / 0/1 |
+| Temporal Governance | WARN | 0/0 / 32/32 / 0/1 / 93/92 / 9/9 / 0/1 |
 | Rule Efficacy | OK | 33 / 0/3 / 0/10 |
 
 **Next:**
+- Doc 更新義務違反数 を budget 0 以下に修正する
 - active-debt で createdAt 設定済み を 0 → 1 に削減する（残 -1）
 
-> 生成: 2026-04-09T03:31:33.348Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-09T08:59:39.575Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）
@@ -637,9 +639,9 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 
 - **体系統合ガード:** `canonicalizationSystemGuard.test.ts` — 全 readModel ディレクトリ・定義書・CLAUDE.md 参照を検証
 - **計算レジストリ:** `calculationCanonRegistry.ts` + `calculationCanonGuard.test.ts` — domain/calculations/ 全ファイルの分類管理
-- **Zod 契約:** 全 queryToObjects に46型 + readModels の .parse() fail fast + domain/calculations 必須13/13 + 検討7/9
-- **不変条件:** `invariant-catalog.md` に INV-CANON-01〜16 として16件の正本化不変条件を登録
-- **正本化原則:** `references/01-principles/canonicalization-principles.md` — 7原則 + 禁止事項
+- **Zod 契約:** 全 queryToObjects + readModels の .parse() fail fast + domain/calculations Zod 適用
+- **不変条件:** `invariant-catalog.md` に正本化不変条件を登録
+- **正本化原則:** `references/01-principles/canonicalization-principles.md`
 - **正本化マップ:** `references/01-principles/calculation-canonicalization-map.md` — domain/calculations/ 全ファイルの分類
 
 ## 直近の主要変更（#673-#848+）
@@ -661,7 +663,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 - **Architecture Rule 昇華（2026-04-07）**: 84 ルール / 全 39 ガード統合 / 全ルールに migrationPath + doc + decisionCriteria。maturity（experimental/stable/deprecated）+ 例外圧検出 + ratchet-down 自動進行。全 guard タグ（50+）をルールでカバー。27 ドキュメント双方向リンク。allowlist に ruleId フィールド追加。運用ガイド: `references/03-guides/architecture-rule-system.md`
 - **Temporal Governance（2026-04-07）**: reviewPolicy（owner/lastReviewedAt/reviewCadenceDays）でルールに時計を持たせる。ruleClass（invariant/default/heuristic）+ confidence + sunsetCondition + lifecyclePolicy。「疑い、捨て、置き換える」思想を制度化。allowlist に createdAt/expiresAt/renewalCount
 - **AAG v3.2.0（2026-04-09）**: principles.json 正本昇格（原則メタデータ追加）。Principle Coverage 50/50 達成 + 双方向リンク検証テスト 3 件追加。Active-debt 0 達成（useCostDetailData sub-hook 分離）。totalCustomers allowlist 7→0（presentation 層から完全排除）。Fix hints 4→17。Discovery Review チェックリスト作成。Pre-commit hook slice 別サマリ
-- **AAG v4.3.0（2026-04-09）**: 統一レスポンス（renderAagResponse）を全入口（guard/obligation/pre-commit）に適用。fixNow をラベルから分岐ロジックに昇格（now=修正手順/debt=allowlist誘導/review=Discovery Review）。SLICE_GUIDANCE で 5 スライスに 1 行誘導文。入口品質の自己監視テスト 2 件。guard-collector に総ルール数 + fixNow 分布 KPI 追加
+- **AAG v4.3.0（2026-04-09）**: 統一レスポンス（renderAagResponse）を全入口（guard/obligation/pre-commit）に適用。fixNow をラベルから分岐ロジックに昇格（now=修正手順/debt=allowlist誘導/review=Discovery Review）。SLICE_GUIDANCE で 5 スライスに 1 行誘導文。入口品質の自己監視テスト 2 件。guard-collector に総ルール数 + fixNow 分布 KPI 追加。第 9 原則「ドキュメント自体が品質管理対象」: doc-registry.json（94 文書）+ docRegistryGuard + docCodeConsistencyGuard + docStaticNumberGuard + projectStructureGuard。obligation で references/ 新文書追加時の doc-registry.json 更新を入口で強制
 
 ## Explanation（説明責任）
 

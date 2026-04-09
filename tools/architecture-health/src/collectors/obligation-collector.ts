@@ -10,6 +10,7 @@ import { execSync } from 'node:child_process'
 import { readFileSync, existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import type { HealthKpi } from '../types.js'
+import { renderAagResponse, buildObligationResponse } from '../aag-response.js'
 
 // ---------------------------------------------------------------------------
 // Obligation Map — パスパターン → 更新義務のある doc/action
@@ -132,6 +133,20 @@ export const OBLIGATION_MAP: readonly ObligationRule[] = [
     label: 'Generated ファイルは手編集禁止（docs:generate で再生成すること）',
     check: { type: 'health_regenerated' },
   },
+  // --- references/ に新文書追加 → doc-registry.json に登録 ---
+  {
+    pathPattern: 'references/03-guides/',
+    obligationId: 'obligation.guides.registry',
+    label: '実装ガイド追加時は doc-registry.json にも登録が必要',
+    check: { type: 'file_modified', file: 'docs/contracts/doc-registry.json' },
+  },
+  // --- features/ に新モジュール追加 → CLAUDE.md 更新 ---
+  {
+    pathPattern: 'app/src/features/',
+    obligationId: 'obligation.features.docs',
+    label: 'features/ モジュール追加時は docs:generate でプロジェクト構成を更新',
+    check: { type: 'health_regenerated' },
+  },
 ] as const
 
 // ---------------------------------------------------------------------------
@@ -192,18 +207,10 @@ export function collectObligations(
 
     if (!satisfied) {
       violations++
-      // AAG Response 統一フォーマット（renderAagResponse 互換）
+      // 単一描画経路: aag-response.ts の renderAagResponse() を経由
       if (process.env.AAG_VERBOSE !== '0') {
-        console.error(
-          `⚡ 今すぐ修正 [governance-ops]\n` +
-            `  ${rule.label}\n` +
-            `  理由: ${rule.pathPattern} の変更が検出されたため、関連ドキュメントの更新が必要\n` +
-            `  方向: docs:generate / rule review で対応する\n` +
-            `  修正手順:\n` +
-            `    1. cd app && npm run docs:generate\n` +
-            `    2. git add references/02-status/generated/ CLAUDE.md\n` +
-            `  詳細: tools/architecture-health/src/collectors/obligation-collector.ts`,
-        )
+        const resp = buildObligationResponse(rule.label, rule.pathPattern)
+        console.error(renderAagResponse(resp))
       }
     }
   }

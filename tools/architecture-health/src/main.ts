@@ -13,7 +13,7 @@
  *   npm run docs:check       # generate → git diff --exit-code
  */
 import { resolve, dirname } from 'node:path'
-import { readFileSync, existsSync } from 'node:fs'
+import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { collectFromSnapshot } from './collectors/snapshot-collector.js'
 import { collectFromGuards } from './collectors/guard-collector.js'
@@ -163,7 +163,62 @@ if (!isCheck) {
     },
   ])
 
-  for (const r of results) {
+  // AAG 正本文書のルール統計 generated section
+  const allKpis = report.kpis
+  const ruleTotal = allKpis.find((k) => k.id === 'guard.rules.total')?.value ?? '?'
+  const fixNow = allKpis.find((k) => k.id === 'guard.rules.fixNow.now')?.value ?? '?'
+  const fixDebt = allKpis.find((k) => k.id === 'guard.rules.fixNow.debt')?.value ?? '?'
+  const fixReview = allKpis.find((k) => k.id === 'guard.rules.fixNow.review')?.value ?? '?'
+  const guardFiles = allKpis.find((k) => k.id === 'guard.files.count')?.value ?? '?'
+  const ruleStatsContent = [
+    `| 指標 | 値 |`,
+    `|------|-----|`,
+    `| 総ルール数 | ${ruleTotal} |`,
+    `| fixNow=now（即修正） | ${fixNow} |`,
+    `| fixNow=debt（構造負債） | ${fixDebt} |`,
+    `| fixNow=review（観測） | ${fixReview} |`,
+    `| ガードテストファイル | ${guardFiles} |`,
+    ``,
+    `> 生成: ${new Date().toISOString()} — 正本: \`app/src/test/architectureRules.ts\``,
+  ].join('\n')
+
+  const ruleStatsResults = updateGeneratedSections(repoRoot, [
+    {
+      filePath: 'references/01-principles/adaptive-architecture-governance.md',
+      sectionId: 'aag-rule-stats',
+      content: ruleStatsContent,
+    },
+  ])
+
+  // プロジェクト構成の generated sections（features/ + guards/）
+  const featuresDir = resolve(repoRoot, 'app/src/features')
+  const featureModules = readdirSync(featuresDir)
+    .filter((f: string) => statSync(resolve(featuresDir, f)).isDirectory())
+    .sort()
+  const featuresContent = featureModules.map((m: string) => `- ${m}`).join('\n') +
+    `\n\n> ${featureModules.length} モジュール — 生成: ${new Date().toISOString()}`
+
+  const guardsDir = resolve(repoRoot, 'app/src/test/guards')
+  const guardFilesList = readdirSync(guardsDir)
+    .filter((f: string) => f.endsWith('.test.ts'))
+    .sort()
+  const guardsContent = guardFilesList.map((f: string) => `- \`${f}\``).join('\n') +
+    `\n\n> ${guardFilesList.length} ファイル — 生成: ${new Date().toISOString()}`
+
+  const structureResults = updateGeneratedSections(repoRoot, [
+    {
+      filePath: 'references/02-status/project-structure.md',
+      sectionId: 'features-list',
+      content: featuresContent,
+    },
+    {
+      filePath: 'references/02-status/project-structure.md',
+      sectionId: 'guard-files-list',
+      content: guardsContent,
+    },
+  ])
+
+  for (const r of [...results, ...ruleStatsResults, ...structureResults]) {
     console.error(`[section] ${r.file} #${r.sectionId}: ${r.status}`)
   }
 } else {
