@@ -133,6 +133,20 @@ export const OBLIGATION_MAP: readonly ObligationRule[] = [
     label: 'Generated ファイルは手編集禁止（docs:generate で再生成すること）',
     check: { type: 'health_regenerated' },
   },
+  // --- references/ に新文書追加 → doc-registry.json に登録 ---
+  {
+    pathPattern: 'references/03-guides/',
+    obligationId: 'obligation.guides.registry',
+    label: '実装ガイド追加時は doc-registry.json にも登録が必要',
+    check: { type: 'file_modified', file: 'docs/contracts/doc-registry.json' },
+  },
+  // --- features/ に新モジュール追加 → CLAUDE.md 更新 ---
+  {
+    pathPattern: 'app/src/features/',
+    obligationId: 'obligation.features.docs',
+    label: 'features/ モジュール追加時は docs:generate でプロジェクト構成を更新',
+    check: { type: 'health_regenerated' },
+  },
 ] as const
 
 // ---------------------------------------------------------------------------
