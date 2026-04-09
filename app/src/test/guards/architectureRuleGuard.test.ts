@@ -681,10 +681,7 @@ describe('AAG Traceability: 思想とルールの整合性', () => {
         if (!principleSet.has(ref)) orphans.push(`${rule.id} → ${ref}`)
       }
     }
-    expect(
-      orphans,
-      `principles.json に存在しない principleRef: ${orphans.join(', ')}`,
-    ).toEqual([])
+    expect(orphans, `principles.json に存在しない principleRef: ${orphans.join(', ')}`).toEqual([])
   })
 
   it('principles.json と PrincipleId 型の一致', () => {
