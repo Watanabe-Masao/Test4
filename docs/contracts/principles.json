@@ -1,17 +1,121 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$comment": "設計原則体系の唯一正本。CLAUDE.md, references/README.md, CONTRIBUTING.md, documentConsistency.test.ts はこの JSON を参照・検証する。",
+  "$comment": "設計原則体系の唯一正本。CLAUDE.md, architectureRules.ts, documentConsistency.test.ts はこの JSON を参照・検証する。",
   "taxonomy": "A-H+Q",
   "categories": [
-    { "id": "A", "title": "層境界", "tags": ["A1", "A2", "A3", "A4", "A5", "A6"] },
-    { "id": "B", "title": "実行エンジン境界", "tags": ["B1", "B2", "B3"] },
-    { "id": "C", "title": "純粋性と責務分離", "tags": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9"] },
-    { "id": "D", "title": "数学的不変条件", "tags": ["D1", "D2", "D3"] },
-    { "id": "E", "title": "型安全と欠損処理", "tags": ["E1", "E2", "E3", "E4"] },
-    { "id": "F", "title": "コード構造規約", "tags": ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9"] },
-    { "id": "G", "title": "機械的防御", "tags": ["G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8"] },
-    { "id": "H", "title": "Screen Runtime", "tags": ["H1", "H2", "H3", "H4", "H5", "H6"] },
-    { "id": "Q", "title": "Query Access Architecture", "tags": ["Q3", "Q4"] }
+    {
+      "id": "A",
+      "title": "層境界",
+      "doc": "references/01-principles/design-principles.md",
+      "principles": [
+        { "id": "A1", "title": "4層依存ルール" },
+        { "id": "A2", "title": "Domain 純粋" },
+        { "id": "A3", "title": "Presentation 描画専用" },
+        { "id": "A4", "title": "契約は Domain 定義" },
+        { "id": "A5", "title": "DI は App.tsx のみ" },
+        { "id": "A6", "title": "load 3段階分離" }
+      ]
+    },
+    {
+      "id": "B",
+      "title": "実行エンジン境界",
+      "doc": "references/01-principles/engine-boundary-policy.md",
+      "principles": [
+        { "id": "B1", "title": "Authoritative 計算は domain/calculations のみ" },
+        { "id": "B2", "title": "JS/SQL 二重実装禁止" },
+        { "id": "B3", "title": "率は domain で算出" }
+      ]
+    },
+    {
+      "id": "C",
+      "title": "純粋性と責務分離",
+      "doc": "references/01-principles/design-principles.md",
+      "principles": [
+        { "id": "C1", "title": "1ファイル=1変更理由" },
+        { "id": "C2", "title": "pure 1仕様軸" },
+        { "id": "C3", "title": "store は state のみ" },
+        { "id": "C4", "title": "描画純粋" },
+        { "id": "C5", "title": "最小セレクタ" },
+        { "id": "C6", "title": "facade は orchestration のみ" },
+        { "id": "C7", "title": "同義API併存禁止" },
+        { "id": "C8", "title": "1文説明テスト" },
+        { "id": "C9", "title": "現実把握優先" }
+      ]
+    },
+    {
+      "id": "D",
+      "title": "数学的不変条件",
+      "doc": "references/03-guides/invariant-catalog.md",
+      "principles": [
+        { "id": "D1", "title": "要因分解合計=売上差" },
+        { "id": "D2", "title": "引数無視再計算禁止" },
+        { "id": "D3", "title": "不変条件はテストで守る" }
+      ]
+    },
+    {
+      "id": "E",
+      "title": "型安全と欠損処理",
+      "doc": "references/01-principles/design-principles.md",
+      "principles": [
+        { "id": "E1", "title": "境界で検証" },
+        { "id": "E2", "title": "依存配列省略禁止" },
+        { "id": "E3", "title": "sourceDate 保持" },
+        { "id": "E4", "title": "欠損は == null" }
+      ]
+    },
+    {
+      "id": "F",
+      "title": "コード構造規約",
+      "doc": "references/03-guides/coding-conventions.md",
+      "principles": [
+        { "id": "F1", "title": "バレル後方互換" },
+        { "id": "F2", "title": "文字列カタログ" },
+        { "id": "F3", "title": "全パターン同一" },
+        { "id": "F4", "title": "パス配置" },
+        { "id": "F5", "title": "Contract 管理" },
+        { "id": "F6", "title": "文脈継承" },
+        { "id": "F7", "title": "View に raw 禁止" },
+        { "id": "F8", "title": "正本保護" },
+        { "id": "F9", "title": "Raw=唯一真実源" }
+      ]
+    },
+    {
+      "id": "G",
+      "title": "機械的防御",
+      "doc": "references/01-principles/design-principles.md",
+      "principles": [
+        { "id": "G1", "title": "テストに書く" },
+        { "id": "G2", "title": "エラー伝播" },
+        { "id": "G3", "title": "警告黙殺禁止" },
+        { "id": "G4", "title": "テスト用export禁止" },
+        { "id": "G5", "title": "サイズ上限" },
+        { "id": "G6", "title": "サイズ上限（ファイルサイズ）" },
+        { "id": "G7", "title": "キャッシュ≤本体" },
+        { "id": "G8", "title": "責務分離ガード" }
+      ]
+    },
+    {
+      "id": "H",
+      "title": "Screen Runtime",
+      "doc": "references/01-principles/safe-performance-principles.md",
+      "principles": [
+        { "id": "H1", "title": "Screen Plan 経由のみ" },
+        { "id": "H2", "title": "比較は pair/bundle 契約" },
+        { "id": "H3", "title": "query input 正規化必須" },
+        { "id": "H4", "title": "component に acquisition logic 禁止" },
+        { "id": "H5", "title": "visible-only は plan 宣言" },
+        { "id": "H6", "title": "ChartCard は通知のみ" }
+      ]
+    },
+    {
+      "id": "Q",
+      "title": "Query Access Architecture",
+      "doc": "references/01-principles/design-principles.md",
+      "principles": [
+        { "id": "Q3", "title": "Chart は DuckDB hook 直接 import 禁止" },
+        { "id": "Q4", "title": "alignment-aware access は handler/resolver に閉じる" }
+      ]
+    }
   ],
   "obsoleteTerms": [
     "19 の設計原則",

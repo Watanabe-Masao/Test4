@@ -4,21 +4,21 @@
 
 | 項目 | 値 |
 |---|---|
-| **総合評価** | **Watch** |
-| 前回比 | Flat |
-| リリース影響 | No |
-| 最終更新 | 2026-04-09T00:49:58.340Z |
+| **総合評価** | **RISK** |
+| 前回比 | Regressed |
+| リリース影響 | Yes |
+| 最終更新 | 2026-04-09T01:02:29.318Z |
 
 ## Hard Gate
 
-**PASS** — 全ゲート通過
+**FAIL**
 
 - PASS: Frozen リスト非ゼロ
 - PASS: 廃止用語残存数
 - PASS: Generated section 未更新
 - PASS: Presentation→Infrastructure 違反
 - PASS: Infrastructure→Application 違反
-- PASS: Doc 更新義務違反数
+- FAIL: Doc 更新義務違反数
 - PASS: review overdue ルール数
 
 ## Health Metrics
@@ -36,14 +36,27 @@
 
 ## Top Risks
 
-**1. active-debt で createdAt 設定済み**
+**1. Doc 更新義務違反数**
+- 状態: 1 / budget 0（100% 超過）
+- ファイル: `—`
+- 定義書: `tools/architecture-health/src/collectors/obligation-collector.ts`
+
+**2. active-debt で createdAt 設定済み**
 - 状態: 0 / budget 1（-100% 超過）
 - ファイル: `app/src/test/allowlists/architecture.ts`
 - 定義書: `—`
 
+## Recent Changes
+
+| 指標 | 前回 | 今回 | 変化 |
+|---|---|---|---|
+| Doc 更新義務違反数 | 0 | 1 | +1 ! |
+
 ## Recommended Actions
 
-1. active-debt で createdAt 設定済み を 0 → 1 に削減する（残 -1）
+1. Doc 更新義務違反数 を budget 0 以下に修正する
+2. active-debt で createdAt 設定済み を 0 → 1 に削減する（残 -1）
+3. Doc 更新義務違反数 が悪化（0 → 1）— 原因を調査する
 
 ---
 
