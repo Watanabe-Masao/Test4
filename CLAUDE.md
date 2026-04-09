@@ -591,7 +591,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 詳細レポート: `references/02-status/generated/architecture-health.md`
 
 <!-- GENERATED:START architecture-health-summary -->
-**Watch** | 前回比: Improved | Hard Gate: PASS
+**RISK** | 前回比: Flat | Hard Gate: FAIL
 
 | 指標 | 状態 | 詳細 |
 |---|---|---|
@@ -605,9 +605,10 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 | Rule Efficacy | OK | 33 / 0/3 / 0/10 |
 
 **Next:**
+- Doc 更新義務違反数 を budget 0 以下に修正する
 - active-debt で createdAt 設定済み を 0 → 1 に削減する（残 -1）
 
-> 生成: 2026-04-09T01:05:08.575Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-09T01:13:44.598Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）
@@ -660,6 +661,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 - **Architecture Rule 導入（2026-04-07）**: 統一ガードフォーマット。「禁止」「あるべき姿」「なぜ」「ドキュメント」をセットで定義。8種の detection type。architectureEpoch.ts + responsibilityTagExpectations.ts 廃止 → architectureRules.ts に統合。タグ別閾値（18 タグ）+ noNewDebtGuard（5 ルール）= 計 23 ルール。ratchet-down 方式で未分類・タグ不一致を管理
 - **Architecture Rule 昇華（2026-04-07）**: 84 ルール / 全 39 ガード統合 / 全ルールに migrationPath + doc + decisionCriteria。maturity（experimental/stable/deprecated）+ 例外圧検出 + ratchet-down 自動進行。全 guard タグ（50+）をルールでカバー。27 ドキュメント双方向リンク。allowlist に ruleId フィールド追加。運用ガイド: `references/03-guides/architecture-rule-system.md`
 - **Temporal Governance（2026-04-07）**: reviewPolicy（owner/lastReviewedAt/reviewCadenceDays）でルールに時計を持たせる。ruleClass（invariant/default/heuristic）+ confidence + sunsetCondition + lifecyclePolicy。「疑い、捨て、置き換える」思想を制度化。allowlist に createdAt/expiresAt/renewalCount
+- **AAG v3.2.0（2026-04-09）**: principles.json 正本昇格（原則メタデータ追加）。Principle Coverage 50/50 達成 + 双方向リンク検証テスト 3 件追加。Active-debt 0 達成（useCostDetailData sub-hook 分離）。totalCustomers allowlist 7→0（presentation 層から完全排除）。Fix hints 4→17。Discovery Review チェックリスト作成。Pre-commit hook slice 別サマリ
 
 ## Explanation（説明責任）
 
