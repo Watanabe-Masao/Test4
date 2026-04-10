@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-10T09:09:38.378Z",
+  "timestamp": "2026-04-10T15:27:31.756Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 46,
+      "value": 47,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -289,6 +289,7 @@
         "app/src/test/guards/grossProfitConsistencyGuard.test.ts",
         "app/src/test/guards/grossProfitPathGuard.test.ts",
         "app/src/test/guards/layerBoundaryGuard.test.ts",
+        "app/src/test/guards/migrationTagGuard.test.ts",
         "app/src/test/guards/noNewDebtGuard.test.ts",
         "app/src/test/guards/oldPathImportGuard.test.ts",
         "app/src/test/guards/pageMetaGuard.test.ts",
@@ -338,7 +339,7 @@
       "id": "guard.rules.total",
       "label": "総 Architecture Rule 数",
       "category": "guard",
-      "value": 104,
+      "value": 109,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -356,7 +357,7 @@
       "id": "guard.rules.fixNow.now",
       "label": "fixNow=now ルール数（即修正）",
       "category": "guard",
-      "value": 39,
+      "value": 40,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -367,7 +368,7 @@
       "id": "guard.rules.fixNow.debt",
       "label": "fixNow=debt ルール数（構造負債）",
       "category": "guard",
-      "value": 49,
+      "value": 50,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -378,7 +379,7 @@
       "id": "guard.rules.fixNow.review",
       "label": "fixNow=review ルール数（観測）",
       "category": "guard",
-      "value": 18,
+      "value": 21,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -501,9 +502,9 @@
       "id": "docs.obligation.violations",
       "label": "Doc 更新義務違反数",
       "category": "docs",
-      "value": 0,
+      "value": 1,
       "unit": "count",
-      "status": "ok",
+      "status": "fail",
       "owner": "documentation-steward",
       "docRefs": [
         {
@@ -518,7 +519,7 @@
       "id": "temporal.rules.reviewPolicy.count",
       "label": "reviewPolicy 設定済みルール数",
       "category": "guard",
-      "value": 104,
+      "value": 109,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -620,7 +621,7 @@
       "id": "efficacy.rules.withProtectedHarm.count",
       "label": "protectedHarm 設定済みルール数",
       "category": "guard",
-      "value": 44,
+      "value": 46,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -665,9 +666,9 @@
   ],
   "summary": {
     "totalKpis": 32,
-    "ok": 31,
+    "ok": 30,
     "warn": 1,
-    "fail": 0,
-    "hardGatePass": true
+    "fail": 1,
+    "hardGatePass": false
   }
 }
