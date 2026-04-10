@@ -14,7 +14,8 @@
     "core-utils",
     "pi-value",
     "customer-gap",
-    "remaining-budget-rate"
+    "remaining-budget-rate",
+    "observation-period"
   ],
   "ciJobs": [
     "wasm-build",

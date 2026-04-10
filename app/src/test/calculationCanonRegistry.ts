@@ -282,6 +282,23 @@ export const CALCULATION_CANON_REGISTRY: Readonly<Record<string, CanonEntry>> = 
     notes: 'WASM candidate: wasm/pi-value/。current reference: piValue.ts',
   },
 
+  'candidate/observationPeriod.ts': {
+    tag: 'required',
+    reason: '観測期間ステータス（candidate: WASM 移行候補 CAND-BIZ-010）',
+    zodAdded: true,
+    semanticClass: 'business',
+    authorityKind: 'candidate-authoritative',
+    methodFamily: 'data_quality',
+    runtimeStatus: 'candidate',
+    ownerKind: 'migration',
+    contractId: 'BIZ-010',
+    bridgeKind: 'business',
+    rateOwnership: 'n/a',
+    fallbackPolicy: 'current',
+    migrationTier: 'tier1',
+    notes:
+      'WASM candidate: wasm/observation-period/。current reference: observationPeriod.ts。FFI: dailySales flat array + status/warning bitmask 出力',
+  },
   'candidate/remainingBudgetRate.ts': {
     tag: 'required',
     reason: '残予算必要達成率（candidate: WASM 移行候補 CAND-BIZ-008）',

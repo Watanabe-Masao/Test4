@@ -48,6 +48,7 @@ export const WASM_CANDIDATE_MODULE_NAMES = [
   'piValue',
   'customerGap',
   'remainingBudgetRate',
+  'observationPeriod',
 ] as const
 export type WasmCandidateModuleName = (typeof WASM_CANDIDATE_MODULE_NAMES)[number]
 
@@ -101,6 +102,12 @@ export const WASM_CANDIDATE_MODULE_METADATA: Readonly<
     authorityKind: 'candidate-authoritative',
     contractId: 'BIZ-008',
   },
+  observationPeriod: {
+    semanticClass: 'business',
+    bridgeKind: 'business',
+    authorityKind: 'candidate-authoritative',
+    contractId: 'BIZ-010',
+  },
 }
 
 /* ── 内部状態 ─────────────────────────────────── */
@@ -126,12 +133,14 @@ let timeSlotWasmExports: typeof import('time-slot-wasm') | null = null
 let piValueWasmExports: typeof import('pi-value-wasm') | null = null
 let customerGapWasmExports: typeof import('customer-gap-wasm') | null = null
 let remainingBudgetRateWasmExports: typeof import('remaining-budget-rate-wasm') | null = null
+let observationPeriodWasmExports: typeof import('observation-period-wasm') | null = null
 
 // candidate 群の状態管理（current とは分離）
 const candidateModuleStates: Record<WasmCandidateModuleName, WasmState> = {
   piValue: 'idle',
   customerGap: 'idle',
   remainingBudgetRate: 'idle',
+  observationPeriod: 'idle',
 }
 
 /* ── 初期化 ───────────────────────────────────── */
@@ -323,6 +332,32 @@ export async function initRemainingBudgetRateCandidateWasm(): Promise<void> {
   }
 }
 
+/**
+ * observationPeriod candidate WASM モジュールを非同期で初期化する。
+ */
+export async function initObservationPeriodCandidateWasm(): Promise<void> {
+  if (candidateModuleStates.observationPeriod !== 'idle') return
+
+  candidateModuleStates.observationPeriod = 'loading'
+  try {
+    const wasm = await import('observation-period-wasm')
+    await wasm.default()
+    observationPeriodWasmExports = wasm
+    candidateModuleStates.observationPeriod = 'ready'
+    if (import.meta.env.DEV) {
+      console.info(
+        '[wasmEngine] observationPeriod candidate ready — WASM candidate-authoritative ready',
+      )
+    }
+  } catch (e) {
+    candidateModuleStates.observationPeriod = 'error'
+    console.warn(
+      '[wasmEngine] observationPeriod candidate WASM initialization failed, falling back to TS:',
+      e,
+    )
+  }
+}
+
 /* ── 状態取得 ─────────────────────────────────── */
 
 /** 個別モジュールの状態を取得する */
@@ -369,6 +404,10 @@ export function getRemainingBudgetRateWasmExports():
   | typeof import('remaining-budget-rate-wasm')
   | null {
   return remainingBudgetRateWasmExports
+}
+
+export function getObservationPeriodWasmExports(): typeof import('observation-period-wasm') | null {
+  return observationPeriodWasmExports
 }
 
 /** candidate モジュールの状態を取得する */

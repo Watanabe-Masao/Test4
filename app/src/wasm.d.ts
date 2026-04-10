@@ -172,6 +172,20 @@ declare module 'remaining-budget-rate-wasm' {
   ): number
 }
 
+// ─── observation-period-wasm (candidate: BIZ-010) ────────
+declare module 'observation-period-wasm' {
+  export default function init(): Promise<void>
+  export function evaluate_observation_period(
+    dailySales: Float64Array,
+    daysInMonth: number,
+    currentElapsedDays: number,
+    minDaysForValid: number,
+    minDaysForOk: number,
+    staleDaysThreshold: number,
+    minSalesDays: number,
+  ): Float64Array
+}
+
 declare module 'customer-gap-wasm' {
   export default function init(): Promise<void>
   export function calculate_customer_gap(

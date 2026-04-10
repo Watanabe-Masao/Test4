@@ -20,6 +20,7 @@ const wasmAliases: Record<string, string> = {
     __dirname,
     'src/test/__mocks__/remainingBudgetRateWasmMock.ts',
   ),
+  'observation-period-wasm': resolve(__dirname, 'src/test/__mocks__/observationPeriodWasmMock.ts'),
 }
 
 export default defineConfig({
