@@ -18,20 +18,12 @@ import {
   extractValueImports,
   rel as relativePath,
 } from '../guardTestHelpers'
-import {
-  applicationToInfrastructure,
-  presentationToInfrastructure,
-  infrastructureToApplication,
-  presentationToUsecases,
-  buildAllowlistSet,
-} from '../allowlists'
+import { applicationToInfrastructure, buildAllowlistSet } from '../allowlists'
 import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 // ─── 許可リスト（allowlists.ts から構築） ────────────────
 
 const APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST = buildAllowlistSet(applicationToInfrastructure)
-const PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST = buildAllowlistSet(presentationToInfrastructure)
-const INFRASTRUCTURE_TO_APPLICATION_ALLOWLIST = buildAllowlistSet(infrastructureToApplication)
 
 // ─── テスト ──────────────────────────────────────────────
 
@@ -108,7 +100,6 @@ describe('Layer Boundary Guard', () => {
 
     for (const file of files) {
       const rel = relativePath(file)
-      if (PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST.has(rel)) continue
 
       const imports = extractValueImports(file)
       for (const imp of imports) {
@@ -123,7 +114,6 @@ describe('Layer Boundary Guard', () => {
 
   it('presentation/ は application/usecases/ を直接 import しない（import type は許容）', () => {
     const rule = getRuleById('AR-A1-PRES-USECASE')!
-    const USECASE_ALLOWLIST = buildAllowlistSet(presentationToUsecases)
 
     const presDir = path.join(SRC_DIR, 'presentation')
     const files = collectTsFiles(presDir)
@@ -131,7 +121,6 @@ describe('Layer Boundary Guard', () => {
 
     for (const file of files) {
       const rel = relativePath(file)
-      if (USECASE_ALLOWLIST.has(rel)) continue
 
       const imports = extractValueImports(file)
       for (const imp of imports) {
@@ -142,11 +131,6 @@ describe('Layer Boundary Guard', () => {
     }
 
     expect(violations, formatViolationMessage(rule, violations)).toEqual([])
-
-    expect(
-      USECASE_ALLOWLIST.size,
-      `[${rule.id}] usecase 許可リストが上限 ${rule.detection.baseline} を超えています。新規追加禁止。`,
-    ).toBeLessThanOrEqual(rule.detection.baseline!)
   })
 
   it('infrastructure/ は application/ に依存しない（後方互換 re-export 除く）', () => {
@@ -157,7 +141,6 @@ describe('Layer Boundary Guard', () => {
 
     for (const file of files) {
       const rel = relativePath(file)
-      if (INFRASTRUCTURE_TO_APPLICATION_ALLOWLIST.has(rel)) continue
 
       const imports = extractImports(file)
       for (const imp of imports) {
@@ -197,22 +180,10 @@ describe('Layer Boundary Guard', () => {
     ).toBeLessThanOrEqual(15)
   })
 
-  it('PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST は 0 件（完全解消済み）', () => {
-    expect(PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST.size).toBeLessThanOrEqual(0)
-  })
-
-  it('INFRASTRUCTURE_TO_APPLICATION_ALLOWLIST は 0 件（完全解消済み）', () => {
-    expect(INFRASTRUCTURE_TO_APPLICATION_ALLOWLIST.size).toBeLessThanOrEqual(0)
-  })
-
   // ─── 許可リストファイル実在チェック ─────────────────
 
   it('許可リストのファイルが実在する', () => {
-    const allAllowlists = [
-      ...APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST,
-      ...PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST,
-      ...INFRASTRUCTURE_TO_APPLICATION_ALLOWLIST,
-    ]
+    const allAllowlists = [...APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST]
 
     for (const rel of allAllowlists) {
       const fullPath = path.join(SRC_DIR, rel)

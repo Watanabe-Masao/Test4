@@ -26,16 +26,10 @@ import {
   hookLineLimits,
   presentationMemoLimits,
   presentationStateLimits,
-  vmReactImport,
   reactImportExcludeDirs,
-  sideEffectChain,
-  infraLargeFiles,
   domainLargeFiles,
-  usecasesLargeFiles,
-  isPrevYearHandlers,
-  pairExceptionDesign,
-  pairJustifiedSingle,
 } from '../allowlists'
+import { pairJustifiedSingle } from '../allowlists/performance'
 
 const ruleBarrel = getRuleById('AR-CONVENTION-BARREL')!
 // 汎用参照（manifest, prototype, widget ownership 等で使用）
@@ -486,14 +480,8 @@ describe('P0-2: 全許可リストエントリに lifecycle が付与されて�
     { name: 'presentationMemoLimits', entries: presentationMemoLimits },
     { name: 'presentationStateLimits', entries: presentationStateLimits },
     { name: 'ctxHook', entries: ctxHook },
-    { name: 'vmReactImport', entries: vmReactImport },
     { name: 'reactImportExcludeDirs', entries: reactImportExcludeDirs },
-    { name: 'sideEffectChain', entries: sideEffectChain },
-    { name: 'infraLargeFiles', entries: infraLargeFiles },
     { name: 'domainLargeFiles', entries: domainLargeFiles },
-    { name: 'usecasesLargeFiles', entries: usecasesLargeFiles },
-    { name: 'isPrevYearHandlers', entries: isPrevYearHandlers },
-    { name: 'pairExceptionDesign', entries: pairExceptionDesign },
     { name: 'pairJustifiedSingle', entries: pairJustifiedSingle },
   ]
 

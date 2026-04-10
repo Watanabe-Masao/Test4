@@ -27,12 +27,7 @@ export type {
 export { buildAllowlistSet, buildQuantitativeAllowlist } from './types'
 
 // Architecture
-export {
-  applicationToInfrastructure,
-  presentationToInfrastructure,
-  infrastructureToApplication,
-  presentationToUsecases,
-} from './architecture'
+export { applicationToInfrastructure } from './architecture'
 
 // DuckDB
 export { presentationDuckdbHook } from './duckdb'
@@ -50,19 +45,13 @@ export {
 } from './complexity'
 
 // Size
-export { largeComponentTier2, infraLargeFiles, domainLargeFiles, usecasesLargeFiles } from './size'
+export { domainLargeFiles } from './size'
 
 // Migration
 export { cmpPrevYearDaily, cmpFramePrevious, cmpDailyMapping } from './migration'
 
 // Performance (Screen Runtime)
-export {
-  isPrevYearHandlers,
-  nonPairableConsumers,
-  pairExceptionDesign,
-  pairJustifiedSingle,
-  presentationDirectQueryAudit,
-} from './performance'
+export { nonPairableConsumers } from './performance'
 
 // Responsibility Separation
 export {
@@ -78,10 +67,4 @@ export { DOC_STATIC_NUMBER_EXCEPTIONS } from './docs'
 export type { DocStaticNumberException } from './docs'
 
 // Misc
-export {
-  dowCalcOverride,
-  ctxHook,
-  vmReactImport,
-  reactImportExcludeDirs,
-  sideEffectChain,
-} from './misc'
+export { ctxHook, reactImportExcludeDirs } from './misc'

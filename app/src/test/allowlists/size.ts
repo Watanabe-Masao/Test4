@@ -3,13 +3,6 @@
  */
 import type { AllowlistEntry } from './types'
 
-// WeatherTemperatureChart.tsx — option builder 分離で 602→200 行。許可リスト卒業
-/** Presentation コンポーネント Tier 2（600行超の大規模コンポーネント） */
-export const largeComponentTier2: readonly AllowlistEntry[] = [] as const
-
-/** Infrastructure ファイルサイズ除外（400行超） — 全件解消済み。凍結 */
-export const infraLargeFiles: readonly AllowlistEntry[] = [] as const
-
 /** Domain ファイルサイズ除外（300行超） */
 export const domainLargeFiles: readonly AllowlistEntry[] = [
   {
@@ -68,6 +61,3 @@ export const domainLargeFiles: readonly AllowlistEntry[] = [
     createdAt: '2026-04-08',
   },
 ] as const
-
-/** Application usecases ファイルサイズ除外（400行超） — 全件解消済み。凍結 */
-export const usecasesLargeFiles: readonly AllowlistEntry[] = [] as const

@@ -30,12 +30,3 @@ export const applicationToInfrastructure: readonly AllowlistEntry[] = [
   // handler が infra query を呼び、readModel は raw data を受け取る形に変更済み。
   // weatherAdapter: DI 化完了（useWeatherAdapter → AdapterContext 経由）。削除済み。
 ] as const
-
-/** presentation/ → infrastructure/（卒業済み — baseline: 0 達成） */
-export const presentationToInfrastructure: readonly AllowlistEntry[] = [] as const
-
-/** infrastructure/ → application/（卒業済み — baseline: 0 達成） */
-export const infrastructureToApplication: readonly AllowlistEntry[] = [] as const
-
-/** presentation/ → usecases/（卒業済み — baseline: 0 達成） */
-export const presentationToUsecases: readonly AllowlistEntry[] = [] as const

@@ -17,26 +17,17 @@ import { SRC_DIR, collectTsFiles, rel } from '../guardTestHelpers'
 // ── Import all allowlists ──
 import {
   applicationToInfrastructure,
-  presentationToInfrastructure,
-  infrastructureToApplication,
-  presentationToUsecases,
   presentationDuckdbHook,
   useMemoLimits,
   useStateLimits,
   hookLineLimits,
   presentationMemoLimits,
   presentationStateLimits,
-  largeComponentTier2,
-  infraLargeFiles,
   domainLargeFiles,
-  usecasesLargeFiles,
   cmpPrevYearDaily,
   cmpFramePrevious,
   cmpDailyMapping,
-  dowCalcOverride,
   ctxHook,
-  vmReactImport,
-  sideEffectChain,
 } from '../allowlists'
 import type { AllowlistEntry, QuantitativeAllowlistEntry } from '../allowlists'
 
@@ -44,26 +35,17 @@ import type { AllowlistEntry, QuantitativeAllowlistEntry } from '../allowlists'
 // すべての allowlist をレジストリに登録し、網羅的に集計する
 const ALLOWLIST_REGISTRY: Record<string, readonly AllowlistEntry[]> = {
   applicationToInfrastructure,
-  presentationToInfrastructure,
-  infrastructureToApplication,
-  presentationToUsecases,
   presentationDuckdbHook,
   useMemoLimits,
   useStateLimits,
   hookLineLimits,
   presentationMemoLimits,
   presentationStateLimits,
-  largeComponentTier2,
-  infraLargeFiles,
   domainLargeFiles,
-  usecasesLargeFiles,
   cmpPrevYearDaily,
   cmpFramePrevious,
   cmpDailyMapping,
-  dowCalcOverride,
   ctxHook,
-  vmReactImport,
-  sideEffectChain,
 }
 
 // ── Helper: カテゴリ集計 ──
@@ -281,8 +263,8 @@ describe('Architecture State Audit — 構造状態スナップショット', ()
   it('全 allowlist がレジストリに登録されている', () => {
     // allowlists/index.ts の export 数と一致するか
     const registryCount = Object.keys(ALLOWLIST_REGISTRY).length
-    // 21 allowlists が存在する（新規追加時はここを更新）
-    expect(registryCount).toBeGreaterThanOrEqual(21)
+    // 12 allowlists が存在する（新規追加時はここを更新）
+    expect(registryCount).toBeGreaterThanOrEqual(12)
   })
 
   it('migration カテゴリが 0 件（全件解消済み）', () => {
@@ -303,13 +285,7 @@ describe('Architecture State Audit — 構造状態スナップショット', ()
 
   it('凍結リストが期待通り凍結されている', () => {
     // 以下は全件解消済みで空であるべき
-    const expectedFrozen = [
-      'presentationToInfrastructure',
-      'infrastructureToApplication',
-      'largeComponentTier2',
-      'cmpPrevYearDaily',
-      'cmpFramePrevious',
-    ]
+    const expectedFrozen = ['cmpPrevYearDaily', 'cmpFramePrevious']
     for (const name of expectedFrozen) {
       expect(
         snapshot.frozenLists,
