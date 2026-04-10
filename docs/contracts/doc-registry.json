@@ -43,7 +43,8 @@
         { "path": "references/03-guides/current-maintenance-policy.md", "label": "Current群保守ポリシー" },
         { "path": "references/03-guides/tier1-business-migration-plan.md", "label": "Tier 1 Business移行計画" },
         { "path": "references/03-guides/analytic-kernel-migration-plan.md", "label": "Analytic Kernel移行計画" },
-        { "path": "references/03-guides/guard-consolidation-and-js-retirement.md", "label": "Guard統合整理+JS正本縮退" }
+        { "path": "references/03-guides/guard-consolidation-and-js-retirement.md", "label": "Guard統合整理+JS正本縮退" },
+        { "path": "references/03-guides/promote-ceremony-template.md", "label": "Promote Ceremony テンプレート" }
       ]
     },
     {

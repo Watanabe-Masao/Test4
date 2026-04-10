@@ -5,9 +5,9 @@
 | 項目 | 値 |
 |---|---|
 | **総合評価** | **Watch** |
-| 前回比 | Flat |
+| 前回比 | Improved |
 | リリース影響 | No |
-| 最終更新 | 2026-04-10T16:52:32.317Z |
+| 最終更新 | 2026-04-10T16:59:25.418Z |
 
 ## Hard Gate
 
@@ -31,8 +31,8 @@
 | **境界健全性** | OK | Presentation→Infrastructure 違反: 0/0 / Infrastructure→Application 違反: 0/0 |
 | **ガード強度** | OK | ガードテストファイル数: 47/30 / レビュー専用タグ数: 0/5 |
 | **性能** | OK | JS バンドル合計サイズ: 6505/7000 / メインバンドルサイズ: 2228/2500 / ECharts バンドルサイズ: 919/1000 |
-| **Temporal Governance** | WARN | review overdue ルール数: 0/0 / heuristic + gate ルール数: 32/32 / active-debt 例外数: 0/1 / reviewPolicy 設定済みルール数: 140/92 (+4) / sunsetCondition 設定済みルール数: 9/9 / active-debt で createdAt 設定済み: 0/1 |
-| **Rule Efficacy** | OK | protectedHarm 設定済みルール数: 77 (+4) / 高例外圧ルール数（≥10 件）: 0/3 / renewalCount 合計: 0/10 |
+| **Temporal Governance** | WARN | review overdue ルール数: 0/0 / heuristic + gate ルール数: 32/32 / active-debt 例外数: 0/1 / reviewPolicy 設定済みルール数: 140/92 / sunsetCondition 設定済みルール数: 9/9 / active-debt で createdAt 設定済み: 0/1 |
+| **Rule Efficacy** | OK | protectedHarm 設定済みルール数: 77 / 高例外圧ルール数（≥10 件）: 0/3 / renewalCount 合計: 0/10 |
 
 ## Top Risks
 
@@ -45,10 +45,7 @@
 
 | 指標 | 前回 | 今回 | 変化 |
 |---|---|---|---|
-| 総 Architecture Rule 数 | 136 | 140 | +4 ! |
-| fixNow=now ルール数（即修正） | 63 | 67 | +4 ! |
-| reviewPolicy 設定済みルール数 | 136 | 140 | +4 ! |
-| protectedHarm 設定済みルール数 | 73 | 77 | +4 ! |
+| Doc 更新義務違反数 | 1 | 0 | -1 + |
 
 ## Recommended Actions
 
