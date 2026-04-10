@@ -108,7 +108,7 @@ export async function orchestrateMultiMonth(
       const finalData = mergeMonthlyData(existing, incoming, DEFAULT_MERGE_ACTION)
       const [y, m] = mk.split('-').map(Number)
       await repo.saveMonthlyData(finalData, y, m)
-      saveSummaryCache(finalData, y, m, repo)
+      await saveSummaryCache(finalData, y, m, repo)
       if (mk === targetMk) primaryMonthly = finalData
     }
   }
@@ -152,7 +152,7 @@ export async function orchestrateMultiMonth(
   for (const [mk] of incomingByMonth) {
     const [y, m] = mk.split('-').map(Number)
     const monthSummary = batch.summaryByMonth.get(mk) ?? summary
-    saveImportHistory(monthSummary, y, m, repo, importId)
+    await saveImportHistory(monthSummary, y, m, repo, importId)
   }
 
   return {
@@ -185,12 +185,12 @@ export async function resolveMultiMonthDiff(
       const finalData = mergeMonthlyData(existing, incoming, action)
       const [y, m] = mk.split('-').map(Number)
       await repo.saveMonthlyData(finalData, y, m)
-      saveSummaryCache(finalData, y, m, repo)
+      await saveSummaryCache(finalData, y, m, repo)
       if (mk === targetMk) primaryMonthly = finalData
     }
     for (const [mk] of incomingByMonth) {
       const [y, m] = mk.split('-').map(Number)
-      saveImportHistory(summary, y, m, repo)
+      await saveImportHistory(summary, y, m, repo)
     }
   }
 
