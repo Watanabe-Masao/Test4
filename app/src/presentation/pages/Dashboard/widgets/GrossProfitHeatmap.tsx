@@ -73,10 +73,10 @@ export const GrossProfitHeatmapWidget = memo(function GrossProfitHeatmapWidget({
     if (!allStoreResults) return []
 
     // readModels が利用可能な場合: 粗利率は readModels 正本経路、予算乖離は StoreResult
-    if (readModels?.salesFact && readModels?.purchaseCost) {
+    if (readModels?.salesFact?.status === 'ready' && readModels?.purchaseCost?.status === 'ready') {
       const gpRows = buildGpRatesFromReadModels(
-        readModels.salesFact,
-        readModels.purchaseCost,
+        readModels.salesFact.data,
+        readModels.purchaseCost.data,
         stores,
         daysInMonth,
       )

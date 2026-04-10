@@ -40,6 +40,8 @@ import {
   SectionHeader,
   SectionChevron,
   SectionContent,
+  CardSkeletonRow,
+  CardSkeletonItem,
 } from './ConditionSummaryEnhanced.styles'
 
 // ─── Card click handler type map ────────────────────────
@@ -167,7 +169,10 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
       prevYearTotalCost,
       elapsedDays: effectiveDay,
       daysInMonth: calendarDaysInMonth,
-      curTotalCustomers: ctx.readModels?.customerFact?.grandTotalCustomers ?? 0,
+      curTotalCustomers: (() => {
+        const cf = ctx.readModels?.customerFact
+        return cf?.status === 'ready' ? cf.data.grandTotalCustomers : ctx.result.totalCustomers
+      })(),
       prevTotalCustomers: extractPrevYearCustomerCount(ctx.prevYear),
     })
     // Trend computation (last 7 days vs previous 7 days)
@@ -256,7 +261,7 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
     calendarDaysInMonth,
     ctx.fmtCurrency,
     ctx.prevYear,
-    ctx.readModels?.customerFact?.grandTotalCustomers,
+    ctx.readModels?.customerFact,
     effectiveConfig,
     currentCtsQuantity,
     hasMultipleStores,
@@ -433,23 +438,50 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
       )}
 
       {/* YoY / Pace metric cards — collapsible + horizontal scroll */}
-      {yoyGroup.length > 0 && (
-        <>
-          <SectionHeader
-            onClick={() => setSectionOpen((p) => ({ ...p, yoy: !p.yoy }))}
-            aria-expanded={sectionOpen.yoy}
-            aria-controls="condition-yoy-cards"
-          >
-            <SectionChevron $open={sectionOpen.yoy}>▶</SectionChevron>
-            <CardGroupLabel>前年比較</CardGroupLabel>
-          </SectionHeader>
-          <SectionContent $open={sectionOpen.yoy} id="condition-yoy-cards">
-            <div>
-              <ScrollableCardRow cards={yoyGroup} onCardClick={handleCardClick} />
-            </div>
-          </SectionContent>
-        </>
-      )}
+      {(() => {
+        const yoyLoading = ctx.readModels?.anyLoading ?? false
+        if (yoyLoading) {
+          return (
+            <>
+              <SectionHeader
+                onClick={() => setSectionOpen((p) => ({ ...p, yoy: !p.yoy }))}
+                aria-expanded={sectionOpen.yoy}
+                aria-controls="condition-yoy-cards"
+              >
+                <SectionChevron $open={sectionOpen.yoy}>▶</SectionChevron>
+                <CardGroupLabel>前年比較</CardGroupLabel>
+              </SectionHeader>
+              <SectionContent $open={sectionOpen.yoy} id="condition-yoy-cards">
+                <div>
+                  <CardSkeletonRow>
+                    <CardSkeletonItem />
+                    <CardSkeletonItem />
+                    <CardSkeletonItem />
+                  </CardSkeletonRow>
+                </div>
+              </SectionContent>
+            </>
+          )
+        }
+        if (yoyGroup.length === 0) return null
+        return (
+          <>
+            <SectionHeader
+              onClick={() => setSectionOpen((p) => ({ ...p, yoy: !p.yoy }))}
+              aria-expanded={sectionOpen.yoy}
+              aria-controls="condition-yoy-cards"
+            >
+              <SectionChevron $open={sectionOpen.yoy}>▶</SectionChevron>
+              <CardGroupLabel>前年比較</CardGroupLabel>
+            </SectionHeader>
+            <SectionContent $open={sectionOpen.yoy} id="condition-yoy-cards">
+              <div>
+                <ScrollableCardRow cards={yoyGroup} onCardClick={handleCardClick} />
+              </div>
+            </SectionContent>
+          </>
+        )
+      })()}
 
       {/* Budget drill-down overlay */}
       {activeMetric && (

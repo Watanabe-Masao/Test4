@@ -32,7 +32,9 @@ const TABS: { key: SummaryTab; label: string }[] = [
 
 export function ExecSummaryBarWidget(ctx: WidgetContext) {
   const { result: r, prevYear, onExplain, fmtCurrency } = ctx
-  const curCustomers = ctx.readModels?.customerFact?.grandTotalCustomers ?? 0
+  const cf = ctx.readModels?.customerFact
+  const curCustomers =
+    cf?.status === 'ready' ? cf.data.grandTotalCustomers : ctx.result.totalCustomers
   const prevCustomers = extractPrevYearCustomerCount(prevYear)
   const updateSettings = useSettingsStore((s) => s.updateSettings)
   const invalidateCalculation = useUiStore((s) => s.invalidateCalculation)

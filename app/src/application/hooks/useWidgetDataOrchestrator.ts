@@ -5,9 +5,22 @@
  * orchestrator は「値の意味を決めない」。
  * 正本化済みの取得結果・計算結果を束ねて配るだけ。
  *
+ * ## ReadModelSlice — 状態付きデータ配布契約
+ *
+ * 全 readModel を ReadModelSlice<T> 型で配布する。
+ * データにアクセスするには status を確認する必要があり、
+ * loading/error/ready の区別を消費側がスキップすることがコンパイル時に防がれる。
+ *
+ * | status  | 意味                                       |
+ * |---------|-------------------------------------------|
+ * | idle    | DuckDB 未初期化。クエリ未実行。StoreResult をフォールバックに使う |
+ * | loading | クエリ実行中。スケルトン表示。stale data を見せない        |
+ * | error   | クエリ失敗。エラー表示 + StoreResult フォールバック       |
+ * | ready   | データ確定。DuckDB 正本を使う                       |
+ *
  * ## 段階的移行
  *
- * Phase 0（現在）: orchestrator を新設し、readModels を統合
+ * Phase 0: orchestrator を新設し、readModels を統合
  * Phase 1: purchase cost 関連 widget を orchestrator 経由に切替
  * Phase 2: sales / discount 関連 widget を切替
  * Phase 3: 全 widget を切替、自前取得を廃止
@@ -31,6 +44,32 @@ import { customerFactHandler } from '@/application/readModels/customerFact'
 import type { CustomerFactInput } from '@/application/readModels/customerFact'
 import type { CustomerFactReadModel } from '@/application/readModels/customerFact'
 
+// ── ReadModelSlice — 状態付きデータ配布契約 ──
+
+/**
+ * readModel の状態を表す discriminated union。
+ *
+ * データにアクセスするには status === 'ready' を確認する必要がある。
+ * `?? 0` のような silent fallback をコンパイル時に防ぐ。
+ */
+export type ReadModelSlice<T> =
+  | { readonly status: 'idle' }
+  | { readonly status: 'loading' }
+  | { readonly status: 'error'; readonly error: Error }
+  | { readonly status: 'ready'; readonly data: T }
+
+/** ReadModelSlice から安全にデータを取得する。ready 以外は null を返す */
+export function readModelData<T>(slice: ReadModelSlice<T>): T | null {
+  return slice.status === 'ready' ? slice.data : null
+}
+
+/** ReadModelSlice がエラー状態かどうかを判定する */
+export function readModelHasError<T>(
+  slice: ReadModelSlice<T>,
+): slice is { readonly status: 'error'; readonly error: Error } {
+  return slice.status === 'error'
+}
+
 // ── 入力パラメータ ──
 
 export interface WidgetDataOrchestratorParams {
@@ -44,33 +83,44 @@ export interface WidgetDataOrchestratorParams {
 
 // ── 出力（全正本の統合ビュー） ──
 
-/** readModel 名をキーとした個別エラーマップ */
-export type ReadModelErrors = Partial<
-  Record<'purchaseCost' | 'salesFact' | 'discountFact' | 'customerFact', Error>
->
-
 export interface WidgetDataOrchestratorResult {
   /** 仕入原価の複合正本 */
-  readonly purchaseCost: PurchaseCostReadModel | null
+  readonly purchaseCost: ReadModelSlice<PurchaseCostReadModel>
   /** 売上・販売点数の分析正本 */
-  readonly salesFact: SalesFactReadModel | null
+  readonly salesFact: ReadModelSlice<SalesFactReadModel>
   /** 値引きの分析正本 */
-  readonly discountFact: DiscountFactReadModel | null
+  readonly discountFact: ReadModelSlice<DiscountFactReadModel>
   /** 客数の分析正本 */
-  readonly customerFact: CustomerFactReadModel | null
-  /** ローディング状態（いずれかがロード中） */
-  readonly isLoading: boolean
-  /** 個別 readModel のエラー（障害分析用） */
-  readonly errors: ReadModelErrors
-  /** 最初のエラー（後方互換） */
-  readonly error: Error | null
+  readonly customerFact: ReadModelSlice<CustomerFactReadModel>
+  /** 全 readModel が ready（一括描画ゲート用） */
+  readonly allReady: boolean
+  /** いずれかがロード中（スケルトン表示判定用） */
+  readonly anyLoading: boolean
+  /** いずれかがエラー（エラー表示判定用） */
+  readonly anyError: boolean
+}
+
+// ── 内部ヘルパー ──
+
+function toSlice<T>(
+  data: { model: T } | null,
+  isLoading: boolean,
+  error: Error | null,
+  isIdle: boolean,
+): ReadModelSlice<T> {
+  if (isIdle) return { status: 'idle' }
+  if (isLoading) return { status: 'loading' }
+  if (error) return { status: 'error', error }
+  if (data?.model != null) return { status: 'ready', data: data.model }
+  // クエリ完了だがデータなし → idle 扱い（DuckDB にデータ未投入）
+  return { status: 'idle' }
 }
 
 /**
  * useWidgetDataOrchestrator — 正本化済みの readModels を統合して配布
  *
- * 3つの正本を並列取得し、WidgetDataOrchestratorResult として返す。
- * 各 widget はこの結果から必要なデータを取得する。
+ * 4つの正本を並列取得し、ReadModelSlice として返す。
+ * 各 widget は status を確認してからデータにアクセスする。
  */
 export function useWidgetDataOrchestrator(
   params: WidgetDataOrchestratorParams,
@@ -90,6 +140,8 @@ export function useWidgetDataOrchestrator(
         : null,
     [dateFrom, dateTo, storeIds, dataVersion],
   )
+
+  const isIdle = base === null
 
   const purchaseCostInput = useMemo<PurchaseCostInput | null>(
     () => (base ? { ...base } : null),
@@ -137,20 +189,31 @@ export function useWidgetDataOrchestrator(
   } = useQueryWithHandler(executor, customerFactHandler, customerFactInput)
 
   return useMemo(() => {
-    const errors: ReadModelErrors = {}
-    if (pcError) errors.purchaseCost = pcError
-    if (sfError) errors.salesFact = sfError
-    if (dfError) errors.discountFact = dfError
-    if (cfError) errors.customerFact = cfError
+    const pc = toSlice(purchaseCostData, pcLoading, pcError, isIdle)
+    const sf = toSlice(salesFactData, sfLoading, sfError, isIdle)
+    const df = toSlice(discountFactData, dfLoading, dfError, isIdle)
+    const cf = toSlice(customerFactData, cfLoading, cfError, isIdle)
 
     return {
-      purchaseCost: purchaseCostData?.model ?? null,
-      salesFact: salesFactData?.model ?? null,
-      discountFact: discountFactData?.model ?? null,
-      customerFact: customerFactData?.model ?? null,
-      isLoading: pcLoading || sfLoading || dfLoading || cfLoading,
-      errors,
-      error: pcError ?? sfError ?? dfError ?? cfError ?? null,
+      purchaseCost: pc,
+      salesFact: sf,
+      discountFact: df,
+      customerFact: cf,
+      allReady:
+        pc.status === 'ready' &&
+        sf.status === 'ready' &&
+        df.status === 'ready' &&
+        cf.status === 'ready',
+      anyLoading:
+        pc.status === 'loading' ||
+        sf.status === 'loading' ||
+        df.status === 'loading' ||
+        cf.status === 'loading',
+      anyError:
+        pc.status === 'error' ||
+        sf.status === 'error' ||
+        df.status === 'error' ||
+        cf.status === 'error',
     }
   }, [
     purchaseCostData,
@@ -165,5 +228,6 @@ export function useWidgetDataOrchestrator(
     sfError,
     dfError,
     cfError,
+    isIdle,
   ])
 }

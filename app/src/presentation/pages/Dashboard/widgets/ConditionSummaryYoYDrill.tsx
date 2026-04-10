@@ -112,7 +112,7 @@ export function YoYDrillOverlay({
           </DrillCloseBtn>
         </DrillHeader>
         <DrillBody>
-          {yoyDrill === 'customerYoY' && ctx.readModels?.customerFact && (
+          {yoyDrill === 'customerYoY' && ctx.readModels?.customerFact?.status === 'ready' && (
             <CustomerYoYDetailTable
               sortedStoreEntries={sortedStoreEntries}
               stores={ctx.stores}
@@ -124,9 +124,9 @@ export function YoYDrillOverlay({
               prevYear={ctx.prevYear}
               prevYearMonthlyKpi={ctx.prevYearMonthlyKpi}
               dataMaxDay={ctx.dataMaxDay}
-              curTotalCustomers={ctx.readModels.customerFact.grandTotalCustomers}
+              curTotalCustomers={ctx.readModels.customerFact.data.grandTotalCustomers}
               prevTotalCustomers={extractPrevYearCustomerCount(ctx.prevYear)}
-              storeCustomerMap={toStoreCustomerRows(ctx.readModels.customerFact)}
+              storeCustomerMap={toStoreCustomerRows(ctx.readModels.customerFact.data)}
             />
           )}
           {yoyDrill === 'txValue' && (
@@ -162,13 +162,13 @@ export function YoYDrillOverlay({
             />
           )}
           {(yoyDrill === 'qtyCustomerGap' || yoyDrill === 'amtCustomerGap') &&
-            ctx.readModels?.customerFact && (
+            ctx.readModels?.customerFact?.status === 'ready' && (
               <CustomerGapDetailTable
                 gapType={yoyDrill === 'qtyCustomerGap' ? 'quantity' : 'amount'}
                 sortedStoreEntries={sortedStoreEntries}
                 stores={ctx.stores}
                 result={ctx.result}
-                customerFact={ctx.readModels.customerFact}
+                customerFact={ctx.readModels.customerFact.data}
                 prevTotalCustomers={extractPrevYearCustomerCount(ctx.prevYear)}
                 prevTotalSales={ctx.prevYear.totalSales}
                 currentCtsQuantity={currentCtsQuantity}
