@@ -32,7 +32,7 @@ app/src/
 - time-slot
 - weather
 
-> 13 モジュール — 生成: 2026-04-10T04:09:44.873Z
+> 13 モジュール — 生成: 2026-04-10T05:14:03.155Z
 <!-- GENERATED:END features-list -->
 
 ### test/ 構成
@@ -90,6 +90,7 @@ test/
 - `oldPathImportGuard.test.ts`
 - `pageMetaGuard.test.ts`
 - `piValuePathGuard.test.ts`
+- `pipelineSafetyGuard.test.ts`
 - `presentationIsolationGuard.test.ts`
 - `projectStructureGuard.test.ts`
 - `purchaseCostImportGuard.test.ts`
@@ -108,7 +109,7 @@ test/
 - `temporalScopeGuard.test.ts`
 - `topologyGuard.test.ts`
 
-> 44 ファイル — 生成: 2026-04-10T04:09:44.873Z
+> 45 ファイル — 生成: 2026-04-10T05:14:03.155Z
 <!-- GENERATED:END guard-files-list -->
 
 ## レイヤー間の依存ルール
