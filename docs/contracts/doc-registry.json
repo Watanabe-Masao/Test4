@@ -31,6 +31,7 @@
         { "path": "references/01-principles/architecture-rule-feasibility.md", "label": "ルール導入評価" },
         { "path": "references/03-guides/architecture-rule-system.md", "label": "ルール運用ガイド" },
         { "path": "references/03-guides/allowlist-management.md", "label": "Allowlist 管理ガイド" },
+        { "path": "references/03-guides/semantic-inventory-procedure.md", "label": "意味分類 Inventory 手順書" },
         { "path": "references/03-guides/guard-test-map.md", "label": "ガードテスト対応表" },
         { "path": "references/03-guides/discovery-review-checklist.md", "label": "Discovery Review チェックリスト" },
         { "path": "references/03-guides/aag-phase4-6-plan.md", "label": "AAG Phase 4-6 計画" },
