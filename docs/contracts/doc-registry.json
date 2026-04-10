@@ -40,7 +40,8 @@
         { "path": "references/03-guides/active-debt-refactoring-plan.md", "label": "Active-Debt リファクタリング計画" },
         { "path": "references/03-guides/legacy-governance-retirement.md", "label": "レガシーガバナンス廃止" },
         { "path": "references/03-guides/contract-definition-policy.md", "label": "契約定義ポリシー" },
-        { "path": "references/03-guides/current-maintenance-policy.md", "label": "Current群保守ポリシー" }
+        { "path": "references/03-guides/current-maintenance-policy.md", "label": "Current群保守ポリシー" },
+        { "path": "references/03-guides/tier1-business-migration-plan.md", "label": "Tier 1 Business移行計画" }
       ]
     },
     {

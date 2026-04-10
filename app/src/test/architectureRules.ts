@@ -5283,6 +5283,330 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     },
   },
 
+  // ═══ Phase 5: Tier 1 Business 候補移行 ═══
+
+  {
+    id: 'AR-CAND-BIZ-CONTRACT-REQUIRED',
+    principleRefs: ['I2'],
+    guardTags: ['I2'],
+    slice: 'canonicalization',
+    fixNow: 'now',
+    ruleClass: 'invariant',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/03-guides/tier1-business-migration-plan.md',
+    what: 'Business Contract (BIZ-XXX) なしで candidate/business 化してはならない',
+    why: '契約なしの candidate は業務意味の検証ができず、parity 比較の基準がない',
+    correctPattern: {
+      description: "candidate/business エントリには必ず contractId: 'BIZ-XXX' を設定する",
+      example: "runtimeStatus: 'candidate', contractId: 'BIZ-008'",
+    },
+    outdatedPattern: {
+      description: "runtimeStatus: 'candidate' で contractId が未設定",
+    },
+    detection: { type: 'custom', severity: 'gate' },
+    decisionCriteria: {
+      when: 'candidate/business エントリを registry に追加するとき',
+      exceptions: 'なし — candidate は契約必須',
+      escalation: '契約を書けないなら candidate 化しない',
+    },
+    migrationPath: {
+      steps: [
+        '1. contract-definition-policy.md の BIZ テンプレートに従い契約を作成',
+        '2. contractId を registry エントリに設定',
+        '3. businessMeaning を reason に記載',
+      ],
+      effort: 'small',
+      priority: 1,
+    },
+    relationships: {
+      dependsOn: ['AR-CONTRACT-SEMANTIC-REQUIRED', 'AR-CONTRACT-BUSINESS-MEANING'],
+    },
+    protectedHarm: {
+      prevents: ['契約なしの candidate が混入し parity 比較の基準がなくなる'],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+  },
+
+  {
+    id: 'AR-CAND-BIZ-NO-CURRENT-MIX',
+    principleRefs: ['I3'],
+    guardTags: ['I3'],
+    slice: 'canonicalization',
+    fixNow: 'now',
+    ruleClass: 'invariant',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/03-guides/tier1-business-migration-plan.md',
+    what: 'candidate/business を current/business の registry view に混入してはならない',
+    why: 'candidate は実験資産。current view に混ぜるとレビュー基準・進捗管理・rollback が全て濁る',
+    correctPattern: {
+      description: "candidate は runtimeStatus: 'candidate' で MIGRATION_CANDIDATE_VIEW に配置する",
+    },
+    outdatedPattern: {
+      description: "candidate エントリに runtimeStatus: 'current' を設定する",
+    },
+    detection: { type: 'custom', severity: 'gate' },
+    decisionCriteria: {
+      when: 'candidate エントリの runtimeStatus を設定するとき',
+      exceptions: 'Phase 8 の Promote Ceremony を経た場合のみ current に編入可能',
+      escalation: '誤って current にした場合は即 candidate に戻す',
+    },
+    migrationPath: {
+      steps: [
+        '1. runtimeStatus を candidate に修正',
+        '2. authorityKind を candidate-authoritative に修正',
+        '3. MIGRATION_CANDIDATE_VIEW に配置されていることを確認',
+      ],
+      effort: 'trivial',
+      priority: 1,
+    },
+    relationships: {
+      dependsOn: ['AR-CURRENT-NO-CANDIDATE-MIX'],
+    },
+    protectedHarm: {
+      prevents: ['実験資産が安定運用 view に混入し品質基準が崩壊する'],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+  },
+
+  {
+    id: 'AR-CAND-BIZ-NO-ANALYTICS-BRIDGE',
+    principleRefs: ['I2'],
+    guardTags: ['I2'],
+    slice: 'canonicalization',
+    fixNow: 'now',
+    ruleClass: 'invariant',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/03-guides/tier1-business-migration-plan.md',
+    what: 'business candidate を analytics bridge に接続してはならない',
+    why: 'business 計算を analytics bridge に接続すると意味空間が混線し、保守観点の適用が不可能になる',
+    correctPattern: {
+      description: "bridgeKind: 'business' の candidate は business bridge のみに接続する",
+    },
+    outdatedPattern: {
+      description: 'business candidate を forecastBridge / timeSlotBridge に接続する',
+    },
+    detection: { type: 'custom', severity: 'gate' },
+    decisionCriteria: {
+      when: 'candidate/business の bridge 接続先を設定するとき',
+      exceptions: 'なし — business は business bridge のみ',
+      escalation: '接続先に迷ったら semanticClass を再確認',
+    },
+    migrationPath: {
+      steps: [
+        '1. candidate の bridgeKind を確認',
+        '2. business bridge に接続',
+        '3. analytics bridge への接続を除去',
+      ],
+      effort: 'trivial',
+      priority: 1,
+    },
+    relationships: {
+      dependsOn: ['AR-CONTRACT-SEMANTIC-REQUIRED'],
+    },
+    protectedHarm: {
+      prevents: ['business と analytics の bridge が交差接続し意味空間が崩壊する'],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+  },
+
+  {
+    id: 'AR-CAND-BIZ-NO-RATE-UI',
+    principleRefs: ['I1'],
+    guardTags: ['I1'],
+    slice: 'canonicalization',
+    fixNow: 'now',
+    ruleClass: 'invariant',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/03-guides/tier1-business-migration-plan.md',
+    what: 'candidate の率を UI / VM / SQL で再計算してはならない',
+    why: 'candidate でも rateOwnership は engine。二重計算は parity 比較を不可能にする',
+    correctPattern: {
+      description: 'candidate bridge から取得した率をそのまま使用する',
+    },
+    outdatedPattern: {
+      description: 'candidate の出力値から UI で率を独自計算する',
+    },
+    detection: { type: 'custom', severity: 'gate' },
+    decisionCriteria: {
+      when: 'candidate の出力を UI に表示するとき',
+      exceptions: '表示用フォーマット変換は許容',
+      escalation: 'AR-BRIDGE-RATE-OWNERSHIP と同じ対応',
+    },
+    migrationPath: {
+      steps: [
+        '1. UI で率を再計算している箇所を特定',
+        '2. bridge 経由の値に置き換え',
+        '3. 独自計算を削除',
+      ],
+      effort: 'small',
+      priority: 2,
+    },
+    relationships: {
+      dependsOn: ['AR-BRIDGE-RATE-OWNERSHIP'],
+    },
+    protectedHarm: {
+      prevents: ['率の二重計算により parity 比較が不可能になる'],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+  },
+
+  {
+    id: 'AR-CAND-BIZ-NO-DIRECT-IMPORT',
+    principleRefs: ['I1', 'I2'],
+    guardTags: ['I1', 'I2'],
+    slice: 'canonicalization',
+    fixNow: 'debt',
+    ruleClass: 'default',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/03-guides/tier1-business-migration-plan.md',
+    what: 'candidate/business の direct import を新規に増やさない',
+    why: 'direct import が増えると bridge モード切替が機能せず dual-run / rollback が不可能になる',
+    correctPattern: {
+      description: 'candidate は bridge 経由でのみ呼び出す',
+    },
+    outdatedPattern: {
+      description: 'candidate の WASM exports や domain/calculations/ を直接 import する',
+    },
+    detection: { type: 'import', severity: 'gate', baseline: 0 },
+    decisionCriteria: {
+      when: 'candidate の関数を呼び出すコードを書くとき',
+      exceptions: '型の import（import type）とテストコードは除外',
+      escalation: 'AR-BRIDGE-DIRECT-IMPORT と同じ対応',
+    },
+    migrationPath: {
+      steps: ['1. direct import を特定', '2. bridge 経由に変更', '3. direct import を削除'],
+      effort: 'trivial',
+      priority: 2,
+    },
+    relationships: {
+      dependsOn: ['AR-BRIDGE-DIRECT-IMPORT'],
+    },
+    protectedHarm: {
+      prevents: ['bridge 管理外の candidate 呼び出しが生まれ dual-run が機能しない'],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+  },
+
+  {
+    id: 'AR-CAND-BIZ-NO-ROLLBACK-SKIP',
+    principleRefs: ['I3'],
+    guardTags: ['I3'],
+    slice: 'canonicalization',
+    fixNow: 'now',
+    ruleClass: 'invariant',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/03-guides/tier1-business-migration-plan.md',
+    what: 'rollback 不可の candidate を追加してはならない',
+    why: 'rollback できない candidate は失敗時にユーザー影響が出る。安全網なしの移行は禁止',
+    correctPattern: {
+      description:
+        "candidate は fallbackPolicy: 'current' を設定し、bridge で current-only に戻せるようにする",
+    },
+    outdatedPattern: {
+      description:
+        "candidate に fallbackPolicy: 'none' を設定する、または rollback 手順を未定義にする",
+    },
+    detection: { type: 'custom', severity: 'gate' },
+    decisionCriteria: {
+      when: 'candidate/business エントリを追加するとき',
+      exceptions: 'なし — candidate は rollback 必須',
+      escalation: 'rollback 実装ができないなら candidate 化しない',
+    },
+    migrationPath: {
+      steps: [
+        '1. fallbackPolicy を current に設定',
+        '2. bridge に fallback-to-current モードを実装',
+        '3. rollback テストを追加',
+      ],
+      effort: 'small',
+      priority: 1,
+    },
+    relationships: {
+      dependsOn: ['AR-BRIDGE-CANDIDATE-DEFAULT'],
+    },
+    protectedHarm: {
+      prevents: ['rollback 不可の candidate が運用に入りユーザー影響が出る'],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+  },
+
+  {
+    id: 'AR-CAND-BIZ-NO-PROMOTE-WITHOUT-DUALRUN',
+    principleRefs: ['I3'],
+    guardTags: ['I3'],
+    slice: 'canonicalization',
+    fixNow: 'now',
+    ruleClass: 'invariant',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/03-guides/tier1-business-migration-plan.md',
+    what: 'dual-run 未実装で promotion-ready にしてはならない',
+    why: 'dual-run なしの昇格は parity 未検証。業務値の不整合をユーザーに出すリスクがある',
+    correctPattern: {
+      description:
+        'dual-run-compare を実施し、値一致・null一致・warning一致・業務解釈の一致を確認してから promotion-ready にする',
+    },
+    outdatedPattern: {
+      description: 'candidate 実装を追加しただけで dual-run なしに promotion-ready にする',
+    },
+    detection: { type: 'custom', severity: 'gate' },
+    decisionCriteria: {
+      when: 'candidate の状態を promotion-ready に変更するとき',
+      exceptions: 'なし — dual-run は promotion の前提条件',
+      escalation: 'dual-run インフラが未整備なら promotion-ready にしない',
+    },
+    migrationPath: {
+      steps: [
+        '1. dual-run-compare モードを bridge に実装',
+        '2. 値一致・null一致・warning一致・業務解釈の一致を検証',
+        '3. 検証結果を記録してから promotion-ready に変更',
+      ],
+      effort: 'small',
+      priority: 1,
+    },
+    relationships: {
+      dependsOn: ['AR-CAND-BIZ-CONTRACT-REQUIRED', 'AR-CAND-BIZ-NO-ROLLBACK-SKIP'],
+    },
+    protectedHarm: {
+      prevents: ['parity 未検証の candidate が昇格され業務値の不整合が発生する'],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+  },
+
   {
     id: 'AR-REGISTRY-SINGLE-MASTER',
     principleRefs: ['I4'],
