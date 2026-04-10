@@ -5941,6 +5941,192 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     },
   },
 
+  // ═══ Phase 7: Guard 統合整理 + JS 正本縮退 ═══
+
+  {
+    id: 'AR-JS-NO-NEW-AUTHORITATIVE',
+    principleRefs: ['I1', 'I2'],
+    guardTags: ['I1', 'I2'],
+    slice: 'canonicalization',
+    fixNow: 'now',
+    ruleClass: 'invariant',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/03-guides/guard-consolidation-and-js-retirement.md',
+    what: 'TS に新規 pure authoritative logic を追加してはならない。先に candidate 登録が必要',
+    why: 'JS に正本ロジックを新規追加すると二重管理になる。候補は candidate として管理し bridge 経由で使う',
+    correctPattern: {
+      description: '新しい authoritative 計算は candidate として registry に登録してから実装する',
+    },
+    outdatedPattern: {
+      description: 'domain/calculations/ に新しい authoritative 関数を直接追加する',
+    },
+    detection: { type: 'custom', severity: 'gate' },
+    decisionCriteria: {
+      when: 'domain/calculations/ に新しい pure 関数を追加するとき',
+      exceptions: 'utility / not-needed の関数追加は対象外。既存関数の修正も対象外',
+      escalation: '新しい authoritative 計算が必要な場合は candidate として登録する',
+    },
+    migrationPath: {
+      steps: [
+        '1. calculationCanonRegistry に candidate エントリを追加',
+        '2. 契約（BIZ-XXX / ANA-XXX）を定義',
+        '3. bridge 経由で利用する',
+      ],
+      effort: 'small',
+      priority: 1,
+    },
+    relationships: {
+      dependsOn: ['AR-CAND-BIZ-CONTRACT-REQUIRED', 'AR-CAND-ANA-CONTRACT-REQUIRED'],
+    },
+    protectedHarm: {
+      prevents: ['JS に authoritative ロジックが増殖し二重管理が再発する'],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+  },
+
+  {
+    id: 'AR-JS-NO-REFERENCE-GROWTH',
+    principleRefs: ['I1'],
+    guardTags: ['I1'],
+    slice: 'canonicalization',
+    fixNow: 'now',
+    ruleClass: 'invariant',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/03-guides/guard-consolidation-and-js-retirement.md',
+    what: 'JS reference（compare/fallback 用）に新規正本ロジックを追加してはならない',
+    why: 'JS reference は比較基準と fallback のために存在する。増築すると縮退方針が崩壊する',
+    correctPattern: {
+      description: 'JS reference はバグ修正のみ。新しいロジックは candidate として追加する',
+    },
+    outdatedPattern: {
+      description: '既存の TS ファイルに新しい authoritative 計算関数を追加する',
+    },
+    detection: { type: 'custom', severity: 'gate' },
+    decisionCriteria: {
+      when: 'Stage B/C の JS reference を変更するとき',
+      exceptions: 'バグ修正・型修正は許容。新しい export 関数の追加は禁止',
+      escalation: '新機能が必要なら candidate として別管理する',
+    },
+    migrationPath: {
+      steps: [
+        '1. JS reference から新規ロジックを除去',
+        '2. candidate として別エントリで管理',
+        '3. bridge 経由で利用する',
+      ],
+      effort: 'small',
+      priority: 1,
+    },
+    relationships: {
+      dependsOn: ['AR-JS-NO-NEW-AUTHORITATIVE'],
+    },
+    protectedHarm: {
+      prevents: ['JS reference が増殖し縮退方針（A→B→C→D）が機能しなくなる'],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+  },
+
+  {
+    id: 'AR-JS-NO-PRES-HELPER-PROMOTE',
+    principleRefs: ['I2'],
+    guardTags: ['I2'],
+    slice: 'canonicalization',
+    fixNow: 'now',
+    ruleClass: 'invariant',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/03-guides/guard-consolidation-and-js-retirement.md',
+    what: 'Presentation Helper を candidate/business や candidate/analytics に昇格してはならない',
+    why: 'presentation 層のヘルパーは描画用。authoritative 計算の candidate にすると責務の混線が起きる',
+    correctPattern: {
+      description: "presentation 層のヘルパーは semanticClass: 'presentation' のまま維持する",
+    },
+    outdatedPattern: {
+      description: "presentation/ のヘルパーを semanticClass: 'business' / 'analytic' に変更する",
+    },
+    detection: { type: 'custom', severity: 'gate' },
+    decisionCriteria: {
+      when: 'presentation 層のヘルパーの semanticClass を変更するとき',
+      exceptions: '正式な責務再定義プロセスを経た場合のみ',
+      escalation: '業務計算が必要なら domain/calculations/ に新しい候補を作る',
+    },
+    migrationPath: {
+      steps: [
+        '1. presentation ヘルパーの semanticClass を presentation に戻す',
+        '2. 必要な計算ロジックを domain/calculations/ に移動',
+        '3. candidate として管理する',
+      ],
+      effort: 'small',
+      priority: 2,
+    },
+    relationships: {
+      dependsOn: ['AR-CONTRACT-SEMANTIC-REQUIRED'],
+    },
+    protectedHarm: {
+      prevents: ['描画用ヘルパーが authoritative に昇格し責務の混線が起きる'],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+  },
+
+  {
+    id: 'AR-REVIEW-NEEDED-BLOCK',
+    principleRefs: ['I2', 'I3'],
+    guardTags: ['I2', 'I3'],
+    slice: 'canonicalization',
+    fixNow: 'now',
+    ruleClass: 'invariant',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/03-guides/guard-consolidation-and-js-retirement.md',
+    what: 'review-needed のまま current 編入・candidate 化・物理移動をしてはならない',
+    why: '意味分類が未確定のまま移行すると、後から分類を変更する必要が生じ大規模な修正が必要になる',
+    correctPattern: {
+      description: 'review-needed を解決してから current 編入・candidate 化する',
+    },
+    outdatedPattern: {
+      description: "tag: 'review' のまま runtimeStatus を current や candidate に変更する",
+    },
+    detection: { type: 'custom', severity: 'gate' },
+    decisionCriteria: {
+      when: 'review-needed エントリの runtimeStatus を変更するとき',
+      exceptions: 'なし — review-needed は先に解決する',
+      escalation: '分類に迷ったら semantic-inventory-procedure.md の Q1-Q8 で判定',
+    },
+    migrationPath: {
+      steps: [
+        '1. review-needed の理由を確認',
+        '2. semanticClass を確定する',
+        '3. 確定後に runtimeStatus を変更する',
+      ],
+      effort: 'trivial',
+      priority: 1,
+    },
+    relationships: {
+      dependsOn: ['AR-CANON-SEMANTIC-REQUIRED'],
+    },
+    protectedHarm: {
+      prevents: ['意味分類未確定のまま移行し大規模な修正が必要になる'],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+  },
+
   {
     id: 'AR-REGISTRY-SINGLE-MASTER',
     principleRefs: ['I4'],

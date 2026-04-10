@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-10T16:46:35.924Z",
+  "timestamp": "2026-04-10T16:52:32.317Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -339,7 +339,7 @@
       "id": "guard.rules.total",
       "label": "総 Architecture Rule 数",
       "category": "guard",
-      "value": 136,
+      "value": 140,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -357,7 +357,7 @@
       "id": "guard.rules.fixNow.now",
       "label": "fixNow=now ルール数（即修正）",
       "category": "guard",
-      "value": 63,
+      "value": 67,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -519,7 +519,7 @@
       "id": "temporal.rules.reviewPolicy.count",
       "label": "reviewPolicy 設定済みルール数",
       "category": "guard",
-      "value": 136,
+      "value": 140,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -621,7 +621,7 @@
       "id": "efficacy.rules.withProtectedHarm.count",
       "label": "protectedHarm 設定済みルール数",
       "category": "guard",
-      "value": 73,
+      "value": 77,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
