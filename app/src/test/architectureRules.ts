@@ -4303,6 +4303,151 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       withdrawIf: ['検出精度が低く false positive が頻発する'],
     },
   },
+
+  // ═══════════════════════════════════════════════════════════
+  // Co-Change — 変更の影響範囲を機械的に検出する
+  // ═══════════════════════════════════════════════════════════
+
+  {
+    id: 'AR-COCHANGE-VALIDATION-SEVERITY',
+    principleRefs: ['G1', 'D3'],
+    guardTags: ['G1'],
+    slice: 'governance-ops',
+    fixNow: 'now',
+    ruleClass: 'invariant',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/01-principles/design-principles.md',
+    what: 'バリデーション severity を変更したら対応するテストも更新する',
+    why: 'severity を warning → error に変えてもテストが warning を探していると CI が通らず、逆に CI が通ったままテストが無意味になる',
+    correctPattern: {
+      description:
+        'importDataIntegrity.ts の level 変更時に FileImportService.test.ts のアサーションも同時に変更する',
+    },
+    outdatedPattern: {
+      description: 'severity のみ変更してテスト側を追従させない',
+      codeSignals: ["level: 'error'", "level: 'warning'"],
+    },
+    detection: { type: 'co-change', severity: 'gate' },
+    decisionCriteria: {
+      when: 'importDataIntegrity.ts の level を変更するとき',
+      exceptions: '例外なし — テストは常に追従必須',
+      escalation: 'テストファイルを grep して同じメッセージ文字列を持つアサーションを更新',
+    },
+    migrationPath: {
+      steps: [
+        '1. importDataIntegrity.ts で level を変更',
+        '2. FileImportService.test.ts で同じメッセージの level アサーションを更新',
+        '3. npx vitest run で確認',
+      ],
+      effort: 'trivial',
+      priority: 1,
+    },
+    relationships: {
+      dependsOn: ['AR-SAFETY-VALIDATION-ENFORCE'],
+    },
+    protectedHarm: {
+      prevents: ['CI 失敗: テストが旧 severity を期待して不一致'],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+  },
+
+  {
+    id: 'AR-COCHANGE-DUCKDB-MOCK',
+    principleRefs: ['G1', 'D3'],
+    guardTags: ['G1'],
+    slice: 'governance-ops',
+    fixNow: 'now',
+    ruleClass: 'default',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/01-principles/design-principles.md',
+    what: 'DuckDB 関数に conn.query() 呼び出しを追加したら対応テストのモックも更新する',
+    why: 'テストモックが新しい query 呼び出しに対応しないと undefined.toArray() でクラッシュする',
+    correctPattern: {
+      description:
+        'bulkInsert 等に query 追加時は dataLoaderPureFunctions.test.ts のモック conn.query を複数回対応に更新する',
+    },
+    outdatedPattern: {
+      description: '本番コードに query を追加してテストモックを更新しない',
+      codeSignals: ['conn.query(', 'await conn.query('],
+    },
+    detection: { type: 'co-change', severity: 'gate' },
+    decisionCriteria: {
+      when: 'infrastructure/duckdb/ の関数に新しい conn.query() を追加するとき',
+      exceptions: '既存テストがない関数（新規追加時）',
+      escalation: 'テストの conn モックが新しい query に対応するか確認',
+    },
+    migrationPath: {
+      steps: [
+        '1. 本番コードに conn.query() を追加',
+        '2. 対応テストのモック conn.query を確認',
+        '3. モックが固定値を返す場合は2回目以降の呼び出しに対応させる',
+      ],
+      effort: 'trivial',
+      priority: 1,
+    },
+    protectedHarm: {
+      prevents: ['CI 失敗: モック未対応で undefined.toArray() クラッシュ'],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+  },
+
+  {
+    id: 'AR-COCHANGE-READMODEL-PARSE',
+    principleRefs: ['G1', 'E1'],
+    guardTags: ['G1', 'E1'],
+    slice: 'canonicalization',
+    fixNow: 'now',
+    ruleClass: 'default',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/01-principles/design-principles.md',
+    what: 'readModel の parse 方式を変更したらパスガードのアサーションも更新する',
+    why: 'パスガードが .parse() の存在を検証しているため、.safeParse() に変えるとガードが失敗する',
+    correctPattern: {
+      description:
+        'readXxx.ts で .parse() → .safeParse() に変更したら xxxPathGuard.test.ts の toContain も同時に更新する',
+    },
+    outdatedPattern: {
+      description: 'parse 方式を変更してパスガードの検証文字列を更新しない',
+      codeSignals: ['.parse(', '.safeParse('],
+    },
+    detection: { type: 'co-change', severity: 'gate' },
+    decisionCriteria: {
+      when: 'readModel builder の Zod parse メソッドを変更するとき',
+      exceptions: '例外なし — パスガードは常に追従必須',
+      escalation: 'test/guards/ で対応する PathGuard を検索し toContain を更新',
+    },
+    migrationPath: {
+      steps: [
+        '1. readModel builder で .parse() → .safeParse() に変更',
+        '2. 対応する PathGuard の toContain アサーションを更新',
+        '3. npm run test:guards で確認',
+      ],
+      effort: 'trivial',
+      priority: 1,
+    },
+    relationships: {
+      dependsOn: ['AR-SAFETY-PROD-VALIDATION'],
+    },
+    protectedHarm: {
+      prevents: ['CI 失敗: パスガードが旧 parse メソッド名を期待して不一致'],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+  },
 ] as const satisfies readonly ArchitectureRule[]
 
 // ─── Lookup 関数 ─────────────────────────────────────────

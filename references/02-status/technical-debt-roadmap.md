@@ -13,7 +13,7 @@
 ## 現在の健全性サマリー
 
 <!-- GENERATED:START architecture-health-summary -->
-**Watch** | 前回比: Improved | Hard Gate: PASS
+**RISK** | 前回比: Regressed | Hard Gate: FAIL
 
 | 指標 | 状態 | 詳細 |
 |---|---|---|
@@ -21,15 +21,17 @@
 | 後方互換負債 | OK | 0/3 / 2/3 |
 | 複雑性圧 | OK | 0/5 / 10/10 / 27/30 |
 | 境界健全性 | OK | 0/0 / 0/0 |
-| ガード強度 | OK | 45/30 / 0/5 |
+| ガード強度 | OK | 46/30(+1) / 0/5 |
 | 性能 | OK | 6505/7000 / 2228/2500 / 919/1000 |
-| Temporal Governance | WARN | 0/0 / 32/32 / 0/1 / 101/92 / 9/9 / 0/1 |
-| Rule Efficacy | OK | 41 / 0/3 / 0/10 |
+| Temporal Governance | WARN | 0/0 / 32/32 / 0/1 / 104/92(+3) / 9/9 / 0/1 |
+| Rule Efficacy | OK | 44(+3) / 0/3 / 0/10 |
 
 **Next:**
+- Doc 更新義務違反数 を budget 0 以下に修正する
 - active-debt で createdAt 設定済み を 0 → 1 に削減する（残 -1）
+- Doc 更新義務違反数 が悪化（0 → 1）— 原因を調査する
 
-> 生成: 2026-04-10T08:25:37.706Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-10T08:34:54.333Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 現状スナップショット
