@@ -12,19 +12,13 @@ import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
 import { SRC_DIR, collectTsFiles, extractImports, rel as relativePath } from '../guardTestHelpers'
-import {
-  presentationToInfrastructure,
-  presentationDuckdbHook,
-  dowCalcOverride,
-  buildAllowlistSet,
-} from '../allowlists'
+import { presentationDuckdbHook, buildAllowlistSet } from '../allowlists'
 import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 const rule = getRuleById('AR-STRUCT-PRES-ISOLATION')!
 
 // ─── 許可リスト（allowlists.ts から構築） ────────────────
 
-const PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST = buildAllowlistSet(presentationToInfrastructure)
 const PRESENTATION_DUCKDB_HOOK_ALLOWLIST_TOP = buildAllowlistSet(presentationDuckdbHook)
 
 // ─── テスト ──────────────────────────────────────────────
@@ -146,8 +140,6 @@ describe('Presentation Isolation Guard', () => {
 
     for (const file of files) {
       const rel = relativePath(file)
-      // DevTools は開発専用。queryProfiler への直接参照を許可
-      if (PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST.has(rel)) continue
 
       const imports = extractImports(file)
       for (const imp of imports) {
@@ -292,13 +284,6 @@ describe('Presentation Isolation Guard', () => {
   /** dowOffset による日付計算パターン（独自の同曜日補正） */
   const DOW_OFFSET_CALC_PATTERN = /\.setDate\([^)]*-\s*dowOffset/
 
-  /**
-   * 許可リスト: resolveSameDowSource と同一アルゴリズムを使用しているファイル。
-   * これらのファイルは anchor ±7日の最近傍探索を実装しており、
-   * dowOffset による独自補正は含まない。
-   */
-  const DOW_CALC_ALLOWLIST = buildAllowlistSet(dowCalcOverride)
-
   it('presentation 層で dowOffset による前年日付の独自計算を禁止', () => {
     const presDir = path.join(SRC_DIR, 'presentation')
     const files = collectTsFiles(presDir)
@@ -306,7 +291,6 @@ describe('Presentation Isolation Guard', () => {
 
     for (const file of files) {
       const relPath = path.relative(path.join(SRC_DIR, 'presentation'), file)
-      if (DOW_CALC_ALLOWLIST.has(relPath)) continue
       const content = fs.readFileSync(file, 'utf-8')
       if (DOW_OFFSET_CALC_PATTERN.test(content)) {
         violating.push(relPath)

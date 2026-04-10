@@ -1,61 +1,13 @@
 /**
- * Screen Runtime 許可リスト — isPrevYear handler + presentation direct query
+ * Screen Runtime 許可リスト — pair handler 消費側の分類
  *
- * Gate 3 再定義: nonPairableConsumers を3分類に分離し、
- * presentationDirectQueryAudit で全22ファイルの rollout 計画を台帳化。
- *
- * @invariant INV-RUN-02 Comparison Integrity — isPrevYear handler の段階的廃止を追跡
- * @invariant INV-RUN-03 Fetch Completeness — presentation 直接 query の段階的廃止を追跡
+ * @invariant INV-RUN-02 Comparison Integrity — pair handler 消費側の分類を追跡
  */
-import type { AllowlistEntry, DirectQueryAuditEntry } from './types'
+import type { AllowlistEntry } from './types'
 
 // ════════════════════════════════════════════════════════════════════
-// §1. isPrevYear handler 許容リスト（変更なし）
+// §1. pair handler 消費側
 // ════════════════════════════════════════════════════════════════════
-
-/**
- * isPrevYear フラグを持つ handler の許容リスト。
- *
- * Sprint 4: 全 13 handler を PrevYearFlag 型 + CURRENT_SCOPE/COMPARISON_SCOPE 定数に移行。
- * guard regex `isPrevYear\??:\s*(boolean|true|false)` に一致するハンドラは 0 件。
- *
- * isPrevYear フィールド自体は PrevYearFlag 型として全ハンドラに残るが、
- * `boolean` リテラル型ではなく型エイリアス経由のため guard 非検出。
- * @see application/queries/comparisonQueryScope.ts
- */
-export const isPrevYearHandlers: readonly AllowlistEntry[] = [
-  // ── Sprint 4: PrevYearFlag 移行完了 ──
-  // LevelAggregationHandler — ExecuteInput を PrevYearFlag に移行
-  // CategoryHourlyHandler — ExecuteInput を PrevYearFlag に移行
-  // CategoryDiscountHandler — ExecuteInput を PrevYearFlag に移行
-  // StoreCategoryPIHandler — ExecuteInput を PrevYearFlag に移行
-  // DailyQuantityHandler — ExecuteInput を PrevYearFlag に移行
-  // StoreDaySummaryHandler — 公開 Input を PrevYearFlag に移行
-  // HourlyAggregationHandler — 公開 Input を PrevYearFlag に移行
-  // DistinctDayCountHandler — 公開 Input を PrevYearFlag に移行
-  // CategoryTimeRecordsHandler — 公開 Input を PrevYearFlag に移行
-  // MovingAverageHandler — 公開 Input を PrevYearFlag に移行
-  // YoyDailyHandler — body literals を CURRENT_SCOPE/COMPARISON_SCOPE に移行
-  // DailyQuantityPairHandler — body literals を CURRENT_SCOPE/COMPARISON_SCOPE に移行
-  // createPairedHandler — 型 + literals を PrevYearFlag + constants に移行
-]
-
-// ════════════════════════════════════════════════════════════════════
-// §2. pair handler 消費側の3分類
-// ════════════════════════════════════════════════════════════════════
-
-/**
- * 専用設計が必要な消費側（exception design）。
- * 比較意味論が createPairedHandler と根本的に異なり、
- * 標準 pair handler ではなく専用の比較設計が必要。
- */
-export const pairExceptionDesign: readonly AllowlistEntry[] = [
-  // useCategoryTrendChartData.ts: useCategoryTrendPlan 経由に移行済み（非対称比較 plan）
-  // YoYWaterfallChart.tsx: useYoYWaterfallPlan 経由に移行済み（fallback-aware plan）
-  // useTimeSlotData.ts: useTimeSlotPlan 経由に移行済み（WoW comparison plan）
-  // useDayDetailData.ts: useDayDetailPlan 経由に移行済み（14本 bundled query plan）
-  // useClipExport.ts: useClipExportPlan 経由に移行済み（useQueryWithHandler 事前取得）
-]
 
 /**
  * 単一呼び出しで比較なし。base handler の直接使用が正当。
@@ -86,26 +38,6 @@ export const pairJustifiedSingle: readonly AllowlistEntry[] = [
 
 /**
  * 後方互換: Gate 4 enforcement guard が参照する統合リスト。
- * pairExceptionDesign + pairJustifiedSingle の合算。
+ * pairJustifiedSingle のみ（pairExceptionDesign は全件卒業済み）。
  */
-export const nonPairableConsumers: readonly AllowlistEntry[] = [
-  ...pairExceptionDesign,
-  ...pairJustifiedSingle,
-]
-
-// ════════════════════════════════════════════════════════════════════
-// §3. presentation direct query 台帳（残存分）
-// ════════════════════════════════════════════════════════════════════
-
-/**
- * INV-RUN-03 の対象となるファイルの分類台帳。
- *
- * Gate 3 rollout: 22件 → 0件。全 presentation direct query を Screen Plan hook に移行完了。
- *
- * 解消履歴:
- * - 22→3: Gate 3 rollout (16 plan hooks + comment fixes)
- * - 3→2: useIntegratedSalesPlan bridge 解消 (application/hooks/plans/ に移動)
- * - 2→1: useCategoryTrendPlan (非対称比較 plan)
- * - 1→0: useYoYWaterfallPlan (fallback-aware comparison plan)
- */
-export const presentationDirectQueryAudit: readonly DirectQueryAuditEntry[] = []
+export const nonPairableConsumers: readonly AllowlistEntry[] = [...pairJustifiedSingle]

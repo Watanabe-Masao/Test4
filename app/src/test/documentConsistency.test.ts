@@ -10,22 +10,13 @@ import * as fs from 'fs'
 import * as path from 'path'
 import {
   applicationToInfrastructure,
-  presentationToInfrastructure,
-  infrastructureToApplication,
-  presentationToUsecases,
   presentationDuckdbHook,
-  largeComponentTier2,
-  infraLargeFiles,
   domainLargeFiles,
-  usecasesLargeFiles,
   cmpPrevYearDaily,
   cmpFramePrevious,
   cmpDailyMapping,
-  dowCalcOverride,
   ctxHook,
-  vmReactImport,
   reactImportExcludeDirs,
-  sideEffectChain,
   useMemoLimits,
   useStateLimits,
   hookLineLimits,
@@ -526,22 +517,13 @@ describe('許可リスト総数トラッキング', () => {
     // 全許可リストの配列をインポートして総数をカウント
     const allLists = [
       applicationToInfrastructure,
-      presentationToInfrastructure,
-      infrastructureToApplication,
-      presentationToUsecases,
       presentationDuckdbHook,
-      largeComponentTier2,
-      infraLargeFiles,
       domainLargeFiles,
-      usecasesLargeFiles,
       cmpPrevYearDaily,
       cmpFramePrevious,
       cmpDailyMapping,
-      dowCalcOverride,
       ctxHook,
-      vmReactImport,
       reactImportExcludeDirs,
-      sideEffectChain,
       useMemoLimits,
       useStateLimits,
       hookLineLimits,
@@ -560,13 +542,9 @@ describe('許可リスト総数トラッキング', () => {
 
   it('凍結済み許可リストが空のまま維持されている', () => {
     const frozenLists = [
-      { name: 'presentationToInfrastructure', list: presentationToInfrastructure },
-      { name: 'infrastructureToApplication', list: infrastructureToApplication },
       { name: 'presentationDuckdbHook', list: presentationDuckdbHook },
-      { name: 'largeComponentTier2', list: largeComponentTier2 },
       { name: 'cmpPrevYearDaily', list: cmpPrevYearDaily },
       { name: 'cmpFramePrevious', list: cmpFramePrevious },
-      { name: 'dowCalcOverride', list: dowCalcOverride },
     ]
     const violations = frozenLists
       .filter((f) => f.list.length > 0)

@@ -24,6 +24,12 @@ describe('CustomerFact path guard', () => {
     expect(fs.existsSync(filePath), 'readCustomerFact.ts が存在しません').toBe(true)
   })
 
+  it('buildCustomerFactReadModel が pure builder として Zod safeParse を使用している', () => {
+    const filePath = path.join(SRC_DIR, 'application/readModels/customerFact/readCustomerFact.ts')
+    const content = fs.readFileSync(filePath, 'utf-8')
+    expect(content).toContain('CustomerFactReadModel.safeParse')
+  })
+
   it('CustomerFactTypes に Zod スキーマが定義されている', () => {
     const filePath = path.join(SRC_DIR, 'application/readModels/customerFact/CustomerFactTypes.ts')
     const content = fs.readFileSync(filePath, 'utf-8')

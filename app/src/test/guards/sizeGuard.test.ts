@@ -19,10 +19,7 @@ import {
   presentationMemoLimits,
   presentationStateLimits,
   combinedHookComplexityLimits,
-  largeComponentTier2,
-  infraLargeFiles,
   domainLargeFiles,
-  usecasesLargeFiles,
   buildAllowlistSet,
   buildQuantitativeAllowlist,
 } from '../allowlists'
@@ -173,7 +170,7 @@ describe('R12: Presentation コンポーネントの行数制限', () => {
   const rule = getRuleById('AR-G6-COMPONENT')!
   const presentationDir = path.join(SRC_DIR, 'presentation')
 
-  const largeComponentExclusions = buildAllowlistSet(largeComponentTier2)
+  const largeComponentExclusions = new Set<string>()
 
   it('Presentation .tsx は 600 行以下', () => {
     const files = collectTsFiles(presentationDir)
@@ -220,7 +217,7 @@ describe('Infrastructure 層の行数制限', () => {
     const files = collectTsFiles(infraDir)
     const violations: string[] = []
 
-    const excludeFiles = buildAllowlistSet(infraLargeFiles)
+    const excludeFiles = new Set<string>()
 
     for (const file of files) {
       const relPath = rel(file)
@@ -271,7 +268,7 @@ describe('Application usecases 層の行数制限', () => {
     const files = collectTsFiles(usecasesDir)
     const violations: string[] = []
 
-    const excludeFiles = buildAllowlistSet(usecasesLargeFiles)
+    const excludeFiles = new Set<string>()
 
     for (const file of files) {
       const relPath = rel(file)

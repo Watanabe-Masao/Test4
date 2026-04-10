@@ -7,7 +7,7 @@
 | **総合評価** | **Watch** |
 | 前回比 | Improved |
 | リリース影響 | No |
-| 最終更新 | 2026-04-10T08:25:37.706Z |
+| 最終更新 | 2026-04-10T09:09:38.378Z |
 
 ## Hard Gate
 
@@ -29,10 +29,10 @@
 | **後方互換負債** | OK | Active Bridge 数: 0/3 / 後方互換 re-export 数: 2/3 |
 | **複雑性圧** | OK | 上限間近ファイル数: 0/5 / 複雑性ホットスポット数: 10/10 / ViewModel ファイル数: 27/30 |
 | **境界健全性** | OK | Presentation→Infrastructure 違反: 0/0 / Infrastructure→Application 違反: 0/0 |
-| **ガード強度** | OK | ガードテストファイル数: 45/30 / レビュー専用タグ数: 0/5 |
+| **ガード強度** | OK | ガードテストファイル数: 46/30 / レビュー専用タグ数: 0/5 |
 | **性能** | OK | JS バンドル合計サイズ: 6505/7000 / メインバンドルサイズ: 2228/2500 / ECharts バンドルサイズ: 919/1000 |
-| **Temporal Governance** | WARN | review overdue ルール数: 0/0 / heuristic + gate ルール数: 32/32 / active-debt 例外数: 0/1 / reviewPolicy 設定済みルール数: 101/92 / sunsetCondition 設定済みルール数: 9/9 / active-debt で createdAt 設定済み: 0/1 |
-| **Rule Efficacy** | OK | protectedHarm 設定済みルール数: 41 / 高例外圧ルール数（≥10 件）: 0/3 / renewalCount 合計: 0/10 |
+| **Temporal Governance** | WARN | review overdue ルール数: 0/0 / heuristic + gate ルール数: 32/32 / active-debt 例外数: 0/1 / reviewPolicy 設定済みルール数: 104/92 / sunsetCondition 設定済みルール数: 9/9 / active-debt で createdAt 設定済み: 0/1 |
+| **Rule Efficacy** | OK | protectedHarm 設定済みルール数: 44 / 高例外圧ルール数（≥10 件）: 0/3 / renewalCount 合計: 0/10 |
 
 ## Top Risks
 

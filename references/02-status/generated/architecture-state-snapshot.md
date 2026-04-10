@@ -1,6 +1,6 @@
 # Architecture State Snapshot
 
-> Generated: 2026-04-09T17:58:04.315Z
+> Generated: 2026-04-10T09:03:43.604Z
 
 ## Allowlist Summary
 
@@ -8,7 +8,7 @@
 |---|---|
 | 総エントリ数 | 13 |
 | アクティブリスト数 | 6 |
-| 凍結リスト数 | 15 |
+| 凍結リスト数 | 6 |
 | .vm.ts ファイル数 | 27 |
 | 互換 re-export 残数 | 2 |
 
@@ -93,7 +93,7 @@
 |---|---|---|---|
 | presentation/pages/Dashboard/widgets/HourlyChart.tsx | 9 | 6 | 502 |
 | presentation/components/charts/TimeSlotChart.tsx | 8 | 6 | 216 |
-| presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx | 7 | 7 | 484 |
+| presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx | 7 | 7 | 518 |
 | presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 9 | 5 | 434 |
 | presentation/pages/Weather/WeatherPage.tsx | 9 | 5 | 411 |
 | presentation/pages/Insight/useInsightData.ts | 5 | 7 | 222 |
@@ -109,21 +109,12 @@
 
 ## Frozen Lists
 
-- presentationToInfrastructure
-- infrastructureToApplication
-- presentationToUsecases
 - presentationDuckdbHook
 - presentationMemoLimits
 - presentationStateLimits
-- largeComponentTier2
-- infraLargeFiles
-- usecasesLargeFiles
 - cmpPrevYearDaily
 - cmpFramePrevious
 - cmpDailyMapping
-- dowCalcOverride
-- vmReactImport
-- sideEffectChain
 
 ## Per-List Detail
 
@@ -135,18 +126,9 @@
 | useMemoLimits | 1 | structural:1 |
 | hookLineLimits | 1 | structural:1 |
 | ctxHook | 1 | structural:1 |
-| presentationToInfrastructure | 0 | - |
-| infrastructureToApplication | 0 | - |
-| presentationToUsecases | 0 | - |
 | presentationDuckdbHook | 0 | - |
 | presentationMemoLimits | 0 | - |
 | presentationStateLimits | 0 | - |
-| largeComponentTier2 | 0 | - |
-| infraLargeFiles | 0 | - |
-| usecasesLargeFiles | 0 | - |
 | cmpPrevYearDaily | 0 | - |
 | cmpFramePrevious | 0 | - |
 | cmpDailyMapping | 0 | - |
-| dowCalcOverride | 0 | - |
-| vmReactImport | 0 | - |
-| sideEffectChain | 0 | - |

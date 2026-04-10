@@ -10,9 +10,9 @@
  *   architecture.ts — 層境界（application→infra, presentation→usecases 等）
  *   duckdb.ts       — DuckDB hook 直接使用（全件卒業済み・凍結）
  *   complexity.ts   — useMemo / useState / hook 行数の個別例外
- *   size.ts         — ファイルサイズ（大型コンポーネント / infra / domain / usecases）
+ *   size.ts         — ファイルサイズ（domain）
  *   migration.ts    — 比較移行（prevYear.daily, comparisonFrame.previous 等）
- *   misc.ts         — VM React import / コンテキスト / 副作用チェーン / 凍結済み
+ *   misc.ts         — コンテキスト / React import 除外
  */
 
 // Types & builders
@@ -27,12 +27,7 @@ export type {
 export { buildAllowlistSet, buildQuantitativeAllowlist } from './types'
 
 // Architecture
-export {
-  applicationToInfrastructure,
-  presentationToInfrastructure,
-  infrastructureToApplication,
-  presentationToUsecases,
-} from './architecture'
+export { applicationToInfrastructure } from './architecture'
 
 // DuckDB
 export { presentationDuckdbHook } from './duckdb'
@@ -50,19 +45,13 @@ export {
 } from './complexity'
 
 // Size
-export { largeComponentTier2, infraLargeFiles, domainLargeFiles, usecasesLargeFiles } from './size'
+export { domainLargeFiles } from './size'
 
 // Migration
 export { cmpPrevYearDaily, cmpFramePrevious, cmpDailyMapping } from './migration'
 
 // Performance (Screen Runtime)
-export {
-  isPrevYearHandlers,
-  nonPairableConsumers,
-  pairExceptionDesign,
-  pairJustifiedSingle,
-  presentationDirectQueryAudit,
-} from './performance'
+export { nonPairableConsumers } from './performance'
 
 // Responsibility Separation
 export {
@@ -78,10 +67,4 @@ export { DOC_STATIC_NUMBER_EXCEPTIONS } from './docs'
 export type { DocStaticNumberException } from './docs'
 
 // Misc
-export {
-  dowCalcOverride,
-  ctxHook,
-  vmReactImport,
-  reactImportExcludeDirs,
-  sideEffectChain,
-} from './misc'
+export { ctxHook, reactImportExcludeDirs } from './misc'
