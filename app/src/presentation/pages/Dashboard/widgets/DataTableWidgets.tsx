@@ -41,7 +41,8 @@ export function renderDailyStoreSalesTable(ctx: WidgetContext): ReactNode {
   }
 
   const hasMultiStore = storeEntries.length > 1
-  const hasCustomers = (ctx.readModels?.customerFact?.grandTotalCustomers ?? 0) > 0
+  const hasCustomers =
+    (ctx.readModels?.customerFact?.grandTotalCustomers || ctx.result.totalCustomers) > 0
   const colCount = hasCustomers ? 3 : 2
 
   // Days

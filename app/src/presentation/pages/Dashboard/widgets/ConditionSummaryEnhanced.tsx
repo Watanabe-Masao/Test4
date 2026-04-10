@@ -167,7 +167,8 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
       prevYearTotalCost,
       elapsedDays: effectiveDay,
       daysInMonth: calendarDaysInMonth,
-      curTotalCustomers: ctx.readModels?.customerFact?.grandTotalCustomers ?? 0,
+      curTotalCustomers:
+        ctx.readModels?.customerFact?.grandTotalCustomers || ctx.result.totalCustomers,
       prevTotalCustomers: extractPrevYearCustomerCount(ctx.prevYear),
     })
     // Trend computation (last 7 days vs previous 7 days)
