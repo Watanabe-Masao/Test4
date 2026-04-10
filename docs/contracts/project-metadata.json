@@ -15,7 +15,8 @@
     "pi-value",
     "customer-gap",
     "remaining-budget-rate",
-    "observation-period"
+    "observation-period",
+    "pin-intervals"
   ],
   "ciJobs": [
     "wasm-build",

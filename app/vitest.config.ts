@@ -21,6 +21,7 @@ const wasmAliases: Record<string, string> = {
     'src/test/__mocks__/remainingBudgetRateWasmMock.ts',
   ),
   'observation-period-wasm': resolve(__dirname, 'src/test/__mocks__/observationPeriodWasmMock.ts'),
+  'pin-intervals-wasm': resolve(__dirname, 'src/test/__mocks__/pinIntervalsWasmMock.ts'),
 }
 
 export default defineConfig({

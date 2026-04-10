@@ -186,6 +186,19 @@ declare module 'observation-period-wasm' {
   ): Float64Array
 }
 
+// ─── pin-intervals-wasm (candidate: BIZ-011) ────────────
+declare module 'pin-intervals-wasm' {
+  export default function init(): Promise<void>
+  export function calculate_pin_intervals(
+    dailySales: Float64Array,
+    dailyTotalCost: Float64Array,
+    openingInventory: number,
+    pinDays: Int32Array,
+    pinClosingInventory: Float64Array,
+    daysInMonth: number,
+  ): Float64Array
+}
+
 declare module 'customer-gap-wasm' {
   export default function init(): Promise<void>
   export function calculate_customer_gap(

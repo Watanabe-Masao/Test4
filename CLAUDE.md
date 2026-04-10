@@ -607,11 +607,11 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 | 境界健全性 | OK | 0/0 / 0/0 |
 | ガード強度 | OK | 47/30 / 0/5 |
 | 性能 | OK |  |
-| Temporal Governance | OK | 0/0 / 32/32 / 4/5(+1) / 140/92 / 9/9 / 4/1(+1) |
+| Temporal Governance | OK | 0/0 / 32/32 / 5/6(+1) / 140/92 / 9/9 / 5/1(+1) |
 | Rule Efficacy | OK | 77 / 0/3 / 0/10 |
 
 
-> 生成: 2026-04-10T22:08:09.028Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-10T23:43:05.128Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）

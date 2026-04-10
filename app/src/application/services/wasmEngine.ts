@@ -49,6 +49,7 @@ export const WASM_CANDIDATE_MODULE_NAMES = [
   'customerGap',
   'remainingBudgetRate',
   'observationPeriod',
+  'pinIntervals',
 ] as const
 export type WasmCandidateModuleName = (typeof WASM_CANDIDATE_MODULE_NAMES)[number]
 
@@ -108,6 +109,12 @@ export const WASM_CANDIDATE_MODULE_METADATA: Readonly<
     authorityKind: 'candidate-authoritative',
     contractId: 'BIZ-010',
   },
+  pinIntervals: {
+    semanticClass: 'business',
+    bridgeKind: 'business',
+    authorityKind: 'candidate-authoritative',
+    contractId: 'BIZ-011',
+  },
 }
 
 /* ── 内部状態 ─────────────────────────────────── */
@@ -134,6 +141,7 @@ let piValueWasmExports: typeof import('pi-value-wasm') | null = null
 let customerGapWasmExports: typeof import('customer-gap-wasm') | null = null
 let remainingBudgetRateWasmExports: typeof import('remaining-budget-rate-wasm') | null = null
 let observationPeriodWasmExports: typeof import('observation-period-wasm') | null = null
+let pinIntervalsWasmExports: typeof import('pin-intervals-wasm') | null = null
 
 // candidate 群の状態管理（current とは分離）
 const candidateModuleStates: Record<WasmCandidateModuleName, WasmState> = {
@@ -141,6 +149,7 @@ const candidateModuleStates: Record<WasmCandidateModuleName, WasmState> = {
   customerGap: 'idle',
   remainingBudgetRate: 'idle',
   observationPeriod: 'idle',
+  pinIntervals: 'idle',
 }
 
 /* ── 初期化 ───────────────────────────────────── */
@@ -358,6 +367,30 @@ export async function initObservationPeriodCandidateWasm(): Promise<void> {
   }
 }
 
+/**
+ * pinIntervals candidate WASM モジュールを非同期で初期化する。
+ */
+export async function initPinIntervalsCandidateWasm(): Promise<void> {
+  if (candidateModuleStates.pinIntervals !== 'idle') return
+
+  candidateModuleStates.pinIntervals = 'loading'
+  try {
+    const wasm = await import('pin-intervals-wasm')
+    await wasm.default()
+    pinIntervalsWasmExports = wasm
+    candidateModuleStates.pinIntervals = 'ready'
+    if (import.meta.env.DEV) {
+      console.info('[wasmEngine] pinIntervals candidate ready — WASM candidate-authoritative ready')
+    }
+  } catch (e) {
+    candidateModuleStates.pinIntervals = 'error'
+    console.warn(
+      '[wasmEngine] pinIntervals candidate WASM initialization failed, falling back to TS:',
+      e,
+    )
+  }
+}
+
 /* ── 状態取得 ─────────────────────────────────── */
 
 /** 個別モジュールの状態を取得する */
@@ -408,6 +441,10 @@ export function getRemainingBudgetRateWasmExports():
 
 export function getObservationPeriodWasmExports(): typeof import('observation-period-wasm') | null {
   return observationPeriodWasmExports
+}
+
+export function getPinIntervalsWasmExports(): typeof import('pin-intervals-wasm') | null {
+  return pinIntervalsWasmExports
 }
 
 /** candidate モジュールの状態を取得する */

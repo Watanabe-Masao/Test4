@@ -7,7 +7,7 @@
 | **総合評価** | **Healthy** |
 | 前回比 | Flat |
 | リリース影響 | No |
-| 最終更新 | 2026-04-10T22:08:09.028Z |
+| 最終更新 | 2026-04-10T23:43:05.128Z |
 
 ## Hard Gate
 
@@ -31,15 +31,15 @@
 | **境界健全性** | OK | Presentation→Infrastructure 違反: 0/0 / Infrastructure→Application 違反: 0/0 |
 | **ガード強度** | OK | ガードテストファイル数: 47/30 / レビュー専用タグ数: 0/5 |
 | **性能** | OK |  |
-| **Temporal Governance** | OK | review overdue ルール数: 0/0 / heuristic + gate ルール数: 32/32 / active-debt 例外数: 4/5 (+1) / reviewPolicy 設定済みルール数: 140/92 / sunsetCondition 設定済みルール数: 9/9 / active-debt で createdAt 設定済み: 4/1 (+1) |
+| **Temporal Governance** | OK | review overdue ルール数: 0/0 / heuristic + gate ルール数: 32/32 / active-debt 例外数: 5/6 (+1) / reviewPolicy 設定済みルール数: 140/92 / sunsetCondition 設定済みルール数: 9/9 / active-debt で createdAt 設定済み: 5/1 (+1) |
 | **Rule Efficacy** | OK | protectedHarm 設定済みルール数: 77 / 高例外圧ルール数（≥10 件）: 0/3 / renewalCount 合計: 0/10 |
 
 ## Recent Changes
 
 | 指標 | 前回 | 今回 | 変化 |
 |---|---|---|---|
-| active-debt 例外数 | 3 | 4 | +1 ! |
-| active-debt で createdAt 設定済み | 3 | 4 | +1 ! |
+| active-debt 例外数 | 4 | 5 | +1 ! |
+| active-debt で createdAt 設定済み | 4 | 5 | +1 ! |
 
 ---
 

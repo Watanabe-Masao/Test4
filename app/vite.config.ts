@@ -75,6 +75,7 @@ export default defineConfig({
       'customer-gap-wasm',
       'remaining-budget-rate-wasm',
       'observation-period-wasm',
+      'pin-intervals-wasm',
     ],
   },
   assetsInclude: ['**/*.wasm'],
