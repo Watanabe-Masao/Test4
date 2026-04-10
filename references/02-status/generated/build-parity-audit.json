@@ -1,11 +1,17 @@
 {
-  "timestamp": "2026-04-09T17:59:38.686Z",
+  "timestamp": "2026-04-10T23:58:21.187Z",
   "wasmModules": [
     "budget-analysis",
     "core-utils",
+    "customer-gap",
     "factor-decomposition",
     "forecast",
     "gross-profit",
+    "inventory-calc",
+    "observation-period",
+    "pi-value",
+    "pin-intervals",
+    "remaining-budget-rate",
     "statistics",
     "time-slot"
   ],
