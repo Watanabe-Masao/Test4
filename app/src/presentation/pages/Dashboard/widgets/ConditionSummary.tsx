@@ -119,8 +119,9 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
   // ConditionSummaryEnhanced に吸収済みのため、ここでは表示しない
 
   const prevYear = ctx.prevYear
+  const cf = ctx.readModels?.customerFact
   const curCustomers =
-    ctx.readModels?.customerFact?.grandTotalCustomers || ctx.result.totalCustomers
+    cf?.status === 'ready' ? cf.data.grandTotalCustomers : ctx.result.totalCustomers
   const prevCustomers = extractPrevYearCustomerCount(prevYear)
 
   const items: ConditionItem[] = []
@@ -289,8 +290,8 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
                 curTotalCustomers={curCustomers}
                 prevTotalCustomers={prevCustomers}
                 storeCustomerMap={
-                  ctx.readModels?.customerFact
-                    ? toStoreCustomerRows(ctx.readModels.customerFact)
+                  ctx.readModels?.customerFact?.status === 'ready'
+                    ? toStoreCustomerRows(ctx.readModels.customerFact.data)
                     : undefined
                 }
               />

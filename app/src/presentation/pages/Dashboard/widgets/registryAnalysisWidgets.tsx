@@ -67,16 +67,17 @@ export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
         currentDateRange={ctx.currentDateRange}
         prevYearScope={ctx.prevYearScope}
         selectedStoreIds={ctx.selectedStoreIds}
-        totalCustomers={
-          ctx.readModels?.customerFact?.grandTotalCustomers || ctx.result.totalCustomers
-        }
+        totalCustomers={(() => {
+          const cf = ctx.readModels?.customerFact
+          return cf?.status === 'ready' ? cf.data.grandTotalCustomers : ctx.result.totalCustomers
+        })()}
         allStoreResults={ctx.allStoreResults}
         stores={ctx.stores}
         dailyQuantity={ctx.currentCtsQuantity?.byDay}
         ctsQuantityByStore={ctx.currentCtsQuantity?.byStore}
         storeCustomerMap={
-          ctx.readModels?.customerFact
-            ? toStoreCustomerRows(ctx.readModels.customerFact)
+          ctx.readModels?.customerFact?.status === 'ready'
+            ? toStoreCustomerRows(ctx.readModels.customerFact.data)
             : undefined
         }
       />
@@ -95,9 +96,10 @@ export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
         categoryData={null}
         isLoading={false}
         prevYearScope={ctx.prevYearScope}
-        totalCustomers={
-          ctx.readModels?.customerFact?.grandTotalCustomers || ctx.result.totalCustomers
-        }
+        totalCustomers={(() => {
+          const cf = ctx.readModels?.customerFact
+          return cf?.status === 'ready' ? cf.data.grandTotalCustomers : ctx.result.totalCustomers
+        })()}
         level="department"
         onLevelChange={() => {}}
       />
@@ -137,7 +139,10 @@ export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
     render: (ctx) => (
       <SensitivityDashboard
         result={ctx.result}
-        customerCount={ctx.readModels?.customerFact?.grandTotalCustomers}
+        customerCount={(() => {
+          const cf = ctx.readModels?.customerFact
+          return cf?.status === 'ready' ? cf.data.grandTotalCustomers : undefined
+        })()}
       />
     ),
   },

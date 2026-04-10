@@ -184,15 +184,20 @@ export function makePrevYear(
 /** readModels モックを result.totalCustomers から導出 */
 function makeReadModels(totalCustomers: number): WidgetContext['readModels'] {
   return {
-    customerFact: { grandTotalCustomers: totalCustomers } as NonNullable<
-      NonNullable<WidgetContext['readModels']>['customerFact']
-    >,
-    purchaseCost: null,
-    salesFact: null,
-    discountFact: null,
-    isLoading: false,
-    errors: {},
-    error: null,
+    customerFact: {
+      status: 'ready' as const,
+      data: {
+        grandTotalCustomers: totalCustomers,
+        daily: [],
+        meta: { usedFallback: false, missingPolicy: 'zero' as const, dataVersion: 1 },
+      },
+    },
+    purchaseCost: { status: 'idle' as const },
+    salesFact: { status: 'idle' as const },
+    discountFact: { status: 'idle' as const },
+    allReady: false,
+    anyLoading: false,
+    anyError: false,
   }
 }
 

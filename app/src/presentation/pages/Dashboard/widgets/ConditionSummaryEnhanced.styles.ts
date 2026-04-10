@@ -633,8 +633,7 @@ export const CardSkeletonItem = styled.div`
     background: linear-gradient(
       90deg,
       transparent 30%,
-      ${({ theme }) => (theme.mode === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)')}
-        50%,
+      ${({ theme }) => (theme.mode === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)')} 50%,
       transparent 70%
     );
     animation: shimmer 1.5s infinite;

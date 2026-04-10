@@ -44,8 +44,9 @@ function forecastWarningMessage(status: WidgetContext['observationStatus']): str
 export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
   const r = ctx.result
   const { daysInMonth, fmtCurrency } = ctx
+  const cf = ctx.readModels?.customerFact
   const curCustomers =
-    ctx.readModels?.customerFact?.grandTotalCustomers || ctx.result.totalCustomers
+    cf?.status === 'ready' ? cf.data.grandTotalCustomers : ctx.result.totalCustomers
   const prevCustomers = extractPrevYearCustomerCount(ctx.prevYear)
 
   let elapsedBudget = 0
