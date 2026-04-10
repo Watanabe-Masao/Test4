@@ -117,8 +117,9 @@ async function finalizeSingleMonth(
 
   if (repo.isAvailable()) {
     await repo.saveMonthlyData(monthly, year, month)
-    saveSummaryCache(monthly, year, month, repo)
-    saveImportHistory(monthSummary ?? summary, year, month, repo, importId)
+    // non-critical: 失敗してもインポート自体は成功扱い
+    await saveSummaryCache(monthly, year, month, repo)
+    await saveImportHistory(monthSummary ?? summary, year, month, repo, importId)
   }
 
   return {
@@ -150,8 +151,8 @@ export async function resolveSingleMonthDiff(
 
   if (repo.isAvailable()) {
     await repo.saveMonthlyData(finalData, targetYear, targetMonth)
-    saveSummaryCache(finalData, targetYear, targetMonth, repo)
-    saveImportHistory(pending.summary, targetYear, targetMonth, repo)
+    await saveSummaryCache(finalData, targetYear, targetMonth, repo)
+    await saveImportHistory(pending.summary, targetYear, targetMonth, repo)
   }
 
   const validationMessages = validateImportData(finalData, pending.summary)
