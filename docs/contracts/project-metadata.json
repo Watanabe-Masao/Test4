@@ -1,5 +1,5 @@
 {
-  "$comment": "プロジェクトメタデータの唯一正本。バージョン、Node要件、ベースパス等の変動値を集約する。documentConsistency.test.ts がこの JSON と各文書の整合性を検証する。",
+  "$comment": "プロジェクトメタデータの唯一正本。バージョン、Node要件、ベースパス等の変動値を集約する。documentConsistency.test.ts がこの JSON と各文書の整合性を検証する。全 WASM crate に [package.metadata.semantic] を Phase 4 で追加済み。",
   "appVersion": "1.7.0",
   "defaultNodeVersion": "22",
   "defaultNpmVersionMin": "10",

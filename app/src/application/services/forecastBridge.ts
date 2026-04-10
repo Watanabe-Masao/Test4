@@ -1,18 +1,22 @@
 /**
- * forecast WASM authoritative bridge
+ * forecast WASM analytic-authoritative bridge
+ *
+ * @semanticClass analytic
+ * @bridgeKind analytics
+ * @contractId ANA-002 (advancedForecast), ANA-004 (trendAnalysis), ANA-005 (correlation), ANA-006 (forecast)
  *
  * WASM が ready なら WASM 実装を使用し、未初期化時は TS にフォールバックする。
  * public API と import path は従来と同一。
  *
- * WASM authoritative 対象（5 関数 — Date 非依存の pure core）:
+ * WASM analytic-authoritative 対象（5 関数 — Date 非依存の pure core）:
  *   - calculateStdDev, detectAnomalies, calculateWMA, linearRegression, analyzeTrend
  *
  * TS 直接委譲（Date 依存 — WASM 対象外）:
  *   - calculateForecast, calculateMonthEndProjection, calculateWeeklySummaries
  *   - calculateDayOfWeekAverages, getWeekRanges
  *
- * @see references/02-status/engine-promotion-matrix.md — authoritative
- * @see references/02-status/promotion-criteria.md — 昇格基準
+ * @see references/03-guides/contract-definition-policy.md — 契約定義ポリシー
+ * @see references/01-principles/semantic-classification-policy.md — 意味分類ポリシー
  */
 import {
   calculateForecast as calculateForecastTS,

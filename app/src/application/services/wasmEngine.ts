@@ -39,6 +39,26 @@ export const WASM_MODULE_NAMES = [
 export type WasmModuleName = (typeof WASM_MODULE_NAMES)[number]
 export type ExecutionMode = 'ts-only' | 'wasm-only'
 
+/**
+ * WASM モジュールの意味分類メタデータ。
+ * Phase 3 で導入。bridge 境界の意味責任を明示する。
+ *
+ * @see references/03-guides/contract-definition-policy.md
+ * @see references/01-principles/semantic-classification-policy.md
+ */
+export interface WasmModuleMetadata {
+  readonly semanticClass: 'business' | 'analytic'
+  readonly bridgeKind: 'business' | 'analytics'
+}
+
+export const WASM_MODULE_METADATA: Readonly<Record<WasmModuleName, WasmModuleMetadata>> = {
+  factorDecomposition: { semanticClass: 'business', bridgeKind: 'business' },
+  grossProfit: { semanticClass: 'business', bridgeKind: 'business' },
+  budgetAnalysis: { semanticClass: 'business', bridgeKind: 'business' },
+  forecast: { semanticClass: 'analytic', bridgeKind: 'analytics' },
+  timeSlot: { semanticClass: 'analytic', bridgeKind: 'analytics' },
+}
+
 /* ── 内部状態 ─────────────────────────────────── */
 
 // idle 以外は再初期化しない（一度 loading/ready/error に到達したら state は変わらない）
