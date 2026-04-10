@@ -6,6 +6,36 @@
 > リリース単位の要約は `CHANGELOG.md` を参照。
 > 同じ内容を二重管理しないこと。
 
+## AAG v4.5.0 — Pure 計算責務再編 Phase 3-7（2026-04-10）
+
+### 概要
+
+Phase 0-2 で整備した意味分類・Master Registry 基盤の上に、契約固定（Phase 3）・
+current 群保守対象化（Phase 4）・候補移行計画（Phase 5-6）・guard 統合整理（Phase 7）を
+構築。Architecture Rules を 109→140（+31）に拡充し、obligation collector の false positive を修正。
+
+### 主な成果物
+
+- **Phase 3**: contract-definition-policy.md（BIZ-001〜013 / ANA-001〜009）、registry 契約値埋め 22 件、5 bridge JSDoc 更新、wasmEngine WASM_MODULE_METADATA
+- **Phase 4**: current-maintenance-policy.md、7 Cargo.toml `[package.metadata.semantic]`
+- **Phase 5**: tier1-business-migration-plan.md（Tier 1 候補 6 件 + 8 ステップ移行プロセス）
+- **Phase 6**: analytic-kernel-migration-plan.md（Analytic 候補 9 件 + 9 ステップ移行プロセス）
+- **Phase 7**: guard-consolidation-and-js-retirement.md（全 guard マップ + JS 正本縮退 4 段階）
+- **Phase 8 準備**: promote-ceremony-template.md（昇格提案書 + 実施手順 + 巻き戻し）
+- **obligation collector 修正**: generated section のみの変更を false positive 除外
+
+### Guard 追加（+31）
+
+| Phase | 追加数 | 主なルール |
+|-------|--------|-----------|
+| 3 | +6 | AR-CONTRACT-*, AR-BRIDGE-* |
+| 4 | +7 | AR-CURRENT-* |
+| 5 | +7 | AR-CAND-BIZ-* |
+| 6 | +7 | AR-CAND-ANA-* |
+| 7 | +4 | AR-JS-*, AR-REVIEW-NEEDED-BLOCK |
+
+---
+
 ## AAG v4.4.0 — Pipeline Safety + ReadModelSlice + Co-Change（2026-04-10）
 
 ### 概要
