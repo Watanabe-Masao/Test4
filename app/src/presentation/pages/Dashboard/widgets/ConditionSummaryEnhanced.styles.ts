@@ -608,6 +608,56 @@ export const SettingsGear = styled.button`
   }
 `
 
+// ─── Loading Skeleton ──────────────────────────────────
+
+export const CardSkeletonRow = styled.div`
+  display: flex;
+  gap: ${({ theme }) => theme.spacing[3]};
+  padding: 0 ${({ theme }) => theme.spacing[10]} ${({ theme }) => theme.spacing[4]};
+`
+
+export const CardSkeletonItem = styled.div`
+  flex: 0 0 180px;
+  min-width: 180px;
+  height: 80px;
+  background: ${({ theme }) => theme.colors.bg2};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-left: 3px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.md};
+  position: relative;
+  overflow: hidden;
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 30%,
+      ${({ theme }) => (theme.mode === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)')}
+        50%,
+      transparent 70%
+    );
+    animation: shimmer 1.5s infinite;
+  }
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+`
+
+export const ErrorBadge = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSize.caption};
+  color: ${({ theme }) => theme.colors.palette.danger};
+  background: ${({ theme }) => theme.colors.palette.danger}12;
+  padding: 1px ${({ theme }) => theme.spacing[3]};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  margin-left: ${({ theme }) => theme.spacing[3]};
+`
+
 export const CondCard = styled.div<{ $borderColor: string; $clickable?: boolean }>`
   display: flex;
   align-items: flex-start;
