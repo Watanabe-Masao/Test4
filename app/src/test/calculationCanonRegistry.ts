@@ -263,6 +263,25 @@ export const CALCULATION_CANON_REGISTRY: Readonly<Record<string, CanonEntry>> = 
     migrationTier: 'tier1',
   },
 
+  // ══ Candidate / Business（candidate-authoritative, Phase 5） ══
+
+  'candidate/piValue.ts': {
+    tag: 'required',
+    reason: 'PI値（candidate: WASM 移行候補 CAND-BIZ-012）',
+    zodAdded: true,
+    semanticClass: 'business',
+    authorityKind: 'candidate-authoritative',
+    methodFamily: 'retail_kpi',
+    runtimeStatus: 'candidate',
+    ownerKind: 'migration',
+    contractId: 'BIZ-012',
+    bridgeKind: 'business',
+    rateOwnership: 'n/a',
+    fallbackPolicy: 'current',
+    migrationTier: 'tier1',
+    notes: 'WASM candidate: wasm/pi-value/。current reference: piValue.ts',
+  },
+
   // ══ Analytic Kernel（analytic-authoritative） ══
 
   'timeSlotCalculations.ts': {

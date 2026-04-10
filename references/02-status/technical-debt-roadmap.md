@@ -13,7 +13,7 @@
 ## 現在の健全性サマリー
 
 <!-- GENERATED:START architecture-health-summary -->
-**Watch** | 前回比: Flat | Hard Gate: PASS
+**Healthy** | 前回比: Flat | Hard Gate: PASS
 
 | 指標 | 状態 | 詳細 |
 |---|---|---|
@@ -22,14 +22,12 @@
 | 複雑性圧 | OK | 0/5 / 10/10 / 27/30 |
 | 境界健全性 | OK | 0/0 / 0/0 |
 | ガード強度 | OK | 47/30 / 0/5 |
-| 性能 | OK | 6505/7000 / 2228/2500 / 919/1000 |
-| Temporal Governance | WARN | 0/0 / 32/32 / 0/1 / 140/92 / 9/9 / 0/1 |
+| 性能 | OK |  |
+| Temporal Governance | OK | 0/0 / 32/32 / 1/1 / 140/92 / 9/9 / 1/1 |
 | Rule Efficacy | OK | 77 / 0/3 / 0/10 |
 
-**Next:**
-- active-debt で createdAt 設定済み を 0 → 1 に削減する（残 -1）
 
-> 生成: 2026-04-10T17:31:13.873Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-10T21:14:27.228Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 現状スナップショット

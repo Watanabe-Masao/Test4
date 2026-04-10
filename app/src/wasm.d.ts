@@ -146,3 +146,15 @@ declare module 'time-slot-wasm' {
   export function find_core_time(hours: Float64Array, amounts: Float64Array): Float64Array
   export function find_turnaround_hour(hours: Float64Array, amounts: Float64Array): number
 }
+
+// ─── pi-value-wasm (candidate: BIZ-012) ─────────────────
+declare module 'pi-value-wasm' {
+  export default function init(): Promise<void>
+  export function calculate_quantity_pi(totalQuantity: number, customers: number): number
+  export function calculate_amount_pi(totalSales: number, customers: number): number
+  export function calculate_pi_values(
+    totalQuantity: number,
+    totalSales: number,
+    customers: number,
+  ): Float64Array
+}

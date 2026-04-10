@@ -14,6 +14,7 @@ const wasmAliases: Record<string, string> = {
   'budget-analysis-wasm': resolve(__dirname, 'src/test/__mocks__/budgetAnalysisWasmMock.ts'),
   'forecast-wasm': resolve(__dirname, 'src/test/__mocks__/forecastWasmMock.ts'),
   'time-slot-wasm': resolve(__dirname, 'src/test/__mocks__/timeSlotWasmMock.ts'),
+  'pi-value-wasm': resolve(__dirname, 'src/test/__mocks__/piValueWasmMock.ts'),
 }
 
 export default defineConfig({

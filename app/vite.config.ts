@@ -71,6 +71,7 @@ export default defineConfig({
       'budget-analysis-wasm',
       'forecast-wasm',
       'time-slot-wasm',
+      'pi-value-wasm',
     ],
   },
   assetsInclude: ['**/*.wasm'],
@@ -84,6 +85,7 @@ export default defineConfig({
         'budget-analysis-wasm',
         'forecast-wasm',
         'time-slot-wasm',
+        'pi-value-wasm',
       ],
       output: {
         manualChunks: {
@@ -112,6 +114,7 @@ export default defineConfig({
         'budget-analysis-wasm',
         'forecast-wasm',
         'time-slot-wasm',
+        'pi-value-wasm',
       ],
     },
   },

@@ -40,6 +40,14 @@ export type WasmModuleName = (typeof WASM_MODULE_NAMES)[number]
 export type ExecutionMode = 'ts-only' | 'wasm-only'
 
 /**
+ * Candidate WASM モジュール名。
+ * current 群（WASM_MODULE_NAMES）とは分離管理する。
+ * Phase 5 で導入。candidate → current 昇格は Phase 8 の Promote Ceremony を経る。
+ */
+export const WASM_CANDIDATE_MODULE_NAMES = ['piValue'] as const
+export type WasmCandidateModuleName = (typeof WASM_CANDIDATE_MODULE_NAMES)[number]
+
+/**
  * WASM モジュールの意味分類メタデータ。
  * Phase 3 で導入。bridge 境界の意味責任を明示する。
  *
@@ -59,6 +67,26 @@ export const WASM_MODULE_METADATA: Readonly<Record<WasmModuleName, WasmModuleMet
   timeSlot: { semanticClass: 'analytic', bridgeKind: 'analytics' },
 }
 
+/**
+ * Candidate WASM モジュールのメタデータ。
+ * authorityKind は candidate-authoritative（current とは異なる）。
+ */
+export interface WasmCandidateModuleMetadata extends WasmModuleMetadata {
+  readonly authorityKind: 'candidate-authoritative'
+  readonly contractId: string
+}
+
+export const WASM_CANDIDATE_MODULE_METADATA: Readonly<
+  Record<WasmCandidateModuleName, WasmCandidateModuleMetadata>
+> = {
+  piValue: {
+    semanticClass: 'business',
+    bridgeKind: 'business',
+    authorityKind: 'candidate-authoritative',
+    contractId: 'BIZ-012',
+  },
+}
+
 /* ── 内部状態 ─────────────────────────────────── */
 
 // idle 以外は再初期化しない（一度 loading/ready/error に到達したら state は変わらない）
@@ -71,12 +99,20 @@ const moduleStates: Record<WasmModuleName, WasmState> = {
 }
 let currentMode: ExecutionMode = 'ts-only'
 
-// WASM モジュールの export を保持
+// WASM モジュールの export を保持（current 群）
 let wasmExports: typeof import('factor-decomposition-wasm') | null = null
 let grossProfitWasmExports: typeof import('gross-profit-wasm') | null = null
 let budgetAnalysisWasmExports: typeof import('budget-analysis-wasm') | null = null
 let forecastWasmExports: typeof import('forecast-wasm') | null = null
 let timeSlotWasmExports: typeof import('time-slot-wasm') | null = null
+
+// WASM モジュールの export を保持（candidate 群 — current とは分離管理）
+let piValueWasmExports: typeof import('pi-value-wasm') | null = null
+
+// candidate 群の状態管理（current とは分離）
+const candidateModuleStates: Record<WasmCandidateModuleName, WasmState> = {
+  piValue: 'idle',
+}
 
 /* ── 初期化 ───────────────────────────────────── */
 
@@ -190,6 +226,33 @@ export async function initTimeSlotWasm(): Promise<void> {
   }
 }
 
+/* ── Candidate 初期化 ────────────────────────────── */
+
+/**
+ * piValue candidate WASM モジュールを非同期で初期化する。
+ * current 群とは独立して初期化される。
+ */
+export async function initPiValueCandidateWasm(): Promise<void> {
+  if (candidateModuleStates.piValue !== 'idle') return
+
+  candidateModuleStates.piValue = 'loading'
+  try {
+    const wasm = await import('pi-value-wasm')
+    await wasm.default()
+    piValueWasmExports = wasm
+    candidateModuleStates.piValue = 'ready'
+    if (import.meta.env.DEV) {
+      console.info('[wasmEngine] piValue candidate ready — WASM candidate-authoritative ready')
+    }
+  } catch (e) {
+    candidateModuleStates.piValue = 'error'
+    console.warn(
+      '[wasmEngine] piValue candidate WASM initialization failed, falling back to TS:',
+      e,
+    )
+  }
+}
+
 /* ── 状態取得 ─────────────────────────────────── */
 
 /** 個別モジュールの状態を取得する */
@@ -220,6 +283,22 @@ export function getForecastWasmExports(): typeof import('forecast-wasm') | null 
 
 export function getTimeSlotWasmExports(): typeof import('time-slot-wasm') | null {
   return timeSlotWasmExports
+}
+
+/* ── Candidate export 取得 ───────────────────── */
+
+export function getPiValueWasmExports(): typeof import('pi-value-wasm') | null {
+  return piValueWasmExports
+}
+
+/** candidate モジュールの状態を取得する */
+export function getCandidateModuleState(name: WasmCandidateModuleName): WasmState {
+  return candidateModuleStates[name]
+}
+
+/** 全 candidate モジュールの状態スナップショットを取得する */
+export function getAllCandidateWasmStates(): Readonly<Record<WasmCandidateModuleName, WasmState>> {
+  return { ...candidateModuleStates }
 }
 
 /* ── 一括初期化 ──────────────────────────────── */

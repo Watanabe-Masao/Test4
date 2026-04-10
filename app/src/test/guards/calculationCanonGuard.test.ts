@@ -47,6 +47,8 @@ describe('domain/calculations/ 正本化分類ガード', () => {
     const stale: string[] = []
 
     for (const key of Object.keys(CALCULATION_CANON_REGISTRY)) {
+      // candidate/ prefix は WASM crate（wasm/ 配下）のため domain/calculations/ に物理ファイルがない
+      if (key.startsWith('candidate/')) continue
       if (!files.has(key)) {
         stale.push(key)
       }
@@ -98,6 +100,8 @@ describe('意味分類ガード（Phase 2）', () => {
   it('semanticClass: business ⇔ authorityKind: business-authoritative 整合', () => {
     const violations: string[] = []
     for (const [key, entry] of Object.entries(CALCULATION_CANON_REGISTRY)) {
+      // candidate エントリは candidate-authoritative が正当（Phase 5/6）
+      if (entry.runtimeStatus === 'candidate') continue
       if (entry.semanticClass === 'business' && entry.authorityKind !== 'business-authoritative') {
         violations.push(`${key}: business なのに authorityKind=${entry.authorityKind}`)
       }
@@ -172,7 +176,8 @@ describe('意味分類ガード（Phase 2）', () => {
 
     expect(business + analytic + utility).toBe(entries.length)
     // ratchet: 意味分類の内訳が変わったら意図的に更新する
-    expect(business).toBe(13)
+    // business: 13 current + 1 candidate (piValue CAND-BIZ-012) = 14
+    expect(business).toBe(14)
     expect(analytic).toBe(9)
     expect(utility).toBe(13)
   })
