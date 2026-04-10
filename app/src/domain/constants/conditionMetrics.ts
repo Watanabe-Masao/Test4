@@ -125,6 +125,29 @@ export const CONDITION_METRIC_DEFS: readonly ConditionMetricDef[] = [
     inputStep: 1,
     inputUnit: '%',
   },
+  // ── 客数GAP メトリクス ──
+  {
+    id: 'qtyCustomerGap',
+    label: '点数客数GAP',
+    direction: 'higher_better',
+    unit: 'pt',
+    defaults: { blue: 0, yellow: -0.02, red: -0.05 },
+    displayMultiplier: 100,
+    inputStep: 0.1,
+    inputUnit: 'pt',
+    requiresPrevYear: true,
+  },
+  {
+    id: 'amtCustomerGap',
+    label: '金額客数GAP',
+    direction: 'higher_better',
+    unit: 'pt',
+    defaults: { blue: 0, yellow: -0.02, red: -0.05 },
+    displayMultiplier: 100,
+    inputStep: 0.1,
+    inputUnit: 'pt',
+    requiresPrevYear: true,
+  },
 ] as const
 
 /** ID → Def のマップ（O(1) ルックアップ用） */
