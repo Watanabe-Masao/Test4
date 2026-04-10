@@ -278,13 +278,16 @@ describe('Architecture Rule Registry', () => {
     expect(true).toBe(true)
   })
 
-  it('experimental ルールが gate で運用されていない', () => {
+  it('experimental ルールが gate / block-merge で運用されていない', () => {
     const violations: string[] = []
 
     for (const rule of ARCHITECTURE_RULES) {
-      if (rule.maturity === 'experimental' && rule.detection.severity === 'gate') {
+      if (
+        rule.maturity === 'experimental' &&
+        (rule.detection.severity === 'gate' || rule.detection.severity === 'block-merge')
+      ) {
         violations.push(
-          `${rule.id}: experimental なのに gate。パターンが安定するまで warn にすべき`,
+          `${rule.id}: experimental なのに ${rule.detection.severity}。パターンが安定するまで warn にすべき`,
         )
       }
     }

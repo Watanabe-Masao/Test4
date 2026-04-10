@@ -147,7 +147,12 @@ export interface ArchitectureRule {
   // ── 検出 ──
   readonly detection: {
     readonly type: DetectionType
-    readonly severity: 'gate' | 'warn'
+    /**
+     * gate: CI fail + マージ block（即修正必須）
+     * block-merge: CI warn（集計）+ マージ block（入口で止める。移行途中の検知用）
+     * warn: CI warn + マージ allow（注意喚起のみ）
+     */
+    readonly severity: 'gate' | 'warn' | 'block-merge'
     readonly baseline?: number
   }
 
@@ -4507,6 +4512,56 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       reviewCadenceDays: 90,
     },
   },
+  {
+    id: 'AR-CANON-SEMANTIC-REQUIRED',
+    principleRefs: ['I2', 'I4'],
+    guardTags: ['I2', 'I4'],
+    slice: 'canonicalization',
+    fixNow: 'now',
+    ruleClass: 'default',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/01-principles/semantic-classification-policy.md',
+    what: 'required エントリは semanticClass 必須。意味分類なしでの新規追加をマージレベルで阻止する',
+    why: 'semanticClass 未設定のまま required に昇格すると business/analytic の棚が曖昧になり意味空間が混線する',
+    correctPattern: {
+      description: "tag: 'required' のエントリには必ず semanticClass + authorityKind を設定する",
+      example: "semanticClass: 'business', authorityKind: 'business-authoritative'",
+    },
+    outdatedPattern: {
+      description: "tag: 'required' で semanticClass が undefined のまま",
+    },
+    detection: { type: 'custom', severity: 'block-merge' },
+    decisionCriteria: {
+      when: 'domain/calculations/ に新しい required ファイルを追加するとき',
+      exceptions: 'なし — required は必ず意味分類する',
+      escalation: '分類に迷ったら review-needed にして理由を記載',
+    },
+    migrationPath: {
+      steps: [
+        '1. semantic-inventory-procedure.md の Q1-Q8 で判定',
+        '2. calculationCanonRegistry に semanticClass + authorityKind を設定',
+        '3. npm run test:guards で確認',
+      ],
+      effort: 'trivial',
+      priority: 1,
+    },
+    relationships: {
+      dependsOn: ['AR-TERM-AUTHORITATIVE-STANDALONE'],
+    },
+    protectedHarm: {
+      prevents: [
+        '意味分類なしの required エントリが混入し business/analytic の境界が崩壊する',
+        'derived view に未分類エントリが紛れ込み運用が混乱する',
+      ],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+  },
+
   {
     id: 'AR-SEMANTIC-BUSINESS-ANALYTIC-SEPARATION',
     principleRefs: ['I2'],

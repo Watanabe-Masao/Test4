@@ -56,6 +56,7 @@
 | ガードテスト対応表 | `03-guides/guard-test-map.md` |
 | 許可リスト運用 | `03-guides/allowlist-management.md` |
 | 意味分類 Inventory 手順書 | `03-guides/semantic-inventory-procedure.md` |
+| レジストリ所有権ポリシー | `03-guides/directory-registry-ownership-policy.md` |
 | DuckDB アーキテクチャ・Query Access Rules（Q1-Q6） | `03-guides/duckdb-architecture.md` |
 | 計算エンジン | `03-guides/calculation-engine.md` |
 | WASM 二重実行ランブック | `03-guides/wasm-dual-run-runbook.md` |
@@ -80,6 +81,7 @@
 | `03-guides/architecture-rule-system.md` | Architecture Rule 運用ガイド |
 | `03-guides/allowlist-management.md` | Allowlist 管理ガイド |
 | `03-guides/semantic-inventory-procedure.md` | 意味分類 Inventory 手順書 |
+| `03-guides/directory-registry-ownership-policy.md` | レジストリ所有権ポリシー |
 | `03-guides/guard-test-map.md` | ガードテスト対応表 |
 | `03-guides/active-debt-refactoring-plan.md` | Active-Debt リファクタリング計画 |
 | `03-guides/aag-phase4-6-plan.md` | AAG Phase 4-6 実装計画 |
