@@ -246,6 +246,8 @@ export interface ResolvedComparisonRow {
 /** 日別比較データ（経過日数分のキャップ付き合計を含む） */
 export interface PrevYearData {
   readonly hasPrevYear: boolean
+  /** データソースの状態区別: disabled=比較OFF / no-data=データなし / loaded=正常取得 */
+  readonly source: 'disabled' | 'no-data' | 'loaded'
   readonly daily: ReadonlyMap<string, PrevYearDailyEntry>
   /** 経過日数分の前年同曜日売上合計 */
   readonly totalSales: number

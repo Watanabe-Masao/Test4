@@ -165,6 +165,7 @@ describe('buildDailyCustomerData', () => {
 
     const prevYear: PrevYearData = {
       hasPrevYear: true,
+      source: 'loaded',
       daily: prevYearDaily,
       totalSales: 1700,
       totalDiscount: 0,
@@ -191,6 +192,7 @@ describe('buildDailyCustomerData', () => {
 
     const prevYear: PrevYearData = {
       hasPrevYear: false,
+      source: 'disabled',
       daily: new Map(),
       totalSales: 0,
       totalDiscount: 0,
@@ -214,6 +216,7 @@ describe('buildDailyCustomerData', () => {
 
     const prevYear: PrevYearData = {
       hasPrevYear: false,
+      source: 'disabled',
       daily: new Map(),
       totalSales: 0,
       totalDiscount: 0,

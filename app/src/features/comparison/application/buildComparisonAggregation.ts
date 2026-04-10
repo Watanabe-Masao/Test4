@@ -35,6 +35,7 @@ export type { SourceMonthContext } from '@/features/comparison/application/sourc
 /** aggregateByAlignmentMap の出力 — PrevYearData と互換 */
 export interface ComparisonDailyResult {
   readonly hasPrevYear: boolean
+  readonly source: 'disabled' | 'no-data' | 'loaded'
   readonly daily: ReadonlyMap<string, PrevYearDailyEntry>
   readonly totalSales: number
   readonly totalDiscount: number
@@ -47,6 +48,7 @@ export interface ComparisonDailyResult {
 
 const EMPTY_DAILY: ComparisonDailyResult = {
   hasPrevYear: false,
+  source: 'no-data',
   daily: new Map(),
   totalSales: 0,
   totalDiscount: 0,
@@ -228,6 +230,7 @@ export function aggregateDailyByAlignment(
 
   return {
     hasPrevYear: true,
+    source: 'loaded' as const,
     daily: dailyWithEntries,
     ...totals,
     ...(dataIntegrityWarnings.length > 0 ? { dataIntegrityWarnings } : {}),

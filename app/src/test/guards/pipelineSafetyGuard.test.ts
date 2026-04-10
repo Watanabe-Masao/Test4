@@ -42,7 +42,8 @@ const isSourceFile = (f: string) =>
 describe('AR-SAFETY-SILENT-CATCH: ログなし catch の検出', () => {
   const rule = getRuleById('AR-SAFETY-SILENT-CATCH')!
   // ratchet-down: 現在30件。各 catch にログを追加するたびに減らす
-  const BASELINE = 30
+  // ratchet-down: 30 → 9（22箇所にログ追加済み。残りは LOW + recovery 内部蓄積パターン）
+  const BASELINE = 9
 
   /**
    * 「ログなし catch」の検出対象:
@@ -271,20 +272,19 @@ describe('AR-SAFETY-STALE-STORE: setCurrentMonthData の storeResults クリア'
     const content = fs.readFileSync(storeFile, 'utf-8')
     const violations: string[] = []
 
-    // setCurrentMonthData の実装を探す
-    const idx = content.indexOf('setCurrentMonthData')
+    // setCurrentMonthData のアクション実装を探す（型定義ではなく (monthly) => set(...) の方）
+    const idx = content.indexOf('setCurrentMonthData: (monthly)')
     if (idx >= 0) {
-      // setCurrentMonthData の周辺100文字に storeResults のクリアがあるか
       const block = content.slice(idx, idx + 500)
-      if (!block.includes('storeResults') && !block.includes('new Map()')) {
+      if (!block.includes('storeResults')) {
         violations.push(
           'application/stores/dataStore.ts: setCurrentMonthData が storeResults をクリアしていない',
         )
       }
     }
 
-    // 現在は1箇所違反（storeResults クリアなし）。将来修正されたら0になる
-    const BASELINE = 1
+    // 前コミットで setCurrentMonthData に storeResults: new Map() を追加済み → 0
+    const BASELINE = 0
     expect(violations.length, formatViolationMessage(rule, violations)).toBeLessThanOrEqual(
       BASELINE,
     )

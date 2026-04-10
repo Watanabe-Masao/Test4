@@ -47,6 +47,7 @@ type ExpandableColumn =
 
 const noPrevYear: PrevYearData = {
   hasPrevYear: false,
+  source: 'disabled',
   daily: new Map(),
   totalSales: 0,
   totalDiscount: 0,

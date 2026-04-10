@@ -25,7 +25,8 @@ export async function getCurrentVersion(conn: AsyncDuckDBConnection): Promise<nu
     const rows = result.toArray()
     if (rows.length === 0) return 0
     return Number(rows[0].version)
-  } catch {
+  } catch (err) {
+    console.warn('[migrations] schema version query failed:', err)
     return 0
   }
 }

@@ -280,7 +280,8 @@ async function safeDropObject(
 ): Promise<void> {
   try {
     await conn.query(`DROP ${type} IF EXISTS ${name}`)
-  } catch {
+  } catch (err) {
     // 型不一致（VIEW vs TABLE）の場合は無視
+    console.warn('[duckdb] safeDropObject failed:', err)
   }
 }

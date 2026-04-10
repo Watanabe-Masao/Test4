@@ -141,6 +141,7 @@ export function makeStoreResult(overrides: Partial<StoreResult> = {}): StoreResu
 export function makeEmptyPrevYear(): PrevYearData {
   return {
     hasPrevYear: false,
+    source: 'disabled',
     daily: new Map(),
     totalSales: 0,
     totalDiscount: 0,
@@ -169,6 +170,7 @@ export function makePrevYear(
   const discountRate = totalSales > 0 ? totalDiscount / totalSales : 0
   return {
     hasPrevYear: true,
+    source: 'loaded',
     daily,
     totalSales,
     totalDiscount,

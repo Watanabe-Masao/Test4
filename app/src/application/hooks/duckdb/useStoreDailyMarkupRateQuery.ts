@@ -20,6 +20,8 @@ export type DailyMarkupCostPriceMap = ReadonlyMap<number, { totalCost: number; t
 export interface StoreDailyMarkupRateQueryResult {
   readonly data: DailyMarkupCostPriceMap
   readonly queryStoreId: string | null
+  readonly isLoading: boolean
+  readonly error: Error | undefined
 }
 
 /**
@@ -37,6 +39,8 @@ export function useStoreDailyMarkupRateQuery(
     data: DailyMarkupCostPriceMap
     queryStoreId: string | null
   }>({ data: new Map(), queryStoreId: null })
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<Error | undefined>(undefined)
   const seqRef = useRef(0)
 
   useEffect(() => {
@@ -50,6 +54,8 @@ export function useStoreDailyMarkupRateQuery(
     const { fromKey, toKey } = dateRangeToKeys(dateRange)
 
     ;(async () => {
+      setIsLoading(true)
+      setError(undefined)
       try {
         const allRows = await queryStoreDailyMarkupRate(conn, fromKey, toKey, [storeId])
         if (cancelled || seq !== seqRef.current) return
@@ -65,8 +71,14 @@ export function useStoreDailyMarkupRateQuery(
           }
         }
         setState({ data: byDay, queryStoreId: storeId })
-      } catch {
-        // DuckDB エラー時は静かに無視
+        setIsLoading(false)
+      } catch (e) {
+        const err = e instanceof Error ? e : new Error(String(e))
+        console.warn('[useStoreDailyMarkupRateQuery] DuckDB query failed:', err)
+        if (!cancelled && seq === seqRef.current) {
+          setError(err)
+          setIsLoading(false)
+        }
       }
     })()
 
@@ -75,5 +87,5 @@ export function useStoreDailyMarkupRateQuery(
     }
   }, [conn, dataVersion, dateRange, storeId])
 
-  return state
+  return { ...state, isLoading, error }
 }
