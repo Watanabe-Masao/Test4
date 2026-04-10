@@ -76,6 +76,7 @@ export default defineConfig({
       'remaining-budget-rate-wasm',
       'observation-period-wasm',
       'pin-intervals-wasm',
+      'inventory-calc-wasm',
     ],
   },
   assetsInclude: ['**/*.wasm'],

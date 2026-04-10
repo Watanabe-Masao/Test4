@@ -16,7 +16,8 @@
     "customer-gap",
     "remaining-budget-rate",
     "observation-period",
-    "pin-intervals"
+    "pin-intervals",
+    "inventory-calc"
   ],
   "ciJobs": [
     "wasm-build",

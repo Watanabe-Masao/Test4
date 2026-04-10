@@ -50,6 +50,7 @@ export const WASM_CANDIDATE_MODULE_NAMES = [
   'remainingBudgetRate',
   'observationPeriod',
   'pinIntervals',
+  'inventoryCalc',
 ] as const
 export type WasmCandidateModuleName = (typeof WASM_CANDIDATE_MODULE_NAMES)[number]
 
@@ -115,6 +116,12 @@ export const WASM_CANDIDATE_MODULE_METADATA: Readonly<
     authorityKind: 'candidate-authoritative',
     contractId: 'BIZ-011',
   },
+  inventoryCalc: {
+    semanticClass: 'business',
+    bridgeKind: 'business',
+    authorityKind: 'candidate-authoritative',
+    contractId: 'BIZ-009',
+  },
 }
 
 /* ── 内部状態 ─────────────────────────────────── */
@@ -142,6 +149,7 @@ let customerGapWasmExports: typeof import('customer-gap-wasm') | null = null
 let remainingBudgetRateWasmExports: typeof import('remaining-budget-rate-wasm') | null = null
 let observationPeriodWasmExports: typeof import('observation-period-wasm') | null = null
 let pinIntervalsWasmExports: typeof import('pin-intervals-wasm') | null = null
+let inventoryCalcWasmExports: typeof import('inventory-calc-wasm') | null = null
 
 // candidate 群の状態管理（current とは分離）
 const candidateModuleStates: Record<WasmCandidateModuleName, WasmState> = {
@@ -150,6 +158,7 @@ const candidateModuleStates: Record<WasmCandidateModuleName, WasmState> = {
   remainingBudgetRate: 'idle',
   observationPeriod: 'idle',
   pinIntervals: 'idle',
+  inventoryCalc: 'idle',
 }
 
 /* ── 初期化 ───────────────────────────────────── */
@@ -391,6 +400,32 @@ export async function initPinIntervalsCandidateWasm(): Promise<void> {
   }
 }
 
+/**
+ * inventoryCalc candidate WASM モジュールを非同期で初期化する。
+ */
+export async function initInventoryCalcCandidateWasm(): Promise<void> {
+  if (candidateModuleStates.inventoryCalc !== 'idle') return
+
+  candidateModuleStates.inventoryCalc = 'loading'
+  try {
+    const wasm = await import('inventory-calc-wasm')
+    await wasm.default()
+    inventoryCalcWasmExports = wasm
+    candidateModuleStates.inventoryCalc = 'ready'
+    if (import.meta.env.DEV) {
+      console.info(
+        '[wasmEngine] inventoryCalc candidate ready — WASM candidate-authoritative ready',
+      )
+    }
+  } catch (e) {
+    candidateModuleStates.inventoryCalc = 'error'
+    console.warn(
+      '[wasmEngine] inventoryCalc candidate WASM initialization failed, falling back to TS:',
+      e,
+    )
+  }
+}
+
 /* ── 状態取得 ─────────────────────────────────── */
 
 /** 個別モジュールの状態を取得する */
@@ -445,6 +480,10 @@ export function getObservationPeriodWasmExports(): typeof import('observation-pe
 
 export function getPinIntervalsWasmExports(): typeof import('pin-intervals-wasm') | null {
   return pinIntervalsWasmExports
+}
+
+export function getInventoryCalcWasmExports(): typeof import('inventory-calc-wasm') | null {
+  return inventoryCalcWasmExports
 }
 
 /** candidate モジュールの状態を取得する */

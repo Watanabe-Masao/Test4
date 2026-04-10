@@ -186,6 +186,24 @@ declare module 'observation-period-wasm' {
   ): Float64Array
 }
 
+// ─── inventory-calc-wasm (candidate: BIZ-009) ───────────
+declare module 'inventory-calc-wasm' {
+  export default function init(): Promise<void>
+  export function compute_estimated_inventory_details(
+    dailySales: Float64Array,
+    dailyFlowersPrice: Float64Array,
+    dailyDirectProducePrice: Float64Array,
+    dailyCostInclusionCost: Float64Array,
+    dailyTotalCost: Float64Array,
+    dailyDeliverySalesCost: Float64Array,
+    openingInventory: number,
+    closingInventory: number,
+    markupRate: number,
+    discountRate: number,
+    daysInMonth: number,
+  ): Float64Array
+}
+
 // ─── pin-intervals-wasm (candidate: BIZ-011) ────────────
 declare module 'pin-intervals-wasm' {
   export default function init(): Promise<void>

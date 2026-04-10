@@ -282,6 +282,23 @@ export const CALCULATION_CANON_REGISTRY: Readonly<Record<string, CanonEntry>> = 
     notes: 'WASM candidate: wasm/pi-value/。current reference: piValue.ts',
   },
 
+  'candidate/inventoryCalc.ts': {
+    tag: 'required',
+    reason: '日別推定在庫推移（candidate: WASM 移行候補 CAND-BIZ-009）',
+    zodAdded: true,
+    semanticClass: 'business',
+    authorityKind: 'candidate-authoritative',
+    methodFamily: 'accounting',
+    runtimeStatus: 'candidate',
+    ownerKind: 'migration',
+    contractId: 'BIZ-009',
+    bridgeKind: 'business',
+    rateOwnership: 'n/a',
+    fallbackPolicy: 'current',
+    migrationTier: 'tier1',
+    notes:
+      'WASM candidate: wasm/inventory-calc/。current reference: inventoryCalc.ts。FFI: 6列 flat contract（dailySales/flowersPrice/directProducePrice/costInclusionCost/totalCost/deliverySalesCost）',
+  },
   'candidate/pinIntervals.ts': {
     tag: 'required',
     reason: '在庫確定区間の粗利（candidate: WASM 移行候補 CAND-BIZ-011）',

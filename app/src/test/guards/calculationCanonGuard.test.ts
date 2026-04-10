@@ -176,8 +176,8 @@ describe('意味分類ガード（Phase 2）', () => {
 
     expect(business + analytic + utility).toBe(entries.length)
     // ratchet: 意味分類の内訳が変わったら意図的に更新する
-    // business: 13 current + 5 candidate (BIZ-008, BIZ-010, BIZ-011, BIZ-012, BIZ-013) = 18
-    expect(business).toBe(18)
+    // business: 13 current + 6 candidate (BIZ-008〜013) = 19
+    expect(business).toBe(19)
     expect(analytic).toBe(9)
     expect(utility).toBe(13)
   })
