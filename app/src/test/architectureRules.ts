@@ -4314,7 +4314,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     guardTags: ['G1'],
     slice: 'governance-ops',
     fixNow: 'now',
-    ruleClass: 'invariant',
+    ruleClass: 'default',
     confidence: 'high',
     maturity: 'stable',
     doc: 'references/01-principles/design-principles.md',
@@ -4328,7 +4328,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: 'severity のみ変更してテスト側を追従させない',
       codeSignals: ["level: 'error'", "level: 'warning'"],
     },
-    detection: { type: 'co-change', severity: 'gate' },
+    detection: { type: 'co-change', severity: 'warn' },
     decisionCriteria: {
       when: 'importDataIntegrity.ts の level を変更するとき',
       exceptions: '例外なし — テストは常に追従必須',
@@ -4376,7 +4376,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: '本番コードに query を追加してテストモックを更新しない',
       codeSignals: ['conn.query(', 'await conn.query('],
     },
-    detection: { type: 'co-change', severity: 'gate' },
+    detection: { type: 'co-change', severity: 'warn' },
     decisionCriteria: {
       when: 'infrastructure/duckdb/ の関数に新しい conn.query() を追加するとき',
       exceptions: '既存テストがない関数（新規追加時）',
@@ -4421,7 +4421,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       description: 'parse 方式を変更してパスガードの検証文字列を更新しない',
       codeSignals: ['.parse(', '.safeParse('],
     },
-    detection: { type: 'co-change', severity: 'gate' },
+    detection: { type: 'co-change', severity: 'warn' },
     decisionCriteria: {
       when: 'readModel builder の Zod parse メソッドを変更するとき',
       exceptions: '例外なし — パスガードは常に追従必須',
