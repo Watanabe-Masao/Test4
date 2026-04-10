@@ -1,5 +1,9 @@
 /**
- * budgetAnalysis WASM authoritative bridge
+ * budgetAnalysis WASM business-authoritative bridge
+ *
+ * @semanticClass business
+ * @bridgeKind business
+ * @contractId BIZ-003
  *
  * WASM が ready なら scalar フィールドは WASM 実装を使用する。
  * dailyCumulative は WASM 側で計算しないため、常に TS 実装から補完する。
@@ -7,8 +11,8 @@
  *
  * Note: calculateAggregateBudget は application 層の集約責務であり bridge に含めない。
  *
- * @see references/02-status/engine-promotion-matrix.md — authoritative
- * @see references/02-status/promotion-criteria.md — 昇格基準
+ * @see references/03-guides/contract-definition-policy.md — 契約定義ポリシー
+ * @see references/01-principles/semantic-classification-policy.md — 意味分類ポリシー
  */
 import {
   calculateBudgetAnalysis as calculateBudgetAnalysisTS,

@@ -4656,6 +4656,298 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     },
   },
 
+  // ═══ Phase 3: 契約固定 + bridge 境界 ═══
+
+  {
+    id: 'AR-CONTRACT-SEMANTIC-REQUIRED',
+    principleRefs: ['I1', 'I2'],
+    guardTags: ['I1', 'I2'],
+    slice: 'canonicalization',
+    fixNow: 'now',
+    ruleClass: 'invariant',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/03-guides/contract-definition-policy.md',
+    what: 'semanticClass 未設定のまま contractId を追加してはならない',
+    why: '契約は意味分類の上に成り立つ。semanticClass なしで契約を付けると business/analytic の境界が曖昧になる',
+    correctPattern: {
+      description: 'contractId を設定する前に必ず semanticClass + authorityKind を設定する',
+      example:
+        "semanticClass: 'business', authorityKind: 'business-authoritative', contractId: 'BIZ-001'",
+    },
+    outdatedPattern: {
+      description: 'semanticClass が undefined のまま contractId を設定する',
+    },
+    detection: { type: 'custom', severity: 'gate' },
+    decisionCriteria: {
+      when: 'calculationCanonRegistry に contractId を追加するとき',
+      exceptions: 'なし — 契約は必ず意味分類の後に付与する',
+      escalation: 'semanticClass が決まらないなら contractId も付けない',
+    },
+    migrationPath: {
+      steps: [
+        '1. semantic-inventory-procedure.md の Q1-Q8 で semanticClass を判定',
+        '2. semanticClass + authorityKind を設定',
+        '3. contract-definition-policy.md に従い contractId を採番',
+      ],
+      effort: 'trivial',
+      priority: 1,
+    },
+    relationships: {
+      dependsOn: ['AR-CANON-SEMANTIC-REQUIRED'],
+    },
+    protectedHarm: {
+      prevents: ['意味分類なしの契約が混入し business/analytic の契約体系が崩壊する'],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+  },
+
+  {
+    id: 'AR-CONTRACT-BUSINESS-MEANING',
+    principleRefs: ['I2'],
+    guardTags: ['I2'],
+    slice: 'canonicalization',
+    fixNow: 'now',
+    ruleClass: 'invariant',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/03-guides/contract-definition-policy.md',
+    what: 'Business Contract (BIZ-XXX) には businessMeaning 相当の reason が必須',
+    why: '業務意味を説明できない計算を business に分類すると意味空間が汚染される',
+    correctPattern: {
+      description: "contractId が 'BIZ-' で始まるエントリは reason に業務意味を記載する",
+      example: "contractId: 'BIZ-001', reason: '在庫法粗利（calculateGrossProfit 経由）'",
+    },
+    outdatedPattern: {
+      description: 'BIZ-XXX の contractId があるのに reason が空または汎用的すぎる',
+    },
+    detection: { type: 'custom', severity: 'gate' },
+    decisionCriteria: {
+      when: 'BIZ-XXX の contractId を registry に追加するとき',
+      exceptions: 'なし — business 契約には必ず業務意味を書く',
+      escalation: '業務意味を書けないなら business ではなく analytic か utility を検討',
+    },
+    migrationPath: {
+      steps: [
+        '1. 対象計算が確定する業務値を 1-2 文で説明',
+        '2. reason フィールドに記載',
+        '3. contract-definition-policy.md の BIZ 契約一覧と整合確認',
+      ],
+      effort: 'trivial',
+      priority: 1,
+    },
+    relationships: {
+      dependsOn: ['AR-CONTRACT-SEMANTIC-REQUIRED'],
+    },
+    protectedHarm: {
+      prevents: ['業務意味不明の計算が Business Contract を持ち、分析計算と混同される'],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+  },
+
+  {
+    id: 'AR-CONTRACT-ANALYTIC-METHOD',
+    principleRefs: ['I2'],
+    guardTags: ['I2'],
+    slice: 'canonicalization',
+    fixNow: 'now',
+    ruleClass: 'invariant',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/03-guides/contract-definition-policy.md',
+    what: 'Analytic Contract (ANA-XXX) には methodFamily が必須',
+    why: 'methodFamily なしの analytic 契約は技法の境界が曖昧になり再利用性が損なわれる',
+    correctPattern: {
+      description: "contractId が 'ANA-' で始まるエントリは methodFamily を設定する",
+      example: "contractId: 'ANA-001', methodFamily: 'time_pattern'",
+    },
+    outdatedPattern: {
+      description: 'ANA-XXX の contractId があるのに methodFamily が未設定',
+    },
+    detection: { type: 'custom', severity: 'gate' },
+    decisionCriteria: {
+      when: 'ANA-XXX の contractId を registry に追加するとき',
+      exceptions: 'なし — analytic 契約には必ず技法を明記する',
+      escalation: 'methodFamily を書けないなら analytic ではなく utility を検討',
+    },
+    migrationPath: {
+      steps: [
+        '1. 対象計算の分析技法を特定（forecasting, statistical 等）',
+        '2. methodFamily フィールドに設定',
+        '3. contract-definition-policy.md の ANA 契約一覧と整合確認',
+      ],
+      effort: 'trivial',
+      priority: 1,
+    },
+    relationships: {
+      dependsOn: ['AR-CONTRACT-SEMANTIC-REQUIRED'],
+    },
+    protectedHarm: {
+      prevents: ['技法不明の計算が Analytic Contract を持ち、不変条件の検証が不可能になる'],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+  },
+
+  {
+    id: 'AR-BRIDGE-RATE-OWNERSHIP',
+    principleRefs: ['I1'],
+    guardTags: ['I1'],
+    slice: 'canonicalization',
+    fixNow: 'now',
+    ruleClass: 'invariant',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/03-guides/contract-definition-policy.md',
+    what: '率の算出は engine 側の責務。UI / VM / SQL で率を再計算してはならない',
+    why: '率の二重計算は丸め誤差・不整合を生む。engine が算出した率をそのまま使う',
+    correctPattern: {
+      description: 'bridge 経由で取得した率をそのまま表示・集計に使う',
+      example: 'const rate = bridgeResult.markupRate // engine が算出した値',
+    },
+    outdatedPattern: {
+      description: 'UI / VM / SQL で率を独自計算する（sales / cost で割る等）',
+      codeSignals: ['/ cost', '/ sales', '* 100'],
+    },
+    detection: { type: 'custom', severity: 'gate' },
+    decisionCriteria: {
+      when: '率・比率を表示するコードを書くとき',
+      exceptions: '表示用のフォーマット変換（%表示等）は許容。値の再計算は禁止',
+      escalation: '率の所有元が不明な場合は contract-definition-policy.md を参照',
+    },
+    migrationPath: {
+      steps: [
+        '1. 率を使用している箇所を特定',
+        '2. bridge 経由で取得した値に置き換え',
+        '3. 独自計算を削除',
+      ],
+      effort: 'small',
+      priority: 2,
+    },
+    relationships: {
+      dependsOn: [],
+    },
+    protectedHarm: {
+      prevents: ['率の二重計算による丸め誤差・不整合', 'engine と UI で異なる率が表示される'],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+  },
+
+  {
+    id: 'AR-BRIDGE-DIRECT-IMPORT',
+    principleRefs: ['I1', 'I2'],
+    guardTags: ['I1', 'I2'],
+    slice: 'canonicalization',
+    fixNow: 'debt',
+    ruleClass: 'default',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/03-guides/contract-definition-policy.md',
+    what: 'bridge を通さない pure 計算の runtime import を新規追加しない（型参照・テスト除く）',
+    why: 'direct import が増えると bridge による current/candidate 切替・fallback・dual-run が機能しなくなる',
+    correctPattern: {
+      description: 'application/services/*Bridge.ts 経由で pure 計算を呼び出す',
+      example: "import { decompose5 } from '@/application/services/factorDecompositionBridge'",
+    },
+    outdatedPattern: {
+      description: 'application / presentation 層から domain/calculations/ を直接 import する',
+      imports: ['@/domain/calculations/'],
+    },
+    detection: { type: 'import', severity: 'gate', baseline: 0 },
+    decisionCriteria: {
+      when: 'pure 計算を呼び出すコードを新規作成するとき',
+      exceptions: '型の import（import type）とテストコードは除外',
+      escalation: '既存の direct import は ratchet-down で段階削減',
+    },
+    migrationPath: {
+      steps: [
+        '1. direct import を特定',
+        '2. 対応する bridge 関数に置き換え',
+        '3. import パスを bridge に変更',
+      ],
+      effort: 'small',
+      priority: 2,
+    },
+    relationships: {
+      dependsOn: [],
+    },
+    protectedHarm: {
+      prevents: [
+        'bridge を迂回した呼び出しにより current/candidate 切替が機能しない',
+        'fallback / dual-run の対象外になる計算呼び出しが生まれる',
+      ],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+  },
+
+  {
+    id: 'AR-BRIDGE-CANDIDATE-DEFAULT',
+    principleRefs: ['I3'],
+    guardTags: ['I3'],
+    slice: 'canonicalization',
+    fixNow: 'now',
+    ruleClass: 'invariant',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/03-guides/contract-definition-policy.md',
+    what: 'candidate-only を UI の既定経路にする変更を禁止する',
+    why: 'candidate は実験資産。UI の通常運用で candidate を既定にすると安定性が崩壊する',
+    correctPattern: {
+      description: 'UI の既定経路は current-only。candidate は dual-run-compare で検証してから切替',
+    },
+    outdatedPattern: {
+      description: 'bridge モードを candidate-only に変更して UI の既定動作にする',
+    },
+    detection: { type: 'custom', severity: 'gate' },
+    decisionCriteria: {
+      when: 'bridge のモードを変更するとき',
+      exceptions: 'テスト・検証環境での candidate-only は許容',
+      escalation: 'candidate を既定にしたい場合は Phase 8 の Promote Ceremony を経る',
+    },
+    migrationPath: {
+      steps: [
+        '1. bridge モードを current-only に戻す',
+        '2. candidate の検証は dual-run-compare で行う',
+        '3. promotion-ready 判定を経てから切替',
+      ],
+      effort: 'trivial',
+      priority: 1,
+    },
+    relationships: {
+      dependsOn: ['AR-CURRENT-CANDIDATE-SEPARATION'],
+    },
+    protectedHarm: {
+      prevents: [
+        '未検証の candidate が UI の通常運用で使用され品質が崩壊する',
+        'rollback が困難になる',
+      ],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+  },
+
   {
     id: 'AR-REGISTRY-SINGLE-MASTER',
     principleRefs: ['I4'],

@@ -1,18 +1,22 @@
 /**
- * grossProfit WASM authoritative bridge
+ * grossProfit WASM business-authoritative bridge
+ *
+ * @semanticClass business
+ * @bridgeKind business
+ * @contractId BIZ-001 (invMethod), BIZ-002 (estMethod), BIZ-005 (discountImpact), BIZ-006 (costAggregation)
  *
  * WASM が ready なら WASM 実装を使用し、未初期化時は TS にフォールバックする。
  * public API と import path は従来と同一。
  *
- * 対象: 8 authoritative single-store core 関数 + 2 CalculationResult 版
+ * 対象: 8 business-authoritative single-store core 関数 + 2 CalculationResult 版
  *
  * 類型 C:
- *   - numeric core は WASM authoritative
- *   - calculateEstMethodWithStatus: status/warnings は TS authoritative
- *   - calculateDiscountImpact: CalculationResult は TS authoritative
+ *   - numeric core は WASM business-authoritative
+ *   - calculateEstMethodWithStatus: status/warnings は TS business-authoritative
+ *   - calculateDiscountImpact: CalculationResult は TS business-authoritative
  *
- * @see references/02-status/engine-promotion-matrix.md — authoritative
- * @see references/02-status/promotion-criteria.md — 昇格基準
+ * @see references/03-guides/contract-definition-policy.md — 契約定義ポリシー
+ * @see references/01-principles/semantic-classification-policy.md — 意味分類ポリシー
  */
 import {
   calculateInvMethod as calculateInvMethodTS,

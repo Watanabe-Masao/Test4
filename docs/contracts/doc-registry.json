@@ -38,7 +38,8 @@
         { "path": "references/03-guides/discovery-review-checklist.md", "label": "Discovery Review チェックリスト" },
         { "path": "references/03-guides/aag-phase4-6-plan.md", "label": "AAG Phase 4-6 計画" },
         { "path": "references/03-guides/active-debt-refactoring-plan.md", "label": "Active-Debt リファクタリング計画" },
-        { "path": "references/03-guides/legacy-governance-retirement.md", "label": "レガシーガバナンス廃止" }
+        { "path": "references/03-guides/legacy-governance-retirement.md", "label": "レガシーガバナンス廃止" },
+        { "path": "references/03-guides/contract-definition-policy.md", "label": "契約定義ポリシー" }
       ]
     },
     {

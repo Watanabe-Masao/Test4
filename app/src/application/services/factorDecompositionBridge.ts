@@ -1,11 +1,16 @@
 /**
- * factorDecomposition WASM authoritative bridge
+ * factorDecomposition WASM business-authoritative bridge
+ *
+ * @semanticClass business
+ * @bridgeKind business
+ * @contractId BIZ-004
  *
  * WASM が ready なら WASM 実装を使用し、未初期化時は TS にフォールバックする。
  * public API と import path は従来と同一。
+ * 技法は Shapley（analytic）だが意味責任は business。
  *
- * @see references/02-status/engine-promotion-matrix.md — authoritative
- * @see references/02-status/promotion-criteria.md — 昇格基準
+ * @see references/03-guides/contract-definition-policy.md — 契約定義ポリシー
+ * @see references/01-principles/semantic-classification-policy.md — 意味分類ポリシー
  */
 import {
   decompose2 as decompose2TS,

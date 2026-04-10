@@ -4,21 +4,21 @@
 
 | 項目 | 値 |
 |---|---|
-| **総合評価** | **RISK** |
-| 前回比 | Flat |
-| リリース影響 | Yes |
-| 最終更新 | 2026-04-10T15:27:31.756Z |
+| **総合評価** | **Watch** |
+| 前回比 | Improved |
+| リリース影響 | No |
+| 最終更新 | 2026-04-10T16:16:30.264Z |
 
 ## Hard Gate
 
-**FAIL**
+**PASS** — 全ゲート通過
 
 - PASS: Frozen リスト非ゼロ
 - PASS: 廃止用語残存数
 - PASS: Generated section 未更新
 - PASS: Presentation→Infrastructure 違反
 - PASS: Infrastructure→Application 違反
-- FAIL: Doc 更新義務違反数
+- PASS: Doc 更新義務違反数
 - PASS: review overdue ルール数
 
 ## Health Metrics
@@ -31,25 +31,30 @@
 | **境界健全性** | OK | Presentation→Infrastructure 違反: 0/0 / Infrastructure→Application 違反: 0/0 |
 | **ガード強度** | OK | ガードテストファイル数: 47/30 / レビュー専用タグ数: 0/5 |
 | **性能** | OK | JS バンドル合計サイズ: 6505/7000 / メインバンドルサイズ: 2228/2500 / ECharts バンドルサイズ: 919/1000 |
-| **Temporal Governance** | WARN | review overdue ルール数: 0/0 / heuristic + gate ルール数: 32/32 / active-debt 例外数: 0/1 / reviewPolicy 設定済みルール数: 109/92 / sunsetCondition 設定済みルール数: 9/9 / active-debt で createdAt 設定済み: 0/1 |
-| **Rule Efficacy** | OK | protectedHarm 設定済みルール数: 46 / 高例外圧ルール数（≥10 件）: 0/3 / renewalCount 合計: 0/10 |
+| **Temporal Governance** | WARN | review overdue ルール数: 0/0 / heuristic + gate ルール数: 32/32 / active-debt 例外数: 0/1 / reviewPolicy 設定済みルール数: 115/92 (+6) / sunsetCondition 設定済みルール数: 9/9 / active-debt で createdAt 設定済み: 0/1 |
+| **Rule Efficacy** | OK | protectedHarm 設定済みルール数: 52 (+6) / 高例外圧ルール数（≥10 件）: 0/3 / renewalCount 合計: 0/10 |
 
 ## Top Risks
 
-**1. Doc 更新義務違反数**
-- 状態: 1 / budget 0（100% 超過）
-- ファイル: `—`
-- 定義書: `tools/architecture-health/src/collectors/obligation-collector.ts`
-
-**2. active-debt で createdAt 設定済み**
+**1. active-debt で createdAt 設定済み**
 - 状態: 0 / budget 1（-100% 超過）
 - ファイル: `app/src/test/allowlists/architecture.ts`
 - 定義書: `—`
 
+## Recent Changes
+
+| 指標 | 前回 | 今回 | 変化 |
+|---|---|---|---|
+| 総 Architecture Rule 数 | 109 | 115 | +6 ! |
+| reviewPolicy 設定済みルール数 | 109 | 115 | +6 ! |
+| protectedHarm 設定済みルール数 | 46 | 52 | +6 ! |
+| fixNow=now ルール数（即修正） | 40 | 45 | +5 ! |
+| fixNow=debt ルール数（構造負債） | 50 | 51 | +1 ! |
+| Doc 更新義務違反数 | 1 | 0 | -1 + |
+
 ## Recommended Actions
 
-1. Doc 更新義務違反数 を budget 0 以下に修正する
-2. active-debt で createdAt 設定済み を 0 → 1 に削減する（残 -1）
+1. active-debt で createdAt 設定済み を 0 → 1 に削減する（残 -1）
 
 ---
 
