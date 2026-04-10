@@ -1,28 +1,19 @@
 {
-  "timestamp": "2026-04-09T17:58:04.315Z",
+  "timestamp": "2026-04-10T09:03:43.604Z",
   "totalAllowlistEntries": 13,
   "categoryBreakdown": {
     "adapter": 1,
     "structural": 12
   },
   "frozenLists": [
-    "presentationToInfrastructure",
-    "infrastructureToApplication",
-    "presentationToUsecases",
     "presentationDuckdbHook",
     "presentationMemoLimits",
     "presentationStateLimits",
-    "largeComponentTier2",
-    "infraLargeFiles",
-    "usecasesLargeFiles",
     "cmpPrevYearDaily",
     "cmpFramePrevious",
-    "cmpDailyMapping",
-    "dowCalcOverride",
-    "vmReactImport",
-    "sideEffectChain"
+    "cmpDailyMapping"
   ],
-  "frozenCount": 15,
+  "frozenCount": 6,
   "activeLists": 6,
   "vmFileCount": 27,
   "compatReexportCount": 2,
@@ -107,7 +98,7 @@
       "file": "presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx",
       "memoCount": 7,
       "stateCount": 7,
-      "lineCount": 484
+      "lineCount": 518
     },
     {
       "file": "presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx",
@@ -160,18 +151,6 @@
         "adapter": 1
       }
     },
-    "presentationToInfrastructure": {
-      "count": 0,
-      "categories": {}
-    },
-    "infrastructureToApplication": {
-      "count": 0,
-      "categories": {}
-    },
-    "presentationToUsecases": {
-      "count": 0,
-      "categories": {}
-    },
     "presentationDuckdbHook": {
       "count": 0,
       "categories": {}
@@ -202,23 +181,11 @@
       "count": 0,
       "categories": {}
     },
-    "largeComponentTier2": {
-      "count": 0,
-      "categories": {}
-    },
-    "infraLargeFiles": {
-      "count": 0,
-      "categories": {}
-    },
     "domainLargeFiles": {
       "count": 6,
       "categories": {
         "structural": 6
       }
-    },
-    "usecasesLargeFiles": {
-      "count": 0,
-      "categories": {}
     },
     "cmpPrevYearDaily": {
       "count": 0,
@@ -232,23 +199,11 @@
       "count": 0,
       "categories": {}
     },
-    "dowCalcOverride": {
-      "count": 0,
-      "categories": {}
-    },
     "ctxHook": {
       "count": 1,
       "categories": {
         "structural": 1
       }
-    },
-    "vmReactImport": {
-      "count": 0,
-      "categories": {}
-    },
-    "sideEffectChain": {
-      "count": 0,
-      "categories": {}
     }
   }
 }

@@ -1,10 +1,69 @@
 # 直近の主要変更（#673-#848+）
 
-> 更新日: 2026-04-09
+> 更新日: 2026-04-10
 >
 > **役割分担:** 本ドキュメントは内部向けの詳細変更記録。
 > リリース単位の要約は `CHANGELOG.md` を参照。
 > 同じ内容を二重管理しないこと。
+
+## AAG v4.4.0 — Pipeline Safety + ReadModelSlice + Co-Change（2026-04-10）
+
+### 概要
+
+KPIカード非表示バグの修正を起点に、データパイプライン全体の「静かに壊れる」パターンを
+構造的に排除。ReadModelSlice discriminated union で型レベルの安全性を確立し、
+11 の新 Architecture Rule + 3 つのガードテストで再発を防止。
+
+### ReadModelSlice 安全配布アーキテクチャ
+
+- `ReadModelSlice<T>` discriminated union: `idle | loading | error | ready`
+- status チェックなしのデータアクセスがコンパイル時にエラー
+- `allReady` / `anyLoading` / `anyError` フラグで一括描画ゲート
+- 全 25 消費箇所（9 ファイル）を安全パターンに移行
+- YoY セクション: loading → skeleton / ready → 一括描画
+- YoYDrill の 3 箇所の unsafe 直接アクセスを修正（クラッシュ防止）
+
+### Pipeline Safety ルール群（8 件）
+
+| ルール | 壊れ方 | severity |
+|---|---|---|
+| AR-SAFETY-SILENT-CATCH | ログなし catch でエラー不可視 | warn (BL=9) |
+| AR-SAFETY-FIRE-FORGET | データ保存 Promise の fire-and-forget | warn |
+| AR-SAFETY-NULLABLE-ASYNC | 非同期データの ?? 0 で状態消失 | gate (stable) |
+| AR-SAFETY-VALIDATION-ENFORCE | バリデーション結果の未チェック | gate (stable) |
+| AR-SAFETY-INSERT-VERIFY | DuckDB INSERT 行数の未検証 | warn (BL=1) |
+| AR-SAFETY-PROD-VALIDATION | Zod バリデーション DEV 限定 | warn |
+| AR-SAFETY-WORKER-TIMEOUT | Worker/Mutex タイムアウトなし | warn (BL=2) |
+| AR-SAFETY-STALE-STORE | データソース変更時の派生状態未クリア | warn (BL=0) |
+
+### Co-Change ルール群（3 件）
+
+| ルール | 関係 | severity |
+|---|---|---|
+| AR-COCHANGE-VALIDATION-SEVERITY | severity 変更 → テストアサーション | warn |
+| AR-COCHANGE-DUCKDB-MOCK | conn.query() 追加 → テストモック | warn |
+| AR-COCHANGE-READMODEL-PARSE | parse 方式変更 → パスガード | warn |
+
+co-change ガード: collect-then-assert パターンで全チェックを一括出力。
+各 hint に具体的な修正方法（ファイル名 + 何をどう変えるか）を案内。
+
+### パイプライン実装修正
+
+- **入口防御**: hasValidationErrors() で重複/小計をブロック（ERROR 昇格）
+- **DuckDB 投入**: bulkInsert changes() 検証 + isPrevYear ロールバック修正
+- **計算パイプライン**: Worker エラーログ + 30秒タイムアウト + stale data クリア
+- **照会品質**: Zod first-row バリデーション PROD 有効化
+- **readModel 堅牢化**: 4 モデル safeParse 化
+- **保存安全性**: importHelpers await 化（fire-and-forget 解消）
+- **silent catch**: 22 箇所にログ追加（30→9）
+- **比較モジュール**: PrevYearData に source discriminator 追加
+
+### クリーンアップ
+
+- 空 allowlist 12 件削除（349 行除去）
+- 卒業済み import/re-export を全ガードテストから除去
+
+---
 
 ## AAG v3.2.0 — 正本昇格 + 双方向検証 + Discovery Review（2026-04-09）
 
