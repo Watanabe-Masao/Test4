@@ -178,10 +178,52 @@ function isHealthJsonFresh(repoRoot: string, changedFiles: string[]): boolean {
   return changedFiles.includes('references/02-status/generated/architecture-health.json')
 }
 
+/**
+ * Generated section（`<!-- GENERATED:START ... -->` ～ `<!-- GENERATED:END ... -->`）
+ * を除去して、手書き部分のみを返す。
+ */
+function stripGeneratedSections(content: string): string {
+  return content.replace(/<!-- GENERATED:START [^>]*-->[\s\S]*?<!-- GENERATED:END [^>]*-->/g, '')
+}
+
+/**
+ * ファイルの変更が generated section 内のみかどうかを判定する。
+ * 手書き部分が変わっていなければ true（= obligation のトリガーにしない）。
+ *
+ * - generated section マーカーを持たないファイルは常に false（通常の変更として扱う）
+ * - 旧バージョン取得に失敗した場合も false（安全側に倒す）
+ */
+function isGeneratedSectionOnlyChange(
+  repoRoot: string,
+  file: string,
+  diffTarget: string,
+): boolean {
+  try {
+    const filePath = resolve(repoRoot, file)
+    if (!existsSync(filePath)) return false
+    const newContent = readFileSync(filePath, 'utf-8')
+
+    // generated section マーカーがなければ通常のファイル変更
+    if (!newContent.includes('<!-- GENERATED:START ')) return false
+
+    const oldContent = execSync(`git show ${diffTarget}:${file} 2>/dev/null`, {
+      cwd: repoRoot,
+      encoding: 'utf-8',
+      timeout: 10000,
+    })
+
+    return stripGeneratedSections(oldContent).trim() === stripGeneratedSections(newContent).trim()
+  } catch {
+    // 取得失敗（新規ファイル等）は安全側: 通常の変更として扱う
+    return false
+  }
+}
+
 export function collectObligations(
   repoRoot: string,
   options?: { base?: string },
 ): HealthKpi[] {
+  const diffTarget = options?.base ?? 'HEAD~1'
   const changedFiles = getChangedFiles(repoRoot, options?.base)
   if (changedFiles.length === 0) return []
 
@@ -189,7 +231,11 @@ export function collectObligations(
   let violations = 0
 
   for (const rule of OBLIGATION_MAP) {
-    const triggered = changedFiles.some((f) => f.startsWith(rule.pathPattern))
+    // generated section のみの変更はトリガーから除外する
+    const triggered = changedFiles.some(
+      (f) =>
+        f.startsWith(rule.pathPattern) && !isGeneratedSectionOnlyChange(repoRoot, f, diffTarget),
+    )
     if (!triggered) continue
 
     let satisfied: boolean
@@ -239,13 +285,18 @@ export function reportObligationDetails(
   repoRoot: string,
   options?: { base?: string },
 ): { rule: ObligationRule; satisfied: boolean }[] {
+  const diffTarget = options?.base ?? 'HEAD~1'
   const changedFiles = getChangedFiles(repoRoot, options?.base)
   if (changedFiles.length === 0) return []
 
   const results: { rule: ObligationRule; satisfied: boolean }[] = []
 
   for (const rule of OBLIGATION_MAP) {
-    const triggered = changedFiles.some((f) => f.startsWith(rule.pathPattern))
+    // generated section のみの変更はトリガーから除外する
+    const triggered = changedFiles.some(
+      (f) =>
+        f.startsWith(rule.pathPattern) && !isGeneratedSectionOnlyChange(repoRoot, f, diffTarget),
+    )
     if (!triggered) continue
 
     let satisfied: boolean

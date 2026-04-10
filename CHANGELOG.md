@@ -18,6 +18,17 @@
 > 内部向けの詳細変更記��は `references/02-status/recent-changes.md` を参照。
 > `docs/contracts/project-metadata.json` の `appVersion` と最新バージョンを一致させること。
 
+## [v1.8.0] - 2026-04-10
+
+### Pure 計算責務再編 Phase 3-7
+
+- **Phase 3 契約固定**: BIZ-001〜013 / ANA-001〜009 契約テンプレート。registry 契約値埋め 22 件。bridge JSDoc に semanticClass + contractId。wasmEngine に WASM_MODULE_METADATA
+- **Phase 4 current 保守**: current 群保守ポリシー。7 WASM crate に `[package.metadata.semantic]`
+- **Phase 5 Business 移行計画**: Tier 1 候補 6 件の移行計画（8 ステップ + promotion-ready 判定基準）
+- **Phase 6 Analytic 移行計画**: Analytic 候補 9 件の移行計画（9 ステップ + 不変条件検証）
+- **Phase 7 Guard 統合**: 全 guard マップ + JS 正本縮退 4 段階ポリシー + 違反レスポンス設計
+- **Promote Ceremony**: 昇格提案書テンプレート + 実施手順 + 巻き戻し手順
+
 ## [v1.7.0] - 2026-04-02
 
 ### アーキテクチャ改善

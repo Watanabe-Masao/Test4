@@ -6,7 +6,51 @@
 > リリース単位の要約は `CHANGELOG.md` を参照。
 > 同じ内容を二重管理しないこと。
 
-## AAG v4.4.0 — Pipeline Safety + ReadModelSlice + Co-Change（2026-04-10）
+## v1.8.0 — Pure 計算責務再編 Phase 3-7（2026-04-10）
+
+### 概要
+
+Phase 0-2 で整備した意味分類・Master Registry 基盤の上に、契約固定（Phase 3）・
+current 群保守対象化（Phase 4）・候補移行計画（Phase 5-6）・guard 統合整理（Phase 7）を
+構築。本体のアーキテクチャ進化として v1.8.0 をリリース。
+
+### 主な成果物
+
+- **Phase 3**: contract-definition-policy.md（BIZ-001〜013 / ANA-001〜009）、registry 契約値埋め 22 件、5 bridge JSDoc 更新、wasmEngine WASM_MODULE_METADATA
+- **Phase 4**: current-maintenance-policy.md、7 Cargo.toml `[package.metadata.semantic]`
+- **Phase 5**: tier1-business-migration-plan.md（Tier 1 候補 6 件 + 8 ステップ移行プロセス）
+- **Phase 6**: analytic-kernel-migration-plan.md（Analytic 候補 9 件 + 9 ステップ移行プロセス）
+- **Phase 7**: guard-consolidation-and-js-retirement.md（全 guard マップ + JS 正本縮退 4 段階）
+- **Phase 8 準備**: promote-ceremony-template.md（昇格提案書 + 実施手順 + 巻き戻し）
+
+---
+
+## AAG（アーキテクチャ品質管理）v4.5.0 — 移行タグ基盤 + Phase 3-7 Guard + obligation 修正（2026-04-10）
+
+### 概要
+
+AAG に移行タグサブシステムを導入し、Phase 3-7 の guard 31 件を追加。
+obligation collector の generated-section-only false positive を修正。
+Architecture Rules を 109→140 に拡充。
+
+### 主な成果物
+
+- **移行タグ基盤**: migrationTagRegistry.ts（型定義 + 運用設計）、migrationTagGuard.test.ts（7テスト）、migration-tag-policy.md
+- **obligation collector 修正**: generated section のみの変更を false positive 除外（isGeneratedSectionOnlyChange）
+
+### Guard 追加（+31）
+
+| Phase | 追加数 | 主なルール |
+|-------|--------|-----------|
+| 3 | +6 | AR-CONTRACT-*, AR-BRIDGE-* |
+| 4 | +7 | AR-CURRENT-* |
+| 5 | +7 | AR-CAND-BIZ-* |
+| 6 | +7 | AR-CAND-ANA-* |
+| 7 | +4 | AR-JS-*, AR-REVIEW-NEEDED-BLOCK |
+
+---
+
+## AAG（アーキテクチャ品質管理）v4.4.0 — Pipeline Safety + ReadModelSlice + Co-Change（2026-04-10）
 
 ### 概要
 
