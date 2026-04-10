@@ -5607,6 +5607,340 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     },
   },
 
+  // ═══ Phase 6: Analytic Kernel 候補移行 ═══
+
+  {
+    id: 'AR-CAND-ANA-CONTRACT-REQUIRED',
+    principleRefs: ['I2'],
+    guardTags: ['I2'],
+    slice: 'canonicalization',
+    fixNow: 'now',
+    ruleClass: 'invariant',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/03-guides/analytic-kernel-migration-plan.md',
+    what: 'Analytic Contract (ANA-XXX) なしで candidate/analytics 化してはならない',
+    why: '契約なしの analytic candidate は methodFamily / invariantSet の検証ができず parity 比較の基準がない',
+    correctPattern: {
+      description:
+        "candidate/analytics エントリには必ず contractId: 'ANA-XXX' と methodFamily を設定する",
+      example: "runtimeStatus: 'candidate', contractId: 'ANA-001', methodFamily: 'time_pattern'",
+    },
+    outdatedPattern: {
+      description: "runtimeStatus: 'candidate', semanticClass: 'analytic' で contractId が未設定",
+    },
+    detection: { type: 'custom', severity: 'gate' },
+    decisionCriteria: {
+      when: 'candidate/analytics エントリを registry に追加するとき',
+      exceptions: 'なし — analytic candidate は契約必須',
+      escalation: '契約を書けないなら candidate 化しない',
+    },
+    migrationPath: {
+      steps: [
+        '1. contract-definition-policy.md の ANA テンプレートに従い契約を作成',
+        '2. contractId + methodFamily を registry エントリに設定',
+        '3. invariantSet を定義',
+      ],
+      effort: 'small',
+      priority: 1,
+    },
+    relationships: {
+      dependsOn: ['AR-CONTRACT-SEMANTIC-REQUIRED', 'AR-CONTRACT-ANALYTIC-METHOD'],
+    },
+    protectedHarm: {
+      prevents: ['契約なしの analytic candidate が混入し不変条件の検証が不可能になる'],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+  },
+
+  {
+    id: 'AR-CAND-ANA-NO-BUSINESS-BRIDGE',
+    principleRefs: ['I2'],
+    guardTags: ['I2'],
+    slice: 'canonicalization',
+    fixNow: 'now',
+    ruleClass: 'invariant',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/03-guides/analytic-kernel-migration-plan.md',
+    what: 'analytic candidate を business bridge に接続してはならない',
+    why: 'analytic 計算を business bridge に接続すると意味空間が混線し、不変条件と業務意味の検証基準が混在する',
+    correctPattern: {
+      description: "bridgeKind: 'analytics' の candidate は analytics bridge のみに接続する",
+    },
+    outdatedPattern: {
+      description: 'analytic candidate を grossProfitBridge / budgetAnalysisBridge に接続する',
+    },
+    detection: { type: 'custom', severity: 'gate' },
+    decisionCriteria: {
+      when: 'candidate/analytics の bridge 接続先を設定するとき',
+      exceptions: 'なし — analytics は analytics bridge のみ',
+      escalation: '接続先に迷ったら semanticClass を再確認',
+    },
+    migrationPath: {
+      steps: [
+        '1. candidate の bridgeKind を確認',
+        '2. analytics bridge に接続',
+        '3. business bridge への接続を除去',
+      ],
+      effort: 'trivial',
+      priority: 1,
+    },
+    relationships: {
+      dependsOn: ['AR-CAND-BIZ-NO-ANALYTICS-BRIDGE'],
+    },
+    protectedHarm: {
+      prevents: ['analytics と business の bridge が交差接続し検証基準が崩壊する'],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+  },
+
+  {
+    id: 'AR-CAND-ANA-METHOD-REQUIRED',
+    principleRefs: ['I2'],
+    guardTags: ['I2'],
+    slice: 'canonicalization',
+    fixNow: 'now',
+    ruleClass: 'invariant',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/03-guides/analytic-kernel-migration-plan.md',
+    what: 'candidate/analytics に methodFamily 未設定は禁止',
+    why: 'methodFamily なしの analytic candidate は技法の境界が曖昧になり再利用性・不変条件の検証が不可能',
+    correctPattern: {
+      description: 'candidate/analytics エントリには必ず methodFamily を設定する',
+      example: "methodFamily: 'time_pattern'",
+    },
+    outdatedPattern: {
+      description: "semanticClass: 'analytic', runtimeStatus: 'candidate' で methodFamily が未設定",
+    },
+    detection: { type: 'custom', severity: 'gate' },
+    decisionCriteria: {
+      when: 'candidate/analytics エントリを追加するとき',
+      exceptions: 'なし — analytic は methodFamily 必須',
+      escalation: 'methodFamily を書けないなら analytic ではなく utility を検討',
+    },
+    migrationPath: {
+      steps: [
+        '1. 対象計算の分析技法を特定',
+        '2. methodFamily フィールドに設定',
+        '3. contract-definition-policy.md の ANA 契約一覧と整合確認',
+      ],
+      effort: 'trivial',
+      priority: 1,
+    },
+    relationships: {
+      dependsOn: ['AR-CONTRACT-ANALYTIC-METHOD'],
+    },
+    protectedHarm: {
+      prevents: ['技法不明の analytic candidate が混入し不変条件の定義が不可能になる'],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+  },
+
+  {
+    id: 'AR-CAND-ANA-INVARIANT-REQUIRED',
+    principleRefs: ['I2'],
+    guardTags: ['I2'],
+    slice: 'canonicalization',
+    fixNow: 'now',
+    ruleClass: 'invariant',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/03-guides/analytic-kernel-migration-plan.md',
+    what: 'candidate/analytics に invariantSet の定義が必須',
+    why: '不変条件なしの analytic candidate は数学的正確性の検証ができず promotion 判定が不可能',
+    correctPattern: {
+      description: 'ANA 契約に invariantSet を定義し、テストで検証する',
+      example: "invariantSet: ['pearson ∈ [-1, 1]', '合計制約']",
+    },
+    outdatedPattern: {
+      description: 'analytic candidate に不変条件を定義せずに実装する',
+    },
+    detection: { type: 'custom', severity: 'gate' },
+    decisionCriteria: {
+      when: 'candidate/analytics を promotion-ready にするとき',
+      exceptions: 'なし — analytic は不変条件必須',
+      escalation: '不変条件を書けないなら promotion-ready にしない',
+    },
+    migrationPath: {
+      steps: [
+        '1. 対象計算の数学的不変条件を特定',
+        '2. ANA 契約の invariantSet に記載',
+        '3. 不変条件テストを追加',
+      ],
+      effort: 'small',
+      priority: 1,
+    },
+    relationships: {
+      dependsOn: ['AR-CAND-ANA-CONTRACT-REQUIRED'],
+    },
+    protectedHarm: {
+      prevents: ['数学的正確性が未検証のまま analytic candidate が昇格される'],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+  },
+
+  {
+    id: 'AR-CAND-ANA-NO-DIRECT-IMPORT',
+    principleRefs: ['I1', 'I2'],
+    guardTags: ['I1', 'I2'],
+    slice: 'canonicalization',
+    fixNow: 'debt',
+    ruleClass: 'default',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/03-guides/analytic-kernel-migration-plan.md',
+    what: 'candidate/analytics の direct import を新規に増やさない',
+    why: 'direct import が増えると bridge モード切替が機能せず dual-run / rollback が不可能になる',
+    correctPattern: {
+      description: 'candidate は analytics bridge 経由でのみ呼び出す',
+    },
+    outdatedPattern: {
+      description: 'candidate の WASM exports や domain/calculations/ を直接 import する',
+    },
+    detection: { type: 'import', severity: 'gate', baseline: 0 },
+    decisionCriteria: {
+      when: 'candidate の関数を呼び出すコードを書くとき',
+      exceptions: '型の import（import type）とテストコードは除外',
+      escalation: 'AR-BRIDGE-DIRECT-IMPORT と同じ対応',
+    },
+    migrationPath: {
+      steps: [
+        '1. direct import を特定',
+        '2. analytics bridge 経由に変更',
+        '3. direct import を削除',
+      ],
+      effort: 'trivial',
+      priority: 2,
+    },
+    relationships: {
+      dependsOn: ['AR-BRIDGE-DIRECT-IMPORT'],
+    },
+    protectedHarm: {
+      prevents: ['bridge 管理外の candidate 呼び出しが生まれ dual-run が機能しない'],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+  },
+
+  {
+    id: 'AR-CAND-ANA-NO-CURRENT-BIZ-MIX',
+    principleRefs: ['I2', 'I3'],
+    guardTags: ['I2', 'I3'],
+    slice: 'canonicalization',
+    fixNow: 'now',
+    ruleClass: 'invariant',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/03-guides/analytic-kernel-migration-plan.md',
+    what: 'candidate/analytics を current/business の view・crate・bridge に混入してはならない',
+    why: 'analytic candidate を business current に混ぜると意味空間と保守基準の両方が崩壊する',
+    correctPattern: {
+      description:
+        'candidate/analytics は MIGRATION_CANDIDATE_VIEW に配置し、analytics bridge のみに接続する',
+    },
+    outdatedPattern: {
+      description:
+        'analytic candidate を BUSINESS_SEMANTIC_VIEW に含める、または business bridge に接続する',
+    },
+    detection: { type: 'custom', severity: 'gate' },
+    decisionCriteria: {
+      when: 'analytic candidate の配置先を決めるとき',
+      exceptions: 'なし — analytic candidate は candidate view + analytics bridge のみ',
+      escalation: '配置に迷ったら semanticClass と runtimeStatus を再確認',
+    },
+    migrationPath: {
+      steps: [
+        '1. view の配置を MIGRATION_CANDIDATE_VIEW に修正',
+        '2. bridge の接続を analytics bridge に修正',
+        '3. current/business との混在がないことを確認',
+      ],
+      effort: 'trivial',
+      priority: 1,
+    },
+    relationships: {
+      dependsOn: ['AR-CAND-BIZ-NO-CURRENT-MIX', 'AR-CURRENT-VIEW-SEPARATION'],
+    },
+    protectedHarm: {
+      prevents: ['analytic candidate が business current に混入し両方の品質基準が崩壊する'],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+  },
+
+  {
+    id: 'AR-CAND-ANA-NO-FACTOR-DECOMP',
+    principleRefs: ['I2'],
+    guardTags: ['I2'],
+    slice: 'canonicalization',
+    fixNow: 'now',
+    ruleClass: 'invariant',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/03-guides/analytic-kernel-migration-plan.md',
+    what: 'factorDecomposition を analytics 候補として登録してはならない',
+    why: 'factorDecomposition は技法が Shapley（analytic）だが意味責任は business（BIZ-004）。analytics に再分類すると業務 KPI としての出力が分析基盤と混同される',
+    correctPattern: {
+      description:
+        "factorDecomposition は semanticClass: 'business', contractId: 'BIZ-004' を維持する",
+    },
+    outdatedPattern: {
+      description: "factorDecomposition を semanticClass: 'analytic' の candidate として登録する",
+    },
+    detection: { type: 'custom', severity: 'gate' },
+    decisionCriteria: {
+      when: 'factorDecomposition の移行先を検討するとき',
+      exceptions:
+        '正式な再定義プロセス（businessMeaning の書き直し + 全ステークホルダー合意）を経た場合のみ',
+      escalation: 'AR-CURRENT-FACTOR-BUSINESS-LOCK を参照',
+    },
+    migrationPath: {
+      steps: [
+        '1. factorDecomposition は business のまま維持',
+        '2. analytics 候補リストから除外',
+        '3. Tier 1 business 候補として管理',
+      ],
+      effort: 'trivial',
+      priority: 1,
+    },
+    relationships: {
+      dependsOn: ['AR-CURRENT-FACTOR-BUSINESS-LOCK'],
+    },
+    protectedHarm: {
+      prevents: [
+        'factorDecomposition が analytics に再分類され業務 KPI の出力が分析基盤と混同される',
+      ],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+  },
+
   {
     id: 'AR-REGISTRY-SINGLE-MASTER',
     principleRefs: ['I4'],
