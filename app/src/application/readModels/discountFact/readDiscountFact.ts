@@ -48,7 +48,7 @@ export function buildDiscountFactReadModel(
     grandTotal74 += r.discount74
   }
 
-  return DiscountFactReadModel.parse({
+  const parsed = DiscountFactReadModel.safeParse({
     rows,
     grandTotal,
     grandTotal71,
@@ -61,6 +61,10 @@ export function buildDiscountFactReadModel(
       dataVersion,
     },
   })
+  if (!parsed.success) {
+    throw new Error(`[DiscountFact] Zod validation failed: ${parsed.error.message}`)
+  }
+  return parsed.data
 }
 
 // ── 導出ヘルパー ──

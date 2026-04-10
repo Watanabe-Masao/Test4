@@ -101,7 +101,7 @@ describe('仕入原価取得経路ガード', () => {
     expect(content).toContain('queryPurchaseDailyBySupplier')
     expect(content).toContain('querySpecialSalesDaily')
     expect(content).toContain('queryTransfersDaily')
-    expect(content).toContain('PurchaseCostReadModel.parse')
+    expect(content).toContain('PurchaseCostReadModel.safeParse')
   })
 
   it('readPurchaseCost は grandTotalCost と inventoryPurchaseCost の両方を導出している', () => {

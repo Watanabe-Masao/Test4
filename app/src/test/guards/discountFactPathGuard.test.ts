@@ -24,7 +24,7 @@ describe('値引きファクト正本ガード', () => {
     const file = path.join(SRC_DIR, 'application/readModels/discountFact/readDiscountFact.ts')
     const content = fs.readFileSync(file, 'utf-8')
     expect(content).toContain('export function buildDiscountFactReadModel(')
-    expect(content).toContain('DiscountFactReadModel.parse')
+    expect(content).toContain('DiscountFactReadModel.safeParse')
   })
 
   it('DiscountFactTypes に Zod 契約が定義されている', () => {

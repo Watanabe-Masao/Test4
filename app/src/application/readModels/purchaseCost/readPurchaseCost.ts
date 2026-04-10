@@ -270,7 +270,7 @@ export async function readPurchaseCost(
   )
 
   // runtime 検証（fail fast）
-  return PurchaseCostReadModel.parse({
+  const parsed = PurchaseCostReadModel.safeParse({
     purchase,
     deliverySales,
     transfers,
@@ -290,6 +290,10 @@ export async function readPurchaseCost(
       dataVersion: input.dataVersion,
     },
   })
+  if (!parsed.success) {
+    throw new Error(`[PurchaseCost] Zod validation failed: ${parsed.error.message}`)
+  }
+  return parsed.data
 }
 
 /**

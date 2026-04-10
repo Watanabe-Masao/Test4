@@ -28,9 +28,13 @@ export async function queryToObjects<T>(
   const rows = result.toArray()
   const objects = rows.map((row) => structRowToObject(row as Record<string, unknown>) as T)
 
+  // Zod バリデーション:
+  //   first-row: PROD + DEV で実行（1行のみ、性能影響なし）
+  //   all-rows:  DEV のみ（全行検証は性能コストが高い）
+  //   off:       スキップ
   const mode = options?.validate ?? 'first-row'
-  if (schema && objects.length > 0 && import.meta.env.DEV && mode !== 'off') {
-    if (mode === 'all-rows') {
+  if (schema && objects.length > 0 && mode !== 'off') {
+    if (mode === 'all-rows' && import.meta.env.DEV) {
       for (let i = 0; i < objects.length; i++) {
         const parsed = schema.safeParse(objects[i])
         if (!parsed.success) {
@@ -40,7 +44,7 @@ export async function queryToObjects<T>(
           break // 最初の失敗で停止（ログ洪水を防ぐ）
         }
       }
-    } else {
+    } else if (mode === 'first-row') {
       const parsed = schema.safeParse(objects[0])
       if (!parsed.success) {
         console.warn(

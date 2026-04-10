@@ -24,7 +24,7 @@ describe('売上ファクト正本ガード', () => {
     const file = path.join(SRC_DIR, 'application/readModels/salesFact/readSalesFact.ts')
     const content = fs.readFileSync(file, 'utf-8')
     expect(content).toContain('export function buildSalesFactReadModel(')
-    expect(content).toContain('SalesFactReadModel.parse')
+    expect(content).toContain('SalesFactReadModel.safeParse')
   })
 
   it('SalesFactTypes に Zod 契約が定義されている', () => {
