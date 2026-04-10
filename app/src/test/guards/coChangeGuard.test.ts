@@ -1,9 +1,9 @@
 /**
- * Co-Change ガード — 変更の影響範囲を検出し、修正方法を案内する
+ * Co-Change ガード — 変更の影響範囲を一括検出し、修正方法をまとめて案内する
  *
- * 「ここ、直さないと CI で弾かれるからパッと直しといて」を自動化する。
- * gate ではなく warn — CI テスト自体が落ちるので二重ブロックは不要。
- * fixNow: 'now' — 検出したら即修正。
+ * 全チェックを回してから hints をまとめて出力する（1個ずつ止めない）。
+ * severity: warn / fixNow: 'now' — CI テスト自体が落ちるので二重ブロックは不要。
+ * 検出したらまとめて即修正。
  *
  * @guard G1 テストに書く
  * @guard D3 不変条件はテストで守る
@@ -13,90 +13,81 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { SRC_DIR, rel } from '../guardTestHelpers'
 
-// ─── ヘルパー: 修正案内付きメッセージ ────────────────────
+// ─── ヘルパー ────────────────────────────────────────────
 
-function fixHint(problem: string, fix: string): string {
-  return `⚠️ ${problem}\n   → 修正: ${fix}`
+function hint(problem: string, fix: string): string {
+  return `  - ${problem}\n    → ${fix}`
 }
 
-// ─── バリデーション severity とテストの整合性 ─────────────
+// ─── 全 co-change チェックを1テストに集約 ────────────────
 
-describe('co-change: バリデーション severity ↔ テスト', () => {
-  const integrityFile = path.join(SRC_DIR, 'application/usecases/import/importDataIntegrity.ts')
-  const testFile = path.join(
-    SRC_DIR,
-    'application/usecases/import/__tests__/FileImportService.test.ts',
-  )
-
-  it('severity を変えたらテストも追従しているか', () => {
-    if (!fs.existsSync(integrityFile) || !fs.existsSync(testFile)) return
-
-    const srcContent = fs.readFileSync(integrityFile, 'utf-8')
-    const testContent = fs.readFileSync(testFile, 'utf-8')
-
+describe('co-change: 変更の影響範囲チェック', () => {
+  it('全 co-change 関係がまとめて整合しているか', () => {
     const hints: string[] = []
 
-    // 旧 severity でテストが残っている
-    const staleWarning = (
-      testContent.match(/level\s*===\s*'warning'\s*&&\s*m\.message\.includes\('重複/g) ?? []
-    ).length
-    if (staleWarning > 0) {
-      hints.push(
-        fixHint(
-          `テストが warning で重複を探しているが、ソースは error に昇格済み（${staleWarning}件）`,
-          `${rel(testFile)} の 'warning' を 'error' に置換して npx vitest run で確認`,
-        ),
-      )
+    // ── 1. バリデーション severity ↔ テスト ──
+
+    const integrityFile = path.join(SRC_DIR, 'application/usecases/import/importDataIntegrity.ts')
+    const importTestFile = path.join(
+      SRC_DIR,
+      'application/usecases/import/__tests__/FileImportService.test.ts',
+    )
+    if (fs.existsSync(integrityFile) && fs.existsSync(importTestFile)) {
+      const srcContent = fs.readFileSync(integrityFile, 'utf-8')
+      const testContent = fs.readFileSync(importTestFile, 'utf-8')
+
+      const staleWarning = (
+        testContent.match(/level\s*===\s*'warning'\s*&&\s*m\.message\.includes\('重複/g) ?? []
+      ).length
+      if (staleWarning > 0) {
+        hints.push(
+          hint(
+            `テストが warning で重複を探しているがソースは error に昇格済み（${staleWarning}件）`,
+            `${rel(importTestFile)} の 'warning' を 'error' に置換`,
+          ),
+        )
+      }
+
+      const srcErrors = (srcContent.match(/level:\s*'error'/g) ?? []).length
+      const testErrors = (
+        testContent.match(/level\s*===\s*'error'\s*&&\s*m\.message\.includes/g) ?? []
+      ).length
+      if (srcErrors > 0 && testErrors === 0) {
+        hints.push(
+          hint(
+            `ソースに ${srcErrors} 件の error レベルがあるがテストに error アサーションがない`,
+            `${rel(importTestFile)} に error レベルのテストケースを追加`,
+          ),
+        )
+      }
     }
 
-    // ソースに error があるのにテストに error アサーションがない
-    const srcErrors = (srcContent.match(/level:\s*'error'/g) ?? []).length
-    const testErrors = (
-      testContent.match(/level\s*===\s*'error'\s*&&\s*m\.message\.includes/g) ?? []
-    ).length
-    if (srcErrors > 0 && testErrors === 0) {
-      hints.push(
-        fixHint(
-          `ソースに ${srcErrors} 件の error レベルがあるがテストに error アサーションがない`,
-          `${rel(testFile)} に error レベルのテストケースを追加`,
-        ),
-      )
-    }
+    // ── 2. readModel parse 方式 ↔ パスガード ──
 
-    expect(hints, hints.join('\n\n')).toEqual([])
-  })
-})
+    const PARSE_PAIRS = [
+      {
+        src: 'application/readModels/salesFact/readSalesFact.ts',
+        guard: 'test/guards/salesFactPathGuard.test.ts',
+        model: 'SalesFactReadModel',
+      },
+      {
+        src: 'application/readModels/discountFact/readDiscountFact.ts',
+        guard: 'test/guards/discountFactPathGuard.test.ts',
+        model: 'DiscountFactReadModel',
+      },
+      {
+        src: 'application/readModels/purchaseCost/readPurchaseCost.ts',
+        guard: 'test/guards/purchaseCostPathGuard.test.ts',
+        model: 'PurchaseCostReadModel',
+      },
+      {
+        src: 'application/readModels/customerFact/readCustomerFact.ts',
+        guard: 'test/guards/customerFactPathGuard.test.ts',
+        model: 'CustomerFactReadModel',
+      },
+    ]
 
-// ─── readModel parse 方式とパスガードの整合性 ─────────────
-
-describe('co-change: readModel parse 方式 ↔ パスガード', () => {
-  const PAIRS = [
-    {
-      src: 'application/readModels/salesFact/readSalesFact.ts',
-      guard: 'test/guards/salesFactPathGuard.test.ts',
-      model: 'SalesFactReadModel',
-    },
-    {
-      src: 'application/readModels/discountFact/readDiscountFact.ts',
-      guard: 'test/guards/discountFactPathGuard.test.ts',
-      model: 'DiscountFactReadModel',
-    },
-    {
-      src: 'application/readModels/purchaseCost/readPurchaseCost.ts',
-      guard: 'test/guards/purchaseCostPathGuard.test.ts',
-      model: 'PurchaseCostReadModel',
-    },
-    {
-      src: 'application/readModels/customerFact/readCustomerFact.ts',
-      guard: 'test/guards/customerFactPathGuard.test.ts',
-      model: 'CustomerFactReadModel',
-    },
-  ]
-
-  it('parse メソッド変更がパスガードに反映されているか', () => {
-    const hints: string[] = []
-
-    for (const { src, guard, model } of PAIRS) {
+    for (const { src, guard, model } of PARSE_PAIRS) {
       const srcPath = path.join(SRC_DIR, src)
       const guardPath = path.join(SRC_DIR, guard)
       if (!fs.existsSync(srcPath) || !fs.existsSync(guardPath)) continue
@@ -105,25 +96,23 @@ describe('co-change: readModel parse 方式 ↔ パスガード', () => {
       const guardContent = fs.readFileSync(guardPath, 'utf-8')
 
       const srcUsesSafe = srcContent.includes(`${model}.safeParse`)
-      const srcUsesParse = srcContent.includes(`${model}.parse(`) || srcUsesSafe
-      const guardExpectsSafe = guardContent.includes(`${model}.safeParse`)
       const guardMentionsModel = guardContent.includes(`${model}.`)
 
-      // ガードに parse チェックがない → 登録を促す（次の AI のため）
-      if (!guardMentionsModel && srcUsesParse) {
+      if (!guardMentionsModel && (srcContent.includes(`${model}.parse(`) || srcUsesSafe)) {
         hints.push(
-          fixHint(
+          hint(
             `${rel(guardPath)} に ${model} の parse 検証がない`,
-            `expect(content).toContain('${model}.${srcUsesSafe ? 'safeParse' : 'parse'}') を追加。不要なら PAIRS から除外してコメントで理由を残す`,
+            `expect(content).toContain('${model}.${srcUsesSafe ? 'safeParse' : 'parse'}') を追加。不要なら PARSE_PAIRS から除外してコメントで理由を残す`,
           ),
         )
         continue
       }
       if (!guardMentionsModel) continue
 
+      const guardExpectsSafe = guardContent.includes(`${model}.safeParse`)
       if (srcUsesSafe && !guardExpectsSafe) {
         hints.push(
-          fixHint(
+          hint(
             `${rel(srcPath)} は .safeParse() だが ${rel(guardPath)} は .parse を期待`,
             `${rel(guardPath)} の toContain('${model}.parse') を toContain('${model}.safeParse') に変更`,
           ),
@@ -131,7 +120,7 @@ describe('co-change: readModel parse 方式 ↔ パスガード', () => {
       }
       if (!srcUsesSafe && guardExpectsSafe) {
         hints.push(
-          fixHint(
+          hint(
             `${rel(srcPath)} は .parse() だが ${rel(guardPath)} は .safeParse を期待`,
             `${rel(guardPath)} の toContain('${model}.safeParse') を toContain('${model}.parse') に変更`,
           ),
@@ -139,32 +128,43 @@ describe('co-change: readModel parse 方式 ↔ パスガード', () => {
       }
     }
 
-    expect(hints, hints.join('\n\n')).toEqual([])
-  })
-})
+    // ── 3. guard/allowlist 変更 → docs:generate ──
 
-// ─── docs:generate 忘れ（よくあるやつ） ──────────────────
-
-describe('co-change: guard/allowlist 変更 → docs:generate', () => {
-  it('ガードファイル一覧が project-structure.md に反映されているか', () => {
     const guardsDir = path.join(SRC_DIR, 'test/guards')
     const structureFile = path.resolve(SRC_DIR, '../../references/02-status/project-structure.md')
-    if (!fs.existsSync(guardsDir) || !fs.existsSync(structureFile)) return
-
-    const guardFiles = fs
-      .readdirSync(guardsDir)
-      .filter((f) => f.endsWith('.test.ts'))
-      .sort()
-    const structureContent = fs.readFileSync(structureFile, 'utf-8')
-
-    const missing = guardFiles.filter((f) => !structureContent.includes(f.replace('.test.ts', '')))
-
-    if (missing.length > 0) {
-      const hint = fixHint(
-        `ガードファイル ${missing.length} 件が project-structure.md に未反映`,
-        'cd app && npm run docs:generate && git add references/',
+    if (fs.existsSync(guardsDir) && fs.existsSync(structureFile)) {
+      const guardFiles = fs
+        .readdirSync(guardsDir)
+        .filter((f) => f.endsWith('.test.ts'))
+        .sort()
+      const structureContent = fs.readFileSync(structureFile, 'utf-8')
+      const missing = guardFiles.filter(
+        (f) => !structureContent.includes(f.replace('.test.ts', '')),
       )
-      expect(missing, hint).toEqual([])
+      if (missing.length > 0) {
+        hints.push(
+          hint(
+            `ガードファイル ${missing.length} 件が project-structure.md に未反映: ${missing.join(', ')}`,
+            'cd app && npm run docs:generate && git add references/',
+          ),
+        )
+      }
     }
+
+    // ── まとめて出力 ──
+
+    expect(
+      hints,
+      hints.length > 0
+        ? [
+            '',
+            `⚠️ co-change 不整合 ${hints.length} 件:`,
+            '',
+            ...hints,
+            '',
+            'CI で弾かれる前に上記を修正してください。',
+          ].join('\n')
+        : '',
+    ).toEqual([])
   })
 })
