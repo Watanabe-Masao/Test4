@@ -17,9 +17,10 @@
 
 | テーマ | 正本 |
 |---|---|
-| 設計原則 9 カテゴリ A-H + Q（48 タグ） | `01-principles/design-principles.md` |
+| 設計原則 9 カテゴリ A-I + Q（48 タグ） | `01-principles/design-principles.md` |
 | 設計原則が兼ねる禁止事項 | CLAUDE.md §設計原則（A1-H6 + Q3-Q4 の各項目が禁止事項を兼ねる） |
 | Engine 境界・3 エンジン定義 | `01-principles/engine-boundary-policy.md` |
+| 意味分類ポリシー | `01-principles/semantic-classification-policy.md` |
 | JS vs DuckDB 責務 | `01-principles/engine-responsibility.md` |
 | データパイプライン整合性 | `01-principles/data-pipeline-integrity.md` |
 | 期間スコープの意味論 | `01-principles/temporal-scope-semantics.md` |
@@ -54,6 +55,8 @@
 | Discovery Review チェックリスト | `03-guides/discovery-review-checklist.md` |
 | ガードテスト対応表 | `03-guides/guard-test-map.md` |
 | 許可リスト運用 | `03-guides/allowlist-management.md` |
+| 意味分類 Inventory 手順書 | `03-guides/semantic-inventory-procedure.md` |
+| レジストリ所有権ポリシー | `03-guides/directory-registry-ownership-policy.md` |
 | DuckDB アーキテクチャ・Query Access Rules（Q1-Q6） | `03-guides/duckdb-architecture.md` |
 | 計算エンジン | `03-guides/calculation-engine.md` |
 | WASM 二重実行ランブック | `03-guides/wasm-dual-run-runbook.md` |
@@ -72,11 +75,13 @@
 |---------|------|
 | `01-principles/adaptive-architecture-governance.md` | **AAG 正本** — 構成要素、設計原則、バージョン履歴 |
 | `01-principles/adaptive-governance-evolution.md` | 進化の設計 — 3 層サイクル（発見→蓄積→評価） |
-| `01-principles/design-principles.md` | 設計原則 9 カテゴリ A-H + Q（48 タグ） |
+| `01-principles/design-principles.md` | 設計原則 9 カテゴリ A-I + Q（48 タグ） |
 | `01-principles/safe-performance-principles.md` | H カテゴリ（Screen Runtime）の詳細 |
 | `01-principles/critical-path-safety-map.md` | Safety Tier 分類 |
 | `03-guides/architecture-rule-system.md` | Architecture Rule 運用ガイド |
 | `03-guides/allowlist-management.md` | Allowlist 管理ガイド |
+| `03-guides/semantic-inventory-procedure.md` | 意味分類 Inventory 手順書 |
+| `03-guides/directory-registry-ownership-policy.md` | レジストリ所有権ポリシー |
 | `03-guides/guard-test-map.md` | ガードテスト対応表 |
 | `03-guides/active-debt-refactoring-plan.md` | Active-Debt リファクタリング計画 |
 | `03-guides/aag-phase4-6-plan.md` | AAG Phase 4-6 実装計画 |
@@ -116,6 +121,7 @@
 | ファイル | 内容 |
 |---------|------|
 | `01-principles/engine-boundary-policy.md` | 3 エンジン境界（Authoritative / Application / Exploration） |
+| `01-principles/semantic-classification-policy.md` | 意味分類ポリシー（business vs analytic、用語規則） |
 | `01-principles/engine-responsibility.md` | JS vs DuckDB の責務分担 |
 | `01-principles/data-flow.md` | データフロー 4 段階 |
 | `01-principles/data-pipeline-integrity.md` | パイプライン整合性 |

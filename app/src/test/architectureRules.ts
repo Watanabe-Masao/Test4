@@ -104,6 +104,10 @@ export type PrincipleId =
   | 'H6'
   | 'Q3'
   | 'Q4'
+  | 'I1'
+  | 'I2'
+  | 'I3'
+  | 'I4'
 
 export interface ArchitectureRule {
   // ── 識別 ──
@@ -143,7 +147,12 @@ export interface ArchitectureRule {
   // ── 検出 ──
   readonly detection: {
     readonly type: DetectionType
-    readonly severity: 'gate' | 'warn'
+    /**
+     * gate: CI fail + マージ block（即修正必須）
+     * block-merge: CI warn（集計）+ マージ block（入口で止める。移行途中の検知用）
+     * warn: CI warn + マージ allow（注意喚起のみ）
+     */
+    readonly severity: 'gate' | 'warn' | 'block-merge'
     readonly baseline?: number
   }
 
@@ -4446,6 +4455,250 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       owner: 'solo-maintainer',
       lastReviewedAt: '2026-04-10',
       reviewCadenceDays: 90,
+    },
+  },
+  // ═══ I: 意味分類 ═══
+  // @guard I1 @guard I2 @guard I3 @guard I4
+
+  {
+    id: 'AR-TERM-AUTHORITATIVE-STANDALONE',
+    principleRefs: ['I1'],
+    guardTags: ['I1'],
+    slice: 'governance-ops',
+    fixNow: 'debt',
+    ruleClass: 'default',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/01-principles/semantic-classification-policy.md',
+    what: 'authoritative を単独語で新規使用しない。必ず business-authoritative / analytic-authoritative / candidate-authoritative で修飾する',
+    why: 'AI が business と analytic を混同し、意味空間が混線する。単独 authoritative は意味分類の根拠にならない',
+    correctPattern: {
+      description:
+        'authorityKind: business-authoritative / analytic-authoritative / candidate-authoritative を使う',
+      example: "authorityKind: 'business-authoritative'",
+    },
+    outdatedPattern: {
+      description: 'authoritative を修飾なしで使用する',
+      codeSignals: ['authoritative'],
+    },
+    detection: { type: 'regex', severity: 'gate', baseline: 279 },
+    decisionCriteria: {
+      when: 'コード・コメント・文書に authoritative を書くとき',
+      exceptions:
+        'UI の displayMode="authoritative" は別概念として legacy-authoritative-usage (display) で管理',
+      escalation: '新規追加は即禁止。既存は ratchet-down で段階削減',
+    },
+    migrationPath: {
+      steps: [
+        '1. authoritative-term-sweep.md で対象箇所を確認',
+        '2. business / analytic / candidate のどれに該当するか判定',
+        '3. 修飾付き形式に書き換え',
+      ],
+      effort: 'trivial',
+      priority: 2,
+    },
+    relationships: {
+      dependsOn: [],
+    },
+    protectedHarm: {
+      prevents: [
+        'AI が business-authoritative と analytic-authoritative を区別できず誤実装する',
+        '意味空間の混線により current/candidate 管理が崩壊する',
+      ],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+  },
+  {
+    id: 'AR-CANON-SEMANTIC-REQUIRED',
+    principleRefs: ['I2', 'I4'],
+    guardTags: ['I2', 'I4'],
+    slice: 'canonicalization',
+    fixNow: 'now',
+    ruleClass: 'default',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/01-principles/semantic-classification-policy.md',
+    what: 'required エントリは semanticClass 必須。意味分類なしでの新規追加をマージレベルで阻止する',
+    why: 'semanticClass 未設定のまま required に昇格すると business/analytic の棚が曖昧になり意味空間が混線する',
+    correctPattern: {
+      description: "tag: 'required' のエントリには必ず semanticClass + authorityKind を設定する",
+      example: "semanticClass: 'business', authorityKind: 'business-authoritative'",
+    },
+    outdatedPattern: {
+      description: "tag: 'required' で semanticClass が undefined のまま",
+    },
+    detection: { type: 'custom', severity: 'block-merge' },
+    decisionCriteria: {
+      when: 'domain/calculations/ に新しい required ファイルを追加するとき',
+      exceptions: 'なし — required は必ず意味分類する',
+      escalation: '分類に迷ったら review-needed にして理由を記載',
+    },
+    migrationPath: {
+      steps: [
+        '1. semantic-inventory-procedure.md の Q1-Q8 で判定',
+        '2. calculationCanonRegistry に semanticClass + authorityKind を設定',
+        '3. npm run test:guards で確認',
+      ],
+      effort: 'trivial',
+      priority: 1,
+    },
+    relationships: {
+      dependsOn: ['AR-TERM-AUTHORITATIVE-STANDALONE'],
+    },
+    protectedHarm: {
+      prevents: [
+        '意味分類なしの required エントリが混入し business/analytic の境界が崩壊する',
+        'derived view に未分類エントリが紛れ込み運用が混乱する',
+      ],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+  },
+
+  {
+    id: 'AR-SEMANTIC-BUSINESS-ANALYTIC-SEPARATION',
+    principleRefs: ['I2'],
+    guardTags: ['I2'],
+    slice: 'canonicalization',
+    fixNow: 'review',
+    ruleClass: 'heuristic',
+    confidence: 'medium',
+    maturity: 'experimental',
+    doc: 'references/01-principles/semantic-classification-policy.md',
+    what: 'business と analytic の意味責任を棚として分離する。pure であることは棚の決定基準にしない',
+    why: 'AI が pure = 同じ棚と誤解し、業務値決定計算と分析基盤計算を混同する',
+    correctPattern: {
+      description: 'semanticClass で business / analytic を区別し、derived view で運用分離する',
+    },
+    outdatedPattern: {
+      description: 'pure だからという理由だけで同じ registry view に載せる',
+    },
+    detection: { type: 'custom', severity: 'warn' },
+    decisionCriteria: {
+      when: 'domain/calculations/ に新しい pure 計算を追加するとき',
+      exceptions: 'utility / presentation は分離対象外',
+      escalation: 'semanticClass の判断に迷ったら review-needed にして inventory に記録',
+    },
+    migrationPath: {
+      steps: [
+        '1. semantic-inventory-procedure.md の Q1-Q8 で判定',
+        '2. calculationCanonRegistry に semanticClass を設定',
+        '3. derived view で分離を確認',
+      ],
+      effort: 'small',
+      priority: 2,
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+    lifecyclePolicy: {
+      introducedAt: '2026-04-10',
+      observeForDays: 30,
+      promoteIf: ['Phase 2 で derived view + guard が安定'],
+      withdrawIf: ['意味分類が不要と判断された場合'],
+    },
+  },
+
+  {
+    id: 'AR-CURRENT-CANDIDATE-SEPARATION',
+    principleRefs: ['I3'],
+    guardTags: ['I3'],
+    slice: 'canonicalization',
+    fixNow: 'review',
+    ruleClass: 'invariant',
+    confidence: 'high',
+    maturity: 'experimental',
+    doc: 'references/01-principles/semantic-classification-policy.md',
+    what: 'current（保守対象）と candidate（移行対象）を同じ view / KPI / review 導線で扱わない',
+    why: '安定運用資産と実験資産を混ぜると、レビュー基準・進捗管理・rollback が全て濁る',
+    correctPattern: {
+      description:
+        'current view と candidate view を分離し、それぞれ独立した KPI と review 導線を持つ',
+    },
+    outdatedPattern: {
+      description:
+        'candidate を current registry に直接追加する、または current を staging area として使う',
+    },
+    detection: { type: 'custom', severity: 'warn' },
+    decisionCriteria: {
+      when: 'runtimeStatus を設定するとき、または view に項目を追加するとき',
+      exceptions: 'なし — current/candidate 混在は無条件に禁止',
+      escalation: '混在が検出されたら即修正',
+    },
+    migrationPath: {
+      steps: [
+        '1. current と candidate の view を分離',
+        '2. candidate を current registry から除外',
+        '3. current に candidate 状態遷移を追加しない',
+      ],
+      effort: 'small',
+      priority: 1,
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+    lifecyclePolicy: {
+      introducedAt: '2026-04-10',
+      observeForDays: 30,
+      promoteIf: ['Phase 4 で current/candidate 分離が安定'],
+      withdrawIf: ['candidate の概念が不要と判断された場合'],
+    },
+  },
+
+  {
+    id: 'AR-REGISTRY-SINGLE-MASTER',
+    principleRefs: ['I4'],
+    guardTags: ['I4'],
+    slice: 'governance-ops',
+    fixNow: 'review',
+    ruleClass: 'invariant',
+    confidence: 'high',
+    maturity: 'experimental',
+    doc: 'references/01-principles/semantic-classification-policy.md',
+    what: 'calculationCanonRegistry を唯一の master registry とし、derived view の手編集を禁止する',
+    why: '二重管理を始めると AI がどの registry を信じるべきか迷い、意味分類が崩壊する',
+    correctPattern: {
+      description: 'master registry からフィルタで derived view を生成し、CI で一致を検証する',
+    },
+    outdatedPattern: {
+      description: 'business / analytic / candidate を別ファイルで独立管理する',
+    },
+    detection: { type: 'custom', severity: 'warn' },
+    decisionCriteria: {
+      when: '意味分類の registry や view を新規作成するとき',
+      exceptions: 'なし — 正本は1つ',
+      escalation: 'master 以外の registry が作成されたら即修正',
+    },
+    migrationPath: {
+      steps: [
+        '1. 既存の分類を全て calculationCanonRegistry に集約',
+        '2. derived view を master からの自動導出に変更',
+        '3. 手編集禁止 guard を追加',
+      ],
+      effort: 'small',
+      priority: 1,
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+    lifecyclePolicy: {
+      introducedAt: '2026-04-10',
+      observeForDays: 30,
+      promoteIf: ['Phase 2 で master + derived view が安定'],
+      withdrawIf: ['正本が別の仕組みに置き換わった場合'],
     },
   },
 ] as const satisfies readonly ArchitectureRule[]

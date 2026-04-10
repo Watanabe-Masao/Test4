@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$comment": "設計原則体系の唯一正本。CLAUDE.md, architectureRules.ts, documentConsistency.test.ts はこの JSON を参照・検証する。",
   "version": "4.4.0",
-  "taxonomy": "A-H+Q",
+  "taxonomy": "A-I+Q",
   "categories": [
     {
       "id": "A",
@@ -115,6 +115,17 @@
       "principles": [
         { "id": "Q3", "title": "Chart は DuckDB hook 直接 import 禁止" },
         { "id": "Q4", "title": "alignment-aware access は handler/resolver に閉じる" }
+      ]
+    },
+    {
+      "id": "I",
+      "title": "意味分類",
+      "doc": "references/01-principles/semantic-classification-policy.md",
+      "principles": [
+        { "id": "I1", "title": "authoritative 単独使用禁止" },
+        { "id": "I2", "title": "意味責任で棚を分ける（business vs analytic）" },
+        { "id": "I3", "title": "current と candidate を混ぜない" },
+        { "id": "I4", "title": "正本は calculationCanonRegistry の1つだけ" }
       ]
     }
   ],
