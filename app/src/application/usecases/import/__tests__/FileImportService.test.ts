@@ -357,14 +357,12 @@ describe('validateImportData', () => {
       ]),
     })
     const messages = validateImportData(data)
-    const dupWarning = messages.find(
-      (m) => m.level === 'warning' && m.message.includes('重複レコード'),
-    )
-    expect(dupWarning).toBeTruthy()
-    expect(dupWarning!.message).toContain('分類別売上')
+    const dupError = messages.find((m) => m.level === 'error' && m.message.includes('重複レコード'))
+    expect(dupError).toBeTruthy()
+    expect(dupError!.message).toContain('分類別売上')
   })
 
-  it('categoryTimeSales に重複レコードがあれば警告', () => {
+  it('categoryTimeSales に重複レコードがあればエラー', () => {
     const ctsRec = {
       year: 2025,
       month: 1,
@@ -410,11 +408,9 @@ describe('validateImportData', () => {
       ]),
     })
     const messages = validateImportData(data)
-    const dupWarning = messages.find(
-      (m) => m.level === 'warning' && m.message.includes('重複レコード'),
-    )
-    expect(dupWarning).toBeTruthy()
-    expect(dupWarning!.message).toContain('分類別時間帯売上')
+    const dupError = messages.find((m) => m.level === 'error' && m.message.includes('重複レコード'))
+    expect(dupError).toBeTruthy()
+    expect(dupError!.message).toContain('分類別時間帯売上')
   })
 
   it('重複なしの正常データでは重複警告が出ない', () => {
