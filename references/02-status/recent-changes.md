@@ -25,7 +25,7 @@ current 群保守対象化（Phase 4）・候補移行計画（Phase 5-6）・gu
 
 ---
 
-## AAG v4.5.0 — 移行タグ基盤 + Phase 3-7 Guard + obligation 修正（2026-04-10）
+## AAG（アーキテクチャ品質管理）v4.5.0 — 移行タグ基盤 + Phase 3-7 Guard + obligation 修正（2026-04-10）
 
 ### 概要
 
@@ -50,7 +50,7 @@ Architecture Rules を 109→140 に拡充。
 
 ---
 
-## AAG v4.4.0 — Pipeline Safety + ReadModelSlice + Co-Change（2026-04-10）
+## AAG（アーキテクチャ品質管理）v4.4.0 — Pipeline Safety + ReadModelSlice + Co-Change（2026-04-10）
 
 ### 概要
 
