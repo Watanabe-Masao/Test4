@@ -112,8 +112,9 @@ export function useMonthlyHistory(
           setData(points)
           loadedRef.current = true
         }
-      } catch {
+      } catch (err) {
         // IndexedDB エラーは静かに無視（チャートは「データなし」表示）
+        console.warn('[useMonthlyHistory]:', err)
       }
     }
 
@@ -147,7 +148,8 @@ async function loadComponentRates(
     const cache = await repo.loadSummaryCache(year, month)
     if (!cache?.summaries) return null
     return aggregateSummaryRates(cache.summaries)
-  } catch {
+  } catch (err) {
+    console.warn('[useMonthlyHistory]:', err)
     return null
   }
 }

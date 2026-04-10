@@ -51,7 +51,7 @@ export function buildCustomerFactReadModel(
     grandTotalCustomers += customers
   }
 
-  return CustomerFactReadModel.parse({
+  const parsed = CustomerFactReadModel.safeParse({
     daily,
     grandTotalCustomers,
     meta: {
@@ -60,6 +60,10 @@ export function buildCustomerFactReadModel(
       dataVersion,
     },
   })
+  if (!parsed.success) {
+    throw new Error(`[CustomerFact] Zod validation failed: ${parsed.error.message}`)
+  }
+  return parsed.data
 }
 
 // ── QueryHandler ──

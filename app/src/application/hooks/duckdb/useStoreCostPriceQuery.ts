@@ -16,6 +16,8 @@ export type StoreCostPriceMap = ReadonlyMap<string, { cost: number; price: numbe
 
 export interface StoreCostPriceQueryResult {
   readonly data: StoreCostPriceMap | undefined
+  readonly isLoading: boolean
+  readonly error: Error | undefined
 }
 
 /**
@@ -29,6 +31,8 @@ export function useStoreCostPriceQuery(
   dateRange: DateRange | null,
 ): StoreCostPriceQueryResult {
   const [data, setData] = useState<StoreCostPriceMap | undefined>(undefined)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<Error | undefined>(undefined)
   const seqRef = useRef(0)
 
   useEffect(() => {
@@ -42,6 +46,8 @@ export function useStoreCostPriceQuery(
     const { fromKey, toKey } = dateRangeToKeys(dateRange)
 
     ;(async () => {
+      setIsLoading(true)
+      setError(undefined)
       try {
         const rows = await queryStoreCostPrice(conn, fromKey, toKey)
         if (!cancelled && seq === seqRef.current) {
@@ -50,9 +56,15 @@ export function useStoreCostPriceQuery(
             map.set(r.storeId, { cost: r.totalCost, price: r.totalPrice })
           }
           setData(map)
+          setIsLoading(false)
         }
-      } catch {
-        // DuckDB エラー時は静かに無視（値入率前年比が表示されないだけ）
+      } catch (e) {
+        const err = e instanceof Error ? e : new Error(String(e))
+        console.warn('[useStoreCostPriceQuery] DuckDB query failed:', err)
+        if (!cancelled && seq === seqRef.current) {
+          setError(err)
+          setIsLoading(false)
+        }
       }
     })()
 
@@ -61,5 +73,5 @@ export function useStoreCostPriceQuery(
     }
   }, [conn, dataVersion, dateRange])
 
-  return { data }
+  return { data, isLoading, error }
 }

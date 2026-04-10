@@ -31,8 +31,9 @@ export function useStoredMonthsMonitor(
         if (cancelled) return
         const key = months.map((m) => `${m.year}-${m.month}`).join(',')
         dispatch({ type: 'SET_STORED_MONTHS_KEY', key })
-      } catch {
+      } catch (err) {
         // IndexedDB エラーは無視（マルチ月なしで動作継続）
+        console.warn('[useStoredMonthsMonitor] listStoredMonths failed:', err)
       }
     }
 

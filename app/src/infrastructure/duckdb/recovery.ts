@@ -162,8 +162,9 @@ export async function deleteDatabaseFile(): Promise<boolean> {
     const root = await navigator.storage.getDirectory()
     await root.removeEntry(OPFS_DB_FILENAME)
     return true
-  } catch {
+  } catch (err) {
     // OPFS 未対応、ファイル不存在、またはロック中
+    console.warn('[duckdb] deleteDatabaseFile failed:', err)
     return false
   }
 }

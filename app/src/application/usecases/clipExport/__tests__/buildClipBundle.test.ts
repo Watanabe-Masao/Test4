@@ -153,6 +153,7 @@ function makePrevYearData(overrides: Partial<PrevYearData> = {}): PrevYearData {
 
   return {
     hasPrevYear: true,
+    source: 'loaded' as const,
     daily,
     totalSales: 170000,
     totalDiscount: -5000,
@@ -432,6 +433,7 @@ describe('buildClipBundle — empty data', () => {
   it('前年データなしの場合', () => {
     const emptyPrev = makePrevYearData({
       hasPrevYear: false,
+      source: 'disabled' as const,
       daily: new Map(),
       totalSales: 0,
       totalCustomers: 0,

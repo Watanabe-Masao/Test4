@@ -129,7 +129,7 @@ export function validateDataIntegrity(data: DataSummaryInput): readonly Validati
     const csDuplicateCount = Array.from(csKeys.values()).filter((c) => c > 1).length
     if (csDuplicateCount > 0) {
       messages.push({
-        level: 'warning',
+        level: 'error',
         message: `分類別売上に${csDuplicateCount}件の重複レコードがあります（同一ファイルの再取込の可能性）`,
         details: [
           `総レコード数: ${data.classifiedSales.records.length}`,
@@ -150,7 +150,7 @@ export function validateDataIntegrity(data: DataSummaryInput): readonly Validati
     const ctsDuplicateCount = Array.from(ctsKeys.values()).filter((c) => c > 1).length
     if (ctsDuplicateCount > 0) {
       messages.push({
-        level: 'warning',
+        level: 'error',
         message: `分類別時間帯売上に${ctsDuplicateCount}件の重複レコードがあります（同一ファイルの再取込の可能性）`,
         details: [
           `総レコード数: ${data.categoryTimeSales.records.length}`,
@@ -176,7 +176,7 @@ export function validateDataIntegrity(data: DataSummaryInput): readonly Validati
         0,
       )
       messages.push({
-        level: 'warning',
+        level: 'error',
         message: `分類別売上に${subtotalRecords.length}件の小計/合計行が含まれています — 売上が二重計上されている可能性があります`,
         details: [
           `小計/合計行の売上合計: ${Math.round(subtotalSales).toLocaleString()}円`,

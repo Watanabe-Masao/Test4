@@ -3918,6 +3918,391 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       reviewCadenceDays: 90,
     },
   },
+
+  // ═══════════════════════════════════════════════════════════
+  // Pipeline Safety — データパイプラインの壊れ方を定義し機械的に防ぐ
+  // ═══════════════════════════════════════════════════════════
+
+  {
+    id: 'AR-SAFETY-SILENT-CATCH',
+    principleRefs: ['G2', 'G3'],
+    guardTags: ['G2', 'G3'],
+    slice: 'canonicalization',
+    fixNow: 'debt',
+    ruleClass: 'default',
+    confidence: 'high',
+    maturity: 'experimental',
+    doc: 'references/01-principles/design-principles.md',
+    what: 'catch ブロックでエラーを握り潰さない（ログなし catch 禁止）',
+    why: 'サイレント catch はエラーを不可視にし、データ不正やUI欠落の原因を追跡不能にする',
+    correctPattern: {
+      description: 'catch 内で console.warn/error + エラー状態の伝播。または上位に re-throw',
+      example: `.catch((err) => { console.warn('[context]:', err); setError(err) })`,
+    },
+    outdatedPattern: {
+      description: 'エラーを無視する catch: 空 catch、コメントのみ catch、default 値返却のみ',
+      codeSignals: ['.catch(() =>', 'catch {', 'catch ('],
+    },
+    detection: { type: 'regex', severity: 'warn', baseline: 8 },
+    migrationPath: {
+      steps: [
+        '1. catch 内に console.warn("[コンテキスト]:", err) を追加',
+        '2. データに影響する場合は error 状態を UI に伝播',
+      ],
+      effort: 'trivial',
+      priority: 2,
+    },
+    decisionCriteria: {
+      when: 'try-catch または .catch() を書くとき',
+      exceptions: 'preload 失敗等の非クリティカル。ただしログは必須',
+      escalation: 'エラーが「何のデータに影響するか」を考え、影響があるなら UI に伝播',
+    },
+    protectedHarm: {
+      prevents: [
+        'エラー原因の追跡不能',
+        'KPIカード消滅（readModels silent failure の再発）',
+        'DB 破損の未検出',
+      ],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 30,
+    },
+    lifecyclePolicy: {
+      introducedAt: '2026-04-10',
+      observeForDays: 7,
+      promoteIf: ['7日間の運用で false positive がない'],
+      withdrawIf: ['検出精度が低く false positive が頻発する'],
+    },
+  },
+
+  {
+    id: 'AR-SAFETY-FIRE-FORGET',
+    principleRefs: ['G2'],
+    guardTags: ['G2'],
+    slice: 'canonicalization',
+    fixNow: 'debt',
+    ruleClass: 'default',
+    confidence: 'high',
+    maturity: 'experimental',
+    doc: 'references/01-principles/design-principles.md',
+    what: 'データ保存 Promise を fire-and-forget しない',
+    why: '保存失敗がサイレントだと、ユーザーは保存されたと思い込み次回起動時にデータ消失する',
+    correctPattern: {
+      description: 'await で完了を待つ。失敗時は UI に通知。非クリティカルなら明示コメント',
+    },
+    outdatedPattern: {
+      description: 'repo.save().catch(console.warn) のように await なしで Promise を放置',
+      codeSignals: ['.catch((e) =>', '.catch(() =>'],
+    },
+    detection: { type: 'regex', severity: 'warn', baseline: 4 },
+    migrationPath: {
+      steps: [
+        '1. Promise を await し失敗を検知可能にする',
+        '2. 非クリティカルなら "// non-critical: ..." コメントで意図を明示',
+      ],
+      effort: 'small',
+      priority: 3,
+    },
+    decisionCriteria: {
+      when: 'リポジトリ保存、キャッシュ書き込みの Promise を扱うとき',
+      exceptions: 'Parquet キャッシュ等の非クリティカル保存。ただしコメント必須',
+      escalation: '「この保存が失敗したらユーザーは何を失うか」で判断',
+    },
+    protectedHarm: {
+      prevents: ['インポート履歴のサイレント消失', 'キャッシュ保存失敗による性能劣化'],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 30,
+    },
+    lifecyclePolicy: {
+      introducedAt: '2026-04-10',
+      observeForDays: 7,
+      promoteIf: ['7日間の運用で false positive がない'],
+      withdrawIf: ['検出精度が低く false positive が頻発する'],
+    },
+  },
+
+  {
+    id: 'AR-SAFETY-NULLABLE-ASYNC',
+    principleRefs: ['G2', 'E4'],
+    guardTags: ['G2'],
+    slice: 'canonicalization',
+    fixNow: 'now',
+    ruleClass: 'invariant',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/01-principles/design-principles.md',
+    what: '非同期データに ?? 0 を使わない（loading/error/empty の区別を消さない）',
+    why: '?? 0 は「取得中」「失敗」「0件」を区別できず、ユーザーに嘘のデータを見せる',
+    correctPattern: {
+      description: 'ReadModelSlice の status チェック、または isLoading/error の明示的分岐',
+      example: "cf?.status === 'ready' ? cf.data.grandTotalCustomers : ctx.result.totalCustomers",
+    },
+    outdatedPattern: {
+      description: 'readModels?.model?.field ?? 0 で非同期の null を 0 に潰す',
+      codeSignals: ['?? 0', '|| 0'],
+    },
+    detection: { type: 'regex', severity: 'gate' },
+    migrationPath: {
+      steps: [
+        '1. ReadModelSlice の status === "ready" チェックを追加',
+        '2. loading → skeleton、error → fallback + 警告、idle → StoreResult フォールバック',
+      ],
+      effort: 'small',
+      priority: 1,
+    },
+    decisionCriteria: {
+      when: 'DuckDB クエリ結果、readModels など非同期データを消費するとき',
+      exceptions: 'domain/calculations/ 内の純粋計算（同期データのデフォルト値）',
+      escalation: '「このデータが null のとき、0 を表示して正しいか」で判断',
+    },
+    protectedHarm: {
+      prevents: ['KPIカードのサイレント消滅（今回のバグの根本原因）', '月遷移時の stale data 表示'],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 30,
+    },
+  },
+
+  {
+    id: 'AR-SAFETY-VALIDATION-ENFORCE',
+    principleRefs: ['E1', 'G2'],
+    guardTags: ['E1'],
+    slice: 'canonicalization',
+    fixNow: 'now',
+    ruleClass: 'invariant',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/01-principles/design-principles.md',
+    what: 'バリデーション結果は必ずチェックし、エラー時はデータフローを制御する',
+    why: 'バリデーションを呼んでも結果を無視すると、不正データが計算パイプラインに流入する',
+    correctPattern: {
+      description:
+        'hasValidationErrors() でチェックし、error ならデータ保存をブロックまたはユーザー確認',
+    },
+    outdatedPattern: {
+      description: 'validateImportData() を呼ぶが結果を確認せずデータを無条件で保存',
+      codeSignals: ['validateImportData', 'validationMessages'],
+    },
+    detection: { type: 'custom', severity: 'gate' },
+    migrationPath: {
+      steps: [
+        '1. finalizeSingleMonth に hasValidationErrors チェックを追加',
+        '2. error レベルならデータ保存をブロック',
+      ],
+      effort: 'small',
+      priority: 1,
+    },
+    decisionCriteria: {
+      when: 'データインポート・変換・保存の境界でバリデーションを行うとき',
+      exceptions: 'warning レベルのメッセージは表示のみで通過可',
+      escalation: '「このバリデーションエラーを無視してデータを使ったら何が壊れるか」で判断',
+    },
+    protectedHarm: {
+      prevents: ['不正 CSV による誤った KPI 計算', '重複レコードによる二重計上'],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 30,
+    },
+  },
+
+  {
+    id: 'AR-SAFETY-INSERT-VERIFY',
+    principleRefs: ['G2', 'D3'],
+    guardTags: ['G2'],
+    slice: 'canonicalization',
+    fixNow: 'debt',
+    ruleClass: 'default',
+    confidence: 'high',
+    maturity: 'experimental',
+    doc: 'references/01-principles/design-principles.md',
+    what: 'DuckDB INSERT 後に実投入行数を検証する',
+    why: '部分 INSERT 失敗がサイレントだと、集計が不正確になり readModel の数値がずれる',
+    correctPattern: {
+      description: 'INSERT 後に COUNT(*) で検証。不一致時は throw',
+    },
+    outdatedPattern: {
+      description: 'bulkInsert が rows.length を無検証で返す',
+      codeSignals: ['return rows.length'],
+    },
+    detection: { type: 'custom', severity: 'warn' },
+    migrationPath: {
+      steps: ['1. bulkInsert に COUNT(*) 検証を追加', '2. 不一致時は throw'],
+      effort: 'small',
+      priority: 2,
+    },
+    decisionCriteria: {
+      when: 'DuckDB にデータを INSERT するとき',
+      exceptions: 'テーブル初期化やスキーマ変更',
+      escalation: '「INSERT が半分失敗しても気づけるか」で判断',
+    },
+    protectedHarm: {
+      prevents: ['DuckDB の部分 INSERT による集計不正'],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 60,
+    },
+    lifecyclePolicy: {
+      introducedAt: '2026-04-10',
+      observeForDays: 7,
+      promoteIf: ['7日間の運用で false positive がない'],
+      withdrawIf: ['検出精度が低く false positive が頻発する'],
+    },
+  },
+
+  {
+    id: 'AR-SAFETY-PROD-VALIDATION',
+    principleRefs: ['E1', 'G2'],
+    guardTags: ['E1'],
+    slice: 'canonicalization',
+    fixNow: 'debt',
+    ruleClass: 'default',
+    confidence: 'high',
+    maturity: 'experimental',
+    doc: 'references/01-principles/design-principles.md',
+    what: 'Zod バリデーションを本番でも有効にする（DEV 限定にしない）',
+    why: '本番で型不正データが通過すると、ユーザーに不正な数値が表示されるか UI がクラッシュする',
+    correctPattern: {
+      description: 'queryToObjects の safeParse を本番でも first-row モードで実行',
+    },
+    outdatedPattern: {
+      description: 'import.meta.env.DEV でガードし本番では Zod バリデーションをスキップ',
+      codeSignals: ['import.meta.env.DEV'],
+    },
+    detection: { type: 'regex', severity: 'warn' },
+    migrationPath: {
+      steps: [
+        '1. queryToObjects の DEV ガードを first-row では除去',
+        '2. safeParse 失敗時にドロップ件数を返り値に含める',
+      ],
+      effort: 'small',
+      priority: 3,
+    },
+    decisionCriteria: {
+      when: 'DuckDB クエリ結果を Zod スキーマで検証するとき',
+      exceptions: 'all-rows モードは DEV 限定可（性能影響）',
+      escalation: '「本番で不正データが通過したら何が壊れるか」で判断',
+    },
+    protectedHarm: {
+      prevents: ['本番での型不正データ通過', 'readModel .parse() クラッシュ'],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 60,
+    },
+    lifecyclePolicy: {
+      introducedAt: '2026-04-10',
+      observeForDays: 7,
+      promoteIf: ['7日間の運用で false positive がない'],
+      withdrawIf: ['検出精度が低く false positive が頻発する'],
+    },
+  },
+
+  {
+    id: 'AR-SAFETY-WORKER-TIMEOUT',
+    principleRefs: ['G2'],
+    guardTags: ['G2'],
+    slice: 'canonicalization',
+    fixNow: 'debt',
+    ruleClass: 'default',
+    confidence: 'medium',
+    maturity: 'experimental',
+    doc: 'references/01-principles/design-principles.md',
+    what: 'Worker 通信・ミューテックス取得にタイムアウトを設ける',
+    why: 'タイムアウトなしの Promise は Worker ハングやデッドロックで永久待ちになる',
+    correctPattern: {
+      description: 'Promise.race([operation, timeout(30_000)]) でタイムアウトを強制',
+    },
+    outdatedPattern: {
+      description: 'Worker.postMessage 後にタイムアウトなしで応答を待つ',
+      codeSignals: ['new Promise', 'addEventListener'],
+    },
+    detection: { type: 'custom', severity: 'warn' },
+    migrationPath: {
+      steps: [
+        '1. useWorkerCalculation に 30 秒タイムアウトを追加',
+        '2. loadCoordinator.acquireMutex に 30 秒タイムアウトを追加',
+      ],
+      effort: 'small',
+      priority: 4,
+    },
+    decisionCriteria: {
+      when: 'Worker 通信やミューテックス取得で Promise を作るとき',
+      exceptions: '即座に完了が保証される同期的な Promise',
+      escalation: '「この Promise が resolve されなかったらアプリはどうなるか」で判断',
+    },
+    protectedHarm: {
+      prevents: ['Worker ハングによるアプリ無応答', 'ミューテックスデッドロック'],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 60,
+    },
+    lifecyclePolicy: {
+      introducedAt: '2026-04-10',
+      observeForDays: 7,
+      promoteIf: ['7日間の運用で false positive がない'],
+      withdrawIf: ['検出精度が低く false positive が頻発する'],
+    },
+  },
+
+  {
+    id: 'AR-SAFETY-STALE-STORE',
+    principleRefs: ['G2'],
+    guardTags: ['G2'],
+    slice: 'canonicalization',
+    fixNow: 'debt',
+    ruleClass: 'default',
+    confidence: 'high',
+    maturity: 'experimental',
+    doc: 'references/01-principles/design-principles.md',
+    what: 'データソース変更時に依存する派生状態をクリアする',
+    why: 'ソース変更後に派生状態が前月のまま残ると、ユーザーに前月データが表示される',
+    correctPattern: {
+      description: 'setCurrentMonthData 時に storeResults を空 Map にクリア',
+    },
+    outdatedPattern: {
+      description: 'データソースを更新するが派生状態をクリアしない',
+      codeSignals: ['setCurrentMonthData'],
+    },
+    detection: { type: 'custom', severity: 'warn' },
+    migrationPath: {
+      steps: ['1. setCurrentMonthData で storeResults: new Map() を同時にセット'],
+      effort: 'trivial',
+      priority: 2,
+    },
+    decisionCriteria: {
+      when: 'ストアの source of truth を更新するとき',
+      exceptions: '追記的更新（既存データに追加するだけ）',
+      escalation: '「前のデータが画面に残ったら問題か」で判断',
+    },
+    protectedHarm: {
+      prevents: ['月遷移時に前月の KPI が一瞬表示される問題'],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 60,
+    },
+    lifecyclePolicy: {
+      introducedAt: '2026-04-10',
+      observeForDays: 7,
+      promoteIf: ['7日間の運用で false positive がない'],
+      withdrawIf: ['検出精度が低く false positive が頻発する'],
+    },
+  },
 ] as const satisfies readonly ArchitectureRule[]
 
 // ─── Lookup 関数 ─────────────────────────────────────────

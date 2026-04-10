@@ -213,6 +213,15 @@ export async function bulkInsert(
       // フォールバック（未定義テーブル用）
       await conn.query(`INSERT INTO ${tableName} SELECT * FROM read_json_auto('${fileName}')`)
     }
+
+    // INSERT 後の行数検証: changes() で実際に挿入された行数を確認する
+    const countResult = await conn.query(`SELECT changes() as affected`)
+    const affected = Number(countResult.toArray()[0]?.affected ?? 0)
+    if (affected !== rows.length) {
+      throw new Error(
+        `bulkInsert: expected ${rows.length} rows, but ${affected} were inserted into ${tableName}`,
+      )
+    }
   } finally {
     await db.dropFile(fileName)
   }

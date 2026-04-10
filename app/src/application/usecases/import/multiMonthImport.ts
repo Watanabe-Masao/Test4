@@ -9,6 +9,7 @@ import type { AppSettings } from '@/domain/models/storeTypes'
 import { detectDataMaxDay } from '@/application/services/dataDetection'
 import { calculateDiff } from '@/application/services/diffCalculator'
 import { validateImportData } from './FileImportService'
+import { hasValidationErrors } from './importValidation'
 import { mergeMonthlyData, DEFAULT_MERGE_ACTION } from './monthlyDataMerge'
 import type {
   MonthlyImportBatch,
@@ -130,6 +131,22 @@ export async function orchestrateMultiMonth(
   const messages = validateImportData(primaryMonthly, summary)
   const detectedMaxDay = detectDataMaxDay(primaryMonthly)
 
+  // バリデーションエラーがある場合はデータ保存をブロック
+  if (hasValidationErrors(messages)) {
+    console.warn(
+      '[multiMonthImport] バリデーションエラーのためデータ保存をブロック:',
+      messages.filter((m) => m.level === 'error').map((m) => m.message),
+    )
+    return {
+      summary,
+      finalData: null,
+      pendingDiff: null,
+      detectedMaxDay,
+      validationMessages: messages,
+      detectedYearMonth,
+    }
+  }
+
   // 各月のインポート履歴を保存（月別 summary があればそれを使用）
   const importId = batch.execution.importId
   for (const [mk] of incomingByMonth) {
@@ -181,9 +198,17 @@ export async function resolveMultiMonthDiff(
     primaryMonthly = incomingByMonth.get(targetMk) ?? [...incomingByMonth.values()][0]!
   }
 
+  const resolveMessages = validateImportData(primaryMonthly, summary)
+  if (hasValidationErrors(resolveMessages)) {
+    console.warn(
+      '[multiMonthImport] resolveDiff 後のバリデーションエラー:',
+      resolveMessages.filter((m) => m.level === 'error').map((m) => m.message),
+    )
+  }
+
   return {
     finalData: primaryMonthly,
     detectedMaxDay: detectDataMaxDay(primaryMonthly),
-    validationMessages: validateImportData(primaryMonthly, summary),
+    validationMessages: resolveMessages,
   }
 }

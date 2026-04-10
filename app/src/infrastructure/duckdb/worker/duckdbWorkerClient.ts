@@ -174,8 +174,9 @@ export class DuckDBWorkerClient {
 
     try {
       await this._sendRequest({ type: 'dispose', requestId: 0 }, 5_000)
-    } catch {
+    } catch (err) {
       // タイムアウトしても Worker は終了させる
+      console.warn('[duckdb] worker dispose failed:', err)
     }
 
     this._worker.terminate()

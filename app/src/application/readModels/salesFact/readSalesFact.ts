@@ -44,7 +44,7 @@ export function buildSalesFactReadModel(
     grandTotalQuantity += r.totalQuantity
   }
 
-  return SalesFactReadModel.parse({
+  const parsed = SalesFactReadModel.safeParse({
     daily,
     hourly,
     grandTotalAmount,
@@ -55,6 +55,10 @@ export function buildSalesFactReadModel(
       dataVersion,
     },
   })
+  if (!parsed.success) {
+    throw new Error(`[SalesFact] Zod validation failed: ${parsed.error.message}`)
+  }
+  return parsed.data
 }
 
 // ── 導出ヘルパー ──

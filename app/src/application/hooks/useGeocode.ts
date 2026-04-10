@@ -27,7 +27,8 @@ export function useGeocode(): UseGeocodeResult {
       try {
         const results = await weatherAdapter.searchLocation(query.trim())
         setCandidates(results)
-      } catch {
+      } catch (err) {
+        console.warn('[useGeocode] search failed:', err)
         setCandidates([])
       } finally {
         setIsSearching(false)

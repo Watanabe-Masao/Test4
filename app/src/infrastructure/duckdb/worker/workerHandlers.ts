@@ -34,7 +34,8 @@ export async function checkOpfsAvailable(): Promise<boolean> {
   try {
     await navigator.storage.getDirectory()
     return true
-  } catch {
+  } catch (err) {
+    console.warn('[duckdb-worker] OPFS check failed:', err)
     return false
   }
 }
@@ -50,7 +51,8 @@ async function checkParquetCacheExists(): Promise<boolean> {
     // classified_sales が存在すればキャッシュありと判定
     await cacheDir.getFileHandle('classified_sales.parquet')
     return true
-  } catch {
+  } catch (err) {
+    console.warn('[duckdb-worker] parquet cache check failed:', err)
     return false
   }
 }
@@ -88,7 +90,8 @@ export async function initializeDb(bundles: duckdb.DuckDBBundles): Promise<Initi
         accessMode: duckdb.DuckDBAccessMode.READ_WRITE,
       })
       isOpfsPersisted = true
-    } catch {
+    } catch (err) {
+      console.warn('[duckdb-worker] OPFS db open failed:', err)
       isOpfsPersisted = false
     }
   }
@@ -165,8 +168,9 @@ export async function executeCheckIntegrity(
     if (metaRows.length > 0) {
       schemaValid = Number(metaRows[0].version) === SCHEMA_VERSION
     }
-  } catch {
+  } catch (err) {
     // テーブルなし
+    console.warn('[duckdb-worker] schema version check failed:', err)
   }
 
   // データ存在チェック（テーブル存在を先に確認してエラーログ抑止）
@@ -185,8 +189,9 @@ export async function executeCheckIntegrity(
         monthCount = Number(countRows[0].cnt)
       }
     }
-  } catch {
+  } catch (err) {
     // テーブルなし
+    console.warn('[duckdb-worker] table existence check failed:', err)
   }
 
   // Parquet キャッシュ存在チェック
@@ -208,8 +213,9 @@ export async function executeExportParquet(
   try {
     const root = await navigator.storage.getDirectory()
     await root.getDirectoryHandle(PARQUET_CACHE_DIR, { create: true })
-  } catch {
+  } catch (err) {
     // OPFS 未対応の場合はスキップ
+    console.warn('[duckdb] OPFS cache dir creation failed:', err)
     return { tablesExported: 0, totalRows: 0, durationMs: 0 }
   }
 
@@ -261,8 +267,9 @@ export async function executeImportParquet(
         tablesImported += 1
         totalRows += rowCount
       }
-    } catch {
+    } catch (err) {
       // Parquet ファイルが存在しないテーブルはスキップ
+      console.warn('[duckdb-worker] parquet import failed for table:', err)
     }
   }
 

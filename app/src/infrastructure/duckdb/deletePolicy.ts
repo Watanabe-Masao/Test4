@@ -48,8 +48,9 @@ export async function resetTables(conn: AsyncDuckDBConnection): Promise<void> {
   for (const type of ['VIEW', 'TABLE'] as const) {
     try {
       await conn.query(`DROP ${type} IF EXISTS store_day_summary`)
-    } catch {
+    } catch (err) {
       // 型不一致（VIEW vs TABLE）の場合は無視
+      console.warn('[duckdb] DROP failed (type mismatch):', err)
     }
   }
   for (const name of TABLE_NAMES) {

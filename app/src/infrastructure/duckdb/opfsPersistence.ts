@@ -54,8 +54,9 @@ export async function determineReloadStrategy(
       integrity,
       durationMs: performance.now() - start,
     }
-  } catch {
+  } catch (err) {
     // integrity チェック自体が失敗 → 通常ロード
+    console.warn('[opfs] integrity check failed, fallback to full-reload:', err)
     return {
       strategy: 'full-reload',
       integrity: {
@@ -97,7 +98,8 @@ export async function clearParquetCache(): Promise<boolean> {
     const root = await navigator.storage.getDirectory()
     await root.removeEntry('parquet-cache', { recursive: true })
     return true
-  } catch {
+  } catch (err) {
+    console.warn('[opfs] clearParquetCache failed:', err)
     return false
   }
 }

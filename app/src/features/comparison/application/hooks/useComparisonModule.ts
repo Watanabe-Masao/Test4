@@ -54,6 +54,7 @@ export interface ComparisonModule {
 
 const dailyDefault: PrevYearData = {
   hasPrevYear: false,
+  source: 'disabled',
   daily: new Map(),
   totalSales: 0,
   totalDiscount: 0,
