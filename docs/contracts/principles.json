@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$comment": "設計原則体系の唯一正本。CLAUDE.md, architectureRules.ts, documentConsistency.test.ts はこの JSON を参照・検証する。",
+  "$comment": "設計原則体系の唯一正本。CLAUDE.md, architectureRules.ts, documentConsistency.test.ts はこの JSON を参照・検証する。Phase 4 で I カテゴリに current 群保守ルール 7 件を追加。",
   "version": "4.4.0",
   "taxonomy": "A-I+Q",
   "categories": [

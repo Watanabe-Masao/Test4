@@ -8,7 +8,7 @@
 |---|---|---|
 | `01-principles/` | 設計原則・制約・正本定義書（Engine 境界、正本化原則、業務値定義、AAG） | 38 |
 | `02-status/` | 進捗・品質状態（maturity, promotion, 品質監査, 課題管理） | 11+ |
-| `03-guides/` | 実装ガイド・リファレンス（API, データモデル, ガードテスト, 不変条件, 責務分離） | 40 |
+| `03-guides/` | 実装ガイド・リファレンス（API, データモデル, ガードテスト, 不変条件, 責務分離） | 41 |
 | `99-archive/` | 旧文書の圧縮要約（現行では参照しない） | 4 |
 
 ## 正本一覧
@@ -59,6 +59,7 @@
 | レジストリ所有権ポリシー | `03-guides/directory-registry-ownership-policy.md` |
 | 移行タグ運用ポリシー | `03-guides/migration-tag-policy.md` |
 | 契約定義ポリシー | `03-guides/contract-definition-policy.md` |
+| Current群保守ポリシー | `03-guides/current-maintenance-policy.md` |
 | DuckDB アーキテクチャ・Query Access Rules（Q1-Q6） | `03-guides/duckdb-architecture.md` |
 | 計算エンジン | `03-guides/calculation-engine.md` |
 | WASM 二重実行ランブック | `03-guides/wasm-dual-run-runbook.md` |
@@ -86,6 +87,7 @@
 | `03-guides/directory-registry-ownership-policy.md` | レジストリ所有権ポリシー |
 | `03-guides/migration-tag-policy.md` | 移行タグ運用ポリシー |
 | `03-guides/contract-definition-policy.md` | 契約定義ポリシー（Phase 3: BIZ/ANA 契約テンプレート + bridge 境界） |
+| `03-guides/current-maintenance-policy.md` | Current群保守ポリシー（Phase 4: 意味再分類 + 状態制限 + 保守観点） |
 | `03-guides/guard-test-map.md` | ガードテスト対応表 |
 | `03-guides/active-debt-refactoring-plan.md` | Active-Debt リファクタリング計画 |
 | `03-guides/aag-phase4-6-plan.md` | AAG Phase 4-6 実装計画 |

@@ -4948,6 +4948,341 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     },
   },
 
+  // ═══ Phase 4: current 群保守対象化 ═══
+
+  {
+    id: 'AR-CURRENT-NO-CANDIDATE-STATE',
+    principleRefs: ['I3'],
+    guardTags: ['I3'],
+    slice: 'canonicalization',
+    fixNow: 'now',
+    ruleClass: 'invariant',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/03-guides/current-maintenance-policy.md',
+    what: 'current 群に candidate 状態遷移（proposed/extracted/bridged/dual-run/promotion-ready/retired-js）を追加してはならない',
+    why: 'current は保守対象。candidate の状態遷移を混ぜると staging area 化し、保守と移行の境界が崩壊する',
+    correctPattern: {
+      description:
+        'current は active / deprecated / review-needed のみ。candidate 状態遷移は candidate 群だけが持つ',
+    },
+    outdatedPattern: {
+      description: 'current エントリに dual-run / promotion-ready 等の candidate 状態を付与する',
+    },
+    detection: { type: 'custom', severity: 'gate' },
+    decisionCriteria: {
+      when: 'current 群の runtimeStatus や状態管理を変更するとき',
+      exceptions: 'なし — current に candidate 状態遷移は無条件に禁止',
+      escalation: '状態を追加したい場合は candidate として別管理する',
+    },
+    migrationPath: {
+      steps: [
+        '1. current エントリから candidate 状態遷移を除去',
+        '2. 必要なら candidate エントリとして別途追加',
+        '3. current-maintenance-policy.md の §4 を参照',
+      ],
+      effort: 'trivial',
+      priority: 1,
+    },
+    relationships: {
+      dependsOn: ['AR-CURRENT-CANDIDATE-SEPARATION'],
+    },
+    protectedHarm: {
+      prevents: ['current が staging area 化し保守対象と移行対象の境界が崩壊する'],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+  },
+
+  {
+    id: 'AR-CURRENT-SEMANTIC-REQUIRED',
+    principleRefs: ['I2'],
+    guardTags: ['I2'],
+    slice: 'canonicalization',
+    fixNow: 'now',
+    ruleClass: 'invariant',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/03-guides/current-maintenance-policy.md',
+    what: 'current 群の全エントリに semanticClass + authorityKind を必須とする',
+    why: '意味分類なしの current は business/analytic の保守観点を適用できない',
+    correctPattern: {
+      description:
+        "runtimeStatus: 'current' のエントリには必ず semanticClass + authorityKind を設定する",
+      example:
+        "runtimeStatus: 'current', semanticClass: 'business', authorityKind: 'business-authoritative'",
+    },
+    outdatedPattern: {
+      description: "runtimeStatus: 'current' で semanticClass が未設定",
+    },
+    detection: { type: 'custom', severity: 'gate' },
+    decisionCriteria: {
+      when: 'current 群のエントリを追加・変更するとき',
+      exceptions: 'なし — current は必ず意味分類する',
+      escalation: '分類に迷ったら review-needed にして理由を記載',
+    },
+    migrationPath: {
+      steps: [
+        '1. semantic-inventory-procedure.md の Q1-Q8 で判定',
+        '2. semanticClass + authorityKind を設定',
+        '3. 保守観点（§5 business / §6 analytics）を確認',
+      ],
+      effort: 'trivial',
+      priority: 1,
+    },
+    relationships: {
+      dependsOn: ['AR-CANON-SEMANTIC-REQUIRED'],
+    },
+    protectedHarm: {
+      prevents: ['意味分類なしの current が混入し保守レビューの基準が適用できない'],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+  },
+
+  {
+    id: 'AR-CURRENT-NO-STANDALONE-AUTH',
+    principleRefs: ['I1'],
+    guardTags: ['I1'],
+    slice: 'canonicalization',
+    fixNow: 'now',
+    ruleClass: 'invariant',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/03-guides/current-maintenance-policy.md',
+    what: 'current 群で authoritative を単独使用しない。必ず business-authoritative / analytic-authoritative で修飾する',
+    why: '単独 authoritative は business/analytic の保守観点を区別できない',
+    correctPattern: {
+      description:
+        'current エントリの authorityKind は business-authoritative / analytic-authoritative / non-authoritative のいずれか',
+    },
+    outdatedPattern: {
+      description: 'current エントリのコメントや文書で authoritative を修飾なしで使用する',
+    },
+    detection: { type: 'custom', severity: 'gate' },
+    decisionCriteria: {
+      when: 'current 群に関するコード・コメント・文書を書くとき',
+      exceptions: 'なし — current でも authoritative 単独使用は禁止',
+      escalation: 'AR-TERM-AUTHORITATIVE-STANDALONE と同じ対応',
+    },
+    migrationPath: {
+      steps: [
+        '1. authoritative 単独使用を特定',
+        '2. business-authoritative / analytic-authoritative に修飾',
+        '3. Cargo.toml の metadata.semantic と整合確認',
+      ],
+      effort: 'trivial',
+      priority: 1,
+    },
+    relationships: {
+      dependsOn: ['AR-TERM-AUTHORITATIVE-STANDALONE'],
+    },
+    protectedHarm: {
+      prevents: ['current 群で business/analytic が区別できず保守観点が混線する'],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+  },
+
+  {
+    id: 'AR-CURRENT-VIEW-SEPARATION',
+    principleRefs: ['I2', 'I3'],
+    guardTags: ['I2', 'I3'],
+    slice: 'canonicalization',
+    fixNow: 'now',
+    ruleClass: 'invariant',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/03-guides/current-maintenance-policy.md',
+    what: 'current/business と current/analytics の運用 view を混在させない',
+    why: '保守観点が異なる（business=業務意味、analytics=数学的不変条件）ため同じ view で管理すると保守基準が曖昧になる',
+    correctPattern: {
+      description: 'BUSINESS_SEMANTIC_VIEW と ANALYTIC_KERNEL_VIEW を分離して管理する',
+    },
+    outdatedPattern: {
+      description: 'business と analytic の current を同じ一覧で混在管理する',
+    },
+    detection: { type: 'custom', severity: 'gate' },
+    decisionCriteria: {
+      when: 'derived view の生成ロジックや current 群の管理方法を変更するとき',
+      exceptions: 'master registry は統合管理（derived view で分離する）',
+      escalation: '新しい view が必要な場合は master から導出する',
+    },
+    migrationPath: {
+      steps: [
+        '1. semanticViews.ts の BUSINESS_SEMANTIC_VIEW / ANALYTIC_KERNEL_VIEW を確認',
+        '2. business と analytic が分離されていることを検証',
+        '3. 混在があれば semanticClass を修正',
+      ],
+      effort: 'trivial',
+      priority: 1,
+    },
+    relationships: {
+      dependsOn: ['AR-SEMANTIC-BUSINESS-ANALYTIC-SEPARATION'],
+    },
+    protectedHarm: {
+      prevents: ['business と analytic の保守基準が混線し、保守レビューの品質が低下する'],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+  },
+
+  {
+    id: 'AR-CURRENT-NO-CANDIDATE-MIX',
+    principleRefs: ['I3'],
+    guardTags: ['I3'],
+    slice: 'canonicalization',
+    fixNow: 'now',
+    ruleClass: 'invariant',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/03-guides/current-maintenance-policy.md',
+    what: 'current 群に candidate 実装を混入してはならない',
+    why: '保守対象（current）に実験コード（candidate）を混ぜると安定性が崩壊する',
+    correctPattern: {
+      description:
+        'candidate 実装は candidate エントリとして別管理。current のコードベースに追加しない',
+    },
+    outdatedPattern: {
+      description: 'current の WASM crate やブリッジに candidate 用の分岐やコードを追加する',
+    },
+    detection: { type: 'custom', severity: 'gate' },
+    decisionCriteria: {
+      when: 'current 群のソースコードを変更するとき',
+      exceptions: 'バグ修正・保守は許容。新しい計算ロジックの追加は candidate で行う',
+      escalation: '判断に迷ったら current-maintenance-policy.md §7 の分離ルールを参照',
+    },
+    migrationPath: {
+      steps: [
+        '1. candidate 用のコードを current から分離',
+        '2. candidate エントリとして別管理',
+        '3. bridge で current/candidate を切り替える',
+      ],
+      effort: 'small',
+      priority: 1,
+    },
+    relationships: {
+      dependsOn: ['AR-CURRENT-CANDIDATE-SEPARATION'],
+    },
+    protectedHarm: {
+      prevents: ['実験コードが保守対象に混入し安定運用が崩壊する', 'rollback が困難になる'],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+  },
+
+  {
+    id: 'AR-CURRENT-NO-DIRECT-IMPORT-GROWTH',
+    principleRefs: ['I1', 'I2'],
+    guardTags: ['I1', 'I2'],
+    slice: 'canonicalization',
+    fixNow: 'debt',
+    ruleClass: 'default',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/03-guides/current-maintenance-policy.md',
+    what: 'current 群の direct import を新規に増やさない',
+    why: 'direct import が増えると bridge による一元管理が崩壊し、current/candidate 切替・fallback が機能しなくなる',
+    correctPattern: {
+      description:
+        'bridge 経由で current 群を利用する。新しい呼び出し元を追加する場合は bridge を通す',
+    },
+    outdatedPattern: {
+      description: 'WASM exports や domain/calculations を直接 import する箇所を増やす',
+    },
+    detection: { type: 'import', severity: 'gate', baseline: 0 },
+    decisionCriteria: {
+      when: 'current 群の関数を新しい場所から呼び出すとき',
+      exceptions: '型の import（import type）とテストコードは除外',
+      escalation: '既存の direct import は AR-BRIDGE-DIRECT-IMPORT で管理',
+    },
+    migrationPath: {
+      steps: [
+        '1. 新しい呼び出しを bridge 経由に変更',
+        '2. direct import を追加しない',
+        '3. 既存の direct import は段階的に bridge 経由に移行',
+      ],
+      effort: 'trivial',
+      priority: 2,
+    },
+    relationships: {
+      dependsOn: ['AR-BRIDGE-DIRECT-IMPORT'],
+    },
+    protectedHarm: {
+      prevents: ['bridge 管理外の呼び出しが増え一元管理が崩壊する'],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+  },
+
+  {
+    id: 'AR-CURRENT-FACTOR-BUSINESS-LOCK',
+    principleRefs: ['I2'],
+    guardTags: ['I2'],
+    slice: 'canonicalization',
+    fixNow: 'now',
+    ruleClass: 'invariant',
+    confidence: 'high',
+    maturity: 'stable',
+    doc: 'references/03-guides/current-maintenance-policy.md',
+    what: 'factorDecomposition の semanticClass を business から変更する場合は businessMeaning の再定義が必須',
+    why: 'factorDecomposition は技法が analytic（Shapley）だが意味責任は business。安易な再分類は意味空間を破壊する',
+    correctPattern: {
+      description:
+        "factorDecomposition は semanticClass: 'business', methodFamily: 'analytic_decomposition' を維持する",
+    },
+    outdatedPattern: {
+      description: 'factorDecomposition を semanticClass: analytic に変更する',
+    },
+    detection: { type: 'custom', severity: 'gate' },
+    decisionCriteria: {
+      when: 'factorDecomposition の semanticClass を変更しようとするとき',
+      exceptions:
+        '正式な再定義プロセス（businessMeaning の書き直し + 全ステークホルダー合意）を経た場合のみ',
+      escalation: '変更したい場合は plan.md の Phase 7 特記事項 guard を参照',
+    },
+    migrationPath: {
+      steps: [
+        '1. 変更の必要性を businessMeaning の観点から評価',
+        '2. BIZ-004 契約の businessMeaning を再定義',
+        '3. 全関連文書（contract-definition-policy.md, HANDOFF.md）を更新',
+      ],
+      effort: 'medium',
+      priority: 1,
+    },
+    relationships: {
+      dependsOn: ['AR-CONTRACT-BUSINESS-MEANING'],
+    },
+    protectedHarm: {
+      prevents: [
+        'factorDecomposition が analytic に再分類され、業務 KPI としての出力が分析基盤と混同される',
+      ],
+    },
+    reviewPolicy: {
+      owner: 'solo-maintainer',
+      lastReviewedAt: '2026-04-10',
+      reviewCadenceDays: 90,
+    },
+  },
+
   {
     id: 'AR-REGISTRY-SINGLE-MASTER',
     principleRefs: ['I4'],
