@@ -3971,7 +3971,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     },
     lifecyclePolicy: {
       introducedAt: '2026-04-10',
-      observeForDays: 30,
+      observeForDays: 7,
     },
   },
 
@@ -4018,7 +4018,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     },
     lifecyclePolicy: {
       introducedAt: '2026-04-10',
-      observeForDays: 30,
+      observeForDays: 7,
     },
   },
 
@@ -4150,7 +4150,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     },
     lifecyclePolicy: {
       introducedAt: '2026-04-10',
-      observeForDays: 30,
+      observeForDays: 7,
     },
   },
 
@@ -4197,7 +4197,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     },
     lifecyclePolicy: {
       introducedAt: '2026-04-10',
-      observeForDays: 30,
+      observeForDays: 7,
     },
   },
 
@@ -4244,7 +4244,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     },
     lifecyclePolicy: {
       introducedAt: '2026-04-10',
-      observeForDays: 30,
+      observeForDays: 7,
     },
   },
 
@@ -4288,7 +4288,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     },
     lifecyclePolicy: {
       introducedAt: '2026-04-10',
-      observeForDays: 30,
+      observeForDays: 7,
     },
   },
 ] as const satisfies readonly ArchitectureRule[]
