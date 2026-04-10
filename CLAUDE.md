@@ -319,6 +319,7 @@ CI は `wasm-build` → `fast-gate` → (`docs-health` + `test-coverage` + `e2e`
 - **strict mode** / `noUnusedLocals` / `noUnusedParameters` — ビルドで強制
 - パスエイリアス: `@/` → `src/`
 - `any` 禁止（lint エラー）、`readonly` 推奨
+- `authoritative` 単独使用禁止 — 必ず `business-authoritative` / `analytic-authoritative` / `candidate-authoritative` で修飾する（`references/01-principles/semantic-classification-policy.md`）
 - パーセント小数第2位（`formatPercent`）、金額整数（`formatCurrency`）
 - Prettier: `semi: false` / `singleQuote: true` / `printWidth: 100`
 
@@ -369,7 +370,7 @@ references/02-status/generated/
 CLAUDE.md / technical-debt-roadmap.md の generated section
 ```
 
-## 設計原則 — 8カテゴリ
+## 設計原則 — 9カテゴリ
 
 詳細・適用例は `references/01-principles/design-principles.md` を参照。管理責任: architecture。
 H カテゴリの詳細は `references/01-principles/safe-performance-principles.md` を参照。
@@ -388,6 +389,7 @@ Safety Tier 分類は `references/01-principles/critical-path-safety-map.md` を
 | **G. 機械的防御** | テストに書く（G1）、エラー伝播（G2）、警告黙殺禁止（G3）、テスト用export禁止（G4）、サイズ上限（G5/G6）、キャッシュ≤本体（G7）、**責務分離ガード（G8）** |
 | **H. Screen Runtime** | Screen Plan 経由のみ（H1）、比較は pair/bundle 契約（H2）、query input 正規化必須（H3）、component に acquisition logic 禁止（H4）、visible-only は plan 宣言（H5）、ChartCard は通知のみ（H6） |
 | **Q. Query Access Architecture** | Chart は DuckDB hook 直接 import 禁止（Q3）、alignment-aware access は handler/resolver に閉じる（Q4） |
+| **I. 意味分類** | `authoritative` 単独使用禁止（I1）、意味責任で棚を分ける — business vs analytic（I2）、current と candidate を混ぜない（I3）、正本は calculationCanonRegistry の1つだけ（I4） |
 
 **制約の変更:** 「邪魔だから」は理由にならない。「別の仕組みで防がれるようになった」は理由になる。
 
@@ -526,12 +528,15 @@ CQRS + 契約ハイブリッド設計により、既存4層モデルの内側に
 ## 3つの Execution Engine（要約）
 
 詳細は `references/01-principles/engine-boundary-policy.md`、`references/01-principles/engine-responsibility.md` を参照。
+意味分類ポリシーは `references/01-principles/semantic-classification-policy.md` を参照。
 
 | Engine | 実装 | 制約 |
 |--------|------|------|
-| **Authoritative** | `domain/calculations/` + WASM（全 5 engine authoritative） | pure only。WASM が ready なら WASM、そうでなければ TS fallback |
-| **Application** | TypeScript（hooks, stores, usecases） | pure+authoritative を新規実装しない |
+| **Authoritative** | `domain/calculations/` + WASM（business-authoritative 3 + analytic-authoritative 2） | pure only。WASM が ready なら WASM、そうでなければ TS fallback |
+| **Application** | TypeScript（hooks, stores, usecases） | pure + business-authoritative / analytic-authoritative な処理を新規実装しない |
 | **Exploration** | DuckDB SQL | 正式値の唯一定義元にしない |
+
+> **用語規則:** `authoritative` を単独語で使用しない。必ず `business-authoritative` / `analytic-authoritative` / `candidate-authoritative` として修飾する。
 
 ## 数学的不変条件
 

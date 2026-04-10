@@ -307,4 +307,33 @@ export const GUARD_TAG_REGISTRY: Record<string, GuardTagDef> = {
       'ChartCard が query enable を直接制御すると取得判断が UI 層に漏れる',
     ],
   },
+  // ═══ I: 意味分類 ═══
+  I1: {
+    name: 'authoritative 単独使用禁止',
+    examples: [
+      'AI が business-authoritative と analytic-authoritative を区別できず誤実装する',
+      '単独 authoritative のまま新規コードが追加され意味空間が混線する',
+    ],
+  },
+  I2: {
+    name: '意味責任で棚を分ける（business vs analytic）',
+    examples: [
+      'pure だからという理由で business と analytic を同じ棚に置き誤読を招く',
+      'Rust にあるからという理由で意味分類を省略し管理が崩壊する',
+    ],
+  },
+  I3: {
+    name: 'current と candidate を混ぜない',
+    examples: [
+      'candidate を current view に載せ安定運用資産と実験資産の区別が消える',
+      'current に candidate 状態遷移を追加し保守対象の安定性が損なわれる',
+    ],
+  },
+  I4: {
+    name: '正本は calculationCanonRegistry の1つだけ',
+    examples: [
+      'derived view を手編集し master と不一致が発生する',
+      '別の registry を作り二重管理で AI がどちらを信じるべきか迷う',
+    ],
+  },
 } as const

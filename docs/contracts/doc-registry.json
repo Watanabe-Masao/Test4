@@ -56,6 +56,7 @@
         { "path": "references/01-principles/safe-performance-principles.md", "label": "Screen Runtime (H)" },
         { "path": "references/01-principles/critical-path-safety-map.md", "label": "Safety Tier" },
         { "path": "references/01-principles/engine-boundary-policy.md", "label": "Engine 境界" },
+        { "path": "references/01-principles/semantic-classification-policy.md", "label": "意味分類ポリシー" },
         { "path": "references/01-principles/engine-responsibility.md", "label": "JS vs DuckDB 責務" },
         { "path": "references/01-principles/data-flow.md", "label": "データフロー 4 段階" },
         { "path": "references/01-principles/data-pipeline-integrity.md", "label": "パイプライン整合性" },

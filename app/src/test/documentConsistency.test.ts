@@ -495,6 +495,9 @@ describe('@guard tag consistency', () => {
       'A5', // DI はコンポジションルート — レビューで検証
       'C7', // 同義 API/action の併存禁止 — レビューで検証
       'G7', // キャッシュは本体より複雑にしない — レビューで検証
+      'I2', // 意味責任で棚を分ける — Phase 2 でガード化予定
+      'I3', // current と candidate を混ぜない — Phase 4 でガード化予定
+      'I4', // 正本は calculationCanonRegistry の1つだけ — Phase 2 でガード化予定
       // C5 (最小セレクタ) — codePatternGuard で機械検証に昇格
       // G2 (エラーは伝播) — codePatternGuard で機械検証に昇格
     ])
