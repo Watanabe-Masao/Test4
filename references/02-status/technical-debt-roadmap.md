@@ -29,7 +29,7 @@
 **Next:**
 - active-debt で createdAt 設定済み を 0 → 1 に削減する（残 -1）
 
-> 生成: 2026-04-10T17:29:01.985Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-10T17:31:13.873Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 現状スナップショット
