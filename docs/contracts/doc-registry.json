@@ -130,7 +130,8 @@
         { "path": "references/02-status/project-structure.md", "label": "プロジェクト構成" },
         { "path": "references/02-status/generated/architecture-health.json", "label": "Health KPI 正本" },
         { "path": "references/02-status/generated/architecture-health.md", "label": "Health レポート" },
-        { "path": "references/02-status/generated/architecture-health-certificate.md", "label": "健康診断書" }
+        { "path": "references/02-status/generated/architecture-health-certificate.md", "label": "健康診断書" },
+        { "path": "references/02-status/promotion-readiness-piValue.md", "label": "PI値昇格準備度" }
       ]
     },
     {

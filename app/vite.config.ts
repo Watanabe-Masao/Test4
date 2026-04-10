@@ -72,6 +72,8 @@ export default defineConfig({
       'forecast-wasm',
       'time-slot-wasm',
       'pi-value-wasm',
+      'customer-gap-wasm',
+      'remaining-budget-rate-wasm',
     ],
   },
   assetsInclude: ['**/*.wasm'],

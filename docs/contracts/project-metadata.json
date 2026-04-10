@@ -11,7 +11,10 @@
     "forecast",
     "time-slot",
     "statistics",
-    "core-utils"
+    "core-utils",
+    "pi-value",
+    "customer-gap",
+    "remaining-budget-rate"
   ],
   "ciJobs": [
     "wasm-build",

@@ -44,7 +44,11 @@ export type ExecutionMode = 'ts-only' | 'wasm-only'
  * current 群（WASM_MODULE_NAMES）とは分離管理する。
  * Phase 5 で導入。candidate → current 昇格は Phase 8 の Promote Ceremony を経る。
  */
-export const WASM_CANDIDATE_MODULE_NAMES = ['piValue'] as const
+export const WASM_CANDIDATE_MODULE_NAMES = [
+  'piValue',
+  'customerGap',
+  'remainingBudgetRate',
+] as const
 export type WasmCandidateModuleName = (typeof WASM_CANDIDATE_MODULE_NAMES)[number]
 
 /**
@@ -85,6 +89,18 @@ export const WASM_CANDIDATE_MODULE_METADATA: Readonly<
     authorityKind: 'candidate-authoritative',
     contractId: 'BIZ-012',
   },
+  customerGap: {
+    semanticClass: 'business',
+    bridgeKind: 'business',
+    authorityKind: 'candidate-authoritative',
+    contractId: 'BIZ-013',
+  },
+  remainingBudgetRate: {
+    semanticClass: 'business',
+    bridgeKind: 'business',
+    authorityKind: 'candidate-authoritative',
+    contractId: 'BIZ-008',
+  },
 }
 
 /* ── 内部状態 ─────────────────────────────────── */
@@ -108,10 +124,14 @@ let timeSlotWasmExports: typeof import('time-slot-wasm') | null = null
 
 // WASM モジュールの export を保持（candidate 群 — current とは分離管理）
 let piValueWasmExports: typeof import('pi-value-wasm') | null = null
+let customerGapWasmExports: typeof import('customer-gap-wasm') | null = null
+let remainingBudgetRateWasmExports: typeof import('remaining-budget-rate-wasm') | null = null
 
 // candidate 群の状態管理（current とは分離）
 const candidateModuleStates: Record<WasmCandidateModuleName, WasmState> = {
   piValue: 'idle',
+  customerGap: 'idle',
+  remainingBudgetRate: 'idle',
 }
 
 /* ── 初期化 ───────────────────────────────────── */
@@ -253,6 +273,56 @@ export async function initPiValueCandidateWasm(): Promise<void> {
   }
 }
 
+/**
+ * customerGap candidate WASM モジュールを非同期で初期化する。
+ */
+export async function initCustomerGapCandidateWasm(): Promise<void> {
+  if (candidateModuleStates.customerGap !== 'idle') return
+
+  candidateModuleStates.customerGap = 'loading'
+  try {
+    const wasm = await import('customer-gap-wasm')
+    await wasm.default()
+    customerGapWasmExports = wasm
+    candidateModuleStates.customerGap = 'ready'
+    if (import.meta.env.DEV) {
+      console.info('[wasmEngine] customerGap candidate ready — WASM candidate-authoritative ready')
+    }
+  } catch (e) {
+    candidateModuleStates.customerGap = 'error'
+    console.warn(
+      '[wasmEngine] customerGap candidate WASM initialization failed, falling back to TS:',
+      e,
+    )
+  }
+}
+
+/**
+ * remainingBudgetRate candidate WASM モジュールを非同期で初期化する。
+ */
+export async function initRemainingBudgetRateCandidateWasm(): Promise<void> {
+  if (candidateModuleStates.remainingBudgetRate !== 'idle') return
+
+  candidateModuleStates.remainingBudgetRate = 'loading'
+  try {
+    const wasm = await import('remaining-budget-rate-wasm')
+    await wasm.default()
+    remainingBudgetRateWasmExports = wasm
+    candidateModuleStates.remainingBudgetRate = 'ready'
+    if (import.meta.env.DEV) {
+      console.info(
+        '[wasmEngine] remainingBudgetRate candidate ready — WASM candidate-authoritative ready',
+      )
+    }
+  } catch (e) {
+    candidateModuleStates.remainingBudgetRate = 'error'
+    console.warn(
+      '[wasmEngine] remainingBudgetRate candidate WASM initialization failed, falling back to TS:',
+      e,
+    )
+  }
+}
+
 /* ── 状態取得 ─────────────────────────────────── */
 
 /** 個別モジュールの状態を取得する */
@@ -289,6 +359,16 @@ export function getTimeSlotWasmExports(): typeof import('time-slot-wasm') | null
 
 export function getPiValueWasmExports(): typeof import('pi-value-wasm') | null {
   return piValueWasmExports
+}
+
+export function getCustomerGapWasmExports(): typeof import('customer-gap-wasm') | null {
+  return customerGapWasmExports
+}
+
+export function getRemainingBudgetRateWasmExports():
+  | typeof import('remaining-budget-rate-wasm')
+  | null {
+  return remainingBudgetRateWasmExports
 }
 
 /** candidate モジュールの状態を取得する */

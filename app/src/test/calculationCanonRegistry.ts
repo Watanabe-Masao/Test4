@@ -282,6 +282,39 @@ export const CALCULATION_CANON_REGISTRY: Readonly<Record<string, CanonEntry>> = 
     notes: 'WASM candidate: wasm/pi-value/。current reference: piValue.ts',
   },
 
+  'candidate/remainingBudgetRate.ts': {
+    tag: 'required',
+    reason: '残予算必要達成率（candidate: WASM 移行候補 CAND-BIZ-008）',
+    zodAdded: true,
+    semanticClass: 'business',
+    authorityKind: 'candidate-authoritative',
+    methodFamily: 'budget',
+    runtimeStatus: 'candidate',
+    ownerKind: 'migration',
+    contractId: 'BIZ-008',
+    bridgeKind: 'business',
+    rateOwnership: 'engine',
+    fallbackPolicy: 'current',
+    migrationTier: 'tier1',
+    notes: 'WASM candidate: wasm/remaining-budget-rate/。current reference: remainingBudgetRate.ts',
+  },
+  'candidate/customerGap.ts': {
+    tag: 'required',
+    reason: '前年比客数GAP（candidate: WASM 移行候補 CAND-BIZ-013）',
+    zodAdded: true,
+    semanticClass: 'business',
+    authorityKind: 'candidate-authoritative',
+    methodFamily: 'behavioral',
+    runtimeStatus: 'candidate',
+    ownerKind: 'migration',
+    contractId: 'BIZ-013',
+    bridgeKind: 'business',
+    rateOwnership: 'n/a',
+    fallbackPolicy: 'current',
+    migrationTier: 'tier1',
+    notes: 'WASM candidate: wasm/customer-gap/。current reference: customerGap.ts',
+  },
+
   // ══ Analytic Kernel（analytic-authoritative） ══
 
   'timeSlotCalculations.ts': {

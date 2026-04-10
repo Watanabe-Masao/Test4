@@ -52,6 +52,7 @@
 | 技術的負債ロードマップ | `02-status/technical-debt-roadmap.md` |
 | 直近の主要変更 | `02-status/recent-changes.md` |
 | プロジェクト構成 | `02-status/project-structure.md` |
+| PI値昇格準備度 | `02-status/promotion-readiness-piValue.md` |
 | Discovery Review チェックリスト | `03-guides/discovery-review-checklist.md` |
 | ガードテスト対応表 | `03-guides/guard-test-map.md` |
 | 許可リスト運用 | `03-guides/allowlist-management.md` |
@@ -216,6 +217,12 @@
 | `03-guides/ui-components.md` | UI コンポーネント |
 | `03-guides/faq.md` | FAQ |
 | `03-guides/app-lifecycle-implementation.md` | ライフサイクル実装 |
+
+### プロモーション・昇格
+
+| ファイル | 内容 |
+|---------|------|
+| `02-status/promotion-readiness-piValue.md` | PI値の昇格準備度判定表（Phase 5 Step 8） |
 
 ### 移行・廃止
 

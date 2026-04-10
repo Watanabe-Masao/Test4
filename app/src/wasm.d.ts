@@ -158,3 +158,28 @@ declare module 'pi-value-wasm' {
     customers: number,
   ): Float64Array
 }
+
+// ─── customer-gap-wasm (candidate: BIZ-013) ─────────────
+// ─── remaining-budget-rate-wasm (candidate: BIZ-008) ─────
+declare module 'remaining-budget-rate-wasm' {
+  export default function init(): Promise<void>
+  export function calculate_remaining_budget_rate(
+    budget: number,
+    totalSales: number,
+    budgetDailyArr: Float64Array,
+    elapsedDays: number,
+    daysInMonth: number,
+  ): number
+}
+
+declare module 'customer-gap-wasm' {
+  export default function init(): Promise<void>
+  export function calculate_customer_gap(
+    curCustomers: number,
+    prevCustomers: number,
+    curQuantity: number,
+    prevQuantity: number,
+    curSales: number,
+    prevSales: number,
+  ): Float64Array
+}
