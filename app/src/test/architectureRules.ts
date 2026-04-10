@@ -3972,6 +3972,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     lifecyclePolicy: {
       introducedAt: '2026-04-10',
       observeForDays: 7,
+      promoteIf: ['7日間の運用で false positive がない'],
+      withdrawIf: ['検出精度が低く false positive が頻発する'],
     },
   },
 
@@ -4019,6 +4021,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     lifecyclePolicy: {
       introducedAt: '2026-04-10',
       observeForDays: 7,
+      promoteIf: ['7日間の運用で false positive がない'],
+      withdrawIf: ['検出精度が低く false positive が頻発する'],
     },
   },
 
@@ -4151,6 +4155,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     lifecyclePolicy: {
       introducedAt: '2026-04-10',
       observeForDays: 7,
+      promoteIf: ['7日間の運用で false positive がない'],
+      withdrawIf: ['検出精度が低く false positive が頻発する'],
     },
   },
 
@@ -4198,6 +4204,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     lifecyclePolicy: {
       introducedAt: '2026-04-10',
       observeForDays: 7,
+      promoteIf: ['7日間の運用で false positive がない'],
+      withdrawIf: ['検出精度が低く false positive が頻発する'],
     },
   },
 
@@ -4245,6 +4253,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     lifecyclePolicy: {
       introducedAt: '2026-04-10',
       observeForDays: 7,
+      promoteIf: ['7日間の運用で false positive がない'],
+      withdrawIf: ['検出精度が低く false positive が頻発する'],
     },
   },
 
@@ -4289,6 +4299,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     lifecyclePolicy: {
       introducedAt: '2026-04-10',
       observeForDays: 7,
+      promoteIf: ['7日間の運用で false positive がない'],
+      withdrawIf: ['検出精度が低く false positive が頻発する'],
     },
   },
 ] as const satisfies readonly ArchitectureRule[]

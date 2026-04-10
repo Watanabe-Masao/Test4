@@ -14,6 +14,9 @@ import type { WorkerResponse } from './calculationWorker'
 import { calculateAllStores } from '@/application/usecases/calculation'
 import { computeCacheKey } from '@/application/services/calculationCache'
 
+/** Worker 計算のタイムアウト（ミリ秒） */
+const WORKER_TIMEOUT_MS = 30_000
+
 /** Worker 計算結果（新規計算 or キャッシュヒット） */
 export type WorkerCalculateResult =
   | { results: ReadonlyMap<string, StoreResult>; cacheKey: string }
@@ -83,10 +86,18 @@ export function useWorkerCalculation(): WorkerCalculationResult {
       setIsComputing(true)
 
       return new Promise((resolve, reject) => {
+        const timeoutId = setTimeout(() => {
+          worker.removeEventListener('message', handleMessage)
+          worker.removeEventListener('error', handleError)
+          setIsComputing(false)
+          reject(new Error('[Worker] 計算がタイムアウトしました（30秒）'))
+        }, WORKER_TIMEOUT_MS)
+
         const handleMessage = (event: MessageEvent<WorkerResponse>) => {
           // 自分のリクエストの応答でなければ無視
           if (event.data.requestId !== thisRequestId) return
 
+          clearTimeout(timeoutId)
           worker.removeEventListener('message', handleMessage)
           worker.removeEventListener('error', handleError)
           setIsComputing(false)
@@ -101,6 +112,7 @@ export function useWorkerCalculation(): WorkerCalculationResult {
         }
 
         const handleError = (event: ErrorEvent) => {
+          clearTimeout(timeoutId)
           worker.removeEventListener('message', handleMessage)
           worker.removeEventListener('error', handleError)
           setIsComputing(false)

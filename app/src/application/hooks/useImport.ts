@@ -112,6 +112,10 @@ export function useImport() {
           setPendingDiff(result.pendingDiff)
         } else if (result.finalData && result.validationMessages) {
           applyImportResult(result.finalData, result.detectedMaxDay, result.validationMessages)
+        } else if (!result.finalData && result.validationMessages) {
+          // バリデーションエラーでデータ保存がブロックされた場合:
+          // メッセージだけ表示し、データは適用しない
+          useDataStore.getState().setValidationMessages(result.validationMessages)
         }
 
         return result.summary

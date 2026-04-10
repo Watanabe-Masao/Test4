@@ -24,7 +24,7 @@ import {
   insertBudget,
   insertInventoryConfig,
 } from './dataConversions'
-import { deleteMonth } from './deletePolicy'
+import { deleteMonth, deletePrevYearMonth } from './deletePolicy'
 
 // ── 後方互換 re-export（deletePolicy.ts から） ──
 export { resetTables, deleteMonth, deletePrevYearMonth } from './deletePolicy'
@@ -121,9 +121,13 @@ export async function loadMonth(
     // INSERT失敗時は該当月のデータのみ削除して部分データの残存を防ぐ。
     console.error(`DuckDB loadMonth failed for ${year}-${month}:`, err)
     try {
-      await deleteMonth(conn, year, month)
+      if (isPrevYear) {
+        await deletePrevYearMonth(conn, year, month)
+      } else {
+        await deleteMonth(conn, year, month)
+      }
     } catch (deleteErr) {
-      console.error('DuckDB deleteMonth after load failure also failed:', deleteErr)
+      console.error('DuckDB cleanup after load failure also failed:', deleteErr)
     }
     throw err
   }

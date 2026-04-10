@@ -74,8 +74,9 @@ export function useCalculation() {
           useDataStore.getState().setStoreResults(result.results)
           useUiStore.getState().setCalculated(true)
         })
-        .catch(() => {
+        .catch((err) => {
           if (epochRef.current !== thisEpoch) return
+          console.warn('[useCalculation] Worker 計算失敗、同期フォールバック:', err)
           const results = calculateAllStores(currentData, currentSettings, currentFrame)
           calculationCache.setGlobalResultWithCacheKey(cacheKey, results)
           useDataStore.getState().setStoreResults(results)

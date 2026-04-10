@@ -18,6 +18,7 @@ import type {
   ImportSideEffects,
 } from './monthlyImportTypes'
 import { saveSummaryCache, saveImportHistory } from './importHelpers'
+import { hasValidationErrors } from './importValidation'
 
 export async function orchestrateSingleMonth(
   incomingMonth: MonthlyData,
@@ -98,6 +99,22 @@ async function finalizeSingleMonth(
   const messages = validateImportData(monthly, summary)
   const detectedMaxDay = detectDataMaxDay(monthly)
 
+  // バリデーションエラー（error レベル）がある場合はデータ保存をブロック
+  if (hasValidationErrors(messages)) {
+    console.warn(
+      '[singleMonthImport] バリデーションエラーのためデータ保存をブロック:',
+      messages.filter((m) => m.level === 'error').map((m) => m.message),
+    )
+    return {
+      summary,
+      finalData: null,
+      pendingDiff: null,
+      detectedMaxDay,
+      validationMessages: messages,
+      detectedYearMonth,
+    }
+  }
+
   if (repo.isAvailable()) {
     await repo.saveMonthlyData(monthly, year, month)
     saveSummaryCache(monthly, year, month, repo)
@@ -137,9 +154,18 @@ export async function resolveSingleMonthDiff(
     saveImportHistory(pending.summary, targetYear, targetMonth, repo)
   }
 
+  const validationMessages = validateImportData(finalData, pending.summary)
+  // 差分解決後もバリデーションチェック（error があればログ警告）
+  if (hasValidationErrors(validationMessages)) {
+    console.warn(
+      '[singleMonthImport] resolveDiff 後のバリデーションエラー:',
+      validationMessages.filter((m) => m.level === 'error').map((m) => m.message),
+    )
+  }
+
   return {
     finalData,
     detectedMaxDay: detectDataMaxDay(finalData),
-    validationMessages: validateImportData(finalData, pending.summary),
+    validationMessages,
   }
 }

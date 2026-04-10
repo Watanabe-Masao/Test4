@@ -50,6 +50,7 @@ export const useDataStore = create<DataStore>()(
           (state) => ({
             appData: { current: monthly, prevYear: state.appData.prevYear },
             currentMonthData: monthly,
+            storeResults: new Map(),
             authoritativeDataVersion: state.authoritativeDataVersion + 1,
           }),
           false,
