@@ -12,7 +12,7 @@ Phase 0-7 の構造基盤が完了。ブランチ `claude/create-handoff-docs-tF
 e7f195e  Phase 7 — Guard 統合整理 + JS 正本縮退方針
 ```
 
-Guard: **53 ファイル / 461 テスト**。Architecture Rules: **140 ルール**。Hard Gate: **PASS**。
+本体: **v1.8.0**。AAG: **v4.5.0**。Guard: **53 ファイル / 461 テスト**。Architecture Rules: **140 ルール**。Hard Gate: **PASS**。
 
 ## 2. 完了した Phase の概要
 

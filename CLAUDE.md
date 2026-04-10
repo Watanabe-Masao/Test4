@@ -613,7 +613,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 **Next:**
 - active-debt で createdAt 設定済み を 0 → 1 に削減する（残 -1）
 
-> 生成: 2026-04-10T17:16:31.825Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-10T17:29:01.985Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）
@@ -668,7 +668,8 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 - **Temporal Governance（2026-04-07）**: reviewPolicy（owner/lastReviewedAt/reviewCadenceDays）でルールに時計を持たせる。ruleClass（invariant/default/heuristic）+ confidence + sunsetCondition + lifecyclePolicy。「疑い、捨て、置き換える」思想を制度化。allowlist に createdAt/expiresAt/renewalCount
 - **AAG v3.2.0（2026-04-09）**: principles.json 正本昇格（原則メタデータ追加）。Principle Coverage 50/50 達成 + 双方向リンク検証テスト 3 件追加。Active-debt 0 達成（useCostDetailData sub-hook 分離）。totalCustomers allowlist 7→0（presentation 層から完全排除）。Fix hints 4→17。Discovery Review チェックリスト作成。Pre-commit hook slice 別サマリ
 - **AAG v4.3.0（2026-04-09）**: 統一レスポンス（renderAagResponse）を全入口（guard/obligation/pre-commit）に適用。fixNow をラベルから分岐ロジックに昇格（now=修正手順/debt=allowlist誘導/review=Discovery Review）。SLICE_GUIDANCE で 5 スライスに 1 行誘導文。入口品質の自己監視テスト 2 件。guard-collector に総ルール数 + fixNow 分布 KPI 追加。第 9 原則「ドキュメント自体が品質管理対象」: doc-registry.json（94 文書）+ docRegistryGuard + docCodeConsistencyGuard + docStaticNumberGuard + projectStructureGuard。obligation で references/ 新文書追加時の doc-registry.json 更新を入口で強制
-- **AAG v4.5.0（2026-04-10）**: Pure 計算責務再編 Phase 3-7。契約定義ポリシー（BIZ-001〜013 / ANA-001〜009）。registry 契約値埋め 22 件。5 bridge の JSDoc に semanticClass + contractId。wasmEngine に WASM_MODULE_METADATA。current 群保守ポリシー + 7 Cargo.toml semantic metadata。Tier 1 Business 移行計画（候補 6 件）+ Analytic Kernel 移行計画（候補 9 件）。Guard 統合整理 + JS 正本縮退 4 段階ポリシー。Promote Ceremony テンプレート。Architecture Rules 109→140（+31）。obligation collector の generated-section-only false positive 修正
+- **v1.8.0（2026-04-10）**: Pure 計算責務再編 Phase 3-7。契約定義ポリシー（BIZ-001〜013 / ANA-001〜009）。registry 契約値埋め 22 件。5 bridge の JSDoc に semanticClass + contractId。wasmEngine に WASM_MODULE_METADATA。current 群保守ポリシー + 7 Cargo.toml semantic metadata。Tier 1 Business 移行計画（候補 6 件）+ Analytic Kernel 移行計画（候補 9 件）。Guard 統合整理 + JS 正本縮退 4 段階ポリシー。Promote Ceremony テンプレート
+- **AAG v4.5.0（2026-04-10）**: 移行タグ基盤（migrationTagRegistry + migrationTagGuard + migration-tag-policy）。Phase 3-7 guard 31 件追加（AR-CONTRACT-* / AR-BRIDGE-* / AR-CURRENT-* / AR-CAND-BIZ-* / AR-CAND-ANA-* / AR-JS-* / AR-REVIEW-NEEDED-BLOCK）。obligation collector の generated-section-only false positive 修正。Architecture Rules 109→140
 - **AAG v4.4.0（2026-04-10）**: ReadModelSlice 安全配布アーキテクチャ（discriminated union で silent failure を型レベルで排除）。Pipeline Safety ルール 8 件（silent-catch / fire-forget / nullable-async / validation-enforce / insert-verify / prod-validation / worker-timeout / stale-store）。Co-Change ルール 3 件（validation-severity / duckdb-mock / readmodel-parse）。パイプライン安全性強化（バリデーションブロック / bulkInsert 検証 / Worker 30秒タイムアウト / Zod PROD 有効化 / readModel safeParse 化 / stale data 防止）。PrevYearData source discriminator（disabled/no-data/loaded）。silent catch 30→9（22箇所ログ追加）。空 allowlist 12件削除。co-change ガード: collect-then-assert + fix hints パターン
 
 ## Explanation（説明責任）
