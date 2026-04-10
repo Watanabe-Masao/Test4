@@ -105,10 +105,20 @@ describe('co-change: readModel parse 方式 ↔ パスガード', () => {
       const guardContent = fs.readFileSync(guardPath, 'utf-8')
 
       const srcUsesSafe = srcContent.includes(`${model}.safeParse`)
+      const srcUsesParse = srcContent.includes(`${model}.parse(`) || srcUsesSafe
       const guardExpectsSafe = guardContent.includes(`${model}.safeParse`)
       const guardMentionsModel = guardContent.includes(`${model}.`)
 
-      // ガードがそもそもこのモデルの parse をチェックしていない場合はスキップ
+      // ガードに parse チェックがない → 登録を促す（次の AI のため）
+      if (!guardMentionsModel && srcUsesParse) {
+        hints.push(
+          fixHint(
+            `${rel(guardPath)} に ${model} の parse 検証がない`,
+            `expect(content).toContain('${model}.${srcUsesSafe ? 'safeParse' : 'parse'}') を追加。不要なら PAIRS から除外してコメントで理由を残す`,
+          ),
+        )
+        continue
+      }
       if (!guardMentionsModel) continue
 
       if (srcUsesSafe && !guardExpectsSafe) {
