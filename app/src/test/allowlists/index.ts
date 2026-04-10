@@ -10,9 +10,9 @@
  *   architecture.ts — 層境界（application→infra, presentation→usecases 等）
  *   duckdb.ts       — DuckDB hook 直接使用（全件卒業済み・凍結）
  *   complexity.ts   — useMemo / useState / hook 行数の個別例外
- *   size.ts         — ファイルサイズ（大型コンポーネント / infra / domain / usecases）
+ *   size.ts         — ファイルサイズ（domain）
  *   migration.ts    — 比較移行（prevYear.daily, comparisonFrame.previous 等）
- *   misc.ts         — VM React import / コンテキスト / 副作用チェーン / 凍結済み
+ *   misc.ts         — コンテキスト / React import 除外
  */
 
 // Types & builders
