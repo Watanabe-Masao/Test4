@@ -164,14 +164,21 @@ export interface RuleBinding {
  * - RuleDetectionSpec: どう見つけるか — detection, description のみ（Core）
  * - RuleBinding: 具体バインディング — doc, imports, codeSignals, example（App）
  *
+ * `type` + intersection を使用する理由:
+ * `interface extends` は同名プロパティの型が完全一致でないと TS2320 になる。
+ * correctPattern/outdatedPattern は Core（description のみ）と Binding（imports 等）で
+ * 異なる部分型を持つため、intersection（`&`）でマージする必要がある。
+ *
  * Phase 2 は type-level decomposition のみ。
  * ルール定義データの物理分割、catalog/binding の別ファイル化、実行ロジック変更は行わない。
  */
-export interface ArchitectureRule
-  extends _RuleSemantics, _RuleGovernance, _RuleDetectionSpec, RuleBinding {
-  /** Core の principleRefs を PrincipleId に narrowing（アプリ固有の原則 ID 体系） */
-  readonly principleRefs?: readonly PrincipleId[]
-}
+export type ArchitectureRule = _RuleSemantics &
+  _RuleGovernance &
+  _RuleDetectionSpec &
+  RuleBinding & {
+    /** Core の principleRefs を PrincipleId に narrowing（アプリ固有の原則 ID 体系） */
+    readonly principleRefs?: readonly PrincipleId[]
+  }
 
 // ─── ルール定義 ──────────────────────────────────────────
 
