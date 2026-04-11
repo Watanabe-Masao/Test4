@@ -16,9 +16,9 @@
 
 ## 1. 現在地
 
-Phase 0-7 の構造基盤が完了。PR #956（ブランチ `claude/create-handoff-docs-tFlIF`）でマージ済み。
+Phase 0-7 の構造基盤が完了。AAG 5.0.0 Phase A1-A5 完了。Core / Project Overlay 分離済み。
 
-本体: **v1.8.0**。AAG（アーキテクチャ品質管理）: **v4.5.0**。Guard: **53 ファイル / 461 テスト**。Architecture Rules: **140 ルール**。Hard Gate: **PASS**。
+本体: **v1.8.0**。AAG: **5.0.0**。Hard Gate: **PASS**。
 
 ### 完了済みの構造基盤
 
