@@ -100,9 +100,42 @@ Phase 6 結果:
 
 ### 次のアクション
 
-1. **実 WASM バイナリでの dual-run 観測** — wasm-pack build 後に実バイナリで parity 検証
-2. **Phase 8（Promote Ceremony）** — promotion-ready 判定 → 人間承認
-3. **AAG 改善** — bridge ボイラープレート削減、allowlist factory 化
+#### 最優先: データロード層の根本改善
+
+`special_sales` テーブルの重複蓄積によるリグレッションバグを発見・暫定修正済み。
+根本解決は別スコープで実施する。
+
+- **問題定義書**: `references/03-guides/data-load-idempotency-plan.md`
+- **暫定修正**: `MAX(customers)` (schemas.ts) + `loadMonth` 内自動 `deleteMonth` (dataLoader.ts)
+- **根本解決**: `loadMonth` の完全冪等化 + `useDuckDB.ts` の冗長 `deleteMonth` 整理
+- **テスト**: 同一データ 2 回ロードで行数不変の検証が必要
+
+#### Phase 8: Promote Ceremony
+
+実 WASM バイナリでの dual-run 観測と人間承認が前提。
+
+1. `wasm-pack build` → 全 candidate crate の WASM バイナリ生成
+2. DEV 環境で bridge を `dual-run-compare` モードに切替
+3. 値一致 / null 一致 / warning 一致を観測
+4. 安定期間確認後、promotion-readiness 判定表を更新
+5. Promote Ceremony テンプレート (`references/03-guides/promote-ceremony-template.md`) に従い人間承認
+
+#### 構造改善（Phase 5-6 で判明した課題）
+
+| # | 課題 | 参照 | 優先度 |
+|---|------|------|--------|
+| 1 | wasmEngine を registry-driven に | candidate 追加時に 12 箇所手動更新が必要 | 高 |
+| 2 | bridge テストヘルパーの横展開 | `bridgeTestHelpers.ts` 作成済み、11 テストに未適用 | 中 |
+| 3 | pre-commit で `test:guards` 実行 | CANDIDATE_CRATES 追加忘れを CI 前に検出 | 中 |
+| 4 | vitest mock alias の共有化 | vite.config.ts は統一済み、vitest は未統一 | 低 |
+
+#### 気づき・教訓
+
+1. **`tsc --noEmit` と `tsc -b` の差異** — ローカルで `--noEmit` は通るが CI の `-b` で型エラーが出るケースがあった。メモリ制限でローカル build が困難な場合の対策が必要
+2. **docs:generate の破壊性** — `source: 'build-artifact'` で非破壊化済みだが、同様の環境依存 KPI が増える場合は設計の拡張が必要
+3. **ANA-008 のような non-target 判定** — `wasm-candidate-eligibility.md` を作成済み。計画段階で適用すべき
+4. **不変条件命名の統一** — `invariant-catalog.md` に命名規則を追加済み。新規追加時は準拠すること
+5. **allowlist の factory 化** — bridge allowlist は factory パターンに集約済み。他の allowlist にも適用可能
 
 ## 6. 文書追加時の連鎖更新（最もハマりやすい）
 

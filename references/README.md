@@ -82,6 +82,7 @@
 | 仕入原価統合計画 | `03-guides/purchase-cost-unification-plan.md` |
 | Temporal 分析ポリシー | `03-guides/temporal-analysis-policy.md` |
 | WASM 候補適性判定基準 | `03-guides/wasm-candidate-eligibility.md` |
+| データロード冪等化計画 | `03-guides/data-load-idempotency-plan.md` |
 
 ## AI 向け索引 — カテゴリ別ファイルマップ
 
@@ -250,6 +251,7 @@
 | ファイル | 内容 |
 |---------|------|
 | `03-guides/wasm-candidate-eligibility.md` | WASM 候補適性の事前判定基準 |
+| `03-guides/data-load-idempotency-plan.md` | データロード冪等化計画（重複防止の根本解決） |
 
 ### 移行・廃止
 

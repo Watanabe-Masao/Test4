@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-11T03:47:00.675Z",
+  "timestamp": "2026-04-11T05:28:16.313Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -507,9 +507,9 @@
       "id": "docs.obligation.violations",
       "label": "Doc 更新義務違反数",
       "category": "docs",
-      "value": 1,
+      "value": 0,
       "unit": "count",
-      "status": "fail",
+      "status": "ok",
       "owner": "documentation-steward",
       "docRefs": [
         {
@@ -590,7 +590,7 @@
       "id": "temporal.allowlist.activeDebt.count",
       "label": "active-debt 例外数",
       "category": "allowlist",
-      "value": 11,
+      "value": 1,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -608,7 +608,7 @@
       "id": "temporal.allowlist.activeDebt.withCreatedAt",
       "label": "active-debt で createdAt 設定済み",
       "category": "allowlist",
-      "value": 11,
+      "value": 1,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -644,7 +644,7 @@
       "id": "efficacy.rules.highNoise.count",
       "label": "高例外圧ルール数（≥10 件）",
       "category": "guard",
-      "value": 1,
+      "value": 0,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -671,9 +671,9 @@
   ],
   "summary": {
     "totalKpis": 32,
-    "ok": 31,
+    "ok": 32,
     "warn": 0,
-    "fail": 1,
-    "hardGatePass": false
+    "fail": 0,
+    "hardGatePass": true
   }
 }

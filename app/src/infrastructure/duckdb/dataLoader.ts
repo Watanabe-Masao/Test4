@@ -55,6 +55,14 @@ export async function loadMonth(
   const start = performance.now()
   const rowCounts = {} as Record<TableName, number>
 
+  // 冪等性保証: INSERT 前に同月データを削除する
+  // これにより、再ロードや部分失敗後の再試行で重複が発生しない
+  if (isPrevYear) {
+    await deletePrevYearMonth(conn, year, month)
+  } else {
+    await deleteMonth(conn, year, month)
+  }
+
   try {
     // ── classified_sales ──
     rowCounts.classified_sales = await insertClassifiedSales(

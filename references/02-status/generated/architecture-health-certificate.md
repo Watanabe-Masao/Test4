@@ -4,21 +4,21 @@
 
 | 項目 | 値 |
 |---|---|
-| **総合評価** | **RISK** |
-| 前回比 | Flat |
-| リリース影響 | Yes |
-| 最終更新 | 2026-04-11T03:47:00.675Z |
+| **総合評価** | **Healthy** |
+| 前回比 | Improved |
+| リリース影響 | No |
+| 最終更新 | 2026-04-11T05:28:16.313Z |
 
 ## Hard Gate
 
-**FAIL**
+**PASS** — 全ゲート通過
 
 - PASS: Frozen リスト非ゼロ
 - PASS: 廃止用語残存数
 - PASS: Generated section 未更新
 - PASS: Presentation→Infrastructure 違反
 - PASS: Infrastructure→Application 違反
-- FAIL: Doc 更新義務違反数
+- PASS: Doc 更新義務違反数
 - PASS: review overdue ルール数
 
 ## Health Metrics
@@ -31,19 +31,17 @@
 | **境界健全性** | OK | Presentation→Infrastructure 違反: 0/0 / Infrastructure→Application 違反: 0/0 |
 | **ガード強度** | OK | ガードテストファイル数: 48/30 / レビュー専用タグ数: 0/5 |
 | **性能** | OK | JS バンドル合計サイズ: 6496/7000 / メインバンドルサイズ: 2225/2500 / ECharts バンドルサイズ: 919/1000 |
-| **Temporal Governance** | OK | review overdue ルール数: 0/0 / heuristic + gate ルール数: 32/32 / active-debt 例外数: 11/12 / reviewPolicy 設定済みルール数: 140/92 / sunsetCondition 設定済みルール数: 9/9 / active-debt で createdAt 設定済み: 11/1 |
-| **Rule Efficacy** | OK | protectedHarm 設定済みルール数: 77 / 高例外圧ルール数（≥10 件）: 1/3 / renewalCount 合計: 0/10 |
+| **Temporal Governance** | OK | review overdue ルール数: 0/0 / heuristic + gate ルール数: 32/32 / active-debt 例外数: 1/12 (-10) / reviewPolicy 設定済みルール数: 140/92 / sunsetCondition 設定済みルール数: 9/9 / active-debt で createdAt 設定済み: 1/1 (-10) |
+| **Rule Efficacy** | OK | protectedHarm 設定済みルール数: 77 / 高例外圧ルール数（≥10 件）: 0/3 (-1) / renewalCount 合計: 0/10 |
 
-## Top Risks
+## Recent Changes
 
-**1. Doc 更新義務違反数**
-- 状態: 1 / budget 0（100% 超過）
-- ファイル: `—`
-- 定義書: `tools/architecture-health/src/collectors/obligation-collector.ts`
-
-## Recommended Actions
-
-1. Doc 更新義務違反数 を budget 0 以下に修正する
+| 指標 | 前回 | 今回 | 変化 |
+|---|---|---|---|
+| active-debt 例外数 | 11 | 1 | -10 + |
+| active-debt で createdAt 設定済み | 11 | 1 | -10 + |
+| Doc 更新義務違反数 | 1 | 0 | -1 + |
+| 高例外圧ルール数（≥10 件） | 1 | 0 | -1 + |
 
 ---
 
