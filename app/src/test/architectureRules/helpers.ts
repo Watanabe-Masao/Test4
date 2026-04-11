@@ -63,7 +63,7 @@ export function checkRatchetDown(
  * 違反時に返す 5 項目:
  * 1. 何が止まったか（what）
  * 2. なぜ止まったか（why）
- * 3. 今やること（migrationPath.steps）
+ * 3. 今やること（migrationRecipe.steps）
  * 4. 例外がありうるか（decisionCriteria.exceptions）
  * 5. 深掘り先（doc）
  *
@@ -118,7 +118,7 @@ export function buildAagResponse(
     slice: rule.slice ?? null,
     summary: rule.what,
     reason: rule.why,
-    steps: rule.migrationPath?.steps ?? [],
+    steps: rule.migrationRecipe?.steps ?? rule.migrationPath?.steps ?? [],
     exceptions: rule.decisionCriteria?.exceptions ?? null,
     deepDive: rule.doc ?? null,
     violations,
