@@ -332,7 +332,7 @@ describe('意味分類ガード（Phase 2）', () => {
 
     const engineEntries: { name: string; contractId: string; semanticClass: string }[] = []
     const entryRe = /(\w+):\s*\{[^}]*contractId:\s*'([^']+)'[^}]*semanticClass:\s*'([^']+)'/g
-    let m
+    let m: RegExpExecArray | null
     while ((m = entryRe.exec(candidateBlock)) !== null) {
       engineEntries.push({ name: m[1], contractId: m[2], semanticClass: m[3] })
     }
