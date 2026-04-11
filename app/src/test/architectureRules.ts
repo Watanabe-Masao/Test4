@@ -223,7 +223,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     guardTags: ['G1'],
     epoch: 1,
     what: '退役済みインフラ層 dual-run コードの再導入を禁止する',
-    why: 'Phase 1-2 で解消したインフラ層 dual-run（dualRunObserver / getExecutionMode / recordCall / recordMismatch）は退役済み。bridge 管理下の candidate-compare 検証（Phase 5-8）は別概念であり本ルールの対象外',
+    why: 'Phase 1-2 で解消したインフラ層 dual-run（dualRunObserver / getExecutionMode / recordCall / recordMismatch）は退役済み。bridge 管理下の dual-run-compare 検証（Phase 5-8）は別概念であり本ルールの対象外',
     doc: 'references/03-guides/safety-first-architecture-plan.md',
     correctPattern: {
       description:
@@ -236,7 +236,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     },
     decisionCriteria: {
       when: 'bridge ファイルを変更するとき',
-      exceptions: 'bridge 管理下の candidate-compare（compareUtils.ts 経由、テスト側のみ）は許可',
+      exceptions: 'bridge 管理下の dual-run-compare（compareUtils.ts 経由、テスト側のみ）は許可',
       escalation: 'getExecutionMode / recordCall / recordMismatch を発見したら即削除',
     },
     detection: {
@@ -2168,7 +2168,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     guardTags: ['G1'],
     epoch: 1,
     what: 'WASM 全 5 engine が authoritative に昇格済み。インフラ層 dual-run は退役',
-    why: 'dualRunObserver 等のインフラ層 dual-run は全面退役済み。bridge 管理下の candidate-compare 検証（Phase 5-8）はインフラ層 dual-run ではなく、本ルールの対象外',
+    why: 'dualRunObserver 等のインフラ層 dual-run は全面退役済み。bridge 管理下の dual-run-compare 検証（Phase 5-8）はインフラ層 dual-run ではなく、本ルールの対象外',
     doc: 'references/03-guides/safety-first-architecture-plan.md',
     correctPattern: {
       description:
@@ -2179,7 +2179,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     },
     decisionCriteria: {
       when: 'WASM 関連コードを変更するとき',
-      exceptions: 'bridge 管理下の candidate-compare（Phase 5-8 の parity 検証）は許可',
+      exceptions: 'bridge 管理下の dual-run-compare（Phase 5-8 の parity 検証）は許可',
       escalation: 'インフラ層 dual-run コードを発見したら即削除',
     },
     detection: { type: 'custom', severity: 'gate' },
