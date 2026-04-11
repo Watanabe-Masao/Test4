@@ -53,7 +53,7 @@ function compareResults(a: InventoryDetailRow[], b: InventoryDetailRow[]): boole
       ai.day === b[i].day &&
       ai.estimated === b[i].estimated &&
       ai.actual === b[i].actual &&
-      ai.cogs === b[i].cogs,
+      ai.estCogs === b[i].estCogs,
   )
 }
 
