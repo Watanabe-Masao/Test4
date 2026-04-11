@@ -368,6 +368,22 @@ export const CALCULATION_CANON_REGISTRY: Readonly<Record<string, CanonEntry>> = 
 
   // ══ Candidate / Analytic（candidate-authoritative, Phase 6） ══
 
+  'candidate/algorithms/correlation.ts': {
+    tag: 'required',
+    reason: '相関分析・正規化・類似度（candidate: WASM 移行候補 CAND-ANA-005）',
+    zodAdded: true,
+    semanticClass: 'analytic',
+    authorityKind: 'candidate-authoritative',
+    methodFamily: 'statistical',
+    runtimeStatus: 'candidate',
+    ownerKind: 'migration',
+    contractId: 'ANA-005',
+    bridgeKind: 'analytics',
+    rateOwnership: 'n/a',
+    fallbackPolicy: 'current',
+    notes:
+      'WASM candidate: wasm/correlation/。correlationMatrix は string FFI のため candidate 対象外',
+  },
   'candidate/algorithms/sensitivity.ts': {
     tag: 'required',
     reason: '感度分析（candidate: WASM 移行候補 CAND-ANA-003）',

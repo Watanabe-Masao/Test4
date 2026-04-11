@@ -18,7 +18,8 @@
     "observation-period",
     "pin-intervals",
     "inventory-calc",
-    "sensitivity"
+    "sensitivity",
+    "correlation"
   ],
   "ciJobs": [
     "wasm-build",

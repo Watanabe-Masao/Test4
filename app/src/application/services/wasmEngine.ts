@@ -52,6 +52,7 @@ export const WASM_CANDIDATE_MODULE_NAMES = [
   'pinIntervals',
   'inventoryCalc',
   'sensitivity',
+  'correlation',
 ] as const
 export type WasmCandidateModuleName = (typeof WASM_CANDIDATE_MODULE_NAMES)[number]
 
@@ -129,6 +130,12 @@ export const WASM_CANDIDATE_MODULE_METADATA: Readonly<
     authorityKind: 'candidate-authoritative',
     contractId: 'ANA-003',
   },
+  correlation: {
+    semanticClass: 'analytic',
+    bridgeKind: 'analytics',
+    authorityKind: 'candidate-authoritative',
+    contractId: 'ANA-005',
+  },
 }
 
 /* ── 内部状態 ─────────────────────────────────── */
@@ -158,6 +165,7 @@ let observationPeriodWasmExports: typeof import('observation-period-wasm') | nul
 let pinIntervalsWasmExports: typeof import('pin-intervals-wasm') | null = null
 let inventoryCalcWasmExports: typeof import('inventory-calc-wasm') | null = null
 let sensitivityWasmExports: typeof import('sensitivity-wasm') | null = null
+let correlationWasmExports: typeof import('correlation-wasm') | null = null
 
 // candidate 群の状態管理（current とは分離）
 const candidateModuleStates: Record<WasmCandidateModuleName, WasmState> = {
@@ -168,6 +176,7 @@ const candidateModuleStates: Record<WasmCandidateModuleName, WasmState> = {
   pinIntervals: 'idle',
   inventoryCalc: 'idle',
   sensitivity: 'idle',
+  correlation: 'idle',
 }
 
 /* ── 初期化 ───────────────────────────────────── */
@@ -459,6 +468,30 @@ export async function initSensitivityCandidateWasm(): Promise<void> {
   }
 }
 
+/**
+ * correlation candidate WASM モジュールを非同期で初期化する。
+ */
+export async function initCorrelationCandidateWasm(): Promise<void> {
+  if (candidateModuleStates.correlation !== 'idle') return
+
+  candidateModuleStates.correlation = 'loading'
+  try {
+    const wasm = await import('correlation-wasm')
+    await wasm.default()
+    correlationWasmExports = wasm
+    candidateModuleStates.correlation = 'ready'
+    if (import.meta.env.DEV) {
+      console.info('[wasmEngine] correlation candidate ready — WASM candidate-authoritative ready')
+    }
+  } catch (e) {
+    candidateModuleStates.correlation = 'error'
+    console.warn(
+      '[wasmEngine] correlation candidate WASM initialization failed, falling back to TS:',
+      e,
+    )
+  }
+}
+
 /* ── 状態取得 ─────────────────────────────────── */
 
 /** 個別モジュールの状態を取得する */
@@ -521,6 +554,10 @@ export function getInventoryCalcWasmExports(): typeof import('inventory-calc-was
 
 export function getSensitivityWasmExports(): typeof import('sensitivity-wasm') | null {
   return sensitivityWasmExports
+}
+
+export function getCorrelationWasmExports(): typeof import('correlation-wasm') | null {
+  return correlationWasmExports
 }
 
 /** candidate モジュールの状態を取得する */

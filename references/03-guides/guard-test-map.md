@@ -294,6 +294,13 @@ Set / Record を構築して使用する。許可リストの変更は `allowlis
 | 感度分析: 客数単調性 | `wasm/sensitivity/tests/invariants.rs` | INV-SENS-05 |
 | 感度分析: 有限保証 | `wasm/sensitivity/tests/invariants.rs` | INV-SENS-06 |
 | 感度分析: 弾性値符号一貫性 | `wasm/sensitivity/tests/invariants.rs` | INV-SENS-07 |
+| 相関: Pearson r ∈ [-1,1] | `wasm/correlation/tests/invariants.rs` | INV-CORR-01 |
+| 相関: Pearson 対称性 | `wasm/correlation/tests/invariants.rs` | INV-CORR-02 |
+| 相関: コサイン類似度 ∈ [0,1] | `wasm/correlation/tests/invariants.rs` | INV-CORR-03 |
+| 相関: 正規化値域 [0,100] | `wasm/correlation/tests/invariants.rs` | INV-CORR-04 |
+| 相関: Zスコア統計的性質 | `wasm/correlation/tests/invariants.rs` | INV-CORR-05 |
+| 相関: 移動平均有限性 | `wasm/correlation/tests/invariants.rs` | INV-CORR-06 |
+| 相関: 有限保証 | `wasm/correlation/tests/invariants.rs` | INV-CORR-07 |
 
 ## 設計原則カテゴリ → ガードテスト対応
 

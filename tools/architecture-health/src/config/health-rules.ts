@@ -145,7 +145,7 @@ export const HEALTH_RULES: readonly HealthRule[] = [
     id: "temporal.allowlist.activeDebt.count",
     type: "soft_gate",
     operator: "lte",
-    target: 8, // Phase 5-6: 7 candidate bridge + 1 既存
+    target: 9, // Phase 5-6: 8 candidate bridge + 1 既存
   },
   // 減少禁止: baseline を下回ったら fail
   {

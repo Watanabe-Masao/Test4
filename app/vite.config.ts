@@ -78,6 +78,7 @@ export default defineConfig({
       'pin-intervals-wasm',
       'inventory-calc-wasm',
       'sensitivity-wasm',
+      'correlation-wasm',
     ],
   },
   assetsInclude: ['**/*.wasm'],

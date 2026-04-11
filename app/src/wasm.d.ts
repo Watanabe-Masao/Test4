@@ -186,6 +186,21 @@ declare module 'observation-period-wasm' {
   ): Float64Array
 }
 
+// ─── correlation-wasm (candidate: ANA-005) ──────────────
+declare module 'correlation-wasm' {
+  export default function init(): Promise<void>
+  export function pearson_correlation(xs: Float64Array, ys: Float64Array): Float64Array
+  export function cosine_similarity(a: Float64Array, b: Float64Array): number
+  export function normalize_min_max(values: Float64Array): Float64Array
+  export function detect_divergence(
+    seriesA: Float64Array,
+    seriesB: Float64Array,
+    threshold: number,
+  ): Float64Array
+  export function moving_average(values: Float64Array, window: number): Float64Array
+  export function calculate_z_scores(values: Float64Array): Float64Array
+}
+
 // ─── sensitivity-wasm (candidate: ANA-003) ──────────────
 declare module 'sensitivity-wasm' {
   export default function init(): Promise<void>

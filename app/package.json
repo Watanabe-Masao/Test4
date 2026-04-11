@@ -8,7 +8,7 @@
     "npm": ">=10.0.0"
   },
   "scripts": {
-    "build:wasm": "cd ../wasm/factor-decomposition && wasm-pack build --target web --release --out-dir pkg && cd ../gross-profit && wasm-pack build --target web --release --out-dir pkg && cd ../budget-analysis && wasm-pack build --target web --release --out-dir pkg && cd ../forecast && wasm-pack build --target web --release --out-dir pkg && cd ../time-slot && wasm-pack build --target web --release --out-dir pkg && cd ../statistics && wasm-pack build --target web --release --out-dir pkg && cd ../core-utils && wasm-pack build --target web --release --out-dir pkg && cd ../pi-value && wasm-pack build --target web --release --out-dir pkg && cd ../customer-gap && wasm-pack build --target web --release --out-dir pkg && cd ../remaining-budget-rate && wasm-pack build --target web --release --out-dir pkg && cd ../observation-period && wasm-pack build --target web --release --out-dir pkg && cd ../pin-intervals && wasm-pack build --target web --release --out-dir pkg && cd ../inventory-calc && wasm-pack build --target web --release --out-dir pkg && cd ../sensitivity && wasm-pack build --target web --release --out-dir pkg",
+    "build:wasm": "cd ../wasm/factor-decomposition && wasm-pack build --target web --release --out-dir pkg && cd ../gross-profit && wasm-pack build --target web --release --out-dir pkg && cd ../budget-analysis && wasm-pack build --target web --release --out-dir pkg && cd ../forecast && wasm-pack build --target web --release --out-dir pkg && cd ../time-slot && wasm-pack build --target web --release --out-dir pkg && cd ../statistics && wasm-pack build --target web --release --out-dir pkg && cd ../core-utils && wasm-pack build --target web --release --out-dir pkg && cd ../pi-value && wasm-pack build --target web --release --out-dir pkg && cd ../customer-gap && wasm-pack build --target web --release --out-dir pkg && cd ../remaining-budget-rate && wasm-pack build --target web --release --out-dir pkg && cd ../observation-period && wasm-pack build --target web --release --out-dir pkg && cd ../pin-intervals && wasm-pack build --target web --release --out-dir pkg && cd ../inventory-calc && wasm-pack build --target web --release --out-dir pkg && cd ../sensitivity && wasm-pack build --target web --release --out-dir pkg && cd ../correlation && wasm-pack build --target web --release --out-dir pkg",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
@@ -50,6 +50,7 @@
     "gross-profit-wasm": "file:../wasm/gross-profit/pkg",
     "inventory-calc-wasm": "file:../wasm/inventory-calc/pkg",
     "observation-period-wasm": "file:../wasm/observation-period/pkg",
+    "correlation-wasm": "file:../wasm/correlation/pkg",
     "customer-gap-wasm": "file:../wasm/customer-gap/pkg",
     "pi-value-wasm": "file:../wasm/pi-value/pkg",
     "pin-intervals-wasm": "file:../wasm/pin-intervals/pkg",

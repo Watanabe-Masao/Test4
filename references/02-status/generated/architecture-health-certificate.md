@@ -7,7 +7,7 @@
 | **総合評価** | **RISK** |
 | 前回比 | Flat |
 | リリース影響 | Yes |
-| 最終更新 | 2026-04-11T00:40:17.739Z |
+| 最終更新 | 2026-04-11T00:55:54.726Z |
 
 ## Hard Gate
 
@@ -31,7 +31,7 @@
 | **境界健全性** | OK | Presentation→Infrastructure 違反: 0/0 / Infrastructure→Application 違反: 0/0 |
 | **ガード強度** | OK | ガードテストファイル数: 48/30 / レビュー専用タグ数: 0/5 |
 | **性能** | OK |  |
-| **Temporal Governance** | OK | review overdue ルール数: 0/0 / heuristic + gate ルール数: 32/32 / active-debt 例外数: 7/8 / reviewPolicy 設定済みルール数: 140/92 / sunsetCondition 設定済みルール数: 9/9 / active-debt で createdAt 設定済み: 7/1 |
+| **Temporal Governance** | OK | review overdue ルール数: 0/0 / heuristic + gate ルール数: 32/32 / active-debt 例外数: 8/9 (+1) / reviewPolicy 設定済みルール数: 140/92 / sunsetCondition 設定済みルール数: 9/9 / active-debt で createdAt 設定済み: 8/1 (+1) |
 | **Rule Efficacy** | OK | protectedHarm 設定済みルール数: 77 / 高例外圧ルール数（≥10 件）: 1/3 / renewalCount 合計: 0/10 |
 
 ## Top Risks
@@ -40,6 +40,13 @@
 - 状態: 1 / budget 0（100% 超過）
 - ファイル: `—`
 - 定義書: `tools/architecture-health/src/collectors/obligation-collector.ts`
+
+## Recent Changes
+
+| 指標 | 前回 | 今回 | 変化 |
+|---|---|---|---|
+| active-debt 例外数 | 7 | 8 | +1 ! |
+| active-debt で createdAt 設定済み | 7 | 8 | +1 ! |
 
 ## Recommended Actions
 

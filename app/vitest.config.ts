@@ -24,6 +24,7 @@ const wasmAliases: Record<string, string> = {
   'pin-intervals-wasm': resolve(__dirname, 'src/test/__mocks__/pinIntervalsWasmMock.ts'),
   'inventory-calc-wasm': resolve(__dirname, 'src/test/__mocks__/inventoryCalcWasmMock.ts'),
   'sensitivity-wasm': resolve(__dirname, 'src/test/__mocks__/sensitivityWasmMock.ts'),
+  'correlation-wasm': resolve(__dirname, 'src/test/__mocks__/correlationWasmMock.ts'),
 }
 
 export default defineConfig({
