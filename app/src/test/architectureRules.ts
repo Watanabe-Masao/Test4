@@ -49,7 +49,6 @@ export type {
   DecisionCriteria,
   MigrationRecipe,
   ExecutionPlan,
-  MigrationPath,
   ReviewPolicy,
   LifecyclePolicy,
   RuleRelationships,

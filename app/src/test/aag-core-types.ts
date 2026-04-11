@@ -119,18 +119,6 @@ export interface ExecutionPlan {
   readonly priority: number
 }
 
-/**
- * 修正手順（統合版）。
- * @deprecated MigrationRecipe（App Domain）+ ExecutionPlan（Project Overlay）に分離予定。
- * 既存 140 ルールの互換性のため当面残す。
- */
-export interface MigrationPath {
-  readonly steps: readonly string[]
-  readonly effort: MigrationEffort
-  /** 低い = 先にやる */
-  readonly priority: number
-}
-
 /** レビュー周期 */
 export interface ReviewPolicy {
   readonly owner: string
