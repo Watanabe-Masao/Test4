@@ -448,8 +448,8 @@ export const CALCULATION_CANON_REGISTRY: Readonly<Record<string, CanonEntry>> = 
     fallbackPolicy: 'current',
   },
   'algorithms/advancedForecast.ts': {
-    tag: 'review',
-    reason: 'WMA・回帰・天気調整予測',
+    tag: 'required',
+    reason: 'WMA・回帰・天気調整予測（current/analytics、forecastBridge 経由 WASM 部分稼働）',
     zodAdded: true,
     semanticClass: 'analytic',
     authorityKind: 'analytic-authoritative',
@@ -460,6 +460,8 @@ export const CALCULATION_CANON_REGISTRY: Readonly<Record<string, CanonEntry>> = 
     bridgeKind: 'analytics',
     rateOwnership: 'n/a',
     fallbackPolicy: 'current',
+    notes:
+      'current WASM: calculateWMA, linearRegression (forecastBridge 経由)。TS residual: projectDowAdjusted, calculateMonthEndProjection, weatherAdjustedProjection (Map/DailyForecast 入力のため WASM 未移行)',
   },
   'algorithms/sensitivity.ts': {
     tag: 'review',
@@ -504,8 +506,8 @@ export const CALCULATION_CANON_REGISTRY: Readonly<Record<string, CanonEntry>> = 
     fallbackPolicy: 'current',
   },
   'forecast.ts': {
-    tag: 'review',
-    reason: '週次サマリー・異常値検出',
+    tag: 'required',
+    reason: '週次サマリー・異常値検出（current/analytics、forecastBridge 経由 WASM 部分稼働）',
     zodAdded: true,
     semanticClass: 'analytic',
     authorityKind: 'analytic-authoritative',
@@ -516,6 +518,8 @@ export const CALCULATION_CANON_REGISTRY: Readonly<Record<string, CanonEntry>> = 
     bridgeKind: 'analytics',
     rateOwnership: 'n/a',
     fallbackPolicy: 'current',
+    notes:
+      'current WASM: calculateStdDev, detectAnomalies (forecastBridge 経由)。TS residual: calculateForecast, calculateWeeklySummaries, calculateDayOfWeekAverages, getWeekRanges (Map 入力のため WASM 未移行)',
   },
   'dowGapAnalysis.ts': {
     tag: 'review',
