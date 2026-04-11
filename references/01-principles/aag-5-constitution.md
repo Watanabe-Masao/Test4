@@ -20,13 +20,13 @@
 **責務:** 不可侵原則、用語定義、意味分類体系、設計思想の固定
 
 **含むもの:**
-- 設計原則（A〜I + Q カテゴリ、50 タグ）
+- 設計原則（A〜I + Q カテゴリ）
 - 意味分類ポリシー（semanticClass / authorityKind / runtimeStatus）
 - current / candidate 分離原則
 - Promote Ceremony 原則（人間承認必須）
 - エンジン境界ポリシー（Authoritative / Application / Exploration）
 - 正本化原則（canonicalization-principles）
-- 業務値定義書（sales / discount / customer / gross-profit 等 13 定義）
+- 業務値定義書（sales / discount / customer / gross-profit 等）
 - 数学的不変条件（Shapley 恒等式、D1-D3）
 
 **変更条件:** 「別の仕組みで防がれるようになった」場合のみ変更可。
@@ -39,13 +39,20 @@
 > **「何が存在するか」の正本**
 
 全ての型契約、レジストリ、メタデータ構造がここに属する。
-データの形を定義する層であり、検出ロジックは持たない。
+データの形と宣言的なルール仕様を定義する層。
+手続き的な検出ロジック（テスト実装）は持たないが、
+「何を検出すべきか」の宣言（ルール定義）は Schema に属する。
 
-**責務:** 型定義、レジストリ、契約、violation 構造、evidence 構造
+> **architectureRules.ts の位置づけ:**
+> `architectureRules.ts` はルールの **宣言的仕様**（what / why / correctPattern / outdatedPattern / detection type）を
+> 持つため Schema 層に属する。一方、その宣言を **実際に検出するテスト実装**（`guards/*.test.ts`）は Execution 層に属する。
+> つまり「何を守るか」は Schema、「どう検出するか」は Execution。
+
+**責務:** 型定義、レジストリ、ルール仕様、契約、violation 構造、evidence 構造
 
 **含むもの:**
 - `calculationCanonRegistry.ts` — Master Registry（唯一の正本）
-- `architectureRules.ts` — ルール定義（140 ルール、検出定義を含む）
+- `architectureRules.ts` — ルール宣言的仕様（what / why / detection type を定義。テスト実装は Execution 層）
 - `guardTagRegistry.ts` — ガードタグ定義
 - `responsibilityTagRegistry.ts` — 責務タグ定義
 - `migrationTagRegistry.ts` — 移行タグ定義
@@ -74,7 +81,7 @@ Schema 層が定義した型を使って、Constitution 層の原則を機械的
 **責務:** 違反検出、ratchet 管理、health KPI 収集、自動導出
 
 **含むもの:**
-- `app/src/test/guards/` — 48 ガードテスト
+- `app/src/test/guards/` — ガードテスト群
 - `app/src/test/semanticViews.ts` — Derived View 生成（master → 自動導出）
 - `app/src/test/allowlists/*.ts` — 例外管理（types.ts 以外）
 - `tools/architecture-health/` — Health 収集・評価・レンダリング
@@ -117,6 +124,28 @@ Schema 層が定義した型を使って、Constitution 層の原則を機械的
 - progress truth は `plan-checklist.md` の1箇所のみ
 - 文書がコード truth より先走ったままにしない
 - 人間承認が必要な箇所を明示する
+
+---
+
+## 旧 AAG との関係
+
+AAG 5.0 は旧 AAG（v4.x 系）の4層定義（Principles / Judgment / Detection / Response）を**置換する再定義**である。
+
+| 旧 AAG | AAG 5.0 | 関係 |
+|--------|---------|------|
+| Principles 層 | Constitution 層 | ほぼ同等。思想の正本 |
+| Judgment 層 | Schema 層 | 判断基準 → 宣言的ルール仕様 + 型契約に拡張 |
+| Detection 層 | Execution 層 | ほぼ同等。検出の実装 |
+| Response 層 | Operations 層 | 応答 → 運用手順全体に拡張 |
+
+**旧 AAG 文書の扱い:**
+- `aag-four-layer-architecture.md` — 歴史的参照として残す。現行定義は本文書
+- `adaptive-architecture-governance.md` — AAG マスター定義として維持。generated section を含むため正本性は継続
+- `aag-operational-classification.md` — now / debt / review 分類は AAG 5.0 でも維持。現行有効
+- `adaptive-governance-evolution.md` — 進化設計思想は AAG 5.0 でも有効。現行有効
+- `aag-rule-splitting-plan.md` — ルール分割計画として現行有効
+
+**原則:** 旧 AAG 文書を削除しない。AAG 5.0 が現行骨格であることを本文書で宣言する。
 
 ---
 

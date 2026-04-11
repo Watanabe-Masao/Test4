@@ -1,10 +1,11 @@
 # AAG 5.0.0 — 既存ファイルの層マッピング
 
 > 既存の全主要 AAG アーティファクトがどの層に属するかの棚卸し。
+> 件数は書かない（正本ポリシーに従い、件数は generated section に寄せる）。
 
-## Layer 1: Constitution（39 ファイル）
+## Layer 1: Constitution
 
-### AAG フレームワーク（5）
+### AAG フレームワーク
 
 | ファイル | 役割 |
 |---------|------|
@@ -14,7 +15,7 @@
 | `references/01-principles/aag-operational-classification.md` | now / debt / review 分類 |
 | `references/01-principles/aag-rule-splitting-plan.md` | ルール分割戦略 |
 
-### 設計原則（10）
+### 設計原則
 
 | ファイル | 役割 |
 |---------|------|
@@ -29,7 +30,7 @@
 | `references/01-principles/temporal-scope-semantics.md` | 期間スコープ |
 | `references/01-principles/modular-monolith-evolution.md` | モジュラーモノリス進化 |
 
-### 正本化原則（4）
+### 正本化原則
 
 | ファイル | 役割 |
 |---------|------|
@@ -38,7 +39,7 @@
 | `references/01-principles/canonical-input-sets.md` | 正本入力セット |
 | `references/01-principles/calculation-canonicalization-map.md` | 計算分類マップ |
 
-### 業務値定義書（13）
+### 業務値定義書
 
 | ファイル | 正本 |
 |---------|------|
@@ -58,12 +59,12 @@
 
 ---
 
-## Layer 2: Schema（9 ファイル）
+## Layer 2: Schema
 
 | ファイル | 種別 | 正本/派生 |
 |---------|------|----------|
 | `app/src/test/calculationCanonRegistry.ts` | Master Registry | **正本** |
-| `app/src/test/architectureRules.ts` | ルール定義（140） | **正本** |
+| `app/src/test/architectureRules.ts` | ルール宣言的仕様 | **正本** |
 | `app/src/test/guardTagRegistry.ts` | ガードタグ定義 | **正本** |
 | `app/src/test/responsibilityTagRegistry.ts` | 責務タグ定義 | **正本** |
 | `app/src/test/migrationTagRegistry.ts` | 移行タグ定義 | **正本** |
@@ -74,9 +75,9 @@
 
 ---
 
-## Layer 3: Execution（113+ ファイル）
+## Layer 3: Execution
 
-### ガードテスト（48）
+### ガードテスト
 
 | カテゴリ | ファイル数 | 代表例 |
 |---------|----------|--------|
@@ -101,7 +102,7 @@
 
 | ファイル | 役割 |
 |---------|------|
-| `tools/architecture-health/` | Health 収集・評価（21 ファイル） |
+| `tools/architecture-health/` | Health 収集・評価・レンダリング |
 | `tools/git-hooks/pre-commit` | docs 自動再生成 |
 | `tools/git-hooks/pre-push` | 修正漏れ検出 |
 | `tools/aag-render-cli.ts` | AAG Response 統一出力 |
@@ -122,9 +123,9 @@
 
 ---
 
-## Layer 4: Operations（89+ ファイル）
+## Layer 4: Operations
 
-### 起点文書（3）
+### 起点文書
 
 | ファイル | 役割 | 正本性 |
 |---------|------|--------|
@@ -132,7 +133,7 @@
 | `plan.md` | 全体計画と原則 | 運用物 |
 | `plan-checklist.md` | 進行管理 | progress truth |
 
-### 移行計画（6）
+### 移行計画
 
 | ファイル | 対象 |
 |---------|------|
@@ -143,7 +144,7 @@
 | `data-load-idempotency-plan.md` | データロード冪等化 |
 | `active-debt-refactoring-plan.md` | active-debt リファクタ |
 
-### 昇格判定表（11）
+### 昇格判定表
 
 `references/02-status/promotion-readiness-*.md` — 各候補の判定表
 
@@ -153,13 +154,13 @@
 
 ---
 
-## 未整理・要分類
+## Parse1 未整理 → Parse2 で分類確定
 
-| ファイル | 現在の位置 | 候補層 | 備考 |
-|---------|-----------|--------|------|
-| `architecture-rule-feasibility.md` | 01-principles | Constitution or Operations | ルール実現可能性評価 |
-| `contract-definition-policy.md` | 03-guides | Schema（契約テンプレート定義） | 型定義に近い |
-| `current-maintenance-policy.md` | 03-guides | Operations | current 群の保守手順 |
-| `migration-tag-policy.md` | 03-guides | Operations | タグ運用手順 |
-| `discovery-review-checklist.md` | 03-guides | Operations | レビュー手順 |
-| `widgetOwnershipRegistry.ts` | app/src/test | Schema | レジストリ |
+| ファイル | 確定層 | 理由 |
+|---------|--------|------|
+| `architecture-rule-feasibility.md` | **Constitution** | ルール導入の判断基準を定義。思想寄り |
+| `contract-definition-policy.md` | **Schema** | BIZ / ANA 契約テンプレートの型定義。Schema の契約仕様 |
+| `current-maintenance-policy.md` | **Operations** | current 群の保守手順書 |
+| `migration-tag-policy.md` | **Operations** | 移行タグの運用手順書 |
+| `discovery-review-checklist.md` | **Operations** | レビュー手順書 |
+| `widgetOwnershipRegistry.ts` | **Schema** | Widget 所有権レジストリ。型と登録の正本 |
