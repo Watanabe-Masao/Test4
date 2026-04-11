@@ -259,7 +259,7 @@ Response（入口）→ Judgment（判断）→ Principles（思想）← Detect
 | fixNow=review（観測） | 21 |
 | ガードテストファイル | 48 |
 
-> 生成: 2026-04-11T05:28:16.317Z — 正本: `app/src/test/architectureRules.ts`
+> 生成: 2026-04-11T06:00:56.140Z — 正本: `app/src/test/architectureRules.ts`
 <!-- GENERATED:END aag-rule-stats -->
 
 ## 運用区分
