@@ -173,6 +173,27 @@ Phase 6 結果:
 
 `references/01-principles/` 配下を変更したら `docs/contracts/principles.json` も同コミットに含める。
 
+### pre-push hook による自動検出
+
+上記の連鎖更新漏れは `tools/git-hooks/pre-push` で自動検出される:
+
+```bash
+# セットアップ（初回のみ）
+cp tools/git-hooks/pre-push .git/hooks/pre-push
+chmod +x .git/hooks/pre-push
+# pre-commit も入れる場合
+cp tools/git-hooks/pre-commit .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
+```
+
+pre-push が検出する項目:
+- `references/` 変更 → `doc-registry.json` / `README.md` 未更新
+- `references/01-principles/` 変更 → `principles.json` 未更新
+- `wasm/` 変更 → `project-metadata.json` 未更新
+- guard/allowlist/registry 変更 → `docs:generate` 未実行
+- lint エラー残存
+- `test:guards` 未通過
+
 ## 7. テスト実行の手順
 
 ```bash

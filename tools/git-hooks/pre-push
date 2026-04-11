@@ -1,0 +1,140 @@
+#!/bin/sh
+# pre-push hook — CI 前の修正漏れ検出
+#
+# push 前に、後続 AI が落としやすい修正漏れを検出して止める。
+# pre-commit よりも重い検査（test:guards）を含むが、CI より速い。
+#
+# 検出対象:
+#   1. test:guards 未通過
+#   2. references/ 新規 .md → doc-registry.json 未更新
+#   3. references/ 新規 .md → references/README.md 未更新
+#   4. lint エラー
+#
+# AAG Response 統一フォーマット互換。
+#
+# セットアップ:
+#   cp tools/git-hooks/pre-push .git/hooks/pre-push
+#   chmod +x .git/hooks/pre-push
+
+set -e
+
+# ── push 対象のコミット範囲を取得 ──
+# pre-push は stdin から <local ref> <local sha> <remote ref> <remote sha> を受け取る
+PUSH_RANGE=""
+while read -r _ LOCAL_SHA _ REMOTE_SHA; do
+  if [ "$REMOTE_SHA" = "0000000000000000000000000000000000000000" ]; then
+    # 新規ブランチ: main との差分
+    PUSH_RANGE="origin/main...$LOCAL_SHA"
+  else
+    PUSH_RANGE="${REMOTE_SHA}..${LOCAL_SHA}"
+  fi
+done
+
+if [ -z "$PUSH_RANGE" ]; then
+  exit 0
+fi
+
+CHANGED_FILES=$(git diff --name-only "$PUSH_RANGE" 2>/dev/null || git diff --name-only HEAD~1 2>/dev/null || echo "")
+
+if [ -z "$CHANGED_FILES" ]; then
+  exit 0
+fi
+
+ERRORS=""
+WARNINGS=""
+
+# ── Check 1: references/ 新規 .md → doc-registry.json 未更新 ──
+NEW_REFS=$(echo "$CHANGED_FILES" | grep "^references/.*\.md$" | grep -v "^references/02-status/generated/" | grep -v "^references/99-archive/" || true)
+
+if [ -n "$NEW_REFS" ]; then
+  if ! echo "$CHANGED_FILES" | grep -q "^docs/contracts/doc-registry.json"; then
+    ERRORS="${ERRORS}references/ に .md 変更あり → docs/contracts/doc-registry.json が未更新\n"
+  fi
+  if ! echo "$CHANGED_FILES" | grep -q "^references/README.md"; then
+    WARNINGS="${WARNINGS}references/ に .md 変更あり → references/README.md が未更新の可能性\n"
+  fi
+fi
+
+# ── Check 2: references/01-principles/ 変更 → principles.json 未更新 ──
+if echo "$CHANGED_FILES" | grep -q "^references/01-principles/"; then
+  if ! echo "$CHANGED_FILES" | grep -q "^docs/contracts/principles.json"; then
+    WARNINGS="${WARNINGS}references/01-principles/ 変更あり → docs/contracts/principles.json が未更新の可能性\n"
+  fi
+fi
+
+# ── Check 3: wasm/ 変更 → project-metadata.json 未更新 ──
+if echo "$CHANGED_FILES" | grep -q "^wasm/"; then
+  if ! echo "$CHANGED_FILES" | grep -q "^docs/contracts/project-metadata.json"; then
+    WARNINGS="${WARNINGS}wasm/ 変更あり → docs/contracts/project-metadata.json が未更新の可能性\n"
+  fi
+fi
+
+# ── Check 4: guard/allowlist 変更 → docs:generate 未実行 ──
+GUARD_CHANGED=0
+for pattern in \
+  "app/src/test/allowlists/" \
+  "app/src/test/guards/" \
+  "app/src/test/architectureRules.ts" \
+  "app/src/test/calculationCanonRegistry.ts"; do
+  if echo "$CHANGED_FILES" | grep -q "^${pattern}"; then
+    GUARD_CHANGED=1
+    break
+  fi
+done
+
+if [ "$GUARD_CHANGED" = "1" ]; then
+  if ! echo "$CHANGED_FILES" | grep -q "^references/02-status/generated/"; then
+    WARNINGS="${WARNINGS}guard/allowlist/registry 変更あり → docs:generate 未実行の可能性\n"
+  fi
+fi
+
+# ── Check 5: lint ──
+echo "  pre-push: lint 実行中..."
+if ! (cd app && npm run lint --silent 2>&1 | tail -1 | grep -q "0 errors"); then
+  LINT_RESULT=$(cd app && npm run lint 2>&1 | grep "problems" || echo "")
+  if echo "$LINT_RESULT" | grep -q "[1-9][0-9]* error"; then
+    ERRORS="${ERRORS}lint エラーが残っている: ${LINT_RESULT}\n"
+  fi
+fi
+
+# ── Check 6: test:guards ──
+echo "  pre-push: test:guards 実行中..."
+if ! (cd app && npm run test:guards --silent 2>&1 | tail -1 | grep -q "passed"); then
+  GUARD_RESULT=$(cd app && npm run test:guards 2>&1 | grep "Tests" | head -1 || echo "unknown")
+  ERRORS="${ERRORS}test:guards が失敗: ${GUARD_RESULT}\n"
+fi
+
+# ── 結果出力 ──
+
+if [ -n "$ERRORS" ]; then
+  echo ""
+  npx tsx tools/aag-render-cli.ts \
+    now governance-ops \
+    "pre-push: 修正漏れを検出" \
+    "push 前チェックでエラーが見つかった" \
+    "以下を修正してから再度 push してください" \
+    2>/dev/null || {
+    echo "⚡ 今すぐ修正 [governance-ops]"
+    echo "  pre-push: 修正漏れを検出"
+    echo "  理由: push 前チェックでエラーが見つかった"
+  }
+  echo ""
+  echo "  エラー:"
+  printf "    %b" "$ERRORS"
+  if [ -n "$WARNINGS" ]; then
+    echo "  警告:"
+    printf "    %b" "$WARNINGS"
+  fi
+  echo ""
+  exit 1
+fi
+
+if [ -n "$WARNINGS" ]; then
+  echo ""
+  echo "  pre-push 警告（push は続行）:"
+  printf "    %b" "$WARNINGS"
+  echo ""
+fi
+
+echo "  pre-push: OK"
+exit 0
