@@ -466,7 +466,7 @@ AAG は「発見 → 蓄積 → 評価」の 3 層サイクルでルール自体
 | `must-not-coexist` | 同居禁止 | useState と SQL query |
 | `custom` | 特殊ロジック | テスト側で実装 |
 
-**全ルールに migrationRecipe + executionPlan + doc + decisionCriteria（件数は generated section 参照）**
+**全ルールに migrationRecipe + executionPlan + doc（decisionCriteria の件数は generated section 参照）**
 
 各ルールが持つ情報:
 - `what` / `why` / `doc` — 学習コスト削減
