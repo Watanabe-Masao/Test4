@@ -611,7 +611,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 | Rule Efficacy | OK | 77 / 1/3 / 0/10 |
 
 
-> 生成: 2026-04-11T02:38:37.205Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-11T02:53:54.758Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）
