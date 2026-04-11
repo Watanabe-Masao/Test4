@@ -1,7 +1,7 @@
 /**
  * dow-gap-wasm 型付きモック（candidate: ANA-007）
  */
-import { analyzeDowGap, countDowsInMonth } from '@/domain/calculations/dowGapAnalysis'
+import { analyzeDowGap } from '@/domain/calculations/dowGapAnalysis'
 
 export default function init(): Promise<void> {
   return Promise.resolve()
@@ -12,14 +12,17 @@ export function analyze_dow_gap(
   previousCounts: Float64Array,
   prevDowSales: Float64Array,
   dailyAverageSales: number,
-  _salesByDowFlat: Float64Array,
-  _customersByDowFlat: Float64Array,
-  _dowDataLengths: Uint32Array,
-  _dailyAverageCustomers: number,
-  _hasDailyData: boolean,
+  salesByDowFlat: Float64Array,
+  customersByDowFlat: Float64Array,
+  dowDataLengths: Uint32Array,
+  dailyAverageCustomers: number,
+  hasDailyData: boolean,
 ): Float64Array {
-  // Reconstruct year/month from counts (reverse lookup not possible)
-  // Mock uses 2025/1 vs 2024/1 as defaults — tests should provide via adapter
+  void salesByDowFlat
+  void customersByDowFlat
+  void dowDataLengths
+  void dailyAverageCustomers
+  void hasDailyData
   const prevSales: number[] = []
   for (let d = 0; d < 7; d++) {
     prevSales.push(Number.isNaN(prevDowSales[d]) ? 0 : prevDowSales[d])
