@@ -11,6 +11,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { ARCHITECTURE_RULES, SLICE_GUIDANCE, type AagSlice } from '../architectureRules'
 import { GUARD_TAG_REGISTRY } from '../guardTagRegistry'
+import { GUARD_CATEGORY_MAP } from '../guardCategoryMap'
 
 const PROJECT_ROOT = path.resolve(__dirname, '../../../..')
 
@@ -765,5 +766,24 @@ describe('AAG Entry Quality: 入口品質の自己監視', () => {
       `tools 側レンダラに出力契約キーワードが不足: ${missing.join(', ')}\n` +
         `app 側 renderAagResponse() と tools/aag-response.ts の出力を一致させてください`,
     ).toEqual([])
+  })
+
+  it('全ルールが guardCategoryMap に登録されている（AAG 5.0 A3）', () => {
+    const violations: string[] = []
+
+    for (const rule of ARCHITECTURE_RULES) {
+      if (!GUARD_CATEGORY_MAP[rule.id]) {
+        violations.push(`${rule.id} が guardCategoryMap に未登録`)
+      }
+    }
+
+    const ruleIds = new Set(ARCHITECTURE_RULES.map((r) => r.id))
+    for (const mapId of Object.keys(GUARD_CATEGORY_MAP)) {
+      if (!ruleIds.has(mapId)) {
+        violations.push(`${mapId} が guardCategoryMap にあるが architectureRules に存在しない`)
+      }
+    }
+
+    expect(violations, violations.join('\n')).toEqual([])
   })
 })
