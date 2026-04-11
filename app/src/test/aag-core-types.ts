@@ -175,12 +175,12 @@ export interface RuleRelationships {
 }
 
 /**
- * ルールの検出仕様層。
- * 「どう検出するか」の抽象仕様を定義する。
+ * ルールの検出仕様層（Core）。
+ * 「どう検出するか」の抽象仕様のみを定義する。
  *
- * correctPattern/outdatedPattern の imports/codeSignals/example は
- * アプリ固有のバインディング値を含む。
- * 型構造としては Core だが、具体値は App Domain に属する。
+ * correctPattern/outdatedPattern は description（何を正しい/古いとみなすか）のみ。
+ * 具体 import パス・codeSignals・example は RuleBinding（App 側）に属する。
+ * TypeScript intersection により ArchitectureRule でマージされる。
  */
 export interface RuleDetectionSpec {
   /** 検出設定 */
@@ -189,17 +189,13 @@ export interface RuleDetectionSpec {
   readonly thresholds?: {
     readonly [key: string]: number | undefined
   }
-  /** あるべき姿 */
+  /** あるべき姿（Core: description のみ） */
   readonly correctPattern: {
     readonly description: string
-    readonly example?: string
-    readonly imports?: readonly string[]
   }
-  /** 禁止/旧パターン */
+  /** 禁止/旧パターン（Core: description のみ） */
   readonly outdatedPattern: {
     readonly description: string
-    readonly imports?: readonly string[]
-    readonly codeSignals?: readonly string[]
   }
   /** ルール間の因果関係 */
   readonly relationships?: RuleRelationships
