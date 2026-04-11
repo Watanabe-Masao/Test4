@@ -164,6 +164,21 @@ describe('意味分類ガード（Phase 2）', () => {
     expect(violations, violations.join('\n')).toEqual([])
   })
 
+  it('non-target エントリが current view に含まれていない', () => {
+    const violations: string[] = []
+    for (const entry of BUSINESS_SEMANTIC_VIEW) {
+      if (entry.runtimeStatus === 'non-target') {
+        violations.push(`business current view に non-target: ${entry.path}`)
+      }
+    }
+    for (const entry of ANALYTIC_KERNEL_VIEW) {
+      if (entry.runtimeStatus === 'non-target') {
+        violations.push(`analytic current view に non-target: ${entry.path}`)
+      }
+    }
+    expect(violations, violations.join('\n')).toEqual([])
+  })
+
   it('candidate view に current エントリが含まれていない', () => {
     const violations: string[] = []
     for (const entry of MIGRATION_CANDIDATE_VIEW) {

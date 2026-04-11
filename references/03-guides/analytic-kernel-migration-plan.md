@@ -18,6 +18,16 @@ Business Semantic Core（Phase 5）とは別トラックで管理する。
 
 ## 3. Analytic 候補一覧
 
+### 3区分サマリ
+
+| 区分 | 対象 | 件数 |
+|------|------|------|
+| **candidate 移行** | ANA-003, ANA-004, ANA-005, ANA-007, ANA-009 | 5 件 |
+| **current 品質整備** | ANA-001 (Zod追加), ANA-002 (residual明文化), ANA-006 (residual明文化) | 3 件 |
+| **non-target 除外** | ANA-008 (JS-native / FFI 便益薄) | 1 件 |
+
+### 全9件の詳細
+
 | # | ファイル | contractId | methodFamily | invariant 例 | 移行難度 |
 |---|---------|-----------|-------------|-------------|---------|
 | 1 | timeSlotCalculations.ts | ANA-001 | time_pattern | コアタイム ⊂ 営業時間 | 中（bridge 済み） |
