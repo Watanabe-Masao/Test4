@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-11T00:09:14.318Z",
+  "timestamp": "2026-04-11T00:16:13.407Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 47,
+      "value": 48,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -311,7 +311,8 @@
         "app/src/test/guards/structuralConventionGuard.test.ts",
         "app/src/test/guards/temporalRollingGuard.test.ts",
         "app/src/test/guards/temporalScopeGuard.test.ts",
-        "app/src/test/guards/topologyGuard.test.ts"
+        "app/src/test/guards/topologyGuard.test.ts",
+        "app/src/test/guards/wasmCrateStructureGuard.test.ts"
       ],
       "budget": 30
     },
