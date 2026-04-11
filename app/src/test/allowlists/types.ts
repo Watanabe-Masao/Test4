@@ -27,6 +27,9 @@ export type CoreRetentionReason = 'detection-limit' | 'structural' | 'fallback'
  * App 固有残留理由 — 粗利管理ツール固有。
  * - display-only: 表示用途のみ。分析入力ではない
  * - no-readmodels: 正本（readModels）へのアクセス経路が未配線
+ *
+ * 暫定配置: 現在は本ファイル内で union 分離のみ行っている。
+ * 物理配置の分離は後続フェーズで app-domain/ へ移す。
  */
 export type AppRetentionReason = 'display-only' | 'no-readmodels'
 

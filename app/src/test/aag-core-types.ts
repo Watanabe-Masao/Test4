@@ -69,6 +69,12 @@ export interface RuleSemantics {
   readonly what: string
   /** なぜ重要か（業務/技術的文脈） */
   readonly why: string
+  /**
+   * どの設計原則から生まれたか（トレーサビリティ）。
+   * Core では string[]。App 側で PrincipleId 等に narrowing する。
+   * ※ 原則参照は binding ではなく意味層に属する（ルールの出自を辿る）
+   */
+  readonly principleRefs?: readonly string[]
   /** ガードタグ */
   readonly guardTags: readonly string[]
   /** 責務タグ */
@@ -112,7 +118,8 @@ export interface MigrationPath {
 /** レビュー周期 */
 export interface ReviewPolicy {
   readonly owner: string
-  readonly lastReviewedAt: string
+  /** 最終レビュー日。新規ルールや未レビューの場合は null */
+  readonly lastReviewedAt: string | null
   readonly reviewCadenceDays: number
 }
 

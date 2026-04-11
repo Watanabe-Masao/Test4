@@ -132,16 +132,22 @@ export type PrincipleId =
 /**
  * Architecture Rule — Core 3 層 + App 固有バインディング
  *
- * - RuleSemantics: 何を守るか（id, what, why, slice, ruleClass 等）
+ * - RuleSemantics: 何を守るか（id, what, why, principleRefs, slice, ruleClass 等）
  * - RuleGovernance: どう扱うか（fixNow, decisionCriteria, migrationPath 等）
  * - RuleDetectionSpec: どう見つけるか（detection, thresholds, correctPattern 等）
- * - App 固有: principleRefs, doc（アプリ固有の参照）
+ * - App 固有: doc（アプリ固有パス）、principleRefs の PrincipleId narrowing
  *
- * correctPattern/outdatedPattern の imports/codeSignals は
- * 型構造としては Core（RuleDetectionSpec）だが、具体値はアプリ固有バインディング。
+ * correctPattern/outdatedPattern について:
+ * - description は Core 検出仕様（何を正しい/古いとみなすか）
+ * - imports/codeSignals/example はアプリ固有バインディング（このアプリで何を探すか）
+ * 型構造としては Core（RuleDetectionSpec）に統合しているが、
+ * 具体値は App Domain に属する。将来的に RuleBinding として分離する候補。
+ *
+ * Phase 2 は type-level decomposition のみ。
+ * ルール定義データの物理分割、catalog/binding の別ファイル化、実行ロジック変更は行わない。
  */
 export interface ArchitectureRule extends _RuleSemantics, _RuleGovernance, _RuleDetectionSpec {
-  /** どの設計原則から生まれたか（アプリ固有トレーサビリティ） */
+  /** Core の principleRefs を PrincipleId に narrowing（アプリ固有の原則 ID 体系） */
   readonly principleRefs?: readonly PrincipleId[]
   /** 参照ドキュメント（アプリ固有パス） */
   readonly doc?: string

@@ -59,6 +59,29 @@ readSalesFact、useDataStore、UnifiedWidgetContext、PAGE_REGISTRY のような
 | Health target 値（具体 budget） | Project Overlay |
 | 案件固有の allowlist entry | Project Overlay |
 
+## 禁止例（AI 誤配置の防止）
+
+### Core に置かない例
+
+- sales, gross-profit, PI, factorDecomposition（業務値）
+- readSalesFact, useDataStore, UnifiedWidgetContext（具体名）
+- BIZ-001, ANA-003（契約 ID）
+- PrincipleId の具体値（A1, B2, C3 等）
+- project の進捗、handoff、current status
+
+### App Domain に置かない例
+
+- current phase、next action、review due today（進行状態）
+- health budget（具体しきい値）
+- HANDOFF.md、plan.md、checklist.md
+
+### Project Overlay に置かない例
+
+- AAG 原則の再定義
+- semanticClass の意味変更
+- 共通 schema の再定義
+- CoreRetentionReason の追加
+
 ## 変更条件
 
 この境界ポリシーの変更は人間承認が必要。
