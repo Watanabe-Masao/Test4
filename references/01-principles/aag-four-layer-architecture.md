@@ -44,7 +44,8 @@ Domain の思想を、具体的な判断・運用に変換する層。
 
 | ファイル / フィールド | 内容 |
 |---------|------|
-| Architecture Rule の `migrationPath` | 修正手順 |
+| Architecture Rule の `migrationRecipe` | 修正手順（App Domain の安定知識） |
+| Architecture Rule の `executionPlan` | 工数・優先度（Project Overlay の案件運用状態） |
 | Architecture Rule の `decisionCriteria` | 例外判断基準 |
 | Architecture Rule の `relationships` | ルール間の因果 |
 | Architecture Rule の `fixNow` | Fix Now / Debt / Review 分類 |
@@ -94,6 +95,6 @@ AAG の正式入口。違反時に初めて出会う UI。
 |---|------|------------|
 | 1 | **何が止まったか** | Judgment (`entrypointSummary`) |
 | 2 | **なぜ止まったか** | Principles (`why`) |
-| 3 | **今やること** | Judgment (`migrationPath.steps`) |
+| 3 | **今やること** | Judgment (`migrationRecipe.steps`) |
 | 4 | **例外がありうるか** | Judgment (`decisionCriteria.exceptions`) |
 | 5 | **深掘り先** | Principles (`doc`) |

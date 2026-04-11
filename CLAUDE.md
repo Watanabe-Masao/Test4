@@ -466,13 +466,14 @@ AAG は「発見 → 蓄積 → 評価」の 3 層サイクルでルール自体
 | `must-not-coexist` | 同居禁止 | useState と SQL query |
 | `custom` | 特殊ロジック | テスト側で実装 |
 
-**全ルールに migrationPath + doc + decisionCriteria（件数は generated section 参照）**
+**全ルールに migrationRecipe + executionPlan + doc + decisionCriteria（件数は generated section 参照）**
 
 各ルールが持つ情報:
 - `what` / `why` / `doc` — 学習コスト削減（27 ドキュメント参照）
 - `correctPattern` / `example` — 自己修復
 - `outdatedPattern` / `codeSignals` — 検出
-- `migrationPath` (84/84) — 修正手順 + 工数 + 優先度
+- `migrationRecipe` — 修正手順（App Domain の安定知識）
+- `executionPlan` — 工数 + 優先度（Project Overlay の案件運用状態）
 - `decisionCriteria` (84/84) — 判断の脱属人化
 - `relationships` (45) — ルール間の因果関係
 - `thresholds` / `baseline` — 数値管理（ratchet-down）
