@@ -103,10 +103,11 @@ beforeEach(() => {
 
 describe('customerGap candidate dual-run compare', () => {
   describe('dual-run-compare モード', () => {
-    it.each(FIXTURES)('$name: current と candidate が一致する', ({ input }) => {
+    it.each(FIXTURES)('$name: current と candidate が一致する', ({ input, expectedNull }) => {
       setupWasmReady()
       setCustomerGapBridgeMode('dual-run-compare')
-      calculateCustomerGap(input)
+      const result = calculateCustomerGap(input)
+      expect(result === null).toBe(expectedNull)
       const dualRun = getLastDualRunResult()
       expect(dualRun).not.toBeNull()
       expect(dualRun!.match).toBe(true)
