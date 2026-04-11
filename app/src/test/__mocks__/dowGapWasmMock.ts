@@ -18,6 +18,8 @@ export function analyze_dow_gap(
   dailyAverageCustomers: number,
   hasDailyData: boolean,
 ): Float64Array {
+  void currentCounts
+  void previousCounts
   void salesByDowFlat
   void customersByDowFlat
   void dowDataLengths

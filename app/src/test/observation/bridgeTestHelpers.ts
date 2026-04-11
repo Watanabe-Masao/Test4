@@ -10,8 +10,12 @@ import { vi } from 'vitest'
  * WASM ready 状態をモックする。
  * wasmEngine の getter を spyOn して非 null を返す。
  */
-export function mockWasmReady(wasmEngineModule: Record<string, unknown>, getterName: string): void {
-  vi.spyOn(wasmEngineModule, getterName).mockReturnValue({} as never)
+export function mockWasmReady<T extends Record<string, unknown>>(
+  wasmEngineModule: T,
+  getterName: keyof T & string,
+): void {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  vi.spyOn(wasmEngineModule as any, getterName).mockReturnValue({})
 }
 
 /**

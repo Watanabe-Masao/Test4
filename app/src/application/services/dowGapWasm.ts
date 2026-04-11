@@ -29,7 +29,10 @@ function getWasm() {
 /**
  * DowGapDailyData の 2D 配列を column-major flat array に正規化する。
  */
-function flattenDowData(byDow: readonly (readonly number[])[], lengths: Uint32Array): Float64Array {
+function flattenDowData(
+  byDow: readonly (readonly number[])[],
+  lengths: Uint32Array,
+): Float64Array<ArrayBuffer> {
   let totalLen = 0
   for (let d = 0; d < DAYS_PER_WEEK; d++) totalLen += lengths[d]
 
