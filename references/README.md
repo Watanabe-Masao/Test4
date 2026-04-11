@@ -115,6 +115,8 @@
 | `03-guides/guard-test-map.md` | ガードテスト対応表 |
 | `03-guides/active-debt-refactoring-plan.md` | Active-Debt リファクタリング計画 |
 | `03-guides/aag-phase4-6-plan.md` | AAG Phase 4-6 実装計画 |
+| `03-guides/aag-rule-inventory.md` | AAG ルール棚卸し |
+| `03-guides/aag-physical-move-impact-matrix.md` | AAG 物理移動影響マトリクス |
 | `01-principles/architecture-rule-feasibility.md` | ルール導入の実現可能性評価 |
 | `01-principles/aag-four-layer-architecture.md` | AAG 4 層（Principles/Judgment/Detection/Response） |
 | `01-principles/aag-operational-classification.md` | 運用区分表（即修正/構造負債/観測） |
