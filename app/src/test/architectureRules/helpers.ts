@@ -118,7 +118,7 @@ export function buildAagResponse(
     slice: rule.slice ?? null,
     summary: rule.what,
     reason: rule.why,
-    steps: rule.migrationRecipe?.steps ?? [],
+    steps: rule.migrationRecipe.steps,
     exceptions: rule.decisionCriteria?.exceptions ?? null,
     deepDive: rule.doc ?? null,
     violations,
