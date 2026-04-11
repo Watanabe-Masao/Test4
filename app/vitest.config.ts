@@ -26,6 +26,7 @@ const wasmAliases: Record<string, string> = {
   'sensitivity-wasm': resolve(__dirname, 'src/test/__mocks__/sensitivityWasmMock.ts'),
   'correlation-wasm': resolve(__dirname, 'src/test/__mocks__/correlationWasmMock.ts'),
   'moving-average-wasm': resolve(__dirname, 'src/test/__mocks__/movingAverageWasmMock.ts'),
+  'trend-analysis-wasm': resolve(__dirname, 'src/test/__mocks__/trendAnalysisWasmMock.ts'),
 }
 
 export default defineConfig({

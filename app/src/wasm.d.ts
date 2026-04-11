@@ -287,3 +287,13 @@ declare module 'customer-gap-wasm' {
     prevSales: number,
   ): Float64Array
 }
+
+// ─── trend-analysis-wasm (candidate: ANA-004) ───────────
+declare module 'trend-analysis-wasm' {
+  export default function init(): Promise<void>
+  export function analyze_trend(
+    years: Int32Array,
+    months: Int32Array,
+    totalSales: Float64Array,
+  ): Float64Array
+}

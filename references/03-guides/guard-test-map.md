@@ -307,6 +307,12 @@ Set / Record を構築して使用する。許可リストの変更は `allowlis
 | 移動平均: strict≥partial | `wasm/moving-average/tests/invariants.rs` | INV-MA-04 |
 | 移動平均: window=1→identity | `wasm/moving-average/tests/invariants.rs` | INV-MA-05 |
 | 移動平均: 有限保証 | `wasm/moving-average/tests/invariants.rs` | INV-MA-06 |
+| トレンド: 出力配列長=入力長 | `wasm/trend-analysis/tests/invariants.rs` | INV-TREND-01 |
+| トレンド: 季節性長=12 | `wasm/trend-analysis/tests/invariants.rs` | INV-TREND-02 |
+| トレンド: MoM定義 | `wasm/trend-analysis/tests/invariants.rs` | INV-TREND-03 |
+| トレンド: 定数→flat | `wasm/trend-analysis/tests/invariants.rs` | INV-TREND-04 |
+| トレンド: ソート順列 | `wasm/trend-analysis/tests/invariants.rs` | INV-TREND-05 |
+| トレンド: 有限保証 | `wasm/trend-analysis/tests/invariants.rs` | INV-TREND-06 |
 
 ## 設計原則カテゴリ → ガードテスト対応
 

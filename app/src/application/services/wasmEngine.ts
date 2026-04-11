@@ -54,6 +54,7 @@ export const WASM_CANDIDATE_MODULE_NAMES = [
   'sensitivity',
   'correlation',
   'movingAverage',
+  'trendAnalysis',
 ] as const
 export type WasmCandidateModuleName = (typeof WASM_CANDIDATE_MODULE_NAMES)[number]
 
@@ -143,6 +144,12 @@ export const WASM_CANDIDATE_MODULE_METADATA: Readonly<
     authorityKind: 'candidate-authoritative',
     contractId: 'ANA-009',
   },
+  trendAnalysis: {
+    semanticClass: 'analytic',
+    bridgeKind: 'analytics',
+    authorityKind: 'candidate-authoritative',
+    contractId: 'ANA-004',
+  },
 }
 
 /* ── 内部状態 ─────────────────────────────────── */
@@ -174,6 +181,7 @@ let inventoryCalcWasmExports: typeof import('inventory-calc-wasm') | null = null
 let sensitivityWasmExports: typeof import('sensitivity-wasm') | null = null
 let correlationWasmExports: typeof import('correlation-wasm') | null = null
 let movingAverageWasmExports: typeof import('moving-average-wasm') | null = null
+let trendAnalysisWasmExports: typeof import('trend-analysis-wasm') | null = null
 
 // candidate 群の状態管理（current とは分離）
 const candidateModuleStates: Record<WasmCandidateModuleName, WasmState> = {
@@ -186,6 +194,7 @@ const candidateModuleStates: Record<WasmCandidateModuleName, WasmState> = {
   sensitivity: 'idle',
   correlation: 'idle',
   movingAverage: 'idle',
+  trendAnalysis: 'idle',
 }
 
 /* ── 初期化 ───────────────────────────────────── */
@@ -527,6 +536,32 @@ export async function initMovingAverageCandidateWasm(): Promise<void> {
   }
 }
 
+/**
+ * trendAnalysis candidate WASM モジュールを非同期で初期化する。
+ */
+export async function initTrendAnalysisCandidateWasm(): Promise<void> {
+  if (candidateModuleStates.trendAnalysis !== 'idle') return
+
+  candidateModuleStates.trendAnalysis = 'loading'
+  try {
+    const wasm = await import('trend-analysis-wasm')
+    await wasm.default()
+    trendAnalysisWasmExports = wasm
+    candidateModuleStates.trendAnalysis = 'ready'
+    if (import.meta.env.DEV) {
+      console.info(
+        '[wasmEngine] trendAnalysis candidate ready — WASM candidate-authoritative ready',
+      )
+    }
+  } catch (e) {
+    candidateModuleStates.trendAnalysis = 'error'
+    console.warn(
+      '[wasmEngine] trendAnalysis candidate WASM initialization failed, falling back to TS:',
+      e,
+    )
+  }
+}
+
 /* ── 状態取得 ─────────────────────────────────── */
 
 /** 個別モジュールの状態を取得する */
@@ -597,6 +632,10 @@ export function getCorrelationWasmExports(): typeof import('correlation-wasm') |
 
 export function getMovingAverageWasmExports(): typeof import('moving-average-wasm') | null {
   return movingAverageWasmExports
+}
+
+export function getTrendAnalysisWasmExports(): typeof import('trend-analysis-wasm') | null {
+  return trendAnalysisWasmExports
 }
 
 /** candidate モジュールの状態を取得する */

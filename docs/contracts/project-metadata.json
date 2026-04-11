@@ -20,7 +20,8 @@
     "inventory-calc",
     "sensitivity",
     "correlation",
-    "moving-average"
+    "moving-average",
+    "trend-analysis"
   ],
   "ciJobs": [
     "wasm-build",

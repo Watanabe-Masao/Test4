@@ -1192,3 +1192,63 @@ windowSize = 1 ⇒ output = input（ok 値はそのまま）
 - **テスト**: `wasm/moving-average/tests/invariants.rs` — `ma_inv_6_*`
 - **ロール**: invariant-guardian
 - **契約**: ANA-009
+
+### INV-TREND-01: 出力配列長 = 入力長
+
+```
+len(momChanges) = len(yoyChanges) = len(movingAvg3) = len(movingAvg6) = len(input)
+```
+
+- **テスト**: `wasm/trend-analysis/tests/invariants.rs` — `trend_inv_1_*`
+- **ロール**: invariant-guardian
+- **契約**: ANA-004
+
+### INV-TREND-02: 季節性インデックス長 = 12
+
+```
+len(seasonalIndex) = 12
+```
+
+- **テスト**: `wasm/trend-analysis/tests/invariants.rs` — `trend_inv_2_*`
+- **ロール**: invariant-guardian
+- **契約**: ANA-004
+
+### INV-TREND-03: MoM 定義
+
+```
+momChanges[i] = totalSales[i] / totalSales[i-1]（ソート済み）
+```
+
+- **テスト**: `wasm/trend-analysis/tests/invariants.rs` — `trend_inv_3_*`
+- **ロール**: invariant-guardian
+- **契約**: ANA-004
+
+### INV-TREND-04: 定数売上 → flat トレンド
+
+```
+全月同額 ⇒ overallTrend = 'flat' ∧ MoM = 1.0
+```
+
+- **テスト**: `wasm/trend-analysis/tests/invariants.rs` — `trend_inv_4_*`
+- **ロール**: invariant-guardian
+- **契約**: ANA-004
+
+### INV-TREND-05: ソート順序は順列
+
+```
+sortedIndices は入力の順列（全要素が一度ずつ出現）
+```
+
+- **テスト**: `wasm/trend-analysis/tests/invariants.rs` — `trend_inv_5_*`
+- **ロール**: invariant-guardian
+- **契約**: ANA-004
+
+### INV-TREND-06: 有限保証
+
+```
+∀ 有限入力 ⇒ averageMonthlySales, seasonalIndex は有限
+```
+
+- **テスト**: `wasm/trend-analysis/tests/invariants.rs` — `trend_inv_6_*`
+- **ロール**: invariant-guardian
+- **契約**: ANA-004

@@ -80,6 +80,7 @@ export default defineConfig({
       'sensitivity-wasm',
       'correlation-wasm',
       'moving-average-wasm',
+      'trend-analysis-wasm',
     ],
   },
   assetsInclude: ['**/*.wasm'],

@@ -368,6 +368,21 @@ export const CALCULATION_CANON_REGISTRY: Readonly<Record<string, CanonEntry>> = 
 
   // ══ Candidate / Analytic（candidate-authoritative, Phase 6） ══
 
+  'candidate/algorithms/trendAnalysis.ts': {
+    tag: 'required',
+    reason: 'トレンド分析（candidate: WASM 移行候補 CAND-ANA-004）',
+    zodAdded: true,
+    semanticClass: 'analytic',
+    authorityKind: 'candidate-authoritative',
+    methodFamily: 'temporal_pattern',
+    runtimeStatus: 'candidate',
+    ownerKind: 'migration',
+    contractId: 'ANA-004',
+    bridgeKind: 'analytics',
+    rateOwnership: 'n/a',
+    fallbackPolicy: 'current',
+    notes: 'WASM candidate: wasm/trend-analysis/。FFI: years+months+totalSales 3列 flat contract',
+  },
   'candidate/temporal/computeMovingAverage.ts': {
     tag: 'required',
     reason: '移動平均（candidate: WASM 移行候補 CAND-ANA-009）',

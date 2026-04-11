@@ -24,6 +24,7 @@ const CANDIDATE_CRATES = [
   'sensitivity',
   'correlation',
   'moving-average',
+  'trend-analysis',
 ]
 
 /** current crate（既存。構造要件は ratchet で段階適用） */
