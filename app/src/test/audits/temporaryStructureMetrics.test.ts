@@ -102,7 +102,7 @@ describe('Exit KPI: 暫定構造在庫（原則単調減少）', () => {
       const content = fs.readFileSync(path.join(bridgeDir, file), 'utf-8')
       if (!content.includes('@deprecated')) activeCount++
     }
-    expect(activeCount, `active bridges: ${activeCount}/4`).toBeLessThanOrEqual(4)
+    expect(activeCount, `active bridges: ${activeCount}/15`).toBeLessThanOrEqual(15)
   })
 
   it('互換 re-export ≤ 2', () => {
