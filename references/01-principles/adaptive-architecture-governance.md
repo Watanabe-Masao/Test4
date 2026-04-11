@@ -220,7 +220,7 @@ Response（入口）→ Judgment（判断）→ Principles（思想）← Detect
 | 層 | 役割 |
 |---|------|
 | **Principles** | 何を守るか。なぜ守るか。変更頻度が最も低い |
-| **Judgment** | この状況で何をすべきか。fixNow / migrationPath / decisionCriteria |
+| **Judgment** | この状況で何をすべきか。fixNow / migrationRecipe / executionPlan / decisionCriteria |
 | **Detection** | どうやって観測するか。regex → AST → 型。改善・交換可能 |
 | **Response** | 違反時に必要最小限の判断材料を返す。AAG の正式入口 |
 

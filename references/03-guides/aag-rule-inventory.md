@@ -37,11 +37,11 @@ Governance フィールドは一律に同じ層に属さない。
 | governance フィールド | 性質 | 所属先 | 理由 |
 |---|---|---|---|
 | `decisionCriteria` | ルールの安定した判断基準 | **App Domain** | when/exceptions/escalation は業務知識。案件が変わっても同じ |
-| `migrationPath.steps` | 修正手順の手順記述 | **App Domain** | 「何をどう直すか」は安定した知識 |
+| `migrationRecipe.steps` | 修正手順の手順記述 | **App Domain** | 「何をどう直すか」は安定した知識 |
 | `sunsetCondition` | ルールが不要になる条件 | **App Domain** | 反証可能性の定義。案件に依存しない |
 | `fixNow` | 今この案件でどう扱うか | **Project Overlay** | now/debt/review は案件の運用判断 |
-| `migrationPath.priority` | 案件固有の実行優先度 | **Project Overlay** | 「いつやるか」は進行状態 |
-| `migrationPath.effort` | 案件固有の工数見積 | **Project Overlay** | リソース配分は案件判断 |
+| `executionPlan.priority` | 案件固有の実行優先度 | **Project Overlay** | 「いつやるか」は進行状態 |
+| `executionPlan.effort` | 案件固有の工数見積 | **Project Overlay** | リソース配分は案件判断 |
 | `reviewPolicy` | レビュー周期・最終レビュー日 | **Project Overlay** | owner/lastReviewedAt/cadence は案件運用 |
 | `lifecyclePolicy` | experimental の出口タイミング | **Project Overlay** | introducedAt/observeForDays は案件の時計 |
 
