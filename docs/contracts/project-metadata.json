@@ -17,7 +17,8 @@
     "remaining-budget-rate",
     "observation-period",
     "pin-intervals",
-    "inventory-calc"
+    "inventory-calc",
+    "sensitivity"
   ],
   "ciJobs": [
     "wasm-build",

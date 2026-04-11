@@ -21,6 +21,7 @@ const CANDIDATE_CRATES = [
   'observation-period',
   'pin-intervals',
   'inventory-calc',
+  'sensitivity',
 ]
 
 /** current crate（既存。構造要件は ratchet で段階適用） */

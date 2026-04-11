@@ -366,6 +366,24 @@ export const CALCULATION_CANON_REGISTRY: Readonly<Record<string, CanonEntry>> = 
     notes: 'WASM candidate: wasm/customer-gap/。current reference: customerGap.ts',
   },
 
+  // ══ Candidate / Analytic（candidate-authoritative, Phase 6） ══
+
+  'candidate/algorithms/sensitivity.ts': {
+    tag: 'required',
+    reason: '感度分析（candidate: WASM 移行候補 CAND-ANA-003）',
+    zodAdded: true,
+    semanticClass: 'analytic',
+    authorityKind: 'candidate-authoritative',
+    methodFamily: 'what_if',
+    runtimeStatus: 'candidate',
+    ownerKind: 'migration',
+    contractId: 'ANA-003',
+    bridgeKind: 'analytics',
+    rateOwnership: 'n/a',
+    fallbackPolicy: 'current',
+    notes: 'WASM candidate: wasm/sensitivity/。current reference: algorithms/sensitivity.ts',
+  },
+
   // ══ Analytic Kernel（analytic-authoritative） ══
 
   'timeSlotCalculations.ts': {

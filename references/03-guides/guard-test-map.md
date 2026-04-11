@@ -287,6 +287,13 @@ Set / Record を構築して使用する。許可リストの変更は `allowlis
 | 推定在庫: 実在庫最終日限定 | `wasm/inventory-calc/tests/invariants.rs` | INV-IC-05 |
 | 推定在庫: 有限保証 | `wasm/inventory-calc/tests/invariants.rs` | INV-IC-06 |
 | 推定在庫: 日番号連続 | `wasm/inventory-calc/tests/invariants.rs` | INV-IC-07 |
+| 感度分析: ゼロデルタ恒等式 | `wasm/sensitivity/tests/invariants.rs` | INV-SENS-01 |
+| 感度分析: ベース粗利恒等式 | `wasm/sensitivity/tests/invariants.rs` | INV-SENS-02 |
+| 感度分析: 売上差分恒等式 | `wasm/sensitivity/tests/invariants.rs` | INV-SENS-03 |
+| 感度分析: 粗利差分恒等式 | `wasm/sensitivity/tests/invariants.rs` | INV-SENS-04 |
+| 感度分析: 客数単調性 | `wasm/sensitivity/tests/invariants.rs` | INV-SENS-05 |
+| 感度分析: 有限保証 | `wasm/sensitivity/tests/invariants.rs` | INV-SENS-06 |
+| 感度分析: 弾性値符号一貫性 | `wasm/sensitivity/tests/invariants.rs` | INV-SENS-07 |
 
 ## 設計原則カテゴリ → ガードテスト対応
 

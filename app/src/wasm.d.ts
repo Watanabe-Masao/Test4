@@ -186,6 +186,39 @@ declare module 'observation-period-wasm' {
   ): Float64Array
 }
 
+// ─── sensitivity-wasm (candidate: ANA-003) ──────────────
+declare module 'sensitivity-wasm' {
+  export default function init(): Promise<void>
+  export function calculate_sensitivity(
+    totalSales: number,
+    totalCost: number,
+    totalDiscount: number,
+    grossSales: number,
+    totalCustomers: number,
+    totalCostInclusion: number,
+    averageMarkupRate: number,
+    budget: number,
+    elapsedDays: number,
+    salesDays: number,
+    discountRateDelta: number,
+    customersDelta: number,
+    transactionValueDelta: number,
+    costRateDelta: number,
+  ): Float64Array
+  export function calculate_elasticity(
+    totalSales: number,
+    totalCost: number,
+    totalDiscount: number,
+    grossSales: number,
+    totalCustomers: number,
+    totalCostInclusion: number,
+    averageMarkupRate: number,
+    budget: number,
+    elapsedDays: number,
+    salesDays: number,
+  ): Float64Array
+}
+
 // ─── inventory-calc-wasm (candidate: BIZ-009) ───────────
 declare module 'inventory-calc-wasm' {
   export default function init(): Promise<void>

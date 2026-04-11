@@ -989,3 +989,75 @@ row[d].day = d + 1（1-based 連番）
 - **テスト**: `wasm/inventory-calc/tests/invariants.rs` — `ic_inv_7_*`
 - **ロール**: invariant-guardian
 - **契約**: BIZ-009
+
+### INV-SENS-01: ゼロデルタ恒等式
+
+```
+δ = 0 ⇒ grossProfitDelta = 0 ∧ salesDelta = 0
+```
+
+- **テスト**: `wasm/sensitivity/tests/invariants.rs` — `sens_inv_1_*`
+- **ロール**: invariant-guardian
+- **契約**: ANA-003
+- **違反時の影響**: 変動なしなのにシミュレーション結果が変わり、感度分析の基準が不安定になる
+
+### INV-SENS-02: ベース粗利恒等式
+
+```
+baseGP = grossSales - totalCost - totalDiscount - totalCostInclusion
+```
+
+- **テスト**: `wasm/sensitivity/tests/invariants.rs` — `sens_inv_2_*`
+- **ロール**: invariant-guardian
+- **契約**: ANA-003
+
+### INV-SENS-03: 売上差分恒等式
+
+```
+salesDelta = simulatedSales - totalSales
+```
+
+- **テスト**: `wasm/sensitivity/tests/invariants.rs` — `sens_inv_3_*`
+- **ロール**: invariant-guardian
+- **契約**: ANA-003
+
+### INV-SENS-04: 粗利差分恒等式
+
+```
+gpDelta = simulatedGP - baseGP
+```
+
+- **テスト**: `wasm/sensitivity/tests/invariants.rs` — `sens_inv_4_*`
+- **ロール**: invariant-guardian
+- **契約**: ANA-003
+
+### INV-SENS-05: 客数単調性
+
+```
+customersDelta > 0 ⇒ salesDelta > 0（他のδ = 0、有効なベースの場合）
+```
+
+- **テスト**: `wasm/sensitivity/tests/invariants.rs` — `sens_inv_5_*`
+- **ロール**: invariant-guardian
+- **契約**: ANA-003
+
+### INV-SENS-06: 感度分析有限保証
+
+```
+∀ 有限入力 ⇒ 全出力フィールドは有限
+```
+
+- **テスト**: `wasm/sensitivity/tests/invariants.rs` — `sens_inv_6_*`
+- **ロール**: invariant-guardian
+- **契約**: ANA-003
+
+### INV-SENS-07: 弾性値符号一貫性
+
+```
+売変率改善(δ<0) → GP増加 ∧ 客数増加(δ>0) → GP増加 ∧ 原価率改善(δ<0) → GP増加
+```
+
+- **テスト**: `wasm/sensitivity/tests/invariants.rs` — `sens_inv_7_*`
+- **ロール**: invariant-guardian
+- **契約**: ANA-003
+- **違反時の影響**: 弾性値の符号が逆転し、改善施策の判断を誤る

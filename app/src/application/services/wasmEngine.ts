@@ -51,6 +51,7 @@ export const WASM_CANDIDATE_MODULE_NAMES = [
   'observationPeriod',
   'pinIntervals',
   'inventoryCalc',
+  'sensitivity',
 ] as const
 export type WasmCandidateModuleName = (typeof WASM_CANDIDATE_MODULE_NAMES)[number]
 
@@ -122,6 +123,12 @@ export const WASM_CANDIDATE_MODULE_METADATA: Readonly<
     authorityKind: 'candidate-authoritative',
     contractId: 'BIZ-009',
   },
+  sensitivity: {
+    semanticClass: 'analytic',
+    bridgeKind: 'analytics',
+    authorityKind: 'candidate-authoritative',
+    contractId: 'ANA-003',
+  },
 }
 
 /* ── 内部状態 ─────────────────────────────────── */
@@ -150,6 +157,7 @@ let remainingBudgetRateWasmExports: typeof import('remaining-budget-rate-wasm') 
 let observationPeriodWasmExports: typeof import('observation-period-wasm') | null = null
 let pinIntervalsWasmExports: typeof import('pin-intervals-wasm') | null = null
 let inventoryCalcWasmExports: typeof import('inventory-calc-wasm') | null = null
+let sensitivityWasmExports: typeof import('sensitivity-wasm') | null = null
 
 // candidate 群の状態管理（current とは分離）
 const candidateModuleStates: Record<WasmCandidateModuleName, WasmState> = {
@@ -159,6 +167,7 @@ const candidateModuleStates: Record<WasmCandidateModuleName, WasmState> = {
   observationPeriod: 'idle',
   pinIntervals: 'idle',
   inventoryCalc: 'idle',
+  sensitivity: 'idle',
 }
 
 /* ── 初期化 ───────────────────────────────────── */
@@ -426,6 +435,30 @@ export async function initInventoryCalcCandidateWasm(): Promise<void> {
   }
 }
 
+/**
+ * sensitivity candidate WASM モジュールを非同期で初期化する。
+ */
+export async function initSensitivityCandidateWasm(): Promise<void> {
+  if (candidateModuleStates.sensitivity !== 'idle') return
+
+  candidateModuleStates.sensitivity = 'loading'
+  try {
+    const wasm = await import('sensitivity-wasm')
+    await wasm.default()
+    sensitivityWasmExports = wasm
+    candidateModuleStates.sensitivity = 'ready'
+    if (import.meta.env.DEV) {
+      console.info('[wasmEngine] sensitivity candidate ready — WASM candidate-authoritative ready')
+    }
+  } catch (e) {
+    candidateModuleStates.sensitivity = 'error'
+    console.warn(
+      '[wasmEngine] sensitivity candidate WASM initialization failed, falling back to TS:',
+      e,
+    )
+  }
+}
+
 /* ── 状態取得 ─────────────────────────────────── */
 
 /** 個別モジュールの状態を取得する */
@@ -484,6 +517,10 @@ export function getPinIntervalsWasmExports(): typeof import('pin-intervals-wasm'
 
 export function getInventoryCalcWasmExports(): typeof import('inventory-calc-wasm') | null {
   return inventoryCalcWasmExports
+}
+
+export function getSensitivityWasmExports(): typeof import('sensitivity-wasm') | null {
+  return sensitivityWasmExports
 }
 
 /** candidate モジュールの状態を取得する */
