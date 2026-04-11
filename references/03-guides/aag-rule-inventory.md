@@ -21,19 +21,35 @@
 
 ## Owner 分類
 
-全ルールに共通する所有者分類:
+### 層別の所属先
 
-| 層 | owner | 理由 |
-|---|---|---|
-| semanticsOwner | app-domain | what/why はアプリ固有の業務概念を参照する |
-| governanceOwner | app-domain | fixNow/migrationPath/reviewPolicy はアプリの移行計画に紐づく |
-| detectionOwner | core | detection.type/severity は再利用可能な検出スキーマ |
-| bindingOwner | app-domain | imports/codeSignals/example/doc は全てアプリ固有 |
-| targetHome | app-domain/rule-catalog | 全 140 ルールはアプリ固有インスタンス |
+| 層 | owner | targetHome | 理由 |
+|---|---|---|---|
+| semantics | app-domain | app-domain/rule-catalog | what/why はアプリ固有の業務概念を参照する |
+| detection | core | — (型定義のみ) | detection.type/severity は再利用可能な検出スキーマ |
+| binding | app-domain | app-domain/bindings | imports/codeSignals/example/doc は全てアプリ固有 |
 
-**重要な判断**: ルール定義データ（semantics + governance + binding）は全て App Domain。
-Core に属するのは型定義（RuleSemantics, RuleGovernance, RuleDetectionSpec）と
-検出スキーマ（DetectionConfig, DetectionType）のみ。
+### Governance の所属先（3 層に分割）
+
+Governance フィールドは一律に同じ層に属さない。
+安定した業務知識と案件運用状態を区別する。
+
+| governance フィールド | 性質 | 所属先 | 理由 |
+|---|---|---|---|
+| `decisionCriteria` | ルールの安定した判断基準 | **App Domain** | when/exceptions/escalation は業務知識。案件が変わっても同じ |
+| `migrationPath.steps` | 修正手順の手順記述 | **App Domain** | 「何をどう直すか」は安定した知識 |
+| `sunsetCondition` | ルールが不要になる条件 | **App Domain** | 反証可能性の定義。案件に依存しない |
+| `fixNow` | 今この案件でどう扱うか | **Project Overlay** | now/debt/review は案件の運用判断 |
+| `migrationPath.priority` | 案件固有の実行優先度 | **Project Overlay** | 「いつやるか」は進行状態 |
+| `migrationPath.effort` | 案件固有の工数見積 | **Project Overlay** | リソース配分は案件判断 |
+| `reviewPolicy` | レビュー周期・最終レビュー日 | **Project Overlay** | owner/lastReviewedAt/cadence は案件運用 |
+| `lifecyclePolicy` | experimental の出口タイミング | **Project Overlay** | introducedAt/observeForDays は案件の時計 |
+
+**重要な判断**:
+- ルール **意味**（semantics + binding）は App Domain
+- ルール **判断基準**（decisionCriteria, steps, sunsetCondition）は App Domain
+- ルール **運用状態**（fixNow, priority, effort, reviewPolicy, lifecyclePolicy）は Project Overlay
+- Core に属するのは型定義（RuleSemantics, RuleGovernance, RuleDetectionSpec）と検出スキーマのみ
 
 ## 移設リスク判定基準
 

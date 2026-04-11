@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-11T07:44:41.663Z",
+  "timestamp": "2026-04-11T15:17:01.783Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -351,14 +351,14 @@
         }
       ],
       "implRefs": [
-        "app/src/test/architectureRules.ts"
+        "app/src/test/architectureRules/rules.ts"
       ]
     },
     {
       "id": "guard.rules.fixNow.now",
       "label": "fixNow=now ルール数（即修正）",
       "category": "guard",
-      "value": 67,
+      "value": 65,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -507,9 +507,9 @@
       "id": "docs.obligation.violations",
       "label": "Doc 更新義務違反数",
       "category": "docs",
-      "value": 0,
+      "value": 1,
       "unit": "count",
-      "status": "ok",
+      "status": "fail",
       "owner": "documentation-steward",
       "docRefs": [
         {
@@ -535,7 +535,7 @@
         }
       ],
       "implRefs": [
-        "app/src/test/architectureRules.ts"
+        "app/src/test/architectureRules/rules.ts"
       ],
       "budget": 92
     },
@@ -554,7 +554,7 @@
         }
       ],
       "implRefs": [
-        "app/src/test/architectureRules.ts"
+        "app/src/test/architectureRules/rules.ts"
       ],
       "budget": 9
     },
@@ -568,7 +568,7 @@
       "owner": "architecture",
       "docRefs": [],
       "implRefs": [
-        "app/src/test/architectureRules.ts"
+        "app/src/test/architectureRules/rules.ts"
       ],
       "budget": 0
     },
@@ -582,7 +582,7 @@
       "owner": "architecture",
       "docRefs": [],
       "implRefs": [
-        "app/src/test/architectureRules.ts"
+        "app/src/test/architectureRules/rules.ts"
       ],
       "budget": 32
     },
@@ -637,7 +637,7 @@
         }
       ],
       "implRefs": [
-        "app/src/test/architectureRules.ts"
+        "app/src/test/architectureRules/rules.ts"
       ]
     },
     {
@@ -671,9 +671,9 @@
   ],
   "summary": {
     "totalKpis": 32,
-    "ok": 32,
+    "ok": 31,
     "warn": 0,
-    "fail": 0,
-    "hardGatePass": true
+    "fail": 1,
+    "hardGatePass": false
   }
 }

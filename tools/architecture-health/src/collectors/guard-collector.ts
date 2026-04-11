@@ -46,7 +46,7 @@ export function collectFromGuards(repoRoot: string): HealthKpi[] {
   })
 
   // --- Architecture Rules total count ---
-  const rulesPath = resolve(repoRoot, 'app/src/test/architectureRules.ts')
+  const rulesPath = resolve(repoRoot, 'app/src/test/architectureRules/rules.ts')
   const rulesContent = readFileSync(rulesPath, 'utf-8')
   const ruleIdMatches = rulesContent.match(/id: 'AR-/g) || []
   kpis.push({
@@ -58,7 +58,7 @@ export function collectFromGuards(repoRoot: string): HealthKpi[] {
     status: 'ok',
     owner: 'architecture',
     docRefs: [{ kind: 'definition', path: 'references/03-guides/architecture-rule-system.md' }],
-    implRefs: ['app/src/test/architectureRules.ts'],
+    implRefs: ['app/src/test/architectureRules/rules.ts'],
   })
 
   // --- fixNow distribution ---

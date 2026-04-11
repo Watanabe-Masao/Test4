@@ -13,7 +13,7 @@ export function collectFromTemporalGovernance(repoRoot: string): HealthKpi[] {
   const now = Date.now();
 
   // --- Architecture Rules の temporal governance ---
-  const rulesPath = resolve(repoRoot, "app/src/test/architectureRules.ts");
+  const rulesPath = resolve(repoRoot, "app/src/test/architectureRules/rules.ts");
   const rulesContent = readFileSync(rulesPath, "utf-8");
 
   // reviewPolicy 設定率
@@ -34,7 +34,7 @@ export function collectFromTemporalGovernance(repoRoot: string): HealthKpi[] {
         path: "references/03-guides/architecture-rule-system.md",
       },
     ],
-    implRefs: ["app/src/test/architectureRules.ts"],
+    implRefs: ["app/src/test/architectureRules/rules.ts"],
   });
 
   // sunsetCondition 設定率
@@ -53,7 +53,7 @@ export function collectFromTemporalGovernance(repoRoot: string): HealthKpi[] {
         path: "references/01-principles/architecture-rule-feasibility.md",
       },
     ],
-    implRefs: ["app/src/test/architectureRules.ts"],
+    implRefs: ["app/src/test/architectureRules/rules.ts"],
   });
 
   // review overdue（lastReviewedAt + cadence < today）
@@ -78,7 +78,7 @@ export function collectFromTemporalGovernance(repoRoot: string): HealthKpi[] {
     status: "ok",
     owner: "architecture",
     docRefs: [],
-    implRefs: ["app/src/test/architectureRules.ts"],
+    implRefs: ["app/src/test/architectureRules/rules.ts"],
   });
 
   // heuristic + gate 件数
@@ -99,7 +99,7 @@ export function collectFromTemporalGovernance(repoRoot: string): HealthKpi[] {
     status: "ok",
     owner: "architecture",
     docRefs: [],
-    implRefs: ["app/src/test/architectureRules.ts"],
+    implRefs: ["app/src/test/architectureRules/rules.ts"],
   });
 
   // --- Allowlist の temporal governance ---
@@ -173,7 +173,7 @@ export function collectFromTemporalGovernance(repoRoot: string): HealthKpi[] {
         path: "references/01-principles/architecture-rule-feasibility.md",
       },
     ],
-    implRefs: ["app/src/test/architectureRules.ts"],
+    implRefs: ["app/src/test/architectureRules/rules.ts"],
   });
 
   // allowlist 高集中ルール（1 ルールに例外 10 件以上）
