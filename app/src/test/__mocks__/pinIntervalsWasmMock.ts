@@ -14,8 +14,9 @@ export function calculate_pin_intervals(
   openingInventory: number,
   pinDays: Int32Array,
   pinClosingInventory: Float64Array,
-  _daysInMonth: number,
+  daysInMonth: number,
 ): Float64Array {
+  void daysInMonth // FFI contract parameter (TS impl derives from pins)
   // Reconstruct Map for TS reference — minimal DailyRecord stub
   const daily = new Map<number, DailyRecord>()
   for (let i = 0; i < dailySales.length; i++) {

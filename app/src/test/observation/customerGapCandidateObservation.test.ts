@@ -94,10 +94,6 @@ function setupWasmReady(): void {
   vi.spyOn(wasmEngine, 'getCustomerGapWasmExports').mockReturnValue({} as never)
 }
 
-function setupWasmNotReady(): void {
-  vi.spyOn(wasmEngine, 'getCustomerGapWasmExports').mockReturnValue(null)
-}
-
 beforeEach(() => {
   vi.clearAllMocks()
   vi.restoreAllMocks()
