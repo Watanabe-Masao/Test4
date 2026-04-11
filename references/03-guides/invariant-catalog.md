@@ -1323,3 +1323,64 @@ turnaroundHour ∈ [minHour, maxHour]
 - **テスト**: `wasm/time-slot/tests/invariants.rs` — `ts_inv_7_*`
 - **ロール**: invariant-guardian
 - **契約**: ANA-001
+
+### INV-DG-01: 同一曜日構成 → 影響額ゼロ
+
+```
+currentCounts = previousCounts ⇒ estimatedImpact = 0
+```
+
+- **テスト**: `wasm/dow-gap/tests/invariants.rs` — `dg_inv_1_*`
+- **ロール**: invariant-guardian
+- **契約**: ANA-007
+- **違反時の影響**: 曜日構成が同じなのに影響額が非ゼロになり、誤った比較分析が表示される
+
+### INV-DG-02: 影響額定義
+
+```
+estimatedImpact = Σ(diff[dow] × prevDowDailyAvg[dow])
+```
+
+- **テスト**: `wasm/dow-gap/tests/invariants.rs` — `dg_inv_2_*`
+- **ロール**: invariant-guardian
+- **契約**: ANA-007
+
+### INV-DG-03: 平均配列長 = 7
+
+```
+len(prevDowDailyAvg) = 7 ∧ len(prevDowDailyAvgCustomers) = 7
+```
+
+- **テスト**: `wasm/dow-gap/tests/invariants.rs` — `dg_inv_3_*`
+- **ロール**: invariant-guardian
+- **契約**: ANA-007
+
+### INV-DG-04: NaN フォールバック
+
+```
+prevDowSales[dow] = NaN ⇒ prevDowDailyAvg[dow] = dailyAverageSales
+```
+
+- **テスト**: `wasm/dow-gap/tests/invariants.rs` — `dg_inv_4_*`
+- **ロール**: invariant-guardian
+- **契約**: ANA-007
+
+### INV-DG-05: 有限保証
+
+```
+∀ 有限入力 ⇒ estimatedImpact, prevDowDailyAvg は有限
+```
+
+- **テスト**: `wasm/dow-gap/tests/invariants.rs` — `dg_inv_5_*`
+- **ロール**: invariant-guardian
+- **契約**: ANA-007
+
+### INV-DG-06: 手法別影響額合計
+
+```
+各手法の salesImpact = Σ(diff[dow] × dowAvgSales[dow])
+```
+
+- **テスト**: `wasm/dow-gap/tests/invariants.rs` — `dg_inv_6_*`
+- **ロール**: invariant-guardian
+- **契約**: ANA-007

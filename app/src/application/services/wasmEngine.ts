@@ -55,6 +55,7 @@ export const WASM_CANDIDATE_MODULE_NAMES = [
   'correlation',
   'movingAverage',
   'trendAnalysis',
+  'dowGap',
 ] as const
 export type WasmCandidateModuleName = (typeof WASM_CANDIDATE_MODULE_NAMES)[number]
 
@@ -150,6 +151,12 @@ export const WASM_CANDIDATE_MODULE_METADATA: Readonly<
     authorityKind: 'candidate-authoritative',
     contractId: 'ANA-004',
   },
+  dowGap: {
+    semanticClass: 'analytic',
+    bridgeKind: 'analytics',
+    authorityKind: 'candidate-authoritative',
+    contractId: 'ANA-007',
+  },
 }
 
 /* ── 内部状態 ─────────────────────────────────── */
@@ -182,6 +189,7 @@ let sensitivityWasmExports: typeof import('sensitivity-wasm') | null = null
 let correlationWasmExports: typeof import('correlation-wasm') | null = null
 let movingAverageWasmExports: typeof import('moving-average-wasm') | null = null
 let trendAnalysisWasmExports: typeof import('trend-analysis-wasm') | null = null
+let dowGapWasmExports: typeof import('dow-gap-wasm') | null = null
 
 // candidate 群の状態管理（current とは分離）
 const candidateModuleStates: Record<WasmCandidateModuleName, WasmState> = {
@@ -195,6 +203,7 @@ const candidateModuleStates: Record<WasmCandidateModuleName, WasmState> = {
   correlation: 'idle',
   movingAverage: 'idle',
   trendAnalysis: 'idle',
+  dowGap: 'idle',
 }
 
 /* ── 初期化 ───────────────────────────────────── */
@@ -562,6 +571,27 @@ export async function initTrendAnalysisCandidateWasm(): Promise<void> {
   }
 }
 
+/**
+ * dowGap candidate WASM モジュールを非同期で初期化する。
+ */
+export async function initDowGapCandidateWasm(): Promise<void> {
+  if (candidateModuleStates.dowGap !== 'idle') return
+
+  candidateModuleStates.dowGap = 'loading'
+  try {
+    const wasm = await import('dow-gap-wasm')
+    await wasm.default()
+    dowGapWasmExports = wasm
+    candidateModuleStates.dowGap = 'ready'
+    if (import.meta.env.DEV) {
+      console.info('[wasmEngine] dowGap candidate ready — WASM candidate-authoritative ready')
+    }
+  } catch (e) {
+    candidateModuleStates.dowGap = 'error'
+    console.warn('[wasmEngine] dowGap candidate WASM initialization failed, falling back to TS:', e)
+  }
+}
+
 /* ── 状態取得 ─────────────────────────────────── */
 
 /** 個別モジュールの状態を取得する */
@@ -636,6 +666,10 @@ export function getMovingAverageWasmExports(): typeof import('moving-average-was
 
 export function getTrendAnalysisWasmExports(): typeof import('trend-analysis-wasm') | null {
   return trendAnalysisWasmExports
+}
+
+export function getDowGapWasmExports(): typeof import('dow-gap-wasm') | null {
+  return dowGapWasmExports
 }
 
 /** candidate モジュールの状態を取得する */

@@ -21,7 +21,8 @@
     "sensitivity",
     "correlation",
     "moving-average",
-    "trend-analysis"
+    "trend-analysis",
+    "dow-gap"
   ],
   "ciJobs": [
     "wasm-build",

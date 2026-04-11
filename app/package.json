@@ -42,6 +42,7 @@
     "@tanstack/react-table": "^8.21.3",
     "budget-analysis-wasm": "file:../wasm/budget-analysis/pkg",
     "d3-format": "^3.1.2",
+    "dow-gap-wasm": "file:../wasm/dow-gap/pkg",
     "date-fns": "^4.1.0",
     "echarts": "^6.0.0",
     "factor-decomposition-wasm": "file:../wasm/factor-decomposition/pkg",

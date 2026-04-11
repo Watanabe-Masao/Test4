@@ -81,6 +81,7 @@ export default defineConfig({
       'correlation-wasm',
       'moving-average-wasm',
       'trend-analysis-wasm',
+      'dow-gap-wasm',
     ],
   },
   assetsInclude: ['**/*.wasm'],

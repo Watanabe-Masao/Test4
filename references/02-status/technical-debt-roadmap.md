@@ -13,7 +13,7 @@
 ## 現在の健全性サマリー
 
 <!-- GENERATED:START architecture-health-summary -->
-**Healthy** | 前回比: Flat | Hard Gate: PASS
+**RISK** | 前回比: Regressed | Hard Gate: FAIL
 
 | 指標 | 状態 | 詳細 |
 |---|---|---|
@@ -23,11 +23,14 @@
 | 境界健全性 | OK | 0/0 / 0/0 |
 | ガード強度 | OK | 48/30 / 0/5 |
 | 性能 | OK | 6496/7000 / 2225/2500 / 919/1000 |
-| Temporal Governance | OK | 0/0 / 32/32 / 10/11 / 140/92 / 9/9 / 10/1 |
+| Temporal Governance | OK | 0/0 / 32/32 / 11/12(+1) / 140/92 / 9/9 / 11/1(+1) |
 | Rule Efficacy | OK | 77 / 1/3 / 0/10 |
 
+**Next:**
+- Doc 更新義務違反数 を budget 0 以下に修正する
+- Doc 更新義務違反数 が悪化（0 → 1）— 原因を調査する
 
-> 生成: 2026-04-11T03:04:08.710Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-11T03:32:28.810Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 現状スナップショット
