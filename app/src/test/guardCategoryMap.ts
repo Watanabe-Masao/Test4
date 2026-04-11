@@ -4,23 +4,27 @@
  * Phase A3: 既存 rule を「追加順」ではなく「意味責務」で整理する。
  * 全 rule にカテゴリと Layer を付与し、重複・統合・廃止候補を可視化する。
  *
+ * layer は「このルールが主に守っている関心層」を表す。
+ * - constitution: 思想・原則レベルの制約
+ * - schema: 型契約・レジストリ構造の制約
+ * - execution: 検出ロジック・ランタイム境界の制約
+ * - operations: 運用手順・移行プロセスの制約
+ *
  * 層: Schema（宣言的仕様）
  * 正本性: 正本（カテゴリ分類の唯一の定義元）
  *
  * @responsibility R:utility
  * @see references/01-principles/aag-5-constitution.md — 4層構造
- * @see app/src/test/aagSchemas.ts — GuardCategory / AagLayer 型定義
+ * @see app/src/test/aagSchemas.ts — AagGuardMetadata / GuardCategory / AagLayer 型定義
  */
 
-import type { AagLayer, GuardCategory } from './aagSchemas'
+import type { AagGuardMetadata } from './aagSchemas'
 
 // ────────────────────────────────────────────────────────
-// カテゴリマップ型
+// カテゴリマップ型 — AagGuardMetadata の部分型
 // ────────────────────────────────────────────────────────
 
-interface GuardCategoryEntry {
-  readonly category: GuardCategory
-  readonly layer: AagLayer
+export type GuardCategoryEntry = Pick<AagGuardMetadata, 'category' | 'layer'> & {
   /** 統合・廃止の候補注記（該当なしは null） */
   readonly note: string | null
 }
@@ -35,7 +39,7 @@ export const GUARD_CATEGORY_MAP: Readonly<Record<string, GuardCategoryEntry>> = 
   'AR-TERM-AUTHORITATIVE-STANDALONE': {
     category: 'terminology',
     layer: 'constitution',
-    note: null,
+    note: 'terminology の中核ルール。Constitution 層の用語定義を直接守る',
   },
   'AR-C7-NO-DUAL-API': {
     category: 'terminology',
@@ -163,7 +167,7 @@ export const GUARD_CATEGORY_MAP: Readonly<Record<string, GuardCategoryEntry>> = 
   'AR-001': {
     category: 'bridge-runtime-boundary',
     layer: 'execution',
-    note: null,
+    note: 'merge 候補: AR-STRUCT-DUAL-RUN-EXIT と関連。両方ともインフラ層 dual-run 禁止',
   },
   'AR-002': {
     category: 'bridge-runtime-boundary',
@@ -185,7 +189,7 @@ export const GUARD_CATEGORY_MAP: Readonly<Record<string, GuardCategoryEntry>> = 
   'AR-BRIDGE-DIRECT-IMPORT': {
     category: 'bridge-runtime-boundary',
     layer: 'execution',
-    note: null,
+    note: '整理候補: AR-CURRENT-NO-DIRECT-IMPORT-GROWTH / AR-CAND-BIZ-NO-DIRECT-IMPORT / AR-CAND-ANA-NO-DIRECT-IMPORT と同系統',
   },
   'AR-BRIDGE-CANDIDATE-DEFAULT': {
     category: 'bridge-runtime-boundary',
@@ -195,7 +199,7 @@ export const GUARD_CATEGORY_MAP: Readonly<Record<string, GuardCategoryEntry>> = 
   'AR-STRUCT-DUAL-RUN-EXIT': {
     category: 'bridge-runtime-boundary',
     layer: 'execution',
-    note: null,
+    note: 'merge 候補: AR-001 と関連。インフラ層 dual-run 退役の構造検証',
   },
   'AR-STRUCT-PURITY': { category: 'bridge-runtime-boundary', layer: 'execution', note: null },
   'AR-STRUCT-PRES-ISOLATION': {
@@ -274,7 +278,7 @@ export const GUARD_CATEGORY_MAP: Readonly<Record<string, GuardCategoryEntry>> = 
   'AR-CURRENT-NO-DIRECT-IMPORT-GROWTH': {
     category: 'current-candidate-lifecycle',
     layer: 'execution',
-    note: null,
+    note: '整理候補: AR-BRIDGE-DIRECT-IMPORT / AR-CAND-BIZ-NO-DIRECT-IMPORT / AR-CAND-ANA-NO-DIRECT-IMPORT と同系統',
   },
   'AR-CURRENT-VIEW-SEPARATION': {
     category: 'current-candidate-lifecycle',
@@ -304,7 +308,7 @@ export const GUARD_CATEGORY_MAP: Readonly<Record<string, GuardCategoryEntry>> = 
   'AR-CAND-BIZ-NO-DIRECT-IMPORT': {
     category: 'current-candidate-lifecycle',
     layer: 'execution',
-    note: null,
+    note: '整理候補: direct-import 系 4 ルールの統合検討',
   },
   'AR-CAND-BIZ-NO-PROMOTE-WITHOUT-DUALRUN': {
     category: 'current-candidate-lifecycle',
@@ -349,7 +353,7 @@ export const GUARD_CATEGORY_MAP: Readonly<Record<string, GuardCategoryEntry>> = 
   'AR-CAND-ANA-NO-DIRECT-IMPORT': {
     category: 'current-candidate-lifecycle',
     layer: 'execution',
-    note: null,
+    note: '整理候補: direct-import 系 4 ルールの統合検討',
   },
   'AR-CAND-ANA-NO-FACTOR-DECOMP': {
     category: 'current-candidate-lifecycle',
