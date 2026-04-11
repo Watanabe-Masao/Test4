@@ -1,0 +1,210 @@
+/**
+ * AAG Core Types — 再利用可能なルール型定義
+ *
+ * AAG Core の Schema 層。アプリ固有の意味を含まない。
+ * ルールの「意味」「運用」「検出仕様」を型で分離する。
+ *
+ * @see aag/core/principles/core-boundary-policy.md — 境界ポリシー
+ * @see aag/core/AAG_CORE_INDEX.md — Core 全体の入口
+ *
+ * 設計原則 D: 意味・運用・検出を分ける
+ * 設計原則 E: 具体名は後段へ落とす（この型には含めない）
+ *
+ * @responsibility R:utility
+ */
+
+// ─── 共通列挙型 ─────────────────────────────────────────
+
+/** 検出方法の種別 */
+export type DetectionType =
+  | 'import' // 禁止 import の検出
+  | 'regex' // コードパターンの検出
+  | 'count' // 数値上限（行数、hook 数等）
+  | 'must-include' // A を含む必須（Zod parse 必須等）
+  | 'must-only' // A 以外禁止（barrel は re-export のみ等）
+  | 'co-change' // A を変えたら B も変える（型 → schema 等）
+  | 'must-not-coexist' // A と B は同居禁止（useState と SQL 等）
+  | 'custom' // 上記に当てはまらない特殊検出
+
+/** ルールの成熟度。新しいルールは experimental から始め、安定したら stable に昇格する */
+export type RuleMaturity = 'experimental' | 'stable' | 'deprecated'
+
+/**
+ * AAG 縦スライス — 関心ごとの完結したルール群
+ * 各スライスが Domain/Application/Infrastructure/Presentation の 4 層を持つ
+ */
+export type AagSlice =
+  | 'layer-boundary' // 層境界、依存方向、描画専用原則
+  | 'canonicalization' // 正本経路、readModel、Zod、path guard
+  | 'query-runtime' // QueryHandler、AnalysisFrame、ComparisonScope
+  | 'responsibility-separation' // size / hook complexity / responsibility tags
+  | 'governance-ops' // allowlist、health、obligation、generated docs
+
+/** ルールの性質 */
+export type RuleClassification = 'invariant' | 'default' | 'heuristic'
+
+/** ルールの確信度。low + gate の組み合わせは禁止 */
+export type ConfidenceLevel = 'high' | 'medium' | 'low'
+
+/** 違反時の運用区分 */
+export type FixNowClassification = 'now' | 'debt' | 'review'
+
+/** 検出の深刻度 */
+export type DetectionSeverity = 'gate' | 'warn' | 'block-merge'
+
+/** 修正工数 */
+export type MigrationEffort = 'trivial' | 'small' | 'medium'
+
+// ─── RuleSemantics — 何を守るか ────────────────────────────
+
+/**
+ * ルールの意味層。
+ * このルールが「何を守り」「なぜ守るのか」を定義する。
+ * アプリ固有の具体名は含まない。
+ */
+export interface RuleSemantics {
+  /** ルール ID */
+  readonly id: string
+  /** 何を強制するか（1 文） */
+  readonly what: string
+  /** なぜ重要か（業務/技術的文脈） */
+  readonly why: string
+  /** ガードタグ */
+  readonly guardTags: readonly string[]
+  /** 責務タグ */
+  readonly responsibilityTags?: readonly string[]
+  /** バージョン追跡 */
+  readonly epoch?: number
+  /** 成熟度 */
+  readonly maturity?: RuleMaturity
+  /** ルールの性質 */
+  readonly ruleClass?: RuleClassification
+  /** 確信度 */
+  readonly confidence?: ConfidenceLevel
+  /** このルールが防いでいる害 */
+  readonly protectedHarm?: {
+    readonly prevents: readonly string[]
+  }
+  /** 所属する関心スライス */
+  readonly slice?: AagSlice
+}
+
+// ─── RuleGovernance — どう扱うか ───────────────────────────
+
+/** 判断基準（脱属人化） */
+export interface DecisionCriteria {
+  /** いつこのルールが適用されるか */
+  readonly when: string
+  /** 例外が許容される条件 */
+  readonly exceptions: string
+  /** 判断に迷ったときの行動 */
+  readonly escalation: string
+}
+
+/** 修正手順 */
+export interface MigrationPath {
+  readonly steps: readonly string[]
+  readonly effort: MigrationEffort
+  /** 低い = 先にやる */
+  readonly priority: number
+}
+
+/** レビュー周期 */
+export interface ReviewPolicy {
+  readonly owner: string
+  readonly lastReviewedAt: string
+  readonly reviewCadenceDays: number
+}
+
+/** experimental ルールの出口（昇格/撤回の対称性） */
+export interface LifecyclePolicy {
+  readonly introducedAt: string
+  readonly observeForDays: number
+  readonly promoteIf: readonly string[]
+  readonly withdrawIf: readonly string[]
+}
+
+/**
+ * ルールの運用層。
+ * 「どう扱うか」「いつ見直すか」「どう直すか」を定義する。
+ */
+export interface RuleGovernance {
+  /** 違反時の運用区分 */
+  readonly fixNow?: FixNowClassification
+  /** 判断基準 */
+  readonly decisionCriteria?: DecisionCriteria
+  /** 修正手順 */
+  readonly migrationPath?: MigrationPath
+  /** レビュー周期 */
+  readonly reviewPolicy?: ReviewPolicy
+  /** experimental ルールの出口 */
+  readonly lifecyclePolicy?: LifecyclePolicy
+  /** いつこのルールが不要になるか（反証可能性） */
+  readonly sunsetCondition?: string
+}
+
+// ─── RuleDetectionSpec — どう見つけるか ──────────────────────
+
+/** 検出設定 */
+export interface DetectionConfig {
+  readonly type: DetectionType
+  /**
+   * gate: CI fail + マージ block（即修正必須）
+   * block-merge: CI warn + マージ block（移行途中の検知用）
+   * warn: CI warn + マージ allow（注意喚起のみ）
+   */
+  readonly severity: DetectionSeverity
+  readonly baseline?: number
+}
+
+/** ルール間の因果関係 */
+export interface RuleRelationships {
+  /** 前提ルール */
+  readonly dependsOn?: readonly string[]
+  /** 守ると有効になるルール */
+  readonly enables?: readonly string[]
+  /** 同時適用不可 */
+  readonly conflicts?: readonly string[]
+}
+
+/**
+ * ルールの検出仕様層。
+ * 「どう検出するか」の抽象仕様を定義する。
+ *
+ * correctPattern/outdatedPattern の imports/codeSignals/example は
+ * アプリ固有のバインディング値を含む。
+ * 型構造としては Core だが、具体値は App Domain に属する。
+ */
+export interface RuleDetectionSpec {
+  /** 検出設定 */
+  readonly detection: DetectionConfig
+  /** 閾値（タグ連動） */
+  readonly thresholds?: {
+    readonly [key: string]: number | undefined
+  }
+  /** あるべき姿 */
+  readonly correctPattern: {
+    readonly description: string
+    readonly example?: string
+    readonly imports?: readonly string[]
+  }
+  /** 禁止/旧パターン */
+  readonly outdatedPattern: {
+    readonly description: string
+    readonly imports?: readonly string[]
+    readonly codeSignals?: readonly string[]
+  }
+  /** ルール間の因果関係 */
+  readonly relationships?: RuleRelationships
+}
+
+// ─── slice 誘導文 ──────────────────────────────────────────
+
+/** slice ごとの短い誘導文 — 違反時に「向かう先」を 1 行で示す */
+export const SLICE_GUIDANCE: Readonly<Record<AagSlice, string>> = {
+  'layer-boundary': 'hook / adapter / interface 経由に変更する',
+  canonicalization: 'readModel / 正本関数 / path guard 経由に変更する',
+  'query-runtime': 'QueryHandler / AnalysisFrame 経由に変更する',
+  'responsibility-separation': '責務分離（分割 or active-debt）で対応する',
+  'governance-ops': 'docs:generate / rule review で対応する',
+}
