@@ -125,7 +125,8 @@ describe('意味分類ガード（Phase 2）', () => {
       if (
         entry.semanticClass === 'analytic' &&
         entry.authorityKind !== 'analytic-authoritative' &&
-        entry.runtimeStatus !== 'candidate'
+        entry.runtimeStatus !== 'candidate' &&
+        entry.runtimeStatus !== 'non-target'
       ) {
         violations.push(`${key}: analytic なのに authorityKind=${entry.authorityKind}`)
       }

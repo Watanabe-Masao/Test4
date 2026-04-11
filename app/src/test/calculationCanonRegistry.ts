@@ -556,14 +556,16 @@ export const CALCULATION_CANON_REGISTRY: Readonly<Record<string, CanonEntry>> = 
     reason: '実日数マッピング（出力型: ActualDayImpact）',
     zodAdded: false,
     semanticClass: 'analytic',
-    authorityKind: 'analytic-authoritative',
+    authorityKind: 'non-authoritative',
     methodFamily: 'calendar_effect',
-    runtimeStatus: 'current',
+    runtimeStatus: 'non-target',
     ownerKind: 'maintenance',
     contractId: 'ANA-008',
     bridgeKind: 'analytics',
     rateOwnership: 'n/a',
     fallbackPolicy: 'none',
+    notes:
+      'WASM 候補から除外。JS-native: Map 集合差・Date DOW 計算・ラベル生成が中心で、数値 kernel が薄い。FFI マーシャリングコストが便益を上回る。将来の micro-kernel 切り出しで再評価可能',
   },
   'temporal/computeMovingAverage.ts': {
     tag: 'review',
