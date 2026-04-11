@@ -43,6 +43,16 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       severity: 'gate',
       baseline: 0,
     },
+    migrationRecipe: {
+      steps: [
+        '1. getExecutionMode / recordCall / recordMismatch の import を削除',
+        '2. bridge から直接 wasmEngine または TS fallback を呼ぶように変更',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 1,
+    },
     migrationPath: {
       steps: [
         '1. getExecutionMode / recordCall / recordMismatch の import を削除',
@@ -132,6 +142,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       severity: 'gate',
       baseline: 47,
     },
+    migrationRecipe: {
+      steps: [
+        '1. 追加しようとしているフィールドが本当に全ウィジェット共通か確認',
+        '2. 特定の feature でのみ使うなら features/<feature>/ のローカル context に移動',
+        '3. 共通なら既存フィールドの統合（類似フィールドのマージ）を検討',
+      ],
+    },
+    executionPlan: {
+      effort: 'medium',
+      priority: 3,
+    },
     migrationPath: {
       steps: [
         '1. 追加しようとしているフィールドが本当に全ウィジェット共通か確認',
@@ -177,6 +198,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       severity: 'gate',
       baseline: 7,
     },
+    migrationRecipe: {
+      steps: [
+        '1. 新しい wrapper を作る代わりに、呼び出し元を直接新 API に移行',
+        '2. 既存の @deprecated は呼び出し元の移行が完了次第削除',
+        '3. 移行完了したら baseline を減らす',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 2,
+    },
     migrationPath: {
       steps: [
         '1. 新しい wrapper を作る代わりに、呼び出し元を直接新 API に移行',
@@ -220,6 +252,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       type: 'count',
       severity: 'gate',
       baseline: 13,
+    },
+    migrationRecipe: {
+      steps: [
+        '1. 新規 plan が特定 feature に属するか確認',
+        '2. features/<feature>/application/plans/ に配置',
+        '3. shared な plan が本当に cross-cutting か再確認',
+      ],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 1,
     },
     migrationPath: {
       steps: [
@@ -1680,6 +1723,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       dependsOn: ['AR-STRUCT-QUERY-PATTERN'],
     },
     detection: { type: 'custom', severity: 'gate' },
+    migrationRecipe: {
+      steps: ['1. 直接クエリ入力の構築を AnalysisFrame 経由に変更'],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 2,
+    },
     migrationPath: {
       steps: ['1. 直接クエリ入力の構築を AnalysisFrame 経由に変更'],
       effort: 'small',
@@ -1716,6 +1766,16 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       dependsOn: ['AR-A1-DOMAIN'],
     },
     detection: { type: 'must-include', severity: 'gate' },
+    migrationRecipe: {
+      steps: [
+        '1. calculationCanonRegistry.ts に分類を追加（required/review/not-needed）',
+        '2. required なら Zod 契約を追加',
+      ],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 1,
+    },
     migrationPath: {
       steps: [
         '1. calculationCanonRegistry.ts に分類を追加（required/review/not-needed）',
