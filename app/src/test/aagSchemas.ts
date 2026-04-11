@@ -29,6 +29,7 @@ import type { SemanticClass, AuthorityKind, RuntimeStatus } from './calculationC
 export type {
   RuleSemantics,
   RuleGovernance,
+  RuleOperationalState,
   RuleDetectionSpec,
   DetectionType,
   RuleMaturity,
@@ -40,6 +41,8 @@ export type {
   MigrationEffort,
   DetectionConfig,
   DecisionCriteria,
+  MigrationRecipe,
+  ExecutionPlan,
   MigrationPath,
   ReviewPolicy,
   LifecyclePolicy,

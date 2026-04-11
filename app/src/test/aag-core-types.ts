@@ -107,7 +107,23 @@ export interface DecisionCriteria {
   readonly escalation: string
 }
 
-/** 修正手順 */
+/** 修正手順 — App Domain の安定知識（「どう直すか」） */
+export interface MigrationRecipe {
+  readonly steps: readonly string[]
+}
+
+/** 実行計画 — Project Overlay の案件運用状態（「いつ・どの重さで扱うか」） */
+export interface ExecutionPlan {
+  readonly effort: MigrationEffort
+  /** 低い = 先にやる */
+  readonly priority: number
+}
+
+/**
+ * 修正手順（統合版）。
+ * @deprecated MigrationRecipe（App Domain）+ ExecutionPlan（Project Overlay）に分離予定。
+ * 既存 140 ルールの互換性のため当面残す。
+ */
 export interface MigrationPath {
   readonly steps: readonly string[]
   readonly effort: MigrationEffort
@@ -132,22 +148,33 @@ export interface LifecyclePolicy {
 }
 
 /**
- * ルールの運用層。
- * 「どう扱うか」「いつ見直すか」「どう直すか」を定義する。
+ * ルールの安定知識層（App Domain 側）。
+ * 「どう判断するか」「どう直すか」「いつ不要になるか」を定義する。
+ * 案件が変わっても基本的に変わらない知識。
  */
 export interface RuleGovernance {
-  /** 違反時の運用区分 */
-  readonly fixNow?: FixNowClassification
-  /** 判断基準 */
+  /** 判断基準（脱属人化） */
   readonly decisionCriteria?: DecisionCriteria
-  /** 修正手順 */
-  readonly migrationPath?: MigrationPath
-  /** レビュー周期 */
-  readonly reviewPolicy?: ReviewPolicy
-  /** experimental ルールの出口 */
-  readonly lifecyclePolicy?: LifecyclePolicy
+  /** 修正手順（安定知識: どう直すか） */
+  readonly migrationRecipe?: MigrationRecipe
   /** いつこのルールが不要になるか（反証可能性） */
   readonly sunsetCondition?: string
+}
+
+/**
+ * ルールの案件運用状態層（Project Overlay 側）。
+ * 「今この案件でどう扱うか」を定義する。
+ * 案件の優先順位・進捗・リソースで変わる。
+ */
+export interface RuleOperationalState {
+  /** 違反時の運用区分（今この案件での扱い） */
+  readonly fixNow?: FixNowClassification
+  /** 実行計画（案件固有の工数・優先度） */
+  readonly executionPlan?: ExecutionPlan
+  /** レビュー周期（案件運用） */
+  readonly reviewPolicy?: ReviewPolicy
+  /** experimental ルールの出口（案件の時計） */
+  readonly lifecyclePolicy?: LifecyclePolicy
 }
 
 // ─── RuleDetectionSpec — どう見つけるか ──────────────────────

@@ -22,6 +22,7 @@
 import type {
   RuleSemantics as _RuleSemantics,
   RuleGovernance as _RuleGovernance,
+  RuleOperationalState as _RuleOperationalState,
   RuleDetectionSpec as _RuleDetectionSpec,
   DetectionType as _DetectionType,
   RuleMaturity as _RuleMaturity,
@@ -33,6 +34,8 @@ import type {
   MigrationEffort as _MigrationEffort,
   DetectionConfig as _DetectionConfig,
   DecisionCriteria as _DecisionCriteria,
+  MigrationRecipe as _MigrationRecipe,
+  ExecutionPlan as _ExecutionPlan,
   MigrationPath as _MigrationPath,
   ReviewPolicy as _ReviewPolicy,
   LifecyclePolicy as _LifecyclePolicy,
@@ -50,6 +53,9 @@ export type DetectionSeverity = _DetectionSeverity
 export type MigrationEffort = _MigrationEffort
 export type DetectionConfig = _DetectionConfig
 export type DecisionCriteria = _DecisionCriteria
+export type MigrationRecipe = _MigrationRecipe
+export type ExecutionPlan = _ExecutionPlan
+/** @deprecated MigrationRecipe + ExecutionPlan に分離予定 */
 export type MigrationPath = _MigrationPath
 export type ReviewPolicy = _ReviewPolicy
 export type LifecyclePolicy = _LifecyclePolicy
@@ -57,8 +63,10 @@ export type RuleRelationships = _RuleRelationships
 
 // Core 意味層
 export type RuleSemantics = _RuleSemantics
-// Core 運用層
+// Core 安定知識層（App Domain 側 governance）
 export type RuleGovernance = _RuleGovernance
+// Core 案件運用状態層（Project Overlay 側 governance）
+export type RuleOperationalState = _RuleOperationalState
 // Core 検出仕様層
 export type RuleDetectionSpec = _RuleDetectionSpec
 
@@ -157,10 +165,11 @@ export interface RuleBinding {
 }
 
 /**
- * Architecture Rule = Core 3 層 + App バインディング
+ * Architecture Rule = Core 4 層 + App バインディング
  *
  * - RuleSemantics: 何を守るか — id, what, why, principleRefs, slice（Core）
- * - RuleGovernance: どう扱うか — fixNow, decisionCriteria, migrationPath（Core）
+ * - RuleGovernance: 安定知識 — decisionCriteria, migrationRecipe, sunsetCondition（App Domain）
+ * - RuleOperationalState: 案件運用 — fixNow, executionPlan, reviewPolicy, lifecyclePolicy（Project Overlay）
  * - RuleDetectionSpec: どう見つけるか — detection, description のみ（Core）
  * - RuleBinding: 具体バインディング — doc, imports, codeSignals, example（App）
  *
@@ -169,15 +178,18 @@ export interface RuleBinding {
  * correctPattern/outdatedPattern は Core（description のみ）と Binding（imports 等）で
  * 異なる部分型を持つため、intersection（`&`）でマージする必要がある。
  *
- * Phase 2 は type-level decomposition のみ。
- * ルール定義データの物理分割、catalog/binding の別ファイル化、実行ロジック変更は行わない。
+ * 既存 140 ルールは migrationPath（deprecated）を使用。
+ * 新規ルールは migrationRecipe + executionPlan を推奨。
  */
 export type ArchitectureRule = _RuleSemantics &
   _RuleGovernance &
+  _RuleOperationalState &
   _RuleDetectionSpec &
   RuleBinding & {
     /** Core の principleRefs を PrincipleId に narrowing（アプリ固有の原則 ID 体系） */
     readonly principleRefs?: readonly PrincipleId[]
+    /** @deprecated MigrationRecipe（App Domain）+ ExecutionPlan（Project Overlay）に分離予定 */
+    readonly migrationPath?: _MigrationPath
   }
 
 // ─── ルール定義 ──────────────────────────────────────────
