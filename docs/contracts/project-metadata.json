@@ -19,7 +19,8 @@
     "pin-intervals",
     "inventory-calc",
     "sensitivity",
-    "correlation"
+    "correlation",
+    "moving-average"
   ],
   "ciJobs": [
     "wasm-build",

@@ -79,6 +79,7 @@ export default defineConfig({
       'inventory-calc-wasm',
       'sensitivity-wasm',
       'correlation-wasm',
+      'moving-average-wasm',
     ],
   },
   assetsInclude: ['**/*.wasm'],

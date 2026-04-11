@@ -53,6 +53,7 @@ export const WASM_CANDIDATE_MODULE_NAMES = [
   'inventoryCalc',
   'sensitivity',
   'correlation',
+  'movingAverage',
 ] as const
 export type WasmCandidateModuleName = (typeof WASM_CANDIDATE_MODULE_NAMES)[number]
 
@@ -136,6 +137,12 @@ export const WASM_CANDIDATE_MODULE_METADATA: Readonly<
     authorityKind: 'candidate-authoritative',
     contractId: 'ANA-005',
   },
+  movingAverage: {
+    semanticClass: 'analytic',
+    bridgeKind: 'analytics',
+    authorityKind: 'candidate-authoritative',
+    contractId: 'ANA-009',
+  },
 }
 
 /* ── 内部状態 ─────────────────────────────────── */
@@ -166,6 +173,7 @@ let pinIntervalsWasmExports: typeof import('pin-intervals-wasm') | null = null
 let inventoryCalcWasmExports: typeof import('inventory-calc-wasm') | null = null
 let sensitivityWasmExports: typeof import('sensitivity-wasm') | null = null
 let correlationWasmExports: typeof import('correlation-wasm') | null = null
+let movingAverageWasmExports: typeof import('moving-average-wasm') | null = null
 
 // candidate 群の状態管理（current とは分離）
 const candidateModuleStates: Record<WasmCandidateModuleName, WasmState> = {
@@ -177,6 +185,7 @@ const candidateModuleStates: Record<WasmCandidateModuleName, WasmState> = {
   inventoryCalc: 'idle',
   sensitivity: 'idle',
   correlation: 'idle',
+  movingAverage: 'idle',
 }
 
 /* ── 初期化 ───────────────────────────────────── */
@@ -492,6 +501,32 @@ export async function initCorrelationCandidateWasm(): Promise<void> {
   }
 }
 
+/**
+ * movingAverage candidate WASM モジュールを非同期で初期化する。
+ */
+export async function initMovingAverageCandidateWasm(): Promise<void> {
+  if (candidateModuleStates.movingAverage !== 'idle') return
+
+  candidateModuleStates.movingAverage = 'loading'
+  try {
+    const wasm = await import('moving-average-wasm')
+    await wasm.default()
+    movingAverageWasmExports = wasm
+    candidateModuleStates.movingAverage = 'ready'
+    if (import.meta.env.DEV) {
+      console.info(
+        '[wasmEngine] movingAverage candidate ready — WASM candidate-authoritative ready',
+      )
+    }
+  } catch (e) {
+    candidateModuleStates.movingAverage = 'error'
+    console.warn(
+      '[wasmEngine] movingAverage candidate WASM initialization failed, falling back to TS:',
+      e,
+    )
+  }
+}
+
 /* ── 状態取得 ─────────────────────────────────── */
 
 /** 個別モジュールの状態を取得する */
@@ -558,6 +593,10 @@ export function getSensitivityWasmExports(): typeof import('sensitivity-wasm') |
 
 export function getCorrelationWasmExports(): typeof import('correlation-wasm') | null {
   return correlationWasmExports
+}
+
+export function getMovingAverageWasmExports(): typeof import('moving-average-wasm') | null {
+  return movingAverageWasmExports
 }
 
 /** candidate モジュールの状態を取得する */

@@ -301,6 +301,12 @@ Set / Record を構築して使用する。許可リストの変更は `allowlis
 | 相関: Zスコア統計的性質 | `wasm/correlation/tests/invariants.rs` | INV-CORR-05 |
 | 相関: 移動平均有限性 | `wasm/correlation/tests/invariants.rs` | INV-CORR-06 |
 | 相関: 有限保証 | `wasm/correlation/tests/invariants.rs` | INV-CORR-07 |
+| 移動平均: 出力長=入力長 | `wasm/moving-average/tests/invariants.rs` | INV-MA-01 |
+| 移動平均: 窓不足→missing | `wasm/moving-average/tests/invariants.rs` | INV-MA-02 |
+| 移動平均: 定数系列→定数 | `wasm/moving-average/tests/invariants.rs` | INV-MA-03 |
+| 移動平均: strict≥partial | `wasm/moving-average/tests/invariants.rs` | INV-MA-04 |
+| 移動平均: window=1→identity | `wasm/moving-average/tests/invariants.rs` | INV-MA-05 |
+| 移動平均: 有限保証 | `wasm/moving-average/tests/invariants.rs` | INV-MA-06 |
 
 ## 設計原則カテゴリ → ガードテスト対応
 

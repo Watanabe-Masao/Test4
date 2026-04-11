@@ -1132,3 +1132,63 @@ mean(z_scores) ≈ 0 ∧ var(z_scores) ≈ 1
 - **テスト**: `wasm/correlation/tests/invariants.rs` — `corr_inv_7_*`
 - **ロール**: invariant-guardian
 - **契約**: ANA-005
+
+### INV-MA-01: 出力長 = 入力長
+
+```
+len(output) = len(input)
+```
+
+- **テスト**: `wasm/moving-average/tests/invariants.rs` — `ma_inv_1_*`
+- **ロール**: invariant-guardian
+- **契約**: ANA-009
+
+### INV-MA-02: 窓不足 → missing
+
+```
+index + 1 < windowSize ⇒ status = 'missing'
+```
+
+- **テスト**: `wasm/moving-average/tests/invariants.rs` — `ma_inv_2_*`
+- **ロール**: invariant-guardian
+- **契約**: ANA-009
+
+### INV-MA-03: 定数系列 → MA = 定数
+
+```
+全値同一 ⇒ 有効窓の MA = 入力値
+```
+
+- **テスト**: `wasm/moving-average/tests/invariants.rs` — `ma_inv_3_*`
+- **ロール**: invariant-guardian
+- **契約**: ANA-009
+
+### INV-MA-04: strict ≥ partial（保守性）
+
+```
+strict の missing 数 ≥ partial の missing 数
+```
+
+- **テスト**: `wasm/moving-average/tests/invariants.rs` — `ma_inv_4_*`
+- **ロール**: invariant-guardian
+- **契約**: ANA-009
+
+### INV-MA-05: window=1 → identity
+
+```
+windowSize = 1 ⇒ output = input（ok 値はそのまま）
+```
+
+- **テスト**: `wasm/moving-average/tests/invariants.rs` — `ma_inv_5_*`
+- **ロール**: invariant-guardian
+- **契約**: ANA-009
+
+### INV-MA-06: 有限保証
+
+```
+出力値は有限または NaN（null）のいずれか
+```
+
+- **テスト**: `wasm/moving-average/tests/invariants.rs` — `ma_inv_6_*`
+- **ロール**: invariant-guardian
+- **契約**: ANA-009

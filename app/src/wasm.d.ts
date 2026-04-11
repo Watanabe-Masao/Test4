@@ -186,6 +186,17 @@ declare module 'observation-period-wasm' {
   ): Float64Array
 }
 
+// ─── moving-average-wasm (candidate: ANA-009) ───────────
+declare module 'moving-average-wasm' {
+  export default function init(): Promise<void>
+  export function compute_moving_average(
+    values: Float64Array,
+    statuses: Uint8Array,
+    windowSize: number,
+    policy: number,
+  ): Float64Array
+}
+
 // ─── correlation-wasm (candidate: ANA-005) ──────────────
 declare module 'correlation-wasm' {
   export default function init(): Promise<void>

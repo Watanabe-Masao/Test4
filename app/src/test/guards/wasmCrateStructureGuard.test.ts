@@ -23,6 +23,7 @@ const CANDIDATE_CRATES = [
   'inventory-calc',
   'sensitivity',
   'correlation',
+  'moving-average',
 ]
 
 /** current crate（既存。構造要件は ratchet で段階適用） */
