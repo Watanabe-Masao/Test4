@@ -349,8 +349,9 @@ LEFT JOIN (
   AND cs.store_id = t_do.store_id AND cs.day = t_do.day
 LEFT JOIN (
   -- ss_f: special_sales(flowers) は再ロード時に蓄積しうる → store×day に集約
+  -- cost/price は金額（SUM で合算）、customers は件数（MAX で重複排除 — SUM だと二重計上）
   SELECT year, month, store_id, day,
-    SUM(cost) AS cost, SUM(price) AS price, SUM(customers) AS customers
+    SUM(cost) AS cost, SUM(price) AS price, MAX(customers) AS customers
   FROM special_sales WHERE type = 'flowers'
   GROUP BY year, month, store_id, day
 ) ss_f
