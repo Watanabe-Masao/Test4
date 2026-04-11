@@ -245,6 +245,49 @@ Set / Record を構築して使用する。許可リストの変更は `allowlis
 | `app/src/test/guardTestHelpers.ts` | `collectTsFiles`, `rel`, `extractImports`, `extractValueImports`, `isCommentLine`, `stripStrings`, `SRC_DIR` |
 | `app/src/test/allowlists/` | 全許可リストのカテゴリ別定義 + `buildAllowlistSet`, `buildQuantitativeAllowlist` |
 
+### WASM Candidate 不変条件（Phase 5: Rust テスト）
+
+| 検証内容 | テストファイル | 不変条件 ID |
+|---|---|---|
+| PI値: 定義恒等式 | `wasm/pi-value/tests/invariants.rs` | INV-PI-01 |
+| PI値: 結合一貫性 | `wasm/pi-value/tests/invariants.rs` | INV-PI-02 |
+| PI値: ゼロ除算安全 | `wasm/pi-value/tests/invariants.rs` | INV-PI-03 |
+| PI値: 再構成恒等式 | `wasm/pi-value/tests/invariants.rs` | INV-PI-04 |
+| PI値: 有限保証 | `wasm/pi-value/tests/invariants.rs` | INV-PI-05 |
+| PI値: 比例性 | `wasm/pi-value/tests/invariants.rs` | INV-PI-06 |
+| PI値: 単調性 | `wasm/pi-value/tests/invariants.rs` | INV-PI-07 |
+| 客数GAP: GAP定義恒等式 | `wasm/customer-gap/tests/invariants.rs` | INV-CG-01 |
+| 客数GAP: YoY定義恒等式 | `wasm/customer-gap/tests/invariants.rs` | INV-CG-02 |
+| 客数GAP: 等率成長ゼロGAP | `wasm/customer-gap/tests/invariants.rs` | INV-CG-03 |
+| 客数GAP: null条件 | `wasm/customer-gap/tests/invariants.rs` | INV-CG-04 |
+| 客数GAP: 有限保証 | `wasm/customer-gap/tests/invariants.rs` | INV-CG-05 |
+| 客数GAP: 符号一貫性 | `wasm/customer-gap/tests/invariants.rs` | INV-CG-06 |
+| 残予算率: 定義恒等式 | `wasm/remaining-budget-rate/tests/invariants.rs` | INV-RBR-01 |
+| 残予算率: 計画通り恒等式 | `wasm/remaining-budget-rate/tests/invariants.rs` | INV-RBR-02 |
+| 残予算率: ゼロ残予算安全 | `wasm/remaining-budget-rate/tests/invariants.rs` | INV-RBR-03 |
+| 残予算率: 有限保証 | `wasm/remaining-budget-rate/tests/invariants.rs` | INV-RBR-04 |
+| 残予算率: 単調性 | `wasm/remaining-budget-rate/tests/invariants.rs` | INV-RBR-05 |
+| 観測期間: elapsed恒等式 | `wasm/observation-period/tests/invariants.rs` | INV-OP-01 |
+| 観測期間: 残日数恒等式 | `wasm/observation-period/tests/invariants.rs` | INV-OP-02 |
+| 観測期間: 営業日数上界 | `wasm/observation-period/tests/invariants.rs` | INV-OP-03 |
+| 観測期間: undefined条件 | `wasm/observation-period/tests/invariants.rs` | INV-OP-04 |
+| 観測期間: ステータス単調性 | `wasm/observation-period/tests/invariants.rs` | INV-OP-05 |
+| 観測期間: staleness独立性 | `wasm/observation-period/tests/invariants.rs` | INV-OP-06 |
+| 棚卸区間: COGS恒等式 | `wasm/pin-intervals/tests/invariants.rs` | INV-PIN-01 |
+| 棚卸区間: 粗利恒等式 | `wasm/pin-intervals/tests/invariants.rs` | INV-PIN-02 |
+| 棚卸区間: 粗利率恒等式 | `wasm/pin-intervals/tests/invariants.rs` | INV-PIN-03 |
+| 棚卸区間: チェーン連続性 | `wasm/pin-intervals/tests/invariants.rs` | INV-PIN-04 |
+| 棚卸区間: 日付被覆 | `wasm/pin-intervals/tests/invariants.rs` | INV-PIN-05 |
+| 棚卸区間: 有限保証 | `wasm/pin-intervals/tests/invariants.rs` | INV-PIN-06 |
+| 棚卸区間: 売上合計一貫性 | `wasm/pin-intervals/tests/invariants.rs` | INV-PIN-07 |
+| 推定在庫: 恒等式 | `wasm/inventory-calc/tests/invariants.rs` | INV-IC-01 |
+| 推定在庫: コア売上恒等式 | `wasm/inventory-calc/tests/invariants.rs` | INV-IC-02 |
+| 推定在庫: 在庫仕入原価恒等式 | `wasm/inventory-calc/tests/invariants.rs` | INV-IC-03 |
+| 推定在庫: 累積単調性 | `wasm/inventory-calc/tests/invariants.rs` | INV-IC-04 |
+| 推定在庫: 実在庫最終日限定 | `wasm/inventory-calc/tests/invariants.rs` | INV-IC-05 |
+| 推定在庫: 有限保証 | `wasm/inventory-calc/tests/invariants.rs` | INV-IC-06 |
+| 推定在庫: 日番号連続 | `wasm/inventory-calc/tests/invariants.rs` | INV-IC-07 |
+
 ## 設計原則カテゴリ → ガードテスト対応
 
 | カテゴリ | 主なガードテスト |
@@ -252,7 +295,7 @@ Set / Record を構築して使用する。許可リストの変更は `allowlis
 | A: 層境界 | layerBoundaryGuard, presentationIsolationGuard, purityGuard |
 | B: エンジン境界 | purityGuard (INV-ENGINE-*), presentationIsolationGuard (CQRS) |
 | C: 純粋性・責務分離 | codePatternGuard (R1,R5,R7), purityGuard (facade) |
-| D: 数学的不変条件 | factorDecomposition, scopeBoundaryInvariant, waterfallDataIntegrity |
+| D: 数学的不変条件 | factorDecomposition, scopeBoundaryInvariant, waterfallDataIntegrity, WASM candidate invariants (INV-PI/CG/RBR/OP/PIN/IC) |
 | E: 型安全 | comparisonMigrationGuard (INV-CMP-08) |
 | F: コード構造規約 | structuralConventionGuard (vertical slice, prototype, barrel) |
 | F8: 正本保護 | purchaseCostPathGuard, grossProfitPathGuard, salesFactPathGuard, discountFactPathGuard, factorDecompositionPathGuard, canonicalizationSystemGuard, calculationCanonGuard |

@@ -86,24 +86,19 @@ Phase 8 は **candidate 実装が promotion-ready であること**が前提。
 1. ✅ candidate 一覧が確定している（Phase 5-6 で完了）
 2. ✅ 契約が固定されている（Phase 3 で完了）
 3. ✅ guard が導入されている（Phase 3-7 で完了）
-4. ❌ candidate の Rust/WASM 実装が追加されている（**未実施**）
-5. ❌ bridge にモード切替が実装されている（**未実施**）
-6. ❌ dual-run compare が実施されている（**未実施**）
-7. ❌ rollback が確認されている（**未実施**）
+4. ✅ candidate の Rust/WASM 実装が追加されている（Phase 5 実装で完了 — 6 crate）
+5. ✅ bridge にモード切替が実装されている（Phase 5 実装で完了 — 6 bridge）
+6. ✅ dual-run compare が実施されている（Phase 5 実装で完了 — mock ベース parity 検証）
+7. ✅ rollback が確認されている（Phase 5 実装で完了 — rollbackToCurrentOnly テスト）
 
-**4-7 は Phase 5-6 の「実装」ステップ**であり、構造基盤（文書 + guard + registry）は全て整備済み。
-実装時は以下に従う:
-- `references/03-guides/tier1-business-migration-plan.md` の §6（8ステップ移行プロセス）
-- `references/03-guides/analytic-kernel-migration-plan.md` の §6（9ステップ移行プロセス）
+**Phase 5 Tier 1 Business 全 6 候補の candidate 移行構造が完了。**
+次は Phase 8（Promote Ceremony）だが、実 WASM バイナリでの dual-run 観測期間が必要。
 
-### 次のアクション（Phase 5-6 の実装ステップ）
+### 次のアクション
 
-Phase 8（Promote Ceremony）に進む前に、Phase 5-6 で定義済みの実装ステップを実行する必要がある:
-
-1. **candidate の Rust/WASM 実装** — candidate/business と candidate/analytics を current に混ぜず追加
-2. **bridge モード切替** — current-only / candidate-only / dual-run-compare / fallback-to-current
-3. **dual-run compare** — 値一致 + null 一致 + warning 一致 + 業務解釈/不変条件の一致
-4. **rollback 確認** — candidate 失敗時に current-only へ戻せることを検証
+1. **実 WASM バイナリでの dual-run 観測** — wasm-pack build 後に実バイナリで parity 検証
+2. **Phase 6（Analytic Kernel）** — 9 候補の candidate 移行（未着手）
+3. **Phase 8（Promote Ceremony）** — promotion-ready 判定 → 人間承認
 
 ## 6. 文書追加時の連鎖更新（最もハマりやすい）
 

@@ -583,3 +583,409 @@ Map<number, { sales, customers }> を構築するコード = 0件
 - **テスト**: `guards/presentationIsolationGuard.test.ts`
 - **ロール**: architecture
 - **違反時の影響**: 依存の逆転（Infra→App）が拡大し、アダプターパターンが崩壊する
+
+## WASM Candidate 数学的不変条件（Phase 5）
+
+以下は Tier 1 Business candidate 6 件の WASM 実装に対する数学的不変条件。
+各不変条件は Rust テスト（`wasm/*/tests/invariants.rs`）で機械的に検証される。
+candidate → current 昇格（Phase 8）後もそのまま維持する。
+
+### INV-PI-01: PI 値定義恒等式
+
+```
+quantityPI = (totalQuantity / customers) × 1,000
+amountPI   = (totalSales   / customers) × 1,000
+```
+
+- **テスト**: `wasm/pi-value/tests/invariants.rs` — `pi_inv_1_*`
+- **ロール**: invariant-guardian
+- **契約**: BIZ-012
+- **違反時の影響**: 店舗間・カテゴリ間のPI値比較が不正確になる
+
+### INV-PI-02: PI 値結合一貫性
+
+```
+calculate_pi_values(q, s, c) = (calculateQuantityPI(q, c), calculateAmountPI(s, c))
+```
+
+- **テスト**: `wasm/pi-value/tests/invariants.rs` — `pi_inv_2_*`
+- **ロール**: invariant-guardian
+- **契約**: BIZ-012
+
+### INV-PI-03: PI 値ゼロ除算安全
+
+```
+customers = 0 ⇒ quantityPI = 0 ∧ amountPI = 0
+```
+
+- **テスト**: `wasm/pi-value/tests/invariants.rs` — `pi_inv_3_*`
+- **ロール**: invariant-guardian
+- **契約**: BIZ-012
+
+### INV-PI-04: PI 値再構成恒等式
+
+```
+amountPI ≈ quantityPI × (totalSales / totalQuantity)  (totalQuantity ≠ 0)
+```
+
+- **テスト**: `wasm/pi-value/tests/invariants.rs` — `pi_inv_4_*`
+- **ロール**: invariant-guardian
+- **契約**: BIZ-012
+- **特記**: 客単価 = (quantityPI / 1000) × 点単価 の関係
+
+### INV-PI-05: PI 値有限保証
+
+```
+∀ 有限入力 ⇒ 出力は有限（NaN/Infinity 入力を除く）
+```
+
+- **テスト**: `wasm/pi-value/tests/invariants.rs` — `pi_inv_5_*`
+- **ロール**: invariant-guardian
+- **契約**: BIZ-012
+
+### INV-PI-06: PI 値比例性
+
+```
+k × totalQuantity ⇒ k × quantityPI（customers 一定）
+```
+
+- **テスト**: `wasm/pi-value/tests/invariants.rs` — `pi_inv_6_*`
+- **ロール**: invariant-guardian
+- **契約**: BIZ-012
+
+### INV-PI-07: PI 値単調性
+
+```
+totalQuantity↑ (customers 一定) ⇒ quantityPI↑
+customers↑ (totalQuantity 一定) ⇒ quantityPI↓
+```
+
+- **テスト**: `wasm/pi-value/tests/invariants.rs` — `pi_inv_7_*`
+- **ロール**: invariant-guardian
+- **契約**: BIZ-012
+
+### INV-CG-01: 客数 GAP 定義恒等式
+
+```
+quantityCustomerGap = quantityYoY - customerYoY
+amountCustomerGap   = salesYoY    - customerYoY
+```
+
+- **テスト**: `wasm/customer-gap/tests/invariants.rs` — `cg_inv_1_*`
+- **ロール**: invariant-guardian
+- **契約**: BIZ-013
+- **違反時の影響**: 客数 GAP が YoY 比との整合を失い、要因分析が破綻する
+
+### INV-CG-02: YoY 定義恒等式
+
+```
+customerYoY = curCustomers / prevCustomers
+quantityYoY = curQuantity / prevQuantity
+salesYoY    = curSales / prevSales
+```
+
+- **テスト**: `wasm/customer-gap/tests/invariants.rs` — `cg_inv_2_*`
+- **ロール**: invariant-guardian
+- **契約**: BIZ-013
+
+### INV-CG-03: 等率成長ゼロ GAP
+
+```
+全指標が同率で変化 ⇒ quantityCustomerGap = 0 ∧ amountCustomerGap = 0
+```
+
+- **テスト**: `wasm/customer-gap/tests/invariants.rs` — `cg_inv_3_*`
+- **ロール**: invariant-guardian
+- **契約**: BIZ-013
+
+### INV-CG-04: 前期無効時 null 条件
+
+```
+prevCustomers ≤ 0 ∨ prevQuantity ≤ 0 ∨ prevSales ≤ 0 ⇒ null
+```
+
+- **テスト**: `wasm/customer-gap/tests/invariants.rs` — `cg_inv_4_*`
+- **ロール**: invariant-guardian
+- **契約**: BIZ-013
+
+### INV-CG-05: 客数 GAP 有限保証
+
+```
+∀ 有限入力（有効な前期値） ⇒ 全出力フィールドは有限
+```
+
+- **テスト**: `wasm/customer-gap/tests/invariants.rs` — `cg_inv_5_*`
+- **ロール**: invariant-guardian
+- **契約**: BIZ-013
+
+### INV-CG-06: GAP 符号一貫性
+
+```
+quantityCustomerGap > 0 ⇔ quantityYoY > customerYoY（客数以上に点数が伸びている）
+```
+
+- **テスト**: `wasm/customer-gap/tests/invariants.rs` — `cg_inv_6_*`
+- **ロール**: invariant-guardian
+- **契約**: BIZ-013
+
+### INV-RBR-01: 残予算率定義恒等式
+
+```
+rate = (budget - totalSales) / Σ dailyBudget[elapsed+1..daysInMonth] × 100
+```
+
+- **テスト**: `wasm/remaining-budget-rate/tests/invariants.rs` — `rbr_inv_1_*`
+- **ロール**: invariant-guardian
+- **契約**: BIZ-008
+- **違反時の影響**: 残予算必要達成率が計画進捗と乖離し、巻き返し判断を誤る
+
+### INV-RBR-02: 計画通り恒等式
+
+```
+totalSales = Σ dailyBudget[0..elapsed] ⇒ rate = 100%
+```
+
+- **テスト**: `wasm/remaining-budget-rate/tests/invariants.rs` — `rbr_inv_2_*`
+- **ロール**: invariant-guardian
+- **契約**: BIZ-008
+
+### INV-RBR-03: 残予算ゼロ安全
+
+```
+Σ dailyBudget[elapsed+1..end] = 0 ⇒ rate = 0（safeDivide fallback）
+```
+
+- **テスト**: `wasm/remaining-budget-rate/tests/invariants.rs` — `rbr_inv_3_*`
+- **ロール**: invariant-guardian
+- **契約**: BIZ-008
+
+### INV-RBR-04: 残予算率有限保証
+
+```
+∀ 有限入力 ⇒ 出力は有限
+```
+
+- **テスト**: `wasm/remaining-budget-rate/tests/invariants.rs` — `rbr_inv_4_*`
+- **ロール**: invariant-guardian
+- **契約**: BIZ-008
+
+### INV-RBR-05: 残予算率単調性
+
+```
+totalSales↑ (他一定) ⇒ rate↓
+elapsedDays↑ (totalSales 一定) ⇒ rate↑
+```
+
+- **テスト**: `wasm/remaining-budget-rate/tests/invariants.rs` — `rbr_inv_5_*`
+- **ロール**: invariant-guardian
+- **契約**: BIZ-008
+
+### INV-OP-01: 経過日数恒等式
+
+```
+elapsedDays === lastRecordedSalesDay
+```
+
+- **テスト**: `wasm/observation-period/tests/invariants.rs` — `op_inv_1_*`
+- **ロール**: invariant-guardian
+- **契約**: BIZ-010
+- **違反時の影響**: 在庫法/推定法の切替判定が実際のデータ状況と乖離する
+
+### INV-OP-02: 残日数恒等式
+
+```
+remainingDays === daysInMonth - elapsedDays
+```
+
+- **テスト**: `wasm/observation-period/tests/invariants.rs` — `op_inv_2_*`
+- **ロール**: invariant-guardian
+- **契約**: BIZ-010
+
+### INV-OP-03: 営業日数上界
+
+```
+salesDays ≤ lastRecordedSalesDay ≤ daysInMonth
+```
+
+- **テスト**: `wasm/observation-period/tests/invariants.rs` — `op_inv_3_*`
+- **ロール**: invariant-guardian
+- **契約**: BIZ-010
+
+### INV-OP-04: 販売実績なし ⇒ undefined
+
+```
+salesDays = 0 ⇒ status = 'undefined'
+```
+
+- **テスト**: `wasm/observation-period/tests/invariants.rs` — `op_inv_4_*`
+- **ロール**: invariant-guardian
+- **契約**: BIZ-010
+
+### INV-OP-05: ステータス単調性
+
+```
+データ増加 ⇒ ステータスは同じか改善（悪化しない）
+```
+
+- **テスト**: `wasm/observation-period/tests/invariants.rs` — `op_inv_5_*`
+- **ロール**: invariant-guardian
+- **契約**: BIZ-010
+
+### INV-OP-06: staleness 独立性
+
+```
+stale 警告は status とは独立に発火する（ok + stale が共存可能）
+```
+
+- **テスト**: `wasm/observation-period/tests/invariants.rs` — `op_inv_6_*`
+- **ロール**: invariant-guardian
+- **契約**: BIZ-010
+
+### INV-PIN-01: COGS 恒等式（在庫等式）
+
+```
+COGS = openingInventory + totalPurchaseCost - closingInventory
+```
+
+- **テスト**: `wasm/pin-intervals/tests/invariants.rs` — `pin_inv_1_*`
+- **ロール**: invariant-guardian
+- **契約**: BIZ-011
+- **違反時の影響**: 棚卸区間の粗利計算が在庫等式に違反し、粗利率が不正確になる
+- **特記**: gross-profit WASM (BIZ-001) の在庫法計算と同一の等式
+
+### INV-PIN-02: 粗利恒等式
+
+```
+grossProfit = totalSales - COGS
+```
+
+- **テスト**: `wasm/pin-intervals/tests/invariants.rs` — `pin_inv_2_*`
+- **ロール**: invariant-guardian
+- **契約**: BIZ-011
+
+### INV-PIN-03: 粗利率恒等式
+
+```
+grossProfitRate = grossProfit / totalSales（totalSales = 0 のとき 0）
+```
+
+- **テスト**: `wasm/pin-intervals/tests/invariants.rs` — `pin_inv_3_*`
+- **ロール**: invariant-guardian
+- **契約**: BIZ-011
+
+### INV-PIN-04: 区間チェーン連続性
+
+```
+interval[i].openingInventory === interval[i-1].closingInventory
+interval[0].openingInventory === 関数引数の openingInventory
+```
+
+- **テスト**: `wasm/pin-intervals/tests/invariants.rs` — `pin_inv_4_*`
+- **ロール**: invariant-guardian
+- **契約**: BIZ-011
+- **違反時の影響**: 棚卸区間が不連続になり、在庫の追跡が途切れる
+
+### INV-PIN-05: 日付被覆（ギャップなし・重複なし）
+
+```
+interval[0].startDay = 1
+interval[i].startDay = interval[i-1].endDay + 1
+```
+
+- **テスト**: `wasm/pin-intervals/tests/invariants.rs` — `pin_inv_5_*`
+- **ロール**: invariant-guardian
+- **契約**: BIZ-011
+
+### INV-PIN-06: 区間出力有限保証
+
+```
+∀ 有限入力 ⇒ COGS, grossProfit, grossProfitRate は有限
+```
+
+- **テスト**: `wasm/pin-intervals/tests/invariants.rs` — `pin_inv_6_*`
+- **ロール**: invariant-guardian
+- **契約**: BIZ-011
+
+### INV-PIN-07: 売上合計一貫性
+
+```
+Σ interval.totalSales = Σ dailySales[0..lastPinDay]
+```
+
+- **テスト**: `wasm/pin-intervals/tests/invariants.rs` — `pin_inv_7_*`
+- **ロール**: invariant-guardian
+- **契約**: BIZ-011
+- **違反時の影響**: 区間分割により売上が消失または重複計上される
+
+### INV-IC-01: 推定在庫恒等式
+
+```
+estimated[d] = openingInventory + cumInventoryCost[d] - cumEstCogs[d]
+```
+
+- **テスト**: `wasm/inventory-calc/tests/invariants.rs` — `ic_inv_1_*`
+- **ロール**: invariant-guardian
+- **契約**: BIZ-009
+- **違反時の影響**: 日別推定在庫が期首在庫と累積原価から正しく導出されず、在庫推移グラフが不正確になる
+
+### INV-IC-02: コア売上恒等式（クランプなし）
+
+```
+coreSales = sales - flowersPrice - directProducePrice
+```
+
+- **テスト**: `wasm/inventory-calc/tests/invariants.rs` — `ic_inv_2_*`
+- **ロール**: invariant-guardian
+- **契約**: BIZ-009
+- **特記**: 日別は max(0) クランプしない（月次集計との整合のため）
+
+### INV-IC-03: 在庫仕入原価恒等式
+
+```
+inventoryCost = totalCost - deliverySalesCost
+```
+
+- **テスト**: `wasm/inventory-calc/tests/invariants.rs` — `ic_inv_3_*`
+- **ロール**: invariant-guardian
+- **契約**: BIZ-009
+
+### INV-IC-04: 累積単調性
+
+```
+非負入力 ⇒ cumInventoryCost[d] ≥ cumInventoryCost[d-1]
+         ∧ cumEstCogs[d] ≥ cumEstCogs[d-1]
+```
+
+- **テスト**: `wasm/inventory-calc/tests/invariants.rs` — `ic_inv_4_*`
+- **ロール**: invariant-guardian
+- **契約**: BIZ-009
+
+### INV-IC-05: 実在庫は最終日のみ
+
+```
+actual ≠ null ⇔ (d = daysInMonth ∧ closingInventory ≠ null)
+```
+
+- **テスト**: `wasm/inventory-calc/tests/invariants.rs` — `ic_inv_5_*`
+- **ロール**: invariant-guardian
+- **契約**: BIZ-009
+
+### INV-IC-06: 推定在庫有限保証
+
+```
+∀ 有限入力 ⇒ estimated, cumInventoryCost, cumEstCogs は有限
+```
+
+- **テスト**: `wasm/inventory-calc/tests/invariants.rs` — `ic_inv_6_*`
+- **ロール**: invariant-guardian
+- **契約**: BIZ-009
+
+### INV-IC-07: 日番号連続
+
+```
+row[d].day = d + 1（1-based 連番）
+```
+
+- **テスト**: `wasm/inventory-calc/tests/invariants.rs` — `ic_inv_7_*`
+- **ロール**: invariant-guardian
+- **契約**: BIZ-009
