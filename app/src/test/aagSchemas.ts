@@ -7,17 +7,44 @@
  * 層: Schema（宣言的仕様）
  * 正本性: 正本（型定義の唯一の定義元）
  *
+ * == AAG 3 層分離 ==
+ * - Core 型（AagLayer, AagViolation, GuardCategory 等）→ 本ファイル
+ * - Core ルール型（RuleSemantics, RuleGovernance 等）→ aag-core-types.ts
+ * - App Domain 型（SemanticClass, AuthorityKind 等）→ calculationCanonRegistry.ts
+ *
  * 注意:
  * - 型定義のみ。データ登録やテスト実装は含まない
  * - 既存 AagResponse はまだ変更しない（二段階移行: Parse1 = 型定義、Parse2 = 接続）
- * - SemanticClass / AuthorityKind は calculationCanonRegistry.ts から流用
+ * - SemanticClass / AuthorityKind は calculationCanonRegistry.ts から流用（App Domain）
  *
  * @responsibility R:utility
+ * @see aag/core/AAG_CORE_INDEX.md — Core 入口
  * @see references/01-principles/aag-5-constitution.md — 4層構造定義
  * @see references/01-principles/aag-5-source-of-truth-policy.md — 正本ポリシー
  */
 
 import type { SemanticClass, AuthorityKind, RuntimeStatus } from './calculationCanonRegistry'
+
+// Core ルール型を re-export（aagSchemas.ts 経由でもアクセス可能にする）
+export type {
+  RuleSemantics,
+  RuleGovernance,
+  RuleDetectionSpec,
+  DetectionType,
+  RuleMaturity,
+  AagSlice,
+  RuleClassification,
+  ConfidenceLevel,
+  FixNowClassification,
+  DetectionSeverity,
+  MigrationEffort,
+  DetectionConfig,
+  DecisionCriteria,
+  MigrationPath,
+  ReviewPolicy,
+  LifecyclePolicy,
+  RuleRelationships,
+} from './aag-core-types'
 
 // ────────────────────────────────────────────────────────
 // 共通型

@@ -13,8 +13,18 @@ Pure 計算責務再編（pure-calculation-reorg）
 
 - Phase 0-7 の構造基盤が完了
 - AAG 5.0.0 Phase A1-A5 完了（4層構造 + schema + カテゴリマップ + 導出自動化 + 運用再整理）
-- Core / Project Overlay 分離済み（本ディレクトリが Project Overlay）
-- **次の重心: AAG Core からの App 固有漏れの分離**
+- **AAG 3 層分離 Phase 0+2+3+4 完了**（境界ポリシー + 型分割 + スキーマ + allowlist 分離）
+- 次の重心: Inventory（Phase 1）→ App Domain 抽出（Phase 3）→ health 契約化（Phase 5）
+
+## 3 層モデル — AI のナビゲーション
+
+AAG は 3 層に分離されている。AI はこの順で読む:
+
+| 層 | 入口 | 役割 |
+|---|---|---|
+| **Project Overlay**（本ディレクトリ） | 本ファイル | 案件の進行状態。HANDOFF / plan / checklist |
+| **App Domain** | `app-domain/gross-profit/APP_DOMAIN_INDEX.md` | アプリ固有の意味空間。業務定義・契約・ルールカタログ |
+| **AAG Core** | `aag/core/AAG_CORE_INDEX.md` | 共通フレームワーク。型・原則・評価器 |
 
 ## Read Order
 
@@ -22,23 +32,34 @@ Pure 計算責務再編（pure-calculation-reorg）
 2. `HANDOFF.md`（完了済み Phase の概要、次にやること、ハマりポイント）
 3. `plan.md`（全体計画。4不可侵原則 + Phase 定義）
 4. `checklist.md`（Phase 単位の完了チェックリスト）
+5. 必要に応じて `app-domain/gross-profit/APP_DOMAIN_INDEX.md`（アプリ意味空間）
+6. 必要に応じて `aag/core/AAG_CORE_INDEX.md`（共通フレームワーク）
 
 ## Required Core References
 
 AAG Core の共通ルール・思想。案件作業中に必ず参照する。
 
+| ファイル | 層 | 役割 |
+|---------|---|------|
+| `aag/core/AAG_CORE_INDEX.md` | Core | Core 入口 |
+| `aag/core/principles/core-boundary-policy.md` | Core | 3 層境界ポリシー（5 原則） |
+| `app/src/test/aag-core-types.ts` | Core | Core ルール型（RuleSemantics / Governance / DetectionSpec） |
+| `app/src/test/aagSchemas.ts` | Core | AAG 5.0 スキーマ定義 |
+| `references/01-principles/aag-5-constitution.md` | Core | AAG 4層構造定義 |
+| `references/01-principles/aag-5-source-of-truth-policy.md` | Core | 正本/派生/運用物ポリシー |
+
+## Required App Domain References
+
+アプリ固有の意味空間。業務値定義・ルールカタログ。
+
 | ファイル | 役割 |
 |---------|------|
-| `references/01-principles/aag-5-constitution.md` | AAG 4層構造定義 |
-| `references/01-principles/aag-5-layer-map.md` | 既存ファイルの層マッピング |
-| `references/01-principles/aag-5-source-of-truth-policy.md` | 正本/派生/運用物ポリシー |
+| `app-domain/gross-profit/APP_DOMAIN_INDEX.md` | App Domain 入口 |
+| `app/src/test/calculationCanonRegistry.ts` | Master Registry（唯一の正本） |
+| `app/src/test/architectureRules.ts` | 全ルール宣言的仕様（App Domain データ） |
+| `app/src/test/guardCategoryMap.ts` | 全ルールのカテゴリマップ |
 | `references/01-principles/semantic-classification-policy.md` | 意味分類ポリシー |
 | `references/01-principles/engine-boundary-policy.md` | 3エンジン境界 |
-| `app/src/test/calculationCanonRegistry.ts` | Master Registry（唯一の正本） |
-| `app/src/test/architectureRules.ts` | 全ルール宣言的仕様 |
-| `app/src/test/aagSchemas.ts` | AAG 5.0 スキーマ定義 |
-| `app/src/test/guardCategoryMap.ts` | 全ルールのカテゴリマップ |
-| `app/src/test/guardMetadataView.ts` | Guard Metadata 導出 view |
 
 ## Project-Specific Constraints
 
@@ -48,34 +69,31 @@ AAG Core の共通ルール・思想。案件作業中に必ず参照する。
 - 正本は `calculationCanonRegistry` の1つだけ
 - JS orchestration（hook / store / QueryHandler）は移行対象外
 
-## Next Actions — AAG Core / App Domain 分離
+## Completed — AAG 3 層分離
 
-前セッションで特定された「Core からの App 固有漏れ」を分離する。優先順:
+| 項目 | 状態 | 成果物 |
+|------|------|--------|
+| 境界ポリシー文書 | **完了** | `aag/core/`, `app-domain/gross-profit/` |
+| ArchitectureRule 型分割 | **完了** | `aag-core-types.ts`（RuleSemantics / Governance / DetectionSpec） |
+| aagSchemas.ts Core re-export | **完了** | Core 型を aagSchemas.ts 経由でもアクセス可能 |
+| allowlist RetentionReason 分離 | **完了** | CoreRetentionReason / AppRetentionReason + RemovalKind |
 
-### S: architectureRules.ts の意味フィールド分離
+## Next Actions — AAG 3 層分離の続き
 
-`ArchitectureRule` を 3 分割する:
-- **RuleSemantics** — id, what, why, principleRefs, protectedHarm, ruleClass, confidence, slice
-- **RuleGovernance** — fixNow, decisionCriteria, migrationPath, reviewPolicy, lifecyclePolicy, sunsetCondition
-- **RuleDetectionSpec** — detection, thresholds, correctPattern, outdatedPattern
+### Phase 1: Inventory
 
-アプリ固有の imports / codeSignals / path names は Project Binding として分離。
+全 AAG 資産を Core / App Domain / Project Overlay / Mixed に分類する。
+成果物: `projects/pure-calculation-reorg/status/aag-separation-inventory.md`
 
-### A: fixNow / decisionCriteria / migrationPath の schema 化
+### Phase 3（分離計画）: App Domain 抽出
 
-`aagSchemas.ts` に `AagRuleJudgmentPolicy` / `AagRuleMigrationContract` を追加。
-運用区分（now / debt / review）はルールの意味ではなく運用判断。
+業務値定義書（12 ファイル）を Constitution から App Domain へ移す。
+50 ファイル 76 箇所の参照更新が必要（高リスク）。
 
-### A: health-rules の target 値を Project Overlay に移す
+### Phase 5（分離計画）: health-rules 契約化
 
-`tools/architecture-health/src/config/health-rules.ts` の具体的しきい値は Project 固有。
-- Core: HealthRuleSchema / HealthMetricDefinition / HealthEvaluationEngine
-- Project: 具体 target 値
-
-### B: allowlist retentionReason の Core / Project 分離
-
-- Core 共通: structural / fallback / detection-limit
-- Project 固有: no-readmodels / display-only
+`tools/architecture-health/src/config/health-rules.ts` の target 値を Project Overlay へ。
+Core は評価器、Project は予算。
 
 ## Immediate Next Actions — 案件本体
 

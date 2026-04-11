@@ -10,48 +10,68 @@
  *
  * ルールはデータ層。検出ロジックはテストファイルに残す。
  *
+ * == AAG 3 層分離 ==
+ * - Core 型（RuleSemantics, RuleGovernance, RuleDetectionSpec）→ aag-core-types.ts
+ * - App Domain（PrincipleId, ArchitectureRule, ARCHITECTURE_RULES）→ 本ファイル
+ * - ArchitectureRule = Core 3 層 + App 固有バインディング
+ *
  * @responsibility R:utility
  */
 
-// ─── 型定義 ─────────────────────────────────────────────
+// ─── Core 型の import + re-export（後方互換） ──────────────
+import type {
+  RuleSemantics as _RuleSemantics,
+  RuleGovernance as _RuleGovernance,
+  RuleDetectionSpec as _RuleDetectionSpec,
+  DetectionType as _DetectionType,
+  RuleMaturity as _RuleMaturity,
+  AagSlice as _AagSlice,
+  RuleClassification as _RuleClassification,
+  ConfidenceLevel as _ConfidenceLevel,
+  FixNowClassification as _FixNowClassification,
+  DetectionSeverity as _DetectionSeverity,
+  MigrationEffort as _MigrationEffort,
+  DetectionConfig as _DetectionConfig,
+  DecisionCriteria as _DecisionCriteria,
+  MigrationPath as _MigrationPath,
+  ReviewPolicy as _ReviewPolicy,
+  LifecyclePolicy as _LifecyclePolicy,
+  RuleRelationships as _RuleRelationships,
+} from './aag-core-types'
 
-/** 検出方法の種別 */
-export type DetectionType =
-  | 'import' // 禁止 import の検出
-  | 'regex' // コードパターンの検出
-  | 'count' // 数値上限（行数、hook 数等）
-  | 'must-include' // A を含む必須（Zod parse 必須等）
-  | 'must-only' // A 以外禁止（barrel は re-export のみ等）
-  | 'co-change' // A を変えたら B も変える（型 → schema 等）
-  | 'must-not-coexist' // A と B は同居禁止（useState と SQL 等）
-  | 'custom' // 上記に当てはまらない特殊検出
+// Core 型を re-export（既存 42 ファイルの import を壊さない）
+export type DetectionType = _DetectionType
+export type RuleMaturity = _RuleMaturity
+export type AagSlice = _AagSlice
+export type RuleClassification = _RuleClassification
+export type ConfidenceLevel = _ConfidenceLevel
+export type FixNowClassification = _FixNowClassification
+export type DetectionSeverity = _DetectionSeverity
+export type MigrationEffort = _MigrationEffort
+export type DetectionConfig = _DetectionConfig
+export type DecisionCriteria = _DecisionCriteria
+export type MigrationPath = _MigrationPath
+export type ReviewPolicy = _ReviewPolicy
+export type LifecyclePolicy = _LifecyclePolicy
+export type RuleRelationships = _RuleRelationships
 
-/** ルールの成熟度。新しいルールは experimental から始め、安定したら stable に昇格する */
-export type RuleMaturity = 'experimental' | 'stable' | 'deprecated'
+// Core 意味層
+export type RuleSemantics = _RuleSemantics
+// Core 運用層
+export type RuleGovernance = _RuleGovernance
+// Core 検出仕様層
+export type RuleDetectionSpec = _RuleDetectionSpec
 
-/**
- * AAG 縦スライス — 関心ごとの完結したルール群
- * 各スライスが Domain/Application/Infrastructure/Presentation の 4 層を持つ
- */
-export type AagSlice =
-  | 'layer-boundary' // 層境界、依存方向、描画専用原則
-  | 'canonicalization' // 正本経路、readModel、Zod、path guard
-  | 'query-runtime' // QueryHandler、AnalysisFrame、ComparisonScope
-  | 'responsibility-separation' // size / hook complexity / responsibility tags
-  | 'governance-ops' // allowlist、health、obligation、generated docs
+// SLICE_GUIDANCE は Core から import し、ローカルでも使用 + re-export
+import { SLICE_GUIDANCE as _SLICE_GUIDANCE } from './aag-core-types'
+export const SLICE_GUIDANCE = _SLICE_GUIDANCE
 
-/** slice ごとの短い誘導文 — 違反時に「向かう先」を 1 行で示す */
-export const SLICE_GUIDANCE: Readonly<Record<AagSlice, string>> = {
-  'layer-boundary': 'hook / adapter / interface 経由に変更する',
-  canonicalization: 'readModel / 正本関数 / path guard 経由に変更する',
-  'query-runtime': 'QueryHandler / AnalysisFrame 経由に変更する',
-  'responsibility-separation': '責務分離（分割 or active-debt）で対応する',
-  'governance-ops': 'docs:generate / rule review で対応する',
-}
+// ─── App Domain 型定義 ───────────────────────────────────
 
 /**
  * 設計原則 ID — CLAUDE.md §設計原則 の A1〜H6 + Q3〜Q4
  * ルールがどの思想から生まれたかを辿るトレーサビリティ
+ * ※ アプリ固有（この設計原則体系は粗利管理ツール固有）
  */
 export type PrincipleId =
   | 'A1'
@@ -109,104 +129,22 @@ export type PrincipleId =
   | 'I3'
   | 'I4'
 
-export interface ArchitectureRule {
-  // ── 識別 ──
-  readonly id: string
-  /** どの設計原則から生まれたか（トレーサビリティ） */
+/**
+ * Architecture Rule — Core 3 層 + App 固有バインディング
+ *
+ * - RuleSemantics: 何を守るか（id, what, why, slice, ruleClass 等）
+ * - RuleGovernance: どう扱うか（fixNow, decisionCriteria, migrationPath 等）
+ * - RuleDetectionSpec: どう見つけるか（detection, thresholds, correctPattern 等）
+ * - App 固有: principleRefs, doc（アプリ固有の参照）
+ *
+ * correctPattern/outdatedPattern の imports/codeSignals は
+ * 型構造としては Core（RuleDetectionSpec）だが、具体値はアプリ固有バインディング。
+ */
+export interface ArchitectureRule extends _RuleSemantics, _RuleGovernance, _RuleDetectionSpec {
+  /** どの設計原則から生まれたか（アプリ固有トレーサビリティ） */
   readonly principleRefs?: readonly PrincipleId[]
-  readonly guardTags: readonly string[]
-  readonly responsibilityTags?: readonly string[]
-  readonly epoch?: number
-  /** ルールの成熟度。未指定は stable 扱い */
-  readonly maturity?: RuleMaturity
-
-  // ── 定義 ──
-  readonly what: string
-  readonly why: string
+  /** 参照ドキュメント（アプリ固有パス） */
   readonly doc?: string
-
-  // ── あるべき姿 ──
-  readonly correctPattern: {
-    readonly description: string
-    readonly example?: string
-    readonly imports?: readonly string[]
-  }
-
-  // ── 禁止/旧パターン ──
-  readonly outdatedPattern: {
-    readonly description: string
-    readonly imports?: readonly string[]
-    readonly codeSignals?: readonly string[]
-  }
-
-  // ── 閾値（タグ連動） ──
-  readonly thresholds?: {
-    readonly [key: string]: number | undefined
-  }
-
-  // ── 検出 ──
-  readonly detection: {
-    readonly type: DetectionType
-    /**
-     * gate: CI fail + マージ block（即修正必須）
-     * block-merge: CI warn（集計）+ マージ block（入口で止める。移行途中の検知用）
-     * warn: CI warn + マージ allow（注意喚起のみ）
-     */
-    readonly severity: 'gate' | 'warn' | 'block-merge'
-    readonly baseline?: number
-  }
-
-  // ── 修正手順（自動改善用） ──
-  readonly migrationPath?: {
-    readonly steps: readonly string[]
-    readonly effort: 'trivial' | 'small' | 'medium'
-    readonly priority: number // 低い = 先にやる
-  }
-
-  // ── 判断基準（脱属人化） ──
-  readonly decisionCriteria?: {
-    readonly when: string // いつこのルールが適用されるか
-    readonly exceptions: string // 例外が許容される条件
-    readonly escalation: string // 判断に迷ったときの行動
-  }
-
-  // ── ルール間の因果関係 ──
-  readonly relationships?: {
-    readonly dependsOn?: readonly string[] // 前提ルール
-    readonly enables?: readonly string[] // 守ると有効になるルール
-    readonly conflicts?: readonly string[] // 同時適用不可
-  }
-
-  // ── ルール統治（壊れ方の制御） ──
-  /** ルールの性質。invariant=絶対、default=原則+例外、heuristic=観測 */
-  readonly ruleClass?: 'invariant' | 'default' | 'heuristic'
-  /** ルールの確信度。low + gate の組み合わせは禁止 */
-  readonly confidence?: 'high' | 'medium' | 'low'
-  /** いつこのルールが不要になるか（反証可能性） */
-  readonly sunsetCondition?: string
-  /** このルールが防いでいる害（efficacy 評価の根拠） */
-  readonly protectedHarm?: {
-    readonly prevents: readonly string[]
-  }
-  /** ルールの再点検ポリシー（時間軸の導入） */
-  readonly reviewPolicy?: {
-    readonly owner: string // 'solo-maintainer' | 'ai-system'
-    readonly lastReviewedAt: string // YYYY-MM-DD
-    readonly reviewCadenceDays: number // 再点検間隔（日数）
-  }
-  // ── AAG 4層（Response / Judgment） ──
-  /** ルールが属する関心スライス */
-  readonly slice?: AagSlice
-  /** 違反時の運用区分: now=今すぐ直す / debt=構造負債管理 / review=観測 */
-  readonly fixNow?: 'now' | 'debt' | 'review'
-
-  /** experimental ルールの出口（昇格 / 撤回の対称性） */
-  readonly lifecyclePolicy?: {
-    readonly introducedAt: string // 導入日（YYYY-MM-DD）
-    readonly observeForDays: number // 観測期間（日数）
-    readonly promoteIf: readonly string[] // gate 化する条件
-    readonly withdrawIf: readonly string[] // 撤回する条件
-  }
 }
 
 // ─── ルール定義 ──────────────────────────────────────────
