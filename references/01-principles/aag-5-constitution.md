@@ -102,26 +102,40 @@ Schema 層が定義した型を使って、Constitution 層の原則を機械的
 
 > **「どう使うか」の層**
 
-人間と AI が触る手順書、計画書、チェックリスト。
-コード truth の後追いであり、先走らない。
+Operations は **System Operations（AAG Core）** と **Project Operations（Overlay）** に分かれる。
 
-**責務:** 引き継ぎ、移行計画、昇格手順、退役手順、進行管理
+#### 4A. System Operations（AAG の恒久運用）
+
+プロジェクトが変わっても残る共通手順。
 
 **含むもの:**
-- `HANDOFF.md` — 起点文書
-- `plan.md` — 全体計画と原則
-- `plan-checklist.md` — 進行管理の正本
-- `references/03-guides/tier1-business-migration-plan.md` — BIZ 移行計画
-- `references/03-guides/analytic-kernel-migration-plan.md` — ANA 移行計画
-- `references/03-guides/promote-ceremony-template.md` — 昇格手順
-- `references/03-guides/guard-consolidation-and-js-retirement.md` — Guard マップ + JS 縮退
-- `references/03-guides/data-load-idempotency-plan.md` — データロード冪等化
-- `references/02-status/promotion-readiness-*.md` — 昇格判定表（11 件）
-- `references/02-status/recent-changes.md` — 変更履歴
+- `references/03-guides/promote-ceremony-template.md` — 昇格共通手順
+- `references/03-guides/guard-consolidation-and-js-retirement.md` — JS 退役共通手順
+- `references/03-guides/architecture-rule-system.md` — ルール運用ガイド
+- `references/03-guides/allowlist-management.md` — 例外管理手順
+- `references/02-status/generated/` — 生成済みレポート（派生物）
 - `references/02-status/technical-debt-roadmap.md` — 技術的負債ロードマップ
 
+#### 4B. Project Operations（案件ごとの実行管理）
+
+案件が終わると役割を終え、次案件で差し替わる。
+
+**配置:** `projects/<project-name>/`
+
+**含むもの:**
+- `HANDOFF.md` — 起点文書（案件固有の現在地・次アクション・ハマりポイント）
+- `plan.md` — 案件固有の計画と原則
+- `checklist.md` — 案件固有の進行管理（progress truth）
+- 案件固有の移行計画、昇格判定表、status
+
+**ルート:** `CURRENT_PROJECT.md` が現在の案件を指す。
+**AI 入口:** `projects/*/AI_CONTEXT.md` — AI に最初に読ませる案件文脈。Core 参照リンクを含む。
+**機械可読:** `projects/*/config/project.json` — 案件定義の構造化データ。
+
 **原則:**
-- progress truth は `plan-checklist.md` の1箇所のみ
+- Core 文書に案件固有の current status を書かない
+- Project Overlay に system principle を再定義しない
+- progress truth は `projects/*/checklist.md` の1箇所のみ
 - 文書がコード truth より先走ったままにしない
 - 人間承認が必要な箇所を明示する
 

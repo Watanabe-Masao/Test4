@@ -63,15 +63,27 @@
 
 ## 運用物一覧
 
+### System Operations（AAG Core — 恒久）
+
 | 運用物 | ファイル | 役割 | 更新タイミング |
 |--------|---------|------|-------------|
-| 起点文書 | `HANDOFF.md` | 後任者の読書起点 | コード truth 変更後 |
-| 全体計画 | `plan.md` | Phase 構成と原則 | 計画変更時 |
-| 進行管理 | `plan-checklist.md` | 完了 / 未完の truth | 作業完了ごと |
+| 昇格手順 | `promote-ceremony-template.md` | Promote Ceremony 共通手順 | 手順変更時 |
+| JS 退役手順 | `guard-consolidation-and-js-retirement.md` | JS 縮退 4段階 | 手順変更時 |
+| ルール運用 | `architecture-rule-system.md` | ルール追加・廃止の手順 | 手順変更時 |
+
+### Project Operations（Overlay — 案件ごと差し替え）
+
+| 運用物 | ファイル | 役割 | 更新タイミング |
+|--------|---------|------|-------------|
+| 起点文書 | `projects/*/HANDOFF.md` | 後任者の読書起点 | コード truth 変更後 |
+| 案件計画 | `projects/*/plan.md` | Phase 構成と原則 | 計画変更時 |
+| 進行管理 | `projects/*/checklist.md` | 完了 / 未完の truth | 作業完了ごと |
 | BIZ 移行計画 | `tier1-business-migration-plan.md` | Tier 1 候補の手順 | 候補追加・完了時 |
 | ANA 移行計画 | `analytic-kernel-migration-plan.md` | Analytic の手順 | 候補追加・完了時 |
-| 昇格手順 | `promote-ceremony-template.md` | Promote Ceremony | Phase 8 着手時 |
-| 昇格判定表 | `promotion-readiness-*.md`（11 件） | 各候補の判定 | 観測結果取得時 |
+| 昇格判定表 | `promotion-readiness-*.md` | 各候補の判定 | 観測結果取得時 |
+
+> **Core / Overlay の境界:** Core 文書に案件固有の current status を書かない。
+> Project Overlay に system principle を再定義しない。
 
 ---
 
@@ -84,7 +96,7 @@
 1. `semanticViews.ts` — 自動検証（テスト実行で一致確認）
 2. `wasmEngine.ts` — 手動確認（統合 drift 検出テストで検出）
 3. `npm run docs:generate` — health 再生成
-4. `HANDOFF.md` — エントリ数の記載を確認
+4. `projects/*/HANDOFF.md` — エントリ数の記載を確認（Project Overlay）
 
 ### `architectureRules.ts` を変更したとき
 
