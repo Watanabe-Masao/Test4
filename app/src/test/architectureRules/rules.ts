@@ -97,6 +97,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       severity: 'gate',
       baseline: 0,
     },
+    migrationRecipe: {
+      steps: [
+        '1. wasmEngine の import を削除',
+        '2. application/hooks/ の対応する hook を探す（例: useCalculation）',
+        '3. hook 経由で計算結果を受け取るように変更',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 1,
+    },
     migrationPath: {
       steps: [
         '1. wasmEngine の import を削除',
@@ -317,6 +328,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation:
         '外部データが必要なら domain/ に interface を定義し、application/ で実装を注入する',
     },
+    migrationRecipe: {
+      steps: [
+        '1. 外部層への import を特定',
+        '2. 必要なデータがあれば domain/ に interface（契約）を定義',
+        '3. 実装は infrastructure/ に置き、application/ が DI で注入',
+      ],
+    },
+    executionPlan: {
+      effort: 'medium',
+      priority: 1,
+    },
     migrationPath: {
       steps: [
         '1. 外部層への import を特定',
@@ -369,6 +391,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       dependsOn: ['AR-A1-DOMAIN'],
     },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        '1. infrastructure/ への import が DuckDB hooks / QueryHandler / runtime-adapters 経由か確認',
+        '2. 上記以外なら allowlists/architecture.ts に追加するか adapter パターンに移行',
+        '3. adapter パターン: domain/ に interface を定義 → infrastructure/ で実装 → application/ が DI',
+      ],
+    },
+    executionPlan: {
+      effort: 'medium',
+      priority: 2,
+    },
     migrationPath: {
       steps: [
         '1. infrastructure/ への import が DuckDB hooks / QueryHandler / runtime-adapters 経由か確認',
@@ -415,6 +448,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       dependsOn: ['AR-A1-DOMAIN'],
     },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        '1. presentation/ への import を削除',
+        '2. 共有が必要なデータは domain/ の型として定義',
+        '3. presentation → application → domain の依存方向に従って参照を逆転',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 1,
+    },
     migrationPath: {
       steps: [
         '1. presentation/ への import を削除',
@@ -465,6 +509,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       ],
     },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        '1. infrastructure/ への value import を削除（import type は許容）',
+        '2. application/hooks/ に対応する hook があるか確認',
+        '3. なければ useQueryWithHandler で新規 hook を作成',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 1,
+    },
     migrationPath: {
       steps: [
         '1. infrastructure/ への value import を削除（import type は許容）',
@@ -511,6 +566,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       dependsOn: ['AR-A1-PRES-INFRA'],
     },
     detection: { type: 'import', severity: 'gate', baseline: 1 },
+    migrationRecipe: {
+      steps: [
+        '1. usecases/ への value import を削除（import type は許容）',
+        '2. application/hooks/ の hook 経由でデータを取得するように変更',
+        '3. allowlist の残り 1 件を解消して baseline を 0 にする',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 2,
+    },
     migrationPath: {
       steps: [
         '1. usecases/ への value import を削除（import type は許容）',
@@ -554,6 +620,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       dependsOn: ['AR-A1-DOMAIN'],
     },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        '1. application/ への import を削除',
+        '2. 必要な型は domain/ に契約（interface）として定義',
+        '3. infrastructure/ は domain/ のみに依存するよう変更',
+      ],
+    },
+    executionPlan: {
+      effort: 'medium',
+      priority: 1,
+    },
     migrationPath: {
       steps: [
         '1. application/ への import を削除',
@@ -600,6 +677,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       dependsOn: ['AR-A1-DOMAIN'],
     },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: ['1. presentation/ への import を削除', '2. 共有データは domain/ の型経由で参照'],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 1,
+    },
     migrationPath: {
       steps: ['1. presentation/ への import を削除', '2. 共有データは domain/ の型経由で参照'],
       effort: 'small',
@@ -639,6 +723,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: 'public API 経由でテストする',
     },
     detection: { type: 'regex', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        '1. @internal コメントを削除',
+        '2. export を削除し、関数をファイル内に閉じる',
+        '3. テストは public API 経由で間接的に検証する',
+      ],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 1,
+    },
     migrationPath: {
       steps: [
         '1. @internal コメントを削除',
@@ -679,6 +774,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: 'domain/calculations/ で計算し結果を set() する',
     },
     detection: { type: 'regex', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        '1. set() コールバック内の算術式を特定',
+        '2. 計算を domain/calculations/ の純粋関数に抽出',
+        '3. store action は計算結果を set() するだけに変更',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 2,
+    },
     migrationPath: {
       steps: [
         '1. set() コールバック内の算術式を特定',
@@ -719,6 +825,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: '根本原因を修正する。型を正しく定義する',
     },
     detection: { type: 'regex', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        '1. eslint-disable / @ts-ignore / @ts-expect-error を削除',
+        '2. 警告の根本原因を修正（型エラー → 型を正しく定義、lint → コードを修正）',
+        '3. どうしても必要なら codePatternGuard の G3_ALLOWLIST に正当理由を記載',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 1,
+    },
     migrationPath: {
       steps: [
         '1. eslint-disable / @ts-ignore / @ts-expect-error を削除',
@@ -761,6 +878,16 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: '!value を value == null に書き換え',
     },
     detection: { type: 'regex', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        '1. !result.field を result.field == null に変更',
+        '2. 0 が有効値のフィールド（金額、数量等）は特に注意',
+      ],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 1,
+    },
     migrationPath: {
       steps: [
         '1. !result.field を result.field == null に変更',
@@ -804,6 +931,16 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: 'セレクタを指定して必要なフィールドのみ購読',
     },
     detection: { type: 'regex', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        '1. useDataStore() → useDataStore((s) => s.必要なフィールド) に変更',
+        '2. 複数フィールドが必要なら useDataStore((s) => ({ a: s.a, b: s.b })) を使用',
+      ],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 1,
+    },
     migrationPath: {
       steps: [
         '1. useDataStore() → useDataStore((s) => s.必要なフィールド) に変更',
@@ -844,6 +981,16 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: '最低でも console.warn(error) を入れる',
     },
     detection: { type: 'regex', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        '1. 空の catch に console.warn(error) を追加',
+        '2. 可能なら呼び出し元にエラーを伝播する（throw / return Result）',
+      ],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 1,
+    },
     migrationPath: {
       steps: [
         '1. 空の catch に console.warn(error) を追加',
@@ -889,6 +1036,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     },
     relationships: {},
     detection: { type: 'count', severity: 'gate' },
+    migrationRecipe: {
+      steps: [
+        '1. useMemo の依存値を分析し、責務ごとにグループ化',
+        '2. 関連する useMemo を新しい hook（use*Derived.ts）に抽出',
+        '3. 純粋な計算は *Builders.ts / *Logic.ts に抽出',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 3,
+    },
     migrationPath: {
       steps: [
         '1. useMemo の依存値を分析し、責務ごとにグループ化',
@@ -931,6 +1089,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     },
     relationships: {},
     detection: { type: 'count', severity: 'gate' },
+    migrationRecipe: {
+      steps: [
+        '1. useState を責務ごとにグループ化（UI状態 / データ状態 / フォーム状態）',
+        '2. 関連する useState を新しい hook（use*State.ts）に抽出',
+        '3. useReducer に統合できる場合は *Reducer.ts に抽出',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 3,
+    },
     migrationPath: {
       steps: [
         '1. useState を責務ごとにグループ化（UI状態 / データ状態 / フォーム状態）',
@@ -972,6 +1141,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: 'hook の分割を検討',
     },
     detection: { type: 'count', severity: 'gate' },
+    migrationRecipe: {
+      steps: [
+        '1. ファイルの責務を 1 文で説明できるか確認（C8）',
+        '2. AND が入るなら責務ごとに hook を分割',
+        '3. 純粋な計算は *Builders.ts / *Logic.ts に抽出',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 3,
+    },
     migrationPath: {
       steps: [
         '1. ファイルの責務を 1 文で説明できるか確認（C8）',
@@ -1013,6 +1193,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     },
     relationships: {},
     detection: { type: 'count', severity: 'gate' },
+    migrationRecipe: {
+      steps: [
+        '1. 描画・状態・ロジックのどれが肥大化しているか特定',
+        '2. 状態管理 → use*State hook に抽出、ロジック → *Logic.ts に抽出',
+        '3. 描画が長い → 子コンポーネントに分割',
+      ],
+    },
+    executionPlan: {
+      effort: 'medium',
+      priority: 3,
+    },
     migrationPath: {
       steps: [
         '1. 描画・状態・ロジックのどれが肥大化しているか特定',
@@ -1053,6 +1244,16 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: '関数を別ファイルに分割',
     },
     detection: { type: 'count', severity: 'gate' },
+    migrationRecipe: {
+      steps: [
+        '1. 関連する計算関数を別ファイルに分割',
+        '2. 共通ユーティリティは domain/utils/ に移動',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 3,
+    },
     migrationPath: {
       steps: [
         '1. 関連する計算関数を別ファイルに分割',
@@ -1092,6 +1293,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: 'クエリやアダプタを分割',
     },
     detection: { type: 'count', severity: 'gate' },
+    migrationRecipe: {
+      steps: ['1. クエリやアダプタを責務ごとに分割', '2. 共通処理は infrastructure/shared/ に抽出'],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 3,
+    },
     migrationPath: {
       steps: ['1. クエリやアダプタを責務ごとに分割', '2. 共通処理は infrastructure/shared/ に抽出'],
       effort: 'small',
@@ -1128,6 +1336,16 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: 'usecase を分割',
     },
     detection: { type: 'count', severity: 'gate' },
+    migrationRecipe: {
+      steps: [
+        '1. usecase のインデックス構築を責務ごとに分割',
+        '2. 共通の builder は application/usecases/shared/ に抽出',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 3,
+    },
     migrationPath: {
       steps: [
         '1. usecase のインデックス構築を責務ごとに分割',
@@ -1167,6 +1385,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: 'Strategy パターンを検討する',
     },
     detection: { type: 'count', severity: 'gate' },
+    migrationRecipe: {
+      steps: [
+        '1. if/switch の分岐を呼び出し先の hook に委譲',
+        '2. facade は hook の組み立て（orchestration）のみにする',
+        '3. 条件分岐が必要なら呼び出し先で Strategy パターンを使う',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 2,
+    },
     migrationPath: {
       steps: [
         '1. if/switch の分岐を呼び出し先の hook に委譲',
@@ -1219,6 +1448,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       enables: ['AR-PATH-GROSS-PROFIT', 'AR-PATH-PI-VALUE', 'AR-PATH-FACTOR-DECOMPOSITION'],
     },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        '1. 旧クエリへの import を削除',
+        '2. readSalesFact() または useWidgetDataOrchestrator 経由に変更',
+        '3. SalesFactReadModel 型を使用',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 2,
+    },
     migrationPath: {
       steps: [
         '1. 旧クエリへの import を削除',
@@ -1263,6 +1503,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       dependsOn: ['AR-STRUCT-CANONICALIZATION'],
     },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: ['1. 旧クエリへの import を削除', '2. readDiscountFact() 経由に変更'],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 2,
+    },
     migrationPath: {
       steps: ['1. 旧クエリへの import を削除', '2. readDiscountFact() 経由に変更'],
       effort: 'small',
@@ -1304,6 +1551,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       enables: ['AR-PATH-GROSS-PROFIT-CONSISTENCY'],
     },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        '1. 独自の粗利計算を削除',
+        '2. calculateGrossProfit() に置き換え',
+        '3. GrossProfitResult 型を使用',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 1,
+    },
     migrationPath: {
       steps: [
         '1. 独自の粗利計算を削除',
@@ -1351,6 +1609,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       enables: ['AR-PATH-GROSS-PROFIT'],
     },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        '1. 旧クエリ関数の呼び出しを削除',
+        '2. readPurchaseCost() に置き換え',
+        '3. PurchaseCostReadModel 型を使用',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 1,
+    },
     migrationPath: {
       steps: [
         '1. 旧クエリ関数の呼び出しを削除',
@@ -1396,6 +1665,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       enables: ['AR-PATH-PI-VALUE', 'AR-PATH-CUSTOMER-GAP'],
     },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: ['1. 旧クエリへの import を削除', '2. readCustomerFact() 経由に変更'],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 2,
+    },
     migrationPath: {
       steps: ['1. 旧クエリへの import を削除', '2. readCustomerFact() 経由に変更'],
       effort: 'small',
@@ -1437,6 +1713,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       dependsOn: ['AR-PATH-CUSTOMER'],
     },
     detection: { type: 'regex', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: ['1. インラインの差分計算を削除', '2. calculateCustomerGap() に置き換え'],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 2,
+    },
     migrationPath: {
       steps: ['1. インラインの差分計算を削除', '2. calculateCustomerGap() に置き換え'],
       effort: 'trivial',
@@ -1478,6 +1761,16 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       dependsOn: ['AR-PATH-SALES', 'AR-PATH-CUSTOMER'],
     },
     detection: { type: 'regex', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        '1. インラインの除算を削除',
+        '2. calculateQuantityPI() / calculateAmountPI() に置き換え',
+      ],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 2,
+    },
     migrationPath: {
       steps: [
         '1. インラインの除算を削除',
@@ -1521,6 +1814,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       dependsOn: ['AR-STRUCT-CANONICALIZATION'],
     },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: ['1. 旧クエリへの import を削除', '2. readFreePeriodFact() 経由に変更'],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 2,
+    },
     migrationPath: {
       steps: ['1. 旧クエリへの import を削除', '2. readFreePeriodFact() 経由に変更'],
       effort: 'small',
@@ -1560,6 +1860,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       dependsOn: ['AR-PATH-FREE-PERIOD'],
     },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: ['1. 旧クエリへの import を削除', '2. readFreePeriodBudgetFact() 経由に変更'],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 2,
+    },
     migrationPath: {
       steps: ['1. 旧クエリへの import を削除', '2. readFreePeriodBudgetFact() 経由に変更'],
       effort: 'small',
@@ -1599,6 +1906,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       dependsOn: ['AR-PATH-FREE-PERIOD'],
     },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: ['1. 旧クエリへの import を削除', '2. readFreePeriodDeptKPI() 経由に変更'],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 2,
+    },
     migrationPath: {
       steps: ['1. 旧クエリへの import を削除', '2. readFreePeriodDeptKPI() 経由に変更'],
       effort: 'small',
@@ -1639,6 +1953,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       dependsOn: ['AR-STRUCT-PURITY', 'AR-PATH-SALES'],
     },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        '1. 独自の要因分解計算を削除',
+        '2. calculateFactorDecomposition() に置き換え',
+        '3. FactorDecompositionResult 型を使用',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 1,
+    },
     migrationPath: {
       steps: [
         '1. 独自の要因分解計算を削除',
@@ -1683,6 +2008,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       dependsOn: ['AR-PATH-GROSS-PROFIT'],
     },
     detection: { type: 'custom', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        '1. 粗利を取得している箇所を特定',
+        '2. calculateGrossProfit() の 2 層構造に従っているか確認',
+        '3. 独自経路があれば getEffectiveGrossProfit / grossProfitFromStoreResult に移行',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 1,
+    },
     migrationPath: {
       steps: [
         '1. 粗利を取得している箇所を特定',
@@ -1816,6 +2152,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       enables: ['AR-PATH-GROSS-PROFIT', 'AR-PATH-FACTOR-DECOMPOSITION'],
     },
     detection: { type: 'must-include', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        '1. 入力型の Zod schema を定義',
+        '2. 関数の先頭で .parse() を呼ぶ',
+        '3. 出力型の Zod schema を定義',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 1,
+    },
     migrationPath: {
       steps: [
         '1. 入力型の Zod schema を定義',
@@ -1854,6 +2201,18 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       dependsOn: ['AR-STRUCT-CALC-CANON'],
     },
     detection: { type: 'count', severity: 'gate', baseline: 3 },
+    migrationRecipe: {
+      steps: [
+        '1. review ファイルの入出力を分析',
+        '2. Zod schema を定義',
+        '3. zodAdded: true に更新',
+        '4. baseline を減らす',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 3,
+    },
     migrationPath: {
       steps: [
         '1. review ファイルの入出力を分析',
@@ -1891,6 +2250,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: 'canonical input builder 経由に変更',
     },
     detection: { type: 'regex', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: ['1. インライン計算を削除', '2. canonical input builder 経由に変更'],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 2,
+    },
     migrationPath: {
       steps: ['1. インライン計算を削除', '2. canonical input builder 経由に変更'],
       effort: 'small',
@@ -1933,6 +2299,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       ],
     },
     detection: { type: 'custom', severity: 'gate' },
+    migrationRecipe: {
+      steps: ['1. readModels/ に配置', '2. Zod 契約追加', '3. パスガード追加', '4. 定義書作成'],
+    },
+    executionPlan: {
+      effort: 'medium',
+      priority: 1,
+    },
     migrationPath: {
       steps: ['1. readModels/ に配置', '2. Zod 契約追加', '3. パスガード追加', '4. 定義書作成'],
       effort: 'medium',
@@ -1968,6 +2341,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       dependsOn: ['AR-STRUCT-QUERY-PATTERN'],
     },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: ['1. 直接構築を削除', '2. buildComparisonScope() に置き換え'],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 2,
+    },
     migrationPath: {
       steps: ['1. 直接構築を削除', '2. buildComparisonScope() に置き換え'],
       effort: 'small',
@@ -2002,6 +2382,16 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       dependsOn: ['AR-STRUCT-CANONICALIZATION'],
     },
     detection: { type: 'custom', severity: 'gate' },
+    migrationRecipe: {
+      steps: [
+        '1. 二重計上: 集約サブクエリ経由にする',
+        '2. state リセット: useEffect のクリーンアップで確実にリセット',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 1,
+    },
     migrationPath: {
       steps: [
         '1. 二重計上: 集約サブクエリ経由にする',
@@ -2042,6 +2432,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: 'インフラ層 dual-run コードを発見したら即削除',
     },
     detection: { type: 'custom', severity: 'gate' },
+    migrationRecipe: {
+      steps: ['1. インフラ層 dual-run 関連コードを発見したら削除'],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 1,
+    },
     migrationPath: {
       steps: ['1. インフラ層 dual-run 関連コードを発見したら削除'],
       effort: 'trivial',
@@ -2076,6 +2473,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: 'usedFallback: boolean を追加',
     },
     detection: { type: 'must-include', severity: 'gate' },
+    migrationRecipe: {
+      steps: ['1. readModel 型に usedFallback を追加', '2. builder でフォールバック判定を実装'],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 2,
+    },
     migrationPath: {
       steps: ['1. readModel 型に usedFallback を追加', '2. builder でフォールバック判定を実装'],
       effort: 'small',
@@ -2112,6 +2516,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       dependsOn: ['AR-STRUCT-TOPOLOGY'],
     },
     detection: { type: 'import', severity: 'gate' },
+    migrationRecipe: {
+      steps: ['1. 旧パスの import を features/<feature>/ のパスに変更'],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 1,
+    },
     migrationPath: {
       steps: ['1. 旧パスの import を features/<feature>/ のパスに変更'],
       effort: 'trivial',
@@ -2147,6 +2558,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: 'PAGE_REGISTRY と routes.tsx の PAGE_COMPONENT_MAP を両方更新',
     },
     detection: { type: 'co-change', severity: 'gate' },
+    migrationRecipe: {
+      steps: ['1. PAGE_REGISTRY にエントリ追加', '2. routes.tsx の PAGE_COMPONENT_MAP と整合確認'],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 1,
+    },
     migrationPath: {
       steps: ['1. PAGE_REGISTRY にエントリ追加', '2. routes.tsx の PAGE_COMPONENT_MAP と整合確認'],
       effort: 'trivial',
@@ -2183,6 +2601,16 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       dependsOn: ['AR-A1-PRES-INFRA'],
     },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        '1. infrastructure/ への直接 import を削除',
+        '2. application/hooks/ の hook 経由に変更',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 1,
+    },
     migrationPath: {
       steps: [
         '1. infrastructure/ への直接 import を削除',
@@ -2228,6 +2656,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: '例外なし。domain/ は純粋でなければならない',
       escalation: 'async は application/ に、外部 API は infrastructure/ に配置する',
     },
+    migrationRecipe: {
+      steps: [
+        '1. async を application 層に移動',
+        '2. 副作用を infrastructure 層に移動',
+        '3. domain は純粋関数のみに',
+      ],
+    },
+    executionPlan: {
+      effort: 'medium',
+      priority: 1,
+    },
     migrationPath: {
       steps: [
         '1. async を application 層に移動',
@@ -2272,6 +2711,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       ],
     },
     detection: { type: 'custom', severity: 'gate' },
+    migrationRecipe: {
+      steps: [
+        '1. クエリ実行を QueryHandler に移行',
+        '2. useQueryWithHandler 経由に変更',
+        '3. input 正規化を追加',
+      ],
+    },
+    executionPlan: {
+      effort: 'medium',
+      priority: 2,
+    },
     migrationPath: {
       steps: [
         '1. クエリ実行を QueryHandler に移行',
@@ -2314,6 +2764,16 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       dependsOn: ['AR-A1-PRES-INFRA'],
     },
     detection: { type: 'regex', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        '1. localStorage/sessionStorage の直接呼び出しを削除',
+        '2. uiPersistenceAdapter 経由に変更',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 2,
+    },
     migrationPath: {
       steps: [
         '1. localStorage/sessionStorage の直接呼び出しを削除',
@@ -2353,6 +2813,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: 'callback props パターンまたは Zustand selector に変更',
     },
     detection: { type: 'custom', severity: 'gate' },
+    migrationRecipe: {
+      steps: [
+        '1. getState() 呼び出しを特定',
+        '2. Zustand selector (useStore(s => s.action)) に置換',
+        '3. 複数 action は親コンポーネントで callback にまとめる',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 2,
+    },
     migrationPath: {
       steps: [
         '1. getState() 呼び出しを特定',
@@ -2385,6 +2856,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: 'const { cache: null } パターンまたは Zustand atom に変更',
     },
     detection: { type: 'custom', severity: 'gate' },
+    migrationRecipe: {
+      steps: [
+        '1. module-scope let を特定',
+        '2. const object パターンに変換: const holder = { value: null }',
+        '3. React 内なら useRef、永続なら Zustand store',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 3,
+    },
     migrationPath: {
       steps: [
         '1. module-scope let を特定',
@@ -2417,6 +2899,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: 'useWeatherDaySelection のような sub-hook に関連 hooks を抽出',
     },
     detection: { type: 'count', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        '1. useMemo + useCallback の合計を計測',
+        '2. thin wrapper useCallback を plain function 化',
+        '3. 関連する state + handler を sub-hook に抽出',
+      ],
+    },
+    executionPlan: {
+      effort: 'medium',
+      priority: 3,
+    },
     migrationPath: {
       steps: [
         '1. useMemo + useCallback の合計を計測',
@@ -2451,6 +2944,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: 'useMemo → builder 関数抽出。useState → useReducer 統合',
     },
     detection: { type: 'count', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        '1. features/ の useMemo/useState 数を計測',
+        '2. 関連する useMemo を 1 つに統合（destructuring で分配）',
+        '3. 関連する useState を useReducer に統合',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 3,
+    },
     migrationPath: {
       steps: [
         '1. features/ の useMemo/useState 数を計測',
@@ -2483,6 +2987,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: 'DiscountEntry.ts / AsyncStateFactories.ts のようにファイル分割',
     },
     detection: { type: 'count', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        '1. export 数を計測',
+        '2. 操作関数（builder/aggregator）を別ファイルに抽出',
+        '3. 型定義のみを元ファイルに残す',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 3,
+    },
     migrationPath: {
       steps: [
         '1. export 数を計測',
@@ -2515,6 +3030,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: '正規化を共通ユーティリティに集約',
     },
     detection: { type: 'count', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: ['1. 散在ファイルを特定', '2. 共通ユーティリティに集約'],
+    },
+    executionPlan: {
+      effort: 'medium',
+      priority: 4,
+    },
     migrationPath: {
       steps: ['1. 散在ファイルを特定', '2. 共通ユーティリティに集約'],
       effort: 'medium',
@@ -2545,6 +3067,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: 'ローカルエイリアス化（const zeroPair = ZERO_COST_PRICE_PAIR）',
     },
     detection: { type: 'regex', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        '1. ZERO_/EMPTY_ パターンの出現数を計測',
+        '2. 重複定数をローカルエイリアスに置換',
+        '3. 共通定数は application/constants/ に集約',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 3,
+    },
     migrationPath: {
       steps: [
         '1. ZERO_/EMPTY_ パターンの出現数を計測',
@@ -2580,6 +3113,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       dependsOn: ['AR-PATH-CUSTOMER'],
     },
     detection: { type: 'regex', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: ['1. StoreResult.totalCustomers の参照を削除', '2. readCustomerFact() に置き換え'],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 2,
+    },
     migrationPath: {
       steps: ['1. StoreResult.totalCustomers の参照を削除', '2. readCustomerFact() に置き換え'],
       effort: 'small',
@@ -2614,6 +3154,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: 'ロジックを専用ファイルに抽出し re-export のみにする',
     },
     detection: { type: 'must-only', severity: 'gate' },
+    migrationRecipe: {
+      steps: ['1. バレルから関数/const 定義を別ファイルに移動', '2. re-export に置き換え'],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 2,
+    },
     migrationPath: {
       steps: ['1. バレルから関数/const 定義を別ファイルに移動', '2. re-export に置き換え'],
       effort: 'small',
@@ -2642,6 +3189,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: '共通コードを shared/ に抽出',
     },
     detection: { type: 'import', severity: 'gate' },
+    migrationRecipe: {
+      steps: ['1. features/ 間の直接 import を特定', '2. 共通部分を shared/ に抽出'],
+    },
+    executionPlan: {
+      effort: 'medium',
+      priority: 2,
+    },
     migrationPath: {
       steps: ['1. features/ 間の直接 import を特定', '2. 共通部分を shared/ に抽出'],
       effort: 'medium',
@@ -2672,6 +3226,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: 'ctx に必要なデータを追加し ctx 経由で受け取る',
     },
     detection: { type: 'regex', severity: 'gate' },
+    migrationRecipe: {
+      steps: ['1. 独自 hook 呼び出しを特定', '2. ctx に同等データがあれば ctx 経由に変更'],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 3,
+    },
     migrationPath: {
       steps: ['1. 独自 hook 呼び出しを特定', '2. ctx に同等データがあれば ctx 経由に変更'],
       effort: 'small',
@@ -2703,6 +3264,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       dependsOn: ['AR-STRUCT-TEMPORAL-SCOPE'],
     },
     detection: { type: 'import', severity: 'gate' },
+    migrationRecipe: {
+      steps: ['1. 逆流 import を削除', '2. 結果は hook 経由で受け取る'],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 2,
+    },
     migrationPath: {
       steps: ['1. 逆流 import を削除', '2. 結果は hook 経由で受け取る'],
       effort: 'small',
@@ -2739,6 +3307,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       dependsOn: ['AR-STRUCT-QUERY-PATTERN'],
     },
     detection: { type: 'custom', severity: 'gate' },
+    migrationRecipe: {
+      steps: ['1. sameDate/sameDow の混在を分離', '2. 比較モードごとに適切なスコープを選択'],
+    },
+    executionPlan: {
+      effort: 'medium',
+      priority: 2,
+    },
     migrationPath: {
       steps: ['1. sameDate/sameDow の混在を分離', '2. 比較モードごとに適切なスコープを選択'],
       effort: 'medium',
@@ -2770,6 +3345,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: 'features/<feature>/ または既存 4 層に配置',
     },
     detection: { type: 'custom', severity: 'gate' },
+    migrationRecipe: {
+      steps: ['1. 新規ディレクトリを features/<feature>/ または既存層に移動'],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 1,
+    },
     migrationPath: {
       steps: ['1. 新規ディレクトリを features/<feature>/ または既存層に移動'],
       effort: 'trivial',
@@ -2807,6 +3389,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: '旧 API の呼び出し元を新 API に移行してから旧を削除',
     },
     detection: { type: 'custom', severity: 'gate' },
+    migrationRecipe: {
+      steps: [
+        '1. 旧 API を @deprecated にする',
+        '2. 呼び出し元を新 API に移行',
+        '3. 旧 API を削除',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 2,
+    },
     migrationPath: {
       steps: [
         '1. 旧 API を @deprecated にする',
@@ -2844,6 +3437,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: '未分類のまま残して UNCLASSIFIED_BASELINE で管理する',
     },
     detection: { type: 'custom', severity: 'gate' },
+    migrationRecipe: {
+      steps: [
+        '1. 未分類ファイルを確認',
+        '2. 責務が明確なものだけタグ付け',
+        '3. 不明なものは未分類のまま残す',
+      ],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 3,
+    },
     migrationPath: {
       steps: [
         '1. 未分類ファイルを確認',
@@ -2879,6 +3483,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: 'キャッシュ行数が本体を超えたら戦略を見直す',
     },
     detection: { type: 'count', severity: 'warn' },
+    migrationRecipe: {
+      steps: ['1. キャッシュ行数と本体行数を比較', '2. 超過していたらキャッシュ戦略を簡素化'],
+    },
+    executionPlan: {
+      effort: 'medium',
+      priority: 4,
+    },
     migrationPath: {
       steps: ['1. キャッシュ行数と本体行数を比較', '2. 超過していたらキャッシュ戦略を簡素化'],
       effort: 'medium',
@@ -2918,6 +3529,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       dependsOn: ['AR-A1-PRES-INFRA'],
     },
     detection: { type: 'import', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: ['1. DuckDB hook の import を削除', '2. plan hook 経由でデータを受け取るよう変更'],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 2,
+    },
     migrationPath: {
       steps: ['1. DuckDB hook の import を削除', '2. plan hook 経由でデータを受け取るよう変更'],
       effort: 'small',
@@ -2953,6 +3571,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       dependsOn: ['AR-STRUCT-QUERY-PATTERN'],
     },
     detection: { type: 'custom', severity: 'gate' },
+    migrationRecipe: {
+      steps: ['1. alignment 判定をコンポーネントから handler に移動'],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 2,
+    },
     migrationPath: {
       steps: ['1. alignment 判定をコンポーネントから handler に移動'],
       effort: 'small',
@@ -3011,6 +3636,18 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         'correctPattern.example の判定テーブルに従う。複数該当する場合は複数タグ（AND）を付ける',
     },
     detection: { type: 'custom', severity: 'warn' },
+    migrationRecipe: {
+      steps: [
+        '1. ファイルの import を確認（React あり? hooks あり? JSX あり?）',
+        '2. correctPattern.example の判定テーブルに照合',
+        '3. 該当するタグに変更。複数該当なら AND（分離候補）',
+        '4. 確信がなければ未分類のまま残す',
+      ],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 2,
+    },
     migrationPath: {
       steps: [
         '1. ファイルの import を確認（React あり? hooks あり? JSX あり?）',
@@ -3056,6 +3693,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '超える場合は use*ChartState hook に状態を抽出し、データ取得は plan hook 経由に変更',
     },
     detection: { type: 'count', severity: 'gate' },
+    migrationRecipe: {
+      steps: [
+        '1. チャートの状態管理が混在しているか確認',
+        '2. 状態管理は use*ChartState hook に抽出',
+        '3. データ取得は plan hook 経由に変更',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 3,
+    },
     migrationPath: {
       steps: [
         '1. チャートの状態管理が混在しているか確認',
@@ -3097,6 +3745,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: 'hooks は chart-view 側に配置する',
     },
     detection: { type: 'count', severity: 'gate' },
+    migrationRecipe: {
+      steps: [
+        '1. useState/useCallback があれば hook に抽出',
+        '2. オプション構築は純粋関数として維持',
+        '3. React 依存を排除',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 3,
+    },
     migrationPath: {
       steps: [
         '1. useState/useCallback があれば hook に抽出',
@@ -3141,6 +3800,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       dependsOn: ['AR-A1-DOMAIN'],
     },
     detection: { type: 'must-not-coexist', severity: 'gate' },
+    migrationRecipe: {
+      steps: [
+        '1. React hooks の import を削除',
+        '2. 副作用がある場合は application 層に移動',
+        '3. 純粋な入力→出力の関数として維持',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 2,
+    },
     migrationPath: {
       steps: [
         '1. React hooks の import を削除',
@@ -3185,6 +3855,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       dependsOn: ['AR-A1-DOMAIN'],
     },
     detection: { type: 'count', severity: 'gate' },
+    migrationRecipe: {
+      steps: ['1. useState があれば hook に抽出', '2. データ変換は純粋関数として維持'],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 3,
+    },
     migrationPath: {
       steps: ['1. useState があれば hook に抽出', '2. データ変換は純粋関数として維持'],
       effort: 'trivial',
@@ -3222,6 +3899,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: '状態遷移のみに専念させる。描画ロジックは分離',
     },
     detection: { type: 'count', severity: 'gate' },
+    migrationRecipe: {
+      steps: ['1. 200 行を超えていたら描画ロジックとの分離を確認', '2. 状態遷移のみに専念させる'],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 3,
+    },
     migrationPath: {
       steps: ['1. 200 行を超えていたら描画ロジックとの分離を確認', '2. 状態遷移のみに専念させる'],
       effort: 'small',
@@ -3259,6 +3943,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: '実行は useQueryWithHandler に委譲',
     },
     detection: { type: 'count', severity: 'gate' },
+    migrationRecipe: {
+      steps: [
+        '1. useState/useCallback があれば別 hook に抽出',
+        '2. plan はクエリ入力の組み立てのみに専念',
+        '3. 実行ロジックは useQueryWithHandler に委譲',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 2,
+    },
     migrationPath: {
       steps: [
         '1. useState/useCallback があれば別 hook に抽出',
@@ -3300,6 +3995,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: '計算は domain 層に委譲',
     },
     detection: { type: 'count', severity: 'gate' },
+    migrationRecipe: {
+      steps: [
+        '1. ビジネスロジックが混入していないか確認',
+        '2. 計算は domain 層に委譲',
+        '3. キャッシュ管理のみに専念',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 3,
+    },
     migrationPath: {
       steps: [
         '1. ビジネスロジックが混入していないか確認',
@@ -3341,6 +4047,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: 'plan hook 経由でデータを受け取る',
     },
     detection: { type: 'count', severity: 'gate' },
+    migrationRecipe: {
+      steps: [
+        '1. データ取得が混在していれば plan hook に抽出',
+        '2. 計算ロジックは domain 層に委譲',
+        '3. 表示と通知のみに専念',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 3,
+    },
     migrationPath: {
       steps: [
         '1. データ取得が混在していれば plan hook に抽出',
@@ -3382,6 +4099,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: '子コンポーネントに分割。ロジックは hook に委譲',
     },
     detection: { type: 'count', severity: 'gate' },
+    migrationRecipe: {
+      steps: [
+        '1. インライン計算を hook に抽出',
+        '2. 長いレンダリングロジックを子コンポーネントに分割',
+        '3. ページは組み立てのみ',
+      ],
+    },
+    executionPlan: {
+      effort: 'medium',
+      priority: 4,
+    },
     migrationPath: {
       steps: [
         '1. インライン計算を hook に抽出',
@@ -3423,6 +4151,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: 'ロジックは hook に抽出',
     },
     detection: { type: 'count', severity: 'gate' },
+    migrationRecipe: {
+      steps: ['1. ビジネスロジックを hook に抽出', '2. フォームは入力処理に専念'],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 3,
+    },
     migrationPath: {
       steps: ['1. ビジネスロジックを hook に抽出', '2. フォームは入力処理に専念'],
       effort: 'small',
@@ -3460,6 +4195,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: 'hook に抽出',
     },
     detection: { type: 'count', severity: 'gate' },
+    migrationRecipe: {
+      steps: ['1. データ取得や状態管理が混在していれば hook に抽出', '2. レイアウトは構造のみ'],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 3,
+    },
     migrationPath: {
       steps: ['1. データ取得や状態管理が混在していれば hook に抽出', '2. レイアウトは構造のみ'],
       effort: 'small',
@@ -3497,6 +4239,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: '状態管理は別 hook に分離',
     },
     detection: { type: 'count', severity: 'gate' },
+    migrationRecipe: {
+      steps: [
+        '1. useState があれば状態管理 hook に抽出',
+        '2. 副作用は呼び出し先に委譲',
+        '3. orchestration は hook の組み立てのみ',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 2,
+    },
     migrationPath: {
       steps: [
         '1. useState があれば状態管理 hook に抽出',
@@ -3541,6 +4294,16 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       dependsOn: ['AR-A1-DOMAIN'],
     },
     detection: { type: 'must-not-coexist', severity: 'gate' },
+    migrationRecipe: {
+      steps: [
+        '1. React hooks を使っているなら R:utility → R:orchestration にタグ変更',
+        '2. hooks を使わない純粋関数なら hooks を別ファイルに抽出',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 2,
+    },
     migrationPath: {
       steps: [
         '1. React hooks を使っているなら R:utility → R:orchestration にタグ変更',
@@ -3581,6 +4344,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: 'ロジックは hook に抽出。Context は値の提供のみ',
     },
     detection: { type: 'count', severity: 'gate' },
+    migrationRecipe: {
+      steps: ['1. ビジネスロジックを hook に抽出', '2. Context は値の提供のみ'],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 3,
+    },
     migrationPath: {
       steps: ['1. ビジネスロジックを hook に抽出', '2. Context は値の提供のみ'],
       effort: 'small',
@@ -3618,6 +4388,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: '計算は domain 層に委譲',
     },
     detection: { type: 'count', severity: 'gate' },
+    migrationRecipe: {
+      steps: ['1. 計算ロジックを domain 層に抽出', '2. 永続化操作に専念'],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 3,
+    },
     migrationPath: {
       steps: ['1. 計算ロジックを domain 層に抽出', '2. 永続化操作に専念'],
       effort: 'small',
@@ -3655,6 +4432,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: 'ロジックは呼び出し元に移動',
     },
     detection: { type: 'count', severity: 'gate' },
+    migrationRecipe: {
+      steps: ['1. ビジネスロジックを抽出', '2. 外部 API との変換のみに専念'],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 3,
+    },
     migrationPath: {
       steps: ['1. ビジネスロジックを抽出', '2. 外部 API との変換のみに専念'],
       effort: 'trivial',
@@ -3695,6 +4479,16 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       dependsOn: ['AR-A1-DOMAIN'],
     },
     detection: { type: 'must-not-coexist', severity: 'gate' },
+    migrationRecipe: {
+      steps: [
+        '1. React hooks が混入していれば別ファイルに抽出',
+        '2. reducer は (state, action) => state のみ',
+      ],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 2,
+    },
     migrationPath: {
       steps: [
         '1. React hooks が混入していれば別ファイルに抽出',
@@ -3738,6 +4532,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       conflicts: ['AR-TAG-CALCULATION'],
     },
     detection: { type: 'must-only', severity: 'gate' },
+    migrationRecipe: {
+      steps: ['1. 関数定義や変数宣言を別ファイルに移動', '2. barrel は export 文のみに'],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 1,
+    },
     migrationPath: {
       steps: ['1. 関数定義や変数宣言を別ファイルに移動', '2. barrel は export 文のみに'],
       effort: 'trivial',
@@ -3777,6 +4578,16 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       escalation: 'generated section に寄せるか EXCEPTIONS に理由付きで登録',
     },
     detection: { type: 'regex', severity: 'gate' },
+    migrationRecipe: {
+      steps: [
+        '1. 数値を generated section に移動するか、件数を除去して定性表現に変更',
+        '2. 除去できない場合は EXCEPTIONS に理由付きで追加',
+      ],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 3,
+    },
     migrationPath: {
       steps: [
         '1. 数値を generated section に移動するか、件数を除去して定性表現に変更',
@@ -3817,6 +4628,16 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       codeSignals: ['.catch(() =>', 'catch {', 'catch ('],
     },
     detection: { type: 'regex', severity: 'warn', baseline: 8 },
+    migrationRecipe: {
+      steps: [
+        '1. catch 内に console.warn("[コンテキスト]:", err) を追加',
+        '2. データに影響する場合は error 状態を UI に伝播',
+      ],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 2,
+    },
     migrationPath: {
       steps: [
         '1. catch 内に console.warn("[コンテキスト]:", err) を追加',
@@ -3870,6 +4691,16 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       codeSignals: ['.catch((e) =>', '.catch(() =>'],
     },
     detection: { type: 'regex', severity: 'warn', baseline: 4 },
+    migrationRecipe: {
+      steps: [
+        '1. Promise を await し失敗を検知可能にする',
+        '2. 非クリティカルなら "// non-critical: ..." コメントで意図を明示',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 3,
+    },
     migrationPath: {
       steps: [
         '1. Promise を await し失敗を検知可能にする',
@@ -3920,6 +4751,16 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       codeSignals: ['?? 0', '|| 0'],
     },
     detection: { type: 'regex', severity: 'gate' },
+    migrationRecipe: {
+      steps: [
+        '1. ReadModelSlice の status === "ready" チェックを追加',
+        '2. loading → skeleton、error → fallback + 警告、idle → StoreResult フォールバック',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 1,
+    },
     migrationPath: {
       steps: [
         '1. ReadModelSlice の status === "ready" チェックを追加',
@@ -3964,6 +4805,16 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       codeSignals: ['validateImportData', 'validationMessages'],
     },
     detection: { type: 'custom', severity: 'gate' },
+    migrationRecipe: {
+      steps: [
+        '1. finalizeSingleMonth に hasValidationErrors チェックを追加',
+        '2. error レベルならデータ保存をブロック',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 1,
+    },
     migrationPath: {
       steps: [
         '1. finalizeSingleMonth に hasValidationErrors チェックを追加',
@@ -4007,6 +4858,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       codeSignals: ['return rows.length'],
     },
     detection: { type: 'custom', severity: 'warn' },
+    migrationRecipe: {
+      steps: ['1. bulkInsert に COUNT(*) 検証を追加', '2. 不一致時は throw'],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 2,
+    },
     migrationPath: {
       steps: ['1. bulkInsert に COUNT(*) 検証を追加', '2. 不一致時は throw'],
       effort: 'small',
@@ -4053,6 +4911,16 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       codeSignals: ['import.meta.env.DEV'],
     },
     detection: { type: 'regex', severity: 'warn' },
+    migrationRecipe: {
+      steps: [
+        '1. queryToObjects の DEV ガードを first-row では除去',
+        '2. safeParse 失敗時にドロップ件数を返り値に含める',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 3,
+    },
     migrationPath: {
       steps: [
         '1. queryToObjects の DEV ガードを first-row では除去',
@@ -4102,6 +4970,16 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       codeSignals: ['new Promise', 'addEventListener'],
     },
     detection: { type: 'custom', severity: 'warn' },
+    migrationRecipe: {
+      steps: [
+        '1. useWorkerCalculation に 30 秒タイムアウトを追加',
+        '2. loadCoordinator.acquireMutex に 30 秒タイムアウトを追加',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 4,
+    },
     migrationPath: {
       steps: [
         '1. useWorkerCalculation に 30 秒タイムアウトを追加',
@@ -4151,6 +5029,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       codeSignals: ['setCurrentMonthData'],
     },
     detection: { type: 'custom', severity: 'warn' },
+    migrationRecipe: {
+      steps: ['1. setCurrentMonthData で storeResults: new Map() を同時にセット'],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 2,
+    },
     migrationPath: {
       steps: ['1. setCurrentMonthData で storeResults: new Map() を同時にセット'],
       effort: 'trivial',
@@ -4207,6 +5092,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: '例外なし — テストは常に追従必須',
       escalation: 'テストファイルを grep して同じメッセージ文字列を持つアサーションを更新',
     },
+    migrationRecipe: {
+      steps: [
+        '1. importDataIntegrity.ts で level を変更',
+        '2. FileImportService.test.ts で同じメッセージの level アサーションを更新',
+        '3. npx vitest run で確認',
+      ],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 1,
+    },
     migrationPath: {
       steps: [
         '1. importDataIntegrity.ts で level を変更',
@@ -4255,6 +5151,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: '既存テストがない関数（新規追加時）',
       escalation: 'テストの conn モックが新しい query に対応するか確認',
     },
+    migrationRecipe: {
+      steps: [
+        '1. 本番コードに conn.query() を追加',
+        '2. 対応テストのモック conn.query を確認',
+        '3. モックが固定値を返す場合は2回目以降の呼び出しに対応させる',
+      ],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 1,
+    },
     migrationPath: {
       steps: [
         '1. 本番コードに conn.query() を追加',
@@ -4299,6 +5206,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       when: 'readModel builder の Zod parse メソッドを変更するとき',
       exceptions: '例外なし — パスガードは常に追従必須',
       escalation: 'test/guards/ で対応する PathGuard を検索し toContain を更新',
+    },
+    migrationRecipe: {
+      steps: [
+        '1. readModel builder で .parse() → .safeParse() に変更',
+        '2. 対応する PathGuard の toContain アサーションを更新',
+        '3. npm run test:guards で確認',
+      ],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 1,
     },
     migrationPath: {
       steps: [
@@ -4352,6 +5270,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         'UI の displayMode="authoritative" は別概念として legacy-authoritative-usage (display) で管理',
       escalation: '新規追加は即禁止。既存は ratchet-down で段階削減',
     },
+    migrationRecipe: {
+      steps: [
+        '1. authoritative-term-sweep.md で対象箇所を確認',
+        '2. business / analytic / candidate のどれに該当するか判定',
+        '3. 修飾付き形式に書き換え',
+      ],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 2,
+    },
     migrationPath: {
       steps: [
         '1. authoritative-term-sweep.md で対象箇所を確認',
@@ -4400,6 +5329,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       when: 'domain/calculations/ に新しい required ファイルを追加するとき',
       exceptions: 'なし — required は必ず意味分類する',
       escalation: '分類に迷ったら review-needed にして理由を記載',
+    },
+    migrationRecipe: {
+      steps: [
+        '1. semantic-inventory-procedure.md の Q1-Q8 で判定',
+        '2. calculationCanonRegistry に semanticClass + authorityKind を設定',
+        '3. npm run test:guards で確認',
+      ],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 1,
     },
     migrationPath: {
       steps: [
@@ -4450,6 +5390,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: 'utility / presentation は分離対象外',
       escalation: 'semanticClass の判断に迷ったら review-needed にして inventory に記録',
     },
+    migrationRecipe: {
+      steps: [
+        '1. semantic-inventory-procedure.md の Q1-Q8 で判定',
+        '2. calculationCanonRegistry に semanticClass を設定',
+        '3. derived view で分離を確認',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 2,
+    },
     migrationPath: {
       steps: [
         '1. semantic-inventory-procedure.md の Q1-Q8 で判定',
@@ -4497,6 +5448,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       when: 'runtimeStatus を設定するとき、または view に項目を追加するとき',
       exceptions: 'なし — current/candidate 混在は無条件に禁止',
       escalation: '混在が検出されたら即修正',
+    },
+    migrationRecipe: {
+      steps: [
+        '1. current と candidate の view を分離',
+        '2. candidate を current registry から除外',
+        '3. current に candidate 状態遷移を追加しない',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 1,
     },
     migrationPath: {
       steps: [
@@ -4548,6 +5510,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: 'なし — 契約は必ず意味分類の後に付与する',
       escalation: 'semanticClass が決まらないなら contractId も付けない',
     },
+    migrationRecipe: {
+      steps: [
+        '1. semantic-inventory-procedure.md の Q1-Q8 で semanticClass を判定',
+        '2. semanticClass + authorityKind を設定',
+        '3. contract-definition-policy.md に従い contractId を採番',
+      ],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 1,
+    },
     migrationPath: {
       steps: [
         '1. semantic-inventory-procedure.md の Q1-Q8 で semanticClass を判定',
@@ -4595,6 +5568,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: 'なし — business 契約には必ず業務意味を書く',
       escalation: '業務意味を書けないなら business ではなく analytic か utility を検討',
     },
+    migrationRecipe: {
+      steps: [
+        '1. 対象計算が確定する業務値を 1-2 文で説明',
+        '2. reason フィールドに記載',
+        '3. contract-definition-policy.md の BIZ 契約一覧と整合確認',
+      ],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 1,
+    },
     migrationPath: {
       steps: [
         '1. 対象計算が確定する業務値を 1-2 文で説明',
@@ -4641,6 +5625,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       when: 'ANA-XXX の contractId を registry に追加するとき',
       exceptions: 'なし — analytic 契約には必ず技法を明記する',
       escalation: 'methodFamily を書けないなら analytic ではなく utility を検討',
+    },
+    migrationRecipe: {
+      steps: [
+        '1. 対象計算の分析技法を特定（forecasting, statistical 等）',
+        '2. methodFamily フィールドに設定',
+        '3. contract-definition-policy.md の ANA 契約一覧と整合確認',
+      ],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 1,
     },
     migrationPath: {
       steps: [
@@ -4690,6 +5685,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: '表示用のフォーマット変換（%表示等）は許容。値の再計算は禁止',
       escalation: '率の所有元が不明な場合は contract-definition-policy.md を参照',
     },
+    migrationRecipe: {
+      steps: [
+        '1. 率を使用している箇所を特定',
+        '2. bridge 経由で取得した値に置き換え',
+        '3. 独自計算を削除',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 2,
+    },
     migrationPath: {
       steps: [
         '1. 率を使用している箇所を特定',
@@ -4737,6 +5743,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       when: 'pure 計算を呼び出すコードを新規作成するとき',
       exceptions: '型の import（import type）とテストコードは除外',
       escalation: '既存の direct import は ratchet-down で段階削減',
+    },
+    migrationRecipe: {
+      steps: [
+        '1. direct import を特定',
+        '2. 対応する bridge 関数に置き換え',
+        '3. import パスを bridge に変更',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 2,
     },
     migrationPath: {
       steps: [
@@ -4786,6 +5803,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       when: 'bridge のモードを変更するとき',
       exceptions: 'テスト・検証環境での candidate-only は許容',
       escalation: 'candidate を既定にしたい場合は Phase 8 の Promote Ceremony を経る',
+    },
+    migrationRecipe: {
+      steps: [
+        '1. bridge モードを current-only に戻す',
+        '2. candidate の検証は dual-run-compare で行う',
+        '3. promotion-ready 判定を経てから切替',
+      ],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 1,
     },
     migrationPath: {
       steps: [
@@ -4839,6 +5867,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: 'なし — current に candidate 状態遷移は無条件に禁止',
       escalation: '状態を追加したい場合は candidate として別管理する',
     },
+    migrationRecipe: {
+      steps: [
+        '1. current エントリから candidate 状態遷移を除去',
+        '2. 必要なら candidate エントリとして別途追加',
+        '3. current-maintenance-policy.md の §4 を参照',
+      ],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 1,
+    },
     migrationPath: {
       steps: [
         '1. current エントリから candidate 状態遷移を除去',
@@ -4888,6 +5927,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: 'なし — current は必ず意味分類する',
       escalation: '分類に迷ったら review-needed にして理由を記載',
     },
+    migrationRecipe: {
+      steps: [
+        '1. semantic-inventory-procedure.md の Q1-Q8 で判定',
+        '2. semanticClass + authorityKind を設定',
+        '3. 保守観点（§5 business / §6 analytics）を確認',
+      ],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 1,
+    },
     migrationPath: {
       steps: [
         '1. semantic-inventory-procedure.md の Q1-Q8 で判定',
@@ -4935,6 +5985,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: 'なし — current でも authoritative 単独使用は禁止',
       escalation: 'AR-TERM-AUTHORITATIVE-STANDALONE と同じ対応',
     },
+    migrationRecipe: {
+      steps: [
+        '1. authoritative 単独使用を特定',
+        '2. business-authoritative / analytic-authoritative に修飾',
+        '3. Cargo.toml の metadata.semantic と整合確認',
+      ],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 1,
+    },
     migrationPath: {
       steps: [
         '1. authoritative 単独使用を特定',
@@ -4980,6 +6041,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       when: 'derived view の生成ロジックや current 群の管理方法を変更するとき',
       exceptions: 'master registry は統合管理（derived view で分離する）',
       escalation: '新しい view が必要な場合は master から導出する',
+    },
+    migrationRecipe: {
+      steps: [
+        '1. semanticViews.ts の BUSINESS_SEMANTIC_VIEW / ANALYTIC_KERNEL_VIEW を確認',
+        '2. business と analytic が分離されていることを検証',
+        '3. 混在があれば semanticClass を修正',
+      ],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 1,
     },
     migrationPath: {
       steps: [
@@ -5028,6 +6100,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: 'バグ修正・保守は許容。新しい計算ロジックの追加は candidate で行う',
       escalation: '判断に迷ったら current-maintenance-policy.md §7 の分離ルールを参照',
     },
+    migrationRecipe: {
+      steps: [
+        '1. candidate 用のコードを current から分離',
+        '2. candidate エントリとして別管理',
+        '3. bridge で current/candidate を切り替える',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 1,
+    },
     migrationPath: {
       steps: [
         '1. candidate 用のコードを current から分離',
@@ -5074,6 +6157,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       when: 'current 群の関数を新しい場所から呼び出すとき',
       exceptions: '型の import（import type）とテストコードは除外',
       escalation: '既存の direct import は AR-BRIDGE-DIRECT-IMPORT で管理',
+    },
+    migrationRecipe: {
+      steps: [
+        '1. 新しい呼び出しを bridge 経由に変更',
+        '2. direct import を追加しない',
+        '3. 既存の direct import は段階的に bridge 経由に移行',
+      ],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 2,
     },
     migrationPath: {
       steps: [
@@ -5122,6 +6216,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions:
         '正式な再定義プロセス（businessMeaning の書き直し + 全ステークホルダー合意）を経た場合のみ',
       escalation: '変更したい場合は plan.md の Phase 7 特記事項 guard を参照',
+    },
+    migrationRecipe: {
+      steps: [
+        '1. 変更の必要性を businessMeaning の観点から評価',
+        '2. BIZ-004 契約の businessMeaning を再定義',
+        '3. 全関連文書（contract-definition-policy.md, HANDOFF.md）を更新',
+      ],
+    },
+    executionPlan: {
+      effort: 'medium',
+      priority: 1,
     },
     migrationPath: {
       steps: [
@@ -5174,6 +6279,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: 'なし — candidate は契約必須',
       escalation: '契約を書けないなら candidate 化しない',
     },
+    migrationRecipe: {
+      steps: [
+        '1. contract-definition-policy.md の BIZ テンプレートに従い契約を作成',
+        '2. contractId を registry エントリに設定',
+        '3. businessMeaning を reason に記載',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 1,
+    },
     migrationPath: {
       steps: [
         '1. contract-definition-policy.md の BIZ テンプレートに従い契約を作成',
@@ -5219,6 +6335,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       when: 'candidate エントリの runtimeStatus を設定するとき',
       exceptions: 'Phase 8 の Promote Ceremony を経た場合のみ current に編入可能',
       escalation: '誤って current にした場合は即 candidate に戻す',
+    },
+    migrationRecipe: {
+      steps: [
+        '1. runtimeStatus を candidate に修正',
+        '2. authorityKind を candidate-authoritative に修正',
+        '3. MIGRATION_CANDIDATE_VIEW に配置されていることを確認',
+      ],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 1,
     },
     migrationPath: {
       steps: [
@@ -5266,6 +6393,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: 'なし — business は business bridge のみ',
       escalation: '接続先に迷ったら semanticClass を再確認',
     },
+    migrationRecipe: {
+      steps: [
+        '1. candidate の bridgeKind を確認',
+        '2. business bridge に接続',
+        '3. analytics bridge への接続を除去',
+      ],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 1,
+    },
     migrationPath: {
       steps: [
         '1. candidate の bridgeKind を確認',
@@ -5311,6 +6449,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       when: 'candidate の出力を UI に表示するとき',
       exceptions: '表示用フォーマット変換は許容',
       escalation: 'AR-BRIDGE-RATE-OWNERSHIP と同じ対応',
+    },
+    migrationRecipe: {
+      steps: [
+        '1. UI で率を再計算している箇所を特定',
+        '2. bridge 経由の値に置き換え',
+        '3. 独自計算を削除',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 2,
     },
     migrationPath: {
       steps: [
@@ -5358,6 +6507,13 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: '型の import（import type）とテストコードは除外',
       escalation: 'AR-BRIDGE-DIRECT-IMPORT と同じ対応',
     },
+    migrationRecipe: {
+      steps: ['1. direct import を特定', '2. bridge 経由に変更', '3. direct import を削除'],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 2,
+    },
     migrationPath: {
       steps: ['1. direct import を特定', '2. bridge 経由に変更', '3. direct import を削除'],
       effort: 'trivial',
@@ -5401,6 +6557,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       when: 'candidate/business エントリを追加するとき',
       exceptions: 'なし — candidate は rollback 必須',
       escalation: 'rollback 実装ができないなら candidate 化しない',
+    },
+    migrationRecipe: {
+      steps: [
+        '1. fallbackPolicy を current に設定',
+        '2. bridge に fallback-to-current モードを実装',
+        '3. rollback テストを追加',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 1,
     },
     migrationPath: {
       steps: [
@@ -5448,6 +6615,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       when: 'candidate の状態を promotion-ready に変更するとき',
       exceptions: 'なし — dual-run は promotion の前提条件',
       escalation: 'dual-run インフラが未整備なら promotion-ready にしない',
+    },
+    migrationRecipe: {
+      steps: [
+        '1. dual-run-compare モードを bridge に実装',
+        '2. 値一致・null一致・warning一致・業務解釈の一致を検証',
+        '3. 検証結果を記録してから promotion-ready に変更',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 1,
     },
     migrationPath: {
       steps: [
@@ -5499,6 +6677,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: 'なし — analytic candidate は契約必須',
       escalation: '契約を書けないなら candidate 化しない',
     },
+    migrationRecipe: {
+      steps: [
+        '1. contract-definition-policy.md の ANA テンプレートに従い契約を作成',
+        '2. contractId + methodFamily を registry エントリに設定',
+        '3. invariantSet を定義',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 1,
+    },
     migrationPath: {
       steps: [
         '1. contract-definition-policy.md の ANA テンプレートに従い契約を作成',
@@ -5544,6 +6733,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       when: 'candidate/analytics の bridge 接続先を設定するとき',
       exceptions: 'なし — analytics は analytics bridge のみ',
       escalation: '接続先に迷ったら semanticClass を再確認',
+    },
+    migrationRecipe: {
+      steps: [
+        '1. candidate の bridgeKind を確認',
+        '2. analytics bridge に接続',
+        '3. business bridge への接続を除去',
+      ],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 1,
     },
     migrationPath: {
       steps: [
@@ -5592,6 +6792,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: 'なし — analytic は methodFamily 必須',
       escalation: 'methodFamily を書けないなら analytic ではなく utility を検討',
     },
+    migrationRecipe: {
+      steps: [
+        '1. 対象計算の分析技法を特定',
+        '2. methodFamily フィールドに設定',
+        '3. contract-definition-policy.md の ANA 契約一覧と整合確認',
+      ],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 1,
+    },
     migrationPath: {
       steps: [
         '1. 対象計算の分析技法を特定',
@@ -5639,6 +6850,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: 'なし — analytic は不変条件必須',
       escalation: '不変条件を書けないなら promotion-ready にしない',
     },
+    migrationRecipe: {
+      steps: [
+        '1. 対象計算の数学的不変条件を特定',
+        '2. ANA 契約の invariantSet に記載',
+        '3. 不変条件テストを追加',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 1,
+    },
     migrationPath: {
       steps: [
         '1. 対象計算の数学的不変条件を特定',
@@ -5684,6 +6906,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       when: 'candidate の関数を呼び出すコードを書くとき',
       exceptions: '型の import（import type）とテストコードは除外',
       escalation: 'AR-BRIDGE-DIRECT-IMPORT と同じ対応',
+    },
+    migrationRecipe: {
+      steps: [
+        '1. direct import を特定',
+        '2. analytics bridge 経由に変更',
+        '3. direct import を削除',
+      ],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 2,
     },
     migrationPath: {
       steps: [
@@ -5733,6 +6966,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: 'なし — analytic candidate は candidate view + analytics bridge のみ',
       escalation: '配置に迷ったら semanticClass と runtimeStatus を再確認',
     },
+    migrationRecipe: {
+      steps: [
+        '1. view の配置を MIGRATION_CANDIDATE_VIEW に修正',
+        '2. bridge の接続を analytics bridge に修正',
+        '3. current/business との混在がないことを確認',
+      ],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 1,
+    },
     migrationPath: {
       steps: [
         '1. view の配置を MIGRATION_CANDIDATE_VIEW に修正',
@@ -5780,6 +7024,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions:
         '正式な再定義プロセス（businessMeaning の書き直し + 全ステークホルダー合意）を経た場合のみ',
       escalation: 'AR-CURRENT-FACTOR-BUSINESS-LOCK を参照',
+    },
+    migrationRecipe: {
+      steps: [
+        '1. factorDecomposition は business のまま維持',
+        '2. analytics 候補リストから除外',
+        '3. Tier 1 business 候補として管理',
+      ],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 1,
     },
     migrationPath: {
       steps: [
@@ -5831,6 +7086,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: 'utility / not-needed の関数追加は対象外。既存関数の修正も対象外',
       escalation: '新しい authoritative 計算が必要な場合は candidate として登録する',
     },
+    migrationRecipe: {
+      steps: [
+        '1. calculationCanonRegistry に candidate エントリを追加',
+        '2. 契約（BIZ-XXX / ANA-XXX）を定義',
+        '3. bridge 経由で利用する',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 1,
+    },
     migrationPath: {
       steps: [
         '1. calculationCanonRegistry に candidate エントリを追加',
@@ -5876,6 +7142,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       when: 'Stage B/C の JS reference を変更するとき',
       exceptions: 'バグ修正・型修正は許容。新しい export 関数の追加は禁止',
       escalation: '新機能が必要なら candidate として別管理する',
+    },
+    migrationRecipe: {
+      steps: [
+        '1. JS reference から新規ロジックを除去',
+        '2. candidate として別エントリで管理',
+        '3. bridge 経由で利用する',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 1,
     },
     migrationPath: {
       steps: [
@@ -5923,6 +7200,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: '正式な責務再定義プロセスを経た場合のみ',
       escalation: '業務計算が必要なら domain/calculations/ に新しい候補を作る',
     },
+    migrationRecipe: {
+      steps: [
+        '1. presentation ヘルパーの semanticClass を presentation に戻す',
+        '2. 必要な計算ロジックを domain/calculations/ に移動',
+        '3. candidate として管理する',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 2,
+    },
     migrationPath: {
       steps: [
         '1. presentation ヘルパーの semanticClass を presentation に戻す',
@@ -5969,6 +7257,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       exceptions: 'なし — review-needed は先に解決する',
       escalation: '分類に迷ったら semantic-inventory-procedure.md の Q1-Q8 で判定',
     },
+    migrationRecipe: {
+      steps: [
+        '1. review-needed の理由を確認',
+        '2. semanticClass を確定する',
+        '3. 確定後に runtimeStatus を変更する',
+      ],
+    },
+    executionPlan: {
+      effort: 'trivial',
+      priority: 1,
+    },
     migrationPath: {
       steps: [
         '1. review-needed の理由を確認',
@@ -6014,6 +7313,17 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       when: '意味分類の registry や view を新規作成するとき',
       exceptions: 'なし — 正本は1つ',
       escalation: 'master 以外の registry が作成されたら即修正',
+    },
+    migrationRecipe: {
+      steps: [
+        '1. 既存の分類を全て calculationCanonRegistry に集約',
+        '2. derived view を master からの自動導出に変更',
+        '3. 手編集禁止 guard を追加',
+      ],
+    },
+    executionPlan: {
+      effort: 'small',
+      priority: 1,
     },
     migrationPath: {
       steps: [
