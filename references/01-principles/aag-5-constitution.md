@@ -62,12 +62,12 @@
 - `docs/contracts/project-metadata.json` — プロジェクトメタデータ
 - Contract テンプレート（BIZ-001〜013 / ANA-001〜009）
 
-**今後追加すべきスキーマ（Phase A2）:**
-- `Violation` スキーマ
-- `EvidencePack` スキーマ
-- `PromoteRecord` スキーマ
-- `RetirementRecord` スキーマ
-- `GuardMetadata` スキーマ
+**Phase A2 で追加したスキーマ（`app/src/test/aagSchemas.ts`）:**
+- `AagViolation` — 違反の構造化表現（code / brokenRule / why / whatToFix / forbiddenShortcut）
+- `AagEvidencePack` — 昇格判定の証拠束（parity / rollback / guard / registry diff）
+- `AagPromoteRecord` — candidate → current 昇格記録（人間承認必須）
+- `AagRetirementRecord` — JS 退役記録（4段階遷移）
+- `AagGuardMetadata` — ガードのメタ情報（category / layer / enforcement）
 
 ---
 

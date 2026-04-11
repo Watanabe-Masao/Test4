@@ -72,6 +72,7 @@
 | `docs/contracts/principles.json` | 原則メタデータ | **正本** |
 | `docs/contracts/doc-registry.json` | 文書レジストリ | **正本** |
 | `docs/contracts/project-metadata.json` | プロジェクトメタデータ | **正本** |
+| `app/src/test/aagSchemas.ts` | AAG 5.0 スキーマ型定義 | **正本** |
 
 ---
 
