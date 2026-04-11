@@ -29,7 +29,7 @@
 **Next:**
 - Doc 更新義務違反数 を budget 0 以下に修正する
 
-> 生成: 2026-04-11T00:08:05.177Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-11T00:08:50.349Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 現状スナップショット
