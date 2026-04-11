@@ -46,6 +46,9 @@ export type {
   RuleRelationships,
 } from './aag-core-types'
 
+// App Domain 型を re-export（architectureRules.ts で定義、aagSchemas 経由でもアクセス可能）
+export type { RuleBinding } from './architectureRules'
+
 // ────────────────────────────────────────────────────────
 // 共通型
 // ────────────────────────────────────────────────────────

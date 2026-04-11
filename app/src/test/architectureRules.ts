@@ -130,21 +130,47 @@ export type PrincipleId =
   | 'I4'
 
 /**
- * Architecture Rule — Core 3 層 + App 固有バインディング
+ * RuleBinding — アプリ固有バインディング
  *
- * - RuleSemantics: 何を守るか（id, what, why, slice, ruleClass 等）
- * - RuleGovernance: どう扱うか（fixNow, decisionCriteria, migrationPath 等）
- * - RuleDetectionSpec: どう見つけるか（detection, thresholds, correctPattern 等）
- * - App 固有: principleRefs, doc（アプリ固有の参照）
+ * Core の RuleDetectionSpec（description のみ）を補完し、
+ * このアプリに固有の具体値（import パス、codeSignals、example、doc）を追加する。
  *
- * correctPattern/outdatedPattern の imports/codeSignals は
- * 型構造としては Core（RuleDetectionSpec）だが、具体値はアプリ固有バインディング。
+ * TypeScript の intersection 型により、correctPattern/outdatedPattern は
+ * Core 側の description と Binding 側の imports/codeSignals/example がマージされる。
+ * ルール定義データの変更は不要。
+ *
+ * @see aag/core/principles/core-boundary-policy.md — 原則 E: 具体名は後段へ落とす
  */
-export interface ArchitectureRule extends _RuleSemantics, _RuleGovernance, _RuleDetectionSpec {
-  /** どの設計原則から生まれたか（アプリ固有トレーサビリティ） */
-  readonly principleRefs?: readonly PrincipleId[]
+export interface RuleBinding {
   /** 参照ドキュメント（アプリ固有パス） */
   readonly doc?: string
+  /** あるべき姿のバインディング（具体 import、コード例） */
+  readonly correctPattern?: {
+    readonly example?: string
+    readonly imports?: readonly string[]
+  }
+  /** 禁止/旧パターンのバインディング（具体 import、検出シグナル） */
+  readonly outdatedPattern?: {
+    readonly imports?: readonly string[]
+    readonly codeSignals?: readonly string[]
+  }
+}
+
+/**
+ * Architecture Rule = Core 3 層 + App バインディング
+ *
+ * - RuleSemantics: 何を守るか — id, what, why, principleRefs, slice（Core）
+ * - RuleGovernance: どう扱うか — fixNow, decisionCriteria, migrationPath（Core）
+ * - RuleDetectionSpec: どう見つけるか — detection, description のみ（Core）
+ * - RuleBinding: 具体バインディング — doc, imports, codeSignals, example（App）
+ *
+ * Phase 2 は type-level decomposition のみ。
+ * ルール定義データの物理分割、catalog/binding の別ファイル化、実行ロジック変更は行わない。
+ */
+export interface ArchitectureRule
+  extends _RuleSemantics, _RuleGovernance, _RuleDetectionSpec, RuleBinding {
+  /** Core の principleRefs を PrincipleId に narrowing（アプリ固有の原則 ID 体系） */
+  readonly principleRefs?: readonly PrincipleId[]
 }
 
 // ─── ルール定義 ──────────────────────────────────────────
@@ -803,7 +829,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     what: 'コンパイラ警告を黙殺しない（eslint-disable / @ts-ignore 禁止）',
     why: '警告を黙殺すると型安全性やリント規約が形骸化する',
     correctPattern: {
-      description: '根本原因を修正する。どうしても必要な���合は allowlist に正当理由を記載',
+      description: '根本原因を修正する。どうしても必要な場合は allowlist に正当理由を記載',
     },
     outdatedPattern: {
       description: 'eslint-disable / @ts-ignore / @ts-expect-error コメントを追加する',
