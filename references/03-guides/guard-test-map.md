@@ -314,6 +314,14 @@ Set / Record を構築して使用する。許可リストの変更は `allowlis
 | トレンド: ソート順列 | `wasm/trend-analysis/tests/invariants.rs` | INV-TREND-05 |
 | トレンド: 有限保証 | `wasm/trend-analysis/tests/invariants.rs` | INV-TREND-06 |
 
+| 時間帯: コアタイム⊂営業時間 | `wasm/time-slot/tests/invariants.rs` | INV-TS-01 |
+| 時間帯: コアタイム合計≤全体 | `wasm/time-slot/tests/invariants.rs` | INV-TS-02 |
+| 時間帯: 窓幅=3 | `wasm/time-slot/tests/invariants.rs` | INV-TS-03 |
+| 時間帯: 折り返し∈営業時間 | `wasm/time-slot/tests/invariants.rs` | INV-TS-04 |
+| 時間帯: 折り返し=累積50% | `wasm/time-slot/tests/invariants.rs` | INV-TS-05 |
+| 時間帯: 空入力→null | `wasm/time-slot/tests/invariants.rs` | INV-TS-06 |
+| 時間帯: 有限保証 | `wasm/time-slot/tests/invariants.rs` | INV-TS-07 |
+
 ## 設計原則カテゴリ → ガードテスト対応
 
 | カテゴリ | 主なガードテスト |

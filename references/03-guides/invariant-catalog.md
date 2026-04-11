@@ -1252,3 +1252,74 @@ sortedIndices は入力の順列（全要素が一度ずつ出現）
 - **テスト**: `wasm/trend-analysis/tests/invariants.rs` — `trend_inv_6_*`
 - **ロール**: invariant-guardian
 - **契約**: ANA-004
+
+### INV-TS-01: コアタイム ⊂ 営業時間
+
+```
+startHour ≥ minHour ∧ endHour ≤ maxHour
+```
+
+- **テスト**: `wasm/time-slot/tests/invariants.rs` — `ts_inv_1_*`
+- **ロール**: invariant-guardian
+- **契約**: ANA-001
+- **違反時の影響**: コアタイムが営業時間外を含み、時間帯ヒートマップの表示が不正確になる
+
+### INV-TS-02: コアタイム合計 ≤ 全体合計
+
+```
+coreTime.total ≤ Σ amounts
+```
+
+- **テスト**: `wasm/time-slot/tests/invariants.rs` — `ts_inv_2_*`
+- **ロール**: invariant-guardian
+- **契約**: ANA-001
+
+### INV-TS-03: コアタイム窓幅 = 3
+
+```
+3時間以上のデータ ⇒ endHour = startHour + 2
+```
+
+- **テスト**: `wasm/time-slot/tests/invariants.rs` — `ts_inv_3_*`
+- **ロール**: invariant-guardian
+- **契約**: ANA-001
+
+### INV-TS-04: 折り返し時間 ∈ 営業時間
+
+```
+turnaroundHour ∈ [minHour, maxHour]
+```
+
+- **テスト**: `wasm/time-slot/tests/invariants.rs` — `ts_inv_4_*`
+- **ロール**: invariant-guardian
+- **契約**: ANA-001
+
+### INV-TS-05: 折り返し = 累積50%到達点
+
+```
+Σ amounts[h ≤ turnaroundHour] ≥ 0.5 × Σ amounts
+```
+
+- **テスト**: `wasm/time-slot/tests/invariants.rs` — `ts_inv_5_*`
+- **ロール**: invariant-guardian
+- **契約**: ANA-001
+
+### INV-TS-06: 空入力 → null
+
+```
+入力なし ⇒ coreTime = null ∧ turnaroundHour = null
+```
+
+- **テスト**: `wasm/time-slot/tests/invariants.rs` — `ts_inv_6_*`
+- **ロール**: invariant-guardian
+- **契約**: ANA-001
+
+### INV-TS-07: 有限保証
+
+```
+∀ 有限入力 ⇒ 全出力は有限
+```
+
+- **テスト**: `wasm/time-slot/tests/invariants.rs` — `ts_inv_7_*`
+- **ロール**: invariant-guardian
+- **契約**: ANA-001

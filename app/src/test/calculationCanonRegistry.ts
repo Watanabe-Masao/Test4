@@ -434,9 +434,9 @@ export const CALCULATION_CANON_REGISTRY: Readonly<Record<string, CanonEntry>> = 
   // ══ Analytic Kernel（analytic-authoritative） ══
 
   'timeSlotCalculations.ts': {
-    tag: 'review',
-    reason: 'コアタイム・ターンアラウンド',
-    zodAdded: false,
+    tag: 'required',
+    reason: 'コアタイム・ターンアラウンド（current/analytics WASM 稼働中）',
+    zodAdded: true,
     semanticClass: 'analytic',
     authorityKind: 'analytic-authoritative',
     methodFamily: 'time_pattern',

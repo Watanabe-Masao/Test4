@@ -6,7 +6,26 @@
  * 折り返し時間帯: 累積売上が50%に到達する時間帯
  *
  * @layer Domain — Authoritative Business Calculation
+ * @contractId ANA-001
+ * @semanticClass analytic
+ * @methodFamily time_pattern
  */
+
+import { z } from 'zod'
+
+// ─── Zod Schemas ────────────────────────��────────────
+
+export const CoreTimeResultSchema = z
+  .object({
+    startHour: z.number(),
+    endHour: z.number(),
+    total: z.number(),
+  })
+  .nullable()
+export type CoreTimeResult = z.infer<typeof CoreTimeResultSchema>
+
+export const TurnaroundHourResultSchema = z.number().nullable()
+export type TurnaroundHourResult = z.infer<typeof TurnaroundHourResultSchema>
 
 /** 3連続時間帯の累計合計が最大となるウィンドウを検出する */
 export function findCoreTime(
