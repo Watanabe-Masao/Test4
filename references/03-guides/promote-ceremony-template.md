@@ -7,6 +7,23 @@
 promotion-ready の candidate を current に正式編入する。
 **判定主体は「AAG 証拠収集 → AI 提案 → 人間承認」。実装 AI の自己承認は禁止。**
 
+### EvidencePack による証拠ベース化
+
+提案書の証拠セクションは `AagEvidencePack` スキーマに準拠する。
+テンプレート生成コマンド:
+
+```bash
+cd app && npx tsx src/test/generators/generateEvidencePack.ts BIZ-012
+cd app && npx tsx src/test/generators/generateEvidencePack.ts --all
+```
+
+生成された JSON は parity / rollback が placeholder のため、観測後に埋める。
+昇格判定の最終形は `AagPromoteRecord`（`app/src/test/aagSchemas.ts`）。
+
+- スキーマ定義: `app/src/test/aagSchemas.ts` — AagEvidencePack / AagPromoteRecord
+- 生成ツール: `app/src/test/generators/generateEvidencePack.ts`
+- 正本ポリシー: `references/01-principles/aag-5-source-of-truth-policy.md`
+
 ## 2. 提案書フォーマット
 
 candidate が promotion-ready になったら、以下のフォーマットで提案書を作成する:

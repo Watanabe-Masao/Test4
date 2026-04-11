@@ -1,5 +1,19 @@
 # 引き継ぎ書 — Pure 計算責務再編（Phase 8 以降へ）
 
+> **本文書の役割: 起点文書**
+> 後任者が最初に読む文書。完了済みの概要、次にやること、ハマりポイント。
+> コード truth の後追いであり、詳細は plan.md / plan-checklist.md を参照する。
+
+### 3文書の役割分担
+
+| 文書 | 役割 | 更新タイミング |
+|------|------|-------------|
+| **HANDOFF.md（本書）** | 起点文書。全体把握と入口 | コード truth 変更後 |
+| **plan.md** | 原則と構造の正本。4不可侵原則 + Phase 定義 | 計画変更時のみ |
+| **plan-checklist.md** | 進行管理の唯一の truth | 作業完了ごと |
+
+---
+
 ## 1. 現在地
 
 Phase 0-7 の構造基盤が完了。PR #956（ブランチ `claude/create-handoff-docs-tFlIF`）でマージ済み。
@@ -218,3 +232,32 @@ npm run test:guards     # docs:generate 後に再度
 8. 実装 AI が Promote Ceremony を自己承認する
 9. JS reference に新規 authoritative logic を追加する
 10. review-needed のまま current 編入 / candidate 化する
+
+## 9. Violation を見たときの読書導線
+
+ガードテストや CI で violation が出た場合、以下の順番で対処する。
+
+| violation のカテゴリ | 最初に読むファイル | 次に読むファイル |
+|---------------------|-------------------|-----------------|
+| **terminology** | `references/01-principles/semantic-classification-policy.md` | `app/src/test/architectureRules.ts` の該当ルール |
+| **semantic-boundary** | `references/01-principles/semantic-classification-policy.md` | `app/src/test/calculationCanonRegistry.ts` |
+| **registry-integrity** | `app/src/test/calculationCanonRegistry.ts` | 該当パスガード（`guards/*PathGuard.test.ts`） |
+| **bridge-runtime-boundary** | `references/01-principles/engine-boundary-policy.md` | 該当 bridge ファイル（`application/services/*Bridge.ts`） |
+| **current-candidate-lifecycle** | `references/03-guides/tier1-business-migration-plan.md` | `references/03-guides/analytic-kernel-migration-plan.md` |
+| **docs-synchronization** | `references/01-principles/aag-5-source-of-truth-policy.md` | `docs/contracts/doc-registry.json` |
+| **promote-retire-lifecycle** | `references/03-guides/promote-ceremony-template.md` | `references/03-guides/guard-consolidation-and-js-retirement.md` |
+| **ratchet-legacy-control** | 該当 allowlist（`app/src/test/allowlists/`） | `references/03-guides/architecture-rule-system.md` |
+
+> **全カテゴリ共通:** `app/src/test/guardCategoryMap.ts` で該当ルールのカテゴリと note を確認。
+> `app/src/test/guardMetadataView.ts` で severity / enforcement / sunsetCondition を確認。
+
+## 10. AAG 5.0 の構造
+
+AAG は 4 層で構成されている。詳細は `references/01-principles/aag-5-constitution.md` を参照。
+
+| 層 | 役割 | 代表ファイル |
+|----|------|------------|
+| Constitution | 思想の正本 | `references/01-principles/` |
+| Schema | 型の正本 | `calculationCanonRegistry.ts`, `architectureRules.ts`, `aagSchemas.ts` |
+| Execution | 検出の実装 | `guards/*.test.ts`, `tools/architecture-health/` |
+| Operations | 運用手順 | 本書, `plan.md`, `plan-checklist.md` |
