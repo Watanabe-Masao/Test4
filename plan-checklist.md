@@ -112,42 +112,42 @@
 
 ## Phase 5: Tier 1 Business 候補移行
 
-* [ ] Tier 1 business 候補一覧を作成した
-* [ ] 各候補に Business Contract を付与した
-* [ ] `businessMeaning` を書けない候補を対象外にした
-* [ ] JS current reference を固定した
-* [ ] candidate/business 実装を追加した
-* [ ] business bridge に接続した
-* [ ] dual-run compare を実装した
-* [ ] rollback を実装した
-* [ ] promotion-ready 判定表を作成した
-* [ ] Phase 5 guard を導入した
+* [x] Tier 1 business 候補一覧を作成した
+* [x] 各候補に Business Contract を付与した
+* [x] `businessMeaning` を書けない候補を対象外にした
+* [x] JS current reference を固定した
+* [x] candidate/business 実装を追加した
+* [x] business bridge に接続した
+* [x] dual-run compare を実装した
+* [x] rollback を実装した
+* [x] promotion-ready 判定表を作成した
+* [x] Phase 5 guard を導入した
 
 **やってはいけないこと**
 
-* [ ] candidate/business を current/business に直接混ぜていない
-* [ ] analytics bridge に接続していない
+* [x] candidate/business を current/business に直接混ぜていない
+* [x] analytics bridge に接続していない
 
 ---
 
 ## Phase 6: Analytic 候補移行
 
-* [ ] analytic 候補一覧を作成した
-* [ ] 各候補に Analytic Contract を付与した
-* [ ] `methodFamily` と `invariantSet` を定義した
-* [ ] JS current reference を固定した
-* [ ] candidate/analytics 実装を追加した
-* [ ] analytics bridge に接続した
-* [ ] dual-run compare を実装した
-* [ ] invariant 検証を追加した
-* [ ] rollback を実装した
-* [ ] promotion-ready 判定表を作成した
-* [ ] Phase 6 guard を導入した
+* [x] analytic 候補一覧を作成した
+* [x] 各候補に Analytic Contract を付与した
+* [x] `methodFamily` と `invariantSet` を定義した
+* [x] JS current reference を固定した
+* [x] candidate/analytics 実装を追加した
+* [x] analytics bridge に接続した
+* [x] dual-run compare を実装した
+* [x] invariant 検証を追加した
+* [x] rollback を実装した
+* [x] promotion-ready 判定表を作成した
+* [x] Phase 6 guard を導入した
 
 **やってはいけないこと**
 
-* [ ] `factorDecomposition` を analytic 候補へ移していない
-* [ ] business bridge に接続していない
+* [x] `factorDecomposition` を analytic 候補へ移していない
+* [x] business bridge に接続していない
 
 ---
 

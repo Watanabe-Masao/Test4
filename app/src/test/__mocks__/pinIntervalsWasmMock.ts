@@ -16,10 +16,11 @@ export function calculate_pin_intervals(
   pinClosingInventory: Float64Array,
   daysInMonth: number,
 ): Float64Array {
-  void daysInMonth // FFI contract parameter (TS impl derives from pins)
+  // FFI 境界整合: daysInMonth と配列長の最小値で境界を揃える
+  const dayLen = Math.min(daysInMonth, dailySales.length, dailyTotalCost.length)
   // Reconstruct Map for TS reference — minimal DailyRecord stub
   const daily = new Map<number, DailyRecord>()
-  for (let i = 0; i < dailySales.length; i++) {
+  for (let i = 0; i < dayLen; i++) {
     if (dailySales[i] !== 0 || dailyTotalCost[i] !== 0) {
       daily.set(i + 1, {
         day: i + 1,
@@ -46,8 +47,12 @@ export function calculate_pin_intervals(
   }
 
   const pins: [number, number][] = []
-  for (let i = 0; i < pinDays.length; i++) {
-    pins.push([pinDays[i], pinClosingInventory[i]])
+  const pinLen = Math.min(pinDays.length, pinClosingInventory.length)
+  for (let i = 0; i < pinLen; i++) {
+    const day = pinDays[i]
+    const closing = pinClosingInventory[i]
+    if (day < 1 || day > dayLen || Number.isNaN(closing)) continue
+    pins.push([day, closing])
   }
 
   const opening = Number.isNaN(openingInventory) ? null : openingInventory

@@ -147,6 +147,22 @@ declare module 'time-slot-wasm' {
   export function find_turnaround_hour(hours: Float64Array, amounts: Float64Array): number
 }
 
+// ─── dow-gap-wasm (candidate: ANA-007) ──────────────────
+declare module 'dow-gap-wasm' {
+  export default function init(): Promise<void>
+  export function analyze_dow_gap(
+    currentCounts: Float64Array,
+    previousCounts: Float64Array,
+    prevDowSales: Float64Array,
+    dailyAverageSales: number,
+    salesByDowFlat: Float64Array,
+    customersByDowFlat: Float64Array,
+    dowDataLengths: Uint32Array,
+    dailyAverageCustomers: number,
+    hasDailyData: boolean,
+  ): Float64Array
+}
+
 // ─── pi-value-wasm (candidate: BIZ-012) ─────────────────
 declare module 'pi-value-wasm' {
   export default function init(): Promise<void>

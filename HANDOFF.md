@@ -91,14 +91,18 @@ Phase 8 は **candidate 実装が promotion-ready であること**が前提。
 6. ✅ dual-run compare が実施されている（Phase 5 実装で完了 — mock ベース parity 検証）
 7. ✅ rollback が確認されている（Phase 5 実装で完了 — rollbackToCurrentOnly テスト）
 
-**Phase 5 Tier 1 Business 全 6 候補の candidate 移行構造が完了。**
-次は Phase 8（Promote Ceremony）だが、実 WASM バイナリでの dual-run 観測期間が必要。
+**Phase 5 Tier 1 Business 全 6 候補 + Phase 6 Analytic Kernel 全 9 候補の移行構造が完了。**
+
+Phase 6 結果:
+- candidate crate: ANA-003 (sensitivity), ANA-004 (trendAnalysis), ANA-005 (correlation), ANA-007 (dowGapAnalysis), ANA-009 (computeMovingAverage) — 5 件
+- current 品質整備: ANA-001 (timeSlot Zod追加), ANA-002 (advancedForecast residual明文化), ANA-006 (forecast residual明文化) — 3 件
+- non-target 除外: ANA-008 (dowGapActualDay: JS-native / FFI 便益薄) — 1 件
 
 ### 次のアクション
 
 1. **実 WASM バイナリでの dual-run 観測** — wasm-pack build 後に実バイナリで parity 検証
-2. **Phase 6（Analytic Kernel）** — 9 候補の candidate 移行（未着手）
-3. **Phase 8（Promote Ceremony）** — promotion-ready 判定 → 人間承認
+2. **Phase 8（Promote Ceremony）** — promotion-ready 判定 → 人間承認
+3. **AAG 改善** — bridge ボイラープレート削減、allowlist factory 化
 
 ## 6. 文書追加時の連鎖更新（最もハマりやすい）
 

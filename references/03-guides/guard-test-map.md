@@ -321,6 +321,12 @@ Set / Record を構築して使用する。許可リストの変更は `allowlis
 | 時間帯: 折り返し=累積50% | `wasm/time-slot/tests/invariants.rs` | INV-TS-05 |
 | 時間帯: 空入力→null | `wasm/time-slot/tests/invariants.rs` | INV-TS-06 |
 | 時間帯: 有限保証 | `wasm/time-slot/tests/invariants.rs` | INV-TS-07 |
+| 曜日GAP: 同一構成→ゼロ | `wasm/dow-gap/tests/invariants.rs` | INV-DG-01 |
+| 曜日GAP: 影響額定義 | `wasm/dow-gap/tests/invariants.rs` | INV-DG-02 |
+| 曜日GAP: 平均長=7 | `wasm/dow-gap/tests/invariants.rs` | INV-DG-03 |
+| 曜日GAP: NaNフォールバック | `wasm/dow-gap/tests/invariants.rs` | INV-DG-04 |
+| 曜日GAP: 有限保証 | `wasm/dow-gap/tests/invariants.rs` | INV-DG-05 |
+| 曜日GAP: 手法別影響額合計 | `wasm/dow-gap/tests/invariants.rs` | INV-DG-06 |
 
 ## 設計原則カテゴリ → ガードテスト対応
 

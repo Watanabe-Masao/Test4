@@ -7,8 +7,8 @@
 | ディレクトリ | 内容 | ファイル数 |
 |---|---|---|
 | `01-principles/` | 設計原則・制約・正本定義書（Engine 境界、正本化原則、業務値定義、AAG） | 38 |
-| `02-status/` | 進捗・品質状態（maturity, promotion, 品質監査, 課題管理） | 18 |
-| `03-guides/` | 実装ガイド・リファレンス（API, データモデル, ガードテスト, 不変条件, 責務分離） | 45 |
+| `02-status/` | 進捗・品質状態（maturity, promotion, 品質監査, 課題管理） | 23 |
+| `03-guides/` | 実装ガイド・リファレンス（API, データモデル, ガードテスト, 不変条件, 責務分離） | 51 |
 | `99-archive/` | 旧文書の圧縮要約（現行では参照しない） | 4 |
 
 ## 正本一覧
@@ -58,6 +58,11 @@
 | 観測期間昇格準備度 | `02-status/promotion-readiness-observationPeriod.md` |
 | 棚卸区間昇格準備度 | `02-status/promotion-readiness-pinIntervals.md` |
 | 推定在庫昇格準備度 | `02-status/promotion-readiness-inventoryCalc.md` |
+| 感度分析昇格準備度 | `02-status/promotion-readiness-sensitivity.md` |
+| 相関分析昇格準備度 | `02-status/promotion-readiness-correlation.md` |
+| 移動平均昇格準備度 | `02-status/promotion-readiness-movingAverage.md` |
+| トレンド分析昇格準備度 | `02-status/promotion-readiness-trendAnalysis.md` |
+| 曜日GAP昇格準備度 | `02-status/promotion-readiness-dowGapAnalysis.md` |
 | Discovery Review チェックリスト | `03-guides/discovery-review-checklist.md` |
 | ガードテスト対応表 | `03-guides/guard-test-map.md` |
 | 許可リスト運用 | `03-guides/allowlist-management.md` |
@@ -76,6 +81,7 @@
 | 拡張プレイブック | `03-guides/extension-playbook.md` |
 | 仕入原価統合計画 | `03-guides/purchase-cost-unification-plan.md` |
 | Temporal 分析ポリシー | `03-guides/temporal-analysis-policy.md` |
+| WASM 候補適性判定基準 | `03-guides/wasm-candidate-eligibility.md` |
 
 ## AI 向け索引 — カテゴリ別ファイルマップ
 
@@ -233,6 +239,17 @@
 | `02-status/promotion-readiness-observationPeriod.md` | 観測期間の昇格準備度判定表 |
 | `02-status/promotion-readiness-pinIntervals.md` | 棚卸区間の昇格準備度判定表 |
 | `02-status/promotion-readiness-inventoryCalc.md` | 推定在庫の昇格準備度判定表 |
+| `02-status/promotion-readiness-sensitivity.md` | 感度分析の昇格準備度判定表 |
+| `02-status/promotion-readiness-correlation.md` | 相関分析の昇格準備度判定表 |
+| `02-status/promotion-readiness-movingAverage.md` | 移動平均の昇格準備度判定表 |
+| `02-status/promotion-readiness-trendAnalysis.md` | トレンド分析の昇格準備度判定表 |
+| `02-status/promotion-readiness-dowGapAnalysis.md` | 曜日GAPの昇格準備度判定表 |
+
+### WASM 移行
+
+| ファイル | 内容 |
+|---------|------|
+| `03-guides/wasm-candidate-eligibility.md` | WASM 候補適性の事前判定基準 |
 
 ### 移行・廃止
 

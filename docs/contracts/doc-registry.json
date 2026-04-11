@@ -117,7 +117,8 @@
         { "path": "references/03-guides/security.md", "label": "セキュリティ" },
         { "path": "references/03-guides/ui-components.md", "label": "UI コンポーネント" },
         { "path": "references/03-guides/wasm-dual-run-runbook.md", "label": "WASM 二重実行ランブック" },
-        { "path": "references/03-guides/widget-readmodel-migration.md", "label": "Widget ReadModel 移行" }
+        { "path": "references/03-guides/widget-readmodel-migration.md", "label": "Widget ReadModel 移行" },
+        { "path": "references/03-guides/wasm-candidate-eligibility.md", "label": "WASM候補適性判定基準" }
       ]
     },
     {
@@ -136,7 +137,12 @@
         { "path": "references/02-status/promotion-readiness-remainingBudgetRate.md", "label": "残予算率昇格準備度" },
         { "path": "references/02-status/promotion-readiness-observationPeriod.md", "label": "観測期間昇格準備度" },
         { "path": "references/02-status/promotion-readiness-pinIntervals.md", "label": "棚卸区間昇格準備度" },
-        { "path": "references/02-status/promotion-readiness-inventoryCalc.md", "label": "推定在庫昇格準備度" }
+        { "path": "references/02-status/promotion-readiness-inventoryCalc.md", "label": "推定在庫昇格準備度" },
+        { "path": "references/02-status/promotion-readiness-sensitivity.md", "label": "感度分析昇格準備度" },
+        { "path": "references/02-status/promotion-readiness-correlation.md", "label": "相関分析昇格準備度" },
+        { "path": "references/02-status/promotion-readiness-movingAverage.md", "label": "移動平均昇格準備度" },
+        { "path": "references/02-status/promotion-readiness-trendAnalysis.md", "label": "トレンド分析昇格準備度" },
+        { "path": "references/02-status/promotion-readiness-dowGapAnalysis.md", "label": "曜日GAP昇格準備度" }
       ]
     },
     {

@@ -368,6 +368,22 @@ export const CALCULATION_CANON_REGISTRY: Readonly<Record<string, CanonEntry>> = 
 
   // ══ Candidate / Analytic（candidate-authoritative, Phase 6） ══
 
+  'candidate/dowGapAnalysis.ts': {
+    tag: 'required',
+    reason: '曜日ギャップ分析（candidate: WASM 移行候補 CAND-ANA-007）',
+    zodAdded: false,
+    semanticClass: 'analytic',
+    authorityKind: 'candidate-authoritative',
+    methodFamily: 'calendar_effect',
+    runtimeStatus: 'candidate',
+    ownerKind: 'migration',
+    contractId: 'ANA-007',
+    bridgeKind: 'analytics',
+    rateOwnership: 'n/a',
+    fallbackPolicy: 'current',
+    notes:
+      'WASM candidate: wasm/dow-gap/。FFI: countDowsInMonth は TS adapter、統計計算は Rust kernel。文字列生成（DOW_LABELS, warnings）は TS 側',
+  },
   'candidate/algorithms/trendAnalysis.ts': {
     tag: 'required',
     reason: 'トレンド分析（candidate: WASM 移行候補 CAND-ANA-004）',
@@ -540,14 +556,16 @@ export const CALCULATION_CANON_REGISTRY: Readonly<Record<string, CanonEntry>> = 
     reason: '実日数マッピング（出力型: ActualDayImpact）',
     zodAdded: false,
     semanticClass: 'analytic',
-    authorityKind: 'analytic-authoritative',
+    authorityKind: 'non-authoritative',
     methodFamily: 'calendar_effect',
-    runtimeStatus: 'current',
+    runtimeStatus: 'non-target',
     ownerKind: 'maintenance',
     contractId: 'ANA-008',
     bridgeKind: 'analytics',
     rateOwnership: 'n/a',
     fallbackPolicy: 'none',
+    notes:
+      'WASM 候補から除外。JS-native: Map 集合差・Date DOW 計算・ラベル生成が中心で、数値 kernel が薄い。FFI マーシャリングコストが便益を上回る。将来の micro-kernel 切り出しで再評価可能',
   },
   'temporal/computeMovingAverage.ts': {
     tag: 'review',

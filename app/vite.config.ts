@@ -40,6 +40,32 @@ function swVersionPlugin(): Plugin {
   }
 }
 
+/**
+ * WASM パッケージの external 設定（1 箇所で定義）
+ *
+ * 新しい WASM crate を追加する場合はここに 1 行追加するだけ。
+ * optimizeDeps.exclude / build.rollupOptions.external / worker.rollupOptions.external
+ * の 3 箇所で共有される。
+ */
+const WASM_EXTERNAL_PACKAGES = [
+  'factor-decomposition-wasm',
+  'gross-profit-wasm',
+  'budget-analysis-wasm',
+  'forecast-wasm',
+  'time-slot-wasm',
+  'pi-value-wasm',
+  'customer-gap-wasm',
+  'remaining-budget-rate-wasm',
+  'observation-period-wasm',
+  'pin-intervals-wasm',
+  'inventory-calc-wasm',
+  'sensitivity-wasm',
+  'correlation-wasm',
+  'moving-average-wasm',
+  'trend-analysis-wasm',
+  'dow-gap-wasm',
+] as const
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), wasm(), topLevelAwait(), swVersionPlugin()],
@@ -64,47 +90,14 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    exclude: [
-      '@duckdb/duckdb-wasm',
-      'factor-decomposition-wasm',
-      'gross-profit-wasm',
-      'budget-analysis-wasm',
-      'forecast-wasm',
-      'time-slot-wasm',
-      'pi-value-wasm',
-      'customer-gap-wasm',
-      'remaining-budget-rate-wasm',
-      'observation-period-wasm',
-      'pin-intervals-wasm',
-      'inventory-calc-wasm',
-      'sensitivity-wasm',
-      'correlation-wasm',
-      'moving-average-wasm',
-      'trend-analysis-wasm',
-    ],
+    exclude: ['@duckdb/duckdb-wasm', ...WASM_EXTERNAL_PACKAGES],
   },
   assetsInclude: ['**/*.wasm'],
   build: {
     outDir: 'dist',
     sourcemap: true,
     rollupOptions: {
-      external: [
-        'factor-decomposition-wasm',
-        'gross-profit-wasm',
-        'budget-analysis-wasm',
-        'forecast-wasm',
-        'time-slot-wasm',
-        'pi-value-wasm',
-        'customer-gap-wasm',
-        'remaining-budget-rate-wasm',
-        'observation-period-wasm',
-        'pin-intervals-wasm',
-        'inventory-calc-wasm',
-        'sensitivity-wasm',
-        'correlation-wasm',
-        'moving-average-wasm',
-        'trend-analysis-wasm',
-      ],
+      external: [...WASM_EXTERNAL_PACKAGES],
       output: {
         manualChunks: {
           'vendor-xlsx': ['xlsx'],
@@ -126,23 +119,7 @@ export default defineConfig({
   worker: {
     format: 'es' as const,
     rollupOptions: {
-      external: [
-        'factor-decomposition-wasm',
-        'gross-profit-wasm',
-        'budget-analysis-wasm',
-        'forecast-wasm',
-        'time-slot-wasm',
-        'pi-value-wasm',
-        'customer-gap-wasm',
-        'remaining-budget-rate-wasm',
-        'observation-period-wasm',
-        'pin-intervals-wasm',
-        'inventory-calc-wasm',
-        'sensitivity-wasm',
-        'correlation-wasm',
-        'moving-average-wasm',
-        'trend-analysis-wasm',
-      ],
+      external: [...WASM_EXTERNAL_PACKAGES],
     },
   },
 })

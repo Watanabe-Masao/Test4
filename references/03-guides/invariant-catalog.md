@@ -3,6 +3,32 @@
 本ファイルは shiire-arari の全数学的・構造的不変条件を一覧化する。
 各不変条件は対応するガードテストによって CI で機械的に検証される。
 
+## 命名規則
+
+不変条件 ID は `INV-{PREFIX}-{SEQ}` の形式で命名する。
+
+| PREFIX | 対象 | contractId |
+|--------|------|-----------|
+| SH | シャープリー分解 | BIZ-004 |
+| PI | PI値 | BIZ-012 |
+| CG | 客数GAP | BIZ-013 |
+| RBR | 残予算率 | BIZ-008 |
+| OP | 観測期間 | BIZ-010 |
+| PIN | 棚卸区間 | BIZ-011 |
+| IC | 推定在庫 | BIZ-009 |
+| SENS | 感度分析 | ANA-003 |
+| TREND | トレンド分析 | ANA-004 |
+| CORR | 相関分析 | ANA-005 |
+| DG | 曜日GAP | ANA-007 |
+| MA | 移動平均 | ANA-009 |
+| TS | 時間帯分析 | ANA-001 |
+| ARCH | アーキテクチャ構造 | — |
+| CANON | 正本化体系 | — |
+| ALLOW | 許可リスト | — |
+
+**新規追加時**: contractId がある場合は対応する PREFIX を使用。
+Rust テスト関数名は `{prefix_lower}_inv_{seq}_*` とする（例: `pi_inv_1_*`）。
+
 ## 数学的不変条件
 
 ### INV-SH-01: シャープリー効率性（2要素）
@@ -1323,3 +1349,64 @@ turnaroundHour ∈ [minHour, maxHour]
 - **テスト**: `wasm/time-slot/tests/invariants.rs` — `ts_inv_7_*`
 - **ロール**: invariant-guardian
 - **契約**: ANA-001
+
+### INV-DG-01: 同一曜日構成 → 影響額ゼロ
+
+```
+currentCounts = previousCounts ⇒ estimatedImpact = 0
+```
+
+- **テスト**: `wasm/dow-gap/tests/invariants.rs` — `dg_inv_1_*`
+- **ロール**: invariant-guardian
+- **契約**: ANA-007
+- **違反時の影響**: 曜日構成が同じなのに影響額が非ゼロになり、誤った比較分析が表示される
+
+### INV-DG-02: 影響額定義
+
+```
+estimatedImpact = Σ(diff[dow] × prevDowDailyAvg[dow])
+```
+
+- **テスト**: `wasm/dow-gap/tests/invariants.rs` — `dg_inv_2_*`
+- **ロール**: invariant-guardian
+- **契約**: ANA-007
+
+### INV-DG-03: 平均配列長 = 7
+
+```
+len(prevDowDailyAvg) = 7 ∧ len(prevDowDailyAvgCustomers) = 7
+```
+
+- **テスト**: `wasm/dow-gap/tests/invariants.rs` — `dg_inv_3_*`
+- **ロール**: invariant-guardian
+- **契約**: ANA-007
+
+### INV-DG-04: NaN フォールバック
+
+```
+prevDowSales[dow] = NaN ⇒ prevDowDailyAvg[dow] = dailyAverageSales
+```
+
+- **テスト**: `wasm/dow-gap/tests/invariants.rs` — `dg_inv_4_*`
+- **ロール**: invariant-guardian
+- **契約**: ANA-007
+
+### INV-DG-05: 有限保証
+
+```
+∀ 有限入力 ⇒ estimatedImpact, prevDowDailyAvg は有限
+```
+
+- **テスト**: `wasm/dow-gap/tests/invariants.rs` — `dg_inv_5_*`
+- **ロール**: invariant-guardian
+- **契約**: ANA-007
+
+### INV-DG-06: 手法別影響額合計
+
+```
+各手法の salesImpact = Σ(diff[dow] × dowAvgSales[dow])
+```
+
+- **テスト**: `wasm/dow-gap/tests/invariants.rs` — `dg_inv_6_*`
+- **ロール**: invariant-guardian
+- **契約**: ANA-007
