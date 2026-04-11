@@ -126,28 +126,33 @@
 
 ## Layer 4: Operations
 
-### 起点文書
+### 4A. System Operations（AAG Core）
 
-| ファイル | 役割 | 正本性 |
-|---------|------|--------|
-| `HANDOFF.md` | 起点文書 | 運用物 |
-| `plan.md` | 全体計画と原則 | 運用物 |
-| `plan-checklist.md` | 進行管理 | progress truth |
+プロジェクトが変わっても残る共通手順。
 
-### 移行計画
-
-| ファイル | 対象 |
+| ファイル | 役割 |
 |---------|------|
-| `tier1-business-migration-plan.md` | BIZ 候補 6件 |
-| `analytic-kernel-migration-plan.md` | ANA 候補 9件 |
-| `guard-consolidation-and-js-retirement.md` | Guard 統合 + JS 縮退 |
-| `promote-ceremony-template.md` | 昇格手順 |
-| `data-load-idempotency-plan.md` | データロード冪等化 |
-| `active-debt-refactoring-plan.md` | active-debt リファクタ |
+| `promote-ceremony-template.md` | 昇格共通手順 + EvidencePack 接続 |
+| `guard-consolidation-and-js-retirement.md` | JS 退役共通手順 |
+| `architecture-rule-system.md` | ルール運用ガイド |
+| `allowlist-management.md` | 例外管理手順 |
+| `rollback-policy.md` | Rollback 共通手順 |
 
-### 昇格判定表
+### 4B. Project Operations（Overlay — 案件ごと差し替え）
 
-`references/02-status/promotion-readiness-*.md` — 各候補の判定表
+| ファイル | 役割 | 配置先 |
+|---------|------|--------|
+| `HANDOFF.md` | 起点文書 | `projects/pure-calculation-reorg/` |
+| `plan.md` | 案件計画 | `projects/pure-calculation-reorg/` |
+| `checklist.md` | 進行管理 truth | `projects/pure-calculation-reorg/` |
+| `tier1-business-migration-plan.md` | BIZ 移行計画 | `references/03-guides/`（案件固有だが参照多数のため） |
+| `analytic-kernel-migration-plan.md` | ANA 移行計画 | 同上 |
+| `data-load-idempotency-plan.md` | データロード冪等化 | 同上 |
+| `promotion-readiness-*.md` | 昇格判定表 | `references/02-status/` |
+
+### ルートポインタ
+
+`ACTIVE_PROJECT.md` — 現在のアクティブ案件を指す
 
 ### 生成レポート（派生物）
 

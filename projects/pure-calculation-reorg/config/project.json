@@ -1,0 +1,20 @@
+{
+  "projectId": "pure-calculation-reorg",
+  "title": "Pure 計算責務再編",
+  "status": "active",
+  "entrypoints": {
+    "aiContext": "projects/pure-calculation-reorg/AI_CONTEXT.md",
+    "handoff": "projects/pure-calculation-reorg/HANDOFF.md",
+    "plan": "projects/pure-calculation-reorg/plan.md",
+    "checklist": "projects/pure-calculation-reorg/checklist.md"
+  },
+  "requiredCore": [
+    "references/01-principles/aag-5-constitution.md",
+    "references/01-principles/aag-5-source-of-truth-policy.md",
+    "references/01-principles/semantic-classification-policy.md",
+    "references/01-principles/engine-boundary-policy.md",
+    "app/src/test/calculationCanonRegistry.ts",
+    "app/src/test/architectureRules.ts",
+    "app/src/test/aagSchemas.ts"
+  ]
+}
