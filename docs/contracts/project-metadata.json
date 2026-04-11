@@ -11,7 +11,17 @@
     "forecast",
     "time-slot",
     "statistics",
-    "core-utils"
+    "core-utils",
+    "pi-value",
+    "customer-gap",
+    "remaining-budget-rate",
+    "observation-period",
+    "pin-intervals",
+    "inventory-calc",
+    "sensitivity",
+    "correlation",
+    "moving-average",
+    "trend-analysis"
   ],
   "ciJobs": [
     "wasm-build",

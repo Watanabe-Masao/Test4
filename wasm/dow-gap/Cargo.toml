@@ -1,0 +1,25 @@
+[package]
+name = "dow-gap-wasm"
+version = "0.1.0"
+edition = "2021"
+description = "Day-of-week gap analysis with mean/median/adjustedMean methods (WASM target)"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
+js-sys = "0.3"
+
+[package.metadata.semantic]
+class = "analytic"
+authority = "candidate-authoritative"
+owner = "migration"
+contractId = "ANA-007"
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false
+
+[profile.release]
+opt-level = "s"
+lto = true

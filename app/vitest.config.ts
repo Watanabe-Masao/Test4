@@ -14,6 +14,19 @@ const wasmAliases: Record<string, string> = {
   'budget-analysis-wasm': resolve(__dirname, 'src/test/__mocks__/budgetAnalysisWasmMock.ts'),
   'forecast-wasm': resolve(__dirname, 'src/test/__mocks__/forecastWasmMock.ts'),
   'time-slot-wasm': resolve(__dirname, 'src/test/__mocks__/timeSlotWasmMock.ts'),
+  'pi-value-wasm': resolve(__dirname, 'src/test/__mocks__/piValueWasmMock.ts'),
+  'customer-gap-wasm': resolve(__dirname, 'src/test/__mocks__/customerGapWasmMock.ts'),
+  'remaining-budget-rate-wasm': resolve(
+    __dirname,
+    'src/test/__mocks__/remainingBudgetRateWasmMock.ts',
+  ),
+  'observation-period-wasm': resolve(__dirname, 'src/test/__mocks__/observationPeriodWasmMock.ts'),
+  'pin-intervals-wasm': resolve(__dirname, 'src/test/__mocks__/pinIntervalsWasmMock.ts'),
+  'inventory-calc-wasm': resolve(__dirname, 'src/test/__mocks__/inventoryCalcWasmMock.ts'),
+  'sensitivity-wasm': resolve(__dirname, 'src/test/__mocks__/sensitivityWasmMock.ts'),
+  'correlation-wasm': resolve(__dirname, 'src/test/__mocks__/correlationWasmMock.ts'),
+  'moving-average-wasm': resolve(__dirname, 'src/test/__mocks__/movingAverageWasmMock.ts'),
+  'trend-analysis-wasm': resolve(__dirname, 'src/test/__mocks__/trendAnalysisWasmMock.ts'),
 }
 
 export default defineConfig({

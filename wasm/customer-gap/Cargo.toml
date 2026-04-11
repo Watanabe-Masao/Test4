@@ -1,0 +1,25 @@
+[package]
+name = "customer-gap-wasm"
+version = "0.1.0"
+edition = "2021"
+description = "Customer gap calculations (YoY customer/quantity/sales gap) for retail analysis (WASM target)"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
+js-sys = "0.3"
+
+[package.metadata.semantic]
+class = "business"
+authority = "candidate-authoritative"
+owner = "migration"
+contractId = "BIZ-013"
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false
+
+[profile.release]
+opt-level = "s"
+lto = true

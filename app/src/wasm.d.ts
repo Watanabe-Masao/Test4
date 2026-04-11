@@ -146,3 +146,154 @@ declare module 'time-slot-wasm' {
   export function find_core_time(hours: Float64Array, amounts: Float64Array): Float64Array
   export function find_turnaround_hour(hours: Float64Array, amounts: Float64Array): number
 }
+
+// ─── pi-value-wasm (candidate: BIZ-012) ─────────────────
+declare module 'pi-value-wasm' {
+  export default function init(): Promise<void>
+  export function calculate_quantity_pi(totalQuantity: number, customers: number): number
+  export function calculate_amount_pi(totalSales: number, customers: number): number
+  export function calculate_pi_values(
+    totalQuantity: number,
+    totalSales: number,
+    customers: number,
+  ): Float64Array
+}
+
+// ─── customer-gap-wasm (candidate: BIZ-013) ─────────────
+// ─── remaining-budget-rate-wasm (candidate: BIZ-008) ─────
+declare module 'remaining-budget-rate-wasm' {
+  export default function init(): Promise<void>
+  export function calculate_remaining_budget_rate(
+    budget: number,
+    totalSales: number,
+    budgetDailyArr: Float64Array,
+    elapsedDays: number,
+    daysInMonth: number,
+  ): number
+}
+
+// ─── observation-period-wasm (candidate: BIZ-010) ────────
+declare module 'observation-period-wasm' {
+  export default function init(): Promise<void>
+  export function evaluate_observation_period(
+    dailySales: Float64Array,
+    daysInMonth: number,
+    currentElapsedDays: number,
+    minDaysForValid: number,
+    minDaysForOk: number,
+    staleDaysThreshold: number,
+    minSalesDays: number,
+  ): Float64Array
+}
+
+// ─── moving-average-wasm (candidate: ANA-009) ───────────
+declare module 'moving-average-wasm' {
+  export default function init(): Promise<void>
+  export function compute_moving_average(
+    values: Float64Array,
+    statuses: Uint8Array,
+    windowSize: number,
+    policy: number,
+  ): Float64Array
+}
+
+// ─── correlation-wasm (candidate: ANA-005) ──────────────
+declare module 'correlation-wasm' {
+  export default function init(): Promise<void>
+  export function pearson_correlation(xs: Float64Array, ys: Float64Array): Float64Array
+  export function cosine_similarity(a: Float64Array, b: Float64Array): number
+  export function normalize_min_max(values: Float64Array): Float64Array
+  export function detect_divergence(
+    seriesA: Float64Array,
+    seriesB: Float64Array,
+    threshold: number,
+  ): Float64Array
+  export function moving_average(values: Float64Array, window: number): Float64Array
+  export function calculate_z_scores(values: Float64Array): Float64Array
+}
+
+// ─── sensitivity-wasm (candidate: ANA-003) ──────────────
+declare module 'sensitivity-wasm' {
+  export default function init(): Promise<void>
+  export function calculate_sensitivity(
+    totalSales: number,
+    totalCost: number,
+    totalDiscount: number,
+    grossSales: number,
+    totalCustomers: number,
+    totalCostInclusion: number,
+    averageMarkupRate: number,
+    budget: number,
+    elapsedDays: number,
+    salesDays: number,
+    discountRateDelta: number,
+    customersDelta: number,
+    transactionValueDelta: number,
+    costRateDelta: number,
+  ): Float64Array
+  export function calculate_elasticity(
+    totalSales: number,
+    totalCost: number,
+    totalDiscount: number,
+    grossSales: number,
+    totalCustomers: number,
+    totalCostInclusion: number,
+    averageMarkupRate: number,
+    budget: number,
+    elapsedDays: number,
+    salesDays: number,
+  ): Float64Array
+}
+
+// ─── inventory-calc-wasm (candidate: BIZ-009) ───────────
+declare module 'inventory-calc-wasm' {
+  export default function init(): Promise<void>
+  export function compute_estimated_inventory_details(
+    dailySales: Float64Array,
+    dailyFlowersPrice: Float64Array,
+    dailyDirectProducePrice: Float64Array,
+    dailyCostInclusionCost: Float64Array,
+    dailyTotalCost: Float64Array,
+    dailyDeliverySalesCost: Float64Array,
+    openingInventory: number,
+    closingInventory: number,
+    markupRate: number,
+    discountRate: number,
+    daysInMonth: number,
+  ): Float64Array
+}
+
+// ─── pin-intervals-wasm (candidate: BIZ-011) ────────────
+declare module 'pin-intervals-wasm' {
+  export default function init(): Promise<void>
+  export function calculate_pin_intervals(
+    dailySales: Float64Array,
+    dailyTotalCost: Float64Array,
+    openingInventory: number,
+    pinDays: Int32Array,
+    pinClosingInventory: Float64Array,
+    daysInMonth: number,
+  ): Float64Array
+}
+
+declare module 'customer-gap-wasm' {
+  export default function init(): Promise<void>
+  export function calculate_customer_gap(
+    curCustomers: number,
+    prevCustomers: number,
+    curQuantity: number,
+    prevQuantity: number,
+    curSales: number,
+    prevSales: number,
+  ): Float64Array
+}
+
+// ─── trend-analysis-wasm (candidate: ANA-004) ───────────
+declare module 'trend-analysis-wasm' {
+  export default function init(): Promise<void>
+  export function analyze_trend(
+    years: Int32Array,
+    months: Int32Array,
+    totalSales: Float64Array,
+  ): Float64Array
+}

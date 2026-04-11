@@ -22,6 +22,16 @@ runs:
           wasm/time-slot/target
           wasm/statistics/target
           wasm/core-utils/target
+          wasm/pi-value/target
+          wasm/customer-gap/target
+          wasm/remaining-budget-rate/target
+          wasm/observation-period/target
+          wasm/pin-intervals/target
+          wasm/inventory-calc/target
+          wasm/sensitivity/target
+          wasm/correlation/target
+          wasm/moving-average/target
+          wasm/trend-analysis/target
         key: ${{ runner.os }}-cargo-${{ hashFiles('wasm/*/Cargo.lock') }}
         restore-keys: ${{ runner.os }}-cargo-
 

@@ -2,17 +2,22 @@
 
 ## 1. 現在地
 
-Phase 0-7 の構造基盤が完了。ブランチ `claude/create-handoff-docs-tFlIF` にプッシュ済み。
-
-```
-77064e8  Phase 3 — 契約固定 + bridge 境界定義
-5825f22  Phase 4 — current 群の意味再分類・保守対象化
-009d079  Phase 5 — Tier 1 Business 候補移行の構造基盤
-4edf78e  Phase 6 — Analytic Kernel 候補移行の構造基盤
-e7f195e  Phase 7 — Guard 統合整理 + JS 正本縮退方針
-```
+Phase 0-7 の構造基盤が完了。PR #956（ブランチ `claude/create-handoff-docs-tFlIF`）でマージ済み。
 
 本体: **v1.8.0**。AAG（アーキテクチャ品質管理）: **v4.5.0**。Guard: **53 ファイル / 461 テスト**。Architecture Rules: **140 ルール**。Hard Gate: **PASS**。
+
+### 完了済みの構造基盤
+
+- 契約固定（BIZ-001〜013 / ANA-001〜009）
+- registry 契約値埋め 22 件
+- 5 bridge の JSDoc に semanticClass + contractId
+- wasmEngine に WASM_MODULE_METADATA
+- current 群保守ポリシー + 7 Cargo.toml semantic metadata
+- Tier 1 Business 移行計画（候補 6 件）+ Analytic Kernel 移行計画（候補 9 件）
+- Guard 統合整理 + JS 正本縮退 4 段階ポリシー
+- Promote Ceremony テンプレート
+- 移行タグ基盤（migrationTagRegistry + migrationTagGuard + migration-tag-policy）
+- Phase 3-7 guard 31 件追加
 
 ## 2. 完了した Phase の概要
 
@@ -81,13 +86,19 @@ Phase 8 は **candidate 実装が promotion-ready であること**が前提。
 1. ✅ candidate 一覧が確定している（Phase 5-6 で完了）
 2. ✅ 契約が固定されている（Phase 3 で完了）
 3. ✅ guard が導入されている（Phase 3-7 で完了）
-4. ❌ candidate の Rust/WASM 実装が追加されている（未実施）
-5. ❌ bridge にモード切替が実装されている（未実施）
-6. ❌ dual-run compare が実施されている（未実施）
-7. ❌ rollback が確認されている（未実施）
+4. ✅ candidate の Rust/WASM 実装が追加されている（Phase 5 実装で完了 — 6 crate）
+5. ✅ bridge にモード切替が実装されている（Phase 5 実装で完了 — 6 bridge）
+6. ✅ dual-run compare が実施されている（Phase 5 実装で完了 — mock ベース parity 検証）
+7. ✅ rollback が確認されている（Phase 5 実装で完了 — rollbackToCurrentOnly テスト）
 
-**4-7 は Phase 5-6 の「実装」ステップ**で、構造基盤（文書 + guard + registry）は整っている。
-実装時は `tier1-business-migration-plan.md` の §6（8ステップ）と `analytic-kernel-migration-plan.md` の §6（9ステップ）に従う。
+**Phase 5 Tier 1 Business 全 6 候補の candidate 移行構造が完了。**
+次は Phase 8（Promote Ceremony）だが、実 WASM バイナリでの dual-run 観測期間が必要。
+
+### 次のアクション
+
+1. **実 WASM バイナリでの dual-run 観測** — wasm-pack build 後に実バイナリで parity 検証
+2. **Phase 6（Analytic Kernel）** — 9 候補の candidate 移行（未着手）
+3. **Phase 8（Promote Ceremony）** — promotion-ready 判定 → 人間承認
 
 ## 6. 文書追加時の連鎖更新（最もハマりやすい）
 

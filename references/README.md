@@ -7,7 +7,7 @@
 | ディレクトリ | 内容 | ファイル数 |
 |---|---|---|
 | `01-principles/` | 設計原則・制約・正本定義書（Engine 境界、正本化原則、業務値定義、AAG） | 38 |
-| `02-status/` | 進捗・品質状態（maturity, promotion, 品質監査, 課題管理） | 11+ |
+| `02-status/` | 進捗・品質状態（maturity, promotion, 品質監査, 課題管理） | 18 |
 | `03-guides/` | 実装ガイド・リファレンス（API, データモデル, ガードテスト, 不変条件, 責務分離） | 45 |
 | `99-archive/` | 旧文書の圧縮要約（現行では参照しない） | 4 |
 
@@ -52,6 +52,12 @@
 | 技術的負債ロードマップ | `02-status/technical-debt-roadmap.md` |
 | 直近の主要変更 | `02-status/recent-changes.md` |
 | プロジェクト構成 | `02-status/project-structure.md` |
+| PI値昇格準備度 | `02-status/promotion-readiness-piValue.md` |
+| 客数GAP昇格準備度 | `02-status/promotion-readiness-customerGap.md` |
+| 残予算率昇格準備度 | `02-status/promotion-readiness-remainingBudgetRate.md` |
+| 観測期間昇格準備度 | `02-status/promotion-readiness-observationPeriod.md` |
+| 棚卸区間昇格準備度 | `02-status/promotion-readiness-pinIntervals.md` |
+| 推定在庫昇格準備度 | `02-status/promotion-readiness-inventoryCalc.md` |
 | Discovery Review チェックリスト | `03-guides/discovery-review-checklist.md` |
 | ガードテスト対応表 | `03-guides/guard-test-map.md` |
 | 許可リスト運用 | `03-guides/allowlist-management.md` |
@@ -216,6 +222,17 @@
 | `03-guides/ui-components.md` | UI コンポーネント |
 | `03-guides/faq.md` | FAQ |
 | `03-guides/app-lifecycle-implementation.md` | ライフサイクル実装 |
+
+### プロモーション・昇格
+
+| ファイル | 内容 |
+|---------|------|
+| `02-status/promotion-readiness-piValue.md` | PI値の昇格準備度判定表（Phase 5 Step 8） |
+| `02-status/promotion-readiness-customerGap.md` | 客数GAPの昇格準備度判定表 |
+| `02-status/promotion-readiness-remainingBudgetRate.md` | 残予算率の昇格準備度判定表 |
+| `02-status/promotion-readiness-observationPeriod.md` | 観測期間の昇格準備度判定表 |
+| `02-status/promotion-readiness-pinIntervals.md` | 棚卸区間の昇格準備度判定表 |
+| `02-status/promotion-readiness-inventoryCalc.md` | 推定在庫の昇格準備度判定表 |
 
 ### 移行・廃止
 

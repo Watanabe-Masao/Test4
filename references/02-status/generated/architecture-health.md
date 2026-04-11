@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-10T17:31:13.873Z
+> Generated: 2026-04-11T02:20:50.753Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -8,9 +8,9 @@
 
 | 指標 | 値 |
 |---|---|
-| Total KPIs | 32 |
-| OK | 31 |
-| WARN | 1 |
+| Total KPIs | 28 |
+| OK | 28 |
+| WARN | 0 |
 | FAIL | 0 |
 | Hard Gate | PASS |
 
@@ -21,8 +21,8 @@
 | allowlist.total | 許可リスト総エントリ数 | 13 / 20 | OK |
 | allowlist.frozen.nonZero | Frozen リスト非ゼロ | 0 / 0 | OK |
 | allowlist.active.count | Active リスト数 | 6 / 10 | OK |
-| temporal.allowlist.activeDebt.count | active-debt 例外数 | 0 / 1 | OK |
-| temporal.allowlist.activeDebt.withCreatedAt | active-debt で createdAt 設定済み | 0 / 1 | WARN |
+| temporal.allowlist.activeDebt.count | active-debt 例外数 | 10 / 11 | OK |
+| temporal.allowlist.activeDebt.withCreatedAt | active-debt で createdAt 設定済み | 10 / 1 | OK |
 | efficacy.allowlist.renewalTotal | renewalCount 合計 | 0 / 10 | OK |
 
 ## 後方互換負債
@@ -51,7 +51,7 @@
 
 | ID | 指標 | 値 | 状態 |
 |---|---|---|---|
-| guard.files.count | ガードテストファイル数 | 47 / 30 | OK |
+| guard.files.count | ガードテストファイル数 | 48 / 30 | OK |
 | guard.reviewOnlyTags.count | レビュー専用タグ数 | 0 / 5 | OK |
 | guard.rules.total | 総 Architecture Rule 数 | 140 | OK |
 | guard.rules.fixNow.now | fixNow=now ルール数（即修正） | 67 | OK |
@@ -62,7 +62,7 @@
 | temporal.rules.reviewOverdue.count | review overdue ルール数 | 0 / 0 | OK |
 | temporal.rules.heuristicGate.count | heuristic + gate ルール数 | 32 / 32 | OK |
 | efficacy.rules.withProtectedHarm.count | protectedHarm 設定済みルール数 | 77 | OK |
-| efficacy.rules.highNoise.count | 高例外圧ルール数（≥10 件） | 0 / 3 | OK |
+| efficacy.rules.highNoise.count | 高例外圧ルール数（≥10 件） | 1 / 3 | OK |
 
 ## ドキュメント整合
 
@@ -71,15 +71,6 @@
 | docs.obsoleteTerms.count | 廃止用語残存数 | 0 / 0 | OK |
 | docs.generatedSections.stale | Generated section 未更新 | 0 / 0 | OK |
 | docs.obligation.violations | Doc 更新義務違反数 | 0 / 0 | OK |
-
-## バンドル性能
-
-| ID | 指標 | 値 | 状態 |
-|---|---|---|---|
-| perf.bundle.totalJsKb | JS バンドル合計サイズ | 6505 / 7000 | OK |
-| perf.bundle.mainJsKb | メインバンドルサイズ | 2228 / 2500 | OK |
-| perf.bundle.vendorEchartsKb | ECharts バンドルサイズ | 919 / 1000 | OK |
-| perf.bundle.cssKb | CSS 合計サイズ | 0 | OK |
 
 ## Doc Links
 
@@ -113,9 +104,6 @@
 | docs.obsoleteTerms.count | source | docs/contracts/principles.json #obsoleteTerms |
 | docs.obsoleteTerms.count | guard | app/src/test/documentConsistency.test.ts |
 | docs.generatedSections.stale | guard | app/src/test/documentConsistency.test.ts |
-| perf.bundle.totalJsKb | source | app/dist/assets/ #*.js |
-| perf.bundle.mainJsKb | source | app/dist/assets/ #index-*.js |
-| perf.bundle.vendorEchartsKb | source | app/dist/assets/ #vendor-echarts-*.js |
 | docs.obligation.violations | definition | tools/architecture-health/src/collectors/obligation-collector.ts |
 | temporal.rules.reviewPolicy.count | definition | references/03-guides/architecture-rule-system.md |
 | temporal.rules.sunsetCondition.count | definition | references/01-principles/architecture-rule-feasibility.md |

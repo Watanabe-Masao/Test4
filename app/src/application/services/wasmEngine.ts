@@ -40,6 +40,25 @@ export type WasmModuleName = (typeof WASM_MODULE_NAMES)[number]
 export type ExecutionMode = 'ts-only' | 'wasm-only'
 
 /**
+ * Candidate WASM モジュール名。
+ * current 群（WASM_MODULE_NAMES）とは分離管理する。
+ * Phase 5 で導入。candidate → current 昇格は Phase 8 の Promote Ceremony を経る。
+ */
+export const WASM_CANDIDATE_MODULE_NAMES = [
+  'piValue',
+  'customerGap',
+  'remainingBudgetRate',
+  'observationPeriod',
+  'pinIntervals',
+  'inventoryCalc',
+  'sensitivity',
+  'correlation',
+  'movingAverage',
+  'trendAnalysis',
+] as const
+export type WasmCandidateModuleName = (typeof WASM_CANDIDATE_MODULE_NAMES)[number]
+
+/**
  * WASM モジュールの意味分類メタデータ。
  * Phase 3 で導入。bridge 境界の意味責任を明示する。
  *
@@ -59,6 +78,80 @@ export const WASM_MODULE_METADATA: Readonly<Record<WasmModuleName, WasmModuleMet
   timeSlot: { semanticClass: 'analytic', bridgeKind: 'analytics' },
 }
 
+/**
+ * Candidate WASM モジュールのメタデータ。
+ * authorityKind は candidate-authoritative（current とは異なる）。
+ */
+export interface WasmCandidateModuleMetadata extends WasmModuleMetadata {
+  readonly authorityKind: 'candidate-authoritative'
+  readonly contractId: string
+}
+
+export const WASM_CANDIDATE_MODULE_METADATA: Readonly<
+  Record<WasmCandidateModuleName, WasmCandidateModuleMetadata>
+> = {
+  piValue: {
+    semanticClass: 'business',
+    bridgeKind: 'business',
+    authorityKind: 'candidate-authoritative',
+    contractId: 'BIZ-012',
+  },
+  customerGap: {
+    semanticClass: 'business',
+    bridgeKind: 'business',
+    authorityKind: 'candidate-authoritative',
+    contractId: 'BIZ-013',
+  },
+  remainingBudgetRate: {
+    semanticClass: 'business',
+    bridgeKind: 'business',
+    authorityKind: 'candidate-authoritative',
+    contractId: 'BIZ-008',
+  },
+  observationPeriod: {
+    semanticClass: 'business',
+    bridgeKind: 'business',
+    authorityKind: 'candidate-authoritative',
+    contractId: 'BIZ-010',
+  },
+  pinIntervals: {
+    semanticClass: 'business',
+    bridgeKind: 'business',
+    authorityKind: 'candidate-authoritative',
+    contractId: 'BIZ-011',
+  },
+  inventoryCalc: {
+    semanticClass: 'business',
+    bridgeKind: 'business',
+    authorityKind: 'candidate-authoritative',
+    contractId: 'BIZ-009',
+  },
+  sensitivity: {
+    semanticClass: 'analytic',
+    bridgeKind: 'analytics',
+    authorityKind: 'candidate-authoritative',
+    contractId: 'ANA-003',
+  },
+  correlation: {
+    semanticClass: 'analytic',
+    bridgeKind: 'analytics',
+    authorityKind: 'candidate-authoritative',
+    contractId: 'ANA-005',
+  },
+  movingAverage: {
+    semanticClass: 'analytic',
+    bridgeKind: 'analytics',
+    authorityKind: 'candidate-authoritative',
+    contractId: 'ANA-009',
+  },
+  trendAnalysis: {
+    semanticClass: 'analytic',
+    bridgeKind: 'analytics',
+    authorityKind: 'candidate-authoritative',
+    contractId: 'ANA-004',
+  },
+}
+
 /* ── 内部状態 ─────────────────────────────────── */
 
 // idle 以外は再初期化しない（一度 loading/ready/error に到達したら state は変わらない）
@@ -71,12 +164,38 @@ const moduleStates: Record<WasmModuleName, WasmState> = {
 }
 let currentMode: ExecutionMode = 'ts-only'
 
-// WASM モジュールの export を保持
+// WASM モジュールの export を保持（current 群）
 let wasmExports: typeof import('factor-decomposition-wasm') | null = null
 let grossProfitWasmExports: typeof import('gross-profit-wasm') | null = null
 let budgetAnalysisWasmExports: typeof import('budget-analysis-wasm') | null = null
 let forecastWasmExports: typeof import('forecast-wasm') | null = null
 let timeSlotWasmExports: typeof import('time-slot-wasm') | null = null
+
+// WASM モジュールの export を保持（candidate 群 — current とは分離管理）
+let piValueWasmExports: typeof import('pi-value-wasm') | null = null
+let customerGapWasmExports: typeof import('customer-gap-wasm') | null = null
+let remainingBudgetRateWasmExports: typeof import('remaining-budget-rate-wasm') | null = null
+let observationPeriodWasmExports: typeof import('observation-period-wasm') | null = null
+let pinIntervalsWasmExports: typeof import('pin-intervals-wasm') | null = null
+let inventoryCalcWasmExports: typeof import('inventory-calc-wasm') | null = null
+let sensitivityWasmExports: typeof import('sensitivity-wasm') | null = null
+let correlationWasmExports: typeof import('correlation-wasm') | null = null
+let movingAverageWasmExports: typeof import('moving-average-wasm') | null = null
+let trendAnalysisWasmExports: typeof import('trend-analysis-wasm') | null = null
+
+// candidate 群の状態管理（current とは分離）
+const candidateModuleStates: Record<WasmCandidateModuleName, WasmState> = {
+  piValue: 'idle',
+  customerGap: 'idle',
+  remainingBudgetRate: 'idle',
+  observationPeriod: 'idle',
+  pinIntervals: 'idle',
+  inventoryCalc: 'idle',
+  sensitivity: 'idle',
+  correlation: 'idle',
+  movingAverage: 'idle',
+  trendAnalysis: 'idle',
+}
 
 /* ── 初期化 ───────────────────────────────────── */
 
@@ -190,6 +309,259 @@ export async function initTimeSlotWasm(): Promise<void> {
   }
 }
 
+/* ── Candidate 初期化 ────────────────────────────── */
+
+/**
+ * piValue candidate WASM モジュールを非同期で初期化する。
+ * current 群とは独立して初期化される。
+ */
+export async function initPiValueCandidateWasm(): Promise<void> {
+  if (candidateModuleStates.piValue !== 'idle') return
+
+  candidateModuleStates.piValue = 'loading'
+  try {
+    const wasm = await import('pi-value-wasm')
+    await wasm.default()
+    piValueWasmExports = wasm
+    candidateModuleStates.piValue = 'ready'
+    if (import.meta.env.DEV) {
+      console.info('[wasmEngine] piValue candidate ready — WASM candidate-authoritative ready')
+    }
+  } catch (e) {
+    candidateModuleStates.piValue = 'error'
+    console.warn(
+      '[wasmEngine] piValue candidate WASM initialization failed, falling back to TS:',
+      e,
+    )
+  }
+}
+
+/**
+ * customerGap candidate WASM モジュールを非同期で初期化する。
+ */
+export async function initCustomerGapCandidateWasm(): Promise<void> {
+  if (candidateModuleStates.customerGap !== 'idle') return
+
+  candidateModuleStates.customerGap = 'loading'
+  try {
+    const wasm = await import('customer-gap-wasm')
+    await wasm.default()
+    customerGapWasmExports = wasm
+    candidateModuleStates.customerGap = 'ready'
+    if (import.meta.env.DEV) {
+      console.info('[wasmEngine] customerGap candidate ready — WASM candidate-authoritative ready')
+    }
+  } catch (e) {
+    candidateModuleStates.customerGap = 'error'
+    console.warn(
+      '[wasmEngine] customerGap candidate WASM initialization failed, falling back to TS:',
+      e,
+    )
+  }
+}
+
+/**
+ * remainingBudgetRate candidate WASM モジュールを非同期で初期化する。
+ */
+export async function initRemainingBudgetRateCandidateWasm(): Promise<void> {
+  if (candidateModuleStates.remainingBudgetRate !== 'idle') return
+
+  candidateModuleStates.remainingBudgetRate = 'loading'
+  try {
+    const wasm = await import('remaining-budget-rate-wasm')
+    await wasm.default()
+    remainingBudgetRateWasmExports = wasm
+    candidateModuleStates.remainingBudgetRate = 'ready'
+    if (import.meta.env.DEV) {
+      console.info(
+        '[wasmEngine] remainingBudgetRate candidate ready — WASM candidate-authoritative ready',
+      )
+    }
+  } catch (e) {
+    candidateModuleStates.remainingBudgetRate = 'error'
+    console.warn(
+      '[wasmEngine] remainingBudgetRate candidate WASM initialization failed, falling back to TS:',
+      e,
+    )
+  }
+}
+
+/**
+ * observationPeriod candidate WASM モジュールを非同期で初期化する。
+ */
+export async function initObservationPeriodCandidateWasm(): Promise<void> {
+  if (candidateModuleStates.observationPeriod !== 'idle') return
+
+  candidateModuleStates.observationPeriod = 'loading'
+  try {
+    const wasm = await import('observation-period-wasm')
+    await wasm.default()
+    observationPeriodWasmExports = wasm
+    candidateModuleStates.observationPeriod = 'ready'
+    if (import.meta.env.DEV) {
+      console.info(
+        '[wasmEngine] observationPeriod candidate ready — WASM candidate-authoritative ready',
+      )
+    }
+  } catch (e) {
+    candidateModuleStates.observationPeriod = 'error'
+    console.warn(
+      '[wasmEngine] observationPeriod candidate WASM initialization failed, falling back to TS:',
+      e,
+    )
+  }
+}
+
+/**
+ * pinIntervals candidate WASM モジュールを非同期で初期化する。
+ */
+export async function initPinIntervalsCandidateWasm(): Promise<void> {
+  if (candidateModuleStates.pinIntervals !== 'idle') return
+
+  candidateModuleStates.pinIntervals = 'loading'
+  try {
+    const wasm = await import('pin-intervals-wasm')
+    await wasm.default()
+    pinIntervalsWasmExports = wasm
+    candidateModuleStates.pinIntervals = 'ready'
+    if (import.meta.env.DEV) {
+      console.info('[wasmEngine] pinIntervals candidate ready — WASM candidate-authoritative ready')
+    }
+  } catch (e) {
+    candidateModuleStates.pinIntervals = 'error'
+    console.warn(
+      '[wasmEngine] pinIntervals candidate WASM initialization failed, falling back to TS:',
+      e,
+    )
+  }
+}
+
+/**
+ * inventoryCalc candidate WASM モジュールを非同期で初期化する。
+ */
+export async function initInventoryCalcCandidateWasm(): Promise<void> {
+  if (candidateModuleStates.inventoryCalc !== 'idle') return
+
+  candidateModuleStates.inventoryCalc = 'loading'
+  try {
+    const wasm = await import('inventory-calc-wasm')
+    await wasm.default()
+    inventoryCalcWasmExports = wasm
+    candidateModuleStates.inventoryCalc = 'ready'
+    if (import.meta.env.DEV) {
+      console.info(
+        '[wasmEngine] inventoryCalc candidate ready — WASM candidate-authoritative ready',
+      )
+    }
+  } catch (e) {
+    candidateModuleStates.inventoryCalc = 'error'
+    console.warn(
+      '[wasmEngine] inventoryCalc candidate WASM initialization failed, falling back to TS:',
+      e,
+    )
+  }
+}
+
+/**
+ * sensitivity candidate WASM モジュールを非同期で初期化する。
+ */
+export async function initSensitivityCandidateWasm(): Promise<void> {
+  if (candidateModuleStates.sensitivity !== 'idle') return
+
+  candidateModuleStates.sensitivity = 'loading'
+  try {
+    const wasm = await import('sensitivity-wasm')
+    await wasm.default()
+    sensitivityWasmExports = wasm
+    candidateModuleStates.sensitivity = 'ready'
+    if (import.meta.env.DEV) {
+      console.info('[wasmEngine] sensitivity candidate ready — WASM candidate-authoritative ready')
+    }
+  } catch (e) {
+    candidateModuleStates.sensitivity = 'error'
+    console.warn(
+      '[wasmEngine] sensitivity candidate WASM initialization failed, falling back to TS:',
+      e,
+    )
+  }
+}
+
+/**
+ * correlation candidate WASM モジュールを非同期で初期化する。
+ */
+export async function initCorrelationCandidateWasm(): Promise<void> {
+  if (candidateModuleStates.correlation !== 'idle') return
+
+  candidateModuleStates.correlation = 'loading'
+  try {
+    const wasm = await import('correlation-wasm')
+    await wasm.default()
+    correlationWasmExports = wasm
+    candidateModuleStates.correlation = 'ready'
+    if (import.meta.env.DEV) {
+      console.info('[wasmEngine] correlation candidate ready — WASM candidate-authoritative ready')
+    }
+  } catch (e) {
+    candidateModuleStates.correlation = 'error'
+    console.warn(
+      '[wasmEngine] correlation candidate WASM initialization failed, falling back to TS:',
+      e,
+    )
+  }
+}
+
+/**
+ * movingAverage candidate WASM モジュールを非同期で初期化する。
+ */
+export async function initMovingAverageCandidateWasm(): Promise<void> {
+  if (candidateModuleStates.movingAverage !== 'idle') return
+
+  candidateModuleStates.movingAverage = 'loading'
+  try {
+    const wasm = await import('moving-average-wasm')
+    await wasm.default()
+    movingAverageWasmExports = wasm
+    candidateModuleStates.movingAverage = 'ready'
+    if (import.meta.env.DEV) {
+      console.info(
+        '[wasmEngine] movingAverage candidate ready — WASM candidate-authoritative ready',
+      )
+    }
+  } catch (e) {
+    candidateModuleStates.movingAverage = 'error'
+    console.warn(
+      '[wasmEngine] movingAverage candidate WASM initialization failed, falling back to TS:',
+      e,
+    )
+  }
+}
+
+/**
+ * trendAnalysis candidate WASM モジュールを非同期で初期化する。
+ */
+export async function initTrendAnalysisCandidateWasm(): Promise<void> {
+  if (candidateModuleStates.trendAnalysis !== 'idle') return
+
+  candidateModuleStates.trendAnalysis = 'loading'
+  try {
+    const wasm = await import('trend-analysis-wasm')
+    await wasm.default()
+    trendAnalysisWasmExports = wasm
+    candidateModuleStates.trendAnalysis = 'ready'
+    if (import.meta.env.DEV) {
+      console.info(
+        '[wasmEngine] trendAnalysis candidate ready — WASM candidate-authoritative ready',
+      )
+    }
+  } catch (e) {
+    candidateModuleStates.trendAnalysis = 'error'
+    console.warn(
+      '[wasmEngine] trendAnalysis candidate WASM initialization failed, falling back to TS:',
+      e,
+    )
+  }
+}
+
 /* ── 状態取得 ─────────────────────────────────── */
 
 /** 個別モジュールの状態を取得する */
@@ -220,6 +592,60 @@ export function getForecastWasmExports(): typeof import('forecast-wasm') | null 
 
 export function getTimeSlotWasmExports(): typeof import('time-slot-wasm') | null {
   return timeSlotWasmExports
+}
+
+/* ── Candidate export 取得 ───────────────────── */
+
+export function getPiValueWasmExports(): typeof import('pi-value-wasm') | null {
+  return piValueWasmExports
+}
+
+export function getCustomerGapWasmExports(): typeof import('customer-gap-wasm') | null {
+  return customerGapWasmExports
+}
+
+export function getRemainingBudgetRateWasmExports():
+  | typeof import('remaining-budget-rate-wasm')
+  | null {
+  return remainingBudgetRateWasmExports
+}
+
+export function getObservationPeriodWasmExports(): typeof import('observation-period-wasm') | null {
+  return observationPeriodWasmExports
+}
+
+export function getPinIntervalsWasmExports(): typeof import('pin-intervals-wasm') | null {
+  return pinIntervalsWasmExports
+}
+
+export function getInventoryCalcWasmExports(): typeof import('inventory-calc-wasm') | null {
+  return inventoryCalcWasmExports
+}
+
+export function getSensitivityWasmExports(): typeof import('sensitivity-wasm') | null {
+  return sensitivityWasmExports
+}
+
+export function getCorrelationWasmExports(): typeof import('correlation-wasm') | null {
+  return correlationWasmExports
+}
+
+export function getMovingAverageWasmExports(): typeof import('moving-average-wasm') | null {
+  return movingAverageWasmExports
+}
+
+export function getTrendAnalysisWasmExports(): typeof import('trend-analysis-wasm') | null {
+  return trendAnalysisWasmExports
+}
+
+/** candidate モジュールの状態を取得する */
+export function getCandidateModuleState(name: WasmCandidateModuleName): WasmState {
+  return candidateModuleStates[name]
+}
+
+/** 全 candidate モジュールの状態スナップショットを取得する */
+export function getAllCandidateWasmStates(): Readonly<Record<WasmCandidateModuleName, WasmState>> {
+  return { ...candidateModuleStates }
 }
 
 /* ── 一括初期化 ──────────────────────────────── */

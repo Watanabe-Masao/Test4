@@ -47,6 +47,8 @@ describe('domain/calculations/ 正本化分類ガード', () => {
     const stale: string[] = []
 
     for (const key of Object.keys(CALCULATION_CANON_REGISTRY)) {
+      // candidate/ prefix は WASM crate（wasm/ 配下）のため domain/calculations/ に物理ファイルがない
+      if (key.startsWith('candidate/')) continue
       if (!files.has(key)) {
         stale.push(key)
       }
@@ -98,6 +100,13 @@ describe('意味分類ガード（Phase 2）', () => {
   it('semanticClass: business ⇔ authorityKind: business-authoritative 整合', () => {
     const violations: string[] = []
     for (const [key, entry] of Object.entries(CALCULATION_CANON_REGISTRY)) {
+      // candidate エントリは candidate-authoritative が正当（Phase 5/6）
+      if (entry.runtimeStatus === 'candidate') {
+        if (entry.authorityKind !== 'candidate-authoritative') {
+          violations.push(`${key}: candidate なのに authorityKind=${entry.authorityKind}`)
+        }
+        continue
+      }
       if (entry.semanticClass === 'business' && entry.authorityKind !== 'business-authoritative') {
         violations.push(`${key}: business なのに authorityKind=${entry.authorityKind}`)
       }
@@ -172,8 +181,10 @@ describe('意味分類ガード（Phase 2）', () => {
 
     expect(business + analytic + utility).toBe(entries.length)
     // ratchet: 意味分類の内訳が変わったら意図的に更新する
-    expect(business).toBe(13)
-    expect(analytic).toBe(9)
+    // business: 13 current + 6 candidate (BIZ-008〜013) = 19
+    expect(business).toBe(19)
+    // analytic: 9 current + 4 candidate (ANA-003, ANA-004, ANA-005, ANA-009) = 13
+    expect(analytic).toBe(13)
     expect(utility).toBe(13)
   })
 })

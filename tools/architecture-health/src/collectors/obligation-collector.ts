@@ -75,6 +75,13 @@ export const OBLIGATION_MAP: readonly ObligationRule[] = [
     label: 'WASM 変更時は setup docs 確認が必要',
     check: { type: 'file_modified', file: 'docs/contracts/project-metadata.json' },
   },
+  // --- WASM invariant テスト変更 → invariant-catalog 更新必須 ---
+  {
+    pathPattern: 'wasm/',
+    obligationId: 'obligation.wasm.invariants',
+    label: 'WASM invariant テスト追加・変更時は invariant-catalog.md への登録が必要',
+    check: { type: 'file_modified', file: 'references/03-guides/invariant-catalog.md' },
+  },
   // --- principles 変更 → contracts 確認 ---
   {
     pathPattern: 'references/01-principles/',
