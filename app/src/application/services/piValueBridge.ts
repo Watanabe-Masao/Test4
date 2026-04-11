@@ -11,7 +11,7 @@
  * Promote Ceremony まで current authoritative (business-authoritative) は不変。
  *
  * candidate WASM 実装と current TS 実装を切り替える bridge。
- * 4 モードを持ち、candidate-compare による昇格前観測を可能にする。
+ * 4 モードを持ち、dual-run-compare による昇格前観測を可能にする。
  *
  * 対象: 3 business candidate 関数（calculateQuantityPI, calculateAmountPI, calculatePIValues）
  *
