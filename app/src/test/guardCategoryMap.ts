@@ -25,7 +25,16 @@ import type { AagGuardMetadata } from './aagSchemas'
 // ────────────────────────────────────────────────────────
 
 export type GuardCategoryEntry = Pick<AagGuardMetadata, 'category' | 'layer'> & {
-  /** 統合・廃止の候補注記（該当なしは null） */
+  /**
+   * 再編メタ情報（該当なしは null）
+   *
+   * 標準プレフィックス:
+   * - `core-rule:` カテゴリの中核ルール
+   * - `merge-candidate:` 他ルールとの統合候補
+   * - `duplicate-family:` 同系統ルール群
+   * - `sunset-candidate:` 廃止検討対象
+   * - `review-focus:` 観測期間後に要見直し
+   */
   readonly note: string | null
 }
 
@@ -39,7 +48,7 @@ export const GUARD_CATEGORY_MAP: Readonly<Record<string, GuardCategoryEntry>> = 
   'AR-TERM-AUTHORITATIVE-STANDALONE': {
     category: 'terminology',
     layer: 'constitution',
-    note: 'terminology の中核ルール。Constitution 層の用語定義を直接守る',
+    note: 'core-rule: terminology の中核。Constitution 層の用語定義を直接守る',
   },
   'AR-C7-NO-DUAL-API': {
     category: 'terminology',
@@ -167,7 +176,7 @@ export const GUARD_CATEGORY_MAP: Readonly<Record<string, GuardCategoryEntry>> = 
   'AR-001': {
     category: 'bridge-runtime-boundary',
     layer: 'execution',
-    note: 'merge 候補: AR-STRUCT-DUAL-RUN-EXIT と関連。両方ともインフラ層 dual-run 禁止',
+    note: 'merge-candidate: AR-STRUCT-DUAL-RUN-EXIT と関連。両方ともインフラ層 dual-run 禁止',
   },
   'AR-002': {
     category: 'bridge-runtime-boundary',
@@ -189,7 +198,7 @@ export const GUARD_CATEGORY_MAP: Readonly<Record<string, GuardCategoryEntry>> = 
   'AR-BRIDGE-DIRECT-IMPORT': {
     category: 'bridge-runtime-boundary',
     layer: 'execution',
-    note: '整理候補: AR-CURRENT-NO-DIRECT-IMPORT-GROWTH / AR-CAND-BIZ-NO-DIRECT-IMPORT / AR-CAND-ANA-NO-DIRECT-IMPORT と同系統',
+    note: 'duplicate-family: direct-import 系。AR-CURRENT-NO-DIRECT-IMPORT-GROWTH / AR-CAND-BIZ-NO-DIRECT-IMPORT / AR-CAND-ANA-NO-DIRECT-IMPORT と同系統',
   },
   'AR-BRIDGE-CANDIDATE-DEFAULT': {
     category: 'bridge-runtime-boundary',
@@ -199,7 +208,7 @@ export const GUARD_CATEGORY_MAP: Readonly<Record<string, GuardCategoryEntry>> = 
   'AR-STRUCT-DUAL-RUN-EXIT': {
     category: 'bridge-runtime-boundary',
     layer: 'execution',
-    note: 'merge 候補: AR-001 と関連。インフラ層 dual-run 退役の構造検証',
+    note: 'merge-candidate: AR-001 と関連。インフラ層 dual-run 退役の構造検証',
   },
   'AR-STRUCT-PURITY': { category: 'bridge-runtime-boundary', layer: 'execution', note: null },
   'AR-STRUCT-PRES-ISOLATION': {
@@ -278,7 +287,7 @@ export const GUARD_CATEGORY_MAP: Readonly<Record<string, GuardCategoryEntry>> = 
   'AR-CURRENT-NO-DIRECT-IMPORT-GROWTH': {
     category: 'current-candidate-lifecycle',
     layer: 'execution',
-    note: '整理候補: AR-BRIDGE-DIRECT-IMPORT / AR-CAND-BIZ-NO-DIRECT-IMPORT / AR-CAND-ANA-NO-DIRECT-IMPORT と同系統',
+    note: 'duplicate-family: direct-import 系。AR-BRIDGE-DIRECT-IMPORT / AR-CAND-BIZ-NO-DIRECT-IMPORT / AR-CAND-ANA-NO-DIRECT-IMPORT と同系統',
   },
   'AR-CURRENT-VIEW-SEPARATION': {
     category: 'current-candidate-lifecycle',
@@ -308,7 +317,7 @@ export const GUARD_CATEGORY_MAP: Readonly<Record<string, GuardCategoryEntry>> = 
   'AR-CAND-BIZ-NO-DIRECT-IMPORT': {
     category: 'current-candidate-lifecycle',
     layer: 'execution',
-    note: '整理候補: direct-import 系 4 ルールの統合検討',
+    note: 'duplicate-family: direct-import 系 4 ルールの統合検討',
   },
   'AR-CAND-BIZ-NO-PROMOTE-WITHOUT-DUALRUN': {
     category: 'current-candidate-lifecycle',
@@ -353,7 +362,7 @@ export const GUARD_CATEGORY_MAP: Readonly<Record<string, GuardCategoryEntry>> = 
   'AR-CAND-ANA-NO-DIRECT-IMPORT': {
     category: 'current-candidate-lifecycle',
     layer: 'execution',
-    note: '整理候補: direct-import 系 4 ルールの統合検討',
+    note: 'duplicate-family: direct-import 系 4 ルールの統合検討',
   },
   'AR-CAND-ANA-NO-FACTOR-DECOMP': {
     category: 'current-candidate-lifecycle',
