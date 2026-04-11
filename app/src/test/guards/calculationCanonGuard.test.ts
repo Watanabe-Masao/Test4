@@ -14,6 +14,7 @@ import * as path from 'path'
 import * as fs from 'fs'
 import { collectTsFiles } from '../guardTestHelpers'
 import { CALCULATION_CANON_REGISTRY } from '../calculationCanonRegistry'
+import { GUARD_CATEGORY_MAP } from '../guardCategoryMap'
 import {
   BUSINESS_SEMANTIC_VIEW,
   ANALYTIC_KERNEL_VIEW,
@@ -314,5 +315,84 @@ describe('意味分類ガード（Phase 2）', () => {
     }
 
     expect(violations, violations.join('\n')).toEqual([])
+  })
+
+  it('wasmEngine candidate の contractId が registry と 1:1 で対応する', () => {
+    const wasmEnginePath = path.resolve(SRC_DIR, 'application/services/wasmEngine.ts')
+    const wasmEngineSource = fs.readFileSync(wasmEnginePath, 'utf-8')
+
+    // wasmEngine から contractId + semanticClass を抽出
+    const candidateBlock = wasmEngineSource.match(
+      /WASM_CANDIDATE_MODULE_METADATA[\s\S]*?\}\s*\}/,
+    )?.[0]
+    if (!candidateBlock) {
+      expect.fail('WASM_CANDIDATE_MODULE_METADATA が見つかりません')
+      return
+    }
+
+    const engineEntries: { name: string; contractId: string; semanticClass: string }[] = []
+    const entryRe = /(\w+):\s*\{[^}]*contractId:\s*'([^']+)'[^}]*semanticClass:\s*'([^']+)'/g
+    let m
+    while ((m = entryRe.exec(candidateBlock)) !== null) {
+      engineEntries.push({ name: m[1], contractId: m[2], semanticClass: m[3] })
+    }
+    // semanticClass が contractId の前に来るパターンも対応
+    const entryRe2 = /(\w+):\s*\{[^}]*semanticClass:\s*'([^']+)'[^}]*contractId:\s*'([^']+)'/g
+    while ((m = entryRe2.exec(candidateBlock)) !== null) {
+      if (!engineEntries.some((e) => e.name === m[1])) {
+        engineEntries.push({ name: m[1], contractId: m[3], semanticClass: m[2] })
+      }
+    }
+
+    const violations: string[] = []
+
+    for (const eng of engineEntries) {
+      const registryEntry = Object.entries(CALCULATION_CANON_REGISTRY).find(
+        ([, e]) => e.contractId === eng.contractId,
+      )
+      if (!registryEntry) {
+        violations.push(
+          `wasmEngine "${eng.name}" の contractId="${eng.contractId}" が registry にない`,
+        )
+        continue
+      }
+      const [, canon] = registryEntry
+      if (canon.semanticClass !== eng.semanticClass) {
+        violations.push(
+          `contractId="${eng.contractId}": semanticClass 不一致 (engine=${eng.semanticClass}, registry=${canon.semanticClass})`,
+        )
+      }
+    }
+
+    expect(violations, violations.join('\n')).toEqual([])
+  })
+
+  it('guardCategoryMap のカテゴリ分布（info）', () => {
+    const distribution: Record<string, number> = {}
+    for (const entry of Object.values(GUARD_CATEGORY_MAP)) {
+      const key = entry.category
+      distribution[key] = (distribution[key] || 0) + 1
+    }
+
+    // info レベル: 分布を可視化するだけ。ratchet ではない
+    const sorted = Object.entries(distribution).sort(([, a], [, b]) => b - a)
+    const summary = sorted.map(([cat, count]) => `${cat}: ${count}`).join(', ')
+
+    // 全カテゴリに少なくとも 1 ルールがあることを確認
+    const expectedCategories = [
+      'terminology',
+      'semantic-boundary',
+      'registry-integrity',
+      'bridge-runtime-boundary',
+      'current-candidate-lifecycle',
+      'docs-synchronization',
+      'promote-retire-lifecycle',
+      'ratchet-legacy-control',
+    ]
+    const missingCategories = expectedCategories.filter((c) => !distribution[c])
+    expect(
+      missingCategories,
+      `カテゴリにルールがない: ${missingCategories.join(', ')}\n分布: ${summary}`,
+    ).toEqual([])
   })
 })
