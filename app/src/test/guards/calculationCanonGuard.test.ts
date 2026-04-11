@@ -339,8 +339,9 @@ describe('意味分類ガード（Phase 2）', () => {
     // semanticClass が contractId の前に来るパターンも対応
     const entryRe2 = /(\w+):\s*\{[^}]*semanticClass:\s*'([^']+)'[^}]*contractId:\s*'([^']+)'/g
     while ((m = entryRe2.exec(candidateBlock)) !== null) {
-      if (!engineEntries.some((e) => e.name === m[1])) {
-        engineEntries.push({ name: m[1], contractId: m[3], semanticClass: m[2] })
+      const match = m
+      if (!engineEntries.some((e) => e.name === match[1])) {
+        engineEntries.push({ name: match[1], contractId: match[3], semanticClass: match[2] })
       }
     }
 
