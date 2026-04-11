@@ -101,7 +101,12 @@ describe('意味分類ガード（Phase 2）', () => {
     const violations: string[] = []
     for (const [key, entry] of Object.entries(CALCULATION_CANON_REGISTRY)) {
       // candidate エントリは candidate-authoritative が正当（Phase 5/6）
-      if (entry.runtimeStatus === 'candidate') continue
+      if (entry.runtimeStatus === 'candidate') {
+        if (entry.authorityKind !== 'candidate-authoritative') {
+          violations.push(`${key}: candidate なのに authorityKind=${entry.authorityKind}`)
+        }
+        continue
+      }
       if (entry.semanticClass === 'business' && entry.authorityKind !== 'business-authoritative') {
         violations.push(`${key}: business なのに authorityKind=${entry.authorityKind}`)
       }

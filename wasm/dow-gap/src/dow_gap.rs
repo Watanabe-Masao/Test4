@@ -60,7 +60,7 @@ pub fn analyze_dow_gap(
     for dow in 0..7 { out[off] = prev_dow_daily_avg[dow]; off += 1; }
 
     // 2. prevDowDailyAvgCustomers
-    let mut prev_dow_avg_cust = [0.0f64; 7];
+    let mut prev_dow_avg_cust = [daily_average_customers; 7];
     if has_daily_data {
         for dow in 0..DAYS_PER_WEEK {
             let len = dow_data_lengths[dow] as usize;

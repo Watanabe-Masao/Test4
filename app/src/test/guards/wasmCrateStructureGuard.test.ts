@@ -88,7 +88,7 @@ describe('WASM crate 構造ガード（wasm/ 層限定）', () => {
     for (const crate of CANDIDATE_CRATES) {
       it(`${crate}: [package.metadata.semantic] に class/authority/owner がある`, () => {
         const cargoPath = path.join(WASM_DIR, crate, 'Cargo.toml')
-        if (!fs.existsSync(cargoPath)) return
+        expect(fs.existsSync(cargoPath), `missing: wasm/${crate}/Cargo.toml`).toBe(true)
         const content = fs.readFileSync(cargoPath, 'utf-8')
         const missing: string[] = []
         for (const field of REQUIRED_CARGO_METADATA) {
@@ -112,21 +112,34 @@ describe('WASM crate 構造ガード（wasm/ 層限定）', () => {
     for (const crate of CANDIDATE_CRATES) {
       it(`${crate}: src/*.rs に * 100.0 / * 1000.0 等のマジックナンバーがない`, () => {
         const srcDir = path.join(WASM_DIR, crate, 'src')
-        if (!fs.existsSync(srcDir)) return
+        expect(fs.existsSync(srcDir), `missing: wasm/${crate}/src`).toBe(true)
         const violations: string[] = []
 
         const files = fs.readdirSync(srcDir).filter((f) => f.endsWith('.rs'))
         for (const file of files) {
           const content = fs.readFileSync(path.join(srcDir, file), 'utf-8')
           const lines = content.split('\n')
-          let inTestModule = false
+          let testModuleDepth = 0
           for (let i = 0; i < lines.length; i++) {
             const line = lines[i]
-            // #[cfg(test)] 以降はスキップ（テストコード内は許容）
+            // #[cfg(test)] ブロックをブレース深度で追跡
             if (line.includes('#[cfg(test)]')) {
-              inTestModule = true
+              testModuleDepth = 0 // 次の { で開始
             }
-            if (inTestModule) continue
+            if (testModuleDepth > 0) {
+              for (const ch of line) {
+                if (ch === '{') testModuleDepth++
+                if (ch === '}') testModuleDepth--
+              }
+              continue
+            }
+            if (
+              line.includes('#[cfg(test)]') ||
+              (testModuleDepth === 0 && line.trim() === 'mod tests {')
+            ) {
+              testModuleDepth = 1
+              continue
+            }
             // コメント行はスキップ
             if (line.trimStart().startsWith('//')) continue
             if (MAGIC_NUMBER_PATTERN.test(line)) {

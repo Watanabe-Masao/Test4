@@ -5,9 +5,10 @@
  * コアタイム:   3連続時間の累計合計が最大となる時間帯
  * 折り返し時間帯: 累積売上が50%に到達する時間帯
  *
- * @layer Domain — Authoritative Business Calculation
+ * @layer Domain — analytic-authoritative Calculation
  * @contractId ANA-001
  * @semanticClass analytic
+ * @authorityKind analytic-authoritative
  * @methodFamily time_pattern
  */
 

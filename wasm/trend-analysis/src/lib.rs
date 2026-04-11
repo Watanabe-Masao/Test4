@@ -20,6 +20,9 @@ pub fn analyze_trend(
     months: &js_sys::Int32Array,
     total_sales: &js_sys::Float64Array,
 ) -> js_sys::Float64Array {
+    if years.length() != months.length() || years.length() != total_sales.length() {
+        return js_sys::Float64Array::new_with_length(0);
+    }
     let y: Vec<i32> = years.to_vec();
     let m: Vec<i32> = months.to_vec();
     let s = total_sales.to_vec();
