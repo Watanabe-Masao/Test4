@@ -88,9 +88,19 @@ if (!existsSync(healthJsonPath)) {
   const committedMap = new Map(committed.kpis.map((k) => [k.id, k]))
 
   // live にあるが committed にない KPI
-  for (const [id] of liveMap) {
+  // source: 'build-artifact' の KPI は、ローカルで committed 値を引き継いでいるため
+  // CI で live 計算された新しい値と committed の古い値の差分は value 比較で検出する
+  for (const [id, liveKpi] of liveMap) {
     if (!committedMap.has(id)) {
-      errors.push(`KPI missing from committed: ${id} — regenerate required`)
+      // build-artifact 系は dist/ の有無で生成状態が変わる — 非破壊 collector で
+      // committed から引き継がれるはずなので、ここに到達するのは初回のみ
+      const source = (liveKpi as { source?: string }).source
+      if (source === 'build-artifact') {
+        // 初回（committed にまだ入っていない）→ regenerate を促す
+        errors.push(`KPI missing from committed: ${id} — run docs:generate after build`)
+      } else {
+        errors.push(`KPI missing from committed: ${id} — regenerate required`)
+      }
     }
   }
 

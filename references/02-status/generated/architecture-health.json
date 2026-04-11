@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-11T02:53:54.758Z",
+  "timestamp": "2026-04-11T03:04:08.710Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -429,6 +429,81 @@
       "budget": 0
     },
     {
+      "id": "perf.bundle.totalJsKb",
+      "label": "JS バンドル合計サイズ",
+      "category": "bundle_perf",
+      "value": 6496,
+      "unit": "kb",
+      "status": "ok",
+      "owner": "architecture",
+      "docRefs": [
+        {
+          "kind": "source",
+          "path": "app/dist/assets/",
+          "section": "*.js"
+        }
+      ],
+      "implRefs": [
+        "app/vite.config.ts"
+      ],
+      "budget": 7000,
+      "source": "build-artifact"
+    },
+    {
+      "id": "perf.bundle.mainJsKb",
+      "label": "メインバンドルサイズ",
+      "category": "bundle_perf",
+      "value": 2225,
+      "unit": "kb",
+      "status": "ok",
+      "owner": "architecture",
+      "docRefs": [
+        {
+          "kind": "source",
+          "path": "app/dist/assets/",
+          "section": "index-*.js"
+        }
+      ],
+      "implRefs": [
+        "app/vite.config.ts"
+      ],
+      "budget": 2500,
+      "source": "build-artifact"
+    },
+    {
+      "id": "perf.bundle.vendorEchartsKb",
+      "label": "ECharts バンドルサイズ",
+      "category": "bundle_perf",
+      "value": 919,
+      "unit": "kb",
+      "status": "ok",
+      "owner": "architecture",
+      "docRefs": [
+        {
+          "kind": "source",
+          "path": "app/dist/assets/",
+          "section": "vendor-echarts-*.js"
+        }
+      ],
+      "implRefs": [
+        "app/vite.config.ts"
+      ],
+      "budget": 1000,
+      "source": "build-artifact"
+    },
+    {
+      "id": "perf.bundle.cssKb",
+      "label": "CSS 合計サイズ",
+      "category": "bundle_perf",
+      "value": 0,
+      "unit": "kb",
+      "status": "ok",
+      "owner": "architecture",
+      "docRefs": [],
+      "implRefs": [],
+      "source": "build-artifact"
+    },
+    {
       "id": "docs.obligation.violations",
       "label": "Doc 更新義務違反数",
       "category": "docs",
@@ -592,82 +667,11 @@
         "app/src/test/allowlists/"
       ],
       "budget": 10
-    },
-    {
-      "id": "perf.bundle.totalJsKb",
-      "label": "JS バンドル合計サイズ",
-      "category": "bundle_perf",
-      "value": 6496,
-      "unit": "kb",
-      "status": "ok",
-      "owner": "architecture",
-      "docRefs": [
-        {
-          "kind": "source",
-          "path": "app/dist/assets/",
-          "section": "*.js"
-        }
-      ],
-      "implRefs": [
-        "app/vite.config.ts"
-      ],
-      "budget": 7000
-    },
-    {
-      "id": "perf.bundle.mainJsKb",
-      "label": "メインバンドルサイズ",
-      "category": "bundle_perf",
-      "value": 2225,
-      "unit": "kb",
-      "status": "ok",
-      "owner": "architecture",
-      "docRefs": [
-        {
-          "kind": "source",
-          "path": "app/dist/assets/",
-          "section": "index-*.js"
-        }
-      ],
-      "implRefs": [
-        "app/vite.config.ts"
-      ],
-      "budget": 2500
-    },
-    {
-      "id": "perf.bundle.vendorEchartsKb",
-      "label": "ECharts バンドルサイズ",
-      "category": "bundle_perf",
-      "value": 919,
-      "unit": "kb",
-      "status": "ok",
-      "owner": "architecture",
-      "docRefs": [
-        {
-          "kind": "source",
-          "path": "app/dist/assets/",
-          "section": "vendor-echarts-*.js"
-        }
-      ],
-      "implRefs": [
-        "app/vite.config.ts"
-      ],
-      "budget": 1000
-    },
-    {
-      "id": "perf.bundle.cssKb",
-      "label": "CSS 合計サイズ",
-      "category": "bundle_perf",
-      "value": 0,
-      "unit": "kb",
-      "status": "ok",
-      "owner": "architecture",
-      "docRefs": [],
-      "implRefs": []
     }
   ],
   "summary": {
-    "totalKpis": 28,
-    "ok": 28,
+    "totalKpis": 32,
+    "ok": 32,
     "warn": 0,
     "fail": 0,
     "hardGatePass": true

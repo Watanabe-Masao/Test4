@@ -41,6 +41,12 @@ export interface HealthKpi {
   readonly owner: string
   readonly docRefs: readonly DocRef[]
   readonly implRefs: readonly string[]
+  /**
+   * KPI の算出元。省略時は 'source-code'（常に算出可能）。
+   * 'build-artifact' は dist/ 等のビルド成果物に依存し、
+   * ビルド未実行環境では算出不能。
+   */
+  readonly source?: 'source-code' | 'build-artifact'
 }
 
 // ---------------------------------------------------------------------------
