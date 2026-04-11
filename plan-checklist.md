@@ -2,26 +2,26 @@
 
 ## 0. 着手前の固定事項
 
-* [ ] 主役が粗利管理ツール本体で、AAG は保護機構であることを明記した
-* [ ] 分離対象が pure・deterministic・UI 非依存の計算責務だけであることを明記した
-* [ ] hook / store / QueryHandler / ViewModel / DuckDB query 実行が非対象であることを明記した
-* [ ] `factorDecomposition` を `semanticClass=business`、`methodFamily=analytic_decomposition` として固定した
-* [ ] registry 方針を **Master + Derived View** に固定した
-* [ ] 物理ディレクトリ分離は後ろ倒しにし、先に論理分離と guard を入れる方針を固定した
+* [x] 主役が粗利管理ツール本体で、AAG は保護機構であることを明記した
+* [x] 分離対象が pure・deterministic・UI 非依存の計算責務だけであることを明記した
+* [x] hook / store / QueryHandler / ViewModel / DuckDB query 実行が非対象であることを明記した
+* [x] `factorDecomposition` を `semanticClass=business`、`methodFamily=analytic_decomposition` として固定した
+* [x] registry 方針を **Master + Derived View** に固定した
+* [x] 物理ディレクトリ分離は後ろ倒しにし、先に論理分離と guard を入れる方針を固定した
 
 ---
 
 ## Phase 0: 前提固定・用語スイープ
 
-* [ ] `references/01-principles/semantic-classification-policy.md` を作成した
-* [ ] `references/01-principles/engine-boundary-policy.md` を business / analytic 用語へ整合させた
-* [ ] `CLAUDE.md` に意味分類方針への参照を追加した
-* [ ] `references/02-status/authoritative-term-sweep.md` を作成した
-* [ ] 既存コード・コメント・テスト・文書内の `authoritative` 単独使用を洗い出した
-* [ ] 直せる `authoritative` 単独使用を修正した
-* [ ] 直せないものを `legacy-authoritative-usage` として ratchet 管理にした
-* [ ] `AR-TERM-AUTHORITATIVE-STANDALONE` を即時導入した
-* [ ] `npm run test:guards` で Phase 0 guard が通ることを確認した
+* [x] `references/01-principles/semantic-classification-policy.md` を作成した
+* [x] `references/01-principles/engine-boundary-policy.md` を business / analytic 用語へ整合させた
+* [x] `CLAUDE.md` に意味分類方針への参照を追加した
+* [x] `references/02-status/authoritative-term-sweep.md` を作成した
+* [x] 既存コード・コメント・テスト・文書内の `authoritative` 単独使用を洗い出した
+* [x] 直せる `authoritative` 単独使用を修正した
+* [x] 直せないものを `legacy-authoritative-usage` として ratchet 管理にした
+* [x] `AR-TERM-AUTHORITATIVE-STANDALONE` を即時導入した
+* [x] `npm run test:guards` で Phase 0 guard が通ることを確認した
 
 **やってはいけないこと**
 
@@ -31,15 +31,15 @@
 
 ## Phase 1: 意味分類 inventory
 
-* [ ] `references/03-guides/semantic-inventory-procedure.md` を作成した
-* [ ] `references/02-status/semantic-inventory.yaml` を作成した
-* [ ] domain/calculations 配下 36 ファイルを inventory 化した
-* [ ] 各項目に `semanticClass` を付与した
-* [ ] 各項目に `authorityKind` / `runtimeStatus` / `migrationTier` を付与した
-* [ ] `factorDecomposition` を business として分類した
-* [ ] WASM 7 modules の意味再分類を反映した
-* [ ] non-target 一覧を固定した
-* [ ] `review-needed` 項目に理由を全件書いた
+* [x] `references/03-guides/semantic-inventory-procedure.md` を作成した
+* [x] `references/02-status/semantic-inventory.yaml` を作成した
+* [x] domain/calculations 配下 35 ファイルを inventory 化した
+* [x] 各項目に `semanticClass` を付与した
+* [x] 各項目に `authorityKind` / `runtimeStatus` / `migrationTier` を付与した
+* [x] `factorDecomposition` を business として分類した
+* [x] WASM 7 modules の意味再分類を反映した
+* [x] non-target 一覧を固定した
+* [x] `review-needed` 項目に理由を全件書いた
 
 **やってはいけないこと**
 
@@ -50,19 +50,19 @@
 
 ## Phase 2: CanonEntry 完全定義 + Derived View + 互換移行
 
-* [ ] `calculationCanonRegistry` を **唯一の master registry** として拡張した
-* [ ] `CanonEntry` に最終形フィールドを一括追加した
-* [ ] `SemanticClass` / `AuthorityKind` / `RuntimeStatus` / `OwnerKind` を定義した
-* [ ] `contractId` / `bridgeKind` / `rateOwnership` / `fallbackPolicy` / `migrationTier` を optional で先に入れた
-* [ ] Phase 2A: optional 追加を完了した
-* [ ] Phase 2B: warning + ratchet 移行を完了した
-* [ ] Phase 2C: required 項目の必須化を完了した
-* [ ] `app/src/test/semanticViews.ts` を作成した
-* [ ] `BUSINESS_SEMANTIC_VIEW` / `ANALYTIC_KERNEL_VIEW` / `MIGRATION_CANDIDATE_VIEW` を master から導出した
-* [ ] derived view を手編集禁止にした
-* [ ] `calculationCanonGuard.test.ts` に derived view 一致テストを追加した
-* [ ] Phase 2 guard 5件を前倒し導入した
-* [ ] 既存 guard テスト互換性を壊していないことを確認した (`npm run test:guards`)
+* [x] `calculationCanonRegistry` を **唯一の master registry** として拡張した
+* [x] `CanonEntry` に最終形フィールドを一括追加した
+* [x] `SemanticClass` / `AuthorityKind` / `RuntimeStatus` / `OwnerKind` を定義した
+* [x] `contractId` / `bridgeKind` / `rateOwnership` / `fallbackPolicy` / `migrationTier` を optional で先に入れた
+* [x] Phase 2A: optional 追加を完了した
+* [x] Phase 2B: warning + ratchet 移行を完了した
+* [x] Phase 2C: required 項目の必須化を完了した
+* [x] `app/src/test/semanticViews.ts` を作成した
+* [x] `BUSINESS_SEMANTIC_VIEW` / `ANALYTIC_KERNEL_VIEW` / `MIGRATION_CANDIDATE_VIEW` を master から導出した
+* [x] derived view を手編集禁止にした
+* [x] `calculationCanonGuard.test.ts` に derived view 一致テストを追加した
+* [x] Phase 2 guard 5件を前倒し導入した
+* [x] 既存 guard テスト互換性を壊していないことを確認した (`npm run test:guards`)
 
 **やってはいけないこと**
 
@@ -73,17 +73,17 @@
 
 ## Phase 3: 契約固定 + bridge 境界
 
-* [ ] `references/03-guides/contract-definition-policy.md` を作成した
-* [ ] Business Contract テンプレートを定義した
-* [ ] Analytic Contract テンプレートを定義した
-* [ ] 対象計算に `contractId` を採番した
-* [ ] `bridgeKind` を business / analytics に分けた
-* [ ] 各 bridge に JSDoc で `semanticClass` と `contractId` を記載した
-* [ ] `wasmEngine.ts` に `semanticClass` + `bridgeKind` メタデータを追加した
-* [ ] `rateOwnership = engine` を固定した
-* [ ] direct import 禁止方針を文書化した
-* [ ] Phase 3 guard 6件を前倒し導入した
-* [ ] `factorDecomposition` を business / analytic_decomposition として契約に反映した
+* [x] `references/03-guides/contract-definition-policy.md` を作成した
+* [x] Business Contract テンプレートを定義した
+* [x] Analytic Contract テンプレートを定義した
+* [x] 対象計算に `contractId` を採番した
+* [x] `bridgeKind` を business / analytics に分けた
+* [x] 各 bridge に JSDoc で `semanticClass` と `contractId` を記載した
+* [x] `wasmEngine.ts` に `semanticClass` + `bridgeKind` メタデータを追加した
+* [x] `rateOwnership = engine` を固定した
+* [x] direct import 禁止方針を文書化した
+* [x] Phase 3 guard 6件を前倒し導入した
+* [x] `factorDecomposition` を business / analytic_decomposition として契約に反映した
 
 **やってはいけないこと**
 
@@ -94,14 +94,14 @@
 
 ## Phase 4: 既存 Rust/current 群の意味再分類・保守対象化
 
-* [ ] current 群一覧を作成した
-* [ ] 各 current 項目に `semanticClass` と `authorityKind` を付与した
-* [ ] `factorDecomposition` を current/business として固定した
-* [ ] `forecast` / `time-slot` を current/analytics として整理した
-* [ ] `Cargo.toml` に semantic metadata を追加した
-* [ ] current/business と current/analytics の運用 view を分けた
-* [ ] current に candidate 状態遷移を持たせないことを guard 化した
-* [ ] current 群の保守ポリシーを作成した (`references/03-guides/current-maintenance-policy.md`)
+* [x] current 群一覧を作成した
+* [x] 各 current 項目に `semanticClass` と `authorityKind` を付与した
+* [x] `factorDecomposition` を current/business として固定した
+* [x] `forecast` / `time-slot` を current/analytics として整理した
+* [x] `Cargo.toml` に semantic metadata を追加した
+* [x] current/business と current/analytics の運用 view を分けた
+* [x] current に candidate 状態遷移を持たせないことを guard 化した
+* [x] current 群の保守ポリシーを作成した (`references/03-guides/current-maintenance-policy.md`)
 
 **やってはいけないこと**
 
@@ -153,13 +153,13 @@
 
 ## Phase 7: guard 統合整理 + JS 正本縮退方針
 
-* [ ] Hard / Soft / Ratchet の3分類を整理した
-* [ ] Phase 0〜6 の guard 重複を統合した
-* [ ] violation message の標準形式を定義した
-* [ ] JS 正本縮退 4段階（current reference / compare reference / fallback-only / retired-js）を定義した
-* [ ] JS 撤去条件を定義した
-* [ ] master / derived view 整合性 guard を確認した
-* [ ] rule 追加条件 / 不要化条件を定義した
+* [x] Hard / Soft / Ratchet の3分類を整理した
+* [x] Phase 0〜6 の guard 重複を統合した
+* [x] violation message の標準形式を定義した
+* [x] JS 正本縮退 4段階（current reference / compare reference / fallback-only / retired-js）を定義した
+* [x] JS 撤去条件を定義した
+* [x] master / derived view 整合性 guard を確認した
+* [x] rule 追加条件 / 不要化条件を定義した
 
 **やってはいけないこと**
 

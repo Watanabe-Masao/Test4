@@ -40,7 +40,7 @@ current を staging area にしない。candidate を current 資産として扱
 
 ### 問題
 
-現行の `domain/calculations/` は 36 ファイルを `required/review/not-needed` の3分類で管理しているが、
+現行の `domain/calculations/` は 35 ファイルを `required/review/not-needed` の3分類で管理しているが、
 「pure だから同じ棚」「authoritative だから同じ棚」という解釈を AI が取りやすい構造になっている。
 Business Semantic Core（粗利、予算差異）と Analytic Kernel（移動平均、z-score）が
 同じ registry、同じ責任タグ（R:calculation）、同じディレクトリに混在している。
@@ -245,7 +245,7 @@ stale discard / retry / debounce / profiling / DuckDB query / presentation compo
 
 ### 受け入れ条件
 
-1. 全 36 ファイルの意味分類が inventory に記録されている
+1. 全 35 ファイルの意味分類が inventory に記録されている
 2. WASM 7 module の意味再分類が完了している
 3. review-needed には理由が全件書かれている
 4. non-target 一覧が固定されている
@@ -632,6 +632,10 @@ owner = "maintenance"
 ---
 
 ## Phase 5-7: 将来フェーズ（概要のみ）
+
+> **用語注意: dual-run-compare**
+> 以下で言う「dual-run-compare」は bridge 管理下で current（TS）と candidate（WASM）を並行実行し parity を検証する仕組みを指す。
+> AR-001 / AR-STRUCT-DUAL-RUN-EXIT が禁止する退役済みインフラ層 dual-run（getExecutionMode / recordCall / recordMismatch）とは別概念。
 
 ### Phase 5: Tier 1 Business Semantic Core 候補の移行
 

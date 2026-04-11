@@ -5,6 +5,10 @@
  * @bridgeKind business
  * @contractId BIZ-008
  * @authorityKind candidate-authoritative
+ *
+ * Current reference: TS (domain/calculations/remainingBudgetRate.ts)
+ * Candidate: WASM (wasm/remaining-budget-rate/)
+ * Promote Ceremony まで current authoritative (business-authoritative) は不変。
  */
 import { calculateRemainingBudgetRate as calculateRemainingBudgetRateTS } from '@/domain/calculations/remainingBudgetRate'
 import type { RemainingBudgetRateInput } from '@/domain/calculations/remainingBudgetRate'

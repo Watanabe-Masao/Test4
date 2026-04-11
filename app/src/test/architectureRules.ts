@@ -222,21 +222,22 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     ruleClass: 'invariant',
     guardTags: ['G1'],
     epoch: 1,
-    what: 'bridge ファイルに dual-run compare コードの再導入を禁止する',
-    why: 'Phase 1-2 で解消した dual-run 比較は退役済み。復活させると実行モード分岐が再び散在する',
+    what: '退役済みインフラ層 dual-run コードの再導入を禁止する',
+    why: 'Phase 1-2 で解消したインフラ層 dual-run（dualRunObserver / getExecutionMode / recordCall / recordMismatch）は退役済み。bridge 管理下の candidate-compare 検証（Phase 5-8）は別概念であり本ルールの対象外',
     doc: 'references/03-guides/safety-first-architecture-plan.md',
     correctPattern: {
       description:
-        'ExecutionMode は ts-only | wasm-only の 2 モードのみ。bridge は直接 engine を呼ぶ',
+        'bridge は isWasmReady() で直接 engine を呼ぶ。candidate compare は compareUtils.ts 経由でテスト側のみ',
     },
     outdatedPattern: {
-      description: 'bridge 内で getExecutionMode / recordCall / recordMismatch を使用する',
-      codeSignals: ['getExecutionMode', 'recordCall', 'recordMismatch', 'dual-run-compare'],
+      description:
+        'bridge 内で getExecutionMode / recordCall / recordMismatch を使用する（散在した ad-hoc dual-run）',
+      codeSignals: ['getExecutionMode', 'recordCall', 'recordMismatch'],
     },
     decisionCriteria: {
       when: 'bridge ファイルを変更するとき',
-      exceptions: '例外なし。dual-run は退役済み',
-      escalation: '該当コードを発見したら即削除',
+      exceptions: 'bridge 管理下の candidate-compare（compareUtils.ts 経由、テスト側のみ）は許可',
+      escalation: 'getExecutionMode / recordCall / recordMismatch を発見したら即削除',
     },
     detection: {
       type: 'regex',
@@ -247,7 +248,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       steps: [
         '1. getExecutionMode / recordCall / recordMismatch の import を削除',
         '2. bridge から直接 wasmEngine または TS fallback を呼ぶように変更',
-        '3. dual-run-compare 文字列リテラルがあれば ts-only | wasm-only に置換',
       ],
       effort: 'small',
       priority: 1,
@@ -255,7 +255,7 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     sunsetCondition: 'bridge パターンが存在しなくなった',
     reviewPolicy: {
       owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
+      lastReviewedAt: '2026-04-11',
       reviewCadenceDays: 90,
     },
   },
@@ -2167,26 +2167,31 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     ruleClass: 'default',
     guardTags: ['G1'],
     epoch: 1,
-    what: 'WASM 全 5 engine が authoritative に昇格済み。dual-run は退役',
-    why: 'dual-run infrastructure は全面退役済み。復活させない',
+    what: 'WASM 全 5 engine が authoritative に昇格済み。インフラ層 dual-run は退役',
+    why: 'dualRunObserver 等のインフラ層 dual-run は全面退役済み。bridge 管理下の candidate-compare 検証（Phase 5-8）はインフラ層 dual-run ではなく、本ルールの対象外',
     doc: 'references/03-guides/safety-first-architecture-plan.md',
-    correctPattern: { description: 'WASM ready なら WASM、そうでなければ TS fallback の 2 モード' },
-    outdatedPattern: { description: 'dual-run-compare モードの復活やブリッジコードの追加' },
+    correctPattern: {
+      description:
+        'WASM ready なら WASM、そうでなければ TS fallback の 2 モード。candidate compare は compareUtils.ts + テスト側で管理',
+    },
+    outdatedPattern: {
+      description: 'dualRunObserver / getExecutionMode / recordCall / recordMismatch の復活',
+    },
     decisionCriteria: {
       when: 'WASM 関連コードを変更するとき',
-      exceptions: '例外なし。dual-run は退役済み',
-      escalation: 'ts-only | wasm-only の 2 モードのみ',
+      exceptions: 'bridge 管理下の candidate-compare（Phase 5-8 の parity 検証）は許可',
+      escalation: 'インフラ層 dual-run コードを発見したら即削除',
     },
     detection: { type: 'custom', severity: 'gate' },
     migrationPath: {
-      steps: ['1. dual-run 関連コードを発見したら削除'],
+      steps: ['1. インフラ層 dual-run 関連コードを発見したら削除'],
       effort: 'trivial',
       priority: 1,
     },
-    sunsetCondition: 'dual-run 関連コードが完全に削除された',
+    sunsetCondition: 'インフラ層 dual-run 関連コードが完全に削除された',
     reviewPolicy: {
       owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
+      lastReviewedAt: '2026-04-11',
       reviewCadenceDays: 60,
     },
   },

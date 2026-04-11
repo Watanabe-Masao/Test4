@@ -21,7 +21,7 @@ type CanonEntryWithPath = CanonEntry & { readonly path: string }
 function deriveView(semanticClass: SemanticClass): readonly CanonEntryWithPath[] {
   return Object.entries(CALCULATION_CANON_REGISTRY)
     .filter(
-      ([, entry]) => entry.semanticClass === semanticClass && entry.runtimeStatus !== 'candidate',
+      ([, entry]) => entry.semanticClass === semanticClass && entry.runtimeStatus === 'current',
     )
     .map(([path, entry]) => ({ ...entry, path }))
 }

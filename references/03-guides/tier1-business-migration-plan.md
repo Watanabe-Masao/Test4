@@ -13,7 +13,7 @@
 2. **current/business に最初から混ぜない**（candidate/business として育成）
 3. **business 意味責任の確認が Rust 化可能性より先**
 4. **bridge を唯一入口にする**
-5. **dual-run と rollback を前提にする**
+5. **dual-run と rollback を前提にする**（※ここでの dual-run-compare は bridge 管理下の candidate 検証。AR-001 が禁止する退役済みインフラ層 dual-run とは別概念）
 6. **current/business は保守対象のまま維持する**
 
 ## 3. Tier 1 候補一覧

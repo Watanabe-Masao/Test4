@@ -18,6 +18,16 @@ Business Semantic Core（Phase 5）とは別トラックで管理する。
 
 ## 3. Analytic 候補一覧
 
+### 3区分サマリ
+
+| 区分 | 対象 | 件数 |
+|------|------|------|
+| **candidate 移行** | ANA-003, ANA-004, ANA-005, ANA-007, ANA-009 | 5 件 |
+| **current 品質整備** | ANA-001 (Zod追加), ANA-002 (residual明文化), ANA-006 (residual明文化) | 3 件 |
+| **non-target 除外** | ANA-008 (JS-native / FFI 便益薄) | 1 件 |
+
+### 全9件の詳細
+
 | # | ファイル | contractId | methodFamily | invariant 例 | 移行難度 |
 |---|---------|-----------|-------------|-------------|---------|
 | 1 | timeSlotCalculations.ts | ANA-001 | time_pattern | コアタイム ⊂ 営業時間 | 中（bridge 済み） |
@@ -45,19 +55,38 @@ Analytic Kernel の移行対象にしてはならない。
 | **bridge** | business bridge | analytics bridge |
 | **authorityKind** | candidate-authoritative | candidate-authoritative |
 
-## 5. JS Current Reference
+## 5. 3トラック別の JS Current Reference
 
-| ファイル | 主要関数 | Zod 契約 | Bridge |
-|---------|---------|---------|--------|
-| timeSlotCalculations.ts | `findCoreTime()`, `findTurnaroundHour()` | ❌ | ✅ timeSlotBridge |
-| algorithms/advancedForecast.ts | `calculateWMA()`, `linearRegression()` | ✅ | ✅ forecastBridge |
-| algorithms/sensitivity.ts | `calculateSensitivity()` | ✅ | — |
-| algorithms/trendAnalysis.ts | `analyzeTrend()` | ✅ | ✅ forecastBridge |
-| algorithms/correlation.ts | `pearsonCorrelation()` | ✅ | — |
-| forecast.ts | `calculateForecast()`, `detectAnomalies()` | ✅ | ✅ forecastBridge |
-| dowGapAnalysis.ts | `analyzeDowGap()` | ❌ | — |
-| dowGapActualDay.ts | (実日数マッピング) | ❌ | — |
-| temporal/computeMovingAverage.ts | `computeMovingAverage()` | ✅ | — |
+### 5.1 Candidate Migration Track（5件 — WASM 移行対象）
+
+registry: `runtimeStatus: 'candidate'`, `authorityKind: 'candidate-authoritative'`
+
+| ファイル | contractId | 主要関数 | Zod 契約 | Bridge | WASM crate |
+|---------|-----------|---------|---------|--------|-----------|
+| algorithms/sensitivity.ts | ANA-003 | `calculateSensitivity()` | ✅ | ✅ sensitivityBridge | ✅ wasm/sensitivity |
+| algorithms/trendAnalysis.ts | ANA-004 | `analyzeTrend()` | ✅ | ✅ trendAnalysisBridge | ✅ wasm/trend-analysis |
+| algorithms/correlation.ts | ANA-005 | `pearsonCorrelation()` | ✅ | ✅ correlationBridge | ✅ wasm/correlation |
+| dowGapAnalysis.ts | ANA-007 | `analyzeDowGap()` | ❌ | ✅ dowGapBridge | ✅ wasm/dow-gap |
+| temporal/computeMovingAverage.ts | ANA-009 | `computeMovingAverage()` | ✅ | ✅ movingAverageBridge | ✅ wasm/moving-average |
+
+### 5.2 Current Quality Track（3件 — Zod / residual 品質整備）
+
+registry: `runtimeStatus: 'current'`, `authorityKind: 'analytic-authoritative'`。
+WASM 移行ではなく、current のまま品質を上げるトラック。
+
+| ファイル | contractId | 主要関数 | 品質課題 | Bridge |
+|---------|-----------|---------|---------|--------|
+| timeSlotCalculations.ts | ANA-001 | `findCoreTime()`, `findTurnaroundHour()` | Zod 契約未追加 | ✅ timeSlotBridge |
+| algorithms/advancedForecast.ts | ANA-002 | `calculateWMA()`, `linearRegression()` | residual 明文化 | ✅ forecastBridge |
+| forecast.ts | ANA-006 | `calculateForecast()`, `detectAnomalies()` | residual 明文化 | ✅ forecastBridge |
+
+### 5.3 Non-Target（1件 — 移行対象外）
+
+registry: `runtimeStatus: 'non-target'`, `authorityKind: 'non-authoritative'`
+
+| ファイル | contractId | 除外理由 |
+|---------|-----------|---------|
+| dowGapActualDay.ts | ANA-008 | JS-native / FFI 便益薄。WASM 化の実用的効果がない |
 
 ## 6. 9 ステップ移行プロセス
 

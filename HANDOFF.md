@@ -9,11 +9,11 @@ Phase 0-7 の構造基盤が完了。PR #956（ブランチ `claude/create-hando
 ### 完了済みの構造基盤
 
 - 契約固定（BIZ-001〜013 / ANA-001〜009）
-- registry 契約値埋め 22 件
+- Master Registry: 46 エントリ（実ファイル 35 件 + candidate placeholder 11 件）、契約値埋め 22 件
 - 5 bridge の JSDoc に semanticClass + contractId
 - wasmEngine に WASM_MODULE_METADATA
 - current 群保守ポリシー + 7 Cargo.toml semantic metadata
-- Tier 1 Business 移行計画（候補 6 件）+ Analytic Kernel 移行計画（候補 9 件）
+- Tier 1 Business 移行計画（候補 6 件）+ Analytic Kernel 移行計画（9 件: 移行 5 + 品質整備 3 + 除外 1）
 - Guard 統合整理 + JS 正本縮退 4 段階ポリシー
 - Promote Ceremony テンプレート
 - 移行タグ基盤（migrationTagRegistry + migrationTagGuard + migration-tag-policy）
@@ -29,25 +29,44 @@ Phase 0-7 の構造基盤が完了。PR #956（ブランチ `claude/create-hando
 | 3 | 契約定義ポリシー + registry 契約値 22件 + bridge JSDoc + wasmEngine metadata | +6 |
 | 4 | current 群保守ポリシー + 7 Cargo.toml metadata | +7 |
 | 5 | Tier 1 Business 移行計画（候補 6件 + 8ステップ + 判定基準） | +7 |
-| 6 | Analytic Kernel 移行計画（候補 9件 + 9ステップ + 不変条件） | +7 |
+| 6 | Analytic Kernel 移行計画（9件分類: 移行5 + 品質整備3 + 除外1 + 9ステップ） | +7 |
 | 7 | Guard 統合整理 + JS 正本縮退 4段階 + 違反レスポンス設計 | +4 |
 
-## 3. 最初に読むファイル（優先順）
+## 3. 後任者の読書順（3レイヤー構成）
 
-| ファイル | なぜ読むか |
-|---------|-----------|
-| `plan.md` | 全体計画。Phase 8 以降の成果物と受け入れ条件 |
-| `plan-checklist.md` | Phase 単位のチェックリスト |
-| `references/03-guides/tier1-business-migration-plan.md` | Tier 1 候補 6件 + 8ステップ移行プロセス |
-| `references/03-guides/analytic-kernel-migration-plan.md` | Analytic 候補 9件 + 9ステップ移行プロセス |
-| `references/03-guides/guard-consolidation-and-js-retirement.md` | 全 guard マップ + JS 縮退 4段階 |
-| `references/03-guides/contract-definition-policy.md` | BIZ/ANA 契約テンプレート |
-| `references/03-guides/current-maintenance-policy.md` | current 群の保守観点 |
-| `app/src/test/calculationCanonRegistry.ts` | Master Registry（35 エントリ + 契約値） |
-| `app/src/test/architectureRules.ts` | 全 140 ルール |
+### Layer 1: 全体把握（まずこの3つ）
+
+| 順 | ファイル | 目的 |
+|---|---------|------|
+| 1 | `HANDOFF.md` | **起点**。完了済み Phase 0-7 の概要、次にやること、ハマりポイント |
+| 2 | `plan.md` | 全体計画。Phase 8 以降の成果物と受け入れ条件 |
+| 3 | `plan-checklist.md` | Phase 単位の完了チェックリスト |
+
+### Layer 2: 次のアクション理解（何をやるか）
+
+| ファイル | 内容 |
+|---------|------|
+| `references/03-guides/data-load-idempotency-plan.md` | **最優先タスク**: データロード冪等化の問題定義書 |
 | `references/03-guides/promote-ceremony-template.md` | Phase 8 の昇格手順テンプレート |
+| `references/03-guides/tier1-business-migration-plan.md` | Tier 1 候補 6件 + 8ステップ移行プロセス |
+| `references/03-guides/analytic-kernel-migration-plan.md` | Analytic 9件の分類整理（移行5 + 品質整備3 + 除外1） |
+
+### Layer 3: 構造ルール（壊さないために）
+
+| ファイル | 内容 |
+|---------|------|
+| `CLAUDE.md` | 開発ルール全体。特に「設計原則」「ドキュメント運用」 |
+| `app/src/test/calculationCanonRegistry.ts` | Master Registry（46 エントリ: 実ファイル35 + candidate 11） |
+| `app/src/test/architectureRules.ts` | 全 140 ルール |
+| `references/03-guides/contract-definition-policy.md` | BIZ/ANA 契約テンプレート |
+| `references/03-guides/guard-consolidation-and-js-retirement.md` | Guard マップ + JS 縮退 4段階 |
 
 ## 4. Phase 8 以降でやること
+
+> **用語注意: dual-run-compare**
+> 本書で言う「dual-run-compare」は Phase 5-8 の **bridge 管理下で current（TS）と candidate（WASM）を並行実行し parity を検証する仕組み**を指す。
+> AR-001 / AR-STRUCT-DUAL-RUN-EXIT が禁止するのは退役済みインフラ層 dual-run（getExecutionMode / recordCall / recordMismatch）のみ。
+> bridge 管理下の candidate-compare は AR-001 の対象外として明文化済み。
 
 ### Phase 8: Promote Ceremony
 
@@ -153,6 +172,27 @@ Phase 6 結果:
 ### references/01-principles/ 変更時
 
 `references/01-principles/` 配下を変更したら `docs/contracts/principles.json` も同コミットに含める。
+
+### pre-push hook による自動検出
+
+上記の連鎖更新漏れは `tools/git-hooks/pre-push` で自動検出される:
+
+```bash
+# セットアップ（初回のみ）
+cp tools/git-hooks/pre-push .git/hooks/pre-push
+chmod +x .git/hooks/pre-push
+# pre-commit も入れる場合
+cp tools/git-hooks/pre-commit .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
+```
+
+pre-push が検出する項目:
+- `references/` 変更 → `doc-registry.json` / `README.md` 未更新
+- `references/01-principles/` 変更 → `principles.json` 未更新
+- `wasm/` 変更 → `project-metadata.json` 未更新
+- guard/allowlist/registry 変更 → `docs:generate` 未実行
+- lint エラー残存
+- `test:guards` 未通過
 
 ## 7. テスト実行の手順
 
