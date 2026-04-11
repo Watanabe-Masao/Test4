@@ -469,13 +469,13 @@ AAG は「発見 → 蓄積 → 評価」の 3 層サイクルでルール自体
 **全ルールに migrationRecipe + executionPlan + doc + decisionCriteria（件数は generated section 参照）**
 
 各ルールが持つ情報:
-- `what` / `why` / `doc` — 学習コスト削減（27 ドキュメント参照）
+- `what` / `why` / `doc` — 学習コスト削減
 - `correctPattern` / `example` — 自己修復
 - `outdatedPattern` / `codeSignals` — 検出
 - `migrationRecipe` — 修正手順（App Domain の安定知識）
 - `executionPlan` — 工数 + 優先度（Project Overlay の案件運用状態）
-- `decisionCriteria` (84/84) — 判断の脱属人化
-- `relationships` (45) — ルール間の因果関係
+- `decisionCriteria` — 判断の脱属人化
+- `relationships` — ルール間の因果関係
 - `thresholds` / `baseline` — 数値管理（ratchet-down）
 
 ## アーキテクチャ進化計画（要約）

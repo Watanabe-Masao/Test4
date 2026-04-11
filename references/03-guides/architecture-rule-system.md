@@ -263,17 +263,19 @@ const count = (content.match(/\buseState\b/g) || []).length
 const count = (stripComments(content).match(/\buseState\b/g) || []).length
 ```
 
-## 数値一覧（現在値）
+## 数値一覧
 
-| 指標 | 値 |
+現在値は `references/02-status/generated/architecture-health.json` を参照。
+以下は設計上の完全性基準（全ルールに必須フィールドが存在すること）:
+
+| 指標 | 基準 |
 |---|---|
-| ルール数 | 84 |
-| migrationRecipe カバレッジ | 140/140 (100%) |
-| executionPlan カバレッジ | 140/140 (100%) |
-| decisionCriteria カバレッジ | 84/84 (100%) |
-| doc カバレッジ | 84/84 (100%) |
-| relationships | 45 |
-| 統合済みガード | 39/39 (100%) |
+| migrationRecipe カバレッジ | 100%（全ルールに必須） |
+| executionPlan カバレッジ | 100%（全ルールに必須） |
+| decisionCriteria カバレッジ | 100%（全ルールに必須） |
+| doc カバレッジ | 100%（全ルールに必須） |
+
+ルール総数・relationships 数・ガード数などの現在値は generated section を正本とする。
 | guard タグカバレッジ | 50+/50+ (100%) |
 | allowlist ruleId | 52/52 (100%) |
 | 参照ドキュメント数 | 27 |
