@@ -97,7 +97,7 @@ function setupWasmReady(): void {
 beforeEach(() => {
   vi.clearAllMocks()
   vi.restoreAllMocks()
-  setCustomerGapBridgeMode('current-only')
+  rollbackToCurrentOnly()
   setupWasmMocks()
 })
 

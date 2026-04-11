@@ -29,9 +29,7 @@ export const TurnaroundHourResultSchema = z.number().nullable()
 export type TurnaroundHourResult = z.infer<typeof TurnaroundHourResultSchema>
 
 /** 3連続時間帯の累計合計が最大となるウィンドウを検出する */
-export function findCoreTime(
-  hourlyMap: Map<number, number>,
-): { startHour: number; endHour: number; total: number } | null {
+export function findCoreTime(hourlyMap: Map<number, number>): CoreTimeResult {
   if (hourlyMap.size === 0) return null
 
   const minHour = Math.min(...hourlyMap.keys())
@@ -61,7 +59,7 @@ export function findCoreTime(
 }
 
 /** 累積売上が50%に到達する時間帯を検出する */
-export function findTurnaroundHour(hourlyMap: Map<number, number>): number | null {
+export function findTurnaroundHour(hourlyMap: Map<number, number>): TurnaroundHourResult {
   const hours = [...hourlyMap.entries()].sort((a, b) => a[0] - b[0])
   const total = hours.reduce((s, [, v]) => s + v, 0)
   if (total === 0) return null
