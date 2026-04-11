@@ -6,6 +6,10 @@
  * @contractId BIZ-013
  * @authorityKind candidate-authoritative
  *
+ * Current reference: TS (domain/calculations/customerGap.ts)
+ * Candidate: WASM (wasm/customer-gap/)
+ * Promote Ceremony まで current authoritative (business-authoritative) は不変。
+ *
  * @see references/03-guides/tier1-business-migration-plan.md
  */
 import { calculateCustomerGap as calculateCustomerGapTS } from '@/domain/calculations/customerGap'

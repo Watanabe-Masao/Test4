@@ -65,7 +65,8 @@ Phase 0-7 の構造基盤が完了。PR #956（ブランチ `claude/create-hando
 
 > **用語注意: dual-run-compare**
 > 本書で言う「dual-run-compare」は Phase 5-8 の **bridge 管理下で current（TS）と candidate（WASM）を並行実行し parity を検証する仕組み**を指す。
-> AR-001 / AR-STRUCT-DUAL-RUN-EXIT が禁止する「退役済みインフラ層 dual-run」（getExecutionMode / recordCall / recordMismatch）とは別概念。
+> AR-001 / AR-STRUCT-DUAL-RUN-EXIT が禁止するのは退役済みインフラ層 dual-run（getExecutionMode / recordCall / recordMismatch）のみ。
+> bridge 管理下の candidate-compare は AR-001 の対象外として明文化済み。
 
 ### Phase 8: Promote Ceremony
 

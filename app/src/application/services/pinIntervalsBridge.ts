@@ -5,6 +5,10 @@
  * @bridgeKind business
  * @contractId BIZ-011
  * @authorityKind candidate-authoritative
+ *
+ * Current reference: TS (domain/calculations/pinIntervals.ts)
+ * Candidate: WASM (wasm/pin-intervals/)
+ * Promote Ceremony まで current authoritative (business-authoritative) は不変。
  */
 import { calculatePinIntervals as calculatePinIntervalsTS } from '@/domain/calculations/pinIntervals'
 import type { PinInterval } from '@/domain/calculations/pinIntervals'
