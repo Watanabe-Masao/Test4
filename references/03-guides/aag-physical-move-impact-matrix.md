@@ -86,26 +86,34 @@ collector の抽象化は不要。
 
 ## Move Readiness 判定
 
-### Ready（今移してよい）
+readiness は2軸で評価する: **構造的 readiness**（コードが壊れないか）と
+**意味的 readiness**（3層原則に整合するか）。
 
-- **全 140 ルールのデータ移動**: barrel re-export で吸収可能。high risk 0 件
+### Ready: 構造分割（barrel facade による architectureRules/ ディレクトリ化）
+
+- **architectureRules.ts → architectureRules/ ディレクトリ分割**: barrel re-export で consumer 変更 0 件
 - **aagSchemas.ts の RuleBinding re-export**: import パス更新のみ
 - **tools/ への影響**: なし（間接依存のみ）
 
-### Review Needed（確認後に移動）
+### Review Needed: governance フィールドの意味的所属
 
-- **architectureRuleGuard.test.ts**: ARCHITECTURE_RULES を直接走査。barrel re-export が正しく動くか検証が必要
-- **guardMetadataView.ts**: `outdatedPattern.codeSignals[0]` へのアクセスが intersection 型経由で維持されるか検証が必要
+- **architectureRuleGuard.test.ts / guardMetadataView.ts**: ARCHITECTURE_RULES 直接走査。barrel re-export で動くか検証が必要
+- **governance の App Domain / Project Overlay 分離**:
+  - App Domain に残す: `decisionCriteria`, `migrationPath.steps`, `sunsetCondition`（安定した業務知識）
+  - Project Overlay に分離する: `fixNow`, `migrationPath.priority/effort`, `reviewPolicy`, `lifecyclePolicy`（案件運用状態）
+  - この分離は構造分割（Exit A）の後、意味配置フェーズで行う
 
-### Not Ready（まだ移さない）
+### Not Ready: 最終配置としての分散保存
 
+- **rule catalog 自体を App Domain / Project Overlay に本格分散保存**: governance 分離が未完のため、まだ行えない
 - **guard 実装ロジックの分割**: 各 guard test の検出ロジック自体は architectureRules.ts に依存せず、
   ソースコードを直接走査する。移動不要
 - **health collector の振る舞い変更**: 不要（間接依存のみ）
 
 ## 推奨する物理移動戦略
 
-impact matrix の結果から、**Exit A（小規模 physical move + barrel facade）** を推奨:
+impact matrix の結果から、**Exit A（構造分割 + barrel facade）** を推奨。
+ただし Exit A は「構造分割」であり「最終配置」ではない。
 
 ```
 Step 1: architectureRules/ ディレクトリ作成
@@ -120,7 +128,21 @@ Step 4: 全 45 consumer の import パスは変更不要
 
 **consumer 変更件数: 0**（barrel re-export が同一パスを維持）
 
+## Exit A の後に残る課題
+
+構造分割（Exit A）を完了しても、以下は未解決:
+
+1. **governance フィールドの物理分離**: fixNow/priority/reviewPolicy を Project Overlay に移し、
+   decisionCriteria/steps/sunsetCondition を App Domain に残す
+2. **rule catalog の最終配置**: semantics + app-governance を app-domain/rule-catalog に、
+   project-governance を projects/<id>/aag/ に配置する設計判断
+3. **マージ戦略**: 分散した governance を実行時にどう組み立てるか（合成 or overlay パターン）
+
 ## 次フェーズへの出口
 
-**Exit A を採用**: barrel facade で全 consumer を吸収し、小規模 physical move から着手。
+**Exit A を採用**: barrel facade で全 consumer を吸収する構造分割から着手。
 collector 側の抽象化は不要（tools/ は間接依存のみ）。
+
+Exit A 完了後の次ステップ:
+- governance の App Domain / Project Overlay 分離設計
+- overlay パターンの設計（Project Overlay が App Domain の governance を上書きする仕組み）
