@@ -143,8 +143,8 @@ export interface LifecyclePolicy {
 export interface RuleGovernance {
   /** 判断基準（脱属人化） */
   readonly decisionCriteria?: DecisionCriteria
-  /** 修正手順（安定知識: どう直すか） */
-  readonly migrationRecipe?: MigrationRecipe
+  /** 修正手順（安定知識: どう直すか）— 全ルール必須 */
+  readonly migrationRecipe: MigrationRecipe
   /** いつこのルールが不要になるか（反証可能性） */
   readonly sunsetCondition?: string
 }
@@ -157,8 +157,8 @@ export interface RuleGovernance {
 export interface RuleOperationalState {
   /** 違反時の運用区分（今この案件での扱い） */
   readonly fixNow?: FixNowClassification
-  /** 実行計画（案件固有の工数・優先度） */
-  readonly executionPlan?: ExecutionPlan
+  /** 実行計画（案件固有の工数・優先度）— 全ルール必須 */
+  readonly executionPlan: ExecutionPlan
   /** レビュー周期（案件運用） */
   readonly reviewPolicy?: ReviewPolicy
   /** experimental ルールの出口（案件の時計） */
