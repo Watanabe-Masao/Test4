@@ -53,7 +53,7 @@ function deriveGuardMetadata(): readonly DerivedGuardMetadata[] {
             : ('soft' as const),
       targetArea: rule.outdatedPattern.codeSignals?.[0] ?? null,
       description: rule.what,
-      canAutoFix: rule.migrationPath?.effort === 'trivial',
+      canAutoFix: rule.executionPlan?.effort === 'trivial',
       sunsetCondition: rule.sunsetCondition ?? null,
       note: categoryEntry.note,
     } satisfies DerivedGuardMetadata

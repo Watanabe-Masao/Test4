@@ -25,7 +25,6 @@ import type {
   DecisionCriteria as _DecisionCriteria,
   MigrationRecipe as _MigrationRecipe,
   ExecutionPlan as _ExecutionPlan,
-  MigrationPath as _MigrationPath,
   ReviewPolicy as _ReviewPolicy,
   LifecyclePolicy as _LifecyclePolicy,
   RuleRelationships as _RuleRelationships,
@@ -44,8 +43,6 @@ export type DetectionConfig = _DetectionConfig
 export type DecisionCriteria = _DecisionCriteria
 export type MigrationRecipe = _MigrationRecipe
 export type ExecutionPlan = _ExecutionPlan
-/** @deprecated MigrationRecipe + ExecutionPlan に分離予定 */
-export type MigrationPath = _MigrationPath
 export type ReviewPolicy = _ReviewPolicy
 export type LifecyclePolicy = _LifecyclePolicy
 export type RuleRelationships = _RuleRelationships
@@ -166,9 +163,6 @@ export interface RuleBinding {
  * `interface extends` は同名プロパティの型が完全一致でないと TS2320 になる。
  * correctPattern/outdatedPattern は Core（description のみ）と Binding（imports 等）で
  * 異なる部分型を持つため、intersection（`&`）でマージする必要がある。
- *
- * 既存 140 ルールは migrationPath（deprecated）を使用。
- * 新規ルールは migrationRecipe + executionPlan を推奨。
  */
 export type ArchitectureRule = _RuleSemantics &
   _RuleGovernance &
@@ -177,6 +171,4 @@ export type ArchitectureRule = _RuleSemantics &
   RuleBinding & {
     /** Core の principleRefs を PrincipleId に narrowing（アプリ固有の原則 ID 体系） */
     readonly principleRefs?: readonly PrincipleId[]
-    /** @deprecated MigrationRecipe（App Domain）+ ExecutionPlan（Project Overlay）に分離予定 */
-    readonly migrationPath?: _MigrationPath
   }
