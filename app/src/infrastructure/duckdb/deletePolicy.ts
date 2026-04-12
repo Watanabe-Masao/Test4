@@ -87,48 +87,57 @@ export async function deleteMonth(
 }
 
 /**
- * 前年スコープの行を削除する。引数 year は **current year** を渡す想定で、
- * 内部で `prevYear = year - 1` を計算して (year-1, month) を削除する。
+ * 指定 (year, month) 位置の **前年スコープ行のみ** を削除する（year-shift しない）。
  *
- * **2 つの用途:**
- * 1. explicit remove（`deleteMonth` とペア）— 月データを DB から明示的に
- *    取り除くときに、当年と前年の両方を消す。`workerHandlers.executeDeleteMonth`
- *    が当該パターン。
- * 2. loadMonth の前処理（caller 側ワークアラウンド）— `loadMonth(..., isPrevYear=true)`
- *    の内部 purge は year 引数をそのまま使って `deletePrevYearMonth(prevYear, month)`
- *    を呼ぶため、year-shift により (prevYear-1, month) を消してしまい本来の
- *    前年行が purge されない。これが直るまでは caller が current year 文脈で
- *    `deletePrevYearMonth(currentYear, month)` を呼んで補う。詳細は
- *    `references/03-guides/data-load-idempotency-plan.md` を参照。
+ * TABLES_WITH_PREV_YEAR_FLAG のテーブルでは `is_prev_year=true` 行のみ削除し、
+ * PREV_YEAR_INSERT_TABLES のテーブルでは (year, month) の全行を削除する
+ * （これらは is_prev_year 列を持たず、前年ロード時に (year, month) 位置に
+ * そのまま INSERT される）。
+ *
+ * **用途:** `loadMonth(..., isPrevYear=true)` の内部 purge が呼ぶ。
+ * `year` は前年ロードの対象月そのもの（例: 2024 年 4 月を前年データとして
+ * 再ロードしたいなら `year=2024, month=4`）で、year-shift は行わない。
+ *
+ * 【テーブル別の削除戦略】
+ * - classified_sales / category_time_sales / time_slots: is_prev_year=true 行のみ削除
+ *   → 同一 (year, month) に当年データ (is_prev_year=false) が共存しうるため
+ * - purchase / special_sales / transfers: is_prev_year 列なし → (year, month) 全行削除
+ */
+export async function deletePrevYearRowsAt(
+  conn: AsyncDuckDBConnection,
+  year: number,
+  month: number,
+): Promise<void> {
+  for (const name of TABLES_WITH_YEAR_MONTH) {
+    if (TABLES_WITH_PREV_YEAR_FLAG.has(name)) {
+      await conn.query(
+        `DELETE FROM ${name} WHERE year = ${year} AND month = ${month} AND is_prev_year = true`,
+      )
+    }
+  }
+  for (const name of PREV_YEAR_INSERT_TABLES) {
+    await conn.query(`DELETE FROM ${name} WHERE year = ${year} AND month = ${month}`)
+  }
+}
+
+/**
+ * 当年 (year, month) に対応する **前年スロット** (year-1, month) の行を削除する。
+ *
+ * **用途:** 月データの explicit remove。`deleteMonth` とペアで呼ぶことで、
+ * 当年スコープと前年スコープの両方を DB から取り除く（`workerHandlers.executeDeleteMonth`
+ * を参照）。`loadMonth` の前処理として呼ぶ必要はない — `loadMonth(..., isPrevYear=true)`
+ * は内部で `deletePrevYearRowsAt` を呼んで前年スコープを直接 purge する。
  *
  * 【背景: なぜ deleteMonth だけでは不十分か】
  * `loadMonth` は前年データを (year-1, month) の year/month で INSERT する。
  * しかし `deleteMonth(year, month)` は当年の (year, month) 行のみを削除するため、
  * 前年レコードは残ってしまう。再ロードが重なると store_day_summary VIEW で
  * 行倍増が発生する（#前年点数 2 倍バグ — special_sales の前年データが 2 重に）。
- *
- * 【テーブル別の削除戦略】
- * - classified_sales / category_time_sales / time_slots: is_prev_year=true のみ削除
- *   → 同一 (year, month) に当年データ (is_prev_year=false) が共存しうるため
- * - purchase / special_sales / transfers: is_prev_year 列なし → (prevYear, month) 全行削除
- *   → これらのテーブルは is_prev_year 列を持たない設計上の制約
  */
 export async function deletePrevYearMonth(
   conn: AsyncDuckDBConnection,
   year: number,
   month: number,
 ): Promise<void> {
-  const prevYear = year - 1
-  // is_prev_year 列ありテーブル: 前年フラグ行のみ削除（当年として読み込んだデータは残す）
-  for (const name of TABLES_WITH_YEAR_MONTH) {
-    if (TABLES_WITH_PREV_YEAR_FLAG.has(name)) {
-      await conn.query(
-        `DELETE FROM ${name} WHERE year = ${prevYear} AND month = ${month} AND is_prev_year = true`,
-      )
-    }
-  }
-  // is_prev_year 列なしテーブル: (prevYear, month) の行を全削除
-  for (const name of PREV_YEAR_INSERT_TABLES) {
-    await conn.query(`DELETE FROM ${name} WHERE year = ${prevYear} AND month = ${month}`)
-  }
+  await deletePrevYearRowsAt(conn, year - 1, month)
 }
