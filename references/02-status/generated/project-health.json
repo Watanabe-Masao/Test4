@@ -1,17 +1,29 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-12T16:46:04.235Z",
+  "timestamp": "2026-04-12T17:24:40.557Z",
   "summary": {
-    "active": 6,
+    "active": 7,
     "archived": 1,
-    "inProgress": 5,
+    "inProgress": 6,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 273,
+    "totalCheckboxes": 302,
     "checkedCheckboxes": 191
   },
   "projects": [
+    {
+      "projectId": "aag-collector-purification",
+      "title": "AAG collector 純化 — 規約と実装の対称性回復",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 0,
+      "total": 28,
+      "progress": 0,
+      "entrypoint": "projects/aag-collector-purification/AI_CONTEXT.md",
+      "checklistPath": "projects/aag-collector-purification/checklist.md"
+    },
     {
       "projectId": "aag-rule-splitting-execution",
       "title": "AAG ルール分割実行 — AR-STRUCT-RESP-SEPARATION 7 分割",
@@ -91,8 +103,8 @@
       "declaredStatus": "active",
       "derivedStatus": "collection",
       "checked": 1,
-      "total": 3,
-      "progress": 0.333,
+      "total": 4,
+      "progress": 0.25,
       "entrypoint": "projects/quick-fixes/AI_CONTEXT.md",
       "checklistPath": "projects/quick-fixes/checklist.md"
     }

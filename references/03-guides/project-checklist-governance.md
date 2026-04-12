@@ -302,10 +302,12 @@ archive される project が依存していた references/ 文書は、project 
 |---|---|---|
 | `data-load-idempotency-hardening` | idempotent load contract 残存防御 | [`projects/data-load-idempotency-hardening/AI_CONTEXT.md`](../../projects/data-load-idempotency-hardening/AI_CONTEXT.md) |
 | `presentation-quality-hardening` | active-debt + 500 行超 + coverage + E2E | [`projects/presentation-quality-hardening/AI_CONTEXT.md`](../../projects/presentation-quality-hardening/AI_CONTEXT.md) |
-| `docs-and-governance-cohesion` | live task 集約 + AAG 統合 | [`projects/docs-and-governance-cohesion/AI_CONTEXT.md`](../../projects/docs-and-governance-cohesion/AI_CONTEXT.md) |
 | `architecture-decision-backlog` | 未決定の設計判断 | [`projects/architecture-decision-backlog/AI_CONTEXT.md`](../../projects/architecture-decision-backlog/AI_CONTEXT.md) |
 | `aag-rule-splitting-execution` | AR-STRUCT-RESP-SEPARATION 7 分割 | [`projects/aag-rule-splitting-execution/AI_CONTEXT.md`](../../projects/aag-rule-splitting-execution/AI_CONTEXT.md) |
+| `aag-collector-purification` | collector の heading 抑制を消し、規約と実装の対称性を回復する | [`projects/aag-collector-purification/AI_CONTEXT.md`](../../projects/aag-collector-purification/AI_CONTEXT.md) |
 | `pure-calculation-reorg` | Pure 計算責務再編（Phase 8〜） | [`projects/pure-calculation-reorg/AI_CONTEXT.md`](../../projects/pure-calculation-reorg/AI_CONTEXT.md) |
+| `quick-fixes` | 単発 fix collection (continuous) | [`projects/quick-fixes/AI_CONTEXT.md`](../../projects/quick-fixes/AI_CONTEXT.md) |
+| `docs-and-governance-cohesion` (archived) | live task 集約 + AAG 統合 (2026-04-12 archive) | [`projects/completed/docs-and-governance-cohesion/AI_CONTEXT.md`](../../projects/completed/docs-and-governance-cohesion/AI_CONTEXT.md) |
 
 実時の値は [`references/02-status/generated/project-health.md`](../02-status/generated/project-health.md) を正本とする。
 
