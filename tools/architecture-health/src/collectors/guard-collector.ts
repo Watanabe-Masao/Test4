@@ -61,10 +61,13 @@ export function collectFromGuards(repoRoot: string): HealthKpi[] {
     implRefs: ['app/src/test/architectureRules/rules.ts'],
   })
 
-  // --- fixNow distribution ---
-  const fixNowNow = (rulesContent.match(/fixNow: 'now'/g) || []).length
-  const fixNowDebt = (rulesContent.match(/fixNow: 'debt'/g) || []).length
-  const fixNowReview = (rulesContent.match(/fixNow: 'review'/g) || []).length
+  // --- fixNow distribution（Project Overlay 側正本） ---
+  const overlayPath = resolve(repoRoot, 'projects/pure-calculation-reorg/aag/execution-overlay.ts')
+  const overlayContent = readFileSync(overlayPath, 'utf-8')
+  // quote-agnostic: overlay が Prettier により single/double quote どちらになっても動く
+  const fixNowNow = (overlayContent.match(/fixNow:\s*['"]now['"]/g) || []).length
+  const fixNowDebt = (overlayContent.match(/fixNow:\s*['"]debt['"]/g) || []).length
+  const fixNowReview = (overlayContent.match(/fixNow:\s*['"]review['"]/g) || []).length
   kpis.push({
     id: 'guard.rules.fixNow.now',
     label: 'fixNow=now ルール数（即修正）',

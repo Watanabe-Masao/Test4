@@ -10,7 +10,7 @@
 
 import type { ArchitectureRule, AagSlice, DetectionType } from './types'
 import { SLICE_GUIDANCE } from './types'
-import { ARCHITECTURE_RULES } from './rules'
+import { ARCHITECTURE_RULES } from './merged'
 
 // ─── Lookup 関数 ─────────────────────────────────────────
 

@@ -164,11 +164,27 @@ export interface RuleBinding {
  * correctPattern/outdatedPattern は Core（description のみ）と Binding（imports 等）で
  * 異なる部分型を持つため、intersection（`&`）でマージする必要がある。
  */
-export type ArchitectureRule = _RuleSemantics &
+/**
+ * BaseRule = App Domain 側のルール定義（operational state 除く）
+ *
+ * rules.ts が直接持つ型。RuleOperationalState は含まない。
+ * Project Overlay が merge されて ArchitectureRule になる。
+ */
+export type BaseRule = _RuleSemantics &
   _RuleGovernance &
-  _RuleOperationalState &
   _RuleDetectionSpec &
   RuleBinding & {
     /** Core の principleRefs を PrincipleId に narrowing（アプリ固有の原則 ID 体系） */
     readonly principleRefs?: readonly PrincipleId[]
   }
+
+/**
+ * Architecture Rule = BaseRule + RuleOperationalState
+ *
+ * 合成後のルール型。consumer が参照するのはこの型。
+ * - BaseRule: rules.ts（App Domain: semantics + governance + detection + binding）
+ * - RuleOperationalState: execution-overlay.ts（Project Overlay: fixNow + executionPlan 等）
+ *
+ * 合成ロジック: architectureRules/merged.ts
+ */
+export type ArchitectureRule = BaseRule & _RuleOperationalState

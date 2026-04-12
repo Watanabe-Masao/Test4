@@ -37,8 +37,8 @@ export type {
 
 export { SLICE_GUIDANCE } from './types'
 
-// ルール定義データ
-export { ARCHITECTURE_RULES } from './rules'
+// ルール定義データ（App Domain + Project Overlay の derived merge）
+export { ARCHITECTURE_RULES } from './merged'
 
 // ヘルパー関数 + AagResponse 型
 export {

@@ -20,7 +20,8 @@
     /* Path aliases */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@project-overlay/*": ["../projects/pure-calculation-reorg/aag/*"]
     },
 
     /* Linting */
@@ -31,5 +32,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src"]
+  "include": ["src", "../projects/pure-calculation-reorg/aag/**/*.ts"]
 }
