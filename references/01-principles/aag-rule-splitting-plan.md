@@ -1,4 +1,13 @@
-# AAG ルール分割計画 — 例外圧が高いルールの再構成
+# AAG ルール分割計画 — 設計記録
+
+> **役割: 設計記録（分割案と判定基準の正本）**
+>
+> 本文書は AAG ルール分割の判定基準と分割案を記録する。
+>
+> **live な作業項目は本文書に書かない。**
+> 実装の残作業は
+> [`projects/aag-rule-splitting-execution/checklist.md`](../../projects/aag-rule-splitting-execution/checklist.md)
+> を参照。
 
 ## 分割の原則
 

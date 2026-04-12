@@ -1,19 +1,30 @@
-# 技術負債削減ロードマップ
+# 技術負債削減ロードマップ — 判断理由・優先順位・歴史
 
+> **役割: judgment rationale 文書（背景・判断理由・歴史記録）**
+>
 > 管理責任: documentation-steward ロール。
 > 起点: Sprint 1（guardTagRegistry 分離、allowlists/ 分割、CONTRIBUTING.md URL 整合）
-> 作成日: 2026-03-23 / 更新日: 2026-04-04
+> 作成日: 2026-03-23 / 更新日: 2026-04-12
 >
 > **現在値（件数・残数・hotspot）は generated snapshot を正本とする。**
-> 本ドキュメントは方針・優先順位・判断理由を記録する。
+> 本ドキュメントは方針・優先順位・判断理由・歴史を記録する。
 > 件数の一次情報源: `references/02-status/generated/architecture-health.json`
+>
+> **live な作業項目は本文書に書かない。**
+> 残作業の正本は `projects/<id>/checklist.md`。
+> 索引は [`references/02-status/open-issues.md`](./open-issues.md) を参照。
+>
+> 本文書に残っている P1〜P5 等の改善 project は **完了済みの履歴記録** であり、
+> live task list ではない。新規 project 立ち上げ時は
+> [`references/03-guides/project-checklist-governance.md`](../03-guides/project-checklist-governance.md)
+> の規約に従って `projects/<id>/` に作成すること。
 
 ---
 
 ## 現在の健全性サマリー
 
 <!-- GENERATED:START architecture-health-summary -->
-**Healthy** | 前回比: Flat | Hard Gate: PASS
+**Healthy** | 前回比: Improved | Hard Gate: PASS
 
 | 指標 | 状態 | 詳細 |
 |---|---|---|
@@ -27,7 +38,7 @@
 | Rule Efficacy | OK | 80 / 0/3 / 0/10 |
 
 
-> 生成: 2026-04-12T14:59:16.920Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-12T15:09:39.918Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 現状スナップショット

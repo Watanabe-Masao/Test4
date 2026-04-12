@@ -140,15 +140,11 @@ Phase 6 結果:
 
 ### 次のアクション
 
-#### 最優先: データロード層の根本改善
-
-`special_sales` テーブルの重複蓄積によるリグレッションバグを発見・暫定修正済み。
-根本解決は別スコープで実施する。
-
-- **問題定義書**: `references/03-guides/data-load-idempotency-plan.md`
-- **暫定修正**: `MAX(customers)` (schemas.ts) + `loadMonth` 内自動 `deleteMonth` (dataLoader.ts)
-- **根本解決**: `loadMonth` の完全冪等化 + `useDuckDB.ts` の冗長 `deleteMonth` 整理
-- **テスト**: 同一データ 2 回ロードで行数不変の検証が必要
+> **本 project の次のアクションは Phase 8 (Promote Ceremony)。**
+> データロード冪等化は別 project に分離済み:
+> [`projects/data-load-idempotency-hardening`](../data-load-idempotency-hardening/AI_CONTEXT.md)。
+> 本 project と data-load-idempotency-hardening は scope が異なるため、
+> 同じ checklist に混在させない（1 project = 1 一貫した task scope の原則）。
 
 #### Phase 8: Promote Ceremony
 

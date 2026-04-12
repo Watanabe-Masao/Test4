@@ -18,6 +18,11 @@
 | **ドキュメント** | `references/` / `CLAUDE.md` / `roles/` / `app-domain/` 等 | 機能・契約・原則・背景・歴史。**live task は一切書かない** |
 | **課題** | `projects/<id>/checklist.md` | 未着手 / 着手中の作業項目だけ。**機能説明は一切書かない** |
 
+> **1 project = 1 一貫した task scope。**
+> 異質の動線・コンテキストを持った課題（例: pure 計算責務再編と データロード冪等化）を
+> 同じ checklist に混ぜると、後から読む人が「何の話なのか」を理解するために
+> コスト過大に支払う。スコープが分岐したら必ず project を分ける。
+
 両者を混ぜると次が起きる:
 - ドキュメントを読みに来た人がノイズに目を逸らされる
 - 課題が複数箇所に散らばって drift する
@@ -25,6 +30,22 @@
 - 新しい課題をどこに書けばいいかわからなくなる
 
 本ガイドは上記 4 つの問題を構造的に発生させない仕組みを定義する。
+
+### この分離が支える運用シナリオ
+
+複数の課題を異なる文脈で **並行進行** したり、途中で切り上げて **他の課題に
+切り替え** たりする際に、適切な文脈を切り分けて保持することで「いま何を
+やっているのか」が常に明確になる。各 project は:
+
+- **独立した AI_CONTEXT.md** で文脈の入口を持つ
+- **独立した checklist.md** で進行状態を持つ
+- **独立した HANDOFF.md** で再開時の続きが分かる
+- **collector が動的に completion 判定** するため、人間が「終わったか？」を毎回手で
+  判定しなくて済む
+
+これにより、AI セッションが project A → project B → project A と切り替わっても、
+文脈が混線しない。これが本仕組みの中心目的であり、ドキュメントと課題の分離は
+そのための必要条件である。
 
 ## 1. 目的
 
@@ -172,6 +193,9 @@ entry: `projects/<id>/AI_CONTEXT.md`
 - `config/project.json` の `status` を `completed` に手動で書き込む（collector 判定に従う）
 - collector の derivedStatus を無視して archive する
 - archive 済み project を `CURRENT_PROJECT.md` の active に指定したまま放置する
+- **異質の動線・コンテキストを持った課題を 1 project に混ぜる**（例: pure 計算
+  責務再編と データロード冪等化を同じ checklist に書く）。1 project = 1 一貫した
+  task scope。スコープが分岐したら project を分ける
 
 ## 8. 関連実装
 

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$comment": "設計原則体系の唯一正本。CLAUDE.md, architectureRules.ts, documentConsistency.test.ts はこの JSON を参照・検証する。AAG v4.5.0: 移行タグ基盤 + Phase 3-7 guard 31 件追加（計 140 ルール）+ obligation collector 修正。",
+  "$comment": "設計原則体系の唯一正本。CLAUDE.md, architectureRules.ts, documentConsistency.test.ts はこの JSON を参照・検証する。AAG v4.5.0: 移行タグ基盤 + Phase 3-7 guard 31 件追加（計 140 ルール）+ obligation collector 修正。aag-rule-splitting-plan.md は実装計画を projects/aag-rule-splitting-execution に分離（2026-04-12）。",
   "version": "4.5.0",
   "taxonomy": "A-I+Q",
   "categories": [
