@@ -84,6 +84,7 @@ export default defineConfig({
       '@': resolve(__dirname, 'src'),
       '@project-overlay': projectOverlayRoot,
       '@app-domain': resolve(__dirname, '../app-domain'),
+      '@tools/architecture-health': resolve(__dirname, '../tools/architecture-health/src'),
     },
   },
   server: {

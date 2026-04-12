@@ -56,6 +56,9 @@ const FORBIDDEN_IMPORTS: {
 const ALLOWED_FILE_SUFFIXES: readonly string[] = [
   'test/guards/executionOverlayGuard.test.ts',
   'test/guards/aagDerivedOnlyImportGuard.test.ts',
+  // Phase 6-3: merge / facade smoke test は 全 4 経路（barrel / index / merged / rules re-export）
+  // から import して同値検証するため直参照が必要
+  'test/guards/architectureRulesMergeSmoke.test.ts',
 ]
 
 const ALLOWED_DIR_PREFIXES: readonly string[] = ['test/architectureRules/']

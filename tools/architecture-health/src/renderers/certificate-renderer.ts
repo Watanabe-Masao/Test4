@@ -14,7 +14,7 @@
 import { writeFileSync, mkdirSync } from 'node:fs'
 import { AAG_FIX_HINTS } from '../config/aag-fix-hints.js'
 import { resolve, dirname } from 'node:path'
-import type { HealthReport, HealthKpi } from '../types.js'
+import type { HealthReport } from '../types.js'
 import type {
   OverallAssessment,
   CompositeIndicator,

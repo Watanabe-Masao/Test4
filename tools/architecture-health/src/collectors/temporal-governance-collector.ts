@@ -29,7 +29,6 @@ export function collectFromTemporalGovernance(repoRoot: string): HealthKpi[] {
   const overlayContent = readFileSync(overlayPath, "utf-8");
 
   // reviewPolicy 設定率（Project Overlay 側正本）
-  const totalRules = (rulesContent.match(/id: 'AR-/g) || []).length;
   const withReviewPolicy = (overlayContent.match(/reviewPolicy: \{/g) || [])
     .length;
   kpis.push({
