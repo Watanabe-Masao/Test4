@@ -485,6 +485,55 @@ format: `* [ ] (優先度) <スコープ>: <一文の説明>`
 判断は §11.1 に立ち戻る。**昇格・降格の判断は何度繰り返してもよい** —
 仕組みは可逆的に作られている。
 
+## 12. AAG 管理下の同期ペア（version triplet 等）
+
+> **AAG Core の役割は機能を定義し、契約を行い、より使いやすい骨格を提供することにある。**
+> 同期ペア管理はその一例である。
+
+### 12.1. なぜ Core 化するか
+
+リポジトリには「同じ値が複数の文書に重複して存在する」箇所がある。
+代表例: app version triplet（`app/package.json` の `version` / `docs/contracts/project-metadata.json` の
+`appVersion` / `CHANGELOG.md` の最新 `[v...]` / `references/02-status/recent-changes.md` の
+最新 `## v...` 見出し）。
+
+これらは drift しやすく、過去にも 1.7.0 と 1.8.0 が混在する状態が指摘されている。
+個別 test に hard-code すると、新しい同期ペアを追加するたびに test ファイルを
+触る必要があり、機構が分散する。
+
+そこで AAG Core では **「宣言的な同期ペア registry + generic な検査 guard」**
+という骨格を提供する。新しいペアを追加するときは registry に 1 entry 足すだけで、
+guard は触らずに自動検査される。
+
+### 12.2. レイヤー対応
+
+| AAG レイヤー | 配置 | 役割 |
+|---|---|---|
+| Layer 2 Schema | `app/src/test/versionSyncRegistry.ts` | 同期ペアの **宣言**（`VersionSyncPair` 型 + `VERSION_SYNC_REGISTRY`） |
+| Layer 3 Execution | `app/src/test/guards/versionSyncGuard.test.ts` | registry を loop して **検査**（V1: ファイル存在 / V2: 値抽出 / V3: 値一致） |
+| Layer 4A System Operations | 本セクション §12 | **運用ルール**（追加方法 / 命名規則） |
+
+これは AAG の 4 層モデル（`references/01-principles/aag-5-constitution.md`）に
+完全に準拠した設計であり、本仕組み自体が AAG の管理下にある。
+
+### 12.3. 新しい同期ペアの追加（運用手順）
+
+1. `app/src/test/versionSyncRegistry.ts` の `VERSION_SYNC_REGISTRY` に 1 entry 追加する
+   - `id`: 人間可読な識別子
+   - `description`: 何の値を同期しているか
+   - `source`: `{ file, extract, label }` — 比較元
+   - `target`: `{ file, extract, label }` — 比較先（通常は `PROJECT_METADATA_TARGET` を使う）
+2. guard ファイル（`versionSyncGuard.test.ts`）は **触らない**
+3. `cd app && npm run test:guards` で V1-V3 の 3 検査が新ペアに対して自動実行される
+4. drift があれば V3 が fail し、error message に source / target の値と修正方針が表示される
+
+### 12.4. やってはいけないこと
+
+- registry を経由せずに `documentConsistency.test.ts` 等に hard-code する → 機構が分散する
+- 新しい version 重複を repo に持ち込むときに registry 登録を後回しにする → drift の温床
+- registry の `extract` 関数で副作用（fs アクセス等）を行う → pure function 原則
+- 「気をつける」運用ルールに依存する → AAG 管理下に置く意味がなくなる
+
 ## 9. このガイド自体の正本
 
 本ガイドが定義する規格を変更する場合は、関連する 4 ガード / collector / generated artifact

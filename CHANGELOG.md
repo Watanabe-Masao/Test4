@@ -18,6 +18,44 @@
 > 内部向けの詳細変更記��は `references/02-status/recent-changes.md` を参照。
 > `docs/contracts/project-metadata.json` の `appVersion` と最新バージョンを一致させること。
 
+## [v1.9.0] - 2026-04-12
+
+### AAG 5.1 — Project Lifecycle Management & Documentation/Task Separation
+
+ドキュメントと課題の分離 + project ライフサイクル制御 + version sync registry。
+本リリースは AAG framework の Layer 4A System Operations に新しい骨格を追加する。
+
+- **projects/ 一元化**: live な作業項目の正本を `projects/<id>/checklist.md` のみに集約。references/ から live task table を全削除し導線だけ残置
+- **6 + 1 live project スケルトン**: data-load-idempotency-hardening / presentation-quality-hardening / architecture-decision-backlog / aag-rule-splitting-execution / pure-calculation-reorg + quick-fixes (collection)。verified LIVE 項目のみを checklist に転記
+- **project bootstrap template**: `projects/_template/` から AI が新規 project を立ち上げられる骨格 + 10 ステップの bootstrap 手順
+- **project checklist collector**: `tools/architecture-health/src/collectors/project-checklist-collector.ts`。`derivedStatus` を checklist から動的判定（empty / in_progress / completed / archived / collection）
+- **generated project-health**: `references/02-status/generated/project-health.{json,md}` を docs:generate で生成。全 project の derivedStatus + progress を一覧化
+- **checklist format guard** (F1-F5): 必須ファイル / checkbox 形式 / 「やってはいけないこと」「常時チェック」「最重要項目」セクション内の checkbox を機械検出
+- **completion consistency guard** (C1-C4): completed なのに archive 未実施 / CURRENT_PROJECT.md の active 整合 / dead-link to projects/ を機械検出
+- **architecture-health 統合**: `project.checklist.completedNotArchivedCount` を **hard gate** で固定。consistency guard と二重防御で「completed → archive 強制」を実現
+- **kind: collection 概念**: 大きな project と小さな fix を分けて扱う。quick-fixes は continuous で archive しない
+- **archive lifecycle**: `projects/completed/` 物理 archive 先 + governance §6.2 に必須 8 ステップ + 関連正本更新義務 + §6.3 に立ち上げからクローズまでの 10 ステップ例
+- **version sync registry (Core)**: `app/src/test/versionSyncRegistry.ts` (Schema) + `versionSyncGuard.test.ts` (Execution)。`package.json` / `project-metadata.json` / `CHANGELOG.md` / `recent-changes.md` の 4 値の整合性を宣言的に管理。新ペア追加は registry に 1 entry 足すだけ
+- **AAG 5.1 への bump**: aag-5-constitution.md Layer 4A に project-checklist-governance.md / open-issues.md / versionSyncRegistry.ts を登録
+- **self-host 動作確認**: 本リリースに含まれる docs-and-governance-cohesion project 自身が、確立した「完了 → archive 強制」の仕組みの最初の利用者となり、`projects/completed/docs-and-governance-cohesion` に archive 済み
+
+### 新規追加ファイル
+
+- `references/03-guides/project-checklist-governance.md` (規約の正本、§0-12)
+- `tools/architecture-health/src/collectors/project-checklist-collector.ts`
+- `tools/architecture-health/src/renderers/project-health-renderer.ts`
+- `app/src/test/versionSyncRegistry.ts`
+- `app/src/test/guards/versionSyncGuard.test.ts`
+- `app/src/test/guards/checklistFormatGuard.test.ts`
+- `app/src/test/guards/projectCompletionConsistencyGuard.test.ts`
+- `projects/_template/`, `projects/quick-fixes/`, `projects/completed/`
+- `projects/data-load-idempotency-hardening/`, `presentation-quality-hardening/`, `architecture-decision-backlog/`, `aag-rule-splitting-execution/`
+
+### Read-path 重複耐性 (Pre-1.9.0 — branch 内で先行 merged)
+
+- **idempotent load contract Phase 0-3 の追加防御**: duplicate-injected mock conn helper / FRAGILE 6 件への構造的回帰テスト / @risk JSDoc + @defense 防御コメント
+- **FRAGILE 1/2/6 の pre-aggregate refactor**: `purchaseComparison.ts` の UNION ALL 2 件と `freePeriodFactQueries.ts` の cs 側を `store_day_summary` VIEW と同じパターンに書き換え、FRAGILE → SAFE 昇格
+
 ## [v1.8.0] - 2026-04-10
 
 ### Pure 計算責務再編 Phase 3-7

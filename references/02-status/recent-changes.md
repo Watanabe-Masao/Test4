@@ -1,10 +1,68 @@
 # 直近の主要変更（#673-#848+）
 
-> 更新日: 2026-04-10
+> 更新日: 2026-04-12
 >
 > **役割分担:** 本ドキュメントは内部向けの詳細変更記録。
 > リリース単位の要約は `CHANGELOG.md` を参照。
 > 同じ内容を二重管理しないこと。
+
+## v1.9.0 — AAG 5.1 Project Lifecycle Management & Documentation/Task Separation（2026-04-12）
+
+### 概要
+
+repo の課題管理を「ドキュメント = 機能説明 / 課題 = projects/<id>/checklist.md」
+の二項分離原則のもとに再構築する。`projects/` を live task の唯一正本にし、
+collector / format guard / consistency guard / generated project-health /
+architecture-health 統合 / archive lifecycle / version sync registry までを
+AAG framework の Layer 4A System Operations として一括導入する。
+
+### 主な成果物
+
+- **規約の正本** (`references/03-guides/project-checklist-governance.md`): §0-12 で
+  基本思想 / role 表 / completed 定義 / 書き方規格 / 構造 / CURRENT_PROJECT.md /
+  archive lifecycle / 関連実装 / live project 一覧 / bootstrap 手順 /
+  large vs small 分離 / version sync registry を全て明文化
+- **6 + 1 live project** (data-load-idempotency-hardening / presentation-quality-hardening /
+  architecture-decision-backlog / aag-rule-splitting-execution / pure-calculation-reorg /
+  quick-fixes (collection))。verification (2026-04-12) で確認した LIVE 項目のみ転記、
+  DONE / STALE / PARTIAL は意図的に除外
+- **project-checklist-collector** + **generated project-health** で derivedStatus を動的判定
+- **checklist format guard** (F1-F5) + **completion consistency guard** (C1-C4)
+  で format 違反 + dead-link + archive 未実施を機械検出
+- **architecture-health hard gate 統合**: `project.checklist.completedNotArchivedCount`
+  を hard_gate / eq / 0 で固定。Project Governance KPI カテゴリ追加
+- **kind: project / collection** で大きな project と小さな fix の lifecycle を分離
+- **archive 7 ステップ + 関連正本更新義務** を governance §6.2 で明文化
+- **version sync registry (Core)**: `versionSyncRegistry.ts` (Schema) +
+  `versionSyncGuard.test.ts` (Execution)。app version triplet (4 値) を宣言的管理。
+  新ペア追加は registry に 1 entry 足すだけ
+- **self-host 動作確認**: docs-and-governance-cohesion 自身が完了 → archive 強制
+  の最初の利用者となり projects/completed/ に移動済み
+
+### references/ 縮退
+
+- `data-load-idempotency-plan.md` / `handoff.md` / `read-path-duplicate-audit.md` /
+  `active-debt-refactoring-plan.md` / `aag-rule-splitting-plan.md` から live task table
+  を全削除し、機能説明・歴史記録・背景だけを残置
+- `open-issues.md` を「現在の課題 / リスク / 次にやること」から
+  「active project 索引 + 解決済み履歴」に縮退
+- `technical-debt-roadmap.md` に「judgment rationale 文書」role banner を追加
+- `pure-calculation-reorg/AI_CONTEXT.md` から「次の重心: データロード冪等化」誤導線を
+  削除し、Phase 8 Promote Ceremony を本来の主役に戻す（context 分離）
+
+### AAG 4 層への登録
+
+- Layer 1 Constitution: aag-5-constitution.md で AAG version 5.0.0 → 5.1.0
+- Layer 2 Schema: `versionSyncRegistry.ts` を Schema 層に追加登録
+- Layer 3 Execution: 3 新規 guard (versionSync / checklistFormat / projectCompletionConsistency)
+- Layer 4A System Operations: project-checklist-governance.md + open-issues.md を登録
+
+### Read-path 重複耐性 (Pre-1.9.0 — branch 内で先行 merged)
+
+- idempotent load contract Phase 0-3 の追加防御 5 PR (A-E)
+- duplicate-injected mock conn helper / FRAGILE 6 件への構造的回帰テスト
+- @risk JSDoc + @defense 防御コメントの実装隣接化
+- FRAGILE 1/2/6 を `store_day_summary` VIEW と同じ pre-aggregate パターンに refactor
 
 ## v1.8.0 — Pure 計算責務再編 Phase 3-7（2026-04-10）
 

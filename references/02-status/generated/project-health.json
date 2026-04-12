@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-12T15:43:34.320Z",
+  "timestamp": "2026-04-12T16:11:39.970Z",
   "summary": {
-    "active": 7,
-    "archived": 0,
-    "inProgress": 6,
+    "active": 6,
+    "archived": 1,
+    "inProgress": 5,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 240,
-    "checkedCheckboxes": 118
+    "totalCheckboxes": 271,
+    "checkedCheckboxes": 191
   },
   "projects": [
     {
@@ -52,13 +52,13 @@
       "projectId": "docs-and-governance-cohesion",
       "title": "ドキュメントと課題の分離 — projects/ 一元化と AAG 統合",
       "kind": "project",
-      "declaredStatus": "active",
-      "derivedStatus": "in_progress",
-      "checked": 13,
-      "total": 54,
-      "progress": 0.241,
-      "entrypoint": "projects/docs-and-governance-cohesion/AI_CONTEXT.md",
-      "checklistPath": "projects/docs-and-governance-cohesion/checklist.md"
+      "declaredStatus": "archived",
+      "derivedStatus": "archived",
+      "checked": 85,
+      "total": 85,
+      "progress": 1,
+      "entrypoint": "projects/completed/docs-and-governance-cohesion/AI_CONTEXT.md",
+      "checklistPath": "projects/completed/docs-and-governance-cohesion/checklist.md"
     },
     {
       "projectId": "presentation-quality-hardening",
@@ -90,9 +90,9 @@
       "kind": "collection",
       "declaredStatus": "active",
       "derivedStatus": "collection",
-      "checked": 0,
+      "checked": 1,
       "total": 1,
-      "progress": 0,
+      "progress": 1,
       "entrypoint": "projects/quick-fixes/AI_CONTEXT.md",
       "checklistPath": "projects/quick-fixes/checklist.md"
     }

@@ -65,3 +65,16 @@ active を指す。consistency guard はこれを「主 active」として扱う
 | `references/03-guides/project-checklist-governance.md` | 本 project が確立する規約の正本 |
 | `references/02-status/open-issues.md` | 縮退後の active project 索引 |
 | `references/02-status/technical-debt-roadmap.md` | 縮退後の判断理由文書 |
+
+---
+
+**Archived: 2026-04-12**
+
+本 project の全 14 phase が完了し、`derivedStatus = completed` (54/54) になった
+ため archive プロセスを実行した。consistency guard C1 と health hard gate
+`completedNotArchivedCount = 0` の二重防御が完了直後に発火し、archive 手順
+(governance §6.2) に従って `projects/docs-and-governance-cohesion` →
+`projects/completed/docs-and-governance-cohesion` に物理移動した。
+
+これは本 project が確立した「完了 → archive 強制」の仕組みを **本 project 自身が
+最初の利用者として動作確認した** ものでもある（self-hosting）。
