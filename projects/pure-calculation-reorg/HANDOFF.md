@@ -17,8 +17,9 @@
 ## 1. 現在地
 
 Phase 0-7 の構造基盤が完了。AAG 5.0.0 Phase A1-A5 完了。Core / Project Overlay 分離済み。
+**Phase C（Governance 配置完成）+ Phase 6（AAG 保証強化）完了**（2026-04-12）。
 
-本体: **v1.8.0**。AAG: **5.0.0**。Hard Gate: **PASS**。
+本体: **v1.8.0**。AAG: **5.0.0**（Phase C/6 配置完成後）。Hard Gate: **PASS**。
 
 ### 完了済みの構造基盤
 
@@ -32,6 +33,10 @@ Phase 0-7 の構造基盤が完了。AAG 5.0.0 Phase A1-A5 完了。Core / Proje
 - Promote Ceremony テンプレート
 - 移行タグ基盤（migrationTagRegistry + migrationTagGuard + migration-tag-policy）
 - Phase 3-7 guard 31 件追加
+- **Phase C: BaseRule を `app-domain/gross-profit/rule-catalog/base-rules.ts` へ物理移動**
+- **Phase C: direct import 禁止 3 ルール + `aagDerivedOnlyImportGuard.test.ts`**
+- **Phase C: project-resolver 一元化（vite / vitest / health tools、tsconfig は暫定静的）**
+- **Phase 6: collector / resolver / merge 3 層の契約テスト + quote-agnostic 化**
 
 ## 2. 完了した Phase の概要
 
@@ -45,6 +50,8 @@ Phase 0-7 の構造基盤が完了。AAG 5.0.0 Phase A1-A5 完了。Core / Proje
 | 5 | Tier 1 Business 移行計画（候補 6件 + 8ステップ + 判定基準） | +7 |
 | 6 | Analytic Kernel 移行計画（9件分類: 移行5 + 品質整備3 + 除外1 + 9ステップ） | +7 |
 | 7 | Guard 統合整理 + JS 正本縮退 4段階 + 違反レスポンス設計 | +4 |
+| **C** | **Governance 配置完成**: BaseRule → App Domain 物理移動 / direct import 禁止 / project resolver 一元化 / 入口文書整理 | **+1**（+3 ルール） |
+| **6** | **AAG 保証強化**: collector / resolver / merge 契約テスト + quote-agnostic 化 + merge smoke guard | **+6**（6 test files 追加、内 5 は src/test/tools/、1 は guards/） |
 
 ## 3. 後任者の読書順（3レイヤー構成）
 
@@ -71,7 +78,7 @@ Phase 0-7 の構造基盤が完了。AAG 5.0.0 Phase A1-A5 完了。Core / Proje
 |---------|------|
 | `CLAUDE.md` | 開発ルール全体。特に「設計原則」「ドキュメント運用」 |
 | `app/src/test/calculationCanonRegistry.ts` | Master Registry（46 エントリ: 実ファイル35 + candidate 11） |
-| `app/src/test/architectureRules.ts` | 全 140 ルール |
+| `app/src/test/architectureRules.ts` | Consumer facade（**物理正本**は `app-domain/gross-profit/rule-catalog/base-rules.ts`、全 143 ルール） |
 | `references/03-guides/contract-definition-policy.md` | BIZ/ANA 契約テンプレート |
 | `references/03-guides/guard-consolidation-and-js-retirement.md` | Guard マップ + JS 縮退 4段階 |
 
@@ -215,7 +222,7 @@ cd app
 npm run format          # Prettier 自動修正
 npm run lint            # ESLint（0 errors 必須）
 npm run build           # tsc -b + vite build
-npm run test:guards     # ガードテスト（53 ファイル / 461+ テスト）
+npm run test:guards     # ガードテスト（61 ファイル / 554 テスト、Phase C/6 後）
 npm run docs:generate   # guard/allowlist/文書変更時は必須
 npm run test:guards     # docs:generate 後に再度
 ```
