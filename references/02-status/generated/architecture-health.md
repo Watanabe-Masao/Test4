@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-12T08:16:03.718Z
+> Generated: 2026-04-12T13:40:34.329Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -76,8 +76,8 @@
 
 | ID | 指標 | 値 | 状態 |
 |---|---|---|---|
-| perf.bundle.totalJsKb | JS バンドル合計サイズ | 6496 / 7000 | OK |
-| perf.bundle.mainJsKb | メインバンドルサイズ | 2225 / 2500 | OK |
+| perf.bundle.totalJsKb | JS バンドル合計サイズ | 6505 / 7000 | OK |
+| perf.bundle.mainJsKb | メインバンドルサイズ | 2228 / 2500 | OK |
 | perf.bundle.vendorEchartsKb | ECharts バンドルサイズ | 919 / 1000 | OK |
 | perf.bundle.cssKb | CSS 合計サイズ | 0 | OK |
 

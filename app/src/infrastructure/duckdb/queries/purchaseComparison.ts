@@ -100,9 +100,14 @@ export const StoreCostPriceRowSchema = z.object({
 /**
  * 指定日付範囲の店舗別原価/売価を取得する。
  *
- * purchase + special_sales + transfers を UNION し、
- * 全仕入カテゴリを合算した額を store_id 別に返す。
- * 率の計算は呼び出し元が domain/calculations 経由で行う（@guard B3）。
+ * purchase + special_sales + transfers を UNION し、全仕入カテゴリを合算した
+ * 額を store_id 別に返す。率の計算は呼び出し元が domain/calculations 経由で
+ * 行う（@guard B3）。
+ *
+ * @risk FRAGILE @depends-on loadMonth-replace-semantics
+ *   UNION ALL + 外側 SUM 構造のため 3 source の行重複に対して silent 倍化する。
+ *   ロード境界の replace 契約と一体で成立している。
+ *   詳細: references/03-guides/read-path-duplicate-audit.md §FRAGILE/1
  */
 export async function queryStoreCostPrice(
   conn: AsyncDuckDBConnection,
@@ -147,6 +152,10 @@ export const StoreDailyMarkupRateRowSchema = z.object({
 /**
  * 指定日付範囲の店舗×日別原価/売価を取得する。
  * 日別値入率・累計値入率の計算に使用。
+ *
+ * @risk FRAGILE @depends-on loadMonth-replace-semantics
+ *   `queryStoreCostPrice` の daily 版。failure mode 同一。
+ *   詳細: references/03-guides/read-path-duplicate-audit.md §FRAGILE/2
  */
 export async function queryStoreDailyMarkupRate(
   conn: AsyncDuckDBConnection,
@@ -277,6 +286,12 @@ export const CategoryDailyRowSchema = z.object({
 
 /**
  * special_sales（花・産直）の店舗×日別集計
+ *
+ * @risk FRAGILE @depends-on loadMonth-replace-semantics
+ *   `special_sales` を直接 SUM。`(store_id, day, type)` 粒度で重複行が混入すると
+ *   cost/price が倍化する（is_prev_year 列なし → 当年/前年混線はないが、ロード
+ *   境界由来の重複には無防備）。
+ *   詳細: references/03-guides/read-path-duplicate-audit.md §FRAGILE/3
  */
 export async function querySpecialSalesDaily(
   conn: AsyncDuckDBConnection,
@@ -303,6 +318,10 @@ export async function querySpecialSalesDaily(
 
 /**
  * transfers（店間・部門間）の店舗×日別集計
+ *
+ * @risk FRAGILE @depends-on loadMonth-replace-semantics
+ *   `querySpecialSalesDaily` と同構造（対象 `transfers` / キー `direction`）。
+ *   詳細: references/03-guides/read-path-duplicate-audit.md §FRAGILE/4
  */
 export async function queryTransfersDaily(
   conn: AsyncDuckDBConnection,
@@ -338,6 +357,12 @@ export const SalesTotalRowSchema = z.object({
 
 /**
  * 指定日付範囲の売上合計を取得（classified_sales から直接集約）
+ *
+ * @risk FRAGILE @depends-on loadMonth-replace-semantics
+ *   `is_prev_year` フィルタで当年/前年混線は防げるが、単一レーン内の明細行重複
+ *   には無防備。明細粒度が長く重複検出が難しいためロード境界の正しさに強く
+ *   依存する。
+ *   詳細: references/03-guides/read-path-duplicate-audit.md §FRAGILE/5
  */
 export async function querySalesTotal(
   conn: AsyncDuckDBConnection,

@@ -30,6 +30,18 @@ export interface RawDiscountFactRow {
 
 // ── Query 関数 ──
 
+/**
+ * 値引きファクト（明細粒度）の取得。
+ *
+ * @risk PARTIAL
+ * @depends-on loadMonth-replace-semantics
+ *
+ * GROUP BY 粒度が `(store, day, dept, line, class)` と最も細かく、通常の明細
+ * 構造ではここが一意になるため SUM は事実上 1:1。同じキーが 2 行存在する
+ * ロードバグ時にのみ倍化する（FRAGILE 群より発火条件は狭い）。
+ *
+ * @see references/03-guides/read-path-duplicate-audit.md §PARTIAL/9
+ */
 export async function queryDiscountFact(
   conn: AsyncDuckDBConnection,
   dateFrom: string,

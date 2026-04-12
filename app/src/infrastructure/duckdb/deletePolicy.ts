@@ -133,6 +133,14 @@ export async function deletePrevYearRowsAt(
  * しかし `deleteMonth(year, month)` は当年の (year, month) 行のみを削除するため、
  * 前年レコードは残ってしまう。再ロードが重なると store_day_summary VIEW で
  * 行倍増が発生する（#前年点数 2 倍バグ — special_sales の前年データが 2 重に）。
+ *
+ * @defense year-shift 設計
+ *   この関数は引数として **当年** を受け取り、内部で `year - 1` してから削除する
+ *   設計（「当年文脈の explicit remove」として `deleteMonth` とペアで使うため）。
+ *   「指定 (year, month) 位置の前年行を消す」と誤解すると 1 年ズレる。Phase 2
+ *   初版でこれを踏んで回帰を出した経緯がある。
+ *   絶対位置で前年行を消したい場合は必ず {@link deletePrevYearRowsAt} を直接呼ぶ。
+ *   詳細: references/03-guides/data-load-idempotency-handoff.md §3.1
  */
 export async function deletePrevYearMonth(
   conn: AsyncDuckDBConnection,

@@ -68,6 +68,21 @@ const DAILY_SQL = (where: string) => `
 
 // ── Query 関数 ──
 
+/**
+ * 自由期間分析の日次明細クエリ。
+ *
+ * @risk FRAGILE
+ * @depends-on loadMonth-replace-semantics
+ *
+ * `purchase` 側は subquery で事前集約してから LEFT JOIN しているため安全だが、
+ * `classified_sales cs` 側は事前集約せず直接 SUM を取っている。`cs` の明細行が
+ * 重複した場合、SUM(sales) / SUM(customers) / SUM(discount_*) が倍化する。
+ * `dataLoader.ts::loadMonth` の replace セマンティクス契約と一体で動作している
+ * 前提。
+ *
+ * @see references/03-guides/read-path-duplicate-audit.md §FRAGILE/6
+ * @see references/03-guides/data-load-idempotency-plan.md §8 Done 定義
+ */
 export async function queryFreePeriodDaily(
   conn: AsyncDuckDBConnection,
   dateFrom: string,

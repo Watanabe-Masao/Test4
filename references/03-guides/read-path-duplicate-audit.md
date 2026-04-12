@@ -1,7 +1,11 @@
 # Read-path 重複耐性 Spot Audit レポート
 
+> **役割: 根拠資料**
 > 実施: 2026-04-12 / idempotent load contract Phase 3.a 完了後の残タスク
-> 関連: `data-load-idempotency-plan.md` / PR #993-#998
+> 関連: `data-load-idempotency-plan.md` / PR #993-#999
+>
+> 本書は分類の機械的根拠を保持する。優先順位や Done 定義の正本は
+> `data-load-idempotency-plan.md` §7-8。本書とズレた場合は plan を真とする。
 
 ## 目的
 
