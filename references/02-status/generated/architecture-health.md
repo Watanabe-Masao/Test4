@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-12T16:11:39.967Z
+> Generated: 2026-04-12T16:31:20.038Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -9,10 +9,10 @@
 | 指標 | 値 |
 |---|---|
 | Total KPIs | 39 |
-| OK | 39 |
+| OK | 38 |
 | WARN | 0 |
-| FAIL | 0 |
-| Hard Gate | PASS |
+| FAIL | 1 |
+| Hard Gate | FAIL |
 
 ## 許可リスト
 
@@ -70,13 +70,13 @@
 |---|---|---|---|
 | docs.obsoleteTerms.count | 廃止用語残存数 | 0 / 0 | OK |
 | docs.generatedSections.stale | Generated section 未更新 | 0 / 0 | OK |
-| docs.obligation.violations | Doc 更新義務違反数 | 0 / 0 | OK |
+| docs.obligation.violations | Doc 更新義務違反数 | 1 / 0 | FAIL |
 | project.checklist.activeCount | active project 数（archive 未実施を含む） | 6 / 20 | OK |
 | project.checklist.archivedCount | archived project 数（projects/completed/ 配下） | 1 / 100 | OK |
 | project.checklist.completedNotArchivedCount | checklist 完了済みだが archive 未実施の project 数 | 0 / 0 | OK |
 | project.checklist.inProgressCount | in_progress な project 数（open required checkbox あり） | 5 / 20 | OK |
 | project.checklist.emptyCount | checkbox 空の project 数（placeholder / 立ち上げ直後） | 0 / 10 | OK |
-| project.checklist.totalCheckboxes | 全 project の required checkbox 総数 | 271 | OK |
+| project.checklist.totalCheckboxes | 全 project の required checkbox 総数 | 272 | OK |
 | project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 191 | OK |
 
 ## バンドル性能
