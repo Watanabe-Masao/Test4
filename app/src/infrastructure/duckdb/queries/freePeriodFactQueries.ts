@@ -46,7 +46,7 @@ function buildWhere(
 // 重複耐性: classified_sales (cs) 側を subquery で `(store_id, date_key, day, is_prev_year)`
 // 粒度に事前集約してから LEFT JOIN する。purchase (p) 側は従来から事前集約済み。
 // これにより JOIN 後の SUM が source 行重複に対して構造的に防御される
-// (`store_day_summary` VIEW と同じパターン)。
+// (schemas.ts の day-summary VIEW と同じ pre-aggregate パターン)。
 const DAILY_SQL = (where: string) => `
   SELECT
     cs.store_id AS "storeId",
@@ -83,7 +83,7 @@ const DAILY_SQL = (where: string) => `
  * 自由期間分析の日次明細クエリ。
  *
  * **重複耐性:** `classified_sales` (cs) 側 / `purchase` (p) 側ともに subquery で
- * 事前集約してから LEFT JOIN する。`store_day_summary` VIEW と同じパターン。
+ * 事前集約してから LEFT JOIN する（schemas.ts の day-summary VIEW と同じ pre-aggregate パターン）。
  * 詳細: references/03-guides/read-path-duplicate-audit.md §FRAGILE/6
  */
 export async function queryFreePeriodDaily(
