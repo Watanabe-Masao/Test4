@@ -13,8 +13,10 @@ Pure 計算責務再編（pure-calculation-reorg）
 
 - Phase 0-7 の構造基盤が完了
 - AAG 5.0.0 Phase A1-A5 完了（4層構造 + schema + カテゴリマップ + 導出自動化 + 運用再整理）
-- **AAG 3 層分離 Phase 0+2+3+4 完了**（境界ポリシー + 型分割 + スキーマ + allowlist 分離）
-- 次の重心: Inventory（Phase 1）→ App Domain 抽出（Phase 3）→ health 契約化（Phase 5）
+- **AAG 3 層分離 完了**（境界ポリシー + 型分割 + スキーマ + allowlist 分離）
+- **Phase C 完了**: BaseRule を App Domain へ物理移動、direct import 禁止 guard、project resolver 一元化
+- **Phase 6 完了**: collector / resolver / merge 契約テスト + quote-agnostic 化
+- 次の重心: データロード冪等化（案件本体）→ Promote Ceremony（Phase 8）
 
 ## 3 層モデル — AI のナビゲーション
 
@@ -70,11 +72,15 @@ AAG Core の共通ルール・思想。案件作業中に必ず参照する。
 | ファイル | 役割 |
 |---------|------|
 | `app-domain/gross-profit/APP_DOMAIN_INDEX.md` | App Domain 入口 |
+| `app-domain/gross-profit/rule-catalog/base-rules.ts` | **BaseRule 物理正本**（Phase C で app/src/test から物理移動済み） |
 | `app/src/test/calculationCanonRegistry.ts` | Master Registry（唯一の正本） |
-| `app/src/test/architectureRules.ts` | 全ルール宣言的仕様（App Domain データ） |
+| `app/src/test/architectureRules.ts` | **Consumer facade**（全 consumer はここ経由。直 import 禁止） |
+| `app/src/test/architectureRules/merged.ts` | Derived merge（BaseRule + ExecutionOverlay 合成点） |
+| `app/src/test/architectureRules/README.md` | ディレクトリ役割マップ |
 | `app/src/test/guardCategoryMap.ts` | 全ルールのカテゴリマップ |
 | `references/01-principles/semantic-classification-policy.md` | 意味分類ポリシー |
 | `references/01-principles/engine-boundary-policy.md` | 3エンジン境界 |
+| `references/03-guides/governance-final-placement-plan.md` | Governance 3 分割の現行正本文書 |
 
 ## Project-Specific Constraints
 
@@ -84,7 +90,7 @@ AAG Core の共通ルール・思想。案件作業中に必ず参照する。
 - 正本は `calculationCanonRegistry` の1つだけ
 - JS orchestration（hook / store / QueryHandler）は移行対象外
 
-## Completed — AAG 3 層分離
+## Completed — AAG 3 層分離 + Phase C + Phase 6
 
 | 項目 | 状態 | 成果物 |
 |------|------|--------|
@@ -92,29 +98,25 @@ AAG Core の共通ルール・思想。案件作業中に必ず参照する。
 | ArchitectureRule 型分割 | **完了** | `aag-core-types.ts`（RuleSemantics / Governance / DetectionSpec） |
 | aagSchemas.ts Core re-export | **完了** | Core 型を aagSchemas.ts 経由でもアクセス可能 |
 | allowlist RetentionReason 分離 | **完了** | CoreRetentionReason / AppRetentionReason + RemovalKind |
-
-## Next Actions — AAG 3 層分離の続き
-
-### Phase 1: Inventory
-
-全 AAG 資産を Core / App Domain / Project Overlay / Mixed に分類する。
-成果物: `projects/pure-calculation-reorg/status/aag-separation-inventory.md`
-
-### Phase 3（分離計画）: App Domain 抽出
-
-業務値定義書（12 ファイル）を Constitution から App Domain へ移す。
-50 ファイル 76 箇所の参照更新が必要（高リスク）。
-
-### Phase 5（分離計画）: health-rules 契約化
-
-`tools/architecture-health/src/config/health-rules.ts` の target 値を Project Overlay へ。
-Core は評価器、Project は予算。
+| **Phase C1: project 参照点一元化** | **完了** | `project-resolver.ts` / `resolve-project-overlay.mjs` / `project.json` 追加（tsconfig は暫定静的） |
+| **Phase C2: direct import 禁止 guard** | **完了** | `AR-AAG-DERIVED-ONLY-IMPORT` 系 3 ルール + `aagDerivedOnlyImportGuard.test.ts` |
+| **Phase C3: 入口文書整理** | **完了** | `governance-final-placement-plan.md` 現行化 + `architectureRules/README.md` 追加 |
+| **Phase C4: BaseRule 物理移動** | **完了** | `app-domain/gross-profit/rule-catalog/base-rules.ts` + `@app-domain/*` alias |
+| **Phase 6-1: Collector 契約テスト** | **完了** | `guardCollectorContract.test.ts` / `temporalGovernanceCollectorContract.test.ts` + quote-agnostic 化 |
+| **Phase 6-2: Resolver 契約テスト** | **完了** | `projectResolverContract.test.ts` / `resolveProjectOverlayScript.test.ts` |
+| **Phase 6-3: Merge / Facade smoke** | **完了** | `architectureRulesMergeSmokeGuard.test.ts` |
+| **Phase 6-4: docs / health smoke** | **完了** | `docs:check` PASS, Healthy |
 
 ## Immediate Next Actions — 案件本体
 
 1. **最優先:** データロード冪等化（`references/03-guides/data-load-idempotency-plan.md`）
 2. **Phase 8:** Promote Ceremony（`references/03-guides/promote-ceremony-template.md`）
    - EvidencePack 生成: `cd app && npx tsx src/test/generators/generateEvidencePack.ts BIZ-012`
+
+## Next Actions — Governance 保守
+
+- `tsconfig.app.json` の `@project-overlay/*` / include 静的直書きの解消（C1 暫定事項）
+- `tools/architecture-health/src/config/health-rules.ts` の target 値を Project Overlay へ移す検討（health 契約化）
 
 ## Update Points
 
