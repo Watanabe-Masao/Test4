@@ -9,7 +9,9 @@
  * - 保存月監視 → useStoredMonthsMonitor
  * - 変更検知 → computeFingerprint / computeMonthFingerprint (duckdbFingerprint)
  * - ロード直列化 → acquireMutex (loadCoordinator)
- * - ロード統合 → 本ファイル（差分: deleteMonth → loadMonth → materializeSummary）
+ * - ロード統合 → 本ファイル（差分リロード: loadMonth は replace セマンティクスで
+ *   対象月を差し替える。削除は loadMonth 内部で完結し、本ファイルは削除順序を持たない。
+ *   deleteMonth / deletePrevYearMonth は「不要になった月の明示 remove」でのみ使う）
  *
  * 使い方:
  * ```
