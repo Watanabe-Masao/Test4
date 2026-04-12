@@ -104,10 +104,12 @@ export const StoreCostPriceRowSchema = z.object({
  * 額を store_id 別に返す。率の計算は呼び出し元が domain/calculations 経由で
  * 行う（@guard B3）。
  *
- * @risk FRAGILE @depends-on loadMonth-replace-semantics
- *   UNION ALL + 外側 SUM 構造のため 3 source の行重複に対して silent 倍化する。
- *   ロード境界の replace 契約と一体で成立している。
- *   詳細: references/03-guides/read-path-duplicate-audit.md §FRAGILE/1
+ * **重複耐性:** 各 source は subquery で `(year, month, store_id, day)` 粒度に
+ * 事前集約してから UNION する（`store_day_summary` VIEW と同じパターン）。
+ * これにより JOIN/UNION 後の集約が source 行重複に対して構造的に防御される
+ * （pre-aggregate 層）。ロード境界の replace 契約と二重に守る defense-in-depth。
+ *
+ * 詳細: references/03-guides/read-path-duplicate-audit.md §FRAGILE/1
  */
 export async function queryStoreCostPrice(
   conn: AsyncDuckDBConnection,
@@ -123,11 +125,17 @@ export async function queryStoreCostPrice(
       COALESCE(SUM(cost), 0) AS total_cost,
       COALESCE(SUM(price), 0) AS total_price
     FROM (
-      SELECT store_id, cost, price FROM purchase ${w}
+      SELECT year, month, store_id, day, SUM(cost) AS cost, SUM(price) AS price
+      FROM purchase ${w}
+      GROUP BY year, month, store_id, day
       UNION ALL
-      SELECT store_id, cost, price FROM special_sales ${w}
+      SELECT year, month, store_id, day, SUM(cost) AS cost, SUM(price) AS price
+      FROM special_sales ${w}
+      GROUP BY year, month, store_id, day
       UNION ALL
-      SELECT store_id, cost, price FROM transfers ${w}
+      SELECT year, month, store_id, day, SUM(cost) AS cost, SUM(price) AS price
+      FROM transfers ${w}
+      GROUP BY year, month, store_id, day
     ) combined
     GROUP BY store_id
     ORDER BY total_cost DESC`
@@ -153,9 +161,9 @@ export const StoreDailyMarkupRateRowSchema = z.object({
  * 指定日付範囲の店舗×日別原価/売価を取得する。
  * 日別値入率・累計値入率の計算に使用。
  *
- * @risk FRAGILE @depends-on loadMonth-replace-semantics
- *   `queryStoreCostPrice` の daily 版。failure mode 同一。
- *   詳細: references/03-guides/read-path-duplicate-audit.md §FRAGILE/2
+ * **重複耐性:** `queryStoreCostPrice` と同パターンで各 source を subquery で
+ * `(year, month, store_id, day)` 粒度に事前集約してから UNION する。
+ * 詳細: references/03-guides/read-path-duplicate-audit.md §FRAGILE/2
  */
 export async function queryStoreDailyMarkupRate(
   conn: AsyncDuckDBConnection,
@@ -172,11 +180,17 @@ export async function queryStoreDailyMarkupRate(
       COALESCE(SUM(cost), 0) AS total_cost,
       COALESCE(SUM(price), 0) AS total_price
     FROM (
-      SELECT store_id, day, cost, price FROM purchase ${w}
+      SELECT year, month, store_id, day, SUM(cost) AS cost, SUM(price) AS price
+      FROM purchase ${w}
+      GROUP BY year, month, store_id, day
       UNION ALL
-      SELECT store_id, day, cost, price FROM special_sales ${w}
+      SELECT year, month, store_id, day, SUM(cost) AS cost, SUM(price) AS price
+      FROM special_sales ${w}
+      GROUP BY year, month, store_id, day
       UNION ALL
-      SELECT store_id, day, cost, price FROM transfers ${w}
+      SELECT year, month, store_id, day, SUM(cost) AS cost, SUM(price) AS price
+      FROM transfers ${w}
+      GROUP BY year, month, store_id, day
     ) combined
     GROUP BY store_id, day
     ORDER BY store_id, day`

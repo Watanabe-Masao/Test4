@@ -21,12 +21,19 @@
  *
  * **現在の状態（2026-04-12）**
  *
- * 6 件全て **`.fails` で expected failure** として固定する。これは Phase 3.b で
- * year-shift latent bug を `.fails` 固定したのと同じ運用パターン
- * (`data-load-idempotency-plan.md` §7 Phase 3.b 参照)。
+ * | # | クエリ | テスト状態 | 備考 |
+ * |---|---|---|---|
+ * | 1 | queryStoreCostPrice | **green** | PR D で pre-aggregate refactor 済み |
+ * | 2 | queryStoreDailyMarkupRate | **green** | PR D で pre-aggregate refactor 済み |
+ * | 3 | querySpecialSalesDaily | `.fails` ロック | audit で JSDoc-only mitigation 扱い |
+ * | 4 | queryTransfersDaily | `.fails` ロック | 同上 |
+ * | 5 | querySalesTotal | `.fails` ロック | 同上 |
+ * | 6 | queryFreePeriodDaily | `.fails` ロック | PR E で refactor 予定 |
  *
- * pre-aggregate refactor (推奨 PR 構成 D / E) が landed したら `.fails` を
- * 外して通常の `it` に戻し、回帰検出網として恒久化する。
+ * 3/4/5 は audit 推奨事項で **「JSDoc only mitigation」** に分類されており
+ * (`read-path-duplicate-audit.md` §推奨事項 4-5)、refactor の計画はない。
+ * `.fails` で構造的負債を可視化したまま load contract + JSDoc 防御に依存する。
+ * 将来 refactor したくなったら `.fails` を外せば検出網として機能する。
  *
  * @see references/03-guides/read-path-duplicate-audit.md
  * @see references/03-guides/data-load-idempotency-plan.md §8 Done 定義
@@ -67,32 +74,26 @@ function assertSafeAgainstSource(sql: string, sourceTable: string): void {
 
 // ── purchaseComparison.ts FRAGILE 5 件 ────────────────────────────────
 
-describe('FRAGILE/1: queryStoreCostPrice — UNION ALL + 外側 SUM', () => {
-  it.fails(
-    'purchase / special_sales / transfers の全てを subquery で事前集約しているべき',
-    async () => {
-      const conn = createDuplicateInjectingMockConn([passAllRule])
-      await queryStoreCostPrice(conn, dateFrom, dateTo, storeIds)
-      const sql = conn.getCapturedSql()[0]
-      assertSafeAgainstSource(sql, 'purchase')
-      assertSafeAgainstSource(sql, 'special_sales')
-      assertSafeAgainstSource(sql, 'transfers')
-    },
-  )
+describe('FRAGILE/1: queryStoreCostPrice — pre-aggregate 済み (PR D)', () => {
+  it('purchase / special_sales / transfers の全てを subquery で事前集約しているべき', async () => {
+    const conn = createDuplicateInjectingMockConn([passAllRule])
+    await queryStoreCostPrice(conn, dateFrom, dateTo, storeIds)
+    const sql = conn.getCapturedSql()[0]
+    assertSafeAgainstSource(sql, 'purchase')
+    assertSafeAgainstSource(sql, 'special_sales')
+    assertSafeAgainstSource(sql, 'transfers')
+  })
 })
 
-describe('FRAGILE/2: queryStoreDailyMarkupRate — daily 版 UNION ALL + 外側 SUM', () => {
-  it.fails(
-    'purchase / special_sales / transfers の全てを subquery で事前集約しているべき',
-    async () => {
-      const conn = createDuplicateInjectingMockConn([passAllRule])
-      await queryStoreDailyMarkupRate(conn, dateFrom, dateTo, storeIds)
-      const sql = conn.getCapturedSql()[0]
-      assertSafeAgainstSource(sql, 'purchase')
-      assertSafeAgainstSource(sql, 'special_sales')
-      assertSafeAgainstSource(sql, 'transfers')
-    },
-  )
+describe('FRAGILE/2: queryStoreDailyMarkupRate — pre-aggregate 済み (PR D)', () => {
+  it('purchase / special_sales / transfers の全てを subquery で事前集約しているべき', async () => {
+    const conn = createDuplicateInjectingMockConn([passAllRule])
+    await queryStoreDailyMarkupRate(conn, dateFrom, dateTo, storeIds)
+    const sql = conn.getCapturedSql()[0]
+    assertSafeAgainstSource(sql, 'purchase')
+    assertSafeAgainstSource(sql, 'special_sales')
+    assertSafeAgainstSource(sql, 'transfers')
+  })
 })
 
 describe('FRAGILE/3: querySpecialSalesDaily — special_sales を直接 SUM', () => {

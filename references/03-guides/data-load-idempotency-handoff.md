@@ -60,18 +60,13 @@ idempotent load contract の本体スコープ（Phase 0 / 1 / 2 / 3.a / 3.b / 3
 「2. 次にやること」全体は、以下が **全て満たされた時点で完了** とする。
 途中で「2 件書いたから十分では」とぶれないように明文化しておく。
 
-1. **回帰テスト** — FRAGILE 6 クエリ全てに、duplicate-injected mock conn による
-   回帰テストが存在し、CI（`test:guards` ではなく vitest 全体）で green。
-2. **共通 helper** — 6 件のテストが個別に mock を組まず、共有の
-   duplicate-injected mock conn helper を経由している（DRY と検出粒度の両立）。
-3. **pre-aggregate refactor** — `purchaseComparison.ts` の FRAGILE 1/2 と
-   `freePeriodFactQueries.ts` DAILY_SQL の `cs` 側が、`store_day_summary` VIEW と
-   同じ「source を subquery で `GROUP BY` してから UNION / JOIN する」パターンに
-   置き換わっている。
-4. **JSDoc 前提明示** — FRAGILE 6 件 + PARTIAL 3 件の関数 JSDoc に `@risk` タグと
-   「ロード境界が壊れると silent に倍化する」前提が記載されている。
-5. **文書同期** — plan §7 / handoff §2 / audit「推奨事項」が現実の実装と一致し、
-   どこにも「やる予定」と「実装済み」が混在していない。
+| # | 条件 | 状態 |
+|---|---|---|
+| 1 | **回帰テスト** — FRAGILE 6 クエリ全てに、duplicate-injected mock conn による回帰テストが存在し、CI（vitest 全体）で green。 | ✅ PR C |
+| 2 | **共通 helper** — 6 件のテストが個別に mock を組まず、共有の duplicate-injected mock conn helper を経由している（DRY と検出粒度の両立）。 | ✅ PR B |
+| 3 | **pre-aggregate refactor** — `purchaseComparison.ts` の FRAGILE 1/2 と `freePeriodFactQueries.ts` DAILY_SQL の `cs` 側が、`store_day_summary` VIEW と同じ「source を subquery で `GROUP BY` してから UNION / JOIN する」パターンに置き換わっている。 | 🟡 PR D 完了 (1/2) / PR E 待ち (#6) |
+| 4 | **JSDoc 前提明示** — FRAGILE 6 件 + PARTIAL 3 件の関数 JSDoc に `@risk` タグと「ロード境界が壊れると silent に倍化する」前提が記載されている。 | ✅ PR A |
+| 5 | **文書同期** — plan §7 / handoff §2 / audit「推奨事項」が現実の実装と一致し、どこにも「やる予定」と「実装済み」が混在していない。 | 🟡 進行中（PR D で plan/handoff/audit 同期） |
 
 「全部やってから 1 PR」ではなく、各項目を独立した小 PR として進める。
 PR 構成の推奨は本書 §2.4。
@@ -112,22 +107,17 @@ helper の責務:
 これにより 6 件のテストは「ベースライン rows + 期待値」の宣言だけで書ける。
 1 クエリあたりの追加コストは 15 分以内になる想定。
 
-### 中優先: `purchaseComparison.ts` の UNION ALL クエリに pre-aggregate 層を入れる
+### ~~中優先: `purchaseComparison.ts` の UNION ALL クエリに pre-aggregate 層を入れる~~ ✅ PR D で完了
 
-FRAGILE 1/2 の `queryStoreCostPrice` / `queryStoreDailyMarkupRate` は、
-`UNION ALL` で 3 テーブルを結合した後に外側で SUM している。これを
-`store_day_summary` VIEW と同じパターン（source テーブルを subquery で
-`GROUP BY year, month, store_id, day` してから UNION / JOIN）に書き換えれば、
-source 側に重複があっても subquery で吸収される。
+FRAGILE 1/2 の `queryStoreCostPrice` / `queryStoreDailyMarkupRate` は PR D で
+`store_day_summary` VIEW と同じパターンに refactor 済み。各 source を subquery で
+`(year, month, store_id, day)` 粒度に事前集約してから UNION する。
+回帰テスト (`readPathDuplicateResistance.test.ts` の FRAGILE/1, FRAGILE/2) は
+通常の `it` に戻り、pre-aggregate 構造の存在を構造的に検査する。
 
-FRAGILE → SAFE に昇格する構造変更で、追加防御として最も効く。ただし refactor
-なので必ず先に高優先の回帰テストを入れてから取り組むこと。
-
-**スコープの締め付け（重要）:** ここで共通 SQL builder や DSL に寄せ始めない。
-今回の目的は重複耐性の付与であって設計遊びではない。
-各クエリ内で **局所的に subquery 事前集約を入れるだけ** にとどめる。
-共通化の誘惑が強いが、共通化が必要かどうかは 2 件 refactor 後の差分を見て
-判断する。先に共通化すると今回の検出粒度が薄まる。
+PR D で 2 件しか refactor していないため、共通 SQL builder / DSL への抽出は
+判断保留。`freePeriodFactQueries.ts` (PR E) が landed して 3 件の差分を見てから
+判断する（handoff §2 「やらないこと」: 設計遊び化の禁止）。
 
 ### 中優先: `freePeriodFactQueries.DAILY_SQL` の `cs` 側も pre-aggregate する
 
