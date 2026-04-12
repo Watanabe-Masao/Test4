@@ -4,6 +4,35 @@
 > 型分離（MigrationRecipe / ExecutionPlan / RuleOperationalState）は完了済み。
 > 本文書は「どこに何を置くか」「実行時にどう合成するか」を固定する。
 
+## 現時点の実装マップ（Phase C 進捗反映）
+
+| 概念 | ファイル | 役割 | 正本区分 |
+|---|---|---|---|
+| BaseRule 配列 | `app-domain/gross-profit/rule-catalog/base-rules.ts` | semantics + governance + detection + binding + migrationRecipe | App Domain 正本 |
+| BaseRule 旧位置（re-export facade） | `app/src/test/architectureRules/rules.ts` | `@app-domain/...` からの re-export のみ（後方互換） | Facade |
+| ExecutionOverlay | `projects/pure-calculation-reorg/aag/execution-overlay.ts` | ruleId → fixNow / executionPlan / reviewPolicy / lifecyclePolicy | Project Overlay 正本 |
+| derived merge | `app/src/test/architectureRules/merged.ts` | BaseRule + ExecutionOverlay を ruleId キーで合成 | Derived Artifact |
+| consumer facade | `app/src/test/architectureRules/index.ts` + `app/src/test/architectureRules.ts` | consumer が触る唯一の入口 | Facade |
+| 整合検証 | `app/src/test/guards/executionOverlayGuard.test.ts` | BaseRule ↔ Overlay の欠損・orphan 検出 | Guard |
+| 入口強制 | `app/src/test/guards/aagDerivedOnlyImportGuard.test.ts` | consumer が merged 以外を直接 import していないか検出 | Guard |
+| project 解決 | `tools/architecture-health/src/project-resolver.ts` + `app/scripts/resolve-project-overlay.mjs` | `CURRENT_PROJECT.md` → `projects/<id>/config/project.json` → overlayRoot | Resolver |
+
+### 三分割の責務境界
+
+```
+BaseRule（rules.ts）
+   └─ 「何を守るか」「なぜ」「どう直すか」— 案件が変わっても同じ
+
+ExecutionOverlay（execution-overlay.ts）
+   └─ 「今この案件でどう扱うか」— fixNow / priority / reviewCadence
+
+merged.ts
+   └─ 両者を ruleId で合成して ArchitectureRule[] を返す
+
+architectureRules/index.ts（facade）
+   └─ consumer は ARCHITECTURE_RULES（merged 後）と helpers のみ触る
+```
+
 ## 前提
 
 ### 完了済み
@@ -12,12 +41,24 @@
 - RuleOperationalState = Project Overlay 側（fixNow, executionPlan, reviewPolicy, lifecyclePolicy）
 - MigrationPath は完全削除済み
 - ArchitectureRule = 5 層 intersection 合成
+- derived merge ロジック（merged.ts）が consumer に正本を配信
+- direct import 禁止 guard（AR-AAG-DERIVED-ONLY-IMPORT）が入口を強制
+- project 参照点が `project-resolver` 経由に集約（vite / vitest / tools 側）
 
-### 未完了（本文書の対象）
+### 未完了 — C1 の暫定事項
 
-- migrationRecipe / executionPlan の物理配置
-- 実行時の合成方式
-- fallback ポリシー
+- `app/tsconfig.app.json` の `@project-overlay/*` と `include` は依然として
+  `pure-calculation-reorg` 直書き（静的 JSON のため動的解決不能）
+- 現状: build / test / health tools は resolver 経由で一元化済み、
+  TypeScript 解決だけは project 切替時に手動更新が必要
+- 次の改善候補: tsconfig 生成スクリプト化、または multi-project 解決の再設計
+
+### 物理移動 — 完了
+
+- BaseRule 配列は `app-domain/gross-profit/rule-catalog/base-rules.ts` に物理移動済み
+- 旧位置 `app/src/test/architectureRules/rules.ts` は `@app-domain/...` からの thin re-export として後方互換を保持
+- `@app-domain/*` path alias + vite/vitest alias 追加済み
+- collectors / 整合検証 guards のパス追随済み
 
 ---
 

@@ -1,6 +1,14 @@
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
+// @ts-expect-error — JS module without declaration file
+import { resolveProjectOverlayRoot } from './scripts/resolve-project-overlay.mjs'
+
+/**
+ * `@project-overlay/*` alias ターゲットは CURRENT_PROJECT.md + project.json
+ * 経由で解決する（C1: project 固定パス一元化）。
+ */
+const projectOverlayRoot: string = resolveProjectOverlayRoot(__dirname)
 
 // vitest（jsdom 環境）では常に型付きモックを使用する。
 // jsdom は WebAssembly.instantiate を完全サポートしないため、
@@ -35,7 +43,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
-      '@project-overlay': resolve(__dirname, '../projects/pure-calculation-reorg/aag'),
+      '@project-overlay': projectOverlayRoot,
+      '@app-domain': resolve(__dirname, '../app-domain'),
       ...wasmAliases,
     },
   },

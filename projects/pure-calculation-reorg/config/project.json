@@ -2,6 +2,9 @@
   "projectId": "pure-calculation-reorg",
   "title": "Pure 計算責務再編",
   "status": "active",
+  "projectRoot": "projects/pure-calculation-reorg",
+  "overlayRoot": "projects/pure-calculation-reorg/aag",
+  "overlayEntry": "projects/pure-calculation-reorg/aag/execution-overlay.ts",
   "entrypoints": {
     "aiContext": "projects/pure-calculation-reorg/AI_CONTEXT.md",
     "handoff": "projects/pure-calculation-reorg/HANDOFF.md",

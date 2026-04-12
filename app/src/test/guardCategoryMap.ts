@@ -530,4 +530,21 @@ export const GUARD_CATEGORY_MAP: Readonly<Record<string, GuardCategoryEntry>> = 
     note: null,
   },
   'AR-SAFETY-STALE-STORE': { category: 'ratchet-legacy-control', layer: 'execution', note: null },
+
+  // ── AAG 入口一元化（C2: direct import 禁止）──
+  'AR-AAG-DERIVED-ONLY-IMPORT': {
+    category: 'registry-integrity',
+    layer: 'operations',
+    note: 'core-rule: AAG の正本ルートを facade 経由に固定する入口ルール',
+  },
+  'AR-AAG-NO-BASE-RULES-CONSUMER-IMPORT': {
+    category: 'registry-integrity',
+    layer: 'operations',
+    note: 'merge-candidate: AR-AAG-DERIVED-ONLY-IMPORT の具体化（BaseRule 直参照禁止）',
+  },
+  'AR-AAG-NO-DIRECT-OVERLAY-IMPORT': {
+    category: 'registry-integrity',
+    layer: 'operations',
+    note: 'merge-candidate: AR-AAG-DERIVED-ONLY-IMPORT の具体化（Project Overlay 直参照禁止）',
+  },
 } as const

@@ -35,6 +35,21 @@ AAG は 3 層に分離されている。AI はこの順で読む:
 5. 必要に応じて `app-domain/gross-profit/APP_DOMAIN_INDEX.md`（アプリ意味空間）
 6. 必要に応じて `aag/core/AAG_CORE_INDEX.md`（共通フレームワーク）
 
+## Governance 3 分割 — AI 向け正本マップ
+
+| 概念 | ファイル | 役割 |
+|---|---|---|
+| **BaseRule**（App Domain 正本） | `app-domain/gross-profit/rule-catalog/base-rules.ts` | 何を守るか / なぜ / どう直すか |
+| **ExecutionOverlay**（Project Overlay 正本） | `projects/pure-calculation-reorg/aag/execution-overlay.ts` | この案件でどう扱うか（fixNow / priority / reviewCadence） |
+| **merged**（derived artifact） | `app/src/test/architectureRules/merged.ts` | 両者を ruleId で合成 |
+| **facade**（consumer 入口） | `app/src/test/architectureRules/index.ts` / `app/src/test/architectureRules.ts` | 全 consumer はここからのみ参照 |
+
+**禁止**: consumer は `architectureRules/rules` や `@project-overlay/execution-overlay` を直接 import してはならない（`AR-AAG-DERIVED-ONLY-IMPORT` / `AR-AAG-NO-BASE-RULES-CONSUMER-IMPORT` / `AR-AAG-NO-DIRECT-OVERLAY-IMPORT` で強制）。
+
+**project 切替点**: `CURRENT_PROJECT.md` の `active: <project-id>` 1 行 + `projects/<id>/config/project.json` の `overlayRoot` フィールド。vite / vitest / tools は `resolve-project-overlay.mjs` / `project-resolver.ts` 経由で解決する。
+
+詳細: `references/03-guides/governance-final-placement-plan.md`
+
 ## Required Core References
 
 AAG Core の共通ルール・思想。案件作業中に必ず参照する。

@@ -39,7 +39,7 @@
         { "path": "references/03-guides/aag-phase4-6-plan.md", "label": "AAG Phase 4-6 計画" },
         { "path": "references/03-guides/aag-rule-inventory.md", "label": "AAG ルール棚卸し" },
         { "path": "references/03-guides/aag-physical-move-impact-matrix.md", "label": "AAG 物理移動影響マトリクス" },
-        { "path": "references/03-guides/governance-final-placement-plan.md", "label": "Governance 最終配置方針" },
+        { "path": "references/03-guides/governance-final-placement-plan.md", "label": "Governance 最終配置方針（BaseRule / ExecutionOverlay / derived merge）" },
         { "path": "references/03-guides/active-debt-refactoring-plan.md", "label": "Active-Debt リファクタリング計画" },
         { "path": "references/03-guides/legacy-governance-retirement.md", "label": "レガシーガバナンス廃止" },
         { "path": "references/03-guides/contract-definition-policy.md", "label": "契約定義ポリシー" },
