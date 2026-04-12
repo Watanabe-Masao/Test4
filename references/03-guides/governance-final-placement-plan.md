@@ -43,7 +43,15 @@ architectureRules/index.ts（facade）
 - ArchitectureRule = 5 層 intersection 合成
 - derived merge ロジック（merged.ts）が consumer に正本を配信
 - direct import 禁止 guard（AR-AAG-DERIVED-ONLY-IMPORT）が入口を強制
-- project 参照点が `project-resolver` 経由に集約
+- project 参照点が `project-resolver` 経由に集約（vite / vitest / tools 側）
+
+### 未完了 — C1 の暫定事項
+
+- `app/tsconfig.app.json` の `@project-overlay/*` と `include` は依然として
+  `pure-calculation-reorg` 直書き（静的 JSON のため動的解決不能）
+- 現状: build / test / health tools は resolver 経由で一元化済み、
+  TypeScript 解決だけは project 切替時に手動更新が必要
+- 次の改善候補: tsconfig 生成スクリプト化、または multi-project 解決の再設計
 
 ### 物理移動 — 完了
 

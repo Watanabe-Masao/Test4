@@ -27,7 +27,7 @@
 | Rule Efficacy | OK | 80 / 0/3 / 0/10 |
 
 
-> 生成: 2026-04-12T05:51:53.035Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-12T06:03:10.312Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 現状スナップショット

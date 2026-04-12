@@ -466,7 +466,7 @@ AAG は「発見 → 蓄積 → 評価」の 3 層サイクルでルール自体
 
 - consumer は必ず facade 経由で参照する（`from '../architectureRules'`）
 - 直 import は `AR-AAG-DERIVED-ONLY-IMPORT` 系ルールで禁止される（件数は generated section 参照）
-- project 切替点: `CURRENT_PROJECT.md` + `projects/<id>/config/project.json`
+- project 切替点: `CURRENT_PROJECT.md` + `projects/<id>/config/project.json`（vite/vitest/tools は resolver 経由、tsconfig は暫定静的）
 - 詳細: `references/03-guides/governance-final-placement-plan.md`, `app/src/test/architectureRules/README.md`
 
 | detection.type | 意味 | 例 |
@@ -626,7 +626,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 | Rule Efficacy | OK | 80 / 0/3 / 0/10 |
 
 
-> 生成: 2026-04-12T05:51:53.035Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-12T06:03:10.312Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）
