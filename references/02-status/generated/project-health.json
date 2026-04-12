@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "1.0.0",
+  "timestamp": "2026-04-12T15:23:20.377Z",
+  "summary": {
+    "active": 6,
+    "archived": 0,
+    "inProgress": 6,
+    "completedNotArchived": 0,
+    "empty": 0,
+    "totalCheckboxes": 239,
+    "checkedCheckboxes": 118
+  },
+  "projects": [
+    {
+      "projectId": "aag-rule-splitting-execution",
+      "title": "AAG ルール分割実行 — AR-STRUCT-RESP-SEPARATION 7 分割",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 0,
+      "total": 17,
+      "progress": 0,
+      "entrypoint": "projects/aag-rule-splitting-execution/AI_CONTEXT.md",
+      "checklistPath": "projects/aag-rule-splitting-execution/checklist.md"
+    },
+    {
+      "projectId": "architecture-decision-backlog",
+      "title": "アーキテクチャ判断 backlog — 未決定の設計判断",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 0,
+      "total": 1,
+      "progress": 0,
+      "entrypoint": "projects/architecture-decision-backlog/AI_CONTEXT.md",
+      "checklistPath": "projects/architecture-decision-backlog/checklist.md"
+    },
+    {
+      "projectId": "data-load-idempotency-hardening",
+      "title": "データロード冪等化 — 残存防御の固定化",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 17,
+      "total": 21,
+      "progress": 0.81,
+      "entrypoint": "projects/data-load-idempotency-hardening/AI_CONTEXT.md",
+      "checklistPath": "projects/data-load-idempotency-hardening/checklist.md"
+    },
+    {
+      "projectId": "docs-and-governance-cohesion",
+      "title": "ドキュメントと課題の分離 — projects/ 一元化と AAG 統合",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 13,
+      "total": 54,
+      "progress": 0.241,
+      "entrypoint": "projects/docs-and-governance-cohesion/AI_CONTEXT.md",
+      "checklistPath": "projects/docs-and-governance-cohesion/checklist.md"
+    },
+    {
+      "projectId": "presentation-quality-hardening",
+      "title": "Presentation 品質強化 — テスト・E2E・active-debt 解消",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 0,
+      "total": 14,
+      "progress": 0,
+      "entrypoint": "projects/presentation-quality-hardening/AI_CONTEXT.md",
+      "checklistPath": "projects/presentation-quality-hardening/checklist.md"
+    },
+    {
+      "projectId": "pure-calculation-reorg",
+      "title": "Pure 計算責務再編",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 88,
+      "total": 132,
+      "progress": 0.667,
+      "entrypoint": "projects/pure-calculation-reorg/AI_CONTEXT.md",
+      "checklistPath": "projects/pure-calculation-reorg/checklist.md"
+    }
+  ]
+}

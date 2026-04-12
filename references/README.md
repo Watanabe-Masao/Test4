@@ -241,6 +241,7 @@
 | `03-guides/ui-components.md` | UI コンポーネント |
 | `03-guides/faq.md` | FAQ |
 | `03-guides/app-lifecycle-implementation.md` | ライフサイクル実装 |
+| `02-status/open-issues.md` | active project 索引（**live task table は持たない** — 各 project の checklist.md が正本） |
 
 ### プロモーション・昇格
 

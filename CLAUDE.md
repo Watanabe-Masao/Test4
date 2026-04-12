@@ -328,6 +328,13 @@ CI は `wasm-build` → `fast-gate` → (`docs-health` + `test-coverage` + `e2e`
 ドキュメントはコードの一部であり、品質保証の一部であり、運用の一部である。
 「書く文化」ではなく「通過条件」として扱う。
 
+> **基本思想:** ドキュメントはその機能を説明するためにある。そこに課題が紛れる
+> とノイズになる。**live な作業項目（やることリスト）の正本は
+> `projects/<id>/checklist.md` のみ。** references/ / CLAUDE.md / roles/ には
+> live task table を一切書かない。詳細:
+> [`references/03-guides/project-checklist-governance.md`](./references/03-guides/project-checklist-governance.md)
+> （AAG Layer 4A System Operations）。
+
 ### 3層分離
 
 | 層 | 内容 | 更新主体 |
@@ -355,6 +362,7 @@ CI は `wasm-build` → `fast-gate` → (`docs-health` + `test-coverage` + `e2e`
 | `.github/workflows/` | project-metadata.json 確認 |
 | `wasm/` | setup docs 確認 |
 | `references/01-principles/` | principles.json 確認 |
+| `projects/` | project-health 再生成 + checklist format guard 通過 |
 
 ### 正本構造
 
@@ -612,7 +620,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 詳細レポート: `references/02-status/generated/architecture-health.md`
 
 <!-- GENERATED:START architecture-health-summary -->
-**Healthy** | 前回比: Improved | Hard Gate: PASS
+**Healthy** | 前回比: Flat | Hard Gate: PASS
 
 | 指標 | 状態 | 詳細 |
 |---|---|---|
@@ -626,7 +634,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 | Rule Efficacy | OK | 80 / 0/3 / 0/10 |
 
 
-> 生成: 2026-04-12T15:09:39.918Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-12T15:23:20.372Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）

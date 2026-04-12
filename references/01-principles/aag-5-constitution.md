@@ -113,8 +113,10 @@ Operations は **System Operations（AAG Core）** と **Project Operations（Ov
 - `references/03-guides/guard-consolidation-and-js-retirement.md` — JS 退役共通手順
 - `references/03-guides/architecture-rule-system.md` — ルール運用ガイド
 - `references/03-guides/allowlist-management.md` — 例外管理手順
+- `references/03-guides/project-checklist-governance.md` — projects/ 運用ルール（checklist 駆動の completion 管理）
 - `references/02-status/generated/` — 生成済みレポート（派生物）
 - `references/02-status/technical-debt-roadmap.md` — 技術的負債ロードマップ
+- `references/02-status/open-issues.md` — active project 索引
 
 #### 4B. Project Operations（案件ごとの実行管理）
 

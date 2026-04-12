@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-12T15:09:39.918Z",
+  "timestamp": "2026-04-12T15:23:20.372Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -670,11 +670,165 @@
         "app/src/test/allowlists/"
       ],
       "budget": 10
+    },
+    {
+      "id": "project.checklist.activeCount",
+      "label": "active project 数（archive 未実施を含む）",
+      "category": "docs",
+      "value": 6,
+      "unit": "count",
+      "status": "ok",
+      "owner": "documentation-steward",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "references/03-guides/project-checklist-governance.md"
+        }
+      ],
+      "implRefs": [
+        "projects/aag-rule-splitting-execution/checklist.md",
+        "projects/architecture-decision-backlog/checklist.md",
+        "projects/data-load-idempotency-hardening/checklist.md",
+        "projects/docs-and-governance-cohesion/checklist.md",
+        "projects/presentation-quality-hardening/checklist.md",
+        "projects/pure-calculation-reorg/checklist.md"
+      ]
+    },
+    {
+      "id": "project.checklist.archivedCount",
+      "label": "archived project 数（projects/completed/ 配下）",
+      "category": "docs",
+      "value": 0,
+      "unit": "count",
+      "status": "ok",
+      "owner": "documentation-steward",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "references/03-guides/project-checklist-governance.md"
+        }
+      ],
+      "implRefs": []
+    },
+    {
+      "id": "project.checklist.completedNotArchivedCount",
+      "label": "checklist 完了済みだが archive 未実施の project 数",
+      "category": "docs",
+      "value": 0,
+      "unit": "count",
+      "status": "ok",
+      "owner": "documentation-steward",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "references/03-guides/project-checklist-governance.md"
+        }
+      ],
+      "implRefs": [
+        "projects/aag-rule-splitting-execution/checklist.md",
+        "projects/architecture-decision-backlog/checklist.md",
+        "projects/data-load-idempotency-hardening/checklist.md",
+        "projects/docs-and-governance-cohesion/checklist.md",
+        "projects/presentation-quality-hardening/checklist.md",
+        "projects/pure-calculation-reorg/checklist.md"
+      ]
+    },
+    {
+      "id": "project.checklist.inProgressCount",
+      "label": "in_progress な project 数（open required checkbox あり）",
+      "category": "docs",
+      "value": 6,
+      "unit": "count",
+      "status": "ok",
+      "owner": "documentation-steward",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "references/03-guides/project-checklist-governance.md"
+        }
+      ],
+      "implRefs": [
+        "projects/aag-rule-splitting-execution/checklist.md",
+        "projects/architecture-decision-backlog/checklist.md",
+        "projects/data-load-idempotency-hardening/checklist.md",
+        "projects/docs-and-governance-cohesion/checklist.md",
+        "projects/presentation-quality-hardening/checklist.md",
+        "projects/pure-calculation-reorg/checklist.md"
+      ]
+    },
+    {
+      "id": "project.checklist.emptyCount",
+      "label": "checkbox 空の project 数（placeholder / 立ち上げ直後）",
+      "category": "docs",
+      "value": 0,
+      "unit": "count",
+      "status": "ok",
+      "owner": "documentation-steward",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "references/03-guides/project-checklist-governance.md"
+        }
+      ],
+      "implRefs": [
+        "projects/aag-rule-splitting-execution/checklist.md",
+        "projects/architecture-decision-backlog/checklist.md",
+        "projects/data-load-idempotency-hardening/checklist.md",
+        "projects/docs-and-governance-cohesion/checklist.md",
+        "projects/presentation-quality-hardening/checklist.md",
+        "projects/pure-calculation-reorg/checklist.md"
+      ]
+    },
+    {
+      "id": "project.checklist.totalCheckboxes",
+      "label": "全 project の required checkbox 総数",
+      "category": "docs",
+      "value": 239,
+      "unit": "count",
+      "status": "ok",
+      "owner": "documentation-steward",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "references/03-guides/project-checklist-governance.md"
+        }
+      ],
+      "implRefs": [
+        "projects/aag-rule-splitting-execution/checklist.md",
+        "projects/architecture-decision-backlog/checklist.md",
+        "projects/data-load-idempotency-hardening/checklist.md",
+        "projects/docs-and-governance-cohesion/checklist.md",
+        "projects/presentation-quality-hardening/checklist.md",
+        "projects/pure-calculation-reorg/checklist.md"
+      ]
+    },
+    {
+      "id": "project.checklist.checkedCheckboxes",
+      "label": "全 project の checked checkbox 総数",
+      "category": "docs",
+      "value": 118,
+      "unit": "count",
+      "status": "ok",
+      "owner": "documentation-steward",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "references/03-guides/project-checklist-governance.md"
+        }
+      ],
+      "implRefs": [
+        "projects/aag-rule-splitting-execution/checklist.md",
+        "projects/architecture-decision-backlog/checklist.md",
+        "projects/data-load-idempotency-hardening/checklist.md",
+        "projects/docs-and-governance-cohesion/checklist.md",
+        "projects/presentation-quality-hardening/checklist.md",
+        "projects/pure-calculation-reorg/checklist.md"
+      ]
     }
   ],
   "summary": {
-    "totalKpis": 32,
-    "ok": 32,
+    "totalKpis": 39,
+    "ok": 39,
     "warn": 0,
     "fail": 0,
     "hardGatePass": true
