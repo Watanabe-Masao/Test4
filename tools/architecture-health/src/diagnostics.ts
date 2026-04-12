@@ -149,6 +149,15 @@ const INDICATOR_GROUPS: readonly { name: string; ids: readonly string[] }[] = [
       "efficacy.allowlist.renewalTotal",
     ],
   },
+  {
+    name: "Project Governance",
+    ids: [
+      "project.checklist.activeCount",
+      "project.checklist.inProgressCount",
+      "project.checklist.completedNotArchivedCount",
+      "project.checklist.archivedCount",
+    ],
+  },
 ] as const;
 
 export function buildCompositeIndicators(

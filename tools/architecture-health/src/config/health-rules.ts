@@ -179,4 +179,40 @@ export const HEALTH_RULES: readonly HealthRule[] = [
     operator: "lte",
     target: 10,
   },
+
+  // --- Project Checklist Governance ---
+  // Hard gate: completed なのに archive 未実施の project は許さない
+  // (consistency guard が同じ条件で fail するが、health 側にも責任を持たせる)
+  {
+    id: "project.checklist.completedNotArchivedCount",
+    type: "hard_gate",
+    operator: "eq",
+    target: 0,
+  },
+  // Info: active project 数（観測のみ。上限は付けない）
+  {
+    id: "project.checklist.activeCount",
+    type: "info",
+    operator: "lte",
+    target: 20,
+  },
+  // Info: in_progress / collection / empty / archived 数（観測のみ）
+  {
+    id: "project.checklist.inProgressCount",
+    type: "info",
+    operator: "lte",
+    target: 20,
+  },
+  {
+    id: "project.checklist.archivedCount",
+    type: "info",
+    operator: "lte",
+    target: 100,
+  },
+  {
+    id: "project.checklist.emptyCount",
+    type: "info",
+    operator: "lte",
+    target: 10,
+  },
 ] as const;
