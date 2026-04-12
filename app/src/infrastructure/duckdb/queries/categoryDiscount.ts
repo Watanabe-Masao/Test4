@@ -79,7 +79,18 @@ function levelColumns(level: 'department' | 'line' | 'klass'): {
   }
 }
 
-/** カテゴリ別売変集計（期間合計） */
+/**
+ * カテゴリ別売変集計（期間合計）
+ *
+ * @risk PARTIAL
+ * @depends-on loadMonth-replace-semantics
+ *
+ * `is_prev_year` フィルタで前年混線は防がれており、GROUP BY が category 粒度で
+ * 集約するため明細行の自然な多重度は吸収できる。ただし同じ category 内で
+ * `classified_sales` 行が重複した場合（ロードバグ時）、SUM は倍化する。
+ *
+ * @see references/03-guides/read-path-duplicate-audit.md §PARTIAL/7
+ */
 export async function queryCategoryDiscount(
   conn: AsyncDuckDBConnection,
   params: CategoryDiscountParams,
@@ -111,7 +122,16 @@ export async function queryCategoryDiscount(
   return queryToObjects<CategoryDiscountRow>(conn, sql, CategoryDiscountRowSchema)
 }
 
-/** カテゴリ別売変日別推移 */
+/**
+ * カテゴリ別売変日別推移
+ *
+ * @risk PARTIAL
+ * @depends-on loadMonth-replace-semantics
+ *
+ * `queryCategoryDiscount` の daily 版。リスクプロファイルは同じ。
+ *
+ * @see references/03-guides/read-path-duplicate-audit.md §PARTIAL/8
+ */
 export async function queryCategoryDiscountDaily(
   conn: AsyncDuckDBConnection,
   params: CategoryDiscountParams,

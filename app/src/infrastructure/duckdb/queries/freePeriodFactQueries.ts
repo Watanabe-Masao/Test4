@@ -43,31 +43,49 @@ function buildWhere(
 
 // ── SQL テンプレート ──
 
+// 重複耐性: classified_sales (cs) 側を subquery で `(store_id, date_key, day, is_prev_year)`
+// 粒度に事前集約してから LEFT JOIN する。purchase (p) 側は従来から事前集約済み。
+// これにより JOIN 後の SUM が source 行重複に対して構造的に防御される
+// (`store_day_summary` VIEW と同じパターン)。
 const DAILY_SQL = (where: string) => `
   SELECT
     cs.store_id AS "storeId",
     cs.date_key AS "dateKey",
     cs.day,
     EXTRACT(DOW FROM cs.date_key::DATE)::INT AS "dow",
-    SUM(cs.sales_amount) AS "sales",
-    SUM(cs.customers) AS "customers",
+    cs.sales AS "sales",
+    cs.customers AS "customers",
     COALESCE(p.cost, 0) AS "purchaseCost",
     COALESCE(p.price, 0) AS "purchasePrice",
-    SUM(cs.discount_71 + cs.discount_72 + cs.discount_73 + cs.discount_74) AS "discount",
+    cs.discount AS "discount",
     cs.is_prev_year AS "isPrevYear"
-  FROM classified_sales cs
+  FROM (
+    SELECT
+      store_id, date_key, day, is_prev_year,
+      SUM(sales_amount) AS sales,
+      SUM(customers) AS customers,
+      SUM(discount_71 + discount_72 + discount_73 + discount_74) AS discount
+    FROM classified_sales
+    ${where}
+    GROUP BY store_id, date_key, day, is_prev_year
+  ) cs
   LEFT JOIN (
     SELECT store_id, date_key, SUM(cost) AS cost, SUM(price) AS price
     FROM purchase
     GROUP BY store_id, date_key
   ) p ON cs.store_id = p.store_id AND cs.date_key = p.date_key
-  ${where}
-  GROUP BY cs.store_id, cs.date_key, cs.day, cs.is_prev_year, p.cost, p.price
   ORDER BY cs.date_key, cs.store_id
 `
 
 // ── Query 関数 ──
 
+/**
+ * 自由期間分析の日次明細クエリ。
+ *
+ * **重複耐性:** `classified_sales` (cs) 側 / `purchase` (p) 側ともに subquery で
+ * 事前集約してから LEFT JOIN する。`store_day_summary` VIEW と同じパターン。
+ * 詳細: references/03-guides/read-path-duplicate-audit.md §FRAGILE/6
+ */
 export async function queryFreePeriodDaily(
   conn: AsyncDuckDBConnection,
   dateFrom: string,
