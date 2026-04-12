@@ -83,6 +83,7 @@
 | Temporal 分析ポリシー | `03-guides/temporal-analysis-policy.md` |
 | WASM 候補適性判定基準 | `03-guides/wasm-candidate-eligibility.md` |
 | データロード冪等化計画 | `03-guides/data-load-idempotency-plan.md` |
+| Read-path 重複耐性 Spot Audit | `03-guides/read-path-duplicate-audit.md` |
 | AAG 5.0 4層構造定義 | `01-principles/aag-5-constitution.md` |
 | AAG 5.0 既存ファイル層マッピング | `01-principles/aag-5-layer-map.md` |
 | AAG 5.0 正本/派生/運用物ポリシー | `01-principles/aag-5-source-of-truth-policy.md` |
@@ -261,6 +262,7 @@
 |---------|------|
 | `03-guides/wasm-candidate-eligibility.md` | WASM 候補適性の事前判定基準 |
 | `03-guides/data-load-idempotency-plan.md` | データロード冪等化計画（重複防止の根本解決） |
+| `03-guides/read-path-duplicate-audit.md` | Read-path 重複耐性 Spot Audit（`classified_sales` / `special_sales` / `transfers` 依存クエリの可視化） |
 
 ### 移行・廃止
 
