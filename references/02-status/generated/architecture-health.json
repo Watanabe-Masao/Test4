@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-12T16:46:04.232Z",
+  "timestamp": "2026-04-12T17:24:40.553Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -678,7 +678,7 @@
       "id": "project.checklist.activeCount",
       "label": "active project 数（archive 未実施を含む）",
       "category": "docs",
-      "value": 6,
+      "value": 7,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -689,6 +689,7 @@
         }
       ],
       "implRefs": [
+        "projects/aag-collector-purification/checklist.md",
         "projects/aag-rule-splitting-execution/checklist.md",
         "projects/architecture-decision-backlog/checklist.md",
         "projects/data-load-idempotency-hardening/checklist.md",
@@ -732,6 +733,7 @@
         }
       ],
       "implRefs": [
+        "projects/aag-collector-purification/checklist.md",
         "projects/aag-rule-splitting-execution/checklist.md",
         "projects/architecture-decision-backlog/checklist.md",
         "projects/data-load-idempotency-hardening/checklist.md",
@@ -745,7 +747,7 @@
       "id": "project.checklist.inProgressCount",
       "label": "in_progress な project 数（open required checkbox あり）",
       "category": "docs",
-      "value": 5,
+      "value": 6,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -756,6 +758,7 @@
         }
       ],
       "implRefs": [
+        "projects/aag-collector-purification/checklist.md",
         "projects/aag-rule-splitting-execution/checklist.md",
         "projects/architecture-decision-backlog/checklist.md",
         "projects/data-load-idempotency-hardening/checklist.md",
@@ -781,6 +784,7 @@
         }
       ],
       "implRefs": [
+        "projects/aag-collector-purification/checklist.md",
         "projects/aag-rule-splitting-execution/checklist.md",
         "projects/architecture-decision-backlog/checklist.md",
         "projects/data-load-idempotency-hardening/checklist.md",
@@ -795,7 +799,7 @@
       "id": "project.checklist.totalCheckboxes",
       "label": "全 project の required checkbox 総数",
       "category": "docs",
-      "value": 273,
+      "value": 302,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -806,6 +810,7 @@
         }
       ],
       "implRefs": [
+        "projects/aag-collector-purification/checklist.md",
         "projects/aag-rule-splitting-execution/checklist.md",
         "projects/architecture-decision-backlog/checklist.md",
         "projects/data-load-idempotency-hardening/checklist.md",
@@ -830,6 +835,7 @@
         }
       ],
       "implRefs": [
+        "projects/aag-collector-purification/checklist.md",
         "projects/aag-rule-splitting-execution/checklist.md",
         "projects/architecture-decision-backlog/checklist.md",
         "projects/data-load-idempotency-hardening/checklist.md",
