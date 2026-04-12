@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-12T22:05:22.020Z",
+  "timestamp": "2026-04-12T22:24:11.854Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 55,
+      "value": 56,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -292,6 +292,7 @@
         "app/src/test/guards/freePeriodPathGuard.test.ts",
         "app/src/test/guards/grossProfitConsistencyGuard.test.ts",
         "app/src/test/guards/grossProfitPathGuard.test.ts",
+        "app/src/test/guards/guardTestMapConsistencyGuard.test.ts",
         "app/src/test/guards/layerBoundaryGuard.test.ts",
         "app/src/test/guards/migrationTagGuard.test.ts",
         "app/src/test/guards/noNewDebtGuard.test.ts",
