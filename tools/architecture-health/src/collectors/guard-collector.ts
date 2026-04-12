@@ -48,9 +48,11 @@ export function collectFromGuards(repoRoot: string): HealthKpi[] {
 
   // --- Architecture Rules total count ---
   // BaseRule の物理正本は App Domain 側（C4: 物理移動完了）
+  // quote-agnostic: Prettier が single/double どちらの quote を採用しても
+  // 検出できるようにする（fixNow detection と同じ方針）
   const rulesPath = resolve(repoRoot, 'app-domain/gross-profit/rule-catalog/base-rules.ts')
   const rulesContent = readFileSync(rulesPath, 'utf-8')
-  const ruleIdMatches = rulesContent.match(/id: 'AR-/g) || []
+  const ruleIdMatches = rulesContent.match(/id:\s*['"]AR-/g) || []
   kpis.push({
     id: 'guard.rules.total',
     label: '総 Architecture Rule 数',

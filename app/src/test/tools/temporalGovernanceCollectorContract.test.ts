@@ -49,6 +49,15 @@ describe('Temporal Governance Collector 契約テスト', () => {
     expect(findKpi(kpis, 'temporal.rules.sunsetCondition.count').value).toBe(1)
   })
 
+  it('sunsetCondition.count が double quote fixture でも正しく算出される（quote-agnostic）', () => {
+    fx = createFixture({
+      baseRuleIds: ['AR-1', 'AR-2', 'AR-3'],
+      quoteStyle: 'double',
+    })
+    const kpis = collectFromTemporalGovernance(fx.repoRoot)
+    expect(findKpi(kpis, 'temporal.rules.sunsetCondition.count').value).toBe(1)
+  })
+
   it('protectedHarm.count が BaseRule 内の定義数と一致する（fixture: 2 件）', () => {
     fx = createFixture({
       baseRuleIds: ['AR-1', 'AR-2', 'AR-3', 'AR-4'],
@@ -56,6 +65,22 @@ describe('Temporal Governance Collector 契約テスト', () => {
     const kpis = collectFromTemporalGovernance(fx.repoRoot)
     // fixture builder は idx===1 / idx===2 のルールに protectedHarm を付与する
     expect(findKpi(kpis, 'efficacy.rules.withProtectedHarm.count').value).toBe(2)
+  })
+
+  it('active-debt allowlist 検出も quote-agnostic である', () => {
+    fx = createFixture({
+      overrideFiles: {
+        'app/src/test/allowlists/architecture.ts': [
+          '// double quote fixture',
+          'const entry1 = { lifecycle: "active-debt", createdAt: "2025-01-01" }',
+          'const entry2 = { lifecycle: "active-debt" }',
+          'export { entry1, entry2 }',
+        ].join('\n'),
+      },
+    })
+    const kpis = collectFromTemporalGovernance(fx.repoRoot)
+    expect(findKpi(kpis, 'temporal.allowlist.activeDebt.count').value).toBe(2)
+    expect(findKpi(kpis, 'temporal.allowlist.activeDebt.withCreatedAt').value).toBe(1)
   })
 
   it('reviewOverdue.count が lastReviewedAt + cadence から正しく算出される', () => {

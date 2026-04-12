@@ -13,7 +13,7 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:guards": "vitest run src/test/guards/ src/test/comparisonMigrationGuard.test.ts src/test/designSystemGuard.test.ts src/test/documentConsistency.test.ts src/test/scopeBoundaryInvariant.test.ts src/test/scopeConsistencyGuard.test.ts src/test/waterfallDataIntegrity.test.ts",
+    "test:guards": "vitest run src/test/guards/ src/test/tools/ src/test/comparisonMigrationGuard.test.ts src/test/designSystemGuard.test.ts src/test/documentConsistency.test.ts src/test/scopeBoundaryInvariant.test.ts src/test/scopeConsistencyGuard.test.ts src/test/waterfallDataIntegrity.test.ts",
     "test:observation": "vitest run src/test/observation/",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",

@@ -40,16 +40,15 @@ describe('Guard Collector 契約テスト', () => {
     expect(findKpi(kpis, 'guard.rules.total').value).toBe(5)
   })
 
-  it('guard.rules.total が BaseRule 数と一致する（double quote）', () => {
+  it('guard.rules.total が BaseRule 数と一致する（double quote — quote-agnostic 検証）', () => {
+    // collector の id 検出は quote-agnostic であること。
+    // Prettier が single/double どちらで書き出しても同じ値を返す。
     fx = createFixture({
       baseRuleIds: ['AR-FX-1', 'AR-FX-2', 'AR-FX-3'],
       quoteStyle: 'double',
     })
     const kpis = collectFromGuards(fx.repoRoot)
-    // Current collector regex uses /id: 'AR-/g which is single-quote only.
-    // double-quote fixture should yield 0 — we assert the observed behavior to
-    // lock the current contract; if this is relaxed in future, update here.
-    expect(findKpi(kpis, 'guard.rules.total').value).toBe(0)
+    expect(findKpi(kpis, 'guard.rules.total').value).toBe(3)
   })
 
   it('fixNow 分布が overlay 内容と一致する（single quote）', () => {
