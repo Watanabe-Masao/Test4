@@ -1,20 +1,22 @@
 /**
- * Architecture Rules — 140 ルール定義データ
+ * Architecture Rules — 140 ルール定義データ（App Domain 側）
  *
  * ルールはデータ層。検出ロジックはテストファイルに残す。
+ * operational state（fixNow / executionPlan / reviewPolicy / lifecyclePolicy）は
+ * projects/pure-calculation-reorg/aag/execution-overlay.ts に置かれ、
+ * architectureRules/merged.ts で合成される。
  *
  * @responsibility R:utility
  */
 
-import type { ArchitectureRule } from './types'
+import type { BaseRule } from './types'
 
 // ─── ルール定義 ──────────────────────────────────────────
 
-export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
+export const ARCHITECTURE_RULES: readonly BaseRule[] = [
   // ── noNewDebtGuard 由来 ──
 
   {
-    fixNow: 'now',
     slice: 'governance-ops',
     id: 'AR-001',
     principleRefs: ['G1'],
@@ -49,20 +51,10 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '2. bridge から直接 wasmEngine または TS fallback を呼ぶように変更',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 1,
-    },
     sunsetCondition: 'bridge パターンが存在しなくなった',
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-11',
-      reviewCadenceDays: 90,
-    },
   },
 
   {
-    fixNow: 'now',
     slice: 'layer-boundary',
     id: 'AR-002',
     principleRefs: ['A1', 'B1'],
@@ -96,20 +88,10 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. hook 経由で計算結果を受け取るように変更',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 1,
-    },
     sunsetCondition: 'presentation → wasmEngine の経路が構造的に存在しなくなった',
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 90,
-    },
   },
 
   {
-    fixNow: 'debt',
     slice: 'governance-ops',
     id: 'AR-003',
     principleRefs: ['C1', 'A5'],
@@ -143,20 +125,10 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. 共通なら既存フィールドの統合（類似フィールドのマージ）を検討',
       ],
     },
-    executionPlan: {
-      effort: 'medium',
-      priority: 3,
-    },
     sunsetCondition: 'UnifiedWidgetContext が feature slice に完全分割された',
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 60,
-    },
   },
 
   {
-    fixNow: 'now',
     slice: 'governance-ops',
     id: 'AR-004',
     principleRefs: ['G1'],
@@ -190,20 +162,10 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. 移行完了したら baseline を減らす',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 2,
-    },
     sunsetCondition: 'deprecated が全て削除された',
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 60,
-    },
   },
 
   {
-    fixNow: 'debt',
     slice: 'governance-ops',
     id: 'AR-005',
     principleRefs: ['H1'],
@@ -236,21 +198,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. shared な plan が本当に cross-cutting か再確認',
       ],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 1,
-    },
     sunsetCondition: 'shared plan が全て features/ に移行された',
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 60,
-    },
   },
   // ── layerBoundaryGuard 由来 ──
 
   {
-    fixNow: 'now',
     slice: 'layer-boundary',
     id: 'AR-A1-DOMAIN',
     principleRefs: ['A1', 'A2'],
@@ -291,10 +243,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. 実装は infrastructure/ に置き、application/ が DI で注入',
       ],
     },
-    executionPlan: {
-      effort: 'medium',
-      priority: 1,
-    },
     protectedHarm: {
       prevents: [
         'domain が外部層に依存し純粋性が崩壊',
@@ -302,15 +250,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '計算結果の信頼性低下',
       ],
     },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 90,
-    },
   },
 
   {
-    fixNow: 'now',
     slice: 'layer-boundary',
     id: 'AR-A1-APP-INFRA',
     principleRefs: ['A1'],
@@ -345,22 +287,12 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. adapter パターン: domain/ に interface を定義 → infrastructure/ で実装 → application/ が DI',
       ],
     },
-    executionPlan: {
-      effort: 'medium',
-      priority: 2,
-    },
     protectedHarm: {
       prevents: ['application と infrastructure の密結合', 'インフラ変更時の影響範囲拡大'],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 90,
     },
   },
 
   {
-    fixNow: 'now',
     slice: 'layer-boundary',
     id: 'AR-A1-APP-PRES',
     principleRefs: ['A1'],
@@ -393,20 +325,10 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. presentation → application → domain の依存方向に従って参照を逆転',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 1,
-    },
     protectedHarm: { prevents: ['application と presentation の循環依存', 'ビルド順序の破壊'] },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 90,
-    },
   },
 
   {
-    fixNow: 'now',
     slice: 'layer-boundary',
     id: 'AR-A1-PRES-INFRA',
     principleRefs: ['A1', 'A3'],
@@ -445,22 +367,12 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. なければ useQueryWithHandler で新規 hook を作成',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 1,
-    },
     protectedHarm: {
       prevents: ['presentation からの直接データ取得', '取得ロジックの散在', 'テスト困難化'],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 90,
     },
   },
 
   {
-    fixNow: 'now',
     slice: 'layer-boundary',
     id: 'AR-A1-PRES-USECASE',
     principleRefs: ['A1'],
@@ -493,19 +405,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. allowlist の残り 1 件を解消して baseline を 0 にする',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 2,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 90,
-    },
   },
 
   {
-    fixNow: 'now',
     slice: 'layer-boundary',
     id: 'AR-A1-INFRA-APP',
     principleRefs: ['A1'],
@@ -538,22 +440,12 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. infrastructure/ は domain/ のみに依存するよう変更',
       ],
     },
-    executionPlan: {
-      effort: 'medium',
-      priority: 1,
-    },
     protectedHarm: {
       prevents: ['infrastructure から application への逆方向依存', '循環依存の発生'],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 90,
     },
   },
 
   {
-    fixNow: 'now',
     slice: 'layer-boundary',
     id: 'AR-A1-INFRA-PRES',
     principleRefs: ['A1'],
@@ -582,22 +474,12 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationRecipe: {
       steps: ['1. presentation/ への import を削除', '2. 共有データは domain/ の型経由で参照'],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 1,
-    },
     protectedHarm: { prevents: ['infrastructure と presentation の直接結合'] },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 90,
-    },
   },
 
   // ── codePatternGuard 由来 ──
 
   {
-    fixNow: 'now',
     slice: 'governance-ops',
     id: 'AR-G4-INTERNAL',
     principleRefs: ['G4'],
@@ -627,19 +509,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. テストは public API 経由で間接的に検証する',
       ],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 1,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 60,
-    },
   },
 
   {
-    fixNow: 'now',
     slice: 'governance-ops',
     id: 'AR-C3-STORE',
     principleRefs: ['C3'],
@@ -669,19 +541,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. store action は計算結果を set() するだけに変更',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 2,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 60,
-    },
   },
 
   {
-    fixNow: 'now',
     slice: 'governance-ops',
     id: 'AR-G3-SUPPRESS',
     principleRefs: ['G3', 'E2'],
@@ -711,20 +573,10 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. どうしても必要なら codePatternGuard の G3_ALLOWLIST に正当理由を記載',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 1,
-    },
     protectedHarm: { prevents: ['型安全性の形骸化', 'lint 規約の無効化', 'バグの隠蔽'] },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 60,
-    },
   },
 
   {
-    fixNow: 'now',
     slice: 'governance-ops',
     id: 'AR-E4-TRUTHINESS',
     principleRefs: ['E4'],
@@ -754,22 +606,12 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '2. 0 が有効値のフィールド（金額、数量等）は特に注意',
       ],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 1,
-    },
     protectedHarm: {
       prevents: ['0 が有効値のフィールドで欠損扱い', '金額ゼロの正当な取引が消える'],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 60,
     },
   },
 
   {
-    fixNow: 'now',
     slice: 'governance-ops',
     id: 'AR-C5-SELECTOR',
     principleRefs: ['C5'],
@@ -799,20 +641,10 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '2. 複数フィールドが必要なら useDataStore((s) => ({ a: s.a, b: s.b })) を使用',
       ],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 1,
-    },
     protectedHarm: { prevents: ['全フィールド変更で再レンダリング', 'パフォーマンス劣化'] },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 60,
-    },
   },
 
   {
-    fixNow: 'now',
     slice: 'governance-ops',
     id: 'AR-G2-EMPTY-CATCH',
     principleRefs: ['G2'],
@@ -841,22 +673,12 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '2. 可能なら呼び出し元にエラーを伝播する（throw / return Result）',
       ],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 1,
-    },
     protectedHarm: { prevents: ['エラーの握り潰し', 'デバッグ不能な不具合'] },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 60,
-    },
   },
 
   // ── sizeGuard 由来 ──
 
   {
-    fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-G5-HOOK-MEMO',
     principleRefs: ['G5', 'C8'],
@@ -889,19 +711,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. 純粋な計算は *Builders.ts / *Logic.ts に抽出',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 3,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 45,
-    },
   },
 
   {
-    fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-G5-HOOK-STATE',
     principleRefs: ['G5', 'C8'],
@@ -933,19 +745,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. useReducer に統合できる場合は *Reducer.ts に抽出',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 3,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 45,
-    },
   },
 
   {
-    fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-G5-HOOK-LINES',
     principleRefs: ['G5'],
@@ -976,19 +778,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. 純粋な計算は *Builders.ts / *Logic.ts に抽出',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 3,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 45,
-    },
   },
 
   {
-    fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-G6-COMPONENT',
     principleRefs: ['G6'],
@@ -1019,19 +811,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. 描画が長い → 子コンポーネントに分割',
       ],
     },
-    executionPlan: {
-      effort: 'medium',
-      priority: 3,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 45,
-    },
   },
 
   {
-    fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-G5-DOMAIN-LINES',
     principleRefs: ['G5'],
@@ -1060,19 +842,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '2. 共通ユーティリティは domain/utils/ に移動',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 3,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 45,
-    },
   },
 
   {
-    fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-G5-INFRA-LINES',
     principleRefs: ['G5'],
@@ -1098,19 +870,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationRecipe: {
       steps: ['1. クエリやアダプタを責務ごとに分割', '2. 共通処理は infrastructure/shared/ に抽出'],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 3,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 45,
-    },
   },
 
   {
-    fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-G5-USECASE-LINES',
     principleRefs: ['G5'],
@@ -1139,19 +901,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '2. 共通の builder は application/usecases/shared/ に抽出',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 3,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 45,
-    },
   },
 
   {
-    fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-C6-FACADE',
     principleRefs: ['C6'],
@@ -1181,21 +933,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. 条件分岐が必要なら呼び出し先で Strategy パターンを使う',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 2,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 45,
-    },
   },
 
   // ── パスガード由来（正本取得経路の保護） ──
 
   {
-    fixNow: 'now',
     slice: 'canonicalization',
     id: 'AR-PATH-SALES',
     principleRefs: ['B1', 'F8'],
@@ -1235,20 +977,10 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. SalesFactReadModel 型を使用',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 2,
-    },
     protectedHarm: { prevents: ['売上データの不整合', '旧クエリと新正本の値の乖離'] },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 90,
-    },
   },
 
   {
-    fixNow: 'now',
     slice: 'canonicalization',
     id: 'AR-PATH-DISCOUNT',
     principleRefs: ['B1', 'F8'],
@@ -1277,19 +1009,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationRecipe: {
       steps: ['1. 旧クエリへの import を削除', '2. readDiscountFact() 経由に変更'],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 2,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 90,
-    },
   },
 
   {
-    fixNow: 'now',
     slice: 'canonicalization',
     id: 'AR-PATH-GROSS-PROFIT',
     principleRefs: ['B1', 'B3'],
@@ -1324,22 +1046,12 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. GrossProfitResult 型を使用',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 1,
-    },
     protectedHarm: {
       prevents: ['粗利計算の散在', '売上−原価=粗利の不変条件破壊', '店舗間の粗利不整合'],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 90,
     },
   },
 
   {
-    fixNow: 'now',
     slice: 'canonicalization',
     id: 'AR-PATH-PURCHASE-COST',
     principleRefs: ['B1', 'F8'],
@@ -1373,20 +1085,10 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. PurchaseCostReadModel 型を使用',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 1,
-    },
     protectedHarm: { prevents: ['仕入原価の二重計上', '移動原価の方向ミス（IN のみで OUT 漏れ）'] },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 90,
-    },
   },
 
   {
-    fixNow: 'now',
     slice: 'canonicalization',
     id: 'AR-PATH-CUSTOMER',
     principleRefs: ['B1', 'F8'],
@@ -1416,20 +1118,10 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationRecipe: {
       steps: ['1. 旧クエリへの import を削除', '2. readCustomerFact() 経由に変更'],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 2,
-    },
     protectedHarm: { prevents: ['客数集計の不一致', 'PI 値計算への不正確な入力'] },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 90,
-    },
   },
 
   {
-    fixNow: 'now',
     slice: 'canonicalization',
     id: 'AR-PATH-CUSTOMER-GAP',
     principleRefs: ['B1', 'D1'],
@@ -1459,20 +1151,10 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationRecipe: {
       steps: ['1. インラインの差分計算を削除', '2. calculateCustomerGap() に置き換え'],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 2,
-    },
     protectedHarm: { prevents: ['客数 GAP の定義不一致', 'インライン計算による精度劣化'] },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 90,
-    },
   },
 
   {
-    fixNow: 'now',
     slice: 'canonicalization',
     id: 'AR-PATH-PI-VALUE',
     principleRefs: ['B1'],
@@ -1505,20 +1187,10 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '2. calculateQuantityPI() / calculateAmountPI() に置き換え',
       ],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 2,
-    },
     protectedHarm: { prevents: ['0 除算ガードの欠落', 'PI 値フォーマットの不統一'] },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 90,
-    },
   },
 
   {
-    fixNow: 'now',
     slice: 'canonicalization',
     id: 'AR-PATH-FREE-PERIOD',
     principleRefs: ['B1'],
@@ -1547,19 +1219,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationRecipe: {
       steps: ['1. 旧クエリへの import を削除', '2. readFreePeriodFact() 経由に変更'],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 2,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 90,
-    },
   },
 
   {
-    fixNow: 'now',
     slice: 'canonicalization',
     id: 'AR-PATH-FREE-PERIOD-BUDGET',
     principleRefs: ['B1'],
@@ -1588,19 +1250,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationRecipe: {
       steps: ['1. 旧クエリへの import を削除', '2. readFreePeriodBudgetFact() 経由に変更'],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 2,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 90,
-    },
   },
 
   {
-    fixNow: 'now',
     slice: 'canonicalization',
     id: 'AR-PATH-FREE-PERIOD-DEPT-KPI',
     principleRefs: ['B1'],
@@ -1629,19 +1281,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationRecipe: {
       steps: ['1. 旧クエリへの import を削除', '2. readFreePeriodDeptKPI() 経由に変更'],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 2,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 90,
-    },
   },
 
   {
-    fixNow: 'now',
     slice: 'canonicalization',
     id: 'AR-PATH-FACTOR-DECOMPOSITION',
     principleRefs: ['B1', 'D1', 'D2'],
@@ -1675,20 +1317,10 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. FactorDecompositionResult 型を使用',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 1,
-    },
     protectedHarm: { prevents: ['要因分解の合計値が売上差と不一致（D1 不変条件違反）'] },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 90,
-    },
   },
 
   {
-    fixNow: 'now',
     slice: 'canonicalization',
     id: 'AR-PATH-GROSS-PROFIT-CONSISTENCY',
     principleRefs: ['B1', 'D3'],
@@ -1721,21 +1353,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. 独自経路があれば getEffectiveGrossProfit / grossProfitFromStoreResult に移行',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 1,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 90,
-    },
   },
 
   // ── 構造・純粋性・移行ガード由来 ──
 
   {
-    fixNow: 'review',
     slice: 'query-runtime',
     id: 'AR-STRUCT-ANALYSIS-FRAME',
     principleRefs: ['H1'],
@@ -1759,19 +1381,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationRecipe: {
       steps: ['1. 直接クエリ入力の構築を AnalysisFrame 経由に変更'],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 2,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 60,
-    },
   },
 
   {
-    fixNow: 'review',
     slice: 'canonicalization',
     id: 'AR-STRUCT-CALC-CANON',
     principleRefs: ['B1'],
@@ -1800,19 +1412,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '2. required なら Zod 契約を追加',
       ],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 1,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 60,
-    },
   },
 
   {
-    fixNow: 'review',
     slice: 'canonicalization',
     id: 'AR-CANON-ZOD-REQUIRED',
     principleRefs: ['E1', 'F5'],
@@ -1843,19 +1445,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. 出力型の Zod schema を定義',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 1,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 60,
-    },
   },
 
   {
-    fixNow: 'review',
     slice: 'canonicalization',
     id: 'AR-CANON-ZOD-REVIEW',
     principleRefs: ['E1'],
@@ -1884,20 +1476,10 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '4. baseline を減らす',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 3,
-    },
     sunsetCondition: 'review 分類の Zod 未済が 0 になった',
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 60,
-    },
   },
 
   {
-    fixNow: 'review',
     slice: 'canonicalization',
     id: 'AR-STRUCT-CANONICAL-INPUT',
     principleRefs: ['B1', 'E1'],
@@ -1918,19 +1500,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationRecipe: {
       steps: ['1. インライン計算を削除', '2. canonical input builder 経由に変更'],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 2,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 60,
-    },
   },
 
   {
-    fixNow: 'review',
     slice: 'canonicalization',
     id: 'AR-STRUCT-CANONICALIZATION',
     principleRefs: ['B1', 'E1', 'F5'],
@@ -1962,20 +1534,10 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationRecipe: {
       steps: ['1. readModels/ に配置', '2. Zod 契約追加', '3. パスガード追加', '4. 定義書作成'],
     },
-    executionPlan: {
-      effort: 'medium',
-      priority: 1,
-    },
     protectedHarm: { prevents: ['readModel の体系的品質保証の欠落', '異なる経路で異なる値'] },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 60,
-    },
   },
 
   {
-    fixNow: 'review',
     slice: 'query-runtime',
     id: 'AR-STRUCT-COMPARISON-SCOPE',
     principleRefs: ['H2'],
@@ -1999,19 +1561,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationRecipe: {
       steps: ['1. 直接構築を削除', '2. buildComparisonScope() に置き換え'],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 2,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 60,
-    },
   },
 
   {
-    fixNow: 'review',
     slice: 'governance-ops',
     id: 'AR-STRUCT-DATA-INTEGRITY',
     principleRefs: ['D3', 'E1'],
@@ -2038,20 +1590,10 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '2. state リセット: useEffect のクリーンアップで確実にリセット',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 1,
-    },
     protectedHarm: { prevents: ['二重計上', 'DuckDB is_prev_year 不整合', 'state リセット漏れ'] },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 60,
-    },
   },
 
   {
-    fixNow: 'review',
     slice: 'governance-ops',
     id: 'AR-STRUCT-DUAL-RUN-EXIT',
     principleRefs: ['B1'],
@@ -2077,20 +1619,10 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationRecipe: {
       steps: ['1. インフラ層 dual-run 関連コードを発見したら削除'],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 1,
-    },
     sunsetCondition: 'インフラ層 dual-run 関連コードが完全に削除された',
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-11',
-      reviewCadenceDays: 60,
-    },
   },
 
   {
-    fixNow: 'review',
     slice: 'canonicalization',
     id: 'AR-STRUCT-FALLBACK-METADATA',
     principleRefs: ['E3'],
@@ -2113,19 +1645,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationRecipe: {
       steps: ['1. readModel 型に usedFallback を追加', '2. builder でフォールバック判定を実装'],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 2,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 60,
-    },
   },
 
   {
-    fixNow: 'debt',
     slice: 'governance-ops',
     id: 'AR-MIG-OLD-PATH',
     principleRefs: ['F4'],
@@ -2151,20 +1673,10 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationRecipe: {
       steps: ['1. 旧パスの import を features/<feature>/ のパスに変更'],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 1,
-    },
     sunsetCondition: 'features/ 移行が 100% 完了した',
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 60,
-    },
   },
 
   {
-    fixNow: 'review',
     slice: 'governance-ops',
     id: 'AR-STRUCT-PAGE-META',
     principleRefs: ['F4'],
@@ -2188,19 +1700,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationRecipe: {
       steps: ['1. PAGE_REGISTRY にエントリ追加', '2. routes.tsx の PAGE_COMPONENT_MAP と整合確認'],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 1,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 60,
-    },
   },
 
   {
-    fixNow: 'debt',
     slice: 'layer-boundary',
     id: 'AR-STRUCT-PRES-ISOLATION',
     principleRefs: ['A3', 'H4', 'B2'],
@@ -2229,19 +1731,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '2. application/hooks/ の hook 経由に変更',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 1,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 60,
-    },
   },
 
   {
-    fixNow: 'now',
     slice: 'layer-boundary',
     id: 'AR-STRUCT-PURITY',
     principleRefs: ['A2', 'C2', 'A6'],
@@ -2277,20 +1769,10 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. domain は純粋関数のみに',
       ],
     },
-    executionPlan: {
-      effort: 'medium',
-      priority: 1,
-    },
     protectedHarm: { prevents: ['domain に副作用が混入', '計算の再現性喪失', 'WASM 移行の阻害'] },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 90,
-    },
   },
 
   {
-    fixNow: 'debt',
     slice: 'query-runtime',
     id: 'AR-STRUCT-QUERY-PATTERN',
     principleRefs: ['H1', 'H3', 'H5'],
@@ -2323,20 +1805,10 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. input 正規化を追加',
       ],
     },
-    executionPlan: {
-      effort: 'medium',
-      priority: 2,
-    },
     protectedHarm: { prevents: ['クエリ入力の不正規化', 'キャッシュの不整合', '比較結果の不一致'] },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 60,
-    },
   },
 
   {
-    fixNow: 'review',
     slice: 'layer-boundary',
     id: 'AR-STRUCT-RENDER-SIDE-EFFECT',
     principleRefs: ['A3'],
@@ -2366,22 +1838,12 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '2. uiPersistenceAdapter 経由に変更',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 2,
-    },
     protectedHarm: { prevents: ['描画時のストレージ副作用', 'SSR 互換性の喪失'] },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 60,
-    },
   },
 
   // ─── 責務分離ルール（旧 AR-STRUCT-RESP-SEPARATION を 7 分割） ─
 
   {
-    fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-RESP-STORE-COUPLING',
     principleRefs: ['A3', 'C1'],
@@ -2408,16 +1870,10 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. 複数 action は親コンポーネントで callback にまとめる',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 2,
-    },
     protectedHarm: { prevents: ['presentation 層の store 直接結合', 'テスト困難な副作用'] },
-    reviewPolicy: { owner: 'solo-maintainer', lastReviewedAt: '2026-04-08', reviewCadenceDays: 90 },
   },
 
   {
-    fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-RESP-MODULE-STATE',
     principleRefs: ['C1', 'G8'],
@@ -2442,16 +1898,10 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. React 内なら useRef、永続なら Zustand store',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 3,
-    },
     protectedHarm: { prevents: ['グローバル変数の散在', 'テスト間の状態リーク'] },
-    reviewPolicy: { owner: 'solo-maintainer', lastReviewedAt: '2026-04-08', reviewCadenceDays: 90 },
   },
 
   {
-    fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-RESP-HOOK-COMPLEXITY',
     principleRefs: ['C1', 'C8', 'G5'],
@@ -2476,16 +1926,10 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. 関連する state + handler を sub-hook に抽出',
       ],
     },
-    executionPlan: {
-      effort: 'medium',
-      priority: 3,
-    },
     protectedHarm: { prevents: ['God Hook の発生', 'レンダリング依存配列の爆発'] },
-    reviewPolicy: { owner: 'solo-maintainer', lastReviewedAt: '2026-04-08', reviewCadenceDays: 90 },
   },
 
   {
-    fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-RESP-FEATURE-COMPLEXITY',
     principleRefs: ['C1', 'G5'],
@@ -2512,16 +1956,10 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. 関連する useState を useReducer に統合',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 3,
-    },
     protectedHarm: { prevents: ['feature hook の責務肥大化'] },
-    reviewPolicy: { owner: 'solo-maintainer', lastReviewedAt: '2026-04-08', reviewCadenceDays: 90 },
   },
 
   {
-    fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-RESP-EXPORT-DENSITY',
     principleRefs: ['C1', 'C8'],
@@ -2546,16 +1984,10 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. 型定義のみを元ファイルに残す',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 3,
-    },
     protectedHarm: { prevents: ['モデルの責務肥大化', '変更理由の複数化'] },
-    reviewPolicy: { owner: 'solo-maintainer', lastReviewedAt: '2026-04-08', reviewCadenceDays: 90 },
   },
 
   {
-    fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-RESP-NORMALIZATION',
     principleRefs: ['C1', 'G8'],
@@ -2576,16 +2008,10 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationRecipe: {
       steps: ['1. 散在ファイルを特定', '2. 共通ユーティリティに集約'],
     },
-    executionPlan: {
-      effort: 'medium',
-      priority: 4,
-    },
     protectedHarm: { prevents: ['正規化ロジックの重複', 'データ不整合'] },
-    reviewPolicy: { owner: 'solo-maintainer', lastReviewedAt: '2026-04-08', reviewCadenceDays: 90 },
   },
 
   {
-    fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-RESP-FALLBACK-SPREAD',
     principleRefs: ['C1', 'G8'],
@@ -2612,16 +2038,10 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. 共通定数は application/constants/ に集約',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 3,
-    },
     protectedHarm: { prevents: ['初期値管理の責務分散', 'fallback 忘れによるランタイムエラー'] },
-    reviewPolicy: { owner: 'solo-maintainer', lastReviewedAt: '2026-04-08', reviewCadenceDays: 90 },
   },
 
   {
-    fixNow: 'debt',
     slice: 'canonicalization',
     id: 'AR-STRUCT-STORE-RESULT-INPUT',
     principleRefs: ['B1'],
@@ -2645,22 +2065,12 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationRecipe: {
       steps: ['1. StoreResult.totalCustomers の参照を削除', '2. readCustomerFact() に置き換え'],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 2,
-    },
     sunsetCondition: 'StoreResult.totalCustomers が削除された',
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 60,
-    },
   },
 
   // ─── 構造規約ルール（旧 AR-STRUCT-CONVENTION を 3 分割） ──────
 
   {
-    fixNow: 'debt',
     slice: 'governance-ops',
     id: 'AR-CONVENTION-BARREL',
     principleRefs: ['F1', 'F9'],
@@ -2681,16 +2091,10 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationRecipe: {
       steps: ['1. バレルから関数/const 定義を別ファイルに移動', '2. re-export に置き換え'],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 2,
-    },
     protectedHarm: { prevents: ['import 解決の循環', 'tree-shaking 崩壊'] },
-    reviewPolicy: { owner: 'solo-maintainer', lastReviewedAt: '2026-04-08', reviewCadenceDays: 90 },
   },
 
   {
-    fixNow: 'debt',
     slice: 'governance-ops',
     id: 'AR-CONVENTION-FEATURE-BOUNDARY',
     principleRefs: ['F4'],
@@ -2711,16 +2115,10 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationRecipe: {
       steps: ['1. features/ 間の直接 import を特定', '2. 共通部分を shared/ に抽出'],
     },
-    executionPlan: {
-      effort: 'medium',
-      priority: 2,
-    },
     protectedHarm: { prevents: ['feature 間の循環依存', 'topology 崩壊'] },
-    reviewPolicy: { owner: 'solo-maintainer', lastReviewedAt: '2026-04-08', reviewCadenceDays: 90 },
   },
 
   {
-    fixNow: 'debt',
     slice: 'governance-ops',
     id: 'AR-CONVENTION-CONTEXT-SINGLE-SOURCE',
     principleRefs: ['F2', 'F3', 'F6'],
@@ -2743,16 +2141,10 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationRecipe: {
       steps: ['1. 独自 hook 呼び出しを特定', '2. ctx に同等データがあれば ctx 経由に変更'],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 3,
-    },
     protectedHarm: { prevents: ['データの不一致', 'キャッシュの二重管理'] },
-    reviewPolicy: { owner: 'solo-maintainer', lastReviewedAt: '2026-04-08', reviewCadenceDays: 90 },
   },
 
   {
-    fixNow: 'review',
     slice: 'query-runtime',
     id: 'AR-STRUCT-TEMPORAL-ROLLING',
     principleRefs: ['H1'],
@@ -2776,19 +2168,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationRecipe: {
       steps: ['1. 逆流 import を削除', '2. 結果は hook 経由で受け取る'],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 2,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 60,
-    },
   },
 
   {
-    fixNow: 'review',
     slice: 'query-runtime',
     id: 'AR-STRUCT-TEMPORAL-SCOPE',
     principleRefs: ['H1'],
@@ -2814,19 +2196,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationRecipe: {
       steps: ['1. sameDate/sameDow の混在を分離', '2. 比較モードごとに適切なスコープを選択'],
     },
-    executionPlan: {
-      effort: 'medium',
-      priority: 2,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 60,
-    },
   },
 
   {
-    fixNow: 'now',
     slice: 'layer-boundary',
     id: 'AR-STRUCT-TOPOLOGY',
     principleRefs: ['A1'],
@@ -2847,21 +2219,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationRecipe: {
       steps: ['1. 新規ディレクトリを features/<feature>/ または既存層に移動'],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 1,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 90,
-    },
   },
 
   // ── 追加ルール（未参照タグのカバー） ──
 
   {
-    fixNow: 'now',
     slice: 'governance-ops',
     id: 'AR-C7-NO-DUAL-API',
     principleRefs: ['C7'],
@@ -2890,19 +2252,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. 旧 API を削除',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 2,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 60,
-    },
   },
 
   {
-    fixNow: 'review',
     slice: 'responsibility-separation',
     id: 'AR-C9-HONEST-UNCLASSIFIED',
     principleRefs: ['C9'],
@@ -2929,19 +2281,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. 不明なものは未分類のまま残す',
       ],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 3,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 45,
-    },
   },
 
   {
-    fixNow: 'review',
     slice: 'responsibility-separation',
     id: 'AR-G7-CACHE-BODY',
     principleRefs: ['G7'],
@@ -2962,19 +2304,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationRecipe: {
       steps: ['1. キャッシュ行数と本体行数を比較', '2. 超過していたらキャッシュ戦略を簡素化'],
     },
-    executionPlan: {
-      effort: 'medium',
-      priority: 4,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 45,
-    },
   },
 
   {
-    fixNow: 'review',
     slice: 'query-runtime',
     id: 'AR-Q3-CHART-NO-DUCKDB',
     principleRefs: ['Q3', 'A3'],
@@ -3003,20 +2335,10 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationRecipe: {
       steps: ['1. DuckDB hook の import を削除', '2. plan hook 経由でデータを受け取るよう変更'],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 2,
-    },
     protectedHarm: { prevents: ['チャートにデータ取得責務が混入', 'テスト困難化'] },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 60,
-    },
   },
 
   {
-    fixNow: 'review',
     slice: 'query-runtime',
     id: 'AR-Q4-ALIGNMENT-HANDLER',
     principleRefs: ['Q4'],
@@ -3040,21 +2362,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationRecipe: {
       steps: ['1. alignment 判定をコンポーネントから handler に移動'],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 2,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 60,
-    },
   },
 
   // ── タグ選択ガイド ──
 
   {
-    fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-TAG-SELECTION-GUIDE',
     principleRefs: ['C8'],
@@ -3105,21 +2417,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '4. 確信がなければ未分類のまま残す',
       ],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 2,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 45,
-    },
   },
 
   // ── 責務タグ別の閾値（TAG_EXPECTATIONS 由来） ──
 
   {
-    fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-TAG-CHART-VIEW',
     principleRefs: ['C1', 'C8', 'C4', 'F7'],
@@ -3151,19 +2453,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. データ取得は plan hook 経由に変更',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 3,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 45,
-    },
   },
 
   {
-    fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-TAG-CHART-OPTION',
     principleRefs: ['C1'],
@@ -3194,19 +2486,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. React 依存を排除',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 3,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 45,
-    },
   },
 
   {
-    fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-TAG-CALCULATION',
     principleRefs: ['A2', 'C2'],
@@ -3240,19 +2522,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. 純粋な入力→出力の関数として維持',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 2,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 45,
-    },
   },
 
   {
-    fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-TAG-TRANSFORM',
     principleRefs: ['C1'],
@@ -3282,19 +2554,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationRecipe: {
       steps: ['1. useState があれば hook に抽出', '2. データ変換は純粋関数として維持'],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 3,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 45,
-    },
   },
 
   {
-    fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-TAG-STATE-MACHINE',
     principleRefs: ['C1'],
@@ -3321,19 +2583,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationRecipe: {
       steps: ['1. 200 行を超えていたら描画ロジックとの分離を確認', '2. 状態遷移のみに専念させる'],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 3,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 45,
-    },
   },
 
   {
-    fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-TAG-QUERY-PLAN',
     principleRefs: ['H1', 'C1'],
@@ -3364,19 +2616,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. 実行ロジックは useQueryWithHandler に委譲',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 2,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 45,
-    },
   },
 
   {
-    fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-TAG-QUERY-EXEC',
     principleRefs: ['C1'],
@@ -3407,19 +2649,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. キャッシュ管理のみに専念',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 3,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 45,
-    },
   },
 
   {
-    fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-TAG-WIDGET',
     principleRefs: ['C1', 'H6'],
@@ -3450,19 +2682,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. 表示と通知のみに専念',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 3,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 45,
-    },
   },
 
   {
-    fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-TAG-PAGE',
     principleRefs: ['C1'],
@@ -3493,19 +2715,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. ページは組み立てのみ',
       ],
     },
-    executionPlan: {
-      effort: 'medium',
-      priority: 4,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 45,
-    },
   },
 
   {
-    fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-TAG-FORM',
     principleRefs: ['C1'],
@@ -3532,19 +2744,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationRecipe: {
       steps: ['1. ビジネスロジックを hook に抽出', '2. フォームは入力処理に専念'],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 3,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 45,
-    },
   },
 
   {
-    fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-TAG-LAYOUT',
     principleRefs: ['C1'],
@@ -3571,19 +2773,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationRecipe: {
       steps: ['1. データ取得や状態管理が混在していれば hook に抽出', '2. レイアウトは構造のみ'],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 3,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 45,
-    },
   },
 
   {
-    fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-TAG-ORCHESTRATION',
     principleRefs: ['C6'],
@@ -3614,19 +2806,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. orchestration は hook の組み立てのみ',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 2,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 45,
-    },
   },
 
   {
-    fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-TAG-UTILITY',
     principleRefs: ['A2'],
@@ -3659,19 +2841,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '2. hooks を使わない純粋関数なら hooks を別ファイルに抽出',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 2,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 45,
-    },
   },
 
   {
-    fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-TAG-CONTEXT',
     principleRefs: ['C1', 'F6'],
@@ -3698,19 +2870,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationRecipe: {
       steps: ['1. ビジネスロジックを hook に抽出', '2. Context は値の提供のみ'],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 3,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 45,
-    },
   },
 
   {
-    fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-TAG-PERSISTENCE',
     principleRefs: ['C1'],
@@ -3737,19 +2899,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationRecipe: {
       steps: ['1. 計算ロジックを domain 層に抽出', '2. 永続化操作に専念'],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 3,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 45,
-    },
   },
 
   {
-    fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-TAG-ADAPTER',
     principleRefs: ['C1', 'A4'],
@@ -3776,19 +2928,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationRecipe: {
       steps: ['1. ビジネスロジックを抽出', '2. 外部 API との変換のみに専念'],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 3,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 45,
-    },
   },
 
   {
-    fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-TAG-REDUCER',
     principleRefs: ['C2'],
@@ -3821,19 +2963,9 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '2. reducer は (state, action) => state のみ',
       ],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 2,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 45,
-    },
   },
 
   {
-    fixNow: 'debt',
     slice: 'responsibility-separation',
     id: 'AR-TAG-BARREL',
     principleRefs: ['F1'],
@@ -3863,15 +2995,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationRecipe: {
       steps: ['1. 関数定義や変数宣言を別ファイルに移動', '2. barrel は export 文のみに'],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 1,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-08',
-      reviewCadenceDays: 45,
-    },
   },
 
   // ── 文書品質（governance-ops） ────────────────────────────────
@@ -3882,7 +3005,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     ruleClass: 'default',
     guardTags: ['G1', 'F8'],
     slice: 'governance-ops',
-    fixNow: 'now',
     epoch: 1,
     doc: 'references/01-principles/adaptive-architecture-governance.md',
     what: '文書中のハードコード数値は generated section か例外リストで管理する',
@@ -3907,15 +3029,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '2. 除去できない場合は EXCEPTIONS に理由付きで追加',
       ],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 3,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-09',
-      reviewCadenceDays: 90,
-    },
   },
 
   // ═══════════════════════════════════════════════════════════
@@ -3927,7 +3040,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['G2', 'G3'],
     guardTags: ['G2', 'G3'],
     slice: 'canonicalization',
-    fixNow: 'debt',
     ruleClass: 'default',
     confidence: 'high',
     maturity: 'experimental',
@@ -3949,10 +3061,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '2. データに影響する場合は error 状態を UI に伝播',
       ],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 2,
-    },
     decisionCriteria: {
       when: 'try-catch または .catch() を書くとき',
       exceptions: 'preload 失敗等の非クリティカル。ただしログは必須',
@@ -3965,17 +3073,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         'DB 破損の未検出',
       ],
     },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 30,
-    },
-    lifecyclePolicy: {
-      introducedAt: '2026-04-10',
-      observeForDays: 7,
-      promoteIf: ['7日間の運用で false positive がない'],
-      withdrawIf: ['検出精度が低く false positive が頻発する'],
-    },
   },
 
   {
@@ -3983,7 +3080,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['G2'],
     guardTags: ['G2'],
     slice: 'canonicalization',
-    fixNow: 'debt',
     ruleClass: 'default',
     confidence: 'high',
     maturity: 'experimental',
@@ -4004,10 +3100,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '2. 非クリティカルなら "// non-critical: ..." コメントで意図を明示',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 3,
-    },
     decisionCriteria: {
       when: 'リポジトリ保存、キャッシュ書き込みの Promise を扱うとき',
       exceptions: 'Parquet キャッシュ等の非クリティカル保存。ただしコメント必須',
@@ -4016,17 +3108,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     protectedHarm: {
       prevents: ['インポート履歴のサイレント消失', 'キャッシュ保存失敗による性能劣化'],
     },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 30,
-    },
-    lifecyclePolicy: {
-      introducedAt: '2026-04-10',
-      observeForDays: 7,
-      promoteIf: ['7日間の運用で false positive がない'],
-      withdrawIf: ['検出精度が低く false positive が頻発する'],
-    },
   },
 
   {
@@ -4034,7 +3115,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['G2', 'E4'],
     guardTags: ['G2'],
     slice: 'canonicalization',
-    fixNow: 'now',
     ruleClass: 'invariant',
     confidence: 'high',
     maturity: 'stable',
@@ -4056,10 +3136,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '2. loading → skeleton、error → fallback + 警告、idle → StoreResult フォールバック',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 1,
-    },
     decisionCriteria: {
       when: 'DuckDB クエリ結果、readModels など非同期データを消費するとき',
       exceptions: 'domain/calculations/ 内の純粋計算（同期データのデフォルト値）',
@@ -4068,11 +3144,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     protectedHarm: {
       prevents: ['KPIカードのサイレント消滅（今回のバグの根本原因）', '月遷移時の stale data 表示'],
     },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 30,
-    },
   },
 
   {
@@ -4080,7 +3151,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['E1', 'G2'],
     guardTags: ['E1'],
     slice: 'canonicalization',
-    fixNow: 'now',
     ruleClass: 'invariant',
     confidence: 'high',
     maturity: 'stable',
@@ -4102,10 +3172,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '2. error レベルならデータ保存をブロック',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 1,
-    },
     decisionCriteria: {
       when: 'データインポート・変換・保存の境界でバリデーションを行うとき',
       exceptions: 'warning レベルのメッセージは表示のみで通過可',
@@ -4114,11 +3180,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     protectedHarm: {
       prevents: ['不正 CSV による誤った KPI 計算', '重複レコードによる二重計上'],
     },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 30,
-    },
   },
 
   {
@@ -4126,7 +3187,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['G2', 'D3'],
     guardTags: ['G2'],
     slice: 'canonicalization',
-    fixNow: 'debt',
     ruleClass: 'default',
     confidence: 'high',
     maturity: 'experimental',
@@ -4144,10 +3204,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationRecipe: {
       steps: ['1. bulkInsert に COUNT(*) 検証を追加', '2. 不一致時は throw'],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 2,
-    },
     decisionCriteria: {
       when: 'DuckDB にデータを INSERT するとき',
       exceptions: 'テーブル初期化やスキーマ変更',
@@ -4156,17 +3212,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     protectedHarm: {
       prevents: ['DuckDB の部分 INSERT による集計不正'],
     },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 60,
-    },
-    lifecyclePolicy: {
-      introducedAt: '2026-04-10',
-      observeForDays: 7,
-      promoteIf: ['7日間の運用で false positive がない'],
-      withdrawIf: ['検出精度が低く false positive が頻発する'],
-    },
   },
 
   {
@@ -4174,7 +3219,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['E1', 'G2'],
     guardTags: ['E1'],
     slice: 'canonicalization',
-    fixNow: 'debt',
     ruleClass: 'default',
     confidence: 'high',
     maturity: 'experimental',
@@ -4195,10 +3239,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '2. safeParse 失敗時にドロップ件数を返り値に含める',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 3,
-    },
     decisionCriteria: {
       when: 'DuckDB クエリ結果を Zod スキーマで検証するとき',
       exceptions: 'all-rows モードは DEV 限定可（性能影響）',
@@ -4207,17 +3247,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     protectedHarm: {
       prevents: ['本番での型不正データ通過', 'readModel .parse() クラッシュ'],
     },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 60,
-    },
-    lifecyclePolicy: {
-      introducedAt: '2026-04-10',
-      observeForDays: 7,
-      promoteIf: ['7日間の運用で false positive がない'],
-      withdrawIf: ['検出精度が低く false positive が頻発する'],
-    },
   },
 
   {
@@ -4225,7 +3254,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['G2'],
     guardTags: ['G2'],
     slice: 'canonicalization',
-    fixNow: 'debt',
     ruleClass: 'default',
     confidence: 'medium',
     maturity: 'experimental',
@@ -4246,10 +3274,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '2. loadCoordinator.acquireMutex に 30 秒タイムアウトを追加',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 4,
-    },
     decisionCriteria: {
       when: 'Worker 通信やミューテックス取得で Promise を作るとき',
       exceptions: '即座に完了が保証される同期的な Promise',
@@ -4258,17 +3282,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     protectedHarm: {
       prevents: ['Worker ハングによるアプリ無応答', 'ミューテックスデッドロック'],
     },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 60,
-    },
-    lifecyclePolicy: {
-      introducedAt: '2026-04-10',
-      observeForDays: 7,
-      promoteIf: ['7日間の運用で false positive がない'],
-      withdrawIf: ['検出精度が低く false positive が頻発する'],
-    },
   },
 
   {
@@ -4276,7 +3289,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['G2'],
     guardTags: ['G2'],
     slice: 'canonicalization',
-    fixNow: 'debt',
     ruleClass: 'default',
     confidence: 'high',
     maturity: 'experimental',
@@ -4294,10 +3306,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationRecipe: {
       steps: ['1. setCurrentMonthData で storeResults: new Map() を同時にセット'],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 2,
-    },
     decisionCriteria: {
       when: 'ストアの source of truth を更新するとき',
       exceptions: '追記的更新（既存データに追加するだけ）',
@@ -4305,17 +3313,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     },
     protectedHarm: {
       prevents: ['月遷移時に前月の KPI が一瞬表示される問題'],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 60,
-    },
-    lifecyclePolicy: {
-      introducedAt: '2026-04-10',
-      observeForDays: 7,
-      promoteIf: ['7日間の運用で false positive がない'],
-      withdrawIf: ['検出精度が低く false positive が頻発する'],
     },
   },
 
@@ -4328,7 +3325,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['G1', 'D3'],
     guardTags: ['G1'],
     slice: 'governance-ops',
-    fixNow: 'now',
     ruleClass: 'default',
     confidence: 'high',
     maturity: 'stable',
@@ -4356,20 +3352,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. npx vitest run で確認',
       ],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 1,
-    },
     relationships: {
       dependsOn: ['AR-SAFETY-VALIDATION-ENFORCE'],
     },
     protectedHarm: {
       prevents: ['CI 失敗: テストが旧 severity を期待して不一致'],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
     },
   },
 
@@ -4378,7 +3365,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['G1', 'D3'],
     guardTags: ['G1'],
     slice: 'governance-ops',
-    fixNow: 'now',
     ruleClass: 'default',
     confidence: 'high',
     maturity: 'stable',
@@ -4406,17 +3392,8 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. モックが固定値を返す場合は2回目以降の呼び出しに対応させる',
       ],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 1,
-    },
     protectedHarm: {
       prevents: ['CI 失敗: モック未対応で undefined.toArray() クラッシュ'],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
     },
   },
 
@@ -4425,7 +3402,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['G1', 'E1'],
     guardTags: ['G1', 'E1'],
     slice: 'canonicalization',
-    fixNow: 'now',
     ruleClass: 'default',
     confidence: 'high',
     maturity: 'stable',
@@ -4453,20 +3429,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. npm run test:guards で確認',
       ],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 1,
-    },
     relationships: {
       dependsOn: ['AR-SAFETY-PROD-VALIDATION'],
     },
     protectedHarm: {
       prevents: ['CI 失敗: パスガードが旧 parse メソッド名を期待して不一致'],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
     },
   },
   // ═══ I: 意味分類 ═══
@@ -4477,7 +3444,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['I1'],
     guardTags: ['I1'],
     slice: 'governance-ops',
-    fixNow: 'debt',
     ruleClass: 'default',
     confidence: 'high',
     maturity: 'stable',
@@ -4507,10 +3473,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. 修飾付き形式に書き換え',
       ],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 2,
-    },
     relationships: {
       dependsOn: [],
     },
@@ -4520,18 +3482,12 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '意味空間の混線により current/candidate 管理が崩壊する',
       ],
     },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
-    },
   },
   {
     id: 'AR-CANON-SEMANTIC-REQUIRED',
     principleRefs: ['I2', 'I4'],
     guardTags: ['I2', 'I4'],
     slice: 'canonicalization',
-    fixNow: 'now',
     ruleClass: 'default',
     confidence: 'high',
     maturity: 'stable',
@@ -4558,10 +3514,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. npm run test:guards で確認',
       ],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 1,
-    },
     relationships: {
       dependsOn: ['AR-TERM-AUTHORITATIVE-STANDALONE'],
     },
@@ -4571,11 +3523,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         'derived view に未分類エントリが紛れ込み運用が混乱する',
       ],
     },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
-    },
   },
 
   {
@@ -4583,7 +3530,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['I2'],
     guardTags: ['I2'],
     slice: 'canonicalization',
-    fixNow: 'review',
     ruleClass: 'heuristic',
     confidence: 'medium',
     maturity: 'experimental',
@@ -4609,21 +3555,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. derived view で分離を確認',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 2,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
-    },
-    lifecyclePolicy: {
-      introducedAt: '2026-04-10',
-      observeForDays: 30,
-      promoteIf: ['Phase 2 で derived view + guard が安定'],
-      withdrawIf: ['意味分類が不要と判断された場合'],
-    },
   },
 
   {
@@ -4631,7 +3562,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['I3'],
     guardTags: ['I3'],
     slice: 'canonicalization',
-    fixNow: 'review',
     ruleClass: 'invariant',
     confidence: 'high',
     maturity: 'experimental',
@@ -4659,21 +3589,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. current に candidate 状態遷移を追加しない',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 1,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
-    },
-    lifecyclePolicy: {
-      introducedAt: '2026-04-10',
-      observeForDays: 30,
-      promoteIf: ['Phase 4 で current/candidate 分離が安定'],
-      withdrawIf: ['candidate の概念が不要と判断された場合'],
-    },
   },
 
   // ═══ Phase 3: 契約固定 + bridge 境界 ═══
@@ -4683,7 +3598,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['I1', 'I2'],
     guardTags: ['I1', 'I2'],
     slice: 'canonicalization',
-    fixNow: 'now',
     ruleClass: 'invariant',
     confidence: 'high',
     maturity: 'stable',
@@ -4711,20 +3625,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. contract-definition-policy.md に従い contractId を採番',
       ],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 1,
-    },
     relationships: {
       dependsOn: ['AR-CANON-SEMANTIC-REQUIRED'],
     },
     protectedHarm: {
       prevents: ['意味分類なしの契約が混入し business/analytic の契約体系が崩壊する'],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
     },
   },
 
@@ -4733,7 +3638,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['I2'],
     guardTags: ['I2'],
     slice: 'canonicalization',
-    fixNow: 'now',
     ruleClass: 'invariant',
     confidence: 'high',
     maturity: 'stable',
@@ -4760,20 +3664,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. contract-definition-policy.md の BIZ 契約一覧と整合確認',
       ],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 1,
-    },
     relationships: {
       dependsOn: ['AR-CONTRACT-SEMANTIC-REQUIRED'],
     },
     protectedHarm: {
       prevents: ['業務意味不明の計算が Business Contract を持ち、分析計算と混同される'],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
     },
   },
 
@@ -4782,7 +3677,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['I2'],
     guardTags: ['I2'],
     slice: 'canonicalization',
-    fixNow: 'now',
     ruleClass: 'invariant',
     confidence: 'high',
     maturity: 'stable',
@@ -4809,20 +3703,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. contract-definition-policy.md の ANA 契約一覧と整合確認',
       ],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 1,
-    },
     relationships: {
       dependsOn: ['AR-CONTRACT-SEMANTIC-REQUIRED'],
     },
     protectedHarm: {
       prevents: ['技法不明の計算が Analytic Contract を持ち、不変条件の検証が不可能になる'],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
     },
   },
 
@@ -4831,7 +3716,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['I1'],
     guardTags: ['I1'],
     slice: 'canonicalization',
-    fixNow: 'now',
     ruleClass: 'invariant',
     confidence: 'high',
     maturity: 'stable',
@@ -4859,20 +3743,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. 独自計算を削除',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 2,
-    },
     relationships: {
       dependsOn: [],
     },
     protectedHarm: {
       prevents: ['率の二重計算による丸め誤差・不整合', 'engine と UI で異なる率が表示される'],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
     },
   },
 
@@ -4881,7 +3756,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['I1', 'I2'],
     guardTags: ['I1', 'I2'],
     slice: 'canonicalization',
-    fixNow: 'debt',
     ruleClass: 'default',
     confidence: 'high',
     maturity: 'stable',
@@ -4909,10 +3783,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. import パスを bridge に変更',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 2,
-    },
     relationships: {
       dependsOn: [],
     },
@@ -4922,11 +3792,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         'fallback / dual-run の対象外になる計算呼び出しが生まれる',
       ],
     },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
-    },
   },
 
   {
@@ -4934,7 +3799,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['I3'],
     guardTags: ['I3'],
     slice: 'canonicalization',
-    fixNow: 'now',
     ruleClass: 'invariant',
     confidence: 'high',
     maturity: 'stable',
@@ -4960,10 +3824,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. promotion-ready 判定を経てから切替',
       ],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 1,
-    },
     relationships: {
       dependsOn: ['AR-CURRENT-CANDIDATE-SEPARATION'],
     },
@@ -4972,11 +3832,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '未検証の candidate が UI の通常運用で使用され品質が崩壊する',
         'rollback が困難になる',
       ],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
     },
   },
 
@@ -4987,7 +3842,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['I3'],
     guardTags: ['I3'],
     slice: 'canonicalization',
-    fixNow: 'now',
     ruleClass: 'invariant',
     confidence: 'high',
     maturity: 'stable',
@@ -5014,20 +3868,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. current-maintenance-policy.md の §4 を参照',
       ],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 1,
-    },
     relationships: {
       dependsOn: ['AR-CURRENT-CANDIDATE-SEPARATION'],
     },
     protectedHarm: {
       prevents: ['current が staging area 化し保守対象と移行対象の境界が崩壊する'],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
     },
   },
 
@@ -5036,7 +3881,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['I2'],
     guardTags: ['I2'],
     slice: 'canonicalization',
-    fixNow: 'now',
     ruleClass: 'invariant',
     confidence: 'high',
     maturity: 'stable',
@@ -5065,20 +3909,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. 保守観点（§5 business / §6 analytics）を確認',
       ],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 1,
-    },
     relationships: {
       dependsOn: ['AR-CANON-SEMANTIC-REQUIRED'],
     },
     protectedHarm: {
       prevents: ['意味分類なしの current が混入し保守レビューの基準が適用できない'],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
     },
   },
 
@@ -5087,7 +3922,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['I1'],
     guardTags: ['I1'],
     slice: 'canonicalization',
-    fixNow: 'now',
     ruleClass: 'invariant',
     confidence: 'high',
     maturity: 'stable',
@@ -5114,20 +3948,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. Cargo.toml の metadata.semantic と整合確認',
       ],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 1,
-    },
     relationships: {
       dependsOn: ['AR-TERM-AUTHORITATIVE-STANDALONE'],
     },
     protectedHarm: {
       prevents: ['current 群で business/analytic が区別できず保守観点が混線する'],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
     },
   },
 
@@ -5136,7 +3961,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['I2', 'I3'],
     guardTags: ['I2', 'I3'],
     slice: 'canonicalization',
-    fixNow: 'now',
     ruleClass: 'invariant',
     confidence: 'high',
     maturity: 'stable',
@@ -5162,20 +3986,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. 混在があれば semanticClass を修正',
       ],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 1,
-    },
     relationships: {
       dependsOn: ['AR-SEMANTIC-BUSINESS-ANALYTIC-SEPARATION'],
     },
     protectedHarm: {
       prevents: ['business と analytic の保守基準が混線し、保守レビューの品質が低下する'],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
     },
   },
 
@@ -5184,7 +3999,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['I3'],
     guardTags: ['I3'],
     slice: 'canonicalization',
-    fixNow: 'now',
     ruleClass: 'invariant',
     confidence: 'high',
     maturity: 'stable',
@@ -5211,20 +4025,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. bridge で current/candidate を切り替える',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 1,
-    },
     relationships: {
       dependsOn: ['AR-CURRENT-CANDIDATE-SEPARATION'],
     },
     protectedHarm: {
       prevents: ['実験コードが保守対象に混入し安定運用が崩壊する', 'rollback が困難になる'],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
     },
   },
 
@@ -5233,7 +4038,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['I1', 'I2'],
     guardTags: ['I1', 'I2'],
     slice: 'canonicalization',
-    fixNow: 'debt',
     ruleClass: 'default',
     confidence: 'high',
     maturity: 'stable',
@@ -5260,20 +4064,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. 既存の direct import は段階的に bridge 経由に移行',
       ],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 2,
-    },
     relationships: {
       dependsOn: ['AR-BRIDGE-DIRECT-IMPORT'],
     },
     protectedHarm: {
       prevents: ['bridge 管理外の呼び出しが増え一元管理が崩壊する'],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
     },
   },
 
@@ -5282,7 +4077,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['I2'],
     guardTags: ['I2'],
     slice: 'canonicalization',
-    fixNow: 'now',
     ruleClass: 'invariant',
     confidence: 'high',
     maturity: 'stable',
@@ -5310,10 +4104,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. 全関連文書（contract-definition-policy.md, HANDOFF.md）を更新',
       ],
     },
-    executionPlan: {
-      effort: 'medium',
-      priority: 1,
-    },
     relationships: {
       dependsOn: ['AR-CONTRACT-BUSINESS-MEANING'],
     },
@@ -5321,11 +4111,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       prevents: [
         'factorDecomposition が analytic に再分類され、業務 KPI としての出力が分析基盤と混同される',
       ],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
     },
   },
 
@@ -5336,7 +4121,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['I2'],
     guardTags: ['I2'],
     slice: 'canonicalization',
-    fixNow: 'now',
     ruleClass: 'invariant',
     confidence: 'high',
     maturity: 'stable',
@@ -5363,20 +4147,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. businessMeaning を reason に記載',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 1,
-    },
     relationships: {
       dependsOn: ['AR-CONTRACT-SEMANTIC-REQUIRED', 'AR-CONTRACT-BUSINESS-MEANING'],
     },
     protectedHarm: {
       prevents: ['契約なしの candidate が混入し parity 比較の基準がなくなる'],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
     },
   },
 
@@ -5385,7 +4160,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['I3'],
     guardTags: ['I3'],
     slice: 'canonicalization',
-    fixNow: 'now',
     ruleClass: 'invariant',
     confidence: 'high',
     maturity: 'stable',
@@ -5411,20 +4185,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. MIGRATION_CANDIDATE_VIEW に配置されていることを確認',
       ],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 1,
-    },
     relationships: {
       dependsOn: ['AR-CURRENT-NO-CANDIDATE-MIX'],
     },
     protectedHarm: {
       prevents: ['実験資産が安定運用 view に混入し品質基準が崩壊する'],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
     },
   },
 
@@ -5433,7 +4198,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['I2'],
     guardTags: ['I2'],
     slice: 'canonicalization',
-    fixNow: 'now',
     ruleClass: 'invariant',
     confidence: 'high',
     maturity: 'stable',
@@ -5459,20 +4223,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. analytics bridge への接続を除去',
       ],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 1,
-    },
     relationships: {
       dependsOn: ['AR-CONTRACT-SEMANTIC-REQUIRED'],
     },
     protectedHarm: {
       prevents: ['business と analytics の bridge が交差接続し意味空間が崩壊する'],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
     },
   },
 
@@ -5481,7 +4236,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['I1'],
     guardTags: ['I1'],
     slice: 'canonicalization',
-    fixNow: 'now',
     ruleClass: 'invariant',
     confidence: 'high',
     maturity: 'stable',
@@ -5507,20 +4261,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. 独自計算を削除',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 2,
-    },
     relationships: {
       dependsOn: ['AR-BRIDGE-RATE-OWNERSHIP'],
     },
     protectedHarm: {
       prevents: ['率の二重計算により parity 比較が不可能になる'],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
     },
   },
 
@@ -5529,7 +4274,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['I1', 'I2'],
     guardTags: ['I1', 'I2'],
     slice: 'canonicalization',
-    fixNow: 'debt',
     ruleClass: 'default',
     confidence: 'high',
     maturity: 'stable',
@@ -5551,20 +4295,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     migrationRecipe: {
       steps: ['1. direct import を特定', '2. bridge 経由に変更', '3. direct import を削除'],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 2,
-    },
     relationships: {
       dependsOn: ['AR-BRIDGE-DIRECT-IMPORT'],
     },
     protectedHarm: {
       prevents: ['bridge 管理外の candidate 呼び出しが生まれ dual-run が機能しない'],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
     },
   },
 
@@ -5573,7 +4308,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['I3'],
     guardTags: ['I3'],
     slice: 'canonicalization',
-    fixNow: 'now',
     ruleClass: 'invariant',
     confidence: 'high',
     maturity: 'stable',
@@ -5601,20 +4335,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. rollback テストを追加',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 1,
-    },
     relationships: {
       dependsOn: ['AR-BRIDGE-CANDIDATE-DEFAULT'],
     },
     protectedHarm: {
       prevents: ['rollback 不可の candidate が運用に入りユーザー影響が出る'],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
     },
   },
 
@@ -5623,7 +4348,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['I3'],
     guardTags: ['I3'],
     slice: 'canonicalization',
-    fixNow: 'now',
     ruleClass: 'invariant',
     confidence: 'high',
     maturity: 'stable',
@@ -5650,20 +4374,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. 検証結果を記録してから promotion-ready に変更',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 1,
-    },
     relationships: {
       dependsOn: ['AR-CAND-BIZ-CONTRACT-REQUIRED', 'AR-CAND-BIZ-NO-ROLLBACK-SKIP'],
     },
     protectedHarm: {
       prevents: ['parity 未検証の candidate が昇格され業務値の不整合が発生する'],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
     },
   },
 
@@ -5674,7 +4389,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['I2'],
     guardTags: ['I2'],
     slice: 'canonicalization',
-    fixNow: 'now',
     ruleClass: 'invariant',
     confidence: 'high',
     maturity: 'stable',
@@ -5702,20 +4416,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. invariantSet を定義',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 1,
-    },
     relationships: {
       dependsOn: ['AR-CONTRACT-SEMANTIC-REQUIRED', 'AR-CONTRACT-ANALYTIC-METHOD'],
     },
     protectedHarm: {
       prevents: ['契約なしの analytic candidate が混入し不変条件の検証が不可能になる'],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
     },
   },
 
@@ -5724,7 +4429,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['I2'],
     guardTags: ['I2'],
     slice: 'canonicalization',
-    fixNow: 'now',
     ruleClass: 'invariant',
     confidence: 'high',
     maturity: 'stable',
@@ -5750,20 +4454,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. business bridge への接続を除去',
       ],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 1,
-    },
     relationships: {
       dependsOn: ['AR-CAND-BIZ-NO-ANALYTICS-BRIDGE'],
     },
     protectedHarm: {
       prevents: ['analytics と business の bridge が交差接続し検証基準が崩壊する'],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
     },
   },
 
@@ -5772,7 +4467,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['I2'],
     guardTags: ['I2'],
     slice: 'canonicalization',
-    fixNow: 'now',
     ruleClass: 'invariant',
     confidence: 'high',
     maturity: 'stable',
@@ -5799,20 +4493,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. contract-definition-policy.md の ANA 契約一覧と整合確認',
       ],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 1,
-    },
     relationships: {
       dependsOn: ['AR-CONTRACT-ANALYTIC-METHOD'],
     },
     protectedHarm: {
       prevents: ['技法不明の analytic candidate が混入し不変条件の定義が不可能になる'],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
     },
   },
 
@@ -5821,7 +4506,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['I2'],
     guardTags: ['I2'],
     slice: 'canonicalization',
-    fixNow: 'now',
     ruleClass: 'invariant',
     confidence: 'high',
     maturity: 'stable',
@@ -5848,20 +4532,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. 不変条件テストを追加',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 1,
-    },
     relationships: {
       dependsOn: ['AR-CAND-ANA-CONTRACT-REQUIRED'],
     },
     protectedHarm: {
       prevents: ['数学的正確性が未検証のまま analytic candidate が昇格される'],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
     },
   },
 
@@ -5870,7 +4545,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['I1', 'I2'],
     guardTags: ['I1', 'I2'],
     slice: 'canonicalization',
-    fixNow: 'debt',
     ruleClass: 'default',
     confidence: 'high',
     maturity: 'stable',
@@ -5896,20 +4570,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. direct import を削除',
       ],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 2,
-    },
     relationships: {
       dependsOn: ['AR-BRIDGE-DIRECT-IMPORT'],
     },
     protectedHarm: {
       prevents: ['bridge 管理外の candidate 呼び出しが生まれ dual-run が機能しない'],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
     },
   },
 
@@ -5918,7 +4583,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['I2', 'I3'],
     guardTags: ['I2', 'I3'],
     slice: 'canonicalization',
-    fixNow: 'now',
     ruleClass: 'invariant',
     confidence: 'high',
     maturity: 'stable',
@@ -5946,20 +4610,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. current/business との混在がないことを確認',
       ],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 1,
-    },
     relationships: {
       dependsOn: ['AR-CAND-BIZ-NO-CURRENT-MIX', 'AR-CURRENT-VIEW-SEPARATION'],
     },
     protectedHarm: {
       prevents: ['analytic candidate が business current に混入し両方の品質基準が崩壊する'],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
     },
   },
 
@@ -5968,7 +4623,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['I2'],
     guardTags: ['I2'],
     slice: 'canonicalization',
-    fixNow: 'now',
     ruleClass: 'invariant',
     confidence: 'high',
     maturity: 'stable',
@@ -5996,10 +4650,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. Tier 1 business 候補として管理',
       ],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 1,
-    },
     relationships: {
       dependsOn: ['AR-CURRENT-FACTOR-BUSINESS-LOCK'],
     },
@@ -6007,11 +4657,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
       prevents: [
         'factorDecomposition が analytics に再分類され業務 KPI の出力が分析基盤と混同される',
       ],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
     },
   },
 
@@ -6022,7 +4667,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['I1', 'I2'],
     guardTags: ['I1', 'I2'],
     slice: 'canonicalization',
-    fixNow: 'now',
     ruleClass: 'invariant',
     confidence: 'high',
     maturity: 'stable',
@@ -6048,20 +4692,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. bridge 経由で利用する',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 1,
-    },
     relationships: {
       dependsOn: ['AR-CAND-BIZ-CONTRACT-REQUIRED', 'AR-CAND-ANA-CONTRACT-REQUIRED'],
     },
     protectedHarm: {
       prevents: ['JS に authoritative ロジックが増殖し二重管理が再発する'],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
     },
   },
 
@@ -6070,7 +4705,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['I1'],
     guardTags: ['I1'],
     slice: 'canonicalization',
-    fixNow: 'now',
     ruleClass: 'invariant',
     confidence: 'high',
     maturity: 'stable',
@@ -6096,20 +4730,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. bridge 経由で利用する',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 1,
-    },
     relationships: {
       dependsOn: ['AR-JS-NO-NEW-AUTHORITATIVE'],
     },
     protectedHarm: {
       prevents: ['JS reference が増殖し縮退方針（A→B→C→D）が機能しなくなる'],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
     },
   },
 
@@ -6118,7 +4743,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['I2'],
     guardTags: ['I2'],
     slice: 'canonicalization',
-    fixNow: 'now',
     ruleClass: 'invariant',
     confidence: 'high',
     maturity: 'stable',
@@ -6144,20 +4768,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. candidate として管理する',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 2,
-    },
     relationships: {
       dependsOn: ['AR-CONTRACT-SEMANTIC-REQUIRED'],
     },
     protectedHarm: {
       prevents: ['描画用ヘルパーが authoritative に昇格し責務の混線が起きる'],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
     },
   },
 
@@ -6166,7 +4781,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['I2', 'I3'],
     guardTags: ['I2', 'I3'],
     slice: 'canonicalization',
-    fixNow: 'now',
     ruleClass: 'invariant',
     confidence: 'high',
     maturity: 'stable',
@@ -6192,20 +4806,11 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. 確定後に runtimeStatus を変更する',
       ],
     },
-    executionPlan: {
-      effort: 'trivial',
-      priority: 1,
-    },
     relationships: {
       dependsOn: ['AR-CANON-SEMANTIC-REQUIRED'],
     },
     protectedHarm: {
       prevents: ['意味分類未確定のまま移行し大規模な修正が必要になる'],
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
     },
   },
 
@@ -6214,7 +4819,6 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
     principleRefs: ['I4'],
     guardTags: ['I4'],
     slice: 'governance-ops',
-    fixNow: 'review',
     ruleClass: 'invariant',
     confidence: 'high',
     maturity: 'experimental',
@@ -6240,20 +4844,5 @@ export const ARCHITECTURE_RULES: readonly ArchitectureRule[] = [
         '3. 手編集禁止 guard を追加',
       ],
     },
-    executionPlan: {
-      effort: 'small',
-      priority: 1,
-    },
-    reviewPolicy: {
-      owner: 'solo-maintainer',
-      lastReviewedAt: '2026-04-10',
-      reviewCadenceDays: 90,
-    },
-    lifecyclePolicy: {
-      introducedAt: '2026-04-10',
-      observeForDays: 30,
-      promoteIf: ['Phase 2 で master + derived view が安定'],
-      withdrawIf: ['正本が別の仕組みに置き換わった場合'],
-    },
   },
-] as const satisfies readonly ArchitectureRule[]
+] as const satisfies readonly BaseRule[]

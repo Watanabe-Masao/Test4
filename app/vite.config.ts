@@ -73,6 +73,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
+      '@project-overlay': resolve(__dirname, '../projects/pure-calculation-reorg/aag'),
     },
   },
   server: {

@@ -16,9 +16,16 @@ export function collectFromTemporalGovernance(repoRoot: string): HealthKpi[] {
   const rulesPath = resolve(repoRoot, "app/src/test/architectureRules/rules.ts");
   const rulesContent = readFileSync(rulesPath, "utf-8");
 
-  // reviewPolicy 設定率
+  // Project Overlay 側（reviewPolicy / lifecyclePolicy の正本）
+  const overlayPath = resolve(
+    repoRoot,
+    "projects/pure-calculation-reorg/aag/execution-overlay.ts",
+  );
+  const overlayContent = readFileSync(overlayPath, "utf-8");
+
+  // reviewPolicy 設定率（Project Overlay 側正本）
   const totalRules = (rulesContent.match(/id: 'AR-/g) || []).length;
-  const withReviewPolicy = (rulesContent.match(/reviewPolicy: \{/g) || [])
+  const withReviewPolicy = (overlayContent.match(/reviewPolicy: \{/g) || [])
     .length;
   kpis.push({
     id: "temporal.rules.reviewPolicy.count",
@@ -34,7 +41,7 @@ export function collectFromTemporalGovernance(repoRoot: string): HealthKpi[] {
         path: "references/03-guides/architecture-rule-system.md",
       },
     ],
-    implRefs: ["app/src/test/architectureRules/rules.ts"],
+    implRefs: ["projects/pure-calculation-reorg/aag/execution-overlay.ts"],
   });
 
   // sunsetCondition 設定率
@@ -56,9 +63,9 @@ export function collectFromTemporalGovernance(repoRoot: string): HealthKpi[] {
     implRefs: ["app/src/test/architectureRules/rules.ts"],
   });
 
-  // review overdue（lastReviewedAt + cadence < today）
+  // review overdue（lastReviewedAt + cadence < today、Project Overlay 側正本）
   const reviewMatches = [
-    ...rulesContent.matchAll(
+    ...overlayContent.matchAll(
       /lastReviewedAt: '(\d{4}-\d{2}-\d{2})'[\s\S]*?reviewCadenceDays: (\d+)/g,
     ),
   ];
@@ -78,7 +85,7 @@ export function collectFromTemporalGovernance(repoRoot: string): HealthKpi[] {
     status: "ok",
     owner: "architecture",
     docRefs: [],
-    implRefs: ["app/src/test/architectureRules/rules.ts"],
+    implRefs: ["projects/pure-calculation-reorg/aag/execution-overlay.ts"],
   });
 
   // heuristic + gate 件数
