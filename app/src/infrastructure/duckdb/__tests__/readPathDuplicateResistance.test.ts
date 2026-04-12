@@ -28,7 +28,7 @@
  * | 3 | querySpecialSalesDaily | `.fails` ロック | audit で JSDoc-only mitigation 扱い |
  * | 4 | queryTransfersDaily | `.fails` ロック | 同上 |
  * | 5 | querySalesTotal | `.fails` ロック | 同上 |
- * | 6 | queryFreePeriodDaily | `.fails` ロック | PR E で refactor 予定 |
+ * | 6 | queryFreePeriodDaily | **green** | PR E で pre-aggregate refactor 済み |
  *
  * 3/4/5 は audit 推奨事項で **「JSDoc only mitigation」** に分類されており
  * (`read-path-duplicate-audit.md` §推奨事項 4-5)、refactor の計画はない。
@@ -125,12 +125,13 @@ describe('FRAGILE/5: querySalesTotal — classified_sales を直接 SUM', () => 
 
 // ── freePeriodFactQueries.ts FRAGILE 1 件 ─────────────────────────────
 
-describe('FRAGILE/6: queryFreePeriodDaily — cs 側を事前集約していない', () => {
-  it.fails('classified_sales (cs) 側を subquery で事前集約しているべき', async () => {
+describe('FRAGILE/6: queryFreePeriodDaily — pre-aggregate 済み (PR E)', () => {
+  it('classified_sales (cs) 側を subquery で事前集約しているべき', async () => {
     const conn = createDuplicateInjectingMockConn([passAllRule])
     await queryFreePeriodDaily(conn, dateFrom, dateTo, storeIds)
     const sql = conn.getCapturedSql()[0]
-    // purchase 側は既に subquery 集約済み、cs 側のみ FRAGILE
+    // purchase 側は元々 subquery 集約済み、PR E で cs 側も pre-aggregate 化
     assertSafeAgainstSource(sql, 'classified_sales')
+    assertSafeAgainstSource(sql, 'purchase')
   })
 })
