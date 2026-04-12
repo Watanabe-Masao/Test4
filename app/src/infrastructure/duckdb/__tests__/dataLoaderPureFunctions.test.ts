@@ -427,3 +427,154 @@ describe('loadMonth with isPrevYear=true', () => {
     expect(result.rowCounts.budget).toBe(0)
   })
 })
+
+// ── 冪等性（replace セマンティクス）のテスト ──
+// Phase 3.b: loadMonth を冪等 API として機械的に固定する。
+// 契約: loadMonth は対象スコープを内部で削除してから INSERT する。
+// 同じ月を何度 loadMonth しても結果は等価である必要がある。
+// 関連: references/03-guides/data-load-idempotency-plan.md, #993, #994
+
+describe('loadMonth idempotency contract', () => {
+  let conn: AsyncDuckDBConnection
+  let db: AsyncDuckDB
+  let data: MonthlyData
+
+  beforeEach(() => {
+    conn = createMockConn()
+    db = createMockDb()
+    data = createEmptyMonthlyData({ year: 2025, month: 4, importedAt: '' })
+  })
+
+  /** 特定テーブルに対する `DELETE WHERE year=? AND month=?` 発行回数を数える */
+  function countPurgeCalls(
+    connection: AsyncDuckDBConnection,
+    table: string,
+    year: number,
+    month: number,
+  ): number {
+    const queryMock = vi.mocked(connection.query)
+    const calls = queryMock.mock.calls.map((c) => c[0] as string)
+    return calls.filter(
+      (sql) =>
+        sql.trimStart().startsWith('DELETE FROM') &&
+        sql.includes(table) &&
+        sql.includes(`year = ${year}`) &&
+        sql.includes(`month = ${month}`),
+    ).length
+  }
+
+  it('当年 loadMonth は先頭で (year, month) を purge する', async () => {
+    await loadMonth(conn, db, data, 2025, 4)
+    // 代表テーブル classified_sales に対して head purge が発行される
+    expect(countPurgeCalls(conn, 'classified_sales', 2025, 4)).toBeGreaterThanOrEqual(1)
+  })
+
+  it('当年 loadMonth を 2 回呼んでも毎回 purge が走る（append モードに戻らない）', async () => {
+    await loadMonth(conn, db, data, 2025, 4)
+    await loadMonth(conn, db, data, 2025, 4)
+    // 2 回の loadMonth で classified_sales への head purge が 2 回以上発行されている
+    // （append モードに退行していればここが 1 回になる）
+    expect(countPurgeCalls(conn, 'classified_sales', 2025, 4)).toBeGreaterThanOrEqual(2)
+  })
+
+  it('当年 loadMonth: INSERT 失敗時に cleanup で対象月を再 purge する', async () => {
+    // head purge の DELETE は成功させ、それ以降（bulk INSERT 含む）を失敗させる
+    const callLog: string[] = []
+    const failConn = {
+      query: vi.fn().mockImplementation(async (sql: string) => {
+        callLog.push(sql)
+        if (sql.trimStart().startsWith('DELETE FROM')) return undefined
+        throw new Error('INSERT failed')
+      }),
+    } as unknown as AsyncDuckDBConnection
+
+    // classified_sales に 1 行だけ入れて bulk insert 経路を駆動する
+    const dataWithRecords: MonthlyData = {
+      ...data,
+      classifiedSales: {
+        records: [
+          {
+            year: 2025,
+            month: 4,
+            day: 1,
+            storeId: 'S001',
+            storeName: 'Test',
+            groupName: 'G',
+            departmentName: 'D',
+            lineName: 'L',
+            className: 'C',
+            salesAmount: 100,
+            discount71: 0,
+            discount72: 0,
+            discount73: 0,
+            discount74: 0,
+          },
+        ],
+      },
+    }
+
+    await expect(loadMonth(failConn, db, dataWithRecords, 2025, 4)).rejects.toThrow('INSERT failed')
+
+    // 先頭 purge + 失敗時 cleanup で classified_sales への DELETE が 2 回発行される
+    const deleteCalls = callLog.filter(
+      (sql) =>
+        sql.trimStart().startsWith('DELETE FROM') &&
+        sql.includes('classified_sales') &&
+        sql.includes('year = 2025') &&
+        sql.includes('month = 4'),
+    )
+    expect(deleteCalls.length).toBeGreaterThanOrEqual(2)
+  })
+})
+
+// ── Latent bug: 前年 loadMonth の year-shift purge ──
+// Phase 3.b で発見、Phase 3.a で loadMonth 側を修正する予定。
+// 関連: references/03-guides/data-load-idempotency-plan.md
+
+describe('loadMonth prev-year purge (latent bug — Phase 3.a で修正)', () => {
+  let conn: AsyncDuckDBConnection
+  let db: AsyncDuckDB
+  let data: MonthlyData
+
+  beforeEach(() => {
+    conn = createMockConn()
+    db = createMockDb()
+    // prev year context: 2025 年 4 月に対する前年 = 2024 年 4 月
+    data = createEmptyMonthlyData({ year: 2024, month: 4, importedAt: '' })
+  })
+
+  /**
+   * 期待挙動: loadMonth(..., 2024, 4, isPrevYear=true) は
+   * (2024, 4) の前年スコープ（is_prev_year=true 行）を purge すべき。
+   *
+   * 現状挙動: loadMonth 内部の purgeLoadTarget が
+   * `deletePrevYearMonth(2024, 4)` を呼ぶが、deletePrevYearMonth は
+   * 内部で `prevYear = year - 1 = 2023` にシフトして
+   * `DELETE WHERE year = 2023 AND month = 4 AND is_prev_year = true`
+   * を発行してしまう。year が 1 ずれているため本来の (2024, 4) 前年行は
+   * purge されず、再ロードで重複が蓄積する。
+   *
+   * このテストは `.fails` で現状をロックし、Phase 3.a で purgeLoadTarget
+   * を修正したら `.fails` を外して通常 `it` に戻す運用とする。
+   * `.fails` を外した瞬間に「修正が正しく効いている」ことがテストで
+   * 保証される。
+   */
+  it.fails(
+    '[Phase 3.a で修正予定] isPrevYear=true で (year, month) 自身の前年行を purge する',
+    async () => {
+      await loadMonth(conn, db, data, 2024, 4, true)
+      const queryMock = vi.mocked(conn.query)
+      const calls = queryMock.mock.calls.map((c) => c[0] as string)
+      const classifiedDelete = calls.find(
+        (sql) =>
+          sql.trimStart().startsWith('DELETE FROM') &&
+          sql.includes('classified_sales') &&
+          sql.includes('is_prev_year'),
+      )
+      expect(classifiedDelete).toBeDefined()
+      // 期待: year-shift なしで (2024, 4) を purge する
+      expect(classifiedDelete).toContain('year = 2024')
+      expect(classifiedDelete).toContain('month = 4')
+    },
+  )
+})
