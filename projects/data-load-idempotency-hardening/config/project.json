@@ -1,0 +1,12 @@
+{
+  "projectId": "data-load-idempotency-hardening",
+  "title": "データロード冪等化 — 残存防御の固定化",
+  "status": "active",
+  "projectRoot": "projects/data-load-idempotency-hardening",
+  "entrypoints": {
+    "aiContext": "projects/data-load-idempotency-hardening/AI_CONTEXT.md",
+    "handoff": "projects/data-load-idempotency-hardening/HANDOFF.md",
+    "plan": "projects/data-load-idempotency-hardening/plan.md",
+    "checklist": "projects/data-load-idempotency-hardening/checklist.md"
+  }
+}

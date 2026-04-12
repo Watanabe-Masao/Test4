@@ -1,0 +1,12 @@
+{
+  "projectId": "docs-and-governance-cohesion",
+  "title": "ドキュメントと課題の分離 — projects/ 一元化と AAG 統合",
+  "status": "active",
+  "projectRoot": "projects/docs-and-governance-cohesion",
+  "entrypoints": {
+    "aiContext": "projects/docs-and-governance-cohesion/AI_CONTEXT.md",
+    "handoff": "projects/docs-and-governance-cohesion/HANDOFF.md",
+    "plan": "projects/docs-and-governance-cohesion/plan.md",
+    "checklist": "projects/docs-and-governance-cohesion/checklist.md"
+  }
+}
