@@ -10,7 +10,7 @@
  * 詳細仕様: `references/03-guides/project-checklist-governance.md`
  */
 import { readdirSync, readFileSync, existsSync, statSync } from 'node:fs'
-import { resolve, relative } from 'node:path'
+import { resolve } from 'node:path'
 import type { HealthKpi } from '../types.js'
 
 // ── 型定義 ───────────────────────────────────────────────────────────
@@ -68,7 +68,7 @@ export function collectProjectChecklists(repoRoot: string): ProjectChecklistResu
     return []
   }
   const results: ProjectChecklistResult[] = []
-  for (const project of listProjectDirectories(projectsDir, repoRoot)) {
+  for (const project of listProjectDirectories(projectsDir)) {
     const result = readProjectChecklist(project, repoRoot)
     if (result) {
       results.push(result)
@@ -193,10 +193,7 @@ interface ProjectLocation {
   readonly isArchived: boolean
 }
 
-function listProjectDirectories(
-  projectsDir: string,
-  repoRoot: string,
-): ProjectLocation[] {
+function listProjectDirectories(projectsDir: string): ProjectLocation[] {
   const out: ProjectLocation[] = []
 
   for (const entry of readdirSync(projectsDir)) {
