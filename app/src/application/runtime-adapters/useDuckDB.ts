@@ -181,15 +181,14 @@ export function useDuckDB(
 
         initialLoadDone.current = true
       } else {
-        // ── 差分ロード: 変更された月のみ delete → insert ──
+        // ── 差分ロード: 変更された月のみ loadMonth で差し替え ──
         const currentMonthFp = computeMonthFingerprint(currentMonthData)
         const curKey = monthKey(year, month)
 
         // 当月: フィンガープリントが変わったら再ロード
+        // （loadMonth は replace セマンティクスなので、caller 側で deleteMonth を
+        // 呼ぶ必要はない。削除は loadMonth 内部で完結する）
         if (loadedMonthsRef.current.get(curKey) !== currentMonthFp) {
-          await deleteMonth(state.conn, year, month)
-          await deletePrevYearMonth(state.conn, year, month)
-          if (isStale()) return
           await loadMonth(state.conn, state.db, currentMonthData, year, month)
           if (isStale()) return
           // 前年データがあれば追加ロード

@@ -106,7 +106,12 @@ export class DuckDBWorkerClient {
   }
 
   /**
-   * 指定年月のデータを削除する。
+   * 指定年月のデータを DB から明示的に取り除く。
+   *
+   * 「もう必要ない月を remove する」操作であり、再ロード前の preamble として
+   * 呼ぶべきではない（`loadMonth` は replace セマンティクスなので内部で削除を
+   * 完結する）。当年スコープと前年スコープの両方を消す実装は worker 側
+   * `executeDeleteMonth` に集約されている。
    */
   async deleteMonth(year: number, month: number): Promise<void> {
     await this._sendRequest({ type: 'deleteMonth', year, month, requestId: 0 }, this._queryTimeout)

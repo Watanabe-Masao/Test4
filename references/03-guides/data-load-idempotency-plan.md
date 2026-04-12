@@ -133,23 +133,37 @@ MAX(customers) AS customers
 
 ## 7. 現状（2026-04-12 追記）
 
-Phase 1（loadMonth の冪等化）は本ブランチで landed 済み。具体的には:
+Phase 1（loadMonth の冪等化）と Phase 2（呼び出し側 cleanup）は landed 済み。
+
+**Phase 1（#993）:**
 
 - `dataLoader.ts::loadMonth` の JSDoc を「追記モード」から **replace セマンティクス** に
   書き換えた。関数内部で `deleteMonth` / `deletePrevYearMonth` を先行実行し、
   INSERT 途中の失敗時も同じ削除を再実行する cleanup 経路を持つ。
+  内部重複は `purgeLoadTarget` helper に一本化した。
 - `useDuckDB.ts` 冒頭の責務コメントを「差分: deleteMonth → loadMonth → materializeSummary」
   から「loadMonth は replace セマンティクスで対象月を差し替える」に更新した。
-  これにより本ファイルが削除順序の正本ではないことが読めるようになった。
+
+**Phase 2:**
+
+- `useDuckDB.ts` の変更月再ロード経路から caller-side `deleteMonth` +
+  `deletePrevYearMonth` を除去した。reload path は `loadMonth(...)` のみで
+  成立する。obsolete-month 削除経路（不要になった過去月を remove する）は
+  explicit remove として維持している。
+- `deletePolicy.ts` / `workerHandlers.ts::executeDeleteMonth` /
+  `duckdbWorkerClient.ts::deleteMonth` の JSDoc を explicit remove 専用として
+  明文化。`loadMonth` の前処理として呼ぶべきではないことを明示した。
+
+これにより API 境界が次のように一本化された:
+
+- **差し替えたい** → `loadMonth(...)`
+- **消したい** → `deleteMonth(...)` / `deletePrevYearMonth(...)`
 
 次に閉じる残タスク:
 
-1. **Phase 2（呼び出し側 cleanup）** — `useDuckDB.ts` 188-189 行目の
-   `deleteMonth` + `deletePrevYearMonth` を削除する。`loadMonth` が内部で
-   削除するため二重になっている。219-220 行目（obsolete-month 削除経路）は
-   reload の前処理ではなく明示 remove なので残す。
-2. **Phase 3（テストで固定）** — 同一月 2 回ロード・前年 2 回ロード・
-   store_day_summary.customers 安定・失敗時 cleanup の 4 テストを追加する。
-3. 他クエリの spot audit — `classified_sales` / `special_sales` / `transfers`
+1. **Phase 3（テストで固定）** — 同一月 2 回ロード・前年 2 回ロード・
+   `store_day_summary.customers` 安定・失敗時 cleanup の 4 テストを追加する。
+   これが最終的な再発防止メカニズムになる。
+2. 他クエリの spot audit — `classified_sales` / `special_sales` / `transfers`
    を SUM している read-path クエリに重複耐性の暗黙前提がないかを洗い出す。
    refactor は別スコープ。

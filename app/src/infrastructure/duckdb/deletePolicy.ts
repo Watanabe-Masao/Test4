@@ -69,7 +69,12 @@ export async function resetTables(conn: AsyncDuckDBConnection): Promise<void> {
 
 /**
  * 指定年月のデータを全テーブルから削除する。
- * 増分ロード時に使用: deleteMonth → loadMonth で特定月のみ差し替え。
+ *
+ * **用途:** 「月データを DB から明示的に取り除く」operation。`loadMonth` の
+ * 前処理として呼ぶべきではない — `loadMonth` は replace セマンティクスで
+ * 内部削除を完結するため、前処理 delete は冗長・二重実行になる。
+ * 呼び出し側は「不要になった月を消す」ときだけこの API を使う。
+ * 詳細は `dataLoader.ts::loadMonth` の JSDoc を参照。
  */
 export async function deleteMonth(
   conn: AsyncDuckDBConnection,
@@ -82,13 +87,19 @@ export async function deleteMonth(
 }
 
 /**
- * loadMonth が前年データとして INSERT する (year-1, month) のデータも削除する。
+ * 前年スコープの行を削除する（deleteMonth とペアで使う explicit remove）。
+ *
+ * **用途:** `deleteMonth` と同じく「月データを DB から明示的に取り除く」operation の
+ * 前年側を担う。`loadMonth` の前処理として呼ぶ必要はない — `loadMonth(..., isPrevYear=true)`
+ * が内部でこの削除を完結する。explicit remove のときは当年スコープと前年スコープの
+ * 両方を消すため、`deleteMonth` と一緒に呼び出す（`workerHandlers.executeDeleteMonth`
+ * 参照）。
  *
  * 【背景: なぜ deleteMonth だけでは不十分か】
- * loadMonth は前年データを (year-1, month) の year/month で INSERT する。
- * しかし deleteMonth(year, month) は当年の year/month のみ削除するため、
- * 再ロード時に前年データが蓄積し、store_day_summary VIEW で行倍増が発生する。
- * （実際に発生: #前年点数2倍バグ — special_sales の前年データが2重に）
+ * `loadMonth` は前年データを (year-1, month) の year/month で INSERT する。
+ * しかし `deleteMonth(year, month)` は当年の (year, month) 行のみを削除するため、
+ * 前年レコードは残ってしまう。再ロードが重なると store_day_summary VIEW で
+ * 行倍増が発生する（#前年点数 2 倍バグ — special_sales の前年データが 2 重に）。
  *
  * 【テーブル別の削除戦略】
  * - classified_sales / category_time_sales / time_slots: is_prev_year=true のみ削除
