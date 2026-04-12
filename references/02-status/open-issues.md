@@ -11,7 +11,6 @@
 
 | projectId | kind | title | entrypoint |
 |---|---|---|---|
-| `data-load-idempotency-hardening` | project | データロード冪等化 — 残存防御の固定化 | [`projects/data-load-idempotency-hardening/AI_CONTEXT.md`](../../projects/data-load-idempotency-hardening/AI_CONTEXT.md) |
 | `presentation-quality-hardening` | project | Presentation 品質強化 — テスト・E2E・active-debt 解消 | [`projects/presentation-quality-hardening/AI_CONTEXT.md`](../../projects/presentation-quality-hardening/AI_CONTEXT.md) |
 | `architecture-decision-backlog` | project | アーキテクチャ判断 backlog — 未決定の設計判断 | [`projects/architecture-decision-backlog/AI_CONTEXT.md`](../../projects/architecture-decision-backlog/AI_CONTEXT.md) |
 | `aag-rule-splitting-execution` | project | AAG ルール分割実行 — AR-STRUCT-RESP-SEPARATION 7 分割 | [`projects/aag-rule-splitting-execution/AI_CONTEXT.md`](../../projects/aag-rule-splitting-execution/AI_CONTEXT.md) |
@@ -24,6 +23,7 @@
 | projectId | archived at | title | location |
 |---|---|---|---|
 | `docs-and-governance-cohesion` | 2026-04-12 | ドキュメントと課題の分離 — projects/ 一元化と AAG 統合 | [`projects/completed/docs-and-governance-cohesion/`](../../projects/completed/docs-and-governance-cohesion/) |
+| `data-load-idempotency-hardening` | 2026-04-12 | データロード冪等化 — 残存防御の固定化 | [`projects/completed/data-load-idempotency-hardening/`](../../projects/completed/data-load-idempotency-hardening/) |
 
 ## 課題発見時のフロー
 
@@ -52,6 +52,6 @@
 | — | WASM 全 5 engine authoritative 昇格 | 2026-04-05 | bridge 簡素化（計 1,426→431 行）、dual-run infrastructure 全面退役（~5,500 行削減） |
 | — | ComparisonWindow 契約型 | 2026-04-05 | useTimeSlotPlan / useClipExportPlan に provenance 導入 |
 | — | active-debt 33→1 (verified 2026-04-12) | 2026-04 | features/ 移動と allowlist 卒業で 32 件削減（残 1 件は `projects/presentation-quality-hardening` Phase 1） |
-| — | idempotent load contract | 2026-04 | Phase 0-3 + PR A-E で構造的に冪等化 + FRAGILE 1/2/6 SAFE 化 |
+| — | idempotent load contract | 2026-04 | Phase 0-3 + PR A-E で構造的に冪等化 + FRAGILE 1/2/6 SAFE 化 + FRAGILE 3/4/5 は Option A で永続確定 (2026-04-12, project archive) |
 
 歴史的詳細は `references/02-status/recent-changes.md` を参照。

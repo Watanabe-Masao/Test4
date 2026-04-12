@@ -3,9 +3,9 @@
 > **役割: 機能説明文書（背景・診断・Phase 履歴）**
 >
 > 本文書はデータロード層の冪等化機能と、それに至った診断・Phase 履歴を
-> 記録する。**live な作業項目は本文書に書かない。** 残作業の正本は
-> [`projects/data-load-idempotency-hardening/checklist.md`](../../projects/data-load-idempotency-hardening/checklist.md)
-> を参照する。
+> 記録する。**live な作業項目は本文書に書かない。** 対応 project は
+> 2026-04-12 に archive 済み（Phase F: Option A 確定）:
+> [`projects/completed/data-load-idempotency-hardening/`](../../projects/completed/data-load-idempotency-hardening/)
 >
 > 関連文書:
 >
@@ -13,8 +13,7 @@
 > |---|---|
 > | 設計・歴史（本書） | `references/03-guides/data-load-idempotency-plan.md` |
 > | FRAGILE 分類根拠 | `references/03-guides/read-path-duplicate-audit.md` |
-> | 残作業の正本 | `projects/data-load-idempotency-hardening/checklist.md` |
-> | project 入口 | `projects/data-load-idempotency-hardening/AI_CONTEXT.md` |
+> | 歴史的 project 記録（archived） | `projects/completed/data-load-idempotency-hardening/` |
 
 ## 1. 発見された問題
 
@@ -217,9 +216,11 @@ PR D / E (2026-04-12) で FRAGILE 1, 2, 6 は pre-aggregate refactor 済み
 「JSDoc only mitigation」分類で refactor 計画なし。
 
 以上で idempotent load contract の本体スコープは完全にクローズ。
+Phase F（FRAGILE 3/4/5 の恒久方針確定）も 2026-04-12 に Option A
+（永続 `.fails` lock + JSDoc only mitigation）で確定し、対応 project は
+`projects/completed/data-load-idempotency-hardening/` に archive 済み。
 
-> **残作業の正本は本文書ではない:**
-> 残作業（FRAGILE 3/4/5 の恒久方針確定、旧 docs 縮退、handoff の project への
-> 移管）の live task は
-> [`projects/data-load-idempotency-hardening/checklist.md`](../../projects/data-load-idempotency-hardening/checklist.md)
-> を参照すること。本文書は機能説明と Phase 履歴の正本であり、live task table は持たない。
+> **本文書は背景文書であり live task を持たない:**
+> 歴史的記録は
+> [`projects/completed/data-load-idempotency-hardening/`](../../projects/completed/data-load-idempotency-hardening/)
+> を参照。本文書は機能説明と Phase 履歴の正本であり、live task table は持たない。

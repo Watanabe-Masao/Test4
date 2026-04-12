@@ -6,9 +6,8 @@
 > 同じ罠を踏まないためのハマりポイントを記録する。
 >
 > **live な作業項目は本文書に書かない。**
-> 残作業の正本は
-> [`projects/data-load-idempotency-hardening/checklist.md`](../../projects/data-load-idempotency-hardening/checklist.md)
-> を参照。
+> 対応 project は 2026-04-12 に archive 済み（Phase F: Option A 確定）:
+> [`projects/completed/data-load-idempotency-hardening/`](../../projects/completed/data-load-idempotency-hardening/)
 >
 > 関連文書:
 >
@@ -16,8 +15,7 @@
 > |---|---|
 > | 設計・歴史 | [`data-load-idempotency-plan.md`](./data-load-idempotency-plan.md) |
 > | FRAGILE 分類根拠 | [`read-path-duplicate-audit.md`](./read-path-duplicate-audit.md) |
-> | 残作業の正本 | `projects/data-load-idempotency-hardening/checklist.md` |
-> | project 入口 | `projects/data-load-idempotency-hardening/AI_CONTEXT.md` |
+> | 歴史的 project 記録（archived） | `projects/completed/data-load-idempotency-hardening/` |
 
 ## 1. 経緯 (2026-04-12 時点)
 

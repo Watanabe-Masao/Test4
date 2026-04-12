@@ -34,6 +34,10 @@ idempotent load contract Phase 0-3 + read-path 重複耐性 PR A〜E は landed 
 現状は A を採用済み（audit 推奨どおり）。本 project の checklist は
 A 採用を「決定済み」として扱い、レビューサイクルを 1 回だけ追加する形にする。
 
+**Phase F 決定: Option A 採択確定（2026-04-12）** —
+`references/03-guides/read-path-duplicate-audit.md` §結論 に正式決定として転記済み。
+本 project は本決定と同時に archive された。
+
 ## 3. ハマりポイント
 
 ### 3.1. `deletePrevYearMonth` の year-shift 設計
@@ -68,3 +72,7 @@ audit 推奨事項 §4 で「JSDoc only mitigation」分類になっており、
 | `references/03-guides/project-checklist-governance.md` | 本 project の運用ルール |
 | `app/src/infrastructure/duckdb/__tests__/helpers/duplicateInjectedMockConn.ts` | 共有テスト helper |
 | `app/src/infrastructure/duckdb/__tests__/readPathDuplicateResistance.test.ts` | FRAGILE 6 件の構造的回帰テスト |
+
+---
+
+Archived: 2026-04-12
