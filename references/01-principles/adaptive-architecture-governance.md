@@ -253,13 +253,13 @@ Response（入口）→ Judgment（判断）→ Principles（思想）← Detect
 <!-- GENERATED:START aag-rule-stats -->
 | 指標 | 値 |
 |------|-----|
-| 総ルール数 | 140 |
-| fixNow=now（即修正） | 65 |
+| 総ルール数 | 143 |
+| fixNow=now（即修正） | 68 |
 | fixNow=debt（構造負債） | 54 |
 | fixNow=review（観測） | 21 |
-| ガードテストファイル | 49 |
+| ガードテストファイル | 50 |
 
-> 生成: 2026-04-12T03:15:40.459Z — 正本: `app/src/test/architectureRules.ts`
+> 生成: 2026-04-12T05:51:53.039Z — 正本: `app/src/test/architectureRules.ts`
 <!-- GENERATED:END aag-rule-stats -->
 
 ## 運用区分

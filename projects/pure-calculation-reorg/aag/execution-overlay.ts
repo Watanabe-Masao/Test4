@@ -1355,4 +1355,33 @@ export const EXECUTION_OVERLAY: ExecutionOverlay = {
       reviewCadenceDays: 90,
     },
   },
+
+  // ── AAG 入口一元化（C2: direct import 禁止の guard 化）──
+  "AR-AAG-DERIVED-ONLY-IMPORT": {
+    fixNow: "now",
+    executionPlan: { effort: "trivial", priority: 1 },
+    reviewPolicy: {
+      owner: "solo-maintainer",
+      lastReviewedAt: "2026-04-12",
+      reviewCadenceDays: 90,
+    },
+  },
+  "AR-AAG-NO-BASE-RULES-CONSUMER-IMPORT": {
+    fixNow: "now",
+    executionPlan: { effort: "trivial", priority: 1 },
+    reviewPolicy: {
+      owner: "solo-maintainer",
+      lastReviewedAt: "2026-04-12",
+      reviewCadenceDays: 90,
+    },
+  },
+  "AR-AAG-NO-DIRECT-OVERLAY-IMPORT": {
+    fixNow: "now",
+    executionPlan: { effort: "trivial", priority: 1 },
+    reviewPolicy: {
+      owner: "solo-maintainer",
+      lastReviewedAt: "2026-04-12",
+      reviewCadenceDays: 90,
+    },
+  },
 };

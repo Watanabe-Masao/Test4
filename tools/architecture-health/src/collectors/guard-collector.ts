@@ -4,6 +4,7 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import type { HealthKpi } from '../types.js'
+import { resolveActiveProject } from '../project-resolver.js'
 
 export function collectFromGuards(repoRoot: string): HealthKpi[] {
   const kpis: HealthKpi[] = []
@@ -46,7 +47,8 @@ export function collectFromGuards(repoRoot: string): HealthKpi[] {
   })
 
   // --- Architecture Rules total count ---
-  const rulesPath = resolve(repoRoot, 'app/src/test/architectureRules/rules.ts')
+  // BaseRule の物理正本は App Domain 側（C4: 物理移動完了）
+  const rulesPath = resolve(repoRoot, 'app-domain/gross-profit/rule-catalog/base-rules.ts')
   const rulesContent = readFileSync(rulesPath, 'utf-8')
   const ruleIdMatches = rulesContent.match(/id: 'AR-/g) || []
   kpis.push({
@@ -58,11 +60,13 @@ export function collectFromGuards(repoRoot: string): HealthKpi[] {
     status: 'ok',
     owner: 'architecture',
     docRefs: [{ kind: 'definition', path: 'references/03-guides/architecture-rule-system.md' }],
-    implRefs: ['app/src/test/architectureRules/rules.ts'],
+    implRefs: ['app-domain/gross-profit/rule-catalog/base-rules.ts'],
   })
 
   // --- fixNow distribution（Project Overlay 側正本） ---
-  const overlayPath = resolve(repoRoot, 'projects/pure-calculation-reorg/aag/execution-overlay.ts')
+  // Project Overlay の位置は project-resolver 経由で解決する（C1: project 固定パス一元化）
+  const activeProject = resolveActiveProject(repoRoot)
+  const overlayPath = activeProject.absOverlayEntry
   const overlayContent = readFileSync(overlayPath, 'utf-8')
   // quote-agnostic: overlay が Prettier により single/double quote どちらになっても動く
   const fixNowNow = (overlayContent.match(/fixNow:\s*['"]now['"]/g) || []).length

@@ -452,8 +452,22 @@ AAG は「発見 → 蓄積 → 評価」の 3 層サイクルでルール自体
 詳細な運用ガイド: `references/03-guides/architecture-rule-system.md`
 
 各ルールが「禁止パターン」「あるべき姿」「なぜ」「ドキュメント」をセットで定義する。
-ルール定義: `app/src/test/architectureRules.ts`
+ルール定義: `app/src/test/architectureRules.ts`（consumer facade — **全 consumer はここ経由**）
 整合性検証: `app/src/test/guards/architectureRuleGuard.test.ts`
+
+### Governance 3 分割 — AAG 正本の配置
+
+| 概念 | ファイル | 正本区分 |
+|---|---|---|
+| **BaseRule**（案件非依存） | `app-domain/gross-profit/rule-catalog/base-rules.ts` | App Domain 正本 |
+| **ExecutionOverlay**（案件運用状態） | `projects/<active>/aag/execution-overlay.ts` | Project Overlay 正本 |
+| **Derived merge** | `app/src/test/architectureRules/merged.ts` | Derived Artifact |
+| **Facade**（consumer 入口） | `app/src/test/architectureRules.ts` / `architectureRules/index.ts` | Single Entry |
+
+- consumer は必ず facade 経由で参照する（`from '../architectureRules'`）
+- 直 import は `AR-AAG-DERIVED-ONLY-IMPORT` 系ルールで禁止される（件数は generated section 参照）
+- project 切替点: `CURRENT_PROJECT.md` + `projects/<id>/config/project.json`
+- 詳細: `references/03-guides/governance-final-placement-plan.md`, `app/src/test/architectureRules/README.md`
 
 | detection.type | 意味 | 例 |
 |---|---|---|
@@ -606,13 +620,13 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 | 後方互換負債 | OK | 0/3 / 2/3 |
 | 複雑性圧 | OK | 0/5 / 10/10 / 27/30 |
 | 境界健全性 | OK | 0/0 / 0/0 |
-| ガード強度 | OK | 49/30 / 0/5 |
+| ガード強度 | OK | 50/30 / 0/5 |
 | 性能 | OK | 6496/7000 / 2225/2500 / 919/1000 |
-| Temporal Governance | OK | 0/0 / 32/32 / 1/12 / 140/92 / 9/9 / 1/1 |
-| Rule Efficacy | OK | 77 / 0/3 / 0/10 |
+| Temporal Governance | OK | 0/0 / 32/32 / 1/12 / 143/92 / 12/9 / 1/1 |
+| Rule Efficacy | OK | 80 / 0/3 / 0/10 |
 
 
-> 生成: 2026-04-12T03:15:40.452Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-12T05:51:53.035Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）

@@ -7,20 +7,25 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type { HealthKpi } from "../types.js";
+import { resolveActiveProject } from "../project-resolver.js";
 
 export function collectFromTemporalGovernance(repoRoot: string): HealthKpi[] {
   const kpis: HealthKpi[] = [];
   const now = Date.now();
 
   // --- Architecture Rules の temporal governance ---
-  const rulesPath = resolve(repoRoot, "app/src/test/architectureRules/rules.ts");
+  // BaseRule の物理正本は App Domain 側（C4: 物理移動完了）
+  const rulesPath = resolve(
+    repoRoot,
+    "app-domain/gross-profit/rule-catalog/base-rules.ts",
+  );
   const rulesContent = readFileSync(rulesPath, "utf-8");
 
   // Project Overlay 側（reviewPolicy / lifecyclePolicy の正本）
-  const overlayPath = resolve(
-    repoRoot,
-    "projects/pure-calculation-reorg/aag/execution-overlay.ts",
-  );
+  // project-resolver 経由で解決（C1: project 固定パス一元化）
+  const activeProject = resolveActiveProject(repoRoot);
+  const overlayPath = activeProject.absOverlayEntry;
+  const overlayRelPath = activeProject.overlayEntry;
   const overlayContent = readFileSync(overlayPath, "utf-8");
 
   // reviewPolicy 設定率（Project Overlay 側正本）
@@ -41,7 +46,7 @@ export function collectFromTemporalGovernance(repoRoot: string): HealthKpi[] {
         path: "references/03-guides/architecture-rule-system.md",
       },
     ],
-    implRefs: ["projects/pure-calculation-reorg/aag/execution-overlay.ts"],
+    implRefs: [overlayRelPath],
   });
 
   // sunsetCondition 設定率
@@ -60,7 +65,7 @@ export function collectFromTemporalGovernance(repoRoot: string): HealthKpi[] {
         path: "references/01-principles/architecture-rule-feasibility.md",
       },
     ],
-    implRefs: ["app/src/test/architectureRules/rules.ts"],
+    implRefs: ["app-domain/gross-profit/rule-catalog/base-rules.ts"],
   });
 
   // review overdue（lastReviewedAt + cadence < today、Project Overlay 側正本）
@@ -86,7 +91,7 @@ export function collectFromTemporalGovernance(repoRoot: string): HealthKpi[] {
     status: "ok",
     owner: "architecture",
     docRefs: [],
-    implRefs: ["projects/pure-calculation-reorg/aag/execution-overlay.ts"],
+    implRefs: [overlayRelPath],
   });
 
   // heuristic + gate 件数
@@ -107,7 +112,7 @@ export function collectFromTemporalGovernance(repoRoot: string): HealthKpi[] {
     status: "ok",
     owner: "architecture",
     docRefs: [],
-    implRefs: ["app/src/test/architectureRules/rules.ts"],
+    implRefs: ["app-domain/gross-profit/rule-catalog/base-rules.ts"],
   });
 
   // --- Allowlist の temporal governance ---
@@ -181,7 +186,7 @@ export function collectFromTemporalGovernance(repoRoot: string): HealthKpi[] {
         path: "references/01-principles/architecture-rule-feasibility.md",
       },
     ],
-    implRefs: ["app/src/test/architectureRules/rules.ts"],
+    implRefs: ["app-domain/gross-profit/rule-catalog/base-rules.ts"],
   });
 
   // allowlist 高集中ルール（1 ルールに例外 10 件以上）

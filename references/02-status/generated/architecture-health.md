@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-12T03:15:40.452Z
+> Generated: 2026-04-12T05:51:53.035Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -51,17 +51,17 @@
 
 | ID | 指標 | 値 | 状態 |
 |---|---|---|---|
-| guard.files.count | ガードテストファイル数 | 49 / 30 | OK |
+| guard.files.count | ガードテストファイル数 | 50 / 30 | OK |
 | guard.reviewOnlyTags.count | レビュー専用タグ数 | 0 / 5 | OK |
-| guard.rules.total | 総 Architecture Rule 数 | 140 | OK |
-| guard.rules.fixNow.now | fixNow=now ルール数（即修正） | 65 | OK |
+| guard.rules.total | 総 Architecture Rule 数 | 143 | OK |
+| guard.rules.fixNow.now | fixNow=now ルール数（即修正） | 68 | OK |
 | guard.rules.fixNow.debt | fixNow=debt ルール数（構造負債） | 54 | OK |
 | guard.rules.fixNow.review | fixNow=review ルール数（観測） | 21 | OK |
-| temporal.rules.reviewPolicy.count | reviewPolicy 設定済みルール数 | 140 / 92 | OK |
-| temporal.rules.sunsetCondition.count | sunsetCondition 設定済みルール数 | 9 / 9 | OK |
+| temporal.rules.reviewPolicy.count | reviewPolicy 設定済みルール数 | 143 / 92 | OK |
+| temporal.rules.sunsetCondition.count | sunsetCondition 設定済みルール数 | 12 / 9 | OK |
 | temporal.rules.reviewOverdue.count | review overdue ルール数 | 0 / 0 | OK |
 | temporal.rules.heuristicGate.count | heuristic + gate ルール数 | 32 / 32 | OK |
-| efficacy.rules.withProtectedHarm.count | protectedHarm 設定済みルール数 | 77 | OK |
+| efficacy.rules.withProtectedHarm.count | protectedHarm 設定済みルール数 | 80 | OK |
 | efficacy.rules.highNoise.count | 高例外圧ルール数（≥10 件） | 0 / 3 | OK |
 
 ## ドキュメント整合

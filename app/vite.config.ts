@@ -5,6 +5,15 @@ import wasm from 'vite-plugin-wasm'
 import topLevelAwait from 'vite-plugin-top-level-await'
 import { resolve } from 'path'
 import { readFileSync, writeFileSync } from 'fs'
+// @ts-expect-error — JS module without declaration file
+import { resolveProjectOverlayRoot } from './scripts/resolve-project-overlay.mjs'
+
+/**
+ * `@project-overlay/*` の alias ターゲットは CURRENT_PROJECT.md + project.json
+ * から解決する（C1: project 固定パス一元化）。
+ * project 切替時の変更点は CURRENT_PROJECT.md の 1 行に閉じる。
+ */
+const projectOverlayRoot: string = resolveProjectOverlayRoot(__dirname)
 
 /** ビルド時に public/sw.js の __BUILD_VERSION__ と __BASE_PATH__ を置換するプラグイン */
 function swVersionPlugin(): Plugin {
@@ -73,7 +82,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
-      '@project-overlay': resolve(__dirname, '../projects/pure-calculation-reorg/aag'),
+      '@project-overlay': projectOverlayRoot,
+      '@app-domain': resolve(__dirname, '../app-domain'),
     },
   },
   server: {

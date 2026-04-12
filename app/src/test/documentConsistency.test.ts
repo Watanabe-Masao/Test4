@@ -457,7 +457,8 @@ describe('@guard tag consistency', () => {
     }
 
     // 全ソースファイルから使用されている guard ID を収集
-    const srcDir = path.join(ROOT_DIR, 'app/src')
+    // app/src/ + app-domain/（C4: BaseRule 物理移動後の App Domain 正本）をスキャン
+    const scanRoots = [path.join(ROOT_DIR, 'app/src'), path.join(ROOT_DIR, 'app-domain')]
     const usedIds = new Set<string>()
 
     function scanDir(dir: string) {
@@ -479,7 +480,7 @@ describe('@guard tag consistency', () => {
         }
       }
     }
-    scanDir(srcDir)
+    for (const root of scanRoots) scanDir(root)
 
     // 現時点でガードテスト未対応のタグ（レビューで検証する原則）
     // タグ付与が進んだらここから削除し、テスト通過させる

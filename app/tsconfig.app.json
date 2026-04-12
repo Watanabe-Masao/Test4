@@ -17,11 +17,22 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
-    /* Path aliases */
+    /* Path aliases
+     *
+     * NOTE: `@project-overlay/*` のターゲットは CURRENT_PROJECT.md + project.json
+     * 経由で vite / vitest 側では動的解決される（app/scripts/resolve-project-overlay.mjs）。
+     * tsconfig は静的 JSON のため、active project を切り替えた場合はこの行と
+     * include エントリを手動で更新する必要がある。
+     *
+     * `@app-domain/*` は repo 直下 app-domain/ を指す（アプリ固有の意味空間）。
+     * BaseRule 正本は app-domain/gross-profit/rule-catalog/base-rules.ts に物理配置。
+     * 参照: references/03-guides/governance-final-placement-plan.md
+     */
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "@project-overlay/*": ["../projects/pure-calculation-reorg/aag/*"]
+      "@project-overlay/*": ["../projects/pure-calculation-reorg/aag/*"],
+      "@app-domain/*": ["../app-domain/*"]
     },
 
     /* Linting */
@@ -32,5 +43,9 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src", "../projects/pure-calculation-reorg/aag/**/*.ts"]
+  "include": [
+    "src",
+    "../projects/pure-calculation-reorg/aag/**/*.ts",
+    "../app-domain/gross-profit/rule-catalog/**/*.ts"
+  ]
 }
