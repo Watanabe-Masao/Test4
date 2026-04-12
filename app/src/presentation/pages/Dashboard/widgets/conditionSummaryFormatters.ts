@@ -40,3 +40,13 @@ export function fmtAchievement(val: number, isRate: boolean): string {
   if (isRate) return `${val >= 0 ? '+' : ''}${formatPercent100(val).replace('%', 'pp')}`
   return formatPercent100(val)
 }
+
+// ─── Date labels ────────────────────────────────────────
+
+const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土'] as const
+
+/** 日番号を「DD(曜)」表記に変換する */
+export function dayLabel(day: number, year: number, month: number): string {
+  const dow = DOW_LABELS[new Date(year, month - 1, day).getDay()]
+  return `${day}(${dow})`
+}

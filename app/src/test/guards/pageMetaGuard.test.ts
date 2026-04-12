@@ -2,7 +2,7 @@
  * ページ正本ガードテスト
  *
  * PAGE_REGISTRY の整合性を機械検証する。
- * routes.tsx の PAGE_COMPONENT_MAP との一致も検証。
+ * pageComponentMap.ts の PAGE_COMPONENT_MAP との一致も検証。
  *
  * @guard F10 ページ正本の整合性
  * ルール定義: architectureRules.ts (AR-STRUCT-PAGE-META)
@@ -17,7 +17,7 @@ import {
   getStandardPageIds,
 } from '@/application/navigation/pageRegistry'
 import type { ViewType } from '@/domain/models/PageMeta'
-import { PAGE_COMPONENT_MAP } from '@/presentation/routes'
+import { PAGE_COMPONENT_MAP } from '@/presentation/pageComponentMap'
 
 // ── ViewType の全メンバー（domain/models/PageMeta.ts の定義と一致させる） ──
 const EXPECTED_VIEW_TYPES: readonly ViewType[] = [

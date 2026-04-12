@@ -34,15 +34,50 @@ export interface LoadResult {
   readonly durationMs: number
 }
 
+/**
+ * loadMonth の対象スコープを削除する。replace セマンティクスの先頭処理と
+ * 失敗時 cleanup の両方で同じ実装を共有するための private helper。
+ *
+ * isPrevYear によって削除範囲が変わる（`deletePolicy.ts` 参照）:
+ * - false: 全テーブルの (year, month) 行
+ * - true:  前年スコープ（is_prev_year=true の行 + (year-1, month) の行）
+ */
+async function purgeLoadTarget(
+  conn: AsyncDuckDBConnection,
+  year: number,
+  month: number,
+  isPrevYear: boolean,
+): Promise<void> {
+  if (isPrevYear) {
+    await deletePrevYearMonth(conn, year, month)
+  } else {
+    await deleteMonth(conn, year, month)
+  }
+}
+
 // ── 公開API ──
 
 /**
  * 1ヶ月分の MonthlyData を DuckDB に投入する。
- * 追記モード — テーブルが存在する前提で INSERT のみ行う。
- * 初回呼び出し前に resetTables() を呼ぶこと。
  *
- * isPrevYear=true の場合、classified_sales / category_time_sales に
- * is_prev_year フラグを付与して投入する。
+ * **replace セマンティクス（冪等）:** この関数は「対象月を差し替える」唯一の正本 API。
+ * 呼び出し側は削除順序を気にせず、単に (year, month, isPrevYear) を渡せば、
+ * 関数内部で対象スコープを削除してから INSERT する。再ロード・部分失敗後の再試行・
+ * 同一データの複数回インポートのいずれでも結果は等価になる。
+ *
+ * **呼び出し側の責務:** 削除は担わない。`deleteMonth` / `deletePrevYearMonth` は
+ * 明示的な「月データの除去」操作であり、`loadMonth` の前処理として呼ぶべきではない
+ * （二重削除になるだけで無意味）。詳細は `deletePolicy.ts` を参照。
+ *
+ * **スコープ:**
+ * - `isPrevYear = false`（既定）: 全テーブルの (year, month) 行を削除して当年として投入
+ * - `isPrevYear = true`: 前年スコープ（TABLES_WITH_PREV_YEAR_FLAG の is_prev_year=true 行と
+ *   PREV_YEAR_INSERT_TABLES の (year-1, month) 行）を削除して前年データとして投入
+ *
+ * **失敗時:** INSERT 途中で例外が発生した場合、同じ削除を再実行してから例外を再送出する。
+ * これにより partial な月が残存しない。
+ *
+ * 関連: `references/03-guides/data-load-idempotency-plan.md`
  */
 export async function loadMonth(
   conn: AsyncDuckDBConnection,
@@ -55,13 +90,9 @@ export async function loadMonth(
   const start = performance.now()
   const rowCounts = {} as Record<TableName, number>
 
-  // 冪等性保証: INSERT 前に同月データを削除する
+  // 冪等性保証: INSERT 前に対象スコープを削除する
   // これにより、再ロードや部分失敗後の再試行で重複が発生しない
-  if (isPrevYear) {
-    await deletePrevYearMonth(conn, year, month)
-  } else {
-    await deleteMonth(conn, year, month)
-  }
+  await purgeLoadTarget(conn, year, month, isPrevYear)
 
   try {
     // ── classified_sales ──
@@ -129,11 +160,7 @@ export async function loadMonth(
     // INSERT失敗時は該当月のデータのみ削除して部分データの残存を防ぐ。
     console.error(`DuckDB loadMonth failed for ${year}-${month}:`, err)
     try {
-      if (isPrevYear) {
-        await deletePrevYearMonth(conn, year, month)
-      } else {
-        await deleteMonth(conn, year, month)
-      }
+      await purgeLoadTarget(conn, year, month, isPrevYear)
     } catch (deleteErr) {
       console.error('DuckDB cleanup after load failure also failed:', deleteErr)
     }

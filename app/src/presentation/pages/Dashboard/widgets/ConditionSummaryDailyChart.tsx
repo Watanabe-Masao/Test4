@@ -8,14 +8,7 @@ import type {
   DailyMarkupRateYoYRow,
 } from './ConditionSummaryEnhanced.vm'
 import type { MetricKey } from './conditionSummaryTypes'
-import { formatPercent100 } from './conditionSummaryFormatters'
-
-const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土'] as const
-
-export function dayLabel(day: number, year: number, month: number): string {
-  const dow = DOW_LABELS[new Date(year, month - 1, day).getDay()]
-  return `${day}(${dow})`
-}
+import { formatPercent100, dayLabel } from './conditionSummaryFormatters'
 
 export function DailyChart({
   rows,

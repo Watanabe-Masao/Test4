@@ -1,5 +1,6 @@
 import { memo, useState, useMemo, useCallback } from 'react'
-import { DailyChart, DailyRateChart, dayLabel } from './ConditionSummaryDailyChart'
+import { DailyChart, DailyRateChart } from './ConditionSummaryDailyChart'
+import { dayLabel } from './conditionSummaryFormatters'
 import { DISCOUNT_TYPES } from '@/domain/models/record'
 import type { StoreResult } from '@/domain/models/storeTypes'
 import type { PrevYearMonthlyKpi } from '@/application/hooks/analytics'

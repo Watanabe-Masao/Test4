@@ -130,3 +130,26 @@ MAX(customers) AS customers
 2. VIEW の `MAX` だけで根本解決としない — 重複レコード自体が存在する状態は不健全
 3. DuckDB WASM の制約を無視して UPSERT を使おうとしない — ランタイムエラーになる
 4. `store_day_summary` VIEW 以外のクエリが重複に耐性があると仮定しない — 調査が必要
+
+## 7. 現状（2026-04-12 追記）
+
+Phase 1（loadMonth の冪等化）は本ブランチで landed 済み。具体的には:
+
+- `dataLoader.ts::loadMonth` の JSDoc を「追記モード」から **replace セマンティクス** に
+  書き換えた。関数内部で `deleteMonth` / `deletePrevYearMonth` を先行実行し、
+  INSERT 途中の失敗時も同じ削除を再実行する cleanup 経路を持つ。
+- `useDuckDB.ts` 冒頭の責務コメントを「差分: deleteMonth → loadMonth → materializeSummary」
+  から「loadMonth は replace セマンティクスで対象月を差し替える」に更新した。
+  これにより本ファイルが削除順序の正本ではないことが読めるようになった。
+
+次に閉じる残タスク:
+
+1. **Phase 2（呼び出し側 cleanup）** — `useDuckDB.ts` 188-189 行目の
+   `deleteMonth` + `deletePrevYearMonth` を削除する。`loadMonth` が内部で
+   削除するため二重になっている。219-220 行目（obsolete-month 削除経路）は
+   reload の前処理ではなく明示 remove なので残す。
+2. **Phase 3（テストで固定）** — 同一月 2 回ロード・前年 2 回ロード・
+   store_day_summary.customers 安定・失敗時 cleanup の 4 テストを追加する。
+3. 他クエリの spot audit — `classified_sales` / `special_sales` / `transfers`
+   を SUM している read-path クエリに重複耐性の暗黙前提がないかを洗い出す。
+   refactor は別スコープ。

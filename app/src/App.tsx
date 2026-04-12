@@ -12,7 +12,8 @@ import { useRouteSync } from '@/application/hooks/useRouteSync'
 import { useAppShortcuts } from '@/application/hooks/useAppShortcuts'
 import { useThemeToggle, SettingsModalContext } from '@/appContextDefs'
 import { AppProviders } from '@/AppProviders'
-import { AppRoutes, MobileDashboardPage } from '@/presentation/routes'
+import { AppRoutes } from '@/presentation/routes'
+import { MobileDashboardPage } from '@/presentation/pageComponentMap'
 
 // ─── メインコンテンツ ──────────────────────────────────────
 
