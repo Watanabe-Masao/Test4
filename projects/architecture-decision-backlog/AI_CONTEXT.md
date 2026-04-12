@@ -1,5 +1,8 @@
 # AI_CONTEXT — architecture-decision-backlog
 
+> 役割: project 意味空間の入口（why / scope / read order）。
+> 現在地・次の作業・ハマりポイントは `HANDOFF.md` を参照。
+
 ## Project
 
 アーキテクチャ判断 backlog — 未決定の設計判断

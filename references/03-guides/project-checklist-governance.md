@@ -175,6 +175,71 @@ projects/<id>/
 `status` は人間が宣言する値（`active` / `paused` / `archived`）であり、
 **completion の判定には使わない**。実 status は collector が checklist から導出する。
 
+## 4.1. 4 doc の役割分離 — なぜ分けるか、何を書くか
+
+4 文書（AI_CONTEXT / HANDOFF / plan / checklist）は **変更頻度** と
+**読み手** で責務を分ける。各文書は**自分の責務範囲の content のみ**を持ち、
+他文書の責務範囲を侵さない。これにより drift（同じ content が複数文書に
+存在し片方だけ更新される現象）を構造的に防ぐ。
+
+### 役割マトリクス
+
+| 文書 | 責務 | 変更頻度 | 主な読み手 | 書いてよい | 書いてはいけない |
+|---|---|---|---|---|---|
+| **AI_CONTEXT.md** | project **意味空間の入口**。「この project は何のためにあるか」 | 数週間〜数ヶ月に 1 回（scope / purpose / 制約の変更時のみ） | 初見の AI（1 回だけ読む） | Purpose, Scope, Read Order, Required References, Project-Specific Constraints | **volatile content**（Current Status / Next Actions / Completed / Phase 進捗 / ハマりポイント） |
+| **HANDOFF.md** | **現在状態の snapshot**。「今どこにいるか / 次に何をするか / どうハマらないか」 | 作業セッションごと（checkbox 進行ごと） | 再開する作業 AI（毎回読む） | 現在地, 完了 Phase, 次にやること, ハマりポイント, 読書順 | 原則の再定義（plan.md 責務）/ live task（checklist.md 責務） |
+| **plan.md** | 原則と構造の正本 | 計画変更時のみ | 設計判断時の AI / 人間 | 不可侵原則, Phase 定義, やってはいけないこと, 関連実装 | 現在値, 達成条件（checkbox） |
+| **checklist.md** | **completion の唯一の入力** | 作業完了ごと | 作業進行中 AI | required checkbox（達成条件） | 原則, 常時チェック, 最重要項目（§3 参照） |
+
+### 役割 banner の必須化
+
+AI_CONTEXT.md と HANDOFF.md の先頭には **役割 banner** を置く:
+
+```markdown
+# <文書 title>
+
+> 役割: <この文書が何のためにあるか 1 文>
+```
+
+banner は読み手が「この文書を開けばよいか」を即判断するためのラベル。
+`projectDocStructureGuard.test.ts` の **D2 / D3** が機械検証する。
+
+### AI_CONTEXT.md に volatile content を書けない
+
+AI_CONTEXT.md の responsibility は「project の **意味**」であり、変更頻度は
+scope 変更時に限られる。もし「Current Status」「Next Actions」のような
+session ごとに変わる content を書くと:
+
+- HANDOFF.md と重複する → 片方だけ更新されて drift する
+- git blame が「意味の変更」と「状態の変更」で混ざる → 何を変えたかが読めない
+- 初見 AI が「この project の意味」を知りたいだけなのに、volatile content の
+  ノイズを読まされる
+- AI_CONTEXT.md が肥大化し、役割が曖昧になる
+
+そのため `projectDocStructureGuard.test.ts` の **D4** が以下を禁止する:
+
+```
+AI_CONTEXT.md に以下の見出しがあれば FAIL:
+  ## Current Status / ## 現在地 / ## 現在状況
+  ## Immediate Next Actions / ## Next Actions / ## 次にやること
+  ## Phase 進捗
+  ## 完了済み / ## Completed
+  ## ハマりポイント / ## Hamari points
+```
+
+これらは **HANDOFF.md に書く**。AI_CONTEXT.md からは削除し、HANDOFF.md に
+統合する（情報が重複しているなら削除、HANDOFF.md に無い情報なら移動）。
+
+### 機械検証の入口
+
+| 検証 | guard | 違反 code |
+|---|---|---|
+| 4 doc + config が揃っている | `projectDocStructureGuard.test.ts` | D1 |
+| AI_CONTEXT.md / HANDOFF.md に役割 banner がある | 同上 | D2 / D3 |
+| AI_CONTEXT.md に volatile content がない | 同上 | D4 |
+| checklist.md の format（§3 書き方の規格） | `checklistFormatGuard.test.ts` | F1-F5 |
+| completion / archive / cross-reference 整合 | `projectCompletionConsistencyGuard.test.ts` | C1-C4 / L1-L3 |
+
 ## 5. CURRENT_PROJECT.md と active project
 
 repo ルートの `CURRENT_PROJECT.md` は AI のセッション開始時に「いま主戦場の

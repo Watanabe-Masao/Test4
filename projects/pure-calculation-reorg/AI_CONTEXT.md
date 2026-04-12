@@ -1,5 +1,8 @@
 # AI_CONTEXT
 
+> 役割: project 意味空間の入口（why / scope / read order）。
+> 現在地・次の作業・ハマりポイントは `HANDOFF.md` を参照。
+
 ## Project
 
 Pure 計算責務再編（pure-calculation-reorg）
@@ -8,15 +11,6 @@ Pure 計算責務再編（pure-calculation-reorg）
 
 粗利管理ツール本体の `domain/calculations/` に存在する pure 計算群を、
 意味責任ベースで再分類し、AI が誤読・誤実装しにくい構造へ整備する。
-
-## Current Status
-
-- Phase 0-7 の構造基盤が完了
-- AAG 5.0.0 Phase A1-A5 完了（4層構造 + schema + カテゴリマップ + 導出自動化 + 運用再整理）
-- **AAG 3 層分離 完了**（境界ポリシー + 型分割 + スキーマ + allowlist 分離）
-- **Phase C 完了**: BaseRule を App Domain へ物理移動、direct import 禁止 guard、project resolver 一元化
-- **Phase 6 完了**: collector / resolver / merge 契約テスト + quote-agnostic 化
-- **本 project の次の重心: Phase 8 Promote Ceremony**（Tier 1 Business 候補の current 昇格）
 
 ## Scope の境界
 
@@ -99,34 +93,6 @@ AAG Core の共通ルール・思想。案件作業中に必ず参照する。
 - Promote Ceremony なしに current 編入しない
 - 正本は `calculationCanonRegistry` の1つだけ
 - JS orchestration（hook / store / QueryHandler）は移行対象外
-
-## Completed — AAG 3 層分離 + Phase C + Phase 6
-
-| 項目 | 状態 | 成果物 |
-|------|------|--------|
-| 境界ポリシー文書 | **完了** | `aag/core/`, `app-domain/gross-profit/` |
-| ArchitectureRule 型分割 | **完了** | `aag-core-types.ts`（RuleSemantics / Governance / DetectionSpec） |
-| aagSchemas.ts Core re-export | **完了** | Core 型を aagSchemas.ts 経由でもアクセス可能 |
-| allowlist RetentionReason 分離 | **完了** | CoreRetentionReason / AppRetentionReason + RemovalKind |
-| **Phase C1: project 参照点一元化** | **完了** | `project-resolver.ts` / `resolve-project-overlay.mjs` / `project.json` 追加（tsconfig は暫定静的） |
-| **Phase C2: direct import 禁止 guard** | **完了** | `AR-AAG-DERIVED-ONLY-IMPORT` 系 3 ルール + `aagDerivedOnlyImportGuard.test.ts` |
-| **Phase C3: 入口文書整理** | **完了** | `governance-final-placement-plan.md` 現行化 + `architectureRules/README.md` 追加 |
-| **Phase C4: BaseRule 物理移動** | **完了** | `app-domain/gross-profit/rule-catalog/base-rules.ts` + `@app-domain/*` alias |
-| **Phase 6-1: Collector 契約テスト** | **完了** | `guardCollectorContract.test.ts` / `temporalGovernanceCollectorContract.test.ts` + quote-agnostic 化 |
-| **Phase 6-2: Resolver 契約テスト** | **完了** | `projectResolverContract.test.ts` / `resolveProjectOverlayScript.test.ts` |
-| **Phase 6-3: Merge / Facade smoke** | **完了** | `architectureRulesMergeSmokeGuard.test.ts` |
-| **Phase 6-4: docs / health smoke** | **完了** | `docs:check` PASS, Healthy |
-
-## Immediate Next Actions — 案件本体
-
-1. **最優先:** データロード冪等化（`references/03-guides/data-load-idempotency-plan.md`）
-2. **Phase 8:** Promote Ceremony（`references/03-guides/promote-ceremony-template.md`）
-   - EvidencePack 生成: `cd app && npx tsx src/test/generators/generateEvidencePack.ts BIZ-012`
-
-## Next Actions — Governance 保守
-
-- `tsconfig.app.json` の `@project-overlay/*` / include 静的直書きの解消（C1 暫定事項）
-- `tools/architecture-health/src/config/health-rules.ts` の target 値を Project Overlay へ移す検討（health 契約化）
 
 ## Update Points
 

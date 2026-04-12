@@ -1,5 +1,8 @@
 # AI_CONTEXT — &lt;PROJECT-ID&gt;
 
+> 役割: project 意味空間の入口（why / scope / read order）。
+> 現在地・次の作業・ハマりポイントは `HANDOFF.md` を参照。
+
 > **テンプレートの使い方:**
 > 1. `projects/_template/` を `projects/<新 project id>/` にコピーする
 > 2. 各ファイルの `<PROJECT-ID>` / `<TITLE>` / `<...>` プレースホルダを実値で置換する

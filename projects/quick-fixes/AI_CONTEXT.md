@@ -1,5 +1,8 @@
 # AI_CONTEXT — quick-fixes
 
+> 役割: project 意味空間の入口（why / scope / read order）。
+> 現在地・次の作業・ハマりポイントは `HANDOFF.md` を参照。
+
 ## Project
 
 Quick Fixes — 文脈を必要としない単発作業の集約（quick-fixes）

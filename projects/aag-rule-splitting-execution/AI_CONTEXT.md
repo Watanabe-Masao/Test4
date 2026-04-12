@@ -1,5 +1,8 @@
 # AI_CONTEXT — aag-rule-splitting-execution
 
+> 役割: project 意味空間の入口（why / scope / read order）。
+> 現在地・次の作業・ハマりポイントは `HANDOFF.md` を参照。
+
 ## Project
 
 AAG ルール分割実行 — AR-STRUCT-RESP-SEPARATION 7 分割
