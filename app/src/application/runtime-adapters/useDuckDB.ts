@@ -10,8 +10,9 @@
  * - 変更検知 → computeFingerprint / computeMonthFingerprint (duckdbFingerprint)
  * - ロード直列化 → acquireMutex (loadCoordinator)
  * - ロード統合 → 本ファイル（差分リロード: loadMonth は replace セマンティクスで
- *   対象月を差し替える。削除は loadMonth 内部で完結し、本ファイルは削除順序を持たない。
- *   deleteMonth / deletePrevYearMonth は「不要になった月の明示 remove」でのみ使う）
+ *   当年スコープを差し替える。ただし loadMonth 内部の prev-year purge は year-shift
+ *   のため現状不完全で、caller 側で deletePrevYearMonth(currentYear, month) を
+ *   追加で呼ぶ必要がある。恒久対策は Phase 3 以降で loadMonth 側を見直す）
  *
  * 使い方:
  * ```
@@ -186,9 +187,20 @@ export function useDuckDB(
         const curKey = monthKey(year, month)
 
         // 当月: フィンガープリントが変わったら再ロード
-        // （loadMonth は replace セマンティクスなので、caller 側で deleteMonth を
-        // 呼ぶ必要はない。削除は loadMonth 内部で完結する）
+        // （loadMonth は replace セマンティクスで当年スコープを内部で削除するため
+        // caller 側で deleteMonth を呼ぶ必要はない。
+        //
+        // ただし deletePrevYearMonth は caller 側で呼ぶ必要がある。これは
+        // loadMonth 内部の purgeLoadTarget が isPrevYear=true 時に
+        // `deletePrevYearMonth(year, month)` を呼ぶ構造のためで、year が既に
+        // 前年（例: 2024）の場合 deletePrevYearMonth は `year-1 = 2023` に
+        // シフトして削除してしまい、本来の (2024, 4) が purge されない。
+        // ここで current year 文脈の deletePrevYearMonth(2025, 4) を呼ぶと
+        // 正しく (2024, 4) が purge される。
+        // 恒久対策は Phase 3 以降で loadMonth 側の purge を見直す。
         if (loadedMonthsRef.current.get(curKey) !== currentMonthFp) {
+          await deletePrevYearMonth(state.conn, year, month)
+          if (isStale()) return
           await loadMonth(state.conn, state.db, currentMonthData, year, month)
           if (isStale()) return
           // 前年データがあれば追加ロード

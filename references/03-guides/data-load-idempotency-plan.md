@@ -144,26 +144,43 @@ Phase 1（loadMonth の冪等化）と Phase 2（呼び出し側 cleanup）は l
 - `useDuckDB.ts` 冒頭の責務コメントを「差分: deleteMonth → loadMonth → materializeSummary」
   から「loadMonth は replace セマンティクスで対象月を差し替える」に更新した。
 
-**Phase 2:**
+**Phase 2（#994）:**
 
-- `useDuckDB.ts` の変更月再ロード経路から caller-side `deleteMonth` +
-  `deletePrevYearMonth` を除去した。reload path は `loadMonth(...)` のみで
-  成立する。obsolete-month 削除経路（不要になった過去月を remove する）は
-  explicit remove として維持している。
+- `useDuckDB.ts` の変更月再ロード経路から caller-side `deleteMonth` を除去した。
+  当年スコープの削除は `loadMonth` 内部の `purgeLoadTarget` が正しく担う。
 - `deletePolicy.ts` / `workerHandlers.ts::executeDeleteMonth` /
-  `duckdbWorkerClient.ts::deleteMonth` の JSDoc を explicit remove 専用として
-  明文化。`loadMonth` の前処理として呼ぶべきではないことを明示した。
+  `duckdbWorkerClient.ts::deleteMonth` の JSDoc を explicit remove として整理。
 
-これにより API 境界が次のように一本化された:
+**Phase 2 で保留になっている latent bug:**
 
-- **差し替えたい** → `loadMonth(...)`
+`loadMonth(..., isPrevYear=true)` の内部 purge は現状正しくない。
+`purgeLoadTarget` が `isPrevYear=true` のとき `deletePrevYearMonth(year, month)`
+を呼ぶが、この関数は内部で `prevYear = year - 1` して (year-1, month) を消すため、
+year に既に前年（例: 2024）が渡されていると `2023` にシフトして削除してしまい、
+本来の (2024, 4) の前年スコープ行は purge されない。
+
+この bug を踏まないよう、`useDuckDB.ts` の変更月再ロード経路では caller 側で
+`deletePrevYearMonth(currentYear, month)` を呼び続ける（current year 文脈なら
+正しく (currentYear-1, month) が消える）。これは Phase 2 の本来意図に対する
+ワークアラウンドで、Phase 3 以降で loadMonth 側を修正する前提でコメントを残してある。
+
+これを踏まえた API 境界の現状:
+
+- **当年を差し替えたい** → `loadMonth(..., isPrevYear=false)`（完全に caller-free）
+- **前年を差し替えたい** → `loadMonth(..., isPrevYear=true)` + 事前に caller 側で
+  `deletePrevYearMonth(currentYear, month)` を呼ぶ（ワークアラウンド）
 - **消したい** → `deleteMonth(...)` / `deletePrevYearMonth(...)`
 
 次に閉じる残タスク:
 
-1. **Phase 3（テストで固定）** — 同一月 2 回ロード・前年 2 回ロード・
+1. **Phase 3.a（loadMonth の prev-year purge 修正）** — `purgeLoadTarget` が
+   `isPrevYear=true` のときに `(year, month)` の前年スコープを直接削除するよう
+   書き換える（`year-1` へのシフトをしない）。修正後は useDuckDB の
+   ワークアラウンド呼び出しも除去できる。
+2. **Phase 3.b（テストで固定）** — 同一月 2 回ロード・前年 2 回ロード・
    `store_day_summary.customers` 安定・失敗時 cleanup の 4 テストを追加する。
-   これが最終的な再発防止メカニズムになる。
-2. 他クエリの spot audit — `classified_sales` / `special_sales` / `transfers`
+   特に「前年の 2 回ロードで行数が増えない」を先に固定してから Phase 3.a
+   に進むと、修正が正しいことをテストが保証する。
+3. 他クエリの spot audit — `classified_sales` / `special_sales` / `transfers`
    を SUM している read-path クエリに重複耐性の暗黙前提がないかを洗い出す。
    refactor は別スコープ。
