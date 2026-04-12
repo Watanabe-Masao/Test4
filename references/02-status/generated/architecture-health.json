@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-12T15:23:20.372Z",
+  "timestamp": "2026-04-12T15:36:55.982Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 51,
+      "value": 53,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -272,6 +272,7 @@
         "app/src/test/guards/calculationCanonGuard.test.ts",
         "app/src/test/guards/canonicalInputGuard.test.ts",
         "app/src/test/guards/canonicalizationSystemGuard.test.ts",
+        "app/src/test/guards/checklistFormatGuard.test.ts",
         "app/src/test/guards/coChangeGuard.test.ts",
         "app/src/test/guards/codePatternGuard.test.ts",
         "app/src/test/guards/comparisonScopeGuard.test.ts",
@@ -299,6 +300,7 @@
         "app/src/test/guards/piValuePathGuard.test.ts",
         "app/src/test/guards/pipelineSafetyGuard.test.ts",
         "app/src/test/guards/presentationIsolationGuard.test.ts",
+        "app/src/test/guards/projectCompletionConsistencyGuard.test.ts",
         "app/src/test/guards/projectStructureGuard.test.ts",
         "app/src/test/guards/purchaseCostImportGuard.test.ts",
         "app/src/test/guards/purchaseCostPathGuard.test.ts",
@@ -675,7 +677,7 @@
       "id": "project.checklist.activeCount",
       "label": "active project 数（archive 未実施を含む）",
       "category": "docs",
-      "value": 6,
+      "value": 7,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -691,7 +693,8 @@
         "projects/data-load-idempotency-hardening/checklist.md",
         "projects/docs-and-governance-cohesion/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",
-        "projects/pure-calculation-reorg/checklist.md"
+        "projects/pure-calculation-reorg/checklist.md",
+        "projects/quick-fixes/checklist.md"
       ]
     },
     {
@@ -730,7 +733,8 @@
         "projects/data-load-idempotency-hardening/checklist.md",
         "projects/docs-and-governance-cohesion/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",
-        "projects/pure-calculation-reorg/checklist.md"
+        "projects/pure-calculation-reorg/checklist.md",
+        "projects/quick-fixes/checklist.md"
       ]
     },
     {
@@ -753,7 +757,8 @@
         "projects/data-load-idempotency-hardening/checklist.md",
         "projects/docs-and-governance-cohesion/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",
-        "projects/pure-calculation-reorg/checklist.md"
+        "projects/pure-calculation-reorg/checklist.md",
+        "projects/quick-fixes/checklist.md"
       ]
     },
     {
@@ -776,14 +781,15 @@
         "projects/data-load-idempotency-hardening/checklist.md",
         "projects/docs-and-governance-cohesion/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",
-        "projects/pure-calculation-reorg/checklist.md"
+        "projects/pure-calculation-reorg/checklist.md",
+        "projects/quick-fixes/checklist.md"
       ]
     },
     {
       "id": "project.checklist.totalCheckboxes",
       "label": "全 project の required checkbox 総数",
       "category": "docs",
-      "value": 239,
+      "value": 240,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -799,7 +805,8 @@
         "projects/data-load-idempotency-hardening/checklist.md",
         "projects/docs-and-governance-cohesion/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",
-        "projects/pure-calculation-reorg/checklist.md"
+        "projects/pure-calculation-reorg/checklist.md",
+        "projects/quick-fixes/checklist.md"
       ]
     },
     {
@@ -822,7 +829,8 @@
         "projects/data-load-idempotency-hardening/checklist.md",
         "projects/docs-and-governance-cohesion/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",
-        "projects/pure-calculation-reorg/checklist.md"
+        "projects/pure-calculation-reorg/checklist.md",
+        "projects/quick-fixes/checklist.md"
       ]
     }
   ],

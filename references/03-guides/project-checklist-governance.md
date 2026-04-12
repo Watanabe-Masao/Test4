@@ -311,9 +311,15 @@ archive される project が依存していた references/ 文書は、project 
 
 ## 10. 新規 project bootstrap 手順（AI 向け）
 
-> **文脈を持たない AI が新規 project を立ち上げるときは、以下の手順を順番に実行する。**
-> ステップごとに「次に何をすればよいか」が決まっており、template と format guard が
-> 形式不備を機械的に検出するため、ガイドだけでも完成形に到達できる。
+> **小さな fix の場合（数時間以内）:**
+> bootstrap は不要。`projects/quick-fixes/checklist.md` に
+> `* [ ] (優先度) <スコープ>: <一文の説明>` を 1 行追加するだけ。
+> 詳細は §11.2 を参照。
+>
+> **大きな project の場合（複数 phase / 文脈の引き継ぎが必要）:**
+> 以下の手順を順番に実行する。ステップごとに「次に何をすればよいか」が決まっており、
+> template と format guard が形式不備を機械的に検出するため、ガイドだけでも
+> 完成形に到達できる。
 
 ### Step 1: scope を決める
 
@@ -392,6 +398,92 @@ cd app && npm run test:guards
 `aag-rule-splitting-execution` の 5 件は本手順に準拠して 2026-04-12 に立ち上げ済み。
 それぞれの AI_CONTEXT.md / HANDOFF.md / plan.md / checklist.md / config/project.json
 が完全形のリファレンスになる。
+
+## 11. 大きな project と小さな fix の使い分け
+
+> **大きな project と小さな fix を 1 つの仕組みに混ぜると、両方が機能不全になる。**
+> 大きな project は重い ceremony を要求し、小さな fix は軽さを要求する。
+> 本仕組みは「kind」フィールドで両方を分けて扱う。
+
+### 11.1. 判断基準
+
+| 軸 | 大きな project (`kind: project`) | 小さな fix (`kind: collection`) |
+|---|---|---|
+| 文脈の必要性 | 複数 phase / 不可侵原則 / ハマりポイントを引き継ぐ必要がある | 単発で完結し、後任者に context を引き継ぐ必要がない |
+| 作業期間 | 数日〜数週間 | 数分〜数時間 |
+| 完了概念 | ある（全 checkbox が完了したら archive） | ない（continuous collection、archive しない） |
+| ファイル | AI_CONTEXT.md + HANDOFF.md + plan.md + checklist.md + config/project.json | 同上だが checklist.md だけが運用上重要 |
+| 例 | データロード冪等化、Pure 計算責務再編、AAG ルール分割実装 | typo 修正、未使用 export 削除、ファイル分割、依存パッケージ bump |
+
+判断に迷ったら次の質問に答える:
+
+1. これは複数 phase に分かれるか？ → Yes なら大きな project
+2. 関連 checkbox が 5 個以上あるか？ → Yes なら大きな project
+3. ハマりポイントを HANDOFF に書く必要があるか？ → Yes なら大きな project
+4. 不可侵原則を独自に持つか？ → Yes なら大きな project
+5. 数時間以内に終わるか？ → Yes なら小さな fix
+
+### 11.2. 小さな fix の置き場 (`projects/quick-fixes/`)
+
+repo には常に 1 つの `quick-fixes` collection project が存在する。
+全ての小さな fix はその checklist に追記する。
+
+```markdown
+## 単発 fix
+
+* [ ] (高) app/src/utils/foo.ts: 未使用 export `bar` を削除
+* [ ] (中) references/02-status/recent-changes.md: 2026-04 セクションに最新コミットを追記
+* [x] (高) app/src/components/X.tsx: typo "calcuate" を "calculate" に修正
+```
+
+format: `* [ ] (優先度) <スコープ>: <一文の説明>`
+
+### 11.3. collection の特徴
+
+`projects/quick-fixes/config/project.json` には `kind: "collection"` が設定されている。
+これにより:
+
+- collector の `derivedStatus` は `collection` 固定（completed にならない）
+- consistency guard の C1 (archive 未実施警告) が発火しない
+- 全 checkbox が checked になっても archive プロセスは走らない
+- 「終わらない project」として扱われる（continuous）
+
+### 11.4. quick-fixes から大きな project への昇格
+
+> **「fix のつもりだったが、依存関係が複雑で大掛かりになる」と判断した時点で、
+> その checkbox は project に昇格させる。**
+> 中途半端に quick-fixes に残し続けると quick-fixes 全体が肥大化し、
+> 「単発 fix の受け皿」という本来の役割を失う。
+
+#### 昇格シグナル
+
+以下のいずれかを満たしたら昇格を検討する:
+
+- 着手したら **想定より広い範囲のファイルを触る** ことが分かった
+- **既存の不変条件 / 契約 / guard との整合性** を取り直す必要が出てきた
+- **依存関係が複数モジュールに波及** し、1 commit に収まらない
+- 着手中に「ハマりポイントを後任者に伝えたい」と感じた
+- 関連する細かい checkbox が複数生まれてきた（5 個以上）
+
+#### 昇格手順
+
+1. §10 の bootstrap 手順で新 project を作る
+2. 関連する quick-fixes checkbox を新 project の checklist.md に移管
+3. quick-fixes 側の checkbox は削除（重複させない）
+4. open-issues.md の active 索引に新 project を追加
+5. commit message に「promoted from quick-fixes」と記載
+
+#### 降格手順（逆方向）
+
+独立 project の中で「実は単発 fix だった」と判断したものは quick-fixes に
+降格させてもよい:
+
+1. quick-fixes の checklist に移管
+2. 元の project の checklist から削除
+3. 元の project が空になったら archive を検討（§6.2）
+
+判断は §11.1 に立ち戻る。**昇格・降格の判断は何度繰り返してもよい** —
+仕組みは可逆的に作られている。
 
 ## 9. このガイド自体の正本
 

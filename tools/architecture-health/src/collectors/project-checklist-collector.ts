@@ -15,10 +15,13 @@ import type { HealthKpi } from '../types.js'
 
 // ── 型定義 ───────────────────────────────────────────────────────────
 
+export type ProjectKind = 'project' | 'collection'
+
 export interface ProjectMeta {
   readonly projectId: string
   readonly title: string
   readonly status: string // 人間宣言値（active / paused / archived）
+  readonly kind: ProjectKind // 'project' (default) or 'collection'
   readonly projectRoot: string // repo 相対
   readonly checklistPath: string // repo 相対
   readonly aiContextPath: string
@@ -31,6 +34,7 @@ export type DerivedStatus =
   | 'in_progress' // open checkbox が 1 つ以上ある
   | 'empty' // checkbox が 1 つもない（新規 / placeholder）
   | 'archived' // projects/completed/ 配下に物理配置されている
+  | 'collection' // kind=collection の継続 collection（archive しない）
 
 export interface ProjectChecklistResult {
   readonly meta: ProjectMeta
@@ -43,6 +47,7 @@ interface ProjectJson {
   readonly projectId: string
   readonly title: string
   readonly status?: string
+  readonly kind?: ProjectKind
   readonly projectRoot: string
   readonly entrypoints: {
     readonly aiContext: string
@@ -244,9 +249,15 @@ function readProjectChecklist(
     checked = counts.checked
   }
 
+  const kind: ProjectKind = project.kind ?? 'project'
+
   let derivedStatus: DerivedStatus
   if (location.isArchived) {
     derivedStatus = 'archived'
+  } else if (kind === 'collection') {
+    // collection は完了概念を持たず、in_progress でも completed でもなく
+    // 'collection' という独自状態にする（archive 発火を防ぐ）
+    derivedStatus = 'collection'
   } else if (total === 0) {
     derivedStatus = 'empty'
   } else if (checked === total) {
@@ -259,6 +270,7 @@ function readProjectChecklist(
     projectId: project.projectId,
     title: project.title,
     status: project.status ?? 'unknown',
+    kind,
     projectRoot: project.projectRoot,
     checklistPath: project.entrypoints.checklist,
     aiContextPath: project.entrypoints.aiContext,

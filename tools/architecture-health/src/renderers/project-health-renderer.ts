@@ -24,12 +24,14 @@ export interface ProjectHealthSnapshot {
     readonly inProgress: number
     readonly completedNotArchived: number
     readonly empty: number
+    readonly collection: number
     readonly totalCheckboxes: number
     readonly checkedCheckboxes: number
   }
   readonly projects: readonly {
     readonly projectId: string
     readonly title: string
+    readonly kind: string
     readonly declaredStatus: string
     readonly derivedStatus: DerivedStatus
     readonly checked: number
@@ -52,6 +54,7 @@ export function buildProjectHealthSnapshot(
     inProgress: results.filter((r) => r.derivedStatus === 'in_progress').length,
     completedNotArchived: results.filter((r) => r.derivedStatus === 'completed').length,
     empty: results.filter((r) => r.derivedStatus === 'empty').length,
+    collection: results.filter((r) => r.derivedStatus === 'collection').length,
     totalCheckboxes: results.reduce((sum, r) => sum + r.total, 0),
     checkedCheckboxes: results.reduce((sum, r) => sum + r.checked, 0),
   }
@@ -59,6 +62,7 @@ export function buildProjectHealthSnapshot(
   const projects = results.map((r) => ({
     projectId: r.meta.projectId,
     title: r.meta.title,
+    kind: r.meta.kind,
     declaredStatus: r.meta.status,
     derivedStatus: r.derivedStatus,
     checked: r.checked,
@@ -132,6 +136,7 @@ export function renderProjectHealthMdContent(snapshot: ProjectHealthSnapshot): s
     `| checklist 完了済みだが archive 未実施 | ${snapshot.summary.completedNotArchived} |`,
   )
   lines.push(`| checkbox 空 (placeholder / 立ち上げ直後) | ${snapshot.summary.empty} |`)
+  lines.push(`| collection (continuous, 終わらない) | ${snapshot.summary.collection} |`)
   lines.push(
     `| 全 project の required checkbox 総数 | ${snapshot.summary.totalCheckboxes} |`,
   )

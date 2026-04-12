@@ -9,14 +9,15 @@
 
 ## active projects
 
-| projectId | title | entrypoint |
-|---|---|---|
-| `data-load-idempotency-hardening` | データロード冪等化 — 残存防御の固定化 | [`projects/data-load-idempotency-hardening/AI_CONTEXT.md`](../../projects/data-load-idempotency-hardening/AI_CONTEXT.md) |
-| `presentation-quality-hardening` | Presentation 品質強化 — テスト・E2E・active-debt 解消 | [`projects/presentation-quality-hardening/AI_CONTEXT.md`](../../projects/presentation-quality-hardening/AI_CONTEXT.md) |
-| `docs-and-governance-cohesion` | ドキュメントと課題の分離 — projects/ 一元化と AAG 統合 | [`projects/docs-and-governance-cohesion/AI_CONTEXT.md`](../../projects/docs-and-governance-cohesion/AI_CONTEXT.md) |
-| `architecture-decision-backlog` | アーキテクチャ判断 backlog — 未決定の設計判断 | [`projects/architecture-decision-backlog/AI_CONTEXT.md`](../../projects/architecture-decision-backlog/AI_CONTEXT.md) |
-| `aag-rule-splitting-execution` | AAG ルール分割実行 — AR-STRUCT-RESP-SEPARATION 7 分割 | [`projects/aag-rule-splitting-execution/AI_CONTEXT.md`](../../projects/aag-rule-splitting-execution/AI_CONTEXT.md) |
-| `pure-calculation-reorg` | Pure 計算責務再編（Phase 8 以降） | [`projects/pure-calculation-reorg/AI_CONTEXT.md`](../../projects/pure-calculation-reorg/AI_CONTEXT.md) |
+| projectId | kind | title | entrypoint |
+|---|---|---|---|
+| `data-load-idempotency-hardening` | project | データロード冪等化 — 残存防御の固定化 | [`projects/data-load-idempotency-hardening/AI_CONTEXT.md`](../../projects/data-load-idempotency-hardening/AI_CONTEXT.md) |
+| `presentation-quality-hardening` | project | Presentation 品質強化 — テスト・E2E・active-debt 解消 | [`projects/presentation-quality-hardening/AI_CONTEXT.md`](../../projects/presentation-quality-hardening/AI_CONTEXT.md) |
+| `docs-and-governance-cohesion` | project | ドキュメントと課題の分離 — projects/ 一元化と AAG 統合 | [`projects/docs-and-governance-cohesion/AI_CONTEXT.md`](../../projects/docs-and-governance-cohesion/AI_CONTEXT.md) |
+| `architecture-decision-backlog` | project | アーキテクチャ判断 backlog — 未決定の設計判断 | [`projects/architecture-decision-backlog/AI_CONTEXT.md`](../../projects/architecture-decision-backlog/AI_CONTEXT.md) |
+| `aag-rule-splitting-execution` | project | AAG ルール分割実行 — AR-STRUCT-RESP-SEPARATION 7 分割 | [`projects/aag-rule-splitting-execution/AI_CONTEXT.md`](../../projects/aag-rule-splitting-execution/AI_CONTEXT.md) |
+| `pure-calculation-reorg` | project | Pure 計算責務再編（Phase 8 以降） | [`projects/pure-calculation-reorg/AI_CONTEXT.md`](../../projects/pure-calculation-reorg/AI_CONTEXT.md) |
+| `quick-fixes` | collection | Quick Fixes — 文脈を必要としない単発作業の集約 | [`projects/quick-fixes/AI_CONTEXT.md`](../../projects/quick-fixes/AI_CONTEXT.md) |
 
 ## 課題発見時のフロー
 
