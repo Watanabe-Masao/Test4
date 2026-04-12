@@ -45,15 +45,24 @@ guard によって検出される:
 
 ## 例外（直参照が許可されるファイル）
 
-- `merged.ts` — 正本合成点そのもの
+直参照 guard（`aagDerivedOnlyImportGuard.test.ts`）の `ALLOWED_FILE_SUFFIXES` /
+`ALLOWED_DIR_PREFIXES` と完全に一致:
+
+- `app/src/test/architectureRules/` ディレクトリ配下 — 正本実装点（`rules.ts` / `merged.ts` / `types.ts` / `helpers.ts` / `index.ts`）
 - `app/src/test/guards/executionOverlayGuard.test.ts` — BaseRule ↔ overlay の整合検証
+- `app/src/test/guards/architectureRulesMergeSmokeGuard.test.ts` — 全 5 経路（barrel / index / merged / rules re-export / 互換 facade）の同値検証 smoke（命名規約 `*Guard.test.ts` 準拠）
 - `app/src/test/guards/aagDerivedOnlyImportGuard.test.ts` — 本ガード自身（文字列定数として参照）
-- 本ディレクトリ配下のファイル（実装上の相互参照）
 
 ## 合成フロー
 
 ```
-rules.ts (BaseRule[])                execution-overlay.ts (ExecutionOverlay)
+app-domain/gross-profit/               projects/<active>/aag/
+  rule-catalog/base-rules.ts             execution-overlay.ts
+  (App Domain 物理正本)                  (Project Overlay 正本)
+         │                                     │
+         │ @app-domain/* alias                 │ @project-overlay/* alias
+         ▼                                     ▼
+  rules.ts (thin re-export)             EXECUTION_OVERLAY
          │                                     │
          └──────────┐           ┌──────────────┘
                     ▼           ▼
@@ -81,6 +90,6 @@ project 名の直書きは上記 resolver にのみ許容される。
 
 ## 参照
 
-- 配置方針: `references/03-guides/governance-final-placement-plan.md`
-- 物理移動計画: 同文書の「物理配置の目標構造」セクション
+- 配置方針（現行正本）: `references/03-guides/governance-final-placement-plan.md`
 - AI 向け案件入口: `projects/pure-calculation-reorg/AI_CONTEXT.md`
+- 保証レイヤー: `app/src/test/tools/` の collector / resolver 契約テスト群
