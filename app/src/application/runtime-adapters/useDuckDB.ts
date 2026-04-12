@@ -10,8 +10,9 @@
  * - 変更検知 → computeFingerprint / computeMonthFingerprint (duckdbFingerprint)
  * - ロード直列化 → acquireMutex (loadCoordinator)
  * - ロード統合 → 本ファイル（差分リロード: loadMonth は replace セマンティクスで
- *   対象月を差し替える。削除は loadMonth 内部で完結し、本ファイルは削除順序を持たない。
- *   deleteMonth / deletePrevYearMonth は「不要になった月の明示 remove」でのみ使う）
+ *   対象月を差し替える。削除は loadMonth 内部で完結するため本ファイルは
+ *   削除順序を持たない。deleteMonth / deletePrevYearMonth は「不要になった月の
+ *   明示 remove」でのみ使う）
  *
  * 使い方:
  * ```
@@ -181,15 +182,14 @@ export function useDuckDB(
 
         initialLoadDone.current = true
       } else {
-        // ── 差分ロード: 変更された月のみ delete → insert ──
+        // ── 差分ロード: 変更された月のみ loadMonth で差し替え ──
         const currentMonthFp = computeMonthFingerprint(currentMonthData)
         const curKey = monthKey(year, month)
 
         // 当月: フィンガープリントが変わったら再ロード
+        // （loadMonth は replace セマンティクスで当年・前年の両スコープを
+        // 内部で正しく purge するため、caller 側で削除を呼ぶ必要はない）
         if (loadedMonthsRef.current.get(curKey) !== currentMonthFp) {
-          await deleteMonth(state.conn, year, month)
-          await deletePrevYearMonth(state.conn, year, month)
-          if (isStale()) return
           await loadMonth(state.conn, state.db, currentMonthData, year, month)
           if (isStale()) return
           // 前年データがあれば追加ロード

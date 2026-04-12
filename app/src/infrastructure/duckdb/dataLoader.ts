@@ -7,7 +7,7 @@
  * INSERT戦略: db.registerFileText() + read_json_auto() によるバルクロード。
  * 数万行規模のデータで prepared statement より高速。
  *
- * 削除ポリシー（resetTables, deleteMonth, deletePrevYearMonth）は
+ * 削除ポリシー（resetTables, deleteMonth, deletePrevYearMonth, deletePrevYearRowsAt）は
  * deletePolicy.ts に分離されている。
  */
 import type { AsyncDuckDB, AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
@@ -24,7 +24,7 @@ import {
   insertBudget,
   insertInventoryConfig,
 } from './dataConversions'
-import { deleteMonth, deletePrevYearMonth } from './deletePolicy'
+import { deleteMonth, deletePrevYearRowsAt } from './deletePolicy'
 
 // ── 後方互換 re-export（deletePolicy.ts から） ──
 export { resetTables, deleteMonth, deletePrevYearMonth } from './deletePolicy'
@@ -39,8 +39,9 @@ export interface LoadResult {
  * 失敗時 cleanup の両方で同じ実装を共有するための private helper。
  *
  * isPrevYear によって削除範囲が変わる（`deletePolicy.ts` 参照）:
- * - false: 全テーブルの (year, month) 行
- * - true:  前年スコープ（is_prev_year=true の行 + (year-1, month) の行）
+ * - false: 全テーブルの (year, month) 行（`deleteMonth`）
+ * - true:  (year, month) 位置の前年スコープ行のみ（`deletePrevYearRowsAt`）。
+ *          year-shift はしない — 引数 year は前年ロードの対象月そのものを指す。
  */
 async function purgeLoadTarget(
   conn: AsyncDuckDBConnection,
@@ -49,7 +50,7 @@ async function purgeLoadTarget(
   isPrevYear: boolean,
 ): Promise<void> {
   if (isPrevYear) {
-    await deletePrevYearMonth(conn, year, month)
+    await deletePrevYearRowsAt(conn, year, month)
   } else {
     await deleteMonth(conn, year, month)
   }
