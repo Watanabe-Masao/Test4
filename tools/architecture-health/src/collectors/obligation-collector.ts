@@ -181,7 +181,7 @@ function getChangedFiles(repoRoot: string, base?: string): string[] {
   }
 }
 
-function isHealthJsonFresh(repoRoot: string, changedFiles: string[]): boolean {
+function isHealthJsonFresh(_repoRoot: string, changedFiles: string[]): boolean {
   return changedFiles.includes('references/02-status/generated/architecture-health.json')
 }
 

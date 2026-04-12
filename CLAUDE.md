@@ -620,13 +620,13 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 | 後方互換負債 | OK | 0/3 / 2/3 |
 | 複雑性圧 | OK | 0/5 / 10/10 / 27/30 |
 | 境界健全性 | OK | 0/0 / 0/0 |
-| ガード強度 | OK | 50/30 / 0/5 |
+| ガード強度 | OK | 51/30 / 0/5 |
 | 性能 | OK | 6496/7000 / 2225/2500 / 919/1000 |
 | Temporal Governance | OK | 0/0 / 32/32 / 1/12 / 143/92 / 12/9 / 1/1 |
 | Rule Efficacy | OK | 80 / 0/3 / 0/10 |
 
 
-> 生成: 2026-04-12T06:03:10.312Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-12T06:43:06.715Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）

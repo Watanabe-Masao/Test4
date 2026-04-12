@@ -29,7 +29,6 @@ export function collectFromTemporalGovernance(repoRoot: string): HealthKpi[] {
   const overlayContent = readFileSync(overlayPath, "utf-8");
 
   // reviewPolicy 設定率（Project Overlay 側正本）
-  const totalRules = (rulesContent.match(/id: 'AR-/g) || []).length;
   const withReviewPolicy = (overlayContent.match(/reviewPolicy: \{/g) || [])
     .length;
   kpis.push({
@@ -49,8 +48,9 @@ export function collectFromTemporalGovernance(repoRoot: string): HealthKpi[] {
     implRefs: [overlayRelPath],
   });
 
-  // sunsetCondition 設定率
-  const withSunset = (rulesContent.match(/sunsetCondition: '/g) || []).length;
+  // sunsetCondition 設定率（quote-agnostic）
+  const withSunset = (rulesContent.match(/sunsetCondition:\s*['"]/g) || [])
+    .length;
   kpis.push({
     id: "temporal.rules.sunsetCondition.count",
     label: "sunsetCondition 設定済みルール数",
@@ -130,11 +130,14 @@ export function collectFromTemporalGovernance(repoRoot: string): HealthKpi[] {
     const filePath = resolve(repoRoot, "app/src/test/allowlists", file);
     try {
       const content = readFileSync(filePath, "utf-8");
+      // quote-agnostic: single/double どちらでも検出する
       const activeDebtEntries = (
-        content.match(/lifecycle: 'active-debt'/g) || []
+        content.match(/lifecycle:\s*['"]active-debt['"]/g) || []
       ).length;
       const withCreatedAt = [
-        ...content.matchAll(/lifecycle: 'active-debt'[\s\S]*?createdAt:/g),
+        ...content.matchAll(
+          /lifecycle:\s*['"]active-debt['"][\s\S]*?createdAt:/g,
+        ),
       ].length;
       activeDebtTotal += activeDebtEntries;
       activeDebtWithCreatedAt += withCreatedAt;
@@ -195,7 +198,7 @@ export function collectFromTemporalGovernance(repoRoot: string): HealthKpi[] {
     const filePath = resolve(repoRoot, "app/src/test/allowlists", file);
     try {
       const content = readFileSync(filePath, "utf-8");
-      for (const match of content.matchAll(/ruleId: '([^']+)'/g)) {
+      for (const match of content.matchAll(/ruleId:\s*['"]([^'"]+)['"]/g)) {
         exceptionsByRule.set(
           match[1],
           (exceptionsByRule.get(match[1]) ?? 0) + 1,

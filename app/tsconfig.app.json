@@ -32,7 +32,8 @@
     "paths": {
       "@/*": ["src/*"],
       "@project-overlay/*": ["../projects/pure-calculation-reorg/aag/*"],
-      "@app-domain/*": ["../app-domain/*"]
+      "@app-domain/*": ["../app-domain/*"],
+      "@tools/architecture-health/*": ["../tools/architecture-health/src/*"]
     },
 
     /* Linting */
@@ -46,6 +47,7 @@
   "include": [
     "src",
     "../projects/pure-calculation-reorg/aag/**/*.ts",
-    "../app-domain/gross-profit/rule-catalog/**/*.ts"
+    "../app-domain/gross-profit/rule-catalog/**/*.ts",
+    "../tools/architecture-health/src/**/*.ts"
   ]
 }
