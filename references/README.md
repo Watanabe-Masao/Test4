@@ -8,7 +8,7 @@
 |---|---|---|
 | `01-principles/` | 設計原則・制約・正本定義書（Engine 境界、正本化原則、業務値定義、AAG） | 38 |
 | `02-status/` | 進捗・品質状態（maturity, promotion, 品質監査, 課題管理） | 23 |
-| `03-guides/` | 実装ガイド・リファレンス（API, データモデル, ガードテスト, 不変条件, 責務分離） | 51 |
+| `03-guides/` | 実装ガイド・リファレンス（API, データモデル, ガードテスト, 不変条件, 責務分離） | 57 |
 | `99-archive/` | 旧文書の圧縮要約（現行では参照しない） | 4 |
 
 ## 正本一覧
@@ -83,6 +83,7 @@
 | Temporal 分析ポリシー | `03-guides/temporal-analysis-policy.md` |
 | WASM 候補適性判定基準 | `03-guides/wasm-candidate-eligibility.md` |
 | データロード冪等化計画 | `03-guides/data-load-idempotency-plan.md` |
+| idempotent load contract 引き継ぎ書 | `03-guides/data-load-idempotency-handoff.md` |
 | Read-path 重複耐性 Spot Audit | `03-guides/read-path-duplicate-audit.md` |
 | AAG 5.0 4層構造定義 | `01-principles/aag-5-constitution.md` |
 | AAG 5.0 既存ファイル層マッピング | `01-principles/aag-5-layer-map.md` |
@@ -262,6 +263,7 @@
 |---------|------|
 | `03-guides/wasm-candidate-eligibility.md` | WASM 候補適性の事前判定基準 |
 | `03-guides/data-load-idempotency-plan.md` | データロード冪等化計画（重複防止の根本解決） |
+| `03-guides/data-load-idempotency-handoff.md` | idempotent load contract 引き継ぎ書（後任者の入口） |
 | `03-guides/read-path-duplicate-audit.md` | Read-path 重複耐性 Spot Audit（`classified_sales` / `special_sales` / `transfers` 依存クエリの可視化） |
 
 ### 移行・廃止
