@@ -704,25 +704,10 @@ describe('Structured source consistency (docs/contracts/)', () => {
   })
 
   // ── バージョン一致 ────────────────────────────────────
-
-  it('package.json version が project-metadata.json と一致する', () => {
-    const pkgJson = JSON.parse(readFile('app/package.json'))
-    expect(
-      pkgJson.version,
-      `package.json version "${pkgJson.version}" != metadata "${metadata.appVersion}"`,
-    ).toBe(metadata.appVersion)
-  })
-
-  it('CHANGELOG.md 最新バージョンが project-metadata.json と一致する', () => {
-    const changelog = readFile('CHANGELOG.md')
-    const versionPattern = /## \[v([\d.]+)\]/
-    const match = versionPattern.exec(changelog)
-    expect(match).not.toBeNull()
-    expect(
-      match![1],
-      `CHANGELOG.md 最新 "v${match![1]}" != metadata "${metadata.appVersion}"`,
-    ).toBe(metadata.appVersion)
-  })
+  // version sync は AAG 管理下に移行しました。
+  // 検査の正本: app/src/test/guards/versionSyncGuard.test.ts
+  // 同期ペア定義: app/src/test/versionSyncRegistry.ts
+  // 新しい同期ペアを追加するときは registry に 1 entry 足してください。
 
   // ── WASM 前提の記載確認 ────────────────────────────────
 

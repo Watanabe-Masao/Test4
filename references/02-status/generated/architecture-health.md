@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-12T14:23:31.608Z
+> Generated: 2026-04-12T16:11:39.967Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -8,8 +8,8 @@
 
 | 指標 | 値 |
 |---|---|
-| Total KPIs | 32 |
-| OK | 32 |
+| Total KPIs | 39 |
+| OK | 39 |
 | WARN | 0 |
 | FAIL | 0 |
 | Hard Gate | PASS |
@@ -51,7 +51,7 @@
 
 | ID | 指標 | 値 | 状態 |
 |---|---|---|---|
-| guard.files.count | ガードテストファイル数 | 51 / 30 | OK |
+| guard.files.count | ガードテストファイル数 | 54 / 30 | OK |
 | guard.reviewOnlyTags.count | レビュー専用タグ数 | 0 / 5 | OK |
 | guard.rules.total | 総 Architecture Rule 数 | 143 | OK |
 | guard.rules.fixNow.now | fixNow=now ルール数（即修正） | 68 | OK |
@@ -71,6 +71,13 @@
 | docs.obsoleteTerms.count | 廃止用語残存数 | 0 / 0 | OK |
 | docs.generatedSections.stale | Generated section 未更新 | 0 / 0 | OK |
 | docs.obligation.violations | Doc 更新義務違反数 | 0 / 0 | OK |
+| project.checklist.activeCount | active project 数（archive 未実施を含む） | 6 / 20 | OK |
+| project.checklist.archivedCount | archived project 数（projects/completed/ 配下） | 1 / 100 | OK |
+| project.checklist.completedNotArchivedCount | checklist 完了済みだが archive 未実施の project 数 | 0 / 0 | OK |
+| project.checklist.inProgressCount | in_progress な project 数（open required checkbox あり） | 5 / 20 | OK |
+| project.checklist.emptyCount | checkbox 空の project 数（placeholder / 立ち上げ直後） | 0 / 10 | OK |
+| project.checklist.totalCheckboxes | 全 project の required checkbox 総数 | 271 | OK |
+| project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 191 | OK |
 
 ## バンドル性能
 
@@ -120,5 +127,12 @@
 | temporal.rules.reviewPolicy.count | definition | references/03-guides/architecture-rule-system.md |
 | temporal.rules.sunsetCondition.count | definition | references/01-principles/architecture-rule-feasibility.md |
 | efficacy.rules.withProtectedHarm.count | definition | references/01-principles/architecture-rule-feasibility.md |
+| project.checklist.activeCount | definition | references/03-guides/project-checklist-governance.md |
+| project.checklist.archivedCount | definition | references/03-guides/project-checklist-governance.md |
+| project.checklist.completedNotArchivedCount | definition | references/03-guides/project-checklist-governance.md |
+| project.checklist.inProgressCount | definition | references/03-guides/project-checklist-governance.md |
+| project.checklist.emptyCount | definition | references/03-guides/project-checklist-governance.md |
+| project.checklist.totalCheckboxes | definition | references/03-guides/project-checklist-governance.md |
+| project.checklist.checkedCheckboxes | definition | references/03-guides/project-checklist-governance.md |
 
 </details>

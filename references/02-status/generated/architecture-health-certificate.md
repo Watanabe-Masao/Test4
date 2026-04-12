@@ -7,7 +7,7 @@
 | **総合評価** | **Healthy** |
 | 前回比 | Improved |
 | リリース影響 | No |
-| 最終更新 | 2026-04-12T14:23:31.608Z |
+| 最終更新 | 2026-04-12T16:11:39.967Z |
 
 ## Hard Gate
 
@@ -20,6 +20,7 @@
 - PASS: Infrastructure→Application 違反
 - PASS: Doc 更新義務違反数
 - PASS: review overdue ルール数
+- PASS: checklist 完了済みだが archive 未実施の project 数
 
 ## Health Metrics
 
@@ -29,10 +30,11 @@
 | **後方互換負債** | OK | Active Bridge 数: 0/3 / 後方互換 re-export 数: 2/3 |
 | **複雑性圧** | OK | 上限間近ファイル数: 0/5 / 複雑性ホットスポット数: 10/10 / ViewModel ファイル数: 27/30 |
 | **境界健全性** | OK | Presentation→Infrastructure 違反: 0/0 / Infrastructure→Application 違反: 0/0 |
-| **ガード強度** | OK | ガードテストファイル数: 51/30 / レビュー専用タグ数: 0/5 |
+| **ガード強度** | OK | ガードテストファイル数: 54/30 / レビュー専用タグ数: 0/5 |
 | **性能** | OK | JS バンドル合計サイズ: 6506/7000 / メインバンドルサイズ: 2229/2500 / ECharts バンドルサイズ: 919/1000 |
 | **Temporal Governance** | OK | review overdue ルール数: 0/0 / heuristic + gate ルール数: 32/32 / active-debt 例外数: 1/12 / reviewPolicy 設定済みルール数: 143/92 / sunsetCondition 設定済みルール数: 12/9 / active-debt で createdAt 設定済み: 1/1 |
 | **Rule Efficacy** | OK | protectedHarm 設定済みルール数: 80 / 高例外圧ルール数（≥10 件）: 0/3 / renewalCount 合計: 0/10 |
+| **Project Governance** | OK | active project 数（archive 未実施を含む）: 6/20 / in_progress な project 数（open required checkbox あり）: 5/20 / checklist 完了済みだが archive 未実施の project 数: 0/0 / archived project 数（projects/completed/ 配下）: 1/100 |
 
 ## Recent Changes
 
@@ -42,5 +44,5 @@
 
 ---
 
-*正本: `references/02-status/generated/architecture-health.json` — 32 KPIs*
+*正本: `references/02-status/generated/architecture-health.json` — 39 KPIs*
 *詳細: `references/02-status/generated/architecture-health.md`*

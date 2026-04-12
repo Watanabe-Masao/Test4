@@ -22,6 +22,15 @@ import { collectFromBundle } from './collectors/bundle-collector.js'
 import { collectObligations, reportObligationDetails } from './collectors/obligation-collector.js'
 import { collectFromCiTiming } from './collectors/ci-timing-collector.js'
 import { collectFromTemporalGovernance } from './collectors/temporal-governance-collector.js'
+import {
+  collectProjectChecklists,
+  collectFromProjectChecklists,
+} from './collectors/project-checklist-collector.js'
+import {
+  buildProjectHealthSnapshot,
+  renderProjectHealthJson,
+  renderProjectHealthMd,
+} from './renderers/project-health-renderer.js'
 import { evaluate } from './evaluator.js'
 import {
   assessOverall,
@@ -86,7 +95,20 @@ const obligationKpis = collectObligations(repoRoot, { base })
 console.error('[collect] temporal governance...')
 const temporalKpis = collectFromTemporalGovernance(repoRoot)
 
-const allKpis = [...snapshotKpis, ...guardKpis, ...docKpis, ...bundleKpis, ...ciTimingKpis, ...obligationKpis, ...temporalKpis]
+console.error('[collect] project checklists...')
+const projectChecklistResults = collectProjectChecklists(repoRoot)
+const projectKpis = collectFromProjectChecklists(repoRoot)
+
+const allKpis = [
+  ...snapshotKpis,
+  ...guardKpis,
+  ...docKpis,
+  ...bundleKpis,
+  ...ciTimingKpis,
+  ...obligationKpis,
+  ...temporalKpis,
+  ...projectKpis,
+]
 console.error(`[collect] done — ${allKpis.length} KPIs`)
 
 // ---------------------------------------------------------------------------
@@ -147,6 +169,13 @@ if (!isCheck) {
 
   const certPath = renderCertificate(certificateInput, repoRoot)
   console.error(`[render] Certificate → ${certPath}`)
+
+  // Project health (collector → snapshot → JSON / MD)
+  const projectSnapshot = buildProjectHealthSnapshot(projectChecklistResults)
+  const projectJsonPath = renderProjectHealthJson(projectSnapshot, repoRoot)
+  console.error(`[render] Project Health JSON → ${projectJsonPath}`)
+  const projectMdPath = renderProjectHealthMd(projectSnapshot, repoRoot)
+  console.error(`[render] Project Health MD   → ${projectMdPath}`)
 
   // Generated section 更新（健康診断書のインライン版）
   const inlineContent = renderCertificateInline(certificateInput)

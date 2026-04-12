@@ -127,7 +127,8 @@
         { "path": "references/03-guides/wasm-candidate-eligibility.md", "label": "WASM候補適性判定基準" },
         { "path": "references/03-guides/data-load-idempotency-plan.md", "label": "データロード冪等化計画（idempotent load contract 正本 / Done 定義 / Phase 3.c 完了）" },
         { "path": "references/03-guides/data-load-idempotency-handoff.md", "label": "idempotent load contract 引き継ぎ書（要約 — plan のビュー）" },
-        { "path": "references/03-guides/read-path-duplicate-audit.md", "label": "Read-path 重複耐性 Spot Audit（FRAGILE/PARTIAL/SAFE 分類 / PR D・E で SAFE 化済み）" }
+        { "path": "references/03-guides/read-path-duplicate-audit.md", "label": "Read-path 重複耐性 Spot Audit（FRAGILE/PARTIAL/SAFE 分類 / PR D・E で SAFE 化済み）" },
+        { "path": "references/03-guides/project-checklist-governance.md", "label": "projects/ 運用ルール（AAG 5.1 — ドキュメントと課題の分離 / checklist 駆動の completion 管理 / large vs small 分離 / lifecycle / version sync registry）" }
       ]
     },
     {
@@ -141,6 +142,9 @@
         { "path": "references/02-status/generated/architecture-health.json", "label": "Health KPI 正本" },
         { "path": "references/02-status/generated/architecture-health.md", "label": "Health レポート" },
         { "path": "references/02-status/generated/architecture-health-certificate.md", "label": "健康診断書" },
+        { "path": "references/02-status/generated/project-health.json", "label": "Project Health KPI 正本（projects/<id>/checklist.md からの動的導出）" },
+        { "path": "references/02-status/generated/project-health.md", "label": "Project Health view（人間可読 — 全 project の derivedStatus + progress 一覧）" },
+        { "path": "references/02-status/open-issues.md", "label": "active project 索引（live task table は持たない）" },
         { "path": "references/02-status/promotion-readiness-piValue.md", "label": "PI値昇格準備度" },
         { "path": "references/02-status/promotion-readiness-customerGap.md", "label": "客数GAP昇格準備度" },
         { "path": "references/02-status/promotion-readiness-remainingBudgetRate.md", "label": "残予算率昇格準備度" },

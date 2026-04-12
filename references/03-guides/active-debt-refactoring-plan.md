@@ -1,4 +1,16 @@
-# Active-Debt リファクタリング計画（v3 — 残り 7 件）
+# Active-Debt リファクタリング計画 — 歴史的計画書
+
+> **役割: 歴史的計画書（Phase A〜G-4 の完了履歴 + Phase H〜J の設計記録）**
+>
+> 本文書は active-debt 削減の経緯と Phase H/I/J の設計詳細を記録する。
+> verification (2026-04-12) によると Phase H/I/J 候補 7 件のうち 5 件は
+> 既に features/ への移動と allowlist 卒業で削減済み。
+>
+> **live な作業項目は本文書に書かない。**
+> 残作業の正本は
+> [`projects/presentation-quality-hardening/checklist.md`](../../projects/presentation-quality-hardening/checklist.md)
+> を参照。WeatherPage の `useWeatherDaySelection` 抽出 (Phase H-1 相当) のみが
+> verified LIVE として残っている。
 
 ## 進捗
 

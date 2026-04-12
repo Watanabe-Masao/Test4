@@ -1,0 +1,12 @@
+{
+  "projectId": "presentation-quality-hardening",
+  "title": "Presentation 品質強化 — テスト・E2E・active-debt 解消",
+  "status": "active",
+  "projectRoot": "projects/presentation-quality-hardening",
+  "entrypoints": {
+    "aiContext": "projects/presentation-quality-hardening/AI_CONTEXT.md",
+    "handoff": "projects/presentation-quality-hardening/HANDOFF.md",
+    "plan": "projects/presentation-quality-hardening/plan.md",
+    "checklist": "projects/presentation-quality-hardening/checklist.md"
+  }
+}

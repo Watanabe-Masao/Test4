@@ -1,6 +1,15 @@
-# AAG 5.0.0 — 4層構造定義
+# AAG 5.1.0 — 4層構造定義
 
 > AAG を作り直すのではなく、品質OSとして骨格整理する。
+
+## バージョン履歴
+
+- **5.1.0** (2026-04-12): Project Lifecycle Management & Documentation/Task Separation。
+  Layer 4A System Operations に project-checklist-governance.md を追加し、
+  collector / format guard / consistency guard / generated project-health /
+  health hard gate 統合 / archive lifecycle / version sync registry を導入。
+  本体は変更せず、AAG framework のみ拡張。
+- **5.0.0** (2026-04): 4 層構造定義の確立、3 層分離完了、Phase C / Phase 6 完了
 
 ## 前提
 
@@ -8,6 +17,8 @@
 - 正本を増やさない
 - 導出可能なものは導出する
 - 思想 / 型 / 検査 / 運用を混ぜない
+- **AAG framework の拡張は本体（粗利管理ツール）コードに触れない** —
+  Constitution / Schema / Execution / Operations の 4 層内で完結する
 
 ## 4層定義
 
@@ -56,6 +67,7 @@
 - `guardTagRegistry.ts` — ガードタグ定義
 - `responsibilityTagRegistry.ts` — 責務タグ定義
 - `migrationTagRegistry.ts` — 移行タグ定義
+- `versionSyncRegistry.ts` — version triplet 等の同期ペア宣言（VersionSyncPair / VERSION_SYNC_REGISTRY）
 - `allowlists/types.ts` — AllowlistEntry 型定義
 - `docs/contracts/principles.json` — 原則メタデータ
 - `docs/contracts/doc-registry.json` — 文書レジストリ
@@ -113,8 +125,10 @@ Operations は **System Operations（AAG Core）** と **Project Operations（Ov
 - `references/03-guides/guard-consolidation-and-js-retirement.md` — JS 退役共通手順
 - `references/03-guides/architecture-rule-system.md` — ルール運用ガイド
 - `references/03-guides/allowlist-management.md` — 例外管理手順
+- `references/03-guides/project-checklist-governance.md` — projects/ 運用ルール（checklist 駆動の completion 管理）
 - `references/02-status/generated/` — 生成済みレポート（派生物）
 - `references/02-status/technical-debt-roadmap.md` — 技術的負債ロードマップ
+- `references/02-status/open-issues.md` — active project 索引
 
 #### 4B. Project Operations（案件ごとの実行管理）
 

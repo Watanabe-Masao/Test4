@@ -1,0 +1,13 @@
+{
+  "$comment": "新規 project の config テンプレート。projects/_template/ をコピーした後、<PROJECT-ID> と <TITLE> を実値に置き換える。AI が立ち上げる場合は references/03-guides/project-checklist-governance.md §10 を参照。",
+  "projectId": "<PROJECT-ID>",
+  "title": "<TITLE>",
+  "status": "active",
+  "projectRoot": "projects/<PROJECT-ID>",
+  "entrypoints": {
+    "aiContext": "projects/<PROJECT-ID>/AI_CONTEXT.md",
+    "handoff": "projects/<PROJECT-ID>/HANDOFF.md",
+    "plan": "projects/<PROJECT-ID>/plan.md",
+    "checklist": "projects/<PROJECT-ID>/checklist.md"
+  }
+}

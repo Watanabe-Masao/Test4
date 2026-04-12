@@ -19,6 +19,7 @@ import { collectFromDocs } from './collectors/doc-collector.js'
 import { collectFromBundle } from './collectors/bundle-collector.js'
 import { collectObligations } from './collectors/obligation-collector.js'
 import { collectFromTemporalGovernance } from './collectors/temporal-governance-collector.js'
+import { collectFromProjectChecklists } from './collectors/project-checklist-collector.js'
 import { evaluate } from './evaluator.js'
 import {
   assessOverall,
@@ -45,6 +46,7 @@ const docKpis = collectFromDocs(repoRoot)
 const bundleKpis = collectFromBundle(repoRoot)
 const obligationKpis = collectObligations(repoRoot)
 const temporalKpis = collectFromTemporalGovernance(repoRoot)
+const projectKpis = collectFromProjectChecklists(repoRoot)
 
 const allKpis = [
   ...snapshotKpis,
@@ -53,6 +55,7 @@ const allKpis = [
   ...bundleKpis,
   ...obligationKpis,
   ...temporalKpis,
+  ...projectKpis,
 ]
 console.log(`[docs:check] ${allKpis.length} KPIs collected`)
 

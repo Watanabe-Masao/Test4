@@ -16,7 +16,17 @@ Pure 計算責務再編（pure-calculation-reorg）
 - **AAG 3 層分離 完了**（境界ポリシー + 型分割 + スキーマ + allowlist 分離）
 - **Phase C 完了**: BaseRule を App Domain へ物理移動、direct import 禁止 guard、project resolver 一元化
 - **Phase 6 完了**: collector / resolver / merge 契約テスト + quote-agnostic 化
-- 次の重心: データロード冪等化（案件本体）→ Promote Ceremony（Phase 8）
+- **本 project の次の重心: Phase 8 Promote Ceremony**（Tier 1 Business 候補の current 昇格）
+
+## Scope の境界
+
+本 project は **pure 計算責務の再編** に閉じる。以下は本 project の scope ではない:
+
+- データロード冪等化 → [`projects/data-load-idempotency-hardening`](../data-load-idempotency-hardening/AI_CONTEXT.md)
+- AAG ルール分割 → [`projects/aag-rule-splitting-execution`](../aag-rule-splitting-execution/AI_CONTEXT.md)
+- Presentation 品質強化 → [`projects/presentation-quality-hardening`](../presentation-quality-hardening/AI_CONTEXT.md)
+
+これらは独立した live project であり、本 project の checklist には書かない。
 
 ## 3 層モデル — AI のナビゲーション
 
