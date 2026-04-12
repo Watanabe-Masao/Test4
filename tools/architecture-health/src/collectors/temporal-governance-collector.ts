@@ -64,9 +64,10 @@ export function collectFromTemporalGovernance(repoRoot: string): HealthKpi[] {
   });
 
   // review overdue（lastReviewedAt + cadence < today、Project Overlay 側正本）
+  // quote-agnostic: overlay が Prettier により single/double quote どちらになっても動く
   const reviewMatches = [
     ...overlayContent.matchAll(
-      /lastReviewedAt: '(\d{4}-\d{2}-\d{2})'[\s\S]*?reviewCadenceDays: (\d+)/g,
+      /lastReviewedAt:\s*['"](\d{4}-\d{2}-\d{2})['"][\s\S]*?reviewCadenceDays:\s*(\d+)/g,
     ),
   ];
   let overdueCount = 0;

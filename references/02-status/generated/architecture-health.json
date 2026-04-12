@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-12T03:01:57.977Z",
+  "timestamp": "2026-04-12T03:15:40.452Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -359,7 +359,7 @@
       "id": "guard.rules.fixNow.now",
       "label": "fixNow=now ルール数（即修正）",
       "category": "guard",
-      "value": 0,
+      "value": 65,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -370,7 +370,7 @@
       "id": "guard.rules.fixNow.debt",
       "label": "fixNow=debt ルール数（構造負債）",
       "category": "guard",
-      "value": 0,
+      "value": 54,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -381,7 +381,7 @@
       "id": "guard.rules.fixNow.review",
       "label": "fixNow=review ルール数（観測）",
       "category": "guard",
-      "value": 0,
+      "value": 21,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
