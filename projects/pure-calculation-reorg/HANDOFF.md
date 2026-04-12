@@ -141,8 +141,8 @@ Phase 6 結果:
 ### 次のアクション
 
 > **本 project の次のアクションは Phase 8 (Promote Ceremony)。**
-> データロード冪等化は別 project に分離済み:
-> [`projects/data-load-idempotency-hardening`](../data-load-idempotency-hardening/AI_CONTEXT.md)。
+> データロード冪等化は別 project に分離し 2026-04-12 に archive 済み:
+> [`projects/completed/data-load-idempotency-hardening`](../completed/data-load-idempotency-hardening/AI_CONTEXT.md)。
 > 本 project と data-load-idempotency-hardening は scope が異なるため、
 > 同じ checklist に混在させない（1 project = 1 一貫した task scope の原則）。
 

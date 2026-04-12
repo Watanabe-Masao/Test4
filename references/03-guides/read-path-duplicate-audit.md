@@ -272,8 +272,18 @@ PR D / E (2026-04-12) で FRAGILE 1, 2, 6 は pre-aggregate refactor 済み
 （FRAGILE → SAFE 昇格）。残る FRAGILE 3, 4, 5 は本 audit 上「JSDoc only mitigation」
 分類で refactor 計画なし。
 
-> **残作業の正本は本文書ではない:**
-> 残作業の live task は
-> [`projects/data-load-idempotency-hardening/checklist.md`](../../projects/data-load-idempotency-hardening/checklist.md)
-> を参照すること。本文書は FRAGILE / PARTIAL / SAFE 分類の根拠資料であり、
-> live task table は持たない。
+**Phase F 確定（2026-04-12）**:
+FRAGILE 3/4/5 (`querySpecialSalesDaily` / `queryTransfersDaily` / `querySalesTotal`) は
+`readPathDuplicateResistance.test.ts` の `.fails` ロックで負債を可視化したまま、
+永続的に「JSDoc only mitigation」分類に据え置くことを正式決定とする。
+判断根拠は (1) idempotent load contract Phase 0-3 が main 上で機械的に冪等性を
+保証していること、(2) `.fails` regression test が load 契約違反を structural に
+検知する defense net として機能していること、(3) pre-aggregate refactor は
+いつでも「`.fails` を外す + subquery wrap」だけで green 化できる可逆な判断で
+あること（PR D/E と同パターン、`projects/completed/data-load-idempotency-hardening/HANDOFF.md` §3.3 参照）。
+この決定は `projects/completed/data-load-idempotency-hardening` の Phase F によって
+記録され、project は本決定と同時に archive された。
+
+> **本文書は FRAGILE / PARTIAL / SAFE 分類の根拠資料であり live task table を持たない。**
+> 対応 project は archive 済み:
+> [`projects/completed/data-load-idempotency-hardening/`](../../projects/completed/data-load-idempotency-hardening/)

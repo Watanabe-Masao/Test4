@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-12T17:24:40.557Z",
+  "timestamp": "2026-04-12T21:25:09.327Z",
   "summary": {
-    "active": 7,
-    "archived": 1,
-    "inProgress": 6,
+    "active": 6,
+    "archived": 2,
+    "inProgress": 5,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
     "totalCheckboxes": 302,
-    "checkedCheckboxes": 191
+    "checkedCheckboxes": 195
   },
   "projects": [
     {
@@ -52,13 +52,13 @@
       "projectId": "data-load-idempotency-hardening",
       "title": "データロード冪等化 — 残存防御の固定化",
       "kind": "project",
-      "declaredStatus": "active",
-      "derivedStatus": "in_progress",
-      "checked": 17,
+      "declaredStatus": "archived",
+      "derivedStatus": "archived",
+      "checked": 21,
       "total": 21,
-      "progress": 0.81,
-      "entrypoint": "projects/data-load-idempotency-hardening/AI_CONTEXT.md",
-      "checklistPath": "projects/data-load-idempotency-hardening/checklist.md"
+      "progress": 1,
+      "entrypoint": "projects/completed/data-load-idempotency-hardening/AI_CONTEXT.md",
+      "checklistPath": "projects/completed/data-load-idempotency-hardening/checklist.md"
     },
     {
       "projectId": "docs-and-governance-cohesion",

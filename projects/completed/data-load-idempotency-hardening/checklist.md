@@ -28,7 +28,7 @@
 
 ## Phase F: 恒久方針の最終確認
 
-* [ ] FRAGILE 3/4/5 の恒久方針を「`.fails` ロックのまま JSDoc only mitigation」に確定する
-* [ ] 上記方針を `references/03-guides/read-path-duplicate-audit.md` の §推奨事項に転記する
-* [ ] 旧 `data-load-idempotency-handoff.md` を「歴史的 handoff」に縮退し本 project の HANDOFF.md に正本を移す
-* [ ] 旧 `data-load-idempotency-plan.md` から live task table を削除し背景文書化する
+* [x] FRAGILE 3/4/5 の恒久方針を「`.fails` ロックのまま JSDoc only mitigation」に確定する
+* [x] 上記方針を `references/03-guides/read-path-duplicate-audit.md` の §推奨事項に転記する
+* [x] 旧 `data-load-idempotency-handoff.md` を「歴史的 handoff」に縮退し本 project の HANDOFF.md に正本を移す
+* [x] 旧 `data-load-idempotency-plan.md` から live task table を削除し背景文書化する
