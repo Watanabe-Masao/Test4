@@ -527,11 +527,12 @@ describe('loadMonth idempotency contract', () => {
   })
 })
 
-// ── Latent bug: 前年 loadMonth の year-shift purge ──
-// Phase 3.b で発見、Phase 3.a で loadMonth 側を修正する予定。
+// ── 前年 loadMonth の purge 契約 ──
+// Phase 3.a で `purgeLoadTarget` が `deletePrevYearRowsAt` を呼ぶよう修正され、
+// year-shift せずに (year, month) の前年スコープを直接削除するようになった。
 // 関連: references/03-guides/data-load-idempotency-plan.md
 
-describe('loadMonth prev-year purge (latent bug — Phase 3.a で修正)', () => {
+describe('loadMonth prev-year purge', () => {
   let conn: AsyncDuckDBConnection
   let db: AsyncDuckDB
   let data: MonthlyData
@@ -543,38 +544,21 @@ describe('loadMonth prev-year purge (latent bug — Phase 3.a で修正)', () =>
     data = createEmptyMonthlyData({ year: 2024, month: 4, importedAt: '' })
   })
 
-  /**
-   * 期待挙動: loadMonth(..., 2024, 4, isPrevYear=true) は
-   * (2024, 4) の前年スコープ（is_prev_year=true 行）を purge すべき。
-   *
-   * 現状挙動: loadMonth 内部の purgeLoadTarget が
-   * `deletePrevYearMonth(2024, 4)` を呼ぶが、deletePrevYearMonth は
-   * 内部で `prevYear = year - 1 = 2023` にシフトして
-   * `DELETE WHERE year = 2023 AND month = 4 AND is_prev_year = true`
-   * を発行してしまう。year が 1 ずれているため本来の (2024, 4) 前年行は
-   * purge されず、再ロードで重複が蓄積する。
-   *
-   * このテストは `.fails` で現状をロックし、Phase 3.a で purgeLoadTarget
-   * を修正したら `.fails` を外して通常 `it` に戻す運用とする。
-   * `.fails` を外した瞬間に「修正が正しく効いている」ことがテストで
-   * 保証される。
-   */
-  it.fails(
-    '[Phase 3.a で修正予定] isPrevYear=true で (year, month) 自身の前年行を purge する',
-    async () => {
-      await loadMonth(conn, db, data, 2024, 4, true)
-      const queryMock = vi.mocked(conn.query)
-      const calls = queryMock.mock.calls.map((c) => c[0] as string)
-      const classifiedDelete = calls.find(
-        (sql) =>
-          sql.trimStart().startsWith('DELETE FROM') &&
-          sql.includes('classified_sales') &&
-          sql.includes('is_prev_year'),
-      )
-      expect(classifiedDelete).toBeDefined()
-      // 期待: year-shift なしで (2024, 4) を purge する
-      expect(classifiedDelete).toContain('year = 2024')
-      expect(classifiedDelete).toContain('month = 4')
-    },
-  )
+  it('isPrevYear=true で (year, month) 自身の前年行を purge する（year-shift しない）', async () => {
+    await loadMonth(conn, db, data, 2024, 4, true)
+    const queryMock = vi.mocked(conn.query)
+    const calls = queryMock.mock.calls.map((c) => c[0] as string)
+    const classifiedDelete = calls.find(
+      (sql) =>
+        sql.trimStart().startsWith('DELETE FROM') &&
+        sql.includes('classified_sales') &&
+        sql.includes('is_prev_year'),
+    )
+    expect(classifiedDelete).toBeDefined()
+    // year-shift なしで (2024, 4) を purge する
+    expect(classifiedDelete).toContain('year = 2024')
+    expect(classifiedDelete).toContain('month = 4')
+    // 誤った year-1 シフトに退行していないことも明示的に確認
+    expect(classifiedDelete).not.toContain('year = 2023')
+  })
 })

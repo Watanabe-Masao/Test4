@@ -133,54 +133,57 @@ MAX(customers) AS customers
 
 ## 7. 現状（2026-04-12 追記）
 
-Phase 1（loadMonth の冪等化）と Phase 2（呼び出し側 cleanup）は landed 済み。
+Phase 1（契約明文化）/ Phase 2（呼び出し側 cleanup）/ Phase 3.b（冪等性テスト）/
+Phase 3.a（前年 purge 修正）が landed 済み。本課題は主要スコープにおいて
+クローズ。
 
 **Phase 1（#993）:**
 
 - `dataLoader.ts::loadMonth` の JSDoc を「追記モード」から **replace セマンティクス** に
-  書き換えた。関数内部で `deleteMonth` / `deletePrevYearMonth` を先行実行し、
-  INSERT 途中の失敗時も同じ削除を再実行する cleanup 経路を持つ。
-  内部重複は `purgeLoadTarget` helper に一本化した。
-- `useDuckDB.ts` 冒頭の責務コメントを「差分: deleteMonth → loadMonth → materializeSummary」
-  から「loadMonth は replace セマンティクスで対象月を差し替える」に更新した。
+  書き換えた。関数内部で対象スコープを先行削除し、INSERT 途中の失敗時も同じ削除を
+  再実行する cleanup 経路を持つ。内部重複は `purgeLoadTarget` helper に一本化した。
+- `useDuckDB.ts` 冒頭の責務コメントを現実（loadMonth が replace 正本）に合わせた。
 
 **Phase 2（#994）:**
 
 - `useDuckDB.ts` の変更月再ロード経路から caller-side `deleteMonth` を除去した。
-  当年スコープの削除は `loadMonth` 内部の `purgeLoadTarget` が正しく担う。
 - `deletePolicy.ts` / `workerHandlers.ts::executeDeleteMonth` /
   `duckdbWorkerClient.ts::deleteMonth` の JSDoc を explicit remove として整理。
+- （初版で `deletePrevYearMonth` まで消してしまい前年 purge が効かなくなる
+  回帰があったため、同 PR の fix commit で caller 側に戻し、原因である
+  `purgeLoadTarget` の year-shift を Phase 3.a で修正する方針を確定した）
 
-**Phase 2 で保留になっている latent bug:**
+**Phase 3.b（#995）:**
 
-`loadMonth(..., isPrevYear=true)` の内部 purge は現状正しくない。
-`purgeLoadTarget` が `isPrevYear=true` のとき `deletePrevYearMonth(year, month)`
-を呼ぶが、この関数は内部で `prevYear = year - 1` して (year-1, month) を消すため、
-year に既に前年（例: 2024）が渡されていると `2023` にシフトして削除してしまい、
-本来の (2024, 4) の前年スコープ行は purge されない。
+- `dataLoaderPureFunctions.test.ts` に冪等性契約のテスト 4 本を追加。
+  当年 head purge / 当年 2 回ロード / 失敗時 cleanup / 前年 purge の
+  year-shift latent bug を固定した。前年 purge のテストは `.fails` で
+  expected failure として記録し、Phase 3.a で外す運用とした。
 
-この bug を踏まないよう、`useDuckDB.ts` の変更月再ロード経路では caller 側で
-`deletePrevYearMonth(currentYear, month)` を呼び続ける（current year 文脈なら
-正しく (currentYear-1, month) が消える）。これは Phase 2 の本来意図に対する
-ワークアラウンドで、Phase 3 以降で loadMonth 側を修正する前提でコメントを残してある。
+**Phase 3.a:**
 
-これを踏まえた API 境界の現状:
+- `deletePolicy.ts` に `deletePrevYearRowsAt(year, month)` を新規導入。
+  year-shift せずに `(year, month)` の前年スコープ（`is_prev_year=true` 行と
+  `PREV_YEAR_INSERT_TABLES` の行）を直接削除する。
+- `deletePrevYearMonth(year, month)` を `deletePrevYearRowsAt(year-1, month)` の
+  thin wrapper に refactor。当年文脈の explicit remove という既存の意味論を
+  保持しつつ、前年ロードの purge と表面実装を共有する。
+- `dataLoader.ts::purgeLoadTarget` を `deletePrevYearRowsAt` 経由に変更し、
+  `isPrevYear=true` 時の year-shift を解消。
+- `useDuckDB.ts` の Phase 2 fix commit で残していた caller-side workaround
+  `deletePrevYearMonth(state.conn, year, month)` を除去。当月再ロード経路は
+  `loadMonth` のみで成立する状態になった。
+- `dataLoaderPureFunctions.test.ts` の `.fails` を通常 `it` に戻し、
+  year-shift への退行を明示的に検査する assertion（`year = 2023` を含まない）
+  を追加。
 
-- **当年を差し替えたい** → `loadMonth(..., isPrevYear=false)`（完全に caller-free）
-- **前年を差し替えたい** → `loadMonth(..., isPrevYear=true)` + 事前に caller 側で
-  `deletePrevYearMonth(currentYear, month)` を呼ぶ（ワークアラウンド）
-- **消したい** → `deleteMonth(...)` / `deletePrevYearMonth(...)`
+これにより API 境界が最終形に収束した:
+
+- **差し替えたい** → `loadMonth(...)`（当年・前年とも caller-free）
+- **消したい** → `deleteMonth(...)` / `deletePrevYearMonth(...)`（explicit remove）
 
 次に閉じる残タスク:
 
-1. **Phase 3.a（loadMonth の prev-year purge 修正）** — `purgeLoadTarget` が
-   `isPrevYear=true` のときに `(year, month)` の前年スコープを直接削除するよう
-   書き換える（`year-1` へのシフトをしない）。修正後は useDuckDB の
-   ワークアラウンド呼び出しも除去できる。
-2. **Phase 3.b（テストで固定）** — 同一月 2 回ロード・前年 2 回ロード・
-   `store_day_summary.customers` 安定・失敗時 cleanup の 4 テストを追加する。
-   特に「前年の 2 回ロードで行数が増えない」を先に固定してから Phase 3.a
-   に進むと、修正が正しいことをテストが保証する。
-3. 他クエリの spot audit — `classified_sales` / `special_sales` / `transfers`
-   を SUM している read-path クエリに重複耐性の暗黙前提がないかを洗い出す。
-   refactor は別スコープ。
+1. read-path クエリの spot audit — `classified_sales` / `special_sales` /
+   `transfers` を SUM している read-path クエリに重複耐性の暗黙前提がないか
+   を洗い出す。refactor は別スコープ。
