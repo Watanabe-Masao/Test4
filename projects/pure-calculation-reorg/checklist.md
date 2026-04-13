@@ -23,10 +23,6 @@
 * [x] `AR-TERM-AUTHORITATIVE-STANDALONE` を即時導入した
 * [x] `npm run test:guards` で Phase 0 guard が通ることを確認した
 
-**やってはいけないこと**
-
-* [ ] `authoritative` を単独語のまま新規追加していない
-
 ---
 
 ## Phase 1: 意味分類 inventory
@@ -40,11 +36,6 @@
 * [x] WASM 7 modules の意味再分類を反映した
 * [x] non-target 一覧を固定した
 * [x] `review-needed` 項目に理由を全件書いた
-
-**やってはいけないこと**
-
-* [ ] pure だからという理由だけで business / analytic を決めていない
-* [ ] Rust にあることを意味分類の根拠にしていない
 
 ---
 
@@ -64,11 +55,6 @@
 * [x] Phase 2 guard 5件を前倒し導入した
 * [x] 既存 guard テスト互換性を壊していないことを確認した (`npm run test:guards`)
 
-**やってはいけないこと**
-
-* [ ] business / analytic / candidate を別の編集正本に分割していない
-* [ ] derived view を手編集していない
-
 ---
 
 ## Phase 3: 契約固定 + bridge 境界
@@ -85,11 +71,6 @@
 * [x] Phase 3 guard 6件を前倒し導入した
 * [x] `factorDecomposition` を business / analytic_decomposition として契約に反映した
 
-**やってはいけないこと**
-
-* [ ] 契約未固定のまま candidate 化を進めていない
-* [ ] UI / VM / SQL で rate を再計算していない
-
 ---
 
 ## Phase 4: 既存 Rust/current 群の意味再分類・保守対象化
@@ -102,11 +83,6 @@
 * [x] current/business と current/analytics の運用 view を分けた
 * [x] current に candidate 状態遷移を持たせないことを guard 化した
 * [x] current 群の保守ポリシーを作成した (`references/03-guides/current-maintenance-policy.md`)
-
-**やってはいけないこと**
-
-* [ ] current 群を staging area として使っていない
-* [ ] current に `dual-run` や `promotion-ready` を付けていない
 
 ---
 
@@ -122,11 +98,6 @@
 * [x] rollback を実装した
 * [x] promotion-ready 判定表を作成した
 * [x] Phase 5 guard を導入した
-
-**やってはいけないこと**
-
-* [x] candidate/business を current/business に直接混ぜていない
-* [x] analytics bridge に接続していない
 
 ---
 
@@ -144,11 +115,6 @@
 * [x] promotion-ready 判定表を作成した
 * [x] Phase 6 guard を導入した
 
-**やってはいけないこと**
-
-* [x] `factorDecomposition` を analytic 候補へ移していない
-* [x] business bridge に接続していない
-
 ---
 
 ## Phase 7: guard 統合整理 + JS 正本縮退方針
@@ -160,11 +126,6 @@
 * [x] JS 撤去条件を定義した
 * [x] master / derived view 整合性 guard を確認した
 * [x] rule 追加条件 / 不要化条件を定義した
-
-**やってはいけないこと**
-
-* [ ] Phase 7 を guard 導入の開始点にしていない
-* [ ] JS を一気に削除していない
 
 ---
 
@@ -181,11 +142,6 @@
 * [ ] promote 実施手順を実行した
 * [ ] promote 失敗時の巻き戻し手順を準備した
 
-**やってはいけないこと**
-
-* [ ] 実装AIが自己承認していない
-* [ ] promotion-ready だけで current 扱いにしていない
-
 ---
 
 ## Phase 9: JS retired-js 化
@@ -196,10 +152,6 @@
 * [ ] 旧 JS path 禁止 guard を入れた
 * [ ] direct import 残存を除去した
 * [ ] JS reference を compare-reference → fallback-only → retired-js の順に下げた
-
-**やってはいけないこと**
-
-* [ ] repo 全体一括削除をしていない
 
 ---
 
@@ -213,10 +165,6 @@
 * [ ] 必要範囲だけ物理移動した
 * [ ] 必要なら Cargo workspace 再構成条件を満たしていることを確認した
 
-**やってはいけないこと**
-
-* [ ] 意味分類が揺れている状態で大規模リネームしていない
-
 ---
 
 ## Phase 11: 意味拡張 + UI 進化
@@ -227,23 +175,3 @@
 * [ ] JS 正本縮退が主要対象で完了している
 * [ ] 新しい KPI / 新しい説明指標 / 新しい業務意味の導入仕様を作成した
 * [ ] UI 導入前に contract / registry / AAG への接続を確認した
-
----
-
-## 常時チェック
-
-* [ ] `npm run lint`
-* [ ] `npm run format:check`
-* [ ] `npm run build`
-* [ ] `npm run test:guards`
-* [ ] `npm test`
-* [ ] `npm run docs:generate`
-
----
-
-## 4つだけ毎回見る最重要項目
-
-* [ ] `semanticClass` が正しいか
-* [ ] current と candidate が混ざっていないか
-* [ ] bridge を bypass していないか
-* [ ] JS に新しい正本ロジックを足していないか

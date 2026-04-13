@@ -1,0 +1,12 @@
+{
+  "projectId": "aag-collector-purification",
+  "title": "AAG collector 純化 — 規約と実装の対称性回復",
+  "status": "archived",
+  "projectRoot": "projects/completed/aag-collector-purification",
+  "entrypoints": {
+    "aiContext": "projects/completed/aag-collector-purification/AI_CONTEXT.md",
+    "handoff": "projects/completed/aag-collector-purification/HANDOFF.md",
+    "plan": "projects/completed/aag-collector-purification/plan.md",
+    "checklist": "projects/completed/aag-collector-purification/checklist.md"
+  }
+}

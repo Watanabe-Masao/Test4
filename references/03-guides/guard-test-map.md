@@ -19,6 +19,7 @@
 | `app/src/domain/calculations/__tests__/formulaRegistry.test.ts` | invariant-guardian | — | 計算式レジストリの整合性 |
 | `app/src/test/documentConsistency.test.ts` | documentation-steward | 12件 | 不変条件カタログ↔ガードテスト相互参照、エンジン責務↔実コード、CLAUDE.md 参照パス |
 | `app/src/test/guards/projectCompletionConsistencyGuard.test.ts` | documentation-steward | 7件 | C1-C4: project lifecycle (completion→archive, CURRENT_PROJECT.md 妥当性, dead-link) / L1-L3: cross-reference (stale archived path, broken subpath, wrong archive prefix) |
+| `app/src/test/guards/checklistGovernanceSymmetryGuard.test.ts` | documentation-steward | 2件 | S1/S2/S3: 全 live project の checklist.md に governance §3 禁止見出し（やってはいけないこと/常時チェック/最重要項目）が存在しないことを検証。規約と collector 実装の対称性を保つ最終防波堤 |
 | `app/src/test/guards/projectDocStructureGuard.test.ts` | documentation-steward | 4件 | D1: 必須 4-doc + config 構造 / D2-D3: AI_CONTEXT.md / HANDOFF.md の役割 banner / D4: AI_CONTEXT.md volatile セクション禁止 (Current Status / Next Actions 等は HANDOFF 責務) |
 | `app/src/test/guards/guardTestMapConsistencyGuard.test.ts` | documentation-steward | 1件 | 本ファイル自身の drift 検出（全 guard ファイルが guard-test-map.md に登録されているかを ratchet-down で監視） |
 | `app/src/test/guards/codePatternGuard.test.ts` | architecture | 8件 | R1-R3,R7,R10: 純粋モジュール、@internal禁止、store算術禁止、副作用チェーン |

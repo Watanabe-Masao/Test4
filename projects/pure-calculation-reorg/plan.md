@@ -33,6 +33,39 @@ current を staging area にしない。candidate を current 資産として扱
 
 ---
 
+## Phase 別禁止事項テーブル
+
+各 Phase で発生しがちな逸脱を一覧化する。`checklist.md` は **達成条件** のみを
+扱い、禁止事項はここで一元管理する（governance §3 準拠）。
+
+| Phase | 禁止事項 |
+|---|---|
+| 0 | `authoritative` を単独語のまま新規追加する |
+| 1 | pure だからという理由だけで business / analytic を決める |
+| 1 | Rust にあることを意味分類の根拠にする |
+| 2 | business / analytic / candidate を別の編集正本に分割する |
+| 2 | derived view を手編集する |
+| 3 | 契約未固定のまま candidate 化を進める |
+| 3 | UI / VM / SQL で rate を再計算する |
+| 4 | current 群を staging area として使う |
+| 4 | current に `dual-run` や `promotion-ready` を付ける |
+| 5 | candidate/business を current/business に直接混ぜる |
+| 5 | candidate/business を analytics bridge に接続する |
+| 6 | `factorDecomposition` を analytic 候補へ移す |
+| 6 | candidate/analytics を business bridge に接続する |
+| 7 | Phase 7 を guard 導入の開始点にする（前倒し方式が原則） |
+| 7 | JS を一気に削除する |
+| 8 | 実装 AI が自己承認する |
+| 8 | promotion-ready だけで current 扱いにする |
+| 9 | repo 全体一括削除を行う |
+| 10 | 意味分類が揺れている状態で大規模リネームを行う |
+
+※ 本テーブルは元々 `checklist.md` の各 Phase 内「やってはいけないこと」セクションに
+置かれていたが、governance §3「checklist は required checkbox のみ」に準拠するため
+2026-04-13 に本ファイルへ移動した（project: aag-collector-purification）。
+
+---
+
 ## Context
 
 粗利管理ツール（shiire-arari）の `domain/calculations/` に存在する pure 計算群を、
@@ -880,6 +913,19 @@ Phase 11 (意味拡張 + UI 進化)      ← Phase 9-10 安定後
 5. 「今の意味を守る」体制が先に完成している
 
 **対象**: 新しい説明指標 / 新しい KPI / 新しい業務意味 / UI 上の新しい解釈導入
+
+#### Phase 11 完了後に毎回確認する 4 項目
+
+本計画を運用する AI / レビュアーは、変更のたびに以下 4 点を必ず確認する。
+これは「見落としやすい軸」を 4 つに絞った最終防波堤。
+
+1. `semanticClass` が正しいか（business / analytic / candidate の誤分類がないか）
+2. current と candidate が混ざっていないか（同一 registry view / 同一 KPI）
+3. bridge を bypass していないか（direct import 違反）
+4. JS に新しい正本ロジックを足していないか（candidate を JS 側で実装していないか）
+
+※ 元々 `checklist.md` 末尾の「4 つだけ毎回見る最重要項目」として管理していたが、
+governance §3 準拠のため 2026-04-13 に本ファイルへ移動した。
 
 ### 常時運用: AAG 部分更新
 

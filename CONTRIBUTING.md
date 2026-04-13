@@ -136,12 +136,20 @@ PR マージに必要なゲート:
 
 ### 2. PR 作成前のローカル確認
 
+開発フローで常時実行する 6 コマンド（全て通過することを確認してから PR を作成する）:
+
 ```bash
 cd app
-npm run lint && npm run format:check && npm run build && npm test
+npm run lint           # ESLint（エラー 0 必須）
+npm run format:check   # Prettier 準拠
+npm run build          # tsc -b + vite build（strict mode）
+npm run test:guards    # 構造制約ガード（~9 秒）
+npm test               # vitest run（全テスト）
+npm run docs:generate  # architecture-health 再生成 + generated section 更新
 ```
 
-全て通過することを確認してから PR を作成してください。
+計算ロジックや guard/allowlist を変更した場合、`npm run docs:generate` を忘れると
+pre-commit hook（`tools/git-hooks/pre-commit`）で未実行を検出してブロックされる。
 
 ### 3. PR の説明
 

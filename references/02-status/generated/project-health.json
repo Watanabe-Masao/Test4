@@ -1,28 +1,28 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-12T22:24:11.857Z",
+  "timestamp": "2026-04-13T01:46:03.714Z",
   "summary": {
-    "active": 6,
-    "archived": 2,
-    "inProgress": 5,
+    "active": 5,
+    "archived": 3,
+    "inProgress": 4,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 302,
-    "checkedCheckboxes": 195
+    "totalCheckboxes": 283,
+    "checkedCheckboxes": 219
   },
   "projects": [
     {
       "projectId": "aag-collector-purification",
       "title": "AAG collector 純化 — 規約と実装の対称性回復",
       "kind": "project",
-      "declaredStatus": "active",
-      "derivedStatus": "in_progress",
-      "checked": 0,
+      "declaredStatus": "archived",
+      "derivedStatus": "archived",
+      "checked": 28,
       "total": 28,
-      "progress": 0,
-      "entrypoint": "projects/aag-collector-purification/AI_CONTEXT.md",
-      "checklistPath": "projects/aag-collector-purification/checklist.md"
+      "progress": 1,
+      "entrypoint": "projects/completed/aag-collector-purification/AI_CONTEXT.md",
+      "checklistPath": "projects/completed/aag-collector-purification/checklist.md"
     },
     {
       "projectId": "aag-rule-splitting-execution",
@@ -90,9 +90,9 @@
       "kind": "project",
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
-      "checked": 88,
-      "total": 132,
-      "progress": 0.667,
+      "checked": 84,
+      "total": 113,
+      "progress": 0.743,
       "entrypoint": "projects/pure-calculation-reorg/AI_CONTEXT.md",
       "checklistPath": "projects/pure-calculation-reorg/checklist.md"
     },

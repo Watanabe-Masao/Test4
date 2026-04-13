@@ -18,9 +18,9 @@
  * - `_template` は placeholder のため checklist が空でも OK
  * - `completed` は archive 済みなので checklist の編集を期待しない
  *
- * 既存 `projects/pure-calculation-reorg/checklist.md` は本 guard 制定前から
- * 存在し「やってはいけないこと」が混在している。互換のため EXEMPT に登録し、
- * ratchet-down で段階的に解消する。
+ * 2026-04-13: `pure-calculation-reorg` の checklist を純化（やってはいけないこと
+ * / 常時チェック / 最重要項目 を plan.md 等に移動）した結果、FORMAT_EXEMPT は
+ * 空集合になった。project: aag-collector-purification で実施。
  *
  * @see references/03-guides/project-checklist-governance.md §3 §10
  */
@@ -31,8 +31,14 @@ import * as path from 'path'
 const PROJECT_ROOT = path.resolve(__dirname, '../../../..')
 const PROJECTS_DIR = path.join(PROJECT_ROOT, 'projects')
 
-/** ratchet-down EXEMPT — 本 guard 制定前から存在する project の互換例外 */
-const FORMAT_EXEMPT_PROJECT_IDS: ReadonlySet<string> = new Set(['pure-calculation-reorg'])
+/**
+ * ratchet-down EXEMPT — 本 guard 制定前から存在する project の互換例外。
+ *
+ * 2026-04-13: 全 project が規格適合したため空集合に設定。増やしてはいけない
+ * （ratchet 方向: 0 のみ）。新規 project は `projects/_template/` を正本として
+ * 作成すること。
+ */
+const FORMAT_EXEMPT_PROJECT_IDS: ReadonlySet<string> = new Set<string>()
 
 interface ProjectJson {
   readonly projectId: string
@@ -194,6 +200,6 @@ describe('Checklist Format Guard', () => {
   })
 
   it('FORMAT_EXEMPT 互換例外は ratchet-down のため減らすこと（増やしてはいけない）', () => {
-    expect(FORMAT_EXEMPT_PROJECT_IDS.size).toBeLessThanOrEqual(1)
+    expect(FORMAT_EXEMPT_PROJECT_IDS.size).toBeLessThanOrEqual(0)
   })
 })

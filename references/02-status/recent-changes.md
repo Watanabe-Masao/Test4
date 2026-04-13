@@ -1,10 +1,48 @@
 # 直近の主要変更（#673-#848+）
 
-> 更新日: 2026-04-12
+> 更新日: 2026-04-13
 >
 > **役割分担:** 本ドキュメントは内部向けの詳細変更記録。
 > リリース単位の要約は `CHANGELOG.md` を参照。
 > 同じ内容を二重管理しないこと。
+
+## v1.10.0 — AAG 5.2 Collector-Governance Symmetry（2026-04-13）
+
+### 概要
+
+AAG 5.1 で確立した「checklist driven completion 管理」の**規約と実装の非対称**
+を解消する。collector (`project-checklist-collector.ts::countCheckboxes`) が
+「やってはいけないこと」「常時チェック」「最重要項目」の見出し配下を正規表現で
+除外していた一方、governance §3 はこれらの項目を checklist に書かないと定めて
+いた。つまり collector は「書かれることを前提に除外する」設計で、規約と実装が
+逆向きだった。project: `aag-collector-purification` として独立プランで実行。
+
+### 主な成果物
+
+- **pure-calculation-reorg/checklist.md の純化** — Phase 内の「やってはいけないこと」
+  19 件、ファイル末尾の「常時チェック」6 件、「4つだけ毎回見る最重要項目」4 件を
+  `plan.md` の新設「Phase 別禁止事項テーブル」および Phase 11 セクション、
+  `CONTRIBUTING.md` の「PR 作成前のローカル確認」にそれぞれ移動。Phase 0-11 の
+  達成条件 checkbox 状態 (`[x]`/`[ ]`) は一切変更していない
+- **checklistFormatGuard の strict 化** — `FORMAT_EXEMPT_PROJECT_IDS` を空集合に
+  設定。F3/F4/F5 を全 live project に適用
+- **project-checklist-collector の heading 抑制削除** — `countCheckboxes` から
+  見出し正規表現マッチによる除外ロジックを削除。「format guard が通る範囲 =
+  collector が集計する範囲」という対称性を回復
+- **checklistGovernanceSymmetryGuard 新設** — S1/S2/S3 で禁止見出しそのものの
+  存在を検出。規約と実装の非対称が再発したら CI で即発火する最終防波堤
+- **governance.md §3/§8 更新** — 機械検証の 2 層 (format guard + symmetry guard)
+  を明記、§8 関連実装表に symmetry guard を追加
+- **self-host 動作確認**: aag-collector-purification 自身が本 project の
+  完了 → archive 動線を実行した 3 番目の利用者となる
+
+### 技術的インパクト
+
+- AAG の「project-health の数字を、そのまま信用してよい」状態が達成された
+- 規約と implementation の対称性が test で固定された (再発防止)
+- pure-calculation-reorg の progress 表記が `88/132` → `84/113` に変化
+  (checked は prohibition-form 4 件の削減を反映、total は 19 件の prohibition
+  削減を反映)。Phase 0-11 の達成状況自体は不変
 
 ## v1.9.0 — AAG 5.1 Project Lifecycle Management & Documentation/Task Separation（2026-04-12）
 
