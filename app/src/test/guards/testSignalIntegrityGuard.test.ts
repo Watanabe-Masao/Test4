@@ -24,7 +24,7 @@
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
-import { SRC_DIR, collectTestFiles, rel } from '../guardTestHelpers'
+import { SRC_DIR, collectTsFiles, collectTestFiles, rel } from '../guardTestHelpers'
 import { getRuleById, formatViolationMessage } from '../architectureRules'
 import { g3SuppressAllowlist } from '../allowlists'
 
@@ -174,6 +174,43 @@ describe('AR-G3-SUPPRESS-RATIONALE: allowlist 登録ファイルの構造化 rat
         '  // reason: <なぜ抑制が必要か>\n' +
         '  // removalCondition: <いつ削除可能になるか>\n' +
         '構造化フォーマットは references/01-principles/test-signal-integrity.md EX-03 を参照',
+    ).toEqual([])
+  })
+})
+
+// ─── TSIG-COMP-03: unused suppress escape (multi-underscore) ──────────────
+//
+// 上位原則: references/01-principles/test-signal-integrity.md
+//
+// 関数引数で _ プレフィックスを 2 つ以上連続持つパターンを禁止する。
+// 単独の _xxx は callback signature 互換性で必要なケースが多いので除外。
+// 2 つ以上は「責務整理 or signature 削減」で解決すべき候補。
+
+describe('TSIG-COMP-03: unused suppress escape (multi-underscore)', () => {
+  it('関数引数に _ プレフィックスを 2 つ以上連続持つパターンがない', () => {
+    const violations: string[] = []
+
+    // 2 つ以上の連続 _ プレフィックス引数を持つ pattern
+    const multiUnderscorePattern = /\(\s*_[A-Za-z][A-Za-z0-9_]*\s*[:,][^)]*?,\s*_[A-Za-z]/
+
+    const dirs = ['domain', 'application', 'infrastructure', 'presentation']
+    for (const dirName of dirs) {
+      const dir = path.join(SRC_DIR, dirName)
+      const files = collectTsFiles(dir)
+      for (const file of files) {
+        const content = fs.readFileSync(file, 'utf-8')
+        const lines = content.split('\n')
+        for (let i = 0; i < lines.length; i++) {
+          if (multiUnderscorePattern.test(lines[i])) {
+            violations.push(`${rel(file)}:${i + 1}: ${lines[i].trim().slice(0, 100)}`)
+          }
+        }
+      }
+    }
+
+    expect(
+      violations,
+      formatViolationMessage(getRuleById('AR-TSIG-COMP-03')!, violations),
     ).toEqual([])
   })
 })

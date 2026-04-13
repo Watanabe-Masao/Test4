@@ -558,4 +558,9 @@ export const GUARD_CATEGORY_MAP: Readonly<Record<string, GuardCategoryEntry>> = 
     layer: 'execution',
     note: 'merge-candidate: AR-G3-SUPPRESS の rationale enforcement 拡張 (TSIG-COMP-01/02 を統合実現)',
   },
+  'AR-TSIG-COMP-03': {
+    category: 'ratchet-legacy-control',
+    layer: 'execution',
+    note: 'core-rule: Signal Integrity の unused suppress escape (multi-underscore) 禁止',
+  },
 } as const

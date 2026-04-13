@@ -34,12 +34,12 @@
 | 境界健全性 | OK | 0/0 / 0/0 |
 | ガード強度 | OK | 58/30 / 0/5 |
 | 性能 | OK | 6506/7000 / 2229/2500 / 919/1000 |
-| Temporal Governance | OK | 0/0 / 32/32 / 1/12 / 145/92 / 14/9 / 1/1 |
-| Rule Efficacy | OK | 82 / 0/3 / 0/10 |
+| Temporal Governance | OK | 0/0 / 32/32 / 1/12 / 146/92 / 15/9 / 1/1 |
+| Rule Efficacy | OK | 83 / 0/3 / 0/10 |
 | Project Governance | OK | 4/20 / 3/20 / 0/0 / 5/100 |
 
 
-> 生成: 2026-04-13T05:59:17.156Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-13T06:02:48.911Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 現状スナップショット

@@ -5028,6 +5028,50 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
 
   {
     slice: 'governance-ops',
+    id: 'AR-TSIG-COMP-03',
+    principleRefs: ['G3'],
+    ruleClass: 'invariant',
+    guardTags: ['G3'],
+    epoch: 1,
+    doc: 'references/01-principles/test-signal-integrity.md',
+    what: '関数引数で _ プレフィックスを 2 つ以上連続持つ pattern (unused suppress escape) を禁止する',
+    why: '単独の _xxx は callback signature 互換性で必要なケースが多いが、2 つ以上連続する場合は本来 signature 削減 / 責務整理で解決すべきところを suppress で逃がしている。これは Refactoring Fragility と Governance Drift を生む',
+    correctPattern: {
+      description:
+        '不要な引数は signature から削除する。callback 互換性で残す場合は単独 _ にとどめ、JSDoc で「なぜ受け取って捨てるか」を明示する',
+      example: 'function handleClick(payload: Payload) { ... }',
+    },
+    outdatedPattern: {
+      description: '_xxx, _yyy のように _ プレフィックス引数が 2 つ以上連続する',
+      codeSignals: ['(_event, _index', '(_a, _b'],
+    },
+    decisionCriteria: {
+      when: '関数 signature を書くとき',
+      exceptions:
+        'callback signature 互換性で受け取らざるを得ないケース (例: Array.prototype.map の (item, _index) ) — ただし単独 _ にとどめ、複数連続を避ける',
+      escalation: '本当に必要な引数のみを受け取る signature に変更する。または対象関数の責務を再設計する',
+    },
+    detection: { type: 'custom', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        '1. 該当する関数 signature を特定する',
+        '2. 不要な _ プレフィックス引数を削除する',
+        '3. callback 互換性で残す場合は単独 _ + JSDoc コメントに置き換える',
+        '4. testSignalIntegrityGuard.test.ts の TSIG-COMP-03 block で検証',
+      ],
+    },
+    sunsetCondition:
+      'TSIG-COMP-03 violation が 6 ヶ月間 0 件で推移し、新規 signature 追加時の advisory も自己点検不要と判断された',
+    protectedHarm: {
+      prevents: [
+        'Refactoring Fragility: signature が肥大化したまま放置される',
+        'Governance Drift: suppress を逃げ道にする習慣が定着する',
+      ],
+    },
+  },
+
+  {
+    slice: 'governance-ops',
     id: 'AR-TSIG-TEST-01',
     principleRefs: ['G1'],
     ruleClass: 'invariant',
