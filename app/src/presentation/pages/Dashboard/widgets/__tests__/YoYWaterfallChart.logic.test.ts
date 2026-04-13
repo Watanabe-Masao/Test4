@@ -1,0 +1,133 @@
+import { describe, it, expect } from 'vitest'
+import {
+  calculatePrevCtsDateRange,
+  aggregatePeriodCurSales,
+  aggregatePeriodPrevSales,
+  calculatePISummary,
+} from '../YoYWaterfallChart.logic'
+import type { CategoryTimeSalesRecord, DailyRecord } from '@/domain/models/record'
+
+const EMPTY_CTS: readonly CategoryTimeSalesRecord[] = []
+
+const makeDaily = (
+  map: Record<number, { sales?: number; customers?: number }>,
+): ReadonlyMap<number, DailyRecord> => {
+  const m = new Map<number, DailyRecord>()
+  for (const [k, v] of Object.entries(map)) {
+    m.set(Number(k), {
+      sales: v.sales ?? 0,
+      customers: v.customers ?? 0,
+    } as unknown as DailyRecord)
+  }
+  return m
+}
+
+describe('calculatePrevCtsDateRange', () => {
+  it('returns undefined for wow when canWoW is false', () => {
+    const r = calculatePrevCtsDateRange('wow', false, 2025, 5, 1, 7, 0, 1, 7)
+    expect(r).toBeUndefined()
+  })
+
+  it('returns wowPrev range for wow when canWoW is true', () => {
+    const r = calculatePrevCtsDateRange('wow', true, 2025, 5, 8, 14, 0, 1, 7)
+    expect(r).toEqual({
+      from: { year: 2025, month: 5, day: 1 },
+      to: { year: 2025, month: 5, day: 7 },
+    })
+  })
+
+  it('returns prev-year range for yoy with zero dowOffset', () => {
+    const r = calculatePrevCtsDateRange('yoy', false, 2025, 5, 1, 7, 0, 0, 0)
+    expect(r).toEqual({
+      from: { year: 2024, month: 5, day: 1 },
+      to: { year: 2024, month: 5, day: 7 },
+    })
+  })
+
+  it('applies dowOffset for yoy', () => {
+    const r = calculatePrevCtsDateRange('yoy', false, 2025, 5, 10, 12, 2, 0, 0)
+    expect(r).toEqual({
+      from: { year: 2024, month: 5, day: 12 },
+      to: { year: 2024, month: 5, day: 14 },
+    })
+  })
+})
+
+describe('aggregatePeriodCurSales', () => {
+  it('sums sales and customers within range', () => {
+    const daily = makeDaily({
+      1: { sales: 100, customers: 10 },
+      2: { sales: 200, customers: 20 },
+      3: { sales: 300, customers: 30 },
+      4: { sales: 400, customers: 40 },
+    })
+    const r = aggregatePeriodCurSales(EMPTY_CTS, daily, 2, 3)
+    expect(r).toEqual({ sales: 500, customers: 50 })
+  })
+
+  it('returns zero when daily is empty', () => {
+    const r = aggregatePeriodCurSales(EMPTY_CTS, new Map(), 1, 31)
+    expect(r).toEqual({ sales: 0, customers: 0 })
+  })
+
+  it('treats null sales/customers as 0', () => {
+    const daily = new Map<number, DailyRecord>()
+    daily.set(1, { sales: null, customers: null } as unknown as DailyRecord)
+    daily.set(2, { sales: 50, customers: 5 } as unknown as DailyRecord)
+    const r = aggregatePeriodCurSales(EMPTY_CTS, daily, 1, 2)
+    expect(r).toEqual({ sales: 50, customers: 5 })
+  })
+})
+
+describe('aggregatePeriodPrevSales', () => {
+  it('wow: uses daily with wowPrev range', () => {
+    const daily = makeDaily({
+      1: { sales: 100, customers: 10 },
+      2: { sales: 200, customers: 20 },
+      8: { sales: 500, customers: 50 },
+    })
+    const r = aggregatePeriodPrevSales(EMPTY_CTS, 'wow', daily, new Map(), 8, 8, 1, 2, 2025, 5)
+    expect(r).toEqual({ sales: 300, customers: 30 })
+  })
+
+  it('yoy: uses prevDaily via date key', () => {
+    const prev = new Map<string, { sales: number; discount: number; customers: number }>()
+    prev.set('2025-05-01', { sales: 100, discount: 0, customers: 10 })
+    prev.set('2025-05-02', { sales: 200, discount: 0, customers: 20 })
+    prev.set('2025-05-03', { sales: 300, discount: 0, customers: 30 })
+    const r = aggregatePeriodPrevSales(EMPTY_CTS, 'yoy', new Map(), prev, 1, 2, 0, 0, 2025, 5)
+    expect(r).toEqual({ sales: 300, customers: 30 })
+  })
+
+  it('yoy: missing prev entries contribute zero', () => {
+    const prev = new Map<string, { sales: number; discount: number; customers: number }>()
+    const r = aggregatePeriodPrevSales(EMPTY_CTS, 'yoy', new Map(), prev, 1, 3, 0, 0, 2025, 5)
+    expect(r).toEqual({ sales: 0, customers: 0 })
+  })
+})
+
+describe('calculatePISummary', () => {
+  const pi = (qty: number, cust: number) => (cust > 0 ? qty / cust : 0)
+  const ppi = (sales: number, qty: number) => (qty > 0 ? sales / qty : 0)
+
+  it('returns null when activeLevel < 3', () => {
+    expect(calculatePISummary(2, true, 10, 10, 100, 100, 1000, 1000, pi, ppi)).toBeNull()
+  })
+
+  it('returns null when !hasQuantity', () => {
+    expect(calculatePISummary(3, false, 10, 10, 100, 100, 1000, 1000, pi, ppi)).toBeNull()
+  })
+
+  it('returns null when prevCust <= 0', () => {
+    expect(calculatePISummary(3, true, 0, 10, 100, 100, 1000, 1000, pi, ppi)).toBeNull()
+  })
+
+  it('returns null when curCust <= 0', () => {
+    expect(calculatePISummary(3, true, 10, 0, 100, 100, 1000, 1000, pi, ppi)).toBeNull()
+  })
+
+  it('computes PI/PPI when valid', () => {
+    const r = calculatePISummary(3, true, 5, 10, 20, 50, 2000, 5000, pi, ppi)
+    expect(r).toEqual({ prevPI: 4, curPI: 5, prevPPI: 100, curPPI: 100 })
+  })
+})

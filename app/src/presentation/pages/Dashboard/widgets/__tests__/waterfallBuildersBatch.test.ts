@@ -1,0 +1,204 @@
+/**
+ * DrilldownWaterfall.builders.ts + YoYWaterfallChart.builders.ts test
+ */
+import { describe, it, expect } from 'vitest'
+import { buildRecordAggregates } from '../DrilldownWaterfall.builders'
+import {
+  buildDateRanges,
+  buildPeriodAggregates,
+  buildPISummary,
+} from '../YoYWaterfallChart.builders'
+import type { CategoryTimeSalesRecord, DailyRecord } from '@/domain/models/record'
+
+function makeCts(totalQuantity: number, totalAmount: number = 1000): CategoryTimeSalesRecord {
+  return {
+    totalQuantity,
+    totalAmount,
+    department: { code: 'd1', name: 'D' },
+    line: { code: 'l1', name: 'L' },
+    klass: { code: 'k1', name: 'K' },
+  } as unknown as CategoryTimeSalesRecord
+}
+
+// ─── buildRecordAggregates ───────────────────
+
+describe('buildRecordAggregates', () => {
+  it('空 records → curTotalQty=0, hasQuantity=false, priceMix=null', () => {
+    const result = buildRecordAggregates([], [])
+    expect(result.curTotalQty).toBe(0)
+    expect(result.prevTotalQty).toBe(0)
+    expect(result.hasQuantity).toBe(false)
+    expect(result.priceMix).toBeNull()
+  })
+
+  it('curTotalQty = dayRecords の totalQuantity 合計', () => {
+    const dayRecs = [makeCts(10), makeCts(20)]
+    const prevRecs = [makeCts(15)]
+    const result = buildRecordAggregates(dayRecs, prevRecs)
+    expect(result.curTotalQty).toBe(30)
+    expect(result.prevTotalQty).toBe(15)
+  })
+
+  it('hasQuantity: 両方 > 0 のみ true', () => {
+    expect(buildRecordAggregates([makeCts(10)], [makeCts(20)]).hasQuantity).toBe(true)
+    expect(buildRecordAggregates([makeCts(10)], []).hasQuantity).toBe(false)
+    expect(buildRecordAggregates([], [makeCts(10)]).hasQuantity).toBe(false)
+  })
+
+  it('両 records 有 → priceMix を計算', () => {
+    const result = buildRecordAggregates([makeCts(10, 1000)], [makeCts(10, 800)])
+    expect(result.priceMix).not.toBeNull()
+  })
+})
+
+// ─── buildDateRanges ────────────────────────
+
+describe('buildDateRanges', () => {
+  it('overrideDateRange が無ければ year/month/day から構築', () => {
+    const result = buildDateRanges({
+      overrideDateRange: undefined,
+      year: 2026,
+      month: 4,
+      dayStart: 1,
+      dayEnd: 15,
+      activeCompMode: 'yoy',
+      canWoW: false,
+      dowOffset: 0,
+      wowPrevStart: 0,
+      wowPrevEnd: 0,
+    })
+    expect(result.curDateRange.from.day).toBe(1)
+    expect(result.curDateRange.to.day).toBe(15)
+    expect(result.curDateRange.from.year).toBe(2026)
+  })
+
+  it('overrideDateRange 有 → そのまま伝搬', () => {
+    const override = {
+      from: { year: 2025, month: 10, day: 1 },
+      to: { year: 2025, month: 10, day: 31 },
+    }
+    const result = buildDateRanges({
+      overrideDateRange: override,
+      year: 2026,
+      month: 4,
+      dayStart: 1,
+      dayEnd: 30,
+      activeCompMode: 'yoy',
+      canWoW: false,
+      dowOffset: 0,
+      wowPrevStart: 0,
+      wowPrevEnd: 0,
+    })
+    expect(result.curDateRange).toBe(override)
+  })
+})
+
+// ─── buildPeriodAggregates ──────────────────
+
+describe('buildPeriodAggregates', () => {
+  function makeDaily(_day: number, sales: number, customers: number): DailyRecord {
+    return {
+      sales,
+      customers,
+      discount: 0,
+    } as unknown as DailyRecord
+  }
+
+  it('空 periodCTS/periodPrevCTS → curTotalQty=0, priceMix=null', () => {
+    const daily = new Map([[1, makeDaily(1, 1000, 100)]])
+    const result = buildPeriodAggregates({
+      periodCTS: [],
+      periodPrevCTS: [],
+      activeCompMode: 'yoy',
+      daily,
+      prevDaily: new Map(),
+      dayStart: 1,
+      dayEnd: 30,
+      wowPrevStart: 0,
+      wowPrevEnd: 0,
+      year: 2026,
+      month: 4,
+    })
+    expect(result.curTotalQty).toBe(0)
+    expect(result.prevTotalQty).toBe(0)
+    expect(result.priceMix).toBeNull()
+    expect(result.hasQuantity).toBe(false)
+  })
+
+  it('両 CTS 有 → hasQuantity=true + priceMix 有', () => {
+    const daily = new Map([[1, makeDaily(1, 1000, 100)]])
+    const result = buildPeriodAggregates({
+      periodCTS: [makeCts(10, 1000)],
+      periodPrevCTS: [makeCts(10, 800)],
+      activeCompMode: 'yoy',
+      daily,
+      prevDaily: new Map(),
+      dayStart: 1,
+      dayEnd: 30,
+      wowPrevStart: 0,
+      wowPrevEnd: 0,
+      year: 2026,
+      month: 4,
+    })
+    expect(result.curTotalQty).toBe(10)
+    expect(result.prevTotalQty).toBe(10)
+    expect(result.hasQuantity).toBe(true)
+    expect(result.priceMix).not.toBeNull()
+  })
+})
+
+// ─── buildPISummary ─────────────────────────
+
+describe('buildPISummary', () => {
+  it('activeLevel<3 または hasQuantity=false → null', () => {
+    expect(
+      buildPISummary({
+        activeLevel: 2,
+        hasQuantity: false,
+        prevCust: 100,
+        curCust: 120,
+        prevTotalQty: 0,
+        curTotalQty: 0,
+        prevSales: 1000,
+        curSales: 1200,
+      }),
+    ).toBeNull()
+  })
+
+  it('prevCust=0 / curCust=0 → null', () => {
+    expect(
+      buildPISummary({
+        activeLevel: 3,
+        hasQuantity: true,
+        prevCust: 0,
+        curCust: 120,
+        prevTotalQty: 50,
+        curTotalQty: 60,
+        prevSales: 1000,
+        curSales: 1200,
+      }),
+    ).toBeNull()
+  })
+
+  it('activeLevel=3 + hasQuantity=true: PI / PPI を返す', () => {
+    const result = buildPISummary({
+      activeLevel: 3,
+      hasQuantity: true,
+      prevCust: 100,
+      curCust: 120,
+      prevTotalQty: 50,
+      curTotalQty: 60,
+      prevSales: 1000,
+      curSales: 1200,
+    })
+    expect(result).not.toBeNull()
+    // curPI = 60 / 120 = 0.5
+    expect(result!.curPI).toBeCloseTo(0.5, 3)
+    // prevPI = 50 / 100 = 0.5
+    expect(result!.prevPI).toBeCloseTo(0.5, 3)
+    // curPPI = 1200 / 60 = 20
+    expect(result!.curPPI).toBeCloseTo(20, 3)
+    // prevPPI = 1000 / 50 = 20
+    expect(result!.prevPPI).toBeCloseTo(20, 3)
+  })
+})
