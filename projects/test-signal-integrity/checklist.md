@@ -23,12 +23,12 @@
 
 ## Phase 2: Advisory / Review 入口の整備
 
-* [ ] 新規 test / spec / e2e 追加時に advisory を返すトリガー対象パスを定義する
-* [ ] 新規 test 追加時の advisory 文面を定義する
-* [ ] advisory に含める自己点検項目（existence-only / render-only / snapshot-only / suppression 依存など）を定義する
-* [ ] hard gate にしないグレーな品質劣化パターンを review-only 候補として整理する
-* [ ] advisory から hard gate へ昇格させる条件を定義する
-* [ ] false positive が出た場合の扱い（allowlist / review / rule 精度改善）を定義する
+* [x] 新規 test / spec / e2e 追加時に advisory を返すトリガー対象パスを定義する
+* [x] 新規 test 追加時の advisory 文面を定義する
+* [x] advisory に含める自己点検項目（existence-only / render-only / snapshot-only / suppression 依存など）を定義する
+* [x] hard gate にしないグレーな品質劣化パターンを review-only 候補として整理する
+* [x] advisory から hard gate へ昇格させる条件を定義する
+* [x] false positive が出た場合の扱い（allowlist / review / rule 精度改善）を定義する
 
 ## Phase 3: Hard Gate 1st Batch 実装
 
