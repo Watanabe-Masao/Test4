@@ -38,29 +38,19 @@ describe('processBudget', () => {
   })
 
   it('storeCode 空 → スキップ', () => {
-    const rows = [
-      ['header'],
-      ['', '2026/04/15', 10000],
-      ['0001', '2026/04/16', 5000],
-    ]
+    const rows = [['header'], ['', '2026/04/15', 10000], ['0001', '2026/04/16', 5000]]
     const result = processBudget(rows)
     expect(result['2026-4'].get('1')?.daily.size).toBe(1)
   })
 
   it('storeCode が数値に変換不能 → スキップ', () => {
-    const rows = [
-      ['header'],
-      ['abc', '2026/04/15', 10000],
-    ]
+    const rows = [['header'], ['abc', '2026/04/15', 10000]]
     const result = processBudget(rows)
     expect(Object.keys(result)).toEqual([])
   })
 
   it('無効な日付 → スキップ', () => {
-    const rows = [
-      ['header'],
-      ['0001', 'invalid', 10000],
-    ]
+    const rows = [['header'], ['0001', 'invalid', 10000]]
     const result = processBudget(rows)
     expect(Object.keys(result)).toEqual([])
   })
@@ -89,11 +79,7 @@ describe('processBudget', () => {
   })
 
   it('複数年月: 年月キーで分割', () => {
-    const rows = [
-      ['header'],
-      ['0001', '2026/04/15', 1000],
-      ['0001', '2026/05/15', 2000],
-    ]
+    const rows = [['header'], ['0001', '2026/04/15', 1000], ['0001', '2026/05/15', 2000]]
     const result = processBudget(rows)
     expect(result['2026-4']).toBeDefined()
     expect(result['2026-5']).toBeDefined()
@@ -102,11 +88,7 @@ describe('processBudget', () => {
   })
 
   it('複数店舗: storeId で分割', () => {
-    const rows = [
-      ['header'],
-      ['0001', '2026/04/15', 1000],
-      ['0002', '2026/04/15', 2000],
-    ]
+    const rows = [['header'], ['0001', '2026/04/15', 1000], ['0002', '2026/04/15', 2000]]
     const result = processBudget(rows)
     expect(result['2026-4'].size).toBe(2)
     expect(result['2026-4'].get('1')?.total).toBe(1000)
@@ -114,10 +96,7 @@ describe('processBudget', () => {
   })
 
   it('storeCode の先頭 0 は除去される (parseInt)', () => {
-    const rows = [
-      ['header'],
-      ['00081257', '2026/04/15', 1000],
-    ]
+    const rows = [['header'], ['00081257', '2026/04/15', 1000]]
     const result = processBudget(rows)
     expect(result['2026-4'].get('81257')).toBeDefined()
   })
