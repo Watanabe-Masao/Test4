@@ -620,7 +620,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 詳細レポート: `references/02-status/generated/architecture-health.md`
 
 <!-- GENERATED:START architecture-health-summary -->
-**Healthy** | 前回比: Flat | Hard Gate: PASS
+**RISK** | 前回比: Regressed | Hard Gate: FAIL
 
 | 指標 | 状態 | 詳細 |
 |---|---|---|
@@ -634,8 +634,11 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 | Rule Efficacy | OK | 80 / 0/3 / 0/10 |
 | Project Governance | OK | 3/20 / 2/20 / 0/0 / 5/100 |
 
+**Next:**
+- Doc 更新義務違反数 を budget 0 以下に修正する
+- Doc 更新義務違反数 が悪化（0 → 2）— 原因を調査する
 
-> 生成: 2026-04-13T02:17:40.003Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-13T02:52:27.670Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）
