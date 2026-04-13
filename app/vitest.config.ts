@@ -79,13 +79,14 @@ export default defineConfig({
       thresholds: {
         // Phase 3 観測期間中の baseline (ratchet-down で段階的に引き上げ)
         // - 2026-04-13 初期: 35 (presentation/ 包含直後の現実値)
-        // - 2026-04-13 Step 3-8: 35 → 36 (累積 delta +1.07 で ratchet up)
-        //   (KpiCard / DataEndDaySlider / Modal / Toast / SegmentedControl の
-        //    5 component test 追加)
+        // - 2026-04-13 Step 3-8: 35 → 36 (5 component で +1.07)
+        // - 2026-04-13 Step 3-14: 36 → 37 (累積 +2.03 で ratchet up)
+        //   (MonthSelector / WeatherBadge / ValidationModal / ErrorBoundary /
+        //    ForecastBadge / ImportWizard の 6 component test 追加)
         // - 目標: 70 (Phase 3 完了時)
         // - 詳細: projects/presentation-quality-hardening/HANDOFF.md §2 Step 4
         // - 不可侵原則 #1: 機械的引き上げ禁止 = test 追加と並行する
-        lines: 36,
+        lines: 37,
         'src/domain/calculations/**': {
           lines: 80,
         },
