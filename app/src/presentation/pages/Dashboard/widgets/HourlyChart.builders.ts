@@ -6,18 +6,29 @@
  */
 import type { CategoryTimeSalesRecord, HourlyWeatherRecord } from '@/domain/models/record'
 import { buildHourlyData, computeSelectedData, buildHourCategoryDetail } from './HourlyChart.logic'
+import {
+  findCoreTime,
+  findTurnaroundHour,
+  buildHourlyMap,
+} from '@/presentation/components/charts/timeSlotUtils'
 
 // ─── 型定義 ──────────────────────────────────────────
 
+export interface HourlyDataPoint {
+  readonly hour: number
+  readonly amount: number
+  readonly quantity: number
+}
+
 export interface HourlyDataSets {
-  readonly actualData: readonly { hour: number; amount: number; quantity: number }[]
-  readonly prevData: readonly { hour: number; amount: number; quantity: number }[]
+  readonly actualData: readonly HourlyDataPoint[]
+  readonly prevData: readonly HourlyDataPoint[]
   readonly allHours: readonly number[]
 }
 
 export interface PaddedDataSets {
-  readonly paddedData: readonly { hour: number; amount: number; quantity: number }[]
-  readonly paddedRef: readonly { hour: number; amount: number; quantity: number }[]
+  readonly paddedData: readonly HourlyDataPoint[]
+  readonly paddedRef: readonly HourlyDataPoint[]
 }
 
 export interface SelectedDetail {
@@ -31,6 +42,14 @@ export interface SelectedDetail {
     pct: number
     color: string
   }[]
+}
+
+export interface HourlySummaryStats {
+  readonly maxAmt: number
+  readonly totalQty: number
+  readonly peakHour: HourlyDataPoint
+  readonly coreTime: ReturnType<typeof findCoreTime>
+  readonly turnaroundHour: ReturnType<typeof findTurnaroundHour>
 }
 
 // ─── Builder 関数 ────────────────────────────────────
@@ -99,4 +118,40 @@ export function buildWeatherHourlyMap(
   const m = new Map<number, HourlyWeatherRecord>()
   for (const w of weatherHourly) m.set(w.hour, w)
   return m
+}
+
+/**
+ * paddedData から JSX 描画に必要な集約系派生値を一括構築する。
+ * maxAmt / totalQty / peakHour / hourlyMap / coreTime / turnaroundHour を
+ * 1 関数で返すことで、HourlyChart.tsx 側の宣言を 9 行 → 2 行に圧縮する。
+ *
+ * 注意: totalAmt は cumData (HourlyChart.logic) の事前依存となるため
+ *       本関数には含めない (呼び出し側で別途計算)。
+ */
+export function buildHourlySummaryStats(
+  paddedData: readonly HourlyDataPoint[],
+): HourlySummaryStats {
+  const maxAmt = Math.max(...paddedData.map((d) => d.amount), 1)
+  const totalQty = paddedData.reduce((s, d) => s + d.quantity, 0)
+  const peakHour = paddedData.reduce(
+    (peak, d) => (d.amount > peak.amount ? d : peak),
+    paddedData[0],
+  )
+  const hourlyMap = buildHourlyMap(paddedData)
+  const coreTime = findCoreTime(hourlyMap)
+  const turnaroundHour = findTurnaroundHour(hourlyMap)
+  return { maxAmt, totalQty, peakHour, coreTime, turnaroundHour }
+}
+
+/**
+ * 選択時間帯のラベル文字列を整形する (1〜3 件: ・区切り / 4 件以上: 範囲表記)。
+ * HourlyChart.tsx 側の宣言を 7 行 → 1 行に圧縮する。
+ */
+export function formatSelectedHoursLabel(selectedHours: ReadonlySet<number>): string {
+  if (selectedHours.size === 0) return ''
+  const sorted = [...selectedHours].sort((a, b) => a - b)
+  if (selectedHours.size <= 3) {
+    return sorted.map((h) => `${h}時`).join('・')
+  }
+  return `${sorted[0]}時〜${sorted[sorted.length - 1]}時 (${selectedHours.size}時間)`
 }
