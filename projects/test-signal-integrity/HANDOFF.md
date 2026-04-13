@@ -377,6 +377,79 @@ vm.ts は小さい (94 行) ので影響は小さい。Step 3 全体で蓄積し
 - 📝 AR-TSIG-TEST-04 候補 (multi-expect all existence-only) を観測中
 - 📝 baseline 採取は Step 3 の他 vm test 完了後に検討
 
+#### 2026-04-13 — Step 3-3: InsightTabForecast.vm test 拡張 (第 6 の発見)
+
+**作業**: 既存 `app/src/presentation/pages/Insight/__tests__/InsightTabForecast.vm.test.ts`
+(8 test) を **拡張**。computeWeeklyActuals / computeDecompPct / computeDecompTotals の
+未カバー contract に 10 test 追加 (8 → 18)。
+
+事前重複チェック: Step 3-2 の反省に従い `find -name "*.vm*"` で事前確認。
+既存 file が pages/Insight/__tests__/ にあると把握してから着手。
+
+##### 既存テストの品質評価
+
+既存 8 test を読み込んだ結果:
+- ほぼ意味的 assertion (`toBeCloseTo` / `toBe` / `Number.isFinite`)
+- bug regression test も含む (`custEffect=100, ticketEffect=-100` で 0 除算)
+- 削除すべき浅いテストはなかった
+
+→ 削除ではなく **拡張** で対応。重複作成も回避。
+
+##### 追加した contract test (10 件)
+
+| 関数 | 追加 test | 内容 |
+|---|---|---|
+| computeDecompPct | 2 | custEffect 100% 寄与 / 正負混在 (絶対値ベース確認) |
+| computeWeeklyActuals | 5 | txValue 計算 / customers=0 0 除算 / 空 Map / 部分 range / customers undefined |
+| computeDecompTotals | 3 | 空配列 / 単一行 / cancel 効果 |
+
+##### 第 6 の発見: Coverage delta が 0 だった
+
+Step 3-3 の test 追加後、`npm run test:coverage` 実行:
+
+| metric | Before | After | delta |
+|---|---|---|---|
+| lines (global) | 35.05% | 35.05% | **0** |
+
+理由: forecast vm の 3 関数は既存 8 test で既に **行レベル** でカバーされて
+いた。追加 10 test は **contract richness** を増やすが (= 同じ行を別の入力で
+触る)、行カバレッジ % は動かない。
+
+**Phase 3 戦略の重要な学び**:
+
+> Coverage % を 35 → 70 に上げるには「既にカバーされたコードに contract test
+> を増やす」のではなく、「**未 cover 領域 (= 0% の component / hook)** を狙う」
+> 必要がある。
+
+実用的な意味合い:
+- Step 3-1 (HourlyChart.builders): 新規追加した pure function だったので
+  カバー追加で coverage delta が出た (実際小さく +0.04%)
+- Step 3-2 (InsightTabBudget.vm): 同様に少しの delta (+0.04%)
+- Step 3-3 (InsightTabForecast.vm): **既存カバー済**、delta 0
+
+つまり vm.ts は既に部分カバーされており、coverage を大きく動かすには
+**presentation/pages/* / presentation/components/* の TSX components**
+(coverage 0% の領域) を狙う必要がある。
+
+##### Step 3 戦略の修正
+
+HANDOFF §2 の優先順位を以下に変える (覚書):
+
+1. ❌ vm.ts への test 追加 (delta 小さい — 1 round 終了)
+2. ✅ component test (BudgetProgressCard, KpiCard 等) — coverage delta 大きい
+3. ✅ pages の小さい component (TSX) を直接テスト
+4. ✅ 段階的に閾値引き上げ (35 → 40 → 50 → 60 → 70)
+
+ただし vm.ts test の追加は **品質シグナル保全 (壊れたら気づく)** 観点では
+依然として価値がある (regression 検出を強化)。観測戦略の本来目的とは
+矛盾しない — coverage 数値は副次的指標。
+
+##### ルール側のアクション
+
+- ✅ 既存 forecast vm test を 8 → 18 に拡張 (本 commit)
+- 📝 Step 3-4 以降は coverage 0% 領域 (component test) を優先
+- 📝 vm.ts への追加 test は contract 強化として続けるが coverage 主目的にしない
+
 ---
 
 _(以降の観測ログを時系列で追記)_
