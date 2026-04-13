@@ -82,9 +82,7 @@ describe('ChartGuidePanel', () => {
   })
 
   it('relatedMetrics + metricSummaries があれば関連指標セクションを描画', () => {
-    const summaries = new Map([
-      ['salesTotal', { title: '売上合計', summary: '全店全部門の合計' }],
-    ])
+    const summaries = new Map([['salesTotal', { title: '売上合計', summary: '全店全部門の合計' }]])
     renderWithTheme(<ChartGuidePanel guide={baseGuide} metricSummaries={summaries} />)
     expect(screen.getByText('関連指標:')).toBeInTheDocument()
     expect(screen.getByText('売上合計')).toBeInTheDocument()

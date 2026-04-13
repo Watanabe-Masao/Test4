@@ -74,9 +74,11 @@ describe('buildPrevYearTrendData', () => {
       { code: 'A', name: 'A', dateKey: '2025-01-01', amount: 500, quantity: 5 },
       { code: 'A', name: 'A', dateKey: '2025-01-02', amount: 800, quantity: 8 },
     ]
-    const result = buildPrevYearTrendData(prev, ['01-01', '01-02'], [
-      { code: 'A', name: 'A', totalAmount: 0 },
-    ])
+    const result = buildPrevYearTrendData(
+      prev,
+      ['01-01', '01-02'],
+      [{ code: 'A', name: 'A', totalAmount: 0 }],
+    )
     expect(result.get('01-01')).toEqual({ A: 500 })
     expect(result.get('01-02')).toEqual({ A: 800 })
   })
@@ -85,9 +87,11 @@ describe('buildPrevYearTrendData', () => {
     const prev: CategoryDailyTrendRow[] = [
       { code: 'X', name: 'X', dateKey: '2025-01-01', amount: 500, quantity: 5 },
     ]
-    const result = buildPrevYearTrendData(prev, ['01-01'], [
-      { code: 'A', name: 'A', totalAmount: 0 },
-    ])
+    const result = buildPrevYearTrendData(
+      prev,
+      ['01-01'],
+      [{ code: 'A', name: 'A', totalAmount: 0 }],
+    )
     expect(result.size).toBe(0)
   })
 

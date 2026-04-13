@@ -37,20 +37,12 @@ describe('migrateWidgetIds', () => {
   })
 
   it('deduplicates after migration when multiple legacy ids map to same target', () => {
-    const result = migrateWidgetIds([
-      'daily-kpi-sales',
-      'daily-kpi-cost',
-      'daily-kpi-discount',
-    ])
+    const result = migrateWidgetIds(['daily-kpi-sales', 'daily-kpi-cost', 'daily-kpi-discount'])
     expect(result).toEqual(['widget-budget-achievement'])
   })
 
   it('preserves input order for first occurrence', () => {
-    const result = migrateWidgetIds([
-      'chart-daily-sales',
-      'duckdb-timeslot',
-      'analysis-waterfall',
-    ])
+    const result = migrateWidgetIds(['chart-daily-sales', 'duckdb-timeslot', 'analysis-waterfall'])
     expect(result).toEqual(['chart-daily-sales', 'chart-timeslot-sales', 'analysis-waterfall'])
   })
 

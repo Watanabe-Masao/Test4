@@ -211,20 +211,21 @@ describe('parseDailyTable', () => {
 
   it('uses fallback column map when header rows are missing', () => {
     // Table with no header rows — should trigger fallbackColumnMap
+    // fallback indices: precipTotal=1, tempAvg=4, tempMax=5, tempMin=6, windSpeedMax=8, sunshineHours=12
     const html = `<html><body><table id="tablefix1">
       <tr>
         <td>1</td>
-        <td>5.0</td><td>x</td><td>x</td><td>x</td><td>15</td><td>18</td><td>12</td><td>x</td><td>x</td><td>x</td><td>x</td><td>6</td>
+        <td>5.0</td><td>0</td><td>0</td><td>15</td><td>18</td><td>12</td><td>0</td><td>2.5</td><td>0</td><td>0</td><td>0</td><td>6</td>
       </tr>
     </table></body></html>`
     const doc = buildDoc(html)
     const results = parseDailyTable(doc, 2025, 5)
     expect(results.length).toBe(1)
-    // fallback: precipTotal=1, tempAvg=4, tempMax=5, tempMin=6, windSpeedMax=8, sunshineHours=12
     expect(results[0].precipitationTotal).toBe(5.0)
     expect(results[0].temperatureAvg).toBe(15)
     expect(results[0].temperatureMax).toBe(18)
     expect(results[0].temperatureMin).toBe(12)
+    expect(results[0].windSpeedMax).toBeCloseTo(2.5 * 3.6, 5)
     expect(results[0].sunshineTotalHours).toBe(6)
   })
 

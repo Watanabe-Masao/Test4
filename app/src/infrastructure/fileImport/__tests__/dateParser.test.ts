@@ -228,13 +228,7 @@ describe('detectYearMonth', () => {
   })
 
   it('dataStartRow 指定', () => {
-    const rows = [
-      ['H1'],
-      ['H2'],
-      ['H3'],
-      ['H4'],
-      ['2026-06-15'],
-    ]
+    const rows = [['H1'], ['H2'], ['H3'], ['H4'], ['2026-06-15']]
     expect(detectYearMonth(rows, 0, 4)).toEqual({ year: 2026, month: 6 })
   })
 
