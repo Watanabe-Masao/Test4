@@ -95,9 +95,7 @@ describe('explanationHelpers', () => {
     })
 
     it('attaches details when detailsGetter provided', () => {
-      const daily = new Map<number, DailyRecord>([
-        [1, buildDailyRecord({ day: 1, sales: 100 })],
-      ])
+      const daily = new Map<number, DailyRecord>([[1, buildDailyRecord({ day: 1, sales: 100 })]])
       const entries = dailyBreakdown(
         daily,
         (r) => r.sales,

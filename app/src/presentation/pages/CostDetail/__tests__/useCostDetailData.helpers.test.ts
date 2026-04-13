@@ -69,7 +69,7 @@ describe('aggregateFlows', () => {
             interDepartmentIn: [],
             interDepartmentOut: [],
           },
-        } as Partial<DailyRecord>),
+        } as unknown as Partial<DailyRecord>),
       ],
     ]
     const result = aggregateFlows(days, 'interStoreIn', 'interStoreOut', new Map())
@@ -91,7 +91,7 @@ describe('aggregateFlows', () => {
             interDepartmentIn: [],
             interDepartmentOut: [],
           },
-        } as Partial<DailyRecord>),
+        } as unknown as Partial<DailyRecord>),
       ],
     ]
     const result = aggregateFlows(days, 'interStoreIn', 'interStoreOut', new Map())
@@ -109,7 +109,7 @@ describe('aggregateFlows', () => {
             interDepartmentIn: [],
             interDepartmentOut: [],
           },
-        } as Partial<DailyRecord>),
+        } as unknown as Partial<DailyRecord>),
       ],
     ]
     const stores = new Map([
@@ -144,7 +144,7 @@ describe('buildTransferPivot', () => {
           },
           interStoreIn: { cost: 100, price: 200 },
           interStoreOut: { cost: 50, price: 100 },
-        } as Partial<DailyRecord>),
+        } as unknown as Partial<DailyRecord>),
       ],
     ]
     const result = buildTransferPivot(days, 'interStoreIn', 'interStoreOut', new Map())
@@ -164,7 +164,7 @@ describe('buildTransferPivot', () => {
             interDepartmentOut: [],
           },
           interStoreIn: { cost: 100, price: 200 },
-        } as Partial<DailyRecord>),
+        } as unknown as Partial<DailyRecord>),
       ],
     ]
     const result = buildTransferPivot(days, 'interStoreIn', 'interStoreOut', new Map())
@@ -184,7 +184,7 @@ describe('buildTransferPivot', () => {
             interDepartmentOut: [],
           },
           interStoreIn: { cost: 100, price: 200 },
-        } as Partial<DailyRecord>),
+        } as unknown as Partial<DailyRecord>),
       ],
       [
         2,
@@ -196,7 +196,7 @@ describe('buildTransferPivot', () => {
             interDepartmentOut: [],
           },
           interStoreIn: { cost: 50, price: 100 },
-        } as Partial<DailyRecord>),
+        } as unknown as Partial<DailyRecord>),
       ],
     ]
     const result = buildTransferPivot(days, 'interStoreIn', 'interStoreOut', new Map())
@@ -228,13 +228,13 @@ describe('aggregateByItem', () => {
         1,
         makeRecord({
           costInclusion: { total: 100, items: [makeItem('i1', 'A', 'a1', 2, 100)] },
-        } as Partial<DailyRecord>),
+        } as unknown as Partial<DailyRecord>),
       ],
       [
         2,
         makeRecord({
           costInclusion: { total: 50, items: [makeItem('i1', 'A', 'a1', 1, 50)] },
-        } as Partial<DailyRecord>),
+        } as unknown as Partial<DailyRecord>),
       ],
     ]
     const result = aggregateByItem(days)
@@ -253,7 +253,7 @@ describe('aggregateByItem', () => {
             total: 400,
             items: [makeItem('i1', 'A', 'a1', 1, 100), makeItem('i2', 'B', 'a1', 1, 300)],
           },
-        } as Partial<DailyRecord>),
+        } as unknown as Partial<DailyRecord>),
       ],
     ]
     const result = aggregateByItem(days)
@@ -345,7 +345,7 @@ describe('calculateDailyTotals', () => {
         makeRecord({
           interStoreIn: { cost: 100, price: 200 },
           interStoreOut: { cost: 50, price: 100 },
-        } as Partial<DailyRecord>),
+        } as unknown as Partial<DailyRecord>),
       ],
     ]
     const result = calculateDailyTotals(days, 'interStoreIn', 'interStoreOut')
@@ -378,7 +378,7 @@ describe('buildDailyCostInclusionData', () => {
       [1, makeRecord()],
       [
         2,
-        makeRecord({ costInclusion: { cost: 100, total: 100, items: [] } } as Partial<DailyRecord>),
+        makeRecord({ costInclusion: { cost: 100, total: 100, items: [] } } as unknown as Partial<DailyRecord>),
       ],
     ]
     const result = buildDailyCostInclusionData(days)

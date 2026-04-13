@@ -5,6 +5,7 @@ import type { MonthlyContext } from '@/domain/models/temporal'
 describe('buildMonthlyFrame', () => {
   it('generates a monthly frame with first to last day (31-day month)', () => {
     const ctx: MonthlyContext = {
+      kind: 'monthly' as const,
       year: 2024,
       month: 1,
       storeIds: ['s1', 's2'],
@@ -18,23 +19,23 @@ describe('buildMonthlyFrame', () => {
   })
 
   it('handles 30-day month (April)', () => {
-    const frame = buildMonthlyFrame({ year: 2024, month: 4, storeIds: [] })
+    const frame = buildMonthlyFrame({ kind: 'monthly' as const, year: 2024, month: 4, storeIds: [] })
     expect(frame.monthRange.to.day).toBe(30)
     expect(frame.storeIds).toEqual([])
   })
 
   it('handles February leap year', () => {
-    const frame = buildMonthlyFrame({ year: 2024, month: 2, storeIds: ['x'] })
+    const frame = buildMonthlyFrame({ kind: 'monthly' as const, year: 2024, month: 2, storeIds: ['x'] })
     expect(frame.monthRange.to.day).toBe(29)
   })
 
   it('handles February non-leap year', () => {
-    const frame = buildMonthlyFrame({ year: 2023, month: 2, storeIds: ['x'] })
+    const frame = buildMonthlyFrame({ kind: 'monthly' as const, year: 2023, month: 2, storeIds: ['x'] })
     expect(frame.monthRange.to.day).toBe(28)
   })
 
   it('handles December (month 12)', () => {
-    const frame = buildMonthlyFrame({ year: 2024, month: 12, storeIds: [] })
+    const frame = buildMonthlyFrame({ kind: 'monthly' as const, year: 2024, month: 12, storeIds: [] })
     expect(frame.monthRange.from.month).toBe(12)
     expect(frame.monthRange.to.month).toBe(12)
     expect(frame.monthRange.to.day).toBe(31)

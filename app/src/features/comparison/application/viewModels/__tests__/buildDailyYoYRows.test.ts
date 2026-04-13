@@ -72,10 +72,7 @@ describe('buildDailyYoYRows', () => {
       [10, { sales: 100, customers: 10 }],
       [1, { sales: 50, customers: 5 }],
     ])
-    const prev = [
-      point({ currentDay: 5, sales: 500 }),
-      point({ currentDay: 1, sales: 60 }),
-    ]
+    const prev = [point({ currentDay: 5, sales: 500 }), point({ currentDay: 1, sales: 60 })]
     const result = buildDailyYoYRows(current, prev)
     expect(result.map((r) => r.day)).toEqual([1, 5, 10])
   })
@@ -85,10 +82,7 @@ describe('buildDailyYoYRows', () => {
       [1, { sales: 100, customers: 10 }],
       [2, { sales: 200, customers: 20 }],
     ])
-    const prev = [
-      point({ currentDay: 2, sales: 180 }),
-      point({ currentDay: 3, sales: 300 }),
-    ]
+    const prev = [point({ currentDay: 2, sales: 180 }), point({ currentDay: 3, sales: 300 })]
     const result = buildDailyYoYRows(current, prev)
     expect(result.map((r) => r.day)).toEqual([1, 2, 3])
     // day 2 should pair both

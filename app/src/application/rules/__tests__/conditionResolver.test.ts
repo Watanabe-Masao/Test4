@@ -47,10 +47,7 @@ describe('conditionResolver', () => {
     it('returns zero thresholds for unknown metric id', () => {
       const config: ConditionSummaryConfig = { global: {}, storeOverrides: {} }
       // unknown id cast
-      const result = resolveThresholds(
-        config,
-        'unknownMetric' as unknown as 'sales',
-      )
+      const result = resolveThresholds(config, 'unknownMetric' as unknown as 'sales')
       expect(result.blue).toBe(0)
       expect(result.yellow).toBe(0)
       expect(result.red).toBe(0)

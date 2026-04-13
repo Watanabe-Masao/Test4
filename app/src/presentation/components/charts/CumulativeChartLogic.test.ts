@@ -1,8 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import {
-  buildCumulativeChartData,
-  computeCumulativeSummary,
-} from './CumulativeChartLogic'
+import { buildCumulativeChartData, computeCumulativeSummary } from './CumulativeChartLogic'
 import type { DailyCumulativeRow } from '@/application/hooks/duckdb'
 
 const rows = [

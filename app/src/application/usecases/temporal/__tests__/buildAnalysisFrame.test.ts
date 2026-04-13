@@ -10,6 +10,7 @@ const baseAnchor = {
 describe('buildAnalysisFrame', () => {
   it('builds a movingAverage frame with default direction=trailing', () => {
     const req: AnalysisRequest = {
+      kind: 'analysis' as const,
       anchorRange: baseAnchor,
       storeIds: ['s1'],
       metric: 'sales',
@@ -28,6 +29,7 @@ describe('buildAnalysisFrame', () => {
 
   it('preserves explicit direction=centered', () => {
     const frame = buildAnalysisFrame({
+      kind: 'analysis' as const,
       anchorRange: baseAnchor,
       storeIds: ['s1'],
       metric: 'sales',
@@ -44,6 +46,7 @@ describe('buildAnalysisFrame', () => {
 
   it('builds a cumulative (non-rolling) frame without windowSize', () => {
     const frame = buildAnalysisFrame({
+      kind: 'analysis' as const,
       anchorRange: baseAnchor,
       storeIds: ['s1'],
       metric: 'sales',
@@ -57,6 +60,7 @@ describe('buildAnalysisFrame', () => {
 
   it('builds a trend frame', () => {
     const frame = buildAnalysisFrame({
+      kind: 'analysis' as const,
       anchorRange: baseAnchor,
       storeIds: [],
       metric: 'sales',
@@ -69,7 +73,8 @@ describe('buildAnalysisFrame', () => {
   it('throws if windowSize is missing for rolling modes', () => {
     expect(() =>
       buildAnalysisFrame({
-        anchorRange: baseAnchor,
+        kind: 'analysis' as const,
+      anchorRange: baseAnchor,
         storeIds: ['s1'],
         metric: 'sales',
         granularity: 'day',
@@ -81,7 +86,8 @@ describe('buildAnalysisFrame', () => {
   it('throws if windowSize is zero or negative', () => {
     expect(() =>
       buildAnalysisFrame({
-        anchorRange: baseAnchor,
+        kind: 'analysis' as const,
+      anchorRange: baseAnchor,
         storeIds: ['s1'],
         metric: 'sales',
         granularity: 'day',
@@ -91,7 +97,8 @@ describe('buildAnalysisFrame', () => {
     ).toThrow(/positive integer/)
     expect(() =>
       buildAnalysisFrame({
-        anchorRange: baseAnchor,
+        kind: 'analysis' as const,
+      anchorRange: baseAnchor,
         storeIds: ['s1'],
         metric: 'sales',
         granularity: 'day',
@@ -104,7 +111,8 @@ describe('buildAnalysisFrame', () => {
   it('throws for non-integer windowSize', () => {
     expect(() =>
       buildAnalysisFrame({
-        anchorRange: baseAnchor,
+        kind: 'analysis' as const,
+      anchorRange: baseAnchor,
         storeIds: ['s1'],
         metric: 'sales',
         granularity: 'day',

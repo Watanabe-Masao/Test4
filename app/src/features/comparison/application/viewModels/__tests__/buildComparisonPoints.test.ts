@@ -41,10 +41,7 @@ describe('toComparisonPoints', () => {
   })
 
   it('deduplicates rows sharing the same currentDay (last wins)', () => {
-    const mapping = [
-      row({ currentDay: 1, prevSales: 100 }),
-      row({ currentDay: 1, prevSales: 200 }),
-    ]
+    const mapping = [row({ currentDay: 1, prevSales: 100 }), row({ currentDay: 1, prevSales: 200 })]
     const result = toComparisonPoints(mapping)
     expect(result).toHaveLength(1)
     expect(result[0].sales).toBe(200)
@@ -57,10 +54,7 @@ describe('toComparisonPointMap', () => {
   })
 
   it('keys ComparisonPoints by currentDay', () => {
-    const mapping = [
-      row({ currentDay: 1, prevSales: 100 }),
-      row({ currentDay: 2, prevSales: 200 }),
-    ]
+    const mapping = [row({ currentDay: 1, prevSales: 100 }), row({ currentDay: 2, prevSales: 200 })]
     const result = toComparisonPointMap(mapping)
     expect(result.size).toBe(2)
     expect(result.get(1)?.sales).toBe(100)
@@ -68,9 +62,7 @@ describe('toComparisonPointMap', () => {
   })
 
   it('preserves source date through mapping', () => {
-    const mapping = [
-      row({ currentDay: 7, prevDay: 6, prevMonth: 4, prevYear: 2024 }),
-    ]
+    const mapping = [row({ currentDay: 7, prevDay: 6, prevMonth: 4, prevYear: 2024 })]
     const result = toComparisonPointMap(mapping)
     expect(result.get(7)?.sourceDate).toEqual({ year: 2024, month: 4, day: 6 })
   })

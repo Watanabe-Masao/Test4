@@ -61,7 +61,7 @@ describe('buildDateRanges', () => {
       month: 4,
       dayStart: 1,
       dayEnd: 15,
-      activeCompMode: 'sameDate',
+      activeCompMode: 'yoy',
       canWoW: false,
       dowOffset: 0,
       wowPrevStart: 0,
@@ -83,7 +83,7 @@ describe('buildDateRanges', () => {
       month: 4,
       dayStart: 1,
       dayEnd: 30,
-      activeCompMode: 'sameDate',
+      activeCompMode: 'yoy',
       canWoW: false,
       dowOffset: 0,
       wowPrevStart: 0,
@@ -96,7 +96,7 @@ describe('buildDateRanges', () => {
 // ─── buildPeriodAggregates ──────────────────
 
 describe('buildPeriodAggregates', () => {
-  function makeDaily(day: number, sales: number, customers: number): DailyRecord {
+  function makeDaily(_day: number, sales: number, customers: number): DailyRecord {
     return {
       sales,
       customers,
@@ -109,7 +109,7 @@ describe('buildPeriodAggregates', () => {
     const result = buildPeriodAggregates({
       periodCTS: [],
       periodPrevCTS: [],
-      activeCompMode: 'sameDate',
+      activeCompMode: 'yoy',
       daily,
       prevDaily: new Map(),
       dayStart: 1,
@@ -130,7 +130,7 @@ describe('buildPeriodAggregates', () => {
     const result = buildPeriodAggregates({
       periodCTS: [makeCts(10, 1000)],
       periodPrevCTS: [makeCts(10, 800)],
-      activeCompMode: 'sameDate',
+      activeCompMode: 'yoy',
       daily,
       prevDaily: new Map(),
       dayStart: 1,

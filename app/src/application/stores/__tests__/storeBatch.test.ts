@@ -30,8 +30,8 @@ describe('filterStore', () => {
   })
 
   it('setAggregateMode', () => {
-    useFilterStore.getState().setAggregateMode('daily')
-    expect(useFilterStore.getState().aggregateMode).toBe('daily')
+    useFilterStore.getState().setAggregateMode('dailyAvg')
+    expect(useFilterStore.getState().aggregateMode).toBe('dailyAvg')
   })
 
   it('toggleDow: 追加 → 削除', () => {

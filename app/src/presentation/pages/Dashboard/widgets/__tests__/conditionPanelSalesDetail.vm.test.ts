@@ -12,7 +12,8 @@ import { describe, it, expect } from 'vitest'
 import { formatTxValue, buildDailyYoYRenderRows } from '../conditionPanelSalesDetail.vm'
 import type { DailyYoYRow } from '../conditionPanelYoY.vm'
 
-const fmtCurrency = (v: number): string => `¥${v.toLocaleString('ja-JP')}`
+const fmtCurrency = ((v: number | null): string =>
+  `¥${(v ?? 0).toLocaleString('ja-JP')}`) as unknown as import('@/presentation/components/charts/chartTheme').CurrencyFormatter
 
 describe('formatTxValue', () => {
   it('formats zero', () => {

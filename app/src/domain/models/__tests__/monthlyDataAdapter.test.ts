@@ -96,7 +96,8 @@ describe('toAppData', () => {
     const curOrigin = makeOrigin()
     const prevOrigin = makeOrigin({ year: 2025 })
     const result = toAppData(cur, curOrigin, prev, prevOrigin)
-    expect(result.current.origin).toBe(curOrigin)
+    expect(result.current).not.toBeNull()
+    expect(result.current!.origin).toBe(curOrigin)
     expect(result.prevYear?.origin).toBe(prevOrigin)
   })
 
