@@ -50,7 +50,8 @@
         { "path": "references/03-guides/promote-ceremony-template.md", "label": "Promote Ceremony テンプレート" },
         { "path": "references/01-principles/aag-5-constitution.md", "label": "AAG 5.0 4層構造定義" },
         { "path": "references/01-principles/aag-5-layer-map.md", "label": "AAG 5.0 既存ファイル層マッピング" },
-        { "path": "references/01-principles/aag-5-source-of-truth-policy.md", "label": "AAG 5.0 正本/派生/運用物ポリシー" }
+        { "path": "references/01-principles/aag-5-source-of-truth-policy.md", "label": "AAG 5.0 正本/派生/運用物ポリシー" },
+        { "path": "references/01-principles/test-signal-integrity.md", "label": "Test Signal Integrity — 品質シグナル保全の原則" }
       ]
     },
     {

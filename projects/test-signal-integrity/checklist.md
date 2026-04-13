@@ -13,13 +13,13 @@
 
 ## Phase 1: Principle / Guide 定義
 
-* [ ] Signal Integrity の思想を `references/01-principles/` に正本化する
-* [ ] protected harm（False Green / Review Misleading / Refactoring Fragility / Governance Drift）を定義する
-* [ ] 品質劣化テストパターンの初期一覧を bad/good example 付きで整理する
-* [ ] compiler / linter silencing パターンの初期一覧を bad/good example 付きで整理する
-* [ ] 「機械的に検知できるもの」と「advisory / review に留めるもの」の境界を明文化する
-* [ ] 許容例外（smoke test / migration 中の一時 suppression / 公開契約の存在確認など）を明文化する
-* [ ] 固定レスポンスの必須項目（detected / why / protectedHarm / steps / allowedExceptions / examples）を定義する
+* [x] Signal Integrity の思想を `references/01-principles/` に正本化する
+* [x] protected harm（False Green / Review Misleading / Refactoring Fragility / Governance Drift）を定義する
+* [x] 品質劣化テストパターンの初期一覧を bad/good example 付きで整理する
+* [x] compiler / linter silencing パターンの初期一覧を bad/good example 付きで整理する
+* [x] 「機械的に検知できるもの」と「advisory / review に留めるもの」の境界を明文化する
+* [x] 許容例外（smoke test / migration 中の一時 suppression / 公開契約の存在確認など）を明文化する
+* [x] 固定レスポンスの必須項目（detected / why / protectedHarm / steps / allowedExceptions / examples）を定義する
 
 ## Phase 2: Advisory / Review 入口の整備
 
