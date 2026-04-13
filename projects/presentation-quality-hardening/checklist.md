@@ -19,7 +19,7 @@
 > IntegratedSalesChart (現在 403 行) / StorageManagementTab (現在 126 行) は対象外。
 
 * [x] `HourlyChart.tsx` (現 501 行) を `.vm.ts` 抽出で 500 行未満にする
-* [ ] `InsightTabBudget.tsx` (現 581 行) を `.vm.ts` 抽出で 500 行未満にする
+* [x] `InsightTabBudget.tsx` (現 581 行) を `.vm.ts` 抽出で 500 行未満にする
 * [ ] `InsightTabForecast.tsx` (現 514 行) を `.vm.ts` 抽出で 500 行未満にする
 * [ ] sizeGuard が 3 件全てに対して PASS することを確認する
 
