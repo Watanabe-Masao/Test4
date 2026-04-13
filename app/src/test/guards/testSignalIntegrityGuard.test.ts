@@ -32,9 +32,7 @@ import { g3SuppressAllowlist } from '../allowlists'
 //
 // このガード自身 / baseline 採取スクリプトは、検出対象パターンを文字列
 // リテラルとして含むため除外する。
-const EXCLUDED_FILES = new Set([
-  'test/guards/testSignalIntegrityGuard.test.ts',
-])
+const EXCLUDED_FILES = new Set(['test/guards/testSignalIntegrityGuard.test.ts'])
 
 const isExcluded = (relPath: string): boolean => EXCLUDED_FILES.has(relPath)
 
@@ -51,7 +49,8 @@ describe('TSIG-TEST-01: existence-only assertion がない', () => {
     const oneLinerPattern =
       /(?:it|test)\(\s*['"`][^'"`]+['"`]\s*,\s*(?:async\s*)?\(\)\s*=>\s*\{\s*expect\([^)]+\)\.(?:toBeDefined|toBeTruthy|toBeNull)\(\)\s*\}\s*\)/
 
-    const itBlockPattern = /(?:^|\n)\s*(?:it|test)\(\s*['"`][^'"`]+['"`]\s*,\s*(?:async\s*)?\(\)\s*=>\s*\{/g
+    const itBlockPattern =
+      /(?:^|\n)\s*(?:it|test)\(\s*['"`][^'"`]+['"`]\s*,\s*(?:async\s*)?\(\)\s*=>\s*\{/g
 
     for (const file of testFiles) {
       const relPath = rel(file)
@@ -86,8 +85,9 @@ describe('TSIG-TEST-01: existence-only assertion がない', () => {
         if (expects.length !== 1) continue
 
         // 1 つだけの expect が toBeDefined / toBeTruthy / toBeNull のみか？
-        const hasExistenceOnly =
-          /expect\([^)]+\)\.(?:toBeDefined|toBeTruthy|toBeNull)\(\)/.test(block)
+        const hasExistenceOnly = /expect\([^)]+\)\.(?:toBeDefined|toBeTruthy|toBeNull)\(\)/.test(
+          block,
+        )
         const hasMeaningfulMatcher =
           /expect\([^)]+\)\.(?:toBe|toEqual|toMatch|toThrow|toContain|toHaveLength|toHaveBeenCalled|toBeGreaterThan|toBeLessThan|toBeCloseTo)/.test(
             block,
@@ -105,10 +105,9 @@ describe('TSIG-TEST-01: existence-only assertion がない', () => {
       }
     }
 
-    expect(
-      violations,
-      formatViolationMessage(getRuleById('AR-TSIG-TEST-01')!, violations),
-    ).toEqual([])
+    expect(violations, formatViolationMessage(getRuleById('AR-TSIG-TEST-01')!, violations)).toEqual(
+      [],
+    )
   })
 })
 
@@ -208,10 +207,9 @@ describe('TSIG-COMP-03: unused suppress escape (multi-underscore)', () => {
       }
     }
 
-    expect(
-      violations,
-      formatViolationMessage(getRuleById('AR-TSIG-COMP-03')!, violations),
-    ).toEqual([])
+    expect(violations, formatViolationMessage(getRuleById('AR-TSIG-COMP-03')!, violations)).toEqual(
+      [],
+    )
   })
 })
 
