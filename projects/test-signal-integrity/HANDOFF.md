@@ -450,6 +450,156 @@ HANDOFF §2 の優先順位を以下に変える (覚書):
 - 📝 Step 3-4 以降は coverage 0% 領域 (component test) を優先
 - 📝 vm.ts への追加 test は contract 強化として続けるが coverage 主目的にしない
 
+#### 2026-04-13 — Step 3-4: KpiCard component test (戦略変更の効果実証)
+
+**作業**: Step 3-3 で発見した「coverage 0% 領域を狙う戦略変更」を実証するため、
+`presentation/components/common/KpiCard.tsx` (122 行 / coverage 0%) の
+component test を 24 件追加。
+
+**期待**: vm.ts test の +0.04% vs component test の +N% で delta が大きく違う
+ことを実証する。
+
+**実際**:
+
+| メトリック | Before (Step 3-3 後) | After (Step 3-4 後) | delta |
+|---|---|---|---|
+| KpiCard.tsx | 0% | **100%** | +100% (1 file) |
+| All files lines (global) | 35.05% | **35.25%** | **+0.20** |
+| Total tests | 5480 | 5504 | +24 |
+
+**戦略変更の効果**:
+- vm.ts test (Step 3-1〜3-3): per add で +0.04% delta
+- component test (Step 3-4): per add で **+0.20% delta** = **5x 速い**
+
+これにより Phase 3 の coverage 戦略の正当性が実証された。
+
+##### 追加した contract test (24 件 / 6 describe)
+
+| describe | test 数 | 検証 branch |
+|---|---|---|
+| 基本表示 | 4 | label / value / subText / formulaSummary |
+| onClick (clickable mode) | 7 | role=button / aria-label / 「根拠」hint / click / Enter / Space / Tab 無発火 / 未指定時 |
+| badge (actual / estimated) | 3 | actual / estimated / 未指定 |
+| trend | 4 | up / down / flat / 未指定 |
+| displayMode | 4 | hidden で value=— / hidden で trend 隠し / reference badge / isReference badge |
+| warning | 3 | warning badge / hidden で非表示 / warning + isReference の優先順 |
+
+すべて `@testing-library/react` の `screen.getByText` / `getByRole` /
+`fireEvent.click` / `fireEvent.keyDown` で **実 DOM の可視結果** を検証。
+不可侵原則 #4 (壊れたら気づく検証) に従う。
+
+##### 観測の意義
+
+Step 3-1〜3-3 の vm test とは異なる test スタイル (DOM-based component test) を
+追加した結果:
+- `check_test_signal_advisory` が pre-push で発火し新規 test ファイルを advisory
+- TSIG-TEST-01 / -02 / -03 / TSIG-COMP-* の hard gate にすべて通過
+- false positive なし
+- coverage delta が大きい (vm の 5x)
+
+= 観測戦略が「component test」というカテゴリでも機能することを実証。
+
+##### ルール側のアクション
+
+- ✅ KpiCard.tsx 100% カバー達成 (本 commit)
+- ✅ 戦略変更の効果数値で実証 (vm 0.04 vs component 0.20)
+- 📝 次の component test 候補:
+  - WrapKpiCard.tsx (coverage 0%, KpiCard と同じ系統)
+  - Modal.tsx (8.69%, interaction あり)
+  - Toast.tsx (31.48%, partial)
+  - Card.tsx (re-export only — skip)
+- 📝 観測継続中。Step 3-5 以降 component を追加していく
+
+#### 2026-04-13 — Step 3-5 〜 3-9: component test 連続追加 + 第 8 発見
+
+**作業**: Step 3-4 の戦略変更 (component test を狙う) を実行。5 つの
+component に contract test を連続追加し、閾値を 35→36 に初 ratchet up。
+
+| Step | Component | 追加 test | Coverage | Cumulative |
+|---|---|---|---|---|
+| 3-5 | DataEndDaySlider.tsx | 18 | 35.25→35.43 | +0.18 |
+| 3-6 | Modal.tsx | 18 | 35.43→35.65 | +0.22 |
+| 3-7 | Toast.tsx | 14 | 35.65→35.94 | +0.29 |
+| 3-8 | SegmentedControl.tsx | 19 | 35.94→36.08 | +0.14 |
+| 3-8 | **閾値 35→36 ratchet up** | — | — | (初回) |
+| 3-9 | MonthSelector.tsx | 13 | 36.08→36.31 | +0.23 |
+
+合計 **82 件の新規 component test** で **+1.06 ポイント** (35.25→36.31)。
+
+##### 第 8 の観測発見: 自分で tautology assertion を書いて自分で気づいた
+
+Step 3-9 MonthSelector test 作成時に、picker overlay click の挙動を
+テストしようとしたが styled-components の class 名が予測不能で overlay
+element を確実に取得できない。代替として以下の assertion を書いた:
+
+```ts
+const overlays = document.querySelectorAll('[class*="Overlay"]')
+// ... (何も変えない)
+expect(overlays.length).toBeGreaterThanOrEqual(0) // no-op assertion
+```
+
+`length >= 0` は **常に true** (length は Number.MAX_SAFE_INTEGER まで非負)。
+これは **TSIG-TEST-04 候補 (tautology assertion)** の代表例。
+
+しかも、この観察は **事前定義した新規アンチパターン候補リスト (HANDOFF §2
+Step 5) の #1 項目** に他ならない:
+
+> | `expect(true).toBe(true)` 等の tautology assertion | regex | AR-TSIG-TEST-04 |
+
+これで観測期間中に **2 回** tautology assertion に遭遇した (1 件目は Step 3-2
+の既存 test で発見、2 件目は自分で書いてしまった)。昇格判断の根拠が積み上がっている。
+
+**自主対応**: test ごと削除 (覆い隠すコメント残す)。Discovery Review 候補。
+
+**ルール側のアクション**:
+- 📝 AR-TSIG-TEST-04 (tautology assertion detector) の実装優先度を上げる
+  - 検出 regex 候補: `expect\([^)]*\)\.toBe(GreaterThanOrEqual\(0\)|LessThanOrEqual\(Number\.MAX)`
+  - `expect\([^)]*\)\.toBe(True|False|Defined)\(\)` + literal `true`/`false`/anything
+  - `expect\(true\)\.toBe\(true\)` 等の完全 tautology
+- 📝 baseline 採取を tautology 実装時に同時に行う (本事例 2 件を baseline に入れる?)
+
+##### 閾値 35 → 36 ratchet up の意味
+
+Step 3-8 commit で `vitest.config.ts` の lines 閾値を 35→36 に引き上げた。
+これは Phase 3 観測期間中の **最初の ratchet up** であり:
+- 不可逆的な進捗を作る
+- 次回 test 削除 / regression で CI が fail する保険
+- Phase 3 の達成目標 (70%) に向けた機械的な前進
+
+Ratchet up のタイミング判断:
+- 累積 delta が +1.0 を超えたら閾値+1
+- margin は 0.08% (保守的)
+- 細かく刻むことで後戻り耐性を高める
+
+##### Coverage 進捗 (35.01 → 36.31)
+
+```
+Step    3-1  3-2  3-3  3-4    3-5    3-6    3-7    3-8   (threshold)  3-9
+Cov     35.0 35.0 35.0 35.25  35.43  35.65  35.94  36.08 (→ 36)        36.31
+Delta   +.04 +.00 +.00 +.20   +.18   +.22   +.29   +.14                +.23
+Type    vm   vm   vm   comp   comp   comp   comp   comp                comp
+```
+
+- vm test x3 = +0.04
+- component test x6 = +1.26 (5x 効率、戦略変更の効果)
+
+---
+
+_(以降の観測ログを時系列で追記)_
+
+##### Coverage 進捗
+
+```
+35.01% (baseline) → 35.05% (Step 3-1〜3-3 後) → 35.25% (Step 3-4 後)
+                        ↑ +0.04             ↑ +0.20
+                        vm test x3           component test x1 (5x 効率)
+```
+
+70% までの距離: 35.25% → 70.00% = **34.75 ポイント不足**。
+component test を `+0.20 / file` ペースで追加するなら **約 174 file 必要**。
+ただし大きい component (Modal / Toast / pages) は +0.5〜2% を期待できる。
+段階的閾値引き上げ (35 → 40 → 50 → 60 → 70) で進捗を可視化する。
+
 ---
 
 _(以降の観測ログを時系列で追記)_
