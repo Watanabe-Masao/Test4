@@ -4969,4 +4969,155 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       ],
     },
   },
+
+  // ── Test Signal Integrity (project: test-signal-integrity Phase 3) ──
+  // 上位原則: references/01-principles/test-signal-integrity.md
+  // 思想: 品質シグナル（test / coverage / compile / lint）が改善の結果を表し、
+  //       達成のために歪めてはならない。
+
+  {
+    slice: 'governance-ops',
+    id: 'AR-G3-SUPPRESS-RATIONALE',
+    principleRefs: ['G3'],
+    ruleClass: 'invariant',
+    guardTags: ['G3'],
+    epoch: 1,
+    doc: 'references/01-principles/test-signal-integrity.md',
+    what: 'allowlist 登録された eslint-disable / @ts-ignore / @ts-expect-error は構造化された reason: / removalCondition: を必須とする',
+    why: 'allowlist で許容しても、自由文の説明では「なぜ」「いつ消せるか」が後から読めない。構造化された rationale を必須化することで、suppression を「黙らせる手段」から「制度化された例外」に格上げする。これは TSIG-COMP-01/02 の実装方針として AR-G3-SUPPRESS の rationale enforcement 拡張で実現する',
+    correctPattern: {
+      description:
+        'allowlist エントリ (signalIntegrity.ts) と source code コメントの両方で reason: / removalCondition: を構造化する',
+      example:
+        '// reason: ECharts ライブラリの制約\n// removalCondition: react-hooks rule が stable-ref annotation を support する\n// eslint-disable-next-line react-hooks/exhaustive-deps',
+    },
+    outdatedPattern: {
+      description:
+        'allowlist 登録された suppression に reason: / removalCondition: が無い、または free-form English のみ',
+      codeSignals: ['eslint-disable', '@ts-ignore', '@ts-expect-error'],
+    },
+    decisionCriteria: {
+      when: 'allowlist (signalIntegrity.ts) に G3 suppress エントリを追加するとき',
+      exceptions:
+        'EX-03 (removalCondition 付き一時 suppression) のみ。条件は references/01-principles/test-signal-integrity.md を参照',
+      escalation:
+        '構造化 rationale が書けないなら、それは恒久例外として正当化されていない。allowlist 登録を諦めて根本修正する',
+    },
+    detection: { type: 'custom', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        '1. allowlist 登録対象 source file を特定する (signalIntegrity.ts の path フィールド)',
+        '2. 当該 source file の suppression コメント直前 / 直上に reason: と removalCondition: を構造化フォーマットで追記する',
+        '3. allowlist エントリ自体にも reason / removalCondition フィールドを 20 文字以上で設定する',
+        '4. testSignalIntegrityGuard.test.ts の AR-G3-SUPPRESS-RATIONALE block で検証',
+      ],
+    },
+    relationships: {
+      protects: ['AR-G3-SUPPRESS'],
+    },
+    sunsetCondition:
+      'AR-G3-SUPPRESS allowlist が 0 件になり (= suppression 自体が不要に) AR-G3-SUPPRESS-RATIONALE の検証対象がなくなった',
+    protectedHarm: {
+      prevents: [
+        'False Green: 黙らせるだけで根本原因を解決しない',
+        'Refactoring Fragility: なぜ抑制したかが後から読めず、変更時に影響範囲が見えない',
+        'Governance Drift: allowlist が「なんとなく許容」になる',
+      ],
+    },
+  },
+
+  {
+    slice: 'governance-ops',
+    id: 'AR-TSIG-COMP-03',
+    principleRefs: ['G3'],
+    ruleClass: 'invariant',
+    guardTags: ['G3'],
+    epoch: 1,
+    doc: 'references/01-principles/test-signal-integrity.md',
+    what: '関数引数で _ プレフィックスを 2 つ以上連続持つ pattern (unused suppress escape) を禁止する',
+    why: '単独の _xxx は callback signature 互換性で必要なケースが多いが、2 つ以上連続する場合は本来 signature 削減 / 責務整理で解決すべきところを suppress で逃がしている。これは Refactoring Fragility と Governance Drift を生む',
+    correctPattern: {
+      description:
+        '不要な引数は signature から削除する。callback 互換性で残す場合は単独 _ にとどめ、JSDoc で「なぜ受け取って捨てるか」を明示する',
+      example: 'function handleClick(payload: Payload) { ... }',
+    },
+    outdatedPattern: {
+      description: '_xxx, _yyy のように _ プレフィックス引数が 2 つ以上連続する',
+      codeSignals: ['(_event, _index', '(_a, _b'],
+    },
+    decisionCriteria: {
+      when: '関数 signature を書くとき',
+      exceptions:
+        'callback signature 互換性で受け取らざるを得ないケース (例: Array.prototype.map の (item, _index) ) — ただし単独 _ にとどめ、複数連続を避ける',
+      escalation: '本当に必要な引数のみを受け取る signature に変更する。または対象関数の責務を再設計する',
+    },
+    detection: { type: 'custom', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        '1. 該当する関数 signature を特定する',
+        '2. 不要な _ プレフィックス引数を削除する',
+        '3. callback 互換性で残す場合は単独 _ + JSDoc コメントに置き換える',
+        '4. testSignalIntegrityGuard.test.ts の TSIG-COMP-03 block で検証',
+      ],
+    },
+    sunsetCondition:
+      'TSIG-COMP-03 violation が 6 ヶ月間 0 件で推移し、新規 signature 追加時の advisory も自己点検不要と判断された',
+    protectedHarm: {
+      prevents: [
+        'Refactoring Fragility: signature が肥大化したまま放置される',
+        'Governance Drift: suppress を逃げ道にする習慣が定着する',
+      ],
+    },
+  },
+
+  {
+    slice: 'governance-ops',
+    id: 'AR-TSIG-TEST-01',
+    principleRefs: ['G1'],
+    ruleClass: 'invariant',
+    guardTags: ['G1'],
+    epoch: 1,
+    doc: 'references/01-principles/test-signal-integrity.md',
+    what: 'existence-only assertion （存在確認だけのテスト）を禁止する',
+    why: '実装の存在確認しかしておらず、挙動・契約・副作用を検証していない。coverage を増やしても品質保証に寄与せず False Green と Review Misleading を生む',
+    correctPattern: {
+      description:
+        '出力契約 / 主要分岐 / 異常系のいずれかを検証する。存在確認しか書けないなら test を削除する',
+      example:
+        "it('sums positive numbers correctly', () => { expect(calculateTotal([1,2,3])).toBe(6) })",
+    },
+    outdatedPattern: {
+      description:
+        'it() 1 ブロック内で expect が 1 つだけかつそれが toBeDefined / toBeTruthy / toBeNull のみで終わる',
+      codeSignals: [
+        'expect(...).toBeDefined()',
+        'expect(...).toBeTruthy()',
+        'expect(...).toBeNull()',
+      ],
+    },
+    decisionCriteria: {
+      when: '新規テストを書くとき',
+      exceptions:
+        '公開契約としての helper existence test (EX-01): facade ファイルかつ JSDoc/コメントで「公開 API contract の一部」と明示され、同一 file に挙動検証 test が別途存在する場合のみ許容',
+      escalation:
+        '出力契約を検証する assertion を追加する。主要分岐または異常系を 1 件以上検証する。それでも書けないなら test を削除する',
+    },
+    detection: { type: 'custom', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        '1. existence-only assertion を含む it() ブロックを特定する',
+        '2. 対象関数の出力契約・主要分岐・異常系を 1 件以上検証する assertion に書き換える',
+        '3. それでも意味のある assertion が書けないなら test を削除する',
+        '4. EX-01 (公開契約 helper existence test) に該当する場合は JSDoc コメントで明示し、同一 file に挙動検証 test を追加する',
+      ],
+    },
+    sunsetCondition:
+      'TSIG-TEST-01 violation が 6 ヶ月間 0 件で推移し、新規 test 追加時の advisory も自己点検不要と判断された',
+    protectedHarm: {
+      prevents: [
+        'False Green: coverage は上がるが品質改善が伴わない',
+        'Review Misleading: レビュアーが品質確保されたと誤認',
+      ],
+    },
+  },
 ] as const satisfies readonly BaseRule[]

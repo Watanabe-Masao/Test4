@@ -223,6 +223,13 @@ export const EChart = memo(function EChart({
   }, [option, themeName])
 
   // テーマ変更時に再初期化
+  // reason: ECharts ライブラリの制約。option は別の useEffect で適用しており、
+  //   テーマ変更時のみ再初期化するため依存配列に option を含めない。含めると
+  //   stale closure ループが発生する
+  // removalCondition: react-hooks rule が stable-ref annotation を natively
+  //   support するか、ECharts の React wrapper を導入して useEffect 自体を不要にする
+  // 構造化 rationale 正本: app/src/test/allowlists/signalIntegrity.ts (AR-G3-SUPPRESS)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!containerRef.current || !chartRef.current) return
     chartRef.current.dispose()
@@ -230,8 +237,7 @@ export const EChart = memo(function EChart({
       renderer: 'canvas',
     })
     chartRef.current.setOption(option, { notMerge: true })
-    // option は別の useEffect で適用。テーマ変更時のみ再初期化するため意図的に除外
-  }, [themeName]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [themeName])
 
   // クリックイベント
   useEffect(() => {

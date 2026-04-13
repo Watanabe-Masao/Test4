@@ -318,6 +318,55 @@ check_test_guards() {
   fi
 }
 
+# Check: 新規テストファイル → Signal Integrity advisory
+# 学習ソース: projects/test-signal-integrity Phase 5 / 2026-04-13
+# 理由: 新規 test ファイルは品質シグナル保全の self-check 動線が必要。
+#       coverage を上げるためだけの無価値テストが混入すると H1 (False Green)
+#       と H2 (Review Misleading) を生む。ただし機械的に hard gate 化できない
+#       ため、作成者本人の自己点検を促す advisory として warning を返す。
+# severity: warn (止めない)
+# 上位原則: references/01-principles/test-signal-integrity.md
+# 運用: references/03-guides/test-signal-integrity-advisory.md
+check_test_signal_advisory() {
+  # 新規追加ファイルのみ対象 (既存ファイル modification は対象外)
+  # glob: app/src/**/*.test.ts(x), *.spec.ts(x), __tests__/**, app/e2e/**/*.spec.ts
+  added_matches '^app/src/.+\.(test|spec)\.(ts|tsx)$|^app/src/.+/__tests__/.+\.(ts|tsx)$|^app/e2e/.+\.spec\.ts$' || return 0
+
+  NEW_TESTS=$(echo "$ADDED_FILES" \
+    | grep -E '^app/src/.+\.(test|spec)\.(ts|tsx)$|^app/src/.+/__tests__/.+\.(ts|tsx)$|^app/e2e/.+\.spec\.ts$' \
+    || true)
+  [ -z "$NEW_TESTS" ] && return 0
+
+  COUNT=$(echo "$NEW_TESTS" | grep -c "^" 2>/dev/null || echo 0)
+
+  add_warn \
+    "[TSIG-ADVISORY] 新規テストファイル ${COUNT} 件を検出 — Signal Integrity の self-check を推奨" \
+    "  なぜ: coverage を上げるためだけの無価値テストが混入すると H1 (False Green)" \
+    "        / H2 (Review Misleading) を生む。機械的 hard gate にできないため自己点検で防ぐ" \
+    "  Self-check (作成者が自分で確認):" \
+    "    - existence-only assertion (toBeDefined() のみ) で終わっていないか" \
+    "    - render / import 成功だけで満足していないか" \
+    "    - snapshot だけで主要挙動を済ませていないか" \
+    "    - 出力・契約・副作用・分岐のいずれかを検証しているか" \
+    "    - suppress (eslint-disable / @ts-ignore) に依存していないか" \
+    "    - mock call count だけで満足し、本来の観測対象を mock で置き換えていないか" \
+    "  Protected harm: H1 False Green / H2 Review Misleading" \
+    "  詳細: references/01-principles/test-signal-integrity.md" \
+    "  運用: references/03-guides/test-signal-integrity-advisory.md" \
+    "  対象ファイル (最大 20 件):"
+
+  HEAD_LIST=$(echo "$NEW_TESTS" | head -20)
+  OLD_IFS="$IFS"
+  IFS='
+'
+  for f in $HEAD_LIST; do
+    add_warn "    $f"
+  done
+  IFS="$OLD_IFS"
+
+  add_warn "  (このアドバイザリは push を止めません)"
+}
+
 # ──────────────────────────────────────────────────────────────────────
 # CHECK_REGISTRY
 # ──────────────────────────────────────────────────────────────────────
@@ -332,6 +381,7 @@ CHECK_REGISTRY="
   check_lint
   check_format
   check_test_guards
+  check_test_signal_advisory
 "
 
 for check in $CHECK_REGISTRY; do

@@ -1,5 +1,5 @@
 {
-  "$comment": "ドキュメントレジストリ — 全正本文書の構造化正本。references/README.md はこの JSON のビュー。AAG v5.2 (2026-04-13) で guard-test-map.md / project-checklist-governance.md / aag-rule-splitting-plan.md に collector-governance symmetry と 7 AR-RESP-* 分割の反映を実施。",
+  "$comment": "ドキュメントレジストリ — 全正本文書の構造化正本。references/README.md はこの JSON のビュー。AAG v5.2 (2026-04-13) で guard-test-map.md / project-checklist-governance.md / aag-rule-splitting-plan.md に collector-governance symmetry と 7 AR-RESP-* 分割の反映を実施。test-signal-integrity Phase 3 (2026-04-13): testSignalIntegrityGuard.test.ts エントリを guard-test-map.md に追加。test-signal-integrity Phase 5 締めくくり (2026-04-13): project-checklist-governance.md §3.1 に「最終レビュー (人間承認) section」を必須構造として追加 (template + 全 checklist で人間承認ゲートを構造化)。",
   "categories": [
     {
       "id": "definition",
@@ -50,7 +50,9 @@
         { "path": "references/03-guides/promote-ceremony-template.md", "label": "Promote Ceremony テンプレート" },
         { "path": "references/01-principles/aag-5-constitution.md", "label": "AAG 5.0 4層構造定義" },
         { "path": "references/01-principles/aag-5-layer-map.md", "label": "AAG 5.0 既存ファイル層マッピング" },
-        { "path": "references/01-principles/aag-5-source-of-truth-policy.md", "label": "AAG 5.0 正本/派生/運用物ポリシー" }
+        { "path": "references/01-principles/aag-5-source-of-truth-policy.md", "label": "AAG 5.0 正本/派生/運用物ポリシー" },
+        { "path": "references/01-principles/test-signal-integrity.md", "label": "Test Signal Integrity — 品質シグナル保全の原則" },
+        { "path": "references/03-guides/test-signal-integrity-advisory.md", "label": "Test Signal Integrity Advisory 運用ガイド" }
       ]
     },
     {

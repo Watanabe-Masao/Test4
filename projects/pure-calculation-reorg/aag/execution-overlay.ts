@@ -1384,4 +1384,33 @@ export const EXECUTION_OVERLAY: ExecutionOverlay = {
       reviewCadenceDays: 90,
     },
   },
+  // ── Test Signal Integrity (project: test-signal-integrity Phase 3) ──
+  // 上位原則: references/01-principles/test-signal-integrity.md
+  "AR-TSIG-TEST-01": {
+    fixNow: "now",
+    executionPlan: { effort: "small", priority: 1 },
+    reviewPolicy: {
+      owner: "solo-maintainer",
+      lastReviewedAt: "2026-04-13",
+      reviewCadenceDays: 90,
+    },
+  },
+  "AR-G3-SUPPRESS-RATIONALE": {
+    fixNow: "now",
+    executionPlan: { effort: "small", priority: 1 },
+    reviewPolicy: {
+      owner: "solo-maintainer",
+      lastReviewedAt: "2026-04-13",
+      reviewCadenceDays: 90,
+    },
+  },
+  "AR-TSIG-COMP-03": {
+    fixNow: "now",
+    executionPlan: { effort: "small", priority: 2 },
+    reviewPolicy: {
+      owner: "solo-maintainer",
+      lastReviewedAt: "2026-04-13",
+      reviewCadenceDays: 90,
+    },
+  },
 };

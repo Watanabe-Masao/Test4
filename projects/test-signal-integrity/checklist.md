@@ -13,49 +13,58 @@
 
 ## Phase 1: Principle / Guide 定義
 
-* [ ] Signal Integrity の思想を `references/01-principles/` に正本化する
-* [ ] protected harm（False Green / Review Misleading / Refactoring Fragility / Governance Drift）を定義する
-* [ ] 品質劣化テストパターンの初期一覧を bad/good example 付きで整理する
-* [ ] compiler / linter silencing パターンの初期一覧を bad/good example 付きで整理する
-* [ ] 「機械的に検知できるもの」と「advisory / review に留めるもの」の境界を明文化する
-* [ ] 許容例外（smoke test / migration 中の一時 suppression / 公開契約の存在確認など）を明文化する
-* [ ] 固定レスポンスの必須項目（detected / why / protectedHarm / steps / allowedExceptions / examples）を定義する
+* [x] Signal Integrity の思想を `references/01-principles/` に正本化する
+* [x] protected harm（False Green / Review Misleading / Refactoring Fragility / Governance Drift）を定義する
+* [x] 品質劣化テストパターンの初期一覧を bad/good example 付きで整理する
+* [x] compiler / linter silencing パターンの初期一覧を bad/good example 付きで整理する
+* [x] 「機械的に検知できるもの」と「advisory / review に留めるもの」の境界を明文化する
+* [x] 許容例外（smoke test / migration 中の一時 suppression / 公開契約の存在確認など）を明文化する
+* [x] 固定レスポンスの必須項目（detected / why / protectedHarm / steps / allowedExceptions / examples）を定義する
 
 ## Phase 2: Advisory / Review 入口の整備
 
-* [ ] 新規 test / spec / e2e 追加時に advisory を返すトリガー対象パスを定義する
-* [ ] 新規 test 追加時の advisory 文面を定義する
-* [ ] advisory に含める自己点検項目（existence-only / render-only / snapshot-only / suppression 依存など）を定義する
-* [ ] hard gate にしないグレーな品質劣化パターンを review-only 候補として整理する
-* [ ] advisory から hard gate へ昇格させる条件を定義する
-* [ ] false positive が出た場合の扱い（allowlist / review / rule 精度改善）を定義する
+* [x] 新規 test / spec / e2e 追加時に advisory を返すトリガー対象パスを定義する
+* [x] 新規 test 追加時の advisory 文面を定義する
+* [x] advisory に含める自己点検項目（existence-only / render-only / snapshot-only / suppression 依存など）を定義する
+* [x] hard gate にしないグレーな品質劣化パターンを review-only 候補として整理する
+* [x] advisory から hard gate へ昇格させる条件を定義する
+* [x] false positive が出た場合の扱い（allowlist / review / rule 精度改善）を定義する
 
 ## Phase 3: Hard Gate 1st Batch 実装
 
-* [ ] Phase 3 着手前に TSIG-TEST-01〜03 / TSIG-COMP-01〜03 の **現状件数を採取** し、ratchet-down baseline を決定する（一時 script で repo を走査し、件数 + 代表ファイルパスを記録する）
-* [ ] TSIG-TEST-01: existence-only assertion を検知して block する guard を実装する
-* [ ] TSIG-COMP-01: 既存 G3 ガード（`AR-G3-SUPPRESS`）を `@ts-ignore` / `@ts-expect-error` の rationale enforcement に拡張する（新規 guard ではなく既存拡張で実現し、二重カウントを避ける）
-* [ ] TSIG-COMP-02: 既存 G3 ガード（`AR-G3-SUPPRESS`）を `eslint-disable` の rationale enforcement に拡張する（同上 — 新規 guard ではなく既存拡張）
-* [ ] G3 allowlist を `app/src/test/allowlists/signalIntegrity.ts` に切り出し、`reason` / `removalCondition` を必須化する（TSIG-COMP-01/02 の前提作業）
-* [ ] TSIG-COMP-03: unused suppress escape の初期対象を検知して block する guard を実装する（既存 G3 では検知していない領域のため新規）
-* [ ] 各 guard が固定フォーマットの AAG response を返すようにする
-* [ ] 各 guard に why / protectedHarm / steps / allowedExceptions / examples を紐づける
-* [ ] `fixNow=now` と `fixNow=review` の使い分けを実装に反映する
+* [x] Phase 3 着手前に TSIG-TEST-01〜03 / TSIG-COMP-01〜03 の **現状件数を採取** し、ratchet-down baseline を決定する（一時 script で repo を走査し、件数 + 代表ファイルパスを記録する）
+* [x] TSIG-TEST-01: existence-only assertion を検知して block する guard を実装する
+* [x] TSIG-COMP-01: 既存 G3 ガード（`AR-G3-SUPPRESS`）を `@ts-ignore` / `@ts-expect-error` の rationale enforcement に拡張する（新規 guard ではなく既存拡張で実現し、二重カウントを避ける）
+* [x] TSIG-COMP-02: 既存 G3 ガード（`AR-G3-SUPPRESS`）を `eslint-disable` の rationale enforcement に拡張する（同上 — 新規 guard ではなく既存拡張）
+* [x] G3 allowlist を `app/src/test/allowlists/signalIntegrity.ts` に切り出し、`reason` / `removalCondition` を必須化する（TSIG-COMP-01/02 の前提作業）
+* [x] TSIG-COMP-03: unused suppress escape の初期対象を検知して block する guard を実装する（既存 G3 では検知していない領域のため新規）
+* [x] 各 guard が固定フォーマットの AAG response を返すようにする
+* [x] 各 guard に why / protectedHarm / steps / allowedExceptions / examples を紐づける
+* [x] `fixNow=now` と `fixNow=review` の使い分けを実装に反映する
 
 ## Phase 4: Docs / Map / Integration 整備
 
-* [ ] `references/03-guides/` に test signal integrity guide を追加する
-* [ ] `guard-test-map.md` に新規 guard と保護対象を登録する
-* [ ] 必要な正本・guide を `doc-registry.json` に登録する
-* [ ] fix hint / deep dive の誘導先を整備する
-* [ ] `docs:generate` 実行後に generated artifact が整合することを確認する
-* [ ] `npm run test:guards` が PASS することを確認する
+* [x] `references/03-guides/` に test signal integrity guide を追加する
+* [x] `guard-test-map.md` に新規 guard と保護対象を登録する
+* [x] 必要な正本・guide を `doc-registry.json` に登録する
+* [x] fix hint / deep dive の誘導先を整備する
+* [x] `docs:generate` 実行後に generated artifact が整合することを確認する
+* [x] `npm run test:guards` が PASS することを確認する
 
 ## Phase 5: 運用着地と application-side への接続
 
-* [ ] 新規 test 追加時に advisory が自動表示されることを確認する
-* [ ] 明確な bad pattern が diff 上で hard fail することを確認する
-* [ ] グレーなパターンが advisory / review に留まることを確認する
-* [ ] 初期ルール群で false positive が過剰に発生しないことを確認する
-* [ ] `presentation-quality-hardening` の coverage 70 引き上げ前提として本 project を参照できる状態にする
-* [ ] coverage 数値目標は application-side、signal integrity は AAG-side であることを文書上で分離する
+* [x] 新規 test 追加時に advisory が自動表示されることを確認する（`tools/git-hooks/pre-push` の `check_test_signal_advisory()` で実装。`--diff-filter=A` で新規追加の `.test.ts(x)` / `.spec.ts(x)` / `__tests__/` / `app/e2e/.spec.ts` を検出し、warning レーンで Self-check 6 項目 + Protected harm + 詳細リンクを表示し push は止めない）
+* [x] 明確な bad pattern が diff 上で hard fail することを確認する（self-test 10 件で検出 regex の動作を文字列レベルで verify 済）
+* [x] グレーなパターンが advisory / review に留まることを確認する（TSIG-ADV-01〜04 は guard 化せず advisory ガイドに留め、Discovery Review 動線を維持）
+* [x] 初期ルール群で false positive が過剰に発生しないことを確認する（baseline 採取で TSIG-TEST-01/02/03 = 0 / TSIG-COMP-01/02 既存は構造化済 / TSIG-COMP-03 = 0、test:guards 594 passed 0 false positive）
+* [x] `presentation-quality-hardening` の coverage 70 引き上げ前提として本 project を参照できる状態にする（PR #1013 で前提条件 checkbox を追加済）
+* [x] coverage 数値目標は application-side、signal integrity は AAG-side であることを文書上で分離する（`test-signal-integrity.md` の Scope セクションと AI_CONTEXT.md / plan.md で明文化済）
+
+## 最終レビュー (人間承認)
+
+> このセクションは **必ず最後** に置き、人間レビュー前は [ ] のままにする。
+> 機能的な Phase 1〜5 がすべて [x] になっても、ここが [ ] なら project は
+> `in_progress` のまま留まり、archive obligation は発火しない。
+> 詳細: `references/03-guides/project-checklist-governance.md` §3.1 / §6.2
+
+* [ ] 全 Phase の成果物 (commit / PR #1015 / `references/01-principles/test-signal-integrity.md` / `references/03-guides/test-signal-integrity-advisory.md` / `app/src/test/guards/testSignalIntegrityGuard.test.ts` / `tools/git-hooks/pre-push` の `check_test_signal_advisory()` / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する

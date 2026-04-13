@@ -89,6 +89,8 @@
 | AAG 5.0 4層構造定義 | `01-principles/aag-5-constitution.md` |
 | AAG 5.0 既存ファイル層マッピング | `01-principles/aag-5-layer-map.md` |
 | AAG 5.0 正本/派生/運用物ポリシー | `01-principles/aag-5-source-of-truth-policy.md` |
+| Test Signal Integrity — 品質シグナル保全の原則 | `01-principles/test-signal-integrity.md` |
+| Test Signal Integrity Advisory 運用ガイド | `03-guides/test-signal-integrity-advisory.md` |
 
 ## AI 向け索引 — カテゴリ別ファイルマップ
 
@@ -128,6 +130,8 @@
 | `01-principles/aag-5-constitution.md` | AAG 5.0 — 4層構造定義（Constitution/Schema/Execution/Operations） |
 | `01-principles/aag-5-layer-map.md` | AAG 5.0 — 既存ファイルの層マッピング棚卸し |
 | `01-principles/aag-5-source-of-truth-policy.md` | AAG 5.0 — 正本/派生/運用物ポリシー |
+| `01-principles/test-signal-integrity.md` | Test Signal Integrity — 品質シグナル保全の原則 (H1-H4 / TSIG-TEST / TSIG-COMP) |
+| `03-guides/test-signal-integrity-advisory.md` | Test Signal Integrity Advisory 運用ガイド (trigger / 文面 / 自己点検 / 昇格条件) |
 
 ### 正本化（Canonicalization）
 

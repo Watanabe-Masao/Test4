@@ -143,6 +143,56 @@ collector (`project-checklist-collector.ts::countCheckboxes`) は heading 抑制
 * [ ] <達成条件 3>
 ```
 
+### 3.1. 必須構造: 最終レビュー (人間承認) section
+
+> **全 checklist は、最後の section として「最終レビュー (人間承認)」を持つこと。**
+
+役割:
+
+- 機能的な Phase がすべて `[x]` になっても、最終レビュー section の checkbox が
+  `[ ]` のままなら project は `in_progress` 状態を維持する
+- これにより `derivedStatus = completed` への遷移を **構造的に人間レビュー
+  ゲートに通せる**
+- archive obligation (`completedNotArchivedCount > 0`) の暴発を防ぐ
+- 機能完了 (= 作業 AI / pre-push の成果) と archive 承認 (= 人間判断) を
+  checkbox レベルで分離する
+
+```markdown
+## 最終レビュー (人間承認)
+
+> このセクションは **必ず最後** に置き、人間レビュー前は [ ] のままにする。
+
+* [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を
+      人間がレビューし、archive プロセスへの移行を承認する
+```
+
+承認の意味:
+
+- 全 Phase の成果物 (commit history / PR / 関連正本 / generated artifact) を
+  人間が読み、品質基準を満たしていることを確認した
+- 必要なら observation period (実運用観測期間) を経た上での承認
+- 承認後は §6.2 の archive プロセスを実行する
+
+判定の流れ:
+
+```
+作業 AI: 全機能 Phase を [x] にする
+   ↓
+作業 AI: 最終レビュー section だけ [ ] のままで一旦終了
+   ↓
+project は in_progress (33/34 等) で留まる
+   ↓
+人間: PR をレビュー、必要なら observation period
+   ↓
+人間: 最終レビュー checkbox を [x] にする (= archive 承認)
+   ↓
+project は completed → §6.2 archive プロセス実行
+```
+
+template (`projects/_template/checklist.md`) は本構造を持つ。新規 project は
+template から複製して開始するため、自動的に最終レビュー section を持つ。
+既存 project は次の archive 機会で本構造に揃える。
+
 - checkbox の先頭は `* [x]` または `* [ ]`（半角スペース）
 - ネスト不可（フラットなフラグメントで機械検出を単純に保つ）
 - 各 checkbox は 1 文 1 達成条件
@@ -296,6 +346,9 @@ entry: `projects/<id>/AI_CONTEXT.md`
 > archive は **collector が completed と判定した後** に手動で行う。
 > consistency guard が completed のまま active 配置されている project を機械検出し、
 > archive プロセスへ進むよう error message で促す。
+>
+> **前提**: §3.1 の「最終レビュー (人間承認)」 checkbox が `[x]` であること。
+> 人間がこの checkbox を tick することが archive プロセスの開始条件である。
 
 #### 必須ステップ
 
