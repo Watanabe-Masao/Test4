@@ -402,8 +402,18 @@ Allowed exceptions
 
 ## 関連 reference
 
+- `references/03-guides/test-signal-integrity-advisory.md` — Advisory レーン運用ガイド (trigger / 文面 / 自己点検 / 昇格条件)
 - `references/03-guides/architecture-rule-system.md` — Architecture Rule の運用手順
 - `references/03-guides/discovery-review-checklist.md` — グレーパターンの逃がし先
 - `references/03-guides/coding-conventions.md` — TypeScript / lint 規約（rationale 形式の正本）
 - `projects/test-signal-integrity/plan.md` — 本原則の実装計画と Phase 構造
 - `projects/presentation-quality-hardening/checklist.md` — 本原則の Phase 3 完了を coverage 70 引き上げの前提条件として参照する application-side project
+
+## 実装ルール ID リファレンス
+
+| ruleId | 検出対象 | guard ファイル | 状態 |
+|---|---|---|---|
+| `AR-TSIG-TEST-01` | existence-only assertion | `app/src/test/guards/testSignalIntegrityGuard.test.ts` | hard gate (baseline 0) |
+| `AR-G3-SUPPRESS-RATIONALE` | suppression の構造化 rationale (TSIG-COMP-01/02 統合) | `app/src/test/guards/testSignalIntegrityGuard.test.ts` | hard gate (allowlist 2 entries) |
+| `AR-TSIG-COMP-03` | unused suppress escape (multi-underscore) | `app/src/test/guards/testSignalIntegrityGuard.test.ts` | hard gate (baseline 0) |
+| `AR-G3-SUPPRESS` | 非テストファイルでの eslint-disable / @ts-ignore | `app/src/test/guards/codePatternGuard.test.ts` | hard gate (allowlist 2 entries / 既存) |

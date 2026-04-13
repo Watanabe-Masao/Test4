@@ -44,12 +44,12 @@
 
 ## Phase 4: Docs / Map / Integration 整備
 
-* [ ] `references/03-guides/` に test signal integrity guide を追加する
-* [ ] `guard-test-map.md` に新規 guard と保護対象を登録する
-* [ ] 必要な正本・guide を `doc-registry.json` に登録する
-* [ ] fix hint / deep dive の誘導先を整備する
-* [ ] `docs:generate` 実行後に generated artifact が整合することを確認する
-* [ ] `npm run test:guards` が PASS することを確認する
+* [x] `references/03-guides/` に test signal integrity guide を追加する
+* [x] `guard-test-map.md` に新規 guard と保護対象を登録する
+* [x] 必要な正本・guide を `doc-registry.json` に登録する
+* [x] fix hint / deep dive の誘導先を整備する
+* [x] `docs:generate` 実行後に generated artifact が整合することを確認する
+* [x] `npm run test:guards` が PASS することを確認する
 
 ## Phase 5: 運用着地と application-side への接続
 
