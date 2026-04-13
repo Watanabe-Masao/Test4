@@ -71,7 +71,8 @@ describe('comparisonResultToMonthlyData', () => {
 
   it('produces an origin marker derived from the supplied year/month', () => {
     const monthly = comparisonResultToMonthlyData(makeResult(), 2025, 12)
-    expect(monthly.origin).toBeTruthy()
+    expect(monthly.origin.year).toBe(2025)
+    expect(monthly.origin.month).toBe(12)
   })
 })
 
