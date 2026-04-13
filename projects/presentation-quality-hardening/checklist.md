@@ -8,10 +8,10 @@
 
 ## Phase 1: WeatherPage の active-debt 解消
 
-* [ ] `useWeatherDaySelection.ts` を抽出する（selectedDays / selectedDows + 関連 6 callback）
-* [ ] `WeatherPage.tsx` の combined hook 数を default 以下に下げる
-* [ ] `app/src/test/allowlists/complexity.ts` から WeatherPage の allowlist エントリを削除する
-* [ ] `npm run test:guards` で WeatherPage の violation が出ないことを確認する
+* [x] `useWeatherDaySelection.ts` を抽出する（selectedDays / selectedDows + 関連 6 callback）
+* [x] `WeatherPage.tsx` の combined hook 数を default 以下に下げる
+* [x] `app/src/test/allowlists/complexity.ts` から WeatherPage の allowlist エントリを削除する
+* [x] `npm run test:guards` で WeatherPage の violation が出ないことを確認する
 
 ## Phase 2: 500 行超コンポーネントの `.vm.ts` 抽出
 
