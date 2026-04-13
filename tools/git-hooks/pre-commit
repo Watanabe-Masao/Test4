@@ -175,8 +175,12 @@ check_docs_generate_autofix() {
   staged_matches "^${HEALTH_JSON}$" && return 0
 
   # ── 影響スライスの推定 (参考情報) ──
+  # grep -c は 0 件時に exit 1 を返す。dash では `|| echo 0` と組み合わせると
+  # "0\n0" が返って `[: Illegal number` になるため、明示的に echo でラップする
   count_matches() {
-    echo "$STAGED" | grep -c "$1" 2>/dev/null || echo 0
+    N=$(echo "$STAGED" | grep -cE "$1" 2>/dev/null || true)
+    [ -z "$N" ] && N=0
+    echo "$N"
   }
 
   SLICE_DETAIL=""
