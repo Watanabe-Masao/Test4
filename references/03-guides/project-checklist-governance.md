@@ -374,13 +374,13 @@ archive される project が依存していた references/ 文書は、project 
 | projectId | scope | 入口 |
 |---|---|---|
 | `presentation-quality-hardening` | active-debt + 500 行超 + coverage + E2E | [`projects/presentation-quality-hardening/AI_CONTEXT.md`](../../projects/presentation-quality-hardening/AI_CONTEXT.md) |
-| `architecture-decision-backlog` | 未決定の設計判断 | [`projects/architecture-decision-backlog/AI_CONTEXT.md`](../../projects/architecture-decision-backlog/AI_CONTEXT.md) |
 | `pure-calculation-reorg` | Pure 計算責務再編（Phase 8〜） | [`projects/pure-calculation-reorg/AI_CONTEXT.md`](../../projects/pure-calculation-reorg/AI_CONTEXT.md) |
 | `quick-fixes` | 単発 fix collection (continuous) | [`projects/quick-fixes/AI_CONTEXT.md`](../../projects/quick-fixes/AI_CONTEXT.md) |
 | `data-load-idempotency-hardening` (archived) | idempotent load contract 残存防御 (2026-04-12 archive, Phase F Option A 確定) | [`projects/completed/data-load-idempotency-hardening/AI_CONTEXT.md`](../../projects/completed/data-load-idempotency-hardening/AI_CONTEXT.md) |
 | `docs-and-governance-cohesion` (archived) | live task 集約 + AAG 統合 (2026-04-12 archive) | [`projects/completed/docs-and-governance-cohesion/AI_CONTEXT.md`](../../projects/completed/docs-and-governance-cohesion/AI_CONTEXT.md) |
 | `aag-collector-purification` (archived) | collector heading 抑制削除 + 規約/実装の対称性回復 (2026-04-13 archive) | [`projects/completed/aag-collector-purification/AI_CONTEXT.md`](../../projects/completed/aag-collector-purification/AI_CONTEXT.md) |
 | `aag-rule-splitting-execution` (archived) | AR-STRUCT-RESP-SEPARATION を 7 AR-RESP-* ルールに分割 (2026-04-13 archive) | [`projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md`](../../projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md) |
+| `architecture-decision-backlog` (archived) | R-9 (c) 現状維持を決定 (2026-04-13 archive) | [`projects/completed/architecture-decision-backlog/AI_CONTEXT.md`](../../projects/completed/architecture-decision-backlog/AI_CONTEXT.md) |
 
 実時の値は [`references/02-status/generated/project-health.md`](../02-status/generated/project-health.md) を正本とする。
 

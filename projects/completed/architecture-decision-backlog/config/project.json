@@ -1,0 +1,12 @@
+{
+  "projectId": "architecture-decision-backlog",
+  "title": "アーキテクチャ判断 backlog — 未決定の設計判断",
+  "status": "archived",
+  "projectRoot": "projects/completed/architecture-decision-backlog",
+  "entrypoints": {
+    "aiContext": "projects/completed/architecture-decision-backlog/AI_CONTEXT.md",
+    "handoff": "projects/completed/architecture-decision-backlog/HANDOFF.md",
+    "plan": "projects/completed/architecture-decision-backlog/plan.md",
+    "checklist": "projects/completed/architecture-decision-backlog/checklist.md"
+  }
+}

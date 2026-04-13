@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-13T02:05:23.843Z",
+  "timestamp": "2026-04-13T02:17:40.008Z",
   "summary": {
-    "active": 4,
-    "archived": 4,
-    "inProgress": 3,
+    "active": 3,
+    "archived": 5,
+    "inProgress": 2,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
     "totalCheckboxes": 283,
-    "checkedCheckboxes": 236
+    "checkedCheckboxes": 237
   },
   "projects": [
     {
@@ -40,13 +40,13 @@
       "projectId": "architecture-decision-backlog",
       "title": "アーキテクチャ判断 backlog — 未決定の設計判断",
       "kind": "project",
-      "declaredStatus": "active",
-      "derivedStatus": "in_progress",
-      "checked": 0,
+      "declaredStatus": "archived",
+      "derivedStatus": "archived",
+      "checked": 1,
       "total": 1,
-      "progress": 0,
-      "entrypoint": "projects/architecture-decision-backlog/AI_CONTEXT.md",
-      "checklistPath": "projects/architecture-decision-backlog/checklist.md"
+      "progress": 1,
+      "entrypoint": "projects/completed/architecture-decision-backlog/AI_CONTEXT.md",
+      "checklistPath": "projects/completed/architecture-decision-backlog/checklist.md"
     },
     {
       "projectId": "data-load-idempotency-hardening",
