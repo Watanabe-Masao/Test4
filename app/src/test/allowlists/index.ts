@@ -68,3 +68,10 @@ export type { DocStaticNumberException } from './docs'
 
 // Misc
 export { ctxHook, reactImportExcludeDirs } from './misc'
+
+// Test Signal Integrity (G3 + TSIG-* family)
+export {
+  g3SuppressAllowlist,
+  G3_SUPPRESS_PATH_SET,
+  G3_SUPPRESS_MAX_ENTRIES,
+} from './signalIntegrity'

@@ -16,7 +16,12 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { SRC_DIR, collectTsFiles, collectTestFiles, rel } from '../guardTestHelpers'
 import { getRuleById, formatViolationMessage } from '../architectureRules'
-import { reactImportExcludeDirs, buildAllowlistSet } from '../allowlists'
+import {
+  reactImportExcludeDirs,
+  buildAllowlistSet,
+  G3_SUPPRESS_PATH_SET,
+  G3_SUPPRESS_MAX_ENTRIES,
+} from '../allowlists'
 
 // ─── R3: @internal export 禁止 ──────────────────────────
 
@@ -360,10 +365,10 @@ describe('E4: domain/calculations/ で数値の truthiness チェックがない
 
 describe('G3: ソースコードに eslint-disable / @ts-ignore がない', () => {
   // 正当な例外（ライブラリ制約・非標準 API 対応）
-  const G3_ALLOWLIST = new Set([
-    'presentation/components/charts/EChart.tsx', // ECharts ライブラリの制約で exhaustive-deps を意図的に抑制
-    'presentation/components/common/FileDropZone.tsx', // webkitdirectory は非標準 HTML 属性
-  ])
+  // 2026-04-13: signalIntegrity.ts に切り出し済み（reason / removalCondition 構造化）
+  // 詳細: app/src/test/allowlists/signalIntegrity.ts
+  // 上位原則: references/01-principles/test-signal-integrity.md
+  const G3_ALLOWLIST = G3_SUPPRESS_PATH_SET
 
   it('eslint-disable コメントが存在しない（許可リスト除く）', () => {
     const dirs = [
@@ -400,7 +405,7 @@ describe('G3: ソースコードに eslint-disable / @ts-ignore がない', () =
   })
 
   it('G3 許可リストは 2 件以下', () => {
-    expect(G3_ALLOWLIST.size).toBeLessThanOrEqual(2)
+    expect(G3_ALLOWLIST.size).toBeLessThanOrEqual(G3_SUPPRESS_MAX_ENTRIES)
   })
 })
 
