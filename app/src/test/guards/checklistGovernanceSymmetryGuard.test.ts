@@ -153,11 +153,15 @@ function formatViolations(violations: readonly SymmetryViolation[]): string {
   lines.push('  1. 対象見出しとその配下 checkbox を plan.md / CONTRIBUTING.md 等へ移動する')
   lines.push('  2. checklist.md から見出しを削除する')
   lines.push('  3. `cd app && npm run docs:generate` で project-health を再生成する')
-  lines.push('  4. `cd app && npm run test:guards` で本 guard + checklistFormatGuard が PASS することを確認する')
+  lines.push(
+    '  4. `cd app && npm run test:guards` で本 guard + checklistFormatGuard が PASS することを確認する',
+  )
   lines.push('')
   lines.push('なぜ禁止: governance §3 は checklist を required checkbox のみに純化することで、')
   lines.push('「format guard が通る範囲 = collector が集計する範囲」の対称性を保つよう定めている。')
-  lines.push('本 guard は collector 側の heading 抑制ロジック削除 (aag-collector-purification project, 2026-04-13)')
+  lines.push(
+    '本 guard は collector 側の heading 抑制ロジック削除 (aag-collector-purification project, 2026-04-13)',
+  )
   lines.push('の再発防止として追加された。')
   return lines.join('\n')
 }
