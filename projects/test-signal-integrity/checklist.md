@@ -33,9 +33,10 @@
 ## Phase 3: Hard Gate 1st Batch 実装
 
 * [ ] TSIG-TEST-01: existence-only assertion を検知して block する guard を実装する
-* [ ] TSIG-COMP-01: 理由なし `@ts-ignore` / `@ts-expect-error` を検知して block する guard を実装する
-* [ ] TSIG-COMP-02: 理由なし `eslint-disable` を検知して block する guard を実装する
-* [ ] TSIG-COMP-03: unused suppress escape の初期対象を検知して block する guard を実装する
+* [ ] TSIG-COMP-01: 既存 G3 ガード（`AR-G3-SUPPRESS`）を `@ts-ignore` / `@ts-expect-error` の rationale enforcement に拡張する（新規 guard ではなく既存拡張で実現し、二重カウントを避ける）
+* [ ] TSIG-COMP-02: 既存 G3 ガード（`AR-G3-SUPPRESS`）を `eslint-disable` の rationale enforcement に拡張する（同上 — 新規 guard ではなく既存拡張）
+* [ ] G3 allowlist を `app/src/test/allowlists/signalIntegrity.ts` に切り出し、`reason` / `removalCondition` を必須化する（TSIG-COMP-01/02 の前提作業）
+* [ ] TSIG-COMP-03: unused suppress escape の初期対象を検知して block する guard を実装する（既存 G3 では検知していない領域のため新規）
 * [ ] 各 guard が固定フォーマットの AAG response を返すようにする
 * [ ] 各 guard に why / protectedHarm / steps / allowedExceptions / examples を紐づける
 * [ ] `fixNow=now` と `fixNow=review` の使い分けを実装に反映する
