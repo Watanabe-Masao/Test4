@@ -287,6 +287,96 @@ amend して再 push → ✅ pre-push: OK。
 = 1 つの component test を書く作業から **5 種類の品質改善** が連動して発生。
 test-signal-integrity の観測戦略は想定以上の効果を上げている。
 
+#### 2026-04-13 — Step 3-2: InsightTabBudget.vm test 追加 (第 4 / 第 5 の発見)
+
+**作業**: `app/src/features/budget/ui/InsightTabBudget.vm.test.ts` を新規追加。
+buildBudgetTableRows の累積計算 / 入力順序 / 0 除算ガード / missing fallback /
+variance 符号の contract を 15 test で検証。
+
+##### 第 4 の発見: eslint config に coverage/ が含まれていない
+
+`npm run lint` 実行で `coverage/` 配下の自動生成 JS files (block-navigation.js
+/ prettify.js / sorter.js) が unused eslint-disable warning を出した。
+
+- これらは Phase 3 Step 1 で coverage を local 実行するようになって初めて出現
+- `coverage/` は `.gitignore` には含まれているが `eslint.config.js` の
+  `globalIgnores` には含まれていなかった
+
+**修正**: `eslint.config.js` の `globalIgnores(['dist', 'storybook-static',
+'**/*.d.ts'])` に `'coverage'` を追加。
+
+```diff
+- globalIgnores(['dist', 'storybook-static', '**/*.d.ts']),
++ globalIgnores(['dist', 'storybook-static', 'coverage', '**/*.d.ts']),
+```
+
+これは Phase 3 着手 (coverage を実際に使い始めた) によって顕在化した
+**設定の不整合**。観測戦略がなければ、誰かが local lint を実行して initial
+で出る warnings をノイズとして無視していた可能性がある。
+
+##### 第 5 の発見: 重複 test と未検出のアンチパターン
+
+新規 test ファイル作成中に `coverage` 出力で
+`src/presentation/pages/Insight/__tests__/InsightTabBudget.vm.test.ts` (5 test)
+が既存していたことに気づいた (事前調査漏れ)。
+
+既存 test の内容を確認すると:
+
+```ts
+expect(rows[0].discountRate).toBeDefined()
+expect(rows[0].discountRateCum).toBeDefined()
+```
+
+これは:
+- `expect 数が 2` で TSIG-TEST-01 の `expects.length !== 1` フィルタで skip
+  されている
+- すべての expect が existence-only matcher (toBeDefined)
+- contract 検証としては実質的に「壊れたら気づく検証」になっていない
+
+**新規アンチパターン候補 (= AR-TSIG-TEST-04 候補)**:
+
+「it ブロック内の expect 数が 1 でないが、**すべて** が existence-only matcher
+(`toBeDefined` / `toBeTruthy`) で構成されている」というパターン。
+現在の guard は `expects.length === 1` のみ検出しており、複数 weak assertion
+の組み合わせは漏れる。
+
+**今回の対応**: 浅い 5 test を削除し、深い 15 test (新規) に統一。重複も解消。
+
+**新規ルール昇格判断**: AR-TSIG-TEST-04 候補だが、今すぐ昇格はしない理由:
+- baseline 採取が必要 (現 repo に他にも該当 pattern があるか不明)
+- 観測期間中に同じ pattern を **複数回踏む** ようなら昇格優先度が上がる
+- 1 件目 (本件) → 観察対象として記録、Step 3-3 以降で再発を見守る
+
+##### Step 3-2 の test 追加内容
+
+`buildBudgetTableRows` の 15 test:
+
+| カテゴリ | test 数 | 検証内容 |
+|---|---|---|
+| 基本構造 | 3 | 単一日 / day 昇順ソート / actualCum=0 & budgetCum=0 フィルタ |
+| 累積計算 | 3 | cumPrevYear / discountRateCum / フィルタ後の累積 |
+| 0 除算ガード | 4 | achievement / pyDayRatio / pyCumRatio / discountRate |
+| missing fallback | 2 | daily / salesDaily / budgetDaily / prevYearDailyMap |
+| variance 符号 | 3 | daySales > / < dayBudget / actualCum > budgetCum |
+
+すべて意味的契約 (具体値 / 累積一致 / NaN なし) を assertion で検証。
+不可侵原則 #4 (壊れたら気づく検証) に従う。
+
+##### Coverage delta
+
+| metric | Before (Step 3-1 後) | After (Step 3-2 後) | delta |
+|---|---|---|---|
+| lines (global) | 35.01% | 35.05% | +0.04 |
+
+vm.ts は小さい (94 行) ので影響は小さい。Step 3 全体で蓄積していく。
+
+##### ルール側のアクション
+
+- ✅ eslint.config.js に coverage 追加 (本 commit)
+- ✅ 浅い既存 test 削除 (本 commit)
+- 📝 AR-TSIG-TEST-04 候補 (multi-expect all existence-only) を観測中
+- 📝 baseline 採取は Step 3 の他 vm test 完了後に検討
+
 ---
 
 _(以降の観測ログを時系列で追記)_
