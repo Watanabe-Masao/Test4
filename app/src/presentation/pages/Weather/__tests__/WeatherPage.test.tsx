@@ -108,7 +108,7 @@ vi.mock('@/presentation/pages/Dashboard/widgets/HourlyWeatherModal', () => ({
 }))
 
 // imports は mock 設定後
-// eslint-disable-next-line import/first
+// (intentional): vi.mock must be hoisted before import
 import { WeatherPage } from '../WeatherPage'
 
 function renderWithTheme(ui: ReactElement) {

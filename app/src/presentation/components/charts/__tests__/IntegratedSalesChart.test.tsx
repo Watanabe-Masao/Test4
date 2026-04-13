@@ -120,7 +120,7 @@ vi.mock('@/presentation/pages/Dashboard/widgets/YoYWaterfallChart', () => ({
 }))
 
 // imports は mock 設定後
-// eslint-disable-next-line import/first
+// (intentional): vi.mock must be hoisted before import
 import { IntegratedSalesChart } from '../IntegratedSalesChart'
 
 function renderWithTheme(ui: ReactElement) {
