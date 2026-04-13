@@ -66,9 +66,7 @@ describe('avgMetrics', () => {
   })
 
   it('discountRate = totalDiscount / (totalSales + totalDiscount)', () => {
-    const rows = [
-      makeRow({ curSales: 800, curDiscount: 200 }),
-    ]
+    const rows = [makeRow({ curSales: 800, curDiscount: 200 })]
     const result = avgMetrics(rows, 'cur')
     // grossSales = 800 + 200 = 1000, discountRate = 200/1000 = 0.2
     expect(result.discountRate).toBeCloseTo(0.2, 3)

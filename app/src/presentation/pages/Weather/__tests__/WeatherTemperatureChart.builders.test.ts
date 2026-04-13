@@ -206,11 +206,7 @@ describe('buildTemperatureChartOption — rightMetric 分岐', () => {
 
 describe('buildTemperatureChartOption — selectedDays (markArea)', () => {
   it('selectedDays から markArea が series に注入される', () => {
-    const daily = [
-      makeDay('2026-04-01'),
-      makeDay('2026-04-02'),
-      makeDay('2026-04-03'),
-    ]
+    const daily = [makeDay('2026-04-01'), makeDay('2026-04-02'), makeDay('2026-04-03')]
     const option = buildTemperatureChartOption({
       daily,
       prevYearMap: null,

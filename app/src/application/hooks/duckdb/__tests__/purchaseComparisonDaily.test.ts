@@ -22,9 +22,7 @@ describe('buildDailyData', () => {
     const prevDaily: [] = []
     const curSales = [makeSales(1, 1000)]
     const result = buildDailyData(curDaily, prevDaily, curSales, [])
-    expect(result.current).toEqual([
-      { day: 1, cost: 100, price: 150, markup: 50, sales: 1000 },
-    ])
+    expect(result.current).toEqual([{ day: 1, cost: 100, price: 150, markup: 50, sales: 1000 }])
   })
 
   it('prev: 同構造で prevSales を解決', () => {
@@ -32,9 +30,7 @@ describe('buildDailyData', () => {
     const prevDaily = [{ day: 5, totalCost: 80, totalPrice: 120 }]
     const prevSales = [makeSales(5, 800)]
     const result = buildDailyData(curDaily, prevDaily, [], prevSales)
-    expect(result.prev).toEqual([
-      { day: 5, cost: 80, price: 120, markup: 40, sales: 800 },
-    ])
+    expect(result.prev).toEqual([{ day: 5, cost: 80, price: 120, markup: 40, sales: 800 }])
   })
 
   it('sales day 一致なし → sales=0', () => {

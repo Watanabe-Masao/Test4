@@ -14,10 +14,7 @@ import {
 import type { SalesFactReadModel } from '@/application/readModels/salesFact'
 import type { CustomerFactReadModel } from '@/application/readModels/customerFact'
 
-function makeSalesFact(
-  grandTotalAmount: number,
-  grandTotalQuantity: number,
-): SalesFactReadModel {
+function makeSalesFact(grandTotalAmount: number, grandTotalQuantity: number): SalesFactReadModel {
   return { grandTotalAmount, grandTotalQuantity, daily: [] } as unknown as SalesFactReadModel
 }
 

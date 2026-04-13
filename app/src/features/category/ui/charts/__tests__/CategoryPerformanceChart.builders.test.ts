@@ -13,7 +13,12 @@ import { describe, it, expect } from 'vitest'
 import { buildCategoryRows } from '../CategoryPerformanceChart.builders'
 import type { LevelAggregationRow } from '@/application/queries/cts/LevelAggregationHandler'
 
-function makeRow(code: string, amount: number, quantity: number, name?: string): LevelAggregationRow {
+function makeRow(
+  code: string,
+  amount: number,
+  quantity: number,
+  name?: string,
+): LevelAggregationRow {
   return { code, name: name ?? code, amount, quantity } as unknown as LevelAggregationRow
 }
 
@@ -51,22 +56,12 @@ describe('buildCategoryRows — PI計算', () => {
   })
 
   it('prevTotalCustomers=0 → prevPiAmount null', () => {
-    const result = buildCategoryRows(
-      [makeRow('A', 10000, 500)],
-      [makeRow('A', 8000, 400)],
-      100,
-      0,
-    )
+    const result = buildCategoryRows([makeRow('A', 10000, 500)], [makeRow('A', 8000, 400)], 100, 0)
     expect(result[0].prevPiAmount).toBeNull()
   })
 
   it('prev 有 + prevTotalCustomers>0 → prevPiAmount 計算', () => {
-    const result = buildCategoryRows(
-      [makeRow('A', 10000, 500)],
-      [makeRow('A', 8000, 400)],
-      100,
-      80,
-    )
+    const result = buildCategoryRows([makeRow('A', 10000, 500)], [makeRow('A', 8000, 400)], 100, 80)
     // prevPiAmount = 8000/80*1000 = 100000
     expect(result[0].prevPiAmount).toBe(100000)
     // prevPiQty = 400/80*1000 = 5000
@@ -74,12 +69,7 @@ describe('buildCategoryRows — PI計算', () => {
   })
 
   it('prev records に該当 code なし → null', () => {
-    const result = buildCategoryRows(
-      [makeRow('A', 10000, 500)],
-      [makeRow('B', 8000, 400)],
-      100,
-      80,
-    )
+    const result = buildCategoryRows([makeRow('A', 10000, 500)], [makeRow('B', 8000, 400)], 100, 80)
     expect(result[0].prevPiAmount).toBeNull()
   })
 })

@@ -60,9 +60,7 @@ describe('tooltipFormatter', () => {
   })
 
   it('items の name を header に入れる', () => {
-    const html = tooltipFormatter([
-      { seriesName: '売上', value: 1000, color: '#f00', name: '1日' },
-    ])
+    const html = tooltipFormatter([{ seriesName: '売上', value: 1000, color: '#f00', name: '1日' }])
     expect(html).toContain('1日')
     expect(html).toContain('売上')
   })
@@ -93,7 +91,14 @@ describe('buildDowCustomerOption', () => {
 
   it('hasPrev=true: 比較期客数 / 比較期客単価 series を追加', () => {
     const data = [
-      { name: '月', color: '#f00', 今年客数: 100, 今年客単価: 500, 比較期客数: 80, 比較期客単価: 450 },
+      {
+        name: '月',
+        color: '#f00',
+        今年客数: 100,
+        今年客単価: 500,
+        比較期客数: 80,
+        比較期客単価: 450,
+      },
     ]
     const option = buildDowCustomerOption(data, true, theme)
     const series = option.series as { name: string }[]
@@ -126,9 +131,7 @@ describe('buildMovingAvgOption', () => {
   })
 
   it('hasPrev=true: 比較期客数MA / 比較期客単価MA を追加 (4 series)', () => {
-    const data = [
-      { day: '1', 客数MA: 100, 客単価MA: 500, 比較期客数MA: 80, 比較期客単価MA: 450 },
-    ]
+    const data = [{ day: '1', 客数MA: 100, 客単価MA: 500, 比較期客数MA: 80, 比較期客単価MA: 450 }]
     const option = buildMovingAvgOption(data, true, theme)
     const series = option.series as { name: string }[]
     expect(series.length).toBe(4)
@@ -244,7 +247,14 @@ describe('buildSameDowOption', () => {
 
   it('今年客数 bar の itemStyle.color は data.color 由来', () => {
     const data = [
-      { day: '月', color: '#abcdef', 今年客数: 100, 前年客数: 80, 今年客単価: 500, 前年客単価: 450 },
+      {
+        day: '月',
+        color: '#abcdef',
+        今年客数: 100,
+        前年客数: 80,
+        今年客単価: 500,
+        前年客単価: 450,
+      },
     ]
     const option = buildSameDowOption(data, theme)
     const series = option.series as {

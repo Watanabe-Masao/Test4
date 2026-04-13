@@ -118,11 +118,7 @@ describe('computeChartDataAndKpi', () => {
   })
 
   it('peakHour: 最大 amount の hour を検出', () => {
-    const current = [
-      makeRow(9, 100, 10),
-      makeRow(12, 500, 50),
-      makeRow(18, 300, 30),
-    ]
+    const current = [makeRow(9, 100, 10), makeRow(12, 500, 50), makeRow(18, 300, 30)]
     const result = computeChartDataAndKpi({
       currentHourly: current,
       compHourly: null,
@@ -137,10 +133,7 @@ describe('computeChartDataAndKpi', () => {
   })
 
   it('peakHourQty: 最大 quantity の hour を検出 (amount と独立)', () => {
-    const current = [
-      makeRow(9, 1000, 10),
-      makeRow(12, 500, 50),
-    ]
+    const current = [makeRow(9, 1000, 10), makeRow(12, 500, 50)]
     const result = computeChartDataAndKpi({
       currentHourly: current,
       compHourly: null,

@@ -88,11 +88,7 @@ describe('buildBoxPlotData', () => {
   })
 
   it("metric='sales': totalSales 値を集約", () => {
-    const rows = [
-      makeRow('A', 's1', 100),
-      makeRow('A', 's2', 200),
-      makeRow('A', 's3', 300),
-    ]
+    const rows = [makeRow('A', 's1', 100), makeRow('A', 's2', 200), makeRow('A', 's3', 300)]
     const result = buildBoxPlotData(rows, 'sales', 20, 1, 0)
     expect(result).toHaveLength(1)
     expect(result[0].code).toBe('A')
@@ -104,11 +100,7 @@ describe('buildBoxPlotData', () => {
   })
 
   it("metric='quantity': totalQuantity 値を集約", () => {
-    const rows = [
-      makeRow('A', 's1', 0, 10),
-      makeRow('A', 's2', 0, 20),
-      makeRow('A', 's3', 0, 30),
-    ]
+    const rows = [makeRow('A', 's1', 0, 10), makeRow('A', 's2', 0, 20), makeRow('A', 's3', 0, 30)]
     const result = buildBoxPlotData(rows, 'quantity', 20, 1, 0)
     expect(result[0].median).toBe(20)
     expect(result[0].mean).toBeCloseTo(20, 2)
@@ -146,11 +138,7 @@ describe('buildStoreBreakdown', () => {
   })
 
   it('降順ソートされる', () => {
-    const rows = [
-      makeRow('A', 's1', 50),
-      makeRow('A', 's2', 500),
-      makeRow('A', 's3', 200),
-    ]
+    const rows = [makeRow('A', 's1', 50), makeRow('A', 's2', 500), makeRow('A', 's3', 200)]
     const result = buildStoreBreakdown(rows, 'A', 'sales')
     expect(result.map((r) => r.value)).toEqual([500, 200, 50])
   })
@@ -213,10 +201,7 @@ describe('buildDateBreakdown', () => {
   })
 
   it('同日の row を加算する', () => {
-    const rows = [
-      makeTrendRow('A', '2026-04-01', 100),
-      makeTrendRow('A', '2026-04-01', 50),
-    ]
+    const rows = [makeTrendRow('A', '2026-04-01', 100), makeTrendRow('A', '2026-04-01', 50)]
     const result = buildDateBreakdown(rows, 'A')
     expect(result).toHaveLength(1)
     expect(result[0].value).toBe(150)

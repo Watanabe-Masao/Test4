@@ -114,18 +114,14 @@ describe('buildCustomCategoryData', () => {
   })
 
   it('map に無い supplier は uncategorized に入る', () => {
-    const supplierTotals = new Map([
-      ['sup1', { supplierCode: 'sup1', cost: 100, price: 200 }],
-    ])
+    const supplierTotals = new Map([['sup1', { supplierCode: 'sup1', cost: 100, price: 200 }]])
     const result = makeResult(new Map(), supplierTotals)
     const rows = buildCustomCategoryData(result, {})
     expect(rows.some((r) => r.category === 'uncategorized')).toBe(true)
   })
 
   it('ユーザーカテゴリ (user:xxx) は別行として追加', () => {
-    const supplierTotals = new Map([
-      ['sup1', { supplierCode: 'sup1', cost: 100, price: 200 }],
-    ])
+    const supplierTotals = new Map([['sup1', { supplierCode: 'sup1', cost: 100, price: 200 }]])
     const result = makeResult(new Map(), supplierTotals)
     const rows = buildCustomCategoryData(
       result,
@@ -138,9 +134,7 @@ describe('buildCustomCategoryData', () => {
   })
 
   it('ユーザーカテゴリ label が無い場合は id から prefix 除去', () => {
-    const supplierTotals = new Map([
-      ['sup1', { supplierCode: 'sup1', cost: 100, price: 200 }],
-    ])
+    const supplierTotals = new Map([['sup1', { supplierCode: 'sup1', cost: 100, price: 200 }]])
     const result = makeResult(new Map(), supplierTotals)
     const rows = buildCustomCategoryData(result, { sup1: 'user:my-custom' })
     const userRow = rows.find((r) => r.category === 'user:my-custom')
@@ -158,9 +152,7 @@ describe('buildUnifiedCategoryData', () => {
 
   it('標準カテゴリ + カスタムカテゴリが統合される', () => {
     const categoryTotals = new Map([['market', { cost: 500, price: 800 }]])
-    const supplierTotals = new Map([
-      ['sup1', { supplierCode: 'sup1', cost: 100, price: 200 }],
-    ])
+    const supplierTotals = new Map([['sup1', { supplierCode: 'sup1', cost: 100, price: 200 }]])
     const result = makeResult(categoryTotals, supplierTotals)
     const rows = buildUnifiedCategoryData(result, { sup1: 'lfc' })
     // 'market' (isCustom=false) と 'lfc' (isCustom=true) の 2 行
@@ -173,9 +165,7 @@ describe('buildUnifiedCategoryData', () => {
 
   it('全体で priceShare を再計算する', () => {
     const categoryTotals = new Map([['market', { cost: 500, price: 1000 }]])
-    const supplierTotals = new Map([
-      ['sup1', { supplierCode: 'sup1', cost: 300, price: 1000 }],
-    ])
+    const supplierTotals = new Map([['sup1', { supplierCode: 'sup1', cost: 300, price: 1000 }]])
     const result = makeResult(categoryTotals, supplierTotals)
     const rows = buildUnifiedCategoryData(result, { sup1: 'lfc' })
     // 合計 2000 → 各 0.5

@@ -12,10 +12,7 @@
  *   - dominance / stability 計算
  */
 import { describe, it, expect } from 'vitest'
-import {
-  classifyProductType,
-  buildCategoryBenchmarkScores,
-} from '../categoryBenchmarkLogic'
+import { classifyProductType, buildCategoryBenchmarkScores } from '../categoryBenchmarkLogic'
 import type { CategoryBenchmarkRow } from '@/infrastructure/duckdb/queries/advancedAnalytics'
 
 function makeRow(
@@ -101,10 +98,7 @@ describe('buildCategoryBenchmarkScores', () => {
 
   it('totalStoreCount>0 + 実販売 2 店舗: 残り店舗を 0 として扱う', () => {
     // 3 店舗中 2 店舗のみ販売、totalStoreCount=3 で 1 店舗分 0 埋め
-    const rows = [
-      makeRow('A', 's1', 100, 0.3, 2),
-      makeRow('A', 's2', 200, 0.4, 2),
-    ]
+    const rows = [makeRow('A', 's1', 100, 0.3, 2), makeRow('A', 's2', 200, 0.4, 2)]
     const result = buildCategoryBenchmarkScores(rows, 1, 3, 'share')
     // storeCount = max(totalStoreCount=3, sqlStoreCount=2) = 3
     expect(result[0].storeCount).toBe(3)
@@ -114,10 +108,7 @@ describe('buildCategoryBenchmarkScores', () => {
   })
 
   it('単一カテゴリ: index=100 (maxAvgMetric と一致)', () => {
-    const rows = [
-      makeRow('A', 's1', 100, 0.1, 2),
-      makeRow('A', 's2', 200, 0.2, 2),
-    ]
+    const rows = [makeRow('A', 's1', 100, 0.1, 2), makeRow('A', 's2', 200, 0.2, 2)]
     const result = buildCategoryBenchmarkScores(rows, 1, 0, 'share')
     expect(result[0].index).toBe(100)
   })
@@ -149,10 +140,7 @@ describe('buildCategoryBenchmarkScores', () => {
   })
 
   it('productType が各結果に設定される', () => {
-    const rows = [
-      makeRow('A', 's1', 100, 0.1, 2),
-      makeRow('A', 's2', 200, 0.1, 2),
-    ]
+    const rows = [makeRow('A', 's1', 100, 0.1, 2), makeRow('A', 's2', 200, 0.1, 2)]
     const result = buildCategoryBenchmarkScores(rows, 1, 0, 'share')
     expect(result[0].productType).toMatch(/flagship|regional|standard|unstable/)
   })

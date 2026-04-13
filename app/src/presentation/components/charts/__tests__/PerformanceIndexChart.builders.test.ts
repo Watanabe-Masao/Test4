@@ -20,18 +20,20 @@ import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
  * PerformanceIndexChart が参照するのは sales / grossSales / customers /
  * discountAbsolute / totalCost / costInclusion.cost のみ
  */
-function makeRec(overrides: {
-  sales?: number
-  grossSales?: number
-  customers?: number
-  discountAbsolute?: number
-  totalCost?: number
-  costInclusionCost?: number
-} = {}): DailyRecord {
+function makeRec(
+  overrides: {
+    sales?: number
+    grossSales?: number
+    customers?: number
+    discountAbsolute?: number
+    totalCost?: number
+    costInclusionCost?: number
+  } = {},
+): DailyRecord {
   return {
     day: 1,
     sales: overrides.sales ?? 0,
-    grossSales: overrides.grossSales ?? (overrides.sales ?? 0),
+    grossSales: overrides.grossSales ?? overrides.sales ?? 0,
     customers: overrides.customers ?? 0,
     discountAbsolute: overrides.discountAbsolute ?? 0,
     totalCost: overrides.totalCost ?? 0,
@@ -78,9 +80,7 @@ describe('buildPerformanceData — customers>0 分岐', () => {
   })
 
   it('customers=0: pi / txValue / qtyPi が null', () => {
-    const daily = new Map<number, DailyRecord>([
-      [1, makeRec({ sales: 10000, customers: 0 })],
-    ])
+    const daily = new Map<number, DailyRecord>([[1, makeRec({ sales: 10000, customers: 0 })]])
     const result = buildPerformanceData(daily, 1, 2026, 4, new Map(), new Map([[1, 50]]))
     expect(result.chartData[0].pi).toBeNull()
     expect(result.chartData[0].txValue).toBeNull()
@@ -90,27 +90,21 @@ describe('buildPerformanceData — customers>0 分岐', () => {
 
 describe('buildPerformanceData — dailyQuantity (qtyPi)', () => {
   it('qty>0 && customers>0: qtyPi が計算される', () => {
-    const daily = new Map<number, DailyRecord>([
-      [1, makeRec({ sales: 10000, customers: 100 })],
-    ])
+    const daily = new Map<number, DailyRecord>([[1, makeRec({ sales: 10000, customers: 100 })]])
     const dailyQty = new Map<number, number>([[1, 500]])
     const result = buildPerformanceData(daily, 1, 2026, 4, new Map(), dailyQty)
     expect(result.chartData[0].qtyPi).not.toBeNull()
   })
 
   it('qty=0: qtyPi は null', () => {
-    const daily = new Map<number, DailyRecord>([
-      [1, makeRec({ sales: 10000, customers: 100 })],
-    ])
+    const daily = new Map<number, DailyRecord>([[1, makeRec({ sales: 10000, customers: 100 })]])
     const dailyQty = new Map<number, number>([[1, 0]])
     const result = buildPerformanceData(daily, 1, 2026, 4, new Map(), dailyQty)
     expect(result.chartData[0].qtyPi).toBeNull()
   })
 
   it('dailyQuantity 未指定: qtyPi は null', () => {
-    const daily = new Map<number, DailyRecord>([
-      [1, makeRec({ sales: 10000, customers: 100 })],
-    ])
+    const daily = new Map<number, DailyRecord>([[1, makeRec({ sales: 10000, customers: 100 })]])
     const result = buildPerformanceData(daily, 1, 2026, 4, new Map())
     expect(result.chartData[0].qtyPi).toBeNull()
   })
@@ -118,9 +112,7 @@ describe('buildPerformanceData — dailyQuantity (qtyPi)', () => {
 
 describe('buildPerformanceData — prev year', () => {
   it('prev 有 && customers>0: prevPi が計算される', () => {
-    const daily = new Map<number, DailyRecord>([
-      [1, makeRec({ sales: 10000, customers: 100 })],
-    ])
+    const daily = new Map<number, DailyRecord>([[1, makeRec({ sales: 10000, customers: 100 })]])
     const prev = new Map<
       string,
       { sales: number; discount: number; customers?: number; ctsQuantity?: number }
@@ -131,18 +123,14 @@ describe('buildPerformanceData — prev year', () => {
   })
 
   it('prev なし: prevPi / prevQtyPi は null', () => {
-    const daily = new Map<number, DailyRecord>([
-      [1, makeRec({ sales: 10000, customers: 100 })],
-    ])
+    const daily = new Map<number, DailyRecord>([[1, makeRec({ sales: 10000, customers: 100 })]])
     const result = buildPerformanceData(daily, 1, 2026, 4, new Map())
     expect(result.chartData[0].prevPi).toBeNull()
     expect(result.chartData[0].prevQtyPi).toBeNull()
   })
 
   it('prev.customers=0: prevPi は null', () => {
-    const daily = new Map<number, DailyRecord>([
-      [1, makeRec({ sales: 10000, customers: 100 })],
-    ])
+    const daily = new Map<number, DailyRecord>([[1, makeRec({ sales: 10000, customers: 100 })]])
     const prev = new Map([
       [toDateKeyFromParts(2026, 4, 1), { sales: 8000, discount: 0, customers: 0 }],
     ])
@@ -151,9 +139,7 @@ describe('buildPerformanceData — prev year', () => {
   })
 
   it('prev.ctsQuantity 有: prevQtyPi が計算される', () => {
-    const daily = new Map<number, DailyRecord>([
-      [1, makeRec({ sales: 10000, customers: 100 })],
-    ])
+    const daily = new Map<number, DailyRecord>([[1, makeRec({ sales: 10000, customers: 100 })]])
     const prev = new Map([
       [
         toDateKeyFromParts(2026, 4, 1),
@@ -169,10 +155,7 @@ describe('buildPerformanceData — stats / Z 計算', () => {
   it('変動のあるデータで stdDev>0 → Z が計算される', () => {
     const daily = new Map<number, DailyRecord>()
     for (let d = 1; d <= 7; d++) {
-      daily.set(
-        d,
-        makeRec({ sales: 1000 * d, customers: 10 * d, grossSales: 1000 * d }),
-      )
+      daily.set(d, makeRec({ sales: 1000 * d, customers: 10 * d, grossSales: 1000 * d }))
     }
     const result = buildPerformanceData(daily, 7, 2026, 4, new Map())
     // 変動のあるデータなので salesZ / custZ が計算される
@@ -199,9 +182,7 @@ describe('buildPerformanceData — stats / Z 計算', () => {
 
 describe('buildPerformanceData — piMa7 partial MA', () => {
   it('ウィンドウ不足 (1 日目) でも partial MA を計算', () => {
-    const daily = new Map<number, DailyRecord>([
-      [1, makeRec({ sales: 1000, customers: 10 })],
-    ])
+    const daily = new Map<number, DailyRecord>([[1, makeRec({ sales: 1000, customers: 10 })]])
     const result = buildPerformanceData(daily, 1, 2026, 4, new Map())
     // 1日分でも null ではなく平均値を返す
     expect(result.piMa7[0]).not.toBeNull()
@@ -216,9 +197,7 @@ describe('buildPerformanceData — piMa7 partial MA', () => {
   })
 
   it('piMa7 / prevPiMa7 / qtyPiMa7 / prevQtyPiMa7 の 4 系列を返す', () => {
-    const daily = new Map<number, DailyRecord>([
-      [1, makeRec({ sales: 1000, customers: 10 })],
-    ])
+    const daily = new Map<number, DailyRecord>([[1, makeRec({ sales: 1000, customers: 10 })]])
     const result = buildPerformanceData(daily, 1, 2026, 4, new Map())
     expect(result.piMa7).toHaveLength(1)
     expect(result.prevPiMa7).toHaveLength(1)
