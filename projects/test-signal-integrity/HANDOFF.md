@@ -245,6 +245,48 @@ violation を一気に発見した。観測戦略がなければ、これらは 
 **Protected Harm の再認識**: H1 False Green は実装者の善意では防げない。
 hard gate 自体が壊れていることを発見できる仕組みが必要 = Self-test の存在意義。
 
+#### 2026-04-13 — Step 3-1 push 時: check_format_added_files が作動
+
+**作業**: HourlyChart.builders test を含む commit を `git push` 実行。
+
+**期待される検出**: なし (新規 test ファイルは format 済の想定だった)
+
+**実際の挙動**: ✅ **`check_format_added_files` (commit 7b29219 で追加した
+新規追加ファイル strict format gate) が error で push を止めた**。
+
+```
+[pre-push] 新規追加ファイルが Prettier 未整形 (CI で必ず fail します)
+  修正方法:
+    cd app && npm run format
+  または個別:
+    cd app && npx prettier --write src/presentation/pages/Dashboard/widgets/HourlyChart.builders.test.ts
+```
+
+理由: 私が手で書いた test ファイルが prettier の想定 format と一部
+ずれていた (line 57-58 の長い式が改行されていた等)。
+
+**ルール側のアクション**: そのまま (機能した)
+
+**観測の意義**: 既存の `check_format` (warn 設計) なら見逃していたが、
+`check_format_added_files` (新規追加のみ error) が **新規ファイルが
+unformatted のまま push される事態を確実に止めた**。これは
+- shiire-arari#0de794e (前々回事件) の再発防止
+- PR #1015 の format fail (commit 7b29219 の学習ソース) の再発防止
+が実際に機能した第 3 の証拠。
+
+修正手順は明示されており、`cd app && npm run format` 1 行で解決。
+amend して再 push → ✅ pre-push: OK。
+
+**累計成果 (Step 3-1 単独)**:
+- TSIG-TEST-01 false negative bug 2 件発見 + 修正
+- legacy violations 11 件発見 → ratchet-down baseline 化
+- check_format_added_files が機能した (実証)
+- Self-test に regression test 8 件追加
+- HourlyChart.builders 用 component test 10 件追加
+
+= 1 つの component test を書く作業から **5 種類の品質改善** が連動して発生。
+test-signal-integrity の観測戦略は想定以上の効果を上げている。
+
 ---
 
 _(以降の観測ログを時系列で追記)_
