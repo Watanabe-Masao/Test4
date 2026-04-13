@@ -31,7 +31,7 @@
 > 行為（無価値テスト / suppression）が機械的に止まる前提が整う。
 
 * [ ] `projects/test-signal-integrity` の Phase 3 完了を確認する（前提条件）
-* [ ] `vitest.config.ts` の coverage include に `presentation/` を追加する
+* [x] `vitest.config.ts` の coverage include に `presentation/` を追加する
 * [ ] Presentation 層の高優先 component（IntegratedSalesChart / DashboardPage / WeatherPage）に component test を追加する
 * [ ] coverage 閾値を `lines: 55` → `lines: 70` に引き上げる
 * [ ] CI で coverage 70% を満たすことを確認する

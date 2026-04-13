@@ -56,7 +56,12 @@ export default defineConfig({
     include: ['src/**/*.{test,spec}.{ts,tsx}'],
     coverage: {
       provider: 'v8',
-      include: ['src/domain/**', 'src/infrastructure/**', 'src/application/**'],
+      include: [
+        'src/domain/**',
+        'src/infrastructure/**',
+        'src/application/**',
+        'src/presentation/**',
+      ],
       exclude: [
         '**/*.d.ts',
         '**/index.ts',
@@ -72,7 +77,14 @@ export default defineConfig({
         'src/infrastructure/pwa/registerSW.ts',
       ],
       thresholds: {
-        lines: 55,
+        // Phase 3 観測期間中の暫定 baseline (2026-04-13 設定)
+        // - presentation/** を coverage include に追加した直後の現実値 (35.01%)
+        //   を ratchet-down baseline として設定
+        // - presentation 層の component test 追加と並行して段階的に引き上げる
+        //   (35 → 45 → 55 → 65 → 70)
+        // - 詳細: projects/presentation-quality-hardening/HANDOFF.md §2 Step 4
+        // - 不可侵原則 #1 (機械的引き上げ禁止) は逆方向 (引き下げ) には適用されない
+        lines: 35,
         'src/domain/calculations/**': {
           lines: 80,
         },
