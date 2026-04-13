@@ -2,15 +2,15 @@
 
 > **本文書の役割: 起点文書**
 > 後任者が最初に読む文書。完了済みの概要、次にやること、ハマりポイント。
-> コード truth の後追いであり、詳細は plan.md / plan-checklist.md を参照する。
+> コード truth の後追いであり、詳細は plan.md / checklist.md を参照する。
 
 ### 3文書の役割分担
 
 | 文書 | 役割 | 更新タイミング |
 |------|------|-------------|
 | **HANDOFF.md（本書）** | 起点文書。全体把握と入口 | コード truth 変更後 |
-| **plan.md** | 原則と構造の正本。4不可侵原則 + Phase 定義 | 計画変更時のみ |
-| **plan-checklist.md** | 進行管理の唯一の truth | 作業完了ごと |
+| **plan.md** | 原則と構造の正本。4不可侵原則 + Phase 別禁止事項テーブル + Phase 定義 + Phase 11 完了後の 4 項目 | 計画変更時のみ |
+| **checklist.md** | 進行管理の唯一の truth（達成条件 checkbox のみ。禁止事項は plan.md） | 作業完了ごと |
 
 ---
 
@@ -18,8 +18,32 @@
 
 Phase 0-7 の構造基盤が完了。AAG 5.0.0 Phase A1-A5 完了。Core / Project Overlay 分離済み。
 **Phase C（Governance 配置完成）+ Phase 6（AAG 保証強化）完了**（2026-04-12）。
+**AAG 5.2 Collector-Governance Symmetry 完了**（2026-04-13, 別プロジェクトで実施）。
 
-本体: **v1.8.0**。AAG: **5.0.0**（Phase C/6 配置完成後）。Hard Gate: **PASS**。
+本体: **v1.10.0**。AAG: **5.2.0**。Hard Gate: **PASS** (39/39 KPI OK)。
+進捗: **84/113 (74.3%)** — Phase 0-7 の達成条件は全て `[x]`、Phase 8-11 が残件。
+
+### 2026-04-13 の状態変化（別プロジェクトで実施済み、本 project への影響あり）
+
+AAG コア信頼性回復フェーズ（P0-1/P0-2/P0-3）が完了し、以下が変化:
+
+- **checklist.md が純化された**（aag-collector-purification project で実施）:
+  - 各 Phase の「やってはいけないこと」セクション 19 件 → `plan.md` の「Phase 別禁止事項テーブル」へ
+  - ファイル末尾の「常時チェック」6 件 → `CONTRIBUTING.md` の「PR 作成前のローカル確認」へ
+  - ファイル末尾の「4 つだけ毎回見る最重要項目」4 件 → `plan.md` の「Phase 11 完了後に毎回確認する 4 項目」へ
+  - **Phase 0-11 の達成条件 checkbox `[x]`/`[ ]` 状態は不変**
+  - 進捗表記が `88/132` → `84/113` に（分母の prohibition noise 削減による改善）
+- **`checklistGovernanceSymmetryGuard` (S1/S2/S3) 追加** — 禁止見出しが checklist に紛れ込むことを機械検出
+- **AR-STRUCT-RESP-SEPARATION の 7 分割完了** — AR-RESP-* (STORE-COUPLING / MODULE-STATE /
+  HOOK-COMPLEXITY / FEATURE-COMPLEXITY / EXPORT-DENSITY / NORMALIZATION / FALLBACK-SPREAD)
+
+**後任者への影響:**
+- checklist.md に禁止事項を書こうとしたら `checklistFormatGuard` (F3/F4/F5) と
+  `checklistGovernanceSymmetryGuard` (S1/S2/S3) が両方発火する
+- 禁止事項は必ず `plan.md` の「Phase 別禁止事項テーブル」に追記する
+- 常時チェックコマンドは `CONTRIBUTING.md` §2「PR 作成前のローカル確認」を参照する
+
+### 完了済みの構造基盤
 
 ### 完了済みの構造基盤
 
@@ -77,8 +101,8 @@ Phase 0-7 の構造基盤が完了。AAG 5.0.0 Phase A1-A5 完了。Core / Proje
 | 順 | ファイル | 目的 |
 |---|---------|------|
 | 1 | `HANDOFF.md` | **起点**。完了済み Phase 0-7 の概要、次にやること、ハマりポイント |
-| 2 | `plan.md` | 全体計画。Phase 8 以降の成果物と受け入れ条件 |
-| 3 | `plan-checklist.md` | Phase 単位の完了チェックリスト |
+| 2 | `plan.md` | 全体計画。4 不可侵原則 + Phase 別禁止事項テーブル + Phase 8 以降の成果物と受け入れ条件 + Phase 11 完了後の 4 項目 |
+| 3 | `checklist.md` | Phase 単位の完了チェックリスト（純化済み、達成条件 `[x]`/`[ ]` のみ） |
 
 ### Layer 2: 次のアクション理解（何をやるか）
 
@@ -95,7 +119,7 @@ Phase 0-7 の構造基盤が完了。AAG 5.0.0 Phase A1-A5 完了。Core / Proje
 |---------|------|
 | `CLAUDE.md` | 開発ルール全体。特に「設計原則」「ドキュメント運用」 |
 | `app/src/test/calculationCanonRegistry.ts` | Master Registry（46 エントリ: 実ファイル35 + candidate 11） |
-| `app/src/test/architectureRules.ts` | Consumer facade（**物理正本**は `app-domain/gross-profit/rule-catalog/base-rules.ts`、全 143 ルール） |
+| `app/src/test/architectureRules.ts` | Consumer facade（**物理正本**は `app-domain/gross-profit/rule-catalog/base-rules.ts`、AAG 5.2 後）。AR-RESP-* 7 分割 + checklistGovernanceSymmetry 追加済み |
 | `references/03-guides/contract-definition-policy.md` | BIZ/ANA 契約テンプレート |
 | `references/03-guides/guard-consolidation-and-js-retirement.md` | Guard マップ + JS 縮退 4段階 |
 
@@ -240,10 +264,12 @@ cd app
 npm run format          # Prettier 自動修正
 npm run lint            # ESLint（0 errors 必須）
 npm run build           # tsc -b + vite build
-npm run test:guards     # ガードテスト（61 ファイル / 554 テスト、Phase C/6 後）
+npm run test:guards     # ガードテスト（67 ファイル / 580 テスト、AAG 5.2 後）
 npm run docs:generate   # guard/allowlist/文書変更時は必須
 npm run test:guards     # docs:generate 後に再度
 ```
+
+開発フローで常時実行する 6 コマンドの詳細は `CONTRIBUTING.md` §2 を参照。
 
 ## 8. 絶対にやってはいけないこと
 
