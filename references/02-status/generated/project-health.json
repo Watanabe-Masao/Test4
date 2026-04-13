@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-13T04:11:44.044Z",
+  "timestamp": "2026-04-13T04:44:51.412Z",
   "summary": {
-    "active": 3,
+    "active": 4,
     "archived": 5,
-    "inProgress": 2,
+    "inProgress": 3,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 283,
+    "totalCheckboxes": 315,
     "checkedCheckboxes": 240
   },
   "projects": [
@@ -107,6 +107,18 @@
       "progress": 1,
       "entrypoint": "projects/quick-fixes/AI_CONTEXT.md",
       "checklistPath": "projects/quick-fixes/checklist.md"
+    },
+    {
+      "projectId": "test-signal-integrity",
+      "title": "AAG Test Signal Integrity — 品質シグナル保全と False Green 防止",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 0,
+      "total": 32,
+      "progress": 0,
+      "entrypoint": "projects/test-signal-integrity/AI_CONTEXT.md",
+      "checklistPath": "projects/test-signal-integrity/checklist.md"
     }
   ]
 }
