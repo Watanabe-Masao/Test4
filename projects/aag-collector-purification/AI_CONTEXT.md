@@ -1,5 +1,8 @@
 # AI_CONTEXT — aag-collector-purification
 
+> 役割: project 意味空間の入口（why / scope / read order）。
+> 現在地・次の作業・ハマりポイントは `HANDOFF.md` を参照。
+
 ## Project
 
 AAG collector 純化 — 規約と実装の対称性回復（aag-collector-purification）

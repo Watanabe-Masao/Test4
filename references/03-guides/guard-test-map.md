@@ -18,6 +18,9 @@
 | `app/src/domain/calculations/__tests__/dowGapAnalysis.test.ts` | invariant-guardian | — | 曜日ギャップ分析の不変条件 |
 | `app/src/domain/calculations/__tests__/formulaRegistry.test.ts` | invariant-guardian | — | 計算式レジストリの整合性 |
 | `app/src/test/documentConsistency.test.ts` | documentation-steward | 12件 | 不変条件カタログ↔ガードテスト相互参照、エンジン責務↔実コード、CLAUDE.md 参照パス |
+| `app/src/test/guards/projectCompletionConsistencyGuard.test.ts` | documentation-steward | 7件 | C1-C4: project lifecycle (completion→archive, CURRENT_PROJECT.md 妥当性, dead-link) / L1-L3: cross-reference (stale archived path, broken subpath, wrong archive prefix) |
+| `app/src/test/guards/projectDocStructureGuard.test.ts` | documentation-steward | 4件 | D1: 必須 4-doc + config 構造 / D2-D3: AI_CONTEXT.md / HANDOFF.md の役割 banner / D4: AI_CONTEXT.md volatile セクション禁止 (Current Status / Next Actions 等は HANDOFF 責務) |
+| `app/src/test/guards/guardTestMapConsistencyGuard.test.ts` | documentation-steward | 1件 | 本ファイル自身の drift 検出（全 guard ファイルが guard-test-map.md に登録されているかを ratchet-down で監視） |
 | `app/src/test/guards/codePatternGuard.test.ts` | architecture | 8件 | R1-R3,R7,R10: 純粋モジュール、@internal禁止、store算術禁止、副作用チェーン |
 | `app/src/test/guards/sizeGuard.test.ts` | architecture | 9件 | R5,R11,R12: サイズ上限、facade分岐制限、層別行数制限 |
 | `app/src/test/guards/purityGuard.test.ts` | architecture | 10件 | Domain純粋性、Presentation描画専用、Engine境界、率再計算禁止、facade責務混在、許可リスト増加防止 |

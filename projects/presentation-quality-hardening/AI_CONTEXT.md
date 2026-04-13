@@ -1,5 +1,8 @@
 # AI_CONTEXT — presentation-quality-hardening
 
+> 役割: project 意味空間の入口（why / scope / read order）。
+> 現在地・次の作業・ハマりポイントは `HANDOFF.md` を参照。
+
 ## Project
 
 Presentation 品質強化（presentation-quality-hardening）

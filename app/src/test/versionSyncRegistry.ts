@@ -93,4 +93,37 @@ export const VERSION_SYNC_REGISTRY: readonly VersionSyncPair[] = [
     },
     target: PROJECT_METADATA_TARGET,
   },
+  {
+    id: 'package.json ↔ package-lock.json',
+    description:
+      'app/package.json の version と app/package-lock.json の root version / packages[""].version の一致（npm install 実行漏れ検出）',
+    source: {
+      file: 'app/package.json',
+      extract: (content: string): string | undefined => {
+        try {
+          const json = JSON.parse(content) as { version?: string }
+          return json.version
+        } catch {
+          return undefined
+        }
+      },
+      label: 'package.json version',
+    },
+    target: {
+      file: 'app/package-lock.json',
+      extract: (content: string): string | undefined => {
+        try {
+          const json = JSON.parse(content) as {
+            version?: string
+            packages?: Record<string, { version?: string }>
+          }
+          // root entry (空 key) の version を優先、なければ top-level version
+          return json.packages?.['']?.version ?? json.version
+        } catch {
+          return undefined
+        }
+      },
+      label: 'package-lock.json root version',
+    },
+  },
 ] as const

@@ -32,14 +32,14 @@
 | 後方互換負債 | OK | 0/3 / 2/3 |
 | 複雑性圧 | OK | 0/5 / 10/10 / 27/30 |
 | 境界健全性 | OK | 0/0 / 0/0 |
-| ガード強度 | OK | 54/30 / 0/5 |
+| ガード強度 | OK | 56/30 / 0/5 |
 | 性能 | OK | 6506/7000 / 2229/2500 / 919/1000 |
 | Temporal Governance | OK | 0/0 / 32/32 / 1/12 / 143/92 / 12/9 / 1/1 |
 | Rule Efficacy | OK | 80 / 0/3 / 0/10 |
 | Project Governance | OK | 6/20 / 5/20 / 0/0 / 2/100 |
 
 
-> 生成: 2026-04-12T21:25:09.324Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-12T22:24:11.854Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 現状スナップショット

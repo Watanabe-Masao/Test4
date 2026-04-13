@@ -53,6 +53,23 @@ Phase 0-7 の構造基盤が完了。AAG 5.0.0 Phase A1-A5 完了。Core / Proje
 | **C** | **Governance 配置完成**: BaseRule → App Domain 物理移動 / direct import 禁止 / project resolver 一元化 / 入口文書整理 | **+1**（+3 ルール） |
 | **6** | **AAG 保証強化**: collector / resolver / merge 契約テスト + quote-agnostic 化 + merge smoke guard | **+6**（6 test files 追加、内 5 は src/test/tools/、1 は guards/） |
 
+### Phase C / Phase 6 詳細
+
+| 項目 | 状態 | 成果物 |
+|------|------|--------|
+| 境界ポリシー文書 | **完了** | `aag/core/`, `app-domain/gross-profit/` |
+| ArchitectureRule 型分割 | **完了** | `aag-core-types.ts`（RuleSemantics / Governance / DetectionSpec） |
+| aagSchemas.ts Core re-export | **完了** | Core 型を aagSchemas.ts 経由でもアクセス可能 |
+| allowlist RetentionReason 分離 | **完了** | CoreRetentionReason / AppRetentionReason + RemovalKind |
+| **Phase C1: project 参照点一元化** | **完了** | `project-resolver.ts` / `resolve-project-overlay.mjs` / `project.json` 追加（tsconfig は暫定静的） |
+| **Phase C2: direct import 禁止 guard** | **完了** | `AR-AAG-DERIVED-ONLY-IMPORT` 系 3 ルール + `aagDerivedOnlyImportGuard.test.ts` |
+| **Phase C3: 入口文書整理** | **完了** | `governance-final-placement-plan.md` 現行化 + `architectureRules/README.md` 追加 |
+| **Phase C4: BaseRule 物理移動** | **完了** | `app-domain/gross-profit/rule-catalog/base-rules.ts` + `@app-domain/*` alias |
+| **Phase 6-1: Collector 契約テスト** | **完了** | `guardCollectorContract.test.ts` / `temporalGovernanceCollectorContract.test.ts` + quote-agnostic 化 |
+| **Phase 6-2: Resolver 契約テスト** | **完了** | `projectResolverContract.test.ts` / `resolveProjectOverlayScript.test.ts` |
+| **Phase 6-3: Merge / Facade smoke** | **完了** | `architectureRulesMergeSmokeGuard.test.ts` |
+| **Phase 6-4: docs / health smoke** | **完了** | `docs:check` PASS, Healthy |
+
 ## 3. 後任者の読書順（3レイヤー構成）
 
 ### Layer 1: 全体把握（まずこの3つ）
@@ -117,6 +134,11 @@ semanticClass 棚卸し一巡後、必要範囲だけ物理移動。意味分類
 ### Phase 11: 意味拡張 + UI 進化
 
 Business / Analytic の境界が安定してから新しい KPI / 説明指標を導入。
+
+### Governance 保守 TODO（Phase C の暫定事項）
+
+- `tsconfig.app.json` の `@project-overlay/*` / include 静的直書きの解消（Phase C1 暫定事項）
+- `tools/architecture-health/src/config/health-rules.ts` の target 値を Project Overlay へ移す検討（health 契約化）
 
 ## 5. Phase 8 を始めるための前提条件
 
