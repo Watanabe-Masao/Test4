@@ -1,24 +1,80 @@
 #!/bin/sh
-# pre-push hook — CI 前の修正漏れ検出
+# pre-push hook — CI 前の修正漏れ検出 (violation registry 方式)
 #
-# push 前に、後続 AI が落としやすい修正漏れを検出して止める。
-# pre-commit よりも重い検査（test:guards）を含むが、CI より速い。
+# ──────────────────────────────────────────────────────────────────────
+# 役割 — CI と AAG の分担
+# ──────────────────────────────────────────────────────────────────────
 #
-# 検出対象:
-#   1. test:guards 未通過
-#   2. references/ 新規 .md → doc-registry.json 未更新
-#   3. references/ 新規 .md → references/README.md 未更新
-#   4. lint エラー
+#   CI  = 正式な完全版チェック (全ファイル / 全ルール / 最終ゲート)
+#   AAG = **過去にやらかしたパターンの蓄積知識** を staged scope で即時検出
 #
-# AAG Response 統一フォーマット互換。
+# pre-push は後者の一部を担う。commit を重ねた後の push 直前に「CI で落ちる
+# ことが予測できる違反」を検出し、AAG Response で修正手順を返す。目的は
+# 「CI を回さなくても、どこをどう直せばいいかのレスポンスを返して、
+# 実装者が迷わず修正できる」状態を作ること。
 #
-# セットアップ:
+# severity は役割ごとに違う:
+#
+#   - lint / test:guards 失敗              → ERROR  (push を止める)
+#   - format:check 違反                    → WARN   (止めない。一括整形推奨)
+#   - doc 更新義務違反 (必須の依存更新)    → ERROR
+#   - doc 更新義務違反 (非必須の依存更新)  → WARN
+#
+# format を止めない理由: 複数コミットぶんの軽微な整形違反を一括で
+# `npm run format` 修正できるようにする。即時ブロックは pre-commit 側の
+# 役割。push 時点では「一括整形して follow-up commit すれば済む」運用に揃える。
+# format の最終ゲートは CI fast-gate が担う。
+#
+# pre-commit vs pre-push の分担:
+#   - pre-commit: 高速な check のみ (1 秒以内)。commit を止めることでその場で修正
+#   - pre-push:   重い check (lint / test:guards / 全ファイル format:check)
+#                 format は止めず warn のみ (一括修正のため)
+#
+# 対称性検証: CI と pre-commit+pre-push の必須ステップ対称性は
+# buildParityAudit.test.ts で機械検証される。
+#
+# ──────────────────────────────────────────────────────────────────────
+# HOW TO ADD A NEW CHECK (学習プロセス)
+# ──────────────────────────────────────────────────────────────────────
+#
+# CI で新しい失敗パターンを踏むたびに、以下 3 ステップで check を追加する:
+#
+#   1. `check_<name>()` 関数を書く (テンプレートは下記)
+#   2. `CHECK_REGISTRY` 変数に関数名を追加
+#   3. 関数内で違反があれば `add_error` / `add_warn` を呼ぶ
+#
+# テンプレート:
+#
+#   # Check: <短い説明>
+#   # 学習ソース: <どの CI 失敗から追加したか / YYYY-MM-DD>
+#   # 理由: <なぜこの check が必要か>
+#   # severity: error|warn
+#   check_<snake_case>() {
+#     echo "  pre-push: <短い説明> 実行中..."
+#     # 違反検出ロジック
+#     if [ "<condition>" = "violated" ]; then
+#       add_error "短いメッセージ" \
+#         "  修正方法:" \
+#         "    cd app && npm run <fix-command>" \
+#         "  詳細: <参照ドキュメント>"
+#     fi
+#   }
+#
+# add_error / add_warn の引数はすべて 1 行ずつ出力される。
+# 修正手順を複数行に分けて書きやすくするための設計。
+#
+# ──────────────────────────────────────────────────────────────────────
+# セットアップ
+# ──────────────────────────────────────────────────────────────────────
 #   cp tools/git-hooks/pre-push .git/hooks/pre-push
 #   chmod +x .git/hooks/pre-push
 
 set -e
 
-# ── push 対象のコミット範囲を取得 ──
+# ──────────────────────────────────────────────────────────────────────
+# コミット範囲 / 変更ファイル
+# ──────────────────────────────────────────────────────────────────────
+
 # pre-push は stdin から <local ref> <local sha> <remote ref> <remote sha> を受け取る
 PUSH_RANGE=""
 while read -r _ LOCAL_SHA _ REMOTE_SHA; do
@@ -40,71 +96,205 @@ if [ -z "$CHANGED_FILES" ]; then
   exit 0
 fi
 
+# ──────────────────────────────────────────────────────────────────────
+# Violation registry 層
+# ──────────────────────────────────────────────────────────────────────
+
 ERRORS=""
 WARNINGS=""
 
-# ── Check 1: references/ 新規 .md → doc-registry.json 未更新 ──
-NEW_REFS=$(echo "$CHANGED_FILES" | grep "^references/.*\.md$" | grep -v "^references/02-status/generated/" | grep -v "^references/99-archive/" || true)
+# add_error <line> [<line> ...]
+# ERROR レベルで違反を記録する (push を止める)
+add_error() {
+  for line in "$@"; do
+    ERRORS="${ERRORS}${line}\n"
+  done
+}
 
-if [ -n "$NEW_REFS" ]; then
-  if ! echo "$CHANGED_FILES" | grep -q "^docs/contracts/doc-registry.json"; then
-    ERRORS="${ERRORS}references/ に .md 変更あり → docs/contracts/doc-registry.json が未更新\n"
-  fi
-  if ! echo "$CHANGED_FILES" | grep -q "^references/README.md"; then
-    WARNINGS="${WARNINGS}references/ に .md 変更あり → references/README.md が未更新の可能性\n"
-  fi
-fi
+# add_warn <line> [<line> ...]
+# WARN レベルで違反を記録する (push は続行)
+add_warn() {
+  for line in "$@"; do
+    WARNINGS="${WARNINGS}${line}\n"
+  done
+}
 
-# ── Check 2: references/01-principles/ 変更 → principles.json 未更新 ──
-if echo "$CHANGED_FILES" | grep -q "^references/01-principles/"; then
-  if ! echo "$CHANGED_FILES" | grep -q "^docs/contracts/principles.json"; then
-    WARNINGS="${WARNINGS}references/01-principles/ 変更あり → docs/contracts/principles.json が未更新の可能性\n"
-  fi
-fi
+# changed_matches <regex>
+# 変更ファイルのうち regex にマッチするものがあれば 0 を返す
+changed_matches() {
+  echo "$CHANGED_FILES" | grep -qE "$1"
+}
 
-# ── Check 3: wasm/ 変更 → project-metadata.json 未更新 ──
-if echo "$CHANGED_FILES" | grep -q "^wasm/"; then
-  if ! echo "$CHANGED_FILES" | grep -q "^docs/contracts/project-metadata.json"; then
-    WARNINGS="${WARNINGS}wasm/ 変更あり → docs/contracts/project-metadata.json が未更新の可能性\n"
-  fi
-fi
+# ──────────────────────────────────────────────────────────────────────
+# Check 関数群
+# ──────────────────────────────────────────────────────────────────────
+#
+# 各 check は CHECK_REGISTRY に登録された順に実行される。
+# 追加方法は先頭コメントの HOW TO ADD A NEW CHECK を参照。
 
-# ── Check 4: guard/allowlist 変更 → docs:generate 未実行 ──
-GUARD_CHANGED=0
-for pattern in \
-  "app/src/test/allowlists/" \
-  "app/src/test/guards/" \
-  "app/src/test/architectureRules.ts" \
-  "app/src/test/calculationCanonRegistry.ts"; do
-  if echo "$CHANGED_FILES" | grep -q "^${pattern}"; then
-    GUARD_CHANGED=1
-    break
+# Check: references/ 新規 .md → doc-registry.json 未更新
+# 学習ソース: references/ に文書追加時、doc-registry.json 登録漏れが頻発
+# 理由: doc-registry.json は文書レジストリの唯一正本。登録漏れは審査不能な
+#       文書が repo に混入する原因になる
+# severity: error (registry) / warn (README)
+check_doc_registry() {
+  NEW_REFS=$(echo "$CHANGED_FILES" \
+    | grep "^references/.*\.md$" \
+    | grep -v "^references/02-status/generated/" \
+    | grep -v "^references/99-archive/" || true)
+  [ -z "$NEW_REFS" ] && return 0
+
+  if ! changed_matches "^docs/contracts/doc-registry\.json"; then
+    add_error \
+      "references/ に .md 変更あり → docs/contracts/doc-registry.json が未更新" \
+      "  修正方法:" \
+      "    docs/contracts/doc-registry.json に該当文書エントリを追加" \
+      "    詳細: references/03-guides/project-checklist-governance.md §8"
   fi
+  if ! changed_matches "^references/README\.md"; then
+    add_warn "references/ に .md 変更あり → references/README.md が未更新の可能性"
+  fi
+}
+
+# Check: references/01-principles/ 変更 → principles.json 未更新
+# 学習ソース: 原則文書変更時、principles.json の連鎖更新漏れ
+# 理由: principles.json は設計原則体系の唯一正本。ここと references/01-principles/
+#       の不一致は documentConsistency.test.ts で落ちる
+# severity: warn
+check_principles_json() {
+  changed_matches "^references/01-principles/" || return 0
+  changed_matches "^docs/contracts/principles\.json" && return 0
+  add_warn "references/01-principles/ 変更あり → docs/contracts/principles.json が未更新の可能性"
+}
+
+# Check: wasm/ 変更 → project-metadata.json 未更新
+# 学習ソース: WASM モジュール追加時、project-metadata.json の wasmModules 未更新
+# 理由: project-metadata.json は WASM 一覧の唯一正本
+# severity: warn
+check_project_metadata() {
+  changed_matches "^wasm/" || return 0
+  changed_matches "^docs/contracts/project-metadata\.json" && return 0
+  add_warn "wasm/ 変更あり → docs/contracts/project-metadata.json が未更新の可能性"
+}
+
+# Check: guard/allowlist/registry 変更 → docs:generate 未実行
+# 学習ソース: guard 追加・allowlist 更新時、architecture-health の再生成漏れ
+# 理由: health KPI / project-health は guard/allowlist を元に算出される。
+#       再生成しないと generated section が stale になる
+# severity: warn
+check_docs_generate() {
+  GUARD_CHANGED=0
+  for pattern in \
+    "^app/src/test/allowlists/" \
+    "^app/src/test/guards/" \
+    "^app/src/test/architectureRules\.ts" \
+    "^app/src/test/calculationCanonRegistry\.ts"; do
+    if changed_matches "$pattern"; then
+      GUARD_CHANGED=1
+      break
+    fi
+  done
+  [ "$GUARD_CHANGED" = "0" ] && return 0
+  changed_matches "^references/02-status/generated/" && return 0
+  add_warn \
+    "guard/allowlist/registry 変更あり → docs:generate 未実行の可能性" \
+    "  修正方法: cd app && npm run docs:generate"
+}
+
+# Check: lint (ESLint)
+# 学習ソース: CI fast-gate step 1
+# 理由: lint エラーは CI で必ず落ちる。ローカルで気づく機会を作る
+# severity: error
+check_lint() {
+  echo "  pre-push: lint 実行中..."
+  LINT_OUTPUT=$(cd app && npm run lint 2>&1 || true)
+  if echo "$LINT_OUTPUT" | grep -qE "[1-9][0-9]* error"; then
+    LINT_SUMMARY=$(echo "$LINT_OUTPUT" | grep "problems" | head -1)
+    add_error \
+      "lint エラーが残っている: ${LINT_SUMMARY}" \
+      "  修正方法:" \
+      "    cd app && npm run lint       # 詳細を表示" \
+      "    cd app && npx eslint --fix . # 自動修正可能なものを修正"
+  fi
+}
+
+# Check: format:check (Prettier)
+# 学習ソース: 2026-04-13 CI で shiire-arari#0de794e が format:check に引っかかった。
+#             pre-commit / pre-push に format:check が存在しなかったのが原因
+# 理由: CI fast-gate の format:check で落ちる前に検出するため。
+#       ただし severity=warn — 複数コミットぶんを一括整形できるように push は止めない
+# severity: warn (止めない)
+check_format() {
+  echo "  pre-push: format:check 実行中..."
+  FORMAT_OUTPUT=$(cd app && npm run format:check 2>&1 || true)
+  echo "$FORMAT_OUTPUT" | grep -q "Code style issues found" || return 0
+
+  # 違反ファイル一覧を抽出 ([warn] で始まり、summary 行以外)
+  BAD_FILES=$(echo "$FORMAT_OUTPUT" \
+    | grep "^\[warn\]" \
+    | grep -v "Code style issues found" \
+    | sed 's/^\[warn\] *//')
+  FILE_COUNT=$(echo "$BAD_FILES" | grep -c "^" 2>/dev/null || echo 0)
+
+  add_warn \
+    "format:check 違反: ${FILE_COUNT} ファイルが Prettier 未整形 (push は続行)" \
+    "  修正方法:" \
+    "    cd app && npm run format      # 全ファイルを自動整形 (推奨)" \
+    "    または個別: cd app && npx prettier --write <file>"
+
+  # 対象ファイル一覧を WARNINGS に含める (最大 20 件)
+  BAD_LIST=$(echo "$BAD_FILES" | head -20)
+  if [ -n "$BAD_LIST" ]; then
+    add_warn "  対象ファイル (最大 20 件):"
+    OLD_IFS="$IFS"
+    IFS='
+'
+    for f in $BAD_LIST; do
+      add_warn "    $f"
+    done
+    IFS="$OLD_IFS"
+  fi
+}
+
+# Check: test:guards
+# 学習ソース: CI fast-gate step 4
+# 理由: 構造制約ガードは CI で落ちる。ローカルで気づく機会を作る
+# severity: error
+check_test_guards() {
+  echo "  pre-push: test:guards 実行中..."
+  GUARD_OUTPUT=$(cd app && npm run test:guards 2>&1 || true)
+  if ! echo "$GUARD_OUTPUT" | grep -q "Test Files.*passed"; then
+    GUARD_SUMMARY=$(echo "$GUARD_OUTPUT" | grep "Tests " | head -1)
+    add_error \
+      "test:guards が失敗: ${GUARD_SUMMARY}" \
+      "  修正方法:" \
+      "    cd app && npm run test:guards   # 失敗 test を確認" \
+      "  詳細: references/03-guides/guard-test-map.md"
+  fi
+}
+
+# ──────────────────────────────────────────────────────────────────────
+# CHECK_REGISTRY
+# ──────────────────────────────────────────────────────────────────────
+# 新しい check を追加するときは (1) 上に関数を定義し (2) ここに名前を追加する。
+# 実行順: 速いもの → 遅いもの (失敗時のフィードバックを速くするため)
+CHECK_REGISTRY="
+  check_doc_registry
+  check_principles_json
+  check_project_metadata
+  check_docs_generate
+  check_lint
+  check_format
+  check_test_guards
+"
+
+for check in $CHECK_REGISTRY; do
+  $check
 done
 
-if [ "$GUARD_CHANGED" = "1" ]; then
-  if ! echo "$CHANGED_FILES" | grep -q "^references/02-status/generated/"; then
-    WARNINGS="${WARNINGS}guard/allowlist/registry 変更あり → docs:generate 未実行の可能性\n"
-  fi
-fi
-
-# ── Check 5: lint ──
-echo "  pre-push: lint 実行中..."
-if ! (cd app && npm run lint --silent 2>&1 | tail -1 | grep -q "0 errors"); then
-  LINT_RESULT=$(cd app && npm run lint 2>&1 | grep "problems" || echo "")
-  if echo "$LINT_RESULT" | grep -q "[1-9][0-9]* error"; then
-    ERRORS="${ERRORS}lint エラーが残っている: ${LINT_RESULT}\n"
-  fi
-fi
-
-# ── Check 6: test:guards ──
-echo "  pre-push: test:guards 実行中..."
-if ! (cd app && npm run test:guards --silent 2>&1 | tail -1 | grep -q "passed"); then
-  GUARD_RESULT=$(cd app && npm run test:guards 2>&1 | grep "Tests" | head -1 || echo "unknown")
-  ERRORS="${ERRORS}test:guards が失敗: ${GUARD_RESULT}\n"
-fi
-
-# ── 結果出力 ──
+# ──────────────────────────────────────────────────────────────────────
+# 結果出力 (AAG Response 統一フォーマット)
+# ──────────────────────────────────────────────────────────────────────
 
 if [ -n "$ERRORS" ]; then
   echo ""
@@ -119,10 +309,11 @@ if [ -n "$ERRORS" ]; then
     echo "  理由: push 前チェックでエラーが見つかった"
   }
   echo ""
-  echo "  エラー:"
+  echo "  エラー (push を止める):"
   printf "    %b" "$ERRORS"
   if [ -n "$WARNINGS" ]; then
-    echo "  警告:"
+    echo ""
+    echo "  警告 (push は続行していた):"
     printf "    %b" "$WARNINGS"
   fi
   echo ""
@@ -131,7 +322,7 @@ fi
 
 if [ -n "$WARNINGS" ]; then
   echo ""
-  echo "  pre-push 警告（push は続行）:"
+  echo "⚠ pre-push 警告 (push は続行):"
   printf "    %b" "$WARNINGS"
   echo ""
 fi

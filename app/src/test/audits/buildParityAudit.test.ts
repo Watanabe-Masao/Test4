@@ -71,6 +71,31 @@ function parsePackageScripts(): Record<string, string> | null {
   return pkg.scripts ?? {}
 }
 
+// ── pre-push hook 解析 ──
+
+/**
+ * pre-push hook から `npm run <script>` 呼び出しを抽出する。
+ * buildParityAudit は CI と pre-push の capability 対称性を検証する目的で
+ * この情報を使う。「CI が走らせるステップは pre-push でも走っているか」を
+ * 機械的に保証することで、開発者/AI が push 時点で気づく機会を作る。
+ */
+function parsePrePushHook(): {
+  content: string
+  npmScriptCalls: string[]
+} | null {
+  const hookPath = path.join(ROOT_DIR, 'tools/git-hooks/pre-push')
+  const content = readFileIfExists(hookPath)
+  if (!content) return null
+
+  const npmScriptCalls: string[] = []
+  for (const line of content.split('\n')) {
+    // `npm run <name>` 形式を抽出（--silent や引数は無視）
+    const match = line.match(/npm\s+run\s+([\w:.-]+)/)
+    if (match) npmScriptCalls.push(match[1])
+  }
+  return { content, npmScriptCalls }
+}
+
 // ── WASM モジュール一覧 ──
 
 function listWasmModules(): string[] {
@@ -88,6 +113,7 @@ describe('Build Parity Audit — CI と正本ビルド手順の一致検証', ()
   const ci = parseCiWorkflow()
   const scripts = parsePackageScripts()
   const wasmModules = listWasmModules()
+  const prePush = parsePrePushHook()
 
   it('CI ワークフローが存在する', () => {
     expect(ci, '.github/workflows/ci.yml が見つかりません').not.toBeNull()
@@ -155,6 +181,41 @@ describe('Build Parity Audit — CI と正本ビルド手順の一致検証', ()
       ci.npmScriptCalls.includes('format:check'),
       'CI に format:check が含まれていません。CLAUDE.md §CI パイプライン参照。',
     ).toBe(true)
+  })
+
+  // ── pre-push hook の capability 対称性 ──
+  //
+  // CI fast-gate の必須ステップ (lint / format:check / test:guards) は
+  // pre-push でも同じステップを走らせることで、push 時点で検出するチャンスを
+  // 開発者/AI に与える。CI と pre-push の非対称は「ローカルで通るのに CI で
+  // 落ちる」現象を生み、特に format 系の見逃しが発生しやすい
+  // (2026-04-13, shiire-arari#0de794e 参照)。
+
+  it('pre-push hook が存在する', () => {
+    expect(prePush, 'tools/git-hooks/pre-push が見つかりません').not.toBeNull()
+  })
+
+  it('pre-push hook が CI fast-gate と同じ必須ステップを走らせている（capability 対称性）', () => {
+    if (!prePush) return
+    // CI fast-gate の必須ステップ（lint / format:check / test:guards）。
+    // build は WASM 前提でローカル実行コストが高いため pre-push からは除外。
+    const fastGateRequiredScripts = ['lint', 'format:check', 'test:guards']
+    const missing = fastGateRequiredScripts.filter((s) => !prePush.npmScriptCalls.includes(s))
+    expect(
+      missing,
+      `pre-push が CI fast-gate の必須ステップを走らせていません: ${missing.join(', ')}。` +
+        ' CI と pre-push の capability 対称性を保つため、tools/git-hooks/pre-push に追加してください。' +
+        ' 修正手順: tools/git-hooks/pre-push にチェックを追加 → chmod +x で再配置。',
+    ).toEqual([])
+  })
+
+  it('pre-push hook の npm run 呼び出しが package.json scripts に存在する', () => {
+    if (!prePush || !scripts) return
+    const missing = prePush.npmScriptCalls.filter((script) => !(script in scripts))
+    expect(
+      missing,
+      `pre-push hook が存在しない npm script を呼んでいます: ${missing.join(', ')}`,
+    ).toEqual([])
   })
 
   it('ビルドパリティレポートを生成する', () => {

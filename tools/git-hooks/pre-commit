@@ -1,14 +1,65 @@
 #!/bin/sh
-# pre-commit hook — AAG obligation + 自動再生成
+# pre-commit hook — 即時違反検出 + 自動再生成 (violation registry 方式)
 #
-# guard / allowlist / health ツールの変更がステージングされている場合、
-# architecture-health.json も同時にステージングされていなければ
-# docs:generate を自動実行してステージングに追加する。
+# ──────────────────────────────────────────────────────────────────────
+# 役割 — CI と AAG の分担
+# ──────────────────────────────────────────────────────────────────────
 #
-# AAG Response 統一フォーマット: renderAagResponse() 互換の出力構造。
-# 全入口（guard / obligation / pre-commit / health）で同じ情報構造を返す。
+#   CI  = 正式な完全版チェック (全ファイル / 全ルール / 最終ゲート)
+#   AAG = **過去にやらかしたパターンの蓄積知識** を staged scope で即時検出
 #
-# セットアップ:
+# pre-commit は後者を担う。目的は「CI を回さなくても、どこをどう直せばいいか
+# のレスポンスを返して、実装者が迷わず / 探さず 修正できる」状態を作ること。
+#
+# つまり pre-commit は「網羅的な検査器」ではなく「学習済みパターンの反射神経」。
+# 新しい CI 失敗を踏むたびに、そのパターンを check として蓄積していく。
+#
+# 設計原則:
+#   - AAG Response に 3 要素を必ず含める:
+#       (1) どのファイル (which file)
+#       (2) なぜ違反か (what pattern)
+#       (3) どうやって直すか (exact fix command)
+#   - 実装者はメッセージをコピペするだけで修正できる状態にする
+#   - 判断を要する検査は CI に任せる。AAG は「機械的に即時修正できる」もののみ
+#
+# pre-commit vs pre-push の分担:
+#   - pre-commit: 高速な check のみ (1 秒以内)。commit を止めることでその場で修正
+#   - pre-push:   重い check (lint / test:guards / 全ファイル format:check)
+#                 format は止めず warn のみ (一括修正のため)
+#
+# 対称性検証: CI と pre-commit+pre-push の必須ステップ対称性は
+# buildParityAudit.test.ts が機械検証する。
+#
+# ──────────────────────────────────────────────────────────────────────
+# HOW TO ADD A NEW CHECK (学習プロセス)
+# ──────────────────────────────────────────────────────────────────────
+#
+# 新しい「commit 時点で止めるべき違反」を見つけたら、以下 3 ステップ:
+#
+#   1. `check_<name>()` 関数を書く (テンプレートは下記)
+#   2. `CHECK_REGISTRY` 変数に関数名を追加
+#   3. 関数内で違反があれば `add_error` / `add_warn` を呼ぶ
+#
+# テンプレート:
+#
+#   # Check: <短い説明>
+#   # 学習ソース: <どの CI/PR 失敗から追加したか / YYYY-MM-DD>
+#   # 理由: <なぜ commit 時点で止める必要があるか>
+#   # severity: error|warn
+#   check_<snake_case>() {
+#     # ... 違反検出ロジック。STAGED を使って staged ファイルにだけ反応する
+#     if [ "<condition>" = "violated" ]; then
+#       add_error "短いメッセージ" \
+#         "  修正方法:" \
+#         "    cd app && npm run <fix-command>"
+#     fi
+#   }
+#
+# 原則: pre-commit は **速さ命**。1 秒以上かかる check は pre-push に回す。
+#
+# ──────────────────────────────────────────────────────────────────────
+# セットアップ
+# ──────────────────────────────────────────────────────────────────────
 #   cp tools/git-hooks/pre-commit .git/hooks/pre-commit
 #   chmod +x .git/hooks/pre-commit
 
@@ -21,91 +72,214 @@ if [ -z "$STAGED" ]; then
   exit 0
 fi
 
-# health regeneration が必要なパスパターン（obligation-collector.ts と同期）
-NEED_HEALTH_REGEN=0
+# ──────────────────────────────────────────────────────────────────────
+# Violation registry 層
+# ──────────────────────────────────────────────────────────────────────
 
-for pattern in \
-  "app/src/test/allowlists/" \
-  "app/src/test/guards/" \
-  "tools/architecture-health/" \
-  "tools/architecture-health/src/config/" \
-  "references/02-status/generated/"; do
-  if echo "$STAGED" | grep -q "^${pattern}"; then
-    NEED_HEALTH_REGEN=1
-    break
+ERRORS=""
+WARNINGS=""
+
+# add_error <line> [<line> ...]  -- commit を止める (exit 1)
+add_error() {
+  for line in "$@"; do
+    ERRORS="${ERRORS}${line}\n"
+  done
+}
+
+# add_warn <line> [<line> ...]  -- commit は続行
+add_warn() {
+  for line in "$@"; do
+    WARNINGS="${WARNINGS}${line}\n"
+  done
+}
+
+# staged_matches <regex>  -- staged ファイルに regex マッチがあれば 0
+staged_matches() {
+  echo "$STAGED" | grep -qE "$1"
+}
+
+# ──────────────────────────────────────────────────────────────────────
+# Check 関数群
+# ──────────────────────────────────────────────────────────────────────
+
+# Check: format:check (Prettier) on staged files
+# 学習ソース: 2026-04-13 shiire-arari#0de794e — CI format:check で落ちた
+# 理由: commit 時点で違反を特定できれば、その場で 1 コマンド修正に誘導できる。
+#       CI まで気づかないと context switch が発生する。
+# severity: error (commit を止める)
+check_format_staged() {
+  # Prettier の対象 (package.json の format:check と同じ拡張子パターン)
+  FORMAT_CANDIDATES=$(echo "$STAGED" \
+    | grep -E '^(app/(src|\.storybook)/.*\.(ts|tsx|css)|app/[^/]+\.(ts|js|json))$' || true)
+  [ -z "$FORMAT_CANDIDATES" ] && return 0
+
+  # app/ prefix を削除して app ディレクトリ相対パスに変換
+  REL_CANDIDATES=$(echo "$FORMAT_CANDIDATES" | sed 's|^app/||')
+
+  # staged 対象ファイルだけを prettier --check に渡す (数十 ms で完結)
+  BAD_FILES=$(echo "$REL_CANDIDATES" \
+    | (cd app && xargs -r npx prettier --check --ignore-path .prettierignore 2>&1 \
+      | grep '^\[warn\]' \
+      | grep -v 'Code style issues found' \
+      | sed 's|^\[warn\] *||') || true)
+
+  [ -z "$BAD_FILES" ] && return 0
+
+  FILE_COUNT=$(echo "$BAD_FILES" | grep -c '^' 2>/dev/null || echo 0)
+  FIX_SAMPLE=$(echo "$BAD_FILES" | head -5 | tr '\n' ' ')
+
+  add_error \
+    "format:check 違反: ${FILE_COUNT} ファイルが Prettier 未整形" \
+    "  修正方法:" \
+    "    cd app && npm run format           # 全ファイルを自動整形 (推奨)" \
+    "    または個別: cd app && npx prettier --write ${FIX_SAMPLE}" \
+    "  その後:" \
+    "    git add <修正したファイル> && git commit で再実行"
+
+  # 違反ファイル一覧 (最大 20 件)
+  add_error "  違反ファイル (最大 20 件):"
+  OLD_IFS="$IFS"
+  IFS='
+'
+  COUNT=0
+  for f in $BAD_FILES; do
+    COUNT=$((COUNT + 1))
+    [ "$COUNT" -gt 20 ] && break
+    add_error "    $f"
+  done
+  IFS="$OLD_IFS"
+}
+
+# Check: docs:generate 自動再生成
+# 学習ソース: guard/allowlist 変更時の generated section stale 問題
+# 理由: guard / allowlist / health ツールが変更されたら architecture-health.json
+#       を再生成する必要がある。**本 check は違反を返すのではなく自動実行で解決する**
+#       (失敗したときだけ error にする)
+# severity: error (自動修復に失敗した場合のみ)
+check_docs_generate_autofix() {
+  NEED_REGEN=0
+  for pattern in \
+    "^app/src/test/allowlists/" \
+    "^app/src/test/guards/" \
+    "^tools/architecture-health/" \
+    "^tools/architecture-health/src/config/" \
+    "^references/02-status/generated/"; do
+    if staged_matches "$pattern"; then
+      NEED_REGEN=1
+      break
+    fi
+  done
+  [ "$NEED_REGEN" = "0" ] && return 0
+
+  # architecture-health.json がすでにステージングされていれば OK
+  staged_matches "^${HEALTH_JSON}$" && return 0
+
+  # ── 影響スライスの推定 (参考情報) ──
+  count_matches() {
+    echo "$STAGED" | grep -c "$1" 2>/dev/null || echo 0
+  }
+
+  SLICE_DETAIL=""
+  N=$(count_matches "app/src/domain/\|app/src/infrastructure/")
+  [ "$N" -gt 0 ] && SLICE_DETAIL="${SLICE_DETAIL}\n    layer-boundary        (${N} files)"
+  N=$(count_matches "readModels/\|calculations/\|canonicalization\|definition")
+  [ "$N" -gt 0 ] && SLICE_DETAIL="${SLICE_DETAIL}\n    canonicalization       (${N} files)"
+  N=$(count_matches "queries/\|QueryHandler\|AnalysisFrame\|ComparisonScope")
+  [ "$N" -gt 0 ] && SLICE_DETAIL="${SLICE_DETAIL}\n    query-runtime          (${N} files)"
+  N=$(count_matches "responsibility\|allowlists/complexity\|useMemo\|useState")
+  [ "$N" -gt 0 ] && SLICE_DETAIL="${SLICE_DETAIL}\n    responsibility-sep     (${N} files)"
+  N=$(count_matches "allowlists/\|guards/\|architecture-health\|obligation")
+  [ "$N" -gt 0 ] && SLICE_DETAIL="${SLICE_DETAIL}\n    governance-ops         (${N} files)"
+
+  echo ""
+  npx tsx tools/aag-render-cli.ts \
+    now governance-ops \
+    "generated docs が古くなっている" \
+    "guard/allowlist/health ツールの変更が検出された" \
+    "1. docs:generate を自動実行中..." \
+    "2. 生成ファイルをステージングに追加" \
+    2>/dev/null || {
+    echo "⚡ 今すぐ修正 [governance-ops]"
+    echo "  generated docs が古くなっている"
+    echo "  理由: guard/allowlist/health ツールの変更が検出された"
+    echo "  方向: docs:generate / rule review で対応する"
+    echo "  修正手順:"
+    echo "    1. cd app && npm run docs:generate"
+    echo "    2. git add references/02-status/generated/ CLAUDE.md"
+    echo "  詳細: tools/architecture-health/src/collectors/obligation-collector.ts"
+  }
+
+  if [ -n "$SLICE_DETAIL" ]; then
+    echo "  影響スライス:"
+    printf "%b\n" "$SLICE_DETAIL"
   fi
+
+  if (cd app && npm run docs:generate --silent 2>/dev/null); then
+    git add \
+      "${HEALTH_JSON}" \
+      "references/02-status/generated/architecture-health.md" \
+      "references/02-status/generated/architecture-health-certificate.md" \
+      "CLAUDE.md" \
+      "references/02-status/technical-debt-roadmap.md" \
+      2>/dev/null
+    echo "  結果: OK — 生成ファイルをステージングに追加"
+    echo ""
+  else
+    add_error \
+      "docs:generate 自動再生成に失敗" \
+      "  修正方法: cd app && npm run docs:generate を手動実行 → エラーを確認"
+  fi
+}
+
+# ──────────────────────────────────────────────────────────────────────
+# CHECK_REGISTRY
+# ──────────────────────────────────────────────────────────────────────
+# 新しい check を追加するときは (1) 上に関数を定義し (2) ここに名前を追加する。
+# 実行順: 速いもの → 遅いもの (違反時のフィードバックを速くするため)
+CHECK_REGISTRY="
+  check_format_staged
+  check_docs_generate_autofix
+"
+
+for check in $CHECK_REGISTRY; do
+  $check
 done
 
-if [ "$NEED_HEALTH_REGEN" = "0" ]; then
-  exit 0
-fi
+# ──────────────────────────────────────────────────────────────────────
+# 結果出力 (AAG Response 統一フォーマット)
+# ──────────────────────────────────────────────────────────────────────
 
-# architecture-health.json がステージングされていれば OK
-if echo "$STAGED" | grep -q "^${HEALTH_JSON}"; then
-  exit 0
-fi
-
-# ── 影響スライスの推定（AAG Response 層） ──
-count_matches() {
-  echo "$STAGED" | grep -c "$1" 2>/dev/null || echo 0
-}
-
-SLICE_DETAIL=""
-N=$(count_matches "app/src/domain/\|app/src/infrastructure/")
-[ "$N" -gt 0 ] && SLICE_DETAIL="${SLICE_DETAIL}\n    layer-boundary        (${N} files)"
-
-N=$(count_matches "readModels/\|calculations/\|canonicalization\|definition")
-[ "$N" -gt 0 ] && SLICE_DETAIL="${SLICE_DETAIL}\n    canonicalization       (${N} files)"
-
-N=$(count_matches "queries/\|QueryHandler\|AnalysisFrame\|ComparisonScope")
-[ "$N" -gt 0 ] && SLICE_DETAIL="${SLICE_DETAIL}\n    query-runtime          (${N} files)"
-
-N=$(count_matches "responsibility\|allowlists/complexity\|useMemo\|useState")
-[ "$N" -gt 0 ] && SLICE_DETAIL="${SLICE_DETAIL}\n    responsibility-sep     (${N} files)"
-
-N=$(count_matches "allowlists/\|guards/\|architecture-health\|obligation")
-[ "$N" -gt 0 ] && SLICE_DETAIL="${SLICE_DETAIL}\n    governance-ops         (${N} files)"
-
-# ── 単一描画経路: aag-render-cli.ts 経由で統一レスポンス出力 ──
-echo ""
-npx tsx tools/aag-render-cli.ts \
-  now governance-ops \
-  "generated docs が古くなっている" \
-  "guard/allowlist/health ツールの変更が検出された" \
-  "1. docs:generate を自動実行中..." \
-  "2. 生成ファイルをステージングに追加" \
-  2>/dev/null || {
-  # CLI が使えない場合のフォールバック — 統一フォーマット互換で最低限の情報を返す
-  echo "⚡ 今すぐ修正 [governance-ops]"
-  echo "  generated docs が古くなっている"
-  echo "  理由: guard/allowlist/health ツールの変更が検出された"
-  echo "  方向: docs:generate / rule review で対応する"
-  echo "  修正手順:"
-  echo "    1. cd app && npm run docs:generate"
-  echo "    2. git add references/02-status/generated/ CLAUDE.md"
-  echo "  詳細: tools/architecture-health/src/collectors/obligation-collector.ts"
-}
-
-if [ -n "$SLICE_DETAIL" ]; then
-  echo "  影響スライス:"
-  printf "%b\n" "$SLICE_DETAIL"
-fi
-
-if (cd app && npm run docs:generate --silent 2>/dev/null); then
-  git add \
-    "${HEALTH_JSON}" \
-    "references/02-status/generated/architecture-health.md" \
-    "references/02-status/generated/architecture-health-certificate.md" \
-    "CLAUDE.md" \
-    "references/02-status/technical-debt-roadmap.md" \
-    2>/dev/null
-
-  echo "  結果: OK — 生成ファイルをステージングに追加"
+if [ -n "$ERRORS" ]; then
   echo ""
-  exit 0
-else
-  echo "  結果: FAIL"
-  echo "  例外: cd app && npm run docs:generate を手動実行してください"
+  npx tsx tools/aag-render-cli.ts \
+    now governance-ops \
+    "pre-commit: 違反を検出" \
+    "CI fast-gate で落ちる前に commit 時点で検出した" \
+    "以下を修正してから再度 commit してください" \
+    2>/dev/null || {
+    echo "⚡ 今すぐ修正 [governance-ops]"
+    echo "  pre-commit: 違反を検出"
+    echo "  理由: CI fast-gate で落ちる前に commit 時点で検出した"
+  }
+  echo ""
+  echo "  違反 (commit を止める):"
+  printf "    %b" "$ERRORS"
+  if [ -n "$WARNINGS" ]; then
+    echo ""
+    echo "  警告:"
+    printf "    %b" "$WARNINGS"
+  fi
+  echo ""
+  echo "  詳細: CONTRIBUTING.md §2 PR 作成前のローカル確認 / .prettierrc"
   echo ""
   exit 1
 fi
+
+if [ -n "$WARNINGS" ]; then
+  echo ""
+  echo "⚠ pre-commit 警告 (commit は続行):"
+  printf "    %b" "$WARNINGS"
+  echo ""
+fi
+
+exit 0
