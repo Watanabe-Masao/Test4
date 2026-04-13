@@ -165,7 +165,7 @@ export function FileDropZone({ onFiles }: { onFiles: (files: File[]) => void }) 
         // removalCondition: TypeScript DOM lib に webkitdirectory が追加される、
         //   または File System Access API への移行で folder picker を再実装する
         // 構造化 rationale 正本: app/src/test/allowlists/signalIntegrity.ts (AR-G3-SUPPRESS)
-        // @ts-expect-error
+        // @ts-expect-error webkitdirectory is a non-standard HTML attribute (see reason / removalCondition above)
         webkitdirectory=""
         style={{ display: 'none' }}
         onChange={handleDirChange}

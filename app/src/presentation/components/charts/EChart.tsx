@@ -229,7 +229,6 @@ export const EChart = memo(function EChart({
   // removalCondition: react-hooks rule が stable-ref annotation を natively
   //   support するか、ECharts の React wrapper を導入して useEffect 自体を不要にする
   // 構造化 rationale 正本: app/src/test/allowlists/signalIntegrity.ts (AR-G3-SUPPRESS)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!containerRef.current || !chartRef.current) return
     chartRef.current.dispose()
@@ -237,7 +236,7 @@ export const EChart = memo(function EChart({
       renderer: 'canvas',
     })
     chartRef.current.setOption(option, { notMerge: true })
-  }, [themeName])
+  }, [themeName]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // クリックイベント
   useEffect(() => {
