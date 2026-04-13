@@ -43,7 +43,7 @@ function renderWithTheme(ui: ReactElement) {
 }
 
 // 意図的に throw する children component
-function Thrower({ message = 'テストエラー' }: { message?: string }) {
+function Thrower({ message = 'テストエラー' }: { message?: string }): never {
   throw new Error(message)
 }
 
@@ -86,7 +86,7 @@ describe('ErrorBoundary — default fallback UI', () => {
   })
 
   it('error.message が空文字なら ErrorMessage DOM は表示されない', () => {
-    function EmptyThrower() {
+    function EmptyThrower(): never {
       throw new Error('')
     }
     renderWithTheme(

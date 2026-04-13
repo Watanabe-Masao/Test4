@@ -225,8 +225,8 @@ describe('getObsWarning', () => {
     expect(result).toContain('観測期間が不十分')
   })
 
-  it("obsStatus='valid' → null", () => {
-    const result = getObsWarning('valid')
+  it("obsStatus='ok' → null", () => {
+    const result = getObsWarning('ok')
     expect(result).toBeNull()
   })
 })
