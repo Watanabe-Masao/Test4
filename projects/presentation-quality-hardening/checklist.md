@@ -8,20 +8,20 @@
 
 ## Phase 1: WeatherPage の active-debt 解消
 
-* [ ] `useWeatherDaySelection.ts` を抽出する（selectedDays / selectedDows + 関連 6 callback）
-* [ ] `WeatherPage.tsx` の combined hook 数を default 以下に下げる
-* [ ] `app/src/test/allowlists/complexity.ts` から WeatherPage の allowlist エントリを削除する
-* [ ] `npm run test:guards` で WeatherPage の violation が出ないことを確認する
+* [x] `useWeatherDaySelection.ts` を抽出する（selectedDays / selectedDows + 関連 6 callback）
+* [x] `WeatherPage.tsx` の combined hook 数を default 以下に下げる
+* [x] `app/src/test/allowlists/complexity.ts` から WeatherPage の allowlist エントリを削除する
+* [x] `npm run test:guards` で WeatherPage の violation が出ないことを確認する
 
 ## Phase 2: 500 行超コンポーネントの `.vm.ts` 抽出
 
 > verification (2026-04-12) で 500 行超を維持しているのは下記 3 件のみ。
 > IntegratedSalesChart (現在 403 行) / StorageManagementTab (現在 126 行) は対象外。
 
-* [ ] `HourlyChart.tsx` (現 501 行) を `.vm.ts` 抽出で 500 行未満にする
-* [ ] `InsightTabBudget.tsx` (現 581 行) を `.vm.ts` 抽出で 500 行未満にする
-* [ ] `InsightTabForecast.tsx` (現 514 行) を `.vm.ts` 抽出で 500 行未満にする
-* [ ] sizeGuard が 3 件全てに対して PASS することを確認する
+* [x] `HourlyChart.tsx` (現 501 行) を `.vm.ts` 抽出で 500 行未満にする
+* [x] `InsightTabBudget.tsx` (現 581 行) を `.vm.ts` 抽出で 500 行未満にする
+* [x] `InsightTabForecast.tsx` (現 514 行) を `.vm.ts` 抽出で 500 行未満にする
+* [x] sizeGuard が 3 件全てに対して PASS することを確認する
 
 ## Phase 3: Presentation テストカバレッジ + E2E 拡充
 
@@ -35,5 +35,5 @@
 * [ ] Presentation 層の高優先 component（IntegratedSalesChart / DashboardPage / WeatherPage）に component test を追加する
 * [ ] coverage 閾値を `lines: 55` → `lines: 70` に引き上げる
 * [ ] CI で coverage 70% を満たすことを確認する
-* [ ] `app/e2e/` の業務フロー spec を現在の 4 件から 8 件以上に拡充する
+* [x] `app/e2e/` の業務フロー spec を現在の 4 件から 8 件以上に拡充する
 * [ ] 拡充 spec が `npm run test:e2e` で全て pass することを確認する

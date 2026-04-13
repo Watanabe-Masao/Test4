@@ -11,9 +11,6 @@ import { toComma } from '@/presentation/components/charts/chartTheme'
 import { formatPercent } from '@/domain/formatting'
 import { calculateShare } from '@/domain/calculations/utils'
 import {
-  findCoreTime,
-  findTurnaroundHour,
-  buildHourlyMap,
   formatCoreTime,
   formatTurnaroundHour,
 } from '@/presentation/components/charts/timeSlotUtils'
@@ -26,6 +23,8 @@ import {
   buildPaddedDataSets,
   buildSelectedDetail,
   buildWeatherHourlyMap,
+  buildHourlySummaryStats,
+  formatSelectedHoursLabel,
 } from './HourlyChart.builders'
 import {
   HourlySection,
@@ -171,28 +170,14 @@ export const HourlyChart = memo(function HourlyChart({
   if (paddedData.length === 0 && prevHourlyData.length === 0) return null
   if (paddedData.length === 0) return null
 
-  const maxAmt = Math.max(...paddedData.map((d) => d.amount), 1)
-  const totalQty = paddedData.reduce((s, d) => s + d.quantity, 0)
-  const peakHour = paddedData.reduce(
-    (peak, d) => (d.amount > peak.amount ? d : peak),
-    paddedData[0],
-  )
-
-  const hourlyMap = buildHourlyMap(paddedData)
-  const coreTime = findCoreTime(hourlyMap)
-  const turnaroundHour = findTurnaroundHour(hourlyMap)
+  const { maxAmt, totalQty, peakHour, coreTime, turnaroundHour } =
+    buildHourlySummaryStats(paddedData)
 
   const cumLinePoints = cumData.map((d, i) => `${pxX(i)},${pxY(d.cumPct)}`).join(' ')
 
   const modeLabel = hourlyMode === 'prev' ? '前年' : '実績'
 
-  const selectedHoursSorted = [...selectedHours].sort((a, b) => a - b)
-  const selectedLabel =
-    selectedHours.size === 0
-      ? ''
-      : selectedHours.size <= 3
-        ? selectedHoursSorted.map((h) => `${h}時`).join('・')
-        : `${selectedHoursSorted[0]}時〜${selectedHoursSorted[selectedHoursSorted.length - 1]}時 (${selectedHours.size}時間)`
+  const selectedLabel = formatSelectedHoursLabel(selectedHours)
 
   return (
     <HourlySection>
