@@ -5013,7 +5013,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       ],
     },
     relationships: {
-      protects: ['AR-G3-SUPPRESS'],
+      dependsOn: ['AR-G3-SUPPRESS'],
     },
     sunsetCondition:
       'AR-G3-SUPPRESS allowlist が 0 件になり (= suppression 自体が不要に) AR-G3-SUPPRESS-RATIONALE の検証対象がなくなった',
