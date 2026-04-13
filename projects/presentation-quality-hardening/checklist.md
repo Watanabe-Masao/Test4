@@ -20,8 +20,8 @@
 
 * [x] `HourlyChart.tsx` (現 501 行) を `.vm.ts` 抽出で 500 行未満にする
 * [x] `InsightTabBudget.tsx` (現 581 行) を `.vm.ts` 抽出で 500 行未満にする
-* [ ] `InsightTabForecast.tsx` (現 514 行) を `.vm.ts` 抽出で 500 行未満にする
-* [ ] sizeGuard が 3 件全てに対して PASS することを確認する
+* [x] `InsightTabForecast.tsx` (現 514 行) を `.vm.ts` 抽出で 500 行未満にする
+* [x] sizeGuard が 3 件全てに対して PASS することを確認する
 
 ## Phase 3: Presentation テストカバレッジ + E2E 拡充
 
