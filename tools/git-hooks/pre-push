@@ -264,8 +264,14 @@ check_lint() {
 }
 
 # Check: format:check (Prettier)
-# 学習ソース: 2026-04-13 CI で shiire-arari#0de794e が format:check に引っかかった。
-#             pre-commit / pre-push に format:check が存在しなかったのが原因
+# 学習ソース:
+#   - 2026-04-13 CI で shiire-arari#0de794e が format:check に引っかかった。
+#     pre-commit / pre-push に format:check が存在しなかったのが原因
+#   - 2026-04-13 PR #1015 commit 297011d で testSignalIntegrityGuard.test.ts
+#     (新規追加ファイル) が format:check に引っかかった。pre-push hook が
+#     `.git/hooks/` に install されていなかったため warn 出力すら出なかった。
+#     対策として check_format_added_files (新規追加ファイルのみ error) を併設し、
+#     warn (一括修正可能) と error (新規ファイルは即時修正) の二段構えに
 # 理由: CI fast-gate の format:check で落ちる前に検出するため。
 #       ただし severity=warn — 複数コミットぶんを一括整形できるように push は止めない
 # severity: warn (止めない)
@@ -315,6 +321,68 @@ check_test_guards() {
       "  修正方法:" \
       "    cd app && npm run test:guards   # 失敗 test を確認" \
       "  詳細: references/03-guides/guard-test-map.md"
+  fi
+}
+
+# Check: 新規追加ファイルの Prettier format:check (error 級)
+# 学習ソース: 2026-04-13 PR #1015 commit 297011d で testSignalIntegrityGuard.test.ts
+#             (新規追加ファイル) が format:check に引っかかった。check_format は
+#             warn 設計 (一括修正可能性のため) なので、新規追加 .ts(x) の
+#             prettier 違反は即時 error で止める形を併設する
+# 理由: 新規追加された .ts(x) ファイルは「最初の commit で format された状態」で
+#       あるべき。既存ファイルの軽微な整形 drift は warn (一括修正) で十分だが、
+#       新規ファイルが unformatted のまま push されると CI fast-gate で必ず
+#       fail する → 新規ファイルだけ厳格に
+# severity: error (止める)
+check_format_added_files() {
+  # 新規追加された .ts / .tsx / .css ファイルのみ対象 (test ファイルも含む)
+  added_matches '^app/.+\.(ts|tsx|css)$' || return 0
+
+  NEW_SRC=$(echo "$ADDED_FILES" \
+    | grep -E '^app/.+\.(ts|tsx|css)$' \
+    || true)
+  [ -z "$NEW_SRC" ] && return 0
+
+  echo "  pre-push: 新規追加ファイルの format:check 実行中..."
+
+  # app/ からの相対パスに変換して prettier に渡す
+  REL_LIST=""
+  OLD_IFS="$IFS"
+  IFS='
+'
+  for f in $NEW_SRC; do
+    REL=$(echo "$f" | sed 's|^app/||')
+    REL_LIST="${REL_LIST} ${REL}"
+  done
+  IFS="$OLD_IFS"
+
+  # cd app && npx prettier --check で対象ファイルだけ検査
+  # shellcheck disable=SC2086
+  FORMAT_OUTPUT=$(cd app && npx prettier --check $REL_LIST 2>&1 || true)
+
+  if echo "$FORMAT_OUTPUT" | grep -q "Code style issues found"; then
+    BAD_FILES=$(echo "$FORMAT_OUTPUT" \
+      | grep '^\[warn\]' \
+      | grep -v "Code style issues found" \
+      | sed 's/^\[warn\] *//')
+
+    add_error \
+      "新規追加ファイルが Prettier 未整形 (CI で必ず fail します)" \
+      "  修正方法:" \
+      "    cd app && npm run format" \
+      "  または個別:"
+    OLD_IFS="$IFS"
+    IFS='
+'
+    for f in $BAD_FILES; do
+      add_error "    cd app && npx prettier --write $f"
+    done
+    IFS="$OLD_IFS"
+    add_error \
+      "  理由: 新規追加ファイルは「最初の commit で format された状態」を必須とする。" \
+      "        既存ファイルの軽微な drift は check_format (warn) で一括修正できるが、" \
+      "        新規ファイルが unformatted のまま push されると CI fast-gate format:check で" \
+      "        必ず fail するため、ここで error として止める"
   fi
 }
 
@@ -380,6 +448,7 @@ CHECK_REGISTRY="
   check_tsc
   check_lint
   check_format
+  check_format_added_files
   check_test_guards
   check_test_signal_advisory
 "
