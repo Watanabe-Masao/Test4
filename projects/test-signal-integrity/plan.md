@@ -19,6 +19,30 @@
    enforcement に拡張する）
 3. **Green は見かけではなく、意味を伴うべきである** — Detection と Judgment を
    分離し、検知できないものは無理に hard gate 化せず Discovery Review に逃がす
+4. **Signal Integrity rule は違反を検知して止めるが、テスト意味論を自動修正しない** —
+   修正は人間または作業 AI が `why` / `protectedHarm` / `steps` を読んだ上で
+   行う。bad pattern を検知しても AI が勝手にテストを書き換えて数合わせしない。
+   この project の核は「禁止」ではなく「どこがダメか / なぜダメか / どう直すか」
+   を返すことにあり、自動修正は意味論を破壊するため制度として禁止する
+
+## 人間レビュー境界（責務分離）
+
+> 本 project は通常の diff を人間レビュー前提にはしない。
+> hard gate と advisory により機械的に運用する。
+> ただし、Constitution 変更・Promote Ceremony・意味論依存の例外判断は
+> 既存 AAG の人間承認レーンに従う。
+
+AAG 全体は「全部を人間レビューする制度」でも「全部を無人で閉じる制度」でもなく、
+以下の二層構造を持つ:
+
+| レーン | 運用 | 例 |
+|---|---|---|
+| **機械運用レーン** | 人間レビュー前提にしない | 通常の diff / guard / advisory / `renderAagResponse()` 経由の固定レスポンス |
+| **人間承認レーン** | 明示的承認が必要 | Constitution 変更 / Promote Ceremony / 意味論が強い例外判断 |
+
+本 project の主眼は機械運用レーンの強化であり、上記との **矛盾はない**。
+hard gate / advisory が機械的に意味論依存判断を行うことを避けることで、
+人間承認レーンに必要な判断だけを残す。
 
 ## Protected Harm
 
@@ -157,12 +181,70 @@ How to fix
 
 ## Allowed Exceptions
 
-初期段階で許容例外候補:
+> 候補ではなく **最初から具体例 3 件で固定する**。
+> 「禁止」より「どこがダメか / なぜダメか / どう直すか」を返すのが本 project の核
+> であるため、good/bad 境界の代表例を先に固定しておくことで、
+> 誤検知時の議論を高速化し、レビュアーが基準を毎回考えなくて済むようにする。
 
-- helper export の存在自体が公開契約であるケース
-- framework boundary の smoke test
-- migration 中で `removalCondition` が明記された一時 suppression
-- 既存 bad pattern の棚卸し中で allowlist 管理されているもの
+### EX-01: 公開契約としての helper existence test
+
+**OK pattern:**
+
+```ts
+// helper の存在自体が公開契約 (re-export 表面の固定)
+import { renderAagResponse } from './helpers'
+it('exposes renderAagResponse as a public helper', () => {
+  expect(renderAagResponse).toBeDefined()
+  expect(typeof renderAagResponse).toBe('function')
+})
+```
+
+**条件:**
+- ファイルが barrel / re-export facade である
+- 存在確認が「公開 API contract の一部である」と JSDoc / コメントで明示されている
+- 同一 file に挙動検証 test が別途存在する、または対象が「export 構造の保証」のみが目的
+
+**NG pattern:** helper の挙動が main subject なのに `toBeDefined()` のみで済ませている。
+
+### EX-02: framework boundary の smoke test
+
+**OK pattern:**
+
+```ts
+// React component の mount smoke (DOM API / framework integration の確認)
+it('mounts without throwing', () => {
+  expect(() => render(<HourlyChart {...defaultProps} />)).not.toThrow()
+})
+```
+
+**条件:**
+- 検証対象が「framework / DOM / 外部ランタイムとの境界が成立すること」のみ
+- 同一 file の他 test で挙動 / 副作用 / 出力契約が検証されている
+- smoke test の意図が JSDoc / コメントで明示されている（例: `// smoke: framework boundary only`）
+
+**NG pattern:** 本来検証すべき業務挙動を「mount 成功」で代用している（render-only superficial の典型）。
+
+### EX-03: removalCondition 付き一時 suppression
+
+**OK pattern:**
+
+```ts
+// @ts-expect-error reason: upstream type@1.2.0 missing optional callback
+//   removalCondition: upstream type@1.3.0 release (tracked in PR #1234)
+chart.on('legendSelectChanged', handler)
+```
+
+**条件:**
+- `reason:` 行で **構造化された理由** が記述されている
+- `removalCondition:` 行で **削除可能になる条件** が明示されている（バージョン / PR / イベント）
+- allowlist エントリ（`signalIntegrity.ts`）にも同じ `reason` / `removalCondition` が機械可読形式で存在する
+
+**NG pattern:** `// @ts-expect-error TODO` のみ、理由なし、removalCondition なし。
+
+### その他の許容例外
+
+上記 3 件を骨格として、追加の例外が必要になった場合は同形式（OK pattern + 条件 + NG pattern）で
+plan.md に追記する。**条件・NG 対比なしに例外を増やさない**。
 
 ## 既存 AAG 実装との接続（補足 — 重複回避と拡張ポイント）
 
@@ -218,12 +300,13 @@ How to fix
 
 ### Phase 3: Hard Gate 1st Batch 実装
 
+- **Phase 3 着手前の baseline 採取（required）** — TSIG-TEST-01〜03 / TSIG-COMP-01〜03 の現状件数を採取し、ratchet-down baseline を決める
 - TSIG-TEST-01 (existence-only assertion) の guard 実装
 - AR-G3-SUPPRESS-RATIONALE の追加（既存 G3 の拡張で TSIG-COMP-01/02 を実現）
+- G3 allowlist を `signalIntegrity.ts` に切り出し、`reason` / `removalCondition` を必須化（前提作業）
 - TSIG-COMP-03 (unused suppress escape) の guard 実装
 - 各 guard を `renderAagResponse()` 経由で固定フォーマット返却
 - migrationTagRegistry に Phase 3 タグを登録
-- 推奨: 事前に「現実把握作業」を実行し ratchet-down baseline を採取（後述「補助作業」参照）
 
 ### Phase 4: Docs / Map / Integration 整備
 
@@ -243,22 +326,26 @@ How to fix
 - coverage 数値目標は application-side / signal integrity は AAG-side である
   ことを文書上で分離する
 
-## 推奨される補助作業（Phase 構造外）
+## Discovery / Baseline 採取（Phase 3 の前提作業 — required）
 
-> required checkbox には含めないが、Phase 3 着手前に行うと baseline 設定の
-> 解像度が上がる作業。
+> 「現実を正しく把握する」(C9 原則) を Phase 3 の最初に行う。
+> AAG はもともと「現実から学び、観測し、必要なものを制度化する」思想であり、
+> baseline を採取せずに hard gate を投入すると false positive で実装者の信頼を
+> 失うため、本作業は **checklist Phase 3 の最初の required checkbox** として
+> 位置づける。
 
-### Discovery / Baseline 採取
-
-「現実を正しく把握する」(C9 原則) を Phase 3 の前に行う:
+採取手順:
 
 - TSIG-TEST-01〜03 / TSIG-COMP-01〜03 の **現在の repo 内 violation 数** を採取
 - 一時 script で実コードを走査し、件数 + 代表ファイルパスを記録
 - 採取結果を不可侵原則と照合し、ratchet-down baseline を決める
 - 採取結果は `references/02-status/generated/` 配下に格納候補（将来 collector 化）
 
-これは新規ルール導入時に「いきなり block」を避けるための実装上の知恵であって、
-Signal Integrity 思想そのものではないため、checklist 必須項目には入れない。
+採取後に得られる成果物:
+
+- 各 ruleId の現在の violation 件数（hard gate 投入時の初期 baseline）
+- 代表ファイルパスのサンプル（rule の `examples.bad` に転記する素材）
+- 「いきなり block」を避けるための ratchet-down 起点
 
 ## Success Criteria
 

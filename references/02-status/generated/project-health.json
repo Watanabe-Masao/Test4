@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-13T04:49:52.888Z",
+  "timestamp": "2026-04-13T04:56:05.229Z",
   "summary": {
     "active": 4,
     "archived": 5,
@@ -8,7 +8,7 @@
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 316,
+    "totalCheckboxes": 318,
     "checkedCheckboxes": 240
   },
   "projects": [
@@ -79,7 +79,7 @@
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
       "checked": 0,
-      "total": 14,
+      "total": 15,
       "progress": 0,
       "entrypoint": "projects/presentation-quality-hardening/AI_CONTEXT.md",
       "checklistPath": "projects/presentation-quality-hardening/checklist.md"
@@ -115,7 +115,7 @@
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
       "checked": 0,
-      "total": 33,
+      "total": 34,
       "progress": 0,
       "entrypoint": "projects/test-signal-integrity/AI_CONTEXT.md",
       "checklistPath": "projects/test-signal-integrity/checklist.md"

@@ -31,6 +31,13 @@ AAG Test Signal Integrity（test-signal-integrity）
 5. 必要に応じて `references/03-guides/architecture-rule-system.md`（Architecture Rule 運用）
 6. 必要に応じて `references/01-principles/adaptive-architecture-governance.md`（AAG 4 層構造）
 
+## 人間レビュー境界
+
+本 project は通常の diff を人間レビュー前提にはしない。hard gate と advisory
+により機械的に運用する。ただし Constitution 変更・Promote Ceremony・意味論
+依存の例外判断は既存 AAG の人間承認レーンに従う（詳細は `plan.md` 「人間
+レビュー境界（責務分離）」セクション）。
+
 ## Why this project exists
 
 coverage を上げること自体は正しい。しかし coverage を上げるために品質のない
