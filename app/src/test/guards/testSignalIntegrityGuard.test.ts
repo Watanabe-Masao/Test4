@@ -23,8 +23,10 @@
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
+import * as path from 'path'
 import { SRC_DIR, collectTestFiles, rel } from '../guardTestHelpers'
 import { getRuleById, formatViolationMessage } from '../architectureRules'
+import { g3SuppressAllowlist } from '../allowlists'
 
 // ─── 検出対象から除外するファイル ──────────────────────────
 //
@@ -106,6 +108,72 @@ describe('TSIG-TEST-01: existence-only assertion がない', () => {
     expect(
       violations,
       formatViolationMessage(getRuleById('AR-TSIG-TEST-01')!, violations),
+    ).toEqual([])
+  })
+})
+
+// ─── AR-G3-SUPPRESS-RATIONALE: 構造化 rationale 必須 ──────────────
+//
+// 上位原則: references/01-principles/test-signal-integrity.md
+// 関連項目: TSIG-COMP-01 / TSIG-COMP-02
+//
+// AR-G3-SUPPRESS の拡張ルール。allowlist 登録された suppression は、
+// allowlist エントリ (signalIntegrity.ts) と source code コメントの両方で
+// 構造化された reason: / removalCondition: を持つことを必須化する。
+//
+// 新規 guard ではなく既存 G3 family の拡張として実装することで、
+// 「黙らせる手段」を構造化された rationale enforcement に格上げする。
+
+describe('AR-G3-SUPPRESS-RATIONALE: allowlist 登録ファイルの構造化 rationale', () => {
+  it('g3SuppressAllowlist 全 entries が reason / removalCondition を持つ (allowlist メタデータ)', () => {
+    const violations: string[] = []
+    for (const entry of g3SuppressAllowlist) {
+      if (!entry.reason || entry.reason.length < 20) {
+        violations.push(`${entry.path}: reason が短すぎる (20 文字未満)`)
+      }
+      if (!entry.removalCondition || entry.removalCondition.length < 20) {
+        violations.push(`${entry.path}: removalCondition が短すぎる (20 文字未満)`)
+      }
+    }
+    expect(
+      violations,
+      `AR-G3-SUPPRESS-RATIONALE: 構造化 rationale が不足しています:\n${violations.join('\n')}\n` +
+        '修正: app/src/test/allowlists/signalIntegrity.ts の対象 entry に reason: と' +
+        ' removalCondition: を 20 文字以上で追記してください',
+    ).toEqual([])
+  })
+
+  it('g3SuppressAllowlist 全 entries の source file に reason: / removalCondition: コメントが存在する', () => {
+    const violations: string[] = []
+    for (const entry of g3SuppressAllowlist) {
+      const filePath = path.join(SRC_DIR, entry.path)
+      if (!fs.existsSync(filePath)) {
+        violations.push(`${entry.path}: ファイルが存在しない (allowlist の path が古い可能性)`)
+        continue
+      }
+      const content = fs.readFileSync(filePath, 'utf-8')
+      // reason: と removalCondition: の両方がコメント内に存在することを確認
+      // (改行を跨ぐ複数行コメントでも検出可能)
+      if (!/reason:/i.test(content)) {
+        violations.push(
+          `${entry.path}: source code に "reason:" コメントが見つからない` +
+            ' (allowlist 登録された suppression は構造化 rationale を必須とする)',
+        )
+      }
+      if (!/removalCondition:/i.test(content)) {
+        violations.push(
+          `${entry.path}: source code に "removalCondition:" コメントが見つからない` +
+            ' (allowlist 登録された suppression は削除条件の明示を必須とする)',
+        )
+      }
+    }
+    expect(
+      violations,
+      `AR-G3-SUPPRESS-RATIONALE: source code rationale が不足しています:\n${violations.join('\n')}\n` +
+        '修正: 該当ファイルの suppression コメントに以下を追記してください:\n' +
+        '  // reason: <なぜ抑制が必要か>\n' +
+        '  // removalCondition: <いつ削除可能になるか>\n' +
+        '構造化フォーマットは references/01-principles/test-signal-integrity.md EX-03 を参照',
     ).toEqual([])
   })
 })

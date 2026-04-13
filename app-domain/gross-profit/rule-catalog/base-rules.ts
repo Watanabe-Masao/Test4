@@ -4977,6 +4977,57 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
 
   {
     slice: 'governance-ops',
+    id: 'AR-G3-SUPPRESS-RATIONALE',
+    principleRefs: ['G3'],
+    ruleClass: 'invariant',
+    guardTags: ['G3'],
+    epoch: 1,
+    doc: 'references/01-principles/test-signal-integrity.md',
+    what: 'allowlist 登録された eslint-disable / @ts-ignore / @ts-expect-error は構造化された reason: / removalCondition: を必須とする',
+    why: 'allowlist で許容しても、自由文の説明では「なぜ」「いつ消せるか」が後から読めない。構造化された rationale を必須化することで、suppression を「黙らせる手段」から「制度化された例外」に格上げする。これは TSIG-COMP-01/02 の実装方針として AR-G3-SUPPRESS の rationale enforcement 拡張で実現する',
+    correctPattern: {
+      description:
+        'allowlist エントリ (signalIntegrity.ts) と source code コメントの両方で reason: / removalCondition: を構造化する',
+      example:
+        '// reason: ECharts ライブラリの制約\n// removalCondition: react-hooks rule が stable-ref annotation を support する\n// eslint-disable-next-line react-hooks/exhaustive-deps',
+    },
+    outdatedPattern: {
+      description:
+        'allowlist 登録された suppression に reason: / removalCondition: が無い、または free-form English のみ',
+      codeSignals: ['eslint-disable', '@ts-ignore', '@ts-expect-error'],
+    },
+    decisionCriteria: {
+      when: 'allowlist (signalIntegrity.ts) に G3 suppress エントリを追加するとき',
+      exceptions:
+        'EX-03 (removalCondition 付き一時 suppression) のみ。条件は references/01-principles/test-signal-integrity.md を参照',
+      escalation:
+        '構造化 rationale が書けないなら、それは恒久例外として正当化されていない。allowlist 登録を諦めて根本修正する',
+    },
+    detection: { type: 'custom', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        '1. allowlist 登録対象 source file を特定する (signalIntegrity.ts の path フィールド)',
+        '2. 当該 source file の suppression コメント直前 / 直上に reason: と removalCondition: を構造化フォーマットで追記する',
+        '3. allowlist エントリ自体にも reason / removalCondition フィールドを 20 文字以上で設定する',
+        '4. testSignalIntegrityGuard.test.ts の AR-G3-SUPPRESS-RATIONALE block で検証',
+      ],
+    },
+    relationships: {
+      protects: ['AR-G3-SUPPRESS'],
+    },
+    sunsetCondition:
+      'AR-G3-SUPPRESS allowlist が 0 件になり (= suppression 自体が不要に) AR-G3-SUPPRESS-RATIONALE の検証対象がなくなった',
+    protectedHarm: {
+      prevents: [
+        'False Green: 黙らせるだけで根本原因を解決しない',
+        'Refactoring Fragility: なぜ抑制したかが後から読めず、変更時に影響範囲が見えない',
+        'Governance Drift: allowlist が「なんとなく許容」になる',
+      ],
+    },
+  },
+
+  {
+    slice: 'governance-ops',
     id: 'AR-TSIG-TEST-01',
     principleRefs: ['G1'],
     ruleClass: 'invariant',

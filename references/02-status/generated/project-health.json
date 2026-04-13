@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-13T05:55:08.612Z",
+  "timestamp": "2026-04-13T05:59:17.163Z",
   "summary": {
     "active": 4,
     "archived": 5,
@@ -9,7 +9,7 @@
     "empty": 0,
     "collection": 1,
     "totalCheckboxes": 318,
-    "checkedCheckboxes": 256
+    "checkedCheckboxes": 258
   },
   "projects": [
     {
@@ -114,9 +114,9 @@
       "kind": "project",
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
-      "checked": 16,
+      "checked": 18,
       "total": 34,
-      "progress": 0.471,
+      "progress": 0.529,
       "entrypoint": "projects/test-signal-integrity/AI_CONTEXT.md",
       "checklistPath": "projects/test-signal-integrity/checklist.md"
     }

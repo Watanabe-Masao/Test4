@@ -553,4 +553,9 @@ export const GUARD_CATEGORY_MAP: Readonly<Record<string, GuardCategoryEntry>> = 
     layer: 'execution',
     note: 'core-rule: Signal Integrity の existence-only assertion 禁止 (False Green / Review Misleading 防止)',
   },
+  'AR-G3-SUPPRESS-RATIONALE': {
+    category: 'ratchet-legacy-control',
+    layer: 'execution',
+    note: 'merge-candidate: AR-G3-SUPPRESS の rationale enforcement 拡張 (TSIG-COMP-01/02 を統合実現)',
+  },
 } as const

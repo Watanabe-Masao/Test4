@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-13T05:55:08.607Z
+> Generated: 2026-04-13T05:59:17.156Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -53,15 +53,15 @@
 |---|---|---|---|
 | guard.files.count | ガードテストファイル数 | 58 / 30 | OK |
 | guard.reviewOnlyTags.count | レビュー専用タグ数 | 0 / 5 | OK |
-| guard.rules.total | 総 Architecture Rule 数 | 144 | OK |
-| guard.rules.fixNow.now | fixNow=now ルール数（即修正） | 69 | OK |
+| guard.rules.total | 総 Architecture Rule 数 | 145 | OK |
+| guard.rules.fixNow.now | fixNow=now ルール数（即修正） | 70 | OK |
 | guard.rules.fixNow.debt | fixNow=debt ルール数（構造負債） | 54 | OK |
 | guard.rules.fixNow.review | fixNow=review ルール数（観測） | 21 | OK |
-| temporal.rules.reviewPolicy.count | reviewPolicy 設定済みルール数 | 144 / 92 | OK |
-| temporal.rules.sunsetCondition.count | sunsetCondition 設定済みルール数 | 13 / 9 | OK |
+| temporal.rules.reviewPolicy.count | reviewPolicy 設定済みルール数 | 145 / 92 | OK |
+| temporal.rules.sunsetCondition.count | sunsetCondition 設定済みルール数 | 14 / 9 | OK |
 | temporal.rules.reviewOverdue.count | review overdue ルール数 | 0 / 0 | OK |
 | temporal.rules.heuristicGate.count | heuristic + gate ルール数 | 32 / 32 | OK |
-| efficacy.rules.withProtectedHarm.count | protectedHarm 設定済みルール数 | 81 | OK |
+| efficacy.rules.withProtectedHarm.count | protectedHarm 設定済みルール数 | 82 | OK |
 | efficacy.rules.highNoise.count | 高例外圧ルール数（≥10 件） | 0 / 3 | OK |
 
 ## ドキュメント整合
@@ -77,7 +77,7 @@
 | project.checklist.inProgressCount | in_progress な project 数（open required checkbox あり） | 3 / 20 | OK |
 | project.checklist.emptyCount | checkbox 空の project 数（placeholder / 立ち上げ直後） | 0 / 10 | OK |
 | project.checklist.totalCheckboxes | 全 project の required checkbox 総数 | 318 | OK |
-| project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 256 | OK |
+| project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 258 | OK |
 
 ## バンドル性能
 

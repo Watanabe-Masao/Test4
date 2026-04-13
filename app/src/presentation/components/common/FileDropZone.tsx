@@ -158,7 +158,14 @@ export function FileDropZone({ onFiles }: { onFiles: (files: File[]) => void }) 
       <input
         ref={dirInputRef}
         type="file"
-        // @ts-expect-error webkitdirectory is a non-standard attribute
+        // reason: webkitdirectory は HTML5 標準ではないが Chrome / Firefox / Safari で
+        //   実装されている非標準属性。TypeScript の DOM 型定義に存在しないため
+        //   @ts-expect-error が必要。ファイルアップロード UX のためにフォルダ選択を
+        //   可能にする要件があり、代替 API は存在しない
+        // removalCondition: TypeScript DOM lib に webkitdirectory が追加される、
+        //   または File System Access API への移行で folder picker を再実装する
+        // 構造化 rationale 正本: app/src/test/allowlists/signalIntegrity.ts (AR-G3-SUPPRESS)
+        // @ts-expect-error
         webkitdirectory=""
         style={{ display: 'none' }}
         onChange={handleDirChange}
