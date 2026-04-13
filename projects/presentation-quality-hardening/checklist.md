@@ -35,5 +35,5 @@
 * [ ] Presentation 層の高優先 component（IntegratedSalesChart / DashboardPage / WeatherPage）に component test を追加する
 * [ ] coverage 閾値を `lines: 55` → `lines: 70` に引き上げる
 * [ ] CI で coverage 70% を満たすことを確認する
-* [ ] `app/e2e/` の業務フロー spec を現在の 4 件から 8 件以上に拡充する
+* [x] `app/e2e/` の業務フロー spec を現在の 4 件から 8 件以上に拡充する
 * [ ] 拡充 spec が `npm run test:e2e` で全て pass することを確認する
