@@ -150,21 +150,37 @@ describe('buildPeriodAggregates', () => {
 // ─── buildPISummary ─────────────────────────
 
 describe('buildPISummary', () => {
-  it('hasQuantity=false でも呼べる (activeLevel 2)', () => {
-    const result = buildPISummary({
-      activeLevel: 2,
-      hasQuantity: false,
-      prevCust: 100,
-      curCust: 120,
-      prevTotalQty: 0,
-      curTotalQty: 0,
-      prevSales: 1000,
-      curSales: 1200,
-    })
-    expect(result).toBeDefined()
+  it('activeLevel<3 または hasQuantity=false → null', () => {
+    expect(
+      buildPISummary({
+        activeLevel: 2,
+        hasQuantity: false,
+        prevCust: 100,
+        curCust: 120,
+        prevTotalQty: 0,
+        curTotalQty: 0,
+        prevSales: 1000,
+        curSales: 1200,
+      }),
+    ).toBeNull()
   })
 
-  it('hasQuantity=true (activeLevel 3)', () => {
+  it('prevCust=0 / curCust=0 → null', () => {
+    expect(
+      buildPISummary({
+        activeLevel: 3,
+        hasQuantity: true,
+        prevCust: 0,
+        curCust: 120,
+        prevTotalQty: 50,
+        curTotalQty: 60,
+        prevSales: 1000,
+        curSales: 1200,
+      }),
+    ).toBeNull()
+  })
+
+  it('activeLevel=3 + hasQuantity=true: PI / PPI を返す', () => {
     const result = buildPISummary({
       activeLevel: 3,
       hasQuantity: true,
@@ -175,6 +191,14 @@ describe('buildPISummary', () => {
       prevSales: 1000,
       curSales: 1200,
     })
-    expect(result).toBeDefined()
+    expect(result).not.toBeNull()
+    // curPI = 60 / 120 = 0.5
+    expect(result!.curPI).toBeCloseTo(0.5, 3)
+    // prevPI = 50 / 100 = 0.5
+    expect(result!.prevPI).toBeCloseTo(0.5, 3)
+    // curPPI = 1200 / 60 = 20
+    expect(result!.curPPI).toBeCloseTo(20, 3)
+    // prevPPI = 1000 / 50 = 20
+    expect(result!.prevPPI).toBeCloseTo(20, 3)
   })
 })

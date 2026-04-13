@@ -94,9 +94,11 @@ describe('DATA_TYPE_LABELS', () => {
     expect(DATA_TYPE_LABELS.classifiedSales).toBe('分類別売上')
   })
 
-  it('has labels for all STORE_DAY_FIELDS entries', () => {
+  it('has non-empty label strings for all STORE_DAY_FIELDS entries', () => {
     for (const { type } of STORE_DAY_FIELDS) {
-      expect(DATA_TYPE_LABELS[type]).toBeDefined()
+      const label = DATA_TYPE_LABELS[type]
+      expect(typeof label).toBe('string')
+      expect((label as string).length).toBeGreaterThan(0)
     }
   })
 
