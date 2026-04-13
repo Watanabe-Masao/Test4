@@ -32,7 +32,7 @@
 
 ## Phase 3: Hard Gate 1st Batch 実装
 
-* [ ] Phase 3 着手前に TSIG-TEST-01〜03 / TSIG-COMP-01〜03 の **現状件数を採取** し、ratchet-down baseline を決定する（一時 script で repo を走査し、件数 + 代表ファイルパスを記録する）
+* [x] Phase 3 着手前に TSIG-TEST-01〜03 / TSIG-COMP-01〜03 の **現状件数を採取** し、ratchet-down baseline を決定する（一時 script で repo を走査し、件数 + 代表ファイルパスを記録する）
 * [ ] TSIG-TEST-01: existence-only assertion を検知して block する guard を実装する
 * [ ] TSIG-COMP-01: 既存 G3 ガード（`AR-G3-SUPPRESS`）を `@ts-ignore` / `@ts-expect-error` の rationale enforcement に拡張する（新規 guard ではなく既存拡張で実現し、二重カウントを避ける）
 * [ ] TSIG-COMP-02: 既存 G3 ガード（`AR-G3-SUPPRESS`）を `eslint-disable` の rationale enforcement に拡張する（同上 — 新規 guard ではなく既存拡張）

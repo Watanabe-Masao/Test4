@@ -1,0 +1,80 @@
+{
+  "generatedAt": "2026-04-13T05:40:24.490Z",
+  "scannedTestFiles": 357,
+  "scannedTsFiles": 1786,
+  "rules": [
+    {
+      "id": "TSIG-TEST-01",
+      "label": "existence-only assertion",
+      "count": 0,
+      "sampleHits": []
+    },
+    {
+      "id": "TSIG-TEST-02",
+      "label": "render-only / mount-only smoke",
+      "count": 0,
+      "sampleHits": []
+    },
+    {
+      "id": "TSIG-TEST-03",
+      "label": "snapshot-only superficial",
+      "count": 0,
+      "sampleHits": []
+    },
+    {
+      "id": "TSIG-COMP-01",
+      "label": "rationale-free @ts-ignore / @ts-expect-error",
+      "count": 2,
+      "sampleHits": [
+        {
+          "file": "app/src/test/tools/resolveProjectOverlayScript.test.ts",
+          "line": 18,
+          "snippet": "// @ts-ignore — plain JS module without declaration file"
+        },
+        {
+          "file": "app/src/presentation/components/common/FileDropZone.tsx",
+          "line": 161,
+          "snippet": "// @ts-expect-error webkitdirectory is a non-standard attribute"
+        }
+      ]
+    },
+    {
+      "id": "TSIG-COMP-02",
+      "label": "rationale-free eslint-disable",
+      "count": 6,
+      "sampleHits": [
+        {
+          "file": "app/src/test/tools/resolveProjectOverlayScript.test.ts",
+          "line": 17,
+          "snippet": "// eslint-disable-next-line @typescript-eslint/ban-ts-comment"
+        },
+        {
+          "file": "app/src/test/observation/bridgeTestHelpers.ts",
+          "line": 17,
+          "snippet": "// eslint-disable-next-line @typescript-eslint/no-explicit-any"
+        },
+        {
+          "file": "app/src/presentation/components/charts/EChart.tsx",
+          "line": 234,
+          "snippet": "}, [themeName]) // eslint-disable-line react-hooks/exhaustive-deps"
+        },
+        {
+          "file": "app/src/infrastructure/duckdb/__tests__/engineAdditional.test.ts",
+          "line": 14,
+          "snippet": "// eslint-disable-next-line @typescript-eslint/no-unused-vars"
+        },
+        {
+          "file": "app/src/infrastructure/duckdb/__tests__/engineAdditional.test.ts",
+          "line": 63,
+          "snippet": "// eslint-disable-next-line @typescript-eslint/no-unused-vars"
+        }
+      ]
+    },
+    {
+      "id": "TSIG-COMP-03",
+      "label": "unused suppress escape (multi-underscore)",
+      "count": 0,
+      "sampleHits": []
+    }
+  ]
+}
