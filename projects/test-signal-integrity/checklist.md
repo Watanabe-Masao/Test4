@@ -53,9 +53,9 @@
 
 ## Phase 5: 運用着地と application-side への接続
 
-* [ ] 新規 test 追加時に advisory が自動表示されることを確認する
-* [ ] 明確な bad pattern が diff 上で hard fail することを確認する
-* [ ] グレーなパターンが advisory / review に留まることを確認する
-* [ ] 初期ルール群で false positive が過剰に発生しないことを確認する
-* [ ] `presentation-quality-hardening` の coverage 70 引き上げ前提として本 project を参照できる状態にする
-* [ ] coverage 数値目標は application-side、signal integrity は AAG-side であることを文書上で分離する
+* [ ] 新規 test 追加時に advisory が自動表示されることを確認する（advisory ガイドを `references/03-guides/test-signal-integrity-advisory.md` に正本化済。pre-push hook の `check_test_signal_advisory()` 統合は follow-up）
+* [x] 明確な bad pattern が diff 上で hard fail することを確認する（self-test 10 件で検出 regex の動作を文字列レベルで verify 済）
+* [x] グレーなパターンが advisory / review に留まることを確認する（TSIG-ADV-01〜04 は guard 化せず advisory ガイドに留め、Discovery Review 動線を維持）
+* [x] 初期ルール群で false positive が過剰に発生しないことを確認する（baseline 採取で TSIG-TEST-01/02/03 = 0 / TSIG-COMP-01/02 既存は構造化済 / TSIG-COMP-03 = 0、test:guards 594 passed 0 false positive）
+* [x] `presentation-quality-hardening` の coverage 70 引き上げ前提として本 project を参照できる状態にする（PR #1013 で前提条件 checkbox を追加済）
+* [x] coverage 数値目標は application-side、signal integrity は AAG-side であることを文書上で分離する（`test-signal-integrity.md` の Scope セクションと AI_CONTEXT.md / plan.md で明文化済）

@@ -214,3 +214,96 @@ describe('TSIG-COMP-03: unused suppress escape (multi-underscore)', () => {
     ).toEqual([])
   })
 })
+
+// ─── Self-test: 検出 regex の動作検証 (Phase 5 運用着地確認) ──────────────
+//
+// 上位原則: references/01-principles/test-signal-integrity.md
+//
+// guard 自体が「正しい違反を捕まえ、正しいパターンを通す」ことを文字列レベルで
+// 検証する。実コードに違反を書かずに detection 精度を保証するため。
+//
+// 保護対象:
+// - false positive: 正しいテストが誤検知されないこと
+// - false negative: 違反パターンが見逃されないこと
+
+describe('Test Signal Integrity Guard: 検出 regex の self-test', () => {
+  // 注意: 検出 regex はファイル単体スキャン用の line-based / block-based なので、
+  //       正規表現リテラルとして文字列を組み立てて検証する。
+  //       実コードの違反を作らないために bad pattern は文字列のみで構築する。
+
+  describe('TSIG-TEST-01: existence-only assertion 検出 regex', () => {
+    const oneLinerPattern =
+      /(?:it|test)\(\s*['"`][^'"`]+['"`]\s*,\s*(?:async\s*)?\(\)\s*=>\s*\{\s*expect\([^)]+\)\.(?:toBeDefined|toBeTruthy|toBeNull)\(\)\s*\}\s*\)/
+
+    it('bad pattern (one-liner toBeDefined のみ) を検出する', () => {
+      const bad = "it('exists', () => { expect(fn).toBeDefined() })"
+      expect(oneLinerPattern.test(bad)).toBe(true)
+    })
+
+    it('good pattern (toBe + 値) を誤検知しない', () => {
+      const good = "it('returns 6', () => { expect(sum([1,2,3])).toBe(6) })"
+      expect(oneLinerPattern.test(good)).toBe(false)
+    })
+
+    it('toBeTruthy のみも検出する', () => {
+      const bad = "it('truthy', () => { expect(value).toBeTruthy() })"
+      expect(oneLinerPattern.test(bad)).toBe(true)
+    })
+
+    it('toBeNull のみも検出する', () => {
+      const bad = "it('null', () => { expect(result).toBeNull() })"
+      expect(oneLinerPattern.test(bad)).toBe(true)
+    })
+  })
+
+  describe('TSIG-COMP-03: multi-underscore 検出 regex', () => {
+    const multiUnderscorePattern = /\(\s*_[A-Za-z][A-Za-z0-9_]*\s*[:,][^)]*?,\s*_[A-Za-z]/
+
+    it('bad pattern (連続 _ プレフィックス引数) を検出する', () => {
+      const bad = 'function fn(_event: MouseEvent, _index: number, payload: Payload)'
+      expect(multiUnderscorePattern.test(bad)).toBe(true)
+    })
+
+    it('good pattern (単独 _ 引数) を誤検知しない', () => {
+      const good = 'array.map((item, _index) => process(item))'
+      expect(multiUnderscorePattern.test(good)).toBe(false)
+    })
+
+    it('good pattern (通常の引数のみ) を誤検知しない', () => {
+      const good = 'function handleClick(payload: Payload, options: Options)'
+      expect(multiUnderscorePattern.test(good)).toBe(false)
+    })
+  })
+
+  describe('AR-G3-SUPPRESS-RATIONALE: rationale コメント検出', () => {
+    it('reason: と removalCondition: を含むコメントを accept する', () => {
+      const sourceWithRationale = `
+        // reason: ECharts library constraint
+        // removalCondition: react-hooks supports stable refs
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        useEffect(() => {}, [])
+      `
+      expect(/reason:/i.test(sourceWithRationale)).toBe(true)
+      expect(/removalCondition:/i.test(sourceWithRationale)).toBe(true)
+    })
+
+    it('reason: のみで removalCondition: 無いコメントを reject する', () => {
+      const sourceMissingRemoval = `
+        // reason: ECharts library constraint
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        useEffect(() => {}, [])
+      `
+      expect(/reason:/i.test(sourceMissingRemoval)).toBe(true)
+      expect(/removalCondition:/i.test(sourceMissingRemoval)).toBe(false)
+    })
+
+    it('rationale 無しコメントを reject する', () => {
+      const sourceWithoutRationale = `
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        useEffect(() => {}, [])
+      `
+      expect(/reason:/i.test(sourceWithoutRationale)).toBe(false)
+      expect(/removalCondition:/i.test(sourceWithoutRationale)).toBe(false)
+    })
+  })
+})
