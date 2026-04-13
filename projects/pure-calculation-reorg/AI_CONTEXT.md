@@ -17,7 +17,7 @@ Pure 計算責務再編（pure-calculation-reorg）
 本 project は **pure 計算責務の再編** に閉じる。以下は本 project の scope ではない:
 
 - データロード冪等化 → [`projects/completed/data-load-idempotency-hardening`](../completed/data-load-idempotency-hardening/AI_CONTEXT.md)（2026-04-12 archived）
-- AAG ルール分割 → [`projects/aag-rule-splitting-execution`](../aag-rule-splitting-execution/AI_CONTEXT.md)
+- AAG ルール分割 → [`projects/completed/aag-rule-splitting-execution`](../completed/aag-rule-splitting-execution/AI_CONTEXT.md)（2026-04-13 archived）
 - Presentation 品質強化 → [`projects/presentation-quality-hardening`](../presentation-quality-hardening/AI_CONTEXT.md)
 
 これらは独立した live project であり、本 project の checklist には書かない。

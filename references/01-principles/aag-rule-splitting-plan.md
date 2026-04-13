@@ -2,12 +2,21 @@
 
 > **役割: 設計記録（分割案と判定基準の正本）**
 >
+> **⚠️ 本 plan は `projects/completed/aag-rule-splitting-execution` で完了済み（2026-04-13 archive）。**
+> 7 ルール (AR-RESP-STORE-COUPLING / AR-RESP-MODULE-STATE / AR-RESP-HOOK-COMPLEXITY /
+> AR-RESP-FEATURE-COMPLEXITY / AR-RESP-EXPORT-DENSITY / AR-RESP-NORMALIZATION /
+> AR-RESP-FALLBACK-SPREAD) の物理正本は
+> `app-domain/gross-profit/rule-catalog/base-rules.ts` にある。
+> 例外圧は AR-RESP-MODULE-STATE に 4 件の permanent structural 例外として再帰属済み。
+> 旧 `AR-STRUCT-RESP-SEPARATION` は削除済み。
+>
+> 以下の本文は設計記録として保持する（背景と判定基準を辿るため）。
+>
 > 本文書は AAG ルール分割の判定基準と分割案を記録する。
 >
 > **live な作業項目は本文書に書かない。**
-> 実装の残作業は
-> [`projects/aag-rule-splitting-execution/checklist.md`](../../projects/aag-rule-splitting-execution/checklist.md)
-> を参照。
+> project は archive 済み:
+> [`projects/completed/aag-rule-splitting-execution/`](../../projects/completed/aag-rule-splitting-execution/)
 
 ## 分割の原則
 

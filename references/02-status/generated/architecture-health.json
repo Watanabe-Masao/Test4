@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-13T01:46:03.708Z",
+  "timestamp": "2026-04-13T02:05:23.831Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -681,7 +681,7 @@
       "id": "project.checklist.activeCount",
       "label": "active project 数（archive 未実施を含む）",
       "category": "docs",
-      "value": 5,
+      "value": 4,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -693,7 +693,7 @@
       ],
       "implRefs": [
         "projects/completed/aag-collector-purification/checklist.md",
-        "projects/aag-rule-splitting-execution/checklist.md",
+        "projects/completed/aag-rule-splitting-execution/checklist.md",
         "projects/architecture-decision-backlog/checklist.md",
         "projects/completed/data-load-idempotency-hardening/checklist.md",
         "projects/completed/docs-and-governance-cohesion/checklist.md",
@@ -707,7 +707,7 @@
       "id": "project.checklist.archivedCount",
       "label": "archived project 数（projects/completed/ 配下）",
       "category": "docs",
-      "value": 3,
+      "value": 4,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -737,7 +737,7 @@
       ],
       "implRefs": [
         "projects/completed/aag-collector-purification/checklist.md",
-        "projects/aag-rule-splitting-execution/checklist.md",
+        "projects/completed/aag-rule-splitting-execution/checklist.md",
         "projects/architecture-decision-backlog/checklist.md",
         "projects/completed/data-load-idempotency-hardening/checklist.md",
         "projects/completed/docs-and-governance-cohesion/checklist.md",
@@ -750,7 +750,7 @@
       "id": "project.checklist.inProgressCount",
       "label": "in_progress な project 数（open required checkbox あり）",
       "category": "docs",
-      "value": 4,
+      "value": 3,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -762,7 +762,7 @@
       ],
       "implRefs": [
         "projects/completed/aag-collector-purification/checklist.md",
-        "projects/aag-rule-splitting-execution/checklist.md",
+        "projects/completed/aag-rule-splitting-execution/checklist.md",
         "projects/architecture-decision-backlog/checklist.md",
         "projects/completed/data-load-idempotency-hardening/checklist.md",
         "projects/completed/docs-and-governance-cohesion/checklist.md",
@@ -788,7 +788,7 @@
       ],
       "implRefs": [
         "projects/completed/aag-collector-purification/checklist.md",
-        "projects/aag-rule-splitting-execution/checklist.md",
+        "projects/completed/aag-rule-splitting-execution/checklist.md",
         "projects/architecture-decision-backlog/checklist.md",
         "projects/completed/data-load-idempotency-hardening/checklist.md",
         "projects/completed/docs-and-governance-cohesion/checklist.md",
@@ -814,7 +814,7 @@
       ],
       "implRefs": [
         "projects/completed/aag-collector-purification/checklist.md",
-        "projects/aag-rule-splitting-execution/checklist.md",
+        "projects/completed/aag-rule-splitting-execution/checklist.md",
         "projects/architecture-decision-backlog/checklist.md",
         "projects/completed/data-load-idempotency-hardening/checklist.md",
         "projects/completed/docs-and-governance-cohesion/checklist.md",
@@ -827,7 +827,7 @@
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 219,
+      "value": 236,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -839,7 +839,7 @@
       ],
       "implRefs": [
         "projects/completed/aag-collector-purification/checklist.md",
-        "projects/aag-rule-splitting-execution/checklist.md",
+        "projects/completed/aag-rule-splitting-execution/checklist.md",
         "projects/architecture-decision-backlog/checklist.md",
         "projects/completed/data-load-idempotency-hardening/checklist.md",
         "projects/completed/docs-and-governance-cohesion/checklist.md",

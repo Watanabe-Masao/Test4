@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-13T01:46:03.714Z",
+  "timestamp": "2026-04-13T02:05:23.843Z",
   "summary": {
-    "active": 5,
-    "archived": 3,
-    "inProgress": 4,
+    "active": 4,
+    "archived": 4,
+    "inProgress": 3,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
     "totalCheckboxes": 283,
-    "checkedCheckboxes": 219
+    "checkedCheckboxes": 236
   },
   "projects": [
     {
@@ -28,13 +28,13 @@
       "projectId": "aag-rule-splitting-execution",
       "title": "AAG ルール分割実行 — AR-STRUCT-RESP-SEPARATION 7 分割",
       "kind": "project",
-      "declaredStatus": "active",
-      "derivedStatus": "in_progress",
-      "checked": 0,
+      "declaredStatus": "archived",
+      "derivedStatus": "archived",
+      "checked": 17,
       "total": 17,
-      "progress": 0,
-      "entrypoint": "projects/aag-rule-splitting-execution/AI_CONTEXT.md",
-      "checklistPath": "projects/aag-rule-splitting-execution/checklist.md"
+      "progress": 1,
+      "entrypoint": "projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md",
+      "checklistPath": "projects/completed/aag-rule-splitting-execution/checklist.md"
     },
     {
       "projectId": "architecture-decision-backlog",
