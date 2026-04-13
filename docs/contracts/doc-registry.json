@@ -1,5 +1,5 @@
 {
-  "$comment": "ドキュメントレジストリ — 全正本文書の構造化正本。references/README.md はこの JSON のビュー。AAG v5.2 (2026-04-13) で guard-test-map.md / project-checklist-governance.md / aag-rule-splitting-plan.md に collector-governance symmetry と 7 AR-RESP-* 分割の反映を実施。",
+  "$comment": "ドキュメントレジストリ — 全正本文書の構造化正本。references/README.md はこの JSON のビュー。AAG v5.2 (2026-04-13) で guard-test-map.md / project-checklist-governance.md / aag-rule-splitting-plan.md に collector-governance symmetry と 7 AR-RESP-* 分割の反映を実施。test-signal-integrity Phase 3 (2026-04-13): testSignalIntegrityGuard.test.ts エントリを guard-test-map.md に追加。",
   "categories": [
     {
       "id": "definition",

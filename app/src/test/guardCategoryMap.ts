@@ -547,4 +547,10 @@ export const GUARD_CATEGORY_MAP: Readonly<Record<string, GuardCategoryEntry>> = 
     layer: 'operations',
     note: 'merge-candidate: AR-AAG-DERIVED-ONLY-IMPORT の具体化（Project Overlay 直参照禁止）',
   },
+  // ── Test Signal Integrity (project: test-signal-integrity Phase 3) ──
+  'AR-TSIG-TEST-01': {
+    category: 'ratchet-legacy-control',
+    layer: 'execution',
+    note: 'core-rule: Signal Integrity の existence-only assertion 禁止 (False Green / Review Misleading 防止)',
+  },
 } as const

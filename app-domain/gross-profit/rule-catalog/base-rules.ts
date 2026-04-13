@@ -4969,4 +4969,60 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       ],
     },
   },
+
+  // ── Test Signal Integrity (project: test-signal-integrity Phase 3) ──
+  // 上位原則: references/01-principles/test-signal-integrity.md
+  // 思想: 品質シグナル（test / coverage / compile / lint）が改善の結果を表し、
+  //       達成のために歪めてはならない。
+
+  {
+    slice: 'governance-ops',
+    id: 'AR-TSIG-TEST-01',
+    principleRefs: ['G1'],
+    ruleClass: 'invariant',
+    guardTags: ['G1'],
+    epoch: 1,
+    doc: 'references/01-principles/test-signal-integrity.md',
+    what: 'existence-only assertion （存在確認だけのテスト）を禁止する',
+    why: '実装の存在確認しかしておらず、挙動・契約・副作用を検証していない。coverage を増やしても品質保証に寄与せず False Green と Review Misleading を生む',
+    correctPattern: {
+      description:
+        '出力契約 / 主要分岐 / 異常系のいずれかを検証する。存在確認しか書けないなら test を削除する',
+      example:
+        "it('sums positive numbers correctly', () => { expect(calculateTotal([1,2,3])).toBe(6) })",
+    },
+    outdatedPattern: {
+      description:
+        'it() 1 ブロック内で expect が 1 つだけかつそれが toBeDefined / toBeTruthy / toBeNull のみで終わる',
+      codeSignals: [
+        'expect(...).toBeDefined()',
+        'expect(...).toBeTruthy()',
+        'expect(...).toBeNull()',
+      ],
+    },
+    decisionCriteria: {
+      when: '新規テストを書くとき',
+      exceptions:
+        '公開契約としての helper existence test (EX-01): facade ファイルかつ JSDoc/コメントで「公開 API contract の一部」と明示され、同一 file に挙動検証 test が別途存在する場合のみ許容',
+      escalation:
+        '出力契約を検証する assertion を追加する。主要分岐または異常系を 1 件以上検証する。それでも書けないなら test を削除する',
+    },
+    detection: { type: 'custom', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        '1. existence-only assertion を含む it() ブロックを特定する',
+        '2. 対象関数の出力契約・主要分岐・異常系を 1 件以上検証する assertion に書き換える',
+        '3. それでも意味のある assertion が書けないなら test を削除する',
+        '4. EX-01 (公開契約 helper existence test) に該当する場合は JSDoc コメントで明示し、同一 file に挙動検証 test を追加する',
+      ],
+    },
+    sunsetCondition:
+      'TSIG-TEST-01 violation が 6 ヶ月間 0 件で推移し、新規 test 追加時の advisory も自己点検不要と判断された',
+    protectedHarm: {
+      prevents: [
+        'False Green: coverage は上がるが品質改善が伴わない',
+        'Review Misleading: レビュアーが品質確保されたと誤認',
+      ],
+    },
+  },
 ] as const satisfies readonly BaseRule[]
