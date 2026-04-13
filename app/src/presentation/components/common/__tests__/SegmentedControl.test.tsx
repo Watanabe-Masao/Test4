@@ -181,7 +181,7 @@ describe('SegmentedControl — keyboard navigation', () => {
 
   it('value がオプションに存在しない場合 ArrowRight しても onChange 発火しない (defensive)', () => {
     const onChange = vi.fn()
-    // @ts-expect-error 故意に存在しない value を渡してガード分岐を確認
+    // 故意に存在しない value を渡してガード分岐を確認
     renderWithTheme(<SegmentedControl options={options} value="invalid" onChange={onChange} />)
     // どの button にも focus せず ArrowRight を発火
     const allRadios = screen.getAllByRole('radio')
