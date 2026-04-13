@@ -287,6 +287,169 @@ amend して再 push → ✅ pre-push: OK。
 = 1 つの component test を書く作業から **5 種類の品質改善** が連動して発生。
 test-signal-integrity の観測戦略は想定以上の効果を上げている。
 
+#### 2026-04-13 — Step 3-2: InsightTabBudget.vm test 追加 (第 4 / 第 5 の発見)
+
+**作業**: `app/src/features/budget/ui/InsightTabBudget.vm.test.ts` を新規追加。
+buildBudgetTableRows の累積計算 / 入力順序 / 0 除算ガード / missing fallback /
+variance 符号の contract を 15 test で検証。
+
+##### 第 4 の発見: eslint config に coverage/ が含まれていない
+
+`npm run lint` 実行で `coverage/` 配下の自動生成 JS files (block-navigation.js
+/ prettify.js / sorter.js) が unused eslint-disable warning を出した。
+
+- これらは Phase 3 Step 1 で coverage を local 実行するようになって初めて出現
+- `coverage/` は `.gitignore` には含まれているが `eslint.config.js` の
+  `globalIgnores` には含まれていなかった
+
+**修正**: `eslint.config.js` の `globalIgnores(['dist', 'storybook-static',
+'**/*.d.ts'])` に `'coverage'` を追加。
+
+```diff
+- globalIgnores(['dist', 'storybook-static', '**/*.d.ts']),
++ globalIgnores(['dist', 'storybook-static', 'coverage', '**/*.d.ts']),
+```
+
+これは Phase 3 着手 (coverage を実際に使い始めた) によって顕在化した
+**設定の不整合**。観測戦略がなければ、誰かが local lint を実行して initial
+で出る warnings をノイズとして無視していた可能性がある。
+
+##### 第 5 の発見: 重複 test と未検出のアンチパターン
+
+新規 test ファイル作成中に `coverage` 出力で
+`src/presentation/pages/Insight/__tests__/InsightTabBudget.vm.test.ts` (5 test)
+が既存していたことに気づいた (事前調査漏れ)。
+
+既存 test の内容を確認すると:
+
+```ts
+expect(rows[0].discountRate).toBeDefined()
+expect(rows[0].discountRateCum).toBeDefined()
+```
+
+これは:
+- `expect 数が 2` で TSIG-TEST-01 の `expects.length !== 1` フィルタで skip
+  されている
+- すべての expect が existence-only matcher (toBeDefined)
+- contract 検証としては実質的に「壊れたら気づく検証」になっていない
+
+**新規アンチパターン候補 (= AR-TSIG-TEST-04 候補)**:
+
+「it ブロック内の expect 数が 1 でないが、**すべて** が existence-only matcher
+(`toBeDefined` / `toBeTruthy`) で構成されている」というパターン。
+現在の guard は `expects.length === 1` のみ検出しており、複数 weak assertion
+の組み合わせは漏れる。
+
+**今回の対応**: 浅い 5 test を削除し、深い 15 test (新規) に統一。重複も解消。
+
+**新規ルール昇格判断**: AR-TSIG-TEST-04 候補だが、今すぐ昇格はしない理由:
+- baseline 採取が必要 (現 repo に他にも該当 pattern があるか不明)
+- 観測期間中に同じ pattern を **複数回踏む** ようなら昇格優先度が上がる
+- 1 件目 (本件) → 観察対象として記録、Step 3-3 以降で再発を見守る
+
+##### Step 3-2 の test 追加内容
+
+`buildBudgetTableRows` の 15 test:
+
+| カテゴリ | test 数 | 検証内容 |
+|---|---|---|
+| 基本構造 | 3 | 単一日 / day 昇順ソート / actualCum=0 & budgetCum=0 フィルタ |
+| 累積計算 | 3 | cumPrevYear / discountRateCum / フィルタ後の累積 |
+| 0 除算ガード | 4 | achievement / pyDayRatio / pyCumRatio / discountRate |
+| missing fallback | 2 | daily / salesDaily / budgetDaily / prevYearDailyMap |
+| variance 符号 | 3 | daySales > / < dayBudget / actualCum > budgetCum |
+
+すべて意味的契約 (具体値 / 累積一致 / NaN なし) を assertion で検証。
+不可侵原則 #4 (壊れたら気づく検証) に従う。
+
+##### Coverage delta
+
+| metric | Before (Step 3-1 後) | After (Step 3-2 後) | delta |
+|---|---|---|---|
+| lines (global) | 35.01% | 35.05% | +0.04 |
+
+vm.ts は小さい (94 行) ので影響は小さい。Step 3 全体で蓄積していく。
+
+##### ルール側のアクション
+
+- ✅ eslint.config.js に coverage 追加 (本 commit)
+- ✅ 浅い既存 test 削除 (本 commit)
+- 📝 AR-TSIG-TEST-04 候補 (multi-expect all existence-only) を観測中
+- 📝 baseline 採取は Step 3 の他 vm test 完了後に検討
+
+#### 2026-04-13 — Step 3-3: InsightTabForecast.vm test 拡張 (第 6 の発見)
+
+**作業**: 既存 `app/src/presentation/pages/Insight/__tests__/InsightTabForecast.vm.test.ts`
+(8 test) を **拡張**。computeWeeklyActuals / computeDecompPct / computeDecompTotals の
+未カバー contract に 10 test 追加 (8 → 18)。
+
+事前重複チェック: Step 3-2 の反省に従い `find -name "*.vm*"` で事前確認。
+既存 file が pages/Insight/__tests__/ にあると把握してから着手。
+
+##### 既存テストの品質評価
+
+既存 8 test を読み込んだ結果:
+- ほぼ意味的 assertion (`toBeCloseTo` / `toBe` / `Number.isFinite`)
+- bug regression test も含む (`custEffect=100, ticketEffect=-100` で 0 除算)
+- 削除すべき浅いテストはなかった
+
+→ 削除ではなく **拡張** で対応。重複作成も回避。
+
+##### 追加した contract test (10 件)
+
+| 関数 | 追加 test | 内容 |
+|---|---|---|
+| computeDecompPct | 2 | custEffect 100% 寄与 / 正負混在 (絶対値ベース確認) |
+| computeWeeklyActuals | 5 | txValue 計算 / customers=0 0 除算 / 空 Map / 部分 range / customers undefined |
+| computeDecompTotals | 3 | 空配列 / 単一行 / cancel 効果 |
+
+##### 第 6 の発見: Coverage delta が 0 だった
+
+Step 3-3 の test 追加後、`npm run test:coverage` 実行:
+
+| metric | Before | After | delta |
+|---|---|---|---|
+| lines (global) | 35.05% | 35.05% | **0** |
+
+理由: forecast vm の 3 関数は既存 8 test で既に **行レベル** でカバーされて
+いた。追加 10 test は **contract richness** を増やすが (= 同じ行を別の入力で
+触る)、行カバレッジ % は動かない。
+
+**Phase 3 戦略の重要な学び**:
+
+> Coverage % を 35 → 70 に上げるには「既にカバーされたコードに contract test
+> を増やす」のではなく、「**未 cover 領域 (= 0% の component / hook)** を狙う」
+> 必要がある。
+
+実用的な意味合い:
+- Step 3-1 (HourlyChart.builders): 新規追加した pure function だったので
+  カバー追加で coverage delta が出た (実際小さく +0.04%)
+- Step 3-2 (InsightTabBudget.vm): 同様に少しの delta (+0.04%)
+- Step 3-3 (InsightTabForecast.vm): **既存カバー済**、delta 0
+
+つまり vm.ts は既に部分カバーされており、coverage を大きく動かすには
+**presentation/pages/* / presentation/components/* の TSX components**
+(coverage 0% の領域) を狙う必要がある。
+
+##### Step 3 戦略の修正
+
+HANDOFF §2 の優先順位を以下に変える (覚書):
+
+1. ❌ vm.ts への test 追加 (delta 小さい — 1 round 終了)
+2. ✅ component test (BudgetProgressCard, KpiCard 等) — coverage delta 大きい
+3. ✅ pages の小さい component (TSX) を直接テスト
+4. ✅ 段階的に閾値引き上げ (35 → 40 → 50 → 60 → 70)
+
+ただし vm.ts test の追加は **品質シグナル保全 (壊れたら気づく)** 観点では
+依然として価値がある (regression 検出を強化)。観測戦略の本来目的とは
+矛盾しない — coverage 数値は副次的指標。
+
+##### ルール側のアクション
+
+- ✅ 既存 forecast vm test を 8 → 18 に拡張 (本 commit)
+- 📝 Step 3-4 以降は coverage 0% 領域 (component test) を優先
+- 📝 vm.ts への追加 test は contract 強化として続けるが coverage 主目的にしない
+
 ---
 
 _(以降の観測ログを時系列で追記)_
