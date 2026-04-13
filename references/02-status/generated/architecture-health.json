@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-12T22:24:11.854Z",
+  "timestamp": "2026-04-13T02:17:40.003Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 56,
+      "value": 57,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -273,6 +273,7 @@
         "app/src/test/guards/canonicalInputGuard.test.ts",
         "app/src/test/guards/canonicalizationSystemGuard.test.ts",
         "app/src/test/guards/checklistFormatGuard.test.ts",
+        "app/src/test/guards/checklistGovernanceSymmetryGuard.test.ts",
         "app/src/test/guards/coChangeGuard.test.ts",
         "app/src/test/guards/codePatternGuard.test.ts",
         "app/src/test/guards/comparisonScopeGuard.test.ts",
@@ -680,7 +681,7 @@
       "id": "project.checklist.activeCount",
       "label": "active project 数（archive 未実施を含む）",
       "category": "docs",
-      "value": 6,
+      "value": 3,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -691,9 +692,9 @@
         }
       ],
       "implRefs": [
-        "projects/aag-collector-purification/checklist.md",
-        "projects/aag-rule-splitting-execution/checklist.md",
-        "projects/architecture-decision-backlog/checklist.md",
+        "projects/completed/aag-collector-purification/checklist.md",
+        "projects/completed/aag-rule-splitting-execution/checklist.md",
+        "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/data-load-idempotency-hardening/checklist.md",
         "projects/completed/docs-and-governance-cohesion/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",
@@ -706,7 +707,7 @@
       "id": "project.checklist.archivedCount",
       "label": "archived project 数（projects/completed/ 配下）",
       "category": "docs",
-      "value": 2,
+      "value": 5,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -735,9 +736,9 @@
         }
       ],
       "implRefs": [
-        "projects/aag-collector-purification/checklist.md",
-        "projects/aag-rule-splitting-execution/checklist.md",
-        "projects/architecture-decision-backlog/checklist.md",
+        "projects/completed/aag-collector-purification/checklist.md",
+        "projects/completed/aag-rule-splitting-execution/checklist.md",
+        "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/data-load-idempotency-hardening/checklist.md",
         "projects/completed/docs-and-governance-cohesion/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",
@@ -749,7 +750,7 @@
       "id": "project.checklist.inProgressCount",
       "label": "in_progress な project 数（open required checkbox あり）",
       "category": "docs",
-      "value": 5,
+      "value": 2,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -760,9 +761,9 @@
         }
       ],
       "implRefs": [
-        "projects/aag-collector-purification/checklist.md",
-        "projects/aag-rule-splitting-execution/checklist.md",
-        "projects/architecture-decision-backlog/checklist.md",
+        "projects/completed/aag-collector-purification/checklist.md",
+        "projects/completed/aag-rule-splitting-execution/checklist.md",
+        "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/data-load-idempotency-hardening/checklist.md",
         "projects/completed/docs-and-governance-cohesion/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",
@@ -786,9 +787,9 @@
         }
       ],
       "implRefs": [
-        "projects/aag-collector-purification/checklist.md",
-        "projects/aag-rule-splitting-execution/checklist.md",
-        "projects/architecture-decision-backlog/checklist.md",
+        "projects/completed/aag-collector-purification/checklist.md",
+        "projects/completed/aag-rule-splitting-execution/checklist.md",
+        "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/data-load-idempotency-hardening/checklist.md",
         "projects/completed/docs-and-governance-cohesion/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",
@@ -801,7 +802,7 @@
       "id": "project.checklist.totalCheckboxes",
       "label": "全 project の required checkbox 総数",
       "category": "docs",
-      "value": 302,
+      "value": 283,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -812,9 +813,9 @@
         }
       ],
       "implRefs": [
-        "projects/aag-collector-purification/checklist.md",
-        "projects/aag-rule-splitting-execution/checklist.md",
-        "projects/architecture-decision-backlog/checklist.md",
+        "projects/completed/aag-collector-purification/checklist.md",
+        "projects/completed/aag-rule-splitting-execution/checklist.md",
+        "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/data-load-idempotency-hardening/checklist.md",
         "projects/completed/docs-and-governance-cohesion/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",
@@ -826,7 +827,7 @@
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 195,
+      "value": 237,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -837,9 +838,9 @@
         }
       ],
       "implRefs": [
-        "projects/aag-collector-purification/checklist.md",
-        "projects/aag-rule-splitting-execution/checklist.md",
-        "projects/architecture-decision-backlog/checklist.md",
+        "projects/completed/aag-collector-purification/checklist.md",
+        "projects/completed/aag-rule-splitting-execution/checklist.md",
+        "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/data-load-idempotency-hardening/checklist.md",
         "projects/completed/docs-and-governance-cohesion/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",

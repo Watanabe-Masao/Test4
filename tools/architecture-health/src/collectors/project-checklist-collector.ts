@@ -281,36 +281,25 @@ function readProjectChecklist(
 /**
  * Markdown から `* [x]` / `* [ ]` 形式の checkbox を数える。
  *
- * **意図的に「やってはいけないこと」「常時チェック」セクション内の
- * checkbox は除外する**（completion 判定の入力として混ぜるとぶれるため）。
- * セクション除外の規格化は checklistFormatGuard 側で強制する。
+ * checklist.md は governance §3 により required checkbox のみを含むことが
+ * 保証されている:
+ * - 「やってはいけないこと」「常時チェック」「最重要項目」セクションは
+ *   `plan.md` / `coding-conventions.md` 等へ移動されている
+ * - 機械検証は `checklistFormatGuard` (F3/F4/F5) および
+ *   `checklistGovernanceSymmetryGuard` で行う
+ *
+ * そのため本関数は heading 抑制ロジックを持たない。全 checkbox を素直に数える
+ * （「format guard が通る範囲 = collector が集計する範囲」の対称性を保つ）。
+ *
+ * 2026-04-13: heading 抑制ロジックを削除 (project: aag-collector-purification)。
  */
 export function countCheckboxes(markdown: string): { total: number; checked: number } {
   const lines = markdown.split(/\r?\n/)
   let total = 0
   let checked = 0
-  let suppress = false
 
   for (const raw of lines) {
     const line = raw.trim()
-
-    // セクション境界
-    if (line.startsWith('#')) {
-      // 「やってはいけないこと」「常時チェック」「最重要項目」セクションは
-      // completion の入力に含めない
-      if (
-        /やってはいけないこと/.test(line) ||
-        /常時チェック/.test(line) ||
-        /最重要項目/.test(line)
-      ) {
-        suppress = true
-      } else {
-        suppress = false
-      }
-      continue
-    }
-
-    if (suppress) continue
 
     // `* [x]` / `* [ ]` / `- [x]` / `- [ ]` を許容
     const m = line.match(/^[*-]\s+\[([ xX])\]\s/)

@@ -18,6 +18,24 @@
 > 内部向けの詳細変更記��は `references/02-status/recent-changes.md` を参照。
 > `docs/contracts/project-metadata.json` の `appVersion` と最新バージョンを一致させること。
 
+## [v1.10.0] - 2026-04-13
+
+### AAG 5.2 — Collector-Governance Symmetry
+
+collector (`project-checklist-collector.ts`) と governance §3 の規約の間に残っていた
+**構造的非対称**を解消。collector が「やってはいけないこと」「常時チェック」「最重要項目」
+の見出し配下を正規表現で除外していた一方、規約はこれらを checklist に書かないと定めて
+いた。本リリースで collector の heading 抑制ロジックを削除し、format guard を全 project
+で strict 化。規約と実装の対称性を `checklistGovernanceSymmetryGuard` で恒久的に保証する。
+
+- **pure-calculation-reorg/checklist.md 純化**: Phase 内 prohibition 19 件 + 常時チェック 6 件 + 最重要項目 4 件を `plan.md` の新設「Phase 別禁止事項テーブル」「Phase 11 完了後確認項目」および `CONTRIBUTING.md` の「PR 作成前のローカル確認」に移動。Phase 0-11 の達成条件 checkbox は不変
+- **`FORMAT_EXEMPT_PROJECT_IDS` 空集合化**: `checklistFormatGuard` (F3/F4/F5) を全 live project に適用
+- **`countCheckboxes` 純化**: heading 抑制ロジックを削除。「format guard が通る範囲 = collector が集計する範囲」の対称性を回復
+- **新規ガード**: `checklistGovernanceSymmetryGuard` (S1/S2/S3)。禁止見出しそのものの存在を検出する最終防波堤
+- **governance §3/§8 更新**: 機械検証の 2 層 (format guard + symmetry guard) を明記、関連実装表に symmetry guard を追加
+- **version triplet 同期**: `shiire-arari` 1.9.0 → 1.10.0 / AAG 5.1 → 5.2 を version sync registry 経由で 4 ペア同期
+- **project archive**: `aag-collector-purification` 自身を `projects/completed/` に移動
+
 ## [v1.9.0] - 2026-04-12
 
 ### AAG 5.1 — Project Lifecycle Management & Documentation/Task Separation

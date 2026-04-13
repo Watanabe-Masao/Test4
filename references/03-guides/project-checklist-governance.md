@@ -126,6 +126,13 @@ archive 手順は §6 を参照。
 
 これらを checklist に混ぜると completion 判定がぶれるため、一切持ち込まない。
 
+**機械検証**: 本規約は 2 つのガードで機械的に強制される:
+
+1. `checklistFormatGuard` (F3/F4/F5) — 禁止見出し配下に checkbox が存在する行レベル違反を検出。全 project で strict (EXEMPT なし)。
+2. `checklistGovernanceSymmetryGuard` (S1/S2/S3) — 禁止見出しそのものが存在すること自体を検出。規約と collector の対称性を保つ最終防波堤。
+
+collector (`project-checklist-collector.ts::countCheckboxes`) は heading 抑制ロジックを持たない。「format guard が通る範囲 = collector が集計する範囲」という対称性が保証されている (2026-04-13, project: aag-collector-purification)。
+
 ### 書き方の規格
 
 ```markdown
@@ -353,7 +360,8 @@ archive される project が依存していた references/ 文書は、project 
 |---|---|
 | `tools/architecture-health/src/collectors/project-checklist-collector.ts` | checklist から derivedStatus を導出 |
 | `tools/architecture-health/src/renderers/project-health-renderer.ts` | project KPI を JSON / MD に展開 |
-| `app/src/test/guards/checklistFormatGuard.test.ts` | checklist.md の規格適合を検証 |
+| `app/src/test/guards/checklistFormatGuard.test.ts` | checklist.md の規格適合を検証 (F1-F5) |
+| `app/src/test/guards/checklistGovernanceSymmetryGuard.test.ts` | 規約と collector 実装の対称性を検証 (S1/S2/S3)。2026-04-13 追加 |
 | `app/src/test/guards/projectCompletionConsistencyGuard.test.ts` | derivedStatus と物理配置の整合検証 |
 | `references/02-status/generated/project-health.json` | 生成された project KPI 正本 |
 | `references/02-status/generated/project-health.md` | 同 view（人間可読） |
@@ -366,13 +374,13 @@ archive される project が依存していた references/ 文書は、project 
 | projectId | scope | 入口 |
 |---|---|---|
 | `presentation-quality-hardening` | active-debt + 500 行超 + coverage + E2E | [`projects/presentation-quality-hardening/AI_CONTEXT.md`](../../projects/presentation-quality-hardening/AI_CONTEXT.md) |
-| `architecture-decision-backlog` | 未決定の設計判断 | [`projects/architecture-decision-backlog/AI_CONTEXT.md`](../../projects/architecture-decision-backlog/AI_CONTEXT.md) |
-| `aag-rule-splitting-execution` | AR-STRUCT-RESP-SEPARATION 7 分割 | [`projects/aag-rule-splitting-execution/AI_CONTEXT.md`](../../projects/aag-rule-splitting-execution/AI_CONTEXT.md) |
-| `aag-collector-purification` | collector の heading 抑制を消し、規約と実装の対称性を回復する | [`projects/aag-collector-purification/AI_CONTEXT.md`](../../projects/aag-collector-purification/AI_CONTEXT.md) |
 | `pure-calculation-reorg` | Pure 計算責務再編（Phase 8〜） | [`projects/pure-calculation-reorg/AI_CONTEXT.md`](../../projects/pure-calculation-reorg/AI_CONTEXT.md) |
 | `quick-fixes` | 単発 fix collection (continuous) | [`projects/quick-fixes/AI_CONTEXT.md`](../../projects/quick-fixes/AI_CONTEXT.md) |
 | `data-load-idempotency-hardening` (archived) | idempotent load contract 残存防御 (2026-04-12 archive, Phase F Option A 確定) | [`projects/completed/data-load-idempotency-hardening/AI_CONTEXT.md`](../../projects/completed/data-load-idempotency-hardening/AI_CONTEXT.md) |
 | `docs-and-governance-cohesion` (archived) | live task 集約 + AAG 統合 (2026-04-12 archive) | [`projects/completed/docs-and-governance-cohesion/AI_CONTEXT.md`](../../projects/completed/docs-and-governance-cohesion/AI_CONTEXT.md) |
+| `aag-collector-purification` (archived) | collector heading 抑制削除 + 規約/実装の対称性回復 (2026-04-13 archive) | [`projects/completed/aag-collector-purification/AI_CONTEXT.md`](../../projects/completed/aag-collector-purification/AI_CONTEXT.md) |
+| `aag-rule-splitting-execution` (archived) | AR-STRUCT-RESP-SEPARATION を 7 AR-RESP-* ルールに分割 (2026-04-13 archive) | [`projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md`](../../projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md) |
+| `architecture-decision-backlog` (archived) | R-9 (c) 現状維持を決定 (2026-04-13 archive) | [`projects/completed/architecture-decision-backlog/AI_CONTEXT.md`](../../projects/completed/architecture-decision-backlog/AI_CONTEXT.md) |
 
 実時の値は [`references/02-status/generated/project-health.md`](../02-status/generated/project-health.md) を正本とする。
 

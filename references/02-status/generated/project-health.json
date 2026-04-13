@@ -1,52 +1,52 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-12T22:24:11.857Z",
+  "timestamp": "2026-04-13T02:17:40.008Z",
   "summary": {
-    "active": 6,
-    "archived": 2,
-    "inProgress": 5,
+    "active": 3,
+    "archived": 5,
+    "inProgress": 2,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 302,
-    "checkedCheckboxes": 195
+    "totalCheckboxes": 283,
+    "checkedCheckboxes": 237
   },
   "projects": [
     {
       "projectId": "aag-collector-purification",
       "title": "AAG collector 純化 — 規約と実装の対称性回復",
       "kind": "project",
-      "declaredStatus": "active",
-      "derivedStatus": "in_progress",
-      "checked": 0,
+      "declaredStatus": "archived",
+      "derivedStatus": "archived",
+      "checked": 28,
       "total": 28,
-      "progress": 0,
-      "entrypoint": "projects/aag-collector-purification/AI_CONTEXT.md",
-      "checklistPath": "projects/aag-collector-purification/checklist.md"
+      "progress": 1,
+      "entrypoint": "projects/completed/aag-collector-purification/AI_CONTEXT.md",
+      "checklistPath": "projects/completed/aag-collector-purification/checklist.md"
     },
     {
       "projectId": "aag-rule-splitting-execution",
       "title": "AAG ルール分割実行 — AR-STRUCT-RESP-SEPARATION 7 分割",
       "kind": "project",
-      "declaredStatus": "active",
-      "derivedStatus": "in_progress",
-      "checked": 0,
+      "declaredStatus": "archived",
+      "derivedStatus": "archived",
+      "checked": 17,
       "total": 17,
-      "progress": 0,
-      "entrypoint": "projects/aag-rule-splitting-execution/AI_CONTEXT.md",
-      "checklistPath": "projects/aag-rule-splitting-execution/checklist.md"
+      "progress": 1,
+      "entrypoint": "projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md",
+      "checklistPath": "projects/completed/aag-rule-splitting-execution/checklist.md"
     },
     {
       "projectId": "architecture-decision-backlog",
       "title": "アーキテクチャ判断 backlog — 未決定の設計判断",
       "kind": "project",
-      "declaredStatus": "active",
-      "derivedStatus": "in_progress",
-      "checked": 0,
+      "declaredStatus": "archived",
+      "derivedStatus": "archived",
+      "checked": 1,
       "total": 1,
-      "progress": 0,
-      "entrypoint": "projects/architecture-decision-backlog/AI_CONTEXT.md",
-      "checklistPath": "projects/architecture-decision-backlog/checklist.md"
+      "progress": 1,
+      "entrypoint": "projects/completed/architecture-decision-backlog/AI_CONTEXT.md",
+      "checklistPath": "projects/completed/architecture-decision-backlog/checklist.md"
     },
     {
       "projectId": "data-load-idempotency-hardening",
@@ -90,9 +90,9 @@
       "kind": "project",
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
-      "checked": 88,
-      "total": 132,
-      "progress": 0.667,
+      "checked": 84,
+      "total": 113,
+      "progress": 0.743,
       "entrypoint": "projects/pure-calculation-reorg/AI_CONTEXT.md",
       "checklistPath": "projects/pure-calculation-reorg/checklist.md"
     },

@@ -118,5 +118,10 @@ it('governance §3 が禁止する項目が全 live project の checklist に存
 | `references/03-guides/project-checklist-governance.md` | §3 / §11 が規約の正本 |
 | `tools/architecture-health/src/collectors/project-checklist-collector.ts` | 純化対象 |
 | `app/src/test/guards/checklistFormatGuard.test.ts` | 純化対象 (strict 化) |
+| `app/src/test/guards/checklistGovernanceSymmetryGuard.test.ts` | 新規追加 (再発防止) |
 | `projects/pure-calculation-reorg/checklist.md` | 移行対象 |
 | `projects/pure-calculation-reorg/plan.md` | 移行先 |
+
+---
+
+Archived: 2026-04-13

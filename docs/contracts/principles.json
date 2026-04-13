@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$comment": "設計原則体系の唯一正本。CLAUDE.md, architectureRules.ts, documentConsistency.test.ts はこの JSON を参照・検証する。AAG v5.1.0 (2026-04-12): Project Lifecycle Management & Documentation/Task Separation。Layer 4A に project-checklist-governance.md / open-issues.md / version sync registry を追加。本体 (粗利管理ツール) コードは変更せず AAG framework のみ拡張。",
+  "$comment": "設計原則体系の唯一正本。CLAUDE.md, architectureRules.ts, documentConsistency.test.ts はこの JSON を参照・検証する。AAG v5.2.0 (2026-04-13): Collector-Governance Symmetry。project: aag-collector-purification + aag-rule-splitting-execution を完了・archive。collector heading 抑制削除 + checklistGovernanceSymmetryGuard 追加 + AR-STRUCT-RESP-SEPARATION 7 分割 (AR-RESP-*)。本体 (粗利管理ツール) コードは変更せず AAG framework のみ拡張。",
   "version": "4.5.0",
   "taxonomy": "A-I+Q",
   "categories": [
