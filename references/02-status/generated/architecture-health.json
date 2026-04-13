@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-13T04:11:44.040Z",
+  "timestamp": "2026-04-13T04:56:05.226Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -681,7 +681,7 @@
       "id": "project.checklist.activeCount",
       "label": "active project 数（archive 未実施を含む）",
       "category": "docs",
-      "value": 3,
+      "value": 4,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -699,7 +699,8 @@
         "projects/completed/docs-and-governance-cohesion/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",
         "projects/pure-calculation-reorg/checklist.md",
-        "projects/quick-fixes/checklist.md"
+        "projects/quick-fixes/checklist.md",
+        "projects/test-signal-integrity/checklist.md"
       ],
       "budget": 20
     },
@@ -743,14 +744,15 @@
         "projects/completed/docs-and-governance-cohesion/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",
         "projects/pure-calculation-reorg/checklist.md",
-        "projects/quick-fixes/checklist.md"
+        "projects/quick-fixes/checklist.md",
+        "projects/test-signal-integrity/checklist.md"
       ]
     },
     {
       "id": "project.checklist.inProgressCount",
       "label": "in_progress な project 数（open required checkbox あり）",
       "category": "docs",
-      "value": 2,
+      "value": 3,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -768,7 +770,8 @@
         "projects/completed/docs-and-governance-cohesion/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",
         "projects/pure-calculation-reorg/checklist.md",
-        "projects/quick-fixes/checklist.md"
+        "projects/quick-fixes/checklist.md",
+        "projects/test-signal-integrity/checklist.md"
       ],
       "budget": 20
     },
@@ -794,7 +797,8 @@
         "projects/completed/docs-and-governance-cohesion/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",
         "projects/pure-calculation-reorg/checklist.md",
-        "projects/quick-fixes/checklist.md"
+        "projects/quick-fixes/checklist.md",
+        "projects/test-signal-integrity/checklist.md"
       ],
       "budget": 10
     },
@@ -802,7 +806,7 @@
       "id": "project.checklist.totalCheckboxes",
       "label": "全 project の required checkbox 総数",
       "category": "docs",
-      "value": 283,
+      "value": 318,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -820,7 +824,8 @@
         "projects/completed/docs-and-governance-cohesion/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",
         "projects/pure-calculation-reorg/checklist.md",
-        "projects/quick-fixes/checklist.md"
+        "projects/quick-fixes/checklist.md",
+        "projects/test-signal-integrity/checklist.md"
       ]
     },
     {
@@ -845,7 +850,8 @@
         "projects/completed/docs-and-governance-cohesion/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",
         "projects/pure-calculation-reorg/checklist.md",
-        "projects/quick-fixes/checklist.md"
+        "projects/quick-fixes/checklist.md",
+        "projects/test-signal-integrity/checklist.md"
       ]
     }
   ],
