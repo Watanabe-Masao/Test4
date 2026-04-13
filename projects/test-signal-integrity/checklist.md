@@ -53,9 +53,18 @@
 
 ## Phase 5: 運用着地と application-side への接続
 
-* [ ] 新規 test 追加時に advisory が自動表示されることを確認する（advisory ガイドを `references/03-guides/test-signal-integrity-advisory.md` に正本化済。pre-push hook の `check_test_signal_advisory()` 統合は follow-up）
+* [x] 新規 test 追加時に advisory が自動表示されることを確認する（`tools/git-hooks/pre-push` の `check_test_signal_advisory()` で実装。`--diff-filter=A` で新規追加の `.test.ts(x)` / `.spec.ts(x)` / `__tests__/` / `app/e2e/.spec.ts` を検出し、warning レーンで Self-check 6 項目 + Protected harm + 詳細リンクを表示し push は止めない）
 * [x] 明確な bad pattern が diff 上で hard fail することを確認する（self-test 10 件で検出 regex の動作を文字列レベルで verify 済）
 * [x] グレーなパターンが advisory / review に留まることを確認する（TSIG-ADV-01〜04 は guard 化せず advisory ガイドに留め、Discovery Review 動線を維持）
 * [x] 初期ルール群で false positive が過剰に発生しないことを確認する（baseline 採取で TSIG-TEST-01/02/03 = 0 / TSIG-COMP-01/02 既存は構造化済 / TSIG-COMP-03 = 0、test:guards 594 passed 0 false positive）
 * [x] `presentation-quality-hardening` の coverage 70 引き上げ前提として本 project を参照できる状態にする（PR #1013 で前提条件 checkbox を追加済）
 * [x] coverage 数値目標は application-side、signal integrity は AAG-side であることを文書上で分離する（`test-signal-integrity.md` の Scope セクションと AI_CONTEXT.md / plan.md で明文化済）
+
+## 最終レビュー (人間承認)
+
+> このセクションは **必ず最後** に置き、人間レビュー前は [ ] のままにする。
+> 機能的な Phase 1〜5 がすべて [x] になっても、ここが [ ] なら project は
+> `in_progress` のまま留まり、archive obligation は発火しない。
+> 詳細: `references/03-guides/project-checklist-governance.md` §3.1 / §6.2
+
+* [ ] 全 Phase の成果物 (commit / PR #1015 / `references/01-principles/test-signal-integrity.md` / `references/03-guides/test-signal-integrity-advisory.md` / `app/src/test/guards/testSignalIntegrityGuard.test.ts` / `tools/git-hooks/pre-push` の `check_test_signal_advisory()` / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する
