@@ -92,6 +92,11 @@ fi
 
 CHANGED_FILES=$(git diff --name-only "$PUSH_RANGE" 2>/dev/null || git diff --name-only HEAD~1 2>/dev/null || echo "")
 
+# 追加されたファイルのみ (--diff-filter=A)。
+# 「新規 .md → doc-registry.json 必須」系のチェックに使う。
+# 既存ファイルの modification は doc-registry 更新義務がない。
+ADDED_FILES=$(git diff --name-only --diff-filter=A "$PUSH_RANGE" 2>/dev/null || echo "")
+
 if [ -z "$CHANGED_FILES" ]; then
   exit 0
 fi
@@ -125,6 +130,14 @@ changed_matches() {
   echo "$CHANGED_FILES" | grep -qE "$1"
 }
 
+# added_matches <regex>
+# 新規追加ファイルのうち regex にマッチするものがあれば 0 を返す。
+# 既存ファイル modification は含めない。
+added_matches() {
+  [ -z "$ADDED_FILES" ] && return 1
+  echo "$ADDED_FILES" | grep -qE "$1"
+}
+
 # ──────────────────────────────────────────────────────────────────────
 # Check 関数群
 # ──────────────────────────────────────────────────────────────────────
@@ -132,13 +145,15 @@ changed_matches() {
 # 各 check は CHECK_REGISTRY に登録された順に実行される。
 # 追加方法は先頭コメントの HOW TO ADD A NEW CHECK を参照。
 
-# Check: references/ 新規 .md → doc-registry.json 未更新
+# Check: references/ 新規 .md 追加 → doc-registry.json 未更新
 # 学習ソース: references/ に文書追加時、doc-registry.json 登録漏れが頻発
-# 理由: doc-registry.json は文書レジストリの唯一正本。登録漏れは審査不能な
-#       文書が repo に混入する原因になる
+# 理由: doc-registry.json は文書レジストリの唯一正本。新規登録漏れは審査不能な
+#       文書が repo に混入する原因になる。既存 .md の modification は対象外
+#       (登録済みの更新は doc-registry 更新義務がない)
 # severity: error (registry) / warn (README)
 check_doc_registry() {
-  NEW_REFS=$(echo "$CHANGED_FILES" \
+  # --diff-filter=A で新規追加のみを対象にする (modification は除外)
+  NEW_REFS=$(echo "$ADDED_FILES" \
     | grep "^references/.*\.md$" \
     | grep -v "^references/02-status/generated/" \
     | grep -v "^references/99-archive/" || true)
@@ -146,13 +161,22 @@ check_doc_registry() {
 
   if ! changed_matches "^docs/contracts/doc-registry\.json"; then
     add_error \
-      "references/ に .md 変更あり → docs/contracts/doc-registry.json が未更新" \
+      "references/ に新規 .md 追加あり → docs/contracts/doc-registry.json が未更新" \
+      "  新規ファイル:"
+    OLD_IFS="$IFS"
+    IFS='
+'
+    for f in $NEW_REFS; do
+      add_error "    $f"
+    done
+    IFS="$OLD_IFS"
+    add_error \
       "  修正方法:" \
-      "    docs/contracts/doc-registry.json に該当文書エントリを追加" \
+      "    docs/contracts/doc-registry.json の該当カテゴリに新規エントリを追加" \
       "    詳細: references/03-guides/project-checklist-governance.md §8"
   fi
   if ! changed_matches "^references/README\.md"; then
-    add_warn "references/ に .md 変更あり → references/README.md が未更新の可能性"
+    add_warn "references/ に新規 .md 追加あり → references/README.md の索引更新を推奨"
   fi
 }
 
