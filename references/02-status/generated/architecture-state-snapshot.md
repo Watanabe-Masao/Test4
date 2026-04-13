@@ -1,6 +1,6 @@
 # Architecture State Snapshot
 
-> Generated: 2026-04-10T23:58:05.609Z
+> Generated: 2026-04-13T09:55:57.268Z
 
 ## Allowlist Summary
 
@@ -91,7 +91,7 @@
 
 | ファイル | useMemo | useState | 行数 |
 |---|---|---|---|
-| presentation/pages/Dashboard/widgets/HourlyChart.tsx | 9 | 6 | 502 |
+| presentation/pages/Dashboard/widgets/HourlyChart.tsx | 9 | 6 | 487 |
 | presentation/components/charts/TimeSlotChart.tsx | 8 | 6 | 216 |
 | presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx | 7 | 7 | 518 |
 | presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 9 | 5 | 434 |
