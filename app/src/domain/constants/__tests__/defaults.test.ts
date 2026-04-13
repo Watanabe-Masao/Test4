@@ -78,9 +78,10 @@ describe('createDefaultSettings', () => {
     expect(settings.targetMonth).toBe(now.getMonth() + 1)
   })
 
-  it('conditionConfig が設定される', () => {
+  it('conditionConfig が有効な構造を持つ', () => {
     const settings = createDefaultSettings()
-    expect(settings.conditionConfig).toBeTruthy()
+    expect(settings.conditionConfig).not.toBeNull()
+    expect(typeof settings.conditionConfig).toBe('object')
   })
 })
 

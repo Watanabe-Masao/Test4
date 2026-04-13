@@ -6,7 +6,7 @@ import { TABLE_COLUMNS, bulkInsert } from '../dataConversions'
 import type { AsyncDuckDB, AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 
 describe('TABLE_COLUMNS', () => {
-  it('defines schemas for all core tables', () => {
+  it('defines schemas (object with columns) for all core tables', () => {
     const expectedTables = [
       'classified_sales',
       'category_time_sales',
@@ -21,7 +21,10 @@ describe('TABLE_COLUMNS', () => {
       'weather_hourly',
     ]
     for (const tableName of expectedTables) {
-      expect(TABLE_COLUMNS[tableName], `missing schema for ${tableName}`).toBeTruthy()
+      const schema = TABLE_COLUMNS[tableName]
+      // Each schema should be a non-empty object of columnName → duckdb type string
+      expect(typeof schema, `missing schema for ${tableName}`).toBe('object')
+      expect(Object.keys(schema).length, `empty schema for ${tableName}`).toBeGreaterThan(0)
     }
   })
 

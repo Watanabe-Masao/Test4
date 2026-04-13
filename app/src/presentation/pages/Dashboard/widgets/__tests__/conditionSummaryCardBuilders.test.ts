@@ -148,9 +148,12 @@ describe('CONDITION_CARD_ORDER and CONDITION_CARD_GROUP', () => {
     expect(CONDITION_CARD_GROUP.requiredPace).toBe('yoy')
   })
 
-  it('all IDs in CONDITION_CARD_ORDER appear in CONDITION_CARD_GROUP', () => {
+  it('all IDs in CONDITION_CARD_ORDER map to a known group (budget|yoy|other)', () => {
+    const validGroups = ['budget', 'yoy', 'other']
     for (const id of CONDITION_CARD_ORDER) {
-      expect(CONDITION_CARD_GROUP[id]).toBeDefined()
+      const group = CONDITION_CARD_GROUP[id]
+      expect(typeof group, `CONDITION_CARD_GROUP[${id}] should be a string`).toBe('string')
+      expect(validGroups, `${id} has unknown group: ${group}`).toContain(group)
     }
   })
 })
