@@ -102,7 +102,7 @@ describe('DATA_TYPE_LABELS', () => {
 
   it('returns undefined for unknown data types (Partial record)', () => {
     // Partial<Record> — unknown key returns undefined
-    const unknownLabel = DATA_TYPE_LABELS['summaryCache' as 'summaryCache']
+    const unknownLabel = DATA_TYPE_LABELS['summaryCache' as const]
     expect(unknownLabel).toBeUndefined()
   })
 })

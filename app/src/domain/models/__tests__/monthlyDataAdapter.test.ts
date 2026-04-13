@@ -17,6 +17,16 @@ import {
 } from '../monthlyDataAdapter'
 import type { ImportedData } from '../ImportedData'
 import type { AppData } from '../MonthlyData'
+import type { DataOrigin } from '../DataOrigin'
+
+function makeOrigin(overrides: Partial<DataOrigin> = {}): DataOrigin {
+  return {
+    year: 2026,
+    month: 4,
+    importedAt: '2026-04-13T00:00:00Z',
+    ...overrides,
+  }
+}
 
 function makeImported(overrides: Partial<ImportedData> = {}): ImportedData {
   return {
@@ -49,21 +59,22 @@ function makeImported(overrides: Partial<ImportedData> = {}): ImportedData {
 describe('toMonthlyData', () => {
   it('origin を設定する', () => {
     const imported = makeImported()
-    const result = toMonthlyData(imported, 'upload')
-    expect(result.origin).toBe('upload')
+    const origin = makeOrigin()
+    const result = toMonthlyData(imported, origin)
+    expect(result.origin).toBe(origin)
   })
 
   it('各 slice を伝搬する', () => {
     const imported = makeImported({
       stores: { records: [{ id: 's1' }] } as unknown as ImportedData['stores'],
     })
-    const result = toMonthlyData(imported, 'upload')
+    const result = toMonthlyData(imported, makeOrigin())
     expect(result.stores).toBe(imported.stores)
   })
 
   it('prevYear* フィールドは含まれない', () => {
     const imported = makeImported()
-    const result = toMonthlyData(imported, 'upload')
+    const result = toMonthlyData(imported, makeOrigin())
     expect('prevYearClassifiedSales' in result).toBe(false)
     expect('prevYearFlowers' in result).toBe(false)
   })
@@ -74,7 +85,7 @@ describe('toMonthlyData', () => {
 describe('toAppData', () => {
   it('prevYear=undefined → prevYear=null', () => {
     const imported = makeImported()
-    const result = toAppData(imported, 'upload')
+    const result = toAppData(imported, makeOrigin())
     expect(result.prevYear).toBeNull()
     expect(result.current).toBeDefined()
   })
@@ -82,14 +93,16 @@ describe('toAppData', () => {
   it('prevYear 有 → current + prevYear 両方構築', () => {
     const cur = makeImported()
     const prev = makeImported()
-    const result = toAppData(cur, 'upload', prev, 'upload')
-    expect(result.current.origin).toBe('upload')
-    expect(result.prevYear?.origin).toBe('upload')
+    const curOrigin = makeOrigin()
+    const prevOrigin = makeOrigin({ year: 2025 })
+    const result = toAppData(cur, curOrigin, prev, prevOrigin)
+    expect(result.current.origin).toBe(curOrigin)
+    expect(result.prevYear?.origin).toBe(prevOrigin)
   })
 
   it('prevYearImported 有 + prevYearOrigin 無 → prevYear=null', () => {
     const imported = makeImported()
-    const result = toAppData(imported, 'upload', imported)
+    const result = toAppData(imported, makeOrigin(), imported)
     expect(result.prevYear).toBeNull()
   })
 })
@@ -103,7 +116,7 @@ describe('toLegacyImportedData', () => {
   })
 
   it('slices 無 → 空 prevYear* を使用', () => {
-    const current = toMonthlyData(makeImported(), 'upload')
+    const current = toMonthlyData(makeImported(), makeOrigin())
     const appData: AppData = { current, prevYear: null }
     const result = toLegacyImportedData(appData)
     expect(result.prevYearClassifiedSales.records).toEqual([])
@@ -111,7 +124,7 @@ describe('toLegacyImportedData', () => {
   })
 
   it('slices 有 → prevYear* を伝搬', () => {
-    const current = toMonthlyData(makeImported(), 'upload')
+    const current = toMonthlyData(makeImported(), makeOrigin())
     const appData: AppData = { current, prevYear: null }
     const slices: LegacyComparisonSlices = {
       prevYearClassifiedSales: {
@@ -131,7 +144,7 @@ describe('toLegacyImportedData', () => {
   })
 
   it('current の各 slice を伝搬', () => {
-    const current = toMonthlyData(makeImported(), 'upload')
+    const current = toMonthlyData(makeImported(), makeOrigin())
     const appData: AppData = { current, prevYear: null }
     const result = toLegacyImportedData(appData)
     expect(result.stores).toBe(current.stores)
