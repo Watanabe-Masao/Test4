@@ -225,6 +225,27 @@ check_docs_generate() {
     "  修正方法: cd app && npm run docs:generate"
 }
 
+# Check: tsc 型チェック (tsconfig.app.json)
+# 学習ソース: 2026-04 AAG 5.1 release 直後、CI で TS6133 (project-checklist-collector の
+#             未使用宣言) が検出された。noUnusedLocals / noUnusedParameters 違反を
+#             local で完結させる仕組みが欠けていた
+# 理由: strict 型エラー (noUnusedLocals / noUnusedParameters 等) を local で検出。
+#       vite build 自体は OOM するため tsc --noEmit のみ走らせる
+# severity: error
+check_tsc() {
+  echo "  pre-push: tsc --noEmit 実行中..."
+  TSC_OUTPUT=$(cd app && npx tsc -p tsconfig.app.json --noEmit 2>&1 || true)
+  if echo "$TSC_OUTPUT" | grep -qE "error TS[0-9]+"; then
+    TSC_SUMMARY=$(echo "$TSC_OUTPUT" | grep -E "error TS[0-9]+" | head -1)
+    add_error \
+      "tsc 型チェック失敗: ${TSC_SUMMARY}" \
+      "  修正方法:" \
+      "    cd app && npx tsc -p tsconfig.app.json --noEmit   # 詳細確認" \
+      "  理由: noUnusedLocals / noUnusedParameters など strict 型エラーを" \
+      "        local で完結 (vite build は OOM のため tsc のみ)"
+  fi
+}
+
 # Check: lint (ESLint)
 # 学習ソース: CI fast-gate step 1
 # 理由: lint エラーは CI で必ず落ちる。ローカルで気づく機会を作る
@@ -307,6 +328,7 @@ CHECK_REGISTRY="
   check_principles_json
   check_project_metadata
   check_docs_generate
+  check_tsc
   check_lint
   check_format
   check_test_guards

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-13T02:58:26.726Z",
+  "timestamp": "2026-04-13T04:11:44.040Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -516,9 +516,9 @@
       "id": "docs.obligation.violations",
       "label": "Doc 更新義務違反数",
       "category": "docs",
-      "value": 1,
+      "value": 0,
       "unit": "count",
-      "status": "fail",
+      "status": "ok",
       "owner": "documentation-steward",
       "docRefs": [
         {
@@ -827,7 +827,7 @@
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 237,
+      "value": 240,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -851,9 +851,9 @@
   ],
   "summary": {
     "totalKpis": 39,
-    "ok": 38,
+    "ok": 39,
     "warn": 0,
-    "fail": 1,
-    "hardGatePass": false
+    "fail": 0,
+    "hardGatePass": true
   }
 }
