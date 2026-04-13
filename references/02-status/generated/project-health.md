@@ -3,7 +3,7 @@
 > **役割: 生成された project KPI 正本（生成後手編集禁止）。**
 > 規約: [`references/03-guides/project-checklist-governance.md`](../../03-guides/project-checklist-governance.md)
 
-> 生成: 2026-04-13T02:52:27.674Z
+> 生成: 2026-04-13T04:11:44.044Z
 
 ## サマリー
 
@@ -16,7 +16,7 @@
 | checkbox 空 (placeholder / 立ち上げ直後) | 0 |
 | collection (continuous, 終わらない) | 1 |
 | 全 project の required checkbox 総数 | 283 |
-| 全 project の checked checkbox 総数 | 237 |
+| 全 project の checked checkbox 総数 | 240 |
 
 ## projects
 
@@ -29,4 +29,4 @@
 | `docs-and-governance-cohesion` | ドキュメントと課題の分離 — projects/ 一元化と AAG 統合 | **archived** | 85/85 (100%) | [`projects/completed/docs-and-governance-cohesion/AI_CONTEXT.md`](../../../projects/completed/docs-and-governance-cohesion/AI_CONTEXT.md) |
 | `presentation-quality-hardening` | Presentation 品質強化 — テスト・E2E・active-debt 解消 | **in_progress** | 0/14 (0%) | [`projects/presentation-quality-hardening/AI_CONTEXT.md`](../../../projects/presentation-quality-hardening/AI_CONTEXT.md) |
 | `pure-calculation-reorg` | Pure 計算責務再編 | **in_progress** | 84/113 (74%) | [`projects/pure-calculation-reorg/AI_CONTEXT.md`](../../../projects/pure-calculation-reorg/AI_CONTEXT.md) |
-| `quick-fixes` | Quick Fixes — 文脈を必要としない単発作業の集約 | **collection** | 1/4 (25%) | [`projects/quick-fixes/AI_CONTEXT.md`](../../../projects/quick-fixes/AI_CONTEXT.md) |
+| `quick-fixes` | Quick Fixes — 文脈を必要としない単発作業の集約 | **collection** | 4/4 (100%) | [`projects/quick-fixes/AI_CONTEXT.md`](../../../projects/quick-fixes/AI_CONTEXT.md) |

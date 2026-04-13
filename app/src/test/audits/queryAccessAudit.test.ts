@@ -394,10 +394,15 @@ describe('store_day_summary 依存トラッキング', () => {
     const files = collectTsFiles(queriesDir)
     const MAX_CONSUMERS = 11
 
+    // SQL FROM 節の literal のみをカウントする。
+    // 旧 `content.includes('store_day_summary')` は JSDoc コメント内の言及まで
+    // consumer としてカウントしていたため false positive が発生していた
+    // (2026-04 freePeriodFactQueries.ts の JSDoc 追加時)。
+    const FROM_STORE_DAY_SUMMARY = /\bFROM\s+store_day_summary\b/i
     const consumers: string[] = []
     for (const file of files) {
       const content = fs.readFileSync(file, 'utf-8')
-      if (content.includes('store_day_summary') || content.includes('storeDaySummary')) {
+      if (FROM_STORE_DAY_SUMMARY.test(content)) {
         consumers.push(rel(file))
       }
     }
