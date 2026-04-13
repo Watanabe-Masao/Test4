@@ -74,7 +74,7 @@ describe('buildAnalysisFrame', () => {
     expect(() =>
       buildAnalysisFrame({
         kind: 'analysis' as const,
-      anchorRange: baseAnchor,
+        anchorRange: baseAnchor,
         storeIds: ['s1'],
         metric: 'sales',
         granularity: 'day',
@@ -87,7 +87,7 @@ describe('buildAnalysisFrame', () => {
     expect(() =>
       buildAnalysisFrame({
         kind: 'analysis' as const,
-      anchorRange: baseAnchor,
+        anchorRange: baseAnchor,
         storeIds: ['s1'],
         metric: 'sales',
         granularity: 'day',
@@ -98,7 +98,7 @@ describe('buildAnalysisFrame', () => {
     expect(() =>
       buildAnalysisFrame({
         kind: 'analysis' as const,
-      anchorRange: baseAnchor,
+        anchorRange: baseAnchor,
         storeIds: ['s1'],
         metric: 'sales',
         granularity: 'day',
@@ -112,7 +112,7 @@ describe('buildAnalysisFrame', () => {
     expect(() =>
       buildAnalysisFrame({
         kind: 'analysis' as const,
-      anchorRange: baseAnchor,
+        anchorRange: baseAnchor,
         storeIds: ['s1'],
         metric: 'sales',
         granularity: 'day',

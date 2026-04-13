@@ -378,7 +378,9 @@ describe('buildDailyCostInclusionData', () => {
       [1, makeRecord()],
       [
         2,
-        makeRecord({ costInclusion: { cost: 100, total: 100, items: [] } } as unknown as Partial<DailyRecord>),
+        makeRecord({
+          costInclusion: { cost: 100, total: 100, items: [] },
+        } as unknown as Partial<DailyRecord>),
       ],
     ]
     const result = buildDailyCostInclusionData(days)

@@ -40,9 +40,9 @@ describe('normalizeRecordStoreIds', () => {
       categoryTimeSales: { records: [] },
     }
     const result = normalizeRecordStoreIds(data)
-    expect(
-      (result.classifiedSales.records[0] as unknown as { storeName: string }).storeName,
-    ).toBe('Store A')
+    expect((result.classifiedSales.records[0] as unknown as { storeName: string }).storeName).toBe(
+      'Store A',
+    )
   })
 
   it('既に storeName がある場合は上書きしない', () => {
@@ -52,9 +52,9 @@ describe('normalizeRecordStoreIds', () => {
       categoryTimeSales: { records: [] },
     }
     const result = normalizeRecordStoreIds(data)
-    expect(
-      (result.classifiedSales.records[0] as unknown as { storeName: string }).storeName,
-    ).toBe('Existing')
+    expect((result.classifiedSales.records[0] as unknown as { storeName: string }).storeName).toBe(
+      'Existing',
+    )
   })
 
   it('categoryTimeSales の storeName → id 変換', () => {
