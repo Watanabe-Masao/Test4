@@ -83,10 +83,13 @@ export default defineConfig({
         // - 2026-04-13 Step 3-14: 36 → 37 (累積 +2.03 で ratchet up)
         //   (MonthSelector / WeatherBadge / ValidationModal / ErrorBoundary /
         //    ForecastBadge / ImportWizard の 6 component test 追加)
+        // - 2026-04-13 Step 3-37: 37 → 45 (Wave 1〜7 pure function bulk で
+        //    coverage 36.31 → 46.70 / margin 9+ pt の安全 ratchet up、
+        //    PR #1023〜#1025 で約 2,300 件の test を追加した実績)
         // - 目標: 70 (Phase 3 完了時)
         // - 詳細: projects/presentation-quality-hardening/HANDOFF.md §2 Step 4
         // - 不可侵原則 #1: 機械的引き上げ禁止 = test 追加と並行する
-        lines: 37,
+        lines: 45,
         'src/domain/calculations/**': {
           lines: 80,
         },

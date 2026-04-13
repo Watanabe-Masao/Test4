@@ -1413,4 +1413,13 @@ export const EXECUTION_OVERLAY: ExecutionOverlay = {
       reviewCadenceDays: 90,
     },
   },
+  "AR-TSIG-TEST-04": {
+    fixNow: "now",
+    executionPlan: { effort: "small", priority: 1 },
+    reviewPolicy: {
+      owner: "solo-maintainer",
+      lastReviewedAt: "2026-04-13",
+      reviewCadenceDays: 90,
+    },
+  },
 };

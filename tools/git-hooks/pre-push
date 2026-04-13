@@ -225,24 +225,34 @@ check_docs_generate() {
     "  修正方法: cd app && npm run docs:generate"
 }
 
-# Check: tsc 型チェック (tsconfig.app.json)
-# 学習ソース: 2026-04 AAG 5.1 release 直後、CI で TS6133 (project-checklist-collector の
-#             未使用宣言) が検出された。noUnusedLocals / noUnusedParameters 違反を
-#             local で完結させる仕組みが欠けていた
+# Check: tsc 型チェック (project references を辿る `tsc -b`)
+# 学習ソース:
+#   - 2026-04 AAG 5.1 release 直後、CI で TS6133 (project-checklist-collector の
+#     未使用宣言) が検出された。noUnusedLocals / noUnusedParameters 違反を
+#     local で完結させる仕組みが欠けていた
+#   - 2026-04-13 PR #1024: pre-push の `tsc -p tsconfig.app.json --noEmit` は
+#     通過したのに CI の `tsc -b && vite build` で fail (TS2786 / TS2578 の
+#     test ファイル型エラー)。pre-push と CI の divergence が発生した
 # 理由: strict 型エラー (noUnusedLocals / noUnusedParameters 等) を local で検出。
-#       vite build 自体は OOM するため tsc --noEmit のみ走らせる
+#       `tsc -b` は project references を辿るため CI の `tsc -b && vite build`
+#       と同じ範囲をカバーする。`vite build` 自体は OOM するため省略する。
+# 不可侵原則: 「pre-push を通過したら CI の tsc 部分も通過する」を維持する。
 # severity: error
 check_tsc() {
-  echo "  pre-push: tsc --noEmit 実行中..."
-  TSC_OUTPUT=$(cd app && npx tsc -p tsconfig.app.json --noEmit 2>&1 || true)
+  echo "  pre-push: tsc -b --noEmit 実行中..."
+  # tsc -b --noEmit: tsconfig.json の references 経由で tsconfig.app.json と
+  # tsconfig.node.json の両方をチェック (vite.config.ts / vitest.config.ts も含む)
+  TSC_OUTPUT=$(cd app && NODE_OPTIONS="--max-old-space-size=4096" npx tsc -b --noEmit 2>&1 || true)
   if echo "$TSC_OUTPUT" | grep -qE "error TS[0-9]+"; then
     TSC_SUMMARY=$(echo "$TSC_OUTPUT" | grep -E "error TS[0-9]+" | head -1)
     add_error \
       "tsc 型チェック失敗: ${TSC_SUMMARY}" \
       "  修正方法:" \
-      "    cd app && npx tsc -p tsconfig.app.json --noEmit   # 詳細確認" \
+      "    cd app && npx tsc -b --noEmit   # 詳細確認 (project references を辿る)" \
       "  理由: noUnusedLocals / noUnusedParameters など strict 型エラーを" \
-      "        local で完結 (vite build は OOM のため tsc のみ)"
+      "        local で完結 (CI の \`tsc -b && vite build\` 相当)。" \
+      "        PR #1024 で pre-push を通過したのに CI で fail した教訓から" \
+      "        pre-push でも project references を辿るように変更済"
   fi
 }
 
