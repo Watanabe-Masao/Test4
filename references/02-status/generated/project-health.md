@@ -3,26 +3,27 @@
 > **役割: 生成された project KPI 正本（生成後手編集禁止）。**
 > 規約: [`references/03-guides/project-checklist-governance.md`](../../03-guides/project-checklist-governance.md)
 
-> 生成: 2026-04-14T12:21:33.027Z
+> 生成: 2026-04-14T13:42:30.223Z
 
 ## サマリー
 
 | 指標 | 値 |
 |---|---|
-| active project 数（archive 未実施を含む） | 5 |
+| active project 数（archive 未実施を含む） | 6 |
 | archived project 数 | 5 |
-| in_progress project 数 | 4 |
+| in_progress project 数 | 5 |
 | checklist 完了済みだが archive 未実施 | 0 |
 | checkbox 空 (placeholder / 立ち上げ直後) | 0 |
 | collection (continuous, 終わらない) | 1 |
-| 全 project の required checkbox 総数 | 368 |
-| 全 project の checked checkbox 総数 | 286 |
+| 全 project の required checkbox 総数 | 404 |
+| 全 project の checked checkbox 総数 | 291 |
 
 ## projects
 
 | projectId | title | derivedStatus | progress | entrypoint |
 |---|---|---|---|---|
 | `aag-collector-purification` | AAG collector 純化 — 規約と実装の対称性回復 | **archived** | 28/28 (100%) | [`projects/completed/aag-collector-purification/AI_CONTEXT.md`](../../../projects/completed/aag-collector-purification/AI_CONTEXT.md) |
+| `aag-format-redesign` | AAG フォーマット改修とサブプロジェクト機能 | **in_progress** | 5/36 (14%) | [`projects/aag-format-redesign/AI_CONTEXT.md`](../../../projects/aag-format-redesign/AI_CONTEXT.md) |
 | `aag-rule-splitting-execution` | AAG ルール分割実行 — AR-STRUCT-RESP-SEPARATION 7 分割 | **archived** | 17/17 (100%) | [`projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md`](../../../projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md) |
 | `architecture-decision-backlog` | アーキテクチャ判断 backlog — 未決定の設計判断 | **archived** | 1/1 (100%) | [`projects/completed/architecture-decision-backlog/AI_CONTEXT.md`](../../../projects/completed/architecture-decision-backlog/AI_CONTEXT.md) |
 | `data-load-idempotency-hardening` | データロード冪等化 — 残存防御の固定化 | **archived** | 21/21 (100%) | [`projects/completed/data-load-idempotency-hardening/AI_CONTEXT.md`](../../../projects/completed/data-load-idempotency-hardening/AI_CONTEXT.md) |

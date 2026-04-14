@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-14T12:21:33.024Z",
+  "timestamp": "2026-04-14T13:42:30.220Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -545,7 +545,7 @@
         }
       ],
       "implRefs": [
-        "projects/pure-calculation-reorg/aag/execution-overlay.ts"
+        "projects/aag-format-redesign/aag/execution-overlay.ts"
       ],
       "budget": 92
     },
@@ -578,7 +578,7 @@
       "owner": "architecture",
       "docRefs": [],
       "implRefs": [
-        "projects/pure-calculation-reorg/aag/execution-overlay.ts"
+        "projects/aag-format-redesign/aag/execution-overlay.ts"
       ],
       "budget": 0
     },
@@ -682,7 +682,7 @@
       "id": "project.checklist.activeCount",
       "label": "active project 数（archive 未実施を含む）",
       "category": "docs",
-      "value": 5,
+      "value": 6,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -694,6 +694,7 @@
       ],
       "implRefs": [
         "projects/completed/aag-collector-purification/checklist.md",
+        "projects/aag-format-redesign/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
         "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/data-load-idempotency-hardening/checklist.md",
@@ -740,6 +741,7 @@
       ],
       "implRefs": [
         "projects/completed/aag-collector-purification/checklist.md",
+        "projects/aag-format-redesign/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
         "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/data-load-idempotency-hardening/checklist.md",
@@ -755,7 +757,7 @@
       "id": "project.checklist.inProgressCount",
       "label": "in_progress な project 数（open required checkbox あり）",
       "category": "docs",
-      "value": 4,
+      "value": 5,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -767,6 +769,7 @@
       ],
       "implRefs": [
         "projects/completed/aag-collector-purification/checklist.md",
+        "projects/aag-format-redesign/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
         "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/data-load-idempotency-hardening/checklist.md",
@@ -795,6 +798,7 @@
       ],
       "implRefs": [
         "projects/completed/aag-collector-purification/checklist.md",
+        "projects/aag-format-redesign/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
         "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/data-load-idempotency-hardening/checklist.md",
@@ -811,7 +815,7 @@
       "id": "project.checklist.totalCheckboxes",
       "label": "全 project の required checkbox 総数",
       "category": "docs",
-      "value": 368,
+      "value": 404,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -823,6 +827,7 @@
       ],
       "implRefs": [
         "projects/completed/aag-collector-purification/checklist.md",
+        "projects/aag-format-redesign/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
         "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/data-load-idempotency-hardening/checklist.md",
@@ -838,7 +843,7 @@
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 286,
+      "value": 291,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -850,6 +855,7 @@
       ],
       "implRefs": [
         "projects/completed/aag-collector-purification/checklist.md",
+        "projects/aag-format-redesign/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
         "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/data-load-idempotency-hardening/checklist.md",

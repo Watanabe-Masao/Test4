@@ -1,0 +1,14 @@
+{
+  "projectId": "aag-format-redesign",
+  "title": "AAG フォーマット改修とサブプロジェクト機能",
+  "status": "active",
+  "projectRoot": "projects/aag-format-redesign",
+  "overlayRoot": "projects/aag-format-redesign/aag",
+  "overlayEntry": "projects/aag-format-redesign/aag/execution-overlay.ts",
+  "entrypoints": {
+    "aiContext": "projects/aag-format-redesign/AI_CONTEXT.md",
+    "handoff": "projects/aag-format-redesign/HANDOFF.md",
+    "plan": "projects/aag-format-redesign/plan.md",
+    "checklist": "projects/aag-format-redesign/checklist.md"
+  }
+}
