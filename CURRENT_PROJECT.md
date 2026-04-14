@@ -1,5 +1,5 @@
 # Current Project
 
-active: pure-calculation-reorg
+active: unify-period-analysis
 
-entry: `projects/pure-calculation-reorg/AI_CONTEXT.md`
+entry: `projects/unify-period-analysis/AI_CONTEXT.md`

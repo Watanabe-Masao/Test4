@@ -23,6 +23,8 @@ import type { CurrentCtsQuantity } from '@/application/hooks/useCtsQuantity'
 import type { CostDetailData } from '@/presentation/pages/CostDetail/useCostDetailData'
 import type { CurrencyFormatter } from '@/presentation/components/charts/chartTheme'
 import type { WidgetDataOrchestratorResult } from '@/application/hooks/useWidgetDataOrchestrator'
+import type { FreePeriodAnalysisFrame } from '@/domain/models/AnalysisFrame'
+import type { FreePeriodAnalysisBundle } from '@/application/hooks/useFreePeriodAnalysisBundle'
 
 export type WidgetSize = 'kpi' | 'half' | 'full'
 
@@ -108,6 +110,26 @@ export interface UnifiedWidgetContext {
   // ── 正本化 readModels（orchestrator 経由） ──
   /** 3正本（purchaseCost / salesFact / discountFact）の統合ビュー */
   readonly readModels?: WidgetDataOrchestratorResult
+
+  // ── 自由期間分析レーン（unify-period-analysis Phase 1） ──
+  /**
+   * 自由期間分析レーンの統合ビュー。
+   *
+   * - `frame`: `buildFreePeriodFrame(PeriodSelection → FreePeriodAnalysisFrame)`
+   *   の結果。入力契約。widget はこの frame を通して期間・店舗・比較条件を
+   *   参照し、`usePeriodSelectionStore` を直接 import しない
+   * - `bundle`: `useFreePeriodAnalysisBundle(executor, frame)` の結果。
+   *   fact / budget / deptKPI の 3 readModel を束ねた取得ビュー
+   *
+   * 既存の `readModels`（orchestrator 経由）と並置されており、widget は
+   * 段階的に本レーン経由へ移行する。将来的に Phase 6（段階的画面載せ替え）で
+   * `readModels` と統合または置換する前提で、共通の 1 フィールドにネストして
+   * 表現する（AR-003: shared hub の肥大化防止ルール対応）。
+   */
+  readonly freePeriodLane?: Readonly<{
+    frame: FreePeriodAnalysisFrame | null
+    bundle: FreePeriodAnalysisBundle
+  }> | null
 
   // ── 比較期間入力（ページレベル DualPeriodSlider から） ──
   /** ページレベルで統一された比較期間。DualPeriod 専用フィールド */
