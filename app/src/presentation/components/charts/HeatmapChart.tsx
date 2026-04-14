@@ -98,7 +98,13 @@ export const HeatmapChart = memo(function HeatmapChart({
     [matrixRows, prevMatrixRows],
   )
 
-  const hasPrevData = (prevMatrixRows?.length ?? 0) > 0
+  // 比較期モードのトグル表示条件は「親が prevYearScope を渡しているか」で判定する。
+  // query 結果の rows 有無 (`prevMatrixRows.length > 0`) で判定すると、前年データが
+  // DuckDB 未ロードだったり検索結果が空だったりする一瞬でトグルが消えてしまい、
+  // 「比較期増減のボタンが表示されない」と見える。ユーザーの比較意図は
+  // periodSelection → prevYearScope で表現されるため、この prop で判定するのが正しい。
+  // データが本当に無いときは diffMap 側で各セルが "-" で描画される。
+  const canCompare = prevYearScope != null
 
   const wrappedSetDept = (code: string) => {
     setDeptCode(code)
@@ -147,7 +153,7 @@ export const HeatmapChart = memo(function HeatmapChart({
       guide={CHART_GUIDES['heatmap-hour-dow']}
       ariaLabel="時間帯×曜日ヒートマップ"
       toolbar={
-        hasPrevData ? (
+        canCompare ? (
           <TabGroup>
             <Tab $active={isAmountMode} onClick={() => setHeatmapMode('amount')}>
               売上金額
