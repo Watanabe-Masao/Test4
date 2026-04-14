@@ -60,7 +60,11 @@ Phase 0 の棚卸しで場所と件数を固定してから Phase 2 に進む。
 |---|---|
 | `AI_CONTEXT.md` | project の why / scope / read order |
 | `plan.md` | 不可侵原則と Phase 構造 |
-| `checklist.md` | 完了判定の入力 |
+| `checklist.md` | 完了判定の入力 (機械判定用 required set) |
+| `pr-breakdown.md` | PR 1〜5 の作業単位書 |
+| `review-checklist.md` | A〜J カテゴリ別の総括レビュー観点 |
+| `acceptance-suite.md` | Critical Path Acceptance Suite の設計 |
 | `references/01-principles/free-period-analysis-definition.md` | 自由期間分析の正本定義 |
 | `references/01-principles/data-pipeline-integrity.md` | 額 / 率の分離原則 |
+| `references/01-principles/critical-path-safety-map.md` | Safety Tier 分類 |
 | `references/03-guides/runtime-data-path.md` | 正本 lane / Screen Plan lane |

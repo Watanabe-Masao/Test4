@@ -14,6 +14,13 @@
 * [ ] 自由期間系 SQL で rate (discountRate / gpRate / markupRate) を計算している箇所を全件リスト化する
 * [ ] `HeaderFilterState` を直接参照している hook / component を全件リスト化する
 
+## Phase 0.5: Critical Path Acceptance Suite 骨格
+
+* [ ] `app/src/test/fixtures/freePeriod/` に golden fixture (3-5 店舗 / 10-20 日) を配置する
+* [ ] 代表 5 ケース (今月比較なし / 今月vs前月 / 今月vs前年 / 月跨ぎ自由期間 / 店舗subset+fallback) の骨格テストを追加する
+* [ ] Suite が frame / rows / summary / provenance / fallback の 5 項目を固定で比較する構造になっている
+* [ ] preset と free-period 入力で同じ内部レーンを通ることを確認するテストがある
+
 ## Phase 1: 入力契約統一
 
 * [ ] `HeaderFilterState → FreePeriodAnalysisFrame` adapter を 1 箇所に実装する

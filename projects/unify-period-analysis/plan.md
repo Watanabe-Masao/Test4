@@ -84,6 +84,17 @@ SQL / JS 二重実装を排除する。
 
 完了条件: 対象画面の内部レーンが統一されている。
 
+## Critical Path Acceptance Suite（横串の受け入れテスト層）
+
+PR 1〜5 の実装順計画とは別に、`DB → handler → summary → read model → VM`
+を通した意味の整合性を監視する受け入れテスト層を追加する。詳細は
+`acceptance-suite.md` を参照。
+
+- 固定期間 preset と自由期間 frame の両方から、同じ代表 5 ケースを流し込む
+- frame / rows / summary / provenance / fallback を固定で比較する
+- PR 0（事前）として骨格を先に入れ、PR 1〜5 の各段階で期待値を拡張する
+- Tier A（自由期間）/ Tier B（比較意味論）の critical path safety map 準拠
+
 ## やってはいけないこと
 
 - **UI 先行移行** → 比較意味論が漏れて事故が増える。Phase 1→2→3 を先に完了する。
