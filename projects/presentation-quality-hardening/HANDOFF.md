@@ -4,21 +4,84 @@
 
 ## 1. 現在地
 
-**Phase 1〜3 (E2E 拡充まで) は完了済み。残るは Phase 3 の coverage 拡充 +
-component test 追加 + 閾値引き上げ + test:e2e CI 検証 (5 checkbox)。**
+**Phase 1〜3 (E2E 拡充まで) は完了済み。Phase 3 の Step 3-15〜3-37 で pure
+function bulk wave (PR #1023〜#1025) を投入し coverage 38.69 → 46.70 (+8.01)。
+残るは Phase 3 の component test 追加 + 閾値段階引き上げ + test:e2e CI 検証
+(4 checkbox + 閾値 ratchet)。**
 
-完了済 (PR #1020 マージ済):
+完了済 (PR #1020 / #1023〜#1025 マージ済):
 
 - Phase 1: WeatherPage active-debt 解消 (4/4) — `useWeatherDaySelection` 抽出済
 - Phase 2: 500 行超コンポーネントの `.vm.ts` 抽出 (4/4)
   - HourlyChart.tsx: 501 → 486 行 (`buildHourlySummaryStats` + `formatSelectedHoursLabel`)
   - InsightTabBudget.tsx: 581 → 342 行 (`GrossProfitTabContent` を `InsightTabGrossProfit.tsx` に切り出し)
   - InsightTabForecast.tsx: 514 → 368 行 (`DecompositionTabContent` を `InsightTabDecomposition.tsx` に切り出し)
-- Phase 3 部分: E2E spec 4 件 → 12 件 (全 10 standard ページ網羅)
+- Phase 3 部分:
+  - E2E spec 4 件 → 12 件 (全 10 standard ページ網羅)
+  - Step 3-1〜3-14: vm/component test 段階追加で coverage 35.01 → 36.31 (閾値 36→37)
+  - **Step 3-15〜3-37 (本セッション)**: pure function bulk wave で coverage **36.31 → 46.70** (+10.39 pt)
+    - 7 wave / 約 2,300 件の新規 test (全 green)
+    - 詳細は `projects/test-signal-integrity/HANDOFF.md §5.3` の同期間ログ参照
 
 derivedStatus: in_progress / 9 of 15 (60%)
 
-## 2. 次にやること — 観測期間 (Phase 3 残 5 checkbox + test-signal-integrity 検証)
+**閾値 ratchet up の機会 (未実施)**: 現 vitest threshold は **lines: 37**、
+現実値 **46.70**。margin 9+ pt あり、不可侵原則 #1 に従って **45 (or 46)** まで
+安全に引き上げられる。本セッションでは閾値変更コミットは未実施 (separate
+decision として保留)。次の作業者 (or 人間レビュー時) に判断を委ねる。
+
+## 2. 次にやること — Phase 3 残作業 (本セッション後の更新)
+
+### 戦略の確定 (本セッションの実証で更新)
+
+Step 3-3 で立てた仮説「component test の方が pure function test の 5x 効率」は、
+本セッションの **反対実験** (~2,300 件の pure function を投入) で **完全に正当化**
+された:
+
+| 種別 | 概算 tests | Coverage delta | per-test 効率 |
+|---|---|---|---|
+| Pure function (Step 3-15〜3-37) | ~2,300 | +8.01 pt | **0.0035** |
+| Component test (Step 3-4〜3-9 平均) | 82 | +1.06 pt | **0.013** = **3.7x** |
+
+**Pure function bulk アプローチの天井は ~46% 付近** であることが実測された。
+70% に到達するには **残り 23+ ポイントの大半は component test (presentation/**/*.tsx)
++ 大型 hook の renderHook test** で稼ぐ必要がある。
+
+### 残 4 checkbox の作業順
+
+1. **閾値 ratchet up: 37 → 45** (本セッション後の immediate action)
+   - 現実値 46.70 / margin 9+ pt あり安全
+   - separate commit で実施 (本セッションでは見送り)
+
+2. **大型 page component の test 追加** (checklist 既存項目)
+   - IntegratedSalesChart, DashboardPage, WeatherPage
+   - 各 +0.5〜2 pt の delta が期待できる
+
+3. **段階的閾値引き上げ**: 45 → 50 → 55 → 60 → 65 → 70 (test 追加と並行)
+
+4. **`npm run test:e2e` CI 通過確認**: PR #1020 で追加した 12 spec の CI 結果
+   を見るだけ
+
+### 並行課題: pre-push tsc vs CI build divergence (本セッション発見)
+
+PR #1024 で発覚: pre-push hook の tsc は通過するが CI の `tsc -b` で fail。
+
+| 場所 | 内容 |
+|---|---|
+| pre-push | `tsc --noEmit` (project 単一) |
+| CI build | `tsc -b && vite build` (project references を辿る) |
+
+**仮説**: project references の処理範囲が異なる。`tsconfig.app.json` だけだと
+test ファイルの一部型エラーが見逃される。
+
+**対応候補**:
+- pre-push の tsc を `tsc -b --noEmit` に変更
+- もしくは `tsc -p tsconfig.test.json --noEmit` を別途追加
+- 不可侵原則: 「pre-push を通過したら CI も通過する」を維持
+
+詳細は `projects/test-signal-integrity/HANDOFF.md §5.3 第 12 の発見` 参照。
+
+## 2-Legacy. (旧) 観測期間 (Phase 3 残 5 checkbox + test-signal-integrity 検証)
 
 ### 戦略の核心: 2 project の同時検証
 

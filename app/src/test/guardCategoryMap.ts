@@ -563,4 +563,9 @@ export const GUARD_CATEGORY_MAP: Readonly<Record<string, GuardCategoryEntry>> = 
     layer: 'execution',
     note: 'core-rule: Signal Integrity の unused suppress escape (multi-underscore) 禁止',
   },
+  'AR-TSIG-TEST-04': {
+    category: 'ratchet-legacy-control',
+    layer: 'execution',
+    note: 'core-rule: Signal Integrity の tautology assertion (常に true となる比較) 禁止 (Wave 1〜7 観測期間で 9+ 件発見、AR-TSIG-TEST-01 の補完)',
+  },
 } as const

@@ -585,20 +585,173 @@ Type    vm   vm   vm   comp   comp   comp   comp   comp                comp
 
 ---
 
-_(以降の観測ログを時系列で追記)_
+#### 2026-04-13 — Step 3-15〜3-37: Pure function 大量バッチ (Wave 1〜7) — 戦略の天井確認
 
-##### Coverage 進捗
+**作業**: pure function test を 7 wave に分けて大量追加。各 wave で 4 並列 sub-agent を
+動かし、合計 **約 2,300 件の新規 test** を投入。対象は domain/calculations、
+application/usecases、application/services、application/stores、infrastructure/
+storage、infrastructure/dataProcessing、infrastructure/fileImport、
+infrastructure/weather、features/comparison、features/category、features/forecast、
+features/budget、features/sales、features/purchase、presentation/components/charts、
+presentation/pages の `.vm.ts` / `.logic.ts` / `.builders.ts` / `.helpers.ts`。
+
+**目的**: presentation-quality-hardening Phase 3 (coverage 70 達成) を pure
+function だけで押し上げられるか実測。Step 3-3 の戦略変更 (component test 優先)
+の正当性を反証 / 補強する反対実験。
+
+##### Coverage 推移 (Wave 単位)
+
+| Wave | 概算 tests | Before | After | Delta | Per-test 効率 |
+|---|---|---|---|---|---|
+| 0 (40% 突破) | ~230 | 38.69 | 40.08 | +1.39 | 0.006 |
+| 1〜3 | ~850 | 40.08 | 43.53 | +3.45 | 0.004 |
+| 4 | ~400 | 43.53 | 44.25 | +0.72 | 0.0018 |
+| 5 | ~330 | 44.25 | 44.72 | +0.47 | 0.0014 |
+| 6 | ~370 | 44.72 | 46.40 | +1.68 | 0.0045 |
+| 7 | ~130 | 46.40 | **46.70** | +0.30 | 0.0023 |
+
+**累積**: 38.69 → 46.70 (**+8.01 pt**) / 約 2,300 tests = 平均 **0.0035 pt/test**
+
+##### Step 3-4 と比較した戦略の正当性
+
+| 種別 | 概算 tests | Coverage delta | per-test |
+|---|---|---|---|
+| Pure function (Wave 1〜7、本セッション) | ~2,300 | +8.01 pt | **0.0035** |
+| Component test (Step 3-4 KpiCard) | 24 | +0.20 pt | **0.0083** = **2.4x** |
+| Component test (Step 3-5〜3-9 平均) | 82 | +1.06 pt | **0.013** = **3.7x** |
+
+**結論 (反証実験の結果)**: Step 3-3 の「component test 優先」戦略は **完全に正当化**
+された。むしろ pure function bulk アプローチの **天井は ~46% 付近** であることが
+実測で確認できた (diminishing return が wave 4 以降で鮮明)。70% に到達するには
+**残り ~25 ポイントの大半は component test (presentation/**/*.tsx)** で稼ぐ必要。
+
+##### 第 9 の発見: tautology assertion 候補が決定的レベルに蓄積
+
+Wave 1〜7 で agent が生成したテストに **`expect(result).toBeDefined()` パターンが
+複数発生**。各 wave で baseline 11 → 12〜14 にスパイクし、TSIG-TEST-01 hard gate
+が連続で fire。
+
+**累計検出件数 (本セッション)**:
+- Wave 4 commit 後: baseline 11 → 14 (+3) — buildPISummary, defaults, dataConversions, conditionSummaryCardBuilders
+- Wave 5 commit 後: baseline 11 → 12 (+1) — loadComparisonDataAsync `origin.toBeTruthy()`
+- Wave 6 commit 後: baseline 11 → 14 (+3) — defaults, dataConversions, conditionSummaryCardBuilders (再発)
+
+**Step 3-9 までと合算**: tautology / existence-only 違反は **観測期間中 通算 9+ 回** に到達。
+Step 3-9 時点で「2 回踏んだら昇格優先度を上げる」基準に達していたが、本セッションで
+**5x の頻度で発生**。**AR-TSIG-TEST-04 の昇格は決定的に必要**。
+
+候補の追加検出パターン:
+- `expect(result).toBeDefined()` (元々の TSIG-TEST-01 対象)
+- `expect(result.origin).toBeTruthy()` (借入 — 中身を assert していない)
+- `expect(CONDITION_CARD_GROUP[id]).toBeDefined()` (loop 内 existence-only)
+- `expect(TABLE_COLUMNS[name]).toBeTruthy()` (同上)
+- `expect(settings.conditionConfig).toBeTruthy()` (config object の非 null だけ)
+- 新パターン: `expect(typeof result).toBe('object')` 単独 — type guard 的に
+  弱い (null も object)。**TSIG-TEST-04 候補に追加すべき**
+
+##### 第 10 の発見: agent-driven test 生成の固有アンチパターン
+
+Sub-agent が並列で生成した test 群に repeat した固有 pattern を観測:
+
+1. **重複ファイル生成**: 同じ source に対し `__tests__/<name>.test.ts` と
+   `<name>.test.ts` (sibling) の **両方** を生成。発見件数: TimeSlotChart.vm,
+   StoreHourlyChartLogic, FeatureChartLogic, categoryFactorBreakdownLogic,
+   WeatherCorrelationChart.vm, BudgetVsActualChart.vm, GrossProfitRateChart.vm,
+   forecastToolsLogic — **計 8 件**。
+   - 検出方法: `find` で同名 test が 2 path に存在
+   - **新規候補**: pre-push hook で重複 test ファイルを警告 (TSIG-ADV-05 候補)
+   - 暫定対応: 本セッションで全 8 件を手動削除
+
+2. **不正な型キャスト**: agent は `as 'literal'` を機械的に使い、`as const`
+   が正しい場面を見落とす。発見: keys.test.ts の `'summaryCache' as 'summaryCache'`
+   (eslint `prefer-as-const` で hard-block)
+   - 既存 lint rule で catch されたので新規 gate 不要
+
+3. **interface vs string literal の取り違え**: `DataOrigin` (interface) を
+   `'upload'` (string literal) として渡す pattern。tsc が catch。
+   - **学び**: pre-push の tsc が機能している証拠 (CI build 不要)
+
+4. **Function signature mismatch**: `CurrencyFormatter` (`(v: number | null) => string`)
+   を `(v: number) => string` で実装。tsc 必須。発見: 複数 vm.test.ts
+
+5. **enum value typo**: `'sameDate'` (alignment mode) と `'yoy'` (ComparisonMode)
+   を取り違え。tsc が catch。
+   - **学び**: 名前空間の似た enum を agent は混同しやすい
+
+##### 第 11 の発見: check_format_added_files の**継続的有効性**
+
+本セッション中に `check_format_added_files` が **8+ 回** push を block。
+agent 生成ファイルはほぼ毎回 prettier 未整形で push されようとする。
+
+**観測の意義**: PR #1015 で commit 7b29219 として追加した「新規追加ファイル strict
+format gate」は、agent-driven 開発時代に **より重要に**。
+- agent は formatting に頓着しない (model output は task に集中)
+- gate がないと CI で失敗 → push 不能ループに陥る
+- gate があれば local で `npm run format` 1 行で解決
+
+→ **gate を維持すべき強い根拠** (deprecate しない)。
+
+##### 第 12 の発見: pre-push tsc と CI build の divergence (新規調査項目)
+
+PR #1024 で初めて発覚:
+- pre-push hook の tsc は通過
+- CI の `npm run build` (= `tsc -b && vite build`) で失敗
+  - `ErrorBoundary.test.tsx`: TS2786 (Thrower の return 型推論)
+  - `SegmentedControl.test.tsx`: TS2578 (unused @ts-expect-error)
+
+**仮説**: pre-push の tsc は `tsconfig.app.json` のみ。CI の `tsc -b` は
+project references を辿って test ファイルも含めた完全チェックを行う。
+
+**ルール側のアクション (新規候補)**:
+- 📝 pre-push の tsc を `tsc -b --noEmit` に変更して project references を辿るか調査
+- 📝 もしくは `tsc -p tsconfig.test.json --noEmit` を別途追加
+- 📝 不可侵原則として「pre-push を通過したら CI も通過する」を維持すべき
+
+##### 第 13 の発見: dead file (aggregationUtilities.ts)
+
+`src/application/query-bridge/aggregationUtilities.ts` (190 行) が
+**どこからも import されていない死コード**であることを test 作成中に発見。
+test 自体は書けたが、source ファイルの `@/domain/calculations/utils` import が
+解決失敗 (vitest cache の問題? ではなく実際に死コードだった)。
+
+調査結果:
+- `grep -rn "from '@/application/query-bridge/aggregationUtilities'"` → 0 hit
+- 機能は `src/application/query-bridge/rawAggregation.ts` に重複実装されている
+- rawAggregation.ts には既存 test あり (`src/domain/calculations/rawAggregation.test.ts`)
+
+**ルール側のアクション**:
+- 📝 Discovery Review 候補: aggregationUtilities.ts の archive 提案
+- 📝 一般化候補: dead file 検出 guard (静的 import grep + entry-point reachability)
+
+##### 累積成果 (Wave 1〜7)
+
+- Pure function tests: ~2,300 件追加 (全 green)
+- Coverage: 38.69 → 46.70 (+8.01 pt)
+- TSIG-TEST-01 hard gate 発火: 計 6 commit cycle 以上で機能実証
+- AR-TSIG-TEST-04 候補: 検出 9+ 件、昇格根拠が決定的に
+- check_format_added_files 発火: 8+ 回、有効性継続実証
+- 新規アンチパターン候補: agent-specific 5 種類を発見 (重複ファイル / type cast / signature / enum / interface)
+- pre-push vs CI tsc divergence: 調査タスク化
+- Dead file: 1 件発見 (Discovery Review 候補)
+
+**Phase 3 戦略の確定 (本セッションで実証完了)**:
+
+> Pure function bulk アプローチの天井は ~46% 付近。残り 24 ポイントは
+> presentation/**/*.tsx の component test と、useDuckDB / usePeriodAwareKpi
+> 等の大型 hook の renderHook test でしか到達できない。
+
+##### Coverage 進捗 (本セッション含む全景)
 
 ```
-35.01% (baseline) → 35.05% (Step 3-1〜3-3 後) → 35.25% (Step 3-4 後)
-                        ↑ +0.04             ↑ +0.20
-                        vm test x3           component test x1 (5x 効率)
+Step    3-1  3-2  3-3  3-4    3-5    3-6    3-7    3-8       3-9  3-10〜3-14  3-15〜3-37 (本セッション)
+Cov     35.0 35.0 35.0 35.25  35.43  35.65  35.94  36.08→36  36.31  →37 (5 cmp)  46.70 (~2300 pure fn)
+                                                  ratchet ↑                       (5 wave + manual)
+Type    vm   vm   vm   comp   comp   comp   comp   comp      comp                 pure fn bulk
 ```
 
-70% までの距離: 35.25% → 70.00% = **34.75 ポイント不足**。
-component test を `+0.20 / file` ペースで追加するなら **約 174 file 必要**。
-ただし大きい component (Modal / Toast / pages) は +0.5〜2% を期待できる。
-段階的閾値引き上げ (35 → 40 → 50 → 60 → 70) で進捗を可視化する。
+**閾値 ratchet up の機会**: 現 36→37 (Step 3-14 時点)、現実値 46.70。
+margin 7+ ポイントあり、threshold を 45 まで安全に上げられる。
+(本セッションでは threshold 変更コミットは未実施 — separate decision として残す)
 
 ---
 

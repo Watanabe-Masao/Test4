@@ -5120,4 +5120,53 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       ],
     },
   },
+
+  {
+    slice: 'governance-ops',
+    id: 'AR-TSIG-TEST-04',
+    principleRefs: ['G1'],
+    ruleClass: 'invariant',
+    guardTags: ['G1'],
+    epoch: 1,
+    doc: 'references/01-principles/test-signal-integrity.md',
+    what: 'tautology assertion (常に true となる比較) を禁止する',
+    why: '`expect(arr.length).toBeGreaterThanOrEqual(0)` や `expect(true).toBe(true)` 等の常に true となる assertion は実質 no-op であり、test が壊れないことを保証してしまう。observation 期間中に 9+ 件発見され、TSIG-TEST-01 と同じ False Green / Review Misleading を引き起こす',
+    correctPattern: {
+      description: '具体的な値・件数・分岐結果を assert する',
+      example:
+        "it('returns at least one match', () => { expect(arr.length).toBeGreaterThan(0) })",
+    },
+    outdatedPattern: {
+      description:
+        '常に true となる比較: length >= 0 / x > -Infinity / true === true / 同一リテラルの比較',
+      codeSignals: [
+        'expect(...).toBeGreaterThanOrEqual(0)',
+        'expect(true).toBe(true)',
+        'expect(false).toBe(false)',
+      ],
+    },
+    decisionCriteria: {
+      when: '新規テストを書くとき / 既存テストをレビューするとき',
+      exceptions:
+        'なし。常に true となる assertion は test の欠陥であり例外を認めない',
+      escalation:
+        '具体的な期待値に書き換える。書けないなら test を削除する',
+    },
+    detection: { type: 'custom', severity: 'gate', baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        '1. tautology assertion を含む it() ブロックを特定する',
+        '2. assert したい具体的な期待値 (件数・分岐結果) に書き換える',
+        '3. それでも書けないなら test を削除する',
+      ],
+    },
+    sunsetCondition:
+      'TSIG-TEST-04 violation が 6 ヶ月間 0 件で推移し、新規 test 追加時の advisory も自己点検不要と判断された',
+    protectedHarm: {
+      prevents: [
+        'False Green: 常に true な assertion が test を「壊れない」状態に固定',
+        'Review Misleading: assertion が形式上存在することでレビュアーが品質確保されたと誤認',
+      ],
+    },
+  },
 ] as const satisfies readonly BaseRule[]

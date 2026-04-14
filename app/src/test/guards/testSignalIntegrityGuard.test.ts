@@ -303,6 +303,110 @@ describe('TSIG-COMP-03: unused suppress escape (multi-underscore)', () => {
   })
 })
 
+// ─── TSIG-TEST-04: tautology assertion 検出 ──────────────
+//
+// 上位原則: references/01-principles/test-signal-integrity.md
+//
+// 常に true となる比較を禁止する。観測期間中 (Wave 1〜7) に 9+ 件発見され、
+// AR-TSIG-TEST-04 として昇格。
+//
+// 検出パターン:
+// 1. expect(<expr>.length).toBeGreaterThanOrEqual(0) — Array/String length は常に >= 0
+// 2. expect(<expr>.size).toBeGreaterThanOrEqual(0) — Map/Set size は常に >= 0
+// 3. expect(true).toBe(true) — リテラル恒真比較
+// 4. expect(false).toBe(false) — リテラル恒真比較
+//
+// 除外:
+// - コメント行 (`//` または `*` で始まる行)
+// - 本 guard 自身 (検出パターンを文字列として含むため)
+//
+// EXCLUDED_FILES に追加された file は guard 全体から除外される (本 guard
+// 自身) が、TSIG-TEST-04 では追加で「guard test 内の `expect(true).toBe(true)`」
+// を除外する。これは guard test が console.log 等の side-effect を assertion
+// する際の慣用パターンであり、意味的に「副作用が起こったこと」を assert している。
+//
+// 参考: architectureRuleGuard.test.ts 等の `expect(true).toBe(true)` は
+// console.log で audit 情報を出力した後の placeholder assertion として
+// 使用されている (12 件)。これらは Phase 3 観測期間中に発見された legacy
+// pattern として ratchet-down baseline で許容する。
+
+/**
+ * TSIG-TEST-04 legacy baseline (Wave 1〜7 観測期間で発見した既存違反数)
+ *
+ * 内訳:
+ * - architectureRuleGuard.test.ts: 12 件 (audit console.log 後の placeholder)
+ * - useCostDetailData.helpers.test.ts: 1 件 (`result.length >= 0`)
+ * - divisorRules.test.ts: 1 件
+ * - dbHelpers.test.ts: 1 件
+ * - responsibilityTagGuard.test.ts: 1 件
+ * - migrationTagGuard.test.ts: 1 件
+ *
+ * 合計 17 件。一括修正は scope 過多のため ratchet-down baseline 方式で許容し、
+ * 新規追加は block する。
+ *
+ * **減らせたら本定数を更新してベースラインを下げる**。
+ */
+const TSIG_TEST_04_LEGACY_BASELINE = 17
+
+describe('TSIG-TEST-04: tautology assertion がない', () => {
+  // 検出 pattern を 1 つの集合関数に集約 (regex を `it` 間で共有)
+  const collectTautologyViolations = (): string[] => {
+    const violations: string[] = []
+    const testFiles = collectTestFiles(SRC_DIR)
+
+    // (a) expect(<expr>.length|.size).toBeGreaterThanOrEqual(0)
+    const lengthSizePattern = /expect\([^)]*\.(length|size)\)\.toBeGreaterThanOrEqual\(0\)/
+    // (b) expect(true).toBe(true)
+    const trueTruePattern = /expect\(true\)\.toBe\(true\)/
+    // (c) expect(false).toBe(false)
+    const falseFalsePattern = /expect\(false\)\.toBe\(false\)/
+
+    for (const file of testFiles) {
+      const relPath = rel(file)
+      if (isExcluded(relPath)) continue
+
+      const content = fs.readFileSync(file, 'utf-8')
+      const lines = content.split('\n')
+
+      for (let i = 0; i < lines.length; i++) {
+        const trimmed = lines[i].trim()
+        // コメント行は除外
+        if (trimmed.startsWith('//') || trimmed.startsWith('*')) continue
+
+        if (
+          lengthSizePattern.test(lines[i]) ||
+          trueTruePattern.test(lines[i]) ||
+          falseFalsePattern.test(lines[i])
+        ) {
+          violations.push(`${relPath}:${i + 1}: ${trimmed.slice(0, 100)}`)
+        }
+      }
+    }
+    return violations
+  }
+
+  it('tautology assertion 違反が legacy baseline を超えない (ratchet-down)', () => {
+    const violations = collectTautologyViolations()
+    const message =
+      `[AR-TSIG-TEST-04] tautology assertion violations: ${violations.length} ` +
+      `(legacy baseline: ${TSIG_TEST_04_LEGACY_BASELINE})\n` +
+      `${formatViolationMessage(getRuleById('AR-TSIG-TEST-04')!, violations)}\n` +
+      `\n本 baseline は Wave 1〜7 観測期間 (2026-04-13) で炙り出された legacy ${TSIG_TEST_04_LEGACY_BASELINE} 件を許容している。\n` +
+      `新規追加された違反は block される。減らせたら TSIG_TEST_04_LEGACY_BASELINE を更新する。`
+    expect(violations.length, message).toBeLessThanOrEqual(TSIG_TEST_04_LEGACY_BASELINE)
+  })
+
+  it('legacy baseline が現状より大きすぎない (ratchet-down が stale していない)', () => {
+    const violations = collectTautologyViolations()
+    const slack = TSIG_TEST_04_LEGACY_BASELINE - violations.length
+    const message =
+      `TSIG_TEST_04_LEGACY_BASELINE (${TSIG_TEST_04_LEGACY_BASELINE}) が現在の violations 数 (${violations.length}) より ${slack} 件多い。\n` +
+      `baseline を ${violations.length} に下げてください (ratchet-down の更新)。\n` +
+      `app/src/test/guards/testSignalIntegrityGuard.test.ts の TSIG_TEST_04_LEGACY_BASELINE を更新する。`
+    expect(slack, message).toBeLessThan(5)
+  })
+})
+
 // ─── Self-test: 検出 regex の動作検証 (Phase 5 運用着地確認) ──────────────
 //
 // 上位原則: references/01-principles/test-signal-integrity.md
