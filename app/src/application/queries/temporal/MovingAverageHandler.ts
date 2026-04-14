@@ -109,14 +109,17 @@ export const movingAverageHandler: QueryHandler<MovingAverageInput, MovingAverag
     const anchorSeries = sliceToAnchorRange(maSeries, frame.anchorRange)
 
     // 7. extraMetrics（同じ sourceRows から追加メトリックの MA を計算）
+    //
+    // extraMetrics は primary metric と同じ policy を使用する。前年スコープでは
+    // 'strict' を渡すことで、lead-in 未ロードの日が前年 MA の先頭 6 日を
+    // 汚染するのを防ぐ（#前年 MA bug）。当年スコープでは caller 側の希望
+    // （strict / partial）がそのまま使われる。
     let extraSeries: Record<string, readonly DailySeriesPoint[]> | undefined
     if (input.extraMetrics && input.extraMetrics.length > 0) {
       extraSeries = {}
       for (const metric of input.extraMetrics) {
         const series = buildDailySeries(plan, sourceRows, metric)
-        // extraMetrics always use 'partial' — their data sources may have gaps
-        // (e.g. special_sales LEFT JOIN) per original design in commit 49fdedf
-        const maExtra = computeMovingAverage(series, frame.windowSize, 'partial')
+        const maExtra = computeMovingAverage(series, frame.windowSize, policy)
         const mapped: DailySeriesPoint[] = series.map((original, i) => ({
           ...original,
           value: maExtra[i].value,

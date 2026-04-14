@@ -107,11 +107,17 @@ export function useMultiMovingAverage(
   const { data: curOut } = useMovingAverageOverlay(executor, curScope, showMA, curConfig)
 
   // 2. 前年MA（売上 + extraMetrics を1クエリで取得）
+  //
+  // policy: 'strict' — windowSize の 7 日すべてが揃わない日は MA を null にする。
+  // 前年 lead-in（例: 2025-02-23..28）は DuckDB に is_prev_year=true 行として
+  // ロードされていないことが多く、'partial' では前年の先頭 6 日が少数サンプルで
+  // 誤った平均値になる。'strict' にすることで当年 MA と同じ意味論（先頭 6 日は
+  // 表示なし、7 日目以降は正確な 7 日平均）に揃える。
   const prevConfig = useMemo(
     () => ({
       metric: 'sales' as const,
       windowSize: 7,
-      policy: 'partial' as const,
+      policy: 'strict' as const,
       isPrevYear: true,
       extraMetrics,
     }),

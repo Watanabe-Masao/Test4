@@ -26,7 +26,10 @@ interface Props {
   daysInMonth: number
   year: number
   month: number
-  prevYearDaily?: ReadonlyMap<string, { sales: number; discount: number; customers?: number }>
+  prevYearDaily?: ReadonlyMap<
+    string,
+    { sales: number; discount: number; customers?: number; ctsQuantity?: number }
+  >
   budgetDaily?: ReadonlyMap<number, number>
   mode?: DailyChartMode
   /** バークリックまたはドラッグ選択で日付範囲を通知（時間帯ドリルダウン連動用） */

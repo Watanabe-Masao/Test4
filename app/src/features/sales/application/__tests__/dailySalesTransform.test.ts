@@ -80,6 +80,35 @@ describe('buildBaseDayItems', () => {
     expect(baseData[0].prevCustomers).toBe(10)
   })
 
+  it('propagates prev year ctsQuantity (比較期点数) when prevYearDaily includes it', () => {
+    const daily = new Map<number, DailyRecord>([
+      [1, makeRec({ sales: 200, grossSales: 200, customers: 20 })],
+      [2, makeRec({ sales: 400, grossSales: 400, customers: 40 })],
+    ])
+    const prevYear = new Map<
+      string,
+      { sales: number; discount: number; customers?: number; ctsQuantity?: number }
+    >([
+      ['2025-01-01', { sales: 100, discount: -10, customers: 10, ctsQuantity: 30 }],
+      ['2025-01-02', { sales: 200, discount: -20, customers: 20, ctsQuantity: 45 }],
+    ])
+    const { baseData } = buildBaseDayItems(daily, 2, prevYear, undefined, 2025, 1)
+    // JS 集計の ctsQuantity が prevQuantity として反映される
+    expect(baseData[0].prevQuantity).toBe(30)
+    expect(baseData[1].prevQuantity).toBe(45)
+  })
+
+  it('keeps prevQuantity null when prevYearDaily has no ctsQuantity field', () => {
+    const daily = new Map<number, DailyRecord>([
+      [1, makeRec({ sales: 200, grossSales: 200, customers: 20 })],
+    ])
+    const prevYear = new Map<string, { sales: number; discount: number; customers?: number }>([
+      ['2025-01-01', { sales: 100, discount: -10, customers: 10 }],
+    ])
+    const { baseData } = buildBaseDayItems(daily, 1, prevYear, undefined, 2025, 1)
+    expect(baseData[0].prevQuantity).toBeNull()
+  })
+
   it('applies budget data and computes budgetDiff + achievement', () => {
     const daily = new Map<number, DailyRecord>([
       [1, makeRec({ sales: 150, grossSales: 150, customers: 10 })],

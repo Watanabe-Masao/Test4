@@ -28,7 +28,10 @@ export function buildBaseDayItems(
   daily: ReadonlyMap<number, DailyRecord>,
   daysInMonth: number,
   prevYearDaily:
-    | ReadonlyMap<string, { sales: number; discount: number; customers?: number }>
+    | ReadonlyMap<
+        string,
+        { sales: number; discount: number; customers?: number; ctsQuantity?: number }
+      >
     | undefined,
   budgetDaily: ReadonlyMap<number, number> | undefined,
   year: number,
@@ -58,6 +61,11 @@ export function buildBaseDayItems(
     const pySales = prevEntry?.sales ?? 0
     const pyCustomers = prevEntry && 'customers' in prevEntry ? (prevEntry.customers ?? 0) : 0
     const prevTxValue = pyCustomers > 0 ? calculateTransactionValue(pySales, pyCustomers) : null
+    // 前年販売点数（ctsQuantity）— prevYearDaily に含まれていれば初期値として設定する。
+    // DuckDB 由来の dailyQuantity.prev が後段で上書きするが、そちらが欠損しても
+    // JS 集計済みの ctsQuantity が残るため「比較期点数」が消えない。
+    const prevCtsQuantity =
+      prevEntry && 'ctsQuantity' in prevEntry ? (prevEntry.ctsQuantity ?? 0) : null
 
     cumSales += sales
     cumPrevSales += prevEntry?.sales ?? 0
@@ -85,7 +93,7 @@ export function buildBaseDayItems(
       quantity: 0,
       txValue,
       prevCustomers: prevCustomers > 0 ? prevCustomers : null,
-      prevQuantity: null,
+      prevQuantity: prevCtsQuantity != null && prevCtsQuantity > 0 ? prevCtsQuantity : null,
       prevTxValue,
       currentCum: cumSales,
       prevYearCum: cumPrevSales > 0 ? cumPrevSales : null,

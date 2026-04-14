@@ -56,6 +56,8 @@ interface Props {
       sales: number
       discount: number
       customers?: number
+      /** 前年販売点数（CTS totalQuantity）— PrevYearDailyEntry 由来 */
+      ctsQuantity?: number
       discountEntries?: Record<string, number>
     }
   >
