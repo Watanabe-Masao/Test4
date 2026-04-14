@@ -7,18 +7,56 @@ import { resetTables, deleteMonth, loadMonth } from '../dataLoader'
 import type { LoadResult } from '../dataLoader'
 
 // ── Mock DuckDB connection and database ──
+//
+// bulkInsert は INSERT ... RETURNING 1 の結果に対して `.toArray().length` を取り、
+// 行数が入力配列長と一致しないと例外を投げる（7f0cecd: changes() の DuckDB
+// native 置き換え）。テストモックはこの契約を満たす必要がある。
+//
+// `createMockConn()` は `db.registerFileText` 経由で登録された JSON 文字列を
+// file名 → 行数 に記録し、INSERT ... RETURNING クエリが来たときに該当する
+// 行数のダミー配列を `toArray()` から返す。
 
-function createMockConn(): AsyncDuckDBConnection {
-  return {
-    query: vi.fn().mockResolvedValue(undefined),
-  } as unknown as AsyncDuckDBConnection
+interface MockDuckDBHandles {
+  readonly conn: AsyncDuckDBConnection
+  readonly db: AsyncDuckDB
+  readonly fileRowCounts: Map<string, number>
 }
 
-function createMockDb(): AsyncDuckDB {
-  return {
-    registerFileText: vi.fn().mockResolvedValue(undefined),
-    dropFile: vi.fn().mockResolvedValue(undefined),
+function createMockHandles(): MockDuckDBHandles {
+  const fileRowCounts = new Map<string, number>()
+
+  const conn = {
+    query: vi.fn(async (sql: string) => {
+      if (typeof sql === 'string' && sql.includes('INSERT INTO') && sql.includes('RETURNING')) {
+        // INSERT INTO <table> SELECT * FROM read_json('<file>', ...) RETURNING 1
+        const fileMatch = sql.match(/read_json(?:_auto)?\('([^']+)'/)
+        const fileName = fileMatch?.[1]
+        const count = fileName ? (fileRowCounts.get(fileName) ?? 0) : 0
+        return { toArray: () => Array.from({ length: count }, () => ({ 1: 1 })) }
+      }
+      return undefined
+    }),
+  } as unknown as AsyncDuckDBConnection
+
+  const db = {
+    registerFileText: vi.fn(async (name: string, json: string) => {
+      try {
+        const parsed = JSON.parse(json) as unknown
+        fileRowCounts.set(name, Array.isArray(parsed) ? parsed.length : 0)
+      } catch {
+        fileRowCounts.set(name, 0)
+      }
+    }),
+    dropFile: vi.fn(async (name: string) => {
+      fileRowCounts.delete(name)
+    }),
   } as unknown as AsyncDuckDB
+
+  return { conn, db, fileRowCounts }
+}
+
+function createMockConn(): AsyncDuckDBConnection {
+  return createMockHandles().conn
 }
 
 describe('resetTables', () => {
@@ -92,8 +130,11 @@ describe('loadMonth', () => {
   let data: MonthlyData
 
   beforeEach(() => {
-    conn = createMockConn()
-    db = createMockDb()
+    // `createMockHandles()` で conn / db を同一 fileRowCounts Map に接続する。
+    // これにより bulkInsert の INSERT ... RETURNING 1 検証が通る。
+    const handles = createMockHandles()
+    conn = handles.conn
+    db = handles.db
     data = createEmptyMonthlyData({ year: 2025, month: 1, importedAt: '' })
   })
 
@@ -400,8 +441,9 @@ describe('loadMonth with isPrevYear=true', () => {
   let data: MonthlyData
 
   beforeEach(() => {
-    conn = createMockConn()
-    db = createMockDb()
+    const handles = createMockHandles()
+    conn = handles.conn
+    db = handles.db
     data = createEmptyMonthlyData({ year: 2024, month: 1, importedAt: '' })
   })
 
@@ -440,8 +482,9 @@ describe('loadMonth idempotency contract', () => {
   let data: MonthlyData
 
   beforeEach(() => {
-    conn = createMockConn()
-    db = createMockDb()
+    const handles = createMockHandles()
+    conn = handles.conn
+    db = handles.db
     data = createEmptyMonthlyData({ year: 2025, month: 4, importedAt: '' })
   })
 
@@ -538,8 +581,9 @@ describe('loadMonth prev-year purge', () => {
   let data: MonthlyData
 
   beforeEach(() => {
-    conn = createMockConn()
-    db = createMockDb()
+    const handles = createMockHandles()
+    conn = handles.conn
+    db = handles.db
     // prev year context: 2025 年 4 月に対する前年 = 2024 年 4 月
     data = createEmptyMonthlyData({ year: 2024, month: 4, importedAt: '' })
   })
