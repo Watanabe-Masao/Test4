@@ -210,7 +210,7 @@ describe('IntegratedSalesChart - pendingRange (rangeSummary 計算)', () => {
       [1, { sales: 1000, customers: 100 }],
       [2, { sales: 2000, customers: 200 }],
       [3, { sales: 1500, customers: 150 }],
-    ]) as ReadonlyMap<number, import('@/domain/models/record').DailyRecord>
+    ]) as unknown as ReadonlyMap<number, import('@/domain/models/record').DailyRecord>
 
     // Should not throw — rangeSummary useMemo は内部で走る
     renderWithTheme(<IntegratedSalesChart {...baseProps} daily={daily} />)
@@ -235,7 +235,7 @@ describe('IntegratedSalesChart - pendingRange (rangeSummary 計算)', () => {
     const daily = new Map([
       [1, { sales: 1500, customers: 150 }],
       [2, { sales: 2500, customers: 250 }],
-    ]) as ReadonlyMap<number, import('@/domain/models/record').DailyRecord>
+    ]) as unknown as ReadonlyMap<number, import('@/domain/models/record').DailyRecord>
     const prevYearDaily = new Map([
       ['2026-04-01', { sales: 1000, discount: 0, customers: 100 }],
       ['2026-04-02', { sales: 2000, discount: 0, customers: 200 }],
