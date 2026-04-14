@@ -9,11 +9,11 @@
 
 ## Phase 0: 痛点棚卸し
 
-* [ ] `unify-period-analysis` bootstrap で発生した詰まり事象を `pain-points.md` に事実ベースで全件記録する
-* [ ] 現行 `_template/` で実行可能粒度に届かなかった項目を `pain-points.md` に追記する
-* [ ] `executionOverlayGuard` 全 140 ルール要件による初期化負荷の事実を `pain-points.md` に追記する
-* [ ] 派生トピックの行き場がない問題のユースケースを `pain-points.md` に追記する
-* [ ] 現行 AAG / project 文書体系の良い点を `strengths.md` に事実ベースで列挙する
+* [x] `unify-period-analysis` bootstrap で発生した詰まり事象を `pain-points.md` に事実ベースで全件記録する
+* [x] 現行 `_template/` で実行可能粒度に届かなかった項目を `pain-points.md` に追記する
+* [x] `executionOverlayGuard` 全 140 ルール要件による初期化負荷の事実を `pain-points.md` に追記する
+* [x] 派生トピックの行き場がない問題のユースケースを `pain-points.md` に追記する
+* [x] 現行 AAG / project 文書体系の良い点を `strengths.md` に事実ベースで列挙する
 
 ## Phase 1: 現状調査
 

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-14T13:34:12.900Z",
+  "timestamp": "2026-04-14T13:42:30.223Z",
   "summary": {
     "active": 6,
     "archived": 5,
@@ -9,7 +9,7 @@
     "empty": 0,
     "collection": 1,
     "totalCheckboxes": 404,
-    "checkedCheckboxes": 286
+    "checkedCheckboxes": 291
   },
   "projects": [
     {
@@ -30,9 +30,9 @@
       "kind": "project",
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
-      "checked": 0,
+      "checked": 5,
       "total": 36,
-      "progress": 0,
+      "progress": 0.139,
       "entrypoint": "projects/aag-format-redesign/AI_CONTEXT.md",
       "checklistPath": "projects/aag-format-redesign/checklist.md"
     },
