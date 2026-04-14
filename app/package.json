@@ -29,7 +29,8 @@
     "health:check": "npx tsx ../tools/architecture-health/src/main.ts --check",
     "health:pr-comment": "npx tsx ../tools/architecture-health/src/main.ts --pr-comment",
     "docs:generate": "npx tsx ../tools/architecture-health/src/main.ts",
-    "docs:check": "npx tsx ../tools/architecture-health/src/docs-check.ts"
+    "docs:check": "npx tsx ../tools/architecture-health/src/docs-check.ts",
+    "verify:project": "node scripts/verify-project-switch.mjs"
   },
   "dependencies": {
     "@duckdb/duckdb-wasm": "^1.33.1-dev18.0",

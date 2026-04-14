@@ -86,6 +86,7 @@
 | idempotent load contract 引き継ぎ書（要約 — plan のビュー） | `03-guides/data-load-idempotency-handoff.md` |
 | Read-path 重複耐性 Spot Audit（FRAGILE/PARTIAL/SAFE 分類の根拠資料） | `03-guides/read-path-duplicate-audit.md` |
 | projects/ 運用ルール（ドキュメントと課題の分離 / checklist 駆動の completion 管理） | `03-guides/project-checklist-governance.md` |
+| 新規 project bootstrap ガイド（必須セット / 派生セット判定 / overlay defaults / 切替検証） | `03-guides/new-project-bootstrap-guide.md` |
 | AAG 5.0 4層構造定義 | `01-principles/aag-5-constitution.md` |
 | AAG 5.0 既存ファイル層マッピング | `01-principles/aag-5-layer-map.md` |
 | AAG 5.0 正本/派生/運用物ポリシー | `01-principles/aag-5-source-of-truth-policy.md` |
@@ -272,6 +273,7 @@
 | `03-guides/data-load-idempotency-handoff.md` | idempotent load contract 引き継ぎ書（**要約** — plan のビュー、後任者の入口） |
 | `03-guides/read-path-duplicate-audit.md` | Read-path 重複耐性 Spot Audit（**根拠資料** — FRAGILE/PARTIAL/SAFE 分類） |
 | `03-guides/project-checklist-governance.md` | projects/ 運用ルール（**規約の正本** — ドキュメントと課題の分離 / checklist 駆動の completion 管理） |
+| `03-guides/new-project-bootstrap-guide.md` | 新規 project bootstrap ガイド（aag-format-redesign — 必須セット / 派生セット判定 / overlay defaults / 切替検証順序 / 実行可能粒度チェックリスト） |
 
 ### 移行・廃止
 

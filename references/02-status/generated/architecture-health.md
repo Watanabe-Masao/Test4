@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-14T13:42:30.220Z
+> Generated: 2026-04-14T14:55:20.665Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -8,8 +8,8 @@
 
 | 指標 | 値 |
 |---|---|
-| Total KPIs | 39 |
-| OK | 39 |
+| Total KPIs | 40 |
+| OK | 40 |
 | WARN | 0 |
 | FAIL | 0 |
 | Hard Gate | PASS |
@@ -51,7 +51,7 @@
 
 | ID | 指標 | 値 | 状態 |
 |---|---|---|---|
-| guard.files.count | ガードテストファイル数 | 58 / 30 | OK |
+| guard.files.count | ガードテストファイル数 | 60 / 30 | OK |
 | guard.reviewOnlyTags.count | レビュー専用タグ数 | 0 / 5 | OK |
 | guard.rules.total | 総 Architecture Rule 数 | 147 | OK |
 | guard.rules.fixNow.now | fixNow=now ルール数（即修正） | 72 | OK |
@@ -71,13 +71,14 @@
 | docs.obsoleteTerms.count | 廃止用語残存数 | 0 / 0 | OK |
 | docs.generatedSections.stale | Generated section 未更新 | 0 / 0 | OK |
 | docs.obligation.violations | Doc 更新義務違反数 | 0 / 0 | OK |
-| project.checklist.activeCount | active project 数（archive 未実施を含む） | 6 / 20 | OK |
-| project.checklist.archivedCount | archived project 数（projects/completed/ 配下） | 5 / 100 | OK |
+| project.checklist.activeCount | active project 数（archive 未実施を含む） | 5 / 20 | OK |
+| project.checklist.archivedCount | archived project 数（projects/completed/ 配下） | 6 / 100 | OK |
 | project.checklist.completedNotArchivedCount | checklist 完了済みだが archive 未実施の project 数 | 0 / 0 | OK |
-| project.checklist.inProgressCount | in_progress な project 数（open required checkbox あり） | 5 / 20 | OK |
+| project.checklist.inProgressCount | in_progress な project 数（open required checkbox あり） | 4 / 20 | OK |
 | project.checklist.emptyCount | checkbox 空の project 数（placeholder / 立ち上げ直後） | 0 / 10 | OK |
-| project.checklist.totalCheckboxes | 全 project の required checkbox 総数 | 404 | OK |
-| project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 291 | OK |
+| project.checklist.totalCheckboxes | 全 project の required checkbox 総数 | 368 | OK |
+| project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 286 | OK |
+| project.checklist.subprojectCount | サブ project 数（parent フィールドあり） | 0 | OK |
 
 ## バンドル性能
 
@@ -134,5 +135,6 @@
 | project.checklist.emptyCount | definition | references/03-guides/project-checklist-governance.md |
 | project.checklist.totalCheckboxes | definition | references/03-guides/project-checklist-governance.md |
 | project.checklist.checkedCheckboxes | definition | references/03-guides/project-checklist-governance.md |
+| project.checklist.subprojectCount | definition | references/03-guides/project-checklist-governance.md |
 
 </details>

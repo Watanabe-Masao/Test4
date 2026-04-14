@@ -1,5 +1,5 @@
 # Current Project
 
-active: aag-format-redesign
+active: pure-calculation-reorg
 
-entry: `projects/aag-format-redesign/AI_CONTEXT.md`
+entry: `projects/pure-calculation-reorg/AI_CONTEXT.md`

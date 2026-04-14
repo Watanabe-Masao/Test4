@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-14T13:42:30.220Z",
+  "timestamp": "2026-04-14T14:55:20.665Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 58,
+      "value": 60,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -280,6 +280,7 @@
         "app/src/test/guards/customerFactPathGuard.test.ts",
         "app/src/test/guards/customerGapPathGuard.test.ts",
         "app/src/test/guards/dataIntegrityGuard.test.ts",
+        "app/src/test/guards/defaultOverlayCompletenessGuard.test.ts",
         "app/src/test/guards/discountFactPathGuard.test.ts",
         "app/src/test/guards/docCodeConsistencyGuard.test.ts",
         "app/src/test/guards/docRegistryGuard.test.ts",
@@ -317,6 +318,7 @@
         "app/src/test/guards/sizeGuard.test.ts",
         "app/src/test/guards/storeResultAnalysisInputGuard.test.ts",
         "app/src/test/guards/structuralConventionGuard.test.ts",
+        "app/src/test/guards/subprojectParentGuard.test.ts",
         "app/src/test/guards/temporalRollingGuard.test.ts",
         "app/src/test/guards/temporalScopeGuard.test.ts",
         "app/src/test/guards/testSignalIntegrityGuard.test.ts",
@@ -545,7 +547,7 @@
         }
       ],
       "implRefs": [
-        "projects/aag-format-redesign/aag/execution-overlay.ts"
+        "projects/pure-calculation-reorg/aag/execution-overlay.ts"
       ],
       "budget": 92
     },
@@ -578,7 +580,7 @@
       "owner": "architecture",
       "docRefs": [],
       "implRefs": [
-        "projects/aag-format-redesign/aag/execution-overlay.ts"
+        "projects/pure-calculation-reorg/aag/execution-overlay.ts"
       ],
       "budget": 0
     },
@@ -682,7 +684,7 @@
       "id": "project.checklist.activeCount",
       "label": "active project 数（archive 未実施を含む）",
       "category": "docs",
-      "value": 6,
+      "value": 5,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -711,7 +713,7 @@
       "id": "project.checklist.archivedCount",
       "label": "archived project 数（projects/completed/ 配下）",
       "category": "docs",
-      "value": 5,
+      "value": 6,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -757,7 +759,7 @@
       "id": "project.checklist.inProgressCount",
       "label": "in_progress な project 数（open required checkbox あり）",
       "category": "docs",
-      "value": 5,
+      "value": 4,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -815,7 +817,7 @@
       "id": "project.checklist.totalCheckboxes",
       "label": "全 project の required checkbox 総数",
       "category": "docs",
-      "value": 404,
+      "value": 368,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -843,7 +845,35 @@
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 291,
+      "value": 286,
+      "unit": "count",
+      "status": "ok",
+      "owner": "documentation-steward",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "references/03-guides/project-checklist-governance.md"
+        }
+      ],
+      "implRefs": [
+        "projects/completed/aag-collector-purification/checklist.md",
+        "projects/aag-format-redesign/checklist.md",
+        "projects/completed/aag-rule-splitting-execution/checklist.md",
+        "projects/completed/architecture-decision-backlog/checklist.md",
+        "projects/completed/data-load-idempotency-hardening/checklist.md",
+        "projects/completed/docs-and-governance-cohesion/checklist.md",
+        "projects/presentation-quality-hardening/checklist.md",
+        "projects/pure-calculation-reorg/checklist.md",
+        "projects/quick-fixes/checklist.md",
+        "projects/test-signal-integrity/checklist.md",
+        "projects/unify-period-analysis/checklist.md"
+      ]
+    },
+    {
+      "id": "project.checklist.subprojectCount",
+      "label": "サブ project 数（parent フィールドあり）",
+      "category": "docs",
+      "value": 0,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -869,8 +899,8 @@
     }
   ],
   "summary": {
-    "totalKpis": 39,
-    "ok": 39,
+    "totalKpis": 40,
+    "ok": 40,
     "warn": 0,
     "fail": 0,
     "hardGatePass": true

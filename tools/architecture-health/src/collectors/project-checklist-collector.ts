@@ -22,6 +22,12 @@ export interface ProjectMeta {
   readonly title: string
   readonly status: string // 人間宣言値（active / paused / archived）
   readonly kind: ProjectKind // 'project' (default) or 'collection'
+  /**
+   * 親 project id（サブ project の場合のみ）。
+   * aag-format-redesign Phase 4 — P1: 親子リンクのみ（進捗統合は P2 以降）。
+   * 未定義ならば通常 project として扱う。
+   */
+  readonly parent: string | undefined
   readonly projectRoot: string // repo 相対
   readonly checklistPath: string // repo 相対
   readonly aiContextPath: string
@@ -48,6 +54,8 @@ interface ProjectJson {
   readonly title: string
   readonly status?: string
   readonly kind?: ProjectKind
+  /** 親 project id（サブ project の場合のみ、optional） */
+  readonly parent?: string
   readonly projectRoot: string
   readonly entrypoints: {
     readonly aiContext: string
@@ -93,6 +101,7 @@ export function collectFromProjectChecklists(repoRoot: string): HealthKpi[] {
 
   const allChecked = results.reduce((sum, r) => sum + r.checked, 0)
   const allTotal = results.reduce((sum, r) => sum + r.total, 0)
+  const subprojectCount = results.filter((r) => r.meta.parent !== undefined).length
 
   const projectImplRefs = results.map((r) => r.meta.checklistPath)
 
@@ -177,6 +186,17 @@ export function collectFromProjectChecklists(repoRoot: string): HealthKpi[] {
       label: '全 project の checked checkbox 総数',
       category: 'docs',
       value: allChecked,
+      unit: 'count',
+      status: 'ok',
+      owner: 'documentation-steward',
+      docRefs,
+      implRefs: projectImplRefs,
+    },
+    {
+      id: 'project.checklist.subprojectCount',
+      label: 'サブ project 数（parent フィールドあり）',
+      category: 'docs',
+      value: subprojectCount,
       unit: 'count',
       status: 'ok',
       owner: 'documentation-steward',
@@ -268,6 +288,7 @@ function readProjectChecklist(
     title: project.title,
     status: project.status ?? 'unknown',
     kind,
+    parent: project.parent,
     projectRoot: project.projectRoot,
     checklistPath: project.entrypoints.checklist,
     aiContextPath: project.entrypoints.aiContext,
