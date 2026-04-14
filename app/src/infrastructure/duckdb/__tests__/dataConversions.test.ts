@@ -68,8 +68,11 @@ describe('TABLE_COLUMNS', () => {
 describe('bulkInsert', () => {
   function createMocks(
     opts: {
-      changesResult?: number
-      throwOnChanges?: boolean
+      /**
+       * INSERT ... RETURNING 1 で返す行数。未指定時は rows.length を返す（成功シナリオ）。
+       * INSERT 失敗（rows との不一致）をシミュレートするときだけ明示する。
+       */
+      returningRows?: number
     } = {},
   ): {
     db: AsyncDuckDB
@@ -84,11 +87,9 @@ describe('bulkInsert', () => {
 
     const queryMock = vi.fn(async (sql: string) => {
       queries.push(sql)
-      if (sql.includes('changes()')) {
-        if (opts.throwOnChanges) throw new Error('changes() not supported')
-        return {
-          toArray: () => [{ affected: opts.changesResult ?? 0 }],
-        }
+      if (sql.includes('INSERT INTO') && sql.includes('RETURNING')) {
+        const count = opts.returningRows ?? 0
+        return { toArray: () => Array.from({ length: count }, () => ({})) }
       }
       return { toArray: () => [] }
     })
@@ -117,7 +118,7 @@ describe('bulkInsert', () => {
       { year: 2025, month: 5, day: 1, store_id: 's1', sales_amount: 100 },
       { year: 2025, month: 5, day: 2, store_id: 's1', sales_amount: 200 },
     ]
-    const { db, conn, queries, registered, dropped } = createMocks({ changesResult: 2 })
+    const { db, conn, queries, registered, dropped } = createMocks({ returningRows: 2 })
 
     const inserted = await bulkInsert(conn, db, 'classified_sales', rows)
     expect(inserted).toBe(2)
@@ -127,17 +128,18 @@ describe('bulkInsert', () => {
     // Same file dropped
     expect(dropped).toEqual(registered)
 
-    // INSERT query must reference read_json with columns parameter
+    // INSERT query must reference read_json with columns parameter and RETURNING
     const insertQuery = queries.find((q) => q.startsWith('INSERT INTO classified_sales'))
     expect(insertQuery).toBeTruthy()
     expect(insertQuery).toContain('read_json')
     expect(insertQuery).toContain('columns=')
     expect(insertQuery).toContain("'year': 'INTEGER'")
+    expect(insertQuery).toContain('RETURNING 1')
   })
 
-  it('throws when affected row count does not match input length', async () => {
+  it('throws when RETURNING row count does not match input length', async () => {
     const rows = [{ year: 2025, month: 5, day: 1, store_id: 's1', sales_amount: 100 }]
-    const { db, conn, dropped } = createMocks({ changesResult: 0 })
+    const { db, conn, dropped } = createMocks({ returningRows: 0 })
 
     await expect(bulkInsert(conn, db, 'classified_sales', rows)).rejects.toThrow(
       /expected 1 rows, but 0 were inserted/,
@@ -146,20 +148,22 @@ describe('bulkInsert', () => {
     expect(dropped.length).toBe(1)
   })
 
-  it('tolerates changes() verification failure but still completes', async () => {
+  it('does not call SQLite-only changes() function (DuckDB incompatible)', async () => {
     const rows = [{ year: 2025, month: 5, day: 1, store_id: 's1' }]
-    const { db, conn, dropped } = createMocks({ throwOnChanges: true })
-    const inserted = await bulkInsert(conn, db, 'classified_sales', rows)
-    expect(inserted).toBe(1)
-    expect(dropped.length).toBe(1)
+    const { db, conn, queries } = createMocks({ returningRows: 1 })
+    await bulkInsert(conn, db, 'classified_sales', rows)
+    // changes() is a SQLite-only scalar function; DuckDB raises Catalog Error
+    // when invoked. The verification path must use RETURNING instead.
+    expect(queries.some((q) => q.includes('changes()'))).toBe(false)
   })
 
   it('uses read_json_auto fallback for unknown tables', async () => {
     const rows = [{ a: 1 }]
-    const { db, conn, queries } = createMocks({ changesResult: 1 })
+    const { db, conn, queries } = createMocks({ returningRows: 1 })
     await bulkInsert(conn, db, 'unknown_table_xyz', rows)
     const insertQuery = queries.find((q) => q.startsWith('INSERT INTO unknown_table_xyz'))
     expect(insertQuery).toBeTruthy()
     expect(insertQuery).toContain('read_json_auto')
+    expect(insertQuery).toContain('RETURNING 1')
   })
 })
