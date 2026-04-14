@@ -95,6 +95,18 @@ PR 1〜5 の実装順計画とは別に、`DB → handler → summary → read m
 - PR 0（事前）として骨格を先に入れ、PR 1〜5 の各段階で期待値を拡張する
 - Tier A（自由期間）/ Tier B（比較意味論）の critical path safety map 準拠
 
+## テスト計画（G0〜G6 + L0〜L4）
+
+AAG 連結前提の最終形テスト計画は `test-plan.md` に独立して定義する。
+
+- **G0〜G6**: ガードテスト群（AAG 連結 / 入力契約 / 比較意味論 / 取得経路 /
+  率計算 / readModel 安全 / UI 境界）— 既存 5 本 + 追加 19 本 = 計 24 本
+- **L0〜L4**: ロジック正しさテスト群（純粋関数 / handler 統合 / acceptance /
+  property / regression）— 21 本
+- **CI 実行順**: Fast lane（G0-G3, G5, L0）→ Medium lane（L1, G4, G6）→
+  Slow lane（L2-L4）
+- **Done の定義**: `test-plan.md §4` を参照
+
 ## やってはいけないこと
 
 - **UI 先行移行** → 比較意味論が漏れて事故が増える。Phase 1→2→3 を先に完了する。

@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-14T01:19:43.945Z",
+  "timestamp": "2026-04-14T12:21:33.027Z",
   "summary": {
-    "active": 4,
+    "active": 5,
     "archived": 5,
-    "inProgress": 3,
+    "inProgress": 4,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 319,
+    "totalCheckboxes": 368,
     "checkedCheckboxes": 286
   },
   "projects": [
@@ -119,6 +119,18 @@
       "progress": 0.971,
       "entrypoint": "projects/test-signal-integrity/AI_CONTEXT.md",
       "checklistPath": "projects/test-signal-integrity/checklist.md"
+    },
+    {
+      "projectId": "unify-period-analysis",
+      "title": "期間分析統合（固定期間を自由期間プリセットに）",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 0,
+      "total": 49,
+      "progress": 0,
+      "entrypoint": "projects/unify-period-analysis/AI_CONTEXT.md",
+      "checklistPath": "projects/unify-period-analysis/checklist.md"
     }
   ]
 }

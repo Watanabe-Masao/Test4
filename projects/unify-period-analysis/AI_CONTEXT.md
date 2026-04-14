@@ -21,10 +21,12 @@ UI は固定期間ヘッダを残しつつ、内部では `FreePeriodAnalysisFra
 2. `HANDOFF.md`（残作業の優先順位）
 3. `plan.md`（不可侵原則と Phase 構造）
 4. `checklist.md`（completion 判定の入力 — required checkbox 集合）
-5. 関連 references/
+5. `test-plan.md`（AAG 連結前提のテスト計画 — G0〜G6 + L0〜L4）
+6. 関連 references/
    - `references/01-principles/free-period-analysis-definition.md`
    - `references/01-principles/data-pipeline-integrity.md`
    - `references/01-principles/temporal-scope-semantics.md`
+   - `references/01-principles/critical-path-safety-map.md`
    - `references/03-guides/runtime-data-path.md`
 
 ## Why this project exists

@@ -64,6 +64,7 @@ Phase 0 の棚卸しで場所と件数を固定してから Phase 2 に進む。
 | `pr-breakdown.md` | PR 1〜5 の作業単位書 |
 | `review-checklist.md` | A〜J カテゴリ別の総括レビュー観点 |
 | `acceptance-suite.md` | Critical Path Acceptance Suite の設計 |
+| `test-plan.md` | AAG 連結前提の最終形テスト計画（G0〜G6 + L0〜L4） |
 | `references/01-principles/free-period-analysis-definition.md` | 自由期間分析の正本定義 |
 | `references/01-principles/data-pipeline-integrity.md` | 額 / 率の分離原則 |
 | `references/01-principles/critical-path-safety-map.md` | Safety Tier 分類 |
