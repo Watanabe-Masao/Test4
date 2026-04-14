@@ -160,6 +160,51 @@ describe('MovingAverageHandler contract', () => {
     }
   })
 
+  it('extraMetrics は input.policy を引き継ぐ（前年 lead-in 欠損で strict が null を返す）', async () => {
+    // 前年 MA: anchorRange 2025-03-01..2025-03-05, windowSize 3, policy 'strict'
+    // requiredRange は 2025-02-27..2025-03-05 に拡張されるが、
+    // DB には 2025-03-01 以降しか is_prev_year=true 行が存在しないと想定。
+    // lead-in (2/27, 2/28) が missing のため、先頭 2 日は strict で null になる必要がある。
+    // 旧実装 ('partial' 固定) では extraMetrics が強制的に partial になり、
+    // 先頭 2 日が少数サンプルで誤った平均値になっていた。
+    const prevRows = []
+    for (let d = 1; d <= 5; d++) {
+      prevRows.push({
+        ...makeSummaryRow(2025, 3, d, 1000 + d * 100),
+        totalQuantity: 100 + d * 10,
+        isPrevYear: true,
+      })
+    }
+    mockQuery.mockResolvedValue(prevRows as never)
+
+    const result = await movingAverageHandler.execute(FAKE_CONN, {
+      frame: makeFrame({
+        anchorRange: {
+          from: { year: 2025, month: 3, day: 1 },
+          to: { year: 2025, month: 3, day: 5 },
+        },
+        metric: 'sales',
+        windowSize: 3,
+      }),
+      policy: 'strict',
+      isPrevYear: true,
+      extraMetrics: ['quantity'],
+    })
+
+    // extraSeries['quantity'] は anchorRange 分（5日）返る
+    const qty = result.extraSeries?.['quantity']
+    expect(qty).toBeDefined()
+    expect(qty).toHaveLength(5)
+    // 3/1, 3/2 は lead-in (2/27, 2/28) が missing のため strict で null
+    expect(qty![0].value).toBeNull()
+    expect(qty![0].status).toBe('missing')
+    expect(qty![1].value).toBeNull()
+    expect(qty![1].status).toBe('missing')
+    // 3/3 以降は 7 日窓に全 ok 行が揃うので ok
+    expect(qty![2].status).toBe('ok')
+    expect(qty![2].value).toBe((110 + 120 + 130) / 3) // (3/1 + 3/2 + 3/3) / 3
+  })
+
   it('複数店舗の同日 rows が集約されて MA が全店合計ベースになる', async () => {
     // 3店舗 × 3日 (anchorRange: 3/1..3/3, windowSize=1 で MA=当日値)
     const rows = [

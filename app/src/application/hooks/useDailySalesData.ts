@@ -124,7 +124,10 @@ export function useDailySalesData(
   daily: ReadonlyMap<number, DailyRecord>,
   daysInMonth: number,
   prevYearDaily:
-    | ReadonlyMap<string, { sales: number; discount: number; customers?: number }>
+    | ReadonlyMap<
+        string,
+        { sales: number; discount: number; customers?: number; ctsQuantity?: number }
+      >
     | undefined,
   isWf: boolean,
   rangeStart: number,
@@ -145,11 +148,17 @@ export function useDailySalesData(
       year ?? 2000,
       month ?? 1,
     )
-    // DuckDB 由来の日別点数をマージ
+    // DuckDB 由来の日別点数をマージ — 当年は常に上書きし、前年は値があるときだけ
+    // 上書きする。prev を無条件に上書きすると、buildBaseDayItems が既に
+    // prevYearDaily.ctsQuantity（JS 集計）から設定した値を消してしまい、
+    // DuckDB 側の is_prev_year 行が空のときに「比較期点数」が消える。
     if (dailyQuantity) {
       for (const item of result.baseData) {
         item.quantity = dailyQuantity.current.get(item.day) ?? 0
-        item.prevQuantity = dailyQuantity.prev.get(item.day) ?? null
+        const prevQty = dailyQuantity.prev.get(item.day)
+        if (prevQty != null && prevQty > 0) {
+          item.prevQuantity = prevQty
+        }
       }
     }
     const wf = isWf ? buildWaterfallData(result.baseData, diffTarget ?? 'yoy') : null
