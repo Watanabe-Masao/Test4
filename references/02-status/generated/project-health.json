@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-14T13:42:30.223Z",
+  "timestamp": "2026-04-14T14:27:48.656Z",
   "summary": {
     "active": 6,
     "archived": 5,
@@ -9,7 +9,7 @@
     "empty": 0,
     "collection": 1,
     "totalCheckboxes": 404,
-    "checkedCheckboxes": 291
+    "checkedCheckboxes": 321
   },
   "projects": [
     {
@@ -22,7 +22,8 @@
       "total": 28,
       "progress": 1,
       "entrypoint": "projects/completed/aag-collector-purification/AI_CONTEXT.md",
-      "checklistPath": "projects/completed/aag-collector-purification/checklist.md"
+      "checklistPath": "projects/completed/aag-collector-purification/checklist.md",
+      "parent": null
     },
     {
       "projectId": "aag-format-redesign",
@@ -30,11 +31,12 @@
       "kind": "project",
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
-      "checked": 5,
+      "checked": 35,
       "total": 36,
-      "progress": 0.139,
+      "progress": 0.972,
       "entrypoint": "projects/aag-format-redesign/AI_CONTEXT.md",
-      "checklistPath": "projects/aag-format-redesign/checklist.md"
+      "checklistPath": "projects/aag-format-redesign/checklist.md",
+      "parent": null
     },
     {
       "projectId": "aag-rule-splitting-execution",
@@ -46,7 +48,8 @@
       "total": 17,
       "progress": 1,
       "entrypoint": "projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md",
-      "checklistPath": "projects/completed/aag-rule-splitting-execution/checklist.md"
+      "checklistPath": "projects/completed/aag-rule-splitting-execution/checklist.md",
+      "parent": null
     },
     {
       "projectId": "architecture-decision-backlog",
@@ -58,7 +61,8 @@
       "total": 1,
       "progress": 1,
       "entrypoint": "projects/completed/architecture-decision-backlog/AI_CONTEXT.md",
-      "checklistPath": "projects/completed/architecture-decision-backlog/checklist.md"
+      "checklistPath": "projects/completed/architecture-decision-backlog/checklist.md",
+      "parent": null
     },
     {
       "projectId": "data-load-idempotency-hardening",
@@ -70,7 +74,8 @@
       "total": 21,
       "progress": 1,
       "entrypoint": "projects/completed/data-load-idempotency-hardening/AI_CONTEXT.md",
-      "checklistPath": "projects/completed/data-load-idempotency-hardening/checklist.md"
+      "checklistPath": "projects/completed/data-load-idempotency-hardening/checklist.md",
+      "parent": null
     },
     {
       "projectId": "docs-and-governance-cohesion",
@@ -82,7 +87,8 @@
       "total": 85,
       "progress": 1,
       "entrypoint": "projects/completed/docs-and-governance-cohesion/AI_CONTEXT.md",
-      "checklistPath": "projects/completed/docs-and-governance-cohesion/checklist.md"
+      "checklistPath": "projects/completed/docs-and-governance-cohesion/checklist.md",
+      "parent": null
     },
     {
       "projectId": "presentation-quality-hardening",
@@ -94,7 +100,8 @@
       "total": 15,
       "progress": 0.8,
       "entrypoint": "projects/presentation-quality-hardening/AI_CONTEXT.md",
-      "checklistPath": "projects/presentation-quality-hardening/checklist.md"
+      "checklistPath": "projects/presentation-quality-hardening/checklist.md",
+      "parent": null
     },
     {
       "projectId": "pure-calculation-reorg",
@@ -106,7 +113,8 @@
       "total": 113,
       "progress": 0.743,
       "entrypoint": "projects/pure-calculation-reorg/AI_CONTEXT.md",
-      "checklistPath": "projects/pure-calculation-reorg/checklist.md"
+      "checklistPath": "projects/pure-calculation-reorg/checklist.md",
+      "parent": null
     },
     {
       "projectId": "quick-fixes",
@@ -118,7 +126,8 @@
       "total": 4,
       "progress": 1,
       "entrypoint": "projects/quick-fixes/AI_CONTEXT.md",
-      "checklistPath": "projects/quick-fixes/checklist.md"
+      "checklistPath": "projects/quick-fixes/checklist.md",
+      "parent": null
     },
     {
       "projectId": "test-signal-integrity",
@@ -130,7 +139,8 @@
       "total": 35,
       "progress": 0.971,
       "entrypoint": "projects/test-signal-integrity/AI_CONTEXT.md",
-      "checklistPath": "projects/test-signal-integrity/checklist.md"
+      "checklistPath": "projects/test-signal-integrity/checklist.md",
+      "parent": null
     },
     {
       "projectId": "unify-period-analysis",
@@ -142,7 +152,8 @@
       "total": 49,
       "progress": 0,
       "entrypoint": "projects/unify-period-analysis/AI_CONTEXT.md",
-      "checklistPath": "projects/unify-period-analysis/checklist.md"
+      "checklistPath": "projects/unify-period-analysis/checklist.md",
+      "parent": null
     }
   ]
 }

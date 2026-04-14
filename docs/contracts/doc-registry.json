@@ -130,7 +130,8 @@
         { "path": "references/03-guides/data-load-idempotency-plan.md", "label": "データロード冪等化計画（idempotent load contract 正本 / Done 定義 / Phase 3.c 完了）" },
         { "path": "references/03-guides/data-load-idempotency-handoff.md", "label": "idempotent load contract 引き継ぎ書（要約 — plan のビュー）" },
         { "path": "references/03-guides/read-path-duplicate-audit.md", "label": "Read-path 重複耐性 Spot Audit（FRAGILE/PARTIAL/SAFE 分類 / PR D・E で SAFE 化済み）" },
-        { "path": "references/03-guides/project-checklist-governance.md", "label": "projects/ 運用ルール（AAG 5.1+ — ドキュメントと課題の分離 / checklist 駆動の completion 管理 / large vs small 分離 / lifecycle / version sync registry / live project 一覧 / §4.1 4-doc 役割分離 + D4 volatile 禁止）" }
+        { "path": "references/03-guides/project-checklist-governance.md", "label": "projects/ 運用ルール（AAG 5.1+ — ドキュメントと課題の分離 / checklist 駆動の completion 管理 / large vs small 分離 / lifecycle / version sync registry / live project 一覧 / §4.1 4-doc 役割分離 + D4 volatile 禁止）" },
+        { "path": "references/03-guides/new-project-bootstrap-guide.md", "label": "新規 project bootstrap ガイド（aag-format-redesign — 必須セット / 派生セット判定 / overlay defaults / 切替検証順序 / 実行可能粒度チェックリスト）" }
       ]
     },
     {

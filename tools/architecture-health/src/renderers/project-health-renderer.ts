@@ -39,6 +39,8 @@ export interface ProjectHealthSnapshot {
     readonly progress: number // 0-1
     readonly entrypoint: string
     readonly checklistPath: string
+    /** 親 project id（サブ project の場合のみ） */
+    readonly parent: string | null
   }[]
 }
 
@@ -70,6 +72,7 @@ export function buildProjectHealthSnapshot(
     progress: r.total === 0 ? 0 : Math.round((r.checked / r.total) * 1000) / 1000,
     entrypoint: r.meta.aiContextPath,
     checklistPath: r.meta.checklistPath,
+    parent: r.meta.parent ?? null,
   }))
 
   return {
@@ -147,15 +150,16 @@ export function renderProjectHealthMdContent(snapshot: ProjectHealthSnapshot): s
 
   lines.push('## projects')
   lines.push('')
-  lines.push('| projectId | title | derivedStatus | progress | entrypoint |')
-  lines.push('|---|---|---|---|---|')
+  lines.push('| projectId | title | derivedStatus | parent | progress | entrypoint |')
+  lines.push('|---|---|---|---|---|---|')
   for (const p of snapshot.projects) {
     const progressLabel =
       p.total === 0
         ? '—'
         : `${p.checked}/${p.total} (${Math.round(p.progress * 100)}%)`
+    const parentLabel = p.parent ? `\`${p.parent}\`` : '—'
     lines.push(
-      `| \`${p.projectId}\` | ${p.title} | **${p.derivedStatus}** | ${progressLabel} | [\`${p.entrypoint}\`](../../../${p.entrypoint}) |`,
+      `| \`${p.projectId}\` | ${p.title} | **${p.derivedStatus}** | ${parentLabel} | ${progressLabel} | [\`${p.entrypoint}\`](../../../${p.entrypoint}) |`,
     )
   }
   lines.push('')

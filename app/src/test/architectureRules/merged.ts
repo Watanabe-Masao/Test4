@@ -7,40 +7,61 @@
  * 合成方針:
  * - App Domain 側: semantics / governance / detection / binding
  * - Project Overlay 側: fixNow / executionPlan / reviewPolicy / lifecyclePolicy
- * - overlay 未定義のルールはエラー（default 補完しない）
+ * - overlay 未定義のルールは DEFAULT_EXECUTION_OVERLAY（App Domain の defaults）
+ *   から値を取る。どちらにもなければ構造エラー。
+ * - project overlay は defaults よりも優先される（override）
  *
  * consumer はこのファイル経由の ARCHITECTURE_RULES のみを見る。
- * rules.ts と execution-overlay.ts の両方を直接参照してはならない。
+ * rules.ts / execution-overlay.ts / defaults.ts を直接参照してはならない。
+ *
+ * defaults の完全性は defaultOverlayCompletenessGuard が保証する。
+ * 参照: projects/aag-format-redesign/overlay-bootstrap-design.md
  *
  * @responsibility R:utility
  * @see references/03-guides/governance-final-placement-plan.md
  */
 
 import { EXECUTION_OVERLAY } from '@project-overlay/execution-overlay'
+import { DEFAULT_EXECUTION_OVERLAY } from './defaults'
 import { ARCHITECTURE_RULES as BASE_RULES } from './rules'
 import type { ArchitectureRule } from './types'
 
 /**
  * derived merge: App Domain（BaseRule）+ Project Overlay（RuleOperationalState）
  *
- * overlay 未定義は構造エラー（executionOverlayGuard でも別途検出する）。
+ * 解決順序:
+ *   1. project overlay（EXECUTION_OVERLAY）
+ *   2. app-domain defaults（DEFAULT_EXECUTION_OVERLAY）
+ *   3. どちらにもなければ構造エラー
+ *
+ * project overlay は defaults の fixNow / executionPlan / lifecyclePolicy を
+ * 個別に上書きできる（reviewPolicy は defaults に存在しないので常に project
+ * overlay のものが使われる）。
  */
 function mergeRules(): readonly ArchitectureRule[] {
   return BASE_RULES.map((rule): ArchitectureRule => {
-    const overlay = EXECUTION_OVERLAY[rule.id]
-    if (!overlay) {
+    const projectOverlay = EXECUTION_OVERLAY[rule.id]
+    const defaultOverlay = DEFAULT_EXECUTION_OVERLAY[rule.id]
+    if (!projectOverlay && !defaultOverlay) {
       throw new Error(
         `[execution-overlay] Missing overlay for rule: ${rule.id}. ` +
-          `All rules must have an execution overlay entry in ` +
-          `projects/pure-calculation-reorg/aag/execution-overlay.ts`,
+          `Either project overlay (EXECUTION_OVERLAY) or ` +
+          `DEFAULT_EXECUTION_OVERLAY must define it. ` +
+          `See: app/src/test/architectureRules/defaults.ts`,
       )
     }
+    // project overlay が明示的に定義されていれば各フィールドで優先、
+    // 未定義フィールドは defaults から補完する。
+    const fixNow = projectOverlay?.fixNow ?? defaultOverlay!.fixNow
+    const executionPlan = projectOverlay?.executionPlan ?? defaultOverlay!.executionPlan
+    const lifecyclePolicy = projectOverlay?.lifecyclePolicy ?? defaultOverlay?.lifecyclePolicy
+    const reviewPolicy = projectOverlay?.reviewPolicy
     return {
       ...rule,
-      fixNow: overlay.fixNow,
-      executionPlan: overlay.executionPlan,
-      reviewPolicy: overlay.reviewPolicy,
-      lifecyclePolicy: overlay.lifecyclePolicy,
+      fixNow,
+      executionPlan,
+      reviewPolicy,
+      lifecyclePolicy,
     }
   })
 }

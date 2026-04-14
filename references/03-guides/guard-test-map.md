@@ -22,6 +22,8 @@
 | `app/src/test/guards/checklistGovernanceSymmetryGuard.test.ts` | documentation-steward | 2件 | S1/S2/S3: 全 live project の checklist.md に governance §3 禁止見出し（やってはいけないこと/常時チェック/最重要項目）が存在しないことを検証。規約と collector 実装の対称性を保つ最終防波堤 |
 | `app/src/test/guards/projectDocStructureGuard.test.ts` | documentation-steward | 4件 | D1: 必須 4-doc + config 構造 / D2-D3: AI_CONTEXT.md / HANDOFF.md の役割 banner / D4: AI_CONTEXT.md volatile セクション禁止 (Current Status / Next Actions 等は HANDOFF 責務) |
 | `app/src/test/guards/guardTestMapConsistencyGuard.test.ts` | documentation-steward | 1件 | 本ファイル自身の drift 検出（全 guard ファイルが guard-test-map.md に登録されているかを ratchet-down で監視） |
+| `app/src/test/guards/defaultOverlayCompletenessGuard.test.ts` | governance-ops | 5件 | DEFAULT_EXECUTION_OVERLAY が BaseRule 全 rule をカバーすることを検証（aag-format-redesign: project overlay 空でも rule 漏れが発生しない状態の保証 / orphan / effort / priority / fixNow の整合性） |
+| `app/src/test/guards/subprojectParentGuard.test.ts` | documentation-steward | 4件 | config/project.json の parent field の構造検証（aag-format-redesign P1: 親実在 / 自己参照禁止 / 循環禁止 / 階層 2 段制限） |
 | `app/src/test/guards/codePatternGuard.test.ts` | architecture | 8件 | R1-R3,R7,R10: 純粋モジュール、@internal禁止、store算術禁止、副作用チェーン |
 | `app/src/test/guards/testSignalIntegrityGuard.test.ts` | governance-ops | 1件 | TSIG-TEST-01: existence-only assertion 禁止 (品質シグナル保全 / False Green 防止 / `references/01-principles/test-signal-integrity.md` に対応) |
 | `app/src/test/guards/sizeGuard.test.ts` | architecture | 9件 | R5,R11,R12: サイズ上限、facade分岐制限、層別行数制限 |
