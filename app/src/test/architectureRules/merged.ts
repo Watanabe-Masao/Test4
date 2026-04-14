@@ -15,7 +15,7 @@
  * rules.ts / execution-overlay.ts / defaults.ts を直接参照してはならない。
  *
  * defaults の完全性は defaultOverlayCompletenessGuard が保証する。
- * 参照: projects/aag-format-redesign/overlay-bootstrap-design.md
+ * 参照: projects/completed/aag-format-redesign/overlay-bootstrap-design.md
  *
  * @responsibility R:utility
  * @see references/03-guides/governance-final-placement-plan.md

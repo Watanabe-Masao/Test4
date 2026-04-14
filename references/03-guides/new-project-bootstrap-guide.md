@@ -4,7 +4,7 @@
 > `project-checklist-governance.md` §10 を補完し、派生セット判定・
 > overlay defaults・切替検証の順序を実行可能な粒度で定義する。
 >
-> 根拠: `projects/aag-format-redesign/` Phase 2-4 設計（AAG format redesign）。
+> 根拠: `projects/completed/aag-format-redesign/` Phase 2-4 設計（AAG format redesign）。
 
 ---
 
@@ -205,8 +205,8 @@ project 切替と branch 切替の連動ルールはない。**推奨**:
 | `references/03-guides/project-checklist-governance.md` | §10 の bootstrap 原典 / checklist 運用規約 |
 | `projects/_template/DERIVED.md` | 派生セットの判断基準 |
 | `projects/_template/derived/README.md` | 派生テンプレート集 |
-| `projects/aag-format-redesign/new-format-design.md` | 新フォーマット設計の根拠 |
-| `projects/aag-format-redesign/overlay-bootstrap-design.md` | overlay defaults の設計 |
-| `projects/aag-format-redesign/subproject-design.md` | サブ project 機能（P1）の設計 |
+| `projects/completed/aag-format-redesign/new-format-design.md` | 新フォーマット設計の根拠 |
+| `projects/completed/aag-format-redesign/overlay-bootstrap-design.md` | overlay defaults の設計 |
+| `projects/completed/aag-format-redesign/subproject-design.md` | サブ project 機能（P1）の設計 |
 | `app/src/test/architectureRules/defaults.ts` | DEFAULT_EXECUTION_OVERLAY 正本 |
 | `app/scripts/verify-project-switch.mjs` | `verify:project` 実装 |

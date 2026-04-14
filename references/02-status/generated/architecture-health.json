@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-14T14:27:48.651Z",
+  "timestamp": "2026-04-14T14:55:20.665Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -547,7 +547,7 @@
         }
       ],
       "implRefs": [
-        "projects/aag-format-redesign/aag/execution-overlay.ts"
+        "projects/pure-calculation-reorg/aag/execution-overlay.ts"
       ],
       "budget": 92
     },
@@ -580,7 +580,7 @@
       "owner": "architecture",
       "docRefs": [],
       "implRefs": [
-        "projects/aag-format-redesign/aag/execution-overlay.ts"
+        "projects/pure-calculation-reorg/aag/execution-overlay.ts"
       ],
       "budget": 0
     },
@@ -684,7 +684,7 @@
       "id": "project.checklist.activeCount",
       "label": "active project 数（archive 未実施を含む）",
       "category": "docs",
-      "value": 6,
+      "value": 5,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -713,7 +713,7 @@
       "id": "project.checklist.archivedCount",
       "label": "archived project 数（projects/completed/ 配下）",
       "category": "docs",
-      "value": 5,
+      "value": 6,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -759,7 +759,7 @@
       "id": "project.checklist.inProgressCount",
       "label": "in_progress な project 数（open required checkbox あり）",
       "category": "docs",
-      "value": 5,
+      "value": 4,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -817,7 +817,7 @@
       "id": "project.checklist.totalCheckboxes",
       "label": "全 project の required checkbox 総数",
       "category": "docs",
-      "value": 404,
+      "value": 368,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -845,7 +845,7 @@
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 321,
+      "value": 286,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",

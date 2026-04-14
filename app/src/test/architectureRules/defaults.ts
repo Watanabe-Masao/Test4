@@ -15,7 +15,7 @@
  * 完全性は defaultOverlayCompletenessGuard が保証する。
  *
  * @responsibility R:utility
- * @see projects/aag-format-redesign/overlay-bootstrap-design.md
+ * @see projects/completed/aag-format-redesign/overlay-bootstrap-design.md
  */
 
 import type { FixNowClassification, ExecutionPlan, LifecyclePolicy } from '@/test/aag-core-types'

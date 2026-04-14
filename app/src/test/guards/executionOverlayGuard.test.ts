@@ -16,7 +16,7 @@
  *
  * @responsibility R:utility
  * @see references/03-guides/governance-final-placement-plan.md
- * @see projects/aag-format-redesign/overlay-bootstrap-design.md
+ * @see projects/completed/aag-format-redesign/overlay-bootstrap-design.md
  */
 
 import { describe, it, expect } from 'vitest'

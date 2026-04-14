@@ -25,6 +25,7 @@
 | `aag-collector-purification` | 2026-04-13 | AAG collector 純化 — 規約と実装の対称性回復 | [`projects/completed/aag-collector-purification/`](../../projects/completed/aag-collector-purification/) |
 | `aag-rule-splitting-execution` | 2026-04-13 | AAG ルール分割実行 — AR-STRUCT-RESP-SEPARATION 7 分割 | [`projects/completed/aag-rule-splitting-execution/`](../../projects/completed/aag-rule-splitting-execution/) |
 | `architecture-decision-backlog` | 2026-04-13 | アーキテクチャ判断 backlog — ロールシステム軽量化方針を (c) 現状維持で決定 | [`projects/completed/architecture-decision-backlog/`](../../projects/completed/architecture-decision-backlog/) |
+| `aag-format-redesign` | 2026-04-14 | AAG フォーマット改修とサブプロジェクト機能 — overlay defaults / derived template / subproject P1 | [`projects/completed/aag-format-redesign/`](../../projects/completed/aag-format-redesign/) |
 
 ## 課題発見時のフロー
 

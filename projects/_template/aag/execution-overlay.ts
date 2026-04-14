@@ -12,7 +12,7 @@
  * - Project Overlay（本ファイル）: fixNow, executionPlan, reviewPolicy, lifecyclePolicy
  *
  * 参照:
- * - projects/aag-format-redesign/overlay-bootstrap-design.md
+ * - projects/completed/aag-format-redesign/overlay-bootstrap-design.md
  * - references/03-guides/governance-final-placement-plan.md
  *
  * @responsibility R:utility

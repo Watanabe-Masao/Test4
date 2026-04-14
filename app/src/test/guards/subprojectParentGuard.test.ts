@@ -19,7 +19,7 @@
  * として従来通り扱われる（全既存 project は無変更で PASS する）。
  *
  * @responsibility R:utility
- * @see projects/aag-format-redesign/subproject-design.md
+ * @see projects/completed/aag-format-redesign/subproject-design.md
  */
 
 import { describe, it, expect } from 'vitest'
@@ -128,7 +128,7 @@ describe('Subproject Parent Guard', () => {
         violations.push(
           `${p.projectId}: 親 '${p.parent}' 自身が parent='${parentEntry.parent}' を持っています。` +
             ` P1 の subproject 機能は 2 段階（親 → 子）までしか許可しません。` +
-            ` 詳細: projects/aag-format-redesign/subproject-design.md §6`,
+            ` 詳細: projects/completed/aag-format-redesign/subproject-design.md §6`,
         )
       }
     }

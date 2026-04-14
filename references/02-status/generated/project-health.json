@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-14T14:27:48.656Z",
+  "timestamp": "2026-04-14T14:55:20.668Z",
   "summary": {
-    "active": 6,
-    "archived": 5,
-    "inProgress": 5,
+    "active": 5,
+    "archived": 6,
+    "inProgress": 4,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 404,
-    "checkedCheckboxes": 321
+    "totalCheckboxes": 368,
+    "checkedCheckboxes": 286
   },
   "projects": [
     {
@@ -30,10 +30,10 @@
       "title": "AAG フォーマット改修とサブプロジェクト機能",
       "kind": "project",
       "declaredStatus": "active",
-      "derivedStatus": "in_progress",
-      "checked": 35,
-      "total": 36,
-      "progress": 0.972,
+      "derivedStatus": "archived",
+      "checked": 0,
+      "total": 0,
+      "progress": 0,
       "entrypoint": "projects/aag-format-redesign/AI_CONTEXT.md",
       "checklistPath": "projects/aag-format-redesign/checklist.md",
       "parent": null

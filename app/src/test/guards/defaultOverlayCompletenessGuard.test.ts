@@ -21,7 +21,7 @@
  * したがって、project overlay が空でも rule の漏れは発生しない。
  *
  * @responsibility R:utility
- * @see projects/aag-format-redesign/overlay-bootstrap-design.md
+ * @see projects/completed/aag-format-redesign/overlay-bootstrap-design.md
  */
 
 import { describe, it, expect } from 'vitest'
