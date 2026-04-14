@@ -14,7 +14,7 @@
 * [x] presentation / VM / chart で比較先日付を独自計算している箇所を `inventory/01-comparison-math-in-presentation.md` に全件リスト化する
 * [x] `readFreePeriodFact()` 以外で自由期間データを取得している経路を `inventory/02-non-handler-free-period-access.md` に全件リスト化する
 * [x] 自由期間系 SQL で rate (discountRate / gpRate / markupRate) を計算している箇所を `inventory/03-rate-in-sql.md` に全件リスト化する
-* [x] `HeaderFilterState` を直接参照している hook / component を `inventory/04-header-filter-state-direct-refs.md` に全件リスト化する
+* [x] `PeriodSelection` / `usePeriodSelectionStore` を直接参照している presentation 層 hook / component を `inventory/04-header-filter-state-direct-refs.md` に全件リスト化する（旧 `HeaderFilterState` は実在しない仮名と判明、実体は `PeriodSelection`）
 
 ## Phase 0.5: Critical Path Acceptance Suite 骨格
 
@@ -23,12 +23,18 @@
 * [ ] Suite が frame / rows / summary / provenance / fallback の 5 項目を固定で比較する構造になっている
 * [ ] preset と free-period 入力で同じ内部レーンを通ることを確認するテストがある
 
-## Phase 1: 入力契約統一
+## Phase 1: 入力契約統一（配線）
 
-* [ ] `HeaderFilterState → FreePeriodAnalysisFrame` adapter を 1 箇所に実装する
-* [ ] 既存固定期間画面が adapter 経由で frame を構築するように切り替える
-* [ ] 画面内部 hook が `HeaderFilterState` を直接参照していないことをガードで保証する
-* [ ] 比較系 hook の入口を frame ベースに統一する
+> Phase 0 補記: `HeaderFilterState` は実在しない仮名であり、実体は
+> `PeriodSelection` + `usePeriodSelectionStore`。`PeriodSelection →
+> FreePeriodAnalysisFrame` adapter (`buildFreePeriodFrame`) と
+> `useFreePeriodAnalysisBundle` は既に存在するが実コードから配線されていない。
+> Phase 1 は「adapter を作る」ではなく「既存 adapter を既存画面に配線する」。
+
+* [ ] `buildFreePeriodFrame` を `PeriodSelection → FreePeriodAnalysisFrame` の唯一 factory として固定する（他経路 0 件）
+* [ ] `useUnifiedWidgetContext` が `buildFreePeriodFrame` + `useFreePeriodAnalysisBundle` 経由で frame と 3 readModel を取得するように切り替える
+* [ ] presentation 配下から `usePeriodSelectionStore` への直接 import が 0 件であることをガードで保証する
+* [ ] `useComparisonSlice` の入口を `FreePeriodAnalysisFrame.comparison` 経由に切り替える
 
 ## Phase 2: 比較解決一本化
 
@@ -37,13 +43,18 @@
 * [ ] presentation 層に比較先日付解決ロジックが残っていないことをガードで保証する
 * [ ] 比較先解決を `ComparisonScope` 以外で行うことを禁止するガードを追加する
 
-## Phase 3: 自由期間データレーン完成
+## Phase 3: 自由期間データレーンの明文化とガード化
 
-* [ ] `freePeriodHandler` を自由期間取得 orchestration の唯一経路として固定する
-* [ ] `readFreePeriodFact()` を自由期間取得の唯一経路として固定する
-* [ ] `computeFreePeriodSummary()` を期間サマリー計算の唯一経路として固定する
-* [ ] `FreePeriodReadModel` を chart 共通入力として位置づける
-* [ ] `readFreePeriodFact()` 以外の自由期間取得経路を禁止するガードを追加する
+> Phase 0 補記: 自由期間の取得経路は既に `freePeriodHandler` /
+> `readFreePeriodFact` / `FreePeriodReadModel` の canonical 1 経路に収束済み
+> （`inventory/02-*.md` 該当 0 件）。Phase 3 は実装コード移行ではなく、
+> 状態の明文化と G3 ガード追加に縮退する。
+
+* [ ] plan.md / free-period-analysis-definition.md / architectureRules で `freePeriodHandler` が自由期間取得 orchestration の唯一経路であることを明文化する
+* [ ] plan.md / free-period-analysis-definition.md で `readFreePeriodFact()` が取得の唯一経路であることを明文化する
+* [ ] `computeFreePeriodSummary()` が期間サマリー計算の唯一経路であることを明文化する
+* [ ] `FreePeriodReadModel` を chart 共通入力として `runtime-data-path.md` で位置づける
+* [ ] `readFreePeriodFact()` 以外の自由期間取得経路を禁止するガード（G3 `freePeriodHandlerOnly` / `noRawFreePeriodRowsToPresentation`）を追加する
 
 ## Phase 4: 率計算・集約責務整理
 
