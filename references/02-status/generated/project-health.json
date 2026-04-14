@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-14T13:16:57.291Z",
+  "timestamp": "2026-04-14T13:34:12.900Z",
   "summary": {
-    "active": 5,
+    "active": 6,
     "archived": 5,
-    "inProgress": 4,
+    "inProgress": 5,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 368,
+    "totalCheckboxes": 404,
     "checkedCheckboxes": 286
   },
   "projects": [
@@ -23,6 +23,18 @@
       "progress": 1,
       "entrypoint": "projects/completed/aag-collector-purification/AI_CONTEXT.md",
       "checklistPath": "projects/completed/aag-collector-purification/checklist.md"
+    },
+    {
+      "projectId": "aag-format-redesign",
+      "title": "AAG フォーマット改修とサブプロジェクト機能",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 0,
+      "total": 36,
+      "progress": 0,
+      "entrypoint": "projects/aag-format-redesign/AI_CONTEXT.md",
+      "checklistPath": "projects/aag-format-redesign/checklist.md"
     },
     {
       "projectId": "aag-rule-splitting-execution",

@@ -1,5 +1,5 @@
 # Current Project
 
-active: unify-period-analysis
+active: aag-format-redesign
 
-entry: `projects/unify-period-analysis/AI_CONTEXT.md`
+entry: `projects/aag-format-redesign/AI_CONTEXT.md`
