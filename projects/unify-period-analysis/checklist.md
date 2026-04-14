@@ -18,10 +18,10 @@
 
 ## Phase 0.5: Critical Path Acceptance Suite 骨格
 
-* [ ] `app/src/test/fixtures/freePeriod/` に golden fixture (3-5 店舗 / 10-20 日) を配置する
-* [ ] 代表 5 ケース (今月比較なし / 今月vs前月 / 今月vs前年 / 月跨ぎ自由期間 / 店舗subset+fallback) の骨格テストを追加する
-* [ ] Suite が frame / rows / summary / provenance / fallback の 5 項目を固定で比較する構造になっている
-* [ ] preset と free-period 入力で同じ内部レーンを通ることを確認するテストがある
+* [x] `app/src/test/fixtures/freePeriod/` に golden fixture (3-5 店舗 / 10-20 日) を配置する
+* [x] 代表 5 ケース (今月比較なし / 今月vs前月 / 今月vs前年 / 月跨ぎ自由期間 / 店舗subset+fallback) の骨格テストを追加する
+* [x] Suite が frame / rows / summary / provenance / fallback の 5 項目を固定で比較する構造になっている
+* [x] preset と free-period 入力で同じ内部レーンを通ることを確認するテストがある
 
 ## Phase 1: 入力契約統一（配線）
 
