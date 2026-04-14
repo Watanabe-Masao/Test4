@@ -473,9 +473,18 @@ export function buildMAOverlay(
 
   const maSeries: object[] = []
   const metricLabel = maOverlays.metricLabel ?? ''
+  // MA 系列は raw 線（右軸 quantity/customers は ct.semantic.quantity = sky blue）と
+  // 視覚的に衝突しないよう、左右両軸とも movingAverage 色（indigo）で統一する。
+  // 左軸の sales bar とは線/棒で形状が異なるため重なっても識別可能。
+  // 右軸の raw line（dashed sky blue）と区別するため、metric MA は別色 indigo を使う。
   const maColorPrimary = ct.semantic.movingAverage
-  const maColorMetric = ct.semantic.quantity
+  const maColorMetric = ct.semantic.movingAverage
 
+  // 視覚的区別ルール:
+  //   - MA 当年: solid（raw current=solid と区別するため色は MA 専用 indigo）
+  //   - MA 前年: dashed + alpha 0.7（raw prev=dashed sky blue と区別するため色 indigo）
+  // raw line（右軸）は sky blue 系、MA line は indigo 系で配色を分けるので、
+  // 同じ dashed パターンでも色で識別可能。
   const salesCurData = toMaData(maOverlays.salesCur)
   if (salesCurData) {
     maSeries.push({
@@ -484,7 +493,7 @@ export function buildMAOverlay(
       data: salesCurData,
       smooth: true,
       symbol: 'none',
-      lineStyle: { width: 2, type: 'dashed', color: maColorPrimary },
+      lineStyle: { width: 2, type: 'solid', color: maColorPrimary },
       z: 10,
     })
   }
@@ -497,7 +506,8 @@ export function buildMAOverlay(
       data: salesPrevData,
       smooth: true,
       symbol: 'none',
-      lineStyle: { width: 1.5, type: 'dotted', color: withAlpha(maColorPrimary, 0.5) },
+      // alpha 0.5 + dotted + 1.5px だと白背景でほぼ視認不可だったため強化
+      lineStyle: { width: 1.8, type: 'dashed', color: withAlpha(maColorPrimary, 0.7) },
       z: 10,
     })
   }
@@ -510,7 +520,7 @@ export function buildMAOverlay(
       data: metricCurData,
       smooth: true,
       symbol: 'none',
-      lineStyle: { width: 2, type: 'dashed', color: maColorMetric },
+      lineStyle: { width: 2, type: 'solid', color: maColorMetric },
       yAxisIndex: needRightAxis ? 1 : 0,
       z: 10,
     })
@@ -524,7 +534,7 @@ export function buildMAOverlay(
       data: metricPrevData,
       smooth: true,
       symbol: 'none',
-      lineStyle: { width: 1.5, type: 'dotted', color: withAlpha(maColorMetric, 0.5) },
+      lineStyle: { width: 1.8, type: 'dashed', color: withAlpha(maColorMetric, 0.7) },
       yAxisIndex: needRightAxis ? 1 : 0,
       z: 10,
     })

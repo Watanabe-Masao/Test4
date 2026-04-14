@@ -204,32 +204,21 @@ export async function bulkInsert(
 
   await db.registerFileText(fileName, json)
   try {
+    // INSERT 後の行数検証: RETURNING 句で実際に挿入された行数を DuckDB native に取得する。
+    // reason: SQLite の changes() は DuckDB に存在せず Catalog Error になるため、
+    //   RETURNING を使った単一クエリで INSERT + 検証を完結させる。
     const columnsParam = buildColumnsParam(tableName)
-    if (columnsParam) {
-      await conn.query(
-        `INSERT INTO ${tableName} SELECT * FROM read_json('${fileName}', columns=${columnsParam}, format='array')`,
-      )
-    } else {
-      // フォールバック（未定義テーブル用）
-      await conn.query(`INSERT INTO ${tableName} SELECT * FROM read_json_auto('${fileName}')`)
-    }
+    const insertSql = columnsParam
+      ? `INSERT INTO ${tableName} SELECT * FROM read_json('${fileName}', columns=${columnsParam}, format='array') RETURNING 1`
+      : // フォールバック（未定義テーブル用）
+        `INSERT INTO ${tableName} SELECT * FROM read_json_auto('${fileName}') RETURNING 1`
 
-    // INSERT 後の行数検証: changes() で実際に挿入された行数を確認する
-    try {
-      const countResult = await conn.query(`SELECT changes() as affected`)
-      const affected = Number(countResult.toArray()[0]?.affected ?? 0)
-      if (affected !== rows.length) {
-        throw new Error(
-          `bulkInsert: expected ${rows.length} rows, but ${affected} were inserted into ${tableName}`,
-        )
-      }
-    } catch (verifyErr) {
-      // changes() が未サポートの環境（テストモック等）では検証をスキップ
-      if (verifyErr instanceof Error && verifyErr.message.startsWith('bulkInsert: expected')) {
-        throw verifyErr // 行数不一致は再throw
-      }
-      // changes() 自体の実行失敗はログのみ（INSERT は成功している）
-      console.warn('[bulkInsert] changes() verification skipped:', verifyErr)
+    const insertResult = await conn.query(insertSql)
+    const affected = insertResult.toArray().length
+    if (affected !== rows.length) {
+      throw new Error(
+        `bulkInsert: expected ${rows.length} rows, but ${affected} were inserted into ${tableName}`,
+      )
     }
   } finally {
     await db.dropFile(fileName)
