@@ -4,12 +4,10 @@
 
 ## 1. 現在地
 
-**Phase 1〜3 (E2E 拡充まで) は完了済み。Phase 3 の Step 3-15〜3-37 で pure
-function bulk wave (PR #1023〜#1025) を投入し coverage 38.69 → 46.70 (+8.01)。
-残るは Phase 3 の component test 追加 + 閾値段階引き上げ + test:e2e CI 検証
-(4 checkbox + 閾値 ratchet)。**
+**Phase 1〜3 (E2E 拡充 + 大型 component test まで) は完了済み。残るは Phase 3 の
+段階的閾値引き上げ (45 → 70) + test:e2e CI 検証 (3 checkbox)。**
 
-完了済 (PR #1020 / #1023〜#1025 マージ済):
+完了済 (PR #1020 / #1023〜#1025 + post-merge commits マージ済):
 
 - Phase 1: WeatherPage active-debt 解消 (4/4) — `useWeatherDaySelection` 抽出済
 - Phase 2: 500 行超コンポーネントの `.vm.ts` 抽出 (4/4)
@@ -19,16 +17,31 @@ function bulk wave (PR #1023〜#1025) を投入し coverage 38.69 → 46.70 (+8.
 - Phase 3 部分:
   - E2E spec 4 件 → 12 件 (全 10 standard ページ網羅)
   - Step 3-1〜3-14: vm/component test 段階追加で coverage 35.01 → 36.31 (閾値 36→37)
-  - **Step 3-15〜3-37 (本セッション)**: pure function bulk wave で coverage **36.31 → 46.70** (+10.39 pt)
-    - 7 wave / 約 2,300 件の新規 test (全 green)
+  - **Step 3-15〜3-37 (本セッション pure function wave)**: coverage 36.31 → 46.70 (+10.39 pt)
+    - 7 wave / 約 2,300 件の pure function test (全 green)
     - 詳細は `projects/test-signal-integrity/HANDOFF.md §5.3` の同期間ログ参照
+  - **Step 3-38 (post-merge)**: 大型 component test 25 件 (`b206cd3`)
+    - IntegratedSalesChart (8) / WeatherPage (8) / DashboardPage (9)
+    - vi.mock + importActual 戦略で heavy hooks/sub-components を最小スタブ化
+    - coverage 46.70 → 47.27 (+0.57 pt)
+  - **Step 3-39 (governance ops)**: 閾値 ratchet up 37 → 45 (`e871067`)
+    - margin 2.27 pt の安全引き上げ、不可侵原則 #1 遵守
+    - 同 commit で aggregationUtilities.ts dead file 削除 + pre-push tsc → tsc -b 拡張
+      + AR-TSIG-TEST-04 (tautology assertion) hard gate 昇格
 
-derivedStatus: in_progress / 9 of 15 (60%)
+derivedStatus: in_progress / 12 of 15 (80%)
 
-**閾値 ratchet up の機会 (未実施)**: 現 vitest threshold は **lines: 37**、
-現実値 **46.70**。margin 9+ pt あり、不可侵原則 #1 に従って **45 (or 46)** まで
-安全に引き上げられる。本セッションでは閾値変更コミットは未実施 (separate
-decision として保留)。次の作業者 (or 人間レビュー時) に判断を委ねる。
+**残 3 checkbox (checklist 状態)**:
+- coverage 閾値 lines: 70 (現在 45 / 現実値 47.27)
+- CI で coverage 70% 達成 (23 pt 不足)
+- `npm run test:e2e` CI 通過確認 (実作業ほぼなし)
+
+**ratchet up history**:
+```
+35 → 36 (Step 3-8) → 37 (Step 3-14) → 45 (Step 3-39 本セッション)
+                                       ↑ margin 2.27 pt
+target → 70 (Phase 3 完了時)
+```
 
 ## 2. 次にやること — Phase 3 残作業 (本セッション後の更新)
 
@@ -47,20 +60,18 @@ Step 3-3 で立てた仮説「component test の方が pure function test の 5x
 70% に到達するには **残り 23+ ポイントの大半は component test (presentation/**/*.tsx)
 + 大型 hook の renderHook test** で稼ぐ必要がある。
 
-### 残 4 checkbox の作業順
+### 残 3 checkbox の作業順
 
-1. **閾値 ratchet up: 37 → 45** (本セッション後の immediate action)
-   - 現実値 46.70 / margin 9+ pt あり安全
-   - separate commit で実施 (本セッションでは見送り)
+1. ~~**閾値 ratchet up: 37 → 45**~~ — **完了済 (Step 3-39, `e871067`)** / margin 2.27 pt
 
-2. **大型 page component の test 追加** (checklist 既存項目)
-   - IntegratedSalesChart, DashboardPage, WeatherPage
-   - 各 +0.5〜2 pt の delta が期待できる
+2. ~~**大型 page component の test 追加** (IntegratedSalesChart, DashboardPage, WeatherPage)~~ — **完了済 (Step 3-38, `b206cd3`)** / 25 tests / +0.57 pt
 
 3. **段階的閾値引き上げ**: 45 → 50 → 55 → 60 → 65 → 70 (test 追加と並行)
+   - 残 23 pt = component test + renderHook test を継続追加
+   - per-test 効率は component test で ~0.013 (今回実証)、必要数は ~1,800 件
 
 4. **`npm run test:e2e` CI 通過確認**: PR #1020 で追加した 12 spec の CI 結果
-   を見るだけ
+   を見るだけ (実作業ほぼなし)
 
 ### 並行課題: pre-push tsc vs CI build divergence (本セッション発見)
 
