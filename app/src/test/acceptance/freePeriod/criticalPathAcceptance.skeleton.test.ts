@@ -28,9 +28,7 @@ import {
   GOLDEN_STORE_IDS,
   GOLDEN_STORE_SUBSET_IDS,
   GOLDEN_CURRENT_RANGE,
-  GOLDEN_PREV_YEAR_RANGE,
   GOLDEN_PREV_MONTH_RANGE,
-  GOLDEN_MONTH_BOUNDARY_RANGE,
   GOLDEN_SELECTION_NO_COMPARISON,
   GOLDEN_SELECTION_VS_PREV_MONTH,
   GOLDEN_SELECTION_VS_PREV_YEAR,
@@ -64,11 +62,7 @@ interface AcceptanceCase {
 const case1: AcceptanceCase = {
   id: 'case-1-current-no-comparison',
   description: '今月 (preset) / 比較なし',
-  frame: buildFreePeriodFrame(
-    GOLDEN_SELECTION_NO_COMPARISON,
-    GOLDEN_STORE_IDS,
-    undefined,
-  ),
+  frame: buildFreePeriodFrame(GOLDEN_SELECTION_NO_COMPARISON, GOLDEN_STORE_IDS, undefined),
   readModel: buildFreePeriodReadModel(GOLDEN_CURRENT_ROWS, []),
 }
 
@@ -77,11 +71,7 @@ const case1: AcceptanceCase = {
 const case2: AcceptanceCase = {
   id: 'case-2-current-vs-prev-month',
   description: '今月 vs 前月 (prevMonth preset)',
-  frame: buildFreePeriodFrame(
-    GOLDEN_SELECTION_VS_PREV_MONTH,
-    GOLDEN_STORE_IDS,
-    undefined,
-  ),
+  frame: buildFreePeriodFrame(GOLDEN_SELECTION_VS_PREV_MONTH, GOLDEN_STORE_IDS, undefined),
   readModel: buildFreePeriodReadModel(GOLDEN_CURRENT_ROWS, GOLDEN_PREV_MONTH_ROWS),
 }
 
@@ -90,11 +80,7 @@ const case2: AcceptanceCase = {
 const case3: AcceptanceCase = {
   id: 'case-3-current-vs-prev-year',
   description: '今月 vs 前年同期間 (prevYearSameMonth preset)',
-  frame: buildFreePeriodFrame(
-    GOLDEN_SELECTION_VS_PREV_YEAR,
-    GOLDEN_STORE_IDS,
-    undefined,
-  ),
+  frame: buildFreePeriodFrame(GOLDEN_SELECTION_VS_PREV_YEAR, GOLDEN_STORE_IDS, undefined),
   readModel: buildFreePeriodReadModel(GOLDEN_CURRENT_ROWS, GOLDEN_PREV_YEAR_ROWS),
 }
 
@@ -103,11 +89,7 @@ const case3: AcceptanceCase = {
 const case4: AcceptanceCase = {
   id: 'case-4-month-boundary-free-period',
   description: '月跨ぎ自由期間 (3/28-4/6) / 比較なし',
-  frame: buildFreePeriodFrame(
-    GOLDEN_SELECTION_MONTH_BOUNDARY,
-    GOLDEN_STORE_IDS,
-    undefined,
-  ),
+  frame: buildFreePeriodFrame(GOLDEN_SELECTION_MONTH_BOUNDARY, GOLDEN_STORE_IDS, undefined),
   readModel: buildFreePeriodReadModel(GOLDEN_MONTH_BOUNDARY_ROWS, []),
 }
 
@@ -116,11 +98,7 @@ const case4: AcceptanceCase = {
 const case5: AcceptanceCase = {
   id: 'case-5-store-subset',
   description: '店舗 subset (store-a + store-b) / 比較なし',
-  frame: buildFreePeriodFrame(
-    GOLDEN_SELECTION_NO_COMPARISON,
-    GOLDEN_STORE_SUBSET_IDS,
-    undefined,
-  ),
+  frame: buildFreePeriodFrame(GOLDEN_SELECTION_NO_COMPARISON, GOLDEN_STORE_SUBSET_IDS, undefined),
   readModel: buildFreePeriodReadModel(GOLDEN_STORE_SUBSET_ROWS, []),
 }
 
@@ -130,35 +108,32 @@ const ALL_CASES: readonly AcceptanceCase[] = [case1, case2, case3, case4, case5]
 
 describe('Critical Path Acceptance Suite (Phase 0.5 skeleton)', () => {
   describe('5 項目 (frame / rows / summary / provenance / fallback) を全ケースで固定で比較する', () => {
-    it.each(ALL_CASES)(
-      '[$id] $description — 5 項目が揃う',
-      ({ frame, readModel }) => {
-        // 1. frame が正しく作られている (kind / anchorRange / storeIds / granularity)
-        expect(frame.kind).toBe('free-period')
-        expect(frame.anchorRange).toBeDefined()
-        expect(frame.storeIds.length).toBeGreaterThan(0)
-        expect(frame.granularity).toBe('day')
+    it.each(ALL_CASES)('[$id] $description — 5 項目が揃う', ({ frame, readModel }) => {
+      // 1. frame が正しく作られている (kind / anchorRange / storeIds / granularity)
+      expect(frame.kind).toBe('free-period')
+      expect(frame.anchorRange).toBeDefined()
+      expect(frame.storeIds.length).toBeGreaterThan(0)
+      expect(frame.granularity).toBe('day')
 
-        // 2. currentRows / comparisonRows が readModel に載っている
-        expect(readModel.currentRows).toBeDefined()
-        expect(readModel.comparisonRows).toBeDefined()
+      // 2. currentRows / comparisonRows が readModel に載っている
+      expect(readModel.currentRows).toBeDefined()
+      expect(readModel.comparisonRows).toBeDefined()
 
-        // 3. currentSummary / comparisonSummary が揃っている
-        expect(readModel.currentSummary).toBeDefined()
-        // comparisonSummary は comparison なしなら null
-        if (frame.comparison == null) {
-          expect(readModel.comparisonSummary).toBeNull()
-        } else {
-          expect(readModel.comparisonSummary).not.toBeNull()
-        }
+      // 3. currentSummary / comparisonSummary が揃っている
+      expect(readModel.currentSummary).toBeDefined()
+      // comparisonSummary は comparison なしなら null
+      if (frame.comparison == null) {
+        expect(readModel.comparisonSummary).toBeNull()
+      } else {
+        expect(readModel.comparisonSummary).not.toBeNull()
+      }
 
-        // 4. provenance (Phase 2 で拡充) — 骨格段階では frame.comparison の有無のみ確認
-        expect(frame.comparison === null || typeof frame.comparison === 'object').toBe(true)
+      // 4. provenance (Phase 2 で拡充) — 骨格段階では frame.comparison の有無のみ確認
+      expect(frame.comparison === null || typeof frame.comparison === 'object').toBe(true)
 
-        // 5. fallback (Phase 3 で拡充) — 骨格段階では meta.usedFallback の存在のみ確認
-        expect(readModel.meta.usedFallback).toBe(false)
-      },
-    )
+      // 5. fallback (Phase 3 で拡充) — 骨格段階では meta.usedFallback の存在のみ確認
+      expect(readModel.meta.usedFallback).toBe(false)
+    })
   })
 
   describe('preset 入力と free-period 入力が同じ内部レーンを通る (parity 骨格)', () => {

@@ -74,18 +74,31 @@ describe('自由期間分析正本ガード', () => {
 
   it('presentation 層で比較先日付を独自計算しない', () => {
     const presFiles = collectTsFiles(path.join(SRC_DIR, 'presentation'))
+    // `buildComparisonScope` は presentation から呼ばない。
+    // `buildFreePeriodFrame` は unify-period-analysis Phase 1 の配線点であり、
+    // `useUnifiedWidgetContext.ts` のみが唯一の合法 caller。
     const COMPARISON_PATTERNS = [/buildComparisonScope/, /buildFreePeriodFrame/]
+    const BUILD_FREE_PERIOD_FRAME_ALLOWLIST = new Set([
+      'presentation/hooks/useUnifiedWidgetContext.ts',
+    ])
     const violations: string[] = []
 
     for (const file of presFiles) {
       const content = fs.readFileSync(file, 'utf-8')
       for (const line of content.split('\n')) {
-        if (line.trimStart().startsWith('import type')) continue
+        // import type / JSDoc コメント / 行コメントは値参照ではないため除外
+        const trimmed = line.trimStart()
+        if (trimmed.startsWith('import type')) continue
+        if (trimmed.startsWith('*') || trimmed.startsWith('/*') || trimmed.startsWith('//'))
+          continue
         if (COMPARISON_PATTERNS.some((p) => p.test(line))) {
           const relPath = rel(file)
-          if (!relPath.includes('__tests__') && !relPath.includes('.test.')) {
-            violations.push(`${relPath}: ${line.trim().slice(0, 80)}`)
+          if (relPath.includes('__tests__') || relPath.includes('.test.')) continue
+          // Phase 1 配線点の allowlist
+          if (/buildFreePeriodFrame/.test(line) && BUILD_FREE_PERIOD_FRAME_ALLOWLIST.has(relPath)) {
+            continue
           }
+          violations.push(`${relPath}: ${line.trim().slice(0, 80)}`)
         }
       }
     }

@@ -8,6 +8,7 @@
 |---|---|---|---|
 | `app/src/test/guards/layerBoundaryGuard.test.ts` | architecture | 11件 | 4層依存、許可リスト上限・実在確認 |
 | `app/src/test/guards/presentationIsolationGuard.test.ts` | architecture | 13件 | Presentation制約、CQRS境界、DuckDB Migration、Q3 enforcement |
+| `app/src/test/guards/presentationPeriodStoreAccessGuard.test.ts` | architecture | 4件 | presentation 層からの periodSelectionStore 直接 import を allowlist 管理（unify-period-analysis Phase 1） |
 | `app/src/test/guards/structuralConventionGuard.test.ts` | architecture | 7件 | 縦スライス、プロトタイプ、バレル移行、ctx重複 |
 | `app/src/domain/calculations/__tests__/calculationRules.test.ts` | invariant-guardian | 7件 | safeDivide, calculateTransactionValue, overflowDay, fmtSen, formatPercent, toPct |
 | `app/src/presentation/components/charts/__tests__/divisorRules.test.ts` | invariant-guardian | 8件 | computeDivisor, filterByStore, countDistinctDays, 正規ロケーション, 網羅性 |

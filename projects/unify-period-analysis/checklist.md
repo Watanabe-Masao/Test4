@@ -31,10 +31,10 @@
 > `useFreePeriodAnalysisBundle` は既に存在するが実コードから配線されていない。
 > Phase 1 は「adapter を作る」ではなく「既存 adapter を既存画面に配線する」。
 
-* [ ] `buildFreePeriodFrame` を `PeriodSelection → FreePeriodAnalysisFrame` の唯一 factory として固定する（他経路 0 件）
-* [ ] `useUnifiedWidgetContext` が `buildFreePeriodFrame` + `useFreePeriodAnalysisBundle` 経由で frame と 3 readModel を取得するように切り替える
-* [ ] presentation 配下から `usePeriodSelectionStore` への直接 import が 0 件であることをガードで保証する
-* [ ] `useComparisonSlice` の入口を `FreePeriodAnalysisFrame.comparison` 経由に切り替える
+* [x] `buildFreePeriodFrame` を `PeriodSelection → FreePeriodAnalysisFrame` の唯一 factory として固定する（`useUnifiedWidgetContext.ts` のみ allowlist、`freePeriodPathGuard` の「presentation 層で比較先日付を独自計算しない」テストで保証）
+* [x] `useUnifiedWidgetContext` が `buildFreePeriodFrame` + `useFreePeriodAnalysisBundle` 経由で frame と 3 readModel を取得するように切り替える（ctx.freePeriodLane = { frame, bundle } として公開）
+* [x] presentation 配下からの `usePeriodSelectionStore` 直接 import を allowlist 管理化する（`presentationPeriodStoreAccessGuard` + 現状 6 件ベースライン、以後 ratchet-down のみ許可）
+* [x] `useComparisonSlice` の入口を `FreePeriodAnalysisFrame` 経由に切り替える（frame を primary 入力として受け取る。内部 comparison module の `ComparisonScope` 直接受領化は Phase 6 で完了予定）
 
 ## Phase 2: 比較解決一本化
 

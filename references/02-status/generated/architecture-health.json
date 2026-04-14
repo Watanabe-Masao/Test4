@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-14T14:55:20.665Z",
+  "timestamp": "2026-04-14T16:16:40.228Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 60,
+      "value": 61,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -303,6 +303,7 @@
         "app/src/test/guards/piValuePathGuard.test.ts",
         "app/src/test/guards/pipelineSafetyGuard.test.ts",
         "app/src/test/guards/presentationIsolationGuard.test.ts",
+        "app/src/test/guards/presentationPeriodStoreAccessGuard.test.ts",
         "app/src/test/guards/projectCompletionConsistencyGuard.test.ts",
         "app/src/test/guards/projectDocStructureGuard.test.ts",
         "app/src/test/guards/projectStructureGuard.test.ts",
@@ -547,7 +548,7 @@
         }
       ],
       "implRefs": [
-        "projects/pure-calculation-reorg/aag/execution-overlay.ts"
+        "projects/unify-period-analysis/aag/execution-overlay.ts"
       ],
       "budget": 92
     },
@@ -580,7 +581,7 @@
       "owner": "architecture",
       "docRefs": [],
       "implRefs": [
-        "projects/pure-calculation-reorg/aag/execution-overlay.ts"
+        "projects/unify-period-analysis/aag/execution-overlay.ts"
       ],
       "budget": 0
     },
@@ -845,7 +846,7 @@
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 286,
+      "value": 298,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",

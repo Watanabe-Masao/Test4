@@ -114,16 +114,19 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     outdatedPattern: {
       description: 'UnifiedWidgetContext に readonly フィールドを追加する',
     },
-    thresholds: { fieldMax: 47 },
+    thresholds: { fieldMax: 48 },
     decisionCriteria: {
       when: 'UnifiedWidgetContext にフィールドを追加したいとき',
       exceptions: '全ウィジェット共通のフィールドのみ許容',
       escalation: 'feature slice のローカル context に配置',
     },
     detection: {
+      // 2026-04-14: unify-period-analysis Phase 1 で freePeriodLane
+      // (frame + bundle を 1 ネストフィールドに統合) を追加。47 → 48。
+      // Phase 6 で readModels と統合または置換することで減少させる計画。
       type: 'count',
       severity: 'gate',
-      baseline: 47,
+      baseline: 48,
     },
     migrationRecipe: {
       steps: [

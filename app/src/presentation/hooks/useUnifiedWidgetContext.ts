@@ -25,6 +25,8 @@ import { detectDataMaxDay } from '@/application/services/dataDetection'
 import { useDeptKpiView } from '@/application/hooks/useDeptKpiView'
 import { usePeriodSelectionStore } from '@/application/stores/periodSelectionStore'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
+import { buildFreePeriodFrame } from '@/domain/models/buildFreePeriodFrame'
+import { useFreePeriodAnalysisBundle } from '@/application/hooks/useFreePeriodAnalysisBundle'
 import { useComparisonSlice } from './slices/useComparisonSlice'
 import { useQuerySlice } from './slices/useQuerySlice'
 import { useWeatherSlice } from './slices/useWeatherSlice'
@@ -62,8 +64,24 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
   const targetYear = settings.targetYear
   const targetMonth = settings.targetMonth
 
-  // ── 比較 slice ──
+  // ── 自由期間分析レーン (unify-period-analysis Phase 1) ──
+  // PeriodSelection → FreePeriodAnalysisFrame adapter を経由して frame を構築し、
+  // useFreePeriodAnalysisBundle で 3 readModel (fact / budget / deptKPI) を
+  // 一括取得する。既存の query slice と並置し、widget は段階的に bundle 経由に
+  // 移行する。presentation 配下で buildFreePeriodFrame を呼ぶ唯一の場所。
+  const analysisFrame = useMemo(
+    () =>
+      buildFreePeriodFrame(
+        periodSelection,
+        Array.from(selectedStoreIds).sort(),
+        currentResult?.elapsedDays,
+      ),
+    [periodSelection, selectedStoreIds, currentResult?.elapsedDays],
+  )
+
+  // ── 比較 slice (Phase 1: frame 経由入口) ──
   const comparison = useComparisonSlice(
+    analysisFrame,
     periodSelection,
     currentResult?.elapsedDays,
     currentResult?.averageDailySales ?? 0,
@@ -99,6 +117,13 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
     currentResult,
     periodSelection.activePreset,
   )
+
+  // ── 自由期間分析 bundle (unify-period-analysis Phase 1) ──
+  // analysisFrame は先に構築済み (useComparisonSlice の入口用)。ここでは
+  // query.queryExecutor と組み合わせて 3 readModel (fact / budget / deptKPI)
+  // を取得する。既存の query slice と並置され、widget は段階的に bundle 経由に
+  // 移行する。
+  const freePeriodBundle = useFreePeriodAnalysisBundle(query.queryExecutor, analysisFrame)
 
   // ── コア: 説明・パネル状態 ──
   const explanations = useExplanations(comparison.kpi, comparison.dowGap)
@@ -185,6 +210,9 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
       prevYearStoreCostPrice: query.prevYearStoreCostPrice,
       readModels: query.readModels,
 
+      // 自由期間分析レーン (unify-period-analysis Phase 1)
+      freePeriodLane: { frame: analysisFrame, bundle: freePeriodBundle },
+
       // 天気 slice
       weatherDaily: weather.weatherDaily,
       prevYearWeatherDaily: weather.prevYearWeatherDaily,
@@ -221,6 +249,8 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
     chart,
     selectedResults,
     storeNames,
+    analysisFrame,
+    freePeriodBundle,
   ])
 
   return {
