@@ -78,6 +78,9 @@ export function useDuckDB(
 
   // 差分ロード用: ロード済み月と各月のフィンガープリント
   const loadedMonthsRef = useRef<Map<string, string>>(new Map())
+  // 前年データの fingerprint（cur month と独立して追跡 — 後段で比較する）
+  // null = 未ロード（純粋に "前年データ無し" の状態と区別したい場合は専用 sentinel を導入する）
+  const loadedPrevYearFp = useRef<string | null>(null)
   // 初回ロード済みフラグ（初回は resetTables → フルロード）
   const initialLoadDone = useRef(false)
 
@@ -130,6 +133,7 @@ export function useDuckDB(
         await resetTables(state.conn)
         if (isStale()) return
         loadedMonthsRef.current.clear()
+        loadedPrevYearFp.current = null
         anyChanged = true
 
         await loadMonth(state.conn, state.db, currentMonthData, year, month)
@@ -145,6 +149,7 @@ export function useDuckDB(
             true,
           )
           if (isStale()) return
+          loadedPrevYearFp.current = computeMonthFingerprint(prevYear)
         }
         loadedMonthsRef.current.set(
           monthKey(year, month),
@@ -185,6 +190,7 @@ export function useDuckDB(
         // ── 差分ロード: 変更された月のみ loadMonth で差し替え ──
         const currentMonthFp = computeMonthFingerprint(currentMonthData)
         const curKey = monthKey(year, month)
+        const prevYearFp = prevYear ? computeMonthFingerprint(prevYear) : null
 
         // 当月: フィンガープリントが変わったら再ロード
         // （loadMonth は replace セマンティクスで当年・前年の両スコープを
@@ -203,8 +209,28 @@ export function useDuckDB(
               true,
             )
             if (isStale()) return
+            loadedPrevYearFp.current = prevYearFp
           }
           loadedMonthsRef.current.set(curKey, currentMonthFp)
+          anyChanged = true
+        } else if (prevYearFp !== loadedPrevYearFp.current) {
+          // 当月は変わっていないが前年データだけ更新された場合
+          // (useLoadComparisonData が初回ロード後に prevYear を埋めるケース)
+          // → 前年のみ再ロードする。これを忘れると DuckDB の time_slots に
+          //   is_prev_year=true 行が入らず、TimeSlotChart や HeatmapChart の
+          //   比較期データが空になる（#時間帯前年表示バグ）。
+          if (prevYear) {
+            await loadMonth(
+              state.conn,
+              state.db,
+              prevYear,
+              prevYear.origin.year,
+              prevYear.origin.month,
+              true,
+            )
+            if (isStale()) return
+          }
+          loadedPrevYearFp.current = prevYearFp
           anyChanged = true
         }
 

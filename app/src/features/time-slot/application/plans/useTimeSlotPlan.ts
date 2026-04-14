@@ -1,7 +1,7 @@
 /**
  * useTimeSlotPlan — TimeSlotChart の Screen Query Plan
  *
- * WoW/YoY comparison routing + hourly aggregation + category hourly pair を管理��る。
+ * WoW/YoY comparison routing + hourly aggregation + category hourly pair を管理する。
  * 階層ドリルスルーは useTimeSlotHierarchyPlan に委譲。
  * 天気データ取得は useTimeSlotWeatherPlan に委譲。
  *
@@ -34,10 +34,16 @@ import type { PlanComparisonProvenance } from '@/domain/models/ComparisonWindow'
 import { currentOnly, yoyWindow, wowWindow } from '@/domain/models/ComparisonWindow'
 import { useTimeSlotWeatherPlan } from './useTimeSlotWeatherPlan'
 import { useTimeSlotHierarchyPlan } from './useTimeSlotHierarchyPlan'
+import type { CompMode } from './buildTimeSlotPlanInputs'
 
 // ── Types ──
 
-export type CompMode = 'yoy' | 'wow'
+export type { CompMode }
+export {
+  buildTimeSlotPlanInputs,
+  type TimeSlotPlanInputsParams,
+  type TimeSlotPlanInputs,
+} from './buildTimeSlotPlanInputs'
 
 export interface TimeSlotPlanParams {
   readonly queryExecutor: QueryExecutor | null
@@ -65,9 +71,7 @@ export interface TimeSlotPlanResult {
   readonly prevCategoryHourlyData: readonly CategoryHourlyRow[] | null
   readonly curWeatherAvg: readonly HourlyWeatherAvgRow[] | null
   readonly prevWeatherAvg: readonly HourlyWeatherAvgRow[] | null
-  // ── Provenance ──
   readonly comparisonProvenance: PlanComparisonProvenance
-  // ── Status ──
   readonly isLoading: boolean
   readonly error: Error | null
 }
@@ -96,13 +100,11 @@ export function useTimeSlotPlan(params: TimeSlotPlanParams): TimeSlotPlanResult 
     hierarchy,
   } = params
 
-  // ── Comparison Range ──
   const wowRange = useMemo(() => buildWowRange(currentDateRange), [currentDateRange])
   const compRange = compMode === 'wow' ? wowRange : prevYearScope?.dateRange
   const compIsPrevYear = compMode === 'yoy'
   const prevDateRange = compMode === 'yoy' ? prevYearScope?.dateRange : undefined
 
-  // ── Query Inputs ──
   const storeIds = storeIdsArray(selectedStoreIds)
 
   const curHourlyInput = useMemo<HourlyAggregationInput>(
@@ -142,7 +144,6 @@ export function useTimeSlotPlan(params: TimeSlotPlanParams): TimeSlotPlanResult 
   }, [currentDateRange, pyRange, storeIds, heatmapLevel, hierarchy])
 
   // ── Query Execution ──
-
   const {
     data: curHourlyOut,
     isLoading,
@@ -185,7 +186,6 @@ export function useTimeSlotPlan(params: TimeSlotPlanParams): TimeSlotPlanResult 
     weatherPersist,
   })
 
-  // ── Comparison Provenance ──
   const comparisonProvenance = useMemo<PlanComparisonProvenance>(() => {
     if (!compRange) return { window: currentOnly(), comparisonAvailable: false }
     const win =
@@ -193,7 +193,6 @@ export function useTimeSlotPlan(params: TimeSlotPlanParams): TimeSlotPlanResult 
     return { window: win, comparisonAvailable: compHourlyOut != null }
   }, [compMode, compRange, prevYearScope?.dowOffset, compHourlyOut])
 
-  // ── Unwrap ──
   const catHourlyOut = catHourlyPairOut?.current ?? null
   const prevCatHourlyOut = catHourlyPairOut?.comparison ?? null
 
