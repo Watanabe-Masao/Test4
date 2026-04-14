@@ -3,6 +3,8 @@
   "title": "期間分析統合（固定期間を自由期間プリセットに）",
   "status": "active",
   "projectRoot": "projects/unify-period-analysis",
+  "overlayRoot": "projects/unify-period-analysis/aag",
+  "overlayEntry": "projects/unify-period-analysis/aag/execution-overlay.ts",
   "entrypoints": {
     "aiContext": "projects/unify-period-analysis/AI_CONTEXT.md",
     "handoff": "projects/unify-period-analysis/HANDOFF.md",

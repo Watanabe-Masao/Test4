@@ -5,9 +5,17 @@
 
 ## 1. 現在地
 
-project ディレクトリを bootstrap した段階。`AI_CONTEXT.md` / `plan.md` /
-`checklist.md` / `config/project.json` を作成済み。実装・ガード追加は未着手。
-既存コードの棚卸し（Phase 0）が次の作業。
+project ディレクトリを bootstrap し、運用切替まで完了した段階。
+`AI_CONTEXT.md` / `plan.md` / `checklist.md` / `pr-breakdown.md` /
+`review-checklist.md` / `acceptance-suite.md` / `test-plan.md` /
+`config/project.json` を作成済み。`CURRENT_PROJECT.md` を本 project に切替済み。
+`aag/execution-overlay.ts` を pure-calculation-reorg からコピーして配置済み
+（案件固有の調整は overlay レベルで Phase 7 以降に行う）。
+`inventory/01〜04.md` の骨格を配置済み。実装・ガード追加・棚卸し本体は未着手。
+既存コードの棚卸し（Phase 0、`inventory/` への記入）が次の作業。
+
+なお `pure-calculation-reorg` は `status: active` のまま並行運用扱い。
+切り戻す場合は `CURRENT_PROJECT.md` の 1 行を書き換えるだけで戻せる。
 
 ## 2. 次にやること
 

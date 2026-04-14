@@ -9,10 +9,12 @@
 
 ## Phase 0: 現状棚卸し
 
-* [ ] presentation / VM / chart で比較先日付を独自計算している箇所を全件リスト化し棚卸しドキュメントに記録する
-* [ ] `readFreePeriodFact()` 以外で自由期間データを取得している経路を全件リスト化する
-* [ ] 自由期間系 SQL で rate (discountRate / gpRate / markupRate) を計算している箇所を全件リスト化する
-* [ ] `HeaderFilterState` を直接参照している hook / component を全件リスト化する
+> 棚卸し結果の固定先: `inventory/01〜04.md`（書式は `inventory/README.md` 参照）
+
+* [ ] presentation / VM / chart で比較先日付を独自計算している箇所を `inventory/01-comparison-math-in-presentation.md` に全件リスト化する
+* [ ] `readFreePeriodFact()` 以外で自由期間データを取得している経路を `inventory/02-non-handler-free-period-access.md` に全件リスト化する
+* [ ] 自由期間系 SQL で rate (discountRate / gpRate / markupRate) を計算している箇所を `inventory/03-rate-in-sql.md` に全件リスト化する
+* [ ] `HeaderFilterState` を直接参照している hook / component を `inventory/04-header-filter-state-direct-refs.md` に全件リスト化する
 
 ## Phase 0.5: Critical Path Acceptance Suite 骨格
 

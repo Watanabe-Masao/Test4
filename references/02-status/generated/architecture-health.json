@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-14T12:21:33.024Z",
+  "timestamp": "2026-04-14T13:16:57.285Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -545,7 +545,7 @@
         }
       ],
       "implRefs": [
-        "projects/pure-calculation-reorg/aag/execution-overlay.ts"
+        "projects/unify-period-analysis/aag/execution-overlay.ts"
       ],
       "budget": 92
     },
@@ -578,7 +578,7 @@
       "owner": "architecture",
       "docRefs": [],
       "implRefs": [
-        "projects/pure-calculation-reorg/aag/execution-overlay.ts"
+        "projects/unify-period-analysis/aag/execution-overlay.ts"
       ],
       "budget": 0
     },
