@@ -10,7 +10,8 @@ import { useCalculation } from '@/application/hooks/calculation'
 import { useStoreSelection, useMonthSwitcher } from '@/application/hooks/ui'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { usePeriodSelectionStore } from '@/application/stores/periodSelectionStore'
-import { useComparisonModule, extractPrevYearCustomerCount } from '@/features/comparison'
+import { usePageComparisonModule } from '@/application/hooks/usePageComparisonModule'
+import { extractPrevYearCustomerCount } from '@/features/comparison'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import { KpiTabContent } from './KpiTabContent'
 import { ChartTabContent } from './ChartTabContent'
@@ -42,13 +43,16 @@ export function MobileDashboardPage() {
   const navigate = useNavigate()
 
   const { isCalculated, daysInMonth } = useCalculation()
-  const { currentResult, storeName } = useStoreSelection()
+  const { currentResult, storeName, selectedStoreIds } = useStoreSelection()
   const settings = useSettingsStore((s) => s.settings)
   const periodSelection = usePeriodSelectionStore((s) => s.selection)
-  const comparison = useComparisonModule(
+  // Phase 6b: frame ベースの page-level wrapper 経由で comparison module を取得
+  // (内部で buildFreePeriodFrame → useComparisonModule(..., frame.comparison))
+  const comparison = usePageComparisonModule(
     periodSelection,
     currentResult?.elapsedDays,
     currentResult?.averageDailySales ?? 0,
+    selectedStoreIds,
   )
   const prevYear = comparison.daily
 

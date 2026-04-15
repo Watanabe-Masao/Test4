@@ -36,21 +36,17 @@ import { collectTsFiles, rel } from '../guardTestHelpers'
 const SRC_DIR = path.resolve(__dirname, '../..')
 
 // Phase 6a 時点で legacy 3 引数 signature を使っている caller の allowlist。
-// Phase 6b で順次移行し、baseline を 2 → 1 → 0 に縮退させる。
 //
-// allowlist 追加は原則禁止。新規 caller は 4 引数版を使うこと。
-const LEGACY_CALLER_ALLOWLIST: readonly { readonly path: string; readonly reason: string }[] = [
-  {
-    path: 'presentation/pages/Mobile/MobileDashboardPage.tsx',
-    reason:
-      'Phase 6b 移行待ち: frame を持たない page-level caller。Phase 6b で MobileDashboardPage も useUnifiedWidgetContext / freePeriodLane 経由に統合する予定',
-  },
-  {
-    path: 'presentation/pages/Insight/useInsightData.ts',
-    reason:
-      'Phase 6b 移行待ち: frame を持たない page-level caller。Phase 6b で useInsightData も ctx.freePeriodLane ベースに移行する予定',
-  },
-]
+// ratchet-down 履歴:
+//   - Phase 6a 時点 (e148b9d): 2 件 (MobileDashboardPage / useInsightData)
+//   - Phase 6b: 2 → 0 (両 caller を usePageComparisonModule 経由に移行、
+//     内部で buildFreePeriodFrame + 4 引数 useComparisonModule を呼ぶ)
+//
+// baseline 0 到達。新規 caller は 4 引数版または usePageComparisonModule
+// wrapper を使うこと。最終的に useComparisonModule の 3 引数 signature は
+// 削除可能な状態になった (後続 commit で optional externalScope を required
+// に昇格させる or wrapper を唯一の page-level entry として固定する)。
+const LEGACY_CALLER_ALLOWLIST: readonly { readonly path: string; readonly reason: string }[] = []
 
 const LEGACY_ALLOWLIST_PATHS = new Set(LEGACY_CALLER_ALLOWLIST.map((e) => e.path))
 
@@ -184,9 +180,10 @@ describe('useComparisonModule legacy 3 引数 caller ratchet-down guard (Phase 6
     ).toEqual([])
   })
 
-  it('LEGACY_CALLER_ALLOWLIST baseline: 2 件以下 (ratchet-down)', () => {
-    // Phase 6a 完了時点で 2 件。Phase 6b で順次 0 へ縮退させる。
-    expect(LEGACY_CALLER_ALLOWLIST.length).toBeLessThanOrEqual(2)
+  it('LEGACY_CALLER_ALLOWLIST baseline: 0 件 (Phase 6b 完了、以後 0 固定)', () => {
+    // Phase 6a 時点で 2 件、Phase 6b (本 commit) で全て移行完了。
+    // 新規 caller は usePageComparisonModule wrapper または 4 引数版を使う。
+    expect(LEGACY_CALLER_ALLOWLIST.length).toBe(0)
   })
 
   it('LEGACY_CALLER_ALLOWLIST の各 entry が実在ファイルを指している (orphan 検出)', () => {
