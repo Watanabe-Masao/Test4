@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-15T03:53:02.963Z",
+  "timestamp": "2026-04-15T04:13:26.567Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 63,
+      "value": 64,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -276,6 +276,7 @@
         "app/src/test/guards/checklistGovernanceSymmetryGuard.test.ts",
         "app/src/test/guards/coChangeGuard.test.ts",
         "app/src/test/guards/codePatternGuard.test.ts",
+        "app/src/test/guards/comparisonResolvedRangeSurfaceGuard.test.ts",
         "app/src/test/guards/comparisonScopeGuard.test.ts",
         "app/src/test/guards/customerFactPathGuard.test.ts",
         "app/src/test/guards/customerGapPathGuard.test.ts",
