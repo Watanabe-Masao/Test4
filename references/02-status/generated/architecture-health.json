@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-15T07:17:14.437Z",
+  "timestamp": "2026-04-15T07:41:59.859Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 66,
+      "value": 67,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -273,6 +273,7 @@
         "app/src/test/guards/canonicalInputGuard.test.ts",
         "app/src/test/guards/canonicalizationSystemGuard.test.ts",
         "app/src/test/guards/chartInputBuilderGuard.test.ts",
+        "app/src/test/guards/chartRenderingStructureGuard.test.ts",
         "app/src/test/guards/checklistFormatGuard.test.ts",
         "app/src/test/guards/checklistGovernanceSymmetryGuard.test.ts",
         "app/src/test/guards/coChangeGuard.test.ts",
@@ -851,7 +852,7 @@
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 311,
+      "value": 315,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",

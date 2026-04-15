@@ -3,7 +3,9 @@
  *
  * パイプライン:
  *   (scope, prevYearScope, selectedStoreIds) → buildYoyDailyInput (pure, application)
- *     → QueryHandler → YoYChartLogic.ts → ECharts option → EChart
+ *     → QueryHandler → YoYChartLogic.ts (data builder / ViewModel)
+ *     → YoYChartOptionBuilder.ts (option builder)
+ *     → EChart
  *
  * 表示モード:
  *   - 日次比較: 当年売上線 + 前年売上線（破線）+ 差分棒グラフ
@@ -15,6 +17,11 @@
  *   `application/hooks/plans/buildYoyDailyInput.ts` pure builder に移譲。
  *   widget は scope 参照を「存在判定」のみに限定し、input 構築は builder 経由。
  *   `comparisonResolvedRangeSurfaceGuard` の allowlist から除外された見本実装。
+ * @migration unify-period-analysis Phase 5 三段構造: option builder
+ *   (buildLineOption / buildWaterfallOption) を YoYChartOptionBuilder.ts に
+ *   分離。chart component は data builder (YoYChartLogic.ts) と option
+ *   builder (YoYChartOptionBuilder.ts) を orchestration するのみ。
+ *   見本実装: TimeSlotChart (.vm.ts + OptionBuilder.ts + View.tsx) に次ぐ 2 例目。
  * @responsibility R:chart-view
  */
 import { useState, useMemo, memo } from 'react'
@@ -25,28 +32,15 @@ import type { AppTheme } from '@/presentation/theme/theme'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 import { useYoYChartPlan } from '@/application/hooks/plans/useYoYChartPlan'
 import { buildYoyDailyInput } from '@/application/hooks/plans/buildYoyDailyInput'
-import {
-  buildYoYChartData,
-  buildYoYWaterfallData,
-  computeYoYSummary,
-  type YoYChartDataPoint,
-  type WaterfallItem,
-} from './YoYChartLogic'
+import { buildYoYChartData, buildYoYWaterfallData, computeYoYSummary } from './YoYChartLogic'
+import { buildLineOption, buildWaterfallOption } from './YoYChartOptionBuilder'
 import { useCurrencyFormatter, toPct } from './chartTheme'
 import { sc } from '@/presentation/theme/semanticColors'
 import { useI18n } from '@/application/hooks/useI18n'
 import { SegmentedControl } from '@/presentation/components/common/layout'
 import { ChartCard } from './ChartCard'
 import { ChartLoading, ChartError, ChartEmpty } from './ChartState'
-import { EChart, type EChartsOption } from './EChart'
-import {
-  yenYAxis,
-  standardGrid,
-  standardTooltip,
-  standardLegend,
-  toCommaYen,
-} from './echartsOptionBuilders'
-import { categoryXAxis, lineDefaults } from './builders'
+import { EChart } from './EChart'
 import { SummaryRow, SummaryItem } from './YoYChart.styles'
 
 type ViewMode = 'line' | 'waterfall'
@@ -61,100 +55,6 @@ interface Props {
   readonly scope: ComparisonScope | null
   readonly selectedStoreIds: ReadonlySet<string>
   readonly prevYearScope?: PrevYearScope
-}
-
-function buildLineOption(chartData: readonly YoYChartDataPoint[], theme: AppTheme): EChartsOption {
-  const dates = chartData.map((d) => d.date)
-  return {
-    grid: standardGrid(),
-    tooltip: standardTooltip(theme),
-    legend: standardLegend(theme),
-    xAxis: categoryXAxis(dates, theme),
-    yAxis: yenYAxis(theme),
-    series: [
-      {
-        name: '前年差',
-        type: 'bar',
-        data: chartData.map((d) => d.diff),
-        itemStyle: { color: theme.colors.palette.success, opacity: 0.4 },
-        barWidth: 6,
-      },
-      {
-        name: '前年売上',
-        type: 'line',
-        data: chartData.map((d) => d.prevSales),
-        ...lineDefaults({ color: theme.colors.palette.slate, width: 1.5, dashed: true }),
-        connectNulls: true,
-      },
-      {
-        name: '当年売上',
-        type: 'line',
-        data: chartData.map((d) => d.curSales),
-        ...lineDefaults({ color: theme.colors.palette.primary, width: 2 }),
-        symbolSize: 4,
-      },
-    ],
-  }
-}
-
-function buildWaterfallOption(
-  waterfallData: readonly WaterfallItem[],
-  theme: AppTheme,
-): EChartsOption {
-  const names = waterfallData.map((d) => d.name)
-  return {
-    grid: { ...standardGrid(), bottom: 50 },
-    tooltip: {
-      ...standardTooltip(theme),
-      formatter: (params: unknown) => {
-        const arr = Array.isArray(params) ? params : [params]
-        // スタックバー方式: seriesIndex=1 が表示バー
-        const p =
-          (arr as { dataIndex: number; seriesIndex?: number; name: string }[]).find(
-            (s) => s.seriesIndex === 1,
-          ) ?? (arr[0] as { dataIndex: number; name: string } | undefined)
-        if (!p) return ''
-        const item = waterfallData[p.dataIndex]
-        if (!item) return ''
-        return `${p.name}<br/>${toCommaYen(item.value)}`
-      },
-    },
-    xAxis: Object.assign({}, categoryXAxis(names, theme), {
-      axisLabel: {
-        ...(categoryXAxis(names, theme).axisLabel as object),
-        rotate: 45,
-      },
-    }),
-    yAxis: yenYAxis(theme),
-    series: [
-      // 透明ベース（ウォーターフォールの浮遊バー効果）
-      {
-        type: 'bar',
-        stack: 'wf',
-        data: waterfallData.map((d) => d.base),
-        itemStyle: { color: 'transparent', borderColor: 'transparent' },
-        emphasis: { disabled: true },
-        barWidth: '60%',
-      },
-      // 表示バー
-      {
-        type: 'bar',
-        stack: 'wf',
-        data: waterfallData.map((d) => {
-          const color = d.isTotal
-            ? theme.colors.palette.primary
-            : d.value >= 0
-              ? sc.positive
-              : sc.negative
-          return {
-            value: d.bar,
-            itemStyle: { color, opacity: d.isTotal ? 0.7 : 0.85 },
-          }
-        }),
-        barWidth: '60%',
-      },
-    ],
-  }
 }
 
 export const YoYChart = memo(function YoYChart({

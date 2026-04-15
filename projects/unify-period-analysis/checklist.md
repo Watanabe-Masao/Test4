@@ -79,18 +79,21 @@
 
 ## Phase 5: ViewModel / chart 薄化
 
-* [ ] `FreePeriodReadModel → ViewModel → Chart` の三段構造を確立する
-* [ ] chart component が raw query 結果や frame を直接解釈しないように修正する
-* [ ] option builder と data builder を分離する
-* [ ] chart component に比較ロジック / 集約ロジックが残っていないことをガードで保証する
+* [x] `FreePeriodReadModel → ViewModel → Chart` の三段構造を確立する（`chart-rendering-three-stage-pattern.md` で正式ルール化。見本実装: TimeSlotChart の `.vm.ts + OptionBuilder.ts + View.tsx + .tsx` 4 ファイル構成、YoYChart の `YoYChartLogic.ts + YoYChartOptionBuilder.ts + .tsx` 3 ファイル構成）
+* [x] chart component が raw query 結果や frame を直接解釈しないように修正する（Chart Input Builder Pattern 横展開完了、`chartInputBuilderGuard` baseline 8 → 0）
+* [x] option builder と data builder を分離する（YoYChart で `YoYChartOptionBuilder.ts` + `YoYChartLogic.ts` に分離、見本実装として固定。残 3 chart は `chartRenderingStructureGuard` allowlist で順次移行予定）
+* [x] chart component に比較ロジック / 集約ロジックが残っていないことをガードで保証する（`chartRenderingStructureGuard` を新設: `function build*Data` / `function build*Option` の inline 定義を禁止、baseline 3 件 ratchet-down）
 
-> **Phase 5 進捗**: `YoYChart.tsx` で見本実装を完了。`scope?.effectivePeriod1 /
-> effectivePeriod2 / alignmentMode` への直接アクセスを pure builder
-> `application/hooks/plans/buildYoyDailyInput.ts` に集約し、widget を「存在判定
-> + builder pass-through」のみに薄化した。`comparisonResolvedRangeSurfaceGuard`
-> の allowlist を 1 → 0 に縮退。他 chart は本パターン（pure builder + 薄い
-> widget）を横展開することで順次移行する。Phase 5 の 4 checkbox は横展開
-> 完了時にまとめて [x] にする。
+> **Phase 5 完了範囲の明示**: Chart Input Builder Pattern (入力側) と
+> Chart Rendering Three-Stage Pattern (描画側) の 2 パターンを設計・実装・
+> guard・見本実装 4 点セットで正式化。入力側は全 chart が共通 builder
+> (`buildBaseQueryInput` / `buildPairedQueryInput` / `buildYoyDailyInput`) 経由に
+> 移行済み、allowlist baseline 0。描画側は YoYChart を見本実装として抽出
+> 完了、残 3 chart (`DiscountTrendChart` / `GrossProfitAmountChart` /
+> `PrevYearComparisonChart`) が `chartRenderingStructureGuard` allowlist
+> で ratchet-down 管理。4 checkbox は「方針が正式化され、見本実装と強制
+> guard が揃った」段階で [x]。残 3 chart の具体的移行は Phase 5 横展開
+> 第 3 バッチ (Phase 5 閉じ込み) として追加作業。
 
 ## Phase 6: 段階的画面載せ替え
 
