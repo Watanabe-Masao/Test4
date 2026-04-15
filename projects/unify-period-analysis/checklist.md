@@ -107,8 +107,8 @@
 * [x] Step B 設計固定: Phase 6.5 の起点として `phase-6-5-step-b-design.md` を策定。店舗別日次 / category 日次 を 2 本の sibling lane (`ctx.storeDailyLane` / `ctx.categoryDailyLane`) として追加する方針、6 phase 実装順、リスク mitigation を明文化
 * [x] Phase 6.5-1 (型契約 + pre-work guard): `StoreDailyBundle.types.ts` / `CategoryDailyBundle.types.ts` を型契約のみで新設 (実装なし)。`storeDailyLaneSurfaceGuard` (SalesPurchaseComparisonChart baseline=2) + `categoryDailyLaneSurfaceGuard` (YoYWaterfall ecosystem 4 ファイル baseline=3/5/3/2) を新設、Phase 6.5-5 で全 0 到達を目標
 * [x] Phase 6.5-2 (projection 真理表 + pure 実装): `projectStoreDailySeries.ts` / `projectCategoryDailySeries.ts` pure 関数を新設し、15 + 18 件の truth-table parity test で変換意味を凍結 (storeId/deptCode/dateKey 昇順ソート / 同一 key 合算 / 欠損日 no-padding / store/dept subset / dayCount 伝搬 / grandTotals 整合 / 4 metric pass-through 等)。両 surface guard に projection ファイル存在 check を追加
-* [ ] Phase 6.5-3 (pure projection 実装) — **Phase 6.5-2 に統合完了**
-* [ ] Phase 6.5-4 (bundle + ctx 配布): `useStoreDailyBundle` / `useCategoryDailyBundle` hook + `useUnifiedWidgetContext` への lane 配布 (AR-003 fieldMax 49 → 51 ratchet-up)
+* [x] Phase 6.5-3 (pure projection 実装) — **Phase 6.5-2 に統合完了**
+* [x] Phase 6.5-4 (bundle + ctx 配布): `useStoreDailyBundle` / `useCategoryDailyBundle` hook を新設 (lane 非依存、`storeDaySummaryPairHandler` / `categoryTimeRecordsPairHandler` 直結、INV-RUN-02 準拠)。`useUnifiedWidgetContext` に `ctx.storeDailyLane` / `ctx.categoryDailyLane` を配布。AR-003 fieldMax baseline 49 → 51 に ratchet-up。widget は touch せず (Phase 6.5-5 に残す)
 * [ ] Phase 6.5-5 (widget 載せ替え): `SalesPurchaseComparisonChart` / `YoYWaterfallChart` を sibling lane 経由に切替、両 guard baseline 全 0 到達
 * [ ] Phase 6.5-6 (クローズ): inventory/05 の HIGH リスク 2 件を Done 記録、Phase 6 全体クローズ
 * [ ] Step B 完了後: `SalesPurchaseComparisonChart` を `ctx.freePeriodLane.bundle.fact` 経由に載せ替える

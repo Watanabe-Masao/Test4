@@ -29,6 +29,14 @@ import type {
   TimeSlotFrame,
   TimeSlotBundle,
 } from '@/application/hooks/timeSlot/TimeSlotBundle.types'
+import type {
+  StoreDailyFrame,
+  StoreDailyBundle,
+} from '@/application/hooks/storeDaily/StoreDailyBundle.types'
+import type {
+  CategoryDailyFrame,
+  CategoryDailyBundle,
+} from '@/application/hooks/categoryDaily/CategoryDailyBundle.types'
 
 export type WidgetSize = 'kpi' | 'half' | 'full'
 
@@ -152,6 +160,47 @@ export interface UnifiedWidgetContext {
   readonly timeSlotLane?: Readonly<{
     frame: TimeSlotFrame | null
     bundle: TimeSlotBundle
+  }> | null
+
+  /**
+   * 店舗別日次レーン (unify-period-analysis Phase 6.5 Step B)。
+   *
+   * - `frame`: `StoreDailyFrame`。`(currentDateRange, selectedStoreIds, comparison)`
+   *   を束ねた入力契約
+   * - `bundle`: `useStoreDailyBundle(executor, frame)` の結果。
+   *   `currentSeries / comparisonSeries` (`StoreDailySeries`) と
+   *   `meta.provenance` (mappingKind / comparisonRange) を持つ
+   *
+   * `timeSlotLane` / `freePeriodLane` の sibling として、店舗別日次次元を
+   * 別レーンに切り出している (`phase-6-5-step-b-design.md` 準拠)。
+   * presentation は `bundle.currentSeries.entries[i].daily` のみを触り、
+   * `StoreResult.daily` の直接 iterate は行わない (`storeDailyLaneSurfaceGuard`
+   * で ratchet-down、Phase 6.5-5 で baseline 0 到達目標)。
+   */
+  readonly storeDailyLane?: Readonly<{
+    frame: StoreDailyFrame | null
+    bundle: StoreDailyBundle
+  }> | null
+
+  /**
+   * 部門×日次レーン (unify-period-analysis Phase 6.5 Step B)。
+   *
+   * - `frame`: `CategoryDailyFrame`。`(currentDateRange, selectedStoreIds, comparison)`
+   *   を束ねた入力契約
+   * - `bundle`: `useCategoryDailyBundle(executor, frame)` の結果。
+   *   `currentSeries / comparisonSeries` (`CategoryDailySeries`) と
+   *   `meta.provenance` を持つ
+   *
+   * `timeSlotLane` / `freePeriodLane` / `storeDailyLane` の sibling として、
+   * 部門×日次次元を別レーンに切り出している。presentation は
+   * `bundle.currentSeries.entries[i].daily` のみを触り、
+   * `CategoryTimeSalesRecord` の直接 import は行わない
+   * (`categoryDailyLaneSurfaceGuard` で ratchet-down、Phase 6.5-5 で
+   * YoYWaterfall ecosystem の baseline 0 到達目標)。
+   */
+  readonly categoryDailyLane?: Readonly<{
+    frame: CategoryDailyFrame | null
+    bundle: CategoryDailyBundle
   }> | null
 
   // ── 比較期間入力（ページレベル DualPeriodSlider から） ──
