@@ -129,6 +129,24 @@ describe('timeSlotLaneSurfaceGuard (unify-period-analysis Phase 6 Step C pre-wor
     expect(content).toContain('export interface TimeSlotBundle')
     expect(content).toContain('export interface TimeSlotSeries')
     expect(content).toContain('export interface TimeSlotLane')
+    // provenance を必須型として固定 (optional ではなく required で揃える)
+    expect(content).toContain('export interface TimeSlotProvenance')
+    expect(content).toContain('export interface TimeSlotMeta')
+    expect(content).toContain("'sameDate' | 'sameDayOfWeek' | 'none'")
+  })
+
+  it('projectTimeSlotSeries 純粋関数 + parity test が存在する (Step C 実装の意味境界)', () => {
+    const projFile = path.join(SRC_DIR, 'application/hooks/timeSlot/projectTimeSlotSeries.ts')
+    expect(fs.existsSync(projFile), 'projectTimeSlotSeries.ts が存在しない').toBe(true)
+    const projContent = fs.readFileSync(projFile, 'utf-8')
+    expect(projContent).toContain('export function projectTimeSlotSeries')
+    expect(projContent).toContain('EMPTY_TIME_SLOT_SERIES')
+
+    const testFile = path.join(
+      SRC_DIR,
+      'application/hooks/timeSlot/__tests__/projectTimeSlotSeries.parity.test.ts',
+    )
+    expect(fs.existsSync(testFile), 'projectTimeSlotSeries.parity.test.ts が存在しない').toBe(true)
   })
 
   it('Step C 方針ドキュメントが存在する (意思決定の固定先)', () => {

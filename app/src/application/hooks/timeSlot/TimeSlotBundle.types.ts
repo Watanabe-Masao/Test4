@@ -70,11 +70,32 @@ export interface TimeSlotSeries {
 // ── Meta ─────────────────────────────────────────────────
 
 /**
- * 時間帯比較レーンのメタデータ。FreePeriodReadModel の `meta` と一致する構造。
+ * 時間帯比較レーンの provenance。**全フィールド必須**。
+ *
+ * Step C 実装前に「最低限必要な解釈情報」を型レベルで固定する。後で bundle 実装と
+ * UI 側で意味の解釈が割れないように optional を使わない。
+ *
+ * - `mappingKind`: comparison series がどの alignment で取られたか
+ *   - `'sameDate'`: 暦日マッチ (前年同日)
+ *   - `'sameDayOfWeek'`: 曜日マッチ (前年同曜日)
+ *   - `'none'`: comparison 無効 / 比較なし
+ * - `comparisonRange`: 実際に query された比較期間の date range (ISO `YYYY-MM-DD`)
+ *   - comparison 無効時は null
+ */
+export interface TimeSlotProvenance {
+  readonly mappingKind: 'sameDate' | 'sameDayOfWeek' | 'none'
+  readonly comparisonRange: { readonly from: string; readonly to: string } | null
+}
+
+/**
+ * 時間帯比較レーンのメタデータ。FreePeriodReadModel の `meta` と sibling 関係。
+ * **provenance は必須** (型レベル固定)。
  */
 export interface TimeSlotMeta {
   /** フォールバックが発生したか */
   readonly usedFallback: boolean
+  /** 比較解釈の provenance (mappingKind / comparisonRange) — 必須 */
+  readonly provenance: TimeSlotProvenance
 }
 
 // ── Bundle (useUnifiedWidgetContext 配布面) ──────────────
