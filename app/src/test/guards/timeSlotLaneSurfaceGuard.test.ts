@@ -30,15 +30,12 @@ const SRC_DIR = path.resolve(__dirname, '../..')
  *
  * ratchet-down 履歴:
  *   - Phase 6 Step C pre-work (2026-04-15): baseline 1 (StoreHourlyChartLogic.ts)
- *   - Step C 実装時: 1 → 0 (TimeSlotBundle / TimeSlotSeries 経由に移行)
+ *   - Phase 6 Step C 実装 (2026-04-15): 1 → 0 達成。StoreHourlyChartLogic は
+ *     TimeSlotSeries を消費するように refactor 済み (raw row 直接 import を削除)。
+ *     以降は 0 固定。
  */
-const TIME_SLOT_RAW_ROW_ALLOWLIST: readonly { readonly path: string; readonly reason: string }[] = [
-  {
-    path: 'presentation/components/charts/StoreHourlyChartLogic.ts',
-    reason:
-      'Step C 実装前の現行 raw row consumer。TimeSlotBundle 経由への移行で allowlist 削除予定',
-  },
-]
+const TIME_SLOT_RAW_ROW_ALLOWLIST: readonly { readonly path: string; readonly reason: string }[] =
+  []
 
 const TIME_SLOT_ALLOWLIST_PATHS = new Set(TIME_SLOT_RAW_ROW_ALLOWLIST.map((e) => e.path))
 
@@ -90,10 +87,10 @@ describe('timeSlotLaneSurfaceGuard (unify-period-analysis Phase 6 Step C pre-wor
     ).toEqual([])
   })
 
-  it('baseline: TIME_SLOT_RAW_ROW_ALLOWLIST は 1 件で固定 (Step C 実装時に 0 に到達)', () => {
-    // Phase 6 Step C pre-work 時点で 1 件 (StoreHourlyChartLogic.ts)。
-    // Step C 実装時に TimeSlotBundle / TimeSlotSeries 経由に移行して 0 に到達する。
-    expect(TIME_SLOT_RAW_ROW_ALLOWLIST.length).toBeLessThanOrEqual(1)
+  it('baseline: TIME_SLOT_RAW_ROW_ALLOWLIST は 0 件で固定 (Step C 実装完了)', () => {
+    // Phase 6 Step C 実装完了。StoreHourlyChartLogic は TimeSlotSeries を消費する
+    // ように refactor 済み (raw row 直接 import を削除)。以降は 0 固定。
+    expect(TIME_SLOT_RAW_ROW_ALLOWLIST.length).toBe(0)
   })
 
   it('TIME_SLOT_RAW_ROW_ALLOWLIST の各 entry が実在ファイルを指している (orphan 検出)', () => {

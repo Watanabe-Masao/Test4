@@ -108,7 +108,7 @@
 * [ ] Step B 完了後: `SalesPurchaseComparisonChart` を `ctx.freePeriodLane.bundle.fact` 経由に載せ替える
 * [ ] Step B 完了後: `YoYWaterfallChart` を `ctx.freePeriodLane.bundle.{fact,deptKPI}` 経由に載せ替える
 * [x] Step C 方針固定: 時間帯比較は `FreePeriodReadModel` に吸収せず sibling lane (`ctx.timeSlotLane`) として切り出す。`step-c-timeslot-lane-policy.md` + `TimeSlotBundle.types.ts` + `timeSlotLaneSurfaceGuard` で pre-work 完了
-* [ ] Step C 実装: `useTimeSlotBundle` hook + `useUnifiedWidgetContext` への `timeSlotLane` 配布 + `StoreHourlyChartLogic.ts` の raw row 消費削除 (`timeSlotLaneSurfaceGuard` baseline 1 → 0)
+* [x] Step C 実装: `useTimeSlotBundle` hook + `useUnifiedWidgetContext` への `timeSlotLane` 配布 + `StoreHourlyChartLogic.ts` の raw row 消費削除 (`timeSlotLaneSurfaceGuard` baseline 1 → 0)
 * [ ] Step D (天気 correlation): domain-layer projection (`buildDailySalesProjection(currentRows)` 等) を追加し、`WeatherCorrelationChart` が G3-2 を守ったまま daily sales を使えるようにする
 
 ## Phase 7: ガードテスト群（test-plan G0〜G6）
