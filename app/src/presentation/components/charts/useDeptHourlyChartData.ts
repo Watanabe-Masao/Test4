@@ -12,7 +12,8 @@ import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { HOUR_MIN, HOUR_MAX } from './HeatmapChart.helpers'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
-import { dateRangeToKeys } from '@/domain/models/calendar'
+import { buildBaseQueryInput } from '@/application/hooks/plans/buildBaseQueryInput'
+import { buildPairedQueryInput } from '@/application/hooks/plans/buildPairedQueryInput'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 import {
   useDeptHourlyChartPlan,
@@ -56,12 +57,12 @@ export function useDeptHourlyChartData(params: UseDeptHourlyChartDataParams) {
   const { topN, activeDepts, viewMode, drill, rightMode } = drillState
 
   // ── 部門別時間帯データ（第1軸） ──
+  // Phase 5 横展開 第 2 バッチ: query input 組み立ては共通 builder 経由
   const input = useMemo<CategoryHourlyInput | null>(() => {
-    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
+    const base = buildBaseQueryInput(currentDateRange, selectedStoreIds)
+    if (!base) return null
     return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
+      ...base,
       level: drill.level,
       deptCode: drill.deptCode,
       lineCode: drill.lineCode,
@@ -69,25 +70,11 @@ export function useDeptHourlyChartData(params: UseDeptHourlyChartDataParams) {
   }, [currentDateRange, selectedStoreIds, drill.level, drill.deptCode, drill.lineCode])
 
   // ── 時間帯別点数データ（第2軸: quantity モード用 — pair handler） ──
-  const storeIds = useMemo(
-    () => (selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined),
-    [selectedStoreIds],
-  )
   const prevDateRange = prevYearScope?.dateRange
   const qtyPairInput = useMemo<PairedInput<HourlyAggregationInput> | null>(() => {
     if (rightMode !== 'quantity') return null
-    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-    const base: PairedInput<HourlyAggregationInput> = {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds,
-    }
-    if (prevDateRange) {
-      const { fromKey: pFrom, toKey: pTo } = dateRangeToKeys(prevDateRange)
-      return { ...base, comparisonDateFrom: pFrom, comparisonDateTo: pTo }
-    }
-    return base
-  }, [currentDateRange, prevDateRange, storeIds, rightMode])
+    return buildPairedQueryInput(currentDateRange, prevDateRange, selectedStoreIds)
+  }, [currentDateRange, prevDateRange, selectedStoreIds, rightMode])
 
   const { hourlyResult, qtyPairResult } = useDeptHourlyChartPlan(queryExecutor, input, qtyPairInput)
   const { data: hourlyOutput, error, isLoading } = hourlyResult

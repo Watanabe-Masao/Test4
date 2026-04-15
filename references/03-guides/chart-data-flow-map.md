@@ -85,8 +85,29 @@ YoYChart (presentation/components/charts/YoYChart.tsx)
   参照は application 層の `buildYoyDailyInput` に集約
 - chart 本体は builder pass-through と描画のみ
 - 強制 guard: `chartInputBuilderGuard` (chart 配下での `dateRangeToKeys` 直接
-  呼び出しを禁止、baseline 8 件から ratchet-down)
+  呼び出しを禁止、**Phase 5 横展開完了時点で baseline 0**)
 - 詳細: `references/03-guides/chart-input-builder-pattern.md`
+
+## Chart Input Builder 共通レジストリ (Phase 5 横展開完了)
+
+`application/hooks/plans/` に配置されている chart input pure builder の一覧。
+chart / widget / hook が query input を組み立てる際は必ずここから選ぶ。
+
+| Builder | 役割 | 消費 chart (例) |
+|---|---|---|
+| `buildBaseQueryInput` | `BaseQueryInput` (`{dateFrom, dateTo, storeIds?}`) | WeatherAnalysisPanel / DowPatternChart / CumulativeChart / FeatureChart / StoreHourlyChart / useDeptHourlyChartData (第1軸) |
+| `buildPairedQueryInput` | `PairedQueryInput` (当期 + optional 比較期) | FactorDecompositionPanel / useDeptHourlyChartData (第2軸 pair) / useCategoryHierarchyData (level / hourly) |
+| `buildYoyDailyInput` | `YoyDailyInput` (ComparisonScope + PrevYearScope → YoY 専用) | YoYChart |
+
+**追加フィールド拡張**: `StoreAggregationInput.deptCode` や
+`LevelAggregationInput.level` など chart 固有の拡張フィールドは、共通 builder
+の戻り値に caller 側で spread して乗せる:
+
+```ts
+const base = buildPairedQueryInput(cur, prev, storeIds)
+if (!base) return null
+const input: PairedInput<HourlyAggregationInput> = { ...base, level, deptCode }
+```
 
 ## WeatherCorrelationChart
 
