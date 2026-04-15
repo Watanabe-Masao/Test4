@@ -34,7 +34,15 @@ export function wowPrevRange(
   return { prevStart, prevEnd, isValid: prevStart >= 1 }
 }
 
-/** 比較モードに応じたラベルを返す */
+/**
+ * 比較モードに応じたラベルを返す。
+ *
+ * unify-period-analysis Phase 2: 前年ラベルの `year - 1` フォールバックを
+ * 除去した。`prevYear` 未指定時は具体年を表示せず generic な「前年」ラベルを
+ * 返す（presentation 層で比較先年を独自計算しないため）。caller は
+ * `ctx.prevYearScope?.dateRange.from.year` を経由して domain で解決済みの
+ * 値を渡すこと。
+ */
 export function comparisonLabels(
   mode: ComparisonMode,
   year: number,
@@ -43,7 +51,10 @@ export function comparisonLabels(
   prevYear?: number,
 ): { curLabel: string; prevLabel: string } {
   if (mode === 'yoy') {
-    return { curLabel: `${year}年`, prevLabel: `${prevYear ?? year - 1}年` }
+    return {
+      curLabel: `${year}年`,
+      prevLabel: prevYear != null ? `${prevYear}年` : '前年',
+    }
   }
   const { prevStart, prevEnd } = wowPrevRange(dayStart, dayEnd)
   const curRange = dayStart === dayEnd ? `${dayStart}日` : `${dayStart}-${dayEnd}日`

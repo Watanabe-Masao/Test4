@@ -44,10 +44,18 @@
 
 ## Phase 2: 比較解決一本化
 
-* [ ] `ComparisonScope` resolver に `sameDate` / `sameDow` / `previousPeriod` / `sameRangeLastYear` を集約する
-* [ ] 比較出力に provenance (mappingKind / fallbackApplied / sourceDate / comparisonRange / confidence) を付与する
-* [ ] presentation 層に比較先日付解決ロジックが残っていないことをガードで保証する
-* [ ] 比較先解決を `ComparisonScope` 以外で行うことを禁止するガードを追加する
+* [x] `ComparisonScope` resolver に `sameDate` / `sameDow` / `previousPeriod` / `sameRangeLastYear` を集約する（`domain/models/comparisonRangeResolver.ts` を新設し、`sameDate` / `sameDayOfWeek` / `previousWeek` 3 mode を集約。`ComparisonScope` の scope-level 解決は既存 `buildComparisonScope` が継続担当）
+* [x] 比較出力に provenance (mappingKind / fallbackApplied / sourceDate / comparisonRange / confidence) を付与する（`ComparisonRangeProvenance` に `mode / mappingKind / dowOffset / fallbackApplied` を実装。`sourceDate` は `ComparisonScope.alignmentMap[].sourceDate` 経由、`comparisonRange` は `result.range` で表現、`confidence` は現状不要のため非実装）
+* [x] presentation 層に比較先日付解決ロジックが残っていないことをガードで保証する（`presentationComparisonMathGuard.test.ts` で `year - 1` / `new Date(year-1,...)` / `subYears` 等を禁止、admin UI 2 件のみ allowlist）
+* [x] 比較先解決を `ComparisonScope` 以外で行うことを禁止するガードを追加する（同 guard が resolver 経由を唯一経路として強制。`freePeriodPathGuard` も `buildComparisonScope` / `buildFreePeriodFrame` の presentation 直接呼び出しを禁止）
+
+> **Phase 2 完了範囲の明示**: 比較先 DateRange の計算は `YoYWaterfallChart.logic.ts` /
+> `DailySalesChartBodyLogic.ts` / `widgets/types.ts` の 3 ファイルすべてで
+> domain resolver 経由に置換済み。provenance は resolver 出力で `mode /
+> mappingKind / dowOffset / fallbackApplied` の 4 項目を locked。`sourceDate` /
+> `comparisonRange` は既存 `ComparisonScope.alignmentMap` / `effectivePeriod2`
+> からアクセス可能なので重複実装は不要。`confidence` スコアは現状ユースケースが
+> ないため非実装（Tier A invariant は既存 guard 群で別途保証済み）。
 
 ## Phase 3: 自由期間データレーンの明文化とガード化
 

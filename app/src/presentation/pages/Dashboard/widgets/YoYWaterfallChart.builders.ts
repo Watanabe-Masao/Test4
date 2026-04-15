@@ -2,11 +2,17 @@
  * YoYWaterfallChart の pure builder 関数群
  *
  * React hooks を使わない純粋関数。useMemo 集約用。
+ *
+ * unify-period-analysis Phase 2: 比較先 DateRange の解決は
+ * `domain/models/comparisonRangeResolver` に集約された唯一の経路を通る。
  */
 import type { DateRange } from '@/domain/models/calendar'
 import type { CategoryTimeSalesRecord, DailyRecord } from '@/domain/models/record'
 import {
-  calculatePrevCtsDateRange,
+  resolveComparisonRange,
+  type ComparisonRangeProvenance,
+} from '@/domain/models/comparisonRangeResolver'
+import {
   aggregatePeriodCurSales,
   aggregatePeriodPrevSales,
   calculatePISummary,
@@ -37,6 +43,11 @@ export interface DateRangesInput {
 export interface DateRangesResult {
   readonly curDateRange: DateRange
   readonly prevCtsDateRange: DateRange | undefined
+  /**
+   * 比較先解決の由来情報。Phase 2 で resolver 経由化したことで取得可能になった。
+   * ChartCard の通知 / Explanation 拡張など下流が provenance を読みたい場合に使う。
+   */
+  readonly prevCtsProvenance: ComparisonRangeProvenance | null
 }
 
 export function buildDateRanges(input: DateRangesInput): DateRangesResult {
@@ -44,18 +55,22 @@ export function buildDateRanges(input: DateRangesInput): DateRangesResult {
     from: { year: input.year, month: input.month, day: input.dayStart },
     to: { year: input.year, month: input.month, day: input.dayEnd },
   }
-  const prevCtsDateRange = calculatePrevCtsDateRange(
-    input.activeCompMode,
-    input.canWoW,
-    input.year,
-    input.month,
-    input.dayStart,
-    input.dayEnd,
-    input.dowOffset,
-    input.wowPrevStart,
-    input.wowPrevEnd,
-  )
-  return { curDateRange, prevCtsDateRange }
+  const resolved = resolveComparisonRange({
+    mode: input.activeCompMode === 'wow' ? 'wow' : 'yoy',
+    year: input.year,
+    month: input.month,
+    dayStart: input.dayStart,
+    dayEnd: input.dayEnd,
+    dowOffset: input.dowOffset,
+    canWoW: input.canWoW,
+    wowPrevStart: input.wowPrevStart,
+    wowPrevEnd: input.wowPrevEnd,
+  })
+  return {
+    curDateRange,
+    prevCtsDateRange: resolved.range,
+    prevCtsProvenance: resolved.provenance,
+  }
 }
 
 // ── Period Aggregates ──

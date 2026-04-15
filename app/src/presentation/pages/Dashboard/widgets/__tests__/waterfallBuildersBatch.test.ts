@@ -91,6 +91,87 @@ describe('buildDateRanges', () => {
     })
     expect(result.curDateRange).toBe(override)
   })
+
+  // unify-period-analysis Phase 2: resolver 経由化の確認
+  it('yoy mode → resolver 経由で year-1 を返し provenance が yoy/sameDate', () => {
+    const result = buildDateRanges({
+      overrideDateRange: undefined,
+      year: 2026,
+      month: 4,
+      dayStart: 1,
+      dayEnd: 15,
+      activeCompMode: 'yoy',
+      canWoW: false,
+      dowOffset: 0,
+      wowPrevStart: 0,
+      wowPrevEnd: 0,
+    })
+    expect(result.prevCtsDateRange).toEqual({
+      from: { year: 2025, month: 4, day: 1 },
+      to: { year: 2025, month: 4, day: 15 },
+    })
+    expect(result.prevCtsProvenance).toEqual({
+      mode: 'yoy',
+      mappingKind: 'sameDate',
+      dowOffset: 0,
+      fallbackApplied: false,
+    })
+  })
+
+  it('yoy mode + dowOffset → mappingKind が sameDayOfWeek', () => {
+    const result = buildDateRanges({
+      overrideDateRange: undefined,
+      year: 2026,
+      month: 4,
+      dayStart: 1,
+      dayEnd: 7,
+      activeCompMode: 'yoy',
+      canWoW: false,
+      dowOffset: 3,
+      wowPrevStart: 0,
+      wowPrevEnd: 0,
+    })
+    expect(result.prevCtsProvenance?.mappingKind).toBe('sameDayOfWeek')
+    expect(result.prevCtsProvenance?.dowOffset).toBe(3)
+  })
+
+  it('wow mode + canWoW=true → 当月の prev week range', () => {
+    const result = buildDateRanges({
+      overrideDateRange: undefined,
+      year: 2026,
+      month: 4,
+      dayStart: 8,
+      dayEnd: 14,
+      activeCompMode: 'wow',
+      canWoW: true,
+      dowOffset: 0,
+      wowPrevStart: 1,
+      wowPrevEnd: 7,
+    })
+    expect(result.prevCtsDateRange).toEqual({
+      from: { year: 2026, month: 4, day: 1 },
+      to: { year: 2026, month: 4, day: 7 },
+    })
+    expect(result.prevCtsProvenance?.mode).toBe('wow')
+    expect(result.prevCtsProvenance?.fallbackApplied).toBe(false)
+  })
+
+  it('wow mode + canWoW=false → range undefined + provenance.fallbackApplied=true', () => {
+    const result = buildDateRanges({
+      overrideDateRange: undefined,
+      year: 2026,
+      month: 4,
+      dayStart: 1,
+      dayEnd: 7,
+      activeCompMode: 'wow',
+      canWoW: false,
+      dowOffset: 0,
+      wowPrevStart: 0,
+      wowPrevEnd: 0,
+    })
+    expect(result.prevCtsDateRange).toBeUndefined()
+    expect(result.prevCtsProvenance?.fallbackApplied).toBe(true)
+  })
 })
 
 // ─── buildPeriodAggregates ──────────────────
