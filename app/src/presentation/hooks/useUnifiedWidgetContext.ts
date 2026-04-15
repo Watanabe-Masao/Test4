@@ -29,6 +29,10 @@ import { buildFreePeriodFrame } from '@/domain/models/buildFreePeriodFrame'
 import { useFreePeriodAnalysisBundle } from '@/application/hooks/useFreePeriodAnalysisBundle'
 import { useTimeSlotBundle } from '@/application/hooks/timeSlot/useTimeSlotBundle'
 import type { TimeSlotFrame } from '@/application/hooks/timeSlot/TimeSlotBundle.types'
+import { useStoreDailyBundle } from '@/application/hooks/storeDaily/useStoreDailyBundle'
+import type { StoreDailyFrame } from '@/application/hooks/storeDaily/StoreDailyBundle.types'
+import { useCategoryDailyBundle } from '@/application/hooks/categoryDaily/useCategoryDailyBundle'
+import type { CategoryDailyFrame } from '@/application/hooks/categoryDaily/CategoryDailyBundle.types'
 import { useComparisonSlice } from './slices/useComparisonSlice'
 import { useQuerySlice } from './slices/useQuerySlice'
 import { useWeatherSlice } from './slices/useWeatherSlice'
@@ -153,6 +157,42 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
 
   const timeSlotBundle = useTimeSlotBundle(query.queryExecutor, timeSlotFrame)
 
+  // ── 店舗別日次レーン (unify-period-analysis Phase 6.5 Step B) ──
+  // timeSlotLane の sibling。raw StoreResult.daily を presentation に
+  // 漏らさず、StoreDailySeries (projection 済み) を bundle 経由で配布する。
+  // 比較期間は timeSlotLane と同じ comparison scope を流用する。
+  const storeDailyFrame = useMemo<StoreDailyFrame | null>(() => {
+    if (!currentResult) return null
+    return {
+      dateRange: {
+        from: { year: targetYear, month: targetMonth, day: 1 },
+        to: { year: targetYear, month: targetMonth, day: effectiveEndDay },
+      },
+      storeIds: [...selectedStoreIds].sort(),
+      comparison: comparison.scope,
+    }
+  }, [currentResult, effectiveEndDay, targetYear, targetMonth, selectedStoreIds, comparison.scope])
+
+  const storeDailyBundle = useStoreDailyBundle(query.queryExecutor, storeDailyFrame)
+
+  // ── 部門×日次レーン (unify-period-analysis Phase 6.5 Step B) ──
+  // storeDailyLane の sibling。raw CategoryTimeSalesRecord を presentation
+  // に漏らさず、CategoryDailySeries (projection 済み) を bundle 経由で
+  // 配布する。比較期間は同 comparison scope を流用。
+  const categoryDailyFrame = useMemo<CategoryDailyFrame | null>(() => {
+    if (!currentResult) return null
+    return {
+      dateRange: {
+        from: { year: targetYear, month: targetMonth, day: 1 },
+        to: { year: targetYear, month: targetMonth, day: effectiveEndDay },
+      },
+      storeIds: [...selectedStoreIds].sort(),
+      comparison: comparison.scope,
+    }
+  }, [currentResult, effectiveEndDay, targetYear, targetMonth, selectedStoreIds, comparison.scope])
+
+  const categoryDailyBundle = useCategoryDailyBundle(query.queryExecutor, categoryDailyFrame)
+
   // ── コア: 説明・パネル状態 ──
   const explanations = useExplanations(comparison.kpi, comparison.dowGap)
   const [explainMetric, setExplainMetric] = useState<MetricId | null>(null)
@@ -240,6 +280,12 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
       // 時間帯比較レーン (unify-period-analysis Phase 6 Step C)
       timeSlotLane: { frame: timeSlotFrame, bundle: timeSlotBundle },
 
+      // 店舗別日次レーン (unify-period-analysis Phase 6.5 Step B)
+      storeDailyLane: { frame: storeDailyFrame, bundle: storeDailyBundle },
+
+      // 部門×日次レーン (unify-period-analysis Phase 6.5 Step B)
+      categoryDailyLane: { frame: categoryDailyFrame, bundle: categoryDailyBundle },
+
       // 天気 slice
       weatherDaily: weather.weatherDaily,
       prevYearWeatherDaily: weather.prevYearWeatherDaily,
@@ -280,6 +326,10 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
     freePeriodBundle,
     timeSlotFrame,
     timeSlotBundle,
+    storeDailyFrame,
+    storeDailyBundle,
+    categoryDailyFrame,
+    categoryDailyBundle,
   ])
 
   return {

@@ -1,41 +1,56 @@
 /**
  * ウォーターフォール部門別増減データ整合性テスト
  *
- * 不変条件: buildCategoryData の残差は同一データソースから計算されるため 0 に近い。
+ * 不変条件: buildCategoryData の残差は同一データソース (CategoryDailySeries)
+ * から計算されるため 0 に近い。
+ *
+ * Phase 6.5-5b: 入力は `CategoryDailySeries` (dept-grain projection) 経由。
  *
  * @guard D1 要因分解の合計は売上差に完全一致
  */
 import { describe, it, expect } from 'vitest'
 import { buildCategoryData } from '@/presentation/pages/Dashboard/widgets/YoYWaterfallChart.data'
-import type { CategoryTimeSalesRecord } from '@/domain/models/record'
+import type { CategoryDailySeries } from '@/application/hooks/categoryDaily/CategoryDailyBundle.types'
 
-function makeRecord(dept: string, totalAmount: number, day = 1): CategoryTimeSalesRecord {
+function makeSeries(
+  depts: readonly { code: string; name: string; sales: number }[],
+): CategoryDailySeries {
   return {
-    year: 2026,
-    month: 3,
-    day,
-    storeId: 'S001',
-    department: { code: dept, name: `${dept}部門` },
-    line: { code: `${dept}-L1`, name: `${dept}ライン1` },
-    klass: { code: `${dept}-K1`, name: `${dept}クラス1` },
-    timeSlots: [{ hour: 10, quantity: 10, amount: totalAmount }],
-    totalQuantity: 10,
-    totalAmount,
+    entries: depts.map((d) => ({
+      deptCode: d.code,
+      deptName: d.name,
+      daily: [],
+      totals: { sales: d.sales, customers: 0, salesQty: 0 },
+    })),
+    grandTotals: {
+      sales: depts.reduce((s, d) => s + d.sales, 0),
+      customers: 0,
+      salesQty: 0,
+    },
+    dayCount: 0,
   }
 }
 
 describe('buildCategoryData — データ整合性', () => {
   it('同一データソースから計算される場合、残差は 0 になる', () => {
-    const curCTS = [makeRecord('A', 100000), makeRecord('B', 200000), makeRecord('C', 50000)]
-    const prevCTS = [makeRecord('A', 80000), makeRecord('B', 180000), makeRecord('C', 60000)]
+    const curSeries = makeSeries([
+      { code: 'A', name: 'A部門', sales: 100000 },
+      { code: 'B', name: 'B部門', sales: 200000 },
+      { code: 'C', name: 'C部門', sales: 50000 },
+    ])
+    const prevSeries = makeSeries([
+      { code: 'A', name: 'A部門', sales: 80000 },
+      { code: 'B', name: 'B部門', sales: 180000 },
+      { code: 'C', name: 'C部門', sales: 60000 },
+    ])
 
-    // curSales/prevSales も CTS 合計と一致させる
-    const curTotal = curCTS.reduce((s, r) => s + r.totalAmount, 0)
-    const prevTotal = prevCTS.reduce((s, r) => s + r.totalAmount, 0)
+    // curSales/prevSales も grandTotals と一致させる
+    const curTotal = curSeries.grandTotals.sales
+    const prevTotal = prevSeries.grandTotals.sales
 
     const result = buildCategoryData({
-      periodCTS: curCTS,
-      periodPrevCTS: prevCTS,
+      categoryDailySeries: curSeries,
+      categoryDailyPrevSeries: prevSeries,
       hasComparison: true,
       prevSales: prevTotal,
       curSales: curTotal,
@@ -59,8 +74,8 @@ describe('buildCategoryData — データ整合性', () => {
 
   it('部門が0件の場合は空結果を返す', () => {
     const result = buildCategoryData({
-      periodCTS: [],
-      periodPrevCTS: [],
+      categoryDailySeries: makeSeries([]),
+      categoryDailyPrevSeries: makeSeries([]),
       hasComparison: true,
       prevSales: 100,
       curSales: 200,
@@ -72,24 +87,22 @@ describe('buildCategoryData — データ整合性', () => {
     expect(result.residual).toBe(0)
   })
 
-  it('残差率が大きいケースは residualPct に反映される', () => {
-    const curCTS = [makeRecord('A', 100000)]
-    const prevCTS = [makeRecord('A', 80000)]
+  it('prevSales/curSales が series と不一致でも series をアンカーに使う', () => {
+    const curSeries = makeSeries([{ code: 'A', name: 'A部門', sales: 100000 }])
+    const prevSeries = makeSeries([{ code: 'A', name: 'A部門', sales: 80000 }])
 
-    // 意図的に prevSales を CTS と不一致にする（本来はあってはならない）
+    // 意図的に prevSales/curSales を series と不一致にする（本来はあってはならない）
     const result = buildCategoryData({
-      periodCTS: curCTS,
-      periodPrevCTS: prevCTS,
+      categoryDailySeries: curSeries,
+      categoryDailyPrevSeries: prevSeries,
       hasComparison: true,
-      prevSales: 99999, // CTS合計(80000)と不一致
-      curSales: 99999, // CTS合計(100000)と不一致
+      prevSales: 99999, // grandTotals(80000) と不一致
+      curSales: 99999, // grandTotals(100000) と不一致
       prevLabel: '前年',
       curLabel: '当年',
     })
 
-    // CTS合計をアンカーに使うので、残差は 0
-    // （buildCategoryData は CTS 合計をアンカーにするため、
-    //   prevSales/curSales パラメータは部門別ビューでは使われない）
+    // series の grandTotals をアンカーに使うので、残差は 0
     expect(result.residual).toBe(0)
   })
 })

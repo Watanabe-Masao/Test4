@@ -4,13 +4,14 @@ import {
   aggregatePeriodPrevSales,
   calculatePISummary,
 } from '../YoYWaterfallChart.logic'
-import type { CategoryTimeSalesRecord, DailyRecord } from '@/domain/models/record'
+import type { DailyRecord } from '@/domain/models/record'
 
 // 比較先 DateRange 解決のテストは Phase 2 で domain resolver に移管された:
 // → src/domain/models/__tests__/comparisonRangeResolver.test.ts
 // builders 経由のテストは waterfallBuildersBatch.test.ts で確認する。
-
-const EMPTY_CTS: readonly CategoryTimeSalesRecord[] = []
+//
+// Phase 6.5-5b: logic.ts の未使用 dummy arg (_periodCTS / _periodPrevCTS) を
+// 削除したため、EMPTY_CTS fixture は不要になった。
 
 const makeDaily = (
   map: Record<number, { sales?: number; customers?: number }>,
@@ -33,12 +34,12 @@ describe('aggregatePeriodCurSales', () => {
       3: { sales: 300, customers: 30 },
       4: { sales: 400, customers: 40 },
     })
-    const r = aggregatePeriodCurSales(EMPTY_CTS, daily, 2, 3)
+    const r = aggregatePeriodCurSales(daily, 2, 3)
     expect(r).toEqual({ sales: 500, customers: 50 })
   })
 
   it('returns zero when daily is empty', () => {
-    const r = aggregatePeriodCurSales(EMPTY_CTS, new Map(), 1, 31)
+    const r = aggregatePeriodCurSales(new Map(), 1, 31)
     expect(r).toEqual({ sales: 0, customers: 0 })
   })
 
@@ -46,7 +47,7 @@ describe('aggregatePeriodCurSales', () => {
     const daily = new Map<number, DailyRecord>()
     daily.set(1, { sales: null, customers: null } as unknown as DailyRecord)
     daily.set(2, { sales: 50, customers: 5 } as unknown as DailyRecord)
-    const r = aggregatePeriodCurSales(EMPTY_CTS, daily, 1, 2)
+    const r = aggregatePeriodCurSales(daily, 1, 2)
     expect(r).toEqual({ sales: 50, customers: 5 })
   })
 })
@@ -58,7 +59,7 @@ describe('aggregatePeriodPrevSales', () => {
       2: { sales: 200, customers: 20 },
       8: { sales: 500, customers: 50 },
     })
-    const r = aggregatePeriodPrevSales(EMPTY_CTS, 'wow', daily, new Map(), 8, 8, 1, 2, 2025, 5)
+    const r = aggregatePeriodPrevSales('wow', daily, new Map(), 8, 8, 1, 2, 2025, 5)
     expect(r).toEqual({ sales: 300, customers: 30 })
   })
 
@@ -67,13 +68,13 @@ describe('aggregatePeriodPrevSales', () => {
     prev.set('2025-05-01', { sales: 100, discount: 0, customers: 10 })
     prev.set('2025-05-02', { sales: 200, discount: 0, customers: 20 })
     prev.set('2025-05-03', { sales: 300, discount: 0, customers: 30 })
-    const r = aggregatePeriodPrevSales(EMPTY_CTS, 'yoy', new Map(), prev, 1, 2, 0, 0, 2025, 5)
+    const r = aggregatePeriodPrevSales('yoy', new Map(), prev, 1, 2, 0, 0, 2025, 5)
     expect(r).toEqual({ sales: 300, customers: 30 })
   })
 
   it('yoy: missing prev entries contribute zero', () => {
     const prev = new Map<string, { sales: number; discount: number; customers: number }>()
-    const r = aggregatePeriodPrevSales(EMPTY_CTS, 'yoy', new Map(), prev, 1, 3, 0, 0, 2025, 5)
+    const r = aggregatePeriodPrevSales('yoy', new Map(), prev, 1, 3, 0, 0, 2025, 5)
     expect(r).toEqual({ sales: 0, customers: 0 })
   })
 })

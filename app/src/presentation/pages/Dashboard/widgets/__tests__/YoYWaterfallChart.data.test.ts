@@ -1,18 +1,35 @@
+/**
+ * Phase 6.5-5b: `buildCategoryData` の入力を `CategoryTimeSalesRecord[]` から
+ * `CategoryDailySeries | null` に切替えた (dept-grain projection 経由)。
+ * Shapley 5-factor (buildFactorData) は leaf-grain 必須の intentional
+ * permanent floor として CTS 入力を継続利用する。本テストは前者 dept-only
+ * ウォーターフォールの変換意味を固定する。
+ */
 import { describe, it, expect } from 'vitest'
 import {
   DECOMP_HELP,
   buildCategoryData,
 } from '@/presentation/pages/Dashboard/widgets/YoYWaterfallChart.data'
-import type { CategoryTimeSalesRecord } from '@/domain/models/record'
+import type { CategoryDailySeries } from '@/application/hooks/categoryDaily/CategoryDailyBundle.types'
 
-const rec = (dept: string, name: string, amount: number): CategoryTimeSalesRecord =>
-  ({
-    department: { code: dept, name },
-    line: { code: 'L', name: 'L' },
-    klass: { code: 'K', name: 'K' },
-    totalAmount: amount,
-    totalQuantity: 0,
-  }) as unknown as CategoryTimeSalesRecord
+function makeSeries(
+  depts: readonly { code: string; name: string; sales: number }[],
+): CategoryDailySeries {
+  return {
+    entries: depts.map((d) => ({
+      deptCode: d.code,
+      deptName: d.name,
+      daily: [],
+      totals: { sales: d.sales, customers: 0, salesQty: 0 },
+    })),
+    grandTotals: {
+      sales: depts.reduce((s, d) => s + d.sales, 0),
+      customers: 0,
+      salesQty: 0,
+    },
+    dayCount: 0,
+  }
+}
 
 describe('DECOMP_HELP', () => {
   it('has entries for levels 2, 3, 5', () => {
@@ -49,7 +66,7 @@ describe('DECOMP_HELP', () => {
   })
 })
 
-describe('buildCategoryData', () => {
+describe('buildCategoryData (Phase 6.5-5b — CategoryDailySeries 入力)', () => {
   const baseParams = {
     hasComparison: true,
     prevSales: 1000,
@@ -58,22 +75,31 @@ describe('buildCategoryData', () => {
     curLabel: '当年',
   }
 
-  it('returns empty result when periodCTS is empty', () => {
+  it('returns empty result when categoryDailySeries is null', () => {
     const result = buildCategoryData({
       ...baseParams,
-      periodCTS: [],
-      periodPrevCTS: [rec('D1', 'Dept1', 500)],
+      categoryDailySeries: null,
+      categoryDailyPrevSeries: makeSeries([{ code: 'D1', name: 'Dept1', sales: 500 }]),
     })
     expect(result.items).toEqual([])
     expect(result.residual).toBe(0)
     expect(result.residualPct).toBe(0)
   })
 
-  it('returns empty result when periodPrevCTS is empty', () => {
+  it('returns empty result when categoryDailyPrevSeries is null', () => {
     const result = buildCategoryData({
       ...baseParams,
-      periodCTS: [rec('D1', 'Dept1', 500)],
-      periodPrevCTS: [],
+      categoryDailySeries: makeSeries([{ code: 'D1', name: 'Dept1', sales: 500 }]),
+      categoryDailyPrevSeries: null,
+    })
+    expect(result.items).toEqual([])
+  })
+
+  it('returns empty result when categoryDailySeries has no entries', () => {
+    const result = buildCategoryData({
+      ...baseParams,
+      categoryDailySeries: makeSeries([]),
+      categoryDailyPrevSeries: makeSeries([{ code: 'D1', name: 'Dept1', sales: 500 }]),
     })
     expect(result.items).toEqual([])
   })
@@ -82,8 +108,8 @@ describe('buildCategoryData', () => {
     const result = buildCategoryData({
       ...baseParams,
       hasComparison: false,
-      periodCTS: [rec('D1', 'Dept1', 600)],
-      periodPrevCTS: [rec('D1', 'Dept1', 500)],
+      categoryDailySeries: makeSeries([{ code: 'D1', name: 'Dept1', sales: 600 }]),
+      categoryDailyPrevSeries: makeSeries([{ code: 'D1', name: 'Dept1', sales: 500 }]),
     })
     expect(result.items).toEqual([])
   })
@@ -92,8 +118,8 @@ describe('buildCategoryData', () => {
     const result = buildCategoryData({
       ...baseParams,
       prevSales: 0,
-      periodCTS: [rec('D1', 'Dept1', 600)],
-      periodPrevCTS: [rec('D1', 'Dept1', 500)],
+      categoryDailySeries: makeSeries([{ code: 'D1', name: 'Dept1', sales: 600 }]),
+      categoryDailyPrevSeries: makeSeries([{ code: 'D1', name: 'Dept1', sales: 500 }]),
     })
     expect(result.items).toEqual([])
   })
@@ -101,8 +127,14 @@ describe('buildCategoryData', () => {
   it('builds items with start and end anchors', () => {
     const result = buildCategoryData({
       ...baseParams,
-      periodCTS: [rec('D1', 'Dept1', 600), rec('D2', 'Dept2', 500)],
-      periodPrevCTS: [rec('D1', 'Dept1', 500), rec('D2', 'Dept2', 500)],
+      categoryDailySeries: makeSeries([
+        { code: 'D1', name: 'Dept1', sales: 600 },
+        { code: 'D2', name: 'Dept2', sales: 500 },
+      ]),
+      categoryDailyPrevSeries: makeSeries([
+        { code: 'D1', name: 'Dept1', sales: 500 },
+        { code: 'D2', name: 'Dept2', sales: 500 },
+      ]),
     })
     // First item should be prev label total
     expect(result.items[0].name).toBe('前年売上')
@@ -118,8 +150,8 @@ describe('buildCategoryData', () => {
   it('includes positive department diff items', () => {
     const result = buildCategoryData({
       ...baseParams,
-      periodCTS: [rec('D1', 'Dept1', 700)],
-      periodPrevCTS: [rec('D1', 'Dept1', 500)],
+      categoryDailySeries: makeSeries([{ code: 'D1', name: 'Dept1', sales: 700 }]),
+      categoryDailyPrevSeries: makeSeries([{ code: 'D1', name: 'Dept1', sales: 500 }]),
     })
     const deptItem = result.items.find((i) => i.name === 'Dept1')
     expect(deptItem?.value).toBe(200)
@@ -129,12 +161,16 @@ describe('buildCategoryData', () => {
   it('sorts department items by absolute diff descending', () => {
     const result = buildCategoryData({
       ...baseParams,
-      periodCTS: [
-        rec('D1', 'Dept1', 600), // +100
-        rec('D2', 'Dept2', 500), // +300
-        rec('D3', 'Dept3', 300), // -200
-      ],
-      periodPrevCTS: [rec('D1', 'Dept1', 500), rec('D2', 'Dept2', 200), rec('D3', 'Dept3', 500)],
+      categoryDailySeries: makeSeries([
+        { code: 'D1', name: 'Dept1', sales: 600 }, // +100
+        { code: 'D2', name: 'Dept2', sales: 500 }, // +300
+        { code: 'D3', name: 'Dept3', sales: 300 }, // -200
+      ]),
+      categoryDailyPrevSeries: makeSeries([
+        { code: 'D1', name: 'Dept1', sales: 500 },
+        { code: 'D2', name: 'Dept2', sales: 200 },
+        { code: 'D3', name: 'Dept3', sales: 500 },
+      ]),
     })
     const deptItems = result.items.filter((i) => !i.isTotal && i.name !== '調整')
     // Largest abs diff should come first: D2 (+300), D3 (-200), D1 (+100)
@@ -144,18 +180,18 @@ describe('buildCategoryData', () => {
   })
 
   it('groups remaining depts as "その他" when more than 8', () => {
-    const periodCTS: CategoryTimeSalesRecord[] = []
-    const periodPrevCTS: CategoryTimeSalesRecord[] = []
+    const curDepts: { code: string; name: string; sales: number }[] = []
+    const prevDepts: { code: string; name: string; sales: number }[] = []
     for (let i = 0; i < 10; i++) {
-      periodCTS.push(rec(`D${i}`, `Dept${i}`, 100 + i * 10))
-      periodPrevCTS.push(rec(`D${i}`, `Dept${i}`, 100))
+      curDepts.push({ code: `D${i}`, name: `Dept${i}`, sales: 100 + i * 10 })
+      prevDepts.push({ code: `D${i}`, name: `Dept${i}`, sales: 100 })
     }
     const result = buildCategoryData({
       ...baseParams,
       prevSales: 1000,
       curSales: 1450,
-      periodCTS,
-      periodPrevCTS,
+      categoryDailySeries: makeSeries(curDepts),
+      categoryDailyPrevSeries: makeSeries(prevDepts),
     })
     const otherItem = result.items.find((i) => i.name.startsWith('その他'))
     expect(otherItem).toBeTruthy()
@@ -165,10 +201,10 @@ describe('buildCategoryData', () => {
   it('residual is near zero when anchors match', () => {
     const result = buildCategoryData({
       ...baseParams,
-      periodCTS: [rec('D1', 'Dept1', 600)],
-      periodPrevCTS: [rec('D1', 'Dept1', 500)],
+      categoryDailySeries: makeSeries([{ code: 'D1', name: 'Dept1', sales: 600 }]),
+      categoryDailyPrevSeries: makeSeries([{ code: 'D1', name: 'Dept1', sales: 500 }]),
     })
-    // cts totals used as anchors, so running = anchorCur exactly
+    // lane totals used as anchors, so running = anchorCur exactly
     expect(Math.abs(result.residual)).toBeLessThan(1)
   })
 })

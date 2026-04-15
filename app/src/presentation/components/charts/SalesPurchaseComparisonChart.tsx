@@ -11,6 +11,7 @@ import { computeEstimatedInventory } from '@/application/hooks/calculation'
 import { calculateGrossProfitRate } from '@/domain/calculations/utils'
 import type { Store } from '@/domain/models/record'
 import type { StoreResult } from '@/domain/models/storeTypes'
+import type { StoreDailySeries } from '@/application/hooks/storeDaily/StoreDailyBundle.types'
 import { ChartCard } from './ChartCard'
 import {
   Controls,
@@ -35,6 +36,19 @@ interface Props {
   comparisonResults: readonly StoreResult[]
   stores: ReadonlyMap<string, Store>
   daysInMonth: number
+  /**
+   * Phase 6.5-5: sales / purchaseCost per (store, day) の正本。
+   * `ctx.storeDailyLane.bundle.currentSeries` を受け取り、
+   * 売上/仕入チャート列の元データとして使う。
+   *
+   * null のときは 0 で埋めて flicker を避ける (bundle 未ロード時の安全網)。
+   *
+   * 注: 推定在庫線は StoreResult の daily Map を継続利用する (StoreDailySeries
+   * には推定在庫計算に必要な markup / discount rate / 仕入内訳が含まれないため、
+   * `computeEstimatedInventory` 呼び出しは intentional な permanent floor として
+   * storeDailyLaneSurfaceGuard baseline=1 で固定)。
+   */
+  storeDailySeries?: StoreDailySeries | null
   headerExtra?: ReactNode
   rangeStart?: number
   rangeEnd?: number
@@ -131,6 +145,7 @@ export const SalesPurchaseComparisonChart = memo(function SalesPurchaseCompariso
   comparisonResults,
   stores,
   daysInMonth,
+  storeDailySeries,
   headerExtra,
   rangeStart: rangeStartProp,
   rangeEnd: rangeEndProp,
@@ -197,7 +212,30 @@ export const SalesPurchaseComparisonChart = memo(function SalesPurchaseCompariso
   const showPurchase = seriesMode === 'all' || seriesMode === 'purchase'
   const showInventory = (seriesMode === 'all' || seriesMode === 'inventory') && anyHasInventory
 
+  // Phase 6.5-5: storeDailySeries を (storeId → (day → {sales, purchaseCost})) に
+  // projection。projection の意味は 6.5-2 で凍結済みなので widget 側で並び替えや
+  // totals 再計算はせず、そのまま参照する。
+  const laneDailyByStore = useMemo(() => {
+    const map = new Map<string, Map<number, { sales: number; purchaseCost: number }>>()
+    if (!storeDailySeries) return map
+    for (const entry of storeDailySeries.entries) {
+      const inner = new Map<number, { sales: number; purchaseCost: number }>()
+      for (const dp of entry.daily) {
+        // dateKey = 'YYYY-MM-DD' → day 部分のみ抽出
+        const day = Number(dp.dateKey.slice(-2))
+        if (Number.isFinite(day)) {
+          inner.set(day, { sales: dp.sales, purchaseCost: dp.purchaseCost })
+        }
+      }
+      map.set(entry.storeId, inner)
+    }
+    return map
+  }, [storeDailySeries])
+
   const chartData = useMemo(() => {
+    // 推定在庫線は StoreResult.daily を継続利用 (StoreDailySeries には
+    // markup / discount rate / 仕入内訳が含まれないため計算不可)。
+    // これが storeDailyLaneSurfaceGuard baseline=1 の intentional floor。
     const invByStore = new Map<string, ReturnType<typeof computeEstimatedInventory>>()
     for (const s of storeEntries) {
       if (s.hasInventory) {
@@ -219,16 +257,18 @@ export const SalesPurchaseComparisonChart = memo(function SalesPurchaseCompariso
     for (let d = 1; d <= daysInMonth; d++) {
       const entry: Record<string, number | null> = { day: d }
       for (const s of storeEntries) {
-        const rec = s.result.daily.get(d)
-        entry[`${s.name}_売上`] = rec?.sales ?? 0
-        entry[`${s.name}_仕入`] = rec?.purchase.cost ?? 0
+        // Phase 6.5-5: sales / purchase は lane 経由で取得する。
+        // lane series 未ロード時は 0 で埋めて flicker を避ける。
+        const lanePoint = laneDailyByStore.get(s.storeId)?.get(d)
+        entry[`${s.name}_売上`] = lanePoint?.sales ?? 0
+        entry[`${s.name}_仕入`] = lanePoint?.purchaseCost ?? 0
         const inv = invByStore.get(s.storeId)
         entry[`${s.name}_推定在庫`] = inv?.[d - 1]?.estimated ?? null
       }
       data.push(entry)
     }
     return data.filter((d) => (d.day as number) >= rangeStart && (d.day as number) <= rangeEnd)
-  }, [storeEntries, daysInMonth, rangeStart, rangeEnd])
+  }, [storeEntries, daysInMonth, rangeStart, rangeEnd, laneDailyByStore])
 
   if (storeEntries.length < 2) return null
 
