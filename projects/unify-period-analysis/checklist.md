@@ -104,6 +104,7 @@
 > 拡張 (Step B) 前提のため分離した。
 
 * [x] Step A (summary swap): `ConditionSummaryEnhanced` / `ExecSummaryBarWidget` の prev-year 系 summary 読み出しを `ctx.freePeriodLane.bundle.fact.comparisonSummary` 経由に差し替える (`selectPrevYearSummaryFromFreePeriod` selector + 8 件の unit/parity test、bundle 未ロード時は legacy `prevYear` にフォールバック)
+* [x] Step B 設計固定: Phase 6.5 の起点として `phase-6-5-step-b-design.md` を策定。店舗別日次 / category 日次 を 2 本の sibling lane (`ctx.storeDailyLane` / `ctx.categoryDailyLane`) として追加する方針、6 phase 実装順、リスク mitigation を明文化
 * [ ] Step B (readModel 次元拡張): `FreePeriodReadModel` に店舗別日次シリーズ / category 次元を追加する (定義書 + Zod 契約 + guard 更新を伴う)。これにより `SalesPurchaseComparisonChart` / `YoYWaterfallChart` の載せ替えが可能になる
 * [ ] Step B 完了後: `SalesPurchaseComparisonChart` を `ctx.freePeriodLane.bundle.fact` 経由に載せ替える
 * [ ] Step B 完了後: `YoYWaterfallChart` を `ctx.freePeriodLane.bundle.{fact,deptKPI}` 経由に載せ替える
