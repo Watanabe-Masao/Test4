@@ -190,6 +190,7 @@
 |---------|------|
 | `03-guides/coding-conventions.md` | コーディング規約 |
 | `03-guides/runtime-data-path.md` | 実行時データ経路 |
+| `03-guides/chart-input-builder-pattern.md` | Chart Input Builder Pattern |
 | `03-guides/responsibility-separation-catalog.md` | 責務分離 24 パターン |
 | `03-guides/invariant-catalog.md` | 不変条件カタログ |
 | `03-guides/metric-id-registry.md` | MetricId レジストリ（50 定義） |

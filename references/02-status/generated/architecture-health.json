@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-15T04:58:29.845Z",
+  "timestamp": "2026-04-15T06:18:12.495Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 65,
+      "value": 66,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -272,6 +272,7 @@
         "app/src/test/guards/calculationCanonGuard.test.ts",
         "app/src/test/guards/canonicalInputGuard.test.ts",
         "app/src/test/guards/canonicalizationSystemGuard.test.ts",
+        "app/src/test/guards/chartInputBuilderGuard.test.ts",
         "app/src/test/guards/checklistFormatGuard.test.ts",
         "app/src/test/guards/checklistGovernanceSymmetryGuard.test.ts",
         "app/src/test/guards/coChangeGuard.test.ts",

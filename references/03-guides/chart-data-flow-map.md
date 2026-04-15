@@ -66,6 +66,28 @@ TimeSlotChart
        └─ timeSlotPairHandler → queryTimeSlotAggregation → time_slots
 ```
 
+## YoYChart (unify-period-analysis Phase 5 見本実装)
+
+```
+YoYChart (presentation/components/charts/YoYChart.tsx)
+  ├─ buildYoyDailyInput(scope, prevYearScope, selectedStoreIds)  ← pure builder (application)
+  │    └─ application/hooks/plans/buildYoyDailyInput.ts
+  │         入力: ComparisonScope / PrevYearScope / storeIds
+  │         出力: YoyDailyInput { curDateFrom/To, prevDateFrom/To, storeIds, compareMode }
+  ├─ useYoYChartPlan (application/hooks/plans/useYoYChartPlan.ts)   ← Screen Query Plan
+  │    └─ yoyDailyHandler → queryYoyDaily                          → classified_sales
+  └─ buildYoYChartData / buildYoYWaterfallData / computeYoYSummary  ← YoYChartLogic.ts (pure)
+```
+
+本 chart は Phase 5 の **Chart Input Builder Pattern** の見本実装:
+
+- scope 内部フィールド (`effectivePeriod1 / effectivePeriod2 / alignmentMode`) の
+  参照は application 層の `buildYoyDailyInput` に集約
+- chart 本体は builder pass-through と描画のみ
+- 強制 guard: `chartInputBuilderGuard` (chart 配下での `dateRangeToKeys` 直接
+  呼び出しを禁止、baseline 8 件から ratchet-down)
+- 詳細: `references/03-guides/chart-input-builder-pattern.md`
+
 ## WeatherCorrelationChart
 
 ```
