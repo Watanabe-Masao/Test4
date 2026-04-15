@@ -32,14 +32,13 @@ const SRC_DIR = path.resolve(__dirname, '../..')
  *   - Phase 6 Step C pre-work (2026-04-15): baseline 1 (StoreHourlyChartLogic.ts)
  *   - Step C 実装時: 1 → 0 (TimeSlotBundle / TimeSlotSeries 経由に移行)
  */
-const TIME_SLOT_RAW_ROW_ALLOWLIST: readonly { readonly path: string; readonly reason: string }[] =
-  [
-    {
-      path: 'presentation/components/charts/StoreHourlyChartLogic.ts',
-      reason:
-        'Step C 実装前の現行 raw row consumer。TimeSlotBundle 経由への移行で allowlist 削除予定',
-    },
-  ]
+const TIME_SLOT_RAW_ROW_ALLOWLIST: readonly { readonly path: string; readonly reason: string }[] = [
+  {
+    path: 'presentation/components/charts/StoreHourlyChartLogic.ts',
+    reason:
+      'Step C 実装前の現行 raw row consumer。TimeSlotBundle 経由への移行で allowlist 削除予定',
+  },
+]
 
 const TIME_SLOT_ALLOWLIST_PATHS = new Set(TIME_SLOT_RAW_ROW_ALLOWLIST.map((e) => e.path))
 
@@ -122,10 +121,7 @@ describe('timeSlotLaneSurfaceGuard (unify-period-analysis Phase 6 Step C pre-wor
   })
 
   it('TimeSlotBundle 型契約ファイルが存在する (Step C pre-work の型先行固定)', () => {
-    const typeFile = path.join(
-      SRC_DIR,
-      'application/hooks/timeSlot/TimeSlotBundle.types.ts',
-    )
+    const typeFile = path.join(SRC_DIR, 'application/hooks/timeSlot/TimeSlotBundle.types.ts')
     expect(fs.existsSync(typeFile), 'TimeSlotBundle.types.ts が存在しない').toBe(true)
     const content = fs.readFileSync(typeFile, 'utf-8')
     // 契約面の主要 export を固定する
