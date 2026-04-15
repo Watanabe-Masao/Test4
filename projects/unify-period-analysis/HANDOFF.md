@@ -146,24 +146,23 @@ Phase 5 で確立した chart 薄化パターンは
 
 ### 高優先（次に着手するもの）
 
-- **Phase 6 棚卸し完了 (2026-04-15)**: 6 widget の ctx 依存を `inventory/05-phase6-widget-consumers.md` に箇所単位で固定。結論は下記スコープ再定義を参照
-- ~~**Phase 6 Step A (summary swap)**~~ 完了済み (本 commit) — 完了済 section 参照
 - **Phase 6.5 / Step B (readModel 次元拡張)**: 設計 (`phase-6-5-step-b-design.md`) と Phase 6.5-1 (型契約 + pre-work guard) は完了済み。次の一手は **Phase 6.5-2** = `projectStoreDailySeries` / `projectCategoryDailySeries` の **truth-table parity test 先行** (Step C の `projectTimeSlotSeries.parity.test.ts` と同形)。実装は書かず、期待される変換意味のみを fixture ベースで凍結する。それが終わったら Phase 6.5-3 で pure projection を実装する
-- **Phase 6 Step C (時間帯比較 scope 整理) — 方針固定済み (2026-04-15)**: 時間帯比較は `FreePeriodReadModel` に吸収せず、sibling lane (`ctx.timeSlotLane`) として切り出す。`step-c-timeslot-lane-policy.md` / `TimeSlotBundle.types.ts` (型契約のみ、実装はまだ) / `timeSlotLaneSurfaceGuard` (baseline 1 件、Step C 実装時 0 到達目標) の 3 点セットで pre-work 完了。残は Step C 実装 (`useTimeSlotBundle` + ctx 配布 + `StoreHourlyChartLogic` 載せ替え)
-- **Phase 6 Step D (天気 correlation)**: domain-layer projection (`buildDailySalesProjection(currentRows)` 等) を追加して `WeatherCorrelationChart` が G3-2 を守ったまま daily sales を使えるようにする
 - **Phase 6 optional**: `useComparisonModule` の periodSelection 依存 (kpi projection / dowGap 内部) をさらに削減する refactor。`externalScope` が必ず渡される前提になったため、periodSelection も `{ period1Year, period1Month }` 等の minimal struct に縮退可能
 
-> **Phase 6 スコープ再定義の根拠**: `inventory/05-phase6-widget-consumers.md`
-> の箇所単位棚卸しで、checklist Phase 6 の 6 項目のうち HIGH リスク 2 /
-> MEDIUM 3 / LOW 1 と判明。現状の `FreePeriodReadModel` (summary + raw rows、
-> raw rows は G3-2 で presentation 非公開) では per-store 日次シリーズ / category
-> 次元 / 時刻次元を必要とする widget は載せ替え不可。先に `Step A` (summary
-> 差し替え) を進めつつ、残りは `Step B-D` として readModel 次元拡張 / 別レーン /
-> domain projection の追加を別 phase で検討する。
+> **Phase 6 全景 (2026-04-15 時点)**:
+>
+> - ✅ Phase 6b: legacy caller baseline 2 → 0 (PR #1039)
+> - ✅ Phase 6 Step A: summary swap + regression freeze guard (PR #1039)
+> - ⏳ Phase 6.5 / Step B: 設計 + Phase 6.5-1 完了、Phase 6.5-2 以降を実装予定 (PR #1040+)
+> - ✅ Phase 6 Step C: 時間帯比較 sibling lane 化 (`timeSlotLane`)、raw row baseline 1 → 0 (PR #1039)
+> - ✅ Phase 6 Step D: 天気 correlation projection 正本化、guard baseline 0 (PR #1039)
+>
+> つまり Phase 6 の HIGH/MEDIUM/LOW 4 step 中、Step B 以外は全てクローズ済み。
+> 残タスクは Phase 6.5 の実装順に従って Step B を閉じるだけ。
 
 ### 中優先
 
-- **Phase 6 checklist.md 更新**: 現行 6 checkbox を Step A-D 構造に置き換える (inventory/05 準拠)
+- **AR-003 fieldMax ratchet-up 準備**: Phase 6.5-4 で `ctx.storeDailyLane` / `ctx.categoryDailyLane` を `UnifiedWidgetContext` に追加する際、fieldMax 49 → 51 の ratchet-up を申請する (設計書 §6 で承認済み)
 
 ### 低優先
 
