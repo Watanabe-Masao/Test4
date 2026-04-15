@@ -33,6 +33,8 @@ export {
   selectPrevYearSummaryFromFreePeriod,
   selectPrevYearSummaryFromLegacy,
   preferFreePeriodPrevYearSummary,
+  PrevYearSummaryProjectionSchema,
+  PrevYearSummarySourceSchema,
   type PrevYearSummaryProjection,
   type PrevYearSummarySource,
   type LegacyPrevYearSummaryInput,

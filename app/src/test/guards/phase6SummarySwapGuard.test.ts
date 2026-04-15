@@ -173,14 +173,21 @@ describe('phase6SummarySwapGuard (unify-period-analysis Phase 6 Step A)', () => 
     expect(content).toContain('PrevYearSummarySource')
   })
 
-  it('Step A 対象 widget が共通 selector を import している', () => {
+  it('Step A 対象 widget が共通 selector を実 import している (コメント/文字列は除外)', () => {
+    // import 文の中に selectPrevYearSummaryFromFreePeriod があることを regex で検証。
+    // 単純な content.includes だとコメントや文字列リテラルでも pass するため、
+    // 実際の `import { ... selectPrevYearSummaryFromFreePeriod ... } from '...'`
+    // 形のみを許可する。multiline import に対応するため multiline flag を使う。
+    const selectorImportPattern =
+      /import\s+(?:type\s+)?\{[^}]*\bselectPrevYearSummaryFromFreePeriod\b[^}]*\}\s+from\s+['"][^'"]+['"]/m
+
     for (const entry of SUMMARY_SWAP_BASELINES) {
       const abs = path.join(SRC_DIR, entry.path)
       if (!fs.existsSync(abs)) continue
       const content = fs.readFileSync(abs, 'utf-8')
       expect(
-        content.includes('selectPrevYearSummaryFromFreePeriod'),
-        entry.path + ': selectPrevYearSummaryFromFreePeriod を import していない',
+        selectorImportPattern.test(content),
+        entry.path + ': selectPrevYearSummaryFromFreePeriod を実 import していない',
       ).toBe(true)
     }
   })

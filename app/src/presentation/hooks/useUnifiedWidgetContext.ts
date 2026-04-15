@@ -127,25 +127,29 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
   // 移行する。
   const freePeriodBundle = useFreePeriodAnalysisBundle(query.queryExecutor, analysisFrame)
 
+  // ── effective 最終日 (経過日数 cap、elapsedDays が設定されていれば優先) ──
+  // timeSlotFrame / ctx.currentDateRange で共通使用する唯一の計算点。
+  const effectiveEndDay = currentResult
+    ? currentResult.elapsedDays != null && currentResult.elapsedDays > 0
+      ? Math.min(currentResult.elapsedDays, daysInMonth)
+      : daysInMonth
+    : daysInMonth
+
   // ── 時間帯比較レーン (unify-period-analysis Phase 6 Step C) ──
   // FreePeriodReadModel と sibling 関係。raw 時間帯 row を presentation に
   // 漏らさず、TimeSlotSeries (projection 済み) を bundle 経由で配布する。
   // 比較期間は freePeriodLane と同じ comparison scope を流用する。
   const timeSlotFrame = useMemo<TimeSlotFrame | null>(() => {
     if (!currentResult) return null
-    const effectiveEnd =
-      currentResult.elapsedDays != null && currentResult.elapsedDays > 0
-        ? Math.min(currentResult.elapsedDays, daysInMonth)
-        : daysInMonth
     return {
       dateRange: {
         from: { year: targetYear, month: targetMonth, day: 1 },
-        to: { year: targetYear, month: targetMonth, day: effectiveEnd },
+        to: { year: targetYear, month: targetMonth, day: effectiveEndDay },
       },
       storeIds: [...selectedStoreIds].sort(),
       comparison: comparison.scope,
     }
-  }, [currentResult, daysInMonth, targetYear, targetMonth, selectedStoreIds, comparison.scope])
+  }, [currentResult, effectiveEndDay, targetYear, targetMonth, selectedStoreIds, comparison.scope])
 
   const timeSlotBundle = useTimeSlotBundle(query.queryExecutor, timeSlotFrame)
 
@@ -168,11 +172,7 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
   const deptKpiIndex = useDeptKpiView()
   const { format: fmtCurrency } = useCurrencyFormat()
 
-  const effectiveEndDay = currentResult
-    ? currentResult.elapsedDays != null && currentResult.elapsedDays > 0
-      ? Math.min(currentResult.elapsedDays, daysInMonth)
-      : daysInMonth
-    : daysInMonth
+  // effectiveEndDay は上で timeSlotFrame 構築前に宣言済み (共通計算点)
 
   const storeNames = useMemo(() => {
     const map = new Map<string, string>()

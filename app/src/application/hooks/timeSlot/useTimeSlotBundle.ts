@@ -87,6 +87,33 @@ function dateToISO(d: CalendarDate): string {
   return `${d.year}-${m}-${day}`
 }
 
+/**
+ * `ComparisonScope.alignmentMode` を `TimeSlotProvenance['mappingKind']` に
+ * 変換する。Step C 方針 (step-c-timeslot-lane-policy.md §3) で time-slot
+ * 比較意味論は `sameDate` / `sameDayOfWeek` の 2 値固定と明記されており、
+ * `wow` 等の拡張値は初期契約から除外されている。
+ *
+ * 現状 `AlignmentMode` は 2 値しか取らないため switch は exhaustive だが、
+ * 将来 `ComparisonScope.alignmentMode` に値が追加されたとき、黙って
+ * `sameDate` に倒れないよう明示的に default ケースを書く (TypeScript の
+ * `never` narrowing で compile-time check)。
+ */
+function resolveMappingKind(
+  alignmentMode: 'sameDate' | 'sameDayOfWeek',
+): TimeSlotProvenance['mappingKind'] {
+  switch (alignmentMode) {
+    case 'sameDate':
+      return 'sameDate'
+    case 'sameDayOfWeek':
+      return 'sameDayOfWeek'
+    default: {
+      // exhaustive: 将来 AlignmentMode が拡張されても compile error で検出
+      const _exhaustive: never = alignmentMode
+      return _exhaustive
+    }
+  }
+}
+
 function dayCount(from: CalendarDate, to: CalendarDate): number {
   const a = new Date(from.year, from.month - 1, from.day).getTime()
   const b = new Date(to.year, to.month - 1, to.day).getTime()
@@ -140,8 +167,14 @@ function buildInputs(frame: TimeSlotFrame | null): BuiltInputs {
     storeIds: sortedStoreIds.length > 0 ? sortedStoreIds : undefined,
   }
   const comparisonDayCount = dayCount(cmpRange.from, cmpRange.to)
-  const mappingKind: TimeSlotProvenance['mappingKind'] =
-    frame.comparison.alignmentMode === 'sameDayOfWeek' ? 'sameDayOfWeek' : 'sameDate'
+  // Step C 方針: time-slot 比較意味論は sameDate / sameDayOfWeek の 2 値で固定
+  // (`projects/unify-period-analysis/step-c-timeslot-lane-policy.md` §3)。
+  // 未知の mode は想定外だが黙って sameDate に落とさず、明示的 switch で
+  // 既知値を pin し default では警告付きで sameDate fallback する。将来
+  // ComparisonScope.alignmentMode に値が増えたときに静かな破壊が起きない。
+  const mappingKind: TimeSlotProvenance['mappingKind'] = resolveMappingKind(
+    frame.comparison.alignmentMode,
+  )
 
   return {
     current,

@@ -43,30 +43,41 @@
  *
  * @see projects/unify-period-analysis/inventory/05-phase6-widget-consumers.md
  */
+import { z } from 'zod'
 import type { FreePeriodReadModel } from './FreePeriodTypes'
 
-export type PrevYearSummarySource = 'freePeriod' | 'legacy' | 'none'
+/**
+ * `PrevYearSummaryProjection` は application/readModels/freePeriod/ 配下の
+ * read-model 境界の小契約として扱う。型だけでなく Zod schema を正本とし、
+ * 全 exported selector は出力を `.parse()` で検証する
+ * (AAG F9 Raw=唯一真実源 / 第9原則: 全 readXxx / calculateXxx / selectXxx
+ * に Zod .parse() 強制)。
+ */
+export const PrevYearSummarySourceSchema = z.enum(['freePeriod', 'legacy', 'none'])
+export type PrevYearSummarySource = z.infer<typeof PrevYearSummarySourceSchema>
 
-export interface PrevYearSummaryProjection {
+export const PrevYearSummaryProjectionSchema = z.object({
   /** comparisonSummary が存在し、totalSales > 0 のときのみ true */
-  readonly hasPrevYear: boolean
+  hasPrevYear: z.boolean(),
   /** comparisonSummary.totalSales (= legacy `prevYear.totalSales` 相当) */
-  readonly totalSales: number
+  totalSales: z.number(),
   /** comparisonSummary.totalCustomers (= legacy `prevYear.totalCustomers` 相当) */
-  readonly totalCustomers: number
+  totalCustomers: z.number(),
   /** comparisonSummary.totalSales を旧命名でも公開 (= legacy `prevYearMonthlySales`) */
-  readonly prevYearMonthlySales: number
+  prevYearMonthlySales: z.number(),
   /** どこから来た値か (debug/観測専用、業務ロジックの分岐には使わない) */
-  readonly source: PrevYearSummarySource
-}
+  source: PrevYearSummarySourceSchema,
+})
 
-const NONE: PrevYearSummaryProjection = {
+export type PrevYearSummaryProjection = z.infer<typeof PrevYearSummaryProjectionSchema>
+
+const NONE: PrevYearSummaryProjection = PrevYearSummaryProjectionSchema.parse({
   hasPrevYear: false,
   totalSales: 0,
   totalCustomers: 0,
   prevYearMonthlySales: 0,
   source: 'none',
-}
+})
 
 /**
  * `FreePeriodReadModel.comparisonSummary` を「旧 prev-year summary 命名」に
@@ -82,13 +93,13 @@ export function selectPrevYearSummaryFromFreePeriod(
 ): PrevYearSummaryProjection {
   const cs = fact?.comparisonSummary ?? null
   if (!cs || cs.totalSales <= 0) return NONE
-  return {
+  return PrevYearSummaryProjectionSchema.parse({
     hasPrevYear: true,
     totalSales: cs.totalSales,
     totalCustomers: cs.totalCustomers,
     prevYearMonthlySales: cs.totalSales,
     source: 'freePeriod',
-  }
+  })
 }
 
 /**
@@ -111,13 +122,13 @@ export function selectPrevYearSummaryFromLegacy(
   input: LegacyPrevYearSummaryInput | null,
 ): PrevYearSummaryProjection {
   if (!input || !input.hasPrevYear || input.totalSales <= 0) return NONE
-  return {
+  return PrevYearSummaryProjectionSchema.parse({
     hasPrevYear: true,
     totalSales: input.totalSales,
     totalCustomers: input.totalCustomers,
     prevYearMonthlySales: input.prevYearMonthlySales,
     source: 'legacy',
-  }
+  })
 }
 
 /**
