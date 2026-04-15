@@ -153,6 +153,22 @@ describe('storeDailyLaneSurfaceGuard (unify-period-analysis Phase 6.5 Step B pre
     expect(content).toContain("'sameDate' | 'sameDayOfWeek' | 'none'")
   })
 
+  it('projectStoreDailySeries pure 関数 + parity test が存在する (Phase 6.5-2 意味境界の凍結)', () => {
+    const projFile = path.join(SRC_DIR, 'application/hooks/storeDaily/projectStoreDailySeries.ts')
+    expect(fs.existsSync(projFile), 'projectStoreDailySeries.ts が存在しない').toBe(true)
+    const projContent = fs.readFileSync(projFile, 'utf-8')
+    expect(projContent).toContain('export function projectStoreDailySeries')
+    expect(projContent).toContain('EMPTY_STORE_DAILY_SERIES')
+
+    const testFile = path.join(
+      SRC_DIR,
+      'application/hooks/storeDaily/__tests__/projectStoreDailySeries.parity.test.ts',
+    )
+    expect(fs.existsSync(testFile), 'projectStoreDailySeries.parity.test.ts が存在しない').toBe(
+      true,
+    )
+  })
+
   it('Phase 6.5 Step B 設計ドキュメントが存在する (意思決定の固定先)', () => {
     const designFile = path.resolve(
       SRC_DIR,
