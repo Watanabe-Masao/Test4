@@ -31,7 +31,11 @@ export type {
 } from './FreePeriodDeptKPITypes'
 export {
   selectPrevYearSummaryFromFreePeriod,
+  selectPrevYearSummaryFromLegacy,
+  preferFreePeriodPrevYearSummary,
   type PrevYearSummaryProjection,
+  type PrevYearSummarySource,
+  type LegacyPrevYearSummaryInput,
 } from './selectPrevYearSummaryFromFreePeriod'
 export {
   FreePeriodReadModel as FreePeriodReadModelSchema,
