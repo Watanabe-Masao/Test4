@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-15T12:04:11.016Z",
+  "timestamp": "2026-04-15T12:29:27.962Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 68,
+      "value": 69,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -329,6 +329,7 @@
         "app/src/test/guards/temporalRollingGuard.test.ts",
         "app/src/test/guards/temporalScopeGuard.test.ts",
         "app/src/test/guards/testSignalIntegrityGuard.test.ts",
+        "app/src/test/guards/timeSlotLaneSurfaceGuard.test.ts",
         "app/src/test/guards/topologyGuard.test.ts",
         "app/src/test/guards/useComparisonModuleLegacyCallerGuard.test.ts",
         "app/src/test/guards/versionSyncGuard.test.ts",
@@ -825,7 +826,7 @@
       "id": "project.checklist.totalCheckboxes",
       "label": "全 project の required checkbox 総数",
       "category": "docs",
-      "value": 368,
+      "value": 369,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -853,7 +854,7 @@
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 315,
+      "value": 316,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",

@@ -107,7 +107,8 @@
 * [ ] Step B (readModel 次元拡張): `FreePeriodReadModel` に店舗別日次シリーズ / category 次元を追加する (定義書 + Zod 契約 + guard 更新を伴う)。これにより `SalesPurchaseComparisonChart` / `YoYWaterfallChart` の載せ替えが可能になる
 * [ ] Step B 完了後: `SalesPurchaseComparisonChart` を `ctx.freePeriodLane.bundle.fact` 経由に載せ替える
 * [ ] Step B 完了後: `YoYWaterfallChart` を `ctx.freePeriodLane.bundle.{fact,deptKPI}` 経由に載せ替える
-* [ ] Step C (時間帯比較 scope 整理): `StoreHourlyChart` は時刻次元を持たない `FreePeriodReadModel` の対象外。Phase 6 から除外するか `ctx.freePeriodLane.timeSlotBundle` のような別レーンを定義する方針を決める
+* [x] Step C 方針固定: 時間帯比較は `FreePeriodReadModel` に吸収せず sibling lane (`ctx.timeSlotLane`) として切り出す。`step-c-timeslot-lane-policy.md` + `TimeSlotBundle.types.ts` + `timeSlotLaneSurfaceGuard` で pre-work 完了
+* [ ] Step C 実装: `useTimeSlotBundle` hook + `useUnifiedWidgetContext` への `timeSlotLane` 配布 + `StoreHourlyChartLogic.ts` の raw row 消費削除 (`timeSlotLaneSurfaceGuard` baseline 1 → 0)
 * [ ] Step D (天気 correlation): domain-layer projection (`buildDailySalesProjection(currentRows)` 等) を追加し、`WeatherCorrelationChart` が G3-2 を守ったまま daily sales を使えるようにする
 
 ## Phase 7: ガードテスト群（test-plan G0〜G6）
