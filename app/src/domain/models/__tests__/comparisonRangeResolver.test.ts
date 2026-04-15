@@ -9,7 +9,10 @@ import { describe, it, expect } from 'vitest'
 import {
   resolveComparisonRange,
   deriveSameDowStartDateKey,
+  enrichResolvedRangeWithScope,
+  resolveAndEnrichComparisonRange,
 } from '@/domain/models/comparisonRangeResolver'
+import type { ComparisonScope } from '@/domain/models/ComparisonScope'
 
 describe('resolveComparisonRange', () => {
   describe('mode: yoy', () => {
@@ -137,6 +140,113 @@ describe('resolveComparisonRange', () => {
         fallbackApplied: true,
       })
     })
+  })
+})
+
+describe('enrichResolvedRangeWithScope (Phase 2b: 単一出力契約)', () => {
+  // Minimal ComparisonScope fixture for enrichment tests.
+  const SCOPE: ComparisonScope = {
+    period1: {
+      from: { year: 2026, month: 4, day: 1 },
+      to: { year: 2026, month: 4, day: 30 },
+    },
+    period2: {
+      from: { year: 2025, month: 4, day: 1 },
+      to: { year: 2025, month: 4, day: 30 },
+    },
+    preset: 'prevYearSameMonth',
+    alignmentMode: 'sameDate',
+    dowOffset: 0,
+    effectivePeriod1: {
+      from: { year: 2026, month: 4, day: 1 },
+      to: { year: 2026, month: 4, day: 15 },
+    },
+    effectivePeriod2: {
+      from: { year: 2025, month: 4, day: 1 },
+      to: { year: 2025, month: 4, day: 15 },
+    },
+    queryRanges: [{ year: 2025, month: 4 }],
+    alignmentMap: [
+      {
+        sourceDate: { year: 2025, month: 4, day: 1 },
+        targetDate: { year: 2026, month: 4, day: 1 },
+        sourceDayKey: '2025-04-01',
+        targetDayKey: '2026-04-01',
+      },
+      {
+        sourceDate: { year: 2025, month: 4, day: 2 },
+        targetDate: { year: 2026, month: 4, day: 2 },
+        sourceDayKey: '2025-04-02',
+        targetDayKey: '2026-04-02',
+      },
+    ],
+    sourceMonth: { year: 2025, month: 4 },
+  }
+
+  const RESOLVER_INPUT = {
+    mode: 'yoy' as const,
+    year: 2026,
+    month: 4,
+    dayStart: 1,
+    dayEnd: 15,
+    dowOffset: 0,
+    canWoW: false,
+    wowPrevStart: 0,
+    wowPrevEnd: 0,
+  }
+
+  it('scope=null: base をそのまま返す (sourceDate / comparisonRange は undefined)', () => {
+    const base = resolveComparisonRange(RESOLVER_INPUT)
+    const enriched = enrichResolvedRangeWithScope(base, null)
+    expect(enriched.provenance.sourceDate).toBeUndefined()
+    expect(enriched.provenance.comparisonRange).toBeUndefined()
+    expect(enriched.range).toEqual(base.range)
+  })
+
+  it('scope=undefined: base をそのまま返す', () => {
+    const base = resolveComparisonRange(RESOLVER_INPUT)
+    const enriched = enrichResolvedRangeWithScope(base, undefined)
+    expect(enriched).toEqual(base)
+  })
+
+  it('scope 指定時: sourceDate と comparisonRange が埋まる', () => {
+    const base = resolveComparisonRange(RESOLVER_INPUT)
+    const enriched = enrichResolvedRangeWithScope(base, SCOPE)
+    expect(enriched.provenance.sourceDate).toBe('2025-04-01')
+    expect(enriched.provenance.comparisonRange).toEqual(SCOPE.effectivePeriod2)
+    // resolver 由来フィールドは非破壊
+    expect(enriched.provenance.mode).toBe('yoy')
+    expect(enriched.provenance.mappingKind).toBe('sameDate')
+    expect(enriched.provenance.dowOffset).toBe(0)
+    expect(enriched.provenance.fallbackApplied).toBe(false)
+  })
+
+  it('scope.alignmentMap が空なら sourceDate は undefined', () => {
+    const base = resolveComparisonRange(RESOLVER_INPUT)
+    const emptyScope = { ...SCOPE, alignmentMap: [] }
+    const enriched = enrichResolvedRangeWithScope(base, emptyScope)
+    expect(enriched.provenance.sourceDate).toBeUndefined()
+    // comparisonRange は effectivePeriod2 から埋まるので影響なし
+    expect(enriched.provenance.comparisonRange).toEqual(SCOPE.effectivePeriod2)
+  })
+
+  it('resolveAndEnrichComparisonRange: 1 関数で resolver + enrich を合成', () => {
+    const result = resolveAndEnrichComparisonRange(RESOLVER_INPUT, SCOPE)
+    expect(result.range).toEqual({
+      from: { year: 2025, month: 4, day: 1 },
+      to: { year: 2025, month: 4, day: 15 },
+    })
+    expect(result.provenance.sourceDate).toBe('2025-04-01')
+    expect(result.provenance.comparisonRange).toEqual(SCOPE.effectivePeriod2)
+  })
+
+  it('mutation 検出: enrichment 後も base.range は変更されない (pure)', () => {
+    const base = resolveComparisonRange(RESOLVER_INPUT)
+    const beforeRange = base.range
+    const beforeProvenance = { ...base.provenance }
+    enrichResolvedRangeWithScope(base, SCOPE)
+    expect(base.range).toBe(beforeRange)
+    expect(base.provenance).toEqual(beforeProvenance)
   })
 })
 

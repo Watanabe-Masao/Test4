@@ -83,7 +83,9 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
   const dowOffset = ctx.comparisonScope?.dowOffset ?? 0
 
   // 日付範囲（2→1 useMemo に集約）
-  const { curDateRange, prevCtsDateRange } = useMemo(
+  // Phase 2b: 単一契約 `comparison: ComparisonResolvedRange` を受け取る。
+  // `comparison.range` / `comparison.provenance` で比較先範囲と由来にアクセスする。
+  const { curDateRange, comparison } = useMemo(
     () =>
       buildDateRanges({
         overrideDateRange,
@@ -96,6 +98,7 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
         dowOffset,
         wowPrevStart: wowRange.prevStart,
         wowPrevEnd: wowRange.prevEnd,
+        comparisonScope: ctx.comparisonScope ?? null,
       }),
     [
       overrideDateRange,
@@ -108,8 +111,10 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
       dowOffset,
       wowRange.prevStart,
       wowRange.prevEnd,
+      ctx.comparisonScope,
     ],
   )
+  const prevCtsDateRange = comparison.range
 
   const prevIsPrevYear = activeCompMode !== 'wow'
 

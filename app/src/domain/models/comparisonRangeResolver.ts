@@ -29,6 +29,7 @@
  * @see app/src/domain/models/ComparisonScope.ts buildComparisonScope
  */
 import type { DateRange } from '@/domain/models/CalendarDate'
+import type { ComparisonScope } from '@/domain/models/ComparisonScope'
 
 /**
  * 比較解決モード。
@@ -44,6 +45,11 @@ export type ComparisonResolutionMode = 'wow' | 'yoy'
  *
  * Phase 2: presentation 層が「どの mode・どの mapping で導出されたか」を
  * 出力に持たせることを必須化する。
+ *
+ * Phase 2b: `sourceDate` / `comparisonRange` を optional で同居させ、
+ * `ComparisonScope` 由来の scope-level 情報と resolver 出力を 1 つの
+ * provenance に束ねる。これらは scope が利用可能な場合に
+ * `enrichResolvedRangeWithScope()` で埋められる。
  */
 export interface ComparisonRangeProvenance {
   /** mode 名 */
@@ -59,16 +65,36 @@ export interface ComparisonRangeProvenance {
    * 概念的に発生しない）。
    */
   readonly fallbackApplied: boolean
+  /**
+   * 比較期の開始日キー (`YYYY-MM-DD`)。`ComparisonScope.alignmentMap[0].sourceDayKey`
+   * から補完される。scope が null の場合は undefined。
+   */
+  readonly sourceDate?: string
+  /**
+   * scope 全体の比較期範囲（`ComparisonScope.effectivePeriod2`）。
+   * 本 resolver 出力の `range` は widget 表示サブ範囲に限られるため、
+   * scope 全体の比較範囲を知りたい caller はこのフィールドを読む。scope が
+   * null の場合は undefined。
+   */
+  readonly comparisonRange?: DateRange
 }
 
 /**
- * 比較先 DateRange の解決結果。
+ * 比較先 DateRange の解決結果（Phase 2b: 単一出力契約）。
+ *
+ * presentation / ViewModel / chart などの下流は、比較期日付・由来・scope 情報
+ * を本 contract **1 オブジェクト** だけから読むこと。`alignmentMap` /
+ * `effectivePeriod2` などを presentation から個別に参照するとガードで fail する
+ * 方向に進めていく（Phase 3 以降）。
  */
-export interface ComparisonRangeResult {
+export interface ComparisonResolvedRange {
   /** 解決された比較先範囲。利用不可 (canWoW=false) なら undefined */
   readonly range: DateRange | undefined
-  /** 由来情報。range が undefined のときは null */
-  readonly provenance: ComparisonRangeProvenance | null
+  /**
+   * 由来情報。resolver が実行された時点で必ず生成される（range が undefined
+   * の場合も `fallbackApplied: true` の provenance が載る）。
+   */
+  readonly provenance: ComparisonRangeProvenance
 }
 
 /**
@@ -100,7 +126,9 @@ export interface ResolveComparisonRangeInput {
  * 月跨ぎ・2月末・閏年は Date 演算で正しく処理される。
  * 結果には provenance が必ず付与される。
  */
-export function resolveComparisonRange(input: ResolveComparisonRangeInput): ComparisonRangeResult {
+export function resolveComparisonRange(
+  input: ResolveComparisonRangeInput,
+): ComparisonResolvedRange {
   const { mode, year, month, dayStart, dayEnd, dowOffset, canWoW, wowPrevStart, wowPrevEnd } = input
 
   if (mode === 'wow') {
@@ -175,4 +203,47 @@ export function deriveSameDowStartDateKey(
   const mk = String(d.getMonth() + 1).padStart(2, '0')
   const dk = String(d.getDate()).padStart(2, '0')
   return `${yk}-${mk}-${dk}`
+}
+
+/**
+ * `ComparisonResolvedRange` に `ComparisonScope` 由来の scope-level provenance
+ * (`sourceDate` / `comparisonRange`) を埋めた拡張 provenance を返す。
+ *
+ * Phase 2b の単一出力契約の正本 builder。caller (widget / builder) は本関数
+ * 1 箇所を経由することで、以下を単一オブジェクトで受け取れる:
+ *
+ * - 解決された比較先 DateRange (resolver 由来)
+ * - mode / mappingKind / dowOffset / fallbackApplied (resolver 由来)
+ * - sourceDate / comparisonRange (scope 由来、scope が null なら undefined)
+ *
+ * scope が null の場合は resolver 出力をそのまま返す。scope が与えられた場合
+ * でも `alignmentMap` が空なら `sourceDate` は undefined のままとなる。
+ */
+export function enrichResolvedRangeWithScope(
+  base: ComparisonResolvedRange,
+  scope: ComparisonScope | null | undefined,
+): ComparisonResolvedRange {
+  if (scope == null) return base
+  const firstEntry = scope.alignmentMap[0]
+  return {
+    range: base.range,
+    provenance: {
+      ...base.provenance,
+      sourceDate: firstEntry?.sourceDayKey,
+      comparisonRange: scope.effectivePeriod2,
+    },
+  }
+}
+
+/**
+ * `resolveComparisonRange` + `enrichResolvedRangeWithScope` の合成ショートカット。
+ *
+ * widget / builder がこの関数 1 つを呼べば、resolver 出力と scope 由来の
+ * provenance を束ねた単一 contract を取得できる。
+ */
+export function resolveAndEnrichComparisonRange(
+  input: ResolveComparisonRangeInput,
+  scope: ComparisonScope | null | undefined,
+): ComparisonResolvedRange {
+  return enrichResolvedRangeWithScope(resolveComparisonRange(input), scope)
 }
