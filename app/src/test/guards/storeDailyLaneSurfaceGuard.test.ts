@@ -36,14 +36,22 @@ interface BaselineEntry {
  *
  * ratchet-down 履歴:
  *   - Phase 6.5-1 (2026-04-15): baseline = 2 (SalesPurchaseComparisonChart.tsx)
- *   - Phase 6.5-5 実装時: 2 → 0 (StoreDailySeries 経由に移行)
+ *     (1 = chartData 内の s.result.daily.get(d) による sales/purchase 抽出,
+ *      1 = computeEstimatedInventory への s.result.daily 引数)
+ *   - Phase 6.5-5 (2026-04-15): baseline 2 → 1
+ *     chartData の sales/purchase 抽出は `ctx.storeDailyLane.bundle.currentSeries`
+ *     経由に移行済み。残る 1 は `computeEstimatedInventory(s.result.daily, ...)`
+ *     で、これは StoreDailySeries に含まれない markup/discount rate + 仕入内訳
+ *     を必要とする domain 計算のため **intentional な permanent floor**。
+ *     StoreDailySeries 拡張または inventory projection 新設なしには 0 化できない
+ *     (Step B scope 外)。本 1 件は規範的に許容される最終状態。
  */
 const STORE_DAILY_RAW_ACCESS_BASELINES: readonly BaselineEntry[] = [
   {
     path: 'presentation/components/charts/SalesPurchaseComparisonChart.tsx',
-    maxOccurrences: 2,
+    maxOccurrences: 1,
     reason:
-      'Phase 6.5 Step B pre-work: 現行 s.result.daily 直接 iterate consumer。Phase 6.5-5 で StoreDailySeries 経由に移行して 0 到達予定',
+      'Phase 6.5-5: sales/purchase 抽出は lane 経由に移行済み。残る 1 は computeEstimatedInventory への s.result.daily 引数で、StoreDailySeries に含まれない markup/discount 計算のための intentional な permanent floor',
   },
 ]
 

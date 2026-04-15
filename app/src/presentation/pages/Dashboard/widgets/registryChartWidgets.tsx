@@ -121,6 +121,7 @@ export const WIDGETS_CHART: readonly WidgetDef[] = [
           comparisonResults={results}
           stores={stores}
           daysInMonth={daysInMonth}
+          storeDailySeries={ctx.storeDailyLane?.bundle.currentSeries ?? null}
           rangeStart={ctx.chartPeriodProps?.rangeStart}
           rangeEnd={ctx.chartPeriodProps?.rangeEnd}
         />
