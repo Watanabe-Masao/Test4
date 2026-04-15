@@ -39,22 +39,16 @@ const CHARTS_DIR = path.join(SRC_DIR, 'presentation/components/charts')
 // Phase 5 三段構造確立時点で inline data/option builder を含む chart。
 // 移行完了した順に allowlist から削除し、baseline を下げていく。
 //
-// ゴール: 全 chart が *Logic.ts / *.vm.ts / *OptionBuilder.ts に分離され、
-// allowlist が空 (baseline 0) になること。
-const ALLOWLIST: readonly { readonly path: string; readonly reason: string }[] = [
-  {
-    path: 'presentation/components/charts/DiscountTrendChart.tsx',
-    reason: 'Phase 5 三段構造移行待ち: buildDiscountData を chart 内で inline 定義',
-  },
-  {
-    path: 'presentation/components/charts/GrossProfitAmountChart.tsx',
-    reason: 'Phase 5 三段構造移行待ち: buildGpData を chart 内で inline 定義',
-  },
-  {
-    path: 'presentation/components/charts/PrevYearComparisonChart.tsx',
-    reason: 'Phase 5 三段構造移行待ち: buildCumulativeData を chart 内で inline 定義',
-  },
-]
+// ratchet-down 履歴:
+//   - Phase 5 三段構造確立時点: 3 件
+//   - Phase 5 閉じ込み (本 commit): 3 件 → 0 件
+//     (DiscountTrendChart / GrossProfitAmountChart / PrevYearComparisonChart
+//     を *Logic.ts に抽出、ChartRenderModel<TPoint> 共通契約に準拠)
+//
+// ゴール達成: 全 chart が *Logic.ts / *.vm.ts / *OptionBuilder.ts に分離され、
+// allowlist は **空 (baseline 0)**。新規追加は原則禁止。新 chart は最初から
+// logic / option builder 分離で実装する。
+const ALLOWLIST: readonly { readonly path: string; readonly reason: string }[] = []
 
 const ALLOWLIST_PATHS = new Set(ALLOWLIST.map((e) => e.path))
 
@@ -124,9 +118,11 @@ describe('Chart Rendering Three-Stage Pattern Guard (unify-period-analysis Phase
     ).toEqual([])
   })
 
-  it('ALLOWLIST baseline: 3 件以下 (ratchet-down)', () => {
-    // Phase 5 三段構造確立時点で 3 件。順次 0 へ縮退させる。
-    expect(ALLOWLIST.length).toBeLessThanOrEqual(3)
+  it('ALLOWLIST baseline: 0 件 (Phase 5 閉じ込み完了、以後 0 固定)', () => {
+    // Phase 5 三段構造確立時点で 3 件、本 commit で全て移行完了。
+    // 新規 chart は最初から *Logic.ts + *OptionBuilder.ts に分離する形で
+    // 実装し、inline builder を定義しない。
+    expect(ALLOWLIST.length).toBe(0)
   })
 
   it('ALLOWLIST の各 entry が実在ファイルを指している (orphan 検出)', () => {

@@ -118,6 +118,49 @@ export const YoYChart = memo(function YoYChart(...) {
 4. **import を更新** — chart .tsx から必要な ECharts option helpers (standardGrid / yenYAxis 等) の import を削除し、option builder 側に移す
 5. **guard を更新** — `chartRenderingStructureGuard` の allowlist から対象 chart を削除、baseline を下げる
 
+## 役割分担の 1 行サマリ（Done の形）
+
+各 chart で次の責務を **厳密に** 保つ:
+
+- **`*Logic.ts` / `*.vm.ts`** — pure data transform only（ReadModel 配列の集計、
+  ViewModel shape への変換、ラベル生成）。React hooks / store / ECharts 型参照を
+  持たない
+- **`*OptionBuilder.ts`** — pure ECharts option 生成 only（ViewModel + theme →
+  EChartsOption）。data 集計や query 実行を持たない
+- **`*.tsx` chart component** — state / plan 呼び出し / data builder と option
+  builder の接着 only。`function build*Data` / `function build*Option` を
+  inline 定義しない
+
+「接着だけ」の目安: chart .tsx 内で `useMemo(() => build*(...))` の呼び出しは OK、
+`function build*(...) { ... return { ...option literal... } }` の定義は NG。
+
+## 残り 3 件の移行完了条件（Phase 5 閉じ込み）
+
+`chartRenderingStructureGuard` allowlist に残っている 3 件を 0 にするときの
+Done criteria:
+
+| 対象 chart | 現状の inline 関数 | Done の形 |
+|---|---|---|
+| `DiscountTrendChart.tsx` | `function buildDiscountData(...)` | `DiscountTrendChartLogic.ts` に移動、chart は `import { buildDiscountData }` |
+| `GrossProfitAmountChart.tsx` | `function buildGpData(...)` | `GrossProfitAmountChartLogic.ts` に移動、chart は `import { buildGpData }` |
+| `PrevYearComparisonChart.tsx` | `function buildCumulativeData(...)` | `PrevYearComparisonChartLogic.ts` に移動、chart は `import { buildCumulativeData }` |
+
+共通の完了条件:
+
+1. **新 Logic ファイルを作成**: `<ChartName>Logic.ts`（既存命名規則に揃える）
+2. **`@responsibility R:calculation`** を付ける
+3. **pure function**: React hooks / store / ECharts 型参照を持たない（data 出力型は
+   独自 ViewModel interface を `*Logic.ts` 内で export）
+4. **chart .tsx は import と `useMemo(() => buildXxxData(...))` のみ**。inline
+   関数定義はゼロ
+5. **chartRenderingStructureGuard allowlist からエントリを削除**、stale check
+   が自動的に通る状態にする
+6. **既存の chart 表示動作は非破壊**（純粋な関数移動のみで、挙動変更なし）
+
+移行後、baseline は `3 → 0` になり、guard は `expect(ALLOWLIST.length).toBe(0)`
+を assertion として強制する。以後、新規 chart で `function build*Data /
+Option` の inline 定義は一切許容されない。
+
 ## 関連 guard
 
 | Guard | 責務 | 対象層 |

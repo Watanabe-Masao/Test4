@@ -1,5 +1,10 @@
 /**
  * 期間比較チャート (ECharts)
+ *
+ * @migration unify-period-analysis Phase 5 三段構造: data builder
+ *   (`buildCumulativeData`) を `PrevYearComparisonChartLogic.ts` に抽出し、
+ *   `ChartRenderModel<ComparisonPoint>` 共通契約 + `extras.prevTotal` 拡張に
+ *   揃えた。
  * @responsibility R:chart-view
  */
 import { useMemo, memo } from 'react'
@@ -7,8 +12,8 @@ import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { chartFontSize } from '@/presentation/theme/tokens'
 import { useCurrencyFormatter, toPct } from './chartTheme'
-import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import { ChartCard } from './ChartCard'
+import { buildCumulativeData } from './PrevYearComparisonChartLogic'
 import { EChart, type EChartsOption } from './EChart'
 import {
   yenYAxis,
@@ -41,42 +46,6 @@ interface Props {
   rangeEnd?: number
 }
 
-/** 累計データ構築（純粋関数） */
-function buildCumulativeData(
-  currentDaily: ReadonlyMap<number, { sales: number }>,
-  prevYearDaily: ReadonlyMap<string, { sales: number }>,
-  year: number,
-  month: number,
-  daysInMonth: number,
-) {
-  let currentCum = 0
-  let prevCum = 0
-  const allData: { day: number; currentCum: number; prevYearCum: number | null }[] = []
-
-  for (let d = 1; d <= daysInMonth; d++) {
-    currentCum += currentDaily.get(d)?.sales ?? 0
-    prevCum += prevYearDaily.get(toDateKeyFromParts(year, month, d))?.sales ?? 0
-    allData.push({ day: d, currentCum, prevYearCum: prevCum > 0 ? prevCum : null })
-  }
-
-  const latestDay =
-    [...currentDaily.keys()]
-      .filter((d) => (currentDaily.get(d)?.sales ?? 0) > 0)
-      .sort((a, b) => b - a)[0] ?? 0
-
-  let prevCumAtLatest = 0
-  for (let d = 1; d <= latestDay; d++) {
-    prevCumAtLatest += prevYearDaily.get(toDateKeyFromParts(year, month, d))?.sales ?? 0
-  }
-
-  const latestCurrentCum =
-    latestDay > 0 ? (allData.find((d) => d.day === latestDay)?.currentCum ?? 0) : 0
-  const yoyRatio = prevCumAtLatest > 0 ? latestCurrentCum / prevCumAtLatest : 0
-  const yoyDiff = latestCurrentCum - prevCumAtLatest
-
-  return { allData, prevTotal: prevCum, latestCurrentCum, prevCumAtLatest, yoyRatio, yoyDiff }
-}
-
 export const PrevYearComparisonChart = memo(function PrevYearComparisonChart({
   currentDaily,
   prevYearDaily,
@@ -91,10 +60,17 @@ export const PrevYearComparisonChart = memo(function PrevYearComparisonChart({
   const rangeStart = rangeStartProp ?? 1
   const rangeEnd = rangeEndProp ?? daysInMonth
 
-  const { allData, prevTotal, latestCurrentCum, prevCumAtLatest, yoyRatio, yoyDiff } = useMemo(
+  // Phase 5 三段構造: data builder は PrevYearComparisonChartLogic.ts に剥離
+  const renderModel = useMemo(
     () => buildCumulativeData(currentDaily, prevYearDaily, year, month, daysInMonth),
     [currentDaily, prevYearDaily, year, month, daysInMonth],
   )
+  const allData = renderModel.points
+  const prevTotal = renderModel.extras.prevTotal
+  const latestCurrentCum = renderModel.summary?.primary ?? 0
+  const prevCumAtLatest = renderModel.summary?.secondary ?? 0
+  const yoyRatio = renderModel.summary?.ratio ?? 0
+  const yoyDiff = renderModel.summary?.delta ?? 0
 
   const data = useMemo(
     () => allData.filter((d) => d.day >= rangeStart && d.day <= rangeEnd),
