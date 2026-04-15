@@ -84,6 +84,14 @@
 * [ ] option builder と data builder を分離する
 * [ ] chart component に比較ロジック / 集約ロジックが残っていないことをガードで保証する
 
+> **Phase 5 進捗**: `YoYChart.tsx` で見本実装を完了。`scope?.effectivePeriod1 /
+> effectivePeriod2 / alignmentMode` への直接アクセスを pure builder
+> `application/hooks/plans/buildYoyDailyInput.ts` に集約し、widget を「存在判定
+> + builder pass-through」のみに薄化した。`comparisonResolvedRangeSurfaceGuard`
+> の allowlist を 1 → 0 に縮退。他 chart は本パターン（pure builder + 薄い
+> widget）を横展開することで順次移行する。Phase 5 の 4 checkbox は横展開
+> 完了時にまとめて [x] にする。
+
 ## Phase 6: 段階的画面載せ替え
 
 * [ ] 比較ヘッダ周辺を新レーンに載せ替える
