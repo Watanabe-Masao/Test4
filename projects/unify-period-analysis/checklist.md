@@ -103,7 +103,7 @@
 > 「6 widget それぞれを新レーンに載せ替える」は HIGH リスク分が readModel 次元
 > 拡張 (Step B) 前提のため分離した。
 
-* [ ] Step A (summary swap): `ConditionSummaryEnhanced` / `ExecSummaryBarWidget` の prev-year 系 summary 読み出しを `ctx.freePeriodLane.bundle.fact.comparisonSummary` 経由に差し替える (既存値との parity test を付ける)
+* [x] Step A (summary swap): `ConditionSummaryEnhanced` / `ExecSummaryBarWidget` の prev-year 系 summary 読み出しを `ctx.freePeriodLane.bundle.fact.comparisonSummary` 経由に差し替える (`selectPrevYearSummaryFromFreePeriod` selector + 8 件の unit/parity test、bundle 未ロード時は legacy `prevYear` にフォールバック)
 * [ ] Step B (readModel 次元拡張): `FreePeriodReadModel` に店舗別日次シリーズ / category 次元を追加する (定義書 + Zod 契約 + guard 更新を伴う)。これにより `SalesPurchaseComparisonChart` / `YoYWaterfallChart` の載せ替えが可能になる
 * [ ] Step B 完了後: `SalesPurchaseComparisonChart` を `ctx.freePeriodLane.bundle.fact` 経由に載せ替える
 * [ ] Step B 完了後: `YoYWaterfallChart` を `ctx.freePeriodLane.bundle.{fact,deptKPI}` 経由に載せ替える

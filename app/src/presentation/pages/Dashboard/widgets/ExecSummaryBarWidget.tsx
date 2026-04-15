@@ -21,6 +21,7 @@ import {
 import { WarningBanner } from './ExecSummaryBarWidget.styles'
 import type { WidgetContext } from './types'
 import { extractPrevYearCustomerCount } from '@/features/comparison'
+import { selectPrevYearSummaryFromFreePeriod } from '@/application/readModels/freePeriod'
 
 type SummaryTab = 'sales' | 'costProfit' | 'customers'
 
@@ -40,8 +41,17 @@ export function ExecSummaryBarWidget(ctx: WidgetContext) {
   const invalidateCalculation = useUiStore((s) => s.invalidateCalculation)
   const [tab, setTab] = useState<SummaryTab>('sales')
 
-  const pyRatio =
-    prevYear.hasPrevYear && prevYear.totalSales > 0 ? r.totalSales / prevYear.totalSales : null
+  // Phase 6 Step A: prev-year summary は freePeriodLane.bundle.fact から射影。
+  // 旧 prevYear は daily/dowGap 等の Step A 範囲外フィールドのみ参照する。
+  // legacy fallback: bundle 未ロード時のみ prevYear.totalSales を使う。
+  const fpPrevSummary = selectPrevYearSummaryFromFreePeriod(ctx.freePeriodLane?.bundle.fact ?? null)
+  const effectivePrevSales = fpPrevSummary.hasPrevYear
+    ? fpPrevSummary.totalSales
+    : prevYear.hasPrevYear
+      ? prevYear.totalSales
+      : 0
+
+  const pyRatio = effectivePrevSales > 0 ? r.totalSales / effectivePrevSales : null
   const elapsedBudget = r.dailyCumulative.get(r.elapsedDays)?.budget ?? 0
   const elapsedDiff = r.totalSales - elapsedBudget
 
@@ -263,9 +273,11 @@ export function ExecSummaryBarWidget(ctx: WidgetContext) {
             const txValue = calculateTransactionValue(r.totalSales, curCustomers)
             const custRatio =
               prevYear.hasPrevYear && prevCustomers > 0 ? curCustomers / prevCustomers : null
+            // Phase 6 Step A: 前年客単価は freePeriodLane の totalSales を優先 (parity 保証済み)。
+            // legacy fallback は bundle 未ロード時のみ。
             const pyTxValue =
-              prevYear.hasPrevYear && prevCustomers > 0
-                ? calculateTransactionValue(prevYear.totalSales, prevCustomers)
+              effectivePrevSales > 0 && prevCustomers > 0
+                ? calculateTransactionValue(effectivePrevSales, prevCustomers)
                 : null
             return (
               <ExecSummaryBar>

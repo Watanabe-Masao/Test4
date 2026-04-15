@@ -30,6 +30,10 @@ export type {
   FreePeriodDeptKPIQueryInput,
 } from './FreePeriodDeptKPITypes'
 export {
+  selectPrevYearSummaryFromFreePeriod,
+  type PrevYearSummaryProjection,
+} from './selectPrevYearSummaryFromFreePeriod'
+export {
   FreePeriodReadModel as FreePeriodReadModelSchema,
   FreePeriodDailyRow as FreePeriodDailyRowSchema,
   FreePeriodSummary as FreePeriodSummarySchema,
