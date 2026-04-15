@@ -10,11 +10,16 @@
  * 書き換えられた。frame.comparison は事前構築された `ComparisonScope | null`
  * であり、slice は以後この値を「comparison 有効判定の唯一の入口」として扱う。
  *
- * 現段階（Phase 1）では内部の comparison module がまだ `PeriodSelection` を
- * 前提としているため、互換のため `periodSelection` も併せて受け取り、
- * 内部モジュールには従来通り pass-through する。Phase 6 で内部モジュールを
- * `ComparisonScope` 直接受領に書き換えた時点で `periodSelection` 引数は
- * 削除され、slice は frame のみを入力とする形に収束する。
+ * ## unify-period-analysis Phase 6a — frame.comparison の pass-through
+ *
+ * Phase 6a で `useComparisonModule` に `externalScope` パラメータが追加された
+ * ため、本 slice は `frame.comparison` をそのまま externalScope として渡す。
+ * これで scope の二重構築 (frame 構築経路 + comparison module 内部の scope
+ * factory 呼び出し) が解消された。等価性は `frameComparisonParity` test で
+ * 固定済み。
+ *
+ * 内部 comparison module の残る periodSelection 依存 (kpi projection の
+ * period1/period2 / dowGap の year/month) は Phase 6b で除去予定。
  *
  * @responsibility R:context
  */
@@ -40,13 +45,15 @@ export function useComparisonSlice(
   elapsedDays: number | undefined,
   averageDailySales: number,
 ): ComparisonSlice {
-  // Phase 1: frame は入口契約として参照のみ。内部は従来の periodSelection
-  // ベースで動き、frame.comparison との意味等価性は構築経路
-  // (buildFreePeriodFrame: 同じ periodSelection から scope を事前構築) により
-  // 保証される。Phase 6 で comparison module が ComparisonScope 直接受領に
-  // なった時点で frame.comparison を直接渡す形に収束する。
-  void frame
-
-  const comparison = useComparisonModule(periodSelection, elapsedDays, averageDailySales)
+  // Phase 6a: frame.comparison を externalScope として渡すことで、
+  // comparison module 内部の scope 再構築を skip する。
+  // periodSelection は kpi projection / dowGap で必要なため Phase 6a 時点では
+  // まだ渡す (Phase 6b で除去予定)。
+  const comparison = useComparisonModule(
+    periodSelection,
+    elapsedDays,
+    averageDailySales,
+    frame.comparison,
+  )
   return comparison
 }
