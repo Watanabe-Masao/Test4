@@ -27,6 +27,8 @@ import { usePeriodSelectionStore } from '@/application/stores/periodSelectionSto
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { buildFreePeriodFrame } from '@/domain/models/buildFreePeriodFrame'
 import { useFreePeriodAnalysisBundle } from '@/application/hooks/useFreePeriodAnalysisBundle'
+import { useTimeSlotBundle } from '@/application/hooks/timeSlot/useTimeSlotBundle'
+import type { TimeSlotFrame } from '@/application/hooks/timeSlot/TimeSlotBundle.types'
 import { useComparisonSlice } from './slices/useComparisonSlice'
 import { useQuerySlice } from './slices/useQuerySlice'
 import { useWeatherSlice } from './slices/useWeatherSlice'
@@ -125,6 +127,32 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
   // 移行する。
   const freePeriodBundle = useFreePeriodAnalysisBundle(query.queryExecutor, analysisFrame)
 
+  // ── effective 最終日 (経過日数 cap、elapsedDays が設定されていれば優先) ──
+  // timeSlotFrame / ctx.currentDateRange で共通使用する唯一の計算点。
+  const effectiveEndDay = currentResult
+    ? currentResult.elapsedDays != null && currentResult.elapsedDays > 0
+      ? Math.min(currentResult.elapsedDays, daysInMonth)
+      : daysInMonth
+    : daysInMonth
+
+  // ── 時間帯比較レーン (unify-period-analysis Phase 6 Step C) ──
+  // FreePeriodReadModel と sibling 関係。raw 時間帯 row を presentation に
+  // 漏らさず、TimeSlotSeries (projection 済み) を bundle 経由で配布する。
+  // 比較期間は freePeriodLane と同じ comparison scope を流用する。
+  const timeSlotFrame = useMemo<TimeSlotFrame | null>(() => {
+    if (!currentResult) return null
+    return {
+      dateRange: {
+        from: { year: targetYear, month: targetMonth, day: 1 },
+        to: { year: targetYear, month: targetMonth, day: effectiveEndDay },
+      },
+      storeIds: [...selectedStoreIds].sort(),
+      comparison: comparison.scope,
+    }
+  }, [currentResult, effectiveEndDay, targetYear, targetMonth, selectedStoreIds, comparison.scope])
+
+  const timeSlotBundle = useTimeSlotBundle(query.queryExecutor, timeSlotFrame)
+
   // ── コア: 説明・パネル状態 ──
   const explanations = useExplanations(comparison.kpi, comparison.dowGap)
   const [explainMetric, setExplainMetric] = useState<MetricId | null>(null)
@@ -144,11 +172,7 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
   const deptKpiIndex = useDeptKpiView()
   const { format: fmtCurrency } = useCurrencyFormat()
 
-  const effectiveEndDay = currentResult
-    ? currentResult.elapsedDays != null && currentResult.elapsedDays > 0
-      ? Math.min(currentResult.elapsedDays, daysInMonth)
-      : daysInMonth
-    : daysInMonth
+  // effectiveEndDay は上で timeSlotFrame 構築前に宣言済み (共通計算点)
 
   const storeNames = useMemo(() => {
     const map = new Map<string, string>()
@@ -213,6 +237,9 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
       // 自由期間分析レーン (unify-period-analysis Phase 1)
       freePeriodLane: { frame: analysisFrame, bundle: freePeriodBundle },
 
+      // 時間帯比較レーン (unify-period-analysis Phase 6 Step C)
+      timeSlotLane: { frame: timeSlotFrame, bundle: timeSlotBundle },
+
       // 天気 slice
       weatherDaily: weather.weatherDaily,
       prevYearWeatherDaily: weather.prevYearWeatherDaily,
@@ -251,6 +278,8 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
     storeNames,
     analysisFrame,
     freePeriodBundle,
+    timeSlotFrame,
+    timeSlotBundle,
   ])
 
   return {

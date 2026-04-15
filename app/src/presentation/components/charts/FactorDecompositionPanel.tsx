@@ -14,12 +14,8 @@
 import { useState, useMemo, memo } from 'react'
 import styled, { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
-import { dateRangeToKeys } from '@/domain/models/calendar'
-import {
-  useFactorDecompositionPlan,
-  type StoreDaySummaryInput,
-  type PairedInput,
-} from '@/application/hooks/plans/useFactorDecompositionPlan'
+import { buildPairedQueryInput } from '@/application/hooks/plans/buildPairedQueryInput'
+import { useFactorDecompositionPlan } from '@/application/hooks/plans/useFactorDecompositionPlan'
 import type { DuckQueryContext } from './SubAnalysisPanel'
 import { decompose2, decompose3 } from '@/application/services/factorDecompositionBridge'
 import { EChart, type EChartsOption } from './EChart'
@@ -121,21 +117,12 @@ export const FactorDecompositionPanel = memo(function FactorDecompositionPanel({
   const theme = useTheme() as AppTheme
   const [level, setLevel] = useState<DecompLevel>(2)
 
-  // pair handler で当期+前年日別データを並列取得
+  // Phase 5 横展開 第 2 バッチ: PairedQueryInput 組み立ては共通 builder に集約
   const prevDateRange = prevYearScope?.dateRange
-  const pairInput = useMemo<PairedInput<StoreDaySummaryInput> | null>(() => {
-    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-    const base: PairedInput<StoreDaySummaryInput> = {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
-    }
-    if (prevDateRange) {
-      const { fromKey: pFrom, toKey: pTo } = dateRangeToKeys(prevDateRange)
-      return { ...base, comparisonDateFrom: pFrom, comparisonDateTo: pTo }
-    }
-    return base
-  }, [currentDateRange, prevDateRange, selectedStoreIds])
+  const pairInput = useMemo(
+    () => buildPairedQueryInput(currentDateRange, prevDateRange, selectedStoreIds),
+    [currentDateRange, prevDateRange, selectedStoreIds],
+  )
 
   const { data: pairOutput } = useFactorDecompositionPlan(queryExecutor, pairInput)
   const curRows = pairOutput?.current?.records ?? null

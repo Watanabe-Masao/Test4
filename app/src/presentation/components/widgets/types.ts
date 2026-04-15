@@ -25,6 +25,10 @@ import type { CurrencyFormatter } from '@/presentation/components/charts/chartTh
 import type { WidgetDataOrchestratorResult } from '@/application/hooks/useWidgetDataOrchestrator'
 import type { FreePeriodAnalysisFrame } from '@/domain/models/AnalysisFrame'
 import type { FreePeriodAnalysisBundle } from '@/application/hooks/useFreePeriodAnalysisBundle'
+import type {
+  TimeSlotFrame,
+  TimeSlotBundle,
+} from '@/application/hooks/timeSlot/TimeSlotBundle.types'
 
 export type WidgetSize = 'kpi' | 'half' | 'full'
 
@@ -129,6 +133,25 @@ export interface UnifiedWidgetContext {
   readonly freePeriodLane?: Readonly<{
     frame: FreePeriodAnalysisFrame | null
     bundle: FreePeriodAnalysisBundle
+  }> | null
+
+  /**
+   * 時間帯比較レーン (unify-period-analysis Phase 6 Step C)。
+   *
+   * - `frame`: `TimeSlotFrame`。`(currentDateRange, selectedStoreIds, comparison)`
+   *   を束ねた入力契約
+   * - `bundle`: `useTimeSlotBundle(executor, frame)` の結果。
+   *   `currentSeries / comparisonSeries` (`TimeSlotSeries`) と
+   *   `meta.provenance` (mappingKind / comparisonRange) を持つ
+   *
+   * `freePeriodLane` の sibling として、時間帯次元を別レーンに切り出している
+   * (`step-c-timeslot-lane-policy.md` 準拠)。presentation は `bundle.currentSeries`
+   * のみを触り、raw 時間帯 row 型は import しない (`timeSlotLaneSurfaceGuard`
+   * baseline 0 で固定済み)。
+   */
+  readonly timeSlotLane?: Readonly<{
+    frame: TimeSlotFrame | null
+    bundle: TimeSlotBundle
   }> | null
 
   // ── 比較期間入力（ページレベル DualPeriodSlider から） ──

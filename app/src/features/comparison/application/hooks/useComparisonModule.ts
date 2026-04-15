@@ -99,23 +99,45 @@ const idleStatus: ComparisonLoadStatus = {
  * 内部で scope 構築 → data load → daily/kpi 集計 → dowGap 算出 を行い、
  * UI が必要とするすべての比較データを単一の ComparisonModule として返す。
  *
- * @param periodSelection 期間選択（source of truth）
+ * ## unify-period-analysis Phase 6a — externalScope 受領
+ *
+ * caller が既に `buildFreePeriodFrame` / `buildComparisonScope` で構築済みの
+ * scope を持っている場合、`externalScope` 引数で渡すことで本関数の内部 scope
+ * 構築を skip できる（scope の二重構築を解消する）。`useComparisonSlice` は
+ * `ctx.freePeriodLane.frame.comparison` を externalScope として渡す。
+ *
+ * Phase 1 parity test (`frameComparisonParity.test.ts`) が保証する通り、
+ * `buildFreePeriodFrame(selection).comparison` と内部の
+ * `buildComparisonScope(selection, elapsedDays)` は同一の ComparisonScope を
+ * 返すため、externalScope を渡しても挙動は変わらない。
+ *
+ * `externalScope === undefined` の場合は従来通り periodSelection から内部
+ * 構築する（backward compat）。`externalScope === null` が明示的に渡された
+ * 場合は「比較無効」として扱う（periodSelection.comparisonEnabled=false と
+ * 等価）。
+ *
+ * @param periodSelection 期間選択（source of truth; kpi projection / dowGap で使う）
  * @param elapsedDays 当期の経過日数（elapsedDays cap 用）
  * @param currentAverageDailySales 当期の日平均売上（dowGap用）
+ * @param externalScope caller が構築済みの ComparisonScope（Phase 6a の任意 input）
  */
 export function useComparisonModule(
   periodSelection: PeriodSelection,
   elapsedDays: number | undefined,
   currentAverageDailySales: number,
+  externalScope?: ComparisonScope | null,
 ): ComparisonModule {
   const prevYear = useDataStore((s) => s.appData.prevYear)
   const { selectedStoreIds, isAllStores } = useStoreSelection()
 
   // 1. ComparisonScope 構築
+  //    externalScope が渡されている場合はそれを使い、内部構築を skip する
+  //    (Phase 6a: scope 二重構築の解消)。
   const scope = useMemo((): ComparisonScope | null => {
+    if (externalScope !== undefined) return externalScope
     if (!periodSelection.comparisonEnabled) return null
     return buildComparisonScope(periodSelection, elapsedDays)
-  }, [periodSelection, elapsedDays])
+  }, [externalScope, periodSelection, elapsedDays])
 
   // 2. データ読込（side effect）
   const loadStatus = useLoadComparisonData(scope)

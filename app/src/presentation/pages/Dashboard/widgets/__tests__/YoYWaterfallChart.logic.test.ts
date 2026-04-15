@@ -1,11 +1,14 @@
 import { describe, it, expect } from 'vitest'
 import {
-  calculatePrevCtsDateRange,
   aggregatePeriodCurSales,
   aggregatePeriodPrevSales,
   calculatePISummary,
 } from '../YoYWaterfallChart.logic'
 import type { CategoryTimeSalesRecord, DailyRecord } from '@/domain/models/record'
+
+// 比較先 DateRange 解決のテストは Phase 2 で domain resolver に移管された:
+// → src/domain/models/__tests__/comparisonRangeResolver.test.ts
+// builders 経由のテストは waterfallBuildersBatch.test.ts で確認する。
 
 const EMPTY_CTS: readonly CategoryTimeSalesRecord[] = []
 
@@ -21,37 +24,6 @@ const makeDaily = (
   }
   return m
 }
-
-describe('calculatePrevCtsDateRange', () => {
-  it('returns undefined for wow when canWoW is false', () => {
-    const r = calculatePrevCtsDateRange('wow', false, 2025, 5, 1, 7, 0, 1, 7)
-    expect(r).toBeUndefined()
-  })
-
-  it('returns wowPrev range for wow when canWoW is true', () => {
-    const r = calculatePrevCtsDateRange('wow', true, 2025, 5, 8, 14, 0, 1, 7)
-    expect(r).toEqual({
-      from: { year: 2025, month: 5, day: 1 },
-      to: { year: 2025, month: 5, day: 7 },
-    })
-  })
-
-  it('returns prev-year range for yoy with zero dowOffset', () => {
-    const r = calculatePrevCtsDateRange('yoy', false, 2025, 5, 1, 7, 0, 0, 0)
-    expect(r).toEqual({
-      from: { year: 2024, month: 5, day: 1 },
-      to: { year: 2024, month: 5, day: 7 },
-    })
-  })
-
-  it('applies dowOffset for yoy', () => {
-    const r = calculatePrevCtsDateRange('yoy', false, 2025, 5, 10, 12, 2, 0, 0)
-    expect(r).toEqual({
-      from: { year: 2024, month: 5, day: 12 },
-      to: { year: 2024, month: 5, day: 14 },
-    })
-  })
-})
 
 describe('aggregatePeriodCurSales', () => {
   it('sums sales and customers within range', () => {

@@ -21,6 +21,7 @@
 | `02-non-handler-free-period-access.md` | `readFreePeriodFact()` 以外で自由期間データを取得している経路 | Phase 3 |
 | `03-rate-in-sql.md` | 自由期間系 SQL で rate を計算している箇所 | Phase 4 |
 | `04-header-filter-state-direct-refs.md` | `HeaderFilterState` を直接参照している hook / component | Phase 1 |
+| `05-phase6-widget-consumers.md` | Phase 6 対象 6 widget の ctx 依存と FreePeriodReadModel 載せ替え可否 | Phase 6 (Step A-D) |
 
 ## 運用ルール
 

@@ -14,7 +14,7 @@
  */
 import { useMemo } from 'react'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
-import { dateRangeToKeys } from '@/domain/models/calendar'
+import { buildPairedQueryInput } from '@/application/hooks/plans/buildPairedQueryInput'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 import { useCategoryHierarchyPlan } from '@/features/category'
 import type { PairedInput } from '@/application/queries/createPairedHandler'
@@ -249,6 +249,19 @@ export function useCategoryHierarchyData(params: UseCategoryHierarchyDataParams)
 }
 
 // ── Pure input builders（テスト対象） ──
+//
+// Phase 5 横展開 第 2 バッチ: 2 helper は buildPairedQueryInput pure builder
+// に委譲し、level / deptCode / lineCode の拡張フィールドだけを spread で
+// 乗せる。直接の dateRangeToKeys 呼び出しは application 層の builder に
+// 集約された。
+
+/**
+ * storeIds array を Set に変換して buildPairedQueryInput に渡す内部 helper。
+ * 既存 API（array）と buildPairedQueryInput の入力（Set）の橋渡し。
+ */
+function toStoreIdSet(storeIds: readonly string[] | undefined): ReadonlySet<string> {
+  return storeIds ? new Set(storeIds) : new Set()
+}
 
 /**
  * LevelAggregation pair handler 用の入力を構築する純粋関数。
@@ -260,20 +273,14 @@ export function buildHierarchyPairInput(
   level: HierarchyLevel,
   filter: HierarchyFilter,
 ): PairedInput<LevelAggregationInput> {
-  const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-  const base: PairedInput<LevelAggregationInput> = {
-    dateFrom: fromKey,
-    dateTo: toKey,
-    storeIds,
+  // currentDateRange は non-null なので builder は必ず非 null を返す
+  const base = buildPairedQueryInput(currentDateRange, prevYearDateRange, toStoreIdSet(storeIds))!
+  return {
+    ...base,
     level,
     deptCode: filter.departmentCode,
     lineCode: filter.lineCode,
   }
-  if (prevYearDateRange) {
-    const { fromKey: pFrom, toKey: pTo } = dateRangeToKeys(prevYearDateRange)
-    return { ...base, comparisonDateFrom: pFrom, comparisonDateTo: pTo }
-  }
-  return base
 }
 
 /**
@@ -286,18 +293,11 @@ export function buildHierarchyHourlyPairInput(
   level: HierarchyLevel,
   filter: HierarchyFilter,
 ): PairedInput<CategoryHourlyInput> {
-  const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-  const base: PairedInput<CategoryHourlyInput> = {
-    dateFrom: fromKey,
-    dateTo: toKey,
-    storeIds,
+  const base = buildPairedQueryInput(currentDateRange, prevYearDateRange, toStoreIdSet(storeIds))!
+  return {
+    ...base,
     level,
     deptCode: filter.departmentCode,
     lineCode: filter.lineCode,
   }
-  if (prevYearDateRange) {
-    const { fromKey: pFrom, toKey: pTo } = dateRangeToKeys(prevYearDateRange)
-    return { ...base, comparisonDateFrom: pFrom, comparisonDateTo: pTo }
-  }
-  return base
 }

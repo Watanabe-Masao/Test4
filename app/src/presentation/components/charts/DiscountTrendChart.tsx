@@ -1,5 +1,10 @@
 /**
  * 売変内訳分析チャート (ECharts)
+ *
+ * @migration unify-period-analysis Phase 5 三段構造: data builder
+ *   (`buildDiscountData`) を `DiscountTrendChartLogic.ts` に抽出し、
+ *   `ChartRenderModel<DiscountPoint>` 共通契約に揃えた。chart は
+ *   `model.points` を描画にだけ使う。
  * @responsibility R:chart-view
  */
 import { useState, useMemo, memo } from 'react'
@@ -10,12 +15,12 @@ import type { DailyRecord, DiscountEntry } from '@/domain/models/record'
 import { DISCOUNT_TYPES } from '@/domain/models/record'
 import { formatPercent } from '@/domain/formatting'
 import { calculateShare } from '@/domain/calculations/utils'
-import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import { ChartCard } from './ChartCard'
 import { EChart, type EChartsOption } from './EChart'
 import { yenYAxis, standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
 import { categoryXAxis, valueYAxis, lineDefaults } from './builders'
 import { KpiGrid, KpiCard, KpiLabel, KpiValue, KpiSub } from './DiscountTrendChart.styles'
+import { buildDiscountData, type DiscountPoint } from './DiscountTrendChartLogic'
 
 const DISCOUNT_COLORS = ['#ef4444', '#f97316', '#eab308', '#a855f7'] as const
 
@@ -42,66 +47,6 @@ interface Props {
   onFilterChange?: (discountType: string | null) => void
 }
 
-function buildDiscountData(
-  daily: ReadonlyMap<number, DailyRecord>,
-  daysInMonth: number,
-  year: number,
-  month: number,
-  prevYearDaily?: ReadonlyMap<
-    string,
-    { sales: number; discount: number; discountEntries?: Record<string, number> }
-  >,
-) {
-  let cumDiscount = 0,
-    cumGrossSales = 0,
-    prevCumDiscount = 0,
-    prevCumGrossSales = 0
-  // 種別ごとの累計（個別モード用）
-  const typeCum: Record<string, number> = {}
-  const prevTypeCum: Record<string, number> = {}
-  for (const dt of DISCOUNT_TYPES) {
-    typeCum[dt.type] = 0
-    prevTypeCum[dt.type] = 0
-  }
-  const result: Record<string, number | boolean | null>[] = []
-  for (let d = 1; d <= daysInMonth; d++) {
-    const rec = daily.get(d)
-    cumDiscount += rec?.discountAbsolute ?? 0
-    cumGrossSales += rec?.grossSales ?? 0
-    const cumRate = calculateShare(cumDiscount, cumGrossSales)
-    const prevEntry = prevYearDaily?.get(toDateKeyFromParts(year, month, d))
-    prevCumDiscount += prevEntry?.discount ?? 0
-    prevCumGrossSales += prevEntry?.sales ?? 0
-    const prevCumRate =
-      prevCumGrossSales > 0 ? calculateShare(prevCumDiscount, prevCumGrossSales) : null
-
-    const entry: Record<string, number | boolean | null> = {
-      day: d,
-      discount: rec?.discountAbsolute ?? 0,
-      cumRate,
-      prevCumRate,
-      hasSales: rec ? rec.sales > 0 : false,
-    }
-    for (const dt of DISCOUNT_TYPES) {
-      const curAmt = rec?.discountEntries?.find((e) => e.type === dt.type)?.amount ?? 0
-      entry[`d${dt.type}`] = curAmt
-      typeCum[dt.type] += curAmt
-      // 種別累計売変率 = 種別累計 / 総売上累計
-      entry[`cumRate${dt.type}`] =
-        cumGrossSales > 0 ? calculateShare(typeCum[dt.type], cumGrossSales) : null
-      if (prevYearDaily && prevEntry?.discountEntries) {
-        const prevAmt = prevEntry.discountEntries[dt.type] ?? 0
-        entry[`prevD${dt.type}`] = prevAmt
-        prevTypeCum[dt.type] += prevAmt
-        entry[`prevCumRate${dt.type}`] =
-          prevCumGrossSales > 0 ? calculateShare(prevTypeCum[dt.type], prevCumGrossSales) : null
-      }
-    }
-    result.push(entry)
-  }
-  return result
-}
-
 export const DiscountTrendChart = memo(function DiscountTrendChart({
   daily,
   daysInMonth,
@@ -122,17 +67,19 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
   const [viewMode, setViewMode] = useState<ViewMode>('stacked')
   const [activeCode, setActiveCode] = useState<string>('71')
 
-  const allData = useMemo(
+  // Phase 5 三段構造: data builder は DiscountTrendChartLogic.ts に剥離
+  const renderModel = useMemo(
     () => buildDiscountData(daily, daysInMonth, year, month, prevYearDaily),
     [daily, daysInMonth, year, month, prevYearDaily],
   )
+  const allData = renderModel.points
 
-  const data = useMemo(
-    () => allData.filter((d) => (d.day as number) >= rangeStart && (d.day as number) <= rangeEnd),
+  const data = useMemo<readonly DiscountPoint[]>(
+    () => allData.filter((d) => d.day >= rangeStart && d.day <= rangeEnd),
     [allData, rangeStart, rangeEnd],
   )
-  const hasData = allData.some((d) => (d.discount as number) > 0)
-  const hasPrev = !!prevYearDaily
+  const hasData = allData.some((d) => d.discount > 0)
+  const hasPrev = renderModel.flags?.hasComparison === true
   const activeType = DISCOUNT_TYPES.find((dt) => dt.type === activeCode)
   const activeLbl = activeType?.label ?? ''
   const activeColorIdx = DISCOUNT_TYPES.findIndex((dt) => dt.type === activeCode)
@@ -148,7 +95,7 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
           type: 'bar',
           stack: 'discount',
           yAxisIndex: 0,
-          data: data.map((d) => (d[`d${dt.type}`] as number) ?? 0),
+          data: data.map((d) => d.byType[dt.type] ?? 0),
           itemStyle: { color: DISCOUNT_COLORS[i % DISCOUNT_COLORS.length] },
           barMaxWidth: 16,
         })
@@ -159,7 +106,7 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
           name: `前年${activeLbl}`,
           type: 'bar',
           yAxisIndex: 0,
-          data: data.map((d) => (d[`prevD${activeCode}`] as number) ?? 0),
+          data: data.map((d) => d.prevByType?.[activeCode] ?? 0),
           itemStyle: {
             color: DISCOUNT_COLORS[activeColorIdx] ?? '#ef4444',
             opacity: 0.3,
@@ -172,7 +119,7 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
         name: activeLbl,
         type: 'bar',
         yAxisIndex: 0,
-        data: data.map((d) => (d[`d${activeCode}`] as number) ?? 0),
+        data: data.map((d) => d.byType[activeCode] ?? 0),
         itemStyle: {
           color: DISCOUNT_COLORS[activeColorIdx] ?? '#ef4444',
           borderRadius: [3, 3, 0, 0],
@@ -182,16 +129,18 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
     }
 
     // 累計売変率ライン（stacked: 全体 / individual: 選択種別）
-    const cumRateKey = viewMode === 'individual' ? `cumRate${activeCode}` : 'cumRate'
-    const prevCumRateKey = viewMode === 'individual' ? `prevCumRate${activeCode}` : 'prevCumRate'
     const cumRateLabel = viewMode === 'individual' ? `累計${activeLbl}率` : '累計売変率'
     const prevCumRateLabel = viewMode === 'individual' ? `前年累計${activeLbl}率` : '前年累計売変率'
+    const getCumRate = (d: DiscountPoint): number | null =>
+      viewMode === 'individual' ? (d.cumRateByType[activeCode] ?? null) : d.cumRate
+    const getPrevCumRate = (d: DiscountPoint): number | null =>
+      viewMode === 'individual' ? (d.prevCumRateByType?.[activeCode] ?? null) : d.prevCumRate
 
     series.push({
       name: cumRateLabel,
       type: 'line',
       yAxisIndex: 1,
-      data: data.map((d) => d[cumRateKey] as number),
+      data: data.map((d) => getCumRate(d)),
       ...lineDefaults({ color: theme.colors.palette.orange }),
       connectNulls: true,
     })
@@ -200,7 +149,7 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
         name: prevCumRateLabel,
         type: 'line',
         yAxisIndex: 1,
-        data: data.map((d) => d[prevCumRateKey] as number | null),
+        data: data.map((d) => getPrevCumRate(d)),
         ...lineDefaults({ color: theme.chart.previousYear, width: 1.5, dashed: true }),
         connectNulls: true,
       })

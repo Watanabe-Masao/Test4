@@ -3,7 +3,7 @@ import { useCalculation, useBudgetChartData } from '@/application/hooks/calculat
 import { useStoreSelection } from '@/application/hooks/ui'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { usePeriodSelectionStore } from '@/application/stores/periodSelectionStore'
-import { useComparisonModule } from '@/application/hooks/useComparisonModule'
+import { usePageComparisonModule } from '@/application/hooks/usePageComparisonModule'
 import { extractPrevYearCustomerCount } from '@/features/comparison'
 import { formatPercent } from '@/domain/formatting'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
@@ -43,13 +43,17 @@ export function useInsightData(opts?: {
 }) {
   const { format: fmtCurrency } = useCurrencyFormat()
   const { daysInMonth } = useCalculation()
-  const { currentResult, selectedResults, storeName, stores } = useStoreSelection()
+  const { currentResult, selectedResults, storeName, stores, selectedStoreIds } =
+    useStoreSelection()
   const settings = useSettingsStore((s) => s.settings)
   const periodSelection = usePeriodSelectionStore((s) => s.selection)
-  const comparison = useComparisonModule(
+  // Phase 6b: frame ベースの page-level wrapper 経由で comparison module を取得
+  // (内部で buildFreePeriodFrame → useComparisonModule(..., frame.comparison))
+  const comparison = usePageComparisonModule(
     periodSelection,
     currentResult?.elapsedDays,
     currentResult?.averageDailySales ?? 0,
+    selectedStoreIds,
   )
   const prevYear = comparison.daily
   const { targetYear, targetMonth } = settings

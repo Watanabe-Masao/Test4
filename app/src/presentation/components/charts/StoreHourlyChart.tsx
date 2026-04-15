@@ -11,13 +11,10 @@ import { useState, useMemo, memo, useCallback } from 'react'
 import { useTheme } from 'styled-components'
 import { HOUR_MIN, HOUR_MAX } from './HeatmapChart.helpers'
 import type { DateRange } from '@/domain/models/calendar'
-import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { AppTheme } from '@/presentation/theme/theme'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
-import {
-  useStoreHourlyChartPlan,
-  type StoreAggregationInput,
-} from '@/application/hooks/plans/useStoreHourlyChartPlan'
+import { useTimeSlotBundle } from '@/application/hooks/timeSlot/useTimeSlotBundle'
+import type { TimeSlotFrame } from '@/application/hooks/timeSlot/TimeSlotBundle.types'
 import { useCurrencyFormatter, toPct } from './chartTheme'
 import {
   buildStoreHourlyData,
@@ -106,25 +103,23 @@ export const StoreHourlyChart = memo(function StoreHourlyChart({
 
   const handleCloseModal = useCallback(() => setSelectedStoreInfo(null), [])
 
-  const input = useMemo<StoreAggregationInput | null>(() => {
-    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
-    }
-  }, [currentDateRange, selectedStoreIds])
+  // Phase 6 Step C: TimeSlotBundle (= projectTimeSlotSeries 経由) 経由で series を取得。
+  // raw 時間帯 row 型を presentation で触らない (timeSlotLaneSurfaceGuard 強制)。
+  const frame = useMemo<TimeSlotFrame>(
+    () => ({
+      dateRange: currentDateRange,
+      storeIds: [...selectedStoreIds],
+      comparison: null,
+    }),
+    [currentDateRange, selectedStoreIds],
+  )
 
-  const { data: output, error, isLoading } = useStoreHourlyChartPlan(queryExecutor, input)
-
-  const storeRows = output?.records ?? null
+  const bundle = useTimeSlotBundle(queryExecutor, frame)
+  const { currentSeries, error, isLoading } = bundle
 
   const { chartData, storeInfos, similarities } = useMemo(
-    () =>
-      storeRows
-        ? buildStoreHourlyData(storeRows, stores, mode, HOUR_MIN, HOUR_MAX)
-        : { chartData: [], storeInfos: [], similarities: [] },
-    [storeRows, stores, mode],
+    () => buildStoreHourlyData(currentSeries, stores, mode, HOUR_MIN, HOUR_MAX),
+    [currentSeries, stores, mode],
   )
 
   const option = useMemo(
@@ -139,7 +134,7 @@ export const StoreHourlyChart = memo(function StoreHourlyChart({
       </ChartCard>
     )
   }
-  if (isLoading && !storeRows) {
+  if (isLoading && !currentSeries) {
     return (
       <ChartCard title="店舗×時間帯比較">
         <ChartLoading />

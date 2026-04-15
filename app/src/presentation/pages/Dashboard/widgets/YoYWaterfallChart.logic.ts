@@ -2,52 +2,15 @@
  * YoYWaterfallChart — 期間集計ロジック
  *
  * useMemo の純粋計算部分を抽出（C1: 1ファイル = 1変更理由）。
+ *
+ * unify-period-analysis Phase 2: 比較先 DateRange 計算は
+ * `domain/models/comparisonRangeResolver.ts` に集約された。本ファイルからは
+ * `calculatePrevCtsDateRange` を削除し、builders 側で resolver を直接呼ぶ。
  */
-import type { DateRange } from '@/domain/models/calendar'
 import type { CategoryTimeSalesRecord } from '@/domain/models/record'
 import type { DailyRecord } from '@/domain/models/record'
 import type { ComparisonMode } from './types'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
-
-/**
- * 比較期間の CTS 日付範囲を算出する。
- *
- * - 前年比: year-1 + dowOffset で前年同曜日の日付を算出
- * - 前週比: dayStart-7 〜 dayEnd-7
- */
-export function calculatePrevCtsDateRange(
-  activeCompMode: ComparisonMode,
-  canWoW: boolean,
-  year: number,
-  month: number,
-  dayStart: number,
-  dayEnd: number,
-  dowOffset: number,
-  wowPrevStart: number,
-  wowPrevEnd: number,
-): DateRange | undefined {
-  if (activeCompMode === 'wow') {
-    if (!canWoW) return undefined
-    return {
-      from: { year, month, day: wowPrevStart },
-      to: { year, month, day: wowPrevEnd },
-    }
-  }
-  const fromDate = new Date(year - 1, month - 1, dayStart + dowOffset)
-  const toDate = new Date(year - 1, month - 1, dayEnd + dowOffset)
-  return {
-    from: {
-      year: fromDate.getFullYear(),
-      month: fromDate.getMonth() + 1,
-      day: fromDate.getDate(),
-    },
-    to: {
-      year: toDate.getFullYear(),
-      month: toDate.getMonth() + 1,
-      day: toDate.getDate(),
-    },
-  }
-}
 
 /**
  * daily（StoreResult 由来）から当期の売上・客数合計を算出する。

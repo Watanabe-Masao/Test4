@@ -1,5 +1,9 @@
 /**
  * 粗利額累計推移チャート (ECharts)
+ *
+ * @migration unify-period-analysis Phase 5 三段構造: data builder
+ *   (`buildGpData`) を `GrossProfitAmountChartLogic.ts` に抽出し、
+ *   `ChartRenderModel<GpPoint>` 共通契約に揃えた。
  * @responsibility R:chart-view
  */
 import { useState, useMemo, memo } from 'react'
@@ -8,8 +12,6 @@ import type { AppTheme } from '@/presentation/theme/theme'
 import { toPct } from '@/presentation/components/charts/chartTheme'
 
 import type { DailyRecord } from '@/domain/models/record'
-import { calculateGrossProfitRate } from '@/domain/calculations/utils'
-import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import { SegmentedControl } from '@/presentation/components/common/layout'
 import { ChartCard } from '@/presentation/components/charts/ChartCard'
 import { EChart, type EChartsOption } from '@/presentation/components/charts/EChart'
@@ -21,6 +23,7 @@ import {
 } from '@/presentation/components/charts/echartsOptionBuilders'
 import { categoryXAxis, valueYAxis, lineDefaults } from '@/presentation/components/charts/builders'
 import { chartFontSize } from '@/presentation/theme/tokens'
+import { buildGpData } from './GrossProfitAmountChartLogic'
 
 type GpView = 'amountRate' | 'rateOnly'
 
@@ -43,42 +46,6 @@ interface Props {
   rangeEnd?: number
 }
 
-function buildGpData(
-  daily: ReadonlyMap<number, DailyRecord>,
-  daysInMonth: number,
-  year: number,
-  month: number,
-  prevYearDaily?: ReadonlyMap<string, { sales: number }>,
-  prevYearCostMap?: ReadonlyMap<number, number>,
-) {
-  let cumSales = 0,
-    cumCost = 0,
-    prevCumSales = 0,
-    prevCumCost = 0
-  const hasPrevGp = !!prevYearDaily && !!prevYearCostMap
-  const allData: { day: number; grossProfit: number; rate: number; prevRate: number | null }[] = []
-
-  for (let d = 1; d <= daysInMonth; d++) {
-    const rec = daily.get(d)
-    if (rec) {
-      cumSales += rec.sales
-      cumCost += rec.totalCost
-    }
-    const grossProfit = cumSales - cumCost
-    const rate = calculateGrossProfitRate(grossProfit, cumSales)
-
-    let prevRate: number | null = null
-    if (hasPrevGp) {
-      prevCumSales += prevYearDaily!.get(toDateKeyFromParts(year, month, d))?.sales ?? 0
-      prevCumCost += prevYearCostMap!.get(d) ?? 0
-      prevRate =
-        prevCumSales > 0 ? calculateGrossProfitRate(prevCumSales - prevCumCost, prevCumSales) : null
-    }
-    allData.push({ day: d, grossProfit, rate, prevRate })
-  }
-  return allData
-}
-
 export const GrossProfitAmountChart = memo(function GrossProfitAmountChart({
   daily,
   daysInMonth,
@@ -96,15 +63,17 @@ export const GrossProfitAmountChart = memo(function GrossProfitAmountChart({
   const rangeStart = rangeStartProp ?? 1
   const rangeEnd = rangeEndProp ?? daysInMonth
 
-  const allData = useMemo(
+  // Phase 5 三段構造: data builder は GrossProfitAmountChartLogic.ts に剥離
+  const renderModel = useMemo(
     () => buildGpData(daily, daysInMonth, year, month, prevYearDaily, prevYearCostMap),
     [daily, daysInMonth, year, month, prevYearDaily, prevYearCostMap],
   )
+  const allData = renderModel.points
   const data = useMemo(
     () => allData.filter((d) => d.day >= rangeStart && d.day <= rangeEnd),
     [allData, rangeStart, rangeEnd],
   )
-  const hasPrevGp = allData.some((d) => d.prevRate != null)
+  const hasPrevGp = renderModel.flags?.hasComparison === true
 
   const option = useMemo<EChartsOption>(() => {
     const days = data.map((d) => String(d.day))

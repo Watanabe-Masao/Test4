@@ -59,26 +59,33 @@ describe('wowPrevRange', () => {
 
 describe('comparisonLabels', () => {
   describe('yoy mode', () => {
-    it('returns year-based labels', () => {
-      const labels = comparisonLabels('yoy', 2025, 1, 31)
+    // unify-period-analysis Phase 2: prevYear はドメイン解決済みの値を caller が
+    // 渡す前提に変わった。`year - 1` フォールバックは presentation 層から除去された。
+    it('returns year-based labels (prevYear 明示)', () => {
+      const labels = comparisonLabels('yoy', 2025, 1, 31, 2024)
       expect(labels).toEqual({ curLabel: '2025年', prevLabel: '2024年' })
     })
 
     it('ignores day range in yoy mode', () => {
-      const a = comparisonLabels('yoy', 2025, 1, 10)
-      const b = comparisonLabels('yoy', 2025, 15, 20)
+      const a = comparisonLabels('yoy', 2025, 1, 10, 2024)
+      const b = comparisonLabels('yoy', 2025, 15, 20, 2024)
       expect(a).toEqual(b)
     })
 
-    it('returns correct labels for different years', () => {
-      expect(comparisonLabels('yoy', 2026, 1, 28)).toEqual({
+    it('returns correct labels for different years (prevYear 明示)', () => {
+      expect(comparisonLabels('yoy', 2026, 1, 28, 2025)).toEqual({
         curLabel: '2026年',
         prevLabel: '2025年',
       })
-      expect(comparisonLabels('yoy', 2024, 1, 31)).toEqual({
+      expect(comparisonLabels('yoy', 2024, 1, 31, 2023)).toEqual({
         curLabel: '2024年',
         prevLabel: '2023年',
       })
+    })
+
+    it('prevYear 未指定時は generic な「前年」ラベルを返す (year-1 計算なし)', () => {
+      const labels = comparisonLabels('yoy', 2025, 1, 31)
+      expect(labels).toEqual({ curLabel: '2025年', prevLabel: '前年' })
     })
   })
 

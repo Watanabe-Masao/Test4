@@ -13,7 +13,8 @@ import {
   buildStoreHourlyData,
   CORE_THRESHOLD,
 } from '../StoreHourlyChartLogic'
-import type { DeptKpiMonthlyTrendRow, StoreAggregationRow } from '@/application/hooks/duckdb'
+import { projectTimeSlotSeries } from '@/application/hooks/timeSlot/projectTimeSlotSeries'
+import type { DeptKpiMonthlyTrendRow } from '@/application/hooks/duckdb'
 
 // ─── DeptTrendChartLogic ─────────────────
 
@@ -158,20 +159,26 @@ describe('findCoreTime', () => {
 // ─── buildStoreHourlyData ────────────────
 
 describe('buildStoreHourlyData', () => {
-  function makeRow(storeId: string, hour: number, amount: number): StoreAggregationRow {
-    return { storeId, hour, amount } as unknown as StoreAggregationRow
+  // Phase 6 Step C: 入力は projection 済みの TimeSlotSeries。テストヘルパは
+  // raw row 形式から projectTimeSlotSeries で series を生成する。
+  function makeSeries(...rows: { storeId: string; hour: number; amount: number }[]) {
+    return projectTimeSlotSeries(rows, { dayCount: 1 })
   }
 
-  it('空 → 空 chartData + 空 storeInfos', () => {
-    const result = buildStoreHourlyData([], new Map(), 'amount', 8, 22)
-    expect(result.storeInfos).toEqual([])
-    expect(result.similarities).toEqual([])
+  it('null / 空 series → 空 chartData + 空 storeInfos', () => {
+    expect(buildStoreHourlyData(null, new Map(), 'amount', 8, 22).storeInfos).toEqual([])
+    expect(buildStoreHourlyData(makeSeries(), new Map(), 'amount', 8, 22).storeInfos).toEqual([])
+    expect(buildStoreHourlyData(makeSeries(), new Map(), 'amount', 8, 22).similarities).toEqual([])
   })
 
   it('単一店舗: storeInfo 1 つ', () => {
-    const rows = [makeRow('s1', 10, 100), makeRow('s1', 12, 500), makeRow('s1', 18, 200)]
+    const series = makeSeries(
+      { storeId: 's1', hour: 10, amount: 100 },
+      { storeId: 's1', hour: 12, amount: 500 },
+      { storeId: 's1', hour: 18, amount: 200 },
+    )
     const stores = new Map([['s1', { name: 'Store A' }]])
-    const result = buildStoreHourlyData(rows, stores, 'amount', 8, 22)
+    const result = buildStoreHourlyData(series, stores, 'amount', 8, 22)
     expect(result.storeInfos).toHaveLength(1)
     expect(result.storeInfos[0].name).toBe('Store A')
     expect(result.storeInfos[0].peakHour).toBe(12)
@@ -180,27 +187,30 @@ describe('buildStoreHourlyData', () => {
   })
 
   it('2 店舗: pairwise similarity 1 つ', () => {
-    const rows = [
-      makeRow('s1', 10, 100),
-      makeRow('s1', 12, 500),
-      makeRow('s2', 10, 200),
-      makeRow('s2', 12, 1000),
-    ]
-    const result = buildStoreHourlyData(rows, new Map(), 'amount', 8, 22)
+    const series = makeSeries(
+      { storeId: 's1', hour: 10, amount: 100 },
+      { storeId: 's1', hour: 12, amount: 500 },
+      { storeId: 's2', hour: 10, amount: 200 },
+      { storeId: 's2', hour: 12, amount: 1000 },
+    )
+    const result = buildStoreHourlyData(series, new Map(), 'amount', 8, 22)
     expect(result.similarities).toHaveLength(1)
     // 比例ベクトル → 類似度 ≒ 1
     expect(result.similarities[0].similarity).toBeCloseTo(1, 3)
   })
 
   it("mode='amount': 店舗の時間帯売上 (丸め)", () => {
-    const rows = [makeRow('s1', 10, 100.7)]
-    const result = buildStoreHourlyData(rows, new Map(), 'amount', 8, 22)
+    const series = makeSeries({ storeId: 's1', hour: 10, amount: 100.7 })
+    const result = buildStoreHourlyData(series, new Map(), 'amount', 8, 22)
     expect(result.chartData.find((p) => p.hourNum === 10)?.store_s1).toBe(101)
   })
 
   it("mode='ratio': 時間帯合計に対する percent (小数2位)", () => {
-    const rows = [makeRow('s1', 10, 300), makeRow('s2', 10, 100)]
-    const result = buildStoreHourlyData(rows, new Map(), 'ratio', 8, 22)
+    const series = makeSeries(
+      { storeId: 's1', hour: 10, amount: 300 },
+      { storeId: 's2', hour: 10, amount: 100 },
+    )
+    const result = buildStoreHourlyData(series, new Map(), 'ratio', 8, 22)
     const point = result.chartData.find((p) => p.hourNum === 10)!
     // 300/400 = 0.75 → 75
     expect(point.store_s1).toBe(75)
@@ -208,17 +218,17 @@ describe('buildStoreHourlyData', () => {
   })
 
   it('hourMin/hourMax 範囲外はスキップ', () => {
-    const rows = [
-      makeRow('s1', 5, 100), // out
-      makeRow('s1', 10, 200), // in
-    ]
-    const result = buildStoreHourlyData(rows, new Map(), 'amount', 8, 22)
+    const series = makeSeries(
+      { storeId: 's1', hour: 5, amount: 100 }, // out
+      { storeId: 's1', hour: 10, amount: 200 }, // in
+    )
+    const result = buildStoreHourlyData(series, new Map(), 'amount', 8, 22)
     expect(result.storeInfos[0].totalAmount).toBe(200)
   })
 
   it('store 名未登録 → storeId をそのまま', () => {
-    const rows = [makeRow('unknown', 10, 100)]
-    const result = buildStoreHourlyData(rows, new Map(), 'amount', 8, 22)
+    const series = makeSeries({ storeId: 'unknown', hour: 10, amount: 100 })
+    const result = buildStoreHourlyData(series, new Map(), 'amount', 8, 22)
     expect(result.storeInfos[0].name).toBe('unknown')
   })
 })

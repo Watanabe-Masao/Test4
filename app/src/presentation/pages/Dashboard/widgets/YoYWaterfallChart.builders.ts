@@ -2,11 +2,22 @@
  * YoYWaterfallChart の pure builder 関数群
  *
  * React hooks を使わない純粋関数。useMemo 集約用。
+ *
+ * unify-period-analysis Phase 2: 比較先 DateRange の解決は
+ * `domain/models/comparisonRangeResolver` に集約された唯一の経路を通る。
+ *
+ * Phase 2b: 比較結果は `ComparisonResolvedRange` 単一契約として返す。
+ * caller は `comparison.range` / `comparison.provenance` を読み、
+ * `alignmentMap` / `effectivePeriod2` を直接参照しない。
  */
 import type { DateRange } from '@/domain/models/calendar'
 import type { CategoryTimeSalesRecord, DailyRecord } from '@/domain/models/record'
+import type { ComparisonScope } from '@/domain/models/ComparisonScope'
 import {
-  calculatePrevCtsDateRange,
+  resolveAndEnrichComparisonRange,
+  type ComparisonResolvedRange,
+} from '@/domain/models/comparisonRangeResolver'
+import {
   aggregatePeriodCurSales,
   aggregatePeriodPrevSales,
   calculatePISummary,
@@ -32,11 +43,22 @@ export interface DateRangesInput {
   readonly dowOffset: number
   readonly wowPrevStart: number
   readonly wowPrevEnd: number
+  /**
+   * Phase 2b: scope を渡すと `comparison.provenance` に
+   * `sourceDate` / `comparisonRange` が埋まる。`null` / 未指定でも動作する。
+   */
+  readonly comparisonScope?: ComparisonScope | null
 }
 
 export interface DateRangesResult {
   readonly curDateRange: DateRange
-  readonly prevCtsDateRange: DateRange | undefined
+  /**
+   * Phase 2b: 比較先 DateRange + provenance を 1 つに束ねた単一契約。
+   * - `comparison.range`: 解決された比較先範囲（canWoW=false なら undefined）
+   * - `comparison.provenance.mode / mappingKind / dowOffset / fallbackApplied`: resolver 由来
+   * - `comparison.provenance.sourceDate / comparisonRange`: scope 由来（scope 未指定なら undefined）
+   */
+  readonly comparison: ComparisonResolvedRange
 }
 
 export function buildDateRanges(input: DateRangesInput): DateRangesResult {
@@ -44,18 +66,21 @@ export function buildDateRanges(input: DateRangesInput): DateRangesResult {
     from: { year: input.year, month: input.month, day: input.dayStart },
     to: { year: input.year, month: input.month, day: input.dayEnd },
   }
-  const prevCtsDateRange = calculatePrevCtsDateRange(
-    input.activeCompMode,
-    input.canWoW,
-    input.year,
-    input.month,
-    input.dayStart,
-    input.dayEnd,
-    input.dowOffset,
-    input.wowPrevStart,
-    input.wowPrevEnd,
+  const comparison = resolveAndEnrichComparisonRange(
+    {
+      mode: input.activeCompMode === 'wow' ? 'wow' : 'yoy',
+      year: input.year,
+      month: input.month,
+      dayStart: input.dayStart,
+      dayEnd: input.dayEnd,
+      dowOffset: input.dowOffset,
+      canWoW: input.canWoW,
+      wowPrevStart: input.wowPrevStart,
+      wowPrevEnd: input.wowPrevEnd,
+    },
+    input.comparisonScope,
   )
-  return { curDateRange, prevCtsDateRange }
+  return { curDateRange, comparison }
 }
 
 // ── Period Aggregates ──

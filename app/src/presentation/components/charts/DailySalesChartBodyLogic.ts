@@ -10,6 +10,7 @@
 import type { DailyWeatherSummary } from '@/domain/models/record'
 import { categorizeWeatherCode } from '@/domain/weather/weatherAggregation'
 import type { WeatherCategory } from '@/domain/models/record'
+import { deriveSameDowStartDateKey } from '@/domain/models/comparisonRangeResolver'
 import { lineDefaults } from './builders'
 import { chartFontSize, palette } from '@/presentation/theme/tokens'
 
@@ -126,15 +127,20 @@ export interface DayWeatherInfo {
   readonly weatherText?: string
 }
 
-/** dowOffset > 0 のとき、比較期間の開始日キーを算出する */
+/**
+ * dowOffset > 0 のとき、比較期間の開始日キーを算出する。
+ *
+ * unify-period-analysis Phase 2: 比較先日付の計算は domain resolver の
+ * `deriveSameDowStartDateKey` に集約された。本関数は presentation 内の
+ * 後方互換 thin wrapper として残置し、新規 import は domain resolver を
+ * 直接参照する。Phase 6 で本 wrapper を削除し caller を移行する。
+ */
 export function deriveCompStartDateKey(
   dowOffset: number,
   year: number | undefined,
   month: number | undefined,
 ): string | undefined {
-  if (dowOffset === 0 || !year || !month) return undefined
-  const d = 1 + dowOffset
-  return `${year - 1}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`
+  return deriveSameDowStartDateKey(year, month, dowOffset)
 }
 
 /**

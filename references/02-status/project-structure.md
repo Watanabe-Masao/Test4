@@ -32,7 +32,7 @@ app/src/
 - time-slot
 - weather
 
-> 13 モジュール — 生成: 2026-04-14T16:16:40.233Z
+> 13 モジュール — 生成: 2026-04-15T16:27:56.811Z
 <!-- GENERATED:END features-list -->
 
 ### test/ 構成
@@ -70,10 +70,13 @@ test/
 - `calculationCanonGuard.test.ts`
 - `canonicalInputGuard.test.ts`
 - `canonicalizationSystemGuard.test.ts`
+- `chartInputBuilderGuard.test.ts`
+- `chartRenderingStructureGuard.test.ts`
 - `checklistFormatGuard.test.ts`
 - `checklistGovernanceSymmetryGuard.test.ts`
 - `coChangeGuard.test.ts`
 - `codePatternGuard.test.ts`
+- `comparisonResolvedRangeSurfaceGuard.test.ts`
 - `comparisonScopeGuard.test.ts`
 - `customerFactPathGuard.test.ts`
 - `customerGapPathGuard.test.ts`
@@ -89,6 +92,7 @@ test/
 - `fallbackMetadataGuard.test.ts`
 - `freePeriodBudgetPathGuard.test.ts`
 - `freePeriodDeptKPIPathGuard.test.ts`
+- `freePeriodHandlerOnlyGuard.test.ts`
 - `freePeriodPathGuard.test.ts`
 - `grossProfitConsistencyGuard.test.ts`
 - `grossProfitPathGuard.test.ts`
@@ -96,10 +100,13 @@ test/
 - `layerBoundaryGuard.test.ts`
 - `migrationTagGuard.test.ts`
 - `noNewDebtGuard.test.ts`
+- `noRateInFreePeriodSqlGuard.test.ts`
 - `oldPathImportGuard.test.ts`
 - `pageMetaGuard.test.ts`
+- `phase6SummarySwapGuard.test.ts`
 - `piValuePathGuard.test.ts`
 - `pipelineSafetyGuard.test.ts`
+- `presentationComparisonMathGuard.test.ts`
 - `presentationIsolationGuard.test.ts`
 - `presentationPeriodStoreAccessGuard.test.ts`
 - `projectCompletionConsistencyGuard.test.ts`
@@ -121,11 +128,14 @@ test/
 - `temporalRollingGuard.test.ts`
 - `temporalScopeGuard.test.ts`
 - `testSignalIntegrityGuard.test.ts`
+- `timeSlotLaneSurfaceGuard.test.ts`
 - `topologyGuard.test.ts`
+- `useComparisonModuleLegacyCallerGuard.test.ts`
 - `versionSyncGuard.test.ts`
 - `wasmCrateStructureGuard.test.ts`
+- `weatherCorrelationProjectionGuard.test.ts`
 
-> 61 ファイル — 生成: 2026-04-14T16:16:40.233Z
+> 71 ファイル — 生成: 2026-04-15T16:27:56.811Z
 <!-- GENERATED:END guard-files-list -->
 
 ## レイヤー間の依存ルール

@@ -295,21 +295,40 @@ function buildDowGapSummary(dowGap: DowGapAnalysis | undefined): DowGapSummary |
  * - 'sameDow': sameDow.sales（同曜日 alignment 経由の集計）を使用
  *
  * 予算前年比もこれに連動する。
+ *
+ * ## Phase 6 Step A: freePeriodPrevYearSummary override
+ *
+ * `freePeriodPrevYearSummary` が渡された場合、prev-year monthly sales を
+ * `FreePeriodReadModel.comparisonSummary.totalSales` から取得する (Step A
+ * summary swap)。渡されない or `hasPrevYear=false` の場合は legacy
+ * `prevYearMonthlyKpi` 経路にフォールバック (bundle 未ロード時の安全網)。
+ *
+ * @see app/src/application/readModels/freePeriod/selectPrevYearSummaryFromFreePeriod.ts
  */
 export function buildBudgetHeader(
   result: StoreResult,
   prevYearMonthlyKpi: PrevYearMonthlyKpi,
   dowGap: DowGapAnalysis | undefined,
   prevYearMode: 'sameDate' | 'sameDow' = 'sameDate',
+  freePeriodPrevYearSummary?: { readonly hasPrevYear: boolean; readonly totalSales: number } | null,
 ): BudgetHeaderData {
-  const rawSales =
+  const legacyRawSales =
     prevYearMode === 'sameDow'
       ? prevYearMonthlyKpi.sameDow.sales
       : prevYearMonthlyKpi.monthlyTotal.sales
-  const prevYearMonthlySales = prevYearMonthlyKpi.hasPrevYear && rawSales > 0 ? rawSales : null
+  const legacyPrevYearMonthlySales =
+    prevYearMonthlyKpi.hasPrevYear && legacyRawSales > 0 ? legacyRawSales : null
+
+  // Step A: prefer freePeriod summary when available, fall back to legacy
+  const prevYearMonthlySales =
+    freePeriodPrevYearSummary && freePeriodPrevYearSummary.hasPrevYear
+      ? freePeriodPrevYearSummary.totalSales
+      : legacyPrevYearMonthlySales
 
   const budgetVsPrevYear =
-    prevYearMonthlySales != null ? safeDivide(result.budget, prevYearMonthlySales, 0) : null
+    prevYearMonthlySales != null && prevYearMonthlySales > 0
+      ? safeDivide(result.budget, prevYearMonthlySales, 0)
+      : null
 
   return {
     monthlyBudget: result.budget,

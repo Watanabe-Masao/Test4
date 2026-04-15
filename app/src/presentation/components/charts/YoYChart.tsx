@@ -2,45 +2,45 @@
  * 前年比較チャート (ECharts)
  *
  * パイプライン:
- *   QueryHandler → YoYChartLogic.ts → ECharts option → EChart
+ *   (scope, prevYearScope, selectedStoreIds) → buildYoyDailyInput (pure, application)
+ *     → QueryHandler → YoYChartLogic.ts (data builder / ViewModel)
+ *     → YoYChartOptionBuilder.ts (option builder)
+ *     → EChart
  *
  * 表示モード:
  *   - 日次比較: 当年売上線 + 前年売上線（破線）+ 差分棒グラフ
  *   - ウォーターフォール: 前年→当年の累積差分を滝グラフで表示
  *
  * @migration P5: plan hook 経由に移行済み（旧: useDuckDBYoyDaily 直接 import）
+ * @migration unify-period-analysis Phase 5: scope 内部フィールド
+ *   (effectivePeriod1 / effectivePeriod2 / alignmentMode) への直接アクセスを
+ *   `application/hooks/plans/buildYoyDailyInput.ts` pure builder に移譲。
+ *   widget は scope 参照を「存在判定」のみに限定し、input 構築は builder 経由。
+ *   `comparisonResolvedRangeSurfaceGuard` の allowlist から除外された見本実装。
+ * @migration unify-period-analysis Phase 5 三段構造: option builder
+ *   (buildLineOption / buildWaterfallOption) を YoYChartOptionBuilder.ts に
+ *   分離。chart component は data builder (YoYChartLogic.ts) と option
+ *   builder (YoYChartOptionBuilder.ts) を orchestration するのみ。
+ *   見本実装: TimeSlotChart (.vm.ts + OptionBuilder.ts + View.tsx) に次ぐ 2 例目。
  * @responsibility R:chart-view
  */
 import { useState, useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'
 import type { PrevYearScope } from '@/domain/models/calendar'
-import { dateRangeToKeys } from '@/domain/models/calendar'
-import type { ComparisonScope, AlignmentMode } from '@/domain/models/ComparisonScope'
+import type { ComparisonScope } from '@/domain/models/ComparisonScope'
 import type { AppTheme } from '@/presentation/theme/theme'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
-import { useYoYChartPlan, type YoyDailyInput } from '@/application/hooks/plans/useYoYChartPlan'
-import {
-  buildYoYChartData,
-  buildYoYWaterfallData,
-  computeYoYSummary,
-  type YoYChartDataPoint,
-  type WaterfallItem,
-} from './YoYChartLogic'
+import { useYoYChartPlan } from '@/application/hooks/plans/useYoYChartPlan'
+import { buildYoyDailyInput } from '@/application/hooks/plans/buildYoyDailyInput'
+import { buildYoYChartData, buildYoYWaterfallData, computeYoYSummary } from './YoYChartLogic'
+import { buildLineOption, buildWaterfallOption } from './YoYChartOptionBuilder'
 import { useCurrencyFormatter, toPct } from './chartTheme'
 import { sc } from '@/presentation/theme/semanticColors'
 import { useI18n } from '@/application/hooks/useI18n'
 import { SegmentedControl } from '@/presentation/components/common/layout'
 import { ChartCard } from './ChartCard'
 import { ChartLoading, ChartError, ChartEmpty } from './ChartState'
-import { EChart, type EChartsOption } from './EChart'
-import {
-  yenYAxis,
-  standardGrid,
-  standardTooltip,
-  standardLegend,
-  toCommaYen,
-} from './echartsOptionBuilders'
-import { categoryXAxis, lineDefaults } from './builders'
+import { EChart } from './EChart'
 import { SummaryRow, SummaryItem } from './YoYChart.styles'
 
 type ViewMode = 'line' | 'waterfall'
@@ -57,106 +57,6 @@ interface Props {
   readonly prevYearScope?: PrevYearScope
 }
 
-function buildLineOption(chartData: readonly YoYChartDataPoint[], theme: AppTheme): EChartsOption {
-  const dates = chartData.map((d) => d.date)
-  return {
-    grid: standardGrid(),
-    tooltip: standardTooltip(theme),
-    legend: standardLegend(theme),
-    xAxis: categoryXAxis(dates, theme),
-    yAxis: yenYAxis(theme),
-    series: [
-      {
-        name: '前年差',
-        type: 'bar',
-        data: chartData.map((d) => d.diff),
-        itemStyle: { color: theme.colors.palette.success, opacity: 0.4 },
-        barWidth: 6,
-      },
-      {
-        name: '前年売上',
-        type: 'line',
-        data: chartData.map((d) => d.prevSales),
-        ...lineDefaults({ color: theme.colors.palette.slate, width: 1.5, dashed: true }),
-        connectNulls: true,
-      },
-      {
-        name: '当年売上',
-        type: 'line',
-        data: chartData.map((d) => d.curSales),
-        ...lineDefaults({ color: theme.colors.palette.primary, width: 2 }),
-        symbolSize: 4,
-      },
-    ],
-  }
-}
-
-function buildWaterfallOption(
-  waterfallData: readonly WaterfallItem[],
-  theme: AppTheme,
-): EChartsOption {
-  const names = waterfallData.map((d) => d.name)
-  return {
-    grid: { ...standardGrid(), bottom: 50 },
-    tooltip: {
-      ...standardTooltip(theme),
-      formatter: (params: unknown) => {
-        const arr = Array.isArray(params) ? params : [params]
-        // スタックバー方式: seriesIndex=1 が表示バー
-        const p =
-          (arr as { dataIndex: number; seriesIndex?: number; name: string }[]).find(
-            (s) => s.seriesIndex === 1,
-          ) ?? (arr[0] as { dataIndex: number; name: string } | undefined)
-        if (!p) return ''
-        const item = waterfallData[p.dataIndex]
-        if (!item) return ''
-        return `${p.name}<br/>${toCommaYen(item.value)}`
-      },
-    },
-    xAxis: Object.assign({}, categoryXAxis(names, theme), {
-      axisLabel: {
-        ...(categoryXAxis(names, theme).axisLabel as object),
-        rotate: 45,
-      },
-    }),
-    yAxis: yenYAxis(theme),
-    series: [
-      // 透明ベース（ウォーターフォールの浮遊バー効果）
-      {
-        type: 'bar',
-        stack: 'wf',
-        data: waterfallData.map((d) => d.base),
-        itemStyle: { color: 'transparent', borderColor: 'transparent' },
-        emphasis: { disabled: true },
-        barWidth: '60%',
-      },
-      // 表示バー
-      {
-        type: 'bar',
-        stack: 'wf',
-        data: waterfallData.map((d) => {
-          const color = d.isTotal
-            ? theme.colors.palette.primary
-            : d.value >= 0
-              ? sc.positive
-              : sc.negative
-          return {
-            value: d.bar,
-            itemStyle: { color, opacity: d.isTotal ? 0.7 : 0.85 },
-          }
-        }),
-        barWidth: '60%',
-      },
-    ],
-  }
-}
-
-/** AlignmentMode → CompareModeV2 の変換 */
-function toCompareMode(mode: AlignmentMode | undefined): 'sameDate' | 'sameDayOfWeek' {
-  if (mode === 'sameDayOfWeek') return 'sameDayOfWeek'
-  return 'sameDate'
-}
-
 export const YoYChart = memo(function YoYChart({
   queryExecutor,
   scope,
@@ -168,37 +68,31 @@ export const YoYChart = memo(function YoYChart({
   const { messages } = useI18n()
   const [viewMode, setViewMode] = useState<ViewMode>('line')
 
-  const scopePeriod1 = scope?.effectivePeriod1
-  const scopePeriod2 = scope?.effectivePeriod2
-  const scopeAlignmentMode = scope?.alignmentMode
-  const prevYearDateRange = prevYearScope?.dateRange
-
-  const input = useMemo<YoyDailyInput | null>(() => {
-    if (!scopePeriod1 || !scopePeriod2) return null
-    const cur = dateRangeToKeys(scopePeriod1)
-    const prevRange = prevYearDateRange ?? scopePeriod2
-    const prev = dateRangeToKeys(prevRange)
-    return {
-      curDateFrom: cur.fromKey,
-      curDateTo: cur.toKey,
-      prevDateFrom: prev.fromKey,
-      prevDateTo: prev.toKey,
-      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
-      compareMode: toCompareMode(scopeAlignmentMode),
-    }
-  }, [scopePeriod1, scopePeriod2, scopeAlignmentMode, selectedStoreIds, prevYearDateRange])
+  // Phase 5: scope 内部フィールドへの直接アクセスは application 層の pure
+  // builder に集約した。本 widget は scope を「存在判定」と builder への
+  // pass-through のみに使う。
+  const input = useMemo(
+    () => buildYoyDailyInput(scope, prevYearScope, selectedStoreIds),
+    [scope, prevYearScope, selectedStoreIds],
+  )
 
   const { data: output, isLoading, error } = useYoYChartPlan(queryExecutor, input)
 
   const rows = output?.records ?? null
 
-  const chartData = useMemo(() => (rows ? buildYoYChartData(rows) : []), [rows])
-  const waterfallData = useMemo(
-    () =>
-      viewMode === 'waterfall' && chartData.length > 0 ? buildYoYWaterfallData(chartData) : [],
-    [viewMode, chartData],
-  )
-  const summary = useMemo(() => computeYoYSummary(chartData), [chartData])
+  // Phase 5 chart 薄化: chartData / waterfallData / summary を 1 useMemo に
+  // 統合。描画に必要な派生値はすべて同じ rows から導出されるため、まとめて
+  // 計算することで useMemo 数を減らし、chart-view の責務上限 (useMemo ≤ 4) を
+  // 守る。
+  const { chartData, waterfallData, summary } = useMemo(() => {
+    const cd = rows ? buildYoYChartData(rows) : []
+    const wd = viewMode === 'waterfall' && cd.length > 0 ? buildYoYWaterfallData(cd) : []
+    return {
+      chartData: cd,
+      waterfallData: wd,
+      summary: computeYoYSummary(cd),
+    }
+  }, [rows, viewMode])
   const growthRateLabel = summary.growthRate != null ? toPct(summary.growthRate, 1) : '-'
 
   const option = useMemo(

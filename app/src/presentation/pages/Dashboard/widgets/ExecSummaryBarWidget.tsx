@@ -21,6 +21,11 @@ import {
 import { WarningBanner } from './ExecSummaryBarWidget.styles'
 import type { WidgetContext } from './types'
 import { extractPrevYearCustomerCount } from '@/features/comparison'
+import {
+  selectPrevYearSummaryFromFreePeriod,
+  selectPrevYearSummaryFromLegacy,
+  preferFreePeriodPrevYearSummary,
+} from '@/application/readModels/freePeriod'
 
 type SummaryTab = 'sales' | 'costProfit' | 'customers'
 
@@ -35,13 +40,31 @@ export function ExecSummaryBarWidget(ctx: WidgetContext) {
   const cf = ctx.readModels?.customerFact
   const curCustomers =
     cf?.status === 'ready' ? cf.data.grandTotalCustomers : ctx.result.totalCustomers
-  const prevCustomers = extractPrevYearCustomerCount(prevYear)
   const updateSettings = useSettingsStore((s) => s.updateSettings)
   const invalidateCalculation = useUiStore((s) => s.invalidateCalculation)
   const [tab, setTab] = useState<SummaryTab>('sales')
 
+  // Phase 6 Step A: prev-year summary を freePeriodLane.bundle.fact から射影し、
+  // bundle 未ロード時は legacy prevYear へフォールバックする。
+  // **本 widget では prevYear.* / prevYearMonthlyKpi.* のバラ参照は禁止**
+  // (`phase6SummarySwapGuard` で固定)。すべての summary 読みは composer
+  // (`pyPrevSummary`) 経由で行う。daily / 日別系 (extractPrevYearCustomerCount)
+  // は Step A 範囲外なので legacy のままで問題ない。
+  const pyPrevSummary = preferFreePeriodPrevYearSummary(
+    selectPrevYearSummaryFromFreePeriod(ctx.freePeriodLane?.bundle.fact ?? null),
+    selectPrevYearSummaryFromLegacy({
+      hasPrevYear: prevYear.hasPrevYear,
+      totalSales: prevYear.totalSales,
+      totalCustomers: extractPrevYearCustomerCount(prevYear),
+      prevYearMonthlySales: prevYear.totalSales,
+    }),
+  )
+  const prevCustomers = pyPrevSummary.totalCustomers
+
   const pyRatio =
-    prevYear.hasPrevYear && prevYear.totalSales > 0 ? r.totalSales / prevYear.totalSales : null
+    pyPrevSummary.hasPrevYear && pyPrevSummary.totalSales > 0
+      ? r.totalSales / pyPrevSummary.totalSales
+      : null
   const elapsedBudget = r.dailyCumulative.get(r.elapsedDays)?.budget ?? 0
   const elapsedDiff = r.totalSales - elapsedBudget
 
@@ -262,10 +285,11 @@ export function ExecSummaryBarWidget(ctx: WidgetContext) {
           (() => {
             const txValue = calculateTransactionValue(r.totalSales, curCustomers)
             const custRatio =
-              prevYear.hasPrevYear && prevCustomers > 0 ? curCustomers / prevCustomers : null
+              pyPrevSummary.hasPrevYear && prevCustomers > 0 ? curCustomers / prevCustomers : null
+            // Phase 6 Step A: 前年客単価は composer 経由 (freePeriod 優先 + legacy fallback)
             const pyTxValue =
-              prevYear.hasPrevYear && prevCustomers > 0
-                ? calculateTransactionValue(prevYear.totalSales, prevCustomers)
+              pyPrevSummary.hasPrevYear && pyPrevSummary.totalSales > 0 && prevCustomers > 0
+                ? calculateTransactionValue(pyPrevSummary.totalSales, prevCustomers)
                 : null
             return (
               <ExecSummaryBar>

@@ -1,19 +1,22 @@
 /**
  * StoreHourlyChart — 純粋ロジック層
  *
- * DuckDB の StoreAggregationRow[] を受け取り、店舗×時間帯比較データに変換する。
- * React 非依存。副作用なし。
+ * `TimeSlotSeries` (= projectTimeSlotSeries 出力) を受け取り、店舗×時間帯比較
+ * データに変換する。React 非依存。副作用なし。
  *
  * 責務:
- *   - 店舗別×時間帯別の集計
  *   - ピーク時間帯・コアタイム・折り返し時間の算出
  *   - コサイン類似度による店舗間パターン比較
  *   - 金額/構成比モードのデータ変換
  *
+ * @migration unify-period-analysis Phase 6 Step C: 旧 raw row 直接消費から
+ *            ctx.timeSlotLane.bundle.currentSeries (TimeSlotSeries) 経由に切り替え。
+ *            raw row 集約は application/hooks/timeSlot/projectTimeSlotSeries.ts に
+ *            移管された
  * @guard G5 hook ≤300行 — 純粋関数を分離
  * @responsibility R:calculation
  */
-import type { StoreAggregationRow } from '@/application/hooks/duckdb'
+import type { TimeSlotSeries } from '@/application/hooks/timeSlot/TimeSlotBundle.types'
 import { STORE_COLORS } from './chartTheme'
 
 // ─── Types ──────────────────────────────────────────
@@ -115,42 +118,40 @@ export function findCoreTime(
 
 // ─── Main Logic ─────────────────────────────────────
 
-/** StoreAggregationRow[] → 店舗×時間帯チャートデータ */
+/**
+ * `TimeSlotSeries` → 店舗×時間帯チャートデータ
+ *
+ * Phase 6 Step C: 入力は projection 済みの `TimeSlotSeries`。本関数は raw rows
+ * を集約しない。`series.entries[i].byHour[h]` (24 長、null 含む) を hourMin..hourMax
+ * 範囲で読み出し、UI 用の chartData / storeInfos / similarities に組み立てる。
+ */
 export function buildStoreHourlyData(
-  rows: readonly StoreAggregationRow[],
+  series: TimeSlotSeries | null,
   storesMap: ReadonlyMap<string, { name: string }>,
   mode: StoreHourlyMode,
   hourMin: number,
   hourMax: number,
 ): StoreHourlyResult {
-  const storeIds = new Set<string>()
-  const storeHourMap = new Map<string, Map<number, number>>()
-  const storeTotals = new Map<string, number>()
-
-  for (const row of rows) {
-    storeIds.add(row.storeId)
-    if (row.hour < hourMin || row.hour > hourMax) continue
-
-    if (!storeHourMap.has(row.storeId)) {
-      storeHourMap.set(row.storeId, new Map())
-    }
-    const hourMap = storeHourMap.get(row.storeId)!
-    hourMap.set(row.hour, (hourMap.get(row.hour) ?? 0) + row.amount)
-    storeTotals.set(row.storeId, (storeTotals.get(row.storeId) ?? 0) + row.amount)
+  if (!series || series.entries.length === 0) {
+    return { chartData: [], storeInfos: [], similarities: [] }
   }
 
-  const sortedStoreIds = [...storeIds].sort()
-  const storeInfos: StoreInfo[] = sortedStoreIds.map((storeId, i) => {
-    const hourMap = storeHourMap.get(storeId) ?? new Map()
-    const storeName = storesMap.get(storeId)?.name ?? storeId
+  // entries は projection 側で storeId 順にソート済み (truth-table で固定)
+  const storeInfos: StoreInfo[] = series.entries.map((entry, i) => {
+    const storeName = storesMap.get(entry.storeId)?.name ?? entry.storeId
 
+    // hourMin..hourMax の窓だけを読み出す。null は 0 として扱う。
+    const hourMap = new Map<number, number>()
     let peakHour = hourMin
     let peakAmount = 0
     const hourlyPattern: number[] = []
-
+    let storeTotalInWindow = 0
     for (let h = hourMin; h <= hourMax; h++) {
-      const amount = hourMap.get(h) ?? 0
+      const v = entry.byHour[h]
+      const amount = v ?? 0
+      hourMap.set(h, amount)
       hourlyPattern.push(amount)
+      storeTotalInWindow += amount
       if (amount > peakAmount) {
         peakHour = h
         peakAmount = amount
@@ -160,12 +161,12 @@ export function buildStoreHourlyData(
     const { start, end, turnover } = findCoreTime(hourMap, hourMin, hourMax)
 
     return {
-      storeId,
+      storeId: entry.storeId,
       name: storeName,
       color: STORE_COLORS[i % STORE_COLORS.length],
       peakHour,
       peakAmount: Math.round(peakAmount),
-      totalAmount: Math.round(storeTotals.get(storeId) ?? 0),
+      totalAmount: Math.round(storeTotalInWindow),
       coreTimeStart: start,
       coreTimeEnd: end,
       turnoverHour: turnover,
@@ -187,13 +188,13 @@ export function buildStoreHourlyData(
   }
   similarities.sort((a, b) => b.similarity - a.similarity)
 
-  // Ratio mode: compute hour totals
+  // Ratio mode: compute hour totals across all stores in the window
   const hourTotals = new Map<number, number>()
   if (mode === 'ratio') {
     for (let h = hourMin; h <= hourMax; h++) {
       let total = 0
-      for (const [, hourMap] of storeHourMap) {
-        total += hourMap.get(h) ?? 0
+      for (const entry of series.entries) {
+        total += entry.byHour[h] ?? 0
       }
       hourTotals.set(h, total)
     }
@@ -207,9 +208,9 @@ export function buildStoreHourlyData(
       hourNum: h,
     }
 
-    for (const store of storeInfos) {
-      const hourMap = storeHourMap.get(store.storeId) ?? new Map()
-      const rawAmount = hourMap.get(h) ?? 0
+    for (let i = 0; i < storeInfos.length; i++) {
+      const store = storeInfos[i]
+      const rawAmount = series.entries[i].byHour[h] ?? 0
 
       if (mode === 'ratio') {
         const hourTotal = hourTotals.get(h) ?? 0

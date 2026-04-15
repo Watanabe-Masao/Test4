@@ -91,6 +91,156 @@ describe('buildDateRanges', () => {
     })
     expect(result.curDateRange).toBe(override)
   })
+
+  // unify-period-analysis Phase 2b: 単一契約 ComparisonResolvedRange
+  it('yoy mode → comparison.range が year-1、provenance が yoy/sameDate', () => {
+    const result = buildDateRanges({
+      overrideDateRange: undefined,
+      year: 2026,
+      month: 4,
+      dayStart: 1,
+      dayEnd: 15,
+      activeCompMode: 'yoy',
+      canWoW: false,
+      dowOffset: 0,
+      wowPrevStart: 0,
+      wowPrevEnd: 0,
+    })
+    expect(result.comparison.range).toEqual({
+      from: { year: 2025, month: 4, day: 1 },
+      to: { year: 2025, month: 4, day: 15 },
+    })
+    expect(result.comparison.provenance).toEqual({
+      mode: 'yoy',
+      mappingKind: 'sameDate',
+      dowOffset: 0,
+      fallbackApplied: false,
+    })
+  })
+
+  it('yoy mode + dowOffset → mappingKind が sameDayOfWeek', () => {
+    const result = buildDateRanges({
+      overrideDateRange: undefined,
+      year: 2026,
+      month: 4,
+      dayStart: 1,
+      dayEnd: 7,
+      activeCompMode: 'yoy',
+      canWoW: false,
+      dowOffset: 3,
+      wowPrevStart: 0,
+      wowPrevEnd: 0,
+    })
+    expect(result.comparison.provenance.mappingKind).toBe('sameDayOfWeek')
+    expect(result.comparison.provenance.dowOffset).toBe(3)
+  })
+
+  it('wow mode + canWoW=true → comparison.range が当月の prev week', () => {
+    const result = buildDateRanges({
+      overrideDateRange: undefined,
+      year: 2026,
+      month: 4,
+      dayStart: 8,
+      dayEnd: 14,
+      activeCompMode: 'wow',
+      canWoW: true,
+      dowOffset: 0,
+      wowPrevStart: 1,
+      wowPrevEnd: 7,
+    })
+    expect(result.comparison.range).toEqual({
+      from: { year: 2026, month: 4, day: 1 },
+      to: { year: 2026, month: 4, day: 7 },
+    })
+    expect(result.comparison.provenance.mode).toBe('wow')
+    expect(result.comparison.provenance.fallbackApplied).toBe(false)
+  })
+
+  it('wow mode + canWoW=false → comparison.range が undefined、provenance.fallbackApplied=true', () => {
+    const result = buildDateRanges({
+      overrideDateRange: undefined,
+      year: 2026,
+      month: 4,
+      dayStart: 1,
+      dayEnd: 7,
+      activeCompMode: 'wow',
+      canWoW: false,
+      dowOffset: 0,
+      wowPrevStart: 0,
+      wowPrevEnd: 0,
+    })
+    expect(result.comparison.range).toBeUndefined()
+    expect(result.comparison.provenance.fallbackApplied).toBe(true)
+  })
+
+  it('scope 未指定なら comparison.provenance.sourceDate / comparisonRange が undefined', () => {
+    const result = buildDateRanges({
+      overrideDateRange: undefined,
+      year: 2026,
+      month: 4,
+      dayStart: 1,
+      dayEnd: 15,
+      activeCompMode: 'yoy',
+      canWoW: false,
+      dowOffset: 0,
+      wowPrevStart: 0,
+      wowPrevEnd: 0,
+    })
+    expect(result.comparison.provenance.sourceDate).toBeUndefined()
+    expect(result.comparison.provenance.comparisonRange).toBeUndefined()
+  })
+
+  it('scope 指定時: comparison.provenance.sourceDate / comparisonRange が埋まる (Phase 2b 単一契約)', () => {
+    const scope = {
+      period1: {
+        from: { year: 2026, month: 4, day: 1 },
+        to: { year: 2026, month: 4, day: 30 },
+      },
+      period2: {
+        from: { year: 2025, month: 4, day: 1 },
+        to: { year: 2025, month: 4, day: 30 },
+      },
+      preset: 'prevYearSameMonth' as const,
+      alignmentMode: 'sameDate' as const,
+      dowOffset: 0,
+      effectivePeriod1: {
+        from: { year: 2026, month: 4, day: 1 },
+        to: { year: 2026, month: 4, day: 15 },
+      },
+      effectivePeriod2: {
+        from: { year: 2025, month: 4, day: 1 },
+        to: { year: 2025, month: 4, day: 15 },
+      },
+      queryRanges: [{ year: 2025, month: 4 }],
+      alignmentMap: [
+        {
+          sourceDate: { year: 2025, month: 4, day: 1 },
+          targetDate: { year: 2026, month: 4, day: 1 },
+          sourceDayKey: '2025-04-01',
+          targetDayKey: '2026-04-01',
+        },
+      ],
+      sourceMonth: { year: 2025, month: 4 },
+    }
+    const result = buildDateRanges({
+      overrideDateRange: undefined,
+      year: 2026,
+      month: 4,
+      dayStart: 1,
+      dayEnd: 15,
+      activeCompMode: 'yoy',
+      canWoW: false,
+      dowOffset: 0,
+      wowPrevStart: 0,
+      wowPrevEnd: 0,
+      comparisonScope: scope,
+    })
+    expect(result.comparison.provenance.sourceDate).toBe('2025-04-01')
+    expect(result.comparison.provenance.comparisonRange).toEqual(scope.effectivePeriod2)
+    // resolver 由来フィールドは変わらない
+    expect(result.comparison.provenance.mode).toBe('yoy')
+    expect(result.comparison.provenance.mappingKind).toBe('sameDate')
+  })
 })
 
 // ─── buildPeriodAggregates ──────────────────
