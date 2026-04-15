@@ -105,7 +105,12 @@
 
 * [x] Step A (summary swap): `ConditionSummaryEnhanced` / `ExecSummaryBarWidget` の prev-year 系 summary 読み出しを `ctx.freePeriodLane.bundle.fact.comparisonSummary` 経由に差し替える (`selectPrevYearSummaryFromFreePeriod` selector + 8 件の unit/parity test、bundle 未ロード時は legacy `prevYear` にフォールバック)
 * [x] Step B 設計固定: Phase 6.5 の起点として `phase-6-5-step-b-design.md` を策定。店舗別日次 / category 日次 を 2 本の sibling lane (`ctx.storeDailyLane` / `ctx.categoryDailyLane`) として追加する方針、6 phase 実装順、リスク mitigation を明文化
-* [ ] Step B (readModel 次元拡張): `FreePeriodReadModel` に店舗別日次シリーズ / category 次元を追加する (定義書 + Zod 契約 + guard 更新を伴う)。これにより `SalesPurchaseComparisonChart` / `YoYWaterfallChart` の載せ替えが可能になる
+* [x] Phase 6.5-1 (型契約 + pre-work guard): `StoreDailyBundle.types.ts` / `CategoryDailyBundle.types.ts` を型契約のみで新設 (実装なし)。`storeDailyLaneSurfaceGuard` (SalesPurchaseComparisonChart baseline=2) + `categoryDailyLaneSurfaceGuard` (YoYWaterfall ecosystem 4 ファイル baseline=3/5/3/2) を新設、Phase 6.5-5 で全 0 到達を目標
+* [ ] Phase 6.5-2 (projection 真理表): `projectStoreDailySeries` / `projectCategoryDailySeries` の truth-table parity test を実装に先立って先に書く
+* [ ] Phase 6.5-3 (pure projection 実装): 2 本の pure 関数を新設し、Phase 6.5-2 の真理表を通す
+* [ ] Phase 6.5-4 (bundle + ctx 配布): `useStoreDailyBundle` / `useCategoryDailyBundle` hook + `useUnifiedWidgetContext` への lane 配布 (AR-003 fieldMax 49 → 51 ratchet-up)
+* [ ] Phase 6.5-5 (widget 載せ替え): `SalesPurchaseComparisonChart` / `YoYWaterfallChart` を sibling lane 経由に切替、両 guard baseline 全 0 到達
+* [ ] Phase 6.5-6 (クローズ): inventory/05 の HIGH リスク 2 件を Done 記録、Phase 6 全体クローズ
 * [ ] Step B 完了後: `SalesPurchaseComparisonChart` を `ctx.freePeriodLane.bundle.fact` 経由に載せ替える
 * [ ] Step B 完了後: `YoYWaterfallChart` を `ctx.freePeriodLane.bundle.{fact,deptKPI}` 経由に載せ替える
 * [x] Step C 方針固定: 時間帯比較は `FreePeriodReadModel` に吸収せず sibling lane (`ctx.timeSlotLane`) として切り出す。`step-c-timeslot-lane-policy.md` + `TimeSlotBundle.types.ts` + `timeSlotLaneSurfaceGuard` で pre-work 完了

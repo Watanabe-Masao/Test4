@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-15T16:27:56.809Z",
+  "timestamp": "2026-04-15T17:17:53.589Z",
   "summary": {
     "active": 5,
     "archived": 6,
@@ -8,8 +8,8 @@
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 370,
-    "checkedCheckboxes": 320
+    "totalCheckboxes": 375,
+    "checkedCheckboxes": 321
   },
   "projects": [
     {
@@ -148,9 +148,9 @@
       "kind": "project",
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
-      "checked": 34,
-      "total": 51,
-      "progress": 0.667,
+      "checked": 35,
+      "total": 56,
+      "progress": 0.625,
       "entrypoint": "projects/unify-period-analysis/AI_CONTEXT.md",
       "checklistPath": "projects/unify-period-analysis/checklist.md",
       "parent": null
