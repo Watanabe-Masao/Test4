@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-15T04:13:26.567Z",
+  "timestamp": "2026-04-15T04:29:59.286Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 64,
+      "value": 65,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -300,6 +300,7 @@
         "app/src/test/guards/layerBoundaryGuard.test.ts",
         "app/src/test/guards/migrationTagGuard.test.ts",
         "app/src/test/guards/noNewDebtGuard.test.ts",
+        "app/src/test/guards/noRateInFreePeriodSqlGuard.test.ts",
         "app/src/test/guards/oldPathImportGuard.test.ts",
         "app/src/test/guards/pageMetaGuard.test.ts",
         "app/src/test/guards/piValuePathGuard.test.ts",
@@ -849,7 +850,7 @@
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 307,
+      "value": 311,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",

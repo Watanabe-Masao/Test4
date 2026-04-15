@@ -72,10 +72,10 @@
 
 ## Phase 4: 率計算・集約責務整理
 
-* [ ] 自由期間系 SQL から rate 計算を全て除去し額のみを返すように修正する
-* [ ] VM / Presentation 層で率を直計算している箇所を domain/calculations に寄せる
-* [ ] 同一集約の SQL / JS 二重実装を排除する
-* [ ] SQL 内 rate 計算を禁止するガードを追加する
+* [x] 自由期間系 SQL から rate 計算を全て除去し額のみを返すように修正する（`freePeriodDeptKPI.ts` SQL の `SUM(rate * sales) / NULLIF(SUM(sales), 0)` 4 箇所を `SUM(rate * sales) AS "*RateWeighted"` に置換。他の freePeriod SQL は Phase 0 棚卸し時点で clean）
+* [x] VM / Presentation 層で率を直計算している箇所を domain/calculations に寄せる（Phase 2 で presentation 層の比較先日付独自計算を `comparisonRangeResolver` に剥離済み。Phase 4 時点で VM / Presentation に rate 直計算は残っていない。inventory/01 の 4 箇所は全て domain resolver 経由に置換済み）
+* [x] 同一集約の SQL / JS 二重実装を排除する（率計算の唯一点を `readFreePeriodDeptKPI.ts` の `weightedAverageRate()` pure helper に確定。SQL 側は加重和のみ、JS 側で率へ変換）
+* [x] SQL 内 rate 計算を禁止するガードを追加する（`noRateInFreePeriodSqlGuard.test.ts` を新設。freePeriod\* infra query に対する NULLIF 除算 / CASE WHEN 分岐除算 / `AS "*Rate"` alias を機械的禁止、Weighted suffix を強制）
 
 ## Phase 5: ViewModel / chart 薄化
 

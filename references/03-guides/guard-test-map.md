@@ -12,6 +12,7 @@
 | `app/src/test/guards/presentationComparisonMathGuard.test.ts` | architecture | 4件 | presentation 層での比較先日付独自計算 (`year - 1` / `subYears` 等) を禁止し domain resolver 経由を強制（unify-period-analysis Phase 2） |
 | `app/src/test/guards/freePeriodHandlerOnlyGuard.test.ts` | architecture | 7件 | 自由期間取得経路の唯一性: `queryFreePeriodDaily` の caller を `freePeriodHandler.ts` のみに制限 + `FreePeriodDailyRow` の presentation 禁止（unify-period-analysis Phase 3） |
 | `app/src/test/guards/comparisonResolvedRangeSurfaceGuard.test.ts` | architecture | 4件 | `ComparisonResolvedRange` 単一契約の読み口を強制: presentation 層で `scope.alignmentMap` / `effectivePeriod2` / `queryRanges` / `sourceMonth` の直接参照を禁止（unify-period-analysis Phase 3 封じ手、baseline 1 件: YoYChart.tsx は Phase 5 で移行） |
+| `app/src/test/guards/noRateInFreePeriodSqlGuard.test.ts` | invariant-guardian | 5件 | 自由期間 infra query で率計算 (NULLIF 除算 / `AS "*Rate"` alias) を禁止し額のみ transport を強制（unify-period-analysis Phase 4 G4-1/G4-2、weightedAverageRate pure builder への移行を保証） |
 | `app/src/test/guards/structuralConventionGuard.test.ts` | architecture | 7件 | 縦スライス、プロトタイプ、バレル移行、ctx重複 |
 | `app/src/domain/calculations/__tests__/calculationRules.test.ts` | invariant-guardian | 7件 | safeDivide, calculateTransactionValue, overflowDay, fmtSen, formatPercent, toPct |
 | `app/src/presentation/components/charts/__tests__/divisorRules.test.ts` | invariant-guardian | 8件 | computeDivisor, filterByStore, countDistinctDays, 正規ロケーション, 網羅性 |
