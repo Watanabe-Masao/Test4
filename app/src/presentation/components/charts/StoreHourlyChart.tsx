@@ -11,13 +11,10 @@ import { useState, useMemo, memo, useCallback } from 'react'
 import { useTheme } from 'styled-components'
 import { HOUR_MIN, HOUR_MAX } from './HeatmapChart.helpers'
 import type { DateRange } from '@/domain/models/calendar'
-import { dateRangeToKeys } from '@/domain/models/calendar'
+import { buildBaseQueryInput } from '@/application/hooks/plans/buildBaseQueryInput'
 import type { AppTheme } from '@/presentation/theme/theme'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
-import {
-  useStoreHourlyChartPlan,
-  type StoreAggregationInput,
-} from '@/application/hooks/plans/useStoreHourlyChartPlan'
+import { useStoreHourlyChartPlan } from '@/application/hooks/plans/useStoreHourlyChartPlan'
 import { useCurrencyFormatter, toPct } from './chartTheme'
 import {
   buildStoreHourlyData,
@@ -106,14 +103,11 @@ export const StoreHourlyChart = memo(function StoreHourlyChart({
 
   const handleCloseModal = useCallback(() => setSelectedStoreInfo(null), [])
 
-  const input = useMemo<StoreAggregationInput | null>(() => {
-    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
-    }
-  }, [currentDateRange, selectedStoreIds])
+  // Phase 5 横展開: query input 組み立ては共通 builder に集約
+  const input = useMemo(
+    () => buildBaseQueryInput(currentDateRange, selectedStoreIds),
+    [currentDateRange, selectedStoreIds],
+  )
 
   const { data: output, error, isLoading } = useStoreHourlyChartPlan(queryExecutor, input)
 

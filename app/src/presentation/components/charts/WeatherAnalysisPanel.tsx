@@ -13,8 +13,8 @@ import styled from 'styled-components'
 import type { DailyWeatherSummary } from '@/domain/models/record'
 import type { DailySalesForCorrelation } from '@/application/hooks/useWeatherCorrelation'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
-import { dateRangeToKeys } from '@/domain/models/calendar'
-import { useWeatherAnalysisPlan, type StoreDaySummaryInput } from '@/features/weather'
+import { buildBaseQueryInput } from '@/application/hooks/plans/buildBaseQueryInput'
+import { useWeatherAnalysisPlan } from '@/features/weather'
 import type { DuckQueryContext } from './SubAnalysisPanel'
 import { WeatherCorrelationChart } from './WeatherCorrelationChart'
 
@@ -29,14 +29,11 @@ export const WeatherAnalysisPanel = memo(function WeatherAnalysisPanel({
 }: Props) {
   const { queryExecutor, currentDateRange, selectedStoreIds } = ctx
 
-  const input = useMemo<StoreDaySummaryInput | null>(() => {
-    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
-    }
-  }, [currentDateRange, selectedStoreIds])
+  // Phase 5 横展開: query input 組み立ては共通 builder に集約
+  const input = useMemo(
+    () => buildBaseQueryInput(currentDateRange, selectedStoreIds),
+    [currentDateRange, selectedStoreIds],
+  )
 
   const { data: output } = useWeatherAnalysisPlan(queryExecutor, input)
   const dailyRows = output?.records ?? null

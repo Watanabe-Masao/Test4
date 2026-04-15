@@ -10,13 +10,10 @@
 import { useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'
 import type { DateRange } from '@/domain/models/calendar'
-import { dateRangeToKeys } from '@/domain/models/calendar'
+import { buildBaseQueryInput } from '@/application/hooks/plans/buildBaseQueryInput'
 import type { AppTheme } from '@/presentation/theme/theme'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
-import {
-  useFeatureChartPlan,
-  type DailyFeaturesInput,
-} from '@/application/hooks/plans/useFeatureChartPlan'
+import { useFeatureChartPlan } from '@/application/hooks/plans/useFeatureChartPlan'
 import {
   buildFeatureChartData,
   Z_SCORE_THRESHOLD,
@@ -121,14 +118,11 @@ export const FeatureChart = memo(function FeatureChart({
   const fmt = useCurrencyFormatter()
   const { messages } = useI18n()
 
-  const input = useMemo<DailyFeaturesInput | null>(() => {
-    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
-    }
-  }, [currentDateRange, selectedStoreIds])
+  // Phase 5 横展開: query input 組み立ては共通 builder に集約
+  const input = useMemo(
+    () => buildBaseQueryInput(currentDateRange, selectedStoreIds),
+    [currentDateRange, selectedStoreIds],
+  )
 
   const { data: output, isLoading, error } = useFeatureChartPlan(queryExecutor, input)
 

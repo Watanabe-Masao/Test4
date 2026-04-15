@@ -35,40 +35,30 @@ const CHARTS_DIR = path.join(SRC_DIR, 'presentation/components/charts')
 // Phase 5 開始時点で dateRangeToKeys を chart 配下で直接呼んでいるファイル群。
 // 新規追加は禁止。移行完了した順に allowlist から削除し、baseline を下げていく。
 //
-// ratchet-down ゴール: 全 chart が build<Name>Input.ts 経由になり、
+// ratchet-down 進捗:
+//   - Phase 5 開始: 8 件
+//   - Phase 5 横展開 第 1 バッチ: 5 件 → 3 件 (WeatherAnalysisPanel / DowPatternChart /
+//     CumulativeChart / FeatureChart / StoreHourlyChart を buildBaseQueryInput 経由に移行)
+//
+// 残る 3 件は構造が異なるため別バッチで扱う:
+//   - FactorDecompositionPanel: PairedInput (当期+比較期) の 2 range を扱う
+//   - useCategoryHierarchyData / useDeptHourlyChartData: hook 形式で複数呼び出し
+//
+// ゴール: 全 chart が build<Name>Input.ts または共通 builder 経由になり、
 // allowlist が空 (baseline 0) になること。
 const ALLOWLIST: readonly { readonly path: string; readonly reason: string }[] = [
   {
-    path: 'presentation/components/charts/CumulativeChart.tsx',
-    reason: 'Phase 5 移行待ち: dateRangeToKeys を chart 内で直接呼んでいる',
-  },
-  {
-    path: 'presentation/components/charts/DowPatternChart.tsx',
-    reason: 'Phase 5 移行待ち: dateRangeToKeys を chart 内で直接呼んでいる',
-  },
-  {
     path: 'presentation/components/charts/FactorDecompositionPanel.tsx',
-    reason: 'Phase 5 移行待ち: dateRangeToKeys を chart 内で直接呼んでいる',
-  },
-  {
-    path: 'presentation/components/charts/FeatureChart.tsx',
-    reason: 'Phase 5 移行待ち: dateRangeToKeys を chart 内で直接呼んでいる',
-  },
-  {
-    path: 'presentation/components/charts/StoreHourlyChart.tsx',
-    reason: 'Phase 5 移行待ち: dateRangeToKeys を chart 内で直接呼んでいる',
-  },
-  {
-    path: 'presentation/components/charts/WeatherAnalysisPanel.tsx',
-    reason: 'Phase 5 移行待ち: dateRangeToKeys を chart 内で直接呼んでいる',
+    reason:
+      'Phase 5 移行待ち: PairedInput (当期 + 比較期) の 2 range を扱う。共通 builder では足りないため専用 builder が必要',
   },
   {
     path: 'presentation/components/charts/useCategoryHierarchyData.ts',
-    reason: 'Phase 5 移行待ち: dateRangeToKeys を chart hook 内で直接呼んでいる',
+    reason: 'Phase 5 移行待ち: hook 形式で dateRangeToKeys を複数回呼ぶ構造',
   },
   {
     path: 'presentation/components/charts/useDeptHourlyChartData.ts',
-    reason: 'Phase 5 移行待ち: dateRangeToKeys を chart hook 内で直接呼んでいる',
+    reason: 'Phase 5 移行待ち: hook 形式で dateRangeToKeys を複数回呼ぶ構造',
   },
 ]
 
@@ -137,9 +127,10 @@ describe('Chart Input Builder Pattern Guard (unify-period-analysis Phase 5)', ()
     ).toEqual([])
   })
 
-  it('ALLOWLIST baseline: 8 件以下 (ratchet-down)', () => {
-    // Phase 5 開始時点で 8 件。Phase 5 横展開で順次 0 へ縮退させる。
-    expect(ALLOWLIST.length).toBeLessThanOrEqual(8)
+  it('ALLOWLIST baseline: 3 件以下 (ratchet-down)', () => {
+    // Phase 5 開始時点で 8 件。横展開 第 1 バッチで 5 件移行 → 3 件に縮退。
+    // 残る 3 件は別バッチで扱い、最終的に 0 件へ。
+    expect(ALLOWLIST.length).toBeLessThanOrEqual(3)
   })
 
   it('ALLOWLIST の各 entry が実在ファイルを指している (orphan 検出)', () => {

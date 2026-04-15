@@ -14,11 +14,8 @@ import { useTheme } from 'styled-components'
 import type { DateRange } from '@/domain/models/calendar'
 import type { AppTheme } from '@/presentation/theme/theme'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
-import {
-  useCumulativeChartPlan,
-  type DailyCumulativeInput,
-} from '@/application/hooks/plans/useCumulativeChartPlan'
-import { dateRangeToKeys } from '@/domain/models/calendar'
+import { useCumulativeChartPlan } from '@/application/hooks/plans/useCumulativeChartPlan'
+import { buildBaseQueryInput } from '@/application/hooks/plans/buildBaseQueryInput'
 import {
   buildCumulativeChartData,
   computeCumulativeSummary,
@@ -118,14 +115,11 @@ export const CumulativeChart = memo(function CumulativeChart({
   const fmt = useCurrencyFormatter()
   const { messages } = useI18n()
 
-  const input = useMemo<DailyCumulativeInput | null>(() => {
-    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
-    }
-  }, [currentDateRange, selectedStoreIds])
+  // Phase 5 横展開: query input 組み立ては共通 builder に集約
+  const input = useMemo(
+    () => buildBaseQueryInput(currentDateRange, selectedStoreIds),
+    [currentDateRange, selectedStoreIds],
+  )
 
   const { data: output, error, isLoading } = useCumulativeChartPlan(queryExecutor, input)
   const rows = output?.records ?? null

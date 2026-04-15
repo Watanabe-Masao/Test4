@@ -10,13 +10,10 @@
 import { useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'
 import type { DateRange } from '@/domain/models/calendar'
-import { dateRangeToKeys } from '@/domain/models/calendar'
+import { buildBaseQueryInput } from '@/application/hooks/plans/buildBaseQueryInput'
 import type { AppTheme } from '@/presentation/theme/theme'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
-import {
-  useDowPatternChartPlan,
-  type DowPatternInput,
-} from '@/application/hooks/plans/useDowPatternChartPlan'
+import { useDowPatternChartPlan } from '@/application/hooks/plans/useDowPatternChartPlan'
 import { buildDowPatternData, type DowChartDataPoint } from './DowPatternChartLogic'
 import { useCurrencyFormatter, toPct } from './chartTheme'
 import { useI18n } from '@/application/hooks/useI18n'
@@ -84,14 +81,11 @@ export const DowPatternChart = memo(function DowPatternChart({
   const fmt = useCurrencyFormatter()
   const { messages } = useI18n()
 
-  const input = useMemo<DowPatternInput | null>(() => {
-    const { fromKey, toKey } = dateRangeToKeys(currentDateRange)
-    return {
-      dateFrom: fromKey,
-      dateTo: toKey,
-      storeIds: selectedStoreIds.size > 0 ? [...selectedStoreIds] : undefined,
-    }
-  }, [currentDateRange, selectedStoreIds])
+  // Phase 5 横展開: query input 組み立ては共通 builder に集約
+  const input = useMemo(
+    () => buildBaseQueryInput(currentDateRange, selectedStoreIds),
+    [currentDateRange, selectedStoreIds],
+  )
 
   const { data: output, error, isLoading } = useDowPatternChartPlan(queryExecutor, input)
 
