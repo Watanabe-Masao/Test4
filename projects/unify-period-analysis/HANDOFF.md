@@ -136,30 +136,24 @@ Phase 5 で確立した chart 薄化パターンは
 
 ### 高優先（次に着手するもの）
 
-- **Phase 6 段階的画面載せ替え**: 比較ヘッダ / 期間サマリー / 売上比較 / 時間帯比較 / 仕入原価 / 天気連動の各画面を `ctx.freePeriodLane` 経由に載せ替える (Phase 6b 完了により legacy caller は消えたので、次は画面単位の移行に集中できる)
+- **Phase 6 棚卸し完了 (2026-04-15)**: 6 widget の ctx 依存を `inventory/05-phase6-widget-consumers.md` に箇所単位で固定。結論は下記スコープ再定義を参照
+- **Phase 6 Step A (summary swap)**: `ConditionSummaryEnhanced` / `ExecSummaryBarWidget` の summary 系 prev-year 読み出しを `ctx.freePeriodLane.bundle.fact.comparisonSummary` 経由に差し替え (low-risk、値の parity test で担保)
+- **Phase 6 Step B (readModel 次元拡張)**: `FreePeriodReadModel` に店舗別日次シリーズ / category 次元を追加する別 phase。`SalesPurchaseComparisonChart` / `YoYWaterfallChart` の前提条件。定義書 + guard + bundle の変更を伴う
+- **Phase 6 Step C (時間帯比較 scope 整理)**: 時間帯比較 (`StoreHourlyChart`) は時刻次元がなく FreePeriodReadModel の対象外。Phase 6 から除外するか `ctx.freePeriodLane.timeSlotBundle` のような別レーンを定義する
+- **Phase 6 Step D (天気 correlation)**: domain-layer projection (`buildDailySalesProjection(currentRows)` 等) を追加して `WeatherCorrelationChart` が G3-2 を守ったまま daily sales を使えるようにする
 - **Phase 6 optional**: `useComparisonModule` の periodSelection 依存 (kpi projection / dowGap 内部) をさらに削減する refactor。`externalScope` が必ず渡される前提になったため、periodSelection も `{ period1Year, period1Month }` 等の minimal struct に縮退可能
 
-> **Phase 6b caller 移行の Done 条件**（`MobileDashboardPage` / `useInsightData`
-> それぞれに適用）:
->
-> 1. `buildFreePeriodFrame` か `ctx.freePeriodLane.frame` を起点にする
->    （page-level で frame を直接構築するか、widget context 経由で取得するか
->    はファイルごとに適切な方を選ぶ）
-> 2. `useComparisonModule(..., externalScope)` の 4 引数版を使う。
->    `externalScope = frame.comparison` を渡す
-> 3. 移行後は `useComparisonModuleLegacyCallerGuard` の
->    `LEGACY_CALLER_ALLOWLIST` から対象エントリを削除し、stale check が
->    通る状態にする
->
-> 2 caller 両方が移行完了すると baseline が `2 → 0` に到達し、以降は
-> `useComparisonModule` の 3 引数 signature (optional `externalScope` なし版)
-> を削除できる。これが Phase 6b のクローズ条件。
-
-- **Phase 6 段階的画面載せ替え**: 比較ヘッダ / 期間サマリー / 売上比較 / 時間帯比較 / 仕入原価 / 天気連動の各画面を `ctx.freePeriodLane` 経由に載せ替える
+> **Phase 6 スコープ再定義の根拠**: `inventory/05-phase6-widget-consumers.md`
+> の箇所単位棚卸しで、checklist Phase 6 の 6 項目のうち HIGH リスク 2 /
+> MEDIUM 3 / LOW 1 と判明。現状の `FreePeriodReadModel` (summary + raw rows、
+> raw rows は G3-2 で presentation 非公開) では per-store 日次シリーズ / category
+> 次元 / 時刻次元を必要とする widget は載せ替え不可。先に `Step A` (summary
+> 差し替え) を進めつつ、残りは `Step B-D` として readModel 次元拡張 / 別レーン /
+> domain projection の追加を別 phase で検討する。
 
 ### 中優先
 
-- **Phase 6**: 段階的画面載せ替え + `useComparisonModule` の `ComparisonScope` 直接受領化
+- **Phase 6 checklist.md 更新**: 現行 6 checkbox を Step A-D 構造に置き換える (inventory/05 準拠)
 
 ### 低優先
 

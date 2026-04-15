@@ -97,12 +97,18 @@
 
 ## Phase 6: 段階的画面載せ替え
 
-* [ ] 比較ヘッダ周辺を新レーンに載せ替える
-* [ ] 期間サマリー系を新レーンに載せ替える
-* [ ] 売上比較 chart を新レーンに載せ替える
-* [ ] 時間帯比較を新レーンに載せ替える
-* [ ] 仕入 / 原価比較を新レーンに載せ替える
-* [ ] 天気連動比較を新レーンに載せ替える
+> Phase 6 棚卸し (`inventory/05-phase6-widget-consumers.md`, 2026-04-15) の結果、
+> 現行 `FreePeriodReadModel` surface では 6 widget の直接載せ替えが summary 差し替え
+> レベルにとどまることが判明。scope を Step A-D に再構成する。当初の
+> 「6 widget それぞれを新レーンに載せ替える」は HIGH リスク分が readModel 次元
+> 拡張 (Step B) 前提のため分離した。
+
+* [ ] Step A (summary swap): `ConditionSummaryEnhanced` / `ExecSummaryBarWidget` の prev-year 系 summary 読み出しを `ctx.freePeriodLane.bundle.fact.comparisonSummary` 経由に差し替える (既存値との parity test を付ける)
+* [ ] Step B (readModel 次元拡張): `FreePeriodReadModel` に店舗別日次シリーズ / category 次元を追加する (定義書 + Zod 契約 + guard 更新を伴う)。これにより `SalesPurchaseComparisonChart` / `YoYWaterfallChart` の載せ替えが可能になる
+* [ ] Step B 完了後: `SalesPurchaseComparisonChart` を `ctx.freePeriodLane.bundle.fact` 経由に載せ替える
+* [ ] Step B 完了後: `YoYWaterfallChart` を `ctx.freePeriodLane.bundle.{fact,deptKPI}` 経由に載せ替える
+* [ ] Step C (時間帯比較 scope 整理): `StoreHourlyChart` は時刻次元を持たない `FreePeriodReadModel` の対象外。Phase 6 から除外するか `ctx.freePeriodLane.timeSlotBundle` のような別レーンを定義する方針を決める
+* [ ] Step D (天気 correlation): domain-layer projection (`buildDailySalesProjection(currentRows)` 等) を追加し、`WeatherCorrelationChart` が G3-2 を守ったまま daily sales を使えるようにする
 
 ## Phase 7: ガードテスト群（test-plan G0〜G6）
 
