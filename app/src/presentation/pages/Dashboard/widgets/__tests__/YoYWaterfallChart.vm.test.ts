@@ -1,46 +1,38 @@
+/**
+ * Phase 6.5-5b: `aggregateTotalQuantity` は `CategoryTimeSalesRecord[]` から
+ * `CategoryDailySeries | null` 入力に切替。projection 側 (Phase 6.5-2) が
+ * `grandTotals.salesQty` を事前計算しているため、本関数は pass-through になる。
+ */
 import { describe, it, expect } from 'vitest'
 import { aggregateTotalQuantity } from '../YoYWaterfallChart.vm'
-import type { CategoryTimeSalesRecord } from '@/domain/models/record'
+import type { CategoryDailySeries } from '@/application/hooks/categoryDaily/CategoryDailyBundle.types'
 
-const makeRec = (totalQuantity: number): CategoryTimeSalesRecord =>
-  ({
-    year: 2024,
-    month: 3,
-    day: 1,
-    storeId: 'S1',
-    department: { code: 'D', name: 'D' },
-    line: { code: 'L', name: 'L' },
-    klass: { code: 'K', name: 'K' },
-    timeSlots: [],
-    totalQuantity,
-    totalAmount: totalQuantity * 100,
-  }) as unknown as CategoryTimeSalesRecord
+function makeSeries(salesQty: number): CategoryDailySeries {
+  return {
+    entries: [],
+    grandTotals: { sales: 0, customers: 0, salesQty },
+    dayCount: 0,
+  }
+}
 
-describe('aggregateTotalQuantity', () => {
-  it('returns 0 for empty input', () => {
-    expect(aggregateTotalQuantity([])).toBe(0)
+describe('aggregateTotalQuantity (Phase 6.5-5b — CategoryDailySeries pass-through)', () => {
+  it('returns 0 for null series (bundle 未ロード)', () => {
+    expect(aggregateTotalQuantity(null)).toBe(0)
   })
 
-  it('sums totalQuantity across records', () => {
-    expect(aggregateTotalQuantity([makeRec(10), makeRec(20), makeRec(30)])).toBe(60)
+  it('returns grandTotals.salesQty from a populated series', () => {
+    expect(aggregateTotalQuantity(makeSeries(60))).toBe(60)
   })
 
-  it('handles a single record', () => {
-    expect(aggregateTotalQuantity([makeRec(42)])).toBe(42)
+  it('returns 0 for a zero-series', () => {
+    expect(aggregateTotalQuantity(makeSeries(0))).toBe(0)
   })
 
-  it('handles zero-quantity records', () => {
-    expect(aggregateTotalQuantity([makeRec(0), makeRec(0)])).toBe(0)
+  it('handles large values', () => {
+    expect(aggregateTotalQuantity(makeSeries(123_456))).toBe(123_456)
   })
 
-  it('handles negative quantities (returns algebraic sum)', () => {
-    expect(aggregateTotalQuantity([makeRec(10), makeRec(-4)])).toBe(6)
-  })
-
-  it('treats records as readonly and does not mutate input', () => {
-    const input = [makeRec(5), makeRec(7)]
-    const before = input.map((r) => r.totalQuantity)
-    aggregateTotalQuantity(input)
-    expect(input.map((r) => r.totalQuantity)).toEqual(before)
+  it('handles negative values (pass-through)', () => {
+    expect(aggregateTotalQuantity(makeSeries(-10))).toBe(-10)
   })
 })

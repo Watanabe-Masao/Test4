@@ -9,10 +9,17 @@
  * Phase 2b: 比較結果は `ComparisonResolvedRange` 単一契約として返す。
  * caller は `comparison.range` / `comparison.provenance` を読み、
  * `alignmentMap` / `effectivePeriod2` を直接参照しない。
+ *
+ * Phase 6.5-5b: 量合計 (curTotalQty / prevTotalQty) を `CategoryDailySeries`
+ * の `grandTotals.salesQty` 経由で取得するよう切替。priceMix 計算の
+ * `decomposePriceMix(periodCTS, periodPrevCTS)` は `dept|line|klass` leaf-grain
+ * key を必要とする Shapley 5-factor のための **intentional permanent floor**
+ * として残す (`CategoryDailySeries` は dept 単位のため leaf-grain を持たない)。
  */
 import type { DateRange } from '@/domain/models/calendar'
 import type { CategoryTimeSalesRecord, DailyRecord } from '@/domain/models/record'
 import type { ComparisonScope } from '@/domain/models/ComparisonScope'
+import type { CategoryDailySeries } from '@/application/hooks/categoryDaily/CategoryDailyBundle.types'
 import {
   resolveAndEnrichComparisonRange,
   type ComparisonResolvedRange,
@@ -86,8 +93,21 @@ export function buildDateRanges(input: DateRangesInput): DateRangesResult {
 // ── Period Aggregates ──
 
 export interface PeriodAggregatesInput {
+  /**
+   * Shapley 5-factor decomposition 用 leaf-grain 入力 (intentional permanent floor)。
+   * `CategoryDailySeries` は dept 単位のため `dept|line|klass` key を必要とする
+   * `decomposePriceMix` に渡せない。Phase 6.5 Step B scope 外。
+   */
   readonly periodCTS: readonly CategoryTimeSalesRecord[]
+  /** Shapley 5-factor 比較期入力 (同上、intentional permanent floor) */
   readonly periodPrevCTS: readonly CategoryTimeSalesRecord[]
+  /**
+   * Phase 6.5-5b: 数量合計は `ctx.categoryDailyLane.bundle.currentSeries` から
+   * 取得する。null のときは 0 (bundle 未ロード時の flicker 回避)。
+   */
+  readonly categoryDailySeries: CategoryDailySeries | null
+  /** Phase 6.5-5b: 比較期の数量合計用 CategoryDailySeries */
+  readonly categoryDailyPrevSeries: CategoryDailySeries | null
   readonly activeCompMode: ComparisonMode
   readonly daily: ReadonlyMap<number, DailyRecord>
   readonly prevDaily: ReadonlyMap<string, { sales: number; discount: number; customers: number }>
@@ -109,14 +129,8 @@ export interface PeriodAggregatesResult {
 }
 
 export function buildPeriodAggregates(input: PeriodAggregatesInput): PeriodAggregatesResult {
-  const periodCurSales = aggregatePeriodCurSales(
-    input.periodCTS,
-    input.daily,
-    input.dayStart,
-    input.dayEnd,
-  )
+  const periodCurSales = aggregatePeriodCurSales(input.daily, input.dayStart, input.dayEnd)
   const periodPrevSales = aggregatePeriodPrevSales(
-    input.periodPrevCTS,
     input.activeCompMode,
     input.daily,
     input.prevDaily,
@@ -127,8 +141,10 @@ export function buildPeriodAggregates(input: PeriodAggregatesInput): PeriodAggre
     input.year,
     input.month,
   )
-  const curTotalQty = aggregateTotalQuantity(input.periodCTS)
-  const prevTotalQty = aggregateTotalQuantity(input.periodPrevCTS)
+  // Phase 6.5-5b: 量合計は lane 経由 (CategoryDailySeries.grandTotals.salesQty)
+  const curTotalQty = aggregateTotalQuantity(input.categoryDailySeries)
+  const prevTotalQty = aggregateTotalQuantity(input.categoryDailyPrevSeries)
+  // Shapley priceMix 分解は leaf-grain 必須 (intentional permanent floor)
   const priceMix =
     input.periodCTS.length > 0 && input.periodPrevCTS.length > 0
       ? decomposePriceMix(input.periodCTS, input.periodPrevCTS)

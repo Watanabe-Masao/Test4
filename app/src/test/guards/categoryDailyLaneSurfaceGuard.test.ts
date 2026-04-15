@@ -45,28 +45,44 @@ interface BaselineEntry {
  * ratchet-down 履歴:
  *   - Phase 6.5-1 (2026-04-15): baseline = 4 ファイル × 現状参照数
  *     (builders=3, data=5, logic=3, vm=2 → 合計 13 references)
- *   - Phase 6.5-5 実装時: 各ファイル 0 到達目標 (CategoryDailySeries 経由に移行)
+ *   - Phase 6.5-5b (2026-04-15): baseline 13 → 6
+ *     - logic.ts: 3 → 0 (未使用 _periodCTS / _periodPrevCTS dummy 引数を削除)
+ *     - vm.ts: 2 → 0 (aggregateTotalQuantity を CategoryDailySeries 経由に切替)
+ *     - data.ts: 5 → 3 (buildCategoryData を CategoryDailySeries 経由に切替、
+ *       buildFactorData は intentional floor)
+ *     - builders.ts: 3 → 3 (qty 合計は lane 経由に切替したが、priceMix の
+ *       Shapley path が intentional floor)
+ *   - 残り 6 references (data=3 + builders=3) は **intentional permanent floor**:
+ *     Shapley 5-factor decomposition (decompose5 / decomposePriceMix) は
+ *     `dept|line|klass` leaf-grain key を必要とし、dept-only の
+ *     CategoryDailySeries では代替不能。Step B scope 外の問題。
+ *     Phase 7 以降で CategoryLeafDailySeries のような leaf-grain contract を
+ *     別 phase として起こす判断は保留 (HANDOFF / inventory/05 に記録)。
  */
 const CATEGORY_DAILY_RAW_ACCESS_BASELINES: readonly BaselineEntry[] = [
   {
     path: 'presentation/pages/Dashboard/widgets/YoYWaterfallChart.builders.ts',
     maxOccurrences: 3,
-    reason: 'Phase 6.5-5 で CategoryDailySeries 経由に移行予定 (現行 builder)',
+    reason:
+      'Phase 6.5-5b: 数量合計 (curTotalQty/prevTotalQty) は CategoryDailySeries 経由に移行済み。残る 3 (import + periodCTS/periodPrevCTS interface field × 2) は decomposePriceMix の Shapley 5-factor 用 leaf-grain (dept|line|klass) 入力で、intentional permanent floor',
   },
   {
     path: 'presentation/pages/Dashboard/widgets/YoYWaterfallChart.data.ts',
-    maxOccurrences: 5,
-    reason: 'Phase 6.5-5 で CategoryDailySeries 経由に移行予定 (現行 data aggregator)',
+    maxOccurrences: 3,
+    reason:
+      'Phase 6.5-5b: buildCategoryData (dept-only waterfall) は CategoryDailySeries 経由に移行済み。残る 3 (import + buildFactorData 入力 periodCTS/periodPrevCTS × 2) は decompose5 の Shapley 5-factor 用 leaf-grain 入力で、intentional permanent floor',
   },
   {
     path: 'presentation/pages/Dashboard/widgets/YoYWaterfallChart.logic.ts',
-    maxOccurrences: 3,
-    reason: 'Phase 6.5-5 で CategoryDailySeries 経由に移行予定 (現行 Shapley logic)',
+    maxOccurrences: 0,
+    reason:
+      'Phase 6.5-5b: 未使用だった _periodCTS / _periodPrevCTS dummy 引数を削除し、CTS raw 型 import を廃止。完全 0 到達',
   },
   {
     path: 'presentation/pages/Dashboard/widgets/YoYWaterfallChart.vm.ts',
-    maxOccurrences: 2,
-    reason: 'Phase 6.5-5 で CategoryDailySeries 経由に移行予定 (現行 VM orchestration)',
+    maxOccurrences: 0,
+    reason:
+      'Phase 6.5-5b: aggregateTotalQuantity を CategoryDailySeries.grandTotals.salesQty 経由に切替、CTS raw 型 import を廃止。完全 0 到達',
   },
 ]
 

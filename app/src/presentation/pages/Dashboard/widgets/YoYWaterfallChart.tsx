@@ -128,12 +128,19 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
   const periodCTS = plan.currentRecords
   const periodPrevCTS = plan.comparisonRecords
 
+  // Phase 6.5-5b: 数量合計は categoryDailyLane bundle から取得する。
+  // priceMix 分解は leaf-grain 必須 (Shapley 5-factor) のため CTS を継続利用。
+  const categoryDailySeries = ctx.categoryDailyLane?.bundle.currentSeries ?? null
+  const categoryDailyPrevSeries = ctx.categoryDailyLane?.bundle.comparisonSeries ?? null
+
   // ── CTS から売上・数量・Price/Mix を一括導出（5→1 useMemo に集約） ──
   const agg = useMemo(
     () =>
       buildPeriodAggregates({
         periodCTS,
         periodPrevCTS,
+        categoryDailySeries,
+        categoryDailyPrevSeries,
         activeCompMode,
         daily: r.daily,
         prevDaily: prevYear.daily,
@@ -147,6 +154,8 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
     [
       periodCTS,
       periodPrevCTS,
+      categoryDailySeries,
+      categoryDailyPrevSeries,
       activeCompMode,
       r.daily,
       prevYear.daily,
@@ -210,12 +219,12 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
     ],
   )
 
-  // Category-based decomposition data
+  // Category-based decomposition data — Phase 6.5-5b で CategoryDailySeries 経由に移行
   const categoryData = useMemo(
     () =>
       buildCategoryData({
-        periodCTS,
-        periodPrevCTS,
+        categoryDailySeries,
+        categoryDailyPrevSeries,
         hasComparison,
         prevSales,
         curSales,
@@ -223,8 +232,8 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
         curLabel: labels.curLabel,
       }),
     [
-      periodCTS,
-      periodPrevCTS,
+      categoryDailySeries,
+      categoryDailyPrevSeries,
       hasComparison,
       prevSales,
       curSales,

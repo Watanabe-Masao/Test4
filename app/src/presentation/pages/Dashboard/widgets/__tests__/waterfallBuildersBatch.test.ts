@@ -254,11 +254,24 @@ describe('buildPeriodAggregates', () => {
     } as unknown as DailyRecord
   }
 
-  it('空 periodCTS/periodPrevCTS → curTotalQty=0, priceMix=null', () => {
+  // Phase 6.5-5b: 数量合計は CategoryDailySeries.grandTotals.salesQty 経由に
+  // 切替。priceMix は Shapley leaf-grain のため CTS を継続利用する
+  // (intentional permanent floor)。
+  function makeSeriesWithQty(salesQty: number) {
+    return {
+      entries: [],
+      grandTotals: { sales: 0, customers: 0, salesQty },
+      dayCount: 0,
+    }
+  }
+
+  it('空 categoryDailySeries + 空 CTS → curTotalQty=0, priceMix=null', () => {
     const daily = new Map([[1, makeDaily(1, 1000, 100)]])
     const result = buildPeriodAggregates({
       periodCTS: [],
       periodPrevCTS: [],
+      categoryDailySeries: null,
+      categoryDailyPrevSeries: null,
       activeCompMode: 'yoy',
       daily,
       prevDaily: new Map(),
@@ -275,11 +288,13 @@ describe('buildPeriodAggregates', () => {
     expect(result.hasQuantity).toBe(false)
   })
 
-  it('両 CTS 有 → hasQuantity=true + priceMix 有', () => {
+  it('両 series 有 + 両 CTS 有 → hasQuantity=true + priceMix 有', () => {
     const daily = new Map([[1, makeDaily(1, 1000, 100)]])
     const result = buildPeriodAggregates({
       periodCTS: [makeCts(10, 1000)],
       periodPrevCTS: [makeCts(10, 800)],
+      categoryDailySeries: makeSeriesWithQty(10),
+      categoryDailyPrevSeries: makeSeriesWithQty(10),
       activeCompMode: 'yoy',
       daily,
       prevDaily: new Map(),

@@ -5,6 +5,7 @@ import { decompose2, decompose3, decompose5 } from '@/application/hooks/calculat
 import { calculateShare } from '@/domain/calculations/utils'
 import { recordsToCategoryQtyAmt } from './categoryFactorUtils'
 import type { CategoryTimeSalesRecord } from '@/domain/models/record'
+import type { CategoryDailySeries } from '@/application/hooks/categoryDaily/CategoryDailyBundle.types'
 
 export interface WaterfallItem {
   name: string
@@ -172,9 +173,17 @@ export function buildFactorData(p: FactorDataParams): WaterfallItem[] {
 /*  buildCategoryData — 部門別増減ウォーターフォールデータ構築          */
 /* ------------------------------------------------------------------ */
 
+/**
+ * Phase 6.5-5b: `buildCategoryData` の入力を `CategoryDailySeries` (dept-grain
+ * projection) に切替。従来の `periodCTS[]` による dept 単位集約は projection
+ * 側で完了しているため、entries を直接消費する形に簡素化される。
+ *
+ * Shapley 5-factor (leaf-grain) ではなく dept-only ウォーターフォールなので、
+ * 本関数は `CategoryDailySeries` の範囲で完結する。
+ */
 interface CategoryDataParams {
-  readonly periodCTS: readonly CategoryTimeSalesRecord[]
-  readonly periodPrevCTS: readonly CategoryTimeSalesRecord[]
+  readonly categoryDailySeries: CategoryDailySeries | null
+  readonly categoryDailyPrevSeries: CategoryDailySeries | null
   readonly hasComparison: boolean
   readonly prevSales: number
   readonly curSales: number
@@ -193,33 +202,33 @@ export interface CategoryDataResult {
 
 export function buildCategoryData(p: CategoryDataParams): CategoryDataResult {
   const EMPTY: CategoryDataResult = { items: [], residual: 0, residualPct: 0 }
-  if (p.periodCTS.length === 0 || p.periodPrevCTS.length === 0) return EMPTY
+  const cur = p.categoryDailySeries
+  const prev = p.categoryDailyPrevSeries
+  if (!cur || !prev || cur.entries.length === 0 || prev.entries.length === 0) return EMPTY
   if (!p.hasComparison || p.prevSales <= 0) return EMPTY
 
-  // Aggregate by department (CTS由来)
+  // Phase 6.5-5b: projection が既に dept 単位で totals を持つので直接 Map 化
   const curDepts = new Map<string, { name: string; amount: number }>()
-  for (const rec of p.periodCTS) {
-    const code = rec.department.code
-    const ex = curDepts.get(code) ?? { name: rec.department.name || code, amount: 0 }
-    ex.amount += rec.totalAmount
-    curDepts.set(code, ex)
+  for (const entry of cur.entries) {
+    curDepts.set(entry.deptCode, {
+      name: entry.deptName || entry.deptCode,
+      amount: entry.totals.sales,
+    })
   }
 
   const prevDepts = new Map<string, { name: string; amount: number }>()
-  for (const rec of p.periodPrevCTS) {
-    const code = rec.department.code
-    const ex = prevDepts.get(code) ?? { name: rec.department.name || code, amount: 0 }
-    ex.amount += rec.totalAmount
-    prevDepts.set(code, ex)
+  for (const entry of prev.entries) {
+    prevDepts.set(entry.deptCode, {
+      name: entry.deptName || entry.deptCode,
+      amount: entry.totals.sales,
+    })
   }
 
-  // CTS由来の合計をアンカーに使う（データソース統一で調整不要）
-  let ctsPrevTotal = 0
-  for (const d of prevDepts.values()) ctsPrevTotal += d.amount
-  let ctsCurTotal = 0
-  for (const d of curDepts.values()) ctsCurTotal += d.amount
+  // lane grandTotals をアンカーに使う (projection で事前計算済み)
+  const ctsPrevTotal = prev.grandTotals.sales
+  const ctsCurTotal = cur.grandTotals.sales
 
-  // CTS データが空に近い場合は r.daily にフォールバック
+  // lane データが空に近い場合は r.daily ベースの prevSales/curSales にフォールバック
   const anchorPrev = ctsPrevTotal > 0 ? ctsPrevTotal : p.prevSales
   const anchorCur = ctsCurTotal > 0 ? ctsCurTotal : p.curSales
 

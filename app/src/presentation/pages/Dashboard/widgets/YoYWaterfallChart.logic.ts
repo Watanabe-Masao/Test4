@@ -6,8 +6,11 @@
  * unify-period-analysis Phase 2: 比較先 DateRange 計算は
  * `domain/models/comparisonRangeResolver.ts` に集約された。本ファイルからは
  * `calculatePrevCtsDateRange` を削除し、builders 側で resolver を直接呼ぶ。
+ *
+ * Phase 6.5-5b: 未使用だった `_periodCTS` / `_periodPrevCTS` dummy 引数を
+ * 削除し、CTS raw 型 import を廃止 (売上の正本は daily /
+ * prevDaily であり CTS は使用していなかった)。
  */
-import type { CategoryTimeSalesRecord } from '@/domain/models/record'
 import type { DailyRecord } from '@/domain/models/record'
 import type { ComparisonMode } from './types'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
@@ -19,7 +22,6 @@ import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
  * CTS はカテゴリ別内訳専用であり、売上合計には使用しない。
  */
 export function aggregatePeriodCurSales(
-  _periodCTS: readonly CategoryTimeSalesRecord[],
   daily: ReadonlyMap<number, DailyRecord>,
   dayStart: number,
   dayEnd: number,
@@ -42,7 +44,6 @@ export function aggregatePeriodCurSales(
  * CTS はカテゴリ別内訳専用であり、売上合計には使用しない。
  */
 export function aggregatePeriodPrevSales(
-  _periodPrevCTS: readonly CategoryTimeSalesRecord[],
   activeCompMode: ComparisonMode,
   daily: ReadonlyMap<number, DailyRecord>,
   prevDaily: ReadonlyMap<string, { sales: number; discount: number; customers: number }>,
