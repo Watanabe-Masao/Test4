@@ -26,10 +26,31 @@ infra query
 | builder | `application/readModels/salesFact/readSalesFact.ts` | `buildSalesFactReadModel()` — 集約 + Zod parse |
 | 配布 | `useWidgetDataOrchestrator` | `UnifiedWidgetContext.readModels` 経由 |
 
+**具体例: 自由期間ファクト（unify-period-analysis Phase 3 で明文化）**
+
+自由期間分析系（売上 / 予算 / 部門 KPI）は chart 共通入力として
+`FreePeriodReadModel` を正本とし、`ctx.freePeriodLane.bundle` 経由で
+widget に配布される。
+
+| ステップ | ファイル | 責務 |
+|----------|---------|------|
+| 入力契約 | `domain/models/buildFreePeriodFrame.ts` | `PeriodSelection → FreePeriodAnalysisFrame` adapter |
+| infra query | `infrastructure/duckdb/queries/freePeriodFactQueries.ts` | `queryFreePeriodDaily()` — 日別×店舗 raw rows |
+| handler | `application/queries/freePeriodHandler.ts` | orchestration（**唯一の caller**） |
+| builder | `application/readModels/freePeriod/readFreePeriodFact.ts` | `buildFreePeriodReadModel()` + `computeFreePeriodSummary()` + Zod parse |
+| bundle | `application/hooks/useFreePeriodAnalysisBundle.ts` | 1 frame → 3 readModel (fact / budget / deptKPI) |
+| 配布 | `useUnifiedWidgetContext` | `ctx.freePeriodLane = { frame, bundle }` |
+| 消費 | widget / chart | `FreePeriodReadModel` 1 オブジェクトを読む（raw rows を直接解釈しない） |
+
+関連定義: `references/01-principles/free-period-analysis-definition.md`
+関連ガード: `freePeriodPathGuard` / `freePeriodHandlerOnlyGuard`
+
 **原則:**
 - handler は取得手順を管理する。業務意味論を持ち込まない
-- builder は pure function。infra への依��を持たない
+- builder は pure function。infra への依存を持たない
 - readModel に guard（`*PathGuard.test.ts`）と定義書（`references/01-principles/*-definition.md`）を対にする
+- **自由期間系は `FreePeriodReadModel` が chart 共通入力**。`FreePeriodDailyRow[]`
+  を presentation / chart に渡す経路を作らない
 
 ### 2. Screen Plan lane（画面固有の取得・比較を束ねる経路）
 

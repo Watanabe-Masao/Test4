@@ -10,6 +10,7 @@
 | `app/src/test/guards/presentationIsolationGuard.test.ts` | architecture | 13件 | Presentation制約、CQRS境界、DuckDB Migration、Q3 enforcement |
 | `app/src/test/guards/presentationPeriodStoreAccessGuard.test.ts` | architecture | 4件 | presentation 層からの periodSelectionStore 直接 import を allowlist 管理（unify-period-analysis Phase 1） |
 | `app/src/test/guards/presentationComparisonMathGuard.test.ts` | architecture | 4件 | presentation 層での比較先日付独自計算 (`year - 1` / `subYears` 等) を禁止し domain resolver 経由を強制（unify-period-analysis Phase 2） |
+| `app/src/test/guards/freePeriodHandlerOnlyGuard.test.ts` | architecture | 7件 | 自由期間取得経路の唯一性: `queryFreePeriodDaily` の caller を `freePeriodHandler.ts` のみに制限 + `FreePeriodDailyRow` の presentation 禁止（unify-period-analysis Phase 3） |
 | `app/src/test/guards/structuralConventionGuard.test.ts` | architecture | 7件 | 縦スライス、プロトタイプ、バレル移行、ctx重複 |
 | `app/src/domain/calculations/__tests__/calculationRules.test.ts` | invariant-guardian | 7件 | safeDivide, calculateTransactionValue, overflowDay, fmtSen, formatPercent, toPct |
 | `app/src/presentation/components/charts/__tests__/divisorRules.test.ts` | invariant-guardian | 8件 | computeDivisor, filterByStore, countDistinctDays, 正規ロケーション, 網羅性 |

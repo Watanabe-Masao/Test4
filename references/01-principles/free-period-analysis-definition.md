@@ -51,20 +51,48 @@ FreePeriodReadModel {
 }
 ```
 
-## パイプライン
+## パイプライン（唯一経路）
 
 ```
 PeriodSelection + storeIds
-  ↓ buildFreePeriodFrame()
+  ↓ buildFreePeriodFrame()                                     [domain/models]
 FreePeriodAnalysisFrame { anchorRange, storeIds, comparison }
-  ↓ useFreePeriodAnalysis(executor, frame)
+  ↓ useFreePeriodAnalysisBundle(executor, frame)               [application/hooks]
     ↓ FreePeriodQueryInput (dateFrom/dateTo/storeIds/comparison)
-    ↓ freePeriodHandler → readFreePeriodFact()
-      ↓ DuckDB SQL
-      ↓ computeFreePeriodSummary (pure JS)
+    ↓ freePeriodHandler                                         [application/queries]
+      ↓ queryFreePeriodDaily()                                  [infrastructure/duckdb/queries/freePeriodFactQueries]
+      ↓ buildFreePeriodReadModel(currentRows, comparisonRows)   [application/readModels/freePeriod/readFreePeriodFact]
+        ↓ computeFreePeriodSummary (pure JS)                    [同上]
 FreePeriodReadModel
-  ↓ UI consumption
+  ↓ ctx.freePeriodLane.bundle（unify-period-analysis Phase 1 以降）
+  ↓ widget / chart が消費
 ```
+
+## 唯一経路ルール（Phase 3 で明文化）
+
+自由期間データの各責務は **1 ファイル 1 関数** に正本化されており、他の経路で
+同じ責務を果たすことを禁止する:
+
+| 責務 | 唯一の実装 | 禁止 |
+|------|-----------|------|
+| 取得 orchestration | `application/queries/freePeriodHandler.ts` | hook / vm / chart / plan が自前で `queryFreePeriodDaily` を呼ぶ |
+| infra query | `infrastructure/duckdb/queries/freePeriodFactQueries.ts` (`queryFreePeriodDaily`) | `freePeriodHandler.ts` 以外から import する |
+| read model 構築 | `application/readModels/freePeriod/readFreePeriodFact.ts` (`buildFreePeriodReadModel`) | 同一シグネチャの並行 builder を別所に置く |
+| 期間サマリー計算 | `application/readModels/freePeriod/readFreePeriodFact.ts` (`computeFreePeriodSummary`) | presentation / VM / chart が raw rows を再集約する |
+| 入力 frame 構築 | `domain/models/buildFreePeriodFrame.ts` | presentation で `FreePeriodAnalysisFrame` を手組みする |
+
+chart / widget の **共通入力**は `FreePeriodReadModel` であり、raw 行
+(`FreePeriodDailyRow[]`) を presentation / chart に直接渡してはならない。
+`presentation/` は `ctx.freePeriodLane.bundle.fact`（= `FreePeriodReadModel`）を
+読むことで取得・集計・比較・メタデータを一式で受け取る。
+
+関連ガード（G3 群）:
+
+- `freePeriodPathGuard.test.ts` — presentation 層からの `readFreePeriodFact` /
+  `freePeriodHandler` / `freePeriodFactQueries` 直接 import を禁止
+- `freePeriodHandlerOnlyGuard.test.ts`（Phase 3 で追加）— `queryFreePeriodDaily`
+  は `freePeriodHandler.ts` + test/audit allowlist 以外から呼ばせない。
+  `FreePeriodDailyRow` の直接 import も presentation では禁止（raw rows の漏出防止）
 
 ## 入力契約
 

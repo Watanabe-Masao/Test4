@@ -64,11 +64,11 @@
 > （`inventory/02-*.md` 該当 0 件）。Phase 3 は実装コード移行ではなく、
 > 状態の明文化と G3 ガード追加に縮退する。
 
-* [ ] plan.md / free-period-analysis-definition.md / architectureRules で `freePeriodHandler` が自由期間取得 orchestration の唯一経路であることを明文化する
-* [ ] plan.md / free-period-analysis-definition.md で `readFreePeriodFact()` が取得の唯一経路であることを明文化する
-* [ ] `computeFreePeriodSummary()` が期間サマリー計算の唯一経路であることを明文化する
-* [ ] `FreePeriodReadModel` を chart 共通入力として `runtime-data-path.md` で位置づける
-* [ ] `readFreePeriodFact()` 以外の自由期間取得経路を禁止するガード（G3 `freePeriodHandlerOnly` / `noRawFreePeriodRowsToPresentation`）を追加する
+* [x] plan.md / free-period-analysis-definition.md / architectureRules で `freePeriodHandler` が自由期間取得 orchestration の唯一経路であることを明文化する（`free-period-analysis-definition.md` §唯一経路ルール）
+* [x] plan.md / free-period-analysis-definition.md で `readFreePeriodFact()` が取得の唯一経路であることを明文化する（同上。実体は `buildFreePeriodReadModel` を唯一経路として明文化）
+* [x] `computeFreePeriodSummary()` が期間サマリー計算の唯一経路であることを明文化する（同 section に記載）
+* [x] `FreePeriodReadModel` を chart 共通入力として `runtime-data-path.md` で位置づける（`runtime-data-path.md` §具体例: 自由期間ファクト を追加。`ctx.freePeriodLane.bundle.fact` が chart 共通入力である旨を記載）
+* [x] `readFreePeriodFact()` 以外の自由期間取得経路を禁止するガード（G3 `freePeriodHandlerOnly` / `noRawFreePeriodRowsToPresentation`）を追加する（`freePeriodHandlerOnlyGuard.test.ts` を新設。`queryFreePeriodDaily` の caller を `freePeriodHandler.ts` のみに制限 + `FreePeriodDailyRow` の presentation 直接 import を禁止、各々 ratchet-down）
 
 ## Phase 4: 率計算・集約責務整理
 
