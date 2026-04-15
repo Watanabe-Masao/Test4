@@ -7,14 +7,16 @@
  */
 /**
  * @migration P5: plan hook 経由に移行済み（旧: useDuckDBStoreDaySummary 直接 import）
+ * @migration unify-period-analysis Phase 6 Step D: presentation 側での
+ *            日別再集計 / toDateKeyFromParts ad hoc 組み立てを
+ *            features/weather/application/projections/buildDailySalesProjection.ts
+ *            に移管。本 component は helper を呼ぶだけ
  */
 import { useMemo, memo } from 'react'
 import styled from 'styled-components'
 import type { DailyWeatherSummary } from '@/domain/models/record'
-import type { DailySalesForCorrelation } from '@/application/hooks/useWeatherCorrelation'
-import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import { buildBaseQueryInput } from '@/application/hooks/plans/buildBaseQueryInput'
-import { useWeatherAnalysisPlan } from '@/features/weather'
+import { useWeatherAnalysisPlan, buildDailySalesProjection } from '@/features/weather'
 import type { DuckQueryContext } from './SubAnalysisPanel'
 import { WeatherCorrelationChart } from './WeatherCorrelationChart'
 
@@ -36,27 +38,14 @@ export const WeatherAnalysisPanel = memo(function WeatherAnalysisPanel({
   )
 
   const { data: output } = useWeatherAnalysisPlan(queryExecutor, input)
-  const dailyRows = output?.records ?? null
 
-  const { year, month } = currentDateRange.from
-
-  const salesDaily = useMemo((): readonly DailySalesForCorrelation[] => {
-    if (!dailyRows) return []
-    // 日別に集約（複数店舗の場合）
-    const byDay = new Map<number, { sales: number; customers: number }>()
-    for (const row of dailyRows) {
-      const existing = byDay.get(row.day) ?? { sales: 0, customers: 0 }
-      existing.sales += row.sales
-      existing.customers += row.customers
-      byDay.set(row.day, existing)
-    }
-    // dateKey を 'YYYY-MM-DD' 形式に変換（weatherDaily の dateKey と一致させる）
-    return [...byDay.entries()].map(([day, v]) => ({
-      dateKey: toDateKeyFromParts(year, month, day),
-      sales: v.sales,
-      customers: v.customers,
-    }))
-  }, [dailyRows, year, month])
+  // Phase 6 Step D: 日別 sales / customers projection は helper に集約。
+  // presentation では日別再集計 / dateKey 生成を行わない
+  // (weatherCorrelationProjectionGuard で強制)。
+  const salesDaily = useMemo(
+    () => buildDailySalesProjection(output?.records ?? []),
+    [output?.records],
+  )
 
   if (!weatherDaily || weatherDaily.length === 0) {
     return (
