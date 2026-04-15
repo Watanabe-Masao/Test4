@@ -36,6 +36,12 @@
 * [x] presentation 配下からの `usePeriodSelectionStore` 直接 import を allowlist 管理化する（`presentationPeriodStoreAccessGuard` + 現状 6 件ベースライン、以後 ratchet-down のみ許可）
 * [x] `useComparisonSlice` の入口を `FreePeriodAnalysisFrame` 経由に切り替える（frame を primary 入力として受け取る。内部 comparison module の `ComparisonScope` 直接受領化は Phase 6 で完了予定）
 
+> **Phase 1 完了範囲の明示**: frame 配線は完了したが、`useComparisonSlice` の
+> 内部はまだ `useComparisonModule(periodSelection, ...)` をそのまま呼んでおり、
+> `ComparisonScope` の直接受領化は **未完 (Phase 6 管轄)**。Phase 1 は「入口の
+> frame 化」までであり「比較内部ロジックの frame-native 化」ではない。後続が
+> 「Phase 1 で比較内部ロジックも移行済み」と誤読しないよう注意。
+
 ## Phase 2: 比較解決一本化
 
 * [ ] `ComparisonScope` resolver に `sameDate` / `sameDow` / `previousPeriod` / `sameRangeLastYear` を集約する
