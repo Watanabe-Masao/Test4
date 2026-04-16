@@ -23,6 +23,10 @@ const makeResult = (overrides: Partial<ComparisonLoadResult> = {}): ComparisonLo
   prevYearClassifiedSales: { records: [] },
   prevYearCategoryTimeSales: { records: [] },
   prevYearFlowers: { records: [] },
+  prevYearPurchase: { records: [] },
+  prevYearDirectProduce: { records: [] },
+  prevYearInterStoreIn: { records: [] },
+  prevYearInterStoreOut: { records: [] },
   adjacentFlowersRecords: [],
   ...overrides,
 })

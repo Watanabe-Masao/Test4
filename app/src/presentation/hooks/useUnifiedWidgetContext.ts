@@ -181,10 +181,6 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
   // 配布する。比較期間は同 comparison scope を流用。
   const categoryDailyFrame = useMemo<CategoryDailyFrame | null>(() => {
     if (!currentResult) return null
-    // DEBUG: comparison.scope の状態をログ
-    console.debug('[categoryDailyFrame] build:', {
-      hasComparisonScope: comparison.scope != null,
-    })
     return {
       dateRange: {
         from: { year: targetYear, month: targetMonth, day: 1 },

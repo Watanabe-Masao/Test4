@@ -13,6 +13,8 @@ import type {
   CategoryTimeSalesRecord,
   SpecialSalesData,
   SpecialSalesDayEntry,
+  PurchaseData,
+  TransferData,
 } from '@/domain/models/record'
 import type { QueryMonth } from '@/domain/models/ComparisonScope'
 import type { LoadAction } from './comparisonLoadLogic'
@@ -25,6 +27,10 @@ export interface ComparisonLoadResult {
   readonly prevYearClassifiedSales: { records: ClassifiedSalesRecord[] }
   readonly prevYearCategoryTimeSales: { records: CategoryTimeSalesRecord[] }
   readonly prevYearFlowers: SpecialSalesData
+  readonly prevYearPurchase: PurchaseData
+  readonly prevYearDirectProduce: SpecialSalesData
+  readonly prevYearInterStoreIn: TransferData
+  readonly prevYearInterStoreOut: TransferData
   /** 隣接月の花レコード（リナンバリングなし、flowersFullIndex 構築用） */
   readonly adjacentFlowersRecords: readonly SpecialSalesDayEntry[]
 }
@@ -160,6 +166,28 @@ export async function loadComparisonDataAsync(
     ...(prevNextFlowers?.records ?? []),
   ]
 
+  // 仕入・直売・移動データ — source month のみ（隣接月マージ不要）
+  const prevPurchase = await repo.loadDataSlice<PurchaseData>(sourceYear, sourceMonth, 'purchase')
+  if (isCancelled()) return null
+  const prevDirectProduce = await repo.loadDataSlice<SpecialSalesData>(
+    sourceYear,
+    sourceMonth,
+    'directProduce',
+  )
+  if (isCancelled()) return null
+  const prevInterStoreIn = await repo.loadDataSlice<TransferData>(
+    sourceYear,
+    sourceMonth,
+    'interStoreIn',
+  )
+  if (isCancelled()) return null
+  const prevInterStoreOut = await repo.loadDataSlice<TransferData>(
+    sourceYear,
+    sourceMonth,
+    'interStoreOut',
+  )
+  if (isCancelled()) return null
+
   dispatch({
     type: 'success',
     requestedRanges: ranges,
@@ -170,6 +198,10 @@ export async function loadComparisonDataAsync(
     prevYearClassifiedSales: { records: mergedCSRecords },
     prevYearCategoryTimeSales: { records: mergedCTSRecords },
     prevYearFlowers: prevFlowers ?? { records: [] },
+    prevYearPurchase: prevPurchase ?? { records: [] },
+    prevYearDirectProduce: prevDirectProduce ?? { records: [] },
+    prevYearInterStoreIn: prevInterStoreIn ?? { records: [] },
+    prevYearInterStoreOut: prevInterStoreOut ?? { records: [] },
     adjacentFlowersRecords,
   }
 }
@@ -186,6 +218,10 @@ export function comparisonResultToMonthlyData(
     classifiedSales: result.prevYearClassifiedSales,
     categoryTimeSales: result.prevYearCategoryTimeSales,
     flowers: result.prevYearFlowers,
+    purchase: result.prevYearPurchase,
+    directProduce: result.prevYearDirectProduce,
+    interStoreIn: result.prevYearInterStoreIn,
+    interStoreOut: result.prevYearInterStoreOut,
   }
 }
 
