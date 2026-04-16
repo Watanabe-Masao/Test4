@@ -11,10 +11,13 @@
    は wrapper として残し、既存 3 caller
    (`useComparisonSlice` / `usePageComparisonModule` / test) が動作継続する
 3. **`PeriodSelection` 知識の集約点は 1 つ** — `buildComparisonProjectionContext`
-   のみが `PeriodSelection` を import する。`comparison` feature 内部は
-   すべて最小 contract 経由
+   のみが `PeriodSelection` を import する。`features/comparison/` 内部は
+   すべて最小 contract 経由。旧 signature の wrapper は
+   `app/src/application/hooks/` 側に置くことで feature 内部の invariant を
+   完全に守る (§wrapper 配置方針 参照)
 4. **最小面徹底** — `ComparisonProjectionContext` は `PeriodSelection` の
-   sub-fields を薄くコピーするのではなく、projection で必要な数個のみを抽出する
+   sub-fields を薄くコピーするのではなく、projection で必要な数個のみを抽出する。
+   field creep を機械的に防ぐため guard を併設する
 5. **Step B permanent floor を動かさない** — `storeDailyLaneSurfaceGuard` /
    `categoryDailyLaneSurfaceGuard` の baseline 縮退は本 phase の scope 外
 
@@ -32,38 +35,59 @@
 
 **棚卸し項目** (現行 `buildKpiProjection` 内の `periodSelection.*` 参照):
 - `periodSelection.period1.from.year` / `period1.from.month`
-  → **必要** (basisMonth として保持)
+  → **必要** (basisMonth として保持。fullMonthPeriod1 の構築に使用)
 - `periodSelection.period2`
-  → **必要** (sameDow / sameDate scope 再構築の入力)
+  → **必要** (sameDow / sameDate scope 再構築で `applyPreset()` の入力)
 - `periodSelection.activePreset`
-  → **必要** (buildComparisonScope に渡す)
+  → **不要** (2026-04-16 再監査済み)。現行 `buildKpiProjection` は `activePreset`
+    を `prevYearSameDow` / `prevYearSameMonth` に**上書き**して
+    `buildComparisonScope` に渡しており、元の `periodSelection.activePreset`
+    を参照していない。context に含めると最小面違反になる
+- `periodSelection` spread → `buildComparisonScope({...periodSelection, ...})`
+  → **要注意** — spread で渡している残余 fields のうち、`buildComparisonScope`
+    が内部で実際に消費する sub-fields の洗い出しが O4 の実装で必要。
+    ただし `buildComparisonScope` の signature 自体は本 phase では触らない
 - `periodSelection.comparisonEnabled` / その他
-  → **不要** (scope は externalScope で既に解決されているため)
+  → **不要** (scope は externalScope で既に解決されているため。
+    `comparisonEnabled` は `useComparisonModule` 側の disable-path であり
+    `buildKpiProjection` の責務ではない)
 
 **完了条件**:
 - 型の全フィールドに JSDoc で「なぜ必要か」を明記
 - `PeriodSelection` の全フィールドを薄くコピーした形になっていない
 
-### Phase O2 — pure builder 追加
+### Phase O2 — pure builder + import guard 追加
 
 **目的**: `PeriodSelection → ComparisonProjectionContext` の唯一の構築経路を
-作る。
+作り、それを **guard で機械的に保証** する。
 
 **成果物**:
 - `app/src/features/comparison/application/buildComparisonProjectionContext.ts`
   (pure function)
 - 単体 test (空ケース + 典型ケース 3-5 件)
+- `comparisonProjectionContextImportGuard.test.ts` — `features/comparison/application/**`
+  配下での `PeriodSelection` import を禁止。allowlist は
+  `buildComparisonProjectionContext.ts` の 1 ファイルのみ
+- `comparisonProjectionContextFieldGuard.test.ts` — `ComparisonProjectionContext`
+  の field creep 防止。key 数上限 + 許可フィールド名 snapshot +
+  `PeriodSelection` と同名の大きい塊を持ち込み禁止
 
 **配置根拠**: `features/comparison/application/` 配下に置くことで、この
 builder が feature 内で唯一 `PeriodSelection` を import する境界点になる。
+手作業確認ではなく guard で再発を防ぐ。
 
 **完了条件**:
 - builder が存在し、単体 test が green
+- import guard が green (allowlist 1 件のみ)
+- field guard が green
 - `buildKpiProjection` からはまだ使われていない (parallel 状態)
 
-### Phase O3 — parity test 先行
+### Phase O3 — parity test 先行 (buildKpiProjection のみ)
 
 **目的**: 実装変更の前に期待値を凍結する (Step B / Step C と同じ順序)。
+**注意**: `comparisonEnabled=false` や `scope === null` の idle-path は
+`buildKpiProjection` の責務ではなく `useComparisonModule` 側の責務。
+disable-path の regression は Phase O5 で別途検証する。
 
 **成果物**:
 - `app/src/features/comparison/application/__tests__/buildKpiProjection.parity.test.ts`
@@ -77,13 +101,22 @@ builder が feature 内で唯一 `PeriodSelection` を import する境界点に
 4. `sourceYear` / `sourceMonth` / `dowOffset` の一致
 5. `buildDowGapProjection` 出力の一致 (kpi を入力とするため連鎖で検証)
 
-**fixture matrix**:
+**fixture matrix** (8 ケース):
 - 典型月 (月内 31 日、fullMonth データ揃い)
 - 月跨ぎ (前月末〜当月頭)
 - 年跨ぎ (12 月 → 1 月)
 - sameDow / sameDate 両方のルート
-- comparisonEnabled=false (空結果)
+- **elapsedDays cap 月** — 当期 `period1` が月途中で切れている状態で、
+  `fullMonthPeriod1` への拡張が正しく動作することの検証。
+  `buildKpiProjection` が壊しやすい最重要ケース
+- **2 月 / leap year (29 日)** — 28→29 日の月末境界で fullMonth 再構築の
+  正確性を検証
 - 複数店舗 / 単一店舗
+
+**除外 (O3 scope 外)**:
+- `comparisonEnabled=false` → O5 disable-path regression で検証
+- `scope === null` の idle status → O5 disable-path regression で検証
+- wrapper と core の出力一致 → O5 regression で検証
 
 **完了条件**:
 - 全 parity test が現行 signature で green
@@ -120,13 +153,30 @@ refactor し、`comparisonProjections.ts` から `PeriodSelection` import を削
 **目的**: `useComparisonModule` の core 経路を `PeriodSelection` 非依存にし、
 旧 signature を互換 wrapper として残す。
 
+#### wrapper 配置方針
+
+**方針**: 旧 signature の wrapper は `features/comparison/` の**外側**
+(`app/src/application/hooks/useComparisonModule.ts`) に配置する。
+
+**理由**: 不可侵原則 3「`PeriodSelection` 知識の集約点は 1 つ」との整合。
+wrapper は `buildComparisonProjectionContext(periodSelection)` を呼ぶため
+`PeriodSelection` を型として import する。これを `features/comparison/` 内部に
+残すと、O2 の import guard (allowlist = builder 1 ファイルのみ) が崩れる。
+
+現行 `app/src/application/hooks/useComparisonModule.ts` は pure re-export のみ
+なので、ここを legacy facade の受け皿にするのが自然。`features/comparison/`
+内部には core hook だけが残り、`PeriodSelection` を知らない状態が完全に維持される。
+
 **成果物**:
-- `useComparisonModuleCore({ scope, projectionContext, currentAverageDailySales })`
-  (新 hook)
-- 旧 `useComparisonModule(periodSelection, elapsedDays, currentAverageDailySales, externalScope?)`
-  を wrapper 化:
+- `features/comparison/application/hooks/useComparisonModuleCore.ts`
+  (新 core hook: `{ scope, projectionContext, currentAverageDailySales }`)
+- `features/comparison/application/hooks/useComparisonModule.ts` を
+  core hook の re-export のみに縮退 (旧 signature は削除)
+- `app/src/application/hooks/useComparisonModule.ts` を legacy wrapper に書き換え:
 
   ```ts
+  // Legacy facade — features/ 外で PeriodSelection を受け、
+  // buildComparisonProjectionContext で最小 contract に変換して core に委譲
   export function useComparisonModule(
     periodSelection: PeriodSelection,
     elapsedDays: number | undefined,
@@ -146,10 +196,25 @@ refactor し、`comparisonProjections.ts` から `PeriodSelection` import を削
   }
   ```
 
+#### disable-path regression (O3 から分離)
+
+O3 は `buildKpiProjection` の pure 関数 parity のみを凍結する。
+一方、以下の disable-path / idle-path は `useComparisonModule` 側の責務であり、
+O5 で wrapper/core 分離の regression として別途検証する:
+
+- `externalScope === undefined` のとき内部で `buildComparisonScope` 構築
+- `externalScope === null` のとき比較無効 (scope=null)
+- `!periodSelection.comparisonEnabled` のとき idle status / dailyDefault / kpiDefault
+- wrapper 経由と core 直接呼び出しの出力一致
+
 **完了条件**:
 - core hook が `periodSelection` を引数に取らない
+- core hook が `features/comparison/` 内に存在し、`PeriodSelection` を import しない
+- legacy wrapper が `app/src/application/hooks/` に存在する
 - 既存 3 caller が全て wrapper 経由で動作継続
+- disable-path regression test が green
 - `useComparisonModuleLegacyCallerGuard` baseline 0 維持
+- O2 の import guard が依然 green (features/ 内 allowlist = builder 1 件のまま)
 
 ### Phase O6 — primary caller の最小移行
 
@@ -197,13 +262,21 @@ phase の安全網として残す。
 
 ## やってはいけないこと
 
-- **`PeriodSelection` を部分コピーした大きい型を作る** → 最小面の意図が壊れる
+- **`PeriodSelection` を部分コピーした大きい型を作る** → 最小面の意図が壊れる。
+  field creep guard で機械的に防ぐ
+- **`activePreset` を `ComparisonProjectionContext` に含める** → 現行コードは
+  `prevYearSameDow` / `prevYearSameMonth` に上書きしており元値は不要 (O1 再監査済み)
+- **旧 signature wrapper を `features/comparison/` 内に置く** → 「唯一 import
+  原則」が崩れる。wrapper は `app/src/application/hooks/` 側に寄せる
 - **全 caller を一斉に新 core に移行する** → optional phase の scope 超過。
   wrapper 温存で十分
 - **`buildComparisonScope` の signature を触る** → comparison subsystem の
   外側への波及。本 phase では呼び出し側の入力だけを薄くする
 - **parity test を後回しにする** → 意味の subtle な変更を検出できない。
   Step B の失敗パターンを繰り返さない
+- **O3 parity に disable-path (comparisonEnabled=false) を混ぜる** →
+  `buildKpiProjection` は projection pure 関数であり disable-path は
+  `useComparisonModule` 側の責務。テスト境界を混ぜると失敗原因が不明瞭になる
 - **`PeriodSelection` store 自体を改変する** → UI 層影響範囲外
 - **Step B permanent floor を動かす** → 別 phase の領域
 

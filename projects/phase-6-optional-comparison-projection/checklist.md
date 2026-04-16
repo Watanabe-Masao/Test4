@@ -12,15 +12,18 @@
 * [ ] `app/src/features/comparison/application/ComparisonProjectionContext.ts` を新設する (型定義のみ、実装なし)
 * [ ] `ComparisonProjectionContext` の全フィールドに JSDoc で「なぜ必要か」を明記する
 * [ ] `PeriodSelection` を薄くコピーした形になっていないことを確認する (`PeriodSelection` からの必要 sub-fields のみを抽出)
-* [ ] `buildKpiProjection` 内の `periodSelection.*` 参照箇所を棚卸しして本ファイルで説明した通りのフィールドのみを抽出対象としている
+* [ ] `activePreset` を `ComparisonProjectionContext` に含めていないことを確認する (再監査済み: 現行コードは上書きしており元値不要)
+* [ ] `buildKpiProjection` 内の `periodSelection.*` 参照箇所を棚卸しして plan.md O1 記載のフィールドのみを抽出対象としている
 
-## Phase O2: pure builder 追加
+## Phase O2: pure builder + import guard 追加
 
 * [ ] `app/src/features/comparison/application/buildComparisonProjectionContext.ts` を新設し `PeriodSelection → ComparisonProjectionContext` の pure 関数として実装する
 * [ ] 単体テスト (空ケース + 典型ケース 3 件以上) を追加し green で通す
-* [ ] 本 builder が `comparison` feature 内で唯一 `PeriodSelection` を import する経路であることを確認する
+* [ ] `comparisonProjectionContextImportGuard.test.ts` を新設する (`features/comparison/application/**` 配下での `PeriodSelection` import を禁止、allowlist = `buildComparisonProjectionContext.ts` の 1 ファイルのみ)
+* [ ] `comparisonProjectionContextFieldGuard.test.ts` を新設する (`ComparisonProjectionContext` の key 数上限 + 許可フィールド名 snapshot + PeriodSelection と同名の大きい塊禁止)
+* [ ] import guard と field guard が green で通ること
 
-## Phase O3: parity test 先行
+## Phase O3: parity test 先行 (buildKpiProjection のみ)
 
 * [ ] `app/src/features/comparison/application/__tests__/buildKpiProjection.parity.test.ts` を新設する
 * [ ] `sameDow.sales` / `sameDow.customers` / `sameDow.transactionValue` / `sameDow.ctsQuantity` の parity を fixture で固定する
@@ -28,21 +31,26 @@
 * [ ] `monthlyTotal.*` の parity を fixture で固定する
 * [ ] `sourceYear` / `sourceMonth` / `dowOffset` の parity を fixture で固定する
 * [ ] `buildDowGapProjection` 出力の parity を連鎖で検証する
-* [ ] fixture matrix として典型月 / 月跨ぎ / 年跨ぎ / comparisonEnabled=false / 複数店舗 / 単一店舗 の 6 ケース以上を含める
+* [ ] fixture matrix として典型月 / 月跨ぎ / 年跨ぎ / elapsedDays cap 月 / 2月 leap year / sameDow+sameDate 両ルート / 複数店舗 / 単一店舗 の 8 ケース以上を含める
+* [ ] `comparisonEnabled=false` は O3 scope 外であること (O5 disable-path regression で検証)
 
 ## Phase O4: projection の入力差し替え
 
 * [ ] `buildKpiProjection` の signature を `ComparisonProjectionContext` 入力に切り替える
 * [ ] `comparisonProjections.ts` から `import type { PeriodSelection }` を削除する
-* [ ] `comparisonProjections.ts` に `PeriodSelection` の型参照が 1 箇所も残っていないことを確認する (機械検出)
+* [ ] `comparisonProjections.ts` に `PeriodSelection` の型参照が 1 箇所も残っていないことを確認する (O2 import guard で機械検出)
 * [ ] Phase O3 の parity test を全 green にする
 * [ ] `buildDowGapProjection` は変更しない (kpi を入力とするだけのため)
 
 ## Phase O5: hook の core/wrapper 分離
 
-* [ ] `useComparisonModuleCore({ scope, projectionContext, currentAverageDailySales })` 新 hook を新設する
+* [ ] `features/comparison/application/hooks/useComparisonModuleCore.ts` に新 core hook を新設する (`{ scope, projectionContext, currentAverageDailySales }`)
 * [ ] 新 core hook が引数に `periodSelection` を取らないことを確認する
-* [ ] 旧 `useComparisonModule(periodSelection, elapsedDays, currentAverageDailySales, externalScope?)` を wrapper 化し、内部で `buildComparisonProjectionContext` を呼ぶだけにする
+* [ ] 新 core hook が `features/comparison/` 内にあり `PeriodSelection` を import しないことを確認する (O2 import guard で保証)
+* [ ] 旧 `useComparisonModule` の wrapper を `app/src/application/hooks/useComparisonModule.ts` に配置する (features/ 外)
+* [ ] wrapper 内部で `buildComparisonProjectionContext` を呼び最小 contract に変換して core に委譲する
+* [ ] disable-path regression test を追加する: `externalScope === undefined` → 内部構築 / `externalScope === null` → 比較無効 / `!comparisonEnabled` → idle status
+* [ ] wrapper と core の出力一致 regression test を追加する
 * [ ] 既存 3 caller (`useComparisonSlice` / `usePageComparisonModule` / tests) が wrapper 経由で動作継続することを確認する
 * [ ] `useComparisonModuleLegacyCallerGuard` baseline 0 を維持する
 

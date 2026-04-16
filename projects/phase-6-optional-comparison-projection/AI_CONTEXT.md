@@ -59,7 +59,9 @@ Done 条件の詳細は `plan.md §2` と `checklist.md` を参照。要約:
 - ✅ `comparisonProjections.ts` から `PeriodSelection` import が消える
 - ✅ `buildKpiProjection` が最小 contract を受ける
 - ✅ `useComparisonModuleCore` が存在し `periodSelection` を受け取らない
+- ✅ `features/comparison/` 内部に `PeriodSelection` import が残らない (guard で機械保証)
 - ✅ parity test 全通 (`sameDate` / `sameDow` / `monthlyTotal` / `dowOffset` / `dowGap`)
+- ✅ disable-path regression (scope null / comparisonEnabled=false / idle) 全通
 - ✅ `useComparisonModuleLegacyCallerGuard` baseline 0 維持
 - ✅ 親 project `HANDOFF.md` の Phase 6 optional が完了済みに移せる状態
 
@@ -68,10 +70,13 @@ Done 条件の詳細は `plan.md §2` と `checklist.md` を参照。要約:
 | パス | 役割 |
 |---|---|
 | `app/src/features/comparison/application/comparisonProjections.ts` | Phase O4 で `PeriodSelection` import 削除 |
-| `app/src/features/comparison/application/hooks/useComparisonModule.ts` | Phase O5 で core/wrapper 二層化 |
+| `app/src/features/comparison/application/hooks/useComparisonModule.ts` | Phase O5 で core re-export のみに縮退 |
+| `app/src/application/hooks/useComparisonModule.ts` | Phase O5 で legacy wrapper 受け皿 (features/ **外**) |
 | (新設) `app/src/features/comparison/application/ComparisonProjectionContext.ts` | Phase O1 で型契約 |
-| (新設) `app/src/features/comparison/application/buildComparisonProjectionContext.ts` | Phase O2 で pure builder |
+| (新設) `app/src/features/comparison/application/buildComparisonProjectionContext.ts` | Phase O2 で pure builder (唯一の PeriodSelection import 点) |
 | (新設) `app/src/features/comparison/application/__tests__/buildKpiProjection.parity.test.ts` | Phase O3 で parity |
+| (新設) `comparisonProjectionContextImportGuard.test.ts` | Phase O2 で PeriodSelection import 禁止 guard |
+| (新設) `comparisonProjectionContextFieldGuard.test.ts` | Phase O2 で field creep 防止 guard |
 | `app/src/presentation/hooks/slices/useComparisonSlice.ts` | Phase O6 で primary caller 移行 |
 | `app/src/application/hooks/usePageComparisonModule.ts` | wrapper 経由のまま温存 |
 
