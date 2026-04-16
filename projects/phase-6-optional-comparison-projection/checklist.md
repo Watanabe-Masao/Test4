@@ -9,30 +9,30 @@
 
 ## Phase O1: 最小契約の型定義
 
-* [ ] `app/src/features/comparison/application/ComparisonProjectionContext.ts` を新設する (型定義のみ、実装なし)
-* [ ] `ComparisonProjectionContext` の全フィールドに JSDoc で「なぜ必要か」を明記する
-* [ ] `PeriodSelection` を薄くコピーした形になっていないことを確認する (`PeriodSelection` からの必要 sub-fields のみを抽出)
-* [ ] `activePreset` を `ComparisonProjectionContext` に含めていないことを確認する (再監査済み: 現行コードは上書きしており元値不要)
-* [ ] `buildKpiProjection` 内の `periodSelection.*` 参照箇所を棚卸しして plan.md O1 記載のフィールドのみを抽出対象としている
+* [x] `app/src/features/comparison/application/ComparisonProjectionContext.ts` を新設する (型定義のみ、実装なし)
+* [x] `ComparisonProjectionContext` の全フィールドに JSDoc で「なぜ必要か」を明記する
+* [x] `PeriodSelection` を薄くコピーした形になっていないことを確認する (`PeriodSelection` からの必要 sub-fields のみを抽出)
+* [x] `activePreset` を `ComparisonProjectionContext` に含めていないことを確認する (再監査済み: 現行コードは上書きしており元値不要)
+* [x] `buildKpiProjection` 内の `periodSelection.*` 参照箇所を棚卸しして plan.md O1 記載のフィールドのみを抽出対象としている
 
 ## Phase O2: pure builder + import guard 追加
 
-* [ ] `app/src/features/comparison/application/buildComparisonProjectionContext.ts` を新設し `PeriodSelection → ComparisonProjectionContext` の pure 関数として実装する
-* [ ] 単体テスト (空ケース + 典型ケース 3 件以上) を追加し green で通す
-* [ ] `comparisonProjectionContextImportGuard.test.ts` を新設する (`features/comparison/application/**` 配下での `PeriodSelection` import を禁止、allowlist = `buildComparisonProjectionContext.ts` の 1 ファイルのみ)
-* [ ] `comparisonProjectionContextFieldGuard.test.ts` を新設する (`ComparisonProjectionContext` の key 数上限 + 許可フィールド名 snapshot + PeriodSelection と同名の大きい塊禁止)
-* [ ] import guard と field guard が green で通ること
+* [x] `app/src/features/comparison/application/buildComparisonProjectionContext.ts` を新設し `PeriodSelection → ComparisonProjectionContext` の pure 関数として実装する
+* [x] 単体テスト (空ケース + 典型ケース 3 件以上) を追加し green で通す
+* [x] `comparisonProjectionContextImportGuard.test.ts` を新設する (`features/comparison/application/**` 配下での `PeriodSelection` import を禁止、allowlist = `buildComparisonProjectionContext.ts` の 1 ファイルのみ)
+* [x] `comparisonProjectionContextFieldGuard.test.ts` を新設する (`ComparisonProjectionContext` の key 数上限 + 許可フィールド名 snapshot + PeriodSelection と同名の大きい塊禁止)
+* [x] import guard と field guard が green で通ること
 
 ## Phase O3: parity test 先行 (buildKpiProjection のみ)
 
-* [ ] `app/src/features/comparison/application/__tests__/buildKpiProjection.parity.test.ts` を新設する
-* [ ] `sameDow.sales` / `sameDow.customers` / `sameDow.transactionValue` / `sameDow.ctsQuantity` の parity を fixture で固定する
-* [ ] `sameDate.*` 4 フィールドの parity を fixture で固定する
-* [ ] `monthlyTotal.*` の parity を fixture で固定する
-* [ ] `sourceYear` / `sourceMonth` / `dowOffset` の parity を fixture で固定する
-* [ ] `buildDowGapProjection` 出力の parity を連鎖で検証する
-* [ ] fixture matrix として典型月 / 月跨ぎ / 年跨ぎ / elapsedDays cap 月 / 2月 leap year / sameDow+sameDate 両ルート / 複数店舗 / 単一店舗 の 8 ケース以上を含める
-* [ ] `comparisonEnabled=false` は O3 scope 外であること (O5 disable-path regression で検証)
+* [x] `app/src/features/comparison/application/__tests__/buildKpiProjection.parity.test.ts` を新設する
+* [x] `sameDow.sales` / `sameDow.customers` / `sameDow.transactionValue` / `sameDow.ctsQuantity` の parity を fixture で固定する
+* [x] `sameDate.*` 4 フィールドの parity を fixture で固定する
+* [x] `monthlyTotal.*` の parity を fixture で固定する
+* [x] `sourceYear` / `sourceMonth` / `dowOffset` の parity を fixture で固定する
+* [x] `buildDowGapProjection` 出力の parity を連鎖で検証する
+* [x] fixture matrix として典型月 / 月跨ぎ / 年跨ぎ / elapsedDays cap 月 / 2月 leap year / sameDow+sameDate 両ルート / 複数店舗 / 単一店舗 の 8 ケース以上を含める
+* [x] `comparisonEnabled=false` は O3 scope 外であること (O5 disable-path regression で検証)
 
 ## Phase O4: projection の入力差し替え
 
