@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-16T07:48:58.346Z",
+  "timestamp": "2026-04-16T11:49:37.318Z",
   "summary": {
-    "active": 3,
+    "active": 4,
     "archived": 9,
-    "inProgress": 2,
+    "inProgress": 3,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 416,
+    "totalCheckboxes": 437,
     "checkedCheckboxes": 384
   },
   "projects": [
@@ -62,6 +62,19 @@
       "progress": 1,
       "entrypoint": "projects/completed/architecture-decision-backlog/AI_CONTEXT.md",
       "checklistPath": "projects/completed/architecture-decision-backlog/checklist.md",
+      "parent": null
+    },
+    {
+      "projectId": "data-flow-unification",
+      "title": "前年データフロー統合 — IndexedDB to DuckDB 経路の一本化",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 0,
+      "total": 21,
+      "progress": 0,
+      "entrypoint": "projects/data-flow-unification/AI_CONTEXT.md",
+      "checklistPath": "projects/data-flow-unification/checklist.md",
       "parent": null
     },
     {
