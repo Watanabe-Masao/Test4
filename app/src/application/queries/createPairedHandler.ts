@@ -39,6 +39,16 @@ export function createPairedHandler<TBase extends BaseQueryInput, TOutput>(
     ): Promise<PairedQueryOutput<TOutput>> {
       const { comparisonDateFrom, comparisonDateTo, ...rest } = input
 
+      // DEBUG: paired handler の入力をログ
+      const handlerName = options?.name ?? `${base.name}Pair`
+      console.debug(`[${handlerName}] execute:`, {
+        dateFrom: (rest as Record<string, unknown>).dateFrom,
+        dateTo: (rest as Record<string, unknown>).dateTo,
+        comparisonDateFrom: comparisonDateFrom ?? '(none)',
+        comparisonDateTo: comparisonDateTo ?? '(none)',
+        willRunComparison: !!(comparisonDateFrom && comparisonDateTo),
+      })
+
       // current 側
       const currentInput = { ...rest, isPrevYear: CURRENT_SCOPE } as TBase & {
         readonly isPrevYear?: PrevYearFlag
@@ -57,6 +67,12 @@ export function createPairedHandler<TBase extends BaseQueryInput, TOutput>(
           : Promise.resolve(null)
 
       const [current, comparison] = await Promise.all([currentPromise, comparisonPromise])
+
+      // DEBUG: paired handler の結果をログ
+      console.debug(`[${handlerName}] result:`, {
+        currentIsNull: current == null,
+        comparisonIsNull: comparison == null,
+      })
 
       return { current, comparison }
     },

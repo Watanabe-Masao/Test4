@@ -169,7 +169,19 @@ export function useCategoryDailyBundle(
   executor: QueryExecutor | null,
   frame: CategoryDailyFrame | null,
 ): CategoryDailyBundle {
-  const built = useMemo(() => buildInput(frame), [frame])
+  const built = useMemo(() => {
+    const result = buildInput(frame)
+    // DEBUG: frame → paired input の変換結果をログ
+    console.debug('[categoryDailyBundle] buildInput:', {
+      hasFrame: frame != null,
+      hasComparison: frame?.comparison != null,
+      comparisonDateFrom: result.paired?.comparisonDateFrom ?? '(none)',
+      comparisonDateTo: result.paired?.comparisonDateTo ?? '(none)',
+      currentDayCount: result.currentDayCount,
+      comparisonDayCount: result.comparisonDayCount,
+    })
+    return result
+  }, [frame])
 
   const { data, isLoading, error } = useQueryWithHandler(
     executor,
@@ -179,6 +191,16 @@ export function useCategoryDailyBundle(
 
   return useMemo<CategoryDailyBundle>(() => {
     if (!frame) return frameAbsentBundle()
+
+    // DEBUG: paired handler の返却結果をログ
+    console.debug('[categoryDailyBundle] pairedHandler result:', {
+      hasCurrent: data?.current != null,
+      currentRecords: data?.current?.records?.length ?? 0,
+      hasComparison: data?.comparison != null,
+      comparisonRecords: data?.comparison?.records?.length ?? 0,
+      isLoading,
+      error: error?.message ?? null,
+    })
 
     const currentSeries = data?.current
       ? projectCategoryDailySeries(data.current.records, {
@@ -193,6 +215,14 @@ export function useCategoryDailyBundle(
           storeIds: built.storeIdSet,
         })
       : null
+
+    // DEBUG: projection 結果をログ
+    console.debug('[categoryDailyBundle] projection:', {
+      currentSalesQty: currentSeries?.grandTotals.salesQty ?? 0,
+      comparisonSalesQty: comparisonSeries?.grandTotals.salesQty ?? 0,
+      hasCurrentSeries: currentSeries != null,
+      hasComparisonSeries: comparisonSeries != null,
+    })
 
     const errors: CategoryDailyBundle['errors'] = {}
     if (error) errors.current = error
