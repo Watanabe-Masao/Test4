@@ -151,8 +151,8 @@ Phase 5 で確立した chart 薄化パターンは
 
 ### 高優先（次に着手するもの）
 
-- **Phase 6 全体クローズ済み (2026-04-15)**: Phase 6 (Step A/C/D) は PR #1039、Phase 6.5 Step B は PR #1040 で全 phase 完了。残タスクは **Phase 6 optional のみ**
-- **Phase 6 optional**: `useComparisonModule` の periodSelection 依存 (kpi projection / dowGap 内部) をさらに削減する refactor。`externalScope` が必ず渡される前提になったため、periodSelection も `{ period1Year, period1Month }` 等の minimal struct に縮退可能
+- **Phase 6 全体クローズ済み (2026-04-15)**: Phase 6 (Step A/C/D) は PR #1039、Phase 6.5 Step B は PR #1040 で全 phase 完了。残タスクの **Phase 6 optional** は `projects/phase-6-optional-comparison-projection/` サブ project として切り出し済み (2026-04-16)
+- **Phase 6 optional (子 project)**: `comparison` feature から `PeriodSelection` 依存を削減する refactor。独立したライフサイクルで進行する (parent: `unify-period-analysis`)。詳細は `projects/phase-6-optional-comparison-projection/` 配下 (AI_CONTEXT / plan / checklist / HANDOFF)
 
 > **Phase 6 全景 (2026-04-15 時点、Phase 6.5-6 クローズ後)**:
 >
