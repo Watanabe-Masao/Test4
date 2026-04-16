@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-16T00:07:30.342Z",
+  "timestamp": "2026-04-16T02:13:01.374Z",
   "summary": {
     "active": 6,
     "archived": 6,
@@ -8,7 +8,7 @@
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 408,
+    "totalCheckboxes": 416,
     "checkedCheckboxes": 327
   },
   "projects": [
@@ -97,7 +97,7 @@
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
       "checked": 0,
-      "total": 32,
+      "total": 40,
       "progress": 0,
       "entrypoint": "projects/phase-6-optional-comparison-projection/AI_CONTEXT.md",
       "checklistPath": "projects/phase-6-optional-comparison-projection/checklist.md",
