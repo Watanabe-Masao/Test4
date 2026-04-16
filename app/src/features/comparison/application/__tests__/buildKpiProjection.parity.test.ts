@@ -347,8 +347,8 @@ describe('buildKpiProjection parity', () => {
       const kpi = buildKpiProjection(sourceIndex, [], scope, projCtx, srcCtx)
       const dowGap = buildDowGapProjection(kpi, 2026, 4, 1000)
 
-      // hasPrevYear=false → ZERO_DOW_GAP_ANALYSIS (totalImpact is undefined)
-      expect(dowGap.totalImpact).toBeUndefined()
+      // hasPrevYear=false → ZERO_DOW_GAP_ANALYSIS (estimatedImpact is 0)
+      expect(dowGap.estimatedImpact).toBe(0)
     })
   })
 })
