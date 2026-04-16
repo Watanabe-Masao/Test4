@@ -34,7 +34,6 @@ import type { PeriodSelection } from '@/domain/models/PeriodSelection'
 import type { ComparisonScope } from '@/domain/models/ComparisonScope'
 import { buildComparisonScope } from '@/domain/models/ComparisonScope'
 import { buildComparisonProjectionContext } from '@/features/comparison/application/buildComparisonProjectionContext'
-import type { ComparisonProjectionContext } from '@/features/comparison/application/ComparisonProjectionContext'
 
 // ── fixtures ──
 
