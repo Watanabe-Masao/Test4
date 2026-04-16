@@ -56,9 +56,9 @@
 
 ## Phase O6: primary caller の最小移行
 
-* [ ] `useComparisonSlice` が `useComparisonModuleCore` を直接呼ぶ形に書き換える (frame.comparison + projectionContext 経由)
-* [ ] `usePageComparisonModule` は wrapper 経由のまま温存する (移行必須ではない)
-* [ ] 全 chart / widget が従来通り動作することを確認する (既存 guard / test で担保)
+* [x] `useComparisonSlice` が `useComparisonModuleCore` を直接呼ぶ形に書き換える (frame.comparison + projectionContext 経由)
+* [x] `usePageComparisonModule` は wrapper 経由のまま温存する (移行必須ではない)
+* [x] 全 chart / widget が従来通り動作することを確認する (既存 guard / test で担保)
 
 ## Phase O7: guard / docs クローズ
 

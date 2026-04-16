@@ -211,13 +211,12 @@ describe('useComparisonModule legacy 3 引数 caller ratchet-down guard (Phase 6
     ).toEqual([])
   })
 
-  it('non-legacy caller の代表: useComparisonSlice は 4 引数版を使っている', () => {
+  it('non-legacy caller の代表: useComparisonSlice は useComparisonModuleCore を直接呼んでいる (Phase O6)', () => {
     const slice = path.join(SRC_DIR, 'presentation/hooks/slices/useComparisonSlice.ts')
     expect(fs.existsSync(slice)).toBe(true)
     const content = fs.readFileSync(slice, 'utf-8')
-    const calls = findUseComparisonModuleCalls(content)
-    expect(calls.length).toBeGreaterThan(0)
-    // 少なくとも 1 つは 4 引数 (Phase 6a 移行済み)
-    expect(calls.some((c) => c.argCount >= 4)).toBe(true)
+    // Phase O6: useComparisonSlice は wrapper ではなく core 直接呼び出しに移行済み
+    expect(content).toContain('useComparisonModuleCore')
+    expect(content).not.toContain('useComparisonModule(')
   })
 })
