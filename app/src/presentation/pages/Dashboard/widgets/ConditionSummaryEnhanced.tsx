@@ -177,7 +177,15 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
       daysInMonth: calendarDaysInMonth,
       curTotalCustomers: (() => {
         const cf = ctx.readModels?.customerFact
-        return cf?.status === 'ready' ? cf.data.grandTotalCustomers : ctx.result.totalCustomers
+        if (cf?.status === 'ready') {
+          // grandTotalCustomers は月全体の値なので、スライダーの effectiveDay でスコープする
+          let sum = 0
+          for (const row of cf.data.daily) {
+            if (row.day <= effectiveDay) sum += row.customers
+          }
+          return sum
+        }
+        return ctx.result.totalCustomers
       })(),
       prevTotalCustomers: extractPrevYearCustomerCount(ctx.prevYear),
     })

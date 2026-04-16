@@ -54,26 +54,31 @@ const DAILY_SQL = (where: string) => `
     cs.day,
     EXTRACT(DOW FROM cs.date_key::DATE)::INT AS "dow",
     cs.sales AS "sales",
-    cs.customers AS "customers",
+    COALESCE(ss_f.customers, 0) AS "customers",
     COALESCE(p.cost, 0) AS "purchaseCost",
     COALESCE(p.price, 0) AS "purchasePrice",
     cs.discount AS "discount",
     cs.is_prev_year AS "isPrevYear"
   FROM (
     SELECT
-      store_id, date_key, day, is_prev_year,
+      store_id, date_key, year, month, day, is_prev_year,
       SUM(sales_amount) AS sales,
-      SUM(customers) AS customers,
       SUM(discount_71 + discount_72 + discount_73 + discount_74) AS discount
     FROM classified_sales
     ${where}
-    GROUP BY store_id, date_key, day, is_prev_year
+    GROUP BY store_id, date_key, year, month, day, is_prev_year
   ) cs
   LEFT JOIN (
     SELECT store_id, date_key, SUM(cost) AS cost, SUM(price) AS price
     FROM purchase
     GROUP BY store_id, date_key
   ) p ON cs.store_id = p.store_id AND cs.date_key = p.date_key
+  LEFT JOIN (
+    SELECT year, month, store_id, day, MAX(customers) AS customers
+    FROM special_sales WHERE type = 'flowers'
+    GROUP BY year, month, store_id, day
+  ) ss_f ON cs.year = ss_f.year AND cs.month = ss_f.month
+    AND cs.store_id = ss_f.store_id AND cs.day = ss_f.day
   ORDER BY cs.date_key, cs.store_id
 `
 

@@ -147,6 +147,19 @@ export function buildFactorData(p: FactorDataParams): WaterfallItem[] {
           push('点数効果', d.qtyEffect)
           push('価格効果', d.priceEffect)
           push('構成比変化効果', d.mixEffect)
+        } else {
+          // priceMix 計算失敗時は 3要素分解にフォールバック
+          const d3 = decompose3(
+            p.prevSales,
+            p.curSales,
+            p.prevCust,
+            p.curCust,
+            p.prevTotalQty,
+            p.curTotalQty,
+          )
+          push('客数効果', d3.custEffect)
+          push('点数効果', d3.qtyEffect)
+          push('単価効果', d3.pricePerItemEffect)
         }
       }
     }
