@@ -3,7 +3,7 @@
 > **役割: 生成された project KPI 正本（生成後手編集禁止）。**
 > 規約: [`references/03-guides/project-checklist-governance.md`](../../03-guides/project-checklist-governance.md)
 
-> 生成: 2026-04-16T04:10:51.636Z
+> 生成: 2026-04-16T06:39:18.393Z
 
 ## サマリー
 
@@ -16,7 +16,7 @@
 | checkbox 空 (placeholder / 立ち上げ直後) | 0 |
 | collection (continuous, 終わらない) | 1 |
 | 全 project の required checkbox 総数 | 416 |
-| 全 project の checked checkbox 総数 | 366 |
+| 全 project の checked checkbox 総数 | 379 |
 
 ## projects
 
@@ -33,4 +33,4 @@
 | `pure-calculation-reorg` | Pure 計算責務再編 | **in_progress** | — | 84/113 (74%) | [`projects/pure-calculation-reorg/AI_CONTEXT.md`](../../../projects/pure-calculation-reorg/AI_CONTEXT.md) |
 | `quick-fixes` | Quick Fixes — 文脈を必要としない単発作業の集約 | **collection** | — | 4/4 (100%) | [`projects/quick-fixes/AI_CONTEXT.md`](../../../projects/quick-fixes/AI_CONTEXT.md) |
 | `test-signal-integrity` | AAG Test Signal Integrity — 品質シグナル保全と False Green 防止 | **in_progress** | — | 34/35 (97%) | [`projects/test-signal-integrity/AI_CONTEXT.md`](../../../projects/test-signal-integrity/AI_CONTEXT.md) |
-| `unify-period-analysis` | 期間分析統合（固定期間を自由期間プリセットに） | **in_progress** | — | 41/57 (72%) | [`projects/unify-period-analysis/AI_CONTEXT.md`](../../../projects/unify-period-analysis/AI_CONTEXT.md) |
+| `unify-period-analysis` | 期間分析統合（固定期間を自由期間プリセットに） | **in_progress** | — | 54/57 (95%) | [`projects/unify-period-analysis/AI_CONTEXT.md`](../../../projects/unify-period-analysis/AI_CONTEXT.md) |
