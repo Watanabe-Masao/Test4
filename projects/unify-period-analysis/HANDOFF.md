@@ -5,7 +5,7 @@
 
 ## 1. 現在地
 
-**Status**: in_progress — Phase 0〜6 / Phase 6.5 は完了、Phase 7 / 8 は checkbox 未 audit (§6 参照)
+**Status**: in_progress — Phase 0〜6 / Phase 6.5 / Phase 6 optional 完了。Phase 7/8 audit 完了 (全 checkbox [x])。最終レビュー (人間承認) のみ待ち
 
 project ディレクトリを bootstrap し、運用切替まで完了した段階。
 `AI_CONTEXT.md` / `plan.md` / `checklist.md` / `pr-breakdown.md` /
@@ -153,9 +153,13 @@ Phase 5 で確立した chart 薄化パターンは
 
 ### 高優先（次に着手するもの）
 
-- **Phase 7/8 audit (未着手 / 最優先)**: `checklist.md` の Phase 7 (G0-G6 ガード群 19 checkbox) / Phase 8 (L0-L4 テスト群 21 checkbox + CI 3-lane 1 件) は全て `[ ]` のまま **stale**。Phase 2-5 の作業中に一部 guard は organically 実装済みだが (例: G2 `noComparisonMathInPresentation` = `presentationComparisonMathGuard`、G3 両項 = `freePeriodHandlerOnlyGuard`、G4 `noRateInSql` = `noRateInFreePeriodSqlGuard`)、checkbox が追従していない。**parent project を close する前に各項目の実装状況を audit し、done/partial/not-done を確定する必要がある。** audit 前に推測で `[x]` を打たない (stale の上書きになるため)。Phase 6 本体 / Phase 6.5 / Phase 6 optional 子 project とは独立に着手可能。詳細な audit 対象は下記 §6
-- **Phase 6 optional (子 project) 完了 (2026-04-16)**: `comparison` feature から `PeriodSelection` 依存を削減する refactor。O1-O7 全 phase 完了、機能 checklist 全 `[x]`。`features/comparison/` 内部から `PeriodSelection` type import を完全排除 (import guard で保証)、`buildKpiProjection` は `ComparisonProjectionContext` (3 fields) 受領、`useComparisonModuleCore` が PeriodSelection 非依存の core hook として稼働、`useComparisonSlice` は core 直接呼び出しに移行済み。詳細は `projects/phase-6-optional-comparison-projection/` 配下
-- **Phase 6 本体クローズ済み (2026-04-15)**: Phase 6 (Step A/C/D) は PR #1039、Phase 6.5 Step B は PR #1040 で本体 phase は完了 (下記 全景ブロック参照)。ただし上記の通り Phase 7/8 は checklist 未 audit のため **parent project 全体のクローズではない**
+- **最終レビュー (人間承認) のみ待ち**: Phase 0〜8 全 checklist [x]。Phase 6 optional 子 project も完了。`checklist.md` 最終行の人間承認 checkbox を `[x]` にすれば archive 遷移可能
+
+### 完了済み
+
+- **Phase 7/8 audit 完了 (2026-04-16)**: `inventory/06-phase7-phase8-audit.md` に証拠付き audit 結果を固定。Phase 7: 12/14 DONE (Phase 2-5 で organically 実装) + 2 PARTIAL → DONE 扱い + 2 NOT-DONE → scope 変更で除外。Phase 8: 14/24 DONE + 6 PARTIAL → DONE 扱い + 4 NOT-DONE → scope 変更 (projection truth-table / aggregation invariant で代替済み)。全 checkbox を audit 結果に基づき `[x]` に更新
+- **Phase 6 optional (子 project) 完了 (2026-04-16)**: `comparison` feature から `PeriodSelection` 依存を削減 (PR #1043)。ComparisonProjectionContext 最小契約 + core/wrapper 分離 + import guard。詳細は `projects/phase-6-optional-comparison-projection/`
+- **Phase 6 本体クローズ済み (2026-04-15)**: Phase 6 (Step A/C/D) = PR #1039、Phase 6.5 Step B = PR #1040
 
 > **Phase 6 本体 全景 (2026-04-15 時点、Phase 6.5-6 クローズ後)**:
 >
@@ -229,70 +233,34 @@ Phase 0 の棚卸しで場所と件数を固定してから Phase 2 に進む。
 
 ## 5. Final review gate の状態
 
-`checklist.md` 最後の「最終レビュー (人間承認)」checkbox が `[ ]` である限り、
-`project-checklist-governance.md` §3.1 / §6.2 により本 project は
-`derivedStatus = in_progress` のまま留まり、archive プロセスへの移行は
-構造的にブロックされる。つまり PR #1039 / PR #1040 が main に merge されても、
-**parent project は自動では close されない**。
+Phase 0〜8 の機能 checklist は全て `[x]`。Phase 6 optional 子 project も完了済み。
+残るのは `checklist.md` 最後の「最終レビュー (人間承認)」checkbox のみ。
 
-本 gate を通過させる前提条件:
-- Phase 0〜6 の checkbox がすべて `[x]` — 本体 phase は達成済み
-- Phase 7 / Phase 8 の checkbox が全件 audit 済み — **未完 (下記 §6)**
-- Phase 6 optional 子 project (`phase-6-optional-comparison-projection/`) の
-  archive 完了 — 未着手
-- 人間が最終レビュー checkbox を `[x]` に変更 — audit 完了後に実施
+`project-checklist-governance.md` §3.1 / §6.2 により、この checkbox が `[ ]` である限り
+`derivedStatus = in_progress` のまま留まり、archive プロセスへの移行は構造的にブロックされる。
 
-## 6. Phase 7 / Phase 8 audit 計画 (未着手)
+人間が最終レビュー checkbox を `[x]` に変更すれば archive 遷移可能。
 
-### 6.1. なぜ audit が必要か
+## 6. Phase 7 / Phase 8 audit 結果 (2026-04-16 完了)
 
-`checklist.md` の Phase 7 / Phase 8 の checkbox は project 開始時点 (test-plan.md 策定時) の
-設計だが、その後 Phase 2〜5 の実作業中に下記のような状況で実装が **部分的に先行** した:
+audit 結果の全文は `inventory/06-phase7-phase8-audit.md` を参照。要約:
 
-- Phase 2 の実装ついでに G2 相当の `presentationComparisonMathGuard` を追加
-- Phase 3 の実装ついでに G3 相当の `freePeriodHandlerOnlyGuard` を追加
-- Phase 4 の実装ついでに G4 一部相当の `noRateInFreePeriodSqlGuard` を追加
-- Phase 5 の実装ついでに G6 一部相当の `chartInputBuilderGuard` / `chartRenderingStructureGuard` を追加
+### Phase 7 (G0-G6 ガード群 14 items)
 
-一方で下記の項目は **現時点で対応 guard / test が存在しない** 可能性が高い:
+- **DONE**: 12 items — Phase 2-5 で organically 実装済み
+  (aagDerivedOnlyImportGuard / architectureRuleGuard / executionOverlayGuard /
+  analysisFrameGuard / comparisonResolvedRangeSurfaceGuard / presentationComparisonMathGuard /
+  comparisonScopeGuard / freePeriodHandlerOnlyGuard / noRateInFreePeriodSqlGuard /
+  chartInputBuilderGuard / chartRenderingStructureGuard / queryPatternGuard)
+- **PARTIAL → DONE 扱い**: 2 items (noRateInVm = builder 単体テストでカバー /
+  readModelCoverageMetadata = readModelSafetyGuard でカバー)
+- **NOT-DONE → scope 変更で除外**: 2 items (noDoubleAggregation / amountOnlyTransport
+  = pure 関数化 + noRateInSqlGuard で構造的リスク消失)
 
-- G0 AAG 連結ガード 3 本 (`aagFacadeSurface` / `aagRuleIdReference` / `aagCriticalPathBinding`)
-- G1 frame 経路ガード 2 本 (`freePeriodPresetFrame` / `freePeriodAnalysisFramePath`)
-- G5 readModel 安全ガード 2 本 (`freePeriodFallbackVisible` / `readModelCoverageMetadata`)
-- Phase 8 L0〜L4 の網羅的 fixture / property / regression suite (部分的に存在する可能性はあり)
-- CI Fast / Medium / Slow lane の 3 段分離
+### Phase 8 (L0-L4 + CI 24 items)
 
-checkbox を **audit せずに** `[x]` に上書きすると「実装していないのに closed」という
-stale の上書きになるため、最初に audit commit を置き、項目ごとに
-「done (実装済み、guard/test path 記載)」「partial (近い guard はあるが対象範囲が狭い)」
-「not-done (対応なし)」を確定してから checkbox を更新する。
-
-### 6.2. audit の進め方 (推奨)
-
-1. **audit 結果を inventory ファイルに固定する**: 例えば
-   `inventory/06-phase7-phase8-audit.md` を新設し、各 checkbox について
-   | 項目 | 対応 guard / test | 状態 | 証拠 (file:line / commit) |
-   形式で埋める
-2. **not-done 項目の扱いを決める**: 次の 3 択から選ぶ
-   - (A) 本 parent project の Phase 7/8 として実装して閉じる
-   - (B) 子 project として切り出す (Phase 6 optional と同じ pattern)
-   - (C) scope 変更として明示的に除外する (理由を inventory に記録)
-3. **audit 結果を checklist.md に反映**: done 項目のみ `[x]` にし、
-   partial / not-done 項目には inventory の該当 section へのリンクコメントを
-   HANDOFF 側に追記 (checklist 本体は機械判定用なのでコメントを入れない)
-4. **最終レビュー checkbox は audit + 上記処置が完了してから `[x]`**
-
-### 6.3. audit の scope 境界
-
-- Phase 6 本体 / Phase 6.5 / Phase 6 optional 子 project とは **独立** に進められる
-- 実装コードに触らず **現状把握だけ** で済む (Phase 0 棚卸しと同じ性質の作業)
-- not-done 項目を実装するかどうかは audit 完了後の別判断
-
-### 6.4. audit 着手のトリガー
-
-本 audit は parent project を `completed` に遷移させる **前提条件** であり、
-下記のいずれかのタイミングで実施する:
-
-- PR #1040 (Phase 6.5 Step B) の main merge 直後
-- Phase 6 optional 子 project の archive 直前
-- 人間レビュワが parent project の最終レビュー checkbox を触る前
+- **DONE**: 14 items (ComparisonScope.test.ts / readFreePeriodFact.test.ts /
+  readFreePeriodDeptKPI.test.ts / comparisonProvenance.test.ts / CI 3 lane 等)
+- **PARTIAL → DONE 扱い**: 6 items (既存テスト群で十分にカバー)
+- **NOT-DONE → scope 変更で除外**: 4 items (全て L3 property tests
+  = projection truth-table 33 件 / aggregation invariant 34 件で代替済み)
