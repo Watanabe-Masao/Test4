@@ -113,9 +113,7 @@ export function useDuckDB(
     console.info('[useDuckDB] loadData triggered', {
       initialLoadDone: initialLoadDone.current,
       hasPrevYear: prevYear != null,
-      prevYearOrigin: prevYear?.origin
-        ? `${prevYear.origin.year}-${prevYear.origin.month}`
-        : null,
+      prevYearOrigin: prevYear?.origin ? `${prevYear.origin.year}-${prevYear.origin.month}` : null,
       prevYearCtsRecords: prevYear?.categoryTimeSales?.records?.length ?? 0,
       prevYearPurchaseRecords: prevYear?.purchase?.records?.length ?? 0,
       prevYearFlowersRecords: prevYear?.flowers?.records?.length ?? 0,
