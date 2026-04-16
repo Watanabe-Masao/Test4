@@ -15,10 +15,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { collectTsFiles, rel } from '../guardTestHelpers'
 
-const COMPARISON_APP_DIR = path.resolve(
-  __dirname,
-  '../../features/comparison/application',
-)
+const COMPARISON_APP_DIR = path.resolve(__dirname, '../../features/comparison/application')
 
 /**
  * PeriodSelection を import してよいファイルの allowlist。
