@@ -29,6 +29,7 @@ import { describe, it, expect } from 'vitest'
 import { buildKpiProjection, buildDowGapProjection } from '../comparisonProjections'
 import { buildSourceDataIndex, type SourceMonthContext } from '../sourceDataIndex'
 import { buildComparisonScope } from '@/domain/models/ComparisonScope'
+import { buildComparisonProjectionContext } from '../buildComparisonProjectionContext'
 import type { PeriodSelection } from '@/domain/models/PeriodSelection'
 import type { ClassifiedSalesDaySummary } from '@/domain/models/ClassifiedSales'
 import { ZERO_DISCOUNT_ENTRIES } from '@/domain/models/DiscountEntry'
@@ -120,7 +121,8 @@ describe('buildKpiProjection parity', () => {
       const scope = buildScope(ps)
       const srcCtx: SourceMonthContext = { year: 2025, month: 4, daysInMonth: 30 }
 
-      const kpi = buildKpiProjection(sourceIndex, [storeId], scope, ps, srcCtx)
+      const projCtx = buildComparisonProjectionContext(ps)
+      const kpi = buildKpiProjection(sourceIndex, [storeId], scope, projCtx, srcCtx)
 
       expect(kpi.hasPrevYear).toBe(true)
       expect(kpi.sourceYear).toBe(2025)
@@ -150,7 +152,8 @@ describe('buildKpiProjection parity', () => {
       const scope = buildScope(ps)
       const srcCtx: SourceMonthContext = { year: 2025, month: 4, daysInMonth: 30 }
 
-      const kpi = buildKpiProjection(sourceIndex, [storeId], scope, ps, srcCtx)
+      const projCtx = buildComparisonProjectionContext(ps)
+      const kpi = buildKpiProjection(sourceIndex, [storeId], scope, projCtx, srcCtx)
 
       // elapsedDays cap されていても、monthlyTotal は月全体
       expect(kpi.monthlyTotal.sales).toBe(1000 + 1200 + 800 + 1500 + 900)
@@ -186,7 +189,8 @@ describe('buildKpiProjection parity', () => {
       const scope = buildScope(ps)
       const srcCtx: SourceMonthContext = { year: 2023, month: 2, daysInMonth: 28 }
 
-      const kpi = buildKpiProjection(sourceIndex, ['S1'], scope, ps, srcCtx)
+      const projCtx = buildComparisonProjectionContext(ps)
+      const kpi = buildKpiProjection(sourceIndex, ['S1'], scope, projCtx, srcCtx)
 
       expect(kpi.hasPrevYear).toBe(true)
       expect(kpi.sourceMonth).toBe(2)
@@ -202,7 +206,8 @@ describe('buildKpiProjection parity', () => {
       const scope = buildScope(ps)
       const srcCtx: SourceMonthContext = { year: 2025, month: 4, daysInMonth: 30 }
 
-      const kpi = buildKpiProjection(sourceIndex, [storeId], scope, ps, srcCtx)
+      const projCtx = buildComparisonProjectionContext(ps)
+      const kpi = buildKpiProjection(sourceIndex, [storeId], scope, projCtx, srcCtx)
 
       // 両方とも hasPrevYear=true
       expect(kpi.hasPrevYear).toBe(true)
@@ -229,7 +234,8 @@ describe('buildKpiProjection parity', () => {
       const scope = buildScope(ps)
       const srcCtx: SourceMonthContext = { year: 2025, month: 4, daysInMonth: 30 }
 
-      const kpi = buildKpiProjection(sourceIndex, ['S1', 'S2'], scope, ps, srcCtx)
+      const projCtx = buildComparisonProjectionContext(ps)
+      const kpi = buildKpiProjection(sourceIndex, ['S1', 'S2'], scope, projCtx, srcCtx)
 
       expect(kpi.monthlyTotal.sales).toBe(1000 + 2000 + 500 + 800)
       expect(kpi.monthlyTotal.customers).toBe(10 + 20 + 5 + 8)
@@ -244,7 +250,8 @@ describe('buildKpiProjection parity', () => {
       const scope = buildScope(ps)
       const srcCtx: SourceMonthContext = { year: 2025, month: 4, daysInMonth: 30 }
 
-      const kpi = buildKpiProjection(sourceIndex, [], scope, ps, srcCtx)
+      const projCtx = buildComparisonProjectionContext(ps)
+      const kpi = buildKpiProjection(sourceIndex, [], scope, projCtx, srcCtx)
 
       expect(kpi.hasPrevYear).toBe(false)
       expect(kpi.sameDow.sales).toBe(0)
@@ -277,7 +284,8 @@ describe('buildKpiProjection parity', () => {
       const scope = buildScope(ps)
       const srcCtx: SourceMonthContext = { year: 2024, month: 12, daysInMonth: 31 }
 
-      const kpi = buildKpiProjection(sourceIndex, ['S1'], scope, ps, srcCtx)
+      const projCtx = buildComparisonProjectionContext(ps)
+      const kpi = buildKpiProjection(sourceIndex, ['S1'], scope, projCtx, srcCtx)
 
       expect(kpi.sourceYear).toBe(2024)
       expect(kpi.sourceMonth).toBe(12)
@@ -303,7 +311,8 @@ describe('buildKpiProjection parity', () => {
       const scope = buildScope(ps)
       const srcCtx: SourceMonthContext = { year: 2025, month: 4, daysInMonth: 30 }
 
-      const kpi = buildKpiProjection(sourceIndex, ['S1'], scope, ps, srcCtx)
+      const projCtx = buildComparisonProjectionContext(ps)
+      const kpi = buildKpiProjection(sourceIndex, ['S1'], scope, projCtx, srcCtx)
 
       // monthlyTotal はソース月 (4 月) の全日合計。3 月末データは除外
       expect(kpi.monthlyTotal.sales).toBe(1000 + 1200)
@@ -318,7 +327,8 @@ describe('buildKpiProjection parity', () => {
       const scope = buildScope(ps)
       const srcCtx: SourceMonthContext = { year: 2025, month: 4, daysInMonth: 30 }
 
-      const kpi = buildKpiProjection(sourceIndex, [storeId], scope, ps, srcCtx)
+      const projCtx = buildComparisonProjectionContext(ps)
+      const kpi = buildKpiProjection(sourceIndex, [storeId], scope, projCtx, srcCtx)
       const dowGap = buildDowGapProjection(kpi, 2026, 4, 1000)
 
       // dowGap は kpi.hasPrevYear=true かつ sourceYear>0 なので計算される
@@ -333,7 +343,8 @@ describe('buildKpiProjection parity', () => {
       const scope = buildScope(ps)
       const srcCtx: SourceMonthContext = { year: 2025, month: 4, daysInMonth: 30 }
 
-      const kpi = buildKpiProjection(sourceIndex, [], scope, ps, srcCtx)
+      const projCtx = buildComparisonProjectionContext(ps)
+      const kpi = buildKpiProjection(sourceIndex, [], scope, projCtx, srcCtx)
       const dowGap = buildDowGapProjection(kpi, 2026, 4, 1000)
 
       // hasPrevYear=false → ZERO_DOW_GAP_ANALYSIS (totalImpact is undefined)

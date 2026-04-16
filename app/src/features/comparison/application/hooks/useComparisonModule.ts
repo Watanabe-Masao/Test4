@@ -163,15 +163,25 @@ export function useComparisonModule(
   }, [scope, inputs])
 
   // 5. 月間KPI集計（PrevYearMonthlyKpi 互換）
+  // Phase O4: buildKpiProjection は ComparisonProjectionContext を受ける。
+  // periodSelection から最小 sub-fields のみ抽出して渡す。
+  const projectionContext = useMemo(
+    () => ({
+      basisYear: periodSelection.period1.from.year,
+      basisMonth: periodSelection.period1.from.month,
+      period2: periodSelection.period2,
+    }),
+    [periodSelection],
+  )
   const kpi = useMemo((): PrevYearMonthlyKpi => {
     if (!scope || !inputs) return kpiDefault
     const { year, month } = scope.sourceMonth
-    return buildKpiProjection(inputs.sourceIndex, inputs.targetIds, scope, periodSelection, {
+    return buildKpiProjection(inputs.sourceIndex, inputs.targetIds, scope, projectionContext, {
       year,
       month,
       daysInMonth: new Date(year, month, 0).getDate(),
     })
-  }, [scope, inputs, periodSelection])
+  }, [scope, inputs, projectionContext])
 
   // 6. 曜日ギャップ分析
   const dowGap = useMemo(

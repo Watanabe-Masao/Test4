@@ -36,11 +36,11 @@
 
 ## Phase O4: projection の入力差し替え
 
-* [ ] `buildKpiProjection` の signature を `ComparisonProjectionContext` 入力に切り替える
-* [ ] `comparisonProjections.ts` から `import type { PeriodSelection }` を削除する
-* [ ] `comparisonProjections.ts` に `PeriodSelection` の型参照が 1 箇所も残っていないことを確認する (O2 import guard で機械検出)
-* [ ] Phase O3 の parity test を全 green にする
-* [ ] `buildDowGapProjection` は変更しない (kpi を入力とするだけのため)
+* [x] `buildKpiProjection` の signature を `ComparisonProjectionContext` 入力に切り替える
+* [x] `comparisonProjections.ts` から `import type { PeriodSelection }` を削除する
+* [x] `comparisonProjections.ts` に `PeriodSelection` の型参照が 1 箇所も残っていないことを確認する (O2 import guard で機械検出)
+* [x] Phase O3 の parity test を全 green にする
+* [x] `buildDowGapProjection` は変更しない (kpi を入力とするだけのため)
 
 ## Phase O5: hook の core/wrapper 分離
 

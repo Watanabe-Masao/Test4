@@ -94,10 +94,11 @@ export const featuresMemoLimits: readonly QuantitativeAllowlistEntry[] = [
   {
     path: 'features/comparison/application/hooks/useComparisonModule.ts',
     ruleId: 'AR-G5-HOOK-MEMO',
-    reason: '比較モジュール集約。useMemo 6 個',
+    reason:
+      '比較モジュール集約。useMemo 8 個 (Phase O4 で projectionContext 追加、Phase O5 で core 分離時に縮退予定)',
     category: 'structural',
-    removalCondition: '比較モジュールのリファクタリング時',
-    limit: 7,
+    removalCondition: '比較モジュールのリファクタリング時 (Phase O5 で core/wrapper 分離で解消)',
+    limit: 8,
     lifecycle: 'permanent',
     createdAt: '2026-04-08',
   },
