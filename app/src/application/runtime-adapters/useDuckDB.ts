@@ -286,8 +286,11 @@ export function useDuckDB(
       }
 
       // ── VIEW 物理化: 変更があった場合のみ ──
+      // force=true: 差分ロードで基底テーブル（classified_sales 等）が更新されたため、
+      // 既存のマテリアライズ済み TABLE を破棄して VIEW から再構築する必要がある。
+      // force=false だと既存 TABLE の存在でスキップされ、前年データ等が反映されない。
       if (anyChanged) {
-        await materializeSummary(state.conn)
+        await materializeSummary(state.conn, true)
         if (isStale()) return
       }
 
