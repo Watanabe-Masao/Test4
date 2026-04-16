@@ -11,6 +11,7 @@ import type { QueryExecutor } from '@/application/queries/QueryPort'
 
 const mockExecutor: QueryExecutor = {
   isReady: true,
+  dataVersion: 1,
   execute: async () => null,
 }
 
@@ -50,7 +51,7 @@ describe('buildPlanInputs', () => {
   })
 
   it('executor が not ready の場合は両方 null', () => {
-    const notReady = { isReady: false, execute: async () => null } as QueryExecutor
+    const notReady = { isReady: false, dataVersion: 0, execute: async () => null } as QueryExecutor
     const { categoryInput, storeCatInput } = buildPlanInputs(makeParams({ executor: notReady }))
     expect(categoryInput).toBeNull()
     expect(storeCatInput).toBeNull()

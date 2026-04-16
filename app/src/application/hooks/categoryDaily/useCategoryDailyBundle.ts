@@ -177,19 +177,7 @@ export function useCategoryDailyBundle(
     built.paired,
   )
 
-  // DEBUG: categoryDailyLane の比較クエリ状態
-  console.info('[categoryDailyBundle] query state:', {
-    hasFrame: frame != null,
-    hasComparison: frame?.comparison != null,
-    pairedHasCompDates: !!(built.paired?.comparisonDateFrom && built.paired?.comparisonDateTo),
-    comparisonDateFrom: built.paired?.comparisonDateFrom ?? null,
-    comparisonDateTo: built.paired?.comparisonDateTo ?? null,
-    dataCurrentRecords: data?.current?.records?.length ?? 0,
-    dataComparisonRecords: data?.comparison?.records?.length ?? 0,
-    isLoading,
-  })
-
-  return useMemo<CategoryDailyBundle>(() => {
+  const result = useMemo<CategoryDailyBundle>(() => {
     if (!frame) return frameAbsentBundle()
 
     const currentSeries = data?.current
@@ -221,4 +209,19 @@ export function useCategoryDailyBundle(
       error: error ?? null,
     }
   }, [frame, built, data, isLoading, error])
+
+  // DEBUG: comparison pipeline の各段階を可視化（useMemo 外）
+  const bundle = result
+  void bundle
+  console.info('[categoryDailyBundle] pipeline:', {
+    executorDataVersion: executor?.dataVersion ?? -1,
+    compDates: built.paired?.comparisonDateFrom ?? '(none)',
+    dataComparisonIsNull: data?.comparison == null,
+    dataComparisonRecords: data?.comparison?.records?.length ?? 0,
+    comparisonSeriesIsNull: result.comparisonSeries == null,
+    comparisonSalesQty: result.comparisonSeries?.grandTotals?.salesQty ?? 0,
+    currentSalesQty: result.currentSeries?.grandTotals?.salesQty ?? 0,
+  })
+
+  return result
 }
