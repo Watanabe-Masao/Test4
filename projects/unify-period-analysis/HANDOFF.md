@@ -5,6 +5,8 @@
 
 ## 1. 現在地
 
+**Status**: in_progress — Phase 0〜6 / Phase 6.5 は完了、Phase 7 / 8 は checkbox 未 audit (§6 参照)
+
 project ディレクトリを bootstrap し、運用切替まで完了した段階。
 `AI_CONTEXT.md` / `plan.md` / `checklist.md` / `pr-breakdown.md` /
 `review-checklist.md` / `acceptance-suite.md` / `test-plan.md` /
@@ -151,10 +153,11 @@ Phase 5 で確立した chart 薄化パターンは
 
 ### 高優先（次に着手するもの）
 
-- **Phase 6 全体クローズ済み (2026-04-15)**: Phase 6 (Step A/C/D) は PR #1039、Phase 6.5 Step B は PR #1040 で全 phase 完了。残タスクの **Phase 6 optional** は `projects/phase-6-optional-comparison-projection/` サブ project として切り出し済み (2026-04-16)
+- **Phase 7/8 audit (未着手 / 最優先)**: `checklist.md` の Phase 7 (G0-G6 ガード群 19 checkbox) / Phase 8 (L0-L4 テスト群 21 checkbox + CI 3-lane 1 件) は全て `[ ]` のまま **stale**。Phase 2-5 の作業中に一部 guard は organically 実装済みだが (例: G2 `noComparisonMathInPresentation` = `presentationComparisonMathGuard`、G3 両項 = `freePeriodHandlerOnlyGuard`、G4 `noRateInSql` = `noRateInFreePeriodSqlGuard`)、checkbox が追従していない。**parent project を close する前に各項目の実装状況を audit し、done/partial/not-done を確定する必要がある。** audit 前に推測で `[x]` を打たない (stale の上書きになるため)。Phase 6 本体 / Phase 6.5 / Phase 6 optional 子 project とは独立に着手可能。詳細な audit 対象は下記 §6
 - **Phase 6 optional (子 project)**: `comparison` feature から `PeriodSelection` 依存を削減する refactor。独立したライフサイクルで進行する (parent: `unify-period-analysis`)。詳細は `projects/phase-6-optional-comparison-projection/` 配下 (AI_CONTEXT / plan / checklist / HANDOFF)
+- **Phase 6 本体クローズ済み (2026-04-15)**: Phase 6 (Step A/C/D) は PR #1039、Phase 6.5 Step B は PR #1040 で本体 phase は完了 (下記 全景ブロック参照)。ただし上記の通り Phase 7/8 は checklist 未 audit のため **parent project 全体のクローズではない**
 
-> **Phase 6 全景 (2026-04-15 時点、Phase 6.5-6 クローズ後)**:
+> **Phase 6 本体 全景 (2026-04-15 時点、Phase 6.5-6 クローズ後)**:
 >
 > - ✅ Phase 6b: legacy caller baseline 2 → 0 (PR #1039)
 > - ✅ Phase 6 Step A: summary swap + regression freeze guard (PR #1039)
@@ -176,11 +179,11 @@ Phase 5 で確立した chart 薄化パターンは
 
 ### 中優先
 
-- (該当なし — Phase 6.5-4 で AR-003 fieldMax 49 → 51 ratchet-up は実施済み)
+- **Phase 6 optional 子 project**: `projects/phase-6-optional-comparison-projection/` (O1〜O7 の 7 sub-phase)。Phase 7/8 audit とは独立に進められる
 
 ### 低優先
 
-- Phase 5 以降: ViewModel / chart の薄化と画面段階載せ替え。
+- Phase 5 以降: ViewModel / chart の薄化と画面段階載せ替え (Phase 7/8 audit の not-done 項目次第で低優先のまま or scope 変更)
 
 ## 3. ハマりポイント
 
@@ -223,3 +226,73 @@ Phase 0 の棚卸しで場所と件数を固定してから Phase 2 に進む。
 | `references/01-principles/data-pipeline-integrity.md` | 額 / 率の分離原則 |
 | `references/01-principles/critical-path-safety-map.md` | Safety Tier 分類 |
 | `references/03-guides/runtime-data-path.md` | 正本 lane / Screen Plan lane |
+
+## 5. Final review gate の状態
+
+`checklist.md` 最後の「最終レビュー (人間承認)」checkbox が `[ ]` である限り、
+`project-checklist-governance.md` §3.1 / §6.2 により本 project は
+`derivedStatus = in_progress` のまま留まり、archive プロセスへの移行は
+構造的にブロックされる。つまり PR #1039 / PR #1040 が main に merge されても、
+**parent project は自動では close されない**。
+
+本 gate を通過させる前提条件:
+- Phase 0〜6 の checkbox がすべて `[x]` — 本体 phase は達成済み
+- Phase 7 / Phase 8 の checkbox が全件 audit 済み — **未完 (下記 §6)**
+- Phase 6 optional 子 project (`phase-6-optional-comparison-projection/`) の
+  archive 完了 — 未着手
+- 人間が最終レビュー checkbox を `[x]` に変更 — audit 完了後に実施
+
+## 6. Phase 7 / Phase 8 audit 計画 (未着手)
+
+### 6.1. なぜ audit が必要か
+
+`checklist.md` の Phase 7 / Phase 8 の checkbox は project 開始時点 (test-plan.md 策定時) の
+設計だが、その後 Phase 2〜5 の実作業中に下記のような状況で実装が **部分的に先行** した:
+
+- Phase 2 の実装ついでに G2 相当の `presentationComparisonMathGuard` を追加
+- Phase 3 の実装ついでに G3 相当の `freePeriodHandlerOnlyGuard` を追加
+- Phase 4 の実装ついでに G4 一部相当の `noRateInFreePeriodSqlGuard` を追加
+- Phase 5 の実装ついでに G6 一部相当の `chartInputBuilderGuard` / `chartRenderingStructureGuard` を追加
+
+一方で下記の項目は **現時点で対応 guard / test が存在しない** 可能性が高い:
+
+- G0 AAG 連結ガード 3 本 (`aagFacadeSurface` / `aagRuleIdReference` / `aagCriticalPathBinding`)
+- G1 frame 経路ガード 2 本 (`freePeriodPresetFrame` / `freePeriodAnalysisFramePath`)
+- G5 readModel 安全ガード 2 本 (`freePeriodFallbackVisible` / `readModelCoverageMetadata`)
+- Phase 8 L0〜L4 の網羅的 fixture / property / regression suite (部分的に存在する可能性はあり)
+- CI Fast / Medium / Slow lane の 3 段分離
+
+checkbox を **audit せずに** `[x]` に上書きすると「実装していないのに closed」という
+stale の上書きになるため、最初に audit commit を置き、項目ごとに
+「done (実装済み、guard/test path 記載)」「partial (近い guard はあるが対象範囲が狭い)」
+「not-done (対応なし)」を確定してから checkbox を更新する。
+
+### 6.2. audit の進め方 (推奨)
+
+1. **audit 結果を inventory ファイルに固定する**: 例えば
+   `inventory/06-phase7-phase8-audit.md` を新設し、各 checkbox について
+   | 項目 | 対応 guard / test | 状態 | 証拠 (file:line / commit) |
+   形式で埋める
+2. **not-done 項目の扱いを決める**: 次の 3 択から選ぶ
+   - (A) 本 parent project の Phase 7/8 として実装して閉じる
+   - (B) 子 project として切り出す (Phase 6 optional と同じ pattern)
+   - (C) scope 変更として明示的に除外する (理由を inventory に記録)
+3. **audit 結果を checklist.md に反映**: done 項目のみ `[x]` にし、
+   partial / not-done 項目には inventory の該当 section へのリンクコメントを
+   HANDOFF 側に追記 (checklist 本体は機械判定用なのでコメントを入れない)
+4. **最終レビュー checkbox は audit + 上記処置が完了してから `[x]`**
+
+### 6.3. audit の scope 境界
+
+- Phase 6 本体 / Phase 6.5 / Phase 6 optional 子 project とは **独立** に進められる
+- 実装コードに触らず **現状把握だけ** で済む (Phase 0 棚卸しと同じ性質の作業)
+- not-done 項目を実装するかどうかは audit 完了後の別判断
+
+### 6.4. audit 着手のトリガー
+
+本 audit は parent project を `completed` に遷移させる **前提条件** であり、
+下記のいずれかのタイミングで実施する:
+
+- PR #1040 (Phase 6.5 Step B) の main merge 直後
+- Phase 6 optional 子 project の archive 直前
+- 人間レビュワが parent project の最終レビュー checkbox を触る前
