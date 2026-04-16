@@ -1,5 +1,5 @@
 # Current Project
 
-active: data-flow-unification
+active: pure-calculation-reorg
 
-entry: `projects/data-flow-unification/AI_CONTEXT.md`
+entry: `projects/pure-calculation-reorg/AI_CONTEXT.md`
