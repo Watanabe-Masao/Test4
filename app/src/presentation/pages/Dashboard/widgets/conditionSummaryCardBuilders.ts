@@ -4,7 +4,7 @@
  * @guard F7 View は ViewModel のみ受け取る
  */
 
-import { safeDivide } from '@/domain/calculations/utils'
+import { safeDivide, calculateYoYRatio } from '@/domain/calculations/utils'
 import { calculateRemainingBudgetRate } from '@/domain/calculations/remainingBudgetRate'
 import { calculateCustomerGap } from '@/domain/calculations/customerGap'
 import { formatPercent } from '@/domain/formatting'
@@ -409,7 +409,7 @@ export function buildYoYCards(input: BuildYoYCardsInput): readonly YoYCardSummar
     prevTotalCustomers > 0 &&
     curTotalCustomers > 0
   ) {
-    const custYoY = curTotalCustomers / prevTotalCustomers
+    const custYoY = calculateYoYRatio(curTotalCustomers, prevTotalCustomers)
     cards.push({
       key: 'customerYoY',
       label: '客数前年比',
@@ -428,7 +428,7 @@ export function buildYoYCards(input: BuildYoYCardsInput): readonly YoYCardSummar
     ctsCurrentQty > 0 &&
     ctsPrevQty > 0
   ) {
-    const itemsYoY = ctsCurrentQty / ctsPrevQty
+    const itemsYoY = calculateYoYRatio(ctsCurrentQty, ctsPrevQty)
     cards.push({
       key: 'itemsYoY',
       label: '販売点数前年比',
@@ -449,7 +449,7 @@ export function buildYoYCards(input: BuildYoYCardsInput): readonly YoYCardSummar
   ) {
     const txValue = r.transactionValue
     const prevTxValue = calculateTransactionValue(prevYear.totalSales, prevTotalCustomers)
-    const txYoY = prevTxValue > 0 ? txValue / prevTxValue : null
+    const txYoY = prevTxValue > 0 ? calculateYoYRatio(txValue, prevTxValue) : null
     const fmtTx = (v: number) =>
       `${v.toLocaleString('ja-JP', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}円`
     if (txYoY != null) {
@@ -499,7 +499,7 @@ export function buildYoYCards(input: BuildYoYCardsInput): readonly YoYCardSummar
     prevYearTotalCost != null &&
     prevYearTotalCost > 0
   ) {
-    const costYoY = r.totalCost / prevYearTotalCost
+    const costYoY = calculateYoYRatio(r.totalCost, prevYearTotalCost)
     cards.push({
       key: 'totalCost',
       label: '総仕入前年比',
