@@ -5,36 +5,41 @@
 
 ## 1. 現在地
 
-プロジェクト立ち上げ直後。Phase 1（差分特定）から着手する。
+Phase 1 診断ほぼ完了。障害位置は **read path（consumer の query 呼び出し）** に絞り込まれた。
 
-**判明した事実:**
-- 旧経路（`useAutoLoadPrevYear`）で手動ロード後は前年データが正しく表示される
-- 新経路（`useLoadComparisonData`）単独では一部のデータスライスが DuckDB に入らない
-- カレンダーモーダル（旧経路）では5要素分解・時間帯比較が正常動作
-- ダッシュボードウィジェット（新経路依存）では前年データが欠落
+### 確定した事実（診断ログで実証済み）
 
-**修正済み:**
-- `materializeSummary` の `force=true` 対応（前年データ追加後の再マテリアライズ）
-- SQL エラー（`customers` 列不在、`b.total` 列不在、エイリアス不一致）
-- 5要素分解の `hasQuantity=false` 時フォールバック
-- 移動平均チャートの色重複
-- スライダー分母固定バグ
+| 段階 | 状態 | 根拠 |
+|---|---|---|
+| IndexedDB → dataStore | ✓ 正常 | `loaded {cs: 16649, cts: 18680, flowers: 150, purchase: 150}` |
+| dataStore → useDuckDB | ✓ 正常 | `hasPrevYear: true, prevYearCtsRecords: 18680` |
+| DuckDB loadMonth | ✓ 正常 | `time_slots: 98930, classified_sales: 16649` |
+| store_day_summary VIEW | ✓ 前年行あり | `total: 1100, prevYear: 295` |
+| **consumer read path** | **✗ 疑い** | 画面に前年データが表示されない |
+
+### 最有力仮説
+
+`storeDaySummary.ts` の `summaryWhereClause()` はデフォルトで `is_prev_year = FALSE` を
+WHERE に入れる。呼び出し側が `isPrevYear: true` を渡し忘れると、前年行は黙って除外される。
+時間帯ヒートマップと `categoryDailyLane` の比較クエリがこのパターンに該当する可能性が高い。
+
+### 修正済み
+
+- `loadComparisonDataAsync` に欠落4スライス追加（purchase, directProduce, interStoreIn, interStoreOut）
+- `comparisonResultToMonthlyData` の変換完全化
+- `useAutoLoadPrevYear` 削除（dead code）
+- `materializeSummary` の `force=true` 対応
+- SQL エラー修正（customers 列、b.total 列、totalCustomers エイリアス）
+- 5要素分解フォールバック / MA色重複 / スライダー分母固定
 
 ## 2. 次にやること
 
-### 最優先: 旧経路と新経路の差分特定
+### 最優先: read path の isPrevYear 追跡
 
-旧経路は廃止すべきだが、現在は動作している。新経路との**差分**を正確に特定し、
-新経路に何が足りないかを明確にする。差分が分かれば修正は局所的になる。
-
-### 中優先
-
-- Phase 3: `loadMonth(prevYear, isPrevYear=true)` の網羅性を保証し、全テーブルに `is_prev_year=true` 行が入ることを検証する
-- Phase 4: fingerprint キャッシュの前年データ対応を整理する
-
-### 低優先
-
-- Phase 5: ガードテスト追加、診断ログ除去、ドキュメント更新
+1. `queryStoreDaySummary` 系の呼び出し元で `isPrevYear` の渡し方を確認
+2. 時間帯ヒートマップ（`hourlyAggregationHandler` → `ctsHourlyQueries`）の前年クエリを確認
+3. `categoryDailyLane.bundle` の比較クエリ（`categoryTimeRecordsPairHandler`）を確認
+4. 移動平均の前年クエリ（`movingAverageHandler`）を確認
 
 ## 3. ハマりポイント
 
