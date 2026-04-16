@@ -184,10 +184,6 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
     // DEBUG: comparison.scope の状態をログ
     console.debug('[categoryDailyFrame] build:', {
       hasComparisonScope: comparison.scope != null,
-      effectivePeriod2: comparison.scope?.effectivePeriod2
-        ? `${comparison.scope.effectivePeriod2.from.year}-${comparison.scope.effectivePeriod2.from.month}-${comparison.scope.effectivePeriod2.from.day} ~ ${comparison.scope.effectivePeriod2.to.year}-${comparison.scope.effectivePeriod2.to.month}-${comparison.scope.effectivePeriod2.to.day}`
-        : '(none)',
-      alignmentMode: comparison.scope?.alignmentMode ?? '(none)',
     })
     return {
       dateRange: {
