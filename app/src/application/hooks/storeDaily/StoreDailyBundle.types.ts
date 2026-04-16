@@ -30,7 +30,7 @@
  * から流用。`wow` は初期契約から外す。比較先日付の解決は
  * `comparisonRangeResolver` 経由 (Phase 2 で固定済み)。
  *
- * @see projects/unify-period-analysis/phase-6-5-step-b-design.md
+ * @see projects/completed/unify-period-analysis/phase-6-5-step-b-design.md
  * @see app/src/application/hooks/timeSlot/TimeSlotBundle.types.ts (参照実装)
  *
  * @responsibility R:utility

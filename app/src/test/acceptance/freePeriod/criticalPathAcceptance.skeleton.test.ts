@@ -12,9 +12,9 @@
  * 検証する。PR 1〜5 の進行に合わせて期待値と assertion を拡張していく。
  *
  * 参照:
- *   - `projects/unify-period-analysis/acceptance-suite.md`
- *   - `projects/unify-period-analysis/test-plan.md` §L2 受け入れテスト
- *   - `projects/unify-period-analysis/checklist.md` Phase 0.5
+ *   - `projects/completed/unify-period-analysis/acceptance-suite.md`
+ *   - `projects/completed/unify-period-analysis/test-plan.md` §L2 受け入れテスト
+ *   - `projects/completed/unify-period-analysis/checklist.md` Phase 0.5
  */
 import { describe, it, expect } from 'vitest'
 import {

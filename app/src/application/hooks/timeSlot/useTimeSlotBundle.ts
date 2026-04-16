@@ -44,7 +44,7 @@
  *
  * @see TimeSlotBundle.types.ts
  * @see projectTimeSlotSeries.ts
- * @see projects/unify-period-analysis/step-c-timeslot-lane-policy.md
+ * @see projects/completed/unify-period-analysis/step-c-timeslot-lane-policy.md
  *
  * @responsibility R:orchestration
  */
@@ -168,7 +168,7 @@ function buildInputs(frame: TimeSlotFrame | null): BuiltInputs {
   }
   const comparisonDayCount = dayCount(cmpRange.from, cmpRange.to)
   // Step C 方針: time-slot 比較意味論は sameDate / sameDayOfWeek の 2 値で固定
-  // (`projects/unify-period-analysis/step-c-timeslot-lane-policy.md` §3)。
+  // (`projects/completed/unify-period-analysis/step-c-timeslot-lane-policy.md` §3)。
   // 未知の mode は想定外だが黙って sameDate に落とさず、明示的 switch で
   // 既知値を pin し default では警告付きで sameDate fallback する。将来
   // ComparisonScope.alignmentMode に値が増えたときに静かな破壊が起きない。

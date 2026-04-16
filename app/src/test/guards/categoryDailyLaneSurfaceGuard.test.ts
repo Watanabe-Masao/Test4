@@ -2,7 +2,7 @@
 //
 // unify-period-analysis Phase 6.5 Step B pre-work (Phase 6.5-1):
 // 部門×日次シリーズを `FreePeriodReadModel` に吸収せず、sibling lane として
-// 切り出す方針を固定 (`projects/unify-period-analysis/phase-6-5-step-b-design.md`)。
+// 切り出す方針を固定 (`projects/completed/unify-period-analysis/phase-6-5-step-b-design.md`)。
 // 本 guard はその方針の軽めの先行防御として、YoYWaterfallChart ecosystem
 // (4 ファイル) が `CategoryTimeSalesRecord` を直接 import / iterate している
 // 現状を per-file count baseline で固定する。
@@ -26,7 +26,7 @@
 // の対象外のため、本 guard の監視対象に含めない。
 //
 // @see app/src/application/hooks/categoryDaily/CategoryDailyBundle.types.ts
-// @see projects/unify-period-analysis/phase-6-5-step-b-design.md
+// @see projects/completed/unify-period-analysis/phase-6-5-step-b-design.md
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
@@ -139,7 +139,7 @@ describe('categoryDailyLaneSurfaceGuard (unify-period-analysis Phase 6.5 Step B 
             '  2. entries[i].daily (CategoryDailyDataPoint[]) を iterate する',
             '  3. 新規 widget は最初から sibling lane 経由で書く',
             '',
-            '詳細: projects/unify-period-analysis/phase-6-5-step-b-design.md',
+            '詳細: projects/completed/unify-period-analysis/phase-6-5-step-b-design.md',
           ].join('\n')
         : undefined,
     ).toEqual([])
@@ -216,7 +216,7 @@ describe('categoryDailyLaneSurfaceGuard (unify-period-analysis Phase 6.5 Step B 
   it('Phase 6.5 Step B 設計ドキュメントが存在する (意思決定の固定先)', () => {
     const designFile = path.resolve(
       SRC_DIR,
-      '../../projects/unify-period-analysis/phase-6-5-step-b-design.md',
+      '../../projects/completed/unify-period-analysis/phase-6-5-step-b-design.md',
     )
     expect(fs.existsSync(designFile), 'phase-6-5-step-b-design.md が存在しない').toBe(true)
     const content = fs.readFileSync(designFile, 'utf-8')

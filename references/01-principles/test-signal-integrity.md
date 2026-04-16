@@ -5,7 +5,7 @@
 > 役割: 品質シグナル（test / coverage / compile / lint）が、本当に品質が
 > 上がった結果を表すことを保証するための原則正本。
 >
-> 管理責任: AAG Core (`projects/test-signal-integrity` で導入)。
+> 管理責任: AAG Core (`projects/completed/test-signal-integrity` で導入)。
 > 関連実装: `app/src/test/guards/codePatternGuard.test.ts`（G3 ガード）/
 > 今後追加予定の TSIG-TEST 系 / TSIG-COMP 系 guard。
 
@@ -393,7 +393,7 @@ Allowed exceptions
 
 | パス | 役割 |
 |---|---|
-| `projects/test-signal-integrity/` | 本原則を実装する project |
+| `projects/completed/test-signal-integrity/` | 本原則を実装する project |
 | `app/src/test/guards/codePatternGuard.test.ts` | 既存の AR-G3-SUPPRESS ガード（TSIG-COMP-01/02 はこれを拡張） |
 | `app/src/test/allowlists/signalIntegrity.ts` | G3 + Signal Integrity 共通の rationale 必須 allowlist（Phase 3 で作成） |
 | `app-domain/gross-profit/rule-catalog/base-rules.ts` | Architecture Rule カタログ（TSIG-* / AR-G3-SUPPRESS-RATIONALE 登録先） |
@@ -406,7 +406,7 @@ Allowed exceptions
 - `references/03-guides/architecture-rule-system.md` — Architecture Rule の運用手順
 - `references/03-guides/discovery-review-checklist.md` — グレーパターンの逃がし先
 - `references/03-guides/coding-conventions.md` — TypeScript / lint 規約（rationale 形式の正本）
-- `projects/test-signal-integrity/plan.md` — 本原則の実装計画と Phase 構造
+- `projects/completed/test-signal-integrity/plan.md` — 本原則の実装計画と Phase 構造
 - `projects/presentation-quality-hardening/checklist.md` — 本原則の Phase 3 完了を coverage 70 引き上げの前提条件として参照する application-side project
 
 ## 実装ルール ID リファレンス

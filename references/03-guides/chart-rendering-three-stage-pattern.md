@@ -175,7 +175,7 @@ Option` の inline 定義は一切許容されない。
 - `references/03-guides/chart-input-builder-pattern.md` — 入力側パターン
 - `references/03-guides/chart-data-flow-map.md` — 全 chart のデータフロー一覧
 - `references/03-guides/runtime-data-path.md` — 正本 lane / Screen Plan lane の 2 系統
-- `projects/unify-period-analysis/HANDOFF.md` — Phase 5 進捗
+- `projects/completed/unify-period-analysis/HANDOFF.md` — Phase 5 進捗
 
 ## 新規 chart を作るとき
 

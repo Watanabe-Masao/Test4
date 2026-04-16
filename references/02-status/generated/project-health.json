@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-16T06:39:18.393Z",
+  "timestamp": "2026-04-16T07:48:58.346Z",
   "summary": {
-    "active": 6,
-    "archived": 6,
-    "inProgress": 5,
+    "active": 3,
+    "archived": 9,
+    "inProgress": 2,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
     "totalCheckboxes": 416,
-    "checkedCheckboxes": 379
+    "checkedCheckboxes": 384
   },
   "projects": [
     {
@@ -94,13 +94,13 @@
       "projectId": "phase-6-optional-comparison-projection",
       "title": "Phase 6 optional — comparison subsystem projection context",
       "kind": "project",
-      "declaredStatus": "active",
-      "derivedStatus": "in_progress",
-      "checked": 39,
+      "declaredStatus": "archived",
+      "derivedStatus": "archived",
+      "checked": 40,
       "total": 40,
-      "progress": 0.975,
-      "entrypoint": "projects/phase-6-optional-comparison-projection/AI_CONTEXT.md",
-      "checklistPath": "projects/phase-6-optional-comparison-projection/checklist.md",
+      "progress": 1,
+      "entrypoint": "projects/completed/phase-6-optional-comparison-projection/AI_CONTEXT.md",
+      "checklistPath": "projects/completed/phase-6-optional-comparison-projection/checklist.md",
       "parent": "unify-period-analysis"
     },
     {
@@ -146,26 +146,26 @@
       "projectId": "test-signal-integrity",
       "title": "AAG Test Signal Integrity — 品質シグナル保全と False Green 防止",
       "kind": "project",
-      "declaredStatus": "active",
-      "derivedStatus": "in_progress",
-      "checked": 34,
+      "declaredStatus": "archived",
+      "derivedStatus": "archived",
+      "checked": 35,
       "total": 35,
-      "progress": 0.971,
-      "entrypoint": "projects/test-signal-integrity/AI_CONTEXT.md",
-      "checklistPath": "projects/test-signal-integrity/checklist.md",
+      "progress": 1,
+      "entrypoint": "projects/completed/test-signal-integrity/AI_CONTEXT.md",
+      "checklistPath": "projects/completed/test-signal-integrity/checklist.md",
       "parent": null
     },
     {
       "projectId": "unify-period-analysis",
       "title": "期間分析統合（固定期間を自由期間プリセットに）",
       "kind": "project",
-      "declaredStatus": "active",
-      "derivedStatus": "in_progress",
-      "checked": 54,
+      "declaredStatus": "archived",
+      "derivedStatus": "archived",
+      "checked": 57,
       "total": 57,
-      "progress": 0.947,
-      "entrypoint": "projects/unify-period-analysis/AI_CONTEXT.md",
-      "checklistPath": "projects/unify-period-analysis/checklist.md",
+      "progress": 1,
+      "entrypoint": "projects/completed/unify-period-analysis/AI_CONTEXT.md",
+      "checklistPath": "projects/completed/unify-period-analysis/checklist.md",
       "parent": null
     }
   ]

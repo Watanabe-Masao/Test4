@@ -67,4 +67,4 @@
 > `in_progress` のまま留まり、archive obligation は発火しない。
 > 詳細: `references/03-guides/project-checklist-governance.md` §3.1 / §6.2
 
-* [ ] 全 Phase の成果物 (commit / PR #1015 / `references/01-principles/test-signal-integrity.md` / `references/03-guides/test-signal-integrity-advisory.md` / `app/src/test/guards/testSignalIntegrityGuard.test.ts` / `tools/git-hooks/pre-push` の `check_test_signal_advisory()` / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する
+* [x] 全 Phase の成果物 (commit / PR #1015 / `references/01-principles/test-signal-integrity.md` / `references/03-guides/test-signal-integrity-advisory.md` / `app/src/test/guards/testSignalIntegrityGuard.test.ts` / `tools/git-hooks/pre-push` の `check_test_signal_advisory()` / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する

@@ -38,8 +38,8 @@
 // 次元拡張) で bundle が常時ロード保証されるようになったら 0 に到達する。
 //
 // @see app/src/application/readModels/freePeriod/selectPrevYearSummaryFromFreePeriod.ts
-// @see projects/unify-period-analysis/inventory/05-phase6-widget-consumers.md
-// @see projects/unify-period-analysis/HANDOFF.md §Phase 6 Step A
+// @see projects/completed/unify-period-analysis/inventory/05-phase6-widget-consumers.md
+// @see projects/completed/unify-period-analysis/HANDOFF.md §Phase 6 Step A
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
@@ -121,7 +121,7 @@ describe('phase6SummarySwapGuard (unify-period-analysis Phase 6 Step A)', () => 
             '  3. composer (preferFreePeriodPrevYearSummary) で freePeriod 優先 + legacy fallback を表現する',
             '',
             '詳細: app/src/application/readModels/freePeriod/selectPrevYearSummaryFromFreePeriod.ts',
-            '      projects/unify-period-analysis/HANDOFF.md §Phase 6 Step A',
+            '      projects/completed/unify-period-analysis/HANDOFF.md §Phase 6 Step A',
           ].join('\n')
         : undefined,
     ).toEqual([])

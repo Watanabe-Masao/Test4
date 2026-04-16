@@ -31,7 +31,7 @@
  * に対する安全網** として固定する。Phase 6 で `useComparisonModule` を
  * `ComparisonScope` 直接受領に書き換える際の回帰基準にもなる。
  *
- * @see projects/unify-period-analysis/checklist.md Phase 1 完了範囲の明示
+ * @see projects/completed/unify-period-analysis/checklist.md Phase 1 完了範囲の明示
  * @see app/src/presentation/hooks/slices/useComparisonSlice.ts JSDoc
  */
 import { describe, it, expect } from 'vitest'

@@ -1,0 +1,13 @@
+{
+  "projectId": "phase-6-optional-comparison-projection",
+  "title": "Phase 6 optional — comparison subsystem projection context",
+  "status": "archived",
+  "parent": "unify-period-analysis",
+  "projectRoot": "projects/completed/phase-6-optional-comparison-projection",
+  "entrypoints": {
+    "aiContext": "projects/completed/phase-6-optional-comparison-projection/AI_CONTEXT.md",
+    "handoff": "projects/completed/phase-6-optional-comparison-projection/HANDOFF.md",
+    "plan": "projects/completed/phase-6-optional-comparison-projection/plan.md",
+    "checklist": "projects/completed/phase-6-optional-comparison-projection/checklist.md"
+  }
+}

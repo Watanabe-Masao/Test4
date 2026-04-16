@@ -14,8 +14,8 @@
  *   - 将来の regression (L4) / property (L3) 追加時も本 fixture を流用できる
  *
  * 参照:
- *   - `projects/unify-period-analysis/acceptance-suite.md`
- *   - `projects/unify-period-analysis/test-plan.md` §Phase 0.5
+ *   - `projects/completed/unify-period-analysis/acceptance-suite.md`
+ *   - `projects/completed/unify-period-analysis/test-plan.md` §Phase 0.5
  *   - `references/01-principles/free-period-analysis-definition.md`
  */
 import type { FreePeriodDailyRow } from '@/application/readModels/freePeriod/FreePeriodTypes'

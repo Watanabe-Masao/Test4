@@ -33,7 +33,7 @@
  *   - 同じ (storeId, hour) の row が複数あれば加算する
  *
  * @see TimeSlotBundle.types.ts
- * @see projects/unify-period-analysis/step-c-timeslot-lane-policy.md
+ * @see projects/completed/unify-period-analysis/step-c-timeslot-lane-policy.md
  *
  * @responsibility R:transform
  */

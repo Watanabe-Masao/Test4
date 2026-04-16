@@ -31,7 +31,7 @@
  * `timeSlotLane` / `storeDailyLane` と同じく `sameDate` / `sameDayOfWeek` を
  * 既存 `ComparisonScope` から流用。`wow` は初期契約から外す。
  *
- * @see projects/unify-period-analysis/phase-6-5-step-b-design.md
+ * @see projects/completed/unify-period-analysis/phase-6-5-step-b-design.md
  * @see app/src/application/hooks/storeDaily/StoreDailyBundle.types.ts (sibling)
  * @see app/src/application/hooks/timeSlot/TimeSlotBundle.types.ts (参照実装)
  *

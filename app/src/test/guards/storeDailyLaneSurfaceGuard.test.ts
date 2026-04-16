@@ -2,7 +2,7 @@
 //
 // unify-period-analysis Phase 6.5 Step B pre-work (Phase 6.5-1):
 // 店舗別日次シリーズを `FreePeriodReadModel` に吸収せず、sibling lane として
-// 切り出す方針を固定 (`projects/unify-period-analysis/phase-6-5-step-b-design.md`)。
+// 切り出す方針を固定 (`projects/completed/unify-period-analysis/phase-6-5-step-b-design.md`)。
 // 本 guard はその方針の軽めの先行防御として、`SalesPurchaseComparisonChart.tsx`
 // が `s.result.daily` を直接 iterate している現状を per-file count baseline で
 // 固定する。
@@ -18,7 +18,7 @@
 // 本 guard は「禁止」よりも「移行目標の可視化」として機能する。
 //
 // @see app/src/application/hooks/storeDaily/StoreDailyBundle.types.ts
-// @see projects/unify-period-analysis/phase-6-5-step-b-design.md
+// @see projects/completed/unify-period-analysis/phase-6-5-step-b-design.md
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
@@ -109,7 +109,7 @@ describe('storeDailyLaneSurfaceGuard (unify-period-analysis Phase 6.5 Step B pre
             '  2. entries[i].daily (StoreDailyDataPoint[]) を iterate する',
             '  3. 新規 widget は最初から sibling lane 経由で書く',
             '',
-            '詳細: projects/unify-period-analysis/phase-6-5-step-b-design.md',
+            '詳細: projects/completed/unify-period-analysis/phase-6-5-step-b-design.md',
           ].join('\n')
         : undefined,
     ).toEqual([])
@@ -180,7 +180,7 @@ describe('storeDailyLaneSurfaceGuard (unify-period-analysis Phase 6.5 Step B pre
   it('Phase 6.5 Step B 設計ドキュメントが存在する (意思決定の固定先)', () => {
     const designFile = path.resolve(
       SRC_DIR,
-      '../../projects/unify-period-analysis/phase-6-5-step-b-design.md',
+      '../../projects/completed/unify-period-analysis/phase-6-5-step-b-design.md',
     )
     expect(fs.existsSync(designFile), 'phase-6-5-step-b-design.md が存在しない').toBe(true)
     const content = fs.readFileSync(designFile, 'utf-8')
