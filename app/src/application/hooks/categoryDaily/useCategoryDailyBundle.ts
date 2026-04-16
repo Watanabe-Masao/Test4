@@ -177,6 +177,18 @@ export function useCategoryDailyBundle(
     built.paired,
   )
 
+  // DEBUG: categoryDailyLane の比較クエリ状態
+  console.info('[categoryDailyBundle] query state:', {
+    hasFrame: frame != null,
+    hasComparison: frame?.comparison != null,
+    pairedHasCompDates: !!(built.paired?.comparisonDateFrom && built.paired?.comparisonDateTo),
+    comparisonDateFrom: built.paired?.comparisonDateFrom ?? null,
+    comparisonDateTo: built.paired?.comparisonDateTo ?? null,
+    dataCurrentRecords: data?.current?.records?.length ?? 0,
+    dataComparisonRecords: data?.comparison?.records?.length ?? 0,
+    isLoading,
+  })
+
   return useMemo<CategoryDailyBundle>(() => {
     if (!frame) return frameAbsentBundle()
 
