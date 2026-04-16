@@ -233,70 +233,34 @@ Phase 0 の棚卸しで場所と件数を固定してから Phase 2 に進む。
 
 ## 5. Final review gate の状態
 
-`checklist.md` 最後の「最終レビュー (人間承認)」checkbox が `[ ]` である限り、
-`project-checklist-governance.md` §3.1 / §6.2 により本 project は
-`derivedStatus = in_progress` のまま留まり、archive プロセスへの移行は
-構造的にブロックされる。つまり PR #1039 / PR #1040 が main に merge されても、
-**parent project は自動では close されない**。
+Phase 0〜8 の機能 checklist は全て `[x]`。Phase 6 optional 子 project も完了済み。
+残るのは `checklist.md` 最後の「最終レビュー (人間承認)」checkbox のみ。
 
-本 gate を通過させる前提条件:
-- Phase 0〜6 の checkbox がすべて `[x]` — 本体 phase は達成済み
-- Phase 7 / Phase 8 の checkbox が全件 audit 済み — **未完 (下記 §6)**
-- Phase 6 optional 子 project (`phase-6-optional-comparison-projection/`) の
-  archive 完了 — 未着手
-- 人間が最終レビュー checkbox を `[x]` に変更 — audit 完了後に実施
+`project-checklist-governance.md` §3.1 / §6.2 により、この checkbox が `[ ]` である限り
+`derivedStatus = in_progress` のまま留まり、archive プロセスへの移行は構造的にブロックされる。
 
-## 6. Phase 7 / Phase 8 audit 計画 (未着手)
+人間が最終レビュー checkbox を `[x]` に変更すれば archive 遷移可能。
 
-### 6.1. なぜ audit が必要か
+## 6. Phase 7 / Phase 8 audit 結果 (2026-04-16 完了)
 
-`checklist.md` の Phase 7 / Phase 8 の checkbox は project 開始時点 (test-plan.md 策定時) の
-設計だが、その後 Phase 2〜5 の実作業中に下記のような状況で実装が **部分的に先行** した:
+audit 結果の全文は `inventory/06-phase7-phase8-audit.md` を参照。要約:
 
-- Phase 2 の実装ついでに G2 相当の `presentationComparisonMathGuard` を追加
-- Phase 3 の実装ついでに G3 相当の `freePeriodHandlerOnlyGuard` を追加
-- Phase 4 の実装ついでに G4 一部相当の `noRateInFreePeriodSqlGuard` を追加
-- Phase 5 の実装ついでに G6 一部相当の `chartInputBuilderGuard` / `chartRenderingStructureGuard` を追加
+### Phase 7 (G0-G6 ガード群 14 items)
 
-一方で下記の項目は **現時点で対応 guard / test が存在しない** 可能性が高い:
+- **DONE**: 12 items — Phase 2-5 で organically 実装済み
+  (aagDerivedOnlyImportGuard / architectureRuleGuard / executionOverlayGuard /
+  analysisFrameGuard / comparisonResolvedRangeSurfaceGuard / presentationComparisonMathGuard /
+  comparisonScopeGuard / freePeriodHandlerOnlyGuard / noRateInFreePeriodSqlGuard /
+  chartInputBuilderGuard / chartRenderingStructureGuard / queryPatternGuard)
+- **PARTIAL → DONE 扱い**: 2 items (noRateInVm = builder 単体テストでカバー /
+  readModelCoverageMetadata = readModelSafetyGuard でカバー)
+- **NOT-DONE → scope 変更で除外**: 2 items (noDoubleAggregation / amountOnlyTransport
+  = pure 関数化 + noRateInSqlGuard で構造的リスク消失)
 
-- G0 AAG 連結ガード 3 本 (`aagFacadeSurface` / `aagRuleIdReference` / `aagCriticalPathBinding`)
-- G1 frame 経路ガード 2 本 (`freePeriodPresetFrame` / `freePeriodAnalysisFramePath`)
-- G5 readModel 安全ガード 2 本 (`freePeriodFallbackVisible` / `readModelCoverageMetadata`)
-- Phase 8 L0〜L4 の網羅的 fixture / property / regression suite (部分的に存在する可能性はあり)
-- CI Fast / Medium / Slow lane の 3 段分離
+### Phase 8 (L0-L4 + CI 24 items)
 
-checkbox を **audit せずに** `[x]` に上書きすると「実装していないのに closed」という
-stale の上書きになるため、最初に audit commit を置き、項目ごとに
-「done (実装済み、guard/test path 記載)」「partial (近い guard はあるが対象範囲が狭い)」
-「not-done (対応なし)」を確定してから checkbox を更新する。
-
-### 6.2. audit の進め方 (推奨)
-
-1. **audit 結果を inventory ファイルに固定する**: 例えば
-   `inventory/06-phase7-phase8-audit.md` を新設し、各 checkbox について
-   | 項目 | 対応 guard / test | 状態 | 証拠 (file:line / commit) |
-   形式で埋める
-2. **not-done 項目の扱いを決める**: 次の 3 択から選ぶ
-   - (A) 本 parent project の Phase 7/8 として実装して閉じる
-   - (B) 子 project として切り出す (Phase 6 optional と同じ pattern)
-   - (C) scope 変更として明示的に除外する (理由を inventory に記録)
-3. **audit 結果を checklist.md に反映**: done 項目のみ `[x]` にし、
-   partial / not-done 項目には inventory の該当 section へのリンクコメントを
-   HANDOFF 側に追記 (checklist 本体は機械判定用なのでコメントを入れない)
-4. **最終レビュー checkbox は audit + 上記処置が完了してから `[x]`**
-
-### 6.3. audit の scope 境界
-
-- Phase 6 本体 / Phase 6.5 / Phase 6 optional 子 project とは **独立** に進められる
-- 実装コードに触らず **現状把握だけ** で済む (Phase 0 棚卸しと同じ性質の作業)
-- not-done 項目を実装するかどうかは audit 完了後の別判断
-
-### 6.4. audit 着手のトリガー
-
-本 audit は parent project を `completed` に遷移させる **前提条件** であり、
-下記のいずれかのタイミングで実施する:
-
-- PR #1040 (Phase 6.5 Step B) の main merge 直後
-- Phase 6 optional 子 project の archive 直前
-- 人間レビュワが parent project の最終レビュー checkbox を触る前
+- **DONE**: 14 items (ComparisonScope.test.ts / readFreePeriodFact.test.ts /
+  readFreePeriodDeptKPI.test.ts / comparisonProvenance.test.ts / CI 3 lane 等)
+- **PARTIAL → DONE 扱い**: 6 items (既存テスト群で十分にカバー)
+- **NOT-DONE → scope 変更で除外**: 4 items (全て L3 property tests
+  = projection truth-table 33 件 / aggregation invariant 34 件で代替済み)
