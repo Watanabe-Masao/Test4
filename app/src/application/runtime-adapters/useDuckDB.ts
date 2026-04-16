@@ -149,7 +149,7 @@ export function useDuckDB(
         if (isStale()) return
         // 前年データがあれば追加ロード
         if (prevYear) {
-          await loadMonth(
+          const prevResult = await loadMonth(
             state.conn,
             state.db,
             prevYear,
@@ -157,6 +157,7 @@ export function useDuckDB(
             prevYear.origin.month,
             true,
           )
+          console.info('[useDuckDB] prevYear loadMonth result', prevResult.rowCounts)
           if (isStale()) return
           loadedPrevYearFp.current = computeMonthFingerprint(prevYear)
         }
