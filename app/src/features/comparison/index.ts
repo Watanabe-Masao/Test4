@@ -56,6 +56,13 @@ export {
 } from './domain/comparisonProvenance'
 
 // 公開 API: Facade hooks
-export { useComparisonModule } from './application/hooks/useComparisonModule'
-export type { ComparisonModule } from './application/hooks/useComparisonModule'
+export { useComparisonModuleCore } from './application/hooks/useComparisonModule'
+export type {
+  ComparisonModule,
+  UseComparisonModuleCoreInput,
+} from './application/hooks/useComparisonModule'
 export { useComparisonScope } from './application/hooks/useComparisonScope'
+
+// 公開 API: Projection context
+export { buildComparisonProjectionContext } from './application/buildComparisonProjectionContext'
+export type { ComparisonProjectionContext } from './application/ComparisonProjectionContext'

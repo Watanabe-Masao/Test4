@@ -4,32 +4,27 @@
  * comparison scope / prevYear / dowGap / kpi を統合して返す。
  * useUnifiedWidgetContext の context slice として比較関連の依存を局所化する。
  *
- * ## unify-period-analysis Phase 1 — 入口の frame 化
+ * ## phase-6-optional-comparison-projection Phase O6 — core 直接呼び出し
  *
- * 本 slice は `FreePeriodAnalysisFrame` を primary 入力として受け取る形に
- * 書き換えられた。frame.comparison は事前構築された `ComparisonScope | null`
- * であり、slice は以後この値を「comparison 有効判定の唯一の入口」として扱う。
+ * Phase O5 で useComparisonModuleCore が PeriodSelection 非依存の core hook
+ * として確立された。本 slice は wrapper を経由せず core を直接呼ぶ形に移行。
+ * frame.comparison (scope) + buildComparisonProjectionContext(periodSelection)
+ * (projectionContext) を core に直接渡す。
  *
- * ## unify-period-analysis Phase 6a — frame.comparison の pass-through
- *
- * Phase 6a で `useComparisonModule` に `externalScope` パラメータが追加された
- * ため、本 slice は `frame.comparison` をそのまま externalScope として渡す。
- * これで scope の二重構築 (frame 構築経路 + comparison module 内部の scope
- * factory 呼び出し) が解消された。等価性は `frameComparisonParity` test で
- * 固定済み。
- *
- * 内部 comparison module の残る periodSelection 依存 (kpi projection の
- * period1/period2 / dowGap の year/month) は Phase 6b で除去予定。
+ * periodSelection は projectionContext 構築にのみ使用し、core hook には
+ * 渡らない。これにより features/comparison/ 内部は PeriodSelection を
+ * 完全に知らない状態が維持される。
  *
  * @responsibility R:context
  */
 import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/hooks/analytics'
-import { useComparisonModule } from '@/application/hooks/useComparisonModule'
+import { useComparisonModuleCore, buildComparisonProjectionContext } from '@/features/comparison'
 import type { ComparisonScope } from '@/domain/models/ComparisonScope'
 import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
 import type { PrevYearScope } from '@/domain/models/ComparisonScope'
 import type { PeriodSelection } from '@/domain/models/PeriodSelection'
 import type { FreePeriodAnalysisFrame } from '@/domain/models/AnalysisFrame'
+import { useMemo } from 'react'
 
 export interface ComparisonSlice {
   readonly daily: PrevYearData
@@ -42,18 +37,20 @@ export interface ComparisonSlice {
 export function useComparisonSlice(
   frame: FreePeriodAnalysisFrame,
   periodSelection: PeriodSelection,
-  elapsedDays: number | undefined,
+  _elapsedDays: number | undefined,
   averageDailySales: number,
 ): ComparisonSlice {
-  // Phase 6a: frame.comparison を externalScope として渡すことで、
-  // comparison module 内部の scope 再構築を skip する。
-  // periodSelection は kpi projection / dowGap で必要なため Phase 6a 時点では
-  // まだ渡す (Phase 6b で除去予定)。
-  const comparison = useComparisonModule(
-    periodSelection,
-    elapsedDays,
-    averageDailySales,
-    frame.comparison,
+  // Phase O6: core 直接呼び出し。
+  // scope は frame.comparison から取得 (wrapper の scope 構築を skip)。
+  // projectionContext は periodSelection から最小面のみ抽出。
+  const projectionContext = useMemo(
+    () => buildComparisonProjectionContext(periodSelection),
+    [periodSelection],
   )
-  return comparison
+
+  return useComparisonModuleCore({
+    scope: frame.comparison,
+    projectionContext,
+    currentAverageDailySales: averageDailySales,
+  })
 }

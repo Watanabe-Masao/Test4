@@ -91,16 +91,7 @@ export const combinedHookComplexityLimits: readonly QuantitativeAllowlistEntry[]
 /** features/ の useMemo 上限の個別例外（責務分離カバレッジ拡大） */
 export const featuresMemoLimits: readonly QuantitativeAllowlistEntry[] = [
   // useCostDetailData.ts — useMemo 9→2。transfer/costInclusion を sub-hook に分離。許可リスト卒業
-  {
-    path: 'features/comparison/application/hooks/useComparisonModule.ts',
-    ruleId: 'AR-G5-HOOK-MEMO',
-    reason: '比較モジュール集約。useMemo 6 個',
-    category: 'structural',
-    removalCondition: '比較モジュールのリファクタリング時',
-    limit: 7,
-    lifecycle: 'permanent',
-    createdAt: '2026-04-08',
-  },
+  // useComparisonModule.ts — Phase O5 で core/wrapper 分離。useComparisonModule.ts は useMemo 0、useComparisonModuleCore.ts は useMemo 6 (default limit 7 以下)。許可リスト卒業
 ] as const
 
 /** features/ の useState 上限の個別例外（責務分離カバレッジ拡大） */

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-16T00:07:30.338Z",
+  "timestamp": "2026-04-16T04:10:51.633Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 73,
+      "value": 75,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -279,6 +279,8 @@
         "app/src/test/guards/checklistGovernanceSymmetryGuard.test.ts",
         "app/src/test/guards/coChangeGuard.test.ts",
         "app/src/test/guards/codePatternGuard.test.ts",
+        "app/src/test/guards/comparisonProjectionContextFieldGuard.test.ts",
+        "app/src/test/guards/comparisonProjectionContextImportGuard.test.ts",
         "app/src/test/guards/comparisonResolvedRangeSurfaceGuard.test.ts",
         "app/src/test/guards/comparisonScopeGuard.test.ts",
         "app/src/test/guards/customerFactPathGuard.test.ts",
@@ -834,7 +836,7 @@
       "id": "project.checklist.totalCheckboxes",
       "label": "全 project の required checkbox 総数",
       "category": "docs",
-      "value": 408,
+      "value": 416,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -863,7 +865,7 @@
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 327,
+      "value": 366,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
