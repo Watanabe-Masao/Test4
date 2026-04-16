@@ -7,7 +7,7 @@
 | **総合評価** | **Healthy** |
 | 前回比 | Flat |
 | リリース影響 | No |
-| 最終更新 | 2026-04-15T21:35:39.307Z |
+| 最終更新 | 2026-04-16T00:07:30.338Z |
 
 ## Hard Gate
 
@@ -34,13 +34,7 @@
 | **性能** | OK | JS バンドル合計サイズ: 6506/7000 / メインバンドルサイズ: 2229/2500 / ECharts バンドルサイズ: 919/1000 |
 | **Temporal Governance** | OK | review overdue ルール数: 0/0 / heuristic + gate ルール数: 32/32 / active-debt 例外数: 1/12 / reviewPolicy 設定済みルール数: 147/92 / sunsetCondition 設定済みルール数: 16/9 / active-debt で createdAt 設定済み: 1/1 |
 | **Rule Efficacy** | OK | protectedHarm 設定済みルール数: 84 / 高例外圧ルール数（≥10 件）: 0/3 / renewalCount 合計: 0/10 |
-| **Project Governance** | OK | active project 数（archive 未実施を含む）: 5/20 / in_progress な project 数（open required checkbox あり）: 4/20 / checklist 完了済みだが archive 未実施の project 数: 0/0 / archived project 数（projects/completed/ 配下）: 6/100 |
-
-## Recent Changes
-
-| 指標 | 前回 | 今回 | 変化 |
-|---|---|---|---|
-| 全 project の checked checkbox 総数 | 326 | 327 | +1 ! |
+| **Project Governance** | OK | active project 数（archive 未実施を含む）: 6/20 / in_progress な project 数（open required checkbox あり）: 5/20 / checklist 完了済みだが archive 未実施の project 数: 0/0 / archived project 数（projects/completed/ 配下）: 6/100 |
 
 ---
 

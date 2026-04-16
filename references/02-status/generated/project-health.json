@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-15T21:35:39.310Z",
+  "timestamp": "2026-04-16T00:07:30.342Z",
   "summary": {
-    "active": 5,
+    "active": 6,
     "archived": 6,
-    "inProgress": 4,
+    "inProgress": 5,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 376,
+    "totalCheckboxes": 408,
     "checkedCheckboxes": 327
   },
   "projects": [
@@ -89,6 +89,19 @@
       "entrypoint": "projects/completed/docs-and-governance-cohesion/AI_CONTEXT.md",
       "checklistPath": "projects/completed/docs-and-governance-cohesion/checklist.md",
       "parent": null
+    },
+    {
+      "projectId": "phase-6-optional-comparison-projection",
+      "title": "Phase 6 optional — comparison subsystem projection context",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 0,
+      "total": 32,
+      "progress": 0,
+      "entrypoint": "projects/phase-6-optional-comparison-projection/AI_CONTEXT.md",
+      "checklistPath": "projects/phase-6-optional-comparison-projection/checklist.md",
+      "parent": "unify-period-analysis"
     },
     {
       "projectId": "presentation-quality-hardening",
