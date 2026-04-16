@@ -94,7 +94,7 @@ export async function queryStoreCustomers(
   const sql = `
     SELECT
       store_id,
-      COALESCE(SUM(customers), 0) AS total_customers
+      COALESCE(SUM(customers), 0) AS "totalCustomers"
     FROM store_day_summary
     ${where}
     GROUP BY store_id`
