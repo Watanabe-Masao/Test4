@@ -154,6 +154,23 @@ export function useTimeSlotPlan(params: TimeSlotPlanParams): TimeSlotPlanResult 
     hourlyAggregationHandler,
     compHourlyInput,
   )
+
+  // DEBUG: 時間帯比較クエリの入出力を確認
+  if (compMode === 'yoy') {
+    console.info('[useTimeSlotPlan] comp query:', {
+      hasCompRange: compRange != null,
+      compRangeFrom: compRange
+        ? `${compRange.from.year}-${compRange.from.month}-${compRange.from.day}`
+        : null,
+      compRangeTo: compRange
+        ? `${compRange.to.year}-${compRange.to.month}-${compRange.to.day}`
+        : null,
+      compIsPrevYear,
+      compHourlyInputIsNull: compHourlyInput === null,
+      compHourlyOutRecords: compHourlyOut?.records?.length ?? 0,
+      hasPrevYearScope: prevYearScope != null,
+    })
+  }
   const { data: curDayCountOut } = useQueryWithHandler(
     queryExecutor,
     distinctDayCountHandler,
