@@ -478,7 +478,7 @@ export function buildMAOverlay(
   // 左軸の sales bar とは線/棒で形状が異なるため重なっても識別可能。
   // 右軸の raw line（dashed sky blue）と区別するため、metric MA は別色 indigo を使う。
   const maColorPrimary = ct.semantic.movingAverage
-  const maColorMetric = ct.semantic.movingAverage
+  const maColorMetric = ct.semantic.movingAverageMetric
 
   // 視覚的区別ルール:
   //   - MA 当年: solid（raw current=solid と区別するため色は MA 専用 indigo）

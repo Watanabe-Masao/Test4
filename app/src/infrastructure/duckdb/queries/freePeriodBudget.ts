@@ -20,9 +20,10 @@ const BUDGET_SQL = (where: string) => `
     b.store_id AS "storeId",
     b.year,
     b.month,
-    b.total AS "monthlyTotal"
+    SUM(b.amount) AS "monthlyTotal"
   FROM budget b
   ${where}
+  GROUP BY b.store_id, b.year, b.month
   ORDER BY b.store_id, b.year, b.month
 `
 

@@ -127,8 +127,10 @@ export interface ChartSemanticColors {
   readonly tempLow: string
 
   // ─── 分析 ────────────────────────────────────────────
-  /** 移動平均 */
+  /** 移動平均（売上） */
   readonly movingAverage: string
+  /** 移動平均（右軸指標: 点数/客数/売変） */
+  readonly movingAverageMetric: string
 }
 
 // ─── エレベーション型 ────────────────────────────────────
@@ -247,7 +249,8 @@ const chartColors: ChartColors = {
     tempLow: palette.primary, // blue — 低温
 
     // ─── 分析 ────────────────────────────────────────────
-    movingAverage: palette.primary, // indigo — MA overlay
+    movingAverage: palette.primary, // indigo — MA overlay (sales)
+    movingAverageMetric: palette.orange, // orange — MA overlay (quantity/customers/discount)
   },
 }
 
