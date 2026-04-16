@@ -7,35 +7,32 @@
 
 ## 1. 現在地
 
-**Status**: active、未着手 (2026-04-16)
+**Status**: archive 準備完了 (2026-04-16)
 
-親 project `unify-period-analysis` は Phase 6 / Phase 6.5 全 step クローズ
-済み。親 `HANDOFF.md` の高優先セクションに「**Phase 6 optional**」1 項目
-だけが残っており、本サブ project がその 1 項目を閉じる。
+Phase O1〜O7 全 phase 完了。機能 checklist 全 `[x]`。
+最終レビュー (人間承認) checkbox のみ `[ ]` で残る。
 
-本 project は 4 つの entry point + config の計画ドキュメントのみを持ち、
-実装コードには一切触れていない。Phase O1 から着手することで実装フェーズが
-始まる。
+### 達成事項
+
+- `ComparisonProjectionContext` (3 fields: basisYear / basisMonth / period2) を最小契約として確立
+- `buildComparisonProjectionContext` が PeriodSelection → 最小契約の唯一の builder
+- `comparisonProjections.ts` から `import type { PeriodSelection }` を完全削除
+- `useComparisonModuleCore` が PeriodSelection 非依存の core hook として稼働
+- `useComparisonSlice` が core 直接呼び出しに移行 (wrapper 経由ではない)
+- `usePageComparisonModule` は wrapper 経由のまま温存 (計画通り)
+- import guard: `features/comparison/` 内の PeriodSelection import = builder 1 件のみ (MIGRATION_BASELINE 0 到達)
+- field creep guard: ComparisonProjectionContext の key 数 ≤ 3
+- parity test: 10 cases (典型月 / 月跨ぎ / 年跨ぎ / elapsedDays cap / leap year / sameDow+sameDate / 複数店舗 / 空ターゲット)
+- disable-path regression: 5 tests (externalScope undefined/null, comparisonEnabled, reference equality)
+- wrapper/core parity: 5 tests (projectionContext 構造, activePreset/comparisonEnabled 除外確認)
 
 ## 2. 次にやること
 
 詳細は `plan.md` と `checklist.md` を参照。7 sub-phase 構造:
 
-### 高優先 (次に着手するもの)
+### 残タスク
 
-- **Phase O1**: `ComparisonProjectionContext` 型契約の定義。
-  `app/src/features/comparison/application/ComparisonProjectionContext.ts` を
-  型定義のみで新設し、`PeriodSelection` から必要な sub-fields を抽出する
-  最小面を固定する。実装コード (builder / hook / caller) には触らない
-
-### 中優先
-
-- **Phase O2**: `buildComparisonProjectionContext` pure builder の追加
-- **Phase O3**: `buildKpiProjection` の parity test 先行 (実装変更の前)
-- **Phase O4**: `comparisonProjections.ts` から `PeriodSelection` import を削除
-- **Phase O5**: `useComparisonModuleCore` + 旧 hook の wrapper 化
-- **Phase O6**: `useComparisonSlice` を新 core 経路に移行
-- **Phase O7**: 親 project の HANDOFF 更新 + 本サブ project クローズ
+なし — 全 phase 完了。最終レビュー (人間承認) のみ待ち。
 
 ### PR 切り分け (推奨 3 本)
 

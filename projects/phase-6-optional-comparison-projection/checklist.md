@@ -62,10 +62,10 @@
 
 ## Phase O7: guard / docs クローズ
 
-* [ ] 親 `projects/unify-period-analysis/HANDOFF.md` の高優先セクションから「Phase 6 optional」を除去する
-* [ ] 親 `projects/unify-period-analysis/HANDOFF.md` の完了済みリストに本サブ project の完了 entry を追加する
-* [ ] 本サブ project の `HANDOFF.md` を最終状態に更新する (残タスク = なし、status = archive 準備完了)
-* [ ] `guard-test-map.md` / `doc-registry.json` に本サブ project 完了の changelog を追加する
+* [x] 親 `projects/unify-period-analysis/HANDOFF.md` の高優先セクションから「Phase 6 optional」を除去する
+* [x] 親 `projects/unify-period-analysis/HANDOFF.md` の完了済みリストに本サブ project の完了 entry を追加する
+* [x] 本サブ project の `HANDOFF.md` を最終状態に更新する (残タスク = なし、status = archive 準備完了)
+* [x] `guard-test-map.md` / `doc-registry.json` に本サブ project 完了の changelog を追加する
 
 ## 最終レビュー (人間承認)
 

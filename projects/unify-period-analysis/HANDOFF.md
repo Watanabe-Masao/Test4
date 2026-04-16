@@ -154,7 +154,7 @@ Phase 5 で確立した chart 薄化パターンは
 ### 高優先（次に着手するもの）
 
 - **Phase 7/8 audit (未着手 / 最優先)**: `checklist.md` の Phase 7 (G0-G6 ガード群 19 checkbox) / Phase 8 (L0-L4 テスト群 21 checkbox + CI 3-lane 1 件) は全て `[ ]` のまま **stale**。Phase 2-5 の作業中に一部 guard は organically 実装済みだが (例: G2 `noComparisonMathInPresentation` = `presentationComparisonMathGuard`、G3 両項 = `freePeriodHandlerOnlyGuard`、G4 `noRateInSql` = `noRateInFreePeriodSqlGuard`)、checkbox が追従していない。**parent project を close する前に各項目の実装状況を audit し、done/partial/not-done を確定する必要がある。** audit 前に推測で `[x]` を打たない (stale の上書きになるため)。Phase 6 本体 / Phase 6.5 / Phase 6 optional 子 project とは独立に着手可能。詳細な audit 対象は下記 §6
-- **Phase 6 optional (子 project)**: `comparison` feature から `PeriodSelection` 依存を削減する refactor。独立したライフサイクルで進行する (parent: `unify-period-analysis`)。詳細は `projects/phase-6-optional-comparison-projection/` 配下 (AI_CONTEXT / plan / checklist / HANDOFF)
+- **Phase 6 optional (子 project) 完了 (2026-04-16)**: `comparison` feature から `PeriodSelection` 依存を削減する refactor。O1-O7 全 phase 完了、機能 checklist 全 `[x]`。`features/comparison/` 内部から `PeriodSelection` type import を完全排除 (import guard で保証)、`buildKpiProjection` は `ComparisonProjectionContext` (3 fields) 受領、`useComparisonModuleCore` が PeriodSelection 非依存の core hook として稼働、`useComparisonSlice` は core 直接呼び出しに移行済み。詳細は `projects/phase-6-optional-comparison-projection/` 配下
 - **Phase 6 本体クローズ済み (2026-04-15)**: Phase 6 (Step A/C/D) は PR #1039、Phase 6.5 Step B は PR #1040 で本体 phase は完了 (下記 全景ブロック参照)。ただし上記の通り Phase 7/8 は checklist 未 audit のため **parent project 全体のクローズではない**
 
 > **Phase 6 本体 全景 (2026-04-15 時点、Phase 6.5-6 クローズ後)**:
