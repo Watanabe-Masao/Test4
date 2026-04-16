@@ -66,8 +66,10 @@
   (pure function)
 - 単体 test (空ケース + 典型ケース 3-5 件)
 - `comparisonProjectionContextImportGuard.test.ts` — `features/comparison/application/**`
-  配下での `PeriodSelection` import を禁止。allowlist は
-  `buildComparisonProjectionContext.ts` の 1 ファイルのみ
+  配下での `PeriodSelection` import を禁止。2 層 ratchet-down 設計:
+  - **ALLOWLIST** (最終形): `buildComparisonProjectionContext.ts` の 1 ファイルのみ
+  - **MIGRATION_BASELINE** (移行前): `comparisonProjections.ts` +
+    `hooks/useComparisonModule.ts` の 2 ファイル。O4 で 1 に、O5 で 0 に縮退
 - `comparisonProjectionContextFieldGuard.test.ts` — `ComparisonProjectionContext`
   の field creep 防止。key 数上限 + 許可フィールド名 snapshot +
   `PeriodSelection` と同名の大きい塊を持ち込み禁止
@@ -78,7 +80,8 @@ builder が feature 内で唯一 `PeriodSelection` を import する境界点に
 
 **完了条件**:
 - builder が存在し、単体 test が green
-- import guard が green (allowlist 1 件のみ)
+- import guard が green (ALLOWLIST 1 件 + MIGRATION_BASELINE 2 件で O2 時点は green、
+  O4/O5 で baseline を段階的に 0 に縮退)
 - field guard が green
 - `buildKpiProjection` からはまだ使われていない (parallel 状態)
 

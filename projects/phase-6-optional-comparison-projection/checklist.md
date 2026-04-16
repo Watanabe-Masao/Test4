@@ -19,7 +19,7 @@
 
 * [x] `app/src/features/comparison/application/buildComparisonProjectionContext.ts` を新設し `PeriodSelection → ComparisonProjectionContext` の pure 関数として実装する
 * [x] 単体テスト (空ケース + 典型ケース 3 件以上) を追加し green で通す
-* [x] `comparisonProjectionContextImportGuard.test.ts` を新設する (`features/comparison/application/**` 配下での `PeriodSelection` import を禁止、allowlist = `buildComparisonProjectionContext.ts` の 1 ファイルのみ)
+* [x] `comparisonProjectionContextImportGuard.test.ts` を新設する (`features/comparison/application/**` 配下での `PeriodSelection` import を禁止、ALLOWLIST = builder 1 件 + MIGRATION_BASELINE = comparisonProjections.ts / useComparisonModule.ts の 2 件、O4/O5 で baseline を段階的に 0 に縮退)
 * [x] `comparisonProjectionContextFieldGuard.test.ts` を新設する (`ComparisonProjectionContext` の key 数上限 + 許可フィールド名 snapshot + PeriodSelection と同名の大きい塊禁止)
 * [x] import guard と field guard が green で通ること
 
