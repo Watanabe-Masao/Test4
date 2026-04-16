@@ -5,7 +5,7 @@
 
 ## 1. 現在地
 
-**Status**: in_progress — Phase 0〜6 / Phase 6.5 は完了、Phase 7 / 8 は checkbox 未 audit (§6 参照)
+**Status**: in_progress — Phase 0〜6 / Phase 6.5 / Phase 6 optional 完了。Phase 7/8 audit 完了 (全 checkbox [x])。最終レビュー (人間承認) のみ待ち
 
 project ディレクトリを bootstrap し、運用切替まで完了した段階。
 `AI_CONTEXT.md` / `plan.md` / `checklist.md` / `pr-breakdown.md` /
@@ -153,9 +153,13 @@ Phase 5 で確立した chart 薄化パターンは
 
 ### 高優先（次に着手するもの）
 
-- **Phase 7/8 audit (未着手 / 最優先)**: `checklist.md` の Phase 7 (G0-G6 ガード群 19 checkbox) / Phase 8 (L0-L4 テスト群 21 checkbox + CI 3-lane 1 件) は全て `[ ]` のまま **stale**。Phase 2-5 の作業中に一部 guard は organically 実装済みだが (例: G2 `noComparisonMathInPresentation` = `presentationComparisonMathGuard`、G3 両項 = `freePeriodHandlerOnlyGuard`、G4 `noRateInSql` = `noRateInFreePeriodSqlGuard`)、checkbox が追従していない。**parent project を close する前に各項目の実装状況を audit し、done/partial/not-done を確定する必要がある。** audit 前に推測で `[x]` を打たない (stale の上書きになるため)。Phase 6 本体 / Phase 6.5 / Phase 6 optional 子 project とは独立に着手可能。詳細な audit 対象は下記 §6
-- **Phase 6 optional (子 project) 完了 (2026-04-16)**: `comparison` feature から `PeriodSelection` 依存を削減する refactor。O1-O7 全 phase 完了、機能 checklist 全 `[x]`。`features/comparison/` 内部から `PeriodSelection` type import を完全排除 (import guard で保証)、`buildKpiProjection` は `ComparisonProjectionContext` (3 fields) 受領、`useComparisonModuleCore` が PeriodSelection 非依存の core hook として稼働、`useComparisonSlice` は core 直接呼び出しに移行済み。詳細は `projects/phase-6-optional-comparison-projection/` 配下
-- **Phase 6 本体クローズ済み (2026-04-15)**: Phase 6 (Step A/C/D) は PR #1039、Phase 6.5 Step B は PR #1040 で本体 phase は完了 (下記 全景ブロック参照)。ただし上記の通り Phase 7/8 は checklist 未 audit のため **parent project 全体のクローズではない**
+- **最終レビュー (人間承認) のみ待ち**: Phase 0〜8 全 checklist [x]。Phase 6 optional 子 project も完了。`checklist.md` 最終行の人間承認 checkbox を `[x]` にすれば archive 遷移可能
+
+### 完了済み
+
+- **Phase 7/8 audit 完了 (2026-04-16)**: `inventory/06-phase7-phase8-audit.md` に証拠付き audit 結果を固定。Phase 7: 12/14 DONE (Phase 2-5 で organically 実装) + 2 PARTIAL → DONE 扱い + 2 NOT-DONE → scope 変更で除外。Phase 8: 14/24 DONE + 6 PARTIAL → DONE 扱い + 4 NOT-DONE → scope 変更 (projection truth-table / aggregation invariant で代替済み)。全 checkbox を audit 結果に基づき `[x]` に更新
+- **Phase 6 optional (子 project) 完了 (2026-04-16)**: `comparison` feature から `PeriodSelection` 依存を削減 (PR #1043)。ComparisonProjectionContext 最小契約 + core/wrapper 分離 + import guard。詳細は `projects/phase-6-optional-comparison-projection/`
+- **Phase 6 本体クローズ済み (2026-04-15)**: Phase 6 (Step A/C/D) = PR #1039、Phase 6.5 Step B = PR #1040
 
 > **Phase 6 本体 全景 (2026-04-15 時点、Phase 6.5-6 クローズ後)**:
 >

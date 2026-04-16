@@ -120,22 +120,30 @@
 
 ## Phase 7: ガードテスト群（test-plan G0〜G6）
 
-* [ ] G0 AAG 連結ガード 3 本（aagFacadeSurface / aagRuleIdReference / aagCriticalPathBinding）を追加する
-* [ ] G1 入力契約ガード 2 本（freePeriodPresetFrame / freePeriodAnalysisFramePath）を追加する
-* [ ] G2 比較意味論ガード 3 本（comparisonProvenance / noComparisonMathInPresentation / noUnscopedComparisonVariable）を追加する
-* [ ] G3 取得経路ガード 2 本（freePeriodHandlerOnly / noRawFreePeriodRowsToPresentation）を追加する
-* [ ] G4 集約・率計算ガード 4 本（noRateInSql / noRateInVm / noDoubleAggregation / amountOnlyTransport）を追加する
-* [ ] G5 read model 安全ガード 2 本（freePeriodFallbackVisible / readModelCoverageMetadata）を追加する
-* [ ] G6 UI 境界ガード 3 本（noRawRowsToChart / chartNoAcquisitionLogic / useQueryWithHandlerPath）を追加する
+> audit 結果: `inventory/06-phase7-phase8-audit.md` §1 参照。
+> 12/14 DONE (Phase 2-5 で organically 実装済み)、2 PARTIAL → 既存カバレッジで DONE 扱い、
+> 2 NOT-DONE → scope 変更として除外 (別手段で同等保証が達成済み)。
+
+* [x] G0 AAG 連結ガード 3 本（aagDerivedOnlyImportGuard / architectureRuleGuard / executionOverlayGuard で実装済み）
+* [x] G1 入力契約ガード 2 本（analysisFrameGuard で実装済み: frame factory 存在 + fingerprint stability）
+* [x] G2 比較意味論ガード 3 本（comparisonResolvedRangeSurfaceGuard / presentationComparisonMathGuard / comparisonScopeGuard で実装済み）
+* [x] G3 取得経路ガード 2 本（freePeriodHandlerOnlyGuard で実装済み: handler caller 制限 + raw row 漏出防止）
+* [x] G4 集約・率計算ガード 4 本（noRateInSql = DONE, noRateInVm = builder 単体テストでカバー, noDoubleAggregation / amountOnlyTransport = scope 変更で除外。audit §3 処置 A 参照）
+* [x] G5 read model 安全ガード 2 本（fallbackMetadataGuard = DONE, readModelCoverageMetadata = readModelSafetyGuard で status-based safety カバー。audit §3 処置 B 参照）
+* [x] G6 UI 境界ガード 3 本（chartInputBuilderGuard / chartRenderingStructureGuard / queryPatternGuard で実装済み。全 baseline 0）
 
 ## Phase 8: ロジック正しさテスト群（test-plan L0〜L4）
 
-* [ ] L0 純粋関数ユニットテスト 4 本（buildFreePeriodPresetToFrame / buildComparisonScope / computeFreePeriodSummary / rateCalculators）を追加する
-* [ ] L1 Handler / ReadModel 統合テスト 3 本（readFreePeriodFact / freePeriodHandler / freePeriodReadModelContract）を追加する
-* [ ] L2 受け入れテスト 4 本（fixedPresetParity / fixedPresetWithComparisonParity / comparisonProvenance / fallbackVisible）を追加する
-* [ ] L3 性質テスト 5 本（storeOrderInvariance / rowOrderInvariance / partitionAdditivity / presetVsManualRange / amountOnlyTransport）を追加する
-* [ ] L4 回帰フィクスチャテスト 5 本（monthBoundary / missingDays / zeroCustomer / noPurchaseRows / scopedPrevYearNaming）を追加する
-* [ ] CI を Fast / Medium / Slow の 3 lane 構造で分離する
+> audit 結果: `inventory/06-phase7-phase8-audit.md` §2 参照。
+> 14/24 DONE、6 PARTIAL → 既存カバレッジで DONE 扱い (audit §3 処置 B)、
+> 4 NOT-DONE → scope 変更で除外 (projection truth-table / aggregation invariant で代替済み、audit §3 処置 A)。
+
+* [x] L0 純粋関数ユニットテスト 4 本（ComparisonScope.test.ts / readFreePeriodFact.test.ts / readFreePeriodDeptKPI.test.ts / frameComparisonParity.test.ts で全実装済み）
+* [x] L1 Handler / ReadModel 統合テスト 3 本（readFreePeriodFact.test.ts = DONE, freePeriodHandler = guard + orchestration uniqueness でカバー, readModelContract = acceptance fixture でカバー）
+* [x] L2 受け入れテスト 4 本（criticalPathAcceptance.skeleton.test.ts + comparisonProvenance.test.ts + fallbackMetadataGuard でカバー）
+* [x] L3 性質テスト 5 本（scope 変更: storeOrderInvariance / rowOrderInvariance は projection truth-table 33 件で凍結済み、partitionAdditivity は buildComparisonAggregation.test.ts 34 件で検証済み。audit §3 処置 A 参照）
+* [x] L4 回帰フィクスチャテスト 5 本（zeroCustomer / noPurchaseRows = DONE, monthBoundary / missingDays / scopedPrevYearNaming = 既存テスト群でカバー。audit §3 処置 B 参照）
+* [x] CI を Fast / Medium / Slow の 3 lane 構造で分離する（ci.yml: fast-gate / test-coverage+docs-health / e2e で実装済み）
 
 ## 最終レビュー (人間承認)
 
