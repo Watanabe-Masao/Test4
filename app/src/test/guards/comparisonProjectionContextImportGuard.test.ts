@@ -25,11 +25,12 @@ const ALLOWLIST: readonly string[] = [
   'features/comparison/application/buildComparisonProjectionContext.ts',
 ]
 
-/** 現行の PeriodSelection 直接 import を持つファイル (移行前 baseline) */
-const MIGRATION_BASELINE: readonly string[] = [
-  'features/comparison/application/comparisonProjections.ts',
-  'features/comparison/application/hooks/useComparisonModule.ts',
-]
+/**
+ * 移行前 baseline — Phase O4/O5 で 0 に到達済み。
+ * comparisonProjections.ts: O4 で import type { PeriodSelection } 削除
+ * useComparisonModule.ts: O5 で core/wrapper 分離、PeriodSelection は features/ 外に移動
+ */
+const MIGRATION_BASELINE: readonly string[] = []
 
 const PERIOD_SELECTION_IMPORT_PATTERN =
   /import\s+(?:type\s+)?{[^}]*\bPeriodSelection\b[^}]*}\s+from\s+['"][^'"]*PeriodSelection['"]/

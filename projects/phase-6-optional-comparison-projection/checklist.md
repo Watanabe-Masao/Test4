@@ -44,15 +44,15 @@
 
 ## Phase O5: hook の core/wrapper 分離
 
-* [ ] `features/comparison/application/hooks/useComparisonModuleCore.ts` に新 core hook を新設する (`{ scope, projectionContext, currentAverageDailySales }`)
-* [ ] 新 core hook が引数に `periodSelection` を取らないことを確認する
-* [ ] 新 core hook が `features/comparison/` 内にあり `PeriodSelection` を import しないことを確認する (O2 import guard で保証)
-* [ ] 旧 `useComparisonModule` の wrapper を `app/src/application/hooks/useComparisonModule.ts` に配置する (features/ 外)
-* [ ] wrapper 内部で `buildComparisonProjectionContext` を呼び最小 contract に変換して core に委譲する
+* [x] `features/comparison/application/hooks/useComparisonModuleCore.ts` に新 core hook を新設する (`{ scope, projectionContext, currentAverageDailySales }`)
+* [x] 新 core hook が引数に `periodSelection` を取らないことを確認する
+* [x] 新 core hook が `features/comparison/` 内にあり `PeriodSelection` を import しないことを確認する (O2 import guard で保証、MIGRATION_BASELINE 0 到達)
+* [x] 旧 `useComparisonModule` の wrapper を `app/src/application/hooks/useComparisonModule.ts` に配置する (features/ 外)
+* [x] wrapper 内部で `buildComparisonProjectionContext` を呼び最小 contract に変換して core に委譲する
 * [ ] disable-path regression test を追加する: `externalScope === undefined` → 内部構築 / `externalScope === null` → 比較無効 / `!comparisonEnabled` → idle status
 * [ ] wrapper と core の出力一致 regression test を追加する
-* [ ] 既存 3 caller (`useComparisonSlice` / `usePageComparisonModule` / tests) が wrapper 経由で動作継続することを確認する
-* [ ] `useComparisonModuleLegacyCallerGuard` baseline 0 を維持する
+* [x] 既存 3 caller (`useComparisonSlice` / `usePageComparisonModule` / tests) が wrapper 経由で動作継続することを確認する
+* [x] `useComparisonModuleLegacyCallerGuard` baseline 0 を維持する
 
 ## Phase O6: primary caller の最小移行
 

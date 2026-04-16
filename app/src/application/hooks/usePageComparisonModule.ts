@@ -37,10 +37,7 @@
 import { useMemo } from 'react'
 import type { PeriodSelection } from '@/domain/models/PeriodSelection'
 import { buildFreePeriodFrame } from '@/domain/models/buildFreePeriodFrame'
-import {
-  useComparisonModule,
-  type ComparisonModule,
-} from '@/features/comparison/application/hooks/useComparisonModule'
+import { useComparisonModule, type ComparisonModule } from '@/application/hooks/useComparisonModule'
 
 /**
  * Page-level 用の comparison module hook。
