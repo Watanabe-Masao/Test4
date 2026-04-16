@@ -11,6 +11,7 @@ import { z } from 'zod'
 import { queryToObjects, queryScalar, buildTypedWhere } from '../queryRunner'
 import type { WhereCondition } from '../queryRunner'
 import type { DailyCumulativeRow } from './aggregates/dailyAggregation'
+import { STORE_DAY_SUMMARY_VIEW_DDL } from '../schemas'
 
 // ── 結果型 + Zod スキーマ ──
 
@@ -233,22 +234,32 @@ export interface MaterializeResult {
  * VIEW を実テーブルにマテリアライズする（パフォーマンス最適化用）。
  * VIEW へのクエリが遅い場合に呼ぶ。
  *
- * 既に TABLE として存在する場合（OPFS リストア後等）はスキップする。
+ * force=false（既定）: 既に TABLE として存在する場合はスキップ（OPFS リストア後等）。
+ * force=true: 差分ロード後など、基底テーブル更新を反映するために再マテリアライズする。
+ *   既存 TABLE を DROP → VIEW を再作成 → VIEW から新 TABLE を作成。
  *
  * DuckDB は DROP VIEW IF EXISTS でも対象が TABLE だとエラーになるため、
  * VIEW / TABLE の両方を try-catch で DROP してから RENAME する。
  */
-export async function materializeSummary(conn: AsyncDuckDBConnection): Promise<MaterializeResult> {
+export async function materializeSummary(
+  conn: AsyncDuckDBConnection,
+  force = false,
+): Promise<MaterializeResult> {
   // 既に TABLE として存在するかチェック（OPFS 復元後など）
   const existingCount = await queryScalar<number>(
     conn,
     "SELECT COUNT(*) FROM information_schema.tables WHERE table_name = 'store_day_summary' AND table_type = 'BASE TABLE'",
   )
   if (existingCount && existingCount > 0) {
-    // 既にマテリアライズ済み — VIEW ではなく TABLE として存在
-    const rowCount =
-      (await queryScalar<number>(conn, 'SELECT COUNT(*) FROM store_day_summary')) ?? 0
-    return { rowCount, createMs: 0, totalMs: 0, skipped: true }
+    if (!force) {
+      // 既にマテリアライズ済みかつ強制再構築不要 — スキップ
+      const rowCount =
+        (await queryScalar<number>(conn, 'SELECT COUNT(*) FROM store_day_summary')) ?? 0
+      return { rowCount, createMs: 0, totalMs: 0, skipped: true }
+    }
+    // force=true: 既存 TABLE を DROP して VIEW を再作成し、再マテリアライズする
+    await safeDropObject(conn, 'store_day_summary', 'TABLE')
+    await conn.query(STORE_DAY_SUMMARY_VIEW_DDL)
   }
 
   const start = performance.now()
@@ -265,7 +276,7 @@ export async function materializeSummary(conn: AsyncDuckDBConnection): Promise<M
 
   if (typeof console !== 'undefined') {
     console.debug(
-      `[materializeSummary] ${rowCount} rows, CREATE: ${Math.round(createMs)}ms, total: ${Math.round(totalMs)}ms`,
+      `[materializeSummary] ${rowCount} rows, CREATE: ${Math.round(createMs)}ms, total: ${Math.round(totalMs)}ms${force ? ' (force)' : ''}`,
     )
   }
 

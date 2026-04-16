@@ -161,6 +161,11 @@ export function buildFactorData(p: FactorDataParams): WaterfallItem[] {
           push('点数効果', d3.qtyEffect)
           push('単価効果', d3.pricePerItemEffect)
         }
+      } else {
+        // 販売点数データなし → 2要素分解にフォールバック
+        const d = decompose2(p.prevSales, p.curSales, p.prevCust, p.curCust)
+        push('客数効果', d.custEffect)
+        push('客単価効果', d.ticketEffect)
       }
     }
   } else if (p.hasQuantity) {
