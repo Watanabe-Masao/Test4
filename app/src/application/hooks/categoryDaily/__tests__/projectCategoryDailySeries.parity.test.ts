@@ -29,7 +29,7 @@
  *
  *   - app/src/application/hooks/categoryDaily/projectCategoryDailySeries.ts
  *   - app/src/application/hooks/categoryDaily/CategoryDailyBundle.types.ts
- *   - projects/unify-period-analysis/phase-6-5-step-b-design.md
+ *   - projects/completed/unify-period-analysis/phase-6-5-step-b-design.md
  */
 import { describe, it, expect } from 'vitest'
 import {

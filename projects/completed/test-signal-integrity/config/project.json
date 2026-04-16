@@ -1,0 +1,12 @@
+{
+  "projectId": "test-signal-integrity",
+  "title": "AAG Test Signal Integrity — 品質シグナル保全と False Green 防止",
+  "status": "archived",
+  "projectRoot": "projects/completed/test-signal-integrity",
+  "entrypoints": {
+    "aiContext": "projects/completed/test-signal-integrity/AI_CONTEXT.md",
+    "handoff": "projects/completed/test-signal-integrity/HANDOFF.md",
+    "plan": "projects/completed/test-signal-integrity/plan.md",
+    "checklist": "projects/completed/test-signal-integrity/checklist.md"
+  }
+}

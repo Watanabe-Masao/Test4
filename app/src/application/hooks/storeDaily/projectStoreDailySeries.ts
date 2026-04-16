@@ -41,7 +41,7 @@
  *
  * @see app/src/application/hooks/storeDaily/StoreDailyBundle.types.ts
  * @see app/src/application/hooks/timeSlot/projectTimeSlotSeries.ts (Step C 参照実装)
- * @see projects/unify-period-analysis/phase-6-5-step-b-design.md
+ * @see projects/completed/unify-period-analysis/phase-6-5-step-b-design.md
  *
  * @responsibility R:transform
  */

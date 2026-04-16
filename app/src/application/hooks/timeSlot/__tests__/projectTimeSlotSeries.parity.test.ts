@@ -27,7 +27,7 @@
  *
  *   - app/src/application/hooks/timeSlot/projectTimeSlotSeries.ts
  *   - app/src/application/hooks/timeSlot/TimeSlotBundle.types.ts
- *   - projects/unify-period-analysis/step-c-timeslot-lane-policy.md
+ *   - projects/completed/unify-period-analysis/step-c-timeslot-lane-policy.md
  */
 import { describe, it, expect } from 'vitest'
 import { projectTimeSlotSeries, EMPTY_TIME_SLOT_SERIES } from '../projectTimeSlotSeries'

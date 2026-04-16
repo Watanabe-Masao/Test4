@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-16T06:39:18.390Z",
+  "timestamp": "2026-04-16T07:48:58.343Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -534,9 +534,9 @@
       "id": "docs.obligation.violations",
       "label": "Doc 更新義務違反数",
       "category": "docs",
-      "value": 0,
+      "value": 1,
       "unit": "count",
-      "status": "ok",
+      "status": "fail",
       "owner": "documentation-steward",
       "docRefs": [
         {
@@ -562,7 +562,7 @@
         }
       ],
       "implRefs": [
-        "projects/unify-period-analysis/aag/execution-overlay.ts"
+        "projects/pure-calculation-reorg/aag/execution-overlay.ts"
       ],
       "budget": 92
     },
@@ -595,7 +595,7 @@
       "owner": "architecture",
       "docRefs": [],
       "implRefs": [
-        "projects/unify-period-analysis/aag/execution-overlay.ts"
+        "projects/pure-calculation-reorg/aag/execution-overlay.ts"
       ],
       "budget": 0
     },
@@ -699,7 +699,7 @@
       "id": "project.checklist.activeCount",
       "label": "active project 数（archive 未実施を含む）",
       "category": "docs",
-      "value": 6,
+      "value": 3,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -716,12 +716,12 @@
         "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/data-load-idempotency-hardening/checklist.md",
         "projects/completed/docs-and-governance-cohesion/checklist.md",
-        "projects/phase-6-optional-comparison-projection/checklist.md",
+        "projects/completed/phase-6-optional-comparison-projection/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",
         "projects/pure-calculation-reorg/checklist.md",
         "projects/quick-fixes/checklist.md",
-        "projects/test-signal-integrity/checklist.md",
-        "projects/unify-period-analysis/checklist.md"
+        "projects/completed/test-signal-integrity/checklist.md",
+        "projects/completed/unify-period-analysis/checklist.md"
       ],
       "budget": 20
     },
@@ -729,7 +729,7 @@
       "id": "project.checklist.archivedCount",
       "label": "archived project 数（projects/completed/ 配下）",
       "category": "docs",
-      "value": 6,
+      "value": 9,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -764,19 +764,19 @@
         "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/data-load-idempotency-hardening/checklist.md",
         "projects/completed/docs-and-governance-cohesion/checklist.md",
-        "projects/phase-6-optional-comparison-projection/checklist.md",
+        "projects/completed/phase-6-optional-comparison-projection/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",
         "projects/pure-calculation-reorg/checklist.md",
         "projects/quick-fixes/checklist.md",
-        "projects/test-signal-integrity/checklist.md",
-        "projects/unify-period-analysis/checklist.md"
+        "projects/completed/test-signal-integrity/checklist.md",
+        "projects/completed/unify-period-analysis/checklist.md"
       ]
     },
     {
       "id": "project.checklist.inProgressCount",
       "label": "in_progress な project 数（open required checkbox あり）",
       "category": "docs",
-      "value": 5,
+      "value": 2,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -793,12 +793,12 @@
         "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/data-load-idempotency-hardening/checklist.md",
         "projects/completed/docs-and-governance-cohesion/checklist.md",
-        "projects/phase-6-optional-comparison-projection/checklist.md",
+        "projects/completed/phase-6-optional-comparison-projection/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",
         "projects/pure-calculation-reorg/checklist.md",
         "projects/quick-fixes/checklist.md",
-        "projects/test-signal-integrity/checklist.md",
-        "projects/unify-period-analysis/checklist.md"
+        "projects/completed/test-signal-integrity/checklist.md",
+        "projects/completed/unify-period-analysis/checklist.md"
       ],
       "budget": 20
     },
@@ -823,12 +823,12 @@
         "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/data-load-idempotency-hardening/checklist.md",
         "projects/completed/docs-and-governance-cohesion/checklist.md",
-        "projects/phase-6-optional-comparison-projection/checklist.md",
+        "projects/completed/phase-6-optional-comparison-projection/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",
         "projects/pure-calculation-reorg/checklist.md",
         "projects/quick-fixes/checklist.md",
-        "projects/test-signal-integrity/checklist.md",
-        "projects/unify-period-analysis/checklist.md"
+        "projects/completed/test-signal-integrity/checklist.md",
+        "projects/completed/unify-period-analysis/checklist.md"
       ],
       "budget": 10
     },
@@ -853,19 +853,19 @@
         "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/data-load-idempotency-hardening/checklist.md",
         "projects/completed/docs-and-governance-cohesion/checklist.md",
-        "projects/phase-6-optional-comparison-projection/checklist.md",
+        "projects/completed/phase-6-optional-comparison-projection/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",
         "projects/pure-calculation-reorg/checklist.md",
         "projects/quick-fixes/checklist.md",
-        "projects/test-signal-integrity/checklist.md",
-        "projects/unify-period-analysis/checklist.md"
+        "projects/completed/test-signal-integrity/checklist.md",
+        "projects/completed/unify-period-analysis/checklist.md"
       ]
     },
     {
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 379,
+      "value": 384,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -882,12 +882,12 @@
         "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/data-load-idempotency-hardening/checklist.md",
         "projects/completed/docs-and-governance-cohesion/checklist.md",
-        "projects/phase-6-optional-comparison-projection/checklist.md",
+        "projects/completed/phase-6-optional-comparison-projection/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",
         "projects/pure-calculation-reorg/checklist.md",
         "projects/quick-fixes/checklist.md",
-        "projects/test-signal-integrity/checklist.md",
-        "projects/unify-period-analysis/checklist.md"
+        "projects/completed/test-signal-integrity/checklist.md",
+        "projects/completed/unify-period-analysis/checklist.md"
       ]
     },
     {
@@ -911,20 +911,20 @@
         "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/data-load-idempotency-hardening/checklist.md",
         "projects/completed/docs-and-governance-cohesion/checklist.md",
-        "projects/phase-6-optional-comparison-projection/checklist.md",
+        "projects/completed/phase-6-optional-comparison-projection/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",
         "projects/pure-calculation-reorg/checklist.md",
         "projects/quick-fixes/checklist.md",
-        "projects/test-signal-integrity/checklist.md",
-        "projects/unify-period-analysis/checklist.md"
+        "projects/completed/test-signal-integrity/checklist.md",
+        "projects/completed/unify-period-analysis/checklist.md"
       ]
     }
   ],
   "summary": {
     "totalKpis": 40,
-    "ok": 40,
+    "ok": 39,
     "warn": 0,
-    "fail": 0,
-    "hardGatePass": true
+    "fail": 1,
+    "hardGatePass": false
   }
 }

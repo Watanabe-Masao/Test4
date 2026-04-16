@@ -1,0 +1,14 @@
+{
+  "projectId": "unify-period-analysis",
+  "title": "期間分析統合（固定期間を自由期間プリセットに）",
+  "status": "archived",
+  "projectRoot": "projects/completed/unify-period-analysis",
+  "overlayRoot": "projects/completed/unify-period-analysis/aag",
+  "overlayEntry": "projects/completed/unify-period-analysis/aag/execution-overlay.ts",
+  "entrypoints": {
+    "aiContext": "projects/completed/unify-period-analysis/AI_CONTEXT.md",
+    "handoff": "projects/completed/unify-period-analysis/HANDOFF.md",
+    "plan": "projects/completed/unify-period-analysis/plan.md",
+    "checklist": "projects/completed/unify-period-analysis/checklist.md"
+  }
+}

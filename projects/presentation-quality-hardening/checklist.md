@@ -26,11 +26,11 @@
 ## Phase 3: Presentation テストカバレッジ + E2E 拡充
 
 > **前提条件:** 本 Phase の coverage 70 引き上げに着手する前に、AAG Core 側の
-> `projects/test-signal-integrity` Phase 3（Hard Gate 1st Batch）が完了している
+> `projects/completed/test-signal-integrity` Phase 3（Hard Gate 1st Batch）が完了している
 > ことを確認する。これにより coverage 数値達成のために品質シグナルを歪める
 > 行為（無価値テスト / suppression）が機械的に止まる前提が整う。
 
-* [x] `projects/test-signal-integrity` の Phase 3 完了を確認する（前提条件 — 機能的 Phase 1〜5 完了済、最終人間レビューのみ）
+* [x] `projects/completed/test-signal-integrity` の Phase 3 完了を確認する（前提条件 — 機能的 Phase 1〜5 完了済、最終人間レビューのみ）
 * [x] `vitest.config.ts` の coverage include に `presentation/` を追加する
 * [x] Presentation 層の高優先 component（IntegratedSalesChart / DashboardPage / WeatherPage）に component test を追加する
 * [ ] coverage 閾値を `lines: 55` → `lines: 70` に引き上げる

@@ -41,7 +41,7 @@
  * の場合は `hasPrevYear: false` / `source: 'none'` を返す。caller 側で
  * legacy fallback の判断に使える。
  *
- * @see projects/unify-period-analysis/inventory/05-phase6-widget-consumers.md
+ * @see projects/completed/unify-period-analysis/inventory/05-phase6-widget-consumers.md
  */
 import { z } from 'zod'
 import type { FreePeriodReadModel } from './FreePeriodTypes'

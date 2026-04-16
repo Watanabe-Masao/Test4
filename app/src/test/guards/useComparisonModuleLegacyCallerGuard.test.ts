@@ -27,7 +27,7 @@
 //   - presentation/hooks/slices/useComparisonSlice.ts
 //     → 4 引数で frame.comparison を渡す
 //
-// 詳細: projects/unify-period-analysis/HANDOFF.md §Phase 6b
+// 詳細: projects/completed/unify-period-analysis/HANDOFF.md §Phase 6b
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
@@ -174,7 +174,7 @@ describe('useComparisonModule legacy 3 引数 caller ratchet-down guard (Phase 6
             '  2. page-level で frame がない場合、ctx.freePeriodLane.frame 経由に移行する',
             '  3. どうしても legacy が必要なら LEGACY_CALLER_ALLOWLIST に reason を添えて追加',
             '',
-            '詳細: projects/unify-period-analysis/HANDOFF.md §Phase 6b',
+            '詳細: projects/completed/unify-period-analysis/HANDOFF.md §Phase 6b',
           ].join('\n')
         : undefined,
     ).toEqual([])

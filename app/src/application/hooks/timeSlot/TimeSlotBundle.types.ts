@@ -24,7 +24,7 @@
  * - `wow` (week-over-week) は初期契約から外す
  * - 比較先日付の解決は `comparisonRangeResolver` 経由 (Phase 2 で固定済み)
  *
- * @see projects/unify-period-analysis/step-c-timeslot-lane-policy.md
+ * @see projects/completed/unify-period-analysis/step-c-timeslot-lane-policy.md
  *
  * @responsibility R:utility
  */

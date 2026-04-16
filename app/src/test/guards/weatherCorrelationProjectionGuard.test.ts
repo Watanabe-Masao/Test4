@@ -17,7 +17,7 @@
 //
 // @see app/src/features/weather/application/projections/buildDailySalesProjection.ts
 // @see app/src/presentation/components/charts/WeatherAnalysisPanel.tsx
-// @see projects/unify-period-analysis/HANDOFF.md §Phase 6 Step D
+// @see projects/completed/unify-period-analysis/HANDOFF.md §Phase 6 Step D
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'

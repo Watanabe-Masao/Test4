@@ -12,7 +12,7 @@
  * 2. 許可フィールド名の snapshot (意図しない追加の検出)
  * 3. PeriodSelection と同名の大きい塊を持たない (型コピーの防止)
  *
- * @see projects/phase-6-optional-comparison-projection/plan.md §不可侵原則 4
+ * @see projects/completed/phase-6-optional-comparison-projection/plan.md §不可侵原則 4
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

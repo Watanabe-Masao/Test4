@@ -160,6 +160,6 @@ export const YoYChart = memo(function YoYChart({ queryExecutor, scope, selectedS
 
 - `references/03-guides/runtime-data-path.md` — 正本 lane / Screen Plan lane の 2 系統
 - `references/01-principles/free-period-analysis-definition.md` — 自由期間データレーンの唯一経路
-- `projects/unify-period-analysis/HANDOFF.md` — Phase 5 chart 薄化テンプレート（5 ステップ）
+- `projects/completed/unify-period-analysis/HANDOFF.md` — Phase 5 chart 薄化テンプレート（5 ステップ）
 - `app/src/application/hooks/plans/buildYoyDailyInput.ts` — 見本実装
 - `app/src/presentation/components/charts/YoYChart.tsx` — 見本 chart

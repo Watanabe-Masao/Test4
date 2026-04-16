@@ -764,3 +764,5 @@ _(以降の観測ログを時系列で追記)_
    プロセス (8 step) を 1 commit で実行
 3. 同じ commit で `projects/presentation-quality-hardening` の archive 判断も
    行う (両 project は観測戦略で連動しているため)
+
+Archived: 2026-04-16

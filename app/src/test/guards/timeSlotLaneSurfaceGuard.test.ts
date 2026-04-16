@@ -2,7 +2,7 @@
 //
 // unify-period-analysis Phase 6 Step C pre-work:
 // 時間帯比較を `FreePeriodReadModel` に吸収せず、sibling lane として切り出す
-// 方針を固定 (projects/unify-period-analysis/step-c-timeslot-lane-policy.md)。
+// 方針を固定 (projects/completed/unify-period-analysis/step-c-timeslot-lane-policy.md)。
 // 本 guard はその方針の軽めの先行防御として、`StoreAggregationRow` (時間帯の
 // raw row 型) が presentation 層から直接 import される箇所を固定 baseline で
 // 管理する。
@@ -16,7 +16,7 @@
 //
 // 本 guard は「禁止」よりも「移行目標の可視化」として機能する。
 //
-// @see projects/unify-period-analysis/step-c-timeslot-lane-policy.md
+// @see projects/completed/unify-period-analysis/step-c-timeslot-lane-policy.md
 // @see app/src/application/hooks/timeSlot/TimeSlotBundle.types.ts
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
@@ -81,7 +81,7 @@ describe('timeSlotLaneSurfaceGuard (unify-period-analysis Phase 6 Step C pre-wor
             '  1. Step C 実装後は ctx.timeSlotLane.bundle.currentSeries / comparisonSeries を消費する',
             '  2. Step C 実装前は TIME_SLOT_RAW_ROW_ALLOWLIST に reason を添えて追加 (ただし既存 1 件以上増やさない)',
             '',
-            '詳細: projects/unify-period-analysis/step-c-timeslot-lane-policy.md',
+            '詳細: projects/completed/unify-period-analysis/step-c-timeslot-lane-policy.md',
           ].join('\n')
         : undefined,
     ).toEqual([])
@@ -149,7 +149,7 @@ describe('timeSlotLaneSurfaceGuard (unify-period-analysis Phase 6 Step C pre-wor
   it('Step C 方針ドキュメントが存在する (意思決定の固定先)', () => {
     const policyFile = path.resolve(
       SRC_DIR,
-      '../../projects/unify-period-analysis/step-c-timeslot-lane-policy.md',
+      '../../projects/completed/unify-period-analysis/step-c-timeslot-lane-policy.md',
     )
     expect(fs.existsSync(policyFile), 'step-c-timeslot-lane-policy.md が存在しない').toBe(true)
     const content = fs.readFileSync(policyFile, 'utf-8')

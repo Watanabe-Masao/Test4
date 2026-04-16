@@ -8,7 +8,7 @@
  * これにより「PeriodSelection 知識の集約点は 1 つ」(plan.md 不可侵原則 3) が
  * 再発なく守られる。
  *
- * @see projects/phase-6-optional-comparison-projection/plan.md §不可侵原則 3
+ * @see projects/completed/phase-6-optional-comparison-projection/plan.md §不可侵原則 3
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

@@ -32,7 +32,7 @@
  * ```
  *
  * @see app/src/application/hooks/useWeatherCorrelation.ts
- * @see projects/unify-period-analysis/HANDOFF.md §Phase 6 Step D
+ * @see projects/completed/unify-period-analysis/HANDOFF.md §Phase 6 Step D
  *
  * @responsibility R:transform
  */

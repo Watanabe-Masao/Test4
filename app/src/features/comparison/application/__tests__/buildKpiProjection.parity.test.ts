@@ -23,7 +23,7 @@
  * 7. 複数店舗 (合算の正確性)
  * 8. 単一店舗 + 空ターゲット (ゼロ値返却)
  *
- * @see projects/phase-6-optional-comparison-projection/plan.md §Phase O3
+ * @see projects/completed/phase-6-optional-comparison-projection/plan.md §Phase O3
  */
 import { describe, it, expect } from 'vitest'
 import { buildKpiProjection, buildDowGapProjection } from '../comparisonProjections'
