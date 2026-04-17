@@ -277,6 +277,14 @@ export async function materializeSummary(
       conn,
       'SELECT COUNT(*) FROM classified_sales WHERE is_prev_year = TRUE',
     ),
+    ctsPrevYear: await queryScalar<number>(
+      conn,
+      'SELECT COUNT(*) FROM category_time_sales WHERE is_prev_year = TRUE',
+    ),
+    tsPrevYear: await queryScalar<number>(
+      conn,
+      'SELECT COUNT(*) FROM time_slots WHERE is_prev_year = TRUE',
+    ),
   })
   await conn.query('CREATE TABLE store_day_summary_mat AS SELECT * FROM store_day_summary')
   const createMs = performance.now() - start
