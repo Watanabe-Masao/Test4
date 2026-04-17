@@ -82,7 +82,14 @@ export async function deleteMonth(
   month: number,
 ): Promise<void> {
   for (const name of TABLES_WITH_YEAR_MONTH) {
-    await conn.query(`DELETE FROM ${name} WHERE year = ${year} AND month = ${month}`)
+    if (TABLES_WITH_PREV_YEAR_FLAG.has(name)) {
+      // is_prev_year 列を持つテーブルは当年行のみ削除（前年行を保護）
+      await conn.query(
+        `DELETE FROM ${name} WHERE year = ${year} AND month = ${month} AND is_prev_year = false`,
+      )
+    } else {
+      await conn.query(`DELETE FROM ${name} WHERE year = ${year} AND month = ${month}`)
+    }
   }
 }
 
