@@ -110,15 +110,6 @@ export function useDuckDB(
     )
     if (fingerprint === lastFingerprint.current) return
 
-    console.info('[useDuckDB] loadData triggered', {
-      initialLoadDone: initialLoadDone.current,
-      hasPrevYear: prevYear != null,
-      prevYearOrigin: prevYear?.origin ? `${prevYear.origin.year}-${prevYear.origin.month}` : null,
-      prevYearCtsRecords: prevYear?.categoryTimeSales?.records?.length ?? 0,
-      prevYearPurchaseRecords: prevYear?.purchase?.records?.length ?? 0,
-      prevYearFlowersRecords: prevYear?.flowers?.records?.length ?? 0,
-    })
-
     // 新しい世代番号を発行。先行の loadData は次の await 後にこの値を検出して bail out する。
     const seq = ++loadSeqRef.current
 
@@ -149,7 +140,7 @@ export function useDuckDB(
         if (isStale()) return
         // 前年データがあれば追加ロード
         if (prevYear) {
-          const prevResult = await loadMonth(
+          await loadMonth(
             state.conn,
             state.db,
             prevYear,
@@ -157,7 +148,6 @@ export function useDuckDB(
             prevYear.origin.month,
             true,
           )
-          console.info('[useDuckDB] prevYear loadMonth result', prevResult.rowCounts)
           if (isStale()) return
           loadedPrevYearFp.current = computeMonthFingerprint(prevYear)
         }
@@ -224,10 +214,6 @@ export function useDuckDB(
           loadedMonthsRef.current.set(curKey, currentMonthFp)
           anyChanged = true
         } else if (prevYearFp !== loadedPrevYearFp.current) {
-          console.info('[useDuckDB] prevYear-only reload', {
-            prevYearFp: prevYearFp?.slice(0, 8),
-            loadedFp: loadedPrevYearFp.current?.slice(0, 8),
-          })
           // 当月は変わっていないが前年データだけ更新された場合
           // (useLoadComparisonData が初回ロード後に prevYear を埋めるケース)
           // → 前年のみ再ロードする。これを忘れると DuckDB の time_slots に

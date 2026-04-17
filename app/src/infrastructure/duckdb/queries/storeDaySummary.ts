@@ -263,29 +263,6 @@ export async function materializeSummary(
   }
 
   const start = performance.now()
-  // DEBUG: VIEW の行数を確認（マテリアライズ前）
-  const viewCount = await queryScalar<number>(conn, 'SELECT COUNT(*) FROM store_day_summary')
-  const prevYearCount = await queryScalar<number>(
-    conn,
-    'SELECT COUNT(*) FROM store_day_summary WHERE is_prev_year = TRUE',
-  )
-  console.info('[materializeSummary] pre-materialize view count:', {
-    total: viewCount,
-    prevYear: prevYearCount,
-    csTotal: await queryScalar<number>(conn, 'SELECT COUNT(*) FROM classified_sales'),
-    csPrevYear: await queryScalar<number>(
-      conn,
-      'SELECT COUNT(*) FROM classified_sales WHERE is_prev_year = TRUE',
-    ),
-    ctsPrevYear: await queryScalar<number>(
-      conn,
-      'SELECT COUNT(*) FROM category_time_sales WHERE is_prev_year = TRUE',
-    ),
-    tsPrevYear: await queryScalar<number>(
-      conn,
-      'SELECT COUNT(*) FROM time_slots WHERE is_prev_year = TRUE',
-    ),
-  })
   await conn.query('CREATE TABLE store_day_summary_mat AS SELECT * FROM store_day_summary')
   const createMs = performance.now() - start
 

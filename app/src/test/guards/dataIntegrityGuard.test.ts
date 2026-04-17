@@ -125,6 +125,25 @@ describe('Pattern 2: DuckDB is_prev_year 不整合の防止', () => {
     const tsTable = content.match(/CREATE TABLE IF NOT EXISTS time_slots[\s\S]*?\)/)?.[0]
     expect(tsTable).toContain('is_prev_year')
   })
+
+  it('deleteMonth が is_prev_year=true 行を保護する（巻き込み削除禁止）', () => {
+    const content = fs.readFileSync(
+      path.join(SRC_DIR, 'infrastructure/duckdb/deletePolicy.ts'),
+      'utf-8',
+    )
+    // deleteMonth 関数が TABLES_WITH_PREV_YEAR_FLAG を参照し、
+    // is_prev_year = false 条件で当年行のみ削除していること
+    const deleteMonthFunc = content.match(/export async function deleteMonth[\s\S]*?^}/m)?.[0]
+    expect(deleteMonthFunc, `[${rule.id}] deleteMonth が見つかりません`).toBeDefined()
+    expect(
+      deleteMonthFunc,
+      `[${rule.id}] deleteMonth が TABLES_WITH_PREV_YEAR_FLAG を参照していません — is_prev_year=true 行の巻き込み削除が再発します`,
+    ).toContain('TABLES_WITH_PREV_YEAR_FLAG')
+    expect(
+      deleteMonthFunc,
+      `[${rule.id}] deleteMonth が is_prev_year = false 条件を使っていません — 前年行が保護されていません`,
+    ).toContain('is_prev_year = false')
+  })
 })
 
 // ── Pattern 3: 状態マシンのクリア漏れ防止 ──

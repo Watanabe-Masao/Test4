@@ -73,11 +73,6 @@ export function useLoadComparisonData(scope: ComparisonScope | null): Comparison
     if (hasComparisonData) return
 
     const source = scope.sourceMonth
-    console.info('[useLoadComparisonData] loading', {
-      sourceYear: source?.year,
-      sourceMonth: source?.month,
-      scopeKey,
-    })
     if (!source || source.year === 0) return
 
     let cancelled = false
@@ -94,15 +89,6 @@ export function useLoadComparisonData(scope: ComparisonScope | null): Comparison
         )
         if (cancelled || !result) return
         const monthly = comparisonResultToMonthlyData(result, source.year, source.month)
-        console.info('[useLoadComparisonData] loaded', {
-          cs: monthly.classifiedSales.records.length,
-          cts: monthly.categoryTimeSales.records.length,
-          flowers: monthly.flowers.records.length,
-          purchase: monthly.purchase.records.length,
-          directProduce: monthly.directProduce.records.length,
-          interStoreIn: monthly.interStoreIn.records.length,
-          interStoreOut: monthly.interStoreOut.records.length,
-        })
         _adjacentFlowersStore.records = getAdjacentFlowersRecords(result)
         useDataStore.getState().setPrevYearMonthData(monthly)
       } catch (err) {
