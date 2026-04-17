@@ -3,7 +3,7 @@ import { WIDGET_REGISTRY } from '../registry'
 import { makeWidgetContext } from './widgetTestHelpers'
 
 /** queryExecutor.isReady = true のモック */
-const READY_EXECUTOR = { isReady: true, execute: async () => null }
+const READY_EXECUTOR = { isReady: true, dataVersion: 1, execute: async () => null }
 
 describe('ウィジェット isVisible', () => {
   const dataWidgetIds = [
@@ -18,7 +18,7 @@ describe('ウィジェット isVisible', () => {
   describe('DuckDB 依存ウィジェット', () => {
     it('DuckDB 未準備の場合は非表示', () => {
       const ctx = makeWidgetContext({
-        queryExecutor: { isReady: false, execute: async () => null },
+        queryExecutor: { isReady: false, dataVersion: 0, execute: async () => null },
       })
 
       for (const id of dataWidgetIds) {
@@ -45,7 +45,7 @@ describe('ウィジェット isVisible', () => {
   describe('店舗別時間帯比較ウィジェット', () => {
     it('単一店舗・DuckDB 未準備の場合は非表示', () => {
       const ctx = makeWidgetContext({
-        queryExecutor: { isReady: false, execute: async () => null },
+        queryExecutor: { isReady: false, dataVersion: 0, execute: async () => null },
         stores: new Map([['1', { id: '1', name: '店舗A', code: '0001' }]]),
       })
       const widget = WIDGET_REGISTRY.find((w) => w.id === 'chart-store-timeslot-comparison')

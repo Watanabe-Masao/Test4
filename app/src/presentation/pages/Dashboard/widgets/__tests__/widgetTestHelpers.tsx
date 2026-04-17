@@ -240,7 +240,7 @@ export function makeWidgetContext(overrides: Partial<WidgetContext> = {}): Widge
     explanations: new Map() as StoreExplanations,
     onExplain: () => {},
     monthlyHistory: [],
-    queryExecutor: { isReady: false, execute: async () => null },
+    queryExecutor: { isReady: false, dataVersion: 0, execute: async () => null },
     duckDataVersion: 0,
     loadedMonthCount: 0,
     weatherPersist: null,

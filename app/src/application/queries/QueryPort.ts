@@ -25,6 +25,9 @@ export interface QueryExecutor {
 
   /** 接続が利用可能か */
   readonly isReady: boolean
+
+  /** データロードバージョン（DuckDB ロード完了ごとに increment） */
+  readonly dataVersion: number
 }
 
 /**
@@ -39,9 +42,9 @@ export function createQueryExecutor(
 ): QueryExecutor {
   // dataVersion を含めた新しいオブジェクトを毎回生成することで、
   // useMemo の deps に dataVersion を加えた時に参照が変わる
-  void dataVersion
   return {
     isReady: conn !== null,
+    dataVersion: dataVersion ?? 0,
     async execute<TInput, TOutput>(
       handler: QueryHandler<TInput, TOutput>,
       input: TInput,

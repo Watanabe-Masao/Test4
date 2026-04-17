@@ -216,7 +216,7 @@ export function useQueryWithHandler<TInput, TOutput>(
       cancelled = true
       clearTimeout(timerId)
     }
-  }, [executor, inputKey])
+  }, [executor, inputKey, executor?.dataVersion])
 
   return { data, isLoading, error }
 }
