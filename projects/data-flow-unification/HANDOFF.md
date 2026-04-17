@@ -94,7 +94,50 @@ dateFrom: "2025-04-02"      ← クエリは4月を探している → 0件
 Phase 1 で追加した診断ログは 5 段構造（取得→state→DuckDB→consumer→計算）で設計。
 構造化ログ名で grep 可能にし、Phase 5 で一括除去する前提。
 
-## 5. 関連文書
+## 5. 次フェーズ: カレンダーモーダルの正規ルート統一
+
+### 背景
+
+カレンダーモーダル（`useDayDetailPlan`）は `categoryTimeRecordsHandler` を直接呼び、
+前年データ取得に独自フォールバック（`selectCtsWithFallback`）を持つ。
+ダッシュボードは `categoryDailyLane.bundle` 経由の正本経路。
+この二重経路が「モーダルでは動くがダッシュボードでは動かない」バグの構造的原因。
+
+### 統一方針
+
+| データ種別 | 現状（モーダル） | 統一先 | 制約 |
+|---|---|---|---|
+| 数量（totalQuantity） | raw CTS 直接合算 | `categoryDailyLane.bundle` | なし |
+| 時間帯データ | raw CTS `timeSlots` | `timeSlotLane.bundle` | なし |
+| leaf-grain CTS（5要素分解） | raw CTS 直接参照 | `categoryTimeRecordsPairHandler` に一本化 | dept\|line\|klass 粒度が必要 |
+
+### 実施順序
+
+1. **Phase A: paired handler 統一**
+   - モーダルの `useDayDetailPlan` が `categoryTimeRecordsHandler` を個別呼びしている箇所を
+     `categoryTimeRecordsPairHandler` 経由に統一
+   - これで取得経路は 1 本化。raw CTS 参照は残るが、handler は共通
+
+2. **Phase B: 数量・時間帯の bundle 経由化**
+   - モーダルの数量合算を `categoryDailyLane.bundle.currentSeries.grandTotals.salesQty` 経由に
+   - モーダルの時間帯データを `timeSlotLane.bundle` 経由に
+   - `selectCtsWithFallback` の独自フォールバック機構を廃止
+
+3. **Phase C: leaf-grain 対応（将来）**
+   - `CategoryLeafDailySeries` を新設し、5要素分解も正本経由にする
+   - Phase 6.5-5b の permanent floor を解消
+   - 影響範囲が大きいため、別プロジェクトとして計画
+
+### 旧経路の撤退判定
+
+各 Phase 完了時に以下を確認:
+- 旧経路を使う consumer が 0 件であること（`categoryDailyLaneSurfaceGuard` で検証）
+- ガードテストの baseline が 0 に到達していること
+- 全チャートで前年データが正しく表示されること
+
+旧経路の削除は Phase B 完了後に実施。Phase C は別プロジェクト。
+
+## 6. 関連文書
 
 | ファイル | 役割 |
 |---|---|

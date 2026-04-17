@@ -140,6 +140,16 @@ export function YoYDrillOverlay({
               settings={settings}
               expandedStore={expandedStore}
               onExpandToggle={(id) => setExpandedStore((prev) => (prev === id ? null : id))}
+              storeCustomerMap={
+                ctx.readModels?.customerFact?.status === 'ready'
+                  ? toStoreCustomerRows(ctx.readModels.customerFact.data)
+                  : undefined
+              }
+              grandTotalCustomers={
+                ctx.readModels?.customerFact?.status === 'ready'
+                  ? ctx.readModels.customerFact.data.grandTotalCustomers
+                  : undefined
+              }
             />
           )}
           {yoyDrill === 'itemsYoY' && (
