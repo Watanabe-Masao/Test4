@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-16T12:05:39.540Z",
+  "timestamp": "2026-04-17T06:38:54.938Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 75,
+      "value": 76,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -326,6 +326,7 @@
         "app/src/test/guards/responsibilitySeparationGuard.test.ts",
         "app/src/test/guards/responsibilityTagGuard.test.ts",
         "app/src/test/guards/salesFactPathGuard.test.ts",
+        "app/src/test/guards/scopeAwareMutationGuard.test.ts",
         "app/src/test/guards/sizeGuard.test.ts",
         "app/src/test/guards/storeDailyLaneSurfaceGuard.test.ts",
         "app/src/test/guards/storeResultAnalysisInputGuard.test.ts",
@@ -367,7 +368,7 @@
       "id": "guard.rules.total",
       "label": "総 Architecture Rule 数",
       "category": "guard",
-      "value": 147,
+      "value": 148,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -385,7 +386,7 @@
       "id": "guard.rules.fixNow.now",
       "label": "fixNow=now ルール数（即修正）",
       "category": "guard",
-      "value": 72,
+      "value": 73,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -534,9 +535,9 @@
       "id": "docs.obligation.violations",
       "label": "Doc 更新義務違反数",
       "category": "docs",
-      "value": 0,
+      "value": 1,
       "unit": "count",
-      "status": "ok",
+      "status": "fail",
       "owner": "documentation-steward",
       "docRefs": [
         {
@@ -551,7 +552,7 @@
       "id": "temporal.rules.reviewPolicy.count",
       "label": "reviewPolicy 設定済みルール数",
       "category": "guard",
-      "value": 147,
+      "value": 148,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -570,7 +571,7 @@
       "id": "temporal.rules.sunsetCondition.count",
       "label": "sunsetCondition 設定済みルール数",
       "category": "guard",
-      "value": 16,
+      "value": 17,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -653,7 +654,7 @@
       "id": "efficacy.rules.withProtectedHarm.count",
       "label": "protectedHarm 設定済みルール数",
       "category": "guard",
-      "value": 84,
+      "value": 85,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -929,9 +930,9 @@
   ],
   "summary": {
     "totalKpis": 40,
-    "ok": 40,
+    "ok": 39,
     "warn": 0,
-    "fail": 0,
-    "hardGatePass": true
+    "fail": 1,
+    "hardGatePass": false
   }
 }

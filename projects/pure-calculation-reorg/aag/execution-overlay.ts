@@ -1422,4 +1422,13 @@ export const EXECUTION_OVERLAY: ExecutionOverlay = {
       reviewCadenceDays: 90,
     },
   },
+  "AR-SCOPE-AWARE-MUTATION": {
+    fixNow: "now",
+    executionPlan: { effort: "small", priority: 1 },
+    reviewPolicy: {
+      owner: "solo-maintainer",
+      lastReviewedAt: "2026-04-17",
+      reviewCadenceDays: 90,
+    },
+  },
 };

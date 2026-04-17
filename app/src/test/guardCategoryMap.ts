@@ -568,4 +568,9 @@ export const GUARD_CATEGORY_MAP: Readonly<Record<string, GuardCategoryEntry>> = 
     layer: 'execution',
     note: 'core-rule: Signal Integrity の tautology assertion (常に true となる比較) 禁止 (Wave 1〜7 観測期間で 9+ 件発見、AR-TSIG-TEST-01 の補完)',
   },
+  'AR-SCOPE-AWARE-MUTATION': {
+    category: 'registry-integrity',
+    layer: 'execution',
+    note: 'core-rule: is_prev_year 列を持つテーブルへの DELETE/UPDATE でスコープ条件を必須化',
+  },
 } as const

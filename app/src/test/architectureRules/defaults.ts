@@ -674,4 +674,8 @@ export const DEFAULT_EXECUTION_OVERLAY: DefaultExecutionOverlay = {
     fixNow: 'now',
     executionPlan: { effort: 'small', priority: 1 },
   },
+  'AR-SCOPE-AWARE-MUTATION': {
+    fixNow: 'now',
+    executionPlan: { effort: 'small', priority: 1 },
+  },
 }

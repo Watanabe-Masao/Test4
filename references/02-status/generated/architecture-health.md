@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-16T12:05:39.540Z
+> Generated: 2026-04-17T06:38:54.938Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -9,10 +9,10 @@
 | 指標 | 値 |
 |---|---|
 | Total KPIs | 40 |
-| OK | 40 |
+| OK | 39 |
 | WARN | 0 |
-| FAIL | 0 |
-| Hard Gate | PASS |
+| FAIL | 1 |
+| Hard Gate | FAIL |
 
 ## 許可リスト
 
@@ -51,17 +51,17 @@
 
 | ID | 指標 | 値 | 状態 |
 |---|---|---|---|
-| guard.files.count | ガードテストファイル数 | 75 / 30 | OK |
+| guard.files.count | ガードテストファイル数 | 76 / 30 | OK |
 | guard.reviewOnlyTags.count | レビュー専用タグ数 | 0 / 5 | OK |
-| guard.rules.total | 総 Architecture Rule 数 | 147 | OK |
-| guard.rules.fixNow.now | fixNow=now ルール数（即修正） | 72 | OK |
+| guard.rules.total | 総 Architecture Rule 数 | 148 | OK |
+| guard.rules.fixNow.now | fixNow=now ルール数（即修正） | 73 | OK |
 | guard.rules.fixNow.debt | fixNow=debt ルール数（構造負債） | 54 | OK |
 | guard.rules.fixNow.review | fixNow=review ルール数（観測） | 21 | OK |
-| temporal.rules.reviewPolicy.count | reviewPolicy 設定済みルール数 | 147 / 92 | OK |
-| temporal.rules.sunsetCondition.count | sunsetCondition 設定済みルール数 | 16 / 9 | OK |
+| temporal.rules.reviewPolicy.count | reviewPolicy 設定済みルール数 | 148 / 92 | OK |
+| temporal.rules.sunsetCondition.count | sunsetCondition 設定済みルール数 | 17 / 9 | OK |
 | temporal.rules.reviewOverdue.count | review overdue ルール数 | 0 / 0 | OK |
 | temporal.rules.heuristicGate.count | heuristic + gate ルール数 | 32 / 32 | OK |
-| efficacy.rules.withProtectedHarm.count | protectedHarm 設定済みルール数 | 84 | OK |
+| efficacy.rules.withProtectedHarm.count | protectedHarm 設定済みルール数 | 85 | OK |
 | efficacy.rules.highNoise.count | 高例外圧ルール数（≥10 件） | 0 / 3 | OK |
 
 ## ドキュメント整合
@@ -70,7 +70,7 @@
 |---|---|---|---|
 | docs.obsoleteTerms.count | 廃止用語残存数 | 0 / 0 | OK |
 | docs.generatedSections.stale | Generated section 未更新 | 0 / 0 | OK |
-| docs.obligation.violations | Doc 更新義務違反数 | 0 / 0 | OK |
+| docs.obligation.violations | Doc 更新義務違反数 | 1 / 0 | FAIL |
 | project.checklist.activeCount | active project 数（archive 未実施を含む） | 4 / 20 | OK |
 | project.checklist.archivedCount | archived project 数（projects/completed/ 配下） | 9 / 100 | OK |
 | project.checklist.completedNotArchivedCount | checklist 完了済みだが archive 未実施の project 数 | 0 / 0 | OK |
