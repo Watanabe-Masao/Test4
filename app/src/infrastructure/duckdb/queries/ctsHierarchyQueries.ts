@@ -227,7 +227,23 @@ export async function queryCategoryTimeRecords(
     ${where}
     ORDER BY cts.store_id, cts.date_key,
              cts.dept_code, cts.line_code, cts.klass_code, ts.hour`
+  // DEBUG: 前年クエリの SQL と結果行数をログ
+  if (params.isPrevYear === true) {
+    console.info('[queryCategoryTimeRecords] prev year query:', {
+      dateFrom: params.dateFrom,
+      dateTo: params.dateTo,
+      isPrevYear: params.isPrevYear,
+      storeIds: params.storeIds,
+      whereClause: where,
+    })
+  }
   const rows = await queryToObjects<CtsJoinRow>(conn, sql, CtsJoinRowSchema)
+  if (params.isPrevYear === true) {
+    console.info('[queryCategoryTimeRecords] prev year result:', {
+      rawRows: rows.length,
+      firstRow: rows[0] ?? null,
+    })
+  }
   return groupRowsToRecords(rows)
 }
 
