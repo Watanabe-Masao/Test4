@@ -177,7 +177,7 @@ export function useCategoryDailyBundle(
     built.paired,
   )
 
-  const result = useMemo<CategoryDailyBundle>(() => {
+  return useMemo<CategoryDailyBundle>(() => {
     if (!frame) return frameAbsentBundle()
 
     const currentSeries = data?.current
@@ -209,19 +209,4 @@ export function useCategoryDailyBundle(
       error: error ?? null,
     }
   }, [frame, built, data, isLoading, error])
-
-  // DEBUG: comparison pipeline の各段階を可視化（useMemo 外）
-  const bundle = result
-  void bundle
-  console.info('[categoryDailyBundle] pipeline:', {
-    executorDataVersion: executor?.dataVersion ?? -1,
-    compDates: built.paired?.comparisonDateFrom ?? '(none)',
-    dataComparisonIsNull: data?.comparison == null,
-    dataComparisonRecords: data?.comparison?.records?.length ?? 0,
-    comparisonSeriesIsNull: result.comparisonSeries == null,
-    comparisonSalesQty: result.comparisonSeries?.grandTotals?.salesQty ?? 0,
-    currentSalesQty: result.currentSeries?.grandTotals?.salesQty ?? 0,
-  })
-
-  return result
 }

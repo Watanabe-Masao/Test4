@@ -5,64 +5,96 @@
 
 ## 1. 現在地
 
-Phase 1 診断ほぼ完了。障害位置は **read path（consumer の query 呼び出し）** に絞り込まれた。
+**解決済み。** 根本原因を特定し修正完了。ガードテスト追加・診断ログ除去まで完了。
 
-### 確定した事実（診断ログで実証済み）
+## 2. 根本原因
 
-| 段階 | 状態 | 根拠 |
-|---|---|---|
-| IndexedDB → dataStore | ✓ 正常 | `loaded {cs: 16649, cts: 18680, flowers: 150, purchase: 150}` |
-| dataStore → useDuckDB | ✓ 正常 | `hasPrevYear: true, prevYearCtsRecords: 18680` |
-| DuckDB loadMonth | ✓ 正常 | `time_slots: 98930, classified_sales: 16649` |
-| store_day_summary VIEW | ✓ 前年行あり | `total: 1100, prevYear: 295` |
-| **consumer read path** | **✗ 疑い** | 画面に前年データが表示されない |
+### `deleteMonth()` が `is_prev_year=true` 行を巻き込み削除していた
 
-### 最有力仮説
+**ファイル:** `app/src/infrastructure/duckdb/deletePolicy.ts`
 
-`storeDaySummary.ts` の `summaryWhereClause()` はデフォルトで `is_prev_year = FALSE` を
-WHERE に入れる。呼び出し側が `isPrevYear: true` を渡し忘れると、前年行は黙って除外される。
-時間帯ヒートマップと `categoryDailyLane` の比較クエリがこのパターンに該当する可能性が高い。
+`deleteMonth()` は `DELETE FROM table WHERE year = ? AND month = ?` を実行していたが、
+`is_prev_year` 列を区別していなかった。これにより `is_prev_year=true`（前年データ）と
+`is_prev_year=false`（当年データ）が同時に削除されていた。
 
-### 修正済み
+#### 発生メカニズム
 
-- `loadComparisonDataAsync` に欠落4スライス追加（purchase, directProduce, interStoreIn, interStoreOut）
-- `comparisonResultToMonthlyData` の変換完全化
-- `useAutoLoadPrevYear` 削除（dead code）
-- `materializeSummary` の `force=true` 対応
-- SQL エラー修正（customers 列、b.total 列、totalCustomers エイリアス）
-- 5要素分解フォールバック / MA色重複 / スライダー分母固定
+`useDuckDB` の初回ロードシーケンス:
 
-## 2. 次にやること
+```
+1. resetTables()
+2. loadMonth(currentMonth, 2026, 4)        ← 当月ロード
+3. loadMonth(prevYear, 2025, 4, true)      ← 前年4月 CTS 18680行 INSERT
+4. 歴史月ループ:
+   loadMonth(historicalData, 2025, 4)      ← 当年ロード (isPrevYear=false)
+     → purgeLoadTarget → deleteMonth(2025, 4)
+     → DELETE FROM category_time_sales WHERE year = 2025 AND month = 4
+     → ★ step 3 で入れた is_prev_year=true の 18680行も消える ★
+     → 当年データのみ再INSERT
+5. materializeSummary()
+```
 
-### 最優先: read path の isPrevYear 追跡
+結果: `category_time_sales` の `is_prev_year=true` 行は 2月〜3月だけが残り、
+4月のデータがない。comparison query が `WHERE date_key BETWEEN '2025-04-02' AND
+'2025-04-14' AND is_prev_year = TRUE` で **0 件**を返す。
 
-1. `queryStoreDaySummary` 系の呼び出し元で `isPrevYear` の渡し方を確認
-2. 時間帯ヒートマップ（`hourlyAggregationHandler` → `ctsHourlyQueries`）の前年クエリを確認
-3. `categoryDailyLane.bundle` の比較クエリ（`categoryTimeRecordsPairHandler`）を確認
-4. 移動平均の前年クエリ（`movingAverageHandler`）を確認
+#### 診断ログによる実証
 
-## 3. ハマりポイント
+```
+ctsPrevCount: 31133          ← 前年 CTS データはある
+ctsMinDate: "2025-02-01"    ← しかし日付範囲は 2月〜3月
+ctsMaxDate: "2025-03-31"    ← 4月のデータがない
+dateFrom: "2025-04-02"      ← クエリは4月を探している → 0件
+```
 
-### 3.1. 2 つの auto-load 機構の混在
+### 修正内容
 
-`useAutoLoadPrevYear` は legacy パスで `dataStore` から直接前年データを取得する。
-`useLoadComparisonData` は新しい `ComparisonScope` 対応の仕組み。
-両方が部分的に動いているため、片方を除去すると一部のデータスライスが欠落する
-可能性がある。統合前に必ず全 consumer の棚卸しを完了すること。
+`deleteMonth()` で `TABLES_WITH_PREV_YEAR_FLAG` に該当するテーブルは
+`AND is_prev_year = false` 条件を付けて当年行のみ削除。
+前年行の削除は `deletePrevYearRowsAt()` が責任を持つ設計を維持。
 
-### 3.2. `deletePrevYearMonth` の year-shift 設計
+### 再発防止
 
-`data-load-idempotency-hardening` で文書化済み。`deletePrevYearMonth(conn, year, month)`
-は引数として **当年** を受け取り、内部で `prevYear = year - 1` してから削除する。
-絶対位置で消したい場合は `deletePrevYearRowsAt(year, month)` を使う。
+`dataIntegrityGuard.test.ts` に Pattern 2 のテストとして以下を追加:
+- `deleteMonth` が `TABLES_WITH_PREV_YEAR_FLAG` を参照していること
+- `deleteMonth` が `is_prev_year = false` 条件を使っていること
 
-### 3.3. `store_day_summary` マテリアライゼーションのタイミング
+## 3. 解決手順（時系列）
 
-`store_day_summary` は VIEW であり、基礎テーブル（`classified_sales`, `flowers` 等）に
-前年データが入っていなければ前年行は出現しない。前年データの欠落は
-`store_day_summary` 側ではなく、基礎テーブルへのロードで解決する。
+| # | 修正 | ファイル | 効果 |
+|---|---|---|---|
+| 1 | スライダー分母固定 | `ConditionSummaryEnhanced.tsx` | 客数がスライダーに連動 |
+| 2 | MA色重複 | `DailySalesChartBody.builders.ts`, `theme.ts` | 売上MA/点数MAを色で区別 |
+| 3 | 5要素分解フォールバック | `YoYWaterfallChart.data.ts` | hasQuantity=false 時に2要素表示 |
+| 4 | SQL エラー（customers, total, alias） | `freePeriodFactQueries.ts` 他 | クエリエラー解消 |
+| 5 | materializeSummary force | `storeDaySummary.ts`, `useDuckDB.ts` | 差分ロード後の再マテリアライズ |
+| 6 | calculateYoYRatio 統一 | `conditionSummaryCardBuilders.ts` | ドメイン関数準拠 |
+| 7 | 欠落4スライス追加 | `loadComparisonDataAsync.ts` | purchase/directProduce/transfers のロード |
+| 8 | useAutoLoadPrevYear 削除 | dead code 除去 | 二重経路の解消 |
+| 9 | QueryExecutor.dataVersion | `QueryPort.ts`, `useQueryWithHandler.ts` | DuckDB ロード後の再クエリ保証 |
+| **10** | **deleteMonth 前年行保護** | **`deletePolicy.ts`** | **根本原因の修正** |
+| 11 | ガードテスト追加 | `dataIntegrityGuard.test.ts` | 再発防止 |
+| 12 | 診断ログ除去 | 6ファイル | Phase 1 完了 |
 
-## 4. 関連文書
+## 4. ハマりポイント
+
+### 4.1. `deleteMonth` vs `deletePrevYearRowsAt` の責務分離
+
+`deleteMonth` は「当月データの差し替え」に使われる。`is_prev_year=true` 行を消すのは
+`deletePrevYearRowsAt` の責務。この境界を破ると、歴史月ロード時に前年データが
+巻き込まれて消える。**ガードテストで保護済み。**
+
+### 4.2. `deletePrevYearMonth` の year-shift 設計
+
+`deletePrevYearMonth(conn, year, month)` は引数として **当年** を受け取り、
+内部で `year - 1` する。絶対位置で消す場合は `deletePrevYearRowsAt` を使う。
+
+### 4.3. 診断ログの設計原則
+
+Phase 1 で追加した診断ログは 5 段構造（取得→state→DuckDB→consumer→計算）で設計。
+構造化ログ名で grep 可能にし、Phase 5 で一括除去する前提。
+
+## 5. 関連文書
 
 | ファイル | 役割 |
 |---|---|

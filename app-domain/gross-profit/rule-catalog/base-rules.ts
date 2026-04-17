@@ -5176,4 +5176,53 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       ],
     },
   },
+  // ── Scope-Aware Mutation ──
+  {
+    slice: 'governance-ops',
+    id: 'AR-SCOPE-AWARE-MUTATION',
+    principleRefs: ['D3', 'G1'],
+    ruleClass: 'invariant',
+    guardTags: ['G1', 'D3'],
+    epoch: 1,
+    doc: 'references/01-principles/design-principles.md',
+    what: 'is_prev_year 列を持つテーブルへの DELETE/UPDATE で is_prev_year 条件の指定を必須化する',
+    why: 'スコープ次元を持つテーブルの行レベル変更でスコープを省略すると、意図しないスコープの行が巻き込まれる（前年データ削除バグの再発防止）',
+    correctPattern: {
+      description:
+        'DELETE FROM classified_sales WHERE year = ? AND month = ? AND is_prev_year = false',
+    },
+    outdatedPattern: {
+      description:
+        'DELETE FROM classified_sales WHERE year = ? AND month = ? — is_prev_year 条件なし',
+      codeSignals: [
+        'DELETE FROM classified_sales',
+        'DELETE FROM category_time_sales',
+        'DELETE FROM time_slots',
+      ],
+    },
+    decisionCriteria: {
+      when: 'TABLES_WITH_PREV_YEAR_FLAG に含まれるテーブルへの DELETE/UPDATE を書くとき',
+      exceptions: 'resetTables() のような DROP + CREATE（行レベル変更ではない）は対象外',
+      escalation: 'is_prev_year = true または is_prev_year = false を WHERE 句に追加する',
+    },
+    relationships: {
+      dependsOn: ['AR-STRUCT-DATA-INTEGRITY'],
+    },
+    detection: { type: 'regex' as const, severity: 'gate' as const, baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        '1. DELETE/UPDATE 文の WHERE 句に AND is_prev_year = true/false を追加する',
+        '2. どちらのスコープを対象にすべきか、呼び出し文脈から判断する',
+        '3. 両スコープを削除したい場合は 2 つの DELETE 文に分割する（暗黙の全スコープ削除を禁止）',
+      ],
+    },
+    sunsetCondition:
+      'is_prev_year 列が廃止され、前年データの分離方式が変更された場合',
+    protectedHarm: {
+      prevents: [
+        '前年データの巻き込み削除（deleteMonth が is_prev_year=true 行を誤削除）',
+        '当年データの巻き込み削除（deletePrevYearRowsAt が is_prev_year=false 行を誤削除）',
+      ],
+    },
+  },
 ] as const satisfies readonly BaseRule[]

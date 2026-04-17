@@ -6,7 +6,7 @@
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import { z } from 'zod'
-import { queryToObjects, queryScalar } from '../queryRunner'
+import { queryToObjects } from '../queryRunner'
 import type { CategoryTimeSalesRecord, TimeSlotEntry } from '@/domain/models/record'
 import type { CtsFilterParams } from './categoryTimeSales'
 import { ctsWhereClause } from './categoryTimeSales'
@@ -227,32 +227,7 @@ export async function queryCategoryTimeRecords(
     ${where}
     ORDER BY cts.store_id, cts.date_key,
              cts.dept_code, cts.line_code, cts.klass_code, ts.hour`
-  // DEBUG: 前年クエリ — 同じ connection で CTS テーブルの前年行を直接確認
-  if (params.isPrevYear === true) {
-    const ctsPrevCount = await queryScalar<number>(
-      conn,
-      'SELECT COUNT(*) FROM category_time_sales WHERE is_prev_year = TRUE',
-    )
-    const ctsDateRange = await queryToObjects<{ minDate: string; maxDate: string }>(
-      conn,
-      `SELECT MIN(date_key) AS "minDate", MAX(date_key) AS "maxDate"
-       FROM category_time_sales WHERE is_prev_year = TRUE`,
-    )
-    console.info('[queryCategoryTimeRecords] prev year diagnostic:', {
-      dateFrom: params.dateFrom,
-      dateTo: params.dateTo,
-      ctsPrevCount,
-      ctsMinDate: ctsDateRange[0]?.minDate ?? '(none)',
-      ctsMaxDate: ctsDateRange[0]?.maxDate ?? '(none)',
-      whereClause: where,
-    })
-  }
   const rows = await queryToObjects<CtsJoinRow>(conn, sql, CtsJoinRowSchema)
-  if (params.isPrevYear === true) {
-    console.info('[queryCategoryTimeRecords] prev year result:', {
-      rawRows: rows.length,
-    })
-  }
   return groupRowsToRecords(rows)
 }
 
