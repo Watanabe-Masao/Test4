@@ -65,6 +65,26 @@ handler は共通化する。
 
 完了条件: 関連 references が最新状態に更新されている。
 
+## 後続 project 候補（本 project の scope 外）
+
+### `calendar-modal-refresh`（仮）
+
+DayDetailModal は初期実装が残り、現代の規約から外れている部分が多い:
+
+- Props drilling（17+ 個の props）
+- presentation 層から直接 store アクセス（`useSettingsStore` / `useDataStore`）
+- インライン計算が ViewModel に集約しきれていない
+- インメモリ ↔ DuckDB のフォールバック切替が component 内で実施
+- WoW 日付計算が presentation に残る
+- `dataVersion` props 受渡（`QueryExecutor.dataVersion` で代替可能）
+- 旧 `PrevYearData` 型依存
+
+これらは **本 project の scope（ルート統一）には含めない**。本 project 完了後、
+独立 project として起票する。理由: 「複数の動線・コンテキストを混ぜない原則」
+（`references/03-guides/project-checklist-governance.md` §0）。Phase B の bundle
+経由化が refresh の前提となるため、順序は **本 project → calendar-modal-refresh**
+が自然。
+
 ## やってはいけないこと
 
 - モーダル内に「DuckDB が空なら raw CTS にフォールバック」という分岐を新規に書く

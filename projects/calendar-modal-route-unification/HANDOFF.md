@@ -100,6 +100,9 @@ export const categoryTimeRecordsPairHandler =
 
 - Phase C: leaf-grain 対応（`CategoryLeafDailySeries` 新設、5 要素分解の正本経路化、
   Phase 6.5-5b の permanent floor 解消）— 影響範囲が大きいため別プロジェクトで計画
+- **DayDetailModal の構造リフレッシュ**（`calendar-modal-refresh` 仮）— 初期実装由来の
+  props drilling / presentation での store 直アクセス / インライン計算等の解消。
+  本 project 完了後に別 project として起票（plan.md §後続 project 候補 参照）
 
 ## 3. ハマりポイント
 
