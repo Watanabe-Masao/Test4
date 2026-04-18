@@ -19,6 +19,7 @@ import type {
 } from '@/application/queries/cts/CategoryTimeRecordsHandler'
 import type { PairedInput } from '@/application/queries/createPairedHandler'
 import type { PairedQueryOutput } from '@/application/queries/PairedQueryContract'
+import type { TimeSlotSeries } from '@/application/hooks/timeSlot/TimeSlotBundle.types'
 import type { StoreDaySummaryInput } from '@/application/queries/summary/StoreDaySummaryHandler'
 import type { StoreDaySummaryRow } from '@/application/queries/summary/StoreDaySummaryHandler'
 import type { WeatherHourlyInput } from '@/application/queries/weather/WeatherHourlyHandler'
@@ -66,6 +67,10 @@ export interface DayDetailData {
   // ── 天気 ──
   readonly weatherHourly: readonly HourlyWeatherRecord[] | undefined
   readonly prevWeatherHourly: readonly HourlyWeatherRecord[] | undefined
+
+  // ── TimeSlot 集計 lane（HourlyChart 用、leaf-grain は dayRecords 等で別途配布） ──
+  readonly timeSlotCurrentSeries: TimeSlotSeries | null
+  readonly timeSlotComparisonSeries: TimeSlotSeries | null
 }
 
 /** useDayDetailData のパラメータ  *
@@ -149,6 +154,25 @@ export function buildCtsInput(
     dateTo: toKey,
     storeIds: storeIds.size > 0 ? [...storeIds] : undefined,
     isPrevYear,
+  }
+}
+
+/** useTimeSlotBundle 用に単日 scope 向けの ComparisonScope を合成する。
+ * useTimeSlotBundle は effectivePeriod2 / alignmentMode のみ参照するため、外側の
+ * scope から alignment メタを引き継いで period1/2 / effectivePeriod1/2 を単日に pin する。
+ * @responsibility R:calculation
+ */
+export function buildDayComparisonScope(
+  outer: ComparisonScope | null,
+  ranges: Pick<ReturnType<typeof resolveDayDetailRanges>, 'singleDayRange' | 'prevDayRange'>,
+): ComparisonScope | null {
+  if (!outer) return null
+  return {
+    ...outer,
+    period1: ranges.singleDayRange,
+    period2: ranges.prevDayRange,
+    effectivePeriod1: ranges.singleDayRange,
+    effectivePeriod2: ranges.prevDayRange,
   }
 }
 

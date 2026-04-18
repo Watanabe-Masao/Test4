@@ -49,7 +49,13 @@ export function useDayDetailData(params: DayDetailDataParams): DayDetailData {
   )
 
   // クエリ実行 + fallback 解決を plan に委譲
-  const plan = useDayDetailPlan(queryExecutor, ranges, selectedStoreIds, weatherStoreId)
+  const plan = useDayDetailPlan(
+    queryExecutor,
+    ranges,
+    selectedStoreIds,
+    weatherStoreId,
+    comparisonScope,
+  )
 
   return {
     prevDate: ranges.prevDate,

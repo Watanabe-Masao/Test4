@@ -323,6 +323,8 @@ export function DayDetailModal({
           <DayDetailHourlyTab
             dayRecords={dayRecords}
             prevDayRecords={prevDayRecords}
+            timeSlotCurrentSeries={dd.timeSlotCurrentSeries}
+            timeSlotComparisonSeries={dd.timeSlotComparisonSeries}
             weatherHourly={dd.weatherHourly}
             prevWeatherHourly={dd.prevWeatherHourly}
             prevDateKey={prevDateKey}

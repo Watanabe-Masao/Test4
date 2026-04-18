@@ -5,13 +5,53 @@
 
 ## 1. 現在地
 
-**Phase 1 完了（契約拡張）。** `StoreAggregationRow` / `TimeSlotSeries` /
-`projectTimeSlotSeries` に quantity 系フィールドを additive で追加。既存の
-`byHour` / `total` / `grandTotal` はそのまま残し、並行して `byHourQuantity` /
-`totalQuantity` / `grandTotalQuantity` を新設。wow は既定 policy 通り bundle 対象外
-（HourlyChart の wow モードは Phase 2 で raw CTS のまま維持する方針）。
-lint / build / format / test:guards (694) / 関連テスト (1313) すべて green。
-次は Phase 2（HourlyChart の bundle 経由化）。
+**Phase 2 実装完了（bundle 経由化・手動検証のみ残り）。** `buildHourlyDataSets` を
+`TimeSlotSeries` 受け取りに書き換え、`useDayDetailPlan` に `useTimeSlotBundle` を
+統合して `timeSlotCurrentSeries` / `timeSlotComparisonSeries` を供給。
+`DayDetailModal` → `DayDetailHourlyTab` → `HourlyChart` の配線を完了し、
+時間帯チャートの amount / quantity 表示は bundle 経由で取得されるようになった。
+`useDayDetailPlan` の R:query-plan 200 行 budget を守るため `buildDayComparisonScope`
+を `dayDetailDataLogic` に pure 関数として抽出（現在 192 行）。
+lint / format / build / test:guards (694) / 関連テスト (785) 全て green。
+
+**残件**: モーダル / ダッシュボード時間帯表示の手動（人間）一致検証 1 件のみ。
+
+## 1.1. Phase 2 成果サマリ
+
+### 採用判断（再掲）
+
+| 論点 | 採用 |
+|---|---|
+| 時間帯集計の bundle 化 | 当日 + 比較日（yoy）のみ。wow は DayDetailModal 側が別経路で扱うため HourlyChart 内の wow 分岐は発生しない |
+| `dayRecords` / `prevDayRecords` の扱い | `HourlyChart` の props には残す（hourDetail = leaf-grain カテゴリ別内訳パネルで使用） |
+| `selectCtsWithFallback` 依存 | 時間帯チャートの primary 表示経路からは削除済み。hourDetail（leaf-grain）経由は Phase 3 / 別 project（CategoryLeafDailySeries 新設）で解消する |
+
+### 変更ファイル（Phase 2）
+
+| 層 | ファイル | 変更 |
+|---|------|------|
+| Pure logic | `hooks/duckdb/dayDetailDataLogic.ts` | `buildDayComparisonScope` を追加 / `DayDetailData` に `timeSlotCurrentSeries` / `timeSlotComparisonSeries` を追加 |
+| Screen Plan | `hooks/plans/useDayDetailPlan.ts` | `comparisonScope` パラメータ追加 / `useTimeSlotBundle` 統合 / plan 結果に series 追加 |
+| Orchestration | `hooks/duckdb/useDayDetailData.ts` | plan 呼び出しに `comparisonScope` 追加 |
+| Presentation | `widgets/HourlyChart.builders.ts` | `seriesToHourlyData` 追加 / `buildHourlyDataSets` が `TimeSlotSeries` を受け取るよう変更 |
+| Presentation | `widgets/HourlyChart.tsx` | props に `currentSeries` / `comparisonSeries` を追加（`dayRecords` / `prevDayRecords` は hourDetail 用で維持） |
+| Presentation | `widgets/DayDetailHourlyTab.tsx` | `timeSlotCurrentSeries` / `timeSlotComparisonSeries` を受け取り HourlyChart へ配線 |
+| Presentation | `widgets/DayDetailModal.tsx` | Tab への配線更新 |
+| Test | `widgets/__tests__/HourlyChart.builders.test.ts` | fixture を raw CTS から `makeSeries(TimeSlotSeries)` に書き換え + 新テスト追加 |
+
+### データフロー（Phase 2 後）
+
+```
+useDayDetailPlan
+  ├─ useQueryWithHandler(categoryTimeRecordsPairHandler)  [leaf-grain 用 raw CTS]
+  │    → dayRecords / prevDayRecords / cumRecords / cumPrevRecords / wowPrevDayRecords
+  └─ useTimeSlotBundle(timeSlotFrame)                      [時間帯集計 lane]
+       → timeSlotCurrentSeries / timeSlotComparisonSeries
+
+DayDetailModal → DayDetailHourlyTab → HourlyChart
+  ├─ dayRecords / prevDayRecords           ─ hourDetail（カテゴリ別内訳、leaf-grain）用
+  └─ currentSeries / comparisonSeries      ─ 時間帯チャート（amount/quantity）主経路
+```
 
 ## 1.1. Phase 1 成果サマリ
 

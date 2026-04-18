@@ -5,7 +5,8 @@
  * 依存関係が類似する複数の useMemo を 1 関数にまとめる。
  */
 import type { CategoryTimeSalesRecord, HourlyWeatherRecord } from '@/domain/models/record'
-import { buildHourlyData, computeSelectedData, buildHourCategoryDetail } from './HourlyChart.logic'
+import type { TimeSlotSeries } from '@/application/hooks/timeSlot/TimeSlotBundle.types'
+import { computeSelectedData, buildHourCategoryDetail } from './HourlyChart.logic'
 import {
   findCoreTime,
   findTurnaroundHour,
@@ -55,15 +56,46 @@ export interface HourlySummaryStats {
 // ─── Builder 関数 ────────────────────────────────────
 
 /**
+ * TimeSlotSeries（bundle projection 結果）を hour 別の `{amount, quantity}` 配列に
+ * フラット化する。series.entries[].byHour / byHourQuantity を index=hour で
+ * 店舗横断で合算し、実在 hour のみを min〜max の範囲でゼロ埋めして返す。
+ *
+ * series が null / 空のときは空配列を返す（buildHourlyDataSets で合流する）。
+ */
+export function seriesToHourlyData(series: TimeSlotSeries | null): HourlyDataPoint[] {
+  if (!series || series.entries.length === 0) return []
+  const map = new Map<number, { amount: number; quantity: number }>()
+  for (const entry of series.entries) {
+    for (let h = 0; h < entry.byHour.length; h++) {
+      const amt = entry.byHour[h]
+      const qty = entry.byHourQuantity[h]
+      if (amt == null && qty == null) continue
+      const prev = map.get(h) ?? { amount: 0, quantity: 0 }
+      map.set(h, { amount: prev.amount + (amt ?? 0), quantity: prev.quantity + (qty ?? 0) })
+    }
+  }
+  if (map.size === 0) return []
+  const hours = [...map.keys()].sort((a, b) => a - b)
+  const minH = hours[0]
+  const maxH = hours[hours.length - 1]
+  const result: HourlyDataPoint[] = []
+  for (let h = minH; h <= maxH; h++) {
+    const d = map.get(h)
+    result.push({ hour: h, amount: d?.amount ?? 0, quantity: d?.quantity ?? 0 })
+  }
+  return result
+}
+
+/**
  * 当年・前年の時間帯データ + 全時間リストを一括構築する。
- * buildHourlyData × 2 + allHours の 3 useMemo を統合。
+ * 入力は `timeSlotLane.bundle` の `currentSeries` / `comparisonSeries`。
  */
 export function buildHourlyDataSets(
-  dayRecords: readonly CategoryTimeSalesRecord[],
-  prevDayRecords: readonly CategoryTimeSalesRecord[],
+  currentSeries: TimeSlotSeries | null,
+  comparisonSeries: TimeSlotSeries | null,
 ): HourlyDataSets {
-  const actualData = buildHourlyData(dayRecords)
-  const prevData = buildHourlyData(prevDayRecords)
+  const actualData = seriesToHourlyData(currentSeries)
+  const prevData = seriesToHourlyData(comparisonSeries)
 
   const hrs = new Set<number>()
   for (const d of actualData) hrs.add(d.hour)
