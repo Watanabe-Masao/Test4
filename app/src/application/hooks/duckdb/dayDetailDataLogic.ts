@@ -4,6 +4,11 @@
  * useDayDetailData から分離した型定義・日付範囲計算・入力構築・集約関数。
  * React 依存なし — テスト可能な純粋関数のみ。
  *
+ * category-leaf-daily-series project で fallback helper
+ * (selectCtsWithFallback / selectCtsWithFallbackFromPair) と
+ * buildCtsPairInput を削除した。比較の fallback は
+ * useCategoryLeafDailyBundle 内部で畳み込まれる。
+ *
  * @guard G5 hook ≤300行 — 純粋関数を分離
  *
  * @responsibility R:calculation
@@ -13,17 +18,12 @@ import { toDateKey, dateRangeToKeys } from '@/domain/models/CalendarDate'
 import type { ComparisonScope } from '@/domain/models/ComparisonScope'
 import { resolvePrevDate } from '@/domain/models/ComparisonScope'
 import type { CategoryTimeSalesRecord, HourlyWeatherRecord } from '@/domain/models/record'
-import type {
-  CategoryTimeRecordsInput,
-  CategoryTimeRecordsOutput,
-} from '@/application/queries/cts/CategoryTimeRecordsHandler'
-import type { PairedInput } from '@/application/queries/createPairedHandler'
-import type { PairedQueryOutput } from '@/application/queries/PairedQueryContract'
+import type { CategoryTimeRecordsInput } from '@/application/queries/cts/CategoryTimeRecordsHandler'
 import type { TimeSlotSeries } from '@/application/hooks/timeSlot/TimeSlotBundle.types'
+import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'
 import type { StoreDaySummaryInput } from '@/application/queries/summary/StoreDaySummaryHandler'
 import type { StoreDaySummaryRow } from '@/application/queries/summary/StoreDaySummaryHandler'
 import type { WeatherHourlyInput } from '@/application/queries/weather/WeatherHourlyHandler'
-import type { AsyncQueryResult } from '@/application/queries/QueryContract'
 
 // ── 型定義 ──
 
@@ -57,12 +57,12 @@ export interface DayDetailData {
   readonly daySummary: DaySummary
   readonly prevDaySummary: DaySummary
 
-  // ── CTS ──
-  readonly dayRecords: readonly CategoryTimeSalesRecord[]
-  readonly prevDayRecords: readonly CategoryTimeSalesRecord[]
-  readonly wowPrevDayRecords: readonly CategoryTimeSalesRecord[]
-  readonly cumRecords: readonly CategoryTimeSalesRecord[]
-  readonly cumPrevRecords: readonly CategoryTimeSalesRecord[]
+  // ── CTS leaf entries（categoryLeafDaily bundle 経由で取得） ──
+  readonly dayRecords: readonly CategoryLeafDailyEntry[]
+  readonly prevDayRecords: readonly CategoryLeafDailyEntry[]
+  readonly wowPrevDayRecords: readonly CategoryLeafDailyEntry[]
+  readonly cumRecords: readonly CategoryLeafDailyEntry[]
+  readonly cumPrevRecords: readonly CategoryLeafDailyEntry[]
 
   // ── 天気 ──
   readonly weatherHourly: readonly HourlyWeatherRecord[] | undefined
@@ -157,9 +157,10 @@ export function buildCtsInput(
   }
 }
 
-/** useTimeSlotBundle 用に単日 scope 向けの ComparisonScope を合成する。
- * useTimeSlotBundle は effectivePeriod2 / alignmentMode のみ参照するため、外側の
- * scope から alignment メタを引き継いで period1/2 / effectivePeriod1/2 を単日に pin する。
+/** useTimeSlotBundle / useCategoryLeafDailyBundle 用に特定日次 scope 向けの
+ * ComparisonScope を合成する。bundle は effectivePeriod2 / alignmentMode のみ参照
+ * するため、外側の scope から alignment メタを引き継いで period1/2 /
+ * effectivePeriod1/2 を与えた range に pin する。
  * @responsibility R:calculation
  */
 export function buildDayComparisonScope(
@@ -173,30 +174,6 @@ export function buildDayComparisonScope(
     period2: ranges.prevDayRange,
     effectivePeriod1: ranges.singleDayRange,
     effectivePeriod2: ranges.prevDayRange,
-  }
-}
-
-/** current/comparison を 1 入力にまとめた pair handler 用入力を構築する  *
- * @responsibility R:calculation
- */
-export function buildCtsPairInput(
-  currentRange: DateRange | undefined,
-  comparisonRange: DateRange | undefined,
-  storeIds: ReadonlySet<string>,
-): PairedInput<CategoryTimeRecordsInput> | null {
-  if (!currentRange) return null
-  const { fromKey, toKey } = dateRangeToKeys(currentRange)
-  const storeIdsArr = storeIds.size > 0 ? [...storeIds] : undefined
-  if (!comparisonRange) {
-    return { dateFrom: fromKey, dateTo: toKey, storeIds: storeIdsArr }
-  }
-  const { fromKey: cFromKey, toKey: cToKey } = dateRangeToKeys(comparisonRange)
-  return {
-    dateFrom: fromKey,
-    dateTo: toKey,
-    storeIds: storeIdsArr,
-    comparisonDateFrom: cFromKey,
-    comparisonDateTo: cToKey,
   }
 }
 
@@ -224,29 +201,6 @@ export function buildWeatherInput(
 }
 
 // ── 集約ヘルパー ──
-
-/** isPrevYear=true の結果が空なら isPrevYear=false のフォールバックを使う  *
- * @responsibility R:calculation
- */
-export function selectCtsWithFallback(
-  primary: AsyncQueryResult<{ readonly records: readonly CategoryTimeSalesRecord[] }>,
-  fallback: AsyncQueryResult<{ readonly records: readonly CategoryTimeSalesRecord[] }>,
-): readonly CategoryTimeSalesRecord[] {
-  const primaryData = primary.data?.records ?? EMPTY_RECORDS
-  return primaryData.length > 0 ? primaryData : (fallback.data?.records ?? EMPTY_RECORDS)
-}
-
-/** pair 結果の comparison 側を primary、別 query を fallback として {@link selectCtsWithFallback} と
- * 同じ意味論で解決する  *
- * @responsibility R:calculation
- */
-export function selectCtsWithFallbackFromPair(
-  pair: AsyncQueryResult<PairedQueryOutput<CategoryTimeRecordsOutput>>,
-  fallback: AsyncQueryResult<{ readonly records: readonly CategoryTimeSalesRecord[] }>,
-): readonly CategoryTimeSalesRecord[] {
-  const primaryData = pair.data?.comparison?.records ?? EMPTY_RECORDS
-  return primaryData.length > 0 ? primaryData : (fallback.data?.records ?? EMPTY_RECORDS)
-}
 
 /** StoreDaySummaryRow[] を店舗横断で集約して DaySummary に変換する  *
  * @responsibility R:calculation

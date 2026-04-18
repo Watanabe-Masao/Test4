@@ -108,6 +108,8 @@ VM (Presentation)        : 率 × 100 → 表示文字列
 | ViewModel で計算結果を再計算 | 心臓部の責務が血管に流出 | StoreResult の値をそのまま使う。Explanation も再計算禁止 |
 | store action 内で業務計算 | store は反映のみ | 計算は domain/ で行い、store は結果を格納するだけ |
 | `buildBudgetHeader` 等で alignment 値を月間指標に使用 | 期間スコープの混同 | `monthlyTotal` のみ参照。レビューで検証 |
+| 同一 widget 内で bundle 経由と raw CTS 経由を混在させて意味の違う同種値を取る | 経路が混ざる（plan §0 違反）| 1 つの意味の data path は 1 経路に統一。やむを得ず混在する場合は「用途が違う」ことを明示（例: `HourlyChart` の時間帯集計は bundle、hourDetail leaf-grain は raw CTS）|
+| bundle 契約拡張なしに HourlyChart 等で点数や wow を扱おうとする | 契約側が要件を満たさないまま消費側を改修 | 先に `TimeSlotBundle` / `CategoryDailyBundle` 契約を拡張し、消費側は契約に従う（calendar-modal-bundle-migration Phase 1 で確立） |
 
 ### 実際に発生したバグ
 

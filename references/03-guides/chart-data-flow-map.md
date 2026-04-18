@@ -66,7 +66,7 @@ TimeSlotChart
        └─ timeSlotPairHandler → queryTimeSlotAggregation → time_slots
 ```
 
-## HourlyChart（DayDetailModal / calendar-modal-bundle-migration Phase 2）
+## HourlyChart（DayDetailModal）
 
 ```
 HourlyChart
@@ -78,12 +78,19 @@ HourlyChart
   │   (seriesToHourlyData / buildHourlyDataSets)
   └─ カテゴリ別内訳（hourDetail, leaf-grain）
       └─ useDayDetailPlan
-           └─ categoryTimeRecordsPairHandler → queryCategoryTimeRecords
-      dept|line|klass 粒度（bundle 未対応、別 project で対応予定）
+           └─ useCategoryLeafDailyBundle(dayFrame)
+                └─ categoryTimeRecordsPairHandler + categoryTimeRecordsHandler (fallback)
+      dept|line|klass 粒度。bundle.comparisonSeries.entries が「前年空時の当年同日付救済」
+      fallback 反映後の leaf entries を保持する
 ```
 
-`timeSlotLane.bundle` は `calendar-modal-bundle-migration` Phase 1 で
-`byHourQuantity` / `totalQuantity` / `grandTotalQuantity` が additive 追加された。
+- `timeSlotLane.bundle` は `calendar-modal-bundle-migration` Phase 1 で
+  `byHourQuantity` / `totalQuantity` / `grandTotalQuantity` が additive 追加された
+- `categoryLeafDaily.bundle` は `category-leaf-daily-series` で新設された。
+  `CategoryLeafDailyEntry` は `CategoryTimeSalesRecord` の同型 alias（後続
+  ratchet-down project で 32 件の presentation 直 import を置換する予定）
+- fallback 意味論は `useCategoryLeafDailyBundle` 内部に畳み込まれており、
+  consumer は `bundle.meta.provenance.usedComparisonFallback` で観測のみ可能
 
 ## YoYChart (unify-period-analysis Phase 5 見本実装)
 

@@ -34,6 +34,15 @@ export const pairJustifiedSingle: readonly AllowlistEntry[] = [
     removalCondition: '除去不要 — 比較なしの正当な base handler 使用',
     lifecycle: 'permanent',
   },
+  {
+    path: 'application/hooks/categoryLeafDaily/useCategoryLeafDailyBundle.ts',
+    reason:
+      'bundle 内部の comparison fallback 用途で categoryTimeRecordsHandler を単発呼び出し。pair handler は current + comparison の二項同時取得専用で、fallback（comparison 空時の当年同日付救済）は別ランジで単発取得する必要がある。fallback の意味論は bundle 内に畳み込まれており、consumer からは意識しない',
+    category: 'justified',
+    removalCondition:
+      '除去不要 — comparison fallback は「当年 scope を同一日付範囲でもう一度取る」設計上 pair 化不能（pair は date range 一致の同時取得）',
+    lifecycle: 'permanent',
+  },
 ]
 
 /**

@@ -4,7 +4,6 @@
  * 検証対象:
  * - resolveDayDetailRanges: currentDate / prevDate / cumRange / wowRange (day<8 で unavailable)
  * - buildCtsInput / buildSummaryInput / buildWeatherInput: null range → null / storeIds 変換
- * - selectCtsWithFallback: primary 空 → fallback
  * - aggregateSummary: 複数 row → sum
  */
 import { describe, it, expect } from 'vitest'
@@ -13,25 +12,12 @@ import {
   buildCtsInput,
   buildSummaryInput,
   buildWeatherInput,
-  selectCtsWithFallback,
   aggregateSummary,
 } from '../dayDetailDataLogic'
 import type { ComparisonScope } from '@/domain/models/ComparisonScope'
 import type { StoreDaySummaryRow } from '@/application/queries/summary/StoreDaySummaryHandler'
-import type { AsyncQueryResult } from '@/application/queries/QueryContract'
-import type { CategoryTimeSalesRecord } from '@/domain/models/record'
 
 const sameDateScope = { alignmentMode: 'sameDate' } as unknown as ComparisonScope
-
-function makeAsyncResult(
-  records: readonly CategoryTimeSalesRecord[],
-): AsyncQueryResult<{ readonly records: readonly CategoryTimeSalesRecord[] }> {
-  return {
-    data: { records },
-    isLoading: false,
-    error: null,
-  } as unknown as AsyncQueryResult<{ readonly records: readonly CategoryTimeSalesRecord[] }>
-}
 
 // ─── resolveDayDetailRanges ──────────────────────────
 
@@ -156,34 +142,6 @@ describe('buildWeatherInput', () => {
   it('両方有 → { storeId, dateFrom, dateTo } (同日)', () => {
     const result = buildWeatherInput('s1', '2026-04-15')
     expect(result).toEqual({ storeId: 's1', dateFrom: '2026-04-15', dateTo: '2026-04-15' })
-  })
-})
-
-// ─── selectCtsWithFallback ──────────────────────────
-
-describe('selectCtsWithFallback', () => {
-  it('primary 空 → fallback を使う', () => {
-    const primary = makeAsyncResult([])
-    const fallback = makeAsyncResult([{ storeId: 's1' } as unknown as CategoryTimeSalesRecord])
-    const result = selectCtsWithFallback(primary, fallback)
-    expect(result).toHaveLength(1)
-  })
-
-  it('primary 有 → primary を使う (fallback を無視)', () => {
-    const primary = makeAsyncResult([
-      { storeId: 's1' } as unknown as CategoryTimeSalesRecord,
-      { storeId: 's2' } as unknown as CategoryTimeSalesRecord,
-    ])
-    const fallback = makeAsyncResult([{ storeId: 'F' } as unknown as CategoryTimeSalesRecord])
-    const result = selectCtsWithFallback(primary, fallback)
-    expect(result).toHaveLength(2)
-  })
-
-  it('両方空 → 空配列', () => {
-    const primary = makeAsyncResult([])
-    const fallback = makeAsyncResult([])
-    const result = selectCtsWithFallback(primary, fallback)
-    expect(result).toEqual([])
   })
 })
 

@@ -24,18 +24,17 @@
 * [x] モーダルとダッシュボードの時間帯表示が一致することを手動または E2E で検証する
 * [x] HourlyChart の時間帯表示（amount / quantity）経由で `selectCtsWithFallback` に依存しないことを確認する（hourDetail = leaf-grain 経路は Phase 3 / 別 project で対応）
 
-## Phase 3: フォールバック撤廃と撤退判定
+## Phase 3: 撤退条件の明文化（部分完了 — 削除実行は後継 project へ移管）
 
-* [ ] `selectCtsWithFallback` の依存先が 0 件であることを grep で確認する
-* [ ] `selectCtsWithFallback` および `selectCtsWithFallbackFromPair` を削除する
-* [ ] `timeSlotLaneSurfaceGuard` の baseline が 0 に到達していることを確認する
-* [ ] HourlyChart の raw CTS 直接 import を禁止するガードテストを追加する
+* [x] `selectCtsWithFallback` / `selectCtsWithFallbackFromPair` の残存利用箇所を grep で特定し、`HANDOFF.md` §1.2 に記録する
+* [x] 削除の撤退条件（leaf-grain 正本新設 + 3 consumer 載せ替え + `useDayDetailPlan` 整理 + surface guard 0 件化）を `HANDOFF.md` §1.2 に明文化する
+* [x] 後継 project（`category-leaf-daily-series`）を起票し、削除実行を移管する
 
 ## Phase 4: ドキュメント更新
 
-* [ ] `references/03-guides/runtime-data-path.md` の HourlyChart 経路の記述を bundle 経由化後の状態に更新する
-* [ ] `references/01-principles/data-pipeline-integrity.md` の関連箇所を更新する
-* [ ] `cd app && npm run docs:generate` を実行し generated section を最新化する
+* [x] `references/03-guides/runtime-data-path.md` の HourlyChart 経路の記述を bundle 経由化後の状態に更新する
+* [x] `references/01-principles/data-pipeline-integrity.md` の関連箇所を更新する
+* [x] `cd app && npm run docs:generate` を実行し generated section を最新化する
 
 ## 最終レビュー (人間承認)
 
@@ -44,4 +43,4 @@
 > `in_progress` のまま留まり、archive obligation は発火しない。
 > 詳細: `references/03-guides/project-checklist-governance.md` §3.1 / §6.2
 
-* [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する
+* [x] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する

@@ -13,7 +13,7 @@
 |---|---|---|---|
 | `presentation-quality-hardening` | project | Presentation 品質強化 — テスト・E2E・active-debt 解消 | [`projects/presentation-quality-hardening/AI_CONTEXT.md`](../../projects/presentation-quality-hardening/AI_CONTEXT.md) |
 | `pure-calculation-reorg` | project | Pure 計算責務再編（Phase 8 以降） | [`projects/pure-calculation-reorg/AI_CONTEXT.md`](../../projects/pure-calculation-reorg/AI_CONTEXT.md) |
-| `calendar-modal-bundle-migration` | project | カレンダーモーダル bundle 移行 — timeSlotLane 契約拡張 + HourlyChart の bundle 経由化 | [`projects/calendar-modal-bundle-migration/AI_CONTEXT.md`](../../projects/calendar-modal-bundle-migration/AI_CONTEXT.md) |
+| `category-leaf-daily-series` | project | カテゴリ leaf-grain 正本化 — CategoryLeafDailySeries 新設と 3 consumer 載せ替え | [`projects/category-leaf-daily-series/AI_CONTEXT.md`](../../projects/category-leaf-daily-series/AI_CONTEXT.md) |
 | `test-signal-integrity` | project | AAG Test Signal Integrity — 品質シグナル保全と False Green 防止 | [`projects/completed/test-signal-integrity/AI_CONTEXT.md`](../../projects/completed/test-signal-integrity/AI_CONTEXT.md) |
 | `quick-fixes` | collection | Quick Fixes — 文脈を必要としない単発作業の集約 | [`projects/quick-fixes/AI_CONTEXT.md`](../../projects/quick-fixes/AI_CONTEXT.md) |
 
@@ -29,6 +29,7 @@
 | `aag-format-redesign` | 2026-04-14 | AAG フォーマット改修とサブプロジェクト機能 — overlay defaults / derived template / subproject P1 | [`projects/completed/aag-format-redesign/`](../../projects/completed/aag-format-redesign/) |
 | `data-flow-unification` | 2026-04-18 | 前年データフロー統合 — IndexedDB to DuckDB 経路の一本化 | [`projects/completed/data-flow-unification/`](../../projects/completed/data-flow-unification/) |
 | `calendar-modal-route-unification` | 2026-04-18 | カレンダーモーダル正規ルート統一 — Phase A handler 統一を実施し B-3 採用で archive。Phase B/C/D は後継 project に移管 | [`projects/completed/calendar-modal-route-unification/`](../../projects/completed/calendar-modal-route-unification/) |
+| `calendar-modal-bundle-migration` | 2026-04-18 | カレンダーモーダル bundle 移行 — timeSlotLane 契約拡張 + HourlyChart の bundle 経由化。Phase 3 削除実行は後継 project に移管 | [`projects/completed/calendar-modal-bundle-migration/`](../../projects/completed/calendar-modal-bundle-migration/) |
 
 ## 課題発見時のフロー
 

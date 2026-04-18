@@ -1,0 +1,12 @@
+{
+  "projectId": "category-leaf-daily-series",
+  "title": "カテゴリ leaf-grain 正本化 — CategoryLeafDailySeries 新設と 3 consumer 載せ替え",
+  "status": "active",
+  "projectRoot": "projects/category-leaf-daily-series",
+  "entrypoints": {
+    "aiContext": "projects/category-leaf-daily-series/AI_CONTEXT.md",
+    "handoff": "projects/category-leaf-daily-series/HANDOFF.md",
+    "plan": "projects/category-leaf-daily-series/plan.md",
+    "checklist": "projects/category-leaf-daily-series/checklist.md"
+  }
+}
