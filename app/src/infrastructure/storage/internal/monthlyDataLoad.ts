@@ -171,7 +171,7 @@ export async function loadMonthlyDataInternal(
   }
 
   // prevYearClassifiedSales は DB に保存しないため読み込まない
-  // (useAutoLoadPrevYear が実際の年月から classifiedSales を自動ロードする)
+  // (useLoadComparisonData が実際の年月から classifiedSales を自動ロードする)
 
   // categoryTimeSales — envelope unwrap + year/month 補完
   const ctsUnwrapped = unwrapEnvelope<{ records: unknown[] }>(

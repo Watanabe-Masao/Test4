@@ -38,7 +38,7 @@ import { ComparisonPresetToggle } from './ComparisonPresetToggle'
  * 表示されている対象年月に応じて以下を自動的にトリガーする:
  *
  * 1. 当月データを IndexedDB からロード → dataStore に格納
- * 2. useAutoLoadPrevYear が targetYear/targetMonth の変更を検知し、
+ * 2. useLoadComparisonData が ComparisonScope の変化を検知し、
  *    前年同月データを自動ロード
  * 3. JS 計算エンジンが前年同曜日・同日の値をいつでも使用できる状態になる
  *

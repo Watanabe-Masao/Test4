@@ -9,38 +9,38 @@
 
 ## Phase 1: 診断・整理
 
-* [ ] `useAutoLoadPrevYear` と `useLoadComparisonData` の責務範囲・呼び出し元・対象テーブルを棚卸しし結果を `HANDOFF.md` に記録する
-* [ ] DuckDB 上で `is_prev_year=true` 行が欠落しているテーブルを特定し一覧化する
-* [ ] `is_prev_year=true` データに依存する全 consumer（SQL クエリ・hook・widget）を棚卸しする
-* [ ] `useAutoLoadPrevYear` が引き続き必要か、除去可能かを判定し結論を `plan.md` に記録する
-* [ ] 診断ログを追加し、データフロー（IndexedDB → dataStore → DuckDB）の各段階で前年データの有無を確認できるようにする
+* [x] `useAutoLoadPrevYear` と `useLoadComparisonData` の責務範囲・呼び出し元・対象テーブルを棚卸しし結果を `HANDOFF.md` に記録する
+* [x] DuckDB 上で `is_prev_year=true` 行が欠落しているテーブルを特定し一覧化する
+* [x] `is_prev_year=true` データに依存する全 consumer（SQL クエリ・hook・widget）を棚卸しする
+* [x] `useAutoLoadPrevYear` が引き続き必要か、除去可能かを判定し結論を `plan.md` に記録する
+* [x] 診断ログを追加し、データフロー（IndexedDB → dataStore → DuckDB）の各段階で前年データの有無を確認できるようにする
 
 ## Phase 2: Auto-Load 統合
 
-* [ ] `useAutoLoadPrevYear` と `useLoadComparisonData` を単一の前年データロード機構に統合する
-* [ ] 統合後のローダーが全データスライス（classifiedSales, categoryTimeSales, flowers, purchase, transfers）を前年分ロードすることを確認する
-* [ ] 統合後のローダーが `ComparisonScope`（新システム）と連携して動作することを確認する
-* [ ] 旧 auto-load 機構の呼び出し元を全て統合後の機構に切り替える
+* [x] `useAutoLoadPrevYear` と `useLoadComparisonData` を単一の前年データロード機構に統合する
+* [x] 統合後のローダーが全データスライス（classifiedSales, categoryTimeSales, flowers, purchase, transfers）を前年分ロードすることを確認する
+* [x] 統合後のローダーが `ComparisonScope`（新システム）と連携して動作することを確認する
+* [x] 旧 auto-load 機構の呼び出し元を全て統合後の機構に切り替える
 
 ## Phase 3: DuckDB ロード保証
 
-* [ ] `loadMonth(prevYear, isPrevYear=true)` が全対象テーブルをカバーしていることを検証する
-* [ ] `time_slots` テーブルに `is_prev_year=true` 行が正しく挿入されることを検証する
-* [ ] `store_day_summary` マテリアライゼーションが前年データを含むことを検証する（基礎テーブルへのロード経由）
-* [ ] ロード完了後に `is_prev_year=true` 行数を検証するデータ整合性チェックを追加する
+* [x] `loadMonth(prevYear, isPrevYear=true)` が全対象テーブルをカバーしていることを検証する
+* [x] `time_slots` テーブルに `is_prev_year=true` 行が正しく挿入されることを検証する
+* [x] `store_day_summary` マテリアライゼーションが前年データを含むことを検証する（基礎テーブルへのロード経由）
+* [x] ロード完了後に `is_prev_year=true` 行数を検証するデータ整合性チェックを追加する
 
 ## Phase 4: キャッシュ戦略
 
-* [ ] fingerprint ベースのキャッシュ無効化が前年データの変更を検知することを検証する
-* [ ] 前年データ変更時に適切なリロードがトリガーされることを確認する
-* [ ] エッジケース（部分データ・stale キャッシュ・並行ロード）の処理方針を確定し実装する
+* [x] fingerprint ベースのキャッシュ無効化が前年データの変更を検知することを検証する
+* [x] 前年データ変更時に適切なリロードがトリガーされることを確認する
+* [x] エッジケース（部分データ・stale キャッシュ・並行ロード）の処理方針を確定し実装する
 
 ## Phase 5: 検証・ガード
 
-* [ ] データフロー整合性を保証するガードテストを追加する（`is_prev_year=true` 行の存在・テーブル網羅性）
-* [ ] 全比較チャート widget が前年データを正しく表示することを E2E または手動で検証する
-* [ ] Phase 1 で追加した診断ログを除去する
-* [ ] 関連ドキュメント（`runtime-data-path.md` / `data-pipeline-integrity.md`）を更新する
+* [x] データフロー整合性を保証するガードテストを追加する（`is_prev_year=true` 行の存在・テーブル網羅性）
+* [x] 全比較チャート widget が前年データを正しく表示することを E2E または手動で検証する
+* [x] Phase 1 で追加した診断ログを除去する
+* [x] 関連ドキュメント（`runtime-data-path.md` / `data-pipeline-integrity.md`）を更新する
 
 ## 最終レビュー (人間承認)
 

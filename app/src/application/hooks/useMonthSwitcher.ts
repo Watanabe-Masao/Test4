@@ -37,7 +37,7 @@ export function useMonthSwitcher(): MonthSwitcherState & MonthSwitcherActions {
       setIsSwitching(true)
       try {
         await executeMonthSwitch(repo, year, month)
-        // useAutoLoadPrevYear は targetYear/targetMonth の変更を検知して自動的に前年データをロードする
+        // useLoadComparisonData は ComparisonScope の変化を検知して自動的に前年データをロードする
       } finally {
         setIsSwitching(false)
       }

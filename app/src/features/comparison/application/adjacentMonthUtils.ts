@@ -3,7 +3,7 @@
  *
  * 同曜日アライメント対応で前後月のレコードを拡張day番号でマージする。
  * hooks/ からの re-export ではなく、comparison/ に配置して
- * useAutoLoadPrevYear / useLoadComparisonData 双方から参照する。
+ * useLoadComparisonData から参照する。
  */
 
 /**
