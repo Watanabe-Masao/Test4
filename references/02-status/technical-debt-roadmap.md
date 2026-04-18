@@ -36,10 +36,10 @@
 | 性能 | OK | 6537/7000 / 2236/2500 / 919/1000 |
 | Temporal Governance | OK | 0/0 / 32/32 / 1/12 / 148/92 / 17/9 / 1/1 |
 | Rule Efficacy | OK | 85 / 0/3 / 0/10 |
-| Project Governance | OK | 5/20 / 4/20 / 0/0 / 13/100 |
+| Project Governance | OK | 6/20 / 5/20 / 0/0 / 13/100 |
 
 
-> 生成: 2026-04-18T14:53:42.988Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-18T15:55:18.657Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 現状スナップショット

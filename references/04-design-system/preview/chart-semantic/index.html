@@ -96,7 +96,7 @@
 </header>
 
 <section class="pv-section">
-  <div class="group-label">当年 (実線・棒の主色) + 前年 (60% alpha)</div>
+  <div class="group-label">当年 (実線・棒の主色) + 前年 (slate 統一)</div>
 
   <div class="sem-grid">
 
@@ -330,6 +330,76 @@
       </div>
     </div>
   </div>
+
+  <div class="group-label">売変 subtype (DiscountType 71-74)</div>
+
+  <div class="sem-grid">
+    <div class="sem-card">
+      <div class="sem-swatches">
+        <div class="sem-current" style="background: var(--chart-discount-71);"></div>
+        <div class="sem-meta">
+          <span class="sem-jp">政策売変 (71)</span>
+          <span class="sem-en">chart.semantic.discountPolicy</span>
+          <span class="sem-hex">#EF4444 · danger-dark</span>
+        </div>
+      </div>
+    </div>
+    <div class="sem-card">
+      <div class="sem-swatches">
+        <div class="sem-current" style="background: var(--chart-discount-72);"></div>
+        <div class="sem-meta">
+          <span class="sem-jp">レジ値引 (72)</span>
+          <span class="sem-en">chart.semantic.discountRegister</span>
+          <span class="sem-hex">#F97316 · orange</span>
+        </div>
+      </div>
+    </div>
+    <div class="sem-card">
+      <div class="sem-swatches">
+        <div class="sem-current" style="background: var(--chart-discount-73);"></div>
+        <div class="sem-meta">
+          <span class="sem-jp">廃棄売変 (73)</span>
+          <span class="sem-en">chart.semantic.discountWaste</span>
+          <span class="sem-hex">#EAB308 · caution</span>
+        </div>
+      </div>
+    </div>
+    <div class="sem-card">
+      <div class="sem-swatches">
+        <div class="sem-current" style="background: var(--chart-discount-74);"></div>
+        <div class="sem-meta">
+          <span class="sem-jp">試食売変 (74)</span>
+          <span class="sem-en">chart.semantic.discountSampling</span>
+          <span class="sem-hex">#A855F7 · purple-mid</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="group-label">累計売変率ライン</div>
+
+  <div class="sem-grid">
+    <div class="sem-card">
+      <div class="sem-swatches">
+        <div class="sem-current" style="background: var(--chart-cumulative-discount-rate);"></div>
+        <div class="sem-prev" style="background: var(--chart-cumulative-discount-rate-prev);"></div>
+        <div class="sem-meta">
+          <span class="sem-jp">累計売変率 (当年 / 前年)</span>
+          <span class="sem-en">chart.semantic.cumulativeDiscountRate[Prev]</span>
+          <span class="sem-hex">#F97316 · orange + #94A3B8 · slate</span>
+        </div>
+      </div>
+      <div class="line-demo">
+        <svg width="80" height="20" viewBox="0 0 80 20">
+          <polyline points="0,15 20,12 40,10 60,8 80,6" fill="none" stroke="var(--chart-cumulative-discount-rate)" stroke-width="2"/>
+        </svg>
+        <svg width="80" height="20" viewBox="0 0 80 20">
+          <polyline points="0,14 20,13 40,11 60,10 80,9" fill="none" stroke="var(--chart-cumulative-discount-rate-prev)" stroke-width="1.5" stroke-dasharray="3,3"/>
+        </svg>
+        <span class="line-demo-label">当年 solid / 前年 dashed</span>
+      </div>
+    </div>
+  </div>
 </section>
 
 <section class="pv-section">
@@ -337,8 +407,9 @@
   <ul class="pv-list">
     <li>新規チャート実装時は <strong>必ず</strong> <code>theme.chart.semantic.*</code> から色を拾う。hex をインラインで書かない</li>
     <li>概念名で書く (「売上」は <code>semantic.sales</code>)。palette 直接参照 (<code>palette.primary</code>) はしない</li>
-    <li>前年比較は当年色 + 60% alpha の <code>*Prev</code> を使用。破線で描画</li>
+    <li>前年比較は全 chart で slate に統一 (<code>*Prev</code> = <code>palette.slate</code>)。破線 or 淡い bar で描画</li>
     <li>trend (↑↓) には <code>sc.positive</code> / <code>sc.negative</code> (CUD)、棒の正負には <code>chart.semantic.positive</code> / <code>negative</code> (status) という住み分け</li>
+    <li>売変 subtype 71-74 は <code>chart.semantic.discountPolicy/Register/Waste/Sampling</code>。単一の <code>discount</code> は集計値用</li>
     <li>新しい業務概念が必要になったら <code>ChartSemanticColors</code> interface に追加 → 再ビルドで型チェックが通ることを確認</li>
   </ul>
 </section>

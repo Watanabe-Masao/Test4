@@ -22,7 +22,14 @@ import { categoryXAxis, valueYAxis, lineDefaults } from './builders'
 import { KpiGrid, KpiCard, KpiLabel, KpiValue, KpiSub } from './DiscountTrendChart.styles'
 import { buildDiscountData, type DiscountPoint } from './DiscountTrendChartLogic'
 
-const DISCOUNT_COLORS = ['#ef4444', '#f97316', '#eab308', '#a855f7'] as const
+/** DiscountType (71-74) → theme.chart.semantic.* の色キー。
+ *  DISCOUNT_TYPES の配列順と対応 (71=[0] 政策 / 72=[1] レジ / 73=[2] 廃棄 / 74=[3] 試食)。 */
+const DISCOUNT_COLOR_KEYS = [
+  'discountPolicy',
+  'discountRegister',
+  'discountWaste',
+  'discountSampling',
+] as const satisfies ReadonlyArray<keyof AppTheme['chart']['semantic']>
 
 type ViewMode = 'stacked' | 'individual'
 
@@ -87,6 +94,9 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
   const option = useMemo<EChartsOption>(() => {
     const days = data.map((d) => String(d.day))
     const series: EChartsOption['series'] = []
+    const colorOf = (i: number): string =>
+      theme.chart.semantic[DISCOUNT_COLOR_KEYS[i] ?? 'discountPolicy']
+    const activeColor = colorOf(activeColorIdx)
 
     if (viewMode === 'stacked') {
       DISCOUNT_TYPES.forEach((dt, i) => {
@@ -96,7 +106,7 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
           stack: 'discount',
           yAxisIndex: 0,
           data: data.map((d) => d.byType[dt.type] ?? 0),
-          itemStyle: { color: DISCOUNT_COLORS[i % DISCOUNT_COLORS.length] },
+          itemStyle: { color: colorOf(i) },
           barMaxWidth: 16,
         })
       })
@@ -108,8 +118,7 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
           yAxisIndex: 0,
           data: data.map((d) => d.prevByType?.[activeCode] ?? 0),
           itemStyle: {
-            color: DISCOUNT_COLORS[activeColorIdx] ?? '#ef4444',
-            opacity: 0.3,
+            color: theme.chart.semantic.discountPrev,
             borderRadius: [3, 3, 0, 0],
           },
           barMaxWidth: 20,
@@ -121,7 +130,7 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
         yAxisIndex: 0,
         data: data.map((d) => d.byType[activeCode] ?? 0),
         itemStyle: {
-          color: DISCOUNT_COLORS[activeColorIdx] ?? '#ef4444',
+          color: activeColor,
           borderRadius: [3, 3, 0, 0],
         },
         barMaxWidth: 20,
@@ -141,7 +150,7 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
       type: 'line',
       yAxisIndex: 1,
       data: data.map((d) => getCumRate(d)),
-      ...lineDefaults({ color: theme.colors.palette.orange }),
+      ...lineDefaults({ color: theme.chart.semantic.cumulativeDiscountRate }),
       connectNulls: true,
     })
     if (hasPrev) {
@@ -150,7 +159,11 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
         type: 'line',
         yAxisIndex: 1,
         data: data.map((d) => getPrevCumRate(d)),
-        ...lineDefaults({ color: theme.chart.previousYear, width: 1.5, dashed: true }),
+        ...lineDefaults({
+          color: theme.chart.semantic.cumulativeDiscountRatePrev,
+          width: 1.5,
+          dashed: true,
+        }),
         connectNulls: true,
       })
     }
@@ -199,33 +212,31 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
       >
         全種別
       </button>
-      {DISCOUNT_TYPES.map((dt, i) => (
-        <button
-          key={dt.type}
-          style={{
-            padding: '2px 8px',
-            fontSize: '0.6rem',
-            border: `1px solid ${viewMode === 'individual' && activeCode === dt.type ? DISCOUNT_COLORS[i] : theme.colors.border}`,
-            borderRadius: theme.radii.sm,
-            background:
-              viewMode === 'individual' && activeCode === dt.type
-                ? `${DISCOUNT_COLORS[i]}1f`
-                : 'transparent',
-            color:
-              viewMode === 'individual' && activeCode === dt.type
-                ? DISCOUNT_COLORS[i]
-                : theme.colors.text3,
-            cursor: 'pointer',
-          }}
-          onClick={() => {
-            setViewMode('individual')
-            setActiveCode(dt.type)
-            onFilterChange?.(dt.type)
-          }}
-        >
-          {dt.label}
-        </button>
-      ))}
+      {DISCOUNT_TYPES.map((dt, i) => {
+        const c = theme.chart.semantic[DISCOUNT_COLOR_KEYS[i] ?? 'discountPolicy']
+        const isActive = viewMode === 'individual' && activeCode === dt.type
+        return (
+          <button
+            key={dt.type}
+            style={{
+              padding: '2px 8px',
+              fontSize: '0.6rem',
+              border: `1px solid ${isActive ? c : theme.colors.border}`,
+              borderRadius: theme.radii.sm,
+              background: isActive ? `${c}1f` : 'transparent',
+              color: isActive ? c : theme.colors.text3,
+              cursor: 'pointer',
+            }}
+            onClick={() => {
+              setViewMode('individual')
+              setActiveCode(dt.type)
+              onFilterChange?.(dt.type)
+            }}
+          >
+            {dt.label}
+          </button>
+        )
+      })}
     </div>
   )
 
@@ -239,8 +250,9 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
             const pct = totalDiscount > 0 ? amt / totalDiscount : 0
             const rate =
               totalGrossSales && totalGrossSales > 0 ? calculateShare(amt, totalGrossSales) : 0
+            const c = theme.chart.semantic[DISCOUNT_COLOR_KEYS[i] ?? 'discountPolicy']
             return (
-              <KpiCard key={dt.type} $color={DISCOUNT_COLORS[i]}>
+              <KpiCard key={dt.type} $color={c}>
                 <KpiLabel>
                   {dt.label}（{dt.type}）
                 </KpiLabel>

@@ -98,7 +98,23 @@ export interface ChartSemanticColors {
   /** 仕入原価 */
   readonly purchaseCost: string
 
-  // ─── 前年（当年の薄い版 — 破線・半透明棒） ──────────
+  // ─── 売変 subtype（DiscountType 71-74） ──────────────
+  /** 政策売変 (71) */
+  readonly discountPolicy: string
+  /** レジ値引 (72) */
+  readonly discountRegister: string
+  /** 廃棄売変 (73) */
+  readonly discountWaste: string
+  /** 試食売変 (74) */
+  readonly discountSampling: string
+
+  // ─── 累計売変率ライン ────────────────────────────────
+  /** 当年累計売変率 */
+  readonly cumulativeDiscountRate: string
+  /** 前年累計売変率 */
+  readonly cumulativeDiscountRatePrev: string
+
+  // ─── 前年（グレー統一 — 棒・線ともフラット slate） ──
   /** 売上（前年） */
   readonly salesPrev: string
   /** 予算（前年） */
@@ -231,13 +247,23 @@ const chartColors: ChartColors = {
     markupRate: palette.warningDark, // amber — 値入率
     purchaseCost: palette.orangeDark, // orange — 仕入原価
 
-    // ─── 前年（当年の薄い版 — 破線・半透明棒） ──────────
-    salesPrev: `${palette.primary}60`, // indigo 薄い
-    budgetPrev: `${palette.successDark}60`,
-    grossProfitPrev: `${palette.purpleDark}60`,
-    customersPrev: `${palette.cyanDark}60`,
-    quantityPrev: `${palette.infoDark}60`,
-    discountPrev: `${palette.dangerDark}60`,
+    // ─── 売変 subtype (DiscountType 71-74) ──────────────
+    discountPolicy: palette.dangerDark, // red — 政策売変 (71)
+    discountRegister: palette.orange, // orange — レジ値引 (72)
+    discountWaste: palette.caution, // yellow — 廃棄売変 (73)
+    discountSampling: palette.purpleMid, // purple — 試食売変 (74)
+
+    // ─── 累計売変率ライン ───────────────────────────────
+    cumulativeDiscountRate: palette.orange, // orange — 当年累計売変率
+    cumulativeDiscountRatePrev: palette.slate, // gray — 前年累計売変率
+
+    // ─── 前年（グレー統一 — chart.previousYear と同値） ──
+    salesPrev: palette.slate,
+    budgetPrev: palette.slate,
+    grossProfitPrev: palette.slate,
+    customersPrev: palette.slate,
+    quantityPrev: palette.slate,
+    discountPrev: palette.slate,
 
     // ─── 差異・状態 ──────────────────────────────────────
     positive: palette.successDark, // green — プラス差異
