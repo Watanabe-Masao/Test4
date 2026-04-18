@@ -1,8 +1,9 @@
 /**
  * useDayDetailPlan — 日別詳細の Screen Query Plan
  *
- * 14 本のクエリ（CTS 7系統 + Summary 3系統 + Weather 2系統）を一括管理し、
+ * 10 本のクエリ（CTS 5系統 + Summary 3系統 + Weather 2系統）を一括管理し、
  * isPrevYear fallback を plan 内に閉じる。
+ * CTS は pair handler（dayPair / cumPair）+ 単発（wow）+ フォールバック 2 系統。
  *
  * dayDetailDataLogic.ts の純粋関数（入力構築・fallback 選択・集約）を使用し、
  * plan 本体はクエリ発行と結果の組み立てのみを担当する。
@@ -16,6 +17,7 @@ import { useMemo } from 'react'
 import type { PlanComparisonProvenance } from '@/domain/models/ComparisonWindow'
 import { yoyWindow } from '@/domain/models/ComparisonWindow'
 import { categoryTimeRecordsHandler } from '@/application/queries/cts/CategoryTimeRecordsHandler'
+import { categoryTimeRecordsPairHandler } from '@/application/queries/cts/CategoryTimeRecordsPairHandler'
 import { storeDaySummaryHandler } from '@/application/queries/summary/StoreDaySummaryHandler'
 import { weatherHourlyHandler } from '@/application/queries/weather/WeatherHourlyHandler'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
@@ -23,9 +25,10 @@ import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
 import {
   resolveDayDetailRanges,
   buildCtsInput,
+  buildCtsPairInput,
   buildSummaryInput,
   buildWeatherInput,
-  selectCtsWithFallback,
+  selectCtsWithFallbackFromPair,
   aggregateSummary,
   EMPTY_RECORDS,
   ZERO_SUMMARY,
@@ -60,15 +63,17 @@ export function useDayDetailPlan(
   selectedStoreIds: ReadonlySet<string>,
   weatherStoreId: string | undefined,
 ): DayDetailPlanResult {
-  // ── CTS 入力（7系統を1 useMemo に集約） ──
+  // ── CTS 入力（pair 化済 5 系統を1 useMemo に集約） ──
+  // dayPair / cumPair は (day, prevDay) / (cum, cumPrev) を pair handler で同時取得する。
+  // wow は比較相手を持たないため単発のまま。
+  // prevDayFallback / cumPrevFallback は前年スコープが空のときの当年スコープ救済で、
+  //   data-flow-unification 完了後も Phase B で bundle 経由化と同時に撤廃判断する。
   const cts = useMemo(
     () => ({
-      day: buildCtsInput(ranges.singleDayRange, selectedStoreIds),
-      prevDay: buildCtsInput(ranges.prevDayRange, selectedStoreIds, true),
+      dayPair: buildCtsPairInput(ranges.singleDayRange, ranges.prevDayRange, selectedStoreIds),
       prevDayFallback: buildCtsInput(ranges.prevDayRange, selectedStoreIds),
       wow: buildCtsInput(ranges.wowRange, selectedStoreIds),
-      cum: buildCtsInput(ranges.cumRange, selectedStoreIds),
-      cumPrev: buildCtsInput(ranges.cumPrevRange, selectedStoreIds, true),
+      cumPair: buildCtsPairInput(ranges.cumRange, ranges.cumPrevRange, selectedStoreIds),
       cumPrevFallback: buildCtsInput(ranges.cumPrevRange, selectedStoreIds),
     }),
     [ranges, selectedStoreIds],
@@ -94,24 +99,30 @@ export function useDayDetailPlan(
   )
 
   // ── CTS クエリ実行 ──
-  const dayResult = useQueryWithHandler(queryExecutor, categoryTimeRecordsHandler, cts.day)
-  const prevDayResult = useQueryWithHandler(queryExecutor, categoryTimeRecordsHandler, cts.prevDay)
+  const dayPairResult = useQueryWithHandler(
+    queryExecutor,
+    categoryTimeRecordsPairHandler,
+    cts.dayPair,
+  )
   const prevDayFallback = useQueryWithHandler(
     queryExecutor,
     categoryTimeRecordsHandler,
     cts.prevDayFallback,
   )
   const wowResult = useQueryWithHandler(queryExecutor, categoryTimeRecordsHandler, cts.wow)
-  const cumResult = useQueryWithHandler(queryExecutor, categoryTimeRecordsHandler, cts.cum)
-  const cumPrevResult = useQueryWithHandler(queryExecutor, categoryTimeRecordsHandler, cts.cumPrev)
+  const cumPairResult = useQueryWithHandler(
+    queryExecutor,
+    categoryTimeRecordsPairHandler,
+    cts.cumPair,
+  )
   const cumPrevFallback = useQueryWithHandler(
     queryExecutor,
     categoryTimeRecordsHandler,
     cts.cumPrevFallback,
   )
 
-  const prevDayRecords = selectCtsWithFallback(prevDayResult, prevDayFallback)
-  const cumPrevRecords = selectCtsWithFallback(cumPrevResult, cumPrevFallback)
+  const prevDayRecords = selectCtsWithFallbackFromPair(dayPairResult, prevDayFallback)
+  const cumPrevRecords = selectCtsWithFallbackFromPair(cumPairResult, cumPrevFallback)
 
   // ── Summary クエリ実行 ──
   const curSummaryResult = useQueryWithHandler(queryExecutor, storeDaySummaryHandler, summary.cur)
@@ -134,18 +145,18 @@ export function useDayDetailPlan(
   const comparisonProvenance = useMemo<PlanComparisonProvenance>(
     () => ({
       window: yoyWindow(ranges.prevDayRange),
-      comparisonAvailable: prevDayResult.data != null || prevDayFallback.data != null,
+      comparisonAvailable: dayPairResult.data?.comparison != null || prevDayFallback.data != null,
     }),
-    [ranges.prevDayRange, prevDayResult.data, prevDayFallback.data],
+    [ranges.prevDayRange, dayPairResult.data, prevDayFallback.data],
   )
 
   return {
     daySummary,
     prevDaySummary,
-    dayRecords: dayResult.data?.records ?? emptyRecords,
+    dayRecords: dayPairResult.data?.current?.records ?? emptyRecords,
     prevDayRecords,
     wowPrevDayRecords: wowResult.data?.records ?? emptyRecords,
-    cumRecords: cumResult.data?.records ?? emptyRecords,
+    cumRecords: cumPairResult.data?.current?.records ?? emptyRecords,
     cumPrevRecords,
     weatherHourly: weatherResult.data?.records ?? undefined,
     prevWeatherHourly: prevWeatherResult.data?.records ?? undefined,

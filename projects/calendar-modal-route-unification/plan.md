@@ -1,5 +1,18 @@
 # plan — calendar-modal-route-unification
 
+## Phase A 方針決定（2026-04-18）
+
+棚卸しの結果（HANDOFF.md §3.5 参照）、フォールバック層の存続判断として
+**Option C（限定 pair 化 + フォールバック層を Phase B で撤廃）** を採用する。
+
+- Phase A では (day, prevDay) / (cum, cumPrev) の 2 組のみ pair 化
+- wow は単独 handler のまま維持（比較相手を持たないため pair 化対象外）
+- prevDayFallback / cumPrevFallback は Phase A では撤廃せず、`selectCtsWithFallback`
+  への依存も残す
+- Phase B で bundle 経由化と同時にフォールバック撤廃を再評価する
+- 採用理由: 動線統一を 1 ステップ進めつつ、レンダー初回の空ハンドリング検証を
+  Phase B（bundle 経由化と同時）に集約し、回帰リスクを最小化する
+
 ## 不可侵原則
 
 1. **正本 lane の優位を破らない** — モーダルとダッシュボードは同じ

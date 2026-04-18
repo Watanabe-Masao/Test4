@@ -5,10 +5,32 @@
 
 ## 1. 現在地
 
-**Phase A 棚卸し完了（実装未着手）。** `data-flow-unification` の完了に伴い、
-HANDOFF §5 で切り出された次フェーズ（カレンダーモーダル正規ルート統一）を
-独立 project 化。Phase A 1 件目の checkbox（棚卸し）まで完了。
-pair 化の構造的論点（§3.5）が出たため、実装着手前に方針判断が必要。
+**Phase A 完了（Option C 採用）。** 棚卸し（§1.1）と方針判断（§3.5）を経て、
+`useDayDetailPlan` の (day, prevDay) / (cum, cumPrev) を `categoryTimeRecordsPairHandler`
+経由に置換。wow は単発のまま、prevDayFallback / cumPrevFallback は Phase B で
+撤廃判断する。lint / build / test:guards (694) / 関連テスト (225) すべて green。
+次は Phase B（数量・時間帯の bundle 経由化）。
+
+### Phase A 適用後の handler 呼び出し（5 箇所）
+
+| # | 用途 | handler |
+|---|------|---------|
+| 1 | dayPair (day + prevDay) | `categoryTimeRecordsPairHandler` |
+| 2 | prevDayFallback | `categoryTimeRecordsHandler`（フォールバック・Phase B で撤廃判断） |
+| 3 | wow | `categoryTimeRecordsHandler`（単発・比較相手なし） |
+| 4 | cumPair (cum + cumPrev) | `categoryTimeRecordsPairHandler` |
+| 5 | cumPrevFallback | `categoryTimeRecordsHandler`（フォールバック・Phase B で撤廃判断） |
+
+7 → 5 箇所に縮約（pair 化で current+comparison が 1 呼び出しに統合）。
+
+### `selectCtsWithFallback` 依存先（Phase A 後）
+
+- 定義: `app/src/application/hooks/duckdb/dayDetailDataLogic.ts`
+- pair 用 sibling として `selectCtsWithFallbackFromPair` を追加
+- 利用箇所:
+  - `useDayDetailPlan.ts` は **`selectCtsWithFallbackFromPair`** に置換済み
+  - `dayDetailDataLogic.test.ts`（test）
+- 旧 `selectCtsWithFallback` の本番利用は 0 件だが、関数自体は残置（Phase B で撤廃判断）
 
 ## 1.1. Phase A 棚卸し結果
 
