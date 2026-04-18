@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-18T12:51:24.910Z",
+  "timestamp": "2026-04-18T14:53:42.994Z",
   "summary": {
-    "active": 4,
+    "active": 5,
     "archived": 13,
-    "inProgress": 3,
+    "inProgress": 4,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 501,
-    "checkedCheckboxes": 450
+    "totalCheckboxes": 515,
+    "checkedCheckboxes": 455
   },
   "projects": [
     {
@@ -127,6 +127,19 @@
       "progress": 1,
       "entrypoint": "projects/completed/data-load-idempotency-hardening/AI_CONTEXT.md",
       "checklistPath": "projects/completed/data-load-idempotency-hardening/checklist.md",
+      "parent": null
+    },
+    {
+      "projectId": "design-system-v2-1-asset",
+      "title": "Design System v2.1 — 外部 documentation layer 配置",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 5,
+      "total": 14,
+      "progress": 0.357,
+      "entrypoint": "projects/design-system-v2-1-asset/AI_CONTEXT.md",
+      "checklistPath": "projects/design-system-v2-1-asset/checklist.md",
       "parent": null
     },
     {
