@@ -9,8 +9,10 @@
 | `01-principles/` | 設計原則・制約・正本定義書（Engine 境界、正本化原則、業務値定義、AAG） | 38 |
 | `02-status/` | 進捗・品質状態（maturity, promotion, 品質監査, 課題管理） | 23 |
 | `03-guides/` | 実装ガイド・リファレンス（API, データモデル, ガードテスト, 不変条件, 責務分離） | 57 |
-| `04-design-system/` | Design System v2.1（本体 `presentation/theme/` の外部 documentation layer） | 49 |
 | `99-archive/` | 旧文書の圧縮要約（現行では参照しない） | 4 |
+
+`04-design-system/` は Design System v2.1（本体 `presentation/theme/` の外部 documentation layer）。
+サブディレクトリ `docs/` + `preview/` + `ui_kits/` を含む特殊構造のため上記表からは除外。詳細は下部「Design System v2.1」セクションを参照。
 
 ## 正本一覧
 

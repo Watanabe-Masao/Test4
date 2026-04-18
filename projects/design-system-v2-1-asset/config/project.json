@@ -1,0 +1,14 @@
+{
+  "$comment": "Design System v2.1 (本体 app/src/presentation/theme/ の外部 documentation layer) を references/04-design-system/ に配置する一過性プロジェクト。資産追加のみ。完了後 archive 予定。詳細: references/03-guides/project-checklist-governance.md §4。",
+  "projectId": "design-system-v2-1-asset",
+  "title": "Design System v2.1 — 外部 documentation layer 配置",
+  "kind": "project",
+  "status": "active",
+  "projectRoot": "projects/design-system-v2-1-asset",
+  "entrypoints": {
+    "aiContext": "projects/design-system-v2-1-asset/AI_CONTEXT.md",
+    "handoff": "projects/design-system-v2-1-asset/HANDOFF.md",
+    "plan": "projects/design-system-v2-1-asset/plan.md",
+    "checklist": "projects/design-system-v2-1-asset/checklist.md"
+  }
+}
