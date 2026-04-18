@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-18T10:18:50.977Z",
+  "timestamp": "2026-04-18T11:35:53.856Z",
   "summary": {
     "active": 4,
-    "archived": 11,
+    "archived": 12,
     "inProgress": 3,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 462,
-    "checkedCheckboxes": 422
+    "totalCheckboxes": 481,
+    "checkedCheckboxes": 429
   },
   "projects": [
     {
@@ -68,13 +68,13 @@
       "projectId": "calendar-modal-bundle-migration",
       "title": "カレンダーモーダル bundle 移行 — timeSlotLane 契約拡張 + HourlyChart の bundle 経由化",
       "kind": "project",
-      "declaredStatus": "active",
-      "derivedStatus": "in_progress",
-      "checked": 11,
-      "total": 19,
-      "progress": 0.579,
-      "entrypoint": "projects/calendar-modal-bundle-migration/AI_CONTEXT.md",
-      "checklistPath": "projects/calendar-modal-bundle-migration/checklist.md",
+      "declaredStatus": "archived",
+      "derivedStatus": "archived",
+      "checked": 18,
+      "total": 18,
+      "progress": 1,
+      "entrypoint": "projects/completed/calendar-modal-bundle-migration/AI_CONTEXT.md",
+      "checklistPath": "projects/completed/calendar-modal-bundle-migration/checklist.md",
       "parent": null
     },
     {
@@ -88,6 +88,19 @@
       "progress": 1,
       "entrypoint": "projects/completed/calendar-modal-route-unification/AI_CONTEXT.md",
       "checklistPath": "projects/completed/calendar-modal-route-unification/checklist.md",
+      "parent": null
+    },
+    {
+      "projectId": "category-leaf-daily-series",
+      "title": "カテゴリ leaf-grain 正本化 — CategoryLeafDailySeries 新設と 3 consumer 載せ替え",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 0,
+      "total": 20,
+      "progress": 0,
+      "entrypoint": "projects/category-leaf-daily-series/AI_CONTEXT.md",
+      "checklistPath": "projects/category-leaf-daily-series/checklist.md",
       "parent": null
     },
     {

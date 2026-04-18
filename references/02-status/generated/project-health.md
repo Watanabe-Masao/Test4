@@ -3,20 +3,20 @@
 > **役割: 生成された project KPI 正本（生成後手編集禁止）。**
 > 規約: [`references/03-guides/project-checklist-governance.md`](../../03-guides/project-checklist-governance.md)
 
-> 生成: 2026-04-18T10:18:50.977Z
+> 生成: 2026-04-18T11:35:53.856Z
 
 ## サマリー
 
 | 指標 | 値 |
 |---|---|
 | active project 数（archive 未実施を含む） | 4 |
-| archived project 数 | 11 |
+| archived project 数 | 12 |
 | in_progress project 数 | 3 |
 | checklist 完了済みだが archive 未実施 | 0 |
 | checkbox 空 (placeholder / 立ち上げ直後) | 0 |
 | collection (continuous, 終わらない) | 1 |
-| 全 project の required checkbox 総数 | 462 |
-| 全 project の checked checkbox 総数 | 422 |
+| 全 project の required checkbox 総数 | 481 |
+| 全 project の checked checkbox 総数 | 429 |
 
 ## projects
 
@@ -26,8 +26,9 @@
 | `aag-format-redesign` | AAG フォーマット改修とサブプロジェクト機能 | **archived** | — | — | [`projects/aag-format-redesign/AI_CONTEXT.md`](../../../projects/aag-format-redesign/AI_CONTEXT.md) |
 | `aag-rule-splitting-execution` | AAG ルール分割実行 — AR-STRUCT-RESP-SEPARATION 7 分割 | **archived** | — | 17/17 (100%) | [`projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md`](../../../projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md) |
 | `architecture-decision-backlog` | アーキテクチャ判断 backlog — 未決定の設計判断 | **archived** | — | 1/1 (100%) | [`projects/completed/architecture-decision-backlog/AI_CONTEXT.md`](../../../projects/completed/architecture-decision-backlog/AI_CONTEXT.md) |
-| `calendar-modal-bundle-migration` | カレンダーモーダル bundle 移行 — timeSlotLane 契約拡張 + HourlyChart の bundle 経由化 | **in_progress** | — | 11/19 (58%) | [`projects/calendar-modal-bundle-migration/AI_CONTEXT.md`](../../../projects/calendar-modal-bundle-migration/AI_CONTEXT.md) |
+| `calendar-modal-bundle-migration` | カレンダーモーダル bundle 移行 — timeSlotLane 契約拡張 + HourlyChart の bundle 経由化 | **archived** | — | 18/18 (100%) | [`projects/completed/calendar-modal-bundle-migration/AI_CONTEXT.md`](../../../projects/completed/calendar-modal-bundle-migration/AI_CONTEXT.md) |
 | `calendar-modal-route-unification` | カレンダーモーダル正規ルート統一 — useDayDetailPlan の bundle / paired handler 経由化 | **archived** | — | 6/6 (100%) | [`projects/completed/calendar-modal-route-unification/AI_CONTEXT.md`](../../../projects/completed/calendar-modal-route-unification/AI_CONTEXT.md) |
+| `category-leaf-daily-series` | カテゴリ leaf-grain 正本化 — CategoryLeafDailySeries 新設と 3 consumer 載せ替え | **in_progress** | — | 0/20 (0%) | [`projects/category-leaf-daily-series/AI_CONTEXT.md`](../../../projects/category-leaf-daily-series/AI_CONTEXT.md) |
 | `data-flow-unification` | 前年データフロー統合 — IndexedDB to DuckDB 経路の一本化 | **archived** | — | 21/21 (100%) | [`projects/completed/data-flow-unification/AI_CONTEXT.md`](../../../projects/completed/data-flow-unification/AI_CONTEXT.md) |
 | `data-load-idempotency-hardening` | データロード冪等化 — 残存防御の固定化 | **archived** | — | 21/21 (100%) | [`projects/completed/data-load-idempotency-hardening/AI_CONTEXT.md`](../../../projects/completed/data-load-idempotency-hardening/AI_CONTEXT.md) |
 | `docs-and-governance-cohesion` | ドキュメントと課題の分離 — projects/ 一元化と AAG 統合 | **archived** | — | 85/85 (100%) | [`projects/completed/docs-and-governance-cohesion/AI_CONTEXT.md`](../../../projects/completed/docs-and-governance-cohesion/AI_CONTEXT.md) |

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$comment": "設計原則体系の唯一正本。CLAUDE.md, architectureRules.ts, documentConsistency.test.ts はこの JSON を参照・検証する。AAG v5.2.0 (2026-04-13): Collector-Governance Symmetry。project: aag-collector-purification + aag-rule-splitting-execution を完了・archive。collector heading 抑制削除 + checklistGovernanceSymmetryGuard 追加 + AR-STRUCT-RESP-SEPARATION 7 分割 (AR-RESP-*)。本体 (粗利管理ツール) コードは変更せず AAG framework のみ拡張。test-signal-integrity project (Phase 1 — 2026-04-13): Signal Integrity を AAG framework principle として references/01-principles/test-signal-integrity.md に追加。Protected Harm H1-H4 + TSIG-TEST/TSIG-COMP family を定義 (A-I+Q taxonomy 外の framework layer principle)。G3 警告黙殺禁止と関連 (TSIG-COMP-01/02 は AR-G3-SUPPRESS の rationale enforcement 拡張で実現済 — Phase 3 完了)。Phase 4 (2026-04-13): test-signal-integrity.md に実装ルール ID リファレンス表 + advisory ガイドへのリンクを追加し fix hint / deep dive 誘導を整備。unify-period-analysis Phase 3 (2026-04-15): free-period-analysis-definition.md に §唯一経路ルール を追加 (freePeriodHandler / queryFreePeriodDaily / buildFreePeriodReadModel / computeFreePeriodSummary / buildFreePeriodFrame の唯一実装を明文化。関連ガード freePeriodPathGuard / freePeriodHandlerOnlyGuard を併記)。",
+  "$comment": "設計原則体系の唯一正本。CLAUDE.md, architectureRules.ts, documentConsistency.test.ts はこの JSON を参照・検証する。AAG v5.2.0 (2026-04-13): Collector-Governance Symmetry。project: aag-collector-purification + aag-rule-splitting-execution を完了・archive。collector heading 抑制削除 + checklistGovernanceSymmetryGuard 追加 + AR-STRUCT-RESP-SEPARATION 7 分割 (AR-RESP-*)。本体 (粗利管理ツール) コードは変更せず AAG framework のみ拡張。test-signal-integrity project (Phase 1 — 2026-04-13): Signal Integrity を AAG framework principle として references/01-principles/test-signal-integrity.md に追加。Protected Harm H1-H4 + TSIG-TEST/TSIG-COMP family を定義 (A-I+Q taxonomy 外の framework layer principle)。G3 警告黙殺禁止と関連 (TSIG-COMP-01/02 は AR-G3-SUPPRESS の rationale enforcement 拡張で実現済 — Phase 3 完了)。Phase 4 (2026-04-13): test-signal-integrity.md に実装ルール ID リファレンス表 + advisory ガイドへのリンクを追加し fix hint / deep dive 誘導を整備。unify-period-analysis Phase 3 (2026-04-15): free-period-analysis-definition.md に §唯一経路ルール を追加 (freePeriodHandler / queryFreePeriodDaily / buildFreePeriodReadModel / computeFreePeriodSummary / buildFreePeriodFrame の唯一実装を明文化。関連ガード freePeriodPathGuard / freePeriodHandlerOnlyGuard を併記)。 calendar-modal-bundle-migration Phase 4 (2026-04-18): data-pipeline-integrity.md の「拡張時に壊れやすいパターン」に 2 行追記 — 同一 widget 内で bundle 経由と raw CTS 経由を混在させて意味の違う同種値を取らない（plan §0 違反の具体例として HourlyChart の 2 経路混在が「用途が違う」ときのみ許容と明示）/ bundle 契約拡張なしに消費側を先行改修しない（TimeSlotBundle quantity additive の経緯を参考例として固定）。",
   "version": "4.5.0",
   "taxonomy": "A-I+Q",
   "categories": [
@@ -9,12 +9,30 @@
       "title": "層境界",
       "doc": "references/01-principles/design-principles.md",
       "principles": [
-        { "id": "A1", "title": "4層依存ルール" },
-        { "id": "A2", "title": "Domain 純粋" },
-        { "id": "A3", "title": "Presentation 描画専用" },
-        { "id": "A4", "title": "契約は Domain 定義" },
-        { "id": "A5", "title": "DI は App.tsx のみ" },
-        { "id": "A6", "title": "load 3段階分離" }
+        {
+          "id": "A1",
+          "title": "4層依存ルール"
+        },
+        {
+          "id": "A2",
+          "title": "Domain 純粋"
+        },
+        {
+          "id": "A3",
+          "title": "Presentation 描画専用"
+        },
+        {
+          "id": "A4",
+          "title": "契約は Domain 定義"
+        },
+        {
+          "id": "A5",
+          "title": "DI は App.tsx のみ"
+        },
+        {
+          "id": "A6",
+          "title": "load 3段階分離"
+        }
       ]
     },
     {
@@ -22,9 +40,18 @@
       "title": "実行エンジン境界",
       "doc": "references/01-principles/engine-boundary-policy.md",
       "principles": [
-        { "id": "B1", "title": "Authoritative 計算は domain/calculations のみ" },
-        { "id": "B2", "title": "JS/SQL 二重実装禁止" },
-        { "id": "B3", "title": "率は domain で算出" }
+        {
+          "id": "B1",
+          "title": "Authoritative 計算は domain/calculations のみ"
+        },
+        {
+          "id": "B2",
+          "title": "JS/SQL 二重実装禁止"
+        },
+        {
+          "id": "B3",
+          "title": "率は domain で算出"
+        }
       ]
     },
     {
@@ -32,15 +59,42 @@
       "title": "純粋性と責務分離",
       "doc": "references/01-principles/design-principles.md",
       "principles": [
-        { "id": "C1", "title": "1ファイル=1変更理由" },
-        { "id": "C2", "title": "pure 1仕様軸" },
-        { "id": "C3", "title": "store は state のみ" },
-        { "id": "C4", "title": "描画純粋" },
-        { "id": "C5", "title": "最小セレクタ" },
-        { "id": "C6", "title": "facade は orchestration のみ" },
-        { "id": "C7", "title": "同義API併存禁止" },
-        { "id": "C8", "title": "1文説明テスト" },
-        { "id": "C9", "title": "現実把握優先" }
+        {
+          "id": "C1",
+          "title": "1ファイル=1変更理由"
+        },
+        {
+          "id": "C2",
+          "title": "pure 1仕様軸"
+        },
+        {
+          "id": "C3",
+          "title": "store は state のみ"
+        },
+        {
+          "id": "C4",
+          "title": "描画純粋"
+        },
+        {
+          "id": "C5",
+          "title": "最小セレクタ"
+        },
+        {
+          "id": "C6",
+          "title": "facade は orchestration のみ"
+        },
+        {
+          "id": "C7",
+          "title": "同義API併存禁止"
+        },
+        {
+          "id": "C8",
+          "title": "1文説明テスト"
+        },
+        {
+          "id": "C9",
+          "title": "現実把握優先"
+        }
       ]
     },
     {
@@ -48,9 +102,18 @@
       "title": "数学的不変条件",
       "doc": "references/03-guides/invariant-catalog.md",
       "principles": [
-        { "id": "D1", "title": "要因分解合計=売上差" },
-        { "id": "D2", "title": "引数無視再計算禁止" },
-        { "id": "D3", "title": "不変条件はテストで守る" }
+        {
+          "id": "D1",
+          "title": "要因分解合計=売上差"
+        },
+        {
+          "id": "D2",
+          "title": "引数無視再計算禁止"
+        },
+        {
+          "id": "D3",
+          "title": "不変条件はテストで守る"
+        }
       ]
     },
     {
@@ -58,10 +121,22 @@
       "title": "型安全と欠損処理",
       "doc": "references/01-principles/design-principles.md",
       "principles": [
-        { "id": "E1", "title": "境界で検証" },
-        { "id": "E2", "title": "依存配列省略禁止" },
-        { "id": "E3", "title": "sourceDate 保持" },
-        { "id": "E4", "title": "欠損は == null" }
+        {
+          "id": "E1",
+          "title": "境界で検証"
+        },
+        {
+          "id": "E2",
+          "title": "依存配列省略禁止"
+        },
+        {
+          "id": "E3",
+          "title": "sourceDate 保持"
+        },
+        {
+          "id": "E4",
+          "title": "欠損は == null"
+        }
       ]
     },
     {
@@ -69,15 +144,42 @@
       "title": "コード構造規約",
       "doc": "references/03-guides/coding-conventions.md",
       "principles": [
-        { "id": "F1", "title": "バレル後方互換" },
-        { "id": "F2", "title": "文字列カタログ" },
-        { "id": "F3", "title": "全パターン同一" },
-        { "id": "F4", "title": "パス配置" },
-        { "id": "F5", "title": "Contract 管理" },
-        { "id": "F6", "title": "文脈継承" },
-        { "id": "F7", "title": "View に raw 禁止" },
-        { "id": "F8", "title": "正本保護" },
-        { "id": "F9", "title": "Raw=唯一真実源" }
+        {
+          "id": "F1",
+          "title": "バレル後方互換"
+        },
+        {
+          "id": "F2",
+          "title": "文字列カタログ"
+        },
+        {
+          "id": "F3",
+          "title": "全パターン同一"
+        },
+        {
+          "id": "F4",
+          "title": "パス配置"
+        },
+        {
+          "id": "F5",
+          "title": "Contract 管理"
+        },
+        {
+          "id": "F6",
+          "title": "文脈継承"
+        },
+        {
+          "id": "F7",
+          "title": "View に raw 禁止"
+        },
+        {
+          "id": "F8",
+          "title": "正本保護"
+        },
+        {
+          "id": "F9",
+          "title": "Raw=唯一真実源"
+        }
       ]
     },
     {
@@ -85,14 +187,38 @@
       "title": "機械的防御",
       "doc": "references/01-principles/design-principles.md",
       "principles": [
-        { "id": "G1", "title": "テストに書く" },
-        { "id": "G2", "title": "エラー伝播" },
-        { "id": "G3", "title": "警告黙殺禁止" },
-        { "id": "G4", "title": "テスト用export禁止" },
-        { "id": "G5", "title": "サイズ上限" },
-        { "id": "G6", "title": "サイズ上限（ファイルサイズ）" },
-        { "id": "G7", "title": "キャッシュ≤本体" },
-        { "id": "G8", "title": "責務分離ガード" }
+        {
+          "id": "G1",
+          "title": "テストに書く"
+        },
+        {
+          "id": "G2",
+          "title": "エラー伝播"
+        },
+        {
+          "id": "G3",
+          "title": "警告黙殺禁止"
+        },
+        {
+          "id": "G4",
+          "title": "テスト用export禁止"
+        },
+        {
+          "id": "G5",
+          "title": "サイズ上限"
+        },
+        {
+          "id": "G6",
+          "title": "サイズ上限（ファイルサイズ）"
+        },
+        {
+          "id": "G7",
+          "title": "キャッシュ≤本体"
+        },
+        {
+          "id": "G8",
+          "title": "責務分離ガード"
+        }
       ]
     },
     {
@@ -100,12 +226,30 @@
       "title": "Screen Runtime",
       "doc": "references/01-principles/safe-performance-principles.md",
       "principles": [
-        { "id": "H1", "title": "Screen Plan 経由のみ" },
-        { "id": "H2", "title": "比較は pair/bundle 契約" },
-        { "id": "H3", "title": "query input 正規化必須" },
-        { "id": "H4", "title": "component に acquisition logic 禁止" },
-        { "id": "H5", "title": "visible-only は plan 宣言" },
-        { "id": "H6", "title": "ChartCard は通知のみ" }
+        {
+          "id": "H1",
+          "title": "Screen Plan 経由のみ"
+        },
+        {
+          "id": "H2",
+          "title": "比較は pair/bundle 契約"
+        },
+        {
+          "id": "H3",
+          "title": "query input 正規化必須"
+        },
+        {
+          "id": "H4",
+          "title": "component に acquisition logic 禁止"
+        },
+        {
+          "id": "H5",
+          "title": "visible-only は plan 宣言"
+        },
+        {
+          "id": "H6",
+          "title": "ChartCard は通知のみ"
+        }
       ]
     },
     {
@@ -113,8 +257,14 @@
       "title": "Query Access Architecture",
       "doc": "references/01-principles/design-principles.md",
       "principles": [
-        { "id": "Q3", "title": "Chart は DuckDB hook 直接 import 禁止" },
-        { "id": "Q4", "title": "alignment-aware access は handler/resolver に閉じる" }
+        {
+          "id": "Q3",
+          "title": "Chart は DuckDB hook 直接 import 禁止"
+        },
+        {
+          "id": "Q4",
+          "title": "alignment-aware access は handler/resolver に閉じる"
+        }
       ]
     },
     {
@@ -122,10 +272,22 @@
       "title": "意味分類",
       "doc": "references/01-principles/semantic-classification-policy.md",
       "principles": [
-        { "id": "I1", "title": "authoritative 単独使用禁止" },
-        { "id": "I2", "title": "意味責任で棚を分ける（business vs analytic）" },
-        { "id": "I3", "title": "current と candidate を混ぜない" },
-        { "id": "I4", "title": "正本は calculationCanonRegistry の1つだけ" }
+        {
+          "id": "I1",
+          "title": "authoritative 単独使用禁止"
+        },
+        {
+          "id": "I2",
+          "title": "意味責任で棚を分ける（business vs analytic）"
+        },
+        {
+          "id": "I3",
+          "title": "current と candidate を混ぜない"
+        },
+        {
+          "id": "I4",
+          "title": "正本は calculationCanonRegistry の1つだけ"
+        }
       ]
     }
   ],

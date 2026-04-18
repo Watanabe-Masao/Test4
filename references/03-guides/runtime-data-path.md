@@ -75,6 +75,27 @@ Controller component
 | query | `useQueryWithHandler.ts` | 標準 query access（cache, profiling） |
 | View | `TimeSlotChartView.tsx` + `TimeSlotChartOptionBuilder.ts` | 描画のみ |
 
+**具体例: DayDetailModal の HourlyChart**（calendar-modal-bundle-migration Phase 2 で bundle 経由化）
+
+| ステップ | ファイル | 責務 |
+|----------|---------|------|
+| Controller | `presentation/pages/Dashboard/widgets/DayDetailModal.tsx` | モーダル全体、Tab 切替、store / 天気 selector |
+| hook | `application/hooks/duckdb/useDayDetailData.ts` | params 受理、ranges 計算、plan 呼び出し |
+| plan | `application/hooks/plans/useDayDetailPlan.ts` | pair / fallback CTS（leaf-grain 用）+ `useTimeSlotBundle`（時間帯集計）+ Summary + Weather を集約 |
+| query | `useQueryWithHandler` / `useTimeSlotBundle` | 標準 query access |
+| View | `widgets/HourlyChart.tsx` + `HourlyChart.builders.ts` | `timeSlotCurrentSeries` / `timeSlotComparisonSeries` から hour 別 amount + quantity を集計し描画 |
+
+**2 経路の併用（`HourlyChart` 内部）:**
+
+| 用途 | データソース | 型 |
+|---|---|---|
+| 時間帯チャート（amount / quantity）| `timeSlotLane.bundle` の `currentSeries` / `comparisonSeries` | `TimeSlotSeries` |
+| 選択時間帯のカテゴリ別内訳（hourDetail）| raw CTS（`categoryTimeRecordsPairHandler` 経由）| `CategoryTimeSalesRecord` |
+
+hourDetail は dept\|line\|klass leaf-grain key を必要とするため、現状は raw CTS
+のまま。leaf-grain 正本（`CategoryLeafDailySeries` 等）が整備され次第
+bundle 経由に移行する予定（後継 project `category-leaf-daily-series`）。
+
 **原則:**
 - component に acquisition logic を書かない（H4）
 - comparison routing は plan に閉じる

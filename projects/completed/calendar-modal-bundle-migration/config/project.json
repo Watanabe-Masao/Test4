@@ -1,0 +1,12 @@
+{
+  "projectId": "calendar-modal-bundle-migration",
+  "title": "カレンダーモーダル bundle 移行 — timeSlotLane 契約拡張 + HourlyChart の bundle 経由化",
+  "status": "archived",
+  "projectRoot": "projects/completed/calendar-modal-bundle-migration",
+  "entrypoints": {
+    "aiContext": "projects/completed/calendar-modal-bundle-migration/AI_CONTEXT.md",
+    "handoff": "projects/completed/calendar-modal-bundle-migration/HANDOFF.md",
+    "plan": "projects/completed/calendar-modal-bundle-migration/plan.md",
+    "checklist": "projects/completed/calendar-modal-bundle-migration/checklist.md"
+  }
+}
