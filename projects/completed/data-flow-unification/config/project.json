@@ -1,0 +1,12 @@
+{
+  "projectId": "data-flow-unification",
+  "title": "前年データフロー統合 — IndexedDB to DuckDB 経路の一本化",
+  "status": "archived",
+  "projectRoot": "projects/completed/data-flow-unification",
+  "entrypoints": {
+    "aiContext": "projects/completed/data-flow-unification/AI_CONTEXT.md",
+    "handoff": "projects/completed/data-flow-unification/HANDOFF.md",
+    "plan": "projects/completed/data-flow-unification/plan.md",
+    "checklist": "projects/completed/data-flow-unification/checklist.md"
+  }
+}

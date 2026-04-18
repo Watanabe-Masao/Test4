@@ -4,9 +4,9 @@
  * ComparisonScope.queryRanges に基づいて IndexedDB からデータを取得し、
  * 隣接月マージ済みの比較データを dataStore に書き込む。
  *
- * ## 旧 useAutoLoadPrevYear との違い
+ * ## 設計特性
  *
- * - 入力: settings ではなく ComparisonScope（periodSelection 由来）
+ * - 入力: ComparisonScope（periodSelection 由来）を単一の起点とする
  * - エラー: catch {} で握り潰さず ComparisonLoadStatus で返す
  * - 読込範囲: queryRanges で明示指定（月跨ぎ・sameDow 拡張に対応）
  */

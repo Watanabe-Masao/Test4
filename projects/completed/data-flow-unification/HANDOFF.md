@@ -75,6 +75,8 @@ dateFrom: "2025-04-02"      ← クエリは4月を探している → 0件
 | **10** | **deleteMonth 前年行保護** | **`deletePolicy.ts`** | **根本原因の修正** |
 | 11 | ガードテスト追加 | `dataIntegrityGuard.test.ts` | 再発防止 |
 | 12 | 診断ログ除去 | 6ファイル | Phase 1 完了 |
+| 13 | orphan テストのリネーム | `application/comparison/adjacentMonthUtils.test.ts` | dead hook 名のテスト整理 |
+| 14 | stale comment 除去 | 5ファイル（hooks/comparison/storage/presentation） | 削除済みフック参照の解消 |
 
 ## 4. ハマりポイント
 
@@ -146,3 +148,5 @@ Phase 1 で追加した診断ログは 5 段構造（取得→state→DuckDB→c
 | `projects/completed/data-load-idempotency-hardening/AI_CONTEXT.md` | 冪等性保証の先行 project |
 | `references/01-principles/data-pipeline-integrity.md` | データパイプライン整合性 |
 | `references/03-guides/runtime-data-path.md` | 実行時データ経路 |
+
+Archived: 2026-04-18
