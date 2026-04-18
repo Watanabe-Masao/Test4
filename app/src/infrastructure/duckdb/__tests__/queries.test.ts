@@ -117,7 +117,7 @@ describe('クエリ結果型の構造', () => {
   })
 
   it('StoreAggregationRow の必須プロパティ', () => {
-    const row: StoreAggregationRow = { storeId: '1', hour: 10, amount: 30000 }
+    const row: StoreAggregationRow = { storeId: '1', hour: 10, amount: 30000, quantity: 12 }
     expect(row.storeId).toBe('1')
   })
 

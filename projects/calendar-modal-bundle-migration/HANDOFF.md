@@ -5,9 +5,43 @@
 
 ## 1. 現在地
 
-**未着手。** `calendar-modal-route-unification` の Phase A 完了 + B-3 採用に伴い、
-本 project に Phase B/C/D が移管された。最初の作業は `timeSlotLane.bundle` の
-契約拡張（quantity + wow）。
+**Phase 1 完了（契約拡張）。** `StoreAggregationRow` / `TimeSlotSeries` /
+`projectTimeSlotSeries` に quantity 系フィールドを additive で追加。既存の
+`byHour` / `total` / `grandTotal` はそのまま残し、並行して `byHourQuantity` /
+`totalQuantity` / `grandTotalQuantity` を新設。wow は既定 policy 通り bundle 対象外
+（HourlyChart の wow モードは Phase 2 で raw CTS のまま維持する方針）。
+lint / build / format / test:guards (694) / 関連テスト (1313) すべて green。
+次は Phase 2（HourlyChart の bundle 経由化）。
+
+## 1.1. Phase 1 成果サマリ
+
+### 採用決定（2026-04-18）
+
+| 論点 | 採用 | 根拠 |
+|---|---|---|
+| quantity の拡張方法 | **Option A: additive（`StoreAggregationRow` に quantity 追加）** | `time_slots` テーブルに quantity カラム既存。SQL に `SUM(ts.quantity)` を足すだけで済む |
+| quantity のバンドル反映形 | **additive（`byHourQuantity` / `totalQuantity` / `grandTotalQuantity` 追加）** | 既存 `byHour` / `total` / `grandTotal` を壊さない。StoreHourlyChart の書き換え不要 |
+| wow alignment | **Option G: bundle 対象外。HourlyChart の wow モードは raw CTS のまま維持** | step-c-timeslot-lane-policy.md §3 の契約（`sameDate` / `sameDayOfWeek` のみ）と整合。scope creep 回避 |
+
+### 変更ファイル（Phase 1）
+
+| ファイル | 変更 |
+|---|---|
+| `infrastructure/duckdb/queries/ctsHourlyQueries.ts` | SQL に `SUM(ts.quantity)` 追加 / Zod schema に quantity 追加 / 型に quantity 追加 |
+| `application/hooks/timeSlot/TimeSlotBundle.types.ts` | `TimeSlotStoreEntry.byHourQuantity` / `totalQuantity` / `TimeSlotSeries.grandTotalQuantity` 追加 |
+| `application/hooks/timeSlot/projectTimeSlotSeries.ts` | HourBucket 内部構造で amount / quantity を同時集計 |
+| `application/hooks/timeSlot/__tests__/projectTimeSlotSeries.parity.test.ts` | `keys` 期待値更新 + quantity 系 3 テスト追加（合計 21 tests, 全 PASS） |
+| `infrastructure/duckdb/__tests__/queries.test.ts` | StoreAggregationRow fixture に quantity 追加 |
+| `presentation/components/charts/__tests__/chartLogicBatch3.test.ts` | makeSeries ヘルパで quantity デフォルト追加 |
+
+### 消費側（bundle consumer）の状態
+
+| consumer | Phase 1 後の状態 |
+|---|---|
+| `StoreHourlyChart` | 無変更。`byHour` / `total` / `grandTotal` を従来通り使用 |
+| `useUnifiedWidgetContext` | 無変更（bundle を配布するだけ） |
+| `timeSlotLaneSurfaceGuard` | 無変更（baseline 監視） |
+| **HourlyChart**（Phase 2 対象） | 未着手。raw CTS 直接参照のまま |
 
 ## 2. 次にやること
 

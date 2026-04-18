@@ -50,19 +50,27 @@ export interface TimeSlotFrame {
  * presentation はこの型のみを消費する。`StoreAggregationRow` を直接消費しない。
  *
  * `entries[i].byHour[h]` は 0-23 時間帯の金額 (null は欠損)。
+ * `entries[i].byHourQuantity[h]` は同じ index の販売点数 (null は欠損)。
+ * 両配列は同じ長さ (24) で、同 index の null 位置が一致することを契約として保証する。
  */
 export interface TimeSlotStoreEntry {
   readonly storeId: string
   /** 24 長の配列。index = hour (0-23)。null = 該当時間帯の raw row なし */
   readonly byHour: readonly (number | null)[]
-  /** 店舗単位の合計 (byHour の非 null 値の sum) */
+  /** 24 長の配列。byHour と同じ index で販売点数を表す。null = raw row なし */
+  readonly byHourQuantity: readonly (number | null)[]
+  /** 店舗単位の金額合計 (byHour の非 null 値の sum) */
   readonly total: number
+  /** 店舗単位の販売点数合計 (byHourQuantity の非 null 値の sum) */
+  readonly totalQuantity: number
 }
 
 export interface TimeSlotSeries {
   readonly entries: readonly TimeSlotStoreEntry[]
-  /** 期間単位の totals: 全店舗×全時間帯の合計 */
+  /** 期間単位の金額 grand total: 全店舗×全時間帯の合計 */
   readonly grandTotal: number
+  /** 期間単位の販売点数 grand total: 全店舗×全時間帯の合計 */
+  readonly grandTotalQuantity: number
   /** 対象日数 */
   readonly dayCount: number
 }
