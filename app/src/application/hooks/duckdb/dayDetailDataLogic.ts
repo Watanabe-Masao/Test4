@@ -13,7 +13,12 @@ import { toDateKey, dateRangeToKeys } from '@/domain/models/CalendarDate'
 import type { ComparisonScope } from '@/domain/models/ComparisonScope'
 import { resolvePrevDate } from '@/domain/models/ComparisonScope'
 import type { CategoryTimeSalesRecord, HourlyWeatherRecord } from '@/domain/models/record'
-import type { CategoryTimeRecordsInput } from '@/application/queries/cts/CategoryTimeRecordsHandler'
+import type {
+  CategoryTimeRecordsInput,
+  CategoryTimeRecordsOutput,
+} from '@/application/queries/cts/CategoryTimeRecordsHandler'
+import type { PairedInput } from '@/application/queries/createPairedHandler'
+import type { PairedQueryOutput } from '@/application/queries/PairedQueryContract'
 import type { StoreDaySummaryInput } from '@/application/queries/summary/StoreDaySummaryHandler'
 import type { StoreDaySummaryRow } from '@/application/queries/summary/StoreDaySummaryHandler'
 import type { WeatherHourlyInput } from '@/application/queries/weather/WeatherHourlyHandler'
@@ -147,6 +152,30 @@ export function buildCtsInput(
   }
 }
 
+/** current/comparison を 1 入力にまとめた pair handler 用入力を構築する  *
+ * @responsibility R:calculation
+ */
+export function buildCtsPairInput(
+  currentRange: DateRange | undefined,
+  comparisonRange: DateRange | undefined,
+  storeIds: ReadonlySet<string>,
+): PairedInput<CategoryTimeRecordsInput> | null {
+  if (!currentRange) return null
+  const { fromKey, toKey } = dateRangeToKeys(currentRange)
+  const storeIdsArr = storeIds.size > 0 ? [...storeIds] : undefined
+  if (!comparisonRange) {
+    return { dateFrom: fromKey, dateTo: toKey, storeIds: storeIdsArr }
+  }
+  const { fromKey: cFromKey, toKey: cToKey } = dateRangeToKeys(comparisonRange)
+  return {
+    dateFrom: fromKey,
+    dateTo: toKey,
+    storeIds: storeIdsArr,
+    comparisonDateFrom: cFromKey,
+    comparisonDateTo: cToKey,
+  }
+}
+
 export function buildSummaryInput(
   range: DateRange | undefined,
   storeIds: ReadonlySet<string>,
@@ -180,6 +209,18 @@ export function selectCtsWithFallback(
   fallback: AsyncQueryResult<{ readonly records: readonly CategoryTimeSalesRecord[] }>,
 ): readonly CategoryTimeSalesRecord[] {
   const primaryData = primary.data?.records ?? EMPTY_RECORDS
+  return primaryData.length > 0 ? primaryData : (fallback.data?.records ?? EMPTY_RECORDS)
+}
+
+/** pair 結果の comparison 側を primary、別 query を fallback として {@link selectCtsWithFallback} と
+ * 同じ意味論で解決する  *
+ * @responsibility R:calculation
+ */
+export function selectCtsWithFallbackFromPair(
+  pair: AsyncQueryResult<PairedQueryOutput<CategoryTimeRecordsOutput>>,
+  fallback: AsyncQueryResult<{ readonly records: readonly CategoryTimeSalesRecord[] }>,
+): readonly CategoryTimeSalesRecord[] {
+  const primaryData = pair.data?.comparison?.records ?? EMPTY_RECORDS
   return primaryData.length > 0 ? primaryData : (fallback.data?.records ?? EMPTY_RECORDS)
 }
 

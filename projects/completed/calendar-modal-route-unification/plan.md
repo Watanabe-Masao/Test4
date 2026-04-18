@@ -1,5 +1,39 @@
 # plan — calendar-modal-route-unification
 
+## B-3 採用（2026-04-18）— Phase B/C/D を後継 project に移管
+
+Phase B 棚卸しで以下の構造的制約が判明した:
+
+- `timeSlotLane.bundle` の現契約は **金額のみ**で `quantity` フィールドを持たない
+- `timeSlotLane.bundle` は **wow alignment（前週同曜日）** を持たず、sameDate /
+  sameDayOfWeek のみ
+- HourlyChart は時間帯別の **金額・点数の両方** + **WoW 比較** を要求するため、
+  契約拡張なしには bundle 経由化できない
+- DrilldownWaterfall / CategoryDrilldown は leaf-grain（dept\|line\|klass）を要求
+  するため `categoryDailyLane.bundle`（dept 粒度）でも経由化できない（Phase C 領域）
+
+このまま Phase B を強行すると「金額は bundle、点数は raw、wow も raw」の混在状態に
+なり、plan §0「複数の動線を混ぜない原則」に反する。したがって以下の方針を採用する:
+
+- 本 project は **Phase A（handler 統一）の完了をもって archive** する
+- Phase B/C/D は後継 project `calendar-modal-bundle-migration` に全面移管する
+- 後継 project は最初に `timeSlotLane` 契約拡張（quantity + wow）を行い、
+  その上で HourlyChart の bundle 経由化を実施する
+- leaf-grain 対応（CategoryLeafDailySeries 新設）はさらに後の project とする
+
+## Phase A 方針決定（2026-04-18）
+
+棚卸しの結果（HANDOFF.md §3.5 参照）、フォールバック層の存続判断として
+**Option C（限定 pair 化 + フォールバック層を Phase B で撤廃）** を採用する。
+
+- Phase A では (day, prevDay) / (cum, cumPrev) の 2 組のみ pair 化
+- wow は単独 handler のまま維持（比較相手を持たないため pair 化対象外）
+- prevDayFallback / cumPrevFallback は Phase A では撤廃せず、`selectCtsWithFallback`
+  への依存も残す
+- Phase B で bundle 経由化と同時にフォールバック撤廃を再評価する
+- 採用理由: 動線統一を 1 ステップ進めつつ、レンダー初回の空ハンドリング検証を
+  Phase B（bundle 経由化と同時）に集約し、回帰リスクを最小化する
+
 ## 不可侵原則
 
 1. **正本 lane の優位を破らない** — モーダルとダッシュボードは同じ
@@ -51,6 +85,26 @@ handler は共通化する。
 `runtime-data-path.md` / `data-pipeline-integrity.md` を統一後の経路に合わせて更新する。
 
 完了条件: 関連 references が最新状態に更新されている。
+
+## 後続 project 候補（本 project の scope 外）
+
+### `calendar-modal-refresh`（仮）
+
+DayDetailModal は初期実装が残り、現代の規約から外れている部分が多い:
+
+- Props drilling（17+ 個の props）
+- presentation 層から直接 store アクセス（`useSettingsStore` / `useDataStore`）
+- インライン計算が ViewModel に集約しきれていない
+- インメモリ ↔ DuckDB のフォールバック切替が component 内で実施
+- WoW 日付計算が presentation に残る
+- `dataVersion` props 受渡（`QueryExecutor.dataVersion` で代替可能）
+- 旧 `PrevYearData` 型依存
+
+これらは **本 project の scope（ルート統一）には含めない**。本 project 完了後、
+独立 project として起票する。理由: 「複数の動線・コンテキストを混ぜない原則」
+（`references/03-guides/project-checklist-governance.md` §0）。Phase B の bundle
+経由化が refresh の前提となるため、順序は **本 project → calendar-modal-refresh**
+が自然。
 
 ## やってはいけないこと
 
