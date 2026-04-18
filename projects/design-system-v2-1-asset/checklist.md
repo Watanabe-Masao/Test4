@@ -1,4 +1,4 @@
-# checklist — design-system-v2.1-asset
+# checklist — design-system-v2-1-asset
 
 > 役割: completion 判定の入力（required checkbox の集合）。
 > 規約: `references/03-guides/project-checklist-governance.md` §3。

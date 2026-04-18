@@ -1,4 +1,4 @@
-# HANDOFF — design-system-v2.1-asset
+# HANDOFF — design-system-v2-1-asset
 
 > 役割: 起点文書。後任者が最初に読む。
 > 本 project は **資産追加のみ** のスコープで、本体コードには一切変更を入れない。
