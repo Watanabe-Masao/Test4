@@ -7,6 +7,7 @@
  */
 import { memo, useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import type { CategoryTimeSalesRecord, HourlyWeatherRecord } from '@/domain/models/record'
+import type { TimeSlotSeries } from '@/application/hooks/timeSlot/TimeSlotBundle.types'
 import { toComma } from '@/presentation/components/charts/chartTheme'
 import { formatPercent } from '@/domain/formatting'
 import { calculateShare } from '@/domain/calculations/utils'
@@ -70,13 +71,19 @@ type HourlyMode = 'actual' | 'prev'
 export const HourlyChart = memo(function HourlyChart({
   dayRecords,
   prevDayRecords,
+  currentSeries,
+  comparisonSeries,
   weatherHourly,
   prevWeatherHourly,
   prevDateKey,
   curDateKey,
 }: {
+  /** leaf-grain 用 raw CTS（カテゴリ別内訳パネルで使用）*/
   dayRecords: readonly CategoryTimeSalesRecord[]
   prevDayRecords: readonly CategoryTimeSalesRecord[]
+  /** 時間帯集計 series（timeSlotLane.bundle 由来）— amount / quantity 合算源 */
+  currentSeries: TimeSlotSeries | null
+  comparisonSeries: TimeSlotSeries | null
   weatherHourly?: readonly HourlyWeatherRecord[]
   prevWeatherHourly?: readonly HourlyWeatherRecord[]
   prevDateKey?: string
@@ -88,8 +95,8 @@ export const HourlyChart = memo(function HourlyChart({
 
   // 3 useMemo → 1: actualData + prevData + allHours を一括構築
   const dataSets = useMemo(
-    () => buildHourlyDataSets(dayRecords, prevDayRecords),
-    [dayRecords, prevDayRecords],
+    () => buildHourlyDataSets(currentSeries, comparisonSeries),
+    [currentSeries, comparisonSeries],
   )
   const { actualData: actualHourlyData, prevData: prevHourlyData, allHours } = dataSets
 

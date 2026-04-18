@@ -16,35 +16,58 @@ import {
   buildHourlySummaryStats,
   formatSelectedHoursLabel,
 } from '../HourlyChart.builders'
-import type { CategoryTimeSalesRecord, HourlyWeatherRecord } from '@/domain/models/record'
+import type { HourlyWeatherRecord } from '@/domain/models/record'
+import type { TimeSlotSeries } from '@/application/hooks/timeSlot/TimeSlotBundle.types'
 
-function makeCts(hour: number, amount: number, quantity: number): CategoryTimeSalesRecord {
+/**
+ * 1 hour = 1 entry で amount / quantity を持つ TimeSlotSeries を作る。
+ * buildHourlyDataSets が bundle から amount/quantity を横断集計する意味を test する。
+ */
+function makeSeries(
+  ...slots: { hour: number; amount: number; quantity: number }[]
+): TimeSlotSeries {
+  const byHour: (number | null)[] = new Array(24).fill(null)
+  const byHourQuantity: (number | null)[] = new Array(24).fill(null)
+  let total = 0
+  let totalQuantity = 0
+  for (const s of slots) {
+    byHour[s.hour] = s.amount
+    byHourQuantity[s.hour] = s.quantity
+    total += s.amount
+    totalQuantity += s.quantity
+  }
   return {
-    timeSlots: [{ hour, amount, quantity }],
-    totalAmount: amount,
-    totalQuantity: quantity,
-    department: { code: 'd1', name: 'D' },
-    line: { code: 'l1', name: 'L' },
-    klass: { code: 'k1', name: 'K' },
-  } as unknown as CategoryTimeSalesRecord
+    entries: [{ storeId: 'S1', byHour, byHourQuantity, total, totalQuantity }],
+    grandTotal: total,
+    grandTotalQuantity: totalQuantity,
+    dayCount: 1,
+  }
 }
 
 // ─── buildHourlyDataSets ────────────────────
 
 describe('buildHourlyDataSets', () => {
-  it('空 → 空 dataSets', () => {
-    const result = buildHourlyDataSets([], [])
+  it('null / 空 series → 空 dataSets', () => {
+    const result = buildHourlyDataSets(null, null)
     expect(result.actualData).toEqual([])
     expect(result.prevData).toEqual([])
     expect(result.allHours).toEqual([])
   })
 
-  it('allHours は両 dataset の hour を和集合 + 昇順', () => {
-    const cur = [makeCts(10, 100, 10)]
-    const prev = [makeCts(16, 80, 8)]
+  it('allHours は両 series の hour を和集合 + 昇順', () => {
+    const cur = makeSeries({ hour: 10, amount: 100, quantity: 10 })
+    const prev = makeSeries({ hour: 16, amount: 80, quantity: 8 })
     const result = buildHourlyDataSets(cur, prev)
-    // buildHourlyData は min〜max でゼロ埋めするので allHours = {10} ∪ {16} = [10, 16]
+    // seriesToHourlyData は min〜max でゼロ埋めするので allHours = {10} ∪ {16} = [10, 16]
     expect([...result.allHours].sort((a, b) => a - b)).toEqual([10, 16])
+  })
+
+  it('actualData / prevData は series の byHour / byHourQuantity を横断集計する', () => {
+    const cur = makeSeries({ hour: 9, amount: 100, quantity: 5 })
+    const prev = makeSeries({ hour: 9, amount: 90, quantity: 4 })
+    const result = buildHourlyDataSets(cur, prev)
+    expect(result.actualData).toEqual([{ hour: 9, amount: 100, quantity: 5 }])
+    expect(result.prevData).toEqual([{ hour: 9, amount: 90, quantity: 4 }])
   })
 })
 

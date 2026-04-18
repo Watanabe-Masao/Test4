@@ -66,6 +66,25 @@ TimeSlotChart
        └─ timeSlotPairHandler → queryTimeSlotAggregation → time_slots
 ```
 
+## HourlyChart（DayDetailModal / calendar-modal-bundle-migration Phase 2）
+
+```
+HourlyChart
+  ├─ 時間帯集計（amount / quantity）
+  │   └─ useDayDetailPlan
+  │        └─ useTimeSlotBundle(dayFrame)
+  │             └─ storeAggregationHandler → queryStoreAggregation → time_slots
+  │   series.entries[i].byHour[h] / byHourQuantity[h] を横断集計
+  │   (seriesToHourlyData / buildHourlyDataSets)
+  └─ カテゴリ別内訳（hourDetail, leaf-grain）
+      └─ useDayDetailPlan
+           └─ categoryTimeRecordsPairHandler → queryCategoryTimeRecords
+      dept|line|klass 粒度（bundle 未対応、別 project で対応予定）
+```
+
+`timeSlotLane.bundle` は `calendar-modal-bundle-migration` Phase 1 で
+`byHourQuantity` / `totalQuantity` / `grandTotalQuantity` が additive 追加された。
+
 ## YoYChart (unify-period-analysis Phase 5 見本実装)
 
 ```

@@ -16,6 +16,12 @@
 import { useMemo } from 'react'
 import type { PlanComparisonProvenance } from '@/domain/models/ComparisonWindow'
 import { yoyWindow } from '@/domain/models/ComparisonWindow'
+import type { ComparisonScope } from '@/domain/models/ComparisonScope'
+import { useTimeSlotBundle } from '@/application/hooks/timeSlot/useTimeSlotBundle'
+import type {
+  TimeSlotFrame,
+  TimeSlotSeries,
+} from '@/application/hooks/timeSlot/TimeSlotBundle.types'
 import { categoryTimeRecordsHandler } from '@/application/queries/cts/CategoryTimeRecordsHandler'
 import { categoryTimeRecordsPairHandler } from '@/application/queries/cts/CategoryTimeRecordsPairHandler'
 import { storeDaySummaryHandler } from '@/application/queries/summary/StoreDaySummaryHandler'
@@ -26,6 +32,7 @@ import {
   resolveDayDetailRanges,
   buildCtsInput,
   buildCtsPairInput,
+  buildDayComparisonScope,
   buildSummaryInput,
   buildWeatherInput,
   selectCtsWithFallbackFromPair,
@@ -54,6 +61,10 @@ export interface DayDetailPlanResult {
   readonly cumPrevRecords: readonly CategoryTimeSalesRecord[]
   readonly weatherHourly: readonly HourlyWeatherRecord[] | undefined
   readonly prevWeatherHourly: readonly HourlyWeatherRecord[] | undefined
+  /** 時間帯集計 lane（当日）— HourlyChart の amount/quantity 源 */
+  readonly timeSlotCurrentSeries: TimeSlotSeries | null
+  /** 時間帯集計 lane（前年同日 — comparisonScope.alignmentMode に従う） */
+  readonly timeSlotComparisonSeries: TimeSlotSeries | null
   readonly comparisonProvenance: PlanComparisonProvenance
 }
 
@@ -62,6 +73,7 @@ export function useDayDetailPlan(
   ranges: DayDetailRanges,
   selectedStoreIds: ReadonlySet<string>,
   weatherStoreId: string | undefined,
+  comparisonScope: ComparisonScope | null,
 ): DayDetailPlanResult {
   // ── CTS 入力（pair 化済 5 系統を1 useMemo に集約） ──
   // dayPair / cumPair は (day, prevDay) / (cum, cumPrev) を pair handler で同時取得する。
@@ -142,6 +154,19 @@ export function useDayDetailPlan(
   const weatherResult = useQueryWithHandler(queryExecutor, weatherHourlyHandler, weather.cur)
   const prevWeatherResult = useQueryWithHandler(queryExecutor, weatherHourlyHandler, weather.prev)
 
+  // ── TimeSlot 集計 lane（当日 + 比較日）──
+  // HourlyChart の amount/quantity 集計源。leaf-grain（カテゴリ詳細）用の raw CTS は
+  // 別経路で dayRecords / prevDayRecords に保持する。
+  const timeSlotFrame = useMemo<TimeSlotFrame | null>(() => {
+    if (selectedStoreIds.size === 0) return null
+    return {
+      dateRange: ranges.singleDayRange,
+      storeIds: [...selectedStoreIds],
+      comparison: buildDayComparisonScope(comparisonScope, ranges),
+    }
+  }, [ranges, selectedStoreIds, comparisonScope])
+  const timeSlotBundle = useTimeSlotBundle(queryExecutor, timeSlotFrame)
+
   const comparisonProvenance = useMemo<PlanComparisonProvenance>(
     () => ({
       window: yoyWindow(ranges.prevDayRange),
@@ -160,6 +185,8 @@ export function useDayDetailPlan(
     cumPrevRecords,
     weatherHourly: weatherResult.data?.records ?? undefined,
     prevWeatherHourly: prevWeatherResult.data?.records ?? undefined,
+    timeSlotCurrentSeries: timeSlotBundle.currentSeries,
+    timeSlotComparisonSeries: timeSlotBundle.comparisonSeries,
     comparisonProvenance,
   }
 }

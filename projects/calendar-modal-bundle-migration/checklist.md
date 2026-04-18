@@ -18,11 +18,11 @@
 
 ## Phase 2: HourlyChart 移行
 
-* [ ] `HourlyChart.builders.ts::buildHourlyDataSets` の入力を `timeSlotLane.bundle` 形式に変更する
-* [ ] `HourlyChart.tsx` の props を bundle 経由に変更する
-* [ ] `useDayDetailPlan` から HourlyChart に渡す入力を bundle 経由に切り替える
+* [x] `HourlyChart.builders.ts::buildHourlyDataSets` の入力を `timeSlotLane.bundle` 形式に変更する
+* [x] `HourlyChart.tsx` の props を bundle 経由に変更する
+* [x] `useDayDetailPlan` から HourlyChart に渡す入力を bundle 経由に切り替える
 * [ ] モーダルとダッシュボードの時間帯表示が一致することを手動または E2E で検証する
-* [ ] HourlyChart 経由の `selectCtsWithFallback` 依存を削除する
+* [x] HourlyChart の時間帯表示（amount / quantity）経由で `selectCtsWithFallback` に依存しないことを確認する（hourDetail = leaf-grain 経路は Phase 3 / 別 project で対応）
 
 ## Phase 3: フォールバック撤廃と撤退判定
 

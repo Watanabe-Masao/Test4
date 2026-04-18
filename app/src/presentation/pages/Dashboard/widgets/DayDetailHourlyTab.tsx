@@ -3,6 +3,7 @@
  * 天気店舗セレクタ + HourlyChart を表示。
  */
 import type { CategoryTimeSalesRecord, HourlyWeatherRecord } from '@/domain/models/record'
+import type { TimeSlotSeries } from '@/application/hooks/timeSlot/TimeSlotBundle.types'
 import { palette } from '@/presentation/theme/tokens'
 import {
   DetailSection,
@@ -19,8 +20,12 @@ interface WeatherCandidate {
 }
 
 interface DayDetailHourlyTabProps {
+  /** leaf-grain カテゴリ詳細用 raw CTS（HourlyChart 内の hourDetail で使用） */
   readonly dayRecords: readonly CategoryTimeSalesRecord[]
   readonly prevDayRecords: readonly CategoryTimeSalesRecord[]
+  /** timeSlotLane.bundle 由来の時間帯集計 series（amount / quantity 合算源） */
+  readonly timeSlotCurrentSeries: TimeSlotSeries | null
+  readonly timeSlotComparisonSeries: TimeSlotSeries | null
   readonly weatherHourly: readonly HourlyWeatherRecord[] | undefined
   readonly prevWeatherHourly: readonly HourlyWeatherRecord[] | undefined
   readonly prevDateKey: string | undefined
@@ -34,6 +39,8 @@ interface DayDetailHourlyTabProps {
 export function DayDetailHourlyTab({
   dayRecords,
   prevDayRecords,
+  timeSlotCurrentSeries,
+  timeSlotComparisonSeries,
   weatherHourly,
   prevWeatherHourly,
   prevDateKey,
@@ -85,6 +92,8 @@ export function DayDetailHourlyTab({
       <HourlyChart
         dayRecords={dayRecords}
         prevDayRecords={prevDayRecords}
+        currentSeries={timeSlotCurrentSeries}
+        comparisonSeries={timeSlotComparisonSeries}
         weatherHourly={weatherHourly}
         prevWeatherHourly={prevWeatherHourly}
         prevDateKey={prevDateKey}
