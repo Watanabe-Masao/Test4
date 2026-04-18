@@ -161,8 +161,11 @@ describe('findCoreTime', () => {
 describe('buildStoreHourlyData', () => {
   // Phase 6 Step C: 入力は projection 済みの TimeSlotSeries。テストヘルパは
   // raw row 形式から projectTimeSlotSeries で series を生成する。
-  function makeSeries(...rows: { storeId: string; hour: number; amount: number }[]) {
-    return projectTimeSlotSeries(rows, { dayCount: 1 })
+  function makeSeries(
+    ...rows: { storeId: string; hour: number; amount: number; quantity?: number }[]
+  ) {
+    const filled = rows.map((r) => ({ ...r, quantity: r.quantity ?? 0 }))
+    return projectTimeSlotSeries(filled, { dayCount: 1 })
   }
 
   it('null / 空 series → 空 chartData + 空 storeInfos', () => {

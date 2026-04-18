@@ -9,12 +9,12 @@
 
 ## Phase 1: timeSlotLane 契約拡張
 
-* [ ] `timeSlotLane.bundle` を消費している既存 consumer を grep で全て特定し、件数を `HANDOFF.md` に記録する
-* [ ] `TimeSlotStoreEntry.byHour` を金額のみから「金額 + 点数」に拡張する設計を確定し、`HANDOFF.md` に記録する
-* [ ] wow alignment の解決位置（ComparisonScope 拡張 / timeSlotLane 内部）の設計を確定し、`HANDOFF.md` に記録する
-* [ ] 拡張後の契約型 (`TimeSlotBundle.types.ts`) を更新する
-* [ ] hook 実装 (`useTimeSlotBundle.ts`) と projection (`projectTimeSlotSeries.ts`) を契約に合わせて更新する
-* [ ] 既存 consumer（StoreHourlyChart 等）が回帰なく動くことをテスト + 手動で検証する
+* [x] `timeSlotLane.bundle` を消費している既存 consumer を grep で全て特定し、件数を `HANDOFF.md` に記録する
+* [x] `TimeSlotStoreEntry.byHour` を金額のみから「金額 + 点数」に拡張する設計を確定し、`HANDOFF.md` に記録する
+* [x] wow alignment の解決位置（ComparisonScope 拡張 / timeSlotLane 内部）の設計を確定し、`HANDOFF.md` に記録する
+* [x] 拡張後の契約型 (`TimeSlotBundle.types.ts`) を更新する
+* [x] hook 実装 (`useTimeSlotBundle.ts`) と projection (`projectTimeSlotSeries.ts`) を契約に合わせて更新する
+* [x] 既存 consumer（StoreHourlyChart 等）が回帰なく動くことをテスト + 手動で検証する
 
 ## Phase 2: HourlyChart 移行
 

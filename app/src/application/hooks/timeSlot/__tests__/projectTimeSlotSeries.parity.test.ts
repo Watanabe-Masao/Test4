@@ -36,8 +36,8 @@ import type { TimeSlotSeries } from '../TimeSlotBundle.types'
 
 // ── helpers ───────────────────────────────────────────────
 
-function row(storeId: string, hour: number, amount: number): StoreAggregationRow {
-  return { storeId, hour, amount }
+function row(storeId: string, hour: number, amount: number, quantity = 0): StoreAggregationRow {
+  return { storeId, hour, amount, quantity }
 }
 
 // ── truth table ───────────────────────────────────────────
@@ -140,6 +140,41 @@ describe('projectTimeSlotSeries — pure projection truth table', () => {
     expect(result.grandTotal).toBe(1000)
   })
 
+  // (9b) quantity 系の整合性
+  it('byHourQuantity は byHour と同じ index / null 位置を保つ', () => {
+    const rows = [row('S1', 9, 1000, 5), row('S1', 18, 2000, 10)]
+    const result = projectTimeSlotSeries(rows, { dayCount: 1 })
+    const entry = result.entries[0]
+    expect(entry.byHour).toHaveLength(24)
+    expect(entry.byHourQuantity).toHaveLength(24)
+    expect(entry.byHour[9]).toBe(1000)
+    expect(entry.byHourQuantity[9]).toBe(5)
+    expect(entry.byHour[18]).toBe(2000)
+    expect(entry.byHourQuantity[18]).toBe(10)
+    for (let h = 0; h < 24; h++) {
+      if (h === 9 || h === 18) continue
+      expect(entry.byHour[h]).toBe(null)
+      expect(entry.byHourQuantity[h]).toBe(null)
+    }
+  })
+
+  it('totalQuantity / grandTotalQuantity は byHourQuantity の非 null 値の和', () => {
+    const rows = [row('S1', 9, 100, 3), row('S1', 10, 200, 7), row('S2', 9, 300, 11)]
+    const result = projectTimeSlotSeries(rows, { dayCount: 1 })
+    const s1 = result.entries.find((e) => e.storeId === 'S1')!
+    const s2 = result.entries.find((e) => e.storeId === 'S2')!
+    expect(s1.totalQuantity).toBe(10)
+    expect(s2.totalQuantity).toBe(11)
+    expect(result.grandTotalQuantity).toBe(21)
+  })
+
+  it('同一 (storeId, hour) の複数 row は amount / quantity とも加算する', () => {
+    const rows = [row('S1', 9, 100, 3), row('S1', 9, 50, 2)]
+    const result = projectTimeSlotSeries(rows, { dayCount: 1 })
+    expect(result.entries[0].byHour[9]).toBe(150)
+    expect(result.entries[0].byHourQuantity[9]).toBe(5)
+  })
+
   // (10) sameDate / sameDayOfWeek の系列対応
   it('sameDate と sameDayOfWeek は同じ projection 関数を 2 回呼ぶことで表現する', () => {
     // sameDate fixture: 当期と前年同日が同じ row 形式で渡される
@@ -173,7 +208,7 @@ describe('projectTimeSlotSeries — pure projection truth table', () => {
     const result = projectTimeSlotSeries([row('S1', 9, 1)], { dayCount: 1 })
     // 型レベルで meta が存在しないことを確認
     const keys = Object.keys(result).sort()
-    expect(keys).toEqual(['dayCount', 'entries', 'grandTotal'])
+    expect(keys).toEqual(['dayCount', 'entries', 'grandTotal', 'grandTotalQuantity'])
   })
 })
 

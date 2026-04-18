@@ -13,11 +13,12 @@
  *
  *   - storeIds subset でフィルタする
  *   - storeId × hour で集約する (同一 cell に複数 row があれば合計)
- *   - 24 長の `byHour` 配列を作る (index = hour 0-23)
+ *   - 24 長の `byHour` / `byHourQuantity` 配列を作る (index = hour 0-23)
  *   - 欠損 hour は `null` で表す (0 ではない — 「データなし」と「ゼロ円」の区別)
- *   - 各店舗の `total` を計算 (null は除外して合計)
+ *   - `byHour` と `byHourQuantity` は同じ index で null 位置が一致する
+ *   - 各店舗の `total` / `totalQuantity` を計算 (null は除外して合計)
  *   - storeId 順で安定ソート
- *   - `grandTotal` / `dayCount` を埋める
+ *   - `grandTotal` / `grandTotalQuantity` / `dayCount` を埋める
  *
  * ## 非責務 (本関数で行わないこと)
  *
@@ -59,7 +60,20 @@ export interface ProjectTimeSlotSeriesOptions {
 export const EMPTY_TIME_SLOT_SERIES: TimeSlotSeries = {
   entries: [],
   grandTotal: 0,
+  grandTotalQuantity: 0,
   dayCount: 0,
+}
+
+interface HourBucket {
+  readonly amount: (number | null)[]
+  readonly quantity: (number | null)[]
+}
+
+function createHourBucket(): HourBucket {
+  return {
+    amount: new Array<number | null>(HOURS_PER_DAY).fill(null),
+    quantity: new Array<number | null>(HOURS_PER_DAY).fill(null),
+  }
 }
 
 /**
@@ -71,37 +85,52 @@ export function projectTimeSlotSeries(
 ): TimeSlotSeries {
   const wantStores = options.storeIds && options.storeIds.size > 0 ? options.storeIds : null
 
-  // Group by storeId, accumulate per hour
-  const byStore = new Map<string, (number | null)[]>()
+  // Group by storeId, accumulate per hour (amount + quantity together)
+  const byStore = new Map<string, HourBucket>()
   for (const row of rows) {
     if (wantStores && !wantStores.has(row.storeId)) continue
     if (!Number.isInteger(row.hour) || row.hour < 0 || row.hour >= HOURS_PER_DAY) continue
-    let arr = byStore.get(row.storeId)
-    if (!arr) {
-      arr = new Array<number | null>(HOURS_PER_DAY).fill(null)
-      byStore.set(row.storeId, arr)
+    let bucket = byStore.get(row.storeId)
+    if (!bucket) {
+      bucket = createHourBucket()
+      byStore.set(row.storeId, bucket)
     }
-    const prev = arr[row.hour]
-    arr[row.hour] = (prev ?? 0) + row.amount
+    bucket.amount[row.hour] = (bucket.amount[row.hour] ?? 0) + row.amount
+    bucket.quantity[row.hour] = (bucket.quantity[row.hour] ?? 0) + row.quantity
   }
 
   // Build entries sorted by storeId for stable ordering
   const entries: TimeSlotStoreEntry[] = [...byStore.entries()]
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([storeId, byHour]) => {
+    .map(([storeId, bucket]) => {
       let total = 0
-      for (const v of byHour) {
+      let totalQuantity = 0
+      for (const v of bucket.amount) {
         if (v != null) total += v
       }
-      return { storeId, byHour, total }
+      for (const v of bucket.quantity) {
+        if (v != null) totalQuantity += v
+      }
+      return {
+        storeId,
+        byHour: bucket.amount,
+        byHourQuantity: bucket.quantity,
+        total,
+        totalQuantity,
+      }
     })
 
   let grandTotal = 0
-  for (const e of entries) grandTotal += e.total
+  let grandTotalQuantity = 0
+  for (const e of entries) {
+    grandTotal += e.total
+    grandTotalQuantity += e.totalQuantity
+  }
 
   return {
     entries,
     grandTotal,
+    grandTotalQuantity,
     dayCount: options.dayCount,
   }
 }

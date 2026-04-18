@@ -48,12 +48,14 @@ export interface StoreAggregationRow {
   readonly storeId: string
   readonly hour: number
   readonly amount: number
+  readonly quantity: number
 }
 
 export const StoreAggregationRowSchema = z.object({
   storeId: z.string(),
   hour: z.number(),
   amount: z.number(),
+  quantity: z.number(),
 })
 
 /**
@@ -68,7 +70,8 @@ export async function queryStoreAggregation(
     SELECT
       ts.store_id,
       ts.hour,
-      SUM(ts.amount) AS amount
+      SUM(ts.amount) AS amount,
+      SUM(ts.quantity) AS quantity
     FROM time_slots ts
     ${where}
     GROUP BY ts.store_id, ts.hour
