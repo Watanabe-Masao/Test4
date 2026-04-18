@@ -635,7 +635,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 | Project Governance | OK | 4/20 / 3/20 / 0/0 / 11/100 |
 
 
-> 生成: 2026-04-18T05:16:55.935Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-18T06:23:34.227Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）
