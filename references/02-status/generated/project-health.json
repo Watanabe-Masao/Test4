@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-18T05:16:55.940Z",
+  "timestamp": "2026-04-18T06:23:34.233Z",
   "summary": {
     "active": 4,
     "archived": 11,
@@ -9,7 +9,7 @@
     "empty": 0,
     "collection": 1,
     "totalCheckboxes": 462,
-    "checkedCheckboxes": 411
+    "checkedCheckboxes": 417
   },
   "projects": [
     {
@@ -70,9 +70,9 @@
       "kind": "project",
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
-      "checked": 0,
+      "checked": 6,
       "total": 19,
-      "progress": 0,
+      "progress": 0.316,
       "entrypoint": "projects/calendar-modal-bundle-migration/AI_CONTEXT.md",
       "checklistPath": "projects/calendar-modal-bundle-migration/checklist.md",
       "parent": null
