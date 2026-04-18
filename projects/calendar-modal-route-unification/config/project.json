@@ -1,0 +1,12 @@
+{
+  "projectId": "calendar-modal-route-unification",
+  "title": "カレンダーモーダル正規ルート統一 — useDayDetailPlan の bundle / paired handler 経由化",
+  "status": "active",
+  "projectRoot": "projects/calendar-modal-route-unification",
+  "entrypoints": {
+    "aiContext": "projects/calendar-modal-route-unification/AI_CONTEXT.md",
+    "handoff": "projects/calendar-modal-route-unification/HANDOFF.md",
+    "plan": "projects/calendar-modal-route-unification/plan.md",
+    "checklist": "projects/calendar-modal-route-unification/checklist.md"
+  }
+}

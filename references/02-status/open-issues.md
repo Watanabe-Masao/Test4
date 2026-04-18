@@ -13,6 +13,7 @@
 |---|---|---|---|
 | `presentation-quality-hardening` | project | Presentation 品質強化 — テスト・E2E・active-debt 解消 | [`projects/presentation-quality-hardening/AI_CONTEXT.md`](../../projects/presentation-quality-hardening/AI_CONTEXT.md) |
 | `pure-calculation-reorg` | project | Pure 計算責務再編（Phase 8 以降） | [`projects/pure-calculation-reorg/AI_CONTEXT.md`](../../projects/pure-calculation-reorg/AI_CONTEXT.md) |
+| `calendar-modal-route-unification` | project | カレンダーモーダル正規ルート統一 — useDayDetailPlan の bundle / paired handler 経由化 | [`projects/calendar-modal-route-unification/AI_CONTEXT.md`](../../projects/calendar-modal-route-unification/AI_CONTEXT.md) |
 | `test-signal-integrity` | project | AAG Test Signal Integrity — 品質シグナル保全と False Green 防止 | [`projects/completed/test-signal-integrity/AI_CONTEXT.md`](../../projects/completed/test-signal-integrity/AI_CONTEXT.md) |
 | `quick-fixes` | collection | Quick Fixes — 文脈を必要としない単発作業の集約 | [`projects/quick-fixes/AI_CONTEXT.md`](../../projects/quick-fixes/AI_CONTEXT.md) |
 
@@ -26,6 +27,7 @@
 | `aag-rule-splitting-execution` | 2026-04-13 | AAG ルール分割実行 — AR-STRUCT-RESP-SEPARATION 7 分割 | [`projects/completed/aag-rule-splitting-execution/`](../../projects/completed/aag-rule-splitting-execution/) |
 | `architecture-decision-backlog` | 2026-04-13 | アーキテクチャ判断 backlog — ロールシステム軽量化方針を (c) 現状維持で決定 | [`projects/completed/architecture-decision-backlog/`](../../projects/completed/architecture-decision-backlog/) |
 | `aag-format-redesign` | 2026-04-14 | AAG フォーマット改修とサブプロジェクト機能 — overlay defaults / derived template / subproject P1 | [`projects/completed/aag-format-redesign/`](../../projects/completed/aag-format-redesign/) |
+| `data-flow-unification` | 2026-04-18 | 前年データフロー統合 — IndexedDB to DuckDB 経路の一本化 | [`projects/completed/data-flow-unification/`](../../projects/completed/data-flow-unification/) |
 
 ## 課題発見時のフロー
 

@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-17T06:38:54.938Z
+> Generated: 2026-04-18T04:27:02.519Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -9,10 +9,10 @@
 | 指標 | 値 |
 |---|---|
 | Total KPIs | 40 |
-| OK | 39 |
+| OK | 40 |
 | WARN | 0 |
-| FAIL | 1 |
-| Hard Gate | FAIL |
+| FAIL | 0 |
+| Hard Gate | PASS |
 
 ## 許可リスト
 
@@ -70,22 +70,22 @@
 |---|---|---|---|
 | docs.obsoleteTerms.count | 廃止用語残存数 | 0 / 0 | OK |
 | docs.generatedSections.stale | Generated section 未更新 | 0 / 0 | OK |
-| docs.obligation.violations | Doc 更新義務違反数 | 1 / 0 | FAIL |
+| docs.obligation.violations | Doc 更新義務違反数 | 0 / 0 | OK |
 | project.checklist.activeCount | active project 数（archive 未実施を含む） | 4 / 20 | OK |
-| project.checklist.archivedCount | archived project 数（projects/completed/ 配下） | 9 / 100 | OK |
+| project.checklist.archivedCount | archived project 数（projects/completed/ 配下） | 10 / 100 | OK |
 | project.checklist.completedNotArchivedCount | checklist 完了済みだが archive 未実施の project 数 | 0 / 0 | OK |
 | project.checklist.inProgressCount | in_progress な project 数（open required checkbox あり） | 3 / 20 | OK |
 | project.checklist.emptyCount | checkbox 空の project 数（placeholder / 立ち上げ直後） | 0 / 10 | OK |
-| project.checklist.totalCheckboxes | 全 project の required checkbox 総数 | 437 | OK |
-| project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 384 | OK |
+| project.checklist.totalCheckboxes | 全 project の required checkbox 総数 | 454 | OK |
+| project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 405 | OK |
 | project.checklist.subprojectCount | サブ project 数（parent フィールドあり） | 1 | OK |
 
 ## バンドル性能
 
 | ID | 指標 | 値 | 状態 |
 |---|---|---|---|
-| perf.bundle.totalJsKb | JS バンドル合計サイズ | 6506 / 7000 | OK |
-| perf.bundle.mainJsKb | メインバンドルサイズ | 2229 / 2500 | OK |
+| perf.bundle.totalJsKb | JS バンドル合計サイズ | 6533 / 7000 | OK |
+| perf.bundle.mainJsKb | メインバンドルサイズ | 2235 / 2500 | OK |
 | perf.bundle.vendorEchartsKb | ECharts バンドルサイズ | 919 / 1000 | OK |
 | perf.bundle.cssKb | CSS 合計サイズ | 0 | OK |
 

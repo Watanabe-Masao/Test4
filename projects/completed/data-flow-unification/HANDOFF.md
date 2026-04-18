@@ -148,3 +148,5 @@ Phase 1 で追加した診断ログは 5 段構造（取得→state→DuckDB→c
 | `projects/completed/data-load-idempotency-hardening/AI_CONTEXT.md` | 冪等性保証の先行 project |
 | `references/01-principles/data-pipeline-integrity.md` | データパイプライン整合性 |
 | `references/03-guides/runtime-data-path.md` | 実行時データ経路 |
+
+Archived: 2026-04-18
