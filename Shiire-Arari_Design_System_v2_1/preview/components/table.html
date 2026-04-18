@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<title>Table — Shiire-Arari DS v2.1</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<link rel="stylesheet" href="../../components.css">
+<link rel="stylesheet" href="../_preview.css">
+</head>
+<body>
+<header class="pv-head">
+  <div>
+    <div class="pv-eyebrow">Components · v2 addition</div>
+    <div class="pv-title">Table</div>
+    <div class="pv-sub">部門・カテゴリ・ファイル一覧用。sticky ヘッダ・hover 行・数値列右寄せ mono + tabular-nums。比率バーはセル背景に描画します。</div>
+  </div>
+  <div class="pv-meta">c-table</div>
+</header>
+
+<section class="pv-section">
+  <div class="pv-section-head"><span class="pv-section-title">Category breakdown</span><span class="pv-section-hint">部門売上 · 比率バー · トレンド</span></div>
+  <div class="pv-example pv-example--stack" style="padding: 0; overflow: hidden;">
+    <table class="c-table" style="width: 100%;">
+      <thead>
+        <tr>
+          <th>部門</th>
+          <th class="num">売上</th>
+          <th class="num">構成比</th>
+          <th class="num">粗利率</th>
+          <th class="num">PI値</th>
+          <th class="num">前年比</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="c-table__dot" style="background: var(--gradient-ti)"></span>店間入</td>
+          <td class="num c-table__bar" style="--bar-w: 100%; --bar-color: var(--gradient-ti);"><span>3,840,200</span></td>
+          <td class="num">30.8%</td>
+          <td class="num">32.4%</td>
+          <td class="num">1.42</td>
+          <td class="num" style="color: var(--c-positive);">↑ 5.2%</td>
+        </tr>
+        <tr>
+          <td><span class="c-table__dot" style="background: var(--gradient-to)"></span>店間出</td>
+          <td class="num c-table__bar" style="--bar-w: 68%; --bar-color: var(--gradient-to);"><span>2,615,800</span></td>
+          <td class="num">21.0%</td>
+          <td class="num">28.7%</td>
+          <td class="num">1.18</td>
+          <td class="num" style="color: var(--c-positive);">↑ 2.8%</td>
+        </tr>
+        <tr>
+          <td><span class="c-table__dot" style="background: var(--gradient-bi)"></span>部門間入</td>
+          <td class="num c-table__bar" style="--bar-w: 51%; --bar-color: var(--gradient-bi);"><span>1,942,300</span></td>
+          <td class="num">15.6%</td>
+          <td class="num">24.1%</td>
+          <td class="num">0.92</td>
+          <td class="num" style="color: var(--c-negative);">↓ 3.1%</td>
+        </tr>
+        <tr>
+          <td><span class="c-table__dot" style="background: var(--gradient-bo)"></span>部門間出</td>
+          <td class="num c-table__bar" style="--bar-w: 41%; --bar-color: var(--gradient-bo);"><span>1,588,400</span></td>
+          <td class="num">12.7%</td>
+          <td class="num">38.2%</td>
+          <td class="num">1.04</td>
+          <td class="num" style="color: var(--c-positive);">↑ 8.4%</td>
+        </tr>
+        <tr>
+          <td><span class="c-table__dot" style="background: var(--gradient-tenkan)"></span>店間計</td>
+          <td class="num c-table__bar" style="--bar-w: 34%; --bar-color: var(--gradient-tenkan);"><span>1,292,400</span></td>
+          <td class="num">10.2%</td>
+          <td class="num">21.3%</td>
+          <td class="num">0.75</td>
+          <td class="num" style="color: var(--c-negative);">↓ 1.8%</td>
+        </tr>
+        <tr>
+          <td><span class="c-table__dot" style="background: var(--gradient-daily)"></span>デイリー</td>
+          <td class="num c-table__bar" style="--bar-w: 31%; --bar-color: var(--gradient-daily);"><span>1,204,100</span></td>
+          <td class="num">9.7%</td>
+          <td class="num">26.0%</td>
+          <td class="num">0.81</td>
+          <td class="num" style="color: var(--theme-text3);">→ 1.2%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="pv-section">
+  <div class="pv-section-head"><span class="pv-section-title">Compact · zebra</span><span class="pv-section-hint">c-table--compact c-table--zebra</span></div>
+  <div class="pv-example pv-example--stack" style="padding: 0; overflow: hidden;">
+    <table class="c-table c-table--compact c-table--zebra" style="width: 100%;">
+      <thead>
+        <tr>
+          <th>ファイル</th>
+          <th>種別</th>
+          <th class="num">行数</th>
+          <th>期間</th>
+          <th>状態</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>売上日計_202511.xlsx</td>
+          <td><span class="c-badge c-badge--brand">売上</span></td>
+          <td class="num">48,293</td>
+          <td>2025-11-01 — 11-30</td>
+          <td><span style="color: var(--c-success-dark);">計算済み</span></td>
+        </tr>
+        <tr>
+          <td>仕入実績_202511.csv</td>
+          <td><span class="c-badge c-badge--neutral">仕入</span></td>
+          <td class="num">12,841</td>
+          <td>2025-11-01 — 11-30</td>
+          <td><span style="color: var(--c-success-dark);">計算済み</span></td>
+        </tr>
+        <tr>
+          <td>予算_202511.xlsx</td>
+          <td><span class="c-badge c-badge--neutral">予算</span></td>
+          <td class="num">214</td>
+          <td>2025-11 月次</td>
+          <td><span style="color: var(--c-info-dark);">実行中…</span></td>
+        </tr>
+        <tr>
+          <td>天気_202511.csv</td>
+          <td><span class="c-badge c-badge--neutral">天気</span></td>
+          <td class="num">30</td>
+          <td>2025-11-01 — 11-30</td>
+          <td><span style="color: var(--theme-text3);">未計算</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+</body>
+</html>

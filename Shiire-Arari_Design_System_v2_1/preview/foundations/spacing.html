@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<title>Spacing — Shiire-Arari DS v2.1</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<link rel="stylesheet" href="../_preview.css">
+<style>
+  .sp-row {
+    display: grid; grid-template-columns: 120px 60px 1fr;
+    align-items: center; gap: var(--sp-6);
+    padding: var(--sp-3) 0;
+    border-bottom: 1px solid var(--theme-border);
+  }
+  .sp-row:last-child { border-bottom: 0; }
+  .sp-token { font-family: var(--font-mono); font-size: var(--fs-micro); color: #a5b4fc; background: var(--theme-active-bg); padding: 1px 5px; border-radius: var(--r-sm); width: fit-content; }
+  .sp-size { font-family: var(--font-mono); font-size: var(--fs-micro); color: var(--theme-text3); text-align: right; }
+  .sp-bar { height: 14px; background: linear-gradient(90deg, var(--c-primary), var(--c-purple-dark)); border-radius: 3px; }
+</style>
+</head>
+<body>
+<header class="pv-head">
+  <div>
+    <div class="pv-eyebrow">Foundations</div>
+    <div class="pv-title">Spacing</div>
+    <div class="pv-sub">3 / 4 / 6 / 8 / 10 / 12 / 14 / 16 / 18 / 20 / 24 の 12 段階。8px が「標準間隔」、4–6px が密な行内、10–12px がカード内。</div>
+  </div>
+  <div class="pv-meta">--sp-*</div>
+</header>
+
+<section class="pv-section">
+  <div class="pv-section-head">
+    <span class="pv-section-title">Scale</span>
+    <span class="pv-section-hint">px</span>
+  </div>
+  <div class="pv-example pv-example--stack">
+    <div class="sp-row"><span class="sp-token">--sp-1</span>  <span class="sp-size">3 px</span>  <div class="sp-bar" style="width: 3px;"></div></div>
+    <div class="sp-row"><span class="sp-token">--sp-2</span>  <span class="sp-size">4 px</span>  <div class="sp-bar" style="width: 4px;"></div></div>
+    <div class="sp-row"><span class="sp-token">--sp-3</span>  <span class="sp-size">6 px</span>  <div class="sp-bar" style="width: 6px;"></div></div>
+    <div class="sp-row"><span class="sp-token">--sp-4</span>  <span class="sp-size">8 px</span>  <div class="sp-bar" style="width: 8px;"></div></div>
+    <div class="sp-row"><span class="sp-token">--sp-5</span>  <span class="sp-size">10 px</span> <div class="sp-bar" style="width: 10px;"></div></div>
+    <div class="sp-row"><span class="sp-token">--sp-6</span>  <span class="sp-size">12 px</span> <div class="sp-bar" style="width: 12px;"></div></div>
+    <div class="sp-row"><span class="sp-token">--sp-7</span>  <span class="sp-size">14 px</span> <div class="sp-bar" style="width: 14px;"></div></div>
+    <div class="sp-row"><span class="sp-token">--sp-8</span>  <span class="sp-size">16 px</span> <div class="sp-bar" style="width: 16px;"></div></div>
+    <div class="sp-row"><span class="sp-token">--sp-9</span>  <span class="sp-size">18 px</span> <div class="sp-bar" style="width: 18px;"></div></div>
+    <div class="sp-row"><span class="sp-token">--sp-10</span> <span class="sp-size">20 px</span> <div class="sp-bar" style="width: 20px;"></div></div>
+    <div class="sp-row"><span class="sp-token">--sp-12</span> <span class="sp-size">24 px</span> <div class="sp-bar" style="width: 24px;"></div></div>
+  </div>
+</section>
+
+<section class="pv-section">
+  <div class="pv-section-head">
+    <span class="pv-section-title">Usage guideline</span>
+    <span class="pv-section-hint">よくある用途</span>
+  </div>
+  <div class="pv-example pv-example--stack" style="font-size: var(--fs-label); color: var(--theme-text2); line-height: 1.8;">
+    <div><span class="sp-token">--sp-2 / --sp-3</span>　チップ内・アイコンとテキスト間・アラインメント微調整</div>
+    <div><span class="sp-token">--sp-4</span>　既定の快適な間隔（row gap, flex gap）</div>
+    <div><span class="sp-token">--sp-5 / --sp-6</span>　カード内部パディング・KPI ラベルとバリューの間</div>
+    <div><span class="sp-token">--sp-8 / --sp-10</span>　セクション間・ページ余白</div>
+    <div><span class="sp-token">--sp-12</span>　大きな区切り・空ページの余白</div>
+  </div>
+</section>
+
+</body>
+</html>

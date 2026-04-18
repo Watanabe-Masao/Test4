@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<title>Button — Shiire-Arari DS v2.1</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<link rel="stylesheet" href="../../components.css">
+<link rel="stylesheet" href="../_preview.css">
+</head>
+<body>
+<header class="pv-head">
+  <div>
+    <div class="pv-eyebrow">Components</div>
+    <div class="pv-title">Button</div>
+    <div class="pv-sub">primary / success はブランドグラデーション。outline は inset box-shadow でボーダー表現。press 時は <span class="pv-code">scale(0.98)</span>、色は変えません。</div>
+  </div>
+  <div class="pv-meta">c-btn</div>
+</header>
+
+<section class="pv-section">
+  <div class="pv-section-head"><span class="pv-section-title">Variants</span><span class="pv-section-hint">c-btn--*</span></div>
+  <div class="pv-example">
+    <button class="c-btn c-btn--primary">インポート</button>
+    <button class="c-btn c-btn--success">計算開始</button>
+    <button class="c-btn c-btn--outline">編集</button>
+    <button class="c-btn c-btn--ghost">キャンセル</button>
+    <button class="c-btn c-btn--danger">削除</button>
+  </div>
+</section>
+
+<section class="pv-section">
+  <div class="pv-section-head"><span class="pv-section-title">Sizes</span><span class="pv-section-hint">c-btn--sm / (default) / c-btn--lg</span></div>
+  <div class="pv-example">
+    <button class="c-btn c-btn--primary c-btn--sm">保存</button>
+    <button class="c-btn c-btn--primary">保存</button>
+    <button class="c-btn c-btn--primary c-btn--lg">保存</button>
+  </div>
+</section>
+
+<section class="pv-section">
+  <div class="pv-section-head"><span class="pv-section-title">With icon</span><span class="pv-section-hint">emoji / unicode のみ</span></div>
+  <div class="pv-example">
+    <button class="c-btn c-btn--primary"><span>+</span>ウィジェット追加</button>
+    <button class="c-btn c-btn--outline"><span>📥</span>CSV ダウンロード</button>
+    <button class="c-btn c-btn--ghost">詳しく →</button>
+  </div>
+</section>
+
+<section class="pv-section">
+  <div class="pv-section-head"><span class="pv-section-title">Disabled</span><span class="pv-section-hint">[disabled] / aria-disabled</span></div>
+  <div class="pv-example">
+    <button class="c-btn c-btn--primary" disabled>保存</button>
+    <button class="c-btn c-btn--outline" aria-disabled="true">編集</button>
+  </div>
+</section>
+
+</body>
+</html>

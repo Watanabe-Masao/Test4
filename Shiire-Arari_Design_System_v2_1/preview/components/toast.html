@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<title>Toast — Shiire-Arari DS v2.1</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<link rel="stylesheet" href="../../components.css">
+<link rel="stylesheet" href="../_preview.css">
+<style>
+  /* Static arrangement — not fixed, so multiple variants render inline */
+  .t-stage { display: flex; flex-direction: column; gap: var(--sp-4); align-items: flex-end; }
+  .t-stage .c-toast { animation: none; position: static; }
+
+  .t-live { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: var(--sp-4); z-index: var(--z-toast); }
+</style>
+</head>
+<body>
+<header class="pv-head">
+  <div>
+    <div class="pv-eyebrow">Components · v2 addition</div>
+    <div class="pv-title">Toast</div>
+    <div class="pv-sub">右下スタック。左に 3px のステータスレイル、アイコン、タイトル + 説明、閉じるボタン。自動消去は呼び出し側で管理します。</div>
+  </div>
+  <div class="pv-meta">c-toast-wrap · c-toast</div>
+</header>
+
+<section class="pv-section">
+  <div class="pv-section-head"><span class="pv-section-title">Variants</span><span class="pv-section-hint">c-toast--{success,warning,danger,info}</span></div>
+  <div class="pv-example pv-example--stack">
+    <div class="t-stage">
+
+      <div class="c-toast c-toast--success">
+        <div class="c-toast__rail"></div>
+        <span class="c-toast__icon">✓</span>
+        <div class="c-toast__body">
+          <div class="c-toast__title">売上日計_202511.xlsx をインポートしました</div>
+          <div class="c-toast__desc">48,293 行 · 自動計算を開始</div>
+        </div>
+        <button class="c-toast__close" aria-label="閉じる">×</button>
+      </div>
+
+      <div class="c-toast c-toast--info">
+        <div class="c-toast__rail"></div>
+        <span class="c-toast__icon">ℹ</span>
+        <div class="c-toast__body">
+          <div class="c-toast__title">需要予測の計算が完了しました</div>
+          <div class="c-toast__desc">向こう 7 日の予測を反映済み</div>
+        </div>
+        <button class="c-toast__close" aria-label="閉じる">×</button>
+      </div>
+
+      <div class="c-toast c-toast--warning">
+        <div class="c-toast__rail"></div>
+        <span class="c-toast__icon">⚠</span>
+        <div class="c-toast__body">
+          <div class="c-toast__title">推定値で計算しています</div>
+          <div class="c-toast__desc">実在庫が未登録のため客単価は推定です</div>
+        </div>
+        <button class="c-toast__close" aria-label="閉じる">×</button>
+      </div>
+
+      <div class="c-toast c-toast--danger">
+        <div class="c-toast__rail"></div>
+        <span class="c-toast__icon">×</span>
+        <div class="c-toast__body">
+          <div class="c-toast__title">ファイル形式が不正です</div>
+          <div class="c-toast__desc">売上日計のヘッダ列が見つかりません</div>
+        </div>
+        <button class="c-toast__close" aria-label="閉じる">×</button>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="pv-section">
+  <div class="pv-section-head"><span class="pv-section-title">Live demo</span><span class="pv-section-hint">click で出す</span></div>
+  <div class="pv-example">
+    <button class="c-btn c-btn--primary" id="fire">トーストを出す</button>
+    <button class="c-btn c-btn--outline" id="fireErr">エラートースト</button>
+  </div>
+</section>
+
+<div class="t-live" id="live"></div>
+
+<script>
+  const live = document.getElementById('live');
+  const show = (kind, title, desc, icon) => {
+    const t = document.createElement('div');
+    t.className = `c-toast c-toast--${kind}`;
+    t.innerHTML = `
+      <div class="c-toast__rail"></div>
+      <span class="c-toast__icon">${icon}</span>
+      <div class="c-toast__body">
+        <div class="c-toast__title">${title}</div>
+        <div class="c-toast__desc">${desc}</div>
+      </div>
+      <button class="c-toast__close" aria-label="閉じる">×</button>
+    `;
+    live.appendChild(t);
+    t.querySelector('.c-toast__close').addEventListener('click', () => t.remove());
+    setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity 0.3s'; setTimeout(() => t.remove(), 300); }, 3200);
+  };
+  document.getElementById('fire').addEventListener('click', () => show('success', '保存しました', '予算を更新しました', '✓'));
+  document.getElementById('fireErr').addEventListener('click', () => show('danger', '保存に失敗しました', '再試行してください', '×'));
+</script>
+
+</body>
+</html>

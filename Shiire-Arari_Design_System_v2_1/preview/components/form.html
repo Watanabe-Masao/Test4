@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<title>Form — Shiire-Arari DS v2.1</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<link rel="stylesheet" href="../../components.css">
+<link rel="stylesheet" href="../_preview.css">
+<style>
+  .f-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-8); width: 100%; }
+  .f-full { grid-column: 1 / -1; }
+</style>
+</head>
+<body>
+<header class="pv-head">
+  <div>
+    <div class="pv-eyebrow">Components · v2 addition</div>
+    <div class="pv-title">Form</div>
+    <div class="pv-sub">Input / Select / Textarea / Checkbox / Radio。ボーダーは inset box-shadow 方式で、focus / error でもパディングが動きません。</div>
+  </div>
+  <div class="pv-meta">c-field · c-input · c-select · c-textarea · c-checkbox · c-radio</div>
+</header>
+
+<section class="pv-section">
+  <div class="pv-section-head"><span class="pv-section-title">Text / Number / Select</span><span class="pv-section-hint">標準入力</span></div>
+  <div class="pv-example pv-example--stack" style="align-items: stretch;">
+    <div class="f-grid">
+      <div class="c-field">
+        <label class="c-field__label">店舗コード</label>
+        <input class="c-input c-input--mono" placeholder="例: 101" value="101" />
+        <div class="c-field__hint">3桁の半角数字</div>
+      </div>
+
+      <div class="c-field">
+        <label class="c-field__label">期間</label>
+        <select class="c-select">
+          <option>月次</option>
+          <option selected>週次</option>
+          <option>日次</option>
+        </select>
+        <div class="c-field__hint">集計単位を選択</div>
+      </div>
+
+      <div class="c-field">
+        <label class="c-field__label">予算金額</label>
+        <input class="c-input c-input--mono" value="12,000,000" />
+        <div class="c-field__hint">税抜 · 円</div>
+      </div>
+
+      <div class="c-field">
+        <label class="c-field__label">目標粗利率</label>
+        <input class="c-input c-input--mono" value="24.5" />
+        <div class="c-field__hint">% 小数点第1位まで</div>
+      </div>
+
+      <div class="c-field f-full">
+        <label class="c-field__label">備考</label>
+        <textarea class="c-textarea" placeholder="例: 11月は季節商材の構成比を上げる">11月は季節商材（鍋・青果）の構成比を 5pt 上げる方針。</textarea>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pv-section">
+  <div class="pv-section-head"><span class="pv-section-title">Error state</span><span class="pv-section-hint">aria-invalid="true"</span></div>
+  <div class="pv-example">
+    <div class="c-field" style="min-width: 280px;">
+      <label class="c-field__label">店舗コード</label>
+      <input class="c-input c-input--mono" aria-invalid="true" value="10" />
+      <div class="c-field__error">3桁で入力してください</div>
+    </div>
+    <div class="c-field" style="min-width: 280px;">
+      <label class="c-field__label">予算金額</label>
+      <input class="c-input c-input--mono" aria-invalid="true" value="-1,000" />
+      <div class="c-field__error">0 以上の値を入力してください</div>
+    </div>
+  </div>
+</section>
+
+<section class="pv-section">
+  <div class="pv-section-head"><span class="pv-section-title">Checkbox / Radio</span><span class="pv-section-hint">トグル</span></div>
+  <div class="pv-example pv-example--stack">
+    <label class="c-checkbox"><input type="checkbox" checked /> 前年比較を表示</label>
+    <label class="c-checkbox"><input type="checkbox" /> 天気相関を含める</label>
+    <label class="c-checkbox"><input type="checkbox" checked /> 推定値もグラフに描画</label>
+    <div style="height: 1px; background: var(--theme-border); margin: var(--sp-2) 0;"></div>
+    <label class="c-radio"><input type="radio" name="scope" checked /> 全店舗で集計</label>
+    <label class="c-radio"><input type="radio" name="scope" /> 選択店舗のみ</label>
+    <label class="c-radio"><input type="radio" name="scope" /> エリア別で集計</label>
+  </div>
+</section>
+
+<section class="pv-section">
+  <div class="pv-section-head"><span class="pv-section-title">Disabled</span><span class="pv-section-hint">[disabled]</span></div>
+  <div class="pv-example">
+    <div class="c-field" style="min-width: 280px;">
+      <label class="c-field__label">計算日</label>
+      <input class="c-input c-input--mono" disabled value="2025-11-30" />
+      <div class="c-field__hint">自動取得 · 編集不可</div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

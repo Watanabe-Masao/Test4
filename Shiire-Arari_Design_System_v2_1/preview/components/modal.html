@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<title>Modal — Shiire-Arari DS v2.1</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<link rel="stylesheet" href="../../components.css">
+<link rel="stylesheet" href="../_preview.css">
+<style>
+  /* Static preview: we render the modal inline without the full-viewport backdrop so multiple
+     variants fit in the page. The real backdrop is demonstrated on the last example. */
+  .m-stage {
+    position: relative;
+    padding: var(--sp-8);
+    background:
+      radial-gradient(ellipse at 30% 20%, rgba(99,102,241,0.08), transparent 60%),
+      var(--theme-bg2);
+    border-radius: var(--r-lg);
+    border: 1px solid var(--theme-border);
+    display: flex; justify-content: center;
+  }
+  .m-stage .c-modal { position: static; animation: none; }
+  .m-field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-6); }
+
+  /* live demo */
+  .m-live { position: fixed; inset: 0; display: none; }
+  .m-live.is-open { display: flex; }
+  .m-trigger { }
+</style>
+</head>
+<body>
+<header class="pv-head">
+  <div>
+    <div class="pv-eyebrow">Components · v2 addition</div>
+    <div class="pv-title">Modal</div>
+    <div class="pv-sub">中央寄せ + バックドロップぼかし 12px。入場は spring。Head / Body / Foot の 3 セクション構造。</div>
+  </div>
+  <div class="pv-meta">c-modal-backdrop · c-modal</div>
+</header>
+
+<section class="pv-section">
+  <div class="pv-section-head"><span class="pv-section-title">Confirmation (default width)</span><span class="pv-section-hint">c-modal</span></div>
+  <div class="m-stage">
+    <div class="c-modal">
+      <div class="c-modal__head">
+        <div>
+          <div class="c-modal__title">このファイルを削除しますか？</div>
+          <div class="c-modal__subtitle">売上日計_202511.xlsx · 48,293 行</div>
+        </div>
+        <button class="c-modal__close" aria-label="閉じる">×</button>
+      </div>
+      <div class="c-modal__body">
+        削除すると関連する計算結果（粗利・要因分解・需要予測）もクリアされ、再度読み込みが必要になります。
+      </div>
+      <div class="c-modal__foot">
+        <button class="c-btn c-btn--ghost">キャンセル</button>
+        <button class="c-btn c-btn--danger">削除</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pv-section">
+  <div class="pv-section-head"><span class="pv-section-title">Edit form (wide)</span><span class="pv-section-hint">c-modal--wide</span></div>
+  <div class="m-stage">
+    <div class="c-modal c-modal--wide">
+      <div class="c-modal__head">
+        <div>
+          <div class="c-modal__title">予算を編集</div>
+          <div class="c-modal__subtitle">2025年11月 · 全店舗</div>
+        </div>
+        <button class="c-modal__close" aria-label="閉じる">×</button>
+      </div>
+      <div class="c-modal__body">
+        <div class="m-field-grid">
+          <div class="c-field">
+            <label class="c-field__label">売上予算</label>
+            <input class="c-input c-input--mono" value="12,000,000" />
+            <div class="c-field__hint">税抜 · 円</div>
+          </div>
+          <div class="c-field">
+            <label class="c-field__label">粗利予算</label>
+            <input class="c-input c-input--mono" value="2,940,000" />
+            <div class="c-field__hint">粗利率 24.5%</div>
+          </div>
+          <div class="c-field">
+            <label class="c-field__label">客数予算</label>
+            <input class="c-input c-input--mono" value="10,200" />
+            <div class="c-field__hint">人 · 月合計</div>
+          </div>
+          <div class="c-field">
+            <label class="c-field__label">配分方式</label>
+            <select class="c-select">
+              <option>前年同月の曜日構成比</option>
+              <option>均等配分</option>
+              <option>手動入力</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="c-modal__foot">
+        <button class="c-btn c-btn--ghost">キャンセル</button>
+        <button class="c-btn c-btn--primary">保存</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pv-section">
+  <div class="pv-section-head"><span class="pv-section-title">Live demo</span><span class="pv-section-hint">クリックで本物のバックドロップ付きで開く</span></div>
+  <div class="pv-example">
+    <button class="c-btn c-btn--primary m-trigger" id="openBtn">モーダルを開く</button>
+  </div>
+</section>
+
+<div class="c-modal-backdrop m-live" id="liveBd">
+  <div class="c-modal">
+    <div class="c-modal__head">
+      <div>
+        <div class="c-modal__title">サンプルモーダル</div>
+        <div class="c-modal__subtitle">バックドロップのぼかし効果を確認してください</div>
+      </div>
+      <button class="c-modal__close" aria-label="閉じる" id="closeBtn">×</button>
+    </div>
+    <div class="c-modal__body">
+      背景のダッシュボードが 12px ブラーでぼけ、前面のモーダルに自然な注目が集まります。
+    </div>
+    <div class="c-modal__foot">
+      <button class="c-btn c-btn--ghost" id="closeBtn2">閉じる</button>
+      <button class="c-btn c-btn--primary">OK</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const bd = document.getElementById('liveBd');
+  const open = document.getElementById('openBtn');
+  const close1 = document.getElementById('closeBtn');
+  const close2 = document.getElementById('closeBtn2');
+  open.addEventListener('click', () => bd.classList.add('is-open'));
+  [close1, close2, bd].forEach(el => el.addEventListener('click', (e) => {
+    if (e.target === bd || e.currentTarget === close1 || e.currentTarget === close2) {
+      bd.classList.remove('is-open');
+    }
+  }));
+</script>
+
+</body>
+</html>

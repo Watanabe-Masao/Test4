@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>Chart Semantic Colors — Shiire-Arari DS v2.1</title>
+  <link rel="stylesheet" href="../../colors_and_type.css">
+  <link rel="stylesheet" href="../../components.css">
+  <link rel="stylesheet" href="../_preview.css">
+  <style>
+    .sem-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: var(--sp-4);
+      margin-top: var(--sp-5);
+    }
+    .sem-card {
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-3);
+      padding: var(--sp-5);
+      background: var(--theme-bg3);
+      border: 1px solid var(--theme-border);
+      border-radius: var(--r-md);
+    }
+    .sem-swatches {
+      display: flex;
+      gap: var(--sp-2);
+      align-items: flex-end;
+    }
+    .sem-current {
+      width: 48px; height: 48px;
+      border-radius: var(--r-sm);
+      flex-shrink: 0;
+    }
+    .sem-prev {
+      width: 32px; height: 32px;
+      border-radius: var(--r-sm);
+      flex-shrink: 0;
+    }
+    .sem-meta { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+    .sem-jp {
+      font-family: var(--font-sans);
+      font-size: var(--fs-label);
+      font-weight: var(--fw-semibold);
+      color: var(--theme-text);
+    }
+    .sem-en {
+      font-family: var(--font-mono);
+      font-size: var(--fs-micro);
+      color: var(--theme-text3);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .sem-hex {
+      font-family: var(--font-mono);
+      font-size: var(--fs-micro);
+      color: var(--theme-text3);
+    }
+    .line-demo {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-3);
+      margin-top: var(--sp-2);
+      padding-top: var(--sp-3);
+      border-top: 1px solid var(--theme-border);
+    }
+    .line-demo svg {
+      display: block;
+    }
+    .line-demo-label {
+      font-family: var(--font-mono);
+      font-size: var(--fs-micro);
+      color: var(--theme-text3);
+    }
+    .group-label {
+      font-family: var(--font-sans);
+      font-size: var(--fs-title);
+      font-weight: var(--fw-semibold);
+      color: var(--theme-text);
+      margin-top: var(--sp-10);
+      margin-bottom: var(--sp-3);
+    }
+  </style>
+</head>
+<body>
+
+<header class="pv-header">
+  <h1 class="pv-title">Chart Semantic Colors</h1>
+  <div class="pv-sub">
+    <code>theme.chart.semantic.*</code> に定義された「業務概念 → 色」の中央マッピング。
+    売上・粗利・客数・売変 … ごとに色を 1 つ決めきることで、画面間で色がずれる事故を防ぎます。
+    詳細は <code>docs/chart-semantic-colors.md</code>。
+  </div>
+  <nav class="pv-nav"><a href="../index.html">← 一覧へ戻る</a></nav>
+</header>
+
+<section class="pv-section">
+  <div class="group-label">当年 (実線・棒の主色) + 前年 (60% alpha)</div>
+
+  <div class="sem-grid">
+
+    <!-- 売上 -->
+    <div class="sem-card">
+      <div class="sem-swatches">
+        <div class="sem-current" style="background: var(--chart-sales);"></div>
+        <div class="sem-prev" style="background: var(--chart-sales-prev);"></div>
+        <div class="sem-meta">
+          <span class="sem-jp">売上</span>
+          <span class="sem-en">chart.semantic.sales</span>
+          <span class="sem-hex">#6366F1 · indigo</span>
+        </div>
+      </div>
+      <div class="line-demo">
+        <svg width="80" height="20" viewBox="0 0 80 20">
+          <polyline points="0,15 20,8 40,12 60,5 80,3" fill="none" stroke="var(--chart-sales)" stroke-width="2"/>
+        </svg>
+        <svg width="80" height="20" viewBox="0 0 80 20">
+          <polyline points="0,17 20,14 40,13 60,11 80,9" fill="none" stroke="var(--chart-sales-prev)" stroke-width="1.5" stroke-dasharray="3,3"/>
+        </svg>
+        <span class="line-demo-label">当年 / 前年</span>
+      </div>
+    </div>
+
+    <!-- 予算 -->
+    <div class="sem-card">
+      <div class="sem-swatches">
+        <div class="sem-current" style="background: var(--chart-budget-semantic);"></div>
+        <div class="sem-prev" style="background: var(--chart-budget-prev);"></div>
+        <div class="sem-meta">
+          <span class="sem-jp">予算</span>
+          <span class="sem-en">chart.semantic.budget</span>
+          <span class="sem-hex">#22C55E · green</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 粗利 -->
+    <div class="sem-card">
+      <div class="sem-swatches">
+        <div class="sem-current" style="background: var(--chart-gross-profit);"></div>
+        <div class="sem-prev" style="background: var(--chart-gross-profit-prev);"></div>
+        <div class="sem-meta">
+          <span class="sem-jp">粗利</span>
+          <span class="sem-en">chart.semantic.grossProfit</span>
+          <span class="sem-hex">#8B5CF6 · purple</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 粗利率 -->
+    <div class="sem-card">
+      <div class="sem-swatches">
+        <div class="sem-current" style="background: var(--chart-gross-profit-rate);"></div>
+        <div class="sem-meta">
+          <span class="sem-jp">粗利率</span>
+          <span class="sem-en">chart.semantic.grossProfitRate</span>
+          <span class="sem-hex">#8B5CF6 · purple (粗利と同色)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 客数 -->
+    <div class="sem-card">
+      <div class="sem-swatches">
+        <div class="sem-current" style="background: var(--chart-customers);"></div>
+        <div class="sem-prev" style="background: var(--chart-customers-prev);"></div>
+        <div class="sem-meta">
+          <span class="sem-jp">客数</span>
+          <span class="sem-en">chart.semantic.customers</span>
+          <span class="sem-hex">#06B6D4 · cyan</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 客単価 -->
+    <div class="sem-card">
+      <div class="sem-swatches">
+        <div class="sem-current" style="background: var(--chart-transaction-value);"></div>
+        <div class="sem-meta">
+          <span class="sem-jp">客単価</span>
+          <span class="sem-en">chart.semantic.transactionValue</span>
+          <span class="sem-hex">#8B5CF6 · purple</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 販売点数 -->
+    <div class="sem-card">
+      <div class="sem-swatches">
+        <div class="sem-current" style="background: var(--chart-quantity);"></div>
+        <div class="sem-prev" style="background: var(--chart-quantity-prev);"></div>
+        <div class="sem-meta">
+          <span class="sem-jp">販売点数</span>
+          <span class="sem-en">chart.semantic.quantity</span>
+          <span class="sem-hex">#0EA5E9 · sky</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 売変 -->
+    <div class="sem-card">
+      <div class="sem-swatches">
+        <div class="sem-current" style="background: var(--chart-discount);"></div>
+        <div class="sem-prev" style="background: var(--chart-discount-prev);"></div>
+        <div class="sem-meta">
+          <span class="sem-jp">売変 (値引き)</span>
+          <span class="sem-en">chart.semantic.discount</span>
+          <span class="sem-hex">#EF4444 · red</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 値入率 -->
+    <div class="sem-card">
+      <div class="sem-swatches">
+        <div class="sem-current" style="background: var(--chart-markup-rate);"></div>
+        <div class="sem-meta">
+          <span class="sem-jp">値入率</span>
+          <span class="sem-en">chart.semantic.markupRate</span>
+          <span class="sem-hex">#F59E0B · amber</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 仕入原価 -->
+    <div class="sem-card">
+      <div class="sem-swatches">
+        <div class="sem-current" style="background: var(--chart-purchase-cost);"></div>
+        <div class="sem-meta">
+          <span class="sem-jp">仕入原価</span>
+          <span class="sem-en">chart.semantic.purchaseCost</span>
+          <span class="sem-hex">#EA580C · orange</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="group-label">差異・状態</div>
+
+  <div class="sem-grid">
+    <div class="sem-card">
+      <div class="sem-swatches">
+        <div class="sem-current" style="background: var(--chart-positive);"></div>
+        <div class="sem-meta">
+          <span class="sem-jp">プラス差異</span>
+          <span class="sem-en">chart.semantic.positive</span>
+          <span class="sem-hex">#22C55E · success-dark</span>
+        </div>
+      </div>
+      <div class="line-demo-label" style="margin-top: var(--sp-2);">
+        棒グラフの正値表示用。Trend (↑) には <code>sc.positive</code> (sky) を使う
+      </div>
+    </div>
+    <div class="sem-card">
+      <div class="sem-swatches">
+        <div class="sem-current" style="background: var(--chart-negative);"></div>
+        <div class="sem-meta">
+          <span class="sem-jp">マイナス差異</span>
+          <span class="sem-en">chart.semantic.negative</span>
+          <span class="sem-hex">#EF4444 · danger-dark</span>
+        </div>
+      </div>
+      <div class="line-demo-label" style="margin-top: var(--sp-2);">
+        棒グラフの負値表示用。Trend (↓) には <code>sc.negative</code> (orange) を使う
+      </div>
+    </div>
+    <div class="sem-card">
+      <div class="sem-swatches">
+        <div class="sem-current" style="background: var(--chart-neutral);"></div>
+        <div class="sem-meta">
+          <span class="sem-jp">中立・基準線</span>
+          <span class="sem-en">chart.semantic.neutral</span>
+          <span class="sem-hex">#94A3B8 · slate</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="group-label">外部データ</div>
+
+  <div class="sem-grid">
+    <div class="sem-card">
+      <div class="sem-swatches">
+        <div class="sem-current" style="background: var(--chart-temp-high);"></div>
+        <div class="sem-meta">
+          <span class="sem-jp">気温 (高温)</span>
+          <span class="sem-en">chart.semantic.tempHigh</span>
+          <span class="sem-hex">#EF4444 · red</span>
+        </div>
+      </div>
+    </div>
+    <div class="sem-card">
+      <div class="sem-swatches">
+        <div class="sem-current" style="background: var(--chart-temp-low);"></div>
+        <div class="sem-meta">
+          <span class="sem-jp">気温 (低温)</span>
+          <span class="sem-en">chart.semantic.tempLow</span>
+          <span class="sem-hex">#6366F1 · primary</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="group-label">分析</div>
+
+  <div class="sem-grid">
+    <div class="sem-card">
+      <div class="sem-swatches">
+        <div class="sem-current" style="background: var(--chart-moving-average);"></div>
+        <div class="sem-meta">
+          <span class="sem-jp">移動平均 (売上)</span>
+          <span class="sem-en">chart.semantic.movingAverage</span>
+          <span class="sem-hex">#6366F1 · primary</span>
+        </div>
+      </div>
+    </div>
+    <div class="sem-card">
+      <div class="sem-swatches">
+        <div class="sem-current" style="background: var(--chart-moving-average-metric);"></div>
+        <div class="sem-meta">
+          <span class="sem-jp">移動平均 (右軸指標)</span>
+          <span class="sem-en">chart.semantic.movingAverageMetric</span>
+          <span class="sem-hex">#F97316 · orange</span>
+        </div>
+      </div>
+      <div class="line-demo-label" style="margin-top: var(--sp-2);">
+        点数・客数・売変の右軸 MA overlay 用
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pv-section">
+  <h2 class="pv-section-title">設計ルール</h2>
+  <ul class="pv-list">
+    <li>新規チャート実装時は <strong>必ず</strong> <code>theme.chart.semantic.*</code> から色を拾う。hex をインラインで書かない</li>
+    <li>概念名で書く (「売上」は <code>semantic.sales</code>)。palette 直接参照 (<code>palette.primary</code>) はしない</li>
+    <li>前年比較は当年色 + 60% alpha の <code>*Prev</code> を使用。破線で描画</li>
+    <li>trend (↑↓) には <code>sc.positive</code> / <code>sc.negative</code> (CUD)、棒の正負には <code>chart.semantic.positive</code> / <code>negative</code> (status) という住み分け</li>
+    <li>新しい業務概念が必要になったら <code>ChartSemanticColors</code> interface に追加 → 再ビルドで型チェックが通ることを確認</li>
+  </ul>
+</section>
+
+</body>
+</html>

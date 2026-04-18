@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" width="36" height="36">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1"></stop>
+      <stop offset="100%" stop-color="#8b5cf6"></stop>
+    </linearGradient>
+  </defs>
+  <rect width="36" height="36" rx="12" fill="url(#g)"></rect>
+  <text x="18" y="25" text-anchor="middle" font-family="&#39;Noto Sans JP&#39;, sans-serif" font-size="20" font-weight="700" fill="#ffffff">荒</text>
+</svg>

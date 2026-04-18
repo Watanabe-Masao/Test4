@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Shiire-Arari Design System v2.1</title>
+<link rel="stylesheet" href="../colors_and_type.css" />
+<link rel="icon" href="../assets/logo.svg" />
+<style>
+  html, body { margin: 0; height: 100%; background: var(--theme-bg); color: var(--theme-text); font-family: var(--font-sans); }
+  body { display: grid; grid-template-columns: 260px 1fr; height: 100vh; overflow: hidden; }
+
+  .p-side {
+    background: var(--theme-bg2);
+    border-right: 1px solid var(--theme-border);
+    display: flex; flex-direction: column;
+    overflow-y: auto;
+  }
+  .p-brand {
+    display: flex; align-items: center; gap: var(--sp-5);
+    padding: var(--sp-8);
+    border-bottom: 1px solid var(--theme-border);
+  }
+  .p-logo {
+    width: 36px; height: 36px;
+    border-radius: var(--r-lg);
+    background: linear-gradient(135deg, var(--c-primary), var(--c-purple-dark));
+    color: #fff; display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 700;
+  }
+  .p-brand-text { display: flex; flex-direction: column; gap: 2px; line-height: 1.2; }
+  .p-brand-title { font-size: var(--fs-title); font-weight: var(--fw-bold); letter-spacing: -0.01em; }
+  .p-brand-sub { font-size: var(--fs-micro); color: var(--theme-text3); }
+  .p-brand-ver { font-family: var(--font-mono); font-size: var(--fs-micro); color: #a5b4fc; background: var(--theme-active-bg); padding: 1px 5px; border-radius: var(--r-sm); }
+
+  .p-nav { padding: var(--sp-6) var(--sp-5); display: flex; flex-direction: column; gap: var(--sp-8); flex: 1; }
+  .p-section { display: flex; flex-direction: column; gap: var(--sp-2); }
+  .p-section-head {
+    font-size: var(--fs-micro); font-weight: var(--fw-semibold); color: var(--theme-text3);
+    text-transform: uppercase; letter-spacing: 0.04em;
+    padding: 0 var(--sp-4); margin-bottom: var(--sp-2);
+  }
+  .p-item {
+    all: unset; cursor: pointer; display: block;
+    padding: var(--sp-3) var(--sp-4);
+    font-size: var(--fs-label); color: var(--theme-text2);
+    border-radius: var(--r-md);
+    transition: background var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+  }
+  .p-item:hover { background: var(--theme-hover-bg); color: var(--theme-text); }
+  .p-item.is-on {
+    background: var(--theme-active-bg);
+    color: #a5b4fc;
+    font-weight: var(--fw-semibold);
+  }
+
+  .p-side-foot {
+    padding: var(--sp-6) var(--sp-8);
+    border-top: 1px solid var(--theme-border);
+    display: flex; gap: var(--sp-3); align-items: center;
+    font-size: var(--fs-micro); color: var(--theme-text3);
+  }
+  .p-toggle {
+    all: unset; cursor: pointer;
+    padding: var(--sp-2) var(--sp-4);
+    border-radius: var(--r-sm);
+    background: var(--theme-bg3);
+    border: 1px solid var(--theme-border);
+    font-size: var(--fs-micro); color: var(--theme-text2);
+    font-family: var(--font-sans);
+  }
+  .p-toggle:hover { background: var(--theme-hover-bg); color: var(--theme-text); }
+
+  .p-main { display: flex; flex-direction: column; overflow: hidden; }
+  .p-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: var(--sp-5) var(--sp-10);
+    border-bottom: 1px solid var(--theme-border);
+    background: var(--theme-bg);
+  }
+  .p-crumb { display: flex; align-items: center; gap: var(--sp-3); font-size: var(--fs-micro); color: var(--theme-text3); text-transform: uppercase; letter-spacing: 0.04em; }
+  .p-crumb-current { color: var(--theme-text2); font-weight: var(--fw-semibold); }
+  .p-crumb-sep { color: var(--theme-text4); }
+  .p-meta { font-family: var(--font-mono); font-size: var(--fs-micro); color: var(--theme-text3); }
+
+  .p-frame { flex: 1; border: 0; width: 100%; background: var(--theme-bg); }
+
+  .p-welcome { padding: var(--sp-12) var(--sp-12); max-width: 780px; overflow-y: auto; }
+  .p-welcome h1 { font-size: var(--fs-heading); font-weight: var(--fw-bold); letter-spacing: -0.01em; margin: 0 0 var(--sp-4); }
+  .p-welcome p { font-size: var(--fs-body); color: var(--theme-text2); line-height: 1.7; margin: 0 0 var(--sp-8); }
+  .p-welcome h2 { font-size: var(--fs-title); font-weight: var(--fw-semibold); margin: var(--sp-10) 0 var(--sp-4); }
+  .p-welcome code { font-family: var(--font-mono); font-size: 0.9em; background: var(--theme-bg3); padding: 1px 6px; border-radius: var(--r-sm); border: 1px solid var(--theme-border); }
+  .p-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--sp-6); margin-top: var(--sp-6); }
+  .p-quick {
+    display: flex; flex-direction: column; gap: var(--sp-3);
+    background: var(--theme-bg3);
+    border: 1px solid var(--theme-border);
+    border-radius: var(--r-lg);
+    padding: var(--sp-8);
+  }
+  .p-quick-title { font-size: var(--fs-label); font-weight: var(--fw-semibold); color: var(--theme-text); }
+  .p-quick-desc { font-size: var(--fs-micro); color: var(--theme-text3); line-height: 1.6; }
+</style>
+</head>
+<body>
+  <aside class="p-side">
+    <div class="p-brand">
+      <div class="p-logo">荒</div>
+      <div class="p-brand-text">
+        <span class="p-brand-title">Design System <span class="p-brand-ver">v2.1</span></span>
+        <span class="p-brand-sub">仕入粗利管理ツール</span>
+      </div>
+    </div>
+
+    <nav class="p-nav">
+      <div class="p-section">
+        <div class="p-section-head">Getting Started</div>
+        <a class="p-item is-on" data-src="">概要</a>
+      </div>
+
+      <div class="p-section">
+        <div class="p-section-head">Foundations</div>
+        <a class="p-item" data-src="foundations/colors.html">Color</a>
+        <a class="p-item" data-src="foundations/typography.html">Typography</a>
+        <a class="p-item" data-src="foundations/spacing.html">Spacing</a>
+        <a class="p-item" data-src="foundations/radii.html">Radii</a>
+        <a class="p-item" data-src="foundations/shadows.html">Shadow &amp; Motion</a>
+        <a class="p-item" data-src="foundations/categorical.html">Category Gradients</a>
+      </div>
+
+      <div class="p-section">
+        <div class="p-section-head">Chart Semantic</div>
+        <a class="p-item" data-src="chart-semantic/index.html">Business Concept Colors</a>
+      </div>
+
+      <div class="p-section">
+        <div class="p-section-head">Components</div>
+        <a class="p-item" data-src="components/buttons.html">Button</a>
+        <a class="p-item" data-src="components/badges.html">Badge</a>
+        <a class="p-item" data-src="components/chips.html">Chip Group</a>
+        <a class="p-item" data-src="components/kpi.html">KPI Card</a>
+        <a class="p-item" data-src="components/table.html">Table</a>
+        <a class="p-item" data-src="components/form.html">Form</a>
+        <a class="p-item" data-src="components/modal.html">Modal</a>
+        <a class="p-item" data-src="components/toast.html">Toast</a>
+        <a class="p-item" data-src="components/tooltip.html">Tooltip</a>
+        <a class="p-item" data-src="components/empty.html">Empty State</a>
+        <a class="p-item" data-src="components/dot.html">Status Dot</a>
+      </div>
+
+      <div class="p-section">
+        <div class="p-section-head">Patterns</div>
+        <a class="p-item" data-src="patterns/dashboard.html">Dashboard</a>
+        <a class="p-item" data-src="patterns/data-import.html">Data Import</a>
+      </div>
+
+      <div class="p-section">
+        <div class="p-section-head">UI Kit</div>
+        <a class="p-item" data-src="../ui_kits/app/index.html">Full App Prototype</a>
+      </div>
+    </nav>
+
+    <div class="p-side-foot">
+      <button class="p-toggle" id="themeToggle">🌙 Dark</button>
+      <span>v2.1.0</span>
+    </div>
+  </aside>
+
+  <main class="p-main">
+    <div class="p-bar">
+      <div class="p-crumb">
+        <span>Design System</span>
+        <span class="p-crumb-sep">/</span>
+        <span class="p-crumb-current" id="crumb">概要</span>
+      </div>
+      <div class="p-meta" id="meta">index</div>
+    </div>
+
+    <section class="p-welcome" id="welcome">
+      <h1>仕入粗利管理ツール — Design System v2.1</h1>
+      <p>
+        本体コード <code>Watanabe-Masao/Test4</code> の
+        <code>app/src/presentation/theme/</code> 配下
+        (<code>tokens.ts</code> / <code>theme.ts</code> / <code>semanticColors.ts</code> / <code>colorSystem.ts</code>)
+        を正本として、その語彙を外部に説明する documentation layer です。
+        左のナビから Foundations・Components・Patterns を順に確認できます。
+      </p>
+
+      <h2>v2.1 の立場</h2>
+      <p>
+        v2.0 は「本体に提案するトークン仕様」として書かれていましたが、実装を確認した結果、
+        本体は既に意味層 (<code>theme.colors.*</code> / <code>interactive.*</code> / <code>chart.semantic.*</code>) と
+        ライト/ダーク両テーマを備えていました。v2.1 は提案書ではなく、
+        <strong>本体実装の外部 documentation</strong> として書き直したものです。
+        本体コードの変更は伴いません。詳細は <code>docs/v2-to-v2.1-changes.md</code>。
+      </p>
+
+      <h2>トークン層</h2>
+      <p>
+        Layer 1 <code>--c-*</code> (palette: <code>tokens.ts</code>) の上に、
+        Layer 2 <code>--theme-*</code> (<code>theme.ts</code> の <code>darkColors</code>/<code>lightColors</code>) と
+        業務概念色 <code>--chart-*</code> (<code>chart.semantic.*</code>)、
+        取引区分グラデーション <code>--gradient-*</code> (<code>categoryGradients</code>: ti/to/bi/bo 他) が乗ります。
+        トレンド UI には CUD-safe の <code>--c-positive/negative/caution</code> (semanticColors.ts の <code>sc.*</code>) を使用。
+      </p>
+
+      <h2>目次</h2>
+      <div class="p-cards">
+        <div class="p-quick">
+          <span class="p-quick-title">Foundations</span>
+          <span class="p-quick-desc">色・タイポグラフィ・余白・角丸・シャドウ・モーションの基礎トークン。Category Gradients は取引区分 (ti/to/bi/bo) のページに。</span>
+        </div>
+        <div class="p-quick">
+          <span class="p-quick-title">Components</span>
+          <span class="p-quick-desc">Button から Toast まで 13 コンポーネント。Layer 2 トークン参照のみで構築。</span>
+        </div>
+        <div class="p-quick">
+          <span class="p-quick-title">Chart Semantic</span>
+          <span class="p-quick-desc">業務概念 (売上・粗利・客数・売変 …) ごとの色マップ。Test4 の中央設定を可視化。</span>
+        </div>
+        <div class="p-quick">
+          <span class="p-quick-title">Patterns</span>
+          <span class="p-quick-desc">ダッシュボード・データインポートなど、実際の画面構成例。</span>
+        </div>
+        <div class="p-quick">
+          <span class="p-quick-title">UI Kit</span>
+          <span class="p-quick-desc">React のクリックスルー試作機。ダッシュボード全体を通しで確認できます。</span>
+        </div>
+      </div>
+    </section>
+
+    <iframe class="p-frame" id="frame" style="display:none" title="preview"></iframe>
+  </main>
+
+<script>
+  const frame = document.getElementById('frame');
+  const welcome = document.getElementById('welcome');
+  const crumb = document.getElementById('crumb');
+  const meta = document.getElementById('meta');
+  const items = document.querySelectorAll('.p-item');
+  const toggle = document.getElementById('themeToggle');
+
+  function select(el) {
+    items.forEach(i => i.classList.toggle('is-on', i === el));
+    const src = el.getAttribute('data-src');
+    crumb.textContent = el.textContent.trim();
+    if (!src) {
+      frame.style.display = 'none';
+      welcome.style.display = '';
+      meta.textContent = 'index';
+    } else {
+      welcome.style.display = 'none';
+      frame.style.display = '';
+      frame.src = src;
+      meta.textContent = src;
+    }
+  }
+
+  items.forEach(el => el.addEventListener('click', (e) => {
+    e.preventDefault();
+    select(el);
+  }));
+
+  function applyTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    toggle.textContent = t === 'dark' ? '🌙 Dark' : '☀️ Light';
+    try {
+      const doc = frame.contentDocument;
+      if (doc) doc.documentElement.setAttribute('data-theme', t);
+    } catch (_) {}
+  }
+  toggle.addEventListener('click', () => {
+    const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    applyTheme(t);
+  });
+  frame.addEventListener('load', () => {
+    applyTheme(document.documentElement.getAttribute('data-theme') || 'dark');
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<title>Typography — Shiire-Arari DS v2.1</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<link rel="stylesheet" href="../_preview.css">
+<style>
+  .t-row {
+    display: grid; grid-template-columns: 100px 140px 60px 1fr;
+    align-items: baseline; gap: var(--sp-6);
+    padding: var(--sp-5) 0;
+    border-bottom: 1px solid var(--theme-border);
+  }
+  .t-row:last-child { border-bottom: 0; }
+  .t-role { font-size: var(--fs-label); font-weight: var(--fw-semibold); color: var(--theme-text); }
+  .t-token { font-family: var(--font-mono); font-size: var(--fs-micro); color: #a5b4fc; background: var(--theme-active-bg); padding: 1px 5px; border-radius: var(--r-sm); width: fit-content; }
+  .t-size  { font-family: var(--font-mono); font-size: var(--fs-micro); color: var(--theme-text3); text-align: right; }
+  .w-row { display: grid; grid-template-columns: 160px 1fr; gap: var(--sp-6); align-items: baseline; padding: var(--sp-3) 0; border-bottom: 1px solid var(--theme-border); }
+  .w-row:last-child { border-bottom: 0; }
+</style>
+</head>
+<body>
+<header class="pv-head">
+  <div>
+    <div class="pv-eyebrow">Foundations</div>
+    <div class="pv-title">Typography</div>
+    <div class="pv-sub">Body は Noto Sans JP、数値はすべて JetBrains Mono + tabular-nums。サイズスケールは小さめで、1px が情報量です。</div>
+  </div>
+  <div class="pv-meta">--font-sans / --font-mono</div>
+</header>
+
+<section class="pv-section">
+  <div class="pv-section-head">
+    <span class="pv-section-title">Scale (role-based)</span>
+    <span class="pv-section-hint">--fs-*</span>
+  </div>
+  <div class="pv-example pv-example--stack">
+    <div class="t-row">
+      <span class="t-role">display</span><span class="t-token">--fs-display</span><span class="t-size">22.4px</span>
+      <div style="font-size: var(--fs-display); font-weight: var(--fw-bold); color: var(--theme-text); letter-spacing: -0.01em;">全店舗ダッシュボード</div>
+    </div>
+    <div class="t-row">
+      <span class="t-role">heading</span><span class="t-token">--fs-heading</span><span class="t-size">17.6px</span>
+      <div style="font-size: var(--fs-heading); font-weight: var(--fw-bold); color: var(--theme-text);">仕入粗利管理ツール</div>
+    </div>
+    <div class="t-row">
+      <span class="t-role">title</span><span class="t-token">--fs-title</span><span class="t-size">14.4px</span>
+      <div style="font-size: var(--fs-title); font-weight: var(--fw-semibold); color: var(--theme-text);">日別売上推移</div>
+    </div>
+    <div class="t-row">
+      <span class="t-role">body</span><span class="t-token">--fs-body</span><span class="t-size">12.5px</span>
+      <div style="font-size: var(--fs-body); color: var(--theme-text); line-height: 1.5;">左のサイドバーからファイルをドラッグ＆ドロップすると自動で計算されます。</div>
+    </div>
+    <div class="t-row">
+      <span class="t-role">label</span><span class="t-token">--fs-label</span><span class="t-size">10.9px</span>
+      <div style="font-size: var(--fs-label); font-weight: var(--fw-medium); color: var(--theme-text2);">部門 / カテゴリ / 粗利率 / 値入率 / 客単価 / PI値</div>
+    </div>
+    <div class="t-row">
+      <span class="t-role">caption</span><span class="t-token">--fs-caption</span><span class="t-size">9.6px</span>
+      <div style="font-size: var(--fs-caption); color: var(--theme-text3);">2025年11月 · vs 予算 / 前年</div>
+    </div>
+    <div class="t-row">
+      <span class="t-role">micro</span><span class="t-token">--fs-micro</span><span class="t-size">8.8px</span>
+      <div style="font-size: var(--fs-micro); font-weight: var(--fw-semibold); color: var(--theme-text3); text-transform: uppercase; letter-spacing: 0.04em;">UPDATED 11/30 18:42</div>
+    </div>
+  </div>
+</section>
+
+<section class="pv-section">
+  <div class="pv-section-head">
+    <span class="pv-section-title">Numerics</span>
+    <span class="pv-section-hint">JetBrains Mono + font-variant-numeric: tabular-nums</span>
+  </div>
+  <div class="pv-example pv-example--stack">
+    <div class="w-row">
+      <span style="color: var(--theme-text3); font-size: var(--fs-micro); text-transform: uppercase; letter-spacing: 0.04em;">Hero (display)</span>
+      <div style="font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: var(--fs-display); font-weight: var(--fw-bold); color: var(--theme-text); letter-spacing: -0.01em;">¥12,483,200</div>
+    </div>
+    <div class="w-row">
+      <span style="color: var(--theme-text3); font-size: var(--fs-micro); text-transform: uppercase; letter-spacing: 0.04em;">Rate / Ratio</span>
+      <div style="font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: var(--fs-heading); font-weight: var(--fw-bold); color: var(--theme-text);">24.8 %</div>
+    </div>
+    <div class="w-row">
+      <span style="color: var(--theme-text3); font-size: var(--fs-micro); text-transform: uppercase; letter-spacing: 0.04em;">Table cell</span>
+      <div style="font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: var(--fs-label); color: var(--theme-text);">3,840,200 · 30.8% · 1.42 · 32.4%</div>
+    </div>
+    <div class="w-row">
+      <span style="color: var(--theme-text3); font-size: var(--fs-micro); text-transform: uppercase; letter-spacing: 0.04em;">Timestamp / meta</span>
+      <div style="font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: var(--fs-micro); color: var(--theme-text3);">2025-11-01 — 11-30 · 48,293 rows</div>
+    </div>
+  </div>
+</section>
+
+<section class="pv-section">
+  <div class="pv-section-head">
+    <span class="pv-section-title">Weight</span>
+    <span class="pv-section-hint">--fw-*</span>
+  </div>
+  <div class="pv-example pv-example--stack">
+    <div class="w-row"><span class="t-token">--fw-normal</span>    <span style="font-weight: 400;">仕入粗利管理ツールのベース本文に使用します</span></div>
+    <div class="w-row"><span class="t-token">--fw-medium</span>    <span style="font-weight: 500;">フォームラベルや表セルに使用します</span></div>
+    <div class="w-row"><span class="t-token">--fw-semibold</span>  <span style="font-weight: 600;">カードタイトル・サブヘッダに使用します</span></div>
+    <div class="w-row"><span class="t-token">--fw-bold</span>      <span style="font-weight: 700;">主見出し・KPI値に使用します</span></div>
+    <div class="w-row"><span class="t-token">--fw-extrabold</span> <span style="font-weight: 800;">ごく稀。ロゴ関連のみ。</span></div>
+  </div>
+</section>
+
+</body>
+</html>

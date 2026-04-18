@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard Pattern — Shiire-Arari DS v2.1</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<link rel="stylesheet" href="../../components.css">
+<link rel="stylesheet" href="../_preview.css">
+<style>
+  .d-page { display: flex; flex-direction: column; gap: var(--sp-8); }
+  .d-toolbar {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    padding-bottom: var(--sp-4);
+    border-bottom: 1px solid var(--theme-border);
+  }
+  .d-toolbar-left { display: flex; flex-direction: column; gap: 2px; }
+  .d-crumb {
+    display: flex; align-items: center; gap: var(--sp-2);
+    font-size: var(--fs-micro); color: var(--theme-text3);
+    text-transform: uppercase; letter-spacing: 0.03em;
+  }
+  .d-crumb-current { color: var(--theme-text2); font-weight: var(--fw-semibold); }
+  .d-crumb-sep { color: var(--theme-text4); }
+  .d-title { font-size: var(--fs-heading); font-weight: var(--fw-bold); letter-spacing: -0.01em; }
+  .d-toolbar-right { display: flex; gap: var(--sp-4); align-items: center; }
+
+  .d-kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-6); }
+  .d-widget-row { display: grid; grid-template-columns: 2fr 1fr; gap: var(--sp-6); }
+
+  .d-chart-card {
+    background: var(--theme-bg3);
+    border: 1px solid var(--theme-border);
+    border-radius: var(--r-lg);
+    box-shadow: var(--sh-sm);
+    display: flex; flex-direction: column;
+  }
+  .d-chart-head {
+    padding: var(--sp-6) var(--sp-6) var(--sp-3);
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: var(--sp-6);
+  }
+  .d-chart-title { font-size: var(--fs-title); font-weight: var(--fw-semibold); color: var(--theme-text); }
+  .d-chart-subtitle { font-size: var(--fs-micro); color: var(--theme-text3); margin-top: 2px; }
+  .d-chart-body { padding: 0 var(--sp-6) var(--sp-6); }
+
+  /* mini charts */
+  .d-line-svg { width: 100%; height: 200px; display: block; }
+  .d-bar-row { display: grid; grid-template-columns: 110px 1fr 120px; align-items: center; gap: var(--sp-4); padding: var(--sp-3) 0; border-bottom: 1px solid var(--theme-border); }
+  .d-bar-row:last-child { border-bottom: 0; }
+  .d-bar-name { font-size: var(--fs-label); color: var(--theme-text2); }
+  .d-bar-wrap { position: relative; height: 10px; background: var(--theme-subtle-bg); border-radius: var(--r-sm); overflow: hidden; }
+  .d-bar-mid { position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--theme-text4); }
+  .d-bar { position: absolute; top: 0; height: 100%; border-radius: var(--r-sm); }
+  .d-bar.pos { background: var(--c-positive); }
+  .d-bar.neg { background: var(--c-negative); }
+  .d-bar-val { font-family: var(--font-mono); font-size: var(--fs-label); font-weight: var(--fw-semibold); text-align: right; color: var(--theme-text); }
+</style>
+</head>
+<body>
+<header class="pv-head">
+  <div>
+    <div class="pv-eyebrow">Patterns</div>
+    <div class="pv-title">Dashboard</div>
+    <div class="pv-sub">Toolbar + KPI × 4 + チャート + 要因分解。製品のトップ画面で最もよく見る構成。v1 で存在した形を v2 トークンで組み直したもの。</div>
+  </div>
+  <div class="pv-meta">c-kpi · c-chipgroup · c-badge</div>
+</header>
+
+<div class="d-page">
+
+  <!-- Toolbar -->
+  <div class="d-toolbar">
+    <div class="d-toolbar-left">
+      <div class="d-crumb">
+        <span>ホーム</span>
+        <span class="d-crumb-sep">/</span>
+        <span class="d-crumb-current">ダッシュボード</span>
+      </div>
+      <div class="d-title">全店舗ダッシュボード</div>
+    </div>
+    <div class="d-toolbar-right">
+      <div class="c-chipgroup">
+        <button class="c-chip">年次</button>
+        <button class="c-chip" aria-selected="true">月次</button>
+        <button class="c-chip">週次</button>
+        <button class="c-chip">日次</button>
+      </div>
+      <button class="c-btn c-btn--outline">並べ替え</button>
+      <button class="c-btn c-btn--primary">+ ウィジェット</button>
+    </div>
+  </div>
+
+  <!-- KPI row -->
+  <div class="d-kpi-row">
+    <div class="c-kpi c-kpi--accent" style="--c-accent: var(--c-primary);">
+      <div class="c-kpi__label">売上 <span class="c-badge c-badge--success">達成</span></div>
+      <div class="c-kpi__row">
+        <span class="c-kpi__value"><span class="c-kpi__unit">¥</span>12,483,200</span>
+        <span class="c-kpi__trend c-kpi__trend--up">↑ 4.0%</span>
+      </div>
+      <div class="c-kpi__sub">予算 ¥12,000,000</div>
+      <div class="c-kpi__formula">= Σ(日別売上)</div>
+    </div>
+
+    <div class="c-kpi c-kpi--accent" style="--c-accent: var(--c-success-dark);">
+      <div class="c-kpi__label">粗利 <span class="c-badge c-badge--info">実在庫</span></div>
+      <div class="c-kpi__row">
+        <span class="c-kpi__value"><span class="c-kpi__unit">¥</span>3,095,800</span>
+        <span class="c-kpi__trend c-kpi__trend--up">↑ 1.2pt</span>
+      </div>
+      <div class="c-kpi__sub">粗利率 24.8%</div>
+      <div class="c-kpi__formula">= 売上 − 原価</div>
+    </div>
+
+    <div class="c-kpi c-kpi--accent" style="--c-accent: var(--c-cyan-dark);">
+      <div class="c-kpi__label">客数</div>
+      <div class="c-kpi__row">
+        <span class="c-kpi__value">9,724<span class="c-kpi__unit">人</span></span>
+        <span class="c-kpi__trend c-kpi__trend--down">↓ 0.8%</span>
+      </div>
+      <div class="c-kpi__sub">PI値 1.24 / 日</div>
+      <div class="c-kpi__formula">= Σ(レシート)</div>
+    </div>
+
+    <div class="c-kpi c-kpi--accent" style="--c-accent: var(--c-purple-dark);">
+      <div class="c-kpi__label">客単価 <span class="c-badge c-badge--warning">推定</span></div>
+      <div class="c-kpi__row">
+        <span class="c-kpi__value"><span class="c-kpi__unit">¥</span>1,284</span>
+        <span class="c-kpi__trend c-kpi__trend--down">↓ 2.1%</span>
+      </div>
+      <div class="c-kpi__sub">2,501 点</div>
+      <div class="c-kpi__formula">= 売上 ÷ 客数</div>
+    </div>
+  </div>
+
+  <!-- Widget row -->
+  <div class="d-widget-row">
+
+    <div class="d-chart-card">
+      <div class="d-chart-head">
+        <div>
+          <div class="d-chart-title">日別売上推移</div>
+          <div class="d-chart-subtitle">2025年11月 · vs 予算 / 前年</div>
+        </div>
+        <div class="c-chipgroup">
+          <button class="c-chip" aria-selected="true">売上</button>
+          <button class="c-chip">予算</button>
+          <button class="c-chip">前年</button>
+        </div>
+      </div>
+      <div class="d-chart-body">
+        <!-- SVG mini line chart -->
+        <svg class="d-line-svg" viewBox="0 0 600 200" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"  stop-color="#6366f1" stop-opacity="0.35"/>
+              <stop offset="100%" stop-color="#6366f1" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <!-- grid -->
+          <g stroke="rgba(255,255,255,0.05)" stroke-width="1">
+            <line x1="0" y1="40"  x2="600" y2="40"/>
+            <line x1="0" y1="100" x2="600" y2="100"/>
+            <line x1="0" y1="160" x2="600" y2="160"/>
+          </g>
+          <!-- budget (dashed) -->
+          <polyline fill="none" stroke="#22c55e" stroke-width="1.5" stroke-dasharray="3 4"
+            points="0,70 60,68 120,66 180,64 240,62 300,60 360,58 420,56 480,54 540,52 600,50"/>
+          <!-- prev year (dashed) -->
+          <polyline fill="none" stroke="#64748b" stroke-width="1.5" stroke-dasharray="2 3"
+            points="0,110 60,118 120,98 180,124 240,112 300,106 360,128 420,102 480,116 540,108 600,118"/>
+          <!-- sales (solid + area) -->
+          <path d="M0,96 L60,90 L120,78 L180,86 L240,70 L300,62 L360,82 L420,58 L480,64 L540,48 L600,54 L600,200 L0,200 Z" fill="url(#g1)"/>
+          <polyline fill="none" stroke="#6366f1" stroke-width="2"
+            points="0,96 60,90 120,78 180,86 240,70 300,62 360,82 420,58 480,64 540,48 600,54"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="d-chart-card">
+      <div class="d-chart-head">
+        <div>
+          <div class="d-chart-title">売上要因分解</div>
+          <div class="d-chart-subtitle">前年比 · ¥251,000</div>
+        </div>
+        <div style="font-family: var(--font-mono); font-size: var(--fs-title); font-weight: 700; color: var(--c-positive);">+¥251K</div>
+      </div>
+      <div class="d-chart-body">
+        <div class="d-bar-row">
+          <span class="d-bar-name">客数</span>
+          <div class="d-bar-wrap"><div class="d-bar-mid"></div><div class="d-bar pos" style="left: 50%; width: 40%;"></div></div>
+          <span class="d-bar-val" style="color: var(--c-positive);">+184,500</span>
+        </div>
+        <div class="d-bar-row">
+          <span class="d-bar-name">客単価</span>
+          <div class="d-bar-wrap"><div class="d-bar-mid"></div><div class="d-bar pos" style="left: 50%; width: 20%;"></div></div>
+          <span class="d-bar-val" style="color: var(--c-positive);">+92,300</span>
+        </div>
+        <div class="d-bar-row">
+          <span class="d-bar-name">販売点数</span>
+          <div class="d-bar-wrap"><div class="d-bar-mid"></div><div class="d-bar neg" style="right: 50%; width: 9%;"></div></div>
+          <span class="d-bar-val" style="color: var(--c-negative);">−41,200</span>
+        </div>
+        <div class="d-bar-row">
+          <span class="d-bar-name">価格</span>
+          <div class="d-bar-wrap"><div class="d-bar-mid"></div><div class="d-bar pos" style="left: 50%; width: 7%;"></div></div>
+          <span class="d-bar-val" style="color: var(--c-positive);">+33,800</span>
+        </div>
+        <div class="d-bar-row">
+          <span class="d-bar-name">構成比</span>
+          <div class="d-bar-wrap"><div class="d-bar-mid"></div><div class="d-bar neg" style="right: 50%; width: 4%;"></div></div>
+          <span class="d-bar-val" style="color: var(--c-negative);">−18,400</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Category table -->
+  <div class="d-chart-card">
+    <div class="d-chart-head">
+      <div>
+        <div class="d-chart-title">部門別サマリー</div>
+        <div class="d-chart-subtitle">売上 · 構成比 · 粗利率 · PI値 · 前年比</div>
+      </div>
+      <div class="c-chipgroup">
+        <button class="c-chip" aria-selected="true">部門</button>
+        <button class="c-chip">ライン</button>
+        <button class="c-chip">クラス</button>
+      </div>
+    </div>
+    <div style="padding: 0 0 var(--sp-6);">
+      <table class="c-table" style="width: 100%;">
+        <thead>
+          <tr>
+            <th style="padding-left: var(--sp-6);">部門</th>
+            <th class="num">売上</th>
+            <th class="num">構成比</th>
+            <th class="num">粗利率</th>
+            <th class="num">PI値</th>
+            <th class="num" style="padding-right: var(--sp-6);">前年比</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding-left: var(--sp-6);"><span class="c-table__dot" style="background: var(--gradient-ti)"></span>店間入</td>
+            <td class="num c-table__bar" style="--bar-w: 100%; --bar-color: var(--gradient-ti);"><span>3,840,200</span></td>
+            <td class="num">30.8%</td>
+            <td class="num">32.4%</td>
+            <td class="num">1.42</td>
+            <td class="num" style="color: var(--c-positive); padding-right: var(--sp-6);">↑ 5.2%</td>
+          </tr>
+          <tr>
+            <td style="padding-left: var(--sp-6);"><span class="c-table__dot" style="background: var(--gradient-to)"></span>店間出</td>
+            <td class="num c-table__bar" style="--bar-w: 68%; --bar-color: var(--gradient-to);"><span>2,615,800</span></td>
+            <td class="num">21.0%</td>
+            <td class="num">28.7%</td>
+            <td class="num">1.18</td>
+            <td class="num" style="color: var(--c-positive); padding-right: var(--sp-6);">↑ 2.8%</td>
+          </tr>
+          <tr>
+            <td style="padding-left: var(--sp-6);"><span class="c-table__dot" style="background: var(--gradient-bi)"></span>部門間入</td>
+            <td class="num c-table__bar" style="--bar-w: 51%; --bar-color: var(--gradient-bi);"><span>1,942,300</span></td>
+            <td class="num">15.6%</td>
+            <td class="num">24.1%</td>
+            <td class="num">0.92</td>
+            <td class="num" style="color: var(--c-negative); padding-right: var(--sp-6);">↓ 3.1%</td>
+          </tr>
+          <tr>
+            <td style="padding-left: var(--sp-6);"><span class="c-table__dot" style="background: var(--gradient-bo)"></span>部門間出</td>
+            <td class="num c-table__bar" style="--bar-w: 41%; --bar-color: var(--gradient-bo);"><span>1,588,400</span></td>
+            <td class="num">12.7%</td>
+            <td class="num">38.2%</td>
+            <td class="num">1.04</td>
+            <td class="num" style="color: var(--c-positive); padding-right: var(--sp-6);">↑ 8.4%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
