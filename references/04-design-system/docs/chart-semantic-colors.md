@@ -28,7 +28,15 @@ interface ChartSemanticColors {
   discount: string
   markupRate: string
   purchaseCost: string
-  // 前年 (60% alpha)
+  // 売変 subtype (DiscountType 71-74)
+  discountPolicy: string
+  discountRegister: string
+  discountWaste: string
+  discountSampling: string
+  // 累計売変率ライン
+  cumulativeDiscountRate: string
+  cumulativeDiscountRatePrev: string
+  // 前年 (全 chart で slate にグレー統一)
   salesPrev: string
   budgetPrev: string
   grossProfitPrev: string
@@ -67,19 +75,55 @@ interface ChartSemanticColors {
 | 値入率 | `chart.semantic.markupRate` | warning-dark (amber) | `#f59e0b` |
 | 仕入原価 | `chart.semantic.purchaseCost` | orange-dark | `#ea580c` |
 
-### 前年（60% alpha）
+### 売変 subtype（DiscountType 71-74）
 
-| 概念 | Token | ベース色 + alpha |
+`DiscountTrendChart` で使用。単一の「売変」ではなく 4 種別の内訳を色分けする
+専用トークン。
+
+| 概念 | Token | 色 | Hex |
+| --- | --- | --- | --- |
+| 政策売変 (71) | `chart.semantic.discountPolicy` | danger-dark | `#ef4444` |
+| レジ値引 (72) | `chart.semantic.discountRegister` | orange | `#f97316` |
+| 廃棄売変 (73) | `chart.semantic.discountWaste` | caution | `#eab308` |
+| 試食売変 (74) | `chart.semantic.discountSampling` | purple-mid | `#a855f7` |
+
+`palette.purpleMid` (`#a855f7`) は本用途専用の新設 palette key。既存 `purple`
+(`#a78bfa`) / `purpleDark` (`#8b5cf6`) と区別する。
+
+### 累計売変率ライン
+
+`DiscountTrendChart` の右軸に重ねる累計率ライン。当年 solid / 前年 dashed。
+
+| 概念 | Token | 色 | Hex |
+| --- | --- | --- | --- |
+| 当年累計売変率 | `chart.semantic.cumulativeDiscountRate` | orange | `#f97316` |
+| 前年累計売変率 | `chart.semantic.cumulativeDiscountRatePrev` | slate | `#94a3b8` |
+
+### 前年バー色統一ルール
+
+**全 chart で前年バーは slate (`palette.slate`, `#94a3b8`) に統一する。**
+
+以前は「当年色 + 60% alpha」で chart により薄紫 / 薄緑 / グレー等に分かれて
+いたが、chart-color-alignment project 以降フラット slate に統一。これにより:
+
+- 比較 chart の前年系列が一目で区別できる (「灰色 = 前年」を習慣化)
+- 販売点数/客数などの多系列チャートで、当年 vs 前年を混同しない
+- `chart.previousYear` (直接参照用) と `chart.semantic.*Prev` (業務概念経由) が
+  同じ色で矛盾しない
+
+| 概念 | Token | 色 |
 | --- | --- | --- |
-| 売上 (前年) | `chart.semantic.salesPrev` | `#6366f160` |
-| 予算 (前年) | `chart.semantic.budgetPrev` | `#22c55e60` |
-| 粗利 (前年) | `chart.semantic.grossProfitPrev` | `#8b5cf660` |
-| 客数 (前年) | `chart.semantic.customersPrev` | `#06b6d460` |
-| 販売点数 (前年) | `chart.semantic.quantityPrev` | `#0ea5e960` |
-| 売変 (前年) | `chart.semantic.discountPrev` | `#ef444460` |
+| 売上 (前年) | `chart.semantic.salesPrev` | slate `#94a3b8` |
+| 予算 (前年) | `chart.semantic.budgetPrev` | slate |
+| 粗利 (前年) | `chart.semantic.grossProfitPrev` | slate |
+| 客数 (前年) | `chart.semantic.customersPrev` | slate |
+| 販売点数 (前年) | `chart.semantic.quantityPrev` | slate |
+| 売変 (前年) | `chart.semantic.discountPrev` | slate |
+| 直接参照用 | `chart.previousYear` | slate (同値) |
 
-`60` suffix は 8-digit hex 表記で **α=0.376 (≒ 60/255)** を意味します。
-実質 38% alpha 相当。破線表示や半透明棒グラフに使用。
+> 例外: 半透明 overlay 等で「当年色の淡い版」が必要な場合は、個別 chart の
+> ローカル判断で `${theme.chart.semantic.sales}60` のような alpha 合成を使う。
+> ただし semantic token としては slate が正本。
 
 ### 差異・状態（CUD safe）
 

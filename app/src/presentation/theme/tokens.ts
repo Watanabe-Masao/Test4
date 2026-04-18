@@ -24,6 +24,7 @@ export const palette = {
 
   // Extended
   purple: '#a78bfa',
+  purpleMid: '#a855f7',
   purpleDark: '#8b5cf6',
   purpleDeep: '#7c3aed',
   cyan: '#22d3ee',

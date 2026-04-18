@@ -45,6 +45,7 @@
 
   /* Extended hues */
   --c-purple:      #a78bfa;
+  --c-purple-mid:  #a855f7;
   --c-purple-dark: #8b5cf6;
   --c-purple-deep: #7c3aed;
   --c-cyan:        #22d3ee;
@@ -150,16 +151,26 @@
   --chart-markup-rate:        var(--c-warning-dark);  /* 値入率 */
   --chart-purchase-cost:      var(--c-orange-dark);   /* 仕入原価 */
 
-  /* 前年 (当年色の 60% 不透明 = '#xxxxxx60')
-     CSS 変数で 60% alpha を付ける標準手法は rgba(...)。Test4 JS 側では
-     `${palette.primary}60` のような 8-digit hex で付けている。
-     docs/tokens.md §Prev-year alpha pattern 参照。 */
-  --chart-sales-prev:         #6366f160;
-  --chart-budget-prev:        #22c55e60;
-  --chart-gross-profit-prev:  #8b5cf660;
-  --chart-customers-prev:     #06b6d460;
-  --chart-quantity-prev:      #0ea5e960;
-  --chart-discount-prev:      #ef444460;
+  /* 前年 (全 chart で slate にグレー統一 — theme.chart.previousYear と同値)
+     chart-color-alignment project 以降、当年色 60% alpha から slate flat に
+     変更。pair 配置 (日別売上推移) / 並列配置 (時間帯別前年比較) 問わず同色。
+     docs/chart-semantic-colors.md §前年バー色統一ルール 参照。 */
+  --chart-sales-prev:         var(--c-slate);
+  --chart-budget-prev:        var(--c-slate);
+  --chart-gross-profit-prev:  var(--c-slate);
+  --chart-customers-prev:     var(--c-slate);
+  --chart-quantity-prev:      var(--c-slate);
+  --chart-discount-prev:      var(--c-slate);
+
+  /* 売変 subtype (DiscountType 71-74) — DiscountTrendChart で使用 */
+  --chart-discount-71:        var(--c-danger-dark);   /* 政策売変 */
+  --chart-discount-72:        var(--c-orange);        /* レジ値引 */
+  --chart-discount-73:        var(--c-caution);       /* 廃棄売変 */
+  --chart-discount-74:        var(--c-purple-mid);    /* 試食売変 */
+
+  /* 累計売変率ライン */
+  --chart-cumulative-discount-rate:       var(--c-orange);  /* 当年 */
+  --chart-cumulative-discount-rate-prev:  var(--c-slate);   /* 前年 */
 
   /* 差異・状態 */
   --chart-positive:           var(--c-success-dark);  /* プラス差異 */

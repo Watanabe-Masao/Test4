@@ -44,7 +44,7 @@ Test4 本体 (`app/src/presentation/theme/tokens.ts`) の全値を CSS 変数と
 
 | Token | Value |
 | --- | --- |
-| `--c-purple` / `-dark` / `-deep` | `#a78bfa` / `#8b5cf6` / `#7c3aed` |
+| `--c-purple` / `-mid` / `-dark` / `-deep` | `#a78bfa` / `#a855f7` / `#8b5cf6` / `#7c3aed` |
 | `--c-cyan` / `-dark` / `-deep` | `#22d3ee` / `#06b6d4` / `#0891b2` |
 | `--c-pink` / `-dark` | `#f472b6` / `#ec4899` |
 | `--c-lime` / `-dark` | `#a3e635` / `#84cc16` |
@@ -136,6 +136,33 @@ Test4 本体 (`app/src/presentation/theme/tokens.ts`) の全値を CSS 変数と
 | `--chart-budget` | `--c-info-dark` | `chart.budget` |
 | `--chart-bar-positive` | `--c-success-dark` | `chart.barPositive` |
 | `--chart-bar-negative` | `--c-danger-dark` | `chart.barNegative` |
+
+### 売変 subtype (DiscountType 71-74)
+
+| Token | Value | TS |
+| --- | --- | --- |
+| `--chart-discount-71` | `--c-danger-dark` | `chart.semantic.discountPolicy` |
+| `--chart-discount-72` | `--c-orange` | `chart.semantic.discountRegister` |
+| `--chart-discount-73` | `--c-caution` | `chart.semantic.discountWaste` |
+| `--chart-discount-74` | `--c-purple-mid` | `chart.semantic.discountSampling` |
+
+### 累計売変率ライン
+
+| Token | Value | TS |
+| --- | --- | --- |
+| `--chart-cumulative-discount-rate` | `--c-orange` | `chart.semantic.cumulativeDiscountRate` |
+| `--chart-cumulative-discount-rate-prev` | `--c-slate` | `chart.semantic.cumulativeDiscountRatePrev` |
+
+### 前年バー (全 chart で slate 統一)
+
+| Token | Value | TS |
+| --- | --- | --- |
+| `--chart-sales-prev` | `--c-slate` | `chart.semantic.salesPrev` |
+| `--chart-budget-prev` | `--c-slate` | `chart.semantic.budgetPrev` |
+| `--chart-gross-profit-prev` | `--c-slate` | `chart.semantic.grossProfitPrev` |
+| `--chart-customers-prev` | `--c-slate` | `chart.semantic.customersPrev` |
+| `--chart-quantity-prev` | `--c-slate` | `chart.semantic.quantityPrev` |
+| `--chart-discount-prev` | `--c-slate` | `chart.semantic.discountPrev` |
 
 ---
 
