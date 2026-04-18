@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-18T12:05:32.900Z",
+  "timestamp": "2026-04-18T12:51:24.910Z",
   "summary": {
     "active": 4,
-    "archived": 12,
+    "archived": 13,
     "inProgress": 3,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 483,
-    "checkedCheckboxes": 449
+    "totalCheckboxes": 501,
+    "checkedCheckboxes": 450
   },
   "projects": [
     {
@@ -94,13 +94,13 @@
       "projectId": "category-leaf-daily-series",
       "title": "カテゴリ leaf-grain 正本化 — CategoryLeafDailySeries 新設と 3 consumer 載せ替え",
       "kind": "project",
-      "declaredStatus": "active",
-      "derivedStatus": "in_progress",
-      "checked": 20,
+      "declaredStatus": "archived",
+      "derivedStatus": "archived",
+      "checked": 21,
       "total": 22,
-      "progress": 0.909,
-      "entrypoint": "projects/category-leaf-daily-series/AI_CONTEXT.md",
-      "checklistPath": "projects/category-leaf-daily-series/checklist.md",
+      "progress": 0.955,
+      "entrypoint": "projects/completed/category-leaf-daily-series/AI_CONTEXT.md",
+      "checklistPath": "projects/completed/category-leaf-daily-series/checklist.md",
       "parent": null
     },
     {
@@ -154,6 +154,19 @@
       "entrypoint": "projects/completed/phase-6-optional-comparison-projection/AI_CONTEXT.md",
       "checklistPath": "projects/completed/phase-6-optional-comparison-projection/checklist.md",
       "parent": "unify-period-analysis"
+    },
+    {
+      "projectId": "presentation-cts-surface-ratchetdown",
+      "title": "presentation 層の CategoryTimeSalesRecord 直接 import を 32→0 に ratchet-down",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 0,
+      "total": 18,
+      "progress": 0,
+      "entrypoint": "projects/presentation-cts-surface-ratchetdown/AI_CONTEXT.md",
+      "checklistPath": "projects/presentation-cts-surface-ratchetdown/checklist.md",
+      "parent": null
     },
     {
       "projectId": "presentation-quality-hardening",
